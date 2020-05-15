@@ -29,7 +29,13 @@ namespace NWN
             Func<uint, int> handler;
             if (ScriptHandlers.Register.TryGetValue(script, out handler))
             {
-                return handler.Invoke(oidSelf);
+                try
+                {
+                    return handler.Invoke(oidSelf);
+                } catch (Exception e)
+                {
+                    LogException(e);
+                }
             }
 
             return SCRIPT_NOT_HANDLED; // passthrough
@@ -42,7 +48,20 @@ namespace NWN
         //
         public static void OnStart()
         {
-            //Console.WriteLine("OnStart() called");
+            try
+            {
+                NWN.MySQL.Client.Connect();
+            } catch (Exception e)
+            {
+                LogException(e);
+            }
+        }
+
+        private static void LogException (Exception e)
+        {
+            Console.WriteLine(e.Message);
+            NWScript.SendMessageToAllDMs(e.Message);
+            NWScript.WriteTimestampedLogEntry(e.Message);
         }
     }
 }
