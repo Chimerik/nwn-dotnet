@@ -114,5 +114,10 @@ namespace NWN.Systems
 
             chestTagToLootsDic[tag] = loots;
         }
+
+        private static void ThrowException (string message)
+        {
+            throw new ApplicationException($"LootSystem: {message}");
+        }
     }
 }
