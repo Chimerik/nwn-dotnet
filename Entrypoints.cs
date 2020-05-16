@@ -34,7 +34,7 @@ namespace NWN
                     return handler.Invoke(oidSelf);
                 } catch (Exception e)
                 {
-                    LogException(e);
+                    Utils.LogException(e);
                 }
             }
 
@@ -53,15 +53,8 @@ namespace NWN
                 NWN.MySQL.Client.Connect();
             } catch (Exception e)
             {
-                LogException(e);
+                Utils.LogException(e);
             }
-        }
-
-        private static void LogException (Exception e)
-        {
-            Console.WriteLine(e.Message);
-            NWScript.SendMessageToAllDMs(e.Message);
-            NWScript.WriteTimestampedLogEntry(e.Message);
         }
     }
 }

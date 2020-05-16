@@ -10,7 +10,7 @@ namespace NWN
         {
             { "x2_mod_def_load", OnModuleLoad },
             { "craft_onatk", Craft_OnAtk },
-        }.Concat(LootSystem.Register)
+        }.Concat(Systems.Loot.Register)
          .ToDictionary(kvp => kvp.Key, kvp => kvp.Value);
 
         private static int Craft_OnAtk(uint oidSelf)
@@ -24,7 +24,7 @@ namespace NWN
 
         private static int OnModuleLoad (uint oidSelf)
         {
-            LootSystem.InitChestArea();
+            Systems.Loot.InitChestArea();
 
             return Entrypoints.SCRIPT_NOT_HANDLED;
         }
