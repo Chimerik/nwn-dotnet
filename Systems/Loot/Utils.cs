@@ -1,47 +1,13 @@
-﻿using NWN.MySQL;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using NWN.MySQL;
 
-namespace NWN
+namespace NWN.Systems
 {
-    public class LootSystem
+    public static partial class Loot
     {
-        private readonly static string LOOT_CONTAINER_ON_CLOSE_SCRIPT = "ls_load_onclose";
-        private readonly static string CHEST_AREA_TAG = "la_zone_des_loots";
-        private readonly static string SQL_TABLE = "loot_containers";
-
-        public static Dictionary<string, Func<uint, int>> Register = new Dictionary<string, Func<uint, int>>
-        {
-            { LOOT_CONTAINER_ON_CLOSE_SCRIPT, OnContainerClose },
-        };
-
-        private static Dictionary<string, List<uint>> chestTagToLootsDic = new Dictionary<string, List<uint>> {};
-
-        public static void InitChestArea ()
-        {
-            var oArea = NWScript.GetObjectByTag(CHEST_AREA_TAG);
-
-            if (oArea == NWScript.OBJECT_INVALID)
-            {
-                throw new ApplicationException($"LootSystem: Invalid CHEST_AREA_TAG={CHEST_AREA_TAG}");
-            }
-
-            var chestList = GetPlaceables(oArea);
-            CleanDatabase(chestList);
-
-            foreach (var oChest in chestList)
-            {
-                InitChest(oChest, oArea);
-            }
-        }
-
-        private static int OnContainerClose (uint oidSelf)
-        {
-            UpdateChestTagToLootsDic(oidSelf);
-            UpdateDB(oidSelf);
-            return Entrypoints.SCRIPT_HANDLED;
-        }
+        private static Dictionary<string, List<uint>> chestTagToLootsDic = new Dictionary<string, List<uint>> { };
 
         private static void CleanDatabase(List<uint> chestList)
         {
@@ -68,7 +34,7 @@ namespace NWN
             }
         }
 
-        private static void UpdateDB (uint oChest)
+        private static void UpdateDB(uint oChest)
         {
             var tag = NWScript.GetTag(oChest);
             var command = Client.CreateCommand(
@@ -80,7 +46,7 @@ namespace NWN
             command.ExecuteNonQuery();
         }
 
-        private static void InitChest (uint oChest, uint oArea)
+        private static void InitChest(uint oChest, uint oArea)
         {
             var chestTag = NWScript.GetTag(oChest);
             var command = Client.CreateCommand($"SELECT serialized FROM {SQL_TABLE} WHERE tag=@tag LIMIT 1;");
@@ -111,7 +77,7 @@ namespace NWN
             UpdateChestTagToLootsDic(oChest);
         }
 
-        private static List<uint> GetPlaceables (uint oArea)
+        private static List<uint> GetPlaceables(uint oArea)
         {
             var oPlaceable = NWScript.GetFirstObjectInArea(oArea);
             var list = new List<uint> { };
@@ -130,7 +96,7 @@ namespace NWN
             return list;
         }
 
-        private static void UpdateChestTagToLootsDic (uint oChest)
+        private static void UpdateChestTagToLootsDic(uint oChest)
         {
             var tag = NWScript.GetTag(oChest);
             var loots = new List<uint> { };
