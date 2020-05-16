@@ -64,8 +64,11 @@ namespace NWN.Systems
 
             if (NWScript.GetIsObjectValid(oDeserializedChest))
             {
-                var oChestPosition = NWScript.GetPositionFromLocation(NWScript.GetLocation(oChest));
+                var location = NWScript.GetLocation(oChest);
+                var oChestPosition = NWScript.GetPositionFromLocation(location);
+                var direction = NWScript.GetFacingFromLocation(location);
                 NWNX.Object.AddToArea(oDeserializedChest, oArea, oChestPosition);
+                NWScript.AssignCommand(oDeserializedChest, () => NWScript.SetFacing(direction));
                 NWScript.SetEventScript(oDeserializedChest, NWScript.EVENT_SCRIPT_PLACEABLE_ON_CLOSED, LOOT_CONTAINER_ON_CLOSE_SCRIPT);
                 NWScript.DestroyObject(oChest);
             }
