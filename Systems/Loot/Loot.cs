@@ -13,27 +13,6 @@ namespace NWN.Systems
         private readonly static string LOOT_DATA_VARNAME = "LS__LOOT_DATA";
         private readonly static string IS_LOOTED_VARNAME = "LS__IS_LOOTED";
 
-        struct Data
-        {
-            public float? respawnDuration;
-            public Gold? gold;
-            public List<Item> items;
-        }
-
-        struct Gold
-        {
-            public uint min;
-            public uint max;
-            public float chance;
-        }
-
-        struct Item
-        {
-            public string chestTag;
-            public uint count;
-            public float chance;
-        }
-
         public static Dictionary<string, Func<uint, int>> Register = new Dictionary<string, Func<uint, int>>
         {
             { LOOT_CONTAINER_ON_CLOSE_SCRIPT, OnContainerClose },
@@ -74,6 +53,7 @@ namespace NWN.Systems
             var lootData = JsonConvert.DeserializeObject<Data>(
                 NWScript.GetLocalString(oContainer, LOOT_DATA_VARNAME)
             );
+            var respawnDuration = lootData.respawnDuration.GetValueOrDefault();
 
             if (NWScript.GetIsObjectValid(oLooter))
             {
@@ -83,7 +63,6 @@ namespace NWN.Systems
                     var type = NWScript.GetObjectType(oContainer);
                     var resref = NWScript.GetResRef(oContainer);
                     var location = NWScript.GetLocation(oContainer);
-                    var respawnDuration = lootData.respawnDuration.GetValueOrDefault();
 
                     NWScript.AssignCommand(
                         oArea,
@@ -112,12 +91,18 @@ namespace NWN.Systems
                 return Entrypoints.SCRIPT_HANDLED;
             }
 
-            // TODO WIP
-            //DestroyInventory(oContainer);
-            //NWScript.AssignCommand(oArea, () => NWScript.DelayCommand(
-            //    0.1f,
-            //    () => GenerateLoot(oContainer, lootData)
-            //));
+            Utils.DestroyInventory(oContainer);
+            NWScript.AssignCommand(oArea, () => NWScript.DelayCommand(
+                0.1f,
+                () => GenerateLoot(oContainer, lootData)
+            ));
+
+            NWScript.SetLocalInt(oContainer, IS_LOOTED_VARNAME, 1);
+            // Remove flag for next loot
+            NWScript.AssignCommand(oArea, () => NWScript.DelayCommand(
+                respawnDuration,
+                () => NWScript.SetLocalInt(oContainer, IS_LOOTED_VARNAME, 0)
+            ));
 
             return Entrypoints.SCRIPT_HANDLED;
         }
