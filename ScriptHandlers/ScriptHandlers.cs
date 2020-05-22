@@ -24,6 +24,11 @@ namespace NWN
 
         private static int OnModuleLoad (uint oidSelf)
         {
+            NWScript.WriteTimestampedLogEntry("CECI EST ECRIT AVEC .NET LES ENFANTS !");
+            Console.WriteLine("CECI EST ECRIT AVEC .NET LES ENFANTS !");
+
+            NWScript.DelayCommand(60.0f, () => NWScript.SendMessageToPC(NWScript.GetFirstPC(), "dotnet fonctionne !"));
+
             Systems.Loot.InitChestArea();
 
             return Entrypoints.SCRIPT_NOT_HANDLED;
