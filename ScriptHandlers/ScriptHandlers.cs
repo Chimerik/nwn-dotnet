@@ -17,13 +17,13 @@ namespace NWN
     {
         public static Dictionary<string, Func<uint, int>> Register = new Dictionary<string, Func<uint, int>>
         {
-            { "_onload", OnModuleLoad }, // le OnLoad de CdE s'appelle _onload. Du coup, pour l'instant renomme le script de ton module comme ça. On changera les noms pour quelque chose de plus approprié plus tard.
+            { "_onload", OnModuleLoad }, // le OnLoad de CdE s'appelle _onload. Du coup, pour l'instant renomme le 
             { "craft_onatk", Craft_OnAtk },
             { "cs_chatlistener", ChatListener },
             { "event_keyboard", EventKeyboard },
             { "X0_S0_AcidSplash", CantripsScaler },
             { "NW_S0_Daze", CantripsScaler },
-            { "x0_s0_ElecJolt", CantripsScaler },
+            { "X0_S0_ElecJolt", CantripsScaler },
             { "X0_S0_Flare", CantripsScaler },
             { "NW_S0_Light", CantripsScaler },
             { "NW_S0_RayFrost", CantripsScaler },
@@ -132,12 +132,31 @@ namespace NWN
                 PostString.Menu_DrawStaticGUI(oChatSender);
                 return Entrypoints.SCRIPT_HANDLED;
             }
+            else if (sChatReceived.StartsWith("!walk"))
+            {
+                Chat.SkipMessage();
+                if (NWNX.Object.GetInt(oChatSender, "_ALWAYS_WALK") == 0)
+                {
+                    NWNX.Player.SetAlwaysWalk(oChatSender, true);
+                    NWNX.Object.SetInt(oChatSender, "_ALWAYS_WALK", 1, true);
+                    NWScript.SendMessageToPC(oChatSender, "Vous avez activé le mode marche.");
+                }
+                else
+                {
+                    NWNX.Player.SetAlwaysWalk(oChatSender, false);
+                    NWNX.Object.DeleteInt(oChatSender, "_ALWAYS_WALK");
+                    NWScript.SendMessageToPC(oChatSender, "Vous avez désactivé le mode marche.");
+                }
+                return Entrypoints.SCRIPT_HANDLED;
+            }
 
             return Entrypoints.SCRIPT_NOT_HANDLED;
         }
         private static int EventKeyboard(uint oidSelf)
         {
             string current_event = Events.GetCurrentEvent();
+
+            NWScript.ApplyEffectToObject(DurationType.Permanent, NWScript.EffectCutsceneParalyze(), oidSelf);
 
             if (current_event == "NWNX_ON_INPUT_KEYBOARD_AFTER")
             {
@@ -276,7 +295,7 @@ namespace NWN
                     }
                     break;
                 case (int)Spell.ElectricJolt:
-                    eVis = NWScript.EffectVisualEffect((VisualEffect)Impact.LightningStrike);
+                    eVis = NWScript.EffectVisualEffect((VisualEffect)Impact.LightningBlast);
                     //Make SR Check
                     if (Spells.MyResistSpell(NWObject.OBJECT_SELF, oTarget) == 0)
                     {
