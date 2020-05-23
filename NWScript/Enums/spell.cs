@@ -240,7 +240,7 @@ namespace NWN
         RoguesCunning,
         ActivateItem,
         DragonFear = 412,
-        DivineFavor,
+        DivineFavor = 414,
         TrueStrike,
         Flare,
         Shield,
