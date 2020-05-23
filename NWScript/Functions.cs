@@ -569,14 +569,14 @@ namespace NWN {
     ///   Note: If used within an Area of Effect Object Script (On Enter, OnExit, OnHeartbeat), you MUST pass
     ///   GetAreaOfEffectCreator() into oSaveVersus!!
     /// </summary>
-    public static int FortitudeSave(uint oCreature, int nDC, SavingThrowType nSaveType = SavingThrowType.All,
+    public static SaveReturn FortitudeSave(uint oCreature, int nDC, SavingThrowType nSaveType = SavingThrowType.All,
       uint oSaveVersus = OBJECT_INVALID) {
       Internal.NativeFunctions.StackPushObject(oSaveVersus);
       Internal.NativeFunctions.StackPushInteger((int) nSaveType);
       Internal.NativeFunctions.StackPushInteger(nDC);
       Internal.NativeFunctions.StackPushObject(oCreature);
       Internal.NativeFunctions.CallBuiltIn(108);
-      return Internal.NativeFunctions.StackPopInteger();
+      return (SaveReturn) Internal.NativeFunctions.StackPopInteger();
     }
 
     /// <summary>
@@ -613,14 +613,14 @@ namespace NWN {
     ///   Note: If used within an Area of Effect Object Script (On Enter, OnExit, OnHeartbeat), you MUST pass
     ///   GetAreaOfEffectCreator() into oSaveVersus!!
     /// </summary>
-    public static int WillSave(uint oCreature, int nDC, SavingThrowType nSaveType = SavingThrowType.All,
+    public static SaveReturn WillSave(uint oCreature, int nDC, SavingThrowType nSaveType = SavingThrowType.All,
       uint oSaveVersus = OBJECT_INVALID) {
       Internal.NativeFunctions.StackPushObject(oSaveVersus);
       Internal.NativeFunctions.StackPushInteger((int) nSaveType);
       Internal.NativeFunctions.StackPushInteger(nDC);
       Internal.NativeFunctions.StackPushObject(oCreature);
       Internal.NativeFunctions.CallBuiltIn(110);
-      return Internal.NativeFunctions.StackPopInteger();
+      return (SaveReturn) Internal.NativeFunctions.StackPopInteger();
     }
 
     /// <summary>
