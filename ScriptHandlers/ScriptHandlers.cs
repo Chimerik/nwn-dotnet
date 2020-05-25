@@ -30,6 +30,8 @@ namespace NWN
             { "NW_S0_Resis", CantripsScaler },
             { "NW_S0_Virtue", CantripsScaler },
             { "event_mouse_clic", EventMouseClick },
+            { "event_dm_actions", EventDMActions },
+            { "event_mv_plc", EventMovePlaceable },
         }.Concat(Systems.Loot.Register)
          .ToDictionary(kvp => kvp.Key, kvp => kvp.Value);
 
@@ -46,6 +48,9 @@ namespace NWN
         {
             //Commenté de mon côté pour que ça n'interfère pas avec le système de loot de CdE, à décommenter de ton côté !
             //Systems.Loot.InitChestArea();
+
+            NWNX.Events.SubscribeEvent("NWNX_ON_INPUT_KEYBOARD_AFTER", "event_mv_plc");
+            NWNX.Events.ToggleDispatchListMode("NWNX_ON_INPUT_KEYBOARD_AFTER", "event_mv_plc", 1);
 
             return Entrypoints.SCRIPT_NOT_HANDLED;
         }
@@ -78,6 +83,72 @@ namespace NWN
             NWScript.SetLocalObject(oClicker, "_FROST_ATTACK_TARGET", oTarget);
 
             return Entrypoints.SCRIPT_NOT_HANDLED;
+        }
+
+        private static int EventDMActions(uint oidSelf)
+        {
+            string current_event = NWNX.Events.GetCurrentEvent();
+
+            if (current_event == "NWNX_ON_CLIENT_EXPORT_CHARACTER_BEFORE" || current_event == "NWNX_ON_SERVER_CHARACTER_SAVE_BEFORE")
+            {
+                if (NWScript.GetLocalInt(oidSelf, "_IS_DISCONNECTING") == 0)
+                {
+                    Effect eEffect = NWScript.GetFirstEffect(oidSelf);
+                    while (NWScript.GetIsEffectValid(eEffect) > 0)
+                    {
+                        if (NWScript.GetEffectType(eEffect) == (int)EffectTypeEngine.Polymorph)
+                        {
+                            NWNX.Events.SkipEvent();
+                            return Entrypoints.SCRIPT_HANDLED;
+                        }
+
+                        eEffect = NWScript.GetNextEffect(oidSelf);
+                    }
+                }
+                else
+                    NWScript.DeleteLocalInt(oidSelf, "_IS_DISCONNECTING");
+            }
+            return Entrypoints.SCRIPT_NOT_HANDLED;
+        }
+
+        private static int EventMovePlaceable(uint oidSelf)
+        {
+            string current_event = NWNX.Events.GetCurrentEvent();
+
+            if (current_event == "NWNX_ON_INPUT_KEYBOARD_AFTER")
+            {
+                //NWScript.ClearAllActions();
+
+                string sKey = Events.GetEventData("KEY");
+                uint oMeuble = NWScript.GetLocalObject(oidSelf, "_MOVING_PLC");
+                Vector vPos = NWScript.GetPosition(oMeuble);
+
+                if (sKey == "W")
+                {
+                    NWNX.Object.SetPosition(oMeuble, NWScript.Vector(vPos.x, vPos.y + 0.1f, vPos.z));
+                }
+                else if (sKey == "S")
+                {
+                    NWNX.Object.SetPosition(oMeuble, NWScript.Vector(vPos.x, vPos.y - 0.1f, vPos.z));
+                }
+                else if (sKey == "D")
+                {
+                    NWNX.Object.SetPosition(oMeuble, NWScript.Vector(vPos.x + 0.1f, vPos.y, vPos.z));
+                }
+                else if (sKey == "A")
+                {
+                    NWNX.Object.SetPosition(oMeuble, NWScript.Vector(vPos.x - 0.1f, vPos.y, vPos.z));
+                }
+                else if (sKey == "Q")
+                {
+                    NWScript.AssignCommand(oMeuble, () => NWScript.SetFacing(NWScript.GetFacing(oMeuble) - 20.0f));
+                }
+                else if (sKey == "E")
+                {
+                    NWScript.AssignCommand(oMeuble, () => NWScript.SetFacing(NWScript.GetFacing(oMeuble) + 20.0f));
+                }
+            }
+            return Entrypoints.SCRIPT_HANDLED;
         }
 
         private static void FrostAutoAttack(NWObject oClicker, uint oTarget)
@@ -155,8 +226,6 @@ namespace NWN
         private static int EventKeyboard(uint oidSelf)
         {
             string current_event = Events.GetCurrentEvent();
-
-            NWScript.ApplyEffectToObject(DurationType.Permanent, NWScript.EffectCutsceneParalyze(), oidSelf);
 
             if (current_event == "NWNX_ON_INPUT_KEYBOARD_AFTER")
             {
