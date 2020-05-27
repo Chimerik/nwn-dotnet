@@ -1,18 +1,10 @@
-﻿using Newtonsoft.Json;
-using System;
+﻿using System;
 using System.Collections.Generic;
 
 namespace NWN.Systems
 {
     public static partial class Loot
     {
-        private readonly static string LOOT_CONTAINER_ON_CLOSE_SCRIPT = "ls_load_onclose";
-        private readonly static string ON_LOOT_SCRIPT = "ls_onloot";
-        private readonly static string CHEST_AREA_TAG = "la_zone_des_loots";
-        private readonly static string SQL_TABLE = "loot_containers";
-        private readonly static string LOOT_DATA_VARNAME = "LS__LOOT_DATA";
-        private readonly static string IS_LOOTED_VARNAME = "LS__IS_LOOTED";
-
         public static Dictionary<string, Func<uint, int>> Register = new Dictionary<string, Func<uint, int>>
         {
             { LOOT_CONTAINER_ON_CLOSE_SCRIPT, OnContainerClose },
@@ -50,15 +42,20 @@ namespace NWN.Systems
             var oContainer = oidSelf;
             var oArea = NWScript.GetArea(oContainer);
 
-            var lootData = JsonConvert.DeserializeObject<Data>(
-                NWScript.GetLocalString(oContainer, LOOT_DATA_VARNAME)
-            );
-            var respawnDuration = lootData.respawnDuration.GetValueOrDefault();
+            var containerTag = NWScript.GetTag(oContainer);
+            Lootable.Config lootableConfig;
+            
+            if (!lootablesDic.TryGetValue(containerTag, out lootableConfig))
+            {
+                ThrowException($"Unregistered container tag=\"{containerTag}\"");
+            }
+
+            var respawnDuration = lootableConfig.respawnDuration.GetValueOrDefault();
 
             if (NWScript.GetIsObjectValid(oLooter))
             {
                 // Creature was killed or chest was destroyed
-                if (lootData.respawnDuration != null)
+                if (lootableConfig.respawnDuration != null)
                 {
                     var type = NWScript.GetObjectType(oContainer);
                     var resref = NWScript.GetResRef(oContainer);
@@ -94,7 +91,7 @@ namespace NWN.Systems
             Utils.DestroyInventory(oContainer);
             NWScript.AssignCommand(oArea, () => NWScript.DelayCommand(
                 0.1f,
-                () => GenerateLoot(oContainer, lootData)
+                () => lootableConfig.GenerateLoot(oContainer)
             ));
 
             NWScript.SetLocalInt(oContainer, IS_LOOTED_VARNAME, 1);

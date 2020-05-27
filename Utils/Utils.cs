@@ -5,6 +5,8 @@ namespace NWN
 {
     public static class Utils
     {
+        public static Random random = new Random();
+
         public static void LogException(Exception e)
         {
             Console.WriteLine(e.Message);
