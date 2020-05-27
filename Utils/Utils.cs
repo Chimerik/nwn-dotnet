@@ -5,6 +5,15 @@ namespace NWN
 {
     public static class Utils
     {
+        public enum Meuble
+        {
+            dmfi_rest=1,
+            mej_social_plc,
+            mej_pc_social,
+            meuble,
+            mej_pc,
+            mej_so
+        }
         public static void LogException(Exception e)
         {
             Console.WriteLine(e.Message);

@@ -4,6 +4,7 @@ using NWN.Enums.Item;
 using NWN.Enums.Item.Property;
 using NWN.Enums.VisualEffect;
 using NWN.NWNX;
+using NWN.Systems;
 using NWN.Systems.PostString;
 using System;
 using System.Collections.Generic;
@@ -32,6 +33,9 @@ namespace NWN
             { "event_mouse_clic", EventMouseClick },
             { "event_dm_actions", EventDMActions },
             { "event_mv_plc", EventMovePlaceable },
+            { "event_feat_used", EventFeatUsed },
+            { "connexion", EventPlayerConnexion },
+            { "_onenter", OnEnter },
         }.Concat(Systems.Loot.Register)
          .ToDictionary(kvp => kvp.Key, kvp => kvp.Value);
 
@@ -51,6 +55,8 @@ namespace NWN
 
             NWNX.Events.SubscribeEvent("NWNX_ON_INPUT_KEYBOARD_AFTER", "event_mv_plc");
             NWNX.Events.ToggleDispatchListMode("NWNX_ON_INPUT_KEYBOARD_AFTER", "event_mv_plc", 1);
+
+            NWNX.Events.SubscribeEvent("NWNX_ON_USE_FEAT_AFTER", "event_feat_used");
 
             return Entrypoints.SCRIPT_NOT_HANDLED;
         }
@@ -111,6 +117,26 @@ namespace NWN
             return Entrypoints.SCRIPT_NOT_HANDLED;
         }
 
+        private static int EventPlayerConnexion(uint oidSelf)
+        {
+            string current_event = NWNX.Events.GetCurrentEvent();
+
+            if (current_event == "NWNX_ON_CLIENT_DISCONNECT_BEFORE")
+            {
+                Systems.Player.Players.Remove(oidSelf.AsObject().uuid);
+            }
+            return Entrypoints.SCRIPT_NOT_HANDLED;
+        }
+
+        private static int OnEnter(uint oidSelf)
+        {
+            uint oPC = NWScript.GetEnteringObject();
+            Systems.Player test = new Systems.Player(oPC);
+            NWNX.Creature.AddFeat(oPC, NWN.Enums.Feat.PlayerTool01);
+
+            return Entrypoints.SCRIPT_NOT_HANDLED;
+        }
+
         private static int EventMovePlaceable(uint oidSelf)
         {
             string current_event = NWNX.Events.GetCurrentEvent();
@@ -120,24 +146,29 @@ namespace NWN
                 //NWScript.ClearAllActions();
 
                 string sKey = Events.GetEventData("KEY");
-                uint oMeuble = NWScript.GetLocalObject(oidSelf, "_MOVING_PLC");
+                NWPlaceable oMeuble = NWScript.GetLocalObject(oidSelf, "_MOVING_PLC").AsPlaceable();
                 Vector vPos = NWScript.GetPosition(oMeuble);
+                //NWScript.SendMessageToPC(oidSelf, $"key : {sKey}");
 
                 if (sKey == "W")
                 {
-                    NWNX.Object.SetPosition(oMeuble, NWScript.Vector(vPos.x, vPos.y + 0.1f, vPos.z));
+                    //oMeuble.Position = NWScript.Vector(vPos.x, vPos.y + 0.1f, vPos.z);
+                    oMeuble.AddToArea(oMeuble.Area, NWScript.Vector(vPos.x, vPos.y + 0.1f, vPos.z));
                 }
                 else if (sKey == "S")
                 {
-                    NWNX.Object.SetPosition(oMeuble, NWScript.Vector(vPos.x, vPos.y - 0.1f, vPos.z));
+                    //NWNX.Object.SetPosition(oMeuble, NWScript.Vector(vPos.x, vPos.y - 0.1f, vPos.z));
+                    oMeuble.AddToArea(oMeuble.Area, NWScript.Vector(vPos.x, vPos.y - 0.1f, vPos.z));
                 }
                 else if (sKey == "D")
                 {
-                    NWNX.Object.SetPosition(oMeuble, NWScript.Vector(vPos.x + 0.1f, vPos.y, vPos.z));
+                    //NWNX.Object.SetPosition(oMeuble, NWScript.Vector(vPos.x + 0.1f, vPos.y, vPos.z));
+                    oMeuble.AddToArea(oMeuble.Area, NWScript.Vector(vPos.x + 0.1f, vPos.y, vPos.z));
                 }
                 else if (sKey == "A")
                 {
-                    NWNX.Object.SetPosition(oMeuble, NWScript.Vector(vPos.x - 0.1f, vPos.y, vPos.z));
+                    //NWNX.Object.SetPosition(oMeuble, NWScript.Vector(vPos.x - 0.1f, vPos.y, vPos.z));
+                    oMeuble.AddToArea(oMeuble.Area, NWScript.Vector(vPos.x - 0.1f, vPos.y, vPos.z));
                 }
                 else if (sKey == "Q")
                 {
@@ -149,6 +180,90 @@ namespace NWN
                 }
             }
             return Entrypoints.SCRIPT_HANDLED;
+        }
+
+        private static int EventFeatUsed(uint oidSelf)
+        {
+            string current_event = NWNX.Events.GetCurrentEvent();
+
+            if (current_event == "NWNX_ON_USE_FEAT_AFTER")
+            {
+                if (int.Parse(NWNX.Events.GetEventData("FEAT_ID")) == (int)NWN.Enums.Feat.PlayerTool01)
+                {
+                    NWNX.Events.SkipEvent();
+                    NWPlaceable oTarget = NWNX.Object.StringToObject(NWNX.Events.GetEventData("TARGET_OBJECT_ID")).AsPlaceable();
+                    Systems.Player myPlayer = Systems.Player.Players.GetValueOrDefault(oidSelf.AsPlayer().uuid);
+
+                    if (oTarget.IsValid)
+                    {
+                        Utils.Meuble result;         
+                        if (Enum.TryParse(oTarget.Tag, out result))
+                        {
+                            NWNX.Events.AddObjectToDispatchList("NWNX_ON_INPUT_KEYBOARD_AFTER", "event_mv_plc", oidSelf);
+                            oidSelf.AsObject().Locals.Object.Set("_MOVING_PLC", oTarget);
+                            oidSelf.AsPlayer().SendMessage($"Vous venez de sélectionner {oTarget.Name}, utilisez Z, Q, S ou D pour le déplacer. A et E pour le faire tourner. Pour enregistrer le nouvel emplacement, activez le don sur un endroit vide (sans cible).");
+                            //remplacer la ligne précédente par un PostString().
+
+                            if(myPlayer.SelectedObjectsList.Count == 0)
+                            {
+                                //En faire une méthode de la classe Player
+                                Location lPC = oidSelf.AsObject().Location;
+                                uint oBoulder = NWScript.CreateObject(ObjectType.Placeable, "plc_boulder", lPC, false, "_PC_BLOCKER");
+                                oidSelf.AsObject().Position = NWScript.GetPositionFromLocation(lPC);
+                                NWScript.ApplyEffectToObject(DurationType.Permanent, NWScript.EffectVisualEffect((VisualEffect)Temporary.CutsceneInvisibility), oBoulder);
+                            }
+
+                            if (!myPlayer.SelectedObjectsList.Contains(oTarget))
+                                myPlayer.SelectedObjectsList.Add(oTarget);
+                        }
+                        else
+                        {
+                            oidSelf.AsPlayer().SendMessage("Vous ne pouvez pas manier cet élément.");
+                        }
+                    }
+                    else
+                    {
+                        string sObjectSaved = "";
+
+                        foreach (uint selectedObject in myPlayer.SelectedObjectsList)
+                        {
+                            var command = MySQL.Client.CreateCommand(
+                                                   $"UPDATE sql_meubles SET objectLocation = @loc WHERE objectUUID = @uuid");
+                            command.Parameters.AddWithValue("@loc", APSLocationToString(selectedObject.AsObject().Location));
+                            command.Parameters.AddWithValue("@uuid", selectedObject.AsObject().uuid);
+                            command.ExecuteNonQuery();
+
+                            sObjectSaved += selectedObject.AsObject().Name + "\n";
+                        }
+
+                        NWScript.SendMessageToPC(myPlayer, $"Vous venez de sauvegarder le positionnement des meubles : \n{sObjectSaved}");
+                        uint oBlocker = NWScript.GetNearestObjectByTag("_PC_BLOCKER", oidSelf);
+                        foreach (Effect e in oBlocker.AsObject().Effects)
+                            NWScript.RemoveEffect(oBlocker, e);
+                        oBlocker.AsObject().Destroy();
+                        NWNX.Events.RemoveObjectFromDispatchList("NWNX_ON_INPUT_KEYBOARD_AFTER", "event_mv_plc", oidSelf);
+                        oidSelf.AsObject().Locals.Object.Delete("_MOVING_PLC");
+                        myPlayer.SelectedObjectsList.Clear();
+                    }                                               
+                }
+            }
+            return Entrypoints.SCRIPT_HANDLED;
+        }
+
+        private static string APSLocationToString(Location lLocation)
+        {
+            uint oArea = NWScript.GetAreaFromLocation(lLocation);
+            Vector vPosition = NWScript.GetPositionFromLocation(lLocation);
+            float fOrientation = NWScript.GetFacingFromLocation(lLocation);
+            string sReturnValue = null;
+
+            if (NWScript.GetIsObjectValid(oArea))
+                sReturnValue =
+                    "#AREA#" + NWScript.GetTag(oArea) + "#POSITION_X#" + (vPosition.x).ToString() +
+                    "#POSITION_Y#" + (vPosition.y).ToString() + "#POSITION_Z#" +
+                    (vPosition.z).ToString() + "#ORIENTATION#" + (fOrientation).ToString() + "#END#";
+
+            return sReturnValue;
         }
 
         private static void FrostAutoAttack(NWObject oClicker, uint oTarget)
@@ -167,12 +282,15 @@ namespace NWN
         private static int ChatListener(uint oidSelf)
         {
             string sChatReceived = Chat.GetMessage();
-            NWN.NWObject oChatSender = Chat.GetSender();
-            NWN.NWObject oChatTarget = Chat.GetTarget();
+            NWPlayer oChatSender = ((uint)Chat.GetSender()).AsPlayer();
+            NWObject oChatTarget = Chat.GetTarget();
             Enum iChannel = (ChatChannel)Chat.GetChannel();
-
+            
             if (!oChatSender.IsPC)
                 return Entrypoints.SCRIPT_NOT_HANDLED;
+
+
+            Systems.Player testPlayer = Systems.Player.Players.GetValueOrDefault(oChatSender.uuid);
 
             if (sChatReceived.StartsWith("!frostattack"))
             {
@@ -220,6 +338,32 @@ namespace NWN
                 }
                 return Entrypoints.SCRIPT_HANDLED;
             }
+            else if (sChatReceived.StartsWith("!select"))
+            {
+                Chat.SkipMessage();
+                if (NWScript.GetLocalInt(oChatSender, "_SELECTING") != 0)
+                {
+                    NWNX.Events.RemoveObjectFromDispatchList("NWNX_ON_EXAMINE_OBJECT_BEFORE", "event_select", oChatSender);
+                    NWScript.DeleteLocalInt(oChatSender, "_SELECTING");
+                    oChatSender.SendMessage("Mode sélection désactivé.");
+                }
+                else
+                {
+                    NWNX.Events.AddObjectToDispatchList("NWNX_ON_EXAMINE_OBJECT_BEFORE", "event_select", oChatSender);
+                    NWScript.SetLocalInt(oChatSender, "_SELECTING", 1);
+                    oChatSender.SendMessage("Mode sélection activé.");
+                }
+                return Entrypoints.SCRIPT_HANDLED;
+            }
+            else if (sChatReceived.StartsWith("!testdotnet"))
+            {
+                Chat.SkipMessage();
+                foreach(uint selectedObject in testPlayer.SelectedObjectsList)
+                {
+                    NWScript.SendMessageToPC(testPlayer, $"object : {selectedObject.AsObject().Name}");
+                }
+                return Entrypoints.SCRIPT_HANDLED;
+            }
 
             return Entrypoints.SCRIPT_NOT_HANDLED;
         }
@@ -259,7 +403,7 @@ namespace NWN
                     else
                     if (sKey == "E")
                     {
-                        Player.PlaySound(oPlayer, "gui_picklockopen", NWObject.OBJECT_INVALID);
+                        NWNX.Player.PlaySound(oPlayer, "gui_picklockopen", NWObject.OBJECT_INVALID);
 
                         switch (nCurrentGUISelection)
                         {
@@ -286,7 +430,7 @@ namespace NWN
 
                     if (bRedraw)
                     {
-                        Player.PlaySound(oPlayer, "gui_select", NWObject.OBJECT_INVALID);
+                        NWNX.Player.PlaySound(oPlayer, "gui_select", NWObject.OBJECT_INVALID);
                         PostString.Menu_UpdateGUI(oPlayer);
                         PostString.Menu_DrawStaticGUI(oPlayer);
                     }
