@@ -1,5 +1,4 @@
 ﻿using NWN.Enums;
-using NWN.Enums.Creature;
 using NWN.Enums.Item;
 using NWN.Enums.Item.Property;
 using NWN.Enums.VisualEffect;
@@ -8,9 +7,7 @@ using NWN.Systems;
 using NWN.Systems.PostString;
 using System;
 using System.Collections.Generic;
-using System.ComponentModel.Design;
 using System.Linq;
-using System.Timers;
 
 namespace NWN
 {
@@ -18,8 +15,7 @@ namespace NWN
     {
         public static Dictionary<string, Func<uint, int>> Register = new Dictionary<string, Func<uint, int>>
         {
-            { "_onload", OnModuleLoad }, // le OnLoad de CdE s'appelle _onload. Du coup, pour l'instant renomme le 
-            { "craft_onatk", Craft_OnAtk },
+            { "_onload", OnModuleLoad },
             { "cs_chatlistener", ChatListener },
             { "event_keyboard", EventKeyboard },
             { "X0_S0_AcidSplash", CantripsScaler },
@@ -38,15 +34,6 @@ namespace NWN
             { "_onenter", OnEnter },
         }.Concat(Systems.Loot.Register)
          .ToDictionary(kvp => kvp.Key, kvp => kvp.Value);
-
-        private static int Craft_OnAtk(uint oidSelf)
-        {
-            var objName = NWScript.GetName(oidSelf);
-            var oPC = NWScript.GetLastAttacker(oidSelf);
-            var pcName = NWScript.GetName(oPC);
-            NWScript.SendMessageToPC(oPC, $"{pcName} is attacking a poor {objName}");
-            return Entrypoints.SCRIPT_HANDLED;
-        }
 
         private static int OnModuleLoad (uint oidSelf)
         {
