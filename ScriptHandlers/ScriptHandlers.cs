@@ -31,8 +31,7 @@ namespace NWN
 
         private static int OnModuleLoad (uint oidSelf)
         {
-            //Commenté de mon côté pour que ça n'interfère pas avec le système de loot de CdE, à décommenter de ton côté !
-            //Systems.Loot.InitChestArea();
+            Systems.Loot.InitChestArea();
 
             return Entrypoints.SCRIPT_NOT_HANDLED;
         }
