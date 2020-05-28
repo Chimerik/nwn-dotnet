@@ -9,27 +9,6 @@ namespace NWN.Systems
     {
         private static Dictionary<string, List<uint>> chestTagToLootsDic = new Dictionary<string, List<uint>> { };
 
-        struct Data
-        {
-            public float? respawnDuration;
-            public Gold? gold;
-            public List<Item> items;
-        }
-
-        struct Gold
-        {
-            public uint min;
-            public uint max;
-            public uint chance;
-        }
-
-        struct Item
-        {
-            public string chestTag;
-            public uint count;
-            public uint chance;
-        }
-
         private static void CleanDatabase(List<uint> chestList)
         {
             var command = Client.CreateCommand($"SELECT tag from {SQL_TABLE}");
@@ -139,66 +118,6 @@ namespace NWN.Systems
         private static void ThrowException (string message)
         {
             throw new ApplicationException($"LootSystem: {message}");
-        }
-
-        private static void GenerateLoot (uint oContainer, Data loot)
-        {
-            var containerTag = NWScript.GetTag(oContainer);
-
-            if (NWScript.GetHasInventory(oContainer) == 0)
-            {
-                ThrowException($"Can't GenerateLoot : Object '{containerTag}' has no inventory.");
-            }
-
-            if (loot.gold != null)
-            {
-                GenerateGold(oContainer, loot.gold.GetValueOrDefault());
-            }
-
-            GenerateItems(oContainer, loot.items);
-        }
-
-        private static void GenerateGold (uint oContainer, Gold gold, string goldResRef = "nw_it_gold001")
-        {
-            var random = new Random();
-            if (random.Next(1, 100) <= gold.chance)
-            {
-                var goldCount = random.Next((int)gold.min, (int)gold.max);
-
-                if (NWScript.GetObjectType(oContainer) == Enums.ObjectType.Creature)
-                {
-                    NWScript.GiveGoldToCreature(oContainer, goldCount);
-                } else
-                {
-                    NWScript.CreateItemOnObject(goldResRef, oContainer, goldCount);
-                }
-            }
-        }
-
-        private static void GenerateItems (uint oContainer, List<Item> items)
-        {
-            var random = new Random();
-            foreach (var item in items)
-            {
-                List<uint> loots;
-                if (chestTagToLootsDic.TryGetValue(item.chestTag, out loots))
-                {
-                    for (var i = 0; i < item.count; i++)
-                    {
-                        if (random.Next(1, 100) < item.chance)
-                        {
-                            NWScript.CopyItem(
-                                loots[random.Next(0, loots.Count - 1)],
-                                oContainer,
-                                true
-                            );
-                        }
-                    }
-                } else
-                {
-                    ThrowException($"Invalid chest tag '{item.chestTag}'");
-                }
-            }
         }
     }
 }
