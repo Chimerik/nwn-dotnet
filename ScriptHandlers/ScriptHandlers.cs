@@ -3,7 +3,7 @@ using NWN.Enums.Item;
 using NWN.Enums.Item.Property;
 using NWN.Enums.VisualEffect;
 using NWN.NWNX;
-using NWN.Systems;
+using NWN.Systems;
 using NWN.Systems.PostString;
 using System;
 using System.Collections.Generic;
@@ -116,11 +116,11 @@ namespace NWN
         }
 
         private static int OnEnter(uint oidSelf)
-        {
+        {
             uint oPC = NWScript.GetEnteringObject();
             Systems.Player test = new Systems.Player(oPC);
-            NWNX.Creature.AddFeat(oPC, NWN.Enums.Feat.PlayerTool01);
-
+            NWNX.Creature.AddFeat(oPC, NWN.Enums.Feat.PlayerTool01);
+
             return Entrypoints.SCRIPT_NOT_HANDLED;
         }
 
@@ -176,81 +176,83 @@ namespace NWN
             if (current_event == "NWNX_ON_USE_FEAT_AFTER")
             {
                 if (int.Parse(NWNX.Events.GetEventData("FEAT_ID")) == (int)NWN.Enums.Feat.PlayerTool01)
-                {
-                    NWNX.Events.SkipEvent();
-                    NWPlaceable oTarget = NWNX.Object.StringToObject(NWNX.Events.GetEventData("TARGET_OBJECT_ID")).AsPlaceable();
-                    Systems.Player myPlayer = Systems.Player.Players.GetValueOrDefault(oidSelf.AsPlayer().uuid);
-
-                    if (oTarget.IsValid)
-                    {
-                        Utils.Meuble result;         
-                        if (Enum.TryParse(oTarget.Tag, out result))
-                        {
-                            NWNX.Events.AddObjectToDispatchList("NWNX_ON_INPUT_KEYBOARD_AFTER", "event_mv_plc", oidSelf);
-                            oidSelf.AsObject().Locals.Object.Set("_MOVING_PLC", oTarget);
-                            oidSelf.AsPlayer().SendMessage($"Vous venez de sélectionner {oTarget.Name}, utilisez Z, Q, S ou D pour le déplacer. A et E pour le faire tourner. Pour enregistrer le nouvel emplacement, activez le don sur un endroit vide (sans cible).");
-                            //remplacer la ligne précédente par un PostString().
-
-                            if(myPlayer.SelectedObjectsList.Count == 0)
-                            {
-                                //En faire une méthode de la classe Player
-                                Location lPC = oidSelf.AsObject().Location;
-                                uint oBoulder = NWScript.CreateObject(ObjectType.Placeable, "plc_boulder", lPC, false, "_PC_BLOCKER");
-                                oidSelf.AsObject().Position = NWScript.GetPositionFromLocation(lPC);
-                                NWScript.ApplyEffectToObject(DurationType.Permanent, NWScript.EffectVisualEffect((VisualEffect)Temporary.CutsceneInvisibility), oBoulder);
-                            }
-
+                {
+                    NWNX.Events.SkipEvent();
+                    NWPlaceable oTarget = NWNX.Object.StringToObject(NWNX.Events.GetEventData("TARGET_OBJECT_ID")).AsPlaceable();
+                    Systems.Player myPlayer = Systems.Player.Players.GetValueOrDefault(oidSelf.AsPlayer().uuid);
+
+                    if (oTarget.IsValid)
+                    {
+                        Utils.Meuble result;         
+                        if (Enum.TryParse(oTarget.Tag, out result))
+                        {
+                            NWNX.Events.AddObjectToDispatchList("NWNX_ON_INPUT_KEYBOARD_AFTER", "event_mv_plc", oidSelf);
+                            oidSelf.AsObject().Locals.Object.Set("_MOVING_PLC", oTarget);
+                            oidSelf.AsPlayer().SendMessage($"Vous venez de sélectionner {oTarget.Name}, utilisez Z, Q, S ou D pour le déplacer. A et E pour le faire tourner. Pour enregistrer le nouvel emplacement, activez le don sur un endroit vide (sans cible).");
+                            //remplacer la ligne précédente par un PostString().
+
+                            if(myPlayer.SelectedObjectsList.Count == 0)
+                            {
+                                //En faire une méthode de la classe Player
+                                Location lPC = oidSelf.AsObject().Location;
+                                uint oBoulder = NWScript.CreateObject(ObjectType.Placeable, "plc_boulder", lPC, false, "_PC_BLOCKER");
+                                oidSelf.AsObject().Position = NWScript.GetPositionFromLocation(lPC);
+                                NWScript.ApplyEffectToObject(DurationType.Permanent, NWScript.EffectVisualEffect((VisualEffect)Temporary.CutsceneInvisibility), oBoulder);
+                            }
+
                             if (!myPlayer.SelectedObjectsList.Contains(oTarget))
                                 myPlayer.SelectedObjectsList.Add(oTarget);
                         }
-                        else
-                        {
-                            oidSelf.AsPlayer().SendMessage("Vous ne pouvez pas manier cet élément.");
-                        }
-                    }
-                    else
-                    {
-                        string sObjectSaved = "";
-
-                        foreach (uint selectedObject in myPlayer.SelectedObjectsList)
-                        {
-                            var command = MySQL.Client.CreateCommand(
-                                                   $"UPDATE sql_meubles SET objectLocation = @loc WHERE objectUUID = @uuid");
-                            command.Parameters.AddWithValue("@loc", APSLocationToString(selectedObject.AsObject().Location));
-                            command.Parameters.AddWithValue("@uuid", selectedObject.AsObject().uuid);
-                            command.ExecuteNonQuery();
-
-                            sObjectSaved += selectedObject.AsObject().Name + "\n";
-                        }
-
-                        NWScript.SendMessageToPC(myPlayer, $"Vous venez de sauvegarder le positionnement des meubles : \n{sObjectSaved}");
-                        uint oBlocker = NWScript.GetNearestObjectByTag("_PC_BLOCKER", oidSelf);
-                        foreach (Effect e in oBlocker.AsObject().Effects)
-                            NWScript.RemoveEffect(oBlocker, e);
-                        oBlocker.AsObject().Destroy();
-                        NWNX.Events.RemoveObjectFromDispatchList("NWNX_ON_INPUT_KEYBOARD_AFTER", "event_mv_plc", oidSelf);
-                        oidSelf.AsObject().Locals.Object.Delete("_MOVING_PLC");
-                        myPlayer.SelectedObjectsList.Clear();
-                    }                                               
+                        else
+                        {
+                            oidSelf.AsPlayer().SendMessage("Vous ne pouvez pas manier cet élément.");
+                        }
+                    }
+                    else
+                    {
+                        string sObjectSaved = "";
+
+                        foreach (uint selectedObject in myPlayer.SelectedObjectsList)
+                        {
+                            var command = MySQL.Client.CreateCommand(
+                                                   $"UPDATE sql_meubles SET objectLocation = @loc WHERE objectUUID = @uuid");
+                            command.Parameters.AddWithValue("@loc", APSLocationToString(selectedObject.AsObject().Location));
+                            command.Parameters.AddWithValue("@uuid", selectedObject.AsObject().uuid);
+                            command.ExecuteNonQuery();
+
+                            sObjectSaved += selectedObject.AsObject().Name + "\n";
+                        }
+
+                        NWScript.SendMessageToPC(myPlayer, $"Vous venez de sauvegarder le positionnement des meubles : \n{sObjectSaved}");
+                        uint oBlocker = NWScript.GetNearestObjectByTag("_PC_BLOCKER", oidSelf);
+                        foreach (Effect e in oBlocker.AsObject().Effects)
+                            NWScript.RemoveEffect(oBlocker, e);
+
+                        NWScript.AssignCommand(oBlocker.AsObject().Area, () => NWScript.DelayCommand(0.2f, () => oBlocker.AsObject().Destroy()));
+                        
+                        NWNX.Events.RemoveObjectFromDispatchList("NWNX_ON_INPUT_KEYBOARD_AFTER", "event_mv_plc", oidSelf);
+                        oidSelf.AsObject().Locals.Object.Delete("_MOVING_PLC");
+                        myPlayer.SelectedObjectsList.Clear();
+                    }                                               
                 }
             }
             return Entrypoints.SCRIPT_HANDLED;
         }
 
-        private static string APSLocationToString(Location lLocation)
-        {
-            uint oArea = NWScript.GetAreaFromLocation(lLocation);
-            Vector vPosition = NWScript.GetPositionFromLocation(lLocation);
-            float fOrientation = NWScript.GetFacingFromLocation(lLocation);
-            string sReturnValue = null;
-
-            if (NWScript.GetIsObjectValid(oArea))
-                sReturnValue =
-                    "#AREA#" + NWScript.GetTag(oArea) + "#POSITION_X#" + (vPosition.x).ToString() +
-                    "#POSITION_Y#" + (vPosition.y).ToString() + "#POSITION_Z#" +
-                    (vPosition.z).ToString() + "#ORIENTATION#" + (fOrientation).ToString() + "#END#";
-
-            return sReturnValue;
+        private static string APSLocationToString(Location lLocation)
+        {
+            uint oArea = NWScript.GetAreaFromLocation(lLocation);
+            Vector vPosition = NWScript.GetPositionFromLocation(lLocation);
+            float fOrientation = NWScript.GetFacingFromLocation(lLocation);
+            string sReturnValue = null;
+
+            if (NWScript.GetIsObjectValid(oArea))
+                sReturnValue =
+                    "#AREA#" + NWScript.GetTag(oArea) + "#POSITION_X#" + (vPosition.x).ToString() +
+                    "#POSITION_Y#" + (vPosition.y).ToString() + "#POSITION_Z#" +
+                    (vPosition.z).ToString() + "#ORIENTATION#" + (fOrientation).ToString() + "#END#";
+
+            return sReturnValue;
         }
 
         private static void FrostAutoAttack(NWObject oClicker, uint oTarget)
@@ -277,8 +279,8 @@ namespace NWN
                 return Entrypoints.SCRIPT_NOT_HANDLED;
 
 
-            Systems.Player testPlayer = Systems.Player.Players.GetValueOrDefault(oChatSender.uuid);
-
+            Systems.Player testPlayer = Systems.Player.Players.GetValueOrDefault(oChatSender.uuid);
+
             if (sChatReceived.StartsWith("!frostattack"))
             {
                 Chat.SkipMessage();
@@ -345,9 +347,9 @@ namespace NWN
             else if (sChatReceived.StartsWith("!testdotnet"))
             {
                 Chat.SkipMessage();
-                foreach(uint selectedObject in testPlayer.SelectedObjectsList)
-                {
-                    NWScript.SendMessageToPC(testPlayer, $"object : {selectedObject.AsObject().Name}");
+                foreach(uint selectedObject in testPlayer.SelectedObjectsList)
+                {
+                    NWScript.SendMessageToPC(testPlayer, $"object : {selectedObject.AsObject().Name}");
                 }
                 return Entrypoints.SCRIPT_HANDLED;
             }
@@ -449,9 +451,7 @@ namespace NWN
                     if (Spells.MyResistSpell(NWObject.OBJECT_SELF, oTarget) == 0)
                     {
                         //Set damage effect
-                        int iDamage = 3 * nCasterLevel / 6;
-                        if (iDamage < 3)
-                            iDamage = 3;
+                        int iDamage = 3;
                         int nDamage = Spells.MaximizeOrEmpower(iDamage, 1 + nCasterLevel / 6, NWScript.GetMetaMagicFeat());
                         Effect eBad = NWScript.EffectDamage(nDamage, NWN.Enums.DamageType.Acid);
                         //Apply the VFX impact and damage effect
@@ -502,9 +502,7 @@ namespace NWN
                     if (Spells.MyResistSpell(NWObject.OBJECT_SELF, oTarget) == 0)
                     {
                         //Set damage effect
-                        int iDamage = 3 * nCasterLevel / 6;
-                        if (iDamage < 3)
-                            iDamage = 3;
+                        int iDamage = 3;
                         Effect eBad = NWScript.EffectDamage(Spells.MaximizeOrEmpower(iDamage, 1 + nCasterLevel / 6, NWScript.GetMetaMagicFeat()), NWN.Enums.DamageType.Electrical);
                         //Apply the VFX impact and damage effect
                         NWScript.ApplyEffectToObject(DurationType.Instant, eVis, oTarget);
@@ -572,7 +570,6 @@ namespace NWN
                     }
                     break;
                 case (int)Spell.RayOfFrost:
-                    int nDam = NWScript.d4(1 + nCasterLevel / 6) + 1;
                     Effect eDam;
                     eVis = NWScript.EffectVisualEffect((VisualEffect)Impact.FrostSmall);
                     Effect eRay = NWScript.EffectBeam(Beam.Cold, NWObject.OBJECT_SELF, 0);
@@ -584,17 +581,9 @@ namespace NWN
                     //Make SR Check
                     if (Spells.MyResistSpell(NWObject.OBJECT_SELF, oTarget) == 0)
                     {
-                        //Enter Metamagic conditions
-                        if (nMetaMagic == (int)MetaMagic.Maximize)
-                        {
-                            nDam = 5 + 5 * nCasterLevel / 6;//Damage is at max
-                        }
-                        else if (nMetaMagic == (int)MetaMagic.Empower)
-                        {
-                            nDam = nDam + nDam / 2; //Damage/Healing is +50%
-                        }
+                        int nDamage = Spells.MaximizeOrEmpower(4, 1 + nCasterLevel / 6, NWScript.GetMetaMagicFeat());
                         //Set damage effect
-                        eDam = NWScript.EffectDamage(nDam, NWN.Enums.DamageType.Cold);
+                        eDam = NWScript.EffectDamage(nDamage, NWN.Enums.DamageType.Cold);
                         //Apply the VFX impact and damage effect
                         NWScript.ApplyEffectToObject(DurationType.Instant, eVis, oTarget);
                         NWScript.ApplyEffectToObject(DurationType.Instant, eDam, oTarget);
