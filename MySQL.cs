@@ -1,31 +1,24 @@
-﻿using System;
-using MySql.Data.MySqlClient;
+﻿using MySql.Data.MySqlClient;
+using System;
 
-namespace NWN.MySQL
+namespace NWN
 {
-    class Client
+    class MySQL
     {
-        private static readonly MySqlConnection connection = new MySqlConnection();
         private static string host = Environment.GetEnvironmentVariable("NWNX_SQL_HOST");
         private static string port = Environment.GetEnvironmentVariable("NWNX_SQL_PORT");
         private static string user = Environment.GetEnvironmentVariable("NWNX_SQL_USERNAME");
         private static string password = Environment.GetEnvironmentVariable("NWNX_SQL_PASSWORD");
         private static string database = Environment.GetEnvironmentVariable("NWNX_SQL_DATABASE");
-
-        static public void Connect ()
-        {
-            connection.ConnectionString =
-                $"server={host};" +
+        private static string connectionString = $"server={host};" +
                 $"port={port};" +
                 $"uid={user};" +
-                $"pwd={password};" + 
+                $"pwd={password};" +
                 $"database={database}";
-            connection.Open();
-        }
 
-        static public MySqlCommand CreateCommand (string query)
+        public static MySqlConnection GetConnection ()
         {
-            return new MySqlCommand(query, connection);
+            return new MySqlConnection(connectionString);
         }
     }
 }
