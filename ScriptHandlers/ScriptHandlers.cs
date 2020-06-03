@@ -37,8 +37,7 @@ namespace NWN
 
         private static int OnModuleLoad (uint oidSelf)
         {
-            //Commenté de mon côté pour que ça n'interfère pas avec le système de loot de CdE, à décommenter de ton côté !
-            //Systems.Loot.InitChestArea();
+            Systems.Loot.InitChestArea();
 
             NWNX.Events.SubscribeEvent("NWNX_ON_INPUT_KEYBOARD_AFTER", "event_mv_plc");
             NWNX.Events.ToggleDispatchListMode("NWNX_ON_INPUT_KEYBOARD_AFTER", "event_mv_plc", 1);

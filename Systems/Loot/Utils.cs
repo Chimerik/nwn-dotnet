@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using NWN.MySQL;
+using Dapper;
 
 namespace NWN.Systems
 {
@@ -11,25 +11,21 @@ namespace NWN.Systems
 
         private static void CleanDatabase(List<uint> chestList)
         {
-            var command = Client.CreateCommand($"SELECT tag from {SQL_TABLE}");
-            var dataReader = command.ExecuteReader();
+            var sql = $"SELECT tag from {SQL_TABLE}";
             var chestTags = chestList.Select(chest => NWScript.GetTag(chest));
-            var dbTags = new List<string> { };
 
-            while (dataReader.Read())
+            using (var connection = MySQL.GetConnection())
             {
-                dbTags.Add(dataReader["tag"].ToString());
-            }
+                var lootContainers = connection.Query<Models.LootContainer>(sql).ToList();
 
-            dataReader.Close();
-
-            foreach (var tag in dbTags)
-            {
-                if (!chestTags.Contains(tag))
+                foreach (var lootContainer in lootContainers)
                 {
-                    var deleteCmd = Client.CreateCommand($"DELETE FROM {SQL_TABLE} WHERE tag=@tag;");
-                    deleteCmd.Parameters.AddWithValue("@tag", tag);
-                    deleteCmd.ExecuteNonQuery();
+                    if (!chestTags.Contains(lootContainer.tag))
+                    {
+                        sql = $"DELETE FROM {SQL_TABLE} WHERE tag=@tag;";
+
+                        connection.Execute(sql, new { tag = lootContainer.tag });
+                    }
                 }
             }
         }
@@ -37,47 +33,46 @@ namespace NWN.Systems
         private static void UpdateDB(uint oChest)
         {
             var tag = NWScript.GetTag(oChest);
-            var command = Client.CreateCommand(
-                    $"INSERT INTO {SQL_TABLE} (tag, serialized)" +
+            var sql = $"INSERT INTO {SQL_TABLE} (tag, serialized)" +
                     " VALUES (@tag, @serialized)" +
-                    " ON DUPLICATE KEY UPDATE serialized=@serialized;");
-            command.Parameters.AddWithValue("@tag", tag);
-            command.Parameters.AddWithValue("@serialized", NWNX.Object.Serialize(oChest));
-            command.ExecuteNonQuery();
+                    " ON DUPLICATE KEY UPDATE serialized=@serialized;";
+
+            using (var connection = MySQL.GetConnection())
+            {
+                connection.Execute(sql, new {
+                    tag = tag,
+                    serialized = NWNX.Object.Serialize(oChest)
+                });
+            }
         }
 
         private static void InitChest(uint oChest, uint oArea)
         {
             var chestTag = NWScript.GetTag(oChest);
-            var command = Client.CreateCommand($"SELECT serialized FROM {SQL_TABLE} WHERE tag=@tag LIMIT 1;");
-            command.Parameters.AddWithValue("@tag", chestTag);
+            var sql = $"SELECT serialized FROM {SQL_TABLE} WHERE tag=@tag LIMIT 1;";
 
-            var dataReader = command.ExecuteReader();
-
-            uint oDeserializedChest = NWScript.OBJECT_INVALID;
-            while (dataReader.Read())
+            using (var connection = MySQL.GetConnection())
             {
-                oDeserializedChest = NWNX.Object.Deserialize(dataReader["serialized"].ToString());
-            }
+                var lootContainer = connection.QueryFirst<Models.LootContainer>(sql, new { tag = chestTag });
+                var oDeserializedChest = NWNX.Object.Deserialize(lootContainer.serialized);
 
-            dataReader.Close();
+                if (NWScript.GetIsObjectValid(oDeserializedChest))
+                {
+                    var location = NWScript.GetLocation(oChest);
+                    var oChestPosition = NWScript.GetPositionFromLocation(location);
+                    var direction = NWScript.GetFacingFromLocation(location);
+                    NWNX.Object.AddToArea(oDeserializedChest, oArea, oChestPosition);
+                    NWScript.AssignCommand(oDeserializedChest, () => NWScript.SetFacing(direction));
+                    NWScript.SetEventScript(oDeserializedChest, NWScript.EVENT_SCRIPT_PLACEABLE_ON_CLOSED, LOOT_CONTAINER_ON_CLOSE_SCRIPT);
+                    NWScript.DestroyObject(oChest);
+                }
+                else
+                {
+                    UpdateDB(oChest);
+                }
 
-            if (NWScript.GetIsObjectValid(oDeserializedChest))
-            {
-                var location = NWScript.GetLocation(oChest);
-                var oChestPosition = NWScript.GetPositionFromLocation(location);
-                var direction = NWScript.GetFacingFromLocation(location);
-                NWNX.Object.AddToArea(oDeserializedChest, oArea, oChestPosition);
-                NWScript.AssignCommand(oDeserializedChest, () => NWScript.SetFacing(direction));
-                NWScript.SetEventScript(oDeserializedChest, NWScript.EVENT_SCRIPT_PLACEABLE_ON_CLOSED, LOOT_CONTAINER_ON_CLOSE_SCRIPT);
-                NWScript.DestroyObject(oChest);
+                UpdateChestTagToLootsDic(oChest);
             }
-            else
-            {
-                UpdateDB(oChest);
-            }
-
-            UpdateChestTagToLootsDic(oChest);
         }
 
         private static List<uint> GetPlaceables(uint oArea)

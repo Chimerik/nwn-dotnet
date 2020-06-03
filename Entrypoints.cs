@@ -48,13 +48,6 @@ namespace NWN
         //
         public static void OnStart()
         {
-            try
-            {
-                NWN.MySQL.Client.Connect();
-            } catch (Exception e)
-            {
-                Utils.LogException(e);
-            }
         }
     }
 }
