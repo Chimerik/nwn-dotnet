@@ -42,20 +42,6 @@ namespace NWN
             set => NWScript.SetPlotFlag(this, value);
         }
 
-        public virtual bool IsPC
-        {
-            get => NWScript.GetIsPC(this);
-        }
-
-        public virtual bool IsDM
-        {
-            get => NWScript.GetIsPC(this);
-        }
-        public virtual bool IsDMPossessed
-        {
-            get => NWScript.GetIsDMPossessed(this);
-        }
-
         public virtual bool IsInConversation => NWScript.IsInConversation(this);
 
         public virtual bool IsListening
@@ -137,6 +123,41 @@ namespace NWN
         public void AddToArea(NWArea area, Vector pos)
         {
             Object.AddToArea(this, area, pos);
+        }
+
+        public void ApplyEffect(DurationType durationType, Effect effect, float durationTime = 0.0f)
+        {
+            NWScript.ApplyEffectToObject(durationType, effect, this, durationTime);
+        }
+
+        public void AddToDispatchList(string NWNX_EVENT, string script)
+        {
+            NWNX.Events.AddObjectToDispatchList(NWNX_EVENT, script, this);
+        }
+
+        // * Returns true if Target is a humanoid
+        public virtual Boolean IsHumanoid
+        {
+            get
+            {
+                NWN.Enums.RacialType nRacial = NWScript.GetRacialType(this);
+
+                if ((nRacial == NWN.Enums.RacialType.Dwarf) ||
+                   (nRacial == NWN.Enums.RacialType.Halfelf) ||
+                   (nRacial == NWN.Enums.RacialType.Halforc) ||
+                   (nRacial == NWN.Enums.RacialType.Elf) ||
+                   (nRacial == NWN.Enums.RacialType.Gnome) ||
+                   (nRacial == NWN.Enums.RacialType.HumanoidGoblinoid) ||
+                   (nRacial == NWN.Enums.RacialType.Halfling) ||
+                   (nRacial == NWN.Enums.RacialType.Human) ||
+                   (nRacial == NWN.Enums.RacialType.HumanoidMonstrous) ||
+                   (nRacial == NWN.Enums.RacialType.HumanoidOrc) ||
+                   (nRacial == NWN.Enums.RacialType.HumanoidReptilian))
+                {
+                    return true;
+                }
+                return false;
+            }
         }
 
         public void ClearInventory()

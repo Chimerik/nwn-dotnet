@@ -1,6 +1,7 @@
 ﻿using NWN.Enums;
 using System;
 using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 using System.Text;
 
 namespace NWN.Systems
@@ -37,6 +38,19 @@ namespace NWN.Systems
         {
             get => _IsSelecting;
             set => _IsSelecting = value;
+        }
+
+        private uint _AutoAttackTarget;
+        public virtual uint AutoAttackTarget
+        {
+            get => _AutoAttackTarget;
+            set => _AutoAttackTarget = value;
+        }
+
+        private Boolean _IsConnected;
+        public virtual Boolean IsConnected
+        {
+            get => Players.ContainsKey(this.uuid);
         }
 
         private List<uint> _SelectedObjectsList = new List<uint>();
@@ -121,6 +135,7 @@ namespace NWN.Systems
            */
 
             Players[nwobj.AsPlayer().uuid] = this;
+            this.AutoAttackTarget = NWObject.OBJECT_INVALID;
  //           Debug.Info($"Player join: PCID:{PCID}, Name:{Name}, CDKey:{CDKey}, IP:{IPAddress}, BIC:{BicFile}");
         }
 
@@ -242,6 +257,20 @@ namespace NWN.Systems
                    return int.TryParse(nw.Tag, out pcid) ? Players[pcid] : null;
                }
           */
+
+        public void OnFrostAutoAttackTimedEvent()
+        {
+            if(this.IsConnected && this.AutoAttackTarget.AsObject().IsValid)
+            {
+                this.CastSpellAtObject(Spell.RayOfFrost, this.AutoAttackTarget);
+                NWScript.DelayCommand(6.0f, () => this.OnFrostAutoAttackTimedEvent());
+            }
+            else
+            {
+                //((Timer)source).Close();
+            }
+        }       
+
         public static void SendMessageToAllPCs(string msg)
         {
             foreach (var pc in Player.Players)
