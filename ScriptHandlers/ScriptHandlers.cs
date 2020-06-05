@@ -1,9 +1,11 @@
-﻿using NWN.Enums;
+﻿using Dapper;
+using NWN.Enums;
 using NWN.Enums.Item;
 using NWN.Enums.Item.Property;
 using NWN.Enums.VisualEffect;
 using NWN.NWNX;
 using NWN.Systems;
+using NWN.Systems.Garden;
 using NWN.Systems.PostString;
 using System;
 using System.Collections.Generic;
@@ -225,7 +227,7 @@ namespace NWN
                     {
                         string sObjectSaved = "";
 
-                        foreach (uint selectedObject in myPlayer.SelectedObjectsList)
+                        /*foreach (uint selectedObject in myPlayer.SelectedObjectsList)
                         {
                             var command = MySQL.Client.CreateCommand(
                                                    $"UPDATE sql_meubles SET objectLocation = @loc WHERE objectUUID = @uuid");
@@ -234,7 +236,7 @@ namespace NWN
                             command.ExecuteNonQuery();
 
                             sObjectSaved += selectedObject.AsObject().Name + "\n";
-                        }
+                        }*/
 
                         myPlayer.SendMessage($"Vous venez de sauvegarder le positionnement des meubles : \n{sObjectSaved}");
                         uint oBlocker = NWScript.GetNearestObjectByTag("_PC_BLOCKER", oidSelf);
@@ -340,7 +342,17 @@ namespace NWN
             else if (sChatReceived.StartsWith("!testdotnet"))
             {
                 Chat.SkipMessage();
-                NWScript.AssignCommand(oChatSender, () => NWScript.ActionCastSpellAtObject(Spell.RayOfFrost, NWScript.GetNearestObject(oChatSender, ObjectType.All, 3), MetaMagic.Maximize, true));
+                /*var oPotager = NWScript.GetObjectByTag("potager").AsPlaceable();
+                var sql = $"SELECT * FROM sql_potager WHERE id=@id LIMIT 1;";
+                oChatSender.SendMessage($"id : {oPotager.Locals.Int.Get("id")}");
+
+                using (var connection = MySQL.GetConnection())
+                {
+                    var potager = connection.QueryFirst<Potager.Models.PotagerSql>(sql, new { id = oPotager.Locals.Int.Get("id") });
+                    oChatSender.SendMessage($"id : {potager.id}, type : {potager.type}, date : {potager.date}");
+                }
+                */
+                //Garden.UpdateForUUID();
                 return Entrypoints.SCRIPT_HANDLED;
             }
             

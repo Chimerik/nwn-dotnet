@@ -1,20 +1,20 @@
-﻿using NWN.MySQL;
+﻿using Dapper;
 using System;
 using System.Collections.Generic;
-using System.Text;
+using System.Linq;
 
-namespace NWN.Systems.Potager
+namespace NWN.Systems.Garden
 {
-    public partial class Potager : NWPlaceable
+    public partial class Garden : NWPlaceable
     {
-        public static Dictionary<string, Potager> Potagers = new Dictionary<string, Potager>();
+        public static Dictionary<string, Garden> Potagers = new Dictionary<string, Garden>();
 
-        public Potager(uint nwobj) : base(nwobj)
+        public Garden(uint nwobj) : base(nwobj)
         {
             Potagers[nwobj.AsPlaceable().uuid] = this;
         }
 
-        static Potager()
+        static Garden()
         {
 
         }
@@ -25,45 +25,40 @@ namespace NWN.Systems.Potager
             int i = 0;
             while (oPotager.IsValid)
             {
-                var command = Client.CreateCommand($"SELECT * FROM sql_potager WHERE uuid=@uuid LIMIT 1;");
-                command.Parameters.AddWithValue("@uuid", oPotager.uuid);
-                var dataReader = command.ExecuteReader();
+                var sql = $"SELECT * FROM sql_potager WHERE uuid=@uuid LIMIT 1;";
 
-                while (dataReader.Read())
+                using (var connection = MySQL.GetConnection())
                 {
-                    var sPlanteType = dataReader["type"].ToString();
-                    var iPlanteState = DateTime.UtcNow.Subtract(TimeSpan.FromSeconds(dataReader.GetInt32("date")));
+                    var potager = connection.QueryFirst<Potager.Models.PotagerSql>(sql, new { uuid = oPotager.uuid });
+                    var sPlanteType = potager.type;
+                    var iPlanteState = (DateTime.Now - potager.datePlantage).TotalSeconds;
 
-                    if(iPlanteState.CompareTo(TimeSpan.FromSeconds(324000)) > 0)
-                    {
-                        oPotager.Name = $"Plant de {sPlanteType} prêt pour la récolte";
-                        oPotager.Locals.Int.Set("_PLANTE_STATE", 2);
-                        oPotager.Appearance = 4340;
-                        var fNextStep = TimeSpan.FromSeconds(486000).Subtract(TimeSpan.FromSeconds(new TimeSpan(iPlanteState.Ticks).TotalSeconds));
-                        NWScript.DelayCommand((float)fNextStep.TotalSeconds, () => FanerPlante(oPotager, sPlanteType, (float)fNextStep.TotalSeconds));
-                    }
-                    else if (iPlanteState.CompareTo(TimeSpan.FromSeconds(0)) > 0)
-                    {
-                        oPotager.Name = $"Plant de {sPlanteType} en cours de pousse";
-                        oPotager.Locals.Int.Set("_PLANTE_STATE", 1);
-                        oPotager.Appearance = 8791;
-                        var fNextStep = TimeSpan.FromSeconds(324000).Subtract(TimeSpan.FromSeconds(new TimeSpan(iPlanteState.Ticks).TotalSeconds));
-                        NWScript.DelayCommand((float)fNextStep.TotalSeconds, () => PousserPlante(oPotager, sPlanteType, (float)fNextStep.TotalSeconds));
-                    }
-
-                    if (iPlanteState.CompareTo(TimeSpan.FromSeconds(486000)) > 0)
+                    if (iPlanteState > 486000)
                     {
                         oPotager.Name = $"Plant de {sPlanteType} fâné";
                         oPotager.Locals.Int.Set("_PLANTE_STATE", 3);
                         oPotager.Appearance = 571;
                     }
+                    else if (iPlanteState > 324000)
+                    {
+                        oPotager.Name = $"Plant de {sPlanteType} prêt pour la récolte";
+                        oPotager.Locals.Int.Set("_PLANTE_STATE", 2);
+                        oPotager.Appearance = 4340;
+                        NWScript.DelayCommand((float)(486000 - iPlanteState), () => FanerPlante(oPotager, sPlanteType));
+                    }
+                    else if (iPlanteState > 0)
+                    {
+                        oPotager.Name = $"Plant de {sPlanteType} en cours de pousse";
+                        oPotager.Locals.Int.Set("_PLANTE_STATE", 1);
+                        oPotager.Appearance = 8791;
+                        NWScript.DelayCommand((float)(324000 - iPlanteState), () => PousserPlante(oPotager, sPlanteType));
+                    }                    
                 }
-                dataReader.Close();
                 i += 1;
                 oPotager = NWScript.GetObjectByTag("potager", i).AsPlaceable();
             }
         }
-
+   
         public static void UpdateForUUID()
         {
             var oPotager = NWScript.GetObjectByTag("potager").AsPlaceable();
@@ -72,22 +67,12 @@ namespace NWN.Systems.Potager
             {
                 if(oPotager.Locals.Int.Get("id") > 0)
                 {
-                    var command = Client.CreateCommand(
-                    $"UPDATE sql_potager (uuid)" +
-                    " VALUES (@uuid)" +
-                    " WHERE id=@id;");
-                    command.Parameters.AddWithValue("@uuid", oPotager.uuid);
-                    command.Parameters.AddWithValue("@id", oPotager.Locals.Int.Get("id"));
-                    command.ExecuteNonQuery();
-                }
-                else
-                {
-                    var command = Client.CreateCommand(
-                    $"INSERT INTO sql_potager (uuid)" +  
-                    " VALUES (@uuid)");
-                    command.Parameters.AddWithValue("@uuid", oPotager.uuid);
-                    command.ExecuteNonQuery();
+                    var sql = $"UPDATE sql_potager SET uuid=@uuid, datePlantage=@datePlantage WHERE id=@id;";           
 
+                    using (var connection = MySQL.GetConnection())
+                    {
+                        connection.Execute(sql, new { id = oPotager.Locals.Int.Get("id"), uuid = oPotager.uuid, datePlantage = DateTime.Now });
+                    }
                 }
                 
                 i += 1;
@@ -95,7 +80,7 @@ namespace NWN.Systems.Potager
             }
         }
 
-        private static void FanerPlante(NWPlaceable oPotager, string sPlanteType, float sPlanteState)
+        private static void FanerPlante(NWPlaceable oPotager, string sPlanteType)
         {
             if (oPotager.IsValid)
             {
@@ -105,14 +90,34 @@ namespace NWN.Systems.Potager
             }
         }
 
-        private static void PousserPlante(NWPlaceable oPotager, string sPlanteType, float sPlanteState)
+        private static void PousserPlante(NWPlaceable oPotager, string sPlanteType)
         {
             if (oPotager.IsValid)
             {
                 oPotager.Name = "Plant de {sPlanteType} prêt pour la récolte";
                 oPotager.Appearance = 4340;
                 oPotager.Locals.Int.Set("_PLANTE_STATE", 2);
-                NWScript.DelayCommand(162000.0f, () => FanerPlante(oPotager, sPlanteType, sPlanteState));
+                NWScript.DelayCommand(162000.0f, () => FanerPlante(oPotager, sPlanteType));
+            }
+        }
+
+        void PlanterFruit(uint oPC, uint oFruit)
+        {
+            string sPlanteType = oFruit.AsItem().Name;
+            var oPotager = (NWPlaceable)oPC.AsPlayer().Locals.Object.Get("DDIAG__SPEAKEE");
+
+            oFruit.AsItem().Destroy();
+            oPotager.Name = $"Plant de {sPlanteType} en cours de pousse";
+            oPotager.Locals.Int.Set("_PLANTE_STATE", 1);
+            oPotager.Appearance = 8791;
+            NWScript.DelayCommand(324000.0f, () => PousserPlante(oPotager, sPlanteType));
+            oPC.AsPlayer().SendMessage($"Vous venez de mettre en terre un plant de {sPlanteType}. Reste à attendre que ça pousse !");
+
+            var sql = $"REPLACE INTO sql_potager (uuid, type, datePlantage, tag) VALUES (@uuid, @type, @datePlantage, @tag);";
+
+            using (var connection = MySQL.GetConnection())
+            {
+                connection.Execute(sql, new { uuid = oPotager.uuid, datePlantage = DateTime.Now, type = oFruit.AsItem().Name, tag = oFruit.AsItem().Tag});
             }
         }
     }
