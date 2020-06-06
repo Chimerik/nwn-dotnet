@@ -5,7 +5,6 @@ using NWN.Enums.Item.Property;
 using NWN.Enums.VisualEffect;
 using NWN.NWNX;
 using NWN.Systems;
-using NWN.Systems.Garden;
 using NWN.Systems.PostString;
 using System;
 using System.Collections.Generic;
@@ -37,12 +36,13 @@ namespace NWN
             { "event_feat_used", EventFeatUsed },
             { "connexion", EventPlayerConnexion },
             { "_onenter", OnEnter },
+            { "event_potager", EventPotager },
         }.Concat(Systems.Loot.Register)
          .ToDictionary(kvp => kvp.Key, kvp => kvp.Value);
 
         private static int OnModuleLoad (uint oidSelf)
         {
-            Systems.Loot.InitChestArea();
+            //Systems.Loot.InitChestArea();
 
             NWNX.Events.SubscribeEvent("NWNX_ON_INPUT_KEYBOARD_AFTER", "event_mv_plc");
             NWNX.Events.ToggleDispatchListMode("NWNX_ON_INPUT_KEYBOARD_AFTER", "event_mv_plc", 1);
@@ -60,6 +60,10 @@ namespace NWN
 
             NWNX.Events.SubscribeEvent("NWNX_ON_USE_FEAT_AFTER", "event_feat_used");
             NWNX.Events.ToggleDispatchListMode("NWNX_ON_USE_FEAT_AFTER", "event_feat_used", 1);
+
+            NWNX.Events.SubscribeEvent("CDE_POTAGER", "event_potager");
+
+            Garden.Init();
 
             return Entrypoints.SCRIPT_NOT_HANDLED;
         }
@@ -156,6 +160,17 @@ namespace NWN
             }
 
             return Entrypoints.SCRIPT_NOT_HANDLED;
+        }
+
+        private static int EventPotager(uint oidSelf)
+        {
+            Garden oGarden;
+            if (Garden.Potagers.TryGetValue(oidSelf.AsPlaceable().Locals.Int.Get("id"), out oGarden))
+            {
+                oGarden.PlanterFruit(NWNX.Events.GetEventData("FRUIT_NAME"), NWNX.Events.GetEventData("FRUIT_TAG"));
+            }
+
+            return Entrypoints.SCRIPT_HANDLED;
         }
 
         private static int EventMovePlaceable(uint oidSelf)
@@ -339,23 +354,13 @@ namespace NWN
                 }
                 return Entrypoints.SCRIPT_HANDLED;
             }
-            else if (sChatReceived.StartsWith("!testdotnet"))
+            else if (sChatReceived.StartsWith("!testpotager"))
             {
                 Chat.SkipMessage();
-                /*var oPotager = NWScript.GetObjectByTag("potager").AsPlaceable();
-                var sql = $"SELECT * FROM sql_potager WHERE id=@id LIMIT 1;";
-                oChatSender.SendMessage($"id : {oPotager.Locals.Int.Get("id")}");
-
-                using (var connection = MySQL.GetConnection())
-                {
-                    var potager = connection.QueryFirst<Potager.Models.PotagerSql>(sql, new { id = oPotager.Locals.Int.Get("id") });
-                    oChatSender.SendMessage($"id : {potager.id}, type : {potager.type}, date : {potager.date}");
-                }
-                */
-                //Garden.UpdateForUUID();
+                //Garden.Init();
                 return Entrypoints.SCRIPT_HANDLED;
             }
-            
+
             return Entrypoints.SCRIPT_NOT_HANDLED;
         }
         private static int EventKeyboard(uint oidSelf)
