@@ -8,13 +8,14 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace NWN
+namespace NWN.ScriptHandlers
 {
-    class ScriptHandlers
+    public static class Scripts
     {
         public static Dictionary<string, Func<uint, int>> Register = new Dictionary<string, Func<uint, int>>
         {
             { "_onload", OnModuleLoad },
+            { "x2_mod_def_act", OnActivateItem },
             { "cs_chatlistener", ChatListener },
             { "event_keyboard", EventKeyboard },
             { "X0_S0_AcidSplash", CantripsScaler },
@@ -32,6 +33,27 @@ namespace NWN
         private static int OnModuleLoad (uint oidSelf)
         {
             Systems.Loot.InitChestArea();
+
+            return Entrypoints.SCRIPT_NOT_HANDLED;
+        }
+
+        private static int OnActivateItem (uint oidSelf)
+        {
+            var oItem = NWScript.GetItemActivated();
+            var oActivator = NWScript.GetItemActivator();
+            var tag = NWScript.GetTag(oItem);
+
+            Func<uint, uint, int> handler;
+            if (OnActivateItems.Register.TryGetValue(tag, out handler))
+            {
+                try
+                {
+                    return handler.Invoke(oItem, oActivator);
+                } catch (Exception e)
+                {
+                    Utils.LogException(e);
+                }
+            }
 
             return Entrypoints.SCRIPT_NOT_HANDLED;
         }
