@@ -1,4 +1,5 @@
 ﻿using NWN.Enums;
+using NWN.Enums.VisualEffect;
 using System;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
@@ -59,6 +60,8 @@ namespace NWN.Systems
             get => _SelectedObjectsList;
            // set => _SelectedObjectsList.Add(value);
         }
+
+        public virtual DateTime LycanCurseTimer { get; set; }
 
         #endregion
 
@@ -287,19 +290,52 @@ namespace NWN.Systems
             }
             return null;
         }
+
+        public void RemoveTaggedEffect(string Tag)
+        {
+            Effect eEffect = NWScript.GetFirstEffect(this);
+            while (NWScript.GetIsEffectValid(eEffect) > 0)
+            {
+                if (NWScript.GetEffectTag(eEffect) == Tag)
+                {
+                    NWScript.RemoveEffect(this, eEffect);
+                    if(Tag == "lycan_curse")
+                    {
+                        this.ApplyEffect(DurationType.Instant, NWScript.EffectVisualEffect((VisualEffect)Impact.SuperHeroism));
+                        NWNX.Rename.ClearPCNameOverride(this, null, true);
+                        NWNX.Creature.SetMovementRate(this, MovementRate.PC);
+                    }
+                    break;
+                }
+                eEffect = NWScript.GetNextEffect(this);
+            }
+        }
+
+        public void ApplyLycanCurse()
+        {
+            Effect ePoly = NWScript.EffectPolymorph(107, true);
+            Effect eLink = NWScript.SupernaturalEffect(ePoly);
+            eLink = NWScript.TagEffect(eLink, "lycan_curse");
+
+            this.ApplyEffect(DurationType.Temporary, eLink, 900.0f);
+            this.ApplyEffect(DurationType.Instant, NWScript.EffectVisualEffect((VisualEffect)Impact.SuperHeroism));
+
+            NWNX.Rename.SetPCNameOverride(this, "Loup-garou", "", "", NWNX.Enum.NameOverrideType.Override);
+            NWNX.Creature.SetMovementRate(this, MovementRate.VeryFast);
+        }
         #endregion
 
         #region Utility
 
- /*       public void PopUp(string title, string message, string icon)
-        {
-            NWPlaceable plc = NWScript.GetObjectByTag("PLC_POPUP");
-            plc.Name = title;
-            plc.Description = message;
-            plc.Portrait = icon;
-            NWNX.Player.ForcePlaceableExamineWindow(this, plc);
-        }
-*/
+        /*       public void PopUp(string title, string message, string icon)
+               {
+                   NWPlaceable plc = NWScript.GetObjectByTag("PLC_POPUP");
+                   plc.Name = title;
+                   plc.Description = message;
+                   plc.Portrait = icon;
+                   NWNX.Player.ForcePlaceableExamineWindow(this, plc);
+               }
+       */
         #endregion
 
         #region Backend property implementation

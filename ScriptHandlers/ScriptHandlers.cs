@@ -1,4 +1,5 @@
-﻿using NWN.Enums;
+﻿using Dapper;
+using NWN.Enums;
 using NWN.Enums.Item;
 using NWN.Enums.Item.Property;
 using NWN.Enums.VisualEffect;
@@ -35,12 +36,13 @@ namespace NWN
             { "event_feat_used", EventFeatUsed },
             { "connexion", EventPlayerConnexion },
             { "_onenter", OnEnter },
+            { "event_potager", EventPotager },
         }.Concat(Systems.Loot.Register)
          .ToDictionary(kvp => kvp.Key, kvp => kvp.Value);
 
         private static int OnModuleLoad (uint oidSelf)
         {
-            Systems.Loot.InitChestArea();
+            //Systems.Loot.InitChestArea();
 
             NWNX.Events.SubscribeEvent("NWNX_ON_INPUT_KEYBOARD_AFTER", "event_mv_plc");
             NWNX.Events.ToggleDispatchListMode("NWNX_ON_INPUT_KEYBOARD_AFTER", "event_mv_plc", 1);
@@ -56,8 +58,12 @@ namespace NWN
             NWNX.Events.SubscribeEvent("NWNX_ON_INPUT_WALK_TO_WAYPOINT_BEFORE", "event_auto_spell");
             NWNX.Events.ToggleDispatchListMode("NWNX_ON_INPUT_WALK_TO_WAYPOINT_BEFORE", "event_auto_spell", 1);
 
-            NWNX.Events.SubscribeEvent("NWNX_ON_USE_FEAT_AFTER", "event_feat_used");
-            NWNX.Events.ToggleDispatchListMode("NWNX_ON_USE_FEAT_AFTER", "event_feat_used", 1);
+            NWNX.Events.SubscribeEvent("NWNX_ON_USE_FEAT_BEFORE", "event_feat_used");
+            NWNX.Events.ToggleDispatchListMode("NWNX_ON_USE_FEAT_BEFORE", "event_feat_used", 1);
+
+            NWNX.Events.SubscribeEvent("CDE_POTAGER", "event_potager");
+
+            Garden.Init();
 
             return Entrypoints.SCRIPT_NOT_HANDLED;
         }
@@ -153,7 +159,24 @@ namespace NWN
                 NWNX.Events.AddObjectToDispatchList("NWNX_ON_INPUT_WALK_TO_WAYPOINT_BEFORE", "event_auto_spell", oPC);
             }
 
+            if(test.GetPossessedItem("pj_lycan_curse").IsValid)
+            {
+                test.AddFeat(NWN.Enums.Feat.PlayerTool02);
+                test.GetPossessedItem("pj_lycan_curse").Destroy();
+            }   
+
             return Entrypoints.SCRIPT_NOT_HANDLED;
+        }
+
+        private static int EventPotager(uint oidSelf)
+        {
+            Garden oGarden;
+            if (Garden.Potagers.TryGetValue(oidSelf.AsPlaceable().Locals.Int.Get("id"), out oGarden))
+            {
+                oGarden.PlanterFruit(NWNX.Events.GetEventData("FRUIT_NAME"), NWNX.Events.GetEventData("FRUIT_TAG"));
+            }
+
+            return Entrypoints.SCRIPT_HANDLED;
         }
 
         private static int EventMovePlaceable(uint oidSelf)
@@ -186,9 +209,29 @@ namespace NWN
         {
             string current_event = NWNX.Events.GetCurrentEvent();
 
-            if (current_event == "NWNX_ON_USE_FEAT_AFTER")
+            if (current_event == "NWNX_ON_USE_FEAT_BEFORE")
             {
-                if (int.Parse(NWNX.Events.GetEventData("FEAT_ID")) == (int)NWN.Enums.Feat.PlayerTool01)
+                if (int.Parse(NWNX.Events.GetEventData("FEAT_ID")) == (int)NWN.Enums.Feat.PlayerTool02)
+                {
+                    NWNX.Events.SkipEvent();
+                    var oPC = Systems.Player.Players.GetValueOrDefault(oidSelf.AsObject().uuid);
+
+                    if (oPC.HasTagEffect("lycan_curse"))
+                        oPC.RemoveTaggedEffect("lycan_curse");
+                    else
+                    {
+                        if ((DateTime.Now - oPC.LycanCurseTimer).TotalSeconds > 10800)
+                        {
+                            oPC.ApplyLycanCurse();
+                            oPC.LycanCurseTimer = DateTime.Now;
+                        }
+                        else
+                            oPC.SendMessage("Vous ne vous sentez pas encore la force de changer de nouveau de forme.");
+                    }
+
+                    return Entrypoints.SCRIPT_HANDLED;
+                }
+                else if (int.Parse(NWNX.Events.GetEventData("FEAT_ID")) == (int)NWN.Enums.Feat.PlayerTool01)
                 {
                     NWNX.Events.SkipEvent();
                     NWPlaceable oTarget = NWNX.Object.StringToObject(NWNX.Events.GetEventData("TARGET_OBJECT_ID")).AsPlaceable();
@@ -225,7 +268,7 @@ namespace NWN
                     {
                         string sObjectSaved = "";
 
-                        foreach (uint selectedObject in myPlayer.SelectedObjectsList)
+                        /*foreach (uint selectedObject in myPlayer.SelectedObjectsList)
                         {
                             var command = MySQL.Client.CreateCommand(
                                                    $"UPDATE sql_meubles SET objectLocation = @loc WHERE objectUUID = @uuid");
@@ -234,7 +277,7 @@ namespace NWN
                             command.ExecuteNonQuery();
 
                             sObjectSaved += selectedObject.AsObject().Name + "\n";
-                        }
+                        }*/
 
                         myPlayer.SendMessage($"Vous venez de sauvegarder le positionnement des meubles : \n{sObjectSaved}");
                         uint oBlocker = NWScript.GetNearestObjectByTag("_PC_BLOCKER", oidSelf);
@@ -337,13 +380,13 @@ namespace NWN
                 }
                 return Entrypoints.SCRIPT_HANDLED;
             }
-            else if (sChatReceived.StartsWith("!testdotnet"))
+            else if (sChatReceived.StartsWith("!testpotager"))
             {
                 Chat.SkipMessage();
-                NWScript.AssignCommand(oChatSender, () => NWScript.ActionCastSpellAtObject(Spell.RayOfFrost, NWScript.GetNearestObject(oChatSender, ObjectType.All, 3), MetaMagic.Maximize, true));
+                //Garden.Init();
                 return Entrypoints.SCRIPT_HANDLED;
             }
-            
+
             return Entrypoints.SCRIPT_NOT_HANDLED;
         }
         private static int EventKeyboard(uint oidSelf)
