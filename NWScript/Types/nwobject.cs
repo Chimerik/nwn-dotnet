@@ -174,5 +174,17 @@ namespace NWN
             foreach (var currentSlot in Enum.GetValues(typeof(InventorySlot)))
                 NWScript.DestroyObject(NWScript.GetItemInSlot((InventorySlot)currentSlot!, this));
         }
+
+        public Boolean HasTagEffect(string sTag)
+        {
+            Effect eEffect = NWScript.GetFirstEffect(this);
+            while (NWScript.GetIsEffectValid(eEffect) > 0)
+            {
+                if (NWScript.GetEffectTag(eEffect) == sTag)
+                    return true;
+                eEffect = NWScript.GetNextEffect(this);
+            }
+            return false;
+        }
     }
 }

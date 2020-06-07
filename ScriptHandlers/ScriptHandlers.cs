@@ -58,8 +58,8 @@ namespace NWN
             NWNX.Events.SubscribeEvent("NWNX_ON_INPUT_WALK_TO_WAYPOINT_BEFORE", "event_auto_spell");
             NWNX.Events.ToggleDispatchListMode("NWNX_ON_INPUT_WALK_TO_WAYPOINT_BEFORE", "event_auto_spell", 1);
 
-            NWNX.Events.SubscribeEvent("NWNX_ON_USE_FEAT_AFTER", "event_feat_used");
-            NWNX.Events.ToggleDispatchListMode("NWNX_ON_USE_FEAT_AFTER", "event_feat_used", 1);
+            NWNX.Events.SubscribeEvent("NWNX_ON_USE_FEAT_BEFORE", "event_feat_used");
+            NWNX.Events.ToggleDispatchListMode("NWNX_ON_USE_FEAT_BEFORE", "event_feat_used", 1);
 
             NWNX.Events.SubscribeEvent("CDE_POTAGER", "event_potager");
 
@@ -159,6 +159,12 @@ namespace NWN
                 NWNX.Events.AddObjectToDispatchList("NWNX_ON_INPUT_WALK_TO_WAYPOINT_BEFORE", "event_auto_spell", oPC);
             }
 
+            if(test.GetPossessedItem("pj_lycan_curse").IsValid)
+            {
+                test.AddFeat(NWN.Enums.Feat.PlayerTool02);
+                test.GetPossessedItem("pj_lycan_curse").Destroy();
+            }   
+
             return Entrypoints.SCRIPT_NOT_HANDLED;
         }
 
@@ -203,9 +209,29 @@ namespace NWN
         {
             string current_event = NWNX.Events.GetCurrentEvent();
 
-            if (current_event == "NWNX_ON_USE_FEAT_AFTER")
+            if (current_event == "NWNX_ON_USE_FEAT_BEFORE")
             {
-                if (int.Parse(NWNX.Events.GetEventData("FEAT_ID")) == (int)NWN.Enums.Feat.PlayerTool01)
+                if (int.Parse(NWNX.Events.GetEventData("FEAT_ID")) == (int)NWN.Enums.Feat.PlayerTool02)
+                {
+                    NWNX.Events.SkipEvent();
+                    var oPC = Systems.Player.Players.GetValueOrDefault(oidSelf.AsObject().uuid);
+
+                    if (oPC.HasTagEffect("lycan_curse"))
+                        oPC.RemoveTaggedEffect("lycan_curse");
+                    else
+                    {
+                        if ((DateTime.Now - oPC.LycanCurseTimer).TotalSeconds > 10800)
+                        {
+                            oPC.ApplyLycanCurse();
+                            oPC.LycanCurseTimer = DateTime.Now;
+                        }
+                        else
+                            oPC.SendMessage("Vous ne vous sentez pas encore la force de changer de nouveau de forme.");
+                    }
+
+                    return Entrypoints.SCRIPT_HANDLED;
+                }
+                else if (int.Parse(NWNX.Events.GetEventData("FEAT_ID")) == (int)NWN.Enums.Feat.PlayerTool01)
                 {
                     NWNX.Events.SkipEvent();
                     NWPlaceable oTarget = NWNX.Object.StringToObject(NWNX.Events.GetEventData("TARGET_OBJECT_ID")).AsPlaceable();
