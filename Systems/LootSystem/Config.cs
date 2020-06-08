@@ -2,7 +2,7 @@
 
 namespace NWN.Systems
 {
-    public partial class Loot
+    public partial class LootSystem
     {
         private readonly static string LOOT_CONTAINER_ON_CLOSE_SCRIPT = "ls_load_onclose";
         private readonly static string ON_LOOT_SCRIPT = "ls_onloot";

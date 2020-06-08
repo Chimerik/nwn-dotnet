@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace NWN.Systems
 {
-    public static partial class Loot
+    public static partial class LootSystem
     {
         public static Dictionary<string, Func<uint, int>> Register = new Dictionary<string, Func<uint, int>>
         {

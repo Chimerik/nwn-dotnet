@@ -27,12 +27,12 @@ namespace NWN.ScriptHandlers
             { "NW_S0_Resis", CantripsScaler },
             { "NW_S0_Virtue", CantripsScaler },
             { "event_mouse_clic", EventMouseClick },
-        }.Concat(Systems.Loot.Register)
+        }.Concat(Systems.LootSystem.Register)
          .ToDictionary(kvp => kvp.Key, kvp => kvp.Value);
 
         private static int OnModuleLoad (uint oidSelf)
         {
-            Systems.Loot.InitChestArea();
+            Systems.LootSystem.InitChestArea();
 
             return Entrypoints.SCRIPT_NOT_HANDLED;
         }

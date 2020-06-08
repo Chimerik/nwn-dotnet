@@ -5,7 +5,7 @@ using Dapper;
 
 namespace NWN.Systems
 {
-    public static partial class Loot
+    public static partial class LootSystem
     {
         private static Dictionary<string, List<uint>> chestTagToLootsDic = new Dictionary<string, List<uint>> { };
 
