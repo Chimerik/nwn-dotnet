@@ -1,4 +1,4 @@
-﻿using NWN.Enums;
+using NWN.Enums;
 using NWN.Enums.Item;
 using NWN.Enums.Item.Property;
 using NWN.Enums.VisualEffect;
@@ -14,8 +14,8 @@ namespace NWN.ScriptHandlers
     {
         public static Dictionary<string, Func<uint, int>> Register = new Dictionary<string, Func<uint, int>>
         {
-            { "_onload", OnModuleLoad },
-            { "x2_mod_def_act", OnActivateItem },
+            { "_onload", HandleModuleLoad },
+            { "x2_mod_def_act", HandleActivateItem },
             { "cs_chatlistener", ChatListener },
             { "event_keyboard", EventKeyboard },
             { "X0_S0_AcidSplash", CantripsScaler },
@@ -30,21 +30,21 @@ namespace NWN.ScriptHandlers
         }.Concat(Systems.LootSystem.Register)
          .ToDictionary(kvp => kvp.Key, kvp => kvp.Value);
 
-        private static int OnModuleLoad (uint oidSelf)
+        private static int HandleModuleLoad (uint oidSelf)
         {
             Systems.LootSystem.InitChestArea();
 
             return Entrypoints.SCRIPT_NOT_HANDLED;
         }
 
-        private static int OnActivateItem (uint oidSelf)
+        private static int HandleActivateItem (uint oidSelf)
         {
             var oItem = NWScript.GetItemActivated();
             var oActivator = NWScript.GetItemActivator();
             var tag = NWScript.GetTag(oItem);
 
             Func<uint, uint, int> handler;
-            if (OnActivateItems.Register.TryGetValue(tag, out handler))
+            if (ActivateItemHandlers.Register.TryGetValue(tag, out handler))
             {
                 try
                 {
