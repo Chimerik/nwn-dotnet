@@ -1,4 +1,4 @@
-using NWN.Enums;
+﻿using NWN.Enums;
 using NWN.Enums.Item;
 using NWN.Enums.Item.Property;
 using NWN.Enums.VisualEffect;
@@ -28,11 +28,15 @@ namespace NWN.ScriptHandlers
             { "NW_S0_Virtue", CantripsScaler },
             { "event_mouse_clic", EventMouseClick },
         }.Concat(Systems.LootSystem.Register)
+         .Concat(Systems.PlayerSystem.Register)
          .ToDictionary(kvp => kvp.Key, kvp => kvp.Value);
 
         private static int HandleModuleLoad (uint oidSelf)
         {
             Systems.LootSystem.InitChestArea();
+            
+            NWNX.Events.SubscribeEvent(NWNX.Events.ON_INPUT_KEYBOARD_BEFORE, Systems.PlayerSystem.ON_PC_KEYSTROKE_SCRIPT);
+            NWNX.Events.ToggleDispatchListMode(NWNX.Events.ON_INPUT_KEYBOARD_BEFORE, Systems.PlayerSystem.ON_PC_KEYSTROKE_SCRIPT, 1);
 
             return Entrypoints.SCRIPT_NOT_HANDLED;
         }
