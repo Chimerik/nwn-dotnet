@@ -1,6 +1,6 @@
-﻿using NWN.NWNX;
-using System;
+﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace NWN.Systems.MenuSystem
 {
@@ -9,7 +9,7 @@ namespace NWN.Systems.MenuSystem
     public string title { get; set; } = "";
     public List<(string text, Action handler)> choices = new List<(string text, Action handler)>();
 
-    private readonly uint oPC;
+    private readonly PlayerSystem.Player player;
 
     private const int originTop = 4;
     private const int originLeft = 2;
@@ -33,28 +33,50 @@ namespace NWN.Systems.MenuSystem
     private const int arrowID = 8499;
 
     private int selectedChoiceID = 0;
+    private bool isDrawn = false;
 
-    public Menu(uint oPC)
+    public Menu(PlayerSystem.Player player)
     {
-      this.oPC = oPC;
+      this.player = player;
     }
 
     public void Draw()
     {
+      if (!isDrawn)
+      {
+        player.OnKeydown += HandleKeydown;
+      }
+
       var width = CalcWindowWidth();
       var height = CalcWindowHeight();
       DrawWindow(width, height);
       DrawText();
       DrawSelection();
+
+      isDrawn = true;
     }
 
     public void Hide()
     {
+      if (isDrawn)
+      {
+        player.OnKeydown -= HandleKeydown;
+      }
+
       foreach (var (X, Y, ID) in drawnLineIds)
       {
-        NWScript.PostString(PC: oPC, Msg: "", X: X, Y: Y, ID: ID, life: 0.000001f);
+        NWScript.PostString(PC: player.oid, Msg: "", X: X, Y: Y, ID: ID, life: 0.000001f);
       }
       drawnLineIds.Clear();
+
+      isDrawn = false;
+    }
+
+    public void Clear()
+    {
+      title = "";
+      choices.Clear();
+      selectedChoiceID = 0;
     }
 
     private int CalcWindowWidth()
@@ -129,10 +151,37 @@ namespace NWN.Systems.MenuSystem
     {
       int color = unchecked((int)Config.Color.White);
       NWScript.PostString(
-          PC: oPC, Msg: text, X: x, Y: y, ID: id, life: 0f,
+          PC: player.oid, Msg: text, X: x, Y: y, ID: id, life: 0f,
           RGBA: color, RGBA2: color, font: font
       );
       drawnLineIds.Add((x, y, id));
+    }
+
+    private void HandleKeydown (object player, PlayerSystem.Player.KeydownEventArgs e)
+    {
+      Console.WriteLine($"HandleKeydown key={e.key}");
+
+      switch (e.key)
+      {
+        default: return;
+
+        case "W":
+          selectedChoiceID = (selectedChoiceID + choices.Count - 1) % choices.Count;
+          DrawSelection();
+          return;
+
+        case "S":
+          selectedChoiceID = (selectedChoiceID + 1) % choices.Count;
+          DrawSelection();
+          return;
+
+        case "E":
+          var handler = choices.ElementAtOrDefault(selectedChoiceID).handler;
+          Hide();
+          Clear();
+          handler?.Invoke();
+          return;
+      }
     }
   }
 }
