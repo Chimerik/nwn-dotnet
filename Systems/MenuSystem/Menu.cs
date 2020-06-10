@@ -144,6 +144,7 @@ namespace NWN.Systems.MenuSystem
     {
       var x = originLeft + widthPadding + borderSize - 1;
       var y = originTop + heightPadding + borderSize + titleHeight + selectedChoiceID;
+      NWNX.Player.PlaySound(player.oid, "gui_select", NWObject.OBJECT_INVALID);
       DrawLine(Config.Glyph.Arrow, x, y, arrowID, Config.Font.Gui);
     }
 
@@ -157,7 +158,7 @@ namespace NWN.Systems.MenuSystem
       drawnLineIds.Add((x, y, id));
     }
 
-    private void HandleKeydown (object player, PlayerSystem.Player.KeydownEventArgs e)
+    private void HandleKeydown (object sender, PlayerSystem.Player.KeydownEventArgs e)
     {
       Console.WriteLine($"HandleKeydown key={e.key}");
 
@@ -179,6 +180,7 @@ namespace NWN.Systems.MenuSystem
           var handler = choices.ElementAtOrDefault(selectedChoiceID).handler;
           Hide();
           Clear();
+          NWNX.Player.PlaySound(player.oid, "gui_picklockopen", NWObject.OBJECT_INVALID);
           handler?.Invoke();
           return;
       }
