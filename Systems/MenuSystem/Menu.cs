@@ -28,6 +28,7 @@ namespace NWN.Systems.MenuSystem
     }
 
     private List<(int X, int Y, int ID)> drawnLineIds = new List<(int X, int Y, int ID)>();
+    private (int X, int Y, int ID) drawnSelectionIds;
     private const int windowBaseID = 9000;
     private const int textBaseID = 8500;
     private const int arrowID = 8499;
@@ -44,6 +45,7 @@ namespace NWN.Systems.MenuSystem
     {
       if (!isDrawn)
       {
+        NWScript.ApplyEffectToObject(Enums.DurationType.Permanent, NWScript.EffectCutsceneParalyze(), player.oid);
         player.OnKeydown += HandleKeydown;
       }
 
@@ -61,6 +63,7 @@ namespace NWN.Systems.MenuSystem
       if (isDrawn)
       {
         player.OnKeydown -= HandleKeydown;
+        NWScript.RemoveEffect(player.oid, NWScript.EffectCutsceneParalyze());
       }
 
       foreach (var (X, Y, ID) in drawnLineIds)
@@ -68,6 +71,7 @@ namespace NWN.Systems.MenuSystem
         NWScript.PostString(PC: player.oid, Msg: "", X: X, Y: Y, ID: ID, life: 0.000001f);
       }
       drawnLineIds.Clear();
+      HideLastSelection();
 
       isDrawn = false;
     }
@@ -144,8 +148,19 @@ namespace NWN.Systems.MenuSystem
     {
       var x = originLeft + widthPadding + borderSize - 1;
       var y = originTop + heightPadding + borderSize + titleHeight + selectedChoiceID;
-      NWNX.Player.PlaySound(player.oid, "gui_select", NWObject.OBJECT_INVALID);
       DrawLine(Config.Glyph.Arrow, x, y, arrowID, Config.Font.Gui);
+      drawnSelectionIds = (x, y, arrowID);
+    }
+
+    private void HideLastSelection()
+    {
+      NWScript.PostString(
+        PC: player.oid, Msg: "",
+        X: drawnSelectionIds.X,
+        Y: drawnSelectionIds.Y,
+        ID: drawnSelectionIds.ID,
+        life: 0.000001f
+      );
     }
 
     private void DrawLine(string text, int x, int y, int id, string font)
@@ -160,19 +175,21 @@ namespace NWN.Systems.MenuSystem
 
     private void HandleKeydown (object sender, PlayerSystem.Player.KeydownEventArgs e)
     {
-      Console.WriteLine($"HandleKeydown key={e.key}");
-
       switch (e.key)
       {
         default: return;
 
         case "W":
           selectedChoiceID = (selectedChoiceID + choices.Count - 1) % choices.Count;
+          HideLastSelection();
+          NWNX.Player.PlaySound(player.oid, "gui_select", NWObject.OBJECT_INVALID);
           DrawSelection();
           return;
 
         case "S":
           selectedChoiceID = (selectedChoiceID + 1) % choices.Count;
+          HideLastSelection();
+          NWNX.Player.PlaySound(player.oid, "gui_select", NWObject.OBJECT_INVALID);
           DrawSelection();
           return;
 
