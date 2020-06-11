@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using NWN.Enums;
+using NWN.Enums.VisualEffect;
 using Object = NWN.NWNX.Object;
 
 namespace NWN
@@ -177,14 +178,24 @@ namespace NWN
 
         public Boolean HasTagEffect(string sTag)
         {
-            Effect eEffect = NWScript.GetFirstEffect(this);
-            while (NWScript.GetIsEffectValid(eEffect) > 0)
+            foreach (Effect e in this.Effects)
             {
-                if (NWScript.GetEffectTag(eEffect) == sTag)
+                if (NWScript.GetEffectTag(e) == sTag)
                     return true;
-                eEffect = NWScript.GetNextEffect(this);
             }
             return false;
+        }
+
+        public void RemoveTaggedEffect(string Tag)
+        {
+            foreach (Effect e in this.Effects)
+            {
+                if (NWScript.GetEffectTag(e) == Tag)
+                {
+                    NWScript.RemoveEffect(this, e);
+                    break;
+                }
+            }
         }
     }
 }

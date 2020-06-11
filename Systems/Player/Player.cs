@@ -291,26 +291,6 @@ namespace NWN.Systems
             return null;
         }
 
-        public void RemoveTaggedEffect(string Tag)
-        {
-            Effect eEffect = NWScript.GetFirstEffect(this);
-            while (NWScript.GetIsEffectValid(eEffect) > 0)
-            {
-                if (NWScript.GetEffectTag(eEffect) == Tag)
-                {
-                    NWScript.RemoveEffect(this, eEffect);
-                    if(Tag == "lycan_curse")
-                    {
-                        this.ApplyEffect(DurationType.Instant, NWScript.EffectVisualEffect((VisualEffect)Impact.SuperHeroism));
-                        NWNX.Rename.ClearPCNameOverride(this, null, true);
-                        NWNX.Creature.SetMovementRate(this, MovementRate.PC);
-                    }
-                    break;
-                }
-                eEffect = NWScript.GetNextEffect(this);
-            }
-        }
-
         public void ApplyLycanCurse()
         {
             Effect ePoly = NWScript.EffectPolymorph(107, true);
@@ -321,7 +301,35 @@ namespace NWN.Systems
             this.ApplyEffect(DurationType.Instant, NWScript.EffectVisualEffect((VisualEffect)Impact.SuperHeroism));
 
             NWNX.Rename.SetPCNameOverride(this, "Loup-garou", "", "", NWNX.Enum.NameOverrideType.Override);
-            NWNX.Creature.SetMovementRate(this, MovementRate.VeryFast);
+            NWNX.Creature.SetMovementRate(this, MovementRate.Fast);
+
+            NWNX.Events.AddObjectToDispatchList("NWNX_ON_EFFECT_REMOVED_AFTER", "event_effects", this);
+        }
+
+        public void RemoveLycanCurse()
+        {
+            this.ApplyEffect(DurationType.Instant, NWScript.EffectVisualEffect((VisualEffect)Impact.SuperHeroism));
+            NWNX.Rename.ClearPCNameOverride(this, null, true);
+            NWNX.Creature.SetMovementRate(this, MovementRate.PC);
+
+            NWNX.Events.RemoveObjectFromDispatchList("NWNX_ON_EFFECT_REMOVED_AFTER", "event_effects", this);
+        }
+
+        public void BlockPlayer()
+        {
+            Location locPlayer = this.Location;
+            uint oBoulder = NWScript.CreateObject(ObjectType.Placeable, "plc_boulder", locPlayer, false, "_PC_BLOCKER");
+            NWNX.Object.SetPosition(this, NWScript.GetPositionFromLocation(locPlayer));
+            oBoulder.AsObject().ApplyEffect(DurationType.Permanent, NWScript.EffectVisualEffect((VisualEffect)Temporary.CutsceneInvisibility));
+        }
+
+        public void UnblockPlayer()
+        {
+            uint oBlocker = NWScript.GetNearestObjectByTag("_PC_BLOCKER", this);
+            foreach (Effect e in oBlocker.AsObject().Effects)
+                NWScript.RemoveEffect(oBlocker, e);
+
+            oBlocker.AsObject().Area.AssignCommand(() => NWScript.DelayCommand(0.01f, () => oBlocker.AsObject().Destroy()));
         }
         #endregion
 

@@ -37,6 +37,8 @@ namespace NWN
             { "connexion", EventPlayerConnexion },
             { "_onenter", OnEnter },
             { "event_potager", EventPotager },
+            { "_on_activate", EventItemActivated },
+            { "_event_effects", EventEffects },
         }.Concat(Systems.Loot.Register)
          .ToDictionary(kvp => kvp.Key, kvp => kvp.Value);
 
@@ -60,6 +62,9 @@ namespace NWN
 
             NWNX.Events.SubscribeEvent("NWNX_ON_USE_FEAT_BEFORE", "event_feat_used");
             NWNX.Events.ToggleDispatchListMode("NWNX_ON_USE_FEAT_BEFORE", "event_feat_used", 1);
+
+            NWNX.Events.SubscribeEvent("NWNX_ON_EFFECT_REMOVED_AFTER", "event_effects");
+            NWNX.Events.ToggleDispatchListMode("NWNX_ON_EFFECT_REMOVED_AFTER", "event_effects", 1);
 
             NWNX.Events.SubscribeEvent("CDE_POTAGER", "event_potager");
 
@@ -109,6 +114,37 @@ namespace NWN
             return Entrypoints.SCRIPT_HANDLED;
         }
 
+        private static int EventItemActivated(uint oidSelf)
+        {
+            var oItem = NWScript.GetItemActivated().AsItem();
+            var oActivator = NWScript.GetItemActivator().AsPlayer();
+            var oTarget = NWScript.GetItemActivatedTarget();
+
+            if(oItem.Tag == "test_block")
+            {
+                var oPC = Systems.Player.Players.GetValueOrDefault(oActivator.uuid);
+                oPC.BlockPlayer();
+            }
+
+            return Entrypoints.SCRIPT_NOT_HANDLED;
+        }
+
+        private static int EventEffects(uint oidSelf)
+        {
+            string current_event = NWNX.Events.GetCurrentEvent();
+
+            if (current_event == "NWNX_ON_EFFECT_REMOVED_AFTER")
+            {
+                if (NWNX.Events.GetEventData("CUSTOM_TAG") == "lycan_curse") 
+                {
+                    Systems.Player myPlayer = Systems.Player.Players.GetValueOrDefault(oidSelf.AsPlayer().uuid);
+                    myPlayer.RemoveLycanCurse();
+                }
+            }
+
+            return Entrypoints.SCRIPT_HANDLED;
+        }
+
         private static int EventDMActions(uint oidSelf)
         {
             NWPlayer oPC = oidSelf.AsPlayer();
@@ -145,24 +181,24 @@ namespace NWN
         private static int OnEnter(uint oidSelf)
         {
             var oPC = NWScript.GetEnteringObject();
-            Systems.Player test = new Systems.Player(oPC);
-            test.AddFeat(NWN.Enums.Feat.PlayerTool01);
+            Systems.Player myPlayer = new Systems.Player(oPC);
+            myPlayer.AddFeat(NWN.Enums.Feat.PlayerTool01);
 
-            oPC.AsObject().AddToDispatchList("NWNX_ON_USE_FEAT_AFTER", "event_feat_used");
+            myPlayer.AddToDispatchList("NWNX_ON_USE_FEAT_BEFORE", "event_feat_used");
             
             if (NWNX.Object.GetInt(oPC, "_FROST_ATTACK") != 0)
             {
-                NWNX.Events.AddObjectToDispatchList("NWNX_ON_INPUT_ATTACK_OBJECT_BEFORE", "event_auto_spell", oPC);
-                NWNX.Events.AddObjectToDispatchList("NWNX_ON_INPUT_FORCE_MOVE_TO_OBJECT_BEFORE", "event_auto_spell", oPC);
-                NWNX.Events.AddObjectToDispatchList("NWNX_ON_INPUT_CAST_SPELL_BEFORE", "_onspellcast", oPC);
-                NWNX.Events.AddObjectToDispatchList("NWNX_ON_INPUT_KEYBOARD_BEFORE", "event_auto_spell", oPC);
-                NWNX.Events.AddObjectToDispatchList("NWNX_ON_INPUT_WALK_TO_WAYPOINT_BEFORE", "event_auto_spell", oPC);
+                NWNX.Events.AddObjectToDispatchList("NWNX_ON_INPUT_ATTACK_OBJECT_BEFORE", "event_auto_spell", myPlayer);
+                NWNX.Events.AddObjectToDispatchList("NWNX_ON_INPUT_FORCE_MOVE_TO_OBJECT_BEFORE", "event_auto_spell", myPlayer);
+                NWNX.Events.AddObjectToDispatchList("NWNX_ON_INPUT_CAST_SPELL_BEFORE", "_onspellcast", myPlayer);
+                NWNX.Events.AddObjectToDispatchList("NWNX_ON_INPUT_KEYBOARD_BEFORE", "event_auto_spell", myPlayer);
+                NWNX.Events.AddObjectToDispatchList("NWNX_ON_INPUT_WALK_TO_WAYPOINT_BEFORE", "event_auto_spell", myPlayer);
             }
 
-            if(test.GetPossessedItem("pj_lycan_curse").IsValid)
+            if(myPlayer.GetPossessedItem("pj_lycan_curse").IsValid)
             {
-                test.AddFeat(NWN.Enums.Feat.PlayerTool02);
-                test.GetPossessedItem("pj_lycan_curse").Destroy();
+                myPlayer.AddFeat(NWN.Enums.Feat.PlayerTool02);
+                myPlayer.GetPossessedItem("pj_lycan_curse").Destroy();
             }   
 
             return Entrypoints.SCRIPT_NOT_HANDLED;
@@ -208,16 +244,20 @@ namespace NWN
         private static int EventFeatUsed(uint oidSelf)
         {
             string current_event = NWNX.Events.GetCurrentEvent();
+            var feat = int.Parse(NWNX.Events.GetEventData("FEAT_ID"));
 
             if (current_event == "NWNX_ON_USE_FEAT_BEFORE")
             {
-                if (int.Parse(NWNX.Events.GetEventData("FEAT_ID")) == (int)NWN.Enums.Feat.PlayerTool02)
+                if (feat == (int)NWN.Enums.Feat.PlayerTool02)
                 {
                     NWNX.Events.SkipEvent();
                     var oPC = Systems.Player.Players.GetValueOrDefault(oidSelf.AsObject().uuid);
 
                     if (oPC.HasTagEffect("lycan_curse"))
+                    {
                         oPC.RemoveTaggedEffect("lycan_curse");
+                        oPC.RemoveLycanCurse();
+                    }
                     else
                     {
                         if ((DateTime.Now - oPC.LycanCurseTimer).TotalSeconds > 10800)
@@ -231,7 +271,7 @@ namespace NWN
 
                     return Entrypoints.SCRIPT_HANDLED;
                 }
-                else if (int.Parse(NWNX.Events.GetEventData("FEAT_ID")) == (int)NWN.Enums.Feat.PlayerTool01)
+                else if (feat == (int)NWN.Enums.Feat.PlayerTool01)
                 {
                     NWNX.Events.SkipEvent();
                     NWPlaceable oTarget = NWNX.Object.StringToObject(NWNX.Events.GetEventData("TARGET_OBJECT_ID")).AsPlaceable();
@@ -244,16 +284,12 @@ namespace NWN
                         {
                             NWNX.Events.AddObjectToDispatchList("NWNX_ON_INPUT_KEYBOARD_AFTER", "event_mv_plc", oidSelf);
                             oidSelf.AsObject().Locals.Object.Set("_MOVING_PLC", oTarget);
-                            oidSelf.AsPlayer().SendMessage($"Vous venez de sélectionner {oTarget.Name}, utilisez Z, Q, S ou D pour le déplacer. A et E pour le faire tourner. Pour enregistrer le nouvel emplacement, activez le don sur un endroit vide (sans cible).");
+                            oidSelf.AsPlayer().SendMessage($"Vous venez de sélectionner {oTarget.Name}, utilisez votre barre de raccourcis pour le déplacer. Pour enregistrer le nouvel emplacement et retrouver votre barre de raccourcis habituelle, activez le don sur un endroit vide (sans cible).");
                             //remplacer la ligne précédente par un PostString().
 
                             if(myPlayer.SelectedObjectsList.Count == 0)
                             {
-                                //En faire une méthode de la classe Player
-                                Location lPC = oidSelf.AsObject().Location;
-                                uint oBoulder = NWScript.CreateObject(ObjectType.Placeable, "plc_boulder", lPC, false, "_PC_BLOCKER");
-                                oidSelf.AsObject().Position = NWScript.GetPositionFromLocation(lPC);
-                                NWScript.ApplyEffectToObject(DurationType.Permanent, NWScript.EffectVisualEffect((VisualEffect)Temporary.CutsceneInvisibility), oBoulder);
+                                myPlayer.BlockPlayer();                                
                             }
 
                             if (!myPlayer.SelectedObjectsList.Contains(oTarget))
@@ -268,28 +304,26 @@ namespace NWN
                     {
                         string sObjectSaved = "";
 
-                        /*foreach (uint selectedObject in myPlayer.SelectedObjectsList)
+                        foreach (uint selectedObject in myPlayer.SelectedObjectsList)
                         {
-                            var command = MySQL.Client.CreateCommand(
-                                                   $"UPDATE sql_meubles SET objectLocation = @loc WHERE objectUUID = @uuid");
-                            command.Parameters.AddWithValue("@loc", APSLocationToString(selectedObject.AsObject().Location));
-                            command.Parameters.AddWithValue("@uuid", selectedObject.AsObject().uuid);
-                            command.ExecuteNonQuery();
+                            var sql = $"UPDATE sql_meubles SET objectLocation = @loc WHERE objectUUID = @uuid";
+
+                            using (var connection = MySQL.GetConnection())
+                            {
+                                connection.Execute(sql, new { uuid = selectedObject.AsObject().uuid, loc = APSLocationToString(selectedObject.AsObject().Location) });
+                            }
 
                             sObjectSaved += selectedObject.AsObject().Name + "\n";
-                        }*/
+                        }
 
                         myPlayer.SendMessage($"Vous venez de sauvegarder le positionnement des meubles : \n{sObjectSaved}");
-                        uint oBlocker = NWScript.GetNearestObjectByTag("_PC_BLOCKER", oidSelf);
-                        foreach (Effect e in oBlocker.AsObject().Effects)
-                            NWScript.RemoveEffect(oBlocker, e);
-
-                        oBlocker.AsObject().Area.AssignCommand(() => NWScript.DelayCommand(0.2f, () => oBlocker.AsObject().Destroy()));
+                        myPlayer.UnblockPlayer();
                         
                         NWNX.Events.RemoveObjectFromDispatchList("NWNX_ON_INPUT_KEYBOARD_AFTER", "event_mv_plc", oidSelf);
                         oidSelf.AsObject().Locals.Object.Delete("_MOVING_PLC");
                         myPlayer.SelectedObjectsList.Clear();
-                    }                                               
+                    }
+                    return Entrypoints.SCRIPT_HANDLED;
                 }
             }
             return Entrypoints.SCRIPT_HANDLED;
@@ -380,9 +414,10 @@ namespace NWN
                 }
                 return Entrypoints.SCRIPT_HANDLED;
             }
-            else if (sChatReceived.StartsWith("!testpotager"))
+            else if (sChatReceived.StartsWith("!testblockdotnet"))
             {
                 Chat.SkipMessage();
+                oPC.BlockPlayer();
                 //Garden.Init();
                 return Entrypoints.SCRIPT_HANDLED;
             }
