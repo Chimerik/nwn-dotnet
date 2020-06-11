@@ -2,6 +2,9 @@ namespace NWN.NWNX {
   public static class Events {
     private const string PLUGIN_NAME = "NWNX_Events";
 
+    // EVENT NAMES
+    public const string ON_INPUT_KEYBOARD_BEFORE = "NWNX_ON_INPUT_KEYBOARD_BEFORE";
+
     // Scripts can subscribe to events.
     // Some events are dispatched via the NWNX plugin (see NWNX_EVENTS_EVENT_* constants).
     // Others can be signalled via script code (see NWNX_Events_SignalEvent).
