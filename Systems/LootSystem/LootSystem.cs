@@ -3,12 +3,12 @@ using System.Collections.Generic;
 
 namespace NWN.Systems
 {
-  public static partial class Loot
+  public static partial class LootSystem
   {
     public static Dictionary<string, Func<uint, int>> Register = new Dictionary<string, Func<uint, int>>
         {
-            { LOOT_CONTAINER_ON_CLOSE_SCRIPT, OnContainerClose },
-            { ON_LOOT_SCRIPT, OnLoot },
+            { LOOT_CONTAINER_ON_CLOSE_SCRIPT, HandleContainerClose },
+            { ON_LOOT_SCRIPT, HandleLoot },
         };
 
     public static void InitChestArea()
@@ -21,6 +21,7 @@ namespace NWN.Systems
       }
 
       var chestList = GetPlaceables(oArea);
+
       CleanDatabase(chestList);
 
       foreach (var oChest in chestList)
@@ -29,14 +30,14 @@ namespace NWN.Systems
       }
     }
 
-    private static int OnContainerClose(uint oidSelf)
+    private static int HandleContainerClose(uint oidSelf)
     {
       UpdateChestTagToLootsDic(oidSelf);
       UpdateDB(oidSelf);
       return Entrypoints.SCRIPT_HANDLED;
     }
 
-    private static int OnLoot(uint oidSelf)
+    private static int HandleLoot(uint oidSelf)
     {
       var oLooter = NWScript.GetLastKiller();
       var oContainer = oidSelf;

@@ -2,7 +2,7 @@
 
 namespace NWN.Systems
 {
-  public partial class Loot
+  public partial class LootSystem
   {
     public class Lootable
     {

@@ -5,7 +5,7 @@ using Dapper;
 
 namespace NWN.Systems
 {
-  public static partial class Loot
+  public static partial class LootSystem
   {
     private static Dictionary<string, List<uint>> chestTagToLootsDic = new Dictionary<string, List<uint>> { };
 
@@ -54,11 +54,10 @@ namespace NWN.Systems
 
       using (var connection = MySQL.GetConnection())
       {
-        var lootContainer = connection.QueryFirst<Models.LootContainer>(sql, new { tag = chestTag });
-        var oDeserializedChest = NWNX.Object.Deserialize(lootContainer.serialized);
-
-        if (NWScript.GetIsObjectValid(oDeserializedChest))
+        try
         {
+          var lootContainer = connection.QuerySingle<Models.LootContainer>(sql, new { tag = chestTag });
+          var oDeserializedChest = NWNX.Object.Deserialize(lootContainer.serialized);
           var location = NWScript.GetLocation(oChest);
           var oChestPosition = NWScript.GetPositionFromLocation(location);
           var direction = NWScript.GetFacingFromLocation(location);
@@ -67,13 +66,14 @@ namespace NWN.Systems
           NWScript.SetEventScript(oDeserializedChest, NWScript.EVENT_SCRIPT_PLACEABLE_ON_CLOSED, LOOT_CONTAINER_ON_CLOSE_SCRIPT);
           NWScript.DestroyObject(oChest);
         }
-        else
+        catch (Exception _)
         {
           UpdateDB(oChest);
         }
 
-        UpdateChestTagToLootsDic(oChest);
       }
+
+      UpdateChestTagToLootsDic(oChest);
     }
 
     private static List<uint> GetPlaceables(uint oArea)

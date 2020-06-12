@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 
 namespace NWN
 {
@@ -27,7 +27,7 @@ namespace NWN
     public static int OnRunScript(string script, uint oidSelf)
     {
       Func<uint, int> handler;
-      if (ScriptHandlers.Register.TryGetValue(script, out handler))
+      if (ScriptHandlers.Scripts.Register.TryGetValue(script, out handler))
       {
         try
         {

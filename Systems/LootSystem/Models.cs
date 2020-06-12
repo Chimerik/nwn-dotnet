@@ -1,6 +1,6 @@
 ﻿namespace NWN.Systems
 {
-  public static partial class Loot
+  public static partial class LootSystem
   {
     public static class Models
     {
