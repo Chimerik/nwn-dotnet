@@ -1,4 +1,4 @@
-using NWN.Enums;
+﻿using NWN.Enums;
 using NWN.Enums.Item;
 using NWN.Enums.Item.Property;
 using NWN.Enums.VisualEffect;
