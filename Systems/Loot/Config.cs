@@ -2,15 +2,15 @@
 
 namespace NWN.Systems
 {
-    public partial class Loot
-    {
-        private readonly static string LOOT_CONTAINER_ON_CLOSE_SCRIPT = "ls_load_onclose";
-        private readonly static string ON_LOOT_SCRIPT = "ls_onloot";
-        private readonly static string CHEST_AREA_TAG = "la_zone_des_loots";
-        private readonly static string SQL_TABLE = "loot_containers";
-        private readonly static string IS_LOOTED_VARNAME = "LS__IS_LOOTED";
+  public partial class Loot
+  {
+    private readonly static string LOOT_CONTAINER_ON_CLOSE_SCRIPT = "ls_load_onclose";
+    private readonly static string ON_LOOT_SCRIPT = "ls_onloot";
+    private readonly static string CHEST_AREA_TAG = "la_zone_des_loots";
+    private readonly static string SQL_TABLE = "loot_containers";
+    private readonly static string IS_LOOTED_VARNAME = "LS__IS_LOOTED";
 
-        private readonly static Dictionary<string, Lootable.Config> lootablesDic = new Dictionary<string, Lootable.Config>
+    private readonly static Dictionary<string, Lootable.Config> lootablesDic = new Dictionary<string, Lootable.Config>
         {
             { "gobelin_dungeon_chest", new Lootable.Config(
                 respawnDuration: 10f,
@@ -33,5 +33,5 @@ namespace NWN.Systems
                 }
             )},
         };
-    }
+  }
 }
