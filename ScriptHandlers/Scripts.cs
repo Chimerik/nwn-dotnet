@@ -3,7 +3,6 @@ using NWN.Enums.Item;
 using NWN.Enums.Item.Property;
 using NWN.Enums.VisualEffect;
 using NWN.NWNX;
-using NWN.Systems.PostString;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -17,7 +16,6 @@ namespace NWN.ScriptHandlers
             { "_onload", HandleModuleLoad },
             { "x2_mod_def_act", HandleActivateItem },
             { "cs_chatlistener", ChatListener },
-            { "event_keyboard", EventKeyboard },
             { "X0_S0_AcidSplash", CantripsScaler },
             { "NW_S0_Daze", CantripsScaler },
             { "X0_S0_ElecJolt", CantripsScaler },
@@ -137,14 +135,6 @@ namespace NWN.ScriptHandlers
 
         return Entrypoints.SCRIPT_HANDLED;
       }
-      else if (sChatReceived.StartsWith("!testmenu"))
-      {
-        Chat.SkipMessage();
-        NWScript.SetLocalInt(oChatSender, "_MENU_ON", 1);
-        PostString.Menu_UpdateGUI(oChatSender);
-        PostString.Menu_DrawStaticGUI(oChatSender);
-        return Entrypoints.SCRIPT_HANDLED;
-      }
       else if (sChatReceived.StartsWith("!walk"))
       {
         Chat.SkipMessage();
@@ -161,80 +151,6 @@ namespace NWN.ScriptHandlers
           NWScript.SendMessageToPC(oChatSender, "Vous avez désactivé le mode marche.");
         }
         return Entrypoints.SCRIPT_HANDLED;
-      }
-
-      return Entrypoints.SCRIPT_NOT_HANDLED;
-    }
-    private static int EventKeyboard(uint oidSelf)
-    {
-      string current_event = Events.GetCurrentEvent();
-
-      NWScript.ApplyEffectToObject(DurationType.Permanent, NWScript.EffectCutsceneParalyze(), oidSelf);
-
-      if (current_event == "NWNX_ON_INPUT_KEYBOARD_AFTER")
-      {
-        NWObject oPlayer = NWObject.OBJECT_SELF.AsObject();
-
-        if (NWScript.GetLocalInt(oPlayer, "_MENU_ON") != 0)
-        {
-          NWScript.ClearAllActions();
-
-          string sKey = Events.GetEventData("KEY");
-          int nCurrentGUISelection = NWScript.GetLocalInt(oPlayer, "CurrentGUISelection");
-          bool bRedraw = false;
-
-          if (sKey == "W")
-          {
-            if (nCurrentGUISelection > 0)
-            {
-              nCurrentGUISelection--;
-              bRedraw = true;
-            }
-          }
-          else
-          if (sKey == "S")
-          {
-            if (nCurrentGUISelection < 2)
-            {
-              nCurrentGUISelection++;
-              bRedraw = true;
-            }
-          }
-          else
-          if (sKey == "E")
-          {
-            Player.PlaySound(oPlayer, "gui_picklockopen", NWObject.OBJECT_INVALID);
-
-            switch (nCurrentGUISelection)
-            {
-              case 0:
-                {
-                  NWScript.FloatingTextStringOnCreature("Start!", oPlayer, false);
-                  break;
-                }
-
-              case 1:
-                {
-                  NWScript.FloatingTextStringOnCreature("Stop!", oPlayer, false);
-                  break;
-                }
-              case 2:
-                {
-                  NWScript.FloatingTextStringOnCreature("Exit!", oPlayer, false);
-                  break;
-                }
-            }
-          }
-
-          NWScript.SetLocalInt(oPlayer, "CurrentGUISelection", nCurrentGUISelection);
-
-          if (bRedraw)
-          {
-            Player.PlaySound(oPlayer, "gui_select", NWObject.OBJECT_INVALID);
-            PostString.Menu_UpdateGUI(oPlayer);
-            PostString.Menu_DrawStaticGUI(oPlayer);
-          }
-        }
       }
 
       return Entrypoints.SCRIPT_NOT_HANDLED;
