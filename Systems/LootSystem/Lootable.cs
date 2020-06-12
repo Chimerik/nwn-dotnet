@@ -94,15 +94,18 @@ namespace NWN.Systems
           List<uint> loots;
           if (chestTagToLootsDic.TryGetValue(chestTag, out loots))
           {
-            for (var i = 0; i < count; i++)
+            if (loots.Count > 0)
             {
-              if (Utils.random.Next(1, 100) <= chance)
+              for (var i = 0; i < count; i++)
               {
-                NWScript.CopyItem(
-                    loots[Utils.random.Next(0, loots.Count - 1)],
-                    oContainer,
-                    true
-                );
+                if (Utils.random.Next(1, 100) <= chance)
+                {
+                  NWScript.CopyItem(
+                      loots[Utils.random.Next(0, loots.Count - 1)],
+                      oContainer,
+                      true
+                  );
+                }
               }
             }
           }
