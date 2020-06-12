@@ -65,7 +65,8 @@ namespace NWN.Systems
           NWScript.AssignCommand(oDeserializedChest, () => NWScript.SetFacing(direction));
           NWScript.SetEventScript(oDeserializedChest, NWScript.EVENT_SCRIPT_PLACEABLE_ON_CLOSED, LOOT_CONTAINER_ON_CLOSE_SCRIPT);
           NWScript.DestroyObject(oChest);
-        } catch (Exception _)
+        }
+        catch (Exception _)
         {
           UpdateDB(oChest);
         }

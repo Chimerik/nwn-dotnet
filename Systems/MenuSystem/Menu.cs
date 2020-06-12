@@ -157,7 +157,7 @@ namespace NWN.Systems.MenuSystem
       drawnLineIds.Add((x, y, id));
     }
 
-    private void HandleKeydown (object player, PlayerSystem.Player.KeydownEventArgs e)
+    private void HandleKeydown(object player, PlayerSystem.Player.KeydownEventArgs e)
     {
       Console.WriteLine($"HandleKeydown key={e.key}");
 
