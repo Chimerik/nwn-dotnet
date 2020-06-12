@@ -19,7 +19,6 @@ namespace NWN.ScriptHandlers
             { "_onload", HandleModuleLoad },
             { "x2_mod_def_act", HandleActivateItem },
             { "cs_chatlistener", ChatListener },
-            { "event_keyboard", EventKeyboard },
             { "X0_S0_AcidSplash", CantripsScaler },
             { "NW_S0_Daze", CantripsScaler },
             { "X0_S0_ElecJolt", CantripsScaler },
@@ -264,7 +263,7 @@ namespace NWN.ScriptHandlers
 
               using (var connection = MySQL.GetConnection())
               {
-                connection.Execute(sql, new { uuid = selectedObject.AsObject().uuid, loc = APSLocationToString(selectedObject.AsObject().Location) });
+                connection.Execute(sql, new { uuid = selectedObject.AsObject().uuid, loc = Utils.APSLocationToString(selectedObject.AsObject().Location) });
               }
 
               sObjectSaved += selectedObject.AsObject().Name + "\n";
@@ -324,36 +323,6 @@ namespace NWN.ScriptHandlers
       return Entrypoints.SCRIPT_HANDLED;
     }
 
-    private static int EventMouseClick(uint oidSelf)
-    {
-      NWObject oClicker = oidSelf.AsObject();
-      if (!oClicker.IsPC)
-        return Entrypoints.SCRIPT_NOT_HANDLED;
-
-      if (NWScript.GetLocalInt(oClicker, "_FROST_ATTACK_ON") != 0 && (NWNX.Events.GetCurrentEvent() == "NWNX_ON_INPUT_ATTACK_OBJECT_BEFORE" || NWNX.Events.GetCurrentEvent() == "NWNX_ON_INPUT_FORCE_MOVE_TO_OBJECT_BEFORE" || NWNX.Events.GetCurrentEvent() == "NWNX_ON_INPUT_CAST_SPELL_BEFORE" || NWNX.Events.GetCurrentEvent() == "NWNX_ON_INPUT_KEYBOARD_BEFORE" || NWNX.Events.GetCurrentEvent() == "NWNX_ON_INPUT_WALK_TO_WAYPOINT_BEFORE"))
-      {
-        if (NWNX.Object.StringToObject(NWNX.Events.GetEventData("TARGET")) != NWScript.GetLocalObject(oClicker, "_FROST_ATTACK_TARGET") && NWScript.GetLocalObject(oClicker, "_FROST_ATTACK_TARGET") != NWObject.OBJECT_INVALID)
-        {
-          NWScript.SetLocalInt(oClicker, "_FROST_ATTACK_CANCEL", 1);
-          NWScript.DeleteLocalInt(oClicker, "_FROST_ATTACK_ON");
-          NWScript.DeleteLocalObject(oClicker, "_FROST_ATTACK_TARGET");
-        }
-      }
-
-      if (!oClicker.IsPC || NWNX.Object.GetInt(oClicker, "_FROST_ATTACK") == 0 || NWNX.Events.GetCurrentEvent() != "NWNX_ON_INPUT_ATTACK_OBJECT_BEFORE")
-        return Entrypoints.SCRIPT_NOT_HANDLED;
-
-      uint oTarget = NWNX.Object.StringToObject(NWNX.Events.GetEventData("TARGET"));
-      NWScript.AssignCommand(oClicker, () => NWScript.ClearAllActions());
-      NWScript.AssignCommand(oClicker, () => NWScript.ActionCastSpellAtObject(Spell.RayOfFrost, oTarget));
-      NWScript.DelayCommand(6.0f, () => FrostAutoAttack(oClicker, oTarget));
-
-      NWScript.SetLocalInt(oClicker, "_FROST_ATTACK_ON", 1);
-      NWScript.SetLocalObject(oClicker, "_FROST_ATTACK_TARGET", oTarget);
-
-      return Entrypoints.SCRIPT_NOT_HANDLED;
-    }
-
     private static void FrostAutoAttack(NWObject oClicker, uint oTarget)
     {
       if (NWScript.GetLocalInt(oClicker, "_FROST_ATTACK_CANCEL") == 0)
@@ -370,31 +339,44 @@ namespace NWN.ScriptHandlers
     private static int ChatListener(uint oidSelf)
     {
       string sChatReceived = Chat.GetMessage();
-      NWN.NWObject oChatSender = Chat.GetSender();
-      NWN.NWObject oChatTarget = Chat.GetTarget();
+      NWPlayer oChatSender = ((uint)Chat.GetSender()).AsPlayer();
+      NWObject oChatTarget = Chat.GetTarget();
       Enum iChannel = (ChatChannel)Chat.GetChannel();
 
       if (!oChatSender.IsPC)
         return Entrypoints.SCRIPT_NOT_HANDLED;
 
+      Systems.Player oPC = Systems.Player.Players.GetValueOrDefault(oChatSender.uuid);
+
       if (sChatReceived.StartsWith("!frostattack"))
       {
         Chat.SkipMessage();
-        if (NWScript.GetLevelByClass(ClassType.Wizard, oChatSender) > 0 || NWScript.GetLevelByClass(ClassType.Sorcerer, oChatSender) > 0)
+
+        if (oChatSender.HasSpell(Spell.RayOfFrost))
         {
           if (NWNX.Object.GetInt(oChatSender, "_FROST_ATTACK") == 0)
           {
             NWNX.Object.SetInt(oChatSender, "_FROST_ATTACK", 1, true);
-            NWScript.SendMessageToPC(oChatSender, "Vous activez le mode d'attaque par rayon de froid");
+            NWNX.Events.AddObjectToDispatchList("NWNX_ON_INPUT_ATTACK_OBJECT_BEFORE", "event_auto_spell", oidSelf);
+            NWNX.Events.AddObjectToDispatchList("NWNX_ON_INPUT_FORCE_MOVE_TO_OBJECT_BEFORE", "event_auto_spell", oidSelf);
+            NWNX.Events.AddObjectToDispatchList("NWNX_ON_INPUT_CAST_SPELL_BEFORE", "_onspellcast", oidSelf);
+            NWNX.Events.AddObjectToDispatchList("NWNX_ON_INPUT_KEYBOARD_BEFORE", "event_auto_spell", oidSelf);
+            NWNX.Events.AddObjectToDispatchList("NWNX_ON_INPUT_WALK_TO_WAYPOINT_BEFORE", "event_auto_spell", oidSelf);
+            oPC.SendMessage("Vous activez le mode d'attaque par rayon de froid");
           }
           else
           {
             NWNX.Object.DeleteInt(oChatSender, "_FROST_ATTACK");
-            NWScript.SendMessageToPC(oChatSender, "Vous désactivez le mode d'attaque par rayon de froid");
+            NWNX.Events.RemoveObjectFromDispatchList("NWNX_ON_INPUT_ATTACK_OBJECT_BEFORE", "event_auto_spell", oidSelf);
+            NWNX.Events.RemoveObjectFromDispatchList("NWNX_ON_INPUT_FORCE_MOVE_TO_OBJECT_BEFORE", "event_auto_spell", oidSelf);
+            NWNX.Events.RemoveObjectFromDispatchList("NWNX_ON_INPUT_CAST_SPELL_BEFORE", "_onspellcast", oidSelf);
+            NWNX.Events.RemoveObjectFromDispatchList("NWNX_ON_INPUT_KEYBOARD_BEFORE", "event_auto_spell", oidSelf);
+            NWNX.Events.RemoveObjectFromDispatchList("NWNX_ON_INPUT_WALK_TO_WAYPOINT_BEFORE", "event_auto_spell", oidSelf);
+            oPC.SendMessage("Vous désactivez le mode d'attaque par rayon de froid");
           }
         }
         else
-          NWScript.SendMessageToPC(oChatSender, "Il vous faut pouvoir lancer le sort rayon de froid pour activer ce mode.");
+          oPC.SendMessage("Il vous faut pouvoir lancer le sort rayon de froid pour activer ce mode.");
 
         return Entrypoints.SCRIPT_HANDLED;
       }
@@ -413,14 +395,21 @@ namespace NWN.ScriptHandlers
         {
           NWNX.Player.SetAlwaysWalk(oChatSender, true);
           NWNX.Object.SetInt(oChatSender, "_ALWAYS_WALK", 1, true);
-          NWScript.SendMessageToPC(oChatSender, "Vous avez activé le mode marche.");
+          oChatSender.SendMessage("Vous avez activé le mode marche.");
         }
         else
         {
           NWNX.Player.SetAlwaysWalk(oChatSender, false);
           NWNX.Object.DeleteInt(oChatSender, "_ALWAYS_WALK");
-          NWScript.SendMessageToPC(oChatSender, "Vous avez désactivé le mode marche.");
+          oChatSender.SendMessage("Vous avez désactivé le mode marche.");
         }
+        return Entrypoints.SCRIPT_HANDLED;
+      }
+      else if (sChatReceived.StartsWith("!testblockdotnet"))
+      {
+        Chat.SkipMessage();
+        oPC.BlockPlayer();
+        //Garden.Init();
         return Entrypoints.SCRIPT_HANDLED;
       }
 
@@ -456,81 +445,6 @@ namespace NWN.ScriptHandlers
       }
 
       return Entrypoints.SCRIPT_HANDLED;
-    }
-
-    private static int EventKeyboard(uint oidSelf)
-    {
-      string current_event = Events.GetCurrentEvent();
-
-      NWScript.ApplyEffectToObject(DurationType.Permanent, NWScript.EffectCutsceneParalyze(), oidSelf);
-
-      if (current_event == "NWNX_ON_INPUT_KEYBOARD_AFTER")
-      {
-        NWObject oPlayer = NWObject.OBJECT_SELF.AsObject();
-
-        if (NWScript.GetLocalInt(oPlayer, "_MENU_ON") != 0)
-        {
-          NWScript.ClearAllActions();
-
-          string sKey = Events.GetEventData("KEY");
-          int nCurrentGUISelection = NWScript.GetLocalInt(oPlayer, "CurrentGUISelection");
-          bool bRedraw = false;
-
-          if (sKey == "W")
-          {
-            if (nCurrentGUISelection > 0)
-            {
-              nCurrentGUISelection--;
-              bRedraw = true;
-            }
-          }
-          else
-          if (sKey == "S")
-          {
-            if (nCurrentGUISelection < 2)
-            {
-              nCurrentGUISelection++;
-              bRedraw = true;
-            }
-          }
-          else
-          if (sKey == "E")
-          {
-            Player.PlaySound(oPlayer, "gui_picklockopen", NWObject.OBJECT_INVALID);
-
-            switch (nCurrentGUISelection)
-            {
-              case 0:
-                {
-                  NWScript.FloatingTextStringOnCreature("Start!", oPlayer, false);
-                  break;
-                }
-
-              case 1:
-                {
-                  NWScript.FloatingTextStringOnCreature("Stop!", oPlayer, false);
-                  break;
-                }
-              case 2:
-                {
-                  NWScript.FloatingTextStringOnCreature("Exit!", oPlayer, false);
-                  break;
-                }
-            }
-          }
-
-          NWScript.SetLocalInt(oPlayer, "CurrentGUISelection", nCurrentGUISelection);
-
-          if (bRedraw)
-          {
-            Player.PlaySound(oPlayer, "gui_select", NWObject.OBJECT_INVALID);
-            PostString.Menu_UpdateGUI(oPlayer);
-            PostString.Menu_DrawStaticGUI(oPlayer);
-          }
-        }
-      }
-
-      return Entrypoints.SCRIPT_NOT_HANDLED;
     }
 
     private static int CantripsScaler(uint oidSelf)

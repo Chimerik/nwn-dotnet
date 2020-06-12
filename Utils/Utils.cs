@@ -47,5 +47,21 @@ namespace NWN
         NWScript.DestroyObject(oObject);
       }
     }
+
+    public static string APSLocationToString(Location lLocation)
+    {
+      uint oArea = NWScript.GetAreaFromLocation(lLocation);
+      Vector vPosition = NWScript.GetPositionFromLocation(lLocation);
+      float fOrientation = NWScript.GetFacingFromLocation(lLocation);
+      string sReturnValue = null;
+
+      if (NWScript.GetIsObjectValid(oArea))
+        sReturnValue =
+            "#AREA#" + NWScript.GetTag(oArea) + "#POSITION_X#" + (vPosition.x).ToString() +
+            "#POSITION_Y#" + (vPosition.y).ToString() + "#POSITION_Z#" +
+            (vPosition.z).ToString() + "#ORIENTATION#" + (fOrientation).ToString() + "#END#";
+
+      return sReturnValue;
+    }
   }
 }
