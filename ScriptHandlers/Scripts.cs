@@ -4,9 +4,11 @@ using NWN.Enums.Item.Property;
 using NWN.Enums.VisualEffect;
 using NWN.NWNX;
 using NWN.Systems.PostString;
+using NWN.Systems;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Dapper;
 
 namespace NWN.ScriptHandlers
 {
@@ -26,17 +28,51 @@ namespace NWN.ScriptHandlers
             { "NW_S0_RayFrost", CantripsScaler },
             { "NW_S0_Resis", CantripsScaler },
             { "NW_S0_Virtue", CantripsScaler },
-            { "event_mouse_clic", EventMouseClick },
+          //  { "event_mouse_clic", EventMouseClick },
+            { "event_auto_spell", EventAutoSpell },
+            { "_onspellcast", EventOnSpellCast },
+            { "event_dm_actions", EventDMActions },
+            { "event_mv_plc", EventMovePlaceable },
+            { "event_feat_used", EventFeatUsed },
+            { "connexion", EventPlayerConnexion },
+            { "_onenter", OnEnter },
+            { "event_potager", EventPotager },
+            { "_on_activate", EventItemActivated },
+            { "_event_effects", EventEffects },
         }.Concat(Systems.LootSystem.Register)
      .Concat(Systems.PlayerSystem.Register)
      .ToDictionary(kvp => kvp.Key, kvp => kvp.Value);
 
     private static int HandleModuleLoad(uint oidSelf)
     {
-      Systems.LootSystem.InitChestArea();
+      //Systems.LootSystem.InitChestArea();
 
       NWNX.Events.SubscribeEvent(NWNX.Events.ON_INPUT_KEYBOARD_BEFORE, Systems.PlayerSystem.ON_PC_KEYSTROKE_SCRIPT);
       NWNX.Events.ToggleDispatchListMode(NWNX.Events.ON_INPUT_KEYBOARD_BEFORE, Systems.PlayerSystem.ON_PC_KEYSTROKE_SCRIPT, 1);
+
+      NWNX.Events.SubscribeEvent("NWNX_ON_INPUT_KEYBOARD_AFTER", "event_mv_plc");
+      NWNX.Events.ToggleDispatchListMode("NWNX_ON_INPUT_KEYBOARD_AFTER", "event_mv_plc", 1);
+
+      NWNX.Events.SubscribeEvent("NWNX_ON_INPUT_ATTACK_OBJECT_BEFORE", "event_auto_spell");
+      NWNX.Events.ToggleDispatchListMode("NWNX_ON_INPUT_ATTACK_OBJECT_BEFORE", "event_auto_spell", 1);
+      NWNX.Events.SubscribeEvent("NWNX_ON_INPUT_FORCE_MOVE_TO_OBJECT_BEFORE", "event_auto_spell");
+      NWNX.Events.ToggleDispatchListMode("NWNX_ON_INPUT_FORCE_MOVE_TO_OBJECT_BEFORE", "event_auto_spell", 1);
+      NWNX.Events.SubscribeEvent("NWNX_ON_INPUT_CAST_SPELL_BEFORE", "_onspellcast");
+      NWNX.Events.ToggleDispatchListMode("NWNX_ON_INPUT_CAST_SPELL_BEFORE", "_onspellcast", 1);
+      NWNX.Events.SubscribeEvent("NWNX_ON_INPUT_KEYBOARD_BEFORE", "event_auto_spell");
+      NWNX.Events.ToggleDispatchListMode("NWNX_ON_INPUT_KEYBOARD_BEFORE", "event_auto_spell", 1);
+      NWNX.Events.SubscribeEvent("NWNX_ON_INPUT_WALK_TO_WAYPOINT_BEFORE", "event_auto_spell");
+      NWNX.Events.ToggleDispatchListMode("NWNX_ON_INPUT_WALK_TO_WAYPOINT_BEFORE", "event_auto_spell", 1);
+
+      NWNX.Events.SubscribeEvent("NWNX_ON_USE_FEAT_BEFORE", "event_feat_used");
+      NWNX.Events.ToggleDispatchListMode("NWNX_ON_USE_FEAT_BEFORE", "event_feat_used", 1);
+
+      NWNX.Events.SubscribeEvent("NWNX_ON_EFFECT_REMOVED_AFTER", "event_effects");
+      NWNX.Events.ToggleDispatchListMode("NWNX_ON_EFFECT_REMOVED_AFTER", "event_effects", 1);
+
+      NWNX.Events.SubscribeEvent("CDE_POTAGER", "event_potager");
+
+      Garden.Init();
 
       return Entrypoints.SCRIPT_NOT_HANDLED;
     }
@@ -61,6 +97,231 @@ namespace NWN.ScriptHandlers
       }
 
       return Entrypoints.SCRIPT_NOT_HANDLED;
+    }
+
+    private static int EventDMActions(uint oidSelf)
+    {
+      NWPlayer oPC = oidSelf.AsPlayer();
+      string current_event = NWNX.Events.GetCurrentEvent();
+
+      if (current_event == "NWNX_ON_CLIENT_EXPORT_CHARACTER_BEFORE" || current_event == "NWNX_ON_SERVER_CHARACTER_SAVE_BEFORE")
+      {
+        if (oPC.Locals.Int.Get("_IS_DISCONNECTING") == 0)
+        {
+          if (oPC.HasAnyEffect((int)EffectTypeEngine.Polymorph))
+          {
+            NWNX.Events.SkipEvent();
+            return Entrypoints.SCRIPT_HANDLED;
+          }
+        }
+        else
+          oPC.Locals.Int.Delete("_IS_DISCONNECTING");
+      }
+      return Entrypoints.SCRIPT_NOT_HANDLED;
+    }
+
+    private static int EventPlayerConnexion(uint oidSelf)
+    {
+      string current_event = NWNX.Events.GetCurrentEvent();
+
+      if (current_event == "NWNX_ON_CLIENT_DISCONNECT_BEFORE")
+      {
+        Systems.Player.Players.Remove(oidSelf.AsObject().uuid);
+        oidSelf.AsObject().Locals.Int.Set("_IS_DISCONNECTING", 1);
+      }
+      return Entrypoints.SCRIPT_NOT_HANDLED;
+    }
+
+    private static int OnEnter(uint oidSelf)
+    {
+      var oPC = NWScript.GetEnteringObject();
+      Systems.Player myPlayer = new Systems.Player(oPC);
+      myPlayer.AddFeat(NWN.Enums.Feat.PlayerTool01);
+
+      myPlayer.AddToDispatchList("NWNX_ON_USE_FEAT_BEFORE", "event_feat_used");
+
+      if (NWNX.Object.GetInt(oPC, "_FROST_ATTACK") != 0)
+      {
+        NWNX.Events.AddObjectToDispatchList("NWNX_ON_INPUT_ATTACK_OBJECT_BEFORE", "event_auto_spell", myPlayer);
+        NWNX.Events.AddObjectToDispatchList("NWNX_ON_INPUT_FORCE_MOVE_TO_OBJECT_BEFORE", "event_auto_spell", myPlayer);
+        NWNX.Events.AddObjectToDispatchList("NWNX_ON_INPUT_CAST_SPELL_BEFORE", "_onspellcast", myPlayer);
+        NWNX.Events.AddObjectToDispatchList("NWNX_ON_INPUT_KEYBOARD_BEFORE", "event_auto_spell", myPlayer);
+        NWNX.Events.AddObjectToDispatchList("NWNX_ON_INPUT_WALK_TO_WAYPOINT_BEFORE", "event_auto_spell", myPlayer);
+      }
+
+      if (myPlayer.GetPossessedItem("pj_lycan_curse").IsValid)
+      {
+        myPlayer.AddFeat(NWN.Enums.Feat.PlayerTool02);
+        myPlayer.GetPossessedItem("pj_lycan_curse").Destroy();
+      }
+
+      return Entrypoints.SCRIPT_NOT_HANDLED;
+    }
+
+    private static int EventPotager(uint oidSelf)
+    {
+      Garden oGarden;
+      if (Garden.Potagers.TryGetValue(oidSelf.AsPlaceable().Locals.Int.Get("id"), out oGarden))
+      {
+        oGarden.PlanterFruit(NWNX.Events.GetEventData("FRUIT_NAME"), NWNX.Events.GetEventData("FRUIT_TAG"));
+      }
+
+      return Entrypoints.SCRIPT_HANDLED;
+    }
+
+    private static int EventMovePlaceable(uint oidSelf)
+    {
+      string current_event = NWNX.Events.GetCurrentEvent();
+
+      string sKey = Events.GetEventData("KEY");
+      NWPlaceable oMeuble = NWScript.GetLocalObject(oidSelf, "_MOVING_PLC").AsPlaceable();
+      Vector vPos = oMeuble.Position;
+
+      if (sKey == "W")
+        oMeuble.AddToArea(oMeuble.Area, NWScript.Vector(vPos.x, vPos.y + 0.1f, vPos.z));
+      else if (sKey == "S")
+        oMeuble.AddToArea(oMeuble.Area, NWScript.Vector(vPos.x, vPos.y - 0.1f, vPos.z));
+      else if (sKey == "D")
+        oMeuble.AddToArea(oMeuble.Area, NWScript.Vector(vPos.x + 0.1f, vPos.y, vPos.z));
+      else if (sKey == "A")
+        oMeuble.AddToArea(oMeuble.Area, NWScript.Vector(vPos.x - 0.1f, vPos.y, vPos.z));
+      else if (sKey == "Q")
+        oMeuble.Facing = oMeuble.Facing - 20.0f;
+      //NWScript.AssignCommand(oMeuble, () => oMeuble.Facing (oMeuble.Facing - 20.0f));
+      else if (sKey == "E")
+        oMeuble.Facing = oMeuble.Facing + 20.0f;
+      //NWScript.AssignCommand(oMeuble, () => NWScript.SetFacing(oMeuble.Facing + 20.0f));
+
+      return Entrypoints.SCRIPT_HANDLED;
+    }
+
+    private static int EventFeatUsed(uint oidSelf)
+    {
+      string current_event = NWNX.Events.GetCurrentEvent();
+      var feat = int.Parse(NWNX.Events.GetEventData("FEAT_ID"));
+
+      if (current_event == "NWNX_ON_USE_FEAT_BEFORE")
+      {
+        if (feat == (int)NWN.Enums.Feat.PlayerTool02)
+        {
+          NWNX.Events.SkipEvent();
+          var oPC = Systems.Player.Players.GetValueOrDefault(oidSelf.AsObject().uuid);
+
+          if (oPC.HasTagEffect("lycan_curse"))
+          {
+            oPC.RemoveTaggedEffect("lycan_curse");
+            oPC.RemoveLycanCurse();
+          }
+          else
+          {
+            if ((DateTime.Now - oPC.LycanCurseTimer).TotalSeconds > 10800)
+            {
+              oPC.ApplyLycanCurse();
+              oPC.LycanCurseTimer = DateTime.Now;
+            }
+            else
+              oPC.SendMessage("Vous ne vous sentez pas encore la force de changer de nouveau de forme.");
+          }
+
+          return Entrypoints.SCRIPT_HANDLED;
+        }
+        else if (feat == (int)NWN.Enums.Feat.PlayerTool01)
+        {
+          NWNX.Events.SkipEvent();
+          NWPlaceable oTarget = NWNX.Object.StringToObject(NWNX.Events.GetEventData("TARGET_OBJECT_ID")).AsPlaceable();
+          Systems.Player myPlayer = Systems.Player.Players.GetValueOrDefault(oidSelf.AsPlayer().uuid);
+
+          if (oTarget.IsValid)
+          {
+            Utils.Meuble result;
+            if (Enum.TryParse(oTarget.Tag, out result))
+            {
+              NWNX.Events.AddObjectToDispatchList("NWNX_ON_INPUT_KEYBOARD_AFTER", "event_mv_plc", oidSelf);
+              oidSelf.AsObject().Locals.Object.Set("_MOVING_PLC", oTarget);
+              oidSelf.AsPlayer().SendMessage($"Vous venez de sélectionner {oTarget.Name}, utilisez votre barre de raccourcis pour le déplacer. Pour enregistrer le nouvel emplacement et retrouver votre barre de raccourcis habituelle, activez le don sur un endroit vide (sans cible).");
+              //remplacer la ligne précédente par un PostString().
+
+              if (myPlayer.SelectedObjectsList.Count == 0)
+              {
+                myPlayer.BlockPlayer();
+              }
+
+              if (!myPlayer.SelectedObjectsList.Contains(oTarget))
+                myPlayer.SelectedObjectsList.Add(oTarget);
+            }
+            else
+            {
+              oidSelf.AsPlayer().SendMessage("Vous ne pouvez pas manier cet élément.");
+            }
+          }
+          else
+          {
+            string sObjectSaved = "";
+
+            foreach (uint selectedObject in myPlayer.SelectedObjectsList)
+            {
+              var sql = $"UPDATE sql_meubles SET objectLocation = @loc WHERE objectUUID = @uuid";
+
+              using (var connection = MySQL.GetConnection())
+              {
+                connection.Execute(sql, new { uuid = selectedObject.AsObject().uuid, loc = APSLocationToString(selectedObject.AsObject().Location) });
+              }
+
+              sObjectSaved += selectedObject.AsObject().Name + "\n";
+            }
+
+            myPlayer.SendMessage($"Vous venez de sauvegarder le positionnement des meubles : \n{sObjectSaved}");
+            myPlayer.UnblockPlayer();
+
+            NWNX.Events.RemoveObjectFromDispatchList("NWNX_ON_INPUT_KEYBOARD_AFTER", "event_mv_plc", oidSelf);
+            oidSelf.AsObject().Locals.Object.Delete("_MOVING_PLC");
+            myPlayer.SelectedObjectsList.Clear();
+          }
+          return Entrypoints.SCRIPT_HANDLED;
+        }
+      }
+      return Entrypoints.SCRIPT_HANDLED;
+    }
+
+    private static int EventAutoSpell(uint oidSelf)
+    {
+      var oClicker = oidSelf.AsPlayer();
+      Systems.Player oPC;
+
+      if (Systems.Player.Players.TryGetValue(oClicker.uuid, out oPC))
+      {
+        var oTarget = NWNX.Object.StringToObject(NWNX.Events.GetEventData("TARGET"));
+
+        if (oTarget.AsObject().IsValid)
+        {
+          oPC.ClearAllActions();
+          if (oPC.AutoAttackTarget == NWObject.OBJECT_INVALID)
+          {
+            oPC.CastSpellAtObject(Spell.RayOfFrost, oTarget);
+            NWScript.DelayCommand(6.0f, () => oPC.OnFrostAutoAttackTimedEvent());
+          }
+        }
+
+        oPC.AutoAttackTarget = oTarget;
+      }
+
+      return Entrypoints.SCRIPT_HANDLED;
+    }
+
+    private static int EventOnSpellCast(uint oidSelf)
+    {
+      var oClicker = oidSelf.AsPlayer();
+      Systems.Player oPC;
+
+      if (Systems.Player.Players.TryGetValue(oClicker.uuid, out oPC))
+      {
+        var spellId = int.Parse(NWNX.Events.GetEventData("SPELL_ID"));
+
+        if (spellId != (int)Spell.RayOfFrost)
+          oPC.AutoAttackTarget = NWObject.OBJECT_INVALID;
+      }
+
+      return Entrypoints.SCRIPT_HANDLED;
     }
 
     private static int EventMouseClick(uint oidSelf)
@@ -165,6 +426,38 @@ namespace NWN.ScriptHandlers
 
       return Entrypoints.SCRIPT_NOT_HANDLED;
     }
+
+    private static int EventItemActivated(uint oidSelf)
+    {
+      var oItem = NWScript.GetItemActivated().AsItem();
+      var oActivator = NWScript.GetItemActivator().AsPlayer();
+      var oTarget = NWScript.GetItemActivatedTarget();
+
+      if (oItem.Tag == "test_block")
+      {
+        var oPC = Systems.Player.Players.GetValueOrDefault(oActivator.uuid);
+        oPC.BlockPlayer();
+      }
+
+      return Entrypoints.SCRIPT_NOT_HANDLED;
+    }
+
+    private static int EventEffects(uint oidSelf)
+    {
+      string current_event = NWNX.Events.GetCurrentEvent();
+
+      if (current_event == "NWNX_ON_EFFECT_REMOVED_AFTER")
+      {
+        if (NWNX.Events.GetEventData("CUSTOM_TAG") == "lycan_curse")
+        {
+          Systems.Player myPlayer = Systems.Player.Players.GetValueOrDefault(oidSelf.AsPlayer().uuid);
+          myPlayer.RemoveLycanCurse();
+        }
+      }
+
+      return Entrypoints.SCRIPT_HANDLED;
+    }
+
     private static int EventKeyboard(uint oidSelf)
     {
       string current_event = Events.GetCurrentEvent();
