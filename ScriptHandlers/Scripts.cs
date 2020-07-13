@@ -27,6 +27,8 @@ namespace NWN.ScriptHandlers
     {
       //Systems.LootSystem.InitChestArea();
 
+      NWNX.Chat.RegisterChatScript("cs_chatlistener");
+
       NWNX.Events.SubscribeEvent(NWNX.Events.ON_INPUT_KEYBOARD_BEFORE, Systems.PlayerSystem.ON_PC_KEYSTROKE_SCRIPT);
       NWNX.Events.ToggleDispatchListMode(NWNX.Events.ON_INPUT_KEYBOARD_BEFORE, Systems.PlayerSystem.ON_PC_KEYSTROKE_SCRIPT, 1);
 
