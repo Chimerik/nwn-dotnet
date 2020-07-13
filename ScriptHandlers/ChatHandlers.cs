@@ -101,13 +101,15 @@ namespace NWN.ScriptHandlers
     private static int HandleElfeCommand(string sChatReceived, NWPlayer oChatSender, uint oChatTarget, ChatChannel iChannel)
     {
       Chat.SkipMessage();
-      if(NWScript.GetHasFeat(1116, oChatSender))
+
+      NWScript.SetTextureOverride("ife_foc_move", "icon_elf", oChatSender);
+      /*if(NWScript.GetHasFeat(1116, oChatSender))
       {
 
       }
       else
         NWScript.SendMessageToPC(oChatSender, "Vous ne connaissez pas l'elfique.");
-
+      */
       return Entrypoints.SCRIPT_HANDLED;
     }
   } 
