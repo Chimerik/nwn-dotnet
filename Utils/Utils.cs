@@ -7,7 +7,7 @@ namespace NWN
   {
     public static Random random = new Random();
 
-    public enum Meuble
+    public enum Meuble // je le garde uniquement pour avoir un exemple à disposition de comment gérer les enum et les TryParse. Nous on utilisera des tag plus parlant pour nos meubles
 
     {
 
@@ -62,6 +62,61 @@ namespace NWN
             (vPosition.z).ToString() + "#ORIENTATION#" + (fOrientation).ToString() + "#END#";
 
       return sReturnValue;
+    }
+
+    public static string LocationToString(Location l)
+    {
+      uint area = NWScript.GetAreaFromLocation(l);
+      Vector pos = NWScript.GetPositionFromLocation(l);
+      float facing = NWScript.GetFacingFromLocation(l);
+
+      return "#TAG#" + NWScript.GetTag(area) + "#RESREF#" + NWScript.GetResRef(area) +
+              "#X#" + NWScript.FloatToString(pos.x, 5, 2) +
+              "#Y#" + NWScript.FloatToString(pos.y, 5, 2) +
+              "#Z#" + NWScript.FloatToString(pos.z, 5, 2) +
+              "#F#" + NWScript.FloatToString(facing, 5, 2) + "#";
+    }
+
+    public static Location StringToLocation(string s)
+    {
+      float facing, x, y, z;
+
+      int idx, cnt;
+      int strlen = s.Length;
+
+      idx = NWScript.FindSubString(s, "#TAG#") + 5;
+      cnt = NWScript.FindSubString(NWScript.GetSubString(s, idx, strlen - idx), "#");
+      string tag = NWScript.GetSubString(s, idx, cnt);
+
+      idx = NWScript.FindSubString(s, "#RESREF#") + 8;
+      cnt = NWScript.FindSubString(NWScript.GetSubString(s, idx, strlen - idx), "#");
+      string resref = NWScript.GetSubString(s, idx, cnt);
+
+      uint area = NWScript.GetFirstArea();
+      while (area != NWScript.OBJECT_INVALID)
+      {
+        if (NWScript.GetTag(area) == tag && NWScript.GetResRef(area) == resref)
+          break;
+        area = NWScript.GetNextArea();
+      }
+
+      idx = NWScript.FindSubString(s, "#X#") + 3;
+      cnt = NWScript.FindSubString(NWScript.GetSubString(s, idx, strlen - idx), "#");
+      x = NWScript.StringToFloat(NWScript.GetSubString(s, idx, cnt));
+
+      idx = NWScript.FindSubString(s, "#Y#") + 3;
+      cnt = NWScript.FindSubString(NWScript.GetSubString(s, idx, strlen - idx), "#");
+      y = NWScript.StringToFloat(NWScript.GetSubString(s, idx, cnt));
+
+      idx = NWScript.FindSubString(s, "#Z#") + 3;
+      cnt = NWScript.FindSubString(NWScript.GetSubString(s, idx, strlen - idx), "#");
+      z = NWScript.StringToFloat(NWScript.GetSubString(s, idx, cnt));
+
+      idx = NWScript.FindSubString(s, "#F#") + 3;
+      cnt = NWScript.FindSubString(NWScript.GetSubString(s, idx, strlen - idx), "#");
+      facing = NWScript.StringToFloat(NWScript.GetSubString(s, idx, cnt));
+
+      return NWScript.Location(area, NWScript.Vector(x, y, z), facing);
     }
   }
 }
