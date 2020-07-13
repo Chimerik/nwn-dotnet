@@ -9,7 +9,7 @@ namespace NWN.ScriptHandlers
     public static Dictionary<string, Func<uint, uint, int>> Register = new Dictionary<string, Func<uint, uint, int>>
         {
             { "MenuTester", HandleMenuTesterActivate },
-            { "test_block", HandleBockTesterActivate },
+            { "test_block", HandleBlockTesterActivate },
         };
     private static int HandleMenuTesterActivate(uint oItem, uint oActivator)
     {
@@ -18,7 +18,7 @@ namespace NWN.ScriptHandlers
       return Entrypoints.SCRIPT_HANDLED;
     }
 
-    private static int HandleBockTesterActivate(uint oItem, uint oActivator)
+    private static int HandleBlockTesterActivate(uint oItem, uint oActivator)
     {
       PlayerSystem.Player player;
       if (PlayerSystem.Players.TryGetValue(oActivator, out player))

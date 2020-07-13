@@ -13,7 +13,7 @@ namespace NWN.Systems
         {
             { "on_pc_connect", HandlePlayerConnect },
             { "on_pc_disconnect", HandlePlayerDisconnect },
-            { "connexion", HandlePlayerConnexion },
+            { "connexion", HandleBeforePlayerDisconnect},
             { ON_PC_KEYSTROKE_SCRIPT, HandlePlayerKeystroke },
             { "event_dm_actions", HandleDMActions },
             { "event_mv_plc", HandleMovePlaceable },
@@ -102,7 +102,7 @@ namespace NWN.Systems
       return Entrypoints.SCRIPT_NOT_HANDLED;
     }
 
-    private static int HandlePlayerConnexion(uint oidSelf)
+    private static int HandleBeforePlayerDisconnect(uint oidSelf)
     {
       string current_event = NWNX.Events.GetCurrentEvent();
 
