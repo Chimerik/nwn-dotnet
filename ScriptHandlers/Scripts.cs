@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using NWN.Systems.PostString;
+using System.IO;
 
 namespace NWN.ScriptHandlers
 {
@@ -12,7 +13,7 @@ namespace NWN.ScriptHandlers
   {
     public static Dictionary<string, Func<uint, int>> Register = new Dictionary<string, Func<uint, int>>
         {
-            { "_onload", HandleModuleLoad },
+            { "event_moduleload", HandleModuleLoad },
             { "x2_mod_def_act", HandleActivateItem },
             { "cs_chatlistener", HandleChat },
           //  { "event_mouse_clic", EventMouseClick },
@@ -26,6 +27,8 @@ namespace NWN.ScriptHandlers
     private static int HandleModuleLoad(uint oidSelf)
     {
       //Systems.LootSystem.InitChestArea();
+
+      NWNX.Chat.RegisterChatScript("cs_chatlistener");
 
       NWNX.Events.SubscribeEvent(NWNX.Events.ON_INPUT_KEYBOARD_BEFORE, Systems.PlayerSystem.ON_PC_KEYSTROKE_SCRIPT);
       NWNX.Events.ToggleDispatchListMode(NWNX.Events.ON_INPUT_KEYBOARD_BEFORE, Systems.PlayerSystem.ON_PC_KEYSTROKE_SCRIPT, 1);
@@ -52,7 +55,7 @@ namespace NWN.ScriptHandlers
 
       NWNX.Events.SubscribeEvent("CDE_POTAGER", "event_potager");
 
-      Garden.Init();
+      //Garden.Init();
 
       return Entrypoints.SCRIPT_NOT_HANDLED;
     }
@@ -92,18 +95,33 @@ namespace NWN.ScriptHandlers
 
     private static int HandleChat(uint oidSelf)
     {
-      var sChatReceived = Chat.GetMessage();
       var oChatSender = ((uint)Chat.GetSender()).AsPlayer();
 
       if (!oChatSender.IsPC)
-        return Entrypoints.SCRIPT_NOT_HANDLED;
+        return Entrypoints.SCRIPT_HANDLED;
 
+      var sChatReceived = Chat.GetMessage();
       var oChatTarget = Chat.GetTarget();
       var iChannel = (ChatChannel)Chat.GetChannel();
-      var sCommand = sChatReceived.Split('/', ' ')[1];
+      var sCommand = "";
+      if(sChatReceived.StartsWith("/"))
+        sCommand = sChatReceived.Split('/', ' ')[1]; // Si le chat reçu est une commande, on récupère la commande
+
+      string filename = String.Format("{0:yyyy-MM-dd}_{1}.txt", DateTime.Now, "chatlog");
+      string path = Path.Combine(Environment.GetEnvironmentVariable("HOME") + "/ChatLog", filename);
+
+      using (System.IO.StreamWriter file =
+      new System.IO.StreamWriter(path, true))
+      {
+        if (!NWScript.GetIsObjectValid(oChatTarget))
+          file.WriteLine(DateTime.Now.ToShortTimeString() + " - [" + iChannel + " - " + NWScript.GetName(NWScript.GetArea(oChatSender)) + "] " + NWScript.GetName(oChatSender, true) + " : " + sChatReceived);
+        else 
+          file.WriteLine(DateTime.Now.ToShortTimeString() + " - [" + iChannel + "] " + NWScript.GetName(oChatSender) + " To : " + NWScript.GetName(oChatTarget, true) + " : " + sChatReceived);
+      }
+
       sChatReceived.Replace("/" + sCommand + " ", "");
 
-      if(sCommand.Length > 0)
+      if (sCommand.Length > 0)
       {
         Func<string, NWPlayer, uint, ChatChannel, int> handler;
         if (ChatHandlers.Register.TryGetValue(sCommand, out handler))
@@ -118,8 +136,21 @@ namespace NWN.ScriptHandlers
           }
         }
       }
+      else
+      {
+        if (NWScript.GetLocalString(oChatSender, "_IS_LISTENING_VAR") == NWScript.GetName(oChatSender))
+        {
+          NWNX.Chat.SkipMessage();
+          NWScript.SetLocalString(oChatSender, "_LISTENING_VAR", sChatReceived);
+          NWScript.DeleteLocalString(oChatSender, "_IS_LISTENING_VAR");
+          return Entrypoints.SCRIPT_HANDLED;
+        }
+        else if(NWScript.GetIsDead(oChatSender)) {
+          NWScript.SendMessageToPC(oChatSender, "N'oubliez pas que vous êtes inconscient, vous ne pouvez pas parler, mais tout juste gémir et décrire votre état");
+        }
+      }
 
-      return Entrypoints.SCRIPT_NOT_HANDLED;
+      return Entrypoints.SCRIPT_HANDLED;
     }
 
     private static int EventEffects(uint oidSelf)

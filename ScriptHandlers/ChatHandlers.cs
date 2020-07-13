@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using NWN.Enums;
 using NWN.NWNX;
 using NWN.Systems;
@@ -15,11 +16,13 @@ namespace NWN.ScriptHandlers
             { "testmenu", HandleTestMenuCommand },
             { "testblockdotnet", HandleTestBlockCommand },
             { "frostattack", HandleFrostAttackCommand },
+            { "elfe", HandleElfeCommand },
     };
 
     private static int HandleWalkCommand(string sChatReceived, NWPlayer oChatSender, uint oChatTarget, ChatChannel iChannel)
     {
       Chat.SkipMessage();
+
       if (NWNX.Object.GetInt(oChatSender, "_ALWAYS_WALK") == 0)
       {
         NWNX.Player.SetAlwaysWalk(oChatSender, true);
@@ -53,6 +56,7 @@ namespace NWN.ScriptHandlers
       }
       return Entrypoints.SCRIPT_HANDLED;
     }
+
     private static int HandleFrostAttackCommand(string sChatReceived, NWPlayer oChatSender, uint oChatTarget, ChatChannel iChannel)
     {
       PlayerSystem.Player oPC;
@@ -91,6 +95,18 @@ namespace NWN.ScriptHandlers
           
         }
       }
+
+      return Entrypoints.SCRIPT_HANDLED;
+    }
+    private static int HandleElfeCommand(string sChatReceived, NWPlayer oChatSender, uint oChatTarget, ChatChannel iChannel)
+    {
+      Chat.SkipMessage();
+      if(NWScript.GetHasFeat(1116, oChatSender))
+      {
+
+      }
+      else
+        NWScript.SendMessageToPC(oChatSender, "Vous ne connaissez pas l'elfique.");
 
       return Entrypoints.SCRIPT_HANDLED;
     }
