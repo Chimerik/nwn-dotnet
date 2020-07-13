@@ -12,7 +12,9 @@ namespace NWN.Systems
       public readonly uint oid;
       public virtual uint AutoAttackTarget { get; set; }
       public virtual DateTime LycanCurseTimer { get; set; }
+      public Menu menu { get; }
 
+      private uint blockingBoulder;
       private List<uint> _SelectedObjectsList = new List<uint>();
       public virtual List<uint> SelectedObjectsList
       {
@@ -23,6 +25,7 @@ namespace NWN.Systems
       public Player(uint nwobj) : base(nwobj)
       {
         this.oid = nwobj;
+        this.menu = new PrivateMenu(this);
       }
 
       public void EmitKeydown(KeydownEventArgs e)
@@ -49,22 +52,6 @@ namespace NWN.Systems
           NWScript.DelayCommand(6.0f, () => this.OnFrostAutoAttackTimedEvent());
         }
       }
-      public void BlockPlayer()
-      {
-        Location locPlayer = NWScript.GetLocation(this);
-        uint oBoulder = NWScript.CreateObject(ObjectType.Placeable, "plc_boulder", locPlayer, false, "_PC_BLOCKER");
-        NWNX.Object.SetPosition(this, NWScript.GetPositionFromLocation(locPlayer));
-        oBoulder.AsObject().ApplyEffect(DurationType.Permanent, NWScript.EffectVisualEffect((VisualEffect)Temporary.CutsceneInvisibility));
-      }
-
-      public void UnblockPlayer()
-      {
-        uint oBlocker = NWScript.GetNearestObjectByTag("_PC_BLOCKER", this);
-        foreach (Effect e in oBlocker.AsObject().Effects)
-          NWScript.RemoveEffect(oBlocker, e);
-
-        oBlocker.AsObject().Area.AssignCommand(() => NWScript.DelayCommand(0.01f, () => oBlocker.AsObject().Destroy()));
-      }
       public void RemoveLycanCurse()
       {
         this.ApplyEffect(DurationType.Instant, NWScript.EffectVisualEffect((VisualEffect)Impact.SuperHeroism));
@@ -86,6 +73,24 @@ namespace NWN.Systems
         NWNX.Creature.SetMovementRate(this, MovementRate.Fast);
 
         NWNX.Events.AddObjectToDispatchList("NWNX_ON_EFFECT_REMOVED_AFTER", "event_effects", this);
+      }
+
+      public void BoulderBlock()
+      {
+        BoulderUnblock();
+        var location = NWScript.GetLocation(oid);
+        blockingBoulder = NWScript.CreateObject(Enums.ObjectType.Placeable, "plc_boulder", location, false);
+        NWNX.Object.SetPosition(oid, NWScript.GetPositionFromLocation(location));
+        NWScript.ApplyEffectToObject(
+          Enums.DurationType.Permanent,
+          NWScript.EffectVisualEffect((VisualEffect)Temporary.CutsceneInvisibility),
+          blockingBoulder
+        );
+      }
+
+      public void BoulderUnblock()
+      {
+        NWScript.DestroyObject(blockingBoulder);
       }
     }
   }

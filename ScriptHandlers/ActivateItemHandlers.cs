@@ -23,7 +23,7 @@ namespace NWN.ScriptHandlers
       PlayerSystem.Player player;
       if (PlayerSystem.Players.TryGetValue(oActivator, out player))
       {
-        player.BlockPlayer();
+        player.BoulderBlock();
       }
 
       return Entrypoints.SCRIPT_HANDLED;

@@ -190,7 +190,7 @@ namespace NWN.Systems
 
                 if (myPlayer.SelectedObjectsList.Count == 0)
                 {
-                  myPlayer.BlockPlayer();
+                  myPlayer.BoulderBlock();
                 }
 
                 if (!myPlayer.SelectedObjectsList.Contains(oTarget))
@@ -218,7 +218,7 @@ namespace NWN.Systems
               }
 
               myPlayer.SendMessage($"Vous venez de sauvegarder le positionnement des meubles : \n{sObjectSaved}");
-              myPlayer.UnblockPlayer();
+              myPlayer.BoulderUnblock();
 
               NWNX.Events.RemoveObjectFromDispatchList("NWNX_ON_INPUT_KEYBOARD_AFTER", "event_mv_plc", oidSelf);
               oidSelf.AsObject().Locals.Object.Delete("_MOVING_PLC");

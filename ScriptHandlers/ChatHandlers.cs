@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using NWN.Enums;
 using NWN.NWNX;
 using NWN.Systems;
-using NWN.Systems.PostString;
 
 namespace NWN.ScriptHandlers
 {
@@ -12,7 +11,6 @@ namespace NWN.ScriptHandlers
     public static Dictionary<string, Func<string, NWPlayer, uint, ChatChannel, int>> Register = new Dictionary<string, Func<string, NWPlayer, uint, ChatChannel, int>>
     {
             { "walk", HandleWalkCommand },
-            { "testmenu", HandleTestMenuCommand },
             { "testblockdotnet", HandleTestBlockCommand },
             { "frostattack", HandleFrostAttackCommand },
     };
@@ -35,21 +33,13 @@ namespace NWN.ScriptHandlers
 
       return Entrypoints.SCRIPT_HANDLED;
     }
-    private static int HandleTestMenuCommand(string sChatReceived, NWPlayer oChatSender, uint oChatTarget, ChatChannel iChannel)
-    {
-      Chat.SkipMessage();
-      NWScript.SetLocalInt(oChatSender, "_MENU_ON", 1);
-      PostString.Menu_UpdateGUI(oChatSender);
-      PostString.Menu_DrawStaticGUI(oChatSender);
-      return Entrypoints.SCRIPT_HANDLED;
-    }
     private static int HandleTestBlockCommand(string sChatReceived, NWPlayer oChatSender, uint oChatTarget, ChatChannel iChannel)
     {
       Chat.SkipMessage();
       PlayerSystem.Player oPC;
       if (PlayerSystem.Players.TryGetValue(oChatSender, out oPC))
       {
-        oPC.BlockPlayer();
+        oPC.BoulderBlock();
       }
       return Entrypoints.SCRIPT_HANDLED;
     }
