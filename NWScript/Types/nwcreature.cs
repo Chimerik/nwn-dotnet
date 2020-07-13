@@ -1,9 +1,10 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using NWN.Enums;
 using NWN.Enums.Associate;
 using NWN.Enums.Creature;
+using NWN.Enums.VisualEffect;
 using NWN.NWNX;
 
 namespace NWN {
@@ -57,8 +58,14 @@ namespace NWN {
       set => NWScript.SetCommandable(value, this);
     }
 
+    public virtual int HitDice
+    {
+        get => NWScript.GetHitDice(this);
+    }
+
     // TODO-enumize
-    public virtual PhenoType Phenotype {
+    public virtual PhenoType Phenotype 
+    {
       get => NWScript.GetPhenoType(this);
       set => NWScript.SetPhenoType(value, this);
     }
@@ -103,6 +110,17 @@ namespace NWN {
     public virtual Gender Gender {
       get => (Gender) NWScript.GetGender(this);
       set => Creature.SetGender(this, value);
+    }
+
+    public int CasterLevel()
+    {
+        int iMyCasterLevel = NWScript.GetCasterLevel(this) + NWScript.GetLevelByClass(ClassType.Palemaster, this)
+                + (NWScript.GetLevelByClass(ClassType.DragonDisciple, this) / 3) + (NWScript.GetLevelByClass(ClassType.DivineChampion, this) / 2);
+
+        if (iMyCasterLevel < 1)
+            iMyCasterLevel = 1;
+
+        return iMyCasterLevel;
     }
 
     public virtual bool IsResting => NWScript.GetIsResting(this);
@@ -272,10 +290,125 @@ namespace NWN {
       Creature.RestoreItems(this);
     }
 
-    public class Abilities {
+    public void CastSpellAtObject(NWN.Spell spell, uint oTarget)
+    {
+        this.AssignCommand(() => NWScript.ActionCastSpellAtObject(spell, oTarget));
+    }
+
+    public Boolean HasSpell(NWN.Spell spell)
+    {
+        if (NWScript.GetHasSpell(spell, this) == 0)
+            return false;
+        else
+            return true;
+    }
+
+        public SaveReturn FortitudeSave(int nDC, SavingThrowType nSaveType, uint oSaveVersus = NWObject.OBJECT_INVALID)
+        {
+            if (!(oSaveVersus.AsObject()).IsValid)
+                oSaveVersus = this;
+
+            return NWScript.FortitudeSave(this, nDC, nSaveType, oSaveVersus);
+        }
+
+        public SaveReturn ReflexSave(int nDC, SavingThrowType nSaveType, uint oSaveVersus = NWObject.OBJECT_INVALID)
+        {
+            if (!(oSaveVersus.AsObject()).IsValid)
+                oSaveVersus = this;
+
+            return NWScript.ReflexSave(this, nDC, nSaveType, oSaveVersus);
+        }
+
+        public SaveReturn WillSave(int nDC, SavingThrowType nSaveType, uint oSaveVersus = NWObject.OBJECT_INVALID)
+        {
+            if (!(oSaveVersus.AsObject()).IsValid)
+                oSaveVersus = this;
+
+            return NWScript.WillSave(this, nDC, nSaveType, oSaveVersus);
+        }
+
+        public SaveReturn MySavingThrow(SavingThrow nSavingThrow, int nDC, SavingThrowType nSaveType = SavingThrowType.All, uint oSaveVersus = NWObject.OBJECT_INVALID, float fDelay = 0.0f)
+        {
+            // -------------------------------------------------------------------------
+            // GZ: sanity checks to prevent wrapping around
+            // -------------------------------------------------------------------------
+            if (nDC < 1)
+            {
+                nDC = 1;
+            }
+            else if (nDC > 255)
+            {
+                nDC = 255;
+            }
+
+            if (!(oSaveVersus.AsObject()).IsValid)
+                oSaveVersus = this;
+
+            Effect eVis = null;
+            SaveReturn sReturn = SaveReturn.Failed;
+            switch (nSavingThrow)
+            {
+                case SavingThrow.Fortitude:
+                    sReturn = this.FortitudeSave(nDC, nSaveType, oSaveVersus);
+                    if (sReturn == SaveReturn.Success)
+                        eVis = NWScript.EffectVisualEffect((VisualEffect)Impact.FortitudeSavingThrowUse);
+                    break;
+                case SavingThrow.Reflex:
+                    sReturn = this.ReflexSave(nDC, nSaveType, oSaveVersus);
+                    if (sReturn == SaveReturn.Success)
+                        eVis = NWScript.EffectVisualEffect((VisualEffect)Impact.ReflexSaveThrowUse);
+                    break;
+                case SavingThrow.Will:
+                    sReturn = this.WillSave(nDC, nSaveType, oSaveVersus);
+                    if (sReturn == SaveReturn.Success)
+                    {
+                        eVis = NWScript.EffectVisualEffect((VisualEffect)Impact.WillSavingThrowUse);
+                    }
+                    break;
+            }
+
+            Spell nSpellID = (Spell)NWScript.GetSpellId();
+
+            /*
+                return 0 = FAILED SAVE
+                return 1 = SAVE SUCCESSFUL
+                return 2 = IMMUNE TO WHAT WAS BEING SAVED AGAINST
+            */
+            if (sReturn == SaveReturn.Failed)
+            {
+                if ((nSaveType == SavingThrowType.Death
+                 || nSpellID == Spell.Weird
+                 || nSpellID == Spell.FingerOfDeath) &&
+                 nSpellID != Spell.HorridWilting)
+                {
+                    eVis = NWScript.EffectVisualEffect((VisualEffect)Impact.Death);
+                    NWScript.DelayCommand(fDelay, () => this.ApplyEffect(DurationType.Instant, eVis));
+                }
+            }
+
+            if (sReturn == SaveReturn.Success || sReturn == SaveReturn.Immune)
+            {
+                if (sReturn == SaveReturn.Immune)
+                {
+                    eVis = NWScript.EffectVisualEffect((VisualEffect)Impact.MagicResistanceUse);
+                    /*
+                    If the spell is save immune then the link must be applied in order to get the true immunity
+                    to be resisted.  That is the reason for returing false and not true.  True blocks the
+                    application of effects.
+                    */
+                    //sReturn = SaveReturn.Failed;
+                }
+                NWScript.DelayCommand(fDelay, () => this.ApplyEffect(DurationType.Instant, eVis));
+            }
+            return sReturn;
+        }
+
+        public class Abilities 
+  {
       private readonly NWCreature owner;
 
-      public Abilities(NWCreature owner) {
+      public Abilities(NWCreature owner) 
+      {
         this.owner = owner;
       }
 
