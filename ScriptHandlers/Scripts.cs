@@ -31,7 +31,14 @@ namespace NWN.ScriptHandlers
 
     private static int HandleModuleLoad(uint oidSelf)
     {
-      Systems.LootSystem.InitChestArea();
+      try
+      {
+        Systems.LootSystem.InitChestArea();
+      } catch (Exception e)
+      {
+        Utils.LogException(e);
+      }
+
       Systems.ChatSystem.Init();
       Systems.CommandSystem.Init();
 
