@@ -207,7 +207,13 @@ namespace NWN.ScriptHandlers
                   NWScript.SendMessageToPC(oChatSender, "La personne à laquelle vous tentez d'envoyer un message n'est plus connectée.");
               else
                   NWNX.Chat.SendMessage((int)iChannel, sChatReceived, oChatSender, oChatTarget);
-        }
+           }
+
+           if (NWScript.GetIsObjectValid(oChatTarget) && NWScript.GetIsObjectValid(NWScript.GetLocalObject(oChatTarget, "_POSSESSING")))
+           {
+              NWNX.Chat.SkipMessage();
+              NWNX.Chat.SendMessage((int)iChannel, sChatReceived, oChatSender, NWScript.GetLocalObject(oChatTarget, "_POSSESSING").AsObject());
+           }
       }
 
       return Entrypoints.SCRIPT_HANDLED;
