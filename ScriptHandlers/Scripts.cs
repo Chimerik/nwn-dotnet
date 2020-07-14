@@ -15,7 +15,6 @@ namespace NWN.ScriptHandlers
         {
             { "_onload", HandleModuleLoad },
             { "x2_mod_def_act", HandleActivateItem },
-            { "cs_chatlistener", ChatListener },
             { "X0_S0_AcidSplash", CantripsScaler },
             { "NW_S0_Daze", CantripsScaler },
             { "X0_S0_ElecJolt", CantripsScaler },
@@ -26,15 +25,18 @@ namespace NWN.ScriptHandlers
             { "NW_S0_Virtue", CantripsScaler },
             { "event_mouse_clic", EventMouseClick },
         }.Concat(Systems.LootSystem.Register)
-     .Concat(Systems.PlayerSystem.Register)
-     .ToDictionary(kvp => kvp.Key, kvp => kvp.Value);
+         .Concat(Systems.PlayerSystem.Register)
+         .Concat(Systems.ChatSystem.Register)
+         .ToDictionary(kvp => kvp.Key, kvp => kvp.Value);
 
     private static int HandleModuleLoad(uint oidSelf)
     {
       Systems.LootSystem.InitChestArea();
+      Systems.ChatSystem.Init();
+      Systems.CommandSystem.Init();
 
-      NWNX.Events.SubscribeEvent(NWNX.Events.ON_INPUT_KEYBOARD_BEFORE, Systems.PlayerSystem.ON_PC_KEYSTROKE_SCRIPT);
-      NWNX.Events.ToggleDispatchListMode(NWNX.Events.ON_INPUT_KEYBOARD_BEFORE, Systems.PlayerSystem.ON_PC_KEYSTROKE_SCRIPT, 1);
+      Events.SubscribeEvent(Events.ON_INPUT_KEYBOARD_BEFORE, Systems.PlayerSystem.ON_PC_KEYSTROKE_SCRIPT);
+      Events.ToggleDispatchListMode(Events.ON_INPUT_KEYBOARD_BEFORE, Systems.PlayerSystem.ON_PC_KEYSTROKE_SCRIPT, 1);
 
       return Entrypoints.SCRIPT_NOT_HANDLED;
     }
@@ -102,58 +104,6 @@ namespace NWN.ScriptHandlers
         NWScript.DeleteLocalInt(oClicker, "_FROST_ATTACK_CANCEL");
         NWScript.DeleteLocalObject(oClicker, "_FROST_ATTACK_TARGET");
       }
-    }
-
-    private static int ChatListener(uint oidSelf)
-    {
-      string sChatReceived = Chat.GetMessage();
-      NWN.NWObject oChatSender = Chat.GetSender();
-      NWN.NWObject oChatTarget = Chat.GetTarget();
-      Enum iChannel = (ChatChannel)Chat.GetChannel();
-
-      if (!oChatSender.IsPC)
-        return Entrypoints.SCRIPT_NOT_HANDLED;
-
-      if (sChatReceived.StartsWith("!frostattack"))
-      {
-        Chat.SkipMessage();
-        if (NWScript.GetLevelByClass(ClassType.Wizard, oChatSender) > 0 || NWScript.GetLevelByClass(ClassType.Sorcerer, oChatSender) > 0)
-        {
-          if (NWNX.Object.GetInt(oChatSender, "_FROST_ATTACK") == 0)
-          {
-            NWNX.Object.SetInt(oChatSender, "_FROST_ATTACK", 1, true);
-            NWScript.SendMessageToPC(oChatSender, "Vous activez le mode d'attaque par rayon de froid");
-          }
-          else
-          {
-            NWNX.Object.DeleteInt(oChatSender, "_FROST_ATTACK");
-            NWScript.SendMessageToPC(oChatSender, "Vous désactivez le mode d'attaque par rayon de froid");
-          }
-        }
-        else
-          NWScript.SendMessageToPC(oChatSender, "Il vous faut pouvoir lancer le sort rayon de froid pour activer ce mode.");
-
-        return Entrypoints.SCRIPT_HANDLED;
-      }
-      else if (sChatReceived.StartsWith("!walk"))
-      {
-        Chat.SkipMessage();
-        if (NWNX.Object.GetInt(oChatSender, "_ALWAYS_WALK") == 0)
-        {
-          NWNX.Player.SetAlwaysWalk(oChatSender, true);
-          NWNX.Object.SetInt(oChatSender, "_ALWAYS_WALK", 1, true);
-          NWScript.SendMessageToPC(oChatSender, "Vous avez activé le mode marche.");
-        }
-        else
-        {
-          NWNX.Player.SetAlwaysWalk(oChatSender, false);
-          NWNX.Object.DeleteInt(oChatSender, "_ALWAYS_WALK");
-          NWScript.SendMessageToPC(oChatSender, "Vous avez désactivé le mode marche.");
-        }
-        return Entrypoints.SCRIPT_HANDLED;
-      }
-
-      return Entrypoints.SCRIPT_NOT_HANDLED;
     }
 
     private static int CantripsScaler(uint oidSelf)
