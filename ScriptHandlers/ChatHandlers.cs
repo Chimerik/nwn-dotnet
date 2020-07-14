@@ -1,7 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
-using NWN.Enums;
+using System.IO;
 using NWN.NWNX;
+using NWN.NWNX.Enum;
 using NWN.Systems;
 
 namespace NWN.ScriptHandlers
@@ -13,11 +14,14 @@ namespace NWN.ScriptHandlers
             { "walk", HandleWalkCommand },
             { "testblockdotnet", HandleTestBlockCommand },
             { "frostattack", HandleFrostAttackCommand },
+            { "elfe", HandleElfeCommand },
+            { "test", HandleTestCommand },
     };
 
     private static int HandleWalkCommand(string sChatReceived, NWPlayer oChatSender, uint oChatTarget, ChatChannel iChannel)
     {
       Chat.SkipMessage();
+
       if (NWNX.Object.GetInt(oChatSender, "_ALWAYS_WALK") == 0)
       {
         NWNX.Player.SetAlwaysWalk(oChatSender, true);
@@ -43,6 +47,7 @@ namespace NWN.ScriptHandlers
       }
       return Entrypoints.SCRIPT_HANDLED;
     }
+
     private static int HandleFrostAttackCommand(string sChatReceived, NWPlayer oChatSender, uint oChatTarget, ChatChannel iChannel)
     {
       PlayerSystem.Player oPC;
@@ -76,6 +81,40 @@ namespace NWN.ScriptHandlers
         else
           oPC.SendMessage("Il vous faut pouvoir lancer le sort rayon de froid pour activer ce mode.");
     }
+
+      return Entrypoints.SCRIPT_HANDLED;
+    }
+    private static int HandleElfeCommand(string sChatReceived, NWPlayer oChatSender, uint oChatTarget, ChatChannel iChannel)
+    {
+      Chat.SkipMessage();
+
+      NWScript.SetTextureOverride("ife_foc_move", "icon_elf", oChatSender);
+      /*if(NWScript.GetHasFeat(1116, oChatSender))
+      {
+
+      }
+      else
+        NWScript.SendMessageToPC(oChatSender, "Vous ne connaissez pas l'elfique.");
+      */
+      return Entrypoints.SCRIPT_HANDLED;
+    }
+    private static int HandleTestCommand(string sChatReceived, NWPlayer oChatSender, uint oChatTarget, ChatChannel iChannel)
+    {
+      Chat.SkipMessage();
+      string[] sArray = sChatReceived.Split('*', '*');
+      string sTranslated = "";
+      int i = 0;
+
+      foreach(string s in sArray)
+      {
+        if (i % 2 == 0)
+          sTranslated += "(elf) " + s;
+        else
+          sTranslated += $"* {s} *";
+
+        i++;
+      }
+      NWScript.SendMessageToPC(oChatSender, "Translation : " + sTranslated);
 
       return Entrypoints.SCRIPT_HANDLED;
     }

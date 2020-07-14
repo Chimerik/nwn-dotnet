@@ -1,4 +1,4 @@
-using NWN.Enums;
+﻿using NWN.Enums;
 using NWN.Enums.Creature;
 using NWN.NWNX.Enum;
 
@@ -10,6 +10,23 @@ namespace NWN.NWNX {
     public static void AddFeat(uint creature, Feat feat) {
       Internal.NativeFunctions.nwnxSetFunction(PLUGIN_NAME, "AddFeat");
       Internal.NativeFunctions.nwnxPushInt((int) feat);
+      Internal.NativeFunctions.nwnxPushObject(creature);
+      Internal.NativeFunctions.nwnxCallFunction();
+    }
+
+    // Gives the provided creature the provided feat.
+    public static string SerializeQuickbar(uint creature)
+    {
+      Internal.NativeFunctions.nwnxSetFunction(PLUGIN_NAME, "SerializeQuickbar");
+      Internal.NativeFunctions.nwnxPushObject(creature);
+      Internal.NativeFunctions.nwnxCallFunction();
+      return Internal.NativeFunctions.nwnxPopString();
+    }
+
+    public static void DeserializeQuickbar(uint creature, string sQuickbar)
+    {
+      Internal.NativeFunctions.nwnxSetFunction(PLUGIN_NAME, "DeserializeQuickbar");
+      Internal.NativeFunctions.nwnxPushString(sQuickbar);
       Internal.NativeFunctions.nwnxPushObject(creature);
       Internal.NativeFunctions.nwnxCallFunction();
     }

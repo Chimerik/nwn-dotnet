@@ -24,6 +24,7 @@ namespace NWN
       mej_so
 
     }
+
     public static void LogException(Exception e)
     {
       Console.WriteLine(e.Message);
