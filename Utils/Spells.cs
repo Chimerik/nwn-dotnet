@@ -53,6 +53,11 @@ namespace NWN
           fDelay = fDelay - 0.1f;
         }
 
+        NWScript.DelayCommand(fDelay, () => NWScript.ApplyEffectToObject((int)DurationType.Instant, eMantle, oTarget));
+      }
+      return nResist;
+    }
+
     public static int MaximizeOrEmpower(int nDice, int nNumberOfDice, int nMeta, int nBonus = 0)
     {
       int i = 0;
@@ -71,6 +76,37 @@ namespace NWN
         nDamage = nDamage + nDamage / 2;
       }
       return nDamage + nBonus;
+    }
+    public static void RemoveAnySpellEffects(Spell spell, uint oTarget)
+    {
+      if (NWScript.GetHasSpellEffect(spell, oTarget))
+      {
+        foreach (Effect e in oTarget.AsObject().Effects)
+        {
+          if (NWScript.GetEffectSpellId(e) == (int)spell)
+          {
+            NWScript.RemoveEffect(oTarget, e);
+          }
+        }
+      }
+    }
+    public static Boolean GetHasEffect(int effectType, uint oTarget)
+    {
+        foreach (Effect e in oTarget.AsObject().Effects)
+        {
+          if (NWScript.GetEffectType(e) == effectType)
+            return true;
+        }
+
+        return false;
+    }
+    public static void RemoveEffectOfType(int effectType, uint oTarget)
+    {
+      foreach (Effect e in oTarget.AsObject().Effects)
+      {
+        if (NWScript.GetEffectType(e) == effectType)
+          NWScript.RemoveEffect(oTarget, e);
+      }
     }
   }
 }

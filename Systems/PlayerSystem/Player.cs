@@ -22,6 +22,8 @@ namespace NWN.Systems
         // set => _SelectedObjectsList.Add(value);
       }
 
+      public Dictionary<uint, Player> Listened = new Dictionary<uint, Player>();
+
       public Player(uint nwobj) : base(nwobj)
       {
         this.oid = nwobj;
