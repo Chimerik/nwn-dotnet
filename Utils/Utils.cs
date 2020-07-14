@@ -31,6 +31,15 @@ namespace NWN
       NWScript.WriteTimestampedLogEntry(e.Message);
     }
 
+        public enum Meuble
+        {
+            dmfi_rest=1,
+            mej_social_plc,
+            mej_pc_social,
+            meuble,
+            mej_pc,
+            mej_so
+        }
     public static void DestroyInventory(uint oContainer)
     {
       var objectsToDestroy = new List<uint> { };

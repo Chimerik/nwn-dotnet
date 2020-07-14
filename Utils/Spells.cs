@@ -52,10 +52,6 @@ namespace NWN
         {
           fDelay = fDelay - 0.1f;
         }
-        NWScript.DelayCommand(fDelay, () => NWScript.ApplyEffectToObject((int)DurationType.Instant, eMantle, oTarget));
-      }
-      return nResist;
-    }
 
     public static int MaximizeOrEmpower(int nDice, int nNumberOfDice, int nMeta, int nBonus = 0)
     {
