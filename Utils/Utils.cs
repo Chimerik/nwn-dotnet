@@ -25,19 +25,6 @@ namespace NWN
 
     }
 
-    public enum Language 
-    {
-
-      elfe = 1,
-      gnome,
-      halfelin,
-      nain,
-
-      mej_pc,
-
-      mej_so
-
-    }
     public static void LogException(Exception e)
     {
       Console.WriteLine(e.Message);

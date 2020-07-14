@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using Dapper;
 using NWN.Enums;
+using NWN.NWNX.Enum;
 
 namespace NWN.Systems
 {
@@ -13,7 +14,7 @@ namespace NWN.Systems
         {
             { "on_pc_connect", HandlePlayerConnect },
             { "on_pc_disconnect", HandlePlayerDisconnect },
-            { "connexion", HandlePlayerConnexion },
+            { "connexion", HandlePlayerBeforeDisconnect },
             { ON_PC_KEYSTROKE_SCRIPT, HandlePlayerKeystroke },
             { "event_dm_actions", HandleDMActions },
             { "event_mv_plc", HandleMovePlaceable },
@@ -45,6 +46,22 @@ namespace NWN.Systems
         oPC.AsCreature().AddFeat(NWN.Enums.Feat.PlayerTool02);
         oPC.AsCreature().GetPossessedItem("pj_lycan_curse").Destroy();
       }
+
+      //if (NWScript.GetLocalInt(oidSelf, "_LANGUE_ACTIVE") != 0)
+      //{
+/*      NWScript.SendMessageToPC(oPC, $"langue = {NWScript.GetLocalInt(oPC, "_LANGUE_ACTIVE")}");
+        NWScript.DeleteLocalInt(oPC, "_LANGUE_ACTIVE");
+      NWScript.SendMessageToPC(oPC, $"langue = {NWScript.GetLocalInt(oPC, "_LANGUE_ACTIVE")}");
+
+      NWScript.DelayCommand(4.5f, () => NWScript.SetTextureOverride("icon_elf", "", oPC));
+        NWScript.DelayCommand(5.0f, () => RefreshQBS(oPC));
+ */     //}
+     // else
+      //{
+        //NWScript.SetTextureOverride("icon_elf", "", oidSelf);
+
+        //RefreshQBS(oidSelf, 0);
+     // }
 
       var player = new Player(oPC);
       Players.Add(oPC, player);
@@ -102,7 +119,7 @@ namespace NWN.Systems
       return Entrypoints.SCRIPT_NOT_HANDLED;
     }
 
-    private static int HandlePlayerConnexion(uint oidSelf)
+    private static int HandlePlayerBeforeDisconnect(uint oidSelf)
     {
       string current_event = NWNX.Events.GetCurrentEvent();
 
@@ -171,6 +188,28 @@ namespace NWN.Systems
 
           return Entrypoints.SCRIPT_HANDLED;
         }
+        else if (feat == (int)NWN.Enums.Feat.LanguageElf)
+        {
+          NWScript.SendMessageToPC(oidSelf, $"langue = {NWScript.GetLocalInt(oidSelf, "_LANGUE_ACTIVE")}");
+          if (NWScript.GetLocalInt(oidSelf, "_LANGUE_ACTIVE") == feat)
+          {
+            NWScript.DeleteLocalInt(oidSelf, "_LANGUE_ACTIVE");
+            NWScript.SendMessageToPC(oidSelf, "Vous cessez de parler elfe.");
+            NWScript.SetTextureOverride("icon_elf", "", oidSelf);
+
+            RefreshQBS(oidSelf, feat);
+          }
+          else
+          {
+            NWScript.SetLocalInt(oidSelf, "_LANGUE_ACTIVE", feat);
+            NWScript.SendMessageToPC(oidSelf, "Vous parlez désormais elfe.");
+            NWScript.SetTextureOverride("icon_elf", "icon_elf_active", oidSelf);
+
+            RefreshQBS(oidSelf, feat);
+          }
+        
+          return Entrypoints.SCRIPT_HANDLED;
+        }
         else if (feat == (int)NWN.Enums.Feat.PlayerTool01)
         {
           NWNX.Events.SkipEvent();
@@ -229,6 +268,38 @@ namespace NWN.Systems
         }
       }
       return Entrypoints.SCRIPT_HANDLED;
+    }
+
+    private static void RefreshQBS(uint oidSelf, int feat)
+    {
+      string sQuickBar = NWNX.Creature.SerializeQuickbar(oidSelf);
+      QuickBarSlot emptyQBS = QuickBarSlot.CreateEmptyQBS();
+
+      for (int i = 0; i < 36; i++)
+      {
+        QuickBarSlot qbs = NWNX.Player.GetQuickBarSlot(oidSelf, i);
+
+        if (qbs.ObjectType == QuickBarSlotType.Feat && qbs.INTParam1 == feat)
+        {
+          NWNX.Player.SetQuickBarSlot(oidSelf, i, emptyQBS);
+        }
+      }
+
+      NWNX.Creature.DeserializeQuickbar(oidSelf, sQuickBar);
+    }
+
+    private static void RefreshQBS(uint oidSelf)
+    {
+      string sQuickBar = NWNX.Creature.SerializeQuickbar(oidSelf);
+      QuickBarSlot emptyQBS = QuickBarSlot.CreateEmptyQBS();
+
+      for (int i = 0; i < 36; i++)
+      {
+        QuickBarSlot qbs = NWNX.Player.GetQuickBarSlot(oidSelf, i);
+        NWNX.Player.SetQuickBarSlot(oidSelf, i, emptyQBS);
+      }
+
+      NWNX.Creature.DeserializeQuickbar(oidSelf, sQuickBar);
     }
 
     private static int HandleAutoSpell(uint oidSelf) //Je garde ça sous la main, mais je pense que le gérer différement serait mieux, notamment en créant un mode activable "autospell" en don gratuit pour les casters. Donc : A RETRAVAILLER 

@@ -1,11 +1,10 @@
-﻿using NWN.Enums;
-using NWN.NWNX;
+﻿using NWN.NWNX;
 using NWN.Systems;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using NWN.Systems.PostString;
 using System.IO;
+using NWN.Enums;
 
 namespace NWN.ScriptHandlers
 {
@@ -102,7 +101,7 @@ namespace NWN.ScriptHandlers
 
       var sChatReceived = Chat.GetMessage();
       var oChatTarget = Chat.GetTarget();
-      var iChannel = (ChatChannel)Chat.GetChannel();
+      var iChannel = Chat.GetChannel();
       var sCommand = "";
       if(sChatReceived.StartsWith("/"))
         sCommand = sChatReceived.Split('/', ' ')[1]; // Si le chat reçu est une commande, on récupère la commande
@@ -119,11 +118,11 @@ namespace NWN.ScriptHandlers
           file.WriteLine(DateTime.Now.ToShortTimeString() + " - [" + iChannel + "] " + NWScript.GetName(oChatSender) + " To : " + NWScript.GetName(oChatTarget, true) + " : " + sChatReceived);
       }
 
-      sChatReceived.Replace("/" + sCommand + " ", "");
+      sChatReceived = sChatReceived.Replace("/" + sCommand + " ", "");
 
       if (sCommand.Length > 0)
       {
-        Func<string, NWPlayer, uint, ChatChannel, int> handler;
+        Func<string, NWPlayer, uint, NWNX.Enum.ChatChannel, int> handler;
         if (ChatHandlers.Register.TryGetValue(sCommand, out handler))
         {
           try
@@ -137,7 +136,7 @@ namespace NWN.ScriptHandlers
         }
       }
       else
-      {
+      { // Me sert afin de capter une valeur donnée en chat par le PJ. Mieux vaut sans doute passer par le système de menu désormais pour entrer une valeur
         if (NWScript.GetLocalString(oChatSender, "_IS_LISTENING_VAR") == NWScript.GetName(oChatSender))
         {
           NWNX.Chat.SkipMessage();
@@ -145,8 +144,69 @@ namespace NWN.ScriptHandlers
           NWScript.DeleteLocalString(oChatSender, "_IS_LISTENING_VAR");
           return Entrypoints.SCRIPT_HANDLED;
         }
-        else if(NWScript.GetIsDead(oChatSender)) {
+        else if(NWScript.GetIsDead(oChatSender))
           NWScript.SendMessageToPC(oChatSender, "N'oubliez pas que vous êtes inconscient, vous ne pouvez pas parler, mais tout juste gémir et décrire votre état");
+
+        // SYSTEME DE LANGUE
+           int iLangueActive = NWScript.GetLocalInt(oChatSender, "_LANGUE_ACTIVE");
+
+           if (iLangueActive != 0)
+           {
+             if (iChannel == NWNX.Enum.ChatChannel.PlayerTalk || iChannel == NWNX.Enum.ChatChannel.PlayerWhisper || iChannel == NWNX.Enum.ChatChannel.DMTalk || iChannel == NWNX.Enum.ChatChannel.DMWhisper)
+             {
+                string sLanguageName = NWScript.Get2DAString("feat", "FEAT", iLangueActive);
+                string sName = NWScript.GetLocalString(oChatSender, "__DISGUISE_NAME");
+                if (sName == "") sName = NWScript.GetName(oChatSender);
+
+                foreach (KeyValuePair<uint, PlayerSystem.Player> PlayerListEntry in PlayerSystem.Players)
+                {
+                 if((uint)oChatSender != PlayerListEntry.Key && (uint)oChatSender != NWScript.GetLocalObject(PlayerListEntry.Key, "_POSSESSING"))
+                 {
+                   uint oEavesdrop;
+
+                   if (NWScript.GetIsDM(PlayerListEntry.Key) && NWScript.GetIsObjectValid(NWScript.GetLocalObject(PlayerListEntry.Key, "_POSSESSING")))
+                     oEavesdrop = NWScript.GetLocalObject(PlayerListEntry.Key, "_POSSESSING");
+                   else
+                     oEavesdrop = PlayerListEntry.Key;
+
+                   if ((NWScript.GetArea(oChatSender) == NWScript.GetArea(oEavesdrop)) && (NWScript.GetDistanceBetween(oEavesdrop, oChatSender) < NWNX.Chat.GetChatHearingDistance(oEavesdrop.AsObject(), iChannel)))
+                   {
+                     if (NWScript.GetHasFeat(iLangueActive, oEavesdrop) || NWScript.GetIsDM(PlayerListEntry.Key) || NWScript.GetIsDMPossessed(oEavesdrop))
+                     {
+                       NWNX.Chat.SkipMessage();
+                       NWNX.Chat.SendMessage((int)iChannel, "[" + sLanguageName + "] " + sChatReceived, oChatSender, oEavesdrop.AsObject());
+                       NWScript.SendMessageToPC(oEavesdrop, sName + " : [" + sLanguageName + "] " + Languages.GetLangueStringConvertedHRPProtection(sChatReceived, iLangueActive));
+                     }
+                     else
+                     {
+                      NWNX.Chat.SkipMessage();
+                      
+                      NWNX.Chat.SendMessage((int)iChannel, Languages.GetLangueStringConvertedHRPProtection(sChatReceived, iLangueActive), oChatSender, oEavesdrop.AsObject());
+                     }
+                   }
+                 }
+                }
+
+                NWNX.Chat.SkipMessage();
+                NWNX.Chat.SendMessage((int)iChannel, "[" + sLanguageName + "] " + sChatReceived, oChatSender, oChatSender);
+                NWScript.SendMessageToPC(oChatSender, sName + " : [" + sLanguageName + "] " + Languages.GetLangueStringConvertedHRPProtection(sChatReceived, iLangueActive));
+             }
+             else
+             {
+                NWNX.Chat.SkipMessage();
+                if ((iChannel == NWNX.Enum.ChatChannel.PlayerTell || iChannel == NWNX.Enum.ChatChannel.DMTell) && !NWScript.GetIsObjectValid(oChatTarget))
+                  NWScript.SendMessageToPC(oChatSender, "La personne à laquelle vous tentez d'envoyer un message n'est plus connectée.");
+                else
+                  NWNX.Chat.SendMessage((int)iChannel, sChatReceived, oChatSender, oChatTarget);
+             }
+           }
+           else
+           {
+              NWNX.Chat.SkipMessage();
+              if((iChannel == NWNX.Enum.ChatChannel.PlayerTell || iChannel == NWNX.Enum.ChatChannel.DMTell) && !NWScript.GetIsObjectValid(oChatTarget))
+                  NWScript.SendMessageToPC(oChatSender, "La personne à laquelle vous tentez d'envoyer un message n'est plus connectée.");
+              else
+                  NWNX.Chat.SendMessage((int)iChannel, sChatReceived, oChatSender, oChatTarget);
         }
       }
 

@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
-using NWN.Enums;
 using NWN.NWNX;
+using NWN.NWNX.Enum;
 using NWN.Systems;
 using NWN.Systems.PostString;
 
@@ -17,6 +17,7 @@ namespace NWN.ScriptHandlers
             { "testblockdotnet", HandleTestBlockCommand },
             { "frostattack", HandleFrostAttackCommand },
             { "elfe", HandleElfeCommand },
+            { "test", HandleTestCommand },
     };
 
     private static int HandleWalkCommand(string sChatReceived, NWPlayer oChatSender, uint oChatTarget, ChatChannel iChannel)
@@ -110,6 +111,26 @@ namespace NWN.ScriptHandlers
       else
         NWScript.SendMessageToPC(oChatSender, "Vous ne connaissez pas l'elfique.");
       */
+      return Entrypoints.SCRIPT_HANDLED;
+    }
+    private static int HandleTestCommand(string sChatReceived, NWPlayer oChatSender, uint oChatTarget, ChatChannel iChannel)
+    {
+      Chat.SkipMessage();
+      string[] sArray = sChatReceived.Split('*', '*');
+      string sTranslated = "";
+      int i = 0;
+
+      foreach(string s in sArray)
+      {
+        if (i % 2 == 0)
+          sTranslated += "(elf) " + s;
+        else
+          sTranslated += $"* {s} *";
+
+        i++;
+      }
+      NWScript.SendMessageToPC(oChatSender, "Translation : " + sTranslated);
+
       return Entrypoints.SCRIPT_HANDLED;
     }
   } 
