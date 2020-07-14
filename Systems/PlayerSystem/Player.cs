@@ -10,6 +10,7 @@ namespace NWN.Systems
     public class Player : NWPlayer
     {
       public readonly uint oid;
+      public readonly Boolean IsNewPlayer;
       public virtual uint AutoAttackTarget { get; set; }
       public virtual DateTime LycanCurseTimer { get; set; }
       public Menu menu { get; }
@@ -28,6 +29,7 @@ namespace NWN.Systems
       {
         this.oid = nwobj;
         this.menu = new PrivateMenu(this);
+        //TODO : ajouter IsNewPlayer = résultat de la requête en BDD pour voir si on a déjà des infos sur lui ou pas !
       }
 
       public void EmitKeydown(KeydownEventArgs e)

@@ -30,6 +30,9 @@ namespace NWN.Systems
       var oPC = NWScript.GetEnteringObject();
       NWNX.Events.AddObjectToDispatchList(NWNX.Events.ON_INPUT_KEYBOARD_BEFORE, ON_PC_KEYSTROKE_SCRIPT, oPC);
       NWNX.Events.AddObjectToDispatchList("NWNX_ON_USE_FEAT_BEFORE", "event_feat_used", oPC);
+      NWNX.Events.AddObjectToDispatchList("NWNX_ON_ADD_ASSOCIATE_AFTER", "summon", oPC);
+      NWNX.Events.AddObjectToDispatchList("NWNX_ON_REMOVE_ASSOCIATE_AFTER", "summon", oPC);
+
       oPC.AsCreature().AddFeat(NWN.Enums.Feat.PlayerTool01);
 
       if (NWNX.Object.GetInt(oPC, "_FROST_ATTACK") != 0)
@@ -65,6 +68,34 @@ namespace NWN.Systems
 
       var player = new Player(oPC);
       Players.Add(oPC, player);
+
+      if(player.IsNewPlayer)
+      {
+        // TODO : création des infos du nouveau joueur en BDD
+      }
+      else
+      {
+        // TODO : Initilisation de l'ancien joueur avec les infos en BDD
+
+        // Initialisation de la faim (TODO : récupérer la faim en BDD)
+        float fNourriture = 200.0f;
+        
+        if (fNourriture < 100.0f)
+        {
+          int nLoss = 100 - Convert.ToInt32(fNourriture);
+          Effect eHunger = NWScript.EffectAbilityDecrease((int)Ability.Strength, NWScript.GetAbilityScore(oPC, Ability.Strength) * nLoss / 100);
+          eHunger = NWScript.EffectLinkEffects(eHunger, NWScript.EffectAbilityDecrease((int)Ability.Dexterity, NWScript.GetAbilityScore(oPC, Ability.Dexterity) * nLoss / 100));
+          eHunger = NWScript.EffectLinkEffects(eHunger, NWScript.EffectAbilityDecrease((int)Ability.Constitution, NWScript.GetAbilityScore(oPC, Ability.Constitution) * nLoss / 100));
+          eHunger = NWScript.EffectLinkEffects(eHunger, NWScript.EffectAbilityDecrease((int)Ability.Charisma, NWScript.GetAbilityScore(oPC, Ability.Charisma) * nLoss / 100));
+          eHunger = NWScript.SupernaturalEffect(eHunger);
+          eHunger = NWScript.TagEffect(eHunger, "Effect_Hunger");
+          NWScript.ApplyEffectToObject(DurationType.Permanent, eHunger, oPC);
+        }
+      }
+
+      //Appliquer la distance de perception du chat en fonction de la compétence Listen du joueur
+      NWNX.Chat.SetChatHearingDistance(NWNX.Chat.GetChatHearingDistance(oPC.AsObject(), NWNX.Enum.ChatChannel.PlayerTalk) + NWScript.GetSkillRank(Skill.Listen, oPC) / 5, oPC.AsObject(), NWNX.Enum.ChatChannel.PlayerTalk);
+      NWNX.Chat.SetChatHearingDistance(NWNX.Chat.GetChatHearingDistance(oPC.AsObject(), NWNX.Enum.ChatChannel.PlayerWhisper) + NWScript.GetSkillRank(Skill.Listen, oPC) / 10, oPC.AsObject(), NWNX.Enum.ChatChannel.PlayerWhisper);
 
       return Entrypoints.SCRIPT_HANDLED;
     }
@@ -126,6 +157,8 @@ namespace NWN.Systems
       if (current_event == "NWNX_ON_CLIENT_DISCONNECT_BEFORE")
       {
         oidSelf.AsObject().Locals.Int.Set("_IS_DISCONNECTING", 1);
+        NWNX.Object.SetInt(oidSelf, "_CURRENT_HP", NWScript.GetCurrentHitPoints(oidSelf), true);
+        NWNX.Object.SetString(oidSelf, "_LOCATION", Utils.LocationToString(NWScript.GetLocation(oidSelf)), true);
       }
       return Entrypoints.SCRIPT_NOT_HANDLED;
     }
