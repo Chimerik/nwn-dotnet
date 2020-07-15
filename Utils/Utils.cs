@@ -1,5 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.Design;
+using NWN.Enums;
+using NWN.Systems;
 
 namespace NWN
 {
@@ -24,6 +27,7 @@ namespace NWN
       mej_so
 
     }
+
     public static void LogException(Exception e)
     {
       Console.WriteLine(e.Message);
@@ -46,22 +50,6 @@ namespace NWN
       {
         NWScript.DestroyObject(oObject);
       }
-    }
-
-    public static string APSLocationToString(Location lLocation)
-    {
-      uint oArea = NWScript.GetAreaFromLocation(lLocation);
-      Vector vPosition = NWScript.GetPositionFromLocation(lLocation);
-      float fOrientation = NWScript.GetFacingFromLocation(lLocation);
-      string sReturnValue = null;
-
-      if (NWScript.GetIsObjectValid(oArea))
-        sReturnValue =
-            "#AREA#" + NWScript.GetTag(oArea) + "#POSITION_X#" + (vPosition.x).ToString() +
-            "#POSITION_Y#" + (vPosition.y).ToString() + "#POSITION_Z#" +
-            (vPosition.z).ToString() + "#ORIENTATION#" + (fOrientation).ToString() + "#END#";
-
-      return sReturnValue;
     }
 
     public static string LocationToString(Location l)
@@ -117,6 +105,70 @@ namespace NWN
       facing = NWScript.StringToFloat(NWScript.GetSubString(s, idx, cnt));
 
       return NWScript.Location(area, NWScript.Vector(x, y, z), facing);
+    }
+    public static Boolean IsPartyMember(uint oPC, uint oTarget)
+    {
+      // Get the first PC party member
+      var oPartyMember = NWScript.GetFirstFactionMember(oPC, true);
+
+      while (NWScript.GetIsObjectValid(oPartyMember))
+      {
+        if (oPartyMember == oTarget)
+          return true;
+        oPartyMember = NWScript.GetNextFactionMember(oPC, true);
+      }
+      return false;
+    }
+    public static void RebootTimer(uint oPC, int iTimer)
+    {
+      NWScript.PostString(oPC, $"REBOOT dans {iTimer} secondes !", 80, 10, ScreenAnchor.TopLeft, 30.0f, unchecked((int)0xC0C0C0FF), unchecked((int)0xC0C0C0FF), 1, "fnt_galahad14");
+      GUI_DrawWindow(oPC, 2, ScreenAnchor.TopLeft, 77, 7, 30, 5);
+      iTimer -= 1;
+      NWScript.DelayCommand(1.0f, () => RebootTimer(oPC, iTimer));
+
+      if (iTimer < 6)
+        NWNX.Player.PlaySound(oPC, "gui_magbag_full", oPC);
+      else
+        NWNX.Player.PlaySound(oPC, "gui_dm_alert", oPC);
+    }
+    public static int GUI_DrawWindow(uint oPlayer, int nStartID, ScreenAnchor nAnchor, int nX, int nY, int nWidth, int nHeight, float fLifetime = 0.0f)
+    {
+      string sTop = "a";
+      string sMiddle = "d";
+      string sBottom = "h";
+
+      int i;
+      for (i = 0; i < nWidth; i++)
+      {
+        sTop += "b";
+        sMiddle += "i";
+        sBottom += "e";
+      }
+
+      sTop += "c";
+      sMiddle += "f";
+      sBottom += "g";
+
+      GUI_Draw(oPlayer, sTop, nX, nY, nAnchor, nStartID++, fLifetime);
+      for (i = 0; i < nHeight; i++)
+      {
+        GUI_Draw(oPlayer, sMiddle, nX, ++nY, nAnchor, nStartID++, fLifetime);
+      }
+      GUI_Draw(oPlayer, sBottom, nX, ++nY, nAnchor, nStartID, fLifetime);
+
+      return nHeight + 2;
+    }
+    public static void GUI_Draw(uint oPlayer, string sMessage, int nX, int nY, ScreenAnchor nAnchor, int nID, float fLifeTime = 0.0f)
+    {
+      NWScript.PostString(oPlayer, sMessage, nX, nY, nAnchor, fLifeTime, unchecked((int)0xC0C0C0FF), unchecked((int)0xC0C0C0FF), nID, "fnt_es_gui");
+    }
+    public static void BootAllPC()
+    {
+      foreach (KeyValuePair<uint, PlayerSystem.Player> PlayerListEntry in PlayerSystem.Players)
+      {
+        if (!NWScript.GetIsDM(PlayerListEntry.Key))
+          NWScript.BootPC(PlayerListEntry.Key, "Le serveur redémarre. Vous pourrez vous reconnecter dans une minute.");
+      }
     }
   }
 }
