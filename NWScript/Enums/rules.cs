@@ -1,4 +1,4 @@
-namespace NWN.Enums {
+﻿namespace NWN.Enums {
   public enum ClericDomain {
     Air = 0,
     Animal = 1,
@@ -1213,6 +1213,7 @@ namespace NWN.Enums {
     PlayerTool07 = 1112,
     PlayerTool08 = 1113,
     PlayerTool09 = 1114,
-    PlayerTool10 = 1115
+    PlayerTool10 = 1115,
+    LanguageElf = 1116
   }
 }

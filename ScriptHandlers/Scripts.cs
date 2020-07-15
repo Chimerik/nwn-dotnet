@@ -1,40 +1,35 @@
-﻿using NWN.Enums;
-using NWN.Enums.Item;
-using NWN.Enums.Item.Property;
-using NWN.Enums.VisualEffect;
-using NWN.NWNX;
+﻿using NWN.NWNX;
+using NWN.Systems;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.IO;
 
 namespace NWN.ScriptHandlers
 {
   public static class Scripts
   {
     public static Dictionary<string, Func<uint, int>> Register = new Dictionary<string, Func<uint, int>>
-        {
-            { "_onload", HandleModuleLoad },
-            { "x2_mod_def_act", HandleActivateItem },
-            { "X0_S0_AcidSplash", CantripsScaler },
-            { "NW_S0_Daze", CantripsScaler },
-            { "X0_S0_ElecJolt", CantripsScaler },
-            { "X0_S0_Flare", CantripsScaler },
-            { "NW_S0_Light", CantripsScaler },
-            { "NW_S0_RayFrost", CantripsScaler },
-            { "NW_S0_Resis", CantripsScaler },
-            { "NW_S0_Virtue", CantripsScaler },
-            { "event_mouse_clic", EventMouseClick },
-        }.Concat(Systems.LootSystem.Register)
-         .Concat(Systems.PlayerSystem.Register)
-         .Concat(Systems.ChatSystem.Register)
-         .ToDictionary(kvp => kvp.Key, kvp => kvp.Value);
+    {
+      { "event_moduleload", HandleModuleLoad },
+      { "x2_mod_def_act", HandleActivateItem },
+      { "cs_chatlistener", HandleChat }, // TODO a supprimer
+      //  { "event_mouse_clic", EventMouseClick },
+      { "event_potager", EventPotager },
+      { "_event_effects", EventEffects },
+    }.Concat(Systems.LootSystem.Register)
+     .Concat(Systems.PlayerSystem.Register)
+     .Concat(Systems.ChatSystem.Register)
+     .Concat(Systems.SpellSystem.Register)
+     .ToDictionary(kvp => kvp.Key, kvp => kvp.Value);
 
     private static int HandleModuleLoad(uint oidSelf)
     {
       try
       {
         Systems.LootSystem.InitChestArea();
-      } catch (Exception e)
+      }
+      catch (Exception e)
       {
         Utils.LogException(e);
       }
@@ -44,6 +39,30 @@ namespace NWN.ScriptHandlers
 
       Events.SubscribeEvent(Events.ON_INPUT_KEYBOARD_BEFORE, Systems.PlayerSystem.ON_PC_KEYSTROKE_SCRIPT);
       Events.ToggleDispatchListMode(Events.ON_INPUT_KEYBOARD_BEFORE, Systems.PlayerSystem.ON_PC_KEYSTROKE_SCRIPT, 1);
+
+      NWNX.Events.SubscribeEvent("NWNX_ON_INPUT_KEYBOARD_AFTER", "event_mv_plc");
+      NWNX.Events.ToggleDispatchListMode("NWNX_ON_INPUT_KEYBOARD_AFTER", "event_mv_plc", 1);
+
+      NWNX.Events.SubscribeEvent("NWNX_ON_INPUT_ATTACK_OBJECT_BEFORE", "event_auto_spell");
+      NWNX.Events.ToggleDispatchListMode("NWNX_ON_INPUT_ATTACK_OBJECT_BEFORE", "event_auto_spell", 1);
+      NWNX.Events.SubscribeEvent("NWNX_ON_INPUT_FORCE_MOVE_TO_OBJECT_BEFORE", "event_auto_spell");
+      NWNX.Events.ToggleDispatchListMode("NWNX_ON_INPUT_FORCE_MOVE_TO_OBJECT_BEFORE", "event_auto_spell", 1);
+      NWNX.Events.SubscribeEvent("NWNX_ON_INPUT_CAST_SPELL_BEFORE", "_onspellcast");
+      NWNX.Events.ToggleDispatchListMode("NWNX_ON_INPUT_CAST_SPELL_BEFORE", "_onspellcast", 1);
+      NWNX.Events.SubscribeEvent("NWNX_ON_INPUT_KEYBOARD_BEFORE", "event_auto_spell");
+      NWNX.Events.ToggleDispatchListMode("NWNX_ON_INPUT_KEYBOARD_BEFORE", "event_auto_spell", 1);
+      NWNX.Events.SubscribeEvent("NWNX_ON_INPUT_WALK_TO_WAYPOINT_BEFORE", "event_auto_spell");
+      NWNX.Events.ToggleDispatchListMode("NWNX_ON_INPUT_WALK_TO_WAYPOINT_BEFORE", "event_auto_spell", 1);
+
+      NWNX.Events.SubscribeEvent("NWNX_ON_USE_FEAT_BEFORE", "event_feat_used");
+      NWNX.Events.ToggleDispatchListMode("NWNX_ON_USE_FEAT_BEFORE", "event_feat_used", 1);
+
+      NWNX.Events.SubscribeEvent("NWNX_ON_EFFECT_REMOVED_AFTER", "event_effects");
+      NWNX.Events.ToggleDispatchListMode("NWNX_ON_EFFECT_REMOVED_AFTER", "event_effects", 1);
+
+      NWNX.Events.SubscribeEvent("CDE_POTAGER", "event_potager");
+
+      //Garden.Init();
 
       return Entrypoints.SCRIPT_NOT_HANDLED;
     }
@@ -70,263 +89,206 @@ namespace NWN.ScriptHandlers
       return Entrypoints.SCRIPT_NOT_HANDLED;
     }
 
-    private static int EventMouseClick(uint oidSelf)
+    private static int EventPotager(uint oidSelf)
     {
-      NWObject oClicker = oidSelf.AsObject();
-      if (!oClicker.IsPC)
-        return Entrypoints.SCRIPT_NOT_HANDLED;
-
-      if (NWScript.GetLocalInt(oClicker, "_FROST_ATTACK_ON") != 0 && (NWNX.Events.GetCurrentEvent() == "NWNX_ON_INPUT_ATTACK_OBJECT_BEFORE" || NWNX.Events.GetCurrentEvent() == "NWNX_ON_INPUT_FORCE_MOVE_TO_OBJECT_BEFORE" || NWNX.Events.GetCurrentEvent() == "NWNX_ON_INPUT_CAST_SPELL_BEFORE" || NWNX.Events.GetCurrentEvent() == "NWNX_ON_INPUT_KEYBOARD_BEFORE" || NWNX.Events.GetCurrentEvent() == "NWNX_ON_INPUT_WALK_TO_WAYPOINT_BEFORE"))
+      Garden oGarden;
+      if (Garden.Potagers.TryGetValue(oidSelf.AsPlaceable().Locals.Int.Get("id"), out oGarden))
       {
-        if (NWNX.Object.StringToObject(NWNX.Events.GetEventData("TARGET")) != NWScript.GetLocalObject(oClicker, "_FROST_ATTACK_TARGET") && NWScript.GetLocalObject(oClicker, "_FROST_ATTACK_TARGET") != NWObject.OBJECT_INVALID)
+        oGarden.PlanterFruit(NWNX.Events.GetEventData("FRUIT_NAME"), NWNX.Events.GetEventData("FRUIT_TAG"));
+      }
+
+      return Entrypoints.SCRIPT_HANDLED;
+    }
+
+    private static int HandleChat(uint oidSelf)
+    {
+      // TODO : A supprimer
+      // Repartir les fonctionnalités du chat dans le ChatSystem
+      // Et les fonctionnalités du systeme de commande dans le CommandSystem
+      var oChatSender = ((uint)Chat.GetSender()).AsPlayer();
+
+      if (!oChatSender.IsPC)
+        return Entrypoints.SCRIPT_HANDLED;
+
+      var sChatReceived = Chat.GetMessage();
+      var oChatTarget = Chat.GetTarget();
+      var iChannel = Chat.GetChannel();
+      var sCommand = "";
+      if (sChatReceived.StartsWith("/"))
+        sCommand = sChatReceived.Split('/', ' ')[1]; // Si le chat reçu est une commande, on récupère la commande
+
+      string filename = String.Format("{0:yyyy-MM-dd}_{1}.txt", DateTime.Now, "chatlog");
+      string path = Path.Combine(Environment.GetEnvironmentVariable("HOME") + "/ChatLog", filename);
+
+      using (System.IO.StreamWriter file =
+      new System.IO.StreamWriter(path, true))
+      {
+        if (!NWScript.GetIsObjectValid(oChatTarget))
+          file.WriteLine(DateTime.Now.ToShortTimeString() + " - [" + iChannel + " - " + NWScript.GetName(NWScript.GetArea(oChatSender)) + "] " + NWScript.GetName(oChatSender, true) + " : " + sChatReceived);
+        else
+          file.WriteLine(DateTime.Now.ToShortTimeString() + " - [" + iChannel + "] " + NWScript.GetName(oChatSender) + " To : " + NWScript.GetName(oChatTarget, true) + " : " + sChatReceived);
+      }
+
+      sChatReceived = sChatReceived.Replace("/" + sCommand + " ", "");
+
+      if (sCommand.Length > 0)
+      {
+        Func<string, NWPlayer, uint, NWNX.Enum.ChatChannel, int> handler;
+        if (ChatHandlers.Register.TryGetValue(sCommand, out handler))
         {
-          NWScript.SetLocalInt(oClicker, "_FROST_ATTACK_CANCEL", 1);
-          NWScript.DeleteLocalInt(oClicker, "_FROST_ATTACK_ON");
-          NWScript.DeleteLocalObject(oClicker, "_FROST_ATTACK_TARGET");
+          try
+          {
+            return handler.Invoke(sChatReceived, oChatSender, oChatTarget, iChannel);
+          }
+          catch (Exception e)
+          {
+            Utils.LogException(e);
+          }
         }
       }
-
-      if (!oClicker.IsPC || NWNX.Object.GetInt(oClicker, "_FROST_ATTACK") == 0 || NWNX.Events.GetCurrentEvent() != "NWNX_ON_INPUT_ATTACK_OBJECT_BEFORE")
-        return Entrypoints.SCRIPT_NOT_HANDLED;
-
-      uint oTarget = NWNX.Object.StringToObject(NWNX.Events.GetEventData("TARGET"));
-      NWScript.AssignCommand(oClicker, () => NWScript.ClearAllActions());
-      NWScript.AssignCommand(oClicker, () => NWScript.ActionCastSpellAtObject(Spell.RayOfFrost, oTarget));
-      NWScript.DelayCommand(6.0f, () => FrostAutoAttack(oClicker, oTarget));
-
-      NWScript.SetLocalInt(oClicker, "_FROST_ATTACK_ON", 1);
-      NWScript.SetLocalObject(oClicker, "_FROST_ATTACK_TARGET", oTarget);
-
-      return Entrypoints.SCRIPT_NOT_HANDLED;
-    }
-
-    private static void FrostAutoAttack(NWObject oClicker, uint oTarget)
-    {
-      if (NWScript.GetLocalInt(oClicker, "_FROST_ATTACK_CANCEL") == 0)
-      {
-        NWScript.AssignCommand(oClicker, () => NWScript.ActionAttack(oTarget));
-      }
       else
-      {
-        NWScript.DeleteLocalInt(oClicker, "_FROST_ATTACK_CANCEL");
-        NWScript.DeleteLocalObject(oClicker, "_FROST_ATTACK_TARGET");
-      }
-    }
+      { // Me sert afin de capter une valeur donnée en chat par le PJ. Mieux vaut sans doute passer par le système de menu désormais pour entrer une valeur
+        if (NWScript.GetLocalString(oChatSender, "_IS_LISTENING_VAR") == NWScript.GetName(oChatSender))
+        {
+          NWNX.Chat.SkipMessage();
+          NWScript.SetLocalString(oChatSender, "_LISTENING_VAR", sChatReceived);
+          NWScript.DeleteLocalString(oChatSender, "_IS_LISTENING_VAR");
+          return Entrypoints.SCRIPT_HANDLED;
+        }
+        else if (NWScript.GetIsDead(oChatSender))
+          NWScript.SendMessageToPC(oChatSender, "N'oubliez pas que vous êtes inconscient, vous ne pouvez pas parler, mais tout juste gémir et décrire votre état");
 
-    private static int CantripsScaler(uint oidSelf)
-    {
-      NWObject oTarget = (NWScript.GetSpellTargetObject()).AsObject();
-      int nCasterLevel = Spells.GetMyCasterLevel(NWObject.OBJECT_SELF);
-      NWScript.SignalEvent(oTarget, NWScript.EventSpellCastAt(NWObject.OBJECT_SELF, (Spell)NWScript.GetSpellId()));
-      int nMetaMagic = NWScript.GetMetaMagicFeat();
-      Effect eVis = null;
-      Effect eDur = null;
-      Effect eLink = null;
-      int nDuration = 0;
-
-      switch (NWScript.GetSpellId())
-      {
-        case (int)Spell.AcidSplash:
-          eVis = NWScript.EffectVisualEffect((VisualEffect)Impact.AcidSmall);
-
-          //Make SR Check
-          if (Spells.MyResistSpell(NWObject.OBJECT_SELF, oTarget) == 0)
-          {
-            //Set damage effect
-            int iDamage = 3 * nCasterLevel / 6;
-            if (iDamage < 3)
-              iDamage = 3;
-            int nDamage = Spells.MaximizeOrEmpower(iDamage, 1 + nCasterLevel / 6, NWScript.GetMetaMagicFeat());
-            Effect eBad = NWScript.EffectDamage(nDamage, NWN.Enums.DamageType.Acid);
-            //Apply the VFX impact and damage effect
-            NWScript.ApplyEffectToObject(DurationType.Instant, eVis, oTarget);
-            NWScript.ApplyEffectToObject(DurationType.Instant, eBad, oTarget);
-          }
-          break;
-
-        case (int)Spell.Daze:
-          Effect eMind = NWScript.EffectVisualEffect((VisualEffect)Temporary.MindAffectingNegative);
-          Effect eDaze = NWScript.EffectDazed();
-          eDur = NWScript.EffectVisualEffect((VisualEffect)Temporary.CessateNegative);
-
-          eLink = NWScript.EffectLinkEffects(eMind, eDaze);
-          eLink = NWScript.EffectLinkEffects(eLink, eDur);
-
-          eVis = NWScript.EffectVisualEffect((VisualEffect)Impact.Dazed);
-
-          nDuration = 2;
-          //check meta magic for extend
-          if (nMetaMagic == (int)MetaMagic.Extend)
-          {
-            nDuration = 4;
-          }
-
-          //Make sure the target is a humanoid
-          if (Spells.AmIAHumanoid(oTarget))
-          {
-            if (NWScript.GetHitDice(oTarget) <= 5 + nCasterLevel / 6)
+        // MUTE MP
+        if (NWScript.GetIsObjectValid(oChatTarget))
+        {
+          if (NWNX.Object.GetInt(oChatTarget, "__BLOCK_ALL_MP") > 0 || NWNX.Object.GetInt(oChatTarget, "__BLOCK_" + NWScript.GetName(oChatSender, true) + "_MP") > 0)
+            if (!NWScript.GetIsDM(oChatSender))
             {
-              //Make SR check
-              if (Spells.MyResistSpell(NWObject.OBJECT_SELF, oTarget) == 0)
+              NWNX.Chat.SkipMessage();
+              NWScript.SendMessageToPC(oChatSender, NWScript.GetName(oChatTarget) + " bloque actuellement la réception des mp. Votre message n'a pas pu être transmis");
+              return Entrypoints.SCRIPT_HANDLED;
+            }
+        }
+
+        //SYSTEME DE RECOPIE DE CHAT POUR LES DMS
+        if (iChannel == NWNX.Enum.ChatChannel.PlayerTalk || iChannel == NWNX.Enum.ChatChannel.PlayerWhisper)
+        {
+          var oInviSender = NWScript.GetLocalObject(NWScript.GetModule(), "_INVISIBLE_SENDER");
+          foreach (KeyValuePair<uint, PlayerSystem.Player> PlayerListEntry in PlayerSystem.Players)
+          {
+            PlayerSystem.Player oDM = PlayerListEntry.Value;
+            if (NWScript.GetIsDM(oDM))
+            {
+              if (oDM.Listened.ContainsKey(oChatSender))
               {
-                //Make Will Save to negate effect
-                if (Spells.MySavingThrow(SavingThrow.Will, oTarget, NWScript.GetSpellSaveDC(), SavingThrowType.MindSpells) == SaveReturn.Failed)
+                if ((NWScript.GetArea(oChatSender) != NWScript.GetArea(oDM)) || NWScript.GetDistanceBetween(oDM, oChatSender) > NWNX.Chat.GetChatHearingDistance(oDM, iChannel))
                 {
-                  //Apply VFX Impact and daze effect
-                  NWScript.ApplyEffectToObject(DurationType.Temporary, eLink, oTarget, NWScript.RoundsToSeconds(nDuration));
-                  NWScript.ApplyEffectToObject(DurationType.Instant, eVis, oTarget);
+                  NWScript.SetName(oInviSender, NWScript.GetName(oChatSender));
+                  var oPossessed = NWScript.GetLocalObject(oDM, "_POSSESSING");
+                  if (!NWScript.GetIsObjectValid(oPossessed))
+                  {
+                    if (iChannel == NWNX.Enum.ChatChannel.PlayerTalk)
+                      NWNX.Chat.SendMessage((int)NWNX.Enum.ChatChannel.PlayerTell, "[COPIE - " + NWScript.GetName(NWScript.GetArea(oChatSender)) + "] " + sChatReceived, oInviSender.AsObject(), oDM);
+                    else
+                      NWNX.Chat.SendMessage((int)NWNX.Enum.ChatChannel.PlayerTell, "[COPIE - " + NWScript.GetName(NWScript.GetArea(oChatSender)) + "] " + sChatReceived, oInviSender.AsObject(), oDM);
+                  }
+                  else if (iChannel == NWNX.Enum.ChatChannel.PlayerTalk)
+                    NWNX.Chat.SendMessage((int)NWNX.Enum.ChatChannel.PlayerTell, "[COPIE - " + NWScript.GetName(NWScript.GetArea(oChatSender)) + "] " + sChatReceived, oInviSender.AsObject(), oPossessed.AsObject());
+                  else
+                    NWNX.Chat.SendMessage((int)NWNX.Enum.ChatChannel.PlayerTell, "[COPIE - " + NWScript.GetName(NWScript.GetArea(oChatSender)) + "] " + sChatReceived, oInviSender.AsObject(), oPossessed.AsObject());
                 }
               }
             }
           }
-          break;
-        case (int)Spell.ElectricJolt:
-          eVis = NWScript.EffectVisualEffect((VisualEffect)Impact.LightningBlast);
-          //Make SR Check
-          if (Spells.MyResistSpell(NWObject.OBJECT_SELF, oTarget) == 0)
-          {
-            //Set damage effect
-            int iDamage = 3 * nCasterLevel / 6;
-            if (iDamage < 3)
-              iDamage = 3;
-            Effect eBad = NWScript.EffectDamage(Spells.MaximizeOrEmpower(iDamage, 1 + nCasterLevel / 6, NWScript.GetMetaMagicFeat()), NWN.Enums.DamageType.Electrical);
-            //Apply the VFX impact and damage effect
-            NWScript.ApplyEffectToObject(DurationType.Instant, eVis, oTarget);
-            NWScript.ApplyEffectToObject(DurationType.Instant, eBad, oTarget);
-          }
-          break;
-        case (int)Spell.Flare:
-          eVis = NWScript.EffectVisualEffect((VisualEffect)Impact.FlameSmall);
+        }
 
-          // * Apply the hit effect so player knows something happened
-          NWScript.ApplyEffectToObject(DurationType.Instant, eVis, oTarget);
+        // SYSTEME DE LANGUE
+        int iLangueActive = NWScript.GetLocalInt(oChatSender, "_LANGUE_ACTIVE");
 
-          //Make SR Check
-          if ((Spells.MyResistSpell(NWObject.OBJECT_SELF, oTarget)) == 0 && (Spells.MySavingThrow(SavingThrow.Fortitude, oTarget, NWScript.GetSpellSaveDC()) == SaveReturn.Failed))
+        if (iLangueActive != 0)
+        {
+          if (iChannel == NWNX.Enum.ChatChannel.PlayerTalk || iChannel == NWNX.Enum.ChatChannel.PlayerWhisper || iChannel == NWNX.Enum.ChatChannel.DMTalk || iChannel == NWNX.Enum.ChatChannel.DMWhisper)
           {
-            //Set damage effect
-            Effect eBad = NWScript.EffectAttackDecrease(1 + nCasterLevel / 6);
-            //Apply the VFX impact and damage effect
-            NWScript.ApplyEffectToObject(DurationType.Temporary, eBad, oTarget, NWScript.RoundsToSeconds(10 + 10 * nCasterLevel / 6));
-          }
-          break;
-        case (int)Spell.Light:
-          if (NWScript.GetObjectType(oTarget) == ObjectType.Item)
-          {
+            string sLanguageName = NWScript.Get2DAString("feat", "FEAT", iLangueActive);
+            string sName = NWScript.GetLocalString(oChatSender, "__DISGUISE_NAME");
+            if (sName == "") sName = NWScript.GetName(oChatSender);
 
-            // Do not allow casting on not equippable items
-            if (!((NWItem)oTarget).IsEquippable)
-              NWScript.FloatingTextStrRefOnCreature(83326, NWObject.OBJECT_SELF);
-            else
+            foreach (KeyValuePair<uint, PlayerSystem.Player> PlayerListEntry in PlayerSystem.Players)
             {
-              ItemProperty ip = NWScript.ItemPropertyLight(LightBrightness.LIGHTBRIGHTNESS_NORMAL, LightColor.WHITE);
-
-              if (NWScript.GetItemHasItemProperty(oTarget, ItemPropertyType.Light) != 0)
+              if ((uint)oChatSender != PlayerListEntry.Key && (uint)oChatSender != NWScript.GetLocalObject(PlayerListEntry.Key, "_POSSESSING"))
               {
-                NWScript.IPRemoveMatchingItemProperties(oTarget, (int)ItemPropertyType.Light, DurationType.Temporary);
-              }
+                uint oEavesdrop;
 
-              nDuration = Spells.GetMyCasterLevel(NWObject.OBJECT_SELF);
-              nMetaMagic = NWScript.GetMetaMagicFeat();
-              //Enter Metamagic conditions
-              if (nMetaMagic == (int)MetaMagic.Extend)
-              {
-                nDuration = nDuration * 2; //Duration is +100%
-              }
+                if (NWScript.GetIsDM(PlayerListEntry.Key) && NWScript.GetIsObjectValid(NWScript.GetLocalObject(PlayerListEntry.Key, "_POSSESSING")))
+                  oEavesdrop = NWScript.GetLocalObject(PlayerListEntry.Key, "_POSSESSING");
+                else
+                  oEavesdrop = PlayerListEntry.Key;
 
-              NWScript.AddItemProperty(DurationType.Temporary, ip, oTarget, NWScript.HoursToSeconds(nDuration));
+                if ((NWScript.GetArea(oChatSender) == NWScript.GetArea(oEavesdrop)) && (NWScript.GetDistanceBetween(oEavesdrop, oChatSender) < NWNX.Chat.GetChatHearingDistance(oEavesdrop.AsObject(), iChannel)))
+                {
+                  if (NWScript.GetHasFeat(iLangueActive, oEavesdrop) || NWScript.GetIsDM(PlayerListEntry.Key) || NWScript.GetIsDMPossessed(oEavesdrop))
+                  {
+                    NWNX.Chat.SkipMessage();
+                    NWNX.Chat.SendMessage((int)iChannel, "[" + sLanguageName + "] " + sChatReceived, oChatSender, oEavesdrop.AsObject());
+                    NWScript.SendMessageToPC(oEavesdrop, sName + " : [" + sLanguageName + "] " + Languages.GetLangueStringConvertedHRPProtection(sChatReceived, iLangueActive));
+                  }
+                  else
+                  {
+                    NWNX.Chat.SkipMessage();
+
+                    NWNX.Chat.SendMessage((int)iChannel, Languages.GetLangueStringConvertedHRPProtection(sChatReceived, iLangueActive), oChatSender, oEavesdrop.AsObject());
+                  }
+                }
+              }
             }
+
+            NWNX.Chat.SkipMessage();
+            NWNX.Chat.SendMessage((int)iChannel, "[" + sLanguageName + "] " + sChatReceived, oChatSender, oChatSender);
+            NWScript.SendMessageToPC(oChatSender, sName + " : [" + sLanguageName + "] " + Languages.GetLangueStringConvertedHRPProtection(sChatReceived, iLangueActive));
           }
           else
           {
-            eVis = NWScript.EffectVisualEffect((VisualEffect)Temporary.LightWhite20);
-            eDur = NWScript.EffectVisualEffect((VisualEffect)Temporary.CessatePositive);
-            eLink = NWScript.EffectLinkEffects(eVis, eDur);
-
-            nDuration = Spells.GetMyCasterLevel(NWObject.OBJECT_SELF);
-            nMetaMagic = NWScript.GetMetaMagicFeat();
-            //Enter Metamagic conditions
-            if (nMetaMagic == (int)MetaMagic.Extend)
-            {
-              nDuration = nDuration * 2; //Duration is +100%
-            }
-
-            //Apply the VFX impact and effects
-            NWScript.ApplyEffectToObject(DurationType.Temporary, eLink, oTarget, NWScript.HoursToSeconds(nDuration));
+            NWNX.Chat.SkipMessage();
+            if ((iChannel == NWNX.Enum.ChatChannel.PlayerTell || iChannel == NWNX.Enum.ChatChannel.DMTell) && !NWScript.GetIsObjectValid(oChatTarget))
+              NWScript.SendMessageToPC(oChatSender, "La personne à laquelle vous tentez d'envoyer un message n'est plus connectée.");
+            else
+              NWNX.Chat.SendMessage((int)iChannel, sChatReceived, oChatSender, oChatTarget);
           }
-          break;
-        case (int)Spell.RayOfFrost:
-          int nDam = NWScript.d4(1 + nCasterLevel / 6) + 1;
-          Effect eDam;
-          eVis = NWScript.EffectVisualEffect((VisualEffect)Impact.FrostSmall);
-          Effect eRay = NWScript.EffectBeam(Beam.Cold, NWObject.OBJECT_SELF, 0);
+        }
+        else
+        {
+          NWNX.Chat.SkipMessage();
+          if ((iChannel == NWNX.Enum.ChatChannel.PlayerTell || iChannel == NWNX.Enum.ChatChannel.DMTell) && !NWScript.GetIsObjectValid(oChatTarget))
+            NWScript.SendMessageToPC(oChatSender, "La personne à laquelle vous tentez d'envoyer un message n'est plus connectée.");
+          else
+            NWNX.Chat.SendMessage((int)iChannel, sChatReceived, oChatSender, oChatTarget);
+        }
 
-          if ((NWScript.GetObjectType(oTarget) == ObjectType.Placeable) && (NWScript.GetResRef(oTarget) == "jbb_feupetit")) { NWScript.SetPlotFlag(oTarget, false); NWScript.DestroyObject(oTarget); }
-          if ((NWScript.GetObjectType(oTarget) == ObjectType.Placeable) && (NWScript.GetResRef(oTarget) == "jbb_feumoyen")) { NWScript.SetPlotFlag(oTarget, false); NWScript.DestroyObject(oTarget); }
-          if ((NWScript.GetObjectType(oTarget) == ObjectType.Placeable) && (NWScript.GetResRef(oTarget) == "jbb_feularge")) { NWScript.SetPlotFlag(oTarget, false); NWScript.DestroyObject(oTarget); }
-
-          //Make SR Check
-          if (Spells.MyResistSpell(NWObject.OBJECT_SELF, oTarget) == 0)
-          {
-            //Enter Metamagic conditions
-            if (nMetaMagic == (int)MetaMagic.Maximize)
-            {
-              nDam = 5 + 5 * nCasterLevel / 6;//Damage is at max
-            }
-            else if (nMetaMagic == (int)MetaMagic.Empower)
-            {
-              nDam = nDam + nDam / 2; //Damage/Healing is +50%
-            }
-            //Set damage effect
-            eDam = NWScript.EffectDamage(nDam, NWN.Enums.DamageType.Cold);
-            //Apply the VFX impact and damage effect
-            NWScript.ApplyEffectToObject(DurationType.Instant, eVis, oTarget);
-            NWScript.ApplyEffectToObject(DurationType.Instant, eDam, oTarget);
-          }
-
-          NWScript.ApplyEffectToObject(DurationType.Temporary, eRay, oTarget, 1.7f);
-          break;
-        case (int)Spell.Resistance:
-          Effect eSave;
-          eVis = NWScript.EffectVisualEffect((VisualEffect)Impact.HeadHoly);
-          eDur = NWScript.EffectVisualEffect((VisualEffect)Temporary.CessatePositive);
-
-          int nBonus = 1 + nCasterLevel / 6; //Saving throw bonus to be applied
-          nDuration = 2 + nCasterLevel / 6; // Turns
-
-          //Check for metamagic extend
-          if (nMetaMagic == (int)MetaMagic.Extend)
-          {
-            nDuration = nDuration * 2;
-          }
-          //Set the bonus save effect
-          eSave = NWScript.EffectSavingThrowIncrease((int)SavingThrowType.All, nBonus);
-          eLink = NWScript.EffectLinkEffects(eSave, eDur);
-
-          //Apply the bonus effect and VFX impact
-          NWScript.ApplyEffectToObject(DurationType.Temporary, eLink, oTarget, NWScript.TurnsToSeconds(nDuration));
-          NWScript.ApplyEffectToObject(DurationType.Instant, eVis, oTarget);
-          break;
-        case (int)Spell.Virtue:
-          nDuration = nCasterLevel;
-          eVis = NWScript.EffectVisualEffect((VisualEffect)Impact.HolyAid);
-          Effect eHP = NWScript.EffectTemporaryHitpoints(1);
-          eDur = NWScript.EffectVisualEffect((VisualEffect)Temporary.CessatePositive);
-          eLink = NWScript.EffectLinkEffects(eHP, eDur);
-
-          //Enter Metamagic conditions
-          if (nMetaMagic == (int)MetaMagic.Extend)
-          {
-            nDuration = nDuration * 2; //Duration is +100%
-          }
-
-          //Apply the VFX impact and effects
-          NWScript.ApplyEffectToObject(DurationType.Instant, eVis, oTarget);
-          NWScript.ApplyEffectToObject(DurationType.Temporary, eLink, oTarget, NWScript.TurnsToSeconds(nDuration));
-          break;
+        if (NWScript.GetIsObjectValid(oChatTarget) && NWScript.GetIsObjectValid(NWScript.GetLocalObject(oChatTarget, "_POSSESSING")))
+        {
+          NWNX.Chat.SkipMessage();
+          NWNX.Chat.SendMessage((int)iChannel, sChatReceived, oChatSender, NWScript.GetLocalObject(oChatTarget, "_POSSESSING").AsObject());
+        }
       }
 
-      NWNX.Creature.RestoreSpells(NWObject.OBJECT_SELF, 0);
+      return Entrypoints.SCRIPT_HANDLED;
+    }
+
+    private static int EventEffects(uint oidSelf)
+    {
+      string current_event = NWNX.Events.GetCurrentEvent();
+
+      if (current_event == "NWNX_ON_EFFECT_REMOVED_AFTER")
+      {
+        if (NWNX.Events.GetEventData("CUSTOM_TAG") == "lycan_curse")
+        {
+          PlayerSystem.Player player;
+          if (PlayerSystem.Players.TryGetValue(oidSelf, out player))
+          {
+            player.RemoveLycanCurse();
+          }
+        }
+      }
 
       return Entrypoints.SCRIPT_HANDLED;
     }

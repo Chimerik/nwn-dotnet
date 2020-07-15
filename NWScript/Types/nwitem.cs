@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using NWN.Enums;
 using NWN.Enums.Item;
 using NWN.NWNX;
 
@@ -108,6 +109,16 @@ namespace NWN
 
             string sResult = NWScript.Get2DAString("baseitems", "EquipableSlots", nBaseType);
             return (sResult != "0x00000");
+        }
+
+        public void RemoveMatchingItemProperties(ItemPropertyType ipType, DurationType durationType)
+        {
+            NWScript.IPRemoveMatchingItemProperties(this, (int)ipType, durationType);
+        }
+
+        public void AddItemProperty(DurationType durationType, ItemProperty ip, float nDuration)
+        {
+            NWScript.AddItemProperty(durationType, ip, this, nDuration);
         }
     }
 }
