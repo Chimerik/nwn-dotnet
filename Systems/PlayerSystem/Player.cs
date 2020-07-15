@@ -32,10 +32,10 @@ namespace NWN.Systems
 
       public void EmitKeydown(KeydownEventArgs e)
       {
-        OnKeydown?.Invoke(this, e);
+        OnKeydown(this, e);
       }
 
-      public event EventHandler<KeydownEventArgs> OnKeydown;
+      public event EventHandler<KeydownEventArgs> OnKeydown = delegate { };
 
       public class KeydownEventArgs : EventArgs
       {
