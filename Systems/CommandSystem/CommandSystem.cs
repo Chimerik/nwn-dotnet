@@ -35,9 +35,19 @@ namespace NWN.Systems
         return;
       }
 
+      Options.Result optionsResult;
       try
       {
-        command.execute(e);
+        optionsResult = command.options.Parse(args);
+      } catch (Exception err)
+      {
+        NWScript.SendMessageToPC(e.oSender, $"\nInvalid options : {err.Message}");
+        return;
+      }
+
+      try
+      {
+        command.execute(e, optionsResult);
       }
       catch (Exception err)
       {
