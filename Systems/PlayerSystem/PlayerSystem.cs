@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using Dapper;
 using NWN.Enums;
 using NWN.NWNX.Enum;
@@ -12,6 +13,7 @@ namespace NWN.Systems
 
     public static Dictionary<string, Func<uint, int>> Register = new Dictionary<string, Func<uint, int>>
         {
+            { "on_pc_perceived", HandlePlayerPerceived },
             { "on_pc_connect", HandlePlayerConnect },
             { "on_pc_disconnect", HandlePlayerDisconnect },
             { "connexion", HandlePlayerBeforeDisconnect },
@@ -28,48 +30,48 @@ namespace NWN.Systems
     private static int HandlePlayerConnect(uint oidSelf)
     {
       var oPC = NWScript.GetEnteringObject();
+
+      //TODO : système de BANLIST
+
       NWNX.Events.AddObjectToDispatchList(NWNX.Events.ON_INPUT_KEYBOARD_BEFORE, ON_PC_KEYSTROKE_SCRIPT, oPC);
       NWNX.Events.AddObjectToDispatchList("NWNX_ON_USE_FEAT_BEFORE", "event_feat_used", oPC);
       NWNX.Events.AddObjectToDispatchList("NWNX_ON_ADD_ASSOCIATE_AFTER", "summon", oPC);
       NWNX.Events.AddObjectToDispatchList("NWNX_ON_REMOVE_ASSOCIATE_AFTER", "summon", oPC);
 
-      oPC.AsCreature().AddFeat(NWN.Enums.Feat.PlayerTool01);
-
-      if (NWNX.Object.GetInt(oPC, "_FROST_ATTACK") != 0)
-      {
-        NWNX.Events.AddObjectToDispatchList("NWNX_ON_INPUT_ATTACK_OBJECT_BEFORE", "event_auto_spell", oPC);
-        NWNX.Events.AddObjectToDispatchList("NWNX_ON_INPUT_FORCE_MOVE_TO_OBJECT_BEFORE", "event_auto_spell", oPC);
-        NWNX.Events.AddObjectToDispatchList("NWNX_ON_INPUT_CAST_SPELL_BEFORE", "_onspellcast", oPC);
-        NWNX.Events.AddObjectToDispatchList("NWNX_ON_INPUT_KEYBOARD_BEFORE", "event_auto_spell", oPC);
-        NWNX.Events.AddObjectToDispatchList("NWNX_ON_INPUT_WALK_TO_WAYPOINT_BEFORE", "event_auto_spell", oPC);
-      }
-
-      if (oPC.AsCreature().GetPossessedItem("pj_lycan_curse").IsValid)
-      {
-        oPC.AsCreature().AddFeat(NWN.Enums.Feat.PlayerTool02);
-        oPC.AsCreature().GetPossessedItem("pj_lycan_curse").Destroy();
-      }
+      //oPC.AsCreature().AddFeat(NWN.Enums.Feat.PlayerTool01);
 
       //if (NWScript.GetLocalInt(oidSelf, "_LANGUE_ACTIVE") != 0)
       //{
-/*      NWScript.SendMessageToPC(oPC, $"langue = {NWScript.GetLocalInt(oPC, "_LANGUE_ACTIVE")}");
-        NWScript.DeleteLocalInt(oPC, "_LANGUE_ACTIVE");
-      NWScript.SendMessageToPC(oPC, $"langue = {NWScript.GetLocalInt(oPC, "_LANGUE_ACTIVE")}");
+      /*      NWScript.SendMessageToPC(oPC, $"langue = {NWScript.GetLocalInt(oPC, "_LANGUE_ACTIVE")}");
+              NWScript.DeleteLocalInt(oPC, "_LANGUE_ACTIVE");
+            NWScript.SendMessageToPC(oPC, $"langue = {NWScript.GetLocalInt(oPC, "_LANGUE_ACTIVE")}");
 
-      NWScript.DelayCommand(4.5f, () => NWScript.SetTextureOverride("icon_elf", "", oPC));
-        NWScript.DelayCommand(5.0f, () => RefreshQBS(oPC));
- */     //}
-     // else
-      //{
-        //NWScript.SetTextureOverride("icon_elf", "", oidSelf);
+            NWScript.DelayCommand(4.5f, () => NWScript.SetTextureOverride("icon_elf", "", oPC));
+              NWScript.DelayCommand(5.0f, () => RefreshQBS(oPC));
+       */     //}
+              // else
+              //{
+              //NWScript.SetTextureOverride("icon_elf", "", oidSelf);
 
-        //RefreshQBS(oidSelf, 0);
-     // }
+      //RefreshQBS(oidSelf, 0);
+      // }
 
-      var player = new Player(oPC);
-      Players.Add(oPC, player);
+      Player player;
+      if (!Players.ContainsKey(oPC))
+      {
+        player = new Player(oPC);
+        Players.Add(oPC, player);
+      }
+      else
+        player = Players[oPC];
 
-      if(player.IsNewPlayer)
+      player.isConnected = true;
+      NWScript.SetEventScript(oPC, (int)EventScript.Creature_OnNotice, "on_perceived_pc");
+
+      // TODO : Système de sauvegarde et de chargement de quickbar
+      //NWNX.Events.AddObjectToDispatchList("NWNX_ON_QUICKBAR_SET_BUTTON_AFTER", "event_qbs", oPC);
+
+      if (player.IsNewPlayer)
       {
         // TODO : création des infos du nouveau joueur en BDD
       }
@@ -77,9 +79,24 @@ namespace NWN.Systems
       {
         // TODO : Initilisation de l'ancien joueur avec les infos en BDD
 
+        if (NWNX.Object.GetInt(oPC, "_FROST_ATTACK") != 0)
+        {
+          NWNX.Events.AddObjectToDispatchList("NWNX_ON_INPUT_ATTACK_OBJECT_BEFORE", "event_auto_spell", oPC);
+          NWNX.Events.AddObjectToDispatchList("NWNX_ON_INPUT_FORCE_MOVE_TO_OBJECT_BEFORE", "event_auto_spell", oPC);
+          NWNX.Events.AddObjectToDispatchList("NWNX_ON_INPUT_CAST_SPELL_BEFORE", "_onspellcast", oPC);
+          NWNX.Events.AddObjectToDispatchList("NWNX_ON_INPUT_KEYBOARD_BEFORE", "event_auto_spell", oPC);
+          NWNX.Events.AddObjectToDispatchList("NWNX_ON_INPUT_WALK_TO_WAYPOINT_BEFORE", "event_auto_spell", oPC);
+        }
+
+        if (oPC.AsCreature().GetPossessedItem("pj_lycan_curse").IsValid)
+        {
+          oPC.AsCreature().AddFeat(NWN.Enums.Feat.PlayerTool02);
+          oPC.AsCreature().GetPossessedItem("pj_lycan_curse").Destroy();
+        }
+
         // Initialisation de la faim (TODO : récupérer la faim en BDD)
         float fNourriture = 200.0f;
-        
+
         if (fNourriture < 100.0f)
         {
           int nLoss = 100 - Convert.ToInt32(fNourriture);
@@ -90,6 +107,12 @@ namespace NWN.Systems
           eHunger = NWScript.SupernaturalEffect(eHunger);
           eHunger = NWScript.TagEffect(eHunger, "Effect_Hunger");
           NWScript.ApplyEffectToObject(DurationType.Permanent, eHunger, oPC);
+        }
+
+        if (NWNX.Object.GetString(player, "_LOCATION").Length > 0 && !player.IsDM)
+        {
+          NWScript.DelayCommand(1.0f, () => NWScript.AssignCommand(player, () => player.ClearAllActions(true)));
+          NWScript.DelayCommand(1.1f, () => NWScript.AssignCommand(player, () => NWScript.JumpToLocation(Utils.StringToLocation(NWNX.Object.GetString(player, "_LOCATION")))));
         }
       }
 
@@ -102,10 +125,10 @@ namespace NWN.Systems
 
     private static int HandlePlayerDisconnect(uint oidSelf)
     {
-      var oPC = NWScript.GetExitingObject();
+ /*     var oPC = NWScript.GetExitingObject();
       NWNX.Events.RemoveObjectFromDispatchList(NWNX.Events.ON_INPUT_KEYBOARD_BEFORE, ON_PC_KEYSTROKE_SCRIPT, oPC);
       Players.Remove(oPC);
-
+*/
       return Entrypoints.SCRIPT_HANDLED;
     }
 
@@ -136,18 +159,20 @@ namespace NWN.Systems
        * correction pourrait être de parcourir tous ses buffs et de les réappliquer dans l'event AFTER de la sauvegarde*/
       if (current_event == "NWNX_ON_CLIENT_EXPORT_CHARACTER_BEFORE" || current_event == "NWNX_ON_SERVER_CHARACTER_SAVE_BEFORE")
       {
-        if (oPC.Locals.Int.Get("_IS_DISCONNECTING") == 0)
+        Player player;
+        if (Players.TryGetValue(oidSelf, out player))
         {
-          if (oPC.HasAnyEffect((int)EffectTypeEngine.Polymorph))
+          if (player.isConnected)
           {
-            NWNX.Events.SkipEvent();
-            return Entrypoints.SCRIPT_HANDLED;
+            if (player.HasAnyEffect((int)EffectTypeEngine.Polymorph))
+            {
+              NWNX.Events.SkipEvent();
+              return Entrypoints.SCRIPT_HANDLED;
+            }
           }
         }
-        else
-          oPC.Locals.Int.Delete("_IS_DISCONNECTING");
       }
-      return Entrypoints.SCRIPT_NOT_HANDLED;
+      return Entrypoints.SCRIPT_HANDLED;
     }
 
     private static int HandlePlayerBeforeDisconnect(uint oidSelf)
@@ -156,11 +181,16 @@ namespace NWN.Systems
 
       if (current_event == "NWNX_ON_CLIENT_DISCONNECT_BEFORE")
       {
-        oidSelf.AsObject().Locals.Int.Set("_IS_DISCONNECTING", 1);
-        NWNX.Object.SetInt(oidSelf, "_CURRENT_HP", NWScript.GetCurrentHitPoints(oidSelf), true);
-        NWNX.Object.SetString(oidSelf, "_LOCATION", Utils.LocationToString(NWScript.GetLocation(oidSelf)), true);
+        Player player;
+        if (Players.TryGetValue(oidSelf, out player))
+        {
+          player.isConnected = false;
+          //TODO : plutôt utiliser les fonctions sqlite de la prochaine MAJ ?
+          NWNX.Object.SetInt(player, "_CURRENT_HP", player.CurrentHP, true);
+          NWNX.Object.SetString(player, "_LOCATION", Utils.LocationToString(player.Location), true);
+        }
       }
-      return Entrypoints.SCRIPT_NOT_HANDLED;
+      return Entrypoints.SCRIPT_HANDLED;
     }
 
     private static int HandleMovePlaceable(uint oidSelf)
@@ -385,6 +415,48 @@ namespace NWN.Systems
         NWScript.DeleteLocalInt(oClicker, "_FROST_ATTACK_CANCEL");
         NWScript.DeleteLocalObject(oClicker, "_FROST_ATTACK_TARGET");
       }
+    }
+    private static int HandlePlayerPerceived(uint oidSelf)
+    {
+      Player oPC;
+
+      if (Players.TryGetValue(oidSelf, out oPC))
+      {
+        Player oPerceived;
+        if (Players.TryGetValue(NWScript.GetLastPerceived(), out oPerceived))
+        {
+          if (!oPerceived.IsPC || oPerceived.IsDM || oPerceived.IsDMPossessed || oPerceived.DisguiseName.Length == 0)
+            return Entrypoints.SCRIPT_HANDLED; 
+
+          if ((DateTime.Now - oPC.DisguiseDetectTimer[oPerceived]).TotalSeconds < 1800)
+            return Entrypoints.SCRIPT_HANDLED;
+
+          oPC.DisguiseDetectTimer[oPerceived] = DateTime.Now;
+
+          int[] iPCSenseSkill = { oPC.GetSkillRank(Skill.Listen), oPC.GetSkillRank(Skill.Search), oPC.GetSkillRank(Skill.Spot), 
+            oPC.GetSkillRank(Skill.Bluff) };
+
+          int[] iPerceivedHideSkill = { oPerceived.GetSkillRank(Skill.Bluff), oPerceived.GetSkillRank(Skill.Hide),
+            oPerceived.GetSkillRank(Skill.Perform), oPerceived.GetSkillRank(Skill.Persuade) };
+
+          Random d20 = new Random();
+          int iRollAttack = iPCSenseSkill.Max() + d20.Next(20);
+          int iRollDefense = iPerceivedHideSkill.Max() + d20.Next(20);
+
+        /*  if (GetLocalInt(GetModule(), "_DEBUG_DISGUISE"))
+          {
+            NWNX_Chat_SendMessage(NWNX_CHAT_CHANNEL_PLAYER_DM, SEARTH + "Jet pour percer le déguisement : " + STOPAZE + IntToString(iPCSkill) + SEARTH + " + " + STOPAZE + IntToString(iRollAttack - iPCSkill) + SEARTH + " = " + SRED + IntToString(iRollAttack) + ".", oPC);
+            NWNX_Chat_SendMessage(NWNX_CHAT_CHANNEL_PLAYER_DM, SEARTH + "Jet de déguisement : " + STOPAZE + IntToString(iPerceivedHideSkill) + SEARTH + " + " + STOPAZE + IntToString(iRollDefense - iPerceivedHideSkill) + SEARTH + " = " + SRED + IntToString(iRollDefense) + ".", oPerceived);
+          }*/
+          if (iRollAttack > iRollDefense)
+          {
+            oPC.SendMessage(oPerceived.Name + " fait usage d'un déguisement ! Sous le masque, vous reconnaissez " + NWScript.GetName(oPerceived, true));
+            //NWNX_Rename_ClearPCNameOverride(oPerceived, oPC);
+          }
+        }
+      }
+
+      return Entrypoints.SCRIPT_HANDLED;
     }
   }
 }

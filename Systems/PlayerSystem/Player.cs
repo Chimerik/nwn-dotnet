@@ -11,11 +11,13 @@ namespace NWN.Systems
     {
       public readonly uint oid;
       public readonly Boolean IsNewPlayer;
+      public virtual Boolean isConnected { get; set; }
       public virtual uint AutoAttackTarget { get; set; }
       public virtual DateTime LycanCurseTimer { get; set; }
       public Menu menu { get; }
 
       private uint blockingBoulder;
+      public virtual string DisguiseName { get; set; }
       private List<uint> _SelectedObjectsList = new List<uint>();
       public virtual List<uint> SelectedObjectsList
       {
@@ -24,6 +26,7 @@ namespace NWN.Systems
       }
 
       public Dictionary<uint, Player> Listened = new Dictionary<uint, Player>();
+      public Dictionary<uint, DateTime> DisguiseDetectTimer = new Dictionary<uint, DateTime>();
 
       public Player(uint nwobj) : base(nwobj)
       {
