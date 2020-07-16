@@ -23,6 +23,7 @@ namespace NWN.Systems
             { "event_feat_used", HandleFeatUsed },
             { "event_auto_spell", HandleAutoSpell },
             { "_onspellcast", HandleOnSpellCast },
+            { "event_summon", HandleSummon },
         };
 
     public static Dictionary<uint, Player> Players = new Dictionary<uint, Player>();
@@ -35,8 +36,8 @@ namespace NWN.Systems
 
       NWNX.Events.AddObjectToDispatchList(NWNX.Events.ON_INPUT_KEYBOARD_BEFORE, ON_PC_KEYSTROKE_SCRIPT, oPC);
       NWNX.Events.AddObjectToDispatchList("NWNX_ON_USE_FEAT_BEFORE", "event_feat_used", oPC);
-      NWNX.Events.AddObjectToDispatchList("NWNX_ON_ADD_ASSOCIATE_AFTER", "summon", oPC);
-      NWNX.Events.AddObjectToDispatchList("NWNX_ON_REMOVE_ASSOCIATE_AFTER", "summon", oPC);
+      NWNX.Events.AddObjectToDispatchList("NWNX_ON_ADD_ASSOCIATE_AFTER", "event_summon", oPC);
+      NWNX.Events.AddObjectToDispatchList("NWNX_ON_REMOVE_ASSOCIATE_AFTER", "event_summon", oPC);
 
       //oPC.AsCreature().AddFeat(NWN.Enums.Feat.PlayerTool01);
 
@@ -452,6 +453,29 @@ namespace NWN.Systems
           {
             oPC.SendMessage(oPerceived.Name + " fait usage d'un déguisement ! Sous le masque, vous reconnaissez " + NWScript.GetName(oPerceived, true));
             //NWNX_Rename_ClearPCNameOverride(oPerceived, oPC);
+          }
+        }
+      }
+
+      return Entrypoints.SCRIPT_HANDLED;
+    }
+    private static int HandleSummon(uint oidSelf)
+    {
+      //Pas méga utile dans l'immédiat, mais pourra être utilisé pour gérer les invocations de façon plus fine plus tard
+      // TODO : Système de possession d'invocations, compagnons animaux, etc (mais attention, vérifier que si le PJ déco en possession, ça n'écrase pas son .bic. Si oui, sauvegarde le PJ avant possession et ne plus sauvegarder le PJ en mode possession)
+      Player player;
+      if (Players.TryGetValue(oidSelf, out player))
+      {
+        string current_event = NWNX.Events.GetCurrentEvent();
+        NWCreature oSummon = (NWNX.Object.StringToObject(NWNX.Events.GetEventData("ASSOCIATE_OBJECT_ID"))).AsCreature();
+
+        if (oSummon.IsValid)
+        {
+          if (current_event == "NWNX_ON_ADD_ASSOCIATE_AFTER")
+            player.Summons.Add(oSummon, oSummon);
+          else if (current_event == "NWNX_ON_REMOVE_ASSOCIATE_AFTER")
+          {
+            player.Summons.Remove(oSummon);
           }
         }
       }
