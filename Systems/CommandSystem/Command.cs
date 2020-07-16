@@ -6,17 +6,24 @@ namespace NWN.Systems
 {
   public static partial class CommandSystem
   {
-    public class Command
+    private class Command
     {
       public string name { get; }
-      public Action<ChatSystem.ChatEventArgs> execute { get; }
+      public Action<ChatSystem.ChatEventArgs, Options.Result> execute { get; }
       public Description description { get; }
+      public Options options { get; }
 
-      public Command (string name, Action<ChatSystem.ChatEventArgs> execute, Description description)
+      public Command(
+        string name,
+        Action<ChatSystem.ChatEventArgs, Options.Result> execute,
+        Description description,
+        Options options = null
+      )
       {
         this.name = name;
         this.execute = execute;
         this.description = description;
+        this.options = options ?? new Options();
       }
 
       public struct Description

@@ -4,7 +4,7 @@ namespace NWN.Systems
 {
   public static partial class CommandSystem
   {
-    private static void ExecuteWalkCommand(ChatSystem.ChatEventArgs e)
+    private static void ExecuteWalkCommand(ChatSystem.ChatEventArgs e, Options.Result options)
     {
       if (NWNX.Object.GetInt(e.oSender, "_ALWAYS_WALK") == 0)
       {

@@ -5,7 +5,7 @@ namespace NWN.Systems
 {
   public static partial class CommandSystem
   {
-    private static void ExecuteDisplayCloakCommand(ChatSystem.ChatEventArgs e)
+    private static void ExecuteDisplayCloakCommand(ChatSystem.ChatEventArgs e, Options.Result options)
     {
       var oCloak = NWScript.GetItemInSlot(Enums.InventorySlot.Cloak, e.oSender);
 

@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using NWN.Enums;
 
 namespace NWN.Systems
 {
@@ -9,8 +10,17 @@ namespace NWN.Systems
       {
         "help", new Command(
           name: "help",
-          description: new Command.Description(title: "Display the list of all available commands."),
-          execute: ExecuteHelpCommand
+          description: new Command.Description(
+            title: "Display the list of all available commands.",
+            usage: "[command]"
+          ),
+          execute: ExecuteHelpCommand,
+          options: new Options(
+            positional: new List<Option>()
+            {
+              new Option(description: "Nom de la commande")
+            }  
+          )
         )
       },
       {

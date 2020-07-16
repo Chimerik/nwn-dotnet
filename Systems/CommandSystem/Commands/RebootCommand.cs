@@ -6,7 +6,7 @@ namespace NWN.Systems
 {
   public static partial class CommandSystem
   {
-    private static void ExecuteRebootCommand(ChatSystem.ChatEventArgs e)
+    private static void ExecuteRebootCommand(ChatSystem.ChatEventArgs e, Options.Result options)
     {
       if (NWScript.GetIsDM(e.oSender))
       {

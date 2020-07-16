@@ -5,7 +5,7 @@ namespace NWN.Systems
 {
   public static partial class CommandSystem
   {
-    private static void ExecutePlaceablePersistanceCommand(ChatSystem.ChatEventArgs e)
+    private static void ExecutePlaceablePersistanceCommand(ChatSystem.ChatEventArgs e, Options.Result options)
     {
       if (NWScript.GetIsDM(e.oSender))
       {

@@ -9,13 +9,19 @@ namespace NWN.Systems
       List<Option> positional;
       Dictionary<string, Option> named;
 
-      public Options (List<Option> positional, Dictionary<string, Option> named)
+      public Options (List<Option> positional = null, Dictionary<string, Option> named = null)
       {
-        this.positional ??= new List<Option>();
-        this.named ??= new Dictionary<string, Option>();
+        this.positional = positional ?? new List<Option>();
+        this.named = named ?? new Dictionary<string, Option>();
       }
 
-      void Parse (string args)
+      public class Result
+      {
+        public List<string> positional;
+        public Dictionary<string, string> named;
+      }
+
+      public Result Parse (string[] args)
       {
         // TODO
       }

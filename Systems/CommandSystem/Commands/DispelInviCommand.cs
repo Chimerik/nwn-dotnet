@@ -5,7 +5,7 @@ namespace NWN.Systems
 {
   public static partial class CommandSystem
   {
-    private static void ExecuteDispelInviCommand(ChatSystem.ChatEventArgs e)
+    private static void ExecuteDispelInviCommand(ChatSystem.ChatEventArgs e, Options.Result options)
     {
       Spells.RemoveAnySpellEffects(Spell.ImprovedInvisibilit, e.oSender);
       Spells.RemoveAnySpellEffects(Spell.Invisibilit, e.oSender);

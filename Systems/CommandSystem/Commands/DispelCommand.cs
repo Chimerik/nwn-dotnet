@@ -5,7 +5,7 @@ namespace NWN.Systems
 {
   public static partial class CommandSystem
   {
-    private static void ExecuteDispelCommand(ChatSystem.ChatEventArgs e)
+    private static void ExecuteDispelCommand(ChatSystem.ChatEventArgs e, Options.Result options)
     {
       if (NWScript.GetIsObjectValid(e.oTarget))
       {

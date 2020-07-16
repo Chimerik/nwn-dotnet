@@ -5,7 +5,7 @@ namespace NWN.Systems
 {
   public static partial class CommandSystem
   {
-    private static void ExecuteDisplayHelmCommand(ChatSystem.ChatEventArgs e)
+    private static void ExecuteDisplayHelmCommand(ChatSystem.ChatEventArgs e, Options.Result options)
     {
       var oHelmet = NWScript.GetItemInSlot(Enums.InventorySlot.Head, e.oSender);
 

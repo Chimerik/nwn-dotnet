@@ -4,15 +4,13 @@
   {
     private class Option
     {
-      string alias { get; }
       string description { get; }
-      string value { get; set; }
+      string defaultValue { get; set; }
 
-      Option (string description, string defaultValue = null, string alias = null)
+      public Option (string description, string defaultValue = null)
       {
         this.description = description;
-        this.alias = alias;
-        this.value = defaultValue;
+        this.defaultValue = defaultValue;
       }
     }
   }

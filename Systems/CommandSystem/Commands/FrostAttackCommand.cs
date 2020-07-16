@@ -4,7 +4,7 @@ namespace NWN.Systems
 {
   public static partial class CommandSystem
   {
-    private static void ExecuteFrostAttackCommand(ChatSystem.ChatEventArgs e)
+    private static void ExecuteFrostAttackCommand(ChatSystem.ChatEventArgs e, Options.Result options)
     {
       if (
         NWScript.GetLevelByClass(ClassType.Wizard, e.oSender) > 0 ||
