@@ -35,7 +35,6 @@ namespace NWN.ScriptHandlers
       }
 
       Systems.ChatSystem.Init();
-      Systems.CommandSystem.Init();
 
       Events.SubscribeEvent(Events.ON_INPUT_KEYBOARD_BEFORE, Systems.PlayerSystem.ON_PC_KEYSTROKE_SCRIPT);
       Events.ToggleDispatchListMode(Events.ON_INPUT_KEYBOARD_BEFORE, Systems.PlayerSystem.ON_PC_KEYSTROKE_SCRIPT, 1);

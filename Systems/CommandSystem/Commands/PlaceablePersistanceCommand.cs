@@ -1,24 +1,22 @@
-﻿using NWN.Enums;
-using NWN.NWNX;
-
-namespace NWN.Systems
+﻿namespace NWN.Systems
 {
   public static partial class CommandSystem
   {
-    private static void ExecutePlaceablePersistanceCommand(ChatSystem.ChatEventArgs e)
+    private static void ExecutePlaceablePersistanceCommand(ChatSystem.Context chatContext)
     {
-      if (NWScript.GetIsDM(e.oSender))
+      if (NWScript.GetIsDM(chatContext.oSender))
       {
-        if (NWNX.Object.GetInt(e.oSender, "_SPAWN_PERSIST") != 0)
+        if (NWNX.Object.GetInt(chatContext.oSender, "_SPAWN_PERSIST") != 0)
         {
-          NWNX.Object.DeleteInt(e.oSender, "_SPAWN_PERSIST");
-          NWScript.SendMessageToPC(e.oSender, "Persistance des placeables créés par DM désactivée.");
+          NWNX.Object.DeleteInt(chatContext.oSender, "_SPAWN_PERSIST");
+          NWScript.SendMessageToPC(chatContext.oSender, "Persistance des placeables créés par DM désactivée.");
         }
         else
         {
-          NWNX.Object.SetInt(e.oSender, "_SPAWN_PERSIST", 1, true);
-          NWScript.SendMessageToPC(e.oSender, "Persistance des placeables créés par DM activée.");
+          NWNX.Object.SetInt(chatContext.oSender, "_SPAWN_PERSIST", 1, true);
+          NWScript.SendMessageToPC(chatContext.oSender, "Persistance des placeables créés par DM activée.");
         }
       }
     }
+  }
 }

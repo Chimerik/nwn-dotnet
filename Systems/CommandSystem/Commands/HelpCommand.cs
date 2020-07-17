@@ -4,7 +4,7 @@ namespace NWN.Systems
 {
   public static partial class CommandSystem
   {
-    private static void ExecuteHelpCommand(ChatSystem.ChatEventArgs e)
+    private static void ExecuteHelpCommand(ChatSystem.Context chatContext)
     {
       var msg = "\nList of all available commands :\n";
       foreach (KeyValuePair<string, Command> entry in commandDic)
@@ -12,7 +12,7 @@ namespace NWN.Systems
         msg += $"\n{entry.Value.shortDesc}";
       }
 
-      NWScript.SendMessageToPC(e.oSender, msg);
+      NWScript.SendMessageToPC(chatContext.oSender, msg);
     }
   }
 }

@@ -8,27 +8,27 @@ namespace NWN.Systems
   {
     private const string PREFIX = "!";
 
-    public static void Init()
+    public static void ProcessChatCommandMiddleware(ChatSystem.Context chatContext, Action next)
     {
-      ChatSystem.OnChat += HandleChat;
-    }
-
-    private static void HandleChat(object sender, ChatSystem.ChatEventArgs e)
-    {
-      if (e.msg.Length <= PREFIX.Length) return;
-      if (!e.msg.StartsWith(PREFIX)) return;
-      if (!NWScript.GetIsPC(e.oSender)) return;
+      if (chatContext.msg.Length <= PREFIX.Length ||
+        !chatContext.msg.StartsWith(PREFIX) ||
+        !NWScript.GetIsPC(chatContext.oSender)
+      )
+      {
+        next();
+        return;
+      }
 
       Chat.SkipMessage();
 
-      string[] args = e.msg.Split(' ');
+      string[] args = chatContext.msg.Split(' ');
 
       string commandName = args.FirstOrDefault().Substring(PREFIX.Length);
 
       Command command;
       if (!commandDic.TryGetValue(commandName, out command))
       {
-        NWScript.SendMessageToPC(e.oSender,
+        NWScript.SendMessageToPC(chatContext.oSender,
        $"\nUnknown command \"{commandName}\".\n\n" +
       "Type \"!help\" for a list of all available commands."
         );
@@ -37,11 +37,11 @@ namespace NWN.Systems
 
       try
       {
-        command.execute(e);
+        command.execute(chatContext);
       }
       catch (Exception err)
       {
-        NWScript.SendMessageToPC(e.oSender, $"\nUnable to process command: {err.Message}");
+        NWScript.SendMessageToPC(chatContext.oSender, $"\nUnable to process command: {err.Message}");
       }
     }
   }
