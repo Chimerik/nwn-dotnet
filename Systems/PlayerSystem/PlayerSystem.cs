@@ -38,6 +38,7 @@ namespace NWN.Systems
       NWNX.Events.AddObjectToDispatchList("NWNX_ON_USE_FEAT_BEFORE", "event_feat_used", oPC);
       NWNX.Events.AddObjectToDispatchList("NWNX_ON_ADD_ASSOCIATE_AFTER", "event_summon", oPC);
       NWNX.Events.AddObjectToDispatchList("NWNX_ON_REMOVE_ASSOCIATE_AFTER", "event_summon", oPC);
+      NWNX.Events.AddObjectToDispatchList("NWNX_ON_CAST_SPELL_BEFORE", "event_spellcast", oPC);
 
       //oPC.AsCreature().AddFeat(NWN.Enums.Feat.PlayerTool01);
 
