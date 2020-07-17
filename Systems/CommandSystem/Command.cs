@@ -9,10 +9,10 @@ namespace NWN.Systems
     public class Command
     {
       public string name { get; }
-      public Action<ChatSystem.ChatEventArgs> execute { get; }
+      public Action<ChatSystem.Context> execute { get; }
       public Description description { get; }
 
-      public Command (string name, Action<ChatSystem.ChatEventArgs> execute, Description description)
+      public Command (string name, Action<ChatSystem.Context> execute, Description description)
       {
         this.name = name;
         this.execute = execute;
