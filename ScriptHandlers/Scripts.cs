@@ -20,6 +20,7 @@ namespace NWN.ScriptHandlers
      .Concat(Systems.PlayerSystem.Register)
      .Concat(Systems.ChatSystem.Register)
      .Concat(Systems.SpellSystem.Register)
+     .Concat(Systems.ItemSystem.Register)
      .ToDictionary(kvp => kvp.Key, kvp => kvp.Value);
 
     private static int HandleModuleLoad(uint oidSelf)
@@ -53,6 +54,11 @@ namespace NWN.ScriptHandlers
 
       NWNX.Events.SubscribeEvent("NWNX_ON_CAST_SPELL_BEFORE", "event_spellcast");
       NWNX.Events.ToggleDispatchListMode("NWNX_ON_CAST_SPELL_BEFORE", "event_spellcast", 1);
+
+      NWNX.Events.SubscribeEvent("NWNX_ON_ITEM_EQUIP_BEFORE", "event_items");
+      NWNX.Events.ToggleDispatchListMode("NWNX_ON_ITEM_EQUIP_BEFORE", "event_items", 1);
+      NWNX.Events.SubscribeEvent("NWNX_ON_ITEM_UNEQUIP_BEFORE", "event_items");
+      NWNX.Events.ToggleDispatchListMode("NWNX_ON_ITEM_UNEQUIP_BEFORE", "event_items", 1);
 
       NWNX.Events.SubscribeEvent("NWNX_ON_INPUT_ATTACK_OBJECT_BEFORE", "event_auto_spell");
       NWNX.Events.ToggleDispatchListMode("NWNX_ON_INPUT_ATTACK_OBJECT_BEFORE", "event_auto_spell", 1);
