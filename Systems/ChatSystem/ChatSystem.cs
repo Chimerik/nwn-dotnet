@@ -18,15 +18,14 @@ namespace NWN.Systems
       Chat.RegisterChatScript(CHAT_SCRIPT);
     }
 
-    public static event EventHandler<ChatEventArgs> OnChat = delegate { };
-    public class ChatEventArgs : EventArgs
+    public class Context
     {
       public string msg { get; }
       public NWObject oSender { get; }
       public NWObject oTarget { get; }
       public ChatChannel channel { get; }
 
-      public ChatEventArgs(string msg, NWObject oSender, NWObject oTarget, ChatChannel channel)
+      public Context(string msg, NWObject oSender, NWObject oTarget, ChatChannel channel)
       {
         this.msg = msg;
         this.oSender = oSender;
@@ -37,14 +36,21 @@ namespace NWN.Systems
 
     private static int HandleChat (uint oidself)
     {
-      string msg = Chat.GetMessage();
-      var oSender = Chat.GetSender();
-      var oTarget = Chat.GetTarget();
-      var channel = Chat.GetChannel();
-
-      OnChat(null, new ChatEventArgs(msg, oSender, oTarget, channel));
+      pipeline.Execute(new Context(
+        msg: Chat.GetMessage(),
+        oSender: Chat.GetSender(),
+        oTarget: Chat.GetTarget(),
+        channel: Chat.GetChannel()
+      ));
 
       return Entrypoints.SCRIPT_HANDLED;
     }
+
+    private static Pipeline<Context> pipeline = new Pipeline<Context>(
+      new Action<Context, Action>[]
+      {
+        CommandSystem.ProcessChatCommandMiddleware
+      }
+    );
   }
 }

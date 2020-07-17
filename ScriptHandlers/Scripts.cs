@@ -35,7 +35,6 @@ namespace NWN.ScriptHandlers
       }
 
       Systems.ChatSystem.Init();
-      Systems.CommandSystem.Init();
 
       NWNX.Events.SubscribeEvent("NWNX_ON_CLIENT_DISCONNECT_BEFORE", "connexion");
 
