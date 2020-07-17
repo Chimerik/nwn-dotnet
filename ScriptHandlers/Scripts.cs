@@ -77,6 +77,11 @@ namespace NWN.ScriptHandlers
       NWNX.Events.SubscribeEvent("NWNX_ON_USE_SKILL_BEFORE", "event_skillused");
       NWNX.Events.ToggleDispatchListMode("NWNX_ON_USE_SKILL_BEFORE", "event_skillused", 1);
 
+      NWNX.Events.SubscribeEvent("NWNX_ON_INVENTORY_ADD_ITEM_AFTER", "event_items");
+      NWNX.Events.ToggleDispatchListMode("NWNX_ON_INVENTORY_ADD_ITEM_AFTER", "event_itemsevent_items", 1);
+      NWNX.Events.SubscribeEvent("NWNX_ON_INVENTORY_REMOVE_ITEM_AFTER", "event_items");
+      NWNX.Events.ToggleDispatchListMode("NWNX_ON_INVENTORY_REMOVE_ITEM_AFTER", "event_items", 1);
+
       NWNX.Events.SubscribeEvent("NWNX_ON_INPUT_ATTACK_OBJECT_BEFORE", "event_auto_spell");
       NWNX.Events.ToggleDispatchListMode("NWNX_ON_INPUT_ATTACK_OBJECT_BEFORE", "event_auto_spell", 1);
       NWNX.Events.SubscribeEvent("NWNX_ON_INPUT_FORCE_MOVE_TO_OBJECT_BEFORE", "event_auto_spell");
