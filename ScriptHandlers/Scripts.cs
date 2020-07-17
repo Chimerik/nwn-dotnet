@@ -60,6 +60,18 @@ namespace NWN.ScriptHandlers
       NWNX.Events.SubscribeEvent("NWNX_ON_ITEM_UNEQUIP_BEFORE", "event_items");
       NWNX.Events.ToggleDispatchListMode("NWNX_ON_ITEM_UNEQUIP_BEFORE", "event_items", 1);
 
+      NWNX.Events.SubscribeEvent("NWNX_ON_SERVER_CHARACTER_SAVE_BEFORE", "event_dm_actions");
+      NWNX.Events.ToggleDispatchListMode("NWNX_ON_SERVER_CHARACTER_SAVE_BEFORE", "event_dm_actions", 1);
+      NWNX.Events.SubscribeEvent("NWNX_ON_CLIENT_EXPORT_CHARACTER_BEFORE", "event_dm_actions");
+      NWNX.Events.ToggleDispatchListMode("NWNX_ON_CLIENT_EXPORT_CHARACTER_BEFORE", "event_dm_actions", 1);
+
+      NWNX.Events.SubscribeEvent("NWNX_ON_DM_POSSESS_FULL_POWER_BEFORE", "event_dm_actions");
+      NWNX.Events.ToggleDispatchListMode("NWNX_ON_DM_POSSESS_FULL_POWER_BEFORE", "event_dm_actions", 1);
+      NWNX.Events.SubscribeEvent("NWNX_ON_DM_POSSESS_BEFORE", "event_dm_actions");
+      NWNX.Events.ToggleDispatchListMode("NWNX_ON_DM_POSSESS_BEFORE", "event_dm_actions", 1);
+      NWNX.Events.SubscribeEvent("NWNX_ON_DM_SPAWN_OBJECT_AFTER", "event_dm_actions");
+      NWNX.Events.ToggleDispatchListMode("NWNX_ON_DM_SPAWN_OBJECT_AFTER", "event_dm_actions", 1);
+
       NWNX.Events.SubscribeEvent("NWNX_ON_INPUT_ATTACK_OBJECT_BEFORE", "event_auto_spell");
       NWNX.Events.ToggleDispatchListMode("NWNX_ON_INPUT_ATTACK_OBJECT_BEFORE", "event_auto_spell", 1);
       NWNX.Events.SubscribeEvent("NWNX_ON_INPUT_FORCE_MOVE_TO_OBJECT_BEFORE", "event_auto_spell");
