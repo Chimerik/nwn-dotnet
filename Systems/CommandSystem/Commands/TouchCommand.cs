@@ -5,12 +5,12 @@ namespace NWN.Systems
 {
   public static partial class CommandSystem
   {
-    private static void ExecuteTouchCommand(ChatSystem.ChatEventArgs e, Options.Result options)
+    private static void ExecuteTouchCommand(ChatSystem.Context chatContext, Options.Result options)
     {
-      if (!Spells.GetHasEffect(NWScript.GetEffectType(NWScript.EffectCutsceneGhost()), e.oSender))
-        NWScript.ApplyEffectToObject(DurationType.Permanent, NWScript.SupernaturalEffect(NWScript.EffectCutsceneGhost()), e.oSender);
+      if (!Spells.GetHasEffect(NWScript.GetEffectType(NWScript.EffectCutsceneGhost()), chatContext.oSender))
+        NWScript.ApplyEffectToObject(DurationType.Permanent, NWScript.SupernaturalEffect(NWScript.EffectCutsceneGhost()), chatContext.oSender);
       else
-        Spells.RemoveEffectOfType(NWScript.GetEffectType(NWScript.EffectCutsceneGhost()), e.oSender);
+        Spells.RemoveEffectOfType(NWScript.GetEffectType(NWScript.EffectCutsceneGhost()), chatContext.oSender);
     }
   }
 }

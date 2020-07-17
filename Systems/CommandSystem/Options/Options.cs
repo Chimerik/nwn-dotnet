@@ -24,6 +24,7 @@ namespace NWN.Systems
       public Result Parse (string[] args)
       {
         // TODO
+        return new Result();
       }
     }
   }

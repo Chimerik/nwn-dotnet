@@ -9,13 +9,13 @@ namespace NWN.Systems
     private class Command
     {
       public string name { get; }
-      public Action<ChatSystem.ChatEventArgs, Options.Result> execute { get; }
+      public Action<ChatSystem.Context, Options.Result> execute { get; }
       public Description description { get; }
       public Options options { get; }
 
       public Command(
         string name,
-        Action<ChatSystem.ChatEventArgs, Options.Result> execute,
+        Action<ChatSystem.Context, Options.Result> execute,
         Description description,
         Options options = null
       )

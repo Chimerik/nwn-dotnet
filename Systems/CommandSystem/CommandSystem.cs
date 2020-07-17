@@ -8,20 +8,20 @@ namespace NWN.Systems
   {
     private const string PREFIX = "!";
 
-    public static void Init()
+    public static void ProcessChatCommandMiddleware(ChatSystem.Context chatContext, Action next)
     {
-      ChatSystem.OnChat += HandleChat;
-    }
-
-    private static void HandleChat(object sender, ChatSystem.ChatEventArgs e)
-    {
-      if (e.msg.Length <= PREFIX.Length) return;
-      if (!e.msg.StartsWith(PREFIX)) return;
-      if (!NWScript.GetIsPC(e.oSender)) return;
+      if (chatContext.msg.Length <= PREFIX.Length ||
+        !chatContext.msg.StartsWith(PREFIX) ||
+        !NWScript.GetIsPC(chatContext.oSender)
+      )
+      {
+        next();
+        return;
+      }
 
       Chat.SkipMessage();
 
-      string[] args = e.msg.Split(' ');
+      string[] args = chatContext.msg.Split(' ');
 
       string commandName = args.FirstOrDefault().Substring(PREFIX.Length);
       args = args.Skip(1).ToArray();
@@ -29,7 +29,7 @@ namespace NWN.Systems
       Command command;
       if (!commandDic.TryGetValue(commandName, out command))
       {
-        NWScript.SendMessageToPC(e.oSender,
+        NWScript.SendMessageToPC(chatContext.oSender,
        $"\nUnknown command \"{commandName}\".\n\n" +
       $"Type \"{PREFIX}help\" for a list of all available commands."
         );
@@ -45,17 +45,17 @@ namespace NWN.Systems
         var msg = $"\nInvalid options :\n" +
           err.Message + "\n\n" +
           $"Please type \"{PREFIX}help {commandName}\" to get a description of the command.";
-        NWScript.SendMessageToPC(e.oSender, msg);
+        NWScript.SendMessageToPC(chatContext.oSender, msg);
         return;
       }
 
       try
       {
-        command.execute(e, optionsResult);
+        command.execute(chatContext, optionsResult);
       }
       catch (Exception err)
       {
-        NWScript.SendMessageToPC(e.oSender, $"\nUnable to process command: {err.Message}");
+        NWScript.SendMessageToPC(chatContext.oSender, $"\nUnable to process command: {err.Message}");
       }
     }
   }

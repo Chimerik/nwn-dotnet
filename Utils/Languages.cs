@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using NWN.Enums;
+﻿using NWN.Enums;
 
 namespace NWN
 {
