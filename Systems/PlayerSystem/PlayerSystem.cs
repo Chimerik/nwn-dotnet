@@ -41,6 +41,8 @@ namespace NWN.Systems
       NWNX.Events.AddObjectToDispatchList("NWNX_ON_CAST_SPELL_BEFORE", "event_spellcast", oPC);
       NWNX.Events.AddObjectToDispatchList("NWNX_ON_ITEM_EQUIP_BEFORE", "event_items", oPC);
       NWNX.Events.AddObjectToDispatchList("NWNX_ON_ITEM_UNEQUIP_BEFORE", "event_items", oPC);
+      NWNX.Events.AddObjectToDispatchList("NWNX_ON_SERVER_CHARACTER_SAVE_BEFORE", "event_dm_actions", oPC);
+      NWNX.Events.AddObjectToDispatchList("NWNX_ON_CLIENT_EXPORT_CHARACTER_BEFORE", "event_dm_actions", oPC);
 
       //oPC.AsCreature().AddFeat(NWN.Enums.Feat.PlayerTool01);
 
@@ -75,55 +77,63 @@ namespace NWN.Systems
       // TODO : Système de sauvegarde et de chargement de quickbar
       //NWNX.Events.AddObjectToDispatchList("NWNX_ON_QUICKBAR_SET_BUTTON_AFTER", "event_qbs", oPC);
 
-      if (player.IsNewPlayer)
+      if (!player.IsDM)
       {
-        // TODO : création des infos du nouveau joueur en BDD
+        if (player.IsNewPlayer)
+        {
+          // TODO : création des infos du nouveau joueur en BDD
+        }
+        else
+        {
+          // TODO : Initilisation de l'ancien joueur avec les infos en BDD
+
+          if (NWNX.Object.GetInt(oPC, "_FROST_ATTACK") != 0)
+          {
+            NWNX.Events.AddObjectToDispatchList("NWNX_ON_INPUT_ATTACK_OBJECT_BEFORE", "event_auto_spell", oPC);
+            NWNX.Events.AddObjectToDispatchList("NWNX_ON_INPUT_FORCE_MOVE_TO_OBJECT_BEFORE", "event_auto_spell", oPC);
+            NWNX.Events.AddObjectToDispatchList("NWNX_ON_INPUT_CAST_SPELL_BEFORE", "_onspellcast", oPC);
+            NWNX.Events.AddObjectToDispatchList("NWNX_ON_INPUT_KEYBOARD_BEFORE", "event_auto_spell", oPC);
+            NWNX.Events.AddObjectToDispatchList("NWNX_ON_INPUT_WALK_TO_WAYPOINT_BEFORE", "event_auto_spell", oPC);
+          }
+
+          if (oPC.AsCreature().GetPossessedItem("pj_lycan_curse").IsValid)
+          {
+            oPC.AsCreature().AddFeat(NWN.Enums.Feat.PlayerTool02);
+            oPC.AsCreature().GetPossessedItem("pj_lycan_curse").Destroy();
+          }
+
+          // Initialisation de la faim (TODO : récupérer la faim en BDD)
+          float fNourriture = 200.0f;
+
+          if (fNourriture < 100.0f)
+          {
+            int nLoss = 100 - Convert.ToInt32(fNourriture);
+            Effect eHunger = NWScript.EffectAbilityDecrease((int)Ability.Strength, NWScript.GetAbilityScore(oPC, Ability.Strength) * nLoss / 100);
+            eHunger = NWScript.EffectLinkEffects(eHunger, NWScript.EffectAbilityDecrease((int)Ability.Dexterity, NWScript.GetAbilityScore(oPC, Ability.Dexterity) * nLoss / 100));
+            eHunger = NWScript.EffectLinkEffects(eHunger, NWScript.EffectAbilityDecrease((int)Ability.Constitution, NWScript.GetAbilityScore(oPC, Ability.Constitution) * nLoss / 100));
+            eHunger = NWScript.EffectLinkEffects(eHunger, NWScript.EffectAbilityDecrease((int)Ability.Charisma, NWScript.GetAbilityScore(oPC, Ability.Charisma) * nLoss / 100));
+            eHunger = NWScript.SupernaturalEffect(eHunger);
+            eHunger = NWScript.TagEffect(eHunger, "Effect_Hunger");
+            NWScript.ApplyEffectToObject(DurationType.Permanent, eHunger, oPC);
+          }
+
+          if (NWNX.Object.GetString(player, "_LOCATION").Length > 0 && !player.IsDM)
+          {
+            NWScript.DelayCommand(1.0f, () => NWScript.AssignCommand(player, () => player.ClearAllActions(true)));
+            NWScript.DelayCommand(1.1f, () => NWScript.AssignCommand(player, () => NWScript.JumpToLocation(Utils.StringToLocation(NWNX.Object.GetString(player, "_LOCATION")))));
+          }
+        }
+
+        //Appliquer la distance de perception du chat en fonction de la compétence Listen du joueur
+        NWNX.Chat.SetChatHearingDistance(NWNX.Chat.GetChatHearingDistance(oPC.AsObject(), NWNX.Enum.ChatChannel.PlayerTalk) + NWScript.GetSkillRank(Skill.Listen, oPC) / 5, oPC.AsObject(), NWNX.Enum.ChatChannel.PlayerTalk);
+        NWNX.Chat.SetChatHearingDistance(NWNX.Chat.GetChatHearingDistance(oPC.AsObject(), NWNX.Enum.ChatChannel.PlayerWhisper) + NWScript.GetSkillRank(Skill.Listen, oPC) / 10, oPC.AsObject(), NWNX.Enum.ChatChannel.PlayerWhisper);
       }
       else
       {
-        // TODO : Initilisation de l'ancien joueur avec les infos en BDD
-
-        if (NWNX.Object.GetInt(oPC, "_FROST_ATTACK") != 0)
-        {
-          NWNX.Events.AddObjectToDispatchList("NWNX_ON_INPUT_ATTACK_OBJECT_BEFORE", "event_auto_spell", oPC);
-          NWNX.Events.AddObjectToDispatchList("NWNX_ON_INPUT_FORCE_MOVE_TO_OBJECT_BEFORE", "event_auto_spell", oPC);
-          NWNX.Events.AddObjectToDispatchList("NWNX_ON_INPUT_CAST_SPELL_BEFORE", "_onspellcast", oPC);
-          NWNX.Events.AddObjectToDispatchList("NWNX_ON_INPUT_KEYBOARD_BEFORE", "event_auto_spell", oPC);
-          NWNX.Events.AddObjectToDispatchList("NWNX_ON_INPUT_WALK_TO_WAYPOINT_BEFORE", "event_auto_spell", oPC);
-        }
-
-        if (oPC.AsCreature().GetPossessedItem("pj_lycan_curse").IsValid)
-        {
-          oPC.AsCreature().AddFeat(NWN.Enums.Feat.PlayerTool02);
-          oPC.AsCreature().GetPossessedItem("pj_lycan_curse").Destroy();
-        }
-
-        // Initialisation de la faim (TODO : récupérer la faim en BDD)
-        float fNourriture = 200.0f;
-
-        if (fNourriture < 100.0f)
-        {
-          int nLoss = 100 - Convert.ToInt32(fNourriture);
-          Effect eHunger = NWScript.EffectAbilityDecrease((int)Ability.Strength, NWScript.GetAbilityScore(oPC, Ability.Strength) * nLoss / 100);
-          eHunger = NWScript.EffectLinkEffects(eHunger, NWScript.EffectAbilityDecrease((int)Ability.Dexterity, NWScript.GetAbilityScore(oPC, Ability.Dexterity) * nLoss / 100));
-          eHunger = NWScript.EffectLinkEffects(eHunger, NWScript.EffectAbilityDecrease((int)Ability.Constitution, NWScript.GetAbilityScore(oPC, Ability.Constitution) * nLoss / 100));
-          eHunger = NWScript.EffectLinkEffects(eHunger, NWScript.EffectAbilityDecrease((int)Ability.Charisma, NWScript.GetAbilityScore(oPC, Ability.Charisma) * nLoss / 100));
-          eHunger = NWScript.SupernaturalEffect(eHunger);
-          eHunger = NWScript.TagEffect(eHunger, "Effect_Hunger");
-          NWScript.ApplyEffectToObject(DurationType.Permanent, eHunger, oPC);
-        }
-
-        if (NWNX.Object.GetString(player, "_LOCATION").Length > 0 && !player.IsDM)
-        {
-          NWScript.DelayCommand(1.0f, () => NWScript.AssignCommand(player, () => player.ClearAllActions(true)));
-          NWScript.DelayCommand(1.1f, () => NWScript.AssignCommand(player, () => NWScript.JumpToLocation(Utils.StringToLocation(NWNX.Object.GetString(player, "_LOCATION")))));
-        }
+        NWNX.Events.AddObjectToDispatchList("NWNX_ON_DM_POSSESS_FULL_POWER_BEFORE", "event_dm_actions", player);
+        NWNX.Events.AddObjectToDispatchList("NWNX_ON_DM_POSSESS_BEFORE", "event_dm_actions", player);
+        NWNX.Events.AddObjectToDispatchList("NWNX_ON_DM_SPAWN_OBJECT_AFTER", "event_dm_actions", player);
       }
-
-      //Appliquer la distance de perception du chat en fonction de la compétence Listen du joueur
-      NWNX.Chat.SetChatHearingDistance(NWNX.Chat.GetChatHearingDistance(oPC.AsObject(), NWNX.Enum.ChatChannel.PlayerTalk) + NWScript.GetSkillRank(Skill.Listen, oPC) / 5, oPC.AsObject(), NWNX.Enum.ChatChannel.PlayerTalk);
-      NWNX.Chat.SetChatHearingDistance(NWNX.Chat.GetChatHearingDistance(oPC.AsObject(), NWNX.Enum.ChatChannel.PlayerWhisper) + NWScript.GetSkillRank(Skill.Listen, oPC) / 10, oPC.AsObject(), NWNX.Enum.ChatChannel.PlayerWhisper);
-
       return Entrypoints.SCRIPT_HANDLED;
     }
 
@@ -174,6 +184,51 @@ namespace NWN.Systems
               return Entrypoints.SCRIPT_HANDLED;
             }
           }
+        }
+      }
+      else if (current_event == "NWNX_ON_DM_POSSESS_BEFORE" || current_event == "NWNX_ON_DM_POSSESS_FULL_POWER_BEFORE")
+      {
+        NWCreature oPossessed = NWNX.Object.StringToObject(NWNX.Events.GetEventData("TARGET")).AsCreature();
+
+        if (oPossessed.IsValid)
+        { // Ici, on prend possession
+          if (oPC.IsDMPossessed)
+          {
+            NWScript.SetLocalObject(NWScript.GetLocalObject(oPC, "_POSSESSER"), "_POSSESSING", oPossessed);
+            NWScript.SetLocalObject(oPossessed, "_POSSESSER", NWScript.GetLocalObject(oPC, "_POSSESSER"));
+          }
+          else
+          {
+            NWScript.SetLocalObject(oPC, "_POSSESSING", oPossessed);
+            NWScript.SetLocalObject(oPossessed, "_POSSESSER", oPC);
+          }
+        }
+        else
+        {  // Ici, on cesse la possession
+          if ((oPC.IsDMPossessed))
+          {
+            NWScript.DeleteLocalObject(NWScript.GetLocalObject(oPC, "_POSSESSER"), "_POSSESSING");
+            NWScript.DeleteLocalObject(NWScript.GetLocalObject(oPC, "_POSSESSER"), "_POSSESSER");
+          }
+          else
+          {
+            NWScript.DeleteLocalObject(NWScript.GetLocalObject(oPC, "_POSSESSER"), "_POSSESSING");
+            NWScript.DeleteLocalObject(oPC, "_POSSESSER");
+          }
+        }
+      }
+      else if (current_event == "NWNX_ON_DM_SPAWN_OBJECT_AFTER")
+      {
+        if (int.Parse(NWNX.Events.GetEventData("OBJECT_TYPE")) == 9)
+        {
+          if (NWNX.Object.GetInt(oPC, "_SPAWN_PERSIST") != 0)
+          {
+            NWPlaceable oObject = NWNX.Object.StringToObject(NWNX.Events.GetEventData("OBJECT")).AsPlaceable();
+            // TODO : Enregistrer l'objet créé en base de données. Ajouter à l'objet un script qui le supprime de la BDD OnDeath
+            oPC.SendMessage($"Création persistante - Vous posez le placeable  {oObject.Name}");
+          }
+          else
+            oPC.SendMessage("Création temporaire - Ce placeable sera effacé par le prochain reboot.");
         }
       }
       return Entrypoints.SCRIPT_HANDLED;
