@@ -12,6 +12,7 @@ namespace NWN.Systems
       public readonly uint oid;
       public readonly Boolean IsNewPlayer;
       public virtual Boolean isConnected { get; set; }
+      public virtual int NumPickpocketableItems { get; set; }
       public virtual uint AutoAttackTarget { get; set; }
       public virtual DateTime LycanCurseTimer { get; set; }
       public Menu menu { get; }
@@ -27,6 +28,7 @@ namespace NWN.Systems
 
       public Dictionary<uint, Player> Listened = new Dictionary<uint, Player>();
       public Dictionary<uint, DateTime> DisguiseDetectTimer = new Dictionary<uint, DateTime>();
+      public Dictionary<uint, DateTime> PickpocketDetectTimer = new Dictionary<uint, DateTime>();
       public Dictionary<uint, NWCreature> Summons = new Dictionary<uint, NWCreature>();
 
       public Player(uint nwobj) : base(nwobj)

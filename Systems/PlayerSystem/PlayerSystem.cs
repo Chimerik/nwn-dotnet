@@ -47,6 +47,8 @@ namespace NWN.Systems
       NWNX.Events.AddObjectToDispatchList("NWNX_ON_CLIENT_EXPORT_CHARACTER_BEFORE", "event_dm_actions", oPC);
       NWNX.Events.AddObjectToDispatchList("NWNX_ON_COMBAT_MODE_OFF", "event_combatmode", oPC);
       NWNX.Events.AddObjectToDispatchList("NWNX_ON_USE_SKILL_BEFORE", "event_skillused", oPC);
+      NWNX.Events.AddObjectToDispatchList("NWNX_ON_INVENTORY_ADD_ITEM_AFTER", "event_items", oPC);
+      NWNX.Events.AddObjectToDispatchList("NWNX_ON_INVENTORY_REMOVE_ITEM_AFTER", "event_items", oPC);
 
       //oPC.AsCreature().AddFeat(NWN.Enums.Feat.PlayerTool01);
 
@@ -489,32 +491,32 @@ namespace NWN.Systems
         if (Players.TryGetValue(NWScript.GetLastPerceived(), out oPerceived))
         {
           if (!oPerceived.IsPC || oPerceived.IsDM || oPerceived.IsDMPossessed || oPerceived.DisguiseName.Length == 0)
-            return Entrypoints.SCRIPT_HANDLED; 
-
-          if ((DateTime.Now - oPC.DisguiseDetectTimer[oPerceived]).TotalSeconds < 1800)
             return Entrypoints.SCRIPT_HANDLED;
 
-          oPC.DisguiseDetectTimer[oPerceived] = DateTime.Now;
+          if (!oPC.DisguiseDetectTimer.ContainsKey(oPC) || (DateTime.Now - oPC.DisguiseDetectTimer[oPerceived]).TotalSeconds > 1800)
+          {
+            oPC.DisguiseDetectTimer[oPerceived] = DateTime.Now;
 
-          int[] iPCSenseSkill = { oPC.GetSkillRank(Skill.Listen), oPC.GetSkillRank(Skill.Search), oPC.GetSkillRank(Skill.Spot), 
+            int[] iPCSenseSkill = { oPC.GetSkillRank(Skill.Listen), oPC.GetSkillRank(Skill.Search), oPC.GetSkillRank(Skill.Spot),
             oPC.GetSkillRank(Skill.Bluff) };
 
-          int[] iPerceivedHideSkill = { oPerceived.GetSkillRank(Skill.Bluff), oPerceived.GetSkillRank(Skill.Hide),
+            int[] iPerceivedHideSkill = { oPerceived.GetSkillRank(Skill.Bluff), oPerceived.GetSkillRank(Skill.Hide),
             oPerceived.GetSkillRank(Skill.Perform), oPerceived.GetSkillRank(Skill.Persuade) };
 
-          Random d20 = new Random();
-          int iRollAttack = iPCSenseSkill.Max() + d20.Next(20);
-          int iRollDefense = iPerceivedHideSkill.Max() + d20.Next(20);
+            Random d20 = new Random();
+            int iRollAttack = iPCSenseSkill.Max() + d20.Next(21);
+            int iRollDefense = iPerceivedHideSkill.Max() + d20.Next(21);
 
-        /*  if (GetLocalInt(GetModule(), "_DEBUG_DISGUISE"))
-          {
-            NWNX_Chat_SendMessage(NWNX_CHAT_CHANNEL_PLAYER_DM, SEARTH + "Jet pour percer le déguisement : " + STOPAZE + IntToString(iPCSkill) + SEARTH + " + " + STOPAZE + IntToString(iRollAttack - iPCSkill) + SEARTH + " = " + SRED + IntToString(iRollAttack) + ".", oPC);
-            NWNX_Chat_SendMessage(NWNX_CHAT_CHANNEL_PLAYER_DM, SEARTH + "Jet de déguisement : " + STOPAZE + IntToString(iPerceivedHideSkill) + SEARTH + " + " + STOPAZE + IntToString(iRollDefense - iPerceivedHideSkill) + SEARTH + " = " + SRED + IntToString(iRollDefense) + ".", oPerceived);
-          }*/
-          if (iRollAttack > iRollDefense)
-          {
-            oPC.SendMessage(oPerceived.Name + " fait usage d'un déguisement ! Sous le masque, vous reconnaissez " + NWScript.GetName(oPerceived, true));
-            //NWNX_Rename_ClearPCNameOverride(oPerceived, oPC);
+            /*  if (GetLocalInt(GetModule(), "_DEBUG_DISGUISE"))
+              {
+                NWNX_Chat_SendMessage(NWNX_CHAT_CHANNEL_PLAYER_DM, SEARTH + "Jet pour percer le déguisement : " + STOPAZE + IntToString(iPCSkill) + SEARTH + " + " + STOPAZE + IntToString(iRollAttack - iPCSkill) + SEARTH + " = " + SRED + IntToString(iRollAttack) + ".", oPC);
+                NWNX_Chat_SendMessage(NWNX_CHAT_CHANNEL_PLAYER_DM, SEARTH + "Jet de déguisement : " + STOPAZE + IntToString(iPerceivedHideSkill) + SEARTH + " + " + STOPAZE + IntToString(iRollDefense - iPerceivedHideSkill) + SEARTH + " = " + SRED + IntToString(iRollDefense) + ".", oPerceived);
+              }*/
+            if (iRollAttack > iRollDefense)
+            {
+              oPC.SendMessage(oPerceived.Name + " fait usage d'un déguisement ! Sous le masque, vous reconnaissez " + NWScript.GetName(oPerceived, true));
+              //NWNX_Rename_ClearPCNameOverride(oPerceived, oPC);
+            }
           }
         }
       }
@@ -568,10 +570,79 @@ namespace NWN.Systems
       if (Players.TryGetValue(oidSelf, out player))
       {
         string current_event = NWNX.Events.GetCurrentEvent();
-        if (NWScript.StringToInt(NWNX.Events.GetEventData("SKILL_ID")) == (int)Skill.Taunt)
+        if (current_event == "NWNX_ON_USE_SKILL_BEFORE")
         {
-          NWScript.SetLocalInt(player, "_ACTIVATED_TAUNT", 1);
-          NWScript.DelayCommand(12.0f, () => NWScript.DeleteLocalInt(player, "_ACTIVATED_TAUNT"));
+          if (int.Parse(NWNX.Events.GetEventData("SKILL_ID")) == (int)Skill.Taunt)
+          {
+            NWScript.SetLocalInt(player, "_ACTIVATED_TAUNT", 1);
+            NWScript.DelayCommand(12.0f, () => NWScript.DeleteLocalInt(player, "_ACTIVATED_TAUNT"));
+          }
+          else if (int.Parse(NWNX.Events.GetEventData("SKILL_ID")) == (int)Skill.PickPocket)
+          {
+            NWNX.Events.SkipEvent();
+            NWPlayer oObject = NWNX.Object.StringToObject(NWNX.Events.GetEventData("TARGET_OBJECT_ID")).AsPlayer();
+            Player oTarget;
+            if (Players.TryGetValue(oObject, out oTarget) && !oTarget.IsDM && !oTarget.IsDMPossessed)
+            {
+              if (!oTarget.PickpocketDetectTimer.ContainsKey(player) || (DateTime.Now - oTarget.PickpocketDetectTimer[player]).TotalSeconds > 86400)
+              {
+                  oTarget.PickpocketDetectTimer.Add(player, DateTime.Now);
+
+                  NWNX.Feedback.SetFeedbackMessageHidden(FeedbackMessageTypes.CombatTouchAttack, 1, oTarget);
+                  NWScript.DelayCommand(2.0f, () => NWNX.Feedback.SetFeedbackMessageHidden(FeedbackMessageTypes.CombatTouchAttack, 0, oTarget));
+
+                  int iRandom = new Random().Next(21);
+                  int iVol = NWScript.GetSkillRank(Skill.PickPocket, player);
+                  if ((iRandom + iVol) > (new Random().Next(21) + NWScript.GetSkillRank(Skill.Spot, player)))
+                  {
+                    NWNX.Chat.SendMessage((int)NWNX.Enum.ChatChannel.PlayerTalk, $"Vous faites un jet de Vol à la tire, le résultat est de : {iRandom} + {iVol} = {iRandom + iVol}.", player, player);
+                    if (NWScript.TouchAttackMelee(oTarget) > 0)
+                    {
+                      iRandom = new Random().Next(player.NumPickpocketableItems);
+                      int i = 0;
+
+                      var tempItem = NWItem.OBJECT_INVALID;
+                      foreach(NWItem item in player.InventoryItems)
+                      {
+                        Utils.PickpocketableItems result;
+                        if (!item.IsPlot && Enum.TryParse((item.BaseItemType).ToString(), out result))
+                        {
+                          if (iRandom == i)
+                          {
+                          tempItem = item;
+                            break;
+                          }
+                          i++;
+                        }
+                      }
+
+                      NWItem StolenItem = tempItem.AsItem();
+
+                      if (StolenItem.IsValid)
+                      {
+                        NWScript.CopyObject(StolenItem, player.Location, player);
+                        NWNX.Feedback.SetFeedbackMessageHidden(FeedbackMessageTypes.ItemLost, 1, oTarget);
+                        NWScript.DelayCommand(2.0f, () => NWNX.Feedback.SetFeedbackMessageHidden(FeedbackMessageTypes.ItemLost, 0, oTarget));
+                        StolenItem.Destroy();
+                        player.FloatingText($"Vous parvenez à dérober l'objet {StolenItem.Name} des poches de {oTarget.Name}");
+                      }
+                      else
+                        player.FloatingText($"{oTarget.Name} ne semble pas posséder d'objet que vous puissiez facilement escamoter.");
+                    }
+                    else
+                    {
+                      player.FloatingText($"Vous ne parvenez pas à atteindre les poches de {oTarget.Name} !");
+                    }
+                  }
+                  else
+                    oTarget.FloatingText($"{player.Name} est en train d'essayer de vous faire les poches !"); 
+              }
+              else
+                player.FloatingText("Vous n'êtes pas autorisé à faire une nouvelle tentative pour le moment.");
+            }
+            else
+              player.FloatingText("Seuls d'autres joueurs peuvent être ciblés par cette compétence. Les tentatives de vol sur PNJ doivent être jouées en rp avec un dm.");
+          }
         }
       }
 

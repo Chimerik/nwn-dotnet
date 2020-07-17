@@ -9,16 +9,38 @@ namespace NWN.Systems
   {
     public static Dictionary<string, Func<uint, int>> Register = new Dictionary<string, Func<uint, int>>
     {
-            { "event_items", ItemEquip },
+            { "event_items", HandleItemEvents },
     };
-    private static int ItemEquip(uint oidSelf)
+    private static int HandleItemEvents(uint oidSelf)
     {
       Player player;
       if (Players.TryGetValue(oidSelf, out player))
       {
         string current_event = NWNX.Events.GetCurrentEvent();
 
-        if (current_event == "NWNX_ON_ITEM_EQUIP_BEFORE")
+        if (current_event == "NWNX_ON_INVENTORY_ADD_ITEM_AFTER")
+        {
+          NWItem oAddedItem = NWNX.Object.StringToObject(NWNX.Events.GetEventData("ITEM")).AsItem();
+
+          Utils.PickpocketableItems addedResult;
+          if (Enum.TryParse((oAddedItem.BaseItemType).ToString(), out addedResult))
+          {
+            player.NumPickpocketableItems++; // J'ai le droit de faire ça si NumPickpocketableItems est pas initialisé à 0 ?
+          }
+          return Entrypoints.SCRIPT_HANDLED;
+        }
+        else if (current_event == "NWNX_ON_INVENTORY_REMOVE_ITEM_AFTER")
+        {
+          NWItem oRemovedItem = NWNX.Object.StringToObject(NWNX.Events.GetEventData("ITEM")).AsItem();
+
+          Utils.PickpocketableItems result;
+          if (Enum.TryParse((oRemovedItem.BaseItemType).ToString(), out result))
+          {
+            player.NumPickpocketableItems--; // J'ai le droit de faire ça si NumPickpocketableItems est pas initialisé à 0 ?
+          }
+          return Entrypoints.SCRIPT_HANDLED;
+        }
+        else if (current_event == "NWNX_ON_ITEM_EQUIP_BEFORE")
         {
           var oItem = NWNX.Object.StringToObject(NWNX.Events.GetEventData("ITEM"));
           int iSlot = int.Parse(NWNX.Events.GetEventData("SLOT"));
