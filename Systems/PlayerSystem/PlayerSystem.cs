@@ -23,6 +23,8 @@ namespace NWN.Systems
             { "event_feat_used", HandleFeatUsed },
             { "event_auto_spell", HandleAutoSpell },
             { "_onspellcast", HandleOnSpellCast },
+            { "event_combatmode", HandleOnCombatMode },
+            { "event_skillused", HandleOnSkillUsed },
             { "event_summon", HandleSummon },
         };
 
@@ -43,6 +45,8 @@ namespace NWN.Systems
       NWNX.Events.AddObjectToDispatchList("NWNX_ON_ITEM_UNEQUIP_BEFORE", "event_items", oPC);
       NWNX.Events.AddObjectToDispatchList("NWNX_ON_SERVER_CHARACTER_SAVE_BEFORE", "event_dm_actions", oPC);
       NWNX.Events.AddObjectToDispatchList("NWNX_ON_CLIENT_EXPORT_CHARACTER_BEFORE", "event_dm_actions", oPC);
+      NWNX.Events.AddObjectToDispatchList("NWNX_ON_COMBAT_MODE_OFF", "event_combatmode", oPC);
+      NWNX.Events.AddObjectToDispatchList("NWNX_ON_USE_SKILL_BEFORE", "event_skillused", oPC);
 
       //oPC.AsCreature().AddFeat(NWN.Enums.Feat.PlayerTool01);
 
@@ -535,6 +539,39 @@ namespace NWN.Systems
           {
             player.Summons.Remove(oSummon);
           }
+        }
+      }
+
+      return Entrypoints.SCRIPT_HANDLED;
+    }
+    private static int HandleOnCombatMode(uint oidSelf)
+    { 
+      Player player;
+      if (Players.TryGetValue(oidSelf, out player))
+      {
+        string current_event = NWNX.Events.GetCurrentEvent();
+        if (current_event == "NWNX_ON_COMBAT_MODE_OFF") // Permet de conserver sa posture de combat après avoir utilisé taunt
+        {
+          if (NWScript.GetLocalInt(player, "_ACTIVATED_TAUNT") != 0)
+          {
+            NWNX.Events.SkipEvent();
+            NWScript.DeleteLocalInt(player, "_ACTIVATED_TAUNT");
+          }
+        }
+      }
+
+      return Entrypoints.SCRIPT_HANDLED;
+    }
+    private static int HandleOnSkillUsed(uint oidSelf)
+    {
+      Player player;
+      if (Players.TryGetValue(oidSelf, out player))
+      {
+        string current_event = NWNX.Events.GetCurrentEvent();
+        if (NWScript.StringToInt(NWNX.Events.GetEventData("SKILL_ID")) == (int)Skill.Taunt)
+        {
+          NWScript.SetLocalInt(player, "_ACTIVATED_TAUNT", 1);
+          NWScript.DelayCommand(12.0f, () => NWScript.DeleteLocalInt(player, "_ACTIVATED_TAUNT"));
         }
       }
 
