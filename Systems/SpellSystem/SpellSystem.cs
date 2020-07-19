@@ -5,6 +5,7 @@ using NWN.Enums.Item;
 using NWN.Enums.Item.Property;
 using NWN.Enums.VisualEffect;
 using System.Linq;
+using static NWN.Systems.PlayerSystem;
 
 namespace NWN.Systems
 {
@@ -12,6 +13,7 @@ namespace NWN.Systems
   {
     public static Dictionary<string, Func<uint, int>> Register = new Dictionary<string, Func<uint, int>>
     {
+            { "event_spellcast", SpellCast },
             { "X0_S0_AcidSplash", CantripsScaler },
             { "NW_S0_Daze", CantripsScaler },
             { "X0_S0_ElecJolt", CantripsScaler },
@@ -207,6 +209,44 @@ namespace NWN.Systems
       }
 
       oCaster.RestoreSpells(0);
+
+      return Entrypoints.SCRIPT_HANDLED;
+    }
+    private static int SpellCast(uint oidSelf)
+    {
+      Player oPC;
+      if (Players.TryGetValue(oidSelf, out oPC))
+      {
+        if (!oPC.IsDM)
+        {
+          string current_event = NWNX.Events.GetCurrentEvent();
+
+          if (current_event == "NWNX_ON_CAST_SPELL_BEFORE")
+          {
+            int iCount = 1;
+            
+            if (NWScript.GetHasSpellEffect(Spell.ImprovedInvisibilit, oPC) || NWScript.GetHasSpellEffect(Spell.Invisibilit, oPC) || NWScript.GetHasSpellEffect(Spell.InvisibilitySpher, oPC))
+              if (int.Parse(NWNX.Events.GetEventData("META_TYPE")) != (int)MetaMagic.Silent)
+              {
+                NWPlayer oSpotter = NWScript.GetNearestCreature(1, 1, oPC, iCount).AsPlayer();
+                while (oSpotter.IsValid)
+                {
+                  if (NWScript.GetDistanceBetween(oSpotter, oPC) > 20.0f)
+                    break;
+
+                  if (!NWScript.GetObjectSeen(oPC, oSpotter))
+                  {
+                    oSpotter.SendMessage("Quelqu'un d'invisible est en train de lancer un sort à proximité !");
+                    NWNX.Player.ShowVisualEffect(oSpotter, 191, oPC.Position);
+                  }
+
+                  iCount++;
+                  oSpotter = NWScript.GetNearestCreature(1, 1, oPC, iCount).AsPlayer();
+                }
+              }
+          }
+        }
+      }
 
       return Entrypoints.SCRIPT_HANDLED;
     }
