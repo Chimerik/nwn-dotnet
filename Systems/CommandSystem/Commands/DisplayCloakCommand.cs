@@ -5,9 +5,9 @@ namespace NWN.Systems
 {
   public static partial class CommandSystem
   {
-    private static void ExecuteDisplayCloakCommand(ChatSystem.Context chatContext, Options.Result options)
+    private static void ExecuteDisplayCloakCommand(ChatSystem.Context ctx, Options.Result options)
     {
-      var oCloak = NWScript.GetItemInSlot(Enums.InventorySlot.Cloak, chatContext.oSender);
+      var oCloak = NWScript.GetItemInSlot(Enums.InventorySlot.Cloak, ctx.oSender);
 
       if (NWScript.GetIsObjectValid(oCloak))
       {
@@ -17,7 +17,7 @@ namespace NWN.Systems
           NWScript.SetHiddenWhenEquipped(oCloak, 0);
       }
       else
-        NWScript.FloatingTextStringOnCreature("Vous ne portez pas de cape !", chatContext.oSender, false);
+        NWScript.FloatingTextStringOnCreature("Vous ne portez pas de cape !", ctx.oSender, false);
     }
   }
 }

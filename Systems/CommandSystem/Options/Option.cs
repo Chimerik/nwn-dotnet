@@ -4,12 +4,14 @@
   {
     private class Option
     {
-      string description { get; }
-      string defaultValue { get; set; }
+      public string description { get; }
+      public string defaultValue { get; }
+      public bool isRequired { get; }
 
-      public Option (string description, string defaultValue = null)
+      public Option (string description, bool isRequired = false, string defaultValue = null)
       {
         this.description = description;
+        this.isRequired = isRequired;
         this.defaultValue = defaultValue;
       }
     }

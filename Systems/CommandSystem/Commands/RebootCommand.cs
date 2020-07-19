@@ -6,9 +6,9 @@ namespace NWN.Systems
 {
   public static partial class CommandSystem
   {
-    private static void ExecuteRebootCommand(ChatSystem.Context chatContext, Options.Result options)
+    private static void ExecuteRebootCommand(ChatSystem.Context ctx, Options.Result options)
     {
-      if (NWScript.GetIsDM(chatContext.oSender))
+      if (NWScript.GetIsDM(ctx.oSender))
       {
         NWScript.ExportAllCharacters();
 
