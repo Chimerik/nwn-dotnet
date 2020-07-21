@@ -5,11 +5,11 @@ namespace NWN.Systems
 {
   public static partial class CommandSystem
   {
-    private static void ExecuteDispelInviCommand(ChatSystem.Context chatContext)
+    private static void ExecuteDispelInviCommand(ChatSystem.Context ctx, Options.Result options)
     {
-      Spells.RemoveAnySpellEffects(Spell.ImprovedInvisibilit, chatContext.oSender);
-      Spells.RemoveAnySpellEffects(Spell.Invisibilit, chatContext.oSender);
-      Spells.RemoveAnySpellEffects(Spell.InvisibilitySpher, chatContext.oSender);
+      Spells.RemoveAnySpellEffects(Spell.ImprovedInvisibilit, ctx.oSender);
+      Spells.RemoveAnySpellEffects(Spell.Invisibilit, ctx.oSender);
+      Spells.RemoveAnySpellEffects(Spell.InvisibilitySpher, ctx.oSender);
     }
   }
 }

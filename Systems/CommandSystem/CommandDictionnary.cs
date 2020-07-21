@@ -9,8 +9,25 @@ namespace NWN.Systems
       {
         "help", new Command(
           name: "help",
-          description: new Command.Description(title: "Display the list of all available commands."),
-          execute: ExecuteHelpCommand
+          description: new Command.Description(
+            title: "Display the list of all available commands or a full description of the provided command.",
+            examples: new string[]
+            {
+              "",
+              "help"
+            }
+          ),
+          execute: ExecuteHelpCommand,
+          options: new Options(
+            positional: new List<Option>()
+            {
+              new Option(
+                name: "command",
+                description: "Nom de la commande.",
+                defaultValue: null
+              )
+            }
+          )
         )
       },
       {
