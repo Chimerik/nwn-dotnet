@@ -29,14 +29,12 @@ namespace NWN.Systems
       public struct Description
       {
         public string title { get; }
-        public string usage { get; }
-        public List<string> examples { get; }
+        public string[] examples { get; }
 
-        public Description (string title = "", string usage = "", List<string> examples = null)
+        public Description (string title = "", string[] examples = null)
         {
           this.title = title;
-          this.usage = usage;
-          this.examples = examples != null ? examples : new List<string>();
+          this.examples = examples ?? new string[] { "" };
         }
       }
 
@@ -52,17 +50,65 @@ namespace NWN.Systems
       {
         get
         {
-          return $"{description.title}\n" +
-            $"{usageDesc}\n" +
+          return $"\nUsage: {usageDesc}\n\n" +
+            $"{description.title}\n\n" +
+            $"{optionsDesc}\n" +
             $"{exampleDesc}";
         }
+      }
+
+      public string optionsDesc
+      {
+        get
+        {
+          if (options.positional.Count == 0 &&
+            options.named.Count == 0  
+          )
+          {
+            return "";
+          } else
+          {
+            return $"Options:\n" +
+            string.Join("", options.positional.Select((option) => getOptionDesc(option) + '\n')) +
+            string.Join("", options.named.Select((entree) => getOptionDesc(entree.Value) + '\n'));
+          }
+        }
+      }
+
+      string getOptionDesc (Option option)
+      {
+        var desc = $"* {option.name} - {option.description}\n";
+        desc += $"Required: {option.isRequired}";
+
+        if (!option.isRequired)
+        {
+          desc += $" - Default Value: \"{option.defaultValue}\"";
+        }
+
+        return desc;
       }
 
       public string usageDesc
       {
         get
         {
-          return $"Usage: {PREFIX}{name} {description.usage}";
+          var desc = $"{PREFIX}{name}";
+
+          foreach (var option in options.positional)
+          {
+            var bfrBracket = option.isRequired ? "" : "[";
+            var aftBracket = option.isRequired ? "" : "]";
+
+            desc += $" {bfrBracket}{option.name}{aftBracket}";
+          }
+          foreach (var entry in options.named)
+          {
+            var bfrBracket = entry.Value.isRequired ? "" : "[";
+            var aftBracket = entry.Value.isRequired ? "" : "]";
+
+            desc += $" {bfrBracket}--{entry.Value.name}{aftBracket}";
+          }
+          return desc;
         }
       }
 
@@ -70,17 +116,17 @@ namespace NWN.Systems
       {
         get
         {
-          if (description.examples.Count == 0)
+          if (description.examples.Length == 0)
           {
             return "";
-          } else if (description.examples.Count == 1)
+          } else if (description.examples.Length == 1)
           {
             return $"Example : {PREFIX}{name} {description.examples[0]}";
           } else
           {
-            return string.Join("\n",
-              "Examples :\n" + description.examples
-                .Select((example) => $"* {PREFIX}{name} {example}")
+            return "Examples :\n" +
+              string.Join("", description.examples
+                .Select((example) => $"* {PREFIX}{name} {example}\n")
               );
           }
         }

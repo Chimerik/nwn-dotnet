@@ -8,8 +8,8 @@ namespace NWN.Systems
   {
     private class Options
     {
-      List<Option> positional;
-      Dictionary<string, Option> named;
+      public List<Option> positional { get; }
+      public Dictionary<string, Option> named { get; }
 
       public Options(List<Option> positional = null, Dictionary<string, Option> named = null)
       {
@@ -19,13 +19,13 @@ namespace NWN.Systems
 
       public class Result
       {
-        public List<string> positional;
-        public Dictionary<string, string> named;
+        public List<object> positional;
+        public Dictionary<string, object> named;
 
         public Result ()
         {
-          positional = new List<string>();
-          named = new Dictionary<string, string>();
+          positional = new List<object>();
+          named = new Dictionary<string, object>();
         }
       }
 
@@ -33,13 +33,15 @@ namespace NWN.Systems
       {
         var result = new Result();
 
-        foreach (var arg in args)
+        for (var i = 0; i < args.Length; i++)
         {
+          var arg = args[i];
+
           if (arg.StartsWith("--"))
           {
             var argArray = arg.Split("=");
             var argName = argArray.ElementAtOrDefault(0).Substring(2);
-            var argValue = argArray.ElementAtOrDefault(1);
+            var argValue = argArray.ElementAtOrDefault(1) ?? "";
 
             Option option;
             if (!named.TryGetValue(argName, out option))
@@ -48,12 +50,32 @@ namespace NWN.Systems
             }
             else
             {
-              result.named.Add(argName, argValue);
+              try
+              {
+                result.named.Add(argName, option.Parse(argValue));
+              } catch (Exception e)
+              {
+                throw new Exception($"Invalid value for option \"{argName}\". Expected a {option.type}.");
+              }
             }
           }
           else
           {
-            result.positional.Add(arg);
+            var option = positional.ElementAtOrDefault(i);
+
+            if (option == null)
+            {
+              throw new Exception($"Unknown option at position \"{i}\".");
+            }
+
+            try
+            {
+              result.positional.Add(option.Parse(arg));
+            }
+            catch (Exception e)
+            {
+              throw new Exception($"Invalid value for option \"^{option.name}\". Expected a {option.type}.");
+            }
           }
         }
 

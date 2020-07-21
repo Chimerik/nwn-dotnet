@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 
 namespace NWN.Systems
 {
@@ -6,7 +7,7 @@ namespace NWN.Systems
   {
     private static void ExecuteHelpCommand(ChatSystem.Context ctx, Options.Result options)
     {
-      var commandName = options.positional[0];
+      var commandName = (string)options.positional[0];
 
       if (commandName == null)
       {
