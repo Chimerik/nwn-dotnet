@@ -96,7 +96,15 @@ namespace NWN.ScriptHandlers
 
       //Garden.Init();
 
+      NWScript.DelayCommand(600.0f, () => SaveServerVault());
+
       return Entrypoints.SCRIPT_NOT_HANDLED;
+    }
+
+    private static void SaveServerVault()
+    {
+      NWScript.ExportAllCharacters();
+      NWScript.DelayCommand(600.0f, () => SaveServerVault());
     }
 
     private static int HandleActivateItem(uint oidSelf)
