@@ -28,6 +28,8 @@ namespace NWN.Systems
       public Dictionary<uint, Player> Listened = new Dictionary<uint, Player>();
       public Dictionary<uint, DateTime> DisguiseDetectTimer = new Dictionary<uint, DateTime>();
       public Dictionary<uint, DateTime> PickpocketDetectTimer = new Dictionary<uint, DateTime>();
+      public Dictionary<uint, DateTime> InviDetectTimer = new Dictionary<uint, DateTime>();
+      public Dictionary<uint, DateTime> InviEffectDetectTimer = new Dictionary<uint, DateTime>();
       public Dictionary<uint, NWCreature> Summons = new Dictionary<uint, NWCreature>();
 
       public Player(uint nwobj) : base(nwobj)

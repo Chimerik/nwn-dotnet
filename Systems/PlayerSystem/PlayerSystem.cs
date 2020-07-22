@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Dapper;
 using NWN.Enums;
+using NWN.Enums.VisualEffect;
 using NWN.NWNX.Enum;
 
 namespace NWN.Systems
@@ -29,6 +30,7 @@ namespace NWN.Systems
             { "event_skillused", HandleOnSkillUsed },
             { "summon_add_after", HandleAfterAddSummon },
             { "summon_remove_after", HandleAfterRemoveSummon },
+            { "event_detection_after", HandleAfterDetection },
         };
 
     public static Dictionary<uint, Player> Players = new Dictionary<uint, Player>();
@@ -48,6 +50,7 @@ namespace NWN.Systems
       NWNX.Events.AddObjectToDispatchList("NWNX_ON_ITEM_UNEQUIP_BEFORE", "event_unequip_items_before", oPC);
       NWNX.Events.AddObjectToDispatchList("NWNX_ON_COMBAT_MODE_OFF", "event_combatmode", oPC);
       NWNX.Events.AddObjectToDispatchList("NWNX_ON_USE_SKILL_BEFORE", "event_skillused", oPC);
+      NWNX.Events.AddObjectToDispatchList("NWNX_ON_DO_LISTEN_DETECTION_AFTER", "event_detection_after", oPC);
 
       //oPC.AsCreature().AddFeat(NWN.Enums.Feat.PlayerTool01);
 
@@ -626,6 +629,72 @@ namespace NWN.Systems
             else
               player.FloatingText("Seuls d'autres joueurs peuvent être ciblés par cette compétence. Les tentatives de vol sur PNJ doivent être jouées en rp avec un dm.");
           }
+      }
+
+      return Entrypoints.SCRIPT_HANDLED;
+    }
+    private static int HandleAfterDetection(uint oidSelf)
+    {
+      Player oPC;
+      if (Players.TryGetValue(oidSelf, out oPC))
+      {
+        var oTarget = NWNX.Object.StringToObject(NWNX.Events.GetEventData("TARGET")).AsCreature();
+
+        if (oTarget.IsPC || oTarget.IsPossessedFamiliar)
+        {
+          if (!oTarget.GetObjectSeen(oPC) && NWScript.GetDistanceBetween(oTarget, oPC) < 20.0f)
+          {
+            int iDetectMode = (int)NWScript.GetDetectMode(oPC);
+            if (int.Parse(NWNX.Events.GetEventData("TARGET_INVISIBLE")) == 1 && iDetectMode > 0)
+            {
+              switch (NWNX.Creature.GetMovementType(oTarget))
+              {
+                case MovementType.WalkBackwards:
+                case MovementType.Sidestep:
+                case MovementType.Walk:
+
+                  if (!oPC.InviDetectTimer.ContainsKey(oTarget) || (DateTime.Now - oPC.InviDetectTimer[oTarget]).TotalSeconds > 6)
+                  {
+                    int iMoveSilentlyCheck = NWScript.GetSkillRank(Skill.MoveSilently, oTarget) + Utils.random.Next(21) + (int)NWScript.GetDistanceBetween(oTarget, oPC);
+                    int iListenCheck = NWScript.GetSkillRank(Skill.Listen, oPC) + Utils.random.Next(21);
+                    if (iDetectMode == 2)
+                      iListenCheck -= 10;
+
+                    if (iListenCheck > iMoveSilentlyCheck)
+                    {
+                      oPC.SendMessage("Vous entendez quelqu'un se faufiler dans les environs.");
+                      NWNX.Player.ShowVisualEffect(oPC, (int)Flashier.Vfx_Fnf_Smoke_Puff, oTarget.Position);
+                      oPC.InviDetectTimer.Add(oTarget, DateTime.Now);
+                      oPC.InviEffectDetectTimer.Add(oTarget, DateTime.Now);
+                    }
+                    else
+                      oPC.InviDetectTimer.Remove(oTarget);
+                  }
+                  else if ((DateTime.Now - oPC.InviEffectDetectTimer[oTarget]).TotalSeconds > 1)
+                  {
+                    NWNX.Player.ShowVisualEffect(oPC, (int)Flashier.Vfx_Fnf_Smoke_Puff, oTarget.Position);
+                    oPC.InviEffectDetectTimer.Add(oTarget, DateTime.Now);
+                  }
+                  break;
+                case MovementType.Run:
+
+                  if (!oPC.InviDetectTimer.ContainsKey(oTarget) || (DateTime.Now - oPC.InviDetectTimer[oTarget]).TotalSeconds > 6)
+                  {
+                    oPC.SendMessage("Vous entendez quelqu'un courir peu discrètement dans les environs.");
+                    NWNX.Player.ShowVisualEffect(oPC, (int)Flashier.Vfx_Fnf_Smoke_Puff, oTarget.Position);
+                    oPC.InviDetectTimer.Add(oTarget, DateTime.Now);
+                    oPC.InviEffectDetectTimer.Add(oTarget, DateTime.Now);
+                  }
+                  else if ((DateTime.Now - oPC.InviEffectDetectTimer[oTarget]).TotalSeconds > 1)
+                  {
+                    NWNX.Player.ShowVisualEffect(oPC, (int)Flashier.Vfx_Fnf_Smoke_Puff, oTarget.Position);
+                    oPC.InviEffectDetectTimer.Add(oTarget, DateTime.Now);
+                  }
+                  break;
+              }
+            }
+          }
+        }
       }
 
       return Entrypoints.SCRIPT_HANDLED;
