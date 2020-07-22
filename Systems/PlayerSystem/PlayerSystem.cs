@@ -501,7 +501,7 @@ namespace NWN.Systems
             int[] iPerceivedHideSkill = { oPerceived.GetSkillRank(Skill.Bluff), oPerceived.GetSkillRank(Skill.Hide),
             oPerceived.GetSkillRank(Skill.Perform), oPerceived.GetSkillRank(Skill.Persuade) };
 
-            Random d20 = new Random();
+            Random d20 = Utils.random;
             int iRollAttack = iPCSenseSkill.Max() + d20.Next(21);
             int iRollDefense = iPerceivedHideSkill.Max() + d20.Next(21);
 
@@ -589,9 +589,9 @@ namespace NWN.Systems
                   NWNX.Feedback.SetFeedbackMessageHidden(FeedbackMessageTypes.CombatTouchAttack, 1, oTarget);
                   NWScript.DelayCommand(2.0f, () => NWNX.Feedback.SetFeedbackMessageHidden(FeedbackMessageTypes.CombatTouchAttack, 0, oTarget));
 
-                  int iRandom = new Random().Next(21);
+                  int iRandom = Utils.random.Next(21);
                   int iVol = NWScript.GetSkillRank(Skill.PickPocket, player);
-                  int iSpot = new Random().Next(21) + NWScript.GetSkillRank(Skill.Spot, player);
+                  int iSpot = Utils.random.Next(21) + NWScript.GetSkillRank(Skill.Spot, player);
                   if ((iRandom + iVol) > iSpot)
                   {
                     NWNX.Chat.SendMessage((int)NWNX.Enum.ChatChannel.PlayerTalk, $"Vous faites un jet de Vol à la tire, le résultat est de : {iRandom} + {iVol} = {iRandom + iVol}.", player, player);
