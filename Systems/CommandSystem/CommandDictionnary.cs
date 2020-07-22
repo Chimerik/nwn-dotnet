@@ -9,8 +9,25 @@ namespace NWN.Systems
       {
         "help", new Command(
           name: "help",
-          description: new Command.Description(title: "Display the list of all available commands."),
-          execute: ExecuteHelpCommand
+          description: new Command.Description(
+            title: "Display the list of all available commands or a full description of the provided command.",
+            examples: new string[]
+            {
+              "",
+              "help"
+            }
+          ),
+          execute: ExecuteHelpCommand,
+          options: new Options(
+            positional: new List<Option>()
+            {
+              new Option(
+                name: "command",
+                description: "Nom de la commande.",
+                defaultValue: null
+              )
+            }
+          )
         )
       },
       {
@@ -109,6 +126,33 @@ namespace NWN.Systems
           execute: ExecutePlaceablePersistanceCommand
         )
       },
+      {
+        "menu",
+        new Command(
+          name: "menu",
+          description: new Command.Description(
+            title: "Affiche le menu permettant de configurer l'affichage du menu",
+            examples: new string[]
+            {
+              "", "--reset"
+            }
+          ),
+          execute: ExecuteMenuCommand,
+          options: new Options(
+            named: new Dictionary<string, Option>()
+            {
+              { "reset",
+                new Option(
+                  name: "reset",
+                  description: "Reset la configuration du menu a sa config par défaut.",
+                  defaultValue: false,
+                  type: OptionTypes.Bool
+                )
+              }
+            }
+          )
+        )
+      }
     };
   }
 }
