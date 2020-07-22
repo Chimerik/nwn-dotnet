@@ -9,15 +9,14 @@ namespace NWN.Systems
   {
     public static Dictionary<string, Func<uint, int>> Register = new Dictionary<string, Func<uint, int>>
     {
-            { "event_items", ItemEquip },
+            { "event_items", HandleItemEvents },
     };
-    private static int ItemEquip(uint oidSelf)
+    private static int HandleItemEvents(uint oidSelf)
     {
       Player player;
       if (Players.TryGetValue(oidSelf, out player))
       {
         string current_event = NWNX.Events.GetCurrentEvent();
-
         if (current_event == "NWNX_ON_ITEM_EQUIP_BEFORE")
         {
           var oItem = NWNX.Object.StringToObject(NWNX.Events.GetEventData("ITEM"));
