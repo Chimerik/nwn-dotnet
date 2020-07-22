@@ -1,4 +1,4 @@
-namespace NWN.NWNX.Enum {
+﻿namespace NWN.NWNX.Enum {
   public enum FeedbackMessageTypes {
     // Feedback Message Types
     SkillCantUse = 0,
@@ -130,6 +130,7 @@ namespace NWN.NWNX.Enum {
     ClientServerSpellMismatch = 259,
 
     /// Combat feedback messages
+    CombatTouchAttack = 13,
     CombatRunningOutOfAmmo = 24,
     CombatOutOfAmmo = 25,
     CombatHenchmanOutOfAmmo = 241,

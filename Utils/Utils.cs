@@ -9,24 +9,6 @@ namespace NWN
   {
     public static Random random = new Random();
 
-    public enum Meuble // je le garde uniquement pour avoir un exemple à disposition de comment gérer les enum et les TryParse. Nous on utilisera des tag plus parlant pour nos meubles
-
-    {
-
-      dmfi_rest = 1,
-
-      mej_social_plc,
-
-      mej_pc_social,
-
-      meuble,
-
-      mej_pc,
-
-      mej_so
-
-    }
-
     public static void LogException(Exception e)
     {
       Console.WriteLine(e.Message);
