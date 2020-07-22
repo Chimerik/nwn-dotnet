@@ -47,8 +47,6 @@ namespace NWN.Systems
       NWNX.Events.AddObjectToDispatchList("NWNX_ON_CLIENT_EXPORT_CHARACTER_BEFORE", "event_dm_actions", oPC);
       NWNX.Events.AddObjectToDispatchList("NWNX_ON_COMBAT_MODE_OFF", "event_combatmode", oPC);
       NWNX.Events.AddObjectToDispatchList("NWNX_ON_USE_SKILL_BEFORE", "event_skillused", oPC);
-      NWNX.Events.AddObjectToDispatchList("NWNX_ON_INVENTORY_ADD_ITEM_AFTER", "event_items", oPC);
-      NWNX.Events.AddObjectToDispatchList("NWNX_ON_INVENTORY_REMOVE_ITEM_AFTER", "event_items", oPC);
 
       //oPC.AsCreature().AddFeat(NWN.Enums.Feat.PlayerTool01);
 
@@ -347,7 +345,7 @@ namespace NWN.Systems
           {
             if (oTarget.IsValid)
             {
-              Utils.Meuble result;
+              /*Utils.Meuble result;
               if (Enum.TryParse(oTarget.Tag, out result))
               {
                 NWNX.Events.AddObjectToDispatchList("NWNX_ON_INPUT_KEYBOARD_AFTER", "event_mv_plc", oidSelf);
@@ -366,7 +364,7 @@ namespace NWN.Systems
               else
               {
                 oidSelf.AsPlayer().SendMessage("Vous ne pouvez pas manier cet élément.");
-              }
+              }*/
             }
             else
             {
@@ -593,41 +591,25 @@ namespace NWN.Systems
 
                   int iRandom = new Random().Next(21);
                   int iVol = NWScript.GetSkillRank(Skill.PickPocket, player);
-                  if ((iRandom + iVol) > (new Random().Next(21) + NWScript.GetSkillRank(Skill.Spot, player)))
+                  int iSpot = new Random().Next(21) + NWScript.GetSkillRank(Skill.Spot, player);
+                  if ((iRandom + iVol) > iSpot)
                   {
                     NWNX.Chat.SendMessage((int)NWNX.Enum.ChatChannel.PlayerTalk, $"Vous faites un jet de Vol à la tire, le résultat est de : {iRandom} + {iVol} = {iRandom + iVol}.", player, player);
                     if (NWScript.TouchAttackMelee(oTarget) > 0)
                     {
-                      iRandom = new Random().Next(player.NumPickpocketableItems);
-                      int i = 0;
-
-                      var tempItem = NWItem.OBJECT_INVALID;
-                      foreach(NWItem item in player.InventoryItems)
+                      int iStolenGold = (iRandom + iVol - iSpot) * 10;
+                      if (oTarget.Gold >= iStolenGold)
                       {
-                        Utils.PickpocketableItems result;
-                        if (!item.IsPlot && Enum.TryParse((item.BaseItemType).ToString(), out result))
-                        {
-                          if (iRandom == i)
-                          {
-                          tempItem = item;
-                            break;
-                          }
-                          i++;
-                        }
-                      }
-
-                      NWItem StolenItem = tempItem.AsItem();
-
-                      if (StolenItem.IsValid)
-                      {
-                        NWScript.CopyObject(StolenItem, player.Location, player);
-                        NWNX.Feedback.SetFeedbackMessageHidden(FeedbackMessageTypes.ItemLost, 1, oTarget);
-                        NWScript.DelayCommand(2.0f, () => NWNX.Feedback.SetFeedbackMessageHidden(FeedbackMessageTypes.ItemLost, 0, oTarget));
-                        StolenItem.Destroy();
-                        player.FloatingText($"Vous parvenez à dérober l'objet {StolenItem.Name} des poches de {oTarget.Name}");
+                        oTarget.Gold -= iStolenGold;
+                        player.Gold += iStolenGold;
+                        player.FloatingText($"Vous venez de dérober {iStolenGold} pièces d'or des poches de {oTarget.Name} !");
                       }
                       else
-                        player.FloatingText($"{oTarget.Name} ne semble pas posséder d'objet que vous puissiez facilement escamoter.");
+                      {
+                        player.FloatingText($"Vous venez de vider les poches de {oTarget.Name} ! {oTarget.Gold} pièces d'or de plus pour vous.");
+                        player.Gold += oTarget.Gold;
+                        oTarget.Gold = 0;
+                      }
                     }
                     else
                     {

@@ -12,7 +12,6 @@ namespace NWN.Systems
       public readonly uint oid;
       public readonly Boolean IsNewPlayer;
       public virtual Boolean isConnected { get; set; }
-      public virtual int NumPickpocketableItems { get; set; }
       public virtual uint AutoAttackTarget { get; set; }
       public virtual DateTime LycanCurseTimer { get; set; }
       public Menu menu { get; }

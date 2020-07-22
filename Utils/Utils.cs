@@ -9,45 +9,6 @@ namespace NWN
   {
     public static Random random = new Random();
 
-    public enum Meuble // je le garde uniquement pour avoir un exemple à disposition de comment gérer les enum et les TryParse. Nous on utilisera des tag plus parlant pour nos meubles
-    {
-      dmfi_rest = 1,
-      mej_social_plc,
-      mej_pc_social,
-      meuble,
-      mej_so
-    }
-    public enum PickpocketableItems
-    {
-      Torch = 15,
-      Amulet = 19,
-      Arrow = 20,
-      Belt = 21,
-      Dagger = 22,
-      MiscSmall = 24,
-      Bolt = 25,
-      Boot = 26,
-      Bullet = 27,
-      Dart = 31,
-      Glove = 36,
-      HealerKit = 39,
-      MagicRod = 44,
-      MagicWand = 46,
-      Potion = 49,
-      Ring = 52,
-      Scroll = 54,
-      Shuriken = 59,
-      Sling = 61,
-      ThievesTool = 62,
-      Book = 74,
-      SpellScroll = 75,
-      Gem = 77,
-      Bracer = 78,
-      EnchantedPotion = 104,
-      EnchantedScroll = 105,
-      EnchantedWand = 106
-    }
-
     public static void LogException(Exception e)
     {
       Console.WriteLine(e.Message);
