@@ -8,11 +8,11 @@ namespace NWN.Systems
   {
     private const string PREFIX = "!";
 
-    public static void ProcessChatCommandMiddleware(ChatSystem.Context chatContext, Action next)
+    public static void ProcessChatCommandMiddleware(ChatSystem.Context ctx, Action next)
     {
-      if (chatContext.msg.Length <= PREFIX.Length ||
-        !chatContext.msg.StartsWith(PREFIX) ||
-        !NWScript.GetIsPC(chatContext.oSender)
+      if (ctx.msg.Length <= PREFIX.Length ||
+        !ctx.msg.StartsWith(PREFIX) ||
+        !NWScript.GetIsPC(ctx.oSender)
       )
       {
         next();
@@ -21,27 +21,41 @@ namespace NWN.Systems
 
       Chat.SkipMessage();
 
-      string[] args = chatContext.msg.Split(' ');
+      string[] args = ctx.msg.Split(' ');
 
       string commandName = args.FirstOrDefault().Substring(PREFIX.Length);
+      args = args.Skip(1).ToArray();
 
       Command command;
       if (!commandDic.TryGetValue(commandName, out command))
       {
-        NWScript.SendMessageToPC(chatContext.oSender,
+        NWScript.SendMessageToPC(ctx.oSender,
        $"\nUnknown command \"{commandName}\".\n\n" +
-      "Type \"!help\" for a list of all available commands."
+      $"Type \"{PREFIX}help\" for a list of all available commands."
         );
+        return;
+      }
+
+      Options.Result optionsResult;
+      try
+      {
+        optionsResult = command.options.Parse(args);
+      } catch (Exception err)
+      {
+        var msg = $"\nInvalid options :\n" +
+          err.Message + "\n\n" +
+          $"Please type \"{PREFIX}help {commandName}\" to get a description of the command.";
+        NWScript.SendMessageToPC(ctx.oSender, msg);
         return;
       }
 
       try
       {
-        command.execute(chatContext);
+        command.execute(ctx, optionsResult);
       }
       catch (Exception err)
       {
-        NWScript.SendMessageToPC(chatContext.oSender, $"\nUnable to process command: {err.Message}");
+        NWScript.SendMessageToPC(ctx.oSender, $"\nUnable to process command: {err.Message}");
       }
     }
   }

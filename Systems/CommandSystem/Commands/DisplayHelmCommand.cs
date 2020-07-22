@@ -5,9 +5,9 @@ namespace NWN.Systems
 {
   public static partial class CommandSystem
   {
-    private static void ExecuteDisplayHelmCommand(ChatSystem.Context chatContext)
+    private static void ExecuteDisplayHelmCommand(ChatSystem.Context ctx, Options.Result options)
     {
-      var oHelmet = NWScript.GetItemInSlot(Enums.InventorySlot.Head, chatContext.oSender);
+      var oHelmet = NWScript.GetItemInSlot(Enums.InventorySlot.Head, ctx.oSender);
 
       if (NWScript.GetIsObjectValid(oHelmet))
       {
@@ -17,7 +17,7 @@ namespace NWN.Systems
           NWScript.SetHiddenWhenEquipped(oHelmet, 0);
       }
       else
-        NWScript.FloatingTextStringOnCreature("Vous ne portez pas de casque !", chatContext.oSender, false);
+        NWScript.FloatingTextStringOnCreature("Vous ne portez pas de casque !", ctx.oSender, false);
     }
   }
 }

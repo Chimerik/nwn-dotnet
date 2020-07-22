@@ -15,16 +15,16 @@ namespace NWN.Systems
     {
       public string title { get; set; } = "";
       public List<(string text, Action handler)> choices = new List<(string text, Action handler)>();
+      public int originTop { get; set; }
+      public int originLeft { get; set; }
 
-      private readonly Player player;
-
-      private const int originTop = 4;
-      private const int originLeft = 2;
       private const int borderSize = 1;
       private const int widthPadding = 2;
       private const int heightPadding = 1;
       private const int titleBottomMargin = 1;
 
+      private readonly Player player;
+      
       private int currentTitleHeight
       {
         get
@@ -48,6 +48,7 @@ namespace NWN.Systems
       public Menu(PlayerSystem.Player player)
       {
         this.player = player;
+        ResetConfig();
       }
 
       public void Draw()
@@ -85,6 +86,12 @@ namespace NWN.Systems
         }
 
         isOpen = false;
+      }
+
+      public void ResetConfig ()
+      {
+        originTop = 4;
+        originLeft = 2;
       }
 
       private void Clear()
