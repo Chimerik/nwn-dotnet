@@ -16,16 +16,19 @@ namespace NWN.Systems
             { "on_pc_perceived", HandlePlayerPerceived },
             { "on_pc_connect", HandlePlayerConnect },
             { "on_pc_disconnect", HandlePlayerDisconnect },
-            { "connexion", HandlePlayerBeforeDisconnect },
+            { "player_exit_before", HandlePlayerBeforeDisconnect },
             { ON_PC_KEYSTROKE_SCRIPT, HandlePlayerKeystroke },
-            { "event_dm_actions", HandleDMActions },
+            { "event_player_save_before", HandleBeforePlayerSave },
+            { "event_dm_possess_before", HandleBeforeDMPossess },
+            { "event_dm_spawn_object_after", HandleAfterDMSpawnObject },
             { "event_mv_plc", HandleMovePlaceable },
             { "event_feat_used", HandleFeatUsed },
             { "event_auto_spell", HandleAutoSpell },
             { "_onspellcast", HandleOnSpellCast },
             { "event_combatmode", HandleOnCombatMode },
             { "event_skillused", HandleOnSkillUsed },
-            { "event_summon", HandleSummon },
+            { "summon_add_after", HandleAfterAddSummon },
+            { "summon_remove_after", HandleAfterRemoveSummon },
         };
 
     public static Dictionary<uint, Player> Players = new Dictionary<uint, Player>();
@@ -38,13 +41,11 @@ namespace NWN.Systems
 
       NWNX.Events.AddObjectToDispatchList(NWNX.Events.ON_INPUT_KEYBOARD_BEFORE, ON_PC_KEYSTROKE_SCRIPT, oPC);
       NWNX.Events.AddObjectToDispatchList("NWNX_ON_USE_FEAT_BEFORE", "event_feat_used", oPC);
-      NWNX.Events.AddObjectToDispatchList("NWNX_ON_ADD_ASSOCIATE_AFTER", "event_summon", oPC);
-      NWNX.Events.AddObjectToDispatchList("NWNX_ON_REMOVE_ASSOCIATE_AFTER", "event_summon", oPC);
+      NWNX.Events.AddObjectToDispatchList("NWNX_ON_ADD_ASSOCIATE_AFTER", "summon_add_after", oPC);
+      NWNX.Events.AddObjectToDispatchList("NWNX_ON_REMOVE_ASSOCIATE_AFTER", "summon_remove_after", oPC);
       NWNX.Events.AddObjectToDispatchList("NWNX_ON_CAST_SPELL_BEFORE", "event_spellcast", oPC);
-      NWNX.Events.AddObjectToDispatchList("NWNX_ON_ITEM_EQUIP_BEFORE", "event_items", oPC);
-      NWNX.Events.AddObjectToDispatchList("NWNX_ON_ITEM_UNEQUIP_BEFORE", "event_items", oPC);
-      NWNX.Events.AddObjectToDispatchList("NWNX_ON_SERVER_CHARACTER_SAVE_BEFORE", "event_dm_actions", oPC);
-      NWNX.Events.AddObjectToDispatchList("NWNX_ON_CLIENT_EXPORT_CHARACTER_BEFORE", "event_dm_actions", oPC);
+      NWNX.Events.AddObjectToDispatchList("NWNX_ON_ITEM_EQUIP_BEFORE", "event_equip_items_before", oPC);
+      NWNX.Events.AddObjectToDispatchList("NWNX_ON_ITEM_UNEQUIP_BEFORE", "event_unequip_items_before", oPC);
       NWNX.Events.AddObjectToDispatchList("NWNX_ON_COMBAT_MODE_OFF", "event_combatmode", oPC);
       NWNX.Events.AddObjectToDispatchList("NWNX_ON_USE_SKILL_BEFORE", "event_skillused", oPC);
 
@@ -132,12 +133,6 @@ namespace NWN.Systems
         NWNX.Chat.SetChatHearingDistance(NWNX.Chat.GetChatHearingDistance(oPC.AsObject(), NWNX.Enum.ChatChannel.PlayerTalk) + NWScript.GetSkillRank(Skill.Listen, oPC) / 5, oPC.AsObject(), NWNX.Enum.ChatChannel.PlayerTalk);
         NWNX.Chat.SetChatHearingDistance(NWNX.Chat.GetChatHearingDistance(oPC.AsObject(), NWNX.Enum.ChatChannel.PlayerWhisper) + NWScript.GetSkillRank(Skill.Listen, oPC) / 10, oPC.AsObject(), NWNX.Enum.ChatChannel.PlayerWhisper);
       }
-      else
-      {
-        NWNX.Events.AddObjectToDispatchList("NWNX_ON_DM_POSSESS_FULL_POWER_BEFORE", "event_dm_actions", player);
-        NWNX.Events.AddObjectToDispatchList("NWNX_ON_DM_POSSESS_BEFORE", "event_dm_actions", player);
-        NWNX.Events.AddObjectToDispatchList("NWNX_ON_DM_SPAWN_OBJECT_AFTER", "event_dm_actions", player);
-      }
       return Entrypoints.SCRIPT_HANDLED;
     }
 
@@ -162,11 +157,8 @@ namespace NWN.Systems
       return Entrypoints.SCRIPT_HANDLED;
     }
 
-    private static int HandleDMActions(uint oidSelf)
+    private static int HandleBeforePlayerSave(uint oidSelf)
     {
-      NWPlayer oPC = oidSelf.AsPlayer();
-      string current_event = NWNX.Events.GetCurrentEvent();
-
       /* Fix polymorph bug : Lorsqu'un PJ métamorphosé est sauvegardé, toutes ses buffs sont supprimées afin que les stats de 
        * la nouvelle forme ne remplace pas celles du PJ dans son fichier .bic. Après sauvegarde, les stats de la métamorphose 
        * sont réappliquées. 
@@ -175,8 +167,7 @@ namespace NWN.Systems
        * Ici, la correction consiste à ne pas sauvegarder le PJ s'il est métamorphosé, sauf s'il s'agit d'une déconnexion.
        * Mais il se peut que dans ce cas, ses buffs soient perdues à la reco. A vérifier. Si c'est le cas, une meilleure
        * correction pourrait être de parcourir tous ses buffs et de les réappliquer dans l'event AFTER de la sauvegarde*/
-      if (current_event == "NWNX_ON_CLIENT_EXPORT_CHARACTER_BEFORE" || current_event == "NWNX_ON_SERVER_CHARACTER_SAVE_BEFORE")
-      {
+
         Player player;
         if (Players.TryGetValue(oidSelf, out player))
         {
@@ -189,11 +180,15 @@ namespace NWN.Systems
             }
           }
         }
-      }
-      else if (current_event == "NWNX_ON_DM_POSSESS_BEFORE" || current_event == "NWNX_ON_DM_POSSESS_FULL_POWER_BEFORE")
-      {
-        NWCreature oPossessed = NWNX.Object.StringToObject(NWNX.Events.GetEventData("TARGET")).AsCreature();
 
+      return Entrypoints.SCRIPT_HANDLED;
+    }
+    private static int HandleBeforeDMPossess(uint oidSelf)
+    {
+      NWCreature oPossessed = NWNX.Object.StringToObject(NWNX.Events.GetEventData("TARGET")).AsCreature();
+      Player oPC;
+      if (Players.TryGetValue(oidSelf, out oPC))
+      {
         if (oPossessed.IsValid)
         { // Ici, on prend possession
           if (oPC.IsDMPossessed)
@@ -221,7 +216,13 @@ namespace NWN.Systems
           }
         }
       }
-      else if (current_event == "NWNX_ON_DM_SPAWN_OBJECT_AFTER")
+      return Entrypoints.SCRIPT_HANDLED;
+    }
+
+    private static int HandleAfterDMSpawnObject(uint oidSelf)
+    {
+      Player oPC;
+      if (Players.TryGetValue(oidSelf, out oPC))
       {
         if (int.Parse(NWNX.Events.GetEventData("OBJECT_TYPE")) == 9)
         {
@@ -240,19 +241,15 @@ namespace NWN.Systems
 
     private static int HandlePlayerBeforeDisconnect(uint oidSelf)
     {
-      string current_event = NWNX.Events.GetCurrentEvent();
-
-      if (current_event == "NWNX_ON_CLIENT_DISCONNECT_BEFORE")
+      Player player;
+      if (Players.TryGetValue(oidSelf, out player))
       {
-        Player player;
-        if (Players.TryGetValue(oidSelf, out player))
-        {
-          player.isConnected = false;
-          //TODO : plutôt utiliser les fonctions sqlite de la prochaine MAJ ?
-          NWNX.Object.SetInt(player, "_CURRENT_HP", player.CurrentHP, true);
-          NWNX.Object.SetString(player, "_LOCATION", Utils.LocationToString(player.Location), true);
-        }
+        player.isConnected = false;
+        //TODO : plutôt utiliser les fonctions sqlite de la prochaine MAJ ?
+        NWNX.Object.SetInt(player, "_CURRENT_HP", player.CurrentHP, true);
+        NWNX.Object.SetString(player, "_LOCATION", Utils.LocationToString(player.Location), true);
       }
+
       return Entrypoints.SCRIPT_HANDLED;
     }
 
@@ -521,24 +518,35 @@ namespace NWN.Systems
 
       return Entrypoints.SCRIPT_HANDLED;
     }
-    private static int HandleSummon(uint oidSelf)
+    private static int HandleAfterAddSummon(uint oidSelf)
     {
       //Pas méga utile dans l'immédiat, mais pourra être utilisé pour gérer les invocations de façon plus fine plus tard
       // TODO : Système de possession d'invocations, compagnons animaux, etc (mais attention, vérifier que si le PJ déco en possession, ça n'écrase pas son .bic. Si oui, sauvegarde le PJ avant possession et ne plus sauvegarder le PJ en mode possession)
       Player player;
       if (Players.TryGetValue(oidSelf, out player))
       {
-        string current_event = NWNX.Events.GetCurrentEvent();
         NWCreature oSummon = (NWNX.Object.StringToObject(NWNX.Events.GetEventData("ASSOCIATE_OBJECT_ID"))).AsCreature();
 
         if (oSummon.IsValid)
         {
-          if (current_event == "NWNX_ON_ADD_ASSOCIATE_AFTER")
-            player.Summons.Add(oSummon, oSummon);
-          else if (current_event == "NWNX_ON_REMOVE_ASSOCIATE_AFTER")
-          {
-            player.Summons.Remove(oSummon);
-          }
+          player.Summons.Add(oSummon, oSummon);
+        }
+      }
+
+      return Entrypoints.SCRIPT_HANDLED;
+    }
+    private static int HandleAfterRemoveSummon(uint oidSelf)
+    {
+      //Pas méga utile dans l'immédiat, mais pourra être utilisé pour gérer les invocations de façon plus fine plus tard
+      // TODO : Système de possession d'invocations, compagnons animaux, etc (mais attention, vérifier que si le PJ déco en possession, ça n'écrase pas son .bic. Si oui, sauvegarde le PJ avant possession et ne plus sauvegarder le PJ en mode possession)
+      Player player;
+      if (Players.TryGetValue(oidSelf, out player))
+      {
+        NWCreature oSummon = (NWNX.Object.StringToObject(NWNX.Events.GetEventData("ASSOCIATE_OBJECT_ID"))).AsCreature();
+
+        if (oSummon.IsValid)
+        {
+          player.Summons.Remove(oSummon);
         }
       }
 
@@ -549,15 +557,11 @@ namespace NWN.Systems
       Player player;
       if (Players.TryGetValue(oidSelf, out player))
       {
-        string current_event = NWNX.Events.GetCurrentEvent();
-        if (current_event == "NWNX_ON_COMBAT_MODE_OFF") // Permet de conserver sa posture de combat après avoir utilisé taunt
-        {
-          if (NWScript.GetLocalInt(player, "_ACTIVATED_TAUNT") != 0)
+          if (NWScript.GetLocalInt(player, "_ACTIVATED_TAUNT") != 0) // Permet de conserver sa posture de combat après avoir utilisé taunt
           {
             NWNX.Events.SkipEvent();
             NWScript.DeleteLocalInt(player, "_ACTIVATED_TAUNT");
           }
-        }
       }
 
       return Entrypoints.SCRIPT_HANDLED;
@@ -567,9 +571,6 @@ namespace NWN.Systems
       Player player;
       if (Players.TryGetValue(oidSelf, out player))
       {
-        string current_event = NWNX.Events.GetCurrentEvent();
-        if (current_event == "NWNX_ON_USE_SKILL_BEFORE")
-        {
           if (int.Parse(NWNX.Events.GetEventData("SKILL_ID")) == (int)Skill.Taunt)
           {
             NWScript.SetLocalInt(player, "_ACTIVATED_TAUNT", 1);
@@ -625,7 +626,6 @@ namespace NWN.Systems
             else
               player.FloatingText("Seuls d'autres joueurs peuvent être ciblés par cette compétence. Les tentatives de vol sur PNJ doivent être jouées en rp avec un dm.");
           }
-        }
       }
 
       return Entrypoints.SCRIPT_HANDLED;
