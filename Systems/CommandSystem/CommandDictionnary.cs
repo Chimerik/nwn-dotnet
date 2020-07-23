@@ -42,7 +42,7 @@ namespace NWN.Systems
         "walk",
         new Command(
           name: "walk",
-          description: new Command.Description(title: "todo"),
+          description: new Command.Description(title: "Active/Désactive le mode marche."),
           execute: ExecuteWalkCommand
         )
       },
@@ -124,6 +124,38 @@ namespace NWN.Systems
           name: "persist",
           description: new Command.Description(title: "Active/Désactive le système de persistance des placeables créés par DM"),
           execute: ExecutePlaceablePersistanceCommand
+        )
+      },
+      {
+        "hostile",
+        new Command(
+          name: "hostile",
+          description: new Command.Description(title: "Rend hostile tous les joueurs de la zone non compris dans votre groupe actuel."),
+          execute: ExecuteMakeAllPCInAreaHostileCommand
+        )
+      },
+      {
+        "publickey",
+        new Command(
+          name: "publickey",
+          description: new Command.Description(title: "Affiche votre clef publique, utilisable sur les API du module."),
+          execute: ExecuteGetPublicKeyCommand
+        )
+      },
+      {
+        "mute",
+        new Command(
+          name: "mute",
+          description: new Command.Description(title: "Active/Désactive la réception des MP. Peut-être utilisé comme commande ciblée."),
+          execute: ExecuteMutePMCommand
+        )
+      },
+      {
+        "listen",
+        new Command(
+          name: "listen",
+          description: new Command.Description(title: "Commande DM : Active/Désactive le suivi de conversation."),
+          execute: ExecuteListenCommand
         )
       },
       {

@@ -26,6 +26,7 @@ namespace NWN.Systems
       }
 
       public Dictionary<uint, Player> Listened = new Dictionary<uint, Player>();
+      public Dictionary<uint, Player> Blocked = new Dictionary<uint, Player>();
       public Dictionary<uint, DateTime> DisguiseDetectTimer = new Dictionary<uint, DateTime>();
       public Dictionary<uint, DateTime> PickpocketDetectTimer = new Dictionary<uint, DateTime>();
       public Dictionary<uint, DateTime> InviDetectTimer = new Dictionary<uint, DateTime>();
