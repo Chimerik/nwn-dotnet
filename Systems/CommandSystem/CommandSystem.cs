@@ -1,5 +1,7 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
+using System.Text.RegularExpressions;
 using NWN.NWNX;
 
 namespace NWN.Systems
@@ -21,7 +23,7 @@ namespace NWN.Systems
 
       Chat.SkipMessage();
 
-      string[] args = ctx.msg.Split(' ');
+      var args = __SplitMessage(ctx.msg);
 
       string commandName = args.FirstOrDefault().Substring(PREFIX.Length);
       args = args.Skip(1).ToArray();
@@ -57,6 +59,33 @@ namespace NWN.Systems
       {
         NWScript.SendMessageToPC(ctx.oSender, $"\nUnable to process command: {err.Message}");
       }
+    }
+
+    private static string[] __SplitMessage (string msg)
+    {
+      var rgx = new Regex(@"\\?.|^$");
+      var matches = rgx.Matches(msg);
+      var args = new List<string>() { "" };
+      var isStartQuote = false;
+      
+      foreach (var match in matches)
+      {
+        var x = match.ToString();
+        if (x == "\"")
+        {
+          isStartQuote = !isStartQuote;
+        }
+        else if (!isStartQuote && x == " ")
+        {
+          args.Add("");
+        }
+        else
+        {
+          args[args.Count - 1] += x.Replace("\\", "");
+        }
+      }
+
+      return args.ToArray();
     }
   }
 }
