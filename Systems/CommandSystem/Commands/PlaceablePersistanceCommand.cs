@@ -2,19 +2,19 @@
 {
   public static partial class CommandSystem
   {
-    private static void ExecutePlaceablePersistanceCommand(ChatSystem.Context chatContext)
+    private static void ExecutePlaceablePersistanceCommand(ChatSystem.Context ctx, Options.Result options)
     {
-      if (NWScript.GetIsDM(chatContext.oSender))
+      if (NWScript.GetIsDM(ctx.oSender))
       {
-        if (NWNX.Object.GetInt(chatContext.oSender, "_SPAWN_PERSIST") != 0)
+        if (NWNX.Object.GetInt(ctx.oSender, "_SPAWN_PERSIST") != 0)
         {
-          NWNX.Object.DeleteInt(chatContext.oSender, "_SPAWN_PERSIST");
-          NWScript.SendMessageToPC(chatContext.oSender, "Persistance des placeables créés par DM désactivée.");
+          NWNX.Object.DeleteInt(ctx.oSender, "_SPAWN_PERSIST");
+          NWScript.SendMessageToPC(ctx.oSender, "Persistance des placeables créés par DM désactivée.");
         }
         else
         {
-          NWNX.Object.SetInt(chatContext.oSender, "_SPAWN_PERSIST", 1, true);
-          NWScript.SendMessageToPC(chatContext.oSender, "Persistance des placeables créés par DM activée.");
+          NWNX.Object.SetInt(ctx.oSender, "_SPAWN_PERSIST", 1, true);
+          NWScript.SendMessageToPC(ctx.oSender, "Persistance des placeables créés par DM activée.");
         }
       }
     }

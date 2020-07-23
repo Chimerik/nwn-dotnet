@@ -60,7 +60,7 @@ namespace NWN.Systems
         ChatSystem.ProcessLanguageMiddleware
       }
     );
-    public static void ProcessWriteLogMiddleware(ChatSystem.Context chatContext, Action next)
+    public static void ProcessWriteLogMiddleware(ChatSystem.Context ctx, Action next)
     {
       string filename = String.Format("{0:yyyy-MM-dd}_{1}.txt", DateTime.Now, "chatlog");
       string path = Path.Combine(Environment.GetEnvironmentVariable("HOME") + "/ChatLog", filename);
@@ -68,37 +68,37 @@ namespace NWN.Systems
       using (System.IO.StreamWriter file =
       new System.IO.StreamWriter(path, true))
       {
-        if (!chatContext.oTarget.IsValid)
-          file.WriteLine(DateTime.Now.ToShortTimeString() + " - [" + chatContext.channel + " - " + NWScript.GetName(NWScript.GetArea(chatContext.oSender)) + "] " + NWScript.GetName(chatContext.oSender, true) + " : " + chatContext.msg);
+        if (!ctx.oTarget.IsValid)
+          file.WriteLine(DateTime.Now.ToShortTimeString() + " - [" + ctx.channel + " - " + NWScript.GetName(NWScript.GetArea(ctx.oSender)) + "] " + NWScript.GetName(ctx.oSender, true) + " : " + ctx.msg);
         else
-          file.WriteLine(DateTime.Now.ToShortTimeString() + " - [" + chatContext.channel + "] " + NWScript.GetName(chatContext.oSender) + " To : " + NWScript.GetName(chatContext.oTarget, true) + " : " + chatContext.msg);
+          file.WriteLine(DateTime.Now.ToShortTimeString() + " - [" + ctx.channel + "] " + NWScript.GetName(ctx.oSender) + " To : " + NWScript.GetName(ctx.oTarget, true) + " : " + ctx.msg);
       }
 
       next();
       return;
     }
-    public static void ProcessSpeakValueMiddleware(ChatSystem.Context chatContext, Action next)
+    public static void ProcessSpeakValueMiddleware(ChatSystem.Context ctx, Action next)
     {
-      if (NWScript.GetLocalString(chatContext.oSender, "_IS_LISTENING_VAR") == chatContext.oSender.Name)
+      if (NWScript.GetLocalString(ctx.oSender, "_IS_LISTENING_VAR") == ctx.oSender.Name)
       {
         NWNX.Chat.SkipMessage();
-        NWScript.SetLocalString(chatContext.oSender, "_LISTENING_VAR", chatContext.msg);
-        NWScript.DeleteLocalString(chatContext.oSender, "_IS_LISTENING_VAR");
+        NWScript.SetLocalString(ctx.oSender, "_LISTENING_VAR", ctx.msg);
+        NWScript.DeleteLocalString(ctx.oSender, "_IS_LISTENING_VAR");
         return;
       }
 
       next();
       return;
     }
-    public static void ProcessMutePMMiddleware(ChatSystem.Context chatContext, Action next)
+    public static void ProcessMutePMMiddleware(ChatSystem.Context ctx, Action next)
     {
-      if (chatContext.oTarget.IsValid)
+      if (ctx.oTarget.IsValid)
       {
-        if (NWNX.Object.GetInt(chatContext.oTarget, "__BLOCK_ALL_MP") > 0 || NWNX.Object.GetInt(chatContext.oTarget, "__BLOCK_" + NWScript.GetName(chatContext.oSender, true) + "_MP") > 0)
-          if (!NWScript.GetIsDM(chatContext.oTarget))
+        if (NWNX.Object.GetInt(ctx.oTarget, "__BLOCK_ALL_MP") > 0 || NWNX.Object.GetInt(ctx.oTarget, "__BLOCK_" + NWScript.GetName(ctx.oSender, true) + "_MP") > 0)
+          if (!NWScript.GetIsDM(ctx.oTarget))
           {
             NWNX.Chat.SkipMessage();
-            NWScript.SendMessageToPC(chatContext.oSender, NWScript.GetName(chatContext.oTarget) + " bloque actuellement la réception des mp. Votre message n'a pas pu être transmis");
+            NWScript.SendMessageToPC(ctx.oSender, NWScript.GetName(ctx.oTarget) + " bloque actuellement la réception des mp. Votre message n'a pas pu être transmis");
             return;
           }
       }
@@ -106,40 +106,40 @@ namespace NWN.Systems
       next();
       return;
     }
-    public static void ProcessPMMiddleware(ChatSystem.Context chatContext, Action next)
+    public static void ProcessPMMiddleware(ChatSystem.Context ctx, Action next)
     {
-      if(chatContext.oTarget.IsValid)
+      if(ctx.oTarget.IsValid)
       {
         NWNX.Chat.SkipMessage();
-        if (NWScript.GetIsObjectValid(NWScript.GetLocalObject(chatContext.oTarget, "_POSSESSING")))
-          NWNX.Chat.SendMessage((int)chatContext.channel, chatContext.msg, chatContext.oSender, NWScript.GetLocalObject(chatContext.oTarget, "_POSSESSING").AsObject());
+        if (NWScript.GetIsObjectValid(NWScript.GetLocalObject(ctx.oTarget, "_POSSESSING")))
+          NWNX.Chat.SendMessage((int)ctx.channel, ctx.msg, ctx.oSender, NWScript.GetLocalObject(ctx.oTarget, "_POSSESSING").AsObject());
         else
-          NWNX.Chat.SendMessage((int)chatContext.channel, chatContext.msg, chatContext.oSender, chatContext.oTarget);
+          NWNX.Chat.SendMessage((int)ctx.channel, ctx.msg, ctx.oSender, ctx.oTarget);
         return;
       }
-      else if (chatContext.channel == NWNX.Enum.ChatChannel.PlayerTell || chatContext.channel == NWNX.Enum.ChatChannel.DMTell)
+      else if (ctx.channel == NWNX.Enum.ChatChannel.PlayerTell || ctx.channel == NWNX.Enum.ChatChannel.DMTell)
       {
         NWNX.Chat.SkipMessage();
-        NWScript.SendMessageToPC(chatContext.oSender, "La personne à laquelle vous tentez d'envoyer un message n'est plus connectée.");
+        NWScript.SendMessageToPC(ctx.oSender, "La personne à laquelle vous tentez d'envoyer un message n'est plus connectée.");
         return;
       }
 
       next();
       return;
     }
-    public static void ProcessDeadPlayerMiddleware(ChatSystem.Context chatContext, Action next)
+    public static void ProcessDeadPlayerMiddleware(ChatSystem.Context ctx, Action next)
     {
-      if (NWScript.GetIsDead(chatContext.oSender))
-        NWScript.SendMessageToPC(chatContext.oSender, "N'oubliez pas que vous êtes inconscient, vous ne pouvez pas parler, mais tout juste gémir et décrire votre état");
+      if (NWScript.GetIsDead(ctx.oSender))
+        NWScript.SendMessageToPC(ctx.oSender, "N'oubliez pas que vous êtes inconscient, vous ne pouvez pas parler, mais tout juste gémir et décrire votre état");
 
       next();
       return;
     }
 
-    public static void ProcessDMListenMiddleware(ChatSystem.Context chatContext, Action next)
+    public static void ProcessDMListenMiddleware(ChatSystem.Context ctx, Action next)
     {
       //SYSTEME DE RECOPIE DE CHAT POUR LES DMS
-      if (chatContext.channel == NWNX.Enum.ChatChannel.PlayerTalk || chatContext.channel == NWNX.Enum.ChatChannel.PlayerWhisper)
+      if (ctx.channel == NWNX.Enum.ChatChannel.PlayerTalk || ctx.channel == NWNX.Enum.ChatChannel.PlayerWhisper)
       {
         var oInviSender = NWScript.GetLocalObject(NWScript.GetModule(), "_INVISIBLE_SENDER"); // TODO : créer un _INVISIBLE_SENDER dans le module
         foreach (KeyValuePair<uint, PlayerSystem.Player> PlayerListEntry in PlayerSystem.Players)
@@ -147,16 +147,16 @@ namespace NWN.Systems
           PlayerSystem.Player oDM = PlayerListEntry.Value;
           if (NWScript.GetIsDM(oDM))
           {
-            if (oDM.Listened.ContainsKey(chatContext.oSender))
+            if (oDM.Listened.ContainsKey(ctx.oSender))
             {
-              if ((NWScript.GetArea(chatContext.oSender) != NWScript.GetArea(oDM)) || NWScript.GetDistanceBetween(oDM, chatContext.oSender) > NWNX.Chat.GetChatHearingDistance(oDM, chatContext.channel))
+              if ((NWScript.GetArea(ctx.oSender) != NWScript.GetArea(oDM)) || NWScript.GetDistanceBetween(oDM, ctx.oSender) > NWNX.Chat.GetChatHearingDistance(oDM, ctx.channel))
               {
-                NWScript.SetName(oInviSender, NWScript.GetName(chatContext.oSender));
+                NWScript.SetName(oInviSender, NWScript.GetName(ctx.oSender));
                 var oPossessed = NWScript.GetLocalObject(oDM, "_POSSESSING");
                 if (!NWScript.GetIsObjectValid(oPossessed))
-                    NWNX.Chat.SendMessage((int)NWNX.Enum.ChatChannel.PlayerTell, "[COPIE - " + NWScript.GetName(NWScript.GetArea(chatContext.oSender)) + "] " + chatContext.msg, oInviSender.AsObject(), oDM);
+                    NWNX.Chat.SendMessage((int)NWNX.Enum.ChatChannel.PlayerTell, "[COPIE - " + NWScript.GetName(NWScript.GetArea(ctx.oSender)) + "] " + ctx.msg, oInviSender.AsObject(), oDM);
                 else
-                  NWNX.Chat.SendMessage((int)NWNX.Enum.ChatChannel.PlayerTell, "[COPIE - " + NWScript.GetName(NWScript.GetArea(chatContext.oSender)) + "] " + chatContext.msg, oInviSender.AsObject(), oPossessed.AsObject());
+                  NWNX.Chat.SendMessage((int)NWNX.Enum.ChatChannel.PlayerTell, "[COPIE - " + NWScript.GetName(NWScript.GetArea(ctx.oSender)) + "] " + ctx.msg, oInviSender.AsObject(), oPossessed.AsObject());
               }
             }
           }
@@ -166,20 +166,20 @@ namespace NWN.Systems
       next();
       return;
     }
-    public static void ProcessLanguageMiddleware(ChatSystem.Context chatContext, Action next)
+    public static void ProcessLanguageMiddleware(ChatSystem.Context ctx, Action next)
     {
       // SYSTEME DE LANGUE
-      int iLangueActive = NWScript.GetLocalInt(chatContext.oSender, "_LANGUE_ACTIVE");
+      int iLangueActive = NWScript.GetLocalInt(ctx.oSender, "_LANGUE_ACTIVE");
 
-      if (iLangueActive != 0 && (chatContext.channel == NWNX.Enum.ChatChannel.PlayerTalk || chatContext.channel == NWNX.Enum.ChatChannel.PlayerWhisper || chatContext.channel == NWNX.Enum.ChatChannel.DMTalk || chatContext.channel == NWNX.Enum.ChatChannel.DMWhisper))
+      if (iLangueActive != 0 && (ctx.channel == NWNX.Enum.ChatChannel.PlayerTalk || ctx.channel == NWNX.Enum.ChatChannel.PlayerWhisper || ctx.channel == NWNX.Enum.ChatChannel.DMTalk || ctx.channel == NWNX.Enum.ChatChannel.DMWhisper))
       {
         string sLanguageName = NWScript.Get2DAString("feat", "FEAT", iLangueActive);
-        string sName = NWScript.GetLocalString(chatContext.oSender, "__DISGUISE_NAME");
-        if (sName == "") sName = NWScript.GetName(chatContext.oSender);
+        string sName = NWScript.GetLocalString(ctx.oSender, "__DISGUISE_NAME");
+        if (sName == "") sName = NWScript.GetName(ctx.oSender);
 
         foreach (KeyValuePair<uint, PlayerSystem.Player> PlayerListEntry in PlayerSystem.Players)
         {
-          if ((uint)chatContext.oSender != PlayerListEntry.Key && (uint)chatContext.oSender != NWScript.GetLocalObject(PlayerListEntry.Key, "_POSSESSING"))
+          if ((uint)ctx.oSender != PlayerListEntry.Key && (uint)ctx.oSender != NWScript.GetLocalObject(PlayerListEntry.Key, "_POSSESSING"))
           {
             uint oEavesdrop;
 
@@ -188,26 +188,26 @@ namespace NWN.Systems
             else
               oEavesdrop = PlayerListEntry.Key;
 
-            if ((NWScript.GetArea(chatContext.oSender) == NWScript.GetArea(oEavesdrop)) && (NWScript.GetDistanceBetween(oEavesdrop, chatContext.oSender) < NWNX.Chat.GetChatHearingDistance(oEavesdrop.AsObject(), chatContext.channel)))
+            if ((NWScript.GetArea(ctx.oSender) == NWScript.GetArea(oEavesdrop)) && (NWScript.GetDistanceBetween(oEavesdrop, ctx.oSender) < NWNX.Chat.GetChatHearingDistance(oEavesdrop.AsObject(), ctx.channel)))
             {
               if (NWScript.GetHasFeat(iLangueActive, oEavesdrop) || NWScript.GetIsDM(PlayerListEntry.Key) || NWScript.GetIsDMPossessed(oEavesdrop))
               {
                 NWNX.Chat.SkipMessage();
-                NWNX.Chat.SendMessage((int)chatContext.channel, "[" + sLanguageName + "] " + chatContext.msg, chatContext.oSender, oEavesdrop.AsObject());
-                NWScript.SendMessageToPC(oEavesdrop, sName + " : [" + sLanguageName + "] " + Languages.GetLangueStringConvertedHRPProtection(chatContext.msg, iLangueActive));
+                NWNX.Chat.SendMessage((int)ctx.channel, "[" + sLanguageName + "] " + ctx.msg, ctx.oSender, oEavesdrop.AsObject());
+                NWScript.SendMessageToPC(oEavesdrop, sName + " : [" + sLanguageName + "] " + Languages.GetLangueStringConvertedHRPProtection(ctx.msg, iLangueActive));
               }
               else
               {
                 NWNX.Chat.SkipMessage();
-                NWNX.Chat.SendMessage((int)chatContext.channel, Languages.GetLangueStringConvertedHRPProtection(chatContext.msg, iLangueActive), chatContext.oSender, oEavesdrop.AsObject());
+                NWNX.Chat.SendMessage((int)ctx.channel, Languages.GetLangueStringConvertedHRPProtection(ctx.msg, iLangueActive), ctx.oSender, oEavesdrop.AsObject());
               }
             }
           }
         }
 
         NWNX.Chat.SkipMessage();
-        NWNX.Chat.SendMessage((int)chatContext.channel, "[" + sLanguageName + "] " + chatContext.msg, chatContext.oSender, chatContext.oSender);
-        NWScript.SendMessageToPC(chatContext.oSender, sName + " : [" + sLanguageName + "] " + Languages.GetLangueStringConvertedHRPProtection(chatContext.msg, iLangueActive));
+        NWNX.Chat.SendMessage((int)ctx.channel, "[" + sLanguageName + "] " + ctx.msg, ctx.oSender, ctx.oSender);
+        NWScript.SendMessageToPC(ctx.oSender, sName + " : [" + sLanguageName + "] " + Languages.GetLangueStringConvertedHRPProtection(ctx.msg, iLangueActive));
         return;
       }
 

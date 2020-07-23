@@ -9,8 +9,25 @@ namespace NWN.Systems
       {
         "help", new Command(
           name: "help",
-          description: new Command.Description(title: "Display the list of all available commands."),
-          execute: ExecuteHelpCommand
+          description: new Command.Description(
+            title: "Display the list of all available commands or a full description of the provided command.",
+            examples: new string[]
+            {
+              "",
+              "help"
+            }
+          ),
+          execute: ExecuteHelpCommand,
+          options: new Options(
+            positional: new List<Option>()
+            {
+              new Option(
+                name: "command",
+                description: "Nom de la commande.",
+                defaultValue: null
+              )
+            }
+          )
         )
       },
       {
@@ -25,7 +42,7 @@ namespace NWN.Systems
         "walk",
         new Command(
           name: "walk",
-          description: new Command.Description(title: "todo"),
+          description: new Command.Description(title: "Active/Désactive le mode marche."),
           execute: ExecuteWalkCommand
         )
       },
@@ -109,6 +126,65 @@ namespace NWN.Systems
           execute: ExecutePlaceablePersistanceCommand
         )
       },
+      {
+        "hostile",
+        new Command(
+          name: "hostile",
+          description: new Command.Description(title: "Rend hostile tous les joueurs de la zone non compris dans votre groupe actuel."),
+          execute: ExecuteMakeAllPCInAreaHostileCommand
+        )
+      },
+      {
+        "publickey",
+        new Command(
+          name: "publickey",
+          description: new Command.Description(title: "Affiche votre clef publique, utilisable sur les API du module."),
+          execute: ExecuteGetPublicKeyCommand
+        )
+      },
+      {
+        "mute",
+        new Command(
+          name: "mute",
+          description: new Command.Description(title: "Active/Désactive la réception des MP. Peut-être utilisé comme commande ciblée."),
+          execute: ExecuteMutePMCommand
+        )
+      },
+      {
+        "listen",
+        new Command(
+          name: "listen",
+          description: new Command.Description(title: "Commande DM : Active/Désactive le suivi de conversation."),
+          execute: ExecuteListenCommand
+        )
+      },
+      {
+        "menu",
+        new Command(
+          name: "menu",
+          description: new Command.Description(
+            title: "Affiche le menu permettant de configurer l'affichage du menu",
+            examples: new string[]
+            {
+              "", "--reset"
+            }
+          ),
+          execute: ExecuteMenuCommand,
+          options: new Options(
+            named: new Dictionary<string, Option>()
+            {
+              { "reset",
+                new Option(
+                  name: "reset",
+                  description: "Reset la configuration du menu a sa config par défaut.",
+                  defaultValue: false,
+                  type: OptionTypes.Bool
+                )
+              }
+            }
+          )
+        )
+      }
     };
   }
 }

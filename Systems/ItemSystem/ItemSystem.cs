@@ -9,59 +9,38 @@ namespace NWN.Systems
   {
     public static Dictionary<string, Func<uint, int>> Register = new Dictionary<string, Func<uint, int>>
     {
-            { "event_items", HandleItemEvents },
+            { "event_equip_items_before", HandleBeforeEquipItem },
+            { "event_unequip_items_before", HandleBeforeUnequipItem },
     };
-    private static int HandleItemEvents(uint oidSelf)
+    private static int HandleBeforeEquipItem(uint oidSelf)
     {
       Player player;
       if (Players.TryGetValue(oidSelf, out player))
       {
-        string current_event = NWNX.Events.GetCurrentEvent();
+        var oItem = NWNX.Object.StringToObject(NWNX.Events.GetEventData("ITEM"));
+        int iSlot = int.Parse(NWNX.Events.GetEventData("SLOT"));
+        NWItem oUnequip = NWScript.GetItemInSlot((InventorySlot)iSlot, player).AsItem();
 
-        if (current_event == "NWNX_ON_INVENTORY_ADD_ITEM_AFTER")
+        if (oUnequip.IsValid && NWNX.Object.CheckFit(player, (int)oUnequip.BaseItemType) == 0)
         {
-          NWItem oAddedItem = NWNX.Object.StringToObject(NWNX.Events.GetEventData("ITEM")).AsItem();
-
-          Utils.PickpocketableItems addedResult;
-          if (Enum.TryParse((oAddedItem.BaseItemType).ToString(), out addedResult))
-          {
-            player.NumPickpocketableItems++; // J'ai le droit de faire ça si NumPickpocketableItems est pas initialisé à 0 ?
-          }
+          player.SendMessage("Attention, votre inventaire est plein. Déséquipper cet objet risquerait de vous le faire perdre !");
+          NWNX.Events.SkipEvent();
           return Entrypoints.SCRIPT_HANDLED;
         }
-        else if (current_event == "NWNX_ON_INVENTORY_REMOVE_ITEM_AFTER")
+      }
+      return Entrypoints.SCRIPT_HANDLED;
+    }
+    private static int HandleBeforeUnequipItem(uint oidSelf)
+    {
+      Player player;
+      if (Players.TryGetValue(oidSelf, out player))
+      {
+        NWItem oItem = NWNX.Object.StringToObject(NWNX.Events.GetEventData("ITEM")).AsItem();
+        if (NWNX.Object.CheckFit(player, (int)oItem.BaseItemType) == 0)
         {
-          NWItem oRemovedItem = NWNX.Object.StringToObject(NWNX.Events.GetEventData("ITEM")).AsItem();
-
-          Utils.PickpocketableItems result;
-          if (Enum.TryParse((oRemovedItem.BaseItemType).ToString(), out result))
-          {
-            player.NumPickpocketableItems--; // J'ai le droit de faire ça si NumPickpocketableItems est pas initialisé à 0 ?
-          }
+          player.SendMessage("Attention, votre inventaire est plein. Déséquipper cet objet risquerait de vous le faire perdre !");
+          NWNX.Events.SkipEvent();
           return Entrypoints.SCRIPT_HANDLED;
-        }
-        else if (current_event == "NWNX_ON_ITEM_EQUIP_BEFORE")
-        {
-          var oItem = NWNX.Object.StringToObject(NWNX.Events.GetEventData("ITEM"));
-          int iSlot = int.Parse(NWNX.Events.GetEventData("SLOT"));
-          NWItem oUnequip = NWScript.GetItemInSlot((InventorySlot)iSlot, player).AsItem();
-
-          if (oUnequip.IsValid && NWNX.Object.CheckFit(player, (int)oUnequip.BaseItemType) == 0)
-          {
-            player.SendMessage("Attention, votre inventaire est plein. Déséquipper cet objet risquerait de vous le faire perdre !");
-            NWNX.Events.SkipEvent();
-            return Entrypoints.SCRIPT_HANDLED;
-          }
-        }
-        else if (current_event == "NWNX_ON_ITEM_UNEQUIP_BEFORE")
-        {
-          NWItem oItem = NWNX.Object.StringToObject(NWNX.Events.GetEventData("ITEM")).AsItem();
-          if (NWNX.Object.CheckFit(player, (int)oItem.BaseItemType) == 0)
-          {
-            player.SendMessage("Attention, votre inventaire est plein. Déséquipper cet objet risquerait de vous le faire perdre !");
-            NWNX.Events.SkipEvent();
-            return Entrypoints.SCRIPT_HANDLED;
-          }
         }
       }
       return Entrypoints.SCRIPT_HANDLED;

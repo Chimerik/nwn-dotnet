@@ -36,12 +36,12 @@ namespace NWN.ScriptHandlers
 
       Systems.ChatSystem.Init();
 
-      NWNX.Events.SubscribeEvent("NWNX_ON_CLIENT_DISCONNECT_BEFORE", "connexion");
+      NWNX.Events.SubscribeEvent("NWNX_ON_CLIENT_DISCONNECT_BEFORE", "player_exit_before");
 
-      NWNX.Events.SubscribeEvent("NWNX_ON_ADD_ASSOCIATE_AFTER", "summon");
-      NWNX.Events.ToggleDispatchListMode("NWNX_ON_ADD_ASSOCIATE_AFTER", "summon", 1);
-      NWNX.Events.SubscribeEvent("NWNX_ON_REMOVE_ASSOCIATE_AFTER", "summon");
-      NWNX.Events.ToggleDispatchListMode("NWNX_ON_REMOVE_ASSOCIATE_AFTER", "summon", 1);
+      NWNX.Events.SubscribeEvent("NWNX_ON_ADD_ASSOCIATE_AFTER", "summon_add_after");
+      NWNX.Events.ToggleDispatchListMode("NWNX_ON_ADD_ASSOCIATE_AFTER", "summon_add_after", 1);
+      NWNX.Events.SubscribeEvent("NWNX_ON_REMOVE_ASSOCIATE_AFTER", "summon_remove_after");
+      NWNX.Events.ToggleDispatchListMode("NWNX_ON_REMOVE_ASSOCIATE_AFTER", "summon_remove_after", 1);
 
       NWNX.Events.SubscribeEvent(NWNX.Events.ON_INPUT_KEYBOARD_BEFORE, Systems.PlayerSystem.ON_PC_KEYSTROKE_SCRIPT);
       NWNX.Events.ToggleDispatchListMode(NWNX.Events.ON_INPUT_KEYBOARD_BEFORE, Systems.PlayerSystem.ON_PC_KEYSTROKE_SCRIPT, 1);
@@ -55,32 +55,25 @@ namespace NWN.ScriptHandlers
       NWNX.Events.SubscribeEvent("NWNX_ON_CAST_SPELL_BEFORE", "event_spellcast");
       NWNX.Events.ToggleDispatchListMode("NWNX_ON_CAST_SPELL_BEFORE", "event_spellcast", 1);
 
-      NWNX.Events.SubscribeEvent("NWNX_ON_ITEM_EQUIP_BEFORE", "event_items");
-      NWNX.Events.ToggleDispatchListMode("NWNX_ON_ITEM_EQUIP_BEFORE", "event_items", 1);
-      NWNX.Events.SubscribeEvent("NWNX_ON_ITEM_UNEQUIP_BEFORE", "event_items");
-      NWNX.Events.ToggleDispatchListMode("NWNX_ON_ITEM_UNEQUIP_BEFORE", "event_items", 1);
+      NWNX.Events.SubscribeEvent("NWNX_ON_ITEM_EQUIP_BEFORE", "event_equip_items_before");
+      NWNX.Events.ToggleDispatchListMode("NWNX_ON_ITEM_EQUIP_BEFORE", "event_equip_items_before", 1);
+      NWNX.Events.SubscribeEvent("NWNX_ON_ITEM_UNEQUIP_BEFORE", "event_unequip_items_before");
+      NWNX.Events.ToggleDispatchListMode("NWNX_ON_ITEM_UNEQUIP_BEFORE", "event_unequip_items_before", 1);
 
-      NWNX.Events.SubscribeEvent("NWNX_ON_SERVER_CHARACTER_SAVE_BEFORE", "event_dm_actions");
-      NWNX.Events.ToggleDispatchListMode("NWNX_ON_SERVER_CHARACTER_SAVE_BEFORE", "event_dm_actions", 1);
-      NWNX.Events.SubscribeEvent("NWNX_ON_CLIENT_EXPORT_CHARACTER_BEFORE", "event_dm_actions");
-      NWNX.Events.ToggleDispatchListMode("NWNX_ON_CLIENT_EXPORT_CHARACTER_BEFORE", "event_dm_actions", 1);
+      NWNX.Events.SubscribeEvent("NWNX_ON_SERVER_CHARACTER_SAVE_BEFORE", "event_player_save_before");
+      NWNX.Events.SubscribeEvent("NWNX_ON_CLIENT_EXPORT_CHARACTER_BEFORE", "event_player_save_before");
 
-      NWNX.Events.SubscribeEvent("NWNX_ON_DM_POSSESS_FULL_POWER_BEFORE", "event_dm_actions");
-      NWNX.Events.ToggleDispatchListMode("NWNX_ON_DM_POSSESS_FULL_POWER_BEFORE", "event_dm_actions", 1);
-      NWNX.Events.SubscribeEvent("NWNX_ON_DM_POSSESS_BEFORE", "event_dm_actions");
-      NWNX.Events.ToggleDispatchListMode("NWNX_ON_DM_POSSESS_BEFORE", "event_dm_actions", 1);
-      NWNX.Events.SubscribeEvent("NWNX_ON_DM_SPAWN_OBJECT_AFTER", "event_dm_actions");
-      NWNX.Events.ToggleDispatchListMode("NWNX_ON_DM_SPAWN_OBJECT_AFTER", "event_dm_actions", 1);
+      NWNX.Events.SubscribeEvent("NWNX_ON_DM_POSSESS_FULL_POWER_BEFORE", "event_dm_possess_before");
+      NWNX.Events.SubscribeEvent("NWNX_ON_DM_POSSESS_BEFORE", "event_dm_possess_before");
+      NWNX.Events.SubscribeEvent("NWNX_ON_DM_SPAWN_OBJECT_AFTER", "event_dm_spawn_object_after");
 
       NWNX.Events.SubscribeEvent("NWNX_ON_COMBAT_MODE_OFF", "event_combatmode");
       NWNX.Events.ToggleDispatchListMode("NWNX_ON_COMBAT_MODE_OFF", "event_combatmode", 1);
       NWNX.Events.SubscribeEvent("NWNX_ON_USE_SKILL_BEFORE", "event_skillused");
       NWNX.Events.ToggleDispatchListMode("NWNX_ON_USE_SKILL_BEFORE", "event_skillused", 1);
 
-      NWNX.Events.SubscribeEvent("NWNX_ON_INVENTORY_ADD_ITEM_AFTER", "event_items");
-      NWNX.Events.ToggleDispatchListMode("NWNX_ON_INVENTORY_ADD_ITEM_AFTER", "event_itemsevent_items", 1);
-      NWNX.Events.SubscribeEvent("NWNX_ON_INVENTORY_REMOVE_ITEM_AFTER", "event_items");
-      NWNX.Events.ToggleDispatchListMode("NWNX_ON_INVENTORY_REMOVE_ITEM_AFTER", "event_items", 1);
+      NWNX.Events.SubscribeEvent("NWNX_ON_DO_LISTEN_DETECTION_AFTER", "event_detection_after");
+      NWNX.Events.ToggleDispatchListMode("NWNX_ON_DO_LISTEN_DETECTION_AFTER", "event_detection_after", 1);
 
       NWNX.Events.SubscribeEvent("NWNX_ON_INPUT_ATTACK_OBJECT_BEFORE", "event_auto_spell");
       NWNX.Events.ToggleDispatchListMode("NWNX_ON_INPUT_ATTACK_OBJECT_BEFORE", "event_auto_spell", 1);
@@ -103,7 +96,15 @@ namespace NWN.ScriptHandlers
 
       //Garden.Init();
 
+      NWScript.DelayCommand(600.0f, () => SaveServerVault());
+
       return Entrypoints.SCRIPT_NOT_HANDLED;
+    }
+
+    private static void SaveServerVault()
+    {
+      NWScript.ExportAllCharacters();
+      NWScript.DelayCommand(600.0f, () => SaveServerVault());
     }
 
     private static int HandleActivateItem(uint oidSelf)
