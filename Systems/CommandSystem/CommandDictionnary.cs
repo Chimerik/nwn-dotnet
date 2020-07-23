@@ -163,7 +163,7 @@ namespace NWN.Systems
         new Command(
           name: "test",
           description: new Command.Description(title: "Permet des tester des trucs en fon."),
-          execute: ExecuteListenCommand
+          execute: ExecuteTestCommand
         )
       },
       {
