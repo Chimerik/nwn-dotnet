@@ -1,7 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Drawing;
-using System.Runtime.CompilerServices;
 using NWN.Enums;
 using static NWN.Systems.PlayerSystem;
 
@@ -11,32 +8,42 @@ namespace NWN.Systems
   {
     public class Skill
     {
-      public readonly uint oid;
+      public readonly int oid;
 
-      private float AcquiredPoints;
+      public float AcquiredPoints { get; set; }
+      public string Nom { get; set; }
+      public string Description { get; set; }
+      public Boolean CurrentJob { get; set; }
       private int MaxLevel;
       private int CurrentLevel;
       private int multiplier;
-      private Ability PrimaryAbility;
-      private Ability SecondaryAbility;
+      private int PointsToNextLevel;
+      public readonly Ability PrimaryAbility;
+      public readonly Ability SecondaryAbility;
 
-      public Skill()
+      public Skill(int Id, float SP)
       {
-        this.AcquiredPoints = 0;
+        // TODO : charger ces données à partir des 2da
+        this.oid = Id;
+        this.Nom = "Placeholder Title";
+        this.Description = "Placeholder Description";
+        this.AcquiredPoints = SP;
         this.MaxLevel = 5;
         this.CurrentLevel = 1;
         this.multiplier = 1;
         this.PrimaryAbility = Ability.Strength;
         this.SecondaryAbility = Ability.Dexterity;
+        this.PointsToNextLevel = 250 * this.multiplier * (int)Math.Pow(Math.Sqrt(32), this.CurrentLevel - 1);
       }
-
-      public void CalculateTimeToNextLevel(Player oPC)
+      public double GetTimeToNextLevel(Player oPC)
       {
-        int PointsToNextLevel = 250 * this.multiplier * (int)Math.Pow(Math.Sqrt(32), this.CurrentLevel - 1);
-        float RemainingPoints = PointsToNextLevel - this.AcquiredPoints;
+        float RemainingPoints = this.PointsToNextLevel - this.AcquiredPoints;
         float PointsGenerationPerSecond = (float)(NWScript.GetAbilityScore(oPC, PrimaryAbility) + (NWScript.GetAbilityScore(oPC, SecondaryAbility) / 2)) / 60;
-        double RemainingSeconds = RemainingPoints / PointsGenerationPerSecond;
-        TimeSpan EndTime = DateTime.Now.AddSeconds(RemainingSeconds).Subtract(DateTime.Now);
+        return RemainingPoints / PointsGenerationPerSecond;
+      }
+      public string GetTimeToNextLevelAsString(Player oPC)
+      {
+        TimeSpan EndTime = DateTime.Now.AddSeconds(this.GetTimeToNextLevel(oPC)).Subtract(DateTime.Now);
         string Countdown = "";
         if (EndTime.Days > 0)
           Countdown += EndTime.Days + ":";
@@ -46,10 +53,15 @@ namespace NWN.Systems
           Countdown += EndTime.Minutes + ":";
         if (EndTime.Seconds > 0)
           Countdown += EndTime.Seconds;
-        NWScript.PostString(oPC, $"Apprentissage terminé dans {Countdown}", 80, 10, ScreenAnchor.TopLeft, 30.0f, unchecked((int)0xC0C0C0FF), unchecked((int)0xC0C0C0FF), 9, "fnt_galahad14");
 
-        this.AcquiredPoints += PointsGenerationPerSecond;
-        NWScript.DelayCommand(1.0f, () => CalculateTimeToNextLevel(oPC));
+        return Countdown;
+      }
+      public void DisplayTimeToNextLevel(Player oPC)
+      {
+        string Countdown = this.GetTimeToNextLevelAsString(oPC);
+
+        NWScript.PostString(oPC, $"Apprentissage terminé dans {Countdown}", 80, 10, ScreenAnchor.TopLeft, 1.0f, unchecked((int)0xC0C0C0FF), unchecked((int)0xC0C0C0FF), 9, "fnt_galahad14");
+        NWScript.DelayCommand(1.0f, () => DisplayTimeToNextLevel(oPC));
       }
     }
   }

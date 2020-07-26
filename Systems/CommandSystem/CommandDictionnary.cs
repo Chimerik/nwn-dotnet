@@ -162,8 +162,18 @@ namespace NWN.Systems
         "test",
         new Command(
           name: "test",
-          description: new Command.Description(title: "Permet des tester des trucs en fon."),
-          execute: ExecuteTestCommand
+          description: new Command.Description(title: "Permet des tester des trucs."),
+          execute: ExecuteTestCommand,
+          options: new Options(
+            positional: new List<Option>()
+            {
+              new Option(
+                name: "skill",
+                description: "Id du skill de test.",
+                defaultValue: ""
+              )
+            }
+          )
         )
       },
       {
@@ -188,7 +198,30 @@ namespace NWN.Systems
                   defaultValue: false,
                   type: OptionTypes.Bool
                 )
-              }
+              },
+            }
+          )
+        )
+      },
+      {
+        "skills",
+        new Command(
+          name: "skills",
+          description: new Command.Description(
+            title: "Affiche le menu permettant de sélectionner de nouveaux skills à entrainer."
+          ),
+          execute: ExecuteSkillMenuCommand,
+          options: new Options(
+            named: new Dictionary<string, Option>()
+            {
+              { "config",
+                new Option(
+                  name: "config",
+                  description: "Affiche la configuration du menu de skills.",
+                  defaultValue: false,
+                  type: OptionTypes.Bool
+                )
+              },
             }
           )
         )

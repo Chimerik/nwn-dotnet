@@ -130,6 +130,9 @@ namespace NWN.Systems
             NWScript.DelayCommand(1.0f, () => NWScript.AssignCommand(player, () => player.ClearAllActions(true)));
             NWScript.DelayCommand(1.1f, () => NWScript.AssignCommand(player, () => NWScript.JumpToLocation(Utils.StringToLocation(NWNX.Object.GetString(player, "_LOCATION")))));
           }
+
+          player.CalculateAcquiredSkillPoints();
+          NWNX.Object.SetString(player, "_DATE_LAST_SAVED", DateTime.Now.ToString(), true);
         }
 
         //Appliquer la distance de perception du chat en fonction de la compétence Listen du joueur
@@ -182,7 +185,11 @@ namespace NWN.Systems
               return Entrypoints.SCRIPT_HANDLED;
             }
           }
-        }
+
+          // TODO : probablement faire pour chaque joueur tous les check faim / soif / jobs etc ici
+          player.CalculateAcquiredSkillPoints();
+          NWNX.Object.SetString(player, "_DATE_LAST_SAVED", DateTime.Now.ToString(), true);
+      }
 
       return Entrypoints.SCRIPT_HANDLED;
     }

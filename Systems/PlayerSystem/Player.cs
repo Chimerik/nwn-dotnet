@@ -12,14 +12,14 @@ namespace NWN.Systems
       public readonly uint oid;
       public readonly Boolean IsNewPlayer;
       public virtual Boolean isConnected { get; set; }
-      public virtual uint AutoAttackTarget { get; set; }
-      public virtual DateTime LycanCurseTimer { get; set; }
+      public uint AutoAttackTarget { get; set; }
+      public DateTime LycanCurseTimer { get; set; }
       public Menu menu { get; }
 
       private uint blockingBoulder;
-      public virtual string DisguiseName { get; set; }
+      public string DisguiseName { get; set; }
       private List<uint> _SelectedObjectsList = new List<uint>();
-      public virtual List<uint> SelectedObjectsList
+      public List<uint> SelectedObjectsList
       {
         get => _SelectedObjectsList;
         // set => _SelectedObjectsList.Add(value);
@@ -32,12 +32,28 @@ namespace NWN.Systems
       public Dictionary<uint, DateTime> InviDetectTimer = new Dictionary<uint, DateTime>();
       public Dictionary<uint, DateTime> InviEffectDetectTimer = new Dictionary<uint, DateTime>();
       public Dictionary<uint, NWCreature> Summons = new Dictionary<uint, NWCreature>();
+      public Dictionary<int, SkillSystem.Skill> LearnableSkills = new Dictionary<int, SkillSystem.Skill>();
 
       public Player(uint nwobj) : base(nwobj)
       {
         this.oid = nwobj;
         this.menu = new PrivateMenu(this);
         //TODO : ajouter IsNewPlayer = résultat de la requête en BDD pour voir si on a déjà des infos sur lui ou pas !
+        
+        // TODO : charger la liste à partir de la BDD et l'état d'avancement des SP. Mettre en place le système d'apprentissage via livre
+        this.LearnableSkills.Add(1116, new SkillSystem.Skill(1116, NWNX.Object.GetFloat(this, "_JOB_SP_1116")));
+        this.LearnableSkills.Add(122, new SkillSystem.Skill(122, NWNX.Object.GetFloat(this, "_JOB_SP_122")));
+        this.LearnableSkills.Add(128, new SkillSystem.Skill(128, NWNX.Object.GetFloat(this, "_JOB_SP_128")));
+        this.LearnableSkills.Add(133, new SkillSystem.Skill(133, NWNX.Object.GetFloat(this, "_JOB_SP_133")));
+
+        if (NWNX.Object.GetInt(this, "_CURRENT_JOB") != 0) // probablement plutôt initialiser ça à partir de la BDD
+        {
+          this.LearnableSkills[NWNX.Object.GetInt(this, "_CURRENT_JOB")].CurrentJob = true;
+        }
+        else
+        {
+          this.SendMessage("Vous n'avez pas d'apprentissage en cours !");
+        }
       }
 
       public void EmitKeydown(KeydownEventArgs e)
@@ -103,6 +119,40 @@ namespace NWN.Systems
       public void BoulderUnblock()
       {
         NWScript.DestroyObject(blockingBoulder);
+      }
+      public void CalculateAcquiredSkillPoints()
+      {
+        SkillSystem.Skill skill;
+        if (this.LearnableSkills.TryGetValue(NWNX.Object.GetInt(this, "_CURRENT_JOB"), out skill))
+        {
+          var ElapsedMinutes = (float)(DateTime.Now - DateTime.Parse(NWNX.Object.GetString(this, "_DATE_LAST_SAVED"))).TotalMinutes;
+          skill.AcquiredPoints += (float)(NWScript.GetAbilityScore(this, skill.PrimaryAbility) + (NWScript.GetAbilityScore(this, skill.SecondaryAbility) / 2)) * ElapsedMinutes;
+          double RemainingTime = skill.GetTimeToNextLevel(this);
+          NWNX.Object.SetFloat(this, $"_JOB_SP_{skill.oid}", skill.AcquiredPoints, true);
+          if (RemainingTime < 0)
+          {
+            this.AcquireNewSkill(skill.oid);
+          }
+          else if (RemainingTime < 600)
+          {
+            NWScript.AssignCommand(this, () => NWScript.DelayCommand((float)RemainingTime, () => AcquireNewSkill(skill.oid)));
+          }
+        }
+      }
+      public void AcquireNewSkill(int skillId)
+      {
+        this.AddFeat((Feat)skillId);
+        this.LearnableSkills.Remove(skillId);
+        NWNX.Object.DeleteInt(this, "_CURRENT_JOB");
+        NWNX.Object.DeleteFloat(this, $"_JOB_SP_{skillId}");
+        NWScript.DelayCommand(5.0f, () => this.PlayNewSkillAcquiredEffects());
+      }
+
+      public void PlayNewSkillAcquiredEffects()
+      {
+        NWScript.PostString(this, $"Vous venez de terminer votre apprentissage !", 80, 10, ScreenAnchor.TopLeft, 5.0f, unchecked((int)0xC0C0C0FF), unchecked((int)0xC0C0C0FF), 9, "fnt_galahad14");
+        NWNX.Player.PlaySound(this, "gui_level_up", this);
+        NWNX.Player.ApplyInstantVisualEffectToObject(this, this, (int)Impact.SuperHeroism);
       }
     }
   }
