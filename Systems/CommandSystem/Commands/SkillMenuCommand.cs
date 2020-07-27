@@ -45,7 +45,7 @@ namespace NWN.Systems
         // TODO :  afficher le skill en cours en premier ?
 
         skill.GetTimeToNextLevel(player);
-        player.menu.choices.Add(($"{skill.Nom} - Temps restant : {skill.GetTimeToNextLevelAsString(player)}", () => __HandleSkillSelection(player, skill)));
+        player.menu.choices.Add(($"{skill.Nom} {skill.GetCurrentLevel()} - Temps restant : {skill.GetTimeToNextLevelAsString(player)}", () => __HandleSkillSelection(player, skill)));
           
         // TODO : Suivant, précédent et quitter
       }

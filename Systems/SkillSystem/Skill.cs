@@ -16,7 +16,7 @@ namespace NWN.Systems
       public string Nom { get; set; }
       public string Description { get; set; }
       public Boolean CurrentJob { get; set; }
-      private int MaxLevel;
+      public int MaxLevel { get; set; }
       private int CurrentLevel;
       private int multiplier;
       private int PointsToNextLevel;
@@ -84,16 +84,25 @@ namespace NWN.Systems
       }
       public int GetCurrentLevel()
       {
-        if (this.AcquiredPoints < 250 * this.multiplier * (int)Math.Pow(Math.Sqrt(32), 1 - 1))
+        if (this.IsAtMaxLevel())
+          return this.MaxLevel;
+        if (this.AcquiredPoints < 250 * this.multiplier * (int)Math.Pow(Math.Sqrt(32), 0))
           return 1;
-        if (this.AcquiredPoints < 250 * this.multiplier * (int)Math.Pow(Math.Sqrt(32), 2 - 1))
+        if (this.AcquiredPoints < 250 * this.multiplier * (int)Math.Pow(Math.Sqrt(32), 1))
           return 2;
-        if (this.AcquiredPoints < 250 * this.multiplier * (int)Math.Pow(Math.Sqrt(32), 1 - 1))
+        if (this.AcquiredPoints < 250 * this.multiplier * (int)Math.Pow(Math.Sqrt(32), 2))
           return 3;
-        if (this.AcquiredPoints < 250 * this.multiplier * (int)Math.Pow(Math.Sqrt(32), 4 - 1))
+        if (this.AcquiredPoints < 250 * this.multiplier * (int)Math.Pow(Math.Sqrt(32), 3))
           return 4;
 
         return 5;
+      }
+      public Boolean IsAtMaxLevel()
+      {
+        if (this.AcquiredPoints >= 250 * this.multiplier * (int)Math.Pow(Math.Sqrt(32), this.MaxLevel - 1))
+          return true;
+        else
+          return false;
       }
     }
   }

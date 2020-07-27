@@ -131,26 +131,31 @@ namespace NWN.Systems
           NWNX.Object.SetFloat(this, $"_JOB_SP_{skill.oid}", skill.AcquiredPoints, true);
           if (RemainingTime < 0)
           {
-            this.AcquireNewSkill(skill.oid);
+            this.LevelUpSkill(skill);
           }
           else if (RemainingTime < 600)
           {
-            NWScript.AssignCommand(this, () => NWScript.DelayCommand((float)RemainingTime, () => AcquireNewSkill(skill.oid)));
+            NWScript.AssignCommand(this, () => NWScript.DelayCommand((float)RemainingTime, () => LevelUpSkill(skill)));
           }
         }
       }
-      public void AcquireNewSkill(int skillId)
+      public void LevelUpSkill(SkillSystem.Skill skill)
       {
-        this.AddFeat((Feat)skillId);
-        this.LearnableSkills.Remove(skillId);
-        NWNX.Object.DeleteInt(this, "_CURRENT_JOB");
-        NWNX.Object.DeleteFloat(this, $"_JOB_SP_{skillId}");
-        NWScript.DelayCommand(5.0f, () => this.PlayNewSkillAcquiredEffects());
+        if (!this.HasFeat((Feat)skill.oid))
+        {
+          this.AddFeat((Feat)skill.oid);
+          NWNX.Object.DeleteInt(this, "_CURRENT_JOB");
+          //NWNX.Object.DeleteFloat(this, $"_JOB_SP_{skill.oid}");
+          NWScript.DelayCommand(5.0f, () => this.PlayNewSkillAcquiredEffects(skill));
+        }
+
+        if (skill.GetCurrentLevel() >= skill.MaxLevel)
+          this.LearnableSkills.Remove(skill.oid);
       }
 
-      public void PlayNewSkillAcquiredEffects()
+      public void PlayNewSkillAcquiredEffects(SkillSystem.Skill skill)
       {
-        NWScript.PostString(this, $"Vous venez de terminer votre apprentissage !", 80, 10, ScreenAnchor.TopLeft, 5.0f, unchecked((int)0xC0C0C0FF), unchecked((int)0xC0C0C0FF), 9, "fnt_galahad14");
+        NWScript.PostString(this, $"Votre apprentissage {skill.Nom} {skill.GetCurrentLevel()} est terminé !", 80, 10, ScreenAnchor.TopLeft, 5.0f, unchecked((int)0xC0C0C0FF), unchecked((int)0xC0C0C0FF), 9, "fnt_galahad14");
         NWNX.Player.PlaySound(this, "gui_level_up", this);
         NWNX.Player.ApplyInstantVisualEffectToObject(this, this, (int)Impact.SuperHeroism);
       }
