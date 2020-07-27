@@ -45,7 +45,7 @@ namespace NWN.Systems
         // TODO :  afficher le skill en cours en premier ?
 
         skill.GetTimeToNextLevel(player);
-        player.menu.choices.Add(($"{skill.Nom} {skill.GetCurrentLevel()} - Temps restant : {skill.GetTimeToNextLevelAsString(player)}", () => __HandleSkillSelection(player, skill)));
+        player.menu.choices.Add(($"{skill.Nom} {skill.CurrentLevel} - Temps restant : {skill.GetTimeToNextLevelAsString(player)}", () => __HandleSkillSelection(player, skill)));
           
         // TODO : Suivant, précédent et quitter
       }
@@ -58,13 +58,8 @@ namespace NWN.Systems
       if (NWNX.Object.GetInt(player, "_CURRENT_JOB") != 0)
       {
         SkillSystem.Skill CurrentSkill = player.LearnableSkills[NWNX.Object.GetInt(player, "_CURRENT_JOB")];
-        var ElapsedSeconds = (float)(DateTime.Now - DateTime.Parse(NWNX.Object.GetString(player, "_DATE_LAST_SAVED"))).TotalSeconds;
-        CurrentSkill.AcquiredPoints += (float)(NWScript.GetAbilityScore(player, CurrentSkill.PrimaryAbility) + (NWScript.GetAbilityScore(player, CurrentSkill.SecondaryAbility) / 2)) * ElapsedSeconds/60;
-        double RemainingTime = CurrentSkill.GetTimeToNextLevel(player);
-        NWNX.Object.SetFloat(player, $"_JOB_SP_{CurrentSkill.oid}", CurrentSkill.AcquiredPoints, true);
-        NWNX.Object.SetString(player, "_DATE_LAST_SAVED", DateTime.Now.ToString(), true);
 
-        if (RemainingTime < 600) // TODO : Pour l'instant, j'interdis la pause et le changement si le skill est censé se terminer dans le prochain intervalle. Mais y a ptet mieux à faire
+        if (CurrentSkill.GetTimeToNextLevel(player) < 600) // TODO : Pour l'instant, j'interdis la pause et le changement si le skill est censé se terminer dans le prochain intervalle. Mais y a ptet mieux à faire
         {
           player.SendMessage($"L'entrainement de {CurrentSkill.Nom} est sur le point de se terminer. Impossible de changer d'entrainement ou de le mettre en pause pour le moment.");
         }
@@ -90,6 +85,7 @@ namespace NWN.Systems
     }
     private static void AutoRefresh(PlayerSystem.Player player)
     {
+      player.RefreshAcquiredSkillPoints();
       __DrawSkillPage(player);
       if(player.Locals.Int.Get("_MENU_SKILL_REFRESH") != 0)
         NWScript.DelayCommand(1.0f, () => AutoRefresh(player)); // Pas bon du tout de faire comme ça. Il faudrait ne rafraichir que la ligne correspondant au job actif. C'est envisageable ça ?
