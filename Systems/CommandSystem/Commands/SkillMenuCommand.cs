@@ -17,8 +17,9 @@ namespace NWN.Systems
           __DrawSkillConfigPage(player);
         }
 
-        __DrawSkillPage(player);
-      }
+        player.Locals.Int.Set("_MENU_SKILL_REFRESH", 1);
+        AutoRefresh(player);
+       }
     }
 
     private static void __DrawSkillConfigPage(PlayerSystem.Player player)
@@ -48,36 +49,55 @@ namespace NWN.Systems
           
         // TODO : Suivant, précédent et quitter
       }
-      
-      player.menu.Draw();
-      NWScript.DelayCommand(1.0f, () => __DrawSkillPage(player)); // Pas bon du tout de faire comme ça. Il faudrait ne rafraichir que la ligne correspondant au job actif. C'est envisageable ça ?
-    }
-    private static void __HandleSkillSelection(PlayerSystem.Player player, SkillSystem.Skill skill)
-    {
-      var ElapsedMinutes = (float)(DateTime.Now - DateTime.Parse(NWNX.Object.GetString(player, "_DATE_LAST_SAVED"))).TotalMinutes;
-      skill.AcquiredPoints += (float)(NWScript.GetAbilityScore(player, skill.PrimaryAbility) + (NWScript.GetAbilityScore(player, skill.SecondaryAbility) / 2)) * ElapsedMinutes;
-      double RemainingTime = skill.GetTimeToNextLevel(player);
-      NWNX.Object.SetFloat(player, $"_JOB_SP_{skill.oid}", skill.AcquiredPoints, true);
-      NWNX.Object.SetString(player, "_DATE_LAST_SAVED", DateTime.Now.ToString(), true);
 
-      if (RemainingTime < 600) // TODO : Pour l'instant, j'interdis la pause et le changement si le skill est censé se terminer dans le prochain intervalle. Mais y a ptet mieux à faire
+      player.menu.choices.Add(("Quitter", () => __HandleClose(player)));
+      player.menu.Draw();
+    }
+    private static void __HandleSkillSelection(PlayerSystem.Player player, SkillSystem.Skill SelectedSkill)
+    {
+      if (NWNX.Object.GetInt(player, "_CURRENT_JOB") != 0)
       {
-        player.SendMessage($"L'entrainement de {skill.Nom} est sur le point de se terminer. Impossible de changer d'entrainement ou de le mettre en pause pour le moment.");
-      }
-      else if (skill.CurrentJob) // Job en cours sélectionné => mise en pause
-      {
-        skill.CurrentJob = false;
-        NWNX.Object.DeleteInt(player, "_CURRENT_JOB");
+        SkillSystem.Skill CurrentSkill = player.LearnableSkills[NWNX.Object.GetInt(player, "_CURRENT_JOB")];
+        var ElapsedSeconds = (float)(DateTime.Now - DateTime.Parse(NWNX.Object.GetString(player, "_DATE_LAST_SAVED"))).TotalSeconds;
+        CurrentSkill.AcquiredPoints += (float)(NWScript.GetAbilityScore(player, CurrentSkill.PrimaryAbility) + (NWScript.GetAbilityScore(player, CurrentSkill.SecondaryAbility) / 2)) * ElapsedSeconds/60;
+        double RemainingTime = CurrentSkill.GetTimeToNextLevel(player);
+        NWNX.Object.SetFloat(player, $"_JOB_SP_{CurrentSkill.oid}", CurrentSkill.AcquiredPoints, true);
+        NWNX.Object.SetString(player, "_DATE_LAST_SAVED", DateTime.Now.ToString(), true);
+
+        if (RemainingTime < 600) // TODO : Pour l'instant, j'interdis la pause et le changement si le skill est censé se terminer dans le prochain intervalle. Mais y a ptet mieux à faire
+        {
+          player.SendMessage($"L'entrainement de {CurrentSkill.Nom} est sur le point de se terminer. Impossible de changer d'entrainement ou de le mettre en pause pour le moment.");
+        }
+        else if (SelectedSkill.CurrentJob) // Job en cours sélectionné => mise en pause
+        {
+          SelectedSkill.CurrentJob = false;
+          NWNX.Object.DeleteInt(player, "_CURRENT_JOB");
+        }
+        else
+        {
+          CurrentSkill.CurrentJob = false;
+          SelectedSkill.CurrentJob = true;
+          NWNX.Object.SetInt(player, "_CURRENT_JOB", SelectedSkill.oid, true);
+        }
       }
       else
       {
-        if (NWNX.Object.GetInt(player, "_CURRENT_JOB") != 0)
-          player.LearnableSkills[NWNX.Object.GetInt(player, "_CURRENT_JOB")].CurrentJob = false;
-        skill.CurrentJob = true;
-        NWNX.Object.SetInt(player, "_CURRENT_JOB", skill.oid, true);
+        SelectedSkill.CurrentJob = true;
+        NWNX.Object.SetInt(player, "_CURRENT_JOB", SelectedSkill.oid, true);
       }
 
       __DrawSkillPage(player);
+    }
+    private static void AutoRefresh(PlayerSystem.Player player)
+    {
+      __DrawSkillPage(player);
+      if(player.Locals.Int.Get("_MENU_SKILL_REFRESH") != 0)
+        NWScript.DelayCommand(1.0f, () => AutoRefresh(player)); // Pas bon du tout de faire comme ça. Il faudrait ne rafraichir que la ligne correspondant au job actif. C'est envisageable ça ?
+    }
+    private static void __HandleClose(PlayerSystem.Player player)
+    {
+      player.Locals.Int.Delete("_MENU_SKILL_REFRESH");
+      player.menu.Close();
     }
   }
 }
