@@ -89,6 +89,7 @@ namespace NWN.Systems
         if (player.IsNewPlayer)
         {
           // TODO : création des infos du nouveau joueur en BDD
+          NWNX.Object.SetInt(player, "_BRP", 1, true);
         }
         else
         {

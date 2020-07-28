@@ -159,6 +159,32 @@ namespace NWN.Systems
         )
       },
       {
+        "brp",
+        new Command(
+          name: "bonus roleplay",
+          description: new Command.Description(title: "Commande DM : Modifie le bonus roleplay de la cible."),
+          execute: ExecuteSetRoleplayBonusCommand,
+          options: new Options(
+            positional: new List<Option>()
+            {
+              new Option(
+                name: "Bonus",
+                description: "Bonus, doit être compris entre 0 et et 4.",
+                defaultValue: ""
+              )
+            }
+          )
+        )
+      },
+      {
+        "commend",
+        new Command(
+          name: "commend",
+          description: new Command.Description(title: "Permet de recommander un joueur pour une augmentation de BRP. Disponible uniquement pour les joueurs de BRP 4."),
+          execute: ExecuteCommendCommand
+        )
+      },
+      {
         "test",
         new Command(
           name: "test",

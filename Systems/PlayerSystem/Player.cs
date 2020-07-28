@@ -129,6 +129,22 @@ namespace NWN.Systems
           var ElapsedMinutes = (float)(DateTime.Now - DateTime.Parse(NWNX.Object.GetString(this, "_DATE_LAST_SAVED"))).TotalMinutes;
           float SP = (float)(NWScript.GetAbilityScore(this, skill.PrimaryAbility) + (NWScript.GetAbilityScore(this, skill.SecondaryAbility) / 2)) * ElapsedMinutes;
 
+          switch (NWNX.Object.GetInt(this, "_BRP"))
+          {
+            case 0:
+              SP = SP * 80 / 100;
+              break;
+            case 1:
+              SP = SP * 90 / 100;
+              break;
+            case 3:
+              SP = SP * 110 / 100;
+              break;
+            case 4:
+              SP = SP * 120 / 100;
+              break;
+          }
+
           if (!this.isConnected)
             SP = SP * 60 / 100;
           else if (this.isAFK)
@@ -154,6 +170,22 @@ namespace NWN.Systems
         {
           var ElapsedSeconds = (float)(DateTime.Now - DateTime.Parse(NWNX.Object.GetString(this, "_DATE_LAST_SAVED"))).TotalSeconds;
           float SP = (float)(NWScript.GetAbilityScore(this, skill.PrimaryAbility) + (NWScript.GetAbilityScore(this, skill.SecondaryAbility) / 2)) * ElapsedSeconds / 60;
+
+          switch (NWNX.Object.GetInt(this, "_BRP"))
+          {
+            case 0:
+              SP = SP * 80 / 100;
+              break;
+            case 1:
+              SP = SP * 90 / 100;
+              break;
+            case 3:
+              SP = SP * 110 / 100;
+              break;
+            case 4:
+              SP = SP * 120 / 100;
+              break;
+          }
 
           if (this.isAFK)
             SP = SP * 80 / 100;
