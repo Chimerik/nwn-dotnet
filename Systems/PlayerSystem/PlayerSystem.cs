@@ -79,7 +79,6 @@ namespace NWN.Systems
       else
         player = Players[oPC];
 
-      player.isConnected = true;
       NWScript.SetEventScript(oPC, (int)EventScript.Creature_OnNotice, "on_perceived_pc");
 
       // TODO : Système de sauvegarde et de chargement de quickbar
@@ -138,6 +137,8 @@ namespace NWN.Systems
         //Appliquer la distance de perception du chat en fonction de la compétence Listen du joueur
         NWNX.Chat.SetChatHearingDistance(NWNX.Chat.GetChatHearingDistance(oPC.AsObject(), NWNX.Enum.ChatChannel.PlayerTalk) + NWScript.GetSkillRank(Skill.Listen, oPC) / 5, oPC.AsObject(), NWNX.Enum.ChatChannel.PlayerTalk);
         NWNX.Chat.SetChatHearingDistance(NWNX.Chat.GetChatHearingDistance(oPC.AsObject(), NWNX.Enum.ChatChannel.PlayerWhisper) + NWScript.GetSkillRank(Skill.Listen, oPC) / 10, oPC.AsObject(), NWNX.Enum.ChatChannel.PlayerWhisper);
+        player.isConnected = true;
+        player.isAFK = true;
       }
       return Entrypoints.SCRIPT_HANDLED;
     }
@@ -187,9 +188,19 @@ namespace NWN.Systems
           }
 
           // TODO : probablement faire pour chaque joueur tous les check faim / soif / jobs etc ici
+
+          // AFK detection
+          if(NWNX.Object.GetString(player, "_LOCATION") != Utils.LocationToString(player.Location))
+          {
+            NWNX.Object.SetString(player, "_LOCATION", Utils.LocationToString(player.Location), true);
+            player.isAFK = false;
+          }
+
           player.CalculateAcquiredSkillPoints();
           NWNX.Object.SetString(player, "_DATE_LAST_SAVED", DateTime.Now.ToString(), true);
-      }
+          NWNX.Object.SetInt(player, "_CURRENT_HP", player.CurrentHP, true);
+          player.isAFK = true;
+        }
 
       return Entrypoints.SCRIPT_HANDLED;
     }

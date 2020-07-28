@@ -55,6 +55,7 @@ namespace NWN.Systems
         ChatSystem.ProcessSpeakValueMiddleware,
         ChatSystem.ProcessMutePMMiddleware,
         ChatSystem.ProcessPMMiddleware,
+        ChatSystem.ProcessAFKDetectionMiddleware,
         ChatSystem.ProcessDeadPlayerMiddleware,
         ChatSystem.ProcessDMListenMiddleware,
         ChatSystem.ProcessLanguageMiddleware
@@ -122,6 +123,20 @@ namespace NWN.Systems
         NWNX.Chat.SkipMessage();
         NWScript.SendMessageToPC(ctx.oSender, "La personne à laquelle vous tentez d'envoyer un message n'est plus connectée.");
         return;
+      }
+
+      next();
+      return;
+    }
+    public static void ProcessAFKDetectionMiddleware(ChatSystem.Context ctx, Action next)
+    {
+      PlayerSystem.Player player;
+      if (PlayerSystem.Players.TryGetValue(ctx.oSender, out player))
+      {
+        if (ctx.channel == NWNX.Enum.ChatChannel.PlayerTalk || ctx.channel == NWNX.Enum.ChatChannel.PlayerWhisper)
+          if (!ctx.msg.Contains("(") && !ctx.msg.Contains(")"))
+            if (NWScript.GetDistanceBetween(ctx.oSender, NWScript.GetNearestCreature(1, 1, ctx.oSender)) < 35.0f)
+              player.isAFK = false;
       }
 
       next();

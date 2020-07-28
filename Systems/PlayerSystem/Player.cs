@@ -11,7 +11,8 @@ namespace NWN.Systems
     {
       public readonly uint oid;
       public readonly Boolean IsNewPlayer;
-      public virtual Boolean isConnected { get; set; }
+      public Boolean isConnected { get; set; }
+      public Boolean isAFK { get; set; }
       public uint AutoAttackTarget { get; set; }
       public DateTime LycanCurseTimer { get; set; }
       public Menu menu { get; }
@@ -126,7 +127,14 @@ namespace NWN.Systems
         if (this.LearnableSkills.TryGetValue(NWNX.Object.GetInt(this, "_CURRENT_JOB"), out skill))
         {
           var ElapsedMinutes = (float)(DateTime.Now - DateTime.Parse(NWNX.Object.GetString(this, "_DATE_LAST_SAVED"))).TotalMinutes;
-          skill.AcquiredPoints += (float)(NWScript.GetAbilityScore(this, skill.PrimaryAbility) + (NWScript.GetAbilityScore(this, skill.SecondaryAbility) / 2)) * ElapsedMinutes;
+          float SP = (float)(NWScript.GetAbilityScore(this, skill.PrimaryAbility) + (NWScript.GetAbilityScore(this, skill.SecondaryAbility) / 2)) * ElapsedMinutes;
+
+          if (!this.isConnected)
+            SP = SP * 60 / 100;
+          else if (this.isAFK)
+            SP = SP * 80 / 100;
+
+          skill.AcquiredPoints += SP;
           double RemainingTime = skill.GetTimeToNextLevel(this);
           NWNX.Object.SetFloat(this, $"_JOB_SP_{skill.oid}", skill.AcquiredPoints, true);
           if (RemainingTime < 0)
@@ -145,7 +153,13 @@ namespace NWN.Systems
         if (this.LearnableSkills.TryGetValue(NWNX.Object.GetInt(this, "_CURRENT_JOB"), out skill))
         {
           var ElapsedSeconds = (float)(DateTime.Now - DateTime.Parse(NWNX.Object.GetString(this, "_DATE_LAST_SAVED"))).TotalSeconds;
-          skill.AcquiredPoints += (float)(NWScript.GetAbilityScore(this, skill.PrimaryAbility) + (NWScript.GetAbilityScore(this, skill.SecondaryAbility) / 2)) * ElapsedSeconds / 60;
+          float SP = (float)(NWScript.GetAbilityScore(this, skill.PrimaryAbility) + (NWScript.GetAbilityScore(this, skill.SecondaryAbility) / 2)) * ElapsedSeconds / 60;
+
+          if (this.isAFK)
+            SP = SP * 80 / 100;
+
+          skill.AcquiredPoints += SP;
+
           double RemainingTime = skill.GetTimeToNextLevel(this);
           NWNX.Object.SetFloat(this, $"_JOB_SP_{skill.oid}", skill.AcquiredPoints, true);
           NWNX.Object.SetString(this, "_DATE_LAST_SAVED", DateTime.Now.ToString(), true);

@@ -85,6 +85,10 @@ namespace NWN.Systems
       {
         float RemainingPoints = this.PointsToNextLevel - this.AcquiredPoints;
         float PointsGenerationPerSecond = (float)(NWScript.GetAbilityScore(oPC, PrimaryAbility) + (NWScript.GetAbilityScore(oPC, SecondaryAbility) / 2)) / 60;
+        if(!oPC.isConnected)
+          PointsGenerationPerSecond = PointsGenerationPerSecond * 60 / 100;
+        else if (oPC.isAFK)
+          PointsGenerationPerSecond = PointsGenerationPerSecond * 80 / 100;
         return RemainingPoints / PointsGenerationPerSecond;
       }
       public string GetTimeToNextLevelAsString(Player oPC)
