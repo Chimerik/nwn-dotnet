@@ -13,7 +13,7 @@ namespace NWN.Systems
   {
     public static Dictionary<string, Func<uint, int>> Register = new Dictionary<string, Func<uint, int>>
     {
-            { "event_spellcast", SpellCast },
+            { "event_spellbroadcast_after", AfterSpellBroadcast },
             { "X0_S0_AcidSplash", CantripsScaler },
             { "NW_S0_Daze", CantripsScaler },
             { "X0_S0_ElecJolt", CantripsScaler },
@@ -22,6 +22,8 @@ namespace NWN.Systems
             { "NW_S0_RayFrost", CantripsScaler },
             { "NW_S0_Resis", CantripsScaler },
             { "NW_S0_Virtue", CantripsScaler },
+            {"nw_s0_raisdead", HandleRaiseDeadCast },
+            {"nw_s0_resserec", HandleRaiseDeadCast },
     };
     private static int CantripsScaler(uint oidSelf)
     {
@@ -212,7 +214,7 @@ namespace NWN.Systems
 
       return Entrypoints.SCRIPT_HANDLED;
     }
-    private static int SpellCast(uint oidSelf)
+    private static int AfterSpellBroadcast(uint oidSelf)
     {
       Player oPC;
       if (Players.TryGetValue(oidSelf, out oPC))
@@ -249,6 +251,43 @@ namespace NWN.Systems
       }
 
       return Entrypoints.SCRIPT_HANDLED;
+    }
+    private static int HandleRaiseDeadCast(uint oidSelf)
+    {
+      var oTarget = NWScript.GetSpellTargetObject().AsObject();
+      if(oTarget.Tag == "pccorpse")
+      {
+        int PcId = NWNX.Object.GetInt(oTarget, "_PC_ID");
+        PlayerSystem.Player oPC = GetPCById(PcId);
+
+        if (oPC != null && oPC.isConnected)
+        {
+          NWScript.AssignCommand(oPC, () => NWScript.JumpToLocation(NWScript.GetLocation(oTarget)));
+          if(NWScript.GetSpellId() == (int)Spell.RaiseDead)
+            oPC.CurrentHP = 1;
+        }
+        else
+        {
+          // TODO : Remplacer la location actuelle du PJ en BDD par celle de oTarget. Penser également à modifier la façon dont la location des PJ est sauvegardée pour passer par la BDD plutôt que par NWNX SetString
+          oidSelf.AsPlayer().SendMessage("[HRP] Le joueur que vous tentez de ramener n'est pas connecté. Celui-ci sera automatiquement ressucité à sa prochaine connexion.");
+        }
+
+        foreach(NWItem oItem in oTarget.InventoryItems)
+        {
+          if (oItem.Tag == "item_pccorpse")
+            oItem.Destroy();
+        }
+
+        oTarget.Destroy();
+        // TODO : Détruire l'objet en BDD (where PcId)
+
+        Effect eVis = NWScript.EffectVisualEffect((VisualEffect)Impact.RaiseDead);
+        NWScript.SignalEvent(oTarget, NWScript.EventSpellCastAt(oidSelf, Spell.RaiseDead, false));
+        NWScript.ApplyEffectAtLocation(DurationType.Instant, eVis, oTarget.Location);
+        return Entrypoints.SCRIPT_HANDLED;
+      }
+
+      return Entrypoints.SCRIPT_NOT_HANDLED;
     }
   }
 }

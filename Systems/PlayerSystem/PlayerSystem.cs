@@ -31,6 +31,8 @@ namespace NWN.Systems
             { "summon_add_after", HandleAfterAddSummon },
             { "summon_remove_after", HandleAfterRemoveSummon },
             { "event_detection_after", HandleAfterDetection },
+            { "on_pc_death", HandlePlayerDeath },
+            { "event_dm_jump_target_after", HandleAfterDMJumpTarget },
         };
 
     public static Dictionary<uint, Player> Players = new Dictionary<uint, Player>();
@@ -45,7 +47,7 @@ namespace NWN.Systems
       NWNX.Events.AddObjectToDispatchList("NWNX_ON_USE_FEAT_BEFORE", "event_feat_used", oPC);
       NWNX.Events.AddObjectToDispatchList("NWNX_ON_ADD_ASSOCIATE_AFTER", "summon_add_after", oPC);
       NWNX.Events.AddObjectToDispatchList("NWNX_ON_REMOVE_ASSOCIATE_AFTER", "summon_remove_after", oPC);
-      NWNX.Events.AddObjectToDispatchList("NWNX_ON_CAST_SPELL_BEFORE", "event_spellcast", oPC);
+      NWNX.Events.AddObjectToDispatchList("NWNX_ON_BROADCAST_CAST_SPELL_AFTER", "event_spellbroadcast_after", oPC);
       NWNX.Events.AddObjectToDispatchList("NWNX_ON_ITEM_EQUIP_BEFORE", "event_equip_items_before", oPC);
       NWNX.Events.AddObjectToDispatchList("NWNX_ON_ITEM_UNEQUIP_BEFORE", "event_unequip_items_before", oPC);
       NWNX.Events.AddObjectToDispatchList("NWNX_ON_COMBAT_MODE_OFF", "event_combatmode", oPC);
@@ -89,6 +91,7 @@ namespace NWN.Systems
         if (player.IsNewPlayer)
         {
           // TODO : création des infos du nouveau joueur en BDD
+          NWNX.Object.SetInt(player, "_PC_ID", 1, true); // TODO : enregistrer l'identifiant de BDD du pj sur le .bic du personnage au lieu du 1 par défaut des tests
           NWNX.Object.SetInt(player, "_BRP", 1, true);
         }
         else
@@ -717,6 +720,64 @@ namespace NWN.Systems
       }
 
       return Entrypoints.SCRIPT_HANDLED;
+    }
+    private static int HandlePlayerDeath(uint oidSelf)
+    {
+      Player player;
+      if (Players.TryGetValue(NWScript.GetLastPlayerDied(), out player))
+      {
+        player.SendMessage("Tout se brouille autour de vous. Avant de perdre connaissance, vous sentez comme un étrange maëlstrom vous aspirer.");
+
+        NWPlaceable oPCCorpse = NWScript.CreateObject(ObjectType.Placeable, "pccorpse", player.Location).AsPlaceable();
+        NWNX.Events.AddObjectToDispatchList("NWNX_ON_INVENTORY_REMOVE_ITEM_AFTER", "event_inventory_remove_item_after", oPCCorpse);
+        NWNX.Events.AddObjectToDispatchList("NWNX_ON_INVENTORY_ADD_ITEM_AFTER", "event_inventory_add_item_after", oPCCorpse);
+
+        int PlayerId = NWNX.Object.GetInt(player, "_PC_ID");
+        oPCCorpse.Name = $"Cadavre de {player.Name}";
+        oPCCorpse.Description = $"Cadavre de {player.Name}";
+        oPCCorpse.Locals.Int.Set("_PC_ID", PlayerId);
+
+        NWScript.SetLocalInt(NWScript.CreateItemOnObject("item_pccorpse", oPCCorpse), "PC_ID", PlayerId);
+
+        if (player.Gold > 0)
+          NWScript.CreateItemOnObject("nw_it_gold001", oPCCorpse, player.Gold); // TODO : penser à modifier la valeur row 76 of baseitems.2da afin de permettre à l'or de stack à plus de 50K unités
+
+        // TODO : Dropper toutes les ressources craft de l'inventaire du défunt
+
+        // TODO : Enregistrer l'objet serialized cadavre en BDD pour restauration après reboot + IdPJ + Location
+
+        NWScript.DelayCommand(5.0f, () => player.SendToLimbo());
+      }
+
+      return Entrypoints.SCRIPT_HANDLED;
+    }
+
+    private static int HandleAfterDMJumpTarget(uint oidSelf)
+    {
+      var oTarget = NWNX.Object.StringToObject(NWNX.Events.GetEventData("TARGET_1"));
+
+      Player player;
+      if (Players.TryGetValue(oTarget, out player))
+      {
+        if(player.Area.Tag == "Labrume")
+        {
+          player.DestroyCorpses();
+        }
+      }
+
+      return Entrypoints.SCRIPT_HANDLED;
+    }
+    public static PlayerSystem.Player GetPCById(int PcId)
+    {
+      foreach (KeyValuePair<uint, PlayerSystem.Player> PlayerListEntry in PlayerSystem.Players)
+      {
+        if(NWNX.Object.GetInt(PlayerListEntry.Key, "_PC_ID") == PcId)
+        {
+          return PlayerListEntry.Value;
+        }
+      }
+
+        return null;
     }
   }
 }
