@@ -100,6 +100,10 @@ namespace NWN.ScriptHandlers
       NWNX.Events.SubscribeEvent("NWNX_ON_EFFECT_REMOVED_AFTER", "event_effects");
       NWNX.Events.ToggleDispatchListMode("NWNX_ON_EFFECT_REMOVED_AFTER", "event_effects", 1);
 
+      NWNX.Events.SubscribeEvent("NWNX_ON_PARTY_ACCEPT_INVITATION_AFTER", "event_party_accept_after");
+      NWNX.Events.SubscribeEvent("NWNX_ON_PARTY_LEAVE_AFTER", "event_party_leave_after");
+      NWNX.Events.SubscribeEvent("NWNX_ON_PARTY_KICK_AFTER", "event_party_leave_after");
+
       NWNX.Events.SubscribeEvent("CDE_POTAGER", "event_potager");
 
       //Garden.Init();
