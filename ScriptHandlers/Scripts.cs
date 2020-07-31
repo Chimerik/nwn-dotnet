@@ -37,6 +37,7 @@ namespace NWN.ScriptHandlers
       Systems.ChatSystem.Init();
 
       NWNX.Events.SubscribeEvent("NWNX_ON_CLIENT_DISCONNECT_BEFORE", "player_exit_before");
+      NWNX.Events.ToggleDispatchListMode("NWNX_ON_CLIENT_DISCONNECT_BEFORE", "player_exit_before", 1);
 
       NWNX.Events.SubscribeEvent("NWNX_ON_ADD_ASSOCIATE_AFTER", "summon_add_after");
       NWNX.Events.ToggleDispatchListMode("NWNX_ON_ADD_ASSOCIATE_AFTER", "summon_add_after", 1);
@@ -101,8 +102,10 @@ namespace NWN.ScriptHandlers
       NWNX.Events.ToggleDispatchListMode("NWNX_ON_EFFECT_REMOVED_AFTER", "event_effects", 1);
 
       NWNX.Events.SubscribeEvent("NWNX_ON_PARTY_ACCEPT_INVITATION_AFTER", "event_party_accept_after");
+      NWNX.Events.SubscribeEvent("NWNX_ON_PARTY_LEAVE_BEFORE", "event_party_leave_before");
       NWNX.Events.SubscribeEvent("NWNX_ON_PARTY_LEAVE_AFTER", "event_party_leave_after");
-      NWNX.Events.SubscribeEvent("NWNX_ON_PARTY_KICK_AFTER", "event_party_leave_after");
+      NWNX.Events.SubscribeEvent("NWNX_ON_PARTY_KICK_BEFORE", "event_party_leave_before");
+      NWNX.Events.SubscribeEvent("NWNX_ON_PARTY_KICK_AFTER", "event_party_kick_after");
 
       NWNX.Events.SubscribeEvent("CDE_POTAGER", "event_potager");
 

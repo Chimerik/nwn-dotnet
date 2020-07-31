@@ -36,8 +36,10 @@ namespace NWN.Systems
             { "event_start_combat_after", HandleAfterStartCombat },
             { "event_party_accept_after", HandleAfterPartyAccept },
             { "event_party_leave_after", HandleAfterPartyLeave },
+            { "event_party_leave_before", HandleBeforePartyLeave },
+            { "event_party_kick_after", HandleAfterPartyKick },
         };
-
+    
     public static Dictionary<uint, Player> Players = new Dictionary<uint, Player>();
 
     private static int HandlePlayerConnect(uint oidSelf)
@@ -147,6 +149,8 @@ namespace NWN.Systems
         NWNX.Chat.SetChatHearingDistance(NWNX.Chat.GetChatHearingDistance(oPC.AsObject(), NWNX.Enum.ChatChannel.PlayerWhisper) + NWScript.GetSkillRank(Skill.Listen, oPC) / 10, oPC.AsObject(), NWNX.Enum.ChatChannel.PlayerWhisper);
         player.isConnected = true;
         player.isAFK = true;
+
+        NWNX.Events.AddObjectToDispatchList("NWNX_ON_CLIENT_DISCONNECT_BEFORE", "player_exit_before", oPC);
       }
       return Entrypoints.SCRIPT_HANDLED;
     }
@@ -277,6 +281,9 @@ namespace NWN.Systems
         //TODO : plutôt utiliser les fonctions sqlite de la prochaine MAJ ?
         NWNX.Object.SetInt(player, "_CURRENT_HP", player.CurrentHP, true);
         NWNX.Object.SetString(player, "_LOCATION", Utils.LocationToString(player.Location), true);
+
+        HandleBeforePartyLeave(oidSelf);
+        HandleAfterPartyLeave(oidSelf);
       }
 
       return Entrypoints.SCRIPT_HANDLED;
@@ -805,96 +812,51 @@ namespace NWN.Systems
     }
     private static int HandleAfterPartyAccept(uint oidSelf)
     {
-      int iPartySize = 0;
-      NWPlayer oPartyMember = NWScript.GetFirstFactionMember(oidSelf, true).AsPlayer();
-      while (oPartyMember.IsValid)
+      Player player;
+      if (Players.TryGetValue(oidSelf, out player))
       {
-        iPartySize++;
-        oPartyMember = NWScript.GetNextFactionMember(oidSelf, true).AsPlayer();
-      }
+        Effect eParty = player.GetPartySizeEffect();
 
-      Effect eParty = null;
+        // appliquer l'effet sur chaque membre du groupe
+        NWPlayer oPartyMember = NWScript.GetFirstFactionMember(oidSelf, true).AsPlayer();
+        while (oPartyMember.IsValid)
+        {
+          oPartyMember.RemoveTaggedEffect("PartyEffect");
+          if (eParty != null)
+            oPartyMember.ApplyEffect(DurationType.Permanent, eParty);
 
-      switch (iPartySize) // déterminer quel est l'effet de groupe à appliquer
-      {
-        case 1:
-          break;
-        case 2:
-          eParty = NWScript.TagEffect(NWScript.EffectACIncrease(1, Enums.Item.Property.ArmorClassModiferType.Dodge), "PartyEffect");
-          break;
-        case 3:
-          eParty = NWScript.EffectLinkEffects(NWScript.EffectACIncrease(1, Enums.Item.Property.ArmorClassModiferType.Dodge), NWScript.EffectAttackIncrease(1));
-          eParty = NWScript.TagEffect(eParty, "PartyEffect");
-          break;
-        case 4:
-          eParty = NWScript.EffectLinkEffects(NWScript.EffectACIncrease(1, Enums.Item.Property.ArmorClassModiferType.Dodge), NWScript.EffectAttackIncrease(1));
-          eParty = NWScript.EffectLinkEffects(NWScript.EffectDamageIncrease(1, DamageType.Bludgeoning), eParty);
-          eParty = NWScript.TagEffect(eParty, "PartyEffect");
-          break;
-        default:
-          eParty = NWScript.EffectLinkEffects(NWScript.EffectACIncrease(1, Enums.Item.Property.ArmorClassModiferType.Dodge), NWScript.EffectAttackIncrease(1));
-          eParty = NWScript.EffectLinkEffects(NWScript.EffectDamageIncrease(1, DamageType.Bludgeoning), eParty);
-          eParty = NWScript.TagEffect(eParty, "PartyEffect");
-          break;
-      }
-
-      // appliquer l'effet sur chaque membre du groupe
-      oPartyMember = NWScript.GetFirstFactionMember(oidSelf, true).AsPlayer();
-      while (oPartyMember.IsValid)
-      {
-        oPartyMember.RemoveTaggedEffect("PartyEffect");
-        if(eParty != null)
-          oPartyMember.ApplyEffect(DurationType.Permanent, eParty);
-
-        oPartyMember = NWScript.GetNextFactionMember(oPartyMember, true).AsPlayer();
-      }
+          oPartyMember = NWScript.GetNextFactionMember(oPartyMember, true).AsPlayer();
+        }
+      }   
 
       return Entrypoints.SCRIPT_HANDLED;
     }
     private static int HandleAfterPartyLeave(uint oidSelf)
     {
-      int iPartySize = 0;
-      NWPlayer oPartyMember = NWScript.GetFirstFactionMember(oidSelf, true).AsPlayer();
-      while (oPartyMember.IsValid)
+      oidSelf.AsPlayer().RemoveTaggedEffect("PartyEffect");
+      return Entrypoints.SCRIPT_HANDLED;
+    }
+    private static int HandleAfterPartyKick(uint oidSelf)
+    {
+      NWNX.Object.StringToObject(NWNX.Events.GetEventData("KICKED")).AsPlayer().RemoveTaggedEffect("PartyEffect");
+      return Entrypoints.SCRIPT_HANDLED;
+    }
+    private static int HandleBeforePartyLeave(uint oidSelf)
+    {
+      Player player;
+      if (Players.TryGetValue(oidSelf, out player))
       {
-        iPartySize++;
-        oPartyMember = NWScript.GetNextFactionMember(oidSelf, true).AsPlayer();
-      }
-      
-      Effect eParty = null;
+        Effect eParty = player.GetPartySizeEffect(-1);
+        // appliquer l'effet sur chaque membre du groupe
+        NWPlayer oPartyMember = NWScript.GetFirstFactionMember(oidSelf, true).AsPlayer();
+        while (oPartyMember.IsValid)
+        {
+          oPartyMember.RemoveTaggedEffect("PartyEffect");
+          if (eParty != null)
+            oPartyMember.ApplyEffect(DurationType.Permanent, eParty);
 
-      switch (iPartySize) // déterminer quel est l'effet de groupe à appliquer
-      {
-        case 1:
-          break;
-        case 2:
-          eParty = NWScript.TagEffect(NWScript.EffectACIncrease(1, Enums.Item.Property.ArmorClassModiferType.Dodge), "PartyEffect");
-          break;
-        case 3:
-          eParty = NWScript.EffectLinkEffects(NWScript.EffectACIncrease(1, Enums.Item.Property.ArmorClassModiferType.Dodge), NWScript.EffectAttackIncrease(1));
-          eParty = NWScript.TagEffect(eParty, "PartyEffect");
-          break;
-        case 4:
-          eParty = NWScript.EffectLinkEffects(NWScript.EffectACIncrease(1, Enums.Item.Property.ArmorClassModiferType.Dodge), NWScript.EffectAttackIncrease(1));
-          eParty = NWScript.EffectLinkEffects(NWScript.EffectDamageIncrease(1, DamageType.Bludgeoning), eParty);
-          eParty = NWScript.TagEffect(eParty, "PartyEffect");
-          break;
-        default:
-          eParty = NWScript.EffectLinkEffects(NWScript.EffectACIncrease(1, Enums.Item.Property.ArmorClassModiferType.Dodge), NWScript.EffectAttackIncrease(1));
-          eParty = NWScript.EffectLinkEffects(NWScript.EffectDamageIncrease(1, DamageType.Bludgeoning), eParty);
-          eParty = NWScript.TagEffect(eParty, "PartyEffect");
-          break;
-      }
-
-      // appliquer l'effet sur chaque membre du groupe
-      oPartyMember = NWScript.GetFirstFactionMember(oidSelf, true).AsPlayer();
-      while (oPartyMember.IsValid)
-      {
-        oPartyMember.RemoveTaggedEffect("PartyEffect");
-        if (eParty != null)
-          oPartyMember.ApplyEffect(DurationType.Permanent, eParty);
-
-        oPartyMember = NWScript.GetNextFactionMember(oPartyMember, true).AsPlayer();
+          oPartyMember = NWScript.GetNextFactionMember(oPartyMember, true).AsPlayer();
+        }
       }
 
       return Entrypoints.SCRIPT_HANDLED;
