@@ -76,7 +76,6 @@ namespace NWN.Systems
       }
 
       next();
-      return;
     }
     public static void ProcessSpeakValueMiddleware(ChatSystem.Context ctx, Action next)
     {
@@ -89,7 +88,6 @@ namespace NWN.Systems
       }
 
       next();
-      return;
     }
     public static void ProcessMutePMMiddleware(ChatSystem.Context ctx, Action next)
     {
@@ -105,7 +103,6 @@ namespace NWN.Systems
       }
 
       next();
-      return;
     }
     public static void ProcessPMMiddleware(ChatSystem.Context ctx, Action next)
     {
@@ -126,7 +123,6 @@ namespace NWN.Systems
       }
 
       next();
-      return;
     }
     public static void ProcessAFKDetectionMiddleware(ChatSystem.Context ctx, Action next)
     {
@@ -140,7 +136,6 @@ namespace NWN.Systems
       }
 
       next();
-      return;
     }
     public static void ProcessDeadPlayerMiddleware(ChatSystem.Context ctx, Action next)
     {
@@ -148,7 +143,6 @@ namespace NWN.Systems
         NWScript.SendMessageToPC(ctx.oSender, "N'oubliez pas que vous êtes inconscient, vous ne pouvez pas parler, mais tout juste gémir et décrire votre état");
 
       next();
-      return;
     }
 
     public static void ProcessDMListenMiddleware(ChatSystem.Context ctx, Action next)
@@ -179,7 +173,6 @@ namespace NWN.Systems
       }
 
       next();
-      return;
     }
     public static void ProcessLanguageMiddleware(ChatSystem.Context ctx, Action next)
     {
@@ -227,7 +220,6 @@ namespace NWN.Systems
       }
 
       next();
-      return;
     }
   }
 }
