@@ -13,12 +13,12 @@ namespace NWN.Systems
       public readonly int oid;
 
       public float AcquiredPoints { get; set; }
-      public string Nom { get; set; }
+      public string Name { get; set; }
       public string Description { get; set; }
       public Boolean CurrentJob { get; set; }
       public int MaxLevel { get; set; }
       public int CurrentLevel { get; set; }
-      private int multiplier;
+      private int Multiplier;
       private int PointsToNextLevel;
       public readonly Ability PrimaryAbility;
       public readonly Ability SecondaryAbility;
@@ -32,9 +32,9 @@ namespace NWN.Systems
         // TODO : logs + message sur chan dm + message sur discord en cas de valeur non configurée
 
         if (int.TryParse(NWScript.Get2DAString("feat", "FEAT", Id), out value))
-          this.Nom = NWScript.GetStringByStrRef(value);
+          this.Name = NWScript.GetStringByStrRef(value);
         else
-          this.Nom = "Nom non disponible";
+          this.Name = "Nom non disponible";
 
         if (int.TryParse(NWScript.Get2DAString("feat", "DESCRIPTION", Id), out value))
           this.Description = NWScript.GetStringByStrRef(value);
@@ -47,9 +47,9 @@ namespace NWN.Systems
           this.MaxLevel = 1;
 
         if (int.TryParse(NWScript.Get2DAString("feat", "CRValue", Id), out value))
-          this.multiplier = value;
+          this.Multiplier = value;
         else
-          this.multiplier = 1;
+          this.Multiplier = 1;
 
         Dictionary<int, int> iSkillAbilities = new Dictionary<int, int>();
         
@@ -79,7 +79,7 @@ namespace NWN.Systems
           this.SecondaryAbility = Ability.Wisdom;
 
         this.CurrentLevel = this.GetCurrentLevel();
-        this.PointsToNextLevel = 250 * this.multiplier * (int)Math.Pow(Math.Sqrt(32), this.CurrentLevel);
+        this.PointsToNextLevel = 250 * this.Multiplier * (int)Math.Pow(Math.Sqrt(32), this.CurrentLevel);
       }
       public double GetTimeToNextLevel(Player oPC)
       {
@@ -118,20 +118,20 @@ namespace NWN.Systems
       {
         if (this.IsAtMaxLevel())
           return this.MaxLevel;
-        if (this.AcquiredPoints < 250 * this.multiplier * (int)Math.Pow(Math.Sqrt(32), 0))
+        if (this.AcquiredPoints < 250 * this.Multiplier * (int)Math.Pow(Math.Sqrt(32), 0))
           return 0;
-        if (this.AcquiredPoints < 250 * this.multiplier * (int)Math.Pow(Math.Sqrt(32), 1))
+        if (this.AcquiredPoints < 250 * this.Multiplier * (int)Math.Pow(Math.Sqrt(32), 1))
           return 1;
-        if (this.AcquiredPoints < 250 * this.multiplier * (int)Math.Pow(Math.Sqrt(32), 2))
+        if (this.AcquiredPoints < 250 * this.Multiplier * (int)Math.Pow(Math.Sqrt(32), 2))
           return 2;
-        if (this.AcquiredPoints < 250 * this.multiplier * (int)Math.Pow(Math.Sqrt(32), 3))
+        if (this.AcquiredPoints < 250 * this.Multiplier * (int)Math.Pow(Math.Sqrt(32), 3))
           return 3;
 
         return 4;
       }
       public Boolean IsAtMaxLevel()
       {
-        if (this.AcquiredPoints >= 250 * this.multiplier * (int)Math.Pow(Math.Sqrt(32), this.MaxLevel))
+        if (this.AcquiredPoints >= 250 * this.Multiplier * (int)Math.Pow(Math.Sqrt(32), this.MaxLevel))
           return true;
         else
           return false;

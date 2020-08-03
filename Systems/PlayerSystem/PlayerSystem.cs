@@ -131,7 +131,7 @@ namespace NWN.Systems
             NWScript.DelayCommand(1.1f, () => NWScript.AssignCommand(player, () => NWScript.JumpToLocation(Utils.StringToLocation(NWNX.Object.GetString(player, "_LOCATION")))));
           }
 
-          player.CalculateAcquiredSkillPoints();
+          player.AcquireSkillPoints();
           NWNX.Object.SetString(player, "_DATE_LAST_SAVED", DateTime.Now.ToString(), true);
         }
 
@@ -197,7 +197,7 @@ namespace NWN.Systems
             player.isAFK = false;
           }
 
-          player.CalculateAcquiredSkillPoints();
+          player.AcquireSkillPoints();
           NWNX.Object.SetString(player, "_DATE_LAST_SAVED", DateTime.Now.ToString(), true);
           NWNX.Object.SetInt(player, "_CURRENT_HP", player.CurrentHP, true);
           player.isAFK = true;

@@ -129,10 +129,11 @@ namespace NWN.Systems
       PlayerSystem.Player player;
       if (PlayerSystem.Players.TryGetValue(ctx.oSender, out player))
       {
-        if (ctx.channel == NWNX.Enum.ChatChannel.PlayerTalk || ctx.channel == NWNX.Enum.ChatChannel.PlayerWhisper)
-          if (!ctx.msg.Contains("(") && !ctx.msg.Contains(")"))
-            if (NWScript.GetDistanceBetween(ctx.oSender, NWScript.GetNearestCreature(1, 1, ctx.oSender)) < 35.0f)
-              player.isAFK = false;
+        if(player.isAFK)
+          if (ctx.channel == NWNX.Enum.ChatChannel.PlayerTalk || ctx.channel == NWNX.Enum.ChatChannel.PlayerWhisper)
+            if (!ctx.msg.Contains("(") && !ctx.msg.Contains(")"))
+              if (NWScript.GetDistanceBetween(ctx.oSender, NWScript.GetNearestCreature(1, 1, ctx.oSender)) < 35.0f)
+                player.isAFK = false;
       }
 
       next();

@@ -121,36 +121,13 @@ namespace NWN.Systems
       {
         NWScript.DestroyObject(blockingBoulder);
       }
-      public void CalculateAcquiredSkillPoints()
+      public void AcquireSkillPoints()
       {
         SkillSystem.Skill skill;
         if (this.LearnableSkills.TryGetValue(NWNX.Object.GetInt(this, "_CURRENT_JOB"), out skill))
         {
-          var ElapsedMinutes = (float)(DateTime.Now - DateTime.Parse(NWNX.Object.GetString(this, "_DATE_LAST_SAVED"))).TotalMinutes;
-          float SP = (float)(NWScript.GetAbilityScore(this, skill.PrimaryAbility) + (NWScript.GetAbilityScore(this, skill.SecondaryAbility) / 2)) * ElapsedMinutes;
+          skill.AcquiredPoints += this.CalculateAcquiredSkillPoints(skill);
 
-          switch (NWNX.Object.GetInt(this, "_BRP"))
-          {
-            case 0:
-              SP = SP * 80 / 100;
-              break;
-            case 1:
-              SP = SP * 90 / 100;
-              break;
-            case 3:
-              SP = SP * 110 / 100;
-              break;
-            case 4:
-              SP = SP * 120 / 100;
-              break;
-          }
-
-          if (!this.isConnected)
-            SP = SP * 60 / 100;
-          else if (this.isAFK)
-            SP = SP * 80 / 100;
-
-          skill.AcquiredPoints += SP;
           double RemainingTime = skill.GetTimeToNextLevel(this);
           NWNX.Object.SetFloat(this, $"_JOB_SP_{skill.oid}", skill.AcquiredPoints, true);
           if (RemainingTime < 0)
@@ -168,29 +145,7 @@ namespace NWN.Systems
         SkillSystem.Skill skill;
         if (this.LearnableSkills.TryGetValue(NWNX.Object.GetInt(this, "_CURRENT_JOB"), out skill))
         {
-          var ElapsedSeconds = (float)(DateTime.Now - DateTime.Parse(NWNX.Object.GetString(this, "_DATE_LAST_SAVED"))).TotalSeconds;
-          float SP = (float)(NWScript.GetAbilityScore(this, skill.PrimaryAbility) + (NWScript.GetAbilityScore(this, skill.SecondaryAbility) / 2)) * ElapsedSeconds / 60;
-
-          switch (NWNX.Object.GetInt(this, "_BRP"))
-          {
-            case 0:
-              SP = SP * 80 / 100;
-              break;
-            case 1:
-              SP = SP * 90 / 100;
-              break;
-            case 3:
-              SP = SP * 110 / 100;
-              break;
-            case 4:
-              SP = SP * 120 / 100;
-              break;
-          }
-
-          if (this.isAFK)
-            SP = SP * 80 / 100;
-
-          skill.AcquiredPoints += SP;
+          skill.AcquiredPoints += this.CalculateAcquiredSkillPoints(skill);
 
           double RemainingTime = skill.GetTimeToNextLevel(this);
           NWNX.Object.SetFloat(this, $"_JOB_SP_{skill.oid}", skill.AcquiredPoints, true);
@@ -200,6 +155,35 @@ namespace NWN.Systems
         }
 
         return 0;
+      }
+
+      private float CalculateAcquiredSkillPoints(SkillSystem.Skill skill)
+      {
+        var ElapsedSeconds = (float)(DateTime.Now - DateTime.Parse(NWNX.Object.GetString(this, "_DATE_LAST_SAVED"))).TotalSeconds;
+        float SP = (float)(NWScript.GetAbilityScore(this, skill.PrimaryAbility) + (NWScript.GetAbilityScore(this, skill.SecondaryAbility) / 2)) * ElapsedSeconds / 60;
+
+        switch (NWNX.Object.GetInt(this, "_BRP"))
+        {
+          case 0:
+            SP = SP * 80 / 100;
+            break;
+          case 1:
+            SP = SP * 90 / 100;
+            break;
+          case 3:
+            SP = SP * 110 / 100;
+            break;
+          case 4:
+            SP = SP * 120 / 100;
+            break;
+        }
+
+        if (!this.isConnected)
+          SP = SP * 60 / 100;
+        else if (this.isAFK)
+          SP = SP * 80 / 100;
+
+        return SP;
       }
       public void LevelUpSkill(SkillSystem.Skill skill)
       {
@@ -218,7 +202,7 @@ namespace NWN.Systems
 
       public void PlayNewSkillAcquiredEffects(SkillSystem.Skill skill)
       {
-        NWScript.PostString(this, $"Votre apprentissage {skill.Nom} {skill.CurrentLevel} est terminé !", 80, 10, ScreenAnchor.TopLeft, 5.0f, unchecked((int)0xC0C0C0FF), unchecked((int)0xC0C0C0FF), 9, "fnt_galahad14");
+        NWScript.PostString(this, $"Votre apprentissage {skill.Name} {skill.CurrentLevel} est terminé !", 80, 10, ScreenAnchor.TopLeft, 5.0f, unchecked((int)0xC0C0C0FF), unchecked((int)0xC0C0C0FF), 9, "fnt_galahad14");
         NWNX.Player.PlaySound(this, "gui_level_up", this);
         NWNX.Player.ApplyInstantVisualEffectToObject(this, this, (int)Impact.SuperHeroism);
       }

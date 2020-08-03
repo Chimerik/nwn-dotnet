@@ -161,7 +161,7 @@ namespace NWN.Systems
       {
         "brp",
         new Command(
-          name: "bonus roleplay",
+          name: "brp",
           description: new Command.Description(title: "Commande DM : Modifie le bonus roleplay de la cible."),
           execute: ExecuteSetRoleplayBonusCommand,
           options: new Options(
