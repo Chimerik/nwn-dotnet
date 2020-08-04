@@ -52,8 +52,8 @@ namespace NWN.ScriptHandlers
       NWNX.Events.SubscribeEvent("NWNX_ON_INPUT_KEYBOARD_AFTER", "event_mv_plc");
       NWNX.Events.ToggleDispatchListMode("NWNX_ON_INPUT_KEYBOARD_AFTER", "event_mv_plc", 1);
 
-      NWNX.Events.SubscribeEvent("NWNX_ON_CAST_SPELL_BEFORE", "event_spellcast");
-      NWNX.Events.ToggleDispatchListMode("NWNX_ON_CAST_SPELL_BEFORE", "event_spellcast", 1);
+      NWNX.Events.SubscribeEvent("NWNX_ON_BROADCAST_CAST_SPELL_AFTER", "event_spellbroadcast_after");
+      NWNX.Events.ToggleDispatchListMode("NWNX_ON_BROADCAST_CAST_SPELL_AFTER", "event_spellbroadcast_after", 1);
 
       NWNX.Events.SubscribeEvent("NWNX_ON_ITEM_EQUIP_BEFORE", "event_equip_items_before");
       NWNX.Events.ToggleDispatchListMode("NWNX_ON_ITEM_EQUIP_BEFORE", "event_equip_items_before", 1);
@@ -66,6 +66,7 @@ namespace NWN.ScriptHandlers
       NWNX.Events.SubscribeEvent("NWNX_ON_DM_POSSESS_FULL_POWER_BEFORE", "event_dm_possess_before");
       NWNX.Events.SubscribeEvent("NWNX_ON_DM_POSSESS_BEFORE", "event_dm_possess_before");
       NWNX.Events.SubscribeEvent("NWNX_ON_DM_SPAWN_OBJECT_AFTER", "event_dm_spawn_object_after");
+      NWNX.Events.SubscribeEvent("NWNX_ON_DM_JUMP_TARGET_TO_POINT_AFTER", "event_dm_jump_target_after");
 
       NWNX.Events.SubscribeEvent("NWNX_ON_COMBAT_MODE_OFF", "event_combatmode");
       NWNX.Events.ToggleDispatchListMode("NWNX_ON_COMBAT_MODE_OFF", "event_combatmode", 1);
@@ -74,6 +75,11 @@ namespace NWN.ScriptHandlers
 
       NWNX.Events.SubscribeEvent("NWNX_ON_DO_LISTEN_DETECTION_AFTER", "event_detection_after");
       NWNX.Events.ToggleDispatchListMode("NWNX_ON_DO_LISTEN_DETECTION_AFTER", "event_detection_after", 1);
+
+      NWNX.Events.SubscribeEvent("NWNX_ON_INVENTORY_REMOVE_ITEM_AFTER", "event_inventory_remove_item_after");
+      NWNX.Events.ToggleDispatchListMode("NWNX_ON_INVENTORY_REMOVE_ITEM_AFTER", "event_inventory_remove_item_after", 1);
+      NWNX.Events.SubscribeEvent("NWNX_ON_INVENTORY_ADD_ITEM_AFTER", "event_inventory_add_item_after");
+      NWNX.Events.ToggleDispatchListMode("NWNX_ON_INVENTORY_ADD_ITEM_AFTER", "event_inventory_add_item_after", 1);
 
       NWNX.Events.SubscribeEvent("NWNX_ON_INPUT_ATTACK_OBJECT_BEFORE", "event_auto_spell");
       NWNX.Events.ToggleDispatchListMode("NWNX_ON_INPUT_ATTACK_OBJECT_BEFORE", "event_auto_spell", 1);
@@ -97,6 +103,8 @@ namespace NWN.ScriptHandlers
       //Garden.Init();
 
       NWScript.DelayCommand(600.0f, () => SaveServerVault());
+
+      // TODO : Restore Death corpses from DB
 
       return Entrypoints.SCRIPT_NOT_HANDLED;
     }
