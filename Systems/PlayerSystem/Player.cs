@@ -227,7 +227,7 @@ namespace NWN.Systems
       public void DestroyCorpses()
       {
         NWPlaceable oCorpse = NWScript.GetObjectByTag("pccorpse").AsPlaceable();
-        int i = 0;
+        int i = 1;
         int PcId = NWNX.Object.GetInt(this, "_PC_ID");
         while (oCorpse.IsValid)
         {
@@ -237,12 +237,11 @@ namespace NWN.Systems
             // TODO : supprimer l'objet serialized de la BDD where _PC_ID
             break;
           }
-          i++;
-          oCorpse = NWScript.GetObjectByTag("pccorpse", i).AsPlaceable();
+          oCorpse = NWScript.GetObjectByTag("pccorpse", i++).AsPlaceable();
         }
 
         NWItem oCorpseItem = NWScript.GetObjectByTag("item_pccorpse").AsItem();
-        i = 0;
+        i = 1;
         while (oCorpseItem.IsValid)
         {
           if (PcId == oCorpseItem.Locals.Int.Get("_PC_ID"))
@@ -250,8 +249,7 @@ namespace NWN.Systems
             oCorpseItem.Destroy();
             break;
           }
-          i++;
-          oCorpseItem = NWScript.GetObjectByTag("item_pccorpse", i).AsItem();
+          oCorpseItem = NWScript.GetObjectByTag("item_pccorpse", i++).AsItem();
         }
       }
     }
