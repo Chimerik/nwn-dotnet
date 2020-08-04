@@ -33,6 +33,7 @@ namespace NWN.Systems
             { "event_detection_after", HandleAfterDetection },
             { "on_pc_death", HandlePlayerDeath },
             { "event_dm_jump_target_after", HandleAfterDMJumpTarget },
+            { "event_start_combat_after", HandleAfterStartCombat },
         };
 
     public static Dictionary<uint, Player> Players = new Dictionary<uint, Player>();
@@ -53,6 +54,7 @@ namespace NWN.Systems
       NWNX.Events.AddObjectToDispatchList("NWNX_ON_COMBAT_MODE_OFF", "event_combatmode", oPC);
       NWNX.Events.AddObjectToDispatchList("NWNX_ON_USE_SKILL_BEFORE", "event_skillused", oPC);
       NWNX.Events.AddObjectToDispatchList("NWNX_ON_DO_LISTEN_DETECTION_AFTER", "event_detection_after", oPC);
+      NWNX.Events.AddObjectToDispatchList("NWNX_ON_START_COMBAT_ROUND_AFTER", "event_start_combat_after", oPC);
 
       //oPC.AsCreature().AddFeat(NWN.Enums.Feat.PlayerTool01);
 
@@ -785,6 +787,26 @@ namespace NWN.Systems
       }
 
         return null;
+    }
+    private static int HandleAfterStartCombat(uint oidSelf)
+    {
+      Player player;
+      if (Players.TryGetValue(oidSelf, out player))
+      {
+        NWCreature oTarget = NWNX.Object.StringToObject(NWNX.Events.GetEventData("TARGET_OBJECT_ID")).AsCreature();
+
+        if (Spells.GetHasEffect(NWScript.GetEffectType(NWScript.EffectCutsceneGhost()), player))
+          Spells.RemoveEffectOfType(NWScript.GetEffectType(NWScript.EffectCutsceneGhost()), player);          
+
+        if (oTarget.IsPC)
+        {
+          NWScript.SetPCDislike(player, oTarget);
+          if (Spells.GetHasEffect(NWScript.GetEffectType(NWScript.EffectCutsceneGhost()), oTarget))
+            Spells.RemoveEffectOfType(NWScript.GetEffectType(NWScript.EffectCutsceneGhost()), oTarget);
+        }
+      }
+
+      return Entrypoints.SCRIPT_HANDLED;
     }
   }
 }

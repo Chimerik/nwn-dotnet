@@ -68,6 +68,8 @@ namespace NWN.ScriptHandlers
       NWNX.Events.SubscribeEvent("NWNX_ON_DM_SPAWN_OBJECT_AFTER", "event_dm_spawn_object_after");
       NWNX.Events.SubscribeEvent("NWNX_ON_DM_JUMP_TARGET_TO_POINT_AFTER", "event_dm_jump_target_after");
 
+      NWNX.Events.SubscribeEvent("NWNX_ON_START_COMBAT_ROUND_AFTER", "event_start_combat_after");
+      NWNX.Events.ToggleDispatchListMode("NWNX_ON_START_COMBAT_ROUND_AFTER", "event_start_combat_after", 1);
       NWNX.Events.SubscribeEvent("NWNX_ON_COMBAT_MODE_OFF", "event_combatmode");
       NWNX.Events.ToggleDispatchListMode("NWNX_ON_COMBAT_MODE_OFF", "event_combatmode", 1);
       NWNX.Events.SubscribeEvent("NWNX_ON_USE_SKILL_BEFORE", "event_skillused");
