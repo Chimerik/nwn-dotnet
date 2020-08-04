@@ -185,6 +185,14 @@ namespace NWN.Systems
         )
       },
       {
+        "jobs",
+        new Command(
+          name: "jobs",
+          description: new Command.Description(title: "Permet d'afficher la liste et l'état des jobs en cours."),
+          execute: ExecuteJobsCommand
+        )
+      },
+      {
         "test",
         new Command(
           name: "test",

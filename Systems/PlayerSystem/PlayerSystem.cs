@@ -131,7 +131,14 @@ namespace NWN.Systems
             NWScript.DelayCommand(1.1f, () => NWScript.AssignCommand(player, () => NWScript.JumpToLocation(Utils.StringToLocation(NWNX.Object.GetString(player, "_LOCATION")))));
           }
 
-          player.AcquireSkillPoints();
+          if (NWNX.Object.GetInt(player, "_CURRENT_JOB") != 0) // probablement plutôt initialiser ça à partir de la BDD
+          {
+            player.LearnableSkills[NWNX.Object.GetInt(player, "_CURRENT_JOB")].CurrentJob = true;
+            player.AcquireSkillPoints();
+          }
+          else
+            NWScript.DelayCommand(10.0f, () => player.PlayNoCurrentTrainingEffects());
+
           NWNX.Object.SetString(player, "_DATE_LAST_SAVED", DateTime.Now.ToString(), true);
         }
 

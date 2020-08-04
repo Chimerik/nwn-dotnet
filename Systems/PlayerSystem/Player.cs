@@ -46,15 +46,6 @@ namespace NWN.Systems
         this.LearnableSkills.Add(122, new SkillSystem.Skill(122, NWNX.Object.GetFloat(this, "_JOB_SP_122")));
         this.LearnableSkills.Add(128, new SkillSystem.Skill(128, NWNX.Object.GetFloat(this, "_JOB_SP_128")));
         this.LearnableSkills.Add(133, new SkillSystem.Skill(133, NWNX.Object.GetFloat(this, "_JOB_SP_133")));
-
-        if (NWNX.Object.GetInt(this, "_CURRENT_JOB") != 0) // probablement plutôt initialiser ça à partir de la BDD
-        {
-          this.LearnableSkills[NWNX.Object.GetInt(this, "_CURRENT_JOB")].CurrentJob = true;
-        }
-        else
-        {
-          this.SendMessage("Vous n'avez pas d'apprentissage en cours !");
-        }
       }
 
       public void EmitKeydown(KeydownEventArgs e)
@@ -191,7 +182,7 @@ namespace NWN.Systems
         {
           this.AddFeat((Feat)skill.oid);
           NWNX.Object.DeleteInt(this, "_CURRENT_JOB");
-          NWScript.DelayCommand(5.0f, () => this.PlayNewSkillAcquiredEffects(skill));
+          NWScript.DelayCommand(10.0f, () => this.PlayNewSkillAcquiredEffects(skill)); // Décalage de 10 secondes pour être sur que le joueur a fini de charger la map à la reco
         }
 
         skill.CurrentLevel += 1;
@@ -204,7 +195,15 @@ namespace NWN.Systems
       {
         NWScript.PostString(this, $"Votre apprentissage {skill.Name} {skill.CurrentLevel} est terminé !", 80, 10, ScreenAnchor.TopLeft, 5.0f, unchecked((int)0xC0C0C0FF), unchecked((int)0xC0C0C0FF), 9, "fnt_galahad14");
         NWNX.Player.PlaySound(this, "gui_level_up", this);
-        NWNX.Player.ApplyInstantVisualEffectToObject(this, this, (int)Impact.SuperHeroism);
+        NWNX.Player.ApplyInstantVisualEffectToObject(this, this, (int)Impact.GlobeUse);
+      }
+
+      public void PlayNoCurrentTrainingEffects()
+      {
+        NWScript.PostString(this, $"Vous n'avez aucun apprentissage en cours !", 80, 10, ScreenAnchor.TopLeft, 5.0f, unchecked((int)0xC0C0C0FF), unchecked((int)0xC0C0C0FF), 9, "fnt_galahad14");
+        this.SendMessage("Vous n'avez aucun apprentissage en cours !");
+        NWNX.Player.PlaySound(this, "gui_dm_drop", this);
+        NWNX.Player.ApplyInstantVisualEffectToObject(this, this, (int)Impact.ReduceAbilityScore);
       }
     }
   }
