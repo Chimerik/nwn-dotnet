@@ -159,6 +159,58 @@ namespace NWN.Systems
         )
       },
       {
+        "brp",
+        new Command(
+          name: "brp",
+          description: new Command.Description(title: "Commande DM : Modifie le bonus roleplay de la cible."),
+          execute: ExecuteSetRoleplayBonusCommand,
+          options: new Options(
+            positional: new List<Option>()
+            {
+              new Option(
+                name: "Bonus",
+                description: "Bonus, doit être compris entre 0 et et 4.",
+                defaultValue: ""
+              )
+            }
+          )
+        )
+      },
+      {
+        "commend",
+        new Command(
+          name: "commend",
+          description: new Command.Description(title: "Permet de recommander un joueur pour une augmentation de BRP. Disponible uniquement pour les joueurs de BRP 4."),
+          execute: ExecuteCommendCommand
+        )
+      },
+      {
+        "jobs",
+        new Command(
+          name: "jobs",
+          description: new Command.Description(title: "Permet d'afficher la liste et l'état des jobs en cours."),
+          execute: ExecuteJobsCommand
+        )
+      },
+      {
+        "test",
+        new Command(
+          name: "test",
+          description: new Command.Description(title: "Permet des tester des trucs."),
+          execute: ExecuteTestCommand,
+          options: new Options(
+            positional: new List<Option>()
+            {
+              new Option(
+                name: "skill",
+                description: "Id du skill de test.",
+                defaultValue: ""
+              )
+            }
+          )
+        )
+      },
+      {
         "menu",
         new Command(
           name: "menu",
@@ -180,7 +232,30 @@ namespace NWN.Systems
                   defaultValue: false,
                   type: OptionTypes.Bool
                 )
-              }
+              },
+            }
+          )
+        )
+      },
+      {
+        "skills",
+        new Command(
+          name: "skills",
+          description: new Command.Description(
+            title: "Affiche le menu permettant de sélectionner de nouveaux skills à entrainer."
+          ),
+          execute: ExecuteSkillMenuCommand,
+          options: new Options(
+            named: new Dictionary<string, Option>()
+            {
+              { "config",
+                new Option(
+                  name: "config",
+                  description: "Affiche la configuration du menu de skills.",
+                  defaultValue: false,
+                  type: OptionTypes.Bool
+                )
+              },
             }
           )
         )

@@ -22,6 +22,7 @@ namespace NWN.Systems
             { "NW_S0_RayFrost", CantripsScaler },
             { "NW_S0_Resis", CantripsScaler },
             { "NW_S0_Virtue", CantripsScaler },
+            { "NW_S0_DivPower", SpellTest },
     };
     private static int CantripsScaler(uint oidSelf)
     {
@@ -249,6 +250,24 @@ namespace NWN.Systems
       }
 
       return Entrypoints.SCRIPT_HANDLED;
+    }
+    private static int SpellTest(uint oidSelf)
+    {
+      Player oPC;
+      if (Players.TryGetValue(oidSelf, out oPC))
+      {
+        var oTarget = NWScript.GetSpellTargetObject();
+
+        int nCasterLevel = NWScript.GetCasterLevel(oidSelf);
+        int nTotalCharacterLevel = NWScript.GetHitDice(oidSelf);
+
+        oPC.SendMessage($"CL self = {nCasterLevel}");
+        oPC.SendMessage($"CL target = {NWScript.GetCasterLevel(oTarget)}");
+        oPC.SendMessage($"CL player = {NWScript.GetCasterLevel(oPC)}");
+        oPC.SendMessage($"Item used = {NWScript.GetSpellCastItem().AsObject().Name}");
+      }
+
+      return Entrypoints.SCRIPT_NOT_HANDLED;
     }
   }
 }
