@@ -79,7 +79,6 @@ namespace NWN.Systems
       else
         player = Players[oPC];
 
-      player.isConnected = true;
       NWScript.SetEventScript(oPC, (int)EventScript.Creature_OnNotice, "on_perceived_pc");
 
       // TODO : Système de sauvegarde et de chargement de quickbar
@@ -90,6 +89,7 @@ namespace NWN.Systems
         if (player.IsNewPlayer)
         {
           // TODO : création des infos du nouveau joueur en BDD
+          NWNX.Object.SetInt(player, "_BRP", 1, true);
         }
         else
         {
@@ -130,11 +130,23 @@ namespace NWN.Systems
             NWScript.DelayCommand(1.0f, () => NWScript.AssignCommand(player, () => player.ClearAllActions(true)));
             NWScript.DelayCommand(1.1f, () => NWScript.AssignCommand(player, () => NWScript.JumpToLocation(Utils.StringToLocation(NWNX.Object.GetString(player, "_LOCATION")))));
           }
+
+          if (NWNX.Object.GetInt(player, "_CURRENT_JOB") != 0) // probablement plutôt initialiser ça à partir de la BDD
+          {
+            player.LearnableSkills[NWNX.Object.GetInt(player, "_CURRENT_JOB")].CurrentJob = true;
+            player.AcquireSkillPoints();
+          }
+          else
+            NWScript.DelayCommand(10.0f, () => player.PlayNoCurrentTrainingEffects());
+
+          NWNX.Object.SetString(player, "_DATE_LAST_SAVED", DateTime.Now.ToString(), true);
         }
 
         //Appliquer la distance de perception du chat en fonction de la compétence Listen du joueur
         NWNX.Chat.SetChatHearingDistance(NWNX.Chat.GetChatHearingDistance(oPC.AsObject(), NWNX.Enum.ChatChannel.PlayerTalk) + NWScript.GetSkillRank(Skill.Listen, oPC) / 5, oPC.AsObject(), NWNX.Enum.ChatChannel.PlayerTalk);
         NWNX.Chat.SetChatHearingDistance(NWNX.Chat.GetChatHearingDistance(oPC.AsObject(), NWNX.Enum.ChatChannel.PlayerWhisper) + NWScript.GetSkillRank(Skill.Listen, oPC) / 10, oPC.AsObject(), NWNX.Enum.ChatChannel.PlayerWhisper);
+        player.isConnected = true;
+        player.isAFK = true;
       }
       return Entrypoints.SCRIPT_HANDLED;
     }
@@ -182,6 +194,20 @@ namespace NWN.Systems
               return Entrypoints.SCRIPT_HANDLED;
             }
           }
+
+          // TODO : probablement faire pour chaque joueur tous les check faim / soif / jobs etc ici
+
+          // AFK detection
+          if(NWNX.Object.GetString(player, "_LOCATION") != Utils.LocationToString(player.Location))
+          {
+            NWNX.Object.SetString(player, "_LOCATION", Utils.LocationToString(player.Location), true);
+            player.isAFK = false;
+          }
+
+          player.AcquireSkillPoints();
+          NWNX.Object.SetString(player, "_DATE_LAST_SAVED", DateTime.Now.ToString(), true);
+          NWNX.Object.SetInt(player, "_CURRENT_HP", player.CurrentHP, true);
+          player.isAFK = true;
         }
 
       return Entrypoints.SCRIPT_HANDLED;

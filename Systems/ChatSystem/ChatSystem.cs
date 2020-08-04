@@ -55,6 +55,7 @@ namespace NWN.Systems
         ChatSystem.ProcessSpeakValueMiddleware,
         ChatSystem.ProcessMutePMMiddleware,
         ChatSystem.ProcessPMMiddleware,
+        ChatSystem.ProcessAFKDetectionMiddleware,
         ChatSystem.ProcessDeadPlayerMiddleware,
         ChatSystem.ProcessDMListenMiddleware,
         ChatSystem.ProcessLanguageMiddleware
@@ -75,7 +76,6 @@ namespace NWN.Systems
       }
 
       next();
-      return;
     }
     public static void ProcessSpeakValueMiddleware(ChatSystem.Context ctx, Action next)
     {
@@ -88,7 +88,6 @@ namespace NWN.Systems
       }
 
       next();
-      return;
     }
     public static void ProcessMutePMMiddleware(ChatSystem.Context ctx, Action next)
     {
@@ -104,7 +103,6 @@ namespace NWN.Systems
       }
 
       next();
-      return;
     }
     public static void ProcessPMMiddleware(ChatSystem.Context ctx, Action next)
     {
@@ -125,7 +123,20 @@ namespace NWN.Systems
       }
 
       next();
-      return;
+    }
+    public static void ProcessAFKDetectionMiddleware(ChatSystem.Context ctx, Action next)
+    {
+      PlayerSystem.Player player;
+      if (PlayerSystem.Players.TryGetValue(ctx.oSender, out player))
+      {
+        if(player.isAFK)
+          if (ctx.channel == NWNX.Enum.ChatChannel.PlayerTalk || ctx.channel == NWNX.Enum.ChatChannel.PlayerWhisper)
+            if (!ctx.msg.Contains("(") && !ctx.msg.Contains(")"))
+              if (NWScript.GetDistanceBetween(ctx.oSender, NWScript.GetNearestCreature(1, 1, ctx.oSender)) < 35.0f)
+                player.isAFK = false;
+      }
+
+      next();
     }
     public static void ProcessDeadPlayerMiddleware(ChatSystem.Context ctx, Action next)
     {
@@ -133,7 +144,6 @@ namespace NWN.Systems
         NWScript.SendMessageToPC(ctx.oSender, "N'oubliez pas que vous êtes inconscient, vous ne pouvez pas parler, mais tout juste gémir et décrire votre état");
 
       next();
-      return;
     }
 
     public static void ProcessDMListenMiddleware(ChatSystem.Context ctx, Action next)
@@ -164,7 +174,6 @@ namespace NWN.Systems
       }
 
       next();
-      return;
     }
     public static void ProcessLanguageMiddleware(ChatSystem.Context ctx, Action next)
     {
@@ -212,7 +221,6 @@ namespace NWN.Systems
       }
 
       next();
-      return;
     }
   }
 }
