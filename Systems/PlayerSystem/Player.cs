@@ -275,10 +275,6 @@ namespace NWN.Systems
             eParty = NWScript.TagEffect(eParty, "PartyEffect");
             break;
           case 4:
-            eParty = NWScript.EffectLinkEffects(NWScript.EffectACIncrease(1, Enums.Item.Property.ArmorClassModiferType.Dodge), NWScript.EffectAttackIncrease(1));
-            eParty = NWScript.EffectLinkEffects(NWScript.EffectDamageIncrease(1, DamageType.Bludgeoning), eParty);
-            eParty = NWScript.TagEffect(eParty, "PartyEffect");
-            break;
           case 5:
             eParty = NWScript.EffectLinkEffects(NWScript.EffectACIncrease(1, Enums.Item.Property.ArmorClassModiferType.Dodge), NWScript.EffectAttackIncrease(1));
             eParty = NWScript.EffectLinkEffects(NWScript.EffectDamageIncrease(1, DamageType.Bludgeoning), eParty);
