@@ -205,6 +205,53 @@ namespace NWN.Systems
         NWNX.Player.PlaySound(this, "gui_dm_drop", this);
         NWNX.Player.ApplyInstantVisualEffectToObject(this, this, (int)Impact.ReduceAbilityScore);
       }
+      public void SendToLimbo()
+      {
+        // Heal PC
+        this.ApplyEffect(DurationType.Instant, NWScript.EffectVisualEffect((VisualEffect)Impact.RestorationGreater));
+        this.ApplyEffect(DurationType.Instant, NWScript.EffectResurrection());
+        this.ApplyEffect(DurationType.Instant, NWScript.EffectHeal(this.MaxHP));
+
+        // TP PC
+        NWScript.AssignCommand(this, () => NWScript.JumpToLocation(NWScript.GetLocation(NWScript.GetWaypointByTag("WP__RESPAWN_AREA"))));
+      }
+      public void Respawn()
+      {
+        // TODO : Appliquer les bonus en fonction de l'entité choisie pour respawn (+augmentation du niveau d'influence de l'entité)
+        // TODO : Diminuer la durabilité de tous les objets équipés et dans l'inventaire du PJ
+
+        this.DestroyCorpses();
+        NWScript.AssignCommand(this, () => NWScript.JumpToLocation(NWScript.GetLocation(NWScript.GetWaypointByTag("WP_START_NEW_CHAR"))));
+        this.SendMessage("Quelque part, c'est un peu comme si tout recommençait.");
+      }
+      public void DestroyCorpses()
+      {
+        NWPlaceable oCorpse = NWScript.GetObjectByTag("pccorpse").AsPlaceable();
+        int i = 0;
+        int PcId = NWNX.Object.GetInt(this, "_PC_ID");
+        while (oCorpse.IsValid)
+        {
+          if (PcId == oCorpse.Locals.Int.Get("_PC_ID"))
+          {
+            oCorpse.Destroy();
+            // TODO : supprimer l'objet serialized de la BDD where _PC_ID
+            break;
+          }
+          i++;
+        }
+
+        NWItem oCorpseItem = NWScript.GetObjectByTag("item_pccorpse").AsItem();
+        i = 0;
+        while (oCorpseItem.IsValid)
+        {
+          if (PcId == oCorpseItem.Locals.Int.Get("_PC_ID"))
+          {
+            oCorpseItem.Destroy();
+            break;
+          }
+          i++;
+        }
+      }
     }
   }
 }
