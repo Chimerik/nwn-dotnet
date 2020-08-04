@@ -252,6 +252,47 @@ namespace NWN.Systems
           oCorpseItem = NWScript.GetObjectByTag("item_pccorpse", i++).AsItem();
         }
       }
+      public Effect GetPartySizeEffect(int iPartySize = 0)
+      {
+        NWPlayer oPartyMember = NWScript.GetFirstFactionMember(this, true).AsPlayer();
+        while (oPartyMember.IsValid)
+        {
+          iPartySize++;
+          oPartyMember = NWScript.GetNextFactionMember(this, true).AsPlayer();
+        }
+
+        Effect eParty = null;
+
+        switch (iPartySize) // déterminer quel est l'effet de groupe à appliquer
+        {
+          case 1:
+            break;
+          case 2:
+            eParty = NWScript.TagEffect(NWScript.EffectACIncrease(1, Enums.Item.Property.ArmorClassModiferType.Dodge), "PartyEffect");
+            break;
+          case 3:
+            eParty = NWScript.EffectLinkEffects(NWScript.EffectACIncrease(1, Enums.Item.Property.ArmorClassModiferType.Dodge), NWScript.EffectAttackIncrease(1));
+            eParty = NWScript.TagEffect(eParty, "PartyEffect");
+            break;
+          case 4:
+          case 5:
+            eParty = NWScript.EffectLinkEffects(NWScript.EffectACIncrease(1, Enums.Item.Property.ArmorClassModiferType.Dodge), NWScript.EffectAttackIncrease(1));
+            eParty = NWScript.EffectLinkEffects(NWScript.EffectDamageIncrease(1, DamageType.Bludgeoning), eParty);
+            eParty = NWScript.TagEffect(eParty, "PartyEffect");
+            break;
+          case 6:
+            eParty = NWScript.EffectLinkEffects(NWScript.EffectACIncrease(1, Enums.Item.Property.ArmorClassModiferType.Dodge), NWScript.EffectAttackIncrease(1));
+            eParty = NWScript.TagEffect(eParty, "PartyEffect");
+            break;
+          case 7:
+            eParty = NWScript.TagEffect(NWScript.EffectACIncrease(1, Enums.Item.Property.ArmorClassModiferType.Dodge), "PartyEffect");
+            break;
+          default:
+            break;
+        }
+
+        return eParty;
+      }
     }
   }
 }
