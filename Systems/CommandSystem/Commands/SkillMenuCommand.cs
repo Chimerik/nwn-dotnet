@@ -12,27 +12,8 @@ namespace NWN.Systems
       PlayerSystem.Player player;
       if (PlayerSystem.Players.TryGetValue(ctx.oSender, out player))
       {
-        if (configOpt)
-        {
-          __DrawSkillConfigPage(player);
-        }
-
         player.Locals.Int.Set("_MENU_SKILL_REFRESH", 1);
-        AutoRefresh(player);
        }
-    }
-
-    private static void __DrawSkillConfigPage(PlayerSystem.Player player)
-    {
-      player.menu.title = "Configuration du menu des skills.";
-      player.menu.choices.Clear();
-      player.menu.choices.Add(("Deplacer vers la gauche.", () => __HandleMoveLeft(player)));
-      player.menu.choices.Add(("Deplacer vers la droite.", () => __HandleMoveRight(player)));
-      player.menu.choices.Add(("Deplacer vers le haut.", () => __HandleMoveUp(player)));
-      player.menu.choices.Add(("Deplacer vers le bas.", () => __HandleMoveDown(player)));
-      player.menu.choices.Add(("Reset la position à la valeur par defaut", () => __HandleReset(player)));
-      player.menu.choices.Add(("Sauvegarder et quitter", () => __HandleSaveAndClose(player)));
-      player.menu.Draw();
     }
 
     private static void __DrawSkillPage(PlayerSystem.Player player)
@@ -45,7 +26,7 @@ namespace NWN.Systems
         // TODO :  afficher le skill en cours en premier ?
 
         skill.GetTimeToNextLevel(player);
-        player.menu.choices.Add(($"{skill.Nom} {skill.CurrentLevel} - Temps restant : {skill.GetTimeToNextLevelAsString(player)}", () => __HandleSkillSelection(player, skill)));
+        player.menu.choices.Add(($"{skill.Name} {skill.CurrentLevel} - Temps restant : {skill.GetTimeToNextLevelAsString(player)}", () => __HandleSkillSelection(player, skill)));
           
         // TODO : Suivant, précédent et quitter
       }
@@ -61,7 +42,7 @@ namespace NWN.Systems
 
         if (CurrentSkill.GetTimeToNextLevel(player) < 600) // TODO : Pour l'instant, j'interdis la pause et le changement si le skill est censé se terminer dans le prochain intervalle. Mais y a ptet mieux à faire
         {
-          player.SendMessage($"L'entrainement de {CurrentSkill.Nom} est sur le point de se terminer. Impossible de changer d'entrainement ou de le mettre en pause pour le moment.");
+          player.SendMessage($"L'entrainement de {CurrentSkill.Name} est sur le point de se terminer. Impossible de changer d'entrainement ou de le mettre en pause pour le moment.");
         }
         else if (SelectedSkill.CurrentJob) // Job en cours sélectionné => mise en pause
         {
@@ -82,13 +63,6 @@ namespace NWN.Systems
       }
 
       __DrawSkillPage(player);
-    }
-    private static void AutoRefresh(PlayerSystem.Player player)
-    {
-      player.RefreshAcquiredSkillPoints();
-      __DrawSkillPage(player);
-      if(player.Locals.Int.Get("_MENU_SKILL_REFRESH") != 0)
-        NWScript.DelayCommand(1.0f, () => AutoRefresh(player)); // Pas bon du tout de faire comme ça. Il faudrait ne rafraichir que la ligne correspondant au job actif. C'est envisageable ça ?
     }
     private static void __HandleClose(PlayerSystem.Player player)
     {
