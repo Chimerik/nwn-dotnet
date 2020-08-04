@@ -238,6 +238,7 @@ namespace NWN.Systems
             break;
           }
           i++;
+          oCorpse = NWScript.GetObjectByTag("pccorpse", i).AsPlaceable();
         }
 
         NWItem oCorpseItem = NWScript.GetObjectByTag("item_pccorpse").AsItem();
@@ -250,6 +251,7 @@ namespace NWN.Systems
             break;
           }
           i++;
+          oCorpseItem = NWScript.GetObjectByTag("item_pccorpse", i).AsItem();
         }
       }
     }
