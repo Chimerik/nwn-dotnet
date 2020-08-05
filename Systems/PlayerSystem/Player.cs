@@ -11,15 +11,16 @@ namespace NWN.Systems
     {
       public readonly uint oid;
       public readonly Boolean IsNewPlayer;
-      public virtual Boolean isConnected { get; set; }
-      public virtual uint AutoAttackTarget { get; set; }
-      public virtual DateTime LycanCurseTimer { get; set; }
+      public Boolean isConnected { get; set; }
+      public Boolean isAFK { get; set; }
+      public uint AutoAttackTarget { get; set; }
+      public DateTime LycanCurseTimer { get; set; }
       public Menu menu { get; }
 
       private uint blockingBoulder;
-      public virtual string DisguiseName { get; set; }
+      public string DisguiseName { get; set; }
       private List<uint> _SelectedObjectsList = new List<uint>();
-      public virtual List<uint> SelectedObjectsList
+      public List<uint> SelectedObjectsList
       {
         get => _SelectedObjectsList;
         // set => _SelectedObjectsList.Add(value);
@@ -32,12 +33,19 @@ namespace NWN.Systems
       public Dictionary<uint, DateTime> InviDetectTimer = new Dictionary<uint, DateTime>();
       public Dictionary<uint, DateTime> InviEffectDetectTimer = new Dictionary<uint, DateTime>();
       public Dictionary<uint, NWCreature> Summons = new Dictionary<uint, NWCreature>();
+      public Dictionary<int, SkillSystem.Skill> LearnableSkills = new Dictionary<int, SkillSystem.Skill>();
 
       public Player(uint nwobj) : base(nwobj)
       {
         this.oid = nwobj;
         this.menu = new PrivateMenu(this);
         //TODO : ajouter IsNewPlayer = résultat de la requête en BDD pour voir si on a déjà des infos sur lui ou pas !
+        
+        // TODO : charger la liste à partir de la BDD et l'état d'avancement des SP. Mettre en place le système d'apprentissage via livre
+        this.LearnableSkills.Add(1116, new SkillSystem.Skill(1116, NWNX.Object.GetFloat(this, "_JOB_SP_1116")));
+        this.LearnableSkills.Add(122, new SkillSystem.Skill(122, NWNX.Object.GetFloat(this, "_JOB_SP_122")));
+        this.LearnableSkills.Add(128, new SkillSystem.Skill(128, NWNX.Object.GetFloat(this, "_JOB_SP_128")));
+        this.LearnableSkills.Add(133, new SkillSystem.Skill(133, NWNX.Object.GetFloat(this, "_JOB_SP_133")));
       }
 
       public void EmitKeydown(KeydownEventArgs e)
@@ -103,6 +111,187 @@ namespace NWN.Systems
       public void BoulderUnblock()
       {
         NWScript.DestroyObject(blockingBoulder);
+      }
+      public void AcquireSkillPoints()
+      {
+        SkillSystem.Skill skill;
+        if (this.LearnableSkills.TryGetValue(NWNX.Object.GetInt(this, "_CURRENT_JOB"), out skill))
+        {
+          skill.AcquiredPoints += this.CalculateAcquiredSkillPoints(skill);
+
+          double RemainingTime = skill.GetTimeToNextLevel(this);
+          NWNX.Object.SetFloat(this, $"_JOB_SP_{skill.oid}", skill.AcquiredPoints, true);
+          if (RemainingTime < 0)
+          {
+            this.LevelUpSkill(skill);
+          }
+          else if (RemainingTime < 600)
+          {
+            NWScript.AssignCommand(this, () => NWScript.DelayCommand((float)RemainingTime, () => LevelUpSkill(skill)));
+          }
+        }
+      }
+      public double RefreshAcquiredSkillPoints()
+      {
+        SkillSystem.Skill skill;
+        if (this.LearnableSkills.TryGetValue(NWNX.Object.GetInt(this, "_CURRENT_JOB"), out skill))
+        {
+          skill.AcquiredPoints += this.CalculateAcquiredSkillPoints(skill);
+
+          double RemainingTime = skill.GetTimeToNextLevel(this);
+          NWNX.Object.SetFloat(this, $"_JOB_SP_{skill.oid}", skill.AcquiredPoints, true);
+          NWNX.Object.SetString(this, "_DATE_LAST_SAVED", DateTime.Now.ToString(), true);
+
+          return RemainingTime;
+        }
+
+        return 0;
+      }
+
+      private float CalculateAcquiredSkillPoints(SkillSystem.Skill skill)
+      {
+        var ElapsedSeconds = (float)(DateTime.Now - DateTime.Parse(NWNX.Object.GetString(this, "_DATE_LAST_SAVED"))).TotalSeconds;
+        float SP = (float)(NWScript.GetAbilityScore(this, skill.PrimaryAbility) + (NWScript.GetAbilityScore(this, skill.SecondaryAbility) / 2)) * ElapsedSeconds / 60;
+
+        switch (NWNX.Object.GetInt(this, "_BRP"))
+        {
+          case 0:
+            SP = SP * 80 / 100;
+            break;
+          case 1:
+            SP = SP * 90 / 100;
+            break;
+          case 3:
+            SP = SP * 110 / 100;
+            break;
+          case 4:
+            SP = SP * 120 / 100;
+            break;
+        }
+
+        if (!this.isConnected)
+          SP = SP * 60 / 100;
+        else if (this.isAFK)
+          SP = SP * 80 / 100;
+
+        return SP;
+      }
+      public void LevelUpSkill(SkillSystem.Skill skill)
+      {
+        if (!this.HasFeat((Feat)skill.oid))
+        {
+          this.AddFeat((Feat)skill.oid);
+          NWNX.Object.DeleteInt(this, "_CURRENT_JOB");
+          NWScript.DelayCommand(10.0f, () => this.PlayNewSkillAcquiredEffects(skill)); // Décalage de 10 secondes pour être sur que le joueur a fini de charger la map à la reco
+        }
+
+        skill.CurrentLevel += 1;
+
+        if (skill.CurrentLevel >= skill.MaxLevel)
+          this.LearnableSkills.Remove(skill.oid);
+      }
+
+      public void PlayNewSkillAcquiredEffects(SkillSystem.Skill skill)
+      {
+        NWScript.PostString(this, $"Votre apprentissage {skill.Name} {skill.CurrentLevel} est terminé !", 80, 10, ScreenAnchor.TopLeft, 5.0f, unchecked((int)0xC0C0C0FF), unchecked((int)0xC0C0C0FF), 9, "fnt_galahad14");
+        NWNX.Player.PlaySound(this, "gui_level_up", this);
+        NWNX.Player.ApplyInstantVisualEffectToObject(this, this, (int)Impact.GlobeUse);
+      }
+
+      public void PlayNoCurrentTrainingEffects()
+      {
+        NWScript.PostString(this, $"Vous n'avez aucun apprentissage en cours !", 80, 10, ScreenAnchor.TopLeft, 5.0f, unchecked((int)0xC0C0C0FF), unchecked((int)0xC0C0C0FF), 9, "fnt_galahad14");
+        this.SendMessage("Vous n'avez aucun apprentissage en cours !");
+        NWNX.Player.PlaySound(this, "gui_dm_drop", this);
+        NWNX.Player.ApplyInstantVisualEffectToObject(this, this, (int)Impact.ReduceAbilityScore);
+      }
+      public void SendToLimbo()
+      {
+        // Heal PC
+        this.ApplyEffect(DurationType.Instant, NWScript.EffectVisualEffect((VisualEffect)Impact.RestorationGreater));
+        this.ApplyEffect(DurationType.Instant, NWScript.EffectResurrection());
+        this.ApplyEffect(DurationType.Instant, NWScript.EffectHeal(this.MaxHP));
+
+        // TP PC
+        NWScript.AssignCommand(this, () => NWScript.JumpToLocation(NWScript.GetLocation(NWScript.GetWaypointByTag("WP__RESPAWN_AREA"))));
+      }
+      public void Respawn()
+      {
+        // TODO : Appliquer les bonus en fonction de l'entité choisie pour respawn (+augmentation du niveau d'influence de l'entité)
+        // TODO : Diminuer la durabilité de tous les objets équipés et dans l'inventaire du PJ
+
+        this.DestroyCorpses();
+        NWScript.AssignCommand(this, () => NWScript.JumpToLocation(NWScript.GetLocation(NWScript.GetWaypointByTag("WP_START_NEW_CHAR"))));
+        this.SendMessage("Quelque part, c'est un peu comme si tout recommençait.");
+      }
+      public void DestroyCorpses()
+      {
+        NWPlaceable oCorpse = NWScript.GetObjectByTag("pccorpse").AsPlaceable();
+        int i = 1;
+        int PcId = NWNX.Object.GetInt(this, "_PC_ID");
+        while (oCorpse.IsValid)
+        {
+          if (PcId == oCorpse.Locals.Int.Get("_PC_ID"))
+          {
+            oCorpse.Destroy();
+            // TODO : supprimer l'objet serialized de la BDD where _PC_ID
+            break;
+          }
+          oCorpse = NWScript.GetObjectByTag("pccorpse", i++).AsPlaceable();
+        }
+
+        NWItem oCorpseItem = NWScript.GetObjectByTag("item_pccorpse").AsItem();
+        i = 1;
+        while (oCorpseItem.IsValid)
+        {
+          if (PcId == oCorpseItem.Locals.Int.Get("_PC_ID"))
+          {
+            oCorpseItem.Destroy();
+            break;
+          }
+          oCorpseItem = NWScript.GetObjectByTag("item_pccorpse", i++).AsItem();
+        }
+      }
+      public Effect GetPartySizeEffect(int iPartySize = 0)
+      {
+        NWPlayer oPartyMember = NWScript.GetFirstFactionMember(this, true).AsPlayer();
+        while (oPartyMember.IsValid)
+        {
+          iPartySize++;
+          oPartyMember = NWScript.GetNextFactionMember(this, true).AsPlayer();
+        }
+
+        Effect eParty = null;
+
+        switch (iPartySize) // déterminer quel est l'effet de groupe à appliquer
+        {
+          case 1:
+            break;
+          case 2:
+            eParty = NWScript.TagEffect(NWScript.EffectACIncrease(1, Enums.Item.Property.ArmorClassModiferType.Dodge), "PartyEffect");
+            break;
+          case 3:
+            eParty = NWScript.EffectLinkEffects(NWScript.EffectACIncrease(1, Enums.Item.Property.ArmorClassModiferType.Dodge), NWScript.EffectAttackIncrease(1));
+            eParty = NWScript.TagEffect(eParty, "PartyEffect");
+            break;
+          case 4:
+          case 5:
+            eParty = NWScript.EffectLinkEffects(NWScript.EffectACIncrease(1, Enums.Item.Property.ArmorClassModiferType.Dodge), NWScript.EffectAttackIncrease(1));
+            eParty = NWScript.EffectLinkEffects(NWScript.EffectDamageIncrease(1, DamageType.Bludgeoning), eParty);
+            eParty = NWScript.TagEffect(eParty, "PartyEffect");
+            break;
+          case 6:
+            eParty = NWScript.EffectLinkEffects(NWScript.EffectACIncrease(1, Enums.Item.Property.ArmorClassModiferType.Dodge), NWScript.EffectAttackIncrease(1));
+            eParty = NWScript.TagEffect(eParty, "PartyEffect");
+            break;
+          case 7:
+            eParty = NWScript.TagEffect(NWScript.EffectACIncrease(1, Enums.Item.Property.ArmorClassModiferType.Dodge), "PartyEffect");
+            break;
+          default:
+            break;
+        }
+
+        return eParty;
       }
     }
   }
