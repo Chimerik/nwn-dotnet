@@ -18,8 +18,8 @@ namespace NWN.Systems
 
     private static void __DrawSkillPage(PlayerSystem.Player player)
     {
+      player.menu.Clear();
       player.menu.title = "Liste des skills disponibles pour entrainement.";
-      player.menu.choices.Clear();
       foreach (KeyValuePair<int, SkillSystem.Skill> SkillListEntry in player.LearnableSkills)
       {
         SkillSystem.Skill skill = SkillListEntry.Value;
