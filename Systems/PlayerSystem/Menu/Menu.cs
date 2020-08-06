@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using NWN.Enums;
 
 namespace NWN.Systems
 {
@@ -25,16 +24,17 @@ namespace NWN.Systems
 
       private readonly Player player;
       
-      private int currentTitleHeight
+      private int titleHeight
       {
         get
         {
-          if (currentTitle == "") return 0;
+          if (title == "") return 0;
           return 1 + titleBottomMargin;
         }
       }
 
-      private List<(int X, int Y, int ID)> drawnLineIds = new List<(int X, int Y, int ID)>();
+      private List<(int X, int Y, int ID)> drawnLineBackgroundIds = new List<(int X, int Y, int ID)>();
+      private List<(int X, int Y, int ID)> drawnLineTextIds = new List<(int X, int Y, int ID)>();
       private (int X, int Y, int ID) drawnSelectionIds;
       private const int windowBaseID = 9000;
       private const int textBaseID = 8500;
@@ -42,10 +42,8 @@ namespace NWN.Systems
 
       private int selectedChoiceID = 0;
       private bool isOpen = false;
-      private List<(string text, Action handler)> currentChoices = new List<(string text, Action handler)>();
-      private string currentTitle = "";
 
-      public Menu(PlayerSystem.Player player)
+      public Menu(Player player)
       {
         this.player = player;
         ResetConfig();
@@ -53,21 +51,13 @@ namespace NWN.Systems
 
       public void Draw()
       {
-        EraseDrawing();
         if (!isOpen)
         {
           player.BoulderBlock();
           player.OnKeydown += HandleKeydown;
         }
 
-        currentChoices = choices.ToList();
-        currentTitle = title;
-
-        Clear();
-
-        var width = CalcWindowWidth();
-        var height = CalcWindowHeight();
-        DrawWindow(width, height);
+        DrawWindow();
         DrawText();
         DrawSelection();
 
@@ -94,7 +84,7 @@ namespace NWN.Systems
         originLeft = 2;
       }
 
-      private void Clear()
+      public void Clear()
       {
         title = "";
         choices.Clear();
@@ -103,18 +93,24 @@ namespace NWN.Systems
 
       private void EraseDrawing()
       {
-        foreach (var (X, Y, ID) in drawnLineIds)
+        EraseDrawing(drawnLineBackgroundIds);
+        EraseDrawing(drawnLineTextIds);
+        EraseLastSelection();
+      }
+
+      private void EraseDrawing(List<(int X, int Y, int ID)> drawnLines)
+      {
+        foreach (var (X, Y, ID) in drawnLines)
         {
           NWScript.PostString(PC: player.oid, Msg: "", X: X, Y: Y, ID: ID, life: 0.000001f);
         }
-        drawnLineIds.Clear();
-        EraseLastSelection();
+        drawnLines.Clear();
       }
 
       private int CalcWindowWidth()
       {
-        var longestText = currentTitle.Length;
-        foreach (var (text, _) in currentChoices)
+        var longestText = title.Length;
+        foreach (var (text, _) in choices)
         {
           if (text.Length > longestText) longestText = text.Length;
         }
@@ -124,12 +120,16 @@ namespace NWN.Systems
 
       private int CalcWindowHeight()
       {
-        var choicesHeight = currentChoices.Count;
-        return (2 * borderSize) + (2 * heightPadding) + currentTitleHeight + choicesHeight;
+        var choicesHeight = choices.Count;
+        return (2 * borderSize) + (2 * heightPadding) + titleHeight + choicesHeight;
       }
 
-      private void DrawWindow(int width, int height)
+      public void DrawWindow()
       {
+        EraseDrawing(drawnLineBackgroundIds);
+        var width = CalcWindowWidth();
+        var height = CalcWindowHeight();
+
         string top = Config.Glyph.WindowTopLeft;
         string middle = Config.Glyph.WindowMiddleLeft;
         string bottom = Config.Glyph.WindowBottomLeft;
@@ -145,37 +145,39 @@ namespace NWN.Systems
         middle += Config.Glyph.WindowMiddleRight;
         bottom += Config.Glyph.WindowBottomRight;
 
-        DrawLine(top, originLeft, originTop, windowBaseID, Config.Font.Gui);
+        DrawLine(top, originLeft, originTop, windowBaseID, Config.Font.Gui, drawnLineBackgroundIds);
         for (var i = 1; i < height - 1; i++)
         {
-          DrawLine(middle, originLeft, originTop + i, windowBaseID + i, Config.Font.Gui);
+          DrawLine(middle, originLeft, originTop + i, windowBaseID + i, Config.Font.Gui, drawnLineBackgroundIds);
         }
-        DrawLine(bottom, originLeft, originTop + height - 1, windowBaseID + height - 1, Config.Font.Gui);
+        DrawLine(bottom, originLeft, originTop + height - 1, windowBaseID + height - 1, Config.Font.Gui, drawnLineBackgroundIds);
       }
 
-      private void DrawText()
+      public void DrawText()
       {
+        EraseDrawing(drawnLineTextIds);
         var textX = originLeft + widthPadding + borderSize;
         var textY = originTop + heightPadding + borderSize;
         var textID = textBaseID;
 
-        if (currentTitle != "")
+        if (title != "")
         {
-          DrawLine(currentTitle, textX, textY++, textID++, Config.Font.Text);
+          DrawLine(title, textX, textY++, textID++, Config.Font.Text, drawnLineTextIds);
           textY += titleBottomMargin;
         }
 
-        for (var i = 0; i < currentChoices.Count; i++)
+        for (var i = 0; i < choices.Count; i++)
         {
-          var (text, _) = currentChoices[i];
-          DrawLine(text, textX, textY++, textID++, Config.Font.Text);
+          var (text, _) = choices[i];
+          DrawLine(text, textX, textY++, textID++, Config.Font.Text, drawnLineTextIds);
         }
       }
 
-      private void DrawSelection()
+      public void DrawSelection()
       {
+        EraseLastSelection();
         var x = originLeft + widthPadding + borderSize - 1;
-        var y = originTop + heightPadding + borderSize + currentTitleHeight + selectedChoiceID;
+        var y = originTop + heightPadding + borderSize + titleHeight + selectedChoiceID;
         DrawLine(Config.Glyph.Arrow, x, y, arrowID, Config.Font.Gui);
         drawnSelectionIds = (x, y, arrowID);
       }
@@ -191,14 +193,17 @@ namespace NWN.Systems
         );
       }
 
-      private void DrawLine(string text, int x, int y, int id, string font)
+      private void DrawLine(string text, int x, int y, int id, string font, List<(int X, int Y, int ID)> drawnLines = null)
       {
         int color = unchecked((int)Config.Color.White);
         NWScript.PostString(
             PC: player.oid, Msg: text, X: x, Y: y, ID: id, life: 0f,
             RGBA: color, RGBA2: color, font: font
         );
-        drawnLineIds.Add((x, y, id));
+        if (drawnLines != null)
+        {
+          drawnLines.Add((X: x, Y: x, ID: id));
+        }
       }
 
       private void HandleKeydown(object sender, PlayerSystem.Player.KeydownEventArgs e)
@@ -208,21 +213,21 @@ namespace NWN.Systems
           default: return;
 
           case "W":
-            selectedChoiceID = (selectedChoiceID + currentChoices.Count - 1) % currentChoices.Count;
+            selectedChoiceID = (selectedChoiceID + choices.Count - 1) % choices.Count;
             EraseLastSelection();
             NWNX.Player.PlaySound(player.oid, "gui_select", NWObject.OBJECT_INVALID);
             DrawSelection();
             return;
 
           case "S":
-            selectedChoiceID = (selectedChoiceID + 1) % currentChoices.Count;
+            selectedChoiceID = (selectedChoiceID + 1) % choices.Count;
             EraseLastSelection();
             NWNX.Player.PlaySound(player.oid, "gui_select", NWObject.OBJECT_INVALID);
             DrawSelection();
             return;
 
           case "E":
-            var handler = currentChoices.ElementAtOrDefault(selectedChoiceID).handler;
+            var handler = choices.ElementAtOrDefault(selectedChoiceID).handler;
             NWNX.Player.PlaySound(player.oid, "gui_picklockopen", NWObject.OBJECT_INVALID);
             handler?.Invoke();
             return;
