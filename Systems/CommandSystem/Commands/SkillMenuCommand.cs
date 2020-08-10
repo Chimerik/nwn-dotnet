@@ -20,7 +20,7 @@ namespace NWN.Systems
     {
       player.menu.Clear();
       player.menu.title = "Liste des skills disponibles pour entrainement.";
-      foreach (KeyValuePair<int, SkillSystem.Skill> SkillListEntry in player.LearnableSkills)
+      foreach (KeyValuePair<int, SkillSystem.Skill> SkillListEntry in player.learnableSkills)
       {
         SkillSystem.Skill skill = SkillListEntry.Value;
         // TODO :  afficher le skill en cours en premier ?
@@ -34,11 +34,31 @@ namespace NWN.Systems
       player.menu.choices.Add(("Quitter", () => __HandleClose(player)));
       player.menu.Draw();
     }
+    private static void __DrawMalusPage(PlayerSystem.Player player)
+    {
+      player.menu.Clear();
+      player.menu.title = "Liste des blessures persistantes nécessitant une rééducation.";
+      foreach (KeyValuePair<int, SkillSystem.Skill> SkillListEntry in player.removeableMalus)
+      {
+        SkillSystem.Skill skill = SkillListEntry.Value;
+        // TODO :  afficher le skill en cours en premier ?
+
+        skill.GetTimeToNextLevel(player);
+        player.menu.choices.Add(($"{skill.Name} {skill.CurrentLevel} - Temps restant : {skill.GetTimeToNextLevelAsString(player)}", () => __HandleSkillSelection(player, skill)));
+
+        // TODO : Suivant, précédent et quitter
+      }
+
+      player.menu.choices.Add(("Quitter", () => __HandleClose(player)));
+      player.menu.Draw();
+    }
     private static void __HandleSkillSelection(PlayerSystem.Player player, SkillSystem.Skill SelectedSkill)
     {
       if (NWNX.Object.GetInt(player, "_CURRENT_JOB") != 0)
       {
-        SkillSystem.Skill CurrentSkill = player.LearnableSkills[NWNX.Object.GetInt(player, "_CURRENT_JOB")];
+        SkillSystem.Skill CurrentSkill = player.learnableSkills[NWNX.Object.GetInt(player, "_CURRENT_JOB")];
+        if(CurrentSkill == null)
+          CurrentSkill = player.removeableMalus[NWNX.Object.GetInt(player, "_CURRENT_JOB")];
 
         if (CurrentSkill.GetTimeToNextLevel(player) < 600) // TODO : Pour l'instant, j'interdis la pause et le changement si le skill est censé se terminer dans le prochain intervalle. Mais y a ptet mieux à faire
         {

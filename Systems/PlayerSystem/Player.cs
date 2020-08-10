@@ -10,30 +10,31 @@ namespace NWN.Systems
     public class Player : NWPlayer
     {
       public readonly uint oid;
-      public readonly Boolean IsNewPlayer;
+      public readonly Boolean isNewPlayer;
       public Boolean isConnected { get; set; }
       public Boolean isAFK { get; set; }
-      public uint AutoAttackTarget { get; set; }
-      public DateTime LycanCurseTimer { get; set; }
+      public uint autoAttackTarget { get; set; }
+      public DateTime lycanCurseTimer { get; set; }
       public Menu menu { get; }
 
       private uint blockingBoulder;
-      public string DisguiseName { get; set; }
-      private List<uint> _SelectedObjectsList = new List<uint>();
-      public List<uint> SelectedObjectsList
+      public string disguiseName { get; set; }
+      private List<uint> _selectedObjectsList = new List<uint>();
+      public List<uint> selectedObjectsList
       {
-        get => _SelectedObjectsList;
-        // set => _SelectedObjectsList.Add(value);
+        get => _selectedObjectsList;
+        // set => _selectedObjectsList.Add(value);
       }
 
-      public Dictionary<uint, Player> Listened = new Dictionary<uint, Player>();
-      public Dictionary<uint, Player> Blocked = new Dictionary<uint, Player>();
-      public Dictionary<uint, DateTime> DisguiseDetectTimer = new Dictionary<uint, DateTime>();
-      public Dictionary<uint, DateTime> PickpocketDetectTimer = new Dictionary<uint, DateTime>();
-      public Dictionary<uint, DateTime> InviDetectTimer = new Dictionary<uint, DateTime>();
-      public Dictionary<uint, DateTime> InviEffectDetectTimer = new Dictionary<uint, DateTime>();
-      public Dictionary<uint, NWCreature> Summons = new Dictionary<uint, NWCreature>();
-      public Dictionary<int, SkillSystem.Skill> LearnableSkills = new Dictionary<int, SkillSystem.Skill>();
+      public Dictionary<uint, Player> listened = new Dictionary<uint, Player>();
+      public Dictionary<uint, Player> blocked = new Dictionary<uint, Player>();
+      public Dictionary<uint, DateTime> disguiseDetectTimer = new Dictionary<uint, DateTime>();
+      public Dictionary<uint, DateTime> pickpocketDetectTimer = new Dictionary<uint, DateTime>();
+      public Dictionary<uint, DateTime> inviDetectTimer = new Dictionary<uint, DateTime>();
+      public Dictionary<uint, DateTime> inviEffectDetectTimer = new Dictionary<uint, DateTime>();
+      public Dictionary<uint, NWCreature> summons = new Dictionary<uint, NWCreature>();
+      public Dictionary<int, SkillSystem.Skill> learnableSkills = new Dictionary<int, SkillSystem.Skill>();
+      public Dictionary<int, SkillSystem.Skill> removeableMalus = new Dictionary<int, SkillSystem.Skill>();
 
       public Player(uint nwobj) : base(nwobj)
       {
@@ -42,10 +43,10 @@ namespace NWN.Systems
         //TODO : ajouter IsNewPlayer = résultat de la requête en BDD pour voir si on a déjà des infos sur lui ou pas !
         
         // TODO : charger la liste à partir de la BDD et l'état d'avancement des SP. Mettre en place le système d'apprentissage via livre
-        this.LearnableSkills.Add(1116, new SkillSystem.Skill(1116, NWNX.Object.GetFloat(this, "_JOB_SP_1116")));
-        this.LearnableSkills.Add(122, new SkillSystem.Skill(122, NWNX.Object.GetFloat(this, "_JOB_SP_122")));
-        this.LearnableSkills.Add(128, new SkillSystem.Skill(128, NWNX.Object.GetFloat(this, "_JOB_SP_128")));
-        this.LearnableSkills.Add(133, new SkillSystem.Skill(133, NWNX.Object.GetFloat(this, "_JOB_SP_133")));
+        this.learnableSkills.Add(1116, new SkillSystem.Skill(1116, NWNX.Object.GetFloat(this, "_JOB_SP_1116")));
+        this.learnableSkills.Add(122, new SkillSystem.Skill(122, NWNX.Object.GetFloat(this, "_JOB_SP_122")));
+        this.learnableSkills.Add(128, new SkillSystem.Skill(128, NWNX.Object.GetFloat(this, "_JOB_SP_128")));
+        this.learnableSkills.Add(133, new SkillSystem.Skill(133, NWNX.Object.GetFloat(this, "_JOB_SP_133")));
       }
 
       public void EmitKeydown(KeydownEventArgs e)
@@ -66,9 +67,9 @@ namespace NWN.Systems
       }
       public void OnFrostAutoAttackTimedEvent() // conservé pour mémoire, à retravailler
       {
-        if (this.AutoAttackTarget.AsObject().IsValid)
+        if (this.autoAttackTarget.AsObject().IsValid)
         {
-          this.CastSpellAtObject(Spell.RayOfFrost, this.AutoAttackTarget);
+          this.CastSpellAtObject(Spell.RayOfFrost, this.autoAttackTarget);
           NWScript.DelayCommand(6.0f, () => this.OnFrostAutoAttackTimedEvent());
         }
       }
@@ -115,7 +116,7 @@ namespace NWN.Systems
       public void AcquireSkillPoints()
       {
         SkillSystem.Skill skill;
-        if (this.LearnableSkills.TryGetValue(NWNX.Object.GetInt(this, "_CURRENT_JOB"), out skill))
+        if (this.learnableSkills.TryGetValue(NWNX.Object.GetInt(this, "_CURRENT_JOB"), out skill))
         {
           skill.AcquiredPoints += this.CalculateAcquiredSkillPoints(skill);
 
@@ -130,11 +131,29 @@ namespace NWN.Systems
             NWScript.AssignCommand(this, () => NWScript.DelayCommand((float)RemainingTime, () => LevelUpSkill(skill)));
           }
         }
+        else
+        {
+          if (this.removeableMalus.TryGetValue(NWNX.Object.GetInt(this, "_CURRENT_JOB"), out skill))
+          {
+            skill.AcquiredPoints += this.CalculateAcquiredSkillPoints(skill);
+
+            double RemainingTime = skill.GetTimeToNextLevel(this);
+            NWNX.Object.SetFloat(this, $"_JOB_SP_{skill.oid}", skill.AcquiredPoints, true);
+            if (RemainingTime < 0)
+            {
+              this.RemoveMalus(skill);
+            }
+            else if (RemainingTime < 600)
+            {
+              NWScript.AssignCommand(this, () => NWScript.DelayCommand((float)RemainingTime, () => RemoveMalus(skill)));
+            }
+          }
+        }
       }
       public double RefreshAcquiredSkillPoints()
       {
         SkillSystem.Skill skill;
-        if (this.LearnableSkills.TryGetValue(NWNX.Object.GetInt(this, "_CURRENT_JOB"), out skill))
+        if (this.learnableSkills.TryGetValue(NWNX.Object.GetInt(this, "_CURRENT_JOB"), out skill))
         {
           skill.AcquiredPoints += this.CalculateAcquiredSkillPoints(skill);
 
@@ -187,8 +206,44 @@ namespace NWN.Systems
 
         skill.CurrentLevel += 1;
 
+        Func<PlayerSystem.Player, int, int> handler;
+        if (SkillSystem.RegisterAddCustomFeatEffect.TryGetValue(skill.oid, out handler))
+        {
+          try
+          {
+            handler.Invoke(this, skill.oid);
+          }
+          catch (Exception e)
+          {
+            Utils.LogException(e);
+          }
+        }
+
         if (skill.CurrentLevel >= skill.MaxLevel)
-          this.LearnableSkills.Remove(skill.oid);
+          this.learnableSkills.Remove(skill.oid);
+      }
+
+      public void RemoveMalus(SkillSystem.Skill skill)
+      {
+        this.RemoveFeat((Feat)skill.oid);
+
+        Func<PlayerSystem.Player, int, int> handler;
+        if (SkillSystem.RegisterRemoveCustomFeatEffect.TryGetValue(skill.oid, out handler))
+        {
+          try
+          {
+            handler.Invoke(this, skill.oid);
+          }
+          catch (Exception e)
+          {
+            Utils.LogException(e);
+          }
+        }
+
+        NWNX.Object.DeleteInt(this, "_CURRENT_JOB");
+        NWScript.DelayCommand(10.0f, () => this.PlayNewSkillAcquiredEffects(skill)); // Décalage de 10 secondes pour être sur que le joueur a fini de charger la map à la reco
+
+        this.removeableMalus.Remove(skill.oid);
       }
 
       public void PlayNewSkillAcquiredEffects(SkillSystem.Skill skill)
@@ -221,8 +276,24 @@ namespace NWN.Systems
         // TODO : Diminuer la durabilité de tous les objets équipés et dans l'inventaire du PJ
 
         this.DestroyCorpses();
-        NWScript.AssignCommand(this, () => NWScript.JumpToLocation(NWScript.GetLocation(NWScript.GetWaypointByTag("WP_START_NEW_CHAR"))));
-        this.SendMessage("Quelque part, c'est un peu comme si tout recommençait.");
+        NWScript.AssignCommand(this, () => NWScript.JumpToLocation(NWScript.GetLocation(NWScript.GetWaypointByTag("WP_START_NEW_CHAR")))); // TODO : le respawn se fera plutôt à l'hospice des taudis
+        this.SendMessage("Votre récente déconvenue vous a affligé d'une blessure durable. Il va falloir passer du temps en rééducation pour vous en débarrasser");
+
+        int iRandomMalus = Utils.random.Next(1117, 1117);
+        this.AddFeat((Feat)iRandomMalus); // TODO : il faudra mettre en paramètre de conf le range des feat ID pour les malus
+
+        Func<PlayerSystem.Player, int, int> handler;
+        if (SkillSystem.RegisterAddCustomFeatEffect.TryGetValue(iRandomMalus, out handler))
+        {
+          try
+          {
+            handler.Invoke(this, iRandomMalus);
+          }
+          catch (Exception e)
+          {
+            Utils.LogException(e);
+          }
+        }
       }
       public void DestroyCorpses()
       {
