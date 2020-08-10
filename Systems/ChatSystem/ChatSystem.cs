@@ -157,7 +157,7 @@ namespace NWN.Systems
           PlayerSystem.Player oDM = PlayerListEntry.Value;
           if (NWScript.GetIsDM(oDM))
           {
-            if (oDM.Listened.ContainsKey(ctx.oSender))
+            if (oDM.listened.ContainsKey(ctx.oSender))
             {
               if ((NWScript.GetArea(ctx.oSender) != NWScript.GetArea(oDM)) || NWScript.GetDistanceBetween(oDM, ctx.oSender) > NWNX.Chat.GetChatHearingDistance(oDM, ctx.channel))
               {

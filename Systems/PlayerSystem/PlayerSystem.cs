@@ -94,7 +94,7 @@ namespace NWN.Systems
 
       if (!player.IsDM)
       {
-        if (player.IsNewPlayer)
+        if (player.isNewPlayer)
         {
           // TODO : création des infos du nouveau joueur en BDD
           NWNX.Object.SetInt(player, "_PC_ID", 1, true); // TODO : enregistrer l'identifiant de BDD du pj sur le .bic du personnage au lieu du 1 par défaut des tests
@@ -142,7 +142,7 @@ namespace NWN.Systems
 
           if (NWNX.Object.GetInt(player, "_CURRENT_JOB") != 0) // probablement plutôt initialiser ça à partir de la BDD
           {
-            player.LearnableSkills[NWNX.Object.GetInt(player, "_CURRENT_JOB")].CurrentJob = true;
+            player.learnableSkills[NWNX.Object.GetInt(player, "_CURRENT_JOB")].CurrentJob = true;
             player.AcquireSkillPoints();
           }
           else
@@ -342,10 +342,10 @@ namespace NWN.Systems
             }
             else
             {
-              if ((DateTime.Now - oPC.LycanCurseTimer).TotalSeconds > 10800)
+              if ((DateTime.Now - oPC.lycanCurseTimer).TotalSeconds > 10800)
               {
                 oPC.ApplyLycanCurse();
-                oPC.LycanCurseTimer = DateTime.Now;
+                oPC.lycanCurseTimer = DateTime.Now;
               }
               else
                 oPC.SendMessage("Vous ne vous sentez pas encore la force de changer de nouveau de forme.");
@@ -393,13 +393,13 @@ namespace NWN.Systems
                 oidSelf.AsPlayer().SendMessage($"Vous venez de sélectionner {oTarget.Name}, utilisez votre barre de raccourcis pour le déplacer. Pour enregistrer le nouvel emplacement et retrouver votre barre de raccourcis habituelle, activez le don sur un endroit vide (sans cible).");
                 //remplacer la ligne précédente par un PostString().
 
-                if (myPlayer.SelectedObjectsList.Count == 0)
+                if (myPlayer.selectedObjectsList.Count == 0)
                 {
                   myPlayer.BoulderBlock();
                 }
 
-                if (!myPlayer.SelectedObjectsList.Contains(oTarget))
-                  myPlayer.SelectedObjectsList.Add(oTarget);
+                if (!myPlayer.selectedObjectsList.Contains(oTarget))
+                  myPlayer.selectedObjectsList.Add(oTarget);
               }
               else
               {
@@ -410,7 +410,7 @@ namespace NWN.Systems
             {
               string sObjectSaved = "";
 
-              foreach (uint selectedObject in myPlayer.SelectedObjectsList)
+              foreach (uint selectedObject in myPlayer.selectedObjectsList)
               {
                 var sql = $"UPDATE sql_meubles SET objectLocation = @loc WHERE objectUUID = @uuid";
 
@@ -427,7 +427,7 @@ namespace NWN.Systems
 
               NWNX.Events.RemoveObjectFromDispatchList("NWNX_ON_INPUT_KEYBOARD_AFTER", "event_mv_plc", oidSelf);
               oidSelf.AsObject().Locals.Object.Delete("_MOVING_PLC");
-              myPlayer.SelectedObjectsList.Clear();
+              myPlayer.selectedObjectsList.Clear();
             }
           }
           return Entrypoints.SCRIPT_HANDLED;
@@ -479,14 +479,14 @@ namespace NWN.Systems
         if (oTarget.AsObject().IsValid)
         {
           NWScript.ClearAllActions();
-          if (oPC.AutoAttackTarget == NWObject.OBJECT_INVALID)
+          if (oPC.autoAttackTarget == NWObject.OBJECT_INVALID)
           {
             oidSelf.AsPlayer().CastSpellAtObject(Spell.RayOfFrost, oTarget);
             NWScript.DelayCommand(6.0f, () => oPC.OnFrostAutoAttackTimedEvent());
           }
         }
 
-        oPC.AutoAttackTarget = oTarget;
+        oPC.autoAttackTarget = oTarget;
       }
 
       return Entrypoints.SCRIPT_HANDLED;
@@ -501,7 +501,7 @@ namespace NWN.Systems
         var spellId = int.Parse(NWNX.Events.GetEventData("SPELL_ID"));
 
         if (spellId != (int)Spell.RayOfFrost)
-          oPC.AutoAttackTarget = NWObject.OBJECT_INVALID;
+          oPC.autoAttackTarget = NWObject.OBJECT_INVALID;
       }
 
       return Entrypoints.SCRIPT_HANDLED;
@@ -528,12 +528,12 @@ namespace NWN.Systems
         Player oPerceived;
         if (Players.TryGetValue(NWScript.GetLastPerceived(), out oPerceived))
         {
-          if (!oPerceived.IsPC || oPerceived.IsDM || oPerceived.IsDMPossessed || oPerceived.DisguiseName.Length == 0)
+          if (!oPerceived.IsPC || oPerceived.IsDM || oPerceived.IsDMPossessed || oPerceived.disguiseName.Length == 0)
             return Entrypoints.SCRIPT_HANDLED;
 
-          if (!oPC.DisguiseDetectTimer.ContainsKey(oPC) || (DateTime.Now - oPC.DisguiseDetectTimer[oPerceived]).TotalSeconds > 1800)
+          if (!oPC.disguiseDetectTimer.ContainsKey(oPC) || (DateTime.Now - oPC.disguiseDetectTimer[oPerceived]).TotalSeconds > 1800)
           {
-            oPC.DisguiseDetectTimer[oPerceived] = DateTime.Now;
+            oPC.disguiseDetectTimer[oPerceived] = DateTime.Now;
 
             int[] iPCSenseSkill = { oPC.GetSkillRank(Skill.Listen), oPC.GetSkillRank(Skill.Search), oPC.GetSkillRank(Skill.Spot),
             oPC.GetSkillRank(Skill.Bluff) };
@@ -572,7 +572,7 @@ namespace NWN.Systems
 
         if (oSummon.IsValid)
         {
-          player.Summons.Add(oSummon, oSummon);
+          player.summons.Add(oSummon, oSummon);
         }
       }
 
@@ -589,7 +589,7 @@ namespace NWN.Systems
 
         if (oSummon.IsValid)
         {
-          player.Summons.Remove(oSummon);
+          player.summons.Remove(oSummon);
         }
       }
 
@@ -626,9 +626,9 @@ namespace NWN.Systems
             Player oTarget;
             if (Players.TryGetValue(oObject, out oTarget) && !oTarget.IsDM && !oTarget.IsDMPossessed)
             {
-              if (!oTarget.PickpocketDetectTimer.ContainsKey(player) || (DateTime.Now - oTarget.PickpocketDetectTimer[player]).TotalSeconds > 86400)
+              if (!oTarget.pickpocketDetectTimer.ContainsKey(player) || (DateTime.Now - oTarget.pickpocketDetectTimer[player]).TotalSeconds > 86400)
               {
-                  oTarget.PickpocketDetectTimer.Add(player, DateTime.Now);
+                  oTarget.pickpocketDetectTimer.Add(player, DateTime.Now);
 
                   NWNX.Feedback.SetFeedbackMessageHidden(FeedbackMessageTypes.CombatTouchAttack, 1, oTarget);
                   NWScript.DelayCommand(2.0f, () => NWNX.Feedback.SetFeedbackMessageHidden(FeedbackMessageTypes.CombatTouchAttack, 0, oTarget));
@@ -693,7 +693,7 @@ namespace NWN.Systems
                 case MovementType.Sidestep:
                 case MovementType.Walk:
 
-                  if (!oPC.InviDetectTimer.ContainsKey(oTarget) || (DateTime.Now - oPC.InviDetectTimer[oTarget]).TotalSeconds > 6)
+                  if (!oPC.inviDetectTimer.ContainsKey(oTarget) || (DateTime.Now - oPC.inviDetectTimer[oTarget]).TotalSeconds > 6)
                   {
                     int iMoveSilentlyCheck = NWScript.GetSkillRank(Skill.MoveSilently, oTarget) + Utils.random.Next(21) + (int)NWScript.GetDistanceBetween(oTarget, oPC);
                     int iListenCheck = NWScript.GetSkillRank(Skill.Listen, oPC) + Utils.random.Next(21);
@@ -704,31 +704,31 @@ namespace NWN.Systems
                     {
                       oPC.SendMessage("Vous entendez quelqu'un se faufiler dans les environs.");
                       NWNX.Player.ShowVisualEffect(oPC, (int)Flashier.Vfx_Fnf_Smoke_Puff, oTarget.Position);
-                      oPC.InviDetectTimer.Add(oTarget, DateTime.Now);
-                      oPC.InviEffectDetectTimer.Add(oTarget, DateTime.Now);
+                      oPC.inviDetectTimer.Add(oTarget, DateTime.Now);
+                      oPC.inviEffectDetectTimer.Add(oTarget, DateTime.Now);
                     }
                     else
-                      oPC.InviDetectTimer.Remove(oTarget);
+                      oPC.inviDetectTimer.Remove(oTarget);
                   }
-                  else if ((DateTime.Now - oPC.InviEffectDetectTimer[oTarget]).TotalSeconds > 1)
+                  else if ((DateTime.Now - oPC.inviEffectDetectTimer[oTarget]).TotalSeconds > 1)
                   {
                     NWNX.Player.ShowVisualEffect(oPC, (int)Flashier.Vfx_Fnf_Smoke_Puff, oTarget.Position);
-                    oPC.InviEffectDetectTimer.Add(oTarget, DateTime.Now);
+                    oPC.inviEffectDetectTimer.Add(oTarget, DateTime.Now);
                   }
                   break;
                 case MovementType.Run:
 
-                  if (!oPC.InviDetectTimer.ContainsKey(oTarget) || (DateTime.Now - oPC.InviDetectTimer[oTarget]).TotalSeconds > 6)
+                  if (!oPC.inviDetectTimer.ContainsKey(oTarget) || (DateTime.Now - oPC.inviDetectTimer[oTarget]).TotalSeconds > 6)
                   {
                     oPC.SendMessage("Vous entendez quelqu'un courir peu discrètement dans les environs.");
                     NWNX.Player.ShowVisualEffect(oPC, (int)Flashier.Vfx_Fnf_Smoke_Puff, oTarget.Position);
-                    oPC.InviDetectTimer.Add(oTarget, DateTime.Now);
-                    oPC.InviEffectDetectTimer.Add(oTarget, DateTime.Now);
+                    oPC.inviDetectTimer.Add(oTarget, DateTime.Now);
+                    oPC.inviEffectDetectTimer.Add(oTarget, DateTime.Now);
                   }
-                  else if ((DateTime.Now - oPC.InviEffectDetectTimer[oTarget]).TotalSeconds > 1)
+                  else if ((DateTime.Now - oPC.inviEffectDetectTimer[oTarget]).TotalSeconds > 1)
                   {
                     NWNX.Player.ShowVisualEffect(oPC, (int)Flashier.Vfx_Fnf_Smoke_Puff, oTarget.Position);
-                    oPC.InviEffectDetectTimer.Add(oTarget, DateTime.Now);
+                    oPC.inviEffectDetectTimer.Add(oTarget, DateTime.Now);
                   }
                   break;
               }
