@@ -14,26 +14,26 @@ namespace NWN.Systems
         {
           if (!ctx.oTarget.IsValid)
           {
-            if (oDM.Listened.Count > 0)
-              oDM.Listened.Clear();
+            if (oDM.listened.Count > 0)
+              oDM.listened.Clear();
             else
             {
               foreach (KeyValuePair<uint, PlayerSystem.Player> PlayerListEntry in PlayerSystem.Players)
               {
                 if (!NWScript.GetIsDM(PlayerListEntry.Key))
-                  oDM.Listened.Add(PlayerListEntry.Key, PlayerListEntry.Value);
+                  oDM.listened.Add(PlayerListEntry.Key, PlayerListEntry.Value);
               }
             }
           }
           else
           {
-            if (oDM.Listened.ContainsKey(ctx.oTarget))
-              oDM.Listened.Remove(ctx.oTarget);
+            if (oDM.listened.ContainsKey(ctx.oTarget))
+              oDM.listened.Remove(ctx.oTarget);
             else
             {
               PlayerSystem.Player oPC;
               if (PlayerSystem.Players.TryGetValue(ctx.oTarget, out oPC))
-                oDM.Listened.Add(ctx.oTarget, oPC);
+                oDM.listened.Add(ctx.oTarget, oPC);
             }
           }
         }
