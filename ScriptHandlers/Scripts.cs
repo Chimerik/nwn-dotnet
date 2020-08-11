@@ -3,7 +3,6 @@ using NWN.Systems;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.IO;
 
 namespace NWN.ScriptHandlers
 {
@@ -16,25 +15,25 @@ namespace NWN.ScriptHandlers
       //  { "event_mouse_clic", EventMouseClick },
       { "event_potager", EventPotager },
       { "_event_effects", EventEffects },
-    }.Concat(Systems.LootSystem.Register)
-     .Concat(Systems.PlayerSystem.Register)
-     .Concat(Systems.ChatSystem.Register)
-     .Concat(Systems.SpellSystem.Register)
-     .Concat(Systems.ItemSystem.Register)
+    }.Concat(LootSystem.Register)
+     .Concat(PlayerSystem.Register)
+     .Concat(ChatSystem.Register)
+     .Concat(SpellSystem.Register)
+     .Concat(ItemSystem.Register)
      .ToDictionary(kvp => kvp.Key, kvp => kvp.Value);
 
     private static int HandleModuleLoad(uint oidSelf)
     {
       try
       {
-        Systems.LootSystem.InitChestArea();
+        LootSystem.InitChestArea();
       }
       catch (Exception e)
       {
         Utils.LogException(e);
       }
 
-      Systems.ChatSystem.Init();
+      ChatSystem.Init();
 
       NWNX.Events.SubscribeEvent("NWNX_ON_CLIENT_DISCONNECT_BEFORE", "player_exit_before");
       NWNX.Events.ToggleDispatchListMode("NWNX_ON_CLIENT_DISCONNECT_BEFORE", "player_exit_before", 1);
@@ -44,11 +43,11 @@ namespace NWN.ScriptHandlers
       NWNX.Events.SubscribeEvent("NWNX_ON_REMOVE_ASSOCIATE_AFTER", "summon_remove_after");
       NWNX.Events.ToggleDispatchListMode("NWNX_ON_REMOVE_ASSOCIATE_AFTER", "summon_remove_after", 1);
 
-      NWNX.Events.SubscribeEvent(NWNX.Events.ON_INPUT_KEYBOARD_BEFORE, Systems.PlayerSystem.ON_PC_KEYSTROKE_SCRIPT);
-      NWNX.Events.ToggleDispatchListMode(NWNX.Events.ON_INPUT_KEYBOARD_BEFORE, Systems.PlayerSystem.ON_PC_KEYSTROKE_SCRIPT, 1);
+      NWNX.Events.SubscribeEvent(NWNX.Events.ON_INPUT_KEYBOARD_BEFORE, PlayerSystem.ON_PC_KEYSTROKE_SCRIPT);
+      NWNX.Events.ToggleDispatchListMode(NWNX.Events.ON_INPUT_KEYBOARD_BEFORE, PlayerSystem.ON_PC_KEYSTROKE_SCRIPT, 1);
 
-      Events.SubscribeEvent(Events.ON_INPUT_KEYBOARD_BEFORE, Systems.PlayerSystem.ON_PC_KEYSTROKE_SCRIPT);
-      Events.ToggleDispatchListMode(Events.ON_INPUT_KEYBOARD_BEFORE, Systems.PlayerSystem.ON_PC_KEYSTROKE_SCRIPT, 1);
+      Events.SubscribeEvent(Events.ON_INPUT_KEYBOARD_BEFORE, PlayerSystem.ON_PC_KEYSTROKE_SCRIPT);
+      Events.ToggleDispatchListMode(Events.ON_INPUT_KEYBOARD_BEFORE, PlayerSystem.ON_PC_KEYSTROKE_SCRIPT, 1);
 
       NWNX.Events.SubscribeEvent("NWNX_ON_INPUT_KEYBOARD_AFTER", "event_mv_plc");
       NWNX.Events.ToggleDispatchListMode("NWNX_ON_INPUT_KEYBOARD_AFTER", "event_mv_plc", 1);
