@@ -15,7 +15,7 @@ namespace NWN.Systems
         {
           if (NWNX.Object.GetInt(player, "_CURRENT_JOB") != 0)
           {
-            player.LearnableSkills[NWNX.Object.GetInt(player, "_CURRENT_JOB")].DisplayTimeToNextLevel(player);
+            player.learnableSkills[NWNX.Object.GetInt(player, "_CURRENT_JOB")].DisplayTimeToNextLevel(player);
           }
           else
             player.SendMessage("Vous n'avez pas d'entrainement en cours.");
@@ -25,7 +25,7 @@ namespace NWN.Systems
           int SkillId;
           if (int.TryParse((string)options.positional[0], out SkillId))
           {
-            player.LearnableSkills.Add(SkillId, new SkillSystem.Skill(SkillId, 0));
+            player.learnableSkills.Add(SkillId, new SkillSystem.Skill(SkillId, 0));
           }
           else
             player.SendMessage($"{(string)options.positional[0]} n'est pas une valeur acceptée pour cette commande.");
