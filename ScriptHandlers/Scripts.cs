@@ -20,6 +20,7 @@ namespace NWN.ScriptHandlers
      .Concat(ChatSystem.Register)
      .Concat(SpellSystem.Register)
      .Concat(ItemSystem.Register)
+     .Concat(PlaceableSystem.Register)
      .ToDictionary(kvp => kvp.Key, kvp => kvp.Value);
 
     private static int HandleModuleLoad(uint oidSelf)
