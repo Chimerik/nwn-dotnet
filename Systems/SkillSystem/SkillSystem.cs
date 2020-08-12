@@ -9,12 +9,12 @@ namespace NWN.Systems
   {
     public static Dictionary<int, Func<PlayerSystem.Player, int, int>> RegisterAddCustomFeatEffect = new Dictionary<int, Func<PlayerSystem.Player, int, int>>
     {
-            { 1117, HandleAddStrengthMalusFeat },
+            { 1130, HandleAddStrengthMalusFeat },
     };
 
     public static Dictionary<int, Func<PlayerSystem.Player, int, int>> RegisterRemoveCustomFeatEffect = new Dictionary<int, Func<PlayerSystem.Player, int, int>>
     {
-            { 1117, HandleRemoveStrengthMalusFeat },
+            { 1130, HandleRemoveStrengthMalusFeat },
     };
 
     private static int HandleAddStrengthMalusFeat(PlayerSystem.Player player, int idMalusFeat)
@@ -22,7 +22,6 @@ namespace NWN.Systems
       // TODO : gérer le cas où on choppe plusieurs fois le même malus
       player.removeableMalus.Add(idMalusFeat, new Skill(idMalusFeat, 0));
       NWNX.Creature.SetRawAbilityScore(player, Enums.Ability.Strength, NWNX.Creature.GetRawAbilityScore(player, Enums.Ability.Strength) - 2);
-
       return Entrypoints.SCRIPT_HANDLED;
     }
 

@@ -142,7 +142,7 @@ namespace NWN.Systems
 
           if (NWNX.Object.GetInt(player, "_CURRENT_JOB") != 0) // probablement plutôt initialiser ça à partir de la BDD
           {
-            player.learnableSkills[NWNX.Object.GetInt(player, "_CURRENT_JOB")].CurrentJob = true;
+            player.learnableSkills[NWNX.Object.GetInt(player, "_CURRENT_JOB")].currentJob = true;
             player.AcquireSkillPoints();
           }
           else

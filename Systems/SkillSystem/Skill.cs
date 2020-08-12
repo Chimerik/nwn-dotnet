@@ -12,44 +12,44 @@ namespace NWN.Systems
     {
       public readonly int oid;
 
-      public float AcquiredPoints { get; set; }
-      public string Name { get; set; }
-      public string Description { get; set; }
-      public Boolean CurrentJob { get; set; }
-      public int MaxLevel { get; set; }
-      public int CurrentLevel { get; set; }
-      private int Multiplier;
-      private int PointsToNextLevel;
-      public readonly Ability PrimaryAbility;
-      public readonly Ability SecondaryAbility;
+      public float acquiredPoints { get; set; }
+      public string name { get; set; }
+      public string description { get; set; }
+      public Boolean currentJob { get; set; }
+      public int maxLevel { get; set; }
+      public int currentLevel { get; set; }
+      private int multiplier;
+      private int pointsToNextLevel;
+      public readonly Ability primaryAbility;
+      public readonly Ability secondaryAbility;
 
       public Skill(int Id, float SP)
       {
         this.oid = Id;
-        this.AcquiredPoints = SP;
+        this.acquiredPoints = SP;
         int value;
 
         // TODO : logs + message sur chan dm + message sur discord en cas de valeur non configurée
 
         if (int.TryParse(NWScript.Get2DAString("feat", "FEAT", Id), out value))
-          this.Name = NWScript.GetStringByStrRef(value);
+          this.name = NWScript.GetStringByStrRef(value);
         else
-          this.Name = "Nom non disponible";
+          this.name = "Nom non disponible";
 
         if (int.TryParse(NWScript.Get2DAString("feat", "DESCRIPTION", Id), out value))
-          this.Description = NWScript.GetStringByStrRef(value);
+          this.description = NWScript.GetStringByStrRef(value);
         else
-          this.Description = "Description non disponible";
+          this.description = "Description non disponible";
 
         if (int.TryParse(NWScript.Get2DAString("feat", "GAINMULTIPLE", Id), out value))
-          this.MaxLevel = value;
+          this.maxLevel = value;
         else
-          this.MaxLevel = 1;
+          this.maxLevel = 1;
 
         if (int.TryParse(NWScript.Get2DAString("feat", "CRValue", Id), out value))
-          this.Multiplier = value;
+          this.multiplier = value;
         else
-          this.Multiplier = 1;
+          this.multiplier = 1;
 
         Dictionary<int, int> iSkillAbilities = new Dictionary<int, int>();
         
@@ -69,22 +69,22 @@ namespace NWN.Systems
         iSkillAbilities.OrderBy(key => key.Value);
 
         if(iSkillAbilities.Count > 0)
-          this.PrimaryAbility = (Ability)iSkillAbilities.ElementAt(0).Key;
+          this.primaryAbility = (Ability)iSkillAbilities.ElementAt(0).Key;
         else
-          this.PrimaryAbility = Ability.Intelligence;
+          this.primaryAbility = Ability.Intelligence;
 
         if (iSkillAbilities.Count > 1)
-          this.SecondaryAbility = (Ability)iSkillAbilities.ElementAt(1).Key;
+          this.secondaryAbility = (Ability)iSkillAbilities.ElementAt(1).Key;
         else
-          this.SecondaryAbility = Ability.Wisdom;
+          this.secondaryAbility = Ability.Wisdom;
 
-        this.CurrentLevel = this.GetCurrentLevel();
-        this.PointsToNextLevel = 250 * this.Multiplier * (int)Math.Pow(Math.Sqrt(32), this.CurrentLevel);
+        this.currentLevel = this.GetcurrentLevel();
+        this.pointsToNextLevel = 250 * this.multiplier * (int)Math.Pow(Math.Sqrt(32), this.currentLevel);
       }
       public double GetTimeToNextLevel(Player oPC)
       {
-        float RemainingPoints = this.PointsToNextLevel - this.AcquiredPoints;
-        float PointsGenerationPerSecond = (float)(NWScript.GetAbilityScore(oPC, PrimaryAbility) + (NWScript.GetAbilityScore(oPC, SecondaryAbility) / 2)) / 60;
+        float RemainingPoints = this.pointsToNextLevel - this.acquiredPoints;
+        float PointsGenerationPerSecond = (float)(NWScript.GetAbilityScore(oPC, primaryAbility) + (NWScript.GetAbilityScore(oPC, secondaryAbility) / 2)) / 60;
         if(!oPC.isConnected)
           PointsGenerationPerSecond = PointsGenerationPerSecond * 60 / 100;
         else if (oPC.isAFK)
@@ -114,24 +114,24 @@ namespace NWN.Systems
         NWScript.PostString(oPC, $"Apprentissage terminé dans {Countdown}", 80, 10, ScreenAnchor.TopLeft, 1.0f, unchecked((int)0xC0C0C0FF), unchecked((int)0xC0C0C0FF), 9, "fnt_galahad14");
         NWScript.DelayCommand(1.0f, () => DisplayTimeToNextLevel(oPC));
       }
-      public int GetCurrentLevel()
+      public int GetcurrentLevel()
       {
-        if (this.IsAtMaxLevel())
-          return this.MaxLevel;
-        if (this.AcquiredPoints < 250 * this.Multiplier * (int)Math.Pow(Math.Sqrt(32), 0))
+        if (this.IsAtmaxLevel())
+          return this.maxLevel;
+        if (this.acquiredPoints < 250 * this.multiplier * (int)Math.Pow(Math.Sqrt(32), 0))
           return 0;
-        if (this.AcquiredPoints < 250 * this.Multiplier * (int)Math.Pow(Math.Sqrt(32), 1))
+        if (this.acquiredPoints < 250 * this.multiplier * (int)Math.Pow(Math.Sqrt(32), 1))
           return 1;
-        if (this.AcquiredPoints < 250 * this.Multiplier * (int)Math.Pow(Math.Sqrt(32), 2))
+        if (this.acquiredPoints < 250 * this.multiplier * (int)Math.Pow(Math.Sqrt(32), 2))
           return 2;
-        if (this.AcquiredPoints < 250 * this.Multiplier * (int)Math.Pow(Math.Sqrt(32), 3))
+        if (this.acquiredPoints < 250 * this.multiplier * (int)Math.Pow(Math.Sqrt(32), 3))
           return 3;
 
         return 4;
       }
-      public Boolean IsAtMaxLevel()
+      public Boolean IsAtmaxLevel()
       {
-        if (this.AcquiredPoints >= 250 * this.Multiplier * (int)Math.Pow(Math.Sqrt(32), this.MaxLevel))
+        if (this.acquiredPoints >= 250 * this.multiplier * (int)Math.Pow(Math.Sqrt(32), this.maxLevel))
           return true;
         else
           return false;

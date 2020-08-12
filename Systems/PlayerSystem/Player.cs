@@ -41,7 +41,7 @@ namespace NWN.Systems
         this.oid = nwobj;
         this.menu = new PrivateMenu(this);
         //TODO : ajouter IsNewPlayer = résultat de la requête en BDD pour voir si on a déjà des infos sur lui ou pas !
-        
+
         // TODO : charger la liste à partir de la BDD et l'état d'avancement des SP. Mettre en place le système d'apprentissage via livre
         this.learnableSkills.Add(1116, new SkillSystem.Skill(1116, NWNX.Object.GetFloat(this, "_JOB_SP_1116")));
         this.learnableSkills.Add(122, new SkillSystem.Skill(122, NWNX.Object.GetFloat(this, "_JOB_SP_122")));
@@ -118,10 +118,10 @@ namespace NWN.Systems
         SkillSystem.Skill skill;
         if (this.learnableSkills.TryGetValue(NWNX.Object.GetInt(this, "_CURRENT_JOB"), out skill))
         {
-          skill.AcquiredPoints += this.CalculateAcquiredSkillPoints(skill);
+          skill.acquiredPoints += this.CalculateAcquiredSkillPoints(skill);
 
           double RemainingTime = skill.GetTimeToNextLevel(this);
-          NWNX.Object.SetFloat(this, $"_JOB_SP_{skill.oid}", skill.AcquiredPoints, true);
+          NWNX.Object.SetFloat(this, $"_JOB_SP_{skill.oid}", skill.acquiredPoints, true);
           if (RemainingTime < 0)
           {
             this.LevelUpSkill(skill);
@@ -135,10 +135,10 @@ namespace NWN.Systems
         {
           if (this.removeableMalus.TryGetValue(NWNX.Object.GetInt(this, "_CURRENT_JOB"), out skill))
           {
-            skill.AcquiredPoints += this.CalculateAcquiredSkillPoints(skill);
+            skill.acquiredPoints += this.CalculateAcquiredSkillPoints(skill);
 
             double RemainingTime = skill.GetTimeToNextLevel(this);
-            NWNX.Object.SetFloat(this, $"_JOB_SP_{skill.oid}", skill.AcquiredPoints, true);
+            NWNX.Object.SetFloat(this, $"_JOB_SP_{skill.oid}", skill.acquiredPoints, true);
             if (RemainingTime < 0)
             {
               this.RemoveMalus(skill);
@@ -155,10 +155,10 @@ namespace NWN.Systems
         SkillSystem.Skill skill;
         if (this.learnableSkills.TryGetValue(NWNX.Object.GetInt(this, "_CURRENT_JOB"), out skill))
         {
-          skill.AcquiredPoints += this.CalculateAcquiredSkillPoints(skill);
+          skill.acquiredPoints += this.CalculateAcquiredSkillPoints(skill);
 
           double RemainingTime = skill.GetTimeToNextLevel(this);
-          NWNX.Object.SetFloat(this, $"_JOB_SP_{skill.oid}", skill.AcquiredPoints, true);
+          NWNX.Object.SetFloat(this, $"_JOB_SP_{skill.oid}", skill.acquiredPoints, true);
           NWNX.Object.SetString(this, "_DATE_LAST_SAVED", DateTime.Now.ToString(), true);
 
           return RemainingTime;
@@ -170,7 +170,7 @@ namespace NWN.Systems
       private float CalculateAcquiredSkillPoints(SkillSystem.Skill skill)
       {
         var ElapsedSeconds = (float)(DateTime.Now - DateTime.Parse(NWNX.Object.GetString(this, "_DATE_LAST_SAVED"))).TotalSeconds;
-        float SP = (float)(NWScript.GetAbilityScore(this, skill.PrimaryAbility) + (NWScript.GetAbilityScore(this, skill.SecondaryAbility) / 2)) * ElapsedSeconds / 60;
+        float SP = (float)(NWScript.GetAbilityScore(this, skill.primaryAbility) + (NWScript.GetAbilityScore(this, skill.secondaryAbility) / 2)) * ElapsedSeconds / 60;
 
         switch (NWNX.Object.GetInt(this, "_BRP"))
         {
@@ -204,7 +204,7 @@ namespace NWN.Systems
           NWScript.DelayCommand(10.0f, () => this.PlayNewSkillAcquiredEffects(skill)); // Décalage de 10 secondes pour être sur que le joueur a fini de charger la map à la reco
         }
 
-        skill.CurrentLevel += 1;
+        skill.currentLevel += 1;
 
         Func<PlayerSystem.Player, int, int> handler;
         if (SkillSystem.RegisterAddCustomFeatEffect.TryGetValue(skill.oid, out handler))
@@ -219,7 +219,7 @@ namespace NWN.Systems
           }
         }
 
-        if (skill.CurrentLevel >= skill.MaxLevel)
+        if (skill.currentLevel >= skill.maxLevel)
           this.learnableSkills.Remove(skill.oid);
       }
 
@@ -248,7 +248,7 @@ namespace NWN.Systems
 
       public void PlayNewSkillAcquiredEffects(SkillSystem.Skill skill)
       {
-        NWScript.PostString(this, $"Votre apprentissage {skill.Name} {skill.CurrentLevel} est terminé !", 80, 10, ScreenAnchor.TopLeft, 5.0f, unchecked((int)0xC0C0C0FF), unchecked((int)0xC0C0C0FF), 9, "fnt_galahad14");
+        NWScript.PostString(this, $"Votre apprentissage {skill.name} {skill.currentLevel} est terminé !", 80, 10, ScreenAnchor.TopLeft, 5.0f, unchecked((int)0xC0C0C0FF), unchecked((int)0xC0C0C0FF), 9, "fnt_galahad14");
         NWNX.Player.PlaySound(this, "gui_level_up", this);
         NWNX.Player.ApplyInstantVisualEffectToObject(this, this, (int)Impact.GlobeUse);
       }
@@ -279,8 +279,8 @@ namespace NWN.Systems
         NWScript.AssignCommand(this, () => NWScript.JumpToLocation(NWScript.GetLocation(NWScript.GetWaypointByTag("WP_START_NEW_CHAR")))); // TODO : le respawn se fera plutôt à l'hospice des taudis
         this.SendMessage("Votre récente déconvenue vous a affligé d'une blessure durable. Il va falloir passer du temps en rééducation pour vous en débarrasser");
 
-        int iRandomMalus = Utils.random.Next(1117, 1117);
-        this.AddFeat((Feat)iRandomMalus); // TODO : il faudra mettre en paramètre de conf le range des feat ID pour les malus
+        int iRandomMalus = Utils.random.Next(1130, 1130); // TODO : il faudra mettre en paramètre de conf le range des feat ID pour les malus
+        this.AddFeat((Feat)iRandomMalus); 
 
         Func<PlayerSystem.Player, int, int> handler;
         if (SkillSystem.RegisterAddCustomFeatEffect.TryGetValue(iRandomMalus, out handler))

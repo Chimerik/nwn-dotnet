@@ -135,7 +135,7 @@ namespace NWN.Systems
 
     private static void ValidationMiddleware(Context ctx, Action next)
     {
-      ctx.oActivator.LearnableSkills.Add(ctx.skillId, new SkillSystem.Skill(ctx.skillId, 0));
+      ctx.oActivator.learnableSkills.Add(ctx.skillId, new SkillSystem.Skill(ctx.skillId, 0));
       ctx.oItem.Destroy();
 
       next();

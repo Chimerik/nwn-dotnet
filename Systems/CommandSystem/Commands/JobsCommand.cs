@@ -13,7 +13,7 @@ namespace NWN.Systems
       {
         if (NWNX.Object.GetInt(player, "_CURRENT_JOB") != 0)
         {
-          player.LearnableSkills[NWNX.Object.GetInt(player, "_CURRENT_JOB")].DisplayTimeToNextLevel(player);
+          player.learnableSkills[NWNX.Object.GetInt(player, "_CURRENT_JOB")].DisplayTimeToNextLevel(player);
         }
         else
           player.SendMessage("Vous n'avez pas d'entrainement en cours.");
