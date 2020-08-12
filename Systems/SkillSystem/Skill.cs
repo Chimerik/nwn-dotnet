@@ -16,7 +16,6 @@ namespace NWN.Systems
       public string name { get; set; }
       public string description { get; set; }
       public Boolean currentJob { get; set; }
-      public int maxLevel { get; set; }
       public int currentLevel { get; set; }
       private int multiplier;
       private int pointsToNextLevel;
@@ -42,10 +41,10 @@ namespace NWN.Systems
           this.description = "Description non disponible";
 
         if (int.TryParse(NWScript.Get2DAString("feat", "GAINMULTIPLE", Id), out value))
-          this.maxLevel = value;
+          this.currentLevel = value;
         else
-          this.maxLevel = 1;
-
+          this.currentLevel = 1;
+ 
         if (int.TryParse(NWScript.Get2DAString("feat", "CRValue", Id), out value))
           this.multiplier = value;
         else
@@ -78,7 +77,6 @@ namespace NWN.Systems
         else
           this.secondaryAbility = Ability.Wisdom;
 
-        this.currentLevel = this.GetcurrentLevel();
         this.pointsToNextLevel = 250 * this.multiplier * (int)Math.Pow(Math.Sqrt(32), this.currentLevel);
       }
       public double GetTimeToNextLevel(Player oPC)
@@ -96,13 +94,33 @@ namespace NWN.Systems
         TimeSpan EndTime = DateTime.Now.AddSeconds(this.GetTimeToNextLevel(oPC)).Subtract(DateTime.Now);
         string Countdown = "";
         if (EndTime.Days > 0)
-          Countdown += EndTime.Days + ":";
+        {
+          if (EndTime.Days < 10)
+            Countdown += "0" + EndTime.Days + ":";
+          else
+            Countdown += EndTime.Days + ":";
+        }
         if (EndTime.Hours > 0)
-          Countdown += EndTime.Hours + ":";
+        {
+          if (EndTime.Hours < 10)
+            Countdown += "0" + EndTime.Hours + ":";
+          else
+            Countdown += EndTime.Hours + ":";
+        }
         if (EndTime.Minutes > 0)
-          Countdown += EndTime.Minutes + ":";
+        {
+          if (EndTime.Minutes < 10)
+            Countdown += "0" + EndTime.Minutes + ":";
+          else
+            Countdown += EndTime.Minutes + ":";
+        }
         if (EndTime.Seconds > 0)
-          Countdown += EndTime.Seconds;
+        {
+          if (EndTime.Seconds < 10)
+            Countdown += "0" + EndTime.Seconds;
+          else
+            Countdown += EndTime.Seconds;
+        }
 
         return Countdown;
       }
@@ -112,9 +130,11 @@ namespace NWN.Systems
         oPC.RefreshAcquiredSkillPoints();
 
         NWScript.PostString(oPC, $"Apprentissage terminé dans {Countdown}", 80, 10, ScreenAnchor.TopLeft, 1.0f, unchecked((int)0xC0C0C0FF), unchecked((int)0xC0C0C0FF), 9, "fnt_galahad14");
-        NWScript.DelayCommand(1.0f, () => DisplayTimeToNextLevel(oPC));
+        
+        if(oPC.Locals.Int.Get("_DISPLAY_JOBS") == 1)
+          NWScript.DelayCommand(1.0f, () => DisplayTimeToNextLevel(oPC));
       }
-      public int GetcurrentLevel()
+/*      public int GetcurrentLevel()
       {
         if (this.IsAtmaxLevel())
           return this.maxLevel;
@@ -135,7 +155,7 @@ namespace NWN.Systems
           return true;
         else
           return false;
-      }
+      }*/
     }
   }
 }

@@ -47,6 +47,11 @@ namespace NWN.Systems
         this.learnableSkills.Add(122, new SkillSystem.Skill(122, NWNX.Object.GetFloat(this, "_JOB_SP_122")));
         this.learnableSkills.Add(128, new SkillSystem.Skill(128, NWNX.Object.GetFloat(this, "_JOB_SP_128")));
         this.learnableSkills.Add(133, new SkillSystem.Skill(133, NWNX.Object.GetFloat(this, "_JOB_SP_133")));
+        int successorId;
+        if (int.TryParse(NWScript.Get2DAString("feat", "SUCCESSOR", NWNX.Creature.GetHighestLevelOfFeat(this, 1132)), out successorId))
+        {
+          this.learnableSkills.Add(successorId, new SkillSystem.Skill(successorId, NWNX.Object.GetFloat(this, $"_JOB_SP_{successorId}")));
+        }
       }
 
       public void EmitKeydown(KeydownEventArgs e)
@@ -122,6 +127,7 @@ namespace NWN.Systems
 
           double RemainingTime = skill.GetTimeToNextLevel(this);
           NWNX.Object.SetFloat(this, $"_JOB_SP_{skill.oid}", skill.acquiredPoints, true);
+
           if (RemainingTime < 0)
           {
             this.LevelUpSkill(skill);
@@ -197,14 +203,30 @@ namespace NWN.Systems
       }
       public void LevelUpSkill(SkillSystem.Skill skill)
       {
+        int skillSucessorId = -1;
+
         if (!this.HasFeat((Feat)skill.oid))
         {
           this.AddFeat((Feat)skill.oid);
-          NWNX.Object.DeleteInt(this, "_CURRENT_JOB");
           NWScript.DelayCommand(10.0f, () => this.PlayNewSkillAcquiredEffects(skill)); // Décalage de 10 secondes pour être sur que le joueur a fini de charger la map à la reco
-        }
 
-        skill.currentLevel += 1;
+          int.TryParse(NWScript.Get2DAString("feat", "SUCCESSOR", skill.oid), out skillSucessorId);
+        }
+        else
+        {
+          int value;
+          int skillCurrentLevel = NWNX.Creature.GetHighestLevelOfFeat(this, skill.oid);
+          if (int.TryParse(NWScript.Get2DAString("feat", "SUCCESSOR", skillCurrentLevel), out value))
+          {
+            this.AddFeat((Feat)value);
+            this.RemoveFeat((Feat)skill.oid);
+            int.TryParse(NWScript.Get2DAString("feat", "SUCCESSOR", value), out skillSucessorId);
+          }
+          else
+          {
+            // TODO : LOG ERROR + DIFFUSER SUR CANAL DM ET DISCORD (info : nom du joueur, nom du skill, highestLevel actuel)
+          }
+        }
 
         Func<PlayerSystem.Player, int, int> handler;
         if (SkillSystem.RegisterAddCustomFeatEffect.TryGetValue(skill.oid, out handler))
@@ -219,8 +241,13 @@ namespace NWN.Systems
           }
         }
 
-        if (skill.currentLevel >= skill.maxLevel)
-          this.learnableSkills.Remove(skill.oid);
+        NWNX.Object.DeleteInt(this, "_CURRENT_JOB");
+        this.learnableSkills.Remove(skill.oid);
+
+        if (skillSucessorId != -1)
+        {
+          this.learnableSkills.Add(skillSucessorId, new SkillSystem.Skill(skillSucessorId, 0));
+        }
       }
 
       public void RemoveMalus(SkillSystem.Skill skill)
@@ -248,7 +275,7 @@ namespace NWN.Systems
 
       public void PlayNewSkillAcquiredEffects(SkillSystem.Skill skill)
       {
-        NWScript.PostString(this, $"Votre apprentissage {skill.name} {skill.currentLevel} est terminé !", 80, 10, ScreenAnchor.TopLeft, 5.0f, unchecked((int)0xC0C0C0FF), unchecked((int)0xC0C0C0FF), 9, "fnt_galahad14");
+        NWScript.PostString(this, $"Votre apprentissage {skill.name} est terminé !", 80, 10, ScreenAnchor.TopLeft, 5.0f, unchecked((int)0xC0C0C0FF), unchecked((int)0xC0C0C0FF), 9, "fnt_galahad14");
         NWNX.Player.PlaySound(this, "gui_level_up", this);
         NWNX.Player.ApplyInstantVisualEffectToObject(this, this, (int)Impact.GlobeUse);
       }

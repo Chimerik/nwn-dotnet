@@ -13,7 +13,8 @@ namespace NWN.Systems
       if (PlayerSystem.Players.TryGetValue(ctx.oSender, out player))
       {
         player.Locals.Int.Set("_MENU_SKILL_REFRESH", 1);
-       }
+        __DrawSkillPage(player);
+      }
     }
 
     private static void __DrawSkillPage(PlayerSystem.Player player)
@@ -26,7 +27,7 @@ namespace NWN.Systems
         // TODO :  afficher le skill en cours en premier ?
 
         skill.GetTimeToNextLevel(player);
-        player.menu.choices.Add(($"{skill.name} {skill.currentLevel} - Temps restant : {skill.GetTimeToNextLevelAsString(player)}", () => __HandleSkillSelection(player, skill)));
+        player.menu.choices.Add(($"{skill.name} - Temps restant : {skill.GetTimeToNextLevelAsString(player)}", () => __HandleSkillSelection(player, skill)));
           
         // TODO : Suivant, précédent et quitter
       }
@@ -44,7 +45,7 @@ namespace NWN.Systems
         // TODO :  afficher le skill en cours en premier ?
 
         skill.GetTimeToNextLevel(player);
-        player.menu.choices.Add(($"{skill.name} {skill.currentLevel} - Temps restant : {skill.GetTimeToNextLevelAsString(player)}", () => __HandleSkillSelection(player, skill)));
+        player.menu.choices.Add(($"{skill.name} - Temps restant : {skill.GetTimeToNextLevelAsString(player)}", () => __HandleSkillSelection(player, skill)));
 
         // TODO : Suivant, précédent et quitter
       }

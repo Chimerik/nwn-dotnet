@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using NWN.Enums;
 using NWN.NWNX;
 
@@ -11,25 +12,10 @@ namespace NWN.Systems
       PlayerSystem.Player player;
       if (PlayerSystem.Players.TryGetValue(ctx.oSender, out player))
       {
-        if (((string)options.positional[0]).Length == 0)
+        foreach (KeyValuePair<int, SkillSystem.Skill> SkillListEntry in player.learnableSkills)
         {
-          if (NWNX.Object.GetInt(player, "_CURRENT_JOB") != 0)
-          {
-            player.learnableSkills[NWNX.Object.GetInt(player, "_CURRENT_JOB")].DisplayTimeToNextLevel(player);
-          }
-          else
-            player.SendMessage("Vous n'avez pas d'entrainement en cours.");
+          player.SendMessage($"feat : {SkillListEntry.Key}");
         }
-        else
-        {
-          int SkillId;
-          if (int.TryParse((string)options.positional[0], out SkillId))
-          {
-            player.learnableSkills.Add(SkillId, new SkillSystem.Skill(SkillId, 0));
-          }
-          else
-            player.SendMessage($"{(string)options.positional[0]} n'est pas une valeur acceptée pour cette commande.");
-        } 
       }
     }
   }
