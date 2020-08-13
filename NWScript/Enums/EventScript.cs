@@ -1,4 +1,4 @@
-namespace NWN.Enums {
+﻿namespace NWN.Enums {
   public enum EventScript {
     Module_OnHeartbeat = 3000,
     Module_OnUserDefined = 3001,
@@ -18,6 +18,7 @@ namespace NWN.Enums {
     Module_OnEquipItem = 3015,
     Module_OnUnequipItem = 3016,
     Module_OnPlayerChat = 3017,
+    Module_OnPlayerTarget = 3018,
     Area_OnHeartbeat = 4000,
     Area_OnUserDefined = 4001,
     Area_OnEnter = 4002,

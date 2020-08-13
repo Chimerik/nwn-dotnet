@@ -15,6 +15,7 @@ namespace NWN.Systems
     public static Dictionary<string, Func<uint, int>> Register = new Dictionary<string, Func<uint, int>>
         {
             { "on_pc_perceived", HandlePlayerPerceived },
+            { "on_pc_target", HandlePlayerTarget },
             { "on_pc_connect", HandlePlayerConnect },
             { "on_pc_disconnect", HandlePlayerDisconnect },
             { "player_exit_before", HandlePlayerBeforeDisconnect },
@@ -865,6 +866,40 @@ namespace NWN.Systems
           oPartyMember = NWScript.GetNextFactionMember(oPartyMember, true).AsPlayer();
         }
       }
+
+      return Entrypoints.SCRIPT_HANDLED;
+    }
+    private static int HandlePlayerTarget(uint oidSelf)
+    {
+      //NWPlayer oPC = NWScript.GetLastPlayerToSelectTarget();
+      //var oTarget = NWScript.GetTargetingModeSelectedObject();
+      //Vector vTarget = NWScript.GetTargetingModeSelectedPosition();
+
+      NWPlayer oPC = NWScript.GetFirstPC().AsPlayer(); // Bouchon en attendant d'avoir la vraie fonction
+      uint oTarget = oPC;
+      Vector vTarget = NWScript.GetPosition(oPC);
+
+      Player player;
+      if (Players.TryGetValue(oPC, out player))
+      {
+        Func<Player, uint, Vector, int> handler;
+        if (TargetSystem.Register.TryGetValue(player.lastTargetedCommandUsed, out handler))
+        {
+          try
+          {
+            return handler.Invoke(player, oTarget, vTarget);
+          }
+          catch (Exception e)
+          {
+            player.lastTargetedCommandArgument = "";
+            player.lastTargetedCommandUsed = "";
+            Utils.LogException(e);
+          }
+        }
+      }
+
+      player.lastTargetedCommandArgument = "";
+      player.lastTargetedCommandUsed = "";
 
       return Entrypoints.SCRIPT_HANDLED;
     }

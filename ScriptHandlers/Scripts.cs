@@ -3,7 +3,7 @@ using NWN.Systems;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.IO;
+using NWN.Enums;
 
 namespace NWN.ScriptHandlers
 {
@@ -35,6 +35,8 @@ namespace NWN.ScriptHandlers
       }
 
       Systems.ChatSystem.Init();
+
+      NWScript.SetEventScript(NWScript.GetModule(), (int)EventScript.Module_OnPlayerTarget, "on_pc_target");
 
       NWNX.Events.SubscribeEvent("NWNX_ON_CLIENT_DISCONNECT_BEFORE", "player_exit_before");
       NWNX.Events.ToggleDispatchListMode("NWNX_ON_CLIENT_DISCONNECT_BEFORE", "player_exit_before", 1);
