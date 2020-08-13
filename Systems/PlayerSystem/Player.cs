@@ -19,6 +19,8 @@ namespace NWN.Systems
 
       private uint blockingBoulder;
       public string disguiseName { get; set; }
+      public string lastTargetedCommandUsed { get; set; }
+      public string lastTargetedCommandArgument { get; set; }
       private List<uint> _selectedObjectsList = new List<uint>();
       public List<uint> selectedObjectsList
       {
