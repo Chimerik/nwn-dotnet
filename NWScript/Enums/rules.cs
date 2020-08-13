@@ -1214,6 +1214,26 @@
     PlayerTool08 = 1113,
     PlayerTool09 = 1114,
     PlayerTool10 = 1115,
-    LanguageElf = 1116
+    LanguageElf = 1116,
+    LanguageDwarf = 1117,
+    LanguageOrc = 1118,
+    LanguageGiant = 1119,
+    LanguageGoblin = 1120,
+    LanguageHalfling = 1121,
+    LanguageAbyssal = 1122,
+    LanguageCelestial = 1123,
+    LanguageDraconic = 1124,
+    LanguageDeep = 1125,
+    LanguageInfernal = 1126,
+    LanguagePrimodial = 1127,
+    LanguageSylvan = 1128,
+    LanguageDruidic = 1129,
+    LanguageThieves = 1130,
+    STRENGTH_LOSS = 1131,
+    test = 1132,
+    test2 = 1133,
+    test3 = 1134,
+    test4 = 1135,
+    test5 = 1136
   }
 }
