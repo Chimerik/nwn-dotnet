@@ -1234,6 +1234,7 @@
     test2 = 1133,
     test3 = 1134,
     test4 = 1135,
-    test5 = 1136
+    test5 = 1136,
+    INVALID_FEAT = 65535
   }
 }

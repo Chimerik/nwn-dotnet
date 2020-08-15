@@ -34,7 +34,7 @@ namespace NWN.Systems
         else
         {
           this.name = "Nom non disponible";
-          Utils.LogException(new Exception($"SKILL SYSTEM ERROR - Skill {this.oid} : no available name"));
+          Utils.LogMessageToDMs($"SKILL SYSTEM ERROR - Skill {this.oid} : no available name");
         }
 
         if (int.TryParse(NWScript.Get2DAString("feat", "DESCRIPTION", Id), out value))
@@ -42,7 +42,7 @@ namespace NWN.Systems
         else
         {
           this.description = "Description non disponible";
-          Utils.LogException(new Exception($"SKILL SYSTEM ERROR - Skill {this.oid} : no available description"));
+          Utils.LogMessageToDMs($"SKILL SYSTEM ERROR - Skill {this.oid} : no available description");
         }
 
         if (int.TryParse(NWScript.Get2DAString("feat", "GAINMULTIPLE", Id), out value))
@@ -83,7 +83,7 @@ namespace NWN.Systems
         else
         {
           this.primaryAbility = Ability.Intelligence;
-          Utils.LogException(new Exception($"SKILL SYSTEM ERROR - Skill {this.oid} : Primary ability not set"));
+          Utils.LogMessageToDMs($"SKILL SYSTEM ERROR - Skill {this.oid} : Primary ability not set");
         }
 
         if (iSkillAbilities.Count > 1)
@@ -91,7 +91,7 @@ namespace NWN.Systems
         else
         {
           this.secondaryAbility = Ability.Wisdom;
-          Utils.LogException(new Exception($"SKILL SYSTEM ERROR - Skill {this.oid} : Secondary ability not set"));
+          Utils.LogMessageToDMs($"SKILL SYSTEM ERROR - Skill {this.oid} : Secondary ability not set");
         }
 
         this.pointsToNextLevel = 250 * this.multiplier * (int)Math.Pow(Math.Sqrt(32), this.currentLevel);
@@ -151,28 +151,6 @@ namespace NWN.Systems
         if(oPC.Locals.Int.Get("_DISPLAY_JOBS") == 1)
           NWScript.DelayCommand(1.0f, () => DisplayTimeToNextLevel(oPC));
       }
-/*      public int GetcurrentLevel()
-      {
-        if (this.IsAtmaxLevel())
-          return this.maxLevel;
-        if (this.acquiredPoints < 250 * this.multiplier * (int)Math.Pow(Math.Sqrt(32), 0))
-          return 0;
-        if (this.acquiredPoints < 250 * this.multiplier * (int)Math.Pow(Math.Sqrt(32), 1))
-          return 1;
-        if (this.acquiredPoints < 250 * this.multiplier * (int)Math.Pow(Math.Sqrt(32), 2))
-          return 2;
-        if (this.acquiredPoints < 250 * this.multiplier * (int)Math.Pow(Math.Sqrt(32), 3))
-          return 3;
-
-        return 4;
-      }
-      public Boolean IsAtmaxLevel()
-      {
-        if (this.acquiredPoints >= 250 * this.multiplier * (int)Math.Pow(Math.Sqrt(32), this.maxLevel))
-          return true;
-        else
-          return false;
-      }*/
     }
   }
 }

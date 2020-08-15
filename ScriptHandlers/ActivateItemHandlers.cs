@@ -38,7 +38,7 @@ namespace NWN.ScriptHandlers
       {
         var FeatBook = oItem.AsItem();
         int FeatId = FeatBook.Locals.Int.Get("_SKILL_ID");
-        if (NWNX.Creature.GetHighestLevelOfFeat(player, FeatId) == 65535) // Valeur retournée par la fonction si la cible ne possède pas le don
+        if (NWNX.Creature.GetHighestLevelOfFeat(player, FeatId) == (int)Feat.INVALID_FEAT) // Valeur retournée par la fonction si la cible ne possède pas le don
         {
           SkillBook.pipeline.Execute(new SkillBook.Context(
           oItem: FeatBook,

@@ -20,7 +20,6 @@ namespace NWN.Systems
 
       private uint blockingBoulder;
       public string disguiseName { get; set; }
-      public string lastTargetedCommandArgument { get; set; }
       private List<uint> _selectedObjectsList = new List<uint>();
       public List<uint> selectedObjectsList
       {
@@ -73,13 +72,18 @@ namespace NWN.Systems
         }
       }
 
-      public Action<uint, Vector> OnSelectTarget = delegate { };
+      private Action<uint, Vector> OnSelectTarget = delegate { };
       public void SelectTarget(Action<uint, Vector> callback)
       {
         this.OnSelectTarget = callback;
 
         //NWScript.EnterTargetingMode(player, ObjectType.Creature);
         NWScript.ExecuteScript("on_pc_target", this); // bouchon en attendant d'avoir la vraie fonction
+      }
+
+      public void DoActionOnTargetSelected(uint oPC, Vector vTarget)
+      {
+        this.OnSelectTarget(oPC, vTarget);
       }
 
       public void OnFrostAutoAttackTimedEvent() // conservé pour mémoire, à retravailler
@@ -231,7 +235,7 @@ namespace NWN.Systems
           }
           else
           {
-            Utils.LogException(new Exception($"SKILL LEVEL UP ERROR - Player : {this.Name}, Skill : {skill.name} ({skill.oid}), Current level : {skillCurrentLevel}"));
+            Utils.LogMessageToDMs($"SKILL LEVEL UP ERROR - Player : {this.Name}, Skill : {skill.name} ({skill.oid}), Current level : {skillCurrentLevel}");
           }
         }
 

@@ -17,13 +17,9 @@ namespace NWN.Systems
         {
           NWCreature oCreature = target.AsCreature();
           if (player.IsDM && oCreature.Master == player)
-          {
             oCreature.Name = newName;
-            NWNX.Creature.SetOriginalName(oCreature, newName, false); // Juste pour le test, à supprimer pour la vraie commande
-          }
           else
             player.SendMessage($"{oCreature.Name} n'est pas une de vos invocations, vous ne pouvez pas modifier son nom");
-          
         };
 
         player.SelectTarget(callback);
