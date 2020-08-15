@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Runtime.CompilerServices;
-using System.Text;
+using NWN.Enums;
 
 namespace NWN.Systems
 {
@@ -19,7 +18,6 @@ namespace NWN.Systems
 
     private static int HandleAddStrengthMalusFeat(PlayerSystem.Player player, int idMalusFeat)
     {
-      // TODO : gérer le cas où on choppe plusieurs fois le même malus
       player.removeableMalus.Add(idMalusFeat, new Skill(idMalusFeat, 0));
       NWNX.Creature.SetRawAbilityScore(player, Enums.Ability.Strength, NWNX.Creature.GetRawAbilityScore(player, Enums.Ability.Strength) - 2);
       return Entrypoints.SCRIPT_HANDLED;
