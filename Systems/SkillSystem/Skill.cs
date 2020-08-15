@@ -17,6 +17,7 @@ namespace NWN.Systems
       public string description { get; set; }
       public Boolean currentJob { get; set; }
       public int currentLevel { get; set; }
+      public int successorId { get; set; }
       private int multiplier;
       private int pointsToNextLevel;
       public readonly Ability primaryAbility;
@@ -28,20 +29,30 @@ namespace NWN.Systems
         this.acquiredPoints = SP;
         int value;
 
-        // TODO : logs + message sur chan dm + message sur discord en cas de valeur non configurée
-
         if (int.TryParse(NWScript.Get2DAString("feat", "FEAT", Id), out value))
           this.name = NWScript.GetStringByStrRef(value);
         else
+        {
           this.name = "Nom non disponible";
+          Utils.LogException(new Exception($"SKILL SYSTEM ERROR - Skill {this.oid} : no available name"));
+        }
 
         if (int.TryParse(NWScript.Get2DAString("feat", "DESCRIPTION", Id), out value))
           this.description = NWScript.GetStringByStrRef(value);
         else
+        {
           this.description = "Description non disponible";
+          Utils.LogException(new Exception($"SKILL SYSTEM ERROR - Skill {this.oid} : no available description"));
+        }
 
         if (int.TryParse(NWScript.Get2DAString("feat", "GAINMULTIPLE", Id), out value))
+        {
           this.currentLevel = value;
+          if (int.TryParse(NWScript.Get2DAString("feat", "SUCCESSOR", Id), out value))
+            this.successorId = value;
+          else
+            this.successorId = 0;
+        }
         else
           this.currentLevel = 1;
  
@@ -67,15 +78,21 @@ namespace NWN.Systems
 
         iSkillAbilities.OrderBy(key => key.Value);
 
-        if(iSkillAbilities.Count > 0)
+        if (iSkillAbilities.Count > 0)
           this.primaryAbility = (Ability)iSkillAbilities.ElementAt(0).Key;
         else
+        {
           this.primaryAbility = Ability.Intelligence;
+          Utils.LogException(new Exception($"SKILL SYSTEM ERROR - Skill {this.oid} : Primary ability not set"));
+        }
 
         if (iSkillAbilities.Count > 1)
           this.secondaryAbility = (Ability)iSkillAbilities.ElementAt(1).Key;
         else
+        {
           this.secondaryAbility = Ability.Wisdom;
+          Utils.LogException(new Exception($"SKILL SYSTEM ERROR - Skill {this.oid} : Secondary ability not set"));
+        }
 
         this.pointsToNextLevel = 250 * this.multiplier * (int)Math.Pow(Math.Sqrt(32), this.currentLevel);
       }
