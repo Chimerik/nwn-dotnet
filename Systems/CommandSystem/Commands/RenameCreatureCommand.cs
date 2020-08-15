@@ -33,6 +33,7 @@ namespace NWN.Systems
 
         oCreature.Name = player.lastTargetedCommandArgument;
         NWNX.Creature.SetOriginalName(oCreature, player.lastTargetedCommandArgument, false); // Juste pour le test, à supprimer pour la vraie commande
+        player.OnTargetSelection -= HandleRenameCreatureSelection;
       }
     }
   }
