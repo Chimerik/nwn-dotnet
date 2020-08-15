@@ -197,7 +197,7 @@ namespace NWN.Systems
       Player player;
       if (Players.TryGetValue(oPC, out player))
       {
-        player.EmitTargetSelection(new Player.TargetSelectionEventArgs(oTarget, vTarget));
+        player.OnSelectTarget(oPC, vTarget);
       }
 
       return Entrypoints.SCRIPT_HANDLED;

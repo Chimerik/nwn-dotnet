@@ -72,22 +72,14 @@ namespace NWN.Systems
           this.key = key;
         }
       }
-      public void EmitTargetSelection(TargetSelectionEventArgs e)
-      {
-        OnTargetSelection(this, e);
-      }
 
-      public event EventHandler<TargetSelectionEventArgs> OnTargetSelection = delegate { };
-      public class TargetSelectionEventArgs : EventArgs
+      public Action<uint, Vector> OnSelectTarget = delegate { };
+      public void SelectTarget(Action<uint, Vector> callback)
       {
-        public uint target { get; }
-        public Vector position { get; }
+        this.OnSelectTarget = callback;
 
-        public TargetSelectionEventArgs(uint target, Vector position)
-        {
-          this.target = target;
-          this.position = position;
-        }
+        //NWScript.EnterTargetingMode(player, ObjectType.Creature);
+        NWScript.ExecuteScript("on_pc_target", this); // bouchon en attendant d'avoir la vraie fonction
       }
 
       public void OnFrostAutoAttackTimedEvent() // conservé pour mémoire, à retravailler
