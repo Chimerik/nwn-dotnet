@@ -1,4 +1,4 @@
-using NWN.Enums;
+﻿using NWN.Enums;
 using static NWN.Enums.Creature.Type;
 
 namespace NWN {
@@ -33,7 +33,9 @@ namespace NWN {
 
 
     /// <summary>
-    ///   Do aActionToDo.
+    ///   Do aAction
+    ///   
+    /// .
     /// </summary>
     public static void ActionDoCommand(ActionDelegate aActionToDo) {
       Internal.ClosureActionDoCommand(Internal.OBJECT_SELF, aActionToDo);

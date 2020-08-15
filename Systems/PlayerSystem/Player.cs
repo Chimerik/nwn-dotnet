@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Security.Authentication;
 using NWN.Enums;
 using NWN.Enums.VisualEffect;
 
@@ -19,7 +20,6 @@ namespace NWN.Systems
 
       private uint blockingBoulder;
       public string disguiseName { get; set; }
-      public string lastTargetedCommandUsed { get; set; }
       public string lastTargetedCommandArgument { get; set; }
       private List<uint> _selectedObjectsList = new List<uint>();
       public List<uint> selectedObjectsList
@@ -42,7 +42,7 @@ namespace NWN.Systems
       {
         this.oid = nwobj;
         this.menu = new PrivateMenu(this);
-        //TODO : ajouter IsNewPlayer = résultat de la requête en BDD pour voir si on a déjà des infos sur lui ou pas !
+        // TODO : ajouter IsNewPlayer = résultat de la requête en BDD pour voir si on a déjà des infos sur lui ou pas !
 
         // TODO : charger la liste à partir de la BDD et l'état d'avancement des SP. Mettre en place le système d'apprentissage via livre
         this.learnableSkills.Add(1116, new SkillSystem.Skill(1116, NWNX.Object.GetFloat(this, "_JOB_SP_1116")));
@@ -72,6 +72,24 @@ namespace NWN.Systems
           this.key = key;
         }
       }
+      public void EmitTargetSelection(TargetSelectionEventArgs e)
+      {
+        OnTargetSelection(this, e);
+      }
+
+      public event EventHandler<TargetSelectionEventArgs> OnTargetSelection = delegate { };
+      public class TargetSelectionEventArgs : EventArgs
+      {
+        public uint target { get; }
+        public Vector position { get; }
+
+        public TargetSelectionEventArgs(uint target, Vector position)
+        {
+          this.target = target;
+          this.position = position;
+        }
+      }
+
       public void OnFrostAutoAttackTimedEvent() // conservé pour mémoire, à retravailler
       {
         if (this.autoAttackTarget.AsObject().IsValid)
@@ -205,14 +223,10 @@ namespace NWN.Systems
       }
       public void LevelUpSkill(SkillSystem.Skill skill)
       {
-        int skillSucessorId = -1;
-
         if (!this.HasFeat((Feat)skill.oid))
         {
           this.AddFeat((Feat)skill.oid);
           NWScript.DelayCommand(10.0f, () => this.PlayNewSkillAcquiredEffects(skill)); // Décalage de 10 secondes pour être sur que le joueur a fini de charger la map à la reco
-
-          int.TryParse(NWScript.Get2DAString("feat", "SUCCESSOR", skill.oid), out skillSucessorId);
         }
         else
         {
@@ -222,11 +236,10 @@ namespace NWN.Systems
           {
             this.AddFeat((Feat)value);
             this.RemoveFeat((Feat)skill.oid);
-            int.TryParse(NWScript.Get2DAString("feat", "SUCCESSOR", value), out skillSucessorId);
           }
           else
           {
-            // TODO : LOG ERROR + DIFFUSER SUR CANAL DM ET DISCORD (info : nom du joueur, nom du skill, highestLevel actuel)
+            Utils.LogException(new Exception($"SKILL LEVEL UP ERROR - Player : {this.Name}, Skill : {skill.name} ({skill.oid}), Current level : {skillCurrentLevel}"));
           }
         }
 
@@ -246,9 +259,9 @@ namespace NWN.Systems
         NWNX.Object.DeleteInt(this, "_CURRENT_JOB");
         this.learnableSkills.Remove(skill.oid);
 
-        if (skillSucessorId != -1)
+        if (skill.successorId > 0)
         {
-          this.learnableSkills.Add(skillSucessorId, new SkillSystem.Skill(skillSucessorId, 0));
+          this.learnableSkills.Add(skill.successorId, new SkillSystem.Skill(skill.successorId, 0));
         }
       }
 
@@ -309,7 +322,18 @@ namespace NWN.Systems
         this.SendMessage("Votre récente déconvenue vous a affligé d'une blessure durable. Il va falloir passer du temps en rééducation pour vous en débarrasser");
 
         int iRandomMalus = Utils.random.Next(1130, 1130); // TODO : il faudra mettre en paramètre de conf le range des feat ID pour les malus
-        this.AddFeat((Feat)iRandomMalus); 
+        
+        if (NWNX.Creature.GetHighestLevelOfFeat(this, iRandomMalus) != 65535)
+        {  
+          int successorId;
+          if (int.TryParse(NWScript.Get2DAString("feat", "SUCCESSOR", iRandomMalus), out successorId))
+          {
+            this.AddFeat((Feat)successorId);
+            iRandomMalus = successorId;
+          }
+        }
+        else
+          this.AddFeat((Feat)iRandomMalus); 
 
         Func<PlayerSystem.Player, int, int> handler;
         if (SkillSystem.RegisterAddCustomFeatEffect.TryGetValue(iRandomMalus, out handler))

@@ -15,7 +15,7 @@ namespace NWN.Systems
     public static Dictionary<string, Func<uint, int>> Register = new Dictionary<string, Func<uint, int>>
         {
             { "on_pc_perceived", HandlePlayerPerceived },
-            { "on_pc_target", HandlePlayerTarget },
+            { "on_pc_target", HandlePlayerTargetSelection },
             { "on_pc_connect", HandlePlayerConnect },
             { "on_pc_disconnect", HandlePlayerDisconnect },
             { "player_exit_before", HandlePlayerBeforeDisconnect },
@@ -184,6 +184,24 @@ namespace NWN.Systems
       return Entrypoints.SCRIPT_HANDLED;
     }
 
+    private static int HandlePlayerTargetSelection(uint oidSelf)
+    {
+      //NWPlayer oPC = NWScript.GetLastPlayerToSelectTarget();
+      //var oTarget = NWScript.GetTargetingModeSelectedObject();
+      //Vector vTarget = NWScript.GetTargetingModeSelectedPosition();
+
+      NWPlayer oPC = NWScript.GetFirstPC().AsPlayer(); // Bouchon en attendant d'avoir la vraie fonction
+      uint oTarget = oPC;
+      Vector vTarget = NWScript.GetPosition(oPC);
+
+      Player player;
+      if (Players.TryGetValue(oPC, out player))
+      {
+        player.EmitTargetSelection(new Player.TargetSelectionEventArgs(oTarget, vTarget));
+      }
+
+      return Entrypoints.SCRIPT_HANDLED;
+    }
     private static int HandleBeforePlayerSave(uint oidSelf)
     {
       /* Fix polymorph bug : Lorsqu'un PJ métamorphosé est sauvegardé, toutes ses buffs sont supprimées afin que les stats de 
@@ -759,7 +777,16 @@ namespace NWN.Systems
         NWScript.SetLocalInt(NWScript.CreateItemOnObject("item_pccorpse", oPCCorpse), "PC_ID", PlayerId);
 
         if (player.Gold > 0)
-          NWScript.CreateItemOnObject("nw_it_gold001", oPCCorpse, player.Gold); // TODO : penser à modifier la valeur row 76 of baseitems.2da afin de permettre à l'or de stack à plus de 50K unités
+        {
+          do
+          {
+            NWScript.CreateItemOnObject("nw_it_gold001", oPCCorpse, player.Gold);
+            player.Gold -= 50000;
+          } while (player.Gold > 50000);
+        }
+
+        if (player.Gold < 0)
+          player.Gold = 0;
 
         // TODO : Dropper toutes les ressources craft de l'inventaire du défunt
 
@@ -866,40 +893,6 @@ namespace NWN.Systems
           oPartyMember = NWScript.GetNextFactionMember(oPartyMember, true).AsPlayer();
         }
       }
-
-      return Entrypoints.SCRIPT_HANDLED;
-    }
-    private static int HandlePlayerTarget(uint oidSelf)
-    {
-      //NWPlayer oPC = NWScript.GetLastPlayerToSelectTarget();
-      //var oTarget = NWScript.GetTargetingModeSelectedObject();
-      //Vector vTarget = NWScript.GetTargetingModeSelectedPosition();
-
-      NWPlayer oPC = NWScript.GetFirstPC().AsPlayer(); // Bouchon en attendant d'avoir la vraie fonction
-      uint oTarget = oPC;
-      Vector vTarget = NWScript.GetPosition(oPC);
-
-      Player player;
-      if (Players.TryGetValue(oPC, out player))
-      {
-        Func<Player, uint, Vector, int> handler;
-        if (TargetSystem.Register.TryGetValue(player.lastTargetedCommandUsed, out handler))
-        {
-          try
-          {
-            return handler.Invoke(player, oTarget, vTarget);
-          }
-          catch (Exception e)
-          {
-            player.lastTargetedCommandArgument = "";
-            player.lastTargetedCommandUsed = "";
-            Utils.LogException(e);
-          }
-        }
-      }
-
-      player.lastTargetedCommandArgument = "";
-      player.lastTargetedCommandUsed = "";
 
       return Entrypoints.SCRIPT_HANDLED;
     }
