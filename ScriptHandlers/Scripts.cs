@@ -62,6 +62,10 @@ namespace NWN.ScriptHandlers
       NWNX.Events.ToggleDispatchListMode("NWNX_ON_ITEM_EQUIP_BEFORE", "event_equip_items_before", 1);
       NWNX.Events.SubscribeEvent("NWNX_ON_ITEM_UNEQUIP_BEFORE", "event_unequip_items_before");
       NWNX.Events.ToggleDispatchListMode("NWNX_ON_ITEM_UNEQUIP_BEFORE", "event_unequip_items_before", 1);
+      NWNX.Events.SubscribeEvent("NWNX_ON_VALIDATE_ITEM_EQUIP_BEFORE", "event_validate_equip_items_before");
+      NWNX.Events.ToggleDispatchListMode("NWNX_ON_VALIDATE_ITEM_EQUIP_BEFORE", "event_validate_equip_items_before", 1);
+      NWNX.Events.SubscribeEvent("NWNX_ON_VALIDATE_USE_ITEM_BEFORE", "event_validate_equip_items_before");
+      NWNX.Events.ToggleDispatchListMode("NWNX_ON_VALIDATE_USE_ITEM_BEFORE", "event_validate_equip_items_before", 1);
 
       NWNX.Events.SubscribeEvent("NWNX_ON_SERVER_CHARACTER_SAVE_BEFORE", "event_player_save_before");
       NWNX.Events.SubscribeEvent("NWNX_ON_CLIENT_EXPORT_CHARACTER_BEFORE", "event_player_save_before");
@@ -109,7 +113,19 @@ namespace NWN.ScriptHandlers
       NWNX.Events.SubscribeEvent("NWNX_ON_PARTY_KICK_BEFORE", "event_party_leave_before");
       NWNX.Events.SubscribeEvent("NWNX_ON_PARTY_KICK_AFTER", "event_party_kick_after");
 
-      NWNX.Events.SubscribeEvent("CDE_POTAGER", "event_potager");
+      NWNX.Events.SubscribeEvent("NWNX_ON_TIMING_BAR_CANCEL_BEFORE", "event_mining_cycle_cancel_before");
+      NWNX.Events.ToggleDispatchListMode("NWNX_ON_TIMING_BAR_CANCEL_BEFORE", "event_mining_cycle_cancel_before", 1);
+      NWNX.Events.SubscribeEvent("NWNX_ON_CLIENT_DISCONNECT_BEFORE", "event_mining_cycle_cancel_before");
+      NWNX.Events.ToggleDispatchListMode("NWNX_ON_CLIENT_DISCONNECT_BEFORE", "event_mining_cycle_cancel_before", 1);
+      NWNX.Events.SubscribeEvent("NWNX_ON_ITEM_EQUIP_BEFORE", "event_mining_cycle_cancel_before");
+      NWNX.Events.ToggleDispatchListMode("NWNX_ON_ITEM_EQUIP_BEFORE", "event_mining_cycle_cancel_before", 1);
+      NWNX.Events.SubscribeEvent("NWNX_ON_ITEM_UNEQUIP_BEFORE", "event_mining_cycle_cancel_before");
+      NWNX.Events.ToggleDispatchListMode("NWNX_ON_ITEM_UNEQUIP_BEFORE", "event_mining_cycle_cancel_before", 1);
+
+      NWNX.Events.SubscribeEvent("NWNX_ON_EXAMINE_OBJECT_BEFORE", "event_examine_before");
+      NWNX.Events.SubscribeEvent("NWNX_ON_EXAMINE_OBJECT_AFTER", "event_examine_after");
+
+      //NWNX.Events.SubscribeEvent("CDE_POTAGER", "event_potager");
 
       //Garden.Init();
 

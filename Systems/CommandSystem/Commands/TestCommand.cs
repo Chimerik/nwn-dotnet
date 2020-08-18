@@ -12,10 +12,7 @@ namespace NWN.Systems
       PlayerSystem.Player player;
       if (PlayerSystem.Players.TryGetValue(ctx.oSender, out player))
       {
-        foreach (KeyValuePair<int, SkillSystem.Skill> SkillListEntry in player.learnableSkills)
-        {
-          player.SendMessage($"feat : {SkillListEntry.Key}");
-        }
+        //player.SendMessage($"mining target : {player.miningTarget.AsObject().Name}");
       }
     }
   }

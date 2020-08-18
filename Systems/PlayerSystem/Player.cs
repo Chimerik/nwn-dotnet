@@ -71,7 +71,10 @@ namespace NWN.Systems
           this.key = key;
         }
       }
-
+      public void DoActionOnTargetSelected(uint oPC, Vector vTarget)
+      {
+        this.OnSelectTarget(oPC, vTarget);
+      }
       private Action<uint, Vector> OnSelectTarget = delegate { };
       public void SelectTarget(Action<uint, Vector> callback)
       {
@@ -81,9 +84,49 @@ namespace NWN.Systems
         NWScript.ExecuteScript("on_pc_target", this); // bouchon en attendant d'avoir la vraie fonction
       }
 
-      public void DoActionOnTargetSelected(uint oPC, Vector vTarget)
+      public void DoActionOnMiningCycleCancelled()
       {
-        this.OnSelectTarget(oPC, vTarget);
+        this.OnMiningCycleCancelled();
+      }
+      private Action OnMiningCycleCancelled = delegate { };
+
+      public void DoActionOnMiningCycleCompleted()
+      {
+        this.OnMiningCycleCompleted();
+      }
+      private Action OnMiningCycleCompleted = delegate { };
+      public void StartMiningCycle(NWPlaceable rock, Action cancelCallback, Action completeCallback)
+      {
+        this.OnMiningCycleCancelled = cancelCallback;
+        this.OnMiningCycleCompleted = completeCallback;
+
+        NWItem miningStriper = this.Equipped[InventorySlot.RightHand];
+        float cycleDuration = 180.0f;
+
+        if(miningStriper.IsValid) // TODO : Idée pour plus tard, le strip miner le plus avancé pourra équipper un cristal de spécialisation pour extraire deux fois plus de minerai en un cycle sur son minerai de spécialité
+        {
+          cycleDuration = cycleDuration - (cycleDuration * miningStriper.Locals.Int.Get("_ITEM_LEVEL") * 2 / 100);
+        }
+
+        Effect eRay = NWScript.EffectBeam(Beam.Disintegrate, miningStriper, 1);
+        eRay = NWScript.TagEffect(eRay, $"_{this.CDKey}_MINING_BEAM");
+        rock.ApplyEffect(DurationType.Temporary, eRay, cycleDuration);
+
+        NWNX.Player.StartGuiTimingBar(this, cycleDuration, "on_mining_cycle_complete");
+
+        NWNX.Events.AddObjectToDispatchList("NWNX_ON_TIMING_BAR_CANCEL_BEFORE", "event_mining_cycle_cancel_before", this);
+        NWNX.Events.AddObjectToDispatchList("NWNX_ON_CLIENT_DISCONNECT_BEFORE", "event_mining_cycle_cancel_before", this);
+        NWNX.Events.AddObjectToDispatchList("NWNX_ON_ITEM_EQUIP_BEFORE", "event_mining_cycle_cancel_before", this);
+        NWNX.Events.AddObjectToDispatchList("NWNX_ON_ITEM_UNEQUIP_BEFORE", "event_mining_cycle_cancel_before", this);
+      }
+      public void RemoveMiningCycleCallbacks()
+      {
+        this.OnMiningCycleCancelled = () => { };
+        this.OnMiningCycleCompleted = () => { };
+        NWNX.Events.RemoveObjectFromDispatchList("NWNX_ON_TIMING_BAR_CANCEL_BEFORE", "event_mining_cycle_cancel_before", this);
+        NWNX.Events.RemoveObjectFromDispatchList("NWNX_ON_CLIENT_DISCONNECT_BEFORE", "event_mining_cycle_cancel_before", this);
+        NWNX.Events.RemoveObjectFromDispatchList("NWNX_ON_ITEM_EQUIP_BEFORE", "event_mining_cycle_cancel_before", this);
+        NWNX.Events.RemoveObjectFromDispatchList("NWNX_ON_ITEM_UNEQUIP_BEFORE", "event_mining_cycle_cancel_before", this);
       }
 
       public void OnFrostAutoAttackTimedEvent() // conservé pour mémoire, à retravailler
@@ -319,7 +362,7 @@ namespace NWN.Systems
 
         int iRandomMalus = Utils.random.Next(1130, 1130); // TODO : il faudra mettre en paramètre de conf le range des feat ID pour les malus
         
-        if (NWNX.Creature.GetHighestLevelOfFeat(this, iRandomMalus) != 65535)
+        if (NWNX.Creature.GetHighestLevelOfFeat(this, iRandomMalus) != (int)Feat.INVALID_FEAT)
         {  
           int successorId;
           if (int.TryParse(NWScript.Get2DAString("feat", "SUCCESSOR", iRandomMalus), out successorId))

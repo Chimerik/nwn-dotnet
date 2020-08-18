@@ -158,10 +158,6 @@ namespace NWN.Systems
           eVis = NWScript.EffectVisualEffect((VisualEffect)Impact.FrostSmall);
           Effect eRay = NWScript.EffectBeam(Beam.Cold, oCaster, 0);
 
-          if (oTarget.ObjectType == ObjectType.Placeable && oTarget.ResRef == "jbb_feupetit") { oTarget.IsPlot = false; oTarget.Destroy(); }
-          if (oTarget.ObjectType == ObjectType.Placeable && oTarget.ResRef == "jbb_feumoyen") { oTarget.IsPlot = false; oTarget.Destroy(); }
-          if (oTarget.ObjectType == ObjectType.Placeable && oTarget.ResRef == "jbb_feularge") { oTarget.IsPlot = false; oTarget.Destroy(); }
-
           //Make SR Check
           if (Spells.MyResistSpell(oCaster, oTarget) == 0)
           {
