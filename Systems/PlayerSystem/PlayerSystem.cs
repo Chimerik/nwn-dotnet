@@ -39,6 +39,10 @@ namespace NWN.Systems
             { "event_party_leave_after", HandleAfterPartyLeave },
             { "event_party_leave_before", HandleBeforePartyLeave },
             { "event_party_kick_after", HandleAfterPartyKick },
+            { "event_mining_cycle_cancel_before", HandleBeforeMiningCycleCancel },
+            { "on_mining_cycle_complete", HandleAfterMiningCycleComplete },
+            { "event_examine_before", HandleBeforeExamine },
+            { "event_examine_after", HandleAfterExamine },
         };
     
     public static Dictionary<uint, Player> Players = new Dictionary<uint, Player>();
@@ -56,6 +60,8 @@ namespace NWN.Systems
       NWNX.Events.AddObjectToDispatchList("NWNX_ON_BROADCAST_CAST_SPELL_AFTER", "event_spellbroadcast_after", oPC);
       NWNX.Events.AddObjectToDispatchList("NWNX_ON_ITEM_EQUIP_BEFORE", "event_equip_items_before", oPC);
       NWNX.Events.AddObjectToDispatchList("NWNX_ON_ITEM_UNEQUIP_BEFORE", "event_unequip_items_before", oPC);
+      NWNX.Events.AddObjectToDispatchList("NWNX_ON_VALIDATE_ITEM_EQUIP_BEFORE", "event_validate_equip_items_before", oPC);
+      NWNX.Events.AddObjectToDispatchList("NWNX_ON_VALIDATE_USE_ITEM_BEFORE", "event_validate_equip_items_before", oPC);
       NWNX.Events.AddObjectToDispatchList("NWNX_ON_COMBAT_MODE_OFF", "event_combatmode", oPC);
       NWNX.Events.AddObjectToDispatchList("NWNX_ON_USE_SKILL_BEFORE", "event_skillused", oPC);
       NWNX.Events.AddObjectToDispatchList("NWNX_ON_DO_LISTEN_DETECTION_AFTER", "event_detection_after", oPC);
@@ -191,13 +197,13 @@ namespace NWN.Systems
       //Vector vTarget = NWScript.GetTargetingModeSelectedPosition();
 
       NWPlayer oPC = NWScript.GetFirstPC().AsPlayer(); // Bouchon en attendant d'avoir la vraie fonction
-      uint oTarget = oPC;
-      Vector vTarget = NWScript.GetPosition(oPC);
+      uint oTarget = NWScript.GetObjectByTag("mineable_rock");
+      Vector vTarget = NWScript.GetPosition(oTarget);
 
       Player player;
       if (Players.TryGetValue(oPC, out player))
       {
-        player.DoActionOnTargetSelected(oPC, vTarget);
+        player.DoActionOnTargetSelected(oTarget, vTarget);
       }
 
       return Entrypoints.SCRIPT_HANDLED;
@@ -894,6 +900,72 @@ namespace NWN.Systems
         }
       }
 
+      return Entrypoints.SCRIPT_HANDLED;
+    }
+    private static int HandleBeforeMiningCycleCancel(uint oidSelf)
+    {
+      Player player;
+      if (Players.TryGetValue(oidSelf, out player))
+      {
+        player.DoActionOnMiningCycleCancelled();
+      }
+
+      return Entrypoints.SCRIPT_HANDLED;
+    }
+    private static int HandleAfterMiningCycleComplete(uint oidSelf)
+    {
+      NWScript.SendMessageToPC(oidSelf, "Mining cycle completed !");
+
+      Player player;
+      if (Players.TryGetValue(oidSelf, out player))
+      {
+        player.DoActionOnMiningCycleCompleted();
+      }
+
+      return Entrypoints.SCRIPT_HANDLED;
+    }
+
+    private static int HandleBeforeExamine(uint oidSelf)
+    {
+      Player player;
+      if (Players.TryGetValue(oidSelf, out player))
+      {
+        NWObject examineTarget =  NWNX.Object.StringToObject(NWNX.Events.GetEventData("EXAMINEE_OBJECT_ID")).AsObject();
+      
+        switch(examineTarget.Tag)
+        {
+          case "mineable_rock":
+            int oreAmount = examineTarget.Locals.Int.Get("_ORE_AMOUNT");
+            if (!player.IsDM)
+            {
+              int geologySkillLevel;
+              if (int.TryParse(NWScript.Get2DAString("feat", "GAINMULTIPLE", NWNX.Creature.GetHighestLevelOfFeat(player, (int)Feat.Geology)), out geologySkillLevel))
+                examineTarget.Description = $"Minerai disponible : {Utils.random.Next(oreAmount * geologySkillLevel * 20 / 100, 2 * oreAmount - geologySkillLevel * 20 / 100)}";
+              else
+                examineTarget.Description = $"Minerai disponible estimé : {Utils.random.Next(0, 2 * oreAmount)}";
+            }
+            else
+              examineTarget.Description = $"Minerai disponible : {oreAmount}";
+
+              break;
+        }
+      }
+      return Entrypoints.SCRIPT_HANDLED;
+    }
+    private static int HandleAfterExamine(uint oidSelf)
+    {
+      Player player;
+      if (Players.TryGetValue(oidSelf, out player))
+      {
+        NWObject examineTarget = NWNX.Object.StringToObject(NWNX.Events.GetEventData("EXAMINEE_OBJECT_ID")).AsObject();
+
+        switch (examineTarget.Tag)
+        {
+          case "mineable_rock":
+              examineTarget.Description = $"";
+            break;
+        }
+      }
       return Entrypoints.SCRIPT_HANDLED;
     }
   }

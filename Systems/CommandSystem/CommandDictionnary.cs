@@ -211,6 +211,14 @@ namespace NWN.Systems
         )
       },
       {
+        "mine",
+        new Command(
+          name: "mine",
+          description: new Command.Description(title: "Débute l'extraction de minerai sur la cible."),
+          execute: ExecuteStartMiningCommand
+        )
+      },
+      {
         "test",
         new Command(
           name: "test",

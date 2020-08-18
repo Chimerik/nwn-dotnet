@@ -14,6 +14,7 @@ namespace NWN.Systems
             { "event_unequip_items_before", HandleBeforeUnequipItem },
             { "event_inventory_remove_item_after", HandleAfterItemRemovedFromInventory },
             { "event_inventory_add_item_after", HandleAfterItemAddedToInventory },
+            {"event_validate_equip_items_before", HandleBeforeValidatingEquipItem},
     };
     private static int HandleBeforeEquipItem(uint oidSelf)
     {
@@ -52,13 +53,13 @@ namespace NWN.Systems
     {
       NWItem oItem = NWNX.Object.StringToObject(NWNX.Events.GetEventData("ITEM")).AsItem();
 
-      switch (oidSelf.AsObject().Tag)
+      switch (oItem.Tag)
       {
         case "pccorpse":
           if (oItem.Tag == "item_pccorpse")
           {
             // TODO : détruire l'objet corps en BDD également where _PC_ID
-            NWScript.DestroyObject(oidSelf);
+            NWScript.DestroyObject(oItem);
           }
           else
           {
@@ -89,11 +90,48 @@ namespace NWN.Systems
     {
       NWItem oItem = NWNX.Object.StringToObject(NWNX.Events.GetEventData("ITEM")).AsItem();
 
-      switch (oidSelf.AsObject().Tag)
+      switch (oItem.Tag)
       {
         case "pccorpse":
             // TODO : mettre à jour le cadavre serialisé en BDD
           break;
+      }
+      return Entrypoints.SCRIPT_HANDLED;
+    }
+    private static int HandleBeforeValidatingEquipItem(uint oidSelf)
+    {
+      PlayerSystem.Player player;
+      if (Players.TryGetValue(oidSelf, out player))
+      {
+        NWItem oItem = NWNX.Object.StringToObject(NWNX.Events.GetEventData("ITEM_OBJECT_ID")).AsItem();
+        
+        switch (oItem.Tag)
+        {
+          case "extracteur":
+            int value;
+            if (int.TryParse(NWScript.Get2DAString("feat", "GAINMULTIPLE", NWNX.Creature.GetHighestLevelOfFeat(player, (int)Feat.StripMinerMastery)), out value))
+            {
+              int itemLevel = oItem.Locals.Int.Get("_ITEM_LEVEL");
+              
+              if (itemLevel > value)
+              {
+                NWNX.Events.SetEventResult("0");
+                NWNX.Events.SkipEvent();
+
+                if(NWNX.Events.GetCurrentEvent() == "NWNX_ON_VALIDATE_ITEM_EQUIP_BEFORE")
+                  player.SendMessage($"Le niveau {itemLevel} de maîtrise des extracteur de roche est requis pour pouvoir utiliser cet outil.");
+              }          
+            }
+            else
+            {
+              NWNX.Events.SetEventResult("0");
+              NWNX.Events.SkipEvent();
+
+              if (NWNX.Events.GetCurrentEvent() == "NWNX_ON_VALIDATE_ITEM_EQUIP_BEFORE")
+                player.SendMessage($"Le don maîtrise des extracteur de roche est requis pour pouvoir utiliser cet outil.");
+            }
+              break;
+        }
       }
       return Entrypoints.SCRIPT_HANDLED;
     }

@@ -16,7 +16,7 @@ namespace NWN.Systems
         Action<uint, Vector> callback = (uint target, Vector position) =>
         {
           NWCreature oCreature = target.AsCreature();
-          if (player.IsDM && oCreature.Master == player)
+          if (player.IsDM || oCreature.Master == player)
             oCreature.Name = newName;
           else
             player.SendMessage($"{oCreature.Name} n'est pas une de vos invocations, vous ne pouvez pas modifier son nom");
