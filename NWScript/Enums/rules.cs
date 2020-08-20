@@ -1253,6 +1253,11 @@
     StripMinerMastery6 = 1152,
     StripMinerMastery7 = 1153,
     StripMinerMastery8 = 1154,
+    MiningProspection = 1155,
+    MiningProspection2 = 1156,
+    MiningProspection3 = 1157,
+    MiningProspection4 = 1158,
+    MiningProspection5 = 1159,
     INVALID_FEAT = 65535
   }
 }
