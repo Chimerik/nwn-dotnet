@@ -14,6 +14,9 @@ namespace NWN.Systems
             { "event_unequip_items_before", HandleBeforeUnequipItem },
             { "event_inventory_remove_item_after", HandleAfterItemRemovedFromInventory },
             { "event_inventory_add_item_after", HandleAfterItemAddedToInventory },
+            { "event_refinery_add_item_before", HandleBeforeItemAddedToRefinery },
+            { "refinery_add_item", HandleItemAddedToRefinery },
+            { "refinery_close", HandleRefineryClose },
             {"event_validate_equip_items_before", HandleBeforeValidatingEquipItem},
     };
     private static int HandleBeforeEquipItem(uint oidSelf)
@@ -53,6 +56,10 @@ namespace NWN.Systems
     {
       NWItem oItem = NWNX.Object.StringToObject(NWNX.Events.GetEventData("ITEM")).AsItem();
 
+      if(NWScript.GetMovementRate(oidSelf) == (int)MovementRate.Immobile)
+        if (NWScript.GetWeight(oidSelf) <= int.Parse(NWScript.Get2DAString("encumbrance", "Heavy", oidSelf.AsCreature().Ability[Ability.Strength].Total)))
+          NWNX.Creature.SetMovementRate(oidSelf, MovementRate.Default);
+
       switch (oItem.Tag)
       {
         case "pccorpse":
@@ -89,6 +96,9 @@ namespace NWN.Systems
     private static int HandleAfterItemAddedToInventory(uint oidSelf)
     {
       NWItem oItem = NWNX.Object.StringToObject(NWNX.Events.GetEventData("ITEM")).AsItem();
+
+      if (NWScript.GetWeight(oidSelf) > int.Parse(NWScript.Get2DAString("encumbrance", "Heavy", oidSelf.AsCreature().Ability[Ability.Strength].Total)))
+        NWNX.Creature.SetMovementRate(oidSelf, MovementRate.Immobile);
 
       switch (oItem.Tag)
       {
@@ -133,6 +143,109 @@ namespace NWN.Systems
               break;
         }
       }
+      return Entrypoints.SCRIPT_HANDLED;
+    }
+    private static int HandleBeforeItemAddedToRefinery(uint oidSelf)
+    {
+      NWItem oItem = NWNX.Object.StringToObject(NWNX.Events.GetEventData("ITEM")).AsItem();
+
+      if (oItem.Tag != "ore" || oItem.Tag != "mineral")
+      {
+        NWNX.Events.SkipEvent();
+        NWScript.SpeakString("Seul le minerai peut être raffiné dans la fonderie.");
+      }
+      return Entrypoints.SCRIPT_HANDLED;
+    }
+    private static int HandleItemAddedToRefinery(uint oidSelf)
+    {
+      if(NWScript.GetInventoryDisturbType() == DisturbType.Added)
+      {
+        NWItem item = NWScript.GetInventoryDisturbItem().AsItem();
+
+        if (item.Tag == "ore")
+        {
+          PlayerSystem.Player player;
+          if (Players.TryGetValue(NWScript.GetLastDisturbed(), out player))
+          {
+            string reprocessingData = $"{item.Name} : Efficacité raffinage -30 % (base fonderie)";
+            
+            int value;
+            if (int.TryParse(NWScript.Get2DAString("feat", "GAINMULTIPLE", NWNX.Creature.GetHighestLevelOfFeat(player, (int)Feat.Reprocessing)), out value))
+              reprocessingData += $"\n x1.{3*value} (Raffinage)";
+
+            if (int.TryParse(NWScript.Get2DAString("feat", "GAINMULTIPLE", NWNX.Creature.GetHighestLevelOfFeat(player, (int)Feat.ReprocessingEfficiency)), out value))
+              reprocessingData += $"\n x1.{2 * value} (Raffinage efficace)";
+
+            if (int.TryParse(NWScript.Get2DAString("feat", "GAINMULTIPLE", NWNX.Creature.GetHighestLevelOfFeat(player, (int)Feat.VeldsparReprocessing)), out value)) // TODO : Je ne sais pas trop comment lier le skill de spécialité de raffinage autrement qu'en dur avec un switch case Veldspar, alors ID = X, case Scordite ID = X2, etc
+              reprocessingData += $"\n x1.{2 * value} (Raffinage {item.Name})";
+
+            float connectionsLevel;
+            if (float.TryParse(NWScript.Get2DAString("feat", "GAINMULTIPLE", NWNX.Creature.GetHighestLevelOfFeat(player, (int)Feat.Connections)), out connectionsLevel))
+              reprocessingData += $"\n x{1.00 - connectionsLevel / 100} (Raffinage {item.Name})";
+
+            player.SendMessage(reprocessingData);
+          }
+        }
+      }
+
+      return Entrypoints.SCRIPT_HANDLED;
+    }
+    private static int HandleRefineryClose(uint oidSelf)
+    {
+      PlayerSystem.Player player;
+      if (Players.TryGetValue(NWScript.GetLastClosedBy(), out player))
+      {
+        NWPlaceable fonderie = oidSelf.AsPlaceable();
+        float reprocessingEfficiency = 0.3f;
+
+        float value;
+        if (float.TryParse(NWScript.Get2DAString("feat", "GAINMULTIPLE", NWNX.Creature.GetHighestLevelOfFeat(player, (int)Feat.Reprocessing)), out value))
+          reprocessingEfficiency += reprocessingEfficiency + 3 * value / 100;
+
+        if (float.TryParse(NWScript.Get2DAString("feat", "GAINMULTIPLE", NWNX.Creature.GetHighestLevelOfFeat(player, (int)Feat.ReprocessingEfficiency)), out value))
+          reprocessingEfficiency += reprocessingEfficiency + 2 * value / 100;
+
+        if (float.TryParse(NWScript.Get2DAString("feat", "GAINMULTIPLE", NWNX.Creature.GetHighestLevelOfFeat(player, (int)Feat.Connections)), out value))
+          reprocessingEfficiency += reprocessingEfficiency + 1 * value / 100;
+
+
+        foreach (NWItem ore in fonderie.InventoryItems)
+        {
+          if(ore.Tag == "ore")
+          {
+            NWItem mineral;
+
+            switch (ore.Name)
+            {
+              case "Veldspar":
+                if (float.TryParse(NWScript.Get2DAString("feat", "GAINMULTIPLE", NWNX.Creature.GetHighestLevelOfFeat(player, (int)Feat.VeldsparReprocessing)), out value))
+                  reprocessingEfficiency += reprocessingEfficiency + 2 * value / 100;
+
+                mineral = NWScript.CreateItemOnObject("mineral", player, ore.StackSize * 41 * (int)reprocessingEfficiency).AsItem();
+                mineral.Name = "Tritanium";
+                ore.Destroy();
+                
+                break;
+
+              case "Scordite":
+                if (float.TryParse(NWScript.Get2DAString("feat", "GAINMULTIPLE", NWNX.Creature.GetHighestLevelOfFeat(player, (int)Feat.ScorditeReprocessing)), out value))
+                  reprocessingEfficiency += reprocessingEfficiency + 2 * value / 100;
+
+                mineral = NWScript.CreateItemOnObject("mineral", player, ore.StackSize * 23 * (int)reprocessingEfficiency).AsItem();
+                mineral.Name = "Tritanium";
+
+                mineral = NWScript.CreateItemOnObject("mineral", player, ore.StackSize * 11 * (int)reprocessingEfficiency).AsItem();
+                mineral.Name = "Pyerite";
+
+                ore.Destroy();
+
+                break;
+            }
+          }
+        }
+        
+      }
+
       return Entrypoints.SCRIPT_HANDLED;
     }
   }

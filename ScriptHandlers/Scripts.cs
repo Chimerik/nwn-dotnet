@@ -122,6 +122,19 @@ namespace NWN.ScriptHandlers
       NWNX.Events.SubscribeEvent("NWNX_ON_ITEM_UNEQUIP_BEFORE", "event_mining_cycle_cancel_before");
       NWNX.Events.ToggleDispatchListMode("NWNX_ON_ITEM_UNEQUIP_BEFORE", "event_mining_cycle_cancel_before", 1);
 
+      NWNX.Events.SubscribeEvent("NWNX_ON_INVENTORY_ADD_ITEM_BEFORE", "event_refinery_add_item_before");
+      NWNX.Events.ToggleDispatchListMode("NWNX_ON_INVENTORY_ADD_ITEM_BEFORE", "event_refinery_add_item_before", 1);
+
+      NWPlaceable refinery = NWScript.GetObjectByTag("refinery", 0).AsPlaceable();
+
+      int i = 1;
+      while(refinery.IsValid)
+      {
+        NWNX.Events.AddObjectToDispatchList("NWNX_ON_INVENTORY_ADD_ITEM_BEFORE", "event_refinery_add_item_before", refinery);
+        i++;
+        refinery = NWScript.GetObjectByTag("refinery", i).AsPlaceable();
+      }
+
       NWNX.Events.SubscribeEvent("NWNX_ON_EXAMINE_OBJECT_BEFORE", "event_examine_before");
       NWNX.Events.SubscribeEvent("NWNX_ON_EXAMINE_OBJECT_AFTER", "event_examine_after");
 
