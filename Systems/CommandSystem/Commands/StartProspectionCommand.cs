@@ -24,14 +24,14 @@ namespace NWN.Systems
                 {
                   player.SendMessage("Cycle cancelled");
                   oPlaceable.RemoveTaggedEffect($"_{player.CDKey}_MINING_BEAM");
-                  player.RemoveMiningCycleCallbacks();   // supprimer la callback de CompleteMiningCycle
+                  CollectSystem.RemoveMiningCycleCallbacks(player);   // supprimer la callback de CompleteMiningCycle
                 };
 
                 Action completeCycle = () =>
                 {
                   player.SendMessage("Entering Cycle completed callback");
                   oPlaceable.RemoveTaggedEffect($"_{player.CDKey}_MINING_BEAM");
-                  player.RemoveMiningCycleCallbacks();   // supprimer la callback de Cancel MiningCycle
+                  CollectSystem.RemoveMiningCycleCallbacks(player);   // supprimer la callback de Cancel MiningCycle
 
                   if (oPlaceable.IsValid && NWScript.GetDistanceBetween(player, oPlaceable) >= 5.0f)
                   {
@@ -90,7 +90,7 @@ namespace NWN.Systems
                   }
                 };
 
-                player.StartMiningCycle(oPlaceable, cancelCycle, completeCycle);
+                CollectSystem.StartMiningCycle(player, oPlaceable, cancelCycle, completeCycle);
               }
               else
                 player.SendMessage($"{oPlaceable.Name} n'est pas à portée. Rapprochez-vous pour démarrer l'extraction.");

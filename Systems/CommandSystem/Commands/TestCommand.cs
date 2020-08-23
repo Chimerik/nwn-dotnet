@@ -12,7 +12,46 @@ namespace NWN.Systems
       PlayerSystem.Player player;
       if (PlayerSystem.Players.TryGetValue(ctx.oSender, out player))
       {
-        //player.SendMessage($"mining target : {player.miningTarget.AsObject().Name}");
+        int movementRate = NWScript.GetMovementRate(player);
+        float movementRateFactor = NWNX.Creature.GetMovementRateFactor(player);
+
+        Console.WriteLine("Movement rate : " + movementRate);
+        Console.WriteLine("Movement rate factor : " + movementRateFactor);
+
+        if (movementRate == (int)MovementRate.DMFast)
+          movementRate = 1;
+        else if(movementRate == 6)
+          movementRate += 2;
+        else
+          movementRate++;
+
+        NWNX.Creature.SetMovementRate(player, (MovementRate)movementRate);
+        
+        /*if (movementRateFactor >= 1.5f)
+          movementRateFactor = 0.0f;
+        else
+          movementRateFactor += 0.1f;
+
+        NWNX.Creature.SetMovementRateFactor(player, movementRateFactor);*/
+
+        if (NWScript.GetMovementRate(player) == (int)MovementRate.Immobile)
+        {
+          //NWNX.Creature.SetMovementRate(player, MovementRate.Fast);
+          
+        }
+        else
+        {
+          //NWNX.Creature.SetMovementRate(player, MovementRate.Immobile);
+        }
+        /*if (NWNX.Creature.GetMovementRateFactor(player) == 0.0f)
+        {
+          NWNX.Creature.SetMovementRateFactor(player, 1.0f);
+
+        }
+        else
+        {
+          NWNX.Creature.SetMovementRateFactor(player, 0.0f);
+        }*/
       }
     }
   }

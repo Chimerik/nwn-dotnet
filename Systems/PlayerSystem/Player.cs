@@ -37,6 +37,9 @@ namespace NWN.Systems
       public Dictionary<int, SkillSystem.Skill> learnableSkills = new Dictionary<int, SkillSystem.Skill>();
       public Dictionary<int, SkillSystem.Skill> removeableMalus = new Dictionary<int, SkillSystem.Skill>();
 
+      public Action OnMiningCycleCancelled = delegate { };
+      public Action OnMiningCycleCompleted = delegate { };
+
       public Player(uint nwobj) : base(nwobj)
       {
         this.oid = nwobj;
@@ -83,52 +86,6 @@ namespace NWN.Systems
         //NWScript.EnterTargetingMode(player, ObjectType.Creature);
         NWScript.ExecuteScript("on_pc_target", this); // bouchon en attendant d'avoir la vraie fonction
       }
-
-      public void DoActionOnMiningCycleCancelled()
-      {
-        this.OnMiningCycleCancelled();
-      }
-      private Action OnMiningCycleCancelled = delegate { };
-
-      public void DoActionOnMiningCycleCompleted()
-      {
-        this.OnMiningCycleCompleted();
-      }
-      private Action OnMiningCycleCompleted = delegate { };
-      public void StartMiningCycle(NWPlaceable rock, Action cancelCallback, Action completeCallback)
-      {
-        this.OnMiningCycleCancelled = cancelCallback;
-        this.OnMiningCycleCompleted = completeCallback;
-
-        NWItem miningStriper = this.Equipped[InventorySlot.RightHand];
-        float cycleDuration = 180.0f;
-
-        if(miningStriper.IsValid) // TODO : Idée pour plus tard, le strip miner le plus avancé pourra équipper un cristal de spécialisation pour extraire deux fois plus de minerai en un cycle sur son minerai de spécialité
-        {
-          cycleDuration = cycleDuration - (cycleDuration * miningStriper.Locals.Int.Get("_ITEM_LEVEL") * 2 / 100);
-        }
-
-        Effect eRay = NWScript.EffectBeam(Beam.Disintegrate, miningStriper, 1);
-        eRay = NWScript.TagEffect(eRay, $"_{this.CDKey}_MINING_BEAM");
-        rock.ApplyEffect(DurationType.Temporary, eRay, cycleDuration);
-
-        NWNX.Player.StartGuiTimingBar(this, cycleDuration, "on_mining_cycle_complete");
-
-        NWNX.Events.AddObjectToDispatchList("NWNX_ON_TIMING_BAR_CANCEL_BEFORE", "event_mining_cycle_cancel_before", this);
-        NWNX.Events.AddObjectToDispatchList("NWNX_ON_CLIENT_DISCONNECT_BEFORE", "event_mining_cycle_cancel_before", this);
-        NWNX.Events.AddObjectToDispatchList("NWNX_ON_ITEM_EQUIP_BEFORE", "event_mining_cycle_cancel_before", this);
-        NWNX.Events.AddObjectToDispatchList("NWNX_ON_ITEM_UNEQUIP_BEFORE", "event_mining_cycle_cancel_before", this);
-      }
-      public void RemoveMiningCycleCallbacks()
-      {
-        this.OnMiningCycleCancelled = () => { };
-        this.OnMiningCycleCompleted = () => { };
-        NWNX.Events.RemoveObjectFromDispatchList("NWNX_ON_TIMING_BAR_CANCEL_BEFORE", "event_mining_cycle_cancel_before", this);
-        NWNX.Events.RemoveObjectFromDispatchList("NWNX_ON_CLIENT_DISCONNECT_BEFORE", "event_mining_cycle_cancel_before", this);
-        NWNX.Events.RemoveObjectFromDispatchList("NWNX_ON_ITEM_EQUIP_BEFORE", "event_mining_cycle_cancel_before", this);
-        NWNX.Events.RemoveObjectFromDispatchList("NWNX_ON_ITEM_UNEQUIP_BEFORE", "event_mining_cycle_cancel_before", this);
-      }
-
       public void OnFrostAutoAttackTimedEvent() // conservé pour mémoire, à retravailler
       {
         if (this.autoAttackTarget.AsObject().IsValid)
@@ -340,6 +297,14 @@ namespace NWN.Systems
         this.SendMessage("Vous n'avez aucun apprentissage en cours !");
         NWNX.Player.PlaySound(this, "gui_dm_drop", this);
         NWNX.Player.ApplyInstantVisualEffectToObject(this, this, (int)Impact.ReduceAbilityScore);
+      }
+      public void DoActionOnMiningCycleCancelled()
+      {
+        this.OnMiningCycleCancelled();
+      }
+      public void DoActionOnMiningCycleCompleted()
+      {
+        this.OnMiningCycleCompleted();
       }
       public void SendToLimbo()
       {

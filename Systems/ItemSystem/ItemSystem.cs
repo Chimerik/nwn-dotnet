@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using NWN.Enums;
-using NWN.NWNX;
 using static NWN.Systems.PlayerSystem;
 
 namespace NWN.Systems
@@ -12,8 +11,8 @@ namespace NWN.Systems
     {
             { "event_equip_items_before", HandleBeforeEquipItem },
             { "event_unequip_items_before", HandleBeforeUnequipItem },
-            { "event_inventory_remove_item_after", HandleAfterItemRemovedFromInventory },
-            { "event_inventory_add_item_after", HandleAfterItemAddedToInventory },
+            { "event_pccorpse_remove_item_after", HandleAfterItemRemovedFromPCCorpse },
+            { "event_pccorpse_add_item_after", HandleAfterItemAddedToPCCorpse },
             { "event_refinery_add_item_before", HandleBeforeItemAddedToRefinery },
             { "refinery_add_item", HandleItemAddedToRefinery },
             { "refinery_close", HandleRefineryClose },
@@ -49,62 +48,6 @@ namespace NWN.Systems
           NWNX.Events.SkipEvent();
           return Entrypoints.SCRIPT_HANDLED;
         }
-      }
-      return Entrypoints.SCRIPT_HANDLED;
-    }
-    private static int HandleAfterItemRemovedFromInventory(uint oidSelf)
-    {
-      NWItem oItem = NWNX.Object.StringToObject(NWNX.Events.GetEventData("ITEM")).AsItem();
-
-      if(NWScript.GetMovementRate(oidSelf) == (int)MovementRate.Immobile)
-        if (NWScript.GetWeight(oidSelf) <= int.Parse(NWScript.Get2DAString("encumbrance", "Heavy", oidSelf.AsCreature().Ability[Ability.Strength].Total)))
-          NWNX.Creature.SetMovementRate(oidSelf, MovementRate.Default);
-
-      switch (oItem.Tag)
-      {
-        case "pccorpse":
-          if (oItem.Tag == "item_pccorpse")
-          {
-            // TODO : détruire l'objet corps en BDD également where _PC_ID
-            NWScript.DestroyObject(oItem);
-          }
-          else
-          {
-            // TODO : mettre à jour le cadavre serialisé en BDD
-          }
-          break;
-      }
-
-      if(oidSelf.AsCreature().IsPC)
-      {
-        NWPlayer player = oidSelf.AsPlayer();
-        NWPlaceable oPCCorpse = NWScript.CreateObject(ObjectType.Placeable, "pccorpse", player.Location).AsPlaceable();
-        NWNX.Events.AddObjectToDispatchList("NWNX_ON_INVENTORY_REMOVE_ITEM_AFTER", "event_inventory_remove_item_after", oPCCorpse);
-        NWNX.Events.AddObjectToDispatchList("NWNX_ON_INVENTORY_ADD_ITEM_AFTER", "event_inventory_add_item_after", oPCCorpse);
-
-        int PlayerId = NWNX.Object.GetInt(oItem, "_PC_ID");
-        //oPCCorpse.Name = $"Cadavre de {player.Name}"; TODO : chopper le nom du PJ en BDD à partir de son ID
-        //oPCCorpse.Description = $"Cadavre de {player.Name}";
-        oPCCorpse.Locals.Int.Set("_PC_ID", PlayerId);
-        NWNX.Object.AcquireItem(oPCCorpse, oItem);
-
-        // TODO : enregistrer oPCCorpse en BDD
-      }
-
-      return Entrypoints.SCRIPT_HANDLED;
-    }
-    private static int HandleAfterItemAddedToInventory(uint oidSelf)
-    {
-      NWItem oItem = NWNX.Object.StringToObject(NWNX.Events.GetEventData("ITEM")).AsItem();
-
-      if (NWScript.GetWeight(oidSelf) > int.Parse(NWScript.Get2DAString("encumbrance", "Heavy", oidSelf.AsCreature().Ability[Ability.Strength].Total)))
-        NWNX.Creature.SetMovementRate(oidSelf, MovementRate.Immobile);
-
-      switch (oItem.Tag)
-      {
-        case "pccorpse":
-            // TODO : mettre à jour le cadavre serialisé en BDD
-          break;
       }
       return Entrypoints.SCRIPT_HANDLED;
     }
@@ -246,6 +189,54 @@ namespace NWN.Systems
         
       }
 
+      return Entrypoints.SCRIPT_HANDLED;
+    }
+    private static int HandleAfterItemAddedToPCCorpse(uint oidSelf)
+    {
+      NWItem oItem = NWNX.Object.StringToObject(NWNX.Events.GetEventData("ITEM")).AsItem();
+
+      switch (oItem.Tag) 
+      {
+        case "pccorpse":
+          // TODO : mettre à jour le cadavre serialisé en BDD
+          break;
+      }
+      return Entrypoints.SCRIPT_HANDLED;
+    }
+    private static int HandleAfterItemRemovedFromPCCorpse(uint oidSelf)
+    {
+      NWItem oItem = NWNX.Object.StringToObject(NWNX.Events.GetEventData("ITEM")).AsItem();
+
+      switch (oItem.Tag)
+      {
+        case "pccorpse":
+          if (oItem.Tag == "item_pccorpse")
+          {
+            // TODO : détruire l'objet corps en BDD également where _PC_ID
+            NWScript.DestroyObject(oItem);
+          }
+          else
+          {
+            // TODO : mettre à jour le cadavre serialisé en BDD
+          }
+          break;
+      }
+
+      if (oidSelf.AsCreature().IsPC) // TODO : y a un truc qui va pas, logique à retravailler (abonner le pj et le cadavre uniquement aux événements respectifs)
+      {
+        NWPlayer player = oidSelf.AsPlayer();
+        NWPlaceable oPCCorpse = NWScript.CreateObject(ObjectType.Placeable, "pccorpse", player.Location).AsPlaceable();
+        NWNX.Events.AddObjectToDispatchList("NWNX_ON_INVENTORY_REMOVE_ITEM_AFTER", "event_pccorpse_remove_item_after", oPCCorpse);
+        NWNX.Events.AddObjectToDispatchList("NWNX_ON_INVENTORY_ADD_ITEM_AFTER", "event_pccorpse_add_item_after", oPCCorpse);
+
+        int PlayerId = NWNX.Object.GetInt(oItem, "_PC_ID");
+        //oPCCorpse.Name = $"Cadavre de {player.Name}"; TODO : chopper le nom du PJ en BDD à partir de son ID
+        //oPCCorpse.Description = $"Cadavre de {player.Name}";
+        oPCCorpse.Locals.Int.Set("_PC_ID", PlayerId);
+        NWNX.Object.AcquireItem(oPCCorpse, oItem);
+
+        // TODO : enregistrer oPCCorpse en BDD
+      }
       return Entrypoints.SCRIPT_HANDLED;
     }
   }

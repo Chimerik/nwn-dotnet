@@ -21,6 +21,7 @@ namespace NWN.ScriptHandlers
      .Concat(Systems.ChatSystem.Register)
      .Concat(Systems.SpellSystem.Register)
      .Concat(Systems.ItemSystem.Register)
+     .Concat(Systems.CollectSystem.Register)
      .ToDictionary(kvp => kvp.Key, kvp => kvp.Value);
 
     private static int HandleModuleLoad(uint oidSelf)
@@ -85,11 +86,6 @@ namespace NWN.ScriptHandlers
       NWNX.Events.SubscribeEvent("NWNX_ON_DO_LISTEN_DETECTION_AFTER", "event_detection_after");
       NWNX.Events.ToggleDispatchListMode("NWNX_ON_DO_LISTEN_DETECTION_AFTER", "event_detection_after", 1);
 
-      NWNX.Events.SubscribeEvent("NWNX_ON_INVENTORY_REMOVE_ITEM_AFTER", "event_inventory_remove_item_after");
-      NWNX.Events.ToggleDispatchListMode("NWNX_ON_INVENTORY_REMOVE_ITEM_AFTER", "event_inventory_remove_item_after", 1);
-      NWNX.Events.SubscribeEvent("NWNX_ON_INVENTORY_ADD_ITEM_AFTER", "event_inventory_add_item_after");
-      NWNX.Events.ToggleDispatchListMode("NWNX_ON_INVENTORY_ADD_ITEM_AFTER", "event_inventory_add_item_after", 1);
-
       NWNX.Events.SubscribeEvent("NWNX_ON_INPUT_ATTACK_OBJECT_BEFORE", "event_auto_spell");
       NWNX.Events.ToggleDispatchListMode("NWNX_ON_INPUT_ATTACK_OBJECT_BEFORE", "event_auto_spell", 1);
       NWNX.Events.SubscribeEvent("NWNX_ON_INPUT_FORCE_MOVE_TO_OBJECT_BEFORE", "event_auto_spell");
@@ -121,9 +117,18 @@ namespace NWN.ScriptHandlers
       NWNX.Events.ToggleDispatchListMode("NWNX_ON_ITEM_EQUIP_BEFORE", "event_mining_cycle_cancel_before", 1);
       NWNX.Events.SubscribeEvent("NWNX_ON_ITEM_UNEQUIP_BEFORE", "event_mining_cycle_cancel_before");
       NWNX.Events.ToggleDispatchListMode("NWNX_ON_ITEM_UNEQUIP_BEFORE", "event_mining_cycle_cancel_before", 1);
+      NWNX.Events.SubscribeEvent("NWNX_ON_START_COMBAT_ROUND_AFTER", "event_mining_cycle_cancel_before");
+      NWNX.Events.ToggleDispatchListMode("NWNX_ON_START_COMBAT_ROUND_AFTER", "event_mining_cycle_cancel_before", 1);
+      NWNX.Events.SubscribeEvent("NWNX_ON_INPUT_CAST_SPELL_BEFORE", "event_mining_cycle_cancel_before");
+      NWNX.Events.ToggleDispatchListMode("NWNX_ON_INPUT_CAST_SPELL_BEFORE", "event_mining_cycle_cancel_before", 1);
 
       NWNX.Events.SubscribeEvent("NWNX_ON_INVENTORY_ADD_ITEM_BEFORE", "event_refinery_add_item_before");
       NWNX.Events.ToggleDispatchListMode("NWNX_ON_INVENTORY_ADD_ITEM_BEFORE", "event_refinery_add_item_before", 1);
+
+      NWNX.Events.SubscribeEvent("NWNX_ON_INVENTORY_ADD_ITEM_AFTER", "event_pccorpse_add_item_after");
+      NWNX.Events.ToggleDispatchListMode("NWNX_ON_INVENTORY_ADD_ITEM_AFTER", "event_pccorpse_add_item_after", 1);
+      NWNX.Events.SubscribeEvent("NWNX_ON_INVENTORY_REMOVE_ITEM_AFTER", "event_pccorpse_remove_item_after");
+      NWNX.Events.ToggleDispatchListMode("NWNX_ON_INVENTORY_REMOVE_ITEM_AFTER", "event_pccorpse_remove_item_after", 1);
 
       NWPlaceable refinery = NWScript.GetObjectByTag("refinery", 0).AsPlaceable();
 
@@ -191,6 +196,8 @@ namespace NWN.ScriptHandlers
     private static int EventEffects(uint oidSelf)
     {
       string current_event = NWNX.Events.GetCurrentEvent();
+      int effectType = int.Parse(NWNX.Events.GetEventData("TYPE"));
+      int effectIntParam1 = int.Parse(NWNX.Events.GetEventData("INT_PARAM_1"));
 
       if (current_event == "NWNX_ON_EFFECT_REMOVED_AFTER")
       {
@@ -201,6 +208,33 @@ namespace NWN.ScriptHandlers
           {
             player.RemoveLycanCurse();
           }
+        }
+        else if (effectType == (int)EffectTypeEngine.AbilityIncrease && effectIntParam1 == (int)Ability.Strength)
+        {
+          if (NWScript.GetMovementRate(oidSelf) != (int)MovementRate.Immobile)
+            if (NWScript.GetWeight(oidSelf) >= int.Parse(NWScript.Get2DAString("encumbrance", "Heavy", oidSelf.AsCreature().Ability[Ability.Strength].Total)))
+              NWNX.Creature.SetMovementRate(oidSelf, MovementRate.Immobile);
+        }
+        else if (effectType == (int)EffectTypeEngine.AbilityDecrease && effectIntParam1 == (int)Ability.Strength)
+        {
+          if (NWScript.GetMovementRate(oidSelf) == (int)MovementRate.Immobile)
+            if (NWScript.GetWeight(oidSelf) <= int.Parse(NWScript.Get2DAString("encumbrance", "Heavy", oidSelf.AsCreature().Ability[Ability.Strength].Total)))
+              NWNX.Creature.SetMovementRate(oidSelf, MovementRate.Default);
+        }
+      }
+      else if (current_event == "NWNX_ON_EFFECT_APPLIED_AFTER")
+      {
+        if(effectType == (int)EffectTypeEngine.AbilityIncrease && effectIntParam1 == (int)Ability.Strength)
+        {
+          if (NWScript.GetMovementRate(oidSelf) == (int)MovementRate.Immobile)
+            if (NWScript.GetWeight(oidSelf) <= int.Parse(NWScript.Get2DAString("encumbrance", "Heavy", oidSelf.AsCreature().Ability[Ability.Strength].Total)))
+              NWNX.Creature.SetMovementRate(oidSelf, MovementRate.Default);
+        }
+        else if (effectType == (int)EffectTypeEngine.AbilityDecrease && effectIntParam1 == (int)Ability.Strength)
+        {
+          if (NWScript.GetMovementRate(oidSelf) != (int)MovementRate.Immobile)
+            if (NWScript.GetWeight(oidSelf) >= int.Parse(NWScript.Get2DAString("encumbrance", "Heavy", oidSelf.AsCreature().Ability[Ability.Strength].Total)))
+              NWNX.Creature.SetMovementRate(oidSelf, MovementRate.Immobile);
         }
       }
 

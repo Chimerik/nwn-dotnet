@@ -39,10 +39,10 @@ namespace NWN.Systems
             { "event_party_leave_after", HandleAfterPartyLeave },
             { "event_party_leave_before", HandleBeforePartyLeave },
             { "event_party_kick_after", HandleAfterPartyKick },
-            { "event_mining_cycle_cancel_before", HandleBeforeMiningCycleCancel },
-            { "on_mining_cycle_complete", HandleAfterMiningCycleComplete },
             { "event_examine_before", HandleBeforeExamine },
             { "event_examine_after", HandleAfterExamine },
+            { "pc_acquire_item", HandlePCAcquireItem },
+            { "pc_unacquire_it", HandlePCUnacquireItem },
         };
     
     public static Dictionary<uint, Player> Players = new Dictionary<uint, Player>();
@@ -772,8 +772,8 @@ namespace NWN.Systems
         player.SendMessage("Tout se brouille autour de vous. Avant de perdre connaissance, vous sentez comme un étrange maëlstrom vous aspirer.");
 
         NWPlaceable oPCCorpse = NWScript.CreateObject(ObjectType.Placeable, "pccorpse", player.Location).AsPlaceable();
-        NWNX.Events.AddObjectToDispatchList("NWNX_ON_INVENTORY_REMOVE_ITEM_AFTER", "event_inventory_remove_item_after", oPCCorpse);
-        NWNX.Events.AddObjectToDispatchList("NWNX_ON_INVENTORY_ADD_ITEM_AFTER", "event_inventory_add_item_after", oPCCorpse);
+        NWNX.Events.AddObjectToDispatchList("NWNX_ON_INVENTORY_REMOVE_ITEM_AFTER", "event_pccorpse_remove_item_after", oPCCorpse);
+        NWNX.Events.AddObjectToDispatchList("NWNX_ON_INVENTORY_ADD_ITEM_AFTER", "event_pccorpse_add_item_after", oPCCorpse);
 
         int PlayerId = NWNX.Object.GetInt(player, "_PC_ID");
         oPCCorpse.Name = $"Cadavre de {player.Name}";
@@ -902,29 +902,6 @@ namespace NWN.Systems
 
       return Entrypoints.SCRIPT_HANDLED;
     }
-    private static int HandleBeforeMiningCycleCancel(uint oidSelf)
-    {
-      Player player;
-      if (Players.TryGetValue(oidSelf, out player))
-      {
-        player.DoActionOnMiningCycleCancelled();
-      }
-
-      return Entrypoints.SCRIPT_HANDLED;
-    }
-    private static int HandleAfterMiningCycleComplete(uint oidSelf)
-    {
-      NWScript.SendMessageToPC(oidSelf, "Mining cycle completed !");
-
-      Player player;
-      if (Players.TryGetValue(oidSelf, out player))
-      {
-        player.DoActionOnMiningCycleCompleted();
-      }
-
-      return Entrypoints.SCRIPT_HANDLED;
-    }
-
     private static int HandleBeforeExamine(uint oidSelf)
     {
       Player player;
@@ -966,6 +943,26 @@ namespace NWN.Systems
             break;
         }
       }
+      return Entrypoints.SCRIPT_HANDLED;
+    }
+    private static int HandlePCUnacquireItem(uint oidSelf)
+    {
+      uint oPC = NWScript.GetModuleItemLostBy();
+
+      if (NWScript.GetMovementRate(oPC) == (int)MovementRate.Immobile)
+        if (NWScript.GetWeight(oPC) <= int.Parse(NWScript.Get2DAString("encumbrance", "Heavy", oPC.AsCreature().Ability[Ability.Strength].Total)))
+          NWNX.Creature.SetMovementRate(oPC, MovementRate.PC);
+
+      return Entrypoints.SCRIPT_HANDLED;
+    }
+    private static int HandlePCAcquireItem(uint oidSelf)
+    {
+      uint oPC = NWScript.GetModuleItemAcquiredBy();
+
+      if (NWScript.GetMovementRate(oPC) != (int)MovementRate.Immobile)
+        if (NWScript.GetWeight(oPC) > int.Parse(NWScript.Get2DAString("encumbrance", "Heavy", oPC.AsCreature().Ability[Ability.Strength].Total)))
+          NWNX.Creature.SetMovementRate(oPC, MovementRate.Immobile);
+
       return Entrypoints.SCRIPT_HANDLED;
     }
   }
