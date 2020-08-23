@@ -37,6 +37,9 @@ namespace NWN.Systems
       public Dictionary<int, SkillSystem.Skill> learnableSkills = new Dictionary<int, SkillSystem.Skill>();
       public Dictionary<int, SkillSystem.Skill> removeableMalus = new Dictionary<int, SkillSystem.Skill>();
 
+      public Action OnMiningCycleCancelled = delegate { };
+      public Action OnMiningCycleCompleted = delegate { };
+
       public Player(uint nwobj) : base(nwobj)
       {
         this.oid = nwobj;
@@ -71,7 +74,10 @@ namespace NWN.Systems
           this.key = key;
         }
       }
-
+      public void DoActionOnTargetSelected(uint oPC, Vector vTarget)
+      {
+        this.OnSelectTarget(oPC, vTarget);
+      }
       private Action<uint, Vector> OnSelectTarget = delegate { };
       public void SelectTarget(Action<uint, Vector> callback)
       {
@@ -80,12 +86,6 @@ namespace NWN.Systems
         //NWScript.EnterTargetingMode(player, ObjectType.Creature);
         NWScript.ExecuteScript("on_pc_target", this); // bouchon en attendant d'avoir la vraie fonction
       }
-
-      public void DoActionOnTargetSelected(uint oPC, Vector vTarget)
-      {
-        this.OnSelectTarget(oPC, vTarget);
-      }
-
       public void OnFrostAutoAttackTimedEvent() // conservé pour mémoire, à retravailler
       {
         if (this.autoAttackTarget.AsObject().IsValid)
@@ -298,6 +298,14 @@ namespace NWN.Systems
         NWNX.Player.PlaySound(this, "gui_dm_drop", this);
         NWNX.Player.ApplyInstantVisualEffectToObject(this, this, (int)Impact.ReduceAbilityScore);
       }
+      public void DoActionOnMiningCycleCancelled()
+      {
+        this.OnMiningCycleCancelled();
+      }
+      public void DoActionOnMiningCycleCompleted()
+      {
+        this.OnMiningCycleCompleted();
+      }
       public void SendToLimbo()
       {
         // Heal PC
@@ -319,7 +327,7 @@ namespace NWN.Systems
 
         int iRandomMalus = Utils.random.Next(1130, 1130); // TODO : il faudra mettre en paramètre de conf le range des feat ID pour les malus
         
-        if (NWNX.Creature.GetHighestLevelOfFeat(this, iRandomMalus) != 65535)
+        if (NWNX.Creature.GetHighestLevelOfFeat(this, iRandomMalus) != (int)Feat.INVALID_FEAT)
         {  
           int successorId;
           if (int.TryParse(NWScript.Get2DAString("feat", "SUCCESSOR", iRandomMalus), out successorId))
