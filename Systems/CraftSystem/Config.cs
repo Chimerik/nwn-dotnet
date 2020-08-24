@@ -1,20 +1,58 @@
 ﻿using System.Collections.Generic;
+using System.Runtime.CompilerServices;
+using NWN.Enums;
 
 namespace NWN.Systems
 {
   public partial class CollectSystem
   {
-    private readonly static string LOOT_CONTAINER_ON_CLOSE_SCRIPT = "ls_load_onclose";
-    private readonly static string ON_LOOT_SCRIPT = "ls_onloot";
-    private readonly static string CHEST_AREA_TAG = "la_zone_des_loots";
-    private readonly static string SQL_TABLE = "loot_containers";
-    private readonly static string IS_LOOTED_VARNAME = "LS__IS_LOOTED";
+    public static Dictionary<string, Ore> oresDictionnary = new Dictionary<string, Ore>();
 
-    public enum Ore
+    public partial class Ore
+    {
+      public string name;
+      public Feat feat;
+      public Dictionary<string, int> mineralsDictionnary = new Dictionary<string, int>();
+      public Ore(string oreName, Feat oreFeat)
+      {
+        this.name = oreName;
+        this.feat = oreFeat;
+        this.InitiateOreRefinementYield();
+      }
+
+      public void InitiateOreRefinementYield()
+      {
+        switch (this.name)
+        {
+          case "Veldspar":
+            this.mineralsDictionnary.Add("Tritanium", 41);
+            break;
+          case "Scordite":
+            this.mineralsDictionnary.Add("Tritanium", 23);
+            this.mineralsDictionnary.Add("Pyerite", 11);
+            break;
+          case "Pyroxeres":
+            this.mineralsDictionnary.Add("Tritanium", 12);
+            this.mineralsDictionnary.Add("Pyerite", 1);
+            this.mineralsDictionnary.Add("Mexallon", 2);
+            this.mineralsDictionnary.Add("Nocxium", 1);
+            break;
+        }
+      }
+    }
+
+    public static void InitiateOres()
+    {
+      oresDictionnary.Add("Veldspar", new Ore("Veldspar", Feat.VeldsparReprocessing));
+      oresDictionnary.Add("Scordite", new Ore("Scordite", Feat.ScorditeReprocessing));
+      oresDictionnary.Add("Pyroxeres", new Ore("Pyroxeres", Feat.PyroxeresReprocessing));
+    }
+
+    /*public enum Ore
     {
       Veldspar = 1,
       Scordite = 2,
       Pyroxeres = 3,
-    }
+    }*/
   }
 }
