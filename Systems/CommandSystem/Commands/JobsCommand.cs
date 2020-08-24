@@ -11,12 +11,20 @@ namespace NWN.Systems
       PlayerSystem.Player player;
       if (PlayerSystem.Players.TryGetValue(ctx.oSender, out player))
       {
-        if (NWNX.Object.GetInt(player, "_CURRENT_JOB") != 0)
+        if (player.Locals.Int.Get("_DISPLAY_JOBS") == 0)
         {
-          player.LearnableSkills[NWNX.Object.GetInt(player, "_CURRENT_JOB")].DisplayTimeToNextLevel(player);
+          if (NWNX.Object.GetInt(player, "_CURRENT_JOB") != 0)
+          {
+            player.Locals.Int.Set("_DISPLAY_JOBS", 1);
+            player.learnableSkills[NWNX.Object.GetInt(player, "_CURRENT_JOB")].DisplayTimeToNextLevel(player);
+          }
+          else
+            player.SendMessage("Vous n'avez pas d'entrainement en cours.");
         }
         else
-          player.SendMessage("Vous n'avez pas d'entrainement en cours.");
+        {
+          player.Locals.Int.Delete("_DISPLAY_JOBS");
+        }
       }
     }
   }

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using NWN.Enums;
 using NWN.NWNX;
 
@@ -11,25 +12,46 @@ namespace NWN.Systems
       PlayerSystem.Player player;
       if (PlayerSystem.Players.TryGetValue(ctx.oSender, out player))
       {
-        if (((string)options.positional[0]).Length == 0)
+        int movementRate = NWScript.GetMovementRate(player);
+        float movementRateFactor = NWNX.Creature.GetMovementRateFactor(player);
+
+        Console.WriteLine("Movement rate : " + movementRate);
+        Console.WriteLine("Movement rate factor : " + movementRateFactor);
+
+        if (movementRate == (int)MovementRate.DMFast)
+          movementRate = 1;
+        else if(movementRate == 6)
+          movementRate += 2;
+        else
+          movementRate++;
+
+        NWNX.Creature.SetMovementRate(player, (MovementRate)movementRate);
+        
+        /*if (movementRateFactor >= 1.5f)
+          movementRateFactor = 0.0f;
+        else
+          movementRateFactor += 0.1f;
+
+        NWNX.Creature.SetMovementRateFactor(player, movementRateFactor);*/
+
+        if (NWScript.GetMovementRate(player) == (int)MovementRate.Immobile)
         {
-          if (NWNX.Object.GetInt(player, "_CURRENT_JOB") != 0)
-          {
-            player.LearnableSkills[NWNX.Object.GetInt(player, "_CURRENT_JOB")].DisplayTimeToNextLevel(player);
-          }
-          else
-            player.SendMessage("Vous n'avez pas d'entrainement en cours.");
+          //NWNX.Creature.SetMovementRate(player, MovementRate.Fast);
+          
         }
         else
         {
-          int SkillId;
-          if (int.TryParse((string)options.positional[0], out SkillId))
-          {
-            player.LearnableSkills.Add(SkillId, new SkillSystem.Skill(SkillId, 0));
-          }
-          else
-            player.SendMessage($"{(string)options.positional[0]} n'est pas une valeur acceptée pour cette commande.");
-        } 
+          //NWNX.Creature.SetMovementRate(player, MovementRate.Immobile);
+        }
+        /*if (NWNX.Creature.GetMovementRateFactor(player) == 0.0f)
+        {
+          NWNX.Creature.SetMovementRateFactor(player, 1.0f);
+
+        }
+        else
+        {
+          NWNX.Creature.SetMovementRateFactor(player, 0.0f);
+        }*/
       }
     }
   }

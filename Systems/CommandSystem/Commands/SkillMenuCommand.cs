@@ -13,21 +13,40 @@ namespace NWN.Systems
       if (PlayerSystem.Players.TryGetValue(ctx.oSender, out player))
       {
         player.Locals.Int.Set("_MENU_SKILL_REFRESH", 1);
-       }
+        __DrawSkillPage(player);
+      }
     }
 
     private static void __DrawSkillPage(PlayerSystem.Player player)
     {
+      player.menu.Clear();
       player.menu.title = "Liste des skills disponibles pour entrainement.";
-      player.menu.choices.Clear();
-      foreach (KeyValuePair<int, SkillSystem.Skill> SkillListEntry in player.LearnableSkills)
+      foreach (KeyValuePair<int, SkillSystem.Skill> SkillListEntry in player.learnableSkills)
       {
         SkillSystem.Skill skill = SkillListEntry.Value;
         // TODO :  afficher le skill en cours en premier ?
 
         skill.GetTimeToNextLevel(player);
-        player.menu.choices.Add(($"{skill.Name} {skill.CurrentLevel} - Temps restant : {skill.GetTimeToNextLevelAsString(player)}", () => __HandleSkillSelection(player, skill)));
+        player.menu.choices.Add(($"{skill.name} - Temps restant : {skill.GetTimeToNextLevelAsString(player)}", () => __HandleSkillSelection(player, skill)));
           
+        // TODO : Suivant, précédent et quitter
+      }
+
+      player.menu.choices.Add(("Quitter", () => __HandleClose(player)));
+      player.menu.Draw();
+    }
+    private static void __DrawMalusPage(PlayerSystem.Player player)
+    {
+      player.menu.Clear();
+      player.menu.title = "Liste des blessures persistantes nécessitant une rééducation.";
+      foreach (KeyValuePair<int, SkillSystem.Skill> SkillListEntry in player.removeableMalus)
+      {
+        SkillSystem.Skill skill = SkillListEntry.Value;
+        // TODO :  afficher le skill en cours en premier ?
+
+        skill.GetTimeToNextLevel(player);
+        player.menu.choices.Add(($"{skill.name} - Temps restant : {skill.GetTimeToNextLevelAsString(player)}", () => __HandleSkillSelection(player, skill)));
+
         // TODO : Suivant, précédent et quitter
       }
 
@@ -38,27 +57,29 @@ namespace NWN.Systems
     {
       if (NWNX.Object.GetInt(player, "_CURRENT_JOB") != 0)
       {
-        SkillSystem.Skill CurrentSkill = player.LearnableSkills[NWNX.Object.GetInt(player, "_CURRENT_JOB")];
+        SkillSystem.Skill CurrentSkill = player.learnableSkills[NWNX.Object.GetInt(player, "_CURRENT_JOB")];
+        if(CurrentSkill == null)
+          CurrentSkill = player.removeableMalus[NWNX.Object.GetInt(player, "_CURRENT_JOB")];
 
         if (CurrentSkill.GetTimeToNextLevel(player) < 600) // TODO : Pour l'instant, j'interdis la pause et le changement si le skill est censé se terminer dans le prochain intervalle. Mais y a ptet mieux à faire
         {
-          player.SendMessage($"L'entrainement de {CurrentSkill.Name} est sur le point de se terminer. Impossible de changer d'entrainement ou de le mettre en pause pour le moment.");
+          player.SendMessage($"L'entrainement de {CurrentSkill.name} est sur le point de se terminer. Impossible de changer d'entrainement ou de le mettre en pause pour le moment.");
         }
-        else if (SelectedSkill.CurrentJob) // Job en cours sélectionné => mise en pause
+        else if (SelectedSkill.currentJob) // Job en cours sélectionné => mise en pause
         {
-          SelectedSkill.CurrentJob = false;
+          SelectedSkill.currentJob = false;
           NWNX.Object.DeleteInt(player, "_CURRENT_JOB");
         }
         else
         {
-          CurrentSkill.CurrentJob = false;
-          SelectedSkill.CurrentJob = true;
+          CurrentSkill.currentJob = false;
+          SelectedSkill.currentJob = true;
           NWNX.Object.SetInt(player, "_CURRENT_JOB", SelectedSkill.oid, true);
         }
       }
       else
       {
-        SelectedSkill.CurrentJob = true;
+        SelectedSkill.currentJob = true;
         NWNX.Object.SetInt(player, "_CURRENT_JOB", SelectedSkill.oid, true);
       }
 
