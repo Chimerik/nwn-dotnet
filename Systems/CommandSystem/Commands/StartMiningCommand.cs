@@ -25,14 +25,14 @@ namespace NWN.Systems
                 {
                   player.SendMessage("Cycle cancelled");
                   oPlaceable.RemoveTaggedEffect($"_{player.CDKey}_MINING_BEAM");
-                  player.RemoveMiningCycleCallbacks();   // supprimer la callback de CompleteMiningCycle
+                  CollectSystem.RemoveMiningCycleCallbacks(player);   // supprimer la callback de CompleteMiningCycle
               };
 
                 Action completeCycle = () =>
                 {
                   player.SendMessage("Entering Cycle completed callback");
                   oPlaceable.RemoveTaggedEffect($"_{player.CDKey}_MINING_BEAM");
-                  player.RemoveMiningCycleCallbacks();   // supprimer la callback de Cancel MiningCycle
+                  CollectSystem.RemoveMiningCycleCallbacks(player);   // supprimer la callback de Cancel MiningCycle
 
                   if (oPlaceable.IsValid && NWScript.GetDistanceBetween(player, oPlaceable) >= 5.0f)
                   {
@@ -62,6 +62,9 @@ namespace NWN.Systems
                       {
                         miningYield = oPlaceable.Locals.Int.Get("_ORE_AMOUNT");
                         oPlaceable.Destroy();
+
+                        uint newRessourcePoint = NWScript.CreateObject(ObjectType.Placeable, "ressourcepoint", oPlaceable.Location);
+                        newRessourcePoint.AsObject().Locals.String.Set("_RESSOURCE_TYPE", oPlaceable.Name);
                       }
                       else
                       {
@@ -69,7 +72,8 @@ namespace NWN.Systems
                       }
 
                       player.SendMessage($"Mining yield = {miningYield}");
-                      NWScript.CreateItemOnObject("ore", player, miningYield);
+                      NWItem ore = NWScript.CreateItemOnObject("ore", player, miningYield).AsItem();
+                      ore.Name = oPlaceable.Name;
 
                       int stripperDurability = miningStriper.Locals.Int.Get("_DURABILITY");
                       if (stripperDurability <= 1)
@@ -84,7 +88,7 @@ namespace NWN.Systems
                   }
                 };
 
-                player.StartMiningCycle(oPlaceable, cancelCycle, completeCycle);
+                CollectSystem.StartMiningCycle(player, oPlaceable, cancelCycle, completeCycle);
               }
               else
                 player.SendMessage($"{oPlaceable.Name} n'est pas à portée. Rapprochez-vous pour démarrer l'extraction.");
