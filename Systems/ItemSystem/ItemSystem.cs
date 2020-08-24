@@ -160,7 +160,7 @@ namespace NWN.Systems
 
             switch (ore.Name)
             {
-              case "Veldspar":
+              case CollectSystem.Ore.Veldspar:
                 if (float.TryParse(NWScript.Get2DAString("feat", "GAINMULTIPLE", NWNX.Creature.GetHighestLevelOfFeat(player, (int)Feat.VeldsparReprocessing)), out value))
                   reprocessingEfficiency += reprocessingEfficiency + 2 * value / 100;
 
