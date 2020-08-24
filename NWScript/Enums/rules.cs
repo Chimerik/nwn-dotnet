@@ -1283,6 +1283,11 @@
     ScorditeReprocessing3 = 1182,
     ScorditeReprocessing4 = 1183,
     ScorditeReprocessing5 = 1184,
+    PyroxeresReprocessing = 1185,
+    PyroxeresReprocessing2 = 1186,
+    PyroxeresReprocessing3 = 1187,
+    PyroxeresReprocessing4 = 1188,
+    PyroxeresReprocessing5 = 1189,
     INVALID_FEAT = 65535
   }
 }

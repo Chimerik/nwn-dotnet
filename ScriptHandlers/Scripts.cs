@@ -147,6 +147,8 @@ namespace NWN.ScriptHandlers
 
       //Garden.Init();
 
+      CollectSystem.InitiateOres();
+
       NWScript.DelayCommand(600.0f, () => SaveServerVault());
 
       // TODO : Restore Death corpses from DB

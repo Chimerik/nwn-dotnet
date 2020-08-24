@@ -156,33 +156,19 @@ namespace NWN.Systems
         {
           if(ore.Tag == "ore")
           {
-            NWItem mineral;
-
-            switch (ore.Name)
+            CollectSystem.Ore processedOre;
+            if (CollectSystem.oresDictionnary.TryGetValue(ore.Name, out processedOre))
             {
-              case "Veldspar":
-                if (float.TryParse(NWScript.Get2DAString("feat", "GAINMULTIPLE", NWNX.Creature.GetHighestLevelOfFeat(player, (int)Feat.VeldsparReprocessing)), out value))
-                  reprocessingEfficiency += reprocessingEfficiency + 2 * value / 100;
+              if (float.TryParse(NWScript.Get2DAString("feat", "GAINMULTIPLE", NWNX.Creature.GetHighestLevelOfFeat(player, (int)processedOre.feat)), out value))
+                reprocessingEfficiency += reprocessingEfficiency + 2 * value / 100;
 
-                mineral = NWScript.CreateItemOnObject("mineral", player, ore.StackSize * 41 * (int)reprocessingEfficiency).AsItem();
-                mineral.Name = "Tritanium";
-                ore.Destroy();
-                
-                break;
-
-              case "Scordite":
-                if (float.TryParse(NWScript.Get2DAString("feat", "GAINMULTIPLE", NWNX.Creature.GetHighestLevelOfFeat(player, (int)Feat.ScorditeReprocessing)), out value))
-                  reprocessingEfficiency += reprocessingEfficiency + 2 * value / 100;
-
-                mineral = NWScript.CreateItemOnObject("mineral", player, ore.StackSize * 23 * (int)reprocessingEfficiency).AsItem();
-                mineral.Name = "Tritanium";
-
-                mineral = NWScript.CreateItemOnObject("mineral", player, ore.StackSize * 11 * (int)reprocessingEfficiency).AsItem();
-                mineral.Name = "Pyerite";
-
-                ore.Destroy();
-
-                break;
+              foreach(KeyValuePair<string, int> mineralKeyValuePair in processedOre.mineralsDictionnary)
+              {
+                NWItem mineral = NWScript.CreateItemOnObject("mineral", player, ore.StackSize * mineralKeyValuePair.Value * (int)reprocessingEfficiency).AsItem();
+                mineral.Name = mineralKeyValuePair.Key;
+              }
+     
+              ore.Destroy();
             }
           }
         }
