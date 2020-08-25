@@ -152,7 +152,6 @@ namespace NWN.Systems
         if (float.TryParse(NWScript.Get2DAString("feat", "GAINMULTIPLE", NWNX.Creature.GetHighestLevelOfFeat(player, (int)Feat.Connections)), out value))
           reprocessingEfficiency += reprocessingEfficiency + 1 * value / 100;
 
-
         foreach (NWItem ore in fonderie.InventoryItems)
         {
           if(ore.Tag == "ore")
