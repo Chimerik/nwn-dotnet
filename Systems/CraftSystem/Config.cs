@@ -12,7 +12,7 @@ namespace NWN.Systems
       public OreType type;
       public string name;
       public Feat feat;
-      public Dictionary<MineralType, int> mineralsDictionnary = new Dictionary<MineralType, int>();
+      public Dictionary<MineralType, float> mineralsDictionnary = new Dictionary<MineralType, float>();
       public Ore(OreType oreType, Feat oreFeat)
       {
         this.type = oreType;
@@ -26,17 +26,17 @@ namespace NWN.Systems
         switch (this.type)
         {
           case OreType.Veldspar:
-            this.mineralsDictionnary.Add(MineralType.Tritanium, 41);
+            this.mineralsDictionnary.Add(MineralType.Tritanium, 41.500f);
             break;
           case OreType.Scordite:
-            this.mineralsDictionnary.Add(MineralType.Tritanium, 23);
-            this.mineralsDictionnary.Add(MineralType.Pyerite, 11);
+            this.mineralsDictionnary.Add(MineralType.Tritanium, 23.067f);
+            this.mineralsDictionnary.Add(MineralType.Pyerite, 11.533f);
             break;
           case OreType.Pyroxeres:
-            this.mineralsDictionnary.Add(MineralType.Tritanium, 12);
-            this.mineralsDictionnary.Add(MineralType.Pyerite, 1);
-            this.mineralsDictionnary.Add(MineralType.Mexallon, 2);
-            this.mineralsDictionnary.Add(MineralType.Noxcium, 1);
+            this.mineralsDictionnary.Add(MineralType.Tritanium, 11.700f);
+            this.mineralsDictionnary.Add(MineralType.Pyerite, 0.833f);
+            this.mineralsDictionnary.Add(MineralType.Mexallon,  1.667f);
+            this.mineralsDictionnary.Add(MineralType.Noxcium, 0.167f);
             break;
         }
       }
@@ -108,6 +108,66 @@ namespace NWN.Systems
       Pyerite = 2,
       Mexallon = 3,
       Noxcium = 4,
+    }
+    public partial class Blueprint
+    {
+      public BlueprintType type;
+      public string name;
+      public int timeCost;
+      public Dictionary<MineralType, int> mineralsCost = new Dictionary<MineralType, int>();
+      public Blueprint(BlueprintType type)
+      {
+        this.type = type;
+        this.name = GetNameFromBlueprintType(type);
+
+        //this.InitiateOreRefinementYield();
+      }
+
+    /*  public void InitiateOreRefinementYield()
+      {
+        switch (this.type)
+        {
+          case OreType.Veldspar:
+            this.mineralsDictionnary.Add(MineralType.Tritanium, 41);
+            break;
+          case OreType.Scordite:
+            this.mineralsDictionnary.Add(MineralType.Tritanium, 23);
+            this.mineralsDictionnary.Add(MineralType.Pyerite, 11);
+            break;
+          case OreType.Pyroxeres:
+            this.mineralsDictionnary.Add(MineralType.Tritanium, 12);
+            this.mineralsDictionnary.Add(MineralType.Pyerite, 1);
+            this.mineralsDictionnary.Add(MineralType.Mexallon, 2);
+            this.mineralsDictionnary.Add(MineralType.Noxcium, 1);
+            break;
+        }
+      }*/
+    }
+    public enum BlueprintType
+    {
+      Invalid = 0,
+      Longsword = 1,
+      Fullplate = 2,
+    }
+    public static BlueprintType GetBlueprintTypeFromName(string name)
+    {
+      switch (name)
+      {
+        case "Longsword": return BlueprintType.Longsword;
+        case "Fullplate": return BlueprintType.Fullplate;
+      }
+
+      return BlueprintType.Invalid;
+    }
+    public static string GetNameFromBlueprintType(BlueprintType type)
+    {
+      switch (type)
+      {
+        case BlueprintType.Longsword: return "Longsword";
+        case BlueprintType.Fullplate: return "Fullplate";
+      }
+
+      return "";
     }
   }
 }
