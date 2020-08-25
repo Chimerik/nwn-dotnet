@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using NWN.Enums;
+using static NWN.Systems.CollectSystem;
 using static NWN.Systems.PlayerSystem;
 
 namespace NWN.Systems
@@ -157,15 +158,15 @@ namespace NWN.Systems
           if(ore.Tag == "ore")
           {
             CollectSystem.Ore processedOre;
-            if (CollectSystem.oresDictionnary.TryGetValue(ore.Name, out processedOre))
+            if (CollectSystem.oresDictionnary.TryGetValue(GetOreTypeFromName(ore.Name), out processedOre))
             {
               if (float.TryParse(NWScript.Get2DAString("feat", "GAINMULTIPLE", NWNX.Creature.GetHighestLevelOfFeat(player, (int)processedOre.feat)), out value))
                 reprocessingEfficiency += reprocessingEfficiency + 2 * value / 100;
 
-              foreach(KeyValuePair<string, int> mineralKeyValuePair in processedOre.mineralsDictionnary)
+              foreach(KeyValuePair<MineralType, int> mineralKeyValuePair in processedOre.mineralsDictionnary)
               {
                 NWItem mineral = NWScript.CreateItemOnObject("mineral", player, ore.StackSize * mineralKeyValuePair.Value * (int)reprocessingEfficiency).AsItem();
-                mineral.Name = mineralKeyValuePair.Key;
+                mineral.Name = GetNameFromMineralType(mineralKeyValuePair.Key);
               }
      
               ore.Destroy();
