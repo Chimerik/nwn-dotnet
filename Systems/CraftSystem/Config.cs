@@ -114,40 +114,35 @@ namespace NWN.Systems
       public BlueprintType type;
       public string name;
       public int timeCost;
-      public Dictionary<MineralType, int> mineralsCost = new Dictionary<MineralType, int>();
+      int mineralsCost;
       public Blueprint(BlueprintType type)
       {
         this.type = type;
         this.name = GetNameFromBlueprintType(type);
 
-        //this.InitiateOreRefinementYield();
+        this.InitiateBluePrintCosts();
       }
 
-    /*  public void InitiateOreRefinementYield()
+      public void InitiateBluePrintCosts()
       {
         switch (this.type)
         {
-          case OreType.Veldspar:
-            this.mineralsDictionnary.Add(MineralType.Tritanium, 41);
+          case BlueprintType.Longsword:
+            this.mineralsCost = 20000;
             break;
-          case OreType.Scordite:
-            this.mineralsDictionnary.Add(MineralType.Tritanium, 23);
-            this.mineralsDictionnary.Add(MineralType.Pyerite, 11);
-            break;
-          case OreType.Pyroxeres:
-            this.mineralsDictionnary.Add(MineralType.Tritanium, 12);
-            this.mineralsDictionnary.Add(MineralType.Pyerite, 1);
-            this.mineralsDictionnary.Add(MineralType.Mexallon, 2);
-            this.mineralsDictionnary.Add(MineralType.Noxcium, 1);
+          case BlueprintType.Fullplate:
+            this.mineralsCost = 1000000;
             break;
         }
-      }*/
+      }
     }
     public enum BlueprintType
     {
       Invalid = 0,
-      Longsword = 1,
-      Fullplate = 2,
+      Dagger = 1,
+      Longsword = 2,
+      Chainshirt = 3,
+      Fullplate = 4,
     }
     public static BlueprintType GetBlueprintTypeFromName(string name)
     {
@@ -155,6 +150,8 @@ namespace NWN.Systems
       {
         case "Longsword": return BlueprintType.Longsword;
         case "Fullplate": return BlueprintType.Fullplate;
+        case "Dagger": return BlueprintType.Dagger;
+        case "Chainshirt": return BlueprintType.Chainshirt;
       }
 
       return BlueprintType.Invalid;
@@ -165,6 +162,8 @@ namespace NWN.Systems
       {
         case BlueprintType.Longsword: return "Longsword";
         case BlueprintType.Fullplate: return "Fullplate";
+        case BlueprintType.Dagger: return "Dagger";
+        case BlueprintType.Chainshirt: return "Chainshirt";
       }
 
       return "";
