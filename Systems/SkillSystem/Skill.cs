@@ -16,8 +16,8 @@ namespace NWN.Systems
       public string name { get; set; }
       public string description { get; set; }
       public Boolean currentJob { get; set; }
-      public int maxLevel { get; set; }
       public int currentLevel { get; set; }
+      public int successorId { get; set; }
       private int multiplier;
       private int pointsToNextLevel;
       public readonly Ability primaryAbility;
@@ -29,23 +29,33 @@ namespace NWN.Systems
         this.acquiredPoints = SP;
         int value;
 
-        // TODO : logs + message sur chan dm + message sur discord en cas de valeur non configurée
-
         if (int.TryParse(NWScript.Get2DAString("feat", "FEAT", Id), out value))
           this.name = NWScript.GetStringByStrRef(value);
         else
+        {
           this.name = "Nom non disponible";
+          Utils.LogMessageToDMs($"SKILL SYSTEM ERROR - Skill {this.oid} : no available name");
+        }
 
         if (int.TryParse(NWScript.Get2DAString("feat", "DESCRIPTION", Id), out value))
           this.description = NWScript.GetStringByStrRef(value);
         else
+        {
           this.description = "Description non disponible";
+          Utils.LogMessageToDMs($"SKILL SYSTEM ERROR - Skill {this.oid} : no available description");
+        }
 
         if (int.TryParse(NWScript.Get2DAString("feat", "GAINMULTIPLE", Id), out value))
-          this.maxLevel = value;
+        {
+          this.currentLevel = value;
+          if (int.TryParse(NWScript.Get2DAString("feat", "SUCCESSOR", Id), out value))
+            this.successorId = value;
+          else
+            this.successorId = 0;
+        }
         else
-          this.maxLevel = 1;
-
+          this.currentLevel = 1;
+ 
         if (int.TryParse(NWScript.Get2DAString("feat", "CRValue", Id), out value))
           this.multiplier = value;
         else
@@ -68,17 +78,22 @@ namespace NWN.Systems
 
         iSkillAbilities.OrderBy(key => key.Value);
 
-        if(iSkillAbilities.Count > 0)
+        if (iSkillAbilities.Count > 0)
           this.primaryAbility = (Ability)iSkillAbilities.ElementAt(0).Key;
         else
+        {
           this.primaryAbility = Ability.Intelligence;
+          Utils.LogMessageToDMs($"SKILL SYSTEM ERROR - Skill {this.oid} : Primary ability not set");
+        }
 
         if (iSkillAbilities.Count > 1)
           this.secondaryAbility = (Ability)iSkillAbilities.ElementAt(1).Key;
         else
+        {
           this.secondaryAbility = Ability.Wisdom;
+          Utils.LogMessageToDMs($"SKILL SYSTEM ERROR - Skill {this.oid} : Secondary ability not set");
+        }
 
-        this.currentLevel = this.GetcurrentLevel();
         this.pointsToNextLevel = 250 * this.multiplier * (int)Math.Pow(Math.Sqrt(32), this.currentLevel);
       }
       public double GetTimeToNextLevel(Player oPC)
@@ -96,13 +111,33 @@ namespace NWN.Systems
         TimeSpan EndTime = DateTime.Now.AddSeconds(this.GetTimeToNextLevel(oPC)).Subtract(DateTime.Now);
         string Countdown = "";
         if (EndTime.Days > 0)
-          Countdown += EndTime.Days + ":";
+        {
+          if (EndTime.Days < 10)
+            Countdown += "0" + EndTime.Days + ":";
+          else
+            Countdown += EndTime.Days + ":";
+        }
         if (EndTime.Hours > 0)
-          Countdown += EndTime.Hours + ":";
+        {
+          if (EndTime.Hours < 10)
+            Countdown += "0" + EndTime.Hours + ":";
+          else
+            Countdown += EndTime.Hours + ":";
+        }
         if (EndTime.Minutes > 0)
-          Countdown += EndTime.Minutes + ":";
+        {
+          if (EndTime.Minutes < 10)
+            Countdown += "0" + EndTime.Minutes + ":";
+          else
+            Countdown += EndTime.Minutes + ":";
+        }
         if (EndTime.Seconds > 0)
-          Countdown += EndTime.Seconds;
+        {
+          if (EndTime.Seconds < 10)
+            Countdown += "0" + EndTime.Seconds;
+          else
+            Countdown += EndTime.Seconds;
+        }
 
         return Countdown;
       }
@@ -112,29 +147,9 @@ namespace NWN.Systems
         oPC.RefreshAcquiredSkillPoints();
 
         NWScript.PostString(oPC, $"Apprentissage terminé dans {Countdown}", 80, 10, ScreenAnchor.TopLeft, 1.0f, unchecked((int)0xC0C0C0FF), unchecked((int)0xC0C0C0FF), 9, "fnt_galahad14");
-        NWScript.DelayCommand(1.0f, () => DisplayTimeToNextLevel(oPC));
-      }
-      public int GetcurrentLevel()
-      {
-        if (this.IsAtmaxLevel())
-          return this.maxLevel;
-        if (this.acquiredPoints < 250 * this.multiplier * (int)Math.Pow(Math.Sqrt(32), 0))
-          return 0;
-        if (this.acquiredPoints < 250 * this.multiplier * (int)Math.Pow(Math.Sqrt(32), 1))
-          return 1;
-        if (this.acquiredPoints < 250 * this.multiplier * (int)Math.Pow(Math.Sqrt(32), 2))
-          return 2;
-        if (this.acquiredPoints < 250 * this.multiplier * (int)Math.Pow(Math.Sqrt(32), 3))
-          return 3;
-
-        return 4;
-      }
-      public Boolean IsAtmaxLevel()
-      {
-        if (this.acquiredPoints >= 250 * this.multiplier * (int)Math.Pow(Math.Sqrt(32), this.maxLevel))
-          return true;
-        else
-          return false;
+        
+        if(oPC.Locals.Int.Get("_DISPLAY_JOBS") == 1)
+          NWScript.DelayCommand(1.0f, () => DisplayTimeToNextLevel(oPC));
       }
     }
   }

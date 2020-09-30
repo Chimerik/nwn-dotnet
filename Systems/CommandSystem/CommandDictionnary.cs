@@ -193,6 +193,32 @@ namespace NWN.Systems
         )
       },
       {
+        "renamecreature",
+        new Command(
+          name: "renamecreature",
+          description: new Command.Description(title: "Permet de modifier le nom de la créature ciblée, à condition qu'il s'agisse d'une de vos invocations."),
+          execute: ExecuteRenameCreatureCommand,
+          options: new Options(
+            positional: new List<Option>()
+            {
+              new Option(
+                name: "Nom",
+                description: "Le nouveau nom de la créature.",
+                defaultValue: ""
+              )
+            }
+          )
+        )
+      },
+      {
+        "mine",
+        new Command(
+          name: "mine",
+          description: new Command.Description(title: "Débute l'extraction de minerai sur la cible."),
+          execute: ExecuteStartMiningCommand
+        )
+      },
+      {
         "test",
         new Command(
           name: "test",

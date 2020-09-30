@@ -14,6 +14,12 @@ namespace NWN
       Console.WriteLine(e.Message);
       NWScript.SendMessageToAllDMs(e.Message);
       NWScript.WriteTimestampedLogEntry(e.Message);
+      // TODO : Une fois dotnet.core mis à jour, envoyer le message sur Discord via nwnx.webhook
+    }
+    public static void LogMessageToDMs(string message)
+    {
+      NWScript.SendMessageToAllDMs(message);
+      // TODO : Une fois dotnet.core mis à jour, envoyer le message sur Discord via nwnx.webhook
     }
 
     public static void DestroyInventory(uint oContainer)

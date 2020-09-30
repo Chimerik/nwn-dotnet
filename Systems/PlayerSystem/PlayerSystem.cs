@@ -15,6 +15,7 @@ namespace NWN.Systems
     public static Dictionary<string, Func<uint, int>> Register = new Dictionary<string, Func<uint, int>>
         {
             { "on_pc_perceived", HandlePlayerPerceived },
+            { "on_pc_target", HandlePlayerTargetSelection },
             { "on_pc_connect", HandlePlayerConnect },
             { "on_pc_disconnect", HandlePlayerDisconnect },
             { "player_exit_before", HandlePlayerBeforeDisconnect },
@@ -38,6 +39,10 @@ namespace NWN.Systems
             { "event_party_leave_after", HandleAfterPartyLeave },
             { "event_party_leave_before", HandleBeforePartyLeave },
             { "event_party_kick_after", HandleAfterPartyKick },
+            { "event_examine_before", HandleBeforeExamine },
+            { "event_examine_after", HandleAfterExamine },
+            { "pc_acquire_item", HandlePCAcquireItem },
+            { "pc_unacquire_it", HandlePCUnacquireItem },
         };
     
     public static Dictionary<uint, Player> Players = new Dictionary<uint, Player>();
@@ -55,6 +60,8 @@ namespace NWN.Systems
       NWNX.Events.AddObjectToDispatchList("NWNX_ON_BROADCAST_CAST_SPELL_AFTER", "event_spellbroadcast_after", oPC);
       NWNX.Events.AddObjectToDispatchList("NWNX_ON_ITEM_EQUIP_BEFORE", "event_equip_items_before", oPC);
       NWNX.Events.AddObjectToDispatchList("NWNX_ON_ITEM_UNEQUIP_BEFORE", "event_unequip_items_before", oPC);
+      NWNX.Events.AddObjectToDispatchList("NWNX_ON_VALIDATE_ITEM_EQUIP_BEFORE", "event_validate_equip_items_before", oPC);
+      NWNX.Events.AddObjectToDispatchList("NWNX_ON_VALIDATE_USE_ITEM_BEFORE", "event_validate_equip_items_before", oPC);
       NWNX.Events.AddObjectToDispatchList("NWNX_ON_COMBAT_MODE_OFF", "event_combatmode", oPC);
       NWNX.Events.AddObjectToDispatchList("NWNX_ON_USE_SKILL_BEFORE", "event_skillused", oPC);
       NWNX.Events.AddObjectToDispatchList("NWNX_ON_DO_LISTEN_DETECTION_AFTER", "event_detection_after", oPC);
@@ -183,6 +190,24 @@ namespace NWN.Systems
       return Entrypoints.SCRIPT_HANDLED;
     }
 
+    private static int HandlePlayerTargetSelection(uint oidSelf)
+    {
+      //NWPlayer oPC = NWScript.GetLastPlayerToSelectTarget();
+      //var oTarget = NWScript.GetTargetingModeSelectedObject();
+      //Vector vTarget = NWScript.GetTargetingModeSelectedPosition();
+
+      NWPlayer oPC = NWScript.GetFirstPC().AsPlayer(); // Bouchon en attendant d'avoir la vraie fonction
+      uint oTarget = NWScript.GetObjectByTag("mineable_rock");
+      Vector vTarget = NWScript.GetPosition(oTarget);
+
+      Player player;
+      if (Players.TryGetValue(oPC, out player))
+      {
+        player.DoActionOnTargetSelected(oTarget, vTarget);
+      }
+
+      return Entrypoints.SCRIPT_HANDLED;
+    }
     private static int HandleBeforePlayerSave(uint oidSelf)
     {
       /* Fix polymorph bug : Lorsqu'un PJ métamorphosé est sauvegardé, toutes ses buffs sont supprimées afin que les stats de 
@@ -747,8 +772,8 @@ namespace NWN.Systems
         player.SendMessage("Tout se brouille autour de vous. Avant de perdre connaissance, vous sentez comme un étrange maëlstrom vous aspirer.");
 
         NWPlaceable oPCCorpse = NWScript.CreateObject(ObjectType.Placeable, "pccorpse", player.Location).AsPlaceable();
-        NWNX.Events.AddObjectToDispatchList("NWNX_ON_INVENTORY_REMOVE_ITEM_AFTER", "event_inventory_remove_item_after", oPCCorpse);
-        NWNX.Events.AddObjectToDispatchList("NWNX_ON_INVENTORY_ADD_ITEM_AFTER", "event_inventory_add_item_after", oPCCorpse);
+        NWNX.Events.AddObjectToDispatchList("NWNX_ON_INVENTORY_REMOVE_ITEM_AFTER", "event_pccorpse_remove_item_after", oPCCorpse);
+        NWNX.Events.AddObjectToDispatchList("NWNX_ON_INVENTORY_ADD_ITEM_AFTER", "event_pccorpse_add_item_after", oPCCorpse);
 
         int PlayerId = NWNX.Object.GetInt(player, "_PC_ID");
         oPCCorpse.Name = $"Cadavre de {player.Name}";
@@ -758,7 +783,16 @@ namespace NWN.Systems
         NWScript.SetLocalInt(NWScript.CreateItemOnObject("item_pccorpse", oPCCorpse), "PC_ID", PlayerId);
 
         if (player.Gold > 0)
-          NWScript.CreateItemOnObject("nw_it_gold001", oPCCorpse, player.Gold); // TODO : penser à modifier la valeur row 76 of baseitems.2da afin de permettre à l'or de stack à plus de 50K unités
+        {
+          do
+          {
+            NWScript.CreateItemOnObject("nw_it_gold001", oPCCorpse, player.Gold);
+            player.Gold -= 50000;
+          } while (player.Gold > 50000);
+        }
+
+        if (player.Gold < 0)
+          player.Gold = 0;
 
         // TODO : Dropper toutes les ressources craft de l'inventaire du défunt
 
@@ -865,6 +899,69 @@ namespace NWN.Systems
           oPartyMember = NWScript.GetNextFactionMember(oPartyMember, true).AsPlayer();
         }
       }
+
+      return Entrypoints.SCRIPT_HANDLED;
+    }
+    private static int HandleBeforeExamine(uint oidSelf)
+    {
+      Player player;
+      if (Players.TryGetValue(oidSelf, out player))
+      {
+        NWObject examineTarget =  NWNX.Object.StringToObject(NWNX.Events.GetEventData("EXAMINEE_OBJECT_ID")).AsObject();
+      
+        switch(examineTarget.Tag)
+        {
+          case "mineable_rock":
+            int oreAmount = examineTarget.Locals.Int.Get("_ORE_AMOUNT");
+            if (!player.IsDM)
+            {
+              int geologySkillLevel;
+              if (int.TryParse(NWScript.Get2DAString("feat", "GAINMULTIPLE", NWNX.Creature.GetHighestLevelOfFeat(player, (int)Feat.Geology)), out geologySkillLevel))
+                examineTarget.Description = $"Minerai disponible : {Utils.random.Next(oreAmount * geologySkillLevel * 20 / 100, 2 * oreAmount - geologySkillLevel * 20 / 100)}";
+              else
+                examineTarget.Description = $"Minerai disponible estimé : {Utils.random.Next(0, 2 * oreAmount)}";
+            }
+            else
+              examineTarget.Description = $"Minerai disponible : {oreAmount}";
+
+              break;
+        }
+      }
+      return Entrypoints.SCRIPT_HANDLED;
+    }
+    private static int HandleAfterExamine(uint oidSelf)
+    {
+      Player player;
+      if (Players.TryGetValue(oidSelf, out player))
+      {
+        NWObject examineTarget = NWNX.Object.StringToObject(NWNX.Events.GetEventData("EXAMINEE_OBJECT_ID")).AsObject();
+
+        switch (examineTarget.Tag)
+        {
+          case "mineable_rock":
+              examineTarget.Description = $"";
+            break;
+        }
+      }
+      return Entrypoints.SCRIPT_HANDLED;
+    }
+    private static int HandlePCUnacquireItem(uint oidSelf)
+    {
+      uint oPC = NWScript.GetModuleItemLostBy();
+
+      if (NWScript.GetMovementRate(oPC) == (int)MovementRate.Immobile)
+        if (NWScript.GetWeight(oPC) <= int.Parse(NWScript.Get2DAString("encumbrance", "Heavy", oPC.AsCreature().Ability[Ability.Strength].Total)))
+          NWNX.Creature.SetMovementRate(oPC, MovementRate.PC);
+
+      return Entrypoints.SCRIPT_HANDLED;
+    }
+    private static int HandlePCAcquireItem(uint oidSelf)
+    {
+      uint oPC = NWScript.GetModuleItemAcquiredBy();
+
+      if (NWScript.GetMovementRate(oPC) != (int)MovementRate.Immobile)
+        if (NWScript.GetWeight(oPC) > int.Parse(NWScript.Get2DAString("encumbrance", "Heavy", oPC.AsCreature().Ability[Ability.Strength].Total)))
+          NWNX.Creature.SetMovementRate(oPC, MovementRate.Immobile);
 
       return Entrypoints.SCRIPT_HANDLED;
     }
