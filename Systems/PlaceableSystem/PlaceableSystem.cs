@@ -7,7 +7,7 @@ namespace NWN.Systems
   {
     public static Dictionary<string, Func<uint, int>> Register = new Dictionary<string, Func<uint, int>>
     {
-      { "enchantment_basin_on_close", EnchantmentBasin.HandleClose },
+      { "ench_bsn_onclose", EnchantmentBasinSystem.HandleClose },
     };
   }
 }

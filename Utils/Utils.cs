@@ -46,6 +46,12 @@ namespace NWN
               "#F#" + NWScript.FloatToString(facing, 5, 2) + "#";
     }
 
+    public static double ScaleToRange(double value, double originalMin, double originalMax, double destMin, double destMax)
+    {
+      double result = (value - originalMin) / (originalMax - originalMin) * (destMax - destMin);
+      return result + destMin;
+    }
+
     public static Location StringToLocation(string s)
     {
       float facing, x, y, z;
