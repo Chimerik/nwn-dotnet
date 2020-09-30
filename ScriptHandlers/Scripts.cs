@@ -3,6 +3,7 @@ using NWN.Systems;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using NWN.Enums;
 
 namespace NWN.ScriptHandlers
 {
@@ -15,6 +16,11 @@ namespace NWN.ScriptHandlers
       //  { "event_mouse_clic", EventMouseClick },
       { "event_potager", EventPotager },
       { "_event_effects", EventEffects },
+    }.Concat(Systems.LootSystem.Register)
+     .Concat(Systems.PlayerSystem.Register)
+     .Concat(Systems.ChatSystem.Register)
+     .Concat(Systems.SpellSystem.Register)
+     .Concat(Systems.ItemSystem.Register)
      .Concat(PlaceableSystem.Register)
      .Concat(Systems.CollectSystem.Register)
      .ToDictionary(kvp => kvp.Key, kvp => kvp.Value);
