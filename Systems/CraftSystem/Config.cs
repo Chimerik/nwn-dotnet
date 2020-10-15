@@ -112,14 +112,10 @@ namespace NWN.Systems
     public partial class Blueprint
     {
       public BlueprintType type;
-      public string name;
-      public int timeCost;
       int mineralsCost;
       public Blueprint(BlueprintType type)
       {
         this.type = type;
-        this.name = GetNameFromBlueprintType(type);
-
         this.InitiateBluePrintCosts();
       }
 
