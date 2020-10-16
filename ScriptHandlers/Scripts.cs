@@ -166,14 +166,15 @@ namespace NWN.ScriptHandlers
     {
       var oItem = NWScript.GetItemActivated();
       var oActivator = NWScript.GetItemActivator();
+      var oTarget = NWScript.GetItemActivatedTarget();
       var tag = NWScript.GetTag(oItem);
 
-      Func<uint, uint, int> handler;
+      Func<uint, uint, uint, int> handler;
       if (ActivateItemHandlers.Register.TryGetValue(tag, out handler))
       {
         try
         {
-          return handler.Invoke(oItem, oActivator);
+          return handler.Invoke(oItem, oActivator, oTarget);
         }
         catch (Exception e)
         {

@@ -109,10 +109,14 @@ namespace NWN.Systems
       Mexallon = 3,
       Noxcium = 4,
     }
+
+    public static Dictionary<BlueprintType, Blueprint> blueprintDictionnary = new Dictionary<BlueprintType, Blueprint>();
     public partial class Blueprint
     {
       public BlueprintType type;
-      int mineralsCost;
+      public string workshopTag { get; set; }
+      public string craftedItemTag { get; set; }
+      public int mineralsCost { get; set; }
       public Blueprint(BlueprintType type)
       {
         this.type = type;
@@ -125,9 +129,13 @@ namespace NWN.Systems
         {
           case BlueprintType.Longsword:
             this.mineralsCost = 20000;
+            this.workshopTag = "forge";
+            this.craftedItemTag = "veldspar_longsword";
             break;
           case BlueprintType.Fullplate:
             this.mineralsCost = 1000000;
+            this.workshopTag = "forge";
+            this.craftedItemTag = "veldspar_fullplate";
             break;
         }
       }
