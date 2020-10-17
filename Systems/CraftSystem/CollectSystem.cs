@@ -73,5 +73,11 @@ namespace NWN.Systems
       NWNX.Events.RemoveObjectFromDispatchList("NWNX_ON_START_COMBAT_ROUND_AFTER", "event_mining_cycle_cancel_before", player);
       NWNX.Events.RemoveObjectFromDispatchList("NWNX_ON_INPUT_CAST_SPELL_BEFORE", "event_mining_cycle_cancel_before", player);
     }
+    public static void AddCraftedItemProperties(uint craftedItem, Blueprint blueprint, int level)
+    {
+      foreach (ItemProperty ip in itemPropertiesDictionnary[level])
+        NWScript.AddItemProperty(DurationType.Permanent, ip, craftedItem);
+      
+    }
   }
 }

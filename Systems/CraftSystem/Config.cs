@@ -1,5 +1,10 @@
 ﻿using System.Collections.Generic;
+using System.Data.Common;
+using NWN.Core;
+using NWN.Core.NWNX;
 using NWN.Enums;
+using NWN.Enums.Item;
+using NWN.Enums.Item.Property;
 
 namespace NWN.Systems
 {
@@ -11,9 +16,9 @@ namespace NWN.Systems
     {
       public OreType type;
       public string name;
-      public Feat feat;
+      public NWN.Enums.Feat feat;
       public Dictionary<MineralType, float> mineralsDictionnary = new Dictionary<MineralType, float>();
-      public Ore(OreType oreType, Feat oreFeat)
+      public Ore(OreType oreType, NWN.Enums.Feat oreFeat)
       {
         this.type = oreType;
         this.name = GetNameFromOreType(oreType);
@@ -44,9 +49,9 @@ namespace NWN.Systems
 
     public static void InitiateOres()
     {
-      oresDictionnary.Add(OreType.Veldspar, new Ore(OreType.Veldspar, Feat.VeldsparReprocessing));
-      oresDictionnary.Add(OreType.Scordite, new Ore(OreType.Scordite, Feat.ScorditeReprocessing));
-      oresDictionnary.Add(OreType.Pyroxeres, new Ore(OreType.Pyroxeres, Feat.PyroxeresReprocessing));
+      oresDictionnary.Add(OreType.Veldspar, new Ore(OreType.Veldspar, NWN.Enums.Feat.VeldsparReprocessing));
+      oresDictionnary.Add(OreType.Scordite, new Ore(OreType.Scordite, NWN.Enums.Feat.ScorditeReprocessing));
+      oresDictionnary.Add(OreType.Pyroxeres, new Ore(OreType.Pyroxeres, NWN.Enums.Feat.PyroxeresReprocessing));
     }
     public static OreType GetOreTypeFromName(string name)
     {
@@ -130,12 +135,12 @@ namespace NWN.Systems
           case BlueprintType.Longsword:
             this.mineralsCost = 20000;
             this.workshopTag = "forge";
-            this.craftedItemTag = "veldspar_longsword";
+            this.craftedItemTag = "longsword";
             break;
           case BlueprintType.Fullplate:
             this.mineralsCost = 1000000;
             this.workshopTag = "forge";
-            this.craftedItemTag = "veldspar_fullplate";
+            this.craftedItemTag = "fullplate";
             break;
         }
       }
@@ -172,5 +177,34 @@ namespace NWN.Systems
 
       return "";
     }
+
+    public static Dictionary<int, List<ItemProperty>> itemPropertiesDictionnary = new Dictionary<int, List<ItemProperty>>();
+    //public static Dictionary<BaseItem, List<ItemProperty>> itemPropertiesDictionnary = new Dictionary<BaseItem, List<ItemProperty>>();
+    
+    public static void initiateCraftItemProperties()
+    { 
+      /*List<ItemProperty> itemPropertyList = new List<ItemProperty>();
+      NWNX.Enum.ItemPropertyUnpacked prout;NWScript.ItemPropertyAbilityBonus
+      prout.
+      // VELDSPAR
+      itemPropertyList.Add(NWScript.ItemPropertyDamageVulnerability(Enums.Item.Property.DamageType.Fire, DamageVulnerability.FiftyPERCENT));
+      itemPropertyList.Add(NWScript.ItemPropertyDamageVulnerability(Enums.Item.Property.DamageType.Cold, DamageVulnerability.FiftyPERCENT));
+      itemPropertyList.Add(NWScript.ItemPropertyDamageVulnerability(Enums.Item.Property.DamageType.Electrical, DamageVulnerability.FiftyPERCENT));
+      itemPropertyList.Add(NWScript.ItemPropertyWeightReduction(ReducedWeight.FourtyPercent));
+      itemPropertiesDictionnary.Add(1, itemPropertyList);
+
+      itemPropertyList.Clear();
+
+      // SCORDITE
+      itemPropertyList.Add(NWScript.ItemPropertyDamageVulnerability(Enums.Item.Property.DamageType.Fire, DamageVulnerability.TwentyFivePERCENT));
+      itemPropertyList.Add(NWScript.ItemPropertyWeightIncrease(WeightIncrease.TenPounds));
+      itemPropertyList.Add(NWScript.ItemPropertyACBonusVsRace(Enums.Item.Property.RacialType.HumanoidGoblinoid, 1));
+      itemPropertyList.Add(NWScript.ItemPropertyACBonusVsRace(Enums.Item.Property.RacialType.HumanoidReptilian, 1));
+      itemPropertyList.Add(NWScript.ItemPropertyAttackBonusVsRace(Enums.Item.Property.RacialType.HumanoidReptilian, 1));
+      itemPropertyList.Add(NWScript.ItemPropertyAttackBonusVsRace(Enums.Item.Property.RacialType.HumanoidGoblinoid, 1));
+      itemPropertiesDictionnary.Add(2, itemPropertyList);
+     
+      itemPropertyList.Clear();
+    */}
   }
 }

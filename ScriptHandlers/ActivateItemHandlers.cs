@@ -76,7 +76,7 @@ namespace NWN.ScriptHandlers
 
             NWNX.Object.SetString(player, "_CURRENT_CRAFT_JOB", item.Name, true);
             NWNX.Object.SetFloat(player, "_CURRENT_CRAFT_JOB_REMAINING_TIME", iJobDuration, true);
-
+            NWNX.Object.SetInt(player, "_CURRENT_CRAFT_JOB_LEVEL", 1, true);
           }
           else if(NWScript.GetObjectType(oTarget) == ObjectType.Item && NWScript.GetNearestObjectByTag(blueprint.workshopTag, oActivator) != NWObjectBase.OBJECT_INVALID)
           {

@@ -163,8 +163,8 @@ namespace NWN.Systems
           blueprint = CollectSystem.blueprintDictionnary[blueprintType];
         else
           blueprint = new CollectSystem.Blueprint(blueprintType);
-
-        NWScript.DelayCommand(10.0f, () => this.PlayCraftJobCompletedEffects(blueprint.craftedItemTag)); // Décalage de 10 secondes pour être sur que le joueur a fini de charger la map à la reco
+        
+        NWScript.DelayCommand(10.0f, () => this.PlayCraftJobCompletedEffects(blueprint)); // Décalage de 10 secondes pour être sur que le joueur a fini de charger la map à la reco
       }
       public void AcquireSkillPoints()
       {
@@ -323,17 +323,18 @@ namespace NWN.Systems
         NWNX.Player.ApplyInstantVisualEffectToObject(this, this, (int)Impact.GlobeUse);
       }
 
-      public void PlayCraftJobCompletedEffects(string itemTag)
+      public void PlayCraftJobCompletedEffects(CollectSystem.Blueprint blueprint)
       {
         NWScript.PostString(this, $"La création de votre {NWNX.Object.GetString(this, "_CURRENT_CRAFT_JOB")} est terminée !", 80, 10, ScreenAnchor.TopLeft, 5.0f, unchecked((int)0xC0C0C0FF), unchecked((int)0xC0C0C0FF), 9, "fnt_galahad14");
         // TODO : changer les sons et effets visuels
         NWNX.Player.PlaySound(this, "gui_level_up", this);
         NWNX.Player.ApplyInstantVisualEffectToObject(this, this, (int)Impact.GlobeUse);
 
-        NWScript.CreateItemOnObject(itemTag, this);
+        CollectSystem.AddCraftedItemProperties(NWScript.CreateItemOnObject(blueprint.craftedItemTag, this), blueprint, NWNX.Object.GetInt(this, "_CURRENT_CRAFT_JOB_LEVEL"));
 
         NWNX.Object.DeleteString(this, "_CURRENT_CRAFT_JOB");
         NWNX.Object.DeleteFloat(this, "_CURRENT_CRAFT_JOB_REMAINING_TIME");
+        NWNX.Object.DeleteInt(this, "_CURRENT_CRAFT_JOB_LEVEL");
       }
 
       public void PlayNoCurrentTrainingEffects()
