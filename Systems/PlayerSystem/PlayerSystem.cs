@@ -53,7 +53,7 @@ namespace NWN.Systems
 
       //TODO : système de BANLIST
 
-      EventsPlugin.AddObjectToDispatchList(EventsPlugin.ON_INPUT_KEYBOARD_BEFORE, ON_PC_KEYSTROKE_SCRIPT, oPC);
+      EventsPlugin.AddObjectToDispatchList("NWNX_ON_INPUT_KEYBOARD_BEFORE", ON_PC_KEYSTROKE_SCRIPT, oPC);
       EventsPlugin.AddObjectToDispatchList("NWNX_ON_USE_FEAT_BEFORE", "event_feat_used", oPC);
       EventsPlugin.AddObjectToDispatchList("NWNX_ON_ADD_ASSOCIATE_AFTER", "summon_add_after", oPC);
       EventsPlugin.AddObjectToDispatchList("NWNX_ON_REMOVE_ASSOCIATE_AFTER", "summon_remove_after", oPC);

@@ -1,7 +1,5 @@
 ﻿using System;
-using NWN.Enums;
-using NWN.Enums.Item;
-using NWN.Enums.Item.Property;
+using NWN.Core;
 
 namespace NWN
 {
@@ -171,7 +169,7 @@ namespace NWN
       }
     }
 
-    public static void RemoveMatchingItemProperties(uint oItem, int nItemPropertyType, DurationType nItemPropertyDuration = DurationType.Temporary, int nItemPropertySubType = -1)
+    public static void RemoveMatchingItemProperties(uint oItem, int nItemPropertyType, int nItemPropertyDuration = NWScript., int nItemPropertySubType = -1)
     {
       var ip = NWScript.GetFirstItemProperty(oItem);
 

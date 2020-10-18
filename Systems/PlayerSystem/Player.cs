@@ -318,31 +318,31 @@ namespace NWN.Systems
 
       public void PlayNewSkillAcquiredEffects(SkillSystem.Skill skill)
       {
-        NWScript.PostString(this, $"Votre apprentissage {skill.name} est terminé !", 80, 10, ScreenAnchor.TopLeft, 5.0f, unchecked((int)0xC0C0C0FF), unchecked((int)0xC0C0C0FF), 9, "fnt_galahad14");
-        NWNX.Player.PlaySound(this, "gui_level_up", this);
-        NWNX.Player.ApplyInstantVisualEffectToObject(this, this, (int)Impact.GlobeUse);
+        NWScript.PostString(oid, $"Votre apprentissage {skill.name} est terminé !", 80, 10, NWScript.SCREEN_ANCHOR_TOP_LEFT, 5.0f, unchecked((int)0xC0C0C0FF), unchecked((int)0xC0C0C0FF), 9, "fnt_galahad14");
+        PlayerPlugin.PlaySound(oid, "gui_level_up");
+        PlayerPlugin.ApplyInstantVisualEffectToObject(oid, oid, NWScript.VFX_IMP_GLOBE_USE);
       }
 
       public void PlayCraftJobCompletedEffects(CollectSystem.Blueprint blueprint)
       {
-        NWScript.PostString(this, $"La création de votre {NWNX.Object.GetString(this, "_CURRENT_CRAFT_JOB")} est terminée !", 80, 10, ScreenAnchor.TopLeft, 5.0f, unchecked((int)0xC0C0C0FF), unchecked((int)0xC0C0C0FF), 9, "fnt_galahad14");
+        NWScript.PostString(oid, $"La création de votre {ObjectPlugin.GetString(oid, "_CURRENT_CRAFT_JOB")} est terminée !", 80, 10, NWScript.SCREEN_ANCHOR_TOP_LEFT, 5.0f, unchecked((int)0xC0C0C0FF), unchecked((int)0xC0C0C0FF), 9, "fnt_galahad14");
         // TODO : changer les sons et effets visuels
-        NWNX.Player.PlaySound(this, "gui_level_up", this);
-        NWNX.Player.ApplyInstantVisualEffectToObject(this, this, (int)Impact.GlobeUse);
+        PlayerPlugin.PlaySound(oid, "gui_level_up");
+        PlayerPlugin.ApplyInstantVisualEffectToObject(oid, oid, NWScript.VFX_IMP_GLOBE_USE);
 
-        CollectSystem.AddCraftedItemProperties(NWScript.CreateItemOnObject(blueprint.craftedItemTag, this), blueprint, NWNX.Object.GetString(this, "_CURRENT_CRAFT_JOB_MATERIAL"));
+        CollectSystem.AddCraftedItemProperties(NWScript.CreateItemOnObject(blueprint.craftedItemTag, oid), blueprint, ObjectPlugin.GetString(oid, "_CURRENT_CRAFT_JOB_MATERIAL"));
 
-        NWNX.Object.DeleteString(this, "_CURRENT_CRAFT_JOB");
-        NWNX.Object.DeleteFloat(this, "_CURRENT_CRAFT_JOB_REMAINING_TIME");
-        NWNX.Object.DeleteString(this, "_CURRENT_CRAFT_JOB_MATERIAL");
+        ObjectPlugin.DeleteString(oid, "_CURRENT_CRAFT_JOB");
+        ObjectPlugin.DeleteFloat(oid, "_CURRENT_CRAFT_JOB_REMAINING_TIME");
+        ObjectPlugin.DeleteString(oid, "_CURRENT_CRAFT_JOB_MATERIAL");
       }
 
       public void PlayNoCurrentTrainingEffects()
       {
         NWScript.PostString(this, $"Vous n'avez aucun apprentissage en cours !", 80, 10, ScreenAnchor.TopLeft, 5.0f, unchecked((int)0xC0C0C0FF), unchecked((int)0xC0C0C0FF), 9, "fnt_galahad14");
-        this.SendMessage("Vous n'avez aucun apprentissage en cours !");
-        NWNX.Player.PlaySound(this, "gui_dm_drop", this);
-        NWNX.Player.ApplyInstantVisualEffectToObject(this, this, (int)Impact.ReduceAbilityScore);
+        NWScript.SendMessageToPC(oid, "Vous n'avez aucun apprentissage en cours !");
+        PlayerPlugin.PlaySound(oid, "gui_dm_drop");
+        PlayerPlugin.ApplyInstantVisualEffectToObject(oid, oid, NWScript.VFX_IMP_REDUCE_ABILITY_SCORE);
       }
       public void DoActionOnMiningCycleCancelled()
       {
