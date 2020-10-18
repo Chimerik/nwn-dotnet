@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using NWN.Enums;
 using static NWN.Systems.CollectSystem;
 using static NWN.Systems.PlayerSystem;
 
@@ -24,14 +23,14 @@ namespace NWN.Systems
       PlayerSystem.Player player;
       if (Players.TryGetValue(oidSelf, out player))
       {
-        var oItem = NWNX.Object.StringToObject(NWNX.Events.GetEventData("ITEM"));
-        int iSlot = int.Parse(NWNX.Events.GetEventData("SLOT"));
+        var oItem = NWNX.Object.StringToObject(EventsPlugin.GetEventData("ITEM"));
+        int iSlot = int.Parse(EventsPlugin.GetEventData("SLOT"));
         NWItem oUnequip = NWScript.GetItemInSlot((InventorySlot)iSlot, player).AsItem();
 
         if (oUnequip.IsValid && NWNX.Object.CheckFit(player, (int)oUnequip.BaseItemType) == 0)
         {
           player.SendMessage("Attention, votre inventaire est plein. Déséquipper cet objet risquerait de vous le faire perdre !");
-          NWNX.Events.SkipEvent();
+          EventsPlugin.SkipEvent();
           return Entrypoints.SCRIPT_HANDLED;
         }
       }
@@ -42,11 +41,11 @@ namespace NWN.Systems
       PlayerSystem.Player player;
       if (Players.TryGetValue(oidSelf, out player))
       {
-        NWItem oItem = NWNX.Object.StringToObject(NWNX.Events.GetEventData("ITEM")).AsItem();
+        NWItem oItem = NWNX.Object.StringToObject(EventsPlugin.GetEventData("ITEM")).AsItem();
         if (NWNX.Object.CheckFit(player, (int)oItem.BaseItemType) == 0)
         {
           player.SendMessage("Attention, votre inventaire est plein. Déséquipper cet objet risquerait de vous le faire perdre !");
-          NWNX.Events.SkipEvent();
+          EventsPlugin.SkipEvent();
           return Entrypoints.SCRIPT_HANDLED;
         }
       }
@@ -57,7 +56,7 @@ namespace NWN.Systems
       PlayerSystem.Player player;
       if (Players.TryGetValue(oidSelf, out player))
       {
-        NWItem oItem = NWNX.Object.StringToObject(NWNX.Events.GetEventData("ITEM_OBJECT_ID")).AsItem();
+        NWItem oItem = NWNX.Object.StringToObject(EventsPlugin.GetEventData("ITEM_OBJECT_ID")).AsItem();
         
         switch (oItem.Tag)
         {
@@ -69,19 +68,19 @@ namespace NWN.Systems
               
               if (itemLevel > value)
               {
-                NWNX.Events.SetEventResult("0");
-                NWNX.Events.SkipEvent();
+                EventsPlugin.SetEventResult("0");
+                EventsPlugin.SkipEvent();
 
-                if(NWNX.Events.GetCurrentEvent() == "NWNX_ON_VALIDATE_ITEM_EQUIP_BEFORE")
+                if(EventsPlugin.GetCurrentEvent() == "NWNX_ON_VALIDATE_ITEM_EQUIP_BEFORE")
                   player.SendMessage($"Le niveau {itemLevel} de maîtrise des extracteur de roche est requis pour pouvoir utiliser cet outil.");
               }          
             }
             else
             {
-              NWNX.Events.SetEventResult("0");
-              NWNX.Events.SkipEvent();
+              EventsPlugin.SetEventResult("0");
+              EventsPlugin.SkipEvent();
 
-              if (NWNX.Events.GetCurrentEvent() == "NWNX_ON_VALIDATE_ITEM_EQUIP_BEFORE")
+              if (EventsPlugin.GetCurrentEvent() == "NWNX_ON_VALIDATE_ITEM_EQUIP_BEFORE")
                 player.SendMessage($"Le don maîtrise des extracteur de roche est requis pour pouvoir utiliser cet outil.");
             }
               break;
@@ -91,11 +90,11 @@ namespace NWN.Systems
     }
     private static int HandleBeforeItemAddedToRefinery(uint oidSelf)
     {
-      NWItem oItem = NWNX.Object.StringToObject(NWNX.Events.GetEventData("ITEM")).AsItem();
+      NWItem oItem = NWNX.Object.StringToObject(EventsPlugin.GetEventData("ITEM")).AsItem();
 
       if (oItem.Tag != "ore" || oItem.Tag != "mineral")
       {
-        NWNX.Events.SkipEvent();
+        EventsPlugin.SkipEvent();
         NWScript.SpeakString("Seul le minerai peut être raffiné dans la fonderie.");
       }
       return Entrypoints.SCRIPT_HANDLED;
@@ -184,7 +183,7 @@ namespace NWN.Systems
     }
     private static int HandleAfterItemAddedToPCCorpse(uint oidSelf)
     {
-      NWItem oItem = NWNX.Object.StringToObject(NWNX.Events.GetEventData("ITEM")).AsItem();
+      NWItem oItem = NWNX.Object.StringToObject(EventsPlugin.GetEventData("ITEM")).AsItem();
 
       switch (oItem.Tag) 
       {
@@ -196,7 +195,7 @@ namespace NWN.Systems
     }
     private static int HandleAfterItemRemovedFromPCCorpse(uint oidSelf)
     {
-      NWItem oItem = NWNX.Object.StringToObject(NWNX.Events.GetEventData("ITEM")).AsItem();
+      NWItem oItem = NWNX.Object.StringToObject(EventsPlugin.GetEventData("ITEM")).AsItem();
 
       switch (oItem.Tag)
       {
@@ -217,8 +216,8 @@ namespace NWN.Systems
       {
         NWPlayer player = oidSelf.AsPlayer();
         NWPlaceable oPCCorpse = NWScript.CreateObject(ObjectType.Placeable, "pccorpse", player.Location).AsPlaceable();
-        NWNX.Events.AddObjectToDispatchList("NWNX_ON_INVENTORY_REMOVE_ITEM_AFTER", "event_pccorpse_remove_item_after", oPCCorpse);
-        NWNX.Events.AddObjectToDispatchList("NWNX_ON_INVENTORY_ADD_ITEM_AFTER", "event_pccorpse_add_item_after", oPCCorpse);
+        EventsPlugin.AddObjectToDispatchList("NWNX_ON_INVENTORY_REMOVE_ITEM_AFTER", "event_pccorpse_remove_item_after", oPCCorpse);
+        EventsPlugin.AddObjectToDispatchList("NWNX_ON_INVENTORY_ADD_ITEM_AFTER", "event_pccorpse_add_item_after", oPCCorpse);
 
         int PlayerId = NWNX.Object.GetInt(oItem, "_PC_ID");
         //oPCCorpse.Name = $"Cadavre de {player.Name}"; TODO : chopper le nom du PJ en BDD à partir de son ID
