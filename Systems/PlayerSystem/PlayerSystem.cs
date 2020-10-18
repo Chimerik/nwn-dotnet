@@ -94,24 +94,24 @@ namespace NWN.Systems
       else
         player = Players[oPC];
 
-      NWScript.SetEventScript(oPC, (int)EventScript.Creature_OnNotice, "on_perceived_pc");
+      NWScript.SetEventScript(oPC, NWScript.EVENT_SCRIPT_CREATURE_ON_NOTICE, "on_perceived_pc");
 
       // TODO : Système de sauvegarde et de chargement de quickbar
       //EventsPlugin.AddObjectToDispatchList("NWNX_ON_QUICKBAR_SET_BUTTON_AFTER", "event_qbs", oPC);
 
-      if (!player.IsDM)
+      if (NWScript.GetIsDM(player.oid) != 1)
       {
         if (player.isNewPlayer)
         {
           // TODO : création des infos du nouveau joueur en BDD
-          NWNX.Object.SetInt(player, "_PC_ID", 1, true); // TODO : enregistrer l'identifiant de BDD du pj sur le .bic du personnage au lieu du 1 par défaut des tests
-          NWNX.Object.SetInt(player, "_BRP", 1, true);
+          ObjectPlugin.SetInt(player.oid, "_PC_ID", 1, 1); // TODO : enregistrer l'identifiant de BDD du pj sur le .bic du personnage au lieu du 1 par défaut des tests
+          ObjectPlugin.SetInt(player.oid, "_BRP", 1, 1);
         }
         else
         {
           // TODO : Initilisation de l'ancien joueur avec les infos en BDD
 
-          if (NWNX.Object.GetInt(oPC, "_FROST_ATTACK") != 0)
+          if (ObjectPlugin.GetInt(oPC, "_FROST_ATTACK") != 0)
           {
             EventsPlugin.AddObjectToDispatchList("NWNX_ON_INPUT_ATTACK_OBJECT_BEFORE", "event_auto_spell", oPC);
             EventsPlugin.AddObjectToDispatchList("NWNX_ON_INPUT_FORCE_MOVE_TO_OBJECT_BEFORE", "event_auto_spell", oPC);
@@ -120,10 +120,10 @@ namespace NWN.Systems
             EventsPlugin.AddObjectToDispatchList("NWNX_ON_INPUT_WALK_TO_WAYPOINT_BEFORE", "event_auto_spell", oPC);
           }
 
-          if (oPC.AsCreature().GetPossessedItem("pj_lycan_curse").IsValid)
+          if (NWScript.GetIsObjectValid(NWScript.GetItemPossessedBy(oPC, "pj_lycan_curse")) == 1)
           {
-            oPC.AsCreature().AddFeat(NWN.Enums.Feat.PlayerTool02);
-            oPC.AsCreature().GetPossessedItem("pj_lycan_curse").Destroy();
+            CreaturePlugin.AddFeat(oPC, NWScript.FEAT_PLAYER_TOOL_02);
+            NWScript.DestroyObject(NWScript.GetItemPossessedBy(oPC, "pj_lycan_curse"));
           }
 
           // Initialisation de la faim (TODO : récupérer la faim en BDD)
@@ -132,41 +132,41 @@ namespace NWN.Systems
           if (fNourriture < 100.0f)
           {
             int nLoss = 100 - Convert.ToInt32(fNourriture);
-            Effect eHunger = NWScript.EffectAbilityDecrease((int)Ability.Strength, NWScript.GetAbilityScore(oPC, Ability.Strength) * nLoss / 100);
-            eHunger = NWScript.EffectLinkEffects(eHunger, NWScript.EffectAbilityDecrease((int)Ability.Dexterity, NWScript.GetAbilityScore(oPC, Ability.Dexterity) * nLoss / 100));
-            eHunger = NWScript.EffectLinkEffects(eHunger, NWScript.EffectAbilityDecrease((int)Ability.Constitution, NWScript.GetAbilityScore(oPC, Ability.Constitution) * nLoss / 100));
-            eHunger = NWScript.EffectLinkEffects(eHunger, NWScript.EffectAbilityDecrease((int)Ability.Charisma, NWScript.GetAbilityScore(oPC, Ability.Charisma) * nLoss / 100));
+            Effect eHunger = NWScript.EffectAbilityDecrease(NWScript.ABILITY_STRENGTH, NWScript.GetAbilityScore(oPC, NWScript.ABILITY_STRENGTH) * nLoss / 100);
+            eHunger = NWScript.EffectLinkEffects(eHunger, NWScript.EffectAbilityDecrease(NWScript.ABILITY_DEXTERITY, NWScript.GetAbilityScore(oPC, NWScript.ABILITY_DEXTERITY) * nLoss / 100));
+            eHunger = NWScript.EffectLinkEffects(eHunger, NWScript.EffectAbilityDecrease(NWScript.ABILITY_CONSTITUTION, NWScript.GetAbilityScore(oPC, NWScript.ABILITY_CONSTITUTION) * nLoss / 100));
+            eHunger = NWScript.EffectLinkEffects(eHunger, NWScript.EffectAbilityDecrease(NWScript.ABILITY_CHARISMA, NWScript.GetAbilityScore(oPC, NWScript.ABILITY_CHARISMA) * nLoss / 100));
             eHunger = NWScript.SupernaturalEffect(eHunger);
             eHunger = NWScript.TagEffect(eHunger, "Effect_Hunger");
-            NWScript.ApplyEffectToObject(DurationType.Permanent, eHunger, oPC);
+            NWScript.ApplyEffectToObject(NWScript.DURATION_TYPE_PERMANENT, eHunger, oPC);
           }
 
-          if (NWNX.Object.GetString(player, "_LOCATION").Length > 0 && !player.IsDM)
+          if (ObjectPlugin.GetString(player.oid, "_LOCATION").Length > 0 && NWScript.GetIsDM(player.oid) != 1)
           {
-            NWScript.DelayCommand(1.0f, () => NWScript.AssignCommand(player, () => player.ClearAllActions(true)));
-            NWScript.DelayCommand(1.1f, () => NWScript.AssignCommand(player, () => NWScript.JumpToLocation(Utils.StringToLocation(NWNX.Object.GetString(player, "_LOCATION")))));
+            NWScript.DelayCommand(1.0f, () => NWScript.AssignCommand(player.oid, () => NWScript.ClearAllActions()));
+            NWScript.DelayCommand(1.1f, () => NWScript.AssignCommand(player.oid, () => NWScript.JumpToLocation(Utils.StringToLocation(ObjectPlugin.GetString(player.oid, "_LOCATION")))));
           }
 
-          if (NWNX.Object.GetInt(player, "_CURRENT_JOB") != 0) // probablement plutôt initialiser ça à partir de la BDD
+          if (ObjectPlugin.GetInt(player.oid, "_CURRENT_JOB") != 0) // probablement plutôt initialiser ça à partir de la BDD
           {
-            player.learnableSkills[NWNX.Object.GetInt(player, "_CURRENT_JOB")].currentJob = true;
+            player.learnableSkills[ObjectPlugin.GetInt(player.oid, "_CURRENT_JOB")].currentJob = true;
             player.AcquireSkillPoints();
           }
           else
             NWScript.DelayCommand(10.0f, () => player.PlayNoCurrentTrainingEffects());
 
-          NWNX.Object.SetString(player, "_DATE_LAST_SAVED", DateTime.Now.ToString(), true);
+          ObjectPlugin.SetString(player.oid, "_DATE_LAST_SAVED", DateTime.Now.ToString(), 1);
         }
 
         //Appliquer la distance de perception du chat en fonction de la compétence Listen du joueur
-        NWNX.Chat.SetChatHearingDistance(NWNX.Chat.GetChatHearingDistance(oPC.AsObject(), NWNX.Enum.ChatChannel.PlayerTalk) + NWScript.GetSkillRank(Skill.Listen, oPC) / 5, oPC.AsObject(), NWNX.Enum.ChatChannel.PlayerTalk);
-        NWNX.Chat.SetChatHearingDistance(NWNX.Chat.GetChatHearingDistance(oPC.AsObject(), NWNX.Enum.ChatChannel.PlayerWhisper) + NWScript.GetSkillRank(Skill.Listen, oPC) / 10, oPC.AsObject(), NWNX.Enum.ChatChannel.PlayerWhisper);
+        ChatPlugin.SetChatHearingDistance(ChatPlugin.GetChatHearingDistance(oPC, ChatPlugin.NWNX_CHAT_CHANNEL_PLAYER_TALK) + NWScript.GetSkillRank(NWScript.SKILL_LISTEN, oPC) / 5, oPC, ChatPlugin.NWNX_CHAT_CHANNEL_PLAYER_TALK);
+        ChatPlugin.SetChatHearingDistance(ChatPlugin.GetChatHearingDistance(oPC, ChatPlugin.NWNX_CHAT_CHANNEL_DM_WHISPER) + NWScript.GetSkillRank(NWScript.SKILL_LISTEN, oPC) / 10, oPC, ChatPlugin.NWNX_CHAT_CHANNEL_DM_WHISPER);
         player.isConnected = true;
         player.isAFK = true;
-
+        
         EventsPlugin.AddObjectToDispatchList("NWNX_ON_CLIENT_DISCONNECT_BEFORE", "player_exit_before", oPC);
       }
-      return Entrypoints.SCRIPT_HANDLED;
+      return 1;
     }
 
     private static int HandlePlayerDisconnect(uint oidSelf)
@@ -175,7 +175,7 @@ namespace NWN.Systems
       EventsPlugin.RemoveObjectFromDispatchList(EventsPlugin.ON_INPUT_KEYBOARD_BEFORE, ON_PC_KEYSTROKE_SCRIPT, oPC);
       Players.Remove(oPC);
 */
-      return Entrypoints.SCRIPT_HANDLED;
+      return 1;
     }
 
     private static int HandlePlayerKeystroke(uint oidSelf)
@@ -223,16 +223,16 @@ namespace NWN.Systems
             if (player.HasAnyEffect((int)EffectTypeEngine.Polymorph))
             {
               EventsPlugin.SkipEvent();
-              return Entrypoints.SCRIPT_HANDLED;
+              return 1;
             }
           }
 
           // TODO : probablement faire pour chaque joueur tous les check faim / soif / jobs etc ici
 
           // AFK detection
-          if(NWNX.Object.GetString(player, "_LOCATION") != Utils.LocationToString(player.Location))
+          if(ObjectPlugin.GetString(player, "_LOCATION") != Utils.LocationToString(player.Location))
           {
-            NWNX.Object.SetString(player, "_LOCATION", Utils.LocationToString(player.Location), true);
+            ObjectPlugin.SetString(player, "_LOCATION", Utils.LocationToString(player.Location), true);
             player.isAFK = false;
           }
 
@@ -240,16 +240,16 @@ namespace NWN.Systems
             player.CraftJobProgression();
 
           player.AcquireSkillPoints();
-          NWNX.Object.SetString(player, "_DATE_LAST_SAVED", DateTime.Now.ToString(), true);
-          NWNX.Object.SetInt(player, "_CURRENT_HP", player.CurrentHP, true);
+          ObjectPlugin.SetString(player, "_DATE_LAST_SAVED", DateTime.Now.ToString(), true);
+          ObjectPlugin.SetInt(player, "_CURRENT_HP", player.CurrentHP, true);
           player.isAFK = true;
         }
 
-      return Entrypoints.SCRIPT_HANDLED;
+      return 1;
     }
     private static int HandleBeforeDMPossess(uint oidSelf)
     {
-      NWCreature oPossessed = NWNX.Object.StringToObject(EventsPlugin.GetEventData("TARGET")).AsCreature();
+      NWCreature oPossessed = ObjectPlugin.StringToObject(EventsPlugin.GetEventData("TARGET")).AsCreature();
       Player oPC;
       if (Players.TryGetValue(oidSelf, out oPC))
       {
@@ -280,7 +280,7 @@ namespace NWN.Systems
           }
         }
       }
-      return Entrypoints.SCRIPT_HANDLED;
+      return 1;
     }
 
     private static int HandleAfterDMSpawnObject(uint oidSelf)
@@ -290,9 +290,9 @@ namespace NWN.Systems
       {
         if (int.Parse(EventsPlugin.GetEventData("OBJECT_TYPE")) == 9)
         {
-          if (NWNX.Object.GetInt(oPC, "_SPAWN_PERSIST") != 0)
+          if (ObjectPlugin.GetInt(oPC, "_SPAWN_PERSIST") != 0)
           {
-            NWPlaceable oObject = NWNX.Object.StringToObject(EventsPlugin.GetEventData("OBJECT")).AsPlaceable();
+            NWPlaceable oObject = ObjectPlugin.StringToObject(EventsPlugin.GetEventData("OBJECT")).AsPlaceable();
             // TODO : Enregistrer l'objet créé en base de données. Ajouter à l'objet un script qui le supprime de la BDD OnDeath
             oPC.SendMessage($"Création persistante - Vous posez le placeable  {oObject.Name}");
           }
@@ -300,7 +300,7 @@ namespace NWN.Systems
             oPC.SendMessage("Création temporaire - Ce placeable sera effacé par le prochain reboot.");
         }
       }
-      return Entrypoints.SCRIPT_HANDLED;
+      return 1;
     }
 
     private static int HandlePlayerBeforeDisconnect(uint oidSelf)
@@ -310,14 +310,14 @@ namespace NWN.Systems
       {
         player.isConnected = false;
         //TODO : plutôt utiliser les fonctions sqlite de la prochaine MAJ ?
-        NWNX.Object.SetInt(player, "_CURRENT_HP", player.CurrentHP, true);
-        NWNX.Object.SetString(player, "_LOCATION", Utils.LocationToString(player.Location), true);
+        ObjectPlugin.SetInt(player, "_CURRENT_HP", player.CurrentHP, true);
+        ObjectPlugin.SetString(player, "_LOCATION", Utils.LocationToString(player.Location), true);
 
         HandleBeforePartyLeave(oidSelf);
         HandleAfterPartyLeave(oidSelf);
       }
 
-      return Entrypoints.SCRIPT_HANDLED;
+      return 1;
     }
 
     private static int HandleMovePlaceable(uint oidSelf)
@@ -343,7 +343,7 @@ namespace NWN.Systems
         oMeuble.Facing = oMeuble.Facing + 20.0f;
       //NWScript.AssignCommand(oMeuble, () => NWScript.SetFacing(oMeuble.Facing + 20.0f));
 
-      return Entrypoints.SCRIPT_HANDLED;
+      return 1;
     }
 
     private static int HandleFeatUsed(uint oidSelf)
@@ -376,7 +376,7 @@ namespace NWN.Systems
             }
           }
 
-          return Entrypoints.SCRIPT_HANDLED;
+          return 1;
         }
         else if (feat == (int)NWN.Enums.Feat.LanguageElf)
         {
@@ -398,12 +398,12 @@ namespace NWN.Systems
             RefreshQBS(oidSelf, feat);
           }
         
-          return Entrypoints.SCRIPT_HANDLED;
+          return 1;
         }
         else if (feat == (int)NWN.Enums.Feat.PlayerTool01)
         {
           EventsPlugin.SkipEvent();
-          NWPlaceable oTarget = NWNX.Object.StringToObject(EventsPlugin.GetEventData("TARGET_OBJECT_ID")).AsPlaceable();
+          NWPlaceable oTarget = ObjectPlugin.StringToObject(EventsPlugin.GetEventData("TARGET_OBJECT_ID")).AsPlaceable();
           PlayerSystem.Player myPlayer;
           if (PlayerSystem.Players.TryGetValue(oidSelf, out myPlayer))
           {
@@ -454,10 +454,10 @@ namespace NWN.Systems
               myPlayer.selectedObjectsList.Clear();
             }
           }
-          return Entrypoints.SCRIPT_HANDLED;
+          return 1;
         }
       }
-      return Entrypoints.SCRIPT_HANDLED;
+      return 1;
     }
 
     private static void RefreshQBS(uint oidSelf, int feat)
@@ -498,7 +498,7 @@ namespace NWN.Systems
 
       if (Players.TryGetValue(oidSelf, out oPC))
       {
-        var oTarget = NWNX.Object.StringToObject(EventsPlugin.GetEventData("TARGET"));
+        var oTarget = ObjectPlugin.StringToObject(EventsPlugin.GetEventData("TARGET"));
 
         if (oTarget.AsObject().IsValid)
         {
@@ -513,7 +513,7 @@ namespace NWN.Systems
         oPC.autoAttackTarget = oTarget;
       }
 
-      return Entrypoints.SCRIPT_HANDLED;
+      return 1;
     }
 
     private static int HandleOnSpellCast(uint oidSelf)
@@ -528,7 +528,7 @@ namespace NWN.Systems
           oPC.autoAttackTarget = NWObject.OBJECT_INVALID;
       }
 
-      return Entrypoints.SCRIPT_HANDLED;
+      return 1;
     }
 
     private static void FrostAutoAttack(NWObject oClicker, uint oTarget)
@@ -553,13 +553,13 @@ namespace NWN.Systems
         if (Players.TryGetValue(NWScript.GetLastPerceived(), out oPerceived))
         {
           if (!oPerceived.IsPC || oPerceived.IsDM || oPerceived.IsDMPossessed || oPerceived.disguiseName.Length == 0)
-            return Entrypoints.SCRIPT_HANDLED;
+            return 1;
 
           if (!oPC.disguiseDetectTimer.ContainsKey(oPC) || (DateTime.Now - oPC.disguiseDetectTimer[oPerceived]).TotalSeconds > 1800)
           {
             oPC.disguiseDetectTimer[oPerceived] = DateTime.Now;
 
-            int[] iPCSenseSkill = { oPC.GetSkillRank(Skill.Listen), oPC.GetSkillRank(Skill.Search), oPC.GetSkillRank(Skill.Spot),
+            int[] iPCSenseSkill = { oPC.GetSkillRank(NWScript.SKILL_LISTEN), oPC.GetSkillRank(Skill.Search), oPC.GetSkillRank(Skill.Spot),
             oPC.GetSkillRank(Skill.Bluff) };
 
             int[] iPerceivedHideSkill = { oPerceived.GetSkillRank(Skill.Bluff), oPerceived.GetSkillRank(Skill.Hide),
@@ -583,7 +583,7 @@ namespace NWN.Systems
         }
       }
 
-      return Entrypoints.SCRIPT_HANDLED;
+      return 1;
     }
     private static int HandleAfterAddSummon(uint oidSelf)
     {
@@ -592,7 +592,7 @@ namespace NWN.Systems
       Player player;
       if (Players.TryGetValue(oidSelf, out player))
       {
-        NWCreature oSummon = (NWNX.Object.StringToObject(EventsPlugin.GetEventData("ASSOCIATE_OBJECT_ID"))).AsCreature();
+        NWCreature oSummon = (ObjectPlugin.StringToObject(EventsPlugin.GetEventData("ASSOCIATE_OBJECT_ID"))).AsCreature();
 
         if (oSummon.IsValid)
         {
@@ -600,7 +600,7 @@ namespace NWN.Systems
         }
       }
 
-      return Entrypoints.SCRIPT_HANDLED;
+      return 1;
     }
     private static int HandleAfterRemoveSummon(uint oidSelf)
     {
@@ -609,7 +609,7 @@ namespace NWN.Systems
       Player player;
       if (Players.TryGetValue(oidSelf, out player))
       {
-        NWCreature oSummon = (NWNX.Object.StringToObject(EventsPlugin.GetEventData("ASSOCIATE_OBJECT_ID"))).AsCreature();
+        NWCreature oSummon = (ObjectPlugin.StringToObject(EventsPlugin.GetEventData("ASSOCIATE_OBJECT_ID"))).AsCreature();
 
         if (oSummon.IsValid)
         {
@@ -617,7 +617,7 @@ namespace NWN.Systems
         }
       }
 
-      return Entrypoints.SCRIPT_HANDLED;
+      return 1;
     }
     private static int HandleOnCombatMode(uint oidSelf)
     { 
@@ -631,7 +631,7 @@ namespace NWN.Systems
           }
       }
 
-      return Entrypoints.SCRIPT_HANDLED;
+      return 1;
     }
     private static int HandleOnSkillUsed(uint oidSelf)
     {
@@ -646,7 +646,7 @@ namespace NWN.Systems
           else if (int.Parse(EventsPlugin.GetEventData("SKILL_ID")) == (int)Skill.PickPocket)
           {
             EventsPlugin.SkipEvent();
-            NWPlayer oObject = NWNX.Object.StringToObject(EventsPlugin.GetEventData("TARGET_OBJECT_ID")).AsPlayer();
+            NWPlayer oObject = ObjectPlugin.StringToObject(EventsPlugin.GetEventData("TARGET_OBJECT_ID")).AsPlayer();
             Player oTarget;
             if (Players.TryGetValue(oObject, out oTarget) && !oTarget.IsDM && !oTarget.IsDMPossessed)
             {
@@ -662,7 +662,7 @@ namespace NWN.Systems
                   int iSpot = Utils.random.Next(21) + NWScript.GetSkillRank(Skill.Spot, player);
                   if ((iRandom + iVol) > iSpot)
                   {
-                    NWNX.Chat.SendMessage((int)NWNX.Enum.ChatChannel.PlayerTalk, $"Vous faites un jet de Vol à la tire, le résultat est de : {iRandom} + {iVol} = {iRandom + iVol}.", player, player);
+                    ChatPlugin.SendMessage((int)ChatPlugin.NWNX_CHAT_CHANNEL_PLAYER_TALK, $"Vous faites un jet de Vol à la tire, le résultat est de : {iRandom} + {iVol} = {iRandom + iVol}.", player, player);
                     if (NWScript.TouchAttackMelee(oTarget) > 0)
                     {
                       int iStolenGold = (iRandom + iVol - iSpot) * 10;
@@ -695,14 +695,14 @@ namespace NWN.Systems
           }
       }
 
-      return Entrypoints.SCRIPT_HANDLED;
+      return 1;
     }
     private static int HandleAfterDetection(uint oidSelf)
     {
       Player oPC;
       if (Players.TryGetValue(oidSelf, out oPC))
       {
-        var oTarget = NWNX.Object.StringToObject(EventsPlugin.GetEventData("TARGET")).AsCreature();
+        var oTarget = ObjectPlugin.StringToObject(EventsPlugin.GetEventData("TARGET")).AsCreature();
 
         if (oTarget.IsPC || oTarget.IsPossessedFamiliar)
         {
@@ -720,7 +720,7 @@ namespace NWN.Systems
                   if (!oPC.inviDetectTimer.ContainsKey(oTarget) || (DateTime.Now - oPC.inviDetectTimer[oTarget]).TotalSeconds > 6)
                   {
                     int iMoveSilentlyCheck = NWScript.GetSkillRank(Skill.MoveSilently, oTarget) + Utils.random.Next(21) + (int)NWScript.GetDistanceBetween(oTarget, oPC);
-                    int iListenCheck = NWScript.GetSkillRank(Skill.Listen, oPC) + Utils.random.Next(21);
+                    int iListenCheck = NWScript.GetSkillRank(NWScript.SKILL_LISTEN, oPC) + Utils.random.Next(21);
                     if (iDetectMode == 2)
                       iListenCheck -= 10;
 
@@ -761,7 +761,7 @@ namespace NWN.Systems
         }
       }
 
-      return Entrypoints.SCRIPT_HANDLED;
+      return 1;
     }
     private static int HandlePlayerDeath(uint oidSelf)
     {
@@ -774,7 +774,7 @@ namespace NWN.Systems
         EventsPlugin.AddObjectToDispatchList("NWNX_ON_INVENTORY_REMOVE_ITEM_AFTER", "event_pccorpse_remove_item_after", oPCCorpse);
         EventsPlugin.AddObjectToDispatchList("NWNX_ON_INVENTORY_ADD_ITEM_AFTER", "event_pccorpse_add_item_after", oPCCorpse);
 
-        int PlayerId = NWNX.Object.GetInt(player, "_PC_ID");
+        int PlayerId = ObjectPlugin.GetInt(player, "_PC_ID");
         oPCCorpse.Name = $"Cadavre de {player.Name}";
         oPCCorpse.Description = $"Cadavre de {player.Name}";
         oPCCorpse.Locals.Int.Set("_PC_ID", PlayerId);
@@ -800,12 +800,12 @@ namespace NWN.Systems
         NWScript.DelayCommand(5.0f, () => player.SendToLimbo());
       }
 
-      return Entrypoints.SCRIPT_HANDLED;
+      return 1;
     }
 
     private static int HandleAfterDMJumpTarget(uint oidSelf)
     {
-      var oTarget = NWNX.Object.StringToObject(EventsPlugin.GetEventData("TARGET_1"));
+      var oTarget = ObjectPlugin.StringToObject(EventsPlugin.GetEventData("TARGET_1"));
 
       Player player;
       if (Players.TryGetValue(oTarget, out player))
@@ -816,13 +816,13 @@ namespace NWN.Systems
         }
       }
 
-      return Entrypoints.SCRIPT_HANDLED;
+      return 1;
     }
     public static PlayerSystem.Player GetPCById(int PcId)
     {
       foreach (KeyValuePair<uint, PlayerSystem.Player> PlayerListEntry in PlayerSystem.Players)
       {
-        if(NWNX.Object.GetInt(PlayerListEntry.Key, "_PC_ID") == PcId)
+        if(ObjectPlugin.GetInt(PlayerListEntry.Key, "_PC_ID") == PcId)
         {
           return PlayerListEntry.Value;
         }
@@ -835,7 +835,7 @@ namespace NWN.Systems
       Player player;
       if (Players.TryGetValue(oidSelf, out player))
       {
-        NWCreature oTarget = NWNX.Object.StringToObject(EventsPlugin.GetEventData("TARGET_OBJECT_ID")).AsCreature();
+        NWCreature oTarget = ObjectPlugin.StringToObject(EventsPlugin.GetEventData("TARGET_OBJECT_ID")).AsCreature();
 
         if (Spells.GetHasEffect(NWScript.GetEffectType(NWScript.EffectCutsceneGhost()), player))
           Spells.RemoveEffectOfType(NWScript.GetEffectType(NWScript.EffectCutsceneGhost()), player);          
@@ -848,7 +848,7 @@ namespace NWN.Systems
         }
       }
 
-      return Entrypoints.SCRIPT_HANDLED;
+      return 1;
     }
     private static int HandleAfterPartyAccept(uint oidSelf)
     {
@@ -863,23 +863,23 @@ namespace NWN.Systems
         {
           oPartyMember.RemoveTaggedEffect("PartyEffect");
           if (eParty != null)
-            oPartyMember.ApplyEffect(DurationType.Permanent, eParty);
+            oPartyMember.ApplyEffect(NWScript.DURATION_TYPE_PERMANENT, eParty);
 
           oPartyMember = NWScript.GetNextFactionMember(oPartyMember, true).AsPlayer();
         }
       }   
 
-      return Entrypoints.SCRIPT_HANDLED;
+      return 1;
     }
     private static int HandleAfterPartyLeave(uint oidSelf)
     {
       oidSelf.AsPlayer().RemoveTaggedEffect("PartyEffect");
-      return Entrypoints.SCRIPT_HANDLED;
+      return 1;
     }
     private static int HandleAfterPartyKick(uint oidSelf)
     {
-      NWNX.Object.StringToObject(EventsPlugin.GetEventData("KICKED")).AsPlayer().RemoveTaggedEffect("PartyEffect");
-      return Entrypoints.SCRIPT_HANDLED;
+      ObjectPlugin.StringToObject(EventsPlugin.GetEventData("KICKED")).AsPlayer().RemoveTaggedEffect("PartyEffect");
+      return 1;
     }
     private static int HandleBeforePartyLeave(uint oidSelf)
     {
@@ -893,20 +893,20 @@ namespace NWN.Systems
         {
           oPartyMember.RemoveTaggedEffect("PartyEffect");
           if (eParty != null)
-            oPartyMember.ApplyEffect(DurationType.Permanent, eParty);
+            oPartyMember.ApplyEffect(NWScript.DURATION_TYPE_PERMANENT, eParty);
 
           oPartyMember = NWScript.GetNextFactionMember(oPartyMember, true).AsPlayer();
         }
       }
 
-      return Entrypoints.SCRIPT_HANDLED;
+      return 1;
     }
     private static int HandleBeforeExamine(uint oidSelf)
     {
       Player player;
       if (Players.TryGetValue(oidSelf, out player))
       {
-        NWObject examineTarget =  NWNX.Object.StringToObject(EventsPlugin.GetEventData("EXAMINEE_OBJECT_ID")).AsObject();
+        NWObject examineTarget =  ObjectPlugin.StringToObject(EventsPlugin.GetEventData("EXAMINEE_OBJECT_ID")).AsObject();
       
         switch(examineTarget.Tag)
         {
@@ -926,14 +926,14 @@ namespace NWN.Systems
               break;
         }
       }
-      return Entrypoints.SCRIPT_HANDLED;
+      return 1;
     }
     private static int HandleAfterExamine(uint oidSelf)
     {
       Player player;
       if (Players.TryGetValue(oidSelf, out player))
       {
-        NWObject examineTarget = NWNX.Object.StringToObject(EventsPlugin.GetEventData("EXAMINEE_OBJECT_ID")).AsObject();
+        NWObject examineTarget = ObjectPlugin.StringToObject(EventsPlugin.GetEventData("EXAMINEE_OBJECT_ID")).AsObject();
 
         switch (examineTarget.Tag)
         {
@@ -942,7 +942,7 @@ namespace NWN.Systems
             break;
         }
       }
-      return Entrypoints.SCRIPT_HANDLED;
+      return 1;
     }
     private static int HandlePCUnacquireItem(uint oidSelf)
     {
@@ -952,7 +952,7 @@ namespace NWN.Systems
         if (NWScript.GetWeight(oPC) <= int.Parse(NWScript.Get2DAString("encumbrance", "Heavy", oPC.AsCreature().Ability[Ability.Strength].Total)))
           NWNX.Creature.SetMovementRate(oPC, MovementRate.PC);
 
-      return Entrypoints.SCRIPT_HANDLED;
+      return 1;
     }
     private static int HandlePCAcquireItem(uint oidSelf)
     {
@@ -962,7 +962,7 @@ namespace NWN.Systems
         if (NWScript.GetWeight(oPC) > int.Parse(NWScript.Get2DAString("encumbrance", "Heavy", oPC.AsCreature().Ability[Ability.Strength].Total)))
           NWNX.Creature.SetMovementRate(oPC, MovementRate.Immobile);
 
-      return Entrypoints.SCRIPT_HANDLED;
+      return 1;
     }
   }
 }

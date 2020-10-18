@@ -1,7 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
-using NWN.Enums;
-using NWN.NWNX;
+using NWN.Core;
+using NWN.Core.NWNX;
 using static NWN.Systems.CollectSystem;
 
 namespace NWN.Systems
@@ -16,7 +15,7 @@ namespace NWN.Systems
         int prout = HashCode.Combine<MineralType, ItemSystem.ItemCategory>(MineralType.Pyerite, ItemSystem.ItemCategory.Shield);
         foreach (ItemProperty ip in test[prout])
         {
-          player.SendMessage($"code : {prout}");
+          NWScript.SendMessageToPC(player.oid,$"code : {prout}");
         }
       }
     }

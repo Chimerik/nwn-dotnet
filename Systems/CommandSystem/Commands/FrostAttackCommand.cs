@@ -11,14 +11,14 @@ namespace NWN.Systems
         NWScript.GetLevelByClass(ClassType.Sorcerer, ctx.oSender) > 0
       )
       {
-        if (NWNX.Object.GetInt(ctx.oSender, "_FROST_ATTACK") == 0)
+        if (ObjectPlugin.GetInt(ctx.oSender, "_FROST_ATTACK") == 0)
         {
-          NWNX.Object.SetInt(ctx.oSender, "_FROST_ATTACK", 1, true);
+          ObjectPlugin.SetInt(ctx.oSender, "_FROST_ATTACK", 1, true);
           NWScript.SendMessageToPC(ctx.oSender, "Vous activez le mode d'attaque par rayon de froid");
         }
         else
         {
-          NWNX.Object.DeleteInt(ctx.oSender, "_FROST_ATTACK");
+          ObjectPlugin.DeleteInt(ctx.oSender, "_FROST_ATTACK");
           NWScript.SendMessageToPC(ctx.oSender, "Vous désactivez le mode d'attaque par rayon de froid");
         }
       }

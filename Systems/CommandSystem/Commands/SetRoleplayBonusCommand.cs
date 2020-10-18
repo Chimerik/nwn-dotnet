@@ -13,7 +13,7 @@ namespace NWN.Systems
         {
           if (((string)options.positional[0]).Length == 0)
           {
-            NWScript.SendMessageToPC(ctx.oSender, $"Le bonus roleplay de {ctx.oTarget.Name} est de {NWNX.Object.GetInt(ctx.oTarget, "_BRP")}");
+            NWScript.SendMessageToPC(ctx.oSender, $"Le bonus roleplay de {ctx.oTarget.Name} est de {ObjectPlugin.GetInt(ctx.oTarget, "_BRP")}");
           }
           else
           {
@@ -22,9 +22,9 @@ namespace NWN.Systems
             {
               if(iBRP > -1 && iBRP < 5)
               {
-                NWNX.Object.SetInt(ctx.oTarget, "_BRP", iBRP, true);
-                NWScript.SendMessageToPC(ctx.oSender, $"Le bonus roleplay de {ctx.oTarget.Name} est de { NWNX.Object.GetInt(ctx.oTarget, "_BRP")}");
-                NWScript.SendMessageToPC(ctx.oTarget, $"Votre bonus roleplay est désormais de { NWNX.Object.GetInt(ctx.oTarget, "_BRP")}");
+                ObjectPlugin.SetInt(ctx.oTarget, "_BRP", iBRP, true);
+                NWScript.SendMessageToPC(ctx.oSender, $"Le bonus roleplay de {ctx.oTarget.Name} est de { ObjectPlugin.GetInt(ctx.oTarget, "_BRP")}");
+                NWScript.SendMessageToPC(ctx.oTarget, $"Votre bonus roleplay est désormais de { ObjectPlugin.GetInt(ctx.oTarget, "_BRP")}");
               }                  
               else
                 NWScript.SendMessageToPC(ctx.oSender, $"Le bonus roleplay doit être compris entre 0 et 4");
@@ -35,7 +35,7 @@ namespace NWN.Systems
         }
       }
       else
-        NWScript.SendMessageToPC(ctx.oSender, $"Votre bonus roleplay est de { NWNX.Object.GetInt(ctx.oSender, "_BRP")}");
+        NWScript.SendMessageToPC(ctx.oSender, $"Votre bonus roleplay est de { ObjectPlugin.GetInt(ctx.oSender, "_BRP")}");
     }
   }
 }

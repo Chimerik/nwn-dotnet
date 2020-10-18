@@ -20,7 +20,7 @@ namespace NWN.Systems
     {
       player.removeableMalus.Add(idMalusFeat, new Skill(idMalusFeat, 0));
       NWNX.Creature.SetRawAbilityScore(player, Enums.Ability.Strength, NWNX.Creature.GetRawAbilityScore(player, Enums.Ability.Strength) - 2);
-      return Entrypoints.SCRIPT_HANDLED;
+      return 1;
     }
 
     private static int HandleRemoveStrengthMalusFeat(PlayerSystem.Player player, int idMalusFeat)
@@ -28,7 +28,7 @@ namespace NWN.Systems
       player.removeableMalus.Remove(idMalusFeat);
       NWNX.Creature.SetRawAbilityScore(player, Enums.Ability.Strength, NWNX.Creature.GetRawAbilityScore(player, Enums.Ability.Strength) + 2);
 
-      return Entrypoints.SCRIPT_HANDLED;
+      return 1;
     }
   }
 }

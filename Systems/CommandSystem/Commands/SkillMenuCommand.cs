@@ -55,11 +55,11 @@ namespace NWN.Systems
     }
     private static void __HandleSkillSelection(PlayerSystem.Player player, SkillSystem.Skill SelectedSkill)
     {
-      if (NWNX.Object.GetInt(player, "_CURRENT_JOB") != 0)
+      if (ObjectPlugin.GetInt(player, "_CURRENT_JOB") != 0)
       {
-        SkillSystem.Skill CurrentSkill = player.learnableSkills[NWNX.Object.GetInt(player, "_CURRENT_JOB")];
+        SkillSystem.Skill CurrentSkill = player.learnableSkills[ObjectPlugin.GetInt(player, "_CURRENT_JOB")];
         if(CurrentSkill == null)
-          CurrentSkill = player.removeableMalus[NWNX.Object.GetInt(player, "_CURRENT_JOB")];
+          CurrentSkill = player.removeableMalus[ObjectPlugin.GetInt(player, "_CURRENT_JOB")];
 
         if (CurrentSkill.GetTimeToNextLevel(player) < 600) // TODO : Pour l'instant, j'interdis la pause et le changement si le skill est censé se terminer dans le prochain intervalle. Mais y a ptet mieux à faire
         {
@@ -68,19 +68,19 @@ namespace NWN.Systems
         else if (SelectedSkill.currentJob) // Job en cours sélectionné => mise en pause
         {
           SelectedSkill.currentJob = false;
-          NWNX.Object.DeleteInt(player, "_CURRENT_JOB");
+          ObjectPlugin.DeleteInt(player, "_CURRENT_JOB");
         }
         else
         {
           CurrentSkill.currentJob = false;
           SelectedSkill.currentJob = true;
-          NWNX.Object.SetInt(player, "_CURRENT_JOB", SelectedSkill.oid, true);
+          ObjectPlugin.SetInt(player, "_CURRENT_JOB", SelectedSkill.oid, true);
         }
       }
       else
       {
         SelectedSkill.currentJob = true;
-        NWNX.Object.SetInt(player, "_CURRENT_JOB", SelectedSkill.oid, true);
+        ObjectPlugin.SetInt(player, "_CURRENT_JOB", SelectedSkill.oid, true);
       }
 
       __DrawSkillPage(player);

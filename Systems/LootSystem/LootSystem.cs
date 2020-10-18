@@ -34,7 +34,7 @@ namespace NWN.Systems
     {
       UpdateChestTagToLootsDic(oidSelf);
       UpdateDB(oidSelf);
-      return Entrypoints.SCRIPT_HANDLED;
+      return 1;
     }
 
     private static int HandleLoot(uint oidSelf)
@@ -87,7 +87,7 @@ namespace NWN.Systems
       if (NWScript.GetLocalInt(oContainer, IS_LOOTED_VARNAME) == 1)
       {
         // Prevents looting from opening chest multiple times, and then looting again by destroying it.
-        return Entrypoints.SCRIPT_HANDLED;
+        return 1;
       }
 
       Utils.DestroyInventory(oContainer);
@@ -103,7 +103,7 @@ namespace NWN.Systems
           () => NWScript.SetLocalInt(oContainer, IS_LOOTED_VARNAME, 0)
       ));
 
-      return Entrypoints.SCRIPT_HANDLED;
+      return 1;
     }
   }
 }

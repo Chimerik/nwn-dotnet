@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
-using NWN.Enums;
+using NWN.Core;
+using NWN.Core.NWNX;
 using NWN.Systems;
 
 namespace NWN.ScriptHandlers
@@ -19,7 +20,7 @@ namespace NWN.ScriptHandlers
     {
       Console.WriteLine($"You activated the item {NWScript.GetName(oItem)}! {NWScript.GetName(oActivator)}");
 
-      return Entrypoints.SCRIPT_HANDLED;
+      return 1;
     }
 
     private static int HandleBlockTesterActivate(uint oItem, uint oActivator, uint oTarget)
@@ -30,7 +31,7 @@ namespace NWN.ScriptHandlers
         player.BoulderBlock();
       }
 
-      return Entrypoints.SCRIPT_HANDLED;
+      return 1;
     }
     private static int HandleBlueprintActivate(uint oItem, uint oActivator, uint oTarget)
     {
@@ -44,7 +45,7 @@ namespace NWN.ScriptHandlers
         if(blueprintType == CollectSystem.BlueprintType.Invalid)
         {
           // TODO : envoyer l'erreur sur Discord
-          return Entrypoints.SCRIPT_HANDLED;
+          return 1;
         }
 
         if (CollectSystem.blueprintDictionnary.ContainsKey(blueprintType))
@@ -74,9 +75,9 @@ namespace NWN.ScriptHandlers
 
             // TODO : s'il s'agit d'une copie de blueprint, alors le nombre d'utilisation diminue de 1
 
-            NWNX.Object.SetString(player, "_CURRENT_CRAFT_JOB", item.Name, true);
-            NWNX.Object.SetFloat(player, "_CURRENT_CRAFT_JOB_REMAINING_TIME", iJobDuration, true);
-            NWNX.Object.SetString(player, "_CURRENT_CRAFT_JOB_MATERIAL", "Tritanium", true);
+            ObjectPlugin.SetString(player, "_CURRENT_CRAFT_JOB", item.Name, true);
+            ObjectPlugin.SetFloat(player, "_CURRENT_CRAFT_JOB_REMAINING_TIME", iJobDuration, true);
+            ObjectPlugin.SetString(player, "_CURRENT_CRAFT_JOB_MATERIAL", "Tritanium", true);
           }
           else if(NWScript.GetObjectType(oTarget) == ObjectType.Item && NWScript.GetNearestObjectByTag(blueprint.workshopTag, oActivator) != NWObjectBase.OBJECT_INVALID)
           {
@@ -85,7 +86,7 @@ namespace NWN.ScriptHandlers
         }
       }
 
-      return Entrypoints.SCRIPT_HANDLED;
+      return 1;
     }
     private static int HandleSkillBookActivate(uint oItem, uint oActivator, uint oTarget)
     {
@@ -106,7 +107,7 @@ namespace NWN.ScriptHandlers
           player.SendMessage("Vous connaissez déjà les bases d'entrainement de cette capacité");
       }
 
-      return Entrypoints.SCRIPT_HANDLED;
+      return 1;
     }
   }
 }

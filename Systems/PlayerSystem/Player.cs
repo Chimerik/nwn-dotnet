@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Numerics;
 using System.Collections.Generic;
-using System.Security.Authentication;
 using NWN.Core;
 using NWN.Core.NWNX;
 
@@ -374,17 +373,17 @@ namespace NWN.Systems
 
         int iRandomMalus = Utils.random.Next(1130, 1130); // TODO : il faudra mettre en paramètre de conf le range des feat ID pour les malus
         
-        if (CreaturePlugin.GetHighestLevelOfFeat(oid, iRandomMalus) != NWScript.FEAT_)
-        {  
+        if (CreaturePlugin.GetHighestLevelOfFeat(oid, iRandomMalus) != 65535) // TODO : faire de cette valeur une constante avec le type enum des custom feats
+        {
           int successorId;
           if (int.TryParse(NWScript.Get2DAString("feat", "SUCCESSOR", iRandomMalus), out successorId))
           {
-            this.AddFeat((Feat)successorId);
+            CreaturePlugin.AddFeat(oid, successorId);
             iRandomMalus = successorId;
           }
         }
         else
-          this.AddFeat((Feat)iRandomMalus); 
+          CreaturePlugin.AddFeat(oid, iRandomMalus);
 
         Func<PlayerSystem.Player, int, int> handler;
         if (SkillSystem.RegisterAddCustomFeatEffect.TryGetValue(iRandomMalus, out handler))
@@ -401,39 +400,39 @@ namespace NWN.Systems
       }
       public void DestroyCorpses()
       {
-        NWPlaceable oCorpse = NWScript.GetObjectByTag("pccorpse").AsPlaceable();
+        var oCorpse = NWScript.GetObjectByTag("pccorpse");
         int i = 1;
-        int PcId = NWNX.Object.GetInt(this, "_PC_ID");
-        while (oCorpse.IsValid)
+        int PcId = ObjectPlugin.GetInt(oid, "_PC_ID");
+        while (NWScript.GetIsObjectValid(oCorpse) == 1)
         {
-          if (PcId == oCorpse.Locals.Int.Get("_PC_ID"))
+          if (PcId == NWScript.GetLocalInt(oCorpse, "_PC_ID"))
           {
-            oCorpse.Destroy();
+            NWScript.DestroyObject(oCorpse);
             // TODO : supprimer l'objet serialized de la BDD where _PC_ID
             break;
           }
-          oCorpse = NWScript.GetObjectByTag("pccorpse", i++).AsPlaceable();
+          oCorpse = NWScript.GetObjectByTag("pccorpse", i++);
         }
 
-        NWItem oCorpseItem = NWScript.GetObjectByTag("item_pccorpse").AsItem();
+        var oCorpseItem = NWScript.GetObjectByTag("item_pccorpse");
         i = 1;
-        while (oCorpseItem.IsValid)
+        while (NWScript.GetIsObjectValid(oCorpseItem) == 1)
         {
-          if (PcId == oCorpseItem.Locals.Int.Get("_PC_ID"))
+          if (PcId == NWScript.GetLocalInt(oCorpseItem, "_PC_ID"))
           {
-            oCorpseItem.Destroy();
+            NWScript.DestroyObject(oCorpseItem);
             break;
           }
-          oCorpseItem = NWScript.GetObjectByTag("item_pccorpse", i++).AsItem();
+          oCorpseItem = NWScript.GetObjectByTag("item_pccorpse", i++);
         }
       }
       public Effect GetPartySizeEffect(int iPartySize = 0)
       {
-        NWPlayer oPartyMember = NWScript.GetFirstFactionMember(this, true).AsPlayer();
-        while (oPartyMember.IsValid)
+        var oPartyMember = NWScript.GetFirstFactionMember(oid, 1);
+        while (NWScript.GetIsObjectValid(oPartyMember) == 1)
         {
           iPartySize++;
-          oPartyMember = NWScript.GetNextFactionMember(this, true).AsPlayer();
+          oPartyMember = NWScript.GetNextFactionMember(oid, 1);
         }
 
         Effect eParty = null;
@@ -443,24 +442,24 @@ namespace NWN.Systems
           case 1:
             break;
           case 2:
-            eParty = NWScript.TagEffect(NWScript.EffectACIncrease(1, Enums.Item.Property.ArmorClassModiferType.Dodge), "PartyEffect");
+            eParty = NWScript.TagEffect(NWScript.EffectACIncrease(1, NWScript.AC_DODGE_BONUS), "PartyEffect");
             break;
           case 3:
-            eParty = NWScript.EffectLinkEffects(NWScript.EffectACIncrease(1, Enums.Item.Property.ArmorClassModiferType.Dodge), NWScript.EffectAttackIncrease(1));
+            eParty = NWScript.EffectLinkEffects(NWScript.EffectACIncrease(1, NWScript.AC_DODGE_BONUS), NWScript.EffectAttackIncrease(1));
             eParty = NWScript.TagEffect(eParty, "PartyEffect");
             break;
           case 4:
           case 5:
-            eParty = NWScript.EffectLinkEffects(NWScript.EffectACIncrease(1, Enums.Item.Property.ArmorClassModiferType.Dodge), NWScript.EffectAttackIncrease(1));
-            eParty = NWScript.EffectLinkEffects(NWScript.EffectDamageIncrease(1, DamageType.Bludgeoning), eParty);
+            eParty = NWScript.EffectLinkEffects(NWScript.EffectACIncrease(1, NWScript.AC_DODGE_BONUS), NWScript.EffectAttackIncrease(1));
+            eParty = NWScript.EffectLinkEffects(NWScript.EffectDamageIncrease(1, NWScript.DAMAGE_TYPE_BLUDGEONING), eParty);
             eParty = NWScript.TagEffect(eParty, "PartyEffect");
             break;
           case 6:
-            eParty = NWScript.EffectLinkEffects(NWScript.EffectACIncrease(1, Enums.Item.Property.ArmorClassModiferType.Dodge), NWScript.EffectAttackIncrease(1));
+            eParty = NWScript.EffectLinkEffects(NWScript.EffectACIncrease(1, NWScript.AC_DODGE_BONUS), NWScript.EffectAttackIncrease(1));
             eParty = NWScript.TagEffect(eParty, "PartyEffect");
             break;
           case 7:
-            eParty = NWScript.TagEffect(NWScript.EffectACIncrease(1, Enums.Item.Property.ArmorClassModiferType.Dodge), "PartyEffect");
+            eParty = NWScript.TagEffect(NWScript.EffectACIncrease(1, NWScript.AC_DODGE_BONUS), "PartyEffect");
             break;
           default:
             break;

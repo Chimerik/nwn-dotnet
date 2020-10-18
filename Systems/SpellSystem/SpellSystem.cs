@@ -209,7 +209,7 @@ namespace NWN.Systems
 
       oCaster.RestoreSpells(0);
 
-      return Entrypoints.SCRIPT_HANDLED;
+      return 1;
     }
     private static int AfterSpellBroadcast(uint oidSelf)
     {
@@ -247,14 +247,14 @@ namespace NWN.Systems
         }
       }
 
-      return Entrypoints.SCRIPT_HANDLED;
+      return 1;
     }
     private static int HandleRaiseDeadCast(uint oidSelf)
     {
       var oTarget = NWScript.GetSpellTargetObject().AsObject();
       if(oTarget.Tag == "pccorpse")
       {
-        int PcId = NWNX.Object.GetInt(oTarget, "_PC_ID");
+        int PcId = ObjectPlugin.GetInt(oTarget, "_PC_ID");
         PlayerSystem.Player oPC = GetPCById(PcId);
 
         if (oPC != null && oPC.isConnected)
@@ -281,7 +281,7 @@ namespace NWN.Systems
         Effect eVis = NWScript.EffectVisualEffect((VisualEffect)Impact.RaiseDead);
         NWScript.SignalEvent(oTarget, NWScript.EventSpellCastAt(oidSelf, Spell.RaiseDead, false));
         NWScript.ApplyEffectAtLocation(DurationType.Instant, eVis, oTarget.Location);
-        return Entrypoints.SCRIPT_HANDLED;
+        return 1;
       }
 
       return Entrypoints.SCRIPT_NOT_HANDLED;

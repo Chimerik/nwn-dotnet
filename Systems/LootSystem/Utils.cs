@@ -42,7 +42,7 @@ namespace NWN.Systems
         connection.Execute(sql, new
         {
           tag = tag,
-          serialized = NWNX.Object.Serialize(oChest)
+          serialized = ObjectPlugin.Serialize(oChest)
         });
       }
     }
@@ -57,11 +57,11 @@ namespace NWN.Systems
         try
         {
           var lootContainer = connection.QuerySingle<Models.LootContainer>(sql, new { tag = chestTag });
-          var oDeserializedChest = NWNX.Object.Deserialize(lootContainer.serialized);
+          var oDeserializedChest = ObjectPlugin.Deserialize(lootContainer.serialized);
           var location = NWScript.GetLocation(oChest);
           var oChestPosition = NWScript.GetPositionFromLocation(location);
           var direction = NWScript.GetFacingFromLocation(location);
-          NWNX.Object.AddToArea(oDeserializedChest, oArea, oChestPosition);
+          ObjectPlugin.AddToArea(oDeserializedChest, oArea, oChestPosition);
           NWScript.AssignCommand(oDeserializedChest, () => NWScript.SetFacing(direction));
           NWScript.SetEventScript(oDeserializedChest, NWScript.EVENT_SCRIPT_PLACEABLE_ON_CLOSED, LOOT_CONTAINER_ON_CLOSE_SCRIPT);
           NWScript.DestroyObject(oChest);
