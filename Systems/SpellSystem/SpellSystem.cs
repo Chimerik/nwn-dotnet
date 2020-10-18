@@ -296,10 +296,10 @@ namespace NWN.Systems
         int nCasterLevel = NWScript.GetCasterLevel(oidSelf);
         int nTotalCharacterLevel = NWScript.GetHitDice(oidSelf);
 
-        oPC.SendMessage($"CL self = {nCasterLevel}");
-        oPC.SendMessage($"CL target = {NWScript.GetCasterLevel(oTarget)}");
-        oPC.SendMessage($"CL player = {NWScript.GetCasterLevel(oPC)}");
-        oPC.SendMessage($"Item used = {NWScript.GetSpellCastItem().AsObject().Name}");
+        NWScript.SendMessageToPC(oPC.oid, $"CL self = {nCasterLevel}");
+        NWScript.SendMessageToPC(oPC.oid, $"CL target = {NWScript.GetCasterLevel(oTarget)}");
+        NWScript.SendMessageToPC(oPC.oid, $"CL player = {NWScript.GetCasterLevel(oPC)}");
+        NWScript.SendMessageToPC(oPC.oid, $"Item used = {NWScript.GetSpellCastItem().AsObject().Name}");
       }
 
       return Entrypoints.SCRIPT_NOT_HANDLED;

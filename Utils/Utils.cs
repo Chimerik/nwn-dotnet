@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
-using NWN.Enums;
+using System.Linq;
+using NWN.Core;
+using NWN.Core.NWNX;
 using NWN.Systems;
 
 namespace NWN
@@ -162,6 +164,17 @@ namespace NWN
         if (!NWScript.GetIsDM(PlayerListEntry.Key))
           NWScript.BootPC(PlayerListEntry.Key, "Le serveur redémarre. Vous pourrez vous reconnecter dans une minute.");
       }
+    }
+    public static bool HasAnyEffect(uint oObject, params int[] effectIDs)
+    {
+      var eff = NWScript.GetFirstEffect(oObject);
+      while (NWScript.GetIsEffectValid(eff) == 1)
+      {
+        if (effectIDs.Contains(NWScript.GetEffectType(eff))) return true;
+        eff = NWScript.GetNextEffect(oObject);
+      }
+
+      return false;
     }
   }
 }

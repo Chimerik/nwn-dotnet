@@ -80,7 +80,7 @@ namespace NWN.Systems
                       {
                         NWScript.CreateObject(ObjectType.Creature, 
                           NWNX.Encounter.GetEncounterCreatureByIndex(encounter, creatureIndex).resref,
-                          player.Location); // TODO : une fois la MAJ .net core effectuée, utiliser le spawn point de l'encounter exposé par NWNX
+                          NWScript.GetLocation(player.oid)); // TODO : une fois la MAJ .net core effectuée, utiliser le spawn point de l'encounter exposé par NWNX
                       }
                     }
                   }

@@ -220,7 +220,7 @@ namespace NWN.Systems
         {
           if (player.isConnected)
           {
-            if (player.HasAnyEffect((int)EffectTypeEngine.Polymorph))
+            if (Utils.HasAnyEffect(player.oid, NWScript.EFFECT_TYPE_POLYMORPH))
             {
               EventsPlugin.SkipEvent();
               return 1;
@@ -230,18 +230,18 @@ namespace NWN.Systems
           // TODO : probablement faire pour chaque joueur tous les check faim / soif / jobs etc ici
 
           // AFK detection
-          if(ObjectPlugin.GetString(player, "_LOCATION") != Utils.LocationToString(player.Location))
+          if(ObjectPlugin.GetString(player.oid, "_LOCATION") != Utils.LocationToString(NWScript.GetLocation(player.oid)))
           {
-            ObjectPlugin.SetString(player, "_LOCATION", Utils.LocationToString(player.Location), true);
+            ObjectPlugin.SetString(player.oid, "_LOCATION", Utils.LocationToString(NWScript.GetLocation(player.oid)), 1);
             player.isAFK = false;
           }
 
-          if(player.Area.Locals.Int.Get("REST") != 0)
+          if(NWScript.GetLocalInt(player.oid, "REST") != 0)
             player.CraftJobProgression();
 
           player.AcquireSkillPoints();
-          ObjectPlugin.SetString(player, "_DATE_LAST_SAVED", DateTime.Now.ToString(), true);
-          ObjectPlugin.SetInt(player, "_CURRENT_HP", player.CurrentHP, true);
+          ObjectPlugin.SetString(player.oid, "_DATE_LAST_SAVED", DateTime.Now.ToString(), 1);
+          ObjectPlugin.SetInt(player.oid, "_CURRENT_HP", NWScript.GetCurrentHitPoints(player.oid), 1);
           player.isAFK = true;
         }
 
@@ -249,34 +249,34 @@ namespace NWN.Systems
     }
     private static int HandleBeforeDMPossess(uint oidSelf)
     {
-      NWCreature oPossessed = ObjectPlugin.StringToObject(EventsPlugin.GetEventData("TARGET")).AsCreature();
+      var oPossessed = ObjectPlugin.StringToObject(EventsPlugin.GetEventData("TARGET"));
       Player oPC;
       if (Players.TryGetValue(oidSelf, out oPC))
       {
-        if (oPossessed.IsValid)
+        if (NWScript.GetIsObjectValid(oPossessed) == 1)
         { // Ici, on prend possession
-          if (oPC.IsDMPossessed)
+          if (NWScript.GetIsDMPossessed(oPC.oid) == 1)
           {
-            NWScript.SetLocalObject(NWScript.GetLocalObject(oPC, "_POSSESSER"), "_POSSESSING", oPossessed);
-            NWScript.SetLocalObject(oPossessed, "_POSSESSER", NWScript.GetLocalObject(oPC, "_POSSESSER"));
+            NWScript.SetLocalObject(NWScript.GetLocalObject(oPC.oid, "_POSSESSER"), "_POSSESSING", oPossessed);
+            NWScript.SetLocalObject(oPossessed, "_POSSESSER", NWScript.GetLocalObject(oPC.oid, "_POSSESSER"));
           }
           else
           {
-            NWScript.SetLocalObject(oPC, "_POSSESSING", oPossessed);
-            NWScript.SetLocalObject(oPossessed, "_POSSESSER", oPC);
+            NWScript.SetLocalObject(oPC.oid, "_POSSESSING", oPossessed);
+            NWScript.SetLocalObject(oPossessed, "_POSSESSER", oPC.oid);
           }
         }
         else
         {  // Ici, on cesse la possession
-          if ((oPC.IsDMPossessed))
+          if (NWScript.GetIsDMPossessed(oPC.oid) == 1)
           {
-            NWScript.DeleteLocalObject(NWScript.GetLocalObject(oPC, "_POSSESSER"), "_POSSESSING");
-            NWScript.DeleteLocalObject(NWScript.GetLocalObject(oPC, "_POSSESSER"), "_POSSESSER");
+            NWScript.DeleteLocalObject(NWScript.GetLocalObject(oPC.oid, "_POSSESSER"), "_POSSESSING");
+            NWScript.DeleteLocalObject(NWScript.GetLocalObject(oPC.oid, "_POSSESSER"), "_POSSESSER");
           }
           else
           {
-            NWScript.DeleteLocalObject(NWScript.GetLocalObject(oPC, "_POSSESSER"), "_POSSESSING");
-            NWScript.DeleteLocalObject(oPC, "_POSSESSER");
+            NWScript.DeleteLocalObject(NWScript.GetLocalObject(oPC.oid, "_POSSESSER"), "_POSSESSING");
+            NWScript.DeleteLocalObject(oPC.oid, "_POSSESSER");
           }
         }
       }
@@ -290,14 +290,14 @@ namespace NWN.Systems
       {
         if (int.Parse(EventsPlugin.GetEventData("OBJECT_TYPE")) == 9)
         {
-          if (ObjectPlugin.GetInt(oPC, "_SPAWN_PERSIST") != 0)
+          if (ObjectPlugin.GetInt(oPC.oid, "_SPAWN_PERSIST") != 0)
           {
-            NWPlaceable oObject = ObjectPlugin.StringToObject(EventsPlugin.GetEventData("OBJECT")).AsPlaceable();
+            var oObject = ObjectPlugin.StringToObject(EventsPlugin.GetEventData("OBJECT"));
             // TODO : Enregistrer l'objet créé en base de données. Ajouter à l'objet un script qui le supprime de la BDD OnDeath
-            oPC.SendMessage($"Création persistante - Vous posez le placeable  {oObject.Name}");
+            NWScript.SendMessageToPC(oPC.oid, $"Création persistante - Vous posez le placeable  {NWScript.GetName(oObject)}");
           }
           else
-            oPC.SendMessage("Création temporaire - Ce placeable sera effacé par le prochain reboot.");
+            NWScript.SendMessageToPC(oPC.oid, "Création temporaire - Ce placeable sera effacé par le prochain reboot.");
         }
       }
       return 1;
@@ -310,8 +310,8 @@ namespace NWN.Systems
       {
         player.isConnected = false;
         //TODO : plutôt utiliser les fonctions sqlite de la prochaine MAJ ?
-        ObjectPlugin.SetInt(player, "_CURRENT_HP", player.CurrentHP, true);
-        ObjectPlugin.SetString(player, "_LOCATION", Utils.LocationToString(player.Location), true);
+        ObjectPlugin.SetInt(player.oid, "_CURRENT_HP", NWScript.GetCurrentHitPoints(player.oid), 1);
+        ObjectPlugin.SetString(player.oid, "_LOCATION", Utils.LocationToString(NWScript.GetLocation(player.oid)), 1); 
 
         HandleBeforePartyLeave(oidSelf);
         HandleAfterPartyLeave(oidSelf);
@@ -325,22 +325,22 @@ namespace NWN.Systems
       string current_event = EventsPlugin.GetCurrentEvent();
 
       string sKey = EventsPlugin.GetEventData("KEY");
-      NWPlaceable oMeuble = NWScript.GetLocalObject(oidSelf, "_MOVING_PLC").AsPlaceable();
-      Vector vPos = oMeuble.Position;
+      var oMeuble = NWScript.GetLocalObject(oidSelf, "_MOVING_PLC");
+      Vector3 vPos = NWScript.GetPosition(oMeuble);
 
       if (sKey == "W")
-        oMeuble.AddToArea(oMeuble.Area, NWScript.Vector(vPos.x, vPos.y + 0.1f, vPos.z));
+        ObjectPlugin.AddToArea(oMeuble, NWScript.GetArea(oMeuble), NWScript.Vector(vPos.X, vPos.Y + 0.1f, vPos.Z));
       else if (sKey == "S")
-        oMeuble.AddToArea(oMeuble.Area, NWScript.Vector(vPos.x, vPos.y - 0.1f, vPos.z));
+        ObjectPlugin.AddToArea(oMeuble, NWScript.GetArea(oMeuble), NWScript.Vector(vPos.X, vPos.Y - 0.1f, vPos.Z));
       else if (sKey == "D")
-        oMeuble.AddToArea(oMeuble.Area, NWScript.Vector(vPos.x + 0.1f, vPos.y, vPos.z));
+        ObjectPlugin.AddToArea(oMeuble, NWScript.GetArea(oMeuble), NWScript.Vector(vPos.X + 0.1f, vPos.Y, vPos.Z));
       else if (sKey == "A")
-        oMeuble.AddToArea(oMeuble.Area, NWScript.Vector(vPos.x - 0.1f, vPos.y, vPos.z));
+        ObjectPlugin.AddToArea(oMeuble, NWScript.GetArea(oMeuble), NWScript.Vector(vPos.X - 0.1f, vPos.Y, vPos.Z));
       else if (sKey == "Q")
-        oMeuble.Facing = oMeuble.Facing - 20.0f;
+        NWScript.AssignCommand(oMeuble, () => NWScript.SetFacing(NWScript.GetFacing(oMeuble) - 20.0f));
       //NWScript.AssignCommand(oMeuble, () => oMeuble.Facing (oMeuble.Facing - 20.0f));
       else if (sKey == "E")
-        oMeuble.Facing = oMeuble.Facing + 20.0f;
+        NWScript.AssignCommand(oMeuble, () => NWScript.SetFacing(NWScript.GetFacing(oMeuble) + 20.0f));
       //NWScript.AssignCommand(oMeuble, () => NWScript.SetFacing(oMeuble.Facing + 20.0f));
 
       return 1;
@@ -353,7 +353,7 @@ namespace NWN.Systems
 
       if (current_event == "NWNX_ON_USE_FEAT_BEFORE")
       {
-        if (feat == (int)NWN.Enums.Feat.PlayerTool02)
+        if (feat == NWScript.FEAT_PLAYER_TOOL_02)
         {
           EventsPlugin.SkipEvent();
           PlayerSystem.Player oPC;
@@ -372,7 +372,7 @@ namespace NWN.Systems
                 oPC.lycanCurseTimer = DateTime.Now;
               }
               else
-                oPC.SendMessage("Vous ne vous sentez pas encore la force de changer de nouveau de forme.");
+                NWScript.SendMessageToPC(oPC.oid, "Vous ne vous sentez pas encore la force de changer de nouveau de forme.");
             }
           }
 
@@ -576,7 +576,7 @@ namespace NWN.Systems
               }*/
             if (iRollAttack > iRollDefense)
             {
-              oPC.SendMessage(oPerceived.Name + " fait usage d'un déguisement ! Sous le masque, vous reconnaissez " + NWScript.GetName(oPerceived, true));
+              NWScript.SendMessageToPC(oPC.oid, oPerceived.Name + " fait usage d'un déguisement ! Sous le masque, vous reconnaissez " + NWScript.GetName(oPerceived, true));
               //NWNX_Rename_ClearPCNameOverride(oPerceived, oPC);
             }
           }
@@ -726,7 +726,7 @@ namespace NWN.Systems
 
                     if (iListenCheck > iMoveSilentlyCheck)
                     {
-                      oPC.SendMessage("Vous entendez quelqu'un se faufiler dans les environs.");
+                      NWScript.SendMessageToPC(oPC.oid, "Vous entendez quelqu'un se faufiler dans les environs.");
                       NWNX.Player.ShowVisualEffect(oPC, (int)Flashier.Vfx_Fnf_Smoke_Puff, oTarget.Position);
                       oPC.inviDetectTimer.Add(oTarget, DateTime.Now);
                       oPC.inviEffectDetectTimer.Add(oTarget, DateTime.Now);
@@ -744,7 +744,7 @@ namespace NWN.Systems
 
                   if (!oPC.inviDetectTimer.ContainsKey(oTarget) || (DateTime.Now - oPC.inviDetectTimer[oTarget]).TotalSeconds > 6)
                   {
-                    oPC.SendMessage("Vous entendez quelqu'un courir peu discrètement dans les environs.");
+                    NWScript.SendMessageToPC(oPC.oid, "Vous entendez quelqu'un courir peu discrètement dans les environs.");
                     NWNX.Player.ShowVisualEffect(oPC, (int)Flashier.Vfx_Fnf_Smoke_Puff, oTarget.Position);
                     oPC.inviDetectTimer.Add(oTarget, DateTime.Now);
                     oPC.inviEffectDetectTimer.Add(oTarget, DateTime.Now);
@@ -770,7 +770,7 @@ namespace NWN.Systems
       {
         player.SendMessage("Tout se brouille autour de vous. Avant de perdre connaissance, vous sentez comme un étrange maëlstrom vous aspirer.");
 
-        NWPlaceable oPCCorpse = NWScript.CreateObject(ObjectType.Placeable, "pccorpse", player.Location).AsPlaceable();
+        NWPlaceable oPCCorpse = NWScript.CreateObject(ObjectType.Placeable, "pccorpse", NWScript.GetLocation(player.oid)).AsPlaceable();
         EventsPlugin.AddObjectToDispatchList("NWNX_ON_INVENTORY_REMOVE_ITEM_AFTER", "event_pccorpse_remove_item_after", oPCCorpse);
         EventsPlugin.AddObjectToDispatchList("NWNX_ON_INVENTORY_ADD_ITEM_AFTER", "event_pccorpse_add_item_after", oPCCorpse);
 
@@ -810,7 +810,7 @@ namespace NWN.Systems
       Player player;
       if (Players.TryGetValue(oTarget, out player))
       {
-        if(player.Area.Tag == "Labrume")
+        if(NWScript.GetTag(NWScript.GetArea(player.oid)) == "Labrume")
         {
           player.DestroyCorpses();
         }

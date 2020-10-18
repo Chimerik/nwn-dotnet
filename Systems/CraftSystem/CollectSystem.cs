@@ -23,7 +23,7 @@ namespace NWN.Systems
         player.DoActionOnMiningCycleCancelled();
       }
 
-      return Entrypoints.SCRIPT_HANDLED;
+      return 1;
     }
     private static int HandleAfterMiningCycleComplete(uint oidSelf)
     {
@@ -35,7 +35,7 @@ namespace NWN.Systems
         player.DoActionOnMiningCycleCompleted();
       }
 
-      return Entrypoints.SCRIPT_HANDLED;
+      return 1;
     }    
     public static void StartMiningCycle(PlayerSystem.Player player, NWPlaceable rock, Action cancelCallback, Action completeCallback)
     {
@@ -79,7 +79,7 @@ namespace NWN.Systems
       int prout = HashCode.Combine<MineralType, ItemSystem.ItemCategory>(MineralType.Pyerite, ItemSystem.ItemCategory.Shield);
       foreach (ItemProperty ip in test[prout])
       {
-        NWScript.AddItemProperty(DurationType.Permanent, ip, craftedItem);
+        NWScript.AddItemProperty(NWScript.DURATION_TYPE_PERMANENT, ip, craftedItem);
       }
       
     }
