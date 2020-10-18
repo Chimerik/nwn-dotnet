@@ -359,9 +359,9 @@ namespace NWN.Systems
           PlayerSystem.Player oPC;
           if (PlayerSystem.Players.TryGetValue(oidSelf, out oPC))
           {
-            if (oPC.HasTagEffect("lycan_curse"))
+            if (Utils.HasTagEffect(oPC.oid, "lycan_curse"))
             {
-              oPC.RemoveTaggedEffect("lycan_curse");
+              Utils.RemoveTaggedEffect(oPC.oid, "lycan_curse");
               oPC.RemoveLycanCurse();
             }
             else
@@ -378,7 +378,7 @@ namespace NWN.Systems
 
           return 1;
         }
-        else if (feat == (int)NWN.Enums.Feat.LanguageElf)
+        else if (feat == 1116) // TODO : enum LanguageElf
         {
           NWScript.SendMessageToPC(oidSelf, $"langue = {NWScript.GetLocalInt(oidSelf, "_LANGUE_ACTIVE")}");
           if (NWScript.GetLocalInt(oidSelf, "_LANGUE_ACTIVE") == feat)
@@ -400,14 +400,14 @@ namespace NWN.Systems
         
           return 1;
         }
-        else if (feat == (int)NWN.Enums.Feat.PlayerTool01)
+        else if (feat == NWScript.FEAT_PLAYER_TOOL_01)
         {
           EventsPlugin.SkipEvent();
-          NWPlaceable oTarget = ObjectPlugin.StringToObject(EventsPlugin.GetEventData("TARGET_OBJECT_ID")).AsPlaceable();
+          var oTarget = ObjectPlugin.StringToObject(EventsPlugin.GetEventData("TARGET_OBJECT_ID"));
           PlayerSystem.Player myPlayer;
           if (PlayerSystem.Players.TryGetValue(oidSelf, out myPlayer))
           {
-            if (oTarget.IsValid)
+            if (NWScript.GetIsObjectValid(oTarget) == 1)
             {
               /*Utils.Meuble result;
               if (Enum.TryParse(oTarget.Tag, out result))
@@ -438,19 +438,19 @@ namespace NWN.Systems
               {
                 var sql = $"UPDATE sql_meubles SET objectLocation = @loc WHERE objectUUID = @uuid";
 
-                using (var connection = MySQL.GetConnection())
+                using (var connection = MySQL.GetConnection()) // TODO : à refaire, on ne va plus utiliser MySQL
                 {
-                  connection.Execute(sql, new { uuid = selectedObject.AsObject().uuid, loc = Utils.LocationToString(selectedObject.AsObject().Location) });
+                  connection.Execute(sql, new { uuid = NWScript.GetObjectUUID(selectedObject), loc = Utils.LocationToString(NWScript.GetLocation(selectedObject)) }); // TODO : à refaire, il ne faut pas utiliser UUID entre différents reboot de serveur, mais plutôt un id incrémenté en BDD
                 }
 
-                sObjectSaved += selectedObject.AsObject().Name + "\n";
+                sObjectSaved += NWScript.GetName(selectedObject) + "\n";
               }
 
-              myPlayer.SendMessage($"Vous venez de sauvegarder le positionnement des meubles : \n{sObjectSaved}");
+              NWScript.SendMessageToPC(myPlayer.oid, $"Vous venez de sauvegarder le positionnement des meubles : \n{sObjectSaved}");
               myPlayer.BoulderUnblock();
 
               EventsPlugin.RemoveObjectFromDispatchList("NWNX_ON_INPUT_KEYBOARD_AFTER", "event_mv_plc", oidSelf);
-              oidSelf.AsObject().Locals.Object.Delete("_MOVING_PLC");
+              NWScript.DeleteLocalObject(oidSelf, "_MOVING_PLC");
               myPlayer.selectedObjectsList.Clear();
             }
           }
@@ -462,9 +462,9 @@ namespace NWN.Systems
 
     private static void RefreshQBS(uint oidSelf, int feat)
     {
-      string sQuickBar = NWNX.Creature.SerializeQuickbar(oidSelf);
+      string sQuickBar = CreaturePlugin.SerializeQuickbar(oidSelf);
       QuickBarSlot emptyQBS = QuickBarSlot.CreateEmptyQBS();
-
+      QuickBarSlot 
       for (int i = 0; i < 36; i++)
       {
         QuickBarSlot qbs = NWNX.Player.GetQuickBarSlot(oidSelf, i);
@@ -475,12 +475,12 @@ namespace NWN.Systems
         }
       }
 
-      NWNX.Creature.DeserializeQuickbar(oidSelf, sQuickBar);
+      CreaturePlugin.DeserializeQuickbar(oidSelf, sQuickBar);
     }
 
     private static void RefreshQBS(uint oidSelf)
     {
-      string sQuickBar = NWNX.Creature.SerializeQuickbar(oidSelf);
+      string sQuickBar = CreaturePlugin.SerializeQuickbar(oidSelf);
       QuickBarSlot emptyQBS = QuickBarSlot.CreateEmptyQBS();
 
       for (int i = 0; i < 36; i++)
@@ -489,7 +489,7 @@ namespace NWN.Systems
         NWNX.Player.SetQuickBarSlot(oidSelf, i, emptyQBS);
       }
 
-      NWNX.Creature.DeserializeQuickbar(oidSelf, sQuickBar);
+      CreaturePlugin.DeserializeQuickbar(oidSelf, sQuickBar);
     }
 
     private static int HandleAutoSpell(uint oidSelf) //Je garde ça sous la main, mais je pense que le gérer différement serait mieux, notamment en créant un mode activable "autospell" en don gratuit pour les casters. Donc : A RETRAVAILLER 
@@ -711,7 +711,7 @@ namespace NWN.Systems
             int iDetectMode = (int)NWScript.GetDetectMode(oPC);
             if (int.Parse(EventsPlugin.GetEventData("TARGET_INVISIBLE")) == 1 && iDetectMode > 0)
             {
-              switch (NWNX.Creature.GetMovementType(oTarget))
+              switch (CreaturePlugin.GetMovementType(oTarget))
               {
                 case MovementType.WalkBackwards:
                 case MovementType.Sidestep:
@@ -915,7 +915,7 @@ namespace NWN.Systems
             if (!player.IsDM)
             {
               int geologySkillLevel;
-              if (int.TryParse(NWScript.Get2DAString("feat", "GAINMULTIPLE", NWNX.Creature.GetHighestLevelOfFeat(player, (int)Feat.Geology)), out geologySkillLevel))
+              if (int.TryParse(NWScript.Get2DAString("feat", "GAINMULTIPLE", CreaturePlugin.GetHighestLevelOfFeat(player, (int)Feat.Geology)), out geologySkillLevel))
                 examineTarget.Description = $"Minerai disponible : {Utils.random.Next(oreAmount * geologySkillLevel * 20 / 100, 2 * oreAmount - geologySkillLevel * 20 / 100)}";
               else
                 examineTarget.Description = $"Minerai disponible estimé : {Utils.random.Next(0, 2 * oreAmount)}";
@@ -950,7 +950,7 @@ namespace NWN.Systems
 
       if (NWScript.GetMovementRate(oPC) == (int)MovementRate.Immobile)
         if (NWScript.GetWeight(oPC) <= int.Parse(NWScript.Get2DAString("encumbrance", "Heavy", oPC.AsCreature().Ability[Ability.Strength].Total)))
-          NWNX.Creature.SetMovementRate(oPC, MovementRate.PC);
+          CreaturePlugin.SetMovementRate(oPC, MovementRate.PC);
 
       return 1;
     }
@@ -960,7 +960,7 @@ namespace NWN.Systems
 
       if (NWScript.GetMovementRate(oPC) != (int)MovementRate.Immobile)
         if (NWScript.GetWeight(oPC) > int.Parse(NWScript.Get2DAString("encumbrance", "Heavy", oPC.AsCreature().Ability[Ability.Strength].Total)))
-          NWNX.Creature.SetMovementRate(oPC, MovementRate.Immobile);
+          CreaturePlugin.SetMovementRate(oPC, MovementRate.Immobile);
 
       return 1;
     }

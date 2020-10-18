@@ -45,12 +45,12 @@ namespace NWN.Systems
                       int bonusYield = 0;
 
                       int value;
-                      if (int.TryParse(NWScript.Get2DAString("feat", "GAINMULTIPLE", NWNX.Creature.GetHighestLevelOfFeat(player, (int)Feat.Miner)), out value))
+                      if (int.TryParse(NWScript.Get2DAString("feat", "GAINMULTIPLE", CreaturePlugin.GetHighestLevelOfFeat(player, (int)Feat.Miner)), out value))
                       {
                         bonusYield += miningYield * value * 5 / 100;
                       }
 
-                      if (int.TryParse(NWScript.Get2DAString("feat", "GAINMULTIPLE", NWNX.Creature.GetHighestLevelOfFeat(player, (int)Feat.Geology)), out value))
+                      if (int.TryParse(NWScript.Get2DAString("feat", "GAINMULTIPLE", CreaturePlugin.GetHighestLevelOfFeat(player, (int)Feat.Geology)), out value))
                       {
                         bonusYield += miningYield * value * 5 / 100;
                       }

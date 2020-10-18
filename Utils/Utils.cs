@@ -170,11 +170,37 @@ namespace NWN
       var eff = NWScript.GetFirstEffect(oObject);
       while (NWScript.GetIsEffectValid(eff) == 1)
       {
-        if (effectIDs.Contains(NWScript.GetEffectType(eff))) return true;
+        if (effectIDs.Contains(NWScript.GetEffectType(eff))) 
+          return true;
         eff = NWScript.GetNextEffect(oObject);
       }
 
       return false;
+    }
+    public static Boolean HasTagEffect(uint oObject, string sTag)
+    {
+      var eff = NWScript.GetFirstEffect(oObject);
+      while (NWScript.GetIsEffectValid(eff) == 1)
+      {
+        if (NWScript.GetEffectTag(eff) == sTag)
+          return true;
+        eff = NWScript.GetNextEffect(oObject);
+      }
+      return false;
+    }
+
+    public static void RemoveTaggedEffect(uint oObject, string Tag)
+    {
+      var eff = NWScript.GetFirstEffect(oObject);
+      while (NWScript.GetIsEffectValid(eff) == 1)
+      { 
+        if (NWScript.GetEffectTag(eff) == Tag)
+        {
+          NWScript.RemoveEffect(oObject, eff);
+          break;
+        }
+        eff = NWScript.GetNextEffect(oObject);
+      }
     }
   }
 }
