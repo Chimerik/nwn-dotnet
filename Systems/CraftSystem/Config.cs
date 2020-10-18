@@ -1,5 +1,6 @@
-﻿using System.Collections.Generic;
-using NWN.Enums;
+﻿using System;
+using System.Collections.Generic;
+using NWN.Enums.Item.Property;
 
 namespace NWN.Systems
 {
@@ -11,9 +12,9 @@ namespace NWN.Systems
     {
       public OreType type;
       public string name;
-      public Feat feat;
-      public Dictionary<MineralType, int> mineralsDictionnary = new Dictionary<MineralType, int>();
-      public Ore(OreType oreType, Feat oreFeat)
+      public NWN.Enums.Feat feat;
+      public Dictionary<MineralType, float> mineralsDictionnary = new Dictionary<MineralType, float>();
+      public Ore(OreType oreType, NWN.Enums.Feat oreFeat)
       {
         this.type = oreType;
         this.name = GetNameFromOreType(oreType);
@@ -26,17 +27,17 @@ namespace NWN.Systems
         switch (this.type)
         {
           case OreType.Veldspar:
-            this.mineralsDictionnary.Add(MineralType.Tritanium, 41);
+            this.mineralsDictionnary.Add(MineralType.Tritanium, 41.500f);
             break;
           case OreType.Scordite:
-            this.mineralsDictionnary.Add(MineralType.Tritanium, 23);
-            this.mineralsDictionnary.Add(MineralType.Pyerite, 11);
+            this.mineralsDictionnary.Add(MineralType.Tritanium, 23.067f);
+            this.mineralsDictionnary.Add(MineralType.Pyerite, 11.533f);
             break;
           case OreType.Pyroxeres:
-            this.mineralsDictionnary.Add(MineralType.Tritanium, 12);
-            this.mineralsDictionnary.Add(MineralType.Pyerite, 1);
-            this.mineralsDictionnary.Add(MineralType.Mexallon, 2);
-            this.mineralsDictionnary.Add(MineralType.Noxcium, 1);
+            this.mineralsDictionnary.Add(MineralType.Tritanium, 11.700f);
+            this.mineralsDictionnary.Add(MineralType.Pyerite, 0.833f);
+            this.mineralsDictionnary.Add(MineralType.Mexallon,  1.667f);
+            this.mineralsDictionnary.Add(MineralType.Noxcium, 0.167f);
             break;
         }
       }
@@ -44,9 +45,9 @@ namespace NWN.Systems
 
     public static void InitiateOres()
     {
-      oresDictionnary.Add(OreType.Veldspar, new Ore(OreType.Veldspar, Feat.VeldsparReprocessing));
-      oresDictionnary.Add(OreType.Scordite, new Ore(OreType.Scordite, Feat.ScorditeReprocessing));
-      oresDictionnary.Add(OreType.Pyroxeres, new Ore(OreType.Pyroxeres, Feat.PyroxeresReprocessing));
+      oresDictionnary.Add(OreType.Veldspar, new Ore(OreType.Veldspar, NWN.Enums.Feat.VeldsparReprocessing));
+      oresDictionnary.Add(OreType.Scordite, new Ore(OreType.Scordite, NWN.Enums.Feat.ScorditeReprocessing));
+      oresDictionnary.Add(OreType.Pyroxeres, new Ore(OreType.Pyroxeres, NWN.Enums.Feat.PyroxeresReprocessing));
     }
     public static OreType GetOreTypeFromName(string name)
     {
@@ -108,6 +109,124 @@ namespace NWN.Systems
       Pyerite = 2,
       Mexallon = 3,
       Noxcium = 4,
+    }
+
+    public static Dictionary<BlueprintType, Blueprint> blueprintDictionnary = new Dictionary<BlueprintType, Blueprint>();
+    public partial class Blueprint
+    {
+      public BlueprintType type;
+      public string workshopTag { get; set; }
+      public string craftedItemTag { get; set; }
+      public int mineralsCost { get; set; }
+      public Blueprint(BlueprintType type)
+      {
+        this.type = type;
+        this.InitiateBluePrintCosts();
+      }
+
+      public void InitiateBluePrintCosts()
+      {
+        switch (this.type)
+        {
+          case BlueprintType.Longsword:
+            this.mineralsCost = 20000;
+            this.workshopTag = "forge";
+            this.craftedItemTag = "longsword";
+            break;
+          case BlueprintType.Fullplate:
+            this.mineralsCost = 1000000;
+            this.workshopTag = "forge";
+            this.craftedItemTag = "fullplate";
+            break;
+        }
+      }
+    }
+    public enum BlueprintType
+    {
+      Invalid = 0,
+      Dagger = 1,
+      Longsword = 2,
+      Chainshirt = 3,
+      Fullplate = 4,
+    }
+    public static BlueprintType GetBlueprintTypeFromName(string name)
+    {
+      switch (name)
+      {
+        case "Longsword": return BlueprintType.Longsword;
+        case "Fullplate": return BlueprintType.Fullplate;
+        case "Dagger": return BlueprintType.Dagger;
+        case "Chainshirt": return BlueprintType.Chainshirt;
+      }
+
+      return BlueprintType.Invalid;
+    }
+    public static string GetNameFromBlueprintType(BlueprintType type)
+    {
+      switch (type)
+      {
+        case BlueprintType.Longsword: return "Longsword";
+        case BlueprintType.Fullplate: return "Fullplate";
+        case BlueprintType.Dagger: return "Dagger";
+        case BlueprintType.Chainshirt: return "Chainshirt";
+      }
+
+      return "";
+    }
+
+    public static Dictionary<Tuple<MineralType, ItemSystem.ItemCategory>, List<ItemProperty>> itemPropertiesDictionnary = new Dictionary<Tuple<MineralType, ItemSystem.ItemCategory>, List<ItemProperty>>();
+    public static Dictionary<int, List<ItemProperty>> test = new Dictionary<int, List<ItemProperty>>();
+    //public static Dictionary<BaseItem, List<ItemProperty>> itemPropertiesDictionnary = new Dictionary<BaseItem, List<ItemProperty>>();
+
+    public static void initiateCraftItemProperties()
+    { 
+      List<ItemProperty> itemPropertyList = new List<ItemProperty>();
+      //NWNX.Enum.ItemPropertyUnpacked prout;
+      
+      // TRITANIUM
+      itemPropertyList.Add(NWScript.ItemPropertyDamageVulnerability(Enums.Item.Property.DamageType.Fire, DamageVulnerability.FiftyPERCENT));
+      itemPropertyList.Add(NWScript.ItemPropertyDamageVulnerability(Enums.Item.Property.DamageType.Cold, DamageVulnerability.FiftyPERCENT));
+      itemPropertyList.Add(NWScript.ItemPropertyDamageVulnerability(Enums.Item.Property.DamageType.Electrical, DamageVulnerability.FiftyPERCENT));
+      itemPropertyList.Add(NWScript.ItemPropertyWeightReduction(ReducedWeight.FourtyPercent));
+      
+      itemPropertiesDictionnary.Add(new Tuple<MineralType, ItemSystem.ItemCategory>(MineralType.Tritanium, ItemSystem.ItemCategory.OneHandedMeleeWeapon), itemPropertyList);
+      itemPropertiesDictionnary.Add(new Tuple<MineralType, ItemSystem.ItemCategory>(MineralType.Tritanium, ItemSystem.ItemCategory.TwoHandedMeleeWeapon), itemPropertyList);
+      itemPropertiesDictionnary.Add(new Tuple<MineralType, ItemSystem.ItemCategory>(MineralType.Tritanium, ItemSystem.ItemCategory.Armor), itemPropertyList);
+      itemPropertiesDictionnary.Add(new Tuple<MineralType, ItemSystem.ItemCategory>(MineralType.Tritanium, ItemSystem.ItemCategory.Shield), itemPropertyList);
+
+      test.Add(HashCode.Combine<MineralType, ItemSystem.ItemCategory>(MineralType.Tritanium, ItemSystem.ItemCategory.OneHandedMeleeWeapon), itemPropertyList);
+      test.Add(HashCode.Combine<MineralType, ItemSystem.ItemCategory>(MineralType.Tritanium, ItemSystem.ItemCategory.TwoHandedMeleeWeapon), itemPropertyList);
+      test.Add(HashCode.Combine<MineralType, ItemSystem.ItemCategory>(MineralType.Tritanium, ItemSystem.ItemCategory.Armor), itemPropertyList);
+      test.Add(HashCode.Combine<MineralType, ItemSystem.ItemCategory>(MineralType.Tritanium, ItemSystem.ItemCategory.Shield), itemPropertyList);
+
+      itemPropertyList.Clear();
+
+      // PYERITE
+      itemPropertyList.Add(NWScript.ItemPropertyDamageVulnerability(Enums.Item.Property.DamageType.Fire, DamageVulnerability.TwentyFivePERCENT));
+      itemPropertyList.Add(NWScript.ItemPropertyWeightIncrease(WeightIncrease.TenPounds));
+      itemPropertyList.Add(NWScript.ItemPropertyAttackBonusVsRace(Enums.Item.Property.RacialType.HumanoidReptilian, 1));
+      itemPropertyList.Add(NWScript.ItemPropertyAttackBonusVsRace(Enums.Item.Property.RacialType.HumanoidGoblinoid, 1));
+      
+      itemPropertiesDictionnary.Add(new Tuple<MineralType, ItemSystem.ItemCategory>(MineralType.Pyerite, ItemSystem.ItemCategory.OneHandedMeleeWeapon), itemPropertyList);
+      itemPropertiesDictionnary.Add(new Tuple<MineralType, ItemSystem.ItemCategory>(MineralType.Pyerite, ItemSystem.ItemCategory.TwoHandedMeleeWeapon), itemPropertyList);
+
+      test.Add(HashCode.Combine<MineralType, ItemSystem.ItemCategory>(MineralType.Pyerite, ItemSystem.ItemCategory.OneHandedMeleeWeapon), itemPropertyList);
+      test.Add(HashCode.Combine<MineralType, ItemSystem.ItemCategory>(MineralType.Pyerite, ItemSystem.ItemCategory.TwoHandedMeleeWeapon), itemPropertyList);
+
+      itemPropertyList.Clear();
+
+      itemPropertyList.Add(NWScript.ItemPropertyDamageVulnerability(Enums.Item.Property.DamageType.Fire, DamageVulnerability.TwentyFivePERCENT));
+      itemPropertyList.Add(NWScript.ItemPropertyWeightIncrease(WeightIncrease.TenPounds));
+      itemPropertyList.Add(NWScript.ItemPropertyACBonusVsRace(Enums.Item.Property.RacialType.HumanoidGoblinoid, 1));
+      itemPropertyList.Add(NWScript.ItemPropertyACBonusVsRace(Enums.Item.Property.RacialType.HumanoidReptilian, 1));
+
+      itemPropertiesDictionnary.Add(new Tuple<MineralType, ItemSystem.ItemCategory>(MineralType.Pyerite, ItemSystem.ItemCategory.Armor), itemPropertyList);
+      itemPropertiesDictionnary.Add(new Tuple<MineralType, ItemSystem.ItemCategory>(MineralType.Pyerite, ItemSystem.ItemCategory.Shield), itemPropertyList);
+
+      test.Add(HashCode.Combine<MineralType, ItemSystem.ItemCategory>(MineralType.Pyerite, ItemSystem.ItemCategory.Shield), itemPropertyList);
+      test.Add(HashCode.Combine<MineralType, ItemSystem.ItemCategory>(MineralType.Pyerite, ItemSystem.ItemCategory.Armor), itemPropertyList);
+
+      itemPropertyList.Clear();
     }
   }
 }

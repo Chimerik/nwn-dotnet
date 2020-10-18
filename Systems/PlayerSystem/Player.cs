@@ -134,6 +134,38 @@ namespace NWN.Systems
       {
         NWScript.DestroyObject(blockingBoulder);
       }
+      public void CraftJobProgression()
+      {
+        float RemainingTime = NWNX.Object.GetFloat(this, "_CURRENT_CRAFT_JOB_REMAINING_TIME") - (float)(DateTime.Now - DateTime.Parse(NWNX.Object.GetString(this, "_DATE_LAST_SAVED"))).TotalSeconds;
+
+        if (RemainingTime < 0)
+        {
+          this.AcquireCraftedItem();
+        }
+        else if (RemainingTime < 600)
+        {
+          NWScript.AssignCommand(this, () => NWScript.DelayCommand((float)RemainingTime, () => AcquireCraftedItem()));
+        }
+      }
+
+      public void AcquireCraftedItem()
+      {
+        CollectSystem.Blueprint blueprint;
+        CollectSystem.BlueprintType blueprintType = CollectSystem.GetBlueprintTypeFromName(NWNX.Object.GetString(this, "_CURRENT_CRAFT_JOB"));
+
+        if (blueprintType == CollectSystem.BlueprintType.Invalid)
+        {
+          // TODO : envoyer l'erreur sur Discord
+          return;
+        }
+
+        if (CollectSystem.blueprintDictionnary.ContainsKey(blueprintType))
+          blueprint = CollectSystem.blueprintDictionnary[blueprintType];
+        else
+          blueprint = new CollectSystem.Blueprint(blueprintType);
+        
+        NWScript.DelayCommand(10.0f, () => this.PlayCraftJobCompletedEffects(blueprint)); // Décalage de 10 secondes pour être sur que le joueur a fini de charger la map à la reco
+      }
       public void AcquireSkillPoints()
       {
         SkillSystem.Skill skill;
@@ -289,6 +321,20 @@ namespace NWN.Systems
         NWScript.PostString(this, $"Votre apprentissage {skill.name} est terminé !", 80, 10, ScreenAnchor.TopLeft, 5.0f, unchecked((int)0xC0C0C0FF), unchecked((int)0xC0C0C0FF), 9, "fnt_galahad14");
         NWNX.Player.PlaySound(this, "gui_level_up", this);
         NWNX.Player.ApplyInstantVisualEffectToObject(this, this, (int)Impact.GlobeUse);
+      }
+
+      public void PlayCraftJobCompletedEffects(CollectSystem.Blueprint blueprint)
+      {
+        NWScript.PostString(this, $"La création de votre {NWNX.Object.GetString(this, "_CURRENT_CRAFT_JOB")} est terminée !", 80, 10, ScreenAnchor.TopLeft, 5.0f, unchecked((int)0xC0C0C0FF), unchecked((int)0xC0C0C0FF), 9, "fnt_galahad14");
+        // TODO : changer les sons et effets visuels
+        NWNX.Player.PlaySound(this, "gui_level_up", this);
+        NWNX.Player.ApplyInstantVisualEffectToObject(this, this, (int)Impact.GlobeUse);
+
+        CollectSystem.AddCraftedItemProperties(NWScript.CreateItemOnObject(blueprint.craftedItemTag, this), blueprint, NWNX.Object.GetString(this, "_CURRENT_CRAFT_JOB_MATERIAL"));
+
+        NWNX.Object.DeleteString(this, "_CURRENT_CRAFT_JOB");
+        NWNX.Object.DeleteFloat(this, "_CURRENT_CRAFT_JOB_REMAINING_TIME");
+        NWNX.Object.DeleteString(this, "_CURRENT_CRAFT_JOB_MATERIAL");
       }
 
       public void PlayNoCurrentTrainingEffects()
