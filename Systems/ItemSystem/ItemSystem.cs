@@ -151,25 +151,29 @@ namespace NWN.Systems
         if (float.TryParse(NWScript.Get2DAString("feat", "GAINMULTIPLE", NWNX.Creature.GetHighestLevelOfFeat(player, (int)Feat.Connections)), out value))
           reprocessingEfficiency += reprocessingEfficiency + 1 * value / 100;
 
-
         foreach (NWItem ore in fonderie.InventoryItems)
         {
           if(ore.Tag == "ore")
           {
-            CollectSystem.Ore processedOre;
-            if (CollectSystem.oresDictionnary.TryGetValue(GetOreTypeFromName(ore.Name), out processedOre))
+            if (ore.StackSize > 100)
             {
-              if (float.TryParse(NWScript.Get2DAString("feat", "GAINMULTIPLE", NWNX.Creature.GetHighestLevelOfFeat(player, (int)processedOre.feat)), out value))
-                reprocessingEfficiency += reprocessingEfficiency + 2 * value / 100;
-
-              foreach(KeyValuePair<MineralType, int> mineralKeyValuePair in processedOre.mineralsDictionnary)
+              CollectSystem.Ore processedOre;
+              if (CollectSystem.oresDictionnary.TryGetValue(GetOreTypeFromName(ore.Name), out processedOre))
               {
-                NWItem mineral = NWScript.CreateItemOnObject("mineral", player, ore.StackSize * mineralKeyValuePair.Value * (int)reprocessingEfficiency).AsItem();
-                mineral.Name = GetNameFromMineralType(mineralKeyValuePair.Key);
+                if (float.TryParse(NWScript.Get2DAString("feat", "GAINMULTIPLE", NWNX.Creature.GetHighestLevelOfFeat(player, (int)processedOre.feat)), out value))
+                  reprocessingEfficiency += reprocessingEfficiency + 2 * value / 100;
+
+                foreach (KeyValuePair<MineralType, float> mineralKeyValuePair in processedOre.mineralsDictionnary)
+                {
+                  NWItem mineral = NWScript.CreateItemOnObject("mineral", player, (int)(ore.StackSize * mineralKeyValuePair.Value * (int)reprocessingEfficiency)).AsItem();
+                  mineral.Name = GetNameFromMineralType(mineralKeyValuePair.Key);
+                }
+
+                ore.Destroy();
               }
-     
-              ore.Destroy();
             }
+            else
+              player.SendMessage($"Ce lot de {ore.Name} n'a pas pu être raffiné. Un minimum de 100 unités est nécessaire pour le bon fonctionnement de la fonderie.");
           }
         }
         
