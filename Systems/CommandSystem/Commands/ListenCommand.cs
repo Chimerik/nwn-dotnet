@@ -12,7 +12,7 @@ namespace NWN.Systems
         PlayerSystem.Player oDM;
         if (PlayerSystem.Players.TryGetValue(ctx.oSender, out oDM))
         {
-          if (!ctx.oTarget.IsValid)
+          if (!NWScript.GetIsObjectValid(ctx.oTarget) == 1)
           {
             if (oDM.listened.Count > 0)
               oDM.listened.Clear();

@@ -9,7 +9,7 @@ namespace NWN.Systems
     {
       if (NWScript.GetIsDM(ctx.oSender))
       {
-        if (ctx.oTarget.IsValid)
+        if (NWScript.GetIsObjectValid(ctx.oTarget) == 1)
         {
           if (((string)options.positional[0]).Length == 0)
           {

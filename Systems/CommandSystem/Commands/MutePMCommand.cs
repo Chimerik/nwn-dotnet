@@ -6,7 +6,7 @@ namespace NWN.Systems
   {
     private static void ExecuteMutePMCommand(ChatSystem.Context ctx, Options.Result options)
     {
-      if (ctx.oTarget.IsValid)
+      if (NWScript.GetIsObjectValid(ctx.oTarget) == 1)
       {
         if (ObjectPlugin.GetInt(ctx.oSender, "__BLOCK_" + ctx.NWScript.GetName(oTarget.oid) + "_MP") == 0)
         {
