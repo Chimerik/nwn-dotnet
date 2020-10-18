@@ -1,15 +1,16 @@
 ﻿using System;
+using System.Numerics;
 using System.Collections.Generic;
 using System.Security.Authentication;
-using NWN.Enums;
-using NWN.Enums.VisualEffect;
+using NWN.Core;
+using NWN.Core.NWNX;
 
 namespace NWN.Systems
 {
   public static partial class PlayerSystem
   {
-    public class Player : NWPlayer
-    {
+    public class Player
+    { 
       public readonly uint oid;
       public readonly Boolean isNewPlayer;
       public Boolean isConnected { get; set; }
@@ -33,28 +34,28 @@ namespace NWN.Systems
       public Dictionary<uint, DateTime> pickpocketDetectTimer = new Dictionary<uint, DateTime>();
       public Dictionary<uint, DateTime> inviDetectTimer = new Dictionary<uint, DateTime>();
       public Dictionary<uint, DateTime> inviEffectDetectTimer = new Dictionary<uint, DateTime>();
-      public Dictionary<uint, NWCreature> summons = new Dictionary<uint, NWCreature>();
+      public Dictionary<uint, uint> summons = new Dictionary<uint, uint>();
       public Dictionary<int, SkillSystem.Skill> learnableSkills = new Dictionary<int, SkillSystem.Skill>();
       public Dictionary<int, SkillSystem.Skill> removeableMalus = new Dictionary<int, SkillSystem.Skill>();
 
       public Action OnMiningCycleCancelled = delegate { };
       public Action OnMiningCycleCompleted = delegate { };
 
-      public Player(uint nwobj) : base(nwobj)
+      public Player(uint nwobj)
       {
         this.oid = nwobj;
         this.menu = new PrivateMenu(this);
         // TODO : ajouter IsNewPlayer = résultat de la requête en BDD pour voir si on a déjà des infos sur lui ou pas !
 
         // TODO : charger la liste à partir de la BDD et l'état d'avancement des SP. Mettre en place le système d'apprentissage via livre
-        this.learnableSkills.Add(1116, new SkillSystem.Skill(1116, NWNX.Object.GetFloat(this, "_JOB_SP_1116")));
-        this.learnableSkills.Add(122, new SkillSystem.Skill(122, NWNX.Object.GetFloat(this, "_JOB_SP_122")));
-        this.learnableSkills.Add(128, new SkillSystem.Skill(128, NWNX.Object.GetFloat(this, "_JOB_SP_128")));
-        this.learnableSkills.Add(133, new SkillSystem.Skill(133, NWNX.Object.GetFloat(this, "_JOB_SP_133")));
+        this.learnableSkills.Add(1116, new SkillSystem.Skill(1116, ObjectPlugin.GetFloat(this.oid, "_JOB_SP_1116")));
+        this.learnableSkills.Add(122, new SkillSystem.Skill(122, ObjectPlugin.GetFloat(this.oid, "_JOB_SP_122")));
+        this.learnableSkills.Add(128, new SkillSystem.Skill(128, ObjectPlugin.GetFloat(this.oid, "_JOB_SP_128")));
+        this.learnableSkills.Add(133, new SkillSystem.Skill(133, ObjectPlugin.GetFloat(this.oid, "_JOB_SP_133")));
         int successorId;
-        if (int.TryParse(NWScript.Get2DAString("feat", "SUCCESSOR", NWNX.Creature.GetHighestLevelOfFeat(this, 1132)), out successorId))
+        if (int.TryParse(NWScript.Get2DAString("feat", "SUCCESSOR", CreaturePlugin.GetHighestLevelOfFeat(this.oid, 1132)), out successorId))
         {
-          this.learnableSkills.Add(successorId, new SkillSystem.Skill(successorId, NWNX.Object.GetFloat(this, $"_JOB_SP_{successorId}")));
+          this.learnableSkills.Add(successorId, new SkillSystem.Skill(successorId, ObjectPlugin.GetFloat(this.oid, $"_JOB_SP_{successorId}")));
         }
       }
 
@@ -74,58 +75,57 @@ namespace NWN.Systems
           this.key = key;
         }
       }
-      public void DoActionOnTargetSelected(uint oPC, Vector vTarget)
+      public void DoActionOnTargetSelected(uint oPC, Vector3 vTarget)
       {
         this.OnSelectTarget(oPC, vTarget);
       }
-      private Action<uint, Vector> OnSelectTarget = delegate { };
-      public void SelectTarget(Action<uint, Vector> callback)
+      private Action<uint, Vector3> OnSelectTarget = delegate { };
+      public void SelectTarget(Action<uint, Vector3> callback)
       {
         this.OnSelectTarget = callback;
 
-        //NWScript.EnterTargetingMode(player, ObjectType.Creature);
-        NWScript.ExecuteScript("on_pc_target", this); // bouchon en attendant d'avoir la vraie fonction
+        NWScript.EnterTargetingMode(this.oid, NWScript.OBJECT_TYPE_CREATURE);
       }
       public void OnFrostAutoAttackTimedEvent() // conservé pour mémoire, à retravailler
       {
-        if (this.autoAttackTarget.AsObject().IsValid)
+        if (NWScript.GetIsObjectValid(this.autoAttackTarget) == 1)
         {
-          this.CastSpellAtObject(Spell.RayOfFrost, this.autoAttackTarget);
+          NWScript.AssignCommand(this.oid, () => NWScript.ActionCastSpellAtObject(NWScript.SPELL_RAY_OF_FROST, this.autoAttackTarget));
           NWScript.DelayCommand(6.0f, () => this.OnFrostAutoAttackTimedEvent());
         }
       }
       public void RemoveLycanCurse()
       {
-        this.ApplyEffect(DurationType.Instant, NWScript.EffectVisualEffect((VisualEffect)Impact.SuperHeroism));
-        NWNX.Rename.ClearPCNameOverride(this, null, true);
-        NWNX.Creature.SetMovementRate(this, MovementRate.PC);
+        NWScript.ApplyEffectToObject(NWScript.DURATION_TYPE_INSTANT, NWScript.EffectVisualEffect(NWScript.VFX_IMP_SUPER_HEROISM), this.oid);
+        RenamePlugin.ClearPCNameOverride(this.oid, NWScript.OBJECT_INVALID, 1);
+        CreaturePlugin.SetMovementRate(this.oid, CreaturePlugin.NWNX_CREATURE_MOVEMENT_RATE_PC);
 
-        NWNX.Events.RemoveObjectFromDispatchList("NWNX_ON_EFFECT_REMOVED_AFTER", "event_effects", this);
+        EventsPlugin.RemoveObjectFromDispatchList("NWNX_ON_EFFECT_REMOVED_AFTER", "event_effects", this.oid);
       }
       public void ApplyLycanCurse()
       {
-        Effect ePoly = NWScript.EffectPolymorph(107, true);
+        Effect ePoly = NWScript.EffectPolymorph(107, 1);
         Effect eLink = NWScript.SupernaturalEffect(ePoly);
         eLink = NWScript.TagEffect(eLink, "lycan_curse");
 
-        this.ApplyEffect(DurationType.Temporary, eLink, 900.0f);
-        this.ApplyEffect(DurationType.Instant, NWScript.EffectVisualEffect((VisualEffect)Impact.SuperHeroism));
+        NWScript.ApplyEffectToObject(NWScript.DURATION_TYPE_TEMPORARY, eLink, this.oid, 900.0f);
+        NWScript.ApplyEffectToObject(NWScript.DURATION_TYPE_INSTANT, NWScript.EffectVisualEffect(NWScript.VFX_IMP_SUPER_HEROISM), this.oid);
+        
+        RenamePlugin.SetPCNameOverride(this.oid, "Loup-garou", "", "", RenamePlugin.NWNX_RENAME_PLAYERNAME_OVERRIDE);
+        CreaturePlugin.SetMovementRate(this.oid, CreaturePlugin.NWNX_CREATURE_MOVEMENT_RATE_FAST);
 
-        NWNX.Rename.SetPCNameOverride(this, "Loup-garou", "", "", NWNX.Enum.NameOverrideType.Override);
-        NWNX.Creature.SetMovementRate(this, MovementRate.Fast);
-
-        NWNX.Events.AddObjectToDispatchList("NWNX_ON_EFFECT_REMOVED_AFTER", "event_effects", this);
+        EventsPlugin.AddObjectToDispatchList("NWNX_ON_EFFECT_REMOVED_AFTER", "event_effects", this.oid);
       }
 
       public void BoulderBlock()
       {
         BoulderUnblock();
         var location = NWScript.GetLocation(oid);
-        blockingBoulder = NWScript.CreateObject(Enums.ObjectType.Placeable, "plc_boulder", location, false);
-        NWNX.Object.SetPosition(oid, NWScript.GetPositionFromLocation(location));
+        blockingBoulder = NWScript.CreateObject(NWScript.OBJECT_TYPE_PLACEABLE, "plc_boulder", location);
+        ObjectPlugin.SetPosition(oid, NWScript.GetPositionFromLocation(location));
         NWScript.ApplyEffectToObject(
-          Enums.DurationType.Permanent,
-          NWScript.EffectVisualEffect((VisualEffect)Temporary.CutsceneInvisibility),
+          NWScript.DURATION_TYPE_PERMANENT,
+          NWScript.EffectVisualEffect(NWScript.VFX_DUR_CUTSCENE_INVISIBILITY),
           blockingBoulder
         );
       }
@@ -136,7 +136,7 @@ namespace NWN.Systems
       }
       public void CraftJobProgression()
       {
-        float RemainingTime = NWNX.Object.GetFloat(this, "_CURRENT_CRAFT_JOB_REMAINING_TIME") - (float)(DateTime.Now - DateTime.Parse(NWNX.Object.GetString(this, "_DATE_LAST_SAVED"))).TotalSeconds;
+        float RemainingTime = ObjectPlugin.GetFloat(oid, "_CURRENT_CRAFT_JOB_REMAINING_TIME") - (float)(DateTime.Now - DateTime.Parse(ObjectPlugin.GetString(oid, "_DATE_LAST_SAVED"))).TotalSeconds;
 
         if (RemainingTime < 0)
         {
@@ -144,7 +144,7 @@ namespace NWN.Systems
         }
         else if (RemainingTime < 600)
         {
-          NWScript.AssignCommand(this, () => NWScript.DelayCommand((float)RemainingTime, () => AcquireCraftedItem()));
+          NWScript.AssignCommand(oid, () => NWScript.DelayCommand((float)RemainingTime, () => AcquireCraftedItem()));
         }
       }
 
@@ -318,31 +318,31 @@ namespace NWN.Systems
 
       public void PlayNewSkillAcquiredEffects(SkillSystem.Skill skill)
       {
-        NWScript.PostString(this, $"Votre apprentissage {skill.name} est terminé !", 80, 10, ScreenAnchor.TopLeft, 5.0f, unchecked((int)0xC0C0C0FF), unchecked((int)0xC0C0C0FF), 9, "fnt_galahad14");
-        NWNX.Player.PlaySound(this, "gui_level_up", this);
-        NWNX.Player.ApplyInstantVisualEffectToObject(this, this, (int)Impact.GlobeUse);
+        NWScript.PostString(oid, $"Votre apprentissage {skill.name} est terminé !", 80, 10, NWScript.SCREEN_ANCHOR_TOP_LEFT, 5.0f, unchecked((int)0xC0C0C0FF), unchecked((int)0xC0C0C0FF), 9, "fnt_galahad14");
+        PlayerPlugin.PlaySound(oid, "gui_level_up");
+        PlayerPlugin.ApplyInstantVisualEffectToObject(oid, oid, NWScript.VFX_IMP_GLOBE_USE);
       }
 
       public void PlayCraftJobCompletedEffects(CollectSystem.Blueprint blueprint)
       {
-        NWScript.PostString(this, $"La création de votre {NWNX.Object.GetString(this, "_CURRENT_CRAFT_JOB")} est terminée !", 80, 10, ScreenAnchor.TopLeft, 5.0f, unchecked((int)0xC0C0C0FF), unchecked((int)0xC0C0C0FF), 9, "fnt_galahad14");
+        NWScript.PostString(oid, $"La création de votre {ObjectPlugin.GetString(oid, "_CURRENT_CRAFT_JOB")} est terminée !", 80, 10, NWScript.SCREEN_ANCHOR_TOP_LEFT, 5.0f, unchecked((int)0xC0C0C0FF), unchecked((int)0xC0C0C0FF), 9, "fnt_galahad14");
         // TODO : changer les sons et effets visuels
-        NWNX.Player.PlaySound(this, "gui_level_up", this);
-        NWNX.Player.ApplyInstantVisualEffectToObject(this, this, (int)Impact.GlobeUse);
+        PlayerPlugin.PlaySound(oid, "gui_level_up");
+        PlayerPlugin.ApplyInstantVisualEffectToObject(oid, oid, NWScript.VFX_IMP_GLOBE_USE);
 
-        CollectSystem.AddCraftedItemProperties(NWScript.CreateItemOnObject(blueprint.craftedItemTag, this), blueprint, NWNX.Object.GetString(this, "_CURRENT_CRAFT_JOB_MATERIAL"));
+        CollectSystem.AddCraftedItemProperties(NWScript.CreateItemOnObject(blueprint.craftedItemTag, oid), blueprint, ObjectPlugin.GetString(oid, "_CURRENT_CRAFT_JOB_MATERIAL"));
 
-        NWNX.Object.DeleteString(this, "_CURRENT_CRAFT_JOB");
-        NWNX.Object.DeleteFloat(this, "_CURRENT_CRAFT_JOB_REMAINING_TIME");
-        NWNX.Object.DeleteString(this, "_CURRENT_CRAFT_JOB_MATERIAL");
+        ObjectPlugin.DeleteString(oid, "_CURRENT_CRAFT_JOB");
+        ObjectPlugin.DeleteFloat(oid, "_CURRENT_CRAFT_JOB_REMAINING_TIME");
+        ObjectPlugin.DeleteString(oid, "_CURRENT_CRAFT_JOB_MATERIAL");
       }
 
       public void PlayNoCurrentTrainingEffects()
       {
         NWScript.PostString(this, $"Vous n'avez aucun apprentissage en cours !", 80, 10, ScreenAnchor.TopLeft, 5.0f, unchecked((int)0xC0C0C0FF), unchecked((int)0xC0C0C0FF), 9, "fnt_galahad14");
-        this.SendMessage("Vous n'avez aucun apprentissage en cours !");
-        NWNX.Player.PlaySound(this, "gui_dm_drop", this);
-        NWNX.Player.ApplyInstantVisualEffectToObject(this, this, (int)Impact.ReduceAbilityScore);
+        NWScript.SendMessageToPC(oid, "Vous n'avez aucun apprentissage en cours !");
+        PlayerPlugin.PlaySound(oid, "gui_dm_drop");
+        PlayerPlugin.ApplyInstantVisualEffectToObject(oid, oid, NWScript.VFX_IMP_REDUCE_ABILITY_SCORE);
       }
       public void DoActionOnMiningCycleCancelled()
       {

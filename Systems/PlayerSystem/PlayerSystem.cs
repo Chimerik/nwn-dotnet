@@ -1,10 +1,10 @@
 ﻿using System;
+using System.Numerics;
 using System.Collections.Generic;
 using System.Linq;
 using Dapper;
-using NWN.Enums;
-using NWN.Enums.VisualEffect;
-using NWN.NWNX.Enum;
+using NWN.Core;
+using NWN.Core.NWNX;
 
 namespace NWN.Systems
 {
@@ -53,19 +53,19 @@ namespace NWN.Systems
 
       //TODO : système de BANLIST
 
-      NWNX.Events.AddObjectToDispatchList(NWNX.Events.ON_INPUT_KEYBOARD_BEFORE, ON_PC_KEYSTROKE_SCRIPT, oPC);
-      NWNX.Events.AddObjectToDispatchList("NWNX_ON_USE_FEAT_BEFORE", "event_feat_used", oPC);
-      NWNX.Events.AddObjectToDispatchList("NWNX_ON_ADD_ASSOCIATE_AFTER", "summon_add_after", oPC);
-      NWNX.Events.AddObjectToDispatchList("NWNX_ON_REMOVE_ASSOCIATE_AFTER", "summon_remove_after", oPC);
-      NWNX.Events.AddObjectToDispatchList("NWNX_ON_BROADCAST_CAST_SPELL_AFTER", "event_spellbroadcast_after", oPC);
-      NWNX.Events.AddObjectToDispatchList("NWNX_ON_ITEM_EQUIP_BEFORE", "event_equip_items_before", oPC);
-      NWNX.Events.AddObjectToDispatchList("NWNX_ON_ITEM_UNEQUIP_BEFORE", "event_unequip_items_before", oPC);
-      NWNX.Events.AddObjectToDispatchList("NWNX_ON_VALIDATE_ITEM_EQUIP_BEFORE", "event_validate_equip_items_before", oPC);
-      NWNX.Events.AddObjectToDispatchList("NWNX_ON_VALIDATE_USE_ITEM_BEFORE", "event_validate_equip_items_before", oPC);
-      NWNX.Events.AddObjectToDispatchList("NWNX_ON_COMBAT_MODE_OFF", "event_combatmode", oPC);
-      NWNX.Events.AddObjectToDispatchList("NWNX_ON_USE_SKILL_BEFORE", "event_skillused", oPC);
-      NWNX.Events.AddObjectToDispatchList("NWNX_ON_DO_LISTEN_DETECTION_AFTER", "event_detection_after", oPC);
-      NWNX.Events.AddObjectToDispatchList("NWNX_ON_START_COMBAT_ROUND_AFTER", "event_start_combat_after", oPC);
+      EventsPlugin.AddObjectToDispatchList("NWNX_ON_INPUT_KEYBOARD_BEFORE", ON_PC_KEYSTROKE_SCRIPT, oPC);
+      EventsPlugin.AddObjectToDispatchList("NWNX_ON_USE_FEAT_BEFORE", "event_feat_used", oPC);
+      EventsPlugin.AddObjectToDispatchList("NWNX_ON_ADD_ASSOCIATE_AFTER", "summon_add_after", oPC);
+      EventsPlugin.AddObjectToDispatchList("NWNX_ON_REMOVE_ASSOCIATE_AFTER", "summon_remove_after", oPC);
+      EventsPlugin.AddObjectToDispatchList("NWNX_ON_BROADCAST_CAST_SPELL_AFTER", "event_spellbroadcast_after", oPC);
+      EventsPlugin.AddObjectToDispatchList("NWNX_ON_ITEM_EQUIP_BEFORE", "event_equip_items_before", oPC);
+      EventsPlugin.AddObjectToDispatchList("NWNX_ON_ITEM_UNEQUIP_BEFORE", "event_unequip_items_before", oPC);
+      EventsPlugin.AddObjectToDispatchList("NWNX_ON_VALIDATE_ITEM_EQUIP_BEFORE", "event_validate_equip_items_before", oPC);
+      EventsPlugin.AddObjectToDispatchList("NWNX_ON_VALIDATE_USE_ITEM_BEFORE", "event_validate_equip_items_before", oPC);
+      EventsPlugin.AddObjectToDispatchList("NWNX_ON_COMBAT_MODE_OFF", "event_combatmode", oPC);
+      EventsPlugin.AddObjectToDispatchList("NWNX_ON_USE_SKILL_BEFORE", "event_skillused", oPC);
+      EventsPlugin.AddObjectToDispatchList("NWNX_ON_DO_LISTEN_DETECTION_AFTER", "event_detection_after", oPC);
+      EventsPlugin.AddObjectToDispatchList("NWNX_ON_START_COMBAT_ROUND_AFTER", "event_start_combat_after", oPC);
 
       //oPC.AsCreature().AddFeat(NWN.Enums.Feat.PlayerTool01);
 
@@ -97,7 +97,7 @@ namespace NWN.Systems
       NWScript.SetEventScript(oPC, (int)EventScript.Creature_OnNotice, "on_perceived_pc");
 
       // TODO : Système de sauvegarde et de chargement de quickbar
-      //NWNX.Events.AddObjectToDispatchList("NWNX_ON_QUICKBAR_SET_BUTTON_AFTER", "event_qbs", oPC);
+      //EventsPlugin.AddObjectToDispatchList("NWNX_ON_QUICKBAR_SET_BUTTON_AFTER", "event_qbs", oPC);
 
       if (!player.IsDM)
       {
@@ -113,11 +113,11 @@ namespace NWN.Systems
 
           if (NWNX.Object.GetInt(oPC, "_FROST_ATTACK") != 0)
           {
-            NWNX.Events.AddObjectToDispatchList("NWNX_ON_INPUT_ATTACK_OBJECT_BEFORE", "event_auto_spell", oPC);
-            NWNX.Events.AddObjectToDispatchList("NWNX_ON_INPUT_FORCE_MOVE_TO_OBJECT_BEFORE", "event_auto_spell", oPC);
-            NWNX.Events.AddObjectToDispatchList("NWNX_ON_INPUT_CAST_SPELL_BEFORE", "_onspellcast", oPC);
-            NWNX.Events.AddObjectToDispatchList("NWNX_ON_INPUT_KEYBOARD_BEFORE", "event_auto_spell", oPC);
-            NWNX.Events.AddObjectToDispatchList("NWNX_ON_INPUT_WALK_TO_WAYPOINT_BEFORE", "event_auto_spell", oPC);
+            EventsPlugin.AddObjectToDispatchList("NWNX_ON_INPUT_ATTACK_OBJECT_BEFORE", "event_auto_spell", oPC);
+            EventsPlugin.AddObjectToDispatchList("NWNX_ON_INPUT_FORCE_MOVE_TO_OBJECT_BEFORE", "event_auto_spell", oPC);
+            EventsPlugin.AddObjectToDispatchList("NWNX_ON_INPUT_CAST_SPELL_BEFORE", "_onspellcast", oPC);
+            EventsPlugin.AddObjectToDispatchList("NWNX_ON_INPUT_KEYBOARD_BEFORE", "event_auto_spell", oPC);
+            EventsPlugin.AddObjectToDispatchList("NWNX_ON_INPUT_WALK_TO_WAYPOINT_BEFORE", "event_auto_spell", oPC);
           }
 
           if (oPC.AsCreature().GetPossessedItem("pj_lycan_curse").IsValid)
@@ -164,7 +164,7 @@ namespace NWN.Systems
         player.isConnected = true;
         player.isAFK = true;
 
-        NWNX.Events.AddObjectToDispatchList("NWNX_ON_CLIENT_DISCONNECT_BEFORE", "player_exit_before", oPC);
+        EventsPlugin.AddObjectToDispatchList("NWNX_ON_CLIENT_DISCONNECT_BEFORE", "player_exit_before", oPC);
       }
       return Entrypoints.SCRIPT_HANDLED;
     }
@@ -172,7 +172,7 @@ namespace NWN.Systems
     private static int HandlePlayerDisconnect(uint oidSelf)
     {
  /*     var oPC = NWScript.GetExitingObject();
-      NWNX.Events.RemoveObjectFromDispatchList(NWNX.Events.ON_INPUT_KEYBOARD_BEFORE, ON_PC_KEYSTROKE_SCRIPT, oPC);
+      EventsPlugin.RemoveObjectFromDispatchList(EventsPlugin.ON_INPUT_KEYBOARD_BEFORE, ON_PC_KEYSTROKE_SCRIPT, oPC);
       Players.Remove(oPC);
 */
       return Entrypoints.SCRIPT_HANDLED;
@@ -180,25 +180,21 @@ namespace NWN.Systems
 
     private static int HandlePlayerKeystroke(uint oidSelf)
     {
-      var key = NWNX.Events.GetEventData("KEY");
+      var key = EventsPlugin.GetEventData("KEY");
       Player player;
       if (Players.TryGetValue(oidSelf, out player))
       {
         player.EmitKeydown(new Player.KeydownEventArgs(key));
       }
 
-      return Entrypoints.SCRIPT_HANDLED;
+      return 1;
     }
 
     private static int HandlePlayerTargetSelection(uint oidSelf)
     {
-      //NWPlayer oPC = NWScript.GetLastPlayerToSelectTarget();
-      //var oTarget = NWScript.GetTargetingModeSelectedObject();
-      //Vector vTarget = NWScript.GetTargetingModeSelectedPosition();
-
-      NWPlayer oPC = NWScript.GetFirstPC().AsPlayer(); // Bouchon en attendant d'avoir la vraie fonction
-      uint oTarget = NWScript.GetObjectByTag("mineable_rock");
-      Vector vTarget = NWScript.GetPosition(oTarget);
+      var oPC = NWScript.GetLastPlayerToSelectTarget();
+      var oTarget = NWScript.GetTargetingModeSelectedObject();
+      Vector3 vTarget = NWScript.GetTargetingModeSelectedPosition();
 
       Player player;
       if (Players.TryGetValue(oPC, out player))
@@ -206,7 +202,7 @@ namespace NWN.Systems
         player.DoActionOnTargetSelected(oTarget, vTarget);
       }
 
-      return Entrypoints.SCRIPT_HANDLED;
+      return 1;
     }
     private static int HandleBeforePlayerSave(uint oidSelf)
     {
@@ -226,7 +222,7 @@ namespace NWN.Systems
           {
             if (player.HasAnyEffect((int)EffectTypeEngine.Polymorph))
             {
-              NWNX.Events.SkipEvent();
+              EventsPlugin.SkipEvent();
               return Entrypoints.SCRIPT_HANDLED;
             }
           }
@@ -253,7 +249,7 @@ namespace NWN.Systems
     }
     private static int HandleBeforeDMPossess(uint oidSelf)
     {
-      NWCreature oPossessed = NWNX.Object.StringToObject(NWNX.Events.GetEventData("TARGET")).AsCreature();
+      NWCreature oPossessed = NWNX.Object.StringToObject(EventsPlugin.GetEventData("TARGET")).AsCreature();
       Player oPC;
       if (Players.TryGetValue(oidSelf, out oPC))
       {
@@ -292,11 +288,11 @@ namespace NWN.Systems
       Player oPC;
       if (Players.TryGetValue(oidSelf, out oPC))
       {
-        if (int.Parse(NWNX.Events.GetEventData("OBJECT_TYPE")) == 9)
+        if (int.Parse(EventsPlugin.GetEventData("OBJECT_TYPE")) == 9)
         {
           if (NWNX.Object.GetInt(oPC, "_SPAWN_PERSIST") != 0)
           {
-            NWPlaceable oObject = NWNX.Object.StringToObject(NWNX.Events.GetEventData("OBJECT")).AsPlaceable();
+            NWPlaceable oObject = NWNX.Object.StringToObject(EventsPlugin.GetEventData("OBJECT")).AsPlaceable();
             // TODO : Enregistrer l'objet créé en base de données. Ajouter à l'objet un script qui le supprime de la BDD OnDeath
             oPC.SendMessage($"Création persistante - Vous posez le placeable  {oObject.Name}");
           }
@@ -326,9 +322,9 @@ namespace NWN.Systems
 
     private static int HandleMovePlaceable(uint oidSelf)
     {
-      string current_event = NWNX.Events.GetCurrentEvent();
+      string current_event = EventsPlugin.GetCurrentEvent();
 
-      string sKey = NWNX.Events.GetEventData("KEY");
+      string sKey = EventsPlugin.GetEventData("KEY");
       NWPlaceable oMeuble = NWScript.GetLocalObject(oidSelf, "_MOVING_PLC").AsPlaceable();
       Vector vPos = oMeuble.Position;
 
@@ -352,14 +348,14 @@ namespace NWN.Systems
 
     private static int HandleFeatUsed(uint oidSelf)
     {
-      string current_event = NWNX.Events.GetCurrentEvent();
-      var feat = int.Parse(NWNX.Events.GetEventData("FEAT_ID"));
+      string current_event = EventsPlugin.GetCurrentEvent();
+      var feat = int.Parse(EventsPlugin.GetEventData("FEAT_ID"));
 
       if (current_event == "NWNX_ON_USE_FEAT_BEFORE")
       {
         if (feat == (int)NWN.Enums.Feat.PlayerTool02)
         {
-          NWNX.Events.SkipEvent();
+          EventsPlugin.SkipEvent();
           PlayerSystem.Player oPC;
           if (PlayerSystem.Players.TryGetValue(oidSelf, out oPC))
           {
@@ -406,8 +402,8 @@ namespace NWN.Systems
         }
         else if (feat == (int)NWN.Enums.Feat.PlayerTool01)
         {
-          NWNX.Events.SkipEvent();
-          NWPlaceable oTarget = NWNX.Object.StringToObject(NWNX.Events.GetEventData("TARGET_OBJECT_ID")).AsPlaceable();
+          EventsPlugin.SkipEvent();
+          NWPlaceable oTarget = NWNX.Object.StringToObject(EventsPlugin.GetEventData("TARGET_OBJECT_ID")).AsPlaceable();
           PlayerSystem.Player myPlayer;
           if (PlayerSystem.Players.TryGetValue(oidSelf, out myPlayer))
           {
@@ -416,7 +412,7 @@ namespace NWN.Systems
               /*Utils.Meuble result;
               if (Enum.TryParse(oTarget.Tag, out result))
               {
-                NWNX.Events.AddObjectToDispatchList("NWNX_ON_INPUT_KEYBOARD_AFTER", "event_mv_plc", oidSelf);
+                EventsPlugin.AddObjectToDispatchList("NWNX_ON_INPUT_KEYBOARD_AFTER", "event_mv_plc", oidSelf);
                 oidSelf.AsObject().Locals.Object.Set("_MOVING_PLC", oTarget);
                 oidSelf.AsPlayer().SendMessage($"Vous venez de sélectionner {oTarget.Name}, utilisez votre barre de raccourcis pour le déplacer. Pour enregistrer le nouvel emplacement et retrouver votre barre de raccourcis habituelle, activez le don sur un endroit vide (sans cible).");
                 //remplacer la ligne précédente par un PostString().
@@ -453,7 +449,7 @@ namespace NWN.Systems
               myPlayer.SendMessage($"Vous venez de sauvegarder le positionnement des meubles : \n{sObjectSaved}");
               myPlayer.BoulderUnblock();
 
-              NWNX.Events.RemoveObjectFromDispatchList("NWNX_ON_INPUT_KEYBOARD_AFTER", "event_mv_plc", oidSelf);
+              EventsPlugin.RemoveObjectFromDispatchList("NWNX_ON_INPUT_KEYBOARD_AFTER", "event_mv_plc", oidSelf);
               oidSelf.AsObject().Locals.Object.Delete("_MOVING_PLC");
               myPlayer.selectedObjectsList.Clear();
             }
@@ -502,7 +498,7 @@ namespace NWN.Systems
 
       if (Players.TryGetValue(oidSelf, out oPC))
       {
-        var oTarget = NWNX.Object.StringToObject(NWNX.Events.GetEventData("TARGET"));
+        var oTarget = NWNX.Object.StringToObject(EventsPlugin.GetEventData("TARGET"));
 
         if (oTarget.AsObject().IsValid)
         {
@@ -526,7 +522,7 @@ namespace NWN.Systems
 
       if (Players.TryGetValue(oidSelf, out oPC))
       {
-        var spellId = int.Parse(NWNX.Events.GetEventData("SPELL_ID"));
+        var spellId = int.Parse(EventsPlugin.GetEventData("SPELL_ID"));
 
         if (spellId != (int)Spell.RayOfFrost)
           oPC.autoAttackTarget = NWObject.OBJECT_INVALID;
@@ -596,7 +592,7 @@ namespace NWN.Systems
       Player player;
       if (Players.TryGetValue(oidSelf, out player))
       {
-        NWCreature oSummon = (NWNX.Object.StringToObject(NWNX.Events.GetEventData("ASSOCIATE_OBJECT_ID"))).AsCreature();
+        NWCreature oSummon = (NWNX.Object.StringToObject(EventsPlugin.GetEventData("ASSOCIATE_OBJECT_ID"))).AsCreature();
 
         if (oSummon.IsValid)
         {
@@ -613,7 +609,7 @@ namespace NWN.Systems
       Player player;
       if (Players.TryGetValue(oidSelf, out player))
       {
-        NWCreature oSummon = (NWNX.Object.StringToObject(NWNX.Events.GetEventData("ASSOCIATE_OBJECT_ID"))).AsCreature();
+        NWCreature oSummon = (NWNX.Object.StringToObject(EventsPlugin.GetEventData("ASSOCIATE_OBJECT_ID"))).AsCreature();
 
         if (oSummon.IsValid)
         {
@@ -630,7 +626,7 @@ namespace NWN.Systems
       {
           if (NWScript.GetLocalInt(player, "_ACTIVATED_TAUNT") != 0) // Permet de conserver sa posture de combat après avoir utilisé taunt
           {
-            NWNX.Events.SkipEvent();
+            EventsPlugin.SkipEvent();
             NWScript.DeleteLocalInt(player, "_ACTIVATED_TAUNT");
           }
       }
@@ -642,15 +638,15 @@ namespace NWN.Systems
       Player player;
       if (Players.TryGetValue(oidSelf, out player))
       {
-          if (int.Parse(NWNX.Events.GetEventData("SKILL_ID")) == (int)Skill.Taunt)
+          if (int.Parse(EventsPlugin.GetEventData("SKILL_ID")) == (int)Skill.Taunt)
           {
             NWScript.SetLocalInt(player, "_ACTIVATED_TAUNT", 1);
             NWScript.DelayCommand(12.0f, () => NWScript.DeleteLocalInt(player, "_ACTIVATED_TAUNT"));
           }
-          else if (int.Parse(NWNX.Events.GetEventData("SKILL_ID")) == (int)Skill.PickPocket)
+          else if (int.Parse(EventsPlugin.GetEventData("SKILL_ID")) == (int)Skill.PickPocket)
           {
-            NWNX.Events.SkipEvent();
-            NWPlayer oObject = NWNX.Object.StringToObject(NWNX.Events.GetEventData("TARGET_OBJECT_ID")).AsPlayer();
+            EventsPlugin.SkipEvent();
+            NWPlayer oObject = NWNX.Object.StringToObject(EventsPlugin.GetEventData("TARGET_OBJECT_ID")).AsPlayer();
             Player oTarget;
             if (Players.TryGetValue(oObject, out oTarget) && !oTarget.IsDM && !oTarget.IsDMPossessed)
             {
@@ -706,14 +702,14 @@ namespace NWN.Systems
       Player oPC;
       if (Players.TryGetValue(oidSelf, out oPC))
       {
-        var oTarget = NWNX.Object.StringToObject(NWNX.Events.GetEventData("TARGET")).AsCreature();
+        var oTarget = NWNX.Object.StringToObject(EventsPlugin.GetEventData("TARGET")).AsCreature();
 
         if (oTarget.IsPC || oTarget.IsPossessedFamiliar)
         {
           if (!oTarget.GetObjectSeen(oPC) && NWScript.GetDistanceBetween(oTarget, oPC) < 20.0f)
           {
             int iDetectMode = (int)NWScript.GetDetectMode(oPC);
-            if (int.Parse(NWNX.Events.GetEventData("TARGET_INVISIBLE")) == 1 && iDetectMode > 0)
+            if (int.Parse(EventsPlugin.GetEventData("TARGET_INVISIBLE")) == 1 && iDetectMode > 0)
             {
               switch (NWNX.Creature.GetMovementType(oTarget))
               {
@@ -775,8 +771,8 @@ namespace NWN.Systems
         player.SendMessage("Tout se brouille autour de vous. Avant de perdre connaissance, vous sentez comme un étrange maëlstrom vous aspirer.");
 
         NWPlaceable oPCCorpse = NWScript.CreateObject(ObjectType.Placeable, "pccorpse", player.Location).AsPlaceable();
-        NWNX.Events.AddObjectToDispatchList("NWNX_ON_INVENTORY_REMOVE_ITEM_AFTER", "event_pccorpse_remove_item_after", oPCCorpse);
-        NWNX.Events.AddObjectToDispatchList("NWNX_ON_INVENTORY_ADD_ITEM_AFTER", "event_pccorpse_add_item_after", oPCCorpse);
+        EventsPlugin.AddObjectToDispatchList("NWNX_ON_INVENTORY_REMOVE_ITEM_AFTER", "event_pccorpse_remove_item_after", oPCCorpse);
+        EventsPlugin.AddObjectToDispatchList("NWNX_ON_INVENTORY_ADD_ITEM_AFTER", "event_pccorpse_add_item_after", oPCCorpse);
 
         int PlayerId = NWNX.Object.GetInt(player, "_PC_ID");
         oPCCorpse.Name = $"Cadavre de {player.Name}";
@@ -809,7 +805,7 @@ namespace NWN.Systems
 
     private static int HandleAfterDMJumpTarget(uint oidSelf)
     {
-      var oTarget = NWNX.Object.StringToObject(NWNX.Events.GetEventData("TARGET_1"));
+      var oTarget = NWNX.Object.StringToObject(EventsPlugin.GetEventData("TARGET_1"));
 
       Player player;
       if (Players.TryGetValue(oTarget, out player))
@@ -839,7 +835,7 @@ namespace NWN.Systems
       Player player;
       if (Players.TryGetValue(oidSelf, out player))
       {
-        NWCreature oTarget = NWNX.Object.StringToObject(NWNX.Events.GetEventData("TARGET_OBJECT_ID")).AsCreature();
+        NWCreature oTarget = NWNX.Object.StringToObject(EventsPlugin.GetEventData("TARGET_OBJECT_ID")).AsCreature();
 
         if (Spells.GetHasEffect(NWScript.GetEffectType(NWScript.EffectCutsceneGhost()), player))
           Spells.RemoveEffectOfType(NWScript.GetEffectType(NWScript.EffectCutsceneGhost()), player);          
@@ -882,7 +878,7 @@ namespace NWN.Systems
     }
     private static int HandleAfterPartyKick(uint oidSelf)
     {
-      NWNX.Object.StringToObject(NWNX.Events.GetEventData("KICKED")).AsPlayer().RemoveTaggedEffect("PartyEffect");
+      NWNX.Object.StringToObject(EventsPlugin.GetEventData("KICKED")).AsPlayer().RemoveTaggedEffect("PartyEffect");
       return Entrypoints.SCRIPT_HANDLED;
     }
     private static int HandleBeforePartyLeave(uint oidSelf)
@@ -910,7 +906,7 @@ namespace NWN.Systems
       Player player;
       if (Players.TryGetValue(oidSelf, out player))
       {
-        NWObject examineTarget =  NWNX.Object.StringToObject(NWNX.Events.GetEventData("EXAMINEE_OBJECT_ID")).AsObject();
+        NWObject examineTarget =  NWNX.Object.StringToObject(EventsPlugin.GetEventData("EXAMINEE_OBJECT_ID")).AsObject();
       
         switch(examineTarget.Tag)
         {
@@ -937,7 +933,7 @@ namespace NWN.Systems
       Player player;
       if (Players.TryGetValue(oidSelf, out player))
       {
-        NWObject examineTarget = NWNX.Object.StringToObject(NWNX.Events.GetEventData("EXAMINEE_OBJECT_ID")).AsObject();
+        NWObject examineTarget = NWNX.Object.StringToObject(EventsPlugin.GetEventData("EXAMINEE_OBJECT_ID")).AsObject();
 
         switch (examineTarget.Tag)
         {

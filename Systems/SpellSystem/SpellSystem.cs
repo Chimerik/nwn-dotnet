@@ -218,14 +218,14 @@ namespace NWN.Systems
       {
         if (!oPC.IsDM)
         {
-          string current_event = NWNX.Events.GetCurrentEvent();
+          string current_event = EventsPlugin.GetCurrentEvent();
 
           if (current_event == "NWNX_ON_CAST_SPELL_BEFORE")
           {
             int iCount = 1;
             
             if (NWScript.GetHasSpellEffect(Spell.ImprovedInvisibilit, oPC) || NWScript.GetHasSpellEffect(Spell.Invisibilit, oPC) || NWScript.GetHasSpellEffect(Spell.InvisibilitySpher, oPC))
-              if (int.Parse(NWNX.Events.GetEventData("META_TYPE")) != (int)MetaMagic.Silent)
+              if (int.Parse(EventsPlugin.GetEventData("META_TYPE")) != (int)MetaMagic.Silent)
               {
                 NWPlayer oSpotter = NWScript.GetNearestCreature(1, 1, oPC, iCount).AsPlayer();
                 while (oSpotter.IsValid)
