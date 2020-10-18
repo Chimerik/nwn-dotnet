@@ -63,8 +63,9 @@ namespace NWN.Systems
                         miningYield = oPlaceable.Locals.Int.Get("_ORE_AMOUNT");
                         oPlaceable.Destroy();
 
-                        uint newRessourcePoint = NWScript.CreateObject(ObjectType.Placeable, "ressourcepoint", oPlaceable.Location);
-                        newRessourcePoint.AsObject().Locals.String.Set("_RESSOURCE_TYPE", oPlaceable.Name);
+                        NWObject newRessourcePoint = NWScript.CreateObject(ObjectType.Waypoint, "NW_WAYPOINT001", oPlaceable.Location).AsObject();
+                        newRessourcePoint.Locals.String.Set("_RESSOURCE_TYPE", oPlaceable.Name);
+                        newRessourcePoint.Tag = "ressourcepoint";
                       }
                       else
                       {

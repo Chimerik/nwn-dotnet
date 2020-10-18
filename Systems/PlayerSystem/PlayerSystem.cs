@@ -240,6 +240,9 @@ namespace NWN.Systems
             player.isAFK = false;
           }
 
+          if(player.Area.Locals.Int.Get("REST") != 0)
+            player.CraftJobProgression();
+
           player.AcquireSkillPoints();
           NWNX.Object.SetString(player, "_DATE_LAST_SAVED", DateTime.Now.ToString(), true);
           NWNX.Object.SetInt(player, "_CURRENT_HP", player.CurrentHP, true);

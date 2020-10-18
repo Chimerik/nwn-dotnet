@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using NWN.Enums;
 using NWN.Enums.VisualEffect;
 using NWN.NWNX;
@@ -72,6 +73,15 @@ namespace NWN.Systems
       NWNX.Events.RemoveObjectFromDispatchList("NWNX_ON_ITEM_UNEQUIP_BEFORE", "event_mining_cycle_cancel_before", player);
       NWNX.Events.RemoveObjectFromDispatchList("NWNX_ON_START_COMBAT_ROUND_AFTER", "event_mining_cycle_cancel_before", player);
       NWNX.Events.RemoveObjectFromDispatchList("NWNX_ON_INPUT_CAST_SPELL_BEFORE", "event_mining_cycle_cancel_before", player);
+    }
+    public static void AddCraftedItemProperties(uint craftedItem, Blueprint blueprint, string material)
+    {
+      int prout = HashCode.Combine<MineralType, ItemSystem.ItemCategory>(MineralType.Pyerite, ItemSystem.ItemCategory.Shield);
+      foreach (ItemProperty ip in test[prout])
+      {
+        NWScript.AddItemProperty(DurationType.Permanent, ip, craftedItem);
+      }
+      
     }
   }
 }
