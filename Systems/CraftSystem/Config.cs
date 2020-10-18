@@ -1,9 +1,5 @@
-﻿using System.Collections.Generic;
-using System.Data.Common;
-using NWN.Core;
-using NWN.Core.NWNX;
-using NWN.Enums;
-using NWN.Enums.Item;
+﻿using System;
+using System.Collections.Generic;
 using NWN.Enums.Item.Property;
 
 namespace NWN.Systems
@@ -178,33 +174,59 @@ namespace NWN.Systems
       return "";
     }
 
-    public static Dictionary<int, List<ItemProperty>> itemPropertiesDictionnary = new Dictionary<int, List<ItemProperty>>();
+    public static Dictionary<Tuple<MineralType, ItemSystem.ItemCategory>, List<ItemProperty>> itemPropertiesDictionnary = new Dictionary<Tuple<MineralType, ItemSystem.ItemCategory>, List<ItemProperty>>();
+    public static Dictionary<int, List<ItemProperty>> test = new Dictionary<int, List<ItemProperty>>();
     //public static Dictionary<BaseItem, List<ItemProperty>> itemPropertiesDictionnary = new Dictionary<BaseItem, List<ItemProperty>>();
-    
+
     public static void initiateCraftItemProperties()
     { 
-      /*List<ItemProperty> itemPropertyList = new List<ItemProperty>();
-      NWNX.Enum.ItemPropertyUnpacked prout;NWScript.ItemPropertyAbilityBonus
-      prout.
-      // VELDSPAR
+      List<ItemProperty> itemPropertyList = new List<ItemProperty>();
+      //NWNX.Enum.ItemPropertyUnpacked prout;
+      
+      // TRITANIUM
       itemPropertyList.Add(NWScript.ItemPropertyDamageVulnerability(Enums.Item.Property.DamageType.Fire, DamageVulnerability.FiftyPERCENT));
       itemPropertyList.Add(NWScript.ItemPropertyDamageVulnerability(Enums.Item.Property.DamageType.Cold, DamageVulnerability.FiftyPERCENT));
       itemPropertyList.Add(NWScript.ItemPropertyDamageVulnerability(Enums.Item.Property.DamageType.Electrical, DamageVulnerability.FiftyPERCENT));
       itemPropertyList.Add(NWScript.ItemPropertyWeightReduction(ReducedWeight.FourtyPercent));
-      itemPropertiesDictionnary.Add(1, itemPropertyList);
+      
+      itemPropertiesDictionnary.Add(new Tuple<MineralType, ItemSystem.ItemCategory>(MineralType.Tritanium, ItemSystem.ItemCategory.OneHandedMeleeWeapon), itemPropertyList);
+      itemPropertiesDictionnary.Add(new Tuple<MineralType, ItemSystem.ItemCategory>(MineralType.Tritanium, ItemSystem.ItemCategory.TwoHandedMeleeWeapon), itemPropertyList);
+      itemPropertiesDictionnary.Add(new Tuple<MineralType, ItemSystem.ItemCategory>(MineralType.Tritanium, ItemSystem.ItemCategory.Armor), itemPropertyList);
+      itemPropertiesDictionnary.Add(new Tuple<MineralType, ItemSystem.ItemCategory>(MineralType.Tritanium, ItemSystem.ItemCategory.Shield), itemPropertyList);
+
+      test.Add(HashCode.Combine<MineralType, ItemSystem.ItemCategory>(MineralType.Tritanium, ItemSystem.ItemCategory.OneHandedMeleeWeapon), itemPropertyList);
+      test.Add(HashCode.Combine<MineralType, ItemSystem.ItemCategory>(MineralType.Tritanium, ItemSystem.ItemCategory.TwoHandedMeleeWeapon), itemPropertyList);
+      test.Add(HashCode.Combine<MineralType, ItemSystem.ItemCategory>(MineralType.Tritanium, ItemSystem.ItemCategory.Armor), itemPropertyList);
+      test.Add(HashCode.Combine<MineralType, ItemSystem.ItemCategory>(MineralType.Tritanium, ItemSystem.ItemCategory.Shield), itemPropertyList);
 
       itemPropertyList.Clear();
 
-      // SCORDITE
+      // PYERITE
+      itemPropertyList.Add(NWScript.ItemPropertyDamageVulnerability(Enums.Item.Property.DamageType.Fire, DamageVulnerability.TwentyFivePERCENT));
+      itemPropertyList.Add(NWScript.ItemPropertyWeightIncrease(WeightIncrease.TenPounds));
+      itemPropertyList.Add(NWScript.ItemPropertyAttackBonusVsRace(Enums.Item.Property.RacialType.HumanoidReptilian, 1));
+      itemPropertyList.Add(NWScript.ItemPropertyAttackBonusVsRace(Enums.Item.Property.RacialType.HumanoidGoblinoid, 1));
+      
+      itemPropertiesDictionnary.Add(new Tuple<MineralType, ItemSystem.ItemCategory>(MineralType.Pyerite, ItemSystem.ItemCategory.OneHandedMeleeWeapon), itemPropertyList);
+      itemPropertiesDictionnary.Add(new Tuple<MineralType, ItemSystem.ItemCategory>(MineralType.Pyerite, ItemSystem.ItemCategory.TwoHandedMeleeWeapon), itemPropertyList);
+
+      test.Add(HashCode.Combine<MineralType, ItemSystem.ItemCategory>(MineralType.Pyerite, ItemSystem.ItemCategory.OneHandedMeleeWeapon), itemPropertyList);
+      test.Add(HashCode.Combine<MineralType, ItemSystem.ItemCategory>(MineralType.Pyerite, ItemSystem.ItemCategory.TwoHandedMeleeWeapon), itemPropertyList);
+
+      itemPropertyList.Clear();
+
       itemPropertyList.Add(NWScript.ItemPropertyDamageVulnerability(Enums.Item.Property.DamageType.Fire, DamageVulnerability.TwentyFivePERCENT));
       itemPropertyList.Add(NWScript.ItemPropertyWeightIncrease(WeightIncrease.TenPounds));
       itemPropertyList.Add(NWScript.ItemPropertyACBonusVsRace(Enums.Item.Property.RacialType.HumanoidGoblinoid, 1));
       itemPropertyList.Add(NWScript.ItemPropertyACBonusVsRace(Enums.Item.Property.RacialType.HumanoidReptilian, 1));
-      itemPropertyList.Add(NWScript.ItemPropertyAttackBonusVsRace(Enums.Item.Property.RacialType.HumanoidReptilian, 1));
-      itemPropertyList.Add(NWScript.ItemPropertyAttackBonusVsRace(Enums.Item.Property.RacialType.HumanoidGoblinoid, 1));
-      itemPropertiesDictionnary.Add(2, itemPropertyList);
-     
+
+      itemPropertiesDictionnary.Add(new Tuple<MineralType, ItemSystem.ItemCategory>(MineralType.Pyerite, ItemSystem.ItemCategory.Armor), itemPropertyList);
+      itemPropertiesDictionnary.Add(new Tuple<MineralType, ItemSystem.ItemCategory>(MineralType.Pyerite, ItemSystem.ItemCategory.Shield), itemPropertyList);
+
+      test.Add(HashCode.Combine<MineralType, ItemSystem.ItemCategory>(MineralType.Pyerite, ItemSystem.ItemCategory.Shield), itemPropertyList);
+      test.Add(HashCode.Combine<MineralType, ItemSystem.ItemCategory>(MineralType.Pyerite, ItemSystem.ItemCategory.Armor), itemPropertyList);
+
       itemPropertyList.Clear();
-    */}
+    }
   }
 }

@@ -330,11 +330,11 @@ namespace NWN.Systems
         NWNX.Player.PlaySound(this, "gui_level_up", this);
         NWNX.Player.ApplyInstantVisualEffectToObject(this, this, (int)Impact.GlobeUse);
 
-        CollectSystem.AddCraftedItemProperties(NWScript.CreateItemOnObject(blueprint.craftedItemTag, this), blueprint, NWNX.Object.GetInt(this, "_CURRENT_CRAFT_JOB_LEVEL"));
+        CollectSystem.AddCraftedItemProperties(NWScript.CreateItemOnObject(blueprint.craftedItemTag, this), blueprint, NWNX.Object.GetString(this, "_CURRENT_CRAFT_JOB_MATERIAL"));
 
         NWNX.Object.DeleteString(this, "_CURRENT_CRAFT_JOB");
         NWNX.Object.DeleteFloat(this, "_CURRENT_CRAFT_JOB_REMAINING_TIME");
-        NWNX.Object.DeleteInt(this, "_CURRENT_CRAFT_JOB_LEVEL");
+        NWNX.Object.DeleteString(this, "_CURRENT_CRAFT_JOB_MATERIAL");
       }
 
       public void PlayNoCurrentTrainingEffects()
