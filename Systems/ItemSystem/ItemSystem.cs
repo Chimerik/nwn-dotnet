@@ -225,8 +225,8 @@ namespace NWN.Systems
         EventsPlugin.AddObjectToDispatchList("NWNX_ON_INVENTORY_ADD_ITEM_AFTER", "event_pccorpse_add_item_after", oPCCorpse);
 
         int PlayerId = ObjectPlugin.GetInt(oItem, "_PC_ID");
-        //oPCCorpse.Name = $"Cadavre de {player.Name}"; TODO : chopper le nom du PJ en BDD à partir de son ID
-        //oPCCorpse.Description = $"Cadavre de {player.Name}";
+        //oPCCorpse.Name = $"Cadavre de {NWScript.GetName(player.oid)}"; TODO : chopper le nom du PJ en BDD à partir de son ID
+        //oPCCorpse.Description = $"Cadavre de {NWScript.GetName(player.oid)}";
         NWScript.SetLocalInt(oPCCorpse, "_PC_ID", PlayerId);
         ObjectPlugin.AcquireItem(oPCCorpse, oItem);
 

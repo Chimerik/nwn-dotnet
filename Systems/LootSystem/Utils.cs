@@ -83,7 +83,7 @@ namespace NWN.Systems
 
       while (NWScript.GetIsObjectValid(oPlaceable))
       {
-        if (NWScript.GetObjectType(oPlaceable) == Enums.ObjectType.Placeable &&
+        if (NWScript.GetObjectType(oPlaceable) == Enums.NWScript.OBJECT_TYPE_PLACEABLE &&
             NWScript.GetHasInventory(oPlaceable) == 1)
         {
           list.Add(oPlaceable);

@@ -1,9 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using NWN.Enums;
-using NWN.Enums.VisualEffect;
-using NWN.NWNX;
+using NWN.Core;
+using NWN.Core.NWNX;
 using static NWN.Systems.PlayerSystem;
 
 namespace NWN.Systems
@@ -37,42 +35,42 @@ namespace NWN.Systems
 
       return 1;
     }    
-    public static void StartMiningCycle(PlayerSystem.Player player, NWPlaceable rock, Action cancelCallback, Action completeCallback)
+    public static void StartMiningCycle(PlayerSystem.Player player, uint rock, Action cancelCallback, Action completeCallback)
     {
       player.OnMiningCycleCancelled = cancelCallback;
       player.OnMiningCycleCompleted = completeCallback;
 
-      NWItem miningStriper = player.Equipped[InventorySlot.RightHand];
+      var miningStriper = NWScript.GetItemInSlot(NWScript.INVENTORY_SLOT_RIGHTHAND, player.oid);
       float cycleDuration = 180.0f;
 
-      if (miningStriper.IsValid) // TODO : Idée pour plus tard, le strip miner le plus avancé pourra équipper un cristal de spécialisation pour extraire deux fois plus de minerai en un cycle sur son minerai de spécialité
+      if (NWScript.GetIsObjectValid(miningStriper) == 1) // TODO : Idée pour plus tard, le strip miner le plus avancé pourra équipper un cristal de spécialisation pour extraire deux fois plus de minerai en un cycle sur son minerai de spécialité
       {
-        cycleDuration = cycleDuration - (cycleDuration * miningStriper.Locals.Int.Get("_ITEM_LEVEL") * 2 / 100);
+        cycleDuration = cycleDuration - (cycleDuration * NWScript.GetLocalInt(miningStriper, "_ITEM_LEVEL") * 2 / 100);
       }
 
-      Effect eRay = NWScript.EffectBeam(Beam.Disintegrate, miningStriper, 1);
-      eRay = NWScript.TagEffect(eRay, $"_{player.CDKey}_MINING_BEAM");
-      rock.ApplyEffect(DurationType.Temporary, eRay, cycleDuration);
+      Effect eRay = NWScript.EffectBeam(NWScript.VFX_BEAM_DISINTEGRATE, miningStriper, 1);
+      eRay = NWScript.TagEffect(eRay, $"_{NWScript.GetPCPublicCDKey(player.oid)}_MINING_BEAM");
+      NWScript.ApplyEffectToObject(NWScript.DURATION_TYPE_TEMPORARY, eRay, rock, cycleDuration);
+      
+      PlayerPlugin.StartGuiTimingBar(player.oid, cycleDuration, "on_mining_cycle_complete");
 
-      NWNX.Player.StartGuiTimingBar(player, cycleDuration, "on_mining_cycle_complete");
-
-      NWNX.Events.AddObjectToDispatchList("NWNX_ON_TIMING_BAR_CANCEL_BEFORE", "event_mining_cycle_cancel_before", player);
-      NWNX.Events.AddObjectToDispatchList("NWNX_ON_CLIENT_DISCONNECT_BEFORE", "event_mining_cycle_cancel_before", player);
-      NWNX.Events.AddObjectToDispatchList("NWNX_ON_ITEM_EQUIP_BEFORE", "event_mining_cycle_cancel_before", player);
-      NWNX.Events.AddObjectToDispatchList("NWNX_ON_ITEM_UNEQUIP_BEFORE", "event_mining_cycle_cancel_before", player);
-      NWNX.Events.AddObjectToDispatchList("NWNX_ON_START_COMBAT_ROUND_AFTER", "event_mining_cycle_cancel_before", player);
-      NWNX.Events.AddObjectToDispatchList("NWNX_ON_INPUT_CAST_SPELL_BEFORE", "event_mining_cycle_cancel_before", player);
+      EventsPlugin.AddObjectToDispatchList("NWNX_ON_TIMING_BAR_CANCEL_BEFORE", "event_mining_cycle_cancel_before", player.oid);
+      EventsPlugin.AddObjectToDispatchList("NWNX_ON_CLIENT_DISCONNECT_BEFORE", "event_mining_cycle_cancel_before", player.oid);
+      EventsPlugin.AddObjectToDispatchList("NWNX_ON_ITEM_EQUIP_BEFORE", "event_mining_cycle_cancel_before", player.oid);
+      EventsPlugin.AddObjectToDispatchList("NWNX_ON_ITEM_UNEQUIP_BEFORE", "event_mining_cycle_cancel_before", player.oid);
+      EventsPlugin.AddObjectToDispatchList("NWNX_ON_START_COMBAT_ROUND_AFTER", "event_mining_cycle_cancel_before", player.oid);
+      EventsPlugin.AddObjectToDispatchList("NWNX_ON_INPUT_CAST_SPELL_BEFORE", "event_mining_cycle_cancel_before", player.oid);
     }
     public static void RemoveMiningCycleCallbacks(PlayerSystem.Player player)
     {
       player.OnMiningCycleCancelled = () => { };
       player.OnMiningCycleCompleted = () => { };
-      NWNX.Events.RemoveObjectFromDispatchList("NWNX_ON_TIMING_BAR_CANCEL_BEFORE", "event_mining_cycle_cancel_before", player);
-      NWNX.Events.RemoveObjectFromDispatchList("NWNX_ON_CLIENT_DISCONNECT_BEFORE", "event_mining_cycle_cancel_before", player);
-      NWNX.Events.RemoveObjectFromDispatchList("NWNX_ON_ITEM_EQUIP_BEFORE", "event_mining_cycle_cancel_before", player);
-      NWNX.Events.RemoveObjectFromDispatchList("NWNX_ON_ITEM_UNEQUIP_BEFORE", "event_mining_cycle_cancel_before", player);
-      NWNX.Events.RemoveObjectFromDispatchList("NWNX_ON_START_COMBAT_ROUND_AFTER", "event_mining_cycle_cancel_before", player);
-      NWNX.Events.RemoveObjectFromDispatchList("NWNX_ON_INPUT_CAST_SPELL_BEFORE", "event_mining_cycle_cancel_before", player);
+      EventsPlugin.RemoveObjectFromDispatchList("NWNX_ON_TIMING_BAR_CANCEL_BEFORE", "event_mining_cycle_cancel_before", player.oid);
+      EventsPlugin.RemoveObjectFromDispatchList("NWNX_ON_CLIENT_DISCONNECT_BEFORE", "event_mining_cycle_cancel_before", player.oid);
+      EventsPlugin.RemoveObjectFromDispatchList("NWNX_ON_ITEM_EQUIP_BEFORE", "event_mining_cycle_cancel_before", player.oid);
+      EventsPlugin.RemoveObjectFromDispatchList("NWNX_ON_ITEM_UNEQUIP_BEFORE", "event_mining_cycle_cancel_before", player.oid);
+      EventsPlugin.RemoveObjectFromDispatchList("NWNX_ON_START_COMBAT_ROUND_AFTER", "event_mining_cycle_cancel_before", player.oid);
+      EventsPlugin.RemoveObjectFromDispatchList("NWNX_ON_INPUT_CAST_SPELL_BEFORE", "event_mining_cycle_cancel_before", player.oid);
     }
     public static void AddCraftedItemProperties(uint craftedItem, Blueprint blueprint, string material)
     {

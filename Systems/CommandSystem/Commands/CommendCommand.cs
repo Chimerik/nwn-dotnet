@@ -23,10 +23,10 @@ namespace NWN.Systems
               NWScript.SendMessageToPC(ctx.oTarget, "Votre bonus roleplay est désormais de 2");
             }
 
-            Utils.LogMessageToDMs($"{ctx.oSender.Name} vient de recommander {ctx.oTarget.Name} pour une augmentation de bonus roleplay.");
+            Utils.LogMessageToDMs($"{ctx.oSender.Name} vient de recommander {ctx.NWScript.GetName(oTarget.oid)} pour une augmentation de bonus roleplay.");
           }
 
-          NWScript.SendMessageToPC(ctx.oSender, $"Vous venez de recommander {ctx.oTarget.Name} pour une augmentation de bonus roleplay !");
+          NWScript.SendMessageToPC(ctx.oSender, $"Vous venez de recommander {ctx.NWScript.GetName(oTarget.oid)} pour une augmentation de bonus roleplay !");
         }
       }
     }

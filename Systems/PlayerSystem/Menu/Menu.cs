@@ -215,20 +215,20 @@ namespace NWN.Systems
           case "W":
             selectedChoiceID = (selectedChoiceID + choices.Count - 1) % choices.Count;
             EraseLastSelection();
-            NWNX.Player.PlaySound(player.oid, "gui_select", NWObject.OBJECT_INVALID);
+            PlayerPlugin.PlaySound(player.oid, "gui_select", NWObject.OBJECT_INVALID);
             DrawSelection();
             return;
 
           case "S":
             selectedChoiceID = (selectedChoiceID + 1) % choices.Count;
             EraseLastSelection();
-            NWNX.Player.PlaySound(player.oid, "gui_select", NWObject.OBJECT_INVALID);
+            PlayerPlugin.PlaySound(player.oid, "gui_select", NWObject.OBJECT_INVALID);
             DrawSelection();
             return;
 
           case "E":
             var handler = choices.ElementAtOrDefault(selectedChoiceID).handler;
-            NWNX.Player.PlaySound(player.oid, "gui_picklockopen", NWObject.OBJECT_INVALID);
+            PlayerPlugin.PlaySound(player.oid, "gui_picklockopen", NWObject.OBJECT_INVALID);
             handler?.Invoke();
             return;
         }

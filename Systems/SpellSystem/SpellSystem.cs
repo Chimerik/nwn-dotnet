@@ -82,7 +82,7 @@ namespace NWN.Systems
                 if (((NWCreature)oTarget).MySavingThrow(SavingThrow.Will, NWScript.GetSpellSaveDC(), SavingThrowType.MindSpells) == SaveReturn.Failed)
                 {
                   //Apply VFX Impact and daze effect
-                  oTarget.ApplyEffect(DurationType.Temporary, eLink, NWScript.RoundsToSeconds(nDuration));
+                  oTarget.ApplyEffect(NWScript.DURATION_TYPE_TEMPORARY, eLink, NWScript.RoundsToSeconds(nDuration));
                   oTarget.ApplyEffect(DurationType.Instant, eVis);
                 }
               }
@@ -114,11 +114,11 @@ namespace NWN.Systems
             //Set damage effect
             Effect eBad = NWScript.EffectAttackDecrease(1 + nCasterLevel / 6);
             //Apply the VFX impact and damage effect
-            oTarget.ApplyEffect(DurationType.Temporary, eBad, NWScript.RoundsToSeconds(10 + 10 * nCasterLevel / 6));
+            oTarget.ApplyEffect(NWScript.DURATION_TYPE_TEMPORARY, eBad, NWScript.RoundsToSeconds(10 + 10 * nCasterLevel / 6));
           }
           break;
         case (int)Spell.Light:
-          if (oTarget.ObjectType == ObjectType.Item)
+          if (oTarget.ObjectType == NWScript.OBJECT_TYPE_ITEM)
           {
             // Do not allow casting on not equippable items
             if (!((NWItem)oTarget).IsEquippable)
@@ -128,14 +128,14 @@ namespace NWN.Systems
               ItemProperty ip = NWScript.ItemPropertyLight(LightBrightness.LIGHTBRIGHTNESS_NORMAL, LightColor.WHITE);
 
               if (((NWItem)oTarget).ItemProperties.Contains(ip))
-                ((NWItem)oTarget).RemoveMatchingItemProperties(ItemPropertyType.Light, DurationType.Temporary);
+                ((NWItem)oTarget).RemoveMatchingItemProperties(ItemPropertyType.Light, NWScript.DURATION_TYPE_TEMPORARY);
 
               nDuration = oCaster.CasterLevel();
               //Enter Metamagic conditions
               if (nMetaMagic == (int)MetaMagic.Extend)
                 nDuration = nDuration * 2; //Duration is +100%
 
-              ((NWItem)oTarget).AddItemProperty(DurationType.Temporary, ip, NWScript.HoursToSeconds(nDuration));
+              ((NWItem)oTarget).AddItemProperty(NWScript.DURATION_TYPE_TEMPORARY, ip, NWScript.HoursToSeconds(nDuration));
             }
           }
           else
@@ -150,7 +150,7 @@ namespace NWN.Systems
               nDuration = nDuration * 2; //Duration is +100%
 
             //Apply the VFX impact and effects
-            oTarget.ApplyEffect(DurationType.Temporary, eLink, NWScript.HoursToSeconds(nDuration));
+            oTarget.ApplyEffect(NWScript.DURATION_TYPE_TEMPORARY, eLink, NWScript.HoursToSeconds(nDuration));
           }
           break;
         case (int)Spell.RayOfFrost:
@@ -169,7 +169,7 @@ namespace NWN.Systems
             oTarget.ApplyEffect(DurationType.Instant, eDam);
           }
 
-          oTarget.ApplyEffect(DurationType.Temporary, eRay, 1.7f);
+          oTarget.ApplyEffect(NWScript.DURATION_TYPE_TEMPORARY, eRay, 1.7f);
           break;
         case (int)Spell.Resistance:
           Effect eSave;
@@ -187,7 +187,7 @@ namespace NWN.Systems
           eLink = NWScript.EffectLinkEffects(eSave, eDur);
 
           //Apply the bonus effect and VFX impact
-          oTarget.ApplyEffect(DurationType.Temporary, eLink, NWScript.TurnsToSeconds(nDuration));
+          oTarget.ApplyEffect(NWScript.DURATION_TYPE_TEMPORARY, eLink, NWScript.TurnsToSeconds(nDuration));
           oTarget.ApplyEffect(DurationType.Instant, eVis);
           break;
         case (int)Spell.Virtue:
@@ -203,7 +203,7 @@ namespace NWN.Systems
 
           //Apply the VFX impact and effects
           oTarget.ApplyEffect(DurationType.Instant, eVis);
-          oTarget.ApplyEffect(DurationType.Temporary, eLink, NWScript.TurnsToSeconds(nDuration));
+          oTarget.ApplyEffect(NWScript.DURATION_TYPE_TEMPORARY, eLink, NWScript.TurnsToSeconds(nDuration));
           break;
       }
 
@@ -236,7 +236,7 @@ namespace NWN.Systems
                   if (!NWScript.GetObjectSeen(oPC, oSpotter))
                   {
                     oSpotter.SendMessage("Quelqu'un d'invisible est en train de lancer un sort à proximité !");
-                    NWNX.Player.ShowVisualEffect(oSpotter, 191, oPC.Position);
+                    PlayerPlugin.ShowVisualEffect(oSpotter, 191, oPC.Position);
                   }
 
                   iCount++;

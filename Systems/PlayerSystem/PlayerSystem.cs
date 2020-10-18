@@ -414,7 +414,7 @@ namespace NWN.Systems
               {
                 EventsPlugin.AddObjectToDispatchList("NWNX_ON_INPUT_KEYBOARD_AFTER", "event_mv_plc", oidSelf);
                 oidSelf.AsObject().Locals.Object.Set("_MOVING_PLC", oTarget);
-                oidSelf.AsPlayer().SendMessage($"Vous venez de sélectionner {oTarget.Name}, utilisez votre barre de raccourcis pour le déplacer. Pour enregistrer le nouvel emplacement et retrouver votre barre de raccourcis habituelle, activez le don sur un endroit vide (sans cible).");
+                oidSelf.AsPlayer().SendMessage($"Vous venez de sélectionner {NWScript.GetName(oTarget.oid)}, utilisez votre barre de raccourcis pour le déplacer. Pour enregistrer le nouvel emplacement et retrouver votre barre de raccourcis habituelle, activez le don sur un endroit vide (sans cible).");
                 //remplacer la ligne précédente par un PostString().
 
                 if (myPlayer.selectedObjectsList.Count == 0)
@@ -463,15 +463,15 @@ namespace NWN.Systems
     private static void RefreshQBS(uint oidSelf, int feat)
     {
       string sQuickBar = CreaturePlugin.SerializeQuickbar(oidSelf);
-      QuickBarSlot emptyQBS = QuickBarSlot.CreateEmptyQBS();
-      QuickBarSlot 
+      QuickBarSlot emptyQBS = Utils.CreateEmptyQBS();
+       
       for (int i = 0; i < 36; i++)
       {
-        QuickBarSlot qbs = NWNX.Player.GetQuickBarSlot(oidSelf, i);
-
-        if (qbs.ObjectType == QuickBarSlotType.Feat && qbs.INTParam1 == feat)
+        QuickBarSlot qbs = PlayerPlugin.GetQuickBarSlot(oidSelf, i);
+        
+        if (qbs.nObjectType == 4 && qbs.nINTParam1 == feat)
         {
-          NWNX.Player.SetQuickBarSlot(oidSelf, i, emptyQBS);
+          PlayerPlugin.SetQuickBarSlot(oidSelf, i, emptyQBS);
         }
       }
 
@@ -481,12 +481,12 @@ namespace NWN.Systems
     private static void RefreshQBS(uint oidSelf)
     {
       string sQuickBar = CreaturePlugin.SerializeQuickbar(oidSelf);
-      QuickBarSlot emptyQBS = QuickBarSlot.CreateEmptyQBS();
+      QuickBarSlot emptyQBS = Utils.CreateEmptyQBS();
 
       for (int i = 0; i < 36; i++)
       {
-        QuickBarSlot qbs = NWNX.Player.GetQuickBarSlot(oidSelf, i);
-        NWNX.Player.SetQuickBarSlot(oidSelf, i, emptyQBS);
+        QuickBarSlot qbs = PlayerPlugin.GetQuickBarSlot(oidSelf, i);
+        PlayerPlugin.SetQuickBarSlot(oidSelf, i, emptyQBS);
       }
 
       CreaturePlugin.DeserializeQuickbar(oidSelf, sQuickBar);
@@ -500,12 +500,12 @@ namespace NWN.Systems
       {
         var oTarget = ObjectPlugin.StringToObject(EventsPlugin.GetEventData("TARGET"));
 
-        if (oTarget.AsObject().IsValid)
+        if (NWScript.GetIsObjectValid(oTarget) == 1)
         {
           NWScript.ClearAllActions();
-          if (oPC.autoAttackTarget == NWObject.OBJECT_INVALID)
+          if (oPC.autoAttackTarget == NWScript.OBJECT_INVALID)
           {
-            oidSelf.AsPlayer().CastSpellAtObject(Spell.RayOfFrost, oTarget);
+            NWScript.AssignCommand(oidSelf, () => NWScript.ActionCastSpellAtObject(NWScript.SPELL_RAY_OF_FROST, oTarget));
             NWScript.DelayCommand(6.0f, () => oPC.OnFrostAutoAttackTimedEvent());
           }
         }
@@ -524,14 +524,14 @@ namespace NWN.Systems
       {
         var spellId = int.Parse(EventsPlugin.GetEventData("SPELL_ID"));
 
-        if (spellId != (int)Spell.RayOfFrost)
-          oPC.autoAttackTarget = NWObject.OBJECT_INVALID;
+        if (spellId != NWScript.SPELL_RAY_OF_FROST)
+          oPC.autoAttackTarget = NWScript.OBJECT_INVALID;
       }
 
       return 1;
     }
 
-    private static void FrostAutoAttack(NWObject oClicker, uint oTarget)
+    private static void FrostAutoAttack(uint oClicker, uint oTarget)
     {
       if (NWScript.GetLocalInt(oClicker, "_FROST_ATTACK_CANCEL") == 0)
       {
@@ -552,18 +552,18 @@ namespace NWN.Systems
         Player oPerceived;
         if (Players.TryGetValue(NWScript.GetLastPerceived(), out oPerceived))
         {
-          if (!oPerceived.IsPC || oPerceived.IsDM || oPerceived.IsDMPossessed || oPerceived.disguiseName.Length == 0)
+          if (NWScript.GetIsPC(oPerceived.oid) != 1 || NWScript.GetIsDM(oPerceived.oid) == 1 || NWScript.GetIsDMPossessed(oPerceived.oid) == 1 || oPerceived.disguiseName.Length == 0)
             return 1;
 
-          if (!oPC.disguiseDetectTimer.ContainsKey(oPC) || (DateTime.Now - oPC.disguiseDetectTimer[oPerceived]).TotalSeconds > 1800)
+          if (!oPC.disguiseDetectTimer.ContainsKey(oPC.oid) || (DateTime.Now - oPC.disguiseDetectTimer[oPerceived.oid]).TotalSeconds > 1800)
           {
-            oPC.disguiseDetectTimer[oPerceived] = DateTime.Now;
+            oPC.disguiseDetectTimer[oPerceived.oid] = DateTime.Now;
+            
+            int[] iPCSenseSkill = { NWScript.GetSkillRank(NWScript.SKILL_LISTEN, oPC.oid), NWScript.GetSkillRank(NWScript.SKILL_SEARCH, oPC.oid), NWScript.GetSkillRank(NWScript.SKILL_SPOT, oPC.oid),
+            NWScript.GetSkillRank(NWScript.SKILL_BLUFF, oPC.oid) };
 
-            int[] iPCSenseSkill = { oPC.GetSkillRank(NWScript.SKILL_LISTEN), oPC.GetSkillRank(Skill.Search), oPC.GetSkillRank(Skill.Spot),
-            oPC.GetSkillRank(Skill.Bluff) };
-
-            int[] iPerceivedHideSkill = { oPerceived.GetSkillRank(Skill.Bluff), oPerceived.GetSkillRank(Skill.Hide),
-            oPerceived.GetSkillRank(Skill.Perform), oPerceived.GetSkillRank(Skill.Persuade) };
+            int[] iPerceivedHideSkill = { NWScript.GetSkillRank(NWScript.SKILL_BLUFF, oPerceived.oid), NWScript.GetSkillRank(NWScript.SKILL_HIDE, oPerceived.oid),
+            NWScript.GetSkillRank(NWScript.SKILL_PERFORM, oPerceived.oid), NWScript.GetSkillRank(NWScript.SKILL_PERSUADE, oPerceived.oid) };
 
             Random d20 = Utils.random;
             int iRollAttack = iPCSenseSkill.Max() + d20.Next(21);
@@ -576,7 +576,7 @@ namespace NWN.Systems
               }*/
             if (iRollAttack > iRollDefense)
             {
-              NWScript.SendMessageToPC(oPC.oid, oPerceived.Name + " fait usage d'un déguisement ! Sous le masque, vous reconnaissez " + NWScript.GetName(oPerceived, true));
+              NWScript.SendMessageToPC(oPC.oid, NWScript.GetName(oPerceived.oid) + " fait usage d'un déguisement ! Sous le masque, vous reconnaissez " + NWScript.GetName(oPerceived.oid, 1));
               //NWNX_Rename_ClearPCNameOverride(oPerceived, oPC);
             }
           }
@@ -592,9 +592,9 @@ namespace NWN.Systems
       Player player;
       if (Players.TryGetValue(oidSelf, out player))
       {
-        NWCreature oSummon = (ObjectPlugin.StringToObject(EventsPlugin.GetEventData("ASSOCIATE_OBJECT_ID"))).AsCreature();
+        var oSummon = (ObjectPlugin.StringToObject(EventsPlugin.GetEventData("ASSOCIATE_OBJECT_ID")));
 
-        if (oSummon.IsValid)
+        if (NWScript.GetIsObjectValid(oSummon) == 1)
         {
           player.summons.Add(oSummon, oSummon);
         }
@@ -609,9 +609,9 @@ namespace NWN.Systems
       Player player;
       if (Players.TryGetValue(oidSelf, out player))
       {
-        NWCreature oSummon = (ObjectPlugin.StringToObject(EventsPlugin.GetEventData("ASSOCIATE_OBJECT_ID"))).AsCreature();
+        var oSummon = (ObjectPlugin.StringToObject(EventsPlugin.GetEventData("ASSOCIATE_OBJECT_ID")));
 
-        if (oSummon.IsValid)
+        if (NWScript.GetIsObjectValid(oSummon) == 1)
         {
           player.summons.Remove(oSummon);
         }
@@ -624,10 +624,10 @@ namespace NWN.Systems
       Player player;
       if (Players.TryGetValue(oidSelf, out player))
       {
-          if (NWScript.GetLocalInt(player, "_ACTIVATED_TAUNT") != 0) // Permet de conserver sa posture de combat après avoir utilisé taunt
+          if (NWScript.GetLocalInt(player.oid, "_ACTIVATED_TAUNT") != 0) // Permet de conserver sa posture de combat après avoir utilisé taunt
           {
             EventsPlugin.SkipEvent();
-            NWScript.DeleteLocalInt(player, "_ACTIVATED_TAUNT");
+            NWScript.DeleteLocalInt(player.oid, "_ACTIVATED_TAUNT");
           }
       }
 
@@ -638,60 +638,61 @@ namespace NWN.Systems
       Player player;
       if (Players.TryGetValue(oidSelf, out player))
       {
-          if (int.Parse(EventsPlugin.GetEventData("SKILL_ID")) == (int)Skill.Taunt)
+          if (int.Parse(EventsPlugin.GetEventData("SKILL_ID")) == NWScript.SKILL_TAUNT)
           {
-            NWScript.SetLocalInt(player, "_ACTIVATED_TAUNT", 1);
-            NWScript.DelayCommand(12.0f, () => NWScript.DeleteLocalInt(player, "_ACTIVATED_TAUNT"));
+            NWScript.SetLocalInt(player.oid, "_ACTIVATED_TAUNT", 1);
+            NWScript.DelayCommand(12.0f, () => NWScript.DeleteLocalInt(player.oid, "_ACTIVATED_TAUNT"));
           }
-          else if (int.Parse(EventsPlugin.GetEventData("SKILL_ID")) == (int)Skill.PickPocket)
+          else if (int.Parse(EventsPlugin.GetEventData("SKILL_ID")) == NWScript.SKILL_PICK_POCKET)
           {
             EventsPlugin.SkipEvent();
-            NWPlayer oObject = ObjectPlugin.StringToObject(EventsPlugin.GetEventData("TARGET_OBJECT_ID")).AsPlayer();
+            var oObject = ObjectPlugin.StringToObject(EventsPlugin.GetEventData("TARGET_OBJECT_ID"));
             Player oTarget;
-            if (Players.TryGetValue(oObject, out oTarget) && !oTarget.IsDM && !oTarget.IsDMPossessed)
+            if (Players.TryGetValue(oObject, out oTarget) && NWScript.GetIsDM(oTarget.oid) != 1 && NWScript.GetIsDMPossessed(oTarget.oid) != 1)
             {
-              if (!oTarget.pickpocketDetectTimer.ContainsKey(player) || (DateTime.Now - oTarget.pickpocketDetectTimer[player]).TotalSeconds > 86400)
+              if (!oTarget.pickpocketDetectTimer.ContainsKey(player.oid) || (DateTime.Now - oTarget.pickpocketDetectTimer[player.oid]).TotalSeconds > 86400)
               {
-                  oTarget.pickpocketDetectTimer.Add(player, DateTime.Now);
-
-                  NWNX.Feedback.SetFeedbackMessageHidden(FeedbackMessageTypes.CombatTouchAttack, 1, oTarget);
-                  NWScript.DelayCommand(2.0f, () => NWNX.Feedback.SetFeedbackMessageHidden(FeedbackMessageTypes.CombatTouchAttack, 0, oTarget));
+                  oTarget.pickpocketDetectTimer.Add(player.oid, DateTime.Now);
+              
+                  FeedbackPlugin.SetFeedbackMessageHidden(13, 1, oTarget.oid); // 13 = COMBAT_TOUCH_ATTACK
+                  NWScript.DelayCommand(2.0f, () => FeedbackPlugin.SetFeedbackMessageHidden(13, 0, oTarget.oid));
 
                   int iRandom = Utils.random.Next(21);
-                  int iVol = NWScript.GetSkillRank(Skill.PickPocket, player);
-                  int iSpot = Utils.random.Next(21) + NWScript.GetSkillRank(Skill.Spot, player);
+                  int iVol = NWScript.GetSkillRank(NWScript.SKILL_PICK_POCKET, player.oid);
+                  int iSpot = Utils.random.Next(21) + NWScript.GetSkillRank(NWScript.SKILL_SPOT, player.oid);
                   if ((iRandom + iVol) > iSpot)
                   {
-                    ChatPlugin.SendMessage((int)ChatPlugin.NWNX_CHAT_CHANNEL_PLAYER_TALK, $"Vous faites un jet de Vol à la tire, le résultat est de : {iRandom} + {iVol} = {iRandom + iVol}.", player, player);
-                    if (NWScript.TouchAttackMelee(oTarget) > 0)
+                    ChatPlugin.SendMessage((int)ChatPlugin.NWNX_CHAT_CHANNEL_PLAYER_TALK, $"Vous faites un jet de Vol à la tire, le résultat est de : {iRandom} + {iVol} = {iRandom + iVol}.", player.oid, player.oid);
+                    if (NWScript.TouchAttackMelee(oTarget.oid) > 0)
                     {
                       int iStolenGold = (iRandom + iVol - iSpot) * 10;
-                      if (oTarget.Gold >= iStolenGold)
+                      int oTargetGold = NWScript.GetGold(oTarget.oid);
+                      if (oTargetGold >= iStolenGold)
                       {
-                        oTarget.Gold -= iStolenGold;
-                        player.Gold += iStolenGold;
-                        player.FloatingText($"Vous venez de dérober {iStolenGold} pièces d'or des poches de {oTarget.Name} !");
+                        CreaturePlugin.SetGold(oTarget.oid, oTargetGold - iStolenGold);
+                        CreaturePlugin.SetGold(player.oid, NWScript.GetGold(player.oid) + iStolenGold);
+                        NWScript.FloatingTextStringOnCreature($"Vous venez de dérober {iStolenGold} pièces d'or des poches de {NWScript.GetName(oTarget.oid)} !", player.oid);
                       }
                       else
                       {
-                        player.FloatingText($"Vous venez de vider les poches de {oTarget.Name} ! {oTarget.Gold} pièces d'or de plus pour vous.");
-                        player.Gold += oTarget.Gold;
-                        oTarget.Gold = 0;
+                        NWScript.FloatingTextStringOnCreature($"Vous venez de vider les poches de {NWScript.GetName(oTarget.oid)} ! {oTargetGold} pièces d'or de plus pour vous.", player.oid);
+                        CreaturePlugin.SetGold(player.oid, NWScript.GetGold(player.oid) + oTargetGold);
+                        CreaturePlugin.SetGold(oTarget.oid, 0);
                       }
                     }
                     else
                     {
-                      player.FloatingText($"Vous ne parvenez pas à atteindre les poches de {oTarget.Name} !");
+                      NWScript.FloatingTextStringOnCreature($"Vous ne parvenez pas à atteindre les poches de {NWScript.GetName(oTarget.oid)} !", player.oid);
                     }
                   }
                   else
-                    oTarget.FloatingText($"{player.Name} est en train d'essayer de vous faire les poches !"); 
+                NWScript.FloatingTextStringOnCreature($"{NWScript.GetName(player.oid)} est en train d'essayer de vous faire les poches !", oTarget.oid); 
               }
               else
-                player.FloatingText("Vous n'êtes pas autorisé à faire une nouvelle tentative pour le moment.");
+                NWScript.FloatingTextStringOnCreature("Vous n'êtes pas autorisé à faire une nouvelle tentative pour le moment.", player.oid);
             }
             else
-              player.FloatingText("Seuls d'autres joueurs peuvent être ciblés par cette compétence. Les tentatives de vol sur PNJ doivent être jouées en rp avec un dm.");
+              NWScript.FloatingTextStringOnCreature("Seuls d'autres joueurs peuvent être ciblés par cette compétence. Les tentatives de vol sur PNJ doivent être jouées en rp avec un dm.", player.oid);
           }
       }
 
@@ -702,32 +703,32 @@ namespace NWN.Systems
       Player oPC;
       if (Players.TryGetValue(oidSelf, out oPC))
       {
-        var oTarget = ObjectPlugin.StringToObject(EventsPlugin.GetEventData("TARGET")).AsCreature();
+        var oTarget = ObjectPlugin.StringToObject(EventsPlugin.GetEventData("TARGET"));
 
-        if (oTarget.IsPC || oTarget.IsPossessedFamiliar)
+        if (NWScript.GetIsPC(oTarget) == 1 || NWScript.GetIsPossessedFamiliar(oTarget) == 1)
         {
-          if (!oTarget.GetObjectSeen(oPC) && NWScript.GetDistanceBetween(oTarget, oPC) < 20.0f)
+          if (NWScript.GetObjectSeen(oTarget, oPC.oid) != 1 && NWScript.GetDistanceBetween(oTarget, oPC.oid) < 20.0f)
           {
-            int iDetectMode = (int)NWScript.GetDetectMode(oPC);
+            int iDetectMode = (int)NWScript.GetDetectMode(oPC.oid);
             if (int.Parse(EventsPlugin.GetEventData("TARGET_INVISIBLE")) == 1 && iDetectMode > 0)
             {
               switch (CreaturePlugin.GetMovementType(oTarget))
               {
-                case MovementType.WalkBackwards:
-                case MovementType.Sidestep:
-                case MovementType.Walk:
+                case CreaturePlugin.NWNX_CREATURE_MOVEMENT_TYPE_WALK_BACKWARDS:
+                case CreaturePlugin.NWNX_CREATURE_MOVEMENT_TYPE_SIDESTEP:
+                case CreaturePlugin.NWNX_CREATURE_MOVEMENT_TYPE_WALK:
 
                   if (!oPC.inviDetectTimer.ContainsKey(oTarget) || (DateTime.Now - oPC.inviDetectTimer[oTarget]).TotalSeconds > 6)
                   {
-                    int iMoveSilentlyCheck = NWScript.GetSkillRank(Skill.MoveSilently, oTarget) + Utils.random.Next(21) + (int)NWScript.GetDistanceBetween(oTarget, oPC);
-                    int iListenCheck = NWScript.GetSkillRank(NWScript.SKILL_LISTEN, oPC) + Utils.random.Next(21);
+                    int iMoveSilentlyCheck = NWScript.GetSkillRank(NWScript.SKILL_MOVE_SILENTLY, oTarget) + Utils.random.Next(21) + (int)NWScript.GetDistanceBetween(oTarget, oPC.oid);
+                    int iListenCheck = NWScript.GetSkillRank(NWScript.SKILL_LISTEN, oPC.oid) + Utils.random.Next(21);
                     if (iDetectMode == 2)
                       iListenCheck -= 10;
 
                     if (iListenCheck > iMoveSilentlyCheck)
                     {
                       NWScript.SendMessageToPC(oPC.oid, "Vous entendez quelqu'un se faufiler dans les environs.");
-                      NWNX.Player.ShowVisualEffect(oPC, (int)Flashier.Vfx_Fnf_Smoke_Puff, oTarget.Position);
+                      PlayerPlugin.ShowVisualEffect(oPC.oid, NWScript.VFX_FNF_SMOKE_PUFF, NWScript.GetPosition(oTarget));
                       oPC.inviDetectTimer.Add(oTarget, DateTime.Now);
                       oPC.inviEffectDetectTimer.Add(oTarget, DateTime.Now);
                     }
@@ -736,22 +737,22 @@ namespace NWN.Systems
                   }
                   else if ((DateTime.Now - oPC.inviEffectDetectTimer[oTarget]).TotalSeconds > 1)
                   {
-                    NWNX.Player.ShowVisualEffect(oPC, (int)Flashier.Vfx_Fnf_Smoke_Puff, oTarget.Position);
+                    PlayerPlugin.ShowVisualEffect(oPC.oid, NWScript.VFX_FNF_SMOKE_PUFF, NWScript.GetPosition(oTarget));
                     oPC.inviEffectDetectTimer.Add(oTarget, DateTime.Now);
                   }
                   break;
-                case MovementType.Run:
+                case CreaturePlugin.NWNX_CREATURE_MOVEMENT_TYPE_RUN:
 
                   if (!oPC.inviDetectTimer.ContainsKey(oTarget) || (DateTime.Now - oPC.inviDetectTimer[oTarget]).TotalSeconds > 6)
                   {
                     NWScript.SendMessageToPC(oPC.oid, "Vous entendez quelqu'un courir peu discrètement dans les environs.");
-                    NWNX.Player.ShowVisualEffect(oPC, (int)Flashier.Vfx_Fnf_Smoke_Puff, oTarget.Position);
+                    PlayerPlugin.ShowVisualEffect(oPC.oid, NWScript.VFX_FNF_SMOKE_PUFF, NWScript.GetPosition(oTarget));
                     oPC.inviDetectTimer.Add(oTarget, DateTime.Now);
                     oPC.inviEffectDetectTimer.Add(oTarget, DateTime.Now);
                   }
                   else if ((DateTime.Now - oPC.inviEffectDetectTimer[oTarget]).TotalSeconds > 1)
                   {
-                    NWNX.Player.ShowVisualEffect(oPC, (int)Flashier.Vfx_Fnf_Smoke_Puff, oTarget.Position);
+                    PlayerPlugin.ShowVisualEffect(oPC.oid, NWScript.VFX_FNF_SMOKE_PUFF, NWScript.GetPosition(oTarget));
                     oPC.inviEffectDetectTimer.Add(oTarget, DateTime.Now);
                   }
                   break;
@@ -768,30 +769,35 @@ namespace NWN.Systems
       Player player;
       if (Players.TryGetValue(NWScript.GetLastPlayerDied(), out player))
       {
-        player.SendMessage("Tout se brouille autour de vous. Avant de perdre connaissance, vous sentez comme un étrange maëlstrom vous aspirer.");
+        NWScript.SendMessageToPC(player.oid, "Tout se brouille autour de vous. Avant de perdre connaissance, vous sentez comme un étrange maëlstrom vous aspirer.");
 
-        NWPlaceable oPCCorpse = NWScript.CreateObject(ObjectType.Placeable, "pccorpse", NWScript.GetLocation(player.oid)).AsPlaceable();
+        var oPCCorpse = NWScript.CreateObject(NWScript.OBJECT_TYPE_PLACEABLE, "pccorpse", NWScript.GetLocation(player.oid));
         EventsPlugin.AddObjectToDispatchList("NWNX_ON_INVENTORY_REMOVE_ITEM_AFTER", "event_pccorpse_remove_item_after", oPCCorpse);
         EventsPlugin.AddObjectToDispatchList("NWNX_ON_INVENTORY_ADD_ITEM_AFTER", "event_pccorpse_add_item_after", oPCCorpse);
-
-        int PlayerId = ObjectPlugin.GetInt(player, "_PC_ID");
-        oPCCorpse.Name = $"Cadavre de {player.Name}";
-        oPCCorpse.Description = $"Cadavre de {player.Name}";
-        oPCCorpse.Locals.Int.Set("_PC_ID", PlayerId);
+        
+        int PlayerId = ObjectPlugin.GetInt(player.oid, "_PC_ID");
+        NWScript.SetName(oPCCorpse, $"Cadavre de {NWScript.GetName(player.oid)}");
+        NWScript.SetDescription(oPCCorpse, $"Cadavre de {NWScript.GetName(player.oid)}");
+        NWScript.SetLocalInt(oPCCorpse, "_PC_ID", PlayerId);
 
         NWScript.SetLocalInt(NWScript.CreateItemOnObject("item_pccorpse", oPCCorpse), "PC_ID", PlayerId);
-
-        if (player.Gold > 0)
+        
+        if (NWScript.GetGold(player.oid) > 0)
         {
           do
           {
-            NWScript.CreateItemOnObject("nw_it_gold001", oPCCorpse, player.Gold);
-            player.Gold -= 50000;
-          } while (player.Gold > 50000);
+            NWScript.CreateItemOnObject("nw_it_gold001", oPCCorpse, NWScript.GetGold(player.oid));
+            CreaturePlugin.SetGold(player.oid, NWScript.GetGold(player.oid) - 50000);
+          } while (NWScript.GetGold(player.oid) > 50000);
         }
 
-        if (player.Gold < 0)
-          player.Gold = 0;
+        if (NWScript.GetGold(player.oid) <= 0)
+          CreaturePlugin.SetGold(player.oid, 0);
+        else
+        {
+          NWScript.CreateItemOnObject("nw_it_gold001", oPCCorpse, NWScript.GetGold(player.oid));
+          CreaturePlugin.SetGold(player.oid, 0);
+        }
 
         // TODO : Dropper toutes les ressources craft de l'inventaire du défunt
 
@@ -835,14 +841,14 @@ namespace NWN.Systems
       Player player;
       if (Players.TryGetValue(oidSelf, out player))
       {
-        NWCreature oTarget = ObjectPlugin.StringToObject(EventsPlugin.GetEventData("TARGET_OBJECT_ID")).AsCreature();
+        var oTarget = ObjectPlugin.StringToObject(EventsPlugin.GetEventData("TARGET_OBJECT_ID"));
 
-        if (Spells.GetHasEffect(NWScript.GetEffectType(NWScript.EffectCutsceneGhost()), player))
-          Spells.RemoveEffectOfType(NWScript.GetEffectType(NWScript.EffectCutsceneGhost()), player);          
+        if (Spells.GetHasEffect(NWScript.GetEffectType(NWScript.EffectCutsceneGhost()), player.oid))
+          Spells.RemoveEffectOfType(NWScript.GetEffectType(NWScript.EffectCutsceneGhost()), player.oid);          
 
-        if (oTarget.IsPC)
+        if (NWScript.GetIsPC(oTarget) == 1)
         {
-          NWScript.SetPCDislike(player, oTarget);
+          NWScript.SetPCDislike(player.oid, oTarget);
           if (Spells.GetHasEffect(NWScript.GetEffectType(NWScript.EffectCutsceneGhost()), oTarget))
             Spells.RemoveEffectOfType(NWScript.GetEffectType(NWScript.EffectCutsceneGhost()), oTarget);
         }
@@ -858,14 +864,14 @@ namespace NWN.Systems
         Effect eParty = player.GetPartySizeEffect();
 
         // appliquer l'effet sur chaque membre du groupe
-        NWPlayer oPartyMember = NWScript.GetFirstFactionMember(oidSelf, true).AsPlayer();
-        while (oPartyMember.IsValid)
+        var oPartyMember = NWScript.GetFirstFactionMember(oidSelf, 1);
+        while (NWScript.GetIsObjectValid(oPartyMember) == 1)
         {
-          oPartyMember.RemoveTaggedEffect("PartyEffect");
+          Utils.RemoveTaggedEffect(oPartyMember, "PartyEffect");
           if (eParty != null)
-            oPartyMember.ApplyEffect(NWScript.DURATION_TYPE_PERMANENT, eParty);
+            NWScript.ApplyEffectToObject(NWScript.DURATION_TYPE_PERMANENT, eParty, oPartyMember);
 
-          oPartyMember = NWScript.GetNextFactionMember(oPartyMember, true).AsPlayer();
+          oPartyMember = NWScript.GetNextFactionMember(oPartyMember, 1);
         }
       }   
 
@@ -873,12 +879,12 @@ namespace NWN.Systems
     }
     private static int HandleAfterPartyLeave(uint oidSelf)
     {
-      oidSelf.AsPlayer().RemoveTaggedEffect("PartyEffect");
+      Utils.RemoveTaggedEffect(oidSelf, "PartyEffect");
       return 1;
     }
     private static int HandleAfterPartyKick(uint oidSelf)
     {
-      ObjectPlugin.StringToObject(EventsPlugin.GetEventData("KICKED")).AsPlayer().RemoveTaggedEffect("PartyEffect");
+      Utils.RemoveTaggedEffect(ObjectPlugin.StringToObject(EventsPlugin.GetEventData("KICKED")), "PartyEffect");
       return 1;
     }
     private static int HandleBeforePartyLeave(uint oidSelf)
@@ -888,14 +894,14 @@ namespace NWN.Systems
       {
         Effect eParty = player.GetPartySizeEffect(-1);
         // appliquer l'effet sur chaque membre du groupe
-        NWPlayer oPartyMember = NWScript.GetFirstFactionMember(oidSelf, true).AsPlayer();
-        while (oPartyMember.IsValid)
+        var oPartyMember = NWScript.GetFirstFactionMember(oidSelf, 1);
+        while (NWScript.GetIsObjectValid(oPartyMember) == 1)
         {
-          oPartyMember.RemoveTaggedEffect("PartyEffect");
+          Utils.RemoveTaggedEffect(oPartyMember, "PartyEffect");
           if (eParty != null)
-            oPartyMember.ApplyEffect(NWScript.DURATION_TYPE_PERMANENT, eParty);
+            NWScript.ApplyEffectToObject(NWScript.DURATION_TYPE_PERMANENT, eParty, oPartyMember);
 
-          oPartyMember = NWScript.GetNextFactionMember(oPartyMember, true).AsPlayer();
+          oPartyMember = NWScript.GetNextFactionMember(oPartyMember, 1);
         }
       }
 
@@ -906,22 +912,22 @@ namespace NWN.Systems
       Player player;
       if (Players.TryGetValue(oidSelf, out player))
       {
-        NWObject examineTarget =  ObjectPlugin.StringToObject(EventsPlugin.GetEventData("EXAMINEE_OBJECT_ID")).AsObject();
+        var examineTarget =  ObjectPlugin.StringToObject(EventsPlugin.GetEventData("EXAMINEE_OBJECT_ID"));
       
-        switch(examineTarget.Tag)
+        switch(NWScript.GetTag(examineTarget))
         {
           case "mineable_rock":
-            int oreAmount = examineTarget.Locals.Int.Get("_ORE_AMOUNT");
-            if (!player.IsDM)
+            int oreAmount = NWScript.GetLocalInt(examineTarget, "_ORE_AMOUNT");
+            if (NWScript.GetIsDM(player.oid) != 1)
             {
               int geologySkillLevel;
-              if (int.TryParse(NWScript.Get2DAString("feat", "GAINMULTIPLE", CreaturePlugin.GetHighestLevelOfFeat(player, (int)Feat.Geology)), out geologySkillLevel))
-                examineTarget.Description = $"Minerai disponible : {Utils.random.Next(oreAmount * geologySkillLevel * 20 / 100, 2 * oreAmount - geologySkillLevel * 20 / 100)}";
+              if (int.TryParse(NWScript.Get2DAString("feat", "GAINMULTIPLE", CreaturePlugin.GetHighestLevelOfFeat(player.oid, 1171)), out geologySkillLevel)) // TODO : feat enum geology
+                NWScript.SetDescription(examineTarget, $"Minerai disponible : {Utils.random.Next(oreAmount * geologySkillLevel * 20 / 100, 2 * oreAmount - geologySkillLevel * 20 / 100)}");
               else
-                examineTarget.Description = $"Minerai disponible estimé : {Utils.random.Next(0, 2 * oreAmount)}";
+                NWScript.SetDescription(examineTarget, $"Minerai disponible estimé : {Utils.random.Next(0, 2 * oreAmount)}");
             }
             else
-              examineTarget.Description = $"Minerai disponible : {oreAmount}";
+              NWScript.SetDescription(examineTarget, $"Minerai disponible : {oreAmount}");
 
               break;
         }
@@ -933,12 +939,12 @@ namespace NWN.Systems
       Player player;
       if (Players.TryGetValue(oidSelf, out player))
       {
-        NWObject examineTarget = ObjectPlugin.StringToObject(EventsPlugin.GetEventData("EXAMINEE_OBJECT_ID")).AsObject();
+        var examineTarget = ObjectPlugin.StringToObject(EventsPlugin.GetEventData("EXAMINEE_OBJECT_ID"));
 
-        switch (examineTarget.Tag)
+        switch (NWScript.GetTag(examineTarget))
         {
           case "mineable_rock":
-              examineTarget.Description = $"";
+              NWScript.SetDescription(examineTarget, $"");
             break;
         }
       }
@@ -947,10 +953,10 @@ namespace NWN.Systems
     private static int HandlePCUnacquireItem(uint oidSelf)
     {
       uint oPC = NWScript.GetModuleItemLostBy();
-
-      if (NWScript.GetMovementRate(oPC) == (int)MovementRate.Immobile)
-        if (NWScript.GetWeight(oPC) <= int.Parse(NWScript.Get2DAString("encumbrance", "Heavy", oPC.AsCreature().Ability[Ability.Strength].Total)))
-          CreaturePlugin.SetMovementRate(oPC, MovementRate.PC);
+      
+      if (NWScript.GetMovementRate(oPC) == CreaturePlugin.NWNX_CREATURE_MOVEMENT_RATE_IMMOBILE)
+        if (NWScript.GetWeight(oPC) <= int.Parse(NWScript.Get2DAString("encumbrance", "Heavy", NWScript.GetAbilityScore(oPC, NWScript.ABILITY_STRENGTH))))
+          CreaturePlugin.SetMovementRate(oPC, CreaturePlugin.NWNX_CREATURE_MOVEMENT_RATE_PC);
 
       return 1;
     }
@@ -958,9 +964,9 @@ namespace NWN.Systems
     {
       uint oPC = NWScript.GetModuleItemAcquiredBy();
 
-      if (NWScript.GetMovementRate(oPC) != (int)MovementRate.Immobile)
-        if (NWScript.GetWeight(oPC) > int.Parse(NWScript.Get2DAString("encumbrance", "Heavy", oPC.AsCreature().Ability[Ability.Strength].Total)))
-          CreaturePlugin.SetMovementRate(oPC, MovementRate.Immobile);
+      if (NWScript.GetMovementRate(oPC) != CreaturePlugin.NWNX_CREATURE_MOVEMENT_RATE_IMMOBILE)
+        if (NWScript.GetWeight(oPC) > int.Parse(NWScript.Get2DAString("encumbrance", "Heavy", NWScript.GetAbilityScore(oPC, NWScript.ABILITY_STRENGTH))))
+          CreaturePlugin.SetMovementRate(oPC, CreaturePlugin.NWNX_CREATURE_MOVEMENT_RATE_IMMOBILE);
 
       return 1;
     }

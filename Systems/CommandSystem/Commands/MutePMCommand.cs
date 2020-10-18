@@ -8,15 +8,15 @@ namespace NWN.Systems
     {
       if (ctx.oTarget.IsValid)
       {
-        if (ObjectPlugin.GetInt(ctx.oSender, "__BLOCK_" + ctx.oTarget.Name + "_MP") == 0)
+        if (ObjectPlugin.GetInt(ctx.oSender, "__BLOCK_" + ctx.NWScript.GetName(oTarget.oid) + "_MP") == 0)
         {
-          ObjectPlugin.SetInt(ctx.oSender, "__BLOCK_" + ctx.oTarget.Name + "_MP", 1, true);
-          NWScript.SendMessageToPC(ctx.oSender, "Vous bloquez désormais tous les mps de " + ctx.oTarget.Name + ". Cette commande ne fonctionne pas sur les Dms.");
+          ObjectPlugin.SetInt(ctx.oSender, "__BLOCK_" + ctx.NWScript.GetName(oTarget.oid) + "_MP", 1, true);
+          NWScript.SendMessageToPC(ctx.oSender, "Vous bloquez désormais tous les mps de " + ctx.NWScript.GetName(oTarget.oid) + ". Cette commande ne fonctionne pas sur les Dms.");
         }
         else
         {
-          ObjectPlugin.DeleteInt(ctx.oSender, "__BLOCK_" + ctx.oTarget.Name + "_MP");
-          NWScript.SendMessageToPC(ctx.oSender, "Vous ne bloquez plus les mps de " + ctx.oTarget.Name);
+          ObjectPlugin.DeleteInt(ctx.oSender, "__BLOCK_" + ctx.NWScript.GetName(oTarget.oid) + "_MP");
+          NWScript.SendMessageToPC(ctx.oSender, "Vous ne bloquez plus les mps de " + ctx.NWScript.GetName(oTarget.oid));
         }
       }
       else

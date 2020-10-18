@@ -62,7 +62,7 @@ namespace NWN.Systems
 
                       if (iRandom < respawnChance)
                       {
-                        NWPlaceable newRock = NWScript.CreateObject(ObjectType.Placeable, "mineable_rock", ressourcePoint.Location).AsPlaceable();
+                        NWPlaceable newRock = NWScript.CreateObject(NWScript.OBJECT_TYPE_PLACEABLE, "mineable_rock", ressourcePoint.Location).AsPlaceable();
                         newRock.Name = ressourceType;
                         newRock.Locals.Int.Set("_ORE_AMOUNT", 200 * iRandom + 200 * iRandom * skillBonus / 100);
                         oPlaceable.Destroy();

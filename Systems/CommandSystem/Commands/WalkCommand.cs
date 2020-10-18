@@ -8,13 +8,13 @@ namespace NWN.Systems
     {
       if (ObjectPlugin.GetInt(ctx.oSender, "_ALWAYS_WALK") == 0)
       {
-        NWNX.Player.SetAlwaysWalk(ctx.oSender, true);
+        PlayerPlugin.SetAlwaysWalk(ctx.oSender, true);
         ObjectPlugin.SetInt(ctx.oSender, "_ALWAYS_WALK", 1, true);
         NWScript.SendMessageToPC(ctx.oSender, "Vous avez activé le mode marche.");
       }
       else
       {
-        NWNX.Player.SetAlwaysWalk(ctx.oSender, false);
+        PlayerPlugin.SetAlwaysWalk(ctx.oSender, false);
         ObjectPlugin.DeleteInt(ctx.oSender, "_ALWAYS_WALK");
         NWScript.SendMessageToPC(ctx.oSender, "Vous avez désactivé le mode marche.");
       }

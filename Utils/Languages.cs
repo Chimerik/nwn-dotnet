@@ -1,4 +1,4 @@
-﻿using NWN.Enums;
+﻿using NWN.Core;
 
 namespace NWN
 {
@@ -40,7 +40,7 @@ namespace NWN
 
        switch (iLangue)
        {
-         case (int)Feat.LanguageElf:
+         case 1116: // Langue elfe // TODO : convertir en enum
            sToConvert = ConvertElven(sToConvert);
            break;
  /*        case _LANGUE_GNOME:
