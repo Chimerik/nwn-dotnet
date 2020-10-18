@@ -21,6 +21,7 @@ namespace NWN.ScriptHandlers
      .Concat(Systems.ChatSystem.Register)
      .Concat(Systems.SpellSystem.Register)
      .Concat(Systems.ItemSystem.Register)
+     .Concat(PlaceableSystem.Register)
      .Concat(Systems.CollectSystem.Register)
      .ToDictionary(kvp => kvp.Key, kvp => kvp.Value);
 
@@ -28,14 +29,14 @@ namespace NWN.ScriptHandlers
     {
       try
       {
-        Systems.LootSystem.InitChestArea();
+        LootSystem.InitChestArea();
       }
       catch (Exception e)
       {
         Utils.LogException(e);
       }
 
-      Systems.ChatSystem.Init();
+      ChatSystem.Init();
 
       NWScript.SetEventScript(NWScript.GetModule(), (int)EventScript.Module_OnPlayerTarget, "on_pc_target");
 
@@ -47,11 +48,11 @@ namespace NWN.ScriptHandlers
       NWNX.Events.SubscribeEvent("NWNX_ON_REMOVE_ASSOCIATE_AFTER", "summon_remove_after");
       NWNX.Events.ToggleDispatchListMode("NWNX_ON_REMOVE_ASSOCIATE_AFTER", "summon_remove_after", 1);
 
-      NWNX.Events.SubscribeEvent(NWNX.Events.ON_INPUT_KEYBOARD_BEFORE, Systems.PlayerSystem.ON_PC_KEYSTROKE_SCRIPT);
-      NWNX.Events.ToggleDispatchListMode(NWNX.Events.ON_INPUT_KEYBOARD_BEFORE, Systems.PlayerSystem.ON_PC_KEYSTROKE_SCRIPT, 1);
+      NWNX.Events.SubscribeEvent(NWNX.Events.ON_INPUT_KEYBOARD_BEFORE, PlayerSystem.ON_PC_KEYSTROKE_SCRIPT);
+      NWNX.Events.ToggleDispatchListMode(NWNX.Events.ON_INPUT_KEYBOARD_BEFORE, PlayerSystem.ON_PC_KEYSTROKE_SCRIPT, 1);
 
-      Events.SubscribeEvent(Events.ON_INPUT_KEYBOARD_BEFORE, Systems.PlayerSystem.ON_PC_KEYSTROKE_SCRIPT);
-      Events.ToggleDispatchListMode(Events.ON_INPUT_KEYBOARD_BEFORE, Systems.PlayerSystem.ON_PC_KEYSTROKE_SCRIPT, 1);
+      Events.SubscribeEvent(Events.ON_INPUT_KEYBOARD_BEFORE, PlayerSystem.ON_PC_KEYSTROKE_SCRIPT);
+      Events.ToggleDispatchListMode(Events.ON_INPUT_KEYBOARD_BEFORE, PlayerSystem.ON_PC_KEYSTROKE_SCRIPT, 1);
 
       NWNX.Events.SubscribeEvent("NWNX_ON_INPUT_KEYBOARD_AFTER", "event_mv_plc");
       NWNX.Events.ToggleDispatchListMode("NWNX_ON_INPUT_KEYBOARD_AFTER", "event_mv_plc", 1);
