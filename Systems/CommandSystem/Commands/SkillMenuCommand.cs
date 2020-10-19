@@ -1,5 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
+using NWN.Core;
+using NWN.Core.NWNX;
 
 namespace NWN.Systems
 {
@@ -12,7 +13,7 @@ namespace NWN.Systems
       PlayerSystem.Player player;
       if (PlayerSystem.Players.TryGetValue(ctx.oSender, out player))
       {
-        player.Locals.Int.Set("_MENU_SKILL_REFRESH", 1);
+        NWScript.SetLocalInt(player.oid, "_MENU_SKILL_REFRESH", 1);
         __DrawSkillPage(player);
       }
     }
@@ -55,39 +56,39 @@ namespace NWN.Systems
     }
     private static void __HandleSkillSelection(PlayerSystem.Player player, SkillSystem.Skill SelectedSkill)
     {
-      if (ObjectPlugin.GetInt(player, "_CURRENT_JOB") != 0)
+      if (ObjectPlugin.GetInt(player.oid, "_CURRENT_JOB") != 0)
       {
-        SkillSystem.Skill CurrentSkill = player.learnableSkills[ObjectPlugin.GetInt(player, "_CURRENT_JOB")];
+        SkillSystem.Skill CurrentSkill = player.learnableSkills[ObjectPlugin.GetInt(player.oid, "_CURRENT_JOB")];
         if(CurrentSkill == null)
-          CurrentSkill = player.removeableMalus[ObjectPlugin.GetInt(player, "_CURRENT_JOB")];
+          CurrentSkill = player.removeableMalus[ObjectPlugin.GetInt(player.oid, "_CURRENT_JOB")];
 
         if (CurrentSkill.GetTimeToNextLevel(player) < 600) // TODO : Pour l'instant, j'interdis la pause et le changement si le skill est censé se terminer dans le prochain intervalle. Mais y a ptet mieux à faire
         {
-          player.SendMessage($"L'entrainement de {CurrentSkill.name} est sur le point de se terminer. Impossible de changer d'entrainement ou de le mettre en pause pour le moment.");
+          NWScript.SendMessageToPC(player.oid, $"L'entrainement de {CurrentSkill.name} est sur le point de se terminer. Impossible de changer d'entrainement ou de le mettre en pause pour le moment.");
         }
         else if (SelectedSkill.currentJob) // Job en cours sélectionné => mise en pause
         {
           SelectedSkill.currentJob = false;
-          ObjectPlugin.DeleteInt(player, "_CURRENT_JOB");
+          ObjectPlugin.DeleteInt(player.oid, "_CURRENT_JOB");
         }
         else
         {
           CurrentSkill.currentJob = false;
           SelectedSkill.currentJob = true;
-          ObjectPlugin.SetInt(player, "_CURRENT_JOB", SelectedSkill.oid, true);
+          ObjectPlugin.SetInt(player.oid, "_CURRENT_JOB", SelectedSkill.oid, 1);
         }
       }
       else
       {
         SelectedSkill.currentJob = true;
-        ObjectPlugin.SetInt(player, "_CURRENT_JOB", SelectedSkill.oid, true);
+        ObjectPlugin.SetInt(player.oid, "_CURRENT_JOB", SelectedSkill.oid, 1);
       }
 
       __DrawSkillPage(player);
     }
     private static void __HandleClose(PlayerSystem.Player player)
     {
-      player.Locals.Int.Delete("_MENU_SKILL_REFRESH");
+      NWScript.DeleteLocalInt(player.oid, "_MENU_SKILL_REFRESH");
       player.menu.Close();
     }
   }

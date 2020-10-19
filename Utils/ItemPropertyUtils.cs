@@ -12,7 +12,7 @@ namespace NWN
     //    default: throw new Exception($"Unimplemented property type='{nPropID}'");
 
     //    case ItemPropertyType.AttackBonus: return NWScript.ItemPropertyAttackBonus(nParam1);
-    //    case ItemPropertyType.AbilityBonus: return NWScript.ItemPropertyAbilityBonus(nParam1, nParam2);
+    //    case NWScript.ITEM_PROPERTY_ABILITY_BONUS: return NWScript.ItemPropertyAbilityBonus(nParam1, nParam2);
     //    case ItemPropertyType.ACBonus: return NWScript.ItemPropertyACBonus(nParam1);
     //    case ItemPropertyType.BaseItemWeightReduction: return NWScript.ItemPropertyWeightReduction(nParam1);
     //    case ItemPropertyType.BonusSpellSlotOfLevelN: return NWScript.ItemPropertyBonusLevelSpell(nParam1, nParam2);

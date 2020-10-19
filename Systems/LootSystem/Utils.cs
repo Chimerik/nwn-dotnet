@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using System.Linq;
 using Dapper;
+using NWN.Core;
+using NWN.Core.NWNX;
 
 namespace NWN.Systems
 {
@@ -81,9 +83,9 @@ namespace NWN.Systems
       var oPlaceable = NWScript.GetFirstObjectInArea(oArea);
       var list = new List<uint> { };
 
-      while (NWScript.GetIsObjectValid(oPlaceable))
+      while (NWScript.GetIsObjectValid(oPlaceable) == 1)
       {
-        if (NWScript.GetObjectType(oPlaceable) == Enums.NWScript.OBJECT_TYPE_PLACEABLE &&
+        if (NWScript.GetObjectType(oPlaceable) == NWScript.OBJECT_TYPE_PLACEABLE &&
             NWScript.GetHasInventory(oPlaceable) == 1)
         {
           list.Add(oPlaceable);
@@ -102,7 +104,7 @@ namespace NWN.Systems
 
       var oLoot = NWScript.GetFirstItemInInventory(oChest);
 
-      while (NWScript.GetIsObjectValid(oLoot))
+      while (NWScript.GetIsObjectValid(oLoot) == 1)
       {
         loots.Add(oLoot);
         oLoot = NWScript.GetNextItemInInventory(oChest);

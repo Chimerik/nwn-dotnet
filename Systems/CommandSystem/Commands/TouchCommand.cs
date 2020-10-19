@@ -1,5 +1,4 @@
-﻿using NWN.Enums;
-using NWN.NWNX;
+﻿using NWN.Core;
 
 namespace NWN.Systems
 {

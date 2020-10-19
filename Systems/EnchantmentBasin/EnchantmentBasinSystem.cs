@@ -1,4 +1,6 @@
-﻿namespace NWN.Systems
+﻿using NWN.Core;
+
+namespace NWN.Systems
 {
   public static partial class EnchantmentBasinSystem
   {
@@ -14,7 +16,7 @@
       if (oItem == NWScript.OBJECT_INVALID) return 1;
       if (!ItemUtils.IsEquipable(oItem)) return 1;
 
-      if (NWScript.GetPlotFlag(oItem))
+      if (NWScript.GetPlotFlag(oItem) == 1)
       {
         NWScript.SendMessageToPC(oPC, "Cannot enchant a plot item.");
         return 1;

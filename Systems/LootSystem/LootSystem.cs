@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using NWN.Core;
 
 namespace NWN.Systems
 {
@@ -53,7 +54,7 @@ namespace NWN.Systems
 
       var respawnDuration = lootableConfig.respawnDuration.GetValueOrDefault();
 
-      if (NWScript.GetIsObjectValid(oLooter))
+      if (NWScript.GetIsObjectValid(oLooter) == 1)
       {
         // Creature was killed or chest was destroyed
         if (lootableConfig.respawnDuration != null)
@@ -79,7 +80,7 @@ namespace NWN.Systems
         oLooter = NWScript.GetLastOpenedBy();
       }
 
-      if (!NWScript.GetIsObjectValid(oLooter))
+      if (NWScript.GetIsObjectValid(oLooter) != 1)
       {
         ThrowException($"Invalid Event for the script {ON_LOOT_SCRIPT}");
       }
