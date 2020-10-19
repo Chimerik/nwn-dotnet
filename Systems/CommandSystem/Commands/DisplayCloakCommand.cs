@@ -1,5 +1,4 @@
-﻿using NWN.Enums;
-using NWN.NWNX;
+﻿using NWN.Core;
 
 namespace NWN.Systems
 {
@@ -7,9 +6,9 @@ namespace NWN.Systems
   {
     private static void ExecuteDisplayCloakCommand(ChatSystem.Context ctx, Options.Result options)
     {
-      var oCloak = NWScript.GetItemInSlot(Enums.InventorySlot.Cloak, ctx.oSender);
+      var oCloak = NWScript.GetItemInSlot(NWScript.INVENTORY_SLOT_CLOAK, ctx.oSender);
 
-      if (NWScript.GetIsObjectValid(oCloak))
+      if (NWScript.GetIsObjectValid(oCloak) == 1)
       {
         if (NWScript.GetHiddenWhenEquipped(oCloak) == 0)
           NWScript.SetHiddenWhenEquipped(oCloak, 1);
@@ -17,7 +16,7 @@ namespace NWN.Systems
           NWScript.SetHiddenWhenEquipped(oCloak, 0);
       }
       else
-        NWScript.FloatingTextStringOnCreature("Vous ne portez pas de cape !", ctx.oSender, false);
+        NWScript.FloatingTextStringOnCreature("Vous ne portez pas de cape !", ctx.oSender, 0);
     }
   }
 }

@@ -1,4 +1,5 @@
-﻿using NWN.NWNX;
+﻿using NWN.Core;
+using NWN.Core.NWNX;
 
 namespace NWN.Systems
 {
@@ -6,16 +7,16 @@ namespace NWN.Systems
   {
     private static void ExecuteWalkCommand(ChatSystem.Context ctx, Options.Result options)
     {
-      if (NWNX.Object.GetInt(ctx.oSender, "_ALWAYS_WALK") == 0)
+      if (ObjectPlugin.GetInt(ctx.oSender, "_ALWAYS_WALK") == 0)
       {
-        NWNX.Player.SetAlwaysWalk(ctx.oSender, true);
-        NWNX.Object.SetInt(ctx.oSender, "_ALWAYS_WALK", 1, true);
+        PlayerPlugin.SetAlwaysWalk(ctx.oSender, 1);
+        ObjectPlugin.SetInt(ctx.oSender, "_ALWAYS_WALK", 1, 1);
         NWScript.SendMessageToPC(ctx.oSender, "Vous avez activé le mode marche.");
       }
       else
       {
-        NWNX.Player.SetAlwaysWalk(ctx.oSender, false);
-        NWNX.Object.DeleteInt(ctx.oSender, "_ALWAYS_WALK");
+        PlayerPlugin.SetAlwaysWalk(ctx.oSender, 0);
+        ObjectPlugin.DeleteInt(ctx.oSender, "_ALWAYS_WALK");
         NWScript.SendMessageToPC(ctx.oSender, "Vous avez désactivé le mode marche.");
       }
     }

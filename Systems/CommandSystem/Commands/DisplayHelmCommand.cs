@@ -1,5 +1,4 @@
-﻿using NWN.Enums;
-using NWN.NWNX;
+﻿using NWN.Core;
 
 namespace NWN.Systems
 {
@@ -7,9 +6,9 @@ namespace NWN.Systems
   {
     private static void ExecuteDisplayHelmCommand(ChatSystem.Context ctx, Options.Result options)
     {
-      var oHelmet = NWScript.GetItemInSlot(Enums.InventorySlot.Head, ctx.oSender);
+      var oHelmet = NWScript.GetItemInSlot(NWScript.INVENTORY_SLOT_HEAD, ctx.oSender);
 
-      if (NWScript.GetIsObjectValid(oHelmet))
+      if (NWScript.GetIsObjectValid(oHelmet) == 1)
       {
         if (NWScript.GetHiddenWhenEquipped(oHelmet) == 0)
           NWScript.SetHiddenWhenEquipped(oHelmet, 1);
@@ -17,7 +16,7 @@ namespace NWN.Systems
           NWScript.SetHiddenWhenEquipped(oHelmet, 0);
       }
       else
-        NWScript.FloatingTextStringOnCreature("Vous ne portez pas de casque !", ctx.oSender, false);
+        NWScript.FloatingTextStringOnCreature("Vous ne portez pas de casque !", ctx.oSender, 0);
     }
   }
 }

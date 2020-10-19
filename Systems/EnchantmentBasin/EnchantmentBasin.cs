@@ -1,7 +1,5 @@
 ﻿using System;
-using NWN.Enums;
-using NWN.Enums.Item;
-using NWN.Enums.VisualEffect;
+using NWN.Core;
 
 namespace NWN.Systems
 {
@@ -58,7 +56,7 @@ namespace NWN.Systems
         player.menu.title = "Menu du bassin d'enchantement";
 
         // AB
-        var currentAttackBonus = ItemUtils.GetItemPropertyBonus(oItem, ItemPropertyType.AttackBonus);
+        var currentAttackBonus = ItemUtils.GetItemPropertyBonus(oItem, NWScript.ITEM_PROPERTY_ATTACK_BONUS);
         if (currentAttackBonus < maxAttackBonus)
         {
           player.menu.choices.Add((
@@ -71,7 +69,7 @@ namespace NWN.Systems
         }
 
         // AC
-        var currentAC = ItemUtils.GetItemPropertyBonus(oItem, ItemPropertyType.ACBonus);
+        var currentAC = ItemUtils.GetItemPropertyBonus(oItem, NWScript.ITEM_PROPERTY_AC_BONUS);
         if (currentAC < maxACBonus)
         {
           player.menu.choices.Add((
@@ -84,78 +82,78 @@ namespace NWN.Systems
         }
 
         // STR
-        var currentSTR = ItemUtils.GetItemPropertyBonus(oItem, ItemPropertyType.AbilityBonus, (int)Enums.Item.Property.Ability.Strength);
+        var currentSTR = ItemUtils.GetItemPropertyBonus(oItem, NWScript.ITEM_PROPERTY_ABILITY_BONUS, NWScript.ABILITY_STRENGTH);
         if (currentSTR < maxAbilityBonus)
         {
           player.menu.choices.Add((
             "Ajouter bonus de force",
             () => HandleDrawCost(
-              NWScript.ItemPropertyAbilityBonus(Enums.Ability.Strength, currentAC + 1),
+              NWScript.ItemPropertyAbilityBonus(NWScript.ABILITY_STRENGTH, currentAC + 1),
               $"Bonus de force +{currentSTR + 1}"
             )
           ));
         }
 
         // DEX
-        var currentDEX = ItemUtils.GetItemPropertyBonus(oItem, ItemPropertyType.AbilityBonus, (int)Enums.Item.Property.Ability.Dexterity);
+        var currentDEX = ItemUtils.GetItemPropertyBonus(oItem, NWScript.ITEM_PROPERTY_ABILITY_BONUS, NWScript.ABILITY_DEXTERITY);
         if (currentDEX < maxAbilityBonus)
         {
           player.menu.choices.Add((
             "Ajouter bonus de dexterite",
             () => HandleDrawCost(
-              NWScript.ItemPropertyAbilityBonus(Enums.Ability.Dexterity, currentDEX + 1),
+              NWScript.ItemPropertyAbilityBonus(NWScript.ABILITY_DEXTERITY, currentDEX + 1),
               $"Bonus de dexterite +{currentDEX + 1}"
             )
           ));
         }
 
         // CON
-        var currentCON = ItemUtils.GetItemPropertyBonus(oItem, ItemPropertyType.AbilityBonus, (int)Enums.Item.Property.Ability.Constitution);
+        var currentCON = ItemUtils.GetItemPropertyBonus(oItem, NWScript.ITEM_PROPERTY_ABILITY_BONUS, NWScript.ABILITY_CONSTITUTION);
         if (currentCON < maxAbilityBonus)
         {
           player.menu.choices.Add((
             "Ajouter bonus de constitution",
             () => HandleDrawCost(
-              NWScript.ItemPropertyAbilityBonus(Enums.Ability.Constitution, currentCON + 1),
+              NWScript.ItemPropertyAbilityBonus(NWScript.ABILITY_CONSTITUTION, currentCON + 1),
               $"Bonus de constitution +{currentCON + 1}"
             )
           ));
         }
 
         // INT
-        var currentINT= ItemUtils.GetItemPropertyBonus(oItem, ItemPropertyType.AbilityBonus, (int)Enums.Item.Property.Ability.Intelligence);
+        var currentINT= ItemUtils.GetItemPropertyBonus(oItem, NWScript.ITEM_PROPERTY_ABILITY_BONUS, NWScript.ABILITY_INTELLIGENCE);
         if (currentINT < maxAbilityBonus)
         {
           player.menu.choices.Add((
             "Ajouter bonus d'intelligence",
             () => HandleDrawCost(
-              NWScript.ItemPropertyAbilityBonus(Enums.Ability.Intelligence, currentINT + 1),
+              NWScript.ItemPropertyAbilityBonus(NWScript.ABILITY_INTELLIGENCE, currentINT + 1),
               $"Bonus d'intelligence +{currentINT + 1}"
             )
           ));
         }
 
         // CHA
-        var currentCHA = ItemUtils.GetItemPropertyBonus(oItem, ItemPropertyType.AbilityBonus, (int)Enums.Item.Property.Ability.Charisma);
+        var currentCHA = ItemUtils.GetItemPropertyBonus(oItem, NWScript.ITEM_PROPERTY_ABILITY_BONUS, NWScript.ABILITY_CHARISMA);
         if (currentCHA < maxAbilityBonus)
         {
           player.menu.choices.Add((
             "Ajouter bonus de charisme",
             () => HandleDrawCost(
-              NWScript.ItemPropertyAbilityBonus(Enums.Ability.Charisma, currentCHA + 1),
+              NWScript.ItemPropertyAbilityBonus(NWScript.ABILITY_CHARISMA, currentCHA + 1),
               $"Bonus de charisme +{currentCHA + 1}"
             )
           ));
         }
 
         // WIS
-        var currentWIS = ItemUtils.GetItemPropertyBonus(oItem, ItemPropertyType.AbilityBonus, (int)Enums.Item.Property.Ability.Wisdom);
+        var currentWIS = ItemUtils.GetItemPropertyBonus(oItem, NWScript.ITEM_PROPERTY_ABILITY_BONUS, NWScript.ABILITY_WISDOM);
         if (currentWIS < maxAbilityBonus)
         {
           player.menu.choices.Add((
             "Ajouter bonus de sagesse",
             () => HandleDrawCost(
-              NWScript.ItemPropertyAbilityBonus(Enums.Ability.Wisdom, currentWIS + 1),
+              NWScript.ItemPropertyAbilityBonus(NWScript.ABILITY_WISDOM, currentWIS + 1),
               $"Bonus de sagesse +{currentWIS + 1}"
             )
           ));
@@ -167,7 +165,7 @@ namespace NWN.Systems
       private void HandleDrawCost(ItemProperty ip, string enchantmentName)
       {
         // Create a copy item to evaluate enchantment cost
-        uint oCopy = NWScript.CopyItem(oItem, player);
+        uint oCopy = NWScript.CopyItem(oItem, player.oid);
 
         // Enchant copy item to evaluate cost
         ItemPropertyUtils.ReplaceItemProperty(oCopy, ip);
@@ -196,25 +194,25 @@ namespace NWN.Systems
 
       private void HandleConfirm(ItemProperty ip, int cost, int successPercent)
       {
-        if (player.Gold <= cost)
+        if (NWScript.GetGold(player.oid) <= cost)
         {
-          player.SendMessage("Vous n'avez pas la quantité d'or requise pour effectuer cet enchantement.");
+          NWScript.SendMessageToPC(player.oid, "Vous n'avez pas la quantité d'or requise pour effectuer cet enchantement.");
           return;
         }
 
-        NWScript.TakeGoldFromCreature(cost, player.oid, true);
+        NWScript.TakeGoldFromCreature(cost, player.oid, 1);
 
         var roll = Utils.random.Next(1, 100);
         if (roll <= successPercent)
         {
           // Success
           ItemPropertyUtils.ReplaceItemProperty(oItem, ip);
-          NWScript.ApplyEffectToObject(DurationType.Instant, NWScript.EffectVisualEffect((VisualEffect)Impact.HolyAid), oItem);
+          NWScript.ApplyEffectToObject(NWScript.DURATION_TYPE_INSTANT, NWScript.EffectVisualEffect(NWScript.VFX_IMP_HOLY_AID), oItem);
         } else
         {
           // Failure
           NWScript.DestroyObject(oItem);
-          NWScript.ApplyEffectToObject(DurationType.Instant, NWScript.EffectVisualEffect((VisualEffect)Impact.FlameMedium), oItem);
+          NWScript.ApplyEffectToObject(NWScript.DURATION_TYPE_INSTANT, NWScript.EffectVisualEffect(NWScript.VFX_IMP_FLAME_M), oItem);
         }
       }
     }

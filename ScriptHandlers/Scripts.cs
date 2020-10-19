@@ -155,7 +155,7 @@ namespace NWN.ScriptHandlers
 
       // TODO : Restore Death corpses from DB
 
-      return 1;
+      return -1;
     }
 
     private static void SaveServerVault()
@@ -184,7 +184,7 @@ namespace NWN.ScriptHandlers
         }
       }
 
-      return 1;
+      return 0;
     }
 
     private static int EventPotager(uint oidSelf)
@@ -195,7 +195,7 @@ namespace NWN.ScriptHandlers
         oGarden.PlanterFruit(EventsPlugin.GetEventData("FRUIT_NAME"), EventsPlugin.GetEventData("FRUIT_TAG"));
       }
 
-      return 1;
+      return 0;
     }
 
     private static int EventEffects(uint oidSelf)
@@ -243,7 +243,7 @@ namespace NWN.ScriptHandlers
         }
       }
 
-      return 1;
+      return 0;
     }
   }
 }

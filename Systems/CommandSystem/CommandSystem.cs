@@ -2,7 +2,8 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
-using NWN.NWNX;
+using NWN.Core;
+using NWN.Core.NWNX;
 
 namespace NWN.Systems
 {
@@ -14,14 +15,14 @@ namespace NWN.Systems
     {
       if (ctx.msg.Length <= PREFIX.Length ||
         !ctx.msg.StartsWith(PREFIX) ||
-        !NWScript.GetIsPC(ctx.oSender)
+        NWScript.GetIsPC(ctx.oSender) != 1
       )
       {
         next();
         return;
       }
 
-      Chat.SkipMessage();
+      ChatPlugin.SkipMessage();
 
       var args = __SplitMessage(ctx.msg);
 

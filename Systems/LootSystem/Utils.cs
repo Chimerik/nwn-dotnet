@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using System.Linq;
 using Dapper;
+using NWN.Core;
+using NWN.Core.NWNX;
 
 namespace NWN.Systems
 {
@@ -42,7 +44,7 @@ namespace NWN.Systems
         connection.Execute(sql, new
         {
           tag = tag,
-          serialized = NWNX.Object.Serialize(oChest)
+          serialized = ObjectPlugin.Serialize(oChest)
         });
       }
     }
@@ -57,11 +59,11 @@ namespace NWN.Systems
         try
         {
           var lootContainer = connection.QuerySingle<Models.LootContainer>(sql, new { tag = chestTag });
-          var oDeserializedChest = NWNX.Object.Deserialize(lootContainer.serialized);
+          var oDeserializedChest = ObjectPlugin.Deserialize(lootContainer.serialized);
           var location = NWScript.GetLocation(oChest);
           var oChestPosition = NWScript.GetPositionFromLocation(location);
           var direction = NWScript.GetFacingFromLocation(location);
-          NWNX.Object.AddToArea(oDeserializedChest, oArea, oChestPosition);
+          ObjectPlugin.AddToArea(oDeserializedChest, oArea, oChestPosition);
           NWScript.AssignCommand(oDeserializedChest, () => NWScript.SetFacing(direction));
           NWScript.SetEventScript(oDeserializedChest, NWScript.EVENT_SCRIPT_PLACEABLE_ON_CLOSED, LOOT_CONTAINER_ON_CLOSE_SCRIPT);
           NWScript.DestroyObject(oChest);
@@ -81,9 +83,9 @@ namespace NWN.Systems
       var oPlaceable = NWScript.GetFirstObjectInArea(oArea);
       var list = new List<uint> { };
 
-      while (NWScript.GetIsObjectValid(oPlaceable))
+      while (NWScript.GetIsObjectValid(oPlaceable) == 1)
       {
-        if (NWScript.GetObjectType(oPlaceable) == Enums.ObjectType.Placeable &&
+        if (NWScript.GetObjectType(oPlaceable) == NWScript.OBJECT_TYPE_PLACEABLE &&
             NWScript.GetHasInventory(oPlaceable) == 1)
         {
           list.Add(oPlaceable);
@@ -102,7 +104,7 @@ namespace NWN.Systems
 
       var oLoot = NWScript.GetFirstItemInInventory(oChest);
 
-      while (NWScript.GetIsObjectValid(oLoot))
+      while (NWScript.GetIsObjectValid(oLoot) == 1)
       {
         loots.Add(oLoot);
         oLoot = NWScript.GetNextItemInInventory(oChest);

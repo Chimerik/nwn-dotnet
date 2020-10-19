@@ -20,8 +20,8 @@ namespace NWN.Systems
       public int successorId { get; set; }
       private int multiplier;
       private int pointsToNextLevel;
-      public readonly Ability primaryAbility;
-      public readonly Ability secondaryAbility;
+      public readonly int primaryAbility;
+      public readonly int secondaryAbility;
 
       public Skill(int Id, float SP)
       {
@@ -64,33 +64,33 @@ namespace NWN.Systems
         Dictionary<int, int> iSkillAbilities = new Dictionary<int, int>();
         
         if (int.TryParse(NWScript.Get2DAString("feat", "MINSTR", Id), out value))
-          iSkillAbilities.Add((int)Ability.Strength, value);
+          iSkillAbilities.Add(NWScript.ABILITY_STRENGTH, value);
         if (int.TryParse(NWScript.Get2DAString("feat", "MINDEX", Id), out value))
-          iSkillAbilities.Add((int)Ability.Dexterity, value);
+          iSkillAbilities.Add(NWScript.ABILITY_DEXTERITY, value);
         if (int.TryParse(NWScript.Get2DAString("feat", "MINCON", Id), out value))
-          iSkillAbilities.Add((int)Ability.Constitution, value);
+          iSkillAbilities.Add(NWScript.ABILITY_CONSTITUTION, value);
         if (int.TryParse(NWScript.Get2DAString("feat", "MININT", Id), out value))
-          iSkillAbilities.Add((int)Ability.Intelligence, value);
+          iSkillAbilities.Add(NWScript.ABILITY_INTELLIGENCE, value);
         if (int.TryParse(NWScript.Get2DAString("feat", "MINWIS", Id), out value))
-          iSkillAbilities.Add((int)Ability.Wisdom, value);
+          iSkillAbilities.Add(NWScript.ABILITY_WISDOM, value);
         if (int.TryParse(NWScript.Get2DAString("feat", "MINCHA", Id), out value))
-          iSkillAbilities.Add((int)Ability.Charisma, value);
+          iSkillAbilities.Add(NWScript.ABILITY_CHARISMA, value);
 
         iSkillAbilities.OrderBy(key => key.Value);
 
         if (iSkillAbilities.Count > 0)
-          this.primaryAbility = (Ability)iSkillAbilities.ElementAt(0).Key;
+          this.primaryAbility = iSkillAbilities.ElementAt(0).Key;
         else
         {
-          this.primaryAbility = Ability.Intelligence;
+          this.primaryAbility = NWScript.ABILITY_INTELLIGENCE;
           Utils.LogMessageToDMs($"SKILL SYSTEM ERROR - Skill {this.oid} : Primary ability not set");
         }
 
         if (iSkillAbilities.Count > 1)
-          this.secondaryAbility = (Ability)iSkillAbilities.ElementAt(1).Key;
+          this.secondaryAbility = iSkillAbilities.ElementAt(1).Key;
         else
         {
-          this.secondaryAbility = Ability.Wisdom;
+          this.secondaryAbility = NWScript.ABILITY_WISDOM;
           Utils.LogMessageToDMs($"SKILL SYSTEM ERROR - Skill {this.oid} : Secondary ability not set");
         }
 
@@ -99,7 +99,7 @@ namespace NWN.Systems
       public double GetTimeToNextLevel(Player oPC)
       {
         float RemainingPoints = this.pointsToNextLevel - this.acquiredPoints;
-        float PointsGenerationPerSecond = (float)(NWScript.GetAbilityScore(oPC, primaryAbility) + (NWScript.GetAbilityScore(oPC, secondaryAbility) / 2)) / 60;
+        float PointsGenerationPerSecond = (float)(NWScript.GetAbilityScore(oPC.oid, primaryAbility) + (NWScript.GetAbilityScore(oPC.oid, secondaryAbility) / 2)) / 60;
         if(!oPC.isConnected)
           PointsGenerationPerSecond = PointsGenerationPerSecond * 60 / 100;
         else if (oPC.isAFK)
@@ -146,9 +146,9 @@ namespace NWN.Systems
         string Countdown = this.GetTimeToNextLevelAsString(oPC);
         oPC.RefreshAcquiredSkillPoints();
 
-        NWScript.PostString(oPC, $"Apprentissage terminé dans {Countdown}", 80, 10, ScreenAnchor.TopLeft, 1.0f, unchecked((int)0xC0C0C0FF), unchecked((int)0xC0C0C0FF), 9, "fnt_galahad14");
+        NWScript.PostString(oPC.oid, $"Apprentissage terminé dans {Countdown}", 80, 10, NWScript.SCREEN_ANCHOR_TOP_LEFT, 1.0f, unchecked((int)0xC0C0C0FF), unchecked((int)0xC0C0C0FF), 9, "fnt_galahad14");
         
-        if(oPC.Locals.Int.Get("_DISPLAY_JOBS") == 1)
+        if(NWScript.GetLocalInt(oPC.oid, "_DISPLAY_JOBS") == 1)
           NWScript.DelayCommand(1.0f, () => DisplayTimeToNextLevel(oPC));
       }
     }

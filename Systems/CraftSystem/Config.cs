@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
-using NWN.Enums.Item.Property;
+using NWN.Core;
+using NWN.Core.NWNX;
 
 namespace NWN.Systems
 {
@@ -12,9 +13,9 @@ namespace NWN.Systems
     {
       public OreType type;
       public string name;
-      public NWN.Enums.Feat feat;
+      public int feat;
       public Dictionary<MineralType, float> mineralsDictionnary = new Dictionary<MineralType, float>();
-      public Ore(OreType oreType, NWN.Enums.Feat oreFeat)
+      public Ore(OreType oreType, int oreFeat)
       {
         this.type = oreType;
         this.name = GetNameFromOreType(oreType);
@@ -45,9 +46,9 @@ namespace NWN.Systems
 
     public static void InitiateOres()
     {
-      oresDictionnary.Add(OreType.Veldspar, new Ore(OreType.Veldspar, NWN.Enums.Feat.VeldsparReprocessing));
-      oresDictionnary.Add(OreType.Scordite, new Ore(OreType.Scordite, NWN.Enums.Feat.ScorditeReprocessing));
-      oresDictionnary.Add(OreType.Pyroxeres, new Ore(OreType.Pyroxeres, NWN.Enums.Feat.PyroxeresReprocessing));
+      oresDictionnary.Add(OreType.Veldspar, new Ore(OreType.Veldspar, 1145)); // TODO : VeldsparReprocessing // faire enums pour custom feats
+      oresDictionnary.Add(OreType.Scordite, new Ore(OreType.Scordite, 1146)); // TODO : ScorditeReprocessing
+      oresDictionnary.Add(OreType.Pyroxeres, new Ore(OreType.Pyroxeres, 1147)); // TODO : PyroxeresReprocessing
     }
     public static OreType GetOreTypeFromName(string name)
     {
@@ -179,7 +180,7 @@ namespace NWN.Systems
     //public static Dictionary<BaseItem, List<ItemProperty>> itemPropertiesDictionnary = new Dictionary<BaseItem, List<ItemProperty>>();
 
     public static void initiateCraftItemProperties()
-    { 
+    { /*
       List<ItemProperty> itemPropertyList = new List<ItemProperty>();
       //NWNX.Enum.ItemPropertyUnpacked prout;
       
@@ -226,7 +227,7 @@ namespace NWN.Systems
       test.Add(HashCode.Combine<MineralType, ItemSystem.ItemCategory>(MineralType.Pyerite, ItemSystem.ItemCategory.Shield), itemPropertyList);
       test.Add(HashCode.Combine<MineralType, ItemSystem.ItemCategory>(MineralType.Pyerite, ItemSystem.ItemCategory.Armor), itemPropertyList);
 
-      itemPropertyList.Clear();
+      itemPropertyList.Clear(); */
     }
   }
 }

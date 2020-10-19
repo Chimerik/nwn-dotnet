@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
-using NWN.Enums;
+using NWN.Core;
+using NWN.Core.NWNX;
 
 namespace NWN.Systems
 {
@@ -19,16 +20,16 @@ namespace NWN.Systems
     private static int HandleAddStrengthMalusFeat(PlayerSystem.Player player, int idMalusFeat)
     {
       player.removeableMalus.Add(idMalusFeat, new Skill(idMalusFeat, 0));
-      NWNX.Creature.SetRawAbilityScore(player, Enums.Ability.Strength, NWNX.Creature.GetRawAbilityScore(player, Enums.Ability.Strength) - 2);
-      return Entrypoints.SCRIPT_HANDLED;
+      CreaturePlugin.SetRawAbilityScore(player.oid, NWScript.ABILITY_STRENGTH, CreaturePlugin.GetRawAbilityScore(player.oid, NWScript.ABILITY_STRENGTH) - 2);
+      return 0;
     }
 
     private static int HandleRemoveStrengthMalusFeat(PlayerSystem.Player player, int idMalusFeat)
     {
       player.removeableMalus.Remove(idMalusFeat);
-      NWNX.Creature.SetRawAbilityScore(player, Enums.Ability.Strength, NWNX.Creature.GetRawAbilityScore(player, Enums.Ability.Strength) + 2);
+      CreaturePlugin.SetRawAbilityScore(player.oid, NWScript.ABILITY_STRENGTH, CreaturePlugin.GetRawAbilityScore(player.oid, NWScript.ABILITY_STRENGTH) + 2);
 
-      return Entrypoints.SCRIPT_HANDLED;
+      return 0;
     }
   }
 }
