@@ -17,12 +17,12 @@ namespace NWN
       Console.WriteLine(e.Message);
       NWScript.SendMessageToAllDMs(e.Message);
       NWScript.WriteTimestampedLogEntry(e.Message);
-      // TODO : Une fois dotnet.core mis à jour, envoyer le message sur Discord via nwnx.webhook
+      WebhookPlugin.SendWebHookHTTPS("discordapp.com", "/api/webhooks/737378235402289264/3-nDoj7dEw-edzjM-DDyjWFCZbs6LXACoJ9vFnOWXc8Pn2nArFEt3HiVIhHyu_lYiNUt/slack", e.Message, "AOA CRITICAL Errors");
     }
     public static void LogMessageToDMs(string message)
     {
       NWScript.SendMessageToAllDMs(message);
-      // TODO : Une fois dotnet.core mis à jour, envoyer le message sur Discord via nwnx.webhook
+      WebhookPlugin.SendWebHookHTTPS("discordapp.com", "/api/webhooks/737378235402289264/3-nDoj7dEw-edzjM-DDyjWFCZbs6LXACoJ9vFnOWXc8Pn2nArFEt3HiVIhHyu_lYiNUt/slack", message, "AOA Errors");
     }
 
     public static void DestroyInventory(uint oContainer)

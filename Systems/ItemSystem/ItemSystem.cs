@@ -33,10 +33,10 @@ namespace NWN.Systems
         {
           NWScript.SendMessageToPC(player.oid, "Attention, votre inventaire est plein. Déséquipper cet objet risquerait de vous le faire perdre !");
           EventsPlugin.SkipEvent();
-          return 1;
+          return 0;
         }
       }
-      return 1;
+      return 0;
     }
     private static int HandleBeforeUnequipItem(uint oidSelf)
     {
@@ -48,10 +48,10 @@ namespace NWN.Systems
         {
           NWScript.SendMessageToPC(player.oid, "Attention, votre inventaire est plein. Déséquipper cet objet risquerait de vous le faire perdre !");
           EventsPlugin.SkipEvent();
-          return 1;
+          return 0;
         }
       }
-      return 1;
+      return 0;
     }
     private static int HandleBeforeValidatingEquipItem(uint oidSelf)
     {
@@ -88,7 +88,7 @@ namespace NWN.Systems
               break;
         }
       }
-      return 1;
+      return 0;
     }
     private static int HandleBeforeItemAddedToRefinery(uint oidSelf)
     {
@@ -99,7 +99,7 @@ namespace NWN.Systems
         EventsPlugin.SkipEvent();
         NWScript.SpeakString("Seul le minerai peut être raffiné dans la fonderie.");
       }
-      return 1;
+      return 0;
     }
     private static int HandleItemAddedToRefinery(uint oidSelf)
     {
@@ -133,7 +133,7 @@ namespace NWN.Systems
         }
       }
 
-      return 1;
+      return 0;
     }
     private static int HandleRefineryClose(uint oidSelf)
     {
@@ -184,7 +184,7 @@ namespace NWN.Systems
         
       }
 
-      return 1;
+      return 0;
     }
     private static int HandleAfterItemAddedToPCCorpse(uint oidSelf)
     {
@@ -196,7 +196,7 @@ namespace NWN.Systems
           // TODO : mettre à jour le cadavre serialisé en BDD
           break;
       }
-      return 1;
+      return 0;
     }
     private static int HandleAfterItemRemovedFromPCCorpse(uint oidSelf)
     {
@@ -232,7 +232,7 @@ namespace NWN.Systems
 
         // TODO : enregistrer oPCCorpse en BDD
       }
-      return 1;
+      return 0;
     }
   }
 }

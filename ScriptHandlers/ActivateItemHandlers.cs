@@ -20,7 +20,7 @@ namespace NWN.ScriptHandlers
     {
       Console.WriteLine($"You activated the item {NWScript.GetName(oItem)}! {NWScript.GetName(oActivator)}");
 
-      return 1;
+      return 0;
     }
 
     private static int HandleBlockTesterActivate(uint oItem, uint oActivator, uint oTarget)
@@ -31,7 +31,7 @@ namespace NWN.ScriptHandlers
         player.BoulderBlock();
       }
 
-      return 1;
+      return 0;
     }
     private static int HandleBlueprintActivate(uint oItem, uint oActivator, uint oTarget)
     {
@@ -44,8 +44,8 @@ namespace NWN.ScriptHandlers
 
         if(blueprintType == CollectSystem.BlueprintType.Invalid)
         {
-          // TODO : envoyer l'erreur sur Discord
-          return 1;
+          Utils.LogMessageToDMs($"Invalid blueprint : {blueprintType}");
+          return 0;
         }
 
         if (CollectSystem.blueprintDictionnary.ContainsKey(blueprintType))
@@ -86,7 +86,7 @@ namespace NWN.ScriptHandlers
         }
       }
 
-      return 1;
+      return 0;
     }
     private static int HandleSkillBookActivate(uint oItem, uint oActivator, uint oTarget)
     {
@@ -107,7 +107,7 @@ namespace NWN.ScriptHandlers
           NWScript.SendMessageToPC(player.oid, "Vous connaissez déjà les bases d'entrainement de cette capacité");
       }
 
-      return 1;
+      return 0;
     }
   }
 }

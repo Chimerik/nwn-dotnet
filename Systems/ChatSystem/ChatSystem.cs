@@ -44,7 +44,7 @@ namespace NWN.Systems
         channel: ChatPlugin.GetChannel()
       ));
 
-      return 1;
+      return 0;
     }
 
     private static Pipeline<Context> pipeline = new Pipeline<Context>(

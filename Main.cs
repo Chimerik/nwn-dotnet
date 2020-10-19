@@ -22,16 +22,17 @@ namespace NWN
       // a script does not need to be in the module for its name to be assigned. Many DotNET modules
       // have no .nss or .ncs files at all. Note that script names must always be shorter than 16
       // characters by an internal engine limitation.
-      switch (scriptName)
+      Func<uint, int> handler;
+      if (ScriptHandlers.Scripts.Register.TryGetValue(scriptName, out handler))
       {
-        // An ordinary script. No return value set.
-        case "x2_mod_def_load":
-          Console.WriteLine("Module started.");
-          break;
-        // A conditional script. Return value set appropriately.
-        case "chk_is_male":
-          scriptHandleResult = NWScript.GetGender(NWScript.GetPCSpeaker()) == 0 ? 1 : 0;
-          break;
+        try
+        {
+          scriptHandleResult = handler.Invoke(objectSelf);
+        }
+        catch (Exception e)
+        {
+          Utils.LogException(e);
+        }
       }
 
       // default return value

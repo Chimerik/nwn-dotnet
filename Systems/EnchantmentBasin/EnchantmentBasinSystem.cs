@@ -9,30 +9,30 @@ namespace NWN.Systems
       var oPC = NWScript.GetLastClosedBy();
       PlayerSystem.Player player;
 
-      if (!PlayerSystem.Players.TryGetValue(oPC, out player)) return 1;
+      if (!PlayerSystem.Players.TryGetValue(oPC, out player)) return 0;
 
       var oItem = NWScript.GetFirstItemInInventory();
 
-      if (oItem == NWScript.OBJECT_INVALID) return 1;
-      if (!ItemUtils.IsEquipable(oItem)) return 1;
+      if (oItem == NWScript.OBJECT_INVALID) return 0;
+      if (!ItemUtils.IsEquipable(oItem)) return 0;
 
       if (NWScript.GetPlotFlag(oItem) == 1)
       {
         NWScript.SendMessageToPC(oPC, "Cannot enchant a plot item.");
-        return 1;
+        return 0;
       }
 
       var oSecondItem = NWScript.GetNextItemInInventory();
       if (oSecondItem != NWScript.OBJECT_INVALID)
       {
         NWScript.SendMessageToPC(oPC, "Invalid number of items.");
-        return 1;
+        return 0;
       }
 
       var enchantmentBasin = new EnchantmentBasin(player, oItem);
       enchantmentBasin.DrawMenu();
 
-      return 1;
+      return 0;
     }
   }
 }

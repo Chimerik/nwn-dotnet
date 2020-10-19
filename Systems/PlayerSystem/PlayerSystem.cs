@@ -166,7 +166,7 @@ namespace NWN.Systems
         
         EventsPlugin.AddObjectToDispatchList("NWNX_ON_CLIENT_DISCONNECT_BEFORE", "player_exit_before", oPC);
       }
-      return 1;
+      return 0;
     }
 
     private static int HandlePlayerDisconnect(uint oidSelf)
@@ -175,7 +175,7 @@ namespace NWN.Systems
       EventsPlugin.RemoveObjectFromDispatchList(EventsPlugin.ON_INPUT_KEYBOARD_BEFORE, ON_PC_KEYSTROKE_SCRIPT, oPC);
       Players.Remove(oPC);
 */
-      return 1;
+      return 0;
     }
 
     private static int HandlePlayerKeystroke(uint oidSelf)
@@ -187,7 +187,7 @@ namespace NWN.Systems
         player.EmitKeydown(new Player.KeydownEventArgs(key));
       }
 
-      return 1;
+      return 0;
     }
 
     private static int HandlePlayerTargetSelection(uint oidSelf)
@@ -202,7 +202,7 @@ namespace NWN.Systems
         player.DoActionOnTargetSelected(oTarget, vTarget);
       }
 
-      return 1;
+      return 0;
     }
     private static int HandleBeforePlayerSave(uint oidSelf)
     {
@@ -223,7 +223,7 @@ namespace NWN.Systems
             if (Utils.HasAnyEffect(player.oid, NWScript.EFFECT_TYPE_POLYMORPH))
             {
               EventsPlugin.SkipEvent();
-              return 1;
+              return 0;
             }
           }
 
@@ -245,7 +245,7 @@ namespace NWN.Systems
           player.isAFK = true;
         }
 
-      return 1;
+      return 0;
     }
     private static int HandleBeforeDMPossess(uint oidSelf)
     {
@@ -280,7 +280,7 @@ namespace NWN.Systems
           }
         }
       }
-      return 1;
+      return 0;
     }
 
     private static int HandleAfterDMSpawnObject(uint oidSelf)
@@ -300,7 +300,7 @@ namespace NWN.Systems
             NWScript.SendMessageToPC(oPC.oid, "Création temporaire - Ce placeable sera effacé par le prochain reboot.");
         }
       }
-      return 1;
+      return 0;
     }
 
     private static int HandlePlayerBeforeDisconnect(uint oidSelf)
@@ -317,7 +317,7 @@ namespace NWN.Systems
         HandleAfterPartyLeave(oidSelf);
       }
 
-      return 1;
+      return 0;
     }
 
     private static int HandleMovePlaceable(uint oidSelf)
@@ -343,7 +343,7 @@ namespace NWN.Systems
         NWScript.AssignCommand(oMeuble, () => NWScript.SetFacing(NWScript.GetFacing(oMeuble) + 20.0f));
       //NWScript.AssignCommand(oMeuble, () => NWScript.SetFacing(oMeuble.Facing + 20.0f));
 
-      return 1;
+      return 0;
     }
 
     private static int HandleFeatUsed(uint oidSelf)
@@ -376,7 +376,7 @@ namespace NWN.Systems
             }
           }
 
-          return 1;
+          return 0;
         }
         else if (feat == 1116) // TODO : enum LanguageElf
         {
@@ -398,7 +398,7 @@ namespace NWN.Systems
             RefreshQBS(oidSelf, feat);
           }
         
-          return 1;
+          return 0;
         }
         else if (feat == NWScript.FEAT_PLAYER_TOOL_01)
         {
@@ -454,10 +454,10 @@ namespace NWN.Systems
               myPlayer.selectedObjectsList.Clear();
             }
           }
-          return 1;
+          return 0;
         }
       }
-      return 1;
+      return 0;
     }
 
     private static void RefreshQBS(uint oidSelf, int feat)
@@ -513,7 +513,7 @@ namespace NWN.Systems
         oPC.autoAttackTarget = oTarget;
       }
 
-      return 1;
+      return 0;
     }
 
     private static int HandleOnSpellCast(uint oidSelf)
@@ -528,7 +528,7 @@ namespace NWN.Systems
           oPC.autoAttackTarget = NWScript.OBJECT_INVALID;
       }
 
-      return 1;
+      return 0;
     }
 
     private static void FrostAutoAttack(uint oClicker, uint oTarget)
@@ -553,7 +553,7 @@ namespace NWN.Systems
         if (Players.TryGetValue(NWScript.GetLastPerceived(), out oPerceived))
         {
           if (NWScript.GetIsPC(oPerceived.oid) != 1 || NWScript.GetIsDM(oPerceived.oid) == 1 || NWScript.GetIsDMPossessed(oPerceived.oid) == 1 || oPerceived.disguiseName.Length == 0)
-            return 1;
+            return 0;
 
           if (!oPC.disguiseDetectTimer.ContainsKey(oPC.oid) || (DateTime.Now - oPC.disguiseDetectTimer[oPerceived.oid]).TotalSeconds > 1800)
           {
@@ -583,7 +583,7 @@ namespace NWN.Systems
         }
       }
 
-      return 1;
+      return 0;
     }
     private static int HandleAfterAddSummon(uint oidSelf)
     {
@@ -600,7 +600,7 @@ namespace NWN.Systems
         }
       }
 
-      return 1;
+      return 0;
     }
     private static int HandleAfterRemoveSummon(uint oidSelf)
     {
@@ -617,7 +617,7 @@ namespace NWN.Systems
         }
       }
 
-      return 1;
+      return 0;
     }
     private static int HandleOnCombatMode(uint oidSelf)
     { 
@@ -631,7 +631,7 @@ namespace NWN.Systems
           }
       }
 
-      return 1;
+      return 0;
     }
     private static int HandleOnSkillUsed(uint oidSelf)
     {
@@ -696,7 +696,7 @@ namespace NWN.Systems
           }
       }
 
-      return 1;
+      return 0;
     }
     private static int HandleAfterDetection(uint oidSelf)
     {
@@ -762,7 +762,7 @@ namespace NWN.Systems
         }
       }
 
-      return 1;
+      return 0;
     }
     private static int HandlePlayerDeath(uint oidSelf)
     {
@@ -806,7 +806,7 @@ namespace NWN.Systems
         NWScript.DelayCommand(5.0f, () => player.SendToLimbo());
       }
 
-      return 1;
+      return 0;
     }
 
     private static int HandleAfterDMJumpTarget(uint oidSelf)
@@ -822,7 +822,7 @@ namespace NWN.Systems
         }
       }
 
-      return 1;
+      return 0;
     }
     public static PlayerSystem.Player GetPCById(int PcId)
     {
@@ -854,7 +854,7 @@ namespace NWN.Systems
         }
       }
 
-      return 1;
+      return 0;
     }
     private static int HandleAfterPartyAccept(uint oidSelf)
     {
@@ -875,17 +875,17 @@ namespace NWN.Systems
         }
       }   
 
-      return 1;
+      return 0;
     }
     private static int HandleAfterPartyLeave(uint oidSelf)
     {
       Utils.RemoveTaggedEffect(oidSelf, "PartyEffect");
-      return 1;
+      return 0;
     }
     private static int HandleAfterPartyKick(uint oidSelf)
     {
       Utils.RemoveTaggedEffect(ObjectPlugin.StringToObject(EventsPlugin.GetEventData("KICKED")), "PartyEffect");
-      return 1;
+      return 0;
     }
     private static int HandleBeforePartyLeave(uint oidSelf)
     {
@@ -905,7 +905,7 @@ namespace NWN.Systems
         }
       }
 
-      return 1;
+      return 0;
     }
     private static int HandleBeforeExamine(uint oidSelf)
     {
@@ -932,7 +932,7 @@ namespace NWN.Systems
               break;
         }
       }
-      return 1;
+      return 0;
     }
     private static int HandleAfterExamine(uint oidSelf)
     {
@@ -948,7 +948,7 @@ namespace NWN.Systems
             break;
         }
       }
-      return 1;
+      return 0;
     }
     private static int HandlePCUnacquireItem(uint oidSelf)
     {
@@ -958,7 +958,7 @@ namespace NWN.Systems
         if (NWScript.GetWeight(oPC) <= int.Parse(NWScript.Get2DAString("encumbrance", "Heavy", NWScript.GetAbilityScore(oPC, NWScript.ABILITY_STRENGTH))))
           CreaturePlugin.SetMovementRate(oPC, CreaturePlugin.NWNX_CREATURE_MOVEMENT_RATE_PC);
 
-      return 1;
+      return 0;
     }
     private static int HandlePCAcquireItem(uint oidSelf)
     {
@@ -968,7 +968,7 @@ namespace NWN.Systems
         if (NWScript.GetWeight(oPC) > int.Parse(NWScript.Get2DAString("encumbrance", "Heavy", NWScript.GetAbilityScore(oPC, NWScript.ABILITY_STRENGTH))))
           CreaturePlugin.SetMovementRate(oPC, CreaturePlugin.NWNX_CREATURE_MOVEMENT_RATE_IMMOBILE);
 
-      return 1;
+      return 0;
     }
   }
 }

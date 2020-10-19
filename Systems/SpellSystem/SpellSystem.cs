@@ -203,7 +203,7 @@ namespace NWN.Systems
 
       CreaturePlugin.RestoreSpells(oCaster, 0);
 
-      return 1;
+      return 0;
     }
     private static int AfterSpellBroadcast(uint oidSelf)
     {
@@ -241,7 +241,7 @@ namespace NWN.Systems
         }
       }
 
-      return 1;
+      return 0;
     }
     private static int HandleRaiseDeadCast(uint oidSelf)
     {
@@ -281,10 +281,10 @@ namespace NWN.Systems
 
         NWScript.SignalEvent(oTarget, NWScript.EventSpellCastAt(oidSelf, NWScript.SPELL_RAISE_DEAD, 0));
         NWScript.ApplyEffectAtLocation(NWScript.DURATION_TYPE_INSTANT, NWScript.EffectVisualEffect(NWScript.VFX_IMP_RAISE_DEAD), NWScript.GetLocation(oTarget));
-        return 1;
+        return 0;
       }
 
-      return 1;
+      return 0;
     }
     private static int SpellTest(uint oidSelf)
     {
@@ -302,7 +302,7 @@ namespace NWN.Systems
         NWScript.SendMessageToPC(oPC.oid, $"Item used = {NWScript.GetName(NWScript.GetSpellCastItem())}");
       }
 
-      return 1;
+      return 0;
     }
   }
 }

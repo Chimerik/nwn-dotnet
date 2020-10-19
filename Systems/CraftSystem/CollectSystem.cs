@@ -21,7 +21,7 @@ namespace NWN.Systems
         player.DoActionOnMiningCycleCancelled();
       }
 
-      return 1;
+      return 0;
     }
     private static int HandleAfterMiningCycleComplete(uint oidSelf)
     {
@@ -33,7 +33,7 @@ namespace NWN.Systems
         player.DoActionOnMiningCycleCompleted();
       }
 
-      return 1;
+      return 0;
     }    
     public static void StartMiningCycle(PlayerSystem.Player player, uint rock, Action cancelCallback, Action completeCallback)
     {
