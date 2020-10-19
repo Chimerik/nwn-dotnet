@@ -1,7 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
-using NWN.Enums;
+using System.Linq;
+using NWN.Core;
+using NWN.Core.NWNX;
 using NWN.Systems;
+using System.Numerics;
 
 namespace NWN
 {
@@ -14,12 +17,12 @@ namespace NWN
       Console.WriteLine(e.Message);
       NWScript.SendMessageToAllDMs(e.Message);
       NWScript.WriteTimestampedLogEntry(e.Message);
-      // TODO : Une fois dotnet.core mis à jour, envoyer le message sur Discord via nwnx.webhook
+      WebhookPlugin.SendWebHookHTTPS("discordapp.com", "/api/webhooks/737378235402289264/3-nDoj7dEw-edzjM-DDyjWFCZbs6LXACoJ9vFnOWXc8Pn2nArFEt3HiVIhHyu_lYiNUt/slack", e.Message, "AOA CRITICAL Errors");
     }
     public static void LogMessageToDMs(string message)
     {
       NWScript.SendMessageToAllDMs(message);
-      // TODO : Une fois dotnet.core mis à jour, envoyer le message sur Discord via nwnx.webhook
+      WebhookPlugin.SendWebHookHTTPS("discordapp.com", "/api/webhooks/737378235402289264/3-nDoj7dEw-edzjM-DDyjWFCZbs6LXACoJ9vFnOWXc8Pn2nArFEt3HiVIhHyu_lYiNUt/slack", message, "AOA Errors");
     }
 
     public static void DestroyInventory(uint oContainer)
@@ -27,7 +30,7 @@ namespace NWN
       var objectsToDestroy = new List<uint> { };
       var oObj = NWScript.GetFirstItemInInventory(oContainer);
 
-      while (NWScript.GetIsObjectValid(oObj))
+      while (NWScript.GetIsObjectValid(oObj) == 1)
       {
         objectsToDestroy.Add(oObj);
         oObj = NWScript.GetNextItemInInventory(oContainer);
@@ -42,13 +45,13 @@ namespace NWN
     public static string LocationToString(Location l)
     {
       uint area = NWScript.GetAreaFromLocation(l);
-      Vector pos = NWScript.GetPositionFromLocation(l);
+      Vector3 pos = NWScript.GetPositionFromLocation(l);
       float facing = NWScript.GetFacingFromLocation(l);
 
       return "#TAG#" + NWScript.GetTag(area) + "#RESREF#" + NWScript.GetResRef(area) +
-              "#X#" + NWScript.FloatToString(pos.x, 5, 2) +
-              "#Y#" + NWScript.FloatToString(pos.y, 5, 2) +
-              "#Z#" + NWScript.FloatToString(pos.z, 5, 2) +
+              "#X#" + NWScript.FloatToString(pos.X, 5, 2) +
+              "#Y#" + NWScript.FloatToString(pos.Y, 5, 2) +
+              "#Z#" + NWScript.FloatToString(pos.Z, 5, 2) +
               "#F#" + NWScript.FloatToString(facing, 5, 2) + "#";
     }
 
@@ -102,29 +105,29 @@ namespace NWN
     public static Boolean IsPartyMember(uint oPC, uint oTarget)
     {
       // Get the first PC party member
-      var oPartyMember = NWScript.GetFirstFactionMember(oPC, true);
+      var oPartyMember = NWScript.GetFirstFactionMember(oPC, 1);
 
-      while (NWScript.GetIsObjectValid(oPartyMember))
+      while (NWScript.GetIsObjectValid(oPartyMember) == 1)
       {
         if (oPartyMember == oTarget)
           return true;
-        oPartyMember = NWScript.GetNextFactionMember(oPC, true);
+        oPartyMember = NWScript.GetNextFactionMember(oPC, 1);
       }
       return false;
     }
     public static void RebootTimer(uint oPC, int iTimer)
     {
-      NWScript.PostString(oPC, $"REBOOT dans {iTimer} secondes !", 80, 10, ScreenAnchor.TopLeft, 30.0f, unchecked((int)0xC0C0C0FF), unchecked((int)0xC0C0C0FF), 1, "fnt_galahad14");
-      GUI_DrawWindow(oPC, 2, ScreenAnchor.TopLeft, 77, 7, 30, 5);
+      NWScript.PostString(oPC, $"REBOOT dans {iTimer} secondes !", 80, 10, NWScript.SCREEN_ANCHOR_TOP_LEFT, 30.0f, unchecked((int)0xC0C0C0FF), unchecked((int)0xC0C0C0FF), 1, "fnt_galahad14");
+      GUI_DrawWindow(oPC, 2, NWScript.SCREEN_ANCHOR_TOP_LEFT, 77, 7, 30, 5);
       iTimer -= 1;
       NWScript.DelayCommand(1.0f, () => RebootTimer(oPC, iTimer));
 
       if (iTimer < 6)
-        NWNX.Player.PlaySound(oPC, "gui_magbag_full", oPC);
+        PlayerPlugin.PlaySound(oPC, "gui_magbag_full", oPC);
       else
-        NWNX.Player.PlaySound(oPC, "gui_dm_alert", oPC);
+        PlayerPlugin.PlaySound(oPC, "gui_dm_alert", oPC);
     }
-    public static int GUI_DrawWindow(uint oPlayer, int nStartID, ScreenAnchor nAnchor, int nX, int nY, int nWidth, int nHeight, float fLifetime = 0.0f)
+    public static int GUI_DrawWindow(uint oPlayer, int nStartID, int nAnchor, int nX, int nY, int nWidth, int nHeight, float fLifetime = 0.0f)
     {
       string sTop = "a";
       string sMiddle = "d";
@@ -151,7 +154,7 @@ namespace NWN
 
       return nHeight + 2;
     }
-    public static void GUI_Draw(uint oPlayer, string sMessage, int nX, int nY, ScreenAnchor nAnchor, int nID, float fLifeTime = 0.0f)
+    public static void GUI_Draw(uint oPlayer, string sMessage, int nX, int nY, int nAnchor, int nID, float fLifeTime = 0.0f)
     {
       NWScript.PostString(oPlayer, sMessage, nX, nY, nAnchor, fLifeTime, unchecked((int)0xC0C0C0FF), unchecked((int)0xC0C0C0FF), nID, "fnt_es_gui");
     }
@@ -159,9 +162,66 @@ namespace NWN
     {
       foreach (KeyValuePair<uint, PlayerSystem.Player> PlayerListEntry in PlayerSystem.Players)
       {
-        if (!NWScript.GetIsDM(PlayerListEntry.Key))
+        if (NWScript.GetIsDM(PlayerListEntry.Key) != 1)
           NWScript.BootPC(PlayerListEntry.Key, "Le serveur redémarre. Vous pourrez vous reconnecter dans une minute.");
       }
+    }
+    public static bool HasAnyEffect(uint oObject, params int[] effectIDs)
+    {
+      var eff = NWScript.GetFirstEffect(oObject);
+      while (NWScript.GetIsEffectValid(eff) == 1)
+      {
+        if (effectIDs.Contains(NWScript.GetEffectType(eff))) 
+          return true;
+        eff = NWScript.GetNextEffect(oObject);
+      }
+
+      return false;
+    }
+    public static Boolean HasTagEffect(uint oObject, string sTag)
+    {
+      var eff = NWScript.GetFirstEffect(oObject);
+      while (NWScript.GetIsEffectValid(eff) == 1)
+      {
+        if (NWScript.GetEffectTag(eff) == sTag)
+          return true;
+        eff = NWScript.GetNextEffect(oObject);
+      }
+      return false;
+    }
+
+    public static void RemoveTaggedEffect(uint oObject, string Tag)
+    {
+      var eff = NWScript.GetFirstEffect(oObject);
+      while (NWScript.GetIsEffectValid(eff) == 1)
+      { 
+        if (NWScript.GetEffectTag(eff) == Tag)
+        {
+          NWScript.RemoveEffect(oObject, eff);
+          break;
+        }
+        eff = NWScript.GetNextEffect(oObject);
+      }
+    }
+    public static QuickBarSlot CreateEmptyQBS()
+    {
+      QuickBarSlot emptyQBS = new QuickBarSlot();
+      emptyQBS.nObjectType =  0; // 0 = EMPTY
+
+      emptyQBS.oItem = NWScript.OBJECT_INVALID;
+      emptyQBS.oSecondaryItem = NWScript.OBJECT_INVALID;
+      emptyQBS.nMultiClass = 0;
+      emptyQBS.sResRef = "";
+      emptyQBS.sCommandLabel = "";
+      emptyQBS.sCommandLine = "";
+      emptyQBS.sToolTip = "";
+      emptyQBS.nINTParam1 = 0;
+      emptyQBS.nMetaType = 0;
+      emptyQBS.nDomainLevel = 0;
+      emptyQBS.nAssociateType = 0;
+      emptyQBS.oAssociate = NWScript.OBJECT_INVALID;
+
+      return emptyQBS;
     }
   }
 }

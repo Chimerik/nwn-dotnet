@@ -1,8 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
-using NWN.Enums;
-using NWN.Enums.Item.Property;
-using NWN.Enums.VisualEffect;
+using NWN.Core;
+using NWN.Core.NWNX;
 
 namespace NWN
 {
@@ -13,38 +11,38 @@ namespace NWN
       Console.WriteLine(e.Message);
       NWScript.SendMessageToAllDMs(e.Message);
       NWScript.WriteTimestampedLogEntry(e.Message);
+      WebhookPlugin.SendWebHookHTTPS("discordapp.com", "/api/webhooks/737378235402289264/3-nDoj7dEw-edzjM-DDyjWFCZbs6LXACoJ9vFnOWXc8Pn2nArFEt3HiVIhHyu_lYiNUt/slack", e.Message, "AOA Errors");
     }
 
-    public static int MyResistSpell(uint oCaster, uint oTarget, float fDelay = 0.0f) // C'est une fonction de cde, j'ai aucun idée de pourquoi ça fait ce que ça fait de cette manière là. Mieux vaut nous en débarrasser
+    public static int MyResistSpell(uint oCaster, uint oTarget, float fDelay = 0.0f) // TODO : check la fonction par rapport à celle de never de base
     {
       if (fDelay > 0.5)
       {
         fDelay = fDelay - 0.1f;
       }
       int nResist = NWScript.ResistSpell(oCaster, oTarget);
-      Effect eSR = NWScript.EffectVisualEffect((VisualEffect)Impact.MagicResistanceUse);
-      Effect eGlobe = NWScript.EffectVisualEffect((VisualEffect)Impact.GlobeUse);
-      Effect eMantle = NWScript.EffectVisualEffect((VisualEffect)Impact.SpellMantleUse);
+      Effect eSR = NWScript.EffectVisualEffect(NWScript.VFX_IMP_MAGIC_RESISTANCE_USE);
+      Effect eGlobe = NWScript.EffectVisualEffect(NWScript.VFX_IMP_GLOBE_USE);
+      Effect eMantle = NWScript.EffectVisualEffect(NWScript.VFX_IMP_SPELL_MANTLE_USE);
       if (nResist == 1) //Spell Resistance
       {
         //Ici oCaster a perdu le test de RM contre celle de oTarget
         //Le jet de oCaster est :1d20 + NDL + les dons
         //On va ajouter +1 par ecole sup/renf abjuration
         int nTargetSR = NWScript.GetSpellResistance(oTarget);
-        int nCasterSRRoll = NWScript.d20(1) + oCaster.AsCreature().CasterLevel();
-        if (NWScript.GetHasFeat((int)NWN.Enums.Feat.SpellFocus_Abjuration, oCaster)) { nCasterSRRoll = nCasterSRRoll + 2; }
-        if (NWScript.GetHasFeat((int)NWN.Enums.Feat.GreaterSpellFocus_Abjuration, oCaster)) { nCasterSRRoll = nCasterSRRoll + 2; }
-        if (NWScript.GetHasFeat((int)NWN.Enums.Feat.EpicSpellFocus_Abjuration, oCaster)) { nCasterSRRoll = nCasterSRRoll + 2; }
-
-
+        int nCasterSRRoll = NWScript.d20(1) + NWScript.GetCasterLevel(oCaster);
+        if (NWScript.GetHasFeat(NWScript.FEAT_SPELL_FOCUS_ABJURATION, oCaster) == 1) { nCasterSRRoll = nCasterSRRoll + 2; }
+        if (NWScript.GetHasFeat(NWScript.FEAT_GREATER_SPELL_FOCUS_ABJURATION, oCaster) == 1) { nCasterSRRoll = nCasterSRRoll + 2; }
+        if (NWScript.GetHasFeat(NWScript.FEAT_EPIC_SPELL_FOCUS_ABJURATION, oCaster) == 1) { nCasterSRRoll = nCasterSRRoll + 2; }
+  
         if (nCasterSRRoll < nTargetSR) //oCaster passe pas la RM
-          NWScript.DelayCommand((float)fDelay, () => NWScript.ApplyEffectToObject((int)DurationType.Instant, eSR, oTarget));
+          NWScript.DelayCommand((float)fDelay, () => NWScript.ApplyEffectToObject(NWScript.DURATION_TYPE_INSTANT, eSR, oTarget));
         else
           nResist = 0;
       }
       else if (nResist == 2) //Globe
       {
-        NWScript.DelayCommand(fDelay, () => NWScript.ApplyEffectToObject((int)DurationType.Instant, eGlobe, oTarget));
+        NWScript.DelayCommand(fDelay, () => NWScript.ApplyEffectToObject(NWScript.DURATION_TYPE_INSTANT, eGlobe, oTarget));
       }
       else if (nResist == 3) //Spell Mantle
       {
@@ -53,7 +51,7 @@ namespace NWN
           fDelay = fDelay - 0.1f;
         }
 
-        NWScript.DelayCommand(fDelay, () => NWScript.ApplyEffectToObject((int)DurationType.Instant, eMantle, oTarget));
+        NWScript.DelayCommand(fDelay, () => NWScript.ApplyEffectToObject(NWScript.DURATION_TYPE_INSTANT, eMantle, oTarget));
       }
       return nResist;
     }
@@ -67,46 +65,136 @@ namespace NWN
         nDamage = nDamage + NWScript.Random(nDice) + 1;
       }
       //Resolve metamagic
-      if (nMeta == (int)MetaMagic.Maximize)
+      if (nMeta == NWScript.METAMAGIC_MAXIMIZE)
       {
         nDamage = nDice * nNumberOfDice;
       }
-      else if (nMeta == (int)MetaMagic.Empower)
+      else if (nMeta == NWScript.METAMAGIC_EMPOWER)
       {
         nDamage = nDamage + nDamage / 2;
       }
       return nDamage + nBonus;
     }
-    public static void RemoveAnySpellEffects(Spell spell, uint oTarget)
+    public static void RemoveAnySpellEffects(int spell, uint oTarget)
     {
-      if (NWScript.GetHasSpellEffect(spell, oTarget))
+      if (NWScript.GetHasSpellEffect(spell, oTarget) == 1)
       {
-        foreach (Effect e in oTarget.AsObject().Effects)
+        var e = NWScript.GetFirstEffect(oTarget);
+        while(NWScript.GetIsEffectValid(e) == 1)
         {
-          if (NWScript.GetEffectSpellId(e) == (int)spell)
+          if (NWScript.GetEffectSpellId(e) == spell)
           {
             NWScript.RemoveEffect(oTarget, e);
+            break;
           }
+
+          e = NWScript.GetNextEffect(oTarget);
         }
       }
     }
     public static Boolean GetHasEffect(int effectType, uint oTarget)
     {
-        foreach (Effect e in oTarget.AsObject().Effects)
-        {
-          if (NWScript.GetEffectType(e) == effectType)
-            return true;
-        }
+      var eff = NWScript.GetFirstEffect(oTarget);
+      while (NWScript.GetIsEffectValid(eff) == 1)
+      {
+        if (effectType == NWScript.GetEffectType(eff))
+          return true;
+        eff = NWScript.GetNextEffect(oTarget);
+      }
 
-        return false;
+      return false;
     }
     public static void RemoveEffectOfType(int effectType, uint oTarget)
     {
-      foreach (Effect e in oTarget.AsObject().Effects)
+      var eff = NWScript.GetFirstEffect(oTarget);
+      while (NWScript.GetIsEffectValid(eff) == 1)
       {
-        if (NWScript.GetEffectType(e) == effectType)
-          NWScript.RemoveEffect(oTarget, e);
+        if (NWScript.GetEffectType(eff) == effectType)
+          NWScript.RemoveEffect(oTarget, eff);
+
+        eff = NWScript.GetNextEffect(oTarget);
       }
+    }
+    public static int MySavingThrow(int nSavingThrow, uint oTarget, int nDC, int nSaveType = NWScript.SAVING_THROW_TYPE_NONE, uint oSaveVersus = 2130706432, float fDelay = 0.0f) // 2130706432 = OBJECT_SELF ?
+    {
+      // -------------------------------------------------------------------------
+      // GZ: sanity checks to prevent wrapping around
+      // -------------------------------------------------------------------------
+      if (nDC < 1)
+      {
+        nDC = 1;
+      }
+      else if (nDC > 255)
+      {
+        nDC = 255;
+      }
+
+      Effect eVis = NWScript.EffectVisualEffect(NWScript.VFX_IMP_FORTITUDE_SAVING_THROW_USE); 
+      int bValid = 0;
+      int nSpellID;
+      if (nSavingThrow == NWScript.SAVING_THROW_FORT)
+      {
+        bValid = NWScript.FortitudeSave(oTarget, nDC, nSaveType, oSaveVersus);
+        if (bValid == 1)
+        {
+          eVis = NWScript.EffectVisualEffect(NWScript.VFX_IMP_FORTITUDE_SAVING_THROW_USE);
+        }
+      }
+      else if (nSavingThrow == NWScript.SAVING_THROW_REFLEX)
+      {
+        bValid = NWScript.ReflexSave(oTarget, nDC, nSaveType, oSaveVersus);
+        if (bValid == 1)
+        {
+          eVis = NWScript.EffectVisualEffect(NWScript.VFX_IMP_REFLEX_SAVE_THROW_USE);
+        }
+      }
+      else if (nSavingThrow == NWScript.SAVING_THROW_WILL)
+      {
+        bValid = NWScript.WillSave(oTarget, nDC, nSaveType, oSaveVersus);
+        if (bValid == 1)
+        {
+          eVis = NWScript.EffectVisualEffect(NWScript.VFX_IMP_WILL_SAVING_THROW_USE);
+        }
+      }
+
+      nSpellID = NWScript.GetSpellId();
+
+      /*
+          return 0 = FAILED SAVE
+          return 1 = SAVE SUCCESSFUL
+          return 2 = IMMUNE TO WHAT WAS BEING SAVED AGAINST
+      */
+      if (bValid == 0)
+      {
+        if ((nSaveType == NWScript.SAVING_THROW_TYPE_DEATH
+         || nSpellID == NWScript.SPELL_WEIRD
+         || nSpellID == NWScript.SPELL_FINGER_OF_DEATH) &&
+         nSpellID != NWScript.SPELL_HORRID_WILTING)
+        {
+          eVis = NWScript.EffectVisualEffect(NWScript.VFX_IMP_DEATH);
+          NWScript.DelayCommand(fDelay, () => NWScript.ApplyEffectToObject(NWScript.DURATION_TYPE_INSTANT, eVis, oTarget));
+        }
+      }
+      //redundant comparison on bValid, let's move the eVis line down below
+      /*    if(bValid == 2)
+          {
+              eVis = EffectVisualEffect(VFX_IMP_MAGIC_RESISTANCE_USE);
+          }*/
+      if (bValid == 1 || bValid == 2)
+      {
+        if (bValid == 2)
+        {
+          eVis = NWScript.EffectVisualEffect(NWScript.VFX_IMP_MAGIC_RESISTANCE_USE);
+          /*
+          If the spell is save immune then the link must be applied in order to get the true immunity
+          to be resisted.  That is the reason for returing false and not true.  True blocks the
+          application of effects.
+          */
+          bValid = 0;
+        }
+        NWScript.DelayCommand(fDelay, () => NWScript.ApplyEffectToObject(NWScript.DURATION_TYPE_INSTANT, eVis, oTarget));
+      }
+      return bValid;
     }
   }
 }

@@ -1,5 +1,6 @@
 ﻿using System;
-using NWN.Enums;
+using NWN.Core;
+using NWN.Core.NWNX;
 
 namespace NWN.Systems
 {
@@ -7,11 +8,11 @@ namespace NWN.Systems
   {
     public class Context
     {
-      public NWItem oItem { get; }
+      public uint oItem { get; }
       public PlayerSystem.Player oActivator { get; }
       public int skillId { get; }
 
-      public Context(NWItem oItem, PlayerSystem.Player oActivator, int SkillId)
+      public Context(uint oItem, PlayerSystem.Player oActivator, int SkillId)
       {
         this.oItem = oItem;
         this.oActivator = oActivator;
@@ -32,44 +33,44 @@ namespace NWN.Systems
     private static void CheckRequiredStatsMiddleware(Context ctx, Action next)
     {
       if (!CheckPlayerRequiredStat("MINATTACKBONUS", ctx.skillId, ctx.oActivator))
-      {
-        ctx.oActivator.SendMessage("Vous n'êtes pas assez expérimenté en maniement des armes pour retirer quoique ce soit de cet ouvrage");
+      { 
+        NWScript.SendMessageToPC(ctx.oActivator.oid, "Vous n'êtes pas assez expérimenté en maniement des armes pour retirer quoique ce soit de cet ouvrage");
         return;
       }
 
       if (!CheckPlayerRequiredStat("MINSTR", ctx.skillId, ctx.oActivator))
       {
-        ctx.oActivator.SendMessage("Vous n'avez pas la force nécessaire pour retirer quoique ce soit de cet ouvrage");
+        NWScript.SendMessageToPC(ctx.oActivator.oid, "Vous n'avez pas la force nécessaire pour retirer quoique ce soit de cet ouvrage");
         return;
       }
 
       if (!CheckPlayerRequiredStat("MINDEX", ctx.skillId, ctx.oActivator))
       {
-        ctx.oActivator.SendMessage("Vous n'avez pas la dextérité nécessaire pour retirer quoique ce soit de cet ouvrage");
+        NWScript.SendMessageToPC(ctx.oActivator.oid, "Vous n'avez pas la dextérité nécessaire pour retirer quoique ce soit de cet ouvrage");
         return;
       }
 
       if (!CheckPlayerRequiredStat("MINCON", ctx.skillId, ctx.oActivator))
       {
-        ctx.oActivator.SendMessage("Vous n'avez pas la constitution nécessaire pour retirer quoique ce soit de cet ouvrage");
+        NWScript.SendMessageToPC(ctx.oActivator.oid,"Vous n'avez pas la constitution nécessaire pour retirer quoique ce soit de cet ouvrage");
         return;
       }
 
       if (!CheckPlayerRequiredStat("MININT", ctx.skillId, ctx.oActivator))
       {
-        ctx.oActivator.SendMessage("Vous n'avez pas l'intelligence nécessaire pour retirer quoique ce soit de cet ouvrage");
+        NWScript.SendMessageToPC(ctx.oActivator.oid,"Vous n'avez pas l'intelligence nécessaire pour retirer quoique ce soit de cet ouvrage");
         return;
       }
 
       if (!CheckPlayerRequiredStat("MINWIS", ctx.skillId, ctx.oActivator))
       {
-        ctx.oActivator.SendMessage("Vous n'avez pas la sagesse nécessaire pour retirer quoique ce soit de cet ouvrage");
+        NWScript.SendMessageToPC(ctx.oActivator.oid,"Vous n'avez pas la sagesse nécessaire pour retirer quoique ce soit de cet ouvrage");
         return;
       }
 
       if (!CheckPlayerRequiredStat("MINCHA", ctx.skillId, ctx.oActivator))
       {
-        ctx.oActivator.SendMessage("Vous n'avez pas le charisme nécessaire pour retirer quoique ce soit de cet ouvrage");
+        NWScript.SendMessageToPC(ctx.oActivator.oid,"Vous n'avez pas le charisme nécessaire pour retirer quoique ce soit de cet ouvrage");
         return;
       }
 
@@ -81,14 +82,14 @@ namespace NWN.Systems
       (Boolean success, int featId) = CheckPlayerRequiredFeat("PREREQFEAT1", ctx.skillId, ctx.oActivator);
       if (!success)
       {
-        ctx.oActivator.SendMessage($"Le don {NWScript.GetStringByStrRef(int.Parse(NWScript.Get2DAString("feat", "FEAT", featId)))} est nécessaire avant de pouvoir retirer quoique ce soit de cet ouvrage");
+        NWScript.SendMessageToPC(ctx.oActivator.oid,$"Le don {NWScript.GetStringByStrRef(int.Parse(NWScript.Get2DAString("feat", "FEAT", featId)))} est nécessaire avant de pouvoir retirer quoique ce soit de cet ouvrage");
         return;
       }
 
       (success, featId) = CheckPlayerRequiredFeat("PREREQFEAT2", ctx.skillId, ctx.oActivator);
       if (!success)
       {
-        ctx.oActivator.SendMessage($"Le don {NWScript.GetStringByStrRef(int.Parse(NWScript.Get2DAString("feat", "FEAT", featId)))} est nécessaire avant de pouvoir retirer quoique ce soit de cet ouvrage");
+        NWScript.SendMessageToPC(ctx.oActivator.oid,$"Le don {NWScript.GetStringByStrRef(int.Parse(NWScript.Get2DAString("feat", "FEAT", featId)))} est nécessaire avant de pouvoir retirer quoique ce soit de cet ouvrage");
         return;
       }
 
@@ -98,7 +99,7 @@ namespace NWN.Systems
           !CheckPlayerRequiredFeat("OrReqFeat3", ctx.skillId, ctx.oActivator).success &&
           !CheckPlayerRequiredFeat("OrReqFeat4", ctx.skillId, ctx.oActivator).success)
       {
-        ctx.oActivator.SendMessage($"Il vous manque un don avant de pouvoir retirer un réel savoir de cet ouvrage");
+        NWScript.SendMessageToPC(ctx.oActivator.oid,$"Il vous manque un don avant de pouvoir retirer un réel savoir de cet ouvrage");
         return;
       }
 
@@ -109,23 +110,23 @@ namespace NWN.Systems
       (Boolean success, int skillId) = CheckPlayerRequiredSkill("REQSKILL", "ReqSkillMinRanks", ctx.skillId, ctx.oActivator);
       if (!success)
       {
-        ctx.oActivator.SendMessage($"Une maîtrise plus avancée de la compétence {NWScript.GetStringByStrRef(int.Parse(NWScript.Get2DAString("skills", "Name", skillId)))} est nécessaire avant de pouvoir retirer quoique ce soit de cet ouvrage");
+        NWScript.SendMessageToPC(ctx.oActivator.oid,$"Une maîtrise plus avancée de la compétence {NWScript.GetStringByStrRef(int.Parse(NWScript.Get2DAString("skills", "Name", skillId)))} est nécessaire avant de pouvoir retirer quoique ce soit de cet ouvrage");
         return;
       }
 
       (success, skillId) = CheckPlayerRequiredSkill("REQSKILL2", "ReqSkillMinRanks2", ctx.skillId, ctx.oActivator);
       if (!success)
       {
-        ctx.oActivator.SendMessage($"Une maîtrise plus avancée de la compétence {NWScript.GetStringByStrRef(int.Parse(NWScript.Get2DAString("skills", "Name", skillId)))} est nécessaire avant de pouvoir retirer quoique ce soit de cet ouvrage");
+        NWScript.SendMessageToPC(ctx.oActivator.oid,$"Une maîtrise plus avancée de la compétence {NWScript.GetStringByStrRef(int.Parse(NWScript.Get2DAString("skills", "Name", skillId)))} est nécessaire avant de pouvoir retirer quoique ce soit de cet ouvrage");
         return;
       }
 
       int result;
       if (int.TryParse(NWScript.Get2DAString("feat", "MinFortSave", ctx.skillId), out result))
       {
-        if (NWScript.GetFortitudeSavingThrow(ctx.oActivator) < result)
+        if (NWScript.GetFortitudeSavingThrow(ctx.oActivator.oid) < result)
         {
-          ctx.oActivator.SendMessage($"Une vigueur minimale de {result} est nécessaire pour pouvoir retirer quoique ce soit de cet ouvrage");
+          NWScript.SendMessageToPC(ctx.oActivator.oid,$"Une vigueur minimale de {result} est nécessaire pour pouvoir retirer quoique ce soit de cet ouvrage");
           return;
         }
       }
@@ -136,7 +137,7 @@ namespace NWN.Systems
     private static void ValidationMiddleware(Context ctx, Action next)
     {
       ctx.oActivator.learnableSkills.Add(ctx.skillId, new SkillSystem.Skill(ctx.skillId, 0));
-      ctx.oItem.Destroy();
+      NWScript.DestroyObject(ctx.oItem);
 
       next();
     }
@@ -145,7 +146,7 @@ namespace NWN.Systems
     {
       int value;
       if (int.TryParse(NWScript.Get2DAString("feat", Stat, SkillId), out value))
-        if (value < NWScript.GetBaseAttackBonus(player))
+        if (value < NWScript.GetBaseAttackBonus(player.oid))
           return true;
 
       return false;
@@ -155,7 +156,7 @@ namespace NWN.Systems
     {
       int value;
       if (int.TryParse(NWScript.Get2DAString("feat", Feat, SkillId), out value))
-        if (player.HasFeat((Feat)value))
+        if (CreaturePlugin.GetKnowsFeat(player.oid, value) == 1)
           return (true, value);
 
       return (false, value);
@@ -167,7 +168,7 @@ namespace NWN.Systems
       int SkillValueRequirement;
       if (int.TryParse(NWScript.Get2DAString("feat", Skill, SkillId), out value))
         if (int.TryParse(NWScript.Get2DAString("feat", SkillRank, SkillId), out SkillValueRequirement))
-          if (SkillValueRequirement < player.GetSkillRank((Skill)value, true))
+          if (SkillValueRequirement < NWScript.GetSkillRank(value, player.oid))
             return (true, value);
 
       return (false, value);

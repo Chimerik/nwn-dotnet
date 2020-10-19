@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Numerics;
 using System.Collections.Generic;
-using System.Security.Authentication;
 using NWN.Core;
 using NWN.Core.NWNX;
 
@@ -151,7 +150,7 @@ namespace NWN.Systems
       public void AcquireCraftedItem()
       {
         CollectSystem.Blueprint blueprint;
-        CollectSystem.BlueprintType blueprintType = CollectSystem.GetBlueprintTypeFromName(NWNX.Object.GetString(this, "_CURRENT_CRAFT_JOB"));
+        CollectSystem.BlueprintType blueprintType = CollectSystem.GetBlueprintTypeFromName(ObjectPlugin.GetString(oid, "_CURRENT_CRAFT_JOB"));
 
         if (blueprintType == CollectSystem.BlueprintType.Invalid)
         {
@@ -169,12 +168,12 @@ namespace NWN.Systems
       public void AcquireSkillPoints()
       {
         SkillSystem.Skill skill;
-        if (this.learnableSkills.TryGetValue(NWNX.Object.GetInt(this, "_CURRENT_JOB"), out skill))
+        if (this.learnableSkills.TryGetValue(ObjectPlugin.GetInt(oid, "_CURRENT_JOB"), out skill))
         {
           skill.acquiredPoints += this.CalculateAcquiredSkillPoints(skill);
 
           double RemainingTime = skill.GetTimeToNextLevel(this);
-          NWNX.Object.SetFloat(this, $"_JOB_SP_{skill.oid}", skill.acquiredPoints, true);
+          ObjectPlugin.SetFloat(oid, $"_JOB_SP_{skill.oid}", skill.acquiredPoints, 1);
 
           if (RemainingTime < 0)
           {
@@ -182,24 +181,24 @@ namespace NWN.Systems
           }
           else if (RemainingTime < 600)
           {
-            NWScript.AssignCommand(this, () => NWScript.DelayCommand((float)RemainingTime, () => LevelUpSkill(skill)));
+            NWScript.AssignCommand(oid, () => NWScript.DelayCommand((float)RemainingTime, () => LevelUpSkill(skill)));
           }
         }
         else
         {
-          if (this.removeableMalus.TryGetValue(NWNX.Object.GetInt(this, "_CURRENT_JOB"), out skill))
+          if (this.removeableMalus.TryGetValue(ObjectPlugin.GetInt(oid, "_CURRENT_JOB"), out skill))
           {
             skill.acquiredPoints += this.CalculateAcquiredSkillPoints(skill);
 
             double RemainingTime = skill.GetTimeToNextLevel(this);
-            NWNX.Object.SetFloat(this, $"_JOB_SP_{skill.oid}", skill.acquiredPoints, true);
+            ObjectPlugin.SetFloat(oid, $"_JOB_SP_{skill.oid}", skill.acquiredPoints, 1);
             if (RemainingTime < 0)
             {
               this.RemoveMalus(skill);
             }
             else if (RemainingTime < 600)
             {
-              NWScript.AssignCommand(this, () => NWScript.DelayCommand((float)RemainingTime, () => RemoveMalus(skill)));
+              NWScript.AssignCommand(oid, () => NWScript.DelayCommand((float)RemainingTime, () => RemoveMalus(skill)));
             }
           }
         }
@@ -207,13 +206,13 @@ namespace NWN.Systems
       public double RefreshAcquiredSkillPoints()
       {
         SkillSystem.Skill skill;
-        if (this.learnableSkills.TryGetValue(NWNX.Object.GetInt(this, "_CURRENT_JOB"), out skill))
+        if (this.learnableSkills.TryGetValue(ObjectPlugin.GetInt(oid, "_CURRENT_JOB"), out skill))
         {
           skill.acquiredPoints += this.CalculateAcquiredSkillPoints(skill);
 
           double RemainingTime = skill.GetTimeToNextLevel(this);
-          NWNX.Object.SetFloat(this, $"_JOB_SP_{skill.oid}", skill.acquiredPoints, true);
-          NWNX.Object.SetString(this, "_DATE_LAST_SAVED", DateTime.Now.ToString(), true);
+          ObjectPlugin.SetFloat(oid, $"_JOB_SP_{skill.oid}", skill.acquiredPoints, 1);
+          ObjectPlugin.SetString(oid, "_DATE_LAST_SAVED", DateTime.Now.ToString(), 1);
 
           return RemainingTime;
         }
@@ -223,10 +222,10 @@ namespace NWN.Systems
 
       private float CalculateAcquiredSkillPoints(SkillSystem.Skill skill)
       {
-        var ElapsedSeconds = (float)(DateTime.Now - DateTime.Parse(NWNX.Object.GetString(this, "_DATE_LAST_SAVED"))).TotalSeconds;
-        float SP = (float)(NWScript.GetAbilityScore(this, skill.primaryAbility) + (NWScript.GetAbilityScore(this, skill.secondaryAbility) / 2)) * ElapsedSeconds / 60;
+        var ElapsedSeconds = (float)(DateTime.Now - DateTime.Parse(ObjectPlugin.GetString(oid, "_DATE_LAST_SAVED"))).TotalSeconds;
+        float SP = (float)(NWScript.GetAbilityScore(oid, skill.primaryAbility) + (NWScript.GetAbilityScore(oid, skill.secondaryAbility) / 2)) * ElapsedSeconds / 60;
 
-        switch (NWNX.Object.GetInt(this, "_BRP"))
+        switch (ObjectPlugin.GetInt(oid, "_BRP"))
         {
           case 0:
             SP = SP * 80 / 100;
@@ -251,23 +250,23 @@ namespace NWN.Systems
       }
       public void LevelUpSkill(SkillSystem.Skill skill)
       {
-        if (!this.HasFeat((Feat)skill.oid))
+        if (CreaturePlugin.GetKnowsFeat(oid, skill.oid) != 1)
         {
-          this.AddFeat((Feat)skill.oid);
+          CreaturePlugin.AddFeat(oid, skill.oid);
           NWScript.DelayCommand(10.0f, () => this.PlayNewSkillAcquiredEffects(skill)); // Décalage de 10 secondes pour être sur que le joueur a fini de charger la map à la reco
         }
         else
         {
           int value;
-          int skillCurrentLevel = NWNX.Creature.GetHighestLevelOfFeat(this, skill.oid);
+          int skillCurrentLevel = CreaturePlugin.GetHighestLevelOfFeat(oid, skill.oid);
           if (int.TryParse(NWScript.Get2DAString("feat", "SUCCESSOR", skillCurrentLevel), out value))
           {
-            this.AddFeat((Feat)value);
-            this.RemoveFeat((Feat)skill.oid);
+            CreaturePlugin.AddFeat(oid, value);
+            CreaturePlugin.RemoveFeat(oid, value);
           }
           else
           {
-            Utils.LogMessageToDMs($"SKILL LEVEL UP ERROR - Player : {this.Name}, Skill : {skill.name} ({skill.oid}), Current level : {skillCurrentLevel}");
+            Utils.LogMessageToDMs($"SKILL LEVEL UP ERROR - Player : {NWScript.GetName(oid)}, Skill : {skill.name} ({skill.oid}), Current level : {skillCurrentLevel}");
           }
         }
 
@@ -284,7 +283,7 @@ namespace NWN.Systems
           }
         }
 
-        NWNX.Object.DeleteInt(this, "_CURRENT_JOB");
+        ObjectPlugin.DeleteInt(oid, "_CURRENT_JOB");
         this.learnableSkills.Remove(skill.oid);
 
         if (skill.successorId > 0)
@@ -295,7 +294,7 @@ namespace NWN.Systems
 
       public void RemoveMalus(SkillSystem.Skill skill)
       {
-        this.RemoveFeat((Feat)skill.oid);
+        CreaturePlugin.RemoveFeat(oid, skill.oid);
 
         Func<PlayerSystem.Player, int, int> handler;
         if (SkillSystem.RegisterRemoveCustomFeatEffect.TryGetValue(skill.oid, out handler))
@@ -310,7 +309,7 @@ namespace NWN.Systems
           }
         }
 
-        NWNX.Object.DeleteInt(this, "_CURRENT_JOB");
+        ObjectPlugin.DeleteInt(oid, "_CURRENT_JOB");
         NWScript.DelayCommand(10.0f, () => this.PlayNewSkillAcquiredEffects(skill)); // Décalage de 10 secondes pour être sur que le joueur a fini de charger la map à la reco
 
         this.removeableMalus.Remove(skill.oid);
@@ -339,7 +338,7 @@ namespace NWN.Systems
 
       public void PlayNoCurrentTrainingEffects()
       {
-        NWScript.PostString(this, $"Vous n'avez aucun apprentissage en cours !", 80, 10, ScreenAnchor.TopLeft, 5.0f, unchecked((int)0xC0C0C0FF), unchecked((int)0xC0C0C0FF), 9, "fnt_galahad14");
+        NWScript.PostString(oid, $"Vous n'avez aucun apprentissage en cours !", 80, 10, NWScript.SCREEN_ANCHOR_TOP_LEFT, 5.0f, unchecked((int)0xC0C0C0FF), unchecked((int)0xC0C0C0FF), 9, "fnt_galahad14");
         NWScript.SendMessageToPC(oid, "Vous n'avez aucun apprentissage en cours !");
         PlayerPlugin.PlaySound(oid, "gui_dm_drop");
         PlayerPlugin.ApplyInstantVisualEffectToObject(oid, oid, NWScript.VFX_IMP_REDUCE_ABILITY_SCORE);
@@ -355,12 +354,13 @@ namespace NWN.Systems
       public void SendToLimbo()
       {
         // Heal PC
-        this.ApplyEffect(DurationType.Instant, NWScript.EffectVisualEffect((VisualEffect)Impact.RestorationGreater));
-        this.ApplyEffect(DurationType.Instant, NWScript.EffectResurrection());
-        this.ApplyEffect(DurationType.Instant, NWScript.EffectHeal(this.MaxHP));
+
+        NWScript.ApplyEffectToObject(NWScript.DURATION_TYPE_INSTANT, NWScript.EffectVisualEffect(NWScript.VFX_IMP_RESTORATION_GREATER), oid);
+        NWScript.ApplyEffectToObject(NWScript.DURATION_TYPE_INSTANT, NWScript.EffectResurrection(), oid);
+        NWScript.ApplyEffectToObject(NWScript.DURATION_TYPE_INSTANT, NWScript.EffectHeal(NWScript.GetMaxHitPoints(oid)), oid);
 
         // TP PC
-        NWScript.AssignCommand(this, () => NWScript.JumpToLocation(NWScript.GetLocation(NWScript.GetWaypointByTag("WP__RESPAWN_AREA"))));
+        NWScript.AssignCommand(oid, () => NWScript.JumpToLocation(NWScript.GetLocation(NWScript.GetWaypointByTag("WP__RESPAWN_AREA"))));
       }
       public void Respawn()
       {
@@ -368,22 +368,22 @@ namespace NWN.Systems
         // TODO : Diminuer la durabilité de tous les objets équipés et dans l'inventaire du PJ
 
         this.DestroyCorpses();
-        NWScript.AssignCommand(this, () => NWScript.JumpToLocation(NWScript.GetLocation(NWScript.GetWaypointByTag("WP_START_NEW_CHAR")))); // TODO : le respawn se fera plutôt à l'hospice des taudis
-        this.SendMessage("Votre récente déconvenue vous a affligé d'une blessure durable. Il va falloir passer du temps en rééducation pour vous en débarrasser");
+        NWScript.AssignCommand(oid, () => NWScript.JumpToLocation(NWScript.GetLocation(NWScript.GetWaypointByTag("WP_START_NEW_CHAR")))); // TODO : le respawn se fera plutôt à l'hospice des taudis
+        NWScript.SendMessageToPC(oid, "Votre récente déconvenue vous a affligé d'une blessure durable. Il va falloir passer du temps en rééducation pour vous en débarrasser");
 
         int iRandomMalus = Utils.random.Next(1130, 1130); // TODO : il faudra mettre en paramètre de conf le range des feat ID pour les malus
         
-        if (NWNX.Creature.GetHighestLevelOfFeat(this, iRandomMalus) != (int)Feat.INVALID_FEAT)
-        {  
+        if (CreaturePlugin.GetHighestLevelOfFeat(oid, iRandomMalus) != 65535) // TODO : faire de cette valeur une constante avec le type enum des custom feats
+        {
           int successorId;
           if (int.TryParse(NWScript.Get2DAString("feat", "SUCCESSOR", iRandomMalus), out successorId))
           {
-            this.AddFeat((Feat)successorId);
+            CreaturePlugin.AddFeat(oid, successorId);
             iRandomMalus = successorId;
           }
         }
         else
-          this.AddFeat((Feat)iRandomMalus); 
+          CreaturePlugin.AddFeat(oid, iRandomMalus);
 
         Func<PlayerSystem.Player, int, int> handler;
         if (SkillSystem.RegisterAddCustomFeatEffect.TryGetValue(iRandomMalus, out handler))
@@ -400,39 +400,39 @@ namespace NWN.Systems
       }
       public void DestroyCorpses()
       {
-        NWPlaceable oCorpse = NWScript.GetObjectByTag("pccorpse").AsPlaceable();
+        var oCorpse = NWScript.GetObjectByTag("pccorpse");
         int i = 1;
-        int PcId = NWNX.Object.GetInt(this, "_PC_ID");
-        while (oCorpse.IsValid)
+        int PcId = ObjectPlugin.GetInt(oid, "_PC_ID");
+        while (NWScript.GetIsObjectValid(oCorpse) == 1)
         {
-          if (PcId == oCorpse.Locals.Int.Get("_PC_ID"))
+          if (PcId == NWScript.GetLocalInt(oCorpse, "_PC_ID"))
           {
-            oCorpse.Destroy();
+            NWScript.DestroyObject(oCorpse);
             // TODO : supprimer l'objet serialized de la BDD where _PC_ID
             break;
           }
-          oCorpse = NWScript.GetObjectByTag("pccorpse", i++).AsPlaceable();
+          oCorpse = NWScript.GetObjectByTag("pccorpse", i++);
         }
 
-        NWItem oCorpseItem = NWScript.GetObjectByTag("item_pccorpse").AsItem();
+        var oCorpseItem = NWScript.GetObjectByTag("item_pccorpse");
         i = 1;
-        while (oCorpseItem.IsValid)
+        while (NWScript.GetIsObjectValid(oCorpseItem) == 1)
         {
-          if (PcId == oCorpseItem.Locals.Int.Get("_PC_ID"))
+          if (PcId == NWScript.GetLocalInt(oCorpseItem, "_PC_ID"))
           {
-            oCorpseItem.Destroy();
+            NWScript.DestroyObject(oCorpseItem);
             break;
           }
-          oCorpseItem = NWScript.GetObjectByTag("item_pccorpse", i++).AsItem();
+          oCorpseItem = NWScript.GetObjectByTag("item_pccorpse", i++);
         }
       }
       public Effect GetPartySizeEffect(int iPartySize = 0)
       {
-        NWPlayer oPartyMember = NWScript.GetFirstFactionMember(this, true).AsPlayer();
-        while (oPartyMember.IsValid)
+        var oPartyMember = NWScript.GetFirstFactionMember(oid, 1);
+        while (NWScript.GetIsObjectValid(oPartyMember) == 1)
         {
           iPartySize++;
-          oPartyMember = NWScript.GetNextFactionMember(this, true).AsPlayer();
+          oPartyMember = NWScript.GetNextFactionMember(oid, 1);
         }
 
         Effect eParty = null;
@@ -442,24 +442,24 @@ namespace NWN.Systems
           case 1:
             break;
           case 2:
-            eParty = NWScript.TagEffect(NWScript.EffectACIncrease(1, Enums.Item.Property.ArmorClassModiferType.Dodge), "PartyEffect");
+            eParty = NWScript.TagEffect(NWScript.EffectACIncrease(1, NWScript.AC_DODGE_BONUS), "PartyEffect");
             break;
           case 3:
-            eParty = NWScript.EffectLinkEffects(NWScript.EffectACIncrease(1, Enums.Item.Property.ArmorClassModiferType.Dodge), NWScript.EffectAttackIncrease(1));
+            eParty = NWScript.EffectLinkEffects(NWScript.EffectACIncrease(1, NWScript.AC_DODGE_BONUS), NWScript.EffectAttackIncrease(1));
             eParty = NWScript.TagEffect(eParty, "PartyEffect");
             break;
           case 4:
           case 5:
-            eParty = NWScript.EffectLinkEffects(NWScript.EffectACIncrease(1, Enums.Item.Property.ArmorClassModiferType.Dodge), NWScript.EffectAttackIncrease(1));
-            eParty = NWScript.EffectLinkEffects(NWScript.EffectDamageIncrease(1, DamageType.Bludgeoning), eParty);
+            eParty = NWScript.EffectLinkEffects(NWScript.EffectACIncrease(1, NWScript.AC_DODGE_BONUS), NWScript.EffectAttackIncrease(1));
+            eParty = NWScript.EffectLinkEffects(NWScript.EffectDamageIncrease(1, NWScript.DAMAGE_TYPE_BLUDGEONING), eParty);
             eParty = NWScript.TagEffect(eParty, "PartyEffect");
             break;
           case 6:
-            eParty = NWScript.EffectLinkEffects(NWScript.EffectACIncrease(1, Enums.Item.Property.ArmorClassModiferType.Dodge), NWScript.EffectAttackIncrease(1));
+            eParty = NWScript.EffectLinkEffects(NWScript.EffectACIncrease(1, NWScript.AC_DODGE_BONUS), NWScript.EffectAttackIncrease(1));
             eParty = NWScript.TagEffect(eParty, "PartyEffect");
             break;
           case 7:
-            eParty = NWScript.TagEffect(NWScript.EffectACIncrease(1, Enums.Item.Property.ArmorClassModiferType.Dodge), "PartyEffect");
+            eParty = NWScript.TagEffect(NWScript.EffectACIncrease(1, NWScript.AC_DODGE_BONUS), "PartyEffect");
             break;
           default:
             break;

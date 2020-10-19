@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using NWN.Core;
+using NWN.Core.NWNX;
 
 namespace NWN.Systems
 {
@@ -102,7 +104,7 @@ namespace NWN.Systems
       {
         foreach (var (X, Y, ID) in drawnLines)
         {
-          NWScript.PostString(PC: player.oid, Msg: "", X: X, Y: Y, ID: ID, life: 0.000001f);
+          NWScript.PostString(player.oid, "", X, Y, ID, 0.000001f);
         }
         drawnLines.Clear();
       }
@@ -185,11 +187,11 @@ namespace NWN.Systems
       private void EraseLastSelection()
       {
         NWScript.PostString(
-          PC: player.oid, Msg: "",
-          X: drawnSelectionIds.X,
-          Y: drawnSelectionIds.Y,
-          ID: drawnSelectionIds.ID,
-          life: 0.000001f
+          player.oid, "",
+          drawnSelectionIds.X,
+          drawnSelectionIds.Y,
+          drawnSelectionIds.ID,
+          0.000001f
         );
       }
 
@@ -197,8 +199,8 @@ namespace NWN.Systems
       {
         int color = unchecked((int)Config.Color.White);
         NWScript.PostString(
-            PC: player.oid, Msg: text, X: x, Y: y, ID: id, life: 0f,
-            RGBA: color, RGBA2: color, font: font
+            player.oid, text, x, y, 0, 0f,
+            color, color, id, font
         );
         if (drawnLines != null)
         {
@@ -215,20 +217,20 @@ namespace NWN.Systems
           case "W":
             selectedChoiceID = (selectedChoiceID + choices.Count - 1) % choices.Count;
             EraseLastSelection();
-            NWNX.Player.PlaySound(player.oid, "gui_select", NWObject.OBJECT_INVALID);
+            PlayerPlugin.PlaySound(player.oid, "gui_select", NWScript.OBJECT_INVALID);
             DrawSelection();
             return;
 
           case "S":
             selectedChoiceID = (selectedChoiceID + 1) % choices.Count;
             EraseLastSelection();
-            NWNX.Player.PlaySound(player.oid, "gui_select", NWObject.OBJECT_INVALID);
+            PlayerPlugin.PlaySound(player.oid, "gui_select", NWScript.OBJECT_INVALID);
             DrawSelection();
             return;
 
           case "E":
             var handler = choices.ElementAtOrDefault(selectedChoiceID).handler;
-            NWNX.Player.PlaySound(player.oid, "gui_picklockopen", NWObject.OBJECT_INVALID);
+            PlayerPlugin.PlaySound(player.oid, "gui_picklockopen", NWScript.OBJECT_INVALID);
             handler?.Invoke();
             return;
         }

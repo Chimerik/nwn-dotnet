@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using NWN.Core;
 
 namespace NWN.Systems
 {
@@ -34,7 +35,7 @@ namespace NWN.Systems
     {
       UpdateChestTagToLootsDic(oidSelf);
       UpdateDB(oidSelf);
-      return Entrypoints.SCRIPT_HANDLED;
+      return 0;
     }
 
     private static int HandleLoot(uint oidSelf)
@@ -53,7 +54,7 @@ namespace NWN.Systems
 
       var respawnDuration = lootableConfig.respawnDuration.GetValueOrDefault();
 
-      if (NWScript.GetIsObjectValid(oLooter))
+      if (NWScript.GetIsObjectValid(oLooter) == 1)
       {
         // Creature was killed or chest was destroyed
         if (lootableConfig.respawnDuration != null)
@@ -79,7 +80,7 @@ namespace NWN.Systems
         oLooter = NWScript.GetLastOpenedBy();
       }
 
-      if (!NWScript.GetIsObjectValid(oLooter))
+      if (NWScript.GetIsObjectValid(oLooter) != 1)
       {
         ThrowException($"Invalid Event for the script {ON_LOOT_SCRIPT}");
       }
@@ -87,7 +88,7 @@ namespace NWN.Systems
       if (NWScript.GetLocalInt(oContainer, IS_LOOTED_VARNAME) == 1)
       {
         // Prevents looting from opening chest multiple times, and then looting again by destroying it.
-        return Entrypoints.SCRIPT_HANDLED;
+        return 0;
       }
 
       Utils.DestroyInventory(oContainer);
@@ -103,7 +104,7 @@ namespace NWN.Systems
           () => NWScript.SetLocalInt(oContainer, IS_LOOTED_VARNAME, 0)
       ));
 
-      return Entrypoints.SCRIPT_HANDLED;
+      return 0;
     }
   }
 }

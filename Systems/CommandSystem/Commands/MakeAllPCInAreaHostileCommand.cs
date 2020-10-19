@@ -1,4 +1,6 @@
-﻿namespace NWN.Systems
+﻿using NWN.Core;
+
+namespace NWN.Systems
 {
   public static partial class CommandSystem
   {
@@ -7,7 +9,7 @@
       int iCount = 1;
       var oPC = NWScript.GetNearestCreature(1, 1, ctx.oSender, iCount);
 
-      while (NWScript.GetIsObjectValid(oPC))
+      while (NWScript.GetIsObjectValid(oPC) == 1)
       {
         if (NWScript.GetArea(oPC) != NWScript.GetArea(ctx.oSender))
           break;
