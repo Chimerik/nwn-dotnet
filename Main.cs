@@ -27,6 +27,7 @@ namespace NWN
       {
         try
         {
+          Console.WriteLine($"script : {scriptName}");
           scriptHandleResult = handler.Invoke(objectSelf);
         }
         catch (Exception e)
