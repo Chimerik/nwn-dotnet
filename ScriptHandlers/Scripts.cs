@@ -149,7 +149,6 @@ namespace NWN.ScriptHandlers
       //Garden.Init();
 
       CollectSystem.InitiateOres();
-      CollectSystem.initiateCraftItemProperties();
 
       NWScript.DelayCommand(600.0f, () => SaveServerVault());
 
