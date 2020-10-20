@@ -1,4 +1,5 @@
-﻿using NWN.Enums;
+﻿using NWN.Core;
+using NWN.Core.NWNX;
 
 namespace NWN.Systems
 {
@@ -7,18 +8,18 @@ namespace NWN.Systems
     private static void ExecuteFrostAttackCommand(ChatSystem.Context ctx, Options.Result options)
     {
       if (
-        NWScript.GetLevelByClass(ClassType.Wizard, ctx.oSender) > 0 ||
-        NWScript.GetLevelByClass(ClassType.Sorcerer, ctx.oSender) > 0
+        NWScript.GetLevelByClass(NWScript.CLASS_TYPE_WIZARD, ctx.oSender) > 0 ||
+        NWScript.GetLevelByClass(NWScript.CLASS_TYPE_SORCERER, ctx.oSender) > 0
       )
       {
-        if (NWNX.Object.GetInt(ctx.oSender, "_FROST_ATTACK") == 0)
+        if (ObjectPlugin.GetInt(ctx.oSender, "_FROST_ATTACK") == 0)
         {
-          NWNX.Object.SetInt(ctx.oSender, "_FROST_ATTACK", 1, true);
+          ObjectPlugin.SetInt(ctx.oSender, "_FROST_ATTACK", 1, 1);
           NWScript.SendMessageToPC(ctx.oSender, "Vous activez le mode d'attaque par rayon de froid");
         }
         else
         {
-          NWNX.Object.DeleteInt(ctx.oSender, "_FROST_ATTACK");
+          ObjectPlugin.DeleteInt(ctx.oSender, "_FROST_ATTACK");
           NWScript.SendMessageToPC(ctx.oSender, "Vous désactivez le mode d'attaque par rayon de froid");
         }
       }

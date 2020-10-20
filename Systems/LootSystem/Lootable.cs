@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using NWN.Core;
 
 namespace NWN.Systems
 {
@@ -64,7 +65,7 @@ namespace NWN.Systems
           {
             var goldCount = Utils.random.Next((int)min, (int)max);
 
-            if (NWScript.GetObjectType(oContainer) == Enums.ObjectType.Creature)
+            if (NWScript.GetObjectType(oContainer) == NWScript.OBJECT_TYPE_CREATURE)
             {
               NWScript.GiveGoldToCreature(oContainer, goldCount);
             }
@@ -103,7 +104,7 @@ namespace NWN.Systems
                   NWScript.CopyItem(
                       loots[Utils.random.Next(0, loots.Count - 1)],
                       oContainer,
-                      true
+                      1
                   );
                 }
               }

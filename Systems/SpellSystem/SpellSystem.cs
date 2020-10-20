@@ -1,9 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
-using NWN.Enums;
-using NWN.Enums.Item;
-using NWN.Enums.Item.Property;
-using NWN.Enums.VisualEffect;
+using NWN.Core;
+using NWN.Core.NWNX;
 using System.Linq;
 using static NWN.Systems.PlayerSystem;
 
@@ -28,10 +26,10 @@ namespace NWN.Systems
     };
     private static int CantripsScaler(uint oidSelf)
     {
-      NWObject oTarget = (NWScript.GetSpellTargetObject()).AsObject();
-      NWCreature oCaster = oidSelf.AsCreature();
-      int nCasterLevel = oCaster.CasterLevel();
-      NWScript.SignalEvent(oTarget, NWScript.EventSpellCastAt(oCaster, (Spell)NWScript.GetSpellId()));
+      var oTarget = (NWScript.GetSpellTargetObject());
+      var oCaster = oidSelf;
+      int nCasterLevel = NWScript.GetCasterLevel(oCaster);
+      NWScript.SignalEvent(oTarget, NWScript.EventSpellCastAt(oCaster, NWScript.GetSpellId()));
       int nMetaMagic = NWScript.GetMetaMagicFeat();
       Effect eVis = null;
       Effect eDur = null;
@@ -40,8 +38,8 @@ namespace NWN.Systems
 
       switch (NWScript.GetSpellId())
       {
-        case (int)Spell.AcidSplash:
-          eVis = NWScript.EffectVisualEffect((VisualEffect)Impact.AcidSmall);
+        case NWScript.SPELL_ACID_SPLASH:
+          eVis = NWScript.EffectVisualEffect(NWScript.VFX_IMP_ACID_S);
 
           //Make SR Check
           if (Spells.MyResistSpell(oCaster, oTarget) == 0)
@@ -49,242 +47,244 @@ namespace NWN.Systems
             //Set damage effect
             int iDamage = 3;
             int nDamage = Spells.MaximizeOrEmpower(iDamage, 1 + nCasterLevel / 6, nMetaMagic);
-            oTarget.ApplyEffect(DurationType.Instant, NWScript.EffectLinkEffects(eVis, NWScript.EffectDamage(nDamage, NWN.Enums.DamageType.Acid)));
+            NWScript.ApplyEffectToObject(NWScript.DURATION_TYPE_INSTANT, NWScript.EffectLinkEffects(eVis, NWScript.EffectDamage(nDamage, NWScript.DAMAGE_TYPE_ACID)), oTarget);
           }
           break;
 
-        case (int)Spell.Daze:
-          Effect eMind = NWScript.EffectVisualEffect((VisualEffect)Temporary.MindAffectingNegative);
+        case NWScript.SPELL_DAZE:
+          Effect eMind = NWScript.EffectVisualEffect(NWScript.VFX_DUR_MIND_AFFECTING_NEGATIVE);
           Effect eDaze = NWScript.EffectDazed();
-          eDur = NWScript.EffectVisualEffect((VisualEffect)Temporary.CessateNegative);
+          eDur = NWScript.EffectVisualEffect((NWScript.VFX_DUR_CESSATE_NEGATIVE));
 
           eLink = NWScript.EffectLinkEffects(eMind, eDaze);
           eLink = NWScript.EffectLinkEffects(eLink, eDur);
-
-          eVis = NWScript.EffectVisualEffect((VisualEffect)Impact.Dazed);
+          
+          eVis = NWScript.EffectVisualEffect(NWScript.VFX_IMP_DAZED_S);
 
           nDuration = 2;
           //check meta magic for extend
-          if (nMetaMagic == (int)MetaMagic.Extend)
+          if (nMetaMagic == NWScript.METAMAGIC_EXTEND)
           {
             nDuration = 4;
           }
-
-          //Make sure the target is a humanoid
-          if (oTarget.IsHumanoid)
+          
+          if (NWScript.GetHitDice(oTarget) <= 5 + nCasterLevel / 6)
           {
-            if (((NWCreature)oTarget).HitDice <= 5 + nCasterLevel / 6)
+            //Make SR check
+            if (Spells.MyResistSpell(oCaster, oTarget) == 0)
             {
-              //Make SR check
-              if (Spells.MyResistSpell(oCaster, oTarget) == 0)
+              //Make Will Save to negate effect
+              if (Spells.MySavingThrow(NWScript.SAVING_THROW_WILL, oTarget, NWScript.GetSpellSaveDC(), NWScript.SAVING_THROW_TYPE_MIND_SPELLS) == 0) // 0 = SAVE FAILED
               {
-                //Make Will Save to negate effect
-                if (((NWCreature)oTarget).MySavingThrow(SavingThrow.Will, NWScript.GetSpellSaveDC(), SavingThrowType.MindSpells) == SaveReturn.Failed)
-                {
-                  //Apply VFX Impact and daze effect
-                  oTarget.ApplyEffect(DurationType.Temporary, eLink, NWScript.RoundsToSeconds(nDuration));
-                  oTarget.ApplyEffect(DurationType.Instant, eVis);
-                }
+                //Apply VFX Impact and daze effect
+                NWScript.ApplyEffectToObject(NWScript.DURATION_TYPE_TEMPORARY, eLink, oTarget, NWScript.RoundsToSeconds(nDuration));
+                NWScript.ApplyEffectToObject(NWScript.DURATION_TYPE_INSTANT, eVis, oTarget);
               }
             }
           }
           break;
-        case (int)Spell.ElectricJolt:
-          eVis = NWScript.EffectVisualEffect((VisualEffect)Impact.LightningBlast);
+        case NWScript.SPELL_ELECTRIC_JOLT:
+          eVis = NWScript.EffectVisualEffect(NWScript.VFX_IMP_LIGHTNING_S);
           //Make SR Check
           if (Spells.MyResistSpell(oCaster, oTarget) == 0)
           {
             //Set damage effect
             int iDamage = 3;
-            Effect eBad = NWScript.EffectDamage(Spells.MaximizeOrEmpower(iDamage, 1 + nCasterLevel / 6, nMetaMagic), NWN.Enums.DamageType.Electrical);
+            Effect eBad = NWScript.EffectDamage(Spells.MaximizeOrEmpower(iDamage, 1 + nCasterLevel / 6, nMetaMagic), NWScript.DAMAGE_TYPE_ELECTRICAL);
             //Apply the VFX impact and damage effect
-            oTarget.ApplyEffect(DurationType.Instant, eVis, oTarget);
-            oTarget.ApplyEffect(DurationType.Instant, eBad, oTarget);
+            NWScript.ApplyEffectToObject(NWScript.DURATION_TYPE_INSTANT, eVis, oTarget);
+            NWScript.ApplyEffectToObject(NWScript.DURATION_TYPE_INSTANT, eBad, oTarget);
           }
           break;
-        case (int)Spell.Flare:
-          eVis = NWScript.EffectVisualEffect((VisualEffect)Impact.FlameSmall);
+        case NWScript.SPELL_FLARE:
+          eVis = NWScript.EffectVisualEffect(NWScript.VFX_IMP_FLAME_S);
 
           // * Apply the hit effect so player knows something happened
-          oTarget.ApplyEffect(DurationType.Instant, eVis);
+          NWScript.ApplyEffectToObject(NWScript.DURATION_TYPE_INSTANT, eVis, oTarget);
 
           //Make SR Check
-          if ((Spells.MyResistSpell(oCaster, oTarget)) == 0 && (((NWCreature)oTarget).MySavingThrow(SavingThrow.Fortitude, NWScript.GetSpellSaveDC()) == SaveReturn.Failed))
+          if ((Spells.MyResistSpell(oCaster, oTarget)) == 0 && Spells.MySavingThrow(NWScript.SAVING_THROW_FORT, oTarget, NWScript.GetSpellSaveDC()) == 0) // 0 = failed
           {
             //Set damage effect
             Effect eBad = NWScript.EffectAttackDecrease(1 + nCasterLevel / 6);
             //Apply the VFX impact and damage effect
-            oTarget.ApplyEffect(DurationType.Temporary, eBad, NWScript.RoundsToSeconds(10 + 10 * nCasterLevel / 6));
+            NWScript.ApplyEffectToObject(NWScript.DURATION_TYPE_TEMPORARY, eBad, oTarget, NWScript.RoundsToSeconds(10 + 10 * nCasterLevel / 6));
           }
           break;
-        case (int)Spell.Light:
-          if (oTarget.ObjectType == ObjectType.Item)
+        case NWScript.SPELL_LIGHT:
+          if (NWScript.GetObjectType(oTarget) == NWScript.OBJECT_TYPE_ITEM)
           {
             // Do not allow casting on not equippable items
-            if (!((NWItem)oTarget).IsEquippable)
+            if (!ItemSystem.GetIsItemEquipable(oTarget))
               NWScript.FloatingTextStrRefOnCreature(83326, oCaster);
             else
             {
-              ItemProperty ip = NWScript.ItemPropertyLight(LightBrightness.LIGHTBRIGHTNESS_NORMAL, LightColor.WHITE);
+              ItemProperty ip = NWScript.ItemPropertyLight(NWScript.IP_CONST_LIGHTBRIGHTNESS_NORMAL, NWScript.IP_CONST_LIGHTCOLOR_WHITE);
+              
+              if (NWScript.GetItemHasItemProperty(oTarget, NWScript.ITEM_PROPERTY_LIGHT) == 1) 
+                ItemSystem.RemoveMatchingItemProperties(oTarget, NWScript.ITEM_PROPERTY_LIGHT, NWScript.DURATION_TYPE_TEMPORARY);
 
-              if (((NWItem)oTarget).ItemProperties.Contains(ip))
-                ((NWItem)oTarget).RemoveMatchingItemProperties(ItemPropertyType.Light, DurationType.Temporary);
-
-              nDuration = oCaster.CasterLevel();
+              nDuration = NWScript.GetCasterLevel(oCaster);
               //Enter Metamagic conditions
-              if (nMetaMagic == (int)MetaMagic.Extend)
+              if (nMetaMagic == NWScript.METAMAGIC_EXTEND)
                 nDuration = nDuration * 2; //Duration is +100%
 
-              ((NWItem)oTarget).AddItemProperty(DurationType.Temporary, ip, NWScript.HoursToSeconds(nDuration));
+              NWScript.AddItemProperty(NWScript.DURATION_TYPE_TEMPORARY, ip, oTarget, NWScript.HoursToSeconds(nDuration));
             }
           }
           else
           {
-            eVis = NWScript.EffectVisualEffect((VisualEffect)Temporary.LightWhite20);
-            eDur = NWScript.EffectVisualEffect((VisualEffect)Temporary.CessatePositive);
+            eVis = NWScript.EffectVisualEffect(NWScript.VFX_DUR_LIGHT_WHITE_20);
+            eDur = NWScript.EffectVisualEffect(NWScript.VFX_DUR_CESSATE_POSITIVE);
             eLink = NWScript.EffectLinkEffects(eVis, eDur);
 
-            nDuration = oCaster.CasterLevel();
+            nDuration = NWScript.GetCasterLevel(oCaster);
             //Enter Metamagic conditions
-            if (nMetaMagic == (int)MetaMagic.Extend)
+            if (nMetaMagic == NWScript.METAMAGIC_EXTEND)
               nDuration = nDuration * 2; //Duration is +100%
 
             //Apply the VFX impact and effects
-            oTarget.ApplyEffect(DurationType.Temporary, eLink, NWScript.HoursToSeconds(nDuration));
+            NWScript.ApplyEffectToObject(NWScript.DURATION_TYPE_TEMPORARY, eLink, oTarget, NWScript.HoursToSeconds(nDuration));
           }
           break;
-        case (int)Spell.RayOfFrost:
+        case NWScript.SPELL_RAY_OF_FROST:
           Effect eDam;
-          eVis = NWScript.EffectVisualEffect((VisualEffect)Impact.FrostSmall);
-          Effect eRay = NWScript.EffectBeam(Beam.Cold, oCaster, 0);
+          eVis = NWScript.EffectVisualEffect(NWScript.VFX_IMP_FROST_S);
+          Effect eRay = NWScript.EffectBeam(NWScript.VFX_BEAM_COLD, oCaster, 0);
 
           //Make SR Check
           if (Spells.MyResistSpell(oCaster, oTarget) == 0)
           {
             int nDamage = Spells.MaximizeOrEmpower(4, 1 + nCasterLevel / 6, nMetaMagic);
             //Set damage effect
-            eDam = NWScript.EffectDamage(nDamage, NWN.Enums.DamageType.Cold);
+            eDam = NWScript.EffectDamage(nDamage, NWScript.DAMAGE_TYPE_COLD);
             //Apply the VFX impact and damage effect
-            oTarget.ApplyEffect(DurationType.Instant, eVis);
-            oTarget.ApplyEffect(DurationType.Instant, eDam);
+            NWScript.ApplyEffectToObject(NWScript.DURATION_TYPE_INSTANT, eVis, oTarget);
+            NWScript.ApplyEffectToObject(NWScript.DURATION_TYPE_INSTANT, eDam, oTarget);
           }
 
-          oTarget.ApplyEffect(DurationType.Temporary, eRay, 1.7f);
+          NWScript.ApplyEffectToObject(NWScript.DURATION_TYPE_TEMPORARY, eRay, oTarget, 1.7f);
           break;
-        case (int)Spell.Resistance:
+        case NWScript.SPELL_RESISTANCE:
           Effect eSave;
-          eVis = NWScript.EffectVisualEffect((VisualEffect)Impact.HeadHoly);
-          eDur = NWScript.EffectVisualEffect((VisualEffect)Temporary.CessatePositive);
+          eVis = NWScript.EffectVisualEffect(NWScript.VFX_IMP_HEAD_HOLY);
+          eDur = NWScript.EffectVisualEffect(NWScript.VFX_DUR_CESSATE_POSITIVE);
 
           int nBonus = 1 + nCasterLevel / 6; //Saving throw bonus to be applied
           nDuration = 2 + nCasterLevel / 6; // Turns
 
           //Check for metamagic extend
-          if (nMetaMagic == (int)MetaMagic.Extend)
+          if (nMetaMagic == NWScript.METAMAGIC_EXTEND)
             nDuration = nDuration * 2;
           //Set the bonus save effect
-          eSave = NWScript.EffectSavingThrowIncrease((int)SavingThrowType.All, nBonus);
+          eSave = NWScript.EffectSavingThrowIncrease(NWScript.SAVING_THROW_ALL, nBonus);
           eLink = NWScript.EffectLinkEffects(eSave, eDur);
 
           //Apply the bonus effect and VFX impact
-          oTarget.ApplyEffect(DurationType.Temporary, eLink, NWScript.TurnsToSeconds(nDuration));
-          oTarget.ApplyEffect(DurationType.Instant, eVis);
+          NWScript.ApplyEffectToObject(NWScript.DURATION_TYPE_TEMPORARY, eLink, oTarget, NWScript.TurnsToSeconds(nDuration));
+          NWScript.ApplyEffectToObject(NWScript.DURATION_TYPE_INSTANT, eVis, oTarget);
           break;
-        case (int)Spell.Virtue:
+        case NWScript.SPELL_VIRTUE:
           nDuration = nCasterLevel;
-          eVis = NWScript.EffectVisualEffect((VisualEffect)Impact.HolyAid);
+          eVis = NWScript.EffectVisualEffect(NWScript.VFX_IMP_HOLY_AID);
           Effect eHP = NWScript.EffectTemporaryHitpoints(1);
-          eDur = NWScript.EffectVisualEffect((VisualEffect)Temporary.CessatePositive);
+          eDur = NWScript.EffectVisualEffect(NWScript.VFX_DUR_CESSATE_POSITIVE);
           eLink = NWScript.EffectLinkEffects(eHP, eDur);
 
           //Enter Metamagic conditions
-          if (nMetaMagic == (int)MetaMagic.Extend)
+          if (nMetaMagic == NWScript.METAMAGIC_EXTEND)
             nDuration = nDuration * 2; //Duration is +100%
 
           //Apply the VFX impact and effects
-          oTarget.ApplyEffect(DurationType.Instant, eVis);
-          oTarget.ApplyEffect(DurationType.Temporary, eLink, NWScript.TurnsToSeconds(nDuration));
+          NWScript.ApplyEffectToObject(NWScript.DURATION_TYPE_INSTANT, eVis, oTarget);
+          NWScript.ApplyEffectToObject(NWScript.DURATION_TYPE_TEMPORARY, eLink, oTarget, NWScript.TurnsToSeconds(nDuration));
           break;
       }
 
-      oCaster.RestoreSpells(0);
+      CreaturePlugin.RestoreSpells(oCaster, 0);
 
-      return Entrypoints.SCRIPT_HANDLED;
+      return 0;
     }
     private static int AfterSpellBroadcast(uint oidSelf)
     {
       Player oPC;
       if (Players.TryGetValue(oidSelf, out oPC))
       {
-        if (!oPC.IsDM)
+        if (NWScript.GetIsDM(oPC.oid) != 1)
         {
-          string current_event = NWNX.Events.GetCurrentEvent();
+          string current_event = EventsPlugin.GetCurrentEvent();
 
           if (current_event == "NWNX_ON_CAST_SPELL_BEFORE")
           {
             int iCount = 1;
             
-            if (NWScript.GetHasSpellEffect(Spell.ImprovedInvisibilit, oPC) || NWScript.GetHasSpellEffect(Spell.Invisibilit, oPC) || NWScript.GetHasSpellEffect(Spell.InvisibilitySpher, oPC))
-              if (int.Parse(NWNX.Events.GetEventData("META_TYPE")) != (int)MetaMagic.Silent)
+            if (NWScript.GetHasSpellEffect(NWScript.SPELL_IMPROVED_INVISIBILITY, oPC.oid) == 1 || NWScript.GetHasSpellEffect(NWScript.SPELL_INVISIBILITY, oPC.oid) == 1 || NWScript.GetHasSpellEffect(NWScript.SPELL_INVISIBILITY_PURGE, oPC.oid) == 1)
+              if (int.Parse(EventsPlugin.GetEventData("META_TYPE")) != NWScript.METAMAGIC_SILENT)
               {
-                NWPlayer oSpotter = NWScript.GetNearestCreature(1, 1, oPC, iCount).AsPlayer();
-                while (oSpotter.IsValid)
+                var oSpotter = NWScript.GetNearestCreature(1, 1, oPC.oid, iCount);
+                while (NWScript.GetIsObjectValid(oSpotter) == 1)
                 {
-                  if (NWScript.GetDistanceBetween(oSpotter, oPC) > 20.0f)
+                  if (NWScript.GetDistanceBetween(oSpotter, oPC.oid) > 20.0f)
                     break;
 
-                  if (!NWScript.GetObjectSeen(oPC, oSpotter))
+                  if (NWScript.GetObjectSeen(oPC.oid, oSpotter) != 1)
                   {
-                    oSpotter.SendMessage("Quelqu'un d'invisible est en train de lancer un sort à proximité !");
-                    NWNX.Player.ShowVisualEffect(oSpotter, 191, oPC.Position);
+                    NWScript.SendMessageToPC(oSpotter, "Quelqu'un d'invisible est en train de lancer un sort à proximité !");
+                    PlayerPlugin.ShowVisualEffect(oSpotter, 191, NWScript.GetPosition(oPC.oid));
                   }
 
                   iCount++;
-                  oSpotter = NWScript.GetNearestCreature(1, 1, oPC, iCount).AsPlayer();
+                  oSpotter = NWScript.GetNearestCreature(1, 1, oPC.oid, iCount);
                 }
               }
           }
         }
       }
 
-      return Entrypoints.SCRIPT_HANDLED;
+      return 0;
     }
     private static int HandleRaiseDeadCast(uint oidSelf)
     {
-      var oTarget = NWScript.GetSpellTargetObject().AsObject();
-      if(oTarget.Tag == "pccorpse")
+      var oTarget = NWScript.GetSpellTargetObject();
+      if(NWScript.GetTag(oTarget) == "pccorpse")
       {
-        int PcId = NWNX.Object.GetInt(oTarget, "_PC_ID");
+        int PcId = ObjectPlugin.GetInt(oTarget, "_PC_ID");
         PlayerSystem.Player oPC = GetPCById(PcId);
-
+        
         if (oPC != null && oPC.isConnected)
         {
-          NWScript.AssignCommand(oPC, () => NWScript.JumpToLocation(NWScript.GetLocation(oTarget)));
-          if(NWScript.GetSpellId() == (int)Spell.RaiseDead)
-            oPC.CurrentHP = 1;
+          NWScript.AssignCommand(oPC.oid, () => NWScript.JumpToLocation(NWScript.GetLocation(oTarget)));
+
+          if (NWScript.GetSpellId() == (NWScript.SPELL_RAISE_DEAD))
+            NWScript.ApplyEffectToObject(NWScript.DURATION_TYPE_INSTANT, NWScript.EffectResurrection(), oTarget);
         }
         else
         {
           // TODO : Remplacer la location actuelle du PJ en BDD par celle de oTarget. Penser également à modifier la façon dont la location des PJ est sauvegardée pour passer par la BDD plutôt que par NWNX SetString
-          oidSelf.AsPlayer().SendMessage("[HRP] Le joueur que vous tentez de ramener n'est pas connecté. Celui-ci sera automatiquement ressucité à sa prochaine connexion.");
+          NWScript.SendMessageToPC(oidSelf, "[HRP] Le joueur que vous tentez de ramener n'est pas connecté. Celui-ci sera automatiquement ressucité à sa prochaine connexion.");
         }
 
-        foreach(NWItem oItem in oTarget.InventoryItems)
+        uint oItemCorpse = NWScript.GetFirstItemInInventory(oTarget);
+
+        while(NWScript.GetIsObjectValid(oItemCorpse) == 1)
         {
-          if (oItem.Tag == "item_pccorpse")
-            oItem.Destroy();
+          if(NWScript.GetTag(oItemCorpse) == "item_pccorpse")
+          {
+            NWScript.DestroyObject(oItemCorpse);
+            break;
+          }
+          oItemCorpse = NWScript.GetNextItemInInventory(oTarget);
         }
 
-        oTarget.Destroy();
+        NWScript.DestroyObject(oTarget);
         // TODO : Détruire l'objet en BDD (where PcId)
 
-        Effect eVis = NWScript.EffectVisualEffect((VisualEffect)Impact.RaiseDead);
-        NWScript.SignalEvent(oTarget, NWScript.EventSpellCastAt(oidSelf, Spell.RaiseDead, false));
-        NWScript.ApplyEffectAtLocation(DurationType.Instant, eVis, oTarget.Location);
-        return Entrypoints.SCRIPT_HANDLED;
+        NWScript.SignalEvent(oTarget, NWScript.EventSpellCastAt(oidSelf, NWScript.SPELL_RAISE_DEAD, 0));
+        NWScript.ApplyEffectAtLocation(NWScript.DURATION_TYPE_INSTANT, NWScript.EffectVisualEffect(NWScript.VFX_IMP_RAISE_DEAD), NWScript.GetLocation(oTarget));
+        return 0;
       }
 
-      return Entrypoints.SCRIPT_NOT_HANDLED;
+      return 0;
     }
     private static int SpellTest(uint oidSelf)
     {
@@ -296,13 +296,13 @@ namespace NWN.Systems
         int nCasterLevel = NWScript.GetCasterLevel(oidSelf);
         int nTotalCharacterLevel = NWScript.GetHitDice(oidSelf);
 
-        oPC.SendMessage($"CL self = {nCasterLevel}");
-        oPC.SendMessage($"CL target = {NWScript.GetCasterLevel(oTarget)}");
-        oPC.SendMessage($"CL player = {NWScript.GetCasterLevel(oPC)}");
-        oPC.SendMessage($"Item used = {NWScript.GetSpellCastItem().AsObject().Name}");
+        NWScript.SendMessageToPC(oPC.oid, $"CL self = {nCasterLevel}");
+        NWScript.SendMessageToPC(oPC.oid, $"CL target = {NWScript.GetCasterLevel(oTarget)}");
+        NWScript.SendMessageToPC(oPC.oid, $"CL player = {NWScript.GetCasterLevel(oPC.oid)}");
+        NWScript.SendMessageToPC(oPC.oid, $"Item used = {NWScript.GetName(NWScript.GetSpellCastItem())}");
       }
 
-      return Entrypoints.SCRIPT_NOT_HANDLED;
+      return 0;
     }
   }
 }

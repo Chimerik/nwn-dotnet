@@ -1,6 +1,6 @@
 ﻿using System;
-using NWN.Enums;
-using NWN.NWNX;
+using System.Numerics;
+using NWN.Core;
 
 namespace NWN.Systems
 {
@@ -13,13 +13,13 @@ namespace NWN.Systems
       {
         string newName = (string)options.positional[0];
 
-        Action<uint, Vector> callback = (uint target, Vector position) =>
+        Action<uint, Vector3> callback = (uint target, Vector3 position) =>
         {
-          NWCreature oCreature = target.AsCreature();
-          if (player.IsDM || oCreature.Master == player)
-            oCreature.Name = newName;
+          var oCreature = target;
+          if (NWScript.GetIsDM(player.oid) == 1 || NWScript.GetMaster(oCreature) == player.oid)
+            NWScript.SetName(oCreature, newName);
           else
-            player.SendMessage($"{oCreature.Name} n'est pas une de vos invocations, vous ne pouvez pas modifier son nom");
+            NWScript.SendMessageToPC(player.oid, $"{NWScript.GetName(oCreature)} n'est pas une de vos invocations, vous ne pouvez pas modifier son nom");
         };
 
         player.SelectTarget(callback);

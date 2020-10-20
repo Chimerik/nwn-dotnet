@@ -1,7 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
-using NWN.Enums;
-using NWN.NWNX;
+using NWN.Core;
+using NWN.Core.NWNX;
+using static NWN.Systems.CollectSystem;
 
 namespace NWN.Systems
 {
@@ -12,46 +12,11 @@ namespace NWN.Systems
       PlayerSystem.Player player;
       if (PlayerSystem.Players.TryGetValue(ctx.oSender, out player))
       {
-        int movementRate = NWScript.GetMovementRate(player);
-        float movementRateFactor = NWNX.Creature.GetMovementRateFactor(player);
-
-        Console.WriteLine("Movement rate : " + movementRate);
-        Console.WriteLine("Movement rate factor : " + movementRateFactor);
-
-        if (movementRate == (int)MovementRate.DMFast)
-          movementRate = 1;
-        else if(movementRate == 6)
-          movementRate += 2;
-        else
-          movementRate++;
-
-        NWNX.Creature.SetMovementRate(player, (MovementRate)movementRate);
-        
-        /*if (movementRateFactor >= 1.5f)
-          movementRateFactor = 0.0f;
-        else
-          movementRateFactor += 0.1f;
-
-        NWNX.Creature.SetMovementRateFactor(player, movementRateFactor);*/
-
-        if (NWScript.GetMovementRate(player) == (int)MovementRate.Immobile)
+        int prout = HashCode.Combine<MineralType, ItemSystem.ItemCategory>(MineralType.Pyerite, ItemSystem.ItemCategory.Shield);
+        foreach (ItemProperty ip in test[prout])
         {
-          //NWNX.Creature.SetMovementRate(player, MovementRate.Fast);
-          
+          NWScript.SendMessageToPC(player.oid,$"code : {prout}");
         }
-        else
-        {
-          //NWNX.Creature.SetMovementRate(player, MovementRate.Immobile);
-        }
-        /*if (NWNX.Creature.GetMovementRateFactor(player) == 0.0f)
-        {
-          NWNX.Creature.SetMovementRateFactor(player, 1.0f);
-
-        }
-        else
-        {
-          NWNX.Creature.SetMovementRateFactor(player, 0.0f);
-        }*/
       }
     }
   }
