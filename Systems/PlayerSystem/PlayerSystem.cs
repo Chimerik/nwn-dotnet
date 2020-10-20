@@ -249,7 +249,7 @@ namespace NWN.Systems
     }
     private static int HandleBeforeDMPossess(uint oidSelf)
     {
-      var oPossessed = ObjectPlugin.StringToObject(EventsPlugin.GetEventData("TARGET"));
+      var oPossessed = NWScript.StringToObject(EventsPlugin.GetEventData("TARGET"));
       Player oPC;
       if (Players.TryGetValue(oidSelf, out oPC))
       {
@@ -292,7 +292,7 @@ namespace NWN.Systems
         {
           if (ObjectPlugin.GetInt(oPC.oid, "_SPAWN_PERSIST") != 0)
           {
-            var oObject = ObjectPlugin.StringToObject(EventsPlugin.GetEventData("OBJECT"));
+            var oObject = NWScript.StringToObject(EventsPlugin.GetEventData("OBJECT"));
             // TODO : Enregistrer l'objet créé en base de données. Ajouter à l'objet un script qui le supprime de la BDD OnDeath
             NWScript.SendMessageToPC(oPC.oid, $"Création persistante - Vous posez le placeable  {NWScript.GetName(oObject)}");
           }
@@ -403,7 +403,7 @@ namespace NWN.Systems
         else if (feat == NWScript.FEAT_PLAYER_TOOL_01)
         {
           EventsPlugin.SkipEvent();
-          var oTarget = ObjectPlugin.StringToObject(EventsPlugin.GetEventData("TARGET_OBJECT_ID"));
+          var oTarget = NWScript.StringToObject(EventsPlugin.GetEventData("TARGET_OBJECT_ID"));
           PlayerSystem.Player myPlayer;
           if (PlayerSystem.Players.TryGetValue(oidSelf, out myPlayer))
           {
@@ -498,7 +498,7 @@ namespace NWN.Systems
 
       if (Players.TryGetValue(oidSelf, out oPC))
       {
-        var oTarget = ObjectPlugin.StringToObject(EventsPlugin.GetEventData("TARGET"));
+        var oTarget = NWScript.StringToObject(EventsPlugin.GetEventData("TARGET"));
 
         if (NWScript.GetIsObjectValid(oTarget) == 1)
         {
@@ -592,7 +592,7 @@ namespace NWN.Systems
       Player player;
       if (Players.TryGetValue(oidSelf, out player))
       {
-        var oSummon = (ObjectPlugin.StringToObject(EventsPlugin.GetEventData("ASSOCIATE_OBJECT_ID")));
+        var oSummon = (NWScript.StringToObject(EventsPlugin.GetEventData("ASSOCIATE_OBJECT_ID")));
 
         if (NWScript.GetIsObjectValid(oSummon) == 1)
         {
@@ -609,7 +609,7 @@ namespace NWN.Systems
       Player player;
       if (Players.TryGetValue(oidSelf, out player))
       {
-        var oSummon = (ObjectPlugin.StringToObject(EventsPlugin.GetEventData("ASSOCIATE_OBJECT_ID")));
+        var oSummon = (NWScript.StringToObject(EventsPlugin.GetEventData("ASSOCIATE_OBJECT_ID")));
 
         if (NWScript.GetIsObjectValid(oSummon) == 1)
         {
@@ -646,7 +646,7 @@ namespace NWN.Systems
           else if (int.Parse(EventsPlugin.GetEventData("SKILL_ID")) == NWScript.SKILL_PICK_POCKET)
           {
             EventsPlugin.SkipEvent();
-            var oObject = ObjectPlugin.StringToObject(EventsPlugin.GetEventData("TARGET_OBJECT_ID"));
+            var oObject = NWScript.StringToObject(EventsPlugin.GetEventData("TARGET_OBJECT_ID"));
             Player oTarget;
             if (Players.TryGetValue(oObject, out oTarget) && NWScript.GetIsDM(oTarget.oid) != 1 && NWScript.GetIsDMPossessed(oTarget.oid) != 1)
             {
@@ -703,7 +703,7 @@ namespace NWN.Systems
       Player oPC;
       if (Players.TryGetValue(oidSelf, out oPC))
       {
-        var oTarget = ObjectPlugin.StringToObject(EventsPlugin.GetEventData("TARGET"));
+        var oTarget = NWScript.StringToObject(EventsPlugin.GetEventData("TARGET"));
 
         if (NWScript.GetIsPC(oTarget) == 1 || NWScript.GetIsPossessedFamiliar(oTarget) == 1)
         {
@@ -811,7 +811,7 @@ namespace NWN.Systems
 
     private static int HandleAfterDMJumpTarget(uint oidSelf)
     {
-      var oTarget = ObjectPlugin.StringToObject(EventsPlugin.GetEventData("TARGET_1"));
+      var oTarget = NWScript.StringToObject(EventsPlugin.GetEventData("TARGET_1"));
 
       Player player;
       if (Players.TryGetValue(oTarget, out player))
@@ -841,7 +841,7 @@ namespace NWN.Systems
       Player player;
       if (Players.TryGetValue(oidSelf, out player))
       {
-        var oTarget = ObjectPlugin.StringToObject(EventsPlugin.GetEventData("TARGET_OBJECT_ID"));
+        var oTarget = NWScript.StringToObject(EventsPlugin.GetEventData("TARGET_OBJECT_ID"));
 
         if (Spells.GetHasEffect(NWScript.GetEffectType(NWScript.EffectCutsceneGhost()), player.oid))
           Spells.RemoveEffectOfType(NWScript.GetEffectType(NWScript.EffectCutsceneGhost()), player.oid);          
@@ -884,7 +884,7 @@ namespace NWN.Systems
     }
     private static int HandleAfterPartyKick(uint oidSelf)
     {
-      Utils.RemoveTaggedEffect(ObjectPlugin.StringToObject(EventsPlugin.GetEventData("KICKED")), "PartyEffect");
+      Utils.RemoveTaggedEffect(NWScript.StringToObject(EventsPlugin.GetEventData("KICKED")), "PartyEffect");
       return 0;
     }
     private static int HandleBeforePartyLeave(uint oidSelf)
@@ -912,7 +912,7 @@ namespace NWN.Systems
       Player player;
       if (Players.TryGetValue(oidSelf, out player))
       {
-        var examineTarget =  ObjectPlugin.StringToObject(EventsPlugin.GetEventData("EXAMINEE_OBJECT_ID"));
+        var examineTarget =  NWScript.StringToObject(EventsPlugin.GetEventData("EXAMINEE_OBJECT_ID"));
       
         switch(NWScript.GetTag(examineTarget))
         {
@@ -939,7 +939,7 @@ namespace NWN.Systems
       Player player;
       if (Players.TryGetValue(oidSelf, out player))
       {
-        var examineTarget = ObjectPlugin.StringToObject(EventsPlugin.GetEventData("EXAMINEE_OBJECT_ID"));
+        var examineTarget = NWScript.StringToObject(EventsPlugin.GetEventData("EXAMINEE_OBJECT_ID"));
 
         switch (NWScript.GetTag(examineTarget))
         {
