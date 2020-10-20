@@ -75,7 +75,7 @@ namespace NWN.Systems
     public static void AddCraftedItemProperties(uint craftedItem, Blueprint blueprint, string material)
     {
       int prout = HashCode.Combine<MineralType, ItemSystem.ItemCategory>(MineralType.Pyerite, ItemSystem.ItemCategory.Shield);
-      foreach (ItemProperty ip in test[prout])
+      foreach (ItemProperty ip in GetCraftItemProperties(GetMineralTypeFromName(material), ItemSystem.GetItemCategory(craftedItem)))
       {
         NWScript.AddItemProperty(NWScript.DURATION_TYPE_PERMANENT, ip, craftedItem);
       }

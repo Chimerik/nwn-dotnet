@@ -8,9 +8,10 @@ namespace NWN.Systems
   {
     public enum ItemCategory
     {
-      Invalid = 0,
-      OneHandedMeleeWeapon = 1,
-      TwoHandedMeleeWeapon = 2,
+      Invalid = -1,
+      OneHandedMeleeWeapon = 0,
+      TwoHandedMeleeWeapon = 1,
+      RangedWeapon = 2,
       Shield = 3,
       Armor = 4,
     }
