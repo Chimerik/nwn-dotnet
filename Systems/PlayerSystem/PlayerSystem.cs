@@ -21,6 +21,7 @@ namespace NWN.Systems
             { "player_exit_before", HandlePlayerBeforeDisconnect },
             { ON_PC_KEYSTROKE_SCRIPT, HandlePlayerKeystroke },
             { "event_player_save_before", HandleBeforePlayerSave },
+            { "event_player_save_after", HandleAfterPlayerSave },
             { "event_dm_possess_before", HandleBeforeDMPossess },
             { "event_dm_spawn_object_after", HandleAfterDMSpawnObject },
             { "event_mv_plc", HandleMovePlaceable },
@@ -46,128 +47,6 @@ namespace NWN.Systems
         };
     
     public static Dictionary<uint, Player> Players = new Dictionary<uint, Player>();
-
-    private static int HandlePlayerConnect(uint oidSelf)
-    {
-      var oPC = NWScript.GetEnteringObject();
-
-      //TODO : système de BANLIST
-
-      EventsPlugin.AddObjectToDispatchList("NWNX_ON_INPUT_KEYBOARD_BEFORE", ON_PC_KEYSTROKE_SCRIPT, oPC);
-      EventsPlugin.AddObjectToDispatchList("NWNX_ON_USE_FEAT_BEFORE", "event_feat_used", oPC);
-      EventsPlugin.AddObjectToDispatchList("NWNX_ON_ADD_ASSOCIATE_AFTER", "summon_add_after", oPC);
-      EventsPlugin.AddObjectToDispatchList("NWNX_ON_REMOVE_ASSOCIATE_AFTER", "summon_remove_after", oPC);
-      EventsPlugin.AddObjectToDispatchList("NWNX_ON_BROADCAST_CAST_SPELL_AFTER", "event_spellbroadcast_after", oPC);
-      EventsPlugin.AddObjectToDispatchList("NWNX_ON_ITEM_EQUIP_BEFORE", "event_equip_items_before", oPC);
-      EventsPlugin.AddObjectToDispatchList("NWNX_ON_ITEM_UNEQUIP_BEFORE", "event_unequip_items_before", oPC);
-      EventsPlugin.AddObjectToDispatchList("NWNX_ON_VALIDATE_ITEM_EQUIP_BEFORE", "event_validate_equip_items_before", oPC);
-      EventsPlugin.AddObjectToDispatchList("NWNX_ON_VALIDATE_USE_ITEM_BEFORE", "event_validate_equip_items_before", oPC);
-      EventsPlugin.AddObjectToDispatchList("NWNX_ON_COMBAT_MODE_OFF", "event_combatmode", oPC);
-      EventsPlugin.AddObjectToDispatchList("NWNX_ON_USE_SKILL_BEFORE", "event_skillused", oPC);
-      EventsPlugin.AddObjectToDispatchList("NWNX_ON_DO_LISTEN_DETECTION_AFTER", "event_detection_after", oPC);
-      EventsPlugin.AddObjectToDispatchList("NWNX_ON_START_COMBAT_ROUND_AFTER", "event_start_combat_after", oPC);
-
-      //oPC.AsCreature().AddFeat(NWN.Enums.Feat.PlayerTool01);
-
-      //if (NWScript.GetLocalInt(oidSelf, "_LANGUE_ACTIVE") != 0)
-      //{
-      /*      NWScript.SendMessageToPC(oPC, $"langue = {NWScript.GetLocalInt(oPC, "_LANGUE_ACTIVE")}");
-              NWScript.DeleteLocalInt(oPC, "_LANGUE_ACTIVE");
-            NWScript.SendMessageToPC(oPC, $"langue = {NWScript.GetLocalInt(oPC, "_LANGUE_ACTIVE")}");
-
-            NWScript.DelayCommand(4.5f, () => NWScript.SetTextureOverride("icon_elf", "", oPC));
-              NWScript.DelayCommand(5.0f, () => RefreshQBS(oPC));
-       */     //}
-              // else
-              //{
-              //NWScript.SetTextureOverride("icon_elf", "", oidSelf);
-
-      //RefreshQBS(oidSelf, 0);
-      // }
-
-      Player player;
-      if (!Players.ContainsKey(oPC))
-      {
-        player = new Player(oPC);
-        Players.Add(oPC, player);
-      }
-      else
-        player = Players[oPC];
-
-      NWScript.SetEventScript(oPC, NWScript.EVENT_SCRIPT_CREATURE_ON_NOTICE, "on_perceived_pc");
-
-      // TODO : Système de sauvegarde et de chargement de quickbar
-      //EventsPlugin.AddObjectToDispatchList("NWNX_ON_QUICKBAR_SET_BUTTON_AFTER", "event_qbs", oPC);
-
-      if (NWScript.GetIsDM(player.oid) != 1)
-      {
-        if (player.isNewPlayer)
-        {
-          // TODO : création des infos du nouveau joueur en BDD
-          ObjectPlugin.SetInt(player.oid, "_PC_ID", 1, 1); // TODO : enregistrer l'identifiant de BDD du pj sur le .bic du personnage au lieu du 1 par défaut des tests
-          ObjectPlugin.SetInt(player.oid, "_BRP", 1, 1);
-        }
-        else
-        {
-          // TODO : Initilisation de l'ancien joueur avec les infos en BDD
-
-          if (ObjectPlugin.GetInt(oPC, "_FROST_ATTACK") != 0)
-          {
-            EventsPlugin.AddObjectToDispatchList("NWNX_ON_INPUT_ATTACK_OBJECT_BEFORE", "event_auto_spell", oPC);
-            EventsPlugin.AddObjectToDispatchList("NWNX_ON_INPUT_FORCE_MOVE_TO_OBJECT_BEFORE", "event_auto_spell", oPC);
-            EventsPlugin.AddObjectToDispatchList("NWNX_ON_INPUT_CAST_SPELL_BEFORE", "_onspellcast", oPC);
-            EventsPlugin.AddObjectToDispatchList("NWNX_ON_INPUT_KEYBOARD_BEFORE", "event_auto_spell", oPC);
-            EventsPlugin.AddObjectToDispatchList("NWNX_ON_INPUT_WALK_TO_WAYPOINT_BEFORE", "event_auto_spell", oPC);
-          }
-
-          if (NWScript.GetIsObjectValid(NWScript.GetItemPossessedBy(oPC, "pj_lycan_curse")) == 1)
-          {
-            CreaturePlugin.AddFeat(oPC, NWScript.FEAT_PLAYER_TOOL_02);
-            NWScript.DestroyObject(NWScript.GetItemPossessedBy(oPC, "pj_lycan_curse"));
-          }
-
-          // Initialisation de la faim (TODO : récupérer la faim en BDD)
-          float fNourriture = 200.0f;
-
-          if (fNourriture < 100.0f)
-          {
-            int nLoss = 100 - Convert.ToInt32(fNourriture);
-            Effect eHunger = NWScript.EffectAbilityDecrease(NWScript.ABILITY_STRENGTH, NWScript.GetAbilityScore(oPC, NWScript.ABILITY_STRENGTH) * nLoss / 100);
-            eHunger = NWScript.EffectLinkEffects(eHunger, NWScript.EffectAbilityDecrease(NWScript.ABILITY_DEXTERITY, NWScript.GetAbilityScore(oPC, NWScript.ABILITY_DEXTERITY) * nLoss / 100));
-            eHunger = NWScript.EffectLinkEffects(eHunger, NWScript.EffectAbilityDecrease(NWScript.ABILITY_CONSTITUTION, NWScript.GetAbilityScore(oPC, NWScript.ABILITY_CONSTITUTION) * nLoss / 100));
-            eHunger = NWScript.EffectLinkEffects(eHunger, NWScript.EffectAbilityDecrease(NWScript.ABILITY_CHARISMA, NWScript.GetAbilityScore(oPC, NWScript.ABILITY_CHARISMA) * nLoss / 100));
-            eHunger = NWScript.SupernaturalEffect(eHunger);
-            eHunger = NWScript.TagEffect(eHunger, "Effect_Hunger");
-            NWScript.ApplyEffectToObject(NWScript.DURATION_TYPE_PERMANENT, eHunger, oPC);
-          }
-
-          if (ObjectPlugin.GetString(player.oid, "_LOCATION").Length > 0 && NWScript.GetIsDM(player.oid) != 1)
-          {
-            NWScript.DelayCommand(1.0f, () => NWScript.AssignCommand(player.oid, () => NWScript.ClearAllActions()));
-            NWScript.DelayCommand(1.1f, () => NWScript.AssignCommand(player.oid, () => NWScript.JumpToLocation(Utils.StringToLocation(ObjectPlugin.GetString(player.oid, "_LOCATION")))));
-          }
-
-          if (ObjectPlugin.GetInt(player.oid, "_CURRENT_JOB") != 0) // probablement plutôt initialiser ça à partir de la BDD
-          {
-            player.learnableSkills[ObjectPlugin.GetInt(player.oid, "_CURRENT_JOB")].currentJob = true;
-            player.AcquireSkillPoints();
-          }
-          else
-            NWScript.DelayCommand(10.0f, () => player.PlayNoCurrentTrainingEffects());
-
-          ObjectPlugin.SetString(player.oid, "_DATE_LAST_SAVED", DateTime.Now.ToString(), 1);
-        }
-
-        //Appliquer la distance de perception du chat en fonction de la compétence Listen du joueur
-        ChatPlugin.SetChatHearingDistance(ChatPlugin.GetChatHearingDistance(oPC, ChatPlugin.NWNX_CHAT_CHANNEL_PLAYER_TALK) + NWScript.GetSkillRank(NWScript.SKILL_LISTEN, oPC) / 5, oPC, ChatPlugin.NWNX_CHAT_CHANNEL_PLAYER_TALK);
-        ChatPlugin.SetChatHearingDistance(ChatPlugin.GetChatHearingDistance(oPC, ChatPlugin.NWNX_CHAT_CHANNEL_DM_WHISPER) + NWScript.GetSkillRank(NWScript.SKILL_LISTEN, oPC) / 10, oPC, ChatPlugin.NWNX_CHAT_CHANNEL_DM_WHISPER);
-        player.isConnected = true;
-        player.isAFK = true;
-        
-        EventsPlugin.AddObjectToDispatchList("NWNX_ON_CLIENT_DISCONNECT_BEFORE", "player_exit_before", oPC);
-      }
-      return 0;
-    }
 
     private static int HandlePlayerDisconnect(uint oidSelf)
     {
@@ -204,49 +83,7 @@ namespace NWN.Systems
 
       return 0;
     }
-    private static int HandleBeforePlayerSave(uint oidSelf)
-    {
-      /* Fix polymorph bug : Lorsqu'un PJ métamorphosé est sauvegardé, toutes ses buffs sont supprimées afin que les stats de 
-       * la nouvelle forme ne remplace pas celles du PJ dans son fichier .bic. Après sauvegarde, les stats de la métamorphose 
-       * sont réappliquées. 
-       * Bug 1 : les PV temporaires de la forme se cumulent avec chaque sauvegarde, ce qui permet d'avoir PV infinis
-       * BUG 2 : Les buffs ne faisant pas partie de la métamorphose (appliquées par sort par exemple), ne sont pas réappliquées
-       * Ici, la correction consiste à ne pas sauvegarder le PJ s'il est métamorphosé, sauf s'il s'agit d'une déconnexion.
-       * Mais il se peut que dans ce cas, ses buffs soient perdues à la reco. A vérifier. Si c'est le cas, une meilleure
-       * correction pourrait être de parcourir tous ses buffs et de les réappliquer dans l'event AFTER de la sauvegarde*/
-
-        Player player;
-        if (Players.TryGetValue(oidSelf, out player))
-        {
-          if (player.isConnected)
-          {
-            if (Utils.HasAnyEffect(player.oid, NWScript.EFFECT_TYPE_POLYMORPH))
-            {
-              EventsPlugin.SkipEvent();
-              return 0;
-            }
-          }
-
-          // TODO : probablement faire pour chaque joueur tous les check faim / soif / jobs etc ici
-
-          // AFK detection
-          if(ObjectPlugin.GetString(player.oid, "_LOCATION") != Utils.LocationToString(NWScript.GetLocation(player.oid)))
-          {
-            ObjectPlugin.SetString(player.oid, "_LOCATION", Utils.LocationToString(NWScript.GetLocation(player.oid)), 1);
-            player.isAFK = false;
-          }
-
-          if(NWScript.GetLocalInt(player.oid, "REST") != 0)
-            player.CraftJobProgression();
-
-          player.AcquireSkillPoints();
-          ObjectPlugin.SetString(player.oid, "_DATE_LAST_SAVED", DateTime.Now.ToString(), 1);
-          ObjectPlugin.SetInt(player.oid, "_CURRENT_HP", NWScript.GetCurrentHitPoints(player.oid), 1);
-          player.isAFK = true;
-        }
-
-      return 0;
-    }
+   
     private static int HandleBeforeDMPossess(uint oidSelf)
     {
       var oPossessed = NWScript.StringToObject(EventsPlugin.GetEventData("TARGET"));
@@ -309,10 +146,6 @@ namespace NWN.Systems
       if (Players.TryGetValue(oidSelf, out player))
       {
         player.isConnected = false;
-        //TODO : plutôt utiliser les fonctions sqlite de la prochaine MAJ ?
-        ObjectPlugin.SetInt(player.oid, "_CURRENT_HP", NWScript.GetCurrentHitPoints(player.oid), 1);
-        ObjectPlugin.SetString(player.oid, "_LOCATION", Utils.LocationToString(NWScript.GetLocation(player.oid)), 1); 
-
         HandleBeforePartyLeave(oidSelf);
         HandleAfterPartyLeave(oidSelf);
       }
@@ -356,8 +189,8 @@ namespace NWN.Systems
         if (feat == NWScript.FEAT_PLAYER_TOOL_02)
         {
           EventsPlugin.SkipEvent();
-          PlayerSystem.Player oPC;
-          if (PlayerSystem.Players.TryGetValue(oidSelf, out oPC))
+          Player oPC;
+          if (Players.TryGetValue(oidSelf, out oPC))
           {
             if (Utils.HasTagEffect(oPC.oid, "lycan_curse"))
             {
@@ -404,8 +237,8 @@ namespace NWN.Systems
         {
           EventsPlugin.SkipEvent();
           var oTarget = NWScript.StringToObject(EventsPlugin.GetEventData("TARGET_OBJECT_ID"));
-          PlayerSystem.Player myPlayer;
-          if (PlayerSystem.Players.TryGetValue(oidSelf, out myPlayer))
+          Player myPlayer;
+          if (Players.TryGetValue(oidSelf, out myPlayer))
           {
             if (NWScript.GetIsObjectValid(oTarget) == 1)
             {

@@ -11,10 +11,21 @@ namespace NWN.Systems
     public class Player
     { 
       public readonly uint oid;
-      public readonly Boolean isNewPlayer;
+      public readonly int accountId;
+      public readonly int characterId;
+      public int bonusRolePlay { get; set; }
+      public Location location { get; set; }
       public Boolean isConnected { get; set; }
       public Boolean isAFK { get; set; }
+      public int currentHP { get; set; }
+      public DateTime dateLastSaved { get; set; }
+      public int currentSkillJob { get; set; }
+      public float currentSkillJobRemainingTime { get; set; }
+      public string currentCraftJob { get; set; }
+      public float currentCraftJobRemainingTime { get; set; }
+      public string currentCraftJobMaterial { get; set; }
       public uint autoAttackTarget { get; set; }
+      public Boolean isFrostAttackOn { get; set; }
       public DateTime lycanCurseTimer { get; set; }
       public Menu menu { get; }
 
@@ -36,6 +47,7 @@ namespace NWN.Systems
       public Dictionary<uint, uint> summons = new Dictionary<uint, uint>();
       public Dictionary<int, SkillSystem.Skill> learnableSkills = new Dictionary<int, SkillSystem.Skill>();
       public Dictionary<int, SkillSystem.Skill> removeableMalus = new Dictionary<int, SkillSystem.Skill>();
+      public List<Effect> effectList = new List<Effect>();
 
       public Action OnMiningCycleCancelled = delegate { };
       public Action OnMiningCycleCompleted = delegate { };
@@ -44,18 +56,21 @@ namespace NWN.Systems
       {
         this.oid = nwobj;
         this.menu = new PrivateMenu(this);
-        // TODO : ajouter IsNewPlayer = résultat de la requête en BDD pour voir si on a déjà des infos sur lui ou pas !
+        
+        if(ObjectPlugin.GetInt(this.oid, "accountId") == 0)
+          InitializeNewPlayer(this.oid);
 
-        // TODO : charger la liste à partir de la BDD et l'état d'avancement des SP. Mettre en place le système d'apprentissage via livre
-        this.learnableSkills.Add(1116, new SkillSystem.Skill(1116, ObjectPlugin.GetFloat(this.oid, "_JOB_SP_1116")));
-        this.learnableSkills.Add(122, new SkillSystem.Skill(122, ObjectPlugin.GetFloat(this.oid, "_JOB_SP_122")));
-        this.learnableSkills.Add(128, new SkillSystem.Skill(128, ObjectPlugin.GetFloat(this.oid, "_JOB_SP_128")));
-        this.learnableSkills.Add(133, new SkillSystem.Skill(133, ObjectPlugin.GetFloat(this.oid, "_JOB_SP_133")));
-        int successorId;
-        if (int.TryParse(NWScript.Get2DAString("feat", "SUCCESSOR", CreaturePlugin.GetHighestLevelOfFeat(this.oid, 1132)), out successorId))
-        {
-          this.learnableSkills.Add(successorId, new SkillSystem.Skill(successorId, ObjectPlugin.GetFloat(this.oid, $"_JOB_SP_{successorId}")));
-        }
+        if (ObjectPlugin.GetInt(this.oid, "characterId") == 0)
+          InitializeNewCharacter(this);
+
+        this.characterId = ObjectPlugin.GetInt(this.oid, "characterId");
+
+        this.accountId = ObjectPlugin.GetInt(this.oid, "accountId");
+
+        if (NWScript.GetIsDM(this.oid) != 1)
+          InitializePlayer(this);
+        else
+          InitializeDM(this);
       }
 
       public void EmitKeydown(KeydownEventArgs e)
@@ -135,7 +150,7 @@ namespace NWN.Systems
       }
       public void CraftJobProgression()
       {
-        float RemainingTime = ObjectPlugin.GetFloat(oid, "_CURRENT_CRAFT_JOB_REMAINING_TIME") - (float)(DateTime.Now - DateTime.Parse(ObjectPlugin.GetString(oid, "_DATE_LAST_SAVED"))).TotalSeconds;
+        float RemainingTime = this.currentCraftJobRemainingTime - (float)(DateTime.Now - this.dateLastSaved).TotalSeconds;
 
         if (RemainingTime < 0)
         {
@@ -150,11 +165,11 @@ namespace NWN.Systems
       public void AcquireCraftedItem()
       {
         CollectSystem.Blueprint blueprint;
-        CollectSystem.BlueprintType blueprintType = CollectSystem.GetBlueprintTypeFromName(ObjectPlugin.GetString(oid, "_CURRENT_CRAFT_JOB"));
+        CollectSystem.BlueprintType blueprintType = CollectSystem.GetBlueprintTypeFromName(this.currentCraftJob);
 
         if (blueprintType == CollectSystem.BlueprintType.Invalid)
         {
-          // TODO : envoyer l'erreur sur Discord
+          Utils.LogMessageToDMs($"AcquireCraftedItem : {NWScript.GetName(this.oid)} - Blueprint invalid - {this.currentCraftJob}");
           return;
         }
 
@@ -168,12 +183,10 @@ namespace NWN.Systems
       public void AcquireSkillPoints()
       {
         SkillSystem.Skill skill;
-        if (this.learnableSkills.TryGetValue(ObjectPlugin.GetInt(oid, "_CURRENT_JOB"), out skill))
+        if (this.learnableSkills.TryGetValue(this.currentSkillJob, out skill))
         {
           skill.acquiredPoints += this.CalculateAcquiredSkillPoints(skill);
-
           double RemainingTime = skill.GetTimeToNextLevel(this);
-          ObjectPlugin.SetFloat(oid, $"_JOB_SP_{skill.oid}", skill.acquiredPoints, 1);
 
           if (RemainingTime < 0)
           {
@@ -186,12 +199,11 @@ namespace NWN.Systems
         }
         else
         {
-          if (this.removeableMalus.TryGetValue(ObjectPlugin.GetInt(oid, "_CURRENT_JOB"), out skill))
+          if (this.removeableMalus.TryGetValue(this.currentSkillJob, out skill))
           {
             skill.acquiredPoints += this.CalculateAcquiredSkillPoints(skill);
-
             double RemainingTime = skill.GetTimeToNextLevel(this);
-            ObjectPlugin.SetFloat(oid, $"_JOB_SP_{skill.oid}", skill.acquiredPoints, 1);
+
             if (RemainingTime < 0)
             {
               this.RemoveMalus(skill);
@@ -203,10 +215,10 @@ namespace NWN.Systems
           }
         }
       }
-      public double RefreshAcquiredSkillPoints()
+      public double RefreshAcquiredSkillPoints() // TODO : revoir la méthode d'affichage du temps restant pour le skill job (et craft job aussi)
       {
         SkillSystem.Skill skill;
-        if (this.learnableSkills.TryGetValue(ObjectPlugin.GetInt(oid, "_CURRENT_JOB"), out skill))
+        if (this.learnableSkills.TryGetValue(this.currentSkillJob, out skill))
         {
           skill.acquiredPoints += this.CalculateAcquiredSkillPoints(skill);
 
@@ -222,10 +234,10 @@ namespace NWN.Systems
 
       private float CalculateAcquiredSkillPoints(SkillSystem.Skill skill)
       {
-        var ElapsedSeconds = (float)(DateTime.Now - DateTime.Parse(ObjectPlugin.GetString(oid, "_DATE_LAST_SAVED"))).TotalSeconds;
+        var ElapsedSeconds = (float)(DateTime.Now - this.dateLastSaved).TotalSeconds;
         float SP = (float)(NWScript.GetAbilityScore(oid, skill.primaryAbility) + (NWScript.GetAbilityScore(oid, skill.secondaryAbility) / 2)) * ElapsedSeconds / 60;
 
-        switch (ObjectPlugin.GetInt(oid, "_BRP"))
+        switch (this.bonusRolePlay)
         {
           case 0:
             SP = SP * 80 / 100;
@@ -250,7 +262,7 @@ namespace NWN.Systems
       }
       public void LevelUpSkill(SkillSystem.Skill skill)
       {
-        if (CreaturePlugin.GetKnowsFeat(oid, skill.oid) != 1)
+        if (!Convert.ToBoolean(CreaturePlugin.GetKnowsFeat(oid, skill.oid)))
         {
           CreaturePlugin.AddFeat(oid, skill.oid);
           NWScript.DelayCommand(10.0f, () => this.PlayNewSkillAcquiredEffects(skill)); // Décalage de 10 secondes pour être sur que le joueur a fini de charger la map à la reco
@@ -283,8 +295,7 @@ namespace NWN.Systems
           }
         }
 
-        ObjectPlugin.DeleteInt(oid, "_CURRENT_JOB");
-        this.learnableSkills.Remove(skill.oid);
+        skill.trained = true;
 
         if (skill.successorId > 0)
         {
@@ -324,16 +335,16 @@ namespace NWN.Systems
 
       public void PlayCraftJobCompletedEffects(CollectSystem.Blueprint blueprint)
       {
-        NWScript.PostString(oid, $"La création de votre {ObjectPlugin.GetString(oid, "_CURRENT_CRAFT_JOB")} est terminée !", 80, 10, NWScript.SCREEN_ANCHOR_TOP_LEFT, 5.0f, unchecked((int)0xC0C0C0FF), unchecked((int)0xC0C0C0FF), 9, "fnt_galahad14");
+        NWScript.PostString(oid, $"La création de votre {this.currentCraftJob} est terminée !", 80, 10, NWScript.SCREEN_ANCHOR_TOP_LEFT, 5.0f, unchecked((int)0xC0C0C0FF), unchecked((int)0xC0C0C0FF), 9, "fnt_galahad14");
         // TODO : changer les sons et effets visuels
         PlayerPlugin.PlaySound(oid, "gui_level_up");
         PlayerPlugin.ApplyInstantVisualEffectToObject(oid, oid, NWScript.VFX_IMP_GLOBE_USE);
 
-        CollectSystem.AddCraftedItemProperties(NWScript.CreateItemOnObject(blueprint.craftedItemTag, oid), blueprint, ObjectPlugin.GetString(oid, "_CURRENT_CRAFT_JOB_MATERIAL"));
+        CollectSystem.AddCraftedItemProperties(NWScript.CreateItemOnObject(blueprint.craftedItemTag, oid), blueprint, this.currentCraftJobMaterial);
 
-        ObjectPlugin.DeleteString(oid, "_CURRENT_CRAFT_JOB");
-        ObjectPlugin.DeleteFloat(oid, "_CURRENT_CRAFT_JOB_REMAINING_TIME");
-        ObjectPlugin.DeleteString(oid, "_CURRENT_CRAFT_JOB_MATERIAL");
+        this.currentCraftJob = "";
+        this.currentCraftJobRemainingTime = 0;
+        this.currentCraftJobMaterial = "";
       }
 
       public void PlayNoCurrentTrainingEffects()
