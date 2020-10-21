@@ -18,14 +18,14 @@ namespace NWN.Systems
             { "event_refinery_add_item_before", HandleBeforeItemAddedToRefinery },
             { "refinery_add_item", HandleItemAddedToRefinery },
             { "refinery_close", HandleRefineryClose },
-            {"event_validate_equip_items_before", HandleBeforeValidatingEquipItem},
+            { "event_validate_equip_items_before", HandleBeforeValidatingEquipItem},
     };
     private static int HandleBeforeEquipItem(uint oidSelf)
     {
       PlayerSystem.Player player;
       if (Players.TryGetValue(oidSelf, out player))
       {
-        var oItem = ObjectPlugin.StringToObject(EventsPlugin.GetEventData("ITEM"));
+        var oItem = NWScript.StringToObject(EventsPlugin.GetEventData("ITEM"));
         int iSlot = int.Parse(EventsPlugin.GetEventData("SLOT"));
         var oUnequip = NWScript.GetItemInSlot(iSlot, player.oid);
 
@@ -43,7 +43,7 @@ namespace NWN.Systems
       PlayerSystem.Player player;
       if (Players.TryGetValue(oidSelf, out player))
       {
-        var oItem = ObjectPlugin.StringToObject(EventsPlugin.GetEventData("ITEM"));
+        var oItem = NWScript.StringToObject(EventsPlugin.GetEventData("ITEM"));
         if (ObjectPlugin.CheckFit(player.oid, NWScript.GetBaseItemType(oItem)) == 0)
         {
           NWScript.SendMessageToPC(player.oid, "Attention, votre inventaire est plein. Déséquipper cet objet risquerait de vous le faire perdre !");
@@ -58,7 +58,7 @@ namespace NWN.Systems
       PlayerSystem.Player player;
       if (Players.TryGetValue(oidSelf, out player))
       {
-        var oItem = ObjectPlugin.StringToObject(EventsPlugin.GetEventData("ITEM_OBJECT_ID"));
+        var oItem = NWScript.StringToObject(EventsPlugin.GetEventData("ITEM_OBJECT_ID"));
         
         switch (NWScript.GetTag(oItem))
         {
@@ -92,7 +92,7 @@ namespace NWN.Systems
     }
     private static int HandleBeforeItemAddedToRefinery(uint oidSelf)
     {
-      var oItem = ObjectPlugin.StringToObject(EventsPlugin.GetEventData("ITEM"));
+      var oItem = NWScript.StringToObject(EventsPlugin.GetEventData("ITEM"));
 
       if (NWScript.GetTag(oItem) != "ore" || NWScript.GetTag(oItem) != "mineral")
       {
@@ -188,7 +188,7 @@ namespace NWN.Systems
     }
     private static int HandleAfterItemAddedToPCCorpse(uint oidSelf)
     {
-      var oItem = ObjectPlugin.StringToObject(EventsPlugin.GetEventData("ITEM"));
+      var oItem = NWScript.StringToObject(EventsPlugin.GetEventData("ITEM"));
 
       switch (NWScript.GetTag(oItem)) 
       {
@@ -200,7 +200,7 @@ namespace NWN.Systems
     }
     private static int HandleAfterItemRemovedFromPCCorpse(uint oidSelf)
     {
-      var oItem = ObjectPlugin.StringToObject(EventsPlugin.GetEventData("ITEM"));
+      var oItem = NWScript.StringToObject(EventsPlugin.GetEventData("ITEM"));
 
       switch (NWScript.GetTag(oItem)) // TODO : Ca va pas du tout. A tester et à revoir
       {
