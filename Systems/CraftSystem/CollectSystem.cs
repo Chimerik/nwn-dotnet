@@ -15,7 +15,7 @@ namespace NWN.Systems
     };
     private static int HandleBeforeMiningCycleCancel(uint oidSelf)
     {
-      PlayerSystem.Player player;
+      Player player;
       if (Players.TryGetValue(oidSelf, out player))
       {
         player.DoActionOnMiningCycleCancelled();
@@ -27,7 +27,7 @@ namespace NWN.Systems
     {
       NWScript.SendMessageToPC(oidSelf, "Mining cycle completed !");
 
-      PlayerSystem.Player player;
+      Player player;
       if (Players.TryGetValue(oidSelf, out player))
       {
         player.DoActionOnMiningCycleCompleted();
@@ -35,7 +35,7 @@ namespace NWN.Systems
 
       return 0;
     }    
-    public static void StartMiningCycle(PlayerSystem.Player player, uint rock, Action cancelCallback, Action completeCallback)
+    public static void StartMiningCycle(Player player, uint rock, Action cancelCallback, Action completeCallback)
     {
       player.OnMiningCycleCancelled = cancelCallback;
       player.OnMiningCycleCompleted = completeCallback;
@@ -61,7 +61,7 @@ namespace NWN.Systems
       EventsPlugin.AddObjectToDispatchList("NWNX_ON_START_COMBAT_ROUND_AFTER", "event_mining_cycle_cancel_before", player.oid);
       EventsPlugin.AddObjectToDispatchList("NWNX_ON_INPUT_CAST_SPELL_BEFORE", "event_mining_cycle_cancel_before", player.oid);
     }
-    public static void RemoveMiningCycleCallbacks(PlayerSystem.Player player)
+    public static void RemoveMiningCycleCallbacks(Player player)
     {
       player.OnMiningCycleCancelled = () => { };
       player.OnMiningCycleCompleted = () => { };

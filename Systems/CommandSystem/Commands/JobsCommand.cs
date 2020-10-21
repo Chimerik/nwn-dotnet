@@ -8,7 +8,7 @@ namespace NWN.Systems
   {
     private static void ExecuteJobsCommand(ChatSystem.Context ctx, Options.Result options)
     {
-      PlayerSystem.Player player;
+      /*PlayerSystem.Player player; // TODO : revoir la méthode d'affichage du temps restant pour skill + craft job
       if (PlayerSystem.Players.TryGetValue(ctx.oSender, out player))
       {
         if (NWScript.GetLocalInt(player.oid, "_DISPLAY_JOBS") == 0)
@@ -25,7 +25,7 @@ namespace NWN.Systems
         {
           NWScript.DeleteLocalInt(player.oid, "_DISPLAY_JOBS");
         }
-      }
+      }*/
     }
   }
 }
