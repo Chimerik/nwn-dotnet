@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using NWN.Core;
-using static NWN.Systems.PlayerSystem;
+using NWN.Systems;
 
 namespace NWN.Systems
 {
@@ -18,6 +18,8 @@ namespace NWN.Systems
       public Boolean currentJob { get; set; }
       public int currentLevel { get; set; }
       public int successorId { get; set; }
+      public Boolean trained { get; set; }
+      public Boolean databaseSaved { get; set; }
       private int multiplier;
       private int pointsToNextLevel;
       public readonly int primaryAbility;
@@ -27,6 +29,7 @@ namespace NWN.Systems
       {
         this.oid = Id;
         this.acquiredPoints = SP;
+        this.trained = false;
         int value;
 
         if (int.TryParse(NWScript.Get2DAString("feat", "FEAT", Id), out value))
@@ -96,7 +99,7 @@ namespace NWN.Systems
 
         this.pointsToNextLevel = 250 * this.multiplier * (int)Math.Pow(Math.Sqrt(32), this.currentLevel);
       }
-      public double GetTimeToNextLevel(Player oPC)
+      public double GetTimeToNextLevel(PlayerSystem.Player oPC)
       {
         float RemainingPoints = this.pointsToNextLevel - this.acquiredPoints;
         float PointsGenerationPerSecond = (float)(NWScript.GetAbilityScore(oPC.oid, primaryAbility) + (NWScript.GetAbilityScore(oPC.oid, secondaryAbility) / 2)) / 60;
@@ -106,7 +109,7 @@ namespace NWN.Systems
           PointsGenerationPerSecond = PointsGenerationPerSecond * 80 / 100;
         return RemainingPoints / PointsGenerationPerSecond;
       }
-      public string GetTimeToNextLevelAsString(Player oPC)
+      public string GetTimeToNextLevelAsString(PlayerSystem.Player oPC)
       {
         TimeSpan EndTime = DateTime.Now.AddSeconds(this.GetTimeToNextLevel(oPC)).Subtract(DateTime.Now);
         string Countdown = "";
@@ -141,7 +144,7 @@ namespace NWN.Systems
 
         return Countdown;
       }
-      public void DisplayTimeToNextLevel(Player oPC)
+/*      public void DisplayTimeToNextLevel(Player oPC) // TODO : revoir méthode d'affichage du temps restant pour skill + craft jobs
       {
         string Countdown = this.GetTimeToNextLevelAsString(oPC);
         oPC.RefreshAcquiredSkillPoints();
@@ -150,7 +153,7 @@ namespace NWN.Systems
         
         if(NWScript.GetLocalInt(oPC.oid, "_DISPLAY_JOBS") == 1)
           NWScript.DelayCommand(1.0f, () => DisplayTimeToNextLevel(oPC));
-      }
+      }*/
     }
   }
 }

@@ -27,8 +27,8 @@ namespace NWN.Systems
         SkillSystem.Skill skill = SkillListEntry.Value;
         // TODO :  afficher le skill en cours en premier ?
 
-        skill.GetTimeToNextLevel(player);
-        player.menu.choices.Add(($"{skill.name} - Temps restant : {skill.GetTimeToNextLevelAsString(player)}", () => __HandleSkillSelection(player, skill)));
+        if(!skill.trained)
+          player.menu.choices.Add(($"{skill.name} - Temps restant : {skill.GetTimeToNextLevelAsString(player)}", () => __HandleSkillSelection(player, skill)));
           
         // TODO : Suivant, précédent et quitter
       }
