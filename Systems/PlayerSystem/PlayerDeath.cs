@@ -16,7 +16,6 @@ namespace NWN.Systems
         
         CreatePlayerCorpse(player);
         StripPlayerGoldAfterDeath(player);
-        // TODO : Dropper toutes les ressources craft de l'inventaire du défunt
         StripPlayerOfCraftResources(player);
         SavePlayerCorpseToDatabase(player.characterId, player.deathCorpse, NWScript.GetTag(NWScript.GetArea(player.deathCorpse)), NWScript.GetPosition(player.deathCorpse));
         NWScript.DelayCommand(5.0f, () => SendPlayerToLimbo(player));

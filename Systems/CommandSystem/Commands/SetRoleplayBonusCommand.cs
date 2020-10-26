@@ -21,12 +21,16 @@ namespace NWN.Systems
             int iBRP;
             if (int.TryParse((string)options.positional[0], out iBRP))
             {
-              if(iBRP > -1 && iBRP < 5)
+              if (iBRP > -1 && iBRP < 5)
               {
-                ObjectPlugin.SetInt(ctx.oTarget, "_BRP", iBRP, 1); // TODO : le BRP est valable pour tout le compte du joueur, pas juste le perso. A enregistrer en BDD
-                NWScript.SendMessageToPC(ctx.oSender, $"Le bonus roleplay de {NWScript.GetName(ctx.oTarget)} est de { ObjectPlugin.GetInt(ctx.oTarget, "_BRP")}");
-                NWScript.SendMessageToPC(ctx.oTarget, $"Votre bonus roleplay est désormais de { ObjectPlugin.GetInt(ctx.oTarget, "_BRP")}");
-              }                  
+                PlayerSystem.Player player;
+                if (PlayerSystem.Players.TryGetValue(ctx.oTarget, out player))
+                {
+                  player.bonusRolePlay = iBRP;
+                  NWScript.SendMessageToPC(ctx.oSender, $"Le bonus roleplay de {NWScript.GetName(ctx.oTarget)} est de {player.bonusRolePlay}");
+                  NWScript.SendMessageToPC(ctx.oTarget, $"Votre bonus roleplay est désormais de {player.bonusRolePlay}");
+                }
+              }
               else
                 NWScript.SendMessageToPC(ctx.oSender, $"Le bonus roleplay doit être compris entre 0 et 4");
             }
@@ -36,7 +40,11 @@ namespace NWN.Systems
         }
       }
       else
-        NWScript.SendMessageToPC(ctx.oSender, $"Votre bonus roleplay est de { ObjectPlugin.GetInt(ctx.oSender, "_BRP")}");
+      {
+        PlayerSystem.Player player;
+        if (PlayerSystem.Players.TryGetValue(ctx.oTarget, out player))
+          NWScript.SendMessageToPC(ctx.oSender, $"Votre bonus roleplay est de {player.bonusRolePlay}");
+      }
     }
   }
 }
