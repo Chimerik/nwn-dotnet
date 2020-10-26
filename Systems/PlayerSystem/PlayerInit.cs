@@ -110,7 +110,7 @@ namespace NWN.Systems
       NWScript.SqlBindInt(query, "@accountId", newCharacter.accountId);
       NWScript.SqlBindString(query, "@name", NWScript.GetName(newCharacter.oid));
       NWScript.SqlBindString(query, "@dateLastSaved", DateTime.Now.ToString());
-      NWScript.SqlBindInt(query, "@currentSkillJob", 65535); // TODO : faire de cette valeur une constante avec le type enum des custom feats
+      NWScript.SqlBindInt(query, "@currentSkillJob", (int)Feat.Invalid);
       NWScript.SqlBindString(query, "@currentCraftJob", "");
       NWScript.SqlBindInt(query, "@frostAttackOn", 0);
       NWScript.SqlStep(query);
@@ -185,6 +185,7 @@ namespace NWN.Systems
       //Appliquer la distance de perception du chat en fonction de la compétence Listen du joueur
       ChatPlugin.SetChatHearingDistance(ChatPlugin.GetChatHearingDistance(player.oid, ChatPlugin.NWNX_CHAT_CHANNEL_PLAYER_TALK) + NWScript.GetSkillRank(NWScript.SKILL_LISTEN, player.oid) / 5, player.oid, ChatPlugin.NWNX_CHAT_CHANNEL_PLAYER_TALK);
       ChatPlugin.SetChatHearingDistance(ChatPlugin.GetChatHearingDistance(player.oid, ChatPlugin.NWNX_CHAT_CHANNEL_DM_WHISPER) + NWScript.GetSkillRank(NWScript.SKILL_LISTEN, player.oid) / 10, player.oid, ChatPlugin.NWNX_CHAT_CHANNEL_DM_WHISPER);
+      player.craftCancellationConfirmation = false;
       player.isConnected = true;
       player.isAFK = true;
     }

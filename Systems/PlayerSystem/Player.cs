@@ -23,6 +23,7 @@ namespace NWN.Systems
       public float currentSkillJobRemainingTime { get; set; }
       public string currentCraftJob { get; set; }
       public float currentCraftJobRemainingTime { get; set; }
+      public DateTime currentCraftJobFinishDateTime { get; set; }
       public string currentCraftJobMaterial { get; set; }
       public uint autoAttackTarget { get; set; }
       public Boolean isFrostAttackOn { get; set; }
@@ -33,7 +34,7 @@ namespace NWN.Systems
       private uint blockingBoulder;
       public string disguiseName { get; set; }
       public uint deathCorpse { get; set; }
-      public uint deathCorpseItem { get; set; }
+      public Boolean craftCancellationConfirmation { get; set; }
 
       private List<uint> _selectedObjectsList = new List<uint>();
       public List<uint> selectedObjectsList
@@ -366,7 +367,11 @@ namespace NWN.Systems
       {
         this.OnMiningCycleCompleted();
       }
-      
+      public void ResetCancellationConfirmation()
+      {
+        this.craftCancellationConfirmation = false;
+      }
+
       public Effect GetPartySizeEffect(int iPartySize = 0)
       {
         var oPartyMember = NWScript.GetFirstFactionMember(oid, 1);

@@ -13,9 +13,9 @@ namespace NWN.Systems
     {
       public OreType type;
       public string name;
-      public int feat;
+      public Feat feat;
       public Dictionary<MineralType, float> mineralsDictionnary = new Dictionary<MineralType, float>();
-      public Ore(OreType oreType, int oreFeat)
+      public Ore(OreType oreType, Feat oreFeat)
       {
         this.type = oreType;
         this.name = GetNameFromOreType(oreType);
@@ -46,9 +46,9 @@ namespace NWN.Systems
 
     public static void InitiateOres()
     {
-      oresDictionnary.Add(OreType.Veldspar, new Ore(OreType.Veldspar, 1145)); // TODO : VeldsparReprocessing // faire enums pour custom feats
-      oresDictionnary.Add(OreType.Scordite, new Ore(OreType.Scordite, 1146)); // TODO : ScorditeReprocessing
-      oresDictionnary.Add(OreType.Pyroxeres, new Ore(OreType.Pyroxeres, 1147)); // TODO : PyroxeresReprocessing
+      oresDictionnary.Add(OreType.Veldspar, new Ore(OreType.Veldspar, Feat.VeldsparReprocessing));
+      oresDictionnary.Add(OreType.Scordite, new Ore(OreType.Scordite, Feat.ScorditeReprocessing));
+      oresDictionnary.Add(OreType.Pyroxeres, new Ore(OreType.Pyroxeres, Feat.PyroxeresReprocessing));
     }
     public static OreType GetOreTypeFromName(string name)
     {
@@ -111,7 +111,7 @@ namespace NWN.Systems
       Mexallon = 3,
       Noxcium = 4,
     }
-
+    // TODO : améliorer / copier / diminution de durabilité du blueprint copié
     public static Dictionary<BlueprintType, Blueprint> blueprintDictionnary = new Dictionary<BlueprintType, Blueprint>();
     public partial class Blueprint
     {
@@ -119,6 +119,7 @@ namespace NWN.Systems
       public string workshopTag { get; set; }
       public string craftedItemTag { get; set; }
       public int mineralsCost { get; set; }
+      public Feat feat { get; set; }
       public Blueprint(BlueprintType type)
       {
         this.type = type;
@@ -133,6 +134,7 @@ namespace NWN.Systems
             this.mineralsCost = 20000;
             this.workshopTag = "forge";
             this.craftedItemTag = "longsword";
+            this.feat = Feat.ForgeLongsword;
             break;
           case BlueprintType.Fullplate:
             this.mineralsCost = 1000000;
