@@ -13,8 +13,6 @@ namespace NWN.Systems
     {
             { "event_equip_items_before", HandleBeforeEquipItem },
             { "event_unequip_items_before", HandleBeforeUnequipItem },
-            { "event_pccorpse_remove_item_after", HandleAfterItemRemovedFromPCCorpse },
-            { "event_pccorpse_add_item_after", HandleAfterItemAddedToPCCorpse },
             { "event_refinery_add_item_before", HandleBeforeItemAddedToRefinery },
             { "refinery_add_item", HandleItemAddedToRefinery },
             { "refinery_close", HandleRefineryClose },
@@ -170,6 +168,7 @@ namespace NWN.Systems
                 {
                   var mineral = NWScript.CreateItemOnObject("mineral", player.oid, (int)((NWScript.GetItemStackSize(ore) * mineralKeyValuePair.Value * (int)reprocessingEfficiency)));
                   NWScript.SetName(mineral, GetNameFromMineralType(mineralKeyValuePair.Key));
+                  NWScript.SetLocalInt(mineral, "DROPS_ON_DEATH", 1);
                 }
 
                 NWScript.DestroyObject(ore);
@@ -184,54 +183,6 @@ namespace NWN.Systems
         
       }
 
-      return 0;
-    }
-    private static int HandleAfterItemAddedToPCCorpse(uint oidSelf)
-    {
-      var oItem = NWScript.StringToObject(EventsPlugin.GetEventData("ITEM"));
-
-      switch (NWScript.GetTag(oItem)) 
-      {
-        case "pccorpse":
-          // TODO : mettre à jour le cadavre serialisé en BDD
-          break;
-      }
-      return 0;
-    }
-    private static int HandleAfterItemRemovedFromPCCorpse(uint oidSelf)
-    {
-      var oItem = NWScript.StringToObject(EventsPlugin.GetEventData("ITEM"));
-
-      switch (NWScript.GetTag(oItem)) // TODO : Ca va pas du tout. A tester et à revoir
-      {
-        case "pccorpse":
-          if (NWScript.GetTag(oItem) == "item_pccorpse")
-          {
-            // TODO : détruire l'objet corps en BDD également where _PC_ID
-            NWScript.DestroyObject(oItem);
-          }
-          else
-          {
-            // TODO : mettre à jour le cadavre serialisé en BDD
-          }
-          break;
-      }
-
-      if (NWScript.GetIsPC(oidSelf) == 1) // TODO : y a un truc qui va pas, logique à retravailler (abonner le pj et le cadavre uniquement aux événements respectifs)
-      {
-        var player = oidSelf;
-        var oPCCorpse = NWScript.CreateObject(NWScript.OBJECT_TYPE_PLACEABLE, "pccorpse", NWScript.GetLocation(player));
-        EventsPlugin.AddObjectToDispatchList("NWNX_ON_INVENTORY_REMOVE_ITEM_AFTER", "event_pccorpse_remove_item_after", oPCCorpse);
-        EventsPlugin.AddObjectToDispatchList("NWNX_ON_INVENTORY_ADD_ITEM_AFTER", "event_pccorpse_add_item_after", oPCCorpse);
-
-        int PlayerId = ObjectPlugin.GetInt(oItem, "_PC_ID");
-        //oPCCorpse.Name = $"Cadavre de {NWScript.GetName(player.oid)}"; TODO : chopper le nom du PJ en BDD à partir de son ID
-        //oPCCorpse.Description = $"Cadavre de {NWScript.GetName(player.oid)}";
-        NWScript.SetLocalInt(oPCCorpse, "_PC_ID", PlayerId);
-        ObjectPlugin.AcquireItem(oPCCorpse, oItem);
-
-        // TODO : enregistrer oPCCorpse en BDD
-      }
       return 0;
     }
   }

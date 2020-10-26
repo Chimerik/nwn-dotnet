@@ -42,6 +42,8 @@ namespace NWN.Systems
             { "event_party_kick_after", HandleAfterPartyKick },
             { "event_examine_before", HandleBeforeExamine },
             { "event_examine_after", HandleAfterExamine },
+            { "event_pccorpse_remove_item_after", HandleAfterItemRemovedFromPCCorpse },
+            { "event_inventory_pccorpse_removed_after", HandleAfterPCCorpseRemovedFromInventory },
             { "pc_acquire_item", HandlePCAcquireItem },
             { "pc_unacquire_it", HandlePCUnacquireItem },
         };
@@ -186,7 +188,7 @@ namespace NWN.Systems
 
       if (current_event == "NWNX_ON_USE_FEAT_BEFORE")
       {
-        if (feat == NWScript.FEAT_PLAYER_TOOL_02)
+        if (feat == (int)NWN.Feat.PlayerTool02)
         {
           EventsPlugin.SkipEvent();
           Player oPC;
@@ -211,29 +213,33 @@ namespace NWN.Systems
 
           return 0;
         }
-        else if (feat == 1116) // TODO : enum LanguageElf
+        else if (feat == (int)Feat.LanguageElf)
         {
-          NWScript.SendMessageToPC(oidSelf, $"langue = {NWScript.GetLocalInt(oidSelf, "_LANGUE_ACTIVE")}");
-          if (NWScript.GetLocalInt(oidSelf, "_LANGUE_ACTIVE") == feat)
+          Player oPC;
+          if (Players.TryGetValue(oidSelf, out oPC))
           {
-            NWScript.DeleteLocalInt(oidSelf, "_LANGUE_ACTIVE");
-            NWScript.SendMessageToPC(oidSelf, "Vous cessez de parler elfe.");
-            NWScript.SetTextureOverride("icon_elf", "", oidSelf);
+            NWScript.SendMessageToPC(oidSelf, $"langue = {oPC.activeLanguage}");
+            if (oPC.activeLanguage == Feat.LanguageElf)
+            {
+              oPC.activeLanguage = Feat.Invalid;
+              NWScript.SendMessageToPC(oidSelf, "Vous cessez de parler elfe.");
+              NWScript.SetTextureOverride("icon_elf", "", oidSelf);
 
-            RefreshQBS(oidSelf, feat);
-          }
-          else
-          {
-            NWScript.SetLocalInt(oidSelf, "_LANGUE_ACTIVE", feat);
-            NWScript.SendMessageToPC(oidSelf, "Vous parlez désormais elfe.");
-            NWScript.SetTextureOverride("icon_elf", "icon_elf_active", oidSelf);
+              RefreshQBS(oidSelf, feat);
+            }
+            else
+            {
+              oPC.activeLanguage = Feat.LanguageElf; ;
+              NWScript.SendMessageToPC(oidSelf, "Vous parlez désormais elfe.");
+              NWScript.SetTextureOverride("icon_elf", "icon_elf_active", oidSelf);
 
-            RefreshQBS(oidSelf, feat);
+              RefreshQBS(oidSelf, feat);
+            }
           }
         
           return 0;
         }
-        else if (feat == NWScript.FEAT_PLAYER_TOOL_01)
+        else if (feat == NWScript.FEAT_PLAYER_TOOL_01) // TODO : Refaire le système. Probablement mieux en changeant totalement l'apparence du PJ par l'objet, le laisser se positionner lui-même, puis sauvegarder l'emplacement
         {
           EventsPlugin.SkipEvent();
           var oTarget = NWScript.StringToObject(EventsPlugin.GetEventData("TARGET_OBJECT_ID"));
@@ -597,50 +603,6 @@ namespace NWN.Systems
 
       return 0;
     }
-    private static int HandlePlayerDeath(uint oidSelf)
-    {
-      Player player;
-      if (Players.TryGetValue(NWScript.GetLastPlayerDied(), out player))
-      {
-        NWScript.SendMessageToPC(player.oid, "Tout se brouille autour de vous. Avant de perdre connaissance, vous sentez comme un étrange maëlstrom vous aspirer.");
-
-        var oPCCorpse = NWScript.CreateObject(NWScript.OBJECT_TYPE_PLACEABLE, "pccorpse", NWScript.GetLocation(player.oid));
-        EventsPlugin.AddObjectToDispatchList("NWNX_ON_INVENTORY_REMOVE_ITEM_AFTER", "event_pccorpse_remove_item_after", oPCCorpse);
-        EventsPlugin.AddObjectToDispatchList("NWNX_ON_INVENTORY_ADD_ITEM_AFTER", "event_pccorpse_add_item_after", oPCCorpse);
-        
-        int PlayerId = ObjectPlugin.GetInt(player.oid, "_PC_ID");
-        NWScript.SetName(oPCCorpse, $"Cadavre de {NWScript.GetName(player.oid)}");
-        NWScript.SetDescription(oPCCorpse, $"Cadavre de {NWScript.GetName(player.oid)}");
-        NWScript.SetLocalInt(oPCCorpse, "_PC_ID", PlayerId);
-
-        NWScript.SetLocalInt(NWScript.CreateItemOnObject("item_pccorpse", oPCCorpse), "PC_ID", PlayerId);
-        
-        if (NWScript.GetGold(player.oid) > 0)
-        {
-          do
-          {
-            NWScript.CreateItemOnObject("nw_it_gold001", oPCCorpse, NWScript.GetGold(player.oid));
-            CreaturePlugin.SetGold(player.oid, NWScript.GetGold(player.oid) - 50000);
-          } while (NWScript.GetGold(player.oid) > 50000);
-        }
-
-        if (NWScript.GetGold(player.oid) <= 0)
-          CreaturePlugin.SetGold(player.oid, 0);
-        else
-        {
-          NWScript.CreateItemOnObject("nw_it_gold001", oPCCorpse, NWScript.GetGold(player.oid));
-          CreaturePlugin.SetGold(player.oid, 0);
-        }
-
-        // TODO : Dropper toutes les ressources craft de l'inventaire du défunt
-
-        // TODO : Enregistrer l'objet serialized cadavre en BDD pour restauration après reboot + IdPJ + Location
-
-        NWScript.DelayCommand(5.0f, () => player.SendToLimbo());
-      }
-
-      return 0;
-    }
 
     private static int HandleAfterDMJumpTarget(uint oidSelf)
     {
@@ -651,7 +613,7 @@ namespace NWN.Systems
       {
         if(NWScript.GetTag(NWScript.GetArea(player.oid)) == "Labrume")
         {
-          player.DestroyCorpses();
+          DestroyPlayerCorpse(player);
         }
       }
 
@@ -661,7 +623,7 @@ namespace NWN.Systems
     {
       foreach (KeyValuePair<uint, PlayerSystem.Player> PlayerListEntry in PlayerSystem.Players)
       {
-        if(ObjectPlugin.GetInt(PlayerListEntry.Key, "_PC_ID") == PcId)
+        if(PlayerListEntry.Value.characterId == PcId)
         {
           return PlayerListEntry.Value;
         }
@@ -795,7 +757,16 @@ namespace NWN.Systems
     }
     private static int HandlePCAcquireItem(uint oidSelf)
     {
-      uint oPC = NWScript.GetModuleItemAcquiredBy();
+      var oPC = NWScript.GetModuleItemAcquiredBy();
+      var oItem = NWScript.GetModuleItemAcquired();
+
+      if(NWScript.GetTag(oItem) == "item_pccorpse")
+      {
+        var query = NWScript.SqlPrepareQueryCampaign("AoaDatabase", $"COUNT (*) FROM playerDeathCorpses WHERE characterId = @characterId");
+        NWScript.SqlBindInt(query, "@characterId", NWScript.GetLocalInt(oItem, "_PC_ID"));
+        if (NWScript.SqlStep(query) < 1)
+          NWScript.DestroyObject(oItem);
+      }
 
       if (NWScript.GetMovementRate(oPC) != CreaturePlugin.NWNX_CREATURE_MOVEMENT_RATE_IMMOBILE)
         if (NWScript.GetWeight(oPC) > int.Parse(NWScript.Get2DAString("encumbrance", "Heavy", NWScript.GetAbilityScore(oPC, NWScript.ABILITY_STRENGTH))))
