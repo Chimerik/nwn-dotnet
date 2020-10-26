@@ -4,6 +4,7 @@ using NWN.Core;
 using NWN.Core.NWNX;
 using System.Linq;
 using static NWN.Systems.PlayerSystem;
+using System.Numerics;
 
 namespace NWN.Systems
 {
@@ -20,8 +21,8 @@ namespace NWN.Systems
             { "NW_S0_RayFrost", CantripsScaler },
             { "NW_S0_Resis", CantripsScaler },
             { "NW_S0_Virtue", CantripsScaler },
-            {"nw_s0_raisdead", HandleRaiseDeadCast },
-            {"nw_s0_resserec", HandleRaiseDeadCast },
+            { "nw_s0_raisdead", HandleRaiseDeadCast },
+            { "nw_s0_resserec", HandleRaiseDeadCast },
             { "NW_S0_DivPower", SpellTest },
     };
     private static int CantripsScaler(uint oidSelf)
@@ -248,7 +249,7 @@ namespace NWN.Systems
       var oTarget = NWScript.GetSpellTargetObject();
       if(NWScript.GetTag(oTarget) == "pccorpse")
       {
-        int PcId = ObjectPlugin.GetInt(oTarget, "_PC_ID");
+        int PcId = NWScript.GetLocalInt(oTarget, "_PC_ID");
         PlayerSystem.Player oPC = GetPCById(PcId);
         
         if (oPC != null && oPC.isConnected)
@@ -260,8 +261,21 @@ namespace NWN.Systems
         }
         else
         {
-          // TODO : Remplacer la location actuelle du PJ en BDD par celle de oTarget. Penser également à modifier la façon dont la location des PJ est sauvegardée pour passer par la BDD plutôt que par NWNX SetString
-          NWScript.SendMessageToPC(oidSelf, "[HRP] Le joueur que vous tentez de ramener n'est pas connecté. Celui-ci sera automatiquement ressucité à sa prochaine connexion.");
+          NWScript.SendMessageToPC(oidSelf, "Vous sentez une forme de résistance : cette âme met du temps à regagner son enveloppe corporelle. Votre sort a bien eu l'effet escompté, mais il faudra un certain temps avant de voir le corps s'animer.");
+
+          var query = NWScript.SqlPrepareQueryCampaign("AoaDatabase", $"SELECT areaTag, position from playerDeathCorpses where characterId = @characterId");
+          NWScript.SqlBindInt(query, "@characterId", PcId);
+          NWScript.SqlStep(query);
+
+          string areaTag = NWScript.SqlGetString(query, 0);
+          Vector3 position = NWScript.SqlGetVector(query, 1);
+
+          //TODO : vérifier ce qu'il se passe quand on ramasse et dépose le cadavre
+          query = NWScript.SqlPrepareQueryCampaign("AoaDatabase", $"UPDATE playerCharacters SET areaTag = @areaTag, position = @position WHERE characterId = @characterId");
+          NWScript.SqlBindInt(query, "@characterId", PcId);
+          NWScript.SqlBindString(query, "@areaTag", NWScript.GetTag(NWScript.GetArea(oTarget)));
+          NWScript.SqlBindVector(query, "@position", NWScript.GetPosition(oTarget));
+          NWScript.SqlStep(query);
         }
 
         uint oItemCorpse = NWScript.GetFirstItemInInventory(oTarget);
@@ -277,7 +291,7 @@ namespace NWN.Systems
         }
 
         NWScript.DestroyObject(oTarget);
-        // TODO : Détruire l'objet en BDD (where PcId)
+        DeletePlayerCorpseFromDatabase(PcId);
 
         NWScript.SignalEvent(oTarget, NWScript.EventSpellCastAt(oidSelf, NWScript.SPELL_RAISE_DEAD, 0));
         NWScript.ApplyEffectAtLocation(NWScript.DURATION_TYPE_INSTANT, NWScript.EffectVisualEffect(NWScript.VFX_IMP_RAISE_DEAD), NWScript.GetLocation(oTarget));
