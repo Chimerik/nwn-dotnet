@@ -42,7 +42,7 @@ namespace NWN.Systems
       // TODO : Système de sauvegarde et de chargement de quickbar
       //EventsPlugin.AddObjectToDispatchList("NWNX_ON_QUICKBAR_SET_BUTTON_AFTER", "event_qbs", oPC);
 
-      if (NWScript.GetIsDM(player.oid) != 1)
+      if (NWScript.GetIsDM(oPC) != 1)
       {
         /*if (NWScript.GetIsObjectValid(NWScript.GetItemPossessedBy(oPC, "pj_lycan_curse")) == 1) // TODO : revoir système de métamorphose et de malédiction lycanthropique
         {
@@ -75,7 +75,7 @@ namespace NWN.Systems
         if (player.currentCraftJob != "" && NWScript.GetLocalInt(NWScript.GetArea(player.oid), "REST") != 0)
           player.CraftJobProgression();
 
-        if (player.currentSkillJob != 65535) // TODO : faire de cette valeur une constante avec le type enum des custom feats
+        if (player.currentSkillJob != (int)Feat.Invalid)
         {
           player.learnableSkills[player.currentSkillJob].currentJob = true;
           player.AcquireSkillPoints();
@@ -159,19 +159,19 @@ namespace NWN.Systems
     }
     private static void InitializePlayerCharacter(Player player)
     {
-      var query = NWScript.SqlPrepareQueryCampaign("AoaDatabase", $"SELECT location, currentHP, dateLastSaved, currentSkillJob, currentSkillJobRemainingTime, currentCraftJob, currentCraftJobRemainingTime, currentCraftJobMaterial, frostAttackOn from playerCharacters where rowid = @characterId");
+      var query = NWScript.SqlPrepareQueryCampaign("AoaDatabase", $"SELECT areaTag, position, facing, currentHP, dateLastSaved, currentSkillJob, currentSkillJobRemainingTime, currentCraftJob, currentCraftJobRemainingTime, currentCraftJobMaterial, frostAttackOn from playerCharacters where rowid = @characterId");
       NWScript.SqlBindInt(query, "@characterId", player.characterId);
       NWScript.SqlStep(query);
 
-      player.location = Utils.StringToLocation(NWScript.SqlGetString(query, 0));
-      player.currentHP = NWScript.SqlGetInt(query, 1);
-      player.dateLastSaved = DateTime.Parse(NWScript.SqlGetString(query, 2));
-      player.currentSkillJob = NWScript.SqlGetInt(query, 3);
-      player.currentSkillJobRemainingTime = NWScript.SqlGetFloat(query, 4);
-      player.currentCraftJob = NWScript.SqlGetString(query, 5);
-      player.currentCraftJobRemainingTime = NWScript.SqlGetFloat(query, 6);
-      player.currentCraftJobMaterial = NWScript.SqlGetString(query, 7);
-      player.isFrostAttackOn = Convert.ToBoolean(NWScript.SqlGetInt(query, 8));
+      player.location = Utils.GetLocationFromDatabase(NWScript.SqlGetString(query, 0), NWScript.SqlGetVector(query, 1), NWScript.SqlGetFloat(query, 2));
+      player.currentHP = NWScript.SqlGetInt(query, 3);
+      player.dateLastSaved = DateTime.Parse(NWScript.SqlGetString(query, 4));
+      player.currentSkillJob = NWScript.SqlGetInt(query, 5);
+      player.currentSkillJobRemainingTime = NWScript.SqlGetFloat(query, 6);
+      player.currentCraftJob = NWScript.SqlGetString(query, 7);
+      player.currentCraftJobRemainingTime = NWScript.SqlGetFloat(query, 8);
+      player.currentCraftJobMaterial = NWScript.SqlGetString(query, 9);
+      player.isFrostAttackOn = Convert.ToBoolean(NWScript.SqlGetInt(query, 10));
 
       if (player.isFrostAttackOn)
       {
