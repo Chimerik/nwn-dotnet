@@ -128,8 +128,8 @@ namespace NWN.ScriptHandlers
       EventsPlugin.SubscribeEvent("NWNX_ON_INVENTORY_ADD_ITEM_BEFORE", "event_refinery_add_item_before");
       EventsPlugin.ToggleDispatchListMode("NWNX_ON_INVENTORY_ADD_ITEM_BEFORE", "event_refinery_add_item_before", 1);
 
-      EventsPlugin.SubscribeEvent("NWNX_ON_INVENTORY_ADD_ITEM_AFTER", "event_pccorpse_add_item_after");
-      EventsPlugin.ToggleDispatchListMode("NWNX_ON_INVENTORY_ADD_ITEM_AFTER", "event_pccorpse_add_item_after", 1);
+      EventsPlugin.SubscribeEvent("NWNX_ON_INVENTORY_REMOVE_ITEM_AFTER", "event_inventory_pccorpse_removed_after");
+      EventsPlugin.ToggleDispatchListMode("NWNX_ON_INVENTORY_REMOVE_ITEM_AFTER", "event_inventory_pccorpse_removed_after", 1);
       EventsPlugin.SubscribeEvent("NWNX_ON_INVENTORY_REMOVE_ITEM_AFTER", "event_pccorpse_remove_item_after");
       EventsPlugin.ToggleDispatchListMode("NWNX_ON_INVENTORY_REMOVE_ITEM_AFTER", "event_pccorpse_remove_item_after", 1);
       
@@ -154,7 +154,7 @@ namespace NWN.ScriptHandlers
 
       NWScript.DelayCommand(600.0f, () => SaveServerVault());
 
-      // TODO : Restore Death corpses from DB
+      RestorePlayerCorpseFromDatabase();
 
       return -1;
     }
@@ -245,6 +245,13 @@ namespace NWN.ScriptHandlers
       }
 
       return 0;
+    }
+    public static void RestorePlayerCorpseFromDatabase()
+    {
+      var query = NWScript.SqlPrepareQueryCampaign("AoaDatabase", $"SELECT deathCorpse, areaTag, position FROM playerDeathCorpses");
+
+      while (Convert.ToBoolean(NWScript.SqlStep(query)))
+        NWScript.SqlGetObject(query, 0, Utils.GetLocationFromDatabase(NWScript.SqlGetString(query, 1), NWScript.SqlGetVector(query, 2), 0));
     }
   }
 }

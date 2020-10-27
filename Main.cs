@@ -28,7 +28,9 @@ namespace NWN
         try
         {
           Console.WriteLine($"script : {scriptName}");
+          DateTime time = DateTime.Now;
           scriptHandleResult = handler.Invoke(objectSelf);
+          Console.WriteLine($"execution time : {(DateTime.Now - time).TotalSeconds}");
         }
         catch (Exception e)
         {

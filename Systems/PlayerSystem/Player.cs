@@ -27,10 +27,14 @@ namespace NWN.Systems
       public uint autoAttackTarget { get; set; }
       public Boolean isFrostAttackOn { get; set; }
       public DateTime lycanCurseTimer { get; set; }
+      public Feat activeLanguage { get; set; }
       public Menu menu { get; }
 
       private uint blockingBoulder;
       public string disguiseName { get; set; }
+      public uint deathCorpse { get; set; }
+      public uint deathCorpseItem { get; set; }
+
       private List<uint> _selectedObjectsList = new List<uint>();
       public List<uint> selectedObjectsList
       {
@@ -67,10 +71,10 @@ namespace NWN.Systems
 
         this.accountId = ObjectPlugin.GetInt(this.oid, "accountId");
 
-        if (NWScript.GetIsDM(this.oid) != 1)
+        /*if (NWScript.GetIsDM(this.oid) != 1) // TODO : créer les tables
           InitializePlayer(this);
         else
-          InitializeDM(this);
+          InitializeDM(this);*/
       }
 
       public void EmitKeydown(KeydownEventArgs e)
@@ -362,81 +366,7 @@ namespace NWN.Systems
       {
         this.OnMiningCycleCompleted();
       }
-      public void SendToLimbo()
-      {
-        // Heal PC
-
-        NWScript.ApplyEffectToObject(NWScript.DURATION_TYPE_INSTANT, NWScript.EffectVisualEffect(NWScript.VFX_IMP_RESTORATION_GREATER), oid);
-        NWScript.ApplyEffectToObject(NWScript.DURATION_TYPE_INSTANT, NWScript.EffectResurrection(), oid);
-        NWScript.ApplyEffectToObject(NWScript.DURATION_TYPE_INSTANT, NWScript.EffectHeal(NWScript.GetMaxHitPoints(oid)), oid);
-
-        // TP PC
-        NWScript.AssignCommand(oid, () => NWScript.JumpToLocation(NWScript.GetLocation(NWScript.GetWaypointByTag("WP__RESPAWN_AREA"))));
-      }
-      public void Respawn()
-      {
-        // TODO : Appliquer les bonus en fonction de l'entité choisie pour respawn (+augmentation du niveau d'influence de l'entité)
-        // TODO : Diminuer la durabilité de tous les objets équipés et dans l'inventaire du PJ
-
-        this.DestroyCorpses();
-        NWScript.AssignCommand(oid, () => NWScript.JumpToLocation(NWScript.GetLocation(NWScript.GetWaypointByTag("WP_START_NEW_CHAR")))); // TODO : le respawn se fera plutôt à l'hospice des taudis
-        NWScript.SendMessageToPC(oid, "Votre récente déconvenue vous a affligé d'une blessure durable. Il va falloir passer du temps en rééducation pour vous en débarrasser");
-
-        int iRandomMalus = Utils.random.Next(1130, 1130); // TODO : il faudra mettre en paramètre de conf le range des feat ID pour les malus
-        
-        if (CreaturePlugin.GetHighestLevelOfFeat(oid, iRandomMalus) != 65535) // TODO : faire de cette valeur une constante avec le type enum des custom feats
-        {
-          int successorId;
-          if (int.TryParse(NWScript.Get2DAString("feat", "SUCCESSOR", iRandomMalus), out successorId))
-          {
-            CreaturePlugin.AddFeat(oid, successorId);
-            iRandomMalus = successorId;
-          }
-        }
-        else
-          CreaturePlugin.AddFeat(oid, iRandomMalus);
-
-        Func<PlayerSystem.Player, int, int> handler;
-        if (SkillSystem.RegisterAddCustomFeatEffect.TryGetValue(iRandomMalus, out handler))
-        {
-          try
-          {
-            handler.Invoke(this, iRandomMalus);
-          }
-          catch (Exception e)
-          {
-            Utils.LogException(e);
-          }
-        }
-      }
-      public void DestroyCorpses()
-      {
-        var oCorpse = NWScript.GetObjectByTag("pccorpse");
-        int i = 1;
-        int PcId = ObjectPlugin.GetInt(oid, "_PC_ID");
-        while (NWScript.GetIsObjectValid(oCorpse) == 1)
-        {
-          if (PcId == NWScript.GetLocalInt(oCorpse, "_PC_ID"))
-          {
-            NWScript.DestroyObject(oCorpse);
-            // TODO : supprimer l'objet serialized de la BDD where _PC_ID
-            break;
-          }
-          oCorpse = NWScript.GetObjectByTag("pccorpse", i++);
-        }
-
-        var oCorpseItem = NWScript.GetObjectByTag("item_pccorpse");
-        i = 1;
-        while (NWScript.GetIsObjectValid(oCorpseItem) == 1)
-        {
-          if (PcId == NWScript.GetLocalInt(oCorpseItem, "_PC_ID"))
-          {
-            NWScript.DestroyObject(oCorpseItem);
-            break;
-          }
-          oCorpseItem = NWScript.GetObjectByTag("item_pccorpse", i++);
-        }
-      }
+      
       public Effect GetPartySizeEffect(int iPartySize = 0)
       {
         var oPartyMember = NWScript.GetFirstFactionMember(oid, 1);
