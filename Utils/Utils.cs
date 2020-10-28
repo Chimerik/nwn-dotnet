@@ -17,12 +17,12 @@ namespace NWN
       Console.WriteLine(e.Message);
       NWScript.SendMessageToAllDMs(e.Message);
       NWScript.WriteTimestampedLogEntry(e.Message);
-      WebhookPlugin.SendWebHookHTTPS("discordapp.com", "/api/webhooks/737378235402289264/3-nDoj7dEw-edzjM-DDyjWFCZbs6LXACoJ9vFnOWXc8Pn2nArFEt3HiVIhHyu_lYiNUt/slack", e.Message, "AOA CRITICAL Errors");
+      WebhookSystem.StartSendingAsyncDiscordMessage(e.Message, "AoA notification service - CRITICAL ERROR");
     }
     public static void LogMessageToDMs(string message)
     {
       NWScript.SendMessageToAllDMs(message);
-      WebhookPlugin.SendWebHookHTTPS("discordapp.com", "/api/webhooks/737378235402289264/3-nDoj7dEw-edzjM-DDyjWFCZbs6LXACoJ9vFnOWXc8Pn2nArFEt3HiVIhHyu_lYiNUt/slack", message, "AOA Errors");
+      WebhookSystem.StartSendingAsyncDiscordMessage(message, "AoA notification service - ERROR");
     }
 
     public static void DestroyInventory(uint oContainer)
