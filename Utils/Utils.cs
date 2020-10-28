@@ -17,12 +17,12 @@ namespace NWN
       Console.WriteLine(e.Message);
       NWScript.SendMessageToAllDMs(e.Message);
       NWScript.WriteTimestampedLogEntry(e.Message);
-      WebhookPlugin.SendWebHookHTTPS("discordapp.com", "/api/webhooks/737378235402289264/3-nDoj7dEw-edzjM-DDyjWFCZbs6LXACoJ9vFnOWXc8Pn2nArFEt3HiVIhHyu_lYiNUt/slack", e.Message, "AOA CRITICAL Errors");
+      WebhookSystem.StartSendingAsyncDiscordMessage(e.Message, "AoA notification service - CRITICAL ERROR");
     }
     public static void LogMessageToDMs(string message)
     {
       NWScript.SendMessageToAllDMs(message);
-      WebhookPlugin.SendWebHookHTTPS("discordapp.com", "/api/webhooks/737378235402289264/3-nDoj7dEw-edzjM-DDyjWFCZbs6LXACoJ9vFnOWXc8Pn2nArFEt3HiVIhHyu_lYiNUt/slack", message, "AOA Errors");
+      WebhookSystem.StartSendingAsyncDiscordMessage(message, "AoA notification service - ERROR");
     }
 
     public static void DestroyInventory(uint oContainer)
@@ -193,6 +193,41 @@ namespace NWN
       emptyQBS.oAssociate = NWScript.OBJECT_INVALID;
 
       return emptyQBS;
+    }
+    public static string GetRemainingTimeAsDisplayableString(float remainingSeconds)
+    {
+      TimeSpan EndTime = DateTime.Now.AddSeconds(remainingSeconds).Subtract(DateTime.Now);
+      string Countdown = "";
+      if (EndTime.Days > 0)
+      {
+        if (EndTime.Days < 10)
+          Countdown += "0" + EndTime.Days + ":";
+        else
+          Countdown += EndTime.Days + ":";
+      }
+      if (EndTime.Hours > 0)
+      {
+        if (EndTime.Hours < 10)
+          Countdown += "0" + EndTime.Hours + ":";
+        else
+          Countdown += EndTime.Hours + ":";
+      }
+      if (EndTime.Minutes > 0)
+      {
+        if (EndTime.Minutes < 10)
+          Countdown += "0" + EndTime.Minutes + ":";
+        else
+          Countdown += EndTime.Minutes + ":";
+      }
+      if (EndTime.Seconds > 0)
+      {
+        if (EndTime.Seconds < 10)
+          Countdown += "0" + EndTime.Seconds;
+        else
+          Countdown += EndTime.Seconds;
+      }
+
+      return Countdown;
     }
   }
 }

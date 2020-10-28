@@ -38,12 +38,12 @@ namespace NWN.Systems
                     int i = 2;
                     int skillBonus = 0;
                     int value;
-                    if (int.TryParse(NWScript.Get2DAString("feat", "GAINMULTIPLE", CreaturePlugin.GetHighestLevelOfFeat(player.oid, 1171)), out value)) // feat geology // TODO : enum 
+                    if (int.TryParse(NWScript.Get2DAString("feat", "GAINMULTIPLE", CreaturePlugin.GetHighestLevelOfFeat(player.oid, (int)Feat.Geology)), out value)) 
                     {
                       skillBonus += value;
                     }
 
-                    if (int.TryParse(NWScript.Get2DAString("feat", "GAINMULTIPLE", CreaturePlugin.GetHighestLevelOfFeat(player.oid, 1172)), out value)) // feat Mining prospection // TODO : enum 
+                    if (int.TryParse(NWScript.Get2DAString("feat", "GAINMULTIPLE", CreaturePlugin.GetHighestLevelOfFeat(player.oid, (int)Feat.Prospection)), out value)) 
                     {
                       skillBonus += value;
                     }

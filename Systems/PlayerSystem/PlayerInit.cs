@@ -90,7 +90,7 @@ namespace NWN.Systems
     }
     private static void InitializeNewPlayer(uint newPlayer)
     {
-      WebhookPlugin.SendWebHookHTTPS("discordapp.com", "/api/webhooks/737378235402289264/3-nDoj7dEw-edzjM-DDyjWFCZbs6LXACoJ9vFnOWXc8Pn2nArFEt3HiVIhHyu_lYiNUt/slack", $"Toute première connexion de {NWScript.GetPCPlayerName(newPlayer)}", "Nouveau joueur");
+      WebhookSystem.StartSendingAsyncDiscordMessage($"Toute première connexion de {NWScript.GetPCPlayerName(newPlayer)}", "AoA notification service - Nouveau joueur !");
 
       var query = NWScript.SqlPrepareQueryCampaign("AoaDatabase", $"INSERT INTO PlayerAccounts (accountName , bonusRolePlay) VALUES (@name, @brp)");
       NWScript.SqlBindInt(query, "@brp", 1);
@@ -104,13 +104,13 @@ namespace NWN.Systems
     }
     private static void InitializeNewCharacter(Player newCharacter)
     {
-      WebhookPlugin.SendWebHookHTTPS("discordapp.com", "/api/webhooks/737378235402289264/3-nDoj7dEw-edzjM-DDyjWFCZbs6LXACoJ9vFnOWXc8Pn2nArFEt3HiVIhHyu_lYiNUt/slack", $"{NWScript.GetPCPlayerName(newCharacter.oid)} vient de créer un nouveau personnage : {NWScript.GetName(newCharacter.oid)}", "Nouveau personnage");
+      WebhookSystem.StartSendingAsyncDiscordMessage($"{NWScript.GetPCPlayerName(newCharacter.oid)} vient de créer un nouveau personnage : {NWScript.GetName(newCharacter.oid)}", "AoA notification service - Nouveau personnage !");
 
       var query = NWScript.SqlPrepareQueryCampaign("AoaDatabase", $"INSERT INTO playerCharacters (accountId , characterName, dateLastSaved, currentSkillJob, currentCraftJob, frostAttackOn) VALUES (@accountId, @name, @dateLastSaved, @currentSkillJob, @currentCraftJob, @frostAttackOn)");
       NWScript.SqlBindInt(query, "@accountId", newCharacter.accountId);
       NWScript.SqlBindString(query, "@name", NWScript.GetName(newCharacter.oid));
       NWScript.SqlBindString(query, "@dateLastSaved", DateTime.Now.ToString());
-      NWScript.SqlBindInt(query, "@currentSkillJob", 65535); // TODO : faire de cette valeur une constante avec le type enum des custom feats
+      NWScript.SqlBindInt(query, "@currentSkillJob", (int)Feat.Invalid);
       NWScript.SqlBindString(query, "@currentCraftJob", "");
       NWScript.SqlBindInt(query, "@frostAttackOn", 0);
       NWScript.SqlStep(query);
@@ -185,6 +185,7 @@ namespace NWN.Systems
       //Appliquer la distance de perception du chat en fonction de la compétence Listen du joueur
       ChatPlugin.SetChatHearingDistance(ChatPlugin.GetChatHearingDistance(player.oid, ChatPlugin.NWNX_CHAT_CHANNEL_PLAYER_TALK) + NWScript.GetSkillRank(NWScript.SKILL_LISTEN, player.oid) / 5, player.oid, ChatPlugin.NWNX_CHAT_CHANNEL_PLAYER_TALK);
       ChatPlugin.SetChatHearingDistance(ChatPlugin.GetChatHearingDistance(player.oid, ChatPlugin.NWNX_CHAT_CHANNEL_DM_WHISPER) + NWScript.GetSkillRank(NWScript.SKILL_LISTEN, player.oid) / 10, player.oid, ChatPlugin.NWNX_CHAT_CHANNEL_DM_WHISPER);
+      player.craftCancellationConfirmation = false;
       player.isConnected = true;
       player.isAFK = true;
     }

@@ -34,7 +34,7 @@ namespace NWN.Systems
         "frostattack",
         new Command(
           name: "frostattack",
-          description: new Command.Description(title: "todo"),
+          description: new Command.Description(title: "Permet aux lanceurs de sorts d'utiliser rayon de giver comme attaque par défaut."),
           execute: ExecuteFrostAttackCommand
         )
       },

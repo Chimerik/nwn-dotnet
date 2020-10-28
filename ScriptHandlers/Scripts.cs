@@ -146,6 +146,8 @@ namespace NWN.ScriptHandlers
       EventsPlugin.SubscribeEvent("NWNX_ON_EXAMINE_OBJECT_BEFORE", "event_examine_before");
       EventsPlugin.SubscribeEvent("NWNX_ON_EXAMINE_OBJECT_AFTER", "event_examine_after");
 
+      FeatPlugin.SetFeatModifier((int)Feat.VeldsparReprocessing, FeatPlugin.NWNX_FEAT_MODIFIER_ABILITY, NWScript.ABILITY_STRENGTH, 1);
+
       //EventsPlugin.SubscribeEvent("CDE_POTAGER", "event_potager");
 
       //Garden.Init();
