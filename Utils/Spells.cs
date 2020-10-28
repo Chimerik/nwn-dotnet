@@ -1,6 +1,7 @@
 ﻿using System;
 using NWN.Core;
 using NWN.Core.NWNX;
+using NWN.Systems;
 
 namespace NWN
 {
@@ -11,7 +12,7 @@ namespace NWN
       Console.WriteLine(e.Message);
       NWScript.SendMessageToAllDMs(e.Message);
       NWScript.WriteTimestampedLogEntry(e.Message);
-      WebhookPlugin.SendWebHookHTTPS("discordapp.com", "/api/webhooks/737378235402289264/3-nDoj7dEw-edzjM-DDyjWFCZbs6LXACoJ9vFnOWXc8Pn2nArFEt3HiVIhHyu_lYiNUt/slack", e.Message, "AOA Errors");
+      WebhookSystem.StartSendingAsyncDiscordMessage(e.Message, "AoA notification service - CRITICAL ERROR");
     }
 
     public static int MyResistSpell(uint oCaster, uint oTarget, float fDelay = 0.0f) // TODO : check la fonction par rapport à celle de never de base
