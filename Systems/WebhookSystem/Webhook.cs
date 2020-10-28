@@ -1,32 +1,26 @@
-﻿using System;
-using System.Collections.Specialized;
-using System.Net;
+﻿using JNogueira.Discord.Webhook.Client;
+using System.Threading.Tasks;
 
-public class Webhook : IDisposable
+namespace NWN.Systems
 {
-  private readonly WebClient dWebClient;
-  private static NameValueCollection discordValues = new NameValueCollection();
-  public string WebHook { get; set; }
-  public string UserName { get; set; }
-  public string ProfilePicture { get; set; }
-
-  public Webhook()
+  public static partial class WebhookSystem
   {
-    dWebClient = new WebClient();
-  }
+    private static DiscordWebhookClient client = new DiscordWebhookClient("discordapp.com//api/webhooks/737378235402289264/3-nDoj7dEw-edzjM-DDyjWFCZbs6LXACoJ9vFnOWXc8Pn2nArFEt3HiVIhHyu_lYiNUt/slack");
 
+    public static void StartSendingAsyncDiscordMessage(string message, string userName)
+    {
+      var discordMessage = new DiscordMessage(
+        "Discord Webhook Client sent this message! " + DiscordEmoji.Grinning,
+        username: "Username",
+        avatarUrl: "http://www.spellholdstudios.net/images/icons/icon_nwn.png",
+        tts: false
+      );
 
-  public void SendMessage(string msgSend)
-  {
-    discordValues.Add("username", UserName);
-    discordValues.Add("avatar_url", ProfilePicture);
-    discordValues.Add("content", msgSend);
-
-    dWebClient.UploadValues(WebHook, discordValues);
-  }
-
-  public void Dispose()
-  {
-    dWebClient.Dispose();
+      var test = SendDiscordMessage(discordMessage);
+    }
+    public static async Task SendDiscordMessage(DiscordMessage message)
+    {
+      await client.SendToDiscord(message);
+    }
   }
 }
