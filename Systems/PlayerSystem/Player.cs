@@ -20,7 +20,6 @@ namespace NWN.Systems
       public int currentHP { get; set; }
       public DateTime dateLastSaved { get; set; }
       public int currentSkillJob { get; set; }
-      public float currentSkillJobRemainingTime { get; set; }
       public string currentCraftJob { get; set; }
       public float currentCraftJobRemainingTime { get; set; }
       public DateTime currentCraftJobFinishDateTime { get; set; }
@@ -65,17 +64,18 @@ namespace NWN.Systems
         if(ObjectPlugin.GetInt(this.oid, "accountId") == 0)
           InitializeNewPlayer(this.oid);
 
+        this.accountId = ObjectPlugin.GetInt(this.oid, "accountId");
+
         if (ObjectPlugin.GetInt(this.oid, "characterId") == 0)
           InitializeNewCharacter(this);
 
         this.characterId = ObjectPlugin.GetInt(this.oid, "characterId");
-        this.accountId = ObjectPlugin.GetInt(this.oid, "accountId");
         this.isConnected = true;
 
-        /*if (NWScript.GetIsDM(this.oid) != 1) // TODO : créer les tables
+        if (!Convert.ToBoolean(NWScript.GetIsDM(this.oid)))
           InitializePlayer(this);
         else
-          InitializeDM(this);*/
+          InitializeDM(this);
       }
 
       public void EmitKeydown(KeydownEventArgs e)

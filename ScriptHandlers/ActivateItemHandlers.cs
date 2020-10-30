@@ -100,7 +100,7 @@ namespace NWN.ScriptHandlers
           float iJobDuration = GetBlueprintTimeCostForPlayer(player, blueprint, item);
           iMineralCost -= iMineralCost * (int)mineralType / 10;
 
-          var query = NWScript.SqlPrepareQueryCampaign("AoaDatabase", $"SELECT @resourceName FROM playerResources where characterId = @characterId");
+          var query = NWScript.SqlPrepareQueryCampaign(Scripts.database, $"SELECT @resourceName FROM playerResources where characterId = @characterId");
           NWScript.SqlBindInt(query, "@characterId", player.characterId);
           NWScript.SqlBindString(query, "@resourceName", sMaterial);
 
@@ -113,7 +113,7 @@ namespace NWN.ScriptHandlers
               player.currentCraftJobRemainingTime = iJobDuration;
               player.currentCraftJobMaterial = sMaterial;
 
-              query = NWScript.SqlPrepareQueryCampaign("AoaDatabase", $"UPDATE playerResources SET @resourceName = @iResourceStock where characterId = @characterId");
+              query = NWScript.SqlPrepareQueryCampaign(Scripts.database, $"UPDATE playerResources SET @resourceName = @iResourceStock where characterId = @characterId");
               NWScript.SqlBindInt(query, "@characterId", player.characterId);
               NWScript.SqlBindInt(query, "@iResourceStock", iResourceStock - iMineralCost);
               NWScript.SqlBindString(query, "@resourceName", sMaterial);

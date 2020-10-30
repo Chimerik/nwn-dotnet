@@ -5,6 +5,7 @@ using System.Linq;
 using Dapper;
 using NWN.Core;
 using NWN.Core.NWNX;
+using NWN.ScriptHandlers;
 
 namespace NWN.Systems
 {
@@ -762,7 +763,7 @@ namespace NWN.Systems
 
       if(NWScript.GetTag(oItem) == "item_pccorpse")
       {
-        var query = NWScript.SqlPrepareQueryCampaign("AoaDatabase", $"COUNT (*) FROM playerDeathCorpses WHERE characterId = @characterId");
+        var query = NWScript.SqlPrepareQueryCampaign(Scripts.database, $"COUNT (*) FROM playerDeathCorpses WHERE characterId = @characterId");
         NWScript.SqlBindInt(query, "@characterId", NWScript.GetLocalInt(oItem, "_PC_ID"));
         if (NWScript.SqlStep(query) < 1)
           NWScript.DestroyObject(oItem);

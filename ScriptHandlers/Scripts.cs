@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using NWN.Core;
 using NWN.Core.NWNX;
+using Microsoft.Data.Sqlite;
 
 namespace NWN.ScriptHandlers
 {
@@ -25,18 +26,20 @@ namespace NWN.ScriptHandlers
      .Concat(Systems.CollectSystem.Register)
      .ToDictionary(kvp => kvp.Key, kvp => kvp.Value);
 
+    public static string database = Environment.GetEnvironmentVariable("DN_NAME");
     private static int HandleModuleLoad(uint oidSelf)
     {
       Bot.MainAsync();
+      CreateDatabase();
 
-      try
+      /*try
       {
         LootSystem.InitChestArea();
       }
       catch (Exception e)
       {
         Utils.LogException(e);
-      }
+      }*/
 
       ChatSystem.Init();
       
@@ -49,9 +52,6 @@ namespace NWN.ScriptHandlers
       EventsPlugin.ToggleDispatchListMode("NWNX_ON_ADD_ASSOCIATE_AFTER", "summon_add_after", 1);
       EventsPlugin.SubscribeEvent("NWNX_ON_REMOVE_ASSOCIATE_AFTER", "summon_remove_after");
       EventsPlugin.ToggleDispatchListMode("NWNX_ON_REMOVE_ASSOCIATE_AFTER", "summon_remove_after", 1);
-
-      EventsPlugin.SubscribeEvent("NWNX.ON_INPUT_KEYBOARD_BEFORE", PlayerSystem.ON_PC_KEYSTROKE_SCRIPT);
-      EventsPlugin.ToggleDispatchListMode("NWNX.ON_INPUT_KEYBOARD_BEFORE", PlayerSystem.ON_PC_KEYSTROKE_SCRIPT, 1);
 
       EventsPlugin.SubscribeEvent("NWNX.ON_INPUT_KEYBOARD_BEFORE", PlayerSystem.ON_PC_KEYSTROKE_SCRIPT);
       EventsPlugin.ToggleDispatchListMode("NWNX.ON_INPUT_KEYBOARD_BEFORE", PlayerSystem.ON_PC_KEYSTROKE_SCRIPT, 1);
@@ -74,7 +74,7 @@ namespace NWN.ScriptHandlers
       EventsPlugin.SubscribeEvent("NWNX_ON_SERVER_CHARACTER_SAVE_BEFORE", "event_player_save_before");
       EventsPlugin.SubscribeEvent("NWNX_ON_CLIENT_EXPORT_CHARACTER_BEFORE", "event_player_save_before");
       EventsPlugin.SubscribeEvent("NWNX_ON_SERVER_CHARACTER_SAVE_AFTER", "event_player_save_after");
-      EventsPlugin.SubscribeEvent("NWNX_ON_SERVER_CHARACTER_SAVE_AFTER", "event_player_save_after");
+      EventsPlugin.SubscribeEvent("NWNX_ON_CLIENT_EXPORT_CHARACTER_AFTER", "event_player_save_after");
 
       EventsPlugin.SubscribeEvent("NWNX_ON_DM_POSSESS_FULL_POWER_BEFORE", "event_dm_possess_before");
       EventsPlugin.SubscribeEvent("NWNX_ON_DM_POSSESS_BEFORE", "event_dm_possess_before");
@@ -252,7 +252,7 @@ namespace NWN.ScriptHandlers
     }
     public static void RestorePlayerCorpseFromDatabase()
     {
-      var query = NWScript.SqlPrepareQueryCampaign("AoaDatabase", $"SELECT deathCorpse, areaTag, position FROM playerDeathCorpses");
+      var query = NWScript.SqlPrepareQueryCampaign(Scripts.database, $"SELECT deathCorpse, areaTag, position FROM playerDeathCorpses");
 
       while (Convert.ToBoolean(NWScript.SqlStep(query)))
         NWScript.SqlGetObject(query, 0, Utils.GetLocationFromDatabase(NWScript.SqlGetString(query, 1), NWScript.SqlGetVector(query, 2), 0));
@@ -265,6 +265,20 @@ namespace NWN.ScriptHandlers
           NWScript.BootPC(PlayerListEntry.Key, "Le serveur redémarre. Vous pourrez vous reconnecter dans une minute.");
       }
       return 0;
+    }
+    private static void CreateDatabase()
+    {
+      var query = NWScript.SqlPrepareQueryCampaign(database, "CREATE TABLE IF NOT EXISTS PlayerAccounts('accountName' TEXT NOT NULL, 'bonusRolePlay' INTEGER NOT NULL)");
+      NWScript.SqlStep(query);
+
+      query = NWScript.SqlPrepareQueryCampaign(database, "CREATE TABLE IF NOT EXISTS playerCharacters('accountId' INTEGER NOT NULL, 'characterName' TEXT NOT NULL, 'dateLastSaved' TEXT NOT NULL, 'currentSkillJob' INTEGER NOT NULL, 'currentCraftJobRemainingTime' REAL, 'currentCraftJob' TEXT NOT NULL, currentCraftJobMaterial TEXT, 'frostAttackOn' INTEGER NOT NULL, areaTag TEXT, position TEXT, facing REAL, currentHP INTEGER)");
+      NWScript.SqlStep(query);
+
+      query = NWScript.SqlPrepareQueryCampaign(database, "CREATE TABLE IF NOT EXISTS playerLearnableSkills('characterId' INTEGER NOT NULL, 'skillId' INTEGER NOT NULL, 'skillPoints' INTEGER NOT NULL, 'trained' INTEGER)");
+      NWScript.SqlStep(query);
+
+      query = NWScript.SqlPrepareQueryCampaign(database, "CREATE TABLE IF NOT EXISTS playerDeathCorpses('characterId' INTEGER NOT NULL, 'deathCorpse' TEXT NOT NULL, 'areaTag' TEXT NOT NULL, 'position' TEXT NOT NULL)");
+      NWScript.SqlStep(query);
     }
   }
 }
