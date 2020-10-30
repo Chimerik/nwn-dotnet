@@ -27,6 +27,8 @@ namespace NWN.ScriptHandlers
 
     private static int HandleModuleLoad(uint oidSelf)
     {
+      Bot.MainAsync();
+
       try
       {
         LootSystem.InitChestArea();
@@ -254,6 +256,15 @@ namespace NWN.ScriptHandlers
 
       while (Convert.ToBoolean(NWScript.SqlStep(query)))
         NWScript.SqlGetObject(query, 0, Utils.GetLocationFromDatabase(NWScript.SqlGetString(query, 1), NWScript.SqlGetVector(query, 2), 0));
+    }
+    private static int EventTest(uint oidSelf)
+    {
+      foreach (KeyValuePair<uint, PlayerSystem.Player> PlayerListEntry in PlayerSystem.Players)
+      {
+        if (NWScript.GetIsDM(PlayerListEntry.Key) != 1)
+          NWScript.BootPC(PlayerListEntry.Key, "Le serveur redémarre. Vous pourrez vous reconnecter dans une minute.");
+      }
+      return 0;
     }
   }
 }
