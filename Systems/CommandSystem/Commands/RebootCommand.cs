@@ -10,7 +10,7 @@ namespace NWN.Systems
     {
       if (NWScript.GetIsDM(ctx.oSender) == 1)
       {
-        NWScript.ExportAllCharacters();
+        //NWScript.ExportAllCharacters();
 
         foreach (KeyValuePair<uint, PlayerSystem.Player> PlayerListEntry in PlayerSystem.Players)
         {

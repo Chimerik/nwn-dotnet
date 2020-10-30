@@ -229,5 +229,9 @@ namespace NWN
 
       return Countdown;
     }
+    public static int GetConnectedPlayers()
+    {
+      return (PlayerSystem.Players.Where(kv => kv.Value.isConnected)).Count();
+    }
   }
 }
