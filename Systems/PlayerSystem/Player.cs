@@ -69,8 +69,8 @@ namespace NWN.Systems
           InitializeNewCharacter(this);
 
         this.characterId = ObjectPlugin.GetInt(this.oid, "characterId");
-
         this.accountId = ObjectPlugin.GetInt(this.oid, "accountId");
+        this.isConnected = true;
 
         /*if (NWScript.GetIsDM(this.oid) != 1) // TODO : créer les tables
           InitializePlayer(this);

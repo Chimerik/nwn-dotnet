@@ -1,5 +1,6 @@
 ﻿using System;
 using NWN.Core;
+using NWN.Systems;
 
 namespace NWN
 {
@@ -15,7 +16,7 @@ namespace NWN
       return NWNCore.Init(intPtr, length, coreGameManager);
     }
 
-    private static void OnRunScript(string scriptName, uint objectSelf, out int scriptHandleResult)
+    public static void OnRunScript(string scriptName, uint objectSelf, out int scriptHandleResult)
     {
       // This switch statement illustrates how the template prompts individual script calls. Most
       // implementations will split this logic into a Dictionary or other sensible arrangement. Note that
