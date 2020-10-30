@@ -27,10 +27,12 @@
     <PackageReference Include="discord-webhook-client" Version="2.0.0" />
     <PackageReference Include="Discord.Net" Version="2.2.0" />
     <PackageReference Include="Discord.Net.WebSocket" Version="2.2.0" />
+    <PackageReference Include="Microsoft.Data.Sqlite.Core" Version="5.0.0-rc.2.20475.6" />
     <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="3.1.9" />
     <PackageReference Include="MySqlConnector" Version="1.0.1" />
     <PackageReference Include="Newtonsoft.Json" Version="12.0.3" />
     <PackageReference Include="NWN.Core" Version="8193.16.7" />
+    <PackageReference Include="SQLitePCLRaw.core" Version="2.0.4" />
     <PackageReference Include="System.Interactive.Async" Version="4.1.1" />
     <PackageReference Include="System.Linq.Async" Version="4.1.1" />
   </ItemGroup>

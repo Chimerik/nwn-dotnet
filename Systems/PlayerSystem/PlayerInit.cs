@@ -1,6 +1,7 @@
 ﻿using System;
 using NWN.Core;
 using NWN.Core.NWNX;
+using NWN.ScriptHandlers;
 
 namespace NWN.Systems
 {
@@ -90,34 +91,45 @@ namespace NWN.Systems
     }
     private static void InitializeNewPlayer(uint newPlayer)
     {
-      WebhookSystem.StartSendingAsyncDiscordMessage($"Toute première connexion de {NWScript.GetPCPlayerName(newPlayer)}", "AoA notification service - Nouveau joueur !");
+      var query = NWScript.SqlPrepareQueryCampaign(Scripts.database, $"SELECT rowid FROM PlayerAccounts WHERE accountName = @accountName");
+      NWScript.SqlBindString(query, "@accountName", NWScript.GetPCPlayerName(newPlayer));
 
-      var query = NWScript.SqlPrepareQueryCampaign("AoaDatabase", $"INSERT INTO PlayerAccounts (accountName , bonusRolePlay) VALUES (@name, @brp)");
-      NWScript.SqlBindInt(query, "@brp", 1);
-      NWScript.SqlBindString(query, "@name", NWScript.GetPCPlayerName(newPlayer));
-      NWScript.SqlStep(query);
+      if (!Convert.ToBoolean(NWScript.SqlStep(query)))
+       {
 
-      query = NWScript.SqlPrepareQueryCampaign("AoaDatabase", $"SELECT last_insert_rowid()");
+         WebhookSystem.StartSendingAsyncDiscordMessage($"Toute première connexion de {NWScript.GetPCPlayerName(newPlayer)}", "AoA notification service - Nouveau joueur !");
 
-      NWScript.SqlStep(query);
-      ObjectPlugin.SetInt(newPlayer, "accountId", NWScript.SqlGetInt(query, 0), 1);
+         query = NWScript.SqlPrepareQueryCampaign(Scripts.database, $"INSERT INTO PlayerAccounts (accountName , bonusRolePlay) VALUES (@name, @brp)");
+         NWScript.SqlBindInt(query, "@brp", 1);
+         NWScript.SqlBindString(query, "@name", NWScript.GetPCPlayerName(newPlayer));
+         NWScript.SqlStep(query);
+
+         query = NWScript.SqlPrepareQueryCampaign(Scripts.database, $"SELECT last_insert_rowid()");
+         NWScript.SqlStep(query);
+       }
+
+       ObjectPlugin.SetInt(newPlayer, "accountId", NWScript.SqlGetInt(query, 0), 1);
     }
     private static void InitializeNewCharacter(Player newCharacter)
     {
       WebhookSystem.StartSendingAsyncDiscordMessage($"{NWScript.GetPCPlayerName(newCharacter.oid)} vient de créer un nouveau personnage : {NWScript.GetName(newCharacter.oid)}", "AoA notification service - Nouveau personnage !");
 
-      var query = NWScript.SqlPrepareQueryCampaign("AoaDatabase", $"INSERT INTO playerCharacters (accountId , characterName, dateLastSaved, currentSkillJob, currentCraftJob, frostAttackOn) VALUES (@accountId, @name, @dateLastSaved, @currentSkillJob, @currentCraftJob, @frostAttackOn)");
+      var query = NWScript.SqlPrepareQueryCampaign(Scripts.database, $"INSERT INTO playerCharacters (accountId , characterName, dateLastSaved, currentSkillJob, currentCraftJob, frostAttackOn, areaTag, position, facing) VALUES (@accountId, @name, @dateLastSaved, @currentSkillJob, @currentCraftJob, @frostAttackOn, @areaTag, @position, @facing)");
       NWScript.SqlBindInt(query, "@accountId", newCharacter.accountId);
       NWScript.SqlBindString(query, "@name", NWScript.GetName(newCharacter.oid));
       NWScript.SqlBindString(query, "@dateLastSaved", DateTime.Now.ToString());
       NWScript.SqlBindInt(query, "@currentSkillJob", (int)Feat.Invalid);
       NWScript.SqlBindString(query, "@currentCraftJob", "");
       NWScript.SqlBindInt(query, "@frostAttackOn", 0);
+      Location startingLocation = NWScript.GetStartingLocation();
+      NWScript.SqlBindString(query, "@areaTag", NWScript.GetTag(NWScript.GetAreaFromLocation(startingLocation)));
+      NWScript.SqlBindVector(query, "@position", NWScript.GetPositionFromLocation(startingLocation));
+      NWScript.SqlBindFloat(query, "@facing", NWScript.GetFacingFromLocation(startingLocation));
       NWScript.SqlStep(query);
 
-      query = NWScript.SqlPrepareQueryCampaign("AoaDatabase", $"SELECT last_insert_rowid()");
-
+      query = NWScript.SqlPrepareQueryCampaign(Scripts.database, $"SELECT last_insert_rowid()");
       NWScript.SqlStep(query);
+      
       ObjectPlugin.SetInt(newCharacter.oid, "characterId", NWScript.SqlGetInt(query, 0), 1);
     }
     private static void InitializeDM(Player player)
@@ -151,7 +163,7 @@ namespace NWN.Systems
     }
     private static void InitializePlayerAccount(Player player)
     {
-      var query = NWScript.SqlPrepareQueryCampaign("AoaDatabase", $"SELECT bonusRolePlay from PlayerAccounts where rowid = @accountId");
+      var query = NWScript.SqlPrepareQueryCampaign(Scripts.database, $"SELECT bonusRolePlay from PlayerAccounts where rowid = @accountId");
       NWScript.SqlBindInt(query, "@accountId", player.accountId);
       NWScript.SqlStep(query);
 
@@ -159,7 +171,7 @@ namespace NWN.Systems
     }
     private static void InitializePlayerCharacter(Player player)
     {
-      var query = NWScript.SqlPrepareQueryCampaign("AoaDatabase", $"SELECT areaTag, position, facing, currentHP, dateLastSaved, currentSkillJob, currentSkillJobRemainingTime, currentCraftJob, currentCraftJobRemainingTime, currentCraftJobMaterial, frostAttackOn from playerCharacters where rowid = @characterId");
+      var query = NWScript.SqlPrepareQueryCampaign(Scripts.database, $"SELECT areaTag, position, facing, currentHP, dateLastSaved, currentSkillJob, currentCraftJob, currentCraftJobRemainingTime, currentCraftJobMaterial, frostAttackOn from playerCharacters where rowid = @characterId");
       NWScript.SqlBindInt(query, "@characterId", player.characterId);
       NWScript.SqlStep(query);
 
@@ -167,11 +179,10 @@ namespace NWN.Systems
       player.currentHP = NWScript.SqlGetInt(query, 3);
       player.dateLastSaved = DateTime.Parse(NWScript.SqlGetString(query, 4));
       player.currentSkillJob = NWScript.SqlGetInt(query, 5);
-      player.currentSkillJobRemainingTime = NWScript.SqlGetFloat(query, 6);
-      player.currentCraftJob = NWScript.SqlGetString(query, 7);
-      player.currentCraftJobRemainingTime = NWScript.SqlGetFloat(query, 8);
-      player.currentCraftJobMaterial = NWScript.SqlGetString(query, 9);
-      player.isFrostAttackOn = Convert.ToBoolean(NWScript.SqlGetInt(query, 10));
+      player.currentCraftJob = NWScript.SqlGetString(query, 6);
+      player.currentCraftJobRemainingTime = NWScript.SqlGetFloat(query, 7);
+      player.currentCraftJobMaterial = NWScript.SqlGetString(query, 8);
+      player.isFrostAttackOn = Convert.ToBoolean(NWScript.SqlGetInt(query, 9));
 
       if (player.isFrostAttackOn)
       {
@@ -191,7 +202,7 @@ namespace NWN.Systems
     }
     private static void InitializePlayerLearnableSkills(Player player)
     {
-      var query = NWScript.SqlPrepareQueryCampaign("AoaDatabase", $"SELECT skillId, skillPoints from playerLearnableSkills where characterId = @characterId and trained = 0");
+      var query = NWScript.SqlPrepareQueryCampaign(Scripts.database, $"SELECT skillId, skillPoints from playerLearnableSkills where characterId = @characterId and trained = 0");
       NWScript.SqlBindInt(query, "@characterId", player.characterId);
 
       while (Convert.ToBoolean(NWScript.SqlStep(query)))

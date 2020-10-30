@@ -5,6 +5,7 @@ using NWN.Core.NWNX;
 using System.Linq;
 using static NWN.Systems.PlayerSystem;
 using System.Numerics;
+using NWN.ScriptHandlers;
 
 namespace NWN.Systems
 {
@@ -263,7 +264,7 @@ namespace NWN.Systems
         {
           NWScript.SendMessageToPC(oidSelf, "Vous sentez une forme de résistance : cette âme met du temps à regagner son enveloppe corporelle. Votre sort a bien eu l'effet escompté, mais il faudra un certain temps avant de voir le corps s'animer.");
 
-          var query = NWScript.SqlPrepareQueryCampaign("AoaDatabase", $"SELECT areaTag, position from playerDeathCorpses where characterId = @characterId");
+          var query = NWScript.SqlPrepareQueryCampaign(Scripts.database, $"SELECT areaTag, position from playerDeathCorpses where characterId = @characterId");
           NWScript.SqlBindInt(query, "@characterId", PcId);
           NWScript.SqlStep(query);
 
@@ -271,7 +272,7 @@ namespace NWN.Systems
           Vector3 position = NWScript.SqlGetVector(query, 1);
 
           //TODO : vérifier ce qu'il se passe quand on ramasse et dépose le cadavre
-          query = NWScript.SqlPrepareQueryCampaign("AoaDatabase", $"UPDATE playerCharacters SET areaTag = @areaTag, position = @position WHERE characterId = @characterId");
+          query = NWScript.SqlPrepareQueryCampaign(Scripts.database, $"UPDATE playerCharacters SET areaTag = @areaTag, position = @position WHERE characterId = @characterId");
           NWScript.SqlBindInt(query, "@characterId", PcId);
           NWScript.SqlBindString(query, "@areaTag", NWScript.GetTag(NWScript.GetArea(oTarget)));
           NWScript.SqlBindVector(query, "@position", NWScript.GetPosition(oTarget));

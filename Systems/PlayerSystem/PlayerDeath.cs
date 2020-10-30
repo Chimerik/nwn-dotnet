@@ -2,6 +2,7 @@
 using System.Numerics;
 using NWN.Core;
 using NWN.Core.NWNX;
+using NWN.ScriptHandlers;
 
 namespace NWN.Systems
 {
@@ -66,7 +67,7 @@ namespace NWN.Systems
     }
     public static void SavePlayerCorpseToDatabase(int characterId, uint deathCorpse, string areaTag, Vector3 position)
     {
-      var query = NWScript.SqlPrepareQueryCampaign("AoaDatabase", $"INSERT INTO playerDeathCorpses (characterId, deathCorpse, areaTag, position) VALUES (@characterId, @deathCorpse, @areaTag, @position)");
+      var query = NWScript.SqlPrepareQueryCampaign(Scripts.database, $"INSERT INTO playerDeathCorpses (characterId, deathCorpse, areaTag, position) VALUES (@characterId, @deathCorpse, @areaTag, @position)");
       NWScript.SqlBindInt(query, "@characterId", characterId);
       NWScript.SqlBindObject(query, "@deathCorpse", deathCorpse);
       NWScript.SqlBindString(query, "@areaTag", areaTag);
@@ -147,7 +148,7 @@ namespace NWN.Systems
     }
     public static void DeletePlayerCorpseFromDatabase(int characterId)
     {
-      var query = NWScript.SqlPrepareQueryCampaign("AoaDatabase", $"DELETE FROM playerDeathCorpses WHERE characterId = @characterId");
+      var query = NWScript.SqlPrepareQueryCampaign(Scripts.database, $"DELETE FROM playerDeathCorpses WHERE characterId = @characterId");
       NWScript.SqlBindInt(query, "@characterId", characterId);
       NWScript.SqlStep(query);
     }
@@ -166,7 +167,7 @@ namespace NWN.Systems
         NWScript.SetLocalInt(oPCCorpse, "_PC_ID", characterId);
         ObjectPlugin.AcquireItem(oPCCorpse, oItem);
 
-        var query = NWScript.SqlPrepareQueryCampaign("AoaDatabase", $"SELECT characterName from playerCharacters where rowid = @characterId");
+        var query = NWScript.SqlPrepareQueryCampaign(Scripts.database, $"SELECT characterName from playerCharacters where rowid = @characterId");
         NWScript.SqlBindInt(query, "@characterId", characterId);
         NWScript.SqlStep(query);
 
