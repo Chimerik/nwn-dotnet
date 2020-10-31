@@ -5,6 +5,7 @@ using System.Linq;
 using NWN.Core;
 using NWN.Core.NWNX;
 using Microsoft.Data.Sqlite;
+using Google.Cloud.Translation.V2;
 
 namespace NWN.ScriptHandlers
 {
@@ -27,6 +28,7 @@ namespace NWN.ScriptHandlers
      .ToDictionary(kvp => kvp.Key, kvp => kvp.Value);
 
     public static string database = Environment.GetEnvironmentVariable("DN_NAME");
+    public static TranslationClient googleTranslationClient = TranslationClient.Create();
     private static int HandleModuleLoad(uint oidSelf)
     {
       Bot.MainAsync();

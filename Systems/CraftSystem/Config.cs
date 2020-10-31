@@ -131,15 +131,16 @@ namespace NWN.Systems
         switch (this.type)
         {
           case BlueprintType.Longsword:
-            this.mineralsCost = 20000;
+            this.mineralsCost = 15000;
             this.workshopTag = "forge";
             this.craftedItemTag = "longsword";
             this.feat = Feat.ForgeLongsword;
             break;
           case BlueprintType.Fullplate:
-            this.mineralsCost = 1000000;
+            this.mineralsCost = 1500000;
             this.workshopTag = "forge";
             this.craftedItemTag = "fullplate";
+            this.feat = Feat.ForgeFullplate;
             break;
         }
       }

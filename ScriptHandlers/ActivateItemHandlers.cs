@@ -160,7 +160,7 @@ namespace NWN.ScriptHandlers
     private static float GetBlueprintTimeCostForPlayer(PlayerSystem.Player player, CollectSystem.Blueprint blueprint, uint item)
     {
       int iSkillLevel = 1;
-      float fJobDuration = blueprint.mineralsCost / 50;
+      float fJobDuration = blueprint.mineralsCost;
 
       int value;
       if (int.TryParse(NWScript.Get2DAString("feat", "GAINMULTIPLE", CreaturePlugin.GetHighestLevelOfFeat(player.oid, (int)Feat.Forge)), out value))

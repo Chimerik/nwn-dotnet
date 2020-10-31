@@ -203,12 +203,12 @@ namespace NWN.Systems
               {
                 ChatPlugin.SkipMessage();
                 ChatPlugin.SendMessage((int)ctx.channel, "[" + sLanguageName + "] " + ctx.msg, ctx.oSender, oEavesdrop);
-                NWScript.SendMessageToPC(oEavesdrop, sName + " : [" + sLanguageName + "] " + Languages.GetLangueStringConvertedHRPProtection(ctx.msg, iLangueActive));
+                NWScript.SendMessageToPC(oEavesdrop, sName + " : [" + sLanguageName + "] " + Languages.GetLangueStringConvertedHRPProtection(ctx.msg, (Feat)iLangueActive));
               }
               else
               {
                 ChatPlugin.SkipMessage();
-                ChatPlugin.SendMessage((int)ctx.channel, Languages.GetLangueStringConvertedHRPProtection(ctx.msg, iLangueActive), ctx.oSender, oEavesdrop);
+                ChatPlugin.SendMessage((int)ctx.channel, Languages.GetLangueStringConvertedHRPProtection(ctx.msg, (Feat)iLangueActive), ctx.oSender, oEavesdrop);
               }
             }
           }
@@ -216,7 +216,7 @@ namespace NWN.Systems
 
         ChatPlugin.SkipMessage();
         ChatPlugin.SendMessage((int)ctx.channel, "[" + sLanguageName + "] " + ctx.msg, ctx.oSender, ctx.oSender);
-        NWScript.SendMessageToPC(ctx.oSender, sName + " : [" + sLanguageName + "] " + Languages.GetLangueStringConvertedHRPProtection(ctx.msg, iLangueActive));
+        NWScript.SendMessageToPC(ctx.oSender, sName + " : [" + sLanguageName + "] " + Languages.GetLangueStringConvertedHRPProtection(ctx.msg, (Feat)iLangueActive));
         return;
       }
 
