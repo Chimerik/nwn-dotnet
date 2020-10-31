@@ -184,13 +184,11 @@ namespace NWN.Systems
 
     private static int HandleFeatUsed(uint oidSelf)
     {
-      string current_event = EventsPlugin.GetCurrentEvent();
-      var feat = int.Parse(EventsPlugin.GetEventData("FEAT_ID"));
+      Feat feat = (Feat)int.Parse(EventsPlugin.GetEventData("FEAT_ID"));
 
-      if (current_event == "NWNX_ON_USE_FEAT_BEFORE")
+      switch (feat)
       {
-        if (feat == (int)NWN.Feat.PlayerTool02)
-        {
+        case NWN.Feat.PlayerTool02:
           EventsPlugin.SkipEvent();
           Player oPC;
           if (Players.TryGetValue(oidSelf, out oPC))
@@ -211,37 +209,47 @@ namespace NWN.Systems
                 NWScript.SendMessageToPC(oPC.oid, "Vous ne vous sentez pas encore la force de changer de nouveau de forme.");
             }
           }
+          break;
 
-          return 0;
-        }
-        else if (feat == (int)Feat.LanguageElf)
-        {
-          Player oPC;
+        case Feat.LanguageElf:
+        case Feat.LanguageAbyssal:
+        case Feat.LanguageCelestial:
+        case Feat.LanguageDeep:
+        case Feat.LanguageDraconic:
+        case Feat.LanguageDruidic:
+        case Feat.LanguageDwarf:
+        case Feat.LanguageGiant:
+        case Feat.LanguageGoblin:
+        case Feat.LanguageHalfling:
+        case Feat.LanguageInfernal:
+        case Feat.LanguageOrc:
+        case Feat.LanguagePrimodial:
+        case Feat.LanguageSylvan:
+        case Feat.LanguageThieves:
           if (Players.TryGetValue(oidSelf, out oPC))
           {
             NWScript.SendMessageToPC(oidSelf, $"langue = {oPC.activeLanguage}");
-            if (oPC.activeLanguage == Feat.LanguageElf)
+            if (oPC.activeLanguage == feat)
             {
               oPC.activeLanguage = Feat.Invalid;
-              NWScript.SendMessageToPC(oidSelf, "Vous cessez de parler elfe.");
+              NWScript.SendMessageToPC(oidSelf, "Vous vous exprimez désormais en commun.");
               NWScript.SetTextureOverride("icon_elf", "", oidSelf);
 
-              RefreshQBS(oidSelf, feat);
+              RefreshQBS(oidSelf, (int)feat);
             }
             else
             {
-              oPC.activeLanguage = Feat.LanguageElf; ;
-              NWScript.SendMessageToPC(oidSelf, "Vous parlez désormais elfe.");
+              oPC.activeLanguage = feat; ;
+              NWScript.SendMessageToPC(oidSelf, "Vous vous exprimez désormais dans une langue spécifique.");
               NWScript.SetTextureOverride("icon_elf", "icon_elf_active", oidSelf);
 
-              RefreshQBS(oidSelf, feat);
+              RefreshQBS(oidSelf, (int)feat);
             }
           }
-        
-          return 0;
-        }
-        else if (feat == NWScript.FEAT_PLAYER_TOOL_01) // TODO : Refaire le système. Probablement mieux en changeant totalement l'apparence du PJ par l'objet, le laisser se positionner lui-même, puis sauvegarder l'emplacement
-        {
+
+          break;
+
+        case Feat.PlayerTool01:
           EventsPlugin.SkipEvent();
           var oTarget = NWScript.StringToObject(EventsPlugin.GetEventData("TARGET_OBJECT_ID"));
           Player myPlayer;
@@ -294,9 +302,9 @@ namespace NWN.Systems
               myPlayer.selectedObjectsList.Clear();
             }
           }
-          return 0;
-        }
+          break;
       }
+          
       return 0;
     }
 

@@ -1053,7 +1053,8 @@ namespace NWN
     LanguagePrimodial = 1127,
     LanguageSylvan = 1128,
     LanguageDruidic = 1129,
-    LanguageThieves = 1130, 
+    LanguageThieves = 1130,
+    BlueprintCopy,
     Miner,
     Miner2,
     Miner3,
@@ -1113,6 +1114,11 @@ namespace NWN
     ForgeLongsword3,
     ForgeLongsword4,
     ForgeLongsword5,
+    ForgeFullplate,
+    ForgeFullplate2,
+    ForgeFullplate3,
+    ForgeFullplate4,
+    ForgeFullplate5,
     Invalid = 65535
   }
 }
