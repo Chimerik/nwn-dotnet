@@ -75,5 +75,43 @@ namespace NWN
 
       return LanguageCodes.French;
     }
+    public static string GetLanguageName(Feat langue)
+    {
+      switch (langue)
+      {
+        case Feat.LanguageElf:
+          return "elfique";
+        case Feat.LanguageAbyssal:
+          return "abyssal";
+        case Feat.LanguageCelestial:
+          return "céleste";
+        case Feat.LanguageDeep:
+          return "outrelangue";
+        case Feat.LanguageDraconic:
+          return "draconique";
+        case Feat.LanguageDruidic:
+          return "druidique";
+        case Feat.LanguageDwarf:
+          return "nain";
+        case Feat.LanguageGiant:
+          return "géant";
+        case Feat.LanguageGoblin:
+          return "gobelin";
+        case Feat.LanguageHalfling:
+          return "halfelin";
+        case Feat.LanguageInfernal:
+          return "infernal";
+        case Feat.LanguageOrc:
+          return "orc";
+        case Feat.LanguagePrimodial:
+          return "primordial";
+        case Feat.LanguageSylvan:
+          return "sylvain";
+        case Feat.LanguageThieves:
+          return "langue des voleurs";
+      }
+
+      return "commun";
+    }
   }
 }

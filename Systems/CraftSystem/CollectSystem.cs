@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using NWN.Core;
 using NWN.Core.NWNX;
+using static NWN.Systems.Blueprint;
 using static NWN.Systems.PlayerSystem;
 
 namespace NWN.Systems
@@ -13,6 +14,8 @@ namespace NWN.Systems
             { "event_mining_cycle_cancel_before", HandleBeforeMiningCycleCancel },
             { "on_mining_cycle_complete", HandleAfterMiningCycleComplete },
     };
+
+    public static Dictionary<BlueprintType, Blueprint> blueprintDictionnary = new Dictionary<BlueprintType, Blueprint>();
     private static int HandleBeforeMiningCycleCancel(uint oidSelf)
     {
       Player player;
@@ -81,7 +84,6 @@ namespace NWN.Systems
       {
         NWScript.AddItemProperty(NWScript.DURATION_TYPE_PERMANENT, ip, craftedItem);
       }
-      
     }
   }
 }
