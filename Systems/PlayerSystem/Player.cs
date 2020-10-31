@@ -3,6 +3,7 @@ using System.Numerics;
 using System.Collections.Generic;
 using NWN.Core;
 using NWN.Core.NWNX;
+using static NWN.Systems.Blueprint;
 
 namespace NWN.Systems
 {
@@ -21,6 +22,7 @@ namespace NWN.Systems
       public DateTime dateLastSaved { get; set; }
       public int currentSkillJob { get; set; }
       public string currentCraftJob { get; set; }
+      public string currentCraftObject { get; set; }
       public float currentCraftJobRemainingTime { get; set; }
       public DateTime currentCraftJobFinishDateTime { get; set; }
       public string currentCraftJobMaterial { get; set; }
@@ -169,10 +171,25 @@ namespace NWN.Systems
 
       public void AcquireCraftedItem()
       {
-        CollectSystem.Blueprint blueprint;
-        CollectSystem.BlueprintType blueprintType = CollectSystem.GetBlueprintTypeFromName(this.currentCraftJob);
+        if(this.currentCraftJob == "blueprint")
+        {
+          NWScript.SetLocalInt(NWScript.CopyItem(NWScript.StringToObject(this.currentCraftObject), this.oid, 1), "_BLUEPRINT_RUNS", 10);
+          NWScript.PostString(oid, $"La copie de votre patron est terminée !", 80, 10, NWScript.SCREEN_ANCHOR_TOP_LEFT, 5.0f, unchecked((int)0xC0C0C0FF), unchecked((int)0xC0C0C0FF), 9, "fnt_galahad14");
+          // TODO : changer les sons et effets visuels
+          PlayerPlugin.PlaySound(oid, "gui_level_up");
+          PlayerPlugin.ApplyInstantVisualEffectToObject(oid, oid, NWScript.VFX_IMP_GLOBE_USE);
 
-        if (blueprintType == CollectSystem.BlueprintType.Invalid)
+          this.currentCraftJob = "";
+          this.currentCraftJobRemainingTime = 0;
+          this.currentCraftJobMaterial = "";
+          this.currentCraftObject = "";
+          return;
+        }
+
+        Blueprint blueprint;
+        BlueprintType blueprintType = GetBlueprintTypeFromName(this.currentCraftJob);
+
+        if (blueprintType == BlueprintType.Invalid)
         {
           Utils.LogMessageToDMs($"AcquireCraftedItem : {NWScript.GetName(this.oid)} - Blueprint invalid - {this.currentCraftJob}");
           return;
@@ -181,7 +198,7 @@ namespace NWN.Systems
         if (CollectSystem.blueprintDictionnary.ContainsKey(blueprintType))
           blueprint = CollectSystem.blueprintDictionnary[blueprintType];
         else
-          blueprint = new CollectSystem.Blueprint(blueprintType);
+          blueprint = new Blueprint(blueprintType);
         
         NWScript.DelayCommand(10.0f, () => this.PlayCraftJobCompletedEffects(blueprint)); // Décalage de 10 secondes pour être sur que le joueur a fini de charger la map à la reco
       }
@@ -338,7 +355,7 @@ namespace NWN.Systems
         PlayerPlugin.ApplyInstantVisualEffectToObject(oid, oid, NWScript.VFX_IMP_GLOBE_USE);
       }
 
-      public void PlayCraftJobCompletedEffects(CollectSystem.Blueprint blueprint)
+      public void PlayCraftJobCompletedEffects(Blueprint blueprint)
       {
         NWScript.PostString(oid, $"La création de votre {this.currentCraftJob} est terminée !", 80, 10, NWScript.SCREEN_ANCHOR_TOP_LEFT, 5.0f, unchecked((int)0xC0C0C0FF), unchecked((int)0xC0C0C0FF), 9, "fnt_galahad14");
         // TODO : changer les sons et effets visuels

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using NWN.Core;
 using NWN.Core.NWNX;
 using NWN.Systems;
+using static NWN.Systems.Blueprint;
 
 namespace NWN.ScriptHandlers
 {
@@ -39,10 +40,10 @@ namespace NWN.ScriptHandlers
       if (PlayerSystem.Players.TryGetValue(oActivator, out player))
       {
         var item = oItem;
-        CollectSystem.Blueprint blueprint;
-        CollectSystem.BlueprintType blueprintType = CollectSystem.GetBlueprintTypeFromName(NWScript.GetName(item));
+        Blueprint blueprint;
+        BlueprintType blueprintType = GetBlueprintTypeFromName(NWScript.GetName(item));
 
-        if(blueprintType == CollectSystem.BlueprintType.Invalid)
+        if(blueprintType == BlueprintType.Invalid)
         {
           Utils.LogMessageToDMs($"Invalid blueprint : {blueprintType}");
           return 0;
@@ -51,7 +52,7 @@ namespace NWN.ScriptHandlers
         if (CollectSystem.blueprintDictionnary.ContainsKey(blueprintType))
           blueprint = CollectSystem.blueprintDictionnary[blueprintType];
         else
-          blueprint = new CollectSystem.Blueprint(blueprintType);
+          blueprint = new Blueprint(blueprintType);
         
         if(oTarget == NWScript.OBJECT_INVALID)
         {
@@ -144,7 +145,7 @@ namespace NWN.ScriptHandlers
 
       return 0;
     }
-    private static int GetBlueprintMineralCostForPlayer(PlayerSystem.Player player, CollectSystem.Blueprint blueprint, uint item)
+    private static int GetBlueprintMineralCostForPlayer(PlayerSystem.Player player, Blueprint blueprint, uint item)
     {
       int iSkillLevel = 1;
 
@@ -157,7 +158,7 @@ namespace NWN.ScriptHandlers
 
       return blueprint.mineralsCost - (blueprint.mineralsCost * (iSkillLevel + NWScript.GetLocalInt(item, "_BLUEPRINT_MATERIAL_EFFICIENCY")) / 100);
     }
-    private static float GetBlueprintTimeCostForPlayer(PlayerSystem.Player player, CollectSystem.Blueprint blueprint, uint item)
+    private static float GetBlueprintTimeCostForPlayer(PlayerSystem.Player player, Blueprint blueprint, uint item)
     {
       int iSkillLevel = 1;
       float fJobDuration = blueprint.mineralsCost;

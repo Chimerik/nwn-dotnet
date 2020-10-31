@@ -6,6 +6,7 @@ using Dapper;
 using NWN.Core;
 using NWN.Core.NWNX;
 using NWN.ScriptHandlers;
+using static NWN.Systems.Blueprint;
 
 namespace NWN.Systems
 {
@@ -228,19 +229,18 @@ namespace NWN.Systems
         case Feat.LanguageThieves:
           if (Players.TryGetValue(oidSelf, out oPC))
           {
-            NWScript.SendMessageToPC(oidSelf, $"langue = {oPC.activeLanguage}");
             if (oPC.activeLanguage == feat)
             {
               oPC.activeLanguage = Feat.Invalid;
               NWScript.SendMessageToPC(oidSelf, "Vous vous exprimez désormais en commun.");
-              NWScript.SetTextureOverride("icon_elf", "", oidSelf);
+              NWScript.SetTextureOverride("icon_elf", "", oidSelf); // TODO : chopper l'icône correspondate dynamiquement via feat.2da
 
               RefreshQBS(oidSelf, (int)feat);
             }
             else
             {
               oPC.activeLanguage = feat; ;
-              NWScript.SendMessageToPC(oidSelf, "Vous vous exprimez désormais dans une langue spécifique.");
+              NWScript.SendMessageToPC(oidSelf, $"Vous vous exprimez désormais en {Languages.GetLanguageName(oPC.activeLanguage)}.");
               NWScript.SetTextureOverride("icon_elf", "icon_elf_active", oidSelf);
 
               RefreshQBS(oidSelf, (int)feat);
@@ -249,9 +249,41 @@ namespace NWN.Systems
 
           break;
 
-        case Feat.PlayerTool01:
+        case Feat.BlueprintCopy:
+        case Feat.BlueprintCopy2:
+        case Feat.BlueprintCopy3:
+        case Feat.BlueprintCopy4:
+        case Feat.BlueprintCopy5:
+
           EventsPlugin.SkipEvent();
           var oTarget = NWScript.StringToObject(EventsPlugin.GetEventData("TARGET_OBJECT_ID"));
+
+          if (Players.TryGetValue(oidSelf, out oPC))
+          {
+            if (Convert.ToBoolean(NWScript.GetIsObjectValid(oTarget)) && NWScript.GetTag(oTarget) == "blueprint")
+            {
+              Blueprint blueprint;
+              BlueprintType blueprintType = GetBlueprintTypeFromName(NWScript.GetName(oTarget));
+
+              if (blueprintType == BlueprintType.Invalid)
+              {
+                Utils.LogMessageToDMs($"CopyBlueprint : {NWScript.GetName(oTarget)} - Blueprint invalid");
+                return 0;
+              }
+
+              if (CollectSystem.blueprintDictionnary.ContainsKey(blueprintType))
+                blueprint = CollectSystem.blueprintDictionnary[blueprintType];
+              else
+                blueprint = new Blueprint(blueprintType);
+
+              blueprint.StartCopyJob(oPC, oTarget);
+            }
+          }
+          break;
+
+        case Feat.PlayerTool01:
+          EventsPlugin.SkipEvent();
+          oTarget = NWScript.StringToObject(EventsPlugin.GetEventData("TARGET_OBJECT_ID"));
           Player myPlayer;
           if (Players.TryGetValue(oidSelf, out myPlayer))
           {
