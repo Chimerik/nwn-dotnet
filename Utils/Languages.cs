@@ -1,8 +1,6 @@
 ﻿using Google.Cloud.Translation.V2;
-using NWN.Core;
-using NWN.ScriptHandlers;
 
-namespace NWN
+namespace NWN.Systems
 {
    public static class Languages
    {
@@ -14,7 +12,7 @@ namespace NWN
       string languageCode = GetLanguageCode(langue);
 
        if (!sToConvert.Contains("*"))
-           return Scripts.googleTranslationClient.TranslateText(sToConvert, languageCode).TranslatedText;
+           return ModuleSystem.googleTranslationClient.TranslateText(sToConvert, languageCode).TranslatedText;
 
       string[] sArray = sToConvert.Split('*', '*');
       string sTranslated = "";
@@ -23,7 +21,7 @@ namespace NWN
       foreach (string s in sArray)
       {
         if (i % 2 == 0)
-          sTranslated += Scripts.googleTranslationClient.TranslateText(s, languageCode).TranslatedText;
+          sTranslated += ModuleSystem.googleTranslationClient.TranslateText(s, languageCode).TranslatedText;
         else
           sTranslated += $" * {s} * ";
 

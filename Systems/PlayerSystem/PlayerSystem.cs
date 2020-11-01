@@ -5,7 +5,6 @@ using System.Linq;
 using Dapper;
 using NWN.Core;
 using NWN.Core.NWNX;
-using NWN.ScriptHandlers;
 using static NWN.Systems.Blueprint;
 
 namespace NWN.Systems
@@ -254,31 +253,20 @@ namespace NWN.Systems
         case Feat.BlueprintCopy3:
         case Feat.BlueprintCopy4:
         case Feat.BlueprintCopy5:
+        case Feat.Research:
+        case Feat.Research2:
+        case Feat.Research3:
+        case Feat.Research4:
+        case Feat.Research5:
+        case Feat.Metallurgy:
+        case Feat.Metallurgy2:
+        case Feat.Metallurgy3:
+        case Feat.Metallurgy4:
+        case Feat.Metallurgy5:
 
           EventsPlugin.SkipEvent();
           var oTarget = NWScript.StringToObject(EventsPlugin.GetEventData("TARGET_OBJECT_ID"));
-
-          if (Players.TryGetValue(oidSelf, out oPC))
-          {
-            if (Convert.ToBoolean(NWScript.GetIsObjectValid(oTarget)) && NWScript.GetTag(oTarget) == "blueprint")
-            {
-              Blueprint blueprint;
-              BlueprintType blueprintType = GetBlueprintTypeFromName(NWScript.GetName(oTarget));
-
-              if (blueprintType == BlueprintType.Invalid)
-              {
-                Utils.LogMessageToDMs($"CopyBlueprint : {NWScript.GetName(oTarget)} - Blueprint invalid");
-                return 0;
-              }
-
-              if (CollectSystem.blueprintDictionnary.ContainsKey(blueprintType))
-                blueprint = CollectSystem.blueprintDictionnary[blueprintType];
-              else
-                blueprint = new Blueprint(blueprintType);
-
-              blueprint.StartCopyJob(oPC, oTarget);
-            }
-          }
+          BlueprintValidation(oidSelf, oTarget, feat);
           break;
 
         case Feat.PlayerTool01:
@@ -803,11 +791,14 @@ namespace NWN.Systems
 
       if(NWScript.GetTag(oItem) == "item_pccorpse")
       {
-        var query = NWScript.SqlPrepareQueryCampaign(Scripts.database, $"COUNT (*) FROM playerDeathCorpses WHERE characterId = @characterId");
+        var query = NWScript.SqlPrepareQueryCampaign(ModuleSystem.database, $"COUNT (*) FROM playerDeathCorpses WHERE characterId = @characterId");
         NWScript.SqlBindInt(query, "@characterId", NWScript.GetLocalInt(oItem, "_PC_ID"));
         if (NWScript.SqlStep(query) < 1)
           NWScript.DestroyObject(oItem);
       }
+
+      if (NWScript.GetTag(oItem) == "blueprint")
+        NWScript.SetLocalInt(oItem, "DROPS_ON_DEATH", 1);
 
       if (NWScript.GetMovementRate(oPC) != CreaturePlugin.NWNX_CREATURE_MOVEMENT_RATE_IMMOBILE)
         if (NWScript.GetWeight(oPC) > int.Parse(NWScript.Get2DAString("encumbrance", "Heavy", NWScript.GetAbilityScore(oPC, NWScript.ABILITY_STRENGTH))))
