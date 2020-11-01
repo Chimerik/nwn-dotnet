@@ -21,11 +21,7 @@ namespace NWN.Systems
       public int currentHP { get; set; }
       public DateTime dateLastSaved { get; set; }
       public int currentSkillJob { get; set; }
-      public string currentCraftJob { get; set; }
-      public string currentCraftObject { get; set; }
-      public float currentCraftJobRemainingTime { get; set; }
-      public DateTime currentCraftJobFinishDateTime { get; set; }
-      public string currentCraftJobMaterial { get; set; }
+      public CraftJob craftJob { get; set; }
       public uint autoAttackTarget { get; set; }
       public Boolean isFrostAttackOn { get; set; }
       public DateTime lycanCurseTimer { get; set; }
@@ -35,7 +31,6 @@ namespace NWN.Systems
       private uint blockingBoulder;
       public string disguiseName { get; set; }
       public uint deathCorpse { get; set; }
-      public Boolean craftCancellationConfirmation { get; set; }
 
       private List<uint> _selectedObjectsList = new List<uint>();
       public List<uint> selectedObjectsList
@@ -157,7 +152,7 @@ namespace NWN.Systems
       }
       public void CraftJobProgression()
       {
-        float RemainingTime = this.currentCraftJobRemainingTime - (float)(DateTime.Now - this.dateLastSaved).TotalSeconds;
+        float RemainingTime = this.craftJob.remainingTime - (float)(DateTime.Now - this.dateLastSaved).TotalSeconds;
 
         if (RemainingTime < 0)
         {
@@ -171,27 +166,24 @@ namespace NWN.Systems
 
       public void AcquireCraftedItem()
       {
-        if(this.currentCraftJob == "blueprint")
+        if(this.craftJob.name == "blueprint")
         {
-          NWScript.SetLocalInt(NWScript.CopyItem(NWScript.StringToObject(this.currentCraftObject), this.oid, 1), "_BLUEPRINT_RUNS", 10);
+          NWScript.SetLocalInt(NWScript.CopyItem(NWScript.StringToObject(this.craftJob.craftedItem), this.oid, 1), "_BLUEPRINT_RUNS", 10);
           NWScript.PostString(oid, $"La copie de votre patron est terminée !", 80, 10, NWScript.SCREEN_ANCHOR_TOP_LEFT, 5.0f, unchecked((int)0xC0C0C0FF), unchecked((int)0xC0C0C0FF), 9, "fnt_galahad14");
           // TODO : changer les sons et effets visuels
           PlayerPlugin.PlaySound(oid, "gui_level_up");
           PlayerPlugin.ApplyInstantVisualEffectToObject(oid, oid, NWScript.VFX_IMP_GLOBE_USE);
 
-          this.currentCraftJob = "";
-          this.currentCraftJobRemainingTime = 0;
-          this.currentCraftJobMaterial = "";
-          this.currentCraftObject = "";
+          this.craftJob.isActive = false;
           return;
         }
 
         Blueprint blueprint;
-        BlueprintType blueprintType = GetBlueprintTypeFromName(this.currentCraftJob);
+        BlueprintType blueprintType = GetBlueprintTypeFromName(this.craftJob.name);
 
         if (blueprintType == BlueprintType.Invalid)
         {
-          Utils.LogMessageToDMs($"AcquireCraftedItem : {NWScript.GetName(this.oid)} - Blueprint invalid - {this.currentCraftJob}");
+          Utils.LogMessageToDMs($"AcquireCraftedItem : {NWScript.GetName(this.oid)} - Blueprint invalid - {this.craftJob.name}");
           return;
         }
 
@@ -357,16 +349,14 @@ namespace NWN.Systems
 
       public void PlayCraftJobCompletedEffects(Blueprint blueprint)
       {
-        NWScript.PostString(oid, $"La création de votre {this.currentCraftJob} est terminée !", 80, 10, NWScript.SCREEN_ANCHOR_TOP_LEFT, 5.0f, unchecked((int)0xC0C0C0FF), unchecked((int)0xC0C0C0FF), 9, "fnt_galahad14");
+        NWScript.PostString(oid, $"La création de votre {this.craftJob.name} est terminée !", 80, 10, NWScript.SCREEN_ANCHOR_TOP_LEFT, 5.0f, unchecked((int)0xC0C0C0FF), unchecked((int)0xC0C0C0FF), 9, "fnt_galahad14");
         // TODO : changer les sons et effets visuels
         PlayerPlugin.PlaySound(oid, "gui_level_up");
         PlayerPlugin.ApplyInstantVisualEffectToObject(oid, oid, NWScript.VFX_IMP_GLOBE_USE);
 
-        CollectSystem.AddCraftedItemProperties(NWScript.CreateItemOnObject(blueprint.craftedItemTag, oid), blueprint, this.currentCraftJobMaterial);
+        CollectSystem.AddCraftedItemProperties(NWScript.CreateItemOnObject(blueprint.craftedItemTag, oid), blueprint, this.craftJob.material);
 
-        this.currentCraftJob = "";
-        this.currentCraftJobRemainingTime = 0;
-        this.currentCraftJobMaterial = "";
+        this.craftJob.isActive = false;
       }
 
       public void PlayNoCurrentTrainingEffects()
@@ -384,11 +374,7 @@ namespace NWN.Systems
       {
         this.OnMiningCycleCompleted();
       }
-      public void ResetCancellationConfirmation()
-      {
-        this.craftCancellationConfirmation = false;
-      }
-
+      
       public Effect GetPartySizeEffect(int iPartySize = 0)
       {
         var oPartyMember = NWScript.GetFirstFactionMember(oid, 1);

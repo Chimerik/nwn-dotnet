@@ -20,9 +20,9 @@ namespace NWN.Systems
     public Task WhoIsHereAsync()
       => ReplyAsync($"Nous sommes actuellement {Utils.GetConnectedPlayers()} joueur(s) sur le module !");
 
-   /* [Command("kickall")]
-    [Summary("Vire tout le monde du module.")]
-    public Task KickAllAsync()
-      => ReplyAsync($"Result : {Utils.BootAsync()}");*/
+    [Command("reboot")]
+    [Summary("Reboot le module.")]
+    public Task RebootAsync()
+      => ReplyAsync(ModuleSystem.module.PreparingModuleForAsyncReboot());
   }
 }

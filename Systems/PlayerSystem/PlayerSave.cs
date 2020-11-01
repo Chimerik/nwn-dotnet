@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using NWN.Core;
 using NWN.Core.NWNX;
-using NWN.ScriptHandlers;
 
 namespace NWN.Systems
 {
@@ -99,7 +98,7 @@ namespace NWN.Systems
     }
     private static void SavePlayerCharacterToDatabase(Player player)
     {
-      var query = NWScript.SqlPrepareQueryCampaign(Scripts.database, $"UPDATE playerCharacters SET areaTag = @areaTag, position = @position, facing = @facing, currentHP = @currentHP, dateLastSaved = @dateLastSaved, currentSkillJob = @currentSkillJob, currentCraftJob = @currentCraftJob, currentCraftObject = @currentCraftObject, currentCraftJobRemainingTime = @currentCraftJobRemainingTime, currentCraftJobMaterial = @currentCraftJobMaterial, frostAttackOn = @frostAttackOn where rowid = @characterId");
+      var query = NWScript.SqlPrepareQueryCampaign(ModuleSystem.database, $"UPDATE playerCharacters SET areaTag = @areaTag, position = @position, facing = @facing, currentHP = @currentHP, dateLastSaved = @dateLastSaved, currentSkillJob = @currentSkillJob, currentCraftJob = @currentCraftJob, currentCraftObject = @currentCraftObject, currentCraftJobRemainingTime = @currentCraftJobRemainingTime, currentCraftJobMaterial = @currentCraftJobMaterial, frostAttackOn = @frostAttackOn where rowid = @characterId");
       NWScript.SqlBindInt(query, "@characterId", player.characterId);
       NWScript.SqlBindString(query, "@areaTag", NWScript.GetTag(NWScript.GetArea(player.oid)));
       NWScript.SqlBindVector(query, "@position", NWScript.GetPosition(player.oid));
@@ -107,10 +106,10 @@ namespace NWN.Systems
       NWScript.SqlBindInt(query, "@currentHP", player.currentHP);
       NWScript.SqlBindString(query, "@dateLastSaved", player.dateLastSaved.ToString());
       NWScript.SqlBindInt(query, "@currentSkillJob", player.currentSkillJob);
-      NWScript.SqlBindString(query, "@currentCraftJob", player.currentCraftJob);
-      NWScript.SqlBindString(query, "@currentCraftObject", player.currentCraftObject);
-      NWScript.SqlBindFloat(query, "@currentCraftJobRemainingTime", player.currentCraftJobRemainingTime);
-      NWScript.SqlBindString(query, "@currentCraftJobMaterial", player.currentCraftJobMaterial);
+      NWScript.SqlBindString(query, "@currentCraftJob", player.craftJob.name);
+      NWScript.SqlBindString(query, "@currentCraftObject", player.craftJob.craftedItem);
+      NWScript.SqlBindFloat(query, "@currentCraftJobRemainingTime", player.craftJob.remainingTime);
+      NWScript.SqlBindString(query, "@currentCraftJobMaterial", player.craftJob.material);
       NWScript.SqlBindInt(query, "@frostAttackOn", Convert.ToInt32(player.isFrostAttackOn));
       NWScript.SqlStep(query);
     }
@@ -120,7 +119,7 @@ namespace NWN.Systems
       {
         if(skillListEntry.Value.databaseSaved)
         {
-          var query = NWScript.SqlPrepareQueryCampaign(Scripts.database, $"UPDATE playerLearnableSkills SET skillPoints = @skillPoints, trained = @trained  where characterId = @characterId and skillId = @skillId");
+          var query = NWScript.SqlPrepareQueryCampaign(ModuleSystem.database, $"UPDATE playerLearnableSkills SET skillPoints = @skillPoints, trained = @trained  where characterId = @characterId and skillId = @skillId");
           NWScript.SqlBindInt(query, "@characterId", player.characterId);
           NWScript.SqlBindInt(query, "@skillId", skillListEntry.Key);
           NWScript.SqlBindFloat(query, "@skillPoints", skillListEntry.Value.acquiredPoints);
@@ -129,7 +128,7 @@ namespace NWN.Systems
         }
         else
         {
-          var query = NWScript.SqlPrepareQueryCampaign(Scripts.database, $"INSERT INTO playerLearnableSkills (characterId, skillId, skillPoints, trained) VALUES (@characterId, @skillId, @skillPoints, @trained)");
+          var query = NWScript.SqlPrepareQueryCampaign(ModuleSystem.database, $"INSERT INTO playerLearnableSkills (characterId, skillId, skillPoints, trained) VALUES (@characterId, @skillId, @skillPoints, @trained)");
           NWScript.SqlBindInt(query, "@characterId", player.characterId);
           NWScript.SqlBindInt(query, "@skillId", skillListEntry.Key);
           NWScript.SqlBindFloat(query, "@skillPoints", skillListEntry.Value.acquiredPoints);
