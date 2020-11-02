@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using NWN.Core;
 using NWN.Core.NWNX;
+using System.Linq;
 
 namespace NWN.Systems
 {
@@ -22,7 +23,19 @@ namespace NWN.Systems
     {
       player.menu.Clear();
       player.menu.title = "Liste des skills disponibles pour entrainement.";
-      foreach (KeyValuePair<int, SkillSystem.Skill> SkillListEntry in player.learnableSkills)
+
+      //var sortedDict = from entry in player.learnableSkills orderby entry.Value ascending select entry;
+      foreach (KeyValuePair<int, SkillSystem.Skill> SkillListEntry in player.learnableSkills.OrderByDescending(key => key.Value.currentJob))
+      {
+        SkillSystem.Skill skill = SkillListEntry.Value;
+
+        if (!skill.trained)
+          player.menu.choices.Add(($"{skill.name} - Temps restant : {skill.GetTimeToNextLevelAsString(player)}", () => __HandleSkillSelection(player, skill)));
+
+        // TODO : Suivant, précédent et quitter
+      }
+
+      /*foreach (KeyValuePair<int, SkillSystem.Skill> SkillListEntry in player.learnableSkills)
       {
         SkillSystem.Skill skill = SkillListEntry.Value;
         // TODO :  afficher le skill en cours en premier ?
@@ -31,7 +44,7 @@ namespace NWN.Systems
           player.menu.choices.Add(($"{skill.name} - Temps restant : {skill.GetTimeToNextLevelAsString(player)}", () => __HandleSkillSelection(player, skill)));
           
         // TODO : Suivant, précédent et quitter
-      }
+      }*/
 
       player.menu.choices.Add(("Quitter", () => __HandleClose(player)));
       player.menu.Draw();

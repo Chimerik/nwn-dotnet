@@ -6,6 +6,7 @@ using NWN.Core;
 using NWN.Core.NWNX;
 using Microsoft.Data.Sqlite;
 using Google.Cloud.Translation.V2;
+using System.Runtime.CompilerServices;
 
 namespace NWN.Systems
 {
@@ -39,14 +40,8 @@ namespace NWN.Systems
     }
     private static int HandleModuleHeartBeat(uint oidSelf)
     {
-      if (module.reboot)
-      {
-        foreach (KeyValuePair<uint, PlayerSystem.Player> PlayerListEntry in PlayerSystem.Players)
-        {
-          if (NWScript.GetIsDM(PlayerListEntry.Key) != 1)
-            NWScript.BootPC(PlayerListEntry.Key, "Le serveur redémarre. Vous pourrez vous reconnecter dans une minute.");
-        }
-      }
+      foreach (string command in module.botAsyncCommandList)
+        BotAsyncCommandSystem.ProcessBotAsyncCommand(command);
 
       return 0;
     }

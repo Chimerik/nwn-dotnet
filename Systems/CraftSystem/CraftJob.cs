@@ -208,5 +208,40 @@ namespace NWN.Systems
         NWScript.DestroyObject(oBlueprint);
       }
     }
+    public string GetJobEndTimeAsFormattedString()
+    {
+      TimeSpan EndTime = DateTime.Now.AddSeconds(this.remainingTime).Subtract(DateTime.Now);
+      string Countdown = "";
+      if (EndTime.Days > 0)
+      {
+        if (EndTime.Days < 10)
+          Countdown += "0" + EndTime.Days + ":";
+        else
+          Countdown += EndTime.Days + ":";
+      }
+      if (EndTime.Hours > 0)
+      {
+        if (EndTime.Hours < 10)
+          Countdown += "0" + EndTime.Hours + ":";
+        else
+          Countdown += EndTime.Hours + ":";
+      }
+      if (EndTime.Minutes > 0)
+      {
+        if (EndTime.Minutes < 10)
+          Countdown += "0" + EndTime.Minutes + ":";
+        else
+          Countdown += EndTime.Minutes + ":";
+      }
+      if (EndTime.Seconds > 0)
+      {
+        if (EndTime.Seconds < 10)
+          Countdown += "0" + EndTime.Seconds;
+        else
+          Countdown += EndTime.Seconds;
+      }
+
+      return Countdown;
+    }
   }
 }

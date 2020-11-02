@@ -8,11 +8,11 @@ namespace NWN.Systems
   class Module
   {
     public uint oid { get; }
-    public Boolean reboot { get; set; }
+    public List<string> botAsyncCommandList { get; set; }
     public Module(uint oid)
     {
       this.oid = oid;
-      this.reboot = false;
+      this.botAsyncCommandList = new List<string>();
       Bot.MainAsync();
       this.CreateDatabase();
       ChatSystem.Init();
@@ -179,7 +179,7 @@ namespace NWN.Systems
     }
     public string PreparingModuleForAsyncReboot()
     {
-      this.reboot = true;
+      this.botAsyncCommandList.Add("reboot");
       return "Reboot effectif dans 30 secondes.";
     }
   }

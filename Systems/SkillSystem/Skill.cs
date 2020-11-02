@@ -144,7 +144,7 @@ namespace NWN.Systems
 
         return Countdown;
       }
-/*      public void DisplayTimeToNextLevel(Player oPC) // TODO : revoir méthode d'affichage du temps restant pour skill + craft jobs
+ /*     public void DisplayTimeToNextLevel(Player oPC) // TODO : revoir méthode d'affichage du temps restant pour skill + craft jobs
       {
         string Countdown = this.GetTimeToNextLevelAsString(oPC);
         oPC.RefreshAcquiredSkillPoints();
