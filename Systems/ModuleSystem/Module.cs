@@ -147,6 +147,8 @@ namespace NWN.Systems
       EventsPlugin.SubscribeEvent("NWNX_ON_INVENTORY_REMOVE_ITEM_AFTER", "event_pccorpse_remove_item_after");
       EventsPlugin.ToggleDispatchListMode("NWNX_ON_INVENTORY_REMOVE_ITEM_AFTER", "event_pccorpse_remove_item_after", 1);
 
+      EventsPlugin.SubscribeEvent("NWNX_ON_SERVER_SEND_AREA_AFTER", "event_on_area_enter");
+      
       var refinery = NWScript.GetObjectByTag("refinery", 0);
 
       int i = 1;

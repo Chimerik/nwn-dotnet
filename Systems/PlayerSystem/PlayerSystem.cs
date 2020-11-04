@@ -16,6 +16,7 @@ namespace NWN.Systems
     public static Dictionary<string, Func<uint, int>> Register = new Dictionary<string, Func<uint, int>>
         {
             { "on_pc_perceived", HandlePlayerPerceived },
+            { "event_on_area_enter", HandlePlayerEnterArea },
             { "on_pc_target", HandlePlayerTargetSelection },
             { "on_pc_connect", HandlePlayerConnect },
             { "on_pc_disconnect", HandlePlayerDisconnect },
@@ -803,6 +804,35 @@ namespace NWN.Systems
       if (NWScript.GetMovementRate(oPC) != CreaturePlugin.NWNX_CREATURE_MOVEMENT_RATE_IMMOBILE)
         if (NWScript.GetWeight(oPC) > int.Parse(NWScript.Get2DAString("encumbrance", "Heavy", NWScript.GetAbilityScore(oPC, NWScript.ABILITY_STRENGTH))))
           CreaturePlugin.SetMovementRate(oPC, CreaturePlugin.NWNX_CREATURE_MOVEMENT_RATE_IMMOBILE);
+
+      return 0;
+    }
+    private static int HandlePlayerEnterArea(uint oidSelf)
+    {
+      if(!Convert.ToBoolean(NWScript.GetIsDM(oidSelf)) && !Convert.ToBoolean(NWScript.GetIsDMPossessed(oidSelf)))
+      {
+        var oArea = NWScript.StringToObject(EventsPlugin.GetEventData("AREA"));
+        DateTime previousSpawnDate;
+
+        if (!DateTime.TryParse(NWScript.GetLocalString(oArea, "_DATE_LAST_SPAWNED"), out previousSpawnDate) || (DateTime.Now - previousSpawnDate).TotalMinutes > 10)
+        {
+          NWScript.SetLocalString(oArea, "_DATE_LAST_SPAWNED", DateTime.Now.ToString());
+
+          var firstObject = NWScript.GetFirstObjectInArea(oArea);
+          if(NWScript.GetTag(firstObject) == "creature_spawn")
+            NWScript.CreateObject(NWScript.OBJECT_TYPE_CREATURE, NWScript.GetLocalString(firstObject, "_CREATURE_TEMPLATE"), NWScript.GetLocation(firstObject));
+
+          int i = 1;
+          var spawnPoints = NWScript.GetNearestObjectByTag("creature_spawn", firstObject);
+
+          while (Convert.ToBoolean(NWScript.GetIsObjectValid(spawnPoints)))
+          {
+            NWScript.CreateObject(NWScript.OBJECT_TYPE_CREATURE, NWScript.GetLocalString(spawnPoints, "_CREATURE_TEMPLATE"), NWScript.GetLocation(spawnPoints));
+            i++;
+            spawnPoints = NWScript.GetNearestObjectByTag("creature_spawn", firstObject, i);
+          }
+        }
+      }
 
       return 0;
     }
