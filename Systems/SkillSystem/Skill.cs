@@ -2,7 +2,9 @@
 using System.Collections.Generic;
 using System.Linq;
 using NWN.Core;
+using NWN.Core.NWNX;
 using NWN.Systems;
+using static NWN.Systems.PlayerSystem;
 
 namespace NWN.Systems
 {
@@ -11,7 +13,7 @@ namespace NWN.Systems
     public class Skill
     {
       public readonly int oid;
-
+      private readonly Player player;
       public float acquiredPoints { get; set; }
       public string name { get; set; }
       public string description { get; set; }
@@ -25,9 +27,10 @@ namespace NWN.Systems
       public readonly int primaryAbility;
       public readonly int secondaryAbility;
 
-      public Skill(int Id, float SP)
+      public Skill(int Id, float SP, Player player)
       {
         this.oid = Id;
+        this.player = player;
         this.acquiredPoints = SP;
         this.trained = false;
         int value;
@@ -98,62 +101,48 @@ namespace NWN.Systems
         }
 
         this.pointsToNextLevel = 250 * this.multiplier * (int)Math.Pow(Math.Sqrt(32), this.currentLevel);
+
+        if (this.player.currentSkillJob == this.oid)
+        {
+          this.currentJob = true;
+          this.CreateSkillJournalEntry();
+        }
       }
-      public double GetTimeToNextLevel(PlayerSystem.Player oPC)
+      public double GetTimeToNextLevel(Player oPC, float pointPerSecond)
       {
         float RemainingPoints = this.pointsToNextLevel - this.acquiredPoints;
-        float PointsGenerationPerSecond = (float)(NWScript.GetAbilityScore(oPC.oid, primaryAbility) + (NWScript.GetAbilityScore(oPC.oid, secondaryAbility) / 2)) / 60;
-        if(!oPC.isConnected)
-          PointsGenerationPerSecond = PointsGenerationPerSecond * 60 / 100;
-        else if (oPC.isAFK)
-          PointsGenerationPerSecond = PointsGenerationPerSecond * 80 / 100;
-        return RemainingPoints / PointsGenerationPerSecond;
+        return RemainingPoints / pointPerSecond;
       }
-      public string GetTimeToNextLevelAsString(PlayerSystem.Player oPC)
+      public void CreateSkillJournalEntry()
       {
-        TimeSpan EndTime = DateTime.Now.AddSeconds(this.GetTimeToNextLevel(oPC)).Subtract(DateTime.Now);
-        string Countdown = "";
-        if (EndTime.Days > 0)
-        {
-          if (EndTime.Days < 10)
-            Countdown += "0" + EndTime.Days + ":";
-          else
-            Countdown += EndTime.Days + ":";
-        }
-        if (EndTime.Hours > 0)
-        {
-          if (EndTime.Hours < 10)
-            Countdown += "0" + EndTime.Hours + ":";
-          else
-            Countdown += EndTime.Hours + ":";
-        }
-        if (EndTime.Minutes > 0)
-        {
-          if (EndTime.Minutes < 10)
-            Countdown += "0" + EndTime.Minutes + ":";
-          else
-            Countdown += EndTime.Minutes + ":";
-        }
-        if (EndTime.Seconds > 0)
-        {
-          if (EndTime.Seconds < 10)
-            Countdown += "0" + EndTime.Seconds;
-          else
-            Countdown += EndTime.Seconds;
-        }
-
-        return Countdown;
+        player.playerJournal.skillJobCountDown = DateTime.Now.AddSeconds(this.GetTimeToNextLevel(player, player.CalculateSkillPointsPerSecond(this)));
+        JournalEntry journalEntry = new JournalEntry();
+        journalEntry.sName = $"Entrainement - {Utils.StripTimeSpanMilliseconds((TimeSpan)(player.playerJournal.skillJobCountDown - DateTime.Now))}";
+        journalEntry.sText = $"Entrainement en cours : {this.name}";
+        journalEntry.sTag = "skill_job";
+        journalEntry.nPriority = 1;
+        journalEntry.nQuestDisplayed = 1;
+        PlayerPlugin.AddCustomJournalEntry(player.oid, journalEntry);
       }
- /*     public void DisplayTimeToNextLevel(Player oPC) // TODO : revoir méthode d'affichage du temps restant pour skill + craft jobs
+      public void CancelSkillJournalEntry()
       {
-        string Countdown = this.GetTimeToNextLevelAsString(oPC);
-        oPC.RefreshAcquiredSkillPoints();
-
-        NWScript.PostString(oPC.oid, $"Apprentissage terminé dans {Countdown}", 80, 10, NWScript.SCREEN_ANCHOR_TOP_LEFT, 1.0f, unchecked((int)0xC0C0C0FF), unchecked((int)0xC0C0C0FF), 9, "fnt_galahad14");
-        
-        if(NWScript.GetLocalInt(oPC.oid, "_DISPLAY_JOBS") == 1)
-          NWScript.DelayCommand(1.0f, () => DisplayTimeToNextLevel(oPC));
-      }*/
+        JournalEntry journalEntry = PlayerPlugin.GetJournalEntry(player.oid, "skill_job");
+        journalEntry.sName = $"Entrainement annulé - {this.name}";
+        journalEntry.sTag = "skill_job";
+        journalEntry.nQuestDisplayed = 0;
+        PlayerPlugin.AddCustomJournalEntry(player.oid, journalEntry);
+        player.playerJournal.skillJobCountDown = null;
+      }
+      public void CloseSkillJournalEntry()
+      {
+        JournalEntry journalEntry = PlayerPlugin.GetJournalEntry(player.oid, "skill_job");
+        journalEntry.sName = $"Entrainement terminé - {this.name}";
+        journalEntry.sTag = "skill_job";
+        journalEntry.nQuestCompleted = 1;
+        journalEntry.nQuestDisplayed = 0;
+        PlayerPlugin.AddCustomJournalEntry(player.oid, journalEntry);
+        player.playerJournal.skillJobCountDown = null;
+      }
     }
   }
 }

@@ -15,14 +15,16 @@ namespace NWN.Systems
     public string material { get; set; }
     public Boolean isActive { get; set; }
     public Boolean isCancelled { get; set; }
+    private readonly Player player;
 
-    public CraftJob(string name, string material, float time, string item = "")
+    public CraftJob(string name, string material, float time, Player player, string item = "")
     {
       this.name = name;
       this.craftedItem = item;
       this.material = material;
       this.remainingTime = time;
       this.isCancelled = false;
+      this.player = player;
 
       if (name != "")
       {
@@ -42,6 +44,8 @@ namespace NWN.Systems
             this.type = JobType.Item;
             break;
         }
+
+        this.CreateCraftJournalEntry();
       }
       else
         this.isActive = false;
@@ -102,7 +106,7 @@ namespace NWN.Systems
       switch(type)
       {
         case JobType.Item:
-          StartItemCraft(blueprint, player, oItem, oTarget, sMaterial, mineralType);
+          this.StartItemCraft(blueprint, oItem, oTarget, sMaterial, mineralType);
           break;
         case JobType.BlueprintCopy:
           StartBlueprintCopy(player, oItem, blueprint);
@@ -116,7 +120,7 @@ namespace NWN.Systems
       }
 
     }
-    public static void StartItemCraft(Blueprint blueprint, Player player, uint oItem, uint oTarget, string sMaterial, MineralType mineralType)
+    public void StartItemCraft(Blueprint blueprint, uint oItem, uint oTarget, string sMaterial, MineralType mineralType)
     {
       int iMineralCost = blueprint.GetBlueprintMineralCostForPlayer(player, oItem);
       float iJobDuration = blueprint.GetBlueprintTimeCostForPlayer(player, oItem);
@@ -131,7 +135,7 @@ namespace NWN.Systems
         int iResourceStock = NWScript.SqlGetInt(query, 0);
         if (iResourceStock >= iMineralCost)
         {
-          player.craftJob = new CraftJob(NWScript.GetName(oItem), sMaterial, iJobDuration);
+          player.craftJob = new CraftJob(NWScript.GetName(oItem), sMaterial, iJobDuration, player);
           player.craftJob.RemoveUsedResources(player, iResourceStock, iMineralCost, sMaterial);
           
           NWScript.SendMessageToPC(player.oid, $"Vous venez de démarrer la fabrication de l'objet artisanal : {blueprint.type} en {sMaterial}");
@@ -172,7 +176,7 @@ namespace NWN.Systems
         {
           int timeCost = blueprint.mineralsCost * 80 / 100;
           float iJobDuration = timeCost - timeCost * value / 100;
-          player.craftJob = new CraftJob("blueprint_copy", "", iJobDuration, NWScript.ObjectToString(oBlueprint));
+          player.craftJob = new CraftJob("blueprint_copy", "", iJobDuration, player, NWScript.ObjectToString(oBlueprint));
         }
       }
     }
@@ -188,7 +192,7 @@ namespace NWN.Systems
 
         float iJobDuration = blueprint.mineralsCost - blueprint.mineralsCost * (metallurgyLevel * 5 + advancedCraftLevel * 3) / 100;
         NWScript.SetLocalInt(oBlueprint, "_BLUEPRINT_MATERIAL_EFFICIENCY", NWScript.GetLocalInt(oBlueprint, "_BLUEPRINT_MATERIAL_EFFICIENCY") + 1);
-        player.craftJob = new CraftJob("blueprint_ME", "", iJobDuration, NWScript.ObjectToString(oBlueprint));
+        player.craftJob = new CraftJob("blueprint_ME", "", iJobDuration, player, NWScript.ObjectToString(oBlueprint));
         NWScript.DestroyObject(oBlueprint);
       }
     }
@@ -204,44 +208,39 @@ namespace NWN.Systems
 
         float iJobDuration = blueprint.mineralsCost - blueprint.mineralsCost * (researchLevel * 5 + advancedCraftLevel * 3) / 100;
         NWScript.SetLocalInt(oBlueprint, "_BLUEPRINT_TIME_EFFICIENCY", NWScript.GetLocalInt(oBlueprint, "_BLUEPRINT_TIME_EFFICIENCY") + 1);
-        player.craftJob = new CraftJob("blueprint_TE", "", iJobDuration, NWScript.ObjectToString(oBlueprint));
+        player.craftJob = new CraftJob("blueprint_TE", "", iJobDuration, player, NWScript.ObjectToString(oBlueprint));
         NWScript.DestroyObject(oBlueprint);
       }
     }
-    public string GetJobEndTimeAsFormattedString()
+    public void CreateCraftJournalEntry()
     {
-      TimeSpan EndTime = DateTime.Now.AddSeconds(this.remainingTime).Subtract(DateTime.Now);
-      string Countdown = "";
-      if (EndTime.Days > 0)
-      {
-        if (EndTime.Days < 10)
-          Countdown += "0" + EndTime.Days + ":";
-        else
-          Countdown += EndTime.Days + ":";
-      }
-      if (EndTime.Hours > 0)
-      {
-        if (EndTime.Hours < 10)
-          Countdown += "0" + EndTime.Hours + ":";
-        else
-          Countdown += EndTime.Hours + ":";
-      }
-      if (EndTime.Minutes > 0)
-      {
-        if (EndTime.Minutes < 10)
-          Countdown += "0" + EndTime.Minutes + ":";
-        else
-          Countdown += EndTime.Minutes + ":";
-      }
-      if (EndTime.Seconds > 0)
-      {
-        if (EndTime.Seconds < 10)
-          Countdown += "0" + EndTime.Seconds;
-        else
-          Countdown += EndTime.Seconds;
-      }
-
-      return Countdown;
+      this.player.playerJournal.craftJobCountDown = DateTime.Now.AddSeconds(this.remainingTime);
+      JournalEntry journalEntry = new JournalEntry();
+      journalEntry.sName = $"Travail artisanal - {Utils.StripTimeSpanMilliseconds((TimeSpan)(player.playerJournal.craftJobCountDown - DateTime.Now))}";
+      journalEntry.sText = $"Fabrication en cours : {this.name}";
+      journalEntry.sTag = "craft_job";
+      journalEntry.nPriority = 1;
+      journalEntry.nQuestDisplayed = 1;
+      PlayerPlugin.AddCustomJournalEntry(this.player.oid, journalEntry);
+    }
+    public void CancelCraftJournalEntry()
+    {
+      JournalEntry journalEntry = PlayerPlugin.GetJournalEntry(player.oid, "craft_job");
+      journalEntry.sName = $"Travail artisanal mis en pause - {this.name}";
+      journalEntry.sTag = "craft_job";
+      journalEntry.nQuestDisplayed = 0;
+      PlayerPlugin.AddCustomJournalEntry(player.oid, journalEntry);
+      player.playerJournal.craftJobCountDown = null;
+    }
+    public void CloseCraftJournalEntry()
+    {
+      JournalEntry journalEntry = PlayerPlugin.GetJournalEntry(player.oid, "craft_job");
+      journalEntry.sName = $"Travail artisanal terminé - {this.name}";
+      journalEntry.sTag = "craft_job";
+      journalEntry.nQuestCompleted = 1;
+      journalEntry.nQuestDisplayed = 0;
+      PlayerPlugin.AddCustomJournalEntry(player.oid, journalEntry);
+      player.playerJournal.craftJobCountDown = null;
     }
   }
 }

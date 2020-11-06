@@ -6,6 +6,7 @@ using Dapper;
 using NWN.Core;
 using NWN.Core.NWNX;
 using static NWN.Systems.Blueprint;
+using System.Runtime.CompilerServices;
 
 namespace NWN.Systems
 {
@@ -48,6 +49,8 @@ namespace NWN.Systems
             { "event_inventory_pccorpse_removed_after", HandleAfterPCCorpseRemovedFromInventory },
             { "pc_acquire_item", HandlePCAcquireItem },
             { "pc_unacquire_it", HandlePCUnacquireItem },
+            { "event_on_journal_open", HandlePCJournalOpen },
+            { "event_on_journal_close", HandlePCJournalClose },
         };
     
     public static Dictionary<uint, Player> Players = new Dictionary<uint, Player>();
@@ -814,6 +817,7 @@ namespace NWN.Systems
         var oArea = NWScript.StringToObject(EventsPlugin.GetEventData("AREA"));
         DateTime previousSpawnDate;
 
+        //GESTION DES SPAWNS & RENCONTRES
         if (!DateTime.TryParse(NWScript.GetLocalString(oArea, "_DATE_LAST_SPAWNED"), out previousSpawnDate) || (DateTime.Now - previousSpawnDate).TotalMinutes > 10)
         {
           NWScript.SetLocalString(oArea, "_DATE_LAST_SPAWNED", DateTime.Now.ToString());
@@ -832,6 +836,40 @@ namespace NWN.Systems
             spawnPoints = NWScript.GetNearestObjectByTag("creature_spawn", firstObject, i);
           }
         }
+
+        //EN FONCTION DE SI LA ZONE EST REST OU PAS, ON AFFICHE LA PROGRESSION DU JOURNAL DE CRAFT
+        Player player;
+        if (Players.TryGetValue(oidSelf, out player))
+        {
+          if (NWScript.GetLocalString(oArea, "_DATE_LAST_SPAWNED") == "_REST")
+          {
+            if (player.craftJob.isActive && player.playerJournal.craftJobCountDown == null)
+              player.craftJob.CreateCraftJournalEntry();
+          }
+          else if (player.playerJournal.craftJobCountDown != null)
+            player.craftJob.CancelCraftJournalEntry();
+        }
+      }
+
+      return 0;
+    }
+    private static int HandlePCJournalOpen(uint oidSelf)
+    {
+      Player player;
+      if (Players.TryGetValue(oidSelf, out player))
+      {
+        player.DoJournalUpdate = true;
+        player.UpdateJournal();
+      }
+
+      return 0;
+    }
+    private static int HandlePCJournalClose(uint oidSelf)
+    {
+      Player player;
+      if (Players.TryGetValue(oidSelf, out player))
+      {
+        player.DoJournalUpdate = false;
       }
 
       return 0;

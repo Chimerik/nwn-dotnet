@@ -86,18 +86,6 @@ namespace NWN
       }
       return false;
     }
-    public static void RebootTimer(uint oPC, int iTimer)
-    {
-      NWScript.PostString(oPC, $"REBOOT dans {iTimer} secondes !", 80, 10, NWScript.SCREEN_ANCHOR_TOP_LEFT, 30.0f, unchecked((int)0xC0C0C0FF), unchecked((int)0xC0C0C0FF), 1, "fnt_galahad14");
-      GUI_DrawWindow(oPC, 2, NWScript.SCREEN_ANCHOR_TOP_LEFT, 77, 7, 30, 5);
-      iTimer -= 1;
-      NWScript.DelayCommand(1.0f, () => RebootTimer(oPC, iTimer));
-
-      if (iTimer < 6)
-        PlayerPlugin.PlaySound(oPC, "gui_magbag_full", oPC);
-      else
-        PlayerPlugin.PlaySound(oPC, "gui_dm_alert", oPC);
-    }
     public static int GUI_DrawWindow(uint oPlayer, int nStartID, int nAnchor, int nX, int nY, int nWidth, int nHeight, float fLifetime = 0.0f)
     {
       string sTop = "a";
@@ -194,44 +182,13 @@ namespace NWN
 
       return emptyQBS;
     }
-    public static string GetRemainingTimeAsDisplayableString(float remainingSeconds)
-    {
-      TimeSpan EndTime = DateTime.Now.AddSeconds(remainingSeconds).Subtract(DateTime.Now);
-      string Countdown = "";
-      if (EndTime.Days > 0)
-      {
-        if (EndTime.Days < 10)
-          Countdown += "0" + EndTime.Days + ":";
-        else
-          Countdown += EndTime.Days + ":";
-      }
-      if (EndTime.Hours > 0)
-      {
-        if (EndTime.Hours < 10)
-          Countdown += "0" + EndTime.Hours + ":";
-        else
-          Countdown += EndTime.Hours + ":";
-      }
-      if (EndTime.Minutes > 0)
-      {
-        if (EndTime.Minutes < 10)
-          Countdown += "0" + EndTime.Minutes + ":";
-        else
-          Countdown += EndTime.Minutes + ":";
-      }
-      if (EndTime.Seconds > 0)
-      {
-        if (EndTime.Seconds < 10)
-          Countdown += "0" + EndTime.Seconds;
-        else
-          Countdown += EndTime.Seconds;
-      }
-
-      return Countdown;
-    }
     public static int GetConnectedPlayers()
     {
       return (PlayerSystem.Players.Where(kv => kv.Value.isConnected)).Count();
+    }
+    public static TimeSpan StripTimeSpanMilliseconds(TimeSpan timespan)
+    {
+      return new TimeSpan(timespan.Days, timespan.Hours, timespan.Minutes, timespan.Seconds);
     }
   }
 }

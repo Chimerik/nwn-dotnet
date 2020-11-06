@@ -161,7 +161,7 @@ namespace NWN.Systems
       NWScript.SendMessageToPC(player.oid, $"Recherche d'efficacité matérielle niveau {NWScript.GetLocalInt(oItem, "_BLUEPRINT_MATERIAL_EFFICIENCY")}");
       NWScript.SendMessageToPC(player.oid, $"Coût initial en Tritanium : {iMineralCost}. Puis 10 % de moins par amélioration vers un matériau supérieur.");
       NWScript.SendMessageToPC(player.oid, $"Recherche d'efficacité de production niveau {NWScript.GetLocalInt(oItem, "_BLUEPRINT_TIME_EFFICIENCY")}");
-      NWScript.SendMessageToPC(player.oid, $"Temps de fabrication et d'amélioration : {Utils.GetRemainingTimeAsDisplayableString(iJobDuration)}.");
+      NWScript.SendMessageToPC(player.oid, $"Temps de fabrication et d'amélioration : {Utils.StripTimeSpanMilliseconds(DateTime.Now.AddSeconds(iJobDuration).Subtract(DateTime.Now))}.");
     }
     public int GetBlueprintMineralCostForPlayer(PlayerSystem.Player player, uint item)
     {

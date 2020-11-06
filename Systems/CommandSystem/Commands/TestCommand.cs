@@ -14,16 +14,26 @@ namespace NWN.Systems
       PlayerSystem.Player player;
       if (PlayerSystem.Players.TryGetValue(ctx.oSender, out player))
       {
-        TranslationClient client = TranslationClient.Create();
-        
-        string test = ctx.msg.Replace("!test ", "").Replace('"', ' ');
-
-        TranslationResult result = client.TranslateText(test, LanguageCodes.Galician);
-
-        NWScript.SendMessageToPC(ctx.oSender, result.TranslatedText);
-
-        WebhookSystem.StartSendingAsyncDiscordMessage(test, "AoA Translation test");
-        WebhookSystem.StartSendingAsyncDiscordMessage(result.TranslatedText, "AoA Translation test");
+        if (player.playerJournal.craftJobCountDown == null)
+        {
+          player.playerJournal.craftJobCountDown = DateTime.Now.AddMinutes(2);
+          JournalEntry journalEntry = new JournalEntry();
+          journalEntry.sName = $"Travail artisanal - {Utils.StripTimeSpanMilliseconds(DateTime.Now.AddMinutes(2) - DateTime.Now)}";
+          journalEntry.sText = "Vous êtes en train de fabriquer une épée longue en tritanium, cool non ?";
+          journalEntry.sTag = "craft_job";
+          journalEntry.nPriority = 1;
+          journalEntry.nQuestDisplayed = 1;
+          PlayerPlugin.AddCustomJournalEntry(player.oid, journalEntry);
+        }
+        else
+        {
+          JournalEntry journalEntry = PlayerPlugin.GetJournalEntry(player.oid, "craft_job");
+          journalEntry.sName = $"Travail artisanal - Terminé !";
+          journalEntry.nQuestCompleted = 1;
+          journalEntry.nQuestDisplayed = 0;
+          PlayerPlugin.AddCustomJournalEntry(player.oid, journalEntry);
+          player.playerJournal.craftJobCountDown = null;
+        }
       }
     }
     public static String Translate(String word)

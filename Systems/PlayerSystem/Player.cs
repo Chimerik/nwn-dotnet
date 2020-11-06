@@ -18,7 +18,9 @@ namespace NWN.Systems
       public Location location { get; set; }
       public Boolean isConnected { get; set; }
       public Boolean isAFK { get; set; }
+      public Boolean DoJournalUpdate { get; set; }
       public int currentHP { get; set; }
+      public PlayerJournal playerJournal { get; set; }
       public DateTime dateLastSaved { get; set; }
       public int currentSkillJob { get; set; }
       public CraftJob craftJob { get; set; }
@@ -199,8 +201,9 @@ namespace NWN.Systems
         SkillSystem.Skill skill;
         if (this.learnableSkills.TryGetValue(this.currentSkillJob, out skill))
         {
-          skill.acquiredPoints += this.CalculateAcquiredSkillPoints(skill);
-          double RemainingTime = skill.GetTimeToNextLevel(this);
+          float skillPointRate = this.CalculateSkillPointsPerSecond(skill);
+          skill.acquiredPoints += skillPointRate * (float)(DateTime.Now - this.dateLastSaved).TotalSeconds; ;
+          double RemainingTime = skill.GetTimeToNextLevel(this, skillPointRate);
 
           if (RemainingTime < 0)
           {
@@ -215,8 +218,9 @@ namespace NWN.Systems
         {
           if (this.removeableMalus.TryGetValue(this.currentSkillJob, out skill))
           {
-            skill.acquiredPoints += this.CalculateAcquiredSkillPoints(skill);
-            double RemainingTime = skill.GetTimeToNextLevel(this);
+            float skillPointRate = this.CalculateSkillPointsPerSecond(skill);
+            skill.acquiredPoints += skillPointRate * (float)(DateTime.Now - this.dateLastSaved).TotalSeconds; ;
+            double RemainingTime = skill.GetTimeToNextLevel(this, skillPointRate);
 
             if (RemainingTime < 0)
             {
@@ -229,27 +233,18 @@ namespace NWN.Systems
           }
         }
       }
-      public double RefreshAcquiredSkillPoints() // TODO : revoir la méthode d'affichage du temps restant pour le skill job (et craft job aussi)
+      public void RefreshAcquiredSkillPoints(int skillId)
       {
         SkillSystem.Skill skill;
-        if (this.learnableSkills.TryGetValue(this.currentSkillJob, out skill))
+        if (this.learnableSkills.TryGetValue(skillId, out skill))
         {
-          skill.acquiredPoints += this.CalculateAcquiredSkillPoints(skill);
-
-          double RemainingTime = skill.GetTimeToNextLevel(this);
-          ObjectPlugin.SetFloat(oid, $"_JOB_SP_{skill.oid}", skill.acquiredPoints, 1);
-          ObjectPlugin.SetString(oid, "_DATE_LAST_SAVED", DateTime.Now.ToString(), 1);
-
-          return RemainingTime;
+          float skillPointRate = this.CalculateSkillPointsPerSecond(skill);
+          this.playerJournal.skillJobCountDown = DateTime.Now.AddSeconds(skill.GetTimeToNextLevel(this, skillPointRate));
         }
-
-        return 0;
       }
-
-      private float CalculateAcquiredSkillPoints(SkillSystem.Skill skill)
+      public float CalculateSkillPointsPerSecond(SkillSystem.Skill skill)
       {
-        var ElapsedSeconds = (float)(DateTime.Now - this.dateLastSaved).TotalSeconds;
-        float SP = (float)(NWScript.GetAbilityScore(oid, skill.primaryAbility) + (NWScript.GetAbilityScore(oid, skill.secondaryAbility) / 2)) * ElapsedSeconds / 60;
+        float SP = (float)(NWScript.GetAbilityScore(oid, skill.primaryAbility) + (NWScript.GetAbilityScore(oid, skill.secondaryAbility) / 2)) / 60;
 
         switch (this.bonusRolePlay)
         {
@@ -313,7 +308,7 @@ namespace NWN.Systems
 
         if (skill.successorId > 0)
         {
-          this.learnableSkills.Add(skill.successorId, new SkillSystem.Skill(skill.successorId, 0));
+          this.learnableSkills.Add(skill.successorId, new SkillSystem.Skill(skill.successorId, 0, this));
         }
       }
 
@@ -345,6 +340,7 @@ namespace NWN.Systems
         NWScript.PostString(oid, $"Votre apprentissage {skill.name} est terminé !", 80, 10, NWScript.SCREEN_ANCHOR_TOP_LEFT, 5.0f, unchecked((int)0xC0C0C0FF), unchecked((int)0xC0C0C0FF), 9, "fnt_galahad14");
         PlayerPlugin.PlaySound(oid, "gui_level_up");
         PlayerPlugin.ApplyInstantVisualEffectToObject(oid, oid, NWScript.VFX_IMP_GLOBE_USE);
+        skill.CloseSkillJournalEntry();
       }
 
       public void PlayCraftJobCompletedEffects(Blueprint blueprint)
@@ -355,8 +351,8 @@ namespace NWN.Systems
         PlayerPlugin.ApplyInstantVisualEffectToObject(oid, oid, NWScript.VFX_IMP_GLOBE_USE);
 
         CollectSystem.AddCraftedItemProperties(NWScript.CreateItemOnObject(blueprint.craftedItemTag, oid), blueprint, this.craftJob.material);
-
         this.craftJob.isActive = false;
+        this.craftJob.CloseCraftJournalEntry();
       }
 
       public void PlayNoCurrentTrainingEffects()
@@ -415,6 +411,36 @@ namespace NWN.Systems
         }
 
         return eParty;
+      }
+      public void UpdateJournal()
+      {
+        JournalEntry journalEntry;
+
+        if (this.playerJournal.craftJobCountDown != null && Convert.ToBoolean(NWScript.GetLocalInt(NWScript.GetArea(this.oid), "_REST")))
+        {
+          journalEntry = PlayerPlugin.GetJournalEntry(this.oid, "craft_job");
+          journalEntry.sName = $"Travail artisanal - {Utils.StripTimeSpanMilliseconds((TimeSpan)(this.playerJournal.craftJobCountDown - DateTime.Now))}";
+          PlayerPlugin.AddCustomJournalEntry(this.oid, journalEntry, 1);
+        }
+
+        if (this.playerJournal.skillJobCountDown != null)
+        {
+          this.RefreshAcquiredSkillPoints(this.currentSkillJob);
+          journalEntry = PlayerPlugin.GetJournalEntry(this.oid, "skill_job");
+          journalEntry.sName = $"Entrainement - {Utils.StripTimeSpanMilliseconds((TimeSpan)(this.playerJournal.skillJobCountDown - DateTime.Now))}";
+          PlayerPlugin.AddCustomJournalEntry(this.oid, journalEntry, 1);
+        }
+
+        if(this.DoJournalUpdate)
+          NWScript.DelayCommand(1.0f, () => this.UpdateJournal());
+      }
+      public void rebootUpdate()
+      {
+        JournalEntry journalEntry = PlayerPlugin.GetJournalEntry(this.oid, "reboot");
+        journalEntry.sName = $"REBOOT SERVEUR - {Utils.StripTimeSpanMilliseconds((TimeSpan)(this.playerJournal.rebootCountDown - DateTime.Now))}";
+        PlayerPlugin.AddCustomJournalEntry(this.oid, journalEntry);
+
+        NWScript.DelayCommand(1.0f, () => this.rebootUpdate());
       }
     }
   }

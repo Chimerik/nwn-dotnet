@@ -51,7 +51,7 @@ namespace NWN.Systems
 
         player.currentHP = NWScript.GetCurrentHitPoints(player.oid);
 
-        if (NWScript.GetLocalInt(NWScript.GetArea(player.oid), "REST") != 0)
+        if (NWScript.GetLocalInt(NWScript.GetArea(player.oid), "_REST") != 0)
           player.CraftJobProgression();
 
         player.AcquireSkillPoints();

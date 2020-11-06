@@ -72,7 +72,7 @@ namespace NWN.Systems
           NWScript.DelayCommand(1.1f, () => NWScript.AssignCommand(player.oid, () => NWScript.JumpToLocation(player.location)));
         }
 
-        if (player.craftJob.isActive && NWScript.GetLocalInt(NWScript.GetArea(player.oid), "REST") != 0)
+        if (player.craftJob.isActive && NWScript.GetLocalInt(NWScript.GetArea(player.oid), "_REST") != 0)
           player.CraftJobProgression();
 
         if (player.currentSkillJob != (int)Feat.Invalid)
@@ -179,7 +179,7 @@ namespace NWN.Systems
       player.currentHP = NWScript.SqlGetInt(query, 3);
       player.dateLastSaved = DateTime.Parse(NWScript.SqlGetString(query, 4));
       player.currentSkillJob = NWScript.SqlGetInt(query, 5);
-      player.craftJob = new CraftJob(NWScript.SqlGetString(query, 6), NWScript.SqlGetString(query, 9), NWScript.SqlGetFloat(query, 8), NWScript.SqlGetString(query, 7));
+      player.craftJob = new CraftJob(NWScript.SqlGetString(query, 6), NWScript.SqlGetString(query, 9), NWScript.SqlGetFloat(query, 8), player, NWScript.SqlGetString(query, 7));
       player.isFrostAttackOn = Convert.ToBoolean(NWScript.SqlGetInt(query, 10));
 
       if (player.isFrostAttackOn)
@@ -197,6 +197,9 @@ namespace NWN.Systems
       player.craftJob.isCancelled = false;
       player.isConnected = true;
       player.isAFK = true;
+      player.DoJournalUpdate = false;
+
+      player.playerJournal = new PlayerJournal();
     }
     private static void InitializePlayerLearnableSkills(Player player)
     {
@@ -204,7 +207,7 @@ namespace NWN.Systems
       NWScript.SqlBindInt(query, "@characterId", player.characterId);
 
       while (Convert.ToBoolean(NWScript.SqlStep(query)))
-        player.learnableSkills.Add(NWScript.SqlGetInt(query, 0), new SkillSystem.Skill(NWScript.SqlGetInt(query, 0), NWScript.SqlGetInt(query, 1)));
+        player.learnableSkills.Add(NWScript.SqlGetInt(query, 0), new SkillSystem.Skill(NWScript.SqlGetInt(query, 0), NWScript.SqlGetInt(query, 1), player));
     }
   }
 }
