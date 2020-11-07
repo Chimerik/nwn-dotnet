@@ -1,6 +1,7 @@
 ﻿using System;
 using NWN.Core;
 using NWN.Core.NWNX;
+using static NWN.Systems.PlayerSystem;
 
 namespace NWN.Systems
 {
@@ -136,7 +137,7 @@ namespace NWN.Systems
 
     private static void ValidationMiddleware(Context ctx, Action next)
     {
-      ctx.oActivator.learnableSkills.Add(ctx.skillId, new SkillSystem.Skill(ctx.skillId, 0));
+      ctx.oActivator.learnableSkills.Add(ctx.skillId, new SkillSystem.Skill(ctx.skillId, 0, ctx.oActivator));
       NWScript.DestroyObject(ctx.oItem);
 
       next();

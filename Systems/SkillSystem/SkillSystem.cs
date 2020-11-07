@@ -19,7 +19,7 @@ namespace NWN.Systems
 
     private static int HandleAddStrengthMalusFeat(PlayerSystem.Player player, int idMalusFeat)
     {
-      player.removeableMalus.Add(idMalusFeat, new Skill(idMalusFeat, 0));
+      player.removeableMalus.Add(idMalusFeat, new Skill(idMalusFeat, 0, player));
       CreaturePlugin.SetRawAbilityScore(player.oid, NWScript.ABILITY_STRENGTH, CreaturePlugin.GetRawAbilityScore(player.oid, NWScript.ABILITY_STRENGTH) - 2);
       return 0;
     }

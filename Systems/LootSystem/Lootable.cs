@@ -9,13 +9,11 @@ namespace NWN.Systems
     {
       public struct Config
       {
-        public float? respawnDuration { get; set; }
         public Gold? gold { get; set; }
         public List<Item> items { get; set; }
 
-        public Config(List<Item> items, Gold? gold = null, float? respawnDuration = null)
+        public Config(List<Item> items, Gold? gold = null)
         {
-          this.respawnDuration = respawnDuration;
           this.gold = gold;
           this.items = items;
         }

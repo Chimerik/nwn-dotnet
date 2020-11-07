@@ -7,6 +7,7 @@ using NWN.Core;
 using NWN.Core.NWNX;
 using static NWN.Systems.Blueprint;
 using System.Runtime.CompilerServices;
+using static NWN.Systems.LootSystem;
 
 namespace NWN.Systems
 {
@@ -17,7 +18,8 @@ namespace NWN.Systems
     public static Dictionary<string, Func<uint, int>> Register = new Dictionary<string, Func<uint, int>>
         {
             { "on_pc_perceived", HandlePlayerPerceived },
-            { "event_on_area_enter", HandlePlayerEnterArea },
+            { "event_before_area_exit", HandleBeforePlayerExitArea },
+            { "event_after_area_enter", HandleAfterPlayerEnterArea },
             { "on_pc_target", HandlePlayerTargetSelection },
             { "on_pc_connect", HandlePlayerConnect },
             { "on_pc_disconnect", HandlePlayerDisconnect },
@@ -132,12 +134,26 @@ namespace NWN.Systems
       Player oPC;
       if (Players.TryGetValue(oidSelf, out oPC))
       {
-        if (int.Parse(EventsPlugin.GetEventData("OBJECT_TYPE")) == 9)
+        if (int.Parse(EventsPlugin.GetEventData("OBJECT_TYPE")) == NWScript.OBJECT_TYPE_PLACEABLE)
         {
           if (ObjectPlugin.GetInt(oPC.oid, "_SPAWN_PERSIST") != 0)
           {
             var oObject = NWScript.StringToObject(EventsPlugin.GetEventData("OBJECT"));
-            // TODO : Enregistrer l'objet créé en base de données. Ajouter à l'objet un script qui le supprime de la BDD OnDeath
+            NWScript.SetEventScript(oObject, NWScript.EVENT_SCRIPT_PLACEABLE_ON_DEATH, "ondeath_clean_dm_plc");
+
+            var query = NWScript.SqlPrepareQueryCampaign(ModuleSystem.database, "INSERT INTO dm_persistant_placeable(accountID, serializedPlaceable, areaTag, position, facing)" +
+              " VALUES(@accountId, @serializedPlaceable, @areaTag, @position, @facing)");
+            NWScript.SqlBindInt(query, "@accountId", oPC.accountId);
+            NWScript.SqlBindObject(query, "@serializedPlaceable", oObject);
+            NWScript.SqlBindString(query, "@areaTag", NWScript.GetTag(NWScript.GetArea(oObject)));
+            NWScript.SqlBindVector(query, "@position", NWScript.GetPosition(oObject));
+            NWScript.SqlBindFloat(query, "@facing", NWScript.GetFacing(oObject));
+            NWScript.SqlStep(query);
+
+            query = NWScript.SqlPrepareQueryCampaign(ModuleSystem.database, $"SELECT last_insert_rowid()");
+            NWScript.SqlStep(query);
+            NWScript.SetLocalInt(oObject, "_ID", NWScript.SqlGetInt(query, 0));
+
             NWScript.SendMessageToPC(oPC.oid, $"Création persistante - Vous posez le placeable  {NWScript.GetName(oObject)}");
           }
           else
@@ -810,14 +826,15 @@ namespace NWN.Systems
 
       return 0;
     }
-    private static int HandlePlayerEnterArea(uint oidSelf)
+    private static int HandleAfterPlayerEnterArea(uint oidSelf)
     {
       if(!Convert.ToBoolean(NWScript.GetIsDM(oidSelf)) && !Convert.ToBoolean(NWScript.GetIsDMPossessed(oidSelf)))
       {
         var oArea = NWScript.StringToObject(EventsPlugin.GetEventData("AREA"));
-        DateTime previousSpawnDate;
+        NWScript.SetLocalString(oArea, "_LAST_ENTERED_ON", DateTime.Now.ToString());
 
         //GESTION DES SPAWNS & RENCONTRES
+        DateTime previousSpawnDate;
         if (!DateTime.TryParse(NWScript.GetLocalString(oArea, "_DATE_LAST_SPAWNED"), out previousSpawnDate) || (DateTime.Now - previousSpawnDate).TotalMinutes > 10)
         {
           NWScript.SetLocalString(oArea, "_DATE_LAST_SPAWNED", DateTime.Now.ToString());
@@ -831,9 +848,36 @@ namespace NWN.Systems
 
           while (Convert.ToBoolean(NWScript.GetIsObjectValid(spawnPoints)))
           {
-            NWScript.CreateObject(NWScript.OBJECT_TYPE_CREATURE, NWScript.GetLocalString(spawnPoints, "_CREATURE_TEMPLATE"), NWScript.GetLocation(spawnPoints));
+            
+            NWScript.SetEventScript(NWScript.CreateObject(
+              NWScript.OBJECT_TYPE_CREATURE, NWScript.GetLocalString(spawnPoints, "_CREATURE_TEMPLATE"), NWScript.GetLocation(spawnPoints)),
+              NWScript.EVENT_SCRIPT_CREATURE_ON_DEATH, ON_LOOT_SCRIPT);
             i++;
             spawnPoints = NWScript.GetNearestObjectByTag("creature_spawn", firstObject, i);
+          }
+
+          // Gestion des coffres lootables
+          Area area;
+          if (Module.areaDictionnary.TryGetValue(oArea, out area))
+          {
+            foreach (uint chest in area.lootChestList)
+            {
+              Utils.DestroyInventory(chest);
+
+              Lootable.Config lootableConfig;
+              var containerTag = NWScript.GetTag(chest);
+
+              if (!lootablesDic.TryGetValue(containerTag, out lootableConfig))
+              {
+                Utils.LogMessageToDMs($"AREA - {NWScript.GetName(oArea)} - Unregistered container tag=\"{containerTag}\", name : {NWScript.GetName(chest)}");
+                continue;
+              }
+
+              NWScript.AssignCommand(oArea, () => NWScript.DelayCommand(
+                  0.1f,
+                  () => lootableConfig.GenerateLoot(chest)
+              ));
+            }
           }
         }
 
@@ -848,6 +892,26 @@ namespace NWN.Systems
           }
           else if (player.playerJournal.craftJobCountDown != null)
             player.craftJob.CancelCraftJournalEntry();
+
+          player.previousArea = oArea;
+        }
+      }
+
+      return 0;
+    }
+    private static int HandleBeforePlayerExitArea(uint oidSelf)
+    {
+      if (!Convert.ToBoolean(NWScript.GetIsDM(oidSelf)) && !Convert.ToBoolean(NWScript.GetIsDMPossessed(oidSelf)))
+      {
+        Player player;
+        if (Players.TryGetValue(oidSelf, out player))
+        { 
+          Area area;
+          if (Module.areaDictionnary.TryGetValue(player.previousArea, out area))
+          {
+            if (AreaPlugin.GetNumberOfPlayersInArea(player.previousArea) == 0)
+              NWScript.DelayCommand(1500.0f, () => area.CleanArea()); // 25 minutes
+          }
         }
       }
 

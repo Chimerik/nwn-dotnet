@@ -1,20 +1,48 @@
 ﻿using System;
-using System.Net;
-using System.Web;
-using Google.Cloud.Translation.V2;
+using System.Collections.Generic;
+using System.Text;
 using NWN.Core;
 using NWN.Core.NWNX;
 
 namespace NWN.Systems
 {
-  public static partial class CommandSystem
+  class Area
   {
-    private static void ExecuteTestCommand(ChatSystem.Context ctx, Options.Result options)
+    public readonly uint oid;
+    public readonly string tag;
+    public readonly string name;
+    public readonly List<uint> lootChestList;
+    public Area(uint nwobj)
     {
-      PlayerSystem.Player player;
-      if (PlayerSystem.Players.TryGetValue(ctx.oSender, out player))
+      this.oid = nwobj;
+      this.tag = NWScript.GetTag(nwobj);
+      this.name = NWScript.GetName(nwobj);
+      this.lootChestList = new List<uint>();
+      
+      var firstObject = NWScript.GetFirstObjectInArea(nwobj);
+
+      if (NWScript.GetObjectType(firstObject) == NWScript.OBJECT_TYPE_PLACEABLE && Convert.ToBoolean(NWScript.GetHasInventory(firstObject))
+        && LootSystem.lootablesDic.ContainsKey(NWScript.GetTag(firstObject)))
+        lootChestList.Add(firstObject);
+
+      var lootChest = NWScript.GetNearestObject(NWScript.OBJECT_TYPE_PLACEABLE, firstObject);
+      int i = 1;
+
+      while (Convert.ToBoolean(NWScript.GetIsObjectValid(lootChest)))
       {
-        var firstObject = NWScript.GetFirstObjectInArea(NWScript.GetArea(player.oid));
+        if(LootSystem.lootablesDic.ContainsKey(NWScript.GetTag(lootChest)))
+          lootChestList.Add(lootChest);
+
+        i++;
+        lootChest = NWScript.GetNearestObject(NWScript.OBJECT_TYPE_PLACEABLE, firstObject, i);
+      }
+    }
+    public void CleanArea()
+    {
+      DateTime lastEnteredDate;
+      if (DateTime.TryParse(NWScript.GetLocalString(this.oid, "_LAST_ENTERED_ON"), out lastEnteredDate) && (DateTime.Now - lastEnteredDate).TotalMinutes >= 5)
+      {
+        var firstObject = NWScript.GetFirstObjectInArea(this.oid);
         int i = 1;
         var nearestObject = NWScript.GetNearestObject(NWScript.OBJECT_TYPE_CREATURE, firstObject);
 
@@ -22,7 +50,7 @@ namespace NWN.Systems
         {
           if (NWScript.GetIsPC(nearestObject) == 0)
             Utils.DestroyInventory(nearestObject);
-          
+
           NWScript.DestroyObject(nearestObject);
           i++;
           nearestObject = NWScript.GetNearestObject(NWScript.OBJECT_TYPE_CREATURE, firstObject, i);
@@ -52,30 +80,10 @@ namespace NWN.Systems
         if (NWScript.GetObjectType(firstObject) == NWScript.OBJECT_TYPE_CREATURE
           || NWScript.GetTag(firstObject) == "BodyBag" || NWScript.GetObjectType(firstObject) == NWScript.OBJECT_TYPE_ITEM)
         {
-          if (Convert.ToBoolean(NWScript.GetHasInventory(firstObject)))
+          if(Convert.ToBoolean(NWScript.GetHasInventory(firstObject)))
             Utils.DestroyInventory(firstObject);
           NWScript.DestroyObject(firstObject);
-        }
-      }
-    }
-    public static String Translate(String word)
-    {
-      var toLanguage = "en";
-      var fromLanguage = "fr";
-      var url = $"https://translate.googleapis.com/translate_a/single?client=gtx&sl={fromLanguage}&tl={toLanguage}&dt=t&q={HttpUtility.UrlEncode(word)}";
-      var webClient = new WebClient
-      {
-        Encoding = System.Text.Encoding.UTF8
-      };
-      var result = webClient.DownloadString(url);
-      try
-      {
-        result = result.Substring(4, result.IndexOf("\"", 4, StringComparison.Ordinal) - 4);
-        return result;
-      }
-      catch
-      {
-        return "Error";
+        }          
       }
     }
   }

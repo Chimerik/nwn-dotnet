@@ -9,6 +9,7 @@ namespace NWN.Systems
   {
     public uint oid { get; }
     public List<string> botAsyncCommandList { get; set; }
+    public static Dictionary<uint, Area> areaDictionnary = new Dictionary<uint, Area>();
     public Module(uint oid)
     {
       this.oid = oid;
@@ -16,15 +17,16 @@ namespace NWN.Systems
       Bot.MainAsync();
       this.CreateDatabase();
       ChatSystem.Init();
-
-      /*try
+      
+      try
       {
         LootSystem.InitChestArea();
+        InitModuleChestSpawn();
       }
       catch (Exception e)
       {
         Utils.LogException(e);
-      }*/
+      }
 
       this.InitializeEvents();
       this.InitializeFeatModifiers();
@@ -38,6 +40,7 @@ namespace NWN.Systems
       NWScript.DelayCommand(600.0f, () => SaveServerVault());
 
       RestorePlayerCorpseFromDatabase();
+      RestoreDMPersistentPlaceableFromDatabase();
     }
     private void CreateDatabase()
     {
@@ -51,6 +54,12 @@ namespace NWN.Systems
       NWScript.SqlStep(query);
 
       query = NWScript.SqlPrepareQueryCampaign(ModuleSystem.database, "CREATE TABLE IF NOT EXISTS playerDeathCorpses('characterId' INTEGER NOT NULL, 'deathCorpse' TEXT NOT NULL, 'areaTag' TEXT NOT NULL, 'position' TEXT NOT NULL)");
+      NWScript.SqlStep(query);
+
+      query = NWScript.SqlPrepareQueryCampaign(ModuleSystem.database, $"CREATE TABLE IF NOT EXISTS loot_containers('chestTag' TEXT NOT NULL, 'accountID' INTEGER NOT NULL, 'serializedChest' TEXT NOT NULL, 'position' TEXT NOT NULL, 'facing' REAL NOT NULL, PRIMARY KEY(chestTag))");
+      NWScript.SqlStep(query);
+
+      query = NWScript.SqlPrepareQueryCampaign(ModuleSystem.database, $"CREATE TABLE IF NOT EXISTS dm_persistant_placeable('accountID' INTEGER NOT NULL, 'serializedPlaceable' TEXT NOT NULL, 'areaTag' TEXT NOT NULL, 'position' TEXT NOT NULL, 'facing' REAL NOT NULL)");
       NWScript.SqlStep(query);
     }
     private void InitializeEvents()
@@ -147,7 +156,9 @@ namespace NWN.Systems
       EventsPlugin.SubscribeEvent("NWNX_ON_INVENTORY_REMOVE_ITEM_AFTER", "event_pccorpse_remove_item_after");
       EventsPlugin.ToggleDispatchListMode("NWNX_ON_INVENTORY_REMOVE_ITEM_AFTER", "event_pccorpse_remove_item_after", 1);
 
-      EventsPlugin.SubscribeEvent("NWNX_ON_SERVER_SEND_AREA_AFTER", "event_on_area_enter");
+      EventsPlugin.SubscribeEvent("NWNX_ON_SERVER_SEND_AREA_AFTER", "event_after_area_enter");
+      EventsPlugin.SubscribeEvent("NWNX_ON_SERVER_SEND_AREA_BEFORE", "event_before_area_exit");
+      EventsPlugin.SubscribeEvent("NWNX_ON_CLIENT_DISCONNECT_BEFORE", "event_before_area_exit");
 
       EventsPlugin.SubscribeEvent("NWNX_ON_JOURNAL_OPEN_AFTER", "event_on_journal_open");
       EventsPlugin.SubscribeEvent("NWNX_ON_JOURNAL_CLOSE_AFTER", "event_on_journal_close");
@@ -181,6 +192,23 @@ namespace NWN.Systems
 
       while (Convert.ToBoolean(NWScript.SqlStep(query)))
         NWScript.SqlGetObject(query, 0, Utils.GetLocationFromDatabase(NWScript.SqlGetString(query, 1), NWScript.SqlGetVector(query, 2), 0));
+    }
+    public void RestoreDMPersistentPlaceableFromDatabase()
+    {
+      var query = NWScript.SqlPrepareQueryCampaign(ModuleSystem.database, $"SELECT serializedPlaceable, areaTag, position, facing FROM dm_persistant_placeable");
+
+      while (Convert.ToBoolean(NWScript.SqlStep(query)))
+        NWScript.SqlGetObject(query, 0, Utils.GetLocationFromDatabase(NWScript.SqlGetString(query, 1), NWScript.SqlGetVector(query, 2), NWScript.SqlGetFloat(query, 3)));
+    }
+    private void InitModuleChestSpawn()
+    {
+      var oArea = NWScript.GetFirstArea();
+
+      while (Convert.ToBoolean(NWScript.GetIsObjectValid(oArea)))
+      {
+        Module.areaDictionnary.Add(oArea, new Area(oArea));
+        oArea = NWScript.GetNextArea();
+      }
     }
     public string PreparingModuleForAsyncReboot()
     {

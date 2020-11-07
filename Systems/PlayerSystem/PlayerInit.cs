@@ -181,6 +181,7 @@ namespace NWN.Systems
       player.currentSkillJob = NWScript.SqlGetInt(query, 5);
       player.craftJob = new CraftJob(NWScript.SqlGetString(query, 6), NWScript.SqlGetString(query, 9), NWScript.SqlGetFloat(query, 8), player, NWScript.SqlGetString(query, 7));
       player.isFrostAttackOn = Convert.ToBoolean(NWScript.SqlGetInt(query, 10));
+      player.previousArea = NWScript.GetAreaFromLocation(player.location);
 
       if (player.isFrostAttackOn)
       {

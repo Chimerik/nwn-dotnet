@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Numerics;
 using NWN.Core;
 
 namespace NWN.Systems
@@ -21,14 +22,10 @@ namespace NWN.Systems
         ThrowException($"Invalid CHEST_AREA_TAG={CHEST_AREA_TAG}");
       }
 
-      var chestList = GetPlaceables(oArea);
+      var query = NWScript.SqlPrepareQueryCampaign(ModuleSystem.database, $"SELECT serializedChest, position, facing from {SQL_TABLE}");
 
-      CleanDatabase(chestList);
-
-      foreach (var oChest in chestList)
-      {
-        InitChest(oChest, oArea);
-      }
+      while(Convert.ToBoolean(NWScript.SqlStep(query)))
+        UpdateChestTagToLootsDic(NWScript.SqlGetObject(query, 0, Utils.GetLocationFromDatabase(CHEST_AREA_TAG, NWScript.SqlGetVector(query, 1), NWScript.SqlGetFloat(query, 2))));
     }
 
     private static int HandleContainerClose(uint oidSelf)
@@ -40,7 +37,6 @@ namespace NWN.Systems
 
     private static int HandleLoot(uint oidSelf)
     {
-      var oLooter = NWScript.GetLastKiller();
       var oContainer = oidSelf;
       var oArea = NWScript.GetArea(oContainer);
 
@@ -52,56 +48,10 @@ namespace NWN.Systems
         ThrowException($"Unregistered container tag=\"{containerTag}\"");
       }
 
-      var respawnDuration = lootableConfig.respawnDuration.GetValueOrDefault();
-
-      if (NWScript.GetIsObjectValid(oLooter) == 1)
-      {
-        // Creature was killed or chest was destroyed
-        if (lootableConfig.respawnDuration != null)
-        {
-          var type = NWScript.GetObjectType(oContainer);
-          var resref = NWScript.GetResRef(oContainer);
-          var location = NWScript.GetLocation(oContainer);
-
-          NWScript.AssignCommand(
-              oArea,
-              () => NWScript.DelayCommand(
-                  respawnDuration,
-                  () => NWScript.ActionDoCommand(
-                      () => NWScript.CreateObject(type, resref, location)
-                  )
-              )
-          );
-        }
-      }
-      else
-      {
-        // Chest was opened
-        oLooter = NWScript.GetLastOpenedBy();
-      }
-
-      if (NWScript.GetIsObjectValid(oLooter) != 1)
-      {
-        ThrowException($"Invalid Event for the script {ON_LOOT_SCRIPT}");
-      }
-
-      if (NWScript.GetLocalInt(oContainer, IS_LOOTED_VARNAME) == 1)
-      {
-        // Prevents looting from opening chest multiple times, and then looting again by destroying it.
-        return 0;
-      }
-
       Utils.DestroyInventory(oContainer);
       NWScript.AssignCommand(oArea, () => NWScript.DelayCommand(
           0.1f,
           () => lootableConfig.GenerateLoot(oContainer)
-      ));
-
-      NWScript.SetLocalInt(oContainer, IS_LOOTED_VARNAME, 1);
-      // Remove flag for next loot
-      NWScript.AssignCommand(oArea, () => NWScript.DelayCommand(
-          respawnDuration,
-          () => NWScript.SetLocalInt(oContainer, IS_LOOTED_VARNAME, 0)
       ));
 
       return 0;
