@@ -4,6 +4,7 @@ using System.Linq;
 using Dapper;
 using NWN.Core;
 using NWN.Core.NWNX;
+using static NWN.Systems.PlayerSystem;
 
 namespace NWN.Systems
 {
@@ -11,7 +12,7 @@ namespace NWN.Systems
   {
     private static Dictionary<string, List<uint>> chestTagToLootsDic = new Dictionary<string, List<uint>> { };
 
-    private static void CleanDatabase(List<uint> chestList)
+    /*private static void CleanDatabase(List<uint> chestList)
     {
       var sql = $"SELECT tag from {SQL_TABLE}";
       var chestTags = chestList.Select(chest => NWScript.GetTag(chest));
@@ -30,25 +31,26 @@ namespace NWN.Systems
           }
         }
       }
-    }
+    }*/
 
     private static void UpdateDB(uint oChest)
     {
-      var tag = NWScript.GetTag(oChest);
-      var sql = $"INSERT INTO {SQL_TABLE} (tag, serialized)" +
-              " VALUES (@tag, @serialized)" +
-              " ON DUPLICATE KEY UPDATE serialized=@serialized;";
-
-      using (var connection = MySQL.GetConnection())
+      Player oPC;
+      if (Players.TryGetValue(NWScript.GetLastClosedBy(), out oPC))
       {
-        connection.Execute(sql, new
-        {
-          tag = tag,
-          serialized = ObjectPlugin.Serialize(oChest)
-        });
+        var query = NWScript.SqlPrepareQueryCampaign(ModuleSystem.database, $"INSERT INTO {SQL_TABLE}(chestTag, accountId, serializedChest, position, facing)" +
+      " VALUES(@chestTag, @accountId, @serializedChest, @position, @facing)" +
+      " ON CONFLICT(chestTag) DO UPDATE SET serializedChest = @serializedChest, position = @position, facing = @facing;");
+        NWScript.SqlBindString(query, "@chestTag", NWScript.GetTag(oChest));
+        NWScript.SqlBindInt(query, "@accountId", oPC.accountId);
+        NWScript.SqlBindObject(query, "@serializedChest", oChest);
+        NWScript.SqlBindVector(query, "@position", NWScript.GetPosition(oChest));
+        NWScript.SqlBindFloat(query, "@facing", NWScript.GetFacing(oChest));
+        NWScript.SqlStep(query);
       }
-    }
 
+    }
+    /*
     private static void InitChest(uint oChest, uint oArea)
     {
       var chestTag = NWScript.GetTag(oChest);
@@ -77,7 +79,7 @@ namespace NWN.Systems
 
       UpdateChestTagToLootsDic(oChest);
     }
-
+    */
     private static List<uint> GetPlaceables(uint oArea)
     {
       var oPlaceable = NWScript.GetFirstObjectInArea(oArea);

@@ -4,6 +4,7 @@ using NWN.Core;
 using NWN.Core.NWNX;
 using NWN.Systems;
 using static NWN.Systems.Blueprint;
+using static NWN.Systems.PlayerSystem;
 
 namespace NWN.Systems
 {
@@ -15,6 +16,7 @@ namespace NWN.Systems
             { "test_block", HandleBlockTesterActivate },
             { "skillbook", HandleSkillBookActivate },
             { "blueprint", HandleBlueprintActivate },
+            { "loot_saver", HandleLootSaverActivate },
     };
 
     private static int HandleMenuTesterActivate(uint oItem, uint oActivator, uint oTarget)
@@ -31,6 +33,35 @@ namespace NWN.Systems
       {
         player.BoulderBlock();
       }
+
+      return 0;
+    }
+    private static int HandleLootSaverActivate(uint oItem, uint oActivator, uint oTarget)
+    {
+      if (Convert.ToBoolean(NWScript.GetIsDM(oActivator))
+        && NWScript.GetTag(NWScript.GetArea(oActivator)) == LootSystem.CHEST_AREA_TAG
+        && NWScript.GetObjectType(oTarget) == NWScript.OBJECT_TYPE_PLACEABLE 
+        && Convert.ToBoolean(NWScript.GetHasInventory(oTarget)))
+      {
+        Player oPC;
+        if (Players.TryGetValue(oActivator, out oPC))
+        {
+          NWScript.SetEventScript(oTarget, NWScript.EVENT_SCRIPT_PLACEABLE_ON_CLOSED, LootSystem.LOOT_CONTAINER_ON_CLOSE_SCRIPT);
+
+          var query = NWScript.SqlPrepareQueryCampaign(ModuleSystem.database, "INSERT INTO loot_containers(chestTag, accountID, serializedPlaceable, position, facing)" +
+          " VALUES(@chestTag, @accountId, @serializedPlaceable, @position, @facing)");
+          NWScript.SqlBindString(query, "@chestTag", NWScript.GetTag(oTarget));
+          NWScript.SqlBindInt(query, "@accountId", oPC.accountId);
+          NWScript.SqlBindObject(query, "@serializedPlaceable", oTarget);
+          NWScript.SqlBindVector(query, "@position", NWScript.GetPosition(oTarget));
+          NWScript.SqlBindFloat(query, "@facing", NWScript.GetFacing(oTarget));
+          NWScript.SqlStep(query);
+        }
+      }
+      else
+        NWScript.SendMessageToPC(oActivator, "Cet objet ne peut être utilisé que par un dm, dans la zone de configuration des loots, sur un coffre disposant d'un inventaire.");
+
+      Utils.LogMessageToDMs($"Loot Saver - Utilisation par {NWScript.GetName(oActivator)} ({NWScript.GetPCPlayerName(oActivator)}) dans la zone {NWScript.GetName(NWScript.GetArea(oActivator))} sur {NWScript.GetName(oTarget)}");
 
       return 0;
     }

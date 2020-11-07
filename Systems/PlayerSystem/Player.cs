@@ -26,6 +26,7 @@ namespace NWN.Systems
       public CraftJob craftJob { get; set; }
       public uint autoAttackTarget { get; set; }
       public Boolean isFrostAttackOn { get; set; }
+      public uint previousArea { get; set; }
       public DateTime lycanCurseTimer { get; set; }
       public Feat activeLanguage { get; set; }
       public Menu menu { get; }
