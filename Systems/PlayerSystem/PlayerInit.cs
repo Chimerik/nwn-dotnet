@@ -131,6 +131,10 @@ namespace NWN.Systems
       NWScript.SqlStep(query);
       
       ObjectPlugin.SetInt(newCharacter.oid, "characterId", NWScript.SqlGetInt(query, 0), 1);
+
+      query = NWScript.SqlPrepareQueryCampaign(ModuleSystem.database, $"INSERT INTO playerMaterialStorage (characterId) VALUES (@characterId)");
+      NWScript.SqlBindInt(query, "@characterId", ObjectPlugin.GetInt(newCharacter.oid, "characterId"));
+      NWScript.SqlStep(query);
     }
     private static void InitializeDM(Player player)
     {
@@ -183,6 +187,20 @@ namespace NWN.Systems
       player.craftJob = new CraftJob(NWScript.SqlGetString(query, 7), NWScript.SqlGetString(query, 10), NWScript.SqlGetFloat(query, 9), player, NWScript.SqlGetString(query, 8));
       player.isFrostAttackOn = Convert.ToBoolean(NWScript.SqlGetInt(query, 11));
       player.previousArea = NWScript.GetAreaFromLocation(player.location);
+
+      query = NWScript.SqlPrepareQueryCampaign(ModuleSystem.database, $"SELECT Veldspar, Scordite, Pyroxeres, Tritanium, Pyerite, Mexallon, Noxcium from playerMaterialStorage where characterId = @characterId");
+      NWScript.SqlBindInt(query, "@characterId", player.characterId);
+
+      if (Convert.ToBoolean(NWScript.SqlStep(query)))
+      {
+        player.materialStock.Add("Veldspar", NWScript.SqlGetInt(query, 0));
+        player.materialStock.Add("Scordite", NWScript.SqlGetInt(query, 1));
+        player.materialStock.Add("Pyroxeres", NWScript.SqlGetInt(query, 2));
+        player.materialStock.Add("Tritanium", NWScript.SqlGetInt(query, 3));
+        player.materialStock.Add("Pyerite", NWScript.SqlGetInt(query, 4));
+        player.materialStock.Add("Mexallon", NWScript.SqlGetInt(query, 5));
+        player.materialStock.Add("Noxcium", NWScript.SqlGetInt(query, 6));
+      }
 
       if (player.isFrostAttackOn)
       {

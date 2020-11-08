@@ -85,5 +85,22 @@ namespace NWN.Systems
         NWScript.AddItemProperty(NWScript.DURATION_TYPE_PERMANENT, ip, craftedItem);
       }
     }
+    public static Boolean IsItemCraftMaterial(string itemTag)
+    {
+      if (GetOreTypeFromName(itemTag) != OreType.Invalid || GetMineralTypeFromName(itemTag) != MineralType.Invalid)
+        return true;
+
+      return false;
+    }
+    public static string GetCraftMaterialItemTemplate(string itemTag)
+    {
+      if (GetOreTypeFromName(itemTag) != OreType.Invalid)
+        return "ore";
+      else if (GetMineralTypeFromName(itemTag) != MineralType.Invalid)
+        return "mineral";
+
+      Utils.LogMessageToDMs($"Could not determiner item template for tag : {itemTag}");
+      return "";
+    }
   }
 }

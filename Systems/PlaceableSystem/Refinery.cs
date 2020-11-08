@@ -88,7 +88,6 @@ namespace NWN.Systems
                 {
                   var mineral = NWScript.CreateItemOnObject("mineral", player.oid, (int)((NWScript.GetItemStackSize(ore) * mineralKeyValuePair.Value * (int)reprocessingEfficiency)));
                   NWScript.SetName(mineral, CollectSystem.GetNameFromMineralType(mineralKeyValuePair.Key));
-                  NWScript.SetLocalInt(mineral, "DROPS_ON_DEATH", 1);
                 }
 
                 NWScript.DestroyObject(ore);

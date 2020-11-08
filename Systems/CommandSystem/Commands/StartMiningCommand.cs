@@ -73,9 +73,8 @@ namespace NWN.Systems
                       }
 
                       NWScript.SendMessageToPC(player.oid, $"Mining yield = {miningYield}");
-                      var ore = NWScript.CreateItemOnObject("ore", player.oid, miningYield);
+                      var ore = NWScript.CreateItemOnObject("ore", player.oid, miningYield, NWScript.GetName(oPlaceable));
                       NWScript.SetName(ore, NWScript.GetName(oPlaceable));
-                      NWScript.SetLocalInt(ore, "DROPS_ON_DEATH", 1);
 
                       int stripperDurability = NWScript.GetLocalInt(miningStriper, "_DURABILITY");
                       if (stripperDurability <= 1)
