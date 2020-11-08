@@ -117,16 +117,22 @@ namespace NWN.Systems
       {
         var FeatBook = oItem;
         int FeatId = NWScript.GetLocalInt(FeatBook, "_SKILL_ID");
+
         if (CreaturePlugin.GetHighestLevelOfFeat(player.oid, FeatId) == (int)Feat.Invalid) 
         {
-          SkillBook.pipeline.Execute(new SkillBook.Context(
-          oItem: FeatBook,
-          oActivator: player,
-          SkillId: FeatId
-        ));
+          if (!player.learnableSkills.ContainsKey(FeatId))
+          {
+            SkillBook.pipeline.Execute(new SkillBook.Context(
+              oItem: FeatBook,
+              oActivator: player,
+              SkillId: FeatId
+            ));
+          }
+          else
+            NWScript.SendMessageToPC(player.oid, "Cette capacité se trouve déjà dans votre liste d'apprentissage.");
         }
         else
-          NWScript.SendMessageToPC(player.oid, "Vous connaissez déjà les bases d'entrainement de cette capacité");
+          NWScript.SendMessageToPC(player.oid, "Vous connaissez déjà les bases d'entrainement de cette capacité.");
       }
 
       return 0;

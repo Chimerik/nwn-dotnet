@@ -53,7 +53,6 @@ namespace NWN.Systems
             { "pc_unacquire_it", HandlePCUnacquireItem },
             { "event_on_journal_open", HandlePCJournalOpen },
             { "event_on_journal_close", HandlePCJournalClose },
-            {"diag_root", HandleDialogStart },
         };
     
     public static Dictionary<uint, Player> Players = new Dictionary<uint, Player>();

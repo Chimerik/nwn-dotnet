@@ -3,6 +3,7 @@ using NWN.Core;
 using NWN.Core.NWNX;
 using System.Linq;
 using System;
+using System.Security.Cryptography;
 
 namespace NWN.Systems
 {
@@ -76,12 +77,7 @@ namespace NWN.Systems
         if(CurrentSkill == null)
           CurrentSkill = player.removeableMalus[player.currentSkillJob];
 
-
-        if (CurrentSkill.GetTimeToNextLevel(player, player.CalculateSkillPointsPerSecond(CurrentSkill)) < 600) // TODO : Pour l'instant, j'interdis la pause et le changement si le skill est censé se terminer dans le prochain intervalle. Mais y a ptet mieux à faire
-        {
-          NWScript.SendMessageToPC(player.oid, $"L'entrainement de {CurrentSkill.name} est sur le point de se terminer. Impossible de changer d'entrainement ou de le mettre en pause pour le moment.");
-        }
-        else if (SelectedSkill.currentJob) // Job en cours sélectionné => mise en pause
+        if (SelectedSkill.currentJob) // Job en cours sélectionné => mise en pause
         {
           SelectedSkill.currentJob = false;
           player.currentSkillJob = (int)Feat.Invalid;

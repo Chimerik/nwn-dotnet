@@ -146,21 +146,54 @@ namespace NWN.Systems
     private static Boolean CheckPlayerRequiredStat(string Stat, int SkillId, PlayerSystem.Player player)
     {
       int value;
-      if (int.TryParse(NWScript.Get2DAString("feat", Stat, SkillId), out value))
-        if (value < NWScript.GetBaseAttackBonus(player.oid))
-          return true;
 
-      return false;
+      if (int.TryParse(NWScript.Get2DAString("feat", Stat, SkillId), out value))
+      {
+        switch(Stat)
+        {
+          case "MINATTACKBONUS":
+            if (value > NWScript.GetBaseAttackBonus(player.oid))
+              return false;
+            break;
+          case "MINSTR":
+            if (value > NWScript.GetAbilityScore(player.oid, NWScript.ABILITY_STRENGTH))
+              return false;
+            break;
+          case "MINCON":
+            if (value > NWScript.GetAbilityScore(player.oid, NWScript.ABILITY_CONSTITUTION))
+              return false;
+            break;
+          case "MINDEX":
+            if (value > NWScript.GetAbilityScore(player.oid, NWScript.ABILITY_DEXTERITY))
+              return false;
+            break;
+          case "MININT":
+            if (value > NWScript.GetAbilityScore(player.oid, NWScript.ABILITY_INTELLIGENCE))
+              return false;
+            break;
+          case "MINWIS":
+            if (value > NWScript.GetAbilityScore(player.oid, NWScript.ABILITY_WISDOM))
+              return false;
+            break;
+          case "MINCHA":
+            if (value > NWScript.GetAbilityScore(player.oid, NWScript.ABILITY_CHARISMA))
+              return false;
+            break;
+        }
+        
+      }
+
+      return true;
     }
 
     private static (Boolean success, int featId) CheckPlayerRequiredFeat(string Feat, int SkillId, PlayerSystem.Player player)
     {
       int value;
       if (int.TryParse(NWScript.Get2DAString("feat", Feat, SkillId), out value))
-        if (CreaturePlugin.GetKnowsFeat(player.oid, value) == 1)
-          return (true, value);
+        if (!Convert.ToBoolean(CreaturePlugin.GetKnowsFeat(player.oid, value)))
+          return (false, value);
 
-      return (false, value);
+      return (true, value);
     }
 
     private static (Boolean success, int skillId) CheckPlayerRequiredSkill(string Skill, string SkillRank, int SkillId, PlayerSystem.Player player)
@@ -169,10 +202,10 @@ namespace NWN.Systems
       int SkillValueRequirement;
       if (int.TryParse(NWScript.Get2DAString("feat", Skill, SkillId), out value))
         if (int.TryParse(NWScript.Get2DAString("feat", SkillRank, SkillId), out SkillValueRequirement))
-          if (SkillValueRequirement < NWScript.GetSkillRank(value, player.oid))
-            return (true, value);
+          if (SkillValueRequirement > NWScript.GetSkillRank(value, player.oid))
+            return (false, value);
 
-      return (false, value);
+      return (true, value);
     }
   }
 }

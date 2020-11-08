@@ -80,12 +80,6 @@ namespace NWN.Systems
         }
       }
 
-      if (this.remainingTime < 600.0f)
-      {
-        NWScript.SendMessageToPC(player, $"Un job est déjà en cours. Impossible d'annuler un travail en cours si près de la fin !");
-        return false;
-      }
-
       if (this.isActive && !this.isCancelled)
       {
         this.AskCancellationConfirmation(player);

@@ -27,14 +27,15 @@ namespace NWN.Systems
       public readonly int primaryAbility;
       public readonly int secondaryAbility;
 
-      public Skill(int Id, float SP, Player player)
+      public Skill(int Id, float SP, Player player, Boolean loadedFromDB = false)
       {
         this.oid = Id;
         this.player = player;
         this.acquiredPoints = SP;
         this.trained = false;
-        int value;
+        this.databaseSaved = loadedFromDB;
 
+        int value;
         if (int.TryParse(NWScript.Get2DAString("feat", "FEAT", Id), out value))
           this.name = NWScript.GetStringByStrRef(value);
         else
@@ -108,17 +109,19 @@ namespace NWN.Systems
           this.CreateSkillJournalEntry();
         }
       }
-      public double GetTimeToNextLevel(Player oPC, float pointPerSecond)
+      public double GetTimeToNextLevel(float pointPerSecond)
       {
         float RemainingPoints = this.pointsToNextLevel - this.acquiredPoints;
         return RemainingPoints / pointPerSecond;
       }
       public void CreateSkillJournalEntry()
       {
-        player.playerJournal.skillJobCountDown = DateTime.Now.AddSeconds(this.GetTimeToNextLevel(player, player.CalculateSkillPointsPerSecond(this)));
+        player.playerJournal.skillJobCountDown = DateTime.Now.AddSeconds(this.GetTimeToNextLevel(player.CalculateSkillPointsPerSecond(this)));
         JournalEntry journalEntry = new JournalEntry();
         journalEntry.sName = $"Entrainement - {Utils.StripTimeSpanMilliseconds((TimeSpan)(player.playerJournal.skillJobCountDown - DateTime.Now))}";
-        journalEntry.sText = $"Entrainement en cours : {this.name}";
+        journalEntry.sText = $"Entrainement en cours :\n\n " +
+          $"{this.name}\n\n" +
+          $"{this.description}";
         journalEntry.sTag = "skill_job";
         journalEntry.nPriority = 1;
         journalEntry.nQuestDisplayed = 1;

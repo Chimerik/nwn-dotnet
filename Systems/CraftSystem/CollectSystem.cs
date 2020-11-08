@@ -99,7 +99,7 @@ namespace NWN.Systems
       else if (GetMineralTypeFromName(itemTag) != MineralType.Invalid)
         return "mineral";
 
-      Utils.LogMessageToDMs($"Could not determiner item template for tag : {itemTag}");
+      Utils.LogMessageToDMs($"Could not find item template for tag : {itemTag}");
       return "";
     }
   }

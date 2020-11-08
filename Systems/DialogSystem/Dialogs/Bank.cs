@@ -83,7 +83,7 @@ namespace NWN.Systems
 
       if (player.bankGold == 1)
       {
-        player.menu.title = $"Quoi ? Vous me casser les roubignoles pour une pièce ? Du balai, mendiant.";
+        player.menu.title = $"Quoi ? Tu me casses les roubignoles pour une pièce ? Du balai, mendiant.";
         player.menu.choices.Add(($"Retour.", () => DrawWelcomePage(player)));
       }
       else
