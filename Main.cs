@@ -30,6 +30,7 @@ namespace NWN
         {
           Console.WriteLine($"script : {scriptName}");
           DateTime time = DateTime.Now;
+          Module.currentScript = scriptName;
           scriptHandleResult = handler.Invoke(objectSelf);
           Console.WriteLine($"execution time : {(DateTime.Now - time).TotalSeconds}");
         }

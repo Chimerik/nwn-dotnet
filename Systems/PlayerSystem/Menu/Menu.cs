@@ -43,7 +43,7 @@ namespace NWN.Systems
       private const int arrowID = 8499;
 
       private int selectedChoiceID = 0;
-      private bool isOpen = false;
+      public bool isOpen = false;
 
       public Menu(Player player)
       {
@@ -104,7 +104,7 @@ namespace NWN.Systems
       {
         foreach (var (X, Y, ID) in drawnLines)
         {
-          NWScript.PostString(player.oid, "", X, Y, ID, 0.000001f);
+          NWScript.PostString(player.oid, "", X, Y, 0, 0.000001f, 0, 0, ID);
         }
         drawnLines.Clear();
       }

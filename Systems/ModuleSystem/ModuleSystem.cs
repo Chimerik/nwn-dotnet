@@ -27,6 +27,7 @@ namespace NWN.Systems
      .Concat(Systems.ItemSystem.Register)
      .Concat(PlaceableSystem.Register)
      .Concat(Systems.CollectSystem.Register)
+     .Concat(Systems.DialogSystem.Register)
      .ToDictionary(kvp => kvp.Key, kvp => kvp.Value);
 
     public static string database = Environment.GetEnvironmentVariable("DN_NAME");
