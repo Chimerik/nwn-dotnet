@@ -20,6 +20,7 @@ namespace NWN.Systems
       public Boolean isAFK { get; set; }
       public Boolean DoJournalUpdate { get; set; }
       public int currentHP { get; set; }
+      public int bankGold { get; set; }
       public PlayerJournal playerJournal { get; set; }
       public DateTime dateLastSaved { get; set; }
       public int currentSkillJob { get; set; }
@@ -34,6 +35,7 @@ namespace NWN.Systems
       private uint blockingBoulder;
       public string disguiseName { get; set; }
       public uint deathCorpse { get; set; }
+      public int setValue { get; set; }
 
       private List<uint> _selectedObjectsList = new List<uint>();
       public List<uint> selectedObjectsList

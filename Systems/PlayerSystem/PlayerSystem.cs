@@ -53,6 +53,7 @@ namespace NWN.Systems
             { "pc_unacquire_it", HandlePCUnacquireItem },
             { "event_on_journal_open", HandlePCJournalOpen },
             { "event_on_journal_close", HandlePCJournalClose },
+            {"diag_root", HandleDialogStart },
         };
     
     public static Dictionary<uint, Player> Players = new Dictionary<uint, Player>();
@@ -69,6 +70,7 @@ namespace NWN.Systems
     private static int HandlePlayerKeystroke(uint oidSelf)
     {
       var key = EventsPlugin.GetEventData("KEY");
+      NWScript.SendMessageToPC(NWScript.GetFirstPC(), $"KEY PRESSED : {key}");
       Player player;
       if (Players.TryGetValue(oidSelf, out player))
       {
@@ -894,6 +896,9 @@ namespace NWN.Systems
             player.craftJob.CancelCraftJournalEntry();
 
           player.previousArea = oArea;
+
+          if(player.menu.isOpen)
+            player.menu.Close();
         }
       }
 
@@ -937,6 +942,62 @@ namespace NWN.Systems
       }
 
       return 0;
+    }
+    private static int HandleDialogStart(uint oidSelf)
+    {
+      /*Player player;
+      if (Players.TryGetValue(NWScript.GetLastSpeaker(), out player))
+      {
+        DialogPlugin.SetCurrentNodeText("Hello, mon beau gloubi ! ");
+      }*/
+
+      switch (DialogPlugin.GetCurrentNodeType())
+      {
+        case DialogPlugin.NWNX_DIALOG_NODE_TYPE_STARTING_NODE: // INTRO DU DIALOGUE
+          DialogPlugin.SetCurrentNodeText("Bienvenue chez TRUANT & TRUAN associés ! "); 
+          break;
+        case DialogPlugin.NWNX_DIALOG_NODE_TYPE_ENTRY_NODE: // PNJ QUI PARLE, HORS INTRO
+          DialogPlugin.SetCurrentNodeText("Ceci est une entry node ! "); 
+          break;
+        case DialogPlugin.NWNX_DIALOG_NODE_TYPE_REPLY_NODE: // REPONSE PJ
+          DialogPlugin.SetCurrentNodeText("Ceci est une REPLY node ! ");
+          break;
+      }
+
+      /*string sMessage = "NWNX_Dialog debug:";
+      int id = DialogPlugin.GetCurrentNodeID();
+      sMessage = $"\nNode ID = {id}";
+
+      int type = DialogPlugin.GetCurrentNodeType();
+      sMessage += $"\nCurrent node type = {type} (";
+      switch (type)
+      {
+        case DialogPlugin.NWNX_DIALOG_NODE_TYPE_INVALID: sMessage += "INVALID)"; break;
+        case DialogPlugin.NWNX_DIALOG_NODE_TYPE_STARTING_NODE: sMessage += "STARTING_NODE)"; break;
+        case DialogPlugin.NWNX_DIALOG_NODE_TYPE_ENTRY_NODE: sMessage += "ENTRY_NODE)"; break;
+        case DialogPlugin.NWNX_DIALOG_NODE_TYPE_REPLY_NODE: sMessage += "REPLY_NODE)"; break;
+      }
+
+      int scripttype = DialogPlugin.GetCurrentScriptType();
+      sMessage += $"\nScript type = {scripttype} (";
+      switch (scripttype)
+      {
+        case DialogPlugin.NWNX_DIALOG_SCRIPT_TYPE_OTHER: sMessage += "OTHER)"; break;
+        case DialogPlugin.NWNX_DIALOG_SCRIPT_TYPE_STARTING_CONDITIONAL: sMessage += "STARTING_CONDITIONAL)"; break;
+        case DialogPlugin.NWNX_DIALOG_SCRIPT_TYPE_ACTION_TAKEN: sMessage += "ACTION_TAKEN)"; break;
+      }
+
+      int index = DialogPlugin.GetCurrentNodeIndex();
+      sMessage += $"\nNode index = {index}";
+
+      string text = DialogPlugin.GetCurrentNodeText();
+      sMessage += $"\nText = '{text}'";
+
+      DialogPlugin.SetCurrentNodeText(text + " [ADDED]");
+
+      NWScript.SendMessageToPC(NWScript.GetFirstPC(), sMessage);
+      */
+      return 1;
     }
   }
 }

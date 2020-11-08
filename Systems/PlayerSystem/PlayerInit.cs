@@ -171,16 +171,17 @@ namespace NWN.Systems
     }
     private static void InitializePlayerCharacter(Player player)
     {
-      var query = NWScript.SqlPrepareQueryCampaign(ModuleSystem.database, $"SELECT areaTag, position, facing, currentHP, dateLastSaved, currentSkillJob, currentCraftJob, currentCraftObject, currentCraftJobRemainingTime, currentCraftJobMaterial, frostAttackOn from playerCharacters where rowid = @characterId");
+      var query = NWScript.SqlPrepareQueryCampaign(ModuleSystem.database, $"SELECT areaTag, position, facing, currentHP, bankGold, dateLastSaved, currentSkillJob, currentCraftJob, currentCraftObject, currentCraftJobRemainingTime, currentCraftJobMaterial, frostAttackOn from playerCharacters where rowid = @characterId");
       NWScript.SqlBindInt(query, "@characterId", player.characterId);
       NWScript.SqlStep(query);
 
       player.location = Utils.GetLocationFromDatabase(NWScript.SqlGetString(query, 0), NWScript.SqlGetVector(query, 1), NWScript.SqlGetFloat(query, 2));
       player.currentHP = NWScript.SqlGetInt(query, 3);
-      player.dateLastSaved = DateTime.Parse(NWScript.SqlGetString(query, 4));
-      player.currentSkillJob = NWScript.SqlGetInt(query, 5);
-      player.craftJob = new CraftJob(NWScript.SqlGetString(query, 6), NWScript.SqlGetString(query, 9), NWScript.SqlGetFloat(query, 8), player, NWScript.SqlGetString(query, 7));
-      player.isFrostAttackOn = Convert.ToBoolean(NWScript.SqlGetInt(query, 10));
+      player.bankGold = NWScript.SqlGetInt(query, 4);
+      player.dateLastSaved = DateTime.Parse(NWScript.SqlGetString(query, 5));
+      player.currentSkillJob = NWScript.SqlGetInt(query, 6);
+      player.craftJob = new CraftJob(NWScript.SqlGetString(query, 7), NWScript.SqlGetString(query, 10), NWScript.SqlGetFloat(query, 9), player, NWScript.SqlGetString(query, 8));
+      player.isFrostAttackOn = Convert.ToBoolean(NWScript.SqlGetInt(query, 11));
       player.previousArea = NWScript.GetAreaFromLocation(player.location);
 
       if (player.isFrostAttackOn)
@@ -199,7 +200,7 @@ namespace NWN.Systems
       player.isConnected = true;
       player.isAFK = true;
       player.DoJournalUpdate = false;
-
+      
       player.playerJournal = new PlayerJournal();
     }
     private static void InitializePlayerLearnableSkills(Player player)

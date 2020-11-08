@@ -10,6 +10,7 @@ namespace NWN.Systems
     public uint oid { get; }
     public List<string> botAsyncCommandList { get; set; }
     public static Dictionary<uint, Area> areaDictionnary = new Dictionary<uint, Area>();
+    public static string currentScript = "";
     public Module(uint oid)
     {
       this.oid = oid;
@@ -47,7 +48,7 @@ namespace NWN.Systems
       var query = NWScript.SqlPrepareQueryCampaign(ModuleSystem.database, "CREATE TABLE IF NOT EXISTS PlayerAccounts('accountName' TEXT NOT NULL, 'bonusRolePlay' INTEGER NOT NULL)");
       NWScript.SqlStep(query);
 
-      query = NWScript.SqlPrepareQueryCampaign(ModuleSystem.database, "CREATE TABLE IF NOT EXISTS playerCharacters('accountId' INTEGER NOT NULL, 'characterName' TEXT NOT NULL, 'dateLastSaved' TEXT NOT NULL, 'currentSkillJob' INTEGER NOT NULL, 'currentCraftJobRemainingTime' REAL, 'currentCraftJob' TEXT NOT NULL, 'currentCraftObject' TEXT NOT NULL, currentCraftJobMaterial TEXT, 'frostAttackOn' INTEGER NOT NULL, areaTag TEXT, position TEXT, facing REAL, currentHP INTEGER)");
+      query = NWScript.SqlPrepareQueryCampaign(ModuleSystem.database, "CREATE TABLE IF NOT EXISTS playerCharacters('accountId' INTEGER NOT NULL, 'characterName' TEXT NOT NULL, 'dateLastSaved' TEXT NOT NULL, 'currentSkillJob' INTEGER NOT NULL, 'currentCraftJobRemainingTime' REAL, 'currentCraftJob' TEXT NOT NULL, 'currentCraftObject' TEXT NOT NULL, currentCraftJobMaterial TEXT, 'frostAttackOn' INTEGER NOT NULL, areaTag TEXT, position TEXT, facing REAL, currentHP INTEGER, bankGold INTEGER)");
       NWScript.SqlStep(query);
 
       query = NWScript.SqlPrepareQueryCampaign(ModuleSystem.database, "CREATE TABLE IF NOT EXISTS playerLearnableSkills('characterId' INTEGER NOT NULL, 'skillId' INTEGER NOT NULL, 'skillPoints' INTEGER NOT NULL, 'trained' INTEGER)");
@@ -74,8 +75,8 @@ namespace NWN.Systems
       EventsPlugin.SubscribeEvent("NWNX_ON_REMOVE_ASSOCIATE_AFTER", "summon_remove_after");
       EventsPlugin.ToggleDispatchListMode("NWNX_ON_REMOVE_ASSOCIATE_AFTER", "summon_remove_after", 1);
 
-      EventsPlugin.SubscribeEvent("NWNX.ON_INPUT_KEYBOARD_BEFORE", PlayerSystem.ON_PC_KEYSTROKE_SCRIPT);
-      EventsPlugin.ToggleDispatchListMode("NWNX.ON_INPUT_KEYBOARD_BEFORE", PlayerSystem.ON_PC_KEYSTROKE_SCRIPT, 1);
+      EventsPlugin.SubscribeEvent("NWNX_ON_INPUT_KEYBOARD_BEFORE", PlayerSystem.ON_PC_KEYSTROKE_SCRIPT);
+      EventsPlugin.ToggleDispatchListMode("NWNX_ON_INPUT_KEYBOARD_BEFORE", PlayerSystem.ON_PC_KEYSTROKE_SCRIPT, 1);
 
       EventsPlugin.SubscribeEvent("NWNX_ON_INPUT_KEYBOARD_AFTER", "event_mv_plc");
       EventsPlugin.ToggleDispatchListMode("NWNX_ON_INPUT_KEYBOARD_AFTER", "event_mv_plc", 1);

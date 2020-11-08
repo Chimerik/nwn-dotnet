@@ -15,11 +15,9 @@ namespace NWN.Systems
       PlayerSystem.Player player;
       if (PlayerSystem.Players.TryGetValue(ctx.oSender, out player))
       {
-        NWScript.SetLocalInt(player.oid, "_MENU_SKILL_REFRESH", 1);
         __DrawSkillPage(player);
       }
     }
-
     private static void __DrawSkillPage(PlayerSystem.Player player)
     {
       player.menu.Clear();
@@ -109,7 +107,6 @@ namespace NWN.Systems
     }
     private static void __HandleClose(PlayerSystem.Player player)
     {
-      NWScript.DeleteLocalInt(player.oid, "_MENU_SKILL_REFRESH");
       player.menu.Close();
     }
   }
