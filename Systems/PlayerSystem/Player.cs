@@ -164,10 +164,6 @@ namespace NWN.Systems
         {
           this.AcquireCraftedItem();
         }
-        else if (RemainingTime < 600)
-        {
-          NWScript.AssignCommand(oid, () => NWScript.DelayCommand((float)RemainingTime, () => AcquireCraftedItem()));
-        }
       }
 
       public void AcquireCraftedItem()
@@ -206,16 +202,12 @@ namespace NWN.Systems
         if (this.learnableSkills.TryGetValue(this.currentSkillJob, out skill))
         {
           float skillPointRate = this.CalculateSkillPointsPerSecond(skill);
-          skill.acquiredPoints += skillPointRate * (float)(DateTime.Now - this.dateLastSaved).TotalSeconds; ;
-          double RemainingTime = skill.GetTimeToNextLevel(this, skillPointRate);
+          skill.acquiredPoints += skillPointRate * (float)(DateTime.Now - this.dateLastSaved).TotalSeconds;
+          double RemainingTime = skill.GetTimeToNextLevel(skillPointRate);
 
-          if (RemainingTime < 0)
+          if (RemainingTime <= 0)
           {
             this.LevelUpSkill(skill);
-          }
-          else if (RemainingTime < 600)
-          {
-            NWScript.AssignCommand(oid, () => NWScript.DelayCommand((float)RemainingTime, () => LevelUpSkill(skill)));
           }
         }
         else
@@ -224,15 +216,11 @@ namespace NWN.Systems
           {
             float skillPointRate = this.CalculateSkillPointsPerSecond(skill);
             skill.acquiredPoints += skillPointRate * (float)(DateTime.Now - this.dateLastSaved).TotalSeconds; ;
-            double RemainingTime = skill.GetTimeToNextLevel(this, skillPointRate);
+            double RemainingTime = skill.GetTimeToNextLevel(skillPointRate);
 
             if (RemainingTime < 0)
             {
               this.RemoveMalus(skill);
-            }
-            else if (RemainingTime < 600)
-            {
-              NWScript.AssignCommand(oid, () => NWScript.DelayCommand((float)RemainingTime, () => RemoveMalus(skill)));
             }
           }
         }
@@ -243,7 +231,13 @@ namespace NWN.Systems
         if (this.learnableSkills.TryGetValue(skillId, out skill))
         {
           float skillPointRate = this.CalculateSkillPointsPerSecond(skill);
-          this.playerJournal.skillJobCountDown = DateTime.Now.AddSeconds(skill.GetTimeToNextLevel(this, skillPointRate));
+          skill.acquiredPoints += skillPointRate * (float)(DateTime.Now - this.dateLastSaved).TotalSeconds;
+          this.dateLastSaved = DateTime.Now;
+          double remainingTime = skill.GetTimeToNextLevel(skillPointRate);
+          this.playerJournal.skillJobCountDown = DateTime.Now.AddSeconds(remainingTime);
+
+          if (remainingTime <= 0)
+            this.LevelUpSkill(skill);
         }
       }
       public float CalculateSkillPointsPerSecond(SkillSystem.Skill skill)
@@ -278,7 +272,7 @@ namespace NWN.Systems
         if (!Convert.ToBoolean(CreaturePlugin.GetKnowsFeat(oid, skill.oid)))
         {
           CreaturePlugin.AddFeat(oid, skill.oid);
-          NWScript.DelayCommand(10.0f, () => this.PlayNewSkillAcquiredEffects(skill)); // Décalage de 10 secondes pour être sur que le joueur a fini de charger la map à la reco
+          this.PlayNewSkillAcquiredEffects(skill);
         }
         else
         {
@@ -309,6 +303,7 @@ namespace NWN.Systems
         }
 
         skill.trained = true;
+        this.currentSkillJob = (int)Feat.Invalid;
 
         if (skill.successorId > 0)
         {
@@ -425,6 +420,8 @@ namespace NWN.Systems
           journalEntry = PlayerPlugin.GetJournalEntry(this.oid, "craft_job");
           journalEntry.sName = $"Travail artisanal - {Utils.StripTimeSpanMilliseconds((TimeSpan)(this.playerJournal.craftJobCountDown - DateTime.Now))}";
           PlayerPlugin.AddCustomJournalEntry(this.oid, journalEntry, 1);
+
+          this.CraftJobProgression();
         }
 
         if (this.playerJournal.skillJobCountDown != null)

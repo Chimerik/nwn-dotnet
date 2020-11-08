@@ -145,16 +145,23 @@ namespace NWN.Systems
     }
     private static void SavePlayerStoredMaterialsToDatabase(Player player)
     {
-      var query = NWScript.SqlPrepareQueryCampaign(ModuleSystem.database, $"UPDATE playerMaterialStorage SET Veldspar = @Veldspar, Scordite = @Scordite, Pyroxeres = @Pyroxeres, Tritanium = @Tritanium, Pyerite = @Pyerite, Mexallon = @Mexallon, Noxcium = @Noxcium where characterId = @characterId");
-      NWScript.SqlBindInt(query, "@characterId", player.characterId);
-      NWScript.SqlBindInt(query, "@Veldspar", player.materialStock["Veldspar"]);
-      NWScript.SqlBindInt(query, "@Scordite", player.materialStock["Scordite"]);
-      NWScript.SqlBindInt(query, "@Pyroxeres", player.materialStock["Pyroxeres"]);
-      NWScript.SqlBindInt(query, "@Tritanium", player.materialStock["Tritanium"]);
-      NWScript.SqlBindInt(query, "@Pyerite", player.materialStock["Pyerite"]);
-      NWScript.SqlBindInt(query, "@Mexallon", player.materialStock["Mexallon"]);
-      NWScript.SqlBindInt(query, "@Noxcium", player.materialStock["Noxcium"]);
-      NWScript.SqlStep(query);
+      if (player.materialStock.Count > 0)
+      {
+        string queryString = "UPDATE playerMaterialStorage SET ";
+
+        foreach (string material in player.materialStock.Keys)
+          queryString += $"{material} = @{material}";
+
+        queryString += "where characterId = @characterId";
+
+        var query = NWScript.SqlPrepareQueryCampaign(ModuleSystem.database, queryString);
+        NWScript.SqlBindInt(query, "@characterId", player.characterId);
+
+        foreach (string material in player.materialStock.Keys)
+          NWScript.SqlBindInt(query, $"@{material}", player.materialStock[material]);
+
+        NWScript.SqlStep(query);
+      }
     }
   }
 }
