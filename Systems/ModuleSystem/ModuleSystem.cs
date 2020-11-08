@@ -16,7 +16,6 @@ namespace NWN.Systems
     {
       { "module_heartbeat", HandleModuleHeartBeat },
       { "event_moduleload", HandleModuleLoad },
-      { "x2_mod_def_act", HandleActivateItem },
       //  { "event_mouse_clic", EventMouseClick },
       { "event_potager", EventPotager },
       { "_event_effects", EventEffects },
@@ -43,28 +42,6 @@ namespace NWN.Systems
     {
       foreach (string command in module.botAsyncCommandList)
         BotAsyncCommandSystem.ProcessBotAsyncCommand(command);
-
-      return 0;
-    }
-    private static int HandleActivateItem(uint oidSelf)
-    {
-      var oItem = NWScript.GetItemActivated();
-      var oActivator = NWScript.GetItemActivator();
-      var oTarget = NWScript.GetItemActivatedTarget();
-      var tag = NWScript.GetTag(oItem);
-
-      Func<uint, uint, uint, int> handler;
-      if (ActivateItemHandlers.Register.TryGetValue(tag, out handler))
-      {
-        try
-        {
-          return handler.Invoke(oItem, oActivator, oTarget);
-        }
-        catch (Exception e)
-        {
-          Utils.LogException(e);
-        }
-      }
 
       return 0;
     }
