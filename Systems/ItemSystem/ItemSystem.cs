@@ -14,7 +14,8 @@ namespace NWN.Systems
             { "event_equip_items_before", HandleBeforeEquipItem },
             { "event_unequip_items_before", HandleBeforeUnequipItem },
             { "event_validate_equip_items_before", HandleBeforeValidatingEquipItem},
-    };
+            { "event_use_item_before", HandleBeforeUseItem},
+    }; 
     private static int HandleBeforeEquipItem(uint oidSelf)
     {
       PlayerSystem.Player player;
@@ -81,6 +82,34 @@ namespace NWN.Systems
                 NWScript.SendMessageToPC(player.oid, $"Le don maîtrise des extracteur de roche est requis pour pouvoir utiliser cet outil.");
             }
               break;
+        }
+      }
+      return 0;
+    }
+    private static int HandleBeforeUseItem(uint oidSelf)
+    {
+      PlayerSystem.Player player;
+      if (Players.TryGetValue(oidSelf, out player))
+      {
+        var oItem = NWScript.StringToObject(EventsPlugin.GetEventData("ITEM_OBJECT_ID"));
+        uint oTarget;
+
+        switch (NWScript.GetTag(oItem))
+        {
+          case "skillbook":
+            EventsPlugin.SkipEvent();
+            HandleSkillBookActivate(oItem, player);
+            break;
+          case "blueprint":
+            EventsPlugin.SkipEvent();
+            oTarget = NWScript.StringToObject(EventsPlugin.GetEventData("TARGET_OBJECT_ID"));
+            HandleBlueprintActivate(oItem, player, oTarget);
+            break;
+          case "loot_saver":
+            EventsPlugin.SkipEvent();
+            oTarget = NWScript.StringToObject(EventsPlugin.GetEventData("TARGET_OBJECT_ID"));
+            HandleLootSaverActivate(player, oTarget);
+            break;
         }
       }
       return 0;
