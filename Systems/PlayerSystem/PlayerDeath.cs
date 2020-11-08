@@ -37,29 +37,30 @@ namespace NWN.Systems
     }
     private static void StripPlayerGoldAfterDeath(Player player)
     {
-      if (NWScript.GetGold(player.oid) > 0)
+      int remainingGold = NWScript.GetGold(player.oid);
+
+      while (remainingGold > 0)
       {
-        do
+        if (remainingGold >= 50000)
         {
-          NWScript.CreateItemOnObject("nw_it_gold001", player.deathCorpse, NWScript.GetGold(player.oid));
-          CreaturePlugin.SetGold(player.oid, NWScript.GetGold(player.oid) - 50000);
-        } while (NWScript.GetGold(player.oid) > 50000);
+          NWScript.CreateItemOnObject("nw_it_gold001", player.oid, 50000);
+          remainingGold -= 50000;
+        }
+        else
+        {
+          NWScript.CreateItemOnObject("nw_it_gold001", player.oid, remainingGold);
+          break;
+        }
       }
 
-      if (NWScript.GetGold(player.oid) <= 0)
-        CreaturePlugin.SetGold(player.oid, 0);
-      else
-      {
-        NWScript.CreateItemOnObject("nw_it_gold001", player.deathCorpse, NWScript.GetGold(player.oid));
-        CreaturePlugin.SetGold(player.oid, 0);
-      }
+      CreaturePlugin.SetGold(player.oid, 0);
     }
     private static void StripPlayerOfCraftResources(Player player)
     {
       var oItem = NWScript.GetFirstItemInInventory(player.oid);
       while(Convert.ToBoolean(oItem))
       {
-        if (Convert.ToBoolean(NWScript.GetLocalInt(oItem, "DROPS_ON_DEATH")))
+        if(CollectSystem.IsItemCraftMaterial(NWScript.GetTag(oItem)) || NWScript.GetTag(oItem) == "blueprint")
           ObjectPlugin.AcquireItem(player.deathCorpse, oItem);
         oItem = NWScript.GetNextItemInInventory(player.oid);
       }

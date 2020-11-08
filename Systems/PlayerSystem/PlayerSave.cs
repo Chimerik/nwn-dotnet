@@ -60,6 +60,8 @@ namespace NWN.Systems
         player.isAFK = true;
 
         SavePlayerCharacterToDatabase(player);
+        SavePlayerLearnableSkillsToDatabase(player);
+        SavePlayerStoredMaterialsToDatabase(player);
       }
 
       return 0;
@@ -140,6 +142,19 @@ namespace NWN.Systems
 
       // Ici on vire de la liste tout les skills trained et sauvegardés
       player.learnableSkills = player.learnableSkills.Where(kv => !kv.Value.trained).ToDictionary(kv => kv.Key, KeyValuePair => KeyValuePair.Value);
+    }
+    private static void SavePlayerStoredMaterialsToDatabase(Player player)
+    {
+      var query = NWScript.SqlPrepareQueryCampaign(ModuleSystem.database, $"UPDATE playerMaterialStorage SET Veldspar = @Veldspar, Scordite = @Scordite, Pyroxeres = @Pyroxeres, Tritanium = @Tritanium, Pyerite = @Pyerite, Mexallon = @Mexallon, Noxcium = @Noxcium where characterId = @characterId");
+      NWScript.SqlBindInt(query, "@characterId", player.characterId);
+      NWScript.SqlBindInt(query, "@Veldspar", player.materialStock["Veldspar"]);
+      NWScript.SqlBindInt(query, "@Scordite", player.materialStock["Scordite"]);
+      NWScript.SqlBindInt(query, "@Pyroxeres", player.materialStock["Pyroxeres"]);
+      NWScript.SqlBindInt(query, "@Tritanium", player.materialStock["Tritanium"]);
+      NWScript.SqlBindInt(query, "@Pyerite", player.materialStock["Pyerite"]);
+      NWScript.SqlBindInt(query, "@Mexallon", player.materialStock["Mexallon"]);
+      NWScript.SqlBindInt(query, "@Noxcium", player.materialStock["Noxcium"]);
+      NWScript.SqlStep(query);
     }
   }
 }

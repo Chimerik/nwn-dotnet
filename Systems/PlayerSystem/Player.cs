@@ -53,6 +53,7 @@ namespace NWN.Systems
       public Dictionary<uint, uint> summons = new Dictionary<uint, uint>();
       public Dictionary<int, SkillSystem.Skill> learnableSkills = new Dictionary<int, SkillSystem.Skill>();
       public Dictionary<int, SkillSystem.Skill> removeableMalus = new Dictionary<int, SkillSystem.Skill>();
+      public Dictionary<string, int> materialStock = new Dictionary<string, int>();
       public List<Effect> effectList = new List<Effect>();
 
       public Action OnMiningCycleCancelled = delegate { };

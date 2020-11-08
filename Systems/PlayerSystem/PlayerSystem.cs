@@ -819,9 +819,6 @@ namespace NWN.Systems
           NWScript.DestroyObject(oItem);
       }
 
-      if (NWScript.GetTag(oItem) == "blueprint")
-        NWScript.SetLocalInt(oItem, "DROPS_ON_DEATH", 1);
-
       if (NWScript.GetMovementRate(oPC) != CreaturePlugin.NWNX_CREATURE_MOVEMENT_RATE_IMMOBILE)
         if (NWScript.GetWeight(oPC) > int.Parse(NWScript.Get2DAString("encumbrance", "Heavy", NWScript.GetAbilityScore(oPC, NWScript.ABILITY_STRENGTH))))
           CreaturePlugin.SetMovementRate(oPC, CreaturePlugin.NWNX_CREATURE_MOVEMENT_RATE_IMMOBILE);
