@@ -63,19 +63,34 @@ namespace NWN.Systems
     );
     public static void ProcessWriteLogMiddleware(ChatSystem.Context ctx, Action next)
     {
-      string filename = String.Format("{0:yyyy-MM-dd}_{1}.txt", DateTime.Now, "chatlog");
-      string path = Path.Combine(Environment.GetEnvironmentVariable("HOME") + "/ChatLog", filename);
-
-      using (System.IO.StreamWriter file =
-      new System.IO.StreamWriter(path, true))
+      if (ctx.channel != ChatPlugin.NWNX_CHAT_CHANNEL_SERVER_MSG)
       {
         if (NWScript.GetIsObjectValid(ctx.oTarget) != 1)
-          file.WriteLine(DateTime.Now.ToShortTimeString() + " - [" + ctx.channel + " - " + NWScript.GetName(NWScript.GetArea(ctx.oSender)) + "] " + NWScript.GetName(ctx.oSender, 1) + " : " + ctx.msg);
-        else
-          file.WriteLine(DateTime.Now.ToShortTimeString() + " - [" + ctx.channel + "] " + NWScript.GetName(ctx.oSender) + " To : " + NWScript.GetName(ctx.oTarget, 1) + " : " + ctx.msg);
-      }
+        {
+          string filename = String.Format("{0:yyyy-MM-dd}_{1}.txt", DateTime.Now, "chatlog");
+          string path = Path.Combine(Environment.GetEnvironmentVariable("HOME") + "/ChatLog", filename);
 
-      next();
+          using (System.IO.StreamWriter file =
+          new System.IO.StreamWriter(path, true))
+              file.WriteLineAsync(DateTime.Now.ToShortTimeString() + " - [" + ctx.channel + " - " + NWScript.GetName(NWScript.GetArea(ctx.oSender)) + "] " + NWScript.GetName(ctx.oSender, 1) + " : " + ctx.msg);
+        }
+        else
+        {
+          string filename = $"{NWScript.GetPCPlayerName(ctx.oTarget)}_{NWScript.GetPCPlayerName(ctx.oSender)}.txt"; 
+          string path = Path.Combine(Environment.GetEnvironmentVariable("HOME") + "/ChatLog", filename);
+
+          if(!File.Exists(path))
+          {
+            filename = $"{NWScript.GetPCPlayerName(ctx.oSender)}_{NWScript.GetPCPlayerName(ctx.oTarget)}.txt";
+            path = Path.Combine(Environment.GetEnvironmentVariable("HOME") + "/ChatLog", filename);
+          }
+          using (System.IO.StreamWriter file =
+          new System.IO.StreamWriter(path, true))
+            file.WriteLineAsync(DateTime.Now.ToShortDateString() + " " + DateTime.Now.ToShortTimeString() + " -  " + NWScript.GetName(ctx.oSender) + " To : " + NWScript.GetName(ctx.oTarget, 1) + " : " + ctx.msg);
+        }
+
+        next();
+      }
     }
     public static void ProcessSpeakValueMiddleware(ChatSystem.Context ctx, Action next)
     {

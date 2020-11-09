@@ -77,7 +77,19 @@ namespace NWN.Systems
           nearestObject = NWScript.GetNearestObject(NWScript.OBJECT_TYPE_ITEM, firstObject, i);
         }
 
-        if (NWScript.GetObjectType(firstObject) == NWScript.OBJECT_TYPE_CREATURE
+        i = 1;
+        nearestObject = NWScript.GetNearestObjectByTag("creature_spawn", firstObject);
+
+        while (Convert.ToBoolean(NWScript.GetIsObjectValid(nearestObject)))
+        {
+          if (Convert.ToBoolean(NWScript.GetLocalInt(nearestObject, "_PNJ_SPAWN")))
+            NWScript.DeleteLocalInt(nearestObject, "_SPAWN_BLOCKED");
+
+          i++;
+          nearestObject = NWScript.GetNearestObjectByTag("creature_spawn", firstObject, i);
+        }
+
+          if (NWScript.GetObjectType(firstObject) == NWScript.OBJECT_TYPE_CREATURE
           || NWScript.GetTag(firstObject) == "BodyBag" || NWScript.GetObjectType(firstObject) == NWScript.OBJECT_TYPE_ITEM)
         {
           if(Convert.ToBoolean(NWScript.GetHasInventory(firstObject)))

@@ -29,7 +29,8 @@ namespace NWN.Systems
      .Concat(Systems.DialogSystem.Register)
      .ToDictionary(kvp => kvp.Key, kvp => kvp.Value);
 
-    public static string database = Environment.GetEnvironmentVariable("DN_NAME");
+    public static string database = Environment.GetEnvironmentVariable("DB_NAME");
+    public static string db_path = "Data Source=" + Environment.GetEnvironmentVariable("DB_DIRECTORY") + database;
     public static TranslationClient googleTranslationClient = TranslationClient.Create();
     public static Module module;
     private static int HandleModuleLoad(uint oidSelf)

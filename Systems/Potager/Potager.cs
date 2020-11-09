@@ -1,5 +1,4 @@
-﻿using Dapper;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using NWN.Core;
 using NWN.Core.NWNX;
@@ -39,7 +38,7 @@ namespace NWN.Systems
       {
         var sql = $"SELECT * FROM sql_potager WHERE id=@id LIMIT 1;";
 
-        using (var connection = MySQL.GetConnection())
+        /*using (var connection = MySQL.GetConnection())
         {
           var potager = connection.QueryFirstOrDefault<Potager.Models.PotagerSql>(sql, new { id = NWScript.GetLocalInt(oPotager, "id") });
           if (potager != null)
@@ -74,7 +73,7 @@ namespace NWN.Systems
           {
             Garden myPotager = new Garden(oPotager, DateTime.MinValue, "", "");
           }
-        }
+        }*/
         i += 1;
         oPotager = NWScript.GetObjectByTag("potager", i);
       }
@@ -103,7 +102,7 @@ namespace NWN.Systems
 
     public void PlanterFruit(string FruitName, string FruitTag)
     {
-      NWScript.SetName(this.oid, $"Plant de {FruitName} en cours de pousse");
+      /*NWScript.SetName(this.oid, $"Plant de {FruitName} en cours de pousse");
       NWScript.SetLocalInt(this.oid, "_PLANTE_STATE", 1);
       ObjectPlugin.SetAppearance(this.oid, 8791);
       NWScript.DelayCommand(324000.0f, () => PousserPlante(this.oid, FruitName));
@@ -113,7 +112,7 @@ namespace NWN.Systems
       using (var connection = MySQL.GetConnection())
       {
         connection.Execute(sql, new { id = this.id, datePlantage = DateTime.Now, type = FruitName, tag = FruitTag });
-      }
+      }*/
     }
   }
 }

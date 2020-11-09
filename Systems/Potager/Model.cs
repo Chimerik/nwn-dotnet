@@ -9,7 +9,7 @@ namespace NWN.Systems
       public class PotagerSql
       {
         public int id { get; set; }
-        public string type { get; set; }
+        public string characterName { get; set; }
         public int date { get; set; }
         public string tag { get; set; }
         public string uuid { get; set; }
