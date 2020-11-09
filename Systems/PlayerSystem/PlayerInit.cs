@@ -135,6 +135,8 @@ namespace NWN.Systems
       query = NWScript.SqlPrepareQueryCampaign(ModuleSystem.database, $"INSERT INTO playerMaterialStorage (characterId) VALUES (@characterId)");
       NWScript.SqlBindInt(query, "@characterId", ObjectPlugin.GetInt(newCharacter.oid, "characterId"));
       NWScript.SqlStep(query);
+
+      Utils.DestroyInventory(newCharacter.oid);
     }
     private static void InitializeDM(Player player)
     {

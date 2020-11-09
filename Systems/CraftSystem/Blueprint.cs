@@ -152,7 +152,7 @@ namespace NWN.Systems
           break;
       }
     }
-    public void DisplayBlueprintInfo(Player player, uint oItem)
+    public string DisplayBlueprintInfo(Player player, uint oItem)
     {
       int iMineralCost = this.GetBlueprintMineralCostForPlayer(player, oItem);
       float iJobDuration = this.GetBlueprintTimeCostForPlayer(player, oItem);
@@ -162,6 +162,12 @@ namespace NWN.Systems
       NWScript.SendMessageToPC(player.oid, $"Coût initial en Tritanium : {iMineralCost}. Puis 10 % de moins par amélioration vers un matériau supérieur.");
       NWScript.SendMessageToPC(player.oid, $"Recherche d'efficacité de production niveau {NWScript.GetLocalInt(oItem, "_BLUEPRINT_TIME_EFFICIENCY")}");
       NWScript.SendMessageToPC(player.oid, $"Temps de fabrication et d'amélioration : {Utils.StripTimeSpanMilliseconds(DateTime.Now.AddSeconds(iJobDuration).Subtract(DateTime.Now))}.");
+
+      return $"Patron de création de l'objet artisanal : {this.type}\n\n" +
+        $"Recherche d'efficacité matérielle niveau {NWScript.GetLocalInt(oItem, "_BLUEPRINT_MATERIAL_EFFICIENCY")}\n" +
+        $"Coût initial en Tritanium : {iMineralCost}. Puis 10 % de moins par amélioration vers un matériau supérieur.\n" +
+        $"Recherche d'efficacité de production niveau {NWScript.GetLocalInt(oItem, "_BLUEPRINT_TIME_EFFICIENCY")}\n" +
+        $"Temps de fabrication et d'amélioration : {Utils.StripTimeSpanMilliseconds(DateTime.Now.AddSeconds(iJobDuration).Subtract(DateTime.Now))}.";
     }
     public int GetBlueprintMineralCostForPlayer(PlayerSystem.Player player, uint item)
     {
@@ -196,6 +202,18 @@ namespace NWN.Systems
         return "Tritanium";
       else 
         return NWScript.GetLocalString(oTarget, "_ITEM_MATERIAL");
+    }
+    public static Blueprint InitiateBlueprintFromUID(uint oItem)
+    {
+      Blueprint blueprint;
+      BlueprintType blueprintType = GetBlueprintTypeFromName(NWScript.GetName(oItem));
+
+      if (CollectSystem.blueprintDictionnary.ContainsKey(blueprintType))
+        blueprint = CollectSystem.blueprintDictionnary[blueprintType];
+      else
+        blueprint = new Blueprint(blueprintType);
+
+      return blueprint;
     }
   }
 }

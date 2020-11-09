@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using NWN.Core;
 using NWN.Core.NWNX;
+using Dapper;
+using Microsoft.Data.Sqlite;
 
 namespace NWN.Systems
 {

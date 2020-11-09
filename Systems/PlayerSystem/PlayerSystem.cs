@@ -2,11 +2,9 @@
 using System.Numerics;
 using System.Collections.Generic;
 using System.Linq;
-using Dapper;
 using NWN.Core;
 using NWN.Core.NWNX;
 using static NWN.Systems.Blueprint;
-using System.Runtime.CompilerServices;
 using static NWN.Systems.LootSystem;
 
 namespace NWN.Systems
@@ -321,7 +319,7 @@ namespace NWN.Systems
             }
             else
             {
-              string sObjectSaved = "";
+              /*string sObjectSaved = "";
 
               foreach (uint selectedObject in myPlayer.selectedObjectsList)
               {
@@ -340,7 +338,7 @@ namespace NWN.Systems
 
               EventsPlugin.RemoveObjectFromDispatchList("NWNX_ON_INPUT_KEYBOARD_AFTER", "event_mv_plc", oidSelf);
               NWScript.DeleteLocalObject(oidSelf, "_MOVING_PLC");
-              myPlayer.selectedObjectsList.Clear();
+              myPlayer.selectedObjectsList.Clear();*/
             }
           }
           break;
@@ -775,6 +773,13 @@ namespace NWN.Systems
               NWScript.SetDescription(examineTarget, $"Minerai disponible : {oreAmount}");
 
               break;
+          case "blueprint":
+            Blueprint blueprint = Blueprint.InitiateBlueprintFromUID(examineTarget);
+            if (blueprint.type != BlueprintType.Invalid)
+              blueprint.DisplayBlueprintInfo(player, examineTarget);
+            else
+              Utils.LogMessageToDMs($"Invalid blueprint type : {NWScript.GetName(examineTarget)} examine by {NWScript.GetName(player.oid)}");
+              break;
         }
       }
       return 0;
@@ -790,6 +795,9 @@ namespace NWN.Systems
         {
           case "mineable_rock":
               NWScript.SetDescription(examineTarget, $"");
+            break;
+          case "blueprint":
+            NWScript.SetDescription(examineTarget, $"");
             break;
         }
       }
@@ -846,8 +854,13 @@ namespace NWN.Systems
 
           while (Convert.ToBoolean(NWScript.GetIsObjectValid(spawnPoints)))
           {
-            
-            NWScript.SetEventScript(NWScript.CreateObject(
+            if (Convert.ToBoolean(NWScript.GetLocalInt(spawnPoints, "_SPAWN_BLOCKED")))
+              continue;
+
+            if (Convert.ToBoolean(NWScript.GetLocalInt(spawnPoints, "_PNJ_SPAWN")))
+              NWScript.SetLocalInt(spawnPoints, "_SPAWN_BLOCKED", 1);
+
+              NWScript.SetEventScript(NWScript.CreateObject(
               NWScript.OBJECT_TYPE_CREATURE, NWScript.GetLocalString(spawnPoints, "_CREATURE_TEMPLATE"), NWScript.GetLocation(spawnPoints)),
               NWScript.EVENT_SCRIPT_CREATURE_ON_DEATH, ON_LOOT_SCRIPT);
             i++;
