@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using NWN.Core;
 using NWN.Core.NWNX;
-using NWN.Systems;
 using static NWN.Systems.PlayerSystem;
 
 namespace NWN.Systems

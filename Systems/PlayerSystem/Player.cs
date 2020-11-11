@@ -30,9 +30,10 @@ namespace NWN.Systems
       public uint previousArea { get; set; }
       public DateTime lycanCurseTimer { get; set; }
       public Feat activeLanguage { get; set; }
+      public TargetEvent targetEvent { get; set; }
       public Menu menu { get; }
 
-      private uint blockingBoulder;
+      public uint blockingBoulder { get; set; }
       public string disguiseName { get; set; }
       public uint deathCorpse { get; set; }
       public int setValue { get; set; }
@@ -97,16 +98,25 @@ namespace NWN.Systems
           this.key = key;
         }
       }
-      public void DoActionOnTargetSelected(uint oPC, Vector3 vTarget)
+      public void DoActionOnTargetSelected(uint oTarget, Vector3 vTarget)
       {
-        this.OnSelectTarget(oPC, vTarget);
+        if (Convert.ToBoolean(NWScript.GetIsObjectValid(oTarget)))
+          this.OnSelectTarget(oTarget, vTarget);
       }
       private Action<uint, Vector3> OnSelectTarget = delegate { };
       public void SelectTarget(Action<uint, Vector3> callback)
       {
         this.OnSelectTarget = callback;
 
-        NWScript.EnterTargetingMode(this.oid, NWScript.OBJECT_TYPE_CREATURE);
+        switch (this.targetEvent)
+        {
+          case TargetEvent.SitTarget:
+          NWScript.EnterTargetingMode(this.oid);
+            break;
+          default:
+            NWScript.EnterTargetingMode(this.oid);
+            break;
+        }
       }
       public void OnFrostAutoAttackTimedEvent() // conservé pour mémoire, à retravailler
       {
@@ -141,9 +151,10 @@ namespace NWN.Systems
 
       public void BoulderBlock()
       {
+        NWScript.SendMessageToPC(this.oid, $"Creating boulders");
         BoulderUnblock();
         var location = NWScript.GetLocation(oid);
-        blockingBoulder = NWScript.CreateObject(NWScript.OBJECT_TYPE_PLACEABLE, "plc_boulder", location);
+        blockingBoulder = NWScript.CreateObject(NWScript.OBJECT_TYPE_PLACEABLE, "blocker", location, 0, $"block_rock_{NWScript.GetPCPublicCDKey(this.oid)}");
         ObjectPlugin.SetPosition(oid, NWScript.GetPositionFromLocation(location));
         NWScript.ApplyEffectToObject(
           NWScript.DURATION_TYPE_PERMANENT,
@@ -154,7 +165,19 @@ namespace NWN.Systems
 
       public void BoulderUnblock()
       {
-        NWScript.DestroyObject(blockingBoulder);
+        uint boulder = NWScript.GetObjectByTag($"block_rock_{NWScript.GetPCPublicCDKey(this.oid)}");
+        int i = 1;
+        NWScript.SendMessageToPC(this.oid, $"destroying boulders");
+
+        while (Convert.ToBoolean(NWScript.GetIsObjectValid(boulder)))
+        {
+          NWScript.RemoveEffect(boulder, NWScript.GetFirstEffect(boulder));
+          NWScript.DestroyObject(boulder, 0.2f);
+
+          boulder = NWScript.GetObjectByTag($"block_rock_{NWScript.GetPCPublicCDKey(this.oid)}", i);
+          i++;
+          NWScript.SendMessageToPC(this.oid, $"destroyed boulder : {NWScript.GetPCPublicCDKey(this.oid)}");
+        } 
       }
       public void CraftJobProgression()
       {
