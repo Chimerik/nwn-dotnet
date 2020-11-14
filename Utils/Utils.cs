@@ -35,6 +35,11 @@ namespace NWN
         oObj = NWScript.GetNextItemInInventory(oContainer);
       }
     }
+    public static void DestroyEquippedItems(uint oCreature)
+    {
+      for(int i = 0; i < 17; i++)
+        NWScript.DestroyObject(NWScript.GetItemInSlot(i, oCreature));
+    }
 
     public static string LocationToString(Location l)
     {

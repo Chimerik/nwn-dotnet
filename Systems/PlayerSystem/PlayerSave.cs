@@ -152,9 +152,10 @@ namespace NWN.Systems
         string queryString = "UPDATE playerMaterialStorage SET ";
 
         foreach (string material in player.materialStock.Keys)
-          queryString += $"{material} = @{material}";
+          queryString += $"{material} = @{material}, ";
 
-        queryString += "where characterId = @characterId";
+        queryString = queryString.Remove(queryString.Length - 2);
+        queryString += " where characterId = @characterId";
 
         var query = NWScript.SqlPrepareQueryCampaign(ModuleSystem.database, queryString);
         NWScript.SqlBindInt(query, "@characterId", player.characterId);

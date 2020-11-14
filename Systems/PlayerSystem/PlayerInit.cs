@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using NWN.Core;
 using NWN.Core.NWNX;
 
@@ -113,6 +114,13 @@ namespace NWN.Systems
     {
       WebhookSystem.StartSendingAsyncDiscordMessage($"{NWScript.GetPCPlayerName(newCharacter.oid)} vient de créer un nouveau personnage : {NWScript.GetName(newCharacter.oid)}", "AoA notification service - Nouveau personnage !");
 
+      uint arrivalArea = NWScript.CopyArea(Module.areaDictionnary.Where(v => v.Value.tag == "entry_scene").FirstOrDefault().Value.oid);
+      Module.areaDictionnary.Add(NWScript.GetObjectUUID(arrivalArea), new Area(arrivalArea));
+      NWScript.SetName(arrivalArea, $"La galère de {NWScript.GetName(newCharacter.oid)} (Bienvenue !)");
+      NWScript.SetTag(arrivalArea, $"entry_scene_{NWScript.GetPCPublicCDKey(newCharacter.oid)}");
+      uint arrivalPoint = NWScript.GetNearestObjectByTag("ENTRY_POINT", NWScript.GetFirstObjectInArea(arrivalArea));
+
+
       var query = NWScript.SqlPrepareQueryCampaign(ModuleSystem.database, $"INSERT INTO playerCharacters (accountId , characterName, dateLastSaved, currentSkillJob, currentCraftJob, currentCraftObject, frostAttackOn, areaTag, position, facing) VALUES (@accountId, @name, @dateLastSaved, @currentSkillJob, @currentCraftJob, @currentCraftObject, @frostAttackOn, @areaTag, @position, @facing)");
       NWScript.SqlBindInt(query, "@accountId", newCharacter.accountId);
       NWScript.SqlBindString(query, "@name", NWScript.GetName(newCharacter.oid));
@@ -121,10 +129,9 @@ namespace NWN.Systems
       NWScript.SqlBindString(query, "@currentCraftJob", "");
       NWScript.SqlBindString(query, "@currentCraftObject", "");
       NWScript.SqlBindInt(query, "@frostAttackOn", 0);
-      Location startingLocation = NWScript.GetStartingLocation();
-      NWScript.SqlBindString(query, "@areaTag", NWScript.GetTag(NWScript.GetAreaFromLocation(startingLocation)));
-      NWScript.SqlBindVector(query, "@position", NWScript.GetPositionFromLocation(startingLocation));
-      NWScript.SqlBindFloat(query, "@facing", NWScript.GetFacingFromLocation(startingLocation));
+      NWScript.SqlBindString(query, "@areaTag", NWScript.GetTag(arrivalArea));
+      NWScript.SqlBindVector(query, "@position", NWScript.GetPosition(arrivalPoint));
+      NWScript.SqlBindFloat(query, "@facing", NWScript.GetFacing(arrivalPoint));
       NWScript.SqlStep(query);
 
       query = NWScript.SqlPrepareQueryCampaign(ModuleSystem.database, $"SELECT last_insert_rowid()");
@@ -135,8 +142,6 @@ namespace NWN.Systems
       query = NWScript.SqlPrepareQueryCampaign(ModuleSystem.database, $"INSERT INTO playerMaterialStorage (characterId) VALUES (@characterId)");
       NWScript.SqlBindInt(query, "@characterId", ObjectPlugin.GetInt(newCharacter.oid, "characterId"));
       NWScript.SqlStep(query);
-
-      Utils.DestroyInventory(newCharacter.oid);
     }
     private static void InitializeDM(Player player)
     {

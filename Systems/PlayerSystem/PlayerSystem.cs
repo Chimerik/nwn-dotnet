@@ -869,7 +869,7 @@ namespace NWN.Systems
 
           // Gestion des coffres lootables
           Area area;
-          if (Module.areaDictionnary.TryGetValue(oArea, out area))
+          if (Module.areaDictionnary.TryGetValue(NWScript.GetObjectUUID(oArea), out area))
           {
             foreach (uint chest in area.lootChestList)
             {
@@ -908,6 +908,10 @@ namespace NWN.Systems
 
           if(player.menu.isOpen)
             player.menu.Close();
+
+          Area area;
+          if (Module.areaDictionnary.TryGetValue(NWScript.GetObjectUUID(oArea), out area))
+            area.DoAreaSpecificBehavior(player);
         }
       }
 
@@ -921,7 +925,7 @@ namespace NWN.Systems
         if (Players.TryGetValue(oidSelf, out player))
         { 
           Area area;
-          if (Module.areaDictionnary.TryGetValue(player.previousArea, out area))
+          if (Module.areaDictionnary.TryGetValue(NWScript.GetObjectUUID(player.previousArea), out area))
           {
             if (AreaPlugin.GetNumberOfPlayersInArea(player.previousArea) == 0)
               NWScript.DelayCommand(1500.0f, () => area.CleanArea()); // 25 minutes

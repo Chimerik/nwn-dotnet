@@ -12,6 +12,7 @@ namespace NWN.Systems
     public static Dictionary<string, Func<uint, int>> Register = new Dictionary<string, Func<uint, int>>
         {
             { "diag_root", HandleDialogStart },
+            { "intro_start", HandleIntroStart },
         };
 
     private static int HandleDialogStart(uint oidSelf)
@@ -32,6 +33,17 @@ namespace NWN.Systems
         
       return 0;
     }
-    
+    private static int HandleIntroStart(uint oidSelf)
+    {
+      Player player;
+      if (Players.TryGetValue(NWScript.GetLastSpeaker(), out player))
+      {
+        Area area; 
+        if (Module.areaDictionnary.TryGetValue(NWScript.GetObjectUUID(NWScript.GetArea(player.oid)), out area))
+          area.StartEntryScene(player);
+      }
+
+      return 0;
+    }
   }
 }
