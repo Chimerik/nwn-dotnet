@@ -18,17 +18,8 @@ namespace NWN.Systems
       PlayerSystem.Player player;
       if (PlayerSystem.Players.TryGetValue(ctx.oSender, out player))
       {
-        CreaturePlugin.SetMovementRate(player.oid, CreaturePlugin.NWNX_CREATURE_MOVEMENT_RATE_PC);
-        /*if (player.currentHP != 1)
-        {
-          player.BoulderBlock();
-          player.currentHP = 1;
-        }
-        else
-        {
-          player.BoulderUnblock();
-          player.currentHP = NWScript.GetMaxHitPoints(player.oid);
-        }*/
+        
+        NWScript.ApplyEffectAtLocation(NWScript.DURATION_TYPE_INSTANT, NWScript.EffectVisualEffect(NWScript.VFX_FNF_FIRESTORM, 0, 2, new Vector3(0, 0, 0), new Vector3(0, 90, 0)), NWScript.GetLocation(player.oid));
       }
     }
 

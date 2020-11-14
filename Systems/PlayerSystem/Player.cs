@@ -154,7 +154,7 @@ namespace NWN.Systems
         NWScript.SendMessageToPC(this.oid, $"Creating boulders");
         BoulderUnblock();
         var location = NWScript.GetLocation(oid);
-        blockingBoulder = NWScript.CreateObject(NWScript.OBJECT_TYPE_PLACEABLE, "blocker", location, 0, $"block_rock_{NWScript.GetPCPublicCDKey(this.oid)}");
+        blockingBoulder = NWScript.CreateObject(NWScript.OBJECT_TYPE_PLACEABLE, "plc_boulder", location, 0, $"block_rock_{NWScript.GetPCPublicCDKey(this.oid)}");
         ObjectPlugin.SetPosition(oid, NWScript.GetPositionFromLocation(location));
         NWScript.ApplyEffectToObject(
           NWScript.DURATION_TYPE_PERMANENT,
@@ -465,6 +465,14 @@ namespace NWN.Systems
         PlayerPlugin.AddCustomJournalEntry(this.oid, journalEntry);
 
         NWScript.DelayCommand(1.0f, () => this.rebootUpdate());
+      }
+      public void PlayIntroSong()
+      {
+        if (NWScript.GetTag(NWScript.GetArea(this.oid)) == $"entry_scene_{NWScript.GetPCPublicCDKey(this.oid)}")
+        {
+          PlayerPlugin.PlaySound(this.oid, "my_mother_toldme");
+          NWScript.DelayCommand(150.0f, () => this.PlayIntroSong());
+        }
       }
     }
   }

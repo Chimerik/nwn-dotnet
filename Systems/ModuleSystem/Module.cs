@@ -9,20 +9,26 @@ namespace NWN.Systems
   {
     public uint oid { get; }
     public List<string> botAsyncCommandList { get; set; }
-    public static Dictionary<uint, Area> areaDictionnary = new Dictionary<uint, Area>();
+    public static Dictionary<string, Area> areaDictionnary = new Dictionary<string, Area>();
     public static string currentScript = "";
     public Module(uint oid)
     {
       this.oid = oid;
+      Console.WriteLine("1");
       this.botAsyncCommandList = new List<string>();
       Bot.MainAsync();
+      Console.WriteLine("2");
       this.CreateDatabase();
+      Console.WriteLine("3");
       ChatSystem.Init();
-      
+      Console.WriteLine("4");
       try
       {
+        Console.WriteLine("5");
         LootSystem.InitChestArea();
+        Console.WriteLine("6");
         InitModuleChestSpawn();
+        Console.WriteLine("7");
       }
       catch (Exception e)
       {
@@ -212,7 +218,7 @@ namespace NWN.Systems
 
       while (Convert.ToBoolean(NWScript.GetIsObjectValid(oArea)))
       {
-        Module.areaDictionnary.Add(oArea, new Area(oArea));
+        Module.areaDictionnary.Add(NWScript.GetObjectUUID(oArea), new Area(oArea));
         oArea = NWScript.GetNextArea();
       }
     }

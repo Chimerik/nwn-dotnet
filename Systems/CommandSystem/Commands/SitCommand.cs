@@ -31,7 +31,8 @@ namespace NWN.Systems
           if (target == NWScript.GetArea(player.oid))
           {
             var location = NWScript.Location(NWScript.GetArea(player.oid), position, NWScript.GetFacing(player.oid));
-            var oSitter = NWScript.GetNearestObjectToLocation(NWScript.OBJECT_TYPE_PLACEABLE, location);
+            //var oSitter = NWScript.GetNearestObjectToLocation(NWScript.OBJECT_TYPE_PLACEABLE, location);
+            var oSitter = NWScript.GetFirstObjectInShape(NWScript.SHAPE_CUBE, 2.0f, location, 0, NWScript.OBJECT_TYPE_PLACEABLE);
             NWScript.AssignCommand(player.oid, () => NWScript.ActionMoveToLocation(location));
 
             if (NWScript.GetTag(oSitter) == "chair")
