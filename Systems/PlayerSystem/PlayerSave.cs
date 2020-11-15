@@ -102,7 +102,7 @@ namespace NWN.Systems
     }
     private static void SavePlayerCharacterToDatabase(Player player)
     {
-      var query = NWScript.SqlPrepareQueryCampaign(ModuleSystem.database, $"UPDATE playerCharacters SET areaTag = @areaTag, position = @position, facing = @facing, currentHP = @currentHP, bankGold = @bankGold, dateLastSaved = @dateLastSaved, currentSkillJob = @currentSkillJob, currentCraftJob = @currentCraftJob, currentCraftObject = @currentCraftObject, currentCraftJobRemainingTime = @currentCraftJobRemainingTime, currentCraftJobMaterial = @currentCraftJobMaterial, frostAttackOn = @frostAttackOn where rowid = @characterId");
+      var query = NWScript.SqlPrepareQueryCampaign(ModuleSystem.database, $"UPDATE playerCharacters SET areaTag = @areaTag, position = @position, facing = @facing, currentHP = @currentHP, bankGold = @bankGold, dateLastSaved = @dateLastSaved, currentSkillJob = @currentSkillJob, currentCraftJob = @currentCraftJob, currentCraftObject = @currentCraftObject, currentCraftJobRemainingTime = @currentCraftJobRemainingTime, currentCraftJobMaterial = @currentCraftJobMaterial, frostAttackOn = @frostAttackOn, menuOriginTop = @menuOriginTop, menuOriginLeft = @menuOriginLeft where rowid = @characterId");
       NWScript.SqlBindInt(query, "@characterId", player.characterId);
       NWScript.SqlBindString(query, "@areaTag", NWScript.GetTag(NWScript.GetArea(player.oid)));
       NWScript.SqlBindVector(query, "@position", NWScript.GetPosition(player.oid));
@@ -116,6 +116,9 @@ namespace NWN.Systems
       NWScript.SqlBindFloat(query, "@currentCraftJobRemainingTime", player.craftJob.remainingTime);
       NWScript.SqlBindString(query, "@currentCraftJobMaterial", player.craftJob.material);
       NWScript.SqlBindInt(query, "@frostAttackOn", Convert.ToInt32(player.isFrostAttackOn));
+      NWScript.SqlBindInt(query, "@frostAttackOn", Convert.ToInt32(player.isFrostAttackOn));
+      NWScript.SqlBindInt(query, "@menuOriginTop", player.menu.originTop);
+      NWScript.SqlBindInt(query, "@menuOriginLeft", player.menu.originLeft);
       NWScript.SqlStep(query);
     }
     private static void SavePlayerLearnableSkillsToDatabase(Player player)

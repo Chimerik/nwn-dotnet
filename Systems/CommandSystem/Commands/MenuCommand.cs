@@ -65,7 +65,6 @@ namespace NWN.Systems
 
     private static void __HandleSaveAndClose(PlayerSystem.Player player)
     {
-      // TODO Save in bdd
       player.menu.Close();
     }
   }

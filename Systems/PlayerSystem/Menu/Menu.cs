@@ -55,8 +55,8 @@ namespace NWN.Systems
       {
         if (!isOpen)
         {
-          player.BoulderBlock();
-          player.OnKeydown += HandleKeydown;
+          player.LoadMenuQuickbar();
+          player.OnKeydown += HandleMenuFeatUsed;
         }
 
         DrawWindow();
@@ -73,8 +73,8 @@ namespace NWN.Systems
 
         if (isOpen)
         {
-          player.OnKeydown -= HandleKeydown;
-          player.BoulderUnblock();
+          player.OnKeydown -= HandleMenuFeatUsed;
+          player.UnloadMenuQuickbar();
         }
 
         isOpen = false;
@@ -186,13 +186,13 @@ namespace NWN.Systems
 
       private void EraseLastSelection()
       {
-        NWScript.PostString(
+       /* NWScript.PostString(
           player.oid, "",
           drawnSelectionIds.X,
           drawnSelectionIds.Y,
           drawnSelectionIds.ID,
           0.000001f
-        );
+        );*/
       }
 
       private void DrawLine(string text, int x, int y, int id, string font, List<(int X, int Y, int ID)> drawnLines = null)
@@ -208,30 +208,33 @@ namespace NWN.Systems
         }
       }
 
-      private void HandleKeydown(object sender, PlayerSystem.Player.KeydownEventArgs e)
+      private void HandleMenuFeatUsed(object sender, PlayerSystem.Player.MenuFeatEventArgs e)
       {
-        switch (e.key)
+        switch (e.feat)
         {
           default: return;
 
-          case "W":
+          case Feat.CustomMenuUP:
             selectedChoiceID = (selectedChoiceID + choices.Count - 1) % choices.Count;
             EraseLastSelection();
             PlayerPlugin.PlaySound(player.oid, "gui_select", NWScript.OBJECT_INVALID);
             DrawSelection();
             return;
 
-          case "S":
+          case Feat.CustomMenuDOWN:
             selectedChoiceID = (selectedChoiceID + 1) % choices.Count;
             EraseLastSelection();
             PlayerPlugin.PlaySound(player.oid, "gui_select", NWScript.OBJECT_INVALID);
             DrawSelection();
             return;
 
-          case "E":
+          case Feat.CustomMenuSELECT:
             var handler = choices.ElementAtOrDefault(selectedChoiceID).handler;
             PlayerPlugin.PlaySound(player.oid, "gui_picklockopen", NWScript.OBJECT_INVALID);
             handler?.Invoke();
+            return;
+          case Feat.CustomMenuEXIT:
+            player.menu.Close();
             return;
         }
       }
