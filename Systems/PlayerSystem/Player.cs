@@ -56,6 +56,7 @@ namespace NWN.Systems
       public Dictionary<int, SkillSystem.Skill> removeableMalus = new Dictionary<int, SkillSystem.Skill>();
       public Dictionary<string, int> materialStock = new Dictionary<string, int>();
       public List<Effect> effectList = new List<Effect>();
+      public List<QuickBarSlot> savedQuickBar = new List<QuickBarSlot>();
 
       public Action OnMiningCycleCancelled = delegate { };
       public Action OnMiningCycleCompleted = delegate { };
@@ -82,20 +83,20 @@ namespace NWN.Systems
           InitializeDM(this);
       }
 
-      public void EmitKeydown(KeydownEventArgs e)
+      public void EmitKeydown(MenuFeatEventArgs e)
       {
         OnKeydown(this, e);
       }
 
-      public event EventHandler<KeydownEventArgs> OnKeydown = delegate { };
+      public event EventHandler<MenuFeatEventArgs> OnKeydown = delegate { };
 
-      public class KeydownEventArgs : EventArgs
+      public class MenuFeatEventArgs : EventArgs
       {
-        public string key { get; }
+        public Feat feat { get; }
 
-        public KeydownEventArgs(string key)
+        public MenuFeatEventArgs(Feat feat)
         {
-          this.key = key;
+          this.feat = feat;
         }
       }
       public void DoActionOnTargetSelected(uint oTarget, Vector3 vTarget)
@@ -162,6 +163,35 @@ namespace NWN.Systems
           blockingBoulder
         );
       }
+      public void LoadMenuQuickbar()
+      {
+        if (!this.IsDialogQuickbarOn())
+        {
+          CreaturePlugin.AddFeat(this.oid, (int)Feat.CustomMenuUP);
+          CreaturePlugin.AddFeat(this.oid, (int)Feat.CustomMenuDOWN);
+          CreaturePlugin.AddFeat(this.oid, (int)Feat.CustomMenuSELECT);
+          CreaturePlugin.AddFeat(this.oid, (int)Feat.CustomMenuEXIT);
+
+          this.savedQuickBar.Clear();
+          QuickBarSlot emptyQBS = new QuickBarSlot();
+          emptyQBS.nObjectType = 0;
+
+          for (int i = 0; i < 12; i++)
+          {
+            this.savedQuickBar.Add(PlayerPlugin.GetQuickBarSlot(this.oid, i));
+            PlayerPlugin.SetQuickBarSlot(this.oid, i, emptyQBS);
+          }
+          emptyQBS.nObjectType = 4;
+          emptyQBS.nINTParam1 = (int)Feat.CustomMenuUP;
+          PlayerPlugin.SetQuickBarSlot(this.oid, 0, emptyQBS);
+          emptyQBS.nINTParam1 = (int)Feat.CustomMenuDOWN;
+          PlayerPlugin.SetQuickBarSlot(this.oid, 1, emptyQBS);
+          emptyQBS.nINTParam1 = (int)Feat.CustomMenuSELECT;
+          PlayerPlugin.SetQuickBarSlot(this.oid, 2, emptyQBS);
+          emptyQBS.nINTParam1 = (int)Feat.CustomMenuEXIT;
+          PlayerPlugin.SetQuickBarSlot(this.oid, 3, emptyQBS);
+        }
+      }
 
       public void BoulderUnblock()
       {
@@ -178,6 +208,22 @@ namespace NWN.Systems
           i++;
           NWScript.SendMessageToPC(this.oid, $"destroyed boulder : {NWScript.GetPCPublicCDKey(this.oid)}");
         } 
+      }
+      public void UnloadMenuQuickbar()
+      {
+        CreaturePlugin.RemoveFeat(this.oid, (int)Feat.CustomMenuUP);
+        CreaturePlugin.RemoveFeat(this.oid, (int)Feat.CustomMenuDOWN);
+        CreaturePlugin.RemoveFeat(this.oid, (int)Feat.CustomMenuSELECT);
+        CreaturePlugin.RemoveFeat(this.oid, (int)Feat.CustomMenuEXIT);
+
+        int i = 0;
+        foreach (QuickBarSlot qbs in this.savedQuickBar)
+        {
+          PlayerPlugin.SetQuickBarSlot(this.oid, i, qbs);
+          i++;
+        }
+
+        this.savedQuickBar.Clear();
       }
       public void CraftJobProgression()
       {
@@ -473,6 +519,13 @@ namespace NWN.Systems
           PlayerPlugin.PlaySound(this.oid, "my_mother_toldme");
           NWScript.DelayCommand(150.0f, () => this.PlayIntroSong());
         }
+      }
+      public Boolean IsDialogQuickbarOn()
+      {
+        QuickBarSlot qbs = PlayerPlugin.GetQuickBarSlot(this.oid, 0);
+        if (qbs.nObjectType == 4 && qbs.nINTParam1 == (int)Feat.CustomMenuUP)
+          return true;
+        return false;
       }
     }
   }

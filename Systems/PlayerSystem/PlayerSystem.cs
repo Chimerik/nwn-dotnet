@@ -11,8 +11,6 @@ namespace NWN.Systems
 {
   public static partial class PlayerSystem
   {
-    public const string ON_PC_KEYSTROKE_SCRIPT = "on_pc_keystroke";
-
     public static Dictionary<string, Func<uint, int>> Register = new Dictionary<string, Func<uint, int>>
         {
             { "on_pc_perceived", HandlePlayerPerceived },
@@ -22,12 +20,10 @@ namespace NWN.Systems
             { "on_pc_connect", HandlePlayerConnect },
             { "on_pc_disconnect", HandlePlayerDisconnect },
             { "player_exit_before", HandlePlayerBeforeDisconnect },
-            { ON_PC_KEYSTROKE_SCRIPT, HandlePlayerKeystroke },
             { "event_player_save_before", HandleBeforePlayerSave },
             { "event_player_save_after", HandleAfterPlayerSave },
             { "event_dm_possess_before", HandleBeforeDMPossess },
             { "event_dm_spawn_object_after", HandleAfterDMSpawnObject },
-            { "event_mv_plc", HandleMovePlaceable },
             { "event_feat_used", HandleFeatUsed },
             { "event_auto_spell", HandleAutoSpell },
             { "_onspellcast", HandleOnSpellCast },
@@ -63,20 +59,6 @@ namespace NWN.Systems
 */
       return 0;
     }
-
-    private static int HandlePlayerKeystroke(uint oidSelf)
-    {
-      var key = EventsPlugin.GetEventData("KEY");
-      NWScript.SendMessageToPC(NWScript.GetFirstPC(), $"KEY PRESSED : {key}");
-      Player player;
-      if (Players.TryGetValue(oidSelf, out player))
-      {
-        player.EmitKeydown(new Player.KeydownEventArgs(key));
-      }
-
-      return 0;
-    }
-
     private static int HandlePlayerTargetSelection(uint oidSelf)
     {
       var oPC = NWScript.GetLastPlayerToSelectTarget();
@@ -168,6 +150,7 @@ namespace NWN.Systems
       if (Players.TryGetValue(oidSelf, out player))
       {
         player.isConnected = false;
+        player.menu.Close();
         HandleBeforePartyLeave(oidSelf);
         HandleAfterPartyLeave(oidSelf);
       }
@@ -175,41 +158,16 @@ namespace NWN.Systems
       return 0;
     }
 
-    private static int HandleMovePlaceable(uint oidSelf)
-    {
-      string current_event = EventsPlugin.GetCurrentEvent();
-
-      string sKey = EventsPlugin.GetEventData("KEY");
-      var oMeuble = NWScript.GetLocalObject(oidSelf, "_MOVING_PLC");
-      Vector3 vPos = NWScript.GetPosition(oMeuble);
-
-      if (sKey == "W")
-        ObjectPlugin.AddToArea(oMeuble, NWScript.GetArea(oMeuble), NWScript.Vector(vPos.X, vPos.Y + 0.1f, vPos.Z));
-      else if (sKey == "S")
-        ObjectPlugin.AddToArea(oMeuble, NWScript.GetArea(oMeuble), NWScript.Vector(vPos.X, vPos.Y - 0.1f, vPos.Z));
-      else if (sKey == "D")
-        ObjectPlugin.AddToArea(oMeuble, NWScript.GetArea(oMeuble), NWScript.Vector(vPos.X + 0.1f, vPos.Y, vPos.Z));
-      else if (sKey == "A")
-        ObjectPlugin.AddToArea(oMeuble, NWScript.GetArea(oMeuble), NWScript.Vector(vPos.X - 0.1f, vPos.Y, vPos.Z));
-      else if (sKey == "Q")
-        NWScript.AssignCommand(oMeuble, () => NWScript.SetFacing(NWScript.GetFacing(oMeuble) - 20.0f));
-      //NWScript.AssignCommand(oMeuble, () => oMeuble.Facing (oMeuble.Facing - 20.0f));
-      else if (sKey == "E")
-        NWScript.AssignCommand(oMeuble, () => NWScript.SetFacing(NWScript.GetFacing(oMeuble) + 20.0f));
-      //NWScript.AssignCommand(oMeuble, () => NWScript.SetFacing(oMeuble.Facing + 20.0f));
-
-      return 0;
-    }
-
     private static int HandleFeatUsed(uint oidSelf)
     {
       Feat feat = (Feat)int.Parse(EventsPlugin.GetEventData("FEAT_ID"));
+      Player oPC;
 
       switch (feat)
       {
         case NWN.Feat.PlayerTool02:
           EventsPlugin.SkipEvent();
-          Player oPC;
+          
           if (Players.TryGetValue(oidSelf, out oPC))
           {
             if (Utils.HasTagEffect(oPC.oid, "lycan_curse"))
@@ -288,65 +246,19 @@ namespace NWN.Systems
           BlueprintValidation(oidSelf, oTarget, feat);
           break;
 
-        case Feat.PlayerTool01:
+        case Feat.CustomMenuUP:
+        case Feat.CustomMenuDOWN:
+        case Feat.CustomMenuSELECT:
+        case Feat.CustomMenuEXIT:
           EventsPlugin.SkipEvent();
-          oTarget = NWScript.StringToObject(EventsPlugin.GetEventData("TARGET_OBJECT_ID"));
-          Player myPlayer;
-          if (Players.TryGetValue(oidSelf, out myPlayer))
-          {
-            if (NWScript.GetIsObjectValid(oTarget) == 1)
-            {
-              /*Utils.Meuble result;
-              if (Enum.TryParse(oTarget.Tag, out result))
-              {
-                EventsPlugin.AddObjectToDispatchList("NWNX_ON_INPUT_KEYBOARD_AFTER", "event_mv_plc", oidSelf);
-                oidSelf.AsObject().Locals.Object.Set("_MOVING_PLC", oTarget);
-                oidSelf.AsPlayer().SendMessage($"Vous venez de sélectionner {NWScript.GetName(oTarget.oid)}, utilisez votre barre de raccourcis pour le déplacer. Pour enregistrer le nouvel emplacement et retrouver votre barre de raccourcis habituelle, activez le don sur un endroit vide (sans cible).");
-                //remplacer la ligne précédente par un PostString().
 
-                if (myPlayer.selectedObjectsList.Count == 0)
-                {
-                  myPlayer.BoulderBlock();
-                }
-
-                if (!myPlayer.selectedObjectsList.Contains(oTarget))
-                  myPlayer.selectedObjectsList.Add(oTarget);
-              }
-              else
-              {
-                oidSelf.AsPlayer().SendMessage("Vous ne pouvez pas manier cet élément.");
-              }*/
-            }
-            else
-            {
-              /*string sObjectSaved = "";
-
-              foreach (uint selectedObject in myPlayer.selectedObjectsList)
-              {
-                var sql = $"UPDATE sql_meubles SET objectLocation = @loc WHERE objectUUID = @uuid";
-
-                using (var connection = MySQL.GetConnection()) // TODO : à refaire, on ne va plus utiliser MySQL
-                {
-                  connection.Execute(sql, new { uuid = NWScript.GetObjectUUID(selectedObject), loc = Utils.LocationToString(NWScript.GetLocation(selectedObject)) }); // TODO : à refaire, il ne faut pas utiliser UUID entre différents reboot de serveur, mais plutôt un id incrémenté en BDD
-                }
-
-                sObjectSaved += NWScript.GetName(selectedObject) + "\n";
-              }
-
-              NWScript.SendMessageToPC(myPlayer.oid, $"Vous venez de sauvegarder le positionnement des meubles : \n{sObjectSaved}");
-              myPlayer.BoulderUnblock();
-
-              EventsPlugin.RemoveObjectFromDispatchList("NWNX_ON_INPUT_KEYBOARD_AFTER", "event_mv_plc", oidSelf);
-              NWScript.DeleteLocalObject(oidSelf, "_MOVING_PLC");
-              myPlayer.selectedObjectsList.Clear();*/
-            }
-          }
+          if (Players.TryGetValue(oidSelf, out oPC))
+            oPC.EmitKeydown(new Player.MenuFeatEventArgs(feat));
           break;
       }
           
       return 0;
     }
-
     private static void RefreshQBS(uint oidSelf, int feat)
     {
       string sQuickBar = CreaturePlugin.SerializeQuickbar(oidSelf);

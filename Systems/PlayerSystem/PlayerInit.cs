@@ -156,7 +156,6 @@ namespace NWN.Systems
     }
     private static void InitializePlayerEvents(uint player)
     {
-      EventsPlugin.AddObjectToDispatchList("NWNX_ON_INPUT_KEYBOARD_BEFORE", ON_PC_KEYSTROKE_SCRIPT, player);
       EventsPlugin.AddObjectToDispatchList("NWNX_ON_USE_FEAT_BEFORE", "event_feat_used", player);
       EventsPlugin.AddObjectToDispatchList("NWNX_ON_ADD_ASSOCIATE_AFTER", "summon_add_after", player);
       EventsPlugin.AddObjectToDispatchList("NWNX_ON_REMOVE_ASSOCIATE_AFTER", "summon_remove_after", player);
@@ -183,7 +182,7 @@ namespace NWN.Systems
     }
     private static void InitializePlayerCharacter(Player player)
     {
-      var query = NWScript.SqlPrepareQueryCampaign(ModuleSystem.database, $"SELECT areaTag, position, facing, currentHP, bankGold, dateLastSaved, currentSkillJob, currentCraftJob, currentCraftObject, currentCraftJobRemainingTime, currentCraftJobMaterial, frostAttackOn from playerCharacters where rowid = @characterId");
+      var query = NWScript.SqlPrepareQueryCampaign(ModuleSystem.database, $"SELECT areaTag, position, facing, currentHP, bankGold, dateLastSaved, currentSkillJob, currentCraftJob, currentCraftObject, currentCraftJobRemainingTime, currentCraftJobMaterial, frostAttackOn, menuOriginTop, menuOriginLeft from playerCharacters where rowid = @characterId");
       NWScript.SqlBindInt(query, "@characterId", player.characterId);
       NWScript.SqlStep(query);
 
@@ -194,6 +193,8 @@ namespace NWN.Systems
       player.currentSkillJob = NWScript.SqlGetInt(query, 6);
       player.craftJob = new CraftJob(NWScript.SqlGetString(query, 7), NWScript.SqlGetString(query, 10), NWScript.SqlGetFloat(query, 9), player, NWScript.SqlGetString(query, 8));
       player.isFrostAttackOn = Convert.ToBoolean(NWScript.SqlGetInt(query, 11));
+      player.menu.originTop = NWScript.SqlGetInt(query, 12);
+      player.menu.originLeft = NWScript.SqlGetInt(query, 13);
       player.previousArea = NWScript.GetAreaFromLocation(player.location);
 
       query = NWScript.SqlPrepareQueryCampaign(ModuleSystem.database, $"SELECT Veldspar, Scordite, Pyroxeres, Tritanium, Pyerite, Mexallon, Noxcium from playerMaterialStorage where characterId = @characterId");
