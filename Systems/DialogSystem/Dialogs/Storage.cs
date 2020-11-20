@@ -1,9 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using Microsoft.VisualBasic;
 using NWN.Core;
-using NWN.Core.NWNX;
 using static NWN.Systems.PlayerSystem;
 
 namespace NWN.Systems

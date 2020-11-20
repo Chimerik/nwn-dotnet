@@ -26,7 +26,8 @@ namespace NWN.Systems
             { "event_dm_spawn_object_after", HandleAfterDMSpawnObject },
             { "event_feat_used", HandleFeatUsed },
             { "event_auto_spell", HandleAutoSpell },
-            { "_onspellcast", HandleOnSpellCast },
+            { "_onspellcast_before", HandleBeforeSpellCast },
+            { "_onspellcast_after", HandleAfterSpellCast },
             { "event_combatmode", HandleOnCombatMode },
             { "event_skillused", HandleOnSkillUsed },
             { "summon_add_after", HandleAfterAddSummon },
@@ -315,7 +316,7 @@ namespace NWN.Systems
       return 0;
     }
 
-    private static int HandleOnSpellCast(uint oidSelf)
+    private static int HandleBeforeSpellCast(uint oidSelf)
     {
       Player oPC;
 
@@ -325,6 +326,21 @@ namespace NWN.Systems
 
         if (spellId != NWScript.SPELL_RAY_OF_FROST)
           oPC.autoAttackTarget = NWScript.OBJECT_INVALID;
+
+        //CreaturePlugin.SetClassByPosition(oidSelf, 0, NWScript.CLASS_TYPE_WIZARD);
+      }
+
+      return 0;
+    }
+    private static int HandleAfterSpellCast(uint oidSelf)
+    {
+      Player oPC;
+
+      if (Players.TryGetValue(oidSelf, out oPC))
+      {
+        var spellId = int.Parse(EventsPlugin.GetEventData("SPELL_ID"));
+
+        CreaturePlugin.SetClassByPosition(oidSelf, 0, 43);
       }
 
       return 0;

@@ -32,18 +32,9 @@ namespace NWN.Systems
       public Feat activeLanguage { get; set; }
       public TargetEvent targetEvent { get; set; }
       public Menu menu { get; }
-
-      public uint blockingBoulder { get; set; }
       public string disguiseName { get; set; }
       public uint deathCorpse { get; set; }
       public int setValue { get; set; }
-
-      private List<uint> _selectedObjectsList = new List<uint>();
-      public List<uint> selectedObjectsList
-      {
-        get => _selectedObjectsList;
-        // set => _selectedObjectsList.Add(value);
-      }
 
       public Dictionary<uint, Player> listened = new Dictionary<uint, Player>();
       public Dictionary<uint, Player> blocked = new Dictionary<uint, Player>();
@@ -150,7 +141,7 @@ namespace NWN.Systems
         EventsPlugin.AddObjectToDispatchList("NWNX_ON_EFFECT_REMOVED_AFTER", "event_effects", this.oid);
       }
 
-      public void BoulderBlock()
+      /*public void BoulderBlock()
       {
         NWScript.SendMessageToPC(this.oid, $"Creating boulders");
         BoulderUnblock();
@@ -162,7 +153,7 @@ namespace NWN.Systems
           NWScript.EffectVisualEffect(NWScript.VFX_DUR_CUTSCENE_INVISIBILITY),
           blockingBoulder
         );
-      }
+      }*/
       public void LoadMenuQuickbar()
       {
         if (!this.IsDialogQuickbarOn())
@@ -279,7 +270,7 @@ namespace NWN.Systems
             this.LevelUpSkill(skill);
           }
         }
-        else
+        /*else
         {
           if (this.removeableMalus.TryGetValue(this.currentSkillJob, out skill))
           {
@@ -292,7 +283,7 @@ namespace NWN.Systems
               this.RemoveMalus(skill);
             }
           }
-        }
+        }*/
       }
       public void RefreshAcquiredSkillPoints(int skillId)
       {
@@ -327,6 +318,9 @@ namespace NWN.Systems
           case 4:
             SP = SP * 120 / 100;
             break;
+          case 100:
+            SP = SP * 10;
+            break;
         }
 
         if (!this.isConnected)
@@ -338,6 +332,9 @@ namespace NWN.Systems
       }
       public void LevelUpSkill(SkillSystem.Skill skill)
       {
+        if (this.menu.isOpen)
+          this.menu.Close();
+
         if (!Convert.ToBoolean(CreaturePlugin.GetKnowsFeat(oid, skill.oid)))
         {
           CreaturePlugin.AddFeat(oid, skill.oid);
@@ -405,17 +402,17 @@ namespace NWN.Systems
 
       public void PlayNewSkillAcquiredEffects(SkillSystem.Skill skill)
       {
-        NWScript.PostString(oid, $"Votre apprentissage {skill.name} est terminé !", 80, 10, NWScript.SCREEN_ANCHOR_TOP_LEFT, 5.0f, unchecked((int)0xC0C0C0FF), unchecked((int)0xC0C0C0FF), 9, "fnt_galahad14");
-        PlayerPlugin.PlaySound(oid, "gui_level_up");
+        //NWScript.PostString(oid, $"Votre apprentissage {skill.name} est terminé !", 80, 10, NWScript.SCREEN_ANCHOR_TOP_LEFT, 5.0f, unchecked((int)0xC0C0C0FF), unchecked((int)0xC0C0C0FF), 9, "fnt_galahad14");
+        //PlayerPlugin.PlaySound(oid, "gui_level_up");
         PlayerPlugin.ApplyInstantVisualEffectToObject(oid, oid, NWScript.VFX_IMP_GLOBE_USE);
         skill.CloseSkillJournalEntry();
       }
 
       public void PlayCraftJobCompletedEffects(Blueprint blueprint)
       {
-        NWScript.PostString(oid, $"La création de votre {this.craftJob.name} est terminée !", 80, 10, NWScript.SCREEN_ANCHOR_TOP_LEFT, 5.0f, unchecked((int)0xC0C0C0FF), unchecked((int)0xC0C0C0FF), 9, "fnt_galahad14");
+        //NWScript.PostString(oid, $"La création de votre {this.craftJob.name} est terminée !", 80, 10, NWScript.SCREEN_ANCHOR_TOP_LEFT, 5.0f, unchecked((int)0xC0C0C0FF), unchecked((int)0xC0C0C0FF), 9, "fnt_galahad14");
         // TODO : changer les sons et effets visuels
-        PlayerPlugin.PlaySound(oid, "gui_level_up");
+        //PlayerPlugin.PlaySound(oid, "gui_level_up");
         PlayerPlugin.ApplyInstantVisualEffectToObject(oid, oid, NWScript.VFX_IMP_GLOBE_USE);
 
         CollectSystem.AddCraftedItemProperties(NWScript.CreateItemOnObject(blueprint.craftedItemTag, oid), blueprint, this.craftJob.material);
@@ -487,9 +484,11 @@ namespace NWN.Systems
         if (this.playerJournal.craftJobCountDown != null && Convert.ToBoolean(NWScript.GetLocalInt(NWScript.GetArea(this.oid), "_REST")))
         {
           journalEntry = PlayerPlugin.GetJournalEntry(this.oid, "craft_job");
-          journalEntry.sName = $"Travail artisanal - {Utils.StripTimeSpanMilliseconds((TimeSpan)(this.playerJournal.craftJobCountDown - DateTime.Now))}";
-          PlayerPlugin.AddCustomJournalEntry(this.oid, journalEntry, 1);
-
+          if (journalEntry.nUpdated != -1)
+          {
+            journalEntry.sName = $"Travail artisanal - {Utils.StripTimeSpanMilliseconds((TimeSpan)(this.playerJournal.craftJobCountDown - DateTime.Now))}";
+            PlayerPlugin.AddCustomJournalEntry(this.oid, journalEntry, 1);
+          }
           this.CraftJobProgression();
         }
 
@@ -497,8 +496,11 @@ namespace NWN.Systems
         {
           this.RefreshAcquiredSkillPoints(this.currentSkillJob);
           journalEntry = PlayerPlugin.GetJournalEntry(this.oid, "skill_job");
-          journalEntry.sName = $"Entrainement - {Utils.StripTimeSpanMilliseconds((TimeSpan)(this.playerJournal.skillJobCountDown - DateTime.Now))}";
-          PlayerPlugin.AddCustomJournalEntry(this.oid, journalEntry, 1);
+          if (journalEntry.nUpdated != -1)
+          {
+            journalEntry.sName = $"Entrainement - {Utils.StripTimeSpanMilliseconds((TimeSpan)(this.playerJournal.skillJobCountDown - DateTime.Now))}";
+            PlayerPlugin.AddCustomJournalEntry(this.oid, journalEntry, 1);
+          }
         }
 
         if(this.DoJournalUpdate)

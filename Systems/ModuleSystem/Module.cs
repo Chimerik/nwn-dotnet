@@ -14,21 +14,14 @@ namespace NWN.Systems
     public Module(uint oid)
     {
       this.oid = oid;
-      Console.WriteLine("1");
       this.botAsyncCommandList = new List<string>();
       Bot.MainAsync();
-      Console.WriteLine("2");
       this.CreateDatabase();
-      Console.WriteLine("3");
       ChatSystem.Init();
-      Console.WriteLine("4");
       try
       {
-        Console.WriteLine("5");
         LootSystem.InitChestArea();
-        Console.WriteLine("6");
         InitModuleChestSpawn();
-        Console.WriteLine("7");
       }
       catch (Exception e)
       {
@@ -122,8 +115,10 @@ namespace NWN.Systems
       EventsPlugin.ToggleDispatchListMode("NWNX_ON_INPUT_ATTACK_OBJECT_BEFORE", "event_auto_spell", 1);
       EventsPlugin.SubscribeEvent("NWNX_ON_INPUT_FORCE_MOVE_TO_OBJECT_BEFORE", "event_auto_spell");
       EventsPlugin.ToggleDispatchListMode("NWNX_ON_INPUT_FORCE_MOVE_TO_OBJECT_BEFORE", "event_auto_spell", 1);
-      EventsPlugin.SubscribeEvent("NWNX_ON_INPUT_CAST_SPELL_BEFORE", "_onspellcast");
-      EventsPlugin.ToggleDispatchListMode("NWNX_ON_INPUT_CAST_SPELL_BEFORE", "_onspellcast", 1);
+      EventsPlugin.SubscribeEvent("NWNX_ON_INPUT_CAST_SPELL_BEFORE", "_onspellcast_before");
+      EventsPlugin.ToggleDispatchListMode("NWNX_ON_INPUT_CAST_SPELL_BEFORE", "_onspellcast_before", 1);
+      EventsPlugin.SubscribeEvent("NWNX_ON_INPUT_CAST_SPELL_AFTER", "_onspellcast_after");
+      EventsPlugin.ToggleDispatchListMode("NWNX_ON_INPUT_CAST_SPELL_AFTER", "_onspellcast_after", 1);
       EventsPlugin.SubscribeEvent("NWNX_ON_INPUT_KEYBOARD_BEFORE", "event_auto_spell");
       EventsPlugin.ToggleDispatchListMode("NWNX_ON_INPUT_KEYBOARD_BEFORE", "event_auto_spell", 1);
       EventsPlugin.SubscribeEvent("NWNX_ON_INPUT_WALK_TO_WAYPOINT_BEFORE", "event_auto_spell");
@@ -185,6 +180,7 @@ namespace NWN.Systems
     private void InitializeFeatModifiers()
     {
       FeatPlugin.SetFeatModifier((int)Feat.VeldsparReprocessing, FeatPlugin.NWNX_FEAT_MODIFIER_ABILITY, NWScript.ABILITY_STRENGTH, 1);
+      //FeatPlugin.SetFeatModifier((int)Feat.BonusSpell, 22, 43, 3, 5);
     }
 
     private static void SaveServerVault()

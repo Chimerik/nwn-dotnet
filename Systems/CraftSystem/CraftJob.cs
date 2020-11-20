@@ -169,7 +169,7 @@ namespace NWN.Systems
         if (int.TryParse(NWScript.Get2DAString("feat", "GAINMULTIPLE", CreaturePlugin.GetHighestLevelOfFeat(player.oid, (int)Feat.BlueprintCopy)), out value))
         {
           int timeCost = blueprint.mineralsCost * 80 / 100;
-          float iJobDuration = timeCost - timeCost * value / 100;
+          float iJobDuration = timeCost - timeCost * (value * 5) / 100;
           player.craftJob = new CraftJob("blueprint_copy", "", iJobDuration, player, NWScript.ObjectToString(oBlueprint));
         }
       }

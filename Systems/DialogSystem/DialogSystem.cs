@@ -17,8 +17,13 @@ namespace NWN.Systems
 
     private static int HandleDialogStart(uint oidSelf)
     {
+      uint oPC = NWScript.GetLastSpeaker();
+
+      if(!Convert.ToBoolean(NWScript.GetIsObjectValid(oPC)))
+        oPC = NWScript.GetLastUsedBy();
+
       Player player;
-      if (Players.TryGetValue(NWScript.GetLastSpeaker(), out player))
+      if (Players.TryGetValue(oPC, out player))
       {
         switch (NWScript.GetTag(oidSelf))
         {
@@ -27,6 +32,9 @@ namespace NWN.Systems
             break;
           case "micropatate":
             new Storage(player);
+            break;
+          case "intro_mirror":
+            new IntroMirror(player);
             break;
         }
       }
