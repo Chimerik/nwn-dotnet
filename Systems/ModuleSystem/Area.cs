@@ -121,7 +121,7 @@ namespace NWN.Systems
     {
       if (NWScript.GetTag(this.oid) == $"entry_scene_{NWScript.GetPCPublicCDKey(player.oid)}")
       {
-        NWScript.DelayCommand(5.0f, () => player.PlayIntroSong());
+        NWScript.DelayCommand(10.0f, () => player.PlayIntroSong());
       }
     }
     public void StartEntryScene(PlayerSystem.Player player)
@@ -133,6 +133,19 @@ namespace NWN.Systems
       NWScript.DelayCommand(0.2f, () =>  NWScript.LockCameraPitch(player.oid, 1));
 
       ObjectPlugin.SetDialogResref(NWScript.GetObjectByTag("intro_captain"), "");
+      NWScript.AssignCommand(NWScript.GetObjectByTag("intro_captain"), () => NWScript.SpeakString("Des récifs ! Accrochez-vous, va falloir maneouvrer serré !"));
+
+      uint sailor1 = NWScript.GetObjectByTag("intro_sailor");
+      uint sailor2 = NWScript.GetObjectByTag("intro_sailor", 1);
+      NWScript.AssignCommand(sailor1, () => NWScript.ActionRandomWalk());
+      NWScript.AssignCommand(sailor1, () => NWScript.SpeakString("Umberlie, épargne-nous !"));
+      NWScript.AssignCommand(sailor2, () => NWScript.ActionRandomWalk());
+      NWScript.AssignCommand(sailor2, () => NWScript.SpeakString("Oh non, non, non, faut faire quelque chose, vite !"));
+      CreaturePlugin.SetMovementRate(sailor1, CreaturePlugin.NWNX_CREATURE_MOVEMENT_RATE_DM_FAST);
+      CreaturePlugin.SetMovementRate(sailor2, CreaturePlugin.NWNX_CREATURE_MOVEMENT_RATE_DM_FAST);
+
+      NWScript.DelayCommand(25.0f, () => StrikeSailor(sailor2, sailor1));
+      NWScript.DelayCommand(45.0f, () => NWScript.AssignCommand(NWScript.GetObjectByTag("intro_captain"), () => NWScript.SpeakString("Qu'est ce que c'est que ce truc ? On ne peut pas éviter la collision, ABANDONNEZ LE NAVIRE !")));
 
       VisibilityPlugin.SetVisibilityOverride(NWScript.OBJECT_INVALID, NWScript.GetObjectByTag("intro_brouillard"), VisibilityPlugin.NWNX_VISIBILITY_VISIBLE);
       VisibilityPlugin.SetVisibilityOverride(NWScript.OBJECT_INVALID, NWScript.GetObjectByTag("intro_brouillard", 1), VisibilityPlugin.NWNX_VISIBILITY_VISIBLE);
@@ -144,49 +157,31 @@ namespace NWN.Systems
       NWScript.SetAreaWind(this.oid, NWScript.Vector(1, 0, 0), 10.0f, 25.0f, 10.0f);
       NWScript.DelayCommand(2.0f, () => TriggerRandomLightnings(NWScript.GetPosition(player.oid), 25));
 
-      uint rock1 = NWScript.GetObjectByTag("intro_recif_1");
-      uint rock2 = NWScript.GetObjectByTag("intro_recif_2");
+      uint rock1 = NWScript.GetObjectByTag("intro_recif");
+      uint rock2 = NWScript.GetObjectByTag("intro_recif", 1);
+      uint rock3 = NWScript.GetObjectByTag("intro_recif", 2);
+      uint tourbillon = NWScript.GetObjectByTag("intro_tourbillon");
+
       VisibilityPlugin.SetVisibilityOverride(NWScript.OBJECT_INVALID, rock1, VisibilityPlugin.NWNX_VISIBILITY_ALWAYS_VISIBLE);
       VisibilityPlugin.SetVisibilityOverride(NWScript.OBJECT_INVALID, rock2, VisibilityPlugin.NWNX_VISIBILITY_ALWAYS_VISIBLE);
-      MoveRock(rock1, rock2, player.oid);
-    }
-    private void MoveRock(uint rock1, uint rock2, uint oPC)
-    {
-      float position = NWScript.GetObjectVisualTransform(rock1, NWScript.OBJECT_VISUAL_TRANSFORM_TRANSLATE_Y) - 0.25f;
-      NWScript.SetObjectVisualTransform(rock1, NWScript.OBJECT_VISUAL_TRANSFORM_TRANSLATE_Y, position);
+      VisibilityPlugin.SetVisibilityOverride(NWScript.OBJECT_INVALID, rock3, VisibilityPlugin.NWNX_VISIBILITY_ALWAYS_VISIBLE);
+      VisibilityPlugin.SetVisibilityOverride(NWScript.OBJECT_INVALID, tourbillon, VisibilityPlugin.NWNX_VISIBILITY_ALWAYS_VISIBLE);
 
-      float position2 = NWScript.GetObjectVisualTransform(rock2, NWScript.OBJECT_VISUAL_TRANSFORM_TRANSLATE_Y) - 0.25f;
-      NWScript.SetObjectVisualTransform(rock2, NWScript.OBJECT_VISUAL_TRANSFORM_TRANSLATE_Y, position2);
+      MoveRock(rock1, rock2, rock3, tourbillon, player.oid);
+    }
+    private void MoveRock(uint rock1, uint rock2, uint rock3, uint tourbillon, uint oPC)
+    {
+      NWScript.SetObjectVisualTransform(rock1, NWScript.OBJECT_VISUAL_TRANSFORM_TRANSLATE_Y, NWScript.GetObjectVisualTransform(rock1, NWScript.OBJECT_VISUAL_TRANSFORM_TRANSLATE_Y) - 0.25f);
+      NWScript.SetObjectVisualTransform(rock2, NWScript.OBJECT_VISUAL_TRANSFORM_TRANSLATE_Y, NWScript.GetObjectVisualTransform(rock2, NWScript.OBJECT_VISUAL_TRANSFORM_TRANSLATE_Y) - 0.25f);
+      NWScript.SetObjectVisualTransform(rock3, NWScript.OBJECT_VISUAL_TRANSFORM_TRANSLATE_Y, NWScript.GetObjectVisualTransform(rock3, NWScript.OBJECT_VISUAL_TRANSFORM_TRANSLATE_Y) - 0.25f);
+      float position = NWScript.SetObjectVisualTransform(tourbillon, NWScript.OBJECT_VISUAL_TRANSFORM_TRANSLATE_Y, NWScript.GetObjectVisualTransform(tourbillon, NWScript.OBJECT_VISUAL_TRANSFORM_TRANSLATE_Y) - 0.25f);
 
       //NWScript.SendMessageToPC(NWScript.GetFirstPC(), $"X = {position}");
 
-      if (position < -75)
-      {
-        NWScript.DestroyObject(rock1);
-        NWScript.DestroyObject(rock2);
-
-        switch (NWScript.GetTag(rock1))
-        {
-          case "intro_recif_1":
-            rock1 = NWScript.GetObjectByTag($"intro_recif_3");
-            rock2 = NWScript.GetObjectByTag($"intro_recif_4");
-            break;
-          case "intro_recif_3":
-            rock1 = NWScript.GetObjectByTag($"intro_tourbillon");
-            rock2 = NWScript.OBJECT_INVALID;
-            position = 0;
-            break;
-        }
-
-        VisibilityPlugin.SetVisibilityOverride(NWScript.OBJECT_INVALID, rock1, VisibilityPlugin.NWNX_VISIBILITY_ALWAYS_VISIBLE);
-        if(Convert.ToBoolean(NWScript.GetIsObjectValid(rock2)))
-          VisibilityPlugin.SetVisibilityOverride(NWScript.OBJECT_INVALID, rock2, VisibilityPlugin.NWNX_VISIBILITY_ALWAYS_VISIBLE);
-      }
-
-      if (NWScript.GetTag(rock1) == "intro_tourbillon" && position < -45)
+      if (position < -45)
         this.PlayTourbillonEffects(oPC); 
-      else if(Convert.ToBoolean(NWScript.GetIsObjectValid(rock1)))
-        NWScript.DelayCommand(0.1f, () => MoveRock(rock1, rock2, oPC));
+      else
+        NWScript.DelayCommand(0.1f, () => MoveRock(rock1, rock2, rock3, tourbillon, oPC));
     }
     private void PlayTourbillonEffects(uint oPC)
     {
@@ -202,6 +197,8 @@ namespace NWN.Systems
       NWScript.DelayCommand(4.0f, () => Utils.DestroyInventory(oPC));
       NWScript.DelayCommand(4.0f, () => Utils.DestroyEquippedItems(oPC));
       NWScript.DelayCommand(4.2f, () => NWScript.AssignCommand(oPC, () => NWScript.ActionEquipItem(NWScript.CreateItemOnObject("NW_CLOTH023", oPC), NWScript.INVENTORY_SLOT_CHEST)));
+      NWScript.DelayCommand(5.0f, () => NWScript.AssignCommand(oPC, () => NWScript.PlayAnimation(NWScript.ANIMATION_LOOPING_DEAD_BACK, 1, 999999.99f)));
+      NWScript.DelayCommand(8.0f, () => NWScript.FloatingTextStringOnCreature("En dehors des épaves de navires éparpillées toutes autour de vous, la plage sur laquelle vous avez atterri semble étrangement calme et agréable. Nulle trace de votre équipage ou des biens que vous aviez emportés. Devant vous se dressent les murailles d'une ville ancienne et délabrée. Qu'allez-vous faire maintenant ?", oPC, 0));
 
       NWScript.DelayCommand(0.2f, () => NWScript.LockCameraDirection(oPC, 0));
       NWScript.DelayCommand(0.2f, () => NWScript.LockCameraDistance(oPC, 0));
@@ -236,6 +233,14 @@ namespace NWN.Systems
           break;
       }
       NWScript.DelayCommand(Utils.random.Next(5, 15), () => TriggerRandomLightnings(center, maxDistance));
+    }
+
+    private void StrikeSailor(uint sailor2, uint sailor1)
+    {
+      NWScript.ApplyEffectToObject(NWScript.DURATION_TYPE_INSTANT, NWScript.EffectVisualEffect(NWScript.VFX_IMP_LIGHTNING_M), sailor2);
+      NWScript.SetPlotFlag(sailor2, 0);
+      NWScript.ApplyEffectToObject(NWScript.DURATION_TYPE_INSTANT, NWScript.EffectDamage(120, NWScript.DAMAGE_TYPE_ELECTRICAL, NWScript.DAMAGE_POWER_ENERGY), sailor2);
+      NWScript.AssignCommand(sailor1, () => NWScript.SpeakString("NOOOOOON, OLAF, MON FRERE JUMEAU ! Quelle horreur !"));
     }
     private void RemoveArea()
     {

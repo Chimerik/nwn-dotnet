@@ -22,7 +22,7 @@ namespace NWN.Systems
       public Boolean trained { get; set; }
       public Boolean databaseSaved { get; set; }
       private int multiplier;
-      private int pointsToNextLevel;
+      public readonly int pointsToNextLevel;
       public readonly int primaryAbility;
       public readonly int secondaryAbility;
 
@@ -33,6 +33,8 @@ namespace NWN.Systems
         this.acquiredPoints = SP;
         this.trained = false;
         this.databaseSaved = loadedFromDB;
+
+        Console.WriteLine($"Init Skill : {Id} - Points : {this.acquiredPoints}");
 
         int value;
         if (int.TryParse(NWScript.Get2DAString("feat", "FEAT", Id), out value))

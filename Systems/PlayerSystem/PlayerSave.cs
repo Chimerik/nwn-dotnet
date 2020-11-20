@@ -125,12 +125,12 @@ namespace NWN.Systems
     {
       foreach(KeyValuePair<int, SkillSystem.Skill> skillListEntry in player.learnableSkills)
       {
-        if(skillListEntry.Value.databaseSaved)
-        {
+        if (skillListEntry.Value.databaseSaved)
+        { 
           var query = NWScript.SqlPrepareQueryCampaign(ModuleSystem.database, $"UPDATE playerLearnableSkills SET skillPoints = @skillPoints, trained = @trained  where characterId = @characterId and skillId = @skillId");
           NWScript.SqlBindInt(query, "@characterId", player.characterId);
           NWScript.SqlBindInt(query, "@skillId", skillListEntry.Key);
-          NWScript.SqlBindFloat(query, "@skillPoints", skillListEntry.Value.acquiredPoints);
+          NWScript.SqlBindFloat(query, "@skillPoints", Convert.ToInt32(skillListEntry.Value.acquiredPoints));
           NWScript.SqlBindInt(query, "@trained", Convert.ToInt32(skillListEntry.Value.trained));
           NWScript.SqlStep(query);
         }
@@ -139,9 +139,11 @@ namespace NWN.Systems
           var query = NWScript.SqlPrepareQueryCampaign(ModuleSystem.database, $"INSERT INTO playerLearnableSkills (characterId, skillId, skillPoints, trained) VALUES (@characterId, @skillId, @skillPoints, @trained)");
           NWScript.SqlBindInt(query, "@characterId", player.characterId);
           NWScript.SqlBindInt(query, "@skillId", skillListEntry.Key);
-          NWScript.SqlBindFloat(query, "@skillPoints", skillListEntry.Value.acquiredPoints);
+          NWScript.SqlBindFloat(query, "@skillPoints", Convert.ToInt32(skillListEntry.Value.acquiredPoints));
           NWScript.SqlBindInt(query, "@trained", Convert.ToInt32(skillListEntry.Value.trained));
           NWScript.SqlStep(query);
+
+          skillListEntry.Value.databaseSaved = true;
         }
       }
 

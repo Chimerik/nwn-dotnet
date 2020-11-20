@@ -15,14 +15,14 @@ namespace NWN
     public static void LogException(Exception e)
     {
       Console.WriteLine(e.Message);
-      NWScript.SendMessageToAllDMs(e.Message);
       NWScript.WriteTimestampedLogEntry(e.Message);
       WebhookSystem.StartSendingAsyncDiscordMessage(Module.currentScript + " : " + e.Message, "AoA notification service - CRITICAL ERROR");
+      NWScript.SendMessageToAllDMs(e.Message);
     }
     public static void LogMessageToDMs(string message)
-    {
-      NWScript.SendMessageToAllDMs(message);
+    {  
       WebhookSystem.StartSendingAsyncDiscordMessage(Module.currentScript + " : " + message, "AoA notification service - ERROR");
+      NWScript.SendMessageToAllDMs(message);
     }
 
     public static void DestroyInventory(uint oContainer)

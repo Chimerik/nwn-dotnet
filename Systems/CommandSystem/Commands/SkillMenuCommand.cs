@@ -11,8 +11,6 @@ namespace NWN.Systems
   {
     private static void ExecuteSkillMenuCommand(ChatSystem.Context ctx, Options.Result options)
     {
-      var configOpt = (bool)options.named.GetValueOrDefault("config");
-
       PlayerSystem.Player player;
       if (PlayerSystem.Players.TryGetValue(ctx.oSender, out player))
       {
@@ -31,10 +29,12 @@ namespace NWN.Systems
 
         if (!skill.trained)
         {
-          player.RefreshAcquiredSkillPoints(skill.oid);
-          player.menu.choices.Add(($"{skill.name} - Temps restant : {Utils.StripTimeSpanMilliseconds((TimeSpan)(player.playerJournal.skillJobCountDown - DateTime.Now))}", () => __HandleSkillSelection(player, skill)));
+          if(skill.currentJob)
+            player.RefreshAcquiredSkillPoints(skill.oid);
+          
+          player.menu.choices.Add(($"{skill.name} - Temps restant : {Utils.StripTimeSpanMilliseconds((TimeSpan)(DateTime.Now.AddSeconds(skill.GetTimeToNextLevel(player.CalculateSkillPointsPerSecond(skill))) - DateTime.Now))}", () => __HandleSkillSelection(player, skill)));
         }
-        // TODO : Suivant, précédent et quitter
+        // TODO : Suivant, précédent
       }
 
       /*foreach (KeyValuePair<int, SkillSystem.Skill> SkillListEntry in player.learnableSkills)

@@ -75,6 +75,14 @@ namespace NWN.Systems
         {
           player.OnKeydown -= HandleMenuFeatUsed;
           player.UnloadMenuQuickbar();
+
+          if(NWScript.GetTag(NWScript.GetArea(player.oid)).StartsWith("entry_scene_"))
+          {
+            uint oClone = NWScript.GetNearestObjectByTag($"clone_{NWScript.GetPCPublicCDKey(player.oid)}", player.oid);
+            VisibilityPlugin.SetVisibilityOverride(player.oid, NWScript.GetNearestObjectByTag("intro_mirror", player.oid), VisibilityPlugin.NWNX_VISIBILITY_VISIBLE);
+            CreaturePlugin.JumpToLimbo(oClone);
+            NWScript.DestroyObject(oClone);
+          }
         }
 
         isOpen = false;
@@ -186,13 +194,16 @@ namespace NWN.Systems
 
       private void EraseLastSelection()
       {
-       /* NWScript.PostString(
+        NWScript.PostString(
           player.oid, "",
           drawnSelectionIds.X,
           drawnSelectionIds.Y,
-          drawnSelectionIds.ID,
-          0.000001f
-        );*/
+          0,
+          0.000001f,
+          0,
+          0,
+          drawnSelectionIds.ID
+        );
       }
 
       private void DrawLine(string text, int x, int y, int id, string font, List<(int X, int Y, int ID)> drawnLines = null)
