@@ -14,6 +14,7 @@ namespace NWN.Systems
     public Module(uint oid)
     {
       this.oid = oid;
+      NWScript.SetLocalString(oid, "X2_S_UD_SPELLSCRIPT", "spellhook");
       this.botAsyncCommandList = new List<string>();
       Bot.MainAsync();
       this.CreateDatabase();
@@ -79,6 +80,12 @@ namespace NWN.Systems
 
       EventsPlugin.SubscribeEvent("NWNX_ON_BROADCAST_CAST_SPELL_AFTER", "event_spellbroadcast_after");
       EventsPlugin.ToggleDispatchListMode("NWNX_ON_BROADCAST_CAST_SPELL_AFTER", "event_spellbroadcast_after", 1);
+      EventsPlugin.SubscribeEvent("NWNX_ON_CAST_SPELL_BEFORE", "_onspellcast_before");
+      EventsPlugin.ToggleDispatchListMode("NWNX_ON_CAST_SPELL_BEFORE", "_onspellcast_before", 1);
+      EventsPlugin.SubscribeEvent("NWNX_ON_CAST_SPELL_AFTER", "_onspellcast_after");
+      EventsPlugin.ToggleDispatchListMode("NWNX_ON_CAST_SPELL_AFTER", "_onspellcast_after", 1);
+      //EventsPlugin.SubscribeEvent("NWNX_ON_SPELL_INTERRUPTED_AFTER", "_onspellinterrupted_after");
+      //EventsPlugin.ToggleDispatchListMode("NWNX_ON_SPELL_INTERRUPTED_AFTER", "_onspellinterrupted_after", 1);
 
       EventsPlugin.SubscribeEvent("NWNX_ON_ITEM_EQUIP_BEFORE", "event_equip_items_before");
       EventsPlugin.ToggleDispatchListMode("NWNX_ON_ITEM_EQUIP_BEFORE", "event_equip_items_before", 1);
@@ -110,19 +117,6 @@ namespace NWN.Systems
 
       EventsPlugin.SubscribeEvent("NWNX_ON_DO_LISTEN_DETECTION_AFTER", "event_detection_after");
       EventsPlugin.ToggleDispatchListMode("NWNX_ON_DO_LISTEN_DETECTION_AFTER", "event_detection_after", 1);
-
-      EventsPlugin.SubscribeEvent("NWNX_ON_INPUT_ATTACK_OBJECT_BEFORE", "event_auto_spell");
-      EventsPlugin.ToggleDispatchListMode("NWNX_ON_INPUT_ATTACK_OBJECT_BEFORE", "event_auto_spell", 1);
-      EventsPlugin.SubscribeEvent("NWNX_ON_INPUT_FORCE_MOVE_TO_OBJECT_BEFORE", "event_auto_spell");
-      EventsPlugin.ToggleDispatchListMode("NWNX_ON_INPUT_FORCE_MOVE_TO_OBJECT_BEFORE", "event_auto_spell", 1);
-      EventsPlugin.SubscribeEvent("NWNX_ON_INPUT_CAST_SPELL_BEFORE", "_onspellcast_before");
-      EventsPlugin.ToggleDispatchListMode("NWNX_ON_INPUT_CAST_SPELL_BEFORE", "_onspellcast_before", 1);
-      EventsPlugin.SubscribeEvent("NWNX_ON_INPUT_CAST_SPELL_AFTER", "_onspellcast_after");
-      EventsPlugin.ToggleDispatchListMode("NWNX_ON_INPUT_CAST_SPELL_AFTER", "_onspellcast_after", 1);
-      EventsPlugin.SubscribeEvent("NWNX_ON_INPUT_KEYBOARD_BEFORE", "event_auto_spell");
-      EventsPlugin.ToggleDispatchListMode("NWNX_ON_INPUT_KEYBOARD_BEFORE", "event_auto_spell", 1);
-      EventsPlugin.SubscribeEvent("NWNX_ON_INPUT_WALK_TO_WAYPOINT_BEFORE", "event_auto_spell");
-      EventsPlugin.ToggleDispatchListMode("NWNX_ON_INPUT_WALK_TO_WAYPOINT_BEFORE", "event_auto_spell", 1);
 
       EventsPlugin.SubscribeEvent("NWNX_ON_USE_FEAT_BEFORE", "event_feat_used");
       EventsPlugin.ToggleDispatchListMode("NWNX_ON_USE_FEAT_BEFORE", "event_feat_used", 1);
@@ -179,8 +173,71 @@ namespace NWN.Systems
     }
     private void InitializeFeatModifiers()
     {
-      FeatPlugin.SetFeatModifier((int)Feat.VeldsparReprocessing, FeatPlugin.NWNX_FEAT_MODIFIER_ABILITY, NWScript.ABILITY_STRENGTH, 1);
-      //FeatPlugin.SetFeatModifier((int)Feat.BonusSpell, 22, 43, 3, 5);
+      int feat = (int)Feat.ImprovedStrength;
+      int value = 1;
+      for (int ability = NWScript.ABILITY_STRENGTH; ability <= NWScript.ABILITY_CHARISMA; ability++)
+      {
+        value = 1;
+        while(value < 6)
+        {
+          FeatPlugin.SetFeatModifier(feat, FeatPlugin.NWNX_FEAT_MODIFIER_ABILITY, ability, value);
+          value++;
+          feat++;
+        }
+      }
+
+      feat = (int)Feat.ImprovedAnimalEmpathy;
+      for (int skill = NWScript.SKILL_ANIMAL_EMPATHY; skill <= NWScript.SKILL_INTIMIDATE; skill++)
+      {
+
+        if (skill == NWScript.SKILL_PERSUADE || skill == NWScript.SKILL_APPRAISE || skill == NWScript.SKILL_CRAFT_TRAP)
+          continue;
+
+        value = 1;
+        while (value < 6)
+        {
+          SkillFeat skillFeat = new SkillFeat();
+          skillFeat.iFeat = feat;
+          skillFeat.iSkill = skill;
+          skillFeat.iModifier = value;
+          SkillranksPlugin.SetSkillFeat(skillFeat, 1);
+          value++;
+          feat++;
+        }
+      }
+
+      value = 1;  
+      for (int attackBonusfeat = (int)Feat.ImprovedAttackBonus; attackBonusfeat < (int)Feat.ImprovedAttackBonus + 5; attackBonusfeat++)
+      {
+        FeatPlugin.SetFeatModifier(attackBonusfeat, FeatPlugin.NWNX_FEAT_MODIFIER_AB, value);
+        value++;
+      }
+
+      feat = (int)Feat.ImprovedSpellSlot0_1;
+      value = 1;
+      for (int spellLevel = 0; spellLevel < 10; spellLevel++)
+      {
+        value = 1;
+        while (value < 11)
+        {
+          FeatPlugin.SetFeatModifier(feat, 22, 43, spellLevel, value); // 22 = NWNX_FEAT_MODIFIER_BONUSSPELL, 43 = class aventurier
+          value++;
+          feat++;
+        }
+      }
+
+      feat = (int)Feat.ImprovedSavingThrowAll;
+      value = 1;
+      for (int savingThrow = NWScript.SAVING_THROW_ALL; savingThrow < NWScript.SAVING_THROW_WILL; savingThrow++)
+      {
+        value = 1;
+        while (value < 6)
+        {
+          FeatPlugin.SetFeatModifier(feat, FeatPlugin.NWNX_FEAT_MODIFIER_SAVE, savingThrow, value);
+          value++;
+          feat++;
+        }
+      }
     }
 
     private static void SaveServerVault()

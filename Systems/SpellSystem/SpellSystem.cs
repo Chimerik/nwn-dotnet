@@ -13,6 +13,8 @@ namespace NWN.Systems
     public static Dictionary<string, Func<uint, int>> Register = new Dictionary<string, Func<uint, int>>
     {
             { "event_spellbroadcast_after", AfterSpellBroadcast },
+            { "_onspellinterrupted_after", AfterSpellInterrupted },
+            { "spellhook", HandleSpellHook },
             { "X0_S0_AcidSplash", CantripsScaler },
             { "NW_S0_Daze", CantripsScaler },
             { "X0_S0_ElecJolt", CantripsScaler },
@@ -23,7 +25,8 @@ namespace NWN.Systems
             { "NW_S0_Virtue", CantripsScaler },
             { "nw_s0_raisdead", HandleRaiseDeadCast },
             { "nw_s0_resserec", HandleRaiseDeadCast },
-            { "NW_S0_DivPower", SpellTest },
+            //{ "NW_S0_DivPower", SpellTest },
+            { "NW_S0_Fireball", SpellTest },
     };
     private static int CantripsScaler(uint oidSelf)
     {
@@ -213,32 +216,27 @@ namespace NWN.Systems
       {
         if (NWScript.GetIsDM(oPC.oid) != 1)
         {
-          string current_event = EventsPlugin.GetCurrentEvent();
-
-          if (current_event == "NWNX_ON_CAST_SPELL_BEFORE")
-          {
-            int iCount = 1;
+          int iCount = 1;
             
-            if (NWScript.GetHasSpellEffect(NWScript.SPELL_IMPROVED_INVISIBILITY, oPC.oid) == 1 || NWScript.GetHasSpellEffect(NWScript.SPELL_INVISIBILITY, oPC.oid) == 1 || NWScript.GetHasSpellEffect(NWScript.SPELL_INVISIBILITY_PURGE, oPC.oid) == 1)
-              if (int.Parse(EventsPlugin.GetEventData("META_TYPE")) != NWScript.METAMAGIC_SILENT)
+          if (NWScript.GetHasSpellEffect(NWScript.SPELL_IMPROVED_INVISIBILITY, oPC.oid) == 1 || NWScript.GetHasSpellEffect(NWScript.SPELL_INVISIBILITY, oPC.oid) == 1 || NWScript.GetHasSpellEffect(NWScript.SPELL_INVISIBILITY_PURGE, oPC.oid) == 1)
+            if (int.Parse(EventsPlugin.GetEventData("META_TYPE")) != NWScript.METAMAGIC_SILENT)
+            {
+              var oSpotter = NWScript.GetNearestCreature(1, 1, oPC.oid, iCount);
+              while (NWScript.GetIsObjectValid(oSpotter) == 1)
               {
-                var oSpotter = NWScript.GetNearestCreature(1, 1, oPC.oid, iCount);
-                while (NWScript.GetIsObjectValid(oSpotter) == 1)
+                if (NWScript.GetDistanceBetween(oSpotter, oPC.oid) > 20.0f)
+                  break;
+
+                if (NWScript.GetObjectSeen(oPC.oid, oSpotter) != 1)
                 {
-                  if (NWScript.GetDistanceBetween(oSpotter, oPC.oid) > 20.0f)
-                    break;
-
-                  if (NWScript.GetObjectSeen(oPC.oid, oSpotter) != 1)
-                  {
-                    NWScript.SendMessageToPC(oSpotter, "Quelqu'un d'invisible est en train de lancer un sort à proximité !");
-                    PlayerPlugin.ShowVisualEffect(oSpotter, 191, NWScript.GetPosition(oPC.oid));
-                  }
-
-                  iCount++;
-                  oSpotter = NWScript.GetNearestCreature(1, 1, oPC.oid, iCount);
+                  NWScript.SendMessageToPC(oSpotter, "Quelqu'un d'invisible est en train de lancer un sort à proximité !");
+                  PlayerPlugin.ShowVisualEffect(oSpotter, 191, NWScript.GetPosition(oPC.oid));
                 }
+
+              iCount++;
+                oSpotter = NWScript.GetNearestCreature(1, 1, oPC.oid, iCount);
               }
-          }
+            }
         }
       }
 
@@ -310,11 +308,51 @@ namespace NWN.Systems
         int nCasterLevel = NWScript.GetCasterLevel(oidSelf);
         int nTotalCharacterLevel = NWScript.GetHitDice(oidSelf);
 
+        NWScript.SendMessageToPC(oPC.oid, $"Entering spell script");
         NWScript.SendMessageToPC(oPC.oid, $"CL self = {nCasterLevel}");
         NWScript.SendMessageToPC(oPC.oid, $"CL target = {NWScript.GetCasterLevel(oTarget)}");
         NWScript.SendMessageToPC(oPC.oid, $"CL player = {NWScript.GetCasterLevel(oPC.oid)}");
         NWScript.SendMessageToPC(oPC.oid, $"Item used = {NWScript.GetName(NWScript.GetSpellCastItem())}");
       }
+
+      return -1;
+    }
+    private static int HandleSpellHook(uint oidSelf)
+    {
+      Player oPC;
+      if (Players.TryGetValue(oidSelf, out oPC))
+      {
+        NWScript.SetLocalInt(oidSelf, "_DELAYED_SPELLHOOK_REFLEX", CreaturePlugin.GetBaseSavingThrow(oidSelf, NWScript.SAVING_THROW_REFLEX));
+        NWScript.SetLocalInt(oidSelf, "_DELAYED_SPELLHOOK_WILL", CreaturePlugin.GetBaseSavingThrow(oidSelf, NWScript.SAVING_THROW_WILL));
+        NWScript.SetLocalInt(oidSelf, "_DELAYED_SPELLHOOK_FORT", CreaturePlugin.GetBaseSavingThrow(oidSelf, NWScript.SAVING_THROW_FORT));
+        NWScript.SendMessageToPC(oidSelf, "entering spellhook");
+        int casterLevel;
+        if (int.TryParse(NWScript.Get2DAString("feat", "GAINMULTIPLE", CreaturePlugin.GetHighestLevelOfFeat(oidSelf, (int)Feat.ImprovedCasterLevel)), out casterLevel))
+          CreaturePlugin.SetLevelByPosition(oidSelf, 0, casterLevel + 1);
+
+        NWScript.DelayCommand(0.0f, () => DelayedSpellHook(oidSelf));
+        //CreaturePlugin.SetClassByPosition(oidSelf, 0, 43);
+      }
+
+      return 0;
+    }
+    private static void DelayedSpellHook(uint oidSelf)
+    {
+      NWScript.SendMessageToPC(oidSelf, "delayed spellhook");
+      CreaturePlugin.SetLevelByPosition(oidSelf, 0, 1);
+      CreaturePlugin.SetBaseSavingThrow(oidSelf, NWScript.SAVING_THROW_REFLEX, NWScript.GetLocalInt(oidSelf, "_DELAYED_SPELLHOOK_REFLEX"));
+      CreaturePlugin.SetBaseSavingThrow(oidSelf, NWScript.SAVING_THROW_WILL, NWScript.GetLocalInt(oidSelf, "_DELAYED_SPELLHOOK_WILL"));
+      CreaturePlugin.SetBaseSavingThrow(oidSelf, NWScript.SAVING_THROW_FORT, NWScript.GetLocalInt(oidSelf, "_DELAYED_SPELLHOOK_FORT"));
+    }
+    private static int AfterSpellInterrupted(uint oidSelf)
+    {
+      /*Player oPC;
+      if (Players.TryGetValue(oidSelf, out oPC))
+      {
+        NWScript.SendMessageToPC(oPC.oid, $"spell interrupted caster level : {NWScript.GetCasterLevel(oidSelf)}");
+        CreaturePlugin.SetLevelByPosition(oidSelf, 0, 1);
+        //CreaturePlugin.SetClassByPosition(oidSelf, 0, 43);
+      }*/
 
       return 0;
     }

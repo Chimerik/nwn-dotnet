@@ -1,13 +1,7 @@
 ﻿using System;
 using System.Net;
 using System.Web;
-using NWN.Core;
 using NWN.Core.NWNX;
-using Dapper;
-using Microsoft.Data.Sqlite;
-using System.Linq;
-using System.Numerics;
-using System.Runtime.CompilerServices;
 
 namespace NWN.Systems
 {
@@ -18,13 +12,7 @@ namespace NWN.Systems
       PlayerSystem.Player player;
       if (PlayerSystem.Players.TryGetValue(ctx.oSender, out player))
       {
-        player.learnableSkills.Clear();
-        CreaturePlugin.RemoveFeat(player.oid, 1145);
-        CreaturePlugin.RemoveFeat(player.oid, 1146);
-        CreaturePlugin.RemoveFeat(player.oid, 1147);
-        CreaturePlugin.RemoveFeat(player.oid, 1148);
-        CreaturePlugin.RemoveFeat(player.oid, 1149);
-        PlayerSystem.InitializeNewPlayerLearnableSkills(player);
+        CreaturePlugin.AddFeat(player.oid, (int)Feat.ImprovedAnimalEmpathy4);
       }
     }
 

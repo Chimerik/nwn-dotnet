@@ -34,8 +34,6 @@ namespace NWN.Systems
         this.trained = false;
         this.databaseSaved = loadedFromDB;
 
-        Console.WriteLine($"Init Skill : {Id} - Points : {this.acquiredPoints}");
-
         int value;
         if (int.TryParse(NWScript.Get2DAString("feat", "FEAT", Id), out value))
           this.name = NWScript.GetStringByStrRef(value);
