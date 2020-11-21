@@ -324,9 +324,10 @@ namespace NWN.Systems
       {
         var spellId = int.Parse(EventsPlugin.GetEventData("SPELL_ID"));
 
-        if (spellId != NWScript.SPELL_RAY_OF_FROST)
-          oPC.autoAttackTarget = NWScript.OBJECT_INVALID;
+        //if (spellId != NWScript.SPELL_RAY_OF_FROST)
+          //oPC.autoAttackTarget = NWScript.OBJECT_INVALID;
 
+        NWScript.SendMessageToPC(oidSelf, "before spell cast");
         //CreaturePlugin.SetClassByPosition(oidSelf, 0, NWScript.CLASS_TYPE_WIZARD);
       }
 
@@ -339,8 +340,8 @@ namespace NWN.Systems
       if (Players.TryGetValue(oidSelf, out oPC))
       {
         var spellId = int.Parse(EventsPlugin.GetEventData("SPELL_ID"));
-
-        CreaturePlugin.SetClassByPosition(oidSelf, 0, 43);
+        NWScript.SendMessageToPC(oidSelf, "after spell cast");
+        //CreaturePlugin.SetClassByPosition(oidSelf, 0, 43); // 43 = aventurier
       }
 
       return 0;
