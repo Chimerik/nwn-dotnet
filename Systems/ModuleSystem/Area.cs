@@ -110,6 +110,11 @@ namespace NWN.Systems
         case "entry_scene":
           this.InitializeEntryArea();
           break;
+        case "SimilisseThetreSalledeSpectacle":
+          uint scene = NWScript.GetObjectByTag("theater_scene");
+          NWScript.SetEventScript(scene, NWScript.EVENT_SCRIPT_TRIGGER_ON_OBJECT_ENTER, "onent_theater_sc");
+          NWScript.SetEventScript(scene, NWScript.EVENT_SCRIPT_TRIGGER_ON_OBJECT_EXIT, "onex_theater_sc");
+          break;
       }
     }
     public void InitializeEntryArea()

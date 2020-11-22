@@ -13,6 +13,7 @@ namespace NWN.Systems
         {
             { "diag_root", HandleDialogStart },
             { "intro_start", HandleIntroStart },
+            { "intro_validation", HandleIntroValidation },
         };
 
     private static int HandleDialogStart(uint oidSelf)
@@ -52,6 +53,18 @@ namespace NWN.Systems
       }
 
       return 0;
+    }
+    private static int HandleIntroValidation(uint oidSelf)
+    {
+      uint oPC = NWScript.GetLastSpeaker();
+
+      if (ObjectPlugin.GetInt(oPC, "_STARTING_SKILL_POINTS") > 0)
+      {
+        NWScript.SendMessageToPC(oPC, $"Il vous reste encore {ObjectPlugin.GetInt(oPC, "_STARTING_SKILL_POINTS")} points de compétences à dépenser auprès du reflet avant de pouvoir débarquer !");
+        return 0;
+      }
+      else
+        return -1;
     }
   }
 }

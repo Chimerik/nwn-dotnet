@@ -39,7 +39,7 @@ namespace NWN.Systems
           this.name = NWScript.GetStringByStrRef(value);
         else
         {
-          this.name = "Nom non disponible";
+          this.name = "Nom indisponible";
           Utils.LogMessageToDMs($"SKILL SYSTEM ERROR - Skill {this.oid} : no available name");
         }
 
@@ -47,7 +47,7 @@ namespace NWN.Systems
           this.description = NWScript.GetStringByStrRef(value);
         else
         {
-          this.description = "Description non disponible";
+          this.description = "Description indisponible";
           Utils.LogMessageToDMs($"SKILL SYSTEM ERROR - Skill {this.oid} : no available description");
         }
 

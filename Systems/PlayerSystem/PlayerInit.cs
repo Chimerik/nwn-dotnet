@@ -155,6 +155,7 @@ namespace NWN.Systems
       player.learnableSkills.Add((int)Feat.Toughness, new SkillSystem.Skill((int)Feat.Toughness, 0.0f, player));
       player.learnableSkills.Add((int)Feat.ImprovedAttackBonus, new SkillSystem.Skill((int)Feat.ImprovedAttackBonus, 0.0f, player));
       player.learnableSkills.Add((int)Feat.ImprovedCasterLevel, new SkillSystem.Skill((int)Feat.ImprovedCasterLevel, 0.0f, player));
+      player.learnableSkills.Add((int)Feat.WeaponProficiencySimple, new SkillSystem.Skill((int)Feat.WeaponProficiencySimple, 0.0f, player));
       player.learnableSkills.Add((int)Feat.ArmorProficiencyLight, new SkillSystem.Skill((int)Feat.ArmorProficiencyLight, 0.0f, player));
       player.learnableSkills.Add((int)Feat.ShieldProficiency, new SkillSystem.Skill((int)Feat.ShieldProficiency, 0.0f, player));
       player.learnableSkills.Add((int)Feat.WeaponFinesse, new SkillSystem.Skill((int)Feat.WeaponFinesse, 0.0f, player));
