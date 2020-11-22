@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Net;
 using System.Web;
+using NWN.Core;
 using NWN.Core.NWNX;
 
 namespace NWN.Systems
@@ -12,7 +13,7 @@ namespace NWN.Systems
       PlayerSystem.Player player;
       if (PlayerSystem.Players.TryGetValue(ctx.oSender, out player))
       {
-        CreaturePlugin.AddFeat(player.oid, (int)Feat.ImprovedAnimalEmpathy4);
+        NWScript.PlaySound("my_mother_toldme");
       }
     }
 

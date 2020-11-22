@@ -19,6 +19,8 @@ namespace NWN.Systems
       //  { "event_mouse_clic", EventMouseClick },
       { "event_potager", EventPotager },
       { "_event_effects", EventEffects },
+      { "onent_theater_sc", HandleEnterTheaterScene },
+      { "onex_theater_sc", HandleExitTheaterScene },
     }.Concat(Systems.LootSystem.Register)
      .Concat(Systems.PlayerSystem.Register)
      .Concat(Systems.ChatSystem.Register)
@@ -102,6 +104,16 @@ namespace NWN.Systems
         }
       }
 
+      return 0;
+    }
+    private static int HandleEnterTheaterScene(uint oidSelf)
+    {
+      NWScript.SetObjectVisualTransform(NWScript.GetEnteringObject(), NWScript.OBJECT_VISUAL_TRANSFORM_TRANSLATE_Z, 2.01f);
+      return 0;
+    }
+    private static int HandleExitTheaterScene(uint oidSelf)
+    {
+      NWScript.SetObjectVisualTransform(NWScript.GetExitingObject(), NWScript.OBJECT_VISUAL_TRANSFORM_TRANSLATE_Z, 0);
       return 0;
     }
   }
