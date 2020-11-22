@@ -115,11 +115,21 @@ namespace NWN.Systems
       WebhookSystem.StartSendingAsyncDiscordMessage($"{NWScript.GetPCPlayerName(newCharacter.oid)} vient de créer un nouveau personnage : {NWScript.GetName(newCharacter.oid)}", "AoA notification service - Nouveau personnage !");
       ObjectPlugin.SetInt(newCharacter.oid, "_STARTING_SKILL_POINTS", 5000, 1);
 
-      uint arrivalArea = NWScript.CopyArea(Module.areaDictionnary.Where(v => v.Value.tag == "entry_scene").FirstOrDefault().Value.oid);
-      Module.areaDictionnary.Add(NWScript.GetObjectUUID(arrivalArea), new Area(arrivalArea));
-      NWScript.SetName(arrivalArea, $"La galère de {NWScript.GetName(newCharacter.oid)} (Bienvenue !)");
-      NWScript.SetTag(arrivalArea, $"entry_scene_{NWScript.GetPCPublicCDKey(newCharacter.oid)}");
-      uint arrivalPoint = NWScript.GetNearestObjectByTag("ENTRY_POINT", NWScript.GetFirstObjectInArea(arrivalArea));
+      uint arrivalArea, arrivalPoint;
+
+      if (Config.env == Config.Env.Prod)
+      {
+        arrivalArea = NWScript.CopyArea(Module.areaDictionnary.Where(v => v.Value.tag == "entry_scene").FirstOrDefault().Value.oid);
+        Module.areaDictionnary.Add(NWScript.GetObjectUUID(arrivalArea), new Area(arrivalArea));
+        NWScript.SetName(arrivalArea, $"La galère de {NWScript.GetName(newCharacter.oid)} (Bienvenue !)");
+        NWScript.SetTag(arrivalArea, $"entry_scene_{NWScript.GetPCPublicCDKey(newCharacter.oid)}");
+        arrivalPoint = NWScript.GetNearestObjectByTag("ENTRY_POINT", NWScript.GetFirstObjectInArea(arrivalArea));
+
+      } else
+      {
+        arrivalArea = NWScript.GetArea(newCharacter.oid);
+        arrivalPoint = newCharacter.oid;
+      }
 
       var query = NWScript.SqlPrepareQueryCampaign(ModuleSystem.database, $"INSERT INTO playerCharacters (accountId , characterName, dateLastSaved, currentSkillJob, currentCraftJob, currentCraftObject, frostAttackOn, areaTag, position, facing) VALUES (@accountId, @name, @dateLastSaved, @currentSkillJob, @currentCraftJob, @currentCraftObject, @frostAttackOn, @areaTag, @position, @facing)");
       NWScript.SqlBindInt(query, "@accountId", newCharacter.accountId);
