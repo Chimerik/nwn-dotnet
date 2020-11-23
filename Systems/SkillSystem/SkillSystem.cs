@@ -34,5 +34,7 @@ namespace NWN.Systems
 
       return 0;
     }
+    public static Feat[] craftSkillBooks = new Feat[] { Feat.Metallurgy, Feat.AdvancedCraft, Feat.Miner, Feat.Geology, Feat.Prospection, Feat.VeldsparReprocessing, Feat.ScorditeReprocessing, Feat.PyroxeresReprocessing, Feat.StripMiner, Feat.Reprocessing, Feat.ReprocessingEfficiency, Feat.Connections, Feat.Forge, Feat.ForgeLongsword, Feat.ForgeFullplate };
+    public static Feat[] languageSkillBooks = new Feat[] { Feat.LanguageAbyssal, Feat.LanguageCelestial, Feat.LanguageDeep, Feat.LanguageDraconic, Feat.LanguageDruidic, Feat.LanguageDwarf, Feat.LanguageElf, Feat.LanguageGiant, Feat.LanguageGoblin, Feat.LanguageHalfling, Feat.LanguageInfernal, Feat.LanguageOrc, Feat.LanguagePrimodial, Feat.LanguageSylvan, Feat.LanguageThieves };
   }
 }
