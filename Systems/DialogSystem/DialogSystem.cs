@@ -37,6 +37,30 @@ namespace NWN.Systems
           case "intro_mirror":
             new IntroMirror(player);
             break;
+          case "skillbank":
+            uint shop = NWScript.GetNearestObjectByTag("skillbank_shop", oidSelf);
+
+            if (!Convert.ToBoolean(NWScript.GetIsObjectValid(shop)))
+            {
+              shop = NWScript.CreateObject(NWScript.OBJECT_TYPE_STORE, "generic_shop_res", NWScript.GetLocation(oidSelf), 0, "skillbank_shop");
+
+              foreach (Feat feat in SkillSystem.languageSkillBooks)
+              {
+                uint skillBook = NWScript.CreateItemOnObject("skillbookgeneriq", shop, 10, "skillbook");
+                ItemPlugin.SetItemAppearance(skillBook, NWScript.ITEM_APPR_TYPE_SIMPLE_MODEL, 2, Utils.random.Next(0, 50));
+                NWScript.SetLocalInt(skillBook, "_SKILL_ID", (int)feat);
+
+                int value;
+                if (int.TryParse(NWScript.Get2DAString("feat", "FEAT", (int)feat), out value))
+                  NWScript.SetName(skillBook, NWScript.GetStringByStrRef(value));
+
+                if (int.TryParse(NWScript.Get2DAString("feat", "DESCRIPTION", (int)feat), out value))
+                  NWScript.SetDescription(skillBook, NWScript.GetStringByStrRef(value));
+              }
+            }
+
+            NWScript.OpenStore(shop, player.oid);
+            break;
         }
       }
         
@@ -64,7 +88,10 @@ namespace NWN.Systems
         return 0;
       }
       else
-        return -1;
+      {
+        NWScript.SetLocalInt(oidSelf, "_GO", 1);
+        return 1;
+      }
     }
   }
 }
