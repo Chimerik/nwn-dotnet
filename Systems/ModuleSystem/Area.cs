@@ -137,11 +137,12 @@ namespace NWN.Systems
       NWScript.DelayCommand(0.2f, () =>  NWScript.LockCameraDistance(player.oid, 1));
       NWScript.DelayCommand(0.2f, () =>  NWScript.LockCameraPitch(player.oid, 1));
 
-      ObjectPlugin.SetDialogResref(NWScript.GetObjectByTag("intro_captain"), "");
-      NWScript.AssignCommand(NWScript.GetObjectByTag("intro_captain"), () => NWScript.SpeakString("Des récifs ! Accrochez-vous, va falloir maneouvrer serré !"));
+      uint oCaptain = NWScript.GetNearestObjectByTag("intro_captain", player.oid);
+      ObjectPlugin.SetDialogResref(oCaptain, "");
+      NWScript.AssignCommand(oCaptain, () => NWScript.SpeakString("Des récifs ! Accrochez-vous, va falloir maneouvrer serré !"));
 
-      uint sailor1 = NWScript.GetObjectByTag("intro_sailor");
-      uint sailor2 = NWScript.GetObjectByTag("intro_sailor", 1);
+      uint sailor1 = NWScript.GetNearestObjectByTag("intro_sailor", player.oid);
+      uint sailor2 = NWScript.GetNearestObjectByTag("intro_sailor", player.oid, 2);
       NWScript.AssignCommand(sailor1, () => NWScript.ActionRandomWalk());
       NWScript.AssignCommand(sailor1, () => NWScript.SpeakString("Umberlie, épargne-nous !"));
       NWScript.AssignCommand(sailor2, () => NWScript.ActionRandomWalk());
@@ -150,22 +151,22 @@ namespace NWN.Systems
       CreaturePlugin.SetMovementRate(sailor2, CreaturePlugin.NWNX_CREATURE_MOVEMENT_RATE_DM_FAST);
 
       NWScript.DelayCommand(25.0f, () => StrikeSailor(sailor2, sailor1));
-      NWScript.DelayCommand(45.0f, () => NWScript.AssignCommand(NWScript.GetObjectByTag("intro_captain"), () => NWScript.SpeakString("Qu'est ce que c'est que ce truc ? On ne peut pas éviter la collision, ABANDONNEZ LE NAVIRE !")));
+      NWScript.DelayCommand(45.0f, () => NWScript.AssignCommand(oCaptain, () => NWScript.SpeakString("Qu'est ce que c'est que ce truc ? On ne peut pas éviter la collision, ABANDONNEZ LE NAVIRE !")));
 
-      VisibilityPlugin.SetVisibilityOverride(NWScript.OBJECT_INVALID, NWScript.GetObjectByTag("intro_brouillard"), VisibilityPlugin.NWNX_VISIBILITY_VISIBLE);
-      VisibilityPlugin.SetVisibilityOverride(NWScript.OBJECT_INVALID, NWScript.GetObjectByTag("intro_brouillard", 1), VisibilityPlugin.NWNX_VISIBILITY_VISIBLE);
+      VisibilityPlugin.SetVisibilityOverride(NWScript.OBJECT_INVALID, NWScript.GetNearestObjectByTag("intro_brouillard", player.oid), VisibilityPlugin.NWNX_VISIBILITY_VISIBLE);
+      VisibilityPlugin.SetVisibilityOverride(NWScript.OBJECT_INVALID, NWScript.GetNearestObjectByTag("intro_brouillard", player.oid, 2), VisibilityPlugin.NWNX_VISIBILITY_VISIBLE);
      
       AreaPlugin.SetDayNightCycle(this.oid, AreaPlugin.NWNX_AREA_DAYNIGHTCYCLE_ALWAYS_DARK);
       AreaPlugin.SetWeatherChance(this.oid, AreaPlugin.NWNX_AREA_WEATHER_CHANCE_RAIN, 100);
       AreaPlugin.SetWeatherChance(this.oid, AreaPlugin.NWNX_AREA_WEATHER_CHANCE_LIGHTNING, 100);
 
       NWScript.SetAreaWind(this.oid, NWScript.Vector(1, 0, 0), 10.0f, 25.0f, 10.0f);
-      NWScript.DelayCommand(2.0f, () => TriggerRandomLightnings(NWScript.GetPosition(player.oid), 25));
+      NWScript.DelayCommand(2.0f, () => TriggerRandomLightnings(NWScript.GetPosition(player.oid), 25, player.oid));
 
-      uint rock1 = NWScript.GetObjectByTag("intro_recif");
-      uint rock2 = NWScript.GetObjectByTag("intro_recif", 1);
-      uint rock3 = NWScript.GetObjectByTag("intro_recif", 2);
-      uint tourbillon = NWScript.GetObjectByTag("intro_tourbillon");
+      uint rock1 = NWScript.GetNearestObjectByTag("intro_recif", player.oid);
+      uint rock2 = NWScript.GetNearestObjectByTag("intro_recif", player.oid, 2);
+      uint rock3 = NWScript.GetNearestObjectByTag("intro_recif", player.oid, 3);
+      uint tourbillon = NWScript.GetNearestObjectByTag("intro_tourbillon", player.oid);
 
       VisibilityPlugin.SetVisibilityOverride(NWScript.OBJECT_INVALID, rock1, VisibilityPlugin.NWNX_VISIBILITY_ALWAYS_VISIBLE);
       VisibilityPlugin.SetVisibilityOverride(NWScript.OBJECT_INVALID, rock2, VisibilityPlugin.NWNX_VISIBILITY_ALWAYS_VISIBLE);
@@ -209,7 +210,7 @@ namespace NWN.Systems
       NWScript.DelayCommand(0.2f, () => NWScript.LockCameraDistance(oPC, 0));
       NWScript.DelayCommand(0.2f, () => NWScript.LockCameraPitch(oPC, 0));
     }
-    private void TriggerRandomLightnings(Vector3 center, int maxDistance)
+    private void TriggerRandomLightnings(Vector3 center, int maxDistance, uint oPC)
     {
       int nbStrikes = Utils.random.Next(1, 5);
 
@@ -219,25 +220,25 @@ namespace NWN.Systems
       switch (Utils.random.Next(0, 6))
       {
         case 0:
-          NWScript.AssignCommand(NWScript.GetObjectByTag("intro_sailor", Utils.random.Next(0, 2)), () => NWScript.SpeakString("Oh bordel, c'est pas passé loin !"));
+          NWScript.AssignCommand(NWScript.GetNearestObjectByTag("intro_sailor", oPC, Utils.random.Next(1, 3)), () => NWScript.SpeakString("Oh bordel, c'est pas passé loin !"));
           break;
         case 1:
-          NWScript.AssignCommand(NWScript.GetObjectByTag("intro_sailor", Utils.random.Next(0, 2)), () => NWScript.SpeakString("Fichtre, encore un comme ça et est on foutu !"));
+          NWScript.AssignCommand(NWScript.GetNearestObjectByTag("intro_sailor", oPC, Utils.random.Next(1, 3)), () => NWScript.SpeakString("Fichtre, encore un comme ça et est on foutu !"));
           break;
         case 2:
-          NWScript.AssignCommand(NWScript.GetObjectByTag("intro_sailor", Utils.random.Next(0, 2)), () => NWScript.SpeakString("Talos, aie pitié de nous !"));
+          NWScript.AssignCommand(NWScript.GetNearestObjectByTag("intro_sailor", oPC, Utils.random.Next(1, 3)), () => NWScript.SpeakString("Talos, aie pitié de nous !"));
           break;
         case 3:
-          NWScript.AssignCommand(NWScript.GetObjectByTag("intro_sailor", Utils.random.Next(0, 2)), () => NWScript.SpeakString("Si jamais ça passe un peu plus près, j'donne pas cher de notre peau !"));
+          NWScript.AssignCommand(NWScript.GetNearestObjectByTag("intro_sailor", oPC, Utils.random.Next(1, 3)), () => NWScript.SpeakString("Si jamais ça passe un peu plus près, j'donne pas cher de notre peau !"));
           break;
         case 4:
-          NWScript.AssignCommand(NWScript.GetObjectByTag("intro_sailor", Utils.random.Next(0, 2)), () => NWScript.SpeakString("J'crois que le moment est venu de paniquer !"));
+          NWScript.AssignCommand(NWScript.GetNearestObjectByTag("intro_sailor", oPC, Utils.random.Next(1, 3)), () => NWScript.SpeakString("J'crois que le moment est venu de paniquer !"));
           break;
         case 5:
-          NWScript.AssignCommand(NWScript.GetObjectByTag("intro_sailor", Utils.random.Next(0, 2)), () => NWScript.SpeakString("C'est la fin, le ciel nous tombe sur la tête !"));
+          NWScript.AssignCommand(NWScript.GetNearestObjectByTag("intro_sailor", oPC, Utils.random.Next(1, 3)), () => NWScript.SpeakString("C'est la fin, le ciel nous tombe sur la tête !"));
           break;
       }
-      NWScript.DelayCommand(Utils.random.Next(5, 15), () => TriggerRandomLightnings(center, maxDistance));
+      NWScript.DelayCommand(Utils.random.Next(5, 15), () => TriggerRandomLightnings(center, maxDistance, oPC));
     }
 
     private void StrikeSailor(uint sailor2, uint sailor1)
