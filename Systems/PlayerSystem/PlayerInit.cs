@@ -40,9 +40,6 @@ namespace NWN.Systems
       else
         player = Players[oPC];
 
-      // TODO : Système de sauvegarde et de chargement de quickbar
-      //EventsPlugin.AddObjectToDispatchList("NWNX_ON_QUICKBAR_SET_BUTTON_AFTER", "event_qbs", oPC);
-
       if (NWScript.GetIsDM(oPC) != 1)
       {
         /*if (NWScript.GetIsObjectValid(NWScript.GetItemPossessedBy(oPC, "pj_lycan_curse")) == 1) // TODO : revoir système de métamorphose et de malédiction lycanthropique
@@ -67,7 +64,7 @@ namespace NWN.Systems
           NWScript.ApplyEffectToObject(NWScript.DURATION_TYPE_PERMANENT, eHunger, oPC);
         }*/
 
-        if (player.location != null)
+       /* if (player.location != null)
         {
           NWScript.DelayCommand(1.0f, () => NWScript.AssignCommand(player.oid, () => NWScript.ClearAllActions()));
           NWScript.DelayCommand(1.1f, () => NWScript.AssignCommand(player.oid, () => NWScript.JumpToLocation(player.location)));
@@ -84,7 +81,7 @@ namespace NWN.Systems
         else
           NWScript.DelayCommand(10.0f, () => player.PlayNoCurrentTrainingEffects());
 
-        player.dateLastSaved = DateTime.Now;
+        player.dateLastSaved = DateTime.Now;*/
       }
 
       return 0;
@@ -136,7 +133,7 @@ namespace NWN.Systems
       NWScript.SqlBindString(query, "@name", NWScript.GetName(newCharacter.oid));
       NWScript.SqlBindString(query, "@dateLastSaved", DateTime.Now.ToString());
       NWScript.SqlBindInt(query, "@currentSkillJob", (int)Feat.Invalid);
-      NWScript.SqlBindString(query, "@currentCraftJob", "");
+      NWScript.SqlBindInt(query, "@currentCraftJob", -10);
       NWScript.SqlBindString(query, "@currentCraftObject", "");
       NWScript.SqlBindInt(query, "@frostAttackOn", 0);
       NWScript.SqlBindString(query, "@areaTag", NWScript.GetTag(arrivalArea));
@@ -206,7 +203,7 @@ namespace NWN.Systems
       InitializePlayerEvents(player.oid);
       InitializePlayerAccount(player);
       InitializePlayerCharacter(player);
-      InitializePlayerLearnableSkills(player);      
+      //InitializePlayerLearnableSkills(player);      
     }
     private static void InitializePlayerEvents(uint player)
     {
@@ -248,7 +245,7 @@ namespace NWN.Systems
       player.bankGold = NWScript.SqlGetInt(query, 4);
       player.dateLastSaved = DateTime.Parse(NWScript.SqlGetString(query, 5));
       player.currentSkillJob = NWScript.SqlGetInt(query, 6);
-      player.craftJob = new CraftJob(NWScript.SqlGetString(query, 7), NWScript.SqlGetString(query, 10), NWScript.SqlGetFloat(query, 9), player, NWScript.SqlGetString(query, 8));
+      player.craftJob = new CraftJob(NWScript.SqlGetInt(query, 7), NWScript.SqlGetString(query, 10), NWScript.SqlGetFloat(query, 9), player, NWScript.SqlGetString(query, 8));
       player.isFrostAttackOn = Convert.ToBoolean(NWScript.SqlGetInt(query, 11));
       player.menu.originTop = NWScript.SqlGetInt(query, 12);
       player.menu.originLeft = NWScript.SqlGetInt(query, 13);
@@ -268,19 +265,9 @@ namespace NWN.Systems
         player.materialStock.Add("Noxcium", NWScript.SqlGetInt(query, 6));
       }
 
-      if (player.isFrostAttackOn)
-      {
-        EventsPlugin.AddObjectToDispatchList("NWNX_ON_INPUT_ATTACK_OBJECT_BEFORE", "event_auto_spell", player.oid);
-        EventsPlugin.AddObjectToDispatchList("NWNX_ON_INPUT_FORCE_MOVE_TO_OBJECT_BEFORE", "event_auto_spell", player.oid);
-        EventsPlugin.AddObjectToDispatchList("NWNX_ON_INPUT_CAST_SPELL_BEFORE", "_onspellcast", player.oid);
-        EventsPlugin.AddObjectToDispatchList("NWNX_ON_INPUT_KEYBOARD_BEFORE", "event_auto_spell", player.oid);
-        EventsPlugin.AddObjectToDispatchList("NWNX_ON_INPUT_WALK_TO_WAYPOINT_BEFORE", "event_auto_spell", player.oid);
-      }
-
       //Appliquer la distance de perception du chat en fonction de la compétence Listen du joueur
       ChatPlugin.SetChatHearingDistance(ChatPlugin.GetChatHearingDistance(player.oid, ChatPlugin.NWNX_CHAT_CHANNEL_PLAYER_TALK) + NWScript.GetSkillRank(NWScript.SKILL_LISTEN, player.oid) / 5, player.oid, ChatPlugin.NWNX_CHAT_CHANNEL_PLAYER_TALK);
       ChatPlugin.SetChatHearingDistance(ChatPlugin.GetChatHearingDistance(player.oid, ChatPlugin.NWNX_CHAT_CHANNEL_DM_WHISPER) + NWScript.GetSkillRank(NWScript.SKILL_LISTEN, player.oid) / 10, player.oid, ChatPlugin.NWNX_CHAT_CHANNEL_DM_WHISPER);
-      player.craftJob.isCancelled = false;
       player.isConnected = true;
       player.isAFK = true;
       player.DoJournalUpdate = false;

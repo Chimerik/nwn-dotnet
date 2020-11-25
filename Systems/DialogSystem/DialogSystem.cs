@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Text;
 using NWN.Core;
 using NWN.Core.NWNX;
+using static NWN.Systems.Blueprint;
 using static NWN.Systems.PlayerSystem;
 
 namespace NWN.Systems
@@ -37,30 +38,52 @@ namespace NWN.Systems
           case "intro_mirror":
             new IntroMirror(player);
             break;
-          case "skillbank":
+            case "blueprintbank":
             uint shop = NWScript.GetNearestObjectByTag("skillbank_shop", oidSelf);
 
             if (!Convert.ToBoolean(NWScript.GetIsObjectValid(shop)))
             {
               shop = NWScript.CreateObject(NWScript.OBJECT_TYPE_STORE, "generic_shop_res", NWScript.GetLocation(oidSelf), 0, "skillbank_shop");
 
-              foreach (Feat feat in SkillSystem.languageSkillBooks)
+              foreach (int baseItemType in CollectSystem.forgeBasicBlueprints)
               {
-                uint skillBook = NWScript.CreateItemOnObject("skillbookgeneriq", shop, 10, "skillbook");
-                ItemPlugin.SetItemAppearance(skillBook, NWScript.ITEM_APPR_TYPE_SIMPLE_MODEL, 2, Utils.random.Next(0, 50));
-                NWScript.SetLocalInt(skillBook, "_SKILL_ID", (int)feat);
+                Blueprint blueprint = new Blueprint(baseItemType);
 
-                int value;
-                if (int.TryParse(NWScript.Get2DAString("feat", "FEAT", (int)feat), out value))
-                  NWScript.SetName(skillBook, NWScript.GetStringByStrRef(value));
+                if (!CollectSystem.blueprintDictionnary.ContainsKey(baseItemType))
+                  CollectSystem.blueprintDictionnary.Add(baseItemType, blueprint);
 
-                if (int.TryParse(NWScript.Get2DAString("feat", "DESCRIPTION", (int)feat), out value))
-                  NWScript.SetDescription(skillBook, NWScript.GetStringByStrRef(value));
+                uint oBlueprint = NWScript.CreateItemOnObject("blueprintgeneric", shop, 10, "blueprint");
+                NWScript.SetName(oBlueprint, $"Patron pour {blueprint.name}");
+                NWScript.SetLocalInt(oBlueprint, "_BASE_ITEM_TYPE", baseItemType);
               }
             }
 
             NWScript.OpenStore(shop, player.oid);
             break;
+            /*case "skillbank":
+              uint shop = NWScript.GetNearestObjectByTag("skillbank_shop", oidSelf);
+
+              if (!Convert.ToBoolean(NWScript.GetIsObjectValid(shop)))
+              {
+                shop = NWScript.CreateObject(NWScript.OBJECT_TYPE_STORE, "generic_shop_res", NWScript.GetLocation(oidSelf), 0, "skillbank_shop");
+
+                foreach (Feat feat in SkillSystem.languageSkillBooks)
+                {
+                  uint skillBook = NWScript.CreateItemOnObject("skillbookgeneriq", shop, 10, "skillbook");
+                  ItemPlugin.SetItemAppearance(skillBook, NWScript.ITEM_APPR_TYPE_SIMPLE_MODEL, 2, Utils.random.Next(0, 50));
+                  NWScript.SetLocalInt(skillBook, "_SKILL_ID", (int)feat);
+
+                  int value;
+                  if (int.TryParse(NWScript.Get2DAString("feat", "FEAT", (int)feat), out value))
+                    NWScript.SetName(skillBook, NWScript.GetStringByStrRef(value));
+
+                  if (int.TryParse(NWScript.Get2DAString("feat", "DESCRIPTION", (int)feat), out value))
+                    NWScript.SetDescription(skillBook, NWScript.GetStringByStrRef(value));
+                }
+              }
+
+              NWScript.OpenStore(shop, player.oid);
+              break;*/
         }
       }
         

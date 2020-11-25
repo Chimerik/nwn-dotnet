@@ -10,36 +10,47 @@ namespace NWN.Systems
 {
   public class Blueprint
   {
-    public BlueprintType type;
+    public readonly int baseItemType;
+    public readonly string name;
     public string workshopTag { get; set; }
     public string craftedItemTag { get; set; }
     public int mineralsCost { get; set; }
     public Feat feat { get; set; }
-    public Blueprint(BlueprintType type)
+    public Blueprint(int baseItemType)
     {
-      this.type = type;
-      this.InitiateBluePrintCosts();
+      this.baseItemType = baseItemType;
+      this.feat = craftBaseItemFeatDictionnary[baseItemType];
+
+      if (baseItemType < 0) // il s'agit d'une armure. Vu que les références ne se trouvent pas dans le même 2da, je triche en utilisant des valeurs négatives
+      {
+        if (baseItemType == -9) // cas particulier des vêtements, je triche pour ne pas doubler la valeur 0 dans le dictionnary
+          baseItemType = 0;
+
+        int value;
+        if (int.TryParse(NWScript.Get2DAString("armor", "COST", -baseItemType), out value))
+          this.mineralsCost = value * 1000;
+
+        if (int.TryParse(NWScript.Get2DAString("armor", "NAME", -baseItemType), out value))
+          this.name = NWScript.GetStringByStrRef(value);
+
+        this.workshopTag = NWScript.Get2DAString("armor", "WORKSHOP", -baseItemType);
+        this.craftedItemTag = NWScript.Get2DAString("armor", "CRAFTRESREF", -baseItemType);
+      }
+      else
+      {
+        int value;
+        if (int.TryParse(NWScript.Get2DAString("baseitems", "Name", baseItemType), out value))
+          this.name = NWScript.GetStringByStrRef(value);
+
+        if (int.TryParse(NWScript.Get2DAString("baseitems", "BaseCost", baseItemType), out value))
+          this.mineralsCost = value * 1000;
+
+        this.workshopTag = NWScript.Get2DAString("baseitems", "Category", baseItemType);
+        this.craftedItemTag = NWScript.Get2DAString("baseitems", "label", baseItemType);
+      } 
     }
 
-    public void InitiateBluePrintCosts()
-    {
-      switch (this.type)
-      {
-        case BlueprintType.Longsword:
-          this.mineralsCost = 15000;
-          this.workshopTag = "forge";
-          this.craftedItemTag = "longsword";
-          this.feat = Feat.ForgeLongsword;
-          break;
-        case BlueprintType.Fullplate:
-          this.mineralsCost = 1500000;
-          this.workshopTag = "forge";
-          this.craftedItemTag = "fullplate";
-          this.feat = Feat.ForgeFullplate;
-          break;
-      }
-    }
-    public enum BlueprintType
+    /*public enum BlueprintType
     {
       Invalid = 0,
       Dagger = 1,
@@ -70,7 +81,7 @@ namespace NWN.Systems
       }
 
       return "";
-    }
+    }*/
 
     public static ItemProperty[] GetCraftItemProperties(MineralType material, ItemSystem.ItemCategory itemCategory)
     {
@@ -87,34 +98,24 @@ namespace NWN.Systems
     public static void BlueprintValidation(uint oidSelf, uint oTarget, Feat feat)
     {
       Player oPC;
-
       if (Players.TryGetValue(oidSelf, out oPC))
       {
         if (Convert.ToBoolean(NWScript.GetIsObjectValid(oTarget)) && NWScript.GetTag(oTarget) == "blueprint")
         {
-          Blueprint blueprint;
-          BlueprintType blueprintType = GetBlueprintTypeFromName(NWScript.GetName(oTarget));
-
-          if (blueprintType != BlueprintType.Invalid)
-          {
-            if (CollectSystem.blueprintDictionnary.ContainsKey(blueprintType))
-              blueprint = CollectSystem.blueprintDictionnary[blueprintType];
-            else
-              blueprint = new Blueprint(blueprintType);
-
-            blueprint.StartJob(oPC, oTarget, feat);
-          }
+          int baseItemType = NWScript.GetLocalInt(oTarget, "_BASE_ITEM_TYPE");
+          if (CollectSystem.blueprintDictionnary.ContainsKey(baseItemType))
+            CollectSystem.blueprintDictionnary[baseItemType].StartJob(oPC, oTarget, feat);
           else
           {
             NWScript.SendMessageToPC(oidSelf, "[ERREUR HRP] - Le patron utilisé n'est pas correctement initialisé. Le bug a été remonté au staff.");
-            Utils.LogMessageToDMs($"Blueprint Invalid : {NWScript.GetName(oTarget)} - Used by : {NWScript.GetName(oidSelf)}");
+            Utils.LogMessageToDMs($"Blueprint Invalid : {NWScript.GetName(oTarget)} - Base Item Type : {baseItemType} - Used by : {NWScript.GetName(oidSelf)}");
           }
         }
         else
           NWScript.SendMessageToPC(oidSelf, "Vous devez sélectionner un patron valide.");
       }
     }
-    public static Blueprint InitializeBlueprint(uint oItem)
+    /*public static Blueprint InitializeBlueprint(uint oItem)
     {
       var item = oItem;
       Blueprint blueprint;
@@ -124,7 +125,7 @@ namespace NWN.Systems
         return blueprint = CollectSystem.blueprintDictionnary[blueprintType];
       else
         return blueprint = new Blueprint(blueprintType);
-    }
+    }*/
     private void StartJob(Player player, uint blueprint, Feat feat)
     {
       switch (feat)
@@ -141,14 +142,14 @@ namespace NWN.Systems
         case Feat.Research3:
         case Feat.Research4:
         case Feat.Research5:
-
+          player.craftJob.Start(CraftJob.JobType.BlueprintResearchTimeEfficiency, this, player, blueprint);
           break;
         case Feat.Metallurgy:
         case Feat.Metallurgy2:
         case Feat.Metallurgy3:
         case Feat.Metallurgy4:
         case Feat.Metallurgy5:
-
+          player.craftJob.Start(CraftJob.JobType.BlueprintResearchMaterialEfficiency, this, player, blueprint);
           break;
       }
     }
@@ -157,16 +158,10 @@ namespace NWN.Systems
       int iMineralCost = this.GetBlueprintMineralCostForPlayer(player, oItem);
       float iJobDuration = this.GetBlueprintTimeCostForPlayer(player, oItem);
 
-      NWScript.SendMessageToPC(player.oid, $"Patron de création de l'objet artisanal : {this.type}");
-      NWScript.SendMessageToPC(player.oid, $"Recherche d'efficacité matérielle niveau {NWScript.GetLocalInt(oItem, "_BLUEPRINT_MATERIAL_EFFICIENCY")}");
-      NWScript.SendMessageToPC(player.oid, $"Coût initial en Tritanium : {iMineralCost}. Puis 10 % de moins par amélioration vers un matériau supérieur.");
-      NWScript.SendMessageToPC(player.oid, $"Recherche d'efficacité de production niveau {NWScript.GetLocalInt(oItem, "_BLUEPRINT_TIME_EFFICIENCY")}");
-      NWScript.SendMessageToPC(player.oid, $"Temps de fabrication et d'amélioration : {Utils.StripTimeSpanMilliseconds(DateTime.Now.AddSeconds(iJobDuration).Subtract(DateTime.Now))}.");
-
-      return $"Patron de création de l'objet artisanal : {this.type}\n\n" +
-        $"Recherche d'efficacité matérielle niveau {NWScript.GetLocalInt(oItem, "_BLUEPRINT_MATERIAL_EFFICIENCY")}\n" +
-        $"Coût initial en Tritanium : {iMineralCost}. Puis 10 % de moins par amélioration vers un matériau supérieur.\n" +
-        $"Recherche d'efficacité de production niveau {NWScript.GetLocalInt(oItem, "_BLUEPRINT_TIME_EFFICIENCY")}\n" +
+      return $"Patron de création de l'objet artisanal : {this.name}\n\n\n" +
+        $"Recherche d'efficacité matérielle niveau {NWScript.GetLocalInt(oItem, "_BLUEPRINT_MATERIAL_EFFICIENCY")}\n\n" +
+        $"Coût initial en Tritanium : {iMineralCost}.\n Puis 10 % de moins par amélioration vers un matériau supérieur.\n" +
+        $"Recherche d'efficacité de temps niveau {NWScript.GetLocalInt(oItem, "_BLUEPRINT_TIME_EFFICIENCY")}\n\n" +
         $"Temps de fabrication et d'amélioration : {Utils.StripTimeSpanMilliseconds(DateTime.Now.AddSeconds(iJobDuration).Subtract(DateTime.Now))}.";
     }
     public int GetBlueprintMineralCostForPlayer(PlayerSystem.Player player, uint item)
@@ -202,18 +197,6 @@ namespace NWN.Systems
         return "Tritanium";
       else 
         return NWScript.GetLocalString(oTarget, "_ITEM_MATERIAL");
-    }
-    public static Blueprint InitiateBlueprintFromUID(uint oItem)
-    {
-      Blueprint blueprint;
-      BlueprintType blueprintType = GetBlueprintTypeFromName(NWScript.GetName(oItem));
-
-      if (CollectSystem.blueprintDictionnary.ContainsKey(blueprintType))
-        blueprint = CollectSystem.blueprintDictionnary[blueprintType];
-      else
-        blueprint = new Blueprint(blueprintType);
-
-      return blueprint;
     }
   }
 }

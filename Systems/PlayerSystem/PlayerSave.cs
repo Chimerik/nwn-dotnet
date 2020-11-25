@@ -111,7 +111,7 @@ namespace NWN.Systems
       NWScript.SqlBindInt(query, "@bankGold", player.bankGold);
       NWScript.SqlBindString(query, "@dateLastSaved", player.dateLastSaved.ToString());
       NWScript.SqlBindInt(query, "@currentSkillJob", player.currentSkillJob);
-      NWScript.SqlBindString(query, "@currentCraftJob", player.craftJob.name);
+      NWScript.SqlBindInt(query, "@currentCraftJob", player.craftJob.baseItemType);
       NWScript.SqlBindString(query, "@currentCraftObject", player.craftJob.craftedItem);
       NWScript.SqlBindFloat(query, "@currentCraftJobRemainingTime", player.craftJob.remainingTime);
       NWScript.SqlBindString(query, "@currentCraftJobMaterial", player.craftJob.material);

@@ -228,7 +228,7 @@ namespace NWN.Systems
 
       public void AcquireCraftedItem()
       {
-        if(this.craftJob.name == "blueprint")
+        if(this.craftJob.baseItemType < -10)
         {
           NWScript.SetLocalInt(NWScript.CopyItem(NWScript.StringToObject(this.craftJob.craftedItem), this.oid, 1), "_BLUEPRINT_RUNS", 10);
           NWScript.PostString(oid, $"La copie de votre patron est terminée !", 80, 10, NWScript.SCREEN_ANCHOR_TOP_LEFT, 5.0f, unchecked((int)0xC0C0C0FF), unchecked((int)0xC0C0C0FF), 9, "fnt_galahad14");
@@ -241,20 +241,16 @@ namespace NWN.Systems
         }
 
         Blueprint blueprint;
-        BlueprintType blueprintType = GetBlueprintTypeFromName(this.craftJob.name);
-
-        if (blueprintType == BlueprintType.Invalid)
+        if (CollectSystem.blueprintDictionnary.ContainsKey(this.craftJob.baseItemType))
         {
-          Utils.LogMessageToDMs($"AcquireCraftedItem : {NWScript.GetName(this.oid)} - Blueprint invalid - {this.craftJob.name}");
-          return;
+          blueprint = CollectSystem.blueprintDictionnary[this.craftJob.baseItemType];
+          this.PlayCraftJobCompletedEffects(blueprint);
         }
-
-        if (CollectSystem.blueprintDictionnary.ContainsKey(blueprintType))
-          blueprint = CollectSystem.blueprintDictionnary[blueprintType];
         else
-          blueprint = new Blueprint(blueprintType);
-        
-        NWScript.DelayCommand(10.0f, () => this.PlayCraftJobCompletedEffects(blueprint)); // Décalage de 10 secondes pour être sur que le joueur a fini de charger la map à la reco
+        {
+          NWScript.SendMessageToPC(this.oid, "[ERREUR HRP] Il semble que votre dernière création soit invalide. Le staff a été informé du bug.");
+          Utils.LogMessageToDMs($"AcquireCraftedItem : {NWScript.GetName(this.oid)} - Blueprint invalid - {this.craftJob.baseItemType} - For {NWScript.GetName(this.oid)}");
+        }
       }
       public void AcquireSkillPoints()
       {

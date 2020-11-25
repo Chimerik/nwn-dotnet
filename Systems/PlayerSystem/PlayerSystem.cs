@@ -693,7 +693,7 @@ namespace NWN.Systems
             if (NWScript.GetIsDM(player.oid) != 1)
             {
               int geologySkillLevel;
-              if (int.TryParse(NWScript.Get2DAString("feat", "GAINMULTIPLE", CreaturePlugin.GetHighestLevelOfFeat(player.oid, 1171)), out geologySkillLevel)) // TODO : feat enum geology
+              if (int.TryParse(NWScript.Get2DAString("feat", "GAINMULTIPLE", CreaturePlugin.GetHighestLevelOfFeat(player.oid, 1171)), out geologySkillLevel))
                 NWScript.SetDescription(examineTarget, $"Minerai disponible : {Utils.random.Next(oreAmount * geologySkillLevel * 20 / 100, 2 * oreAmount - geologySkillLevel * 20 / 100)}");
               else
                 NWScript.SetDescription(examineTarget, $"Minerai disponible estimé : {Utils.random.Next(0, 2 * oreAmount)}");
@@ -703,11 +703,15 @@ namespace NWN.Systems
 
               break;
           case "blueprint":
-            Blueprint blueprint = Blueprint.InitiateBlueprintFromUID(examineTarget);
-            if (blueprint.type != BlueprintType.Invalid)
-              blueprint.DisplayBlueprintInfo(player, examineTarget);
+            int baseItemType = NWScript.GetLocalInt(examineTarget, "_BASE_ITEM_TYPE");
+            NWScript.SendMessageToPC(oidSelf, $"id : {baseItemType}");
+            if (CollectSystem.blueprintDictionnary.ContainsKey(baseItemType))
+              NWScript.SetDescription(examineTarget, CollectSystem.blueprintDictionnary[baseItemType].DisplayBlueprintInfo(player, examineTarget));
             else
-              Utils.LogMessageToDMs($"Invalid blueprint type : {NWScript.GetName(examineTarget)} examine by {NWScript.GetName(player.oid)}");
+            {
+              NWScript.SendMessageToPC(oidSelf, "[ERREUR HRP] - Le patron utilisé n'est pas correctement initialisé. Le bug a été remonté au staff.");
+              Utils.LogMessageToDMs($"Blueprint Invalid : {NWScript.GetName(examineTarget)} - Base Item Type : {baseItemType} - Examined by : {NWScript.GetName(oidSelf)}");
+            }
               break;
         }
       }

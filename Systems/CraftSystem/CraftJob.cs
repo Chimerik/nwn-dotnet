@@ -9,7 +9,8 @@ namespace NWN.Systems
   public class CraftJob
   {
     public JobType type;
-    public string name { get; set; }
+    //public string name { get; set; }
+    public int baseItemType { get; }
     public string craftedItem { get; set; }
     public float remainingTime { get; set; }
     public string material { get; set; }
@@ -17,38 +18,38 @@ namespace NWN.Systems
     public Boolean isCancelled { get; set; }
     private readonly Player player;
 
-    public CraftJob(string name, string material, float time, Player player, string item = "")
+    public CraftJob(int baseItemType, string material, float time, Player player, string item = "")
     {
-      this.name = name;
+      //this.name = name;
+      this.baseItemType = baseItemType;
       this.craftedItem = item;
       this.material = material;
       this.remainingTime = time;
       this.isCancelled = false;
       this.player = player;
+      this.isActive = true;
 
-      if (name != "")
+      switch (baseItemType)
       {
-        this.isActive = true;
-        switch (name)
-        {
-          case "blueprint_copy":
-            this.type = JobType.BlueprintCopy;
+        case -11:
+          this.type = JobType.BlueprintCopy;
+          break;
+        case -12:
+          this.type = JobType.BlueprintResearchMaterialEfficiency;
             break;
-          case "blueprint_ME":
-            this.type = JobType.BlueprintResearchMaterialEfficiency;
-            break;
-          case "blueprint_TE":
-            this.type = JobType.BlueprintResearchTimeEfficiency;
-            break;
-          default:
-            this.type = JobType.Item;
-            break;
-        }
-
-        this.CreateCraftJournalEntry();
+        case -13:
+          this.type = JobType.BlueprintResearchTimeEfficiency;
+          break;
+        case -10: // Valeur par défaut pour job inactif
+          this.isActive = false;
+          break;
+        default:
+          this.type = JobType.Item;
+          break;
       }
-      else
-        this.isActive = false;
+
+      if(this.isActive)
+        this.CreateCraftJournalEntry();
     }
     public enum JobType
     {
@@ -64,14 +65,14 @@ namespace NWN.Systems
     }
     public void AskCancellationConfirmation(uint player)
     {
-      NWScript.SendMessageToPC(player, $"Attention, votre travail sur l'objet {this.name} n'est pas terminé. Lancer un nouveau travail signifie perdre la totalité du travail en cours !");
+      NWScript.SendMessageToPC(player, $"Attention, votre travail précédent n'est pas terminé. Lancer un nouveau travail signifie perdre la totalité du travail en cours !");
       NWScript.SendMessageToPC(player, $"Utilisez une seconde fois le plan pour confirmer l'annulation du travail en cours.");
       this.isCancelled = true;
       NWScript.DelayCommand(60.0f, () => this.ResetCancellation());
     }
     public Boolean CanStartJob(uint player, uint blueprint)
     {
-      if (this.name == "blueprint") // TODO : prendre en compte copie + recherche TE + recherche ME
+      if (this.baseItemType < -10) // Dans le cas d'une copie une recherche de BP
       {
         if (!IsBlueprintOriginal(blueprint))
         {
@@ -129,10 +130,10 @@ namespace NWN.Systems
         int iResourceStock = NWScript.SqlGetInt(query, 0);
         if (iResourceStock >= iMineralCost)
         {
-          player.craftJob = new CraftJob(NWScript.GetName(oItem), sMaterial, iJobDuration, player);
+          player.craftJob = new CraftJob(blueprint.baseItemType, sMaterial, iJobDuration, player);
           player.craftJob.RemoveUsedResources(player, iResourceStock, iMineralCost, sMaterial);
           
-          NWScript.SendMessageToPC(player.oid, $"Vous venez de démarrer la fabrication de l'objet artisanal : {blueprint.type} en {sMaterial}");
+          NWScript.SendMessageToPC(player.oid, $"Vous venez de démarrer la fabrication de l'objet artisanal : {blueprint.name} en {sMaterial}");
           // TODO : afficher des effets visuels sur la forge
 
           if (NWScript.GetTag(oTarget) == blueprint.craftedItemTag) // En cas d'amélioration d'un objet, on détruit l'original
@@ -170,7 +171,7 @@ namespace NWN.Systems
         {
           int timeCost = blueprint.mineralsCost * 80 / 100;
           float iJobDuration = timeCost - timeCost * (value * 5) / 100;
-          player.craftJob = new CraftJob("blueprint_copy", "", iJobDuration, player, NWScript.ObjectToString(oBlueprint));
+          player.craftJob = new CraftJob(-11, "", iJobDuration, player, NWScript.ObjectToString(oBlueprint)); // - 11 = blueprint copy
         }
       }
     }
@@ -186,7 +187,7 @@ namespace NWN.Systems
 
         float iJobDuration = blueprint.mineralsCost - blueprint.mineralsCost * (metallurgyLevel * 5 + advancedCraftLevel * 3) / 100;
         NWScript.SetLocalInt(oBlueprint, "_BLUEPRINT_MATERIAL_EFFICIENCY", NWScript.GetLocalInt(oBlueprint, "_BLUEPRINT_MATERIAL_EFFICIENCY") + 1);
-        player.craftJob = new CraftJob("blueprint_ME", "", iJobDuration, player, NWScript.ObjectToString(oBlueprint));
+        player.craftJob = new CraftJob(-12, "", iJobDuration, player, NWScript.ObjectToString(oBlueprint)); // - 12 = recherche ME
         NWScript.DestroyObject(oBlueprint);
       }
     }
@@ -202,7 +203,7 @@ namespace NWN.Systems
 
         float iJobDuration = blueprint.mineralsCost - blueprint.mineralsCost * (researchLevel * 5 + advancedCraftLevel * 3) / 100;
         NWScript.SetLocalInt(oBlueprint, "_BLUEPRINT_TIME_EFFICIENCY", NWScript.GetLocalInt(oBlueprint, "_BLUEPRINT_TIME_EFFICIENCY") + 1);
-        player.craftJob = new CraftJob("blueprint_TE", "", iJobDuration, player, NWScript.ObjectToString(oBlueprint));
+        player.craftJob = new CraftJob(-13, "", iJobDuration, player, NWScript.ObjectToString(oBlueprint)); // -13 = recherche TE
         NWScript.DestroyObject(oBlueprint);
       }
     }
@@ -211,7 +212,7 @@ namespace NWN.Systems
       this.player.playerJournal.craftJobCountDown = DateTime.Now.AddSeconds(this.remainingTime);
       JournalEntry journalEntry = new JournalEntry();
       journalEntry.sName = $"Travail artisanal - {Utils.StripTimeSpanMilliseconds((TimeSpan)(player.playerJournal.craftJobCountDown - DateTime.Now))}";
-      journalEntry.sText = $"Fabrication en cours : {this.name}";
+      journalEntry.sText = $"Fabrication en cours : {CollectSystem.blueprintDictionnary[this.baseItemType].name}";
       journalEntry.sTag = "craft_job";
       journalEntry.nPriority = 1;
       journalEntry.nQuestDisplayed = 1;
@@ -220,7 +221,7 @@ namespace NWN.Systems
     public void CancelCraftJournalEntry()
     {
       JournalEntry journalEntry = PlayerPlugin.GetJournalEntry(player.oid, "craft_job");
-      journalEntry.sName = $"Travail artisanal mis en pause - {this.name}";
+      journalEntry.sName = $"Travail artisanal mis en pause - {CollectSystem.blueprintDictionnary[this.baseItemType].name}";
       journalEntry.sTag = "craft_job";
       journalEntry.nQuestDisplayed = 0;
       PlayerPlugin.AddCustomJournalEntry(player.oid, journalEntry);
@@ -229,7 +230,7 @@ namespace NWN.Systems
     public void CloseCraftJournalEntry()
     {
       JournalEntry journalEntry = PlayerPlugin.GetJournalEntry(player.oid, "craft_job");
-      journalEntry.sName = $"Travail artisanal terminé - {this.name}";
+      journalEntry.sName = $"Travail artisanal terminé - {CollectSystem.blueprintDictionnary[this.baseItemType].name}";
       journalEntry.sTag = "craft_job";
       journalEntry.nQuestCompleted = 1;
       journalEntry.nQuestDisplayed = 0;

@@ -1,6 +1,5 @@
 ﻿using NWN.Core;
 using static NWN.Systems.PlayerSystem;
-using static NWN.Systems.Blueprint;
 
 namespace NWN.Systems
 {
@@ -8,12 +7,14 @@ namespace NWN.Systems
   {
     private static void HandleBlueprintActivate(uint oItem, Player player, uint oTarget)
     {
-      Blueprint blueprint = InitializeBlueprint(oItem);
+      int baseItemType = NWScript.GetLocalInt(oItem, "_BASE_ITEM_TYPE");
 
-      if (blueprint.type != BlueprintType.Invalid)
+      if (CollectSystem.blueprintDictionnary.ContainsKey(baseItemType))
       {
+        Blueprint blueprint = CollectSystem.blueprintDictionnary[baseItemType];
+
         if (oTarget == NWScript.OBJECT_INVALID)
-          blueprint.DisplayBlueprintInfo(player, oItem);
+          NWScript.SendMessageToPC(player.oid, blueprint.DisplayBlueprintInfo(player, oItem));
         else
         {
           if (player.craftJob.CanStartJob(player.oid, oItem))
@@ -40,8 +41,8 @@ namespace NWN.Systems
       }
       else
       {
-        NWScript.SendMessageToPC(player.oid, "[ERREUR HRP] - Ce patron n'est pas correctement initialisé. Le staff a été informé.");
-        Utils.LogMessageToDMs($"Invalid blueprint : {NWScript.GetName(oItem)} used by {NWScript.GetName(player.oid)}");
+        NWScript.SendMessageToPC(player.oid, "[ERREUR HRP] - Ce patron n'est pas correctement initialisé. Le bug a été remonté au staff.");
+        Utils.LogMessageToDMs($"Invalid blueprint : {NWScript.GetName(oItem)} - Base Item Type : {baseItemType} - Used by {NWScript.GetName(player.oid)}");
       }
     }
   }
