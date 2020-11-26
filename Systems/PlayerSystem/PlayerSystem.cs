@@ -206,6 +206,7 @@ namespace NWN.Systems
         case Feat.LanguagePrimodial:
         case Feat.LanguageSylvan:
         case Feat.LanguageThieves:
+        case Feat.LanguageGnome:
           if (Players.TryGetValue(oidSelf, out oPC))
           {
             if (oPC.activeLanguage == feat)

@@ -56,7 +56,7 @@ namespace NWN.Systems
                   CollectSystem.blueprintDictionnary.Add(baseItemType, blueprint);
 
                 uint oBlueprint = NWScript.CreateItemOnObject("blueprintgeneric", shop, 10, "blueprint");
-                NWScript.SetName(oBlueprint, $"Patron pour {blueprint.name}");
+                NWScript.SetName(oBlueprint, $"Patron : {blueprint.name}");
                 NWScript.SetLocalInt(oBlueprint, "_BASE_ITEM_TYPE", baseItemType);
                 ItemPlugin.SetBaseGoldPieceValue(oBlueprint, blueprint.goldCost);
               }

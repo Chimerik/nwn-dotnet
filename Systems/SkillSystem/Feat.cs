@@ -1054,6 +1054,7 @@ namespace NWN
     LanguageSylvan = 1128,
     LanguageDruidic = 1129,
     LanguageThieves = 1130,
+    LanguageGnome = 1131,
     CustomMenuUP,
     CustomMenuDOWN,
     CustomMenuSELECT,

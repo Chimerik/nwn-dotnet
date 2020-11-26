@@ -13,8 +13,6 @@ namespace NWN.Systems
 
       //TODO : système de BANLIST
 
-      //oPC.AsCreature().AddFeat(NWN.Enums.Feat.PlayerTool01);
-
       //if (NWScript.GetLocalInt(oidSelf, "_LANGUE_ACTIVE") != 0)
       //{
       /*      NWScript.SendMessageToPC(oPC, $"langue = {NWScript.GetLocalInt(oPC, "_LANGUE_ACTIVE")}");
@@ -64,7 +62,7 @@ namespace NWN.Systems
           NWScript.ApplyEffectToObject(NWScript.DURATION_TYPE_PERMANENT, eHunger, oPC);
         }*/
 
-       /* if (player.location != null)
+        if (player.location != null)
         {
           NWScript.DelayCommand(1.0f, () => NWScript.AssignCommand(player.oid, () => NWScript.ClearAllActions()));
           NWScript.DelayCommand(1.1f, () => NWScript.AssignCommand(player.oid, () => NWScript.JumpToLocation(player.location)));
@@ -81,7 +79,7 @@ namespace NWN.Systems
         else
           NWScript.DelayCommand(10.0f, () => player.PlayNoCurrentTrainingEffects());
 
-        player.dateLastSaved = DateTime.Now;*/
+        player.dateLastSaved = DateTime.Now;
       }
 
       return 0;
@@ -104,6 +102,26 @@ namespace NWN.Systems
          query = NWScript.SqlPrepareQueryCampaign(ModuleSystem.database, $"SELECT last_insert_rowid()");
          NWScript.SqlStep(query);
        }
+
+      switch(NWScript.GetRacialType(newPlayer))
+      {
+        case NWScript.RACIAL_TYPE_DWARF:
+          CreaturePlugin.AddFeat(newPlayer, (int)Feat.LanguageDwarf);
+          break;
+        case NWScript.RACIAL_TYPE_ELF:
+        case NWScript.RACIAL_TYPE_HALFELF:
+          CreaturePlugin.AddFeat(newPlayer, (int)Feat.LanguageElf);
+          break;
+        case NWScript.RACIAL_TYPE_HALFLING:
+          CreaturePlugin.AddFeat(newPlayer, (int)Feat.LanguageHalfling);
+          break;
+        case NWScript.RACIAL_TYPE_GNOME:
+          CreaturePlugin.AddFeat(newPlayer, (int)Feat.LanguageGnome);
+          break;
+        case NWScript.RACIAL_TYPE_HALFORC:
+          CreaturePlugin.AddFeat(newPlayer, (int)Feat.LanguageOrc);
+          break;
+      }
 
        ObjectPlugin.SetInt(newPlayer, "accountId", NWScript.SqlGetInt(query, 0), 1);
     }
