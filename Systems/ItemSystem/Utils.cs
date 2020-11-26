@@ -13,11 +13,12 @@ namespace NWN.Systems
       RangedWeapon = 2,
       Shield = 3,
       Armor = 4,
+      Ammunition = 5,
     }
 
-    public static ItemCategory GetItemCategory(uint oItem)
+    public static ItemCategory GetItemCategory(int baseItemType)
     {
-      switch (NWScript.GetBaseItemType(oItem))
+      switch (baseItemType)
       {
         case NWScript.BASE_ITEM_ARMOR:
           return ItemCategory.Armor;
@@ -58,6 +59,18 @@ namespace NWN.Systems
         case NWScript.BASE_ITEM_WARHAMMER:
         case NWScript.BASE_ITEM_WHIP:
           return ItemCategory.OneHandedMeleeWeapon;
+        case NWScript.BASE_ITEM_HEAVYCROSSBOW:
+        case NWScript.BASE_ITEM_LIGHTCROSSBOW:
+        case NWScript.BASE_ITEM_SHORTBOW:
+        case NWScript.BASE_ITEM_LONGBOW:
+        case NWScript.BASE_ITEM_DART:
+        case NWScript.BASE_ITEM_SLING:
+        case NWScript.BASE_ITEM_THROWINGAXE:
+          return ItemCategory.RangedWeapon;
+        case NWScript.BASE_ITEM_ARROW:
+        case NWScript.BASE_ITEM_BOLT:
+        case NWScript.BASE_ITEM_BULLET:
+          return ItemCategory.Ammunition;
         default:
           return ItemCategory.Invalid;
       }

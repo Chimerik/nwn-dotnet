@@ -32,10 +32,6 @@ namespace NWN.Systems
       this.InitializeEvents();
       this.InitializeFeatModifiers();
 
-      //EventsPlugin.SubscribeEvent("CDE_POTAGER", "event_potager");
-
-      //Garden.Init();
-
       CollectSystem.InitiateOres();
 
       NWScript.DelayCommand(600.0f, () => SaveServerVault());
@@ -97,6 +93,9 @@ namespace NWN.Systems
       EventsPlugin.ToggleDispatchListMode("NWNX_ON_VALIDATE_USE_ITEM_BEFORE", "event_validate_equip_items_before", 1);
       EventsPlugin.SubscribeEvent("NWNX_ON_USE_ITEM_BEFORE", "event_use_item_before");
       EventsPlugin.ToggleDispatchListMode("NWNX_ON_USE_ITEM_BEFORE", "event_use_item_before", 1);
+
+      EventsPlugin.SubscribeEvent("NWNX_ON_EXAMINE_OBJECT_BEFORE", "event_examine_before");
+      EventsPlugin.SubscribeEvent("NWNX_ON_EXAMINE_OBJECT_AFTER", "event_examine_after");
 
       EventsPlugin.SubscribeEvent("NWNX_ON_SERVER_CHARACTER_SAVE_BEFORE", "event_player_save_before");
       EventsPlugin.SubscribeEvent("NWNX_ON_CLIENT_EXPORT_CHARACTER_BEFORE", "event_player_save_before");
@@ -168,8 +167,8 @@ namespace NWN.Systems
         refinery = NWScript.GetObjectByTag("refinery", i);
       }
 
-      EventsPlugin.SubscribeEvent("NWNX_ON_EXAMINE_OBJECT_BEFORE", "event_examine_before");
-      EventsPlugin.SubscribeEvent("NWNX_ON_EXAMINE_OBJECT_AFTER", "event_examine_after");
+      EventsPlugin.SubscribeEvent("NWNX_ON_STORE_REQUEST_BUY_BEFORE", "before_store_buy");
+      EventsPlugin.SubscribeEvent("NWNX_ON_STORE_REQUEST_SELL_BEFORE", "before_store_sell");
     }
     private void InitializeFeatModifiers()
     {
