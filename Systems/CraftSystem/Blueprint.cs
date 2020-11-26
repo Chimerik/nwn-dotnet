@@ -16,6 +16,7 @@ namespace NWN.Systems
     public string craftedItemTag { get; set; }
     public int mineralsCost { get; set; }
     public Feat feat { get; set; }
+    public int goldCost { get; }
     public Blueprint(int baseItemType)
     {
       this.baseItemType = baseItemType;
@@ -28,7 +29,10 @@ namespace NWN.Systems
 
         int value;
         if (int.TryParse(NWScript.Get2DAString("armor", "COST", -baseItemType), out value))
+        {
           this.mineralsCost = value * 1000;
+          this.goldCost = value * 5;
+        }
 
         if (int.TryParse(NWScript.Get2DAString("armor", "NAME", -baseItemType), out value))
           this.name = NWScript.GetStringByStrRef(value);
@@ -43,7 +47,10 @@ namespace NWN.Systems
           this.name = NWScript.GetStringByStrRef(value);
 
         if (int.TryParse(NWScript.Get2DAString("baseitems", "BaseCost", baseItemType), out value))
+        {
           this.mineralsCost = value * 1000;
+          this.goldCost = value * 5;
+        }
 
         this.workshopTag = NWScript.Get2DAString("baseitems", "Category", baseItemType);
         this.craftedItemTag = NWScript.Get2DAString("baseitems", "label", baseItemType);

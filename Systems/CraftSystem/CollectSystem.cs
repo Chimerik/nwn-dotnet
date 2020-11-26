@@ -87,7 +87,7 @@ namespace NWN.Systems
       {108, Feat.CraftDwarvenWarAxe },
       {111, Feat.CraftWhip },
     };
-    public static int[] forgeBasicBlueprints = new int[] { -4, -5, -6, NWScript.BASE_ITEM_SHORTSWORD, NWScript.BASE_ITEM_LONGSWORD, NWScript.BASE_ITEM_BATTLEAXE, NWScript.BASE_ITEM_LIGHTFLAIL, NWScript.BASE_ITEM_WARHAMMER, NWScript.BASE_ITEM_LIGHTMACE, NWScript.BASE_ITEM_HELMET, NWScript.BASE_ITEM_DAGGER, NWScript.BASE_ITEM_DIREMACE, NWScript.BASE_ITEM_HEAVYFLAIL, NWScript.BASE_ITEM_LIGHTHAMMER, NWScript.BASE_ITEM_HANDAXE, NWScript.BASE_ITEM_MORNINGSTAR, NWScript.BASE_ITEM_RAPIER, NWScript.BASE_ITEM_SCIMITAR, NWScript.BASE_ITEM_SHORTSPEAR, NWScript.BASE_ITEM_SICKLE, NWScript.BASE_ITEM_THROWINGAXE, 92, NWScript.BASE_ITEM_TRIDENT };
+    public static int[] forgeBasicBlueprints = new int[] { -4, NWScript.BASE_ITEM_LIGHTMACE, NWScript.BASE_ITEM_HELMET, NWScript.BASE_ITEM_DAGGER, NWScript.BASE_ITEM_MORNINGSTAR, NWScript.BASE_ITEM_SHORTSPEAR, NWScript.BASE_ITEM_SICKLE, 92};
 
     public static Dictionary<int, Blueprint> blueprintDictionnary = new Dictionary<int, Blueprint>();
     private static int HandleBeforeMiningCycleCancel(uint oidSelf)
@@ -154,7 +154,7 @@ namespace NWN.Systems
       NWScript.SetName(craftedItem, NWScript.GetName(craftedItem) + " en " + material);
       NWScript.SetLocalString(craftedItem, "_ITEM_MATERIAL", material);
 
-      foreach (ItemProperty ip in GetCraftItemProperties(GetMineralTypeFromName(material), ItemSystem.GetItemCategory(craftedItem)))
+      foreach (ItemProperty ip in GetCraftItemProperties(GetMineralTypeFromName(material), ItemSystem.GetItemCategory(NWScript.GetBaseItemType(craftedItem))))
       {
         NWScript.AddItemProperty(NWScript.DURATION_TYPE_PERMANENT, ip, craftedItem);
       }

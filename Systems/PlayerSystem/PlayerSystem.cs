@@ -48,6 +48,8 @@ namespace NWN.Systems
             { "pc_unacquire_it", HandlePCUnacquireItem },
             { "event_on_journal_open", HandlePCJournalOpen },
             { "event_on_journal_close", HandlePCJournalClose },
+            { "before_store_buy", HandleBeforeStoreBuy },
+            { "before_store_sell", HandleBeforeStoreSell },
         };
     
     public static Dictionary<uint, Player> Players = new Dictionary<uint, Player>();
@@ -704,7 +706,7 @@ namespace NWN.Systems
               break;
           case "blueprint":
             int baseItemType = NWScript.GetLocalInt(examineTarget, "_BASE_ITEM_TYPE");
-            NWScript.SendMessageToPC(oidSelf, $"id : {baseItemType}");
+
             if (CollectSystem.blueprintDictionnary.ContainsKey(baseItemType))
               NWScript.SetDescription(examineTarget, CollectSystem.blueprintDictionnary[baseItemType].DisplayBlueprintInfo(player, examineTarget));
             else
@@ -879,12 +881,69 @@ namespace NWN.Systems
 
       return 0;
     }
+    
     private static int HandlePCJournalClose(uint oidSelf)
     {
       Player player;
       if (Players.TryGetValue(oidSelf, out player))
       {
         player.DoJournalUpdate = false;
+      }
+
+      return 0;
+    }
+    private static int HandleBeforeStoreBuy(uint oidSelf)
+    {
+      Player player;
+      if (Players.TryGetValue(oidSelf, out player))
+      {
+        int price = Int32.Parse(EventsPlugin.GetEventData("PRICE"));
+        int pocketGold = NWScript.GetGold(oidSelf);
+
+        if(pocketGold < price)
+        {
+          uint item = NWScript.StringToObject(EventsPlugin.GetEventData("ITEM"));
+
+          if (pocketGold + player.bankGold < price)
+          {
+            CreaturePlugin.SetGold(oidSelf, 0);
+            int bankGold = 0;
+
+            if (player.bankGold > 0)
+              bankGold = player.bankGold;
+
+            int debt = price - (pocketGold + bankGold);
+            player.bankGold -= debt;
+
+            ChatPlugin.SendMessage(ChatPlugin.NWNX_CHAT_CHANNEL_PLAYER_TALK, $"Très bien, je demanderai à la banque de vous faire un crédit sur {debt}. N'oubliez pas que les intérêts sont de 30 % par semaine.",
+              NWScript.GetLocalObject(NWScript.StringToObject(EventsPlugin.GetEventData("STORE")), "_STORE_NPC"), oidSelf);
+          }
+          else
+          {
+            CreaturePlugin.SetGold(oidSelf, 0);
+            player.bankGold -= price - pocketGold;
+
+            ChatPlugin.SendMessage(ChatPlugin.NWNX_CHAT_CHANNEL_PLAYER_TALK, "Très bien, je demanderai à la banque de prélever l'or sur votre compte.",
+              NWScript.GetLocalObject(NWScript.StringToObject(EventsPlugin.GetEventData("STORE")), "_STORE_NPC"), oidSelf);
+          }
+
+          EventsPlugin.SkipEvent();
+          NWScript.CopyItem(item, player.oid, 1);
+          NWScript.DestroyObject(item);
+        }
+      }
+
+      return 0;
+    }
+    private static int HandleBeforeStoreSell(uint oidSelf)
+    {
+      Player player;
+      if (Players.TryGetValue(oidSelf, out player))
+      {
+        EventsPlugin.SkipEvent();
+        PlayerPlugin.FloatingTextStringOnCreature(oidSelf,
+          NWScript.GetLocalObject(NWScript.StringToObject(EventsPlugin.GetEventData("STORE")), "_STORE_NPC"),
+          "Navré, je n'achète rien. J'arrive déjà tout juste à m'acquiter de ma dette.");
       }
 
       return 0;
