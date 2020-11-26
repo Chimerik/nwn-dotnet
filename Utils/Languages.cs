@@ -53,6 +53,8 @@ namespace NWN.Systems
           return LanguageCodes.Corsican;
         case Feat.LanguageDwarf:
           return LanguageCodes.German;
+        case Feat.LanguageGnome:
+          return LanguageCodes.Albanian;
         case Feat.LanguageGiant:
           return LanguageCodes.Georgian;
         case Feat.LanguageGoblin:
