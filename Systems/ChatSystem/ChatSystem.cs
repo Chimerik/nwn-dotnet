@@ -190,52 +190,53 @@ namespace NWN.Systems
 
       next();
     }
-    public static void ProcessLanguageMiddleware(ChatSystem.Context ctx, Action next)
+    public static void ProcessLanguageMiddleware(ChatSystem.Context ctx, Action next) // SYSTEME DE LANGUE
     {
-      // SYSTEME DE LANGUE
-      int iLangueActive = NWScript.GetLocalInt(ctx.oSender, "_LANGUE_ACTIVE");
-
-      if (iLangueActive != 0 && (ctx.channel == ChatPlugin.NWNX_CHAT_CHANNEL_PLAYER_TALK || ctx.channel == ChatPlugin.NWNX_CHAT_CHANNEL_DM_WHISPER || ctx.channel == ChatPlugin.NWNX_CHAT_CHANNEL_DM_TALK || ctx.channel == ChatPlugin.NWNX_CHAT_CHANNEL_DM_WHISPER))
+      PlayerSystem.Player player;
+      if (PlayerSystem.Players.TryGetValue(ctx.oSender, out player))
       {
-        string sLanguageName = NWScript.Get2DAString("feat", "FEAT", iLangueActive);
-        string sName = NWScript.GetLocalString(ctx.oSender, "__DISGUISE_NAME");
-        if (sName == "") sName = NWScript.GetName(ctx.oSender);
-
-        foreach (KeyValuePair<uint, PlayerSystem.Player> PlayerListEntry in PlayerSystem.Players)
+        if (player.activeLanguage != Feat.Invalid && (ctx.channel == ChatPlugin.NWNX_CHAT_CHANNEL_PLAYER_TALK || ctx.channel == ChatPlugin.NWNX_CHAT_CHANNEL_DM_WHISPER || ctx.channel == ChatPlugin.NWNX_CHAT_CHANNEL_DM_TALK || ctx.channel == ChatPlugin.NWNX_CHAT_CHANNEL_DM_WHISPER))
         {
-          if ((uint)ctx.oSender != PlayerListEntry.Key && (uint)ctx.oSender != NWScript.GetLocalObject(PlayerListEntry.Key, "_POSSESSING"))
+          string sLanguageName = Languages.GetLanguageName(player.activeLanguage);
+          string sName = NWScript.GetLocalString(ctx.oSender, "__DISGUISE_NAME");
+          if (sName == "") sName = NWScript.GetName(ctx.oSender);
+
+          foreach (KeyValuePair<uint, PlayerSystem.Player> PlayerListEntry in PlayerSystem.Players)
           {
-            uint oEavesdrop;
-
-            if (NWScript.GetIsDM(PlayerListEntry.Key) == 1 && NWScript.GetIsObjectValid(NWScript.GetLocalObject(PlayerListEntry.Key, "_POSSESSING")) == 1)
-              oEavesdrop = NWScript.GetLocalObject(PlayerListEntry.Key, "_POSSESSING");
-            else
-              oEavesdrop = PlayerListEntry.Key;
-
-            if ((NWScript.GetArea(ctx.oSender) == NWScript.GetArea(oEavesdrop)) && (NWScript.GetDistanceBetween(oEavesdrop, ctx.oSender) < ChatPlugin.GetChatHearingDistance(oEavesdrop, ctx.channel)))
+            if ((uint)ctx.oSender != PlayerListEntry.Key && (uint)ctx.oSender != NWScript.GetLocalObject(PlayerListEntry.Key, "_POSSESSING"))
             {
-              if (NWScript.GetHasFeat(iLangueActive, oEavesdrop) == 1 || NWScript.GetIsDM(PlayerListEntry.Key) == 1 || NWScript.GetIsDMPossessed(oEavesdrop) == 1)
-              {
-                ChatPlugin.SkipMessage();
-                ChatPlugin.SendMessage((int)ctx.channel, "[" + sLanguageName + "] " + ctx.msg, ctx.oSender, oEavesdrop);
-                NWScript.SendMessageToPC(oEavesdrop, sName + " : [" + sLanguageName + "] " + Languages.GetLangueStringConvertedHRPProtection(ctx.msg, (Feat)iLangueActive));
-              }
+              uint oEavesdrop;
+
+              if (NWScript.GetIsDM(PlayerListEntry.Key) == 1 && NWScript.GetIsObjectValid(NWScript.GetLocalObject(PlayerListEntry.Key, "_POSSESSING")) == 1)
+                oEavesdrop = NWScript.GetLocalObject(PlayerListEntry.Key, "_POSSESSING");
               else
+                oEavesdrop = PlayerListEntry.Key;
+
+              if ((NWScript.GetArea(ctx.oSender) == NWScript.GetArea(oEavesdrop)) && (NWScript.GetDistanceBetween(oEavesdrop, ctx.oSender) < ChatPlugin.GetChatHearingDistance(oEavesdrop, ctx.channel)))
               {
-                ChatPlugin.SkipMessage();
-                ChatPlugin.SendMessage((int)ctx.channel, Languages.GetLangueStringConvertedHRPProtection(ctx.msg, (Feat)iLangueActive), ctx.oSender, oEavesdrop);
+                if (NWScript.GetHasFeat((int)player.activeLanguage, oEavesdrop) == 1 || NWScript.GetIsDM(PlayerListEntry.Key) == 1 || NWScript.GetIsDMPossessed(oEavesdrop) == 1)
+                {
+                  ChatPlugin.SkipMessage();
+                  ChatPlugin.SendMessage((int)ctx.channel, "[" + sLanguageName + "] " + ctx.msg, ctx.oSender, oEavesdrop);
+                  NWScript.SendMessageToPC(oEavesdrop, sName + " : [" + sLanguageName + "] " + Languages.GetLangueStringConvertedHRPProtection(ctx.msg, player.activeLanguage));
+                }
+                else
+                {
+                  ChatPlugin.SkipMessage();
+                  ChatPlugin.SendMessage((int)ctx.channel, Languages.GetLangueStringConvertedHRPProtection(ctx.msg, player.activeLanguage), ctx.oSender, oEavesdrop);
+                }
               }
             }
           }
+
+          ChatPlugin.SkipMessage();
+          ChatPlugin.SendMessage((int)ctx.channel, "[" + sLanguageName + "] " + ctx.msg, ctx.oSender, ctx.oSender);
+          NWScript.SendMessageToPC(ctx.oSender, sName + " : [" + sLanguageName + "] " + Languages.GetLangueStringConvertedHRPProtection(ctx.msg, player.activeLanguage));
+          return;
         }
 
-        ChatPlugin.SkipMessage();
-        ChatPlugin.SendMessage((int)ctx.channel, "[" + sLanguageName + "] " + ctx.msg, ctx.oSender, ctx.oSender);
-        NWScript.SendMessageToPC(ctx.oSender, sName + " : [" + sLanguageName + "] " + Languages.GetLangueStringConvertedHRPProtection(ctx.msg, (Feat)iLangueActive));
-        return;
+        next();
       }
-
-      next();
     }
   }
 }

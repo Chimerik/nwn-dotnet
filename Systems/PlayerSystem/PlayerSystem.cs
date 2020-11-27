@@ -50,8 +50,9 @@ namespace NWN.Systems
             { "event_on_journal_close", HandlePCJournalClose },
             { "before_store_buy", HandleBeforeStoreBuy },
             { "before_store_sell", HandleBeforeStoreSell },
-        };
-    
+            { "event_spacebar_down", HandleSpacebarDown },
+        }; 
+
     public static Dictionary<uint, Player> Players = new Dictionary<uint, Player>();
 
     private static int HandlePlayerDisconnect(uint oidSelf)
@@ -946,6 +947,13 @@ namespace NWN.Systems
           NWScript.GetLocalObject(NWScript.StringToObject(EventsPlugin.GetEventData("STORE")), "_STORE_NPC"),
           "Navré, je n'achète rien. J'arrive déjà tout juste à m'acquiter de ma dette.");
       }
+
+      return 0;
+    }
+    private static int HandleSpacebarDown(uint oidSelf)
+    {
+      NWScript.PostString(oidSelf, "", 40, 15, 0, 0.000001f, unchecked((int)0xFFFFFFFF), unchecked((int)0xFFFFFFFF), 9999, "fnt_my_gui");
+      EventsPlugin.RemoveObjectFromDispatchList("NWNX_ON_INPUT_TOGGLE_PAUSE_BEFORE", "event_spacebar_down", oidSelf);
 
       return 0;
     }
