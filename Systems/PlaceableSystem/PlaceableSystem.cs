@@ -16,6 +16,8 @@ namespace NWN.Systems
       { "refinery_close", HandleRefineryClose },
       { "ondeath_clean_dm_plc", HandleCleanDMPLC },
       { "plc_used", HandlePlaceableUsed },
+      { "os_statuemaker", HandleStatufyCreature },
+      { "oc_statue", HandleCancelStatueConversation },
     };
     private static int HandleCleanDMPLC(uint oidSelf)
     {
@@ -58,6 +60,29 @@ namespace NWN.Systems
         }
       }
       return 0;
+    }
+    private static int HandleCancelStatueConversation(uint oidSelf)
+    {
+      return 0;
+    }
+    private static int HandleStatufyCreature(uint oidSelf)
+    {
+      if (Convert.ToBoolean(NWScript.GetIsPC(NWScript.GetLastPerceived())))
+      {
+        NWScript.PlayAnimation(Utils.random.Next(100, 116));
+        NWScript.SetEventScript(oidSelf, NWScript.EVENT_SCRIPT_CREATURE_ON_NOTICE, "");
+        NWScript.SetAILevel(oidSelf, NWScript.AI_LEVEL_VERY_LOW);
+        NWScript.DelayCommand(1.0f, () => FreezeCreature(oidSelf));
+      }
+      
+      return 0;
+    }
+    private static void FreezeCreature(uint creature)
+    {
+      NWScript.ApplyEffectToObject(NWScript.DURATION_TYPE_PERMANENT, NWScript.EffectPetrify(), creature);
+      NWScript.SetObjectHiliteColor(creature, 0x000000);
+      NWScript.SetObjectMouseCursor(creature, NWScript.MOUSECURSOR_WALK);
+      NWScript.SetPlotFlag(creature, 1);
     }
   }
 }

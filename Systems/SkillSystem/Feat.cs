@@ -1659,11 +1659,6 @@ namespace NWN
     CraftDireMace3, 
     CraftDireMace4,
     CraftDireMace5,
-    CraftDoubleAxe,
-    CraftDoubleAxe2,
-    CraftDoubleAxe3,
-    CraftDoubleAxe4,
-    CraftDoubleAxe5,
     CraftHeavyFlail,
     CraftHeavyFlail2,
     CraftHeavyFlail3,
@@ -1819,6 +1814,11 @@ namespace NWN
     CraftWhip3,
     CraftWhip4,
     CraftWhip5,
+    CraftDoubleAxe,
+    CraftDoubleAxe2,
+    CraftDoubleAxe3,
+    CraftDoubleAxe4,
+    CraftDoubleAxe5,
     Invalid = 65535
   }
 }
