@@ -86,6 +86,9 @@ namespace NWN.Systems
     }
     private static void InitializeNewPlayer(uint newPlayer)
     {
+      NWScript.DelayCommand(4.0f, () => NWScript.PostString(newPlayer, "a", 40, 15, 0, 0f, unchecked((int)0xFFFFFFFF), unchecked((int)0xFFFFFFFF), 9999, "fnt_my_gui"));
+      EventsPlugin.AddObjectToDispatchList("NWNX_ON_INPUT_TOGGLE_PAUSE_BEFORE", "event_spacebar_down", newPlayer);
+
       var query = NWScript.SqlPrepareQueryCampaign(ModuleSystem.database, $"SELECT rowid FROM PlayerAccounts WHERE accountName = @accountName");
       NWScript.SqlBindString(query, "@accountName", NWScript.GetPCPlayerName(newPlayer));
 
@@ -128,7 +131,12 @@ namespace NWN.Systems
     private static void InitializeNewCharacter(Player newCharacter)
     {
       WebhookSystem.StartSendingAsyncDiscordMessage($"{NWScript.GetPCPlayerName(newCharacter.oid)} vient de créer un nouveau personnage : {NWScript.GetName(newCharacter.oid)}", "AoA notification service - Nouveau personnage !");
-      ObjectPlugin.SetInt(newCharacter.oid, "_STARTING_SKILL_POINTS", 5000, 1);
+
+      int startingSP = 5000;
+      if (Convert.ToBoolean(CreaturePlugin.GetKnowsFeat(newCharacter.oid, (int)Feat.QuickToMaster)))
+        startingSP += 500;
+      
+      ObjectPlugin.SetInt(newCharacter.oid, "_STARTING_SKILL_POINTS", startingSP, 1);
 
       uint arrivalArea, arrivalPoint;
 
@@ -146,7 +154,7 @@ namespace NWN.Systems
         arrivalPoint = newCharacter.oid;
       }
 
-      var query = NWScript.SqlPrepareQueryCampaign(ModuleSystem.database, $"INSERT INTO playerCharacters (accountId , characterName, dateLastSaved, currentSkillJob, currentCraftJob, currentCraftObject, frostAttackOn, areaTag, position, facing) VALUES (@accountId, @name, @dateLastSaved, @currentSkillJob, @currentCraftJob, @currentCraftObject, @frostAttackOn, @areaTag, @position, @facing)");
+      var query = NWScript.SqlPrepareQueryCampaign(ModuleSystem.database, $"INSERT INTO playerCharacters (accountId , characterName, dateLastSaved, currentSkillJob, currentCraftJob, currentCraftObject, frostAttackOn, areaTag, position, facing, menuOriginLeft) VALUES (@accountId, @name, @dateLastSaved, @currentSkillJob, @currentCraftJob, @currentCraftObject, @frostAttackOn, @areaTag, @position, @facing, @menuOriginLeft)");
       NWScript.SqlBindInt(query, "@accountId", newCharacter.accountId);
       NWScript.SqlBindString(query, "@name", NWScript.GetName(newCharacter.oid));
       NWScript.SqlBindString(query, "@dateLastSaved", DateTime.Now.ToString());
@@ -157,6 +165,7 @@ namespace NWN.Systems
       NWScript.SqlBindString(query, "@areaTag", NWScript.GetTag(arrivalArea));
       NWScript.SqlBindVector(query, "@position", NWScript.GetPosition(arrivalPoint));
       NWScript.SqlBindFloat(query, "@facing", NWScript.GetFacing(arrivalPoint));
+      NWScript.SqlBindInt(query, "@menuOriginLeft", 30);
       NWScript.SqlStep(query);
 
       query = NWScript.SqlPrepareQueryCampaign(ModuleSystem.database, $"SELECT last_insert_rowid()");
@@ -289,6 +298,7 @@ namespace NWN.Systems
       player.isConnected = true;
       player.isAFK = true;
       player.DoJournalUpdate = false;
+      player.activeLanguage = Feat.Invalid;
       
       player.playerJournal = new PlayerJournal();
     }

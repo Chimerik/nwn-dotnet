@@ -40,7 +40,7 @@ namespace NWN.Systems
        switch (langue)
        {
          case Feat.LanguageElf:
-          return LanguageCodes.Galician;
+          return LanguageCodes.Basque;
         case Feat.LanguageAbyssal:
           return LanguageCodes.Latin;
         case Feat.LanguageCelestial:
@@ -109,6 +109,8 @@ namespace NWN.Systems
           return "sylvain";
         case Feat.LanguageThieves:
           return "langue des voleurs";
+        case Feat.LanguageGnome:
+          return "gnome";
       }
 
       return "commun";

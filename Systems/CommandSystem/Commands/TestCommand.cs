@@ -13,8 +13,7 @@ namespace NWN.Systems
       PlayerSystem.Player player;
       if (PlayerSystem.Players.TryGetValue(ctx.oSender, out player))
       {
-        //VisibilityPlugin.SetVisibilityOverride(NWScript.OBJECT_INVALID, NWScript.GetNearestObjectByTag("statuetest", player.oid), VisibilityPlugin.NWNX_VISIBILITY_ALWAYS_VISIBLE);
-        //ObjectPlugin.SetPosition(NWScript.GetNearestObjectByTag("statuetest", player.oid), NWScript.GetPosition(player.oid));
+         NWScript.PostString(player.oid, "a", 40, 15, 0, 0f, unchecked((int)0xFFFFFFFF), unchecked((int)0xFFFFFFFF), 10, "fnt_my_gui");
       }
     }
 

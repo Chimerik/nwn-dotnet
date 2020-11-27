@@ -79,7 +79,9 @@ namespace NWN.Systems
     }
     private static void FreezeCreature(uint creature)
     {
-      NWScript.ApplyEffectToObject(NWScript.DURATION_TYPE_PERMANENT, NWScript.EffectPetrify(), creature);
+        
+      NWScript.ApplyEffectToObject(NWScript.DURATION_TYPE_PERMANENT, NWScript.EffectVisualEffect(NWScript.VFX_DUR_FREEZE_ANIMATION), creature);
+      NWScript.ApplyEffectToObject(NWScript.DURATION_TYPE_PERMANENT, NWScript.EffectVisualEffect(NWScript.VFX_DUR_ICESKIN), creature);
       NWScript.SetObjectHiliteColor(creature, 0x000000);
       NWScript.SetObjectMouseCursor(creature, NWScript.MOUSECURSOR_WALK);
       NWScript.SetPlotFlag(creature, 1);
