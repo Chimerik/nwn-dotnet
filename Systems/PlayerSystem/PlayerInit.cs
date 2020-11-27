@@ -221,7 +221,7 @@ namespace NWN.Systems
       InitializePlayerEvents(player.oid);
       InitializePlayerAccount(player);
       InitializePlayerCharacter(player);
-      //InitializePlayerLearnableSkills(player);      
+      InitializePlayerLearnableSkills(player);      
     }
     private static void InitializePlayerEvents(uint player)
     {
