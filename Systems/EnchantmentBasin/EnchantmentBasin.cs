@@ -28,11 +28,15 @@ namespace NWN.Systems
       private int maxSavingThrowBonus;
       private int maxRegenBonus;
 
+      public PlayerSystem.Player player;
+      public uint oItem;
+      public uint oContainer;
+
       public EnchantmentBasin(
         float costRate = 1.0f,
         int minSuccessPercent = 1,
         int maxSuccessPercent = 99,
-        int maxCostRateForSuccessRateMin = 1000000,
+        int maxCostRateForSuccessRateMin = 100000,
         bool isAttackBonusEnabled = true,
         bool isACBonusEnabled = true,
         bool isAbilityBonusEnabled = true,
@@ -65,24 +69,33 @@ namespace NWN.Systems
         this.maxRegenBonus = maxRegenBonus;
       }
 
-      public void DrawMenu(PlayerSystem.Player player, uint oItem)
+      public void DrawMenu(PlayerSystem.Player player, uint oItem, uint oContainer)
+      {
+        this.player = player;
+        this.oItem = oItem;
+        this.oContainer = oContainer;
+
+        DrawMenuPage();
+      }
+
+      private void DrawMenuPage()
       {
         player.menu.Clear();
         player.menu.title = "Choisissez un enchantement a appliquer sur votre objet";
 
         bool isWeapon = ItemUtils.IsWeapon(oItem);
 
-        if (isAttackBonusEnabled && isWeapon) AddAttackBonusToMenu(player, oItem);
-        if (isDamageBonusEnabled && isWeapon) AddDamageBonusToMenu(player, oItem);
-        if (isACBonusEnabled) AddACBonusToMenu(player, oItem);
-        if (isAbilityBonusEnabled) AddAbilityBonusToMenu(player, oItem);
-        if (isSavingThrowBonusEnabled) AddSavingThrowBonusToMenu(player, oItem);
-        if (isRegenBonusEnabled) AddRegenBonusToMenu(player, oItem);
+        if (isAttackBonusEnabled && isWeapon) AddAttackBonusToMenu();
+        if (isDamageBonusEnabled && isWeapon) AddDamageBonusToMenu();
+        if (isACBonusEnabled) AddACBonusToMenu();
+        if (isAbilityBonusEnabled) AddAbilityBonusToMenu();
+        if (isSavingThrowBonusEnabled) AddSavingThrowBonusToMenu();
+        if (isRegenBonusEnabled) AddRegenBonusToMenu();
 
         player.menu.Draw();
       }
 
-      private void DrawCostPage(PlayerSystem.Player player, uint oItem, ItemProperty ip, string enchantmentName)
+      private void DrawCostPage(ItemProperty ip, string enchantmentName)
       {
         // Create a copy item to evaluate enchantment cost
         uint oCopy = NWScript.CopyItem(oItem, player.oid);
@@ -103,15 +116,15 @@ namespace NWN.Systems
 
         player.menu.Clear();
         player.menu.title = $"Desirez vous ajouter l'enchantement {enchantmentName} a l'item {NWScript.GetName(oItem)} ? " +
-          $"Il vous en coutera {cost} POS. " +
-          $"Vous avez {successPercent * 100}% de chance de reussite. " +
+          $"Il vous en coutera {cost} Pieces d'or. " +
+          $"Vous avez {successPercent}% de chance de reussite. " +
           $"En cas d'échec, l'item sera detruit de facon permanente.";
-        player.menu.choices.Add(("Confirmer", () => HandleConfirm(player, oItem, ip, cost, successPercent)));
-        player.menu.choices.Add(("Retour", () => DrawMenu(player, oItem)));
+        player.menu.choices.Add(("Confirmer", () => HandleConfirm(ip, cost, successPercent)));
+        player.menu.choices.Add(("Retour", () => DrawMenuPage()));
         player.menu.Draw();
       }
 
-      private void HandleConfirm(PlayerSystem.Player player, uint oItem, ItemProperty ip, int cost, int successPercent)
+      private void HandleConfirm(ItemProperty ip, int cost, int successPercent)
       {
         if (NWScript.GetGold(player.oid) <= cost)
         {
@@ -126,16 +139,18 @@ namespace NWN.Systems
         {
           // Success
           ItemPropertyUtils.ReplaceItemProperty(oItem, ip);
-          NWScript.ApplyEffectToObject(NWScript.DURATION_TYPE_INSTANT, NWScript.EffectVisualEffect(NWScript.VFX_IMP_HOLY_AID), oItem);
+          NWScript.ApplyEffectToObject(NWScript.DURATION_TYPE_INSTANT, NWScript.EffectVisualEffect(NWScript.VFX_IMP_HOLY_AID), oContainer);
         } else
         {
           // Failure
           NWScript.DestroyObject(oItem);
-          NWScript.ApplyEffectToObject(NWScript.DURATION_TYPE_INSTANT, NWScript.EffectVisualEffect(NWScript.VFX_IMP_FLAME_M), oItem);
+          NWScript.ApplyEffectToObject(NWScript.DURATION_TYPE_INSTANT, NWScript.EffectVisualEffect(NWScript.VFX_IMP_FLAME_M), oContainer);
         }
+
+        player.menu.Close();
       }
 
-      private void AddAttackBonusToMenu(PlayerSystem.Player player, uint oItem)
+      private void AddAttackBonusToMenu()
       {
         var currentAttackBonus = ItemUtils.GetItemPropertyBonus(oItem, NWScript.ITEM_PROPERTY_ATTACK_BONUS);
         if (currentAttackBonus < maxAttackBonus)
@@ -143,8 +158,6 @@ namespace NWN.Systems
           player.menu.choices.Add((
             "Bonus d'attaque",
             () => DrawCostPage(
-              player,
-              oItem,
               NWScript.ItemPropertyAttackBonus(currentAttackBonus + 1),
               $"Bonus d'attaque +{currentAttackBonus + 1}"
             )
@@ -152,7 +165,7 @@ namespace NWN.Systems
         }
       }
 
-      private void AddACBonusToMenu(PlayerSystem.Player player, uint oItem)
+      private void AddACBonusToMenu()
       {
         var currentAC = ItemUtils.GetItemPropertyBonus(oItem, NWScript.ITEM_PROPERTY_AC_BONUS);
         if (currentAC < maxACBonus)
@@ -160,8 +173,6 @@ namespace NWN.Systems
           player.menu.choices.Add((
             "Bonus d'armure",
             () => DrawCostPage(
-              player,
-              oItem,
               NWScript.ItemPropertyACBonus(currentAC + 1),
               $"Bonus d'armure +{currentAC + 1}"
             )
@@ -169,15 +180,15 @@ namespace NWN.Systems
         }
       }
 
-      private void AddAbilityBonusToMenu(PlayerSystem.Player player, uint oItem)
+      private void AddAbilityBonusToMenu()
       {
         player.menu.choices.Add((
           "Bonus de caracteristique",
-          () => DrawAbilityBonusPage(player, oItem)
+          () => DrawAbilityBonusPage()
         ));
       }
 
-      private void DrawAbilityBonusPage(PlayerSystem.Player player, uint oItem)
+      private void DrawAbilityBonusPage()
       {
         player.menu.Clear();
         player.menu.title = "Choisissez une caracteristique";
@@ -189,8 +200,6 @@ namespace NWN.Systems
           player.menu.choices.Add((
             "Force",
             () => DrawCostPage(
-              player,
-              oItem,
               NWScript.ItemPropertyAbilityBonus(NWScript.ABILITY_STRENGTH, currentSTR + 1),
               $"Bonus de force +{currentSTR + 1}"
             )
@@ -204,8 +213,6 @@ namespace NWN.Systems
           player.menu.choices.Add((
             "Dexterite",
             () => DrawCostPage(
-              player,
-              oItem,
               NWScript.ItemPropertyAbilityBonus(NWScript.ABILITY_DEXTERITY, currentDEX + 1),
               $"Bonus de dexterite +{currentDEX + 1}"
             )
@@ -219,8 +226,6 @@ namespace NWN.Systems
           player.menu.choices.Add((
             "Constitution",
             () => DrawCostPage(
-              player,
-              oItem,
               NWScript.ItemPropertyAbilityBonus(NWScript.ABILITY_CONSTITUTION, currentCON + 1),
               $"Bonus de constitution +{currentCON + 1}"
             )
@@ -234,8 +239,6 @@ namespace NWN.Systems
           player.menu.choices.Add((
             "Intelligence",
             () => DrawCostPage(
-              player,
-              oItem,
               NWScript.ItemPropertyAbilityBonus(NWScript.ABILITY_INTELLIGENCE, currentINT + 1),
               $"Bonus d'intelligence +{currentINT + 1}"
             )
@@ -249,8 +252,6 @@ namespace NWN.Systems
           player.menu.choices.Add((
             "Charisme",
             () => DrawCostPage(
-              player,
-              oItem,
               NWScript.ItemPropertyAbilityBonus(NWScript.ABILITY_CHARISMA, currentCHA + 1),
               $"Bonus de charisme +{currentCHA + 1}"
             )
@@ -264,8 +265,6 @@ namespace NWN.Systems
           player.menu.choices.Add((
             "Sagesse",
             () => DrawCostPage(
-              player,
-              oItem,
               NWScript.ItemPropertyAbilityBonus(NWScript.ABILITY_WISDOM, currentWIS + 1),
               $"Bonus de sagesse +{currentWIS + 1}"
             )
@@ -274,22 +273,22 @@ namespace NWN.Systems
 
         player.menu.choices.Add((
           "Retour",
-          () => DrawMenu(player, oItem)
+          () => DrawMenuPage()
         ));
         player.menu.Draw();
       }
 
-      private void AddDamageBonusToMenu(PlayerSystem.Player player, uint oItem)
+      private void AddDamageBonusToMenu()
       {
         // TODO
       }
 
-      private void AddSavingThrowBonusToMenu(PlayerSystem.Player player, uint oItem)
+      private void AddSavingThrowBonusToMenu()
       {
         // TODO
       }
 
-      private void AddRegenBonusToMenu(PlayerSystem.Player player, uint oItem)
+      private void AddRegenBonusToMenu()
       {
         // TODO
       }

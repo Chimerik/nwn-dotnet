@@ -25,7 +25,7 @@ namespace NWN.Systems
             costRate: 2,
             minSuccessPercent: 5,
             maxSuccessPercent: 95,
-            maxCostRateForSuccessRateMin: 2000000,
+            maxCostRateForSuccessRateMin: 500000,
             maxAttackBonus: 5,
             maxACBonus: 5,
             maxAbilityBonus: 6,
@@ -75,7 +75,7 @@ namespace NWN.Systems
       }
 
       var tag = NWScript.GetTag(oItem);
-      GetEnchantmentBasinFromTag(tag).DrawMenu(player, oItem);
+      GetEnchantmentBasinFromTag(tag).DrawMenu(player, oItem, oid);
 
       return 0;
     }
