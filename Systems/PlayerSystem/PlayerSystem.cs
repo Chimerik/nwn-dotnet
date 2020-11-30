@@ -54,7 +54,10 @@ namespace NWN.Systems
         }; 
 
     public static Dictionary<uint, Player> Players = new Dictionary<uint, Player>();
-
+    public static int[] plageCrittersAppearances = new int[] { 1984, 1985, 1986, 3160, 3155, 3156, 1956, 1957, 1958, 1959, 1960, 1961, 1962, 291, 292, 1964, 4310, 1427, 1430, 1980, 1981, 3261, 3262, 3263};
+    public static int[] caveCrittersAppearances = new int[] { 3197, 3198, 3199, 3200, 3202, 3204, 3205, 3206, 3207, 3208, 3209, 3210, 3999, 6425, 6426, 6427, 6428, 6429, 6430, 6431, 6432, 6433, 6434, 6435, 6436, 3397, 3398, 3400, 3434};
+    public static int[] cityCrittersAppearances = new int[] { 1983, 1390, 1391, 1392, 1393, 1394, 1395, 1396, 1397, 1398, 1399, 1400, 1401, 1402, 1403, 1404, 1405, 1406, 1407, 1408, 1409, 1410, 1411, 4385, 4408, 4112, 4113, 6454, 6455, 6456, 6457, 6458, 6559, 6460, 6461, 6462, 2505};
+    public static int[] genericCrittersAppearances = new int[] { 3259, 1181, 1182, 1183, 1184, 4370, 4371, 1794, 1988, 3213, 3214, 3215, 3216, 3222, 3223, 1339, 3445, 3520, 4338, 1335, 1336, 1966, 1967, 1968, 1969, 1970, 1971, 1972, 4221, 1025, 1026, 1797, 3237, 3238, 3239 , 3240, 3241, 1328, 1941, 1330, 1438, 496, 509, 522, 535, 1784, 1785, 1787, 1788, 1789, 1791, 1855, 1856, 1857, 1858, 1859, 1860, 2589, 1334, 1973, 1974, 4309, 4310, 4320, 4321, 4322, 34, 142, 1796, 1340, 3192, 3193, 3194, 3195, 3196, 1341, 1005, 1006, 1007, 1008, 1009, 1010, 1011, 1013, 1014, 1015, 1016, 1017, 1019, 1020, 1255, 3152, 3153, 3157, 3158, 3159, 3161, 3162, 3163, 3164, 3165, 3166, 3167, 3168, 3154, 3148, 3149, 1975, 1976, 1977, 1978, 1979, 2506, 3043, 3044, 3045, 3046, 3047, 1275, 1947, 1949, 1950, 1951, 1952, 6365, 6408, 31, 145, 146, 3305, 4364, 1982, 1749, 1750, 1751, 1332, 1333, 1987, 1863, 1337, 1295, 1329, 3310, 3311, 1802, 1803, 1804, 1805, 8, 35, 37, 4115, 4116, 4117, 4118, 4119, 4120, 4121, 4122, 4123, 3138, 1338 };
     private static int HandlePlayerDisconnect(uint oidSelf)
     {
  /*     var oPC = NWScript.GetExitingObject();
@@ -783,23 +786,15 @@ namespace NWN.Systems
           NWScript.SetLocalString(oArea, "_DATE_LAST_SPAWNED", DateTime.Now.ToString());
 
           var firstObject = NWScript.GetFirstObjectInArea(oArea);
-          if(NWScript.GetTag(firstObject) == "creature_spawn")
-            NWScript.CreateObject(NWScript.OBJECT_TYPE_CREATURE, NWScript.GetLocalString(firstObject, "_CREATURE_TEMPLATE"), NWScript.GetLocation(firstObject));
+          if (NWScript.GetTag(firstObject) == "creature_spawn")
+            HandleSpawnWaypoint(firstObject);
 
           int i = 1;
           var spawnPoints = NWScript.GetNearestObjectByTag("creature_spawn", firstObject);
 
           while (Convert.ToBoolean(NWScript.GetIsObjectValid(spawnPoints)))
           {
-            if (Convert.ToBoolean(NWScript.GetLocalInt(spawnPoints, "_SPAWN_BLOCKED")))
-              continue;
-
-            if (Convert.ToBoolean(NWScript.GetLocalInt(spawnPoints, "_PNJ_SPAWN")))
-              NWScript.SetLocalInt(spawnPoints, "_SPAWN_BLOCKED", 1);
-
-              NWScript.SetEventScript(NWScript.CreateObject(
-              NWScript.OBJECT_TYPE_CREATURE, NWScript.GetLocalString(spawnPoints, "_CREATURE_TEMPLATE"), NWScript.GetLocation(spawnPoints)),
-              NWScript.EVENT_SCRIPT_CREATURE_ON_DEATH, ON_LOOT_SCRIPT);
+            HandleSpawnWaypoint(spawnPoints);
             i++;
             spawnPoints = NWScript.GetNearestObjectByTag("creature_spawn", firstObject, i);
           }
@@ -871,6 +866,53 @@ namespace NWN.Systems
       }
 
       return 0;
+    }
+
+    private static void HandleSpawnWaypoint(uint spawnPoint)
+    {
+      switch(NWScript.GetLocalString(spawnPoint, "_SPAWN_TYPE"))
+      {
+        case "npc":
+          if(!Convert.ToBoolean(NWScript.GetIsObjectValid(NWScript.GetNearestObjectByTag(NWScript.GetLocalString(spawnPoint, "_CREATURE_TEMPLATE"), spawnPoint))))
+          {
+            SpawnCreatureFromSpawnPoint(spawnPoint);
+          }
+          break;
+        case "critter":
+          SetRandomAppearanceFrom2da(SpawnCreatureFromSpawnPoint(spawnPoint), genericCrittersAppearances);
+          break;
+        case "critter_plage":
+          SetRandomAppearanceFrom2da(SpawnCreatureFromSpawnPoint(spawnPoint), plageCrittersAppearances);
+          break;
+        case "critter_cave":
+          SetRandomAppearanceFrom2da(SpawnCreatureFromSpawnPoint(spawnPoint), caveCrittersAppearances);
+          break;
+        case "critter_city":
+          SetRandomAppearanceFrom2da(SpawnCreatureFromSpawnPoint(spawnPoint), cityCrittersAppearances);
+          break;
+        default:
+          SpawnCreatureFromSpawnPoint(spawnPoint);
+          break;
+      }
+    }
+    private static uint SpawnCreatureFromSpawnPoint(uint spawnPoint)
+    {
+      uint creature = NWScript.CreateObject(NWScript.OBJECT_TYPE_CREATURE, NWScript.GetLocalString(spawnPoint, "_CREATURE_TEMPLATE"), NWScript.GetLocation(spawnPoint));
+      NWScript.SetEventScript(creature, NWScript.EVENT_SCRIPT_CREATURE_ON_DEATH, ON_LOOT_SCRIPT);
+      return creature;
+    }
+    private static void SetRandomAppearanceFrom2da(uint creature, int[] appearanceArray)
+    {
+      int appearance = appearanceArray[Utils.random.Next(0, appearanceArray.Length)];
+      NWScript.SetCreatureAppearanceType(creature, appearance);
+
+      int value;
+      if (Int32.TryParse(NWScript.Get2DAString("appearance", "STRING_REF", appearance), out value))
+        NWScript.SetName(creature, NWScript.GetStringByStrRef(value));
+      else
+        Utils.LogMessageToDMs($"Apparence {appearance} - Nom non défini.");
+
+      NWScript.AssignCommand(creature, () => NWScript.ActionRandomWalk());      
     }
     private static int HandlePCJournalOpen(uint oidSelf)
     {
