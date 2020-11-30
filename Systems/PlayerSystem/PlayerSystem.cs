@@ -25,7 +25,6 @@ namespace NWN.Systems
             { "event_dm_possess_before", HandleBeforeDMPossess },
             { "event_dm_spawn_object_after", HandleAfterDMSpawnObject },
             { "event_feat_used", HandleFeatUsed },
-            { "event_auto_spell", HandleAutoSpell },
             { "_onspellcast_before", HandleBeforeSpellCast },
             { "_onspellcast_after", HandleAfterSpellCast },
             { "event_combatmode", HandleOnCombatMode },
@@ -283,44 +282,6 @@ namespace NWN.Systems
       }
 
       CreaturePlugin.DeserializeQuickbar(oidSelf, sQuickBar);
-    }
-
-    private static void RefreshQBS(uint oidSelf)
-    {
-      string sQuickBar = CreaturePlugin.SerializeQuickbar(oidSelf);
-      QuickBarSlot emptyQBS = Utils.CreateEmptyQBS();
-
-      for (int i = 0; i < 36; i++)
-      {
-        QuickBarSlot qbs = PlayerPlugin.GetQuickBarSlot(oidSelf, i);
-        PlayerPlugin.SetQuickBarSlot(oidSelf, i, emptyQBS);
-      }
-
-      CreaturePlugin.DeserializeQuickbar(oidSelf, sQuickBar);
-    }
-
-    private static int HandleAutoSpell(uint oidSelf) //Je garde ça sous la main, mais je pense que le gérer différement serait mieux, notamment en créant un mode activable "autospell" en don gratuit pour les casters. Donc : A RETRAVAILLER 
-    {
-      Player oPC;
-
-      if (Players.TryGetValue(oidSelf, out oPC))
-      {
-        var oTarget = NWScript.StringToObject(EventsPlugin.GetEventData("TARGET"));
-
-        if (NWScript.GetIsObjectValid(oTarget) == 1)
-        {
-          NWScript.ClearAllActions();
-          if (oPC.autoAttackTarget == NWScript.OBJECT_INVALID)
-          {
-            NWScript.AssignCommand(oidSelf, () => NWScript.ActionCastSpellAtObject(NWScript.SPELL_RAY_OF_FROST, oTarget));
-            NWScript.DelayCommand(6.0f, () => oPC.OnFrostAutoAttackTimedEvent());
-          }
-        }
-
-        oPC.autoAttackTarget = oTarget;
-      }
-
-      return 0;
     }
 
     private static int HandleBeforeSpellCast(uint oidSelf)

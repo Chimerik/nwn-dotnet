@@ -158,8 +158,8 @@ namespace NWN.Systems
       {
         if (!this.IsDialogQuickbarOn())
         {
-          CreaturePlugin.AddFeat(this.oid, (int)Feat.CustomMenuUP);
           CreaturePlugin.AddFeat(this.oid, (int)Feat.CustomMenuDOWN);
+          CreaturePlugin.AddFeat(this.oid, (int)Feat.CustomMenuUP);
           CreaturePlugin.AddFeat(this.oid, (int)Feat.CustomMenuSELECT);
           CreaturePlugin.AddFeat(this.oid, (int)Feat.CustomMenuEXIT);
 
@@ -173,32 +173,15 @@ namespace NWN.Systems
             PlayerPlugin.SetQuickBarSlot(this.oid, i, emptyQBS);
           }
           emptyQBS.nObjectType = 4;
-          emptyQBS.nINTParam1 = (int)Feat.CustomMenuUP;
-          PlayerPlugin.SetQuickBarSlot(this.oid, 0, emptyQBS);
           emptyQBS.nINTParam1 = (int)Feat.CustomMenuDOWN;
+          PlayerPlugin.SetQuickBarSlot(this.oid, 0, emptyQBS);
+          emptyQBS.nINTParam1 = (int)Feat.CustomMenuUP;
           PlayerPlugin.SetQuickBarSlot(this.oid, 1, emptyQBS);
           emptyQBS.nINTParam1 = (int)Feat.CustomMenuSELECT;
           PlayerPlugin.SetQuickBarSlot(this.oid, 2, emptyQBS);
           emptyQBS.nINTParam1 = (int)Feat.CustomMenuEXIT;
           PlayerPlugin.SetQuickBarSlot(this.oid, 3, emptyQBS);
         }
-      }
-
-      public void BoulderUnblock()
-      {
-        uint boulder = NWScript.GetObjectByTag($"block_rock_{NWScript.GetPCPublicCDKey(this.oid)}");
-        int i = 1;
-        NWScript.SendMessageToPC(this.oid, $"destroying boulders");
-
-        while (Convert.ToBoolean(NWScript.GetIsObjectValid(boulder)))
-        {
-          NWScript.RemoveEffect(boulder, NWScript.GetFirstEffect(boulder));
-          NWScript.DestroyObject(boulder, 0.2f);
-
-          boulder = NWScript.GetObjectByTag($"block_rock_{NWScript.GetPCPublicCDKey(this.oid)}", i);
-          i++;
-          NWScript.SendMessageToPC(this.oid, $"destroyed boulder : {NWScript.GetPCPublicCDKey(this.oid)}");
-        } 
       }
       public void UnloadMenuQuickbar()
       {
