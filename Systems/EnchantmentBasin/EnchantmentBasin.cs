@@ -24,7 +24,7 @@ namespace NWN.Systems
       private int maxAttackBonus;
       private int maxACBonus;
       private int maxAbilityBonus;
-      private int maxDamageBonus;
+      private ItemPropertyUtils.DamageBonus maxDamageBonus;
       private int maxSavingThrowBonus;
       private int maxRegenBonus;
 
@@ -46,7 +46,7 @@ namespace NWN.Systems
         int maxAttackBonus = 20,
         int maxACBonus = 20,
         int maxAbilityBonus = 12,
-        int maxDamageBonus = NWScript.DAMAGE_BONUS_20,
+        ItemPropertyUtils.DamageBonus maxDamageBonus = ItemPropertyUtils.DamageBonus.D2d12,
         int maxSavingThrowBonus = 20,
         int maxRegenBonus = 20
       )
@@ -84,9 +84,10 @@ namespace NWN.Systems
         player.menu.title = "Choisissez un enchantement a appliquer sur votre objet";
 
         bool isWeapon = ItemUtils.IsWeapon(oItem);
+        bool isMeleeWeapon = ItemUtils.IsMeleeWeapon(oItem);
 
         if (isAttackBonusEnabled && isWeapon) AddAttackBonusToMenu();
-        if (isDamageBonusEnabled && isWeapon) AddDamageBonusToMenu();
+        if (isDamageBonusEnabled && isMeleeWeapon) AddDamageBonusToMenu();
         if (isACBonusEnabled) AddACBonusToMenu();
         if (isAbilityBonusEnabled) AddAbilityBonusToMenu();
         if (isSavingThrowBonusEnabled) AddSavingThrowBonusToMenu();
@@ -193,83 +194,12 @@ namespace NWN.Systems
         player.menu.Clear();
         player.menu.title = "Choisissez une caracteristique";
 
-        // STR
-        var currentSTR = ItemUtils.GetItemPropertyBonus(oItem, NWScript.ITEM_PROPERTY_ABILITY_BONUS, NWScript.ABILITY_STRENGTH);
-        if (currentSTR < maxAbilityBonus)
-        {
-          player.menu.choices.Add((
-            "Force",
-            () => DrawCostPage(
-              NWScript.ItemPropertyAbilityBonus(NWScript.ABILITY_STRENGTH, currentSTR + 1),
-              $"Bonus de force +{currentSTR + 1}"
-            )
-          ));
-        }
-
-        // DEX
-        var currentDEX = ItemUtils.GetItemPropertyBonus(oItem, NWScript.ITEM_PROPERTY_ABILITY_BONUS, NWScript.ABILITY_DEXTERITY);
-        if (currentDEX < maxAbilityBonus)
-        {
-          player.menu.choices.Add((
-            "Dexterite",
-            () => DrawCostPage(
-              NWScript.ItemPropertyAbilityBonus(NWScript.ABILITY_DEXTERITY, currentDEX + 1),
-              $"Bonus de dexterite +{currentDEX + 1}"
-            )
-          ));
-        }
-
-        // CON
-        var currentCON = ItemUtils.GetItemPropertyBonus(oItem, NWScript.ITEM_PROPERTY_ABILITY_BONUS, NWScript.ABILITY_CONSTITUTION);
-        if (currentCON < maxAbilityBonus)
-        {
-          player.menu.choices.Add((
-            "Constitution",
-            () => DrawCostPage(
-              NWScript.ItemPropertyAbilityBonus(NWScript.ABILITY_CONSTITUTION, currentCON + 1),
-              $"Bonus de constitution +{currentCON + 1}"
-            )
-          ));
-        }
-
-        // INT
-        var currentINT = ItemUtils.GetItemPropertyBonus(oItem, NWScript.ITEM_PROPERTY_ABILITY_BONUS, NWScript.ABILITY_INTELLIGENCE);
-        if (currentINT < maxAbilityBonus)
-        {
-          player.menu.choices.Add((
-            "Intelligence",
-            () => DrawCostPage(
-              NWScript.ItemPropertyAbilityBonus(NWScript.ABILITY_INTELLIGENCE, currentINT + 1),
-              $"Bonus d'intelligence +{currentINT + 1}"
-            )
-          ));
-        }
-
-        // CHA
-        var currentCHA = ItemUtils.GetItemPropertyBonus(oItem, NWScript.ITEM_PROPERTY_ABILITY_BONUS, NWScript.ABILITY_CHARISMA);
-        if (currentCHA < maxAbilityBonus)
-        {
-          player.menu.choices.Add((
-            "Charisme",
-            () => DrawCostPage(
-              NWScript.ItemPropertyAbilityBonus(NWScript.ABILITY_CHARISMA, currentCHA + 1),
-              $"Bonus de charisme +{currentCHA + 1}"
-            )
-          ));
-        }
-
-        // WIS
-        var currentWIS = ItemUtils.GetItemPropertyBonus(oItem, NWScript.ITEM_PROPERTY_ABILITY_BONUS, NWScript.ABILITY_WISDOM);
-        if (currentWIS < maxAbilityBonus)
-        {
-          player.menu.choices.Add((
-            "Sagesse",
-            () => DrawCostPage(
-              NWScript.ItemPropertyAbilityBonus(NWScript.ABILITY_WISDOM, currentWIS + 1),
-              $"Bonus de sagesse +{currentWIS + 1}"
-            )
-          ));
-        }
+        AddAbilityBonusTypeToMenu(NWScript.ABILITY_STRENGTH);
+        AddAbilityBonusTypeToMenu(NWScript.ABILITY_DEXTERITY);
+        AddAbilityBonusTypeToMenu(NWScript.ABILITY_CONSTITUTION);
+        AddAbilityBonusTypeToMenu(NWScript.ABILITY_INTELLIGENCE);
+        AddAbilityBonusTypeToMenu(NWScript.ABILITY_CHARISMA);
+        AddAbilityBonusTypeToMenu(NWScript.ABILITY_WISDOM);
 
         player.menu.choices.Add((
           "Retour",
@@ -278,9 +208,74 @@ namespace NWN.Systems
         player.menu.Draw();
       }
 
+      private void AddAbilityBonusTypeToMenu(int abilityBonusType)
+      {
+        var currentAbilityBonus = ItemUtils.GetItemPropertyBonus(oItem, NWScript.ITEM_PROPERTY_ABILITY_BONUS, abilityBonusType);
+        if (currentAbilityBonus < maxAbilityBonus)
+        {
+          var name = ItemPropertyUtils.AbilityBonusToString(abilityBonusType);
+
+          player.menu.choices.Add((
+            StringUtils.FirstCharToUpper(name),
+            () => DrawCostPage(
+              NWScript.ItemPropertyAbilityBonus(abilityBonusType, currentAbilityBonus + 1),
+              $"Bonus de {name} +{currentAbilityBonus + 1}"
+            )
+          ));
+        }
+      }
+
       private void AddDamageBonusToMenu()
       {
-        // TODO
+        player.menu.choices.Add((
+          "Bonus de degats",
+          () => DrawDamageBonusPage()
+        ));
+      }
+
+      private void DrawDamageBonusPage()
+      {
+        player.menu.Clear();
+        player.menu.title = "Choisissez un type de degats";
+
+        AddDamageBonusTypeToMenu(NWScript.IP_CONST_DAMAGETYPE_ACID);
+        AddDamageBonusTypeToMenu(NWScript.IP_CONST_DAMAGETYPE_COLD);
+        AddDamageBonusTypeToMenu(NWScript.IP_CONST_DAMAGETYPE_ELECTRICAL);
+        AddDamageBonusTypeToMenu(NWScript.IP_CONST_DAMAGETYPE_FIRE);
+        AddDamageBonusTypeToMenu(NWScript.IP_CONST_DAMAGETYPE_SONIC);
+        AddDamageBonusTypeToMenu(NWScript.IP_CONST_DAMAGETYPE_BLUDGEONING);
+        AddDamageBonusTypeToMenu(NWScript.IP_CONST_DAMAGETYPE_PIERCING);
+        AddDamageBonusTypeToMenu(NWScript.IP_CONST_DAMAGETYPE_SLASHING);
+
+        player.menu.choices.Add((
+          "Retour",
+          () => DrawMenuPage()
+        ));
+        player.menu.Draw();
+      }
+
+      private void AddDamageBonusTypeToMenu(int damageBonusType)
+      {
+        int nCurrentDamageBonus = ItemUtils.GetItemPropertyBonus(oItem, NWScript.ITEM_PROPERTY_DAMAGE_BONUS, damageBonusType);
+
+        if (Enum.IsDefined(typeof(ItemPropertyUtils.DamageBonus), nCurrentDamageBonus))
+        {
+          var currentDamageBonus = (ItemPropertyUtils.DamageBonus)nCurrentDamageBonus;
+          
+          if (ItemPropertyUtils.GetAverageDamageFromDamageBonus(currentDamageBonus) < ItemPropertyUtils.GetAverageDamageFromDamageBonus(maxDamageBonus))
+          {
+            var nextDamageBonus = ItemPropertyUtils.GetNextAverageDamageBonus(currentDamageBonus);
+            var name = ItemPropertyUtils.DamageBonusTypeToString(damageBonusType);
+
+            player.menu.choices.Add((
+              StringUtils.FirstCharToUpper(name),
+              () => DrawCostPage(
+                NWScript.ItemPropertyDamageBonus(damageBonusType, (int)nextDamageBonus),
+                $"Bonus de degats {name} +{ItemPropertyUtils.DamageBonusToString(nextDamageBonus)}"
+              )
+            ));
+          }
+        }
       }
 
       private void AddSavingThrowBonusToMenu()
