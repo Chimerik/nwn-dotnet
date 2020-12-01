@@ -15,7 +15,7 @@ namespace NWN.Systems
             maxAttackBonus: 3,
             maxACBonus: 3,
             maxAbilityBonus: 3,
-            maxDamageBonus: NWScript.DAMAGE_BONUS_1d12,
+            maxDamageBonus: ItemPropertyUtils.DamageBonus.D1d12,
             maxSavingThrowBonus: 3,
             maxRegenBonus: 2
           );
@@ -29,7 +29,7 @@ namespace NWN.Systems
             maxAttackBonus: 5,
             maxACBonus: 5,
             maxAbilityBonus: 6,
-            maxDamageBonus: NWScript.DAMAGE_BONUS_1d8,
+            maxDamageBonus: ItemPropertyUtils.DamageBonus.D1d8,
             maxSavingThrowBonus: 4,
             maxRegenBonus: 4
           );
