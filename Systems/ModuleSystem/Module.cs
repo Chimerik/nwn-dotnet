@@ -22,7 +22,7 @@ namespace NWN.Systems
       try
       {
         LootSystem.InitChestArea();
-        InitModuleChestSpawn();
+        InitAreas();
       }
       catch (Exception e)
       {
@@ -261,7 +261,7 @@ namespace NWN.Systems
       while (Convert.ToBoolean(NWScript.SqlStep(query)))
         NWScript.SqlGetObject(query, 0, Utils.GetLocationFromDatabase(NWScript.SqlGetString(query, 1), NWScript.SqlGetVector(query, 2), NWScript.SqlGetFloat(query, 3)));
     }
-    private void InitModuleChestSpawn()
+    private void InitAreas()
     {
       var oArea = NWScript.GetFirstArea();
 
@@ -271,6 +271,7 @@ namespace NWN.Systems
         oArea = NWScript.GetNextArea();
       }
     }
+
     public string PreparingModuleForAsyncReboot()
     {
       this.botAsyncCommandList.Add("reboot");
