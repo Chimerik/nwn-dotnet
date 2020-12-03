@@ -139,7 +139,7 @@ namespace NWN.Systems
       ObjectPlugin.SetInt(newCharacter.oid, "_STARTING_SKILL_POINTS", startingSP, 1);
 
       uint arrivalArea, arrivalPoint;
-
+      
       if (Config.env == Config.Env.Prod)
       {
         arrivalArea = NWScript.CopyArea(Module.areaDictionnary.Where(v => v.Value.tag == "entry_scene").FirstOrDefault().Value.oid);
@@ -170,7 +170,7 @@ namespace NWN.Systems
 
       query = NWScript.SqlPrepareQueryCampaign(ModuleSystem.database, $"SELECT last_insert_rowid()");
       NWScript.SqlStep(query);
-      
+
       ObjectPlugin.SetInt(newCharacter.oid, "characterId", NWScript.SqlGetInt(query, 0), 1);
 
       query = NWScript.SqlPrepareQueryCampaign(ModuleSystem.database, $"INSERT INTO playerMaterialStorage (characterId) VALUES (@characterId)");
@@ -181,7 +181,7 @@ namespace NWN.Systems
         while (CreaturePlugin.GetKnownSpellCount(newCharacter.oid, 43, spellLevel) > 0)
           CreaturePlugin.RemoveKnownSpell(newCharacter.oid, 43, spellLevel, CreaturePlugin.GetKnownSpell(newCharacter.oid, 43, spellLevel, 0));
 
-      InitializeNewPlayerLearnableSkills(newCharacter);
+           InitializeNewPlayerLearnableSkills(newCharacter);
     }
     public static void InitializeNewPlayerLearnableSkills(Player player)
     {

@@ -17,15 +17,15 @@ namespace NWN.Systems
     {
       var oArea = NWScript.GetObjectByTag(CHEST_AREA_TAG);
 
-      if (oArea == NWScript.OBJECT_INVALID)
+      if (oArea != NWScript.OBJECT_INVALID)
       {
-        ThrowException($"Invalid CHEST_AREA_TAG={CHEST_AREA_TAG}");
+        var query = NWScript.SqlPrepareQueryCampaign(ModuleSystem.database, $"SELECT serializedChest, position, facing from {SQL_TABLE}");
+
+        while (Convert.ToBoolean(NWScript.SqlStep(query)))
+          UpdateChestTagToLootsDic(NWScript.SqlGetObject(query, 0, Utils.GetLocationFromDatabase(CHEST_AREA_TAG, NWScript.SqlGetVector(query, 1), NWScript.SqlGetFloat(query, 2))));
       }
-
-      var query = NWScript.SqlPrepareQueryCampaign(ModuleSystem.database, $"SELECT serializedChest, position, facing from {SQL_TABLE}");
-
-      while(Convert.ToBoolean(NWScript.SqlStep(query)))
-        UpdateChestTagToLootsDic(NWScript.SqlGetObject(query, 0, Utils.GetLocationFromDatabase(CHEST_AREA_TAG, NWScript.SqlGetVector(query, 1), NWScript.SqlGetFloat(query, 2))));
+      else
+        Utils.LogMessageToDMs("Attention - La zone des loots n'est pas initialisée.");
     }
 
     private static int HandleContainerClose(uint oidSelf)

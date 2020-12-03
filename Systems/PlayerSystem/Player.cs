@@ -62,7 +62,7 @@ namespace NWN.Systems
 
         this.accountId = ObjectPlugin.GetInt(this.oid, "accountId");
 
-        if (ObjectPlugin.GetInt(this.oid, "characterId") == 0)
+       if (ObjectPlugin.GetInt(this.oid, "characterId") == 0)
           InitializeNewCharacter(this);
 
         this.characterId = ObjectPlugin.GetInt(this.oid, "characterId");

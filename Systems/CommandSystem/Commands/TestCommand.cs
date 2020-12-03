@@ -13,7 +13,7 @@ namespace NWN.Systems
       PlayerSystem.Player player;
       if (PlayerSystem.Players.TryGetValue(ctx.oSender, out player))
       {
-         NWScript.PostString(player.oid, "a", 40, 15, 0, 0f, unchecked((int)0xFFFFFFFF), unchecked((int)0xFFFFFFFF), 10, "fnt_my_gui");
+        NWScript.AddHenchman(player.oid, NWScript.GetNearestObjectByTag("neutralcritter", player.oid));
       }
     }
 
