@@ -280,12 +280,73 @@ namespace NWN.Systems
 
       private void AddSavingThrowBonusToMenu()
       {
-        // TODO
+        player.menu.choices.Add((
+          "Bonus aux jets de sauvegarde",
+          () => DrawSavingThrowBonusPage()
+        ));
+      }
+
+      private void DrawSavingThrowBonusPage()
+      {
+        player.menu.Clear();
+        player.menu.title = "Choisissez un type de jet de sauvegarde";
+
+        var currentUniversalSavingThrowBonus = ItemUtils.GetItemPropertyBonus(oItem, NWScript.ITEM_PROPERTY_SAVING_THROW_BONUS, NWScript.IP_CONST_SAVEVS_UNIVERSAL);
+
+        if (currentUniversalSavingThrowBonus < maxSavingThrowBonus)
+        {
+          player.menu.choices.Add((
+            "Universel",
+            () => DrawCostPage(
+              NWScript.ItemPropertyBonusSavingThrowVsX(NWScript.IP_CONST_SAVEVS_UNIVERSAL, currentUniversalSavingThrowBonus + 1),
+              $"Bonus de jet universel +{currentUniversalSavingThrowBonus + 1}"
+            )
+          ));
+        }
+
+        AddSavingThrowBonusTypeToMenu(NWScript.IP_CONST_SAVEBASETYPE_FORTITUDE);
+        AddSavingThrowBonusTypeToMenu(NWScript.IP_CONST_SAVEBASETYPE_WILL);
+        AddSavingThrowBonusTypeToMenu(NWScript.IP_CONST_SAVEBASETYPE_REFLEX);
+
+        player.menu.choices.Add((
+          "Retour",
+          () => DrawMenuPage()
+        ));
+        player.menu.Draw();
+      }
+
+      private void AddSavingThrowBonusTypeToMenu(int savingThrowBonusType)
+      {
+        var currentSavingThrowBonus = ItemUtils.GetItemPropertyBonus(oItem, NWScript.ITEM_PROPERTY_SAVING_THROW_BONUS_SPECIFIC, savingThrowBonusType);
+
+        if (currentSavingThrowBonus < maxSavingThrowBonus)
+        {
+          var name = ItemPropertyUtils.SavingThrowBonusToString(savingThrowBonusType);
+
+          player.menu.choices.Add((
+            StringUtils.FirstCharToUpper(name),
+            () => DrawCostPage(
+              NWScript.ItemPropertyBonusSavingThrow(savingThrowBonusType, currentSavingThrowBonus + 1),
+              $"Bonus de {name} +{currentSavingThrowBonus + 1}"
+            )
+          ));
+        }
       }
 
       private void AddRegenBonusToMenu()
       {
-        // TODO
+        var currentRegenBonus = ItemUtils.GetItemPropertyBonus(oItem, NWScript.ITEM_PROPERTY_REGENERATION);
+
+        if (currentRegenBonus < maxRegenBonus)
+        {
+          player.menu.choices.Add((
+            "Regeneration",
+            () => DrawCostPage(
+              NWScript.ItemPropertyRegeneration(currentRegenBonus + 1),
+              $"Bonus de regeneration +{currentRegenBonus + 1}"
+            )
+          ));
+        }
       }
     }
   }

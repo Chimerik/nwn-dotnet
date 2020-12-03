@@ -156,6 +156,18 @@ namespace NWN
       }
     }
 
+    public static string SavingThrowBonusToString(int savingThrowBonusType)
+    {
+      switch (savingThrowBonusType)
+      {
+        default: return "";
+
+        case NWScript.IP_CONST_SAVEBASETYPE_FORTITUDE: return "vigueur";
+        case NWScript.IP_CONST_SAVEBASETYPE_WILL: return "volonte";
+        case NWScript.IP_CONST_SAVEBASETYPE_REFLEX: return "reflexe";
+      }
+    }
+
     public static void ReplaceItemProperty(uint oItem, ItemProperty ip, float fDuration = 0.0f, bool bIgnoreSubType = false)
     {
       int nType = NWScript.GetItemPropertyType(ip);
