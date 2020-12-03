@@ -11,23 +11,508 @@ namespace NWN.Systems
 
     public readonly static Dictionary<string, Lootable.Config> lootablesDic = new Dictionary<string, Lootable.Config>
         {
-            { "gobelin_dungeon_chest", new Lootable.Config(
-                gold: new Lootable.Gold(min: 10, max: 100, chance: 100),
+            { "gobelin_chest", new Lootable.Config(
+                gold: new Lootable.Gold(min: 25, max: 150, chance: 75),
                 items: new List<Lootable.Item> {
-                    new Lootable.Item(chestTag: "super_loots", count: 10, chance: 55),
-                    new Lootable.Item(chestTag: "animal_loots", count: 1, chance: 55),
+                    new Lootable.Item(chestTag: "simple_weapons", count: 1, chance: 5),
+                    new Lootable.Item(chestTag: "light_armor", count: 1, chance: 5),
+                    new Lootable.Item(chestTag: "ammunitions", count: 1, chance: 50),
+                    new Lootable.Item(chestTag: "craft_material", count: 1, chance: 100),
+                    new Lootable.Item(chestTag: "low_blueprints", count: 1, chance: 1),
+                    new Lootable.Item(chestTag: "low_skillbooks", count: 1, chance: 1),
+                    new Lootable.Item(chestTag: "low_potions", count: 2, chance: 80),
+                    new Lootable.Item(chestTag: "low_scrolls", count: 1, chance: 80),
                 }
             )},
-            { "gobelin", new Lootable.Config(
+            { "Gobelinclaireur", new Lootable.Config(
                 items: new List<Lootable.Item> {
-                    new Lootable.Item(chestTag: "junk_loots", count: 3, chance: 70),
+                    new Lootable.Item(chestTag: "ammunitions", count: 1, chance: 5),
+                    new Lootable.Item(chestTag: "simple_weapons", count: 1, chance: 1),
+                    new Lootable.Item(chestTag: "craft_material", count: 1, chance: 5),
                 }
             )},
-            { "gobelin_chief", new Lootable.Config(
-                gold: new Lootable.Gold(min: 100, max: 200, chance: 50),
+            { "Gobelinchairacanon", new Lootable.Config(
+                gold: new Lootable.Gold(min: 5, max: 25, chance: 20),
                 items: new List<Lootable.Item> {
-                    new Lootable.Item(chestTag: "gobelin_chief_loots", count: 1, chance: 100),
-                    new Lootable.Item(chestTag: "good_loots", count: 3, chance: 35),
+                    new Lootable.Item(chestTag: "ammunitions", count: 1, chance: 5),
+                    new Lootable.Item(chestTag: "simple_weapons", count: 1, chance: 1),
+                    new Lootable.Item(chestTag: "craft_material", count: 1, chance: 5),
+                    new Lootable.Item(chestTag: "light_armor", count: 1, chance: 1),
+                }
+            )},
+            { "Gobelinfrondeur", new Lootable.Config(
+                gold: new Lootable.Gold(min: 5, max: 25, chance: 20),
+                items: new List<Lootable.Item> {
+                    new Lootable.Item(chestTag: "ammunitions", count: 1, chance: 25),
+                    new Lootable.Item(chestTag: "simple_weapons", count: 1, chance: 1),
+                    new Lootable.Item(chestTag: "craft_material", count: 1, chance: 5),
+                }
+            )},
+            { "Gobelinfourbe", new Lootable.Config(
+                gold: new Lootable.Gold(min: 5, max: 25, chance: 20),
+                items: new List<Lootable.Item> {
+                    new Lootable.Item(chestTag: "ammunitions", count: 1, chance: 35),
+                    new Lootable.Item(chestTag: "simple_weapons", count: 1, chance: 1),
+                    new Lootable.Item(chestTag: "craft_material", count: 1, chance: 10),
+                }
+            )},
+            { "Roishaman", new Lootable.Config(
+                gold: new Lootable.Gold(min: 25, max: 150, chance: 75),
+                items: new List<Lootable.Item> {
+                    new Lootable.Item(chestTag: "simple_weapons", count: 1, chance: 20),
+                    new Lootable.Item(chestTag: "light_armor", count: 1, chance: 5),
+                    new Lootable.Item(chestTag: "ammunitions", count: 1, chance: 50),
+                    new Lootable.Item(chestTag: "craft_material", count: 1, chance: 100),
+                    new Lootable.Item(chestTag: "low_blueprints", count: 1, chance: 1),
+                    new Lootable.Item(chestTag: "low_skillbooks", count: 1, chance: 1),
+                    new Lootable.Item(chestTag: "low_potions", count: 2, chance: 80),
+                    new Lootable.Item(chestTag: "low_scrolls", count: 1, chance: 80),
+                }
+            )},
+            { "kobolot_chest", new Lootable.Config(
+                gold: new Lootable.Gold(min: 35, max: 175, chance: 100),
+                items: new List<Lootable.Item> {
+                    new Lootable.Item(chestTag: "simple_weapons", count: 1, chance: 5),
+                    new Lootable.Item(chestTag: "light_armor", count: 1, chance: 5),
+                    new Lootable.Item(chestTag: "ammunitions", count: 1, chance: 50),
+                    new Lootable.Item(chestTag: "craft_material", count: 1, chance: 100),
+                    new Lootable.Item(chestTag: "low_blueprints", count: 1, chance: 1),
+                    new Lootable.Item(chestTag: "low_skillbooks", count: 1, chance: 1),
+                    new Lootable.Item(chestTag: "low_potions", count: 3, chance: 85),
+                    new Lootable.Item(chestTag: "low_scrolls", count: 2, chance: 85),
+                }
+            )},
+            { "Koboltchieftain", new Lootable.Config(
+                gold: new Lootable.Gold(min: 35, max: 175, chance: 100),
+                items: new List<Lootable.Item> {
+                    new Lootable.Item(chestTag: "simple_weapons", count: 1, chance: 25),
+                    new Lootable.Item(chestTag: "light_armor", count: 1, chance: 5),
+                    new Lootable.Item(chestTag: "ammunitions", count: 1, chance: 50),
+                    new Lootable.Item(chestTag: "craft_material", count: 1, chance: 100),
+                    new Lootable.Item(chestTag: "low_blueprints", count: 1, chance: 2),
+                    new Lootable.Item(chestTag: "low_skillbooks", count: 1, chance: 1),
+                    new Lootable.Item(chestTag: "low_potions", count: 3, chance: 85),
+                    new Lootable.Item(chestTag: "low_scrolls", count: 2, chance: 85),
+                }
+            )},
+            { "Koboltfantassin", new Lootable.Config(
+                gold: new Lootable.Gold(min: 15, max: 40, chance: 35),
+                items: new List<Lootable.Item> {
+                    new Lootable.Item(chestTag: "simple_weapons", count: 1, chance: 1),
+                    new Lootable.Item(chestTag: "light_armor", count: 1, chance: 1),
+                    new Lootable.Item(chestTag: "ammunitions", count: 1, chance: 5),
+                    new Lootable.Item(chestTag: "craft_material", count: 1, chance: 10),
+                }
+            )},
+            { "Koboltsournois", new Lootable.Config(
+                gold: new Lootable.Gold(min: 15, max: 40, chance: 35),
+                items: new List<Lootable.Item> {
+                    new Lootable.Item(chestTag: "simple_weapons", count: 1, chance: 1),
+                    new Lootable.Item(chestTag: "ammunitions", count: 1, chance: 10),
+                    new Lootable.Item(chestTag: "craft_material", count: 1, chance: 10),
+                }
+            )},
+            { "StatueCristalline", new Lootable.Config(
+                gold: new Lootable.Gold(min: 15, max: 40, chance: 35),
+                items: new List<Lootable.Item> {
+                    new Lootable.Item(chestTag: "simple_weapons", count: 1, chance: 1),
+                    new Lootable.Item(chestTag: "light_armor", count: 1, chance: 1),
+                    new Lootable.Item(chestTag: "craft_material", count: 1, chance: 10),
+                    new Lootable.Item(chestTag: "low_blueprints", count: 1, chance: 1),
+                    new Lootable.Item(chestTag: "low_skillbooks", count: 1, chance: 1),
+                }
+            )},
+            { "ourslonguegriffe", new Lootable.Config(
+                gold: new Lootable.Gold(min: 75, max: 250, chance: 100),
+                items: new List<Lootable.Item> {
+                    new Lootable.Item(chestTag: "simple_weapons", count: 1, chance: 10),
+                    new Lootable.Item(chestTag: "light_armor", count: 1, chance: 10),
+                    new Lootable.Item(chestTag: "low_blueprints", count: 1, chance: 5),
+                    new Lootable.Item(chestTag: "low_skillbooks", count: 1, chance: 5),
+                    new Lootable.Item(chestTag: "low_potions", count: 3, chance: 85),
+                    new Lootable.Item(chestTag: "low_scrolls", count: 2, chance: 85),
+                }
+            )},
+            { "chest_gothra", new Lootable.Config(
+                gold: new Lootable.Gold(min: 50, max: 100, chance: 50),
+                items: new List<Lootable.Item> {
+                    new Lootable.Item(chestTag: "simple_weapons", count: 1, chance: 10),
+                    new Lootable.Item(chestTag: "light_armor", count: 1, chance: 10),
+                    new Lootable.Item(chestTag: "low_blueprints", count: 1, chance: 5),
+                    new Lootable.Item(chestTag: "low_skillbooks", count: 1, chance: 5),
+                    new Lootable.Item(chestTag: "low_potions", count: 3, chance: 85),
+                    new Lootable.Item(chestTag: "low_scrolls", count: 2, chance: 85),
+                }
+            )},
+            { "KuoToa", new Lootable.Config(
+                gold: new Lootable.Gold(min: 25, max: 50, chance: 35),
+                items: new List<Lootable.Item> {
+                    new Lootable.Item(chestTag: "simple_weapons", count: 1, chance: 1),
+                    new Lootable.Item(chestTag: "light_armor", count: 1, chance: 1),
+                    new Lootable.Item(chestTag: "ammunitions", count: 1, chance: 5),
+                    new Lootable.Item(chestTag: "craft_material", count: 1, chance: 10),
+                }
+            )},
+            { "KuoToafouettard", new Lootable.Config(
+                gold: new Lootable.Gold(min: 30, max: 45, chance: 35),
+                items: new List<Lootable.Item> {
+                    new Lootable.Item(chestTag: "simple_weapons", count: 1, chance: 1),
+                    new Lootable.Item(chestTag: "ammunitions", count: 1, chance: 10),
+                    new Lootable.Item(chestTag: "craft_material", count: 1, chance: 10),
+                    new Lootable.Item(chestTag: "low_potions", count: 1, chance: 15),
+                    new Lootable.Item(chestTag: "low_scrolls", count: 1, chance: 15),
+                }
+            )},
+            { "KuoToasurveillant", new Lootable.Config(
+                gold: new Lootable.Gold(min: 15, max: 40, chance: 35),
+                items: new List<Lootable.Item> {
+                    new Lootable.Item(chestTag: "simple_weapons", count: 1, chance: 1),
+                    new Lootable.Item(chestTag: "ammunitions", count: 1, chance: 10),
+                    new Lootable.Item(chestTag: "craft_material", count: 1, chance: 10),
+                }
+            )},
+            { "kuotoa_chest", new Lootable.Config(
+                gold: new Lootable.Gold(min: 50, max: 200, chance: 100),
+                items: new List<Lootable.Item> {
+                    new Lootable.Item(chestTag: "simple_weapons", count: 1, chance: 5),
+                    new Lootable.Item(chestTag: "light_armor", count: 1, chance: 5),
+                    new Lootable.Item(chestTag: "ammunitions", count: 1, chance: 50),
+                    new Lootable.Item(chestTag: "craft_material", count: 1, chance: 100),
+                    new Lootable.Item(chestTag: "low_blueprints", count: 1, chance: 1),
+                    new Lootable.Item(chestTag: "low_skillbooks", count: 1, chance: 1),
+                    new Lootable.Item(chestTag: "low_potions", count: 3, chance: 85),
+                    new Lootable.Item(chestTag: "low_scrolls", count: 2, chance: 85),
+                }
+            )},
+            { "harpiemarine", new Lootable.Config(
+                gold: new Lootable.Gold(min: 50, max: 200, chance: 100),
+                items: new List<Lootable.Item> {
+                    new Lootable.Item(chestTag: "simple_weapons", count: 1, chance: 5),
+                    new Lootable.Item(chestTag: "light_armor", count: 1, chance: 5),
+                    new Lootable.Item(chestTag: "ammunitions", count: 1, chance: 50),
+                    new Lootable.Item(chestTag: "craft_material", count: 1, chance: 100),
+                    new Lootable.Item(chestTag: "low_blueprints", count: 1, chance: 1),
+                    new Lootable.Item(chestTag: "low_skillbooks", count: 1, chance: 1),
+                    new Lootable.Item(chestTag: "low_potions", count: 3, chance: 85),
+                    new Lootable.Item(chestTag: "low_scrolls", count: 2, chance: 85),
+                }
+            )},
+            { "MercenairedelOmniscienceranged", new Lootable.Config(
+                gold: new Lootable.Gold(min: 10, max: 45, chance: 20),
+                items: new List<Lootable.Item> {
+                    new Lootable.Item(chestTag: "ammunitions", count: 1, chance: 25),
+                    new Lootable.Item(chestTag: "simple_weapons", count: 1, chance: 1),
+                    new Lootable.Item(chestTag: "craft_material", count: 1, chance: 10),
+                    new Lootable.Item(chestTag: "light_armor", count: 1, chance: 1),
+                }
+            )},
+            { "MercenairedelOmniscience", new Lootable.Config(
+                gold: new Lootable.Gold(min: 10, max: 45, chance: 20),
+                items: new List<Lootable.Item> {
+                    new Lootable.Item(chestTag: "simple_weapons", count: 1, chance: 1),
+                    new Lootable.Item(chestTag: "craft_material", count: 1, chance: 5),
+                    new Lootable.Item(chestTag: "light_armor", count: 1, chance: 1),
+                }
+            )},
+            { "HerautdelOmniscience", new Lootable.Config(
+                gold: new Lootable.Gold(min: 35, max: 65, chance: 20),
+                items: new List<Lootable.Item> {
+                    new Lootable.Item(chestTag: "simple_weapons", count: 1, chance: 1),
+                    new Lootable.Item(chestTag: "craft_material", count: 1, chance: 5),
+                    new Lootable.Item(chestTag: "ammunitions", count: 1, chance: 25),
+                    new Lootable.Item(chestTag: "light_armor", count: 1, chance: 1),
+                    new Lootable.Item(chestTag: "low_potions", count: 1, chance: 50),
+                    new Lootable.Item(chestTag: "low_scrolls", count: 1, chance: 50),
+                }
+            )},
+            { "Moinedelomniscience", new Lootable.Config(
+                gold: new Lootable.Gold(min: 35, max: 65, chance: 20),
+                items: new List<Lootable.Item> {
+                    new Lootable.Item(chestTag: "craft_material", count: 1, chance: 25),
+                    new Lootable.Item(chestTag: "low_potions", count: 1, chance: 75),
+                }
+            )},
+            { "PretredelOmniscience", new Lootable.Config(
+                gold: new Lootable.Gold(min: 100, max: 200, chance: 20),
+                items: new List<Lootable.Item> {
+                    new Lootable.Item(chestTag: "simple_weapons", count: 1, chance: 25),
+                    new Lootable.Item(chestTag: "craft_material", count: 1, chance: 50),
+                    new Lootable.Item(chestTag: "light_armor", count: 1, chance: 25),
+                    new Lootable.Item(chestTag: "low_potions", count: 1, chance: 50),
+                    new Lootable.Item(chestTag: "low_scrolls", count: 1, chance: 50),
+                }
+            )},
+            { "RodeurdelOmniscience", new Lootable.Config(
+                gold: new Lootable.Gold(min: 100, max: 200, chance: 20),
+                items: new List<Lootable.Item> {
+                    new Lootable.Item(chestTag: "simple_weapons", count: 1, chance: 25),
+                    new Lootable.Item(chestTag: "craft_material", count: 1, chance: 50),
+                    new Lootable.Item(chestTag: "ammunitions", count: 1, chance: 25),
+                    new Lootable.Item(chestTag: "light_armor", count: 1, chance: 25),
+                    new Lootable.Item(chestTag: "low_potions", count: 1, chance: 50),
+                }
+            )},
+            { "PaladindelOmniscience", new Lootable.Config(
+                gold: new Lootable.Gold(min: 250, max: 450, chance: 20),
+                items: new List<Lootable.Item> {
+                    new Lootable.Item(chestTag: "simple_weapons", count: 1, chance: 50),
+                    new Lootable.Item(chestTag: "martial_weapons", count: 1, chance: 1),
+                    new Lootable.Item(chestTag: "craft_material", count: 1, chance: 50),
+                    new Lootable.Item(chestTag: "light_armor", count: 1, chance: 50),
+                    new Lootable.Item(chestTag: "medium_armor", count: 1, chance: 2),
+                    new Lootable.Item(chestTag: "low_potions", count: 1, chance: 50),
+                    new Lootable.Item(chestTag: "medium_potions", count: 1, chance: 25),
+                }
+            )},
+            { "PrecheurdelOmniscience", new Lootable.Config(
+                gold: new Lootable.Gold(min: 250, max: 450, chance: 20),
+                items: new List<Lootable.Item> {
+                    new Lootable.Item(chestTag: "craft_material", count: 1, chance: 50),
+                    new Lootable.Item(chestTag: "low_potions", count: 2, chance: 100),
+                    new Lootable.Item(chestTag: "medium_potions", count: 1, chance: 50),
+                    new Lootable.Item(chestTag: "low_scrolls", count: 2, chance: 100),
+                    new Lootable.Item(chestTag: "medium_scrolls", count: 1, chance: 50),
+                }
+            )},
+            { "PuristedelOmniscience", new Lootable.Config(
+                gold: new Lootable.Gold(min: 500, max: 850, chance: 80),
+                items: new List<Lootable.Item> {
+                    new Lootable.Item(chestTag: "simple_weapons", count: 1, chance: 100),
+                    new Lootable.Item(chestTag: "martial_weapons", count: 1, chance: 10),
+                    new Lootable.Item(chestTag: "craft_material", count: 1, chance: 100),
+                    new Lootable.Item(chestTag: "light_armor", count: 1, chance: 100),
+                    new Lootable.Item(chestTag: "medium_armor", count: 1, chance: 10),
+                    new Lootable.Item(chestTag: "low_potions", count: 3, chance: 100),
+                    new Lootable.Item(chestTag: "medium_potions", count: 1, chance: 100),
+                    new Lootable.Item(chestTag: "low_scrolls", count: 3, chance: 100),
+                    new Lootable.Item(chestTag: "medium_scrolls", count: 1, chance: 100),
+                    new Lootable.Item(chestTag: "low_blueprints", count: 1, chance: 10),
+                    new Lootable.Item(chestTag: "low_skillbooks", count: 1, chance: 10),
+                    new Lootable.Item(chestTag: "medium_blueprints", count: 1, chance: 1),
+                    new Lootable.Item(chestTag: "medium_skillbooks", count: 1, chance: 1),
+                }
+            )},
+            { "omniscience_chest", new Lootable.Config(
+                gold: new Lootable.Gold(min: 500, max: 850, chance: 100),
+                items: new List<Lootable.Item> {
+                    new Lootable.Item(chestTag: "simple_weapons", count: 1, chance: 100),
+                    new Lootable.Item(chestTag: "martial_weapons", count: 1, chance: 10),
+                    new Lootable.Item(chestTag: "craft_material", count: 1, chance: 100),
+                    new Lootable.Item(chestTag: "light_armor", count: 1, chance: 100),
+                    new Lootable.Item(chestTag: "medium_armor", count: 1, chance: 10),
+                    new Lootable.Item(chestTag: "low_potions", count: 3, chance: 100),
+                    new Lootable.Item(chestTag: "medium_potions", count: 1, chance: 100),
+                    new Lootable.Item(chestTag: "low_scrolls", count: 3, chance: 100),
+                    new Lootable.Item(chestTag: "medium_scrolls", count: 1, chance: 100),
+                    new Lootable.Item(chestTag: "low_blueprints", count: 1, chance: 10),
+                    new Lootable.Item(chestTag: "low_skillbooks", count: 1, chance: 10),
+                    new Lootable.Item(chestTag: "medium_blueprints", count: 1, chance: 1),
+                    new Lootable.Item(chestTag: "medium_skillbooks", count: 1, chance: 1),
+                }
+            )},
+            { "Banditnain", new Lootable.Config(
+                gold: new Lootable.Gold(min: 50, max: 150, chance: 20),
+                items: new List<Lootable.Item> {
+                    new Lootable.Item(chestTag: "simple_weapons", count: 1, chance: 15),
+                    new Lootable.Item(chestTag: "craft_material", count: 1, chance: 50),
+                    new Lootable.Item(chestTag: "light_armor", count: 1, chance: 15),
+                    new Lootable.Item(chestTag: "low_potions", count: 1, chance: 50),
+                }
+            )},
+            { "Banditelfe", new Lootable.Config(
+                gold: new Lootable.Gold(min: 50, max: 150, chance: 20),
+                items: new List<Lootable.Item> {
+                    new Lootable.Item(chestTag: "simple_weapons", count: 1, chance: 5),
+                    new Lootable.Item(chestTag: "craft_material", count: 1, chance: 50),
+                    new Lootable.Item(chestTag: "ammunitions", count: 1, chance: 25),
+                    new Lootable.Item(chestTag: "low_potions", count: 1, chance: 50),
+                    new Lootable.Item(chestTag: "low_scrolls", count: 1, chance: 50),
+                }
+            )},
+            { "Bandithalfelin", new Lootable.Config(
+                gold: new Lootable.Gold(min: 50, max: 150, chance: 20),
+                items: new List<Lootable.Item> {
+                    new Lootable.Item(chestTag: "simple_weapons", count: 1, chance: 5),
+                    new Lootable.Item(chestTag: "craft_material", count: 1, chance: 50),
+                    new Lootable.Item(chestTag: "ammunitions", count: 1, chance: 25),
+                    new Lootable.Item(chestTag: "light_armor", count: 1, chance: 5),
+                    new Lootable.Item(chestTag: "low_potions", count: 1, chance: 50),
+                }
+            )},
+            { "Banditdemiorc", new Lootable.Config(
+                gold: new Lootable.Gold(min: 50, max: 150, chance: 20),
+                items: new List<Lootable.Item> {
+                    new Lootable.Item(chestTag: "simple_weapons", count: 1, chance: 5),
+                    new Lootable.Item(chestTag: "craft_material", count: 1, chance: 50),
+                    new Lootable.Item(chestTag: "light_armor", count: 1, chance: 5),
+                    new Lootable.Item(chestTag: "low_potions", count: 1, chance: 50),
+                }
+            )},
+            { "bandits_chest", new Lootable.Config(
+                gold: new Lootable.Gold(min: 50, max: 150, chance: 100),
+                items: new List<Lootable.Item> {
+                    new Lootable.Item(chestTag: "simple_weapons", count: 1, chance: 5),
+                    new Lootable.Item(chestTag: "craft_material", count: 1, chance: 50),
+                    new Lootable.Item(chestTag: "light_armor", count: 1, chance: 5),
+                    new Lootable.Item(chestTag: "low_potions", count: 1, chance: 80),
+                    new Lootable.Item(chestTag: "low_scrolls", count: 1, chance: 80),
+                }
+            )},
+            { "gnollwarrior", new Lootable.Config(
+                gold: new Lootable.Gold(min: 50, max: 150, chance: 20),
+                items: new List<Lootable.Item> {
+                    new Lootable.Item(chestTag: "simple_weapons", count: 1, chance: 5),
+                    new Lootable.Item(chestTag: "craft_material", count: 1, chance: 50),
+                    new Lootable.Item(chestTag: "light_armor", count: 1, chance: 5),
+                    new Lootable.Item(chestTag: "low_potions", count: 1, chance: 15),
+                }
+            )},
+            { "gnollranger", new Lootable.Config(
+                gold: new Lootable.Gold(min: 50, max: 150, chance: 20),
+                items: new List<Lootable.Item> {
+                    new Lootable.Item(chestTag: "simple_weapons", count: 1, chance: 5),
+                    new Lootable.Item(chestTag: "craft_material", count: 1, chance: 50),
+                    new Lootable.Item(chestTag: "ammunitions", count: 1, chance: 25),
+                    new Lootable.Item(chestTag: "light_armor", count: 1, chance: 5),
+                    new Lootable.Item(chestTag: "low_potions", count: 1, chance: 15),
+                }
+            )},
+            { "Gnollshaman", new Lootable.Config(
+                gold: new Lootable.Gold(min: 50, max: 150, chance: 20),
+                items: new List<Lootable.Item> {
+                    new Lootable.Item(chestTag: "simple_weapons", count: 1, chance: 5),
+                    new Lootable.Item(chestTag: "craft_material", count: 1, chance: 50),
+                    new Lootable.Item(chestTag: "light_armor", count: 1, chance: 5),
+                    new Lootable.Item(chestTag: "low_potions", count: 1, chance: 15),
+                    new Lootable.Item(chestTag: "low_scrolls", count: 1, chance: 15),
+                    new Lootable.Item(chestTag: "medium_potions", count: 1, chance: 2),
+                    new Lootable.Item(chestTag: "medium_scrolls", count: 1, chance: 2),
+                }
+            )},
+            { "gnollboss", new Lootable.Config(
+                gold: new Lootable.Gold(min: 250, max: 500, chance: 80),
+                items: new List<Lootable.Item> {
+                    new Lootable.Item(chestTag: "simple_weapons", count: 1, chance: 75),
+                    new Lootable.Item(chestTag: "martial_weapons", count: 1, chance: 3),
+                    new Lootable.Item(chestTag: "craft_material", count: 1, chance: 100),
+                    new Lootable.Item(chestTag: "light_armor", count: 1, chance: 75),
+                    new Lootable.Item(chestTag: "medium_armor", count: 1, chance: 3),
+                    new Lootable.Item(chestTag: "low_potions", count: 2, chance: 100),
+                    new Lootable.Item(chestTag: "medium_potions", count: 1, chance: 100),
+                    new Lootable.Item(chestTag: "low_scrolls", count: 2, chance: 100),
+                    new Lootable.Item(chestTag: "medium_scrolls", count: 1, chance: 100),
+                    new Lootable.Item(chestTag: "low_blueprints", count: 1, chance: 5),
+                    new Lootable.Item(chestTag: "low_skillbooks", count: 1, chance: 5),
+                    new Lootable.Item(chestTag: "medium_skillbooks", count: 1, chance: 1),
+                }
+            )},
+            { "gnoll_chest", new Lootable.Config(
+                gold: new Lootable.Gold(min: 250, max: 500, chance: 100),
+                items: new List<Lootable.Item> {
+                    new Lootable.Item(chestTag: "simple_weapons", count: 1, chance: 75),
+                    new Lootable.Item(chestTag: "martial_weapons", count: 1, chance: 3),
+                    new Lootable.Item(chestTag: "craft_material", count: 1, chance: 100),
+                    new Lootable.Item(chestTag: "light_armor", count: 1, chance: 75),
+                    new Lootable.Item(chestTag: "medium_armor", count: 1, chance: 3),
+                    new Lootable.Item(chestTag: "low_potions", count: 2, chance: 100),
+                    new Lootable.Item(chestTag: "medium_potions", count: 1, chance: 100),
+                    new Lootable.Item(chestTag: "low_scrolls", count: 2, chance: 100),
+                    new Lootable.Item(chestTag: "medium_scrolls", count: 1, chance: 100),
+                    new Lootable.Item(chestTag: "low_blueprints", count: 1, chance: 5),
+                    new Lootable.Item(chestTag: "low_skillbooks", count: 1, chance: 5),
+                    new Lootable.Item(chestTag: "medium_skillbooks", count: 1, chance: 1),
+                    new Lootable.Item(chestTag: "medium_blueprints", count: 1, chance: 1),
+                }
+            )},
+            { "ant_chest", new Lootable.Config(
+                gold: new Lootable.Gold(min: 250, max: 500, chance: 100),
+                items: new List<Lootable.Item> {
+                    new Lootable.Item(chestTag: "simple_weapons", count: 1, chance: 75),
+                    new Lootable.Item(chestTag: "martial_weapons", count: 1, chance: 3),
+                    new Lootable.Item(chestTag: "craft_material", count: 1, chance: 100),
+                    new Lootable.Item(chestTag: "light_armor", count: 1, chance: 75),
+                    new Lootable.Item(chestTag: "medium_armor", count: 1, chance: 3),
+                    new Lootable.Item(chestTag: "low_potions", count: 2, chance: 100),
+                    new Lootable.Item(chestTag: "medium_potions", count: 1, chance: 100),
+                    new Lootable.Item(chestTag: "low_scrolls", count: 2, chance: 100),
+                    new Lootable.Item(chestTag: "medium_scrolls", count: 1, chance: 100),
+                    new Lootable.Item(chestTag: "low_blueprints", count: 1, chance: 5),
+                    new Lootable.Item(chestTag: "low_skillbooks", count: 1, chance: 5),
+                    new Lootable.Item(chestTag: "medium_skillbooks", count: 1, chance: 1),
+                    new Lootable.Item(chestTag: "medium_blueprints", count: 1, chance: 1),
+                }
+            )},
+            { "Orcchoc", new Lootable.Config(
+                gold: new Lootable.Gold(min: 100, max: 250, chance: 20),
+                items: new List<Lootable.Item> {
+                    new Lootable.Item(chestTag: "simple_weapons", count: 1, chance: 15),
+                    new Lootable.Item(chestTag: "martial_weapons", count: 1, chance: 1),
+                    new Lootable.Item(chestTag: "craft_material", count: 1, chance: 50),
+                    new Lootable.Item(chestTag: "light_armor", count: 1, chance: 15),
+                    new Lootable.Item(chestTag: "medium_armor", count: 1, chance: 1),
+                    new Lootable.Item(chestTag: "low_potions", count: 1, chance: 25),
+                }
+            )},
+            { "Orctireur", new Lootable.Config(
+                gold: new Lootable.Gold(min: 100, max: 250, chance: 20),
+                items: new List<Lootable.Item> {
+                    new Lootable.Item(chestTag: "ammunitions", count: 1, chance: 25),
+                    new Lootable.Item(chestTag: "simple_weapons", count: 1, chance: 15),
+                    new Lootable.Item(chestTag: "martial_weapons", count: 1, chance: 1),
+                    new Lootable.Item(chestTag: "craft_material", count: 1, chance: 50),
+                    new Lootable.Item(chestTag: "light_armor", count: 1, chance: 15),
+                    new Lootable.Item(chestTag: "medium_armor", count: 1, chance: 1),
+                    new Lootable.Item(chestTag: "low_potions", count: 1, chance: 25),
+                }
+            )},
+            { "Orcshaman", new Lootable.Config(
+                gold: new Lootable.Gold(min: 100, max: 250, chance: 20),
+                items: new List<Lootable.Item> {
+                    new Lootable.Item(chestTag: "simple_weapons", count: 1, chance: 15),
+                    new Lootable.Item(chestTag: "martial_weapons", count: 1, chance: 1),
+                    new Lootable.Item(chestTag: "craft_material", count: 1, chance: 50),
+                    new Lootable.Item(chestTag: "light_armor", count: 1, chance: 15),
+                    new Lootable.Item(chestTag: "medium_armor", count: 1, chance: 1),
+                    new Lootable.Item(chestTag: "low_potions", count: 1, chance: 35),
+                    new Lootable.Item(chestTag: "low_scrolls", count: 1, chance: 35),
+                    new Lootable.Item(chestTag: "medium_potions", count: 1, chance: 20),
+                    new Lootable.Item(chestTag: "medium_scrolls", count: 1, chance: 20),
+                }
+            )},
+            { "Orcseigneur", new Lootable.Config(
+                gold: new Lootable.Gold(min: 500, max: 750, chance: 80),
+                items: new List<Lootable.Item> {
+                    new Lootable.Item(chestTag: "simple_weapons", count: 1, chance: 75),
+                    new Lootable.Item(chestTag: "martial_weapons", count: 1, chance: 3),
+                    new Lootable.Item(chestTag: "craft_material", count: 1, chance: 100),
+                    new Lootable.Item(chestTag: "light_armor", count: 1, chance: 75),
+                    new Lootable.Item(chestTag: "medium_armor", count: 1, chance: 3),
+                    new Lootable.Item(chestTag: "low_potions", count: 2, chance: 100),
+                    new Lootable.Item(chestTag: "medium_potions", count: 1, chance: 100),
+                    new Lootable.Item(chestTag: "low_scrolls", count: 2, chance: 100),
+                    new Lootable.Item(chestTag: "medium_scrolls", count: 1, chance: 100),
+                    new Lootable.Item(chestTag: "low_blueprints", count: 1, chance: 5),
+                    new Lootable.Item(chestTag: "low_skillbooks", count: 1, chance: 5),
+                    new Lootable.Item(chestTag: "medium_skillbooks", count: 1, chance: 1),
+                    new Lootable.Item(chestTag: "medium_blueprint", count: 1, chance: 1),
+                }
+            )},
+            { "orc_chest", new Lootable.Config(
+                gold: new Lootable.Gold(min: 450, max: 700, chance: 100),
+                items: new List<Lootable.Item> {
+                    new Lootable.Item(chestTag: "simple_weapons", count: 1, chance: 75),
+                    new Lootable.Item(chestTag: "martial_weapons", count: 1, chance: 3),
+                    new Lootable.Item(chestTag: "craft_material", count: 1, chance: 100),
+                    new Lootable.Item(chestTag: "light_armor", count: 1, chance: 75),
+                    new Lootable.Item(chestTag: "medium_armor", count: 1, chance: 3),
+                    new Lootable.Item(chestTag: "low_potions", count: 2, chance: 100),
+                    new Lootable.Item(chestTag: "medium_potions", count: 1, chance: 100),
+                    new Lootable.Item(chestTag: "low_scrolls", count: 2, chance: 100),
+                    new Lootable.Item(chestTag: "medium_scrolls", count: 1, chance: 100),
+                    new Lootable.Item(chestTag: "low_blueprints", count: 1, chance: 5),
+                    new Lootable.Item(chestTag: "low_skillbooks", count: 1, chance: 5),
+                    new Lootable.Item(chestTag: "medium_skillbooks", count: 1, chance: 1),
+                    new Lootable.Item(chestTag: "medium_blueprints", count: 1, chance: 1),
                 }
             )},
         };
