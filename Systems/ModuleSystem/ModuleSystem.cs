@@ -21,6 +21,7 @@ namespace NWN.Systems
       { "_event_effects", EventEffects },
       { "onent_theater_sc", HandleEnterTheaterScene },
       { "onex_theater_sc", HandleExitTheaterScene },
+      { "ondeath_wraith", HandleWraithDeath },
     }.Concat(Systems.LootSystem.Register)
      .Concat(Systems.PlayerSystem.Register)
      .Concat(Systems.ChatSystem.Register)
@@ -111,9 +112,16 @@ namespace NWN.Systems
       NWScript.SetObjectVisualTransform(NWScript.GetEnteringObject(), NWScript.OBJECT_VISUAL_TRANSFORM_TRANSLATE_Z, 2.01f);
       return 0;
     }
+    
     private static int HandleExitTheaterScene(uint oidSelf)
     {
       NWScript.SetObjectVisualTransform(NWScript.GetExitingObject(), NWScript.OBJECT_VISUAL_TRANSFORM_TRANSLATE_Z, 0);
+      return 0;
+    }
+    private static int HandleWraithDeath(uint oidSelf)
+    {
+      NWScript.CreateObject(NWScript.OBJECT_TYPE_CREATURE, "similisse_wraith", NWScript.GetLocation(NWScript.GetNearestObjectByTag("creature_spawn")));
+      NWScript.CreateObject(NWScript.OBJECT_TYPE_CREATURE, "similisse_wraith", NWScript.GetLocation(NWScript.GetNearestObjectByTag("creature_spawn")));
       return 0;
     }
   }

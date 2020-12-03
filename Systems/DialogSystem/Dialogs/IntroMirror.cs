@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using NWN.Core;
 using NWN.Core.NWNX;
 using static NWN.Systems.PlayerSystem;
@@ -103,9 +104,12 @@ namespace NWN.Systems
     private void RestoreMirror(Player player)
     {
       uint oClone = NWScript.GetNearestObjectByTag($"clone_{NWScript.GetPCPublicCDKey(player.oid)}", player.oid);
-      VisibilityPlugin.SetVisibilityOverride(player.oid, NWScript.GetNearestObjectByTag("intro_mirror", player.oid), VisibilityPlugin.NWNX_VISIBILITY_VISIBLE);
-      CreaturePlugin.JumpToLimbo(oClone);
-      NWScript.DestroyObject(oClone);
+      if (Convert.ToBoolean(NWScript.GetIsObjectValid(oClone)))
+      {
+        VisibilityPlugin.SetVisibilityOverride(player.oid, NWScript.GetNearestObjectByTag("intro_mirror", player.oid), VisibilityPlugin.NWNX_VISIBILITY_VISIBLE);
+        CreaturePlugin.JumpToLimbo(oClone);
+        NWScript.DestroyObject(oClone);
+      }
     }
     private void ChangeCloneHead(Player player, uint oClone, int model)
     {
@@ -162,6 +166,19 @@ namespace NWN.Systems
         skill.CreateSkillJournalEntry();
         player.PlayNewSkillAcquiredEffects(skill);
         HandleSkillSelection(player);
+
+        Func<PlayerSystem.Player, int, int> handler;
+        if (SkillSystem.RegisterAddCustomFeatEffect.TryGetValue(skill.oid, out handler))
+        {
+          try
+          {
+            handler.Invoke(player, skill.oid);
+          }
+          catch (Exception e)
+          {
+            Utils.LogException(e);
+          }
+        }
       }
       else
       {
