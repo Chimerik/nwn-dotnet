@@ -24,23 +24,33 @@ namespace NWN.Systems
       this.lootChestList = new List<uint>();
       this.DoAreaSpecificInitialisation();
 
-      /* var firstObject = NWScript.GetFirstObjectInArea(nwobj);
+      var firstObject = NWScript.GetFirstObjectInArea(nwobj);
 
-       if (NWScript.GetObjectType(firstObject) == NWScript.OBJECT_TYPE_PLACEABLE && Convert.ToBoolean(NWScript.GetHasInventory(firstObject))
-         && LootSystem.lootablesDic.ContainsKey(NWScript.GetTag(firstObject)))
-         lootChestList.Add(firstObject);
+      if(NWScript.GetTag(firstObject) == "loot_chest")
+      {
+        NWScript.SetTag(firstObject, NWScript.GetLocalString(firstObject, "_LOOT_REFERENCE"));
 
-       var lootChest = NWScript.GetNearestObject(NWScript.OBJECT_TYPE_PLACEABLE, firstObject);
-       int i = 1;
+        if (LootSystem.lootablesDic.ContainsKey(NWScript.GetTag(firstObject)))
+          lootChestList.Add(firstObject);
+        else
+          Utils.LogMessageToDMs($"LOOT SYSYEM - Area {NWScript.GetName(nwobj)} - Chest {NWScript.GetName(firstObject)} not found in loot table.");
+      }
 
-       while (Convert.ToBoolean(NWScript.GetIsObjectValid(lootChest)))
-       {
-         if(LootSystem.lootablesDic.ContainsKey(NWScript.GetTag(lootChest)))
-           lootChestList.Add(lootChest);
+      var lootChest = NWScript.GetNearestObjectByTag("loot_chest", firstObject);
+      int i = 1;
 
-         i++;
-         lootChest = NWScript.GetNearestObject(NWScript.OBJECT_TYPE_PLACEABLE, firstObject, i);
-       }*/
+      while (Convert.ToBoolean(NWScript.GetIsObjectValid(lootChest)))
+      {
+        NWScript.DelayCommand(0.1f, () => NWScript.SetTag(lootChest, NWScript.GetLocalString(lootChest, "_LOOT_REFERENCE")));
+
+        if (LootSystem.lootablesDic.ContainsKey(NWScript.GetLocalString(lootChest, "_LOOT_REFERENCE")))
+          lootChestList.Add(lootChest);
+        else
+          Utils.LogMessageToDMs($"LOOT SYSYEM - Area {NWScript.GetName(nwobj)} - Chest {NWScript.GetName(lootChest)} not found in loot table.");
+
+        i++;
+        lootChest = NWScript.GetNearestObjectByTag("loot_chest", firstObject, i);
+      }
     }
     public void CleanArea()
     {
