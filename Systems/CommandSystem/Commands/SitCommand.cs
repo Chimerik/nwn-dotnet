@@ -11,7 +11,7 @@ namespace NWN.Systems
     private static void ActionFacing(uint player, uint oObject)
     {
       NWScript.DelayCommand(0.1f, () => NWScript.AssignCommand(player, () => NWScript.SetFacing(-NWScript.GetFacing(oObject))));
-      ObjectPlugin.SetPosition(player, NWScript.GetPosition(oObject));
+      //ObjectPlugin.SetPosition(player, NWScript.GetPosition(oObject));
     }
     private static void ExecuteSitCommand(ChatSystem.Context ctx, Options.Result options)
     {

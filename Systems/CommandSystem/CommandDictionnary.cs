@@ -323,7 +323,7 @@ namespace NWN.Systems
         "up",
         new Command(
           name: "up",
-          description: new Command.Description(title: "Affiche le personnage un peu plus haut. Ne pas abuser, sinon vous allez être ridicule."),
+          description: new Command.Description(title: "Change la hauteur d'affichage du personnage. Ne pas abuser, sinon vous allez être ridicule et vous risquez le bâton."),
           execute: ExecuteUpCommand,
           options: new Options(
             positional: new List<Option>()
@@ -331,10 +331,72 @@ namespace NWN.Systems
               new Option(
                 name: "hauteur",
                 description: "Hauteur",
-                defaultValue: "5"
+                defaultValue: "0.1f"
               )
             }
           )
+        )
+      },
+      {
+        "rotate",
+        new Command(
+          name: "rotate",
+          description: new Command.Description(title: "Change l'angle d'affichage du personnage. Permet de faire des ajustements de position sur certaines animations."),
+          execute: ExecuteRotateCommand,
+          options: new Options(
+            positional: new List<Option>()
+            {
+              new Option(
+                name: "angle",
+                description: "Angle",
+                defaultValue: "20.0f"
+              )
+            }
+          )
+        )
+      },
+      {
+        "xpos",
+        new Command(
+          name: "xpos",
+          description: new Command.Description(title: "Affiche le personnage plus en avant qu'il ne l'est réellement. Ne pas en abuser."),
+          execute: ExecuteXPosCommand,
+          options: new Options(
+            positional: new List<Option>()
+            {
+              new Option(
+                name: "pos",
+                description: "Position",
+                defaultValue: "1.0f"
+              )
+            }
+          )
+        )
+      },
+      {
+        "ypos",
+        new Command(
+          name: "ypos",
+          description: new Command.Description(title: "Affiche le personnage plus sur le côté qu'il ne l'est réellement. Ne pas en abuser."),
+          execute: ExecuteYPosCommand,
+          options: new Options(
+            positional: new List<Option>()
+            {
+              new Option(
+                name: "pos",
+                description: "Position",
+                defaultValue: "1.0f"
+              )
+            }
+          )
+        )
+      },
+      {
+        "resetpos",
+        new Command(
+          name: "resetposition",
+          description: new Command.Description(title: "Réinitialise la position d'affichage du personnage à sa position réelle."),
+          execute: ExecuteResetPositionCommand
         )
       },
       {
