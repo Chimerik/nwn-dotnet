@@ -33,7 +33,7 @@ namespace NWN.Systems
         if (LootSystem.lootablesDic.ContainsKey(NWScript.GetTag(firstObject)))
           lootChestList.Add(firstObject);
         else
-          Utils.LogMessageToDMs($"LOOT SYSYEM - Area {NWScript.GetName(nwobj)} - Chest {NWScript.GetName(firstObject)} not found in loot table.");
+          Utils.LogMessageToDMs($"LOOT SYSTEM - Area {NWScript.GetName(nwobj)} - Chest {NWScript.GetName(firstObject)} not found in loot table.");
       }
 
       var lootChest = NWScript.GetNearestObjectByTag("loot_chest", firstObject);

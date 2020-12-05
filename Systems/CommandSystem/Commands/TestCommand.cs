@@ -13,7 +13,7 @@ namespace NWN.Systems
       PlayerSystem.Player player;
       if (PlayerSystem.Players.TryGetValue(ctx.oSender, out player))
       {
-        NWScript.AddHenchman(player.oid, NWScript.GetNearestObjectByTag("neutralcritter", player.oid));
+        //CreaturePlugin.AddFeat(player.oid, NWScript.FEAT_BARBARIAN_ENDURANCE);
       }
     }
 

@@ -1,7 +1,8 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
-using System.Numerics;
 using NWN.Core;
+using NWN.Core.NWNX;
 
 namespace NWN.Systems
 {
@@ -23,11 +24,46 @@ namespace NWN.Systems
 
         while (Convert.ToBoolean(NWScript.SqlStep(query)))
           UpdateChestTagToLootsDic(NWScript.SqlGetObject(query, 0, Utils.GetLocationFromDatabase(CHEST_AREA_TAG, NWScript.SqlGetVector(query, 1), NWScript.SqlGetFloat(query, 2))));
+
+        InitializeLootChestFromArray(NWScript.GetObjectByTag("low_blueprints"), CollectSystem.lowBlueprints);
+        InitializeLootChestFromArray(NWScript.GetObjectByTag("medium_blueprints"), CollectSystem.mediumBlueprints);
+
+        InitializeLootChestFromFeatArray(NWScript.GetObjectByTag("low_skillbooks"), SkillSystem.lowSkillBooks);
+        InitializeLootChestFromFeatArray(NWScript.GetObjectByTag("medium_skillbooks"), SkillSystem.mediumSkillBooks);
       }
       else
         Utils.LogMessageToDMs("Attention - La zone des loots n'est pas initialisée.");
     }
+    private static void InitializeLootChestFromArray(uint oChest, int[] array)
+    {
+      foreach (int baseItemType in array)
+      {
+        Blueprint blueprint = new Blueprint(baseItemType);
 
+        if (!CollectSystem.blueprintDictionnary.ContainsKey(baseItemType))
+          CollectSystem.blueprintDictionnary.Add(baseItemType, blueprint);
+
+        uint oBlueprint = NWScript.CreateItemOnObject("blueprintgeneric", oChest, 1, "blueprint");
+        NWScript.SetName(oBlueprint, $"Patron : {blueprint.name}");
+        NWScript.SetLocalInt(oBlueprint, "_BASE_ITEM_TYPE", baseItemType);
+      }
+    }
+    private static void InitializeLootChestFromFeatArray(uint oChest, Feat[] array)
+    {
+      foreach (Feat feat in array)
+      {
+        uint skillBook = NWScript.CreateItemOnObject("skillbookgeneriq", oChest, 10, "skillbook");
+        ItemPlugin.SetItemAppearance(skillBook, NWScript.ITEM_APPR_TYPE_SIMPLE_MODEL, 2, Utils.random.Next(0, 50));
+        NWScript.SetLocalInt(skillBook, "_SKILL_ID", (int)feat);
+
+        int value;
+        if (int.TryParse(NWScript.Get2DAString("feat", "FEAT", (int)feat), out value))
+          NWScript.SetName(skillBook, NWScript.GetStringByStrRef(value));
+
+        if (int.TryParse(NWScript.Get2DAString("feat", "DESCRIPTION", (int)feat), out value))
+          NWScript.SetDescription(skillBook, NWScript.GetStringByStrRef(value));
+      }
+    }
     private static int HandleContainerClose(uint oidSelf)
     {
       UpdateChestTagToLootsDic(oidSelf);

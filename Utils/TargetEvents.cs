@@ -5,5 +5,6 @@
     OreTarget,
     ProspectionTarget,
     SitTarget,
+    LootSaverTarget,
   }
 }

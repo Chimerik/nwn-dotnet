@@ -276,6 +276,50 @@ namespace NWN.Systems
         )
       },
       {
+        "saveloot",
+        new Command(
+          name: "saveloot",
+          description: new Command.Description(title: "Commande DM - Permet de sauvegarder la configuration d'une table de loot."),
+          execute: ExecuteSaveLootCommand
+        )
+      },
+      {
+        "rename",
+        new Command(
+          name: "rename",
+          description: new Command.Description(title: "Commande DM - Permet de modifier le nom de la cible."),
+          execute: ExecuteRenameCommand,
+          options: new Options(
+            positional: new List<Option>()
+            {
+              new Option(
+                name: "Nom",
+                description: "Le nouveau nom de la cible.",
+                defaultValue: ""
+              )
+            }
+          )
+        )
+      },
+      {
+        "tag",
+        new Command(
+          name: "tag",
+          description: new Command.Description(title: "Commande DM - Permet de modifier le tag de la cible."),
+          execute: ExecuteTagCommand,
+          options: new Options(
+            positional: new List<Option>()
+            {
+              new Option(
+                name: "Tag",
+                description: "Le nouveau tag de la cible.",
+                defaultValue: ""
+              )
+            }
+          )
+        )
+      },
+      {
         "up",
         new Command(
           name: "up",

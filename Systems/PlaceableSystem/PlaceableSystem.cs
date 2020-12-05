@@ -11,9 +11,6 @@ namespace NWN.Systems
     public static Dictionary<string, Func<uint, int>> Register = new Dictionary<string, Func<uint, int>>
     {
       { "ench_bsn_onclose", EnchantmentBasinSystem.HandleClose },
-      { "event_refinery_add_item_before", HandleBeforeItemAddedToRefinery },
-      { "refinery_add_item", HandleItemAddedToRefinery },
-      { "refinery_close", HandleRefineryClose },
       { "ondeath_clean_dm_plc", HandleCleanDMPLC },
       { "plc_used", HandlePlaceableUsed },
       { "os_statuemaker", HandleStatufyCreature },
