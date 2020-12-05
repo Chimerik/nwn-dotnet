@@ -40,7 +40,10 @@ namespace NWN.Systems
           case "intro_mirror":
             new IntroMirror(player);
             break;
-            case "blueprintbank":
+          case "refinery":
+            new Refinery(player);
+            break;
+          case "blueprintbank":
             shop = NWScript.GetNearestObjectByTag("skillbank_shop", oidSelf);
 
             if (!Convert.ToBoolean(NWScript.GetIsObjectValid(shop)))
@@ -64,7 +67,7 @@ namespace NWN.Systems
 
             NWScript.OpenStore(shop, player.oid);
             break;
-            case "skillbank":
+          case "skillbank":
               shop = NWScript.GetNearestObjectByTag("skillbank_shop", oidSelf);
 
               if (!Convert.ToBoolean(NWScript.GetIsObjectValid(shop)))

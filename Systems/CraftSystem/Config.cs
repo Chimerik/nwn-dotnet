@@ -20,10 +20,10 @@ namespace NWN.Systems
         this.type = oreType;
         this.name = GetNameFromOreType(oreType);
         this.feat = oreFeat;
-        this.InitiateOreRefinementYield();
+        this.InitializeOreRefinementYield();
       }
 
-      public void InitiateOreRefinementYield()
+      public void InitializeOreRefinementYield()
       {
         switch (this.type)
         {
@@ -44,7 +44,7 @@ namespace NWN.Systems
       }
     }
 
-    public static void InitiateOres()
+    public static void InitializeOres()
     {
       oresDictionnary.Add(OreType.Veldspar, new Ore(OreType.Veldspar, Feat.VeldsparReprocessing));
       oresDictionnary.Add(OreType.Scordite, new Ore(OreType.Scordite, Feat.ScorditeReprocessing));

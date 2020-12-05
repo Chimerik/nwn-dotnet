@@ -681,6 +681,27 @@ namespace NWN.Systems
               Utils.LogMessageToDMs($"Blueprint Invalid : {NWScript.GetName(examineTarget)} - Base Item Type : {baseItemType} - Examined by : {NWScript.GetName(oidSelf)}");
             }
               break;
+          case "ore":
+            string reprocessingData = $"{NWScript.GetName(examineTarget)} : Efficacité raffinage -30 % (base fonderie Amirauté)";
+
+            int value;
+            if (int.TryParse(NWScript.Get2DAString("feat", "GAINMULTIPLE", CreaturePlugin.GetHighestLevelOfFeat(player.oid, (int)Feat.Reprocessing)), out value))
+              reprocessingData += $"\n x1.{3 * value} (Raffinage)";
+
+            if (int.TryParse(NWScript.Get2DAString("feat", "GAINMULTIPLE", CreaturePlugin.GetHighestLevelOfFeat(player.oid, (int)Feat.ReprocessingEfficiency)), out value))
+              reprocessingData += $"\n x1.{2 * value} (Raffinage efficace)";
+
+            CollectSystem.Ore processedOre;
+            if (CollectSystem.oresDictionnary.TryGetValue(CollectSystem.GetOreTypeFromName(NWScript.GetName(examineTarget)), out processedOre))
+              if (int.TryParse(NWScript.Get2DAString("feat", "GAINMULTIPLE", CreaturePlugin.GetHighestLevelOfFeat(player.oid, (int)processedOre.feat)), out value))
+                reprocessingData += $"\n x1.{2 * value} (Raffinage {NWScript.GetName(examineTarget)})";
+
+            float connectionsLevel;
+            if (float.TryParse(NWScript.Get2DAString("feat", "GAINMULTIPLE", CreaturePlugin.GetHighestLevelOfFeat(player.oid, (int)Feat.Connections)), out connectionsLevel))
+              reprocessingData += $"\n x{1.00 - connectionsLevel / 100} (Raffinage {NWScript.GetName(examineTarget)})";
+
+            NWScript.SetDescription(examineTarget, reprocessingData);
+            break;
         }
       }
       return 0;
@@ -698,6 +719,9 @@ namespace NWN.Systems
               NWScript.SetDescription(examineTarget, $"");
             break;
           case "blueprint":
+            NWScript.SetDescription(examineTarget, $"");
+            break;
+          case "ore":
             NWScript.SetDescription(examineTarget, $"");
             break;
         }

@@ -1403,7 +1403,7 @@ namespace NWN
     GneissReprocessing2,
     GneissReprocessing3,
     GneissReprocessing4,
-    Gneisseprocessing5,
+    Gneissprocessing5,
     JaspetReprocessing,
     JaspetReprocessing2,
     JaspetReprocessing3,
