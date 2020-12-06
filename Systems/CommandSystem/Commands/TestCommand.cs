@@ -13,7 +13,7 @@ namespace NWN.Systems
       PlayerSystem.Player player;
       if (PlayerSystem.Players.TryGetValue(ctx.oSender, out player))
       {
-        //CreaturePlugin.AddFeat(player.oid, NWScript.FEAT_BARBARIAN_ENDURANCE);
+        NWScript.AssignCommand(player.oid, () => NWScript.JumpToLocation(NWScript.GetLocation(NWScript.GetWaypointByTag("WP_START_NEW_CHAR"))));
       }
     }
 

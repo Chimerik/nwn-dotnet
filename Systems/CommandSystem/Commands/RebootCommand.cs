@@ -11,8 +11,6 @@ namespace NWN.Systems
     {
       if (NWScript.GetIsDM(ctx.oSender) == 1)
       {
-        //NWScript.ExportAllCharacters();
-
         foreach (KeyValuePair<uint, PlayerSystem.Player> PlayerListEntry in PlayerSystem.Players)
         {
           NWScript.FloatingTextStringOnCreature("Attention - Le serveur va redémarrer dans 30 secondes.", PlayerListEntry.Key, 0);
@@ -33,7 +31,6 @@ namespace NWN.Systems
 
         AdminPlugin.SetPlayerPassword("REBOOT");
         NWScript.AssignCommand(NWScript.GetModule(), () => NWScript.DelayCommand(30.0f, () => Utils.BootAllPC()));
-        NWScript.AssignCommand(NWScript.GetModule(), () => NWScript.DelayCommand(35.0f, () => AdminPlugin.ShutdownServer()));
       }
     }
   }
