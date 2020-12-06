@@ -394,7 +394,7 @@ namespace NWN.Systems
       {
         "resetpos",
         new Command(
-          name: "resetposition",
+          name: "resetpos",
           description: new Command.Description(title: "Réinitialise la position d'affichage du personnage à sa position réelle."),
           execute: ExecuteResetPositionCommand
         )

@@ -31,10 +31,13 @@ namespace NWN.Systems
 
         switch (NWScript.GetTag(oidSelf))
         {
-          case "petitepatate":
+          case "bank_npc":
             new Bank(player);
             break;
-          case "micropatate":
+          case "bank_gold":
+            new BankGold(player);
+            break;
+          case "storage_npc":
             new Storage(player);
             break;
           case "intro_mirror":
@@ -43,9 +46,15 @@ namespace NWN.Systems
           case "refinery":
             new Refinery(player);
             break;
+          case "bal_system":
+            new Messenger(player);
+            break;
+          case "hventes":
+            new HotelDesVentes(player);
+            break;
           case "blueprintbank":
             shop = NWScript.GetNearestObjectByTag("skillbank_shop", oidSelf);
-
+            
             if (!Convert.ToBoolean(NWScript.GetIsObjectValid(shop)))
             {
               shop = NWScript.CreateObject(NWScript.OBJECT_TYPE_STORE, "generic_shop_res", NWScript.GetLocation(oidSelf), 0, "skillbank_shop");
@@ -66,6 +75,47 @@ namespace NWN.Systems
             }
 
             NWScript.OpenStore(shop, player.oid);
+            break;
+          case "le_bibliothecaire":
+            DateTime previousSpawnDate;
+            if (!DateTime.TryParse(NWScript.GetLocalString(NWScript.GetArea(oidSelf), "_DATE_LAST_TRIGGERED"), out previousSpawnDate) || (DateTime.Now - previousSpawnDate).TotalHours > 4)
+            {
+              NWScript.SetLocalString(NWScript.GetArea(oidSelf), "_DATE_LAST_TRIGGERED", DateTime.Now.ToString());
+
+              shop = NWScript.GetNearestObjectByTag("bibliothecaire_shop", oidSelf);
+
+              if (!Convert.ToBoolean(NWScript.GetIsObjectValid(shop)))
+              {
+                shop = NWScript.CreateObject(NWScript.OBJECT_TYPE_STORE, "generic_shop_res", NWScript.GetLocation(oidSelf), 0, "bibliothecaire_shop");
+                NWScript.SetLocalObject(shop, "_STORE_NPC", oidSelf);
+              }
+              if (Utils.random.Next(1, 101) < 21)
+              {
+                int feat = Utils.random.Next(0, SkillSystem.languageSkillBooks.Length);
+                uint skillBook = NWScript.CreateItemOnObject("skillbookgeneriq", shop, 1, "skillbook");
+                ItemPlugin.SetItemAppearance(skillBook, NWScript.ITEM_APPR_TYPE_SIMPLE_MODEL, 2, Utils.random.Next(0, 50));
+                NWScript.SetLocalInt(skillBook, "_SKILL_ID", feat);
+
+                int value;
+                if (int.TryParse(NWScript.Get2DAString("feat", "FEAT", feat), out value))
+                  NWScript.SetName(skillBook, NWScript.GetStringByStrRef(value));
+
+                if (int.TryParse(NWScript.Get2DAString("feat", "DESCRIPTION", feat), out value))
+                  NWScript.SetDescription(skillBook, NWScript.GetStringByStrRef(value));
+
+                ItemPlugin.SetBaseGoldPieceValue(skillBook, 3000);
+              }
+              else
+              {
+                uint skillBook = NWScript.CreateItemOnObject("skillbookgeneriq", shop, 1, "ruined_book");
+                ItemPlugin.SetItemAppearance(skillBook, NWScript.ITEM_APPR_TYPE_SIMPLE_MODEL, 2, Utils.random.Next(0, 50));
+                NWScript.SetName(skillBook, "Ouvrage ruiné");
+                NWScript.SetDescription(skillBook, "Cet ouvrage est abîmé au-delà de toute rédemption. Il est même trop humide pour faire du feu.");
+                ItemPlugin.SetBaseGoldPieceValue(skillBook, 3000);
+              }
+
+              NWScript.OpenStore(shop, player.oid);
+            } 
             break;
           case "skillbank":
               shop = NWScript.GetNearestObjectByTag("skillbank_shop", oidSelf);

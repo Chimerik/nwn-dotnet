@@ -93,20 +93,20 @@ namespace NWN.Systems
       NWScript.SqlBindString(query, "@accountName", NWScript.GetPCPlayerName(newPlayer));
 
       if (!Convert.ToBoolean(NWScript.SqlStep(query)))
-       {
+      {
 
-         WebhookSystem.StartSendingAsyncDiscordMessage($"Toute première connexion de {NWScript.GetPCPlayerName(newPlayer)}", "AoA notification service - Nouveau joueur !");
+        WebhookSystem.StartSendingAsyncDiscordMessage($"Toute première connexion de {NWScript.GetPCPlayerName(newPlayer)}", "AoA notification service - Nouveau joueur !");
 
-         query = NWScript.SqlPrepareQueryCampaign(ModuleSystem.database, $"INSERT INTO PlayerAccounts (accountName , bonusRolePlay) VALUES (@name, @brp)");
-         NWScript.SqlBindInt(query, "@brp", 1);
-         NWScript.SqlBindString(query, "@name", NWScript.GetPCPlayerName(newPlayer));
-         NWScript.SqlStep(query);
+        query = NWScript.SqlPrepareQueryCampaign(ModuleSystem.database, $"INSERT INTO PlayerAccounts (accountName , bonusRolePlay) VALUES (@name, @brp)");
+        NWScript.SqlBindInt(query, "@brp", 1);
+        NWScript.SqlBindString(query, "@name", NWScript.GetPCPlayerName(newPlayer));
+        NWScript.SqlStep(query);
 
-         query = NWScript.SqlPrepareQueryCampaign(ModuleSystem.database, $"SELECT last_insert_rowid()");
-         NWScript.SqlStep(query);
-       }
+        query = NWScript.SqlPrepareQueryCampaign(ModuleSystem.database, $"SELECT last_insert_rowid()");
+        NWScript.SqlStep(query);
+      }
 
-      switch(NWScript.GetRacialType(newPlayer))
+      switch (NWScript.GetRacialType(newPlayer))
       {
         case NWScript.RACIAL_TYPE_DWARF:
           CreaturePlugin.AddFeat(newPlayer, (int)Feat.LanguageDwarf);
@@ -126,7 +126,7 @@ namespace NWN.Systems
           break;
       }
 
-       ObjectPlugin.SetInt(newPlayer, "accountId", NWScript.SqlGetInt(query, 0), 1);
+      ObjectPlugin.SetInt(newPlayer, "accountId", NWScript.SqlGetInt(query, 0), 1);
     }
     private static void InitializeNewCharacter(Player newCharacter)
     {
@@ -135,11 +135,11 @@ namespace NWN.Systems
       int startingSP = 5000;
       if (Convert.ToBoolean(CreaturePlugin.GetKnowsFeat(newCharacter.oid, (int)Feat.QuickToMaster)))
         startingSP += 500;
-      
+
       ObjectPlugin.SetInt(newCharacter.oid, "_STARTING_SKILL_POINTS", startingSP, 1);
 
       uint arrivalArea, arrivalPoint;
-      
+
       if (Config.env == Config.Env.Prod)
       {
         arrivalArea = NWScript.CopyArea(Module.areaDictionnary.Where(v => v.Value.tag == "entry_scene").FirstOrDefault().Value.oid);
@@ -181,7 +181,8 @@ namespace NWN.Systems
         while (CreaturePlugin.GetKnownSpellCount(newCharacter.oid, 43, spellLevel) > 0)
           CreaturePlugin.RemoveKnownSpell(newCharacter.oid, 43, spellLevel, CreaturePlugin.GetKnownSpell(newCharacter.oid, 43, spellLevel, 0));
 
-           InitializeNewPlayerLearnableSkills(newCharacter);
+      InitializeNewPlayerLearnableSkills(newCharacter);
+      InitializeNewCharacterStorage(newCharacter);
     }
     public static void InitializeNewPlayerLearnableSkills(Player player)
     {
@@ -230,7 +231,7 @@ namespace NWN.Systems
       InitializePlayerEvents(player.oid);
       InitializePlayerAccount(player);
       InitializePlayerCharacter(player);
-      InitializePlayerLearnableSkills(player);      
+      InitializePlayerLearnableSkills(player);
     }
     private static void InitializePlayerEvents(uint player)
     {
@@ -299,7 +300,7 @@ namespace NWN.Systems
       player.isAFK = true;
       player.DoJournalUpdate = false;
       player.activeLanguage = Feat.Invalid;
-      
+
       player.playerJournal = new PlayerJournal();
     }
     private static void InitializePlayerLearnableSkills(Player player)
@@ -309,6 +310,25 @@ namespace NWN.Systems
 
       while (Convert.ToBoolean(NWScript.SqlStep(query)))
         player.learnableSkills.Add(NWScript.SqlGetInt(query, 0), new SkillSystem.Skill(NWScript.SqlGetInt(query, 0), NWScript.SqlGetInt(query, 1), player, true));
+    }
+    private static void InitializeNewCharacterStorage(Player player)
+    {
+      uint storage = NWScript.GetFirstObjectInArea(NWScript.GetObjectByTag("entrepotdimensionnel"));
+      if (NWScript.GetTag(storage) != "ps_entrepot")
+        storage = NWScript.GetNearestObjectByTag("ps_entrepot", storage);
+
+      Utils.DestroyInventory(storage);
+      NWScript.CreateItemOnObject("wblcl002", storage);
+      NWScript.CreateItemOnObject("ashsw003", storage);
+      NWScript.CreateItemOnObject("wbwsl002", storage);
+      NWScript.CreateItemOnObject("wambu002", storage, 99);
+
+      NWScript.SetName(storage, $"Entrepôt de {NWScript.GetName(player.oid)}");
+
+      var query = NWScript.SqlPrepareQueryCampaign(ModuleSystem.database, $"UPDATE playerCharacters set storage = @storage where rowid = @characterId");
+      NWScript.SqlBindInt(query, "@characterId", player.characterId);
+      NWScript.SqlBindObject(query, "@storage", storage);
+      NWScript.SqlStep(query);
     }
   }
 }

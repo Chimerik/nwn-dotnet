@@ -15,6 +15,7 @@ namespace NWN.Systems
       { "plc_used", HandlePlaceableUsed },
       { "os_statuemaker", HandleStatufyCreature },
       { "oc_statue", HandleCancelStatueConversation },
+      { "door_auto_close", HandleDoorAutoClose },
     };
     private static int HandleCleanDMPLC(uint oidSelf)
     {
@@ -38,70 +39,23 @@ namespace NWN.Systems
         switch (NWScript.GetTag(oidSelf))
         {
           case "respawn_neutral":
-            NWScript.AssignCommand(player.oid, () => NWScript.ClearAllActions());
-            NWScript.AssignCommand(player.oid, () => NWScript.JumpToLocation(NWScript.GetLocation(NWScript.GetWaypointByTag("WP_RESPAWN_DISPENSAIRE"))));
+            Respawn(player, "neutral");
             break;  
           case "respawn_radiant":
-            Effect eVis = NWScript.EffectVisualEffect(NWScript.VFX_IMP_IMPROVE_ABILITY_SCORE);
-            Effect eDur = NWScript.EffectVisualEffect(NWScript.VFX_DUR_CESSATE_POSITIVE);
-            Effect eCon = NWScript.EffectAbilityIncrease(NWScript.ABILITY_CONSTITUTION, 2);
-            Effect eRegen = NWScript.EffectRegenerate(1, 1.0f);
-            Effect eJS = NWScript.EffectSavingThrowIncrease(0, 1);
-            Effect eTempHP = NWScript.EffectTemporaryHitpoints(10);
-            Effect eDamImm1 = NWScript.EffectDamageImmunityIncrease(1, 10);
-            Effect eDamImm2 = NWScript.EffectDamageImmunityIncrease(2, 10);
-            Effect eDamImm3 = NWScript.EffectDamageImmunityIncrease(4, 10);
-            Effect eDamImm4 = NWScript.EffectDamageImmunityIncrease(8, 10);
-            Effect eDamImm5 = NWScript.EffectDamageImmunityIncrease(16, 10);
-            Effect eDamImm6 = NWScript.EffectDamageImmunityIncrease(32, 10);
-            Effect eDamImm7 = NWScript.EffectDamageImmunityIncrease(64, 10);
-            Effect eDamImm8 = NWScript.EffectDamageImmunityIncrease(128, 10);
-            Effect eDamImm9 = NWScript.EffectDamageImmunityIncrease(256, 10);
-            Effect eDamImm10 = NWScript.EffectDamageImmunityIncrease(512, 10);
-            Effect eDamImm11 = NWScript.EffectDamageImmunityIncrease(1024, 10);
-            Effect eDamImm12 = NWScript.EffectDamageImmunityIncrease(2048, 10);
-
-            Effect eLink = NWScript.EffectLinkEffects(eVis, eDur);
-            eLink = NWScript.EffectLinkEffects(eLink, eCon);
-            eLink = NWScript.EffectLinkEffects(eLink, eRegen);
-            eLink = NWScript.EffectLinkEffects(eLink, eJS);
-            eLink = NWScript.EffectLinkEffects(eLink, eTempHP);
-            eLink = NWScript.EffectLinkEffects(eLink, eDamImm1);
-            eLink = NWScript.EffectLinkEffects(eLink, eDamImm2);
-            eLink = NWScript.EffectLinkEffects(eLink, eDamImm3);
-            eLink = NWScript.EffectLinkEffects(eLink, eDamImm4);
-            eLink = NWScript.EffectLinkEffects(eLink, eDamImm5);
-            eLink = NWScript.EffectLinkEffects(eLink, eDamImm6);
-            eLink = NWScript.EffectLinkEffects(eLink, eDamImm7);
-            eLink = NWScript.EffectLinkEffects(eLink, eDamImm8);
-            eLink = NWScript.EffectLinkEffects(eLink, eDamImm9);
-            eLink = NWScript.EffectLinkEffects(eLink, eDamImm10);
-            eLink = NWScript.EffectLinkEffects(eLink, eDamImm11);
-            eLink = NWScript.EffectLinkEffects(eLink, eDamImm12);
-
-            NWScript.DelayCommand(5.0f, () => NWScript.ApplyEffectToObject(NWScript.DURATION_TYPE_PERMANENT, eLink, player.oid));
-            NWScript.AssignCommand(player.oid, () => NWScript.ClearAllActions());
-            NWScript.AssignCommand(player.oid, () => NWScript.JumpToLocation(NWScript.GetLocation(NWScript.GetWaypointByTag("WP_RESPAWN_DISPENSAIRE"))));
+            Respawn(player, "radiant");
             break;
           case "respawn_dire":
-            Effect Vis = NWScript.EffectVisualEffect(NWScript.VFX_IMP_IMPROVE_ABILITY_SCORE);
-            Effect Dur = NWScript.EffectVisualEffect(NWScript.VFX_DUR_CESSATE_POSITIVE);
-            Effect eStr = NWScript.EffectAbilityIncrease(NWScript.ABILITY_STRENGTH, 2);
-            Effect eDam = NWScript.EffectDamageIncrease(1, NWScript.DAMAGE_TYPE_DIVINE);
-            Effect eAtt = NWScript.EffectAttackIncrease(1);
-            Effect eMS = NWScript.EffectMovementSpeedIncrease(10);
-
-            Effect Link = NWScript.EffectLinkEffects(Vis, Dur);
-            Link = NWScript.EffectLinkEffects(Link, eStr);
-            Link = NWScript.EffectLinkEffects(Link, eDam);
-            Link = NWScript.EffectLinkEffects(Link, eAtt);
-            Link = NWScript.EffectLinkEffects(Link, eMS);
-
-            // +1 jet d'attaque; +1 dégat divin; +movement speed 10 %
-
-            NWScript.DelayCommand(5.0f, () => NWScript.ApplyEffectToObject(NWScript.DURATION_TYPE_PERMANENT, Link, player.oid));
-            NWScript.AssignCommand(player.oid, () => NWScript.ClearAllActions());
-            NWScript.AssignCommand(player.oid, () => NWScript.JumpToLocation(NWScript.GetLocation(NWScript.GetWaypointByTag("WP_RESPAWN_DISPENSAIRE"))));
+            Respawn(player, "radiant");
+            break;
+          case "stage_ladder":
+            if (NWScript.GetDistanceBetween(oidSelf, player.oid) < 5.0f)
+            {
+              NWScript.AssignCommand(player.oid, () => NWScript.ClearAllActions());
+              if (NWScript.GetObjectVisualTransform(player.oid, NWScript.OBJECT_VISUAL_TRANSFORM_TRANSLATE_Z) == 0)
+                NWScript.AssignCommand(player.oid, () => NWScript.JumpToLocation(NWScript.GetLocation(NWScript.GetWaypointByTag("WP_SCENE_LADDER_TOP"))));
+              else
+                NWScript.AssignCommand(player.oid, () => NWScript.JumpToLocation(NWScript.GetLocation(NWScript.GetWaypointByTag("WP_SCENE_LADDER_BOTTOM"))));
+            }
             break;
           case "theater_rope":
 
@@ -119,6 +73,38 @@ namespace NWN.Systems
 
               NWScript.DeleteLocalInt(NWScript.GetArea(oidSelf), "_THEATER_CURTAIN_OPEN");
             }
+            break;
+          case "portal_storage_in":
+            uint aEntrepot = NWScript.CopyArea(NWScript.GetObjectByTag("entrepotdimensionnel"));
+            NWScript.SetName(aEntrepot, "Entrepot dimensionnel de " + NWScript.GetName(player.oid));
+            uint storage = NWScript.GetFirstObjectInArea(aEntrepot);
+            if (NWScript.GetTag(storage) != "ps_entrepot")
+              storage = NWScript.GetNearestObjectByTag("ps_entrepot", storage);
+
+            var query = NWScript.SqlPrepareQueryCampaign(ModuleSystem.database, $"SELECT storage from playerCharacters where rowid = @characterId");
+            NWScript.SqlBindInt(query, "@characterId", player.characterId);
+            NWScript.SqlStep(query);
+
+            NWScript.SqlGetObject(query, 0, NWScript.GetLocation(storage));
+            NWScript.DestroyObject(storage);
+
+            NWScript.AssignCommand(player.oid, () => NWScript.ClearAllActions());
+            NWScript.AssignCommand(player.oid, () => NWScript.JumpToLocation(NWScript.GetLocation(NWScript.GetNearestObjectByTag("wp_inentrepot", storage))));
+            break;
+          case "portal_storage_out":
+
+            uint storageToSave = NWScript.GetFirstObjectInArea(NWScript.GetArea(player.oid));
+            if (NWScript.GetTag(storageToSave) != "ps_entrepot")
+              storageToSave = NWScript.GetNearestObjectByTag("ps_entrepot", storageToSave);
+
+            var saveStorage = NWScript.SqlPrepareQueryCampaign(ModuleSystem.database, $"UPDATE playerCharacters set storage = @storage");
+            NWScript.SqlBindInt(saveStorage, "@characterId", player.characterId);
+            NWScript.SqlBindObject(saveStorage, "@storage", storageToSave);
+            NWScript.SqlStep(saveStorage);
+
+            NWScript.DestroyArea(NWScript.GetArea(player.oid));
+            NWScript.AssignCommand(player.oid, () => NWScript.ClearAllActions());
+            NWScript.AssignCommand(player.oid, () => NWScript.JumpToLocation(NWScript.GetLocation(NWScript.GetObjectByTag("wp_outentrepot"))));
             break;
         }
       }
@@ -142,12 +128,24 @@ namespace NWN.Systems
     }
     private static void FreezeCreature(uint creature)
     {
-        
+      //NWScript.SendMessageToPC(NWScript.GetFirstPC(), $"freezing : {NWScript.GetTag(creature)}");  
       NWScript.ApplyEffectToObject(NWScript.DURATION_TYPE_PERMANENT, NWScript.EffectVisualEffect(NWScript.VFX_DUR_FREEZE_ANIMATION), creature);
       NWScript.ApplyEffectToObject(NWScript.DURATION_TYPE_PERMANENT, NWScript.EffectVisualEffect(NWScript.VFX_DUR_ICESKIN), creature);
       NWScript.SetObjectHiliteColor(creature, 0x000000);
       NWScript.SetObjectMouseCursor(creature, NWScript.MOUSECURSOR_WALK);
       NWScript.SetPlotFlag(creature, 1);
+    }
+    private static int HandleDoorAutoClose(uint oidSelf)
+    {
+      NWScript.DelayCommand(5.0f, () => NWScript.PlayAnimation(NWScript.ANIMATION_DOOR_CLOSE));
+
+      return 0;
+    }
+    private static int HandleCityGatesClick(uint oidSelf)
+    {
+      NWScript.PlayAnimation(NWScript.ANIMATION_DOOR_OPEN1);
+
+      return 0;
     }
   }
 }

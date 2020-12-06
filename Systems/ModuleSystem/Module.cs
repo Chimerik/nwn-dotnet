@@ -18,6 +18,7 @@ namespace NWN.Systems
       this.botAsyncCommandList = new List<string>();
       Bot.MainAsync();
       this.CreateDatabase();
+      this.SetModuleTime();
       ChatSystem.Init();
       try
       {
@@ -41,10 +42,13 @@ namespace NWN.Systems
     }
     private void CreateDatabase()
     {
-      var query = NWScript.SqlPrepareQueryCampaign(ModuleSystem.database, "CREATE TABLE IF NOT EXISTS PlayerAccounts('accountName' TEXT NOT NULL, 'bonusRolePlay' INTEGER NOT NULL)");
+      var query = NWScript.SqlPrepareQueryCampaign(ModuleSystem.database, "CREATE TABLE IF NOT EXISTS moduleInfo('year' INTEGER NOT NULL, 'month' INTEGER NOT NULL, 'day' INTEGER NOT NULL, 'hour' INTEGER NOT NULL, 'minute' INTEGER NOT NULL, 'second' INTEGER NOT NULL,)");
       NWScript.SqlStep(query);
 
-      query = NWScript.SqlPrepareQueryCampaign(ModuleSystem.database, "CREATE TABLE IF NOT EXISTS playerCharacters('accountId' INTEGER NOT NULL, 'characterName' TEXT NOT NULL, 'dateLastSaved' TEXT NOT NULL, 'currentSkillJob' INTEGER NOT NULL, 'currentCraftJobRemainingTime' REAL, 'currentCraftJob' INTEGER NOT NULL, 'currentCraftObject' TEXT NOT NULL, currentCraftJobMaterial TEXT, 'frostAttackOn' INTEGER NOT NULL, areaTag TEXT, position TEXT, facing REAL, currentHP INTEGER, bankGold INTEGER, menuOriginTop INTEGER, menuOriginLeft INTEGER)");
+      query = NWScript.SqlPrepareQueryCampaign(ModuleSystem.database, "CREATE TABLE IF NOT EXISTS PlayerAccounts('accountName' TEXT NOT NULL, 'bonusRolePlay' INTEGER NOT NULL)");
+      NWScript.SqlStep(query);
+
+      query = NWScript.SqlPrepareQueryCampaign(ModuleSystem.database, "CREATE TABLE IF NOT EXISTS playerCharacters('accountId' INTEGER NOT NULL, 'characterName' TEXT NOT NULL, 'dateLastSaved' TEXT NOT NULL, 'currentSkillJob' INTEGER NOT NULL, 'currentCraftJobRemainingTime' REAL, 'currentCraftJob' INTEGER NOT NULL, 'currentCraftObject' TEXT NOT NULL, currentCraftJobMaterial TEXT, 'frostAttackOn' INTEGER NOT NULL, areaTag TEXT, position TEXT, facing REAL, currentHP INTEGER, bankGold INTEGER, menuOriginTop INTEGER, menuOriginLeft INTEGER, storage TEXT)");
       NWScript.SqlStep(query);
 
       query = NWScript.SqlPrepareQueryCampaign(ModuleSystem.database, "CREATE TABLE IF NOT EXISTS playerLearnableSkills('characterId' INTEGER NOT NULL, 'skillId' INTEGER NOT NULL, 'skillPoints' INTEGER NOT NULL, 'trained' INTEGER)");
@@ -244,6 +248,15 @@ namespace NWN.Systems
 
     private static void SaveServerVault()
     {
+      var query = NWScript.SqlPrepareQueryCampaign(ModuleSystem.database, $"INSERT INTO moduleInfo (year, month, day, hour, minute, second) VALUES (@year, @month, @day, @hour, @minute, @second)");
+      NWScript.SqlBindInt(query, "@year", NWScript.GetCalendarYear());
+      NWScript.SqlBindInt(query, "@month", NWScript.GetCalendarMonth());
+      NWScript.SqlBindInt(query, "@day", NWScript.GetCalendarDay());
+      NWScript.SqlBindInt(query, "@hour", NWScript.GetTimeHour());
+      NWScript.SqlBindInt(query, "@minute", NWScript.GetTimeMinute());
+      NWScript.SqlBindInt(query, "@second", NWScript.GetTimeSecond());
+      NWScript.SqlStep(query);
+
       NWScript.ExportAllCharacters();
       NWScript.DelayCommand(600.0f, () => SaveServerVault());
     }
@@ -271,11 +284,31 @@ namespace NWN.Systems
         oArea = NWScript.GetNextArea();
       }
     }
-
     public string PreparingModuleForAsyncReboot()
     {
       this.botAsyncCommandList.Add("reboot");
       return "Reboot effectif dans 30 secondes.";
+    }
+    private void SetModuleTime()
+    {
+      var query = NWScript.SqlPrepareQueryCampaign(ModuleSystem.database, $"SELECT year, month, day, hour, minute, second from moduleInfo");
+      
+      if(Convert.ToBoolean(NWScript.SqlStep(query)))
+      {
+        NWScript.SetCalendar(NWScript.SqlGetInt(query, 0), NWScript.SqlGetInt(query, 1), NWScript.SqlGetInt(query, 2));
+        NWScript.SetTime(NWScript.SqlGetInt(query, 3), NWScript.SqlGetInt(query, 4), NWScript.SqlGetInt(query, 5), 0);
+      }
+      else
+      {
+        query = NWScript.SqlPrepareQueryCampaign(ModuleSystem.database, $"INSERT INTO moduleInfo (year, month, day, hour, minute, second) VALUES (@year, @month, @day, @hour, @minute, @second)");
+        NWScript.SqlBindInt(query, "@year", NWScript.GetCalendarYear());
+        NWScript.SqlBindInt(query, "@month", NWScript.GetCalendarMonth());
+        NWScript.SqlBindInt(query, "@day", NWScript.GetCalendarDay());
+        NWScript.SqlBindInt(query, "@hour", NWScript.GetTimeHour());
+        NWScript.SqlBindInt(query, "@minute", NWScript.GetTimeMinute());
+        NWScript.SqlBindInt(query, "@second", NWScript.GetTimeSecond());
+        NWScript.SqlStep(query);
+      }      
     }
   }
 }

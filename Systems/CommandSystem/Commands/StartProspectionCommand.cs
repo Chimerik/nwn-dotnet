@@ -71,16 +71,14 @@ namespace NWN.Systems
                       i++;
                     }
 
-                    var encounter = NWScript.GetNearestObject(NWScript.OBJECT_TYPE_ENCOUNTER, oPlaceable); // TODO : ne pas utiliser des encounters, mais des waypoints !
-
-                    if(NWScript.GetIsObjectValid(encounter) == 1)
+                    i = 1;
+                    uint creatureSpawn = NWScript.GetNearestObjectByTag("disturbed_creature_spawn", oPlaceable);
+                    
+                    while(Convert.ToBoolean(NWScript.GetIsObjectValid(creatureSpawn)) || NWScript.GetDistanceBetween(oPlaceable, creatureSpawn) < 25.0f)
                     {
-                      for(int creatureIndex = 0; creatureIndex < EncounterPlugin.GetNumberOfCreaturesInEncounterList(encounter); creatureIndex++)
-                      {
-                        NWScript.CreateObject(NWScript.OBJECT_TYPE_CREATURE, 
-                          EncounterPlugin.GetEncounterCreatureByIndex(encounter, creatureIndex).resref,
-                          EncounterPlugin.GetSpawnPointByIndex(encounter, 0));
-                      }
+                      NWScript.CreateObject(NWScript.OBJECT_TYPE_CREATURE, NWScript.GetLocalString(creatureSpawn, "_CREATURE_TEMPLATE"), NWScript.GetLocation(creatureSpawn));
+                      i++;
+                      creatureSpawn = NWScript.GetNearestObjectByTag("disturbed_creature_spawn", oPlaceable, i);
                     }
                   }
                   else
