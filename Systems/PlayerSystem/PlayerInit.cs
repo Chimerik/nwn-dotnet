@@ -68,16 +68,20 @@ namespace NWN.Systems
           NWScript.DelayCommand(1.1f, () => NWScript.AssignCommand(player.oid, () => NWScript.JumpToLocation(player.location)));
         }
 
-        if (player.craftJob.isActive && NWScript.GetLocalInt(NWScript.GetArea(player.oid), "_REST") != 0)
+        if (player.craftJob.isActive && Convert.ToBoolean(NWScript.GetLocalInt(NWScript.GetAreaFromLocation(player.location), "_REST")))
+        {
+          player.craftJob.CreateCraftJournalEntry();
           player.CraftJobProgression();
+        }
 
         if (player.currentSkillJob != (int)Feat.Invalid)
         {
           player.learnableSkills[player.currentSkillJob].currentJob = true;
+          player.learnableSkills[player.currentSkillJob].CreateSkillJournalEntry();
           player.AcquireSkillPoints();
         }
-        else
-          NWScript.DelayCommand(10.0f, () => player.PlayNoCurrentTrainingEffects());
+        //else
+          //NWScript.DelayCommand(10.0f, () => player.PlayNoCurrentTrainingEffects());
 
         player.dateLastSaved = DateTime.Now;
       }
@@ -268,6 +272,8 @@ namespace NWN.Systems
       NWScript.SqlBindInt(query, "@characterId", player.characterId);
       NWScript.SqlStep(query);
 
+      player.playerJournal = new PlayerJournal();
+
       player.location = Utils.GetLocationFromDatabase(NWScript.SqlGetString(query, 0), NWScript.SqlGetVector(query, 1), NWScript.SqlGetFloat(query, 2));
       player.currentHP = NWScript.SqlGetInt(query, 3);
       player.bankGold = NWScript.SqlGetInt(query, 4);
@@ -300,8 +306,6 @@ namespace NWN.Systems
       player.isAFK = true;
       player.DoJournalUpdate = false;
       player.activeLanguage = Feat.Invalid;
-
-      player.playerJournal = new PlayerJournal();
     }
     private static void InitializePlayerLearnableSkills(Player player)
     {

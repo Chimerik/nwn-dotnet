@@ -121,9 +121,8 @@ namespace NWN.Systems
       float iJobDuration = blueprint.GetBlueprintTimeCostForPlayer(player, oItem);
       iMineralCost -= iMineralCost * (int)mineralType / 10;
 
-      var query = NWScript.SqlPrepareQueryCampaign(ModuleSystem.database, $"SELECT @resourceName FROM playerResources where characterId = @characterId");
+      var query = NWScript.SqlPrepareQueryCampaign(ModuleSystem.database, $"SELECT {sMaterial} FROM playerMaterialStorage where characterId = @characterId");
       NWScript.SqlBindInt(query, "@characterId", player.characterId);
-      NWScript.SqlBindString(query, "@resourceName", sMaterial);
 
       if (Convert.ToBoolean(NWScript.SqlStep(query)))
       {
@@ -156,10 +155,9 @@ namespace NWN.Systems
     }
     private void RemoveUsedResources(Player player, int iResourceStock, int iMineralCost, string sMaterial)
     {
-      var query = NWScript.SqlPrepareQueryCampaign(ModuleSystem.database, $"UPDATE playerResources SET @resourceName = @iResourceStock where characterId = @characterId");
+      var query = NWScript.SqlPrepareQueryCampaign(ModuleSystem.database, $"UPDATE playerMaterialStorage SET {sMaterial} = @iResourceStock where characterId = @characterId");
       NWScript.SqlBindInt(query, "@characterId", player.characterId);
       NWScript.SqlBindInt(query, "@iResourceStock", iResourceStock - iMineralCost);
-      NWScript.SqlBindString(query, "@resourceName", sMaterial);
       NWScript.SqlStep(query);
     }
     public void StartBlueprintCopy(Player player, uint oBlueprint, Blueprint blueprint)

@@ -826,7 +826,7 @@ namespace NWN.Systems
         Player player;
         if (Players.TryGetValue(oidSelf, out player))
         {
-          if (NWScript.GetLocalString(oArea, "_DATE_LAST_SPAWNED") == "_REST")
+          if (Convert.ToBoolean(NWScript.GetLocalInt(oArea, "_REST")))
           {
             if (player.craftJob.isActive && player.playerJournal.craftJobCountDown == null)
               player.craftJob.CreateCraftJournalEntry();
@@ -880,16 +880,16 @@ namespace NWN.Systems
           SetRandomAppearanceFrom2da(SpawnCreatureFromSpawnPoint(spawnPoint), CivilianAppearances);
           break;
         case "critter":
-          SetRandomAppearanceFrom2da(SpawnCreatureFromSpawnPoint(spawnPoint), genericCrittersAppearances);
+          SetRandomAppearanceAndNameFrom2da(SpawnCreatureFromSpawnPoint(spawnPoint), genericCrittersAppearances);
           break;
         case "critter_plage":
-          SetRandomAppearanceFrom2da(SpawnCreatureFromSpawnPoint(spawnPoint), plageCrittersAppearances);
+          SetRandomAppearanceAndNameFrom2da(SpawnCreatureFromSpawnPoint(spawnPoint), plageCrittersAppearances);
           break;
         case "critter_cave":
-          SetRandomAppearanceFrom2da(SpawnCreatureFromSpawnPoint(spawnPoint), caveCrittersAppearances);
+          SetRandomAppearanceAndNameFrom2da(SpawnCreatureFromSpawnPoint(spawnPoint), caveCrittersAppearances);
           break;
         case "critter_city":
-          SetRandomAppearanceFrom2da(SpawnCreatureFromSpawnPoint(spawnPoint), cityCrittersAppearances);
+          SetRandomAppearanceAndNameFrom2da(SpawnCreatureFromSpawnPoint(spawnPoint), cityCrittersAppearances);
           break;
         default:
           SpawnCreatureFromSpawnPoint(spawnPoint);
@@ -902,7 +902,7 @@ namespace NWN.Systems
       NWScript.SetEventScript(creature, NWScript.EVENT_SCRIPT_CREATURE_ON_DEATH, ON_LOOT_SCRIPT);
       return creature;
     }
-    private static void SetRandomAppearanceFrom2da(uint creature, int[] appearanceArray)
+    private static void SetRandomAppearanceAndNameFrom2da(uint creature, int[] appearanceArray)
     {
       int appearance = appearanceArray[Utils.random.Next(0, appearanceArray.Length)];
       NWScript.SetCreatureAppearanceType(creature, appearance);
@@ -914,6 +914,13 @@ namespace NWN.Systems
         Utils.LogMessageToDMs($"Apparence {appearance} - Nom non défini.");
 
       NWScript.AssignCommand(creature, () => NWScript.ActionRandomWalk());      
+    }
+    private static void SetRandomAppearanceFrom2da(uint creature, int[] appearanceArray)
+    {
+      int appearance = appearanceArray[Utils.random.Next(0, appearanceArray.Length)];
+      NWScript.SetCreatureAppearanceType(creature, appearance);
+
+      NWScript.AssignCommand(creature, () => NWScript.ActionRandomWalk());
     }
     private static int HandlePCJournalOpen(uint oidSelf)
     {
@@ -974,7 +981,17 @@ namespace NWN.Systems
 
           EventsPlugin.SkipEvent();
           NWScript.CopyItem(item, player.oid, 1);
-          NWScript.DestroyObject(item);
+
+          switch(NWScript.GetTag(NWScript.GetLocalObject(NWScript.StringToObject(EventsPlugin.GetEventData("STORE")), "_STORE_NPC")))
+          {
+            case "blacksmith":
+              NWScript.SendMessageToPC(player.oid, "shop blacksmith");
+              break;
+            default:
+              NWScript.SendMessageToPC(player.oid, "destroying item");
+              NWScript.DestroyObject(item);
+              break;
+          }
         }
       }
 
@@ -986,9 +1003,8 @@ namespace NWN.Systems
       if (Players.TryGetValue(oidSelf, out player))
       {
         EventsPlugin.SkipEvent();
-        PlayerPlugin.FloatingTextStringOnCreature(oidSelf,
-          NWScript.GetLocalObject(NWScript.StringToObject(EventsPlugin.GetEventData("STORE")), "_STORE_NPC"),
-          "Navré, je n'achète rien. J'arrive déjà tout juste à m'acquiter de ma dette.");
+        ChatPlugin.SendMessage(ChatPlugin.NWNX_CHAT_CHANNEL_PLAYER_TALK, "Navré, je n'achète rien. J'arrive déjà tout juste à m'acquiter de ma dette.",
+            NWScript.GetLocalObject(NWScript.StringToObject(EventsPlugin.GetEventData("STORE")), "_STORE_NPC"), oidSelf);
       }
 
       return 0;

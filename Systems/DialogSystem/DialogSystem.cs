@@ -52,6 +52,47 @@ namespace NWN.Systems
           case "hventes":
             new HotelDesVentes(player);
             break;
+          case "blacksmith":
+            shop = NWScript.GetNearestObjectByTag("blacksmith_shop", oidSelf);
+
+            if (!Convert.ToBoolean(NWScript.GetIsObjectValid(shop)))
+            {
+              shop = NWScript.CreateObject(NWScript.OBJECT_TYPE_STORE, "generic_shop_res", NWScript.GetLocation(oidSelf), 0, "skillbank_shop");
+              NWScript.SetLocalObject(shop, "_STORE_NPC", oidSelf);
+
+              foreach (int baseItemType in CollectSystem.forgeBasicBlueprints)
+              {
+                Blueprint blueprint = new Blueprint(baseItemType);
+
+                if (!CollectSystem.blueprintDictionnary.ContainsKey(baseItemType))
+                  CollectSystem.blueprintDictionnary.Add(baseItemType, blueprint);
+
+                uint oBlueprint = NWScript.CreateItemOnObject("blueprintgeneric", shop, 10, "blueprint");
+                NWScript.SetName(oBlueprint, $"Patron : {blueprint.name}");
+                NWScript.SetLocalInt(oBlueprint, "_BASE_ITEM_TYPE", baseItemType);
+                ItemPlugin.SetBaseGoldPieceValue(oBlueprint, blueprint.goldCost * 10);
+              }
+
+              foreach (Feat feat in SkillSystem.forgeBasicSkillBooks)
+              {
+                uint skillBook = NWScript.CreateItemOnObject("skillbookgeneriq", shop, 10, "skillbook");
+                ItemPlugin.SetItemAppearance(skillBook, NWScript.ITEM_APPR_TYPE_SIMPLE_MODEL, 2, Utils.random.Next(0, 50));
+                NWScript.SetLocalInt(skillBook, "_SKILL_ID", (int)feat);
+
+                int value;
+                if (int.TryParse(NWScript.Get2DAString("feat", "FEAT", (int)feat), out value))
+                  NWScript.SetName(skillBook, NWScript.GetStringByStrRef(value));
+
+                if (int.TryParse(NWScript.Get2DAString("feat", "DESCRIPTION", (int)feat), out value))
+                  NWScript.SetDescription(skillBook, NWScript.GetStringByStrRef(value));
+
+                if (int.TryParse(NWScript.Get2DAString("feat", "CRValue", (int)feat), out value))
+                  ItemPlugin.SetBaseGoldPieceValue(skillBook, value * 1000);
+              }
+            }
+
+            NWScript.OpenStore(shop, player.oid);
+            break;
           case "blueprintbank":
             shop = NWScript.GetNearestObjectByTag("skillbank_shop", oidSelf);
             

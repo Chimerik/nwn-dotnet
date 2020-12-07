@@ -19,7 +19,11 @@ namespace NWN.Systems
         {
           if (player.craftJob.CanStartJob(player.oid, oItem))
           {
-            if (NWScript.GetTag(oTarget) == blueprint.craftedItemTag)
+            if (NWScript.GetTag(oTarget) == blueprint.workshopTag)
+            {
+              player.craftJob.Start(CraftJob.JobType.Item, blueprint, player, oItem, oTarget, "Tritanium", CollectSystem.MineralType.Tritanium);
+            }
+            else if (NWScript.GetTag(oTarget) == blueprint.craftedItemTag)
             {
               if (NWScript.GetNearestObjectByTag(blueprint.workshopTag, player.oid) != NWScript.OBJECT_INVALID)
               {
