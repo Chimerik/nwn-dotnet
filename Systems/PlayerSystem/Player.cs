@@ -201,11 +201,14 @@ namespace NWN.Systems
       }
       public void CraftJobProgression()
       {
-        float RemainingTime = this.craftJob.remainingTime - (float)(DateTime.Now - this.dateLastSaved).TotalSeconds;
-
-        if (RemainingTime < 0)
+        if (this.craftJob.isActive)
         {
-          this.AcquireCraftedItem();
+          this.craftJob.remainingTime = this.craftJob.remainingTime - (float)(DateTime.Now - this.dateLastSaved).TotalSeconds;
+
+          if (this.craftJob.remainingTime < 0)
+          {
+            this.AcquireCraftedItem();
+          }
         }
       }
 
@@ -228,6 +231,7 @@ namespace NWN.Systems
         {
           blueprint = CollectSystem.blueprintDictionnary[this.craftJob.baseItemType];
           this.PlayCraftJobCompletedEffects(blueprint);
+          this.craftJob = new CraftJob(-10, "", 0, this);
         }
         else
         {
@@ -271,7 +275,6 @@ namespace NWN.Systems
         {
           float skillPointRate = this.CalculateSkillPointsPerSecond(skill);
           skill.acquiredPoints += skillPointRate * (float)(DateTime.Now - this.dateLastSaved).TotalSeconds;
-          this.dateLastSaved = DateTime.Now;
           double remainingTime = skill.GetTimeToNextLevel(skillPointRate);
           this.playerJournal.skillJobCountDown = DateTime.Now.AddSeconds(remainingTime);
 
@@ -482,7 +485,9 @@ namespace NWN.Systems
           }
         }
 
-        if(this.DoJournalUpdate)
+        this.dateLastSaved = DateTime.Now;
+
+        if (this.DoJournalUpdate)
           NWScript.DelayCommand(1.0f, () => this.UpdateJournal());
       }
       public void rebootUpdate()

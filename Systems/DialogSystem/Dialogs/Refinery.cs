@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using NWN.Core;
 using NWN.Core.NWNX;
+using static NWN.Systems.CollectSystem;
 using static NWN.Systems.PlayerSystem;
 
 namespace NWN.Systems
@@ -19,7 +20,8 @@ namespace NWN.Systems
 
       foreach (KeyValuePair<string, int> materialEntry in player.materialStock)
       {
-        player.menu.choices.Add(($"{materialEntry.Key} - {materialEntry.Value} .", () => HandleRefineOre(player, materialEntry.Key)));
+        if(materialEntry.Value > 0 && GetOreTypeFromName(materialEntry.Key) != OreType.Invalid)
+          player.menu.choices.Add(($"{materialEntry.Key} - {materialEntry.Value} unité(s).", () => HandleRefineOre(player, materialEntry.Key)));
       }
 
       player.menu.choices.Add(("Quitter", () => player.menu.Close()));
@@ -32,13 +34,14 @@ namespace NWN.Systems
       if (player.setValue < 100)
       {
         player.menu.title = $"Les ouvriers chargés du transfert ne se dérangeant pas pour moins de 100 unités. (Utilisez la commande !set X avant de valider votre choix)";
-        player.menu.choices.Add(("Valider.", () => player.menu.Close()));
+        player.menu.choices.Add(("Valider.", () => HandleRefineOre(player, oreName)));
       }
       else
       {
         if (player.setValue > player.materialStock[oreName])
           player.setValue = player.materialStock[oreName];
 
+        player.materialStock[oreName] -= player.setValue;
 
         float reprocessingEfficiency = 0.3f;
 

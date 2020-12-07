@@ -3,8 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using NWN.Core;
 using NWN.Core.NWNX;
-using Dapper;
-using Microsoft.Data.Sqlite;
 
 namespace NWN.Systems
 {
@@ -102,7 +100,7 @@ namespace NWN.Systems
     }
     private static void SavePlayerCharacterToDatabase(Player player)
     {
-      var query = NWScript.SqlPrepareQueryCampaign(ModuleSystem.database, $"UPDATE playerCharacters SET areaTag = @areaTag, position = @position, facing = @facing, currentHP = @currentHP, bankGold = @bankGold, dateLastSaved = @dateLastSaved, currentSkillJob = @currentSkillJob, currentCraftJob = @currentCraftJob, currentCraftObject = @currentCraftObject, currentCraftJobRemainingTime = @currentCraftJobRemainingTime, currentCraftJobMaterial = @currentCraftJobMaterial, frostAttackOn = @frostAttackOn, menuOriginTop = @menuOriginTop, menuOriginLeft = @menuOriginLeft where rowid = @characterId");
+      var query = NWScript.SqlPrepareQueryCampaign(ModuleSystem.database, $"UPDATE playerCharacters SET areaTag = @areaTag, position = @position, facing = @facing, currentHP = @currentHP, bankGold = @bankGold, dateLastSaved = @dateLastSaved, currentSkillJob = @currentSkillJob, currentCraftJob = @currentCraftJob, currentCraftObject = @currentCraftObject, currentCraftJobRemainingTime = @currentCraftJobRemainingTime, currentCraftJobMaterial = @currentCraftJobMaterial, menuOriginTop = @menuOriginTop, menuOriginLeft = @menuOriginLeft where rowid = @characterId");
       NWScript.SqlBindInt(query, "@characterId", player.characterId);
       NWScript.SqlBindString(query, "@areaTag", NWScript.GetTag(NWScript.GetArea(player.oid)));
       NWScript.SqlBindVector(query, "@position", NWScript.GetPosition(player.oid));
@@ -113,10 +111,11 @@ namespace NWN.Systems
       NWScript.SqlBindInt(query, "@currentSkillJob", player.currentSkillJob);
       NWScript.SqlBindInt(query, "@currentCraftJob", player.craftJob.baseItemType);
       NWScript.SqlBindString(query, "@currentCraftObject", player.craftJob.craftedItem);
-      NWScript.SqlBindFloat(query, "@currentCraftJobRemainingTime", player.craftJob.remainingTime);
+      if(player.playerJournal.craftJobCountDown != null)
+        NWScript.SqlBindFloat(query, "@currentCraftJobRemainingTime", (float)((TimeSpan)(player.playerJournal.craftJobCountDown - DateTime.Now)).TotalSeconds);
+      else
+        NWScript.SqlBindFloat(query, "@currentCraftJobRemainingTime", 0);
       NWScript.SqlBindString(query, "@currentCraftJobMaterial", player.craftJob.material);
-      NWScript.SqlBindInt(query, "@frostAttackOn", Convert.ToInt32(player.isFrostAttackOn));
-      NWScript.SqlBindInt(query, "@frostAttackOn", Convert.ToInt32(player.isFrostAttackOn));
       NWScript.SqlBindInt(query, "@menuOriginTop", player.menu.originTop);
       NWScript.SqlBindInt(query, "@menuOriginLeft", player.menu.originLeft);
       NWScript.SqlStep(query);
