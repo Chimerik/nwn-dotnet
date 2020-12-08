@@ -128,11 +128,11 @@ namespace NWN.Systems
     }
     public static void DecreaseItemDurability(uint oItem)
     {
-      int stripperDurability = NWScript.GetLocalInt(oItem, "_DURABILITY");
-      if (stripperDurability <= 1)
+      int itemDurability = NWScript.GetLocalInt(oItem, "_DURABILITY");
+      if (itemDurability <= 1)
         NWScript.DestroyObject(oItem);
       else
-        NWScript.SetLocalInt(oItem, "_DURABILITY", stripperDurability - 1);
+        NWScript.SetLocalInt(oItem, "_DURABILITY", itemDurability - 1);
     }
   }
 }

@@ -92,11 +92,11 @@ namespace NWN.Systems
             }
 
             uint craftTool = NWScript.CreateItemOnObject("oreextractor", shop, 1, "oreextractor");
-            //ItemPlugin.SetBaseGoldPieceValue(craftTool, NWScript.GetBaseItemType(craftTool));
+            ItemPlugin.SetBaseGoldPieceValue(craftTool, 50);
             NWScript.SetLocalInt(craftTool, "_DURABILITY", 10);
 
             craftTool = NWScript.CreateItemOnObject("forgehammer", shop, 1, "forgehammer");
-            //ItemPlugin.SetBaseGoldPieceValue(craftTool, NWScript.GetBaseItemType(craftTool));
+            ItemPlugin.SetBaseGoldPieceValue(craftTool, 50);
             NWScript.SetLocalInt(craftTool, "_DURABILITY", 5);
 
             NWScript.OpenStore(shop, player.oid);

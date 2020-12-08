@@ -120,47 +120,31 @@ namespace NWN.Systems
       int iMineralCost = blueprint.GetBlueprintMineralCostForPlayer(player, oItem);
       float iJobDuration = blueprint.GetBlueprintTimeCostForPlayer(player, oItem);
       iMineralCost -= iMineralCost * (int)mineralType / 10;
-      
-      var query = NWScript.SqlPrepareQueryCampaign(ModuleSystem.database, $"SELECT {sMaterial} FROM playerMaterialStorage where characterId = @characterId");
-      NWScript.SqlBindInt(query, "@characterId", player.characterId);
 
-      if (Convert.ToBoolean(NWScript.SqlStep(query)))
+      if (player.materialStock[sMaterial] >= iMineralCost)
       {
-        int iResourceStock = NWScript.SqlGetInt(query, 0);
-        if (iResourceStock >= iMineralCost)
-        {
-          player.craftJob = new CraftJob(blueprint.baseItemType, sMaterial, iJobDuration, player);
-          player.craftJob.RemoveUsedResources(player, iResourceStock, iMineralCost, sMaterial);
-          
-          NWScript.SendMessageToPC(player.oid, $"Vous venez de démarrer la fabrication de l'objet artisanal : {blueprint.name} en {sMaterial}");
-          // TODO : afficher des effets visuels sur la forge
+        player.craftJob = new CraftJob(blueprint.baseItemType, sMaterial, iJobDuration, player);
+        player.materialStock[sMaterial] -= iMineralCost;
 
-          if (NWScript.GetTag(oTarget) == blueprint.craftedItemTag) // En cas d'amélioration d'un objet, on détruit l'original
-            NWScript.DestroyObject(oTarget);
+        NWScript.SendMessageToPC(player.oid, $"Vous venez de démarrer la fabrication de l'objet artisanal : {blueprint.name} en {sMaterial}");
+        // TODO : afficher des effets visuels sur la forge
 
-          // s'il s'agit d'une copie de blueprint, alors le nombre d'utilisation diminue de 1
-          int iBlueprintRemainingRuns = NWScript.GetLocalInt(oItem, "_BLUEPRINT_RUNS");
-          if (iBlueprintRemainingRuns <= 1)
-            NWScript.DestroyObject(oItem);
-          else
-            NWScript.SetLocalInt(oItem, "_BLUEPRINT_RUNS", iBlueprintRemainingRuns - 1);
+        if (NWScript.GetTag(oTarget) == blueprint.craftedItemTag) // En cas d'amélioration d'un objet, on détruit l'original
+          NWScript.DestroyObject(oTarget);
 
-          ItemSystem.DecreaseItemDurability(NWScript.GetItemInSlot(NWScript.INVENTORY_SLOT_RIGHTHAND, player.oid));
-        }
+        // s'il s'agit d'une copie de blueprint, alors le nombre d'utilisation diminue de 1
+        int iBlueprintRemainingRuns = NWScript.GetLocalInt(oItem, "_BLUEPRINT_RUNS");
+        if (iBlueprintRemainingRuns == 1)
+          NWScript.DestroyObject(oItem);
         else
-          NWScript.SendMessageToPC(player.oid, $"Vous n'avez pas les ressources nécessaires pour démarrer la fabrication de cet objet artisanal.");
+          NWScript.SetLocalInt(oItem, "_BLUEPRINT_RUNS", iBlueprintRemainingRuns - 1);
+
+        ItemSystem.DecreaseItemDurability(NWScript.GetItemInSlot(NWScript.INVENTORY_SLOT_RIGHTHAND, player.oid));
       }
       else
         NWScript.SendMessageToPC(player.oid, $"Vous n'avez pas les ressources nécessaires pour démarrer la fabrication de cet objet artisanal.");
 
       player.craftJob.isCancelled = false;
-    }
-    private void RemoveUsedResources(Player player, int iResourceStock, int iMineralCost, string sMaterial)
-    {
-      var query = NWScript.SqlPrepareQueryCampaign(ModuleSystem.database, $"UPDATE playerMaterialStorage SET {sMaterial} = @iResourceStock where characterId = @characterId");
-      NWScript.SqlBindInt(query, "@characterId", player.characterId);
-      NWScript.SqlBindInt(query, "@iResourceStock", iResourceStock - iMineralCost);
-      NWScript.SqlStep(query);
     }
     public void StartBlueprintCopy(Player player, uint oBlueprint, Blueprint blueprint)
     {
