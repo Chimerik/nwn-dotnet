@@ -115,9 +115,9 @@ namespace NWN.Systems
     {
       return new ItemProperty[]
       {
-          NWScript.ItemPropertyDamageVulnerability(NWScript.DAMAGE_TYPE_FIRE, NWScript.IP_CONST_DAMAGEVULNERABILITY_50_PERCENT),
-          NWScript.ItemPropertyDamageVulnerability(NWScript.DAMAGE_TYPE_COLD, NWScript.IP_CONST_DAMAGEVULNERABILITY_50_PERCENT),
-          NWScript.ItemPropertyDamageVulnerability(NWScript.DAMAGE_TYPE_ELECTRICAL, NWScript.IP_CONST_DAMAGEVULNERABILITY_50_PERCENT),
+          NWScript.ItemPropertyDamageVulnerability(NWScript.IP_CONST_DAMAGETYPE_FIRE, NWScript.IP_CONST_DAMAGEVULNERABILITY_50_PERCENT),
+          NWScript.ItemPropertyDamageVulnerability(NWScript.IP_CONST_DAMAGETYPE_COLD, NWScript.IP_CONST_DAMAGEVULNERABILITY_50_PERCENT),
+          NWScript.ItemPropertyDamageVulnerability(NWScript.IP_CONST_DAMAGETYPE_ELECTRICAL, NWScript.IP_CONST_DAMAGEVULNERABILITY_50_PERCENT),
           NWScript.ItemPropertyWeightIncrease(NWScript.IP_CONST_WEIGHTINCREASE_15_LBS)
       };
     }
@@ -138,50 +138,50 @@ namespace NWN.Systems
       {
         return new ItemProperty[]
         {
-          NWScript.ItemPropertyDamageVulnerability(NWScript.DAMAGE_TYPE_FIRE, NWScript.IP_CONST_DAMAGEVULNERABILITY_25_PERCENT),
-          NWScript.ItemPropertyDamageVulnerability(NWScript.DAMAGE_TYPE_COLD, NWScript.IP_CONST_DAMAGEVULNERABILITY_25_PERCENT),
-          NWScript.ItemPropertyDamageVulnerability(NWScript.DAMAGE_TYPE_ELECTRICAL, NWScript.IP_CONST_DAMAGEVULNERABILITY_25_PERCENT),
+          NWScript.ItemPropertyDamageVulnerability(NWScript.IP_CONST_DAMAGETYPE_FIRE, NWScript.IP_CONST_DAMAGEVULNERABILITY_25_PERCENT),
+          NWScript.ItemPropertyDamageVulnerability(NWScript.IP_CONST_DAMAGETYPE_COLD, NWScript.IP_CONST_DAMAGEVULNERABILITY_25_PERCENT),
+          NWScript.ItemPropertyDamageVulnerability(NWScript.IP_CONST_DAMAGETYPE_ELECTRICAL, NWScript.IP_CONST_DAMAGEVULNERABILITY_25_PERCENT),
           NWScript.ItemPropertyWeightIncrease(NWScript.IP_CONST_WEIGHTINCREASE_10_LBS),
           NWScript.ItemPropertyAttackBonusVsRace(NWScript.RACIAL_TYPE_HUMANOID_GOBLINOID, 1),
           NWScript.ItemPropertyAttackBonusVsRace(NWScript.RACIAL_TYPE_HUMANOID_REPTILIAN, 1),
-          NWScript.ItemPropertyDamageBonusVsRace(NWScript.RACIAL_TYPE_HUMANOID_GOBLINOID, NWScript.DAMAGE_TYPE_BASE_WEAPON, NWScript.DAMAGE_BONUS_1),
-          NWScript.ItemPropertyDamageBonusVsRace(NWScript.RACIAL_TYPE_HUMANOID_REPTILIAN, NWScript.DAMAGE_TYPE_BASE_WEAPON, NWScript.DAMAGE_BONUS_1)
+          NWScript.ItemPropertyDamageBonusVsRace(NWScript.RACIAL_TYPE_HUMANOID_GOBLINOID, NWScript.IP_CONST_DAMAGETYPE_PHYSICAL, NWScript.DAMAGE_BONUS_1),
+          NWScript.ItemPropertyDamageBonusVsRace(NWScript.RACIAL_TYPE_HUMANOID_REPTILIAN, NWScript.IP_CONST_DAMAGETYPE_PHYSICAL, NWScript.DAMAGE_BONUS_1)
         };
       }
     public static ItemProperty[] GetPyeriteTwoHandedMeleeWeaponProperties()
     {
       return new ItemProperty[]
       {
-          NWScript.ItemPropertyDamageVulnerability(NWScript.DAMAGE_TYPE_FIRE, NWScript.IP_CONST_DAMAGEVULNERABILITY_25_PERCENT),
-          NWScript.ItemPropertyDamageVulnerability(NWScript.DAMAGE_TYPE_COLD, NWScript.IP_CONST_DAMAGEVULNERABILITY_25_PERCENT),
-          NWScript.ItemPropertyDamageVulnerability(NWScript.DAMAGE_TYPE_ELECTRICAL, NWScript.IP_CONST_DAMAGEVULNERABILITY_25_PERCENT),
+          NWScript.ItemPropertyDamageVulnerability(NWScript.IP_CONST_DAMAGETYPE_FIRE, NWScript.IP_CONST_DAMAGEVULNERABILITY_25_PERCENT),
+          NWScript.ItemPropertyDamageVulnerability(NWScript.IP_CONST_DAMAGETYPE_COLD, NWScript.IP_CONST_DAMAGEVULNERABILITY_25_PERCENT),
+          NWScript.ItemPropertyDamageVulnerability(NWScript.IP_CONST_DAMAGETYPE_ELECTRICAL, NWScript.IP_CONST_DAMAGEVULNERABILITY_25_PERCENT),
           NWScript.ItemPropertyWeightIncrease(NWScript.IP_CONST_WEIGHTINCREASE_10_LBS),
           NWScript.ItemPropertyAttackBonusVsRace(NWScript.RACIAL_TYPE_HUMANOID_GOBLINOID, 2),
           NWScript.ItemPropertyAttackBonusVsRace(NWScript.RACIAL_TYPE_HUMANOID_REPTILIAN, 2),
-          NWScript.ItemPropertyDamageBonusVsRace(NWScript.RACIAL_TYPE_HUMANOID_GOBLINOID, NWScript.DAMAGE_TYPE_BASE_WEAPON, NWScript.DAMAGE_BONUS_2),
-          NWScript.ItemPropertyDamageBonusVsRace(NWScript.RACIAL_TYPE_HUMANOID_REPTILIAN, NWScript.DAMAGE_TYPE_BASE_WEAPON, NWScript.DAMAGE_BONUS_2)
+          NWScript.ItemPropertyDamageBonusVsRace(NWScript.RACIAL_TYPE_HUMANOID_GOBLINOID, NWScript.IP_CONST_DAMAGETYPE_PHYSICAL, NWScript.DAMAGE_BONUS_2),
+          NWScript.ItemPropertyDamageBonusVsRace(NWScript.RACIAL_TYPE_HUMANOID_REPTILIAN, NWScript.IP_CONST_DAMAGETYPE_PHYSICAL, NWScript.DAMAGE_BONUS_2)
       };
     }
     public static ItemProperty[] GetPyeriteArmorProperties()
     {
       return new ItemProperty[]
       {
-          NWScript.ItemPropertyDamageVulnerability(NWScript.DAMAGE_TYPE_FIRE, NWScript.IP_CONST_DAMAGEVULNERABILITY_25_PERCENT),
-          NWScript.ItemPropertyDamageVulnerability(NWScript.DAMAGE_TYPE_COLD, NWScript.IP_CONST_DAMAGEVULNERABILITY_25_PERCENT),
-          NWScript.ItemPropertyDamageVulnerability(NWScript.DAMAGE_TYPE_ELECTRICAL, NWScript.IP_CONST_DAMAGEVULNERABILITY_25_PERCENT),
+          NWScript.ItemPropertyDamageVulnerability(NWScript.IP_CONST_DAMAGETYPE_FIRE, NWScript.IP_CONST_DAMAGEVULNERABILITY_25_PERCENT),
+          NWScript.ItemPropertyDamageVulnerability(NWScript.IP_CONST_DAMAGETYPE_COLD, NWScript.IP_CONST_DAMAGEVULNERABILITY_25_PERCENT),
+          NWScript.ItemPropertyDamageVulnerability(NWScript.IP_CONST_DAMAGETYPE_ELECTRICAL, NWScript.IP_CONST_DAMAGEVULNERABILITY_25_PERCENT),
           NWScript.ItemPropertyWeightIncrease(NWScript.IP_CONST_WEIGHTINCREASE_10_LBS),
-          NWScript.ItemPropertyACBonusVsDmgType(NWScript.DAMAGE_TYPE_BLUDGEONING, 1)
+          NWScript.ItemPropertyACBonusVsDmgType(NWScript.IP_CONST_DAMAGETYPE_BLUDGEONING, 1)
       };
     }
     public static ItemProperty[] GetPyeriteShieldProperties()
     {
       return new ItemProperty[]
       {
-          NWScript.ItemPropertyDamageVulnerability(NWScript.DAMAGE_TYPE_FIRE, NWScript.IP_CONST_DAMAGEVULNERABILITY_25_PERCENT),
-          NWScript.ItemPropertyDamageVulnerability(NWScript.DAMAGE_TYPE_COLD, NWScript.IP_CONST_DAMAGEVULNERABILITY_25_PERCENT),
-          NWScript.ItemPropertyDamageVulnerability(NWScript.DAMAGE_TYPE_ELECTRICAL, NWScript.IP_CONST_DAMAGEVULNERABILITY_25_PERCENT),
+          NWScript.ItemPropertyDamageVulnerability(NWScript.IP_CONST_DAMAGETYPE_FIRE, NWScript.IP_CONST_DAMAGEVULNERABILITY_25_PERCENT),
+          NWScript.ItemPropertyDamageVulnerability(NWScript.IP_CONST_DAMAGETYPE_COLD, NWScript.IP_CONST_DAMAGEVULNERABILITY_25_PERCENT),
+          NWScript.ItemPropertyDamageVulnerability(NWScript.IP_CONST_DAMAGETYPE_ELECTRICAL, NWScript.IP_CONST_DAMAGEVULNERABILITY_25_PERCENT),
           NWScript.ItemPropertyWeightIncrease(NWScript.IP_CONST_WEIGHTINCREASE_10_LBS),
-          NWScript.ItemPropertyACBonusVsDmgType(NWScript.DAMAGE_TYPE_PIERCING, 1)
+          NWScript.ItemPropertyACBonusVsDmgType(NWScript.IP_CONST_DAMAGETYPE_PIERCING, 1)
       };
     }
     public static ItemProperty[] GetPyeriteToolProperties()
