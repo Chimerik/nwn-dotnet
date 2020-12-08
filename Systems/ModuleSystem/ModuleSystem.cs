@@ -16,8 +16,6 @@ namespace NWN.Systems
     {
       { "module_heartbeat", HandleModuleHeartBeat },
       { "event_moduleload", HandleModuleLoad },
-      //  { "event_mouse_clic", EventMouseClick },
-      { "event_potager", EventPotager },
       { "_event_effects", EventEffects },
       { "onent_theater_sc", HandleEnterTheaterScene },
       { "onex_theater_sc", HandleExitTheaterScene },
@@ -49,17 +47,6 @@ namespace NWN.Systems
 
       return 0;
     }
-    private static int EventPotager(uint oidSelf)
-    {
-      Garden oGarden;
-      if (Garden.Potagers.TryGetValue(NWScript.GetLocalInt(oidSelf, "id"), out oGarden))
-      {
-        oGarden.PlanterFruit(EventsPlugin.GetEventData("FRUIT_NAME"), EventsPlugin.GetEventData("FRUIT_TAG"));
-      }
-
-      return 0;
-    }
-
     private static int EventEffects(uint oidSelf)
     {
       string current_event = EventsPlugin.GetCurrentEvent();

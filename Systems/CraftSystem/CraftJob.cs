@@ -120,7 +120,7 @@ namespace NWN.Systems
       int iMineralCost = blueprint.GetBlueprintMineralCostForPlayer(player, oItem);
       float iJobDuration = blueprint.GetBlueprintTimeCostForPlayer(player, oItem);
       iMineralCost -= iMineralCost * (int)mineralType / 10;
-
+      
       var query = NWScript.SqlPrepareQueryCampaign(ModuleSystem.database, $"SELECT {sMaterial} FROM playerMaterialStorage where characterId = @characterId");
       NWScript.SqlBindInt(query, "@characterId", player.characterId);
 
