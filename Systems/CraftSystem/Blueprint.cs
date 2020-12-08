@@ -56,40 +56,6 @@ namespace NWN.Systems
         this.craftedItemTag = NWScript.Get2DAString("baseitems", "label", baseItemType);
       } 
     }
-
-    /*public enum BlueprintType
-    {
-      Invalid = 0,
-      Dagger = 1,
-      Longsword = 2,
-      Chainshirt = 3,
-      Fullplate = 4,
-    }
-    public static BlueprintType GetBlueprintTypeFromName(string name)
-    {
-      switch (name)
-      {
-        case "Longsword": return BlueprintType.Longsword;
-        case "Fullplate": return BlueprintType.Fullplate;
-        case "Dagger": return BlueprintType.Dagger;
-        case "Chainshirt": return BlueprintType.Chainshirt;
-      }
-
-      return BlueprintType.Invalid;
-    }
-    public static string GetNameFromBlueprintType(BlueprintType type)
-    {
-      switch (type)
-      {
-        case BlueprintType.Longsword: return "Longsword";
-        case BlueprintType.Fullplate: return "Fullplate";
-        case BlueprintType.Dagger: return "Dagger";
-        case BlueprintType.Chainshirt: return "Chainshirt";
-      }
-
-      return "";
-    }*/
-
     public static ItemProperty[] GetCraftItemProperties(MineralType material, ItemSystem.ItemCategory itemCategory)
     {
       switch (material)
@@ -122,17 +88,6 @@ namespace NWN.Systems
           NWScript.SendMessageToPC(oidSelf, "Vous devez sélectionner un patron valide.");
       }
     }
-    /*public static Blueprint InitializeBlueprint(uint oItem)
-    {
-      var item = oItem;
-      Blueprint blueprint;
-      BlueprintType blueprintType = GetBlueprintTypeFromName(NWScript.GetName(item));
-
-      if (CollectSystem.blueprintDictionnary.ContainsKey(blueprintType))
-        return blueprint = CollectSystem.blueprintDictionnary[blueprintType];
-      else
-        return blueprint = new Blueprint(blueprintType);
-    }*/
     private void StartJob(Player player, uint blueprint, Feat feat)
     {
       switch (feat)
@@ -202,8 +157,10 @@ namespace NWN.Systems
     {
       if (NWScript.GetTag(oTarget) == this.workshopTag)
         return "Tritanium";
-      else 
-        return NWScript.GetLocalString(oTarget, "_ITEM_MATERIAL");
+      else if(NWScript.GetTag(oTarget) == this.craftedItemTag)
+        return GetNameFromMineralType(GetMineralTypeFromName(NWScript.GetLocalString(oTarget, "_ITEM_MATERIAL")) + 1);
+
+      return "Invalid";
     }
   }
 }

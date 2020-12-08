@@ -1,4 +1,5 @@
-﻿using NWN.Core;
+﻿using System;
+using NWN.Core;
 using static NWN.Systems.PlayerSystem;
 
 namespace NWN.Systems
@@ -19,27 +20,21 @@ namespace NWN.Systems
         {
           if (player.craftJob.CanStartJob(player.oid, oItem))
           {
-            if (NWScript.GetTag(oTarget) == blueprint.workshopTag)
+            uint forge = NWScript.GetNearestObjectByTag(blueprint.workshopTag, player.oid);
+            
+            if (Convert.ToBoolean(NWScript.GetIsObjectValid(forge)) && NWScript.GetDistanceBetween(player.oid, forge) < 5)
             {
-              player.craftJob.Start(CraftJob.JobType.Item, blueprint, player, oItem, oTarget, "Tritanium", CollectSystem.MineralType.Tritanium);
-            }
-            else if (NWScript.GetTag(oTarget) == blueprint.craftedItemTag)
-            {
-              if (NWScript.GetNearestObjectByTag(blueprint.workshopTag, player.oid) != NWScript.OBJECT_INVALID)
-              {
-                string sMaterial = blueprint.GetMaterialFromTargetItem(oTarget);
-                CollectSystem.MineralType mineralType = CollectSystem.GetMineralTypeFromName(sMaterial);
+              string sMaterial = blueprint.GetMaterialFromTargetItem(oTarget);
+              
+              CollectSystem.MineralType mineralType = CollectSystem.GetMineralTypeFromName(sMaterial);
 
-                if (mineralType == CollectSystem.MineralType.Invalid)
-                  player.craftJob.Start(CraftJob.JobType.Item, blueprint, player, oItem, oTarget, sMaterial, mineralType);
-                else
-                  NWScript.SendMessageToPC(player.oid, "Cet objet ne peut pas être amélioré.");
-              }
+              if (mineralType != CollectSystem.MineralType.Invalid)
+                player.craftJob.Start(CraftJob.JobType.Item, blueprint, player, oItem, oTarget, sMaterial, mineralType);
               else
-                NWScript.SendMessageToPC(player.oid, $"Vous devez être à proximité d'un atelier de type {blueprint.workshopTag} pour commencer ce travail");
+                NWScript.SendMessageToPC(player.oid, "Ce patron ne permet pas d'améliorer cet objet.");
             }
             else
-              NWScript.SendMessageToPC(player.oid, "Ce patron ne permet pas d'améliorer ce type d'objet");
+              NWScript.SendMessageToPC(player.oid, $"Vous devez être à proximité d'un atelier de type {blueprint.workshopTag} pour commencer ce travail");
           }
         }
       }
