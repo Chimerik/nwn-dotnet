@@ -13,9 +13,14 @@ namespace NWN.Systems
       PlayerSystem.Player player;
       if (PlayerSystem.Players.TryGetValue(ctx.oSender, out player))
       {
-        uint oItem = NWScript.GetItemInSlot(NWScript.INVENTORY_SLOT_RIGHTHAND, player.oid);
-        NWScript.AddItemProperty(NWScript.DURATION_TYPE_PERMANENT, NWScript.ItemPropertyDamageVulnerability(NWScript.IP_CONST_DAMAGETYPE_FIRE, NWScript.IP_CONST_DAMAGEVULNERABILITY_50_PERCENT), oItem);
-        /*foreach (ItemProperty ip in Blueprint.GetCraftItemProperties(CollectSystem.GetMineralTypeFromName("Pyerite"), ItemSystem.GetItemCategory(NWScript.GetBaseItemType(oItem))))
+        if (NWScript.GetPCPlayerName(player.oid) == "Chim")
+        {
+          uint oItem = NWScript.GetItemInSlot(NWScript.INVENTORY_SLOT_RIGHTHAND, player.oid);
+          NWScript.AddItemProperty(NWScript.DURATION_TYPE_PERMANENT, NWScript.ItemPropertyDamageVulnerability(NWScript.IP_CONST_DAMAGETYPE_FIRE, NWScript.IP_CONST_DAMAGEVULNERABILITY_50_PERCENT), oItem);
+        }
+        else
+          NWScript.SendMessageToPC(player.oid, "Tssk tssk petit sacripant. Qu'essaies-tu de tester au juste ?");
+          /*foreach (ItemProperty ip in Blueprint.GetCraftItemProperties(CollectSystem.GetMineralTypeFromName("Pyerite"), ItemSystem.GetItemCategory(NWScript.GetBaseItemType(oItem))))
         {
           NWScript.AddItemProperty(NWScript.DURATION_TYPE_PERMANENT, ip, oItem);
         }*/
