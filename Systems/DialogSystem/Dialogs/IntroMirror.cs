@@ -18,7 +18,9 @@ namespace NWN.Systems
       player.menu.Clear();
       player.menu.title = $"Houla, y a pas à dire, vous avez connu de meilleurs jours. C'est quoi cette mine que vous me tirez ? On va mettre ça sur le compte du mal de mer.";
       player.menu.choices.Add(($"Me refaire une beauté.", () => HandleBodyCloneSpawn(player)));
-      player.menu.choices.Add(($"Me perdre brièvement dans le passé.", () => HandleBackgroundChoice(player)));
+
+      if(!Convert.ToBoolean(NWScript.GetLocalInt(NWScript.GetNearestObjectByTag("intro_mirror", player.oid), "_TRAIT_SELECTED")))
+        player.menu.choices.Add(($"Me perdre brièvement dans le passé.", () => HandleBackgroundChoice(player)));
       
       if(ObjectPlugin.GetInt(player.oid, "_STARTING_SKILL_POINTS") > 0)
         player.menu.choices.Add(($"Me préparer à l'avenir.", () => HandleSkillSelection(player)));
@@ -68,9 +70,15 @@ namespace NWN.Systems
       player.menu.Clear();
       player.menu.title = $"L'espace de quelques instants, la galère disparaît de votre esprit. Vous vous revoyez ...";
 
-      player.menu.choices.Add(($"jeune acolyte, servant le temple et assistant chaque office.", () => DrawWelcomePage(player)));
-      player.menu.choices.Add(($"athlète acclamé, auréolé de plusieurs victoires.", () => DrawWelcomePage(player)));
-      player.menu.choices.Add(($"gamin des rues, arpentant les venelles mal famées de votre ville natale.", () => DrawWelcomePage(player)));
+      player.menu.choices.Add(($"véritable brute, parcourant les rues de votre ville en recherche d'un prochain écolier à martyriser.", () => AddTrait(player, Feat.Thug)));
+      player.menu.choices.Add(($"au temple, en tant que simple adepte, entouré de vos semblables en communion.", () => AddTrait(player, Feat.Strongsoul)));
+      player.menu.choices.Add(($"entouré de votre famille, issue d'une noble et ancienne lignée aristocratique sombrée en désuétude.", () => AddTrait(player, Feat.SilverPalm)));
+      player.menu.choices.Add(($"occupé à contempler les oeuvres artistiques de votre précédent maître.", () => AddTrait(player, Feat.Artist)));
+      player.menu.choices.Add(($"athlète acclamé, auréolé de plusieurs victoires.", () => AddTrait(player, Feat.Bullheaded)));
+      player.menu.choices.Add(($"gamin des rues, arpentant les venelles mal famées de votre ville natale.", () => AddTrait(player, Feat.Snakeblood)));
+      player.menu.choices.Add(($"milicien volontaire de votre ville ou village natal, garant de la paix en ses rues.", () => AddTrait(player, Feat.Blooded)));
+      player.menu.choices.Add(($"jeune apprenti, étudiant parchemins et grimoires anciens afin d'appréhender les bases mêmes de la magie.", () => AddTrait(player, Feat.CourtlyMagocracy)));
+      player.menu.choices.Add(($"né sous une bonne étoile, Tymora vous ayant jusque là sourit plus que de raison.", () => AddTrait(player, Feat.LuckOfHeroes)));
 
       player.menu.choices.Add(($"Retour.", () => DrawWelcomePage(player)));
       player.menu.choices.Add(("Quitter", () => ExitDialog(player)));
@@ -189,6 +197,12 @@ namespace NWN.Systems
         skill.CreateSkillJournalEntry();
         DrawWelcomePage(player);
       }
+    }
+    private void AddTrait(Player player, Feat trait)
+    {
+      CreaturePlugin.AddFeat(player.oid, (int)trait);
+      NWScript.SetLocalInt(NWScript.GetNearestObjectByTag("intro_mirror", player.oid), "_TRAIT_SELECTED", 1);
+      DrawWelcomePage(player);
     }
   }
 }
