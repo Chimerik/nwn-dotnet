@@ -12,7 +12,8 @@ namespace NWN.Systems
       PlayerSystem.Player player;
       if (PlayerSystem.Players.TryGetValue(ctx.oSender, out player))
       {
-        if (NWScript.GetTag(NWScript.GetItemInSlot(NWScript.INVENTORY_SLOT_RIGHTHAND, player.oid)) == "extracteur")
+        uint oExtractor = NWScript.GetItemInSlot(NWScript.INVENTORY_SLOT_RIGHTHAND, player.oid);
+        if (NWScript.GetBaseItemType(oExtractor) == 115) // 115 = extracteur
         {
           Action<uint, Vector3> callback = (uint target, Vector3 position) =>
           {
@@ -25,6 +26,7 @@ namespace NWN.Systems
                 {
                   NWScript.SendMessageToPC(player.oid, "Cycle cancelled");
                   Utils.RemoveTaggedEffect(oPlaceable, $"_{NWScript.GetPCPublicCDKey(player.oid)}_MINING_BEAM");
+                  ItemSystem.DecreaseItemDurability(oExtractor);
                   CollectSystem.RemoveMiningCycleCallbacks(player);   // supprimer la callback de CompleteMiningCycle
               };
 
@@ -36,12 +38,11 @@ namespace NWN.Systems
 
                   if (NWScript.GetIsObjectValid(oPlaceable) == 1 && NWScript.GetDistanceBetween(player.oid, oPlaceable) >= 5.0f)
                   {
-                    var miningStriper = NWScript.GetItemInSlot(NWScript.INVENTORY_SLOT_RIGHTHAND, player.oid);
                     int miningYield = 0;
 
-                    if (NWScript.GetIsObjectValid(miningStriper) == 1) // TODO : Idée pour plus tard, le strip miner le plus avancé pourra équipper un cristal de spécialisation pour extraire deux fois plus de minerai en un cycle sur son minerai de spécialité
+                    if (NWScript.GetIsObjectValid(oExtractor) == 1) // TODO : Idée pour plus tard, le strip miner le plus avancé pourra équipper un cristal de spécialisation pour extraire deux fois plus de minerai en un cycle sur son minerai de spécialité
                     {
-                      miningYield = NWScript.GetLocalInt(miningStriper, "_ITEM_LEVEL") * 50;
+                      miningYield = NWScript.GetLocalInt(oExtractor, "_ITEM_LEVEL") * 50;
                       int bonusYield = 0;
 
                       int value;
@@ -76,11 +77,7 @@ namespace NWN.Systems
                       var ore = NWScript.CreateItemOnObject("ore", player.oid, miningYield, NWScript.GetName(oPlaceable));
                       NWScript.SetName(ore, NWScript.GetName(oPlaceable));
 
-                      int stripperDurability = NWScript.GetLocalInt(miningStriper, "_DURABILITY");
-                      if (stripperDurability <= 1)
-                        NWScript.DestroyObject(miningStriper);
-                      else
-                        NWScript.SetLocalInt(miningStriper, "_DURABILITY", stripperDurability - 1);
+                      ItemSystem.DecreaseItemDurability(oExtractor);
                     }
                   }
                   else

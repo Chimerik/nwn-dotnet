@@ -20,21 +20,26 @@ namespace NWN.Systems
         {
           if (player.craftJob.CanStartJob(player.oid, oItem))
           {
-            uint forge = NWScript.GetNearestObjectByTag(blueprint.workshopTag, player.oid);
-            
-            if (Convert.ToBoolean(NWScript.GetIsObjectValid(forge)) && NWScript.GetDistanceBetween(player.oid, forge) < 5)
+            if (NWScript.GetBaseItemType(NWScript.GetItemInSlot(NWScript.INVENTORY_SLOT_RIGHTHAND, player.oid)) == 114) // 114 = marteau de forgeron
             {
-              string sMaterial = blueprint.GetMaterialFromTargetItem(oTarget);
-              
-              CollectSystem.MineralType mineralType = CollectSystem.GetMineralTypeFromName(sMaterial);
+              uint forge = NWScript.GetNearestObjectByTag(blueprint.workshopTag, player.oid);
 
-              if (mineralType != CollectSystem.MineralType.Invalid)
-                player.craftJob.Start(CraftJob.JobType.Item, blueprint, player, oItem, oTarget, sMaterial, mineralType);
+              if (Convert.ToBoolean(NWScript.GetIsObjectValid(forge)) && NWScript.GetDistanceBetween(player.oid, forge) < 5)
+              {
+                string sMaterial = blueprint.GetMaterialFromTargetItem(oTarget);
+
+                CollectSystem.MineralType mineralType = CollectSystem.GetMineralTypeFromName(sMaterial);
+
+                if (mineralType != CollectSystem.MineralType.Invalid)
+                  player.craftJob.Start(CraftJob.JobType.Item, blueprint, player, oItem, oTarget, sMaterial, mineralType);
+                else
+                  NWScript.SendMessageToPC(player.oid, "Ce patron ne permet pas d'améliorer cet objet.");
+              }
               else
-                NWScript.SendMessageToPC(player.oid, "Ce patron ne permet pas d'améliorer cet objet.");
+                NWScript.SendMessageToPC(player.oid, $"Vous devez être à proximité d'un atelier de type {blueprint.workshopTag} pour commencer ce travail");
             }
             else
-              NWScript.SendMessageToPC(player.oid, $"Vous devez être à proximité d'un atelier de type {blueprint.workshopTag} pour commencer ce travail");
+              NWScript.SendMessageToPC(player.oid, $"Vous devez avoir un marteau de forgeron en main pour commencer le travail.");
           }
         }
       }

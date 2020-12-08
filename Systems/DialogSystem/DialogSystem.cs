@@ -75,7 +75,7 @@ namespace NWN.Systems
 
               foreach (Feat feat in SkillSystem.forgeBasicSkillBooks)
               {
-                uint skillBook = NWScript.CreateItemOnObject("skillbookgeneriq", shop, 10, "skillbook");
+                uint skillBook = NWScript.CreateItemOnObject("skillbookgeneriq", shop, 1, "skillbook");
                 ItemPlugin.SetItemAppearance(skillBook, NWScript.ITEM_APPR_TYPE_SIMPLE_MODEL, 2, Utils.random.Next(0, 50));
                 NWScript.SetLocalInt(skillBook, "_SKILL_ID", (int)feat);
 
@@ -91,29 +91,13 @@ namespace NWN.Systems
               }
             }
 
-            NWScript.OpenStore(shop, player.oid);
-            break;
-          case "blueprintbank":
-            shop = NWScript.GetNearestObjectByTag("skillbank_shop", oidSelf);
-            
-            if (!Convert.ToBoolean(NWScript.GetIsObjectValid(shop)))
-            {
-              shop = NWScript.CreateObject(NWScript.OBJECT_TYPE_STORE, "generic_shop_res", NWScript.GetLocation(oidSelf), 0, "skillbank_shop");
-              NWScript.SetLocalObject(shop, "_STORE_NPC", oidSelf);
+            uint craftTool = NWScript.CreateItemOnObject("oreextractor", shop, 1, "oreextractor");
+            //ItemPlugin.SetBaseGoldPieceValue(craftTool, NWScript.GetBaseItemType(craftTool));
+            NWScript.SetLocalInt(craftTool, "_DURABILITY", 10);
 
-              foreach (int baseItemType in CollectSystem.forgeBasicBlueprints)
-              {
-                Blueprint blueprint = new Blueprint(baseItemType);
-
-                if (!CollectSystem.blueprintDictionnary.ContainsKey(baseItemType))
-                  CollectSystem.blueprintDictionnary.Add(baseItemType, blueprint);
-
-                uint oBlueprint = NWScript.CreateItemOnObject("blueprintgeneric", shop, 10, "blueprint");
-                NWScript.SetName(oBlueprint, $"Patron : {blueprint.name}");
-                NWScript.SetLocalInt(oBlueprint, "_BASE_ITEM_TYPE", baseItemType);
-                ItemPlugin.SetBaseGoldPieceValue(oBlueprint, blueprint.goldCost);
-              }
-            }
+            craftTool = NWScript.CreateItemOnObject("forgehammer", shop, 1, "forgehammer");
+            //ItemPlugin.SetBaseGoldPieceValue(craftTool, NWScript.GetBaseItemType(craftTool));
+            NWScript.SetLocalInt(craftTool, "_DURABILITY", 5);
 
             NWScript.OpenStore(shop, player.oid);
             break;
@@ -158,33 +142,6 @@ namespace NWN.Systems
               NWScript.OpenStore(shop, player.oid);
             } 
             break;
-          case "skillbank":
-              shop = NWScript.GetNearestObjectByTag("skillbank_shop", oidSelf);
-
-              if (!Convert.ToBoolean(NWScript.GetIsObjectValid(shop)))
-              {
-                shop = NWScript.CreateObject(NWScript.OBJECT_TYPE_STORE, "generic_shop_res", NWScript.GetLocation(oidSelf), 0, "skillbank_shop");
-
-                foreach (Feat feat in SkillSystem.languageSkillBooks)
-                {
-                  uint skillBook = NWScript.CreateItemOnObject("skillbookgeneriq", shop, 10, "skillbook");
-                  ItemPlugin.SetItemAppearance(skillBook, NWScript.ITEM_APPR_TYPE_SIMPLE_MODEL, 2, Utils.random.Next(0, 50));
-                  NWScript.SetLocalInt(skillBook, "_SKILL_ID", (int)feat);
-
-                  int value;
-                  if (int.TryParse(NWScript.Get2DAString("feat", "FEAT", (int)feat), out value))
-                    NWScript.SetName(skillBook, NWScript.GetStringByStrRef(value));
-
-                  if (int.TryParse(NWScript.Get2DAString("feat", "DESCRIPTION", (int)feat), out value))
-                    NWScript.SetDescription(skillBook, NWScript.GetStringByStrRef(value));
-
-                  if (int.TryParse(NWScript.Get2DAString("feat", "CRValue", (int)feat), out value))
-                    ItemPlugin.SetBaseGoldPieceValue(skillBook, value * 1000);
-                }
-              }
-
-              NWScript.OpenStore(shop, player.oid);
-              break;
         }
       }
         
