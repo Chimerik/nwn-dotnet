@@ -15,85 +15,94 @@ namespace NWN.Systems
           Action<uint, Vector3> callback = (uint target, Vector3 position) =>
           {
             var oPlaceable = target;
-            if (NWScript.GetTag(oPlaceable) == "fissurerocheuse")
+            uint oExtractor = NWScript.GetItemInSlot(NWScript.INVENTORY_SLOT_RIGHTHAND, player.oid);
+            if (NWScript.GetBaseItemType(oExtractor) == 115) // 115 = extracteur
             {
-              if (NWScript.GetDistanceBetween(player.oid, oPlaceable) < 5.0f)
+              if (NWScript.GetTag(oPlaceable) == "fissurerocheuse")
               {
-                Action cancelCycle = () =>
+                if (NWScript.GetDistanceBetween(player.oid, oPlaceable) < 5.0f)
                 {
-                  NWScript.SendMessageToPC(player.oid, "Cycle cancelled");
-                  Utils.RemoveTaggedEffect(oPlaceable, $"_{NWScript.GetPCPublicCDKey(player.oid)}_MINING_BEAM");
-                  CollectSystem.RemoveMiningCycleCallbacks(player);   // supprimer la callback de CompleteMiningCycle
+                  Action cancelCycle = () =>
+                  {
+                    NWScript.SendMessageToPC(player.oid, "Cycle cancelled");
+                    Utils.RemoveTaggedEffect(oPlaceable, $"_{NWScript.GetPCPublicCDKey(player.oid)}_MINING_BEAM");
+                    ItemSystem.DecreaseItemDurability(oExtractor);
+                    CollectSystem.RemoveMiningCycleCallbacks(player);   // supprimer la callback de CompleteMiningCycle
                 };
 
-                Action completeCycle = () =>
-                {
-                  NWScript.SendMessageToPC(player.oid, "Entering Cycle completed callback");
-                  Utils.RemoveTaggedEffect(oPlaceable, $"_{NWScript.GetPCPublicCDKey(player.oid)}_MINING_BEAM");
-                  CollectSystem.RemoveMiningCycleCallbacks(player);   // supprimer la callback de Cancel MiningCycle
+                  Action completeCycle = () =>
+                  {
+                    NWScript.SendMessageToPC(player.oid, "Entering Cycle completed callback");
+                    Utils.RemoveTaggedEffect(oPlaceable, $"_{NWScript.GetPCPublicCDKey(player.oid)}_MINING_BEAM");
+                    CollectSystem.RemoveMiningCycleCallbacks(player);   // supprimer la callback de Cancel MiningCycle
 
                   if (NWScript.GetIsObjectValid(oPlaceable) == 1 && NWScript.GetDistanceBetween(player.oid, oPlaceable) >= 5.0f)
-                  {
-                    var ressourcePoint = NWScript.GetNearestObjectByTag("ressourcepoint", oPlaceable, 1);
-                    int i = 2;
-                    int skillBonus = 0;
-                    int value;
-                    if (int.TryParse(NWScript.Get2DAString("feat", "GAINMULTIPLE", CreaturePlugin.GetHighestLevelOfFeat(player.oid, (int)Feat.Geology)), out value)) 
                     {
-                      skillBonus += value;
-                    }
-
-                    if (int.TryParse(NWScript.Get2DAString("feat", "GAINMULTIPLE", CreaturePlugin.GetHighestLevelOfFeat(player.oid, (int)Feat.Prospection)), out value)) 
-                    {
-                      skillBonus += value;
-                    }
-
-                    int respawnChance = skillBonus * 5;
-
-                    while (NWScript.GetIsObjectValid(ressourcePoint) == 1)
-                    {
-                      if (NWScript.GetDistanceBetween(oPlaceable, ressourcePoint) > 20.0f)
-                        break;
-
-                      string ressourceType = NWScript.GetLocalString(ressourcePoint, "_RESSOURCE_TYPE");
-
-                      int iRandom = Utils.random.Next(1, 101);
-
-                      if (iRandom < respawnChance)
+                      var ressourcePoint = NWScript.GetNearestObjectByTag("ressourcepoint", oPlaceable, 1);
+                      int i = 2;
+                      int skillBonus = 0;
+                      int value;
+                      if (int.TryParse(NWScript.Get2DAString("feat", "GAINMULTIPLE", CreaturePlugin.GetHighestLevelOfFeat(player.oid, (int)Feat.Geology)), out value))
                       {
-                        var newRock = NWScript.CreateObject(NWScript.OBJECT_TYPE_PLACEABLE, "mineable_rock", NWScript.GetLocation(ressourcePoint));
-                        NWScript.SetName(newRock, ressourceType);
-                        NWScript.SetLocalInt(newRock, "_ORE_AMOUNT", 200 * iRandom + 200 * iRandom * skillBonus / 100);
-                        NWScript.DestroyObject(oPlaceable);
+                        skillBonus += value;
                       }
 
-                      ressourcePoint = NWScript.GetNearestObjectByTag("ressourcepoint", oPlaceable, i);
-                      i++;
-                    }
+                      if (int.TryParse(NWScript.Get2DAString("feat", "GAINMULTIPLE", CreaturePlugin.GetHighestLevelOfFeat(player.oid, (int)Feat.Prospection)), out value))
+                      {
+                        skillBonus += value;
+                      }
 
-                    i = 1;
-                    uint creatureSpawn = NWScript.GetNearestObjectByTag("disturbed_creature_spawn", oPlaceable);
-                    
-                    while(Convert.ToBoolean(NWScript.GetIsObjectValid(creatureSpawn)) || NWScript.GetDistanceBetween(oPlaceable, creatureSpawn) < 25.0f)
+                      int respawnChance = skillBonus * 5;
+
+                      while (NWScript.GetIsObjectValid(ressourcePoint) == 1)
+                      {
+                        if (NWScript.GetDistanceBetween(oPlaceable, ressourcePoint) > 20.0f)
+                          break;
+
+                        string ressourceType = NWScript.GetLocalString(ressourcePoint, "_RESSOURCE_TYPE");
+
+                        int iRandom = Utils.random.Next(1, 101);
+
+                        if (iRandom < respawnChance)
+                        {
+                          var newRock = NWScript.CreateObject(NWScript.OBJECT_TYPE_PLACEABLE, "mineable_rock", NWScript.GetLocation(ressourcePoint));
+                          NWScript.SetName(newRock, ressourceType);
+                          NWScript.SetLocalInt(newRock, "_ORE_AMOUNT", 200 * iRandom + 200 * iRandom * skillBonus / 100);
+                          NWScript.DestroyObject(oPlaceable);
+                        }
+
+                        ressourcePoint = NWScript.GetNearestObjectByTag("ressourcepoint", oPlaceable, i);
+                        i++;
+                      }
+
+                      i = 1;
+                      uint creatureSpawn = NWScript.GetNearestObjectByTag("disturbed_creature_spawn", oPlaceable);
+
+                      while (Convert.ToBoolean(NWScript.GetIsObjectValid(creatureSpawn)) || NWScript.GetDistanceBetween(oPlaceable, creatureSpawn) < 25.0f)
+                      {
+                        NWScript.CreateObject(NWScript.OBJECT_TYPE_CREATURE, NWScript.GetLocalString(creatureSpawn, "_CREATURE_TEMPLATE"), NWScript.GetLocation(creatureSpawn));
+                        i++;
+                        creatureSpawn = NWScript.GetNearestObjectByTag("disturbed_creature_spawn", oPlaceable, i);
+                      }
+
+                      ItemSystem.DecreaseItemDurability(oExtractor);
+                    }
+                    else
                     {
-                      NWScript.CreateObject(NWScript.OBJECT_TYPE_CREATURE, NWScript.GetLocalString(creatureSpawn, "_CREATURE_TEMPLATE"), NWScript.GetLocation(creatureSpawn));
-                      i++;
-                      creatureSpawn = NWScript.GetNearestObjectByTag("disturbed_creature_spawn", oPlaceable, i);
+                      NWScript.SendMessageToPC(player.oid, "Vous êtes trop éloigné de la veine ciblée, ou alors celle-ci n'existe plus.");
                     }
-                  }
-                  else
-                  {
-                    NWScript.SendMessageToPC(player.oid, "Vous êtes trop éloigné de la veine ciblée, ou alors celle-ci n'existe plus.");
-                  }
-                };
+                  };
 
-                CollectSystem.StartMiningCycle(player, oPlaceable, cancelCycle, completeCycle);
+                  CollectSystem.StartMiningCycle(player, oPlaceable, cancelCycle, completeCycle);
+                }
+                else
+                  NWScript.SendMessageToPC(player.oid, $"{NWScript.GetName(oPlaceable)} n'est pas à portée. Rapprochez-vous pour démarrer l'extraction.");
               }
               else
-                NWScript.SendMessageToPC(player.oid, $"{NWScript.GetName(oPlaceable)} n'est pas à portée. Rapprochez-vous pour démarrer l'extraction.");
+                NWScript.SendMessageToPC(player.oid, $"{NWScript.GetName(oPlaceable)} n'est pas un filon de minerai. Impossible de démarrer l'extraction.");
             }
             else
-              NWScript.SendMessageToPC(player.oid, $"{NWScript.GetName(oPlaceable)} n'est pas un filon de minerai. Impossible de démarrer l'extraction.");
+              NWScript.SendMessageToPC(player.oid, $"Il vous faut vous munir d'un extracteur pour démarrer la prospection !");
           };
 
           player.SelectTarget(callback);

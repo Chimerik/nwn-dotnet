@@ -129,6 +129,7 @@ namespace NWN.Systems
         case ItemSystem.ItemCategory.TwoHandedMeleeWeapon: return GetPyeriteTwoHandedMeleeWeaponProperties();
         case ItemSystem.ItemCategory.Armor: return GetPyeriteArmorProperties();
         case ItemSystem.ItemCategory.Shield: return GetPyeriteShieldProperties();
+        case ItemSystem.ItemCategory.CraftTool: return GetPyeriteToolProperties();
       }
 
       return null;
@@ -181,6 +182,13 @@ namespace NWN.Systems
           NWScript.ItemPropertyDamageVulnerability(NWScript.DAMAGE_TYPE_ELECTRICAL, NWScript.IP_CONST_DAMAGEVULNERABILITY_25_PERCENT),
           NWScript.ItemPropertyWeightIncrease(NWScript.IP_CONST_WEIGHTINCREASE_10_LBS),
           NWScript.ItemPropertyACBonusVsDmgType(NWScript.DAMAGE_TYPE_PIERCING, 1)
+      };
+    }
+    public static ItemProperty[] GetPyeriteToolProperties()
+    {
+      return new ItemProperty[]
+      {
+          NWScript.ItemPropertyWeightIncrease(NWScript.IP_CONST_WEIGHTINCREASE_10_LBS),
       };
     }
   }

@@ -229,6 +229,14 @@ namespace NWN.Systems
         )
       },
       {
+        "prospect",
+        new Command(
+          name: "prospect",
+          description: new Command.Description(title: "Débute la recherche de filons sur la cible."),
+          execute: ExecuteStartProspectionCommand
+        )
+      },
+      {
         "test",
         new Command(
           name: "test",

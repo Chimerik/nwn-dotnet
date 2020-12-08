@@ -14,6 +14,7 @@ namespace NWN.Systems
       Shield = 3,
       Armor = 4,
       Ammunition = 5,
+      CraftTool = 6,
     }
 
     public static ItemCategory GetItemCategory(int baseItemType)
@@ -71,6 +72,9 @@ namespace NWN.Systems
         case NWScript.BASE_ITEM_BOLT:
         case NWScript.BASE_ITEM_BULLET:
           return ItemCategory.Ammunition;
+        case 114: //marteau de forgeron
+        case 115: //extracteur de minerai
+          return ItemCategory.CraftTool;
         default:
           return ItemCategory.Invalid;
       }
@@ -121,6 +125,14 @@ namespace NWN.Systems
         }
         ip = NWScript.GetNextItemProperty(oItem);
       }
+    }
+    public static void DecreaseItemDurability(uint oItem)
+    {
+      int stripperDurability = NWScript.GetLocalInt(oItem, "_DURABILITY");
+      if (stripperDurability <= 1)
+        NWScript.DestroyObject(oItem);
+      else
+        NWScript.SetLocalInt(oItem, "_DURABILITY", stripperDurability - 1);
     }
   }
 }

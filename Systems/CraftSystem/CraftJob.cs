@@ -140,10 +140,12 @@ namespace NWN.Systems
 
           // s'il s'agit d'une copie de blueprint, alors le nombre d'utilisation diminue de 1
           int iBlueprintRemainingRuns = NWScript.GetLocalInt(oItem, "_BLUEPRINT_RUNS");
-          if (iBlueprintRemainingRuns == 1)
+          if (iBlueprintRemainingRuns <= 1)
             NWScript.DestroyObject(oItem);
-          else if (iBlueprintRemainingRuns > 0)
+          else
             NWScript.SetLocalInt(oItem, "_BLUEPRINT_RUNS", iBlueprintRemainingRuns - 1);
+
+          ItemSystem.DecreaseItemDurability(NWScript.GetItemInSlot(NWScript.INVENTORY_SLOT_RIGHTHAND, player.oid));
         }
         else
           NWScript.SendMessageToPC(player.oid, $"Vous n'avez pas les ressources nécessaires pour démarrer la fabrication de cet objet artisanal.");
