@@ -28,11 +28,17 @@ namespace NWN
       {
         try
         {
-          Console.WriteLine($"script : {scriptName}");
+          if (scriptName != "module_heartbeat")
+            Console.WriteLine($"script : {scriptName}");
+            
           DateTime time = DateTime.Now;
           Module.currentScript = scriptName;
           scriptHandleResult = handler.Invoke(objectSelf);
-          Console.WriteLine($"execution time : {(DateTime.Now - time).TotalSeconds}");
+
+          if (scriptName != "module_heartbeat")
+          {
+            Console.WriteLine($"execution time : {(DateTime.Now - time).TotalSeconds}");
+          }
         }
         catch (Exception e)
         {

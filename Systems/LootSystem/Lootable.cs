@@ -97,9 +97,10 @@ namespace NWN.Systems
             {
               for (var i = 0; i < count; i++)
               {
-                if (Utils.random.Next(1, 100) <= chance)
+                int rand = Utils.random.Next(1, 101);
+                if (rand <= chance)
                 {
-                  NWScript.CopyItem(
+                  uint oItem = NWScript.CopyItem(
                       loots[Utils.random.Next(0, loots.Count - 1)],
                       oContainer,
                       1

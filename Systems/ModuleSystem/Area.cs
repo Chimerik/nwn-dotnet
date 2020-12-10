@@ -41,7 +41,7 @@ namespace NWN.Systems
 
       while (Convert.ToBoolean(NWScript.GetIsObjectValid(lootChest)))
       {
-        NWScript.DelayCommand(0.1f, () => NWScript.SetTag(lootChest, NWScript.GetLocalString(lootChest, "_LOOT_REFERENCE")));
+        NWScript.SetTag(lootChest, NWScript.GetLocalString(lootChest, "_LOOT_REFERENCE"));
 
         if (LootSystem.lootablesDic.ContainsKey(NWScript.GetLocalString(lootChest, "_LOOT_REFERENCE")))
           lootChestList.Add(lootChest);

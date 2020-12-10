@@ -78,7 +78,7 @@ namespace NWN.Systems
                       i = 1;
                       uint creatureSpawn = NWScript.GetNearestObjectByTag("disturbed_creature_spawn", oPlaceable);
 
-                      while (Convert.ToBoolean(NWScript.GetIsObjectValid(creatureSpawn)) || NWScript.GetDistanceBetween(oPlaceable, creatureSpawn) < 25.0f)
+                      while (Convert.ToBoolean(NWScript.GetIsObjectValid(creatureSpawn)) || NWScript.GetDistanceBetween(oPlaceable, creatureSpawn) < 50.0f)
                       {
                         NWScript.CreateObject(NWScript.OBJECT_TYPE_CREATURE, NWScript.GetLocalString(creatureSpawn, "_CREATURE_TEMPLATE"), NWScript.GetLocation(creatureSpawn));
                         i++;
@@ -96,10 +96,10 @@ namespace NWN.Systems
                   CollectSystem.StartMiningCycle(player, oPlaceable, cancelCycle, completeCycle);
                 }
                 else
-                  NWScript.SendMessageToPC(player.oid, $"{NWScript.GetName(oPlaceable)} n'est pas à portée. Rapprochez-vous pour démarrer l'extraction.");
+                  NWScript.SendMessageToPC(player.oid, $"{NWScript.GetName(oPlaceable)} n'est pas à portée. Rapprochez-vous pour démarrer la prospection.");
               }
               else
-                NWScript.SendMessageToPC(player.oid, $"{NWScript.GetName(oPlaceable)} n'est pas un filon de minerai. Impossible de démarrer l'extraction.");
+                NWScript.SendMessageToPC(player.oid, $"{NWScript.GetName(oPlaceable)} n'est pas une veine de minerai. Impossible de démarrer la prospection.");
             }
             else
               NWScript.SendMessageToPC(player.oid, $"Il vous faut vous munir d'un extracteur pour démarrer la prospection !");

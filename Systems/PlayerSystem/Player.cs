@@ -110,14 +110,6 @@ namespace NWN.Systems
             break;
         }
       }
-      public void OnFrostAutoAttackTimedEvent() // conservé pour mémoire, à retravailler
-      {
-        if (NWScript.GetIsObjectValid(this.autoAttackTarget) == 1)
-        {
-          NWScript.AssignCommand(this.oid, () => NWScript.ActionCastSpellAtObject(NWScript.SPELL_RAY_OF_FROST, this.autoAttackTarget));
-          NWScript.DelayCommand(6.0f, () => this.OnFrostAutoAttackTimedEvent());
-        }
-      }
       public void RemoveLycanCurse()
       {
         NWScript.ApplyEffectToObject(NWScript.DURATION_TYPE_INSTANT, NWScript.EffectVisualEffect(NWScript.VFX_IMP_SUPER_HEROISM), this.oid);

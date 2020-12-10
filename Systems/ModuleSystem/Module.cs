@@ -176,6 +176,8 @@ namespace NWN.Systems
 
       EventsPlugin.SubscribeEvent("NWNX_ON_STORE_REQUEST_BUY_BEFORE", "before_store_buy");
       EventsPlugin.SubscribeEvent("NWNX_ON_STORE_REQUEST_SELL_BEFORE", "before_store_sell");
+
+      EventsPlugin.SubscribeEvent("NWNX_ON_SET_NPC_FACTION_REPUTATION_BEFORE", "before_reputation_change");
     }
     private void InitializeFeatModifiers()
     {

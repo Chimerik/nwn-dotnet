@@ -47,16 +47,6 @@ namespace NWN.Systems
           case "respawn_dire":
             Respawn(player, "radiant");
             break;
-          case "stage_ladder":
-            if (NWScript.GetDistanceBetween(oidSelf, player.oid) < 5.0f)
-            {
-              NWScript.AssignCommand(player.oid, () => NWScript.ClearAllActions());
-              if (NWScript.GetObjectVisualTransform(player.oid, NWScript.OBJECT_VISUAL_TRANSFORM_TRANSLATE_Z) == 0)
-                NWScript.AssignCommand(player.oid, () => NWScript.JumpToLocation(NWScript.GetLocation(NWScript.GetWaypointByTag("WP_SCENE_LADDER_TOP"))));
-              else
-                NWScript.AssignCommand(player.oid, () => NWScript.JumpToLocation(NWScript.GetLocation(NWScript.GetWaypointByTag("WP_SCENE_LADDER_BOTTOM"))));
-            }
-            break;
           case "theater_rope":
 
             if (!Convert.ToBoolean(NWScript.GetLocalInt(NWScript.GetArea(oidSelf), "_THEATER_CURTAIN_OPEN")))

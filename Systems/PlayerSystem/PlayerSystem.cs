@@ -50,6 +50,7 @@ namespace NWN.Systems
             { "before_store_buy", HandleBeforeStoreBuy },
             { "before_store_sell", HandleBeforeStoreSell },
             { "event_spacebar_down", HandleSpacebarDown },
+            { "before_reputation_change", HandleBeforeReputationChange },
         }; 
 
     public static Dictionary<uint, Player> Players = new Dictionary<uint, Player>();
@@ -913,12 +914,15 @@ namespace NWN.Systems
       else
         Utils.LogMessageToDMs($"Apparence {appearance} - Nom non défini.");
 
+      NWScript.SetPortraitResRef(creature, NWScript.Get2DAString("appearance", "PORTRAIT", appearance));
+
       NWScript.AssignCommand(creature, () => NWScript.ActionRandomWalk());      
     }
     private static void SetRandomAppearanceFrom2da(uint creature, int[] appearanceArray)
     {
       int appearance = appearanceArray[Utils.random.Next(0, appearanceArray.Length)];
       NWScript.SetCreatureAppearanceType(creature, appearance);
+      NWScript.SetPortraitResRef(creature, NWScript.Get2DAString("appearance", "PORTRAIT", appearance));
 
       NWScript.AssignCommand(creature, () => NWScript.ActionRandomWalk());
     }
@@ -949,13 +953,12 @@ namespace NWN.Systems
       Player player;
       if (Players.TryGetValue(oidSelf, out player))
       {
+        uint item = NWScript.StringToObject(EventsPlugin.GetEventData("ITEM"));
         int price = Int32.Parse(EventsPlugin.GetEventData("PRICE"));
         int pocketGold = NWScript.GetGold(oidSelf);
 
         if(pocketGold < price)
         {
-          uint item = NWScript.StringToObject(EventsPlugin.GetEventData("ITEM"));
-
           if (pocketGold + player.bankGold < price)
           {
             CreaturePlugin.SetGold(oidSelf, 0);
@@ -981,17 +984,15 @@ namespace NWN.Systems
 
           EventsPlugin.SkipEvent();
           NWScript.CopyItem(item, player.oid, 1);
+        }
 
-          switch(NWScript.GetTag(NWScript.GetLocalObject(NWScript.StringToObject(EventsPlugin.GetEventData("STORE")), "_STORE_NPC")))
-          {
-            case "blacksmith":
-              NWScript.SendMessageToPC(player.oid, "shop blacksmith");
-              break;
-            default:
-              NWScript.SendMessageToPC(player.oid, "destroying item");
-              NWScript.DestroyObject(item);
-              break;
-          }
+        switch (NWScript.GetTag(NWScript.GetLocalObject(NWScript.StringToObject(EventsPlugin.GetEventData("STORE")), "_STORE_NPC")))
+        {
+          case "blacksmith":
+            break;
+          default:
+            NWScript.DestroyObject(item);
+            break;
         }
       }
 
@@ -1009,11 +1010,18 @@ namespace NWN.Systems
 
       return 0;
     }
+    
     private static int HandleSpacebarDown(uint oidSelf)
     {
       NWScript.PostString(oidSelf, "", 40, 15, 0, 0.000001f, unchecked((int)0xFFFFFFFF), unchecked((int)0xFFFFFFFF), 9999, "fnt_my_gui");
       EventsPlugin.RemoveObjectFromDispatchList("NWNX_ON_INPUT_TOGGLE_PAUSE_BEFORE", "event_spacebar_down", oidSelf);
 
+      return 0;
+    }
+    private static int HandleBeforeReputationChange(uint oidSelf)
+    {
+      EventsPlugin.SkipEvent();
+      NWScript.SendMessageToPC(NWScript.GetFirstPC(), "Reputation change skipped ?");
       return 0;
     }
     private static int HandleDialogStart(uint oidSelf)
