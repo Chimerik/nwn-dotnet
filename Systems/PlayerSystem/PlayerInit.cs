@@ -62,6 +62,10 @@ namespace NWN.Systems
           NWScript.ApplyEffectToObject(NWScript.DURATION_TYPE_PERMANENT, eHunger, oPC);
         }*/
 
+        int playerHP = NWScript.GetCurrentHitPoints();
+        if (playerHP != player.currentHP)
+          NWScript.ApplyEffectToObject(NWScript.DURATION_TYPE_INSTANT, NWScript.EffectDamage(playerHP - player.currentHP), player.oid);
+
         if (player.location != null)
         {
           NWScript.DelayCommand(1.0f, () => NWScript.AssignCommand(player.oid, () => NWScript.ClearAllActions()));
@@ -169,7 +173,7 @@ namespace NWN.Systems
       NWScript.SqlBindString(query, "@areaTag", NWScript.GetTag(arrivalArea));
       NWScript.SqlBindVector(query, "@position", NWScript.GetPosition(arrivalPoint));
       NWScript.SqlBindFloat(query, "@facing", NWScript.GetFacing(arrivalPoint));
-      NWScript.SqlBindInt(query, "@menuOriginLeft", 30);
+      NWScript.SqlBindInt(query, "@menuOriginLeft", 50);
       NWScript.SqlStep(query);
 
       query = NWScript.SqlPrepareQueryCampaign(ModuleSystem.database, $"SELECT last_insert_rowid()");
@@ -225,10 +229,12 @@ namespace NWN.Systems
       player.learnableSkills.Add((int)Feat.ImprovedTumble, new SkillSystem.Skill((int)Feat.ImprovedTumble, 0.0f, player));
       player.learnableSkills.Add((int)Feat.ImprovedBluff, new SkillSystem.Skill((int)Feat.ImprovedBluff, 0.0f, player));
       player.learnableSkills.Add((int)Feat.ImprovedIntimidate, new SkillSystem.Skill((int)Feat.ImprovedIntimidate, 0.0f, player));
+      player.learnableSkills.Add((int)Feat.ImprovedMoveSilently, new SkillSystem.Skill((int)Feat.ImprovedMoveSilently, 0.0f, player));
+      player.learnableSkills.Add((int)Feat.ImprovedHide, new SkillSystem.Skill((int)Feat.ImprovedHide, 0.0f, player));
     }
     private static void InitializeDM(Player player)
     {
-
+      player.playerJournal = new PlayerJournal();
     }
     private static void InitializePlayer(Player player)
     {

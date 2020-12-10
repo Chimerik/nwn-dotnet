@@ -32,17 +32,17 @@ namespace NWN.Systems
 
                 Action completeCycle = () =>
                 {
-                  NWScript.SendMessageToPC(player.oid, "Entering Cycle completed callback");
+                  //NWScript.SendMessageToPC(player.oid, "Entering Cycle completed callback");
                   Utils.RemoveTaggedEffect(oPlaceable, $"_{NWScript.GetPCPublicCDKey(player.oid)}_MINING_BEAM");
                   CollectSystem.RemoveMiningCycleCallbacks(player);   // supprimer la callback de Cancel MiningCycle
 
-                  if (NWScript.GetIsObjectValid(oPlaceable) == 1 && NWScript.GetDistanceBetween(player.oid, oPlaceable) >= 5.0f)
+                  if (NWScript.GetIsObjectValid(oPlaceable) == 1 && NWScript.GetDistanceBetween(player.oid, oPlaceable) <= 5.0f)
                   {
-                    int miningYield = 0;
+                    int miningYield = 50;
 
                     if (NWScript.GetIsObjectValid(oExtractor) == 1) // TODO : Idée pour plus tard, le strip miner le plus avancé pourra équipper un cristal de spécialisation pour extraire deux fois plus de minerai en un cycle sur son minerai de spécialité
                     {
-                      miningYield = NWScript.GetLocalInt(oExtractor, "_ITEM_LEVEL") * 50;
+                      miningYield += NWScript.GetLocalInt(oExtractor, "_ITEM_LEVEL") * 50;
                       int bonusYield = 0;
 
                       int value;
@@ -73,7 +73,7 @@ namespace NWN.Systems
                         NWScript.SetLocalInt(oPlaceable, "_ORE_AMOUNT", remainingOre);
                       }
 
-                      NWScript.SendMessageToPC(player.oid, $"Mining yield = {miningYield}");
+                      //NWScript.SendMessageToPC(player.oid, $"Mining yield = {miningYield}");
                       var ore = NWScript.CreateItemOnObject("ore", player.oid, miningYield, NWScript.GetName(oPlaceable));
                       NWScript.SetName(ore, NWScript.GetName(oPlaceable));
 

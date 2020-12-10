@@ -308,11 +308,10 @@ namespace NWN.Systems
         int nCasterLevel = NWScript.GetCasterLevel(oidSelf);
         int nTotalCharacterLevel = NWScript.GetHitDice(oidSelf);
 
-        NWScript.SendMessageToPC(oPC.oid, $"Entering spell script");
-        NWScript.SendMessageToPC(oPC.oid, $"CL self = {nCasterLevel}");
-        NWScript.SendMessageToPC(oPC.oid, $"CL target = {NWScript.GetCasterLevel(oTarget)}");
-        NWScript.SendMessageToPC(oPC.oid, $"CL player = {NWScript.GetCasterLevel(oPC.oid)}");
-        NWScript.SendMessageToPC(oPC.oid, $"Item used = {NWScript.GetName(NWScript.GetSpellCastItem())}");
+        //NWScript.SendMessageToPC(oPC.oid, $"CL self = {nCasterLevel}");
+        //NWScript.SendMessageToPC(oPC.oid, $"CL target = {NWScript.GetCasterLevel(oTarget)}");
+        //NWScript.SendMessageToPC(oPC.oid, $"CL player = {NWScript.GetCasterLevel(oPC.oid)}");
+        //NWScript.SendMessageToPC(oPC.oid, $"Item used = {NWScript.GetName(NWScript.GetSpellCastItem())}");
       }
 
       return -1;
@@ -325,7 +324,7 @@ namespace NWN.Systems
         NWScript.SetLocalInt(oidSelf, "_DELAYED_SPELLHOOK_REFLEX", CreaturePlugin.GetBaseSavingThrow(oidSelf, NWScript.SAVING_THROW_REFLEX));
         NWScript.SetLocalInt(oidSelf, "_DELAYED_SPELLHOOK_WILL", CreaturePlugin.GetBaseSavingThrow(oidSelf, NWScript.SAVING_THROW_WILL));
         NWScript.SetLocalInt(oidSelf, "_DELAYED_SPELLHOOK_FORT", CreaturePlugin.GetBaseSavingThrow(oidSelf, NWScript.SAVING_THROW_FORT));
-        NWScript.SendMessageToPC(oidSelf, "entering spellhook");
+
         int casterLevel;
         if (int.TryParse(NWScript.Get2DAString("feat", "GAINMULTIPLE", CreaturePlugin.GetHighestLevelOfFeat(oidSelf, (int)Feat.ImprovedCasterLevel)), out casterLevel))
           CreaturePlugin.SetLevelByPosition(oidSelf, 0, casterLevel + 1);
@@ -338,7 +337,6 @@ namespace NWN.Systems
     }
     private static void DelayedSpellHook(uint oidSelf)
     {
-      NWScript.SendMessageToPC(oidSelf, "delayed spellhook");
       CreaturePlugin.SetLevelByPosition(oidSelf, 0, 1);
       CreaturePlugin.SetBaseSavingThrow(oidSelf, NWScript.SAVING_THROW_REFLEX, NWScript.GetLocalInt(oidSelf, "_DELAYED_SPELLHOOK_REFLEX"));
       CreaturePlugin.SetBaseSavingThrow(oidSelf, NWScript.SAVING_THROW_WILL, NWScript.GetLocalInt(oidSelf, "_DELAYED_SPELLHOOK_WILL"));

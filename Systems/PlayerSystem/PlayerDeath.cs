@@ -18,7 +18,7 @@ namespace NWN.Systems
         StripPlayerGoldAfterDeath(player);
         StripPlayerOfCraftResources(player);
         SavePlayerCorpseToDatabase(player.characterId, player.deathCorpse, NWScript.GetTag(NWScript.GetArea(player.deathCorpse)), NWScript.GetPosition(player.deathCorpse));
-        NWScript.DelayCommand(5.0f, () => SendPlayerToLimbo(player));
+        SendPlayerToLimbo(player);
       }
 
       return 0;
@@ -58,10 +58,14 @@ namespace NWN.Systems
     private static void StripPlayerOfCraftResources(Player player)
     {
       var oItem = NWScript.GetFirstItemInInventory(player.oid);
-      while(Convert.ToBoolean(oItem))
+      while(Convert.ToBoolean(NWScript.GetIsObjectValid(oItem)))
       {
         if(CollectSystem.IsItemCraftMaterial(NWScript.GetTag(oItem)) || NWScript.GetTag(oItem) == "blueprint")
-          ObjectPlugin.AcquireItem(player.deathCorpse, oItem);
+        {
+          NWScript.CopyObject(oItem, NWScript.GetLocation(player.deathCorpse), player.deathCorpse);
+          NWScript.DestroyObject(oItem);
+        }
+          
         oItem = NWScript.GetNextItemInInventory(player.oid);
       }
     }

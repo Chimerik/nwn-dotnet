@@ -19,51 +19,53 @@ namespace NWN.Systems
        * Mais il se peut que dans ce cas, ses buffs soient perdues à la reco. A vérifier. Si c'est le cas, une meilleure
        * correction pourrait être de parcourir tous ses buffs et de les réappliquer dans l'event AFTER de la sauvegarde*/
 
-      Player player;
-      if (Players.TryGetValue(oidSelf, out player))
+      if (!Convert.ToBoolean(NWScript.GetIsDM(oidSelf)) && !Convert.ToBoolean(NWScript.GetIsDMPossessed(oidSelf)))
       {
-        if (player.isConnected)
+        Player player;
+        if (Players.TryGetValue(oidSelf, out player))
         {
-          if (Utils.HasAnyEffect(player.oid, NWScript.EFFECT_TYPE_POLYMORPH))
+          if (player.isConnected)
           {
-            Effect eff = NWScript.GetFirstEffect(player.oid);
-
-            while(Convert.ToBoolean(NWScript.GetIsEffectValid(eff)))
+            if (Utils.HasAnyEffect(player.oid, NWScript.EFFECT_TYPE_POLYMORPH))
             {
-              if(NWScript.GetEffectType(eff) != NWScript.EFFECT_TYPE_POLYMORPH)
-                player.effectList.Add(eff);
-              eff = NWScript.GetNextEffect(player.oid);
+              Effect eff = NWScript.GetFirstEffect(player.oid);
+
+              while (Convert.ToBoolean(NWScript.GetIsEffectValid(eff)))
+              {
+                if (NWScript.GetEffectType(eff) != NWScript.EFFECT_TYPE_POLYMORPH)
+                  player.effectList.Add(eff);
+                eff = NWScript.GetNextEffect(player.oid);
+              }
+
+              //EventsPlugin.SkipEvent();
+              return 0;
             }
-
-            //EventsPlugin.SkipEvent();
-            return 0;
           }
+
+          // TODO : probablement faire pour chaque joueur tous les check faim / soif / jobs etc ici
+
+          // AFK detection
+          if (player.location != NWScript.GetLocation(player.oid))
+          {
+            player.location = NWScript.GetLocation(player.oid);
+            player.isAFK = false;
+          }
+
+          player.currentHP = NWScript.GetCurrentHitPoints(player.oid);
+
+          if (NWScript.GetLocalInt(NWScript.GetArea(player.oid), "_REST") != 0)
+            player.CraftJobProgression();
+
+          player.AcquireSkillPoints();
+
+          player.dateLastSaved = DateTime.Now;
+          player.isAFK = true;
+
+          SavePlayerCharacterToDatabase(player);
+          SavePlayerLearnableSkillsToDatabase(player);
+          SavePlayerStoredMaterialsToDatabase(player);
         }
-
-        // TODO : probablement faire pour chaque joueur tous les check faim / soif / jobs etc ici
-
-        // AFK detection
-        if (player.location != NWScript.GetLocation(player.oid))
-        {
-          player.location = NWScript.GetLocation(player.oid);
-          player.isAFK = false;
-        }
-
-        player.currentHP = NWScript.GetCurrentHitPoints(player.oid);
-
-        if (NWScript.GetLocalInt(NWScript.GetArea(player.oid), "_REST") != 0)
-          player.CraftJobProgression();
-
-        player.AcquireSkillPoints();
-
-        player.dateLastSaved = DateTime.Now;
-        player.isAFK = true;
-
-        SavePlayerCharacterToDatabase(player);
-        SavePlayerLearnableSkillsToDatabase(player);
-        SavePlayerStoredMaterialsToDatabase(player);
       }
-
       return 0;
     }
     private static int HandleAfterPlayerSave(uint oidSelf)
