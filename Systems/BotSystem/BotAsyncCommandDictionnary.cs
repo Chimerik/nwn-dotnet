@@ -11,6 +11,12 @@ namespace NWN.Systems
           name: "reboot",
           execute: ExecuteRebootCommand
         )
+      },
+      {
+        "say", new BotAsyncCommand(
+          name: "say",
+          execute: ExecuteSayCommand
+        )
       }
     };
   }

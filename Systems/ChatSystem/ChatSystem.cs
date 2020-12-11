@@ -63,7 +63,7 @@ namespace NWN.Systems
     );
     public static void ProcessWriteLogMiddleware(ChatSystem.Context ctx, Action next)
     {
-      if (ctx.channel != ChatPlugin.NWNX_CHAT_CHANNEL_SERVER_MSG)
+      if (ctx.channel != ChatPlugin.NWNX_CHAT_CHANNEL_SERVER_MSG && Convert.ToBoolean(NWScript.GetIsPC(ctx.oSender)))
       {
         if (NWScript.GetIsObjectValid(ctx.oTarget) != 1)
         {

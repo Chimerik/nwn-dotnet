@@ -11,11 +11,6 @@ namespace NWN.Systems
 
     public readonly static Dictionary<string, Lootable.Config> lootablesDic = new Dictionary<string, Lootable.Config>
         {
-            { "neutralcritter", new Lootable.Config(
-              items: new List<Lootable.Item> {
-                    new Lootable.Item(chestTag: "craft_material", count: 0, chance: 0),
-                }
-            )},
             { "gobelin_chest", new Lootable.Config(
                 gold: new Lootable.Gold(min: 25, max: 75, chance: 75),
                 items: new List<Lootable.Item> {

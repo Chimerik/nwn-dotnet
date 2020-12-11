@@ -55,15 +55,17 @@ namespace NWN.Systems
     public void CleanArea()
     {
       DateTime lastEnteredDate;
-      if (DateTime.TryParse(NWScript.GetLocalString(this.oid, "_LAST_ENTERED_ON"), out lastEnteredDate) && (DateTime.Now - lastEnteredDate).TotalMinutes >= 5)
+      if (AreaPlugin.GetNumberOfPlayersInArea(this.oid) == 0 && DateTime.TryParse(NWScript.GetLocalString(this.oid, "_LAST_ENTERED_ON"), out lastEnteredDate) && (DateTime.Now - lastEnteredDate).TotalMinutes >= 5)
       {
         var firstObject = NWScript.GetFirstObjectInArea(this.oid);
         int i = 1;
         var nearestObject = NWScript.GetNearestObject(NWScript.OBJECT_TYPE_CREATURE, firstObject);
 
+        Utils.LogMessageToDMs($"Nettoyage de la zone : {NWScript.GetName(this.oid)}");
+
         while (Convert.ToBoolean(NWScript.GetIsObjectValid(nearestObject)))
         {
-          if (NWScript.GetIsPC(nearestObject) == 0)
+          if (!Convert.ToBoolean(NWScript.GetIsPC(nearestObject)))
             Utils.DestroyInventory(nearestObject);
 
           NWScript.DestroyObject(nearestObject);
@@ -144,7 +146,7 @@ namespace NWN.Systems
     }
     public void DoAreaSpecificBehavior(PlayerSystem.Player player )
     {
-      if (NWScript.GetTag(this.oid) == $"entry_scene_{NWScript.GetPCPublicCDKey(player.oid)}")
+      if (NWScript.GetTag(this.oid).StartsWith("entry_scene_"))
       {
         NWScript.DelayCommand(10.0f, () => player.PlayIntroSong());
       }
@@ -217,12 +219,12 @@ namespace NWN.Systems
       NWScript.DelayCommand(2.0f, () => NWScript.ApplyEffectAtLocation(NWScript.DURATION_TYPE_INSTANT, NWScript.EffectVisualEffect(NWScript.VFX_FNF_MYSTICAL_EXPLOSION), NWScript.GetLocation(oPC)));
       NWScript.ApplyEffectAtLocation(NWScript.DURATION_TYPE_INSTANT, NWScript.EffectVisualEffect(NWScript.VFX_FNF_FIRESTORM, 0, 2, new Vector3(0, 0, 0), new Vector3(0, 0, 0)), NWScript.GetLocation(oPC));
       NWScript.ApplyEffectAtLocation(NWScript.DURATION_TYPE_INSTANT, NWScript.EffectVisualEffect(NWScript.VFX_FNF_FIRESTORM, 0, 2, new Vector3(0, 0, 0), new Vector3(0, 90, 0)), NWScript.GetLocation(oPC));
-      NWScript.DelayCommand(4.0f, () => NWScript.AssignCommand(oPC, () => NWScript.ClearAllActions()));
-      NWScript.DelayCommand(4.1f, () => NWScript.AssignCommand(oPC, () => NWScript.JumpToObject(NWScript.GetWaypointByTag("WP_START_NEW_CHAR"))));
+      NWScript.DelayCommand(3.6f, () => NWScript.AssignCommand(oPC, () => NWScript.ClearAllActions()));
+      NWScript.DelayCommand(3.7f, () => NWScript.AssignCommand(oPC, () => NWScript.JumpToObject(NWScript.GetWaypointByTag("WP_START_NEW_CHAR"))));
 
       Utils.DestroyInventory(oPC);
       Utils.DestroyEquippedItems(oPC);
-      NWScript.DelayCommand(3.9f, () => NWScript.AssignCommand(oPC, () => NWScript.ActionEquipItem(NWScript.CreateItemOnObject("NW_CLOTH023", oPC), NWScript.INVENTORY_SLOT_CHEST)));
+      NWScript.DelayCommand(3.4f, () => NWScript.AssignCommand(oPC, () => NWScript.ActionEquipItem(NWScript.CreateItemOnObject("NW_CLOTH023", oPC), NWScript.INVENTORY_SLOT_CHEST)));
       NWScript.DelayCommand(5.0f, () => NWScript.AssignCommand(oPC, () => NWScript.PlayAnimation(NWScript.ANIMATION_LOOPING_DEAD_BACK, 1, 999999.99f)));
       NWScript.DelayCommand(8.0f, () => NWScript.FloatingTextStringOnCreature("En dehors des épaves de navires éparpillées toutes autour de vous, la plage sur laquelle vous avez atterri semble étrangement calme et agréable. Nulle trace de votre équipage ou des biens que vous aviez emportés. Devant vous se dressent les murailles d'une ville ancienne et délabrée. Qu'allez-vous faire maintenant ?", oPC, 0));
 

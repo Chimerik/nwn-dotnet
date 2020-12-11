@@ -492,7 +492,7 @@ namespace NWN.Systems
       }
       public void PlayIntroSong()
       {
-        if (NWScript.GetTag(NWScript.GetArea(this.oid)) == $"entry_scene_{NWScript.GetPCPublicCDKey(this.oid)}")
+        if (NWScript.GetTag(NWScript.GetArea(this.oid)).StartsWith("entry_scene_"))
         {
           PlayerPlugin.PlaySound(this.oid, "my_mother_toldme");
           NWScript.DelayCommand(150.0f, () => this.PlayIntroSong());
