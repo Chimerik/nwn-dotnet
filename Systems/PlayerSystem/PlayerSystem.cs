@@ -50,7 +50,7 @@ namespace NWN.Systems
             { "before_store_buy", HandleBeforeStoreBuy },
             { "before_store_sell", HandleBeforeStoreSell },
             { "event_spacebar_down", HandleSpacebarDown },
-            { "before_reputation_change", HandleBeforeReputationChange },
+           // { "before_reputation_change", HandleBeforeReputationChange },
         }; 
 
     public static Dictionary<uint, Player> Players = new Dictionary<uint, Player>();
@@ -900,7 +900,22 @@ namespace NWN.Systems
     private static uint SpawnCreatureFromSpawnPoint(uint spawnPoint)
     {
       uint creature = NWScript.CreateObject(NWScript.OBJECT_TYPE_CREATURE, NWScript.GetLocalString(spawnPoint, "_CREATURE_TEMPLATE"), NWScript.GetLocation(spawnPoint));
-      NWScript.SetEventScript(creature, NWScript.EVENT_SCRIPT_CREATURE_ON_DEATH, ON_LOOT_SCRIPT);
+
+      switch(NWScript.GetTag(creature))
+      {
+        case "civilian":
+        case "neutralcritter":
+        case "ratgarou":
+        case "wereboar":
+        case "Apparitiondoutretombe":
+        case "marten_elite_archer":
+          break;
+        default:
+          NWScript.SetAILevel(creature, 1);
+          NWScript.SetEventScript(creature, NWScript.EVENT_SCRIPT_CREATURE_ON_DEATH, ON_LOOT_SCRIPT);
+          break;
+      }
+       
       return creature;
     }
     private static void SetRandomAppearanceAndNameFrom2da(uint creature, int[] appearanceArray)
@@ -1018,12 +1033,12 @@ namespace NWN.Systems
 
       return 0;
     }
-    private static int HandleBeforeReputationChange(uint oidSelf)
+    /*private static int HandleBeforeReputationChange(uint oidSelf)
     {
       EventsPlugin.SkipEvent();
       NWScript.SendMessageToPC(NWScript.GetFirstPC(), "Reputation change skipped ?");
       return 0;
-    }
+    }*/
     private static int HandleDialogStart(uint oidSelf)
     {
       /*Player player;

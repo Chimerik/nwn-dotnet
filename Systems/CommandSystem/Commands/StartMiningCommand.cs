@@ -24,15 +24,14 @@ namespace NWN.Systems
               {
                 Action cancelCycle = () =>
                 {
-                  NWScript.SendMessageToPC(player.oid, "Cycle cancelled");
+                  //NWScript.SendMessageToPC(NWScript.GetFirstPC(), "Entering Cycle cancel callback");
                   Utils.RemoveTaggedEffect(oPlaceable, $"_{NWScript.GetPCPublicCDKey(player.oid)}_MINING_BEAM");
-                  ItemSystem.DecreaseItemDurability(oExtractor);
                   CollectSystem.RemoveMiningCycleCallbacks(player);   // supprimer la callback de CompleteMiningCycle
               };
 
                 Action completeCycle = () =>
                 {
-                  //NWScript.SendMessageToPC(player.oid, "Entering Cycle completed callback");
+                  //NWScript.SendMessageToPC(NWScript.GetFirstPC(), "Entering Cycle completed callback");
                   Utils.RemoveTaggedEffect(oPlaceable, $"_{NWScript.GetPCPublicCDKey(player.oid)}_MINING_BEAM");
                   CollectSystem.RemoveMiningCycleCallbacks(player);   // supprimer la callback de Cancel MiningCycle
 
@@ -73,7 +72,6 @@ namespace NWN.Systems
                         NWScript.SetLocalInt(oPlaceable, "_ORE_AMOUNT", remainingOre);
                       }
 
-                      //NWScript.SendMessageToPC(player.oid, $"Mining yield = {miningYield}");
                       var ore = NWScript.CreateItemOnObject("ore", player.oid, miningYield, NWScript.GetName(oPlaceable));
                       NWScript.SetName(ore, NWScript.GetName(oPlaceable));
 
@@ -86,6 +84,7 @@ namespace NWN.Systems
                   }
                 };
 
+                player.DoActionOnMiningCycleCancelled();
                 CollectSystem.StartMiningCycle(player, oPlaceable, cancelCycle, completeCycle);
               }
               else

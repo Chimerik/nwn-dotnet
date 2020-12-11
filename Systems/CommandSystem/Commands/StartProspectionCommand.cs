@@ -24,19 +24,18 @@ namespace NWN.Systems
                 {
                   Action cancelCycle = () =>
                   {
-                    NWScript.SendMessageToPC(player.oid, "Cycle cancelled");
+                    //NWScript.SendMessageToPC(NWScript.GetFirstPC(), "Entering Cycle cancel callback");
                     Utils.RemoveTaggedEffect(oPlaceable, $"_{NWScript.GetPCPublicCDKey(player.oid)}_MINING_BEAM");
-                    ItemSystem.DecreaseItemDurability(oExtractor);
                     CollectSystem.RemoveMiningCycleCallbacks(player);   // supprimer la callback de CompleteMiningCycle
                 };
 
                   Action completeCycle = () =>
                   {
-                    NWScript.SendMessageToPC(player.oid, "Entering Cycle completed callback");
+                    //NWScript.SendMessageToPC(NWScript.GetFirstPC(), "Entering Cycle completed callback");
                     Utils.RemoveTaggedEffect(oPlaceable, $"_{NWScript.GetPCPublicCDKey(player.oid)}_MINING_BEAM");
                     CollectSystem.RemoveMiningCycleCallbacks(player);   // supprimer la callback de Cancel MiningCycle
 
-                  if (NWScript.GetIsObjectValid(oPlaceable) == 1 && NWScript.GetDistanceBetween(player.oid, oPlaceable) >= 5.0f)
+                    if (Convert.ToBoolean(NWScript.GetIsObjectValid(oPlaceable)) && NWScript.GetDistanceBetween(player.oid, oPlaceable) >= 5.0f)
                     {
                       var ressourcePoint = NWScript.GetNearestObjectByTag("ressourcepoint", oPlaceable, 1);
                       int i = 2;
@@ -74,18 +73,6 @@ namespace NWN.Systems
                         ressourcePoint = NWScript.GetNearestObjectByTag("ressourcepoint", oPlaceable, i);
                         i++;
                       }
-
-                      i = 1;
-                      uint creatureSpawn = NWScript.GetNearestObjectByTag("disturbed_creature_spawn", oPlaceable);
-
-                      while (Convert.ToBoolean(NWScript.GetIsObjectValid(creatureSpawn)) || NWScript.GetDistanceBetween(oPlaceable, creatureSpawn) < 50.0f)
-                      {
-                        NWScript.CreateObject(NWScript.OBJECT_TYPE_CREATURE, NWScript.GetLocalString(creatureSpawn, "_CREATURE_TEMPLATE"), NWScript.GetLocation(creatureSpawn));
-                        i++;
-                        creatureSpawn = NWScript.GetNearestObjectByTag("disturbed_creature_spawn", oPlaceable, i);
-                      }
-
-                      ItemSystem.DecreaseItemDurability(oExtractor);
                     }
                     else
                     {
@@ -93,6 +80,19 @@ namespace NWN.Systems
                     }
                   };
 
+                  int i = 1;
+                  uint creatureSpawn = NWScript.GetNearestObjectByTag("disturbed_creature_spawn", oPlaceable);
+
+                  while (Convert.ToBoolean(NWScript.GetIsObjectValid(creatureSpawn)) && NWScript.GetDistanceBetween(oPlaceable, creatureSpawn) < 50.0f)
+                  {
+                    NWScript.CreateObject(NWScript.OBJECT_TYPE_CREATURE, NWScript.GetLocalString(creatureSpawn, "_CREATURE_TEMPLATE"), NWScript.GetLocation(creatureSpawn));
+                    i++;
+                    creatureSpawn = NWScript.GetNearestObjectByTag("disturbed_creature_spawn", oPlaceable, i);
+                  }
+
+                  ItemSystem.DecreaseItemDurability(oExtractor);
+
+                  player.DoActionOnMiningCycleCancelled();
                   CollectSystem.StartMiningCycle(player, oPlaceable, cancelCycle, completeCycle);
                 }
                 else

@@ -9,6 +9,7 @@ namespace NWN.Systems
   {
     public uint oid { get; }
     public List<string> botAsyncCommandList { get; set; }
+    public static string textToSpeak { get; set; }
     public static Dictionary<string, Area> areaDictionnary = new Dictionary<string, Area>();
     public static string currentScript = "";
     public Module(uint oid)
@@ -290,6 +291,12 @@ namespace NWN.Systems
     {
       this.botAsyncCommandList.Add("reboot");
       return "Reboot effectif dans 30 secondes.";
+    }
+    public string PreparingModuleForAsyncSay(string text)
+    {
+      Module.textToSpeak = text;
+      this.botAsyncCommandList.Add("say");
+      return "Texte en cours de relai serveur.";
     }
     private void SetModuleTime()
     {

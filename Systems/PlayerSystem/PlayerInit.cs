@@ -153,7 +153,7 @@ namespace NWN.Systems
         arrivalArea = NWScript.CopyArea(Module.areaDictionnary.Where(v => v.Value.tag == "entry_scene").FirstOrDefault().Value.oid);
         Module.areaDictionnary.Add(NWScript.GetObjectUUID(arrivalArea), new Area(arrivalArea));
         NWScript.SetName(arrivalArea, $"La galère de {NWScript.GetName(newCharacter.oid)} (Bienvenue !)");
-        NWScript.SetTag(arrivalArea, $"entry_scene_{NWScript.GetPCPublicCDKey(newCharacter.oid)}");
+        NWScript.SetTag(arrivalArea, $"entry_scene_{NWScript.GetPCPublicCDKey(newCharacter.oid)}_{NWScript.GetName(newCharacter.oid)}");
         arrivalPoint = NWScript.GetNearestObjectByTag("ENTRY_POINT", NWScript.GetFirstObjectInArea(arrivalArea));
 
       } else
@@ -323,7 +323,7 @@ namespace NWN.Systems
     }
     private static void InitializeNewCharacterStorage(Player player)
     {
-      uint storage = NWScript.GetFirstObjectInArea(NWScript.GetObjectByTag("entrepotdimensionnel"));
+      uint storage = NWScript.GetFirstObjectInArea(NWScript.GetObjectByTag("entrepotpersonnel"));
       if (NWScript.GetTag(storage) != "ps_entrepot")
         storage = NWScript.GetNearestObjectByTag("ps_entrepot", storage);
 

@@ -8,10 +8,15 @@ namespace NWN.Systems
   public class InfoModule : ModuleBase<SocketCommandContext>
   {
     // ~say hello world -> hello world
-    [Command("say")]
+    /*[Command("say")]
     [Summary("Echoes a message.")]
     public Task SayAsync([Remainder][Summary("The text to echo")] string echo)
-      => ReplyAsync(echo);
+      => ReplyAsync(echo);*/
+
+    [Command("say")]
+    [Summary("Echoes a message.")]
+    public Task SayAsync(string text)
+      => ReplyAsync(ModuleSystem.module.PreparingModuleForAsyncSay(text));
 
     // ReplyAsync is a method on ModuleBase 
 
