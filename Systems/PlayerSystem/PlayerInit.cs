@@ -339,7 +339,7 @@ namespace NWN.Systems
       NWScript.SetName(storage, $"Entrepôt de {NWScript.GetName(player.oid)}");
 
       var query = NWScript.SqlPrepareQueryCampaign(ModuleSystem.database, $"UPDATE playerCharacters set storage = @storage where rowid = @characterId");
-      NWScript.SqlBindInt(query, "@characterId", player.characterId);
+      NWScript.SqlBindInt(query, "@characterId", ObjectPlugin.GetInt(player.oid, "characterId"));
       NWScript.SqlBindObject(query, "@storage", storage);
       NWScript.SqlStep(query);
     }

@@ -61,8 +61,6 @@ namespace NWN.Systems
         int i = 1;
         var nearestObject = NWScript.GetNearestObject(NWScript.OBJECT_TYPE_CREATURE, firstObject);
 
-        Utils.LogMessageToDMs($"Nettoyage de la zone : {NWScript.GetName(this.oid)}");
-
         while (Convert.ToBoolean(NWScript.GetIsObjectValid(nearestObject)))
         {
           if (!Convert.ToBoolean(NWScript.GetIsPC(nearestObject)))
@@ -270,7 +268,7 @@ namespace NWN.Systems
       NWScript.ApplyEffectToObject(NWScript.DURATION_TYPE_INSTANT, NWScript.EffectDamage(120, NWScript.DAMAGE_TYPE_ELECTRICAL, NWScript.DAMAGE_POWER_ENERGY), sailor2);
       NWScript.AssignCommand(sailor1, () => NWScript.SpeakString("NOOOOOON, OLAF, MON FRERE JUMEAU ! Quelle horreur !"));
     }
-    private void RemoveArea()
+    public void RemoveArea()
     {
       NWScript.DestroyArea(this.oid);
       Module.areaDictionnary.Remove(this.uuid);

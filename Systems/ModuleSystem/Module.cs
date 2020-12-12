@@ -263,10 +263,12 @@ namespace NWN.Systems
     }
     public void RestorePlayerCorpseFromDatabase()
     {
-      var query = NWScript.SqlPrepareQueryCampaign(ModuleSystem.database, $"SELECT deathCorpse, areaTag, position FROM playerDeathCorpses");
+      var query = NWScript.SqlPrepareQueryCampaign(ModuleSystem.database, $"SELECT deathCorpse, areaTag, position, characterId FROM playerDeathCorpses");
 
       while (Convert.ToBoolean(NWScript.SqlStep(query)))
-        NWScript.SqlGetObject(query, 0, Utils.GetLocationFromDatabase(NWScript.SqlGetString(query, 1), NWScript.SqlGetVector(query, 2), 0));
+        NWScript.SetLocalInt(
+          NWScript.SqlGetObject(query, 0, Utils.GetLocationFromDatabase(NWScript.SqlGetString(query, 1), NWScript.SqlGetVector(query, 2), 0)),
+          "_PC_ID", NWScript.SqlGetInt(query, 3));
     }
     public void RestoreDMPersistentPlaceableFromDatabase()
     {

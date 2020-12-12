@@ -45,12 +45,12 @@ namespace NWN.Systems
       {
         if (remainingGold >= 50000)
         {
-          NWScript.CreateItemOnObject("nw_it_gold001", player.oid, 50000);
+          NWScript.CreateItemOnObject("nw_it_gold001", player.deathCorpse, 50000);
           remainingGold -= 50000;
         }
         else
         {
-          NWScript.CreateItemOnObject("nw_it_gold001", player.oid, remainingGold);
+          NWScript.CreateItemOnObject("nw_it_gold001", player.deathCorpse, remainingGold);
           break;
         }
       }
@@ -140,7 +140,7 @@ namespace NWN.Systems
     private static void DestroyPlayerCorpse(Player player)
     {
       DeletePlayerCorpseFromDatabase(player.characterId);
-
+      
       var oCorpse = NWScript.GetObjectByTag("pccorpse");
       int i = 1;
       while (Convert.ToBoolean(NWScript.GetIsObjectValid(oCorpse)))

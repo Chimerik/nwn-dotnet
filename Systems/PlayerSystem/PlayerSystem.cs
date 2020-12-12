@@ -161,7 +161,7 @@ namespace NWN.Systems
         HandleBeforePartyLeave(oidSelf);
         HandleAfterPartyLeave(oidSelf);
 
-        if(NWScript.GetTag(NWScript.GetArea(player.oid)) == "entrepotdimensionnel")
+        if(NWScript.GetTag(NWScript.GetArea(player.oid)) == "entrepotpersonnel")
         {
           uint storageToSave = NWScript.GetFirstObjectInArea(NWScript.GetArea(player.oid));
           if (NWScript.GetTag(storageToSave) != "ps_entrepot")
@@ -744,31 +744,33 @@ namespace NWN.Systems
     private static int HandlePCUnacquireItem(uint oidSelf)
     {
       uint oPC = NWScript.GetModuleItemLostBy();
-      var oItem = NWScript.GetModuleItemAcquired();
-
-      if (NWScript.GetTag(oItem) == "item_pccorpse")
+      var oItem = NWScript.GetModuleItemLost();
+      if (Convert.ToBoolean(NWScript.GetIsObjectValid(oItem)))
       {
-        var oPCCorpse = NWScript.CreateObject(NWScript.OBJECT_TYPE_PLACEABLE, "pccorpse", NWScript.GetLocation(oPC));
-        EventsPlugin.AddObjectToDispatchList("NWNX_ON_INVENTORY_REMOVE_ITEM_AFTER", "event_pccorpse_remove_item_after", oPCCorpse);
+        if (NWScript.GetTag(oItem) == "item_pccorpse")
+        {
+          var oPCCorpse = NWScript.CreateObject(NWScript.OBJECT_TYPE_PLACEABLE, "pccorpse", NWScript.GetLocation(oPC));
+          EventsPlugin.AddObjectToDispatchList("NWNX_ON_INVENTORY_REMOVE_ITEM_AFTER", "event_pccorpse_remove_item_after", oPCCorpse);
 
-        int characterId = NWScript.GetLocalInt(oItem, "_PC_ID");
-        NWScript.SetLocalInt(oPCCorpse, "_PC_ID", characterId);
-        ObjectPlugin.AcquireItem(oPCCorpse, oItem);
+          int characterId = NWScript.GetLocalInt(oItem, "_PC_ID");
+          NWScript.SetLocalInt(oPCCorpse, "_PC_ID", characterId);
+          ObjectPlugin.AcquireItem(oPCCorpse, oItem);
 
-        var query = NWScript.SqlPrepareQueryCampaign(ModuleSystem.database, $"SELECT characterName from playerCharacters where rowid = @characterId");
-        NWScript.SqlBindInt(query, "@characterId", characterId);
-        NWScript.SqlStep(query);
+          var query = NWScript.SqlPrepareQueryCampaign(ModuleSystem.database, $"SELECT characterName from playerCharacters where rowid = @characterId");
+          NWScript.SqlBindInt(query, "@characterId", characterId);
+          NWScript.SqlStep(query);
 
-        string corpseName = NWScript.SqlGetString(query, 0);
-        NWScript.SetName(oPCCorpse, $"Corps de {corpseName}");
-        NWScript.SetDescription(oPCCorpse, $"Corps de {corpseName}.\n\n Allez savoir combien de temps il va tenir comme ça.");
+          string corpseName = NWScript.SqlGetString(query, 0);
+          NWScript.SetName(oPCCorpse, $"Corps de {corpseName}");
+          NWScript.SetDescription(oPCCorpse, $"Corps de {corpseName}.\n\n Allez savoir combien de temps il va tenir comme ça.");
 
-        SavePlayerCorpseToDatabase(characterId, oPCCorpse, NWScript.GetTag(NWScript.GetArea(oPCCorpse)), NWScript.GetPosition(oPCCorpse));
+          SavePlayerCorpseToDatabase(characterId, oPCCorpse, NWScript.GetTag(NWScript.GetArea(oPCCorpse)), NWScript.GetPosition(oPCCorpse));
+        }
+
+        if (NWScript.GetMovementRate(oPC) == CreaturePlugin.NWNX_CREATURE_MOVEMENT_RATE_IMMOBILE)
+          if (NWScript.GetWeight(oPC) <= int.Parse(NWScript.Get2DAString("encumbrance", "Heavy", NWScript.GetAbilityScore(oPC, NWScript.ABILITY_STRENGTH))))
+            CreaturePlugin.SetMovementRate(oPC, CreaturePlugin.NWNX_CREATURE_MOVEMENT_RATE_PC);
       }
-
-      if (NWScript.GetMovementRate(oPC) == CreaturePlugin.NWNX_CREATURE_MOVEMENT_RATE_IMMOBILE)
-        if (NWScript.GetWeight(oPC) <= int.Parse(NWScript.Get2DAString("encumbrance", "Heavy", NWScript.GetAbilityScore(oPC, NWScript.ABILITY_STRENGTH))))
-          CreaturePlugin.SetMovementRate(oPC, CreaturePlugin.NWNX_CREATURE_MOVEMENT_RATE_PC);
 
       return 0;
     }
@@ -777,18 +779,21 @@ namespace NWN.Systems
       var oPC = NWScript.GetModuleItemAcquiredBy();
       var oItem = NWScript.GetModuleItemAcquired();
 
-      if(NWScript.GetTag(oItem) == "item_pccorpse")
+      if (Convert.ToBoolean(NWScript.GetIsObjectValid(oItem)))
       {
-        var query = NWScript.SqlPrepareQueryCampaign(ModuleSystem.database, $"SELECT COUNT (*) FROM playerDeathCorpses WHERE characterId = @characterId");
-        NWScript.SqlBindInt(query, "@characterId", NWScript.GetLocalInt(oItem, "_PC_ID"));
+        if (NWScript.GetTag(oItem) == "item_pccorpse")
+        {
+          var query = NWScript.SqlPrepareQueryCampaign(ModuleSystem.database, $"SELECT COUNT (*) FROM playerDeathCorpses WHERE characterId = @characterId");
+          NWScript.SqlBindInt(query, "@characterId", NWScript.GetLocalInt(oItem, "_PC_ID"));
 
-        if (!Convert.ToBoolean(NWScript.SqlStep(query)))
-          NWScript.DestroyObject(oItem);
+          if (!Convert.ToBoolean(NWScript.SqlStep(query)))
+            NWScript.DestroyObject(oItem);
+        }
+
+        if (NWScript.GetMovementRate(oPC) != CreaturePlugin.NWNX_CREATURE_MOVEMENT_RATE_IMMOBILE)
+          if (NWScript.GetWeight(oPC) > int.Parse(NWScript.Get2DAString("encumbrance", "Heavy", NWScript.GetAbilityScore(oPC, NWScript.ABILITY_STRENGTH))))
+            CreaturePlugin.SetMovementRate(oPC, CreaturePlugin.NWNX_CREATURE_MOVEMENT_RATE_IMMOBILE);
       }
-
-      if (NWScript.GetMovementRate(oPC) != CreaturePlugin.NWNX_CREATURE_MOVEMENT_RATE_IMMOBILE)
-        if (NWScript.GetWeight(oPC) > int.Parse(NWScript.Get2DAString("encumbrance", "Heavy", NWScript.GetAbilityScore(oPC, NWScript.ABILITY_STRENGTH))))
-          CreaturePlugin.SetMovementRate(oPC, CreaturePlugin.NWNX_CREATURE_MOVEMENT_RATE_IMMOBILE);
 
       return 0;
     }
