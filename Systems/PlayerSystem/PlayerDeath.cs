@@ -18,7 +18,7 @@ namespace NWN.Systems
         StripPlayerGoldAfterDeath(player);
         StripPlayerOfCraftResources(player);
         SavePlayerCorpseToDatabase(player.characterId, player.deathCorpse, NWScript.GetTag(NWScript.GetArea(player.deathCorpse)), NWScript.GetPosition(player.deathCorpse));
-        SendPlayerToLimbo(player);
+        NWScript.DelayCommand(3.0f, () => SendPlayerToLimbo(player));
       }
 
       return 0;
@@ -31,7 +31,9 @@ namespace NWN.Systems
       NWScript.SetName(oPCCorpse, $"Cadavre de {NWScript.GetName(player.oid)}");
       NWScript.SetDescription(oPCCorpse, $"Cadavre de {NWScript.GetName(player.oid)}");
       NWScript.SetLocalInt(oPCCorpse, "_PC_ID", player.characterId);
-      NWScript.SetLocalInt(NWScript.CreateItemOnObject("item_pccorpse", oPCCorpse), "PC_ID", player.characterId);
+      uint oCorpseItem = NWScript.CreateItemOnObject("item_pccorpse", oPCCorpse);
+      NWScript.SetLocalInt(oCorpseItem, "_PC_ID", player.characterId);
+      NWScript.SetName(oCorpseItem, $"Cadavre de {NWScript.GetName(player.oid)}");
 
       player.deathCorpse = oPCCorpse;
     }
@@ -93,6 +95,7 @@ namespace NWN.Systems
       DestroyPlayerCorpse(player);
       NWScript.AssignCommand(player.oid, () => NWScript.ClearAllActions());
       NWScript.AssignCommand(player.oid, () => NWScript.JumpToLocation(NWScript.GetLocation(NWScript.GetWaypointByTag("WP_RESPAWN_DISPENSAIRE"))));
+      NWScript.ApplyEffectToObject(NWScript.DURATION_TYPE_PERMANENT, NWScript.TagEffect(NWScript.SupernaturalEffect(NWScript.EffectSpellFailure(50)), "erylies_spell_failure"), player.oid);
 
       switch (entity)
       {
