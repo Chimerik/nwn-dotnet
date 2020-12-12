@@ -13,16 +13,16 @@ namespace NWN.Systems
     private void DrawWelcomePage(Player player)
     {
       player.menu.Clear();
-      player.menu.title = $"Un gros tas de dix mille pièces d'or se trouve devant vous. Etrangement, personne alentours pour le surveiller. Que faites-vous ?";
-      player.menu.choices.Add(($"Il serait idiot de ne pas se remplir les poches.", () => HandleStealBankGold(player)));
+      player.menu.title = $"Un gros tas de pièces d'or se trouve devant vous. Etrangement, personne alentour pour le surveiller. Que faites-vous ?";
+      player.menu.choices.Add(($"Prendre 500 pièces. Après tout, il serait idiot de ne pas se remplir les poches.", () => HandleStealBankGold(player)));
       player.menu.choices.Add(("S'éloigner. Un tas d'or dans une banque sans personne autour, c'est suspect.", () => player.menu.Close()));
       player.menu.Draw();
     }
     private void HandleStealBankGold(Player player)
     {
       player.menu.Clear();
-      NWScript.GiveGoldToCreature(player.oid, 10000);
-      player.bankGold -= 20000;
+      NWScript.GiveGoldToCreature(player.oid, 500);
+      player.bankGold -= 500 + 500 * 30 / 100;
 
       player.menu.title = $"En voilà un gain simple et facile !";
 

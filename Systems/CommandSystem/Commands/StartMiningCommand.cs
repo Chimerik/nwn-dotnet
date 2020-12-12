@@ -31,7 +31,7 @@ namespace NWN.Systems
 
                 Action completeCycle = () =>
                 {
-                  //NWScript.SendMessageToPC(NWScript.GetFirstPC(), "Entering Cycle completed callback");
+                  NWScript.SendMessageToPC(NWScript.GetFirstPC(), "");
                   Utils.RemoveTaggedEffect(oPlaceable, $"_{NWScript.GetPCPublicCDKey(player.oid)}_MINING_BEAM");
                   CollectSystem.RemoveMiningCycleCallbacks(player);   // supprimer la callback de Cancel MiningCycle
 

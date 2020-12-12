@@ -468,13 +468,13 @@ namespace NWN.Systems
 
         if (this.playerJournal.skillJobCountDown != null)
         {
-          this.RefreshAcquiredSkillPoints(this.currentSkillJob);
           journalEntry = PlayerPlugin.GetJournalEntry(this.oid, "skill_job");
           if (journalEntry.nUpdated != -1)
           {
             journalEntry.sName = $"Entrainement - {Utils.StripTimeSpanMilliseconds((TimeSpan)(this.playerJournal.skillJobCountDown - DateTime.Now))}";
             PlayerPlugin.AddCustomJournalEntry(this.oid, journalEntry, 1);
           }
+          this.RefreshAcquiredSkillPoints(this.currentSkillJob);
         }
 
         this.dateLastSaved = DateTime.Now;
