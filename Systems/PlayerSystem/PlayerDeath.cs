@@ -171,45 +171,14 @@ namespace NWN.Systems
       NWScript.SqlBindInt(query, "@characterId", characterId);
       NWScript.SqlStep(query);
     }
-    private static int HandleAfterPCCorpseRemovedFromInventory(uint oidSelf)
-    {
-      var oItem = NWScript.StringToObject(EventsPlugin.GetEventData("ITEM"));
-
-      if (Convert.ToBoolean(NWScript.GetIsObjectValid(oItem)) && NWScript.GetTag(oItem) == "item_pccorpse"
-        && !Convert.ToBoolean(NWScript.GetIsObjectValid(NWScript.GetItemPossessor(oItem))))
-      {
-        var oPCCorpse = NWScript.CreateObject(NWScript.OBJECT_TYPE_PLACEABLE, "pccorpse", NWScript.GetLocation(oidSelf));
-        EventsPlugin.AddObjectToDispatchList("NWNX_ON_INVENTORY_REMOVE_ITEM_AFTER", "event_pccorpse_remove_item_after", oPCCorpse);
-        EventsPlugin.RemoveObjectFromDispatchList("NWNX_ON_INVENTORY_REMOVE_ITEM_AFTER", "event_inventory_pccorpse_removed_after", oidSelf);
-
-        int characterId = NWScript.GetLocalInt(oItem, "_PC_ID");
-        NWScript.SetLocalInt(oPCCorpse, "_PC_ID", characterId);
-        ObjectPlugin.AcquireItem(oPCCorpse, oItem);
-
-        var query = NWScript.SqlPrepareQueryCampaign(ModuleSystem.database, $"SELECT characterName from playerCharacters where rowid = @characterId");
-        NWScript.SqlBindInt(query, "@characterId", characterId);
-        NWScript.SqlStep(query);
-
-        string corpseName = NWScript.SqlGetString(query, 0);
-        NWScript.SetName(oPCCorpse, $"Cadavre de {corpseName}");
-        NWScript.SetDescription(oPCCorpse, $"Cadavre de {corpseName}");
-
-        SavePlayerCorpseToDatabase(characterId, oPCCorpse, NWScript.GetTag(NWScript.GetArea(oPCCorpse)), NWScript.GetPosition(oPCCorpse));
-      }
-      return 0;
-    }
     private static int HandleAfterItemRemovedFromPCCorpse(uint oidSelf)
     {
       var oItem = NWScript.StringToObject(EventsPlugin.GetEventData("ITEM"));
-
+      
       if (NWScript.GetTag(oItem) == "item_pccorpse")
       {
         DeletePlayerCorpseFromDatabase(NWScript.GetLocalInt(oItem, "_PC_ID"));
         NWScript.DestroyObject(oidSelf);
-
-        var oPossessor = NWScript.GetItemPossessor(oItem);
-        if (Convert.ToBoolean(NWScript.GetIsObjectValid(oPossessor)))
-          EventsPlugin.AddObjectToDispatchList("NWNX_ON_INVENTORY_REMOVE_ITEM_AFTER", "event_inventory_pccorpse_removed_after", oPossessor);
       }
 
       return 0;
