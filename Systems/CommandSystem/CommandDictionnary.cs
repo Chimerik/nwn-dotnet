@@ -255,6 +255,14 @@ namespace NWN.Systems
         )
       },
       {
+        "fixstorage",
+        new Command(
+          name: "fixstorage",
+          description: new Command.Description(title: "Commande DM - Initialise l'entrepôt personnel pour les anciens personnages."),
+          execute: ExecuteFixStorageCommand
+        )
+      },
+      {
         "sit",
         new Command(
           name: "sit",

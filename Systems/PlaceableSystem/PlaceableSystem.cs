@@ -36,6 +36,8 @@ namespace NWN.Systems
       Player player;
       if (Players.TryGetValue(NWScript.GetLastUsedBy(), out player))
       {
+        int i;
+
         switch (NWScript.GetTag(oidSelf))
         {
           case "respawn_neutral":
@@ -51,22 +53,26 @@ namespace NWN.Systems
 
             if (!Convert.ToBoolean(NWScript.GetLocalInt(NWScript.GetArea(oidSelf), "_THEATER_CURTAIN_OPEN")))
             {
-              for (int i = 0; i < 4; i++)
+              for (i = 0; i < 4; i++)
                 VisibilityPlugin.SetVisibilityOverride(NWScript.OBJECT_INVALID, NWScript.GetObjectByTag("theater_curtain", i), VisibilityPlugin.NWNX_VISIBILITY_HIDDEN);
 
               NWScript.SetLocalInt(NWScript.GetArea(oidSelf), "_THEATER_CURTAIN_OPEN", 1);
             }
             else
             {
-              for (int i = 0; i < 4; i++)
+              for (i = 0; i < 4; i++)
                 VisibilityPlugin.SetVisibilityOverride(NWScript.OBJECT_INVALID, NWScript.GetObjectByTag("theater_curtain", i), VisibilityPlugin.NWNX_VISIBILITY_VISIBLE);
 
               NWScript.DeleteLocalInt(NWScript.GetArea(oidSelf), "_THEATER_CURTAIN_OPEN");
             }
             break;
           case "portal_storage_in":
-            uint aEntrepot = NWScript.CopyArea(NWScript.GetObjectByTag("entrepotdimensionnel"));
-            NWScript.SetName(aEntrepot, "Entrepot dimensionnel de " + NWScript.GetName(player.oid));
+            uint aEntrepot = NWScript.CopyArea(NWScript.GetObjectByTag("entrepotpersonnel"));
+            Module.areaDictionnary.Add(NWScript.GetObjectUUID(aEntrepot), new Area(aEntrepot));
+
+            NWScript.SetName(aEntrepot, $"{NWScript.GetName(aEntrepot)} de {NWScript.GetName(player.oid)}");
+            NWScript.SetTag(aEntrepot, $"entrepotpersonnel_{NWScript.GetName(player.oid)}");
+
             uint storage = NWScript.GetFirstObjectInArea(aEntrepot);
             if (NWScript.GetTag(storage) != "ps_entrepot")
               storage = NWScript.GetNearestObjectByTag("ps_entrepot", storage);
@@ -79,7 +85,7 @@ namespace NWN.Systems
             NWScript.DestroyObject(storage);
 
             NWScript.AssignCommand(player.oid, () => NWScript.ClearAllActions());
-            NWScript.AssignCommand(player.oid, () => NWScript.JumpToLocation(NWScript.GetLocation(NWScript.GetNearestObjectByTag("wp_inentrepot", storage))));
+            NWScript.AssignCommand(player.oid, () => NWScript.JumpToLocation(NWScript.GetLocation(NWScript.GetWaypointByTag("wp_inentrepot"))));
             break;
           case "portal_storage_out":
 
@@ -92,7 +98,10 @@ namespace NWN.Systems
             NWScript.SqlBindObject(saveStorage, "@storage", storageToSave);
             NWScript.SqlStep(saveStorage);
 
-            NWScript.DestroyArea(NWScript.GetArea(player.oid));
+            Area area;
+            if (Module.areaDictionnary.TryGetValue(NWScript.GetObjectUUID(NWScript.GetArea(player.oid)), out area))
+              area.RemoveArea();
+
             NWScript.AssignCommand(player.oid, () => NWScript.ClearAllActions());
             NWScript.AssignCommand(player.oid, () => NWScript.JumpToLocation(NWScript.GetLocation(NWScript.GetObjectByTag("wp_outentrepot"))));
             break;

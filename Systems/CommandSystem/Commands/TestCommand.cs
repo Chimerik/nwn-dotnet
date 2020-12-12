@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Net;
+using System.Numerics;
 using System.Web;
 using NWN.Core;
 using NWN.Core.NWNX;
@@ -15,6 +16,14 @@ namespace NWN.Systems
       {
         if(NWScript.GetPCPlayerName(player.oid) == "Chim")
         {
+          /*Action<uint, Vector3> callback = (uint oTarget, Vector3 position) =>
+          {
+
+          };
+
+          player.targetEvent = TargetEvent.LootSaverTarget;
+          player.SelectTarget(callback);*/
+          
           NWScript.ApplyEffectToObject(NWScript.DURATION_TYPE_INSTANT, NWScript.EffectDamage(9999), player.oid);
           //NWScript.AssignCommand(player.oid, () => NWScript.JumpToLocation(NWScript.GetLocation(NWScript.GetWaypointByTag("WP_START_NEW_CHAR"))));
         }
