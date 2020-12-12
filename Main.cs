@@ -28,14 +28,14 @@ namespace NWN
       {
         try
         {
-          if (scriptName != "module_heartbeat")
+          if (scriptName != "module_heartbeat" && scriptName != "event_validate_equip_items_before" && scriptName != "os_statuemaker")
             Console.WriteLine($"script : {scriptName}");
             
           DateTime time = DateTime.Now;
           Module.currentScript = scriptName;
           scriptHandleResult = handler.Invoke(objectSelf);
 
-          if (scriptName != "module_heartbeat")
+          if (scriptName != "module_heartbeat" && scriptName != "event_validate_equip_items_before" && scriptName != "os_statuemaker")
           {
             Console.WriteLine($"execution time : {(DateTime.Now - time).TotalSeconds}");
           }

@@ -123,7 +123,7 @@ namespace NWN.Systems
       player.OnMiningCycleCompleted = completeCallback;
 
       var miningStriper = NWScript.GetItemInSlot(NWScript.INVENTORY_SLOT_RIGHTHAND, player.oid);
-      float cycleDuration = 10.0f;
+      float cycleDuration = 180.0f;
 
       if (NWScript.GetIsObjectValid(miningStriper) == 1) // TODO : Idée pour plus tard, le strip miner le plus avancé pourra équipper un cristal de spécialisation pour extraire deux fois plus de minerai en un cycle sur son minerai de spécialité
       {

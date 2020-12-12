@@ -16,6 +16,7 @@ namespace NWN.Systems
     }
     private void DrawWelcomePage(PlayerSystem.Player player)
     {
+      inventoryMaterials.Clear();
       player.menu.Clear();
       player.menu.title = $"Yop, tu veux déposer tes matières premières quelque part ? Vas-y file moi ça. Oublie pas qu'on prend 5 % pour le service.";
       player.menu.choices.Add(($"Tout déposer.", () => HandleDropAll(player)));
@@ -36,7 +37,7 @@ namespace NWN.Systems
         string itemTag = NWScript.GetTag(oItem);
         if (CollectSystem.IsItemCraftMaterial(itemTag))
         {
-          int addedOre = NWScript.GetItemStackSize(oItem) - NWScript.GetItemStackSize(oItem) * 5 / 100;
+          int addedOre = NWScript.GetItemStackSize(oItem) * 95 / 100;
 
           if (player.materialStock.ContainsKey(itemTag))
             player.materialStock[itemTag] += addedOre;
@@ -58,7 +59,7 @@ namespace NWN.Systems
       player.menu.Clear();
       player.menu.title = $"D'ac. Dépôt de quelle matière première ? (Utilisez !set X pour préciser la quantité avant de valider votre choix)";
 
-      var oItem = NWScript.GetFirstItemInInventory();
+      var oItem = NWScript.GetFirstItemInInventory(player.oid);
 
       while (Convert.ToBoolean(NWScript.GetIsObjectValid(oItem)))
       {
@@ -68,7 +69,7 @@ namespace NWN.Systems
           inventoryMaterials.Add(oItem, itemTag);
         }
 
-        oItem = NWScript.GetNextItemInInventory();
+        oItem = NWScript.GetNextItemInInventory(player.oid);
       }
 
       foreach (string value in inventoryMaterials.Values.Distinct())
@@ -97,7 +98,7 @@ namespace NWN.Systems
             int stackSize = NWScript.GetItemStackSize(materialEntry.Key);
             if (stackSize >= valueToStock)
             {
-              player.materialStock[material] += (valueToStock - valueToStock * 5 / 100);
+              player.materialStock[material] += valueToStock * 95 / 100;
               if (stackSize == valueToStock)
                 NWScript.DestroyObject(materialEntry.Key);
               else
@@ -107,7 +108,7 @@ namespace NWN.Systems
             }
             else
             {
-              player.materialStock[material] += (stackSize - stackSize * 5 / 100);
+              player.materialStock[material] += stackSize * 95 / 100;
               NWScript.DestroyObject(materialEntry.Key);
             }
           }
