@@ -29,7 +29,7 @@ namespace NWN.Systems
       player.menu.Clear();
       player.menu.title = $"Voilà qui est fait. Merci pour ta contribution à la cause !";
 
-      var oItem = NWScript.GetFirstItemInInventory();
+      var oItem = NWScript.GetFirstItemInInventory(player.oid);
 
       while(Convert.ToBoolean(NWScript.GetIsObjectValid(oItem)))
       {
@@ -46,7 +46,7 @@ namespace NWN.Systems
           NWScript.DestroyObject(oItem);
         }
 
-        oItem = NWScript.GetNextItemInInventory();
+        oItem = NWScript.GetNextItemInInventory(player.oid);
       }
 
       player.menu.choices.Add(($"Retour.", () => DrawWelcomePage(player)));
