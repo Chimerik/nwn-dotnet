@@ -17,6 +17,9 @@ namespace NWN.Systems
 
     public static Dictionary<int, Feat> craftBaseItemFeatDictionnary = new Dictionary<int, Feat>()
     {
+      {-13, Feat.Research },
+      {-12, Feat.Metallurgy },
+      {-11, Feat.BlueprintCopy },
       {-9, Feat.CraftClothing },
       {-8, Feat.CraftFullPlate },
       {-7, Feat.CraftHalfPlate },

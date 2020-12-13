@@ -155,7 +155,7 @@ namespace NWN.Systems
         {
           int timeCost = blueprint.mineralsCost * 80 / 100;
           float iJobDuration = timeCost - timeCost * (value * 5) / 100;
-          player.craftJob = new CraftJob(-11, "", iJobDuration, player, NWScript.ObjectToString(oBlueprint)); // - 11 = blueprint copy
+          player.craftJob = new CraftJob(-11, "", iJobDuration, player, ObjectPlugin.Serialize(oBlueprint)); // - 11 = blueprint copy
         }
       }
     }
@@ -171,7 +171,7 @@ namespace NWN.Systems
 
         float iJobDuration = blueprint.mineralsCost - blueprint.mineralsCost * (metallurgyLevel * 5 + advancedCraftLevel * 3) / 100;
         NWScript.SetLocalInt(oBlueprint, "_BLUEPRINT_MATERIAL_EFFICIENCY", NWScript.GetLocalInt(oBlueprint, "_BLUEPRINT_MATERIAL_EFFICIENCY") + 1);
-        player.craftJob = new CraftJob(-12, "", iJobDuration, player, NWScript.ObjectToString(oBlueprint)); // - 12 = recherche ME
+        player.craftJob = new CraftJob(-12, "", iJobDuration, player, ObjectPlugin.Serialize(oBlueprint)); // - 12 = recherche ME
         NWScript.DestroyObject(oBlueprint);
       }
     }
@@ -187,7 +187,7 @@ namespace NWN.Systems
 
         float iJobDuration = blueprint.mineralsCost - blueprint.mineralsCost * (researchLevel * 5 + advancedCraftLevel * 3) / 100;
         NWScript.SetLocalInt(oBlueprint, "_BLUEPRINT_TIME_EFFICIENCY", NWScript.GetLocalInt(oBlueprint, "_BLUEPRINT_TIME_EFFICIENCY") + 1);
-        player.craftJob = new CraftJob(-13, "", iJobDuration, player, NWScript.ObjectToString(oBlueprint)); // -13 = recherche TE
+        player.craftJob = new CraftJob(-13, "", iJobDuration, player, ObjectPlugin.Serialize(oBlueprint)); // -13 = recherche TE
         NWScript.DestroyObject(oBlueprint);
       }
     }
@@ -196,7 +196,22 @@ namespace NWN.Systems
       this.player.playerJournal.craftJobCountDown = DateTime.Now.AddSeconds(this.remainingTime);
       JournalEntry journalEntry = new JournalEntry();
       journalEntry.sName = $"Travail artisanal - {Utils.StripTimeSpanMilliseconds((TimeSpan)(player.playerJournal.craftJobCountDown - DateTime.Now))}";
-      journalEntry.sText = $"Fabrication en cours : {CollectSystem.blueprintDictionnary[this.baseItemType].name}";
+      switch(this.type)
+      {
+        case JobType.BlueprintCopy:
+          journalEntry.sText = "Copie de patron en cours";
+          break;
+        case JobType.BlueprintResearchMaterialEfficiency:
+          journalEntry.sText = "Recherche métallurgique en cours";
+          break;
+        case JobType.BlueprintResearchTimeEfficiency:
+          journalEntry.sText = "Recherche d'efficacité en cours";
+          break;
+        default:
+          journalEntry.sText = $"Fabrication en cours : {blueprintDictionnary[this.baseItemType].name}";
+          break;
+      }
+      
       journalEntry.sTag = "craft_job";
       journalEntry.nPriority = 1;
       journalEntry.nQuestDisplayed = 1;
