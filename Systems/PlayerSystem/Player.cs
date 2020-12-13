@@ -208,7 +208,7 @@ namespace NWN.Systems
       {
         if(this.craftJob.baseItemType < -10)
         {
-          NWScript.SetLocalInt(NWScript.CopyItem(NWScript.StringToObject(this.craftJob.craftedItem), this.oid, 1), "_BLUEPRINT_RUNS", 10);
+          NWScript.SetLocalInt(NWScript.CopyItem(ObjectPlugin.Deserialize((this.craftJob.craftedItem)), this.oid, 1), "_BLUEPRINT_RUNS", 10);
           NWScript.PostString(oid, $"La copie de votre patron est terminée !", 80, 10, NWScript.SCREEN_ANCHOR_TOP_LEFT, 5.0f, unchecked((int)0xC0C0C0FF), unchecked((int)0xC0C0C0FF), 9, "fnt_galahad14");
           // TODO : changer les sons et effets visuels
           PlayerPlugin.PlaySound(oid, "gui_level_up");
