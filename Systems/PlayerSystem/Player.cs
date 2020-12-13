@@ -206,30 +206,38 @@ namespace NWN.Systems
 
       public void AcquireCraftedItem()
       {
-        if(this.craftJob.baseItemType < -10)
+        switch(this.craftJob.type)
         {
-          NWScript.SetLocalInt(NWScript.CopyItem(ObjectPlugin.Deserialize((this.craftJob.craftedItem)), this.oid, 1), "_BLUEPRINT_RUNS", 10);
-          NWScript.PostString(oid, $"La copie de votre patron est terminée !", 80, 10, NWScript.SCREEN_ANCHOR_TOP_LEFT, 5.0f, unchecked((int)0xC0C0C0FF), unchecked((int)0xC0C0C0FF), 9, "fnt_galahad14");
-          // TODO : changer les sons et effets visuels
-          PlayerPlugin.PlaySound(oid, "gui_level_up");
-          PlayerPlugin.ApplyInstantVisualEffectToObject(oid, oid, NWScript.VFX_IMP_GLOBE_USE);
-
-          this.craftJob.isActive = false;
-          return;
+          case CraftJob.JobType.BlueprintCopy:
+            NWScript.SetLocalInt(NWScript.CopyItem(ObjectPlugin.Deserialize((this.craftJob.craftedItem)), this.oid, 1), "_BLUEPRINT_RUNS", 10);
+            break;
+          case CraftJob.JobType.BlueprintResearchMaterialEfficiency:
+            uint improvedMEBP = NWScript.CopyItem(ObjectPlugin.Deserialize((this.craftJob.craftedItem)), this.oid, 1);
+            NWScript.SetLocalInt(improvedMEBP, "_BLUEPRINT_MATERIAL_EFFICIENCY", NWScript.GetLocalInt(improvedMEBP, "_BLUEPRINT_MATERIAL_EFFICIENCY") + 1);
+            break;
+          case CraftJob.JobType.BlueprintResearchTimeEfficiency:
+            uint improvedTEBlueprint = NWScript.CopyItem(ObjectPlugin.Deserialize((this.craftJob.craftedItem)), this.oid, 1);
+            NWScript.SetLocalInt(improvedTEBlueprint, "_BLUEPRINT_TIME_EFFICIENCY", NWScript.GetLocalInt(improvedTEBlueprint, "_BLUEPRINT_TIME_EFFICIENCY") + 1);
+            break;
+          default:
+            Blueprint blueprint;
+            if (CollectSystem.blueprintDictionnary.ContainsKey(this.craftJob.baseItemType))
+            {
+              blueprint = CollectSystem.blueprintDictionnary[this.craftJob.baseItemType];
+              CollectSystem.AddCraftedItemProperties(NWScript.CreateItemOnObject(blueprint.craftedItemTag, oid), blueprint, this.craftJob.material);
+             
+            }
+            else
+            {
+              NWScript.SendMessageToPC(this.oid, "[ERREUR HRP] Il semble que votre dernière création soit invalide. Le staff a été informé du problème.");
+              Utils.LogMessageToDMs($"AcquireCraftedItem : {NWScript.GetName(this.oid)} - Blueprint invalid - {this.craftJob.baseItemType} - For {NWScript.GetName(this.oid)}");
+            }
+            break;
         }
 
-        Blueprint blueprint;
-        if (CollectSystem.blueprintDictionnary.ContainsKey(this.craftJob.baseItemType))
-        {
-          blueprint = CollectSystem.blueprintDictionnary[this.craftJob.baseItemType];
-          this.PlayCraftJobCompletedEffects(blueprint);
-          this.craftJob = new CraftJob(-10, "", 0, this);
-        }
-        else
-        {
-          NWScript.SendMessageToPC(this.oid, "[ERREUR HRP] Il semble que votre dernière création soit invalide. Le staff a été informé du bug.");
-          Utils.LogMessageToDMs($"AcquireCraftedItem : {NWScript.GetName(this.oid)} - Blueprint invalid - {this.craftJob.baseItemType} - For {NWScript.GetName(this.oid)}");
-        }
+        PlayerPlugin.ApplyInstantVisualEffectToObject(oid, oid, NWScript.VFX_IMP_GLOBE_USE);
+        this.craftJob = new CraftJob(-10, "", 0, this);
+        this.craftJob.CloseCraftJournalEntry();
       }
       public void AcquireSkillPoints()
       {
@@ -381,19 +389,6 @@ namespace NWN.Systems
         PlayerPlugin.ApplyInstantVisualEffectToObject(oid, oid, NWScript.VFX_IMP_GLOBE_USE);
         skill.CloseSkillJournalEntry();
       }
-
-      public void PlayCraftJobCompletedEffects(Blueprint blueprint)
-      {
-        //NWScript.PostString(oid, $"La création de votre {this.craftJob.name} est terminée !", 80, 10, NWScript.SCREEN_ANCHOR_TOP_LEFT, 5.0f, unchecked((int)0xC0C0C0FF), unchecked((int)0xC0C0C0FF), 9, "fnt_galahad14");
-        // TODO : changer les sons et effets visuels
-        //PlayerPlugin.PlaySound(oid, "gui_level_up");
-        PlayerPlugin.ApplyInstantVisualEffectToObject(oid, oid, NWScript.VFX_IMP_GLOBE_USE);
-
-        CollectSystem.AddCraftedItemProperties(NWScript.CreateItemOnObject(blueprint.craftedItemTag, oid), blueprint, this.craftJob.material);
-        this.craftJob.isActive = false;
-        this.craftJob.CloseCraftJournalEntry();
-      }
-
       public void PlayNoCurrentTrainingEffects()
       {
         NWScript.PostString(oid, $"Vous n'avez aucun apprentissage en cours !", 80, 10, NWScript.SCREEN_ANCHOR_TOP_LEFT, 5.0f, unchecked((int)0xC0C0C0FF), unchecked((int)0xC0C0C0FF), 9, "fnt_galahad14");
