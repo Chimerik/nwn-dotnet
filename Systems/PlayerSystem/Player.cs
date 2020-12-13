@@ -196,7 +196,7 @@ namespace NWN.Systems
         if (this.craftJob.isActive)
         {
           this.craftJob.remainingTime = this.craftJob.remainingTime - (float)(DateTime.Now - this.dateLastSaved).TotalSeconds;
-
+          
           if (this.craftJob.remainingTime < 0)
           {
             this.AcquireCraftedItem();
@@ -236,8 +236,8 @@ namespace NWN.Systems
         }
 
         PlayerPlugin.ApplyInstantVisualEffectToObject(oid, oid, NWScript.VFX_IMP_GLOBE_USE);
-        this.craftJob = new CraftJob(-10, "", 0, this);
         this.craftJob.CloseCraftJournalEntry();
+        this.craftJob = new CraftJob(-10, "", 0, this);
       }
       public void AcquireSkillPoints()
       {

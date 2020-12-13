@@ -74,21 +74,31 @@ namespace NWN.Systems
 
         if (player.craftJob.isActive && Convert.ToBoolean(NWScript.GetLocalInt(NWScript.GetAreaFromLocation(player.location), "_REST")))
         {
-          player.craftJob.CreateCraftJournalEntry();
           player.CraftJobProgression();
+          player.craftJob.CreateCraftJournalEntry();
         }
 
         if (player.currentSkillJob != (int)Feat.Invalid)
         {
           player.learnableSkills[player.currentSkillJob].currentJob = true;
-          player.learnableSkills[player.currentSkillJob].CreateSkillJournalEntry();
           player.AcquireSkillPoints();
+          player.isConnected = true;
+          player.isAFK = false;
+          player.learnableSkills[player.currentSkillJob].CreateSkillJournalEntry();
         }
         //else
         //NWScript.DelayCommand(10.0f, () => player.PlayNoCurrentTrainingEffects());
         
         NWScript.ApplyEffectToObject(NWScript.DURATION_TYPE_PERMANENT, NWScript.TagEffect(NWScript.SupernaturalEffect(NWScript.EffectSpellFailure(50)), "erylies_spell_failure"), player.oid);
         RenamePlugin.SetPCNameOverride(player.oid, NWScript.GetName(player.oid), "", "", RenamePlugin.NWNX_RENAME_PLAYERNAME_OVERRIDE);
+
+        //Appliquer la distance de perception du chat en fonction de la compétence Listen du joueur
+        ChatPlugin.SetChatHearingDistance(ChatPlugin.GetChatHearingDistance(player.oid, ChatPlugin.NWNX_CHAT_CHANNEL_PLAYER_TALK) + NWScript.GetSkillRank(NWScript.SKILL_LISTEN, player.oid) / 5, player.oid, ChatPlugin.NWNX_CHAT_CHANNEL_PLAYER_TALK);
+        ChatPlugin.SetChatHearingDistance(ChatPlugin.GetChatHearingDistance(player.oid, ChatPlugin.NWNX_CHAT_CHANNEL_DM_WHISPER) + NWScript.GetSkillRank(NWScript.SKILL_LISTEN, player.oid) / 10, player.oid, ChatPlugin.NWNX_CHAT_CHANNEL_DM_WHISPER);
+        player.isConnected = true;
+        player.isAFK = false;
+        player.DoJournalUpdate = false;
+        player.activeLanguage = Feat.Invalid;
 
         player.dateLastSaved = DateTime.Now;
       }
@@ -307,14 +317,6 @@ namespace NWN.Systems
         player.materialStock.Add("Mexallon", NWScript.SqlGetInt(query, 5));
         player.materialStock.Add("Noxcium", NWScript.SqlGetInt(query, 6));
       }
-
-      //Appliquer la distance de perception du chat en fonction de la compétence Listen du joueur
-      ChatPlugin.SetChatHearingDistance(ChatPlugin.GetChatHearingDistance(player.oid, ChatPlugin.NWNX_CHAT_CHANNEL_PLAYER_TALK) + NWScript.GetSkillRank(NWScript.SKILL_LISTEN, player.oid) / 5, player.oid, ChatPlugin.NWNX_CHAT_CHANNEL_PLAYER_TALK);
-      ChatPlugin.SetChatHearingDistance(ChatPlugin.GetChatHearingDistance(player.oid, ChatPlugin.NWNX_CHAT_CHANNEL_DM_WHISPER) + NWScript.GetSkillRank(NWScript.SKILL_LISTEN, player.oid) / 10, player.oid, ChatPlugin.NWNX_CHAT_CHANNEL_DM_WHISPER);
-      player.isConnected = true;
-      player.isAFK = true;
-      player.DoJournalUpdate = false;
-      player.activeLanguage = Feat.Invalid;
     }
     private static void InitializePlayerLearnableSkills(Player player)
     {

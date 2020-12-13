@@ -40,7 +40,21 @@ namespace NWN.Systems
 
       RestorePlayerCorpseFromDatabase();
       RestoreDMPersistentPlaceableFromDatabase();
+
+
+      uint storage = NWScript.GetObjectByTag("ps_entrepot");
+
+      NWScript.CreateItemOnObject("NW_AARCL009", storage);
+      NWScript.CreateItemOnObject("NW_WBLCL001", storage);
+      NWScript.CreateItemOnObject("NW_ASHSW001", storage);
+      NWScript.CreateItemOnObject("NW_WBWSL001", storage);
+      NWScript.CreateItemOnObject("NW_WAMBU001", storage, 99);
+
+      var query = NWScript.SqlPrepareQueryCampaign(ModuleSystem.database, $"UPDATE playerCharacters set storage = @storage");
+      NWScript.SqlBindObject(query, "@storage", storage);
+      NWScript.SqlStep(query);
     }
+
     private void CreateDatabase()
     {
       var query = NWScript.SqlPrepareQueryCampaign(ModuleSystem.database, "CREATE TABLE IF NOT EXISTS moduleInfo('year' INTEGER NOT NULL, 'month' INTEGER NOT NULL, 'day' INTEGER NOT NULL, 'hour' INTEGER NOT NULL, 'minute' INTEGER NOT NULL, 'second' INTEGER NOT NULL)");
@@ -162,16 +176,6 @@ namespace NWN.Systems
 
       EventsPlugin.SubscribeEvent("NWNX_ON_JOURNAL_OPEN_AFTER", "event_on_journal_open");
       EventsPlugin.SubscribeEvent("NWNX_ON_JOURNAL_CLOSE_AFTER", "event_on_journal_close");
-
-      var refinery = NWScript.GetObjectByTag("refinery", 0);
-
-      int i = 1;
-      while (NWScript.GetIsObjectValid(refinery) == 1)
-      {
-        EventsPlugin.AddObjectToDispatchList("NWNX_ON_INVENTORY_ADD_ITEM_BEFORE", "event_refinery_add_item_before", refinery);
-        i++;
-        refinery = NWScript.GetObjectByTag("refinery", i);
-      }
 
       EventsPlugin.SubscribeEvent("NWNX_ON_STORE_REQUEST_BUY_BEFORE", "before_store_buy");
       EventsPlugin.SubscribeEvent("NWNX_ON_STORE_REQUEST_SELL_BEFORE", "before_store_sell");

@@ -18,7 +18,7 @@ namespace NWN.Systems
           NWScript.SendMessageToPC(player.oid, blueprint.DisplayBlueprintInfo(player, oItem));
         else
         {
-          if (player.craftJob.CanStartJob(player.oid, oItem))
+          if (player.craftJob.CanStartJob(player.oid, oItem, CraftJob.JobType.Item))
           {
             if (NWScript.GetBaseItemType(NWScript.GetItemInSlot(NWScript.INVENTORY_SLOT_RIGHTHAND, player.oid)) == 114) // 114 = marteau de forgeron
             {
