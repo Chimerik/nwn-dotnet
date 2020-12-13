@@ -48,8 +48,12 @@ namespace NWN.Systems
           break;
       }
 
-      if(this.isActive)
+      if (this.isActive)
+      {
+        HandleBeforePlayerSave(player.oid);
+        HandleAfterPlayerSave(player.oid);
         this.CreateCraftJournalEntry();
+      }
     }
     public enum JobType
     {
@@ -70,9 +74,9 @@ namespace NWN.Systems
       this.isCancelled = true;
       NWScript.DelayCommand(60.0f, () => this.ResetCancellation());
     }
-    public Boolean CanStartJob(uint player, uint blueprint)
-    {
-      if (this.baseItemType < -10) // Dans le cas d'une copie une recherche de BP
+    public Boolean CanStartJob(uint player, uint blueprint, JobType type)
+    {    
+      if ((int)type > 1) // Dans le cas d'une copie une recherche de BP
       {
         if (!IsBlueprintOriginal(blueprint))
         {
@@ -81,16 +85,16 @@ namespace NWN.Systems
         }
       }
 
-      switch(this.type)
+      switch(type)
       {
-        case JobType.BlueprintResearchMaterialEfficiency:
+        case JobType.BlueprintResearchTimeEfficiency:
           if(NWScript.GetLocalInt(blueprint, "_BLUEPRINT_TIME_EFFICIENCY") >= 10)
           {
             NWScript.SendMessageToPC(player, "Ce patron dispose déjà d'un niveau de recherche maximal.");
             return false;
           }
-          break;
-        case JobType.BlueprintResearchTimeEfficiency:
+          break; 
+        case JobType.BlueprintResearchMaterialEfficiency:
           if (NWScript.GetLocalInt(blueprint, "_BLUEPRINT_MATERIAL_EFFICIENCY") >= 10)
           {
             NWScript.SendMessageToPC(player, "Ce patron dispose déjà d'un niveau de recherche métallurgique maximal.");
@@ -166,7 +170,7 @@ namespace NWN.Systems
     }
     public void StartBlueprintCopy(Player player, uint oBlueprint, Blueprint blueprint)
     {
-      if (player.craftJob.CanStartJob(player.oid, oBlueprint))
+      if (player.craftJob.CanStartJob(player.oid, oBlueprint, JobType.BlueprintCopy))
       {
         int value;
         if (int.TryParse(NWScript.Get2DAString("feat", "GAINMULTIPLE", CreaturePlugin.GetHighestLevelOfFeat(player.oid, (int)Feat.BlueprintCopy)), out value))
@@ -179,7 +183,7 @@ namespace NWN.Systems
     }
     public void StartBlueprintMaterialEfficiencyResearch(Player player, uint oBlueprint, Blueprint blueprint)
     {
-      if (player.craftJob.CanStartJob(player.oid, oBlueprint))
+      if (player.craftJob.CanStartJob(player.oid, oBlueprint, JobType.BlueprintResearchMaterialEfficiency))
       {
         int metallurgyLevel = 0;
         int.TryParse(NWScript.Get2DAString("feat", "GAINMULTIPLE", CreaturePlugin.GetHighestLevelOfFeat(player.oid, (int)Feat.Metallurgy)), out metallurgyLevel);
@@ -194,7 +198,7 @@ namespace NWN.Systems
     }
     public void StartBlueprintTimeEfficiencyResearch(Player player, uint oBlueprint, Blueprint blueprint)
     {
-      if (player.craftJob.CanStartJob(player.oid, oBlueprint))
+      if (player.craftJob.CanStartJob(player.oid, oBlueprint, JobType.BlueprintResearchTimeEfficiency))
       {
         int researchLevel = 0;
         int.TryParse(NWScript.Get2DAString("feat", "GAINMULTIPLE", CreaturePlugin.GetHighestLevelOfFeat(player.oid, (int)Feat.Research)), out researchLevel);
@@ -236,7 +240,23 @@ namespace NWN.Systems
     public void CancelCraftJournalEntry()
     {
       JournalEntry journalEntry = PlayerPlugin.GetJournalEntry(player.oid, "craft_job");
-      journalEntry.sName = $"Travail artisanal mis en pause - {CollectSystem.blueprintDictionnary[this.baseItemType].name}";
+
+      switch (this.type)
+      {
+        case JobType.BlueprintCopy:
+          journalEntry.sName = $"Travail artisanal terminé - Copie de patron";
+          break;
+        case JobType.BlueprintResearchMaterialEfficiency:
+          journalEntry.sName = $"Travail artisanal terminé - Recherche métallurgique";
+          break;
+        case JobType.BlueprintResearchTimeEfficiency:
+          journalEntry.sName = $"Travail artisanal terminé - Recherche en efficacité";
+          break;
+        default:
+          journalEntry.sName = $"Travail artisanal terminé - {CollectSystem.blueprintDictionnary[this.baseItemType].name}";
+          break;
+      }
+
       journalEntry.sTag = "craft_job";
       journalEntry.nQuestDisplayed = 0;
       PlayerPlugin.AddCustomJournalEntry(player.oid, journalEntry);
@@ -245,7 +265,23 @@ namespace NWN.Systems
     public void CloseCraftJournalEntry()
     {
       JournalEntry journalEntry = PlayerPlugin.GetJournalEntry(player.oid, "craft_job");
-      journalEntry.sName = $"Travail artisanal terminé - {CollectSystem.blueprintDictionnary[this.baseItemType].name}";
+
+      switch(this.type)
+      {
+        case JobType.BlueprintCopy:
+          journalEntry.sName = $"Travail artisanal terminé - Copie de patron";
+          break;
+        case JobType.BlueprintResearchMaterialEfficiency:
+          journalEntry.sName = $"Travail artisanal terminé - Recherche métallurgique";
+          break;
+        case JobType.BlueprintResearchTimeEfficiency:
+          journalEntry.sName = $"Travail artisanal terminé - Recherche en efficacité";
+          break;
+        default:
+          journalEntry.sName = $"Travail artisanal terminé - {CollectSystem.blueprintDictionnary[this.baseItemType].name}";
+          break;
+      }
+      
       journalEntry.sTag = "craft_job";
       journalEntry.nQuestCompleted = 1;
       journalEntry.nQuestDisplayed = 0;

@@ -8,7 +8,7 @@ namespace NWN.Systems
 {
   public static partial class PlayerSystem
   {
-    private static int HandleBeforePlayerSave(uint oidSelf)
+    public static int HandleBeforePlayerSave(uint oidSelf)
     {
       /* Fix polymorph bug : Lorsqu'un PJ métamorphosé est sauvegardé, toutes ses buffs sont supprimées afin que les stats de 
        * la nouvelle forme ne remplace pas celles du PJ dans son fichier .bic. Après sauvegarde, les stats de la métamorphose 
@@ -45,10 +45,10 @@ namespace NWN.Systems
           // TODO : probablement faire pour chaque joueur tous les check faim / soif / jobs etc ici
 
           // AFK detection
-          if (player.location != NWScript.GetLocation(player.oid))
+          if (player.location == NWScript.GetLocation(player.oid))
           {
             player.location = NWScript.GetLocation(player.oid);
-            player.isAFK = false;
+            player.isAFK = true;
           }
 
           player.currentHP = NWScript.GetCurrentHitPoints(player.oid);
@@ -59,7 +59,6 @@ namespace NWN.Systems
           player.AcquireSkillPoints();
 
           player.dateLastSaved = DateTime.Now;
-          player.isAFK = true;
 
           SavePlayerCharacterToDatabase(player);
           SavePlayerLearnableSkillsToDatabase(player);
@@ -68,7 +67,7 @@ namespace NWN.Systems
       }
       return 0;
     }
-    private static int HandleAfterPlayerSave(uint oidSelf)
+    public static int HandleAfterPlayerSave(uint oidSelf)
     {
       /* Fix polymorph bug : Lorsqu'un PJ métamorphosé est sauvegardé, toutes ses buffs sont supprimées afin que les stats de 
        * la nouvelle forme ne remplace pas celles du PJ dans son fichier .bic. Après sauvegarde, les stats de la métamorphose 

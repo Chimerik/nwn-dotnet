@@ -161,16 +161,18 @@ namespace NWN.Systems
         HandleBeforePartyLeave(oidSelf);
         HandleAfterPartyLeave(oidSelf);
 
-        if(NWScript.GetTag(NWScript.GetArea(player.oid)) == "entrepotpersonnel")
+        if(NWScript.GetTag(NWScript.GetArea(player.oid)) == $"entrepotpersonnel_{NWScript.GetName(player.oid)}")
         {
           uint storageToSave = NWScript.GetFirstObjectInArea(NWScript.GetArea(player.oid));
           if (NWScript.GetTag(storageToSave) != "ps_entrepot")
             storageToSave = NWScript.GetNearestObjectByTag("ps_entrepot", storageToSave);
 
-          var saveStorage = NWScript.SqlPrepareQueryCampaign(ModuleSystem.database, $"UPDATE playerCharacters set storage = @storage");
+          var saveStorage = NWScript.SqlPrepareQueryCampaign(ModuleSystem.database, $"UPDATE playerCharacters set storage = @storage where rowid = @characterId");
           NWScript.SqlBindInt(saveStorage, "@characterId", player.characterId);
           NWScript.SqlBindObject(saveStorage, "@storage", storageToSave);
           NWScript.SqlStep(saveStorage);
+
+          player.location = NWScript.GetLocation(NWScript.GetObjectByTag("portal_storage_in"));
         }
       }
 
@@ -766,10 +768,10 @@ namespace NWN.Systems
 
           SavePlayerCorpseToDatabase(characterId, oPCCorpse, NWScript.GetTag(NWScript.GetArea(oPCCorpse)), NWScript.GetPosition(oPCCorpse));
         }
-
+        /* En pause jusqu'à ce que le système de transport soit en place
         if (NWScript.GetMovementRate(oPC) == CreaturePlugin.NWNX_CREATURE_MOVEMENT_RATE_IMMOBILE)
           if (NWScript.GetWeight(oPC) <= int.Parse(NWScript.Get2DAString("encumbrance", "Heavy", NWScript.GetAbilityScore(oPC, NWScript.ABILITY_STRENGTH))))
-            CreaturePlugin.SetMovementRate(oPC, CreaturePlugin.NWNX_CREATURE_MOVEMENT_RATE_PC);
+            CreaturePlugin.SetMovementRate(oPC, CreaturePlugin.NWNX_CREATURE_MOVEMENT_RATE_PC);*/
       }
 
       return 0;
@@ -789,10 +791,10 @@ namespace NWN.Systems
           if (!Convert.ToBoolean(NWScript.SqlStep(query)))
             NWScript.DestroyObject(oItem);
         }
-
+        /*En pause jusqu'à ce que le système de transport soit en place
         if (NWScript.GetMovementRate(oPC) != CreaturePlugin.NWNX_CREATURE_MOVEMENT_RATE_IMMOBILE)
           if (NWScript.GetWeight(oPC) > int.Parse(NWScript.Get2DAString("encumbrance", "Heavy", NWScript.GetAbilityScore(oPC, NWScript.ABILITY_STRENGTH))))
-            CreaturePlugin.SetMovementRate(oPC, CreaturePlugin.NWNX_CREATURE_MOVEMENT_RATE_IMMOBILE);
+            CreaturePlugin.SetMovementRate(oPC, CreaturePlugin.NWNX_CREATURE_MOVEMENT_RATE_IMMOBILE);*/
       }
 
       return 0;

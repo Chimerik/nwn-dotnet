@@ -66,6 +66,10 @@ namespace NWN.Systems
               NWScript.DeleteLocalInt(NWScript.GetArea(oidSelf), "_THEATER_CURTAIN_OPEN");
             }
             break;
+            case "portal_start":
+            NWScript.AssignCommand(player.oid, () => NWScript.ClearAllActions());
+            NWScript.AssignCommand(player.oid, () => NWScript.JumpToLocation(NWScript.GetLocation(NWScript.GetWaypointByTag("WP_START_NEW_CHAR"))));
+            break;
           case "portal_storage_in":
             uint aEntrepot = NWScript.CopyArea(NWScript.GetObjectByTag("entrepotpersonnel"));
             Module.areaDictionnary.Add(NWScript.GetObjectUUID(aEntrepot), new Area(aEntrepot));
@@ -93,7 +97,7 @@ namespace NWN.Systems
             if (NWScript.GetTag(storageToSave) != "ps_entrepot")
               storageToSave = NWScript.GetNearestObjectByTag("ps_entrepot", storageToSave);
 
-            var saveStorage = NWScript.SqlPrepareQueryCampaign(ModuleSystem.database, $"UPDATE playerCharacters set storage = @storage");
+            var saveStorage = NWScript.SqlPrepareQueryCampaign(ModuleSystem.database, $"UPDATE playerCharacters set storage = @storage where rowid = @characterId");
             NWScript.SqlBindInt(saveStorage, "@characterId", player.characterId);
             NWScript.SqlBindObject(saveStorage, "@storage", storageToSave);
             NWScript.SqlStep(saveStorage);

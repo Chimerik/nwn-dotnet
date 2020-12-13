@@ -23,12 +23,13 @@ namespace NWN.Systems
             PlayerSystem.Player targetPlayer;
             if (PlayerSystem.Players.TryGetValue(oTarget, out targetPlayer))
             {
-              Utils.DestroyInventory(storage);
-              NWScript.CreateItemOnObject("wblcl002", storage);
-              NWScript.CreateItemOnObject("ashsw003", storage);
-              NWScript.CreateItemOnObject("wbwsl002", storage);
-              NWScript.CreateItemOnObject("wambu002", storage, 99);
-
+              Utils.DestroyInventory(storage); 
+              NWScript.CreateItemOnObject("NW_AARCL009", storage);
+              NWScript.CreateItemOnObject("NW_WBLCL001", storage);
+              NWScript.CreateItemOnObject("NW_ASHSW001", storage);
+              NWScript.CreateItemOnObject("NW_WBWSL001", storage);
+              NWScript.CreateItemOnObject("NW_WAMBU001", storage, 99);
+              
               var query = NWScript.SqlPrepareQueryCampaign(ModuleSystem.database, $"UPDATE playerCharacters set storage = @storage where rowid = @characterId");
               NWScript.SqlBindInt(query, "@characterId", targetPlayer.characterId);
               NWScript.SqlBindObject(query, "@storage", storage);
