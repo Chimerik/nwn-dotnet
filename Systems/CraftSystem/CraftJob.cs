@@ -81,6 +81,24 @@ namespace NWN.Systems
         }
       }
 
+      switch(this.type)
+      {
+        case JobType.BlueprintResearchMaterialEfficiency:
+          if(NWScript.GetLocalInt(blueprint, "_BLUEPRINT_TIME_EFFICIENCY") >= 10)
+          {
+            NWScript.SendMessageToPC(player, "Ce patron dispose déjà d'un niveau de recherche maximal.");
+            return false;
+          }
+          break;
+        case JobType.BlueprintResearchTimeEfficiency:
+          if (NWScript.GetLocalInt(blueprint, "_BLUEPRINT_MATERIAL_EFFICIENCY") >= 10)
+          {
+            NWScript.SendMessageToPC(player, "Ce patron dispose déjà d'un niveau de recherche métallurgique maximal.");
+            return false;
+          }
+          break;
+      }
+
       if (this.isActive && !this.isCancelled)
       {
         this.AskCancellationConfirmation(player);
@@ -170,7 +188,6 @@ namespace NWN.Systems
         int.TryParse(NWScript.Get2DAString("feat", "GAINMULTIPLE", CreaturePlugin.GetHighestLevelOfFeat(player.oid, (int)Feat.AdvancedCraft)), out advancedCraftLevel);
 
         float iJobDuration = blueprint.mineralsCost - blueprint.mineralsCost * (metallurgyLevel * 5 + advancedCraftLevel * 3) / 100;
-        NWScript.SetLocalInt(oBlueprint, "_BLUEPRINT_MATERIAL_EFFICIENCY", NWScript.GetLocalInt(oBlueprint, "_BLUEPRINT_MATERIAL_EFFICIENCY") + 1);
         player.craftJob = new CraftJob(-12, "", iJobDuration, player, ObjectPlugin.Serialize(oBlueprint)); // - 12 = recherche ME
         NWScript.DestroyObject(oBlueprint);
       }
@@ -186,7 +203,6 @@ namespace NWN.Systems
         int.TryParse(NWScript.Get2DAString("feat", "GAINMULTIPLE", CreaturePlugin.GetHighestLevelOfFeat(player.oid, (int)Feat.AdvancedCraft)), out advancedCraftLevel);
 
         float iJobDuration = blueprint.mineralsCost - blueprint.mineralsCost * (researchLevel * 5 + advancedCraftLevel * 3) / 100;
-        NWScript.SetLocalInt(oBlueprint, "_BLUEPRINT_TIME_EFFICIENCY", NWScript.GetLocalInt(oBlueprint, "_BLUEPRINT_TIME_EFFICIENCY") + 1);
         player.craftJob = new CraftJob(-13, "", iJobDuration, player, ObjectPlugin.Serialize(oBlueprint)); // -13 = recherche TE
         NWScript.DestroyObject(oBlueprint);
       }
