@@ -40,19 +40,6 @@ namespace NWN.Systems
 
       RestorePlayerCorpseFromDatabase();
       RestoreDMPersistentPlaceableFromDatabase();
-
-
-      uint storage = NWScript.GetObjectByTag("ps_entrepot");
-
-      NWScript.CreateItemOnObject("NW_AARCL009", storage);
-      NWScript.CreateItemOnObject("NW_WBLCL001", storage);
-      NWScript.CreateItemOnObject("NW_ASHSW001", storage);
-      NWScript.CreateItemOnObject("NW_WBWSL001", storage);
-      NWScript.CreateItemOnObject("NW_WAMBU001", storage, 99);
-
-      var query = NWScript.SqlPrepareQueryCampaign(ModuleSystem.database, $"UPDATE playerCharacters set storage = @storage");
-      NWScript.SqlBindObject(query, "@storage", storage);
-      NWScript.SqlStep(query);
     }
 
     private void CreateDatabase()

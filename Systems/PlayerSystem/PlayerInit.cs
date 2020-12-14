@@ -333,10 +333,11 @@ namespace NWN.Systems
         storage = NWScript.GetNearestObjectByTag("ps_entrepot", storage);
 
       Utils.DestroyInventory(storage);
-      NWScript.CreateItemOnObject("wblcl002", storage);
-      NWScript.CreateItemOnObject("ashsw003", storage);
-      NWScript.CreateItemOnObject("wbwsl002", storage);
-      NWScript.CreateItemOnObject("wambu002", storage, 99);
+      NWScript.CreateItemOnObject("NW_AARCL009", storage);
+      NWScript.CreateItemOnObject("NW_WBLCL001", storage);
+      NWScript.CreateItemOnObject("NW_ASHSW001", storage);
+      NWScript.CreateItemOnObject("NW_WBWSL001", storage);
+      NWScript.CreateItemOnObject("NW_WAMBU001", storage, 99);
 
       NWScript.SetName(storage, $"Entrepôt de {NWScript.GetName(player.oid)}");
 
