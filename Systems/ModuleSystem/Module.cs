@@ -17,7 +17,13 @@ namespace NWN.Systems
       this.oid = oid;
       NWScript.SetLocalString(oid, "X2_S_UD_SPELLSCRIPT", "spellhook");
       this.botAsyncCommandList = new List<string>();
-      Bot.MainAsync();
+
+      if (Config.env == Config.Env.Prod)
+      {
+        // On active le bot Discord uniquement pour le serveur de production
+        Bot.MainAsync();
+      }
+
       this.CreateDatabase();
       this.SetModuleTime();
       ChatSystem.Init();
