@@ -109,6 +109,11 @@ namespace NWN.Systems
         return false;
       }
 
+      if(this.isCancelled)
+      {
+        ObjectPlugin.AcquireItem(player, ObjectPlugin.Deserialize(this.craftedItem));
+      }
+
       return true;
     }
     private Boolean IsBlueprintOriginal(uint oBlueprint)
@@ -152,7 +157,10 @@ namespace NWN.Systems
         // TODO : afficher des effets visuels sur la forge
 
         if (NWScript.GetTag(oTarget) == blueprint.craftedItemTag) // En cas d'amélioration d'un objet, on détruit l'original
+        {
           NWScript.DestroyObject(oTarget);
+          NWScript.SendMessageToPC(player.oid, $"L'objet {NWScript.GetName(oTarget)} ne sera pas disponible jusqu'à la fin du travail artisanal.");
+        }
 
         // s'il s'agit d'une copie de blueprint, alors le nombre d'utilisation diminue de 1
         int iBlueprintRemainingRuns = NWScript.GetLocalInt(oItem, "_BLUEPRINT_RUNS");
@@ -194,6 +202,7 @@ namespace NWN.Systems
         float iJobDuration = blueprint.mineralsCost - blueprint.mineralsCost * (metallurgyLevel * 5 + advancedCraftLevel * 3) / 100;
         player.craftJob = new CraftJob(-12, "", iJobDuration, player, ObjectPlugin.Serialize(oBlueprint)); // - 12 = recherche ME
         NWScript.DestroyObject(oBlueprint);
+        NWScript.SendMessageToPC(player.oid, $"L'objet {NWScript.GetName(oBlueprint)} ne sera pas disponible jusqu'à la fin du travail de recherche métallurgique.");
       }
     }
     public void StartBlueprintTimeEfficiencyResearch(Player player, uint oBlueprint, Blueprint blueprint)
@@ -209,6 +218,7 @@ namespace NWN.Systems
         float iJobDuration = blueprint.mineralsCost - blueprint.mineralsCost * (researchLevel * 5 + advancedCraftLevel * 3) / 100;
         player.craftJob = new CraftJob(-13, "", iJobDuration, player, ObjectPlugin.Serialize(oBlueprint)); // -13 = recherche TE
         NWScript.DestroyObject(oBlueprint);
+        NWScript.SendMessageToPC(player.oid, $"L'objet {NWScript.GetName(oBlueprint)} ne sera pas disponible jusqu'à la fin du travail de recherche d'efficacité.");
       }
     }
     public void CreateCraftJournalEntry()
