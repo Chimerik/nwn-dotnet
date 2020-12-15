@@ -6,7 +6,6 @@ namespace NWN.Systems
   {
     public enum Env
     {
-      Dev,
       Prod,
       Bigby,
       Chim,
@@ -23,7 +22,6 @@ namespace NWN.Systems
         default: return Env.Prod;
 
         case "production": return Env.Prod;
-        case "development": return Env.Dev;
         case "Bigby": return Env.Bigby;
         case "Chim": return Env.Chim;
       }
