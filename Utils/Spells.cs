@@ -7,14 +7,6 @@ namespace NWN
 {
   public static class Spells
   {
-    public static void LogException(Exception e)
-    {
-      Console.WriteLine(e.Message);
-      NWScript.SendMessageToAllDMs(e.Message);
-      NWScript.WriteTimestampedLogEntry(e.Message);
-      WebhookSystem.StartSendingAsyncDiscordMessage(e.Message, "AoA notification service - CRITICAL ERROR");
-    }
-
     public static int MyResistSpell(uint oCaster, uint oTarget, float fDelay = 0.0f) // TODO : check la fonction par rapport à celle de never de base
     {
       if (fDelay > 0.5)

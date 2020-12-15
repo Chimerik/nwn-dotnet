@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using Discord;
 using NWN.Core;
 using NWN.Core.NWNX;
 
@@ -40,6 +41,9 @@ namespace NWN.Systems
 
       RestorePlayerCorpseFromDatabase();
       RestoreDMPersistentPlaceableFromDatabase();
+
+      if (Config.env == Config.Env.Prod)
+        NWScript.DelayCommand(5.0f, () => (Bot._client.GetChannel(786218144296468481) as IMessageChannel).SendMessageAsync($"Module en ligne !"));
     }
 
     private void CreateDatabase()
@@ -244,6 +248,7 @@ namespace NWN.Systems
       NWScript.SqlStep(query);
 
       NWScript.ExportAllCharacters();
+      Bot._client.DownloadUsersAsync(new List<IGuild> { { Bot._client.GetGuild(680072044364562528) } });
       NWScript.DelayCommand(600.0f, () => SaveServerVault());
     }
     public void RestorePlayerCorpseFromDatabase()

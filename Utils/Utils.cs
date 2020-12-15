@@ -5,6 +5,7 @@ using NWN.Core;
 using NWN.Core.NWNX;
 using NWN.Systems;
 using System.Numerics;
+using Discord;
 
 namespace NWN
 {
@@ -16,13 +17,34 @@ namespace NWN
     {
       Console.WriteLine(e.Message);
       NWScript.WriteTimestampedLogEntry(e.Message);
-      WebhookSystem.StartSendingAsyncDiscordMessage(Module.currentScript + " : " + e.Message, "AoA notification service - CRITICAL ERROR");
-      NWScript.SendMessageToAllDMs(e.Message);
+
+      switch (Config.env)
+      {
+        case Config.Env.Prod:
+          (Bot._client.GetChannel(703964971549196339) as IMessageChannel).SendMessageAsync(Module.currentScript + " : " + e.Message);
+          break;
+        case Config.Env.Bigby:
+          Bot._client.GetUser(225961076448034817).SendMessageAsync(Module.currentScript + " : " + e.Message);
+          break;
+        case Config.Env.Chim:
+          Bot._client.GetUser(232218662080086017).SendMessageAsync(Module.currentScript + " : " + e.Message);
+          break;
+      }
     }
     public static void LogMessageToDMs(string message)
-    {  
-      WebhookSystem.StartSendingAsyncDiscordMessage(Module.currentScript + " : " + message, "AoA notification service - ERROR");
-      NWScript.SendMessageToAllDMs(message);
+    {
+      switch(Config.env)
+      {
+        case Config.Env.Prod:
+          (Bot._client.GetChannel(703964971549196339) as IMessageChannel).SendMessageAsync(Module.currentScript + " : " + message);
+          break;
+        case Config.Env.Bigby:
+          Bot._client.GetUser(225961076448034817).SendMessageAsync(Module.currentScript + " : " + message);
+          break;
+        case Config.Env.Chim:
+          Bot._client.GetUser(232218662080086017).SendMessageAsync(Module.currentScript + " : " + message);
+          break;
+      }
     }
 
     public static void DestroyInventory(uint oContainer)

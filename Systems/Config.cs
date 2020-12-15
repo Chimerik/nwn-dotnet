@@ -7,7 +7,9 @@ namespace NWN.Systems
     public enum Env
     {
       Dev,
-      Prod
+      Prod,
+      Bigby,
+      Chim,
     }
 
     public static Env env = InitEnv();
@@ -22,6 +24,8 @@ namespace NWN.Systems
 
         case "production": return Env.Prod;
         case "development": return Env.Dev;
+        case "Bigby": return Env.Bigby;
+        case "Chim": return Env.Chim;
       }
     }
   }
