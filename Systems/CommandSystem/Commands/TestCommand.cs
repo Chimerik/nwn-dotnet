@@ -2,6 +2,7 @@
 using System.Net;
 using System.Numerics;
 using System.Web;
+using Discord;
 using NWN.Core;
 using NWN.Core.NWNX;
 
@@ -23,8 +24,25 @@ namespace NWN.Systems
 
           player.targetEvent = TargetEvent.LootSaverTarget;
           player.SelectTarget(callback);*/
+          //Discord.Rest.user
+
+          //NWScript.SendMessageToPC(NWScript.GetFirstPC(), $"role : {Bot.discordServer.role.EveryoneRole.Mention}");
+
+
+          //string test = Bot._client.GetUser(232218662080086017).Mention;//.SendMessageAsync("BOT TEST !");
+
+          //(Bot._client.GetUser(232218662080086017).GetOrCreateDMChannelAsync() as IDMChannel).SendMessageAsync("BOT TEST !");
+          //(Bot._client.GetChannel(680072044364562532) as IMessageChannel).SendMessageAsync($"BOT TEST !");
+
+          Bot._client.GetUser(232218662080086017).SendMessageAsync("BOT TEST !");
+          //(Bot._client.GetChannel(680072044364562532) as IMessageChannel).SendMessageAsync($"{Bot._client.GetGuild(680072044364562528).EveryoneRole.Mention} MENTION TEST EVERYONE!");
+          //(Bot._client.GetChannel(786218144296468481) as IMessageChannel).SendMessageAsync($"{test} MESSAGE TEST !");
+
+
 
           //NWScript.ApplyEffectToObject(NWScript.DURATION_TYPE_INSTANT, NWScript.EffectDamage(9999), player.oid);
+          //Location loc = NWScript.GetLocation(player.oid);
+          //NWScript.DelayCommand(5.0f, () => NWScript.AssignCommand(player.oid, () => NWScript.JumpToLocation(loc)));
           //NWScript.AssignCommand(player.oid, () => NWScript.JumpToLocation(NWScript.GetLocation(NWScript.GetWaypointByTag("WP_START_NEW_CHAR"))));
         }
       }

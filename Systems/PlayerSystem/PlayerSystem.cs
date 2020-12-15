@@ -41,14 +41,16 @@ namespace NWN.Systems
             { "event_party_kick_after", HandleAfterPartyKick },
             { "event_examine_before", HandleBeforeExamine },
             { "event_examine_after", HandleAfterExamine },
-            { "event_pccorpse_remove_item_after", HandleAfterItemRemovedFromPCCorpse },
-            { "pc_acquire_item", HandlePCAcquireItem },
+            { "pc_acquire_it", HandlePCAcquireItem },
             { "pc_unacquire_it", HandlePCUnacquireItem },
             { "event_on_journal_open", HandlePCJournalOpen },
             { "event_on_journal_close", HandlePCJournalClose },
             { "before_store_buy", HandleBeforeStoreBuy },
             { "before_store_sell", HandleBeforeStoreSell },
             { "event_spacebar_down", HandleSpacebarDown },
+            { "map_pin_added", HandleAddMapPin },
+            { "map_pin_changed", HandleChangeMapPin },
+            { "map_pin_destroyed", HandleDestroyMapPin },
            // { "before_reputation_change", HandleBeforeReputationChange },
         }; 
 
@@ -746,32 +748,35 @@ namespace NWN.Systems
     private static int HandlePCUnacquireItem(uint oidSelf)
     {
       uint oPC = NWScript.GetModuleItemLostBy();
-      var oItem = NWScript.GetModuleItemLost();
-      if (Convert.ToBoolean(NWScript.GetIsObjectValid(oItem)))
+
+      if (Convert.ToBoolean(NWScript.GetIsPC(oPC)))
       {
-        if (NWScript.GetTag(oItem) == "item_pccorpse")
+        var oItem = NWScript.GetModuleItemLost();
+        var oGivenTo = NWScript.GetItemPossessor(oItem);
+
+        if (Convert.ToBoolean(NWScript.GetIsObjectValid(oItem)))
         {
-          var oPCCorpse = NWScript.CreateObject(NWScript.OBJECT_TYPE_PLACEABLE, "pccorpse", NWScript.GetLocation(oPC));
-          EventsPlugin.AddObjectToDispatchList("NWNX_ON_INVENTORY_REMOVE_ITEM_AFTER", "event_pccorpse_remove_item_after", oPCCorpse);
+          if (NWScript.GetTag(oItem) == "item_pccorpse" && oGivenTo == NWScript.OBJECT_INVALID) // signifie que l'item a été drop au sol et pas donné à un autre PJ ou mis dans un placeable
+          {
+            uint oCorpse = ObjectPlugin.Deserialize(NWScript.GetLocalString(oItem, "_SERIALIZED_CORPSE"));
+            ObjectPlugin.AddToArea(oCorpse, NWScript.GetArea(oItem), NWScript.GetPosition(oItem));
+            Utils.DestroyInventory(oCorpse);
+            ObjectPlugin.AcquireItem(oCorpse, oItem);
+            VisibilityPlugin.SetVisibilityOverride(NWScript.OBJECT_INVALID, oCorpse, VisibilityPlugin.NWNX_VISIBILITY_HIDDEN);
+            SetupPCCorpse(oCorpse);
+            //NWScript.DelayCommand(1.3f, () => ObjectPlugin.AcquireItem(NWScript.GetNearestObjectByTag("pccorpse_bodybag", oCorpse), oItem));
 
-          int characterId = NWScript.GetLocalInt(oItem, "_PC_ID");
-          NWScript.SetLocalInt(oPCCorpse, "_PC_ID", characterId);
-          ObjectPlugin.AcquireItem(oPCCorpse, oItem);
+            var query = NWScript.SqlPrepareQueryCampaign(ModuleSystem.database, $"SELECT characterName from playerCharacters where rowid = @characterId");
+            NWScript.SqlBindInt(query, "@characterId", NWScript.GetLocalInt(oItem, "_PC_ID"));
+            NWScript.SqlStep(query);
 
-          var query = NWScript.SqlPrepareQueryCampaign(ModuleSystem.database, $"SELECT characterName from playerCharacters where rowid = @characterId");
-          NWScript.SqlBindInt(query, "@characterId", characterId);
-          NWScript.SqlStep(query);
-
-          string corpseName = NWScript.SqlGetString(query, 0);
-          NWScript.SetName(oPCCorpse, $"Corps de {corpseName}");
-          NWScript.SetDescription(oPCCorpse, $"Corps de {corpseName}.\n\n Allez savoir combien de temps il va tenir comme ça.");
-
-          SavePlayerCorpseToDatabase(characterId, oPCCorpse, NWScript.GetTag(NWScript.GetArea(oPCCorpse)), NWScript.GetPosition(oPCCorpse));
+            SavePlayerCorpseToDatabase(NWScript.GetLocalInt(oItem, "_PC_ID"), oCorpse, NWScript.GetTag(NWScript.GetArea(oCorpse)), NWScript.GetPosition(oCorpse));
+          }
+          /* En pause jusqu'à ce que le système de transport soit en place
+          if (NWScript.GetMovementRate(oPC) == CreaturePlugin.NWNX_CREATURE_MOVEMENT_RATE_IMMOBILE)
+            if (NWScript.GetWeight(oPC) <= int.Parse(NWScript.Get2DAString("encumbrance", "Heavy", NWScript.GetAbilityScore(oPC, NWScript.ABILITY_STRENGTH))))
+              CreaturePlugin.SetMovementRate(oPC, CreaturePlugin.NWNX_CREATURE_MOVEMENT_RATE_PC);*/
         }
-        /* En pause jusqu'à ce que le système de transport soit en place
-        if (NWScript.GetMovementRate(oPC) == CreaturePlugin.NWNX_CREATURE_MOVEMENT_RATE_IMMOBILE)
-          if (NWScript.GetWeight(oPC) <= int.Parse(NWScript.Get2DAString("encumbrance", "Heavy", NWScript.GetAbilityScore(oPC, NWScript.ABILITY_STRENGTH))))
-            CreaturePlugin.SetMovementRate(oPC, CreaturePlugin.NWNX_CREATURE_MOVEMENT_RATE_PC);*/
       }
 
       return 0;
@@ -779,24 +784,39 @@ namespace NWN.Systems
     private static int HandlePCAcquireItem(uint oidSelf)
     {
       var oPC = NWScript.GetModuleItemAcquiredBy();
-      var oItem = NWScript.GetModuleItemAcquired();
 
-      if (Convert.ToBoolean(NWScript.GetIsObjectValid(oItem)))
+      if (Convert.ToBoolean(NWScript.GetIsPC(oPC)))
       {
-        if (NWScript.GetTag(oItem) == "item_pccorpse")
+        var oItem = NWScript.GetModuleItemAcquired();
+        var oAcquiredFrom = NWScript.GetModuleItemAcquiredFrom();
+
+        if (Convert.ToBoolean(NWScript.GetIsObjectValid(oItem)))
         {
-          var query = NWScript.SqlPrepareQueryCampaign(ModuleSystem.database, $"SELECT COUNT (*) FROM playerDeathCorpses WHERE characterId = @characterId");
-          NWScript.SqlBindInt(query, "@characterId", NWScript.GetLocalInt(oItem, "_PC_ID"));
+          if (NWScript.GetTag(oItem) == "item_pccorpse" && NWScript.GetTag(oAcquiredFrom) == "pccorpse_bodybag")
+          {
+            DeletePlayerCorpseFromDatabase(NWScript.GetLocalInt(oItem, "_PC_ID"));
 
-          if (!Convert.ToBoolean(NWScript.SqlStep(query)))
-            NWScript.DestroyObject(oItem);
+            var oCorpse = NWScript.GetObjectByTag("pccorpse");
+            int corpseId = NWScript.GetLocalInt(oItem, "_PC_ID");
+            int i = 1;
+            while (Convert.ToBoolean(NWScript.GetIsObjectValid(oCorpse)))
+            {
+              if (corpseId == NWScript.GetLocalInt(oCorpse, "_PC_ID"))
+              {
+                NWScript.DestroyObject(oCorpse);
+                NWScript.DestroyObject(oAcquiredFrom);
+                break;
+              }
+              oCorpse = NWScript.GetObjectByTag("pccorpse", i++);
+            }
+
+          }
+          /*En pause jusqu'à ce que le système de transport soit en place
+          if (NWScript.GetMovementRate(oPC) != CreaturePlugin.NWNX_CREATURE_MOVEMENT_RATE_IMMOBILE)
+            if (NWScript.GetWeight(oPC) > int.Parse(NWScript.Get2DAString("encumbrance", "Heavy", NWScript.GetAbilityScore(oPC, NWScript.ABILITY_STRENGTH))))
+              CreaturePlugin.SetMovementRate(oPC, CreaturePlugin.NWNX_CREATURE_MOVEMENT_RATE_IMMOBILE);*/
         }
-        /*En pause jusqu'à ce que le système de transport soit en place
-        if (NWScript.GetMovementRate(oPC) != CreaturePlugin.NWNX_CREATURE_MOVEMENT_RATE_IMMOBILE)
-          if (NWScript.GetWeight(oPC) > int.Parse(NWScript.Get2DAString("encumbrance", "Heavy", NWScript.GetAbilityScore(oPC, NWScript.ABILITY_STRENGTH))))
-            CreaturePlugin.SetMovementRate(oPC, CreaturePlugin.NWNX_CREATURE_MOVEMENT_RATE_IMMOBILE);*/
       }
-
       return 0;
     }
     private static int HandleAfterPlayerEnterArea(uint oidSelf)
@@ -1058,6 +1078,37 @@ namespace NWN.Systems
     {
       NWScript.PostString(oidSelf, "", 40, 15, 0, 0.000001f, unchecked((int)0xFFFFFFFF), unchecked((int)0xFFFFFFFF), 9999, "fnt_my_gui");
       EventsPlugin.RemoveObjectFromDispatchList("NWNX_ON_INPUT_TOGGLE_PAUSE_BEFORE", "event_spacebar_down", oidSelf);
+
+      return 0;
+    }
+    private static int HandleAddMapPin(uint oidSelf)
+    {
+      Player player;
+      if (Players.TryGetValue(oidSelf, out player))
+      {
+        int id = NWScript.GetLocalInt(player.oid, "NW_TOTAL_MAP_PINS");
+        player.mapPinDictionnary.Add(NWScript.GetLocalInt(player.oid, "NW_TOTAL_MAP_PINS"), new MapPin(id, NWScript.GetTag(NWScript.GetArea(player.oid)), float.Parse(EventsPlugin.GetEventData("PIN_X")), float.Parse(EventsPlugin.GetEventData("PIN_Y")), EventsPlugin.GetEventData("PIN_NOTE")));
+      }
+      return 0;
+    }
+    private static int HandleDestroyMapPin(uint oidSelf)
+    {
+      Player player;
+      if (Players.TryGetValue(oidSelf, out player))
+        player.mapPinDictionnary.Remove(Int32.Parse(EventsPlugin.GetEventData("PIN_ID")));
+
+      return 0;
+    }
+    private static int HandleChangeMapPin(uint oidSelf)
+    {
+      Player player;
+      if (Players.TryGetValue(oidSelf, out player))
+      {
+        MapPin updatedMapPin = player.mapPinDictionnary[Int32.Parse(EventsPlugin.GetEventData("PIN_ID"))];
+        updatedMapPin.x = float.Parse(EventsPlugin.GetEventData("PIN_X"));
+        updatedMapPin.y = float.Parse(EventsPlugin.GetEventData("PIN_Y"));
+        updatedMapPin.note = EventsPlugin.GetEventData("PIN_NOTE");
+      }
 
       return 0;
     }

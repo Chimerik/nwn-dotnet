@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using Discord;
 using NWN.Core;
 using NWN.Core.NWNX;
 
@@ -40,6 +41,9 @@ namespace NWN.Systems
 
       RestorePlayerCorpseFromDatabase();
       RestoreDMPersistentPlaceableFromDatabase();
+
+      if (Config.env == Config.Env.Prod)
+        NWScript.DelayCommand(5.0f, () => (Bot._client.GetChannel(786218144296468481) as IMessageChannel).SendMessageAsync($"Module en ligne !"));
     }
 
     private void CreateDatabase()
@@ -66,6 +70,9 @@ namespace NWN.Systems
       NWScript.SqlStep(query);
 
       query = NWScript.SqlPrepareQueryCampaign(ModuleSystem.database, $"CREATE TABLE IF NOT EXISTS dm_persistant_placeable('accountID' INTEGER NOT NULL, 'serializedPlaceable' TEXT NOT NULL, 'areaTag' TEXT NOT NULL, 'position' TEXT NOT NULL, 'facing' REAL NOT NULL)");
+      NWScript.SqlStep(query);
+
+      query = NWScript.SqlPrepareQueryCampaign(ModuleSystem.database, "CREATE TABLE IF NOT EXISTS playerMapPins('characterId' INTEGER NOT NULL, 'mapPinId' INTEGER NOT NULL, 'areaTag' TEXT NOT NULL, 'x' REAL NOT NULL, 'y' REAL NOT NULL, 'note' TEXT, UNIQUE (characterId, mapPinId))");
       NWScript.SqlStep(query);
     }
     private void InitializeEvents()
@@ -151,12 +158,6 @@ namespace NWN.Systems
       EventsPlugin.SubscribeEvent("NWNX_ON_INPUT_CAST_SPELL_BEFORE", "event_mining_cycle_cancel_before");
       EventsPlugin.ToggleDispatchListMode("NWNX_ON_INPUT_CAST_SPELL_BEFORE", "event_mining_cycle_cancel_before", 1);
 
-      EventsPlugin.SubscribeEvent("NWNX_ON_INVENTORY_ADD_ITEM_BEFORE", "event_refinery_add_item_before");
-      EventsPlugin.ToggleDispatchListMode("NWNX_ON_INVENTORY_ADD_ITEM_BEFORE", "event_refinery_add_item_before", 1);
-
-      EventsPlugin.SubscribeEvent("NWNX_ON_INVENTORY_REMOVE_ITEM_AFTER", "event_pccorpse_remove_item_after");
-      EventsPlugin.ToggleDispatchListMode("NWNX_ON_INVENTORY_REMOVE_ITEM_AFTER", "event_pccorpse_remove_item_after", 1);
-
       EventsPlugin.SubscribeEvent("NWNX_ON_SERVER_SEND_AREA_AFTER", "event_after_area_enter");
       EventsPlugin.SubscribeEvent("NWNX_ON_SERVER_SEND_AREA_BEFORE", "event_before_area_exit");
       EventsPlugin.SubscribeEvent("NWNX_ON_CLIENT_DISCONNECT_BEFORE", "event_before_area_exit");
@@ -168,6 +169,10 @@ namespace NWN.Systems
       EventsPlugin.SubscribeEvent("NWNX_ON_STORE_REQUEST_SELL_BEFORE", "before_store_sell");
 
       EventsPlugin.SubscribeEvent("NWNX_ON_SET_NPC_FACTION_REPUTATION_BEFORE", "before_reputation_change");
+
+      EventsPlugin.SubscribeEvent("NWNX_ON_MAP_PIN_ADD_PIN_AFTER", "map_pin_added");
+      EventsPlugin.SubscribeEvent("NWNX_ON_MAP_PIN_CHANGE_PIN_AFTER", "map_pin_changed");
+      EventsPlugin.SubscribeEvent("NWNX_ON_MAP_PIN_DESTROY_PIN_AFTER", "map_pin_destroyed");
     }
     private void InitializeFeatModifiers()
     {
@@ -250,6 +255,7 @@ namespace NWN.Systems
       NWScript.SqlStep(query);
 
       NWScript.ExportAllCharacters();
+      Bot._client.DownloadUsersAsync(new List<IGuild> { { Bot._client.GetGuild(680072044364562528) } });
       NWScript.DelayCommand(600.0f, () => SaveServerVault());
     }
     public void RestorePlayerCorpseFromDatabase()
@@ -257,9 +263,21 @@ namespace NWN.Systems
       var query = NWScript.SqlPrepareQueryCampaign(ModuleSystem.database, $"SELECT deathCorpse, areaTag, position, characterId FROM playerDeathCorpses");
 
       while (Convert.ToBoolean(NWScript.SqlStep(query)))
-        NWScript.SetLocalInt(
-          NWScript.SqlGetObject(query, 0, Utils.GetLocationFromDatabase(NWScript.SqlGetString(query, 1), NWScript.SqlGetVector(query, 2), 0)),
-          "_PC_ID", NWScript.SqlGetInt(query, 3));
+      {
+        uint corpse = NWScript.SqlGetObject(query, 0, Utils.GetLocationFromDatabase(NWScript.SqlGetString(query, 1), NWScript.SqlGetVector(query, 2), 0));
+        NWScript.SetLocalInt(corpse, "_PC_ID", NWScript.SqlGetInt(query, 3));
+
+        var oObj = NWScript.GetFirstItemInInventory(corpse);
+
+        while (Convert.ToBoolean(NWScript.GetIsObjectValid(oObj)))
+        {
+          if (NWScript.GetTag(oObj) != "item_pccorpse")
+            NWScript.DestroyObject(oObj);
+          oObj = NWScript.GetNextItemInInventory(corpse);
+        }
+
+        NWScript.DelayCommand(3.0f, () => PlayerSystem.SetupPCCorpse(corpse));
+      }
     }
     public void RestoreDMPersistentPlaceableFromDatabase()
     {
@@ -287,7 +305,7 @@ namespace NWN.Systems
     {
       Module.textToSpeak = text;
       this.botAsyncCommandList.Add("say");
-      return "Texte en cours de relai serveur.";
+      return "Texte en cours de relais serveur.";
     }
     private void SetModuleTime()
     {

@@ -17,7 +17,7 @@ namespace NWN.Systems
         CreatePlayerCorpse(player);
         StripPlayerGoldAfterDeath(player);
         StripPlayerOfCraftResources(player);
-        SavePlayerCorpseToDatabase(player.characterId, player.deathCorpse, NWScript.GetTag(NWScript.GetArea(player.deathCorpse)), NWScript.GetPosition(player.deathCorpse));
+        NWScript.DelayCommand(1.3f, () => SavePlayerCorpseToDatabase(player.characterId, player.deathCorpse, NWScript.GetTag(NWScript.GetArea(player.deathCorpse)), NWScript.GetPosition(player.deathCorpse)));
         NWScript.DelayCommand(3.0f, () => SendPlayerToLimbo(player));
       }
 
@@ -25,15 +25,38 @@ namespace NWN.Systems
     }
     private static void CreatePlayerCorpse(Player player)
     {
-      var oPCCorpse = NWScript.CreateObject(NWScript.OBJECT_TYPE_PLACEABLE, "pccorpse", NWScript.GetLocation(player.oid));
-      EventsPlugin.AddObjectToDispatchList("NWNX_ON_INVENTORY_REMOVE_ITEM_AFTER", "event_pccorpse_remove_item_after", oPCCorpse);
-
+      uint oPCCorpse = NWScript.CreateObject(NWScript.OBJECT_TYPE_CREATURE, "pccorpse", NWScript.GetLocation(player.oid));
       NWScript.SetName(oPCCorpse, $"Cadavre de {NWScript.GetName(player.oid)}");
-      NWScript.SetDescription(oPCCorpse, $"Cadavre de {NWScript.GetName(player.oid)}");
+      NWScript.SetDescription(oPCCorpse, $"Cadavre de {NWScript.GetName(player.oid)}. \n\n\n Allez savoir combien de temps il va tenir dans cet état.");
+      VisibilityPlugin.SetVisibilityOverride(NWScript.OBJECT_INVALID, oPCCorpse, VisibilityPlugin.NWNX_VISIBILITY_HIDDEN);
+      NWScript.ApplyEffectToObject(NWScript.DURATION_TYPE_INSTANT, NWScript.EffectCutsceneGhost(), oPCCorpse);
+      ObjectPlugin.SetPosition(oPCCorpse, NWScript.GetPosition(player.oid));
       NWScript.SetLocalInt(oPCCorpse, "_PC_ID", player.characterId);
+
+      NWScript.AssignCommand(oPCCorpse, () => NWScript.ActionEquipItem(NWScript.CopyObject(NWScript.GetItemInSlot(NWScript.INVENTORY_SLOT_CHEST, player.oid), NWScript.GetLocation(oPCCorpse), oPCCorpse), NWScript.INVENTORY_SLOT_CHEST));
+      NWScript.DelayCommand(0.2f, () => NWScript.SetDroppableFlag(NWScript.GetItemInSlot(NWScript.INVENTORY_SLOT_CHEST, oPCCorpse), 0));
+
+      NWScript.AssignCommand(oPCCorpse, () => NWScript.ActionEquipItem(NWScript.CopyObject(NWScript.GetItemInSlot(NWScript.INVENTORY_SLOT_HEAD, player.oid), NWScript.GetLocation(oPCCorpse), oPCCorpse), NWScript.INVENTORY_SLOT_HEAD));
+      NWScript.DelayCommand(0.2f, () => NWScript.SetDroppableFlag(NWScript.GetItemInSlot(NWScript.INVENTORY_SLOT_HEAD, oPCCorpse), 0));
+
+      NWScript.AssignCommand(oPCCorpse, () => NWScript.ActionEquipItem(NWScript.CopyObject(NWScript.GetItemInSlot(NWScript.INVENTORY_SLOT_CLOAK, player.oid), NWScript.GetLocation(oPCCorpse), oPCCorpse), NWScript.INVENTORY_SLOT_CLOAK));
+      NWScript.DelayCommand(0.2f, () => NWScript.SetDroppableFlag(NWScript.GetItemInSlot(NWScript.INVENTORY_SLOT_CLOAK, oPCCorpse), 0));
+
+      NWScript.AssignCommand(oPCCorpse, () => NWScript.ActionEquipItem(NWScript.CopyObject(NWScript.GetItemInSlot(NWScript.INVENTORY_SLOT_RIGHTHAND, player.oid), NWScript.GetLocation(oPCCorpse), oPCCorpse), NWScript.INVENTORY_SLOT_RIGHTHAND));
+      NWScript.DelayCommand(0.2f, () => NWScript.SetDroppableFlag(NWScript.GetItemInSlot(NWScript.INVENTORY_SLOT_RIGHTHAND, oPCCorpse), 0));
+
+      NWScript.AssignCommand(oPCCorpse, () => NWScript.ActionEquipItem(NWScript.CopyObject(NWScript.GetItemInSlot(NWScript.INVENTORY_SLOT_LEFTHAND, player.oid), NWScript.GetLocation(oPCCorpse), oPCCorpse), NWScript.INVENTORY_SLOT_LEFTHAND));
+      NWScript.DelayCommand(0.2f, () => NWScript.SetDroppableFlag(NWScript.GetItemInSlot(NWScript.INVENTORY_SLOT_LEFTHAND, oPCCorpse), 0));
+
+      NWScript.SetCreatureAppearanceType(oPCCorpse, NWScript.GetAppearanceType(player.oid));
+
+      NWScript.DelayCommand(2.0f, () => SetupPCCorpse(oPCCorpse));
+
       uint oCorpseItem = NWScript.CreateItemOnObject("item_pccorpse", oPCCorpse);
       NWScript.SetLocalInt(oCorpseItem, "_PC_ID", player.characterId);
       NWScript.SetName(oCorpseItem, $"Cadavre de {NWScript.GetName(player.oid)}");
+      NWScript.SetDescription(oCorpseItem, $"Cadavre de {NWScript.GetName(player.oid)}\n\n\n Pas très ragoûtant. Allez savoir combien de temps il va tenir avant de se décomposer.");
+      NWScript.DelayCommand(1.3f, () => NWScript.SetLocalString(oCorpseItem, "_SERIALIZED_CORPSE", ObjectPlugin.Serialize(oPCCorpse)));
 
       player.deathCorpse = oPCCorpse;
     }
@@ -45,12 +68,12 @@ namespace NWN.Systems
       {
         if (remainingGold >= 50000)
         {
-          NWScript.CreateItemOnObject("nw_it_gold001", player.deathCorpse, 50000);
+          NWScript.DelayCommand(1.4f, () => NWScript.CreateItemOnObject("nw_it_gold001", player.deathCorpse, 50000));
           remainingGold -= 50000;
         }
         else
         {
-          NWScript.CreateItemOnObject("nw_it_gold001", player.deathCorpse, remainingGold);
+          NWScript.DelayCommand(1.4f, () => NWScript.CreateItemOnObject("nw_it_gold001", player.deathCorpse, remainingGold));
           break;
         }
       }
@@ -147,6 +170,7 @@ namespace NWN.Systems
       {
         if (player.characterId == NWScript.GetLocalInt(oCorpse, "_PC_ID"))
         {
+          NWScript.DestroyObject(NWScript.GetNearestObjectByTag("pccorpse_bodybag", oCorpse));
           NWScript.DestroyObject(oCorpse);
           break;
         }
@@ -170,18 +194,6 @@ namespace NWN.Systems
       var query = NWScript.SqlPrepareQueryCampaign(ModuleSystem.database, $"DELETE FROM playerDeathCorpses WHERE characterId = @characterId");
       NWScript.SqlBindInt(query, "@characterId", characterId);
       NWScript.SqlStep(query);
-    }
-    private static int HandleAfterItemRemovedFromPCCorpse(uint oidSelf)
-    {
-      var oItem = NWScript.StringToObject(EventsPlugin.GetEventData("ITEM"));
-      
-      if (NWScript.GetTag(oItem) == "item_pccorpse")
-      {
-        DeletePlayerCorpseFromDatabase(NWScript.GetLocalInt(oItem, "_PC_ID"));
-        NWScript.DestroyObject(oidSelf);
-      }
-
-      return 0;
     }
     private static void ApplyRadiantRespawnEffects(Player player)
     {
@@ -244,6 +256,15 @@ namespace NWN.Systems
       // +1 jet d'attaque; +1 dégat divin; +movement speed 10 %
 
       NWScript.DelayCommand(5.0f, () => NWScript.ApplyEffectToObject(NWScript.DURATION_TYPE_PERMANENT, Link, player.oid));
+    }
+    public static void SetupPCCorpse(uint oPCCorpse)
+    {
+      NWScript.AssignCommand(ModuleSystem.module.oid, () => NWScript.ApplyEffectToObject(NWScript.DURATION_TYPE_INSTANT, NWScript.EffectDeath(), oPCCorpse));
+      uint wp = NWScript.CreateObject(NWScript.OBJECT_TYPE_WAYPOINT, "NW_WAYPOINT001", NWScript.GetLocation(oPCCorpse), 0, $"wp_pccorpse_{NWScript.GetLocalInt(oPCCorpse, "_PC_ID")}");
+      NWScript.DelayCommand(1.0f, () => VisibilityPlugin.SetVisibilityOverride(NWScript.OBJECT_INVALID, oPCCorpse, VisibilityPlugin.NWNX_VISIBILITY_DEFAULT));
+      NWScript.DelayCommand(1.2f, () => NWScript.SetTag(oPCCorpse, "pccorpse"));
+      NWScript.DelayCommand(1.2f, () => NWScript.SetTag(NWScript.GetNearestObjectByTag("BodyBag", wp), "pccorpse_bodybag"));
+      NWScript.DelayCommand(1.3f, () => NWScript.DestroyObject(wp));
     }
   }
 }

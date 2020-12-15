@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Linq;
+using Discord;
 using NWN.Core;
 using NWN.Core.NWNX;
 
@@ -62,14 +63,19 @@ namespace NWN.Systems
           NWScript.ApplyEffectToObject(NWScript.DURATION_TYPE_PERMANENT, eHunger, oPC);
         }*/
 
-        int playerHP = NWScript.GetCurrentHitPoints();
-        if (playerHP != player.currentHP)
-          NWScript.ApplyEffectToObject(NWScript.DURATION_TYPE_INSTANT, NWScript.EffectDamage(playerHP - player.currentHP), player.oid);
+        int maxHP = NWScript.GetMaxHitPoints(player.oid);
+        if (maxHP != player.currentHP)
+          NWScript.ApplyEffectToObject(NWScript.DURATION_TYPE_INSTANT, NWScript.EffectDamage(maxHP - player.currentHP), player.oid);
 
         if (player.location != null)
         {
           NWScript.DelayCommand(1.0f, () => NWScript.AssignCommand(player.oid, () => NWScript.ClearAllActions()));
           NWScript.DelayCommand(1.1f, () => NWScript.AssignCommand(player.oid, () => NWScript.JumpToLocation(player.location)));
+        }
+        else
+        {
+          NWScript.DelayCommand(1.0f, () => NWScript.AssignCommand(player.oid, () => NWScript.ClearAllActions()));
+          NWScript.DelayCommand(1.1f, () => NWScript.AssignCommand(player.oid, () => NWScript.JumpToLocation(NWScript.GetLocation(NWScript.GetWaypointByTag("WP_START_NEW_CHAR")))));
         }
 
         if (player.craftJob.isActive && Convert.ToBoolean(NWScript.GetLocalInt(NWScript.GetAreaFromLocation(player.location), "_REST")))
@@ -84,7 +90,8 @@ namespace NWN.Systems
           player.AcquireSkillPoints();
           player.isConnected = true;
           player.isAFK = false;
-          player.learnableSkills[player.currentSkillJob].CreateSkillJournalEntry();
+          if(player.currentSkillJob != (int)Feat.Invalid)
+            player.learnableSkills[player.currentSkillJob].CreateSkillJournalEntry();
         }
         //else
         //NWScript.DelayCommand(10.0f, () => player.PlayNoCurrentTrainingEffects());
@@ -115,8 +122,11 @@ namespace NWN.Systems
 
       if (!Convert.ToBoolean(NWScript.SqlStep(query)))
       {
-
-        WebhookSystem.StartSendingAsyncDiscordMessage($"Toute première connexion de {NWScript.GetPCPlayerName(newPlayer)}", "AoA notification service - Nouveau joueur !");
+        if (Config.env == Config.Env.Prod)
+        {
+          (Bot._client.GetChannel(786218144296468481) as IMessageChannel).SendMessageAsync($"Toute première connexion de {NWScript.GetName(newPlayer)}. Accueillons le comme il se doit !");
+          (Bot._client.GetChannel(680072044364562532) as IMessageChannel).SendMessageAsync($"{Bot._client.GetGuild(680072044364562528).EveryoneRole.Mention} Toute première connexion de {NWScript.GetName(newPlayer)} => nouveau joueur à accueillir !");
+        }
 
         query = NWScript.SqlPrepareQueryCampaign(ModuleSystem.database, $"INSERT INTO PlayerAccounts (accountName , bonusRolePlay) VALUES (@name, @brp)");
         NWScript.SqlBindInt(query, "@brp", 1);
@@ -151,7 +161,8 @@ namespace NWN.Systems
     }
     private static void InitializeNewCharacter(Player newCharacter)
     {
-      WebhookSystem.StartSendingAsyncDiscordMessage($"{NWScript.GetPCPlayerName(newCharacter.oid)} vient de créer un nouveau personnage : {NWScript.GetName(newCharacter.oid)}", "AoA notification service - Nouveau personnage !");
+      if (Config.env == Config.Env.Prod)
+        (Bot._client.GetChannel(680072044364562532) as IMessageChannel).SendMessageAsync($"{NWScript.GetPCPlayerName(newCharacter.oid)} vient de créer un nouveau personnage : {NWScript.GetName(newCharacter.oid)}");
 
       int startingSP = 5000;
       if (Convert.ToBoolean(CreaturePlugin.GetKnowsFeat(newCharacter.oid, (int)Feat.QuickToMaster)))
@@ -243,7 +254,9 @@ namespace NWN.Systems
       player.learnableSkills.Add((int)Feat.ImprovedBluff, new SkillSystem.Skill((int)Feat.ImprovedBluff, 0.0f, player));
       player.learnableSkills.Add((int)Feat.ImprovedIntimidate, new SkillSystem.Skill((int)Feat.ImprovedIntimidate, 0.0f, player));
       player.learnableSkills.Add((int)Feat.ImprovedMoveSilently, new SkillSystem.Skill((int)Feat.ImprovedMoveSilently, 0.0f, player));
+      player.learnableSkills.Add((int)Feat.ImprovedListen, new SkillSystem.Skill((int)Feat.ImprovedListen, 0.0f, player));
       player.learnableSkills.Add((int)Feat.ImprovedHide, new SkillSystem.Skill((int)Feat.ImprovedHide, 0.0f, player));
+      player.learnableSkills.Add((int)Feat.ImprovedOpenLock, new SkillSystem.Skill((int)Feat.ImprovedOpenLock, 0.0f, player));
     }
     private static void InitializeDM(Player player)
     {
@@ -255,6 +268,7 @@ namespace NWN.Systems
       InitializePlayerAccount(player);
       InitializePlayerCharacter(player);
       InitializePlayerLearnableSkills(player);
+      InitializeCharacterMapPins(player);
     }
     private static void InitializePlayerEvents(uint player)
     {
@@ -345,6 +359,24 @@ namespace NWN.Systems
       NWScript.SqlBindInt(query, "@characterId", ObjectPlugin.GetInt(player.oid, "characterId"));
       NWScript.SqlBindObject(query, "@storage", storage);
       NWScript.SqlStep(query);
+    }
+    private static void InitializeCharacterMapPins(Player player)
+    {
+      var query = NWScript.SqlPrepareQueryCampaign(ModuleSystem.database, $"SELECT mapPinId, areaTag, x, y, note from playerMapPins where characterId = @characterId");
+      NWScript.SqlBindInt(query, "@characterId", player.characterId);
+
+      while (Convert.ToBoolean(NWScript.SqlStep(query)))
+      {
+        MapPin mapPin = new MapPin(NWScript.SqlGetInt(query, 0), NWScript.SqlGetString(query, 1), NWScript.SqlGetFloat(query, 2), NWScript.SqlGetFloat(query, 3), NWScript.SqlGetString(query, 4));
+        player.mapPinDictionnary.Add(NWScript.SqlGetInt(query, 0), mapPin);
+
+        NWScript.SetLocalString(player.oid, "NW_MAP_PIN_NTRY_" + mapPin.id.ToString(), mapPin.note);
+        NWScript.SetLocalFloat(player.oid, "NW_MAP_PIN_XPOS_" + mapPin.id.ToString(), mapPin.x);
+        NWScript.SetLocalFloat(player.oid, "NW_MAP_PIN_YPOS_" + mapPin.id.ToString(), mapPin.y);
+        NWScript.SetLocalObject(player.oid, "NW_MAP_PIN_AREA_" + mapPin.id.ToString(), NWScript.GetObjectByTag(mapPin.areaTag));
+      }
+
+      NWScript.SetLocalInt(player.oid, "NW_TOTAL_MAP_PINS", player.mapPinDictionnary.Max(v => v.Key));
     }
   }
 }

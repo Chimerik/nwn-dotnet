@@ -46,13 +46,12 @@ namespace NWN.Systems
 
           // AFK detection
           if (player.location == NWScript.GetLocation(player.oid))
-          {
-            player.location = NWScript.GetLocation(player.oid);
             player.isAFK = true;
-          }
+          else
+            player.location = NWScript.GetLocation(player.oid);
 
           player.currentHP = NWScript.GetCurrentHitPoints(player.oid);
-
+          
           if (NWScript.GetLocalInt(NWScript.GetArea(player.oid), "_REST") != 0)
             player.CraftJobProgression();
 
@@ -63,6 +62,7 @@ namespace NWN.Systems
           SavePlayerCharacterToDatabase(player);
           SavePlayerLearnableSkillsToDatabase(player);
           SavePlayerStoredMaterialsToDatabase(player);
+          SavePlayerMapPinsToDatabase(player);
         }
       }
       return 0;
@@ -169,6 +169,26 @@ namespace NWN.Systems
           NWScript.SqlBindInt(query, $"@{material}", player.materialStock[material]);
 
         NWScript.SqlStep(query);
+      }
+    }
+    private static void SavePlayerMapPinsToDatabase(Player player)
+    {
+      if (player.mapPinDictionnary.Count > 0)
+      {
+        string queryString = "INSERT INTO playerMapPins (characterId, mapPinId, areaTag, x, y, note) VALUES (@characterId, @mapPinId, @areaTag, @x, @y, @note)" +
+          "ON CONFLICT (characterId, mapPinId) DO UPDATE SET x = @x, y = @y, note = @note";
+
+        foreach (MapPin mapPin in player.mapPinDictionnary.Values)
+        {
+          var query = NWScript.SqlPrepareQueryCampaign(ModuleSystem.database, queryString);
+          NWScript.SqlBindInt(query, "@characterId", player.characterId);
+          NWScript.SqlBindInt(query, "@mapPinId", mapPin.id);
+          NWScript.SqlBindString(query, "@areaTag", mapPin.areaTag);
+          NWScript.SqlBindFloat(query, "@x", mapPin.x);
+          NWScript.SqlBindFloat(query, "@y", mapPin.y);
+          NWScript.SqlBindString(query, "@note", mapPin.note);
+          NWScript.SqlStep(query);
+        }
       }
     }
   }
