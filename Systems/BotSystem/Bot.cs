@@ -1,7 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Reflection;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using Discord;
@@ -13,7 +11,7 @@ namespace NWN.Systems
 {
   public static partial class Bot
   {
-     private static DiscordSocketClient _client;
+    public static DiscordSocketClient _client;
 
     // Keep the CommandService and DI container around for use with commands.
     // These two types require you install the Discord.Net.Commands package.
@@ -23,6 +21,8 @@ namespace NWN.Systems
     public static async Task MainAsync()
     {
       _client = new DiscordSocketClient();
+      _client.DownloadUsersAsync(new List<IGuild> { { _client.GetGuild(680072044364562528) } });
+
       _commands = new CommandService();
 
       _client.Log += Log;
