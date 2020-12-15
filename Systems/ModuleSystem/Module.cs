@@ -151,12 +151,6 @@ namespace NWN.Systems
       EventsPlugin.SubscribeEvent("NWNX_ON_INPUT_CAST_SPELL_BEFORE", "event_mining_cycle_cancel_before");
       EventsPlugin.ToggleDispatchListMode("NWNX_ON_INPUT_CAST_SPELL_BEFORE", "event_mining_cycle_cancel_before", 1);
 
-      EventsPlugin.SubscribeEvent("NWNX_ON_INVENTORY_ADD_ITEM_BEFORE", "event_refinery_add_item_before");
-      EventsPlugin.ToggleDispatchListMode("NWNX_ON_INVENTORY_ADD_ITEM_BEFORE", "event_refinery_add_item_before", 1);
-
-      EventsPlugin.SubscribeEvent("NWNX_ON_INVENTORY_REMOVE_ITEM_AFTER", "event_pccorpse_remove_item_after");
-      EventsPlugin.ToggleDispatchListMode("NWNX_ON_INVENTORY_REMOVE_ITEM_AFTER", "event_pccorpse_remove_item_after", 1);
-
       EventsPlugin.SubscribeEvent("NWNX_ON_SERVER_SEND_AREA_AFTER", "event_after_area_enter");
       EventsPlugin.SubscribeEvent("NWNX_ON_SERVER_SEND_AREA_BEFORE", "event_before_area_exit");
       EventsPlugin.SubscribeEvent("NWNX_ON_CLIENT_DISCONNECT_BEFORE", "event_before_area_exit");
@@ -257,9 +251,21 @@ namespace NWN.Systems
       var query = NWScript.SqlPrepareQueryCampaign(ModuleSystem.database, $"SELECT deathCorpse, areaTag, position, characterId FROM playerDeathCorpses");
 
       while (Convert.ToBoolean(NWScript.SqlStep(query)))
-        NWScript.SetLocalInt(
-          NWScript.SqlGetObject(query, 0, Utils.GetLocationFromDatabase(NWScript.SqlGetString(query, 1), NWScript.SqlGetVector(query, 2), 0)),
-          "_PC_ID", NWScript.SqlGetInt(query, 3));
+      {
+        uint corpse = NWScript.SqlGetObject(query, 0, Utils.GetLocationFromDatabase(NWScript.SqlGetString(query, 1), NWScript.SqlGetVector(query, 2), 0));
+        NWScript.SetLocalInt(corpse, "_PC_ID", NWScript.SqlGetInt(query, 3));
+
+        var oObj = NWScript.GetFirstItemInInventory(corpse);
+
+        while (Convert.ToBoolean(NWScript.GetIsObjectValid(oObj)))
+        {
+          if (NWScript.GetTag(oObj) != "item_pccorpse")
+            NWScript.DestroyObject(oObj);
+          oObj = NWScript.GetNextItemInInventory(corpse);
+        }
+
+        NWScript.DelayCommand(3.0f, () => PlayerSystem.SetupPCCorpse(corpse));
+      }
     }
     public void RestoreDMPersistentPlaceableFromDatabase()
     {
