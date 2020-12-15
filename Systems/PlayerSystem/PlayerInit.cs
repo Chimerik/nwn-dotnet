@@ -268,6 +268,7 @@ namespace NWN.Systems
       InitializePlayerAccount(player);
       InitializePlayerCharacter(player);
       InitializePlayerLearnableSkills(player);
+      InitializeCharacterMapPins(player);
     }
     private static void InitializePlayerEvents(uint player)
     {
@@ -358,6 +359,24 @@ namespace NWN.Systems
       NWScript.SqlBindInt(query, "@characterId", ObjectPlugin.GetInt(player.oid, "characterId"));
       NWScript.SqlBindObject(query, "@storage", storage);
       NWScript.SqlStep(query);
+    }
+    private static void InitializeCharacterMapPins(Player player)
+    {
+      var query = NWScript.SqlPrepareQueryCampaign(ModuleSystem.database, $"SELECT mapPinId, areaTag, x, y, note from playerMapPins where characterId = @characterId");
+      NWScript.SqlBindInt(query, "@characterId", player.characterId);
+
+      while (Convert.ToBoolean(NWScript.SqlStep(query)))
+      {
+        MapPin mapPin = new MapPin(NWScript.SqlGetInt(query, 0), NWScript.SqlGetString(query, 1), NWScript.SqlGetFloat(query, 2), NWScript.SqlGetFloat(query, 3), NWScript.SqlGetString(query, 4));
+        player.mapPinDictionnary.Add(NWScript.SqlGetInt(query, 0), mapPin);
+
+        NWScript.SetLocalString(player.oid, "NW_MAP_PIN_NTRY_" + mapPin.id.ToString(), mapPin.note);
+        NWScript.SetLocalFloat(player.oid, "NW_MAP_PIN_XPOS_" + mapPin.id.ToString(), mapPin.x);
+        NWScript.SetLocalFloat(player.oid, "NW_MAP_PIN_YPOS_" + mapPin.id.ToString(), mapPin.y);
+        NWScript.SetLocalObject(player.oid, "NW_MAP_PIN_AREA_" + mapPin.id.ToString(), NWScript.GetObjectByTag(mapPin.areaTag));
+      }
+
+      NWScript.SetLocalInt(player.oid, "NW_TOTAL_MAP_PINS", player.mapPinDictionnary.Max(v => v.Key));
     }
   }
 }

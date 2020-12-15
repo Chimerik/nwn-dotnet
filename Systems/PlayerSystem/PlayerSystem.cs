@@ -48,6 +48,9 @@ namespace NWN.Systems
             { "before_store_buy", HandleBeforeStoreBuy },
             { "before_store_sell", HandleBeforeStoreSell },
             { "event_spacebar_down", HandleSpacebarDown },
+            { "map_pin_added", HandleAddMapPin },
+            { "map_pin_changed", HandleChangeMapPin },
+            { "map_pin_destroyed", HandleDestroyMapPin },
            // { "before_reputation_change", HandleBeforeReputationChange },
         }; 
 
@@ -1075,6 +1078,37 @@ namespace NWN.Systems
     {
       NWScript.PostString(oidSelf, "", 40, 15, 0, 0.000001f, unchecked((int)0xFFFFFFFF), unchecked((int)0xFFFFFFFF), 9999, "fnt_my_gui");
       EventsPlugin.RemoveObjectFromDispatchList("NWNX_ON_INPUT_TOGGLE_PAUSE_BEFORE", "event_spacebar_down", oidSelf);
+
+      return 0;
+    }
+    private static int HandleAddMapPin(uint oidSelf)
+    {
+      Player player;
+      if (Players.TryGetValue(oidSelf, out player))
+      {
+        int id = NWScript.GetLocalInt(player.oid, "NW_TOTAL_MAP_PINS");
+        player.mapPinDictionnary.Add(NWScript.GetLocalInt(player.oid, "NW_TOTAL_MAP_PINS"), new MapPin(id, NWScript.GetTag(NWScript.GetArea(player.oid)), float.Parse(EventsPlugin.GetEventData("PIN_X")), float.Parse(EventsPlugin.GetEventData("PIN_Y")), EventsPlugin.GetEventData("PIN_NOTE")));
+      }
+      return 0;
+    }
+    private static int HandleDestroyMapPin(uint oidSelf)
+    {
+      Player player;
+      if (Players.TryGetValue(oidSelf, out player))
+        player.mapPinDictionnary.Remove(Int32.Parse(EventsPlugin.GetEventData("PIN_ID")));
+
+      return 0;
+    }
+    private static int HandleChangeMapPin(uint oidSelf)
+    {
+      Player player;
+      if (Players.TryGetValue(oidSelf, out player))
+      {
+        MapPin updatedMapPin = player.mapPinDictionnary[Int32.Parse(EventsPlugin.GetEventData("PIN_ID"))];
+        updatedMapPin.x = float.Parse(EventsPlugin.GetEventData("PIN_X"));
+        updatedMapPin.y = float.Parse(EventsPlugin.GetEventData("PIN_Y"));
+        updatedMapPin.note = EventsPlugin.GetEventData("PIN_NOTE");
+      }
 
       return 0;
     }

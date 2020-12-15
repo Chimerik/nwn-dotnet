@@ -71,6 +71,9 @@ namespace NWN.Systems
 
       query = NWScript.SqlPrepareQueryCampaign(ModuleSystem.database, $"CREATE TABLE IF NOT EXISTS dm_persistant_placeable('accountID' INTEGER NOT NULL, 'serializedPlaceable' TEXT NOT NULL, 'areaTag' TEXT NOT NULL, 'position' TEXT NOT NULL, 'facing' REAL NOT NULL)");
       NWScript.SqlStep(query);
+
+      query = NWScript.SqlPrepareQueryCampaign(ModuleSystem.database, "CREATE TABLE IF NOT EXISTS playerMapPins('characterId' INTEGER NOT NULL, 'mapPinId' INTEGER NOT NULL, 'areaTag' TEXT NOT NULL, 'x' REAL NOT NULL, 'y' REAL NOT NULL, 'note' TEXT, UNIQUE (characterId, mapPinId))");
+      NWScript.SqlStep(query);
     }
     private void InitializeEvents()
     {
@@ -166,6 +169,10 @@ namespace NWN.Systems
       EventsPlugin.SubscribeEvent("NWNX_ON_STORE_REQUEST_SELL_BEFORE", "before_store_sell");
 
       EventsPlugin.SubscribeEvent("NWNX_ON_SET_NPC_FACTION_REPUTATION_BEFORE", "before_reputation_change");
+
+      EventsPlugin.SubscribeEvent("NWNX_ON_MAP_PIN_ADD_PIN_AFTER", "map_pin_added");
+      EventsPlugin.SubscribeEvent("NWNX_ON_MAP_PIN_CHANGE_PIN_AFTER", "map_pin_changed");
+      EventsPlugin.SubscribeEvent("NWNX_ON_MAP_PIN_DESTROY_PIN_AFTER", "map_pin_destroyed");
     }
     private void InitializeFeatModifiers()
     {
@@ -298,7 +305,7 @@ namespace NWN.Systems
     {
       Module.textToSpeak = text;
       this.botAsyncCommandList.Add("say");
-      return "Texte en cours de relai serveur.";
+      return "Texte en cours de relais serveur.";
     }
     private void SetModuleTime()
     {

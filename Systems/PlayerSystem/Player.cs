@@ -48,6 +48,7 @@ namespace NWN.Systems
       public Dictionary<string, int> materialStock = new Dictionary<string, int>();
       public List<Effect> effectList = new List<Effect>();
       public List<QuickBarSlot> savedQuickBar = new List<QuickBarSlot>();
+      public Dictionary<int, MapPin> mapPinDictionnary = new Dictionary<int, MapPin>();
 
       public Action OnMiningCycleCancelled = delegate { };
       public Action OnMiningCycleCompleted = delegate { };
