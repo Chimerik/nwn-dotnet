@@ -84,7 +84,8 @@ namespace NWN.Systems
           player.AcquireSkillPoints();
           player.isConnected = true;
           player.isAFK = false;
-          player.learnableSkills[player.currentSkillJob].CreateSkillJournalEntry();
+          if(player.currentSkillJob != (int)Feat.Invalid)
+            player.learnableSkills[player.currentSkillJob].CreateSkillJournalEntry();
         }
         //else
         //NWScript.DelayCommand(10.0f, () => player.PlayNoCurrentTrainingEffects());
