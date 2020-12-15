@@ -46,13 +46,12 @@ namespace NWN.Systems
 
           // AFK detection
           if (player.location == NWScript.GetLocation(player.oid))
-          {
-            player.location = NWScript.GetLocation(player.oid);
             player.isAFK = true;
-          }
+          else
+            player.location = NWScript.GetLocation(player.oid);
 
           player.currentHP = NWScript.GetCurrentHitPoints(player.oid);
-
+          
           if (NWScript.GetLocalInt(NWScript.GetArea(player.oid), "_REST") != 0)
             player.CraftJobProgression();
 

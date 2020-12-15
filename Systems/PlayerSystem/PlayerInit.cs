@@ -62,14 +62,19 @@ namespace NWN.Systems
           NWScript.ApplyEffectToObject(NWScript.DURATION_TYPE_PERMANENT, eHunger, oPC);
         }*/
 
-        int playerHP = NWScript.GetCurrentHitPoints();
-        if (playerHP != player.currentHP)
-          NWScript.ApplyEffectToObject(NWScript.DURATION_TYPE_INSTANT, NWScript.EffectDamage(playerHP - player.currentHP), player.oid);
+        int maxHP = NWScript.GetMaxHitPoints(player.oid);
+        if (maxHP != player.currentHP)
+          NWScript.ApplyEffectToObject(NWScript.DURATION_TYPE_INSTANT, NWScript.EffectDamage(maxHP - player.currentHP), player.oid);
 
         if (player.location != null)
         {
           NWScript.DelayCommand(1.0f, () => NWScript.AssignCommand(player.oid, () => NWScript.ClearAllActions()));
           NWScript.DelayCommand(1.1f, () => NWScript.AssignCommand(player.oid, () => NWScript.JumpToLocation(player.location)));
+        }
+        else
+        {
+          NWScript.DelayCommand(1.0f, () => NWScript.AssignCommand(player.oid, () => NWScript.ClearAllActions()));
+          NWScript.DelayCommand(1.1f, () => NWScript.AssignCommand(player.oid, () => NWScript.JumpToLocation(NWScript.GetLocation(NWScript.GetWaypointByTag("WP_START_NEW_CHAR")))));
         }
 
         if (player.craftJob.isActive && Convert.ToBoolean(NWScript.GetLocalInt(NWScript.GetAreaFromLocation(player.location), "_REST")))
