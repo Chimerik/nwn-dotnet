@@ -719,6 +719,22 @@ namespace NWN.Systems
 
             NWScript.SetDescription(examineTarget, reprocessingData);
             break;
+          case "refinery":
+            string descriptionBrut = "Stock actuel de minerai brut : \n\n\n";
+            foreach (KeyValuePair<string, int> stockEntry in player.materialStock)
+              if(CollectSystem.GetOreTypeFromName(stockEntry.Key) != CollectSystem.OreType.Invalid)
+                descriptionBrut += $"{stockEntry.Key} : {stockEntry.Value} unité(s).\n";
+                
+            NWScript.SetDescription(examineTarget, descriptionBrut);
+            break;
+          case "forge":
+            string descriptionRefined = "Stock actuel de minerai raffiné : \n\n\n";
+            foreach (KeyValuePair<string, int> stockEntry in player.materialStock)
+              if (CollectSystem.GetOreTypeFromName(stockEntry.Key) != CollectSystem.OreType.Invalid)
+                descriptionRefined += $"{stockEntry.Key} : {stockEntry.Value} unité(s).\n";
+
+            NWScript.SetDescription(examineTarget, descriptionRefined);
+            break;
         }
       }
       return 0;
@@ -733,12 +749,10 @@ namespace NWN.Systems
         switch (NWScript.GetTag(examineTarget))
         {
           case "mineable_rock":
-              NWScript.SetDescription(examineTarget, $"");
-            break;
           case "blueprint":
-            NWScript.SetDescription(examineTarget, $"");
-            break;
           case "ore":
+          case "refinery":
+          case "forge":
             NWScript.SetDescription(examineTarget, $"");
             break;
         }
