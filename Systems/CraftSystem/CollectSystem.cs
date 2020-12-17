@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using NWN.Core;
 using NWN.Core.NWNX;
@@ -115,7 +115,12 @@ namespace NWN.Systems
       Player player;
       if (Players.TryGetValue(oidSelf, out player))
       {
-        player.DoActionOnMiningCycleCompleted();
+        // AssignCommand permet de "patcher" un bug de comportement undéfinie
+        // qui apparait en appelant une callback depuis l'event de la GUI TIMING BAR
+        NWScript.AssignCommand(
+          NWScript.GetModule(),
+          () => player.DoActionOnMiningCycleCompleted()
+        );
       }
 
       return 0;
@@ -179,7 +184,7 @@ namespace NWN.Systems
             break;
         }
     }
-    public static Boolean IsItemCraftMaterial(string itemTag)
+    public static bool IsItemCraftMaterial(string itemTag)
     {
       if (GetOreTypeFromName(itemTag) != OreType.Invalid || GetMineralTypeFromName(itemTag) != MineralType.Invalid)
         return true;

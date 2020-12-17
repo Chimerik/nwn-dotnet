@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Numerics;
 using NWN.Core;
 using NWN.Core.NWNX;
@@ -40,7 +40,6 @@ namespace NWN.Systems
 
         Action cancelCycle = () =>
         {
-          //NWScript.SendMessageToPC(NWScript.GetFirstPC(), "Entering Cycle cancel callback");
           Utils.RemoveTaggedEffect(oPlaceable, $"_{NWScript.GetPCPublicCDKey(player.oid)}_MINING_BEAM");
           CollectSystem.RemoveMiningCycleCallbacks(player);   // supprimer la callback de CompleteMiningCycle
         };
