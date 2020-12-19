@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using Discord;
 using Discord.Commands;
+using Microsoft.Data.Sqlite;
 using NWN.Core;
 using NWN.Core.NWNX;
 
@@ -297,10 +298,39 @@ namespace NWN.Systems
         oArea = NWScript.GetNextArea();
       }
     }
-    public string PreparingModuleForAsyncReboot()
+    public string PreparingModuleForAsyncReboot(SocketCommandContext context)
     {
-      this.botAsyncCommandList.Add("reboot");
-      return "Reboot effectif dans 30 secondes.";
+      using (var connection = new SqliteConnection($"{ModuleSystem.db_path}"))
+      {
+        connection.Open();
+
+        var command = connection.CreateCommand();
+        command.CommandText =
+        @"
+        SELECT rank
+        PlayerAccounts
+        WHERE discordId = $discordId
+    ";
+        command.Parameters.AddWithValue("$discordId", context.User.Id);
+
+        string result = "";
+
+        using (var reader = command.ExecuteReader())
+        {
+          while (reader.Read())
+          {
+            result = reader.GetString(0);
+          }
+        }
+
+        if (result == "admin")
+        {
+          this.botAsyncCommandList.Add("reboot");
+          return "Reboot effectif dans 30 secondes.";
+        }
+      }
+
+      return "Noooon, vous n'êtes pas la maaaaaître ! Le maaaaître est bien plus poli, d'habitude !";
     }
     public string PreparingModuleForAsyncSay(SocketCommandContext context)
     {

@@ -136,28 +136,9 @@ namespace NWN.Systems
 
         query = NWScript.SqlPrepareQueryCampaign(ModuleSystem.database, $"SELECT last_insert_rowid()");
         NWScript.SqlStep(query);
-        ObjectPlugin.SetInt(newPlayer, "accountId", NWScript.SqlGetInt(query, 0), 1);
-
-        switch (NWScript.GetRacialType(newPlayer))
-        {
-          case NWScript.RACIAL_TYPE_DWARF:
-            CreaturePlugin.AddFeat(newPlayer, (int)Feat.LanguageDwarf);
-            break;
-          case NWScript.RACIAL_TYPE_ELF:
-          case NWScript.RACIAL_TYPE_HALFELF:
-            CreaturePlugin.AddFeat(newPlayer, (int)Feat.LanguageElf);
-            break;
-          case NWScript.RACIAL_TYPE_HALFLING:
-            CreaturePlugin.AddFeat(newPlayer, (int)Feat.LanguageHalfling);
-            break;
-          case NWScript.RACIAL_TYPE_GNOME:
-            CreaturePlugin.AddFeat(newPlayer, (int)Feat.LanguageGnome);
-            break;
-          case NWScript.RACIAL_TYPE_HALFORC:
-            CreaturePlugin.AddFeat(newPlayer, (int)Feat.LanguageOrc);
-            break;
-        }
       }
+
+
     }
     private static void InitializeNewCharacter(Player newCharacter)
     {
@@ -172,7 +153,7 @@ namespace NWN.Systems
 
       uint arrivalArea, arrivalPoint;
 
-      if (Config.env == Config.Env.Prod)
+      if (Config.env == Config.Env.Prod || Config.env == Config.Env.Chim)
       {
         arrivalArea = NWScript.CopyArea(Module.areaDictionnary.Where(v => v.Value.tag == "entry_scene").FirstOrDefault().Value.oid);
         Module.areaDictionnary.Add(NWScript.GetObjectUUID(arrivalArea), new Area(arrivalArea));
@@ -186,7 +167,7 @@ namespace NWN.Systems
         arrivalPoint = newCharacter.oid;
       }
 
-      var query = NWScript.SqlPrepareQueryCampaign(ModuleSystem.database, $"INSERT INTO playerCharacters (accountId , characterName, dateLastSaved, currentSkillJob, currentCraftJob, currentCraftObject, frostAttackOn, areaTag, position, facing, menuOriginLeft) VALUES (@accountId, @name, @dateLastSaved, @currentSkillJob, @currentCraftJob, @currentCraftObject, @frostAttackOn, @areaTag, @position, @facing, @menuOriginLeft)");
+      var query = NWScript.SqlPrepareQueryCampaign(ModuleSystem.database, $"INSERT INTO playerCharacters (accountId , characterName, dateLastSaved, currentSkillJob, currentCraftJob, currentCraftObject, frostAttackOn, areaTag, position, facing, menuOriginLeft, currentHP) VALUES (@accountId, @name, @dateLastSaved, @currentSkillJob, @currentCraftJob, @currentCraftObject, @frostAttackOn, @areaTag, @position, @facing, @menuOriginLeft, @currentHP)");
       NWScript.SqlBindInt(query, "@accountId", newCharacter.accountId);
       NWScript.SqlBindString(query, "@name", NWScript.GetName(newCharacter.oid));
       NWScript.SqlBindString(query, "@dateLastSaved", DateTime.Now.ToString());
@@ -198,6 +179,7 @@ namespace NWN.Systems
       NWScript.SqlBindVector(query, "@position", NWScript.GetPosition(arrivalPoint));
       NWScript.SqlBindFloat(query, "@facing", NWScript.GetFacing(arrivalPoint));
       NWScript.SqlBindInt(query, "@menuOriginLeft", 50);
+      NWScript.SqlBindInt(query, "@currentHP", NWScript.GetMaxHitPoints(newCharacter.oid));
       NWScript.SqlStep(query);
 
       query = NWScript.SqlPrepareQueryCampaign(ModuleSystem.database, $"SELECT last_insert_rowid()");
@@ -265,7 +247,9 @@ namespace NWN.Systems
     private static void InitializePlayer(Player player)
     {
       InitializePlayerEvents(player.oid);
+      Console.WriteLine("1");
       InitializePlayerAccount(player);
+      Console.WriteLine("2");
       InitializePlayerCharacter(player);
       InitializePlayerLearnableSkills(player);
       InitializeCharacterMapPins(player);

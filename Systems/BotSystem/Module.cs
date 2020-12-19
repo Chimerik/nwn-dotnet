@@ -28,11 +28,11 @@ namespace NWN.Systems
     [Command("reboot")]
     [Summary("Reboot le module.")]
     public Task RebootAsync()
-      => ReplyAsync(ModuleSystem.module.PreparingModuleForAsyncReboot());
+      => ReplyAsync(ModuleSystem.module.PreparingModuleForAsyncReboot(Context));
 
     [Command("register")]
     [Summary("Enregistre votre compte Discord sur le module en fonction de la clef cd fournie.")]
     public Task RegisterDiscordId(string cdKey)
-      => ReplyAsync($"Vous êtes {Utils.RegisterDiscordId(Context, cdKey)} !");
+      => ReplyAsync($"{Utils.RegisterDiscordId(Context, cdKey)}");
   }
 }

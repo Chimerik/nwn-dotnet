@@ -59,12 +59,12 @@ namespace NWN.Systems
         this.oid = nwobj;
         this.menu = new PrivateMenu(this);
         
-        if(ObjectPlugin.GetInt(this.oid, "accountId") == 0)
+        if (ObjectPlugin.GetInt(this.oid, "accountId") == 0)
           InitializeNewPlayer(this.oid);
 
         this.accountId = ObjectPlugin.GetInt(this.oid, "accountId");
-
-       if (ObjectPlugin.GetInt(this.oid, "characterId") == 0)
+        
+        if (ObjectPlugin.GetInt(this.oid, "characterId") == 0)
           InitializeNewCharacter(this);
 
         this.characterId = ObjectPlugin.GetInt(this.oid, "characterId");
