@@ -7,6 +7,9 @@ namespace NWN.Systems
   {
     public static void ProcessBotAsyncCommand(string command)
     {
+      if (command.StartsWith("say_"))
+        BotSystem.commandDic["say"].execute(command);
+
       BotAsyncCommand asyncCommand;
       if (!BotSystem.commandDic.TryGetValue(command, out asyncCommand))
         return;

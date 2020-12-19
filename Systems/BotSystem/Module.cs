@@ -15,8 +15,8 @@ namespace NWN.Systems
 
     [Command("say")]
     [Summary("Echoes a message.")]
-    public Task SayAsync()
-      => ReplyAsync(ModuleSystem.module.PreparingModuleForAsyncSay(Context));
+    public Task SayAsync(string spcName, string text)
+      => ReplyAsync(ModuleSystem.module.PreparingModuleForAsyncSay(Context, spcName, text));
 
     // ReplyAsync is a method on ModuleBase 
 

@@ -12,7 +12,6 @@ namespace NWN.Systems
   {
     public uint oid { get; }
     public List<string> botAsyncCommandList { get; set; }
-    public static string textToSpeak { get; set; }
     public static Dictionary<string, Area> areaDictionnary = new Dictionary<string, Area>();
     public static string currentScript = "";
     public Module(uint oid)
@@ -310,7 +309,7 @@ namespace NWN.Systems
         SELECT rank
         FROM PlayerAccounts
         WHERE discordId = $discordId
-    ";
+        ";
         command.Parameters.AddWithValue("$discordId", context.User.Id);
 
         string result = "";
@@ -332,11 +331,41 @@ namespace NWN.Systems
 
       return "Noooon, vous n'êtes pas la maaaaaître ! Le maaaaître est bien plus poli, d'habitude !";
     }
-    public string PreparingModuleForAsyncSay(SocketCommandContext context)
+    public string PreparingModuleForAsyncSay(SocketCommandContext context, string sPCName, string text)
     {
-      Module.textToSpeak = context.Message.Content.Replace("!say ", "");
-      this.botAsyncCommandList.Add("say");
-      return "Texte en cours de relais serveur.";
+      using (var connection = new SqliteConnection($"{ModuleSystem.db_path}"))
+      {
+        connection.Open();
+
+        var command = connection.CreateCommand();
+        command.CommandText =
+        @"
+        SELECT pc.ROWID
+        FROM PlayerAccounts
+        LEFT join playerCharacters pc on pc.accountId = PlayerAccounts.ROWID
+        WHERE discordId = $discordId and pc.characterName = $characterName
+        ";
+        command.Parameters.AddWithValue("$discordId", context.User.Id);
+        command.Parameters.AddWithValue("$characterName", sPCName);
+
+        int result = 0;
+
+        using (var reader = command.ExecuteReader())
+        {
+          while (reader.Read())
+          {
+            result = reader.GetInt32(0);
+          }
+        }
+
+        if (result > 0)
+        {
+          this.botAsyncCommandList.Add($"say_{result}_{text}");
+          return "Texte en cours de relais vers votre personnage.";
+        }
+      }
+
+      return "Le personnage indiqué n'existe pas, n'est pas connecté ou n'a pas été enregistré avec votre code Discord et votre clef cd.";
     }
     private void SetModuleTime()
     {
