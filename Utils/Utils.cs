@@ -6,6 +6,7 @@ using NWN.Core.NWNX;
 using NWN.Systems;
 using System.Numerics;
 using Discord;
+using Discord.Commands;
 
 namespace NWN
 {
@@ -217,6 +218,13 @@ namespace NWN
     public static int GetConnectedPlayers()
     {
       return (PlayerSystem.Players.Where(kv => kv.Value.isConnected)).Count();
+    }
+    public static string RegisterDiscordId(SocketCommandContext context, string cdKey)
+    {
+      Console.WriteLine(cdKey);
+      Console.WriteLine(context.User.Id);
+      
+      return "";
     }
     public static TimeSpan StripTimeSpanMilliseconds(TimeSpan timespan)
     {

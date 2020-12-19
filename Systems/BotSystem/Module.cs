@@ -15,8 +15,8 @@ namespace NWN.Systems
 
     [Command("say")]
     [Summary("Echoes a message.")]
-    public Task SayAsync(string text)
-      => ReplyAsync(ModuleSystem.module.PreparingModuleForAsyncSay(text));
+    public Task SayAsync()
+      => ReplyAsync(ModuleSystem.module.PreparingModuleForAsyncSay(Context));
 
     // ReplyAsync is a method on ModuleBase 
 
@@ -29,5 +29,10 @@ namespace NWN.Systems
     [Summary("Reboot le module.")]
     public Task RebootAsync()
       => ReplyAsync(ModuleSystem.module.PreparingModuleForAsyncReboot());
+
+    [Command("register")]
+    [Summary("Enregistre votre compte Discord sur le module en fonction de la clef cd fournie.")]
+    public Task RegisterDiscordId(string cdKey)
+      => ReplyAsync($"Vous êtes {Utils.RegisterDiscordId(Context, cdKey)} !");
   }
 }

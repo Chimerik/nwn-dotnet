@@ -221,22 +221,6 @@ namespace NWN.Systems
         )
       },
       {
-        "mine",
-        new Command(
-          name: "mine",
-          description: new Command.Description(title: "Débute l'extraction de minerai sur la cible."),
-          execute: ExecuteStartMiningCommand
-        )
-      },
-      {
-        "prospect",
-        new Command(
-          name: "prospect",
-          description: new Command.Description(title: "Débute la recherche de filons sur la cible."),
-          execute: ExecuteStartProspectionCommand
-        )
-      },
-      {
         "test",
         new Command(
           name: "test",
@@ -322,42 +306,6 @@ namespace NWN.Systems
                 name: "Tag",
                 description: "Le nouveau tag de la cible.",
                 defaultValue: ""
-              )
-            }
-          )
-        )
-      },
-      {
-        "up",
-        new Command(
-          name: "up",
-          description: new Command.Description(title: "Change la hauteur d'affichage du personnage. Ne pas abuser, sinon vous allez être ridicule et vous risquez le bâton."),
-          execute: ExecuteUpCommand,
-          options: new Options(
-            positional: new List<Option>()
-            {
-              new Option(
-                name: "hauteur",
-                description: "Hauteur",
-                defaultValue: "0.1f"
-              )
-            }
-          )
-        )
-      },
-      {
-        "rotate",
-        new Command(
-          name: "rotate",
-          description: new Command.Description(title: "Change l'angle d'affichage du personnage. Permet de faire des ajustements de position sur certaines animations."),
-          execute: ExecuteRotateCommand,
-          options: new Options(
-            positional: new List<Option>()
-            {
-              new Option(
-                name: "angle",
-                description: "Angle",
-                defaultValue: "20.0f"
               )
             }
           )
