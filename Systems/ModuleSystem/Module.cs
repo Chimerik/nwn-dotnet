@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using Discord;
+using Discord.Commands;
 using NWN.Core;
 using NWN.Core.NWNX;
 
@@ -51,7 +52,7 @@ namespace NWN.Systems
       var query = NWScript.SqlPrepareQueryCampaign(ModuleSystem.database, "CREATE TABLE IF NOT EXISTS moduleInfo('year' INTEGER NOT NULL, 'month' INTEGER NOT NULL, 'day' INTEGER NOT NULL, 'hour' INTEGER NOT NULL, 'minute' INTEGER NOT NULL, 'second' INTEGER NOT NULL)");
       NWScript.SqlStep(query);
 
-      query = NWScript.SqlPrepareQueryCampaign(ModuleSystem.database, "CREATE TABLE IF NOT EXISTS PlayerAccounts('accountName' TEXT NOT NULL, 'bonusRolePlay' INTEGER NOT NULL)");
+      query = NWScript.SqlPrepareQueryCampaign(ModuleSystem.database, "CREATE TABLE IF NOT EXISTS PlayerAccounts('accountName' TEXT NOT NULL, 'cdKey' TEXT, 'bonusRolePlay' INTEGER NOT NULL, 'discordId' INTEGER, 'rank' TEXT)");
       NWScript.SqlStep(query);
 
       query = NWScript.SqlPrepareQueryCampaign(ModuleSystem.database, "CREATE TABLE IF NOT EXISTS playerCharacters('accountId' INTEGER NOT NULL, 'characterName' TEXT NOT NULL, 'dateLastSaved' TEXT NOT NULL, 'currentSkillJob' INTEGER NOT NULL, 'currentCraftJobRemainingTime' REAL, 'currentCraftJob' INTEGER NOT NULL, 'currentCraftObject' TEXT NOT NULL, currentCraftJobMaterial TEXT, 'frostAttackOn' INTEGER NOT NULL, areaTag TEXT, position TEXT, facing REAL, currentHP INTEGER, bankGold INTEGER, menuOriginTop INTEGER, menuOriginLeft INTEGER, storage TEXT)");
@@ -301,9 +302,9 @@ namespace NWN.Systems
       this.botAsyncCommandList.Add("reboot");
       return "Reboot effectif dans 30 secondes.";
     }
-    public string PreparingModuleForAsyncSay(string text)
+    public string PreparingModuleForAsyncSay(SocketCommandContext context)
     {
-      Module.textToSpeak = text;
+      Module.textToSpeak = context.Message.Content.Replace("!say ", "");
       this.botAsyncCommandList.Add("say");
       return "Texte en cours de relais serveur.";
     }

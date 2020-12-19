@@ -42,11 +42,12 @@ namespace NWN.Systems
           }
           else
             NWScript.AssignCommand(player.oid, () => NWScript.ActionSit(target));
+
+          player.LoadMenuQuickbar(QuickbarType.Sit);
         };
 
         player.targetEvent = TargetEvent.SitTarget;
         player.SelectTarget(callback);
-        NWScript.SetObjectVisualTransform(ctx.oSender, NWScript.OBJECT_VISUAL_TRANSFORM_TRANSLATE_Z, 0.1f);
       }
     }
   }

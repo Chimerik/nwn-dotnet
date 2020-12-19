@@ -1829,6 +1829,10 @@ namespace NWN
     CraftOreExtractor3,
     CraftOreExtractor4,
     CraftOreExtractor5,
+    CustomPositionRight,
+    CustomPositionLeft,
+    CustomPositionRotateRight,
+    CustomPositionRotateLeft,
     Invalid = 65535
   }
 }

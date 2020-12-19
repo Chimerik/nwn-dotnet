@@ -55,7 +55,7 @@ namespace NWN.Systems
       {
         if (!isOpen)
         {
-          player.LoadMenuQuickbar();
+          player.LoadMenuQuickbar(QuickbarType.Menu);
           player.OnKeydown += HandleMenuFeatUsed;
         }
 
@@ -219,34 +219,106 @@ namespace NWN.Systems
         }
       }
 
-      private void HandleMenuFeatUsed(object sender, PlayerSystem.Player.MenuFeatEventArgs e)
+      private void HandleMenuFeatUsed(object sender, Player.MenuFeatEventArgs e)
       {
-        switch (e.feat)
+        switch (player.loadedQuickBar)
         {
-          default: return;
+          case QuickbarType.Invalid:
+            return;
+          case QuickbarType.Menu:
+            switch (e.feat)
+            {
+              default: return;
 
-          case Feat.CustomMenuUP:
-            selectedChoiceID = (selectedChoiceID + choices.Count - 1) % choices.Count;
-            EraseLastSelection();
-            PlayerPlugin.PlaySound(player.oid, "gui_select", NWScript.OBJECT_INVALID);
-            DrawSelection();
-            return;
+              case Feat.CustomMenuUP:
+                selectedChoiceID = (selectedChoiceID + choices.Count - 1) % choices.Count;
+                EraseLastSelection();
+                PlayerPlugin.PlaySound(player.oid, "gui_select", NWScript.OBJECT_INVALID);
+                DrawSelection();
+                return;
 
-          case Feat.CustomMenuDOWN:
-            selectedChoiceID = (selectedChoiceID + 1) % choices.Count;
-            EraseLastSelection();
-            PlayerPlugin.PlaySound(player.oid, "gui_select", NWScript.OBJECT_INVALID);
-            DrawSelection();
-            return;
+              case Feat.CustomMenuDOWN:
+                selectedChoiceID = (selectedChoiceID + 1) % choices.Count;
+                EraseLastSelection();
+                PlayerPlugin.PlaySound(player.oid, "gui_select", NWScript.OBJECT_INVALID);
+                DrawSelection();
+                return;
 
-          case Feat.CustomMenuSELECT:
-            var handler = choices.ElementAtOrDefault(selectedChoiceID).handler;
-            PlayerPlugin.PlaySound(player.oid, "gui_picklockopen", NWScript.OBJECT_INVALID);
-            handler?.Invoke();
-            return;
-          case Feat.CustomMenuEXIT:
-            player.menu.Close();
-            return;
+              case Feat.CustomMenuSELECT:
+                var handler = choices.ElementAtOrDefault(selectedChoiceID).handler;
+                PlayerPlugin.PlaySound(player.oid, "gui_picklockopen", NWScript.OBJECT_INVALID);
+                handler?.Invoke();
+                return;
+              case Feat.CustomMenuEXIT:
+                player.menu.Close();
+                return;
+            }
+          case QuickbarType.Sit:
+            float zPos;
+            float newValue;
+
+            switch(e.feat)
+            {
+              default: return;
+
+              case Feat.CustomMenuUP:
+                newValue = 0.1f;
+                if (player.setValue > 0)
+                  newValue = player.setValue;
+
+                  NWScript.SetObjectVisualTransform(player.oid, NWScript.OBJECT_VISUAL_TRANSFORM_TRANSLATE_Z, NWScript.GetObjectVisualTransform(player.oid, NWScript.OBJECT_VISUAL_TRANSFORM_TRANSLATE_Z) + newValue);
+                  zPos = NWScript.GetObjectVisualTransform(player.oid, NWScript.OBJECT_VISUAL_TRANSFORM_TRANSLATE_Z);
+                  if (zPos > 5)
+                    Utils.LogMessageToDMs($"SIT COMMAND - Player {NWScript.GetName(player.oid)} - Z translation = {zPos}");
+
+                break;
+
+              case Feat.CustomMenuDOWN:
+                newValue = -0.1f;
+                if (player.setValue > 0)
+                  newValue = -player.setValue;
+
+                NWScript.SetObjectVisualTransform(player.oid, NWScript.OBJECT_VISUAL_TRANSFORM_TRANSLATE_Z, NWScript.GetObjectVisualTransform(player.oid, NWScript.OBJECT_VISUAL_TRANSFORM_TRANSLATE_Z) + newValue);
+                zPos = NWScript.GetObjectVisualTransform(player.oid, NWScript.OBJECT_VISUAL_TRANSFORM_TRANSLATE_Z);
+                if (zPos < 0)
+                  Utils.LogMessageToDMs($"SIT COMMAND - Player {NWScript.GetName(player.oid)} - Z translation = {zPos}");
+                break;
+
+              case Feat.CustomPositionRotateRight:
+                newValue = 20.0f;
+                if (player.setValue > 0)
+                  newValue = player.setValue;
+
+                NWScript.SetObjectVisualTransform(player.oid, NWScript.OBJECT_VISUAL_TRANSFORM_ROTATE_X, NWScript.GetObjectVisualTransform(player.oid, NWScript.OBJECT_VISUAL_TRANSFORM_ROTATE_X) + newValue);
+                break;
+
+              case Feat.CustomPositionRotateLeft:
+                newValue = -20.0f;
+                if (player.setValue > 0)
+                  newValue = -player.setValue;
+
+                NWScript.SetObjectVisualTransform(player.oid, NWScript.OBJECT_VISUAL_TRANSFORM_ROTATE_X, NWScript.GetObjectVisualTransform(player.oid, NWScript.OBJECT_VISUAL_TRANSFORM_ROTATE_X) + newValue);
+                break;
+
+              case Feat.CustomPositionRight:
+                newValue = 1.0f;
+                if (player.setValue > 0)
+                  newValue = player.setValue;
+
+                NWScript.GetFacing(player.oid);
+
+                NWScript.SetObjectVisualTransform(player.oid, NWScript.OBJECT_VISUAL_TRANSFORM_ROTATE_X, NWScript.GetObjectVisualTransform(player.oid, NWScript.OBJECT_VISUAL_TRANSFORM_ROTATE_X) + newValue);
+                break;
+
+              case Feat.CustomMenuEXIT:
+                player.UnloadMenuQuickbar();
+                NWScript.SetObjectVisualTransform(player.oid, NWScript.OBJECT_VISUAL_TRANSFORM_ROTATE_X, 0.0f);
+                NWScript.SetObjectVisualTransform(player.oid, NWScript.OBJECT_VISUAL_TRANSFORM_TRANSLATE_X, 0.0f);
+                NWScript.SetObjectVisualTransform(player.oid, NWScript.OBJECT_VISUAL_TRANSFORM_TRANSLATE_Y, 0.0f);
+                NWScript.SetObjectVisualTransform(player.oid, NWScript.OBJECT_VISUAL_TRANSFORM_TRANSLATE_Z, 0.0f);
+                return;
+            }
+            break;
         }
       }
     }

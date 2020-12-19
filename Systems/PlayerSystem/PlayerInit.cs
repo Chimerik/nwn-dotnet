@@ -128,36 +128,36 @@ namespace NWN.Systems
           (Bot._client.GetChannel(680072044364562532) as IMessageChannel).SendMessageAsync($"{Bot._client.GetGuild(680072044364562528).EveryoneRole.Mention} Toute première connexion de {NWScript.GetName(newPlayer)} => nouveau joueur à accueillir !");
         }
 
-        query = NWScript.SqlPrepareQueryCampaign(ModuleSystem.database, $"INSERT INTO PlayerAccounts (accountName , bonusRolePlay) VALUES (@name, @brp)");
+        query = NWScript.SqlPrepareQueryCampaign(ModuleSystem.database, $"INSERT INTO PlayerAccounts (accountName, cdKey, bonusRolePlay) VALUES (@name, @cdKey, @brp)");
         NWScript.SqlBindInt(query, "@brp", 1);
         NWScript.SqlBindString(query, "@name", NWScript.GetPCPlayerName(newPlayer));
+        NWScript.SqlBindString(query, "@cdKey", NWScript.GetPCPublicCDKey(newPlayer));
         NWScript.SqlStep(query);
 
         query = NWScript.SqlPrepareQueryCampaign(ModuleSystem.database, $"SELECT last_insert_rowid()");
         NWScript.SqlStep(query);
-      }
+        ObjectPlugin.SetInt(newPlayer, "accountId", NWScript.SqlGetInt(query, 0), 1);
 
-      switch (NWScript.GetRacialType(newPlayer))
-      {
-        case NWScript.RACIAL_TYPE_DWARF:
-          CreaturePlugin.AddFeat(newPlayer, (int)Feat.LanguageDwarf);
-          break;
-        case NWScript.RACIAL_TYPE_ELF:
-        case NWScript.RACIAL_TYPE_HALFELF:
-          CreaturePlugin.AddFeat(newPlayer, (int)Feat.LanguageElf);
-          break;
-        case NWScript.RACIAL_TYPE_HALFLING:
-          CreaturePlugin.AddFeat(newPlayer, (int)Feat.LanguageHalfling);
-          break;
-        case NWScript.RACIAL_TYPE_GNOME:
-          CreaturePlugin.AddFeat(newPlayer, (int)Feat.LanguageGnome);
-          break;
-        case NWScript.RACIAL_TYPE_HALFORC:
-          CreaturePlugin.AddFeat(newPlayer, (int)Feat.LanguageOrc);
-          break;
+        switch (NWScript.GetRacialType(newPlayer))
+        {
+          case NWScript.RACIAL_TYPE_DWARF:
+            CreaturePlugin.AddFeat(newPlayer, (int)Feat.LanguageDwarf);
+            break;
+          case NWScript.RACIAL_TYPE_ELF:
+          case NWScript.RACIAL_TYPE_HALFELF:
+            CreaturePlugin.AddFeat(newPlayer, (int)Feat.LanguageElf);
+            break;
+          case NWScript.RACIAL_TYPE_HALFLING:
+            CreaturePlugin.AddFeat(newPlayer, (int)Feat.LanguageHalfling);
+            break;
+          case NWScript.RACIAL_TYPE_GNOME:
+            CreaturePlugin.AddFeat(newPlayer, (int)Feat.LanguageGnome);
+            break;
+          case NWScript.RACIAL_TYPE_HALFORC:
+            CreaturePlugin.AddFeat(newPlayer, (int)Feat.LanguageOrc);
+            break;
+        }
       }
-
-      ObjectPlugin.SetInt(newPlayer, "accountId", NWScript.SqlGetInt(query, 0), 1);
     }
     private static void InitializeNewCharacter(Player newCharacter)
     {
@@ -306,6 +306,7 @@ namespace NWN.Systems
       NWScript.SqlStep(query);
 
       player.playerJournal = new PlayerJournal();
+      player.loadedQuickBar = QuickbarType.Invalid;
 
       player.location = Utils.GetLocationFromDatabase(NWScript.SqlGetString(query, 0), NWScript.SqlGetVector(query, 1), NWScript.SqlGetFloat(query, 2));
       player.currentHP = NWScript.SqlGetInt(query, 3);

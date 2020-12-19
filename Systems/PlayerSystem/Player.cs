@@ -35,6 +35,7 @@ namespace NWN.Systems
       public string disguiseName { get; set; }
       public uint deathCorpse { get; set; }
       public int setValue { get; set; }
+      public QuickbarType loadedQuickBar { get; set; }
 
       public Dictionary<uint, Player> listened = new Dictionary<uint, Player>();
       public Dictionary<uint, Player> blocked = new Dictionary<uint, Player>();
@@ -147,33 +148,78 @@ namespace NWN.Systems
           blockingBoulder
         );
       }*/
-      public void LoadMenuQuickbar()
+      public void LoadMenuQuickbar(QuickbarType type)
       {
-        if (!this.IsDialogQuickbarOn())
+        if (this.loadedQuickBar == QuickbarType.Invalid)
         {
-          CreaturePlugin.AddFeat(this.oid, (int)Feat.CustomMenuDOWN);
-          CreaturePlugin.AddFeat(this.oid, (int)Feat.CustomMenuUP);
-          CreaturePlugin.AddFeat(this.oid, (int)Feat.CustomMenuSELECT);
-          CreaturePlugin.AddFeat(this.oid, (int)Feat.CustomMenuEXIT);
-
-          this.savedQuickBar.Clear();
           QuickBarSlot emptyQBS = new QuickBarSlot();
-          emptyQBS.nObjectType = 0;
 
-          for (int i = 0; i < 12; i++)
+          switch (type)
           {
-            this.savedQuickBar.Add(PlayerPlugin.GetQuickBarSlot(this.oid, i));
-            PlayerPlugin.SetQuickBarSlot(this.oid, i, emptyQBS);
+            case QuickbarType.Menu:
+              CreaturePlugin.AddFeat(this.oid, (int)Feat.CustomMenuDOWN);
+              CreaturePlugin.AddFeat(this.oid, (int)Feat.CustomMenuUP);
+              CreaturePlugin.AddFeat(this.oid, (int)Feat.CustomMenuSELECT);
+              CreaturePlugin.AddFeat(this.oid, (int)Feat.CustomMenuEXIT);
+
+              this.savedQuickBar.Clear();
+              emptyQBS.nObjectType = 0;
+
+              for (int i = 0; i < 12; i++)
+              {
+                this.savedQuickBar.Add(PlayerPlugin.GetQuickBarSlot(this.oid, i));
+                PlayerPlugin.SetQuickBarSlot(this.oid, i, emptyQBS);
+              }
+
+              emptyQBS.nObjectType = 4;
+              emptyQBS.nINTParam1 = (int)Feat.CustomMenuDOWN;
+              PlayerPlugin.SetQuickBarSlot(this.oid, 0, emptyQBS);
+              emptyQBS.nINTParam1 = (int)Feat.CustomMenuUP;
+              PlayerPlugin.SetQuickBarSlot(this.oid, 1, emptyQBS);
+              emptyQBS.nINTParam1 = (int)Feat.CustomMenuSELECT;
+              PlayerPlugin.SetQuickBarSlot(this.oid, 2, emptyQBS);
+              emptyQBS.nINTParam1 = (int)Feat.CustomMenuEXIT;
+              PlayerPlugin.SetQuickBarSlot(this.oid, 3, emptyQBS);
+
+              this.loadedQuickBar = QuickbarType.Menu;
+              break;
+            case QuickbarType.Sit:
+              CreaturePlugin.AddFeat(this.oid, (int)Feat.CustomMenuDOWN);
+              CreaturePlugin.AddFeat(this.oid, (int)Feat.CustomMenuUP);
+              CreaturePlugin.AddFeat(this.oid, (int)Feat.CustomPositionRight);
+              CreaturePlugin.AddFeat(this.oid, (int)Feat.CustomPositionLeft);
+              CreaturePlugin.AddFeat(this.oid, (int)Feat.CustomPositionRotateRight);
+              CreaturePlugin.AddFeat(this.oid, (int)Feat.CustomPositionRotateLeft);
+              CreaturePlugin.AddFeat(this.oid, (int)Feat.CustomMenuEXIT);
+
+              this.savedQuickBar.Clear();
+              emptyQBS = new QuickBarSlot();
+              emptyQBS.nObjectType = 0;
+
+              for (int i = 0; i < 12; i++)
+              {
+                this.savedQuickBar.Add(PlayerPlugin.GetQuickBarSlot(this.oid, i));
+                PlayerPlugin.SetQuickBarSlot(this.oid, i, emptyQBS);
+              }
+              emptyQBS.nObjectType = 4;
+              emptyQBS.nINTParam1 = (int)Feat.CustomMenuDOWN;
+              PlayerPlugin.SetQuickBarSlot(this.oid, 0, emptyQBS);
+              emptyQBS.nINTParam1 = (int)Feat.CustomMenuUP;
+              PlayerPlugin.SetQuickBarSlot(this.oid, 1, emptyQBS);
+              emptyQBS.nINTParam1 = (int)Feat.CustomPositionRight;
+              PlayerPlugin.SetQuickBarSlot(this.oid, 2, emptyQBS);
+              emptyQBS.nINTParam1 = (int)Feat.CustomPositionLeft;
+              PlayerPlugin.SetQuickBarSlot(this.oid, 2, emptyQBS);
+              emptyQBS.nINTParam1 = (int)Feat.CustomPositionRotateRight;
+              PlayerPlugin.SetQuickBarSlot(this.oid, 2, emptyQBS);
+              emptyQBS.nINTParam1 = (int)Feat.CustomPositionRotateRight;
+              PlayerPlugin.SetQuickBarSlot(this.oid, 2, emptyQBS);
+              emptyQBS.nINTParam1 = (int)Feat.CustomMenuEXIT;
+              PlayerPlugin.SetQuickBarSlot(this.oid, 3, emptyQBS);
+
+              this.loadedQuickBar = QuickbarType.Sit;
+              break;
           }
-          emptyQBS.nObjectType = 4;
-          emptyQBS.nINTParam1 = (int)Feat.CustomMenuDOWN;
-          PlayerPlugin.SetQuickBarSlot(this.oid, 0, emptyQBS);
-          emptyQBS.nINTParam1 = (int)Feat.CustomMenuUP;
-          PlayerPlugin.SetQuickBarSlot(this.oid, 1, emptyQBS);
-          emptyQBS.nINTParam1 = (int)Feat.CustomMenuSELECT;
-          PlayerPlugin.SetQuickBarSlot(this.oid, 2, emptyQBS);
-          emptyQBS.nINTParam1 = (int)Feat.CustomMenuEXIT;
-          PlayerPlugin.SetQuickBarSlot(this.oid, 3, emptyQBS);
         }
       }
       public void UnloadMenuQuickbar()
@@ -182,6 +228,10 @@ namespace NWN.Systems
         CreaturePlugin.RemoveFeat(this.oid, (int)Feat.CustomMenuDOWN);
         CreaturePlugin.RemoveFeat(this.oid, (int)Feat.CustomMenuSELECT);
         CreaturePlugin.RemoveFeat(this.oid, (int)Feat.CustomMenuEXIT);
+        CreaturePlugin.RemoveFeat(this.oid, (int)Feat.CustomPositionLeft);
+        CreaturePlugin.RemoveFeat(this.oid, (int)Feat.CustomPositionRight);
+        CreaturePlugin.RemoveFeat(this.oid, (int)Feat.CustomPositionRotateLeft);
+        CreaturePlugin.RemoveFeat(this.oid, (int)Feat.CustomPositionRotateRight);
 
         int i = 0;
         foreach (QuickBarSlot qbs in this.savedQuickBar)
@@ -191,6 +241,7 @@ namespace NWN.Systems
         }
 
         this.savedQuickBar.Clear();
+        this.loadedQuickBar = QuickbarType.Invalid;
       }
       public void CraftJobProgression()
       {
@@ -497,7 +548,7 @@ namespace NWN.Systems
       public Boolean IsDialogQuickbarOn()
       {
         QuickBarSlot qbs = PlayerPlugin.GetQuickBarSlot(this.oid, 0);
-        if (qbs.nObjectType == 4 && qbs.nINTParam1 == (int)Feat.CustomMenuUP)
+        if (qbs.nObjectType == 4 && qbs.nINTParam1 == (int)Feat.CustomMenuDOWN)
           return true;
         return false;
       }

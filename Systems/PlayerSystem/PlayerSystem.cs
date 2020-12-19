@@ -274,6 +274,11 @@ namespace NWN.Systems
         case Feat.CustomMenuDOWN:
         case Feat.CustomMenuSELECT:
         case Feat.CustomMenuEXIT:
+        case Feat.CustomPositionRight:
+        case Feat.CustomPositionLeft:
+        case Feat.CustomPositionRotateRight:
+        case Feat.CustomPositionRotateLeft:
+
           EventsPlugin.SkipEvent();
 
           if (Players.TryGetValue(oidSelf, out oPC))
