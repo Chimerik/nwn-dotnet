@@ -219,7 +219,7 @@ namespace NWN.Systems
         }
       }
 
-      private void HandleMenuFeatUsed(object sender, Player.MenuFeatEventArgs e)
+      public void HandleMenuFeatUsed(object sender, Player.MenuFeatEventArgs e)
       {
         switch (player.loadedQuickBar)
         {
@@ -316,6 +316,7 @@ namespace NWN.Systems
                 NWScript.SetObjectVisualTransform(player.oid, NWScript.OBJECT_VISUAL_TRANSFORM_TRANSLATE_X, 0.0f);
                 NWScript.SetObjectVisualTransform(player.oid, NWScript.OBJECT_VISUAL_TRANSFORM_TRANSLATE_Y, 0.0f);
                 NWScript.SetObjectVisualTransform(player.oid, NWScript.OBJECT_VISUAL_TRANSFORM_TRANSLATE_Z, 0.0f);
+                player.OnKeydown -= HandleMenuFeatUsed;
                 return;
             }
             break;

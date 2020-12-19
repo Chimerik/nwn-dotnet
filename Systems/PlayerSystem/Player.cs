@@ -209,15 +209,16 @@ namespace NWN.Systems
               emptyQBS.nINTParam1 = (int)Feat.CustomPositionRight;
               PlayerPlugin.SetQuickBarSlot(this.oid, 2, emptyQBS);
               emptyQBS.nINTParam1 = (int)Feat.CustomPositionLeft;
-              PlayerPlugin.SetQuickBarSlot(this.oid, 2, emptyQBS);
-              emptyQBS.nINTParam1 = (int)Feat.CustomPositionRotateRight;
-              PlayerPlugin.SetQuickBarSlot(this.oid, 2, emptyQBS);
-              emptyQBS.nINTParam1 = (int)Feat.CustomPositionRotateRight;
-              PlayerPlugin.SetQuickBarSlot(this.oid, 2, emptyQBS);
-              emptyQBS.nINTParam1 = (int)Feat.CustomMenuEXIT;
               PlayerPlugin.SetQuickBarSlot(this.oid, 3, emptyQBS);
+              emptyQBS.nINTParam1 = (int)Feat.CustomPositionRotateLeft;
+              PlayerPlugin.SetQuickBarSlot(this.oid, 4, emptyQBS);
+              emptyQBS.nINTParam1 = (int)Feat.CustomPositionRotateRight;
+              PlayerPlugin.SetQuickBarSlot(this.oid, 5, emptyQBS);
+              emptyQBS.nINTParam1 = (int)Feat.CustomMenuEXIT;
+              PlayerPlugin.SetQuickBarSlot(this.oid, 6, emptyQBS);
 
               this.loadedQuickBar = QuickbarType.Sit;
+              this.OnKeydown += this.menu.HandleMenuFeatUsed;
               break;
           }
         }
