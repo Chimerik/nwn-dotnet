@@ -138,7 +138,27 @@ namespace NWN.Systems
         NWScript.SqlStep(query);
       }
 
+      switch (NWScript.GetRacialType(newPlayer))
+      {
+        case NWScript.RACIAL_TYPE_DWARF:
+          CreaturePlugin.AddFeat(newPlayer, (int)Feat.LanguageDwarf);
+          break;
+        case NWScript.RACIAL_TYPE_ELF:
+        case NWScript.RACIAL_TYPE_HALFELF:
+          CreaturePlugin.AddFeat(newPlayer, (int)Feat.LanguageElf);
+          break;
+        case NWScript.RACIAL_TYPE_HALFLING:
+          CreaturePlugin.AddFeat(newPlayer, (int)Feat.LanguageHalfling);
+          break;
+        case NWScript.RACIAL_TYPE_GNOME:
+          CreaturePlugin.AddFeat(newPlayer, (int)Feat.LanguageGnome);
+          break;
+        case NWScript.RACIAL_TYPE_HALFORC:
+          CreaturePlugin.AddFeat(newPlayer, (int)Feat.LanguageOrc);
+          break;
+      }
 
+      ObjectPlugin.SetInt(newPlayer, "accountId", NWScript.SqlGetInt(query, 0), 1);
     }
     private static void InitializeNewCharacter(Player newCharacter)
     {
