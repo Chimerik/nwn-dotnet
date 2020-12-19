@@ -308,7 +308,7 @@ namespace NWN.Systems
         command.CommandText =
         @"
         SELECT rank
-        PlayerAccounts
+        FROM PlayerAccounts
         WHERE discordId = $discordId
     ";
         command.Parameters.AddWithValue("$discordId", context.User.Id);
