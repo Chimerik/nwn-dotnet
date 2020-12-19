@@ -267,9 +267,7 @@ namespace NWN.Systems
     private static void InitializePlayer(Player player)
     {
       InitializePlayerEvents(player.oid);
-      Console.WriteLine("1");
       InitializePlayerAccount(player);
-      Console.WriteLine("2");
       InitializePlayerCharacter(player);
       InitializePlayerLearnableSkills(player);
       InitializeCharacterMapPins(player);
