@@ -1833,6 +1833,8 @@ namespace NWN
     CustomPositionLeft,
     CustomPositionRotateRight,
     CustomPositionRotateLeft,
+    CustomPositionForward,
+    CustomPositionBackward,
     Invalid = 65535
   }
 }

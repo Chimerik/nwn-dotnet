@@ -188,6 +188,8 @@ namespace NWN.Systems
               CreaturePlugin.AddFeat(this.oid, (int)Feat.CustomMenuUP);
               CreaturePlugin.AddFeat(this.oid, (int)Feat.CustomPositionRight);
               CreaturePlugin.AddFeat(this.oid, (int)Feat.CustomPositionLeft);
+              CreaturePlugin.AddFeat(this.oid, (int)Feat.CustomPositionForward);
+              CreaturePlugin.AddFeat(this.oid, (int)Feat.CustomPositionBackward);
               CreaturePlugin.AddFeat(this.oid, (int)Feat.CustomPositionRotateRight);
               CreaturePlugin.AddFeat(this.oid, (int)Feat.CustomPositionRotateLeft);
               CreaturePlugin.AddFeat(this.oid, (int)Feat.CustomMenuEXIT);
@@ -206,16 +208,20 @@ namespace NWN.Systems
               PlayerPlugin.SetQuickBarSlot(this.oid, 0, emptyQBS);
               emptyQBS.nINTParam1 = (int)Feat.CustomMenuUP;
               PlayerPlugin.SetQuickBarSlot(this.oid, 1, emptyQBS);
-              emptyQBS.nINTParam1 = (int)Feat.CustomPositionRight;
-              PlayerPlugin.SetQuickBarSlot(this.oid, 2, emptyQBS);
               emptyQBS.nINTParam1 = (int)Feat.CustomPositionLeft;
+              PlayerPlugin.SetQuickBarSlot(this.oid, 2, emptyQBS);
+              emptyQBS.nINTParam1 = (int)Feat.CustomPositionRight;
               PlayerPlugin.SetQuickBarSlot(this.oid, 3, emptyQBS);
-              emptyQBS.nINTParam1 = (int)Feat.CustomPositionRotateLeft;
+              emptyQBS.nINTParam1 = (int)Feat.CustomPositionForward;
               PlayerPlugin.SetQuickBarSlot(this.oid, 4, emptyQBS);
-              emptyQBS.nINTParam1 = (int)Feat.CustomPositionRotateRight;
+              emptyQBS.nINTParam1 = (int)Feat.CustomPositionBackward;
               PlayerPlugin.SetQuickBarSlot(this.oid, 5, emptyQBS);
-              emptyQBS.nINTParam1 = (int)Feat.CustomMenuEXIT;
+              emptyQBS.nINTParam1 = (int)Feat.CustomPositionRotateLeft;
               PlayerPlugin.SetQuickBarSlot(this.oid, 6, emptyQBS);
+              emptyQBS.nINTParam1 = (int)Feat.CustomPositionRotateRight;
+              PlayerPlugin.SetQuickBarSlot(this.oid, 7, emptyQBS);
+              emptyQBS.nINTParam1 = (int)Feat.CustomMenuEXIT;
+              PlayerPlugin.SetQuickBarSlot(this.oid, 8, emptyQBS);
 
               this.loadedQuickBar = QuickbarType.Sit;
               this.OnKeydown += this.menu.HandleMenuFeatUsed;
@@ -231,6 +237,8 @@ namespace NWN.Systems
         CreaturePlugin.RemoveFeat(this.oid, (int)Feat.CustomMenuEXIT);
         CreaturePlugin.RemoveFeat(this.oid, (int)Feat.CustomPositionLeft);
         CreaturePlugin.RemoveFeat(this.oid, (int)Feat.CustomPositionRight);
+        CreaturePlugin.RemoveFeat(this.oid, (int)Feat.CustomPositionForward);
+        CreaturePlugin.RemoveFeat(this.oid, (int)Feat.CustomPositionBackward);
         CreaturePlugin.RemoveFeat(this.oid, (int)Feat.CustomPositionRotateLeft);
         CreaturePlugin.RemoveFeat(this.oid, (int)Feat.CustomPositionRotateRight);
 

@@ -20,9 +20,13 @@ namespace NWN.Systems
       NWScript.SetLocalString(oid, "X2_S_UD_SPELLSCRIPT", "spellhook");
       this.botAsyncCommandList = new List<string>();
       Bot.MainAsync();
+      Console.WriteLine("1");
       this.CreateDatabase();
+      Console.WriteLine("2");
       this.SetModuleTime();
+      Console.WriteLine("3");
       ChatSystem.Init();
+      Console.WriteLine("4");
       try
       {
         LootSystem.InitChestArea();
@@ -49,7 +53,9 @@ namespace NWN.Systems
 
     private void CreateDatabase()
     {
+      Console.WriteLine("1.1");
       var query = NWScript.SqlPrepareQueryCampaign(ModuleSystem.database, "CREATE TABLE IF NOT EXISTS moduleInfo('year' INTEGER NOT NULL, 'month' INTEGER NOT NULL, 'day' INTEGER NOT NULL, 'hour' INTEGER NOT NULL, 'minute' INTEGER NOT NULL, 'second' INTEGER NOT NULL)");
+      Console.WriteLine("1.2");
       NWScript.SqlStep(query);
 
       query = NWScript.SqlPrepareQueryCampaign(ModuleSystem.database, "CREATE TABLE IF NOT EXISTS PlayerAccounts('accountName' TEXT NOT NULL, 'cdKey' TEXT, 'bonusRolePlay' INTEGER NOT NULL, 'discordId' INTEGER, 'rank' TEXT)");
@@ -246,7 +252,7 @@ namespace NWN.Systems
 
     private static void SaveServerVault()
     {
-      var query = NWScript.SqlPrepareQueryCampaign(ModuleSystem.database, $"INSERT INTO moduleInfo (year, month, day, hour, minute, second) VALUES (@year, @month, @day, @hour, @minute, @second)");
+      var query = NWScript.SqlPrepareQueryCampaign(ModuleSystem.database, $"UPDATE moduleInfo SET year = @year, month = @month, day = @day, hour = @hour, minute = @minute, second = @second where rowid = 1");
       NWScript.SqlBindInt(query, "@year", NWScript.GetCalendarYear());
       NWScript.SqlBindInt(query, "@month", NWScript.GetCalendarMonth());
       NWScript.SqlBindInt(query, "@day", NWScript.GetCalendarDay());
@@ -369,7 +375,7 @@ namespace NWN.Systems
     }
     private void SetModuleTime()
     {
-      var query = NWScript.SqlPrepareQueryCampaign(ModuleSystem.database, $"SELECT year, month, day, hour, minute, second from moduleInfo");
+      var query = NWScript.SqlPrepareQueryCampaign(ModuleSystem.database, $"SELECT year, month, day, hour, minute, second from moduleInfo where rowid = 1");
       
       if(Convert.ToBoolean(NWScript.SqlStep(query)))
       {

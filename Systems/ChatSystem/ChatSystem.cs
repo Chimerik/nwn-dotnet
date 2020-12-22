@@ -121,7 +121,7 @@ namespace NWN.Systems
     }
     public static void ProcessPMMiddleware(ChatSystem.Context ctx, Action next)
     {
-      if(NWScript.GetIsObjectValid(ctx.oTarget) == 1)
+      if (NWScript.GetIsObjectValid(ctx.oTarget) == 1)
       {
         ChatPlugin.SkipMessage();
         if (NWScript.GetIsObjectValid(NWScript.GetLocalObject(ctx.oTarget, "_POSSESSING")) == 1)
@@ -234,7 +234,7 @@ namespace NWN.Systems
           NWScript.SendMessageToPC(ctx.oSender, sName + " : [" + sLanguageName + "] " + Languages.GetLangueStringConvertedHRPProtection(ctx.msg, player.activeLanguage));
           return;
         }
-
+        
         next();
       }
     }
