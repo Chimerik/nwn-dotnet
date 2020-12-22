@@ -27,6 +27,7 @@ namespace NWN.Systems
             { "event_feat_used", HandleFeatUsed },
             { "_onspellcast_before", HandleBeforeSpellCast },
             { "_onspellcast_after", HandleAfterSpellCast },
+            { "event_learn_scroll_before", HandleBeforeLearnScroll },
             { "event_combatmode", HandleOnCombatMode },
             { "event_skillused", HandleOnSkillUsed },
             { "summon_add_after", HandleAfterAddSummon },
@@ -344,6 +345,21 @@ namespace NWN.Systems
         var spellId = int.Parse(EventsPlugin.GetEventData("SPELL_ID"));
         NWScript.SendMessageToPC(oidSelf, "after spell cast");
         //CreaturePlugin.SetClassByPosition(oidSelf, 0, 43); // 43 = aventurier
+      }
+
+      return 0;
+    }
+    private static int HandleBeforeLearnScroll(uint oidSelf)
+    {
+      Player oPC;
+
+      if (Players.TryGetValue(oidSelf, out oPC))
+      {
+        EventsPlugin.SkipEvent();
+
+        var oScroll = NWScript.StringToObject(EventsPlugin.GetEventData("SCROLL"));
+        
+        
       }
 
       return 0;
