@@ -63,9 +63,11 @@ namespace NWN.Systems
           NWScript.ApplyEffectToObject(NWScript.DURATION_TYPE_PERMANENT, eHunger, oPC);
         }*/
 
-        int maxHP = NWScript.GetMaxHitPoints(player.oid);
-        if (maxHP != player.currentHP)
-          NWScript.ApplyEffectToObject(NWScript.DURATION_TYPE_INSTANT, NWScript.EffectDamage(maxHP - player.currentHP), player.oid);
+        
+        if (player.currentHP <= 0)
+          NWScript.ApplyEffectToObject(NWScript.DURATION_TYPE_INSTANT, NWScript.EffectDeath(0, 0), player.oid);
+        else
+          NWScript.SetCurrentHitPoints(player.oid, player.currentHP);
 
         if (player.location != null)
         {
