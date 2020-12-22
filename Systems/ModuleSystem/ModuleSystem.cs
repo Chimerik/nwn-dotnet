@@ -44,10 +44,9 @@ namespace NWN.Systems
     private static int HandleModuleHeartBeat(uint oidSelf)
     {
       foreach (string command in module.botAsyncCommandList)
-      {
         BotAsyncCommandSystem.ProcessBotAsyncCommand(command);
-        NWScript.DelayCommand(0.0f, () => module.botAsyncCommandList.Remove(command));
-      }
+
+      module.botAsyncCommandList.Clear();
 
       return 0;
     }

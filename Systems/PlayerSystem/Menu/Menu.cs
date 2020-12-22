@@ -256,6 +256,7 @@ namespace NWN.Systems
           case QuickbarType.Sit:
             float zPos;
             float newValue;
+            NWScript.SendMessageToPC(NWScript.GetFirstPC(), $"feat : {e.feat}");
 
             switch(e.feat)
             {
@@ -266,7 +267,7 @@ namespace NWN.Systems
                 if (player.setValue > 0)
                   newValue = player.setValue;
 
-                  NWScript.SetObjectVisualTransform(player.oid, NWScript.OBJECT_VISUAL_TRANSFORM_TRANSLATE_Z, NWScript.GetObjectVisualTransform(player.oid, NWScript.OBJECT_VISUAL_TRANSFORM_TRANSLATE_Z) + newValue);
+                NWScript.SetObjectVisualTransform(player.oid, NWScript.OBJECT_VISUAL_TRANSFORM_TRANSLATE_Z, NWScript.GetObjectVisualTransform(player.oid, NWScript.OBJECT_VISUAL_TRANSFORM_TRANSLATE_Z) + newValue);
                   zPos = NWScript.GetObjectVisualTransform(player.oid, NWScript.OBJECT_VISUAL_TRANSFORM_TRANSLATE_Z);
                   if (zPos > 5)
                     Utils.LogMessageToDMs($"SIT COMMAND - Player {NWScript.GetName(player.oid)} - Z translation = {zPos}");
@@ -280,7 +281,7 @@ namespace NWN.Systems
 
                 NWScript.SetObjectVisualTransform(player.oid, NWScript.OBJECT_VISUAL_TRANSFORM_TRANSLATE_Z, NWScript.GetObjectVisualTransform(player.oid, NWScript.OBJECT_VISUAL_TRANSFORM_TRANSLATE_Z) + newValue);
                 zPos = NWScript.GetObjectVisualTransform(player.oid, NWScript.OBJECT_VISUAL_TRANSFORM_TRANSLATE_Z);
-                if (zPos < 0)
+                if (zPos < NWScript.GetGroundHeight(NWScript.GetLocation(player.oid)))
                   Utils.LogMessageToDMs($"SIT COMMAND - Player {NWScript.GetName(player.oid)} - Z translation = {zPos}");
                 break;
 
@@ -301,13 +302,39 @@ namespace NWN.Systems
                 break;
 
               case Feat.CustomPositionRight:
-                newValue = 1.0f;
+                newValue = 0.1f;
                 if (player.setValue > 0)
                   newValue = player.setValue;
 
-                NWScript.GetFacing(player.oid);
+                NWScript.SetObjectVisualTransform(player.oid, NWScript.OBJECT_VISUAL_TRANSFORM_TRANSLATE_X,
+                NWScript.GetObjectVisualTransform(player.oid, NWScript.OBJECT_VISUAL_TRANSFORM_TRANSLATE_X) + newValue);
+                break;
 
-                NWScript.SetObjectVisualTransform(player.oid, NWScript.OBJECT_VISUAL_TRANSFORM_ROTATE_X, NWScript.GetObjectVisualTransform(player.oid, NWScript.OBJECT_VISUAL_TRANSFORM_ROTATE_X) + newValue);
+              case Feat.CustomPositionLeft:
+                newValue = 0.1f;
+                if (player.setValue > 0)
+                  newValue = player.setValue;
+
+                NWScript.SetObjectVisualTransform(player.oid, NWScript.OBJECT_VISUAL_TRANSFORM_TRANSLATE_X,
+                NWScript.GetObjectVisualTransform(player.oid, NWScript.OBJECT_VISUAL_TRANSFORM_TRANSLATE_X) - newValue);
+                break;
+
+              case Feat.CustomPositionForward:
+                newValue = 0.1f;
+                if (player.setValue > 0)
+                  newValue = player.setValue;
+
+                NWScript.SetObjectVisualTransform(player.oid, NWScript.OBJECT_VISUAL_TRANSFORM_TRANSLATE_Y,
+                NWScript.GetObjectVisualTransform(player.oid, NWScript.OBJECT_VISUAL_TRANSFORM_TRANSLATE_Y) + newValue);
+                break;
+
+              case Feat.CustomPositionBackward:
+                newValue = 0.1f;
+                if (player.setValue > 0)
+                  newValue = player.setValue;
+
+                NWScript.SetObjectVisualTransform(player.oid, NWScript.OBJECT_VISUAL_TRANSFORM_TRANSLATE_Y,
+                NWScript.GetObjectVisualTransform(player.oid, NWScript.OBJECT_VISUAL_TRANSFORM_TRANSLATE_Y) - newValue);
                 break;
 
               case Feat.CustomMenuEXIT:
@@ -316,6 +343,7 @@ namespace NWN.Systems
                 NWScript.SetObjectVisualTransform(player.oid, NWScript.OBJECT_VISUAL_TRANSFORM_TRANSLATE_X, 0.0f);
                 NWScript.SetObjectVisualTransform(player.oid, NWScript.OBJECT_VISUAL_TRANSFORM_TRANSLATE_Y, 0.0f);
                 NWScript.SetObjectVisualTransform(player.oid, NWScript.OBJECT_VISUAL_TRANSFORM_TRANSLATE_Z, 0.0f);
+                player.setValue = 0;
                 player.OnKeydown -= HandleMenuFeatUsed;
                 return;
             }

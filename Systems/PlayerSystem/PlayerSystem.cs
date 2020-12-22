@@ -160,6 +160,15 @@ namespace NWN.Systems
       {
         player.isConnected = false;
         player.menu.Close();
+
+        player.UnloadMenuQuickbar();
+        NWScript.SetObjectVisualTransform(player.oid, NWScript.OBJECT_VISUAL_TRANSFORM_ROTATE_X, 0.0f);
+        NWScript.SetObjectVisualTransform(player.oid, NWScript.OBJECT_VISUAL_TRANSFORM_TRANSLATE_X, 0.0f);
+        NWScript.SetObjectVisualTransform(player.oid, NWScript.OBJECT_VISUAL_TRANSFORM_TRANSLATE_Y, 0.0f);
+        NWScript.SetObjectVisualTransform(player.oid, NWScript.OBJECT_VISUAL_TRANSFORM_TRANSLATE_Z, 0.0f);
+        player.setValue = 0;
+        player.OnKeydown -= player.menu.HandleMenuFeatUsed;
+
         HandleBeforePartyLeave(oidSelf);
         HandleAfterPartyLeave(oidSelf);
 
@@ -169,7 +178,8 @@ namespace NWN.Systems
           if (NWScript.GetTag(storageToSave) != "ps_entrepot")
             storageToSave = NWScript.GetNearestObjectByTag("ps_entrepot", storageToSave);
 
-          var saveStorage = NWScript.SqlPrepareQueryCampaign(ModuleSystem.database, $"UPDATE playerCharacters set storage = @storage where rowid = @characterId");
+          var saveStorage = NWScript.SqlPrepareQueryCampaign(ModuleSystem.database, 
+            $"UPDATE playerCharacters set storage = @storage where rowid = @characterId");
           NWScript.SqlBindInt(saveStorage, "@characterId", player.characterId);
           NWScript.SqlBindObject(saveStorage, "@storage", storageToSave);
           NWScript.SqlStep(saveStorage);
@@ -276,6 +286,8 @@ namespace NWN.Systems
         case Feat.CustomMenuEXIT:
         case Feat.CustomPositionRight:
         case Feat.CustomPositionLeft:
+        case Feat.CustomPositionForward:
+        case Feat.CustomPositionBackward:
         case Feat.CustomPositionRotateRight:
         case Feat.CustomPositionRotateLeft:
 

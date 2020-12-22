@@ -66,8 +66,8 @@ namespace NWN.Systems
         
         if (player.currentHP <= 0)
           NWScript.ApplyEffectToObject(NWScript.DURATION_TYPE_INSTANT, NWScript.EffectDeath(0, 0), player.oid);
-        else
-          NWScript.SetCurrentHitPoints(player.oid, player.currentHP);
+        //else
+          //NWScript.SetCurrentHitPoints(player.oid, player.currentHP);
 
         if (player.location != null)
         {
