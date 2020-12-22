@@ -20,13 +20,9 @@ namespace NWN.Systems
       NWScript.SetLocalString(oid, "X2_S_UD_SPELLSCRIPT", "spellhook");
       this.botAsyncCommandList = new List<string>();
       Bot.MainAsync();
-      Console.WriteLine("1");
       this.CreateDatabase();
-      Console.WriteLine("2");
       this.SetModuleTime();
-      Console.WriteLine("3");
       ChatSystem.Init();
-      Console.WriteLine("4");
       try
       {
         LootSystem.InitChestArea();
@@ -53,9 +49,7 @@ namespace NWN.Systems
 
     private void CreateDatabase()
     {
-      Console.WriteLine("1.1");
       var query = NWScript.SqlPrepareQueryCampaign(ModuleSystem.database, "CREATE TABLE IF NOT EXISTS moduleInfo('year' INTEGER NOT NULL, 'month' INTEGER NOT NULL, 'day' INTEGER NOT NULL, 'hour' INTEGER NOT NULL, 'minute' INTEGER NOT NULL, 'second' INTEGER NOT NULL)");
-      Console.WriteLine("1.2");
       NWScript.SqlStep(query);
 
       query = NWScript.SqlPrepareQueryCampaign(ModuleSystem.database, "CREATE TABLE IF NOT EXISTS PlayerAccounts('accountName' TEXT NOT NULL, 'cdKey' TEXT, 'bonusRolePlay' INTEGER NOT NULL, 'discordId' INTEGER, 'rank' TEXT)");
@@ -102,6 +96,8 @@ namespace NWN.Systems
       EventsPlugin.ToggleDispatchListMode("NWNX_ON_CAST_SPELL_AFTER", "_onspellcast_after", 1);
       //EventsPlugin.SubscribeEvent("NWNX_ON_SPELL_INTERRUPTED_AFTER", "_onspellinterrupted_after");
       //EventsPlugin.ToggleDispatchListMode("NWNX_ON_SPELL_INTERRUPTED_AFTER", "_onspellinterrupted_after", 1);
+
+      EventsPlugin.SubscribeEvent("NWNX_ON_ITEM_SCROLL_LEARN_BEFORE", "event_learn_scroll_before");
 
       EventsPlugin.SubscribeEvent("NWNX_ON_INPUT_TOGGLE_PAUSE_BEFORE", "event_spacebar_down");
       EventsPlugin.ToggleDispatchListMode("NWNX_ON_INPUT_TOGGLE_PAUSE_BEFORE", "event_spacebar_down", 1);
