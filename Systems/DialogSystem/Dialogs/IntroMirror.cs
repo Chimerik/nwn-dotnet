@@ -172,7 +172,7 @@ namespace NWN.Systems
 
         ObjectPlugin.SetInt(player.oid, "_STARTING_SKILL_POINTS", remainingPoints -= skill.pointsToNextLevel, 1);
         skill.CreateSkillJournalEntry();
-        player.PlayNewSkillAcquiredEffects(skill);
+        skill.PlayNewSkillAcquiredEffects();
         HandleSkillSelection(player);
 
         Func<PlayerSystem.Player, int, int> handler;

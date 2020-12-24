@@ -189,5 +189,33 @@ namespace NWN
       }
       return bValid;
     }
+    public static int GetSpellIDFromScroll(uint oScroll)
+    {
+      ItemProperty ip = NWScript.GetFirstItemProperty(oScroll);
+
+      while (Convert.ToBoolean(NWScript.GetIsItemPropertyValid(ip)))
+      {
+        if (NWScript.GetItemPropertyType(ip) == NWScript.ITEM_PROPERTY_CAST_SPELL)
+          return int.Parse(NWScript.Get2DAString("iprp_spells", "SpellIndex", NWScript.GetItemPropertySubType(ip)));
+
+        ip = NWScript.GetNextItemProperty(oScroll);
+      }
+
+      return -1;
+    }
+    public static int GetSpellLevelFromScroll(uint oScroll)
+    {
+      ItemProperty ip = NWScript.GetFirstItemProperty(oScroll);
+
+      while (Convert.ToBoolean(NWScript.GetIsItemPropertyValid(ip)))
+      {
+        if (NWScript.GetItemPropertyType(ip) == NWScript.ITEM_PROPERTY_CAST_SPELL)
+          return int.Parse(NWScript.Get2DAString("iprp_spells", "InnateLvl", NWScript.GetItemPropertySubType(ip)));
+
+        ip = NWScript.GetNextItemProperty(oScroll);
+      }
+
+      return -1;
+    }
   }
 }

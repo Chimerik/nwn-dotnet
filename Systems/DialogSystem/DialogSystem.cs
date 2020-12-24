@@ -57,7 +57,7 @@ namespace NWN.Systems
 
             if (!Convert.ToBoolean(NWScript.GetIsObjectValid(shop)))
             {
-              shop = NWScript.CreateObject(NWScript.OBJECT_TYPE_STORE, "generic_shop_res", NWScript.GetLocation(oidSelf), 0, "skillbank_shop");
+              shop = NWScript.CreateObject(NWScript.OBJECT_TYPE_STORE, "generic_shop_res", NWScript.GetLocation(oidSelf), 0, "blacksmith_shop");
               NWScript.SetLocalObject(shop, "_STORE_NPC", oidSelf);
 
               foreach (int baseItemType in CollectSystem.forgeBasicBlueprints)
@@ -141,6 +141,26 @@ namespace NWN.Systems
 
               NWScript.OpenStore(shop, player.oid);
             } 
+            break;
+          case "magic":
+            shop = NWScript.GetNearestObjectByTag("magic_shop", oidSelf);
+
+            if (!Convert.ToBoolean(NWScript.GetIsObjectValid(shop)))
+            {
+              shop = NWScript.CreateObject(NWScript.OBJECT_TYPE_STORE, "generic_shop_res", NWScript.GetLocation(oidSelf), 0, "magic_shop");
+              NWScript.SetLocalObject(shop, "_STORE_NPC", oidSelf);
+
+              foreach (int spellId in SkillSystem.shopBasicMagicScrolls)
+              {
+                uint oScroll = NWScript.CreateItemOnObject("scrollgeneric", shop, 1, "scroll");
+                NWScript.SetName(oScroll, $"Parchemin : {int.Parse(NWScript.Get2DAString("spells", "Name", spellId))}");
+                NWScript.SetDescription(oScroll, $"Patron : {int.Parse(NWScript.Get2DAString("spells", "SpellDesc", spellId))}");
+                ItemPlugin.SetBaseGoldPieceValue(oScroll, int.Parse(NWScript.Get2DAString("spells", "Innate", spellId)) * 300 + 100);
+                NWScript.AddItemProperty(NWScript.DURATION_TYPE_PERMANENT, NWScript.ItemPropertyCastSpell(spellId, 1), oScroll);
+              }
+            }
+
+            NWScript.OpenStore(shop, player.oid);
             break;
         }
       }
