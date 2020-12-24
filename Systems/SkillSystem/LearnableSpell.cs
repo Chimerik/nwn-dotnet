@@ -179,6 +179,7 @@ namespace NWN.Systems
 
         trained = true;
         player.currentSkillJob = (int)Feat.Invalid;
+        player.currentSkillType = SkillType.Invalid;
       }
       public void PlayNewSkillAcquiredEffects()
       {

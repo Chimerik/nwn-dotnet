@@ -14,7 +14,6 @@ namespace NWN.Systems
     public string craftedItem { get; set; }
     public float remainingTime { get; set; }
     public string material { get; set; }
-    public Boolean isActive { get; set; }
     public Boolean isCancelled { get; set; }
     private readonly Player player;
 
@@ -27,7 +26,6 @@ namespace NWN.Systems
       this.remainingTime = time;
       this.isCancelled = false;
       this.player = player;
-      this.isActive = true;
 
       switch (baseItemType)
       {
@@ -36,19 +34,16 @@ namespace NWN.Systems
           break;
         case -12:
           this.type = JobType.BlueprintResearchMaterialEfficiency;
-            break;
+          break;
         case -13:
           this.type = JobType.BlueprintResearchTimeEfficiency;
-          break;
-        case -10: // Valeur par défaut pour job inactif
-          this.isActive = false;
           break;
         default:
           this.type = JobType.Item;
           break;
       }
 
-      if (this.isActive)
+      if (IsActive())
       {
         HandleBeforePlayerSave(player.oid);
         HandleAfterPlayerSave(player.oid);
@@ -62,6 +57,12 @@ namespace NWN.Systems
       BlueprintCopy = 2,
       BlueprintResearchMaterialEfficiency = 3,
       BlueprintResearchTimeEfficiency = 4,
+    }
+    public Boolean IsActive()
+    {
+      if (baseItemType == -10)
+        return false;
+      return true;
     }
     public void ResetCancellation()
     {
@@ -103,9 +104,9 @@ namespace NWN.Systems
           break;
       }
 
-      if (this.isActive && !this.isCancelled)
+      if (IsActive() && !isCancelled)
       {
-        this.AskCancellationConfirmation(player);
+        AskCancellationConfirmation(player);
         return false;
       }
 
@@ -245,25 +246,25 @@ namespace NWN.Systems
       journalEntry.sTag = "craft_job";
       journalEntry.nPriority = 1;
       journalEntry.nQuestDisplayed = 1;
-      PlayerPlugin.AddCustomJournalEntry(this.player.oid, journalEntry);
+      PlayerPlugin.AddCustomJournalEntry(player.oid, journalEntry);
     }
     public void CancelCraftJournalEntry()
     {
       JournalEntry journalEntry = PlayerPlugin.GetJournalEntry(player.oid, "craft_job");
 
-      switch (this.type)
+      switch (type)
       {
         case JobType.BlueprintCopy:
-          journalEntry.sName = $"Travail artisanal terminé - Copie de patron";
+          journalEntry.sName = $"Travail artisanal en pause - Copie de patron";
           break;
         case JobType.BlueprintResearchMaterialEfficiency:
-          journalEntry.sName = $"Travail artisanal terminé - Recherche métallurgique";
+          journalEntry.sName = $"Travail artisanal en pause - Recherche métallurgique";
           break;
         case JobType.BlueprintResearchTimeEfficiency:
-          journalEntry.sName = $"Travail artisanal terminé - Recherche en efficacité";
+          journalEntry.sName = $"Travail artisanal en pause - Recherche en efficacité";
           break;
         default:
-          journalEntry.sName = $"Travail artisanal terminé - {CollectSystem.blueprintDictionnary[this.baseItemType].name}";
+          journalEntry.sName = $"Travail artisanal en pause - {CollectSystem.blueprintDictionnary[baseItemType].name}";
           break;
       }
 
@@ -276,7 +277,7 @@ namespace NWN.Systems
     {
       JournalEntry journalEntry = PlayerPlugin.GetJournalEntry(player.oid, "craft_job");
 
-      switch(this.type)
+      switch(type)
       {
         case JobType.BlueprintCopy:
           journalEntry.sName = $"Travail artisanal terminé - Copie de patron";

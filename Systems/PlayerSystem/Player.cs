@@ -256,7 +256,7 @@ namespace NWN.Systems
       }
       public void CraftJobProgression()
       {
-        if (this.craftJob.isActive)
+        if (craftJob.IsActive())
         {
           this.craftJob.remainingTime = this.craftJob.remainingTime - (float)(DateTime.Now - this.dateLastSaved).TotalSeconds;
           
