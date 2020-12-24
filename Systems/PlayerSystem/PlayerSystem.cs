@@ -955,7 +955,7 @@ namespace NWN.Systems
         {
           if (Convert.ToBoolean(NWScript.GetLocalInt(oArea, "_REST")))
           {
-            if (player.craftJob.isActive && player.playerJournal.craftJobCountDown == null)
+            if (player.craftJob.IsActive() && player.playerJournal.craftJobCountDown == null)
               player.craftJob.CreateCraftJournalEntry();
           }
           else if (player.playerJournal.craftJobCountDown != null)

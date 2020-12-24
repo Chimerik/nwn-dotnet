@@ -62,7 +62,6 @@ namespace NWN.Systems
           eHunger = NWScript.TagEffect(eHunger, "Effect_Hunger");
           NWScript.ApplyEffectToObject(NWScript.DURATION_TYPE_PERMANENT, eHunger, oPC);
         }*/
-
         
         if (player.currentHP <= 0)
           NWScript.ApplyEffectToObject(NWScript.DURATION_TYPE_INSTANT, NWScript.EffectDeath(0, 0), player.oid);
@@ -80,7 +79,7 @@ namespace NWN.Systems
           NWScript.DelayCommand(1.1f, () => NWScript.AssignCommand(player.oid, () => NWScript.JumpToLocation(NWScript.GetLocation(NWScript.GetWaypointByTag("WP_START_NEW_CHAR")))));
         }
 
-        if (player.craftJob.isActive && Convert.ToBoolean(NWScript.GetLocalInt(NWScript.GetAreaFromLocation(player.location), "_REST")))
+        if (player.craftJob.IsActive() && Convert.ToBoolean(NWScript.GetLocalInt(NWScript.GetAreaFromLocation(player.location), "_REST")))
         {
           player.CraftJobProgression();
           player.craftJob.CreateCraftJournalEntry();
@@ -88,12 +87,32 @@ namespace NWN.Systems
 
         if (player.currentSkillJob != (int)Feat.Invalid)
         {
-          player.learnableSkills[player.currentSkillJob].currentJob = true;
+          switch(player.currentSkillType)
+          {
+            case SkillSystem.SkillType.Skill:
+              player.learnableSkills[player.currentSkillJob].currentJob = true;
+              break;
+            case SkillSystem.SkillType.Spell:
+              player.learnableSpells[player.currentSkillJob].currentJob = true;
+              break;
+          }
+          
           player.AcquireSkillPoints();
           player.isConnected = true;
           player.isAFK = false;
+
           if(player.currentSkillJob != (int)Feat.Invalid)
-            player.learnableSkills[player.currentSkillJob].CreateSkillJournalEntry();
+          {
+            switch (player.currentSkillType)
+            {
+              case SkillSystem.SkillType.Skill:
+                player.learnableSkills[player.currentSkillJob].CreateSkillJournalEntry();
+                break;
+              case SkillSystem.SkillType.Spell:
+                player.learnableSpells[player.currentSkillJob].CreateSkillJournalEntry();
+                break;
+            }
+          }
         }
         //else
         //NWScript.DelayCommand(10.0f, () => player.PlayNoCurrentTrainingEffects());
@@ -189,10 +208,11 @@ namespace NWN.Systems
         arrivalPoint = newCharacter.oid;
       }
 
-      var query = NWScript.SqlPrepareQueryCampaign(ModuleSystem.database, $"INSERT INTO playerCharacters (accountId , characterName, dateLastSaved, currentSkillJob, currentCraftJob, currentCraftObject, frostAttackOn, areaTag, position, facing, menuOriginLeft, currentHP) VALUES (@accountId, @name, @dateLastSaved, @currentSkillJob, @currentCraftJob, @currentCraftObject, @frostAttackOn, @areaTag, @position, @facing, @menuOriginLeft, @currentHP)");
+      var query = NWScript.SqlPrepareQueryCampaign(ModuleSystem.database, $"INSERT INTO playerCharacters (accountId , characterName, dateLastSaved, currentSkillType, currentSkillJob, currentCraftJob, currentCraftObject, frostAttackOn, areaTag, position, facing, menuOriginLeft, currentHP) VALUES (@accountId, @name, @dateLastSaved, @currentSkillType, @currentSkillJob, @currentCraftJob, @currentCraftObject, @frostAttackOn, @areaTag, @position, @facing, @menuOriginLeft, @currentHP)");
       NWScript.SqlBindInt(query, "@accountId", newCharacter.accountId);
       NWScript.SqlBindString(query, "@name", NWScript.GetName(newCharacter.oid));
       NWScript.SqlBindString(query, "@dateLastSaved", DateTime.Now.ToString());
+      NWScript.SqlBindInt(query, "@currentSkillType", (int)SkillSystem.SkillType.Invalid);
       NWScript.SqlBindInt(query, "@currentSkillJob", (int)Feat.Invalid);
       NWScript.SqlBindInt(query, "@currentCraftJob", -10);
       NWScript.SqlBindString(query, "@currentCraftObject", "");
@@ -306,7 +326,7 @@ namespace NWN.Systems
     }
     private static void InitializePlayerCharacter(Player player)
     {
-      var query = NWScript.SqlPrepareQueryCampaign(ModuleSystem.database, $"SELECT areaTag, position, facing, currentHP, bankGold, dateLastSaved, currentSkillJob, currentCraftJob, currentCraftObject, currentCraftJobRemainingTime, currentCraftJobMaterial, frostAttackOn, menuOriginTop, menuOriginLeft from playerCharacters where rowid = @characterId");
+      var query = NWScript.SqlPrepareQueryCampaign(ModuleSystem.database, $"SELECT areaTag, position, facing, currentHP, bankGold, dateLastSaved, currentSkillJob, currentCraftJob, currentCraftObject, currentCraftJobRemainingTime, currentCraftJobMaterial, frostAttackOn, menuOriginTop, menuOriginLeft, currentSkillType from playerCharacters where rowid = @characterId");
       NWScript.SqlBindInt(query, "@characterId", player.characterId);
       NWScript.SqlStep(query);
 
@@ -323,6 +343,7 @@ namespace NWN.Systems
       player.menu.originTop = NWScript.SqlGetInt(query, 12);
       player.menu.originLeft = NWScript.SqlGetInt(query, 13);
       player.previousArea = NWScript.GetAreaFromLocation(player.location);
+      player.currentSkillType = (SkillSystem.SkillType)NWScript.SqlGetInt(query, 14);
 
       query = NWScript.SqlPrepareQueryCampaign(ModuleSystem.database, $"SELECT Veldspar, Scordite, Pyroxeres, Tritanium, Pyerite, Mexallon, Noxcium from playerMaterialStorage where characterId = @characterId");
       NWScript.SqlBindInt(query, "@characterId", player.characterId);

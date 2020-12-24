@@ -223,6 +223,7 @@ namespace NWN.Systems
 
         trained = true;
         player.currentSkillJob = (int)Feat.Invalid;
+        player.currentSkillType = SkillType.Invalid;
 
         if (successorId > 0)
         {

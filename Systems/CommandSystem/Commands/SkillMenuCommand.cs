@@ -118,6 +118,7 @@ namespace NWN.Systems
         {
           SelectedSkill.currentJob = false;
           player.currentSkillJob = (int)Feat.Invalid;
+          player.currentSkillType = SkillType.Invalid;
           SelectedSkill.CancelSkillJournalEntry();
         }
         else
@@ -138,6 +139,7 @@ namespace NWN.Systems
 
           SelectedSkill.currentJob = true;
           player.currentSkillJob = SelectedSkill.oid;
+          player.currentSkillType = SkillType.Skill;
           SelectedSkill.CreateSkillJournalEntry();
         }
       }
@@ -145,6 +147,7 @@ namespace NWN.Systems
       {
         SelectedSkill.currentJob = true;
         player.currentSkillJob = SelectedSkill.oid;
+        player.currentSkillType = SkillType.Skill;
         SelectedSkill.CreateSkillJournalEntry();
       }
 
@@ -158,6 +161,7 @@ namespace NWN.Systems
         {
           selectedSpell.currentJob = false;
           player.currentSkillJob = (int)Feat.Invalid;
+          player.currentSkillType = SkillType.Invalid;
           selectedSpell.CancelSkillJournalEntry();
         }
         else
@@ -178,6 +182,7 @@ namespace NWN.Systems
 
           selectedSpell.currentJob = true;
           player.currentSkillJob = selectedSpell.oid;
+          player.currentSkillType = SkillType.Spell;
           selectedSpell.CreateSkillJournalEntry();
         }
       }
@@ -185,6 +190,7 @@ namespace NWN.Systems
       {
         selectedSpell.currentJob = true;
         player.currentSkillJob = selectedSpell.oid;
+        player.currentSkillType = SkillType.Spell;
         selectedSpell.CreateSkillJournalEntry();
       }
 
