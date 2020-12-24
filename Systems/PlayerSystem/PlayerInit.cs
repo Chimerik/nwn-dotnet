@@ -66,8 +66,8 @@ namespace NWN.Systems
         
         if (player.currentHP <= 0)
           NWScript.ApplyEffectToObject(NWScript.DURATION_TYPE_INSTANT, NWScript.EffectDeath(0, 0), player.oid);
-        //else
-          //NWScript.SetCurrentHitPoints(player.oid, player.currentHP);
+        else
+          NWScript.SetCurrentHitPoints(player.oid, player.currentHP);
 
         if (player.location != null)
         {
@@ -272,6 +272,7 @@ namespace NWN.Systems
       InitializePlayerAccount(player);
       InitializePlayerCharacter(player);
       InitializePlayerLearnableSkills(player);
+      InitializePlayerLearnableSpells(player);
       InitializeCharacterMapPins(player);
     }
     private static void InitializePlayerEvents(uint player)
@@ -343,7 +344,15 @@ namespace NWN.Systems
       NWScript.SqlBindInt(query, "@characterId", player.characterId);
 
       while (Convert.ToBoolean(NWScript.SqlStep(query)))
-        player.learnableSkills.Add(NWScript.SqlGetInt(query, 0), new SkillSystem.Skill(NWScript.SqlGetInt(query, 0), NWScript.SqlGetInt(query, 1), player, true));
+        player.learnableSkills.Add(NWScript.SqlGetInt(query, 0), new SkillSystem.Skill(NWScript.SqlGetInt(query, 0), NWScript.SqlGetInt(query, 1), player));
+    }
+    private static void InitializePlayerLearnableSpells(Player player)
+    {
+      var query = NWScript.SqlPrepareQueryCampaign(ModuleSystem.database, $"SELECT skillId, skillPoints from playerLearnableSpells where characterId = @characterId and trained = 0");
+      NWScript.SqlBindInt(query, "@characterId", player.characterId);
+
+      while (Convert.ToBoolean(NWScript.SqlStep(query)))
+        player.learnableSpells.Add(NWScript.SqlGetInt(query, 0), new SkillSystem.LearnableSpell(NWScript.SqlGetInt(query, 0), NWScript.SqlGetInt(query, 1), player));
     }
     private static void InitializeNewCharacterStorage(Player player)
     {

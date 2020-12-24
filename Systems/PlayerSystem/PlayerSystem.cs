@@ -6,6 +6,7 @@ using NWN.Core;
 using NWN.Core.NWNX;
 using static NWN.Systems.Blueprint;
 using static NWN.Systems.LootSystem;
+using static NWN.Systems.SkillSystem;
 
 namespace NWN.Systems
 {
@@ -351,15 +352,45 @@ namespace NWN.Systems
     }
     private static int HandleBeforeLearnScroll(uint oidSelf)
     {
-      Player oPC;
+      Player player;
 
-      if (Players.TryGetValue(oidSelf, out oPC))
+      if (Players.TryGetValue(oidSelf, out player))
       {
         EventsPlugin.SkipEvent();
 
         var oScroll = NWScript.StringToObject(EventsPlugin.GetEventData("SCROLL"));
-        
-        
+        int spellId = Spells.GetSpellIDFromScroll(oScroll);
+        int spellLevel = Spells.GetSpellLevelFromScroll(oScroll);
+
+        if(spellId < 0 || spellLevel < 0)
+        {
+          Utils.LogMessageToDMs($"LEARN SPELL FROM SCROLL - Player : {NWScript.GetName(player.oid)}, SpellId : {spellId}, SpellLevel : {spellLevel} - INVALID");
+          NWScript.SendMessageToPC(player.oid, "HRP - Ce parchemin ne semble pas correctement configuré, impossible d'en apprendre quoique ce soit. Le staff a été informé du problème.");
+          return 0;
+        }
+
+        for (int i = 0; i < CreaturePlugin.GetKnownSpellCount(player.oid, 43, spellLevel); i++)
+        {
+          if(CreaturePlugin.GetKnownSpell(player.oid, 43, spellLevel, i) == spellId)
+          {
+            NWScript.SendMessageToPC(player.oid, "Ce sort est déjà inscrit dans votre grimoire.");
+            return 0;
+          }
+        }
+
+        if(player.learnableSpells.ContainsKey(spellId))
+        {
+          NWScript.SendMessageToPC(player.oid, "Ce sort se trouve déjà dans votre liste d'apprentissage.");
+          return 0;
+        }
+        else
+        {
+          LearnableSpell spell = new SkillSystem.LearnableSpell(spellId, 0, player);
+          player.learnableSpells.Add(spellId, spell);
+          NWScript.SendMessageToPC(player.oid, $"Le sort {spell.name} a été ajouté à votre liste d'apprentissage et est désormais disponible pour étude.");
+          NWScript.DestroyObject(oScroll);
+        }
+
       }
 
       return 0;

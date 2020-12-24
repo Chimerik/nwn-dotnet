@@ -9,7 +9,7 @@ namespace NWN.Systems
 {
   public static partial class SkillSystem
   {
-    public class Skill
+    public class LearnableSpell
     {
       public readonly int oid;
       private readonly Player player;
@@ -17,7 +17,7 @@ namespace NWN.Systems
       public string name { get; set; }
       public string description { get; set; }
       public Boolean currentJob { get; set; }
-      public int currentLevel { get; set; }
+      public int level { get; set; }
       public int successorId { get; set; }
       public Boolean trained { get; set; }
       private int multiplier;
@@ -25,7 +25,7 @@ namespace NWN.Systems
       public readonly int primaryAbility;
       public readonly int secondaryAbility;
 
-      public Skill(int Id, float SP, Player player)
+      public LearnableSpell(int Id, float SP, Player player)
       {
         this.oid = Id;
         this.player = player;
@@ -33,72 +33,58 @@ namespace NWN.Systems
         this.trained = false;
 
         int value;
-        if (int.TryParse(NWScript.Get2DAString("feat", "FEAT", Id), out value))
+        if (int.TryParse(NWScript.Get2DAString("spells", "Name", Id), out value))
           this.name = NWScript.GetStringByStrRef(value);
         else
         {
           this.name = "Nom indisponible";
-          Utils.LogMessageToDMs($"SKILL SYSTEM ERROR - Skill {this.oid} : no available name");
+          Utils.LogMessageToDMs($"SKILL SYSTEM ERROR - Spell {this.oid} : no available name");
         }
 
-        if (int.TryParse(NWScript.Get2DAString("feat", "DESCRIPTION", Id), out value))
+        if (int.TryParse(NWScript.Get2DAString("spells", "SpellDesc", Id), out value))
           this.description = NWScript.GetStringByStrRef(value);
         else
         {
           this.description = "Description indisponible";
-          Utils.LogMessageToDMs($"SKILL SYSTEM ERROR - Skill {this.oid} : no available description");
+          Utils.LogMessageToDMs($"SKILL SYSTEM ERROR - Spell {this.oid} : no available description");
         }
 
-        if (int.TryParse(NWScript.Get2DAString("feat", "GAINMULTIPLE", Id), out value))
-        {
-          this.currentLevel = value;
-          if (int.TryParse(NWScript.Get2DAString("feat", "SUCCESSOR", Id), out value))
-            this.successorId = value;
-          else
-            this.successorId = 0;
-        }
-        else
-          this.currentLevel = 1;
- 
-        if (int.TryParse(NWScript.Get2DAString("feat", "CRValue", Id), out value))
+        if (int.TryParse(NWScript.Get2DAString("spells", "Wiz_Sorc", Id), out value))
           this.multiplier = value;
         else
-          this.multiplier = 1;
+        {
+          this.level = 1;
+          Utils.LogMessageToDMs($"SKILL SYSTEM ERROR - Spell {this.oid} : no available level");
+        }
 
         Dictionary<int, int> iSkillAbilities = new Dictionary<int, int>();
-        
-        if (int.TryParse(NWScript.Get2DAString("feat", "MINSTR", Id), out value))
-          iSkillAbilities.Add(NWScript.ABILITY_STRENGTH, value);
-        if (int.TryParse(NWScript.Get2DAString("feat", "MINDEX", Id), out value))
-          iSkillAbilities.Add(NWScript.ABILITY_DEXTERITY, value);
-        if (int.TryParse(NWScript.Get2DAString("feat", "MINCON", Id), out value))
-          iSkillAbilities.Add(NWScript.ABILITY_CONSTITUTION, value);
-        if (int.TryParse(NWScript.Get2DAString("feat", "MININT", Id), out value))
+
+        if (int.TryParse(NWScript.Get2DAString("spells", "Wiz_Sorc", Id), out value))
           iSkillAbilities.Add(NWScript.ABILITY_INTELLIGENCE, value);
-        if (int.TryParse(NWScript.Get2DAString("feat", "MINWIS", Id), out value))
-          iSkillAbilities.Add(NWScript.ABILITY_WISDOM, value);
-        if (int.TryParse(NWScript.Get2DAString("feat", "MINCHA", Id), out value))
+        if (int.TryParse(NWScript.Get2DAString("spells", "Paladin", Id), out value) || int.TryParse(NWScript.Get2DAString("spells", "Bard", Id), out value))
           iSkillAbilities.Add(NWScript.ABILITY_CHARISMA, value);
+        if (int.TryParse(NWScript.Get2DAString("spells", "Druid", Id), out value) || int.TryParse(NWScript.Get2DAString("spells", "Cleric", Id), out value) || int.TryParse(NWScript.Get2DAString("spells", "Ranger", Id), out value))
+          iSkillAbilities.Add(NWScript.ABILITY_WISDOM, value);
 
         iSkillAbilities.OrderBy(key => key.Value);
 
         if (iSkillAbilities.Count > 0)
-          this.primaryAbility = iSkillAbilities.ElementAt(0).Key;
+          this.primaryAbility = iSkillAbilities.ElementAt(iSkillAbilities.Count).Key;
         else
         {
           this.primaryAbility = NWScript.ABILITY_INTELLIGENCE;
-          Utils.LogMessageToDMs($"SKILL SYSTEM ERROR - Skill {this.oid} : Primary ability not set");
+          Utils.LogMessageToDMs($"SKILL SYSTEM ERROR - Spell {this.oid} : Primary ability not set");
         }
 
         if (iSkillAbilities.Count > 1)
-          this.secondaryAbility = iSkillAbilities.ElementAt(1).Key;
+          this.secondaryAbility = iSkillAbilities.ElementAt(iSkillAbilities.Count - 1).Key;
         else
         {
-          this.secondaryAbility = NWScript.ABILITY_WISDOM;
-          Utils.LogMessageToDMs($"SKILL SYSTEM ERROR - Skill {this.oid} : Secondary ability not set");
+          this.secondaryAbility = NWScript.ABILITY_CHARISMA;
+          Utils.LogMessageToDMs($"SKILL SYSTEM ERROR - Spell {this.oid} : Secondary ability not set");
         }
 
-        this.pointsToNextLevel = 250 * this.multiplier * (int)Math.Pow(Math.Sqrt(32), this.currentLevel);
+        this.pointsToNextLevel = 250 * this.multiplier * (int)Math.Pow(Math.Sqrt(32), CreaturePlugin.GetKnownSpellCount(player.oid, 43, multiplier));
 
         if (this.player.currentSkillJob == this.oid)
         {
@@ -113,10 +99,10 @@ namespace NWN.Systems
       }
       public void CreateSkillJournalEntry()
       {
-        player.playerJournal.skillJobCountDown = DateTime.Now.AddSeconds(this.GetTimeToNextLevel(CalculateSkillPointsPerSecond()));
+        player.playerJournal.skillJobCountDown = DateTime.Now.AddSeconds(this.GetTimeToNextLevel(this.CalculateSkillPointsPerSecond()));
         JournalEntry journalEntry = new JournalEntry();
-        journalEntry.sName = $"Entrainement - {Utils.StripTimeSpanMilliseconds((TimeSpan)(player.playerJournal.skillJobCountDown - DateTime.Now))}";
-        journalEntry.sText = $"Entrainement en cours :\n\n " +
+        journalEntry.sName = $"Etude - {Utils.StripTimeSpanMilliseconds((TimeSpan)(player.playerJournal.skillJobCountDown - DateTime.Now))}";
+        journalEntry.sText = $"Etude en cours :\n\n " +
           $"{this.name}\n\n" +
           $"{this.description}";
         journalEntry.sTag = "skill_job";
@@ -127,7 +113,7 @@ namespace NWN.Systems
       public void CancelSkillJournalEntry()
       {
         JournalEntry journalEntry = PlayerPlugin.GetJournalEntry(player.oid, "skill_job");
-        journalEntry.sName = $"Entrainement annulé - {this.name}";
+        journalEntry.sName = $"Etude annulée - {this.name}";
         journalEntry.sTag = "skill_job";
         journalEntry.nQuestDisplayed = 0;
         PlayerPlugin.AddCustomJournalEntry(player.oid, journalEntry);
@@ -136,7 +122,7 @@ namespace NWN.Systems
       public void CloseSkillJournalEntry()
       {
         JournalEntry journalEntry = PlayerPlugin.GetJournalEntry(player.oid, "skill_job");
-        journalEntry.sName = $"Entrainement terminé - {this.name}";
+        journalEntry.sName = $"Etude terminée - {this.name}";
         journalEntry.sTag = "skill_job";
         journalEntry.nQuestCompleted = 1;
         journalEntry.nQuestDisplayed = 0;
@@ -188,50 +174,15 @@ namespace NWN.Systems
         if (player.menu.isOpen)
           player.menu.Close();
 
-        if (!Convert.ToBoolean(CreaturePlugin.GetKnowsFeat(player.oid, oid)))
-        {
-          CreaturePlugin.AddFeat(player.oid, oid);
-          PlayNewSkillAcquiredEffects();
-        }
-        else
-        {
-          int value;
-          int skillCurrentLevel = CreaturePlugin.GetHighestLevelOfFeat(player.oid, oid);
-          if (int.TryParse(NWScript.Get2DAString("feat", "SUCCESSOR", skillCurrentLevel), out value))
-          {
-            CreaturePlugin.AddFeat(player.oid, value);
-            CreaturePlugin.RemoveFeat(player.oid, value);
-          }
-          else
-          {
-            Utils.LogMessageToDMs($"SKILL LEVEL UP ERROR - Player : {NWScript.GetName(player.oid)}, Skill : {name} ({oid}), Current level : {skillCurrentLevel}");
-          }
-        }
-
-        Func<Player, int, int> handler;
-        if (RegisterAddCustomFeatEffect.TryGetValue(oid, out handler))
-        {
-          try
-          {
-            handler.Invoke(player, oid);
-          }
-          catch (Exception e)
-          {
-            Utils.LogException(e);
-          }
-        }
+        CreaturePlugin.AddKnownSpell(player.oid, 43, level, oid);
+        PlayNewSkillAcquiredEffects();
 
         trained = true;
         player.currentSkillJob = (int)Feat.Invalid;
-
-        if (successorId > 0)
-        {
-          player.learnableSkills.Add(successorId, new Skill(successorId, 0, player));
-        }
       }
       public void PlayNewSkillAcquiredEffects()
       {
-        PlayerPlugin.ApplyInstantVisualEffectToObject(player.oid, player.oid, NWScript.VFX_IMP_GLOBE_USE);
+        PlayerPlugin.ApplyInstantVisualEffectToObject(player.oid, player.oid, NWScript.VFX_IMP_SPELL_MANTLE_USE);
         CloseSkillJournalEntry();
       }
     }
