@@ -48,7 +48,6 @@ namespace NWN.Systems
 
     private static void HandleCompleteCycle(Player player, uint oPlaceable, uint oExtractor)
     {
-      NWScript.SendMessageToPC(NWScript.GetFirstPC(), "");
       Utils.RemoveTaggedEffect(oPlaceable, $"_{NWScript.GetPCPublicCDKey(player.oid)}_MINING_BEAM");
       CollectSystem.RemoveMiningCycleCallbacks(player);   // supprimer la callback de Cancel MiningCycle
 

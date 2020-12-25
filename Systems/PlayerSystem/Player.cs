@@ -453,6 +453,7 @@ namespace NWN.Systems
             journalEntry.sName = $"Entrainement - {Utils.StripTimeSpanMilliseconds((TimeSpan)(playerJournal.skillJobCountDown - DateTime.Now))}";
             PlayerPlugin.AddCustomJournalEntry(oid, journalEntry, 1);
           }
+
           switch(currentSkillType)
           {
             case SkillType.Skill:
@@ -468,10 +469,10 @@ namespace NWN.Systems
           }
         }
 
-        this.dateLastSaved = DateTime.Now;
+        dateLastSaved = DateTime.Now;
 
-        if (this.DoJournalUpdate)
-          NWScript.DelayCommand(1.0f, () => this.UpdateJournal());
+        if (DoJournalUpdate)
+          NWScript.DelayCommand(1.0f, () => UpdateJournal());
       }
       public void rebootUpdate()
       {
