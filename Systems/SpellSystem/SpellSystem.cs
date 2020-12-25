@@ -318,8 +318,8 @@ namespace NWN.Systems
     }
     private static int HandleSpellHook(uint oidSelf)
     {
-      Player oPC;
-      if (Players.TryGetValue(oidSelf, out oPC))
+      Player player;
+      if (Players.TryGetValue(oidSelf, out player))
       {
         NWScript.SetLocalInt(oidSelf, "_DELAYED_SPELLHOOK_REFLEX", CreaturePlugin.GetBaseSavingThrow(oidSelf, NWScript.SAVING_THROW_REFLEX));
         NWScript.SetLocalInt(oidSelf, "_DELAYED_SPELLHOOK_WILL", CreaturePlugin.GetBaseSavingThrow(oidSelf, NWScript.SAVING_THROW_WILL));
@@ -329,8 +329,24 @@ namespace NWN.Systems
         if (int.TryParse(NWScript.Get2DAString("feat", "GAINMULTIPLE", CreaturePlugin.GetHighestLevelOfFeat(oidSelf, (int)Feat.ImprovedCasterLevel)), out casterLevel))
           CreaturePlugin.SetLevelByPosition(oidSelf, 0, casterLevel + 1);
 
+        int spellId = NWScript.GetSpellId();
+
+        if(NWScript.GetAbilityScore(oidSelf, NWScript.ABILITY_CHARISMA) > NWScript.GetAbilityScore(oidSelf, NWScript.ABILITY_INTELLIGENCE))
+          CreaturePlugin.SetClassByPosition(oidSelf, 0, NWScript.CLASS_TYPE_SORCERER);
+
+        int value;
+        if (int.TryParse(NWScript.Get2DAString("spells", "Cleric", spellId), out value))
+          CreaturePlugin.SetClassByPosition(oidSelf, 0, NWScript.CLASS_TYPE_CLERIC);
+        else if (int.TryParse(NWScript.Get2DAString("spells", "Druid", spellId), out value))
+          CreaturePlugin.SetClassByPosition(oidSelf, 0, NWScript.CLASS_TYPE_DRUID);
+        else if (int.TryParse(NWScript.Get2DAString("spells", "Bard", spellId), out value))
+          CreaturePlugin.SetClassByPosition(oidSelf, 0, NWScript.CLASS_TYPE_BARD);
+        else if (int.TryParse(NWScript.Get2DAString("spells", "Paladin", spellId), out value))
+          CreaturePlugin.SetClassByPosition(oidSelf, 0, NWScript.CLASS_TYPE_PALADIN);
+        else if (int.TryParse(NWScript.Get2DAString("spells", "Ranger", spellId), out value))
+          CreaturePlugin.SetClassByPosition(oidSelf, 0, NWScript.CLASS_TYPE_RANGER);
+
         NWScript.DelayCommand(0.0f, () => DelayedSpellHook(oidSelf));
-        //CreaturePlugin.SetClassByPosition(oidSelf, 0, 43);
       }
 
       return 0;
@@ -338,6 +354,7 @@ namespace NWN.Systems
     private static void DelayedSpellHook(uint oidSelf)
     {
       CreaturePlugin.SetLevelByPosition(oidSelf, 0, 1);
+      CreaturePlugin.SetClassByPosition(oidSelf, 0, 43);
       CreaturePlugin.SetBaseSavingThrow(oidSelf, NWScript.SAVING_THROW_REFLEX, NWScript.GetLocalInt(oidSelf, "_DELAYED_SPELLHOOK_REFLEX"));
       CreaturePlugin.SetBaseSavingThrow(oidSelf, NWScript.SAVING_THROW_WILL, NWScript.GetLocalInt(oidSelf, "_DELAYED_SPELLHOOK_WILL"));
       CreaturePlugin.SetBaseSavingThrow(oidSelf, NWScript.SAVING_THROW_FORT, NWScript.GetLocalInt(oidSelf, "_DELAYED_SPELLHOOK_FORT"));

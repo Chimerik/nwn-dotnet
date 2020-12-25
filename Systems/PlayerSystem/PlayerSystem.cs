@@ -328,11 +328,25 @@ namespace NWN.Systems
       {
         var spellId = int.Parse(EventsPlugin.GetEventData("SPELL_ID"));
 
-        //if (spellId != NWScript.SPELL_RAY_OF_FROST)
-          //oPC.autoAttackTarget = NWScript.OBJECT_INVALID;
+        //NWScript.SendMessageToPC(oidSelf, "before spell cast");
 
-        NWScript.SendMessageToPC(oidSelf, "before spell cast");
-        //CreaturePlugin.SetClassByPosition(oidSelf, 0, NWScript.CLASS_TYPE_WIZARD);
+        int classe;
+        if(int.TryParse(NWScript.Get2DAString("spells", "Bard", spellId), out classe))
+          classe = NWScript.CLASS_TYPE_BARD;
+
+        if (int.TryParse(NWScript.Get2DAString("spells", "Ranger", spellId), out classe))
+          classe = NWScript.CLASS_TYPE_RANGER;
+
+        if (int.TryParse(NWScript.Get2DAString("spells", "Paladin", spellId), out classe))
+          classe = NWScript.CLASS_TYPE_PALADIN;
+
+        if (int.TryParse(NWScript.Get2DAString("spells", "Druid", spellId), out classe))
+          classe = NWScript.CLASS_TYPE_DRUID;
+
+        if (int.TryParse(NWScript.Get2DAString("spells", "Cleric", spellId), out classe))
+          classe = NWScript.CLASS_TYPE_CLERIC;
+ 
+        CreaturePlugin.SetClassByPosition(oidSelf, 0, classe);
       }
 
       return 0;
@@ -344,8 +358,8 @@ namespace NWN.Systems
       if (Players.TryGetValue(oidSelf, out oPC))
       {
         var spellId = int.Parse(EventsPlugin.GetEventData("SPELL_ID"));
-        NWScript.SendMessageToPC(oidSelf, "after spell cast");
-        //CreaturePlugin.SetClassByPosition(oidSelf, 0, 43); // 43 = aventurier
+        //NWScript.SendMessageToPC(oidSelf, "after spell cast");
+        CreaturePlugin.SetClassByPosition(oidSelf, 0, 43); // 43 = aventurier
       }
 
       return 0;
