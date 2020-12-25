@@ -312,42 +312,6 @@ namespace NWN.Systems
         )
       },
       {
-        "xpos",
-        new Command(
-          name: "xpos",
-          description: new Command.Description(title: "Affiche le personnage plus en avant qu'il ne l'est réellement. Ne pas en abuser."),
-          execute: ExecuteXPosCommand,
-          options: new Options(
-            positional: new List<Option>()
-            {
-              new Option(
-                name: "pos",
-                description: "Position",
-                defaultValue: "1.0f"
-              )
-            }
-          )
-        )
-      },
-      {
-        "ypos",
-        new Command(
-          name: "ypos",
-          description: new Command.Description(title: "Affiche le personnage plus sur le côté qu'il ne l'est réellement. Ne pas en abuser."),
-          execute: ExecuteYPosCommand,
-          options: new Options(
-            positional: new List<Option>()
-            {
-              new Option(
-                name: "pos",
-                description: "Position",
-                defaultValue: "1.0f"
-              )
-            }
-          )
-        )
-      },
-      {
         "resetpos",
         new Command(
           name: "resetpos",
