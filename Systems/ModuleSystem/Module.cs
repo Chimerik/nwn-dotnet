@@ -78,6 +78,9 @@ namespace NWN.Systems
 
       query = NWScript.SqlPrepareQueryCampaign(ModuleSystem.database, "CREATE TABLE IF NOT EXISTS playerMapPins('characterId' INTEGER NOT NULL, 'mapPinId' INTEGER NOT NULL, 'areaTag' TEXT NOT NULL, 'x' REAL NOT NULL, 'y' REAL NOT NULL, 'note' TEXT, UNIQUE (characterId, mapPinId))");
       NWScript.SqlStep(query);
+
+      query = NWScript.SqlPrepareQueryCampaign(ModuleSystem.database, "CREATE TABLE IF NOT EXISTS playerDescriptions('characterId' INTEGER NOT NULL, 'descriptionName' TEXT NOT NULL, 'description' TEXT NOT NULL, UNIQUE (characterId, descriptionName))");
+      NWScript.SqlStep(query);
     }
     private void InitializeEvents()
     {
@@ -338,36 +341,11 @@ namespace NWN.Systems
     }
     public string PreparingModuleForAsyncSay(SocketCommandContext context, string sPCName, string text)
     {
-      using (var connection = new SqliteConnection($"{ModuleSystem.db_path}"))
+      int result = Utils.CheckPlayerCredentialsFromDiscord(context, sPCName);
+      if (result > 0)
       {
-        connection.Open();
-
-        var command = connection.CreateCommand();
-        command.CommandText =
-        @"
-        SELECT pc.ROWID
-        FROM PlayerAccounts
-        LEFT join playerCharacters pc on pc.accountId = PlayerAccounts.ROWID
-        WHERE discordId = $discordId and pc.characterName = $characterName
-        ";
-        command.Parameters.AddWithValue("$discordId", context.User.Id);
-        command.Parameters.AddWithValue("$characterName", sPCName);
-
-        int result = 0;
-
-        using (var reader = command.ExecuteReader())
-        {
-          while (reader.Read())
-          {
-            result = reader.GetInt32(0);
-          }
-        }
-
-        if (result > 0)
-        {
-          this.botAsyncCommandList.Add($"say_{result}_{text}");
-          return "Texte en cours de relais vers votre personnage.";
-        }
+        this.botAsyncCommandList.Add($"say_{result}_{text}");
+        return "Texte en cours de relais vers votre personnage.";
       }
 
       return "Le personnage indiqué n'existe pas, n'est pas connecté ou n'a pas été enregistré avec votre code Discord et votre clef cd.";
