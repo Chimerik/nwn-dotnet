@@ -244,5 +244,38 @@ namespace NWN
     {
       return new TimeSpan(timespan.Days, timespan.Hours, timespan.Minutes, timespan.Seconds);
     }
+    public static int CheckPlayerCredentialsFromDiscord(SocketCommandContext context, string sPCName)
+    {
+      using (var connection = new SqliteConnection($"{ModuleSystem.db_path}"))
+      {
+        connection.Open();
+
+        var command = connection.CreateCommand();
+        command.CommandText =
+        @"
+        SELECT pc.ROWID
+        FROM PlayerAccounts
+        LEFT join playerCharacters pc on pc.accountId = PlayerAccounts.ROWID
+        WHERE discordId = $discordId and pc.characterName = $characterName
+        ";
+        command.Parameters.AddWithValue("$discordId", context.User.Id);
+        command.Parameters.AddWithValue("$characterName", sPCName);
+
+        int result = 0;
+
+        using (var reader = command.ExecuteReader())
+        {
+          while (reader.Read())
+          {
+            result = reader.GetInt32(0);
+          }
+        }
+
+        if (result > 0)
+          return result;
+      }
+
+      return 0;
+    }
   }
 }

@@ -17,7 +17,7 @@ namespace NWN.Systems
           name: "say",
           execute: ExecuteSayCommand
         )
-      }
+      },
     };
   }
 }

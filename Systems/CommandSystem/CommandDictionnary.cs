@@ -312,6 +312,24 @@ namespace NWN.Systems
         )
       },
       {
+        "description",
+        new Command(
+          name: "description",
+          description: new Command.Description(title: "Modifie la description de votre personnage à partir du nom de la description enregristré via Discord."),
+          execute: ExecuteLoadDescriptionCommand,
+          options: new Options(
+            positional: new List<Option>()
+            {
+              new Option(
+                name: "Nom",
+                description: "Le nom de la description enregistrée.",
+                defaultValue: ""
+              )
+            }
+          )
+        )
+      },
+      {
         "resetpos",
         new Command(
           name: "resetpos",

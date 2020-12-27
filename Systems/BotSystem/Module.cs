@@ -21,9 +21,29 @@ namespace NWN.Systems
     // ReplyAsync is a method on ModuleBase 
 
     [Command("whoishere")]
-    [Summary("Affiche le nombre de joueurs connecté au module.")]
+    [Summary("Affiche le nombre de joueurs connectés au module.")]
     public Task WhoIsHereAsync()
       => ReplyAsync($"Nous sommes actuellement {Utils.GetConnectedPlayers()} joueur(s) sur le module !");
+
+    [Command("desc")]
+    [Summary("Enregistre ou modifie une description pour un personnage donné.")]
+    public Task SaveDescriptionAsync(string spcName, string name, string text)
+      => ReplyAsync(BotSystem.ExecuteSaveDescriptionCommand(Context, spcName, name, text));
+
+    [Command("desc")]
+    [Summary("Affiche la liste des descriptions enregistrées pour un personnage donné.")]
+    public Task GetDescriptionListAsync(string spcName)
+      => ReplyAsync(BotSystem.ExecuteGetDescriptionListCommand(Context, spcName));
+
+    [Command("desc")]
+    [Summary("Affiche le contenu de la description demandée pour un personnage donné.")]
+    public Task GetDescriptionAsync(string spcName, string name)
+      => ReplyAsync(BotSystem.ExecuteGetDescriptionCommand(Context, spcName, name));
+
+    [Command("remdesc")]
+    [Summary("Supprime la description demandée pour un personnage donné.")]
+    public Task DeleteDescriptionAsync(string spcName, string name)
+      => ReplyAsync(BotSystem.ExecuteDeleteDescriptionCommand(Context, spcName, name));
 
     [Command("reboot")]
     [Summary("Reboot le module.")]
