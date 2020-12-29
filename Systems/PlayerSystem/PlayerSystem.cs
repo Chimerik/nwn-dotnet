@@ -383,16 +383,17 @@ namespace NWN.Systems
           return 0;
         }
 
-        for (int i = 0; i < CreaturePlugin.GetKnownSpellCount(player.oid, 43, spellLevel); i++)
-        {
-          if(CreaturePlugin.GetKnownSpell(player.oid, 43, spellLevel, i) == spellId)
-          {
-            NWScript.SendMessageToPC(player.oid, "Ce sort est déjà inscrit dans votre grimoire.");
-            return 0;
-          }
-        }
+        int knownSpellCount = CreaturePlugin.GetKnownSpellCount(player.oid, 43, spellLevel);
+        
+        if (knownSpellCount > 0)
+          for (int i = 0; i < knownSpellCount; i++)
+            if (CreaturePlugin.GetKnownSpell(player.oid, 43, spellLevel, i) == spellId)
+            {
+              NWScript.SendMessageToPC(player.oid, "Ce sort est déjà inscrit dans votre grimoire.");
+              return 0;
+            }
 
-        if(player.learnableSpells.ContainsKey(spellId))
+        if (player.learnableSpells.ContainsKey(spellId))
         {
           NWScript.SendMessageToPC(player.oid, "Ce sort se trouve déjà dans votre liste d'apprentissage.");
           return 0;
@@ -404,7 +405,6 @@ namespace NWN.Systems
           NWScript.SendMessageToPC(player.oid, $"Le sort {spell.name} a été ajouté à votre liste d'apprentissage et est désormais disponible pour étude.");
           NWScript.DestroyObject(oScroll);
         }
-
       }
 
       return 0;
