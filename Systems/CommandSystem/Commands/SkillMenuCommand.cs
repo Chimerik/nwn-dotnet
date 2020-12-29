@@ -23,7 +23,7 @@ namespace NWN.Systems
         player.menu.choices.Add(($"Afficher la liste des talents disponibles pour entrainement", () => __DrawSkillPage(player)));
 
       if (player.learnableSpells.Count > 0)
-        player.menu.choices.Add(($"Afficher la liste des talents disponibles pour entrainement", () => __DrawSpellPage(player)));
+        player.menu.choices.Add(($"Afficher la liste des sorts disponibles pour entrainement", () => __DrawSpellPage(player)));
 
       if(player.menu.choices.Count > 0)
         player.menu.title = "Que souhaitez-vous faire ?.";
