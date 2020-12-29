@@ -112,7 +112,10 @@ namespace NWN.Systems
       if (player.currentSkillJob != (int)Feat.Invalid)
       {
         //if(CurrentSkill == null)
-          //CurrentSkill = player.removeableMalus[player.currentSkillJob];
+        //CurrentSkill = player.removeableMalus[player.currentSkillJob];
+
+        PlayerSystem.HandleBeforePlayerSave(player.oid);
+        PlayerSystem.HandleAfterPlayerSave(player.oid);
 
         if (SelectedSkill.currentJob) // Job en cours sélectionné => mise en pause
         {
@@ -157,6 +160,9 @@ namespace NWN.Systems
     {
       if (player.currentSkillJob != (int)Feat.Invalid)
       {
+        PlayerSystem.HandleBeforePlayerSave(player.oid);
+        PlayerSystem.HandleAfterPlayerSave(player.oid);
+
         if (selectedSpell.currentJob) // Job en cours sélectionné => mise en pause
         {
           selectedSpell.currentJob = false;

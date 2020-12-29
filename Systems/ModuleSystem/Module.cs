@@ -192,7 +192,7 @@ namespace NWN.Systems
         value = 1;
         while(value < 6)
         {
-          FeatPlugin.SetFeatModifier(feat, FeatPlugin.NWNX_FEAT_MODIFIER_ABILITY, ability, value);
+          FeatPlugin.SetFeatModifier(feat, FeatPlugin.NWNX_FEAT_MODIFIER_ABILITY, ability, 1);
           value++;
           feat++;
         }
@@ -211,7 +211,7 @@ namespace NWN.Systems
           SkillFeat skillFeat = new SkillFeat();
           skillFeat.iFeat = feat;
           skillFeat.iSkill = skill;
-          skillFeat.iModifier = value;
+          skillFeat.iModifier = 1;
           SkillranksPlugin.SetSkillFeat(skillFeat, 1);
           value++;
           feat++;
