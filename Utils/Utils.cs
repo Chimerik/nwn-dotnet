@@ -216,30 +216,6 @@ namespace NWN
 
       return emptyQBS;
     }
-    public static int GetConnectedPlayers()
-    {
-      return (PlayerSystem.Players.Where(kv => kv.Value.isConnected)).Count();
-    }
-    public static string RegisterDiscordId(SocketCommandContext context, string cdKey)
-    {
-      using (var connection = new SqliteConnection($"{ModuleSystem.db_path}"))
-      {
-        connection.Open();
-
-        var command = connection.CreateCommand();
-        command.CommandText =
-        @"
-        UPDATE PlayerAccounts
-        SET discordId = $discordId
-        WHERE cdKey = $cdKey
-    ";
-        command.Parameters.AddWithValue("$cdKey", cdKey);
-        command.Parameters.AddWithValue("$discordId", context.User.Id);
-        command.ExecuteNonQuery();
-      }
-
-      return "Voilà qui est fait. Enfin, pour tant soit peu que la clef fournie fusse valide !";
-    }
     public static TimeSpan StripTimeSpanMilliseconds(TimeSpan timespan)
     {
       return new TimeSpan(timespan.Days, timespan.Hours, timespan.Minutes, timespan.Seconds);
