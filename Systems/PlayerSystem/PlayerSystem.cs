@@ -1146,6 +1146,7 @@ namespace NWN.Systems
         switch (NWScript.GetTag(NWScript.GetLocalObject(NWScript.StringToObject(EventsPlugin.GetEventData("STORE")), "_STORE_NPC")))
         {
           case "blacksmith":
+          case "magic":
             break;
           default:
             NWScript.DestroyObject(item);
