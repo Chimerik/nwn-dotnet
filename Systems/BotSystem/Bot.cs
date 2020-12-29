@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
@@ -11,22 +11,28 @@ namespace NWN.Systems
 {
   public static partial class Bot
   {
+    public const char prefix = '!';
     public static DiscordSocketClient _client;
 
     // Keep the CommandService and DI container around for use with commands.
     // These two types require you install the Discord.Net.Commands package.
-    private static CommandService _commands;
+    public static CommandService commandService;
     private static IServiceProvider _services;
+
+    public static IEnumerable<CommandInfo> GetCommands()
+    {
+      return commandService.Commands;
+    }
 
     public static async Task MainAsync()
     {
       _client = new DiscordSocketClient();
       _client.DownloadUsersAsync(new List<IGuild> { { _client.GetGuild(680072044364562528) } });
 
-      _commands = new CommandService();
+      commandService = new CommandService();
 
       _client.Log += Log;
-      _commands.Log += Log;
+      commandService.Log += Log;
 
       // Setup your DI container.
       _services = ConfigureServices();
@@ -93,9 +99,9 @@ namespace NWN.Systems
       // Module classes MUST be marked 'public' or they will be ignored.
       // You also need to pass your 'IServiceProvider' instance now,
       // so make sure that's done before you get here.
-//      await _commands.AddModulesAsync(Assembly.GetEntryAssembly(), _services);
+//      await commandService.AddModulesAsync(Assembly.GetEntryAssembly(), _services);
       // Or add Modules manually if you prefer to be a little more explicit:
-      await _commands.AddModuleAsync<InfoModule>(_services);
+      await commandService.AddModuleAsync<InfoModule>(_services);
       // Note that the first one is 'Modules' (plural) and the second is 'Module' (singular).
 
       // Subscribe a handler to see if a message invokes a command.
@@ -116,19 +122,19 @@ namespace NWN.Systems
       // you want to prefix your commands with.
       // Uncomment the second half if you also want
       // commands to be invoked by mentioning the bot instead.
-      if (msg.HasCharPrefix('!', ref pos) /* || msg.HasMentionPrefix(_client.CurrentUser, ref pos) */)
+      if (msg.HasCharPrefix(prefix, ref pos) /* || msg.HasMentionPrefix(_client.CurrentUser, ref pos) */)
       {
         // Create a Command Context.
         var context = new SocketCommandContext(_client, msg);
 
         // Execute the command. (result does not indicate a return value, 
         // rather an object stating if the command executed successfully).
-        var result = await _commands.ExecuteAsync(context, pos, _services);
+        var result = await commandService.ExecuteAsync(context, pos, _services);
 
         // Uncomment the following lines if you want the bot
         // to send a message if it failed.
-        // This does not catch errors from commands with 'RunMode.Async',
-        // subscribe a handler for '_commands.CommandExecuted' to see those.
+        // This does not catch errors from commandService with 'RunMode.Async',
+        // subscribe a handler for 'commandService.CommandExecuted' to see those.
         //if (!result.IsSuccess && result.Error != CommandError.UnknownCommand)
         //    await msg.Channel.SendMessageAsync(result.ErrorReason);
       }

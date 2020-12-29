@@ -13,6 +13,18 @@ namespace NWN.Systems
     public Task SayAsync([Remainder][Summary("The text to echo")] string echo)
       => ReplyAsync(echo);*/
 
+    [Command("help")]
+    [Summary("Affiche la liste des commandes disponibles.")]
+    public async Task HelpAsync()
+    {
+      var msgs = BotSystem.ExecuteHelpCommand();
+
+      foreach (var msg in msgs)
+      {
+        await ReplyAsync(msg);
+      }
+    }
+
     [Command("say")]
     [Summary("Echoes a message.")]
     public Task SayAsync(string spcName, string text)
