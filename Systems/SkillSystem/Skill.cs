@@ -150,7 +150,7 @@ namespace NWN.Systems
         switch (player.bonusRolePlay)
         {
           case 0:
-            SP = SP * 80 / 100;
+            SP = 0;
             break;
           case 1:
             SP = SP * 90 / 100;

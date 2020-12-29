@@ -256,7 +256,6 @@ namespace NWN.Systems
           case QuickbarType.Sit:
             float zPos;
             float newValue;
-            NWScript.SendMessageToPC(NWScript.GetFirstPC(), $"feat : {e.feat}");
 
             switch(e.feat)
             {
