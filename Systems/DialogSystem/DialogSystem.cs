@@ -89,15 +89,15 @@ namespace NWN.Systems
                 if (int.TryParse(NWScript.Get2DAString("feat", "CRValue", (int)feat), out value))
                   ItemPlugin.SetBaseGoldPieceValue(skillBook, value * 1000);
               }
+
+              uint craftTool = NWScript.CreateItemOnObject("oreextractor", shop, 1, "oreextractor");
+              ItemPlugin.SetBaseGoldPieceValue(craftTool, 50);
+              NWScript.SetLocalInt(craftTool, "_DURABILITY", 10);
+
+              craftTool = NWScript.CreateItemOnObject("forgehammer", shop, 1, "forgehammer");
+              ItemPlugin.SetBaseGoldPieceValue(craftTool, 50);
+              NWScript.SetLocalInt(craftTool, "_DURABILITY", 5);
             }
-
-            uint craftTool = NWScript.CreateItemOnObject("oreextractor", shop, 1, "oreextractor");
-            ItemPlugin.SetBaseGoldPieceValue(craftTool, 50);
-            NWScript.SetLocalInt(craftTool, "_DURABILITY", 10);
-
-            craftTool = NWScript.CreateItemOnObject("forgehammer", shop, 1, "forgehammer");
-            ItemPlugin.SetBaseGoldPieceValue(craftTool, 50);
-            NWScript.SetLocalInt(craftTool, "_DURABILITY", 5);
 
             NWScript.OpenStore(shop, player.oid);
             break;
