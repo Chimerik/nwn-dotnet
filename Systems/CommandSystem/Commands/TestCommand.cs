@@ -25,7 +25,6 @@ namespace NWN.Systems
           player.targetEvent = TargetEvent.LootSaverTarget;
           player.SelectTarget(callback);*/
 
-
           //string test = Bot._client.GetUser(232218662080086017).Mention;//.SendMessageAsync("BOT TEST !");
 
           //(Bot._client.GetUser(232218662080086017).GetOrCreateDMChannelAsync() as IDMChannel).SendMessageAsync("BOT TEST !");

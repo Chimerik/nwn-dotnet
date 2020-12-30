@@ -31,7 +31,7 @@ namespace NWN.Systems
         this.player = player;
         this.acquiredPoints = SP;
         this.trained = false;
-
+        
         int value;
         if (int.TryParse(NWScript.Get2DAString("spells", "Name", Id), out value))
           this.name = NWScript.GetStringByStrRef(value);
@@ -56,34 +56,14 @@ namespace NWN.Systems
           this.level = 1;
           Utils.LogMessageToDMs($"SKILL SYSTEM ERROR - Spell {this.oid} : no available level");
         }
-
-        Dictionary<int, int> iSkillAbilities = new Dictionary<int, int>();
-
-        if (int.TryParse(NWScript.Get2DAString("spells", "Wiz_Sorc", Id), out value))
-          iSkillAbilities.Add(NWScript.ABILITY_INTELLIGENCE, value);
-        if (int.TryParse(NWScript.Get2DAString("spells", "Paladin", Id), out value) || int.TryParse(NWScript.Get2DAString("spells", "Bard", Id), out value))
-          iSkillAbilities.Add(NWScript.ABILITY_CHARISMA, value);
+        
         if (int.TryParse(NWScript.Get2DAString("spells", "Druid", Id), out value) || int.TryParse(NWScript.Get2DAString("spells", "Cleric", Id), out value) || int.TryParse(NWScript.Get2DAString("spells", "Ranger", Id), out value))
-          iSkillAbilities.Add(NWScript.ABILITY_WISDOM, value);
-
-        iSkillAbilities.OrderBy(key => key.Value);
-
-        if (iSkillAbilities.Count > 0)
-          this.primaryAbility = iSkillAbilities.ElementAt(iSkillAbilities.Count).Key;
+          primaryAbility = NWScript.ABILITY_WISDOM;
         else
-        {
-          this.primaryAbility = NWScript.ABILITY_INTELLIGENCE;
-          Utils.LogMessageToDMs($"SKILL SYSTEM ERROR - Spell {this.oid} : Primary ability not set");
-        }
+          primaryAbility = NWScript.ABILITY_INTELLIGENCE;
 
-        if (iSkillAbilities.Count > 1)
-          this.secondaryAbility = iSkillAbilities.ElementAt(iSkillAbilities.Count - 1).Key;
-        else
-        {
-          this.secondaryAbility = NWScript.ABILITY_CHARISMA;
-          Utils.LogMessageToDMs($"SKILL SYSTEM ERROR - Spell {this.oid} : Secondary ability not set");
-        }
-
+        secondaryAbility = NWScript.ABILITY_CHARISMA;
+        
         this.pointsToNextLevel = 250 * this.multiplier * (int)Math.Pow(Math.Sqrt(32), CreaturePlugin.GetKnownSpellCount(player.oid, 43, multiplier));
 
         if (this.player.currentSkillJob == this.oid)
@@ -176,7 +156,6 @@ namespace NWN.Systems
 
         CreaturePlugin.AddKnownSpell(player.oid, 43, level, oid);
         PlayNewSkillAcquiredEffects();
-
         trained = true;
         player.currentSkillJob = (int)Feat.Invalid;
         player.currentSkillType = SkillType.Invalid;

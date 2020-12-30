@@ -89,15 +89,15 @@ namespace NWN.Systems
                 if (int.TryParse(NWScript.Get2DAString("feat", "CRValue", (int)feat), out value))
                   ItemPlugin.SetBaseGoldPieceValue(skillBook, value * 1000);
               }
+
+              uint craftTool = NWScript.CreateItemOnObject("oreextractor", shop, 1, "oreextractor");
+              ItemPlugin.SetBaseGoldPieceValue(craftTool, 50);
+              NWScript.SetLocalInt(craftTool, "_DURABILITY", 10);
+
+              craftTool = NWScript.CreateItemOnObject("forgehammer", shop, 1, "forgehammer");
+              ItemPlugin.SetBaseGoldPieceValue(craftTool, 50);
+              NWScript.SetLocalInt(craftTool, "_DURABILITY", 5);
             }
-
-            uint craftTool = NWScript.CreateItemOnObject("oreextractor", shop, 1, "oreextractor");
-            ItemPlugin.SetBaseGoldPieceValue(craftTool, 50);
-            NWScript.SetLocalInt(craftTool, "_DURABILITY", 10);
-
-            craftTool = NWScript.CreateItemOnObject("forgehammer", shop, 1, "forgehammer");
-            ItemPlugin.SetBaseGoldPieceValue(craftTool, 50);
-            NWScript.SetLocalInt(craftTool, "_DURABILITY", 5);
 
             NWScript.OpenStore(shop, player.oid);
             break;
@@ -149,14 +149,15 @@ namespace NWN.Systems
             {
               shop = NWScript.CreateObject(NWScript.OBJECT_TYPE_STORE, "generic_shop_res", NWScript.GetLocation(oidSelf), 0, "magic_shop");
               NWScript.SetLocalObject(shop, "_STORE_NPC", oidSelf);
-
-              foreach (int spellId in SkillSystem.shopBasicMagicScrolls)
+              foreach (int itemPropertyId in SkillSystem.shopBasicMagicScrolls)
               {
-                uint oScroll = NWScript.CreateItemOnObject("scrollgeneric", shop, 1, "scroll");
-                NWScript.SetName(oScroll, $"Parchemin : {int.Parse(NWScript.Get2DAString("spells", "Name", spellId))}");
-                NWScript.SetDescription(oScroll, $"Patron : {int.Parse(NWScript.Get2DAString("spells", "SpellDesc", spellId))}");
-                ItemPlugin.SetBaseGoldPieceValue(oScroll, int.Parse(NWScript.Get2DAString("spells", "Innate", spellId)) * 300 + 100);
-                NWScript.AddItemProperty(NWScript.DURATION_TYPE_PERMANENT, NWScript.ItemPropertyCastSpell(spellId, 1), oScroll);
+                uint oScroll = NWScript.CreateItemOnObject("spellscroll", shop, 1, "scroll");
+                int spellId = int.Parse(NWScript.Get2DAString("iprp_spells", "SpellIndex", itemPropertyId));
+                NWScript.SetName(oScroll, $"{NWScript.GetStringByStrRef(int.Parse(NWScript.Get2DAString("spells", "Name", spellId)))}");
+                NWScript.SetDescription(oScroll, $"{NWScript.GetStringByStrRef(int.Parse(NWScript.Get2DAString("spells", "SpellDesc", spellId)))}");
+                //ItemPlugin.SetBaseGoldPieceValue(oScroll, int.Parse(NWScript.Get2DAString("spells", "Innate", spellId)) * 300 + 100);
+
+                NWScript.AddItemProperty(NWScript.DURATION_TYPE_PERMANENT, NWScript.ItemPropertyCastSpell(itemPropertyId, 1), oScroll);
               }
             }
 
