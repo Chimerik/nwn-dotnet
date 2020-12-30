@@ -28,7 +28,9 @@ namespace NWN.Systems
       if (Players.TryGetValue(oPC, out player))
       {
         uint shop; 
-        string tag = NWScript.GetTag(oidSelf).Remove(NWScript.GetTag(oidSelf).IndexOf("_COUNT_"));
+        string tag = NWScript.GetTag(oidSelf);
+        if (tag.Contains("_NB_"))
+          tag = tag.Remove(tag.IndexOf("_NB_"));
 
         switch (tag)
         {
@@ -99,7 +101,7 @@ namespace NWN.Systems
               ItemPlugin.SetBaseGoldPieceValue(craftTool, 50);
               NWScript.SetLocalInt(craftTool, "_DURABILITY", 5);
             }
-            NWScript.SendMessageToPC(player.oid, $"shop : {NWScript.GetName(shop)}");
+
             NWScript.OpenStore(shop, player.oid);
             break;
           case "le_bibliothecaire":
