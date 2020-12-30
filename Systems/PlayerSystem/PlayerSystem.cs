@@ -1169,7 +1169,7 @@ namespace NWN.Systems
         switch (tag)
         {
           case "blacksmith":
-          case "magic":
+          case "tribunal_hotesse":
             break;
           default:
             NWScript.DestroyObject(item);

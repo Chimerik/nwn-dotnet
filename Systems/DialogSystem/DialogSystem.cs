@@ -29,6 +29,7 @@ namespace NWN.Systems
       {
         uint shop; 
         string tag = NWScript.GetTag(oidSelf);
+
         if (tag.Contains("_NB_"))
           tag = tag.Remove(tag.IndexOf("_NB_"));
 
@@ -145,7 +146,7 @@ namespace NWN.Systems
               NWScript.OpenStore(shop, player.oid);
             } 
             break;
-          case "magic":
+          case "tribunal_hotesse":
             shop = NWScript.GetNearestObjectByTag("magic_shop", oidSelf);
 
             if (!Convert.ToBoolean(NWScript.GetIsObjectValid(shop)))
