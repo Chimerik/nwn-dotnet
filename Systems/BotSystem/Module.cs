@@ -119,11 +119,11 @@ namespace NWN.Systems
     [Command("sortsrp")]
     [Summary("Affiche les règles concernant la gestion des sorts rp sur les Larmes des Erylies.")]
     public Task DisplayRoleplaySpellsInfo()
-      => ReplyAsync($"{BotSystem.ExecuteDisplayRoleplaySpellsInfoCommand()}");
+      => ReplyAsync(BotSystem.ExecuteDisplayRoleplaySpellsInfoCommand());
 
     [Command("magie")]
     [Summary("Affiche des informations concernant la façon dont la magie fonctionne sur les Larmes des Erylies.")]
     public Task DisplayMagicInfo()
-      => ReplyAsync($"{BotSystem.ExecuteDisplayMagicInfoCommand(Context)}");
+      => ReplyAsync(BotSystem.ExecuteDisplayMagicInfoCommand(Context));
   }
 }

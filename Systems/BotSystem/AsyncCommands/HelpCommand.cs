@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using Discord.Commands;
 
@@ -26,10 +26,9 @@ namespace NWN.Systems
         {
           await context.Channel.SendMessageAsync(msg);
           msg = "";
-        } else
-        {
-          msg += line;
         }
+
+        msg += line;
       }
 
       if (msg != "")
