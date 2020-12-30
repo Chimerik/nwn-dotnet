@@ -1,4 +1,5 @@
-﻿using System.Threading.Tasks;
+﻿using System;
+using System.Threading.Tasks;
 using Discord.Commands;
 
 namespace NWN.Systems
@@ -17,9 +18,9 @@ namespace NWN.Systems
     [Summary("Affiche la liste des commandes disponibles.")]
     public async Task HelpAsync()
     {
-      var msgs = BotSystem.ExecuteHelpCommand();
+      var msgList = BotSystem.ExecuteHelpCommand();
 
-      foreach (var msg in msgs)
+      foreach (var msg in msgList)
       {
         await ReplyAsync(msg);
       }

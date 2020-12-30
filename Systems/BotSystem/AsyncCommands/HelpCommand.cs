@@ -7,22 +7,37 @@ namespace NWN.Systems
   {
     public static List<string> ExecuteHelpCommand()
     {
-      var msgs = new List<string>();
+      var msgList = new List<string>();
+      var msg = "";
 
       foreach (var command in Bot.GetCommands())
       {
-        var msg = $"**{Bot.prefix}{command.Name}**";
+        var line = $"**{Bot.prefix}{command.Name}**";
         
         foreach (var param in command.Parameters)
         {
-          msg += $" <{param.Type.Name}: {param.Name}>";
+          line += $" <{param.Name}: {param.Type.Name}>";
         }
 
-        msg += $" : {command.Summary}\n";
-        msgs.Add(msg);
+        line += $" : {command.Summary}\n";
+
+        // Limit de 2000 chars par message sur discord
+        if (msg.Length + line.Length > 2000)
+        {
+          msgList.Add(msg);
+          msg = "";
+        } else
+        {
+          msg += line;
+        }
       }
 
-      return msgs;
+      if (msg != "")
+      {
+        msgList.Add(msg);
+      }
+
+      return msgList;
     }
   }
 }
