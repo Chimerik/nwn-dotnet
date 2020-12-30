@@ -26,6 +26,7 @@ namespace NWN.Systems.Items.BeforeUseHandlers
             () => HandleCompleteCycle(player, oTarget, oItem)
           );
           break;
+        case "fissurerocheuse":
           player.DoActionOnMiningCycleCancelled();
           CollectSystem.StartMiningCycle(
             player,
@@ -33,7 +34,6 @@ namespace NWN.Systems.Items.BeforeUseHandlers
             () => HandleCancelCycle(player, oTarget),
             () => HandleCompleteProspectionCycle(player, oTarget, oItem)
           );
-        case "fissurerocheuse":
           break;
         default:
           NWScript.SendMessageToPC(player.oid, $"{NWScript.GetName(oTarget)} n'est ni un filon, ni une veine de minerai. Impossible de démarrer l'extraction.");

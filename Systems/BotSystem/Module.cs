@@ -1,4 +1,5 @@
-﻿using System.Threading.Tasks;
+﻿using System;
+using System.Threading.Tasks;
 using Discord.Commands;
 
 namespace NWN.Systems
@@ -12,6 +13,11 @@ namespace NWN.Systems
     [Summary("Echoes a message.")]
     public Task SayAsync([Remainder][Summary("The text to echo")] string echo)
       => ReplyAsync(echo);*/
+
+    [Command("help")]
+    [Summary("Affiche la liste des commandes disponibles.")]
+    public async Task HelpAsync()
+      => BotSystem.ExecuteHelpCommandAsync(Context);
 
     [Command("say")]
     [Summary("Echoes a message.")]

@@ -1016,7 +1016,7 @@ namespace NWN.Systems
       switch(NWScript.GetLocalString(spawnPoint, "_SPAWN_TYPE"))
       {
         case "npc":
-          if (!Convert.ToBoolean(NWScript.GetIsObjectValid(NWScript.GetNearestObjectByTag($"{ NWScript.GetLocalString(spawnPoint, "_CREATURE_TEMPLATE")}_{count}", spawnPoint))))
+          if (!Convert.ToBoolean(NWScript.GetIsObjectValid(NWScript.GetNearestObjectByTag($"{ NWScript.GetLocalString(spawnPoint, "_CREATURE_TEMPLATE")}_NB_{count}", spawnPoint))))
           {
             SpawnCreatureFromSpawnPoint(spawnPoint, count);
           }
@@ -1043,8 +1043,15 @@ namespace NWN.Systems
     }
     private static uint SpawnCreatureFromSpawnPoint(uint spawnPoint, int count = 0)
     {
-      uint creature = NWScript.CreateObject(NWScript.OBJECT_TYPE_CREATURE, NWScript.GetLocalString(spawnPoint, "_CREATURE_TEMPLATE"), NWScript.GetLocation(spawnPoint), 0, $"{NWScript.GetLocalString(spawnPoint, "_CREATURE_TEMPLATE")}_COUNT_{count}");
-      string tag = NWScript.GetTag(creature).Remove(NWScript.GetTag(creature).IndexOf("_COUNT_"));
+      uint creature;
+      if(NWScript.GetLocalString(spawnPoint, "_SPAWN_TYPE") == "npc")
+        creature  = NWScript.CreateObject(NWScript.OBJECT_TYPE_CREATURE, NWScript.GetLocalString(spawnPoint, "_CREATURE_TEMPLATE"), NWScript.GetLocation(spawnPoint), 0, $"{NWScript.GetLocalString(spawnPoint, "_CREATURE_TEMPLATE")}_NB_{count}");
+      else
+        creature = NWScript.CreateObject(NWScript.OBJECT_TYPE_CREATURE, NWScript.GetLocalString(spawnPoint, "_CREATURE_TEMPLATE"), NWScript.GetLocation(spawnPoint));
+      
+      string tag = NWScript.GetTag(creature);
+      if (tag.Contains("_NB_"))
+        tag = tag.Remove(tag.IndexOf("_NB_"));
 
       switch (tag)
       {
@@ -1146,7 +1153,11 @@ namespace NWN.Systems
           NWScript.CopyItem(item, player.oid, 1);
         }
 
-        switch (NWScript.GetTag(NWScript.GetLocalObject(NWScript.StringToObject(EventsPlugin.GetEventData("STORE")), "_STORE_NPC")))
+        string tag = NWScript.GetTag(NWScript.GetLocalObject(NWScript.StringToObject(EventsPlugin.GetEventData("STORE")), "_STORE_NPC"));
+        if (tag.Contains("_NB_"))
+          tag = tag.Remove(tag.IndexOf("_NB_"));
+
+        switch (tag)
         {
           case "blacksmith":
           case "magic":
