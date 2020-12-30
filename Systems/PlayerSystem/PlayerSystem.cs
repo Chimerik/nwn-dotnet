@@ -7,6 +7,7 @@ using NWN.Core.NWNX;
 using static NWN.Systems.Blueprint;
 using static NWN.Systems.LootSystem;
 using static NWN.Systems.SkillSystem;
+using Discord;
 
 namespace NWN.Systems
 {
@@ -353,13 +354,21 @@ namespace NWN.Systems
     }
     private static int HandleAfterSpellCast(uint oidSelf)
     {
-      Player oPC;
+      Player player;
 
-      if (Players.TryGetValue(oidSelf, out oPC))
+      if (Players.TryGetValue(oidSelf, out player))
       {
         var spellId = int.Parse(EventsPlugin.GetEventData("SPELL_ID"));
         //NWScript.SendMessageToPC(oidSelf, "after spell cast");
         CreaturePlugin.SetClassByPosition(oidSelf, 0, 43); // 43 = aventurier
+
+        if (NWScript.Get2DAString("spells", "School", spellId) == "D" && NWScript.GetTag(NWScript.GetItemInSlot(NWScript.INVENTORY_SLOT_NECK, player.oid)) == "amulettorillink")
+        {
+          (Bot._client.GetChannel(680072044364562532) as IMessageChannel).SendMessageAsync(
+            $"{Bot._client.GetGuild(680072044364562528).EveryoneRole.Mention} {NWScript.GetName(player.oid)} " +
+            $"vient de lancer un sort de divination ({NWScript.GetStringByStrRef(int.Parse(NWScript.Get2DAString("spells", "Name", spellId)))})" +
+            $" en portant l'amulette de traçage. L'Amiral s'apprête à punir l'impudent !");
+        }
       }
 
       return 0;

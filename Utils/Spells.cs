@@ -217,5 +217,9 @@ namespace NWN
 
       return -1;
     }
+    public static int GetSpellSchoolFromString(string school)
+    {
+      return "GACDEVINT".IndexOf(school);
+    }
   }
 }

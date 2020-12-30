@@ -130,6 +130,9 @@ namespace NWN.Systems
           break;
       }
 
+      player.bankGold -= 500;
+      NWScript.SendMessageToPC(player.oid, "Afin de vous remettre sur pied, les 'soigneurs' ont demandé à la banque de prélever 500 pièces d'or sur votre compte.");
+
       //NWScript.SendMessageToPC(player.oid, "Votre récente déconvenue vous a affligé d'une blessure durable. Il va falloir passer du temps en rééducation pour vous en débarrasser");
 
       // TODO : refaire le système de malus en utilisant le plugin feat de nwnx
