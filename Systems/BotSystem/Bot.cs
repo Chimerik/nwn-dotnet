@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
@@ -135,8 +135,16 @@ namespace NWN.Systems
         // to send a message if it failed.
         // This does not catch errors from commandService with 'RunMode.Async',
         // subscribe a handler for 'commandService.CommandExecuted' to see those.
-        //if (!result.IsSuccess && result.Error != CommandError.UnknownCommand)
-        //    await msg.Channel.SendMessageAsync(result.ErrorReason);
+        if (!result.IsSuccess)
+        {
+          if (result.Error == CommandError.UnknownCommand)
+          {
+            await msg.Channel.SendMessageAsync("La commande indiquée n'existe pas.\nVeuillez taper \"!help\" pour obtenir la liste des commandes disponibles.");
+          } else
+          {
+            await msg.Channel.SendMessageAsync(result.ErrorReason);
+          }
+        }
       }
     }
   }
