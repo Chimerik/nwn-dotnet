@@ -3,6 +3,7 @@ using NWN.Core;
 using NWN.Core.NWNX;
 using static NWN.Systems.CollectSystem;
 using static NWN.Systems.PlayerSystem;
+using static NWN.Systems.Items.Utils;
 
 namespace NWN.Systems
 {
@@ -170,7 +171,7 @@ namespace NWN.Systems
         else
           NWScript.SetLocalInt(oItem, "_BLUEPRINT_RUNS", iBlueprintRemainingRuns - 1);
 
-        ItemSystem.DecreaseItemDurability(NWScript.GetItemInSlot(NWScript.INVENTORY_SLOT_RIGHTHAND, player.oid));
+        DecreaseItemDurability(NWScript.GetItemInSlot(NWScript.INVENTORY_SLOT_RIGHTHAND, player.oid));
       }
       else
         NWScript.SendMessageToPC(player.oid, $"Vous n'avez pas les ressources nécessaires pour démarrer la fabrication de cet objet artisanal.");

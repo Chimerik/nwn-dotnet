@@ -2,11 +2,11 @@
 using NWN.Core.NWNX;
 using static NWN.Systems.PlayerSystem;
 
-namespace NWN.Systems
+namespace NWN.Systems.Items.BeforeUseHandlers
 {
-  public static partial class ItemSystem
+  public static class SkillBook
   {
-    private static void HandleSkillBookActivate(uint skillBook, Player player)
+    public static void HandleActivate(uint skillBook, Player player)
     {
       int FeatId = NWScript.GetLocalInt(skillBook, "_SKILL_ID");
 
@@ -14,7 +14,7 @@ namespace NWN.Systems
       {
         if (!player.learnableSkills.ContainsKey(FeatId))
         {
-          SkillBook.pipeline.Execute(new SkillBook.Context(
+          Systems.SkillBook.pipeline.Execute(new Systems.SkillBook.Context(
             oItem: skillBook,
             oActivator: player,
             SkillId: FeatId

@@ -1,9 +1,9 @@
 ﻿using System;
 using NWN.Core;
 
-namespace NWN.Systems
+namespace NWN.Systems.Items
 {
-  public static partial class ItemSystem
+  public static class Utils
   {
     public enum ItemCategory
     {

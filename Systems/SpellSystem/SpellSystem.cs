@@ -2,8 +2,8 @@
 using System.Collections.Generic;
 using NWN.Core;
 using NWN.Core.NWNX;
-using System.Linq;
 using static NWN.Systems.PlayerSystem;
+using static NWN.Systems.Items.Utils;
 using System.Numerics;
 
 namespace NWN.Systems
@@ -119,14 +119,14 @@ namespace NWN.Systems
           if (NWScript.GetObjectType(oTarget) == NWScript.OBJECT_TYPE_ITEM)
           {
             // Do not allow casting on not equippable items
-            if (!ItemSystem.GetIsItemEquipable(oTarget))
+            if (!GetIsItemEquipable(oTarget))
               NWScript.FloatingTextStrRefOnCreature(83326, oCaster);
             else
             {
               ItemProperty ip = NWScript.ItemPropertyLight(NWScript.IP_CONST_LIGHTBRIGHTNESS_NORMAL, NWScript.IP_CONST_LIGHTCOLOR_WHITE);
               
               if (NWScript.GetItemHasItemProperty(oTarget, NWScript.ITEM_PROPERTY_LIGHT) == 1) 
-                ItemSystem.RemoveMatchingItemProperties(oTarget, NWScript.ITEM_PROPERTY_LIGHT, NWScript.DURATION_TYPE_TEMPORARY);
+                RemoveMatchingItemProperties(oTarget, NWScript.ITEM_PROPERTY_LIGHT, NWScript.DURATION_TYPE_TEMPORARY);
 
               nDuration = NWScript.GetCasterLevel(oCaster);
               //Enter Metamagic conditions

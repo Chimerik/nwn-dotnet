@@ -25,7 +25,7 @@ namespace NWN.Systems
      .Concat(Systems.PlayerSystem.Register)
      .Concat(Systems.ChatSystem.Register)
      .Concat(Systems.SpellSystem.Register)
-     .Concat(Systems.ItemSystem.Register)
+     .Concat(Systems.Items.ScriptHandlers.Register)
      .Concat(PlaceableSystem.Register)
      .Concat(Systems.CollectSystem.Register)
      .Concat(Systems.DialogSystem.Register)
