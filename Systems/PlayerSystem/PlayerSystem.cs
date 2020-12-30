@@ -1148,10 +1148,10 @@ namespace NWN.Systems
             ChatPlugin.SendMessage(ChatPlugin.NWNX_CHAT_CHANNEL_PLAYER_TALK, "Très bien, je demanderai à la banque de prélever l'or sur votre compte.",
             NWScript.GetLocalObject(NWScript.StringToObject(EventsPlugin.GetEventData("STORE")), "_STORE_NPC"), oidSelf);
           }
-
-          EventsPlugin.SkipEvent();
-          NWScript.CopyItem(item, player.oid, 1);
         }
+
+        EventsPlugin.SkipEvent();
+        NWScript.CopyItem(item, player.oid, 1);
 
         string tag = NWScript.GetTag(NWScript.GetLocalObject(NWScript.StringToObject(EventsPlugin.GetEventData("STORE")), "_STORE_NPC"));
         if (tag.Contains("_NB_"))
