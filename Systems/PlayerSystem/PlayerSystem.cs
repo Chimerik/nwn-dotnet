@@ -928,14 +928,14 @@ namespace NWN.Systems
 
           var firstObject = NWScript.GetFirstObjectInArea(oArea);
           if (NWScript.GetTag(firstObject) == "creature_spawn")
-            HandleSpawnWaypoint(firstObject);
+            HandleSpawnWaypoint(firstObject, 0);
 
           int i = 1;
           var spawnPoints = NWScript.GetNearestObjectByTag("creature_spawn", firstObject);
 
           while (Convert.ToBoolean(NWScript.GetIsObjectValid(spawnPoints)))
           {
-            HandleSpawnWaypoint(spawnPoints);
+            HandleSpawnWaypoint(spawnPoints, i);
             i++;
             spawnPoints = NWScript.GetNearestObjectByTag("creature_spawn", firstObject, i);
           }
@@ -971,6 +971,8 @@ namespace NWN.Systems
         {
           if (Convert.ToBoolean(NWScript.GetLocalInt(oArea, "_REST")))
           {
+            NWScript.ExploreAreaForPlayer(oArea, player.oid, 1);
+
             if (player.craftJob.IsActive() && player.playerJournal.craftJobCountDown == null)
               player.craftJob.CreateCraftJournalEntry();
           }
@@ -1009,14 +1011,14 @@ namespace NWN.Systems
       return 0;
     }
 
-    private static void HandleSpawnWaypoint(uint spawnPoint)
+    private static void HandleSpawnWaypoint(uint spawnPoint, int count)
     {
       switch(NWScript.GetLocalString(spawnPoint, "_SPAWN_TYPE"))
       {
         case "npc":
-          if(!Convert.ToBoolean(NWScript.GetIsObjectValid(NWScript.GetNearestObjectByTag(NWScript.GetLocalString(spawnPoint, "_CREATURE_TEMPLATE"), spawnPoint))))
+          if (!Convert.ToBoolean(NWScript.GetIsObjectValid(NWScript.GetNearestObjectByTag($"{ NWScript.GetLocalString(spawnPoint, "_CREATURE_TEMPLATE")}_{count}", spawnPoint))))
           {
-            SpawnCreatureFromSpawnPoint(spawnPoint);
+            SpawnCreatureFromSpawnPoint(spawnPoint, count);
           }
           break;
         case "civilian":
@@ -1039,18 +1041,19 @@ namespace NWN.Systems
           break;
       }
     }
-    private static uint SpawnCreatureFromSpawnPoint(uint spawnPoint)
+    private static uint SpawnCreatureFromSpawnPoint(uint spawnPoint, int count = 0)
     {
-      uint creature = NWScript.CreateObject(NWScript.OBJECT_TYPE_CREATURE, NWScript.GetLocalString(spawnPoint, "_CREATURE_TEMPLATE"), NWScript.GetLocation(spawnPoint));
+      uint creature = NWScript.CreateObject(NWScript.OBJECT_TYPE_CREATURE, NWScript.GetLocalString(spawnPoint, "_CREATURE_TEMPLATE"), NWScript.GetLocation(spawnPoint), 0, $"{NWScript.GetLocalString(spawnPoint, "_CREATURE_TEMPLATE")}_COUNT_{count}");
+      string tag = NWScript.GetTag(creature).Remove(NWScript.GetTag(creature).IndexOf("_COUNT_"));
 
-      switch(NWScript.GetTag(creature))
+      switch (tag)
       {
         case "civilian":
         case "neutralcritter":
         case "ratgarou":
         case "wereboar":
-        case "Apparitiondoutretombe":
-        case "marten_elite_archer":
+        case "sim_wraith":
+        case "marten_arc":
           break;
         default:
           NWScript.SetAILevel(creature, 1);
