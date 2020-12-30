@@ -117,7 +117,9 @@ namespace NWN.Systems
         //else
         //NWScript.DelayCommand(10.0f, () => player.PlayNoCurrentTrainingEffects());
         
-        NWScript.ApplyEffectToObject(NWScript.DURATION_TYPE_PERMANENT, NWScript.TagEffect(NWScript.SupernaturalEffect(NWScript.EffectSpellFailure(50)), "erylies_spell_failure"), player.oid);
+        if(NWScript.GetTag(NWScript.GetItemInSlot(NWScript.INVENTORY_SLOT_NECK, player.oid)) != "amulettorillink")
+          NWScript.ApplyEffectToObject(NWScript.DURATION_TYPE_PERMANENT, NWScript.TagEffect(NWScript.SupernaturalEffect(NWScript.EffectSpellFailure(50)), "erylies_spell_failure"), player.oid);
+        
         RenamePlugin.SetPCNameOverride(player.oid, NWScript.GetName(player.oid), "", "", RenamePlugin.NWNX_RENAME_PLAYERNAME_OVERRIDE);
 
         //Appliquer la distance de perception du chat en fonction de la compétence Listen du joueur
