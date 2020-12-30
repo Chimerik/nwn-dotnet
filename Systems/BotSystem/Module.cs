@@ -97,7 +97,7 @@ namespace NWN.Systems
       => ReplyAsync($"{BotSystem.ExecuteDisplayKnowledgeInfoCommand(Context)}");
 
     [Command("dés")]
-    [Summary("Affiche les règles concernant le savoir sur les Larmes des Erylies.")]
+    [Summary("Affiche les règles concernant la prise en compte des jets de dés sur les Larmes des Erylies.")]
     public Task DisplayDiceRollInfo()
       => ReplyAsync($"{BotSystem.ExecuteDisplayDiceRollInfoCommand(Context)}");
 
@@ -124,6 +124,11 @@ namespace NWN.Systems
     [Command("magie")]
     [Summary("Affiche des informations concernant la façon dont la magie fonctionne sur les Larmes des Erylies.")]
     public Task DisplayMagicInfo()
-      => ReplyAsync(BotSystem.ExecuteDisplayMagicInfoCommand(Context));
+      => ReplyAsync($"{BotSystem.ExecuteDisplayMagicInfoCommand(Context)}");
+
+    [Command("animations")]
+    [Summary("Affiche des informations concernant le fonctionnement général des animations sur les Larmes des Erylies.")]
+    public Task DisplayAnimationInfo()
+      => ReplyAsync($"{BotSystem.ExecuteDisplayAnimationInfoCommand(Context)}");
   }
 }

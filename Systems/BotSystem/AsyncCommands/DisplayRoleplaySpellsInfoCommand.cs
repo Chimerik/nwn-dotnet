@@ -6,8 +6,8 @@ namespace NWN.Systems
   {
     public static string ExecuteDisplayRoleplaySpellsInfoCommand()
     {
-      return "\n\n**Gestion des sorts rp :**" +
-        "Les sorts rp correspondent les sorts absents de NwN, mais présents dans les manuels de D&D (ou dont le fonctionnement dans NwN diffère de celui de D & D), ou n'importe quel effet qu'un joueur aimerait reproduire par magie.\n\n" +
+      return "\n\n**Gestion des sorts rp :**\n\n" +
+        "Les sorts rp correspondent les sorts absents de NwN, mais présents dans les manuels de D&D (ou dont le fonctionnement dans NwN diffère de celui de D&D), ou n'importe quel effet qu'un joueur aimerait reproduire par magie.\n\n" +
         "Pour faire simple : l'utilisation de tels sorts n'est pas autorisée sur les Larmes des Erylies. Tout sort utilisé par votre personnage doit consommer un emplacement de sort mémorisé dans votre grimoire. Si votre sort n'est pas mémorisé, c'est que vous ne pouvez pas l'utiliser.\n\n" +
         "En revanche, tout arcaniste est susceptible d'effectuer des recherches afin d'inventer des sorts encore non disponibles dans le jeu. Voici la procédure à suivre :\n" +
         "    * Avoir obtenu l'accord de principe du staff en fournissant les caractéristiques du sort (niveau, effet souhaité, école, etc)\n" +
