@@ -1,13 +1,13 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
+using System.Threading.Tasks;
+using Discord.Commands;
 
 namespace NWN.Systems
 {
   public static partial class BotSystem
   {
-    public static List<string> ExecuteHelpCommand()
+    public static async Task ExecuteHelpCommandAsync(SocketCommandContext context)
     {
-      var msgList = new List<string>();
       var msg = "";
 
       foreach (var command in Bot.GetCommands())
@@ -16,15 +16,15 @@ namespace NWN.Systems
         
         foreach (var param in command.Parameters)
         {
-          line += $" <{param.Name}: {param.Type.Name}>";
+          line += $" *<{param.Name}: {param.Type.Name}>*";
         }
 
-        line += $" : {command.Summary}\n";
+        line += $" - {command.Summary}\n";
 
         // Limit de 2000 chars par message sur discord
         if (msg.Length + line.Length > 2000)
         {
-          msgList.Add(msg);
+          await context.Channel.SendMessageAsync(msg);
           msg = "";
         } else
         {
@@ -34,10 +34,8 @@ namespace NWN.Systems
 
       if (msg != "")
       {
-        msgList.Add(msg);
+        await context.Channel.SendMessageAsync(msg);
       }
-
-      return msgList;
     }
   }
 }

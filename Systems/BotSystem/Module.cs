@@ -17,14 +17,7 @@ namespace NWN.Systems
     [Command("help")]
     [Summary("Affiche la liste des commandes disponibles.")]
     public async Task HelpAsync()
-    {
-      var msgList = BotSystem.ExecuteHelpCommand();
-
-      foreach (var msg in msgList)
-      {
-        await ReplyAsync(msg);
-      }
-    }
+      => BotSystem.ExecuteHelpCommandAsync(Context);
 
     [Command("say")]
     [Summary("Echoes a message.")]
