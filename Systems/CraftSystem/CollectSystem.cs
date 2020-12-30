@@ -1,9 +1,10 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using NWN.Core;
 using NWN.Core.NWNX;
 using static NWN.Systems.Blueprint;
 using static NWN.Systems.PlayerSystem;
+using static NWN.Systems.Items.Utils;
 
 namespace NWN.Systems
 {
@@ -167,12 +168,12 @@ namespace NWN.Systems
       NWScript.SetName(craftedItem, NWScript.GetName(craftedItem) + " en " + material);
       NWScript.SetLocalString(craftedItem, "_ITEM_MATERIAL", material);
 
-      foreach (ItemProperty ip in GetCraftItemProperties(GetMineralTypeFromName(material), ItemSystem.GetItemCategory(NWScript.GetBaseItemType(craftedItem))))
+      foreach (ItemProperty ip in GetCraftItemProperties(GetMineralTypeFromName(material), GetItemCategory(NWScript.GetBaseItemType(craftedItem))))
       {
         NWScript.AddItemProperty(NWScript.DURATION_TYPE_PERMANENT, ip, craftedItem);
       }
 
-      if(ItemSystem.GetItemCategory(NWScript.GetBaseItemType(craftedItem)) == ItemSystem.ItemCategory.CraftTool)
+      if(GetItemCategory(NWScript.GetBaseItemType(craftedItem)) == ItemCategory.CraftTool)
         switch(material)
         {
           case "Tritanium":

@@ -3,11 +3,11 @@ using NWN.Core;
 using NWN.Core.NWNX;
 using static NWN.Systems.PlayerSystem;
 
-namespace NWN.Systems
+namespace NWN.Systems.Items.BeforeUseHandlers
 {
-  public static partial class ItemSystem
+  public static class OreExtractor
   {
-    private static void HandleOreExtractorActivate(uint oItem, Player player, uint oTarget)
+    public static void HandleActivate(uint oItem, Player player, uint oTarget)
     {
       if (NWScript.GetDistanceBetween(player.oid, oTarget) > 5.0f)
       {
@@ -42,13 +42,13 @@ namespace NWN.Systems
     }
     private static void HandleCancelCycle(Player player, uint oPlaceable)
     {
-      Utils.RemoveTaggedEffect(oPlaceable, $"_{NWScript.GetPCPublicCDKey(player.oid)}_MINING_BEAM");
+      NWN.Utils.RemoveTaggedEffect(oPlaceable, $"_{NWScript.GetPCPublicCDKey(player.oid)}_MINING_BEAM");
       CollectSystem.RemoveMiningCycleCallbacks(player);   // supprimer la callback de CompleteMiningCycle
     }
 
     private static void HandleCompleteCycle(Player player, uint oPlaceable, uint oExtractor)
     {
-      Utils.RemoveTaggedEffect(oPlaceable, $"_{NWScript.GetPCPublicCDKey(player.oid)}_MINING_BEAM");
+      NWN.Utils.RemoveTaggedEffect(oPlaceable, $"_{NWScript.GetPCPublicCDKey(player.oid)}_MINING_BEAM");
       CollectSystem.RemoveMiningCycleCallbacks(player);   // supprimer la callback de Cancel MiningCycle
 
       if (NWScript.GetIsObjectValid(oPlaceable) != 1 || NWScript.GetDistanceBetween(player.oid, oPlaceable) > 5.0f)
@@ -97,12 +97,12 @@ namespace NWN.Systems
       var ore = NWScript.CreateItemOnObject("ore", player.oid, miningYield, NWScript.GetName(oPlaceable));
       NWScript.SetName(ore, NWScript.GetName(oPlaceable));
 
-      ItemSystem.DecreaseItemDurability(oExtractor);
+      Utils.DecreaseItemDurability(oExtractor);
     }
     private static void HandleCompleteProspectionCycle(Player player, uint oPlaceable, uint oExtractor)
     {
       NWScript.SendMessageToPC(NWScript.GetFirstPC(), "");
-      Utils.RemoveTaggedEffect(oPlaceable, $"_{NWScript.GetPCPublicCDKey(player.oid)}_MINING_BEAM");
+      NWN.Utils.RemoveTaggedEffect(oPlaceable, $"_{NWScript.GetPCPublicCDKey(player.oid)}_MINING_BEAM");
       CollectSystem.RemoveMiningCycleCallbacks(player);   // supprimer la callback de Cancel MiningCycle
 
       if (Convert.ToBoolean(NWScript.GetIsObjectValid(oPlaceable)) && NWScript.GetDistanceBetween(player.oid, oPlaceable) >= 5.0f)
@@ -130,7 +130,7 @@ namespace NWN.Systems
 
           string ressourceType = NWScript.GetLocalString(ressourcePoint, "_RESSOURCE_TYPE");
 
-          int iRandom = Utils.random.Next(1, 101);
+          int iRandom = NWN.Utils.random.Next(1, 101);
 
           if (iRandom < respawnChance)
           {

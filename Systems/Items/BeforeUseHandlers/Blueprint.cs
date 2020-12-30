@@ -2,11 +2,11 @@
 using NWN.Core;
 using static NWN.Systems.PlayerSystem;
 
-namespace NWN.Systems
+namespace NWN.Systems.Items.BeforeUseHandlers
 {
-  public static partial class ItemSystem
+  public static class BluePrint
   {
-    private static void HandleBlueprintActivate(uint oItem, Player player, uint oTarget)
+    public static void HandleActivate(uint oItem, Player player, uint oTarget)
     {
       int baseItemType = NWScript.GetLocalInt(oItem, "_BASE_ITEM_TYPE");
 
@@ -46,7 +46,7 @@ namespace NWN.Systems
       else
       {
         NWScript.SendMessageToPC(player.oid, "[ERREUR HRP] - Ce patron n'est pas correctement initialisé. Le bug a été remonté au staff.");
-        Utils.LogMessageToDMs($"Invalid blueprint : {NWScript.GetName(oItem)} - Base Item Type : {baseItemType} - Used by {NWScript.GetName(player.oid)}");
+        NWN.Utils.LogMessageToDMs($"Invalid blueprint : {NWScript.GetName(oItem)} - Base Item Type : {baseItemType} - Used by {NWScript.GetName(player.oid)}");
       }
     }
   }

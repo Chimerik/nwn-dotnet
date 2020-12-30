@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using NWN.Core;
 using NWN.Core.NWNX;
+using static NWN.Systems.Items.Utils;
 
 namespace NWN.Systems
 {
@@ -121,15 +122,15 @@ namespace NWN.Systems
           NWScript.ItemPropertyWeightIncrease(NWScript.IP_CONST_WEIGHTINCREASE_15_LBS)
       };
     }
-    public static ItemProperty[] GetPyeriteItemProperties(ItemSystem.ItemCategory itemCategory)
+    public static ItemProperty[] GetPyeriteItemProperties(ItemCategory itemCategory)
     {
       switch (itemCategory)
       {
-        case ItemSystem.ItemCategory.OneHandedMeleeWeapon: return GetPyeriteOneHandedMeleeWeaponProperties();
-        case ItemSystem.ItemCategory.TwoHandedMeleeWeapon: return GetPyeriteTwoHandedMeleeWeaponProperties();
-        case ItemSystem.ItemCategory.Armor: return GetPyeriteArmorProperties();
-        case ItemSystem.ItemCategory.Shield: return GetPyeriteShieldProperties();
-        case ItemSystem.ItemCategory.CraftTool: return GetPyeriteToolProperties();
+        case ItemCategory.OneHandedMeleeWeapon: return GetPyeriteOneHandedMeleeWeaponProperties();
+        case ItemCategory.TwoHandedMeleeWeapon: return GetPyeriteTwoHandedMeleeWeaponProperties();
+        case ItemCategory.Armor: return GetPyeriteArmorProperties();
+        case ItemCategory.Shield: return GetPyeriteShieldProperties();
+        case ItemCategory.CraftTool: return GetPyeriteToolProperties();
       }
 
       return null;

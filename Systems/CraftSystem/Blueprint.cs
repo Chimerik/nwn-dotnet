@@ -4,6 +4,7 @@ using System.Text;
 using NWN.Core;
 using NWN.Core.NWNX;
 using static NWN.Systems.CollectSystem;
+using static NWN.Systems.Items.Utils;
 using static NWN.Systems.PlayerSystem;
 
 namespace NWN.Systems
@@ -56,7 +57,7 @@ namespace NWN.Systems
         this.craftedItemTag = NWScript.Get2DAString("baseitems", "label", baseItemType);
       } 
     }
-    public static ItemProperty[] GetCraftItemProperties(MineralType material, ItemSystem.ItemCategory itemCategory)
+    public static ItemProperty[] GetCraftItemProperties(MineralType material, ItemCategory itemCategory)
     {
       switch (material)
       {
