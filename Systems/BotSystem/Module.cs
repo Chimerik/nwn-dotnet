@@ -19,116 +19,116 @@ namespace NWN.Systems
     public async Task HelpAsync()
       => BotSystem.ExecuteHelpCommandAsync(Context);
 
+    [Command("register")]
+    [Summary("Enregistre votre compte Discord sur le module en fonction de la clef cd fournie.")]
+    public Task RegisterDiscordId(string cdKey)
+      => BotSystem.ExecuteRegisterDiscordId(Context, cdKey);
+
     [Command("say")]
-    [Summary("Echoes a message.")]
-    public Task SayAsync(string spcName, string text)
-      => ReplyAsync(ModuleSystem.module.PreparingModuleForAsyncSay(Context, spcName, text));
+    [Summary("Permet de faire prononcer à votre personnage un message en jeu tout en profitant de l'édition de texte de Discord.")]
+    public Task SayAsync(string nom_du_personnage, string message_a_prononcer)
+      => ModuleSystem.module.PreparingModuleForAsyncSay(Context, nom_du_personnage, message_a_prononcer);
 
     // ReplyAsync is a method on ModuleBase 
 
-    [Command("whoishere")]
+    [Command("quiestla")]
     [Summary("Affiche le nombre de joueurs connectés au module.")]
     public Task WhoIsHereAsync()
-      => ReplyAsync($"Nous sommes actuellement {BotSystem.ExecuteGetConnectedPlayersCommand()} joueur(s) sur le module !");
+      => BotSystem.ExecuteGetConnectedPlayersCommand(Context);
 
     [Command("desc")]
     [Summary("Enregistre ou modifie une description pour un personnage donné.")]
-    public Task SaveDescriptionAsync(string spcName, string name, string text)
-      => ReplyAsync(BotSystem.ExecuteSaveDescriptionCommand(Context, spcName, name, text));
+    public Task SaveDescriptionAsync(string nom_du_perso, string nom_description, string texte_description)
+      => BotSystem.ExecuteSaveDescriptionCommand(Context, nom_du_perso, nom_description, texte_description);
 
     [Command("desc")]
     [Summary("Affiche la liste des descriptions enregistrées pour un personnage donné.")]
-    public Task GetDescriptionListAsync(string spcName)
-      => ReplyAsync(BotSystem.ExecuteGetDescriptionListCommand(Context, spcName));
+    public Task GetDescriptionListAsync(string nom_perso)
+      => BotSystem.ExecuteGetDescriptionListCommand(Context, nom_perso);
 
     [Command("desc")]
     [Summary("Affiche le contenu de la description demandée pour un personnage donné.")]
-    public Task GetDescriptionAsync(string spcName, string name)
-      => ReplyAsync(BotSystem.ExecuteGetDescriptionCommand(Context, spcName, name));
+    public Task GetDescriptionAsync(string nom_perso, string nom_description)
+      => BotSystem.ExecuteGetDescriptionCommand(Context, nom_perso, nom_description);
 
     [Command("remdesc")]
     [Summary("Supprime la description demandée pour un personnage donné.")]
-    public Task DeleteDescriptionAsync(string spcName, string name)
-      => ReplyAsync(BotSystem.ExecuteDeleteDescriptionCommand(Context, spcName, name));
+    public Task DeleteDescriptionAsync(string nom_perso, string nom_description)
+      => BotSystem.ExecuteDeleteDescriptionCommand(Context, nom_perso, nom_description);
 
     [Command("reboot")]
     [Summary("Reboot le module.")]
     public Task RebootAsync()
-      => ReplyAsync(ModuleSystem.module.PreparingModuleForAsyncReboot(Context));
-
-    [Command("register")]
-    [Summary("Enregistre votre compte Discord sur le module en fonction de la clef cd fournie.")]
-    public Task RegisterDiscordId(string cdKey)
-      => ReplyAsync($"{BotSystem.ExecuteRegisterDiscordId(Context, cdKey)}");
+      => ModuleSystem.module.PreparingModuleForAsyncReboot(Context);
 
     [Command("univers")]
     [Summary("Affiche des informations au sujet de l'univers des Larmes des Erylies et de l'arrivée des joueurs dans l'archipel.")]
     public Task DisplayUniverseInfo()
-      => ReplyAsync($"{BotSystem.ExecuteDisplayUniverseInfoCommand(Context)}");
+      => BotSystem.ExecuteDisplayUniverseInfoCommand(Context);
 
     [Command("leitmotiv")]
     [Summary("Affiche des informations sur les principes fondateurs des Larmes des Erylies.")]
     public Task DisplayLeitmotivInfo()
-      => ReplyAsync($"{BotSystem.ExecuteDisplayLeitmotivInfoCommand(Context)}");
+      => BotSystem.ExecuteDisplayLeitmotivInfoCommand(Context);
 
     [Command("pvp")]
     [Summary("Affiche les principales règles liées au PvP sur les Larmes des Erylies.")]
     public Task DisplayPVPInfo()
-      => ReplyAsync($"{BotSystem.ExecuteDisplayPVPInfoCommand(Context)}");
+      => BotSystem.ExecuteDisplayPVPInfoCommand(Context);
 
     [Command("mort")]
     [Summary("Affiche les principales règles liées aux différents types de morts sur les Larmes des Erylies.")]
     public Task DisplayDeathInfo()
-      => ReplyAsync($"{BotSystem.ExecuteDisplayDeathInfoCommand(Context)}");
+      => BotSystem.ExecuteDisplayDeathInfoCommand(Context);
 
     [Command("soins")]
     [Summary("Affiche les principales informations sur la façon dont les soins sont pris en compte sur les Larmes des Erylies.")]
     public Task DisplayHealInfo()
-      => ReplyAsync($"{BotSystem.ExecuteDisplayHealInfoCommand(Context)}");
+      => BotSystem.ExecuteDisplayHealInfoCommand(Context);
 
     [Command("multicompte")]
     [Summary("Affiche les règles concernant le multi-compte sur les Larmes des Erylies.")]
     public Task DisplayMultiAccountInfo()
-      => ReplyAsync($"{BotSystem.ExecuteDisplayMultiAccountInfoCommand()}");
+      => BotSystem.ExecuteDisplayMultiAccountInfoCommand(Context);
 
     [Command("savoir")]
     [Summary("Affiche les règles concernant le savoir sur les Larmes des Erylies.")]
     public Task DisplayKnowledgeInfo()
-      => ReplyAsync($"{BotSystem.ExecuteDisplayKnowledgeInfoCommand(Context)}");
+      => BotSystem.ExecuteDisplayKnowledgeInfoCommand(Context);
 
     [Command("dés")]
     [Summary("Affiche les règles concernant la prise en compte des jets de dés sur les Larmes des Erylies.")]
     public Task DisplayDiceRollInfo()
-      => ReplyAsync($"{BotSystem.ExecuteDisplayDiceRollInfoCommand(Context)}");
+      => BotSystem.ExecuteDisplayDiceRollInfoCommand(Context);
 
     [Command("alignement")]
     [Summary("Affiche des informations concernant la façon dont l'alignement est utilisé sur les Larmes des Erylies.")]
     public Task DisplayAlignementInfo()
-      => ReplyAsync($"{BotSystem.ExecuteDisplayAlignementInfoCommand(Context)}");
+      => BotSystem.ExecuteDisplayAlignementInfoCommand(Context);
 
     [Command("evil")]
     [Summary("Affiche des recommandations sur la façon de jouer evil sur les Larmes des Erylies sans risquer trop de frustration.")]
     public Task DisplayEvilInfo()
-      => ReplyAsync($"{BotSystem.ExecuteDisplayEvilInfoCommand(Context)}");
+      => BotSystem.ExecuteDisplayEvilInfoCommand(Context);
 
     [Command("bonusroleplay")]
     [Summary("Affiche le principe et fonctionnement du bonus de roleplay.")]
     public Task DisplayBonusRoleplayInfo()
-      => ReplyAsync($"{BotSystem.ExecuteDisplayBonusRoleplayInfoCommand(Context)}");
+      => BotSystem.ExecuteDisplayBonusRoleplayInfoCommand(Context);
 
     [Command("sortsrp")]
     [Summary("Affiche les règles concernant la gestion des sorts rp sur les Larmes des Erylies.")]
     public Task DisplayRoleplaySpellsInfo()
-      => ReplyAsync(BotSystem.ExecuteDisplayRoleplaySpellsInfoCommand());
+      => BotSystem.ExecuteDisplayRoleplaySpellsInfoCommand(Context);
 
     [Command("magie")]
     [Summary("Affiche des informations concernant la façon dont la magie fonctionne sur les Larmes des Erylies.")]
     public Task DisplayMagicInfo()
-      => ReplyAsync($"{BotSystem.ExecuteDisplayMagicInfoCommand(Context)}");
+      => BotSystem.ExecuteDisplayMagicInfoCommand(Context);
 
     [Command("animations")]
     [Summary("Affiche des informations concernant le fonctionnement général des animations sur les Larmes des Erylies.")]
     public Task DisplayAnimationInfo()
-      => ReplyAsync($"{BotSystem.ExecuteDisplayAnimationInfoCommand(Context)}");
+      => BotSystem.ExecuteDisplayAnimationInfoCommand(Context);
   }
 }

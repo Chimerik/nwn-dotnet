@@ -1,12 +1,13 @@
-﻿using Discord.Commands;
+﻿using System.Threading.Tasks;
+using Discord.Commands;
 
 namespace NWN.Systems
 {
   public static partial class BotSystem
   {
-    public static string ExecuteDisplayDiceRollInfoCommand(SocketCommandContext context)
+    public static async Task ExecuteDisplayDiceRollInfoCommand(SocketCommandContext context)
     {
-      context.Channel.SendMessageAsync("Les dés sont là pour aider à simuler l'imprévisible dans certains situations.\n\n" +
+      await context.Channel.SendMessageAsync("Les dés sont là pour aider à simuler l'imprévisible dans certains situations.\n\n" +
         "Il ne faut cependant pas faire usage des dés dans n'importe quelle situation, car toutes ne sont pas propices à l'imprévu et à l'aléatoire.\n\n" +
         "Les dés peuvent être utilisés lorsqu'un personnage :\n\n" +
         "    - Est dans une situation critique, pressé par le temps(c'est le cas des combats)\n" +
@@ -23,9 +24,9 @@ namespace NWN.Systems
         "    - Jouer moins bien que d'habitude, mais seuls les autres professionnels de la musique s'en rendront compte : les amateurs n'y verront que du feu\n\n"
         );
 
-      return "\n\nDisons qu'il existe une échelle de l'échec (et du succès) qui dépend du niveau de compétence du personnage.\n\n" +
+      await context.Channel.SendMessageAsync("\n\nDisons qu'il existe une échelle de l'échec (et du succès) qui dépend du niveau de compétence du personnage.\n\n" +
         "Plus la compétence du personnage est élevée, moins les conséquences de son échec seront perceptibles et graves et plus ses réussites seront éclatantes.\n\n" +
-        "L'échec critique d'un novice ne sera pas le même que celui d'un professionnel. Et idem pour les réussites critiques.\n\n";
+        "L'échec critique d'un novice ne sera pas le même que celui d'un professionnel. Et idem pour les réussites critiques.\n\n");
     }
   }
 }

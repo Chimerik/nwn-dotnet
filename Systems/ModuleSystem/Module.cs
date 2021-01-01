@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using Discord;
 using Discord.Commands;
 using Microsoft.Data.Sqlite;
@@ -182,6 +183,8 @@ namespace NWN.Systems
       EventsPlugin.SubscribeEvent("NWNX_ON_MAP_PIN_ADD_PIN_AFTER", "map_pin_added");
       EventsPlugin.SubscribeEvent("NWNX_ON_MAP_PIN_CHANGE_PIN_AFTER", "map_pin_changed");
       EventsPlugin.SubscribeEvent("NWNX_ON_MAP_PIN_DESTROY_PIN_AFTER", "map_pin_destroyed");
+
+      //EventsPlugin.SubscribeEvent("NWNX_ON_HAS_FEAT_AFTER", "event_has_feat");
     }
     private void InitializeFeatModifiers()
     {
@@ -305,7 +308,7 @@ namespace NWN.Systems
         oArea = NWScript.GetNextArea();
       }
     }
-    public string PreparingModuleForAsyncReboot(SocketCommandContext context)
+    public async Task PreparingModuleForAsyncReboot(SocketCommandContext context)
     {
       using (var connection = new SqliteConnection($"{ModuleSystem.db_path}"))
       {
@@ -333,22 +336,25 @@ namespace NWN.Systems
         if (result == "admin")
         {
           this.botAsyncCommandList.Add("reboot");
-          return "Reboot effectif dans 30 secondes.";
+          await context.Channel.SendMessageAsync("Reboot effectif dans 30 secondes.");
+          return;
         }
       }
 
-      return "Noooon, vous n'êtes pas la maaaaaître ! Le maaaaître est bien plus poli, d'habitude !";
+      await context.Channel.SendMessageAsync("Noooon, vous n'êtes pas la maaaaaître ! Le maaaaître est bien plus poli, d'habitude !");
+      return;
     }
-    public string PreparingModuleForAsyncSay(SocketCommandContext context, string sPCName, string text)
+    public async Task PreparingModuleForAsyncSay(SocketCommandContext context, string sPCName, string text)
     {
       int result = Utils.CheckPlayerCredentialsFromDiscord(context, sPCName);
       if (result > 0)
       {
         this.botAsyncCommandList.Add($"say_{result}_{text}");
-        return "Texte en cours de relais vers votre personnage.";
+        await context.Channel.SendMessageAsync("Texte en cours de relais vers votre personnage.");
+        return;
       }
 
-      return "Le personnage indiqué n'existe pas, n'est pas connecté ou n'a pas été enregistré avec votre code Discord et votre clef cd.";
+      await context.Channel.SendMessageAsync("Le personnage indiqué n'existe pas, n'est pas connecté ou n'a pas été enregistré avec votre code Discord et votre clef cd.");
     }
     private void SetModuleTime()
     {

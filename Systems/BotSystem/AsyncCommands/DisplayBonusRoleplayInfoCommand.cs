@@ -1,12 +1,13 @@
-﻿using Discord.Commands;
+﻿using System.Threading.Tasks;
+using Discord.Commands;
 
 namespace NWN.Systems
 {
   public static partial class BotSystem
   {
-    public static string ExecuteDisplayBonusRoleplayInfoCommand(SocketCommandContext context)
+    public static async Task ExecuteDisplayBonusRoleplayInfoCommand(SocketCommandContext context)
     {
-      context.Channel.SendMessageAsync("**Le bonus Role Play**\n\n" +
+      await context.Channel.SendMessageAsync("**Le bonus Role Play**\n\n" +
         "Le Bonus Role Play(aussi connu sous le nom de BRP) est un nombre entre 0 et 4 qui indique la façon dont votre implication Role Play et votre comportement en jeu est perçue par les DMs. Ci-dessous, un guide général au sujet de ces bonus :\n\n" +
         "0 : Absence de Role Play, non respect des règles ou abus du système.\n" +
         "1 : Les nouveaux personnages dont le background n'a pas encore été validé, ainsi que tous ceux qui font le strict minimum.\n" +
@@ -15,7 +16,7 @@ namespace NWN.Systems
         "4 : Ceux qui font bouger le module et le rp des autres. Qui créent deshistoires cohérentes avec la volonté d'apporter des changements dont les conséquences influenceront les autres joueurs au travers des tensions, conflits générés, aidant ainsi les autres à développer leur rp et l'histoire du monde.\n\n"
         );
 
-      return "\n\nLa vitesse globale de progression de l'entrainement de capacité et de craft dépend de ces niveaux :\n\n" +
+      await context.Channel.SendMessageAsync("\n\nLa vitesse globale de progression de l'entrainement de capacité et de craft dépend de ces niveaux :\n\n" +
         "    0 : 0 %\n" +
         "    1 : 90 %\n" +
         "    2 : 100 %\n" +
@@ -28,7 +29,7 @@ namespace NWN.Systems
         "Afin de s'assurer de la visibilité du rp de chacun, nous avons ajouté une commande chat '!commend', utilisable par les joueurs avec un BRP de 4. Cela permet à ces joueurs de recommander ceux dont ils estiment le rp. Cette commande à deux effets :\n" +
         "    * Premièrement, si le joueur recommandé se trouve à 1 BRP, il obtient immédiatement une augmentation à 2 BRP.\n" +
         "    * Deuxièmement, la recommandation est diffusée aux DMs, afin que ceux-ci puissent plus rapidement concentrer leur évaluations sur ceux dont le rp a déjà été repéré.\n\n" +    
-        "Le but est à la fois de prendre en compte les nouveaux joueurs plus rapidement et aussi de donner davantage de temps aux DMs de s'occuper des passages BRP de 2 à 3. \n\n";
+        "Le but est à la fois de prendre en compte les nouveaux joueurs plus rapidement et aussi de donner davantage de temps aux DMs de s'occuper des passages BRP de 2 à 3. \n\n");
     }
   }
 }

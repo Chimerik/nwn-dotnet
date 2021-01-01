@@ -1,15 +1,19 @@
-﻿using Discord.Commands;
+﻿using System.Threading.Tasks;
+using Discord.Commands;
 using Microsoft.Data.Sqlite;
 
 namespace NWN.Systems
 {
   public static partial class BotSystem
   {
-    public static string ExecuteSaveDescriptionCommand(SocketCommandContext context, string pcName, string descriptionName, string descriptionText)
+    public static async Task ExecuteSaveDescriptionCommand(SocketCommandContext context, string pcName, string descriptionName, string descriptionText)
     {
       int pcID = Utils.CheckPlayerCredentialsFromDiscord(context, pcName);
       if (pcID == 0)
-        return "Le personnage indiqué n'existe pas ou n'a pas été enregistré avec votre code Discord et votre clef cd.";
+      {
+        await context.Channel.SendMessageAsync("Le personnage indiqué n'existe pas ou n'a pas été enregistré avec votre code Discord et votre clef cd.");
+        return;
+      }
 
       using (var connection = new SqliteConnection($"{ModuleSystem.db_path}"))
       {
@@ -29,7 +33,7 @@ namespace NWN.Systems
         command.ExecuteNonQuery();
       }
 
-      return $"La description {descriptionName} a été enregistrée parmis les descriptions disponibles pour votre personnage {pcName}.";
+      await context.Channel.SendMessageAsync($"La description {descriptionName} a été enregistrée parmis les descriptions disponibles pour votre personnage {pcName}.");
     }
   }
 }
