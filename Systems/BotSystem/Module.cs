@@ -130,5 +130,15 @@ namespace NWN.Systems
     [Summary("Affiche des informations concernant le fonctionnement général des animations sur les Larmes des Erylies.")]
     public Task DisplayAnimationInfo()
       => BotSystem.ExecuteDisplayAnimationInfoCommand(Context);
+
+    [Command("developpement")]
+    [Summary("Affiche la liste des développements et tâches en cours.")]
+    public Task DisplayDevInfo()
+      => BotSystem.ExecuteDisplayDevInfoCommand(Context);
+
+    [Command("backlog")]
+    [Summary("Affiche la liste des projets et tâches en attente.")]
+    public Task DisplayBacklogInfo()
+      => BotSystem.ExecuteDisplayBacklogInfoCommand(Context);
   }
 }
