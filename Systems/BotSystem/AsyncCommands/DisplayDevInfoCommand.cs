@@ -10,7 +10,7 @@ namespace NWN.Systems
       await context.Channel.SendMessageAsync("Développements et tâches en cours\n" +
         "    - Collecte de bois\n" +
         "    - Collecte de peaux / cuirs\n" +
-        "    - Système de jukebox(pnjs bardes en taverne jouent diverses chansons.Peut apporter un bonus supplémentaire si un joueur paye)\n" +
+        "    - Système de jukebox (pnjs bardes en taverne jouent diverses chansons. Peut apporter un bonus supplémentaire si un joueur paye)\n" +
         "    - Maps ?\n" +
         "    - Icônes pour dons customs\n" +
         "    - Ambiance sonore du module(musiques et sons)\n" +
