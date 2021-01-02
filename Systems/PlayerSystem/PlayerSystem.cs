@@ -1139,7 +1139,7 @@ namespace NWN.Systems
         int price = Int32.Parse(EventsPlugin.GetEventData("PRICE"));
         int pocketGold = NWScript.GetGold(oidSelf);
 
-        if(pocketGold < price)
+        if (pocketGold < price)
         {
           if (pocketGold + player.bankGold < price)
           {
@@ -1164,6 +1164,8 @@ namespace NWN.Systems
             NWScript.GetLocalObject(NWScript.StringToObject(EventsPlugin.GetEventData("STORE")), "_STORE_NPC"), oidSelf);
           }
         }
+        else
+          NWScript.TakeGoldFromCreature(price, player.oid, 1);
 
         EventsPlugin.SkipEvent();
         NWScript.CopyItem(item, player.oid, 1);
@@ -1219,7 +1221,15 @@ namespace NWN.Systems
     {
       Player player;
       if (Players.TryGetValue(oidSelf, out player))
-        player.mapPinDictionnary.Remove(Int32.Parse(EventsPlugin.GetEventData("PIN_ID")));
+      {
+        int pinId = Int32.Parse(EventsPlugin.GetEventData("PIN_ID"));
+        player.mapPinDictionnary.Remove(pinId);
+
+        var query = NWScript.SqlPrepareQueryCampaign(ModuleSystem.database, "DELETE FROM playerMapPins where characterId = @characterId, mapPinId = @mapPinId");
+        NWScript.SqlBindInt(query, "@characterId", player.characterId);
+        NWScript.SqlBindInt(query, "@mapPinId", pinId);
+        NWScript.SqlStep(query);
+      }
 
       return 0;
     }
