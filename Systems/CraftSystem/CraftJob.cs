@@ -225,10 +225,14 @@ namespace NWN.Systems
     }
     public void CreateCraftJournalEntry()
     {
+      if (!IsActive())
+        return;
+
       this.player.playerJournal.craftJobCountDown = DateTime.Now.AddSeconds(this.remainingTime);
       JournalEntry journalEntry = new JournalEntry();
       journalEntry.sName = $"Travail artisanal - {Utils.StripTimeSpanMilliseconds((TimeSpan)(player.playerJournal.craftJobCountDown - DateTime.Now))}";
-      switch(this.type)
+
+      switch (this.type)
       {
         case JobType.BlueprintCopy:
           journalEntry.sText = "Copie de patron en cours";
@@ -240,7 +244,7 @@ namespace NWN.Systems
           journalEntry.sText = "Recherche d'efficacité en cours";
           break;
         default:
-          journalEntry.sText = $"Fabrication en cours : {blueprintDictionnary[this.baseItemType].name}";
+          journalEntry.sText = $"Fabrication en cours : {blueprintDictionnary[baseItemType].name}";
           break;
       }
       
@@ -278,7 +282,7 @@ namespace NWN.Systems
     {
       JournalEntry journalEntry = PlayerPlugin.GetJournalEntry(player.oid, "craft_job");
 
-      switch(type)
+      switch (type)
       {
         case JobType.BlueprintCopy:
           journalEntry.sName = $"Travail artisanal terminé - Copie de patron";
@@ -290,7 +294,7 @@ namespace NWN.Systems
           journalEntry.sName = $"Travail artisanal terminé - Recherche en efficacité";
           break;
         default:
-          journalEntry.sName = $"Travail artisanal terminé - {CollectSystem.blueprintDictionnary[this.baseItemType].name}";
+          journalEntry.sName = $"Travail artisanal terminé - {CollectSystem.blueprintDictionnary[baseItemType].name}";
           break;
       }
       

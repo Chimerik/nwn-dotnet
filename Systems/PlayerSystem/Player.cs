@@ -60,7 +60,7 @@ namespace NWN.Systems
       {
         this.oid = nwobj;
         this.menu = new PrivateMenu(this);
-        
+       
         if (ObjectPlugin.GetInt(this.oid, "accountId") == 0)
           InitializeNewPlayer(this.oid);
 
@@ -258,18 +258,18 @@ namespace NWN.Systems
       {
         if (craftJob.IsActive())
         {
-          this.craftJob.remainingTime = this.craftJob.remainingTime - (float)(DateTime.Now - this.dateLastSaved).TotalSeconds;
-          
-          if (this.craftJob.remainingTime < 0)
+          craftJob.remainingTime = craftJob.remainingTime - (float)(DateTime.Now - dateLastSaved).TotalSeconds;
+
+          if (craftJob.remainingTime < 0)
           {
-            this.AcquireCraftedItem();
+            AcquireCraftedItem();
           }
         }
       }
 
       public void AcquireCraftedItem()
       {
-        switch(this.craftJob.type)
+        switch (this.craftJob.type)
         {
           case CraftJob.JobType.BlueprintCopy:
             NWScript.SetLocalInt(NWScript.CopyItem(ObjectPlugin.Deserialize((this.craftJob.craftedItem)), this.oid, 1), "_BLUEPRINT_RUNS", 10);
@@ -299,8 +299,8 @@ namespace NWN.Systems
         }
 
         PlayerPlugin.ApplyInstantVisualEffectToObject(oid, oid, NWScript.VFX_IMP_GLOBE_USE);
-        this.craftJob.CloseCraftJournalEntry();
-        this.craftJob = new CraftJob(-10, "", 0, this);
+        craftJob.CloseCraftJournalEntry();
+        craftJob = new CraftJob(-10, "", 0, this);
       }
       public void AcquireSkillPoints()
       {

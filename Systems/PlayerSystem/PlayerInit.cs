@@ -30,14 +30,12 @@ namespace NWN.Systems
       //RefreshQBS(oidSelf, 0);
       // }
 
-      Player player;
-      if (!Players.ContainsKey(oPC))
+      Player player; 
+      if(!Players.TryGetValue(oPC, out player))
       {
         player = new Player(oPC);
         Players.Add(oPC, player);
       }
-      else
-        player = Players[oPC];
 
       if (NWScript.GetIsDM(oPC) != 1)
       {
@@ -341,6 +339,7 @@ namespace NWN.Systems
       player.dateLastSaved = DateTime.Parse(NWScript.SqlGetString(query, 5));
       player.currentSkillJob = NWScript.SqlGetInt(query, 6);
       player.craftJob = new CraftJob(NWScript.SqlGetInt(query, 7), NWScript.SqlGetString(query, 10), NWScript.SqlGetFloat(query, 9), player, NWScript.SqlGetString(query, 8));
+
       player.isFrostAttackOn = Convert.ToBoolean(NWScript.SqlGetInt(query, 11));
       player.menu.originTop = NWScript.SqlGetInt(query, 12);
       player.menu.originLeft = NWScript.SqlGetInt(query, 13);

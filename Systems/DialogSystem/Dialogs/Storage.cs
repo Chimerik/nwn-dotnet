@@ -21,7 +21,7 @@ namespace NWN.Systems
       player.menu.title = $"Yop, tu veux déposer tes matières premières quelque part ? Vas-y file moi ça. Oublie pas qu'on prend 5 % pour le service.";
       player.menu.choices.Add(($"Tout déposer.", () => HandleDropAll(player)));
       player.menu.choices.Add(($"Déposer une matière en particulier.", () => HandleDropMaterialSelection(player)));
-      player.menu.choices.Add(($"A vrai dire, je suis là pour un retrait.", () => HandleWithdrawMaterialSelection(player)));
+      //player.menu.choices.Add(($"A vrai dire, je suis là pour un retrait.", () => HandleWithdrawMaterialSelection(player)));
       player.menu.choices.Add(("Quitter", () => player.menu.Close()));
       player.menu.Draw();
     }

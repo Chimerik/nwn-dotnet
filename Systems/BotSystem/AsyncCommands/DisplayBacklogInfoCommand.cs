@@ -39,7 +39,10 @@ namespace NWN.Systems
         "    - Permettre destruction de cadavres PJs\n" +
         "    - Canal groupe rp (autres pjs à portée d'oreille peuvent entendre)\n" +
         "    - Système de personnalisation d'apparence de vêtements (seul le crafteur initial pourra modifier)\n" +
-        "    - Cooldowns sur dons activables(renversement, furtif, etc)\n" +
+        "    - Cooldowns sur dons activables(renversement, furtif, etc)\n"
+        );
+
+      await context.Channel.SendMessageAsync("" +
         "    - Amélioration minage(différentes qualités de filon identifiables par prospection)\n" +
         "    - Amélioration craft d'objets (ajouter talent qui donne % chance de réduire poids, augmenter durabilité et nb slots enchantements)\n" +
         "    - Talent épique permettant aux archers de ne pas subir d'AOO\n" +
@@ -48,20 +51,18 @@ namespace NWN.Systems
         "    - Système de persistance des sorts\n" +
         "    - Réfléchir à que faire de Utilisation des Objets Magiques\n" +
         "    - Réfléchir à que faire de Persuasion\n" +
-        "    - Réfléchir à que faire d'Equitation (et des montures en général)\n"
-        );
-
-      await context.Channel.SendMessageAsync("\n    - Système anti-déconnexion sauvage\n\n" +
+        "    - Réfléchir à que faire d'Equitation (et des montures en général)\n" +
+        "    - Système anti-déconnexion sauvage\n\n" +
         "    - Système d'housing\n" +
         "    - Système climat & météo\n" +
         "    - Système de religion (piété et attribut tutélaire)\n" +
         "    - Système capture de monstre sans le tuer\n" +
         "    - Système capture de PJ sans le tuer\n" +
         "    - Amélioration de l'intelligence artificielle des monstres & PNJs\n" +
-        "    - Système de justice (points civiques, https://gitlab.com/nwnee/attack-on-ancients/-/issues/68)\n" +
+        "    - Système de justice (points civiques)\n" +
         "    - Achat / Vente via Discord\n" +
         "    - Suppression de personnage via Discord\n" +
-        "    - Ajout de partitions permettant d'apprendre des chants du barde avec différents effets\n" +
+        "    - Partitions permettant d'apprendre des chants du barde avec différents effets\n" +
         "    - Système de primes (bounty hunter)\n" +
         "    - Système de missions instanciées\n" +
         "    - Système arène automatique PvE\n" +
@@ -72,9 +73,10 @@ namespace NWN.Systems
         "    - Ajout nouveaux dons/talents\n" +
         "    - Equilibrage des sorts\n" +
         "    - Equilibrage des dons/talents\n" +
-        "    - Ajout système de corruption/purification des zones\n" +
-        "    - Ajout système de pistage sur les maps\n" +
-        "    - Ajout système d'assurance\n"
+        "    - Système de corruption/purification des zones\n" +
+        "    - Système de pistage sur les maps\n" +
+        "    - Système d'assurance\n"
+        //"    - Système d'assurance\n"
         );
     }
   }

@@ -891,8 +891,8 @@ namespace NWN.Systems
     private static int HandlePCAcquireItem(uint oidSelf)
     {
       var oPC = NWScript.GetModuleItemAcquiredBy();
-      Console.WriteLine(NWScript.GetName(oPC));
-      Console.WriteLine(NWScript.GetName(NWScript.GetArea(oPC)));
+      //Console.WriteLine(NWScript.GetName(oPC));
+      //Console.WriteLine(NWScript.GetName(NWScript.GetArea(oPC)));
 
       if (Convert.ToBoolean(NWScript.GetIsPC(oPC)))
       {
