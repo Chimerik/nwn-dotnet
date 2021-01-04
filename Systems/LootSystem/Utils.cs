@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using NWN.Core;
-using NWN.Core.NWNX;
 using static NWN.Systems.PlayerSystem;
 
 namespace NWN.Systems
@@ -10,28 +8,6 @@ namespace NWN.Systems
   public static partial class LootSystem
   {
     private static Dictionary<string, List<uint>> chestTagToLootsDic = new Dictionary<string, List<uint>> { };
-
-    /*private static void CleanDatabase(List<uint> chestList)
-    {
-      var sql = $"SELECT tag from {SQL_TABLE}";
-      var chestTags = chestList.Select(chest => NWScript.GetTag(chest));
-
-      using (var connection = MySQL.GetConnection())
-      {
-        var lootContainers = connection.Query<Models.LootContainer>(sql).ToList();
-
-        foreach (var lootContainer in lootContainers)
-        {
-          if (!chestTags.Contains(lootContainer.tag))
-          {
-            sql = $"DELETE FROM {SQL_TABLE} WHERE tag=@tag;";
-
-            connection.Execute(sql, new { tag = lootContainer.tag });
-          }
-        }
-      }
-    }*/
-
     private static void UpdateDB(uint oChest)
     {
       Player oPC;
@@ -47,38 +23,7 @@ namespace NWN.Systems
         NWScript.SqlBindFloat(query, "@facing", NWScript.GetFacing(oChest));
         NWScript.SqlStep(query);
       }
-
     }
-    /*
-    private static void InitChest(uint oChest, uint oArea)
-    {
-      var chestTag = NWScript.GetTag(oChest);
-      var sql = $"SELECT serialized FROM {SQL_TABLE} WHERE tag=@tag LIMIT 1;";
-
-      using (var connection = MySQL.GetConnection())
-      {
-        try
-        {
-          var lootContainer = connection.QuerySingle<Models.LootContainer>(sql, new { tag = chestTag });
-          var oDeserializedChest = ObjectPlugin.Deserialize(lootContainer.serialized);
-          var location = NWScript.GetLocation(oChest);
-          var oChestPosition = NWScript.GetPositionFromLocation(location);
-          var direction = NWScript.GetFacingFromLocation(location);
-          ObjectPlugin.AddToArea(oDeserializedChest, oArea, oChestPosition);
-          NWScript.AssignCommand(oDeserializedChest, () => NWScript.SetFacing(direction));
-          NWScript.SetEventScript(oDeserializedChest, NWScript.EVENT_SCRIPT_PLACEABLE_ON_CLOSED, LOOT_CONTAINER_ON_CLOSE_SCRIPT);
-          NWScript.DestroyObject(oChest);
-        }
-        catch (Exception _)
-        {
-          UpdateDB(oChest);
-        }
-
-      }
-
-      UpdateChestTagToLootsDic(oChest);
-    }
-    */
     private static List<uint> GetPlaceables(uint oArea)
     {
       var oPlaceable = NWScript.GetFirstObjectInArea(oArea);
@@ -97,7 +42,6 @@ namespace NWN.Systems
 
       return list;
     }
-
     private static void UpdateChestTagToLootsDic(uint oChest)
     {
       var tag = NWScript.GetTag(oChest);
@@ -113,7 +57,6 @@ namespace NWN.Systems
 
       chestTagToLootsDic[tag] = loots;
     }
-
     private static void ThrowException(string message)
     {
       throw new ApplicationException($"LootSystem: {message}");

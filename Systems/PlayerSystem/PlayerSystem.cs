@@ -1225,7 +1225,7 @@ namespace NWN.Systems
         int pinId = Int32.Parse(EventsPlugin.GetEventData("PIN_ID"));
         player.mapPinDictionnary.Remove(pinId);
 
-        var query = NWScript.SqlPrepareQueryCampaign(ModuleSystem.database, "DELETE FROM playerMapPins where characterId = @characterId, mapPinId = @mapPinId");
+        var query = NWScript.SqlPrepareQueryCampaign(ModuleSystem.database, "DELETE FROM playerMapPins where characterId = @characterId and mapPinId = @mapPinId");
         NWScript.SqlBindInt(query, "@characterId", player.characterId);
         NWScript.SqlBindInt(query, "@mapPinId", pinId);
         NWScript.SqlStep(query);
