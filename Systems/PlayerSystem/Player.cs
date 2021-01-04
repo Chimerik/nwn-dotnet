@@ -53,8 +53,8 @@ namespace NWN.Systems
       public List<QuickBarSlot> savedQuickBar = new List<QuickBarSlot>();
       public Dictionary<int, MapPin> mapPinDictionnary = new Dictionary<int, MapPin>();
 
-      public Action OnMiningCycleCancelled = delegate { };
-      public Action OnMiningCycleCompleted = delegate { };
+      public Action OnCollectCycleCancel = delegate { };
+      public Action OnCollectCycleComplete = delegate { };
 
       public Player(uint nwobj)
       {
@@ -380,13 +380,13 @@ namespace NWN.Systems
         PlayerPlugin.PlaySound(oid, "gui_dm_drop");
         PlayerPlugin.ApplyInstantVisualEffectToObject(oid, oid, NWScript.VFX_IMP_REDUCE_ABILITY_SCORE);
       }
-      public void DoActionOnMiningCycleCancelled()
+      public void CancelCollectCycle()
       {
-        this.OnMiningCycleCancelled();
+        OnCollectCycleCancel();
       }
-      public void DoActionOnMiningCycleCompleted()
+      public void CompleteCollectCycle()
       {
-        this.OnMiningCycleCompleted();
+        OnCollectCycleComplete();
       }
       
       public Effect GetPartySizeEffect(int iPartySize = 0)

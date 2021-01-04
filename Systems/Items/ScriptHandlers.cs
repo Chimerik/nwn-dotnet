@@ -122,6 +122,7 @@ namespace NWN.Systems.Items
             BeforeUseHandlers.SkillBook.HandleActivate(oItem, player);
             NWScript.DelayCommand(0.2f, () => FeedbackPlugin.SetFeedbackMessageHidden(23, 1, player.oid));
             break;
+          
           case "blueprint":
             FeedbackPlugin.SetFeedbackMessageHidden(23, 1, player.oid);
             EventsPlugin.SkipEvent();
@@ -129,11 +130,13 @@ namespace NWN.Systems.Items
             BeforeUseHandlers.BluePrint.HandleActivate(oItem, player, oTarget);
             NWScript.DelayCommand(0.2f, () => FeedbackPlugin.SetFeedbackMessageHidden(23, 1, player.oid));
             break;
+
+          // TODO - Renommer en "resource_extractor" ?
           case "oreextractor":
             FeedbackPlugin.SetFeedbackMessageHidden(23, 1, player.oid);
             EventsPlugin.SkipEvent();
             oTarget = NWScript.StringToObject(EventsPlugin.GetEventData("TARGET_OBJECT_ID"));
-            BeforeUseHandlers.OreExtractor.HandleActivate(oItem, player, oTarget);
+            BeforeUseHandlers.ResourceExtractor.HandleActivate(oItem, player, oTarget);
             NWScript.DelayCommand(0.2f, () => FeedbackPlugin.SetFeedbackMessageHidden(23, 1, player.oid));
             break;
         }
