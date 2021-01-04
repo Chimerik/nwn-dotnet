@@ -136,10 +136,6 @@ namespace NWN.Systems.Items
             BeforeUseHandlers.OreExtractor.HandleActivate(oItem, player, oTarget);
             NWScript.DelayCommand(0.2f, () => FeedbackPlugin.SetFeedbackMessageHidden(23, 1, player.oid));
             break;
-          case "woodextractor":
-            oTarget = NWScript.StringToObject(EventsPlugin.GetEventData("TARGET_OBJECT_ID"));
-            BeforeUseHandlers.WoodExtractor.HandleActivate(oItem, player, oTarget);
-            break;
         }
       }
       return 0;
