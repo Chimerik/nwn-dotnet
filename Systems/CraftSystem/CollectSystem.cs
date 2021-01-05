@@ -119,10 +119,17 @@ namespace NWN.Systems
 
       return 0;
     }    
-    public static void StartCollectCycle(Player player, uint rock, Action cancelCallback, Action completeCallback)
+    public static void StartCollectCycle(Player player, uint oPlaceable, Action completeCallback)
     {
-      player.OnCollectCycleCancel = cancelCallback;
-      player.OnCollectCycleComplete = completeCallback;
+      player.OnCollectCycleCancel = () => {
+        NWN.Utils.RemoveTaggedEffect(oPlaceable, $"_{NWScript.GetPCPublicCDKey(player.oid)}_MINING_BEAM");
+        RemoveCollectCycleCallbacks(player);
+      };
+      player.OnCollectCycleComplete = () => {
+        completeCallback();
+        NWN.Utils.RemoveTaggedEffect(oPlaceable, $"_{NWScript.GetPCPublicCDKey(player.oid)}_MINING_BEAM");
+        RemoveCollectCycleCallbacks(player);
+      };
 
       var resourceExtractor = NWScript.GetItemInSlot(NWScript.INVENTORY_SLOT_RIGHTHAND, player.oid);
       float cycleDuration = 180.0f;
@@ -134,7 +141,7 @@ namespace NWN.Systems
 
       Effect eRay = NWScript.EffectBeam(NWScript.VFX_BEAM_DISINTEGRATE, resourceExtractor, 1);
       eRay = NWScript.TagEffect(eRay, $"_{NWScript.GetPCPublicCDKey(player.oid)}_MINING_BEAM");
-      NWScript.ApplyEffectToObject(NWScript.DURATION_TYPE_TEMPORARY, eRay, rock, cycleDuration);
+      NWScript.ApplyEffectToObject(NWScript.DURATION_TYPE_TEMPORARY, eRay, oPlaceable, cycleDuration);
       
       PlayerPlugin.StartGuiTimingBar(player.oid, cycleDuration, "on_collect_cycle_complete");
 
@@ -145,7 +152,7 @@ namespace NWN.Systems
       EventsPlugin.AddObjectToDispatchList("NWNX_ON_START_COMBAT_ROUND_AFTER", "event_collect_cycle_cancel_before", player.oid);
       EventsPlugin.AddObjectToDispatchList("NWNX_ON_INPUT_CAST_SPELL_BEFORE", "event_collect_cycle_cancel_before", player.oid);
     }
-    public static void RemoveCollectCycleCallbacks(Player player)
+    private static void RemoveCollectCycleCallbacks(Player player)
     {
       player.OnCollectCycleCancel = () => { };
       player.OnCollectCycleComplete = () => { };

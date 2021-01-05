@@ -23,7 +23,6 @@ namespace NWN.Systems.Items.BeforeUseHandlers
           CollectSystem.StartCollectCycle(
             player,
             oTarget,
-            () => HandleCancelCycle(player, oTarget),
             () => HandleCompleteCycle(player, oTarget, oItem)
           );
           break;
@@ -31,7 +30,6 @@ namespace NWN.Systems.Items.BeforeUseHandlers
           CollectSystem.StartCollectCycle(
             player,
             oTarget,
-            () => HandleCancelCycle(player, oTarget),
             () => HandleCompleteProspectionCycle(player, oTarget, oItem)
           );
           break;
@@ -40,17 +38,9 @@ namespace NWN.Systems.Items.BeforeUseHandlers
           break;
       }
     }
-    private static void HandleCancelCycle(Player player, uint oPlaceable)
-    {
-      NWN.Utils.RemoveTaggedEffect(oPlaceable, $"_{NWScript.GetPCPublicCDKey(player.oid)}_MINING_BEAM");
-      CollectSystem.RemoveCollectCycleCallbacks(player);   // supprimer la callback de CompleteMiningCycle
-    }
 
     private static void HandleCompleteCycle(Player player, uint oPlaceable, uint oExtractor)
     {
-      NWN.Utils.RemoveTaggedEffect(oPlaceable, $"_{NWScript.GetPCPublicCDKey(player.oid)}_MINING_BEAM");
-      CollectSystem.RemoveCollectCycleCallbacks(player);   // supprimer la callback de Cancel MiningCycle
-
       if (NWScript.GetIsObjectValid(oPlaceable) != 1 || NWScript.GetDistanceBetween(player.oid, oPlaceable) > 5.0f)
       {
         NWScript.SendMessageToPC(player.oid, "Vous êtes trop éloigné du bloc ciblé, ou alors celui-ci n'existe plus.");
@@ -101,9 +91,6 @@ namespace NWN.Systems.Items.BeforeUseHandlers
     }
     private static void HandleCompleteProspectionCycle(Player player, uint oPlaceable, uint oExtractor)
     {
-      NWN.Utils.RemoveTaggedEffect(oPlaceable, $"_{NWScript.GetPCPublicCDKey(player.oid)}_MINING_BEAM");
-      CollectSystem.RemoveCollectCycleCallbacks(player);   // supprimer la callback de Cancel MiningCycle
-
       if (!Convert.ToBoolean(NWScript.GetIsObjectValid(oPlaceable)) || NWScript.GetDistanceBetween(player.oid, oPlaceable) > 5.0f)
       {
         NWScript.SendMessageToPC(player.oid, "Vous êtes trop éloigné de la veine ciblée, ou alors celle-ci n'existe plus.");
