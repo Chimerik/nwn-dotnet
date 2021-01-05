@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using NWN.Core;
 using static NWN.Systems.PlayerSystem;
+using static NWN.Systems.Craft.Collect.System;
 
 namespace NWN.Systems
 {
@@ -35,7 +36,7 @@ namespace NWN.Systems
       while(Convert.ToBoolean(NWScript.GetIsObjectValid(oItem)))
       {
         string itemTag = NWScript.GetTag(oItem);
-        if (CollectSystem.IsItemCraftMaterial(itemTag))
+        if (IsItemCraftMaterial(itemTag))
         {
           int addedOre = NWScript.GetItemStackSize(oItem) * 95 / 100;
 
@@ -64,7 +65,7 @@ namespace NWN.Systems
       while (Convert.ToBoolean(NWScript.GetIsObjectValid(oItem)))
       {
         string itemTag = NWScript.GetTag(oItem);
-        if (CollectSystem.IsItemCraftMaterial(itemTag))
+        if (IsItemCraftMaterial(itemTag))
         {
           inventoryMaterials.Add(oItem, itemTag);
         }
@@ -144,7 +145,7 @@ namespace NWN.Systems
       }
       else
       {
-        string itemTemplate = CollectSystem.GetCraftMaterialItemTemplate(material);
+        string itemTemplate = GetCraftMaterialItemTemplate(material);
         if (itemTemplate != "")
         {
           int remainingValue = 0;

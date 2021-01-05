@@ -2,13 +2,14 @@
 using System.Collections.Generic;
 using NWN.Core;
 using NWN.Core.NWNX;
-using static NWN.Systems.Blueprint;
+using static NWN.Systems.Craft.Collect.Config;
+using static NWN.Systems.Craft.Blueprint;
 using static NWN.Systems.PlayerSystem;
 using static NWN.Systems.Items.Utils;
 
-namespace NWN.Systems
+namespace NWN.Systems.Craft.Collect
 {
-  public static partial class CollectSystem
+  public static class System
   {
     public static Dictionary<string, Func<uint, int>> Register = new Dictionary<string, Func<uint, int>>
     {

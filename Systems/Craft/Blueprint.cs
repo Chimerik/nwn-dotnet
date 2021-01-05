@@ -1,13 +1,11 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Text;
 using NWN.Core;
 using NWN.Core.NWNX;
-using static NWN.Systems.CollectSystem;
+using static NWN.Systems.Craft.Collect.Config;
 using static NWN.Systems.Items.Utils;
 using static NWN.Systems.PlayerSystem;
 
-namespace NWN.Systems
+namespace NWN.Systems.Craft
 {
   public class Blueprint
   {
@@ -21,7 +19,7 @@ namespace NWN.Systems
     public Blueprint(int baseItemType)
     {
       this.baseItemType = baseItemType;
-      this.feat = craftBaseItemFeatDictionnary[baseItemType];
+      this.feat = Collect.System.craftBaseItemFeatDictionnary[baseItemType];
 
       if (baseItemType < 0) // il s'agit d'une armure. Vu que les références ne se trouvent pas dans le même 2da, je triche en utilisant des valeurs négatives
       {
@@ -78,8 +76,8 @@ namespace NWN.Systems
         {
           int baseItemType = NWScript.GetLocalInt(oTarget, "_BASE_ITEM_TYPE");
            
-          if (blueprintDictionnary.ContainsKey(baseItemType))
-            blueprintDictionnary[baseItemType].StartJob(oPC, oTarget, feat);
+          if (Collect.System.blueprintDictionnary.ContainsKey(baseItemType))
+            Collect.System.blueprintDictionnary[baseItemType].StartJob(oPC, oTarget, feat);
           else
           {
             NWScript.SendMessageToPC(oidSelf, "[ERREUR HRP] - Le patron utilisé n'est pas correctement initialisé. Le bug a été remonté au staff.");
@@ -99,21 +97,21 @@ namespace NWN.Systems
         case Feat.BlueprintCopy3:
         case Feat.BlueprintCopy4:
         case Feat.BlueprintCopy5:
-          player.craftJob.Start(CraftJob.JobType.BlueprintCopy, this, player, blueprint);
+          player.craftJob.Start(Job.JobType.BlueprintCopy, this, player, blueprint);
           break;
         case Feat.Research:
         case Feat.Research2:
         case Feat.Research3:
         case Feat.Research4:
         case Feat.Research5:
-          player.craftJob.Start(CraftJob.JobType.BlueprintResearchTimeEfficiency, this, player, blueprint);
+          player.craftJob.Start(Job.JobType.BlueprintResearchTimeEfficiency, this, player, blueprint);
           break;
         case Feat.Metallurgy:
         case Feat.Metallurgy2:
         case Feat.Metallurgy3:
         case Feat.Metallurgy4:
         case Feat.Metallurgy5:
-          player.craftJob.Start(CraftJob.JobType.BlueprintResearchMaterialEfficiency, this, player, blueprint);
+          player.craftJob.Start(Job.JobType.BlueprintResearchMaterialEfficiency, this, player, blueprint);
           break;
       }
     }
@@ -160,7 +158,7 @@ namespace NWN.Systems
       if (NWScript.GetTag(oTarget) == this.workshopTag)
         return "Tritanium";
       else if(NWScript.GetTag(oTarget) == this.craftedItemTag)
-        return GetNameFromMineralType(GetMineralTypeFromName(NWScript.GetLocalString(oTarget, "_ITEM_MATERIAL")) + 1);
+        return Collect.Config.GetNameFromMineralType(Collect.Config.GetMineralTypeFromName(NWScript.GetLocalString(oTarget, "_ITEM_MATERIAL")) + 1);
 
       return "Invalid";
     }

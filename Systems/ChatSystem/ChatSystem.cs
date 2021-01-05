@@ -70,8 +70,8 @@ namespace NWN.Systems
           string filename = String.Format("{0:yyyy-MM-dd}_{1}.txt", DateTime.Now, "chatlog");
           string path = Path.Combine(Environment.GetEnvironmentVariable("HOME") + "/ChatLog", filename);
 
-          using (System.IO.StreamWriter file =
-          new System.IO.StreamWriter(path, true))
+          using (StreamWriter file =
+          new StreamWriter(path, true))
               file.WriteLineAsync(DateTime.Now.ToShortTimeString() + " - [" + ctx.channel + " - " + NWScript.GetName(NWScript.GetArea(ctx.oSender)) + "] " + NWScript.GetName(ctx.oSender, 1) + " : " + ctx.msg);
         }
         else
@@ -84,8 +84,8 @@ namespace NWN.Systems
             filename = $"{NWScript.GetPCPlayerName(ctx.oSender)}_{NWScript.GetPCPlayerName(ctx.oTarget)}.txt";
             path = Path.Combine(Environment.GetEnvironmentVariable("HOME") + "/ChatLog", filename);
           }
-          using (System.IO.StreamWriter file =
-          new System.IO.StreamWriter(path, true))
+          using (StreamWriter file =
+          new StreamWriter(path, true))
             file.WriteLineAsync(DateTime.Now.ToShortDateString() + " " + DateTime.Now.ToShortTimeString() + " -  " + NWScript.GetName(ctx.oSender) + " To : " + NWScript.GetName(ctx.oTarget, 1) + " : " + ctx.msg);
         }
 

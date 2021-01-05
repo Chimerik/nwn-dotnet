@@ -4,7 +4,9 @@ using System.Collections.Generic;
 using System.Linq;
 using NWN.Core;
 using NWN.Core.NWNX;
-using static NWN.Systems.Blueprint;
+using static NWN.Systems.Craft.Blueprint;
+using static NWN.Systems.Craft.Collect.System;
+using static NWN.Systems.Craft.Collect.Config;
 using static NWN.Systems.LootSystem;
 using static NWN.Systems.SkillSystem;
 using Discord;
@@ -783,8 +785,8 @@ namespace NWN.Systems
           case "blueprint":
             int baseItemType = NWScript.GetLocalInt(examineTarget, "_BASE_ITEM_TYPE");
 
-            if (CollectSystem.blueprintDictionnary.ContainsKey(baseItemType))
-              NWScript.SetDescription(examineTarget, CollectSystem.blueprintDictionnary[baseItemType].DisplayBlueprintInfo(player, examineTarget));
+            if (blueprintDictionnary.ContainsKey(baseItemType))
+              NWScript.SetDescription(examineTarget, blueprintDictionnary[baseItemType].DisplayBlueprintInfo(player, examineTarget));
             else
             {
               NWScript.SendMessageToPC(oidSelf, "[ERREUR HRP] - Le patron utilisé n'est pas correctement initialisé. Le bug a été remonté au staff.");
@@ -801,8 +803,8 @@ namespace NWN.Systems
             if (int.TryParse(NWScript.Get2DAString("feat", "GAINMULTIPLE", CreaturePlugin.GetHighestLevelOfFeat(player.oid, (int)Feat.ReprocessingEfficiency)), out value))
               reprocessingData += $"\n x1.{2 * value} (Raffinage efficace)";
 
-            CollectSystem.Ore processedOre;
-            if (CollectSystem.oresDictionnary.TryGetValue(CollectSystem.GetOreTypeFromName(NWScript.GetName(examineTarget)), out processedOre))
+            Ore processedOre;
+            if (oresDictionnary.TryGetValue(GetOreTypeFromName(NWScript.GetName(examineTarget)), out processedOre))
               if (int.TryParse(NWScript.Get2DAString("feat", "GAINMULTIPLE", CreaturePlugin.GetHighestLevelOfFeat(player.oid, (int)processedOre.feat)), out value))
                 reprocessingData += $"\n x1.{2 * value} (Raffinage {NWScript.GetName(examineTarget)})";
 
@@ -815,7 +817,7 @@ namespace NWN.Systems
           case "refinery":
             string descriptionBrut = "Stock actuel de minerai brut : \n\n\n";
             foreach (KeyValuePair<string, int> stockEntry in player.materialStock)
-              if(CollectSystem.GetOreTypeFromName(stockEntry.Key) != CollectSystem.OreType.Invalid)
+              if(GetOreTypeFromName(stockEntry.Key) != OreType.Invalid)
                 descriptionBrut += $"{stockEntry.Key} : {stockEntry.Value} unité(s).\n";
                 
             NWScript.SetDescription(examineTarget, descriptionBrut);
@@ -823,7 +825,7 @@ namespace NWN.Systems
           case "forge":
             string descriptionRefined = "Stock actuel de minerai raffiné : \n\n\n";
             foreach (KeyValuePair<string, int> stockEntry in player.materialStock)
-              if (CollectSystem.GetOreTypeFromName(stockEntry.Key) != CollectSystem.OreType.Invalid)
+              if (GetOreTypeFromName(stockEntry.Key) != OreType.Invalid)
                 descriptionRefined += $"{stockEntry.Key} : {stockEntry.Value} unité(s).\n";
 
             NWScript.SetDescription(examineTarget, descriptionRefined);

@@ -2,6 +2,7 @@
 using NWN.Core;
 using NWN.Core.NWNX;
 using static NWN.Systems.PlayerSystem;
+using static NWN.Systems.Craft.Collect.System;
 
 namespace NWN.Systems.Items.BeforeUseHandlers
 {
@@ -20,14 +21,14 @@ namespace NWN.Systems.Items.BeforeUseHandlers
       switch (NWScript.GetTag(oTarget))
       {
         case "mineable_rock":
-          CollectSystem.StartCollectCycle(
+          StartCollectCycle(
             player,
             oTarget,
             () => HandleCompleteCycle(player, oTarget, oItem)
           );
           break;
         case "fissurerocheuse":
-          CollectSystem.StartCollectCycle(
+          StartCollectCycle(
             player,
             oTarget,
             () => HandleCompleteProspectionCycle(player, oTarget, oItem)

@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using NWN.Core;
 using NWN.Core.NWNX;
 using static NWN.Systems.SkillSystem;
+using NWN.Systems.Craft;
 
 namespace NWN.Systems
 {
@@ -25,7 +26,7 @@ namespace NWN.Systems
       public DateTime dateLastSaved { get; set; }
       public int currentSkillJob { get; set; }
       public SkillType currentSkillType { get; set; }
-      public CraftJob craftJob { get; set; }
+      public Job craftJob { get; set; }
       public uint autoAttackTarget { get; set; }
       public Boolean isFrostAttackOn { get; set; }
       public uint previousArea { get; set; }
@@ -271,23 +272,23 @@ namespace NWN.Systems
       {
         switch (this.craftJob.type)
         {
-          case CraftJob.JobType.BlueprintCopy:
+          case Job.JobType.BlueprintCopy:
             NWScript.SetLocalInt(NWScript.CopyItem(ObjectPlugin.Deserialize((this.craftJob.craftedItem)), this.oid, 1), "_BLUEPRINT_RUNS", 10);
             break;
-          case CraftJob.JobType.BlueprintResearchMaterialEfficiency:
+          case Job.JobType.BlueprintResearchMaterialEfficiency:
             uint improvedMEBP = NWScript.CopyItem(ObjectPlugin.Deserialize((this.craftJob.craftedItem)), this.oid, 1);
             NWScript.SetLocalInt(improvedMEBP, "_BLUEPRINT_MATERIAL_EFFICIENCY", NWScript.GetLocalInt(improvedMEBP, "_BLUEPRINT_MATERIAL_EFFICIENCY") + 1);
             break;
-          case CraftJob.JobType.BlueprintResearchTimeEfficiency:
+          case Job.JobType.BlueprintResearchTimeEfficiency:
             uint improvedTEBlueprint = NWScript.CopyItem(ObjectPlugin.Deserialize((this.craftJob.craftedItem)), this.oid, 1);
             NWScript.SetLocalInt(improvedTEBlueprint, "_BLUEPRINT_TIME_EFFICIENCY", NWScript.GetLocalInt(improvedTEBlueprint, "_BLUEPRINT_TIME_EFFICIENCY") + 1);
             break;
           default:
             Blueprint blueprint;
-            if (CollectSystem.blueprintDictionnary.ContainsKey(this.craftJob.baseItemType))
+            if (Craft.Collect.System.blueprintDictionnary.ContainsKey(this.craftJob.baseItemType))
             {
-              blueprint = CollectSystem.blueprintDictionnary[this.craftJob.baseItemType];
-              CollectSystem.AddCraftedItemProperties(NWScript.CreateItemOnObject(blueprint.craftedItemTag, oid), blueprint, this.craftJob.material);
+              blueprint = Craft.Collect.System.blueprintDictionnary[this.craftJob.baseItemType];
+              Craft.Collect.System.AddCraftedItemProperties(NWScript.CreateItemOnObject(blueprint.craftedItemTag, oid), blueprint, this.craftJob.material);
              
             }
             else
@@ -300,7 +301,7 @@ namespace NWN.Systems
 
         PlayerPlugin.ApplyInstantVisualEffectToObject(oid, oid, NWScript.VFX_IMP_GLOBE_USE);
         craftJob.CloseCraftJournalEntry();
-        craftJob = new CraftJob(-10, "", 0, this);
+        craftJob = new Job(-10, "", 0, this);
       }
       public void AcquireSkillPoints()
       {

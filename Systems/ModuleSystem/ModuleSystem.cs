@@ -27,7 +27,7 @@ namespace NWN.Systems
      .Concat(Systems.SpellSystem.Register)
      .Concat(Systems.Items.ScriptHandlers.Register)
      .Concat(PlaceableSystem.Register)
-     .Concat(Systems.CollectSystem.Register)
+     .Concat(Systems.Craft.Collect.System.Register)
      .Concat(Systems.DialogSystem.Register)
      .ToDictionary(kvp => kvp.Key, kvp => kvp.Value);
 

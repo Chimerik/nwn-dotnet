@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using NWN.Core;
 using NWN.Core.NWNX;
+using NWN.Systems.Craft;
 
 namespace NWN.Systems
 {
@@ -25,8 +26,8 @@ namespace NWN.Systems
         while (Convert.ToBoolean(NWScript.SqlStep(query)))
           UpdateChestTagToLootsDic(NWScript.SqlGetObject(query, 0, Utils.GetLocationFromDatabase(CHEST_AREA_TAG, NWScript.SqlGetVector(query, 1), NWScript.SqlGetFloat(query, 2))));
 
-        InitializeLootChestFromArray(NWScript.GetObjectByTag("low_blueprints"), CollectSystem.lowBlueprints);
-        InitializeLootChestFromArray(NWScript.GetObjectByTag("medium_blueprints"), CollectSystem.mediumBlueprints);
+        InitializeLootChestFromArray(NWScript.GetObjectByTag("low_blueprints"), Craft.Collect.System.lowBlueprints);
+        InitializeLootChestFromArray(NWScript.GetObjectByTag("medium_blueprints"), Craft.Collect.System.mediumBlueprints);
 
         InitializeLootChestFromFeatArray(NWScript.GetObjectByTag("low_skillbooks"), SkillSystem.lowSkillBooks);
         InitializeLootChestFromFeatArray(NWScript.GetObjectByTag("medium_skillbooks"), SkillSystem.mediumSkillBooks);
@@ -38,10 +39,10 @@ namespace NWN.Systems
     {
       foreach (int baseItemType in array)
       {
-        Blueprint blueprint = new Blueprint(baseItemType);
+        var blueprint = new Blueprint(baseItemType);
 
-        if (!CollectSystem.blueprintDictionnary.ContainsKey(baseItemType))
-          CollectSystem.blueprintDictionnary.Add(baseItemType, blueprint);
+        if (!Craft.Collect.System.blueprintDictionnary.ContainsKey(baseItemType))
+          Craft.Collect.System.blueprintDictionnary.Add(baseItemType, blueprint);
 
         uint oBlueprint = NWScript.CreateItemOnObject("blueprintgeneric", oChest, 1, "blueprint");
         NWScript.SetName(oBlueprint, $"Patron : {blueprint.name}");
