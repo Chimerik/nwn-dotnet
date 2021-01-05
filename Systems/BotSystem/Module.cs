@@ -36,6 +36,11 @@ namespace NWN.Systems
     public Task WhoIsHereAsync()
       => BotSystem.ExecuteGetConnectedPlayersCommand(Context);
 
+    [Command("demandestaff")]
+    [Summary("Envoie votre demande directement sur le canal privé du staff.")]
+    public Task StaffRequestAsync(string texte_de_la_demande)
+      => BotSystem.ExecuteSendRequestToStaffCommand(Context, texte_de_la_demande);
+
     [Command("desc")]
     [Summary("Enregistre ou modifie une description pour un personnage donné.")]
     public Task SaveDescriptionAsync(string nom_du_perso, string nom_description, string texte_description)
