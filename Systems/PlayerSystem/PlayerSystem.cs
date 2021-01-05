@@ -373,7 +373,7 @@ namespace NWN.Systems
         if (NWScript.Get2DAString("spells", "School", spellId) == "D" && NWScript.GetTag(NWScript.GetItemInSlot(NWScript.INVENTORY_SLOT_NECK, player.oid)) == "amulettorillink")
         {
           (Bot._client.GetChannel(680072044364562532) as IMessageChannel).SendMessageAsync(
-            $"{Bot._client.GetGuild(680072044364562528).EveryoneRole.Mention} {NWScript.GetName(player.oid)} " +
+            $"{NWScript.GetName(player.oid)} " +
             $"vient de lancer un sort de divination ({NWScript.GetStringByStrRef(int.Parse(NWScript.Get2DAString("spells", "Name", spellId)))})" +
             $" en portant l'amulette de traçage. L'Amiral s'apprête à punir l'impudent !");
         }
@@ -388,12 +388,11 @@ namespace NWN.Systems
       if (Players.TryGetValue(oidSelf, out player))
       {
         EventsPlugin.SkipEvent();
-
         var oScroll = NWScript.StringToObject(EventsPlugin.GetEventData("SCROLL"));
         int spellId = Spells.GetSpellIDFromScroll(oScroll);
         int spellLevel = Spells.GetSpellLevelFromScroll(oScroll);
 
-        if(spellId < 0 || spellLevel < 0)
+        if (spellId < 0 || spellLevel < 0)
         {
           Utils.LogMessageToDMs($"LEARN SPELL FROM SCROLL - Player : {NWScript.GetName(player.oid)}, SpellId : {spellId}, SpellLevel : {spellLevel} - INVALID");
           NWScript.SendMessageToPC(player.oid, "HRP - Ce parchemin ne semble pas correctement configuré, impossible d'en apprendre quoique ce soit. Le staff a été informé du problème.");
@@ -825,7 +824,7 @@ namespace NWN.Systems
           case "forge":
             string descriptionRefined = "Stock actuel de minerai raffiné : \n\n\n";
             foreach (KeyValuePair<string, int> stockEntry in player.materialStock)
-              if (GetOreTypeFromName(stockEntry.Key) != OreType.Invalid)
+              if (GetMineralTypeFromName(stockEntry.Key) != MineralType.Invalid)
                 descriptionRefined += $"{stockEntry.Key} : {stockEntry.Value} unité(s).\n";
 
             NWScript.SetDescription(examineTarget, descriptionRefined);

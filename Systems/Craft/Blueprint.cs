@@ -120,11 +120,18 @@ namespace NWN.Systems.Craft
       int iMineralCost = this.GetBlueprintMineralCostForPlayer(player, oItem);
       float iJobDuration = this.GetBlueprintTimeCostForPlayer(player, oItem);
 
-      return $"Patron de création de l'objet artisanal : {this.name}\n\n\n" +
+      string bpDescription = $"Patron de création de l'objet artisanal : {name}\n\n\n" +
         $"Recherche d'efficacité matérielle niveau {NWScript.GetLocalInt(oItem, "_BLUEPRINT_MATERIAL_EFFICIENCY")}\n\n" +
         $"Coût initial en Tritanium : {iMineralCost}.\n Puis 10 % de moins par amélioration vers un matériau supérieur.\n" +
         $"Recherche d'efficacité de temps niveau {NWScript.GetLocalInt(oItem, "_BLUEPRINT_TIME_EFFICIENCY")}\n\n" +
         $"Temps de fabrication et d'amélioration : {Utils.StripTimeSpanMilliseconds(DateTime.Now.AddSeconds(iJobDuration).Subtract(DateTime.Now))}.";
+
+      int runs = NWScript.GetLocalInt(oItem, "_BLUEPRINT_RUNS");
+
+      if (runs > 0)
+        bpDescription += $"\n\nUtilisation(s) restante(s) : {runs}";
+
+      return bpDescription;
     }
     public int GetBlueprintMineralCostForPlayer(PlayerSystem.Player player, uint item)
     {
@@ -139,7 +146,7 @@ namespace NWN.Systems.Craft
 
       return this.mineralsCost - (this.mineralsCost * (iSkillLevel + NWScript.GetLocalInt(item, "_BLUEPRINT_MATERIAL_EFFICIENCY")) / 100);
     }
-    public float GetBlueprintTimeCostForPlayer(PlayerSystem.Player player, uint item)
+    public float GetBlueprintTimeCostForPlayer(Player player, uint item)
     {
       int iSkillLevel = 1;
       float fJobDuration = this.mineralsCost;
@@ -148,7 +155,7 @@ namespace NWN.Systems.Craft
       if (int.TryParse(NWScript.Get2DAString("feat", "GAINMULTIPLE", CreaturePlugin.GetHighestLevelOfFeat(player.oid, (int)Feat.Forge)), out value))
         iSkillLevel += value;
 
-      if (int.TryParse(NWScript.Get2DAString("feat", "GAINMULTIPLE", CreaturePlugin.GetHighestLevelOfFeat(player.oid, (int)this.feat)), out value))
+      if (int.TryParse(NWScript.Get2DAString("feat", "GAINMULTIPLE", CreaturePlugin.GetHighestLevelOfFeat(player.oid, (int)feat)), out value))
         iSkillLevel += value;
 
       return fJobDuration - (fJobDuration * (iSkillLevel + NWScript.GetLocalInt(item, "_BLUEPRINT_TIME_EFFICIENCY")) / 100);

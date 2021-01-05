@@ -70,7 +70,7 @@ namespace NWN.Systems
                   Craft.Collect.System.blueprintDictionnary.Add(baseItemType, blueprint);
 
                 uint oBlueprint = NWScript.CreateItemOnObject("blueprintgeneric", shop, 10, "blueprint");
-                NWScript.SetName(oBlueprint, $"Patron : {blueprint.name}");
+                NWScript.SetName(oBlueprint, $"Patron original : {blueprint.name}");
                 NWScript.SetLocalInt(oBlueprint, "_BASE_ITEM_TYPE", baseItemType);
                 ItemPlugin.SetBaseGoldPieceValue(oBlueprint, blueprint.goldCost * 10);
               }

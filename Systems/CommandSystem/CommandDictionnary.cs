@@ -268,14 +268,6 @@ namespace NWN.Systems
         )
       },
       {
-        "saveloot",
-        new Command(
-          name: "saveloot",
-          description: new Command.Description(title: "Commande DM - Permet de sauvegarder la configuration d'une table de loot."),
-          execute: ExecuteSaveLootCommand
-        )
-      },
-      {
         "rename",
         new Command(
           name: "rename",

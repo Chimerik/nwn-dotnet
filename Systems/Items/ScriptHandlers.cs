@@ -56,7 +56,7 @@ namespace NWN.Systems.Items
         if (NWScript.GetTag(oItem) == "amulettorillink")
         {
           NWScript.ApplyEffectToObject(NWScript.DURATION_TYPE_PERMANENT, NWScript.TagEffect(NWScript.SupernaturalEffect(NWScript.EffectSpellFailure(50)), "erylies_spell_failure"), player.oid);
-          (Bot._client.GetChannel(680072044364562532) as IMessageChannel).SendMessageAsync($"{Bot._client.GetGuild(680072044364562528).EveryoneRole.Mention} {NWScript.GetName(player.oid)} vient d'ôter son amulette de traçage. L'Amiral surveille désormais directement ses activités en rp.");
+          (Bot._client.GetChannel(680072044364562532) as IMessageChannel).SendMessageAsync($"{NWScript.GetName(player.oid)} vient d'ôter son amulette de traçage. L'Amiral surveille désormais directement ses activités en rp.");
         }
       }
       return 0;

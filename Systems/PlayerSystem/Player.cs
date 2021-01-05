@@ -260,7 +260,7 @@ namespace NWN.Systems
         if (craftJob.IsActive())
         {
           craftJob.remainingTime = craftJob.remainingTime - (float)(DateTime.Now - dateLastSaved).TotalSeconds;
-
+          
           if (craftJob.remainingTime < 0)
           {
             AcquireCraftedItem();
@@ -270,10 +270,12 @@ namespace NWN.Systems
 
       public void AcquireCraftedItem()
       {
-        switch (this.craftJob.type)
+        switch (craftJob.type)
         {
           case Job.JobType.BlueprintCopy:
-            NWScript.SetLocalInt(NWScript.CopyItem(ObjectPlugin.Deserialize((this.craftJob.craftedItem)), this.oid, 1), "_BLUEPRINT_RUNS", 10);
+            uint bpCopy = NWScript.CopyItem(ObjectPlugin.Deserialize((this.craftJob.craftedItem)), this.oid, 1);
+            NWScript.SetLocalInt(bpCopy, "_BLUEPRINT_RUNS", 10);
+            NWScript.SetName(bpCopy, $"Copie de {NWScript.GetName(bpCopy)}");
             break;
           case Job.JobType.BlueprintResearchMaterialEfficiency:
             uint improvedMEBP = NWScript.CopyItem(ObjectPlugin.Deserialize((this.craftJob.craftedItem)), this.oid, 1);
@@ -289,7 +291,6 @@ namespace NWN.Systems
             {
               blueprint = Craft.Collect.System.blueprintDictionnary[this.craftJob.baseItemType];
               Craft.Collect.System.AddCraftedItemProperties(NWScript.CreateItemOnObject(blueprint.craftedItemTag, oid), blueprint, this.craftJob.material);
-             
             }
             else
             {
