@@ -114,12 +114,7 @@ namespace NWN.Systems
       Player player;
       if (Players.TryGetValue(oidSelf, out player))
       {
-        // AssignCommand permet de "patcher" un bug de comportement undéfinie
-        // qui apparait en appelant une callback depuis l'event de la GUI TIMING BAR
-        NWScript.AssignCommand(
-          NWScript.GetModule(),
-          () => player.CompleteCollectCycle()
-        );
+        player.CompleteCollectCycle();
       }
 
       return 0;

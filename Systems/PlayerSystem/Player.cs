@@ -382,11 +382,21 @@ namespace NWN.Systems
       }
       public void CancelCollectCycle()
       {
-        OnCollectCycleCancel();
+        // AssignCommand permet de "patcher" un bug de comportement undéfinie
+        // qui apparait en appelant une callback depuis l'event de la GUI TIMING BAR
+        NWScript.AssignCommand(
+          NWScript.GetModule(),
+          () => OnCollectCycleCancel()
+        );
       }
       public void CompleteCollectCycle()
       {
-        OnCollectCycleComplete();
+        // AssignCommand permet de "patcher" un bug de comportement undéfinie
+        // qui apparait en appelant une callback depuis l'event de la GUI TIMING BAR
+        NWScript.AssignCommand(
+          NWScript.GetModule(),
+          () => OnCollectCycleComplete()
+        );
       }
       
       public Effect GetPartySizeEffect(int iPartySize = 0)
