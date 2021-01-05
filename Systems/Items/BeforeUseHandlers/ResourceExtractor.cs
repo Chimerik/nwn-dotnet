@@ -101,52 +101,50 @@ namespace NWN.Systems.Items.BeforeUseHandlers
     }
     private static void HandleCompleteProspectionCycle(Player player, uint oPlaceable, uint oExtractor)
     {
-      NWScript.SendMessageToPC(NWScript.GetFirstPC(), "");
       NWN.Utils.RemoveTaggedEffect(oPlaceable, $"_{NWScript.GetPCPublicCDKey(player.oid)}_MINING_BEAM");
       CollectSystem.RemoveCollectCycleCallbacks(player);   // supprimer la callback de Cancel MiningCycle
 
-      if (Convert.ToBoolean(NWScript.GetIsObjectValid(oPlaceable)) && NWScript.GetDistanceBetween(player.oid, oPlaceable) >= 5.0f)
-      {
-        var ressourcePoint = NWScript.GetNearestObjectByTag("ressourcepoint", oPlaceable, 1);
-        int i = 2;
-        int skillBonus = 0;
-        int value;
-        if (int.TryParse(NWScript.Get2DAString("feat", "GAINMULTIPLE", CreaturePlugin.GetHighestLevelOfFeat(player.oid, (int)Feat.Geology)), out value))
-        {
-          skillBonus += value;
-        }
-
-        if (int.TryParse(NWScript.Get2DAString("feat", "GAINMULTIPLE", CreaturePlugin.GetHighestLevelOfFeat(player.oid, (int)Feat.Prospection)), out value))
-        {
-          skillBonus += value;
-        }
-
-        int respawnChance = skillBonus * 5;
-
-        while (NWScript.GetIsObjectValid(ressourcePoint) == 1)
-        {
-          if (NWScript.GetDistanceBetween(oPlaceable, ressourcePoint) > 20.0f)
-            break;
-
-          string ressourceType = NWScript.GetLocalString(ressourcePoint, "_RESSOURCE_TYPE");
-
-          int iRandom = NWN.Utils.random.Next(1, 101);
-
-          if (iRandom < respawnChance)
-          {
-            var newRock = NWScript.CreateObject(NWScript.OBJECT_TYPE_PLACEABLE, "mineable_rock", NWScript.GetLocation(ressourcePoint));
-            NWScript.SetName(newRock, ressourceType);
-            NWScript.SetLocalInt(newRock, "_ORE_AMOUNT", 200 * iRandom + 200 * iRandom * skillBonus / 100);
-            NWScript.DestroyObject(oPlaceable);
-          }
-
-          ressourcePoint = NWScript.GetNearestObjectByTag("ressourcepoint", oPlaceable, i);
-          i++;
-        }
-      }
-      else
+      if (!Convert.ToBoolean(NWScript.GetIsObjectValid(oPlaceable)) || NWScript.GetDistanceBetween(player.oid, oPlaceable) > 5.0f)
       {
         NWScript.SendMessageToPC(player.oid, "Vous êtes trop éloigné de la veine ciblée, ou alors celle-ci n'existe plus.");
+        return;
+      }
+
+      var ressourcePoint = NWScript.GetNearestObjectByTag("ressourcepoint", oPlaceable, 1);
+      int i = 2;
+      int skillBonus = 0;
+      int value;
+      if (int.TryParse(NWScript.Get2DAString("feat", "GAINMULTIPLE", CreaturePlugin.GetHighestLevelOfFeat(player.oid, (int)Feat.Geology)), out value))
+      {
+        skillBonus += value;
+      }
+
+      if (int.TryParse(NWScript.Get2DAString("feat", "GAINMULTIPLE", CreaturePlugin.GetHighestLevelOfFeat(player.oid, (int)Feat.Prospection)), out value))
+      {
+        skillBonus += value;
+      }
+
+      int respawnChance = skillBonus * 5;
+
+      while (NWScript.GetIsObjectValid(ressourcePoint) == 1)
+      {
+        if (NWScript.GetDistanceBetween(oPlaceable, ressourcePoint) > 20.0f)
+          break;
+
+        string ressourceType = NWScript.GetLocalString(ressourcePoint, "_RESSOURCE_TYPE");
+
+        int iRandom = NWN.Utils.random.Next(1, 101);
+
+        if (iRandom < respawnChance)
+        {
+          var newRock = NWScript.CreateObject(NWScript.OBJECT_TYPE_PLACEABLE, "mineable_rock", NWScript.GetLocation(ressourcePoint));
+          NWScript.SetName(newRock, ressourceType);
+          NWScript.SetLocalInt(newRock, "_ORE_AMOUNT", 200 * iRandom + 200 * iRandom * skillBonus / 100);
+          NWScript.DestroyObject(oPlaceable);
+        }
+
+        ressourcePoint = NWScript.GetNearestObjectByTag("ressourcepoint", oPlaceable, i);
+        i++;
       }
     }
   }
