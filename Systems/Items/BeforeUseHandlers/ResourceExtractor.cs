@@ -28,6 +28,7 @@ namespace NWN.Systems.Items.BeforeUseHandlers
             () => Ore.HandleCompleteCycle(player, oTarget, oItem)
           );
           break;
+        
         case "fissurerocheuse":
           StartCollectCycle(
             player,
@@ -35,6 +36,23 @@ namespace NWN.Systems.Items.BeforeUseHandlers
             () => Ore.HandleCompleteProspectionCycle(player, oTarget, oItem)
           );
           break;
+
+        case "prospectable_tree":
+          StartCollectCycle(
+            player,
+            oTarget,
+            () => Wood.HandleCompleteProspectionCycle(player, oTarget, oItem)
+          );
+          break;
+
+        case "harvestable_tree":
+          StartCollectCycle(
+            player,
+            oTarget,
+            () => Wood.HandleCompleteCycle(player, oTarget, oItem)
+          );
+          break;
+
         default:
           NWScript.SendMessageToPC(player.oid, $"{NWScript.GetName(oTarget)} n'est pas une cible valide pour l'extraction de matieres premieres.");
           break;
