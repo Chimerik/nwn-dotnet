@@ -78,7 +78,7 @@ namespace NWN.Systems
     }
     public Boolean CanStartJob(uint player, uint blueprint, JobType type)
     {    
-      if ((int)type > 1) // Dans le cas d'une copie une recherche de BP
+      if ((int)type > 1) // Dans le cas d'une copie ou d'une recherche de BP
       {
         if (!IsBlueprintOriginal(blueprint))
         {

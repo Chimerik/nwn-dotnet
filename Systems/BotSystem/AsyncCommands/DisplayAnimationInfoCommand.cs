@@ -16,10 +16,11 @@ namespace NWN.Systems
               "    * Les animations globales\n\n"
         );
 
-      await context.Channel.SendMessageAsync("\n\n* PvP Sauvage\n\n" +
-              "Il s'agit d'un type de PvP sans contrôle ou validation DM.\n" +
-              "Dans ce cas toute résolution de combat technique utilise la même règle que pour un combat contre n'importe quel monstre : le ou les personnages à terre sont considérés comme K.O. ils seront ramenés à un dispensaire de soin et souffriront des malus de base.\n" +
-              "Il est alors de bon ton pour les vaincus de ne pas retourner chercher des noises aux vainqueurs dans l'immédiat et de considérer que la remise sur pied prend une journée.\n\n");
+      await context.Channel.SendMessageAsync("\n\nLes opportunités PNJs, animations d'ambiance et gobales sont purement au bon vouloir des animateurs. Il s'avère qu'il se passait quelque chose pile au bon moment et que votre personnage était pile au bon endroit pour participer.\n" +
+              "Autant dire qu'il s'agit de quelque chose de peu fiable si vous souhaitez une activité régulière. L'idéal, pour cela, est plutôt de monter vos propres projets (ou de participer à ceux des autres). Les projets et enquêtes sont des formes d'animations dont vous et votre personnage (ou un autre joueur) est à l'initiative.\n" +
+              "Il peut s'agir de quelque chose de tout simple comme 'je veux décrocher un job de serveur à la taverne du coin' tout comme de projets de plus grand envergure : 'Je veux devenir maître du monde'.\n" +
+              "Ce qui compte, là-dedans, c'est comment vous allez vous y prendre en rp pour parvenir à votre objectif. Dans un premier temps, il conviendra de prendre contact avec le staff, directement en jeu ou via la commande !demandestaff qui pourra alors éventuellement vous donner des pistes qui vous permettront de structurer votre rp.\n" +
+              "Bien entendu, aucune garantie n'est donnée quant au succès de votre entreprise. Peut-être échouerez-vous complètement, peut-être arriverez-vous à un endroit tout autre que celui que vous escomptiez. Quoiqu'il en soit, mieux vaut monter vos propres objectifs que de rester passif à la taverne à attendre qu'un PNJ bien disposé vous propose du boulot !\n");
     }
   }
 }
