@@ -76,6 +76,12 @@ namespace NWN.Systems
       {
         if (Convert.ToBoolean(NWScript.GetIsObjectValid(oTarget)) && NWScript.GetTag(oTarget) == "blueprint")
         {
+          if(NWScript.GetItemPossessor(oTarget) != oidSelf)
+          {
+            NWScript.SendMessageToPC(oidSelf, "Le patron doit se trouver dans votre inventaire afin d'effectuer cette opération.");
+            return;
+          }
+
           int baseItemType = NWScript.GetLocalInt(oTarget, "_BASE_ITEM_TYPE");
            
           if (blueprintDictionnary.ContainsKey(baseItemType))

@@ -235,13 +235,13 @@ namespace NWN.Systems
       switch (this.type)
       {
         case JobType.BlueprintCopy:
-          journalEntry.sText = "Copie de patron en cours";
+          journalEntry.sText = $"Copie de {NWScript.GetName(ObjectPlugin.Deserialize(craftedItem))} en cours";
           break;
         case JobType.BlueprintResearchMaterialEfficiency:
-          journalEntry.sText = "Recherche métallurgique en cours";
+          journalEntry.sText = $"Recherche métallurgique en cours : {NWScript.GetName(ObjectPlugin.Deserialize(craftedItem))}";
           break;
         case JobType.BlueprintResearchTimeEfficiency:
-          journalEntry.sText = "Recherche d'efficacité en cours";
+          journalEntry.sText = $"Recherche d'efficacité en cours : {NWScript.GetName(ObjectPlugin.Deserialize(craftedItem))}";
           break;
         default:
           journalEntry.sText = $"Fabrication en cours : {blueprintDictionnary[baseItemType].name}";

@@ -68,14 +68,10 @@ namespace NWN.Systems.Items.BeforeUseHandlers
 
       int value;
       if (int.TryParse(NWScript.Get2DAString("feat", "GAINMULTIPLE", CreaturePlugin.GetHighestLevelOfFeat(player.oid, (int)Feat.Miner)), out value))
-      {
         bonusYield += miningYield * value * 5 / 100;
-      }
 
       if (int.TryParse(NWScript.Get2DAString("feat", "GAINMULTIPLE", CreaturePlugin.GetHighestLevelOfFeat(player.oid, (int)Feat.Geology)), out value))
-      {
         bonusYield += miningYield * value * 5 / 100;
-      }
 
       miningYield += bonusYield;
 
@@ -93,7 +89,6 @@ namespace NWN.Systems.Items.BeforeUseHandlers
       {
         NWScript.SetLocalInt(oPlaceable, "_ORE_AMOUNT", remainingOre);
       }
-
       var ore = NWScript.CreateItemOnObject("ore", player.oid, miningYield, NWScript.GetName(oPlaceable));
       NWScript.SetName(ore, NWScript.GetName(oPlaceable));
 
@@ -109,6 +104,8 @@ namespace NWN.Systems.Items.BeforeUseHandlers
         NWScript.SendMessageToPC(player.oid, "Vous êtes trop éloigné de la veine ciblée, ou alors celle-ci n'existe plus.");
         return;
       }
+
+      if (NWScript.GetIsObjectValid(oExtractor) != 1) return;
 
       var ressourcePoint = NWScript.GetNearestObjectByTag("ressourcepoint", oPlaceable, 1);
       int i = 2;
@@ -146,6 +143,8 @@ namespace NWN.Systems.Items.BeforeUseHandlers
         ressourcePoint = NWScript.GetNearestObjectByTag("ressourcepoint", oPlaceable, i);
         i++;
       }
+
+      Utils.DecreaseItemDurability(oExtractor);
     }
   }
 }
