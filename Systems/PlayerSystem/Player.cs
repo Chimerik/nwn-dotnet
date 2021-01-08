@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using NWN.Core;
 using NWN.Core.NWNX;
 using static NWN.Systems.SkillSystem;
+using NWN.Systems.Craft;
 
 namespace NWN.Systems
 {
@@ -25,7 +26,7 @@ namespace NWN.Systems
       public DateTime dateLastSaved { get; set; }
       public int currentSkillJob { get; set; }
       public SkillType currentSkillType { get; set; }
-      public CraftJob craftJob { get; set; }
+      public Job craftJob { get; set; }
       public uint autoAttackTarget { get; set; }
       public Boolean isFrostAttackOn { get; set; }
       public uint previousArea { get; set; }
@@ -53,8 +54,8 @@ namespace NWN.Systems
       public List<QuickBarSlot> savedQuickBar = new List<QuickBarSlot>();
       public Dictionary<int, MapPin> mapPinDictionnary = new Dictionary<int, MapPin>();
 
-      public Action OnMiningCycleCancelled = delegate { };
-      public Action OnMiningCycleCompleted = delegate { };
+      public Action OnCollectCycleCancel = delegate { };
+      public Action OnCollectCycleComplete = delegate { };
 
       public Player(uint nwobj)
       {
@@ -271,25 +272,25 @@ namespace NWN.Systems
       {
         switch (craftJob.type)
         {
-          case CraftJob.JobType.BlueprintCopy:
+          case Job.JobType.BlueprintCopy:
             uint bpCopy = NWScript.CopyItem(ObjectPlugin.Deserialize((this.craftJob.craftedItem)), this.oid, 1);
             NWScript.SetLocalInt(bpCopy, "_BLUEPRINT_RUNS", 10);
             NWScript.SetName(bpCopy, $"Copie de {NWScript.GetName(bpCopy)}");
             break;
-          case CraftJob.JobType.BlueprintResearchMaterialEfficiency:
+          case Job.JobType.BlueprintResearchMaterialEfficiency:
             uint improvedMEBP = NWScript.CopyItem(ObjectPlugin.Deserialize((this.craftJob.craftedItem)), this.oid, 1);
             NWScript.SetLocalInt(improvedMEBP, "_BLUEPRINT_MATERIAL_EFFICIENCY", NWScript.GetLocalInt(improvedMEBP, "_BLUEPRINT_MATERIAL_EFFICIENCY") + 1);
             break;
-          case CraftJob.JobType.BlueprintResearchTimeEfficiency:
+          case Job.JobType.BlueprintResearchTimeEfficiency:
             uint improvedTEBlueprint = NWScript.CopyItem(ObjectPlugin.Deserialize((this.craftJob.craftedItem)), this.oid, 1);
             NWScript.SetLocalInt(improvedTEBlueprint, "_BLUEPRINT_TIME_EFFICIENCY", NWScript.GetLocalInt(improvedTEBlueprint, "_BLUEPRINT_TIME_EFFICIENCY") + 1);
             break;
           default:
             Blueprint blueprint;
-            if (CollectSystem.blueprintDictionnary.ContainsKey(this.craftJob.baseItemType))
+            if (Craft.Collect.System.blueprintDictionnary.ContainsKey(this.craftJob.baseItemType))
             {
-              blueprint = CollectSystem.blueprintDictionnary[this.craftJob.baseItemType];
-              CollectSystem.AddCraftedItemProperties(NWScript.CreateItemOnObject(blueprint.craftedItemTag, oid), blueprint, this.craftJob.material);
+              blueprint = Craft.Collect.System.blueprintDictionnary[this.craftJob.baseItemType];
+              Craft.Collect.System.AddCraftedItemProperties(NWScript.CreateItemOnObject(blueprint.craftedItemTag, oid), blueprint, this.craftJob.material);
             }
             else
             {
@@ -301,7 +302,7 @@ namespace NWN.Systems
 
         PlayerPlugin.ApplyInstantVisualEffectToObject(oid, oid, NWScript.VFX_IMP_GLOBE_USE);
         craftJob.CloseCraftJournalEntry();
-        craftJob = new CraftJob(-10, "", 0, this);
+        craftJob = new Job(-10, "", 0, this);
       }
       public void AcquireSkillPoints()
       {
@@ -381,13 +382,23 @@ namespace NWN.Systems
         PlayerPlugin.PlaySound(oid, "gui_dm_drop");
         PlayerPlugin.ApplyInstantVisualEffectToObject(oid, oid, NWScript.VFX_IMP_REDUCE_ABILITY_SCORE);
       }
-      public void DoActionOnMiningCycleCancelled()
+      public void CancelCollectCycle()
       {
-        this.OnMiningCycleCancelled();
+        // AssignCommand permet de "patcher" un bug de comportement undéfinie
+        // qui apparait en appelant une callback depuis l'event de la GUI TIMING BAR
+        NWScript.AssignCommand(
+          NWScript.GetModule(),
+          () => OnCollectCycleCancel()
+        );
       }
-      public void DoActionOnMiningCycleCompleted()
+      public void CompleteCollectCycle()
       {
-        this.OnMiningCycleCompleted();
+        // AssignCommand permet de "patcher" un bug de comportement undéfinie
+        // qui apparait en appelant une callback depuis l'event de la GUI TIMING BAR
+        NWScript.AssignCommand(
+          NWScript.GetModule(),
+          () => OnCollectCycleComplete()
+        );
       }
       
       public Effect GetPartySizeEffect(int iPartySize = 0)

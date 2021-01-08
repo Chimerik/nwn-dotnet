@@ -1,12 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using NWN.Core;
-using NWN.Core.NWNX;
 using static NWN.Systems.Items.Utils;
 
-namespace NWN.Systems
+namespace NWN.Systems.Craft.Collect
 {
-  public partial class CollectSystem
+  public class Config
   {
     public static Dictionary<OreType, Ore> oresDictionnary = new Dictionary<OreType, Ore>();
 

@@ -3,54 +3,12 @@ using NWN.Core;
 using NWN.Core.NWNX;
 using static NWN.Systems.PlayerSystem;
 
-namespace NWN.Systems.Items.BeforeUseHandlers
+namespace NWN.Systems.Craft.Collect
 {
-  public static class OreExtractor
+  public static class Ore
   {
-    public static void HandleActivate(uint oItem, Player player, uint oTarget)
+    public static void HandleCompleteCycle(Player player, uint oPlaceable, uint oExtractor)
     {
-      if (NWScript.GetDistanceBetween(player.oid, oTarget) > 5.0f)
-      {
-        NWScript.SendMessageToPC(player.oid, $"Vous êtes trop éloigné de votre cible pour démarrer l'extraction.");
-        return;
-      }
-
-      switch (NWScript.GetTag(oTarget))
-      {
-        case "mineable_rock":
-          player.DoActionOnMiningCycleCancelled();
-          CollectSystem.StartMiningCycle(
-            player,
-            oTarget,
-            () => HandleCancelCycle(player, oTarget),
-            () => HandleCompleteCycle(player, oTarget, oItem)
-          );
-          break;
-        case "fissurerocheuse":
-          player.DoActionOnMiningCycleCancelled();
-          CollectSystem.StartMiningCycle(
-            player,
-            oTarget,
-            () => HandleCancelCycle(player, oTarget),
-            () => HandleCompleteProspectionCycle(player, oTarget, oItem)
-          );
-          break;
-        default:
-          NWScript.SendMessageToPC(player.oid, $"{NWScript.GetName(oTarget)} n'est ni un filon, ni une veine de minerai. Impossible de démarrer l'extraction.");
-          break;
-      }
-    }
-    private static void HandleCancelCycle(Player player, uint oPlaceable)
-    {
-      NWN.Utils.RemoveTaggedEffect(oPlaceable, $"_{NWScript.GetPCPublicCDKey(player.oid)}_MINING_BEAM");
-      CollectSystem.RemoveMiningCycleCallbacks(player);   // supprimer la callback de CompleteMiningCycle
-    }
-
-    private static void HandleCompleteCycle(Player player, uint oPlaceable, uint oExtractor)
-    {
-      NWN.Utils.RemoveTaggedEffect(oPlaceable, $"_{NWScript.GetPCPublicCDKey(player.oid)}_MINING_BEAM");
-      CollectSystem.RemoveMiningCycleCallbacks(player);   // supprimer la callback de Cancel MiningCycle
-
       if (NWScript.GetIsObjectValid(oPlaceable) != 1 || NWScript.GetDistanceBetween(player.oid, oPlaceable) > 5.0f)
       {
         NWScript.SendMessageToPC(player.oid, "Vous êtes trop éloigné du bloc ciblé, ou alors celui-ci n'existe plus.");
@@ -92,13 +50,10 @@ namespace NWN.Systems.Items.BeforeUseHandlers
       var ore = NWScript.CreateItemOnObject("ore", player.oid, miningYield, NWScript.GetName(oPlaceable));
       NWScript.SetName(ore, NWScript.GetName(oPlaceable));
 
-      Utils.DecreaseItemDurability(oExtractor);
+      Items.Utils.DecreaseItemDurability(oExtractor);
     }
-    private static void HandleCompleteProspectionCycle(Player player, uint oPlaceable, uint oExtractor)
+    public static void HandleCompleteProspectionCycle(Player player, uint oPlaceable, uint oExtractor)
     {
-      NWN.Utils.RemoveTaggedEffect(oPlaceable, $"_{NWScript.GetPCPublicCDKey(player.oid)}_MINING_BEAM");
-      CollectSystem.RemoveMiningCycleCallbacks(player);   // supprimer la callback de Cancel MiningCycle
-
       if (!Convert.ToBoolean(NWScript.GetIsObjectValid(oPlaceable)) || NWScript.GetDistanceBetween(player.oid, oPlaceable) > 5.0f)
       {
         NWScript.SendMessageToPC(player.oid, "Vous êtes trop éloigné de la veine ciblée, ou alors celle-ci n'existe plus.");

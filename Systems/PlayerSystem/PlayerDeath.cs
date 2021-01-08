@@ -85,7 +85,7 @@ namespace NWN.Systems
       var oItem = NWScript.GetFirstItemInInventory(player.oid);
       while(Convert.ToBoolean(NWScript.GetIsObjectValid(oItem)))
       {
-        if(CollectSystem.IsItemCraftMaterial(NWScript.GetTag(oItem)) || NWScript.GetTag(oItem) == "blueprint")
+        if(Craft.Collect.System.IsItemCraftMaterial(NWScript.GetTag(oItem)) || NWScript.GetTag(oItem) == "blueprint")
         {
           NWScript.CopyObject(oItem, NWScript.GetLocation(player.deathCorpse), player.deathCorpse);
           NWScript.DestroyObject(oItem);

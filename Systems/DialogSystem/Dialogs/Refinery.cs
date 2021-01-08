@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using NWN.Core;
 using NWN.Core.NWNX;
-using static NWN.Systems.CollectSystem;
+using static NWN.Systems.Craft.Collect.Config;
 using static NWN.Systems.PlayerSystem;
 
 namespace NWN.Systems
@@ -55,16 +55,16 @@ namespace NWN.Systems
         if (float.TryParse(NWScript.Get2DAString("feat", "GAINMULTIPLE", CreaturePlugin.GetHighestLevelOfFeat(player.oid, (int)Feat.Connections)), out value))
           reprocessingEfficiency += reprocessingEfficiency + 1 * value / 100;
 
-        CollectSystem.Ore processedOre;
-        if (CollectSystem.oresDictionnary.TryGetValue(CollectSystem.GetOreTypeFromName(oreName), out processedOre))
+        Ore processedOre;
+        if (oresDictionnary.TryGetValue(GetOreTypeFromName(oreName), out processedOre))
         {
           if (float.TryParse(NWScript.Get2DAString("feat", "GAINMULTIPLE", CreaturePlugin.GetHighestLevelOfFeat(player.oid, (int)processedOre.feat)), out value))
             reprocessingEfficiency += reprocessingEfficiency + 2 * value / 100;
 
-          foreach (KeyValuePair<CollectSystem.MineralType, float> mineralKeyValuePair in processedOre.mineralsDictionnary)
+          foreach (KeyValuePair<MineralType, float> mineralKeyValuePair in processedOre.mineralsDictionnary)
           {
             int refinedMinerals = Convert.ToInt32(player.setValue * mineralKeyValuePair.Value * reprocessingEfficiency);
-            string mineralName = CollectSystem.GetNameFromMineralType(mineralKeyValuePair.Key);
+            string mineralName = GetNameFromMineralType(mineralKeyValuePair.Key);
             player.materialStock[mineralName] += refinedMinerals;
             NWScript.SendMessageToPC(player.oid, $"Vous venez de raffiner {refinedMinerals} unités de {mineralName}. Les lingots sont en cours d'acheminage vers votre entrepôt.");
           }

@@ -37,7 +37,7 @@ namespace NWN.Systems
       this.InitializeEvents();
       this.InitializeFeatModifiers();
 
-      CollectSystem.InitializeOres();
+      Craft.Collect.Config.InitializeOres();
 
       NWScript.DelayCommand(600.0f, () => SaveServerVault());
 

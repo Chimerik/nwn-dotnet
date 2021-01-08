@@ -1,13 +1,14 @@
 ﻿using System;
 using NWN.Core;
 using NWN.Core.NWNX;
-using static NWN.Systems.CollectSystem;
 using static NWN.Systems.PlayerSystem;
 using static NWN.Systems.Items.Utils;
+using static NWN.Systems.Craft.Collect.Config;
+using static NWN.Systems.Craft.Collect.System;
 
-namespace NWN.Systems
+namespace NWN.Systems.Craft
 {
-  public class CraftJob
+  public class Job
   {
     public JobType type;
     //public string name { get; set; }
@@ -18,7 +19,7 @@ namespace NWN.Systems
     public Boolean isCancelled { get; set; }
     private readonly Player player;
 
-    public CraftJob(int baseItemType, string material, float time, Player player, string item = "")
+    public Job(int baseItemType, string material, float time, Player player, string item = "")
     {
       //this.name = name;
       this.baseItemType = baseItemType;
@@ -152,7 +153,7 @@ namespace NWN.Systems
 
       if (player.materialStock[sMaterial] >= iMineralCost)
       {
-        player.craftJob = new CraftJob(blueprint.baseItemType, sMaterial, iJobDuration, player);
+        player.craftJob = new Job(blueprint.baseItemType, sMaterial, iJobDuration, player);
         player.materialStock[sMaterial] -= iMineralCost;
 
         NWScript.SendMessageToPC(player.oid, $"Vous venez de démarrer la fabrication de l'objet artisanal : {blueprint.name} en {sMaterial}");
@@ -187,7 +188,7 @@ namespace NWN.Systems
         {
           int timeCost = blueprint.mineralsCost * 80 / 100;
           float iJobDuration = timeCost - timeCost * (value * 5) / 100;
-          player.craftJob = new CraftJob(-11, "", iJobDuration, player, ObjectPlugin.Serialize(oBlueprint)); // - 11 = blueprint copy
+          player.craftJob = new Job(-11, "", iJobDuration, player, ObjectPlugin.Serialize(oBlueprint)); // - 11 = blueprint copy
         }
       }
     }
@@ -202,7 +203,7 @@ namespace NWN.Systems
         int.TryParse(NWScript.Get2DAString("feat", "GAINMULTIPLE", CreaturePlugin.GetHighestLevelOfFeat(player.oid, (int)Feat.AdvancedCraft)), out advancedCraftLevel);
 
         float iJobDuration = blueprint.mineralsCost - blueprint.mineralsCost * (metallurgyLevel * 5 + advancedCraftLevel * 3) / 100;
-        player.craftJob = new CraftJob(-12, "", iJobDuration, player, ObjectPlugin.Serialize(oBlueprint)); // - 12 = recherche ME
+        player.craftJob = new Job(-12, "", iJobDuration, player, ObjectPlugin.Serialize(oBlueprint)); // - 12 = recherche ME
         NWScript.DestroyObject(oBlueprint);
         NWScript.SendMessageToPC(player.oid, $"L'objet {NWScript.GetName(oBlueprint)} ne sera pas disponible jusqu'à la fin du travail de recherche métallurgique.");
       }
@@ -218,7 +219,7 @@ namespace NWN.Systems
         int.TryParse(NWScript.Get2DAString("feat", "GAINMULTIPLE", CreaturePlugin.GetHighestLevelOfFeat(player.oid, (int)Feat.AdvancedCraft)), out advancedCraftLevel);
 
         float iJobDuration = blueprint.mineralsCost - blueprint.mineralsCost * (researchLevel * 5 + advancedCraftLevel * 3) / 100;
-        player.craftJob = new CraftJob(-13, "", iJobDuration, player, ObjectPlugin.Serialize(oBlueprint)); // -13 = recherche TE
+        player.craftJob = new Job(-13, "", iJobDuration, player, ObjectPlugin.Serialize(oBlueprint)); // -13 = recherche TE
         NWScript.DestroyObject(oBlueprint);
         NWScript.SendMessageToPC(player.oid, $"L'objet {NWScript.GetName(oBlueprint)} ne sera pas disponible jusqu'à la fin du travail de recherche d'efficacité.");
       }
@@ -269,7 +270,7 @@ namespace NWN.Systems
           journalEntry.sName = $"Travail artisanal en pause - Recherche en efficacité";
           break;
         default:
-          journalEntry.sName = $"Travail artisanal en pause - {CollectSystem.blueprintDictionnary[baseItemType].name}";
+          journalEntry.sName = $"Travail artisanal en pause - {blueprintDictionnary[baseItemType].name}";
           break;
       }
 
@@ -294,7 +295,7 @@ namespace NWN.Systems
           journalEntry.sName = $"Travail artisanal terminé - Recherche en efficacité";
           break;
         default:
-          journalEntry.sName = $"Travail artisanal terminé - {CollectSystem.blueprintDictionnary[baseItemType].name}";
+          journalEntry.sName = $"Travail artisanal terminé - {blueprintDictionnary[baseItemType].name}";
           break;
       }
       

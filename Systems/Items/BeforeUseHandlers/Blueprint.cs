@@ -1,6 +1,9 @@
 ﻿using System;
 using NWN.Core;
 using static NWN.Systems.PlayerSystem;
+using static NWN.Systems.Craft.Collect.System;
+using NWN.Systems.Craft;
+using static NWN.Systems.Craft.Collect.Config;
 
 namespace NWN.Systems.Items.BeforeUseHandlers
 {
@@ -10,15 +13,15 @@ namespace NWN.Systems.Items.BeforeUseHandlers
     {
       int baseItemType = NWScript.GetLocalInt(oItem, "_BASE_ITEM_TYPE");
 
-      if (CollectSystem.blueprintDictionnary.ContainsKey(baseItemType))
+      if (blueprintDictionnary.ContainsKey(baseItemType))
       {
-        Blueprint blueprint = CollectSystem.blueprintDictionnary[baseItemType];
+        Blueprint blueprint = blueprintDictionnary[baseItemType];
 
         if (oTarget == NWScript.OBJECT_INVALID)
           NWScript.SendMessageToPC(player.oid, blueprint.DisplayBlueprintInfo(player, oItem));
         else
         {
-          if (player.craftJob.CanStartJob(player.oid, oItem, CraftJob.JobType.Item))
+          if (player.craftJob.CanStartJob(player.oid, oItem, Job.JobType.Item))
           {
             if (NWScript.GetBaseItemType(NWScript.GetItemInSlot(NWScript.INVENTORY_SLOT_RIGHTHAND, player.oid)) == 114) // 114 = marteau de forgeron
             {
@@ -28,10 +31,10 @@ namespace NWN.Systems.Items.BeforeUseHandlers
               {
                 string sMaterial = blueprint.GetMaterialFromTargetItem(oTarget);
 
-                CollectSystem.MineralType mineralType = CollectSystem.GetMineralTypeFromName(sMaterial);
+                MineralType mineralType = GetMineralTypeFromName(sMaterial);
 
-                if (mineralType != CollectSystem.MineralType.Invalid)
-                  player.craftJob.Start(CraftJob.JobType.Item, blueprint, player, oItem, oTarget, sMaterial, mineralType);
+                if (mineralType != MineralType.Invalid)
+                  player.craftJob.Start(Job.JobType.Item, blueprint, player, oItem, oTarget, sMaterial, mineralType);
                 else
                   NWScript.SendMessageToPC(player.oid, "Ce patron ne permet pas d'améliorer cet objet.");
               }

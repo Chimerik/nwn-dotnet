@@ -1,9 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Text;
 using NWN.Core;
 using NWN.Core.NWNX;
-using static NWN.Systems.Blueprint;
 using static NWN.Systems.PlayerSystem;
 
 namespace NWN.Systems
@@ -64,12 +62,12 @@ namespace NWN.Systems
               shop = NWScript.CreateObject(NWScript.OBJECT_TYPE_STORE, "generic_shop_res", NWScript.GetLocation(oidSelf), 0, "blacksmith_shop");
               NWScript.SetLocalObject(shop, "_STORE_NPC", oidSelf);
 
-              foreach (int baseItemType in CollectSystem.forgeBasicBlueprints)
+              foreach (int baseItemType in Craft.Collect.System.forgeBasicBlueprints)
               {
-                Blueprint blueprint = new Blueprint(baseItemType);
+                Craft.Blueprint blueprint = new Craft.Blueprint(baseItemType);
 
-                if (!CollectSystem.blueprintDictionnary.ContainsKey(baseItemType))
-                  CollectSystem.blueprintDictionnary.Add(baseItemType, blueprint);
+                if (!Craft.Collect.System.blueprintDictionnary.ContainsKey(baseItemType))
+                  Craft.Collect.System.blueprintDictionnary.Add(baseItemType, blueprint);
 
                 uint oBlueprint = NWScript.CreateItemOnObject("blueprintgeneric", shop, 10, "blueprint");
                 NWScript.SetName(oBlueprint, $"Patron original : {blueprint.name}");
