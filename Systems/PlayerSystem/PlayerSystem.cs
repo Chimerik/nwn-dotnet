@@ -533,13 +533,14 @@ namespace NWN.Systems
       Player player;
       if (Players.TryGetValue(oidSelf, out player))
       {
-          if (int.Parse(EventsPlugin.GetEventData("SKILL_ID")) == NWScript.SKILL_TAUNT)
-          {
+        int skillID = int.Parse(EventsPlugin.GetEventData("SKILL_ID"));
+        switch(skillID)
+        {
+          case NWScript.SKILL_TAUNT:
             NWScript.SetLocalInt(player.oid, "_ACTIVATED_TAUNT", 1);
             NWScript.DelayCommand(12.0f, () => NWScript.DeleteLocalInt(player.oid, "_ACTIVATED_TAUNT"));
-          }
-          else if (int.Parse(EventsPlugin.GetEventData("SKILL_ID")) == NWScript.SKILL_PICK_POCKET)
-          {
+            break;
+          case NWScript.SKILL_PICK_POCKET:
             EventsPlugin.SkipEvent();
             var oObject = NWScript.StringToObject(EventsPlugin.GetEventData("TARGET_OBJECT_ID"));
             Player oTarget;
@@ -547,48 +548,49 @@ namespace NWN.Systems
             {
               if (!oTarget.pickpocketDetectTimer.ContainsKey(player.oid) || (DateTime.Now - oTarget.pickpocketDetectTimer[player.oid]).TotalSeconds > 86400)
               {
-                  oTarget.pickpocketDetectTimer.Add(player.oid, DateTime.Now);
-              
-                  FeedbackPlugin.SetFeedbackMessageHidden(13, 1, oTarget.oid); // 13 = COMBAT_TOUCH_ATTACK
-                  NWScript.DelayCommand(2.0f, () => FeedbackPlugin.SetFeedbackMessageHidden(13, 0, oTarget.oid));
+                oTarget.pickpocketDetectTimer.Add(player.oid, DateTime.Now);
 
-                  int iRandom = Utils.random.Next(21);
-                  int iVol = NWScript.GetSkillRank(NWScript.SKILL_PICK_POCKET, player.oid);
-                  int iSpot = Utils.random.Next(21) + NWScript.GetSkillRank(NWScript.SKILL_SPOT, player.oid);
-                  if ((iRandom + iVol) > iSpot)
+                FeedbackPlugin.SetFeedbackMessageHidden(13, 1, oTarget.oid); // 13 = COMBAT_TOUCH_ATTACK
+                NWScript.DelayCommand(2.0f, () => FeedbackPlugin.SetFeedbackMessageHidden(13, 0, oTarget.oid));
+
+                int iRandom = Utils.random.Next(21);
+                int iVol = NWScript.GetSkillRank(NWScript.SKILL_PICK_POCKET, player.oid);
+                int iSpot = Utils.random.Next(21) + NWScript.GetSkillRank(NWScript.SKILL_SPOT, player.oid);
+                if ((iRandom + iVol) > iSpot)
+                {
+                  ChatPlugin.SendMessage((int)ChatPlugin.NWNX_CHAT_CHANNEL_PLAYER_TALK, $"Vous faites un jet de Vol à la tire, le résultat est de : {iRandom} + {iVol} = {iRandom + iVol}.", player.oid, player.oid);
+                  if (NWScript.TouchAttackMelee(oTarget.oid) > 0)
                   {
-                    ChatPlugin.SendMessage((int)ChatPlugin.NWNX_CHAT_CHANNEL_PLAYER_TALK, $"Vous faites un jet de Vol à la tire, le résultat est de : {iRandom} + {iVol} = {iRandom + iVol}.", player.oid, player.oid);
-                    if (NWScript.TouchAttackMelee(oTarget.oid) > 0)
+                    int iStolenGold = (iRandom + iVol - iSpot) * 10;
+                    int oTargetGold = NWScript.GetGold(oTarget.oid);
+                    if (oTargetGold >= iStolenGold)
                     {
-                      int iStolenGold = (iRandom + iVol - iSpot) * 10;
-                      int oTargetGold = NWScript.GetGold(oTarget.oid);
-                      if (oTargetGold >= iStolenGold)
-                      {
-                        CreaturePlugin.SetGold(oTarget.oid, oTargetGold - iStolenGold);
-                        CreaturePlugin.SetGold(player.oid, NWScript.GetGold(player.oid) + iStolenGold);
-                        NWScript.FloatingTextStringOnCreature($"Vous venez de dérober {iStolenGold} pièces d'or des poches de {NWScript.GetName(oTarget.oid)} !", player.oid);
-                      }
-                      else
-                      {
-                        NWScript.FloatingTextStringOnCreature($"Vous venez de vider les poches de {NWScript.GetName(oTarget.oid)} ! {oTargetGold} pièces d'or de plus pour vous.", player.oid);
-                        CreaturePlugin.SetGold(player.oid, NWScript.GetGold(player.oid) + oTargetGold);
-                        CreaturePlugin.SetGold(oTarget.oid, 0);
-                      }
+                      CreaturePlugin.SetGold(oTarget.oid, oTargetGold - iStolenGold);
+                      CreaturePlugin.SetGold(player.oid, NWScript.GetGold(player.oid) + iStolenGold);
+                      NWScript.FloatingTextStringOnCreature($"Vous venez de dérober {iStolenGold} pièces d'or des poches de {NWScript.GetName(oTarget.oid)} !", player.oid);
                     }
                     else
                     {
-                      NWScript.FloatingTextStringOnCreature($"Vous ne parvenez pas à atteindre les poches de {NWScript.GetName(oTarget.oid)} !", player.oid);
+                      NWScript.FloatingTextStringOnCreature($"Vous venez de vider les poches de {NWScript.GetName(oTarget.oid)} ! {oTargetGold} pièces d'or de plus pour vous.", player.oid);
+                      CreaturePlugin.SetGold(player.oid, NWScript.GetGold(player.oid) + oTargetGold);
+                      CreaturePlugin.SetGold(oTarget.oid, 0);
                     }
                   }
                   else
-                NWScript.FloatingTextStringOnCreature($"{NWScript.GetName(player.oid)} est en train d'essayer de vous faire les poches !", oTarget.oid); 
+                  {
+                    NWScript.FloatingTextStringOnCreature($"Vous ne parvenez pas à atteindre les poches de {NWScript.GetName(oTarget.oid)} !", player.oid);
+                  }
+                }
+                else
+                  NWScript.FloatingTextStringOnCreature($"{NWScript.GetName(player.oid)} est en train d'essayer de vous faire les poches !", oTarget.oid);
               }
               else
                 NWScript.FloatingTextStringOnCreature("Vous n'êtes pas autorisé à faire une nouvelle tentative pour le moment.", player.oid);
             }
             else
               NWScript.FloatingTextStringOnCreature("Seuls d'autres joueurs peuvent être ciblés par cette compétence. Les tentatives de vol sur PNJ doivent être jouées en rp avec un dm.", player.oid);
-          }
+            break;
+        }
       }
 
       return 0;
