@@ -2,6 +2,7 @@
 using static NWN.Systems.PlayerSystem;
 using static NWN.Systems.Craft.Collect.System;
 using NWN.Systems.Craft.Collect;
+using System;
 
 namespace NWN.Systems.Items.BeforeUseHandlers
 {
@@ -33,6 +34,9 @@ namespace NWN.Systems.Items.BeforeUseHandlers
             oTarget,
             () => Ore.HandleCompleteProspectionCycle(player, oTarget, oItem)
           );
+
+          SpawnDisturbedMonsters(player.oid, oTarget);
+
           break;
 
         case "prospectable_tree":
@@ -54,6 +58,19 @@ namespace NWN.Systems.Items.BeforeUseHandlers
         default:
           NWScript.SendMessageToPC(player.oid, $"{NWScript.GetName(oTarget)} n'est pas une cible valide pour l'extraction de matieres premieres.");
           break;
+      }
+    }
+    private static void SpawnDisturbedMonsters(uint oPlayer, uint oVeine)
+    {
+      NWScript.SendMessageToPC(oPlayer, "Le boucan déclenché par l'extraction reisque d'attirer les monstres locaux, jusque là tapis dans l'ombre !");
+      uint oMonsterWaypoint = NWScript.GetNearestObjectByTag("disturbed_creature_spawn", oVeine);
+      int i = 1;
+
+      while (Convert.ToBoolean(NWScript.GetIsObjectValid(oMonsterWaypoint)) && NWScript.GetDistanceBetween(oMonsterWaypoint, oVeine) < 45.0f)
+      {
+        NWScript.CreateObject(NWScript.OBJECT_TYPE_CREATURE, NWScript.GetLocalString(oMonsterWaypoint, "_CREATURE_TEMPLATE"), NWScript.GetLocation(oMonsterWaypoint));
+        i++;
+        oMonsterWaypoint = NWScript.GetNearestObjectByTag("disturbed_creature_spawn", oVeine, i);
       }
     }
   }

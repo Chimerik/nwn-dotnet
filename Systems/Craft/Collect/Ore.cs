@@ -50,7 +50,7 @@ namespace NWN.Systems.Craft.Collect
       var ore = NWScript.CreateItemOnObject("ore", player.oid, miningYield, NWScript.GetName(oPlaceable));
       NWScript.SetName(ore, NWScript.GetName(oPlaceable));
 
-      //Items.Utils.DecreaseItemDurability(oExtractor);
+      Items.Utils.DecreaseItemDurability(oExtractor);
     }
     public static void HandleCompleteProspectionCycle(Player player, uint oPlaceable, uint oExtractor)
     {

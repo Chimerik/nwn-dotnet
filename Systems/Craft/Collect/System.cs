@@ -125,6 +125,7 @@ namespace NWN.Systems.Craft.Collect
       player.OnCollectCycleCancel = () => {
         NWN.Utils.RemoveTaggedEffect(oPlaceable, $"_{NWScript.GetPCPublicCDKey(player.oid)}_MINING_BEAM");
         RemoveCollectCycleCallbacks(player);
+        PlayerPlugin.StopGuiTimingBar(player.oid);
       };
       player.OnCollectCycleComplete = () => {
         completeCallback();
