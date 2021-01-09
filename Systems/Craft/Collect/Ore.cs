@@ -99,7 +99,7 @@ namespace NWN.Systems.Craft.Collect
         i++;
       }
 
-      Utils.DecreaseItemDurability(oExtractor);
+      Items.Utils.DecreaseItemDurability(oExtractor);
     }
   }
 }
