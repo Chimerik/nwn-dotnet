@@ -1,6 +1,4 @@
-﻿using System;
-using NWN.Core;
-using NWN.Core.NWNX;
+﻿using NWN.Core;
 using static NWN.Systems.PlayerSystem;
 using static NWN.Systems.Craft.Collect.System;
 using NWN.Systems.Craft.Collect;
