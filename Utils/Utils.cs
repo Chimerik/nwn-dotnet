@@ -187,7 +187,7 @@ namespace NWN
     {
       var eff = NWScript.GetFirstEffect(oObject);
       while (NWScript.GetIsEffectValid(eff) == 1)
-      { 
+      {
         if (NWScript.GetEffectTag(eff) == Tag)
         {
           NWScript.RemoveEffect(oObject, eff);

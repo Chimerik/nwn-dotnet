@@ -209,13 +209,13 @@ namespace NWN.Systems
         arrivalPoint = newCharacter.oid;
       }
 
-      var query = NWScript.SqlPrepareQueryCampaign(ModuleSystem.database, $"INSERT INTO playerCharacters (accountId , characterName, dateLastSaved, currentSkillType, currentSkillJob, currentJob, currentCraftObject, frostAttackOn, areaTag, position, facing, menuOriginLeft, currentHP) VALUES (@accountId, @name, @dateLastSaved, @currentSkillType, @currentSkillJob, @currentJob, @currentCraftObject, @frostAttackOn, @areaTag, @position, @facing, @menuOriginLeft, @currentHP)");
+      var query = NWScript.SqlPrepareQueryCampaign(ModuleSystem.database, $"INSERT INTO playerCharacters (accountId , characterName, dateLastSaved, currentSkillType, currentSkillJob, currentCraftJob, currentCraftObject, frostAttackOn, areaTag, position, facing, menuOriginLeft, currentHP) VALUES (@accountId, @name, @dateLastSaved, @currentSkillType, @currentSkillJob, @currentCraftJob, @currentCraftObject, @frostAttackOn, @areaTag, @position, @facing, @menuOriginLeft, @currentHP)");
       NWScript.SqlBindInt(query, "@accountId", newCharacter.accountId);
       NWScript.SqlBindString(query, "@name", NWScript.GetName(newCharacter.oid));
       NWScript.SqlBindString(query, "@dateLastSaved", DateTime.Now.ToString());
       NWScript.SqlBindInt(query, "@currentSkillType", (int)SkillSystem.SkillType.Invalid);
       NWScript.SqlBindInt(query, "@currentSkillJob", (int)Feat.Invalid);
-      NWScript.SqlBindInt(query, "@currentJob", -10);
+      NWScript.SqlBindInt(query, "@currentCraftJob", -10);
       NWScript.SqlBindString(query, "@currentCraftObject", "");
       NWScript.SqlBindInt(query, "@frostAttackOn", 0);
       NWScript.SqlBindString(query, "@areaTag", NWScript.GetTag(arrivalArea));
@@ -327,7 +327,7 @@ namespace NWN.Systems
     }
     private static void InitializePlayerCharacter(Player player)
     {
-      var query = NWScript.SqlPrepareQueryCampaign(ModuleSystem.database, $"SELECT areaTag, position, facing, currentHP, bankGold, dateLastSaved, currentSkillJob, currentJob, currentCraftObject, currentJobRemainingTime, currentJobMaterial, frostAttackOn, menuOriginTop, menuOriginLeft, currentSkillType from playerCharacters where rowid = @characterId");
+      var query = NWScript.SqlPrepareQueryCampaign(ModuleSystem.database, $"SELECT areaTag, position, facing, currentHP, bankGold, dateLastSaved, currentSkillJob, currentCraftJob, currentCraftObject, currentCraftJobRemainingTime, currentCraftJobMaterial, frostAttackOn, menuOriginTop, menuOriginLeft, currentSkillType from playerCharacters where rowid = @characterId");
       NWScript.SqlBindInt(query, "@characterId", player.characterId);
       NWScript.SqlStep(query);
 

@@ -75,8 +75,11 @@ namespace NWN.Systems
         "    - Equilibrage des dons/talents\n" +
         "    - Système de corruption/purification des zones\n" +
         "    - Système de pistage sur les maps\n" +
-        "    - Système d'assurance\n"
-        //"    - Système d'assurance\n"
+        "    - Système d'assurance\n"+
+        "    - Système de remboursement de la dette en cas de non solvabilité\n" +
+        "    - Système de génération procédurale de maps\n" +
+        "    - Intégration des acessoires (type lunettes, chapeaux), sous forme de VFX\n" +
+        "    - Système de PNJ factory (outil DM permettant la création et la sauvegarde de pnjs sans passer par l'éditeur)\n"
         );
     }
   }

@@ -118,7 +118,9 @@ namespace NWN.Systems
       DestroyPlayerCorpse(player);
       NWScript.AssignCommand(player.oid, () => NWScript.ClearAllActions());
       NWScript.AssignCommand(player.oid, () => NWScript.JumpToLocation(NWScript.GetLocation(NWScript.GetWaypointByTag("WP_RESPAWN_DISPENSAIRE"))));
-      NWScript.ApplyEffectToObject(NWScript.DURATION_TYPE_PERMANENT, NWScript.TagEffect(NWScript.SupernaturalEffect(NWScript.EffectSpellFailure(50)), "erylies_spell_failure"), player.oid);
+      
+      if(NWScript.GetTag(NWScript.GetItemInSlot(NWScript.INVENTORY_SLOT_NECK, player.oid)) != "amulettorillink")
+        NWScript.ApplyEffectToObject(NWScript.DURATION_TYPE_PERMANENT, NWScript.TagEffect(NWScript.SupernaturalEffect(NWScript.EffectSpellFailure(50)), "erylies_spell_failure"), player.oid);
 
       switch (entity)
       {

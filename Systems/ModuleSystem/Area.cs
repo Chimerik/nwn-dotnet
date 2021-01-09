@@ -14,6 +14,7 @@ namespace NWN.Systems
     public readonly string uuid;
     public readonly string tag;
     public readonly string name;
+    public int level { get; set; }
     public readonly List<uint> lootChestList;
     public Area(uint nwobj)
     {
@@ -21,6 +22,7 @@ namespace NWN.Systems
       this.uuid = NWScript.GetObjectUUID(nwobj);
       this.tag = NWScript.GetTag(nwobj);
       this.name = NWScript.GetName(nwobj);
+      level = 1;
       this.lootChestList = new List<uint>();
       this.DoAreaSpecificInitialisation();
 
@@ -118,11 +120,36 @@ namespace NWN.Systems
       {
         case "entry_scene":
           this.InitializeEntryArea();
+          level = 0;
           break;
         case "SimilisseThetreSalledeSpectacle":
           uint scene = NWScript.GetObjectByTag("theater_scene");
           NWScript.SetEventScript(scene, NWScript.EVENT_SCRIPT_TRIGGER_ON_OBJECT_ENTER, "onent_theater_sc");
           NWScript.SetEventScript(scene, NWScript.EVENT_SCRIPT_TRIGGER_ON_OBJECT_EXIT, "onex_theater_sc");
+          level = 0;
+          break;
+        case "SIMILISCITYGATE":
+        case "Similiscityentrepot":
+        case "Similisse":
+        case "Promenadetest":
+        case "SimilisseQuartierdelaPromenadeAt":
+        case "entrepotpersonnel":
+        case "Forge":
+        case "SimilisseQuartierdelaPromenadeTa":
+        case "similisseslums":
+        case "SIMILISSE_BIBLIOTHEQUE":
+        case "Dispensaire":
+        case "couronnedecuivre":
+        case "similissetempledistrict":
+        case "SIMILISSE_THERMES":
+        case "Governmenttest":
+        case "ChateauRepoduction":
+        case "PalaceGardenTest":
+        case "SimilisseTribunalBureaudesAvocat":
+        case "SimilisseTribunal":
+        case "SimilisseTribunalPrison":
+        case "SimilisseSalleDesDelibrations":
+          level = 0;
           break;
       }
     }
@@ -133,10 +160,7 @@ namespace NWN.Systems
     }
     public void DoAreaSpecificBehavior(PlayerSystem.Player player )
     {
-      if (NWScript.GetTag(this.oid).StartsWith("entry_scene_"))
-      {
-        NWScript.DelayCommand(10.0f, () => player.PlayIntroSong());
-      }
+      
     }
     public void StartEntryScene(PlayerSystem.Player player)
     {
@@ -190,8 +214,6 @@ namespace NWN.Systems
       NWScript.SetObjectVisualTransform(rock2, NWScript.OBJECT_VISUAL_TRANSFORM_TRANSLATE_Y, NWScript.GetObjectVisualTransform(rock2, NWScript.OBJECT_VISUAL_TRANSFORM_TRANSLATE_Y) - 0.25f);
       NWScript.SetObjectVisualTransform(rock3, NWScript.OBJECT_VISUAL_TRANSFORM_TRANSLATE_Y, NWScript.GetObjectVisualTransform(rock3, NWScript.OBJECT_VISUAL_TRANSFORM_TRANSLATE_Y) - 0.25f);
       float position = NWScript.SetObjectVisualTransform(tourbillon, NWScript.OBJECT_VISUAL_TRANSFORM_TRANSLATE_Y, NWScript.GetObjectVisualTransform(tourbillon, NWScript.OBJECT_VISUAL_TRANSFORM_TRANSLATE_Y) - 0.25f);
-
-      //NWScript.SendMessageToPC(NWScript.GetFirstPC(), $"X = {position}");
 
       if (position < -45)
         this.PlayTourbillonEffects(oPC); 

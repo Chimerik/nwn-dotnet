@@ -13,7 +13,7 @@ namespace NWN.Systems.Craft.Collect
   {
     public static Dictionary<string, Func<uint, int>> Register = new Dictionary<string, Func<uint, int>>
     {
-            { "event_collect_cycle_cancel_before", HandleBeforeCollectCycleCancel },
+            { "event_collect_cycle_cancel", HandleBeforeCollectCycleCancel },
             { "on_collect_cycle_complete", HandleAfterCollectCycleComplete },
     };
 
@@ -128,7 +128,6 @@ namespace NWN.Systems.Craft.Collect
       };
       player.OnCollectCycleComplete = () => {
         completeCallback();
-        NWN.Utils.RemoveTaggedEffect(oPlaceable, $"_{NWScript.GetPCPublicCDKey(player.oid)}_MINING_BEAM");
         RemoveCollectCycleCallbacks(player);
       };
 
@@ -140,29 +139,29 @@ namespace NWN.Systems.Craft.Collect
         cycleDuration = cycleDuration - (cycleDuration * NWScript.GetLocalInt(resourceExtractor, "_ITEM_LEVEL") * 2 / 100);
       }
 
-      Effect eRay = NWScript.EffectBeam(NWScript.VFX_BEAM_DISINTEGRATE, resourceExtractor, 1);
+      Effect eRay = NWScript.EffectBeam(NWScript.VFX_BEAM_DISINTEGRATE, resourceExtractor, 1, 0, 3);
       eRay = NWScript.TagEffect(eRay, $"_{NWScript.GetPCPublicCDKey(player.oid)}_MINING_BEAM");
       NWScript.ApplyEffectToObject(NWScript.DURATION_TYPE_TEMPORARY, eRay, oPlaceable, cycleDuration);
       
       PlayerPlugin.StartGuiTimingBar(player.oid, cycleDuration, "on_collect_cycle_complete");
-
-      EventsPlugin.AddObjectToDispatchList("NWNX_ON_TIMING_BAR_CANCEL_BEFORE", "event_collect_cycle_cancel_before", player.oid);
-      EventsPlugin.AddObjectToDispatchList("NWNX_ON_CLIENT_DISCONNECT_BEFORE", "event_collect_cycle_cancel_before", player.oid);
-      EventsPlugin.AddObjectToDispatchList("NWNX_ON_ITEM_EQUIP_BEFORE", "event_collect_cycle_cancel_before", player.oid);
-      EventsPlugin.AddObjectToDispatchList("NWNX_ON_ITEM_UNEQUIP_BEFORE", "event_collect_cycle_cancel_before", player.oid);
-      EventsPlugin.AddObjectToDispatchList("NWNX_ON_START_COMBAT_ROUND_AFTER", "event_collect_cycle_cancel_before", player.oid);
-      EventsPlugin.AddObjectToDispatchList("NWNX_ON_INPUT_CAST_SPELL_BEFORE", "event_collect_cycle_cancel_before", player.oid);
+      
+      EventsPlugin.AddObjectToDispatchList("NWNX_ON_TIMING_BAR_CANCEL_BEFORE", "event_collect_cycle_cancel", player.oid);
+      EventsPlugin.AddObjectToDispatchList("NWNX_ON_CLIENT_DISCONNECT_BEFORE", "event_collect_cycle_cancel", player.oid);
+      EventsPlugin.AddObjectToDispatchList("NWNX_ON_ITEM_EQUIP_BEFORE", "event_collect_cycle_cancel", player.oid);
+      EventsPlugin.AddObjectToDispatchList("NWNX_ON_ITEM_UNEQUIP_BEFORE", "event_collect_cycle_cancel", player.oid);
+      EventsPlugin.AddObjectToDispatchList("NWNX_ON_START_COMBAT_ROUND_AFTER", "event_collect_cycle_cancel", player.oid);
+      EventsPlugin.AddObjectToDispatchList("NWNX_ON_INPUT_CAST_SPELL_BEFORE", "event_collect_cycle_cancel", player.oid);
     }
     private static void RemoveCollectCycleCallbacks(Player player)
     {
       player.OnCollectCycleCancel = () => { };
       player.OnCollectCycleComplete = () => { };
-      EventsPlugin.RemoveObjectFromDispatchList("NWNX_ON_TIMING_BAR_CANCEL_BEFORE", "event_collect_cycle_cancel_before", player.oid);
-      EventsPlugin.RemoveObjectFromDispatchList("NWNX_ON_CLIENT_DISCONNECT_BEFORE", "event_collect_cycle_cancel_before", player.oid);
-      EventsPlugin.RemoveObjectFromDispatchList("NWNX_ON_ITEM_EQUIP_BEFORE", "event_collect_cycle_cancel_before", player.oid);
-      EventsPlugin.RemoveObjectFromDispatchList("NWNX_ON_ITEM_UNEQUIP_BEFORE", "event_collect_cycle_cancel_before", player.oid);
-      EventsPlugin.RemoveObjectFromDispatchList("NWNX_ON_START_COMBAT_ROUND_AFTER", "event_collect_cycle_cancel_before", player.oid);
-      EventsPlugin.RemoveObjectFromDispatchList("NWNX_ON_INPUT_CAST_SPELL_BEFORE", "event_collect_cycle_cancel_before", player.oid);
+      EventsPlugin.RemoveObjectFromDispatchList("NWNX_ON_TIMING_BAR_CANCEL_BEFORE", "event_collect_cycle_cancel", player.oid);
+      EventsPlugin.RemoveObjectFromDispatchList("NWNX_ON_CLIENT_DISCONNECT_BEFORE", "event_collect_cycle_cancel", player.oid);
+      EventsPlugin.RemoveObjectFromDispatchList("NWNX_ON_ITEM_EQUIP_BEFORE", "event_collect_cycle_cancel", player.oid);
+      EventsPlugin.RemoveObjectFromDispatchList("NWNX_ON_ITEM_UNEQUIP_BEFORE", "event_collect_cycle_cancel", player.oid);
+      EventsPlugin.RemoveObjectFromDispatchList("NWNX_ON_START_COMBAT_ROUND_AFTER", "event_collect_cycle_cancel", player.oid);
+      EventsPlugin.RemoveObjectFromDispatchList("NWNX_ON_INPUT_CAST_SPELL_BEFORE", "event_collect_cycle_cancel", player.oid);
     }
     public static void AddCraftedItemProperties(uint craftedItem, Blueprint blueprint, string material)
     {

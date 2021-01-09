@@ -384,12 +384,7 @@ namespace NWN.Systems
       }
       public void CancelCollectCycle()
       {
-        // AssignCommand permet de "patcher" un bug de comportement undéfinie
-        // qui apparait en appelant une callback depuis l'event de la GUI TIMING BAR
-        NWScript.AssignCommand(
-          NWScript.GetModule(),
-          () => OnCollectCycleCancel()
-        );
+        OnCollectCycleCancel();
       }
       public void CompleteCollectCycle()
       {
@@ -493,14 +488,6 @@ namespace NWN.Systems
         PlayerPlugin.AddCustomJournalEntry(this.oid, journalEntry);
 
         NWScript.DelayCommand(1.0f, () => this.rebootUpdate());
-      }
-      public void PlayIntroSong()
-      {
-        if (NWScript.GetTag(NWScript.GetArea(this.oid)).StartsWith("entry_scene_"))
-        {
-          PlayerPlugin.PlaySound(this.oid, "my_mother_toldme");
-          NWScript.DelayCommand(150.0f, () => this.PlayIntroSong());
-        }
       }
       public Boolean IsDialogQuickbarOn()
       {

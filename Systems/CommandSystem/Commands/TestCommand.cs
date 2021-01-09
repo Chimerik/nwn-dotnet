@@ -17,13 +17,15 @@ namespace NWN.Systems
       {
         if(NWScript.GetPCPlayerName(player.oid) == "Chim")
         {
-          /*Action<uint, Vector3> callback = (uint oTarget, Vector3 position) =>
+          Action<uint, Vector3> callback = (uint oTarget, Vector3 position) =>
           {
-
+            Effect eRay = NWScript.EffectBeam(NWScript.VFX_BEAM_DISINTEGRATE, NWScript.GetItemInSlot(NWScript.INVENTORY_SLOT_RIGHTHAND, player.oid), 1, 0, 3);
+            eRay = NWScript.TagEffect(eRay, $"_{NWScript.GetPCPublicCDKey(player.oid)}_MINING_BEAM");
+            NWScript.ApplyEffectToObject(NWScript.DURATION_TYPE_TEMPORARY, eRay, oTarget, 10.0f);
           };
 
           player.targetEvent = TargetEvent.LootSaverTarget;
-          player.SelectTarget(callback);*/
+          player.SelectTarget(callback);
 
           //string test = Bot._client.GetUser(232218662080086017).Mention;//.SendMessageAsync("BOT TEST !");
 
