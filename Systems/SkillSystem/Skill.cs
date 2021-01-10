@@ -229,6 +229,8 @@ namespace NWN.Systems
         {
           player.learnableSkills.Add(successorId, new Skill(successorId, 0, player));
         }
+
+        NWScript.ExportSingleCharacter(player.oid);
       }
       public void PlayNewSkillAcquiredEffects()
       {

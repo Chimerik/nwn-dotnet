@@ -590,6 +590,13 @@ namespace NWN.Systems
             else
               NWScript.FloatingTextStringOnCreature("Seuls d'autres joueurs peuvent être ciblés par cette compétence. Les tentatives de vol sur PNJ doivent être jouées en rp avec un dm.", player.oid);
             break;
+          case NWScript.SKILL_ANIMAL_EMPATHY:
+            if (NWScript.GetTag(NWScript.GetArea(player.oid)) == "Promenadetest")
+            {
+              NWScript.SendMessageToPC(player.oid, "L'endroit est bien trop agité pour que vous puissiez vous permettre de nouer un lien avec l'animal.");
+              EventsPlugin.SkipEvent();
+            }
+            break;
         }
       }
 

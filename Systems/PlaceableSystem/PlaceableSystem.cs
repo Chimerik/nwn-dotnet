@@ -121,7 +121,9 @@ namespace NWN.Systems
     {
       if (Convert.ToBoolean(NWScript.GetIsPC(NWScript.GetLastPerceived())))
       {
-        NWScript.PlayAnimation(Utils.random.Next(100, 116));
+        if(NWScript.GetName(oidSelf) != "Statue draconique")
+          NWScript.PlayAnimation(Utils.random.Next(100, 116));
+
         NWScript.SetEventScript(oidSelf, NWScript.EVENT_SCRIPT_CREATURE_ON_NOTICE, "");
         NWScript.SetAILevel(oidSelf, NWScript.AI_LEVEL_VERY_LOW);
         NWScript.DelayCommand(1.0f, () => FreezeCreature(oidSelf));

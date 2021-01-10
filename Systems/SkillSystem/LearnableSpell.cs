@@ -50,7 +50,7 @@ namespace NWN.Systems
         }
 
         if (int.TryParse(NWScript.Get2DAString("spells", "Wiz_Sorc", Id), out value))
-          this.multiplier = value;
+          this.multiplier = value + 1;
         else
         {
           this.level = 1;
@@ -159,6 +159,7 @@ namespace NWN.Systems
         trained = true;
         player.currentSkillJob = (int)Feat.Invalid;
         player.currentSkillType = SkillType.Invalid;
+        NWScript.ExportSingleCharacter(player.oid);
       }
       public void PlayNewSkillAcquiredEffects()
       {

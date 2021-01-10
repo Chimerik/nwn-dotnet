@@ -75,8 +75,9 @@ namespace NWN.Systems
         {
           player.OnKeydown -= HandleMenuFeatUsed;
           player.UnloadMenuQuickbar();
+          player.setValue = 0;
 
-          if(NWScript.GetTag(NWScript.GetArea(player.oid)).StartsWith("entry_scene_"))
+          if (NWScript.GetTag(NWScript.GetArea(player.oid)).StartsWith("entry_scene_"))
           {
             uint oClone = NWScript.GetNearestObjectByTag($"clone_{NWScript.GetPCPublicCDKey(player.oid)}", player.oid);
             VisibilityPlugin.SetVisibilityOverride(player.oid, NWScript.GetNearestObjectByTag("intro_mirror", player.oid), VisibilityPlugin.NWNX_VISIBILITY_VISIBLE);

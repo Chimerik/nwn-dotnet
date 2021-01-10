@@ -15,12 +15,13 @@ namespace NWN.Systems
     }
     private void DrawWelcomePage(PlayerSystem.Player player)
     {
+      player.setValue = 0;
       player.menu.Clear();
       player.menu.title = $"Fonderie - Le minerai brut est acheminé de votre entrepôt. Efficacité : -35 %. Que souhaitez-vous fondre ? (Utilisez la commande !set X avant de valider votre choix)";
 
       foreach (KeyValuePair<string, int> materialEntry in player.materialStock)
       {
-        if(materialEntry.Value > 0 && GetOreTypeFromName(materialEntry.Key) != OreType.Invalid)
+        if(materialEntry.Value > 100 && GetOreTypeFromName(materialEntry.Key) != OreType.Invalid)
           player.menu.choices.Add(($"{materialEntry.Key} - {materialEntry.Value} unité(s).", () => HandleRefineOre(player, materialEntry.Key)));
       }
 
@@ -33,8 +34,9 @@ namespace NWN.Systems
 
       if (player.setValue < 100)
       {
-        player.menu.title = $"Les ouvriers chargés du transfert ne se dérangeant pas pour moins de 100 unités. (Utilisez la commande !set X avant de valider votre choix)";
+        player.menu.title = $"Les ouvriers chargés du transfert ne se dérangeant pas pour moins de 100 unités. Souhaitez-vous fondre tout votre stock ?";
         player.menu.choices.Add(("Valider.", () => HandleRefineOre(player, oreName)));
+        player.setValue = player.materialStock[oreName];
       }
       else
       {
@@ -78,7 +80,6 @@ namespace NWN.Systems
         }
       }
 
-      player.setValue = 0;
       player.menu.choices.Add(("Retour.", () => DrawWelcomePage(player)));
       player.menu.choices.Add(("Quitter", () => player.menu.Close()));
       player.menu.Draw();

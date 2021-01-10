@@ -56,13 +56,13 @@ namespace NWN.Systems.Items.BeforeUseHandlers
           break;
 
         default:
-          NWScript.SendMessageToPC(player.oid, $"{NWScript.GetName(oTarget)} n'est pas une cible valide pour l'extraction de matieres premieres.");
+          NWScript.SendMessageToPC(player.oid, $"{NWScript.GetName(oTarget)} n'est pas une cible valide pour l'extraction de matières premières.");
           break;
       }
     }
     private static void SpawnDisturbedMonsters(uint oPlayer, uint oVeine)
     {
-      NWScript.SendMessageToPC(oPlayer, "Le boucan déclenché par l'extraction reisque d'attirer les monstres locaux, jusque là tapis dans l'ombre !");
+      NWScript.SendMessageToPC(oPlayer, "Le boucan déclenché par l'extraction risque d'attirer les monstres locaux, jusque là tapis dans l'ombre !");
       uint oMonsterWaypoint = NWScript.GetNearestObjectByTag("disturbed_creature_spawn", oVeine);
       int i = 1;
 

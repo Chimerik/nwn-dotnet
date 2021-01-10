@@ -150,6 +150,35 @@ namespace NWN.Systems
         case "SimilisseTribunalPrison":
         case "SimilisseSalleDesDelibrations":
           level = 0;
+          break; 
+        case "lepontdaruthen":
+        case "Fermesnord":
+        case "fermes_ouest":
+        case "terres_de_fryar": 
+        case "vallee":
+        case "cave_flooded":
+        case "cave_underwater_ruins_entry ":
+          level = 2;
+          break; 
+        case "chemin_interdit":
+        case "collines_mugissantes":
+        case "basse_montagne":
+        case "haute_montagne":
+        case "GoblinTunnels":
+        case "caverne_kobolts":
+          level = 3;
+          break;
+        case "epine_seeksa":
+        case "OrcEncampment":
+        case "vallee_caverne":
+        case "cave_kuotoa":
+          level = 4;
+          break; 
+        case "SaltMines":
+          level = 5;
+          break;
+        case "ant_nest":
+          level = 6;
           break;
       }
     }
