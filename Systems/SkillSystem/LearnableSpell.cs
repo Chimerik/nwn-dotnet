@@ -50,7 +50,7 @@ namespace NWN.Systems
         }
 
         if (int.TryParse(NWScript.Get2DAString("spells", "Wiz_Sorc", Id), out value))
-          this.multiplier = value + 1;
+          this.multiplier = value;
         else
         {
           this.level = 1;
@@ -64,7 +64,7 @@ namespace NWN.Systems
 
         secondaryAbility = NWScript.ABILITY_CHARISMA;
         
-        this.pointsToNextLevel = 250 * this.multiplier * (int)Math.Pow(Math.Sqrt(32), CreaturePlugin.GetKnownSpellCount(player.oid, 43, multiplier));
+        this.pointsToNextLevel = 250 * (this.multiplier + 1) * (int)Math.Pow(Math.Sqrt(32), CreaturePlugin.GetKnownSpellCount(player.oid, 43, multiplier));
 
         if (this.player.currentSkillJob == this.oid)
         {

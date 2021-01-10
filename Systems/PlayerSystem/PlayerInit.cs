@@ -78,7 +78,10 @@ namespace NWN.Systems
           NWScript.DelayCommand(1.1f, () => NWScript.AssignCommand(player.oid, () => NWScript.JumpToLocation(NWScript.GetLocation(NWScript.GetWaypointByTag("WP_START_NEW_CHAR")))));
         }
 
-        if (player.craftJob.IsActive() && Convert.ToBoolean(NWScript.GetLocalInt(NWScript.GetAreaFromLocation(player.location), "_REST")))
+        Area area;
+        if (player.craftJob.IsActive() 
+          && Module.areaDictionnary.TryGetValue(NWScript.GetObjectUUID(NWScript.GetAreaFromLocation(player.location)), out area) 
+          && area.level == 0)
         {
           player.CraftJobProgression();
           player.craftJob.CreateCraftJournalEntry();

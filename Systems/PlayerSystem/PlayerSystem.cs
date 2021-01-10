@@ -994,16 +994,6 @@ namespace NWN.Systems
         Player player;
         if (Players.TryGetValue(oidSelf, out player))
         {
-          if (Convert.ToBoolean(NWScript.GetLocalInt(oArea, "_REST")))
-          {
-            NWScript.ExploreAreaForPlayer(oArea, player.oid, 1);
-
-            if (player.craftJob.IsActive() && player.playerJournal.craftJobCountDown == null)
-              player.craftJob.CreateCraftJournalEntry();
-          }
-          else if (player.playerJournal.craftJobCountDown != null)
-            player.craftJob.CancelCraftJournalEntry();
-
           player.previousArea = oArea;
 
           if(player.menu.isOpen)
@@ -1011,7 +1001,20 @@ namespace NWN.Systems
 
           Area area;
           if (Module.areaDictionnary.TryGetValue(NWScript.GetObjectUUID(oArea), out area))
+          {
             area.DoAreaSpecificBehavior(player);
+
+            if(area.level < 2)
+              NWScript.ExploreAreaForPlayer(oArea, player.oid, 1);
+
+            if (area.level == 0)
+            {
+              if (player.craftJob.IsActive() && player.playerJournal.craftJobCountDown == null)
+                player.craftJob.CreateCraftJournalEntry();
+            }
+            else if (player.playerJournal.craftJobCountDown != null)
+              player.craftJob.CancelCraftJournalEntry();
+          }
         }
       }
 

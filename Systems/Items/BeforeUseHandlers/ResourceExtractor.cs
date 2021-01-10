@@ -17,7 +17,7 @@ namespace NWN.Systems.Items.BeforeUseHandlers
         NWScript.SendMessageToPC(player.oid, $"Vous êtes trop éloigné de votre cible pour démarrer l'extraction.");
         return;
       }
-
+      
       switch (NWScript.GetTag(oTarget))
       {
         case "mineable_rock":

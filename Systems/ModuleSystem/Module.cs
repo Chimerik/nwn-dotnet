@@ -6,6 +6,7 @@ using Discord.Commands;
 using Microsoft.Data.Sqlite;
 using NWN.Core;
 using NWN.Core.NWNX;
+using static NWN.Systems.Craft.Collect.Config;
 
 namespace NWN.Systems
 {
@@ -43,7 +44,9 @@ namespace NWN.Systems
 
       RestorePlayerCorpseFromDatabase();
       RestoreDMPersistentPlaceableFromDatabase();
-      
+
+      NWScript.DelayCommand((float)(DateTime.Now.TimeOfDay - TimeSpan.Parse("05:00:00")).TotalSeconds, () => SpawnCollectableResources());
+
       if (Config.env == Config.Env.Prod)
         NWScript.DelayCommand(5.0f, () => (Bot._client.GetChannel(786218144296468481) as IMessageChannel).SendMessageAsync($"Module en ligne !"));
     }
@@ -376,6 +379,31 @@ namespace NWN.Systems
         NWScript.SqlBindInt(query, "@second", NWScript.GetTimeSecond());
         NWScript.SqlStep(query);
       }      
+    }
+    private void SpawnCollectableResources()
+    {
+      Area area;
+      uint resourcePoint = NWScript.GetObjectByTag("ore_spawn_wp");
+      int i = 0;
+
+      while(Convert.ToBoolean(NWScript.GetIsObjectValid(resourcePoint)))
+      {
+        if (areaDictionnary.TryGetValue(NWScript.GetObjectUUID(NWScript.GetArea(resourcePoint)), out area))
+        {
+          if(Utils.random.Next(1, 101) >= (area.level * 20) - 20)
+          {
+            uint newRock = NWScript.CreateObject(NWScript.OBJECT_TYPE_PLACEABLE, "mineable_rock", NWScript.GetLocation(resourcePoint));
+            NWScript.SetName(newRock, Enum.GetName(typeof(OreType), GetRandomOreSpawnFromAreaLevel(area.level)));
+            NWScript.SetLocalInt(newRock, "_ORE_AMOUNT", 50 * Utils.random.Next(1, 101));
+            NWScript.DestroyObject(resourcePoint);
+          }
+        }
+          
+        i++;
+        resourcePoint = NWScript.GetObjectByTag("ore_spawn", i);
+      }
+
+      NWScript.DelayCommand(86400.0f, () => SpawnCollectableResources()); //24 h plus tard
     }
   }
 }

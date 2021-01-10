@@ -191,5 +191,38 @@ namespace NWN.Systems.Craft.Collect
           NWScript.ItemPropertyWeightIncrease(NWScript.IP_CONST_WEIGHTINCREASE_10_LBS),
       };
     }
+    public static OreType GetRandomOreSpawnFromAreaLevel(int level)
+    {
+      int random = Utils.random.Next(1, 101);
+      switch (level)
+      {
+        case 2:
+          return OreType.Veldspar;
+        case 3:
+          if (random > 80)
+            return OreType.Scordite;
+          else
+            return OreType.Veldspar;
+        case 4:
+          if (random > 60)
+            return OreType.Scordite;
+          else
+            return OreType.Veldspar;
+        case 5:
+          if (random > 80)
+            return OreType.Pyroxeres;
+          else if (random > 40)
+            return OreType.Scordite;
+          return OreType.Veldspar;
+        case 6:
+          if (random > 60)
+            return OreType.Pyroxeres;
+          else if (random > 20)
+            return OreType.Scordite;
+          return OreType.Veldspar;
+      }
+
+      return OreType.Invalid;
+    }
   }
 }

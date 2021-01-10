@@ -47,7 +47,7 @@ namespace NWN.Systems
         BotAsyncCommandSystem.ProcessBotAsyncCommand(command);
 
       module.botAsyncCommandList.Clear();
-
+      
       return 0;
     }
     private static int EventEffects(uint oidSelf)
