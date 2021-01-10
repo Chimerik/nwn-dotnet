@@ -496,6 +496,21 @@ namespace NWN.Systems
           return true;
         return false;
       }
+
+      // Take gold from the PC or from his bank account
+      public void PayOrBorrowGold(int price)
+      {
+        int pocketGold = NWScript.GetGold(oid);
+
+        if (pocketGold >= price)
+        {
+          CreaturePlugin.SetGold(oid, pocketGold - price);
+          return;
+        }
+
+        var borrowedGold = price - pocketGold;
+        bankGold -= borrowedGold;
+      }
     }
   }
 }
