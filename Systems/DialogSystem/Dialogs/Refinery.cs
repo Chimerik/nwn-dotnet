@@ -21,7 +21,7 @@ namespace NWN.Systems
 
       foreach (KeyValuePair<string, int> materialEntry in player.materialStock)
       {
-        if(materialEntry.Value > 100 && GetOreTypeFromName(materialEntry.Key) != OreType.Invalid)
+        if(materialEntry.Value > 100 && Enum.TryParse(materialEntry.Key, out OreType myOreType) && myOreType != OreType.Invalid)
           player.menu.choices.Add(($"{materialEntry.Key} - {materialEntry.Value} unité(s).", () => HandleRefineOre(player, materialEntry.Key)));
       }
 
@@ -57,8 +57,7 @@ namespace NWN.Systems
         if (float.TryParse(NWScript.Get2DAString("feat", "GAINMULTIPLE", CreaturePlugin.GetHighestLevelOfFeat(player.oid, (int)Feat.Connections)), out value))
           reprocessingEfficiency += reprocessingEfficiency + 1 * value / 100;
 
-        Ore processedOre;
-        if (oresDictionnary.TryGetValue(GetOreTypeFromName(oreName), out processedOre))
+        if (Enum.TryParse(oreName, out OreType myOreType) && oresDictionnary.TryGetValue(myOreType, out Ore processedOre))
         {
           if (float.TryParse(NWScript.Get2DAString("feat", "GAINMULTIPLE", CreaturePlugin.GetHighestLevelOfFeat(player.oid, (int)processedOre.feat)), out value))
             reprocessingEfficiency += reprocessingEfficiency + 2 * value / 100;
@@ -66,7 +65,7 @@ namespace NWN.Systems
           foreach (KeyValuePair<MineralType, float> mineralKeyValuePair in processedOre.mineralsDictionnary)
           {
             int refinedMinerals = Convert.ToInt32(player.setValue * mineralKeyValuePair.Value * reprocessingEfficiency);
-            string mineralName = GetNameFromMineralType(mineralKeyValuePair.Key);
+            string mineralName = Enum.GetName(typeof(MineralType), mineralKeyValuePair.Key); 
             player.materialStock[mineralName] += refinedMinerals;
             NWScript.SendMessageToPC(player.oid, $"Vous venez de raffiner {refinedMinerals} unités de {mineralName}. Les lingots sont en cours d'acheminage vers votre entrepôt.");
           }

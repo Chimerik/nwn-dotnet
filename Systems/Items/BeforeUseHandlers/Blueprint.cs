@@ -31,10 +31,8 @@ namespace NWN.Systems.Items.BeforeUseHandlers
               {
                 string sMaterial = blueprint.GetMaterialFromTargetItem(oTarget);
 
-                MineralType mineralType = GetMineralTypeFromName(sMaterial);
-
-                if (mineralType != MineralType.Invalid)
-                  player.craftJob.Start(Job.JobType.Item, blueprint, player, oItem, oTarget, sMaterial, mineralType);
+                if (Enum.TryParse(sMaterial, out MineralType myMineralType) && myMineralType != MineralType.Invalid)
+                  player.craftJob.Start(Job.JobType.Item, blueprint, player, oItem, oTarget, sMaterial, myMineralType);
                 else
                   NWScript.SendMessageToPC(player.oid, "Ce patron ne permet pas d'améliorer cet objet.");
               }

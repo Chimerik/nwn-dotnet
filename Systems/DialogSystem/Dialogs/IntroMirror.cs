@@ -175,8 +175,7 @@ namespace NWN.Systems
         skill.PlayNewSkillAcquiredEffects();
         HandleSkillSelection(player);
 
-        Func<PlayerSystem.Player, int, int> handler;
-        if (SkillSystem.RegisterAddCustomFeatEffect.TryGetValue(skill.oid, out handler))
+        if (RegisterAddCustomFeatEffect.TryGetValue(skill.oid, out Func<Player, int, int> handler))
         {
           try
           {

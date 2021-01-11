@@ -47,7 +47,7 @@ namespace NWN.Systems.Items.BeforeUseHandlers
           );
           break;
 
-        case "harvestable_tree":
+        case "mineable_tree":
           StartCollectCycle(
             player,
             oTarget,

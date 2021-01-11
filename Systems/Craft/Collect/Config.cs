@@ -8,7 +8,6 @@ namespace NWN.Systems.Craft.Collect
   public class Config
   {
     public static Dictionary<OreType, Ore> oresDictionnary = new Dictionary<OreType, Ore>();
-
     public partial class Ore
     {
       public OreType type;
@@ -18,7 +17,7 @@ namespace NWN.Systems.Craft.Collect
       public Ore(OreType oreType, Feat oreFeat)
       {
         this.type = oreType;
-        this.name = GetNameFromOreType(oreType);
+        this.name = Enum.GetName(typeof(OreType), oreType);
         this.feat = oreFeat;
         this.InitializeOreRefinementYield();
       }
@@ -43,58 +42,11 @@ namespace NWN.Systems.Craft.Collect
         }
       }
     }
-
     public static void InitializeOres()
     {
       oresDictionnary.Add(OreType.Veldspar, new Ore(OreType.Veldspar, Feat.VeldsparReprocessing));
       oresDictionnary.Add(OreType.Scordite, new Ore(OreType.Scordite, Feat.ScorditeReprocessing));
       oresDictionnary.Add(OreType.Pyroxeres, new Ore(OreType.Pyroxeres, Feat.PyroxeresReprocessing));
-    }
-    public static OreType GetOreTypeFromName(string name)
-    {
-      switch (name)
-      {
-        case "Veldspar": return OreType.Veldspar;
-        case "Scordite": return OreType.Scordite;
-        case "Pyroxeres": return OreType.Pyroxeres;
-      }
-
-      return OreType.Invalid;
-    }
-    public static string GetNameFromOreType(OreType type)
-    {
-      switch (type)
-      {
-        case OreType.Veldspar: return "Veldspar";
-        case OreType.Scordite: return "Scordite";
-        case OreType.Pyroxeres: return "Pyroxeres";
-      }
-
-      return "";
-    }
-    public static MineralType GetMineralTypeFromName(string name)
-    {
-      switch (name)
-      {
-        case "Tritanium": return MineralType.Tritanium;
-        case "Pyerite": return MineralType.Pyerite;
-        case "Mexallon": return MineralType.Mexallon;
-        case "Noxcium": return MineralType.Noxcium;
-      }
-
-      return MineralType.Invalid;
-    }
-    public static string GetNameFromMineralType(MineralType type)
-    {
-      switch (type)
-      {
-        case MineralType.Tritanium: return "Tritanium";
-        case MineralType.Pyerite: return "Pyerite";
-        case MineralType.Mexallon: return "Mexallon";
-        case MineralType.Noxcium: return "Noxcium";
-      }
-
-      return "";
     }
     public enum OreType
     {
@@ -110,6 +62,61 @@ namespace NWN.Systems.Craft.Collect
       Pyerite = 2,
       Mexallon = 3,
       Noxcium = 4,
+    }
+    public static Dictionary<WoodType, Wood> woodDictionnary = new Dictionary<WoodType, Wood>();
+    public partial class Wood
+    {
+      public WoodType type;
+      public string name;
+      public Feat feat;
+      public Dictionary<PlankType, float> plankDictionnary = new Dictionary<PlankType, float>();
+      public Wood(WoodType oreType, Feat oreFeat)
+      {
+        this.type = oreType;
+        this.name = Enum.GetName(typeof(WoodType), oreType);
+        this.feat = oreFeat;
+        this.InitializeWoodRefinementYield();
+      }
+
+      public void InitializeWoodRefinementYield()
+      {
+        switch (this.type)
+        {
+          case WoodType.Laurelin:
+            this.plankDictionnary.Add(PlankType.Laurelin, 41.500f);
+            break;
+          case WoodType.Telperion:
+            this.plankDictionnary.Add(PlankType.Telperion, 34.567f);
+            break;
+          case WoodType.Mallorn:
+            this.plankDictionnary.Add(PlankType.Mallorn, 15.000f);
+            break;
+        }
+      }
+    }
+    public enum WoodType
+    {
+      Invalid = 0,
+      Laurelin = 1, // Silmarillion : capture la lumière divine dorée
+      Telperion = 2, // Silmarillion : capture la lumière divine argentée
+      Mallorn = 3, 
+      Nimloth = 4,
+      Oiolaire = 5,
+      Qliphoth = 6,
+      Ferochene = 7,
+      Valinor = 8,
+    }
+    public enum PlankType
+    {
+      Invalid = 0,
+      Laurelin = 1, // Silmarillion : capture la lumière divine dorée
+      Telperion = 2, // Silmarillion : capture la lumière divine argentée
+      Mallorn = 3,
+      Nimloth = 4,
+      Oiolaire = 5,
+      Qliphoth = 6,
+      Ferochene = 7,
+      Valinor = 8,
     }
     public static ItemProperty[] GetTritaniumItemProperties()
     {
@@ -223,6 +230,39 @@ namespace NWN.Systems.Craft.Collect
       }
 
       return OreType.Invalid;
+    }
+    public static WoodType GetRandomWoodSpawnFromAreaLevel(int level)
+    {
+      int random = Utils.random.Next(1, 101);
+      switch (level)
+      {
+        case 2:
+          return WoodType.Laurelin;
+        case 3:
+          if (random > 80)
+            return WoodType.Telperion;
+          else
+            return WoodType.Laurelin;
+        case 4:
+          if (random > 60)
+            return WoodType.Telperion;
+          else
+            return WoodType.Laurelin;
+        case 5:
+          if (random > 80)
+            return WoodType.Mallorn;
+          else if (random > 40)
+            return WoodType.Telperion;
+          return WoodType.Laurelin;
+        case 6:
+          if (random > 60)
+            return WoodType.Mallorn;
+          else if (random > 20)
+            return WoodType.Telperion;
+          return WoodType.Laurelin;
+      }
+
+      return WoodType.Invalid;
     }
   }
 }
