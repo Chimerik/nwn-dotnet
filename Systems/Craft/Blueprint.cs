@@ -170,9 +170,9 @@ namespace NWN.Systems.Craft
     {
       if (NWScript.GetTag(oTarget) == this.workshopTag)
         return "Tritanium";
-      else if(NWScript.GetTag(oTarget) == this.craftedItemTag)
-        return Collect.Config.GetNameFromMineralType(Collect.Config.GetMineralTypeFromName(NWScript.GetLocalString(oTarget, "_ITEM_MATERIAL")) + 1);
-
+      else if (NWScript.GetTag(oTarget) == this.craftedItemTag 
+        && Enum.TryParse(NWScript.GetLocalString(oTarget, "_ITEM_MATERIAL"), out MineralType myMineralType))
+        return Enum.GetName(typeof(MineralType), myMineralType + 1);
       return "Invalid";
     }
   }

@@ -56,8 +56,7 @@ namespace NWN.Systems
     }
     public void CleanArea()
     {
-      DateTime lastEnteredDate;
-      if (AreaPlugin.GetNumberOfPlayersInArea(this.oid) == 0 && DateTime.TryParse(NWScript.GetLocalString(this.oid, "_LAST_ENTERED_ON"), out lastEnteredDate) && (DateTime.Now - lastEnteredDate).TotalMinutes >= 5)
+      if (AreaPlugin.GetNumberOfPlayersInArea(this.oid) == 0 && DateTime.TryParse(NWScript.GetLocalString(this.oid, "_LAST_ENTERED_ON"), out DateTime lastEnteredDate) && (DateTime.Now - lastEnteredDate).TotalMinutes >= 5)
       {
         var firstObject = NWScript.GetFirstObjectInArea(this.oid);
         int i = 1;
@@ -68,8 +67,9 @@ namespace NWN.Systems
           if (!Convert.ToBoolean(NWScript.GetIsPC(nearestObject)))
             Utils.DestroyInventory(nearestObject);
 
-          if(NWScript.GetTag(nearestObject) != "Statuereptilienne")
+          if (NWScript.GetTag(nearestObject) != "Statuereptilienne")
             NWScript.DestroyObject(nearestObject);
+
           i++;
           nearestObject = NWScript.GetNearestObject(NWScript.OBJECT_TYPE_CREATURE, firstObject, i);
         }

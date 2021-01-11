@@ -187,6 +187,8 @@ namespace NWN.Systems
       EventsPlugin.SubscribeEvent("NWNX_ON_MAP_PIN_CHANGE_PIN_AFTER", "map_pin_changed");
       EventsPlugin.SubscribeEvent("NWNX_ON_MAP_PIN_DESTROY_PIN_AFTER", "map_pin_destroyed");
 
+      EventsPlugin.SubscribeEvent("NWNX_ON_INPUT_EMOTE_BEFORE", "on_input_emote");
+
       //EventsPlugin.SubscribeEvent("NWNX_ON_HAS_FEAT_AFTER", "event_has_feat");
     }
     private void InitializeFeatModifiers()
@@ -382,13 +384,12 @@ namespace NWN.Systems
     }
     private void SpawnCollectableResources()
     {
-      Area area;
       uint resourcePoint = NWScript.GetObjectByTag("ore_spawn_wp");
       int i = 0;
 
       while(Convert.ToBoolean(NWScript.GetIsObjectValid(resourcePoint)))
       {
-        if (areaDictionnary.TryGetValue(NWScript.GetObjectUUID(NWScript.GetArea(resourcePoint)), out area))
+        if (areaDictionnary.TryGetValue(NWScript.GetObjectUUID(NWScript.GetArea(resourcePoint)), out Area area))
         {
           if(Utils.random.Next(1, 101) >= (area.level * 20) - 20)
           {
@@ -400,7 +401,27 @@ namespace NWN.Systems
         }
           
         i++;
-        resourcePoint = NWScript.GetObjectByTag("ore_spawn", i);
+        resourcePoint = NWScript.GetObjectByTag("ore_spawn_wp", i);
+      }
+
+      resourcePoint = NWScript.GetObjectByTag("wood_spawn_wp");
+      i = 0;
+
+      while (Convert.ToBoolean(NWScript.GetIsObjectValid(resourcePoint)))
+      {
+        if (areaDictionnary.TryGetValue(NWScript.GetObjectUUID(NWScript.GetArea(resourcePoint)), out Area area))
+        {
+          if (Utils.random.Next(1, 101) >= (area.level * 20) - 20)
+          {
+            uint newRock = NWScript.CreateObject(NWScript.OBJECT_TYPE_PLACEABLE, "mineable_tree", NWScript.GetLocation(resourcePoint));
+            NWScript.SetName(newRock, Enum.GetName(typeof(WoodType), GetRandomWoodSpawnFromAreaLevel(area.level)));
+            NWScript.SetLocalInt(newRock, "_ORE_AMOUNT", 50 * Utils.random.Next(1, 101));
+            NWScript.DestroyObject(resourcePoint);
+          }
+        }
+
+        i++;
+        resourcePoint = NWScript.GetObjectByTag("wood_spawn_wp", i);
       }
 
       NWScript.DelayCommand(86400.0f, () => SpawnCollectableResources()); //24 h plus tard

@@ -5,6 +5,8 @@ using System.Web;
 using Discord;
 using NWN.Core;
 using NWN.Core.NWNX;
+using static NWN.Systems.PlayerSystem;
+using static NWN.Systems.SkillSystem;
 
 namespace NWN.Systems
 {

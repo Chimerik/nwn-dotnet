@@ -169,7 +169,8 @@ namespace NWN.Systems.Craft.Collect
       NWScript.SetName(craftedItem, NWScript.GetName(craftedItem) + " en " + material);
       NWScript.SetLocalString(craftedItem, "_ITEM_MATERIAL", material);
 
-      foreach (ItemProperty ip in GetCraftItemProperties(GetMineralTypeFromName(material), GetItemCategory(NWScript.GetBaseItemType(craftedItem))))
+      Enum.TryParse(material, out MineralType myMineralType);
+      foreach (ItemProperty ip in GetCraftItemProperties(myMineralType, GetItemCategory(NWScript.GetBaseItemType(craftedItem))))
       {
         NWScript.AddItemProperty(NWScript.DURATION_TYPE_PERMANENT, ip, craftedItem);
       }
@@ -188,16 +189,18 @@ namespace NWN.Systems.Craft.Collect
     }
     public static bool IsItemCraftMaterial(string itemTag)
     {
-      if (GetOreTypeFromName(itemTag) != OreType.Invalid || GetMineralTypeFromName(itemTag) != MineralType.Invalid)
+      if (Enum.TryParse(itemTag, out OreType myOreType) && myOreType != OreType.Invalid)
+        return true;
+      if (Enum.TryParse(itemTag, out MineralType myMineralType) && myMineralType != MineralType.Invalid)
         return true;
 
       return false;
     }
     public static string GetCraftMaterialItemTemplate(string itemTag)
     {
-      if (GetOreTypeFromName(itemTag) != OreType.Invalid)
+      if (Enum.TryParse(itemTag, out OreType myOreType) && myOreType != OreType.Invalid)
         return "ore";
-      else if (GetMineralTypeFromName(itemTag) != MineralType.Invalid)
+      if (Enum.TryParse(itemTag, out MineralType myMineralType) && myMineralType != MineralType.Invalid)
         return "mineral";
 
       Utils.LogMessageToDMs($"Could not find item template for tag : {itemTag}");
