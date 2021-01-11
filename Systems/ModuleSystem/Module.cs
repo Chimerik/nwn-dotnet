@@ -38,8 +38,6 @@ namespace NWN.Systems
       this.InitializeEvents();
       this.InitializeFeatModifiers();
 
-      Craft.Collect.Config.InitializeOres();
-
       NWScript.DelayCommand(600.0f, () => SaveServerVault());
 
       RestorePlayerCorpseFromDatabase();
