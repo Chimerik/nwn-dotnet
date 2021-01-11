@@ -64,7 +64,7 @@ namespace NWN.Systems
 
         secondaryAbility = NWScript.ABILITY_CHARISMA;
         
-        this.pointsToNextLevel = 250 * this.multiplier * (int)Math.Pow(Math.Sqrt(32), CreaturePlugin.GetKnownSpellCount(player.oid, 43, multiplier));
+        this.pointsToNextLevel = 250 * (this.multiplier + 1) * (int)Math.Pow(Math.Sqrt(32), CreaturePlugin.GetKnownSpellCount(player.oid, 43, multiplier));
 
         if (this.player.currentSkillJob == this.oid)
         {
@@ -159,6 +159,7 @@ namespace NWN.Systems
         trained = true;
         player.currentSkillJob = (int)Feat.Invalid;
         player.currentSkillType = SkillType.Invalid;
+        NWScript.ExportSingleCharacter(player.oid);
       }
       public void PlayNewSkillAcquiredEffects()
       {

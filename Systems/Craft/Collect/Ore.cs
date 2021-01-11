@@ -1,6 +1,7 @@
 ﻿using System;
 using NWN.Core;
 using NWN.Core.NWNX;
+using static NWN.Systems.Craft.Collect.Config;
 using static NWN.Systems.PlayerSystem;
 
 namespace NWN.Systems.Craft.Collect
@@ -39,9 +40,7 @@ namespace NWN.Systems.Craft.Collect
         miningYield = NWScript.GetLocalInt(oPlaceable, "_ORE_AMOUNT");
         NWScript.DestroyObject(oPlaceable);
 
-        var newRessourcePoint = NWScript.CreateObject(NWScript.OBJECT_TYPE_WAYPOINT, "NW_WAYPOINT001", NWScript.GetLocation(oPlaceable));
-        NWScript.SetLocalString(newRessourcePoint, "_RESSOURCE_TYPE", NWScript.GetName(oPlaceable));
-        NWScript.SetTag(newRessourcePoint, "ressourcepoint");
+        NWScript.CreateObject(NWScript.OBJECT_TYPE_WAYPOINT, "ore_spawn_wp", NWScript.GetLocation(oPlaceable));
       }
       else
       {
@@ -62,41 +61,36 @@ namespace NWN.Systems.Craft.Collect
 
       if (NWScript.GetIsObjectValid(oExtractor) != 1) return;
 
-      var ressourcePoint = NWScript.GetNearestObjectByTag("ressourcepoint", oPlaceable, 1);
-      int i = 2;
+      
+      uint resourcePoint = NWScript.GetNearestObjectByTag("ore_spawn_wp", oPlaceable);
+      int i = 1;
+
+      Area area;
+      if (!Module.areaDictionnary.TryGetValue(NWScript.GetObjectUUID(NWScript.GetArea(resourcePoint)), out area)) return;
+
       int skillBonus = 0;
       int value;
       if (int.TryParse(NWScript.Get2DAString("feat", "GAINMULTIPLE", CreaturePlugin.GetHighestLevelOfFeat(player.oid, (int)Feat.Geology)), out value))
-      {
         skillBonus += value;
-      }
 
       if (int.TryParse(NWScript.Get2DAString("feat", "GAINMULTIPLE", CreaturePlugin.GetHighestLevelOfFeat(player.oid, (int)Feat.Prospection)), out value))
-      {
         skillBonus += value;
-      }
 
       int respawnChance = skillBonus * 5;
 
-      while (NWScript.GetIsObjectValid(ressourcePoint) == 1)
+      while (NWScript.GetIsObjectValid(resourcePoint) == 1)
       {
-        if (NWScript.GetDistanceBetween(oPlaceable, ressourcePoint) > 20.0f)
-          break;
-
-        string ressourceType = NWScript.GetLocalString(ressourcePoint, "_RESSOURCE_TYPE");
-
-        int iRandom = NWN.Utils.random.Next(1, 101);
-
+        int iRandom = Utils.random.Next(1, 101);
         if (iRandom < respawnChance)
         {
-          var newRock = NWScript.CreateObject(NWScript.OBJECT_TYPE_PLACEABLE, "mineable_rock", NWScript.GetLocation(ressourcePoint));
-          NWScript.SetName(newRock, ressourceType);
-          NWScript.SetLocalInt(newRock, "_ORE_AMOUNT", 200 * iRandom + 200 * iRandom * skillBonus / 100);
+          var newRock = NWScript.CreateObject(NWScript.OBJECT_TYPE_PLACEABLE, "mineable_rock", NWScript.GetLocation(resourcePoint));
+          NWScript.SetName(newRock, Enum.GetName(typeof(OreType), GetRandomOreSpawnFromAreaLevel(area.level)));
+          NWScript.SetLocalInt(newRock, "_ORE_AMOUNT", 50 * iRandom + 50 * iRandom * skillBonus / 100);
           NWScript.DestroyObject(oPlaceable);
         }
 
-        ressourcePoint = NWScript.GetNearestObjectByTag("ressourcepoint", oPlaceable, i);
         i++;
+        resourcePoint = NWScript.GetNearestObjectByTag("ore_spawn_wp", oPlaceable, i);
       }
 
       Items.Utils.DecreaseItemDurability(oExtractor);

@@ -56,6 +56,7 @@ namespace NWN.Systems
             { "map_pin_added", HandleAddMapPin },
             { "map_pin_changed", HandleChangeMapPin },
             { "map_pin_destroyed", HandleDestroyMapPin },
+            { "on_input_emote", HandleInputEmote },
             //{ "event_has_feat", HandleAfterHasFeat },
            // { "before_reputation_change", HandleBeforeReputationChange },
         }; 
@@ -590,6 +591,13 @@ namespace NWN.Systems
             else
               NWScript.FloatingTextStringOnCreature("Seuls d'autres joueurs peuvent être ciblés par cette compétence. Les tentatives de vol sur PNJ doivent être jouées en rp avec un dm.", player.oid);
             break;
+          case NWScript.SKILL_ANIMAL_EMPATHY:
+            if (NWScript.GetTag(NWScript.GetArea(player.oid)) == "Promenadetest")
+            {
+              NWScript.SendMessageToPC(player.oid, "L'endroit est bien trop agité pour que vous puissiez vous permettre de nouer un lien avec l'animal.");
+              EventsPlugin.SkipEvent();
+            }
+            break;
         }
       }
 
@@ -762,12 +770,12 @@ namespace NWN.Systems
     }
     private static int HandleBeforeExamine(uint oidSelf)
     {
-      Player player;
-      if (Players.TryGetValue(oidSelf, out player))
+      if (Players.TryGetValue(oidSelf, out Player player))
       {
         var examineTarget =  NWScript.StringToObject(EventsPlugin.GetEventData("EXAMINEE_OBJECT_ID"));
-      
-        switch(NWScript.GetTag(examineTarget))
+        OreType myOreType;
+
+        switch (NWScript.GetTag(examineTarget))
         {
           case "mineable_rock":
             int oreAmount = NWScript.GetLocalInt(examineTarget, "_ORE_AMOUNT");
@@ -804,8 +812,7 @@ namespace NWN.Systems
             if (int.TryParse(NWScript.Get2DAString("feat", "GAINMULTIPLE", CreaturePlugin.GetHighestLevelOfFeat(player.oid, (int)Feat.ReprocessingEfficiency)), out value))
               reprocessingData += $"\n x1.{2 * value} (Raffinage efficace)";
 
-            Ore processedOre;
-            if (oresDictionnary.TryGetValue(GetOreTypeFromName(NWScript.GetName(examineTarget)), out processedOre))
+            if (Enum.TryParse(NWScript.GetName(examineTarget), out myOreType) &&  oresDictionnary.TryGetValue(myOreType, out Ore processedOre))
               if (int.TryParse(NWScript.Get2DAString("feat", "GAINMULTIPLE", CreaturePlugin.GetHighestLevelOfFeat(player.oid, (int)processedOre.feat)), out value))
                 reprocessingData += $"\n x1.{2 * value} (Raffinage {NWScript.GetName(examineTarget)})";
 
@@ -818,7 +825,7 @@ namespace NWN.Systems
           case "refinery":
             string descriptionBrut = "Stock actuel de minerai brut : \n\n\n";
             foreach (KeyValuePair<string, int> stockEntry in player.materialStock)
-              if(GetOreTypeFromName(stockEntry.Key) != OreType.Invalid)
+              if(Enum.TryParse(stockEntry.Key, out myOreType) && myOreType != OreType.Invalid)
                 descriptionBrut += $"{stockEntry.Key} : {stockEntry.Value} unité(s).\n";
                 
             NWScript.SetDescription(examineTarget, descriptionBrut);
@@ -826,32 +833,28 @@ namespace NWN.Systems
           case "forge":
             string descriptionRefined = "Stock actuel de minerai raffiné : \n\n\n";
             foreach (KeyValuePair<string, int> stockEntry in player.materialStock)
-              if (GetMineralTypeFromName(stockEntry.Key) != MineralType.Invalid)
+              if (Enum.TryParse(stockEntry.Key, out MineralType myMineralType) && myMineralType != MineralType.Invalid)
                 descriptionRefined += $"{stockEntry.Key} : {stockEntry.Value} unité(s).\n";
 
             NWScript.SetDescription(examineTarget, descriptionRefined);
-            break;
+            break; 
         }
       }
       return 0;
     }
     private static int HandleAfterExamine(uint oidSelf)
     {
-      Player player;
-      if (Players.TryGetValue(oidSelf, out player))
-      {
-        var examineTarget = NWScript.StringToObject(EventsPlugin.GetEventData("EXAMINEE_OBJECT_ID"));
+      var examineTarget = NWScript.StringToObject(EventsPlugin.GetEventData("EXAMINEE_OBJECT_ID"));
 
-        switch (NWScript.GetTag(examineTarget))
-        {
-          case "mineable_rock":
-          case "blueprint":
-          case "ore":
-          case "refinery":
-          case "forge":
-            NWScript.SetDescription(examineTarget, $"");
-            break;
-        }
+      switch (NWScript.GetTag(examineTarget))
+      {
+        case "mineable_rock":
+        case "blueprint":
+        case "ore":
+        case "refinery":
+        case "forge":
+          NWScript.SetDescription(examineTarget, $"");
+          break;
       }
       return 0;
     }
@@ -987,16 +990,6 @@ namespace NWN.Systems
         Player player;
         if (Players.TryGetValue(oidSelf, out player))
         {
-          if (Convert.ToBoolean(NWScript.GetLocalInt(oArea, "_REST")))
-          {
-            NWScript.ExploreAreaForPlayer(oArea, player.oid, 1);
-
-            if (player.craftJob.IsActive() && player.playerJournal.craftJobCountDown == null)
-              player.craftJob.CreateCraftJournalEntry();
-          }
-          else if (player.playerJournal.craftJobCountDown != null)
-            player.craftJob.CancelCraftJournalEntry();
-
           player.previousArea = oArea;
 
           if(player.menu.isOpen)
@@ -1004,7 +997,20 @@ namespace NWN.Systems
 
           Area area;
           if (Module.areaDictionnary.TryGetValue(NWScript.GetObjectUUID(oArea), out area))
+          {
             area.DoAreaSpecificBehavior(player);
+
+            if(area.level < 2)
+              NWScript.ExploreAreaForPlayer(oArea, player.oid, 1);
+
+            if (area.level == 0)
+            {
+              if (player.craftJob.IsActive() && player.playerJournal.craftJobCountDown == null)
+                player.craftJob.CreateCraftJournalEntry();
+            }
+            else if (player.playerJournal.craftJobCountDown != null)
+              player.craftJob.CancelCraftJournalEntry();
+          }
         }
       }
 
@@ -1016,12 +1022,17 @@ namespace NWN.Systems
       {
         Player player;
         if (Players.TryGetValue(oidSelf, out player))
-        { 
+        {
           Area area;
           if (Module.areaDictionnary.TryGetValue(NWScript.GetObjectUUID(player.previousArea), out area))
           {
-            if (AreaPlugin.GetNumberOfPlayersInArea(player.previousArea) == 0)
-              NWScript.DelayCommand(1500.0f, () => area.CleanArea()); // 25 minutes
+            int nbPlayersInArea = AreaPlugin.GetNumberOfPlayersInArea(player.previousArea);
+
+            if (EventsPlugin.GetCurrentEvent() == "NWNX_ON_CLIENT_DISCONNECT_BEFORE")
+              nbPlayersInArea -= 1;
+
+            if (nbPlayersInArea == 0)
+              NWScript.AssignCommand(area.oid, () => NWScript.DelayCommand(1500.0f, () => area.CleanArea())); // 25 minutes
           }
         }
       }
@@ -1247,6 +1258,40 @@ namespace NWN.Systems
         updatedMapPin.note = EventsPlugin.GetEventData("PIN_NOTE");
       }
 
+      return 0; 
+    }
+    private static int HandleInputEmote(uint oidSelf)
+    {
+      int animation = Utils.TranslateEngineAnimation(Int32.Parse(EventsPlugin.GetEventData("ANIMATION")));
+      Console.WriteLine($"emote : {animation}");
+      switch (animation)
+      {
+        case NWScript.ANIMATION_LOOPING_MEDITATE:
+        case NWScript.ANIMATION_LOOPING_CONJURE1:
+        case NWScript.ANIMATION_LOOPING_CONJURE2:
+        case NWScript.ANIMATION_LOOPING_DEAD_BACK:
+        case NWScript.ANIMATION_LOOPING_GET_MID:
+        case NWScript.ANIMATION_LOOPING_GET_LOW:
+        case NWScript.ANIMATION_LOOPING_LISTEN:
+        case NWScript.ANIMATION_LOOPING_DEAD_FRONT:
+        case NWScript.ANIMATION_LOOPING_LOOK_FAR:
+        case NWScript.ANIMATION_LOOPING_PAUSE:
+        case NWScript.ANIMATION_LOOPING_PAUSE_DRUNK:
+        case NWScript.ANIMATION_LOOPING_PAUSE_TIRED:
+        case NWScript.ANIMATION_LOOPING_PAUSE2:
+        case NWScript.ANIMATION_LOOPING_SIT_CHAIR:
+        case NWScript.ANIMATION_LOOPING_SIT_CROSS:
+        case NWScript.ANIMATION_LOOPING_SPASM:
+        case NWScript.ANIMATION_LOOPING_TALK_FORCEFUL:
+        case NWScript.ANIMATION_LOOPING_TALK_LAUGHING:
+        case NWScript.ANIMATION_LOOPING_TALK_NORMAL:
+        case NWScript.ANIMATION_LOOPING_TALK_PLEADING:
+        case NWScript.ANIMATION_LOOPING_WORSHIP:
+          EventsPlugin.SkipEvent();
+          NWScript.PlayAnimation(animation, 1, 30000.0f);
+          break;
+      }
+      
       return 0;
     }
     /*private static int HandleBeforeReputationChange(uint oidSelf)

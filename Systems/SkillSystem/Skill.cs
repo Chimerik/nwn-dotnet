@@ -180,6 +180,8 @@ namespace NWN.Systems
         double remainingTime = GetTimeToNextLevel(skillPointRate);
         player.playerJournal.skillJobCountDown = DateTime.Now.AddSeconds(remainingTime);
 
+        remainingTime = 0;
+
         if (remainingTime <= 0)
           LevelUpSkill();
       }
@@ -229,6 +231,8 @@ namespace NWN.Systems
         {
           player.learnableSkills.Add(successorId, new Skill(successorId, 0, player));
         }
+
+        NWScript.ExportSingleCharacter(player.oid);
       }
       public void PlayNewSkillAcquiredEffects()
       {

@@ -13,8 +13,6 @@ namespace NWN.Systems
       {
         string descriptionName = (string)options.positional[0];
 
-        NWScript.SendMessageToPC(player.oid, $"name : {descriptionName}");
-
         if (descriptionName.Length == 0)
           return;
 

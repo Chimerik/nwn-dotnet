@@ -56,8 +56,7 @@ namespace NWN.Systems
     }
     public void CleanArea()
     {
-      DateTime lastEnteredDate;
-      if (AreaPlugin.GetNumberOfPlayersInArea(this.oid) == 0 && DateTime.TryParse(NWScript.GetLocalString(this.oid, "_LAST_ENTERED_ON"), out lastEnteredDate) && (DateTime.Now - lastEnteredDate).TotalMinutes >= 5)
+      if (AreaPlugin.GetNumberOfPlayersInArea(this.oid) == 0 && DateTime.TryParse(NWScript.GetLocalString(this.oid, "_LAST_ENTERED_ON"), out DateTime lastEnteredDate) && (DateTime.Now - lastEnteredDate).TotalMinutes >= 5)
       {
         var firstObject = NWScript.GetFirstObjectInArea(this.oid);
         int i = 1;
@@ -68,8 +67,9 @@ namespace NWN.Systems
           if (!Convert.ToBoolean(NWScript.GetIsPC(nearestObject)))
             Utils.DestroyInventory(nearestObject);
 
-          if(NWScript.GetTag(nearestObject) != "Statuereptilienne")
+          if (NWScript.GetTag(nearestObject) != "Statuereptilienne")
             NWScript.DestroyObject(nearestObject);
+
           i++;
           nearestObject = NWScript.GetNearestObject(NWScript.OBJECT_TYPE_CREATURE, firstObject, i);
         }
@@ -150,6 +150,35 @@ namespace NWN.Systems
         case "SimilisseTribunalPrison":
         case "SimilisseSalleDesDelibrations":
           level = 0;
+          break; 
+        case "lepontdaruthen":
+        case "Fermesnord":
+        case "fermes_ouest":
+        case "terres_de_fryar": 
+        case "vallee":
+        case "cave_flooded":
+        case "cave_underwater_ruins_entry ":
+          level = 2;
+          break; 
+        case "chemin_interdit":
+        case "collines_mugissantes":
+        case "basse_montagne":
+        case "haute_montagne":
+        case "GoblinTunnels":
+        case "caverne_kobolts":
+          level = 3;
+          break;
+        case "epine_seeksa":
+        case "OrcEncampment":
+        case "vallee_caverne":
+        case "cave_kuotoa":
+          level = 4;
+          break; 
+        case "SaltMines":
+          level = 5;
+          break;
+        case "ant_nest":
+          level = 6;
           break;
       }
     }

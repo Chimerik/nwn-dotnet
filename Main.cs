@@ -23,6 +23,7 @@ namespace NWN
       // a script does not need to be in the module for its name to be assigned. Many DotNET modules
       // have no .nss or .ncs files at all. Note that script names must always be shorter than 16
       // characters by an internal engine limitation.
+
       Func<uint, int> handler;
       if (ModuleSystem.Register.TryGetValue(scriptName, out handler))
       {

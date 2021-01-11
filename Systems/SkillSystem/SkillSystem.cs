@@ -29,9 +29,10 @@ namespace NWN.Systems
 
     private static int HandleHealthPoints(PlayerSystem.Player player, int feat)
     {
-      CreaturePlugin.SetMaxHitPointsByLevel(player.oid, 1, CreaturePlugin.GetMaxHitPointsByLevel(player.oid, 1) 
-        + 1 + (3 * ((CreaturePlugin.GetRawAbilityScore(player.oid, NWScript.ABILITY_CONSTITUTION) - 10) / 2) 
-        + CreaturePlugin.GetKnowsFeat(player.oid, (int)Feat.Toughness)));
+      CreaturePlugin.SetMaxHitPointsByLevel(player.oid, 1, Int32.Parse(NWScript.Get2DAString("classes", "HitDie", 43)) 
+        + (1 + 3 * ((CreaturePlugin.GetRawAbilityScore(player.oid, NWScript.ABILITY_CONSTITUTION) 
+        + Int32.Parse(NWScript.Get2DAString("feat", "GAINMULTIPLE", CreaturePlugin.GetHighestLevelOfFeat(player.oid, (int)Feat.ImprovedConstitution))) - 10) / 2) 
+        + CreaturePlugin.GetKnowsFeat(player.oid, (int)Feat.Toughness)) * Int32.Parse(NWScript.Get2DAString("feat", "GAINMULTIPLE", CreaturePlugin.GetHighestLevelOfFeat(player.oid, (int)Feat.ImprovedHealth))));
       return 0;
     }
 
