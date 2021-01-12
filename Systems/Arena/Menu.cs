@@ -1,4 +1,5 @@
-﻿using static NWN.Systems.Arena.Config;
+﻿using NWN.Core;
+using static NWN.Systems.Arena.Config;
 using static NWN.Systems.PlayerSystem;
 
 namespace NWN.Systems.Arena
@@ -57,7 +58,8 @@ namespace NWN.Systems.Arena
     {
       player.PayOrBorrowGold(Utils.GetGoldEntryCost(difficulty));
 
-      // TODO TP le PJ dans la zone instanciée
+      NWScript.CreateArea(PVE_ARENA_AREA_RESREF, "", $"Arène de {NWScript.GetName(player.oid)} - Niveau {difficulty}");
+      // Tp le joueur dans la zone.
     }
 
     private static void DrawRewardPage(PlayerSystem.Player player)
