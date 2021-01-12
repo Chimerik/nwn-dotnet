@@ -180,8 +180,6 @@ namespace NWN.Systems
         double remainingTime = GetTimeToNextLevel(skillPointRate);
         player.playerJournal.skillJobCountDown = DateTime.Now.AddSeconds(remainingTime);
 
-        remainingTime = 0;
-
         if (remainingTime <= 0)
           LevelUpSkill();
       }

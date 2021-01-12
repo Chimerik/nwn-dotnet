@@ -133,8 +133,8 @@ namespace NWN.Systems
     {
       NWScript.SetCreatureBodyPart(NWScript.CREATURE_PART_HEAD, NWScript.GetCreatureBodyPart(NWScript.CREATURE_PART_HEAD, oClone), player.oid);
       NWScript.SetColor(player.oid, NWScript.COLOR_CHANNEL_TATTOO_1, NWScript.GetColor(oClone, NWScript.COLOR_CHANNEL_TATTOO_1));
-      NWScript.SetColor(player.oid, NWScript.COLOR_CHANNEL_TATTOO_1, NWScript.GetColor(oClone, NWScript.COLOR_CHANNEL_TATTOO_2));
-      NWScript.SetColor(player.oid, NWScript.COLOR_CHANNEL_TATTOO_1, NWScript.GetColor(oClone, NWScript.COLOR_CHANNEL_HAIR));
+      NWScript.SetColor(player.oid, NWScript.COLOR_CHANNEL_TATTOO_2, NWScript.GetColor(oClone, NWScript.COLOR_CHANNEL_TATTOO_2));
+      NWScript.SetColor(player.oid, NWScript.COLOR_CHANNEL_HAIR, NWScript.GetColor(oClone, NWScript.COLOR_CHANNEL_HAIR));
       NWScript.SetObjectVisualTransform(player.oid, NWScript.OBJECT_VISUAL_TRANSFORM_SCALE, NWScript.GetObjectVisualTransform(oClone, NWScript.OBJECT_VISUAL_TRANSFORM_SCALE));
       HandleBodyModification(player, oClone);
     }

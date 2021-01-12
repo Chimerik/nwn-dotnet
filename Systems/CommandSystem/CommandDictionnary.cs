@@ -380,6 +380,16 @@ namespace NWN.Systems
         )
       },
       {
+        "stocks",
+        new Command(
+          name: "stocks",
+          description: new Command.Description(
+            title: "Affiche votre stock personnel de matières premières"
+          ),
+          execute: ExecuteStocksMenuCommand
+        )
+      },
+      {
         "test_arena",
         new Command(
           name: "test_arena",
