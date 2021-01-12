@@ -7,46 +7,79 @@ namespace NWN.Systems.Craft.Collect
 {
   public class Config
   {
-    public static Dictionary<OreType, Ore> oresDictionnary = new Dictionary<OreType, Ore>();
-    public partial class Ore
+    public static Dictionary<OreType, Ore> oresDictionnary = new Dictionary<OreType, Ore>
+    {
+      {
+        OreType.Veldspar,
+        new Ore(
+          oreType: OreType.Veldspar,
+          oreFeat: Feat.VeldsparReprocessing,
+          mineralsDictionnary: new Dictionary<MineralType, float>
+          {
+            { MineralType.Tritanium, 41.500f }
+          }
+        )
+      },
+      {
+        OreType.Scordite,
+        new Ore(
+          oreType: OreType.Scordite,
+          oreFeat: Feat.ScorditeReprocessing,
+          mineralsDictionnary: new Dictionary<MineralType, float>
+          {
+            { MineralType.Tritanium, 23.067f },
+            { MineralType.Pyerite, 11.533f }
+          }
+        )
+      },
+      {
+        OreType.Pyroxeres,
+        new Ore(
+          oreType: OreType.Pyroxeres,
+          oreFeat: Feat.PyroxeresReprocessing,
+          mineralsDictionnary: new Dictionary<MineralType, float>
+          {
+            { MineralType.Tritanium, 11.700f },
+            { MineralType.Pyerite, 0.833f },
+            { MineralType.Mexallon,  1.667f },
+            { MineralType.Noxcium, 0.167f }
+          }
+        )
+      }
+    };
+
+    public static Dictionary<MineralType, Mineral> mineralDictionnary = new Dictionary<MineralType, Mineral>
+    { 
+      { MineralType.Tritanium, new Mineral(MineralType.Tritanium) },
+      { MineralType.Pyerite, new Mineral(MineralType.Pyerite) },
+      { MineralType.Noxcium, new Mineral(MineralType.Noxcium) },
+      { MineralType.Mexallon, new Mineral(MineralType.Mexallon) },
+    };
+    public struct Ore
     {
       public OreType type;
       public string name;
       public Feat feat;
-      public Dictionary<MineralType, float> mineralsDictionnary = new Dictionary<MineralType, float>();
-      public Ore(OreType oreType, Feat oreFeat)
+      public Dictionary<MineralType, float> mineralsDictionnary;
+      public Ore(OreType oreType, Feat oreFeat, Dictionary<MineralType, float> mineralsDictionnary)
       {
         this.type = oreType;
-        this.name = Enum.GetName(typeof(OreType), oreType);
+        this.name = Enum.GetName(typeof(OreType), oreType) ?? "";
         this.feat = oreFeat;
-        this.InitializeOreRefinementYield();
-      }
-
-      public void InitializeOreRefinementYield()
-      {
-        switch (this.type)
-        {
-          case OreType.Veldspar:
-            this.mineralsDictionnary.Add(MineralType.Tritanium, 41.500f);
-            break;
-          case OreType.Scordite:
-            this.mineralsDictionnary.Add(MineralType.Tritanium, 23.067f);
-            this.mineralsDictionnary.Add(MineralType.Pyerite, 11.533f);
-            break;
-          case OreType.Pyroxeres:
-            this.mineralsDictionnary.Add(MineralType.Tritanium, 11.700f);
-            this.mineralsDictionnary.Add(MineralType.Pyerite, 0.833f);
-            this.mineralsDictionnary.Add(MineralType.Mexallon,  1.667f);
-            this.mineralsDictionnary.Add(MineralType.Noxcium, 0.167f);
-            break;
-        }
+        this.mineralsDictionnary = mineralsDictionnary;
       }
     }
-    public static void InitializeOres()
+
+    public struct Mineral
     {
-      oresDictionnary.Add(OreType.Veldspar, new Ore(OreType.Veldspar, Feat.VeldsparReprocessing));
-      oresDictionnary.Add(OreType.Scordite, new Ore(OreType.Scordite, Feat.ScorditeReprocessing));
-      oresDictionnary.Add(OreType.Pyroxeres, new Ore(OreType.Pyroxeres, Feat.PyroxeresReprocessing));
+      public MineralType type;
+      public string name;
+
+      public Mineral(MineralType type)
+      {
+        this.type = type;
+        this.name = Enum.GetName(typeof(MineralType), type) ?? "";
+      }
     }
     public enum OreType
     {
