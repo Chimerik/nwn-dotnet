@@ -23,7 +23,7 @@ namespace NWN.Systems
     private static void __DrawConfigPage (PlayerSystem.Player player)
     {
       player.menu.Clear();
-      player.menu.title = "Configuration de l'affichage du menu.";
+      player.menu.titleLines.Add("Configuration de l'affichage du menu.");
       player.menu.choices.Add(("Deplacer vers la gauche.", () => __HandleMoveLeft(player)));
       player.menu.choices.Add(("Deplacer vers la droite.", () => __HandleMoveRight(player)));
       player.menu.choices.Add(("Deplacer vers le haut.", () => __HandleMoveUp(player)));

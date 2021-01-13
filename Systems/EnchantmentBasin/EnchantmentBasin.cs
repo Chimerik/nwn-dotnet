@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using NWN.Core;
 
 namespace NWN.Systems
@@ -81,7 +82,7 @@ namespace NWN.Systems
       private void DrawMenuPage()
       {
         player.menu.Clear();
-        player.menu.title = "Choisissez un enchantement a appliquer sur votre objet";
+        player.menu.titleLines.Add("Choisissez un enchantement a appliquer sur votre objet");
 
         bool isWeapon = ItemUtils.IsWeapon(oItem);
         bool isMeleeWeapon = ItemUtils.IsMeleeWeapon(oItem);
@@ -116,10 +117,13 @@ namespace NWN.Systems
         successPercent = Math.Clamp(successPercent, minSuccessPercent, maxSuccessPercent);
 
         player.menu.Clear();
-        player.menu.title = $"Desirez vous ajouter l'enchantement {enchantmentName} a l'item {NWScript.GetName(oItem)} ? " +
-          $"Il vous en coutera {cost} Pieces d'or. " +
-          $"Vous avez {successPercent}% de chance de reussite. " +
-          $"En cas d'échec, l'item sera detruit de facon permanente.";
+        player.menu.titleLines = new List<string> {
+          $"Desirez vous ajouter l'enchantement {enchantmentName} a l'item {NWScript.GetName(oItem)} ? ",
+          $"Il vous en coutera {cost} Pieces d'or. ",
+          $"Vous avez {successPercent}% de chance de reussite. ",
+          $"En cas d'échec, l'item sera detruit de facon permanente."
+        };
+        
         player.menu.choices.Add(("Confirmer", () => HandleConfirm(ip, cost, successPercent)));
         player.menu.choices.Add(("Retour", () => DrawMenuPage()));
         player.menu.Draw();
@@ -192,7 +196,7 @@ namespace NWN.Systems
       private void DrawAbilityBonusPage()
       {
         player.menu.Clear();
-        player.menu.title = "Choisissez une caracteristique";
+        player.menu.titleLines.Add("Choisissez une caracteristique");
 
         AddAbilityBonusTypeToMenu(NWScript.ABILITY_STRENGTH);
         AddAbilityBonusTypeToMenu(NWScript.ABILITY_DEXTERITY);
@@ -236,7 +240,7 @@ namespace NWN.Systems
       private void DrawDamageBonusPage()
       {
         player.menu.Clear();
-        player.menu.title = "Choisissez un type de degats";
+        player.menu.titleLines.Add("Choisissez un type de degats");
 
         AddDamageBonusTypeToMenu(NWScript.IP_CONST_DAMAGETYPE_ACID);
         AddDamageBonusTypeToMenu(NWScript.IP_CONST_DAMAGETYPE_COLD);
@@ -289,7 +293,7 @@ namespace NWN.Systems
       private void DrawSavingThrowBonusPage()
       {
         player.menu.Clear();
-        player.menu.title = "Choisissez un type de jet de sauvegarde";
+        player.menu.titleLines.Add("Choisissez un type de jet de sauvegarde");
 
         var currentUniversalSavingThrowBonus = ItemUtils.GetItemPropertyBonus(oItem, NWScript.ITEM_PROPERTY_SAVING_THROW_BONUS, NWScript.IP_CONST_SAVEVS_UNIVERSAL);
 

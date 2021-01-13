@@ -15,7 +15,10 @@ namespace NWN.Systems
     private void DrawWelcomePage(Player player)
     {
       player.menu.Clear();
-      player.menu.title = $"Bientôt, il me sera possible de gérer des ordres d'achat et de vente pour vous. Mais le moment n'est pas encore venu ...";
+      player.menu.titleLines = new List<string> {
+        $"Bientôt, il me sera possible de gérer des ordres d'achat et de vente pour vous.",
+        "Mais le moment n'est pas encore venu ..."
+      };
 
       player.menu.choices.Add(("Quitter [En cours de développement]", () => player.menu.Close()));
       player.menu.Draw();
