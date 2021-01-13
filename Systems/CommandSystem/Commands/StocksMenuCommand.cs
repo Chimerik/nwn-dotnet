@@ -1,5 +1,4 @@
-﻿using System;
-using static NWN.Systems.Craft.Collect.Config;
+﻿using static NWN.Systems.Craft.Collect.Config;
 using static NWN.Systems.PlayerSystem;
 
 namespace NWN.Systems
@@ -57,10 +56,7 @@ namespace NWN.Systems
         int playerStock = 0;
         player.materialStock.TryGetValue(entry.Value.name, out playerStock);
 
-        player.menu.choices.Add((
-          $"{entry.Value.name}: {playerStock}",
-          () => { }
-        ));
+        player.menu.titleLines.Add($"* {entry.Value.name}: {playerStock}");
       }
 
       player.menu.choices.Add((
@@ -81,10 +77,7 @@ namespace NWN.Systems
         int playerStock = 0;
         player.materialStock.TryGetValue(entry.Value.name, out playerStock);
 
-        player.menu.choices.Add((
-          $"{entry.Value.name}: {playerStock}",
-          () => { }
-        ));
+        player.menu.titleLines.Add($"* {entry.Value.name}: {playerStock}");
       }
 
       player.menu.choices.Add((
