@@ -28,9 +28,6 @@ namespace NWN.Systems
         uint shop; 
         string tag = NWScript.GetTag(oidSelf);
 
-        if (tag.Contains("_NB_"))
-          tag = tag.Remove(tag.IndexOf("_NB_"));
-
         switch (tag)
         {
           case "bank_npc":

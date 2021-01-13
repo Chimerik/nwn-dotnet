@@ -61,7 +61,6 @@ namespace NWN.Systems.Craft.Collect
 
       if (NWScript.GetIsObjectValid(oExtractor) != 1) return;
 
-      
       uint resourcePoint = NWScript.GetNearestObjectByTag("ore_spawn_wp", oPlaceable);
       int i = 1;
 
@@ -77,6 +76,7 @@ namespace NWN.Systems.Craft.Collect
         skillBonus += value;
 
       int respawnChance = skillBonus * 5;
+      int nbSpawns = 0;
 
       while (NWScript.GetIsObjectValid(resourcePoint) == 1)
       {
@@ -87,11 +87,17 @@ namespace NWN.Systems.Craft.Collect
           NWScript.SetName(newRock, Enum.GetName(typeof(OreType), GetRandomOreSpawnFromAreaLevel(area.level)));
           NWScript.SetLocalInt(newRock, "_ORE_AMOUNT", 50 * iRandom + 50 * iRandom * skillBonus / 100);
           NWScript.DestroyObject(oPlaceable);
+          nbSpawns++; 
         }
 
         i++;
         resourcePoint = NWScript.GetNearestObjectByTag("ore_spawn_wp", oPlaceable, i);
       }
+
+      if(nbSpawns > 0)
+        NWScript.SendMessageToPC(player.oid, $"Votre prospection a permis de mettre à découvert {nbSpawns} veine(s) de minerai !");
+      else
+        NWScript.SendMessageToPC(player.oid, $"Votre prospection ne semble pas avoir abouti à la découverte d'une veine exploitable");
 
       Items.Utils.DecreaseItemDurability(oExtractor);
     }

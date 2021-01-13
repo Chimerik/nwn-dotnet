@@ -68,7 +68,12 @@ namespace NWN.Systems
             Utils.DestroyInventory(nearestObject);
 
           if (NWScript.GetTag(nearestObject) != "Statuereptilienne")
+          {
+            if(NWScript.GetEventScript(nearestObject, NWScript.EVENT_SCRIPT_CREATURE_ON_DEATH) ==  "od_spawn_npc_wp")
+              NWScript.CreateObject(NWScript.OBJECT_TYPE_WAYPOINT, NWScript.GetLocalString(nearestObject, "_WAYPOINT_TEMPLATE"), NWScript.GetLocation(nearestObject));
+
             NWScript.DestroyObject(nearestObject);
+          }
 
           i++;
           nearestObject = NWScript.GetNearestObject(NWScript.OBJECT_TYPE_CREATURE, firstObject, i);
@@ -157,7 +162,7 @@ namespace NWN.Systems
         case "terres_de_fryar": 
         case "vallee":
         case "cave_flooded":
-        case "cave_underwater_ruins_entry ":
+        case "cave_uw_ruins_entry":
           level = 2;
           break; 
         case "chemin_interdit":

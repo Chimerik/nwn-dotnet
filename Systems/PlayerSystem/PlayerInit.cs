@@ -31,8 +31,7 @@ namespace NWN.Systems
       //RefreshQBS(oidSelf, 0);
       // }
 
-      Player player; 
-      if(!Players.TryGetValue(oPC, out player))
+      if(!Players.TryGetValue(oPC, out Player player))
       {
         player = new Player(oPC);
         Players.Add(oPC, player);
@@ -40,6 +39,13 @@ namespace NWN.Systems
 
       if (NWScript.GetIsDM(oPC) != 1)
       {
+        string pcAccount = player.CheckDBPlayerAccount();
+        if (pcAccount != NWScript.GetPCPlayerName(player.oid))
+        {
+          NWScript.SendMessageToPC(player.oid, $"Attention - Ce personnage est enregistré sous le compte {pcAccount}, or vous venez de vous connecter sous {NWScript.GetPCPlayerName(player.oid)}, ce qui risque de poser problème !");
+          Utils.LogMessageToDMs($"Attention - {NWScript.GetPCPlayerName(player.oid)} vient de se connecter avec un personnage enregistré sous le compte : {pcAccount} !");
+        }
+
         /*if (NWScript.GetIsObjectValid(NWScript.GetItemPossessedBy(oPC, "pj_lycan_curse")) == 1) // TODO : revoir système de métamorphose et de malédiction lycanthropique
         {
           CreaturePlugin.AddFeat(oPC, NWScript.FEAT_PLAYER_TOOL_02);
@@ -211,6 +217,8 @@ namespace NWN.Systems
         arrivalArea = NWScript.GetArea(newCharacter.oid);
         arrivalPoint = newCharacter.oid;
       }
+
+      Utils.DestroyInventory(newCharacter.oid);
 
       var query = NWScript.SqlPrepareQueryCampaign(ModuleSystem.database, $"INSERT INTO playerCharacters (accountId , characterName, dateLastSaved, currentSkillType, currentSkillJob, currentCraftJob, currentCraftObject, frostAttackOn, areaTag, position, facing, menuOriginLeft, currentHP) VALUES (@accountId, @name, @dateLastSaved, @currentSkillType, @currentSkillJob, @currentCraftJob, @currentCraftObject, @frostAttackOn, @areaTag, @position, @facing, @menuOriginLeft, @currentHP)");
       NWScript.SqlBindInt(query, "@accountId", newCharacter.accountId);

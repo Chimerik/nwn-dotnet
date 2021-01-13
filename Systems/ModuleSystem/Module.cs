@@ -43,7 +43,15 @@ namespace NWN.Systems
       RestorePlayerCorpseFromDatabase();
       RestoreDMPersistentPlaceableFromDatabase();
 
-      NWScript.DelayCommand((float)(DateTime.Now.TimeOfDay - TimeSpan.Parse("05:00:00")).TotalSeconds, () => SpawnCollectableResources());
+      float resourceRespawnTime;
+      if (DateTime.Now.Hour < 5)
+        resourceRespawnTime = (float)(TimeSpan.Parse("05:00:00") - DateTime.Now.TimeOfDay).TotalSeconds;
+      else
+        resourceRespawnTime = (float)((DateTime.Now.AddDays(1).Date).AddHours(5) - DateTime.Now).TotalSeconds;
+
+      resourceRespawnTime = 0.0f; // TEST A SUPPRIMER
+
+      NWScript.DelayCommand(resourceRespawnTime, () => SpawnCollectableResources());
 
       if (Config.env == Config.Env.Prod)
         NWScript.DelayCommand(5.0f, () => (Bot._client.GetChannel(786218144296468481) as IMessageChannel).SendMessageAsync($"Module en ligne !"));
@@ -389,13 +397,18 @@ namespace NWN.Systems
       {
         if (areaDictionnary.TryGetValue(NWScript.GetObjectUUID(NWScript.GetArea(resourcePoint)), out Area area))
         {
-          if(Utils.random.Next(1, 101) >= (area.level * 20) - 20)
+          if (area.level > 1)
           {
-            uint newRock = NWScript.CreateObject(NWScript.OBJECT_TYPE_PLACEABLE, "mineable_rock", NWScript.GetLocation(resourcePoint));
-            NWScript.SetName(newRock, Enum.GetName(typeof(OreType), GetRandomOreSpawnFromAreaLevel(area.level)));
-            NWScript.SetLocalInt(newRock, "_ORE_AMOUNT", 50 * Utils.random.Next(1, 101));
-            NWScript.DestroyObject(resourcePoint);
+            if (Utils.random.Next(1, 101) >= (area.level * 20) - 20)
+            {
+              uint newRock = NWScript.CreateObject(NWScript.OBJECT_TYPE_PLACEABLE, "mineable_rock", NWScript.GetLocation(resourcePoint));
+              NWScript.SetName(newRock, Enum.GetName(typeof(OreType), GetRandomOreSpawnFromAreaLevel(area.level)));
+              NWScript.SetLocalInt(newRock, "_ORE_AMOUNT", 50 * Utils.random.Next(1, 101));
+              NWScript.DestroyObject(resourcePoint);
+            }
           }
+          else
+            NWScript.DelayCommand(5.0f, () => Utils.LogMessageToDMs($"[Resource Spawn System] - Attention, un point de ressource a été déposé dans une zone de niveau < 2 : {area.name} - {area.tag}"));
         }
           
         i++;
@@ -409,13 +422,18 @@ namespace NWN.Systems
       {
         if (areaDictionnary.TryGetValue(NWScript.GetObjectUUID(NWScript.GetArea(resourcePoint)), out Area area))
         {
-          if (Utils.random.Next(1, 101) >= (area.level * 20) - 20)
+          if (area.level > 1)
           {
-            uint newRock = NWScript.CreateObject(NWScript.OBJECT_TYPE_PLACEABLE, "mineable_tree", NWScript.GetLocation(resourcePoint));
-            NWScript.SetName(newRock, Enum.GetName(typeof(WoodType), GetRandomWoodSpawnFromAreaLevel(area.level)));
-            NWScript.SetLocalInt(newRock, "_ORE_AMOUNT", 50 * Utils.random.Next(1, 101));
-            NWScript.DestroyObject(resourcePoint);
+            if (Utils.random.Next(1, 101) >= (area.level * 20) - 20)
+            {
+              uint newRock = NWScript.CreateObject(NWScript.OBJECT_TYPE_PLACEABLE, "mineable_tree", NWScript.GetLocation(resourcePoint));
+              NWScript.SetName(newRock, Enum.GetName(typeof(WoodType), GetRandomWoodSpawnFromAreaLevel(area.level)));
+              NWScript.SetLocalInt(newRock, "_ORE_AMOUNT", 50 * Utils.random.Next(1, 101));
+              NWScript.DestroyObject(resourcePoint);
+            }
           }
+          else
+            NWScript.DelayCommand(5.0f, () => Utils.LogMessageToDMs($"[Resource Spawn System] - Attention, un point de ressource a été déposé dans une zone de niveau < 2 : {area.name} - {area.tag}"));
         }
 
         i++;

@@ -53,9 +53,12 @@ namespace NWN.Systems
           this.multiplier = value;
         else
         {
-          this.level = 1;
+          this.multiplier = 1;
           Utils.LogMessageToDMs($"SKILL SYSTEM ERROR - Spell {this.oid} : no available level");
         }
+
+        if (multiplier <= 0)
+          multiplier = 1;
         
         if (int.TryParse(NWScript.Get2DAString("spells", "Druid", Id), out value) || int.TryParse(NWScript.Get2DAString("spells", "Cleric", Id), out value) || int.TryParse(NWScript.Get2DAString("spells", "Ranger", Id), out value))
           primaryAbility = NWScript.ABILITY_WISDOM;
@@ -63,8 +66,15 @@ namespace NWN.Systems
           primaryAbility = NWScript.ABILITY_INTELLIGENCE;
 
         secondaryAbility = NWScript.ABILITY_CHARISMA;
+
+        int knownSpells = CreaturePlugin.GetKnownSpellCount(player.oid, 43, multiplier);
+        if (knownSpells > 5)
+          knownSpells = 5;
+
+        if (knownSpells < 1)
+          knownSpells = 1;
         
-        this.pointsToNextLevel = 250 * (this.multiplier + 1) * (int)Math.Pow(Math.Sqrt(32), CreaturePlugin.GetKnownSpellCount(player.oid, 43, multiplier));
+        this.pointsToNextLevel = 250 * (this.multiplier) * (int)Math.Pow(Math.Sqrt(32), knownSpells - 1);
 
         if (this.player.currentSkillJob == this.oid)
         {

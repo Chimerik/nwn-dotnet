@@ -330,6 +330,22 @@ namespace NWN.Systems
         )
       },
       {
+        "stuck",
+        new Command(
+          name: "stuck",
+          description: new Command.Description(title: "Permet de décoincer un personnage bloqué dans le décor."),
+          execute: ExecuteStuckCommand
+        )
+      },
+      {
+        "suivre",
+        new Command(
+          name: "suivre",
+          description: new Command.Description(title: "Suit automatiquement le personnage ciblé."),
+          execute: ExecuteFollowCommand
+        )
+      },
+      {
         "menu",
         new Command(
           name: "menu",

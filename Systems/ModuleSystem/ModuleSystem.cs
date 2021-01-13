@@ -21,6 +21,7 @@ namespace NWN.Systems
       { "onex_theater_sc", HandleExitTheaterScene },
       { "ondeath_wraith", HandleWraithDeath },
       { "ondeath_quaranti", HandleQuarantineWereDeath },
+      { "od_spawn_npc_wp", HandleNPCDeath },
     }.Concat(Systems.LootSystem.Register)
      .Concat(Systems.PlayerSystem.Register)
      .Concat(Systems.ChatSystem.Register)
@@ -116,8 +117,12 @@ namespace NWN.Systems
     }
     private static int HandleQuarantineWereDeath(uint oidSelf)
     {
-
       NWScript.CreateObject(NWScript.OBJECT_TYPE_CREATURE, NWScript.GetResRef(oidSelf), NWScript.GetLocation(NWScript.GetNearestObjectByTag("creature_spawn", oidSelf)));
+      return 0;
+    }
+    private static int HandleNPCDeath(uint oidSelf)
+    {
+      NWScript.CreateObject(NWScript.OBJECT_TYPE_WAYPOINT, NWScript.GetLocalString(oidSelf, "_WAYPOINT_TEMPLATE"), NWScript.GetLocation(oidSelf));
       return 0;
     }
   }

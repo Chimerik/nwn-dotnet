@@ -35,7 +35,7 @@ namespace NWN.Systems.Items.BeforeUseHandlers
             () => Ore.HandleCompleteProspectionCycle(player, oTarget, oItem)
           );
 
-          SpawnDisturbedMonsters(player.oid, oTarget);
+          //SpawnDisturbedMonsters(player.oid, oTarget);
 
           break;
 
