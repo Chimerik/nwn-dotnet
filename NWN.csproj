@@ -21,6 +21,11 @@
     </ItemGroup>
   </Target>
   <ItemGroup>
+    <Compile Remove="Systems\PlayerSystem\NewFolder\**" />
+    <EmbeddedResource Remove="Systems\PlayerSystem\NewFolder\**" />
+    <None Remove="Systems\PlayerSystem\NewFolder\**" />
+  </ItemGroup>
+  <ItemGroup>
     <PackageReference Include="Discord.Net" Version="2.2.0" />
     <PackageReference Include="Discord.Net.WebSocket" Version="2.2.0" />
     <PackageReference Include="Google.Api.Gax" Version="3.2.0" />
@@ -37,8 +42,5 @@
     <PackageReference Include="SQLitePCLRaw.core" Version="2.0.4" />
     <PackageReference Include="System.Interactive.Async" Version="5.0.0" />
     <PackageReference Include="System.Linq.Async" Version="5.0.0" />
-  </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Systems\PlayerSystem\NewFolder\" />
   </ItemGroup>
 </Project>

@@ -17,7 +17,11 @@ namespace NWN.Systems
     {
       player.setValue = 0;
       player.menu.Clear();
-      player.menu.title = $"Fonderie - Le minerai brut est acheminé de votre entrepôt. Efficacité : -35 %. Que souhaitez-vous fondre ? (Utilisez la commande !set X avant de valider votre choix)";
+      player.menu.titleLines = new List<string> {
+        $"Fonderie - Le minerai brut est acheminé de votre entrepôt.",
+        "Efficacité : -35 %. Que souhaitez-vous fondre ?",
+        "(Utilisez la commande !set X avant de valider votre choix)"
+      };
 
       foreach (KeyValuePair<string, int> materialEntry in player.materialStock)
       {
@@ -34,7 +38,10 @@ namespace NWN.Systems
 
       if (player.setValue < 100)
       {
-        player.menu.title = $"Les ouvriers chargés du transfert ne se dérangeant pas pour moins de 100 unités. Souhaitez-vous fondre tout votre stock ?";
+        player.menu.titleLines = new List<string> {
+          $"Les ouvriers chargés du transfert ne se dérangeant pas pour moins de 100 unités.",
+          "Souhaitez-vous fondre tout votre stock ?"
+        };
         player.menu.choices.Add(("Valider.", () => HandleRefineOre(player, oreName)));
         player.setValue = player.materialStock[oreName];
       }
@@ -70,11 +77,11 @@ namespace NWN.Systems
             NWScript.SendMessageToPC(player.oid, $"Vous venez de raffiner {refinedMinerals} unités de {mineralName}. Les lingots sont en cours d'acheminage vers votre entrepôt.");
           }
 
-          player.menu.title = $"Voilà qui est fait !";
+          player.menu.titleLines.Add($"Voilà qui est fait !");
         }
         else
         {
-          player.menu.title = $"HRP - Erreur, votre minerai brut n'a pas correctement été reconnu. Le staff a été informé du problème.";
+          player.menu.titleLines.Add($"HRP - Erreur, votre minerai brut n'a pas correctement été reconnu. Le staff a été informé du problème.");
           Utils.LogMessageToDMs($"REFINERY - Could not recognize ore type : {oreName} - Used by : {NWScript.GetName(player.oid)}");
         }
       }
