@@ -27,10 +27,10 @@ namespace NWN.Systems
             return;
           }
 
-          NWScript.ActionForceFollowObject(oTarget, 5.0f);
+          NWScript.AssignCommand(ctx.oSender, () => NWScript.ActionForceFollowObject(oTarget, 3.0f));
         };
 
-        player.targetEvent = TargetEvent.LootSaverTarget;
+        player.targetEvent = TargetEvent.Creature;
         player.SelectTarget(callback);
       }
     }

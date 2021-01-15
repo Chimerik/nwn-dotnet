@@ -6,5 +6,6 @@
     ProspectionTarget,
     SitTarget,
     LootSaverTarget,
+    Creature,
   }
 }

@@ -110,6 +110,10 @@ namespace NWN.Systems
           case TargetEvent.SitTarget:
           NWScript.EnterTargetingMode(this.oid);
             break;
+          case TargetEvent.Creature:
+            NWScript.EnterTargetingMode(this.oid, NWScript.OBJECT_TYPE_CREATURE);
+            targetEvent = TargetEvent.LootSaverTarget;
+            break;
           default:
             NWScript.EnterTargetingMode(this.oid);
             break;
@@ -314,8 +318,6 @@ namespace NWN.Systems
               float skillPointRate = skill.CalculateSkillPointsPerSecond();
               skill.acquiredPoints += skillPointRate * (float)(DateTime.Now - this.dateLastSaved).TotalSeconds;
               double RemainingTime = skill.GetTimeToNextLevel(skillPointRate);
-
-              Console.WriteLine($"id : {skill.oid} - rate : {skillPointRate} - remaining : {RemainingTime}");
 
               if (RemainingTime <= 0)
               {

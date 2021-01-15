@@ -1092,6 +1092,7 @@ namespace NWN.Systems
       uint creature = NWScript.CreateObject(NWScript.OBJECT_TYPE_CREATURE, NWScript.GetLocalString(spawnPoint, "_CREATURE_TEMPLATE"), NWScript.GetLocation(spawnPoint));
       NWScript.SetEventScript(creature, NWScript.EVENT_SCRIPT_CREATURE_ON_DEATH, "od_spawn_npc_wp");
       NWScript.SetLocalString(creature, "_WAYPOINT_TEMPLATE", NWScript.GetResRef(spawnPoint));
+      NWScript.SetAILevel(creature, 1);
 
       NWScript.DestroyObject(spawnPoint);
       

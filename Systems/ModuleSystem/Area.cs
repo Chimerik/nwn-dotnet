@@ -70,7 +70,7 @@ namespace NWN.Systems
           if (NWScript.GetTag(nearestObject) != "Statuereptilienne")
           {
             if(NWScript.GetEventScript(nearestObject, NWScript.EVENT_SCRIPT_CREATURE_ON_DEATH) ==  "od_spawn_npc_wp")
-              NWScript.CreateObject(NWScript.OBJECT_TYPE_WAYPOINT, NWScript.GetLocalString(nearestObject, "_WAYPOINT_TEMPLATE"), NWScript.GetLocation(nearestObject));
+              NWScript.SetLocalString(NWScript.CreateObject(NWScript.OBJECT_TYPE_WAYPOINT, NWScript.GetLocalString(nearestObject, "_WAYPOINT_TEMPLATE"), NWScript.GetLocation(nearestObject)), "_CREATURE_TEMPLATE", NWScript.GetResRef(nearestObject));
 
             NWScript.DestroyObject(nearestObject);
           }

@@ -122,7 +122,7 @@ namespace NWN.Systems
     }
     private static int HandleNPCDeath(uint oidSelf)
     {
-      NWScript.CreateObject(NWScript.OBJECT_TYPE_WAYPOINT, NWScript.GetLocalString(oidSelf, "_WAYPOINT_TEMPLATE"), NWScript.GetLocation(oidSelf));
+      NWScript.SetLocalString(NWScript.CreateObject(NWScript.OBJECT_TYPE_WAYPOINT, NWScript.GetLocalString(oidSelf, "_WAYPOINT_TEMPLATE"), NWScript.GetLocation(oidSelf)), "_CREATURE_TEMPLATE", NWScript.GetResRef(oidSelf));
       return 0;
     }
   }
