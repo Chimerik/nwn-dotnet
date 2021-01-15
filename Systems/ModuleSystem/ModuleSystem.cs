@@ -111,8 +111,8 @@ namespace NWN.Systems
     }
     private static int HandleWraithDeath(uint oidSelf)
     {
-      NWScript.CreateObject(NWScript.OBJECT_TYPE_CREATURE, "similisse_wraith", NWScript.GetLocation(NWScript.GetNearestObjectByTag("creature_spawn", oidSelf)));
-      NWScript.CreateObject(NWScript.OBJECT_TYPE_CREATURE, "similisse_wraith", NWScript.GetLocation(NWScript.GetNearestObjectByTag("creature_spawn", oidSelf)));
+      NWScript.CreateObject(NWScript.OBJECT_TYPE_CREATURE, "sim_wraith", NWScript.GetLocation(NWScript.GetNearestObjectByTag("creature_spawn", oidSelf)));
+      NWScript.CreateObject(NWScript.OBJECT_TYPE_CREATURE, "sim_wraith", NWScript.GetLocation(NWScript.GetNearestObjectByTag("creature_spawn", oidSelf)));
       return 0;
     }
     private static int HandleQuarantineWereDeath(uint oidSelf)
