@@ -98,10 +98,20 @@ namespace NWN.Systems
           switch(player.currentSkillType)
           {
             case SkillSystem.SkillType.Skill:
-              player.learnableSkills[player.currentSkillJob].currentJob = true;
+              if (player.learnableSkills.ContainsKey(player.currentSkillJob))
+                player.learnableSkills[player.currentSkillJob].currentJob = true;
+              else
+              {
+                if (!Convert.ToBoolean(CreaturePlugin.GetKnowsFeat(player.oid, player.currentSkillJob)))
+                  CreaturePlugin.AddFeat(player.oid, player.currentSkillJob);
+                player.currentSkillJob = (int)Feat.Invalid;
+              }
               break;
             case SkillSystem.SkillType.Spell:
-              player.learnableSpells[player.currentSkillJob].currentJob = true;
+              if (player.learnableSkills.ContainsKey(player.currentSkillJob))
+                player.learnableSpells[player.currentSkillJob].currentJob = true;
+              else
+                player.currentSkillJob = (int)Feat.Invalid;
               break;
           }
           

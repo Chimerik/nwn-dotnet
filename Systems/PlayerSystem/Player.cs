@@ -326,8 +326,7 @@ namespace NWN.Systems
             }
             break;
           case SkillType.Spell:
-            LearnableSpell spell;
-            if (this.learnableSpells.TryGetValue(this.currentSkillJob, out spell))
+            if (this.learnableSpells.TryGetValue(this.currentSkillJob, out LearnableSpell spell))
             {
               float skillPointRate = spell.CalculateSkillPointsPerSecond();
               spell.acquiredPoints += skillPointRate * (float)(DateTime.Now - this.dateLastSaved).TotalSeconds;
