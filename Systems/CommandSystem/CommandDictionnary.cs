@@ -335,6 +335,14 @@ namespace NWN.Systems
         )
       },
       {
+        "supprimer",
+        new Command(
+          name: "supprimer",
+          description: new Command.Description(title: "Attention, cette commande supprime définitivement le personnage avec lequel vous êtes actuellement connecté."),
+          execute: ExecuteDeleteCharacterCommand
+        )
+      },
+      {
         "menu",
         new Command(
           name: "menu",
