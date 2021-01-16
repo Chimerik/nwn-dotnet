@@ -210,29 +210,6 @@ namespace NWN.Systems
 
       switch (feat)
       {
-        case NWN.Feat.PlayerTool02:
-          EventsPlugin.SkipEvent();
-          
-          if (Players.TryGetValue(oidSelf, out oPC))
-          {
-            if (Utils.HasTagEffect(oPC.oid, "lycan_curse"))
-            {
-              Utils.RemoveTaggedEffect(oPC.oid, "lycan_curse");
-              oPC.RemoveLycanCurse();
-            }
-            else
-            {
-              if ((DateTime.Now - oPC.lycanCurseTimer).TotalSeconds > 10800)
-              {
-                oPC.ApplyLycanCurse();
-                oPC.lycanCurseTimer = DateTime.Now;
-              }
-              else
-                NWScript.SendMessageToPC(oPC.oid, "Vous ne vous sentez pas encore la force de changer de nouveau de forme.");
-            }
-          }
-          break;
-
         case Feat.LanguageElf:
         case Feat.LanguageAbyssal:
         case Feat.LanguageCelestial:
@@ -309,7 +286,10 @@ namespace NWN.Systems
             oPC.EmitKeydown(new Player.MenuFeatEventArgs(feat));
           break;
       }
-          
+
+      EventsPlugin.RemoveObjectFromDispatchList("NWNX_ON_USE_FEAT_BEFORE", "event_feat_used", oidSelf);
+      NWScript.DelayCommand(0.2f, () => EventsPlugin.AddObjectToDispatchList("NWNX_ON_USE_FEAT_BEFORE", "event_feat_used", oidSelf));
+
       return 0;
     }
     private static void RefreshQBS(uint oidSelf, int feat)
