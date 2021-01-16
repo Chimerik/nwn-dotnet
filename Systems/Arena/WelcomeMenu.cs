@@ -4,9 +4,9 @@ using static NWN.Systems.PlayerSystem;
 
 namespace NWN.Systems.Arena
 {
-  public static class Menu
+  public static class WelcomeMenu
   {
-    public static void Draw(Player player)
+    public static void DrawMainPage(Player player)
     {
       player.menu.Clear();
       player.menu.title = "Bienvenue dans l'arene de Similisse ! Que puis-je faire pour vous aujourd'hui ?";
@@ -68,7 +68,7 @@ namespace NWN.Systems.Arena
       player.menu.title = "Vous avez actuellement xxx points de victoire disponible. Voici la liste des récompenses disponibles :";
       player.menu.choices.Add((
         "Retour",
-        () => Draw(player)
+        () => DrawMainPage(player)
       ));
       player.menu.Draw();
     }
@@ -79,7 +79,7 @@ namespace NWN.Systems.Arena
       player.menu.title = "Voici la liste de nos meilleurs champions :";
       player.menu.choices.Add((
         "Retour",
-        () => Draw(player)
+        () => DrawMainPage(player)
       ));
       player.menu.Draw();
     }

@@ -7,7 +7,7 @@
       PlayerSystem.Player player;
       if (PlayerSystem.Players.TryGetValue(ctx.oSender, out player))
       {
-        Arena.Menu.Draw(player);        
+        Arena.WelcomeMenu.DrawMainPage(player);        
       }
     }
   }
