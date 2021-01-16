@@ -1835,6 +1835,21 @@ namespace NWN
     CustomPositionRotateLeft,
     CustomPositionForward,
     CustomPositionBackward,
+    WoodCutter,
+    WoodCutter2,
+    WoodCutter3,
+    WoodCutter4,
+    WoodCutter5,
+    WoodExpertise,
+    WoodExpertise2,
+    WoodExpertise3,
+    WoodExpertise4,
+    WoodExpertise5,
+    WoodProspection,
+    WoodProspection2,
+    WoodProspection3,
+    WoodProspection4,
+    WoodProspection5,
     Invalid = 65535
   }
 }

@@ -39,14 +39,6 @@ namespace NWN.Systems.Items.BeforeUseHandlers
 
           break;
 
-        case "prospectable_tree":
-          StartCollectCycle(
-            player,
-            oTarget,
-            () => Wood.HandleCompleteProspectionCycle(player, oTarget, oItem)
-          );
-          break;
-
         case "mineable_tree":
           StartCollectCycle(
             player,

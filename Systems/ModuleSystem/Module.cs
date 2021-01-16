@@ -440,6 +440,13 @@ namespace NWN.Systems
         resourcePoint = NWScript.GetObjectByTag("wood_spawn_wp", i);
       }
 
+      foreach(Area area in areaDictionnary.Values)
+      {
+        NWScript.SetLocalInt(oid, "_REMAINING_MINING_PROSPECTIONS", area.level * 2);
+        NWScript.SetLocalInt(oid, "_REMAINING_WOOD_PROSPECTIONS", area.level * 2);
+        NWScript.SetLocalInt(oid, "_REMAINING_ANIMALS_PROSPECTIONS", area.level * 2);
+      }
+
       NWScript.DelayCommand(86400.0f, () => SpawnCollectableResources()); //24 h plus tard
     }
   }

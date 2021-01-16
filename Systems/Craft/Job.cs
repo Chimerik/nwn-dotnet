@@ -121,7 +121,7 @@ namespace NWN.Systems.Craft
     }
     private Boolean IsBlueprintOriginal(uint oBlueprint)
     {
-      if (Convert.ToBoolean(NWScript.GetLocalInt(oBlueprint, "_BLUEPRINT_RUNS")))
+      if (NWScript.GetLocalInt(oBlueprint, "_BLUEPRINT_RUNS") > 0)
         return false;
       else
         return true;
@@ -169,9 +169,9 @@ namespace NWN.Systems.Craft
         int iBlueprintRemainingRuns = NWScript.GetLocalInt(oItem, "_BLUEPRINT_RUNS");
         if (iBlueprintRemainingRuns == 1)
           NWScript.DestroyObject(oItem);
-        else
+        if (iBlueprintRemainingRuns > 0)
           NWScript.SetLocalInt(oItem, "_BLUEPRINT_RUNS", iBlueprintRemainingRuns - 1);
-
+        
         DecreaseItemDurability(NWScript.GetItemInSlot(NWScript.INVENTORY_SLOT_RIGHTHAND, player.oid));
       }
       else

@@ -285,6 +285,21 @@ namespace NWN.Systems
           if (Players.TryGetValue(oidSelf, out oPC))
             oPC.EmitKeydown(new Player.MenuFeatEventArgs(feat));
           break;
+        case Feat.WoodProspection:
+        case Feat.WoodProspection2:
+        case Feat.WoodProspection3:
+        case Feat.WoodProspection4:
+        case Feat.WoodProspection5:
+
+          EventsPlugin.SkipEvent();
+
+          if (Players.TryGetValue(oidSelf, out oPC))
+            StartCollectCycle(
+            oPC,
+            NWScript.GetArea(oidSelf),
+            () => Craft.Collect.Wood.HandleCompleteProspectionCycle(oPC)
+          );
+          break;
       }
 
       EventsPlugin.RemoveObjectFromDispatchList("NWNX_ON_USE_FEAT_BEFORE", "event_feat_used", oidSelf);

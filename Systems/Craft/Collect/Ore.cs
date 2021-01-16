@@ -64,8 +64,16 @@ namespace NWN.Systems.Craft.Collect
       uint resourcePoint = NWScript.GetNearestObjectByTag("ore_spawn_wp", oPlaceable);
       int i = 1;
 
-      Area area;
-      if (!Module.areaDictionnary.TryGetValue(NWScript.GetObjectUUID(NWScript.GetArea(resourcePoint)), out area)) return;
+      if (!Module.areaDictionnary.TryGetValue(NWScript.GetObjectUUID(NWScript.GetArea(resourcePoint)), out Area area)) return;
+
+      int remainingProspections = NWScript.GetLocalInt(area.oid, "_REMAINING_MINING_PROSPECTIONS");
+      if (remainingProspections < 1)
+      {
+        NWScript.SendMessageToPC(player.oid, "Cette veine est épuisée. Reste à espérer qu'un prochain glissement de terrain permette d'atteindre de nouveaux filons.");
+        return;
+      }
+      else
+        NWScript.SetLocalInt(area.oid, "_REMAINING_MINING_PROSPECTIONS", remainingProspections - 1);
 
       int skillBonus = 0;
       int value;
@@ -86,7 +94,7 @@ namespace NWN.Systems.Craft.Collect
           var newRock = NWScript.CreateObject(NWScript.OBJECT_TYPE_PLACEABLE, "mineable_rock", NWScript.GetLocation(resourcePoint));
           NWScript.SetName(newRock, Enum.GetName(typeof(OreType), GetRandomOreSpawnFromAreaLevel(area.level)));
           NWScript.SetLocalInt(newRock, "_ORE_AMOUNT", 50 * iRandom + 50 * iRandom * skillBonus / 100);
-          NWScript.DestroyObject(oPlaceable);
+          NWScript.DestroyObject(resourcePoint);
           nbSpawns++; 
         }
 
