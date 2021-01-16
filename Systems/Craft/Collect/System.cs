@@ -193,6 +193,10 @@ namespace NWN.Systems.Craft.Collect
         return true;
       if (Enum.TryParse(itemTag, out MineralType myMineralType) && myMineralType != MineralType.Invalid)
         return true;
+      if (Enum.TryParse(itemTag, out WoodType myWoodType) && myWoodType != WoodType.Invalid)
+        return true;
+      if (Enum.TryParse(itemTag, out PlankType myPlankType) && myPlankType != PlankType.Invalid)
+        return true;
 
       return false;
     }

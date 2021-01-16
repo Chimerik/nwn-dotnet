@@ -1850,6 +1850,21 @@ namespace NWN
     WoodProspection3,
     WoodProspection4,
     WoodProspection5,
+    Butcher,
+    Butcher2,
+    Butcher3,
+    Butcher4,
+    Butcher5,
+    AnimalExpertise,
+    AnimalExpertise2,
+    AnimalExpertise3,
+    AnimalExpertise4,
+    AnimalExpertise5,
+    AnimalProspection,
+    AnimalProspection2,
+    AnimalProspection3,
+    AnimalProspection4,
+    AnimalProspection5,
     Invalid = 65535
   }
 }

@@ -102,9 +102,8 @@ namespace NWN.Systems
             NWScript.SqlBindObject(saveStorage, "@storage", storageToSave);
             NWScript.SqlStep(saveStorage);
 
-            Area area;
-            if (Module.areaDictionnary.TryGetValue(NWScript.GetObjectUUID(NWScript.GetArea(player.oid)), out area))
-              area.RemoveArea();
+            if (Module.areaDictionnary.TryGetValue(NWScript.GetObjectUUID(NWScript.GetArea(player.oid)), out Area area))
+              NWScript.DelayCommand(10.0f, NWScript.AssignCommand(ModuleSystem.module.oid, area.RemoveArea()));
 
             NWScript.AssignCommand(player.oid, () => NWScript.ClearAllActions());
             NWScript.AssignCommand(player.oid, () => NWScript.JumpToLocation(NWScript.GetLocation(NWScript.GetObjectByTag("wp_outentrepot"))));

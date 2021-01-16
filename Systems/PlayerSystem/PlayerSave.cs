@@ -160,21 +160,15 @@ namespace NWN.Systems
     {
       if (player.materialStock.Count > 0)
       {
-        string queryString = "UPDATE playerMaterialStorage SET ";
-
         foreach (string material in player.materialStock.Keys)
-          queryString += $"{material} = @{material}, ";
-
-        queryString = queryString.Remove(queryString.Length - 2);
-        queryString += " where characterId = @characterId";
-
-        var query = NWScript.SqlPrepareQueryCampaign(ModuleSystem.database, queryString);
-        NWScript.SqlBindInt(query, "@characterId", player.characterId);
-
-        foreach (string material in player.materialStock.Keys)
-          NWScript.SqlBindInt(query, $"@{material}", player.materialStock[material]);
-
-        NWScript.SqlStep(query);
+        {
+          var query = NWScript.SqlPrepareQueryCampaign(ModuleSystem.database, $"INSERT INTO playerMaterialStorage (characterId, materialName, materialStock) VALUES (@characterId, @materialName, @materialStock)" +
+              $"ON CONFLICT (characterId, materialName) DO UPDATE SET materialStock = @materialStock where characterId = @characterId and {material} = @{material}");
+          NWScript.SqlBindInt(query, "@characterId", player.characterId);
+          NWScript.SqlBindString(query, "@materialName", material);
+          NWScript.SqlBindInt(query, "@materialStock", player.materialStock[material]); 
+          NWScript.SqlStep(query);
+        }
       }
     }
     private static void SavePlayerMapPinsToDatabase(Player player)

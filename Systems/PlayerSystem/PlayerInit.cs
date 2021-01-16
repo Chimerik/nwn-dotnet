@@ -251,10 +251,6 @@ namespace NWN.Systems
 
       ObjectPlugin.SetInt(newCharacter.oid, "characterId", NWScript.SqlGetInt(query, 0), 1);
 
-      query = NWScript.SqlPrepareQueryCampaign(ModuleSystem.database, $"INSERT INTO playerMaterialStorage (characterId) VALUES (@characterId)");
-      NWScript.SqlBindInt(query, "@characterId", ObjectPlugin.GetInt(newCharacter.oid, "characterId"));
-      NWScript.SqlStep(query);
-
       for (int spellLevel = 0; spellLevel < 10; spellLevel++)
         while (CreaturePlugin.GetKnownSpellCount(newCharacter.oid, 43, spellLevel) > 0)
           CreaturePlugin.RemoveKnownSpell(newCharacter.oid, 43, spellLevel, CreaturePlugin.GetKnownSpell(newCharacter.oid, 43, spellLevel, 0));
@@ -368,19 +364,11 @@ namespace NWN.Systems
       player.previousArea = NWScript.GetAreaFromLocation(player.location);
       player.currentSkillType = (SkillSystem.SkillType)NWScript.SqlGetInt(query, 14);
 
-      query = NWScript.SqlPrepareQueryCampaign(ModuleSystem.database, $"SELECT Veldspar, Scordite, Pyroxeres, Tritanium, Pyerite, Mexallon, Noxcium from playerMaterialStorage where characterId = @characterId");
+      query = NWScript.SqlPrepareQueryCampaign(ModuleSystem.database, $"SELECT materialName, materialStock from playerMaterialStorage where characterId = @characterId");
       NWScript.SqlBindInt(query, "@characterId", player.characterId);
 
-      if (Convert.ToBoolean(NWScript.SqlStep(query)))
-      {
-        player.materialStock.Add("Veldspar", NWScript.SqlGetInt(query, 0));
-        player.materialStock.Add("Scordite", NWScript.SqlGetInt(query, 1));
-        player.materialStock.Add("Pyroxeres", NWScript.SqlGetInt(query, 2));
-        player.materialStock.Add("Tritanium", NWScript.SqlGetInt(query, 3));
-        player.materialStock.Add("Pyerite", NWScript.SqlGetInt(query, 4));
-        player.materialStock.Add("Mexallon", NWScript.SqlGetInt(query, 5));
-        player.materialStock.Add("Noxcium", NWScript.SqlGetInt(query, 6));
-      }
+      while(Convert.ToBoolean(NWScript.SqlStep(query)))
+        player.materialStock.Add(NWScript.SqlGetString(query, 0), NWScript.SqlGetInt(query, 1));
     }
     private static void InitializePlayerLearnableSkills(Player player)
     {
