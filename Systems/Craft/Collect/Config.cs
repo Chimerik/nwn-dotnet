@@ -96,35 +96,74 @@ namespace NWN.Systems.Craft.Collect
       Mexallon = 3,
       Noxcium = 4,
     }
-    public static Dictionary<WoodType, Wood> woodDictionnary = new Dictionary<WoodType, Wood>();
-    public partial class Wood
+    public static Dictionary<WoodType, Wood> woodDictionnary = new Dictionary<WoodType, Wood>()
+    {
+      {
+        WoodType.Laurelin,
+        new Wood(
+          oreType: WoodType.Laurelin,
+          oreFeat: Feat.LaurelinReprocessing
+        )
+      },
+      {
+        WoodType.Telperion,
+        new Wood(
+          oreType: WoodType.Telperion,
+          oreFeat: Feat.TelperionReprocessing
+        )
+      },
+      {
+        WoodType.Mallorn,
+        new Wood(
+          oreType: WoodType.Mallorn,
+          oreFeat: Feat.MallornReprocessing
+        )
+      }
+      };
+    public Dictionary<PlankType, Plank> plankDictionnary = new Dictionary<PlankType, Plank>
+    {
+      { PlankType.Laurelin, new Plank(PlankType.Laurelin) },
+      { PlankType.Telperion, new Plank(PlankType.Telperion) },
+      { PlankType.Mallorn, new Plank(PlankType.Mallorn) },
+    };
+    public struct Wood
     {
       public WoodType type;
       public string name;
       public Feat feat;
-      public Dictionary<PlankType, float> plankDictionnary = new Dictionary<PlankType, float>();
+      public float planks;
       public Wood(WoodType oreType, Feat oreFeat)
       {
         this.type = oreType;
-        this.name = Enum.GetName(typeof(WoodType), oreType);
+        this.name = Enum.GetName(typeof(WoodType), oreType) ?? "";
         this.feat = oreFeat;
-        this.InitializeWoodRefinementYield();
-      }
 
-      public void InitializeWoodRefinementYield()
-      {
-        switch (this.type)
+        switch(oreType)
         {
           case WoodType.Laurelin:
-            this.plankDictionnary.Add(PlankType.Laurelin, 41.500f);
+            planks = 41.500f;
             break;
           case WoodType.Telperion:
-            this.plankDictionnary.Add(PlankType.Telperion, 34.567f);
+            planks = 34.567f;
             break;
           case WoodType.Mallorn:
-            this.plankDictionnary.Add(PlankType.Mallorn, 15.000f);
+            planks = 15.000f;
+            break;
+          default:
+            planks = 0.0f;
             break;
         }
+      }
+    }
+    public struct Plank
+    {
+      public PlankType type;
+      public string name;
+
+      public Plank(PlankType type)
+      {
+        this.type = type;
+        this.name = Enum.GetName(typeof(PlankType), type) ?? "";
       }
     }
     public enum WoodType

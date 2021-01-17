@@ -9,6 +9,8 @@ namespace NWN.Systems
     {
       if (command.StartsWith("say_"))
         BotSystem.commandDic["say"].execute(command);
+      else if (command.StartsWith("description_"))
+        BotSystem.commandDic["description"].execute(command);
 
       BotAsyncCommand asyncCommand;
       if (!BotSystem.commandDic.TryGetValue(command, out asyncCommand))

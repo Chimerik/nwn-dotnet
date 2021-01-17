@@ -48,7 +48,7 @@ namespace NWN.Systems
         if (LootSystem.lootablesDic.ContainsKey(NWScript.GetLocalString(lootChest, "_LOOT_REFERENCE")))
           lootChestList.Add(lootChest);
         else
-          Utils.LogMessageToDMs($"LOOT SYSYEM - Area {NWScript.GetName(nwobj)} - Chest {NWScript.GetName(lootChest)} not found in loot table.");
+          Utils.LogMessageToDMs($"LOOT SYSTEM - Area {NWScript.GetName(nwobj)} - Chest {NWScript.GetName(lootChest)} not found in loot table.");
 
         i++;
         lootChest = NWScript.GetNearestObjectByTag("loot_chest", firstObject, i);
@@ -154,6 +154,7 @@ namespace NWN.Systems
         case "SimilisseTribunal":
         case "SimilisseTribunalPrison":
         case "SimilisseSalleDesDelibrations":
+        case "Sawmill":
           level = 0;
           break; 
         case "lepontdaruthen":

@@ -18,6 +18,12 @@ namespace NWN.Systems
           execute: ExecuteSayCommand
         )
       },
+      {
+        "description", new BotAsyncCommand(
+          name: "description",
+          execute: ExecuteSaveDescriptionCommand
+        )
+      },
     };
   }
 }

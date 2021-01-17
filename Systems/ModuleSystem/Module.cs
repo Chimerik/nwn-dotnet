@@ -240,7 +240,6 @@ namespace NWN.Systems
       }
 
       feat = (int)Feat.ImprovedSpellSlot0_1;
-      value = 1;
       for (int spellLevel = 0; spellLevel < 10; spellLevel++)
       {
         value = 1;
@@ -253,7 +252,6 @@ namespace NWN.Systems
       }
 
       feat = (int)Feat.ImprovedSavingThrowAll;
-      value = 1;
       for (int savingThrow = NWScript.SAVING_THROW_ALL; savingThrow < NWScript.SAVING_THROW_WILL; savingThrow++)
       {
         value = 1;

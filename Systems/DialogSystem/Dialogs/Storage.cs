@@ -134,7 +134,7 @@ namespace NWN.Systems
       player.menu.choices.Add(("Quitter", () => player.menu.Close()));
       player.menu.Draw();
     }
-    private void HandleWithdrawMaterialSelection(PlayerSystem.Player player)
+    private void HandleWithdrawMaterialSelection(Player player)
     {
       player.menu.Clear();
       player.menu.titleLines = new List<string> {
@@ -149,7 +149,7 @@ namespace NWN.Systems
       player.menu.choices.Add(("Quitter", () => player.menu.Close()));
       player.menu.Draw();
     }
-    private void HandleValidateWithdrawMaterial(PlayerSystem.Player player, string material)
+    private void HandleValidateWithdrawMaterial(Player player, string material)
     {
       player.menu.Clear();
 
@@ -170,7 +170,7 @@ namespace NWN.Systems
 
           if (player.setValue >= player.materialStock[material])
           {
-            player.menu.titleLines.Add($"Ouais, j'te file tout en gros. D'ac, démerdes-toi avec ça.");
+            player.menu.titleLines.Add($"Ouais, j'te file tout en gros. D'ac, démerde toi avec ça.");
             remainingValue = player.materialStock[material];
             player.materialStock[material] = 0;
           }
