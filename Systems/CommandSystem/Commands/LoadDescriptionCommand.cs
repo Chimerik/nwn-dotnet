@@ -8,8 +8,7 @@ namespace NWN.Systems
   {
     private static void ExecuteLoadDescriptionCommand(ChatSystem.Context ctx, Options.Result options)
     {
-      PlayerSystem.Player player;
-      if (PlayerSystem.Players.TryGetValue(ctx.oSender, out player))
+      if (PlayerSystem.Players.TryGetValue(ctx.oSender, out PlayerSystem.Player player))
       {
         string descriptionName = (string)options.positional[0];
 
@@ -24,7 +23,10 @@ namespace NWN.Systems
         string description = NWScript.SqlGetString(query, 0);
 
         if (description.Length == 0)
+        {
+          NWScript.SendMessageToPC(player.oid, $"Aucune description valide du nom {descriptionName} n'a été trouvée pour le personnage {NWScript.GetName(player.oid)}.");
           return;
+        }
 
         NWScript.SetDescription(player.oid, description);
 
