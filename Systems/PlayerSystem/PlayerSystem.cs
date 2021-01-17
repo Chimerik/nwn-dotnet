@@ -1183,6 +1183,7 @@ namespace NWN.Systems
         switch (tag)
         {
           case "blacksmith":
+          case "woodworker":
           case "tribunal_hotesse":
             break;
           default:
