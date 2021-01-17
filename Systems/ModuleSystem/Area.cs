@@ -316,8 +316,44 @@ namespace NWN.Systems
     }
     public void RemoveArea()
     {
-      NWScript.DestroyArea(this.oid);
+      DeferDestroy();
       Module.areaDictionnary.Remove(this.uuid);
+    }
+
+    private void DeferDestroy(float delay = 30.0f)
+    {
+      NWScript.DelayCommand(delay, () =>
+      {
+        if (GetIsAnyPlayerInInvalidArea())
+        {
+          // Don't destroy Area because player can get stuck in loading screen
+          DeferDestroy(delay);
+          return;
+        }
+
+        var result = NWScript.DestroyArea(oid);
+
+        if (result == -2) // Players in area
+        {
+          DeferDestroy(delay);
+          return;
+        }
+      });
+    }
+
+    public bool GetIsAnyPlayerInInvalidArea()
+    {
+      bool isAnyPlayerInInvalidArea = false;
+
+      var oPC = NWScript.GetFirstPC();
+
+      while (NWScript.GetIsObjectValid(oPC) == 1 && isAnyPlayerInInvalidArea == false)
+      {
+        if (NWScript.GetIsObjectValid(NWScript.GetArea(oPC)) != 1) isAnyPlayerInInvalidArea = true;
+        oPC = NWScript.GetNextPC();
+      }
+
+      return isAnyPlayerInInvalidArea;
     }
   }
 }
