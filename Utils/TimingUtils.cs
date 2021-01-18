@@ -8,22 +8,28 @@ namespace NWN
   {
     public static Action Debounce(Action action, float delay)
     {
-      var cancelDelay = new List<bool>();
+      var cancelDelay = new Dictionary<int, bool>();
+      int nextId = 0;
       return () =>
       {
         if (cancelDelay.Count != 0)
         {
-          cancelDelay[cancelDelay.Count - 1] = true;
+          cancelDelay[nextId - 1] = true;
         }
-        cancelDelay.Add(false);
-        var currentIndex = cancelDelay.Count - 1;
+        cancelDelay.Add(nextId, false);
 
-        NWScript.DelayCommand(delay, () => { 
-          if (!cancelDelay[currentIndex])
+        // Copy id before incrementation for use in the DelayCommand
+        var currentId = nextId;
+
+        NWScript.DelayCommand(delay, () => {
+          if (!cancelDelay[currentId])
           {
             action();
           }
+          cancelDelay.Remove(currentId);
         });
+
+        nextId++;
       };
     }
   }
