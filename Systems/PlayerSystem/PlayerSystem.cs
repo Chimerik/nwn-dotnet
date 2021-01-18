@@ -210,29 +210,6 @@ namespace NWN.Systems
 
       switch (feat)
       {
-        case NWN.Feat.PlayerTool02:
-          EventsPlugin.SkipEvent();
-          
-          if (Players.TryGetValue(oidSelf, out oPC))
-          {
-            if (Utils.HasTagEffect(oPC.oid, "lycan_curse"))
-            {
-              Utils.RemoveTaggedEffect(oPC.oid, "lycan_curse");
-              oPC.RemoveLycanCurse();
-            }
-            else
-            {
-              if ((DateTime.Now - oPC.lycanCurseTimer).TotalSeconds > 10800)
-              {
-                oPC.ApplyLycanCurse();
-                oPC.lycanCurseTimer = DateTime.Now;
-              }
-              else
-                NWScript.SendMessageToPC(oPC.oid, "Vous ne vous sentez pas encore la force de changer de nouveau de forme.");
-            }
-          }
-          break;
-
         case Feat.LanguageElf:
         case Feat.LanguageAbyssal:
         case Feat.LanguageCelestial:
@@ -308,8 +285,26 @@ namespace NWN.Systems
           if (Players.TryGetValue(oidSelf, out oPC))
             oPC.EmitKeydown(new Player.MenuFeatEventArgs(feat));
           break;
+        case Feat.WoodProspection:
+        case Feat.WoodProspection2:
+        case Feat.WoodProspection3:
+        case Feat.WoodProspection4:
+        case Feat.WoodProspection5:
+
+          EventsPlugin.SkipEvent();
+
+          if (Players.TryGetValue(oidSelf, out oPC))
+            StartCollectCycle(
+            oPC,
+            NWScript.GetArea(oidSelf),
+            () => Craft.Collect.Wood.HandleCompleteProspectionCycle(oPC)
+          );
+          break;
       }
-          
+
+      EventsPlugin.RemoveObjectFromDispatchList("NWNX_ON_USE_FEAT_BEFORE", "event_feat_used", oidSelf);
+      NWScript.DelayCommand(0.2f, () => EventsPlugin.AddObjectToDispatchList("NWNX_ON_USE_FEAT_BEFORE", "event_feat_used", oidSelf));
+
       return 0;
     }
     private static void RefreshQBS(uint oidSelf, int feat)
@@ -1045,25 +1040,22 @@ namespace NWN.Systems
       switch(NWScript.GetLocalString(spawnPoint, "_SPAWN_TYPE"))
       {
         case "npc":
-          if (!Convert.ToBoolean(NWScript.GetIsObjectValid(NWScript.GetNearestObjectByTag($"{ NWScript.GetLocalString(spawnPoint, "_CREATURE_TEMPLATE")}_NB_{count}", spawnPoint))))
-          {
-            SpawnCreatureFromSpawnPoint(spawnPoint, count);
-          }
+            SpawnNPCFromSpawnPoint(spawnPoint);
           break;
         case "civilian":
-          SetRandomAppearanceFrom2da(SpawnCreatureFromSpawnPoint(spawnPoint), CivilianAppearances);
+          SetRandomAppearanceFrom2da(SpawnNPCFromSpawnPoint(spawnPoint), CivilianAppearances);
           break;
         case "critter":
-          SetRandomAppearanceAndNameFrom2da(SpawnCreatureFromSpawnPoint(spawnPoint), genericCrittersAppearances);
+          SetRandomAppearanceAndNameFrom2da(SpawnNPCFromSpawnPoint(spawnPoint), genericCrittersAppearances);
           break;
         case "critter_plage":
-          SetRandomAppearanceAndNameFrom2da(SpawnCreatureFromSpawnPoint(spawnPoint), plageCrittersAppearances);
+          SetRandomAppearanceAndNameFrom2da(SpawnNPCFromSpawnPoint(spawnPoint), plageCrittersAppearances);
           break;
         case "critter_cave":
-          SetRandomAppearanceAndNameFrom2da(SpawnCreatureFromSpawnPoint(spawnPoint), caveCrittersAppearances);
+          SetRandomAppearanceAndNameFrom2da(SpawnNPCFromSpawnPoint(spawnPoint), caveCrittersAppearances);
           break;
         case "critter_city":
-          SetRandomAppearanceAndNameFrom2da(SpawnCreatureFromSpawnPoint(spawnPoint), cityCrittersAppearances);
+          SetRandomAppearanceAndNameFrom2da(SpawnNPCFromSpawnPoint(spawnPoint), cityCrittersAppearances);
           break;
         default:
           SpawnCreatureFromSpawnPoint(spawnPoint);
@@ -1072,24 +1064,15 @@ namespace NWN.Systems
     }
     private static uint SpawnCreatureFromSpawnPoint(uint spawnPoint, int count = 0)
     {
-      uint creature;
-      if(NWScript.GetLocalString(spawnPoint, "_SPAWN_TYPE") == "npc")
-        creature  = NWScript.CreateObject(NWScript.OBJECT_TYPE_CREATURE, NWScript.GetLocalString(spawnPoint, "_CREATURE_TEMPLATE"), NWScript.GetLocation(spawnPoint), 0, $"{NWScript.GetLocalString(spawnPoint, "_CREATURE_TEMPLATE")}_NB_{count}");
-      else
-        creature = NWScript.CreateObject(NWScript.OBJECT_TYPE_CREATURE, NWScript.GetLocalString(spawnPoint, "_CREATURE_TEMPLATE"), NWScript.GetLocation(spawnPoint));
+      uint creature = NWScript.CreateObject(NWScript.OBJECT_TYPE_CREATURE, NWScript.GetLocalString(spawnPoint, "_CREATURE_TEMPLATE"), NWScript.GetLocation(spawnPoint));
       
       string tag = NWScript.GetTag(creature);
-      if (tag.Contains("_NB_"))
-        tag = tag.Remove(tag.IndexOf("_NB_"));
 
       switch (tag)
       {
-        case "civilian":
-        case "neutralcritter":
         case "ratgarou":
         case "wereboar":
         case "sim_wraith":
-        case "marten_arc":
           break;
         default:
           NWScript.SetAILevel(creature, 1);
@@ -1097,6 +1080,17 @@ namespace NWN.Systems
           break;
       }
        
+      return creature;
+    }
+    private static uint SpawnNPCFromSpawnPoint(uint spawnPoint)
+    {
+      uint creature = NWScript.CreateObject(NWScript.OBJECT_TYPE_CREATURE, NWScript.GetLocalString(spawnPoint, "_CREATURE_TEMPLATE"), NWScript.GetLocation(spawnPoint));
+      NWScript.SetEventScript(creature, NWScript.EVENT_SCRIPT_CREATURE_ON_DEATH, "od_spawn_npc_wp");
+      NWScript.SetLocalString(creature, "_WAYPOINT_TEMPLATE", NWScript.GetResRef(spawnPoint));
+      NWScript.SetAILevel(creature, 1);
+
+      NWScript.DestroyObject(spawnPoint);
+      
       return creature;
     }
     private static void SetRandomAppearanceAndNameFrom2da(uint creature, int[] appearanceArray)
@@ -1185,12 +1179,11 @@ namespace NWN.Systems
         NWScript.CopyItem(item, player.oid, 1);
 
         string tag = NWScript.GetTag(NWScript.GetLocalObject(NWScript.StringToObject(EventsPlugin.GetEventData("STORE")), "_STORE_NPC"));
-        if (tag.Contains("_NB_"))
-          tag = tag.Remove(tag.IndexOf("_NB_"));
 
         switch (tag)
         {
           case "blacksmith":
+          case "woodworker":
           case "tribunal_hotesse":
             break;
           default:

@@ -19,7 +19,10 @@ namespace NWN.Systems
     {
       inventoryMaterials.Clear();
       player.menu.Clear();
-      player.menu.title = $"Yop, tu veux déposer tes matières premières quelque part ? Vas-y file moi ça. Oublie pas qu'on prend 5 % pour le service.";
+      player.menu.titleLines = new List<string> {
+        "Yop, tu veux déposer tes matières premières quelque part ?",
+        "Vas-y file moi ça. Oublie pas qu'on prend 5 % pour le service."
+      };
       player.menu.choices.Add(($"Tout déposer.", () => HandleDropAll(player)));
       player.menu.choices.Add(($"Déposer une matière en particulier.", () => HandleDropMaterialSelection(player)));
       //player.menu.choices.Add(($"A vrai dire, je suis là pour un retrait.", () => HandleWithdrawMaterialSelection(player)));
@@ -29,7 +32,10 @@ namespace NWN.Systems
     private void HandleDropAll(PlayerSystem.Player player)
     {
       player.menu.Clear();
-      player.menu.title = $"Voilà qui est fait. Merci pour ta contribution à la cause !";
+      player.menu.titleLines = new List<string> {
+        "Voilà qui est fait.",
+        "Merci pour ta contribution à la cause !"
+    };
 
       var oItem = NWScript.GetFirstItemInInventory(player.oid);
 
@@ -58,7 +64,10 @@ namespace NWN.Systems
     private void HandleDropMaterialSelection(PlayerSystem.Player player)
     {
       player.menu.Clear();
-      player.menu.title = $"D'ac. Dépôt de quelle matière première ? (Utilisez !set X pour préciser la quantité avant de valider votre choix)";
+      player.menu.titleLines = new List<string> {
+        "D'ac. Dépôt de quelle matière première ?",
+        "(Utilisez !set X pour préciser la quantité avant de valider votre choix)"
+      };
 
       var oItem = NWScript.GetFirstItemInInventory(player.oid);
 
@@ -86,7 +95,10 @@ namespace NWN.Systems
 
       if (player.setValue <= 0)
       {
-        player.menu.title = $"Plait-il ? Je n'ai pas bien compris. (Utilisez la commande !set X avant de valider votre choix)";
+        player.menu.titleLines = new List<string> {
+          "Plait-il ? Je n'ai pas bien compris.",
+          "(Utilisez la commande !set X avant de valider votre choix)"
+        };
         player.menu.choices.Add(($"Valider.", () => HandleValidateDropMaterial(player, material)));
       }
       else
@@ -114,34 +126,40 @@ namespace NWN.Systems
             }
           }
         }
-        player.menu.title = $"Voilà qui est fait !";
+        player.menu.titleLines.Add("Voilà qui est fait !");
       }
 
       player.setValue = 0;
-      player.menu.choices.Add(($"Retour.", () => DrawWelcomePage(player)));
+      player.menu.choices.Add(("Retour", () => DrawWelcomePage(player)));
       player.menu.choices.Add(("Quitter", () => player.menu.Close()));
       player.menu.Draw();
     }
-    private void HandleWithdrawMaterialSelection(PlayerSystem.Player player)
+    private void HandleWithdrawMaterialSelection(Player player)
     {
       player.menu.Clear();
-      player.menu.title = $"D'ac. Retrait de quelle matière première ? (Utilisez !set X pour préciser la quantité avant de valider votre choix)";
+      player.menu.titleLines = new List<string> {
+        "D'ac. Retrait de quelle matière première ?",
+        "(Utilisez !set X pour préciser la quantité avant de valider votre choix)"
+      };
 
       foreach (KeyValuePair<string, int> stockEntry in player.materialStock.Where(v => v.Value > 0))
         player.menu.choices.Add(($"{stockEntry.Key} - {stockEntry.Value}.", () => HandleValidateWithdrawMaterial(player, stockEntry.Key)));
 
-      player.menu.choices.Add(($"Retour.", () => DrawWelcomePage(player)));
+      player.menu.choices.Add(("Retour", () => DrawWelcomePage(player)));
       player.menu.choices.Add(("Quitter", () => player.menu.Close()));
       player.menu.Draw();
     }
-    private void HandleValidateWithdrawMaterial(PlayerSystem.Player player, string material)
+    private void HandleValidateWithdrawMaterial(Player player, string material)
     {
       player.menu.Clear();
 
       if (player.setValue <= 0)
       {
-        player.menu.title = $"Plait-il ? Je n'ai pas bien compris. (Utilisez la commande !set X avant de valider votre choix)";
-        player.menu.choices.Add(($"Valider.", () => HandleValidateDropMaterial(player, material)));
+        player.menu.titleLines = new List<string> {
+          "Plait-il ? Je n'ai pas bien compris.",
+          "(Utilisez la commande !set X avant de valider votre choix)"
+        };
+        player.menu.choices.Add(("Valider.", () => HandleValidateDropMaterial(player, material)));
       }
       else
       {
@@ -152,13 +170,13 @@ namespace NWN.Systems
 
           if (player.setValue >= player.materialStock[material])
           {
-            player.menu.title = $"Ouais, j'te file tout en gros. D'ac, démerdes-toi avec ça.";
+            player.menu.titleLines.Add($"Ouais, j'te file tout en gros. D'ac, démerde toi avec ça.");
             remainingValue = player.materialStock[material];
             player.materialStock[material] = 0;
           }
           else
           {
-            player.menu.title = $"{player.setValue} de {material} ? C'est parti !";
+            player.menu.titleLines.Add($"{player.setValue} de {material} ? C'est parti !");
             remainingValue = player.setValue;
             player.materialStock[material] -= player.setValue;
           }

@@ -35,16 +35,8 @@ namespace NWN.Systems.Items.BeforeUseHandlers
             () => Ore.HandleCompleteProspectionCycle(player, oTarget, oItem)
           );
 
-          SpawnDisturbedMonsters(player.oid, oTarget);
+          //SpawnDisturbedMonsters(player.oid, oTarget);
 
-          break;
-
-        case "prospectable_tree":
-          StartCollectCycle(
-            player,
-            oTarget,
-            () => Wood.HandleCompleteProspectionCycle(player, oTarget, oItem)
-          );
           break;
 
         case "mineable_tree":

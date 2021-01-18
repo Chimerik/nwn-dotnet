@@ -21,6 +21,7 @@ namespace NWN.Systems
       { "onex_theater_sc", HandleExitTheaterScene },
       { "ondeath_wraith", HandleWraithDeath },
       { "ondeath_quaranti", HandleQuarantineWereDeath },
+      { "od_spawn_npc_wp", HandleNPCDeath },
     }.Concat(Systems.LootSystem.Register)
      .Concat(Systems.PlayerSystem.Register)
      .Concat(Systems.ChatSystem.Register)
@@ -110,14 +111,18 @@ namespace NWN.Systems
     }
     private static int HandleWraithDeath(uint oidSelf)
     {
-      NWScript.CreateObject(NWScript.OBJECT_TYPE_CREATURE, "similisse_wraith", NWScript.GetLocation(NWScript.GetNearestObjectByTag("creature_spawn", oidSelf)));
-      NWScript.CreateObject(NWScript.OBJECT_TYPE_CREATURE, "similisse_wraith", NWScript.GetLocation(NWScript.GetNearestObjectByTag("creature_spawn", oidSelf)));
+      NWScript.CreateObject(NWScript.OBJECT_TYPE_CREATURE, "sim_wraith", NWScript.GetLocation(NWScript.GetNearestObjectByTag("creature_spawn", oidSelf)));
+      NWScript.CreateObject(NWScript.OBJECT_TYPE_CREATURE, "sim_wraith", NWScript.GetLocation(NWScript.GetNearestObjectByTag("creature_spawn", oidSelf)));
       return 0;
     }
     private static int HandleQuarantineWereDeath(uint oidSelf)
     {
-
       NWScript.CreateObject(NWScript.OBJECT_TYPE_CREATURE, NWScript.GetResRef(oidSelf), NWScript.GetLocation(NWScript.GetNearestObjectByTag("creature_spawn", oidSelf)));
+      return 0;
+    }
+    private static int HandleNPCDeath(uint oidSelf)
+    {
+      NWScript.SetLocalString(NWScript.CreateObject(NWScript.OBJECT_TYPE_WAYPOINT, NWScript.GetLocalString(oidSelf, "_WAYPOINT_TEMPLATE"), NWScript.GetLocation(oidSelf)), "_CREATURE_TEMPLATE", NWScript.GetResRef(oidSelf));
       return 0;
     }
   }

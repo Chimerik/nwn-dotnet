@@ -42,7 +42,15 @@ namespace NWN.Systems
       RestorePlayerCorpseFromDatabase();
       RestoreDMPersistentPlaceableFromDatabase();
 
-      NWScript.DelayCommand((float)(DateTime.Now.TimeOfDay - TimeSpan.Parse("05:00:00")).TotalSeconds, () => SpawnCollectableResources());
+      float resourceRespawnTime;
+      if (DateTime.Now.Hour < 5)
+        resourceRespawnTime = (float)(TimeSpan.Parse("05:00:00") - DateTime.Now.TimeOfDay).TotalSeconds;
+      else
+        resourceRespawnTime = (float)((DateTime.Now.AddDays(1).Date).AddHours(5) - DateTime.Now).TotalSeconds;
+
+      resourceRespawnTime = 0.0f; // TEST A SUPPRIMER
+
+      NWScript.DelayCommand(resourceRespawnTime, () => SpawnCollectableResources());
 
       if (Config.env == Config.Env.Prod)
         NWScript.DelayCommand(5.0f, () => (Bot._client.GetChannel(786218144296468481) as IMessageChannel).SendMessageAsync($"Module en ligne !"));
@@ -65,7 +73,7 @@ namespace NWN.Systems
       query = NWScript.SqlPrepareQueryCampaign(ModuleSystem.database, "CREATE TABLE IF NOT EXISTS playerLearnableSpells('characterId' INTEGER NOT NULL, 'skillId' INTEGER NOT NULL, 'skillPoints' INTEGER NOT NULL, 'trained' INTEGER, UNIQUE (characterId, skillId))");
       NWScript.SqlStep(query);
 
-      query = NWScript.SqlPrepareQueryCampaign(ModuleSystem.database, "CREATE TABLE IF NOT EXISTS playerMaterialStorage('characterId' INTEGER NOT NULL, 'Veldspar' INTEGER, 'Scordite' INTEGER, 'Pyroxeres' INTEGER, 'Tritanium' INTEGER, 'Pyerite' INTEGER, 'Mexallon' INTEGER, 'Noxcium' INTEGER, PRIMARY KEY(characterId))");
+      query = NWScript.SqlPrepareQueryCampaign(ModuleSystem.database, "CREATE TABLE IF NOT EXISTS playerMaterialStorage('characterId' INTEGER NOT NULL, 'materialName' TEXT NOT NULL, 'materialStock' INTEGER, UNIQUE (characterId, materialName))");
       NWScript.SqlStep(query);
 
       query = NWScript.SqlPrepareQueryCampaign(ModuleSystem.database, "CREATE TABLE IF NOT EXISTS playerDeathCorpses('characterId' INTEGER NOT NULL, 'deathCorpse' TEXT NOT NULL, 'areaTag' TEXT NOT NULL, 'position' TEXT NOT NULL)");
@@ -231,7 +239,6 @@ namespace NWN.Systems
       }
 
       feat = (int)Feat.ImprovedSpellSlot0_1;
-      value = 1;
       for (int spellLevel = 0; spellLevel < 10; spellLevel++)
       {
         value = 1;
@@ -244,7 +251,6 @@ namespace NWN.Systems
       }
 
       feat = (int)Feat.ImprovedSavingThrowAll;
-      value = 1;
       for (int savingThrow = NWScript.SAVING_THROW_ALL; savingThrow < NWScript.SAVING_THROW_WILL; savingThrow++)
       {
         value = 1;
@@ -388,13 +394,18 @@ namespace NWN.Systems
       {
         if (AreaSystem.areaDictionnary.TryGetValue(NWScript.GetObjectUUID(NWScript.GetArea(resourcePoint)), out Area area))
         {
-          if(Utils.random.Next(1, 101) >= (area.level * 20) - 20)
+          if (area.level > 1)
           {
-            uint newRock = NWScript.CreateObject(NWScript.OBJECT_TYPE_PLACEABLE, "mineable_rock", NWScript.GetLocation(resourcePoint));
-            NWScript.SetName(newRock, Enum.GetName(typeof(OreType), GetRandomOreSpawnFromAreaLevel(area.level)));
-            NWScript.SetLocalInt(newRock, "_ORE_AMOUNT", 50 * Utils.random.Next(1, 101));
-            NWScript.DestroyObject(resourcePoint);
+            if (Utils.random.Next(1, 101) >= (area.level * 20) - 20)
+            {
+              uint newRock = NWScript.CreateObject(NWScript.OBJECT_TYPE_PLACEABLE, "mineable_rock", NWScript.GetLocation(resourcePoint));
+              NWScript.SetName(newRock, Enum.GetName(typeof(OreType), GetRandomOreSpawnFromAreaLevel(area.level)));
+              NWScript.SetLocalInt(newRock, "_ORE_AMOUNT", 50 * Utils.random.Next(1, 101));
+              NWScript.DestroyObject(resourcePoint);
+            }
           }
+          else
+            NWScript.DelayCommand(5.0f, () => Utils.LogMessageToDMs($"[Resource Spawn System] - Attention, un point de ressource a été déposé dans une zone de niveau < 2 : {area.name} - {area.tag}"));
         }
           
         i++;
@@ -408,17 +419,29 @@ namespace NWN.Systems
       {
         if (AreaSystem.areaDictionnary.TryGetValue(NWScript.GetObjectUUID(NWScript.GetArea(resourcePoint)), out Area area))
         {
-          if (Utils.random.Next(1, 101) >= (area.level * 20) - 20)
+          if (area.level > 1)
           {
-            uint newRock = NWScript.CreateObject(NWScript.OBJECT_TYPE_PLACEABLE, "mineable_tree", NWScript.GetLocation(resourcePoint));
-            NWScript.SetName(newRock, Enum.GetName(typeof(WoodType), GetRandomWoodSpawnFromAreaLevel(area.level)));
-            NWScript.SetLocalInt(newRock, "_ORE_AMOUNT", 50 * Utils.random.Next(1, 101));
-            NWScript.DestroyObject(resourcePoint);
+            if (Utils.random.Next(1, 101) >= (area.level * 20) - 20)
+            {
+              uint newRock = NWScript.CreateObject(NWScript.OBJECT_TYPE_PLACEABLE, "mineable_tree", NWScript.GetLocation(resourcePoint));
+              NWScript.SetName(newRock, Enum.GetName(typeof(WoodType), GetRandomWoodSpawnFromAreaLevel(area.level)));
+              NWScript.SetLocalInt(newRock, "_ORE_AMOUNT", 50 * Utils.random.Next(1, 101));
+              NWScript.DestroyObject(resourcePoint);
+            }
           }
+          else
+            NWScript.DelayCommand(5.0f, () => Utils.LogMessageToDMs($"[Resource Spawn System] - Attention, un point de ressource a été déposé dans une zone de niveau < 2 : {area.name} - {area.tag}"));
         }
 
         i++;
         resourcePoint = NWScript.GetObjectByTag("wood_spawn_wp", i);
+      }
+
+      foreach(Area area in AreaSystem.areaDictionnary.Values)
+      {
+        NWScript.SetLocalInt(oid, "_REMAINING_MINING_PROSPECTIONS", area.level * 2);
+        NWScript.SetLocalInt(oid, "_REMAINING_WOOD_PROSPECTIONS", area.level * 2);
+        NWScript.SetLocalInt(oid, "_REMAINING_ANIMALS_PROSPECTIONS", area.level * 2);
       }
 
       NWScript.DelayCommand(86400.0f, () => SpawnCollectableResources()); //24 h plus tard

@@ -16,7 +16,11 @@ namespace NWN.Systems
     private void DrawWelcomePage(Player player)
     {
       player.menu.Clear();
-      player.menu.title = $"Houla, y a pas à dire, vous avez connu de meilleurs jours. C'est quoi cette mine que vous me tirez ? On va mettre ça sur le compte du mal de mer.";
+      player.menu.titleLines = new List<string> {
+        $"Houla, y a pas à dire, vous avez connu de meilleurs jours.",
+        "C'est quoi cette mine que vous me tirez ?",
+        "On va mettre ça sur le compte du mal de mer."
+      };
       player.menu.choices.Add(($"Me refaire une beauté.", () => HandleBodyCloneSpawn(player)));
 
       if(!Convert.ToBoolean(NWScript.GetLocalInt(NWScript.GetNearestObjectByTag("intro_mirror", player.oid), "_TRAIT_SELECTED")))
@@ -44,7 +48,10 @@ namespace NWN.Systems
     private void HandleBodyModification(Player player, uint oClone)
     {
       player.menu.Clear();
-      player.menu.title = $"Vous vous concentrez sur le miroir de façon à mieux vous mirer. Qu'ajusteriez-vous dans ce reflet ?";
+      player.menu.titleLines = new List<string> {
+        $"Vous vous concentrez sur le miroir de façon à mieux vous mirer.",
+        "Qu'ajusteriez-vous dans ce reflet ?"
+      };
       player.menu.choices.Add(($"Apparence suivante.", () => ChangeCloneHead(player, oClone, 1)));
       player.menu.choices.Add(($"Apparence précédente.", () => ChangeCloneHead(player, oClone, -1)));
 
@@ -68,7 +75,10 @@ namespace NWN.Systems
     private void HandleBackgroundChoice(Player player)
     {
       player.menu.Clear();
-      player.menu.title = $"L'espace de quelques instants, la galère disparaît de votre esprit. Vous vous revoyez ...";
+      player.menu.titleLines = new List<string> {
+        $"L'espace de quelques instants, la galère disparaît de votre esprit.",
+        "Vous vous revoyez ..."
+      };
 
       player.menu.choices.Add(($"véritable brute, parcourant les rues de votre ville en recherche d'un prochain écolier à martyriser.", () => AddTrait(player, Feat.Thug)));
       player.menu.choices.Add(($"au temple, en tant que simple adepte, entouré de vos semblables en communion.", () => AddTrait(player, Feat.Strongsoul)));
@@ -88,7 +98,10 @@ namespace NWN.Systems
     {
       player.menu.Clear();
 
-      player.menu.title = $"Vous disposez actuellement de {ObjectPlugin.GetInt(player.oid, "_STARTING_SKILL_POINTS")} points de compétence. Quelles capacités initiales votre personnage possède-t-il ?";
+      player.menu.titleLines = new List<string> {
+        $"Vous disposez actuellement de {ObjectPlugin.GetInt(player.oid, "_STARTING_SKILL_POINTS")} points de compétence.",
+        "Quelles capacités initiales votre personnage possède-t-il ?"
+      };
 
       foreach (KeyValuePair<int, SkillSystem.Skill> SkillListEntry in player.learnableSkills)
       {

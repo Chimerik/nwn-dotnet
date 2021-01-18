@@ -25,10 +25,13 @@ namespace NWN.Systems
       if (player.learnableSpells.Count > 0)
         player.menu.choices.Add(($"Afficher la liste des sorts disponibles pour entrainement", () => __DrawSpellPage(player)));
 
-      if(player.menu.choices.Count > 0)
-        player.menu.title = "Que souhaitez-vous faire ?.";
+      if (player.menu.choices.Count > 0)
+        player.menu.titleLines.Add("Que souhaitez-vous faire ?.");
       else
-        player.menu.title = "Il semble que vous n'ayez plus rien à apprendre. Peut-être trouverez-vous de nouveaux éléments d'améliorations dans certains ouvrages ?";
+        player.menu.titleLines = new List<string>() {
+          "Il semble que vous n'ayez plus rien à apprendre.",
+          "Peut-être trouverez-vous de nouveaux éléments d'améliorations dans certains ouvrages ?"
+        };
 
       player.menu.choices.Add(("Quitter", () => __HandleClose(player)));
       player.menu.Draw();
@@ -36,7 +39,7 @@ namespace NWN.Systems
     private static void __DrawSkillPage(PlayerSystem.Player player)
     {
       player.menu.Clear();
-      player.menu.title = "Liste des talents disponibles pour entrainement.";
+      player.menu.titleLines.Add("Liste des talents disponibles pour entrainement.");
 
       //var sortedDict = from entry in player.learnableSkills orderby entry.Value ascending select entry;
       foreach (KeyValuePair<int, SkillSystem.Skill> SkillListEntry in player.learnableSkills.OrderByDescending(key => key.Value.currentJob))
@@ -70,7 +73,7 @@ namespace NWN.Systems
     private static void __DrawSpellPage(PlayerSystem.Player player)
     {
       player.menu.Clear();
-      player.menu.title = "Liste des sorts disponibles pour étude.";
+      player.menu.titleLines.Add("Liste des sorts disponibles pour étude.");
 
       foreach (KeyValuePair<int, SkillSystem.LearnableSpell> SpellListEntry in player.learnableSpells.OrderByDescending(key => key.Value.currentJob))
       {
@@ -92,7 +95,8 @@ namespace NWN.Systems
     private static void __DrawMalusPage(PlayerSystem.Player player)
     {
       player.menu.Clear();
-      player.menu.title = "Liste des blessures persistantes nécessitant une rééducation.";
+      player.menu.titleLines.Add("Liste des blessures persistantes nécessitant une rééducation.");
+
       foreach (KeyValuePair<int, SkillSystem.Skill> SkillListEntry in player.removeableMalus)
       {
         SkillSystem.Skill skill = SkillListEntry.Value;

@@ -110,6 +110,10 @@ namespace NWN.Systems
           case TargetEvent.SitTarget:
           NWScript.EnterTargetingMode(this.oid);
             break;
+          case TargetEvent.Creature:
+            NWScript.EnterTargetingMode(this.oid, NWScript.OBJECT_TYPE_CREATURE);
+            targetEvent = TargetEvent.LootSaverTarget;
+            break;
           default:
             NWScript.EnterTargetingMode(this.oid);
             break;
@@ -309,8 +313,7 @@ namespace NWN.Systems
         switch(currentSkillType)
         {
           case SkillType.Skill:
-            Skill skill;
-            if (this.learnableSkills.TryGetValue(this.currentSkillJob, out skill))
+            if (this.learnableSkills.TryGetValue(this.currentSkillJob, out Skill skill))
             {
               float skillPointRate = skill.CalculateSkillPointsPerSecond();
               skill.acquiredPoints += skillPointRate * (float)(DateTime.Now - this.dateLastSaved).TotalSeconds;
@@ -323,8 +326,7 @@ namespace NWN.Systems
             }
             break;
           case SkillType.Spell:
-            LearnableSpell spell;
-            if (this.learnableSpells.TryGetValue(this.currentSkillJob, out spell))
+            if (this.learnableSpells.TryGetValue(this.currentSkillJob, out LearnableSpell spell))
             {
               float skillPointRate = spell.CalculateSkillPointsPerSecond();
               spell.acquiredPoints += skillPointRate * (float)(DateTime.Now - this.dateLastSaved).TotalSeconds;
@@ -490,6 +492,14 @@ namespace NWN.Systems
         PlayerPlugin.AddCustomJournalEntry(this.oid, journalEntry);
 
         NWScript.DelayCommand(1.0f, () => this.rebootUpdate());
+      }
+      public string CheckDBPlayerAccount()
+      {
+        var query = NWScript.SqlPrepareQueryCampaign(ModuleSystem.database, $"select accountName from PlayerAccounts  where rowId = @accountId");
+        NWScript.SqlBindInt(query, "@accountId", accountId);
+        NWScript.SqlStep(query);
+
+        return NWScript.SqlGetString(query, 0);
       }
       public Boolean IsDialogQuickbarOn()
       {

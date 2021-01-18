@@ -14,7 +14,7 @@ namespace NWN.Systems
     }
     public abstract partial class Menu
     {
-      public string title { get; set; } = "";
+      public List<string> titleLines { get; set; } = new List<string>();
       public List<(string text, Action handler)> choices = new List<(string text, Action handler)>();
       public int originTop { get; set; }
       public int originLeft { get; set; }
@@ -30,8 +30,8 @@ namespace NWN.Systems
       {
         get
         {
-          if (title == "") return 0;
-          return 1 + titleBottomMargin;
+          if (titleLines.Count == 0) return 0;
+          return titleLines.Count + titleBottomMargin;
         }
       }
 
@@ -97,7 +97,7 @@ namespace NWN.Systems
 
       public void Clear()
       {
-        title = "";
+        titleLines.Clear();
         choices.Clear();
         selectedChoiceID = 0;
       }
@@ -120,7 +120,13 @@ namespace NWN.Systems
 
       private int CalcWindowWidth()
       {
-        var longestText = title.Length;
+        var longestText = 0;
+
+        foreach(var line in titleLines)
+        {
+          if (line.Length > longestText) longestText = line.Length;
+        }
+
         foreach (var (text, _) in choices)
         {
           if (text.Length > longestText) longestText = text.Length;
@@ -171,15 +177,18 @@ namespace NWN.Systems
         var textY = originTop + heightPadding + borderSize;
         var textID = textBaseID;
 
-        if (title != "")
+        foreach(var text in titleLines)
         {
-          DrawLine(title, textX, textY++, textID++, Config.Font.Text, drawnLineTextIds);
+          DrawLine(text, textX, textY++, textID++, Config.Font.Text, drawnLineTextIds);
+        }
+
+        if (titleLines.Count != 0)
+        {
           textY += titleBottomMargin;
         }
 
-        for (var i = 0; i < choices.Count; i++)
+        foreach (var (text, _) in choices)
         {
-          var (text, _) = choices[i];
           DrawLine(text, textX, textY++, textID++, Config.Font.Text, drawnLineTextIds);
         }
       }

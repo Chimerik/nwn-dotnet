@@ -38,7 +38,12 @@ namespace NWN.Systems
             Utils.DestroyInventory(nearestObject);
 
           if (NWScript.GetTag(nearestObject) != "Statuereptilienne")
+          {
+            if(NWScript.GetEventScript(nearestObject, NWScript.EVENT_SCRIPT_CREATURE_ON_DEATH) ==  "od_spawn_npc_wp")
+              NWScript.SetLocalString(NWScript.CreateObject(NWScript.OBJECT_TYPE_WAYPOINT, NWScript.GetLocalString(nearestObject, "_WAYPOINT_TEMPLATE"), NWScript.GetLocation(nearestObject)), "_CREATURE_TEMPLATE", NWScript.GetResRef(nearestObject));
+
             NWScript.DestroyObject(nearestObject);
+          }
 
           i++;
           nearestObject = NWScript.GetNearestObject(NWScript.OBJECT_TYPE_CREATURE, firstObject, i);
@@ -83,6 +88,27 @@ namespace NWN.Systems
           NWScript.DestroyObject(firstObject);
         }
       }
+    }
+
+    public void DeferDestroy(float delay = 30.0f)
+    {
+      NWScript.DelayCommand(delay, () =>
+      {
+        if (AreaSystem.GetIsAnyPlayerInInvalidArea())
+        {
+          // Don't destroy Area because player can get stuck in loading screen
+          DeferDestroy(delay);
+          return;
+        }
+
+        var result = NWScript.DestroyArea(oid);
+
+        if (result == -2) // Players in area
+        {
+          DeferDestroy(delay);
+          return;
+        }
+      });
     }
   }
 }

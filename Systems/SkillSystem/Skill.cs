@@ -59,6 +59,9 @@ namespace NWN.Systems
         }
         else
           this.currentLevel = 1;
+
+        if (currentLevel < 1)
+          currentLevel = 1;
  
         if (int.TryParse(NWScript.Get2DAString("feat", "CRValue", Id), out value))
           this.multiplier = value;
@@ -98,7 +101,7 @@ namespace NWN.Systems
           Utils.LogMessageToDMs($"SKILL SYSTEM ERROR - Skill {this.oid} : Secondary ability not set");
         }
 
-        this.pointsToNextLevel = 250 * this.multiplier * (int)Math.Pow(Math.Sqrt(32), this.currentLevel);
+        this.pointsToNextLevel = 250 * this.multiplier * (int)Math.Pow(Math.Sqrt(32), this.currentLevel - 1);
 
         if (this.player.currentSkillJob == this.oid)
         {

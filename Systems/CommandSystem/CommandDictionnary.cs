@@ -10,24 +10,13 @@ namespace NWN.Systems
         "help", new Command(
           name: "help",
           description: new Command.Description(
-            title: "Display the list of all available commands or a full description of the provided command.",
+            title: "Affiche la liste de toutes les commandes disponibles.",
             examples: new string[]
             {
-              "",
-              "help"
+              ""
             }
           ),
-          execute: ExecuteHelpCommand,
-          options: new Options(
-            positional: new List<Option>()
-            {
-              new Option(
-                name: "command",
-                description: "Nom de la commande.",
-                defaultValue: null
-              )
-            }
-          )
+          execute: ExecuteHelpCommand
         )
       },
       {
@@ -327,6 +316,30 @@ namespace NWN.Systems
           name: "resetpos",
           description: new Command.Description(title: "Réinitialise la position d'affichage du personnage à sa position réelle."),
           execute: ExecuteResetPositionCommand
+        )
+      },
+      {
+        "stuck",
+        new Command(
+          name: "stuck",
+          description: new Command.Description(title: "Permet de décoincer un personnage bloqué dans le décor."),
+          execute: ExecuteStuckCommand
+        )
+      },
+      {
+        "suivre",
+        new Command(
+          name: "suivre",
+          description: new Command.Description(title: "Suit automatiquement le personnage ciblé."),
+          execute: ExecuteFollowCommand
+        )
+      },
+      {
+        "supprimer",
+        new Command(
+          name: "supprimer",
+          description: new Command.Description(title: "Attention, cette commande supprime définitivement le personnage avec lequel vous êtes actuellement connecté."),
+          execute: ExecuteDeleteCharacterCommand
         )
       },
       {

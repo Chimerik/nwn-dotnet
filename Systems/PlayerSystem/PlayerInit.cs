@@ -31,8 +31,7 @@ namespace NWN.Systems
       //RefreshQBS(oidSelf, 0);
       // }
 
-      Player player; 
-      if(!Players.TryGetValue(oPC, out player))
+      if(!Players.TryGetValue(oPC, out Player player))
       {
         player = new Player(oPC);
         Players.Add(oPC, player);
@@ -40,6 +39,13 @@ namespace NWN.Systems
 
       if (NWScript.GetIsDM(oPC) != 1)
       {
+        string pcAccount = player.CheckDBPlayerAccount();
+        if (pcAccount != NWScript.GetPCPlayerName(player.oid))
+        {
+          NWScript.SendMessageToPC(player.oid, $"Attention - Ce personnage est enregistré sous le compte {pcAccount}, or vous venez de vous connecter sous {NWScript.GetPCPlayerName(player.oid)}, ce qui risque de poser problème !");
+          Utils.LogMessageToDMs($"Attention - {NWScript.GetPCPlayerName(player.oid)} vient de se connecter avec un personnage enregistré sous le compte : {pcAccount} !");
+        }
+
         /*if (NWScript.GetIsObjectValid(NWScript.GetItemPossessedBy(oPC, "pj_lycan_curse")) == 1) // TODO : revoir système de métamorphose et de malédiction lycanthropique
         {
           CreaturePlugin.AddFeat(oPC, NWScript.FEAT_PLAYER_TOOL_02);
@@ -92,10 +98,20 @@ namespace NWN.Systems
           switch(player.currentSkillType)
           {
             case SkillSystem.SkillType.Skill:
-              player.learnableSkills[player.currentSkillJob].currentJob = true;
+              if (player.learnableSkills.ContainsKey(player.currentSkillJob))
+                player.learnableSkills[player.currentSkillJob].currentJob = true;
+              else
+              {
+                if (!Convert.ToBoolean(CreaturePlugin.GetKnowsFeat(player.oid, player.currentSkillJob)))
+                  CreaturePlugin.AddFeat(player.oid, player.currentSkillJob);
+                player.currentSkillJob = (int)Feat.Invalid;
+              }
               break;
             case SkillSystem.SkillType.Spell:
-              player.learnableSpells[player.currentSkillJob].currentJob = true;
+              if (player.learnableSkills.ContainsKey(player.currentSkillJob))
+                player.learnableSpells[player.currentSkillJob].currentJob = true;
+              else
+                player.currentSkillJob = (int)Feat.Invalid;
               break;
           }
           
@@ -212,6 +228,8 @@ namespace NWN.Systems
         arrivalPoint = newCharacter.oid;
       }
 
+      Utils.DestroyInventory(newCharacter.oid);
+
       var query = NWScript.SqlPrepareQueryCampaign(ModuleSystem.database, $"INSERT INTO playerCharacters (accountId , characterName, dateLastSaved, currentSkillType, currentSkillJob, currentCraftJob, currentCraftObject, frostAttackOn, areaTag, position, facing, menuOriginLeft, currentHP) VALUES (@accountId, @name, @dateLastSaved, @currentSkillType, @currentSkillJob, @currentCraftJob, @currentCraftObject, @frostAttackOn, @areaTag, @position, @facing, @menuOriginLeft, @currentHP)");
       NWScript.SqlBindInt(query, "@accountId", newCharacter.accountId);
       NWScript.SqlBindString(query, "@name", NWScript.GetName(newCharacter.oid));
@@ -232,10 +250,6 @@ namespace NWN.Systems
       NWScript.SqlStep(query);
 
       ObjectPlugin.SetInt(newCharacter.oid, "characterId", NWScript.SqlGetInt(query, 0), 1);
-
-      query = NWScript.SqlPrepareQueryCampaign(ModuleSystem.database, $"INSERT INTO playerMaterialStorage (characterId) VALUES (@characterId)");
-      NWScript.SqlBindInt(query, "@characterId", ObjectPlugin.GetInt(newCharacter.oid, "characterId"));
-      NWScript.SqlStep(query);
 
       for (int spellLevel = 0; spellLevel < 10; spellLevel++)
         while (CreaturePlugin.GetKnownSpellCount(newCharacter.oid, 43, spellLevel) > 0)
@@ -350,19 +364,11 @@ namespace NWN.Systems
       player.previousArea = NWScript.GetAreaFromLocation(player.location);
       player.currentSkillType = (SkillSystem.SkillType)NWScript.SqlGetInt(query, 14);
 
-      query = NWScript.SqlPrepareQueryCampaign(ModuleSystem.database, $"SELECT Veldspar, Scordite, Pyroxeres, Tritanium, Pyerite, Mexallon, Noxcium from playerMaterialStorage where characterId = @characterId");
+      query = NWScript.SqlPrepareQueryCampaign(ModuleSystem.database, $"SELECT materialName, materialStock from playerMaterialStorage where characterId = @characterId");
       NWScript.SqlBindInt(query, "@characterId", player.characterId);
 
-      if (Convert.ToBoolean(NWScript.SqlStep(query)))
-      {
-        player.materialStock.Add("Veldspar", NWScript.SqlGetInt(query, 0));
-        player.materialStock.Add("Scordite", NWScript.SqlGetInt(query, 1));
-        player.materialStock.Add("Pyroxeres", NWScript.SqlGetInt(query, 2));
-        player.materialStock.Add("Tritanium", NWScript.SqlGetInt(query, 3));
-        player.materialStock.Add("Pyerite", NWScript.SqlGetInt(query, 4));
-        player.materialStock.Add("Mexallon", NWScript.SqlGetInt(query, 5));
-        player.materialStock.Add("Noxcium", NWScript.SqlGetInt(query, 6));
-      }
+      while(Convert.ToBoolean(NWScript.SqlStep(query)))
+        player.materialStock.Add(NWScript.SqlGetString(query, 0), NWScript.SqlGetInt(query, 1));
     }
     private static void InitializePlayerLearnableSkills(Player player)
     {

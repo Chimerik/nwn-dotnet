@@ -61,12 +61,19 @@ namespace NWN.Systems.Craft.Collect
 
       if (NWScript.GetIsObjectValid(oExtractor) != 1) return;
 
-      
       uint resourcePoint = NWScript.GetNearestObjectByTag("ore_spawn_wp", oPlaceable);
       int i = 1;
 
-      Area area;
-      if (!AreaSystem.areaDictionnary.TryGetValue(NWScript.GetObjectUUID(NWScript.GetArea(resourcePoint)), out area)) return;
+      if (!AreaSystem.areaDictionnary.TryGetValue(NWScript.GetObjectUUID(NWScript.GetArea(resourcePoint)), out Area area)) return;
+
+      int remainingProspections = NWScript.GetLocalInt(area.oid, "_REMAINING_MINING_PROSPECTIONS");
+      if (remainingProspections < 1)
+      {
+        NWScript.SendMessageToPC(player.oid, "Cette veine est épuisée. Reste à espérer qu'un prochain glissement de terrain permette d'atteindre de nouveaux filons.");
+        return;
+      }
+      else
+        NWScript.SetLocalInt(area.oid, "_REMAINING_MINING_PROSPECTIONS", remainingProspections - 1);
 
       int skillBonus = 0;
       int value;
@@ -77,6 +84,7 @@ namespace NWN.Systems.Craft.Collect
         skillBonus += value;
 
       int respawnChance = skillBonus * 5;
+      int nbSpawns = 0;
 
       while (NWScript.GetIsObjectValid(resourcePoint) == 1)
       {
@@ -86,12 +94,18 @@ namespace NWN.Systems.Craft.Collect
           var newRock = NWScript.CreateObject(NWScript.OBJECT_TYPE_PLACEABLE, "mineable_rock", NWScript.GetLocation(resourcePoint));
           NWScript.SetName(newRock, Enum.GetName(typeof(OreType), GetRandomOreSpawnFromAreaLevel(area.level)));
           NWScript.SetLocalInt(newRock, "_ORE_AMOUNT", 50 * iRandom + 50 * iRandom * skillBonus / 100);
-          NWScript.DestroyObject(oPlaceable);
+          NWScript.DestroyObject(resourcePoint);
+          nbSpawns++; 
         }
 
         i++;
         resourcePoint = NWScript.GetNearestObjectByTag("ore_spawn_wp", oPlaceable, i);
       }
+
+      if(nbSpawns > 0)
+        NWScript.SendMessageToPC(player.oid, $"Votre prospection a permis de mettre à découvert {nbSpawns} veine(s) de minerai !");
+      else
+        NWScript.SendMessageToPC(player.oid, $"Votre prospection ne semble pas avoir abouti à la découverte d'une veine exploitable");
 
       Items.Utils.DecreaseItemDurability(oExtractor);
     }

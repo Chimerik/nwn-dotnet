@@ -38,7 +38,7 @@ namespace NWN.Systems
         if (LootSystem.lootablesDic.ContainsKey(NWScript.GetLocalString(lootChest, "_LOOT_REFERENCE")))
           area.lootChestList.Add(lootChest);
         else
-          Utils.LogMessageToDMs($"LOOT SYSYEM - Area {NWScript.GetName(nwobj)} - Chest {NWScript.GetName(lootChest)} not found in loot table.");
+          Utils.LogMessageToDMs($"LOOT SYSTEM - Area {NWScript.GetName(nwobj)} - Chest {NWScript.GetName(lootChest)} not found in loot table.");
 
         i++;
         lootChest = NWScript.GetNearestObjectByTag("loot_chest", firstObject, i);
@@ -47,7 +47,7 @@ namespace NWN.Systems
 
     public static void RemoveArea(Area area)
     {
-      NWScript.DestroyArea(area.oid);
+      area.DeferDestroy();
       areaDictionnary.Remove(area.uuid);
     }
 
@@ -86,6 +86,7 @@ namespace NWN.Systems
         case "SimilisseTribunal":
         case "SimilisseTribunalPrison":
         case "SimilisseSalleDesDelibrations":
+        case "Sawmill":
           area.level = 0;
           break;
         case "lepontdaruthen":
@@ -94,7 +95,7 @@ namespace NWN.Systems
         case "terres_de_fryar":
         case "vallee":
         case "cave_flooded":
-        case "cave_underwater_ruins_entry ":
+        case "cave_uw_ruins_entry":
           area.level = 2;
           break;
         case "chemin_interdit":
@@ -244,6 +245,21 @@ namespace NWN.Systems
       NWScript.SetPlotFlag(sailor2, 0);
       NWScript.ApplyEffectToObject(NWScript.DURATION_TYPE_INSTANT, NWScript.EffectDamage(120, NWScript.DAMAGE_TYPE_ELECTRICAL, NWScript.DAMAGE_POWER_ENERGY), sailor2);
       NWScript.AssignCommand(sailor1, () => NWScript.SpeakString("NOOOOOON, OLAF, MON FRERE JUMEAU ! Quelle horreur !"));
+    }
+
+    public static bool GetIsAnyPlayerInInvalidArea()
+    {
+      bool isAnyPlayerInInvalidArea = false;
+
+      var oPC = NWScript.GetFirstPC();
+
+      while (NWScript.GetIsObjectValid(oPC) == 1 && isAnyPlayerInInvalidArea == false)
+      {
+        if (NWScript.GetIsObjectValid(NWScript.GetArea(oPC)) != 1) isAnyPlayerInInvalidArea = true;
+        oPC = NWScript.GetNextPC();
+      }
+
+      return isAnyPlayerInInvalidArea;
     }
   }
 }

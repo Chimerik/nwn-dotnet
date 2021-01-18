@@ -102,8 +102,7 @@ namespace NWN.Systems
             NWScript.SqlBindObject(saveStorage, "@storage", storageToSave);
             NWScript.SqlStep(saveStorage);
 
-            Area area;
-            if (AreaSystem.areaDictionnary.TryGetValue(NWScript.GetObjectUUID(NWScript.GetArea(player.oid)), out area))
+            if (AreaSystem.areaDictionnary.TryGetValue(NWScript.GetObjectUUID(NWScript.GetArea(player.oid)), out Area area))
               AreaSystem.RemoveArea(area);
 
             NWScript.AssignCommand(player.oid, () => NWScript.ClearAllActions());

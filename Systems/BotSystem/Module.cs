@@ -44,7 +44,7 @@ namespace NWN.Systems
     [Command("desc")]
     [Summary("Enregistre ou modifie une description pour un personnage donné.")]
     public Task SaveDescriptionAsync(string nom_du_perso, string nom_description, string texte_description)
-      => BotSystem.ExecuteSaveDescriptionCommand(Context, nom_du_perso, nom_description, texte_description);
+      => BotSystem.ExecutePrepareAsyncSaveDescriptionCommand(Context, nom_du_perso, nom_description, texte_description);
 
     [Command("desc")]
     [Summary("Affiche la liste des descriptions enregistrées pour un personnage donné.")]
