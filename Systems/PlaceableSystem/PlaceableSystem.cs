@@ -72,7 +72,7 @@ namespace NWN.Systems
             break;
           case "portal_storage_in":
             uint aEntrepot = NWScript.CopyArea(NWScript.GetObjectByTag("entrepotpersonnel"));
-            Module.areaDictionnary.Add(NWScript.GetObjectUUID(aEntrepot), new Area(aEntrepot));
+            AreaSystem.CreateArea(aEntrepot);
 
             NWScript.SetName(aEntrepot, $"{NWScript.GetName(aEntrepot)} de {NWScript.GetName(player.oid)}");
             NWScript.SetTag(aEntrepot, $"entrepotpersonnel_{NWScript.GetName(player.oid)}");
@@ -102,8 +102,8 @@ namespace NWN.Systems
             NWScript.SqlBindObject(saveStorage, "@storage", storageToSave);
             NWScript.SqlStep(saveStorage);
 
-            if (Module.areaDictionnary.TryGetValue(NWScript.GetObjectUUID(NWScript.GetArea(player.oid)), out Area area))
-              NWScript.DelayCommand(10.0f, () => NWScript.AssignCommand(ModuleSystem.module.oid, () => area.RemoveArea()));
+            if (AreaSystem.areaDictionnary.TryGetValue(NWScript.GetObjectUUID(NWScript.GetArea(player.oid)), out Area area))
+              AreaSystem.RemoveArea(area);
 
             NWScript.AssignCommand(player.oid, () => NWScript.ClearAllActions());
             NWScript.AssignCommand(player.oid, () => NWScript.JumpToLocation(NWScript.GetLocation(NWScript.GetObjectByTag("wp_outentrepot"))));

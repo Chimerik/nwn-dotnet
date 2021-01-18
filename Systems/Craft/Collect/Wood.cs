@@ -54,7 +54,7 @@ namespace NWN.Systems.Craft.Collect
 
     public static void HandleCompleteProspectionCycle(Player player)
     {
-      if (!Module.areaDictionnary.TryGetValue(NWScript.GetObjectUUID(NWScript.GetArea(player.oid)), out Area area)) return;
+      if (!AreaSystem.areaDictionnary.TryGetValue(NWScript.GetObjectUUID(NWScript.GetArea(player.oid)), out Area area)) return;
 
       if (area.level < 2)
       {

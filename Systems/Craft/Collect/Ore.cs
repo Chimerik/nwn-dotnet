@@ -64,7 +64,7 @@ namespace NWN.Systems.Craft.Collect
       uint resourcePoint = NWScript.GetNearestObjectByTag("ore_spawn_wp", oPlaceable);
       int i = 1;
 
-      if (!Module.areaDictionnary.TryGetValue(NWScript.GetObjectUUID(NWScript.GetArea(resourcePoint)), out Area area)) return;
+      if (!AreaSystem.areaDictionnary.TryGetValue(NWScript.GetObjectUUID(NWScript.GetArea(resourcePoint)), out Area area)) return;
 
       int remainingProspections = NWScript.GetLocalInt(area.oid, "_REMAINING_MINING_PROSPECTIONS");
       if (remainingProspections < 1)

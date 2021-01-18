@@ -53,7 +53,7 @@ namespace NWN.Systems
           player.currentHP = NWScript.GetCurrentHitPoints(player.oid);
 
           Area area;
-          if (Module.areaDictionnary.TryGetValue(NWScript.GetObjectUUID(NWScript.GetArea(player.oid)), out area) && area.level == 0)
+          if (AreaSystem.areaDictionnary.TryGetValue(NWScript.GetObjectUUID(NWScript.GetArea(player.oid)), out area) && area.level == 0)
             player.CraftJobProgression();
 
           player.AcquireSkillPoints();

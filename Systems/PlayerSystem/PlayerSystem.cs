@@ -958,7 +958,7 @@ namespace NWN.Systems
 
           // Gestion des coffres lootables
           Area area;
-          if (Module.areaDictionnary.TryGetValue(NWScript.GetObjectUUID(oArea), out area))
+          if (AreaSystem.areaDictionnary.TryGetValue(NWScript.GetObjectUUID(oArea), out area))
           {
             foreach (uint chest in area.lootChestList)
             {
@@ -991,9 +991,9 @@ namespace NWN.Systems
             player.menu.Close();
 
           Area area;
-          if (Module.areaDictionnary.TryGetValue(NWScript.GetObjectUUID(oArea), out area))
+          if (AreaSystem.areaDictionnary.TryGetValue(NWScript.GetObjectUUID(oArea), out area))
           {
-            area.DoAreaSpecificBehavior(player);
+            AreaSystem.DoAreaSpecificBehavior(area, player);
 
             if(area.level < 2)
               NWScript.ExploreAreaForPlayer(oArea, player.oid, 1);
@@ -1019,7 +1019,7 @@ namespace NWN.Systems
         if (Players.TryGetValue(oidSelf, out player))
         {
           Area area;
-          if (Module.areaDictionnary.TryGetValue(NWScript.GetObjectUUID(player.previousArea), out area))
+          if (AreaSystem.areaDictionnary.TryGetValue(NWScript.GetObjectUUID(player.previousArea), out area))
           {
             int nbPlayersInArea = AreaPlugin.GetNumberOfPlayersInArea(player.previousArea);
 
@@ -1027,7 +1027,7 @@ namespace NWN.Systems
               nbPlayersInArea -= 1;
 
             if (nbPlayersInArea == 0)
-              NWScript.AssignCommand(area.oid, () => NWScript.DelayCommand(1500.0f, () => area.CleanArea())); // 25 minutes
+              NWScript.AssignCommand(area.oid, () => NWScript.DelayCommand(1500.0f, () => area.Clean())); // 25 minutes
           }
         }
       }

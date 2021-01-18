@@ -86,7 +86,7 @@ namespace NWN.Systems
 
         Area area;
         if (player.craftJob.IsActive() 
-          && Module.areaDictionnary.TryGetValue(NWScript.GetObjectUUID(NWScript.GetAreaFromLocation(player.location)), out area) 
+          && AreaSystem.areaDictionnary.TryGetValue(NWScript.GetObjectUUID(NWScript.GetAreaFromLocation(player.location)), out area) 
           && area.level == 0)
         {
           player.CraftJobProgression();
@@ -216,8 +216,8 @@ namespace NWN.Systems
 
       if (Config.env == Config.Env.Prod || Config.env == Config.Env.Chim)
       {
-        arrivalArea = NWScript.CopyArea(Module.areaDictionnary.Where(v => v.Value.tag == "entry_scene").FirstOrDefault().Value.oid);
-        Module.areaDictionnary.Add(NWScript.GetObjectUUID(arrivalArea), new Area(arrivalArea));
+        arrivalArea = NWScript.CopyArea(AreaSystem.areaDictionnary.Where(v => v.Value.tag == "entry_scene").FirstOrDefault().Value.oid);
+        AreaSystem.CreateArea(arrivalArea);
         NWScript.SetName(arrivalArea, $"La galère de {NWScript.GetName(newCharacter.oid)} (Bienvenue !)");
         NWScript.SetTag(arrivalArea, $"entry_scene_{NWScript.GetPCPublicCDKey(newCharacter.oid)}_{NWScript.GetName(newCharacter.oid)}");
         arrivalPoint = NWScript.GetNearestObjectByTag("ENTRY_POINT", NWScript.GetFirstObjectInArea(arrivalArea));

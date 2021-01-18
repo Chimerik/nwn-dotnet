@@ -445,7 +445,7 @@ namespace NWN.Systems
         Area area;
 
         if (playerJournal.craftJobCountDown != null 
-          && Module.areaDictionnary.TryGetValue(NWScript.GetObjectUUID(NWScript.GetArea(oid)), out area) && area.level == 0)
+          && AreaSystem.areaDictionnary.TryGetValue(NWScript.GetObjectUUID(NWScript.GetArea(oid)), out area) && area.level == 0)
         {
           journalEntry = PlayerPlugin.GetJournalEntry(oid, "craft_job");
           if (journalEntry.nUpdated != -1)
@@ -507,6 +507,21 @@ namespace NWN.Systems
         if (qbs.nObjectType == 4 && qbs.nINTParam1 == (int)Feat.CustomMenuDOWN)
           return true;
         return false;
+      }
+
+      // Take gold from the PC or from his bank account
+      public void PayOrBorrowGold(int price)
+      {
+        int pocketGold = NWScript.GetGold(oid);
+
+        if (pocketGold >= price)
+        {
+          CreaturePlugin.SetGold(oid, pocketGold - price);
+          return;
+        }
+
+        var borrowedGold = price - pocketGold;
+        bankGold -= borrowedGold;
       }
     }
   }

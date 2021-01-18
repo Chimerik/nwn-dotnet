@@ -226,8 +226,8 @@ namespace NWN.Systems
       if (Players.TryGetValue(NWScript.GetLastSpeaker(), out player))
       {
         Area area; 
-        if (Module.areaDictionnary.TryGetValue(NWScript.GetObjectUUID(NWScript.GetArea(player.oid)), out area))
-          area.StartEntryScene(player);
+        if (AreaSystem.areaDictionnary.TryGetValue(NWScript.GetObjectUUID(NWScript.GetArea(player.oid)), out area))
+          AreaSystem.StartEntryScene(area, player);
       }
 
       return 0;

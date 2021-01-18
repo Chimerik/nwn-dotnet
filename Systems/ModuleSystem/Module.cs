@@ -14,7 +14,6 @@ namespace NWN.Systems
   {
     public uint oid { get; }
     public List<string> botAsyncCommandList { get; set; }
-    public static Dictionary<string, Area> areaDictionnary = new Dictionary<string, Area>();
     public static string currentScript = "";
     public Module(uint oid)
     {
@@ -313,7 +312,7 @@ namespace NWN.Systems
 
       while (Convert.ToBoolean(NWScript.GetIsObjectValid(oArea)))
       {
-        Module.areaDictionnary.Add(NWScript.GetObjectUUID(oArea), new Area(oArea));
+        AreaSystem.CreateArea(oArea);
         oArea = NWScript.GetNextArea();
       }
     }
@@ -393,7 +392,7 @@ namespace NWN.Systems
 
       while(Convert.ToBoolean(NWScript.GetIsObjectValid(resourcePoint)))
       {
-        if (areaDictionnary.TryGetValue(NWScript.GetObjectUUID(NWScript.GetArea(resourcePoint)), out Area area))
+        if (AreaSystem.areaDictionnary.TryGetValue(NWScript.GetObjectUUID(NWScript.GetArea(resourcePoint)), out Area area))
         {
           if (area.level > 1)
           {
@@ -418,7 +417,7 @@ namespace NWN.Systems
 
       while (Convert.ToBoolean(NWScript.GetIsObjectValid(resourcePoint)))
       {
-        if (areaDictionnary.TryGetValue(NWScript.GetObjectUUID(NWScript.GetArea(resourcePoint)), out Area area))
+        if (AreaSystem.areaDictionnary.TryGetValue(NWScript.GetObjectUUID(NWScript.GetArea(resourcePoint)), out Area area))
         {
           if (area.level > 1)
           {
@@ -438,7 +437,7 @@ namespace NWN.Systems
         resourcePoint = NWScript.GetObjectByTag("wood_spawn_wp", i);
       }
 
-      foreach(Area area in areaDictionnary.Values)
+      foreach(Area area in AreaSystem.areaDictionnary.Values)
       {
         NWScript.SetLocalInt(oid, "_REMAINING_MINING_PROSPECTIONS", area.level * 2);
         NWScript.SetLocalInt(oid, "_REMAINING_WOOD_PROSPECTIONS", area.level * 2);
