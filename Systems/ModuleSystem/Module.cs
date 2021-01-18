@@ -14,7 +14,6 @@ namespace NWN.Systems
   {
     public uint oid { get; }
     public List<string> botAsyncCommandList { get; set; }
-    public static Dictionary<string, Area> areaDictionnary = new Dictionary<string, Area>();
     public static string currentScript = "";
     public Module(uint oid)
     {
@@ -307,7 +306,7 @@ namespace NWN.Systems
 
       while (Convert.ToBoolean(NWScript.GetIsObjectValid(oArea)))
       {
-        Module.areaDictionnary.Add(NWScript.GetObjectUUID(oArea), new Area(oArea));
+        AreaSystem.CreateArea(oArea);
         oArea = NWScript.GetNextArea();
       }
     }
@@ -387,7 +386,7 @@ namespace NWN.Systems
 
       while(Convert.ToBoolean(NWScript.GetIsObjectValid(resourcePoint)))
       {
-        if (areaDictionnary.TryGetValue(NWScript.GetObjectUUID(NWScript.GetArea(resourcePoint)), out Area area))
+        if (AreaSystem.areaDictionnary.TryGetValue(NWScript.GetObjectUUID(NWScript.GetArea(resourcePoint)), out Area area))
         {
           if(Utils.random.Next(1, 101) >= (area.level * 20) - 20)
           {
@@ -407,7 +406,7 @@ namespace NWN.Systems
 
       while (Convert.ToBoolean(NWScript.GetIsObjectValid(resourcePoint)))
       {
-        if (areaDictionnary.TryGetValue(NWScript.GetObjectUUID(NWScript.GetArea(resourcePoint)), out Area area))
+        if (AreaSystem.areaDictionnary.TryGetValue(NWScript.GetObjectUUID(NWScript.GetArea(resourcePoint)), out Area area))
         {
           if (Utils.random.Next(1, 101) >= (area.level * 20) - 20)
           {

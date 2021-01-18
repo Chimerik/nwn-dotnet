@@ -443,7 +443,7 @@ namespace NWN.Systems
         Area area;
 
         if (playerJournal.craftJobCountDown != null 
-          && Module.areaDictionnary.TryGetValue(NWScript.GetObjectUUID(NWScript.GetArea(oid)), out area) && area.level == 0)
+          && AreaSystem.areaDictionnary.TryGetValue(NWScript.GetObjectUUID(NWScript.GetArea(oid)), out area) && area.level == 0)
         {
           journalEntry = PlayerPlugin.GetJournalEntry(oid, "craft_job");
           if (journalEntry.nUpdated != -1)

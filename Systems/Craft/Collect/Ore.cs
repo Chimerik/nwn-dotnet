@@ -66,7 +66,7 @@ namespace NWN.Systems.Craft.Collect
       int i = 1;
 
       Area area;
-      if (!Module.areaDictionnary.TryGetValue(NWScript.GetObjectUUID(NWScript.GetArea(resourcePoint)), out area)) return;
+      if (!AreaSystem.areaDictionnary.TryGetValue(NWScript.GetObjectUUID(NWScript.GetArea(resourcePoint)), out area)) return;
 
       int skillBonus = 0;
       int value;
