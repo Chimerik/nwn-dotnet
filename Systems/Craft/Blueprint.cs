@@ -15,6 +15,7 @@ namespace NWN.Systems.Craft
     public string craftedItemTag { get; set; }
     public int mineralsCost { get; set; }
     public Feat feat { get; set; }
+    public Feat jobFeat { get; set; }
     public int goldCost { get; }
     public Blueprint(int baseItemType)
     {
@@ -53,24 +54,44 @@ namespace NWN.Systems.Craft
 
         this.workshopTag = NWScript.Get2DAString("baseitems", "Category", baseItemType);
         this.craftedItemTag = NWScript.Get2DAString("baseitems", "label", baseItemType);
-      } 
-    }
-    public static ItemProperty[] GetCraftItemProperties(MineralType material, ItemCategory itemCategory)
-    {
-      switch (material)
-      {
-        case MineralType.Tritanium: return GetTritaniumItemProperties();
-        case MineralType.Pyerite: return GetPyeriteItemProperties(itemCategory);
       }
 
-      Utils.LogMessageToDMs($"No craft property found for material {material.ToString()} and item {itemCategory.ToString()}");
+      switch (workshopTag)
+      {
+        case "forge":
+          jobFeat = Feat.Forge;
+          break;
+        case "scierie":
+          jobFeat = Feat.Ebeniste;
+          break;
+      }
+    }
+    public static ItemProperty[] GetCraftItemProperties(string material, ItemCategory itemCategory)
+    {
+      if (Enum.TryParse(material, out MineralType myMineralType))
+      {
+        switch (myMineralType)
+        {
+          case MineralType.Tritanium: return GetTritaniumItemProperties();
+          case MineralType.Pyerite: return GetPyeriteItemProperties(itemCategory);
+        }
+      }
+      else if (Enum.TryParse(material, out PlankType myPlankType))
+      {
+        switch (myPlankType)
+        {
+          case PlankType.Laurelinade: return GetTritaniumItemProperties();
+          case PlankType.Telperionade: return GetPyeriteItemProperties(itemCategory);
+        }
+      }
+
+      Utils.LogMessageToDMs($"No craft property found for material {material} and item {itemCategory}");
       
       return new ItemProperty[0];
     }
     public static void BlueprintValidation(uint oidSelf, uint oTarget, Feat feat)
     {
-      Player oPC;
-      if (Players.TryGetValue(oidSelf, out oPC))
+      if (Players.TryGetValue(oidSelf, out Player oPC))
       {
         if (Convert.ToBoolean(NWScript.GetIsObjectValid(oTarget)) && NWScript.GetTag(oTarget) == "blueprint")
         {
@@ -139,15 +160,15 @@ namespace NWN.Systems.Craft
 
       return bpDescription;
     }
-    public int GetBlueprintMineralCostForPlayer(PlayerSystem.Player player, uint item)
+    public int GetBlueprintMineralCostForPlayer(Player player, uint item)
     {
       int iSkillLevel = 1;
 
       int value;
-      if (int.TryParse(NWScript.Get2DAString("feat", "GAINMULTIPLE", CreaturePlugin.GetHighestLevelOfFeat(player.oid, (int)Feat.Forge)), out value))
+      if (int.TryParse(NWScript.Get2DAString("feat", "GAINMULTIPLE", CreaturePlugin.GetHighestLevelOfFeat(player.oid, (int)jobFeat)), out value))
         iSkillLevel += value;
 
-      if (int.TryParse(NWScript.Get2DAString("feat", "GAINMULTIPLE", CreaturePlugin.GetHighestLevelOfFeat(player.oid, (int)this.feat)), out value))
+      if (int.TryParse(NWScript.Get2DAString("feat", "GAINMULTIPLE", CreaturePlugin.GetHighestLevelOfFeat(player.oid, (int)feat)), out value))
         iSkillLevel += value;
 
       return this.mineralsCost - (this.mineralsCost * (iSkillLevel + NWScript.GetLocalInt(item, "_BLUEPRINT_MATERIAL_EFFICIENCY")) / 100);
@@ -158,7 +179,7 @@ namespace NWN.Systems.Craft
       float fJobDuration = this.mineralsCost;
 
       int value;
-      if (int.TryParse(NWScript.Get2DAString("feat", "GAINMULTIPLE", CreaturePlugin.GetHighestLevelOfFeat(player.oid, (int)Feat.Forge)), out value))
+      if (int.TryParse(NWScript.Get2DAString("feat", "GAINMULTIPLE", CreaturePlugin.GetHighestLevelOfFeat(player.oid, (int)jobFeat)), out value))
         iSkillLevel += value;
 
       if (int.TryParse(NWScript.Get2DAString("feat", "GAINMULTIPLE", CreaturePlugin.GetHighestLevelOfFeat(player.oid, (int)feat)), out value))
@@ -168,11 +189,25 @@ namespace NWN.Systems.Craft
     }
     public string GetMaterialFromTargetItem(uint oTarget)
     {
-      if (NWScript.GetTag(oTarget) == this.workshopTag)
-        return "Tritanium";
-      else if (NWScript.GetTag(oTarget) == this.craftedItemTag 
-        && Enum.TryParse(NWScript.GetLocalString(oTarget, "_ITEM_MATERIAL"), out MineralType myMineralType))
-        return Enum.GetName(typeof(MineralType), myMineralType + 1);
+      if (NWScript.GetTag(oTarget) == workshopTag)
+      {
+        switch (workshopTag)
+        {
+          case "forge":
+            return Enum.GetName(typeof(MineralType), MineralType.Tritanium);
+          case "scierie":
+            return Enum.GetName(typeof(PlankType), PlankType.Laurelinade);
+        }
+      }
+      else if (NWScript.GetTag(oTarget) == this.craftedItemTag)
+      {
+        string material = NWScript.GetLocalString(oTarget, "_ITEM_MATERIAL");
+        if (Enum.TryParse(material, out MineralType myMineralType))
+          return Enum.GetName(typeof(MineralType), myMineralType + 1);
+        else if (Enum.TryParse(material, out PlankType myPlankType))
+          return Enum.GetName(typeof(PlankType), myPlankType + 1);
+      }
+      
       return "Invalid";
     }
   }

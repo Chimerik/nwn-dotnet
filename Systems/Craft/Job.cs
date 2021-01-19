@@ -126,12 +126,12 @@ namespace NWN.Systems.Craft
       else
         return true;
     }
-    public void Start(JobType type, Blueprint blueprint, Player player, uint oItem, uint oTarget = 0, string sMaterial = "", MineralType mineralType = MineralType.Invalid)
+    public void Start(JobType type, Blueprint blueprint, Player player, uint oItem, uint oTarget = 0, string sMaterial = "")
     {
       switch(type)
       {
         case JobType.Item:
-          this.StartItemCraft(blueprint, oItem, oTarget, sMaterial, mineralType);
+          StartItemCraft(blueprint, oItem, oTarget, sMaterial);
           break;
         case JobType.BlueprintCopy:
           StartBlueprintCopy(player, oItem, blueprint);
@@ -145,11 +145,18 @@ namespace NWN.Systems.Craft
       }
 
     }
-    public void StartItemCraft(Blueprint blueprint, uint oItem, uint oTarget, string sMaterial, MineralType mineralType)
+    public void StartItemCraft(Blueprint blueprint, uint oItem, uint oTarget, string sMaterial)
     {
       int iMineralCost = blueprint.GetBlueprintMineralCostForPlayer(player, oItem);
       float iJobDuration = blueprint.GetBlueprintTimeCostForPlayer(player, oItem);
-      iMineralCost -= iMineralCost * (int)mineralType / 10;
+
+      int materialType = 0;
+      if (Enum.TryParse(material, out MineralType myMineralType))
+        materialType = (int)myMineralType;
+      else if (Enum.TryParse(material, out PlankType myPlankType))
+        materialType = (int)myPlankType;
+
+      iMineralCost -= iMineralCost * (int)materialType / 10;
 
       if (player.materialStock[sMaterial] >= iMineralCost)
       {

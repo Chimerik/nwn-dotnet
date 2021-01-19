@@ -165,13 +165,12 @@ namespace NWN.Systems.Craft.Collect
       EventsPlugin.RemoveObjectFromDispatchList("NWNX_ON_START_COMBAT_ROUND_AFTER", "event_collect_cycle_cancel", player.oid);
       EventsPlugin.RemoveObjectFromDispatchList("NWNX_ON_INPUT_CAST_SPELL_BEFORE", "event_collect_cycle_cancel", player.oid);
     }
-    public static void AddCraftedItemProperties(uint craftedItem, Blueprint blueprint, string material)
+    public static void AddCraftedItemProperties(uint craftedItem, string material)
     {
       NWScript.SetName(craftedItem, NWScript.GetName(craftedItem) + " en " + material);
       NWScript.SetLocalString(craftedItem, "_ITEM_MATERIAL", material);
 
-      Enum.TryParse(material, out MineralType myMineralType);
-      foreach (ItemProperty ip in GetCraftItemProperties(myMineralType, GetItemCategory(NWScript.GetBaseItemType(craftedItem))))
+      foreach (ItemProperty ip in GetCraftItemProperties(material, GetItemCategory(NWScript.GetBaseItemType(craftedItem))))
       {
         NWScript.AddItemProperty(NWScript.DURATION_TYPE_PERMANENT, ip, craftedItem);
       }

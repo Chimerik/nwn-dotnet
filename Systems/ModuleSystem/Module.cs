@@ -234,7 +234,7 @@ namespace NWN.Systems
       value = 1;  
       for (int attackBonusfeat = (int)Feat.ImprovedAttackBonus; attackBonusfeat < (int)Feat.ImprovedAttackBonus + 5; attackBonusfeat++)
       {
-        FeatPlugin.SetFeatModifier(attackBonusfeat, FeatPlugin.NWNX_FEAT_MODIFIER_AB, value);
+        FeatPlugin.SetFeatModifier(attackBonusfeat, FeatPlugin.NWNX_FEAT_MODIFIER_AB, 1);
         value++;
       }
 
@@ -244,7 +244,7 @@ namespace NWN.Systems
         value = 1;
         while (value < 11)
         {
-          FeatPlugin.SetFeatModifier(feat, 22, 43, spellLevel, value); // 22 = NWNX_FEAT_MODIFIER_BONUSSPELL, 43 = class aventurier
+          FeatPlugin.SetFeatModifier(feat, 22, 43, spellLevel, 1); // 22 = NWNX_FEAT_MODIFIER_BONUSSPELL, 43 = class aventurier
           value++;
           feat++;
         }
@@ -256,7 +256,7 @@ namespace NWN.Systems
         value = 1;
         while (value < 6)
         {
-          FeatPlugin.SetFeatModifier(feat, FeatPlugin.NWNX_FEAT_MODIFIER_SAVE, savingThrow, value);
+          FeatPlugin.SetFeatModifier(feat, FeatPlugin.NWNX_FEAT_MODIFIER_SAVE, savingThrow, 1);
           value++;
           feat++;
         }

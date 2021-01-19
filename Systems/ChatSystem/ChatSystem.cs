@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using NWN.Core;
 using NWN.Core.NWNX;
+using static NWN.Systems.PlayerSystem;
 
 namespace NWN.Systems
 {
@@ -104,7 +105,7 @@ namespace NWN.Systems
 
       next();
     }
-    public static void ProcessMutePMMiddleware(ChatSystem.Context ctx, Action next)
+    public static void ProcessMutePMMiddleware(Context ctx, Action next)
     {
       if (NWScript.GetIsObjectValid(ctx.oTarget) == 1)
       {
@@ -119,7 +120,7 @@ namespace NWN.Systems
 
       next();
     }
-    public static void ProcessPMMiddleware(ChatSystem.Context ctx, Action next)
+    public static void ProcessPMMiddleware(Context ctx, Action next)
     {
       if (NWScript.GetIsObjectValid(ctx.oTarget) == 1)
       {
@@ -145,7 +146,7 @@ namespace NWN.Systems
       if (PlayerSystem.Players.TryGetValue(ctx.oSender, out player))
       {
         if(player.isAFK)
-          if (ctx.channel == ChatPlugin.NWNX_CHAT_CHANNEL_PLAYER_TALK || ctx.channel == ChatPlugin.NWNX_CHAT_CHANNEL_DM_WHISPER)
+          if (ctx.channel == ChatPlugin.NWNX_CHAT_CHANNEL_PLAYER_TALK || ctx.channel == ChatPlugin.NWNX_CHAT_CHANNEL_PLAYER_WHISPER)
             if (!ctx.msg.Contains("(") && !ctx.msg.Contains(")"))
               if (NWScript.GetDistanceBetween(ctx.oSender, NWScript.GetNearestCreature(1, 1, ctx.oSender)) < 35.0f)
                 player.isAFK = false;
@@ -161,15 +162,15 @@ namespace NWN.Systems
       next();
     }
 
-    public static void ProcessDMListenMiddleware(ChatSystem.Context ctx, Action next)
+    public static void ProcessDMListenMiddleware(Context ctx, Action next)
     {
       //SYSTEME DE RECOPIE DE CHAT POUR LES DMS
-      if (ctx.channel == ChatPlugin.NWNX_CHAT_CHANNEL_PLAYER_TALK || ctx.channel == ChatPlugin.NWNX_CHAT_CHANNEL_DM_WHISPER)
+      if (ctx.channel == ChatPlugin.NWNX_CHAT_CHANNEL_PLAYER_TALK || ctx.channel == ChatPlugin.NWNX_CHAT_CHANNEL_PLAYER_WHISPER)
       {
-        var oInviSender = NWScript.GetLocalObject(NWScript.GetModule(), "_INVISIBLE_SENDER"); // TODO : créer un _INVISIBLE_SENDER dans le module
-        foreach (KeyValuePair<uint, PlayerSystem.Player> PlayerListEntry in PlayerSystem.Players)
+        var oInviSender = NWScript.GetObjectByTag("_invisible_sender"); // TODO : créer un _INVISIBLE_SENDER dans le module
+        foreach (KeyValuePair<uint, Player> PlayerListEntry in Players)
         {
-          PlayerSystem.Player oDM = PlayerListEntry.Value;
+          Player oDM = PlayerListEntry.Value;
           if (NWScript.GetIsDM(oDM.oid) == 1)
           {
             if (oDM.listened.ContainsKey(ctx.oSender))
@@ -190,18 +191,17 @@ namespace NWN.Systems
 
       next();
     }
-    public static void ProcessLanguageMiddleware(ChatSystem.Context ctx, Action next) // SYSTEME DE LANGUE
+    public static void ProcessLanguageMiddleware(Context ctx, Action next) // SYSTEME DE LANGUE
     {
-      PlayerSystem.Player player;
-      if (PlayerSystem.Players.TryGetValue(ctx.oSender, out player))
+      if (Players.TryGetValue(ctx.oSender, out Player player))
       {
-        if (player.activeLanguage != Feat.Invalid && (ctx.channel == ChatPlugin.NWNX_CHAT_CHANNEL_PLAYER_TALK || ctx.channel == ChatPlugin.NWNX_CHAT_CHANNEL_DM_WHISPER || ctx.channel == ChatPlugin.NWNX_CHAT_CHANNEL_DM_TALK || ctx.channel == ChatPlugin.NWNX_CHAT_CHANNEL_DM_WHISPER))
+        if (player.activeLanguage != Feat.Invalid && (ctx.channel == ChatPlugin.NWNX_CHAT_CHANNEL_PLAYER_TALK || ctx.channel == ChatPlugin.NWNX_CHAT_CHANNEL_PLAYER_WHISPER || ctx.channel == ChatPlugin.NWNX_CHAT_CHANNEL_DM_TALK || ctx.channel == ChatPlugin.NWNX_CHAT_CHANNEL_DM_WHISPER))
         {
           string sLanguageName = Languages.GetLanguageName(player.activeLanguage);
           string sName = NWScript.GetLocalString(ctx.oSender, "__DISGUISE_NAME");
           if (sName == "") sName = NWScript.GetName(ctx.oSender);
 
-          foreach (KeyValuePair<uint, PlayerSystem.Player> PlayerListEntry in PlayerSystem.Players)
+          foreach (KeyValuePair<uint, Player> PlayerListEntry in Players)
           {
             if ((uint)ctx.oSender != PlayerListEntry.Key && (uint)ctx.oSender != NWScript.GetLocalObject(PlayerListEntry.Key, "_POSSESSING"))
             {
@@ -234,7 +234,7 @@ namespace NWN.Systems
           NWScript.SendMessageToPC(ctx.oSender, sName + " : [" + sLanguageName + "] " + Languages.GetLangueStringConvertedHRPProtection(ctx.msg, player.activeLanguage));
           return;
         }
-        
+
         next();
       }
     }

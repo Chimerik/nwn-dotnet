@@ -120,11 +120,11 @@ namespace NWN.Systems.Craft.Collect
         )
       }
       };
-    public Dictionary<PlankType, Plank> plankDictionnary = new Dictionary<PlankType, Plank>
+    public static Dictionary<PlankType, Plank> plankDictionnary = new Dictionary<PlankType, Plank>
     {
-      { PlankType.Laurelin, new Plank(PlankType.Laurelin) },
-      { PlankType.Telperion, new Plank(PlankType.Telperion) },
-      { PlankType.Mallorn, new Plank(PlankType.Mallorn) },
+      { PlankType.Laurelinade, new Plank(PlankType.Laurelinade) },
+      { PlankType.Telperionade, new Plank(PlankType.Telperionade) },
+      { PlankType.Mallornade, new Plank(PlankType.Mallornade) },
     };
     public struct Wood
     {
@@ -181,14 +181,14 @@ namespace NWN.Systems.Craft.Collect
     public enum PlankType
     {
       Invalid = 0,
-      Laurelin = 1, // Silmarillion : capture la lumière divine dorée
-      Telperion = 2, // Silmarillion : capture la lumière divine argentée
-      Mallorn = 3,
-      Nimloth = 4,
-      Oiolaire = 5,
-      Qliphoth = 6,
-      Ferochene = 7,
-      Valinor = 8,
+      Laurelinade = 1, // Silmarillion : capture la lumière divine dorée
+      Telperionade = 2, // Silmarillion : capture la lumière divine argentée
+      Mallornade = 3,
+      Nimlothade = 4,
+      Oiolaireade = 5,
+      Qliphothade = 6,
+      Ferochenade = 7,
+      Valinorade = 8,
     }
     public static ItemProperty[] GetTritaniumItemProperties()
     {
@@ -209,6 +209,8 @@ namespace NWN.Systems.Craft.Collect
         case ItemCategory.Armor: return GetPyeriteArmorProperties();
         case ItemCategory.Shield: return GetPyeriteShieldProperties();
         case ItemCategory.CraftTool: return GetPyeriteToolProperties();
+        case ItemCategory.RangedWeapon: return GetPyeriteOneHandedMeleeWeaponProperties();
+        case ItemCategory.Ammunition: return GetPyeriteAmmunitionProperties();
       }
 
       return null;
@@ -227,6 +229,19 @@ namespace NWN.Systems.Craft.Collect
           NWScript.ItemPropertyDamageBonusVsRace(NWScript.RACIAL_TYPE_HUMANOID_REPTILIAN, NWScript.IP_CONST_DAMAGETYPE_PHYSICAL, NWScript.DAMAGE_BONUS_1)
         };
       }
+    public static ItemProperty[] GetPyeriteAmmunitionProperties()
+    {
+      return new ItemProperty[]
+      {
+          NWScript.ItemPropertyDamageVulnerability(NWScript.IP_CONST_DAMAGETYPE_FIRE, NWScript.IP_CONST_DAMAGEVULNERABILITY_25_PERCENT),
+          NWScript.ItemPropertyDamageVulnerability(NWScript.IP_CONST_DAMAGETYPE_COLD, NWScript.IP_CONST_DAMAGEVULNERABILITY_25_PERCENT),
+          NWScript.ItemPropertyDamageVulnerability(NWScript.IP_CONST_DAMAGETYPE_ELECTRICAL, NWScript.IP_CONST_DAMAGEVULNERABILITY_25_PERCENT),
+          NWScript.ItemPropertyAttackBonusVsRace(NWScript.RACIAL_TYPE_HUMANOID_GOBLINOID, 1),
+          NWScript.ItemPropertyAttackBonusVsRace(NWScript.RACIAL_TYPE_HUMANOID_REPTILIAN, 1),
+          NWScript.ItemPropertyDamageBonusVsRace(NWScript.RACIAL_TYPE_HUMANOID_GOBLINOID, NWScript.IP_CONST_DAMAGETYPE_PHYSICAL, NWScript.DAMAGE_BONUS_1),
+          NWScript.ItemPropertyDamageBonusVsRace(NWScript.RACIAL_TYPE_HUMANOID_REPTILIAN, NWScript.IP_CONST_DAMAGETYPE_PHYSICAL, NWScript.DAMAGE_BONUS_1)
+      };
+    }
     public static ItemProperty[] GetPyeriteTwoHandedMeleeWeaponProperties()
     {
       return new ItemProperty[]

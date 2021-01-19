@@ -776,8 +776,7 @@ namespace NWN.Systems
             int oreAmount = NWScript.GetLocalInt(examineTarget, "_ORE_AMOUNT");
             if (NWScript.GetIsDM(player.oid) != 1)
             {
-              int geologySkillLevel;
-              if (int.TryParse(NWScript.Get2DAString("feat", "GAINMULTIPLE", CreaturePlugin.GetHighestLevelOfFeat(player.oid, 1171)), out geologySkillLevel))
+              if (int.TryParse(NWScript.Get2DAString("feat", "GAINMULTIPLE", CreaturePlugin.GetHighestLevelOfFeat(player.oid, (int)Feat.Geology)), out int geologySkillLevel))
                 NWScript.SetDescription(examineTarget, $"Minerai disponible : {Utils.random.Next(oreAmount * geologySkillLevel * 20 / 100, 2 * oreAmount - geologySkillLevel * 20 / 100)}");
               else
                 NWScript.SetDescription(examineTarget, $"Minerai disponible estimé : {Utils.random.Next(0, 2 * oreAmount)}");
@@ -786,6 +785,19 @@ namespace NWN.Systems
               NWScript.SetDescription(examineTarget, $"Minerai disponible : {oreAmount}");
 
               break;
+          case "mineable_tree":
+            int woodAmount = NWScript.GetLocalInt(examineTarget, "_ORE_AMOUNT");
+            if (NWScript.GetIsDM(player.oid) != 1)
+            {
+              if (int.TryParse(NWScript.Get2DAString("feat", "GAINMULTIPLE", CreaturePlugin.GetHighestLevelOfFeat(player.oid, (int)Feat.WoodExpertise)), out int woodExpertiseSkillLevel))
+                NWScript.SetDescription(examineTarget, $"Minerai disponible : {Utils.random.Next(woodAmount * woodExpertiseSkillLevel * 20 / 100, 2 * woodAmount - woodExpertiseSkillLevel * 20 / 100)}");
+              else
+                NWScript.SetDescription(examineTarget, $"Minerai disponible estimé : {Utils.random.Next(0, 2 * woodAmount)}");
+            }
+            else
+              NWScript.SetDescription(examineTarget, $"Minerai disponible : {woodAmount}");
+
+            break;
           case "blueprint":
             int baseItemType = NWScript.GetLocalInt(examineTarget, "_BASE_ITEM_TYPE");
 
@@ -817,22 +829,58 @@ namespace NWN.Systems
 
             NWScript.SetDescription(examineTarget, reprocessingData);
             break;
+          case "wood":
+            string reprocessingString = $"{NWScript.GetName(examineTarget)} : Efficacité raffinage -30 % (base scierie Amirauté)";
+
+            int bonus;
+            if (int.TryParse(NWScript.Get2DAString("feat", "GAINMULTIPLE", CreaturePlugin.GetHighestLevelOfFeat(player.oid, (int)Feat.WoodReprocessing)), out bonus))
+              reprocessingString += $"\n x1.{3 * bonus} (Raffinage)";
+
+            if (int.TryParse(NWScript.Get2DAString("feat", "GAINMULTIPLE", CreaturePlugin.GetHighestLevelOfFeat(player.oid, (int)Feat.WoodReprocessingEfficiency)), out bonus))
+              reprocessingString += $"\n x1.{2 * bonus} (Raffinage efficace)";
+
+            if (Enum.TryParse(NWScript.GetName(examineTarget), out myOreType) && oresDictionnary.TryGetValue(myOreType, out Ore processedWood))
+              if (int.TryParse(NWScript.Get2DAString("feat", "GAINMULTIPLE", CreaturePlugin.GetHighestLevelOfFeat(player.oid, (int)processedWood.feat)), out bonus))
+                reprocessingString += $"\n x1.{2 * bonus} (Raffinage {NWScript.GetName(examineTarget)})";
+
+            float connectionsBonus;
+            if (float.TryParse(NWScript.Get2DAString("feat", "GAINMULTIPLE", CreaturePlugin.GetHighestLevelOfFeat(player.oid, (int)Feat.Connections)), out connectionsBonus))
+              reprocessingString += $"\n x{1.00 - connectionsBonus / 100} (Raffinage {NWScript.GetName(examineTarget)})";
+
+            NWScript.SetDescription(examineTarget, reprocessingString);
+            break; 
           case "refinery":
             string descriptionBrut = "Stock actuel de minerai brut : \n\n\n";
-            foreach (KeyValuePair<string, int> stockEntry in player.materialStock)
-              if(Enum.TryParse(stockEntry.Key, out myOreType) && myOreType != OreType.Invalid)
-                descriptionBrut += $"{stockEntry.Key} : {stockEntry.Value} unité(s).\n";
+            foreach (var entry in oresDictionnary)
+              if (player.materialStock.TryGetValue(entry.Value.name, out int playerStock))
+                descriptionBrut += $"* {entry.Value.name}: {playerStock}\n\n";
                 
             NWScript.SetDescription(examineTarget, descriptionBrut);
             break;
           case "forge":
             string descriptionRefined = "Stock actuel de minerai raffiné : \n\n\n";
-            foreach (KeyValuePair<string, int> stockEntry in player.materialStock)
-              if (Enum.TryParse(stockEntry.Key, out MineralType myMineralType) && myMineralType != MineralType.Invalid)
-                descriptionRefined += $"{stockEntry.Key} : {stockEntry.Value} unité(s).\n";
+            foreach (var entry in mineralDictionnary)
+              if (player.materialStock.TryGetValue(entry.Value.name, out int playerStock))
+                descriptionRefined += $"* {entry.Value.name}: {playerStock}\n\n";
 
             NWScript.SetDescription(examineTarget, descriptionRefined);
-            break; 
+            break;
+          case "decoupe":
+            string descriptionWood = "Stock actuel de bois brut : \n\n\n";
+            foreach (var entry in woodDictionnary)
+              if (player.materialStock.TryGetValue(entry.Value.name, out int playerStock))
+                descriptionWood += $"* {entry.Value.name}: {playerStock}\n\n";
+
+            NWScript.SetDescription(examineTarget, descriptionWood);
+            break;
+          case "scierie":
+            string descriptionPlank = "Stock actuel de planches de bois raffinées : \n\n\n";
+            foreach (var entry in plankDictionnary)
+              if (player.materialStock.TryGetValue(entry.Value.name, out int playerStock))
+                descriptionPlank += $"* {entry.Value.name}: {playerStock}\n\n";
+
+            NWScript.SetDescription(examineTarget, descriptionPlank);
+            break;
         }
       }
       return 0;

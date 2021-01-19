@@ -163,7 +163,7 @@ namespace NWN.Systems
         foreach (string material in player.materialStock.Keys)
         {
           var query = NWScript.SqlPrepareQueryCampaign(ModuleSystem.database, $"INSERT INTO playerMaterialStorage (characterId, materialName, materialStock) VALUES (@characterId, @materialName, @materialStock)" +
-              $"ON CONFLICT (characterId, materialName) DO UPDATE SET materialStock = @materialStock where characterId = @characterId and {material} = @{material}");
+              $"ON CONFLICT (characterId, materialName) DO UPDATE SET materialStock = @materialStock where characterId = @characterId and materialName = @{material}");
           NWScript.SqlBindInt(query, "@characterId", player.characterId);
           NWScript.SqlBindString(query, "@materialName", material);
           NWScript.SqlBindInt(query, "@materialStock", player.materialStock[material]); 

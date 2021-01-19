@@ -3,7 +3,6 @@ using NWN.Core;
 using static NWN.Systems.PlayerSystem;
 using static NWN.Systems.Craft.Collect.System;
 using NWN.Systems.Craft;
-using static NWN.Systems.Craft.Collect.Config;
 
 namespace NWN.Systems.Items.BeforeUseHandlers
 {
@@ -31,8 +30,8 @@ namespace NWN.Systems.Items.BeforeUseHandlers
               {
                 string sMaterial = blueprint.GetMaterialFromTargetItem(oTarget);
 
-                if (Enum.TryParse(sMaterial, out MineralType myMineralType) && myMineralType != MineralType.Invalid)
-                  player.craftJob.Start(Job.JobType.Item, blueprint, player, oItem, oTarget, sMaterial, myMineralType);
+                if (sMaterial != "Invalid")
+                  player.craftJob.Start(Job.JobType.Item, blueprint, player, oItem, oTarget, sMaterial);
                 else
                   NWScript.SendMessageToPC(player.oid, "Ce patron ne permet pas d'améliorer cet objet.");
               }

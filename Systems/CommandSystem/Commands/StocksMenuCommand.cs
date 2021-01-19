@@ -22,6 +22,10 @@ namespace NWN.Systems
         "Métal",
         () => DrawMetalPage(player)
       ));
+      player.menu.choices.Add((
+        "Bois",
+        () => DrawBoisPage(player)
+      ));
 
       player.menu.Draw();
     }
@@ -52,12 +56,8 @@ namespace NWN.Systems
       player.menu.titleLines.Add("Voici votre stock de métaux non raffinés :");
 
       foreach(var entry in oresDictionnary)
-      {
-        int playerStock = 0;
-        player.materialStock.TryGetValue(entry.Value.name, out playerStock);
-
-        player.menu.titleLines.Add($"* {entry.Value.name}: {playerStock}");
-      }
+        if(player.materialStock.TryGetValue(entry.Value.name, out int playerStock))
+          player.menu.titleLines.Add($"* {entry.Value.name}: {playerStock}");
 
       player.menu.choices.Add((
         "Retour",
@@ -73,16 +73,63 @@ namespace NWN.Systems
       player.menu.titleLines.Add("Voici votre stock de métaux raffinés :");
 
       foreach (var entry in mineralDictionnary)
-      {
-        int playerStock = 0;
-        player.materialStock.TryGetValue(entry.Value.name, out playerStock);
-
-        player.menu.titleLines.Add($"* {entry.Value.name}: {playerStock}");
-      }
+        if(player.materialStock.TryGetValue(entry.Value.name, out int playerStock))
+          player.menu.titleLines.Add($"* {entry.Value.name}: {playerStock}");
 
       player.menu.choices.Add((
         "Retour",
         () => DrawMetalPage(player)
+      ));
+
+      player.menu.Draw();
+    }
+    private static void DrawBoisPage(Player player)
+    {
+      player.menu.Clear();
+      player.menu.titleLines.Add("Veuillez choisir un type d'établis :");
+      player.menu.choices.Add((
+        "Scierie",
+        () => DrawScieriePage(player)
+      ));
+      player.menu.choices.Add((
+        "Ebénisterie",
+        () => DrawEbenisteriePage(player)
+      ));
+      player.menu.choices.Add((
+        "Retour",
+        () => DrawMainPage(player)
+      ));
+
+      player.menu.Draw();
+    }
+    private static void DrawScieriePage(Player player)
+    {
+      player.menu.Clear();
+      player.menu.titleLines.Add("Voici votre stock de bois brut :");
+
+      foreach (var entry in woodDictionnary)
+        if(player.materialStock.TryGetValue(entry.Value.name, out int playerStock))
+          player.menu.titleLines.Add($"* {entry.Value.name}: {playerStock}");
+
+      player.menu.choices.Add((
+        "Retour",
+        () => DrawBoisPage(player)
+      ));
+
+      player.menu.Draw();
+    }
+    private static void DrawEbenisteriePage(Player player)
+    {
+      player.menu.Clear();
+      player.menu.titleLines.Add("Voici votre stock de planches de bois raffinées :");
+
+      foreach (var entry in plankDictionnary)
+        if(player.materialStock.TryGetValue(entry.Value.name, out int playerStock))
+          player.menu.titleLines.Add($"* {entry.Value.name}: {playerStock}");
+
+      player.menu.choices.Add((
+        "Retour",
+        () => DrawBoisPage(player)
       ));
 
       player.menu.Draw();

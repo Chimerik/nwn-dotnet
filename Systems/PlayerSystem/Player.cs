@@ -286,20 +286,20 @@ namespace NWN.Systems
             NWScript.SetLocalInt(improvedMEBP, "_BLUEPRINT_MATERIAL_EFFICIENCY", NWScript.GetLocalInt(improvedMEBP, "_BLUEPRINT_MATERIAL_EFFICIENCY") + 1);
             break;
           case Job.JobType.BlueprintResearchTimeEfficiency:
-            uint improvedTEBlueprint = NWScript.CopyItem(ObjectPlugin.Deserialize((this.craftJob.craftedItem)), this.oid, 1);
+            uint improvedTEBlueprint = NWScript.CopyItem(ObjectPlugin.Deserialize((craftJob.craftedItem)), oid, 1);
             NWScript.SetLocalInt(improvedTEBlueprint, "_BLUEPRINT_TIME_EFFICIENCY", NWScript.GetLocalInt(improvedTEBlueprint, "_BLUEPRINT_TIME_EFFICIENCY") + 1);
             break;
           default:
             Blueprint blueprint;
-            if (Craft.Collect.System.blueprintDictionnary.ContainsKey(this.craftJob.baseItemType))
+            if (Craft.Collect.System.blueprintDictionnary.ContainsKey(craftJob.baseItemType))
             {
-              blueprint = Craft.Collect.System.blueprintDictionnary[this.craftJob.baseItemType];
-              Craft.Collect.System.AddCraftedItemProperties(NWScript.CreateItemOnObject(blueprint.craftedItemTag, oid), blueprint, this.craftJob.material);
+              blueprint = Craft.Collect.System.blueprintDictionnary[craftJob.baseItemType];
+              Craft.Collect.System.AddCraftedItemProperties(NWScript.CreateItemOnObject(blueprint.craftedItemTag, oid), craftJob.material);
             }
             else
             {
-              NWScript.SendMessageToPC(this.oid, "[ERREUR HRP] Il semble que votre dernière création soit invalide. Le staff a été informé du problème.");
-              Utils.LogMessageToDMs($"AcquireCraftedItem : {NWScript.GetName(this.oid)} - Blueprint invalid - {this.craftJob.baseItemType} - For {NWScript.GetName(this.oid)}");
+              NWScript.SendMessageToPC(oid, "[ERREUR HRP] Il semble que votre dernière création soit invalide. Le staff a été informé du problème.");
+              Utils.LogMessageToDMs($"AcquireCraftedItem : {NWScript.GetName(oid)} - Blueprint invalid - {craftJob.baseItemType} - For {NWScript.GetName(oid)}");
             }
             break;
         }

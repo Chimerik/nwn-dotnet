@@ -84,9 +84,8 @@ namespace NWN.Systems
           NWScript.DelayCommand(1.1f, () => NWScript.AssignCommand(player.oid, () => NWScript.JumpToLocation(NWScript.GetLocation(NWScript.GetWaypointByTag("WP_START_NEW_CHAR")))));
         }
 
-        Area area;
         if (player.craftJob.IsActive() 
-          && AreaSystem.areaDictionnary.TryGetValue(NWScript.GetObjectUUID(NWScript.GetAreaFromLocation(player.location)), out area) 
+          && Module.areaDictionnary.TryGetValue(NWScript.GetObjectUUID(NWScript.GetAreaFromLocation(player.location)), out Area area) 
           && area.level == 0)
         {
           player.CraftJobProgression();
@@ -138,18 +137,19 @@ namespace NWN.Systems
         if(NWScript.GetTag(NWScript.GetItemInSlot(NWScript.INVENTORY_SLOT_NECK, player.oid)) != "amulettorillink")
           NWScript.ApplyEffectToObject(NWScript.DURATION_TYPE_PERMANENT, NWScript.TagEffect(NWScript.SupernaturalEffect(NWScript.EffectSpellFailure(50)), "erylies_spell_failure"), player.oid);
         
-        RenamePlugin.SetPCNameOverride(player.oid, NWScript.GetName(player.oid), "", "", RenamePlugin.NWNX_RENAME_PLAYERNAME_OVERRIDE);
+        //RenamePlugin.SetPCNameOverride(player.oid, NWScript.GetName(player.oid), "", "", RenamePlugin.NWNX_RENAME_PLAYERNAME_OVERRIDE);
 
         //Appliquer la distance de perception du chat en fonction de la compétence Listen du joueur
-        ChatPlugin.SetChatHearingDistance(ChatPlugin.GetChatHearingDistance(player.oid, ChatPlugin.NWNX_CHAT_CHANNEL_PLAYER_TALK) + NWScript.GetSkillRank(NWScript.SKILL_LISTEN, player.oid) / 5, player.oid, ChatPlugin.NWNX_CHAT_CHANNEL_PLAYER_TALK);
-        ChatPlugin.SetChatHearingDistance(ChatPlugin.GetChatHearingDistance(player.oid, ChatPlugin.NWNX_CHAT_CHANNEL_DM_WHISPER) + NWScript.GetSkillRank(NWScript.SKILL_LISTEN, player.oid) / 10, player.oid, ChatPlugin.NWNX_CHAT_CHANNEL_DM_WHISPER);
+        //ChatPlugin.SetChatHearingDistance(ChatPlugin.GetChatHearingDistance(player.oid, ChatPlugin.NWNX_CHAT_CHANNEL_PLAYER_TALK) + NWScript.GetSkillRank(NWScript.SKILL_LISTEN, player.oid) / 5, player.oid, ChatPlugin.NWNX_CHAT_CHANNEL_PLAYER_TALK);
+        //ChatPlugin.SetChatHearingDistance(ChatPlugin.GetChatHearingDistance(player.oid, ChatPlugin.NWNX_CHAT_CHANNEL_PLAYER_WHISPER) + NWScript.GetSkillRank(NWScript.SKILL_LISTEN, player.oid) / 10, player.oid, ChatPlugin.NWNX_CHAT_CHANNEL_PLAYER_WHISPER);
         player.isConnected = true;
         player.isAFK = false;
         player.DoJournalUpdate = false;
-        player.activeLanguage = Feat.Invalid;
-
+       
         player.dateLastSaved = DateTime.Now;
       }
+
+      player.activeLanguage = Feat.Invalid;
 
       return 0;
     }
