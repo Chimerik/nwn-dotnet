@@ -71,11 +71,8 @@ namespace NWN.Systems
             NWScript.AssignCommand(player.oid, () => NWScript.JumpToLocation(NWScript.GetLocation(NWScript.GetWaypointByTag("WP_START_NEW_CHAR"))));
             break;
           case "portal_storage_in":
-            uint aEntrepot = NWScript.CopyArea(NWScript.GetObjectByTag("entrepotpersonnel"));
+            uint aEntrepot = NWScript.CreateArea("entrepotperso", $"entrepotpersonnel_{NWScript.GetName(player.oid)}", $"Entrepot dimensionnel de {NWScript.GetName(player.oid)}");
             AreaSystem.CreateArea(aEntrepot);
-
-            NWScript.SetName(aEntrepot, $"{NWScript.GetName(aEntrepot)} de {NWScript.GetName(player.oid)}");
-            NWScript.SetTag(aEntrepot, $"entrepotpersonnel_{NWScript.GetName(player.oid)}");
 
             uint storage = NWScript.GetFirstObjectInArea(aEntrepot);
             if (NWScript.GetTag(storage) != "ps_entrepot")

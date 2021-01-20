@@ -216,10 +216,8 @@ namespace NWN.Systems
 
       if (Config.env == Config.Env.Prod || Config.env == Config.Env.Chim)
       {
-        arrivalArea = NWScript.CopyArea(AreaSystem.areaDictionnary.Where(v => v.Value.tag == "entry_scene").FirstOrDefault().Value.oid);
+        arrivalArea = NWScript.CreateArea("intro_galere", $"entry_scene_{NWScript.GetPCPublicCDKey(newCharacter.oid)}_{NWScript.GetName(newCharacter.oid)}", $"La galère de {NWScript.GetName(newCharacter.oid)} (Bienvenue !)");
         AreaSystem.CreateArea(arrivalArea);
-        NWScript.SetName(arrivalArea, $"La galère de {NWScript.GetName(newCharacter.oid)} (Bienvenue !)");
-        NWScript.SetTag(arrivalArea, $"entry_scene_{NWScript.GetPCPublicCDKey(newCharacter.oid)}_{NWScript.GetName(newCharacter.oid)}");
         arrivalPoint = NWScript.GetNearestObjectByTag("ENTRY_POINT", NWScript.GetFirstObjectInArea(arrivalArea));
 
       } else
