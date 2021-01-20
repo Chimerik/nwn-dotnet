@@ -22,7 +22,7 @@ namespace NWN.Systems
       if (oArea != NWScript.OBJECT_INVALID)
       {
         var query = NWScript.SqlPrepareQueryCampaign(ModuleSystem.database, $"SELECT serializedChest, position, facing from {SQL_TABLE}");
-
+        
         while (Convert.ToBoolean(NWScript.SqlStep(query)))
           UpdateChestTagToLootsDic(NWScript.SqlGetObject(query, 0, Utils.GetLocationFromDatabase(CHEST_AREA_TAG, NWScript.SqlGetVector(query, 1), NWScript.SqlGetFloat(query, 2))));
 
@@ -48,6 +48,8 @@ namespace NWN.Systems
         NWScript.SetName(oBlueprint, $"Patron : {blueprint.name}");
         NWScript.SetLocalInt(oBlueprint, "_BASE_ITEM_TYPE", baseItemType);
       }
+
+      UpdateChestTagToLootsDic(oChest);
     }
     private static void InitializeLootChestFromFeatArray(uint oChest, Feat[] array)
     {
@@ -64,6 +66,8 @@ namespace NWN.Systems
         if (int.TryParse(NWScript.Get2DAString("feat", "DESCRIPTION", (int)feat), out value))
           NWScript.SetDescription(skillBook, NWScript.GetStringByStrRef(value));
       }
+
+      UpdateChestTagToLootsDic(oChest);
     }
     private static int HandleContainerClose(uint oidSelf)
     {
@@ -84,7 +88,7 @@ namespace NWN.Systems
       {
         ThrowException($"Unregistered container tag=\"{containerTag}\"");
       }
-
+      
       Utils.DestroyInventory(oContainer);
       NWScript.AssignCommand(oArea, () => NWScript.DelayCommand(
           0.1f,

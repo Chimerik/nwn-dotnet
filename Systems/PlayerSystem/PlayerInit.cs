@@ -85,7 +85,7 @@ namespace NWN.Systems
         }
 
         if (player.craftJob.IsActive() 
-          && Module.areaDictionnary.TryGetValue(NWScript.GetObjectUUID(NWScript.GetAreaFromLocation(player.location)), out Area area) 
+          && AreaSystem.areaDictionnary.TryGetValue(NWScript.GetObjectUUID(NWScript.GetAreaFromLocation(player.location)), out Area area) 
           && area.level == 0)
         {
           player.CraftJobProgression();

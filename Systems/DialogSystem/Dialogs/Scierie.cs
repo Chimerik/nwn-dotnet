@@ -18,7 +18,7 @@ namespace NWN.Systems
       player.setValue = 0;
       player.menu.Clear();
       player.menu.titleLines = new List<string> {
-        $"Fonderie - Le bois brut est acheminé de votre entrepôt.",
+        $"Scierie - Le bois brut est acheminé de votre entrepôt.",
         "Efficacité : -35 %. Que souhaitez-vous transformer en planche ?",
         "(Utilisez la commande !set X avant de valider votre choix)"
       };

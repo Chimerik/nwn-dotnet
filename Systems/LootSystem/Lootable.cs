@@ -37,6 +37,7 @@ namespace NWN.Systems
 
         private void GenerateItems(uint oContainer)
         {
+          NWScript.WriteTimestampedLogEntry($"LOOT SYSTEM : name {NWScript.GetName(oContainer)}");
           foreach (var item in items)
           {
             item.Generate(oContainer);
@@ -91,13 +92,17 @@ namespace NWN.Systems
         public void Generate(uint oContainer)
         {
           List<uint> loots;
+          NWScript.WriteTimestampedLogEntry($"tag : {chestTag}");
           if (chestTagToLootsDic.TryGetValue(chestTag, out loots))
           {
+            NWScript.WriteTimestampedLogEntry($"loot.counts : {loots.Count}");
             if (loots.Count > 0)
             {
+              NWScript.WriteTimestampedLogEntry($"count : {count}");
               for (var i = 0; i < count; i++)
               {
                 int rand = Utils.random.Next(1, 101);
+                NWScript.WriteTimestampedLogEntry($"LOOT : {rand}/{chance}");
                 if (rand <= chance)
                 {
                   uint oItem = NWScript.CopyItem(
@@ -105,6 +110,7 @@ namespace NWN.Systems
                       oContainer,
                       1
                   );
+                  NWScript.WriteTimestampedLogEntry($"SUCCESS : item created {NWScript.GetName(oItem)}");
                 }
               }
             }

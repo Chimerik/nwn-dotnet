@@ -80,7 +80,6 @@ namespace NWN.Systems
                     new Lootable.Item(chestTag: "simple_weapons", count: 1, chance: 25),
                     new Lootable.Item(chestTag: "light_armor", count: 1, chance: 5),
                     new Lootable.Item(chestTag: "ammunitions", count: 1, chance: 50),
-                    new Lootable.Item(chestTag: "craft_material", count: 1, chance: 100),
                     new Lootable.Item(chestTag: "low_blueprints", count: 1, chance: 2),
                     new Lootable.Item(chestTag: "low_skillbooks", count: 1, chance: 1),
                     new Lootable.Item(chestTag: "low_potions", count: 3, chance: 85),
