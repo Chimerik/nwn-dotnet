@@ -256,8 +256,8 @@ namespace NWN.Systems
           i++;
         }
 
-        this.savedQuickBar.Clear();
-        this.loadedQuickBar = QuickbarType.Invalid;
+        savedQuickBar.Clear();
+        loadedQuickBar = QuickbarType.Invalid;
       }
       public void CraftJobProgression()
       {

@@ -26,14 +26,12 @@ namespace NWN.Systems
             { "Gobelinclaireur", new Lootable.Config(
                 items: new List<Lootable.Item> {
                     new Lootable.Item(chestTag: "ammunitions", count: 1, chance: 5),
-                    new Lootable.Item(chestTag: "simple_weapons", count: 1, chance: 1),
                 }
             )},
             { "Gobelinchairacanon", new Lootable.Config(
                 gold: new Lootable.Gold(min: 5, max: 25, chance: 20),
                 items: new List<Lootable.Item> {
                     new Lootable.Item(chestTag: "ammunitions", count: 1, chance: 5),
-                    new Lootable.Item(chestTag: "simple_weapons", count: 1, chance: 1),
                     new Lootable.Item(chestTag: "light_armor", count: 1, chance: 1),
                 }
             )},
@@ -47,13 +45,12 @@ namespace NWN.Systems
                 gold: new Lootable.Gold(min: 5, max: 25, chance: 20),
                 items: new List<Lootable.Item> {
                     new Lootable.Item(chestTag: "ammunitions", count: 1, chance: 35),
-                    new Lootable.Item(chestTag: "simple_weapons", count: 1, chance: 1),
                 }
             )},
             { "Roishaman", new Lootable.Config(
                 gold: new Lootable.Gold(min: 25, max: 150, chance: 75),
                 items: new List<Lootable.Item> {
-                    new Lootable.Item(chestTag: "simple_weapons", count: 1, chance: 20),
+                    new Lootable.Item(chestTag: "simple_weapons", count: 1, chance: 10),
                     new Lootable.Item(chestTag: "light_armor", count: 1, chance: 5),
                     new Lootable.Item(chestTag: "ammunitions", count: 1, chance: 50),
                     new Lootable.Item(chestTag: "low_blueprints", count: 1, chance: 1),
@@ -77,7 +74,7 @@ namespace NWN.Systems
             { "Koboltchieftain", new Lootable.Config(
                 gold: new Lootable.Gold(min: 35, max: 175, chance: 100),
                 items: new List<Lootable.Item> {
-                    new Lootable.Item(chestTag: "simple_weapons", count: 1, chance: 25),
+                    new Lootable.Item(chestTag: "simple_weapons", count: 1, chance: 10),
                     new Lootable.Item(chestTag: "light_armor", count: 1, chance: 5),
                     new Lootable.Item(chestTag: "ammunitions", count: 1, chance: 50),
                     new Lootable.Item(chestTag: "low_blueprints", count: 1, chance: 2),
@@ -89,7 +86,6 @@ namespace NWN.Systems
             { "Koboltfantassin", new Lootable.Config(
                 gold: new Lootable.Gold(min: 15, max: 40, chance: 35),
                 items: new List<Lootable.Item> {
-                    new Lootable.Item(chestTag: "simple_weapons", count: 1, chance: 1),
                     new Lootable.Item(chestTag: "light_armor", count: 1, chance: 1),
                     new Lootable.Item(chestTag: "ammunitions", count: 1, chance: 5),
                 }
@@ -97,14 +93,12 @@ namespace NWN.Systems
             { "Koboltsournois", new Lootable.Config(
                 gold: new Lootable.Gold(min: 15, max: 40, chance: 35),
                 items: new List<Lootable.Item> {
-                    new Lootable.Item(chestTag: "simple_weapons", count: 1, chance: 1),
                     new Lootable.Item(chestTag: "ammunitions", count: 1, chance: 10),
                 }
             )},
             { "StatueCristalline", new Lootable.Config(
                 gold: new Lootable.Gold(min: 15, max: 40, chance: 35),
                 items: new List<Lootable.Item> {
-                    new Lootable.Item(chestTag: "simple_weapons", count: 1, chance: 1),
                     new Lootable.Item(chestTag: "light_armor", count: 1, chance: 1),
                     new Lootable.Item(chestTag: "low_blueprints", count: 1, chance: 1),
                     new Lootable.Item(chestTag: "low_skillbooks", count: 1, chance: 1),

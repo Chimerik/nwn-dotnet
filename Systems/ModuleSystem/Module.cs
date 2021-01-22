@@ -48,8 +48,6 @@ namespace NWN.Systems
       else
         resourceRespawnTime = (float)((DateTime.Now.AddDays(1).Date).AddHours(5) - DateTime.Now).TotalSeconds;
 
-      resourceRespawnTime = 0.0f; // TEST A SUPPRIMER
-
       NWScript.DelayCommand(resourceRespawnTime, () => SpawnCollectableResources());
 
       if (Config.env == Config.Env.Prod)

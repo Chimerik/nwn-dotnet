@@ -115,10 +115,7 @@ namespace NWN.Systems
       NWScript.SqlBindInt(query, "@currentSkillJob", player.currentSkillJob);
       NWScript.SqlBindInt(query, "@currentCraftJob", player.craftJob.baseItemType);
       NWScript.SqlBindString(query, "@currentCraftObject", player.craftJob.craftedItem);
-      if(player.playerJournal.craftJobCountDown != null)
-        NWScript.SqlBindFloat(query, "@currentCraftJobRemainingTime", (float)((TimeSpan)(player.playerJournal.craftJobCountDown - DateTime.Now)).TotalSeconds);
-      else
-        NWScript.SqlBindFloat(query, "@currentCraftJobRemainingTime", 0);
+      NWScript.SqlBindFloat(query, "@currentCraftJobRemainingTime", player.craftJob.remainingTime);
       NWScript.SqlBindString(query, "@currentCraftJobMaterial", player.craftJob.material);
       NWScript.SqlBindInt(query, "@menuOriginTop", player.menu.originTop);
       NWScript.SqlBindInt(query, "@menuOriginLeft", player.menu.originLeft);

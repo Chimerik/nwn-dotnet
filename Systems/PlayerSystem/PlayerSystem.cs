@@ -1038,8 +1038,7 @@ namespace NWN.Systems
           if(player.menu.isOpen)
             player.menu.Close();
 
-          Area area;
-          if (AreaSystem.areaDictionnary.TryGetValue(NWScript.GetObjectUUID(oArea), out area))
+          if (AreaSystem.areaDictionnary.TryGetValue(NWScript.GetObjectUUID(oArea), out Area area))
           {
             AreaSystem.DoAreaSpecificBehavior(area, player);
 

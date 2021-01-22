@@ -236,7 +236,7 @@ namespace NWN.Systems.Craft
       if (!IsActive())
         return;
 
-      this.player.playerJournal.craftJobCountDown = DateTime.Now.AddSeconds(this.remainingTime);
+      player.playerJournal.craftJobCountDown = DateTime.Now.AddSeconds(remainingTime);
       JournalEntry journalEntry = new JournalEntry();
       journalEntry.sName = $"Travail artisanal - {Utils.StripTimeSpanMilliseconds((TimeSpan)(player.playerJournal.craftJobCountDown - DateTime.Now))}";
 

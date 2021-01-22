@@ -71,7 +71,12 @@ namespace NWN.Systems
 
           int refinedMinerals = Convert.ToInt32(player.setValue * processedOre.planks * reprocessingEfficiency);
           string mineralName = processedOre.name;
-          player.materialStock[mineralName] += refinedMinerals;
+
+          if (player.materialStock.ContainsKey(mineralName))
+            player.materialStock[mineralName] += refinedMinerals;
+          else
+            player.materialStock.Add(mineralName, refinedMinerals);
+
           NWScript.SendMessageToPC(player.oid, $"Vous venez de fabriquer {refinedMinerals} planches de {mineralName}. Les planches sont en cours d'acheminage vers votre entrepôt.");
 
           player.menu.titleLines.Add($"Voilà qui est fait !");

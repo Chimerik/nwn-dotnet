@@ -32,7 +32,7 @@ namespace NWN.Systems
       player.menu.choices.Add(("Quitter", () => player.menu.Close()));
       player.menu.Draw();
     }
-    private void HandleRefineOre(PlayerSystem.Player player, string oreName)
+    private void HandleRefineOre(Player player, string oreName)
     {
       player.menu.Clear();
 
@@ -72,8 +72,13 @@ namespace NWN.Systems
           foreach (KeyValuePair<MineralType, float> mineralKeyValuePair in processedOre.mineralsDictionnary)
           {
             int refinedMinerals = Convert.ToInt32(player.setValue * mineralKeyValuePair.Value * reprocessingEfficiency);
-            string mineralName = Enum.GetName(typeof(MineralType), mineralKeyValuePair.Key); 
-            player.materialStock[mineralName] += refinedMinerals;
+            string mineralName = Enum.GetName(typeof(MineralType), mineralKeyValuePair.Key);
+
+            if (player.materialStock.ContainsKey(mineralName))
+              player.materialStock[mineralName] += refinedMinerals;
+            else
+              player.materialStock.Add(mineralName, refinedMinerals);
+
             NWScript.SendMessageToPC(player.oid, $"Vous venez de raffiner {refinedMinerals} unités de {mineralName}. Les lingots sont en cours d'acheminage vers votre entrepôt.");
           }
 

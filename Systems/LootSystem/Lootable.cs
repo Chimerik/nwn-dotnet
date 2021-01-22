@@ -95,10 +95,8 @@ namespace NWN.Systems
           NWScript.WriteTimestampedLogEntry($"tag : {chestTag}");
           if (chestTagToLootsDic.TryGetValue(chestTag, out loots))
           {
-            NWScript.WriteTimestampedLogEntry($"loot.counts : {loots.Count}");
             if (loots.Count > 0)
             {
-              NWScript.WriteTimestampedLogEntry($"count : {count}");
               for (var i = 0; i < count; i++)
               {
                 int rand = Utils.random.Next(1, 101);
