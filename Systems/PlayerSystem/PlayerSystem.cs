@@ -1062,11 +1062,9 @@ namespace NWN.Systems
     {
       if (!Convert.ToBoolean(NWScript.GetIsDM(oidSelf)) && !Convert.ToBoolean(NWScript.GetIsDMPossessed(oidSelf)))
       {
-        Player player;
-        if (Players.TryGetValue(oidSelf, out player))
+        if (Players.TryGetValue(oidSelf, out Player player))
         {
-          Area area;
-          if (AreaSystem.areaDictionnary.TryGetValue(NWScript.GetObjectUUID(player.previousArea), out area))
+          if (AreaSystem.areaDictionnary.TryGetValue(NWScript.GetObjectUUID(player.previousArea), out Area area))
           {
             int nbPlayersInArea = AreaPlugin.GetNumberOfPlayersInArea(player.previousArea);
 
