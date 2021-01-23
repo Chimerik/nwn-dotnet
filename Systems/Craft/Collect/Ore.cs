@@ -66,14 +66,21 @@ namespace NWN.Systems.Craft.Collect
 
       if (!AreaSystem.areaDictionnary.TryGetValue(NWScript.GetObjectUUID(NWScript.GetArea(resourcePoint)), out Area area)) return;
 
-      int remainingProspections = NWScript.GetLocalInt(area.oid, "_REMAINING_MINING_PROSPECTIONS");
-      if (remainingProspections < 1)
+      var query = NWScript.SqlPrepareQueryCampaign(ModuleSystem.database, $"SELECT mining from areaResourceStock where areaTag = @areaTag");
+      NWScript.SqlBindString(query, "@areaTag", area.tag);
+      NWScript.SqlStep(query);
+
+      if (NWScript.SqlGetInt(query, 0) < 1)
       {
         NWScript.SendMessageToPC(player.oid, "Cette veine est épuisée. Reste à espérer qu'un prochain glissement de terrain permette d'atteindre de nouveaux filons.");
         return;
       }
       else
-        NWScript.SetLocalInt(area.oid, "_REMAINING_MINING_PROSPECTIONS", remainingProspections - 1);
+      {
+        query = NWScript.SqlPrepareQueryCampaign(ModuleSystem.database, $"UPDATE areaResourceStock SET mining = mining - 1 where areaTag = @areaTag");
+        NWScript.SqlBindString(query, "@areaTag", area.tag);
+        NWScript.SqlStep(query);
+      }
 
       int skillBonus = 0;
       int value;

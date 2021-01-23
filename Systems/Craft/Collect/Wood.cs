@@ -62,14 +62,21 @@ namespace NWN.Systems.Craft.Collect
         return;
       }
 
-      int remainingProspections = NWScript.GetLocalInt(area.oid, "_REMAINING_WOOD_PROSPECTIONS");
-      if (remainingProspections < 1)
+      var query = NWScript.SqlPrepareQueryCampaign(ModuleSystem.database, $"SELECT wood from areaResourceStock where areaTag = @areaTag");
+      NWScript.SqlBindString(query, "@areaTag", area.tag);
+      NWScript.SqlStep(query);
+
+      if (NWScript.SqlGetInt(query, 0) < 1)
       {
         NWScript.SendMessageToPC(player.oid, "Cette zone est épuisée. Les arbres restant disposant de propriétés intéressantes ne semblent pas encore avoir atteint l'âge d'être exploités.");
         return;
       }
       else
-        NWScript.SetLocalInt(area.oid, "_REMAINING_WOOD_PROSPECTIONS", remainingProspections - 1);
+      {
+        query = NWScript.SqlPrepareQueryCampaign(ModuleSystem.database, $"UPDATE areaResourceStock SET wood = wood - 1 where areaTag = @areaTag");
+        NWScript.SqlBindString(query, "@areaTag", area.tag);
+        NWScript.SqlStep(query);
+      }
 
       uint resourcePoint = NWScript.GetNearestObjectByTag("wood_spawn_wp", player.oid);
       int i = 1;
