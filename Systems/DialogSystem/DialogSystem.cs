@@ -54,6 +54,9 @@ namespace NWN.Systems
           case "hventes":
             new HotelDesVentes(player);
             break;
+          case "jukebox":
+            new Jukebox(player, oidSelf);
+            break;
           case "blacksmith":
             shop = NWScript.GetNearestObjectByTag("blacksmith_shop", oidSelf);
 

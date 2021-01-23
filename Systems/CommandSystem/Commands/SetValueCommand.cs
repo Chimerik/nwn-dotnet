@@ -15,8 +15,7 @@ namespace NWN.Systems
       {
         if (((string)options.positional[0]).Length != 0)
         {
-          int value;
-          if (Int32.TryParse((string)options.positional[0], out value))
+          if (Int32.TryParse((string)options.positional[0], out int value))
           {
             player.setValue = value;
             return;

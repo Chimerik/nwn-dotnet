@@ -88,6 +88,9 @@ namespace NWN.Systems
 
       query = NWScript.SqlPrepareQueryCampaign(ModuleSystem.database, "CREATE TABLE IF NOT EXISTS playerDescriptions('characterId' INTEGER NOT NULL, 'descriptionName' TEXT NOT NULL, 'description' TEXT NOT NULL, UNIQUE (characterId, descriptionName))");
       NWScript.SqlStep(query);
+
+      query = NWScript.SqlPrepareQueryCampaign(ModuleSystem.database, "CREATE TABLE IF NOT EXISTS areaResourceStock('areaTag' TEXT NOT NULL, 'mining' INTEGER, 'wood' INTEGER, 'animals' INTEGER, PRIMARY KEY(areaTag))");
+      NWScript.SqlStep(query);
     }
     private void InitializeEvents()
     {
@@ -437,9 +440,13 @@ namespace NWN.Systems
 
       foreach(Area area in AreaSystem.areaDictionnary.Values)
       {
-        NWScript.SetLocalInt(oid, "_REMAINING_MINING_PROSPECTIONS", area.level * 2);
-        NWScript.SetLocalInt(oid, "_REMAINING_WOOD_PROSPECTIONS", area.level * 2);
-        NWScript.SetLocalInt(oid, "_REMAINING_ANIMALS_PROSPECTIONS", area.level * 2);
+        var query = NWScript.SqlPrepareQueryCampaign(ModuleSystem.database, $"INSERT INTO areaResourceStock (areaTag, mining, wood, animals) VALUES (@areaTag, @mining, @wood, @animals)" +
+        "ON CONFLICT (areaTag) DO UPDATE SET mining = @mining, wood = @wood, animals = @animals");
+        NWScript.SqlBindString(query, "@areaTag", area.tag);
+        NWScript.SqlBindInt(query, "@mining", area.level * 2);
+        NWScript.SqlBindInt(query, "@wood", area.level * 2);
+        NWScript.SqlBindInt(query, "@animals", area.level * 2);
+        NWScript.SqlStep(query);
       }
 
       NWScript.DelayCommand(86400.0f, () => SpawnCollectableResources()); //24 h plus tard
