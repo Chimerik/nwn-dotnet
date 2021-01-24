@@ -47,6 +47,14 @@ namespace NWN.Systems.Items.BeforeUseHandlers
           );
           break;
 
+        case "mineable_animal":
+          StartCollectCycle(
+            player,
+            oTarget,
+            () => Pelt.HandleCompleteCycle(player, oTarget, oItem)
+          );
+          break;
+
         default:
           NWScript.SendMessageToPC(player.oid, $"{NWScript.GetName(oTarget)} n'est pas une cible valide pour l'extraction de matières premières.");
           break;

@@ -300,6 +300,21 @@ namespace NWN.Systems
             () => Craft.Collect.Wood.HandleCompleteProspectionCycle(oPC)
           );
           break;
+        case Feat.Hunting:
+        case Feat.Hunting2:
+        case Feat.Hunting3:
+        case Feat.Hunting4:
+        case Feat.Hunting5:
+
+          EventsPlugin.SkipEvent();
+
+          if (Players.TryGetValue(oidSelf, out oPC))
+            StartCollectCycle(
+            oPC,
+            NWScript.GetArea(oidSelf),
+            () => Craft.Collect.Pelt.HandleCompleteProspectionCycle(oPC)
+          );
+          break;
       }
 
       EventsPlugin.RemoveObjectFromDispatchList("NWNX_ON_USE_FEAT_BEFORE", "event_feat_used", oidSelf);
