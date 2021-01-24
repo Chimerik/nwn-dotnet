@@ -117,12 +117,16 @@ namespace NWN.Systems
     {
       if (Convert.ToBoolean(NWScript.GetIsPC(NWScript.GetLastPerceived())))
       {
-        if(NWScript.GetName(oidSelf) != "Statue draconique")
+        if (NWScript.GetName(oidSelf) != "Statue draconique")
+        {
           NWScript.PlayAnimation(Utils.random.Next(100, 116));
+          NWScript.DelayCommand(1.0f, () => FreezeCreature(oidSelf));
+        }
+        else
+          FreezeCreature(oidSelf);
 
         NWScript.SetEventScript(oidSelf, NWScript.EVENT_SCRIPT_CREATURE_ON_NOTICE, "");
         NWScript.SetAILevel(oidSelf, NWScript.AI_LEVEL_VERY_LOW);
-        NWScript.DelayCommand(1.0f, () => FreezeCreature(oidSelf));
       }
       
       return 0;

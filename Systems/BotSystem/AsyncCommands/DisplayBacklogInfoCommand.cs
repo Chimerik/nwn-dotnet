@@ -79,7 +79,8 @@ namespace NWN.Systems
         "    - Système de remboursement de la dette en cas de non solvabilité\n" +
         "    - Système de génération procédurale de maps\n" +
         "    - Intégration des acessoires (type lunettes, chapeaux), sous forme de VFX\n" +
-        "    - Système de PNJ factory (outil DM permettant la création et la sauvegarde de pnjs sans passer par l'éditeur)\n"
+        "    - Système de PNJ factory (outil DM permettant la création et la sauvegarde de pnjs sans passer par l'éditeur)\n" +
+        "    - Zones spécifiques 'cachées' donnant des bonus d'apprentissage lorsqu'on y déco\n"
         );
     }
   }

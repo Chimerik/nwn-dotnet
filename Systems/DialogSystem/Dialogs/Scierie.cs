@@ -70,7 +70,7 @@ namespace NWN.Systems
             reprocessingEfficiency += reprocessingEfficiency + 2 * value / 100;
 
           int refinedMinerals = Convert.ToInt32(player.setValue * processedOre.planks * reprocessingEfficiency);
-          string mineralName = processedOre.name;
+          string mineralName = Enum.GetName(typeof(PlankType), processedOre.refinedType) ?? "";
 
           if (player.materialStock.ContainsKey(mineralName))
             player.materialStock[mineralName] += refinedMinerals;

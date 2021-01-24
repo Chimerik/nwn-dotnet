@@ -151,7 +151,7 @@ namespace NWN.Systems
                 }
             )},
             { "kuotoa_chest", new Lootable.Config(
-                gold: new Lootable.Gold(min: 200, max: 350, chance: 85),
+                gold: new Lootable.Gold(min: 250, max: 400, chance: 85),
                 items: new List<Lootable.Item> {
                     new Lootable.Item(chestTag: "simple_weapons", count: 1, chance: 4),
                     new Lootable.Item(chestTag: "light_armor", count: 1, chance: 4),
@@ -163,7 +163,7 @@ namespace NWN.Systems
                 }
             )},
             { "harpiemarine", new Lootable.Config(
-                gold: new Lootable.Gold(min: 50, max: 200, chance: 100),
+                gold: new Lootable.Gold(min: 250, max: 400, chance: 100),
                 items: new List<Lootable.Item> {
                     new Lootable.Item(chestTag: "simple_weapons", count: 1, chance: 5),
                     new Lootable.Item(chestTag: "light_armor", count: 1, chance: 5),

@@ -170,7 +170,7 @@ namespace NWN.Systems
               }
               if (Utils.random.Next(1, 101) < 21)
               {
-                int feat = Utils.random.Next(0, SkillSystem.languageSkillBooks.Length);
+                int feat = (int)SkillSystem.languageSkillBooks[Utils.random.Next(0, SkillSystem.languageSkillBooks.Length)];
                 uint skillBook = NWScript.CreateItemOnObject("skillbookgeneriq", shop, 1, "skillbook");
                 ItemPlugin.SetItemAppearance(skillBook, NWScript.ITEM_APPR_TYPE_SIMPLE_MODEL, 2, Utils.random.Next(0, 50));
                 NWScript.SetLocalInt(skillBook, "_SKILL_ID", feat);

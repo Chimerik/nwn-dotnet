@@ -25,7 +25,10 @@ namespace NWN.Systems.Craft
       this.baseItemType = baseItemType;
       this.craftedItem = item;
       this.material = material;
-      this.remainingTime = time;
+      if (Config.env == Config.Env.Chim)
+        this.remainingTime = 10.0f;
+      else
+        this.remainingTime = time;
       this.isCancelled = false;
       this.player = player;
 

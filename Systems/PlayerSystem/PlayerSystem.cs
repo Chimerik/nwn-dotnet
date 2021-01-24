@@ -563,28 +563,28 @@ namespace NWN.Systems
                     {
                       CreaturePlugin.SetGold(oTarget.oid, oTargetGold - iStolenGold);
                       CreaturePlugin.SetGold(player.oid, NWScript.GetGold(player.oid) + iStolenGold);
-                      NWScript.FloatingTextStringOnCreature($"Vous venez de dérober {iStolenGold} pièces d'or des poches de {NWScript.GetName(oTarget.oid)} !", player.oid);
+                      NWScript.FloatingTextStringOnCreature($"Vous venez de dérober {iStolenGold} pièces d'or des poches de {NWScript.GetName(oTarget.oid)} !", player.oid, 0);
                     }
                     else
                     {
-                      NWScript.FloatingTextStringOnCreature($"Vous venez de vider les poches de {NWScript.GetName(oTarget.oid)} ! {oTargetGold} pièces d'or de plus pour vous.", player.oid);
+                      NWScript.FloatingTextStringOnCreature($"Vous venez de vider les poches de {NWScript.GetName(oTarget.oid)} ! {oTargetGold} pièces d'or de plus pour vous.", player.oid, 0);
                       CreaturePlugin.SetGold(player.oid, NWScript.GetGold(player.oid) + oTargetGold);
                       CreaturePlugin.SetGold(oTarget.oid, 0);
                     }
                   }
                   else
                   {
-                    NWScript.FloatingTextStringOnCreature($"Vous ne parvenez pas à atteindre les poches de {NWScript.GetName(oTarget.oid)} !", player.oid);
+                    NWScript.FloatingTextStringOnCreature($"Vous ne parvenez pas à atteindre les poches de {NWScript.GetName(oTarget.oid)} !", player.oid, 0);
                   }
                 }
                 else
-                  NWScript.FloatingTextStringOnCreature($"{NWScript.GetName(player.oid)} est en train d'essayer de vous faire les poches !", oTarget.oid);
+                  NWScript.FloatingTextStringOnCreature($"{NWScript.GetName(player.oid)} est en train d'essayer de vous faire les poches !", oTarget.oid, 0);
               }
               else
-                NWScript.FloatingTextStringOnCreature("Vous n'êtes pas autorisé à faire une nouvelle tentative pour le moment.", player.oid);
+                NWScript.FloatingTextStringOnCreature("Vous n'êtes pas autorisé à faire une nouvelle tentative pour le moment.", player.oid, 0);
             }
             else
-              NWScript.FloatingTextStringOnCreature("Seuls d'autres joueurs peuvent être ciblés par cette compétence. Les tentatives de vol sur PNJ doivent être jouées en rp avec un dm.", player.oid);
+              NWScript.FloatingTextStringOnCreature("Seuls d'autres joueurs peuvent être ciblés par cette compétence. Les tentatives de vol sur PNJ doivent être jouées en rp avec un dm.", player.oid, 0);
             break;
           case NWScript.SKILL_ANIMAL_EMPATHY:
             if (NWScript.GetTag(NWScript.GetArea(player.oid)) == "Promenadetest")

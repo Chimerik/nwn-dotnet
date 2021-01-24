@@ -132,6 +132,7 @@ namespace NWN.Systems.Craft.Collect
       public string name;
       public Feat feat;
       public float planks;
+      public PlankType refinedType;
       public Wood(WoodType oreType, Feat oreFeat)
       {
         this.type = oreType;
@@ -142,15 +143,19 @@ namespace NWN.Systems.Craft.Collect
         {
           case WoodType.Laurelin:
             planks = 41.500f;
+            refinedType = PlankType.Laurelinade;
             break;
           case WoodType.Telperion:
             planks = 34.567f;
+            refinedType = PlankType.Telperionade;
             break;
           case WoodType.Mallorn:
             planks = 15.000f;
+            refinedType = PlankType.Mallornade;
             break;
           default:
             planks = 0.0f;
+            refinedType = PlankType.Invalid;
             break;
         }
       }
@@ -225,8 +230,8 @@ namespace NWN.Systems.Craft.Collect
           NWScript.ItemPropertyWeightIncrease(NWScript.IP_CONST_WEIGHTINCREASE_10_LBS),
           NWScript.ItemPropertyAttackBonusVsRace(NWScript.RACIAL_TYPE_HUMANOID_GOBLINOID, 1),
           NWScript.ItemPropertyAttackBonusVsRace(NWScript.RACIAL_TYPE_HUMANOID_REPTILIAN, 1),
-          NWScript.ItemPropertyDamageBonusVsRace(NWScript.RACIAL_TYPE_HUMANOID_GOBLINOID, NWScript.IP_CONST_DAMAGETYPE_PHYSICAL, NWScript.DAMAGE_BONUS_1),
-          NWScript.ItemPropertyDamageBonusVsRace(NWScript.RACIAL_TYPE_HUMANOID_REPTILIAN, NWScript.IP_CONST_DAMAGETYPE_PHYSICAL, NWScript.DAMAGE_BONUS_1)
+          NWScript.ItemPropertyDamageBonusVsRace(NWScript.RACIAL_TYPE_HUMANOID_GOBLINOID, NWScript.IP_CONST_DAMAGETYPE_PIERCING, NWScript.DAMAGE_BONUS_1),
+          NWScript.ItemPropertyDamageBonusVsRace(NWScript.RACIAL_TYPE_HUMANOID_REPTILIAN, NWScript.IP_CONST_DAMAGETYPE_PIERCING, NWScript.DAMAGE_BONUS_1)
         };
       }
     public static ItemProperty[] GetPyeriteAmmunitionProperties()
@@ -238,8 +243,8 @@ namespace NWN.Systems.Craft.Collect
           NWScript.ItemPropertyDamageVulnerability(NWScript.IP_CONST_DAMAGETYPE_ELECTRICAL, NWScript.IP_CONST_DAMAGEVULNERABILITY_25_PERCENT),
           NWScript.ItemPropertyAttackBonusVsRace(NWScript.RACIAL_TYPE_HUMANOID_GOBLINOID, 1),
           NWScript.ItemPropertyAttackBonusVsRace(NWScript.RACIAL_TYPE_HUMANOID_REPTILIAN, 1),
-          NWScript.ItemPropertyDamageBonusVsRace(NWScript.RACIAL_TYPE_HUMANOID_GOBLINOID, NWScript.IP_CONST_DAMAGETYPE_PHYSICAL, NWScript.DAMAGE_BONUS_1),
-          NWScript.ItemPropertyDamageBonusVsRace(NWScript.RACIAL_TYPE_HUMANOID_REPTILIAN, NWScript.IP_CONST_DAMAGETYPE_PHYSICAL, NWScript.DAMAGE_BONUS_1)
+          NWScript.ItemPropertyDamageBonusVsRace(NWScript.RACIAL_TYPE_HUMANOID_GOBLINOID, NWScript.IP_CONST_DAMAGETYPE_PIERCING, NWScript.DAMAGE_BONUS_1),
+          NWScript.ItemPropertyDamageBonusVsRace(NWScript.RACIAL_TYPE_HUMANOID_REPTILIAN, NWScript.IP_CONST_DAMAGETYPE_PIERCING, NWScript.DAMAGE_BONUS_1)
       };
     }
     public static ItemProperty[] GetPyeriteTwoHandedMeleeWeaponProperties()
@@ -252,8 +257,8 @@ namespace NWN.Systems.Craft.Collect
           NWScript.ItemPropertyWeightIncrease(NWScript.IP_CONST_WEIGHTINCREASE_10_LBS),
           NWScript.ItemPropertyAttackBonusVsRace(NWScript.RACIAL_TYPE_HUMANOID_GOBLINOID, 2),
           NWScript.ItemPropertyAttackBonusVsRace(NWScript.RACIAL_TYPE_HUMANOID_REPTILIAN, 2),
-          NWScript.ItemPropertyDamageBonusVsRace(NWScript.RACIAL_TYPE_HUMANOID_GOBLINOID, NWScript.IP_CONST_DAMAGETYPE_PHYSICAL, NWScript.DAMAGE_BONUS_2),
-          NWScript.ItemPropertyDamageBonusVsRace(NWScript.RACIAL_TYPE_HUMANOID_REPTILIAN, NWScript.IP_CONST_DAMAGETYPE_PHYSICAL, NWScript.DAMAGE_BONUS_2)
+          NWScript.ItemPropertyDamageBonusVsRace(NWScript.RACIAL_TYPE_HUMANOID_GOBLINOID, NWScript.IP_CONST_DAMAGETYPE_PIERCING, NWScript.DAMAGE_BONUS_2),
+          NWScript.ItemPropertyDamageBonusVsRace(NWScript.RACIAL_TYPE_HUMANOID_REPTILIAN, NWScript.IP_CONST_DAMAGETYPE_PIERCING, NWScript.DAMAGE_BONUS_2)
       };
     }
     public static ItemProperty[] GetPyeriteArmorProperties()

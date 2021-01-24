@@ -172,6 +172,7 @@ namespace NWN.Systems.Craft.Collect
 
       foreach (ItemProperty ip in GetCraftItemProperties(material, GetItemCategory(NWScript.GetBaseItemType(craftedItem))))
       {
+        //NWScript.SendMessageToPC(NWScript.GetFirstPC(), $"Adding IP : {ip}");
         NWScript.AddItemProperty(NWScript.DURATION_TYPE_PERMANENT, ip, craftedItem);
       }
 

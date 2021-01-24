@@ -354,14 +354,12 @@ namespace NWN.Systems
       player.bankGold = NWScript.SqlGetInt(query, 4);
       player.dateLastSaved = DateTime.Parse(NWScript.SqlGetString(query, 5));
       player.currentSkillJob = NWScript.SqlGetInt(query, 6);
-      Console.WriteLine($"skillJob : {player.currentSkillJob}");
       player.craftJob = new Job(NWScript.SqlGetInt(query, 7), NWScript.SqlGetString(query, 10), NWScript.SqlGetFloat(query, 9), player, NWScript.SqlGetString(query, 8));
       player.isFrostAttackOn = Convert.ToBoolean(NWScript.SqlGetInt(query, 11));
       player.menu.originTop = NWScript.SqlGetInt(query, 12);
       player.menu.originLeft = NWScript.SqlGetInt(query, 13);
       player.previousArea = NWScript.GetAreaFromLocation(player.location);
       player.currentSkillType = (SkillSystem.SkillType)NWScript.SqlGetInt(query, 14);
-      Console.WriteLine($"currentSkillType : {player.currentSkillType}");
 
       query = NWScript.SqlPrepareQueryCampaign(ModuleSystem.database, $"SELECT materialName, materialStock from playerMaterialStorage where characterId = @characterId");
       NWScript.SqlBindInt(query, "@characterId", player.characterId);

@@ -36,6 +36,8 @@ namespace NWN.Systems
 
           player.targetEvent = TargetEvent.LootSaverTarget;
           player.SelectTarget(callback);
+          
+          // TEST BOT
 
           //string test = Bot._client.GetUser(232218662080086017).Mention;//.SendMessageAsync("BOT TEST !");
 
@@ -46,6 +48,8 @@ namespace NWN.Systems
           //(Bot._client.GetChannel(680072044364562532) as IMessageChannel).SendMessageAsync($"{Bot._client.GetGuild(680072044364562528).EveryoneRole.Mention} MENTION TEST EVERYONE!");
           //(Bot._client.GetChannel(786218144296468481) as IMessageChannel).SendMessageAsync($"{test} MESSAGE TEST !");
 
+
+          // TEST DEATH & RESPAWN
 
           //NWScript.ApplyEffectToObject(NWScript.DURATION_TYPE_INSTANT, NWScript.EffectDamage(9999), player.oid);
           //Location loc = NWScript.GetLocation(player.oid);
