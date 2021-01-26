@@ -317,7 +317,10 @@ namespace NWN.Systems.Craft.Collect
         case ItemCategory.Ammunition: return GetPyeriteAmmunitionProperties();
       }
 
-      return null;
+      return new ItemProperty[]
+      { 
+          NWScript.ItemPropertyVisualEffect(NWScript.VFX_NONE)
+      };
     }
       public static ItemProperty[] GetPyeriteOneHandedMeleeWeaponProperties()
       {

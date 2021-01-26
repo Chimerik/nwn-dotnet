@@ -22,6 +22,7 @@ namespace NWN.Systems.Items
       switch (baseItemType)
       {
         case NWScript.BASE_ITEM_ARMOR:
+        case NWScript.BASE_ITEM_HELMET:
           return ItemCategory.Armor;
         case NWScript.BASE_ITEM_SMALLSHIELD:
         case NWScript.BASE_ITEM_TOWERSHIELD:

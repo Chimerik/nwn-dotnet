@@ -813,6 +813,19 @@ namespace NWN.Systems
               NWScript.SetDescription(examineTarget, $"Minerai disponible : {woodAmount}");
 
             break;
+          case "mineable_animal":
+            int peltAmount = NWScript.GetLocalInt(examineTarget, "_ORE_AMOUNT");
+            if (NWScript.GetIsDM(player.oid) != 1)
+            {
+              if (int.TryParse(NWScript.Get2DAString("feat", "GAINMULTIPLE", CreaturePlugin.GetHighestLevelOfFeat(player.oid, (int)Feat.AnimalExpertise)), out int animalExpertiseSkillLevel))
+                NWScript.SetDescription(examineTarget, $"Minerai disponible : {Utils.random.Next(peltAmount * animalExpertiseSkillLevel * 20 / 100, 2 * peltAmount - animalExpertiseSkillLevel * 20 / 100)}");
+              else
+                NWScript.SetDescription(examineTarget, $"Minerai disponible estimé : {Utils.random.Next(0, 2 * peltAmount)}");
+            }
+            else
+              NWScript.SetDescription(examineTarget, $"Minerai disponible : {peltAmount}");
+
+            break;
           case "blueprint":
             int baseItemType = NWScript.GetLocalInt(examineTarget, "_BASE_ITEM_TYPE");
 

@@ -71,12 +71,6 @@ namespace NWN.Systems.Craft.Collect
         NWScript.SendMessageToPC(player.oid, "Cette zone est épuisée. Les arbres restant disposant de propriétés intéressantes ne semblent pas encore avoir atteint l'âge d'être exploités.");
         return;
       }
-      else
-      {
-        query = NWScript.SqlPrepareQueryCampaign(ModuleSystem.database, $"UPDATE areaResourceStock SET wood = wood - 1 where areaTag = @areaTag");
-        NWScript.SqlBindString(query, "@areaTag", area.tag);
-        NWScript.SqlStep(query);
-      }
 
       uint resourcePoint = NWScript.GetNearestObjectByTag("wood_spawn_wp", player.oid);
       int i = 1;
@@ -109,7 +103,13 @@ namespace NWN.Systems.Craft.Collect
       }
 
       if (nbSpawns > 0)
+      {
         NWScript.SendMessageToPC(player.oid, $"Votre repérage a permis d'identifier {nbSpawns} arbre(s) aux propriétés exploitables !");
+        
+        query = NWScript.SqlPrepareQueryCampaign(ModuleSystem.database, $"UPDATE areaResourceStock SET wood = wood - 1 where areaTag = @areaTag");
+        NWScript.SqlBindString(query, "@areaTag", area.tag);
+        NWScript.SqlStep(query);
+      }
       else
         NWScript.SendMessageToPC(player.oid, $"Votre repérage semble pas avoir abouti à la découverte d'un arbre aux propriétés exploitables.");
     }

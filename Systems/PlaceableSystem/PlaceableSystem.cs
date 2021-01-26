@@ -33,8 +33,7 @@ namespace NWN.Systems
     }
     private static int HandlePlaceableUsed(uint oidSelf)
     {
-      Player player;
-      if (Players.TryGetValue(NWScript.GetLastUsedBy(), out player))
+      if (Players.TryGetValue(NWScript.GetLastUsedBy(), out Player player))
       {
         int i;
 

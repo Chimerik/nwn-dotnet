@@ -407,7 +407,7 @@ namespace NWN.Systems
           oPartyMember = NWScript.GetNextFactionMember(oid, 1);
         }
 
-        Effect eParty = null;
+        Effect eParty = NWScript.EffectVisualEffect(NWScript.VFX_NONE);
 
         switch (iPartySize) // déterminer quel est l'effet de groupe à appliquer
         {
@@ -437,7 +437,7 @@ namespace NWN.Systems
             break;
         }
 
-        return eParty;
+        return NWScript.SupernaturalEffect(eParty);
       }
       public void UpdateJournal()
       {

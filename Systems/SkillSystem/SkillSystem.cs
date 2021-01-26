@@ -20,6 +20,11 @@ namespace NWN.Systems
             { 1287, HandleHealthPoints },
             { 1288, HandleHealthPoints },
             { 1289, HandleHealthPoints },
+            { 1156, HandleHealthPoints },
+            { 1157, HandleHealthPoints },
+            { 1158, HandleHealthPoints },
+            { 1159, HandleHealthPoints },
+            { 1160, HandleHealthPoints },
     };
 
     public static Dictionary<int, Func<PlayerSystem.Player, int, int>> RegisterRemoveCustomFeatEffect = new Dictionary<int, Func<PlayerSystem.Player, int, int>>

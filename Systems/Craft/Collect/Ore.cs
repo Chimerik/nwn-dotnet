@@ -75,12 +75,6 @@ namespace NWN.Systems.Craft.Collect
         NWScript.SendMessageToPC(player.oid, "Cette veine est épuisée. Reste à espérer qu'un prochain glissement de terrain permette d'atteindre de nouveaux filons.");
         return;
       }
-      else
-      {
-        query = NWScript.SqlPrepareQueryCampaign(ModuleSystem.database, $"UPDATE areaResourceStock SET mining = mining - 1 where areaTag = @areaTag");
-        NWScript.SqlBindString(query, "@areaTag", area.tag);
-        NWScript.SqlStep(query);
-      }
 
       int skillBonus = 0;
       int value;
@@ -109,8 +103,14 @@ namespace NWN.Systems.Craft.Collect
         resourcePoint = NWScript.GetNearestObjectByTag("ore_spawn_wp", oPlaceable, i);
       }
 
-      if(nbSpawns > 0)
+      if (nbSpawns > 0)
+      {
         NWScript.SendMessageToPC(player.oid, $"Votre prospection a permis de mettre à découvert {nbSpawns} veine(s) de minerai !");
+
+        query = NWScript.SqlPrepareQueryCampaign(ModuleSystem.database, $"UPDATE areaResourceStock SET mining = mining - 1 where areaTag = @areaTag");
+        NWScript.SqlBindString(query, "@areaTag", area.tag);
+        NWScript.SqlStep(query);
+      }
       else
         NWScript.SendMessageToPC(player.oid, $"Votre prospection ne semble pas avoir abouti à la découverte d'une veine exploitable");
 

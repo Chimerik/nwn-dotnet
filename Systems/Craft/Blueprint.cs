@@ -68,6 +68,16 @@ namespace NWN.Systems.Craft
     }
     public static ItemProperty[] GetCraftItemProperties(string material, ItemCategory itemCategory)
     {
+      if(itemCategory == ItemCategory.Invalid)
+      {
+        Utils.LogMessageToDMs($"Item Category invalid");
+
+        return new ItemProperty[]
+        {
+          NWScript.ItemPropertyVisualEffect(NWScript.VFX_NONE)
+        };
+      }
+
       if (Enum.TryParse(material, out MineralType myMineralType))
       {
         switch (myMineralType)
@@ -86,8 +96,11 @@ namespace NWN.Systems.Craft
       }
 
       Utils.LogMessageToDMs($"No craft property found for material {material} and item {itemCategory}");
-      
-      return new ItemProperty[0];
+
+      return new ItemProperty[]
+      {
+          NWScript.ItemPropertyVisualEffect(NWScript.VFX_NONE)
+      };
     }
     public static void BlueprintValidation(uint oidSelf, uint oTarget, Feat feat)
     {

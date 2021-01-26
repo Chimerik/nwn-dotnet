@@ -71,12 +71,6 @@ namespace NWN.Systems.Craft.Collect
         NWScript.SendMessageToPC(player.oid, "Cette zone est épuisée. Les animaux restants disposant de propriétés intéressantes ne semblent pas encore avoir atteint l'âge d'être exploités.");
         return;
       }
-      else
-      {
-        query = NWScript.SqlPrepareQueryCampaign(ModuleSystem.database, $"UPDATE areaResourceStock SET animals = animals - 1 where areaTag = @areaTag");
-        NWScript.SqlBindString(query, "@areaTag", area.tag);
-        NWScript.SqlStep(query);
-      }
 
       uint resourcePoint = NWScript.GetNearestObjectByTag("animal_spawn_wp", player.oid);
       int i = 1;
@@ -109,7 +103,13 @@ namespace NWN.Systems.Craft.Collect
       }
 
       if (nbSpawns > 0)
+      {
         NWScript.SendMessageToPC(player.oid, $"Votre traque a permis d'identifier {nbSpawns} animal(aux) aux propriétés exploitables !");
+        
+        query = NWScript.SqlPrepareQueryCampaign(ModuleSystem.database, $"UPDATE areaResourceStock SET animals = animals - 1 where areaTag = @areaTag");
+        NWScript.SqlBindString(query, "@areaTag", area.tag);
+        NWScript.SqlStep(query);
+      }
       else
         NWScript.SendMessageToPC(player.oid, $"Votre traque ne semble pas avoir aboutie au repérage d'animaux aux propriétés exploitables.");
     }

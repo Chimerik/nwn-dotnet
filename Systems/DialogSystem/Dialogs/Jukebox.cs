@@ -47,6 +47,10 @@ namespace NWN.Systems
       NWScript.MusicBackgroundChangeNight(area, music);
       NWScript.MusicBackgroundPlay(area);
 
+      NWScript.AssignCommand(bard, () => NWScript.PlayAnimation(NWScript.ANIMATION_LOOPING_TALK_LAUGHING, 3, 99999.0f));
+      NWScript.ApplyEffectToObject(NWScript.DURATION_TYPE_INSTANT, NWScript.EffectVisualEffect(NWScript.VFX_FNF_SOUND_BURST_SILENT), bard);
+      NWScript.ApplyEffectToObject(NWScript.DURATION_TYPE_PERMANENT, NWScript.EffectVisualEffect(NWScript.VFX_DUR_BARD_SONG), bard);
+
       ChatPlugin.SendMessage(ChatPlugin.NWNX_CHAT_CHANNEL_PLAYER_TALK, $"{NWScript.GetName(player.oid)} vient de demander à jouer {NWScript.GetStringByStrRef(Int32.Parse(NWScript.Get2DAString("ambientmusic", "Description", music)))}", bard);
 
       this.DrawWelcomePage(player, bard);
