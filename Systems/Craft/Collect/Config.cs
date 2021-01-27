@@ -491,5 +491,12 @@ namespace NWN.Systems.Craft.Collect
 
       return PeltType.Invalid;
     }
+    public static PeltType GetPeltTypeFromItemTag(string itemTag)
+    {
+      if (Array.FindIndex(System.badPelts, x => x == itemTag) > -1)
+        return PeltType.MauvaisePeau;
+
+      return PeltType.Invalid;
+    }
   }
 }

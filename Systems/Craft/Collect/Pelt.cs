@@ -46,8 +46,10 @@ namespace NWN.Systems.Craft.Collect
       {
         NWScript.SetLocalInt(oPlaceable, "_ORE_AMOUNT", remainingOre);
       }
-      var ore = NWScript.CreateItemOnObject("pelt", player.oid, miningYield, NWScript.GetName(oPlaceable));
-      NWScript.SetName(ore, NWScript.GetName(oPlaceable));
+
+      var ore = NWScript.CreateItemOnObject("pelt", player.oid, miningYield, NWScript.GetResRef(oPlaceable));
+      NWScript.SetName(ore, $"Peau de {NWScript.GetName(oPlaceable)}");
+      //NWScript.SetLocalString(ore, "_PELT_RESREF", NWScript.GetResRef(oPlaceable));
 
       Items.Utils.DecreaseItemDurability(oExtractor);
     }

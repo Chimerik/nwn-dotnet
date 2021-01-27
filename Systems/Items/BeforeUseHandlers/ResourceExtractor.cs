@@ -48,11 +48,16 @@ namespace NWN.Systems.Items.BeforeUseHandlers
           break;
 
         case "mineable_animal":
-          StartCollectCycle(
-            player,
-            oTarget,
-            () => Pelt.HandleCompleteCycle(player, oTarget, oItem)
-          );
+          if (Convert.ToBoolean(NWScript.GetIsDead(oTarget)))
+          {
+            StartCollectCycle(
+              player,
+              oTarget,
+              () => Pelt.HandleCompleteCycle(player, oTarget, oItem)
+            );
+          }
+          else
+            NWScript.SendMessageToPC(player.oid, "La cible doit être abattue avant de pouvoir commencer le dépeçage.");
           break;
 
         default:

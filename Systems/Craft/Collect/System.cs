@@ -17,6 +17,8 @@ namespace NWN.Systems.Craft.Collect
             { "on_collect_cycle_complete", HandleAfterCollectCycleComplete },
     };
 
+    public static string[] badPelts = new string[] { "testtannerie" };
+
     public static Dictionary<int, Feat> craftBaseItemFeatDictionnary = new Dictionary<int, Feat>()
     {
       {-13, Feat.Research },
@@ -134,6 +136,8 @@ namespace NWN.Systems.Craft.Collect
 
       var resourceExtractor = NWScript.GetItemInSlot(NWScript.INVENTORY_SLOT_RIGHTHAND, player.oid);
       float cycleDuration = 180.0f;
+      if (NWN.Systems.Config.env == NWN.Systems.Config.Env.Chim)
+        cycleDuration = 10.0f;
 
       if (NWScript.GetIsObjectValid(resourceExtractor) == 1) // TODO : Idée pour plus tard, le strip miner le plus avancé pourra équipper un cristal de spécialisation pour extraire deux fois plus de minerai en un cycle sur son minerai de spécialité
       {
@@ -197,6 +201,8 @@ namespace NWN.Systems.Craft.Collect
         return true;
       if (Enum.TryParse(itemTag, out PlankType myPlankType) && myPlankType != PlankType.Invalid)
         return true;
+      if (Array.FindIndex(badPelts, x => x == itemTag) > -1)
+        return true;
 
       return false;
     }
@@ -210,8 +216,10 @@ namespace NWN.Systems.Craft.Collect
         return "wood";
       if (Enum.TryParse(itemTag, out PlankType myPlankType) && myPlankType != PlankType.Invalid)
         return "plank";
+      if (Array.FindIndex(badPelts, x => x == itemTag) > -1)
+        return "pelt";
 
-      Utils.LogMessageToDMs($"Could not find item template for tag : {itemTag}");
+        Utils.LogMessageToDMs($"Could not find item template for tag : {itemTag}");
       return "";
     }
   }

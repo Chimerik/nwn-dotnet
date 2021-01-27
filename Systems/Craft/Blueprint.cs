@@ -116,8 +116,8 @@ namespace NWN.Systems.Craft
 
           int baseItemType = NWScript.GetLocalInt(oTarget, "_BASE_ITEM_TYPE");
            
-          if (Collect.System.blueprintDictionnary.ContainsKey(baseItemType))
-            Collect.System.blueprintDictionnary[baseItemType].StartJob(oPC, oTarget, feat);
+          if (Collect.System.blueprintDictionnary.TryGetValue(baseItemType, out Blueprint blueprint))
+            blueprint.StartJob(oPC, oTarget, feat);
           else
           {
             NWScript.SendMessageToPC(oidSelf, "[ERREUR HRP] - Le patron utilisé n'est pas correctement initialisé. Le bug a été remonté au staff.");

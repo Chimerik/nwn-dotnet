@@ -94,6 +94,14 @@ namespace NWN.Systems
         )
       },
       {
+        "medic",
+        new Command(
+          name: "medic",
+          description: new Command.Description(title: "Dissipe tout effet de maladie sur vous pour faciliter l'alpha"),
+          execute: ExecuteDispelDiseaseCommand
+        )
+      },
+      {
         "casque",
         new Command(
           name: "casque",

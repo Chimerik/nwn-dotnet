@@ -4,6 +4,7 @@ using System.Linq;
 using NWN.Core;
 using static NWN.Systems.PlayerSystem;
 using static NWN.Systems.Craft.Collect.System;
+using static NWN.Systems.Craft.Collect.Config;
 
 namespace NWN.Systems
 {
@@ -29,7 +30,7 @@ namespace NWN.Systems
       player.menu.choices.Add(("Quitter", () => player.menu.Close()));
       player.menu.Draw();
     }
-    private void HandleDropAll(PlayerSystem.Player player)
+    private void HandleDropAll(Player player)
     {
       player.menu.Clear();
       player.menu.titleLines = new List<string> {
@@ -45,6 +46,11 @@ namespace NWN.Systems
         if (IsItemCraftMaterial(itemTag))
         {
           int addedOre = NWScript.GetItemStackSize(oItem) * 95 / 100;
+
+          PeltType peltType = GetPeltTypeFromItemTag(itemTag);
+          
+          if(peltType != PeltType.Invalid)
+            itemTag = Enum.GetName(typeof(PeltType), peltType);
 
           if (player.materialStock.ContainsKey(itemTag))
             player.materialStock[itemTag] += addedOre;
@@ -89,7 +95,7 @@ namespace NWN.Systems
       player.menu.choices.Add(("Quitter", () => player.menu.Close()));
       player.menu.Draw();
     }
-    private void HandleValidateDropMaterial(PlayerSystem.Player player, string material)
+    private void HandleValidateDropMaterial(Player player, string material)
     {
       player.menu.Clear();
 
