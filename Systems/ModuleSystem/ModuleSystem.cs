@@ -4,9 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using NWN.Core;
 using NWN.Core.NWNX;
-using Microsoft.Data.Sqlite;
 using Google.Cloud.Translation.V2;
-using System.Runtime.CompilerServices;
 
 namespace NWN.Systems
 {
@@ -20,9 +18,6 @@ namespace NWN.Systems
       { "onent_theater_sc", HandleEnterTheaterScene },
       { "onex_theater_sc", HandleExitTheaterScene },
       { "ondeath_wraith", HandleWraithDeath },
-      { "on_inventory_remove", HandleBeforeItemRemovedFromInventory },
-      { "ondisturb_pelts", HandlePeltDisturbed },
-      { "ondeath_pelts", HandlePeltDeath },
       { "ondeath_quaranti", HandleQuarantineWereDeath },
       { "od_spawn_npc_wp", HandleNPCDeath },
     }.Concat(Systems.LootSystem.Register)
@@ -126,30 +121,6 @@ namespace NWN.Systems
     private static int HandleNPCDeath(uint oidSelf)
     {
       NWScript.SetLocalString(NWScript.CreateObject(NWScript.OBJECT_TYPE_WAYPOINT, NWScript.GetLocalString(oidSelf, "_WAYPOINT_TEMPLATE"), NWScript.GetLocation(oidSelf)), "_CREATURE_TEMPLATE", NWScript.GetResRef(oidSelf));
-      return 0;
-    }
-    private static int HandlePeltDeath(uint oidSelf)
-    {
-      NWScript.SendMessageToPC(NWScript.GetFirstPC(), "Oh no, pelt dead");
-      uint oItem = NWScript.GetFirstItemInInventory(oidSelf);
-
-      while(Convert.ToBoolean(NWScript.GetIsObjectValid(oItem)))
-      {
-        VisibilityPlugin.SetVisibilityOverride(NWScript.OBJECT_INVALID, oItem, VisibilityPlugin.NWNX_VISIBILITY_HIDDEN);
-        oItem = NWScript.GetNextItemInInventory(oidSelf);
-      }
-      return 0;
-    }
-    private static int HandlePeltDisturbed(uint oidSelf)
-    {
-      NWScript.SendMessageToPC(NWScript.GetFirstPC(), "Oh no, pelt disturbed");
-
-      return 0;
-    }
-    private static int HandleBeforeItemRemovedFromInventory(uint oidSelf)
-    {
-      NWScript.SendMessageToPC(NWScript.GetFirstPC(), $"removed from : {NWScript.GetName(oidSelf)}");
-
       return 0;
     }
   }

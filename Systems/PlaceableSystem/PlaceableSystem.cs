@@ -88,16 +88,6 @@ namespace NWN.Systems
             NWScript.AssignCommand(player.oid, () => NWScript.JumpToLocation(NWScript.GetLocation(NWScript.GetWaypointByTag("wp_inentrepot"))));
             break;
           case "portal_storage_out":
-
-            uint storageToSave = NWScript.GetFirstObjectInArea(NWScript.GetArea(player.oid));
-            if (NWScript.GetTag(storageToSave) != "ps_entrepot")
-              storageToSave = NWScript.GetNearestObjectByTag("ps_entrepot", storageToSave);
-
-            var saveStorage = NWScript.SqlPrepareQueryCampaign(ModuleSystem.database, $"UPDATE playerCharacters set storage = @storage where rowid = @characterId");
-            NWScript.SqlBindInt(saveStorage, "@characterId", player.characterId);
-            NWScript.SqlBindObject(saveStorage, "@storage", storageToSave);
-            NWScript.SqlStep(saveStorage);
-
             if (AreaSystem.areaDictionnary.TryGetValue(NWScript.GetObjectUUID(NWScript.GetArea(player.oid)), out Area area))
               AreaSystem.RemoveArea(area);
 

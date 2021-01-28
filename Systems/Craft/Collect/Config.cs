@@ -458,43 +458,47 @@ namespace NWN.Systems.Craft.Collect
 
       return WoodType.Invalid;
     }
-    public static PeltType GetRandomPeltSpawnFromAreaLevel(int level)
+    public static string GetRandomPeltSpawnFromAreaLevel(int level)
     {
       int random = Utils.random.Next(1, 101);
       switch (level)
       {
         case 2:
-          return PeltType.MauvaisePeau;
+          return System.badPelts[Utils.random.Next(0, System.badPelts.Length)];
         case 3:
           if (random > 80)
-            return PeltType.PeauCommune;
+            return System.commonPelts[Utils.random.Next(0, System.commonPelts.Length)];
           else
-            return PeltType.MauvaisePeau;
+            return System.badPelts[Utils.random.Next(0, System.badPelts.Length)];
         case 4:
           if (random > 60)
-            return PeltType.PeauCommune;
+            return System.commonPelts[Utils.random.Next(0, System.commonPelts.Length)];
           else
-            return PeltType.MauvaisePeau;
+            return System.badPelts[Utils.random.Next(0, System.badPelts.Length)];
         case 5:
           if (random > 80)
-            return PeltType.PeauNormale;
+            return System.normalPelts[Utils.random.Next(0, System.normalPelts.Length)];
           else if (random > 40)
-            return PeltType.PeauCommune;
-          return PeltType.MauvaisePeau;
+            return System.commonPelts[Utils.random.Next(0, System.commonPelts.Length)];
+          return System.badPelts[Utils.random.Next(0, System.badPelts.Length)];
         case 6:
           if (random > 60)
-            return PeltType.PeauNormale;
+            return System.normalPelts[Utils.random.Next(0, System.normalPelts.Length)];
           else if (random > 20)
-            return PeltType.PeauCommune;
-          return PeltType.MauvaisePeau;
+            return System.commonPelts[Utils.random.Next(0, System.commonPelts.Length)];
+          return System.badPelts[Utils.random.Next(0, System.badPelts.Length)];
       }
 
-      return PeltType.Invalid;
+      return "";
     }
     public static PeltType GetPeltTypeFromItemTag(string itemTag)
     {
       if (Array.FindIndex(System.badPelts, x => x == itemTag) > -1)
         return PeltType.MauvaisePeau;
+      else if (Array.FindIndex(System.commonPelts, x => x == itemTag) > -1)
+        return PeltType.PeauCommune;
+      else if (Array.FindIndex(System.normalPelts, x => x == itemTag) > -1)
+        return PeltType.PeauNormale;
 
       return PeltType.Invalid;
     }

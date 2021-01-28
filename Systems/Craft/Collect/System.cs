@@ -17,7 +17,9 @@ namespace NWN.Systems.Craft.Collect
             { "on_collect_cycle_complete", HandleAfterCollectCycleComplete },
     };
 
-    public static string[] badPelts = new string[] { "testtannerie" };
+    public static string[] badPelts = new string[] { "paraceratherium", "ankheg", "gorille", "giantlizard" };
+    public static string[] commonPelts = new string[] { "alligator", "crocodile", "crocblinde", "varan" };
+    public static string[] normalPelts = new string[] { "basilisk", "jhakar", "gorgon", "bulette", "dagon" };
 
     public static Dictionary<int, Feat> craftBaseItemFeatDictionnary = new Dictionary<int, Feat>()
     {
@@ -201,7 +203,8 @@ namespace NWN.Systems.Craft.Collect
         return true;
       if (Enum.TryParse(itemTag, out PlankType myPlankType) && myPlankType != PlankType.Invalid)
         return true;
-      if (Array.FindIndex(badPelts, x => x == itemTag) > -1)
+      if (Array.FindIndex(badPelts, x => x == itemTag) > -1 || Array.FindIndex(commonPelts, x => x == itemTag) > -1
+        || Array.FindIndex(normalPelts, x => x == itemTag) > -1)
         return true;
 
       return false;
@@ -216,7 +219,8 @@ namespace NWN.Systems.Craft.Collect
         return "wood";
       if (Enum.TryParse(itemTag, out PlankType myPlankType) && myPlankType != PlankType.Invalid)
         return "plank";
-      if (Array.FindIndex(badPelts, x => x == itemTag) > -1)
+      if (Array.FindIndex(badPelts, x => x == itemTag) > -1 || Array.FindIndex(commonPelts, x => x == itemTag) > -1
+        || Array.FindIndex(normalPelts, x => x == itemTag) > -1)
         return "pelt";
 
         Utils.LogMessageToDMs($"Could not find item template for tag : {itemTag}");

@@ -94,6 +94,14 @@ namespace NWN.Systems.Craft
           case PlankType.Telperionade: return GetPyeriteItemProperties(itemCategory);
         }
       }
+      else if (Enum.TryParse(material, out PeltType myPeltType))
+      {
+        switch (myPeltType)
+        {
+          case PeltType.MauvaisePeau: return GetTritaniumItemProperties();
+          case PeltType.PeauCommune: return GetPyeriteItemProperties(itemCategory);
+        }
+      }
 
       Utils.LogMessageToDMs($"No craft property found for material {material} and item {itemCategory}");
 

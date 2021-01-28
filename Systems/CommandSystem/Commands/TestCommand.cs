@@ -18,12 +18,11 @@ namespace NWN.Systems
       {
         if(NWScript.GetPCPlayerName(player.oid) == "Chim")
         {
+          //PlayerPlugin.PlaySound(player.oid, "song_test");
           Action<uint, Vector3> callback = (uint oTarget, Vector3 position) =>
           {
-            VisibilityPlugin.SetVisibilityOverride(NWScript.OBJECT_INVALID, oTarget, VisibilityPlugin.NWNX_VISIBILITY_HIDDEN);
-
             // HP TEST
-            /*int improvedConst = CreaturePlugin.GetHighestLevelOfFeat(oTarget, (int)Feat.ImprovedConstitution);
+            int improvedConst = CreaturePlugin.GetHighestLevelOfFeat(oTarget, (int)Feat.ImprovedConstitution);
             if (improvedConst == (int)Feat.Invalid)
               improvedConst = 0;
             else
@@ -35,7 +34,6 @@ namespace NWN.Systems
               + (1 + 3 * ((NWScript.GetAbilityScore(oTarget, NWScript.ABILITY_CONSTITUTION, 1)
               + improvedConst - 10) / 2
               + CreaturePlugin.GetKnowsFeat(oTarget, (int)Feat.Toughness))) * Int32.Parse(NWScript.Get2DAString("feat", "GAINMULTIPLE", CreaturePlugin.GetHighestLevelOfFeat(oTarget, (int)Feat.ImprovedHealth))));
-          */
           };
 
           player.targetEvent = TargetEvent.LootSaverTarget;

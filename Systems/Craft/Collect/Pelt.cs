@@ -93,9 +93,9 @@ namespace NWN.Systems.Craft.Collect
         int iRandom = Utils.random.Next(1, 101);
         if (iRandom < respawnChance)
         {
-          var newRock = NWScript.CreateObject(NWScript.OBJECT_TYPE_PLACEABLE, "mineable_animal", NWScript.GetLocation(resourcePoint));
-          NWScript.SetName(newRock, Enum.GetName(typeof(PeltType), GetRandomPeltSpawnFromAreaLevel(area.level)));
+          var newRock = NWScript.CreateObject(NWScript.OBJECT_TYPE_PLACEABLE, GetRandomPeltSpawnFromAreaLevel(area.level), NWScript.GetLocation(resourcePoint));
           NWScript.SetLocalInt(newRock, "_ORE_AMOUNT", 50 * iRandom + 50 * iRandom * skillBonus / 100);
+          NWScript.SetDroppableFlag(NWScript.CreateItemOnObject("undroppable_item", newRock), 1);
           NWScript.DestroyObject(resourcePoint);
           nbSpawns++;
         }
