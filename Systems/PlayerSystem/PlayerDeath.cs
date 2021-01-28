@@ -33,6 +33,12 @@ namespace NWN.Systems
       ObjectPlugin.SetPosition(oPCCorpse, NWScript.GetPosition(player.oid));
       NWScript.SetLocalInt(oPCCorpse, "_PC_ID", player.characterId);
 
+      NWScript.SetCreatureBodyPart(NWScript.CREATURE_PART_HEAD, NWScript.GetCreatureBodyPart(NWScript.CREATURE_PART_HEAD, player.oid), oPCCorpse);
+      NWScript.SetColor(oPCCorpse, NWScript.COLOR_CHANNEL_TATTOO_1, NWScript.GetColor(player.oid, NWScript.COLOR_CHANNEL_TATTOO_1));
+      NWScript.SetColor(oPCCorpse, NWScript.COLOR_CHANNEL_TATTOO_2, NWScript.GetColor(player.oid, NWScript.COLOR_CHANNEL_TATTOO_2));
+      NWScript.SetColor(oPCCorpse, NWScript.COLOR_CHANNEL_HAIR, NWScript.GetColor(player.oid, NWScript.COLOR_CHANNEL_HAIR));
+      NWScript.SetObjectVisualTransform(oPCCorpse, NWScript.OBJECT_VISUAL_TRANSFORM_SCALE, NWScript.GetObjectVisualTransform(player.oid, NWScript.OBJECT_VISUAL_TRANSFORM_SCALE));
+
       NWScript.AssignCommand(oPCCorpse, () => NWScript.ActionEquipItem(NWScript.CopyObject(NWScript.GetItemInSlot(NWScript.INVENTORY_SLOT_CHEST, player.oid), NWScript.GetLocation(oPCCorpse), oPCCorpse), NWScript.INVENTORY_SLOT_CHEST));
       NWScript.DelayCommand(0.2f, () => NWScript.SetDroppableFlag(NWScript.GetItemInSlot(NWScript.INVENTORY_SLOT_CHEST, oPCCorpse), 0));
 

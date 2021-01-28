@@ -252,6 +252,34 @@ namespace NWN
 
       return 0;
     }
+    public static string GetPlayerStaffRankFromDiscord(ulong UserId)
+    {
+      using (var connection = new SqliteConnection($"{ModuleSystem.db_path}"))
+      {
+        connection.Open();
+
+        var command = connection.CreateCommand();
+        command.CommandText =
+        @"
+        SELECT rank
+        FROM PlayerAccounts
+        WHERE discordId = $discordId
+        ";
+        command.Parameters.AddWithValue("$discordId", UserId);
+
+        string result = "";
+
+        using (var reader = command.ExecuteReader())
+        {
+          while (reader.Read())
+          {
+            result = reader.GetString(0);
+          }
+        }
+
+        return result;
+      }
+    }
     public static int TranslateEngineAnimation(int nAnimation)
     {
       switch (nAnimation)

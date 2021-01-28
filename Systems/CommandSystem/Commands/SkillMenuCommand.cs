@@ -42,16 +42,16 @@ namespace NWN.Systems
       player.menu.titleLines.Add("Liste des talents disponibles pour entrainement.");
 
       //var sortedDict = from entry in player.learnableSkills orderby entry.Value ascending select entry;
-      foreach (KeyValuePair<int, SkillSystem.Skill> SkillListEntry in player.learnableSkills.OrderByDescending(key => key.Value.currentJob))
+      foreach (KeyValuePair<int, Skill> SkillListEntry in player.learnableSkills.OrderByDescending(key => key.Value.currentJob))
       {
-        SkillSystem.Skill skill = SkillListEntry.Value;
+        Skill skill = SkillListEntry.Value;
 
         if (!skill.trained)
         {
           if(skill.currentJob)
             skill.RefreshAcquiredSkillPoints();
-          
-          player.menu.choices.Add(($"{skill.name} - Temps restant : {Utils.StripTimeSpanMilliseconds((TimeSpan)(DateTime.Now.AddSeconds(skill.GetTimeToNextLevel(skill.CalculateSkillPointsPerSecond())) - DateTime.Now))}", () => __HandleSkillSelection(player, skill)));
+
+          player.menu.choices.Add(($"{skill.name} - Temps restant : {Utils.StripTimeSpanMilliseconds((DateTime.Now.AddSeconds(skill.GetTimeToNextLevel(skill.CalculateSkillPointsPerSecond())) - DateTime.Now))}", () => __HandleSkillSelection(player, skill)));
         }
         // TODO : Suivant, précédent
       }

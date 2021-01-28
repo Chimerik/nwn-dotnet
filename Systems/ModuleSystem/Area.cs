@@ -41,6 +41,8 @@ namespace NWN.Systems
           {
             if(NWScript.GetEventScript(nearestObject, NWScript.EVENT_SCRIPT_CREATURE_ON_DEATH) ==  "od_spawn_npc_wp")
               NWScript.SetLocalString(NWScript.CreateObject(NWScript.OBJECT_TYPE_WAYPOINT, NWScript.GetLocalString(nearestObject, "_WAYPOINT_TEMPLATE"), NWScript.GetLocation(nearestObject)), "_CREATURE_TEMPLATE", NWScript.GetResRef(nearestObject));
+            else if(NWScript.GetTag(nearestObject) == "mineable_animal")
+              NWScript.CreateObject(NWScript.OBJECT_TYPE_WAYPOINT, "animal_spawn_wp", NWScript.GetLocation(nearestObject));
 
             NWScript.DestroyObject(nearestObject);
           }

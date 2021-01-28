@@ -19,54 +19,56 @@ namespace NWN.Systems
        * Mais il se peut que dans ce cas, ses buffs soient perdues à la reco. A vérifier. Si c'est le cas, une meilleure
        * correction pourrait être de parcourir tous ses buffs et de les réappliquer dans l'event AFTER de la sauvegarde*/
 
-      if (!Convert.ToBoolean(NWScript.GetIsDM(oidSelf)) && !Convert.ToBoolean(NWScript.GetIsDMPossessed(oidSelf)))
+      if (Convert.ToBoolean(NWScript.GetIsDM(oidSelf)) || Convert.ToBoolean(NWScript.GetIsDMPossessed(oidSelf)) || Convert.ToBoolean(NWScript.GetIsPlayerDM(oidSelf)))
       {
-        Player player;
-        if (Players.TryGetValue(oidSelf, out player))
+        EventsPlugin.SkipEvent();
+        return 0;
+      }
+
+      if (Players.TryGetValue(oidSelf, out Player player))
+      {
+        if (player.isConnected)
         {
-          if (player.isConnected)
+          if (Utils.HasAnyEffect(player.oid, NWScript.EFFECT_TYPE_POLYMORPH))
           {
-            if (Utils.HasAnyEffect(player.oid, NWScript.EFFECT_TYPE_POLYMORPH))
+            Effect eff = NWScript.GetFirstEffect(player.oid);
+
+            while (Convert.ToBoolean(NWScript.GetIsEffectValid(eff)))
             {
-              Effect eff = NWScript.GetFirstEffect(player.oid);
-
-              while (Convert.ToBoolean(NWScript.GetIsEffectValid(eff)))
-              {
-                if (NWScript.GetEffectType(eff) != NWScript.EFFECT_TYPE_POLYMORPH)
-                  player.effectList.Add(eff);
-                eff = NWScript.GetNextEffect(player.oid);
-              }
-
-              //EventsPlugin.SkipEvent();
-              return 0;
+              if (NWScript.GetEffectType(eff) != NWScript.EFFECT_TYPE_POLYMORPH)
+                player.effectList.Add(eff);
+              eff = NWScript.GetNextEffect(player.oid);
             }
+
+            //EventsPlugin.SkipEvent();
+            return 0;
           }
+        }
 
           // TODO : probablement faire pour chaque joueur tous les check faim / soif / jobs etc ici
 
-          // AFK detection
-          if (player.location == NWScript.GetLocation(player.oid))
-            player.isAFK = true;
-          else
-            player.location = NWScript.GetLocation(player.oid);
+        // AFK detection
+        if (player.location == NWScript.GetLocation(player.oid))
+          player.isAFK = true;
+        else
+          player.location = NWScript.GetLocation(player.oid);
 
-          player.currentHP = NWScript.GetCurrentHitPoints(player.oid);
+        player.currentHP = NWScript.GetCurrentHitPoints(player.oid);
 
-          Area area;
-          if (AreaSystem.areaDictionnary.TryGetValue(NWScript.GetObjectUUID(NWScript.GetArea(player.oid)), out area) && area.level == 0)
-            player.CraftJobProgression();
+        if (AreaSystem.areaDictionnary.TryGetValue(NWScript.GetObjectUUID(NWScript.GetArea(player.oid)), out Area area) && area.level == 0)
+          player.CraftJobProgression();
 
-          player.AcquireSkillPoints();
+        player.AcquireSkillPoints();
 
-          player.dateLastSaved = DateTime.Now;
+        player.dateLastSaved = DateTime.Now;
 
-          SavePlayerCharacterToDatabase(player);
-          SavePlayerLearnableSkillsToDatabase(player);
-          SavePlayerLearnableSpellsToDatabase(player);
-          SavePlayerStoredMaterialsToDatabase(player);
-          SavePlayerMapPinsToDatabase(player);
-        }
+        SavePlayerCharacterToDatabase(player);
+        SavePlayerLearnableSkillsToDatabase(player);
+        SavePlayerLearnableSpellsToDatabase(player);
+        SavePlayerStoredMaterialsToDatabase(player);
+        SavePlayerMapPinsToDatabase(player);
       }
+
       return 0;
     }
     public static int HandleAfterPlayerSave(uint oidSelf)
@@ -80,8 +82,7 @@ namespace NWN.Systems
        * Mais il se peut que dans ce cas, ses buffs soient perdues à la reco. A vérifier. Si c'est le cas, une meilleure
        * correction pourrait être de parcourir tous ses buffs et de les réappliquer dans l'event AFTER de la sauvegarde*/
 
-      Player player;
-      if (Players.TryGetValue(oidSelf, out player))
+      if (Players.TryGetValue(oidSelf, out Player player))
       {
         if (player.isConnected)
         {

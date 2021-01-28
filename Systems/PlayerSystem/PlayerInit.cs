@@ -31,7 +31,7 @@ namespace NWN.Systems
       //RefreshQBS(oidSelf, 0);
       // }
 
-      if(!Players.TryGetValue(oPC, out Player player))
+      if (!Players.TryGetValue(oPC, out Player player))
       {
         player = new Player(oPC);
         Players.Add(oPC, player);
@@ -67,7 +67,7 @@ namespace NWN.Systems
           eHunger = NWScript.TagEffect(eHunger, "Effect_Hunger");
           NWScript.ApplyEffectToObject(NWScript.DURATION_TYPE_PERMANENT, eHunger, oPC);
         }*/
-        
+
         if (player.currentHP <= 0)
           NWScript.ApplyEffectToObject(NWScript.DURATION_TYPE_INSTANT, NWScript.EffectDeath(0, 0), player.oid);
         else
@@ -83,7 +83,6 @@ namespace NWN.Systems
           NWScript.DelayCommand(1.0f, () => NWScript.AssignCommand(player.oid, () => NWScript.ClearAllActions()));
           NWScript.DelayCommand(1.1f, () => NWScript.AssignCommand(player.oid, () => NWScript.JumpToLocation(NWScript.GetLocation(NWScript.GetWaypointByTag("WP_START_NEW_CHAR")))));
         }
-
         if (player.craftJob.IsActive() 
           && AreaSystem.areaDictionnary.TryGetValue(NWScript.GetObjectUUID(NWScript.GetAreaFromLocation(player.location)), out Area area) 
           && area.level == 0)
@@ -91,7 +90,6 @@ namespace NWN.Systems
           player.CraftJobProgression();
           player.craftJob.CreateCraftJournalEntry();
         }
-
         if (player.currentSkillJob != (int)Feat.Invalid)
         {
           switch (player.currentSkillType)
@@ -113,18 +111,18 @@ namespace NWN.Systems
                 player.currentSkillJob = (int)Feat.Invalid;
               break;
           }
-          
+
           player.AcquireSkillPoints();
           player.isConnected = true;
           player.isAFK = false;
 
-          if(player.currentSkillJob != (int)Feat.Invalid)
+          if (player.currentSkillJob != (int)Feat.Invalid)
           {
             switch (player.currentSkillType)
             {
               case SkillSystem.SkillType.Skill:
                 player.learnableSkills[player.currentSkillJob].CreateSkillJournalEntry();
-                break;
+               break;
               case SkillSystem.SkillType.Spell:
                 player.learnableSpells[player.currentSkillJob].CreateSkillJournalEntry();
                 break;
@@ -301,6 +299,7 @@ namespace NWN.Systems
     private static void InitializeDM(Player player)
     {
       player.playerJournal = new PlayerJournal();
+      InitializeDMEvents(player.oid);
     }
     private static void InitializePlayer(Player player)
     {
@@ -317,7 +316,7 @@ namespace NWN.Systems
       EventsPlugin.AddObjectToDispatchList("NWNX_ON_ADD_ASSOCIATE_AFTER", "summon_add_after", player);
       EventsPlugin.AddObjectToDispatchList("NWNX_ON_REMOVE_ASSOCIATE_AFTER", "summon_remove_after", player);
       EventsPlugin.AddObjectToDispatchList("NWNX_ON_BROADCAST_CAST_SPELL_AFTER", "event_spellbroadcast_after", player);
-      EventsPlugin.AddObjectToDispatchList("NWNX_ON_SPELL_INTERRUPTED_AFTER", "_onspellinterrupted_after", player);
+      //EventsPlugin.AddObjectToDispatchList("NWNX_ON_SPELL_INTERRUPTED_AFTER", "_onspellinterrupted_after", player);
       EventsPlugin.AddObjectToDispatchList("NWNX_ON_CAST_SPELL_BEFORE", "_onspellcast_before", player);
       EventsPlugin.AddObjectToDispatchList("NWNX_ON_CAST_SPELL_AFTER", "_onspellcast_after", player);
       EventsPlugin.AddObjectToDispatchList("NWNX_ON_ITEM_EQUIP_BEFORE", "event_equip_items_before", player);
@@ -331,6 +330,11 @@ namespace NWN.Systems
       EventsPlugin.AddObjectToDispatchList("NWNX_ON_START_COMBAT_ROUND_AFTER", "event_start_combat_after", player);
       EventsPlugin.AddObjectToDispatchList("NWNX_ON_CLIENT_DISCONNECT_BEFORE", "player_exit_before", player);
       NWScript.SetEventScript(player, NWScript.EVENT_SCRIPT_CREATURE_ON_NOTICE, "on_perceived_pc");
+    }
+
+    private static void InitializeDMEvents(uint player)
+    {
+      EventsPlugin.AddObjectToDispatchList("NWNX_ON_USE_FEAT_BEFORE", "event_feat_used", player);
     }
     private static void InitializePlayerAccount(Player player)
     {

@@ -127,7 +127,7 @@ namespace NWN.Systems
                 }
             )},
             { "KuoToa", new Lootable.Config(
-                gold: new Lootable.Gold(min: 25, max: 50, chance: 35),
+                gold: new Lootable.Gold(min: 30, max: 55, chance: 35),
                 items: new List<Lootable.Item> {
                     new Lootable.Item(chestTag: "simple_weapons", count: 1, chance: 1),
                     new Lootable.Item(chestTag: "light_armor", count: 1, chance: 1),
@@ -135,16 +135,16 @@ namespace NWN.Systems
                 }
             )},
             { "KuoToafouettard", new Lootable.Config(
-                gold: new Lootable.Gold(min: 30, max: 45, chance: 35),
+                gold: new Lootable.Gold(min: 45, max: 65, chance: 35),
                 items: new List<Lootable.Item> {
                     new Lootable.Item(chestTag: "simple_weapons", count: 1, chance: 1),
                     new Lootable.Item(chestTag: "ammunitions", count: 1, chance: 10),
-                    new Lootable.Item(chestTag: "low_potions", count: 1, chance: 15),
+                    new Lootable.Item(chestTag: "low_potions", count: 1, chance: 25),
                     new Lootable.Item(chestTag: "low_scrolls", count: 1, chance: 15),
                 }
             )},
             { "KuoToasurveillant", new Lootable.Config(
-                gold: new Lootable.Gold(min: 15, max: 40, chance: 35),
+                gold: new Lootable.Gold(min: 35, max: 60, chance: 35),
                 items: new List<Lootable.Item> {
                     new Lootable.Item(chestTag: "simple_weapons", count: 1, chance: 1),
                     new Lootable.Item(chestTag: "ammunitions", count: 1, chance: 10),

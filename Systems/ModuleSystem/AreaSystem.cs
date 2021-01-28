@@ -87,6 +87,8 @@ namespace NWN.Systems
         case "SimilisseTribunalPrison":
         case "SimilisseSalleDesDelibrations":
         case "Sawmill":
+        case "similissebanque":
+        case "tannery":
           area.level = 0;
           break;
         case "lepontdaruthen":

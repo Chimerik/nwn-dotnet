@@ -48,7 +48,7 @@ namespace NWN.Systems
       else
         resourceRespawnTime = (float)((DateTime.Now.AddDays(1).Date).AddHours(5) - DateTime.Now).TotalSeconds;
 
-      NWScript.DelayCommand(resourceRespawnTime, () => SpawnCollectableResources());
+      NWScript.DelayCommand(resourceRespawnTime, () => SpawnCollectableResources(resourceRespawnTime));
 
       if (Config.env == Config.Env.Prod)
         NWScript.DelayCommand(5.0f, () => (Bot._client.GetChannel(786218144296468481) as IMessageChannel).SendMessageAsync($"Module en ligne !"));
@@ -193,8 +193,6 @@ namespace NWN.Systems
       EventsPlugin.SubscribeEvent("NWNX_ON_MAP_PIN_CHANGE_PIN_AFTER", "map_pin_changed");
       EventsPlugin.SubscribeEvent("NWNX_ON_MAP_PIN_DESTROY_PIN_AFTER", "map_pin_destroyed");
 
-      EventsPlugin.SubscribeEvent("NWNX_ON_INPUT_EMOTE_BEFORE", "on_input_emote");
-
       //EventsPlugin.SubscribeEvent("NWNX_ON_HAS_FEAT_AFTER", "event_has_feat");
     }
     private void InitializeFeatModifiers()
@@ -319,35 +317,23 @@ namespace NWN.Systems
     }
     public async Task PreparingModuleForAsyncReboot(SocketCommandContext context)
     {
-      using (var connection = new SqliteConnection($"{ModuleSystem.db_path}"))
+      if (Utils.GetPlayerStaffRankFromDiscord(context.User.Id) == "admin")
       {
-        connection.Open();
+        this.botAsyncCommandList.Add("reboot");
+        await context.Channel.SendMessageAsync("Reboot effectif dans 30 secondes.");
+        return;
+      }
 
-        var command = connection.CreateCommand();
-        command.CommandText =
-        @"
-        SELECT rank
-        FROM PlayerAccounts
-        WHERE discordId = $discordId
-        ";
-        command.Parameters.AddWithValue("$discordId", context.User.Id);
-
-        string result = "";
-
-        using (var reader = command.ExecuteReader())
-        {
-          while (reader.Read())
-          {
-            result = reader.GetString(0);
-          }
-        }
-
-        if (result == "admin")
-        {
-          this.botAsyncCommandList.Add("reboot");
-          await context.Channel.SendMessageAsync("Reboot effectif dans 30 secondes.");
-          return;
-        }
+      await context.Channel.SendMessageAsync("Noooon, vous n'êtes pas la maaaaaître ! Le maaaaître est bien plus poli, d'habitude !");
+      return;
+    }
+    public async Task PreparingModuleForAsyncRefill(SocketCommandContext context)
+    {
+      if (Utils.GetPlayerStaffRankFromDiscord(context.User.Id) == "admin")
+      {
+        this.botAsyncCommandList.Add("refill");
+        await context.Channel.SendMessageAsync("Refill en cours.");
+        return;
       }
 
       await context.Channel.SendMessageAsync("Noooon, vous n'êtes pas la maaaaaître ! Le maaaaître est bien plus poli, d'habitude !");
@@ -386,7 +372,7 @@ namespace NWN.Systems
         NWScript.SqlStep(query);
       }      
     }
-    private void SpawnCollectableResources()
+    public void SpawnCollectableResources(float delay)
     {
       uint resourcePoint = NWScript.GetObjectByTag("ore_spawn_wp");
       int i = 0;
@@ -449,7 +435,8 @@ namespace NWN.Systems
         NWScript.SqlStep(query);
       }
 
-      NWScript.DelayCommand(86400.0f, () => SpawnCollectableResources()); //24 h plus tard
+      if (delay > 0.0f)
+        NWScript.DelayCommand(86400.0f, () => SpawnCollectableResources(delay));  //24 h plus tard
     }
   }
 }

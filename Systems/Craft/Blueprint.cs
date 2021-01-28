@@ -68,6 +68,16 @@ namespace NWN.Systems.Craft
     }
     public static ItemProperty[] GetCraftItemProperties(string material, ItemCategory itemCategory)
     {
+      if(itemCategory == ItemCategory.Invalid)
+      {
+        Utils.LogMessageToDMs($"Item Category invalid");
+
+        return new ItemProperty[]
+        {
+          NWScript.ItemPropertyVisualEffect(NWScript.VFX_NONE)
+        };
+      }
+
       if (Enum.TryParse(material, out MineralType myMineralType))
       {
         switch (myMineralType)
@@ -84,10 +94,21 @@ namespace NWN.Systems.Craft
           case PlankType.Telperionade: return GetPyeriteItemProperties(itemCategory);
         }
       }
+      else if (Enum.TryParse(material, out PeltType myPeltType))
+      {
+        switch (myPeltType)
+        {
+          case PeltType.MauvaisePeau: return GetTritaniumItemProperties();
+          case PeltType.PeauCommune: return GetPyeriteItemProperties(itemCategory);
+        }
+      }
 
       Utils.LogMessageToDMs($"No craft property found for material {material} and item {itemCategory}");
-      
-      return new ItemProperty[0];
+
+      return new ItemProperty[]
+      {
+          NWScript.ItemPropertyVisualEffect(NWScript.VFX_NONE)
+      };
     }
     public static void BlueprintValidation(uint oidSelf, uint oTarget, Feat feat)
     {
@@ -103,8 +124,8 @@ namespace NWN.Systems.Craft
 
           int baseItemType = NWScript.GetLocalInt(oTarget, "_BASE_ITEM_TYPE");
            
-          if (Collect.System.blueprintDictionnary.ContainsKey(baseItemType))
-            Collect.System.blueprintDictionnary[baseItemType].StartJob(oPC, oTarget, feat);
+          if (Collect.System.blueprintDictionnary.TryGetValue(baseItemType, out Blueprint blueprint))
+            blueprint.StartJob(oPC, oTarget, feat);
           else
           {
             NWScript.SendMessageToPC(oidSelf, "[ERREUR HRP] - Le patron utilisé n'est pas correctement initialisé. Le bug a été remonté au staff.");

@@ -4,9 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using NWN.Core;
 using NWN.Core.NWNX;
-using Microsoft.Data.Sqlite;
 using Google.Cloud.Translation.V2;
-using System.Runtime.CompilerServices;
 
 namespace NWN.Systems
 {

@@ -300,6 +300,21 @@ namespace NWN.Systems
             () => Craft.Collect.Wood.HandleCompleteProspectionCycle(oPC)
           );
           break;
+        case Feat.Hunting:
+        case Feat.Hunting2:
+        case Feat.Hunting3:
+        case Feat.Hunting4:
+        case Feat.Hunting5:
+
+          EventsPlugin.SkipEvent();
+
+          if (Players.TryGetValue(oidSelf, out oPC))
+            StartCollectCycle(
+            oPC,
+            NWScript.GetArea(oidSelf),
+            () => Craft.Collect.Pelt.HandleCompleteProspectionCycle(oPC)
+          );
+          break;
       }
 
       EventsPlugin.RemoveObjectFromDispatchList("NWNX_ON_USE_FEAT_BEFORE", "event_feat_used", oidSelf);
@@ -798,6 +813,19 @@ namespace NWN.Systems
               NWScript.SetDescription(examineTarget, $"Minerai disponible : {woodAmount}");
 
             break;
+          case "mineable_animal":
+            int peltAmount = NWScript.GetLocalInt(examineTarget, "_ORE_AMOUNT");
+            if (NWScript.GetIsDM(player.oid) != 1)
+            {
+              if (int.TryParse(NWScript.Get2DAString("feat", "GAINMULTIPLE", CreaturePlugin.GetHighestLevelOfFeat(player.oid, (int)Feat.AnimalExpertise)), out int animalExpertiseSkillLevel))
+                NWScript.SetDescription(examineTarget, $"Minerai disponible : {Utils.random.Next(peltAmount * animalExpertiseSkillLevel * 20 / 100, 2 * peltAmount - animalExpertiseSkillLevel * 20 / 100)}");
+              else
+                NWScript.SetDescription(examineTarget, $"Minerai disponible estimé : {Utils.random.Next(0, 2 * peltAmount)}");
+            }
+            else
+              NWScript.SetDescription(examineTarget, $"Minerai disponible : {peltAmount}");
+
+            break;
           case "blueprint":
             int baseItemType = NWScript.GetLocalInt(examineTarget, "_BASE_ITEM_TYPE");
 
@@ -937,19 +965,34 @@ namespace NWN.Systems
 
       return 0;
     }
+    private static int HandleBeforeAcquireItem(uint oidSelf)
+    {
+      if (NWScript.GetTag(NWScript.StringToObject(EventsPlugin.GetEventData("ITEM"))) == "undroppable_item")
+        EventsPlugin.SkipEvent();
+      
+      return 0;
+    }
     private static int HandlePCAcquireItem(uint oidSelf)
     {
       var oPC = NWScript.GetModuleItemAcquiredBy();
       //Console.WriteLine(NWScript.GetName(oPC));
-      //Console.WriteLine(NWScript.GetName(NWScript.GetArea(oPC)));
 
       if (Convert.ToBoolean(NWScript.GetIsPC(oPC)))
       {
         var oItem = NWScript.GetModuleItemAcquired();
         var oAcquiredFrom = NWScript.GetModuleItemAcquiredFrom();
 
+        //Console.WriteLine(NWScript.GetTag(oItem));
+
         if (Convert.ToBoolean(NWScript.GetIsObjectValid(oItem)))
         {
+          if(NWScript.GetTag(oItem) == "undroppable_item")
+          {
+            NWScript.CopyObject(oItem, NWScript.GetLocation(oAcquiredFrom), oAcquiredFrom);
+            NWScript.DestroyObject(oItem);
+            return 0;
+          }
+
           if (NWScript.GetTag(oItem) == "item_pccorpse" && NWScript.GetTag(oAcquiredFrom) == "pccorpse_bodybag")
           {
             DeletePlayerCorpseFromDatabase(NWScript.GetLocalInt(oItem, "_PC_ID"));
@@ -967,7 +1010,6 @@ namespace NWN.Systems
               }
               oCorpse = NWScript.GetObjectByTag("pccorpse", i++);
             }
-
           }
           /*En pause jusqu'à ce que le système de transport soit en place
           if (NWScript.GetMovementRate(oPC) != CreaturePlugin.NWNX_CREATURE_MOVEMENT_RATE_IMMOBILE)
@@ -1029,9 +1071,7 @@ namespace NWN.Systems
           }
         }
 
-        //EN FONCTION DE SI LA ZONE EST REST OU PAS, ON AFFICHE LA PROGRESSION DU JOURNAL DE CRAFT
-        Player player;
-        if (Players.TryGetValue(oidSelf, out player))
+        if (Players.TryGetValue(oidSelf, out Player player)) //EN FONCTION DE SI LA ZONE EST REST OU PAS, ON AFFICHE LA PROGRESSION DU JOURNAL DE CRAFT
         {
           player.previousArea = oArea;
 
@@ -1073,6 +1113,18 @@ namespace NWN.Systems
 
             if (nbPlayersInArea == 0)
               NWScript.AssignCommand(area.oid, () => NWScript.DelayCommand(1500.0f, () => area.Clean())); // 25 minutes
+
+            if(area.tag == $"entrepotpersonnel_{NWScript.GetName(player.oid)}")
+            {
+              uint storageToSave = NWScript.GetFirstObjectInArea(NWScript.GetArea(player.oid));
+              if (NWScript.GetTag(storageToSave) != "ps_entrepot")
+                storageToSave = NWScript.GetNearestObjectByTag("ps_entrepot", storageToSave);
+
+              var saveStorage = NWScript.SqlPrepareQueryCampaign(ModuleSystem.database, $"UPDATE playerCharacters set storage = @storage where rowid = @characterId");
+              NWScript.SqlBindInt(saveStorage, "@characterId", player.characterId);
+              NWScript.SqlBindObject(saveStorage, "@storage", storageToSave);
+              NWScript.SqlStep(saveStorage);
+            }
           }
         }
       }

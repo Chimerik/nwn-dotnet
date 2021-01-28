@@ -12,10 +12,8 @@ namespace NWN.Systems.Items.BeforeUseHandlers
     {
       int baseItemType = NWScript.GetLocalInt(oItem, "_BASE_ITEM_TYPE");
 
-      if (blueprintDictionnary.ContainsKey(baseItemType))
+      if (blueprintDictionnary.TryGetValue(baseItemType, out Blueprint blueprint))
       {
-        Blueprint blueprint = blueprintDictionnary[baseItemType];
-
         if (oTarget == NWScript.OBJECT_INVALID)
           NWScript.SendMessageToPC(player.oid, blueprint.DisplayBlueprintInfo(player, oItem));
         else

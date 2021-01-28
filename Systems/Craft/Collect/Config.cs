@@ -126,6 +126,105 @@ namespace NWN.Systems.Craft.Collect
       { PlankType.Telperionade, new Plank(PlankType.Telperionade) },
       { PlankType.Mallornade, new Plank(PlankType.Mallornade) },
     };
+    public struct Pelt
+    {
+      public PeltType type;
+      public string name;
+      public Feat feat;
+      public float leathers;
+      public LeatherType refinedType;
+      public Pelt(PeltType oreType, Feat oreFeat)
+      {
+        this.type = oreType;
+        this.name = Enum.GetName(typeof(PeltType), oreType) ?? "";
+        this.feat = oreFeat;
+
+        switch(oreType)
+        {
+          case PeltType.MauvaisePeau:
+            leathers = 41.500f;
+            refinedType = LeatherType.MauvaisCuir;
+            break;
+          case PeltType.PeauCommune:
+            leathers = 34.567f;
+            refinedType = LeatherType.CuirCommun;
+            break;
+          case PeltType.PeauNormale:
+            leathers = 15.000f;
+            refinedType = LeatherType.CuirNormal;
+            break;
+          default:
+            leathers = 0.0f;
+            refinedType = LeatherType.Invalid;
+            break;
+        }
+      }
+    }
+    public struct Leather
+    {
+      public LeatherType type;
+      public string name;
+
+      public Leather(LeatherType type)
+      {
+        this.type = type;
+        this.name = Enum.GetName(typeof(LeatherType), type) ?? "";
+      }
+    }
+    public enum PeltType
+    {
+      Invalid = 0,
+      MauvaisePeau = 1, 
+      PeauCommune = 2, 
+      PeauNormale = 3,
+      PeauPeuCommune = 4,
+      PeauRare = 5,
+      PeauMagique = 6,
+      PeauEpique = 7,
+      PeauLegendaire = 8,
+    }
+    public enum LeatherType
+    {
+      Invalid = 0,
+      MauvaisCuir = 1,
+      CuirCommun = 2,
+      CuirNormal = 3,
+      CuirPeuCommun = 4,
+      CuirRare = 5,
+      CuirMagique = 6,
+      CuirEpique = 7,
+      CuirLegendaire = 8,
+    }
+    public static Dictionary<PeltType, Pelt> peltDictionnary = new Dictionary<PeltType, Pelt>()
+    {
+      {
+        PeltType.MauvaisePeau,
+        new Pelt(
+          oreType: PeltType.MauvaisePeau,
+          oreFeat: Feat.BadPeltReprocessing
+        )
+      },
+      {
+        PeltType.PeauCommune,
+        new Pelt(
+          oreType: PeltType.PeauCommune,
+          oreFeat: Feat.CommonPeltReprocessing
+        )
+      },
+      {
+        PeltType.PeauNormale,
+        new Pelt(
+          oreType: PeltType.PeauNormale,
+          oreFeat: Feat.NormalPeltReprocessing
+        )
+      }
+      };
+    public static Dictionary<LeatherType, Leather> leatherDictionnary = new Dictionary<LeatherType, Leather>
+    {
+      { LeatherType.MauvaisCuir, new Leather(LeatherType.MauvaisCuir) },
+      { LeatherType.CuirCommun, new Leather(LeatherType.CuirCommun) },
+      { LeatherType.CuirNormal, new Leather(LeatherType.CuirNormal) },
+    };
     public struct Wood
     {
       public WoodType type;
@@ -139,7 +238,7 @@ namespace NWN.Systems.Craft.Collect
         this.name = Enum.GetName(typeof(WoodType), oreType) ?? "";
         this.feat = oreFeat;
 
-        switch(oreType)
+        switch (oreType)
         {
           case WoodType.Laurelin:
             planks = 41.500f;
@@ -176,7 +275,7 @@ namespace NWN.Systems.Craft.Collect
       Invalid = 0,
       Laurelin = 1, // Silmarillion : capture la lumière divine dorée
       Telperion = 2, // Silmarillion : capture la lumière divine argentée
-      Mallorn = 3, 
+      Mallorn = 3,
       Nimloth = 4,
       Oiolaire = 5,
       Qliphoth = 6,
@@ -218,7 +317,10 @@ namespace NWN.Systems.Craft.Collect
         case ItemCategory.Ammunition: return GetPyeriteAmmunitionProperties();
       }
 
-      return null;
+      return new ItemProperty[]
+      { 
+          NWScript.ItemPropertyVisualEffect(NWScript.VFX_NONE)
+      };
     }
       public static ItemProperty[] GetPyeriteOneHandedMeleeWeaponProperties()
       {
@@ -355,6 +457,50 @@ namespace NWN.Systems.Craft.Collect
       }
 
       return WoodType.Invalid;
+    }
+    public static string GetRandomPeltSpawnFromAreaLevel(int level)
+    {
+      int random = Utils.random.Next(1, 101);
+      switch (level)
+      {
+        case 2:
+          return System.badPelts[Utils.random.Next(0, System.badPelts.Length)];
+        case 3:
+          if (random > 80)
+            return System.commonPelts[Utils.random.Next(0, System.commonPelts.Length)];
+          else
+            return System.badPelts[Utils.random.Next(0, System.badPelts.Length)];
+        case 4:
+          if (random > 60)
+            return System.commonPelts[Utils.random.Next(0, System.commonPelts.Length)];
+          else
+            return System.badPelts[Utils.random.Next(0, System.badPelts.Length)];
+        case 5:
+          if (random > 80)
+            return System.normalPelts[Utils.random.Next(0, System.normalPelts.Length)];
+          else if (random > 40)
+            return System.commonPelts[Utils.random.Next(0, System.commonPelts.Length)];
+          return System.badPelts[Utils.random.Next(0, System.badPelts.Length)];
+        case 6:
+          if (random > 60)
+            return System.normalPelts[Utils.random.Next(0, System.normalPelts.Length)];
+          else if (random > 20)
+            return System.commonPelts[Utils.random.Next(0, System.commonPelts.Length)];
+          return System.badPelts[Utils.random.Next(0, System.badPelts.Length)];
+      }
+
+      return "";
+    }
+    public static PeltType GetPeltTypeFromItemTag(string itemTag)
+    {
+      if (Array.FindIndex(System.badPelts, x => x == itemTag) > -1)
+        return PeltType.MauvaisePeau;
+      else if (Array.FindIndex(System.commonPelts, x => x == itemTag) > -1)
+        return PeltType.PeauCommune;
+      else if (Array.FindIndex(System.normalPelts, x => x == itemTag) > -1)
+        return PeltType.PeauNormale;
+
+      return PeltType.Invalid;
     }
   }
 }
