@@ -34,6 +34,7 @@ namespace NWN.Systems
     public static string db_path = "Data Source=" + Environment.GetEnvironmentVariable("DB_DIRECTORY");
     public static TranslationClient googleTranslationClient = TranslationClient.Create();
     public static Module module;
+    public static Dictionary<string, ScriptPerf> scriptPerformanceMonitoring = new Dictionary<string, ScriptPerf>();
     private static int HandleModuleLoad(uint oidSelf)
     {
       module = new Module(NWScript.GetModule());
