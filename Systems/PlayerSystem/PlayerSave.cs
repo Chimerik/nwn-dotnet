@@ -106,9 +106,9 @@ namespace NWN.Systems
     {
       var query = NWScript.SqlPrepareQueryCampaign(ModuleSystem.database, $"UPDATE playerCharacters SET areaTag = @areaTag, position = @position, facing = @facing, currentHP = @currentHP, bankGold = @bankGold, dateLastSaved = @dateLastSaved, currentSkillType = @currentSkillType, currentSkillJob = @currentSkillJob, currentCraftJob = @currentCraftJob, currentCraftObject = @currentCraftObject, currentCraftJobRemainingTime = @currentCraftJobRemainingTime, currentCraftJobMaterial = @currentCraftJobMaterial, menuOriginTop = @menuOriginTop, menuOriginLeft = @menuOriginLeft where rowid = @characterId");
       NWScript.SqlBindInt(query, "@characterId", player.characterId);
-      NWScript.SqlBindString(query, "@areaTag", NWScript.GetTag(NWScript.GetArea(player.oid)));
-      NWScript.SqlBindVector(query, "@position", NWScript.GetPosition(player.oid));
-      NWScript.SqlBindFloat(query, "@facing", NWScript.GetFacing(player.oid));
+      NWScript.SqlBindString(query, "@areaTag", NWScript.GetTag(NWScript.GetAreaFromLocation(player.location)));
+      NWScript.SqlBindVector(query, "@position", NWScript.GetPositionFromLocation(player.location));
+      NWScript.SqlBindFloat(query, "@facing", NWScript.GetFacingFromLocation(player.location));
       NWScript.SqlBindInt(query, "@currentHP", player.currentHP);
       NWScript.SqlBindInt(query, "@bankGold", player.bankGold);
       NWScript.SqlBindString(query, "@dateLastSaved", player.dateLastSaved.ToString());
@@ -122,7 +122,7 @@ namespace NWN.Systems
       NWScript.SqlBindInt(query, "@menuOriginLeft", player.menu.originLeft);
       NWScript.SqlStep(query);
 
-      NWScript.WriteTimestampedLogEntry($"{NWScript.GetName(player.oid)} saved location : {NWScript.GetTag(NWScript.GetArea(player.oid))} - {NWScript.GetPosition(player.oid)} - {NWScript.GetFacing(player.oid)}");
+      NWScript.WriteTimestampedLogEntry($"{NWScript.GetName(player.oid)} saved location : {NWScript.GetTag(NWScript.GetAreaFromLocation(player.location))} - {NWScript.GetPositionFromLocation(player.location)} - {NWScript.GetFacingFromLocation(player.location)}");
     }
     private static void SavePlayerLearnableSkillsToDatabase(Player player)
     {

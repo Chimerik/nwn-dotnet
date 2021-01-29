@@ -85,7 +85,7 @@ namespace NWN.Systems.Craft.Collect
       if (int.TryParse(NWScript.Get2DAString("feat", "GAINMULTIPLE", CreaturePlugin.GetHighestLevelOfFeat(player.oid, (int)Feat.Hunting)), out value))
         skillBonus += value;
 
-      int respawnChance = skillBonus * 5;
+      int respawnChance = skillBonus * 5 + (NWScript.GetSkillRank(NWScript.SKILL_SPOT, player.oid) + NWScript.GetSkillRank(NWScript.SKILL_LISTEN, player.oid)) / 2;
       int nbSpawns = 0;
 
       while (NWScript.GetIsObjectValid(resourcePoint) == 1)

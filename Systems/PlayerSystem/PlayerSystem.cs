@@ -1281,6 +1281,7 @@ namespace NWN.Systems
         {
           case "blacksmith":
           case "woodworker":
+          case "tanneur":
           case "tribunal_hotesse":
             break;
           default:
