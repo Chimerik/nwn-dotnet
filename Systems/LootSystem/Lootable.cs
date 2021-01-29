@@ -117,6 +117,8 @@ namespace NWN.Systems
                       1
                   );
                   NWScript.WriteTimestampedLogEntry($"SUCCESS : item created {NWScript.GetName(oItem)}");
+
+                  Craft.Collect.System.AddCraftedItemProperties(oItem, "mauvais état");
                 }
               }
             }

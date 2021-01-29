@@ -77,8 +77,9 @@ namespace NWN.Systems.Craft
           NWScript.ItemPropertyVisualEffect(NWScript.VFX_NONE)
         };
       }
-
-      if (Enum.TryParse(material, out MineralType myMineralType))
+      if (material == "mauvais état")
+        return GetBadItemProperties(itemCategory);
+      else if (Enum.TryParse(material, out MineralType myMineralType))
       {
         switch (myMineralType)
         {

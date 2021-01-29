@@ -72,9 +72,10 @@ namespace NWN.Systems
           NWScript.ApplyEffectToObject(NWScript.DURATION_TYPE_INSTANT, NWScript.EffectDeath(0, 0), player.oid);
         else
           NWScript.SetCurrentHitPoints(player.oid, player.currentHP);
-
+        
         if (player.location != null)
         {
+          NWScript.WriteTimestampedLogEntry($"{NWScript.GetName(player.oid)} teleported to : {NWScript.GetName(NWScript.GetAreaFromLocation(player.location))} - {NWScript.GetPositionFromLocation(player.location)} - {NWScript.GetFacingFromLocation(player.location)}");
           NWScript.DelayCommand(1.0f, () => NWScript.AssignCommand(player.oid, () => NWScript.ClearAllActions()));
           NWScript.DelayCommand(1.1f, () => NWScript.AssignCommand(player.oid, () => NWScript.JumpToLocation(player.location)));
         }
@@ -394,10 +395,10 @@ namespace NWN.Systems
         storage = NWScript.GetNearestObjectByTag("ps_entrepot", storage);
 
       Utils.DestroyInventory(storage);
-      NWScript.CreateItemOnObject("NW_AARCL009", storage);
-      NWScript.CreateItemOnObject("NW_WBLCL001", storage);
-      NWScript.CreateItemOnObject("NW_ASHSW001", storage);
-      NWScript.CreateItemOnObject("NW_WBWSL001", storage);
+      NWScript.CreateItemOnObject("bad_armor", storage);
+      NWScript.CreateItemOnObject("bad_club", storage);
+      NWScript.CreateItemOnObject("bad_shield", storage);
+      NWScript.CreateItemOnObject("bad_sling", storage);
       NWScript.CreateItemOnObject("NW_WAMBU001", storage, 99);
 
       NWScript.SetName(storage, $"Entrepôt de {NWScript.GetName(player.oid)}");

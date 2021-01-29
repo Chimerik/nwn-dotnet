@@ -121,6 +121,8 @@ namespace NWN.Systems
       NWScript.SqlBindInt(query, "@menuOriginTop", player.menu.originTop);
       NWScript.SqlBindInt(query, "@menuOriginLeft", player.menu.originLeft);
       NWScript.SqlStep(query);
+
+      NWScript.WriteTimestampedLogEntry($"{NWScript.GetName(player.oid)} saved location : {NWScript.GetTag(NWScript.GetArea(player.oid))} - {NWScript.GetPosition(player.oid)} - {NWScript.GetFacing(player.oid)}");
     }
     private static void SavePlayerLearnableSkillsToDatabase(Player player)
     {

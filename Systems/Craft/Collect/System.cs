@@ -184,6 +184,9 @@ namespace NWN.Systems.Craft.Collect
       if(GetItemCategory(NWScript.GetBaseItemType(craftedItem)) == ItemCategory.CraftTool)
         switch(material)
         {
+          case "mauvais état":
+            NWScript.SetLocalInt(craftedItem, "_DURABILITY", 5);
+            break;
           case "Tritanium":
             NWScript.SetLocalInt(craftedItem, "_DURABILITY", 10);
             break;
