@@ -72,6 +72,14 @@ namespace NWN.Systems
             {
               NWScript.CreateItemOnObject(goldResRef, oContainer, goldCount);
             }
+
+            if (ModuleSystem.goldBalanceMonitoring.TryGetValue(NWScript.GetTag(oContainer), out GoldBalance gold))
+            {
+              gold.nbTimesLooted++;
+              gold.cumulatedGold += goldCount;
+            }
+            else
+              ModuleSystem.goldBalanceMonitoring.Add(NWScript.GetTag(oContainer), new GoldBalance(goldCount));
           }
         }
       }

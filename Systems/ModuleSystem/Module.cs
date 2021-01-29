@@ -93,6 +93,9 @@ namespace NWN.Systems
 
       query = NWScript.SqlPrepareQueryCampaign(ModuleSystem.database, $"CREATE TABLE IF NOT EXISTS scriptPerformance('script' TEXT NOT NULL, 'nbExecutions' INTEGER NOT NULL, 'averageExecutionTime' REAL NOT NULL, 'cumulatedExecutionTime' REAL NOT NULL, PRIMARY KEY(script))");
       NWScript.SqlStep(query);
+
+      query = NWScript.SqlPrepareQueryCampaign(ModuleSystem.database, $"CREATE TABLE IF NOT EXISTS goldBalance('lootedTag' TEXT NOT NULL, 'nbTimesLooted' INTEGER NOT NULL, 'averageGold' INT NOT NULL, 'cumulatedGold' INT NOT NULL, PRIMARY KEY(lootedTag))");
+      NWScript.SqlStep(query);
     }
     private void InitializeEvents()
     {
@@ -289,6 +292,20 @@ namespace NWN.Systems
 
         perfentry.Value.cumulatedExecutionTime = 0;
         perfentry.Value.nbExecution = 0;
+      }
+
+      foreach (KeyValuePair<string, GoldBalance> goldEntry in ModuleSystem.goldBalanceMonitoring)
+      {
+        query = NWScript.SqlPrepareQueryCampaign(ModuleSystem.database, $"INSERT INTO goldBalance (lootedTag, nbTimesLooted, averageGold, cumulatedGold) VALUES (@lootedTag, @nbTimesLooted, @averageGold, @cumulatedGold)" +
+        "ON CONFLICT (lootedTag) DO UPDATE SET nbTimesLooted = nbTimesLooted + @nbTimesLooted, averageGold = (cumulatedGold + @cumulatedGold) / (nbTimesLooted + @nbTimesLooted), cumulatedGold = cumulatedGold + @cumulatedGold");
+        NWScript.SqlBindString(query, "@lootedTag", goldEntry.Key);
+        NWScript.SqlBindInt(query, "@nbTimesLooted", goldEntry.Value.nbTimesLooted);
+        NWScript.SqlBindInt(query, "@cumulatedGold", goldEntry.Value.cumulatedGold);
+        NWScript.SqlBindInt(query, "@averageGold", goldEntry.Value.cumulatedGold / goldEntry.Value.nbTimesLooted);
+        NWScript.SqlStep(query);
+
+        goldEntry.Value.cumulatedGold = 0;
+        goldEntry.Value.nbTimesLooted = 0;
       }
 
       Bot._client.DownloadUsersAsync(new List<IGuild> { { Bot._client.GetGuild(680072044364562528) } });

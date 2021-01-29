@@ -35,6 +35,7 @@ namespace NWN.Systems
     public static TranslationClient googleTranslationClient = TranslationClient.Create();
     public static Module module;
     public static Dictionary<string, ScriptPerf> scriptPerformanceMonitoring = new Dictionary<string, ScriptPerf>();
+    public static Dictionary<string, GoldBalance> goldBalanceMonitoring = new Dictionary<string, GoldBalance>();
     private static int HandleModuleLoad(uint oidSelf)
     {
       module = new Module(NWScript.GetModule());
