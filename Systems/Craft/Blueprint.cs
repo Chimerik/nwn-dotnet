@@ -66,25 +66,27 @@ namespace NWN.Systems.Craft
           break;
       }
     }
-    public static ItemProperty[] GetCraftItemProperties(string material, ItemCategory itemCategory)
+    public static ItemProperty[] GetCraftItemProperties(string material, uint craftedItem)
     {
+      ItemCategory itemCategory = GetItemCategory(NWScript.GetBaseItemType(craftedItem));
       if(itemCategory == ItemCategory.Invalid)
       {
-        Utils.LogMessageToDMs($"Item Category invalid");
+        Utils.LogMessageToDMs($"Item {NWScript.GetName(craftedItem)} - Base {NWScript.GetBaseItemType(craftedItem)} - Category invalid");
 
         return new ItemProperty[]
         {
           NWScript.ItemPropertyVisualEffect(NWScript.VFX_NONE)
         };
       }
+
       if (material == "mauvais état")
-        return GetBadItemProperties(itemCategory);
+        return GetBadItemProperties(itemCategory, craftedItem);
       else if (Enum.TryParse(material, out MineralType myMineralType))
       {
         switch (myMineralType)
         {
-          case MineralType.Tritanium: return GetTritaniumItemProperties();
-          case MineralType.Pyerite: return GetPyeriteItemProperties(itemCategory);
+          case MineralType.Tritanium: return GetTritaniumItemProperties(craftedItem);
+          case MineralType.Pyerite: return GetPyeriteItemProperties(itemCategory, craftedItem);
         }
       }
       else if (Enum.TryParse(material, out PlankType myPlankType))

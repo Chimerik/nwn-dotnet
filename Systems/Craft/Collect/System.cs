@@ -175,26 +175,11 @@ namespace NWN.Systems.Craft.Collect
       NWScript.SetName(craftedItem, NWScript.GetName(craftedItem) + " en " + material);
       NWScript.SetLocalString(craftedItem, "_ITEM_MATERIAL", material);
 
-      foreach (ItemProperty ip in GetCraftItemProperties(material, GetItemCategory(NWScript.GetBaseItemType(craftedItem))))
+      foreach (ItemProperty ip in GetCraftItemProperties(material, craftedItem))
       {
         //NWScript.SendMessageToPC(NWScript.GetFirstPC(), $"Adding IP : {ip}");
         NWScript.AddItemProperty(NWScript.DURATION_TYPE_PERMANENT, ip, craftedItem);
       }
-
-      if(GetItemCategory(NWScript.GetBaseItemType(craftedItem)) == ItemCategory.CraftTool)
-        switch(material)
-        {
-          case "mauvais état":
-            NWScript.SetLocalInt(craftedItem, "_DURABILITY", 5);
-            break;
-          case "Tritanium":
-            NWScript.SetLocalInt(craftedItem, "_DURABILITY", 10);
-            break;
-          case "Pyerite":
-            NWScript.SetLocalInt(craftedItem, "_DURABILITY", 25);
-            NWScript.SetLocalInt(craftedItem, "_ITEM_LEVEL", 1);
-            break;
-        }
     }
     public static bool IsItemCraftMaterial(string itemTag)
     {

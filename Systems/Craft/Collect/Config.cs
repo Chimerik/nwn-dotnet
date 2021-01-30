@@ -294,7 +294,7 @@ namespace NWN.Systems.Craft.Collect
       Ferochenade = 7,
       Valinorade = 8,
     }
-    public static ItemProperty[] GetBadItemProperties(ItemCategory itemCategory)
+    public static ItemProperty[] GetBadItemProperties(ItemCategory itemCategory, uint craftedItem)
     {
       switch (itemCategory)
       {
@@ -302,7 +302,7 @@ namespace NWN.Systems.Craft.Collect
         case ItemCategory.TwoHandedMeleeWeapon: return GetBadTwoHandedMeleeWeaponProperties();
         case ItemCategory.Armor: return GetBadArmorProperties();
         case ItemCategory.Shield: return GetBadShieldProperties();
-        case ItemCategory.CraftTool: return GetBadToolProperties();
+        case ItemCategory.CraftTool: return GetBadToolProperties(craftedItem);
         case ItemCategory.RangedWeapon: return GetBadRangedWeaponProperties();
       }
 
@@ -360,8 +360,10 @@ namespace NWN.Systems.Craft.Collect
 
       };
     }
-    public static ItemProperty[] GetBadToolProperties()
+    public static ItemProperty[] GetBadToolProperties(uint craftedItem)
     {
+      NWScript.SetLocalInt(craftedItem, "_DURABILITY", 5);
+
       return new ItemProperty[]
       {
         NWScript.ItemPropertyDamageVulnerability(NWScript.IP_CONST_DAMAGETYPE_PIERCING, NWScript.IP_CONST_DAMAGEVULNERABILITY_10_PERCENT),
@@ -369,8 +371,10 @@ namespace NWN.Systems.Craft.Collect
 
       };
     }
-    public static ItemProperty[] GetTritaniumItemProperties()
+    public static ItemProperty[] GetTritaniumItemProperties(uint craftedItem = NWScript.OBJECT_INVALID)
     {
+      NWScript.SetLocalInt(craftedItem, "_DURABILITY", 10);
+
       return new ItemProperty[]
       {
           NWScript.ItemPropertyDamageVulnerability(NWScript.IP_CONST_DAMAGETYPE_FIRE, NWScript.IP_CONST_DAMAGEVULNERABILITY_50_PERCENT),
@@ -379,7 +383,7 @@ namespace NWN.Systems.Craft.Collect
           NWScript.ItemPropertyWeightIncrease(NWScript.IP_CONST_WEIGHTINCREASE_15_LBS)
       };
     }
-    public static ItemProperty[] GetPyeriteItemProperties(ItemCategory itemCategory)
+    public static ItemProperty[] GetPyeriteItemProperties(ItemCategory itemCategory, uint craftedItem = NWScript.OBJECT_INVALID)
     {
       switch (itemCategory)
       {
@@ -387,7 +391,7 @@ namespace NWN.Systems.Craft.Collect
         case ItemCategory.TwoHandedMeleeWeapon: return GetPyeriteTwoHandedMeleeWeaponProperties();
         case ItemCategory.Armor: return GetPyeriteArmorProperties();
         case ItemCategory.Shield: return GetPyeriteShieldProperties();
-        case ItemCategory.CraftTool: return GetPyeriteToolProperties();
+        case ItemCategory.CraftTool: return GetPyeriteToolProperties(craftedItem);
         case ItemCategory.RangedWeapon: return GetPyeriteOneHandedMeleeWeaponProperties();
         case ItemCategory.Ammunition: return GetPyeriteAmmunitionProperties();
       }
@@ -460,8 +464,11 @@ namespace NWN.Systems.Craft.Collect
           NWScript.ItemPropertyACBonusVsDmgType(NWScript.IP_CONST_DAMAGETYPE_PIERCING, 1)
       };
     }
-    public static ItemProperty[] GetPyeriteToolProperties()
+    public static ItemProperty[] GetPyeriteToolProperties(uint craftedItem)
     {
+      NWScript.SetLocalInt(craftedItem, "_DURABILITY", 25);
+      NWScript.SetLocalInt(craftedItem, "_ITEM_LEVEL", 1);
+
       return new ItemProperty[]
       {
           NWScript.ItemPropertyWeightIncrease(NWScript.IP_CONST_WEIGHTINCREASE_10_LBS),

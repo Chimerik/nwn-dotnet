@@ -77,6 +77,7 @@ namespace NWN.Systems.Items
         case 115: //extracteur de minerai
           return ItemCategory.CraftTool;
         default:
+
           return ItemCategory.Invalid;
       }
     }
