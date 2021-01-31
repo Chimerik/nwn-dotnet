@@ -170,10 +170,11 @@ namespace NWN.Systems.Craft
     {
       int iMineralCost = this.GetBlueprintMineralCostForPlayer(player, oItem);
       float iJobDuration = this.GetBlueprintTimeCostForPlayer(player, oItem);
+      string sMaterial = GetMaterialFromTargetItem(NWScript.GetObjectByTag(workshopTag));
 
       string bpDescription = $"Patron de création de l'objet artisanal : {name}\n\n\n" +
         $"Recherche d'efficacité matérielle niveau {NWScript.GetLocalInt(oItem, "_BLUEPRINT_MATERIAL_EFFICIENCY")}\n\n" +
-        $"Coût initial en Tritanium : {iMineralCost}.\n Puis 10 % de moins par amélioration vers un matériau supérieur.\n" +
+        $"Coût initial en {sMaterial} : {iMineralCost}.\n Puis 10 % de moins par amélioration vers un matériau supérieur.\n" +
         $"Recherche d'efficacité de temps niveau {NWScript.GetLocalInt(oItem, "_BLUEPRINT_TIME_EFFICIENCY")}\n\n" +
         $"Temps de fabrication et d'amélioration : {Utils.StripTimeSpanMilliseconds(DateTime.Now.AddSeconds(iJobDuration).Subtract(DateTime.Now))}.";
 
@@ -221,6 +222,8 @@ namespace NWN.Systems.Craft
             return Enum.GetName(typeof(MineralType), MineralType.Tritanium);
           case "scierie":
             return Enum.GetName(typeof(PlankType), PlankType.Laurelinade);
+          case "tannerie":
+            return Enum.GetName(typeof(PeltType), PeltType.MauvaisePeau);
         }
       }
       else if (NWScript.GetTag(oTarget) == this.craftedItemTag)
@@ -230,6 +233,8 @@ namespace NWN.Systems.Craft
           return Enum.GetName(typeof(MineralType), myMineralType + 1);
         else if (Enum.TryParse(material, out PlankType myPlankType))
           return Enum.GetName(typeof(PlankType), myPlankType + 1);
+        else if (Enum.TryParse(material, out PeltType myPeltType))
+          return Enum.GetName(typeof(PeltType), myPeltType + 1);
       }
       
       return "Invalid";

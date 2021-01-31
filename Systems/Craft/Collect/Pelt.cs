@@ -86,27 +86,28 @@ namespace NWN.Systems.Craft.Collect
         skillBonus += value;
 
       int respawnChance = skillBonus * 5 + (NWScript.GetSkillRank(NWScript.SKILL_SPOT, player.oid) + NWScript.GetSkillRank(NWScript.SKILL_LISTEN, player.oid)) / 2;
-      int nbSpawns = 0;
+      string nbSpawns = "";
 
       while (NWScript.GetIsObjectValid(resourcePoint) == 1)
       {
         int iRandom = Utils.random.Next(1, 101);
-        if (iRandom < respawnChance)
+
+        if (iRandom < respawnChance || NWN.Systems.Config.env == NWN.Systems.Config.Env.Chim)
         {
-          var newRock = NWScript.CreateObject(NWScript.OBJECT_TYPE_PLACEABLE, GetRandomPeltSpawnFromAreaLevel(area.level), NWScript.GetLocation(resourcePoint));
+          var newRock = NWScript.CreateObject(NWScript.OBJECT_TYPE_CREATURE, GetRandomPeltSpawnFromAreaLevel(area.level), NWScript.GetLocation(resourcePoint));
           NWScript.SetLocalInt(newRock, "_ORE_AMOUNT", 50 * iRandom + 50 * iRandom * skillBonus / 100);
           NWScript.SetDroppableFlag(NWScript.CreateItemOnObject("undroppable_item", newRock), 1);
           NWScript.DestroyObject(resourcePoint);
-          nbSpawns++;
+          nbSpawns += NWScript.GetName(newRock) + ", ";
         }
 
         i++;
         resourcePoint = NWScript.GetNearestObjectByTag("animal_spawn_wp", player.oid, i);
       }
 
-      if (nbSpawns > 0)
+      if (nbSpawns.Length > 0)
       {
-        NWScript.SendMessageToPC(player.oid, $"Votre traque a permis d'identifier {nbSpawns} animal(aux) aux propriétés exploitables !");
+        NWScript.SendMessageToPC(player.oid, $"Votre traque a permis d'identifier les traces des créatures suivantes : {nbSpawns} leurs peaux semblent exploitables, à vous de jouer !");
         
         query = NWScript.SqlPrepareQueryCampaign(ModuleSystem.database, $"UPDATE areaResourceStock SET animals = animals - 1 where areaTag = @areaTag");
         NWScript.SqlBindString(query, "@areaTag", area.tag);

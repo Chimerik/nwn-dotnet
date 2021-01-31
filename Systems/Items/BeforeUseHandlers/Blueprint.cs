@@ -37,7 +37,7 @@ namespace NWN.Systems.Items.BeforeUseHandlers
                 NWScript.SendMessageToPC(player.oid, $"Vous devez être à proximité d'un atelier de type {blueprint.workshopTag} pour commencer ce travail");
             }
             else
-              NWScript.SendMessageToPC(player.oid, $"Vous devez avoir un marteau de forgeron en main pour commencer le travail.");
+              NWScript.SendMessageToPC(player.oid, $"Vous devez avoir un marteau d'artisan en main pour commencer le travail.");
           }
         }
       }

@@ -805,12 +805,12 @@ namespace NWN.Systems
             if (NWScript.GetIsDM(player.oid) != 1)
             {
               if (int.TryParse(NWScript.Get2DAString("feat", "GAINMULTIPLE", CreaturePlugin.GetHighestLevelOfFeat(player.oid, (int)Feat.WoodExpertise)), out int woodExpertiseSkillLevel))
-                NWScript.SetDescription(examineTarget, $"Minerai disponible : {Utils.random.Next(woodAmount * woodExpertiseSkillLevel * 20 / 100, 2 * woodAmount - woodExpertiseSkillLevel * 20 / 100)}");
+                NWScript.SetDescription(examineTarget, $"Bois brut disponible : {Utils.random.Next(woodAmount * woodExpertiseSkillLevel * 20 / 100, 2 * woodAmount - woodExpertiseSkillLevel * 20 / 100)}");
               else
-                NWScript.SetDescription(examineTarget, $"Minerai disponible estimé : {Utils.random.Next(0, 2 * woodAmount)}");
+                NWScript.SetDescription(examineTarget, $"Bois brut disponible estimé : {Utils.random.Next(0, 2 * woodAmount)}");
             }
             else
-              NWScript.SetDescription(examineTarget, $"Minerai disponible : {woodAmount}");
+              NWScript.SetDescription(examineTarget, $"Bois brutBois brut disponible : {woodAmount}");
 
             break;
           case "mineable_animal":
@@ -818,12 +818,12 @@ namespace NWN.Systems
             if (NWScript.GetIsDM(player.oid) != 1)
             {
               if (int.TryParse(NWScript.Get2DAString("feat", "GAINMULTIPLE", CreaturePlugin.GetHighestLevelOfFeat(player.oid, (int)Feat.AnimalExpertise)), out int animalExpertiseSkillLevel))
-                NWScript.SetDescription(examineTarget, $"Minerai disponible : {Utils.random.Next(peltAmount * animalExpertiseSkillLevel * 20 / 100, 2 * peltAmount - animalExpertiseSkillLevel * 20 / 100)}");
+                NWScript.SetDescription(examineTarget, $"Quantité de peau brute disponible : {Utils.random.Next(peltAmount * animalExpertiseSkillLevel * 20 / 100, 2 * peltAmount - animalExpertiseSkillLevel * 20 / 100)}");
               else
-                NWScript.SetDescription(examineTarget, $"Minerai disponible estimé : {Utils.random.Next(0, 2 * peltAmount)}");
+                NWScript.SetDescription(examineTarget, $"Quantité de peau brute disponible estimée : {Utils.random.Next(0, 2 * peltAmount)}");
             }
             else
-              NWScript.SetDescription(examineTarget, $"Minerai disponible : {peltAmount}");
+              NWScript.SetDescription(examineTarget, $"Quantité de peau brute disponible : {peltAmount}");
 
             break;
           case "blueprint":
@@ -909,6 +909,22 @@ namespace NWN.Systems
 
             NWScript.SetDescription(examineTarget, descriptionPlank);
             break;
+          case "tannerie_peau":
+            string descriptionPelt = "Stock actuel de peaux brutes : \n\n\n";
+            foreach (var entry in peltDictionnary)
+              if (player.materialStock.TryGetValue(entry.Value.name, out int playerStock))
+                descriptionPelt += $"* {entry.Value.name}: {playerStock}\n\n";
+
+            NWScript.SetDescription(examineTarget, descriptionPelt);
+            break;
+          case "tannerie":
+            string descriptionLeather = "Stock actuel de cuirs raffinés : \n\n\n";
+            foreach (var entry in leatherDictionnary)
+              if (player.materialStock.TryGetValue(entry.Value.name, out int playerStock))
+                descriptionLeather += $"* {entry.Value.name}: {playerStock}\n\n";
+
+            NWScript.SetDescription(examineTarget, descriptionLeather);
+            break;
         }
       }
       return 0;
@@ -924,6 +940,8 @@ namespace NWN.Systems
         case "ore":
         case "refinery":
         case "forge":
+        case "tannerie_peau":
+        case "tannerie":
           NWScript.SetDescription(examineTarget, $"");
           break;
       }

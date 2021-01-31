@@ -158,6 +158,8 @@ namespace NWN.Systems.Craft
         materialType = (int)myMineralType;
       else if (Enum.TryParse(material, out PlankType myPlankType))
         materialType = (int)myPlankType;
+      else if (Enum.TryParse(material, out LeatherType myLeatherType))
+        materialType = (int)myLeatherType;
 
       iMineralCost -= iMineralCost * (int)materialType / 10;
 

@@ -134,6 +134,14 @@ namespace NWN.Systems
         )
       },
       {
+        "refill",
+        new Command(
+          name: "refill",
+          description: new Command.Description(title: "Lié à reboot et aux tests"),
+          execute: ExecuteRefillCommand
+        )
+      },
+      {
         "persist",
         new Command(
           name: "persist",
