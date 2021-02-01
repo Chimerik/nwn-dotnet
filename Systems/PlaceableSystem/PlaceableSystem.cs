@@ -70,7 +70,7 @@ namespace NWN.Systems
             NWScript.AssignCommand(player.oid, () => NWScript.JumpToLocation(NWScript.GetLocation(NWScript.GetWaypointByTag("WP_START_NEW_CHAR"))));
             break;
           case "portal_storage_in":
-            uint aEntrepot = NWScript.CreateArea("entrepotperso", $"entrepotpersonnel_{NWScript.GetName(player.oid)}", $"Entrepot dimensionnel de {NWScript.GetName(player.oid)}");
+            uint aEntrepot = NWScript.CreateArea("entrepotperso", $"entrepotpersonnel_{NWScript.GetPCPublicCDKey(player.oid)}", $"Entrepot dimensionnel de {NWScript.GetName(player.oid)}");
             AreaSystem.CreateArea(aEntrepot);
 
             uint storage = NWScript.GetFirstObjectInArea(aEntrepot);
@@ -89,7 +89,7 @@ namespace NWN.Systems
             break;
           case "portal_storage_out":
             if (AreaSystem.areaDictionnary.TryGetValue(NWScript.GetObjectUUID(NWScript.GetArea(player.oid)), out Area area))
-              AreaSystem.RemoveArea(area);
+              NWScript.DelayCommand(0.2f, () => AreaSystem.RemoveArea(area));
 
             NWScript.AssignCommand(player.oid, () => NWScript.ClearAllActions());
             NWScript.AssignCommand(player.oid, () => NWScript.JumpToLocation(NWScript.GetLocation(NWScript.GetObjectByTag("wp_outentrepot"))));

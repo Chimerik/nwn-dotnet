@@ -223,7 +223,7 @@ namespace NWN.Systems.Craft
           case "scierie":
             return Enum.GetName(typeof(PlankType), PlankType.Laurelinade);
           case "tannerie":
-            return Enum.GetName(typeof(PeltType), PeltType.MauvaisePeau);
+            return Enum.GetName(typeof(LeatherType), LeatherType.MauvaisCuir);
         }
       }
       else if (NWScript.GetTag(oTarget) == this.craftedItemTag)
@@ -233,8 +233,8 @@ namespace NWN.Systems.Craft
           return Enum.GetName(typeof(MineralType), myMineralType + 1);
         else if (Enum.TryParse(material, out PlankType myPlankType))
           return Enum.GetName(typeof(PlankType), myPlankType + 1);
-        else if (Enum.TryParse(material, out PeltType myPeltType))
-          return Enum.GetName(typeof(PeltType), myPeltType + 1);
+        else if (Enum.TryParse(material, out LeatherType myLeatherType))
+          return Enum.GetName(typeof(LeatherType), myLeatherType + 1);
       }
       
       return "Invalid";
