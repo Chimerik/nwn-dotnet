@@ -48,11 +48,17 @@ namespace NWN.Systems
           case "decoupe":
             new Scierie(player);
             break;
+          case "tannerie_peau":
+            new Tannerie(player);
+            break;
           case "bal_system":
             new Messenger(player);
             break;
           case "hventes":
             new HotelDesVentes(player);
+            break;
+          case "jukebox":
+            new Jukebox(player, oidSelf);
             break;
           case "blacksmith":
             shop = NWScript.GetNearestObjectByTag("blacksmith_shop", oidSelf);
@@ -152,6 +158,55 @@ namespace NWN.Systems
 
             NWScript.OpenStore(shop, player.oid);
             break;
+          case "tanneur":
+            shop = NWScript.GetNearestObjectByTag("tannery_shop", oidSelf);
+
+            if (!Convert.ToBoolean(NWScript.GetIsObjectValid(shop)))
+            {
+              shop = NWScript.CreateObject(NWScript.OBJECT_TYPE_STORE, "generic_shop_res", NWScript.GetLocation(oidSelf), 0, "tannery_shop");
+              NWScript.SetLocalObject(shop, "_STORE_NPC", oidSelf);
+
+              foreach (int baseItemType in Craft.Collect.System.leatherBasicBlueprints)
+              {
+                Craft.Blueprint blueprint = new Craft.Blueprint(baseItemType);
+
+                if (!Craft.Collect.System.blueprintDictionnary.ContainsKey(baseItemType))
+                  Craft.Collect.System.blueprintDictionnary.Add(baseItemType, blueprint);
+
+                uint oBlueprint = NWScript.CreateItemOnObject("blueprintgeneric", shop, 1, "blueprint");
+                NWScript.SetName(oBlueprint, $"Patron original : {blueprint.name}");
+                NWScript.SetLocalInt(oBlueprint, "_BASE_ITEM_TYPE", baseItemType);
+                ItemPlugin.SetBaseGoldPieceValue(oBlueprint, blueprint.goldCost * 10);
+              }
+
+              foreach (Feat feat in SkillSystem.leatherBasicSkillBooks)
+              {
+                uint skillBook = NWScript.CreateItemOnObject("skillbookgeneriq", shop, 1, "skillbook");
+                ItemPlugin.SetItemAppearance(skillBook, NWScript.ITEM_APPR_TYPE_SIMPLE_MODEL, 2, Utils.random.Next(0, 50));
+                NWScript.SetLocalInt(skillBook, "_SKILL_ID", (int)feat);
+
+                int value;
+                if (int.TryParse(NWScript.Get2DAString("feat", "FEAT", (int)feat), out value))
+                  NWScript.SetName(skillBook, NWScript.GetStringByStrRef(value));
+
+                if (int.TryParse(NWScript.Get2DAString("feat", "DESCRIPTION", (int)feat), out value))
+                  NWScript.SetDescription(skillBook, NWScript.GetStringByStrRef(value));
+
+                if (int.TryParse(NWScript.Get2DAString("feat", "CRValue", (int)feat), out value))
+                  ItemPlugin.SetBaseGoldPieceValue(skillBook, value * 1000);
+              }
+
+              uint craftTool = NWScript.CreateItemOnObject("oreextractor", shop, 1, "oreextractor");
+              ItemPlugin.SetBaseGoldPieceValue(craftTool, 50);
+              NWScript.SetLocalInt(craftTool, "_DURABILITY", 10);
+
+              craftTool = NWScript.CreateItemOnObject("forgehammer", shop, 1, "forgehammer");
+              ItemPlugin.SetBaseGoldPieceValue(craftTool, 50);
+              NWScript.SetLocalInt(craftTool, "_DURABILITY", 5);
+            }
+
+            NWScript.OpenStore(shop, player.oid);
+            break;
           case "le_bibliothecaire":
             DateTime previousSpawnDate;
             if (!DateTime.TryParse(NWScript.GetLocalString(NWScript.GetArea(oidSelf), "_DATE_LAST_TRIGGERED"), out previousSpawnDate) || (DateTime.Now - previousSpawnDate).TotalHours > 4)
@@ -167,7 +222,7 @@ namespace NWN.Systems
               }
               if (Utils.random.Next(1, 101) < 21)
               {
-                int feat = Utils.random.Next(0, SkillSystem.languageSkillBooks.Length);
+                int feat = (int)SkillSystem.languageSkillBooks[Utils.random.Next(0, SkillSystem.languageSkillBooks.Length)];
                 uint skillBook = NWScript.CreateItemOnObject("skillbookgeneriq", shop, 1, "skillbook");
                 ItemPlugin.SetItemAppearance(skillBook, NWScript.ITEM_APPR_TYPE_SIMPLE_MODEL, 2, Utils.random.Next(0, 50));
                 NWScript.SetLocalInt(skillBook, "_SKILL_ID", feat);

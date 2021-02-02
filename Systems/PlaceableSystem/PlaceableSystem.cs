@@ -34,8 +34,7 @@ namespace NWN.Systems
     }
     private static int HandlePlaceableUsed(uint oidSelf)
     {
-      Player player;
-      if (Players.TryGetValue(NWScript.GetLastUsedBy(), out player))
+      if (Players.TryGetValue(NWScript.GetLastUsedBy(), out Player player))
       {
         int i;
 
@@ -72,11 +71,8 @@ namespace NWN.Systems
             NWScript.AssignCommand(player.oid, () => NWScript.JumpToLocation(NWScript.GetLocation(NWScript.GetWaypointByTag("WP_START_NEW_CHAR"))));
             break;
           case "portal_storage_in":
-            uint aEntrepot = NWScript.CopyArea(NWScript.GetObjectByTag("entrepotpersonnel"));
+            uint aEntrepot = NWScript.CreateArea("entrepotperso", $"entrepotpersonnel_{NWScript.GetPCPublicCDKey(player.oid)}", $"Entrepot dimensionnel de {NWScript.GetName(player.oid)}");
             AreaSystem.CreateArea(aEntrepot);
-
-            NWScript.SetName(aEntrepot, $"{NWScript.GetName(aEntrepot)} de {NWScript.GetName(player.oid)}");
-            NWScript.SetTag(aEntrepot, $"entrepotpersonnel_{NWScript.GetName(player.oid)}");
 
             uint storage = NWScript.GetFirstObjectInArea(aEntrepot);
             if (NWScript.GetTag(storage) != "ps_entrepot")
@@ -93,18 +89,8 @@ namespace NWN.Systems
             NWScript.AssignCommand(player.oid, () => NWScript.JumpToLocation(NWScript.GetLocation(NWScript.GetWaypointByTag("wp_inentrepot"))));
             break;
           case "portal_storage_out":
-
-            uint storageToSave = NWScript.GetFirstObjectInArea(NWScript.GetArea(player.oid));
-            if (NWScript.GetTag(storageToSave) != "ps_entrepot")
-              storageToSave = NWScript.GetNearestObjectByTag("ps_entrepot", storageToSave);
-
-            var saveStorage = NWScript.SqlPrepareQueryCampaign(ModuleSystem.database, $"UPDATE playerCharacters set storage = @storage where rowid = @characterId");
-            NWScript.SqlBindInt(saveStorage, "@characterId", player.characterId);
-            NWScript.SqlBindObject(saveStorage, "@storage", storageToSave);
-            NWScript.SqlStep(saveStorage);
-
             if (AreaSystem.areaDictionnary.TryGetValue(NWScript.GetObjectUUID(NWScript.GetArea(player.oid)), out Area area))
-              AreaSystem.RemoveArea(area);
+              NWScript.DelayCommand(0.2f, () => AreaSystem.RemoveArea(area));
 
             NWScript.AssignCommand(player.oid, () => NWScript.ClearAllActions());
             NWScript.AssignCommand(player.oid, () => NWScript.JumpToLocation(NWScript.GetLocation(NWScript.GetObjectByTag("wp_outentrepot"))));
@@ -121,12 +107,16 @@ namespace NWN.Systems
     {
       if (Convert.ToBoolean(NWScript.GetIsPC(NWScript.GetLastPerceived())))
       {
-        if(NWScript.GetName(oidSelf) != "Statue draconique")
+        if (NWScript.GetName(oidSelf) != "Statue draconique")
+        {
           NWScript.PlayAnimation(Utils.random.Next(100, 116));
+          NWScript.DelayCommand(1.0f, () => FreezeCreature(oidSelf));
+        }
+        else
+          FreezeCreature(oidSelf);
 
         NWScript.SetEventScript(oidSelf, NWScript.EVENT_SCRIPT_CREATURE_ON_NOTICE, "");
         NWScript.SetAILevel(oidSelf, NWScript.AI_LEVEL_VERY_LOW);
-        NWScript.DelayCommand(1.0f, () => FreezeCreature(oidSelf));
       }
       
       return 0;

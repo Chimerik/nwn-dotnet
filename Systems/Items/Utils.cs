@@ -22,6 +22,7 @@ namespace NWN.Systems.Items
       switch (baseItemType)
       {
         case NWScript.BASE_ITEM_ARMOR:
+        case NWScript.BASE_ITEM_HELMET:
           return ItemCategory.Armor;
         case NWScript.BASE_ITEM_SMALLSHIELD:
         case NWScript.BASE_ITEM_TOWERSHIELD:
@@ -76,6 +77,7 @@ namespace NWN.Systems.Items
         case 115: //extracteur de minerai
           return ItemCategory.CraftTool;
         default:
+
           return ItemCategory.Invalid;
       }
     }

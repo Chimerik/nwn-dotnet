@@ -66,14 +66,27 @@ namespace NWN.Systems.Craft
           break;
       }
     }
-    public static ItemProperty[] GetCraftItemProperties(string material, ItemCategory itemCategory)
+    public static ItemProperty[] GetCraftItemProperties(string material, uint craftedItem)
     {
-      if (Enum.TryParse(material, out MineralType myMineralType))
+      ItemCategory itemCategory = GetItemCategory(NWScript.GetBaseItemType(craftedItem));
+      if(itemCategory == ItemCategory.Invalid)
+      {
+        Utils.LogMessageToDMs($"Item {NWScript.GetName(craftedItem)} - Base {NWScript.GetBaseItemType(craftedItem)} - Category invalid");
+
+        return new ItemProperty[]
+        {
+          NWScript.ItemPropertyVisualEffect(NWScript.VFX_NONE)
+        };
+      }
+
+      if (material == "mauvais état")
+        return GetBadItemProperties(itemCategory, craftedItem);
+      else if (Enum.TryParse(material, out MineralType myMineralType))
       {
         switch (myMineralType)
         {
-          case MineralType.Tritanium: return GetTritaniumItemProperties();
-          case MineralType.Pyerite: return GetPyeriteItemProperties(itemCategory);
+          case MineralType.Tritanium: return GetTritaniumItemProperties(craftedItem);
+          case MineralType.Pyerite: return GetPyeriteItemProperties(itemCategory, craftedItem);
         }
       }
       else if (Enum.TryParse(material, out PlankType myPlankType))
@@ -84,10 +97,21 @@ namespace NWN.Systems.Craft
           case PlankType.Telperionade: return GetPyeriteItemProperties(itemCategory);
         }
       }
+      else if (Enum.TryParse(material, out LeatherType myLeatherType))
+      {
+        switch (myLeatherType)
+        {
+          case LeatherType.MauvaisCuir: return GetTritaniumItemProperties();
+          case LeatherType.CuirCommun: return GetPyeriteItemProperties(itemCategory);
+        }
+      }
 
       Utils.LogMessageToDMs($"No craft property found for material {material} and item {itemCategory}");
-      
-      return new ItemProperty[0];
+
+      return new ItemProperty[]
+      {
+          NWScript.ItemPropertyVisualEffect(NWScript.VFX_NONE)
+      };
     }
     public static void BlueprintValidation(uint oidSelf, uint oTarget, Feat feat)
     {
@@ -103,8 +127,8 @@ namespace NWN.Systems.Craft
 
           int baseItemType = NWScript.GetLocalInt(oTarget, "_BASE_ITEM_TYPE");
            
-          if (Collect.System.blueprintDictionnary.ContainsKey(baseItemType))
-            Collect.System.blueprintDictionnary[baseItemType].StartJob(oPC, oTarget, feat);
+          if (Collect.System.blueprintDictionnary.TryGetValue(baseItemType, out Blueprint blueprint))
+            blueprint.StartJob(oPC, oTarget, feat);
           else
           {
             NWScript.SendMessageToPC(oidSelf, "[ERREUR HRP] - Le patron utilisé n'est pas correctement initialisé. Le bug a été remonté au staff.");
@@ -146,10 +170,11 @@ namespace NWN.Systems.Craft
     {
       int iMineralCost = this.GetBlueprintMineralCostForPlayer(player, oItem);
       float iJobDuration = this.GetBlueprintTimeCostForPlayer(player, oItem);
+      string sMaterial = GetMaterialFromTargetItem(NWScript.GetObjectByTag(workshopTag));
 
       string bpDescription = $"Patron de création de l'objet artisanal : {name}\n\n\n" +
         $"Recherche d'efficacité matérielle niveau {NWScript.GetLocalInt(oItem, "_BLUEPRINT_MATERIAL_EFFICIENCY")}\n\n" +
-        $"Coût initial en Tritanium : {iMineralCost}.\n Puis 10 % de moins par amélioration vers un matériau supérieur.\n" +
+        $"Coût initial en {sMaterial} : {iMineralCost}.\n Puis 10 % de moins par amélioration vers un matériau supérieur.\n" +
         $"Recherche d'efficacité de temps niveau {NWScript.GetLocalInt(oItem, "_BLUEPRINT_TIME_EFFICIENCY")}\n\n" +
         $"Temps de fabrication et d'amélioration : {Utils.StripTimeSpanMilliseconds(DateTime.Now.AddSeconds(iJobDuration).Subtract(DateTime.Now))}.";
 
@@ -197,6 +222,8 @@ namespace NWN.Systems.Craft
             return Enum.GetName(typeof(MineralType), MineralType.Tritanium);
           case "scierie":
             return Enum.GetName(typeof(PlankType), PlankType.Laurelinade);
+          case "tannerie":
+            return Enum.GetName(typeof(LeatherType), LeatherType.MauvaisCuir);
         }
       }
       else if (NWScript.GetTag(oTarget) == this.craftedItemTag)
@@ -206,6 +233,8 @@ namespace NWN.Systems.Craft
           return Enum.GetName(typeof(MineralType), myMineralType + 1);
         else if (Enum.TryParse(material, out PlankType myPlankType))
           return Enum.GetName(typeof(PlankType), myPlankType + 1);
+        else if (Enum.TryParse(material, out LeatherType myLeatherType))
+          return Enum.GetName(typeof(LeatherType), myLeatherType + 1);
       }
       
       return "Invalid";

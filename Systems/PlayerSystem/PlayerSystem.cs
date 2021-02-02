@@ -66,7 +66,7 @@ namespace NWN.Systems
     public static int[] caveCrittersAppearances = new int[] { 3197, 3198, 3199, 3200, 3202, 3204, 3205, 3206, 3207, 3208, 3209, 3210, 3999, 6425, 6426, 6427, 6428, 6429, 6430, 6431, 6432, 6433, 6434, 6435, 6436, 3397, 3398, 3400, 3434};
     public static int[] cityCrittersAppearances = new int[] { 1983, 1390, 1391, 1392, 1393, 1394, 1395, 1396, 1397, 1398, 1399, 1400, 1401, 1402, 1403, 1404, 1405, 1406, 1407, 1408, 1409, 1410, 1411, 4385, 4408, 4112, 4113, 2505};
     public static int[] CivilianAppearances = new int[] { 220, 221, 222, 224, 225, 226, 227, 228, 229, 231, 4357, 4358, 238, 239, 240, 243, 244, 245, 246, 247, 248, 249, 250, 251, 252, 253, 254, 255, 256, 257, 258, 259, 260, 261, 262, 263, 264, 265, 266, 267, 268, 269, 270, 271, 272, 273, 278, 279, 280, 281, 282, 283, 284, 212, 4379 };
-    public static int[] genericCrittersAppearances = new int[] { 3259, 1181, 1182, 1183, 1184, 4370, 4371, 1794, 1988, 3213, 3214, 3215, 3216, 3222, 3223, 1339, 3445, 3520, 4338, 1335, 1336, 1966, 1967, 1968, 1969, 1970, 1971, 1972, 4221, 1025, 1026, 1797, 3237, 3238, 3239 , 3240, 3241, 1328, 1941, 1330, 1438, 496, 509, 522, 535, 1784, 1785, 1787, 1788, 1789, 1791, 1855, 1856, 1857, 1858, 1859, 1860, 2589, 1334, 1973, 1974, 4309, 4310, 4320, 4321, 4322, 34, 142, 1796, 1340, 3192, 3193, 3194, 3195, 3196, 1341, 1005, 1006, 1007, 1008, 1009, 1010, 1011, 1013, 1014, 1015, 1016, 1017, 1019, 1020, 1255, 3152, 3153, 3157, 3158, 3159, 3161, 3162, 3163, 3164, 3165, 3166, 3167, 3168, 3154, 3148, 3149, 1975, 1976, 1977, 1978, 1979, 2506, 3043, 3044, 3045, 3046, 3047, 1275, 1947, 1949, 1950, 1951, 1952, 6365, 6408, 31, 145, 144, 3305, 4364, 1982, 1749, 1750, 1751, 1332, 1333, 1987, 1863, 1337, 1295, 1329, 3310, 3311, 1802, 1803, 1804, 1805, 8, 35, 37, 4115, 4116, 4117, 4118, 4119, 4120, 4121, 4122, 4123, 3138, 1338 };
+    public static int[] genericCrittersAppearances = new int[] { 3259, 1181, 1182, 1183, 1184, 4370, 4371, 1794, 1988, 3213, 3214, 3215, 3216, 3222, 3223, 1339, 3445, 3520, 4338, 1335, 1336, 1966, 1967, 1968, 1969, 1970, 1971, 1972, 4221, 1025, 1026, 1797, 3237, 3238, 3239 , 3240, 3241, 1328, 1941, 1330, 1438, 496, 509, 522, 535, 1784, 1785, 1787, 1788, 1789, 1791, 1855, 1856, 1857, 1858, 1859, 1860, 2589, 1334, 1973, 1974, 4309, 4310, 4320, 4321, 4322, 34, 142, 1796, 1340, 3192, 3193, 3194, 3195, 3196, 1341, 1005, 1006, 1007, 1008, 1009, 1010, 1011, 1013, 1014, 1015, 1016, 1017, 1019, 1020, 1255, 3152, 3153, 3157, 3158, 3159, 3161, 3162, 3163, 3164, 3165, 3166, 3167, 3168, 3148, 3149, 1975, 1976, 1977, 1978, 1979, 2506, 3043, 3044, 3045, 3046, 3047, 1275, 1947, 1949, 1950, 1951, 1952, 6365, 6408, 31, 145, 144, 3305, 4364, 1982, 1749, 1750, 1751, 1332, 1333, 1987, 1863, 1337, 1295, 1329, 3310, 3311, 1802, 1803, 1804, 1805, 8, 35, 37, 4115, 4116, 4117, 4118, 4119, 4120, 4121, 4122, 4123, 3138, 1338 };
    /* private static int HandleAfterHasFeat(uint oidSelf)
     {
       Console.WriteLine($"feat : {NWScript.GetStringByStrRef(int.Parse(NWScript.Get2DAString("feat", "FEAT", int.Parse(EventsPlugin.GetEventData("FEAT_ID")))))} : {EventsPlugin.GetEventData("HAS_FEAT")}"); 
@@ -184,7 +184,7 @@ namespace NWN.Systems
         HandleBeforePartyLeave(oidSelf);
         HandleAfterPartyLeave(oidSelf);
 
-        if(NWScript.GetTag(NWScript.GetArea(player.oid)) == $"entrepotpersonnel_{NWScript.GetName(player.oid)}")
+        if(NWScript.GetTag(NWScript.GetArea(player.oid)) == $"entrepotpersonnel_{NWScript.GetPCPublicCDKey(player.oid)}")
         {
           uint storageToSave = NWScript.GetFirstObjectInArea(NWScript.GetArea(player.oid));
           if (NWScript.GetTag(storageToSave) != "ps_entrepot")
@@ -298,6 +298,21 @@ namespace NWN.Systems
             oPC,
             NWScript.GetArea(oidSelf),
             () => Craft.Collect.Wood.HandleCompleteProspectionCycle(oPC)
+          );
+          break;
+        case Feat.Hunting:
+        case Feat.Hunting2:
+        case Feat.Hunting3:
+        case Feat.Hunting4:
+        case Feat.Hunting5:
+
+          EventsPlugin.SkipEvent();
+
+          if (Players.TryGetValue(oidSelf, out oPC))
+            StartCollectCycle(
+            oPC,
+            NWScript.GetArea(oidSelf),
+            () => Craft.Collect.Pelt.HandleCompleteProspectionCycle(oPC)
           );
           break;
       }
@@ -563,28 +578,28 @@ namespace NWN.Systems
                     {
                       CreaturePlugin.SetGold(oTarget.oid, oTargetGold - iStolenGold);
                       CreaturePlugin.SetGold(player.oid, NWScript.GetGold(player.oid) + iStolenGold);
-                      NWScript.FloatingTextStringOnCreature($"Vous venez de dérober {iStolenGold} pièces d'or des poches de {NWScript.GetName(oTarget.oid)} !", player.oid);
+                      NWScript.FloatingTextStringOnCreature($"Vous venez de dérober {iStolenGold} pièces d'or des poches de {NWScript.GetName(oTarget.oid)} !", player.oid, 0);
                     }
                     else
                     {
-                      NWScript.FloatingTextStringOnCreature($"Vous venez de vider les poches de {NWScript.GetName(oTarget.oid)} ! {oTargetGold} pièces d'or de plus pour vous.", player.oid);
+                      NWScript.FloatingTextStringOnCreature($"Vous venez de vider les poches de {NWScript.GetName(oTarget.oid)} ! {oTargetGold} pièces d'or de plus pour vous.", player.oid, 0);
                       CreaturePlugin.SetGold(player.oid, NWScript.GetGold(player.oid) + oTargetGold);
                       CreaturePlugin.SetGold(oTarget.oid, 0);
                     }
                   }
                   else
                   {
-                    NWScript.FloatingTextStringOnCreature($"Vous ne parvenez pas à atteindre les poches de {NWScript.GetName(oTarget.oid)} !", player.oid);
+                    NWScript.FloatingTextStringOnCreature($"Vous ne parvenez pas à atteindre les poches de {NWScript.GetName(oTarget.oid)} !", player.oid, 0);
                   }
                 }
                 else
-                  NWScript.FloatingTextStringOnCreature($"{NWScript.GetName(player.oid)} est en train d'essayer de vous faire les poches !", oTarget.oid);
+                  NWScript.FloatingTextStringOnCreature($"{NWScript.GetName(player.oid)} est en train d'essayer de vous faire les poches !", oTarget.oid, 0);
               }
               else
-                NWScript.FloatingTextStringOnCreature("Vous n'êtes pas autorisé à faire une nouvelle tentative pour le moment.", player.oid);
+                NWScript.FloatingTextStringOnCreature("Vous n'êtes pas autorisé à faire une nouvelle tentative pour le moment.", player.oid, 0);
             }
             else
-              NWScript.FloatingTextStringOnCreature("Seuls d'autres joueurs peuvent être ciblés par cette compétence. Les tentatives de vol sur PNJ doivent être jouées en rp avec un dm.", player.oid);
+              NWScript.FloatingTextStringOnCreature("Seuls d'autres joueurs peuvent être ciblés par cette compétence. Les tentatives de vol sur PNJ doivent être jouées en rp avec un dm.", player.oid, 0);
             break;
           case NWScript.SKILL_ANIMAL_EMPATHY:
             if (NWScript.GetTag(NWScript.GetArea(player.oid)) == "Promenadetest")
@@ -790,12 +805,25 @@ namespace NWN.Systems
             if (NWScript.GetIsDM(player.oid) != 1)
             {
               if (int.TryParse(NWScript.Get2DAString("feat", "GAINMULTIPLE", CreaturePlugin.GetHighestLevelOfFeat(player.oid, (int)Feat.WoodExpertise)), out int woodExpertiseSkillLevel))
-                NWScript.SetDescription(examineTarget, $"Minerai disponible : {Utils.random.Next(woodAmount * woodExpertiseSkillLevel * 20 / 100, 2 * woodAmount - woodExpertiseSkillLevel * 20 / 100)}");
+                NWScript.SetDescription(examineTarget, $"Bois brut disponible : {Utils.random.Next(woodAmount * woodExpertiseSkillLevel * 20 / 100, 2 * woodAmount - woodExpertiseSkillLevel * 20 / 100)}");
               else
-                NWScript.SetDescription(examineTarget, $"Minerai disponible estimé : {Utils.random.Next(0, 2 * woodAmount)}");
+                NWScript.SetDescription(examineTarget, $"Bois brut disponible estimé : {Utils.random.Next(0, 2 * woodAmount)}");
             }
             else
-              NWScript.SetDescription(examineTarget, $"Minerai disponible : {woodAmount}");
+              NWScript.SetDescription(examineTarget, $"Bois brutBois brut disponible : {woodAmount}");
+
+            break;
+          case "mineable_animal":
+            int peltAmount = NWScript.GetLocalInt(examineTarget, "_ORE_AMOUNT");
+            if (NWScript.GetIsDM(player.oid) != 1)
+            {
+              if (int.TryParse(NWScript.Get2DAString("feat", "GAINMULTIPLE", CreaturePlugin.GetHighestLevelOfFeat(player.oid, (int)Feat.AnimalExpertise)), out int animalExpertiseSkillLevel))
+                NWScript.SetDescription(examineTarget, $"Quantité de peau brute disponible : {Utils.random.Next(peltAmount * animalExpertiseSkillLevel * 20 / 100, 2 * peltAmount - animalExpertiseSkillLevel * 20 / 100)}");
+              else
+                NWScript.SetDescription(examineTarget, $"Quantité de peau brute disponible estimée : {Utils.random.Next(0, 2 * peltAmount)}");
+            }
+            else
+              NWScript.SetDescription(examineTarget, $"Quantité de peau brute disponible : {peltAmount}");
 
             break;
           case "blueprint":
@@ -881,6 +909,22 @@ namespace NWN.Systems
 
             NWScript.SetDescription(examineTarget, descriptionPlank);
             break;
+          case "tannerie_peau":
+            string descriptionPelt = "Stock actuel de peaux brutes : \n\n\n";
+            foreach (var entry in peltDictionnary)
+              if (player.materialStock.TryGetValue(entry.Value.name, out int playerStock))
+                descriptionPelt += $"* {entry.Value.name}: {playerStock}\n\n";
+
+            NWScript.SetDescription(examineTarget, descriptionPelt);
+            break;
+          case "tannerie":
+            string descriptionLeather = "Stock actuel de cuirs raffinés : \n\n\n";
+            foreach (var entry in leatherDictionnary)
+              if (player.materialStock.TryGetValue(entry.Value.name, out int playerStock))
+                descriptionLeather += $"* {entry.Value.name}: {playerStock}\n\n";
+
+            NWScript.SetDescription(examineTarget, descriptionLeather);
+            break;
         }
       }
       return 0;
@@ -896,6 +940,8 @@ namespace NWN.Systems
         case "ore":
         case "refinery":
         case "forge":
+        case "tannerie_peau":
+        case "tannerie":
           NWScript.SetDescription(examineTarget, $"");
           break;
       }
@@ -937,19 +983,34 @@ namespace NWN.Systems
 
       return 0;
     }
+    private static int HandleBeforeAcquireItem(uint oidSelf)
+    {
+      if (NWScript.GetTag(NWScript.StringToObject(EventsPlugin.GetEventData("ITEM"))) == "undroppable_item")
+        EventsPlugin.SkipEvent();
+      
+      return 0;
+    }
     private static int HandlePCAcquireItem(uint oidSelf)
     {
       var oPC = NWScript.GetModuleItemAcquiredBy();
       //Console.WriteLine(NWScript.GetName(oPC));
-      //Console.WriteLine(NWScript.GetName(NWScript.GetArea(oPC)));
 
       if (Convert.ToBoolean(NWScript.GetIsPC(oPC)))
       {
         var oItem = NWScript.GetModuleItemAcquired();
         var oAcquiredFrom = NWScript.GetModuleItemAcquiredFrom();
 
+        //Console.WriteLine(NWScript.GetTag(oItem));
+
         if (Convert.ToBoolean(NWScript.GetIsObjectValid(oItem)))
         {
+          if(NWScript.GetTag(oItem) == "undroppable_item")
+          {
+            NWScript.CopyObject(oItem, NWScript.GetLocation(oAcquiredFrom), oAcquiredFrom);
+            NWScript.DestroyObject(oItem);
+            return 0;
+          }
+
           if (NWScript.GetTag(oItem) == "item_pccorpse" && NWScript.GetTag(oAcquiredFrom) == "pccorpse_bodybag")
           {
             DeletePlayerCorpseFromDatabase(NWScript.GetLocalInt(oItem, "_PC_ID"));
@@ -967,7 +1028,6 @@ namespace NWN.Systems
               }
               oCorpse = NWScript.GetObjectByTag("pccorpse", i++);
             }
-
           }
           /*En pause jusqu'à ce que le système de transport soit en place
           if (NWScript.GetMovementRate(oPC) != CreaturePlugin.NWNX_CREATURE_MOVEMENT_RATE_IMMOBILE)
@@ -985,8 +1045,7 @@ namespace NWN.Systems
         NWScript.SetLocalString(oArea, "_LAST_ENTERED_ON", DateTime.Now.ToString());
 
         //GESTION DES SPAWNS & RENCONTRES
-        DateTime previousSpawnDate;
-        if (!DateTime.TryParse(NWScript.GetLocalString(oArea, "_DATE_LAST_SPAWNED"), out previousSpawnDate) || (DateTime.Now - previousSpawnDate).TotalMinutes > 10)
+        if (!DateTime.TryParse(NWScript.GetLocalString(oArea, "_DATE_LAST_SPAWNED"), out DateTime previousSpawnDate) || (DateTime.Now - previousSpawnDate).TotalMinutes > 10)
         {
           NWScript.SetLocalString(oArea, "_DATE_LAST_SPAWNED", DateTime.Now.ToString());
 
@@ -1005,8 +1064,7 @@ namespace NWN.Systems
           }
 
           // Gestion des coffres lootables
-          Area area;
-          if (AreaSystem.areaDictionnary.TryGetValue(NWScript.GetObjectUUID(oArea), out area))
+          if (AreaSystem.areaDictionnary.TryGetValue(NWScript.GetObjectUUID(oArea), out Area area))
           {
             foreach (uint chest in area.lootChestList)
             {
@@ -1029,17 +1087,14 @@ namespace NWN.Systems
           }
         }
 
-        //EN FONCTION DE SI LA ZONE EST REST OU PAS, ON AFFICHE LA PROGRESSION DU JOURNAL DE CRAFT
-        Player player;
-        if (Players.TryGetValue(oidSelf, out player))
+        if (Players.TryGetValue(oidSelf, out Player player)) //EN FONCTION DE SI LA ZONE EST REST OU PAS, ON AFFICHE LA PROGRESSION DU JOURNAL DE CRAFT
         {
           player.previousArea = oArea;
 
           if(player.menu.isOpen)
             player.menu.Close();
 
-          Area area;
-          if (AreaSystem.areaDictionnary.TryGetValue(NWScript.GetObjectUUID(oArea), out area))
+          if (AreaSystem.areaDictionnary.TryGetValue(NWScript.GetObjectUUID(oArea), out Area area))
           {
             AreaSystem.DoAreaSpecificBehavior(area, player);
 
@@ -1061,13 +1116,11 @@ namespace NWN.Systems
     }
     private static int HandleBeforePlayerExitArea(uint oidSelf)
     {
-      if (!Convert.ToBoolean(NWScript.GetIsDM(oidSelf)) && !Convert.ToBoolean(NWScript.GetIsDMPossessed(oidSelf)))
+      if (!Convert.ToBoolean(NWScript.GetIsDM(oidSelf)) && !Convert.ToBoolean(NWScript.GetIsDMPossessed(oidSelf)) && !Convert.ToBoolean(NWScript.GetIsPlayerDM(oidSelf)))
       {
-        Player player;
-        if (Players.TryGetValue(oidSelf, out player))
+        if (Players.TryGetValue(oidSelf, out Player player))
         {
-          Area area;
-          if (AreaSystem.areaDictionnary.TryGetValue(NWScript.GetObjectUUID(player.previousArea), out area))
+          if (AreaSystem.areaDictionnary.TryGetValue(NWScript.GetObjectUUID(player.previousArea), out Area area))
           {
             int nbPlayersInArea = AreaPlugin.GetNumberOfPlayersInArea(player.previousArea);
 
@@ -1076,6 +1129,18 @@ namespace NWN.Systems
 
             if (nbPlayersInArea == 0)
               NWScript.AssignCommand(area.oid, () => NWScript.DelayCommand(1500.0f, () => area.Clean())); // 25 minutes
+
+            if (area.tag == $"entrepotpersonnel_{NWScript.GetPCPublicCDKey(player.oid)}")
+            {
+              uint storageToSave = NWScript.GetFirstObjectInArea(area.oid);
+              if (NWScript.GetTag(storageToSave) != "ps_entrepot")
+                storageToSave = NWScript.GetNearestObjectByTag("ps_entrepot", storageToSave);
+
+              var saveStorage = NWScript.SqlPrepareQueryCampaign(ModuleSystem.database, $"UPDATE playerCharacters set storage = @storage where rowid = @characterId");
+              NWScript.SqlBindInt(saveStorage, "@characterId", player.characterId);
+              NWScript.SqlBindObject(saveStorage, "@storage", storageToSave);
+              NWScript.SqlStep(saveStorage);
+            }
           }
         }
       }
@@ -1232,6 +1297,7 @@ namespace NWN.Systems
         {
           case "blacksmith":
           case "woodworker":
+          case "tanneur":
           case "tribunal_hotesse":
             break;
           default:

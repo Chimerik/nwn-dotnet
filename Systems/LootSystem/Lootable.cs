@@ -72,6 +72,14 @@ namespace NWN.Systems
             {
               NWScript.CreateItemOnObject(goldResRef, oContainer, goldCount);
             }
+
+            if (ModuleSystem.goldBalanceMonitoring.TryGetValue(NWScript.GetTag(oContainer), out GoldBalance gold))
+            {
+              gold.nbTimesLooted++;
+              gold.cumulatedGold += goldCount;
+            }
+            else
+              ModuleSystem.goldBalanceMonitoring.Add(NWScript.GetTag(oContainer), new GoldBalance(goldCount));
           }
         }
       }
@@ -95,10 +103,8 @@ namespace NWN.Systems
           NWScript.WriteTimestampedLogEntry($"tag : {chestTag}");
           if (chestTagToLootsDic.TryGetValue(chestTag, out loots))
           {
-            NWScript.WriteTimestampedLogEntry($"loot.counts : {loots.Count}");
             if (loots.Count > 0)
             {
-              NWScript.WriteTimestampedLogEntry($"count : {count}");
               for (var i = 0; i < count; i++)
               {
                 int rand = Utils.random.Next(1, 101);
@@ -111,6 +117,8 @@ namespace NWN.Systems
                       1
                   );
                   NWScript.WriteTimestampedLogEntry($"SUCCESS : item created {NWScript.GetName(oItem)}");
+
+                  Craft.Collect.System.AddCraftedItemProperties(oItem, "mauvais état");
                 }
               }
             }

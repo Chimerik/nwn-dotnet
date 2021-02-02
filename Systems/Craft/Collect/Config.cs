@@ -126,31 +126,135 @@ namespace NWN.Systems.Craft.Collect
       { PlankType.Telperionade, new Plank(PlankType.Telperionade) },
       { PlankType.Mallornade, new Plank(PlankType.Mallornade) },
     };
+    public struct Pelt
+    {
+      public PeltType type;
+      public string name;
+      public Feat feat;
+      public float leathers;
+      public LeatherType refinedType;
+      public Pelt(PeltType oreType, Feat oreFeat)
+      {
+        this.type = oreType;
+        this.name = Enum.GetName(typeof(PeltType), oreType) ?? "";
+        this.feat = oreFeat;
+
+        switch(oreType)
+        {
+          case PeltType.MauvaisePeau:
+            leathers = 41.500f;
+            refinedType = LeatherType.MauvaisCuir;
+            break;
+          case PeltType.PeauCommune:
+            leathers = 34.567f;
+            refinedType = LeatherType.CuirCommun;
+            break;
+          case PeltType.PeauNormale:
+            leathers = 15.000f;
+            refinedType = LeatherType.CuirNormal;
+            break;
+          default:
+            leathers = 0.0f;
+            refinedType = LeatherType.Invalid;
+            break;
+        }
+      }
+    }
+    public struct Leather
+    {
+      public LeatherType type;
+      public string name;
+
+      public Leather(LeatherType type)
+      {
+        this.type = type;
+        this.name = Enum.GetName(typeof(LeatherType), type) ?? "";
+      }
+    }
+    public enum PeltType
+    {
+      Invalid = 0,
+      MauvaisePeau = 1, 
+      PeauCommune = 2, 
+      PeauNormale = 3,
+      PeauPeuCommune = 4,
+      PeauRare = 5,
+      PeauMagique = 6,
+      PeauEpique = 7,
+      PeauLegendaire = 8,
+    }
+    public enum LeatherType
+    {
+      Invalid = 0,
+      MauvaisCuir = 1,
+      CuirCommun = 2,
+      CuirNormal = 3,
+      CuirPeuCommun = 4,
+      CuirRare = 5,
+      CuirMagique = 6,
+      CuirEpique = 7,
+      CuirLegendaire = 8,
+    }
+    public static Dictionary<PeltType, Pelt> peltDictionnary = new Dictionary<PeltType, Pelt>()
+    {
+      {
+        PeltType.MauvaisePeau,
+        new Pelt(
+          oreType: PeltType.MauvaisePeau,
+          oreFeat: Feat.BadPeltReprocessing
+        )
+      },
+      {
+        PeltType.PeauCommune,
+        new Pelt(
+          oreType: PeltType.PeauCommune,
+          oreFeat: Feat.CommonPeltReprocessing
+        )
+      },
+      {
+        PeltType.PeauNormale,
+        new Pelt(
+          oreType: PeltType.PeauNormale,
+          oreFeat: Feat.NormalPeltReprocessing
+        )
+      }
+      };
+    public static Dictionary<LeatherType, Leather> leatherDictionnary = new Dictionary<LeatherType, Leather>
+    {
+      { LeatherType.MauvaisCuir, new Leather(LeatherType.MauvaisCuir) },
+      { LeatherType.CuirCommun, new Leather(LeatherType.CuirCommun) },
+      { LeatherType.CuirNormal, new Leather(LeatherType.CuirNormal) },
+    };
     public struct Wood
     {
       public WoodType type;
       public string name;
       public Feat feat;
       public float planks;
+      public PlankType refinedType;
       public Wood(WoodType oreType, Feat oreFeat)
       {
         this.type = oreType;
         this.name = Enum.GetName(typeof(WoodType), oreType) ?? "";
         this.feat = oreFeat;
 
-        switch(oreType)
+        switch (oreType)
         {
           case WoodType.Laurelin:
             planks = 41.500f;
+            refinedType = PlankType.Laurelinade;
             break;
           case WoodType.Telperion:
             planks = 34.567f;
+            refinedType = PlankType.Telperionade;
             break;
           case WoodType.Mallorn:
             planks = 15.000f;
+            refinedType = PlankType.Mallornade;
             break;
           default:
             planks = 0.0f;
+            refinedType = PlankType.Invalid;
             break;
         }
       }
@@ -171,7 +275,7 @@ namespace NWN.Systems.Craft.Collect
       Invalid = 0,
       Laurelin = 1, // Silmarillion : capture la lumière divine dorée
       Telperion = 2, // Silmarillion : capture la lumière divine argentée
-      Mallorn = 3, 
+      Mallorn = 3,
       Nimloth = 4,
       Oiolaire = 5,
       Qliphoth = 6,
@@ -190,8 +294,87 @@ namespace NWN.Systems.Craft.Collect
       Ferochenade = 7,
       Valinorade = 8,
     }
-    public static ItemProperty[] GetTritaniumItemProperties()
+    public static ItemProperty[] GetBadItemProperties(ItemCategory itemCategory, uint craftedItem)
     {
+      switch (itemCategory)
+      {
+        case ItemCategory.OneHandedMeleeWeapon: return GetBadOneHandedMeleeWeaponProperties();
+        case ItemCategory.TwoHandedMeleeWeapon: return GetBadTwoHandedMeleeWeaponProperties();
+        case ItemCategory.Armor: return GetBadArmorProperties();
+        case ItemCategory.Shield: return GetBadShieldProperties();
+        case ItemCategory.CraftTool: return GetBadToolProperties(craftedItem);
+        case ItemCategory.RangedWeapon: return GetBadRangedWeaponProperties();
+      }
+
+      return new ItemProperty[]
+      {
+          NWScript.ItemPropertyVisualEffect(NWScript.VFX_NONE)
+      };
+    }
+    public static ItemProperty[] GetBadOneHandedMeleeWeaponProperties()
+    {
+      return new ItemProperty[]
+      {
+          NWScript.ItemPropertyAttackPenalty(2),
+          NWScript.ItemPropertyDamagePenalty(2),
+          NWScript.ItemPropertyDamageVulnerability(NWScript.IP_CONST_DAMAGETYPE_SLASHING, NWScript.IP_CONST_DAMAGEVULNERABILITY_10_PERCENT),
+          NWScript.ItemPropertyWeightIncrease(NWScript.IP_CONST_WEIGHTINCREASE_30_LBS),
+      };
+    }
+    public static ItemProperty[] GetBadTwoHandedMeleeWeaponProperties()
+    {
+      return new ItemProperty[]
+      {
+          NWScript.ItemPropertyAttackPenalty(1),
+          NWScript.ItemPropertyDamagePenalty(1),
+          NWScript.ItemPropertyDamageVulnerability(NWScript.IP_CONST_DAMAGETYPE_SLASHING, NWScript.IP_CONST_DAMAGEVULNERABILITY_5_PERCENT),
+          NWScript.ItemPropertyWeightIncrease(NWScript.IP_CONST_WEIGHTINCREASE_30_LBS),
+      };
+    }
+    public static ItemProperty[] GetBadRangedWeaponProperties()
+    {
+      return new ItemProperty[]
+      {
+          NWScript.ItemPropertyAttackPenalty(1),
+          NWScript.ItemPropertyDamageVulnerability(NWScript.IP_CONST_DAMAGETYPE_SLASHING, NWScript.IP_CONST_DAMAGEVULNERABILITY_5_PERCENT),
+          NWScript.ItemPropertyWeightIncrease(NWScript.IP_CONST_WEIGHTINCREASE_30_LBS),
+      };
+    }
+    public static ItemProperty[] GetBadArmorProperties()
+    {
+      return new ItemProperty[]
+      {
+        NWScript.ItemPropertyDamageVulnerability(NWScript.IP_CONST_DAMAGETYPE_BLUDGEONING, NWScript.IP_CONST_DAMAGEVULNERABILITY_10_PERCENT),
+        NWScript.ItemPropertyDecreaseAC(NWScript.IP_CONST_ACMODIFIERTYPE_ARMOR, 2),
+        NWScript.ItemPropertyWeightIncrease(NWScript.IP_CONST_WEIGHTINCREASE_30_LBS),
+
+      };
+    }
+    public static ItemProperty[] GetBadShieldProperties()
+    {
+      return new ItemProperty[]
+      {
+        NWScript.ItemPropertyDamageVulnerability(NWScript.IP_CONST_DAMAGETYPE_PIERCING, NWScript.IP_CONST_DAMAGEVULNERABILITY_10_PERCENT),
+        NWScript.ItemPropertyDecreaseAC(NWScript.IP_CONST_ACMODIFIERTYPE_SHIELD, 2),
+        NWScript.ItemPropertyWeightIncrease(NWScript.IP_CONST_WEIGHTINCREASE_30_LBS),
+
+      };
+    }
+    public static ItemProperty[] GetBadToolProperties(uint craftedItem)
+    {
+      NWScript.SetLocalInt(craftedItem, "_DURABILITY", 5);
+
+      return new ItemProperty[]
+      {
+        NWScript.ItemPropertyDamageVulnerability(NWScript.IP_CONST_DAMAGETYPE_PIERCING, NWScript.IP_CONST_DAMAGEVULNERABILITY_10_PERCENT),
+        NWScript.ItemPropertyWeightIncrease(NWScript.IP_CONST_WEIGHTINCREASE_15_LBS),
+
+      };
+    }
+    public static ItemProperty[] GetTritaniumItemProperties(uint craftedItem = NWScript.OBJECT_INVALID)
+    {
+      NWScript.SetLocalInt(craftedItem, "_DURABILITY", 10);
+
       return new ItemProperty[]
       {
           NWScript.ItemPropertyDamageVulnerability(NWScript.IP_CONST_DAMAGETYPE_FIRE, NWScript.IP_CONST_DAMAGEVULNERABILITY_50_PERCENT),
@@ -200,7 +383,7 @@ namespace NWN.Systems.Craft.Collect
           NWScript.ItemPropertyWeightIncrease(NWScript.IP_CONST_WEIGHTINCREASE_15_LBS)
       };
     }
-    public static ItemProperty[] GetPyeriteItemProperties(ItemCategory itemCategory)
+    public static ItemProperty[] GetPyeriteItemProperties(ItemCategory itemCategory, uint craftedItem = NWScript.OBJECT_INVALID)
     {
       switch (itemCategory)
       {
@@ -208,27 +391,30 @@ namespace NWN.Systems.Craft.Collect
         case ItemCategory.TwoHandedMeleeWeapon: return GetPyeriteTwoHandedMeleeWeaponProperties();
         case ItemCategory.Armor: return GetPyeriteArmorProperties();
         case ItemCategory.Shield: return GetPyeriteShieldProperties();
-        case ItemCategory.CraftTool: return GetPyeriteToolProperties();
+        case ItemCategory.CraftTool: return GetPyeriteToolProperties(craftedItem);
         case ItemCategory.RangedWeapon: return GetPyeriteOneHandedMeleeWeaponProperties();
         case ItemCategory.Ammunition: return GetPyeriteAmmunitionProperties();
       }
 
-      return null;
+      return new ItemProperty[]
+      { 
+          NWScript.ItemPropertyVisualEffect(NWScript.VFX_NONE)
+      };
     }
-      public static ItemProperty[] GetPyeriteOneHandedMeleeWeaponProperties()
+    public static ItemProperty[] GetPyeriteOneHandedMeleeWeaponProperties()
+    {
+      return new ItemProperty[]
       {
-        return new ItemProperty[]
-        {
-          NWScript.ItemPropertyDamageVulnerability(NWScript.IP_CONST_DAMAGETYPE_FIRE, NWScript.IP_CONST_DAMAGEVULNERABILITY_25_PERCENT),
-          NWScript.ItemPropertyDamageVulnerability(NWScript.IP_CONST_DAMAGETYPE_COLD, NWScript.IP_CONST_DAMAGEVULNERABILITY_25_PERCENT),
-          NWScript.ItemPropertyDamageVulnerability(NWScript.IP_CONST_DAMAGETYPE_ELECTRICAL, NWScript.IP_CONST_DAMAGEVULNERABILITY_25_PERCENT),
-          NWScript.ItemPropertyWeightIncrease(NWScript.IP_CONST_WEIGHTINCREASE_10_LBS),
-          NWScript.ItemPropertyAttackBonusVsRace(NWScript.RACIAL_TYPE_HUMANOID_GOBLINOID, 1),
-          NWScript.ItemPropertyAttackBonusVsRace(NWScript.RACIAL_TYPE_HUMANOID_REPTILIAN, 1),
-          NWScript.ItemPropertyDamageBonusVsRace(NWScript.RACIAL_TYPE_HUMANOID_GOBLINOID, NWScript.IP_CONST_DAMAGETYPE_PHYSICAL, NWScript.DAMAGE_BONUS_1),
-          NWScript.ItemPropertyDamageBonusVsRace(NWScript.RACIAL_TYPE_HUMANOID_REPTILIAN, NWScript.IP_CONST_DAMAGETYPE_PHYSICAL, NWScript.DAMAGE_BONUS_1)
-        };
-      }
+        NWScript.ItemPropertyDamageVulnerability(NWScript.IP_CONST_DAMAGETYPE_FIRE, NWScript.IP_CONST_DAMAGEVULNERABILITY_25_PERCENT),
+        NWScript.ItemPropertyDamageVulnerability(NWScript.IP_CONST_DAMAGETYPE_COLD, NWScript.IP_CONST_DAMAGEVULNERABILITY_25_PERCENT),
+        NWScript.ItemPropertyDamageVulnerability(NWScript.IP_CONST_DAMAGETYPE_ELECTRICAL, NWScript.IP_CONST_DAMAGEVULNERABILITY_25_PERCENT),
+        NWScript.ItemPropertyWeightIncrease(NWScript.IP_CONST_WEIGHTINCREASE_10_LBS),
+        NWScript.ItemPropertyAttackBonusVsRace(NWScript.RACIAL_TYPE_HUMANOID_GOBLINOID, 1),
+        NWScript.ItemPropertyAttackBonusVsRace(NWScript.RACIAL_TYPE_HUMANOID_REPTILIAN, 1),
+        NWScript.ItemPropertyDamageBonusVsRace(NWScript.RACIAL_TYPE_HUMANOID_GOBLINOID, NWScript.IP_CONST_DAMAGETYPE_PIERCING, NWScript.DAMAGE_BONUS_1),
+        NWScript.ItemPropertyDamageBonusVsRace(NWScript.RACIAL_TYPE_HUMANOID_REPTILIAN, NWScript.IP_CONST_DAMAGETYPE_PIERCING, NWScript.DAMAGE_BONUS_1)
+      };
+    }
     public static ItemProperty[] GetPyeriteAmmunitionProperties()
     {
       return new ItemProperty[]
@@ -238,8 +424,8 @@ namespace NWN.Systems.Craft.Collect
           NWScript.ItemPropertyDamageVulnerability(NWScript.IP_CONST_DAMAGETYPE_ELECTRICAL, NWScript.IP_CONST_DAMAGEVULNERABILITY_25_PERCENT),
           NWScript.ItemPropertyAttackBonusVsRace(NWScript.RACIAL_TYPE_HUMANOID_GOBLINOID, 1),
           NWScript.ItemPropertyAttackBonusVsRace(NWScript.RACIAL_TYPE_HUMANOID_REPTILIAN, 1),
-          NWScript.ItemPropertyDamageBonusVsRace(NWScript.RACIAL_TYPE_HUMANOID_GOBLINOID, NWScript.IP_CONST_DAMAGETYPE_PHYSICAL, NWScript.DAMAGE_BONUS_1),
-          NWScript.ItemPropertyDamageBonusVsRace(NWScript.RACIAL_TYPE_HUMANOID_REPTILIAN, NWScript.IP_CONST_DAMAGETYPE_PHYSICAL, NWScript.DAMAGE_BONUS_1)
+          NWScript.ItemPropertyDamageBonusVsRace(NWScript.RACIAL_TYPE_HUMANOID_GOBLINOID, NWScript.IP_CONST_DAMAGETYPE_PIERCING, NWScript.DAMAGE_BONUS_1),
+          NWScript.ItemPropertyDamageBonusVsRace(NWScript.RACIAL_TYPE_HUMANOID_REPTILIAN, NWScript.IP_CONST_DAMAGETYPE_PIERCING, NWScript.DAMAGE_BONUS_1)
       };
     }
     public static ItemProperty[] GetPyeriteTwoHandedMeleeWeaponProperties()
@@ -252,8 +438,8 @@ namespace NWN.Systems.Craft.Collect
           NWScript.ItemPropertyWeightIncrease(NWScript.IP_CONST_WEIGHTINCREASE_10_LBS),
           NWScript.ItemPropertyAttackBonusVsRace(NWScript.RACIAL_TYPE_HUMANOID_GOBLINOID, 2),
           NWScript.ItemPropertyAttackBonusVsRace(NWScript.RACIAL_TYPE_HUMANOID_REPTILIAN, 2),
-          NWScript.ItemPropertyDamageBonusVsRace(NWScript.RACIAL_TYPE_HUMANOID_GOBLINOID, NWScript.IP_CONST_DAMAGETYPE_PHYSICAL, NWScript.DAMAGE_BONUS_2),
-          NWScript.ItemPropertyDamageBonusVsRace(NWScript.RACIAL_TYPE_HUMANOID_REPTILIAN, NWScript.IP_CONST_DAMAGETYPE_PHYSICAL, NWScript.DAMAGE_BONUS_2)
+          NWScript.ItemPropertyDamageBonusVsRace(NWScript.RACIAL_TYPE_HUMANOID_GOBLINOID, NWScript.IP_CONST_DAMAGETYPE_PIERCING, NWScript.DAMAGE_BONUS_2),
+          NWScript.ItemPropertyDamageBonusVsRace(NWScript.RACIAL_TYPE_HUMANOID_REPTILIAN, NWScript.IP_CONST_DAMAGETYPE_PIERCING, NWScript.DAMAGE_BONUS_2)
       };
     }
     public static ItemProperty[] GetPyeriteArmorProperties()
@@ -278,8 +464,11 @@ namespace NWN.Systems.Craft.Collect
           NWScript.ItemPropertyACBonusVsDmgType(NWScript.IP_CONST_DAMAGETYPE_PIERCING, 1)
       };
     }
-    public static ItemProperty[] GetPyeriteToolProperties()
+    public static ItemProperty[] GetPyeriteToolProperties(uint craftedItem)
     {
+      NWScript.SetLocalInt(craftedItem, "_DURABILITY", 25);
+      NWScript.SetLocalInt(craftedItem, "_ITEM_LEVEL", 1);
+
       return new ItemProperty[]
       {
           NWScript.ItemPropertyWeightIncrease(NWScript.IP_CONST_WEIGHTINCREASE_10_LBS),
@@ -350,6 +539,50 @@ namespace NWN.Systems.Craft.Collect
       }
 
       return WoodType.Invalid;
+    }
+    public static string GetRandomPeltSpawnFromAreaLevel(int level)
+    {
+      int random = Utils.random.Next(1, 101);
+      switch (level)
+      {
+        case 2:
+          return System.badPelts[Utils.random.Next(0, System.badPelts.Length)];
+        case 3:
+          if (random > 80)
+            return System.commonPelts[Utils.random.Next(0, System.commonPelts.Length)];
+          else
+            return System.badPelts[Utils.random.Next(0, System.badPelts.Length)];
+        case 4:
+          if (random > 60)
+            return System.commonPelts[Utils.random.Next(0, System.commonPelts.Length)];
+          else
+            return System.badPelts[Utils.random.Next(0, System.badPelts.Length)];
+        case 5:
+          if (random > 80)
+            return System.normalPelts[Utils.random.Next(0, System.normalPelts.Length)];
+          else if (random > 40)
+            return System.commonPelts[Utils.random.Next(0, System.commonPelts.Length)];
+          return System.badPelts[Utils.random.Next(0, System.badPelts.Length)];
+        case 6:
+          if (random > 60)
+            return System.normalPelts[Utils.random.Next(0, System.normalPelts.Length)];
+          else if (random > 20)
+            return System.commonPelts[Utils.random.Next(0, System.commonPelts.Length)];
+          return System.badPelts[Utils.random.Next(0, System.badPelts.Length)];
+      }
+
+      return "";
+    }
+    public static PeltType GetPeltTypeFromItemTag(string itemTag)
+    {
+      if (Array.FindIndex(System.badPelts, x => x == itemTag) > -1)
+        return PeltType.MauvaisePeau;
+      else if (Array.FindIndex(System.commonPelts, x => x == itemTag) > -1)
+        return PeltType.PeauCommune;
+      else if (Array.FindIndex(System.normalPelts, x => x == itemTag) > -1)
+        return PeltType.PeauNormale;
+
+      return PeltType.Invalid;
     }
   }
 }

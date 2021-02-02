@@ -19,14 +19,14 @@ namespace NWN.Systems
           execute: ExecuteHelpCommand
         )
       },
-      {
+      /*{
         "frostattack",
         new Command(
           name: "frostattack",
           description: new Command.Description(title: "Permet aux lanceurs de sorts d'utiliser rayon de giver comme attaque par défaut."),
           execute: ExecuteFrostAttackCommand
         )
-      },
+      },*/
       {
         "walk",
         new Command(
@@ -94,6 +94,14 @@ namespace NWN.Systems
         )
       },
       {
+        "medic",
+        new Command(
+          name: "medic",
+          description: new Command.Description(title: "Dissipe tout effet de maladie sur vous pour faciliter l'alpha"),
+          execute: ExecuteDispelDiseaseCommand
+        )
+      },
+      {
         "casque",
         new Command(
           name: "casque",
@@ -123,6 +131,14 @@ namespace NWN.Systems
           name: "reboot",
           description: new Command.Description(title: "Permet de redémarrer le module (bas les pattes, vils joueurs) !)"),
           execute: ExecuteRebootCommand
+        )
+      },
+      {
+        "refill",
+        new Command(
+          name: "refill",
+          description: new Command.Description(title: "Lié à reboot et aux tests"),
+          execute: ExecuteRefillCommand
         )
       },
       {

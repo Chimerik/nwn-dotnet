@@ -26,6 +26,10 @@ namespace NWN.Systems
         "Bois",
         () => DrawBoisPage(player)
       ));
+      player.menu.choices.Add((
+        "Peaux",
+        () => DrawPeltPage(player)
+      ));
 
       player.menu.Draw();
     }
@@ -33,7 +37,7 @@ namespace NWN.Systems
     private static void DrawMetalPage(Player player)
     {
       player.menu.Clear();
-      player.menu.titleLines.Add("Veuillez choisir un type d'établis :");
+      player.menu.titleLines.Add("Veuillez choisir un type d'établi :");
       player.menu.choices.Add((
         "Fonderie",
         () => DrawFoundryPage(player)
@@ -86,7 +90,7 @@ namespace NWN.Systems
     private static void DrawBoisPage(Player player)
     {
       player.menu.Clear();
-      player.menu.titleLines.Add("Veuillez choisir un type d'établis :");
+      player.menu.titleLines.Add("Veuillez choisir un type d'établi :");
       player.menu.choices.Add((
         "Scierie",
         () => DrawScieriePage(player)
@@ -130,6 +134,57 @@ namespace NWN.Systems
       player.menu.choices.Add((
         "Retour",
         () => DrawBoisPage(player)
+      ));
+
+      player.menu.Draw();
+    }
+    private static void DrawPeltPage(Player player)
+    {
+      player.menu.Clear();
+      player.menu.titleLines.Add("Veuillez choisir un type d'établi :");
+      player.menu.choices.Add((
+        "Tannerie",
+        () => DrawTanneriePage(player)
+      ));
+      player.menu.choices.Add((
+        "Maroquinerie",
+        () => DrawMaroquineriePage(player)
+      ));
+      player.menu.choices.Add((
+        "Retour",
+        () => DrawMainPage(player)
+      ));
+
+      player.menu.Draw();
+    }
+    private static void DrawTanneriePage(Player player)
+    {
+      player.menu.Clear();
+      player.menu.titleLines.Add("Voici votre stock de peaux brutes :");
+
+      foreach (var entry in peltDictionnary)
+        if (player.materialStock.TryGetValue(entry.Value.name, out int playerStock))
+          player.menu.titleLines.Add($"* {entry.Value.name}: {playerStock}");
+
+      player.menu.choices.Add((
+        "Retour",
+        () => DrawPeltPage(player)
+      ));
+
+      player.menu.Draw();
+    }
+    private static void DrawMaroquineriePage(Player player)
+    {
+      player.menu.Clear();
+      player.menu.titleLines.Add("Voici votre stock de cuirs raffinés :");
+
+      foreach (var entry in leatherDictionnary)
+        if (player.materialStock.TryGetValue(entry.Value.name, out int playerStock))
+          player.menu.titleLines.Add($"* {entry.Value.name}: {playerStock}");
+
+      player.menu.choices.Add((
+        "Retour",
+        () => DrawPeltPage(player)
       ));
 
       player.menu.Draw();

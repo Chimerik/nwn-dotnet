@@ -24,6 +24,12 @@ namespace NWN.Systems
           execute: ExecuteSaveDescriptionCommand
         )
       },
+      {
+        "refill", new BotAsyncCommand(
+          name: "refill",
+          execute: ExecuteRefillCommand
+        )
+      },
     };
   }
 }

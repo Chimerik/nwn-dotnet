@@ -25,7 +25,10 @@ namespace NWN.Systems.Craft
       this.baseItemType = baseItemType;
       this.craftedItem = item;
       this.material = material;
-      this.remainingTime = time;
+      if (Config.env == Config.Env.Chim)
+        this.remainingTime = 10.0f;
+      else
+        this.remainingTime = time;
       this.isCancelled = false;
       this.player = player;
 
@@ -155,6 +158,8 @@ namespace NWN.Systems.Craft
         materialType = (int)myMineralType;
       else if (Enum.TryParse(material, out PlankType myPlankType))
         materialType = (int)myPlankType;
+      else if (Enum.TryParse(material, out LeatherType myLeatherType))
+        materialType = (int)myLeatherType;
 
       iMineralCost -= iMineralCost * (int)materialType / 10;
 
@@ -236,7 +241,7 @@ namespace NWN.Systems.Craft
       if (!IsActive())
         return;
 
-      this.player.playerJournal.craftJobCountDown = DateTime.Now.AddSeconds(this.remainingTime);
+      player.playerJournal.craftJobCountDown = DateTime.Now.AddSeconds(remainingTime);
       JournalEntry journalEntry = new JournalEntry();
       journalEntry.sName = $"Travail artisanal - {Utils.StripTimeSpanMilliseconds((TimeSpan)(player.playerJournal.craftJobCountDown - DateTime.Now))}";
 

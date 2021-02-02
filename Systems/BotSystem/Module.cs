@@ -66,6 +66,11 @@ namespace NWN.Systems
     public Task RebootAsync()
       => ModuleSystem.module.PreparingModuleForAsyncReboot(Context);
 
+    [Command("refill")]
+    [Summary("Lié à reboot.")]
+    public Task RefillAsync()
+      => ModuleSystem.module.PreparingModuleForAsyncRefill(Context);
+
     [Command("univers")]
     [Summary("Affiche des informations au sujet de l'univers des Larmes des Erylies et de l'arrivée des joueurs dans l'archipel.")]
     public Task DisplayUniverseInfo()

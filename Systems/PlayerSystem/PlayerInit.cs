@@ -31,7 +31,7 @@ namespace NWN.Systems
       //RefreshQBS(oidSelf, 0);
       // }
 
-      if(!Players.TryGetValue(oPC, out Player player))
+      if (!Players.TryGetValue(oPC, out Player player))
       {
         player = new Player(oPC);
         Players.Add(oPC, player);
@@ -42,7 +42,7 @@ namespace NWN.Systems
         string pcAccount = player.CheckDBPlayerAccount();
         if (pcAccount != NWScript.GetPCPlayerName(player.oid))
         {
-          NWScript.SendMessageToPC(player.oid, $"Attention - Ce personnage est enregistré sous le compte {pcAccount}, or vous venez de vous connecter sous {NWScript.GetPCPlayerName(player.oid)}, ce qui risque de poser problème !");
+          NWScript.BootPC(player.oid, $"Attention - Ce personnage est enregistré sous le compte {pcAccount}, or vous venez de vous connecter sous {NWScript.GetPCPlayerName(player.oid)}, veuillez vous reconnecter avec le bon compte !") ;
           Utils.LogMessageToDMs($"Attention - {NWScript.GetPCPlayerName(player.oid)} vient de se connecter avec un personnage enregistré sous le compte : {pcAccount} !");
         }
 
@@ -67,14 +67,15 @@ namespace NWN.Systems
           eHunger = NWScript.TagEffect(eHunger, "Effect_Hunger");
           NWScript.ApplyEffectToObject(NWScript.DURATION_TYPE_PERMANENT, eHunger, oPC);
         }*/
-        
+
         if (player.currentHP <= 0)
           NWScript.ApplyEffectToObject(NWScript.DURATION_TYPE_INSTANT, NWScript.EffectDeath(0, 0), player.oid);
         else
           NWScript.SetCurrentHitPoints(player.oid, player.currentHP);
-
+        
         if (player.location != null)
         {
+          NWScript.WriteTimestampedLogEntry($"{NWScript.GetName(player.oid)} teleported to : {NWScript.GetName(NWScript.GetAreaFromLocation(player.location))} - {NWScript.GetPositionFromLocation(player.location)} - {NWScript.GetFacingFromLocation(player.location)}");
           NWScript.DelayCommand(1.0f, () => NWScript.AssignCommand(player.oid, () => NWScript.ClearAllActions()));
           NWScript.DelayCommand(1.1f, () => NWScript.AssignCommand(player.oid, () => NWScript.JumpToLocation(player.location)));
         }
@@ -83,7 +84,6 @@ namespace NWN.Systems
           NWScript.DelayCommand(1.0f, () => NWScript.AssignCommand(player.oid, () => NWScript.ClearAllActions()));
           NWScript.DelayCommand(1.1f, () => NWScript.AssignCommand(player.oid, () => NWScript.JumpToLocation(NWScript.GetLocation(NWScript.GetWaypointByTag("WP_START_NEW_CHAR")))));
         }
-
         if (player.craftJob.IsActive() 
           && AreaSystem.areaDictionnary.TryGetValue(NWScript.GetObjectUUID(NWScript.GetAreaFromLocation(player.location)), out Area area) 
           && area.level == 0)
@@ -91,10 +91,9 @@ namespace NWN.Systems
           player.CraftJobProgression();
           player.craftJob.CreateCraftJournalEntry();
         }
-
         if (player.currentSkillJob != (int)Feat.Invalid)
         {
-          switch(player.currentSkillType)
+          switch (player.currentSkillType)
           {
             case SkillSystem.SkillType.Skill:
               if (player.learnableSkills.ContainsKey(player.currentSkillJob))
@@ -107,24 +106,24 @@ namespace NWN.Systems
               }
               break;
             case SkillSystem.SkillType.Spell:
-              if (player.learnableSkills.ContainsKey(player.currentSkillJob))
+              if (player.learnableSpells.ContainsKey(player.currentSkillJob))
                 player.learnableSpells[player.currentSkillJob].currentJob = true;
               else
                 player.currentSkillJob = (int)Feat.Invalid;
               break;
           }
-          
+
           player.AcquireSkillPoints();
           player.isConnected = true;
           player.isAFK = false;
 
-          if(player.currentSkillJob != (int)Feat.Invalid)
+          if (player.currentSkillJob != (int)Feat.Invalid)
           {
             switch (player.currentSkillType)
             {
               case SkillSystem.SkillType.Skill:
                 player.learnableSkills[player.currentSkillJob].CreateSkillJournalEntry();
-                break;
+               break;
               case SkillSystem.SkillType.Spell:
                 player.learnableSpells[player.currentSkillJob].CreateSkillJournalEntry();
                 break;
@@ -216,10 +215,8 @@ namespace NWN.Systems
 
       if (Config.env == Config.Env.Prod || Config.env == Config.Env.Chim)
       {
-        arrivalArea = NWScript.CopyArea(AreaSystem.areaDictionnary.Where(v => v.Value.tag == "entry_scene").FirstOrDefault().Value.oid);
+        arrivalArea = NWScript.CreateArea("intro_galere", $"entry_scene_{NWScript.GetPCPublicCDKey(newCharacter.oid)}_{NWScript.GetName(newCharacter.oid)}", $"La galère de {NWScript.GetName(newCharacter.oid)} (Bienvenue !)");
         AreaSystem.CreateArea(arrivalArea);
-        NWScript.SetName(arrivalArea, $"La galère de {NWScript.GetName(newCharacter.oid)} (Bienvenue !)");
-        NWScript.SetTag(arrivalArea, $"entry_scene_{NWScript.GetPCPublicCDKey(newCharacter.oid)}_{NWScript.GetName(newCharacter.oid)}");
         arrivalPoint = NWScript.GetNearestObjectByTag("ENTRY_POINT", NWScript.GetFirstObjectInArea(arrivalArea));
 
       } else
@@ -268,6 +265,7 @@ namespace NWN.Systems
       player.learnableSkills.Add((int)Feat.ArmorProficiencyLight, new SkillSystem.Skill((int)Feat.ArmorProficiencyLight, 0.0f, player));
       player.learnableSkills.Add((int)Feat.ShieldProficiency, new SkillSystem.Skill((int)Feat.ShieldProficiency, 0.0f, player));
       player.learnableSkills.Add((int)Feat.WeaponFinesse, new SkillSystem.Skill((int)Feat.WeaponFinesse, 0.0f, player));
+      player.learnableSkills.Add((int)Feat.TwoWeaponFighting, new SkillSystem.Skill((int)Feat.TwoWeaponFighting, 0.0f, player));
       player.learnableSkills.Add((int)Feat.ImprovedSavingThrowFortitude, new SkillSystem.Skill((int)Feat.ImprovedSavingThrowFortitude, 0.0f, player));
       player.learnableSkills.Add((int)Feat.ImprovedSavingThrowReflex, new SkillSystem.Skill((int)Feat.ImprovedSavingThrowReflex, 0.0f, player));
       player.learnableSkills.Add((int)Feat.ImprovedSavingThrowWill, new SkillSystem.Skill((int)Feat.ImprovedSavingThrowWill, 0.0f, player));
@@ -303,6 +301,7 @@ namespace NWN.Systems
     private static void InitializeDM(Player player)
     {
       player.playerJournal = new PlayerJournal();
+      InitializeDMEvents(player.oid);
     }
     private static void InitializePlayer(Player player)
     {
@@ -319,7 +318,7 @@ namespace NWN.Systems
       EventsPlugin.AddObjectToDispatchList("NWNX_ON_ADD_ASSOCIATE_AFTER", "summon_add_after", player);
       EventsPlugin.AddObjectToDispatchList("NWNX_ON_REMOVE_ASSOCIATE_AFTER", "summon_remove_after", player);
       EventsPlugin.AddObjectToDispatchList("NWNX_ON_BROADCAST_CAST_SPELL_AFTER", "event_spellbroadcast_after", player);
-      EventsPlugin.AddObjectToDispatchList("NWNX_ON_SPELL_INTERRUPTED_AFTER", "_onspellinterrupted_after", player);
+      //EventsPlugin.AddObjectToDispatchList("NWNX_ON_SPELL_INTERRUPTED_AFTER", "_onspellinterrupted_after", player);
       EventsPlugin.AddObjectToDispatchList("NWNX_ON_CAST_SPELL_BEFORE", "_onspellcast_before", player);
       EventsPlugin.AddObjectToDispatchList("NWNX_ON_CAST_SPELL_AFTER", "_onspellcast_after", player);
       EventsPlugin.AddObjectToDispatchList("NWNX_ON_ITEM_EQUIP_BEFORE", "event_equip_items_before", player);
@@ -333,6 +332,11 @@ namespace NWN.Systems
       EventsPlugin.AddObjectToDispatchList("NWNX_ON_START_COMBAT_ROUND_AFTER", "event_start_combat_after", player);
       EventsPlugin.AddObjectToDispatchList("NWNX_ON_CLIENT_DISCONNECT_BEFORE", "player_exit_before", player);
       NWScript.SetEventScript(player, NWScript.EVENT_SCRIPT_CREATURE_ON_NOTICE, "on_perceived_pc");
+    }
+
+    private static void InitializeDMEvents(uint player)
+    {
+      EventsPlugin.AddObjectToDispatchList("NWNX_ON_USE_FEAT_BEFORE", "event_feat_used", player);
     }
     private static void InitializePlayerAccount(Player player)
     {
@@ -357,7 +361,6 @@ namespace NWN.Systems
       player.dateLastSaved = DateTime.Parse(NWScript.SqlGetString(query, 5));
       player.currentSkillJob = NWScript.SqlGetInt(query, 6);
       player.craftJob = new Job(NWScript.SqlGetInt(query, 7), NWScript.SqlGetString(query, 10), NWScript.SqlGetFloat(query, 9), player, NWScript.SqlGetString(query, 8));
-
       player.isFrostAttackOn = Convert.ToBoolean(NWScript.SqlGetInt(query, 11));
       player.menu.originTop = NWScript.SqlGetInt(query, 12);
       player.menu.originLeft = NWScript.SqlGetInt(query, 13);
@@ -377,6 +380,9 @@ namespace NWN.Systems
 
       while (Convert.ToBoolean(NWScript.SqlStep(query)))
         player.learnableSkills.Add(NWScript.SqlGetInt(query, 0), new SkillSystem.Skill(NWScript.SqlGetInt(query, 0), NWScript.SqlGetInt(query, 1), player));
+    
+      if(!player.learnableSkills.ContainsKey((int)Feat.TwoWeaponFighting) && !Convert.ToBoolean(CreaturePlugin.GetKnowsFeat(player.oid, (int)Feat.TwoWeaponFighting)))
+        player.learnableSkills.Add((int)Feat.TwoWeaponFighting, new SkillSystem.Skill((int)Feat.TwoWeaponFighting, 0.0f, player));
     }
     private static void InitializePlayerLearnableSpells(Player player)
     {
@@ -393,10 +399,10 @@ namespace NWN.Systems
         storage = NWScript.GetNearestObjectByTag("ps_entrepot", storage);
 
       Utils.DestroyInventory(storage);
-      NWScript.CreateItemOnObject("NW_AARCL009", storage);
-      NWScript.CreateItemOnObject("NW_WBLCL001", storage);
-      NWScript.CreateItemOnObject("NW_ASHSW001", storage);
-      NWScript.CreateItemOnObject("NW_WBWSL001", storage);
+      NWScript.CreateItemOnObject("bad_armor", storage);
+      NWScript.CreateItemOnObject("bad_club", storage);
+      NWScript.CreateItemOnObject("bad_shield", storage);
+      NWScript.CreateItemOnObject("bad_sling", storage);
       NWScript.CreateItemOnObject("NW_WAMBU001", storage, 99);
 
       NWScript.SetName(storage, $"Entrepôt de {NWScript.GetName(player.oid)}");

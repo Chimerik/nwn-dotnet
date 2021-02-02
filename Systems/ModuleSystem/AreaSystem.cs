@@ -89,6 +89,8 @@ namespace NWN.Systems
         case "SimilisseTribunalPrison":
         case "SimilisseSalleDesDelibrations":
         case "Sawmill":
+        case "similissebanque":
+        case "tannery":
           area.level = 0;
           break;
         case "lepontdaruthen":
@@ -202,7 +204,8 @@ namespace NWN.Systems
 
       Utils.DestroyInventory(oPC);
       Utils.DestroyEquippedItems(oPC);
-      NWScript.DelayCommand(3.4f, () => NWScript.AssignCommand(oPC, () => NWScript.ActionEquipItem(NWScript.CreateItemOnObject("NW_CLOTH023", oPC), NWScript.INVENTORY_SLOT_CHEST)));
+
+      NWScript.DelayCommand(3.4f, () => NWScript.AssignCommand(oPC, () => NWScript.ActionEquipItem(NWScript.CreateItemOnObject("rags", oPC), NWScript.INVENTORY_SLOT_CHEST)));
       NWScript.DelayCommand(5.0f, () => NWScript.AssignCommand(oPC, () => NWScript.PlayAnimation(NWScript.ANIMATION_LOOPING_DEAD_BACK, 1, 999999.99f)));
       NWScript.DelayCommand(8.0f, () => NWScript.FloatingTextStringOnCreature("En dehors des épaves de navires éparpillées toutes autour de vous, la plage sur laquelle vous avez atterri semble étrangement calme et agréable. Nulle trace de votre équipage ou des biens que vous aviez emportés. Devant vous se dressent les murailles d'une ville ancienne et délabrée. Qu'allez-vous faire maintenant ?", oPC, 0));
 

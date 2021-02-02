@@ -63,12 +63,12 @@ namespace NWN.Systems
         this.oid = nwobj;
         this.menu = new PrivateMenu(this);
        
-        if (ObjectPlugin.GetInt(this.oid, "accountId") == 0)
+        if (ObjectPlugin.GetInt(this.oid, "accountId") == 0 && !Convert.ToBoolean(NWScript.GetIsDM(oid)))
           InitializeNewPlayer(this.oid);
 
         this.accountId = ObjectPlugin.GetInt(this.oid, "accountId");
         
-        if (ObjectPlugin.GetInt(this.oid, "characterId") == 0)
+        if (ObjectPlugin.GetInt(this.oid, "characterId") == 0 && !Convert.ToBoolean(NWScript.GetIsDM(oid)))
           InitializeNewCharacter(this);
 
         this.characterId = ObjectPlugin.GetInt(this.oid, "characterId");
@@ -276,8 +276,8 @@ namespace NWN.Systems
           i++;
         }
 
-        this.savedQuickBar.Clear();
-        this.loadedQuickBar = QuickbarType.Invalid;
+        savedQuickBar.Clear();
+        loadedQuickBar = QuickbarType.Invalid;
       }
       public void CraftJobProgression()
       {
@@ -310,12 +310,8 @@ namespace NWN.Systems
             NWScript.SetLocalInt(improvedTEBlueprint, "_BLUEPRINT_TIME_EFFICIENCY", NWScript.GetLocalInt(improvedTEBlueprint, "_BLUEPRINT_TIME_EFFICIENCY") + 1);
             break;
           default:
-            Blueprint blueprint;
-            if (Craft.Collect.System.blueprintDictionnary.ContainsKey(craftJob.baseItemType))
-            {
-              blueprint = Craft.Collect.System.blueprintDictionnary[craftJob.baseItemType];
+            if (Craft.Collect.System.blueprintDictionnary.TryGetValue(craftJob.baseItemType, out Blueprint blueprint))
               Craft.Collect.System.AddCraftedItemProperties(NWScript.CreateItemOnObject(blueprint.craftedItemTag, oid), craftJob.material);
-            }
             else
             {
               NWScript.SendMessageToPC(oid, "[ERREUR HRP] Il semble que votre dernière création soit invalide. Le staff a été informé du problème.");
@@ -427,7 +423,7 @@ namespace NWN.Systems
           oPartyMember = NWScript.GetNextFactionMember(oid, 1);
         }
 
-        Effect eParty = null;
+        Effect eParty = NWScript.EffectVisualEffect(NWScript.VFX_NONE);
 
         switch (iPartySize) // déterminer quel est l'effet de groupe à appliquer
         {
@@ -457,7 +453,7 @@ namespace NWN.Systems
             break;
         }
 
-        return eParty;
+        return NWScript.SupernaturalEffect(eParty);
       }
       public void UpdateJournal()
       {

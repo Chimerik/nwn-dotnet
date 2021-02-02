@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using Discord;
 using Discord.Commands;
-using Microsoft.Data.Sqlite;
 using NWN.Core;
 using NWN.Core.NWNX;
 using static NWN.Systems.Craft.Collect.Config;
@@ -48,9 +47,7 @@ namespace NWN.Systems
       else
         resourceRespawnTime = (float)((DateTime.Now.AddDays(1).Date).AddHours(5) - DateTime.Now).TotalSeconds;
 
-      resourceRespawnTime = 0.0f; // TEST A SUPPRIMER
-
-      NWScript.DelayCommand(resourceRespawnTime, () => SpawnCollectableResources());
+      NWScript.DelayCommand(resourceRespawnTime, () => SpawnCollectableResources(resourceRespawnTime));
 
       if (Config.env == Config.Env.Prod)
         NWScript.DelayCommand(5.0f, () => (Bot._client.GetChannel(786218144296468481) as IMessageChannel).SendMessageAsync($"Module en ligne !"));
@@ -89,6 +86,15 @@ namespace NWN.Systems
       NWScript.SqlStep(query);
 
       query = NWScript.SqlPrepareQueryCampaign(ModuleSystem.database, "CREATE TABLE IF NOT EXISTS playerDescriptions('characterId' INTEGER NOT NULL, 'descriptionName' TEXT NOT NULL, 'description' TEXT NOT NULL, UNIQUE (characterId, descriptionName))");
+      NWScript.SqlStep(query);
+
+      query = NWScript.SqlPrepareQueryCampaign(ModuleSystem.database, "CREATE TABLE IF NOT EXISTS areaResourceStock('areaTag' TEXT NOT NULL, 'mining' INTEGER, 'wood' INTEGER, 'animals' INTEGER, PRIMARY KEY(areaTag))");
+      NWScript.SqlStep(query);
+
+      query = NWScript.SqlPrepareQueryCampaign(ModuleSystem.database, $"CREATE TABLE IF NOT EXISTS scriptPerformance('script' TEXT NOT NULL, 'nbExecutions' INTEGER NOT NULL, 'averageExecutionTime' REAL NOT NULL, 'cumulatedExecutionTime' REAL NOT NULL, PRIMARY KEY(script))");
+      NWScript.SqlStep(query);
+
+      query = NWScript.SqlPrepareQueryCampaign(ModuleSystem.database, $"CREATE TABLE IF NOT EXISTS goldBalance('lootedTag' TEXT NOT NULL, 'nbTimesLooted' INTEGER NOT NULL, 'averageGold' INT NOT NULL, 'cumulatedGold' INT NOT NULL, PRIMARY KEY(lootedTag))");
       NWScript.SqlStep(query);
     }
     private void InitializeEvents()
@@ -192,8 +198,6 @@ namespace NWN.Systems
       EventsPlugin.SubscribeEvent("NWNX_ON_MAP_PIN_CHANGE_PIN_AFTER", "map_pin_changed");
       EventsPlugin.SubscribeEvent("NWNX_ON_MAP_PIN_DESTROY_PIN_AFTER", "map_pin_destroyed");
 
-      EventsPlugin.SubscribeEvent("NWNX_ON_INPUT_EMOTE_BEFORE", "on_input_emote");
-
       //EventsPlugin.SubscribeEvent("NWNX_ON_HAS_FEAT_AFTER", "event_has_feat");
     }
     private void InitializeFeatModifiers()
@@ -275,6 +279,38 @@ namespace NWN.Systems
       NWScript.SqlStep(query);
 
       NWScript.ExportAllCharacters();
+
+      foreach (KeyValuePair<string, ScriptPerf> perfentry in ModuleSystem.scriptPerformanceMonitoring)
+      {
+        if (perfentry.Value.nbExecution == 0)
+          continue;
+
+        query = NWScript.SqlPrepareQueryCampaign(ModuleSystem.database, $"INSERT INTO scriptPerformance (script, nbExecutions, averageExecutionTime, cumulatedExecutionTime) VALUES (@script, @nbExecutions, @averageExecutionTime, @cumulatedExecutionTime)" +
+        "ON CONFLICT (script) DO UPDATE SET nbExecutions = nbExecutions + @nbExecutions, averageExecutionTime = (cumulatedExecutionTime + @cumulatedExecutionTime) / (nbExecutions + @nbExecutions), cumulatedExecutionTime = cumulatedExecutionTime + @cumulatedExecutionTime");
+        NWScript.SqlBindString(query, "@script", perfentry.Key);
+        NWScript.SqlBindInt(query, "@nbExecutions", perfentry.Value.nbExecution);
+        NWScript.SqlBindFloat(query, "@cumulatedExecutionTime", (float)perfentry.Value.cumulatedExecutionTime);
+        NWScript.SqlBindFloat(query, "@averageExecutionTime", (float)perfentry.Value.cumulatedExecutionTime / perfentry.Value.nbExecution);
+        NWScript.SqlStep(query);
+
+        perfentry.Value.cumulatedExecutionTime = 0;
+        perfentry.Value.nbExecution = 0;
+      }
+
+      foreach (KeyValuePair<string, GoldBalance> goldEntry in ModuleSystem.goldBalanceMonitoring)
+      {
+        query = NWScript.SqlPrepareQueryCampaign(ModuleSystem.database, $"INSERT INTO goldBalance (lootedTag, nbTimesLooted, averageGold, cumulatedGold) VALUES (@lootedTag, @nbTimesLooted, @averageGold, @cumulatedGold)" +
+        "ON CONFLICT (lootedTag) DO UPDATE SET nbTimesLooted = nbTimesLooted + @nbTimesLooted, averageGold = (cumulatedGold + @cumulatedGold) / (nbTimesLooted + @nbTimesLooted), cumulatedGold = cumulatedGold + @cumulatedGold");
+        NWScript.SqlBindString(query, "@lootedTag", goldEntry.Key);
+        NWScript.SqlBindInt(query, "@nbTimesLooted", goldEntry.Value.nbTimesLooted);
+        NWScript.SqlBindInt(query, "@cumulatedGold", goldEntry.Value.cumulatedGold);
+        NWScript.SqlBindInt(query, "@averageGold", goldEntry.Value.cumulatedGold / goldEntry.Value.nbTimesLooted);
+        NWScript.SqlStep(query);
+
+        goldEntry.Value.cumulatedGold = 0;
+        goldEntry.Value.nbTimesLooted = 0;
+      }
+
       Bot._client.DownloadUsersAsync(new List<IGuild> { { Bot._client.GetGuild(680072044364562528) } });
       NWScript.DelayCommand(600.0f, () => SaveServerVault());
     }
@@ -318,35 +354,23 @@ namespace NWN.Systems
     }
     public async Task PreparingModuleForAsyncReboot(SocketCommandContext context)
     {
-      using (var connection = new SqliteConnection($"{ModuleSystem.db_path}"))
+      if (Utils.GetPlayerStaffRankFromDiscord(context.User.Id) == "admin")
       {
-        connection.Open();
+        this.botAsyncCommandList.Add("reboot");
+        await context.Channel.SendMessageAsync("Reboot effectif dans 30 secondes.");
+        return;
+      }
 
-        var command = connection.CreateCommand();
-        command.CommandText =
-        @"
-        SELECT rank
-        FROM PlayerAccounts
-        WHERE discordId = $discordId
-        ";
-        command.Parameters.AddWithValue("$discordId", context.User.Id);
-
-        string result = "";
-
-        using (var reader = command.ExecuteReader())
-        {
-          while (reader.Read())
-          {
-            result = reader.GetString(0);
-          }
-        }
-
-        if (result == "admin")
-        {
-          this.botAsyncCommandList.Add("reboot");
-          await context.Channel.SendMessageAsync("Reboot effectif dans 30 secondes.");
-          return;
-        }
+      await context.Channel.SendMessageAsync("Noooon, vous n'êtes pas la maaaaaître ! Le maaaaître est bien plus poli, d'habitude !");
+      return;
+    }
+    public async Task PreparingModuleForAsyncRefill(SocketCommandContext context)
+    {
+      if (Utils.GetPlayerStaffRankFromDiscord(context.User.Id) == "admin")
+      {
+        this.botAsyncCommandList.Add("refill");
+        await context.Channel.SendMessageAsync("Refill en cours.");
+        return;
       }
 
       await context.Channel.SendMessageAsync("Noooon, vous n'êtes pas la maaaaaître ! Le maaaaître est bien plus poli, d'habitude !");
@@ -385,7 +409,7 @@ namespace NWN.Systems
         NWScript.SqlStep(query);
       }      
     }
-    private void SpawnCollectableResources()
+    public void SpawnCollectableResources(float delay)
     {
       uint resourcePoint = NWScript.GetObjectByTag("ore_spawn_wp");
       int i = 0;
@@ -439,12 +463,17 @@ namespace NWN.Systems
 
       foreach(Area area in AreaSystem.areaDictionnary.Values)
       {
-        NWScript.SetLocalInt(oid, "_REMAINING_MINING_PROSPECTIONS", area.level * 2);
-        NWScript.SetLocalInt(oid, "_REMAINING_WOOD_PROSPECTIONS", area.level * 2);
-        NWScript.SetLocalInt(oid, "_REMAINING_ANIMALS_PROSPECTIONS", area.level * 2);
+        var query = NWScript.SqlPrepareQueryCampaign(ModuleSystem.database, $"INSERT INTO areaResourceStock (areaTag, mining, wood, animals) VALUES (@areaTag, @mining, @wood, @animals)" +
+        "ON CONFLICT (areaTag) DO UPDATE SET mining = @mining, wood = @wood, animals = @animals");
+        NWScript.SqlBindString(query, "@areaTag", area.tag);
+        NWScript.SqlBindInt(query, "@mining", area.level * 2);
+        NWScript.SqlBindInt(query, "@wood", area.level * 2);
+        NWScript.SqlBindInt(query, "@animals", area.level * 2);
+        NWScript.SqlStep(query);
       }
 
-      NWScript.DelayCommand(86400.0f, () => SpawnCollectableResources()); //24 h plus tard
+      if (delay > 0.0f)
+        NWScript.DelayCommand(86400.0f, () => SpawnCollectableResources(delay));  //24 h plus tard
     }
   }
 }

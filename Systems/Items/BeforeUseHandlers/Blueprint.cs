@@ -12,10 +12,8 @@ namespace NWN.Systems.Items.BeforeUseHandlers
     {
       int baseItemType = NWScript.GetLocalInt(oItem, "_BASE_ITEM_TYPE");
 
-      if (blueprintDictionnary.ContainsKey(baseItemType))
+      if (blueprintDictionnary.TryGetValue(baseItemType, out Blueprint blueprint))
       {
-        Blueprint blueprint = blueprintDictionnary[baseItemType];
-
         if (oTarget == NWScript.OBJECT_INVALID)
           NWScript.SendMessageToPC(player.oid, blueprint.DisplayBlueprintInfo(player, oItem));
         else
@@ -39,7 +37,7 @@ namespace NWN.Systems.Items.BeforeUseHandlers
                 NWScript.SendMessageToPC(player.oid, $"Vous devez être à proximité d'un atelier de type {blueprint.workshopTag} pour commencer ce travail");
             }
             else
-              NWScript.SendMessageToPC(player.oid, $"Vous devez avoir un marteau de forgeron en main pour commencer le travail.");
+              NWScript.SendMessageToPC(player.oid, $"Vous devez avoir un marteau d'artisan en main pour commencer le travail.");
           }
         }
       }

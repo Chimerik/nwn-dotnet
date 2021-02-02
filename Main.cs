@@ -29,17 +29,28 @@ namespace NWN
       {
         try
         {
-          if (scriptName != "module_heartbeat" && scriptName != "event_validate_equip_items_before" && scriptName != "os_statuemaker" && scriptName != "pc_acquire_it" && scriptName != "ondeath_quaranti" && scriptName != "on_chat") 
-
-            Console.WriteLine($"script : {scriptName}");
+          if (scriptName != "module_heartbeat" && scriptName != "event_validate_equip_items_before" && scriptName != "os_statuemaker" && scriptName != "pc_acquire_it" && scriptName != "ondeath_quaranti" && scriptName != "on_chat")
+          {
+            Console.WriteLine($"start script : {scriptName}");
+          }
             
           DateTime time = DateTime.Now;
           Module.currentScript = scriptName;
           scriptHandleResult = handler.Invoke(objectSelf);
 
+          double executionTime = (DateTime.Now - time).TotalSeconds;
+
+          if (ModuleSystem.scriptPerformanceMonitoring.TryGetValue(scriptName, out ScriptPerf perf))
+          {
+            perf.nbExecution++;
+            perf.cumulatedExecutionTime += executionTime;
+          }
+          else
+            ModuleSystem.scriptPerformanceMonitoring.Add(scriptName, new ScriptPerf(executionTime));
+
           if (scriptName != "module_heartbeat" && scriptName != "event_validate_equip_items_before" && scriptName != "os_statuemaker" && scriptName != "pc_acquire_it" && scriptName != "ondeath_quaranti" && scriptName != "on_chat")
           {
-            Console.WriteLine($"execution time : {(DateTime.Now - time).TotalSeconds}");
+            Console.WriteLine($"end script {scriptName} execution time : {executionTime}");
           }
         }
         catch (Exception e)

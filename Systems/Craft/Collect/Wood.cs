@@ -26,12 +26,12 @@ namespace NWN.Systems.Craft.Collect
       int bonusYield = 0;
 
       int value;
-      /*if (int.TryParse(NWScript.Get2DAString("feat", "GAINMULTIPLE", CreaturePlugin.GetHighestLevelOfFeat(player.oid, (int)Feat.Woodcutter)), out value))
+      if (int.TryParse(NWScript.Get2DAString("feat", "GAINMULTIPLE", CreaturePlugin.GetHighestLevelOfFeat(player.oid, (int)Feat.WoodCutter)), out value))
         bonusYield += miningYield * value * 5 / 100;
 
       if (int.TryParse(NWScript.Get2DAString("feat", "GAINMULTIPLE", CreaturePlugin.GetHighestLevelOfFeat(player.oid, (int)Feat.WoodExpertise)), out value))
         bonusYield += miningYield * value * 5 / 100;
-      */
+      
       miningYield += bonusYield;
 
       int remainingOre = NWScript.GetLocalInt(oPlaceable, "_ORE_AMOUNT") - miningYield;
@@ -62,14 +62,15 @@ namespace NWN.Systems.Craft.Collect
         return;
       }
 
-      int remainingProspections = NWScript.GetLocalInt(area.oid, "_REMAINING_WOOD_PROSPECTIONS");
-      if (remainingProspections < 1)
+      var query = NWScript.SqlPrepareQueryCampaign(ModuleSystem.database, $"SELECT wood from areaResourceStock where areaTag = @areaTag");
+      NWScript.SqlBindString(query, "@areaTag", area.tag);
+      NWScript.SqlStep(query);
+
+      if (NWScript.SqlGetInt(query, 0) < 1)
       {
         NWScript.SendMessageToPC(player.oid, "Cette zone est épuisée. Les arbres restant disposant de propriétés intéressantes ne semblent pas encore avoir atteint l'âge d'être exploités.");
         return;
       }
-      else
-        NWScript.SetLocalInt(area.oid, "_REMAINING_WOOD_PROSPECTIONS", remainingProspections - 1);
 
       uint resourcePoint = NWScript.GetNearestObjectByTag("wood_spawn_wp", player.oid);
       int i = 1;
@@ -91,7 +92,7 @@ namespace NWN.Systems.Craft.Collect
         if (iRandom < respawnChance)
         {
           var newRock = NWScript.CreateObject(NWScript.OBJECT_TYPE_PLACEABLE, "mineable_tree", NWScript.GetLocation(resourcePoint));
-          NWScript.SetName(newRock, Enum.GetName(typeof(WoodType), GetRandomOreSpawnFromAreaLevel(area.level)));
+          NWScript.SetName(newRock, Enum.GetName(typeof(WoodType), GetRandomWoodSpawnFromAreaLevel(area.level)));
           NWScript.SetLocalInt(newRock, "_ORE_AMOUNT", 50 * iRandom + 50 * iRandom * skillBonus / 100);
           NWScript.DestroyObject(resourcePoint);
           nbSpawns++;
@@ -102,9 +103,15 @@ namespace NWN.Systems.Craft.Collect
       }
 
       if (nbSpawns > 0)
-        NWScript.SendMessageToPC(player.oid, $"Votre prospection a permis d'identifier {nbSpawns} arbre(s) aux propriétés exploitables !");
+      {
+        NWScript.SendMessageToPC(player.oid, $"Votre repérage a permis d'identifier {nbSpawns} arbre(s) aux propriétés exploitables !");
+        
+        query = NWScript.SqlPrepareQueryCampaign(ModuleSystem.database, $"UPDATE areaResourceStock SET wood = wood - 1 where areaTag = @areaTag");
+        NWScript.SqlBindString(query, "@areaTag", area.tag);
+        NWScript.SqlStep(query);
+      }
       else
-        NWScript.SendMessageToPC(player.oid, $"Votre prospection ne semble pas avoir abouti à la découverte d'un arbre aux propriétés exploitables.");
+        NWScript.SendMessageToPC(player.oid, $"Votre repérage semble pas avoir abouti à la découverte d'un arbre aux propriétés exploitables.");
     }
   }
 }
