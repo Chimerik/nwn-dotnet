@@ -10,7 +10,7 @@ namespace NWN.Systems
   {
     public static Dictionary<string, Area> areaDictionnary = new Dictionary<string, Area>();
 
-    public static void CreateArea(uint nwobj)
+    public static Area CreateArea(uint nwobj)
     {
       var area = new Area(nwobj);
       areaDictionnary.Add(area.uuid, area);
@@ -43,6 +43,8 @@ namespace NWN.Systems
         i++;
         lootChest = NWScript.GetNearestObjectByTag("loot_chest", firstObject, i);
       }
+
+      return area;
     }
 
     public static void RemoveArea(Area area)

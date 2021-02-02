@@ -11,7 +11,7 @@ namespace NWN.Systems
   public static partial class PlayerSystem
   {
     public class Player
-    { 
+    {
       public readonly uint oid;
       public readonly int accountId;
       public readonly int characterId;
@@ -38,6 +38,7 @@ namespace NWN.Systems
       public uint deathCorpse { get; set; }
       public int setValue { get; set; }
       public QuickbarType loadedQuickBar { get; set; }
+      public Arena.PlayerData pveArena = new Arena.PlayerData();
 
       public Dictionary<uint, Player> listened = new Dictionary<uint, Player>();
       public Dictionary<uint, Player> blocked = new Dictionary<uint, Player>();
@@ -95,6 +96,25 @@ namespace NWN.Systems
           this.feat = feat;
         }
       }
+
+      public event EventHandler<DeathEventArgs> OnDeath = delegate { };
+      public void EmitDeath(DeathEventArgs e)
+      {
+        OnDeath(this, e);
+      }
+
+      public class DeathEventArgs : EventArgs
+      {
+        public uint oKiller;
+        public Player player;
+
+        public DeathEventArgs(Player player, uint oKiller)
+        {
+          this.oKiller = oKiller;
+          this.player = player;
+        }
+      }
+
       public void DoActionOnTargetSelected(uint oTarget, Vector3 vTarget)
       {
         if (Convert.ToBoolean(NWScript.GetIsObjectValid(oTarget)))

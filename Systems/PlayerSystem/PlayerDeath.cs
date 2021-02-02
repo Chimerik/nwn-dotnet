@@ -9,8 +9,9 @@ namespace NWN.Systems
   {
     private static int HandlePlayerDeath(uint oidSelf)
     {
-      Player player;
-      if (Players.TryGetValue(NWScript.GetLastPlayerDied(), out player))
+      var oKiller = NWScript.GetLastKiller();
+
+      if (Players.TryGetValue(NWScript.GetLastPlayerDied(), out Player player))
       {
         NWScript.SendMessageToPC(player.oid, "Tout se brouille autour de vous. Avant de perdre connaissance, vous sentez comme un étrange maëlstrom vous aspirer.");
         
@@ -19,6 +20,8 @@ namespace NWN.Systems
         StripPlayerOfCraftResources(player);
         NWScript.DelayCommand(1.3f, () => SavePlayerCorpseToDatabase(player.characterId, player.deathCorpse, NWScript.GetTag(NWScript.GetArea(player.deathCorpse)), NWScript.GetPosition(player.deathCorpse)));
         NWScript.DelayCommand(3.0f, () => SendPlayerToLimbo(player));
+
+        player.EmitDeath(new Player.DeathEventArgs(player, oKiller));
       }
 
       return 0;
