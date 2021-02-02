@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Numerics;
 using System.Collections.Generic;
 using NWN.Core;
@@ -95,6 +95,25 @@ namespace NWN.Systems
           this.feat = feat;
         }
       }
+
+      public event EventHandler<DeathEventArgs> OnDeath = delegate { };
+      public void EmitDeath(DeathEventArgs e)
+      {
+        OnDeath(this, e);
+      }
+
+      public class DeathEventArgs : EventArgs
+      {
+        public uint oKiller;
+        public Player player;
+
+        public DeathEventArgs(Player player, uint oKiller)
+        {
+          this.oKiller = oKiller;
+          this.player = player;
+        }
+      }
+
       public void DoActionOnTargetSelected(uint oTarget, Vector3 vTarget)
       {
         if (Convert.ToBoolean(NWScript.GetIsObjectValid(oTarget)))
