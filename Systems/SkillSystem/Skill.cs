@@ -104,7 +104,7 @@ namespace NWN.Systems
         this.pointsToNextLevel = 250 * this.multiplier * (int)Math.Pow(Math.Sqrt(32), this.currentLevel - 1);
 
         if (NWN.Systems.Config.env == NWN.Systems.Config.Env.Chim)
-          pointsToNextLevel = 10;
+          pointsToNextLevel = - 10;
 
         if (this.player.currentSkillJob == this.oid)
         {

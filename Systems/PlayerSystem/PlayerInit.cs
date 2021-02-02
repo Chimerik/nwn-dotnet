@@ -42,7 +42,7 @@ namespace NWN.Systems
         string pcAccount = player.CheckDBPlayerAccount();
         if (pcAccount != NWScript.GetPCPlayerName(player.oid))
         {
-          NWScript.SendMessageToPC(player.oid, $"Attention - Ce personnage est enregistré sous le compte {pcAccount}, or vous venez de vous connecter sous {NWScript.GetPCPlayerName(player.oid)}, ce qui risque de poser problème !");
+          NWScript.BootPC(player.oid, $"Attention - Ce personnage est enregistré sous le compte {pcAccount}, or vous venez de vous connecter sous {NWScript.GetPCPlayerName(player.oid)}, veuillez vous reconnecter avec le bon compte !") ;
           Utils.LogMessageToDMs($"Attention - {NWScript.GetPCPlayerName(player.oid)} vient de se connecter avec un personnage enregistré sous le compte : {pcAccount} !");
         }
 
@@ -265,6 +265,7 @@ namespace NWN.Systems
       player.learnableSkills.Add((int)Feat.ArmorProficiencyLight, new SkillSystem.Skill((int)Feat.ArmorProficiencyLight, 0.0f, player));
       player.learnableSkills.Add((int)Feat.ShieldProficiency, new SkillSystem.Skill((int)Feat.ShieldProficiency, 0.0f, player));
       player.learnableSkills.Add((int)Feat.WeaponFinesse, new SkillSystem.Skill((int)Feat.WeaponFinesse, 0.0f, player));
+      player.learnableSkills.Add((int)Feat.TwoWeaponFighting, new SkillSystem.Skill((int)Feat.TwoWeaponFighting, 0.0f, player));
       player.learnableSkills.Add((int)Feat.ImprovedSavingThrowFortitude, new SkillSystem.Skill((int)Feat.ImprovedSavingThrowFortitude, 0.0f, player));
       player.learnableSkills.Add((int)Feat.ImprovedSavingThrowReflex, new SkillSystem.Skill((int)Feat.ImprovedSavingThrowReflex, 0.0f, player));
       player.learnableSkills.Add((int)Feat.ImprovedSavingThrowWill, new SkillSystem.Skill((int)Feat.ImprovedSavingThrowWill, 0.0f, player));
@@ -379,6 +380,9 @@ namespace NWN.Systems
 
       while (Convert.ToBoolean(NWScript.SqlStep(query)))
         player.learnableSkills.Add(NWScript.SqlGetInt(query, 0), new SkillSystem.Skill(NWScript.SqlGetInt(query, 0), NWScript.SqlGetInt(query, 1), player));
+    
+      if(!player.learnableSkills.ContainsKey((int)Feat.TwoWeaponFighting) && !Convert.ToBoolean(CreaturePlugin.GetKnowsFeat(player.oid, (int)Feat.TwoWeaponFighting)))
+        player.learnableSkills.Add((int)Feat.TwoWeaponFighting, new SkillSystem.Skill((int)Feat.TwoWeaponFighting, 0.0f, player));
     }
     private static void InitializePlayerLearnableSpells(Player player)
     {

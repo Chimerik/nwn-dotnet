@@ -91,7 +91,6 @@ namespace NWN.Systems
         }
       }
     }
-
     public void DeferDestroy(float delay = 30.0f)
     {
       NWScript.DelayCommand(delay, () =>

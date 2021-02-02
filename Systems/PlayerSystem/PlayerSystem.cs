@@ -1045,8 +1045,7 @@ namespace NWN.Systems
         NWScript.SetLocalString(oArea, "_LAST_ENTERED_ON", DateTime.Now.ToString());
 
         //GESTION DES SPAWNS & RENCONTRES
-        DateTime previousSpawnDate;
-        if (!DateTime.TryParse(NWScript.GetLocalString(oArea, "_DATE_LAST_SPAWNED"), out previousSpawnDate) || (DateTime.Now - previousSpawnDate).TotalMinutes > 10)
+        if (!DateTime.TryParse(NWScript.GetLocalString(oArea, "_DATE_LAST_SPAWNED"), out DateTime previousSpawnDate) || (DateTime.Now - previousSpawnDate).TotalMinutes > 10)
         {
           NWScript.SetLocalString(oArea, "_DATE_LAST_SPAWNED", DateTime.Now.ToString());
 
@@ -1065,8 +1064,7 @@ namespace NWN.Systems
           }
 
           // Gestion des coffres lootables
-          Area area;
-          if (AreaSystem.areaDictionnary.TryGetValue(NWScript.GetObjectUUID(oArea), out area))
+          if (AreaSystem.areaDictionnary.TryGetValue(NWScript.GetObjectUUID(oArea), out Area area))
           {
             foreach (uint chest in area.lootChestList)
             {

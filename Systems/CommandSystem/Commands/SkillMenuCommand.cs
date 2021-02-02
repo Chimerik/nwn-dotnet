@@ -158,7 +158,7 @@ namespace NWN.Systems
         SelectedSkill.CreateSkillJournalEntry();
       }
 
-      __DrawSkillPage(player);
+      __HandleClose(player);
     }
     private static void __HandleSpellSelection(PlayerSystem.Player player, SkillSystem.LearnableSpell selectedSpell)
     {
@@ -204,7 +204,7 @@ namespace NWN.Systems
         selectedSpell.CreateSkillJournalEntry();
       }
 
-      __DrawSpellPage(player);
+      __HandleClose(player);
     }
     private static void __HandleClose(PlayerSystem.Player player)
     {

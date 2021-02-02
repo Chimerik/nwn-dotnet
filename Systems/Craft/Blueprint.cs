@@ -97,12 +97,12 @@ namespace NWN.Systems.Craft
           case PlankType.Telperionade: return GetPyeriteItemProperties(itemCategory);
         }
       }
-      else if (Enum.TryParse(material, out PeltType myPeltType))
+      else if (Enum.TryParse(material, out LeatherType myLeatherType))
       {
-        switch (myPeltType)
+        switch (myLeatherType)
         {
-          case PeltType.MauvaisePeau: return GetTritaniumItemProperties();
-          case PeltType.PeauCommune: return GetPyeriteItemProperties(itemCategory);
+          case LeatherType.MauvaisCuir: return GetTritaniumItemProperties();
+          case LeatherType.CuirCommun: return GetPyeriteItemProperties(itemCategory);
         }
       }
 
