@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Numerics;
 using System.Collections.Generic;
 using NWN.Core;
@@ -11,7 +11,7 @@ namespace NWN.Systems
   public static partial class PlayerSystem
   {
     public class Player
-    { 
+    {
       public readonly uint oid;
       public readonly int accountId;
       public readonly int characterId;
@@ -38,6 +38,7 @@ namespace NWN.Systems
       public uint deathCorpse { get; set; }
       public int setValue { get; set; }
       public QuickbarType loadedQuickBar { get; set; }
+      public Arena.PlayerData pveArena = new Arena.PlayerData();
 
       public Dictionary<uint, Player> listened = new Dictionary<uint, Player>();
       public Dictionary<uint, Player> blocked = new Dictionary<uint, Player>();

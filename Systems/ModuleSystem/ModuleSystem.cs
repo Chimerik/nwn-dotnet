@@ -22,6 +22,7 @@ namespace NWN.Systems
       { "ondeath_wraith", HandleWraithDeath },
       { "ondeath_quaranti", HandleQuarantineWereDeath },
       { "od_spawn_npc_wp", HandleNPCDeath },
+      { Arena.Config.PVE_ARENA_CREATURE_ON_DEATH_SCRIPT, Arena.ScriptHandlers.HandleCreatureOnDeath },
     }.Concat(Systems.LootSystem.Register)
      .Concat(Systems.PlayerSystem.Register)
      .Concat(Systems.ChatSystem.Register)

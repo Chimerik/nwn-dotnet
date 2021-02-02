@@ -16,6 +16,7 @@ namespace NWN.Systems
       { "os_statuemaker", HandleStatufyCreature },
       { "oc_statue", HandleCancelStatueConversation },
       { "door_auto_close", HandleDoorAutoClose },
+      { Arena.Config.PVE_ARENA_PULL_ROPE_CHAIN_ON_USED_SCRIPT, Arena.ScriptHandlers.HandlePullRopeChainUse },
     };
     private static int HandleCleanDMPLC(uint oidSelf)
     {
