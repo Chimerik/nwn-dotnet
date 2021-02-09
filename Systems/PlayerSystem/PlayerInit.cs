@@ -1,35 +1,21 @@
 ﻿using System;
 using System.Linq;
+using System.Threading.Tasks;
 using Discord;
+using NLog.Fluent;
+using NWN.API;
+using NWN.API.Events;
 using NWN.Core;
 using NWN.Core.NWNX;
 using NWN.Systems.Craft;
 
 namespace NWN.Systems
 {
-  public static partial class PlayerSystem
+  public partial class PlayerSystem
   {
-    private static int HandlePlayerConnect(uint oidSelf)
+    private void HandlePlayerConnect(ModuleEvents.OnClientEnter HandlePlayerConnect)
     {
-      var oPC = NWScript.GetEnteringObject();
-
-      //TODO : système de BANLIST
-
-      //if (NWScript.GetLocalInt(oidSelf, "_LANGUE_ACTIVE") != 0)
-      //{
-      /*      NWScript.SendMessageToPC(oPC, $"langue = {NWScript.GetLocalInt(oPC, "_LANGUE_ACTIVE")}");
-              NWScript.DeleteLocalInt(oPC, "_LANGUE_ACTIVE");
-            NWScript.SendMessageToPC(oPC, $"langue = {NWScript.GetLocalInt(oPC, "_LANGUE_ACTIVE")}");
-
-            NWScript.DelayCommand(4.5f, () => NWScript.SetTextureOverride("icon_elf", "", oPC));
-              NWScript.DelayCommand(5.0f, () => RefreshQBS(oPC));
-       */     //}
-              // else
-              //{
-              //NWScript.SetTextureOverride("icon_elf", "", oidSelf);
-
-      //RefreshQBS(oidSelf, 0);
-      // }
+      NwPlayer oPC = HandlePlayerConnect.Player;
 
       if (!Players.TryGetValue(oPC, out Player player))
       {
@@ -37,173 +23,144 @@ namespace NWN.Systems
         Players.Add(oPC, player);
       }
 
-      if (NWScript.GetIsDM(oPC) != 1)
+      player.activeLanguage = Feat.Invalid;
+
+      if (oPC.IsDM)
+        return;
+
+      string pcAccount = player.CheckDBPlayerAccount();
+      if (pcAccount != oPC.PlayerName)
       {
-        string pcAccount = player.CheckDBPlayerAccount();
-        if (pcAccount != NWScript.GetPCPlayerName(player.oid))
+        oPC.BootPlayer($"Attention - Ce personnage est enregistré sous le compte {pcAccount}, or vous venez de vous connecter sous {oPC.PlayerName}, veuillez vous reconnecter avec le bon compte !");
+        NWN.Utils.LogMessageToDMs($"Attention - {oPC.PlayerName} vient de se connecter avec un personnage enregistré sous le compte : {pcAccount} !");
+        return;
+      }
+
+      if (player.currentHP <= 0)
+        oPC.ApplyEffect(EffectDuration.Instant, API.Effect.Death());
+      else
+        oPC.HP = player.currentHP;
+
+      Task teleportPlayer = NwTask.Run(async () =>
+      {
+        await NwTask.WaitUntilValueChanged(() => oPC.Area != null);
+        oPC.Location = player.location;
+        return true;
+      });
+
+      if (player.craftJob.IsActive()
+        && player.location.Area.GetLocalVariable<int>("_AREA_LEVEL").Value == 0)
+      {
+        player.CraftJobProgression();
+        player.craftJob.CreateCraftJournalEntry();
+      }
+
+      if (player.currentSkillJob != (int)Feat.Invalid)
+      {
+        switch (player.currentSkillType)
         {
-          NWScript.BootPC(player.oid, $"Attention - Ce personnage est enregistré sous le compte {pcAccount}, or vous venez de vous connecter sous {NWScript.GetPCPlayerName(player.oid)}, veuillez vous reconnecter avec le bon compte !") ;
-          Utils.LogMessageToDMs($"Attention - {NWScript.GetPCPlayerName(player.oid)} vient de se connecter avec un personnage enregistré sous le compte : {pcAccount} !");
+          case SkillSystem.SkillType.Skill:
+            if (player.learnableSkills.ContainsKey(player.currentSkillJob))
+              player.learnableSkills[player.currentSkillJob].currentJob = true;
+            else
+            {
+              if (!Convert.ToBoolean(CreaturePlugin.GetKnowsFeat(player.oid, player.currentSkillJob)))
+                CreaturePlugin.AddFeat(player.oid, player.currentSkillJob);
+              player.currentSkillJob = (int)Feat.Invalid;
+            }
+            break;
+          case SkillSystem.SkillType.Spell:
+            if (player.learnableSpells.ContainsKey(player.currentSkillJob))
+              player.learnableSpells[player.currentSkillJob].currentJob = true;
+            else
+              player.currentSkillJob = (int)Feat.Invalid;
+            break;
         }
 
-        /*if (NWScript.GetIsObjectValid(NWScript.GetItemPossessedBy(oPC, "pj_lycan_curse")) == 1) // TODO : revoir système de métamorphose et de malédiction lycanthropique
-        {
-          CreaturePlugin.AddFeat(oPC, NWScript.FEAT_PLAYER_TOOL_02);
-          NWScript.DestroyObject(NWScript.GetItemPossessedBy(oPC, "pj_lycan_curse"));
-        }*/
+        player.AcquireSkillPoints();
+        player.isConnected = true;
+        player.isAFK = false;
 
-        // Initialisation de la faim (TODO : récupérer la faim en BDD)
-        // TODO : système de faim en pause pour le moment. A revoir. Je pense qu'il doit être moins punitif et impacter uniquement le taux d'apprentissage des skills
-        /*float fNourriture = 200.0f;
-
-        if (fNourriture < 100.0f)
-        {
-          int nLoss = 100 - Convert.ToInt32(fNourriture);
-          Effect eHunger = NWScript.EffectAbilityDecrease(NWScript.ABILITY_STRENGTH, NWScript.GetAbilityScore(oPC, NWScript.ABILITY_STRENGTH) * nLoss / 100);
-          eHunger = NWScript.EffectLinkEffects(eHunger, NWScript.EffectAbilityDecrease(NWScript.ABILITY_DEXTERITY, NWScript.GetAbilityScore(oPC, NWScript.ABILITY_DEXTERITY) * nLoss / 100));
-          eHunger = NWScript.EffectLinkEffects(eHunger, NWScript.EffectAbilityDecrease(NWScript.ABILITY_CONSTITUTION, NWScript.GetAbilityScore(oPC, NWScript.ABILITY_CONSTITUTION) * nLoss / 100));
-          eHunger = NWScript.EffectLinkEffects(eHunger, NWScript.EffectAbilityDecrease(NWScript.ABILITY_CHARISMA, NWScript.GetAbilityScore(oPC, NWScript.ABILITY_CHARISMA) * nLoss / 100));
-          eHunger = NWScript.SupernaturalEffect(eHunger);
-          eHunger = NWScript.TagEffect(eHunger, "Effect_Hunger");
-          NWScript.ApplyEffectToObject(NWScript.DURATION_TYPE_PERMANENT, eHunger, oPC);
-        }*/
-
-        if (player.currentHP <= 0)
-          NWScript.ApplyEffectToObject(NWScript.DURATION_TYPE_INSTANT, NWScript.EffectDeath(0, 0), player.oid);
-        else
-          NWScript.SetCurrentHitPoints(player.oid, player.currentHP);
-        
-        if (player.location != null)
-        {
-          NWScript.WriteTimestampedLogEntry($"{NWScript.GetName(player.oid)} teleported to : {NWScript.GetName(NWScript.GetAreaFromLocation(player.location))} - {NWScript.GetPositionFromLocation(player.location)} - {NWScript.GetFacingFromLocation(player.location)}");
-          NWScript.DelayCommand(1.0f, () => NWScript.AssignCommand(player.oid, () => NWScript.ClearAllActions()));
-          NWScript.DelayCommand(1.1f, () => NWScript.AssignCommand(player.oid, () => NWScript.JumpToLocation(player.location)));
-        }
-        else
-        {
-          NWScript.DelayCommand(1.0f, () => NWScript.AssignCommand(player.oid, () => NWScript.ClearAllActions()));
-          NWScript.DelayCommand(1.1f, () => NWScript.AssignCommand(player.oid, () => NWScript.JumpToLocation(NWScript.GetLocation(NWScript.GetWaypointByTag("WP_START_NEW_CHAR")))));
-        }
-        if (player.craftJob.IsActive() 
-          && AreaSystem.areaDictionnary.TryGetValue(NWScript.GetObjectUUID(NWScript.GetAreaFromLocation(player.location)), out Area area) 
-          && area.level == 0)
-        {
-          player.CraftJobProgression();
-          player.craftJob.CreateCraftJournalEntry();
-        }
         if (player.currentSkillJob != (int)Feat.Invalid)
         {
           switch (player.currentSkillType)
           {
             case SkillSystem.SkillType.Skill:
-              if (player.learnableSkills.ContainsKey(player.currentSkillJob))
-                player.learnableSkills[player.currentSkillJob].currentJob = true;
-              else
-              {
-                if (!Convert.ToBoolean(CreaturePlugin.GetKnowsFeat(player.oid, player.currentSkillJob)))
-                  CreaturePlugin.AddFeat(player.oid, player.currentSkillJob);
-                player.currentSkillJob = (int)Feat.Invalid;
-              }
+              player.learnableSkills[player.currentSkillJob].CreateSkillJournalEntry();
               break;
             case SkillSystem.SkillType.Spell:
-              if (player.learnableSpells.ContainsKey(player.currentSkillJob))
-                player.learnableSpells[player.currentSkillJob].currentJob = true;
-              else
-                player.currentSkillJob = (int)Feat.Invalid;
+              player.learnableSpells[player.currentSkillJob].CreateSkillJournalEntry();
               break;
           }
-
-          player.AcquireSkillPoints();
-          player.isConnected = true;
-          player.isAFK = false;
-
-          if (player.currentSkillJob != (int)Feat.Invalid)
-          {
-            switch (player.currentSkillType)
-            {
-              case SkillSystem.SkillType.Skill:
-                player.learnableSkills[player.currentSkillJob].CreateSkillJournalEntry();
-               break;
-              case SkillSystem.SkillType.Spell:
-                player.learnableSpells[player.currentSkillJob].CreateSkillJournalEntry();
-                break;
-            }
-          }
         }
-        //else
-        //NWScript.DelayCommand(10.0f, () => player.PlayNoCurrentTrainingEffects());
-        
-        if(NWScript.GetTag(NWScript.GetItemInSlot(NWScript.INVENTORY_SLOT_NECK, player.oid)) != "amulettorillink")
-          NWScript.ApplyEffectToObject(NWScript.DURATION_TYPE_PERMANENT, NWScript.TagEffect(NWScript.SupernaturalEffect(NWScript.EffectSpellFailure(50)), "erylies_spell_failure"), player.oid);
-        
-        //RenamePlugin.SetPCNameOverride(player.oid, NWScript.GetName(player.oid), "", "", RenamePlugin.NWNX_RENAME_PLAYERNAME_OVERRIDE);
-
-        //Appliquer la distance de perception du chat en fonction de la compétence Listen du joueur
-        //ChatPlugin.SetChatHearingDistance(ChatPlugin.GetChatHearingDistance(player.oid, ChatPlugin.NWNX_CHAT_CHANNEL_PLAYER_TALK) + NWScript.GetSkillRank(NWScript.SKILL_LISTEN, player.oid) / 5, player.oid, ChatPlugin.NWNX_CHAT_CHANNEL_PLAYER_TALK);
-        //ChatPlugin.SetChatHearingDistance(ChatPlugin.GetChatHearingDistance(player.oid, ChatPlugin.NWNX_CHAT_CHANNEL_PLAYER_WHISPER) + NWScript.GetSkillRank(NWScript.SKILL_LISTEN, player.oid) / 10, player.oid, ChatPlugin.NWNX_CHAT_CHANNEL_PLAYER_WHISPER);
-        player.isConnected = true;
-        player.isAFK = false;
-        player.DoJournalUpdate = false;
-       
-        player.dateLastSaved = DateTime.Now;
       }
 
-      player.activeLanguage = Feat.Invalid;
+      if (oPC.GetItemInSlot(API.Constants.InventorySlot.Neck).Tag != "amulettorillink")
+      {
+        API.Effect eff = API.Effect.SpellFailure(50);
+        eff.Tag = "erylies_spell_failure";
+        eff.SubType = API.Constants.EffectSubType.Supernatural;
+        oPC.ApplyEffect(EffectDuration.Permanent, eff);
+      }
 
-      return 0;
+      player.isConnected = true;
+      player.isAFK = false;
+      player.DoJournalUpdate = false;
+
+      player.dateLastSaved = DateTime.Now;
     }
-    private static void InitializeNewPlayer(uint newPlayer)
+    private static void InitializeNewPlayer(NwPlayer newPlayer)
     {
-      NWScript.DelayCommand(4.0f, () => NWScript.PostString(newPlayer, "a", 40, 15, 0, 0f, unchecked((int)0xFFFFFFFF), unchecked((int)0xFFFFFFFF), 9999, "fnt_my_gui"));
-      EventsPlugin.AddObjectToDispatchList("NWNX_ON_INPUT_TOGGLE_PAUSE_BEFORE", "event_spacebar_down", newPlayer);
+      NWScript.DelayCommand(4.0f, () => newPlayer.PostString("a", 40, 15, API.Constants.ScreenAnchor.TopLeft, 0f, API.Color.BLACK, API.Color.BLACK, 9999, "fnt_my_gui"));
+      EventsPlugin.AddObjectToDispatchList("NWNX_ON_INPUT_TOGGLE_PAUSE_BEFORE", "spacebar_down", newPlayer);
 
-      var query = NWScript.SqlPrepareQueryCampaign(ModuleSystem.database, $"SELECT rowid FROM PlayerAccounts WHERE accountName = @accountName");
-      NWScript.SqlBindString(query, "@accountName", NWScript.GetPCPlayerName(newPlayer));
+      var query = NWScript.SqlPrepareQueryCampaign(Systems.Config.database, $"SELECT rowid FROM PlayerAccounts WHERE accountName = @accountName");
+      NWScript.SqlBindString(query, "@accountName", newPlayer.PlayerName);
 
       if (!Convert.ToBoolean(NWScript.SqlStep(query)))
       {
         if (Config.env == Config.Env.Prod)
         {
-          (Bot._client.GetChannel(786218144296468481) as IMessageChannel).SendMessageAsync($"Toute première connexion de {NWScript.GetName(newPlayer)}. Accueillons le comme il se doit !");
-          (Bot._client.GetChannel(680072044364562532) as IMessageChannel).SendMessageAsync($"{Bot._client.GetGuild(680072044364562528).EveryoneRole.Mention} Toute première connexion de {NWScript.GetName(newPlayer)} => nouveau joueur à accueillir !");
+          (Bot._client.GetChannel(786218144296468481) as IMessageChannel).SendMessageAsync($"Toute première connexion de {newPlayer.Name}. Accueillons le comme il se doit !");
+          (Bot._client.GetChannel(680072044364562532) as IMessageChannel).SendMessageAsync($"{Bot._client.GetGuild(680072044364562528).EveryoneRole.Mention} Toute première connexion de {newPlayer.Name} => nouveau joueur à accueillir !");
         }
 
-        query = NWScript.SqlPrepareQueryCampaign(ModuleSystem.database, $"INSERT INTO PlayerAccounts (accountName, cdKey, bonusRolePlay) VALUES (@name, @cdKey, @brp)");
+        query = NWScript.SqlPrepareQueryCampaign(Systems.Config.database, $"INSERT INTO PlayerAccounts (accountName, cdKey, bonusRolePlay) VALUES (@name, @cdKey, @brp)");
         NWScript.SqlBindInt(query, "@brp", 1);
-        NWScript.SqlBindString(query, "@name", NWScript.GetPCPlayerName(newPlayer));
-        NWScript.SqlBindString(query, "@cdKey", NWScript.GetPCPublicCDKey(newPlayer));
+        NWScript.SqlBindString(query, "@name", newPlayer.PlayerName);
+        NWScript.SqlBindString(query, "@cdKey", newPlayer.CDKey);
         NWScript.SqlStep(query);
 
-        query = NWScript.SqlPrepareQueryCampaign(ModuleSystem.database, $"SELECT last_insert_rowid()");
+        query = NWScript.SqlPrepareQueryCampaign(Systems.Config.database, $"SELECT last_insert_rowid()");
         NWScript.SqlStep(query);
       }
 
-      switch (NWScript.GetRacialType(newPlayer))
+      switch (newPlayer.RacialType)
       {
         case NWScript.RACIAL_TYPE_DWARF:
-          CreaturePlugin.AddFeat(newPlayer, (int)Feat.LanguageDwarf);
+          CreaturePlugin.AddFeat(newPlayer, (int)Feat.Nain);
           break;
-        case NWScript.RACIAL_TYPE_ELF:
-        case NWScript.RACIAL_TYPE_HALFELF:
-          CreaturePlugin.AddFeat(newPlayer, (int)Feat.LanguageElf);
+        case API.Constants.RacialType.Elf:
+        case API.Constants.RacialType.HalfElf:
+          CreaturePlugin.AddFeat(newPlayer, (int)Feat.Elfique);
           break;
-        case NWScript.RACIAL_TYPE_HALFLING:
-          CreaturePlugin.AddFeat(newPlayer, (int)Feat.LanguageHalfling);
+        case API.Constants.RacialType.Halfling:
+          CreaturePlugin.AddFeat(newPlayer, (int)Feat.Halfelin);
           break;
-        case NWScript.RACIAL_TYPE_GNOME:
-          CreaturePlugin.AddFeat(newPlayer, (int)Feat.LanguageGnome);
+        case API.Constants.RacialType.Gnome:
+          CreaturePlugin.AddFeat(newPlayer, (int)Feat.Gnome);
           break;
-        case NWScript.RACIAL_TYPE_HALFORC:
-          CreaturePlugin.AddFeat(newPlayer, (int)Feat.LanguageOrc);
+        case API.Constants.RacialType.HalfOrc:
+          CreaturePlugin.AddFeat(newPlayer, (int)Feat.Orc);
           break;
       }
 
       ObjectPlugin.SetInt(newPlayer, "accountId", NWScript.SqlGetInt(query, 0), 1);
     }
-    private static void InitializeNewCharacter(Player newCharacter)
+    private static void InitializeNewCharacter(PlayerSystem.Player newCharacter)
     {
       if (Config.env == Config.Env.Prod)
-        (Bot._client.GetChannel(680072044364562532) as IMessageChannel).SendMessageAsync($"{NWScript.GetPCPlayerName(newCharacter.oid)} vient de créer un nouveau personnage : {NWScript.GetName(newCharacter.oid)}");
+        (Bot._client.GetChannel(680072044364562532) as IMessageChannel).SendMessageAsync($"{newCharacter.oid.PlayerName} vient de créer un nouveau personnage : {newCharacter.oid.Name}");
 
       int startingSP = 5000;
       if (Convert.ToBoolean(CreaturePlugin.GetKnowsFeat(newCharacter.oid, (int)Feat.QuickToMaster)))
@@ -211,23 +168,26 @@ namespace NWN.Systems
 
       ObjectPlugin.SetInt(newCharacter.oid, "_STARTING_SKILL_POINTS", startingSP, 1);
 
-      uint arrivalArea, arrivalPoint;
+      NwArea arrivalArea;
+      NwWaypoint arrivalPoint = null;
 
       if (Config.env == Config.Env.Prod || Config.env == Config.Env.Chim)
       {
-        arrivalArea = NWScript.CreateArea("intro_galere", $"entry_scene_{NWScript.GetPCPublicCDKey(newCharacter.oid)}_{NWScript.GetName(newCharacter.oid)}", $"La galère de {NWScript.GetName(newCharacter.oid)} (Bienvenue !)");
-        AreaSystem.CreateArea(arrivalArea);
-        arrivalPoint = NWScript.GetNearestObjectByTag("ENTRY_POINT", NWScript.GetFirstObjectInArea(arrivalArea));
+        arrivalArea = NwArea.Create("intro_galere", $"entry_scene_{newCharacter.oid.CDKey}", $"La galère de {newCharacter.oid.Name} (Bienvenue !)");
+        nativeEventService.Subscribe<NwArea, AreaEvents.OnExit>(arrivalArea, AreaSystem.OnAreaExit);
+        arrivalPoint = arrivalArea.FindObjectsOfTypeInArea<NwWaypoint>().Where(o => o.Tag == "ENTRY_POINT").FirstOrDefault();
 
-      } else
+        foreach (NwObject fog in arrivalArea.FindObjectsOfTypeInArea<NwPlaceable>().Where(o => o.Tag == "intro_brouillard"))
+          VisibilityPlugin.SetVisibilityOverride(NWScript.OBJECT_INVALID, fog, VisibilityPlugin.NWNX_VISIBILITY_HIDDEN);
+      }
+      else
       {
-        arrivalArea = NWScript.GetArea(newCharacter.oid);
-        arrivalPoint = newCharacter.oid;
+        arrivalArea = newCharacter.oid.Area;
       }
 
-      Utils.DestroyInventory(newCharacter.oid);
+      NWN.Utils.DestroyInventory(newCharacter.oid);
 
-      var query = NWScript.SqlPrepareQueryCampaign(ModuleSystem.database, $"INSERT INTO playerCharacters (accountId , characterName, dateLastSaved, currentSkillType, currentSkillJob, currentCraftJob, currentCraftObject, frostAttackOn, areaTag, position, facing, menuOriginLeft, currentHP) VALUES (@accountId, @name, @dateLastSaved, @currentSkillType, @currentSkillJob, @currentCraftJob, @currentCraftObject, @frostAttackOn, @areaTag, @position, @facing, @menuOriginLeft, @currentHP)");
+      var query = NWScript.SqlPrepareQueryCampaign(Systems.Config.database, $"INSERT INTO playerCharacters (accountId , characterName, dateLastSaved, currentSkillType, currentSkillJob, currentCraftJob, currentCraftObject, frostAttackOn, areaTag, position, facing, menuOriginLeft, currentHP) VALUES (@accountId, @name, @dateLastSaved, @currentSkillType, @currentSkillJob, @currentCraftJob, @currentCraftObject, @frostAttackOn, @areaTag, @position, @facing, @menuOriginLeft, @currentHP)");
       NWScript.SqlBindInt(query, "@accountId", newCharacter.accountId);
       NWScript.SqlBindString(query, "@name", NWScript.GetName(newCharacter.oid));
       NWScript.SqlBindString(query, "@dateLastSaved", DateTime.Now.ToString());
@@ -237,13 +197,23 @@ namespace NWN.Systems
       NWScript.SqlBindString(query, "@currentCraftObject", "");
       NWScript.SqlBindInt(query, "@frostAttackOn", 0);
       NWScript.SqlBindString(query, "@areaTag", NWScript.GetTag(arrivalArea));
-      NWScript.SqlBindVector(query, "@position", NWScript.GetPosition(arrivalPoint));
-      NWScript.SqlBindFloat(query, "@facing", NWScript.GetFacing(arrivalPoint));
+
+      if (arrivalPoint.IsValid)
+      {
+        NWScript.SqlBindVector(query, "@position", arrivalPoint.Position);
+        NWScript.SqlBindFloat(query, "@facing", arrivalPoint.Rotation);
+      }
+      else
+      {
+        NWScript.SqlBindVector(query, "@position", NwModule.Instance.StartingLocation.Position);
+        NWScript.SqlBindFloat(query, "@facing", NwModule.Instance.StartingLocation.Rotation);
+      }
+
       NWScript.SqlBindInt(query, "@menuOriginLeft", 50);
-      NWScript.SqlBindInt(query, "@currentHP", NWScript.GetMaxHitPoints(newCharacter.oid));
+      NWScript.SqlBindInt(query, "@currentHP", newCharacter.oid.MaxHP);
       NWScript.SqlStep(query);
 
-      query = NWScript.SqlPrepareQueryCampaign(ModuleSystem.database, $"SELECT last_insert_rowid()");
+      query = NWScript.SqlPrepareQueryCampaign(Config.database, $"SELECT last_insert_rowid()");
       NWScript.SqlStep(query);
 
       ObjectPlugin.SetInt(newCharacter.oid, "characterId", NWScript.SqlGetInt(query, 0), 1);
@@ -301,7 +271,6 @@ namespace NWN.Systems
     private static void InitializeDM(Player player)
     {
       player.playerJournal = new PlayerJournal();
-      InitializeDMEvents(player.oid);
     }
     private static void InitializePlayer(Player player)
     {
@@ -314,33 +283,18 @@ namespace NWN.Systems
     }
     private static void InitializePlayerEvents(uint player)
     {
-      EventsPlugin.AddObjectToDispatchList("NWNX_ON_USE_FEAT_BEFORE", "event_feat_used", player);
-      EventsPlugin.AddObjectToDispatchList("NWNX_ON_ADD_ASSOCIATE_AFTER", "summon_add_after", player);
-      EventsPlugin.AddObjectToDispatchList("NWNX_ON_REMOVE_ASSOCIATE_AFTER", "summon_remove_after", player);
-      EventsPlugin.AddObjectToDispatchList("NWNX_ON_BROADCAST_CAST_SPELL_AFTER", "event_spellbroadcast_after", player);
-      //EventsPlugin.AddObjectToDispatchList("NWNX_ON_SPELL_INTERRUPTED_AFTER", "_onspellinterrupted_after", player);
-      EventsPlugin.AddObjectToDispatchList("NWNX_ON_CAST_SPELL_BEFORE", "_onspellcast_before", player);
-      EventsPlugin.AddObjectToDispatchList("NWNX_ON_CAST_SPELL_AFTER", "_onspellcast_after", player);
-      EventsPlugin.AddObjectToDispatchList("NWNX_ON_ITEM_EQUIP_BEFORE", "event_equip_items_before", player);
-      EventsPlugin.AddObjectToDispatchList("NWNX_ON_ITEM_UNEQUIP_BEFORE", "event_unequip_items_before", player);
-      EventsPlugin.AddObjectToDispatchList("NWNX_ON_VALIDATE_ITEM_EQUIP_BEFORE", "event_validate_equip_items_before", player);
-      EventsPlugin.AddObjectToDispatchList("NWNX_ON_VALIDATE_USE_ITEM_BEFORE", "event_validate_equip_items_before", player);
-      EventsPlugin.AddObjectToDispatchList("NWNX_ON_USE_ITEM_BEFORE", "event_use_item_before", player);
+      EventsPlugin.AddObjectToDispatchList("NWNX_ON_BROADCAST_CAST_SPELL_AFTER", "a_spellbroadcast", player);
+      EventsPlugin.AddObjectToDispatchList("NWNX_ON_CAST_SPELL_BEFORE", "b_spellcast", player);
+      EventsPlugin.AddObjectToDispatchList("NWNX_ON_CAST_SPELL_AFTER", "a_spellcast", player);
+      EventsPlugin.AddObjectToDispatchList("NWNX_ON_ITEM_UNEQUIP_BEFORE", "b_unequip", player);
       EventsPlugin.AddObjectToDispatchList("NWNX_ON_COMBAT_MODE_OFF", "event_combatmode", player);
       EventsPlugin.AddObjectToDispatchList("NWNX_ON_USE_SKILL_BEFORE", "event_skillused", player);
-      EventsPlugin.AddObjectToDispatchList("NWNX_ON_DO_LISTEN_DETECTION_AFTER", "event_detection_after", player);
-      EventsPlugin.AddObjectToDispatchList("NWNX_ON_START_COMBAT_ROUND_AFTER", "event_start_combat_after", player);
-      EventsPlugin.AddObjectToDispatchList("NWNX_ON_CLIENT_DISCONNECT_BEFORE", "player_exit_before", player);
-      NWScript.SetEventScript(player, NWScript.EVENT_SCRIPT_CREATURE_ON_NOTICE, "on_perceived_pc");
-    }
-
-    private static void InitializeDMEvents(uint player)
-    {
-      EventsPlugin.AddObjectToDispatchList("NWNX_ON_USE_FEAT_BEFORE", "event_feat_used", player);
+      EventsPlugin.AddObjectToDispatchList("NWNX_ON_DO_LISTEN_DETECTION_AFTER", "a_detection", player);
+      EventsPlugin.AddObjectToDispatchList("NWNX_ON_START_COMBAT_ROUND_AFTER", "a_start_combat", player);
     }
     private static void InitializePlayerAccount(Player player)
     {
-      var query = NWScript.SqlPrepareQueryCampaign(ModuleSystem.database, $"SELECT bonusRolePlay from PlayerAccounts where rowid = @accountId");
+      var query = NWScript.SqlPrepareQueryCampaign(Systems.Config.database, $"SELECT bonusRolePlay from PlayerAccounts where rowid = @accountId");
       NWScript.SqlBindInt(query, "@accountId", player.accountId);
       NWScript.SqlStep(query);
 
@@ -348,14 +302,13 @@ namespace NWN.Systems
     }
     private static void InitializePlayerCharacter(Player player)
     {
-      var query = NWScript.SqlPrepareQueryCampaign(ModuleSystem.database, $"SELECT areaTag, position, facing, currentHP, bankGold, dateLastSaved, currentSkillJob, currentCraftJob, currentCraftObject, currentCraftJobRemainingTime, currentCraftJobMaterial, frostAttackOn, menuOriginTop, menuOriginLeft, currentSkillType from playerCharacters where rowid = @characterId");
+      var query = NWScript.SqlPrepareQueryCampaign(Systems.Config.database, $"SELECT areaTag, position, facing, currentHP, bankGold, dateLastSaved, currentSkillJob, currentCraftJob, currentCraftObject, currentCraftJobRemainingTime, currentCraftJobMaterial, frostAttackOn, menuOriginTop, menuOriginLeft, currentSkillType from playerCharacters where rowid = @characterId");
       NWScript.SqlBindInt(query, "@characterId", player.characterId);
       NWScript.SqlStep(query);
 
       player.playerJournal = new PlayerJournal();
       player.loadedQuickBar = QuickbarType.Invalid;
-
-      player.location = Utils.GetLocationFromDatabase(NWScript.SqlGetString(query, 0), NWScript.SqlGetVector(query, 1), NWScript.SqlGetFloat(query, 2));
+      player.location = NWN.Utils.GetLocationFromDatabase(NWScript.SqlGetString(query, 0), NWScript.SqlGetVector(query, 1), NWScript.SqlGetFloat(query, 2));
       player.currentHP = NWScript.SqlGetInt(query, 3);
       player.bankGold = NWScript.SqlGetInt(query, 4);
       player.dateLastSaved = DateTime.Parse(NWScript.SqlGetString(query, 5));
@@ -364,41 +317,40 @@ namespace NWN.Systems
       player.isFrostAttackOn = Convert.ToBoolean(NWScript.SqlGetInt(query, 11));
       player.menu.originTop = NWScript.SqlGetInt(query, 12);
       player.menu.originLeft = NWScript.SqlGetInt(query, 13);
-      player.previousArea = NWScript.GetAreaFromLocation(player.location);
       player.currentSkillType = (SkillSystem.SkillType)NWScript.SqlGetInt(query, 14);
 
-      query = NWScript.SqlPrepareQueryCampaign(ModuleSystem.database, $"SELECT materialName, materialStock from playerMaterialStorage where characterId = @characterId");
+      query = NWScript.SqlPrepareQueryCampaign(Systems.Config.database, $"SELECT materialName, materialStock from playerMaterialStorage where characterId = @characterId");
       NWScript.SqlBindInt(query, "@characterId", player.characterId);
 
-      while(Convert.ToBoolean(NWScript.SqlStep(query)))
+      while (Convert.ToBoolean(NWScript.SqlStep(query)))
         player.materialStock.Add(NWScript.SqlGetString(query, 0), NWScript.SqlGetInt(query, 1));
     }
-    private static void InitializePlayerLearnableSkills(Player player)
+    private static void InitializePlayerLearnableSkills(PlayerSystem.Player player)
     {
-      var query = NWScript.SqlPrepareQueryCampaign(ModuleSystem.database, $"SELECT skillId, skillPoints from playerLearnableSkills where characterId = @characterId and trained = 0");
+      var query = NWScript.SqlPrepareQueryCampaign(Systems.Config.database, $"SELECT skillId, skillPoints from playerLearnableSkills where characterId = @characterId and trained = 0");
       NWScript.SqlBindInt(query, "@characterId", player.characterId);
 
       while (Convert.ToBoolean(NWScript.SqlStep(query)))
         player.learnableSkills.Add(NWScript.SqlGetInt(query, 0), new SkillSystem.Skill(NWScript.SqlGetInt(query, 0), NWScript.SqlGetInt(query, 1), player));
-    
-      if(!player.learnableSkills.ContainsKey((int)Feat.TwoWeaponFighting) && !Convert.ToBoolean(CreaturePlugin.GetKnowsFeat(player.oid, (int)Feat.TwoWeaponFighting)))
+
+      if (!player.learnableSkills.ContainsKey((int)Feat.TwoWeaponFighting) && !Convert.ToBoolean(CreaturePlugin.GetKnowsFeat(player.oid, (int)Feat.TwoWeaponFighting)))
         player.learnableSkills.Add((int)Feat.TwoWeaponFighting, new SkillSystem.Skill((int)Feat.TwoWeaponFighting, 0.0f, player));
     }
-    private static void InitializePlayerLearnableSpells(Player player)
+    private static void InitializePlayerLearnableSpells(PlayerSystem.Player player)
     {
-      var query = NWScript.SqlPrepareQueryCampaign(ModuleSystem.database, $"SELECT skillId, skillPoints from playerLearnableSpells where characterId = @characterId and trained = 0");
+      var query = NWScript.SqlPrepareQueryCampaign(Systems.Config.database, $"SELECT skillId, skillPoints from playerLearnableSpells where characterId = @characterId and trained = 0");
       NWScript.SqlBindInt(query, "@characterId", player.characterId);
 
       while (Convert.ToBoolean(NWScript.SqlStep(query)))
         player.learnableSpells.Add(NWScript.SqlGetInt(query, 0), new SkillSystem.LearnableSpell(NWScript.SqlGetInt(query, 0), NWScript.SqlGetInt(query, 1), player));
     }
-    private static void InitializeNewCharacterStorage(Player player)
+    private static void InitializeNewCharacterStorage(PlayerSystem.Player player)
     {
       uint storage = NWScript.GetFirstObjectInArea(NWScript.GetObjectByTag("entrepotpersonnel"));
       if (NWScript.GetTag(storage) != "ps_entrepot")
         storage = NWScript.GetNearestObjectByTag("ps_entrepot", storage);
 
-      Utils.DestroyInventory(storage);
+      NWN.Utils.DestroyInventory(storage);
       NWScript.CreateItemOnObject("bad_armor", storage);
       NWScript.CreateItemOnObject("bad_club", storage);
       NWScript.CreateItemOnObject("bad_shield", storage);
@@ -407,14 +359,14 @@ namespace NWN.Systems
 
       NWScript.SetName(storage, $"Entrepôt de {NWScript.GetName(player.oid)}");
 
-      var query = NWScript.SqlPrepareQueryCampaign(ModuleSystem.database, $"UPDATE playerCharacters set storage = @storage where rowid = @characterId");
+      var query = NWScript.SqlPrepareQueryCampaign(Systems.Config.database, $"UPDATE playerCharacters set storage = @storage where rowid = @characterId");
       NWScript.SqlBindInt(query, "@characterId", ObjectPlugin.GetInt(player.oid, "characterId"));
       NWScript.SqlBindObject(query, "@storage", storage);
       NWScript.SqlStep(query);
     }
-    private static void InitializeCharacterMapPins(Player player)
+    private static void InitializeCharacterMapPins(PlayerSystem.Player player)
     {
-      var query = NWScript.SqlPrepareQueryCampaign(ModuleSystem.database, $"SELECT mapPinId, areaTag, x, y, note from playerMapPins where characterId = @characterId");
+      var query = NWScript.SqlPrepareQueryCampaign(Systems.Config.database, $"SELECT mapPinId, areaTag, x, y, note from playerMapPins where characterId = @characterId");
       NWScript.SqlBindInt(query, "@characterId", player.characterId);
 
       while (Convert.ToBoolean(NWScript.SqlStep(query)))
@@ -428,7 +380,7 @@ namespace NWN.Systems
         NWScript.SetLocalObject(player.oid, "NW_MAP_PIN_AREA_" + mapPin.id.ToString(), NWScript.GetObjectByTag(mapPin.areaTag));
       }
 
-      if(player.mapPinDictionnary.Count > 0)
+      if (player.mapPinDictionnary.Count > 0)
         NWScript.SetLocalInt(player.oid, "NW_TOTAL_MAP_PINS", player.mapPinDictionnary.Max(v => v.Key));
     }
   }

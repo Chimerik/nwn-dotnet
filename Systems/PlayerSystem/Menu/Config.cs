@@ -1,6 +1,6 @@
 ﻿namespace NWN.Systems
 {
-  public static partial class PlayerSystem
+  public partial class PlayerSystem
   {
     public abstract partial class Menu
     {

@@ -1,10 +1,9 @@
 ﻿using System;
 using NWN.Core;
 using NWN.Core.NWNX;
-using static NWN.Systems.PlayerSystem;
-using static NWN.Systems.Items.Utils;
 using static NWN.Systems.Craft.Collect.Config;
 using static NWN.Systems.Craft.Collect.System;
+using NWN.API;
 
 namespace NWN.Systems.Craft
 {
@@ -17,9 +16,9 @@ namespace NWN.Systems.Craft
     public float remainingTime { get; set; }
     public string material { get; set; }
     public Boolean isCancelled { get; set; }
-    private readonly Player player;
+    private readonly PlayerSystem.Player player;
 
-    public Job(int baseItemType, string material, float time, Player player, string item = "")
+    public Job(int baseItemType, string material, float time, PlayerSystem.Player player, string item = "")
     {
       //this.name = name;
       this.baseItemType = baseItemType;
@@ -50,8 +49,7 @@ namespace NWN.Systems.Craft
 
       if (IsActive())
       {
-        HandleBeforePlayerSave(player.oid);
-        HandleAfterPlayerSave(player.oid);
+        player.oid.ExportCharacter();
         this.CreateCraftJournalEntry();
       }
     }
@@ -81,7 +79,7 @@ namespace NWN.Systems.Craft
       NWScript.DelayCommand(60.0f, () => this.ResetCancellation());
     }
     public Boolean CanStartJob(uint player, uint blueprint, JobType type)
-    {    
+    {
       if ((int)type > 1) // Dans le cas d'une copie ou d'une recherche de BP
       {
         if (!IsBlueprintOriginal(blueprint))
@@ -91,15 +89,15 @@ namespace NWN.Systems.Craft
         }
       }
 
-      switch(type)
+      switch (type)
       {
         case JobType.BlueprintResearchTimeEfficiency:
-          if(NWScript.GetLocalInt(blueprint, "_BLUEPRINT_TIME_EFFICIENCY") >= 10)
+          if (NWScript.GetLocalInt(blueprint, "_BLUEPRINT_TIME_EFFICIENCY") >= 10)
           {
             NWScript.SendMessageToPC(player, "Ce patron dispose déjà d'un niveau de recherche maximal.");
             return false;
           }
-          break; 
+          break;
         case JobType.BlueprintResearchMaterialEfficiency:
           if (NWScript.GetLocalInt(blueprint, "_BLUEPRINT_MATERIAL_EFFICIENCY") >= 10)
           {
@@ -115,7 +113,7 @@ namespace NWN.Systems.Craft
         return false;
       }
 
-      if(this.isCancelled)
+      if (this.isCancelled)
       {
         ObjectPlugin.AcquireItem(player, ObjectPlugin.Deserialize(this.craftedItem));
       }
@@ -129,9 +127,9 @@ namespace NWN.Systems.Craft
       else
         return true;
     }
-    public void Start(JobType type, Blueprint blueprint, Player player, uint oItem, uint oTarget = 0, string sMaterial = "")
+    public void Start(JobType type, Blueprint blueprint, PlayerSystem.Player player, uint oItem, uint oTarget = 0, string sMaterial = "")
     {
-      switch(type)
+      switch (type)
       {
         case JobType.Item:
           StartItemCraft(blueprint, oItem, oTarget, sMaterial);
@@ -150,8 +148,8 @@ namespace NWN.Systems.Craft
     }
     public void StartItemCraft(Blueprint blueprint, uint oItem, uint oTarget, string sMaterial)
     {
-      int iMineralCost = blueprint.GetBlueprintMineralCostForPlayer(player, oItem);
-      float iJobDuration = blueprint.GetBlueprintTimeCostForPlayer(player, oItem);
+      int iMineralCost = blueprint.GetBlueprintMineralCostForPlayer(player.oid, oItem.ToNwObject<NwItem>());
+      float iJobDuration = blueprint.GetBlueprintTimeCostForPlayer(player.oid, oItem.ToNwObject<NwItem>());
 
       int materialType = 0;
       if (Enum.TryParse(material, out MineralType myMineralType))
@@ -183,15 +181,15 @@ namespace NWN.Systems.Craft
           NWScript.DestroyObject(oItem);
         if (iBlueprintRemainingRuns > 0)
           NWScript.SetLocalInt(oItem, "_BLUEPRINT_RUNS", iBlueprintRemainingRuns - 1);
-        
-        DecreaseItemDurability(NWScript.GetItemInSlot(NWScript.INVENTORY_SLOT_RIGHTHAND, player.oid));
+
+        ItemUtils.DecreaseItemDurability(NWScript.GetItemInSlot(NWScript.INVENTORY_SLOT_RIGHTHAND, player.oid));
       }
       else
         NWScript.SendMessageToPC(player.oid, $"Vous n'avez pas les ressources nécessaires pour démarrer la fabrication de cet objet artisanal.");
 
       player.craftJob.isCancelled = false;
     }
-    public void StartBlueprintCopy(Player player, uint oBlueprint, Blueprint blueprint)
+    public void StartBlueprintCopy(PlayerSystem.Player player, uint oBlueprint, Blueprint blueprint)
     {
       if (player.craftJob.CanStartJob(player.oid, oBlueprint, JobType.BlueprintCopy))
       {
@@ -204,7 +202,7 @@ namespace NWN.Systems.Craft
         }
       }
     }
-    public void StartBlueprintMaterialEfficiencyResearch(Player player, uint oBlueprint, Blueprint blueprint)
+    public void StartBlueprintMaterialEfficiencyResearch(PlayerSystem.Player player, uint oBlueprint, Blueprint blueprint)
     {
       if (player.craftJob.CanStartJob(player.oid, oBlueprint, JobType.BlueprintResearchMaterialEfficiency))
       {
@@ -220,7 +218,7 @@ namespace NWN.Systems.Craft
         NWScript.SendMessageToPC(player.oid, $"L'objet {NWScript.GetName(oBlueprint)} ne sera pas disponible jusqu'à la fin du travail de recherche métallurgique.");
       }
     }
-    public void StartBlueprintTimeEfficiencyResearch(Player player, uint oBlueprint, Blueprint blueprint)
+    public void StartBlueprintTimeEfficiencyResearch(PlayerSystem.Player player, uint oBlueprint, Blueprint blueprint)
     {
       if (player.craftJob.CanStartJob(player.oid, oBlueprint, JobType.BlueprintResearchTimeEfficiency))
       {
@@ -243,7 +241,7 @@ namespace NWN.Systems.Craft
 
       player.playerJournal.craftJobCountDown = DateTime.Now.AddSeconds(remainingTime);
       JournalEntry journalEntry = new JournalEntry();
-      journalEntry.sName = $"Travail artisanal - {Utils.StripTimeSpanMilliseconds((TimeSpan)(player.playerJournal.craftJobCountDown - DateTime.Now))}";
+      journalEntry.sName = $"Travail artisanal - {NWN.Utils.StripTimeSpanMilliseconds((TimeSpan)(player.playerJournal.craftJobCountDown - DateTime.Now))}";
 
       switch (this.type)
       {
@@ -260,7 +258,7 @@ namespace NWN.Systems.Craft
           journalEntry.sText = $"Fabrication en cours : {blueprintDictionnary[baseItemType].name}";
           break;
       }
-      
+
       journalEntry.sTag = "craft_job";
       journalEntry.nPriority = 1;
       journalEntry.nQuestDisplayed = 1;
@@ -310,7 +308,7 @@ namespace NWN.Systems.Craft
           journalEntry.sName = $"Travail artisanal terminé - {blueprintDictionnary[baseItemType].name}";
           break;
       }
-      
+
       journalEntry.sTag = "craft_job";
       journalEntry.nQuestCompleted = 1;
       journalEntry.nQuestDisplayed = 0;

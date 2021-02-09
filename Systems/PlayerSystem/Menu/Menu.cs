@@ -6,11 +6,11 @@ using NWN.Core.NWNX;
 
 namespace NWN.Systems
 {
-  public static partial class PlayerSystem
+  public partial class PlayerSystem
   {
     private class PrivateMenu : Menu
     {
-      public PrivateMenu(Player player) : base(player) { }
+      public PrivateMenu(PlayerSystem.Player player) : base(player) { }
     }
     public abstract partial class Menu
     {
@@ -24,7 +24,7 @@ namespace NWN.Systems
       private const int heightPadding = 1;
       private const int titleBottomMargin = 1;
 
-      private readonly Player player;
+      private readonly PlayerSystem.Player player;
       
       private int titleHeight
       {
@@ -45,7 +45,7 @@ namespace NWN.Systems
       private int selectedChoiceID = 0;
       public bool isOpen = false;
 
-      public Menu(Player player)
+      public Menu(PlayerSystem.Player player)
       {
         this.player = player;
         ResetConfig();
@@ -229,7 +229,7 @@ namespace NWN.Systems
         }
       }
 
-      public void HandleMenuFeatUsed(object sender, Player.MenuFeatEventArgs e)
+      public void HandleMenuFeatUsed(object sender, PlayerSystem.Player.MenuFeatEventArgs e)
       {
         switch (player.loadedQuickBar)
         {
@@ -279,7 +279,7 @@ namespace NWN.Systems
                 NWScript.SetObjectVisualTransform(player.oid, NWScript.OBJECT_VISUAL_TRANSFORM_TRANSLATE_Z, NWScript.GetObjectVisualTransform(player.oid, NWScript.OBJECT_VISUAL_TRANSFORM_TRANSLATE_Z) + newValue);
                   zPos = NWScript.GetObjectVisualTransform(player.oid, NWScript.OBJECT_VISUAL_TRANSFORM_TRANSLATE_Z);
                   if (zPos > 5)
-                    Utils.LogMessageToDMs($"SIT COMMAND - Player {NWScript.GetName(player.oid)} - Z translation = {zPos}");
+                    NWN.Utils.LogMessageToDMs($"SIT COMMAND - Player {NWScript.GetName(player.oid)} - Z translation = {zPos}");
 
                 break;
 
@@ -291,7 +291,7 @@ namespace NWN.Systems
                 NWScript.SetObjectVisualTransform(player.oid, NWScript.OBJECT_VISUAL_TRANSFORM_TRANSLATE_Z, NWScript.GetObjectVisualTransform(player.oid, NWScript.OBJECT_VISUAL_TRANSFORM_TRANSLATE_Z) + newValue);
                 zPos = NWScript.GetObjectVisualTransform(player.oid, NWScript.OBJECT_VISUAL_TRANSFORM_TRANSLATE_Z);
                 if (zPos < NWScript.GetGroundHeight(NWScript.GetLocation(player.oid)))
-                  Utils.LogMessageToDMs($"SIT COMMAND - Player {NWScript.GetName(player.oid)} - Z translation = {zPos}");
+                  NWN.Utils.LogMessageToDMs($"SIT COMMAND - Player {NWScript.GetName(player.oid)} - Z translation = {zPos}");
                 break;
 
               case Feat.CustomPositionRotateRight:

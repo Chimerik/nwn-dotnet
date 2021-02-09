@@ -1,4 +1,7 @@
-﻿using NWN.Core;
+﻿using NWN.API;
+using NWN.API.Constants;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace NWN.Systems
 {
@@ -6,8 +9,15 @@ namespace NWN.Systems
   {
     private static void ExecuteDispelDiseaseCommand(ChatSystem.Context ctx, Options.Result options)
     {
-      if (Spells.GetHasEffect(NWScript.GetEffectType(NWScript.EffectDisease(0)), ctx.oSender))
-        Spells.RemoveEffectOfType(NWScript.GetEffectType(NWScript.EffectDisease(0)), ctx.oSender);
+            NwPlayer oPC = ctx.oSender.ToNwObject<NwPlayer>();
+
+            List<Effect> effectList = oPC.ActiveEffects.Where(e => e.EffectType == EffectType.Disease).ToList();
+
+            if (effectList.Count == 0)
+                oPC.ApplyEffect(EffectDuration.Permanent, Effect.CutsceneGhost());
+            else
+                foreach (Effect eff in effectList)
+                    oPC.RemoveEffect(eff);
     }
   }
 }

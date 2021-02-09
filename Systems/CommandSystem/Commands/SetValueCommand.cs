@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Text;
 using NWN.Core;
-using static NWN.Systems.PlayerSystem;
 
 namespace NWN.Systems
 {
@@ -10,8 +9,8 @@ namespace NWN.Systems
   {
     private static void ExecuteSetValueCommand(ChatSystem.Context ctx, Options.Result options)
     {
-      Player player;
-      if (Players.TryGetValue(ctx.oSender, out player))
+      PlayerSystem.Player player;
+      if (PlayerSystem.Players.TryGetValue(ctx.oSender, out player))
       {
         if (((string)options.positional[0]).Length != 0)
         {

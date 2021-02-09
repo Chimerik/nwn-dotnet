@@ -2,17 +2,17 @@
 
 namespace NWN.Systems
 {
-   public static class Languages
-   {
-     public static string GetLangueStringConvertedHRPProtection(string sToConvert, Feat langue)
-     {
-       if(sToConvert.Contains("("))
-           return sToConvert;
+  public static class Languages
+  {
+    public static string GetLangueStringConvertedHRPProtection(string sToConvert, Feat langue)
+    {
+      if (sToConvert.Contains("("))
+        return sToConvert;
 
       string languageCode = GetLanguageCode(langue);
 
-       if (!sToConvert.Contains("*"))
-           return ModuleSystem.googleTranslationClient.TranslateText(sToConvert, languageCode).TranslatedText;
+      if (!sToConvert.Contains("*"))
+        return ModuleSystem.googleTranslationClient.TranslateText(sToConvert, languageCode).TranslatedText;
 
       string[] sArray = sToConvert.Split('*', '*');
       string sTranslated = "";
@@ -28,92 +28,52 @@ namespace NWN.Systems
         i++;
       }
       return sTranslated;
-     }
-     private static string GetLanguageCode(Feat langue)
-     {
-       //if (iLangue == (int)Feat.LanguageThief && sToConvert.Length > 25)
-       //{
-        // sToConvert = sToConvert.Remove(25);
-         //NWScript.SendMessageToPC(oPC, "Attention, la langue des voleurs ne part d'exprimer que de courtes idées.");
-       //}
+    }
+    private static string GetLanguageCode(Feat langue)
+    {
+      //if (iLangue == (int)Feat.LanguageThief && sToConvert.Length > 25)
+      //{
+      // sToConvert = sToConvert.Remove(25);
+      //NWScript.SendMessageToPC(oPC, "Attention, la langue des voleurs ne part d'exprimer que de courtes idées.");
+      //}
 
-       switch (langue)
-       {
-         case Feat.LanguageElf:
+      switch (langue)
+      {
+        case Feat.Elfique:
           return LanguageCodes.Basque;
-        case Feat.LanguageAbyssal:
+        case Feat.Abyssal:
           return LanguageCodes.Latin;
-        case Feat.LanguageCelestial:
+        case Feat.Céleste:
           return LanguageCodes.Swedish;
-        case Feat.LanguageDeep:
+        case Feat.Profond:
           return LanguageCodes.Welsh;
-        case Feat.LanguageDraconic:
+        case Feat.Draconique:
           return LanguageCodes.Icelandic;
-        case Feat.LanguageDruidic:
+        case Feat.Druidique:
           return LanguageCodes.Corsican;
-        case Feat.LanguageDwarf:
+        case Feat.Nain:
           return LanguageCodes.German;
-        case Feat.LanguageGnome:
+        case Feat.Gnome:
           return LanguageCodes.Albanian;
-        case Feat.LanguageGiant:
+        case Feat.Géant:
           return LanguageCodes.Georgian;
-        case Feat.LanguageGoblin:
+        case Feat.Gobelin:
           return LanguageCodes.Zulu;
-        case Feat.LanguageHalfling:
+        case Feat.Halfelin:
           return LanguageCodes.Yoruba;
-        case Feat.LanguageInfernal:
+        case Feat.Infernal:
           return LanguageCodes.Xhosa;
-        case Feat.LanguageOrc:
+        case Feat.Orc:
           return LanguageCodes.Uzbek;
-        case Feat.LanguagePrimodial:
+        case Feat.Primordial:
           return LanguageCodes.Urdu;
-        case Feat.LanguageSylvan:
+        case Feat.Sylvain:
           return LanguageCodes.Thai;
-        case Feat.LanguageThieves:
+        case Feat.Voleur:
           return LanguageCodes.Serbian;
       }
 
       return LanguageCodes.French;
-    }
-    public static string GetLanguageName(Feat langue)
-    {
-      switch (langue)
-      {
-        case Feat.LanguageElf:
-          return "elfique";
-        case Feat.LanguageAbyssal:
-          return "abyssal";
-        case Feat.LanguageCelestial:
-          return "céleste";
-        case Feat.LanguageDeep:
-          return "outrelangue";
-        case Feat.LanguageDraconic:
-          return "draconique";
-        case Feat.LanguageDruidic:
-          return "druidique";
-        case Feat.LanguageDwarf:
-          return "nain";
-        case Feat.LanguageGiant:
-          return "géant";
-        case Feat.LanguageGoblin:
-          return "gobelin";
-        case Feat.LanguageHalfling:
-          return "halfelin";
-        case Feat.LanguageInfernal:
-          return "infernal";
-        case Feat.LanguageOrc:
-          return "orc";
-        case Feat.LanguagePrimodial:
-          return "primordial";
-        case Feat.LanguageSylvan:
-          return "sylvain";
-        case Feat.LanguageThieves:
-          return "langue des voleurs";
-        case Feat.LanguageGnome:
-          return "gnome";
-      }
-
-      return "commun";
     }
   }
 }

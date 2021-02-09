@@ -1,46 +1,42 @@
-﻿<Project Sdk="Microsoft.NET.Sdk" ToolsVersion="Current">
-  <PropertyGroup>
-    <TargetFramework>netcoreapp5.0</TargetFramework>
-    <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
-    <AppendRuntimeIdentifierToOutputPath>false</AppendRuntimeIdentifierToOutputPath>
-    <IsPackable>false</IsPackable>
-    <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
-    <EnableDynamicLoading>true</EnableDynamicLoading>
-    <LangVersion>9</LangVersion>
-    <Nullable>enable</Nullable>
-    <FileUpgradeFlags>40</FileUpgradeFlags>
-    <UpgradeBackupLocation>D:\AoA_dotNET\nwn-dotnet\Backup\</UpgradeBackupLocation>
-    <OldToolsVersion>2.0</OldToolsVersion>
-  </PropertyGroup>
-  <Target Name="NWN" AfterTargets="Build">
+﻿<Project Sdk="Microsoft.NET.Sdk">
+    <PropertyGroup>
+        <TargetFramework>net5.0</TargetFramework>
+        <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
+        <AppendRuntimeIdentifierToOutputPath>false</AppendRuntimeIdentifierToOutputPath>
+        <IsPackable>false</IsPackable>
+        <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
+        <EnableDynamicLoading>true</EnableDynamicLoading>
+        <RootNamespace>NWN</RootNamespace>
+        <RuntimeIdentifier>linux-x64</RuntimeIdentifier>
+        <LangVersion>8</LangVersion>
+        <AssemblyName>NWN</AssemblyName>
+    </PropertyGroup>
+
+    <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
+        <PlatformTarget>x64</PlatformTarget>
+        <OutputPath>bin\Debug\Plugins\$(MSBuildProjectName)</OutputPath>
+    </PropertyGroup>
+
+    <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
+        <DebugSymbols>false</DebugSymbols>
+        <DebugType>None</DebugType>
+        <PlatformTarget>x64</PlatformTarget>
+        <OutputPath>bin\Release\Plugins\$(MSBuildProjectName)</OutputPath>
+    </PropertyGroup>
+
     <ItemGroup>
-      <AllOutputs Include="$(OutputPath)$(MSBuildProjectName).dll" />
-      <AllOutputs Include="$(OutputPath)$(MSBuildProjectName).pdb" />
-      <AllOutputs Include="$(OutputPath)$(MSBuildProjectName).runtimeconfig.json" />
-      <AllOutputs Include="$(OutputPath)$(MSBuildProjectName).deps.json" />
+        <Compile Remove="Utils\TargetEvents.cs" />
     </ItemGroup>
-  </Target>
-  <ItemGroup>
-    <Compile Remove="Systems\PlayerSystem\NewFolder\**" />
-    <EmbeddedResource Remove="Systems\PlayerSystem\NewFolder\**" />
-    <None Remove="Systems\PlayerSystem\NewFolder\**" />
-  </ItemGroup>
-  <ItemGroup>
-    <PackageReference Include="Discord.Net" Version="2.2.0" />
-    <PackageReference Include="Discord.Net.WebSocket" Version="2.2.0" />
-    <PackageReference Include="Google.Api.Gax" Version="3.2.0" />
-    <PackageReference Include="Google.Apis" Version="1.49.0" />
-    <PackageReference Include="Google.Apis.Auth" Version="1.49.0" />
-    <PackageReference Include="Google.Cloud.Translation.V2" Version="2.0.0" />
-    <PackageReference Include="Microsoft.Bcl.AsyncInterfaces" Version="5.0.0" />
-    <PackageReference Include="Microsoft.Data.Sqlite.Core" Version="5.0.1" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="5.0.1" />
-    <PackageReference Include="Microsoft.Extensions.Configuration.Abstractions" Version="5.0.0" />
-    <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="5.0.1" />
-    <PackageReference Include="Newtonsoft.Json" Version="12.0.3" />
-    <PackageReference Include="NWN.Core" Version="8193.20.15" />
-    <PackageReference Include="SQLitePCLRaw.core" Version="2.0.4" />
-    <PackageReference Include="System.Interactive.Async" Version="5.0.0" />
-    <PackageReference Include="System.Linq.Async" Version="5.0.0" />
-  </ItemGroup>
+
+    <ItemGroup>
+        <PackageReference Include="Discord.Net" Version="2.3.0" />
+        <PackageReference Include="Google.Api.Gax" Version="3.2.0" />
+        <PackageReference Include="Google.Apis" Version="1.49.0" />
+        <PackageReference Include="Google.Apis.Auth" Version="1.49.0" />
+        <PackageReference Include="Google.Cloud.Translation.V2" Version="2.0.0" />
+        <PackageReference Include="Microsoft.Data.Sqlite" Version="5.0.3" />
+        <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="5.0.1" />
+        <PackageReference Include="NWN.Core" Version="8193.20.25" />
+        <PackageReference Include="NWN.Managed" Version="8193.20.34" />
+    </ItemGroup>
 </Project>

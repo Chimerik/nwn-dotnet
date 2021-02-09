@@ -196,7 +196,7 @@ namespace NWN.Systems
           }
           catch (Exception e)
           {
-            Utils.LogException(e);
+            NWN.Utils.LogMessageToDMs(e.Message);
           }
         }
       }

@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using static NWN.Systems.Arena.Utils;
 
 namespace NWN.Systems.Arena
@@ -26,7 +27,7 @@ namespace NWN.Systems.Arena
     public static RoundCreatures[] GetNormalEncounters(Difficulty difficulty) {
       switch(difficulty)
       {
-        default: throw new System.Exception($"PvE Arena: Invalid normal encounter for difficulty={difficulty}");
+        default: throw new Exception($"PvE Arena: Invalid normal encounter for difficulty={difficulty}");
 
         case Difficulty.Level1: return new RoundCreatures[]
         {
@@ -78,7 +79,7 @@ namespace NWN.Systems.Arena
     {
       switch (difficulty)
       {
-        default: throw new System.Exception($"PvE Arena: Invalid elite encounter for difficulty={difficulty}");
+        default: throw new Exception($"PvE Arena: Invalid elite encounter for difficulty={difficulty}");
 
         case Difficulty.Level1: return new RoundCreatures[]
         {
@@ -118,7 +119,7 @@ namespace NWN.Systems.Arena
     {
       switch (difficulty)
       {
-        default: throw new System.Exception($"PvE Arena: Invalid boss encounter for difficulty={difficulty}");
+        default: throw new Exception($"PvE Arena: Invalid boss encounter for difficulty={difficulty}");
 
         case Difficulty.Level1: return new RoundCreatures[]
         {

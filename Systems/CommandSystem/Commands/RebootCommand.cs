@@ -17,7 +17,7 @@ namespace NWN.Systems
           PlayerListEntry.Value.playerJournal.rebootCountDown = DateTime.Now.AddSeconds(30);
           
           JournalEntry journalEntry = new JournalEntry();
-          journalEntry.sName = $"REBOOT SERVEUR - {Utils.StripTimeSpanMilliseconds((TimeSpan)(PlayerListEntry.Value.playerJournal.rebootCountDown - DateTime.Now))}";
+          journalEntry.sName = $"REBOOT SERVEUR - {NWN.Utils.StripTimeSpanMilliseconds((TimeSpan)(PlayerListEntry.Value.playerJournal.rebootCountDown - DateTime.Now))}";
           journalEntry.sText = "Attention, le serveur reboot bientôt. Accrochez bien vos ceintures.\n" +
             "Non pas que vous ayez grand chose à faire, votre personnage est automatiquement sauvegardé et le module sera de retour dans moins d'une minute.";
           journalEntry.sTag = "reboot";
@@ -30,7 +30,7 @@ namespace NWN.Systems
         }
 
         AdminPlugin.SetPlayerPassword("REBOOT");
-        NWScript.AssignCommand(NWScript.GetModule(), () => NWScript.DelayCommand(30.0f, () => Utils.BootAllPC()));
+        NWScript.AssignCommand(NWScript.GetModule(), () => NWScript.DelayCommand(30.0f, () => NWN.Utils.BootAllPC()));
       }
     }
   }

@@ -50,12 +50,7 @@ namespace NWN.Systems.Arena
       e.player.pveArena.currentPoints = 0;
       e.player.pveArena.currentRound = 1;
 
-      var oArea = NWScript.GetArea(e.player.oid);
-
-      if (AreaSystem.areaDictionnary.TryGetValue(NWScript.GetObjectUUID(oArea), out Area area))
-      {
-        area.DeferDestroy();
-      }
+      AreaSystem.AreaDestroyer(e.player.oid.Area);
     }
 
     public struct RoundCreatures

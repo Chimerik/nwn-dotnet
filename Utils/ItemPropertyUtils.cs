@@ -1,5 +1,4 @@
-﻿using System;
-using NWN.Core;
+﻿using NWN.Core;
 
 namespace NWN
 {
@@ -174,7 +173,7 @@ namespace NWN
       int nSubType = NWScript.GetItemPropertySubType(ip);
       // if duration is 0.0f, make the item property permanent
       int nDuration = fDuration == 0.0f ? NWScript.DURATION_TYPE_PERMANENT : NWScript.DURATION_TYPE_TEMPORARY;
-      
+
       // remove any matching properties
       if (bIgnoreSubType)
       {

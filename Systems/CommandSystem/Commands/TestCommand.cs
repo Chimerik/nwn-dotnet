@@ -6,7 +6,6 @@ using System.Web;
 using Discord;
 using NWN.Core;
 using NWN.Core.NWNX;
-using static NWN.Systems.PlayerSystem;
 using static NWN.Systems.SkillSystem;
 
 namespace NWN.Systems
@@ -15,7 +14,7 @@ namespace NWN.Systems
   {
     private static void ExecuteTestCommand(ChatSystem.Context ctx, Options.Result options)
     {
-      if (Players.TryGetValue(ctx.oSender, out Player player))
+      if (PlayerSystem.Players.TryGetValue(ctx.oSender, out PlayerSystem.Player player))
       {
         if(NWScript.GetPCPlayerName(player.oid) == "Chim")
         {
@@ -62,7 +61,7 @@ namespace NWN.Systems
       }
     }
 
-    public static String Translate(String word)
+   /* public static String Translate(String word)
     {
       var toLanguage = "en";
       var fromLanguage = "fr";
@@ -81,6 +80,6 @@ namespace NWN.Systems
       {
         return "Error";
       }
-    }
+    }*/
   }
 }

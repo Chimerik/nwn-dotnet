@@ -1,84 +1,89 @@
 ﻿using System;
-using System.Collections.Generic;
+using NWN.API;
+using NWN.API.Events;
 using NWN.Core;
 using NWN.Core.NWNX;
-using static NWN.Systems.PlayerSystem;
+using NWN.Services;
+using NWN.API.Constants;
+using System.Linq;
 
 namespace NWN.Systems
 {
-  public static partial class PlaceableSystem
+  [ServiceBinding(typeof(PlaceableSystem))]
+  public class PlaceableSystem
   {
-    public static Dictionary<string, Func<uint, int>> Register = new Dictionary<string, Func<uint, int>>
+        public static NativeEventService nativeEventService;
+        public PlaceableSystem(NativeEventService eventService)
+        {
+            nativeEventService = eventService;
+
+            foreach (NwDoor door in NwModule.FindObjectsOfType<NwDoor>())
+                eventService.Subscribe<NwDoor, DoorEvents.OnOpen>(door, HandleDoorAutoClose);
+
+            foreach (NwPlaceable bassin in NwModule.FindObjectsWithTag<NwPlaceable>("ench_bsn"))
+                eventService.Subscribe<NwPlaceable, PlaceableEvents.OnClose>(bassin, HandleCloseEnchantementBassin);
+
+            foreach (NwPlaceable plc in NwModule.FindObjectsWithTag<NwPlaceable>(Arena.Config.PVE_ARENA_PULL_ROPE_CHAIN_TAG, "portal_storage_out", "portal_storage_in", "portal_start", "respawn_neutral", "respawn_dire", "respawn_radiant", "theater_rope"))
+                eventService.Subscribe<NwPlaceable, PlaceableEvents.OnUsed>(plc, HandlePlaceableUsed);
+
+            foreach (NwCreature statue in NwModule.FindObjectsWithTag<NwCreature>("Statuereptilienne", "statue_tiamat"))
+            {
+                eventService.Subscribe<NwCreature, CreatureEvents.OnConversation>(statue, HandleCancelStatueConversation);
+                eventService.Subscribe<NwCreature, CreatureEvents.OnPerception>(statue, HandleStatufyCreature);
+            }
+        }
+    public static void HandleCleanDMPLC(PlaceableEvents.OnDeath onDeath)
     {
-      { "ench_bsn_onclose", EnchantmentBasinSystem.HandleClose },
-      { "ondeath_clean_dm_plc", HandleCleanDMPLC },
-      { "plc_used", HandlePlaceableUsed },
-      { "os_statuemaker", HandleStatufyCreature },
-      { "oc_statue", HandleCancelStatueConversation },
-      { "door_auto_close", HandleDoorAutoClose },
-      { Arena.Config.PVE_ARENA_PULL_ROPE_CHAIN_ON_USED_SCRIPT, Arena.ScriptHandlers.HandlePullRopeChainUse },
-    };
-    private static int HandleCleanDMPLC(uint oidSelf)
-    {
-      int plcID = NWScript.GetLocalInt(oidSelf, "_ID");
+      NwPlaceable plc = onDeath.KilledObject;
+      int plcID = plc.GetLocalVariable<int>("_ID").Value;
       if (plcID > 0)
       {
-        var query = NWScript.SqlPrepareQueryCampaign(ModuleSystem.database, "DELETE FROM dm_persistant_placeable where rowid = @plcID");
+        var query = NWScript.SqlPrepareQueryCampaign(Config.database, "DELETE FROM dm_persistant_placeable where rowid = @plcID");
         NWScript.SqlBindInt(query, "@rowid", plcID);
         NWScript.SqlStep(query);
       }
       else
-        Utils.LogMessageToDMs($"Persistent placeable {NWScript.GetName(oidSelf)} in area {NWScript.GetName(NWScript.GetArea(oidSelf))} does not have a valid ID !");
-
-      return 0;
+        NWN.Utils.LogMessageToDMs($"Persistent placeable {plc.Name} in area {plc.Area.Name} does not have a valid ID !");
     }
-    private static int HandlePlaceableUsed(uint oidSelf)
+    public static void HandlePlaceableUsed(PlaceableEvents.OnUsed onUsed)
     {
-      if (Players.TryGetValue(NWScript.GetLastUsedBy(), out Player player))
-      {
-        int i;
-
-        switch (NWScript.GetTag(oidSelf))
+        if (PlayerSystem.Players.TryGetValue(onUsed.UsedBy, out PlayerSystem.Player player))
+        switch (onUsed.Placeable.Tag)
         {
           case "respawn_neutral":
-            Respawn(player, "neutral");
+            PlayerSystem.Respawn(player, "neutral");
             break;  
           case "respawn_radiant":
-            Respawn(player, "radiant");
+            PlayerSystem.Respawn(player, "radiant");
             break;
           case "respawn_dire":
-            Respawn(player, "radiant");
+            PlayerSystem.Respawn(player, "radiant");
             break;
           case "theater_rope":
-
-            if (!Convert.ToBoolean(NWScript.GetLocalInt(NWScript.GetArea(oidSelf), "_THEATER_CURTAIN_OPEN")))
+            int visibilty;
+            if (onUsed.UsedBy.Area.GetLocalVariable<int>("_THEATER_CURTAIN_OPEN").HasNothing)
             {
-              for (i = 0; i < 4; i++)
-                VisibilityPlugin.SetVisibilityOverride(NWScript.OBJECT_INVALID, NWScript.GetObjectByTag("theater_curtain", i), VisibilityPlugin.NWNX_VISIBILITY_HIDDEN);
-
-              NWScript.SetLocalInt(NWScript.GetArea(oidSelf), "_THEATER_CURTAIN_OPEN", 1);
+                visibilty = VisibilityPlugin.NWNX_VISIBILITY_HIDDEN;
+                onUsed.UsedBy.Area.GetLocalVariable<int>("_THEATER_CURTAIN_OPEN").Value = 1;
             }
             else
             {
-              for (i = 0; i < 4; i++)
-                VisibilityPlugin.SetVisibilityOverride(NWScript.OBJECT_INVALID, NWScript.GetObjectByTag("theater_curtain", i), VisibilityPlugin.NWNX_VISIBILITY_VISIBLE);
-
-              NWScript.DeleteLocalInt(NWScript.GetArea(oidSelf), "_THEATER_CURTAIN_OPEN");
+                visibilty = VisibilityPlugin.NWNX_VISIBILITY_VISIBLE;
+                onUsed.UsedBy.Area.GetLocalVariable<int>("_THEATER_CURTAIN_OPEN").Delete();
             }
+
+            foreach (NwPlaceable plc in onUsed.UsedBy.Area.FindObjectsOfTypeInArea<NwPlaceable>().Where(o => o.Tag == "theater_curtain"))
+                            VisibilityPlugin.SetVisibilityOverride(NWScript.OBJECT_INVALID, plc, visibilty);
             break;
             case "portal_start":
             NWScript.AssignCommand(player.oid, () => NWScript.ClearAllActions());
             NWScript.AssignCommand(player.oid, () => NWScript.JumpToLocation(NWScript.GetLocation(NWScript.GetWaypointByTag("WP_START_NEW_CHAR"))));
             break;
           case "portal_storage_in":
-            uint aEntrepot = NWScript.CreateArea("entrepotperso", $"entrepotpersonnel_{NWScript.GetPCPublicCDKey(player.oid)}", $"Entrepot dimensionnel de {NWScript.GetName(player.oid)}");
-            AreaSystem.CreateArea(aEntrepot);
+            NwArea area = NwArea.Create("entrepotperso", $"entrepotpersonnel_{NWScript.GetPCPublicCDKey(player.oid)}", $"Entrepot dimensionnel de {NWScript.GetName(player.oid)}");
+            NwPlaceable storage = area.FindObjectsOfTypeInArea<NwPlaceable>().Where(s => s.Tag == "ps_entrepot").FirstOrDefault();
 
-            uint storage = NWScript.GetFirstObjectInArea(aEntrepot);
-            if (NWScript.GetTag(storage) != "ps_entrepot")
-              storage = NWScript.GetNearestObjectByTag("ps_entrepot", storage);
-
-            var query = NWScript.SqlPrepareQueryCampaign(ModuleSystem.database, $"SELECT storage from playerCharacters where rowid = @characterId");
+            var query = NWScript.SqlPrepareQueryCampaign(Config.database, $"SELECT storage from playerCharacters where rowid = @characterId");
             NWScript.SqlBindInt(query, "@characterId", player.characterId);
             NWScript.SqlStep(query);
 
@@ -89,58 +94,79 @@ namespace NWN.Systems
             NWScript.AssignCommand(player.oid, () => NWScript.JumpToLocation(NWScript.GetLocation(NWScript.GetWaypointByTag("wp_inentrepot"))));
             break;
           case "portal_storage_out":
-            if (AreaSystem.areaDictionnary.TryGetValue(NWScript.GetObjectUUID(NWScript.GetArea(player.oid)), out Area area))
-              NWScript.DelayCommand(0.2f, () => AreaSystem.RemoveArea(area));
-
             NWScript.AssignCommand(player.oid, () => NWScript.ClearAllActions());
             NWScript.AssignCommand(player.oid, () => NWScript.JumpToLocation(NWScript.GetLocation(NWScript.GetObjectByTag("wp_outentrepot"))));
             break;
+        case Arena.Config.PVE_ARENA_PULL_ROPE_CHAIN_TAG:
+            Arena.ScriptHandlers.HandlePullRopeChainUse();
+            break;
         }
-      }
-      return 0;
     }
-    private static int HandleCancelStatueConversation(uint oidSelf)
+    private void HandleCancelStatueConversation(CreatureEvents.OnConversation onConversation)
     {
-      return 0;
+
     }
-    private static int HandleStatufyCreature(uint oidSelf)
+    private async void HandleStatufyCreature(CreatureEvents.OnPerception onPerception)
     {
-      if (Convert.ToBoolean(NWScript.GetIsPC(NWScript.GetLastPerceived())))
+      if (onPerception.PerceivedCreature is NwPlayer)
       {
-        if (NWScript.GetName(oidSelf) != "Statue draconique")
+        if (onPerception.Creature.Tag != "statue_tiamat")
         {
-          NWScript.PlayAnimation(Utils.random.Next(100, 116));
-          NWScript.DelayCommand(1.0f, () => FreezeCreature(oidSelf));
+          await onPerception.Creature.PlayAnimation((Animation)NWN.Utils.random.Next(100, 116), 3);
+          await NwTask.Delay(TimeSpan.FromSeconds(0.3));
+          FreezeCreature(onPerception.Creature);
         }
         else
-          FreezeCreature(oidSelf);
+          FreezeCreature(onPerception.Creature);
 
-        NWScript.SetEventScript(oidSelf, NWScript.EVENT_SCRIPT_CREATURE_ON_NOTICE, "");
-        NWScript.SetAILevel(oidSelf, NWScript.AI_LEVEL_VERY_LOW);
+        onPerception.Creature.AiLevel = AiLevel.VeryLow;
+        nativeEventService.Unsubscribe<NwCreature, CreatureEvents.OnPerception>(onPerception.Creature, HandleStatufyCreature);
       }
-      
-      return 0;
     }
-    private static void FreezeCreature(uint creature)
+    private static void FreezeCreature(NwCreature creature)
     {
-      //NWScript.SendMessageToPC(NWScript.GetFirstPC(), $"freezing : {NWScript.GetTag(creature)}");  
-      NWScript.ApplyEffectToObject(NWScript.DURATION_TYPE_PERMANENT, NWScript.EffectVisualEffect(NWScript.VFX_DUR_FREEZE_ANIMATION), creature);
-      NWScript.ApplyEffectToObject(NWScript.DURATION_TYPE_PERMANENT, NWScript.EffectVisualEffect(NWScript.VFX_DUR_ICESKIN), creature);
-      NWScript.SetObjectHiliteColor(creature, 0xFFFFFF);
+      API.Effect eff = API.Effect.VisualEffect(VfxType.DurFreezeAnimation);
+      eff.SubType = EffectSubType.Supernatural;
+      creature.ApplyEffect(EffectDuration.Permanent, eff);
+
+      eff = API.Effect.VisualEffect(VfxType.DurIceskin);
+      eff.SubType = EffectSubType.Supernatural;
+      creature.ApplyEffect(EffectDuration.Permanent, eff);
+      creature.HiliteColor = Color.WHITE;
       NWScript.SetObjectMouseCursor(creature, NWScript.MOUSECURSOR_WALK);
-      NWScript.SetPlotFlag(creature, 1);
+      creature.PlotFlag = true;
     }
-    private static int HandleDoorAutoClose(uint oidSelf)
+    private async void HandleDoorAutoClose(DoorEvents.OnOpen onOpen)
     {
-      NWScript.DelayCommand(5.0f, () => NWScript.PlayAnimation(NWScript.ANIMATION_DOOR_CLOSE));
-
-      return 0;
+        await NwTask.Delay(TimeSpan.FromSeconds(5));
+        await onOpen.Door.PlayAnimation(Animation.DoorClose, 1);
     }
-    private static int HandleCityGatesClick(uint oidSelf)
-    {
-      NWScript.PlayAnimation(NWScript.ANIMATION_DOOR_OPEN1);
+        public void HandleCloseEnchantementBassin(PlaceableEvents.OnClose onClose)
+        {
+            NwCreature oPC = onClose.LastClosedBy;
 
-      return 0;
+            if (!PlayerSystem.Players.TryGetValue(oPC, out PlayerSystem.Player player))
+                NWScript.SendMessageToPC(oPC, "Player is not valid.");
+
+            var oItem = NWScript.GetFirstItemInInventory(oPC);
+
+            if (oItem == NWScript.OBJECT_INVALID)
+                NWScript.SendMessageToPC(oPC, "Item is not valid.");
+
+
+            if (!ItemUtils.IsEquipable(oItem))
+                NWScript.SendMessageToPC(oPC, "Item is not equipable.");
+
+            if (NWScript.GetPlotFlag(oItem) == 1)
+                NWScript.SendMessageToPC(oPC, "Cannot enchant a plot item.");
+
+
+            var oSecondItem = NWScript.GetNextItemInInventory(onClose.Placeable);
+            if (oSecondItem != NWScript.OBJECT_INVALID)
+                NWScript.SendMessageToPC(oPC, "Invalid number of items.");
+
+            var tag = NWScript.GetTag(oItem);
+            EnchantmentBasinSystem.GetEnchantmentBasinFromTag(tag).DrawMenu(player, oItem, onClose.Placeable);
+        }
     }
-  }
 }

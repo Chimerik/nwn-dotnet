@@ -1,5 +1,4 @@
 ﻿using static NWN.Systems.Craft.Collect.Config;
-using static NWN.Systems.PlayerSystem;
 
 namespace NWN.Systems
 {
@@ -7,14 +6,13 @@ namespace NWN.Systems
   {
     private static void ExecuteStocksMenuCommand(ChatSystem.Context ctx, Options.Result options)
     {
-      Player player;
-      if (Players.TryGetValue(ctx.oSender, out player))
+      if (PlayerSystem.Players.TryGetValue(ctx.oSender, out PlayerSystem.Player player))
       {
         DrawMainPage(player);
       }
     }
 
-    private static void DrawMainPage(Player player)
+    private static void DrawMainPage(PlayerSystem.Player player)
     {
       player.menu.Clear();
       player.menu.titleLines.Add("Veuillez choisir un type de ressource :");
@@ -34,7 +32,7 @@ namespace NWN.Systems
       player.menu.Draw();
     }
 
-    private static void DrawMetalPage(Player player)
+    private static void DrawMetalPage(PlayerSystem.Player player)
     {
       player.menu.Clear();
       player.menu.titleLines.Add("Veuillez choisir un type d'établi :");
@@ -54,7 +52,7 @@ namespace NWN.Systems
       player.menu.Draw();
     }
 
-    private static void DrawFoundryPage(Player player)
+    private static void DrawFoundryPage(PlayerSystem.Player player)
     {
       player.menu.Clear();
       player.menu.titleLines.Add("Voici votre stock de métaux non raffinés :");
@@ -71,7 +69,7 @@ namespace NWN.Systems
       player.menu.Draw();
     }
 
-    private static void DrawForgePage(Player player)
+    private static void DrawForgePage(PlayerSystem.Player player)
     {
       player.menu.Clear();
       player.menu.titleLines.Add("Voici votre stock de métaux raffinés :");
@@ -87,7 +85,7 @@ namespace NWN.Systems
 
       player.menu.Draw();
     }
-    private static void DrawBoisPage(Player player)
+    private static void DrawBoisPage(PlayerSystem.Player player)
     {
       player.menu.Clear();
       player.menu.titleLines.Add("Veuillez choisir un type d'établi :");
@@ -106,7 +104,7 @@ namespace NWN.Systems
 
       player.menu.Draw();
     }
-    private static void DrawScieriePage(Player player)
+    private static void DrawScieriePage(PlayerSystem.Player player)
     {
       player.menu.Clear();
       player.menu.titleLines.Add("Voici votre stock de bois brut :");
@@ -122,7 +120,7 @@ namespace NWN.Systems
 
       player.menu.Draw();
     }
-    private static void DrawEbenisteriePage(Player player)
+    private static void DrawEbenisteriePage(PlayerSystem.Player player)
     {
       player.menu.Clear();
       player.menu.titleLines.Add("Voici votre stock de planches de bois raffinées :");
@@ -138,7 +136,7 @@ namespace NWN.Systems
 
       player.menu.Draw();
     }
-    private static void DrawPeltPage(Player player)
+    private static void DrawPeltPage(PlayerSystem.Player player)
     {
       player.menu.Clear();
       player.menu.titleLines.Add("Veuillez choisir un type d'établi :");
@@ -157,7 +155,7 @@ namespace NWN.Systems
 
       player.menu.Draw();
     }
-    private static void DrawTanneriePage(Player player)
+    private static void DrawTanneriePage(PlayerSystem.Player player)
     {
       player.menu.Clear();
       player.menu.titleLines.Add("Voici votre stock de peaux brutes :");
@@ -173,7 +171,7 @@ namespace NWN.Systems
 
       player.menu.Draw();
     }
-    private static void DrawMaroquineriePage(Player player)
+    private static void DrawMaroquineriePage(PlayerSystem.Player player)
     {
       player.menu.Clear();
       player.menu.titleLines.Add("Voici votre stock de cuirs raffinés :");

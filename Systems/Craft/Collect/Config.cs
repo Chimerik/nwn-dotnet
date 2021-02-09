@@ -1,7 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using NWN.Core;
-using static NWN.Systems.Items.Utils;
+using System.ComponentModel;
+using static NWN.Systems.ItemUtils;
 
 namespace NWN.Systems.Craft.Collect
 {
@@ -49,7 +50,7 @@ namespace NWN.Systems.Craft.Collect
     };
 
     public static Dictionary<MineralType, Mineral> mineralDictionnary = new Dictionary<MineralType, Mineral>
-    { 
+    {
       { MineralType.Tritanium, new Mineral(MineralType.Tritanium) },
       { MineralType.Pyerite, new Mineral(MineralType.Pyerite) },
       { MineralType.Noxcium, new Mineral(MineralType.Noxcium) },
@@ -139,7 +140,7 @@ namespace NWN.Systems.Craft.Collect
         this.name = Enum.GetName(typeof(PeltType), oreType) ?? "";
         this.feat = oreFeat;
 
-        switch(oreType)
+        switch (oreType)
         {
           case PeltType.MauvaisePeau:
             leathers = 41.500f;
@@ -174,13 +175,21 @@ namespace NWN.Systems.Craft.Collect
     public enum PeltType
     {
       Invalid = 0,
-      MauvaisePeau = 1, 
-      PeauCommune = 2, 
+      [Description("Peau de mauvaise qualité")]
+      MauvaisePeau = 1,
+      [Description("Peau commune")]
+      PeauCommune = 2,
+      [Description("Peau normale")]
       PeauNormale = 3,
+      [Description("Peau peu commune")]
       PeauPeuCommune = 4,
+      [Description("Peau rare")]
       PeauRare = 5,
+      [Description("Peau magique")]
       PeauMagique = 6,
+      [Description("Peau épique")]
       PeauEpique = 7,
+      [Description("Peau légendaire")]
       PeauLegendaire = 8,
     }
     public enum LeatherType
@@ -397,7 +406,7 @@ namespace NWN.Systems.Craft.Collect
       }
 
       return new ItemProperty[]
-      { 
+      {
           NWScript.ItemPropertyVisualEffect(NWScript.VFX_NONE)
       };
     }
@@ -476,7 +485,7 @@ namespace NWN.Systems.Craft.Collect
     }
     public static OreType GetRandomOreSpawnFromAreaLevel(int level)
     {
-      int random = Utils.random.Next(1, 101);
+      int random = NWN.Utils.random.Next(1, 101);
       switch (level)
       {
         case 2:
@@ -509,7 +518,7 @@ namespace NWN.Systems.Craft.Collect
     }
     public static WoodType GetRandomWoodSpawnFromAreaLevel(int level)
     {
-      int random = Utils.random.Next(1, 101);
+      int random = NWN.Utils.random.Next(1, 101);
       switch (level)
       {
         case 2:
@@ -542,33 +551,33 @@ namespace NWN.Systems.Craft.Collect
     }
     public static string GetRandomPeltSpawnFromAreaLevel(int level)
     {
-      int random = Utils.random.Next(1, 101);
+      int random = NWN.Utils.random.Next(1, 101);
       switch (level)
       {
         case 2:
-          return System.badPelts[Utils.random.Next(0, System.badPelts.Length)];
+          return System.badPelts[NWN.Utils.random.Next(0, System.badPelts.Length)];
         case 3:
           if (random > 80)
-            return System.commonPelts[Utils.random.Next(0, System.commonPelts.Length)];
+            return System.commonPelts[NWN.Utils.random.Next(0, System.commonPelts.Length)];
           else
-            return System.badPelts[Utils.random.Next(0, System.badPelts.Length)];
+            return System.badPelts[NWN.Utils.random.Next(0, System.badPelts.Length)];
         case 4:
           if (random > 60)
-            return System.commonPelts[Utils.random.Next(0, System.commonPelts.Length)];
+            return System.commonPelts[NWN.Utils.random.Next(0, System.commonPelts.Length)];
           else
-            return System.badPelts[Utils.random.Next(0, System.badPelts.Length)];
+            return System.badPelts[NWN.Utils.random.Next(0, System.badPelts.Length)];
         case 5:
           if (random > 80)
-            return System.normalPelts[Utils.random.Next(0, System.normalPelts.Length)];
+            return System.normalPelts[NWN.Utils.random.Next(0, System.normalPelts.Length)];
           else if (random > 40)
-            return System.commonPelts[Utils.random.Next(0, System.commonPelts.Length)];
-          return System.badPelts[Utils.random.Next(0, System.badPelts.Length)];
+            return System.commonPelts[NWN.Utils.random.Next(0, System.commonPelts.Length)];
+          return System.badPelts[NWN.Utils.random.Next(0, System.badPelts.Length)];
         case 6:
           if (random > 60)
-            return System.normalPelts[Utils.random.Next(0, System.normalPelts.Length)];
+            return System.normalPelts[NWN.Utils.random.Next(0, System.normalPelts.Length)];
           else if (random > 20)
-            return System.commonPelts[Utils.random.Next(0, System.commonPelts.Length)];
-          return System.badPelts[Utils.random.Next(0, System.badPelts.Length)];
+            return System.commonPelts[NWN.Utils.random.Next(0, System.commonPelts.Length)];
+          return System.badPelts[NWN.Utils.random.Next(0, System.badPelts.Length)];
       }
 
       return "";

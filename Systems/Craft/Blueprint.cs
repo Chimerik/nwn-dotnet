@@ -1,9 +1,9 @@
 ﻿using System;
+using NWN.API;
 using NWN.Core;
 using NWN.Core.NWNX;
 using static NWN.Systems.Craft.Collect.Config;
-using static NWN.Systems.Items.Utils;
-using static NWN.Systems.PlayerSystem;
+using static NWN.Systems.ItemUtils;
 
 namespace NWN.Systems.Craft
 {
@@ -66,14 +66,14 @@ namespace NWN.Systems.Craft
           break;
       }
     }
-    public static ItemProperty[] GetCraftItemProperties(string material, uint craftedItem)
+    public static Core.ItemProperty[] GetCraftItemProperties(string material, uint craftedItem)
     {
       ItemCategory itemCategory = GetItemCategory(NWScript.GetBaseItemType(craftedItem));
-      if(itemCategory == ItemCategory.Invalid)
+      if (itemCategory == ItemCategory.Invalid)
       {
-        Utils.LogMessageToDMs($"Item {NWScript.GetName(craftedItem)} - Base {NWScript.GetBaseItemType(craftedItem)} - Category invalid");
+        NWN.Utils.LogMessageToDMs($"Item {NWScript.GetName(craftedItem)} - Base {NWScript.GetBaseItemType(craftedItem)} - Category invalid");
 
-        return new ItemProperty[]
+        return new Core.ItemProperty[]
         {
           NWScript.ItemPropertyVisualEffect(NWScript.VFX_NONE)
         };
@@ -106,40 +106,41 @@ namespace NWN.Systems.Craft
         }
       }
 
-      Utils.LogMessageToDMs($"No craft property found for material {material} and item {itemCategory}");
+      NWN.Utils.LogMessageToDMs($"No craft property found for material {material} and item {itemCategory}");
 
-      return new ItemProperty[]
+      return new Core.ItemProperty[]
       {
           NWScript.ItemPropertyVisualEffect(NWScript.VFX_NONE)
       };
     }
-    public static void BlueprintValidation(uint oidSelf, uint oTarget, Feat feat)
+    public static void BlueprintValidation(NwPlayer oPlayer, NwGameObject target, Feat feat)
     {
-      if (Players.TryGetValue(oidSelf, out Player oPC))
+      if (!(target is NwItem) || target.Tag != "blueprint")
       {
-        if (Convert.ToBoolean(NWScript.GetIsObjectValid(oTarget)) && NWScript.GetTag(oTarget) == "blueprint")
-        {
-          if(NWScript.GetItemPossessor(oTarget) != oidSelf)
-          {
-            NWScript.SendMessageToPC(oidSelf, "Le patron doit se trouver dans votre inventaire afin d'effectuer cette opération.");
-            return;
-          }
-
-          int baseItemType = NWScript.GetLocalInt(oTarget, "_BASE_ITEM_TYPE");
-           
-          if (Collect.System.blueprintDictionnary.TryGetValue(baseItemType, out Blueprint blueprint))
-            blueprint.StartJob(oPC, oTarget, feat);
-          else
-          {
-            NWScript.SendMessageToPC(oidSelf, "[ERREUR HRP] - Le patron utilisé n'est pas correctement initialisé. Le bug a été remonté au staff.");
-            Utils.LogMessageToDMs($"Blueprint Invalid : {NWScript.GetName(oTarget)} - Base Item Type : {baseItemType} - Used by : {NWScript.GetName(oidSelf)}");
-          }
-        }
-        else
-          NWScript.SendMessageToPC(oidSelf, "Vous devez sélectionner un patron valide.");
+        oPlayer.SendServerMessage($"{target.Name} n'est pas un patron valide.");
+        return;
       }
+
+      NwItem item = (NwItem)target;
+
+      if (item.Possessor != oPlayer)
+      {
+        oPlayer.SendServerMessage("Le patron doit se trouver dans votre inventaire afin d'effectuer cette opération.");
+        return;
+      }
+
+      int baseItemType = target.GetLocalVariable<int>("_BASE_ITEM_TYPE").Value;
+
+      if (Collect.System.blueprintDictionnary.TryGetValue(baseItemType, out Blueprint blueprint))
+        if (PlayerSystem.Players.TryGetValue(oPlayer, out PlayerSystem.Player player))
+          blueprint.StartJob(player, item, feat);
+        else
+        {
+          oPlayer.SendServerMessage("[ERREUR HRP] - Le patron utilisé n'est pas correctement initialisé. Le bug a été remonté au staff.");
+          NWN.Utils.LogMessageToDMs($"Blueprint Invalid : {item.Name} - Base Item Type : {baseItemType} - Used by : {oPlayer.Name}");
+        }
     }
-    private void StartJob(Player player, uint blueprint, Feat feat)
+    private void StartJob(PlayerSystem.Player player, uint blueprint, Feat feat)
     {
       switch (feat)
       {
@@ -166,7 +167,7 @@ namespace NWN.Systems.Craft
           break;
       }
     }
-    public string DisplayBlueprintInfo(Player player, uint oItem)
+    public string DisplayBlueprintInfo(NwPlayer player, NwItem oItem)
     {
       int iMineralCost = this.GetBlueprintMineralCostForPlayer(player, oItem);
       float iJobDuration = this.GetBlueprintTimeCostForPlayer(player, oItem);
@@ -176,7 +177,7 @@ namespace NWN.Systems.Craft
         $"Recherche d'efficacité matérielle niveau {NWScript.GetLocalInt(oItem, "_BLUEPRINT_MATERIAL_EFFICIENCY")}\n\n" +
         $"Coût initial en {sMaterial} : {iMineralCost}.\n Puis 10 % de moins par amélioration vers un matériau supérieur.\n" +
         $"Recherche d'efficacité de temps niveau {NWScript.GetLocalInt(oItem, "_BLUEPRINT_TIME_EFFICIENCY")}\n\n" +
-        $"Temps de fabrication et d'amélioration : {Utils.StripTimeSpanMilliseconds(DateTime.Now.AddSeconds(iJobDuration).Subtract(DateTime.Now))}.";
+        $"Temps de fabrication et d'amélioration : {NWN.Utils.StripTimeSpanMilliseconds(DateTime.Now.AddSeconds(iJobDuration).Subtract(DateTime.Now))}.";
 
       int runs = NWScript.GetLocalInt(oItem, "_BLUEPRINT_RUNS");
 
@@ -185,29 +186,29 @@ namespace NWN.Systems.Craft
 
       return bpDescription;
     }
-    public int GetBlueprintMineralCostForPlayer(Player player, uint item)
+    public int GetBlueprintMineralCostForPlayer(NwPlayer player, NwItem item)
     {
       int iSkillLevel = 1;
 
       int value;
-      if (int.TryParse(NWScript.Get2DAString("feat", "GAINMULTIPLE", CreaturePlugin.GetHighestLevelOfFeat(player.oid, (int)jobFeat)), out value))
+      if (int.TryParse(NWScript.Get2DAString("feat", "GAINMULTIPLE", CreaturePlugin.GetHighestLevelOfFeat(player, (int)jobFeat)), out value))
         iSkillLevel += value;
 
-      if (int.TryParse(NWScript.Get2DAString("feat", "GAINMULTIPLE", CreaturePlugin.GetHighestLevelOfFeat(player.oid, (int)feat)), out value))
+      if (int.TryParse(NWScript.Get2DAString("feat", "GAINMULTIPLE", CreaturePlugin.GetHighestLevelOfFeat(player, (int)feat)), out value))
         iSkillLevel += value;
 
       return this.mineralsCost - (this.mineralsCost * (iSkillLevel + NWScript.GetLocalInt(item, "_BLUEPRINT_MATERIAL_EFFICIENCY")) / 100);
     }
-    public float GetBlueprintTimeCostForPlayer(Player player, uint item)
+    public float GetBlueprintTimeCostForPlayer(NwPlayer player, NwItem item)
     {
       int iSkillLevel = 1;
       float fJobDuration = this.mineralsCost;
 
       int value;
-      if (int.TryParse(NWScript.Get2DAString("feat", "GAINMULTIPLE", CreaturePlugin.GetHighestLevelOfFeat(player.oid, (int)jobFeat)), out value))
+      if (int.TryParse(NWScript.Get2DAString("feat", "GAINMULTIPLE", CreaturePlugin.GetHighestLevelOfFeat(player, (int)jobFeat)), out value))
         iSkillLevel += value;
 
-      if (int.TryParse(NWScript.Get2DAString("feat", "GAINMULTIPLE", CreaturePlugin.GetHighestLevelOfFeat(player.oid, (int)feat)), out value))
+      if (int.TryParse(NWScript.Get2DAString("feat", "GAINMULTIPLE", CreaturePlugin.GetHighestLevelOfFeat(player, (int)feat)), out value))
         iSkillLevel += value;
 
       return fJobDuration - (fJobDuration * (iSkillLevel + NWScript.GetLocalInt(item, "_BLUEPRINT_TIME_EFFICIENCY")) / 100);
@@ -236,7 +237,7 @@ namespace NWN.Systems.Craft
         else if (Enum.TryParse(material, out LeatherType myLeatherType))
           return Enum.GetName(typeof(LeatherType), myLeatherType + 1);
       }
-      
+
       return "Invalid";
     }
   }

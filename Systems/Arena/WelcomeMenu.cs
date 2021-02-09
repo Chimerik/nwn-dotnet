@@ -1,5 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
+using NWN.API;
+using NWN.API.Events;
 using NWN.Core;
 using static NWN.Systems.Arena.Config;
 using static NWN.Systems.PlayerSystem;
@@ -96,17 +99,13 @@ namespace NWN.Systems.Arena
 
     private static void HandleConfirm(Player player)
     {
-      var oArena = NWScript.CreateArea(PVE_ARENA_AREA_RESREF);
-      var oWaypoint = AreaUtils.GetObjectInAreaByTag(oArena, PVE_ARENA_WAYPOINT_TAG);
-      var oPullRopeChain = AreaUtils.GetObjectInAreaByTag(oArena, PVE_ARENA_PULL_ROPE_CHAIN_TAG);
-      NWScript.SetEventScript(
-        oPullRopeChain,
-        NWScript.EVENT_SCRIPT_PLACEABLE_ON_USED,
-        PVE_ARENA_PULL_ROPE_CHAIN_ON_USED_SCRIPT
-      );
-      var location = NWScript.GetLocation(oWaypoint);
-      NWScript.AssignCommand(player.oid, () => NWScript.ClearAllActions());
-      NWScript.AssignCommand(player.oid, () => NWScript.JumpToLocation(location));
+      NwArea oArena = NwArea.Create(PVE_ARENA_AREA_RESREF);
+      NwWaypoint oWaypoint = oArena.FindObjectsOfTypeInArea<NwWaypoint>().Where(w => w.Tag == PVE_ARENA_WAYPOINT_TAG).FirstOrDefault();
+      NwPlaceable oPullRopeChain = oArena.FindObjectsOfTypeInArea<NwPlaceable>().Where(w => w.Tag == PVE_ARENA_PULL_ROPE_CHAIN_TAG).FirstOrDefault();
+      PlaceableSystem.nativeEventService.Subscribe<NwPlaceable, PlaceableEvents.OnUsed>(oPullRopeChain, PlaceableSystem.HandlePlaceableUsed);
+
+      player.oid.ClearActionQueue();
+      player.oid.JumpToObject(oWaypoint);
       player.OnDeath += Utils.HandlePlayerDied;
     }
 

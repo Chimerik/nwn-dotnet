@@ -1,12 +1,21 @@
 ﻿using System;
+using NWN.API;
+using NWN.API.Events;
 using NWN.Core;
+using NWN.Services;
 using static NWN.Systems.PlayerSystem;
 
 namespace NWN.Systems.Arena
 {
-  public static class ScriptHandlers
+  [ServiceBinding(typeof(ScriptHandlers))]
+  public class ScriptHandlers
   {
-    public static int HandlePullRopeChainUse(uint oidSelf)
+    public static NativeEventService nativeEventService;
+    public ScriptHandlers(NativeEventService eventService)
+    {
+        nativeEventService = eventService;
+    }
+    public static void HandlePullRopeChainUse()
     {
       var oPC = NWScript.GetLastUsedBy();
 
@@ -15,27 +24,24 @@ namespace NWN.Systems.Arena
         if (Utils.GetIsRoundInProgress(player))
         {
           NWScript.SendMessageToPC(player.oid, "Vous n'avez pas encore terminé le combat !");
-          return 0;
+          return;
         }
 
         ArenaMenu.DrawMainPage(player);
       }
 
-      return 0;
     }
 
-    public static int HandleCreatureOnDeath(uint oidSelf)
+    public static void HandleCreatureOnDeath(CreatureEvents.OnDeath onDeath)
     {
-      var oPC = (uint)NWScript.GetLocalInt(oidSelf, Config.PVE_ARENA_CHALLENGER_VARNAME);
+      var oPC = (uint)NWScript.GetLocalInt(onDeath.KilledCreature, Config.PVE_ARENA_CHALLENGER_VARNAME);
 
-      NWScript.DestroyObject(oidSelf);
+      onDeath.KilledCreature.Destroy();
 
       if (Players.TryGetValue(oPC, out Player player))
       {
         Utils.CheckRoundEnded(player);
       }
-
-      return 0;
     }
   }
 }

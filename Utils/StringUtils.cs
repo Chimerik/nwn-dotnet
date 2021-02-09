@@ -1,5 +1,7 @@
 ﻿using System;
+using System.ComponentModel;
 using System.Linq;
+using System.Reflection;
 
 namespace NWN
 {
@@ -13,6 +15,12 @@ namespace NWN
         case "": throw new ArgumentException($"{nameof(input)} cannot be empty", nameof(input));
         default: return input.First().ToString().ToUpper() + input.Substring(1);
       }
+    }
+    public static string ToDescription(this Enum value)
+    {
+      FieldInfo field = value.GetType().GetField(value.ToString());
+      DescriptionAttribute attribute = Attribute.GetCustomAttribute(field, typeof(DescriptionAttribute)) as DescriptionAttribute;
+      return attribute == null ? value.ToString() : attribute.Description;
     }
   }
 }

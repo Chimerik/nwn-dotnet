@@ -4,19 +4,13 @@ using NWN.Core;
 using NWN.Core.NWNX;
 using static NWN.Systems.Craft.Collect.Config;
 using static NWN.Systems.Craft.Blueprint;
-using static NWN.Systems.PlayerSystem;
-using static NWN.Systems.Items.Utils;
+using NWN.Services;
+using NWN.API;
 
 namespace NWN.Systems.Craft.Collect
 {
   public static class System
   {
-    public static Dictionary<string, Func<uint, int>> Register = new Dictionary<string, Func<uint, int>>
-    {
-            { "event_collect_cycle_cancel", HandleBeforeCollectCycleCancel },
-            { "on_collect_cycle_complete", HandleAfterCollectCycleComplete },
-    };
-
     public static string[] badPelts = new string[] { "paraceratherium", "ankheg", "gorille", "giantlizard" };
     public static string[] commonPelts = new string[] { "alligator", "crocodile", "crocblinde", "varan" };
     public static string[] normalPelts = new string[] { "basilisk", "jhakar", "gorgon", "bulette", "dagon" };
@@ -98,7 +92,7 @@ namespace NWN.Systems.Craft.Collect
       {114, Feat.CraftForgeHammer },
       {115, Feat.CraftOreExtractor },
     };
-    public static int[] forgeBasicBlueprints = new int[] { -4, 114, 115, NWScript.BASE_ITEM_LIGHTMACE, NWScript.BASE_ITEM_HELMET, NWScript.BASE_ITEM_DAGGER, NWScript.BASE_ITEM_MORNINGSTAR, NWScript.BASE_ITEM_SHORTSPEAR, NWScript.BASE_ITEM_SICKLE};
+    public static int[] forgeBasicBlueprints = new int[] { -4, 114, 115, NWScript.BASE_ITEM_LIGHTMACE, NWScript.BASE_ITEM_HELMET, NWScript.BASE_ITEM_DAGGER, NWScript.BASE_ITEM_MORNINGSTAR, NWScript.BASE_ITEM_SHORTSPEAR, NWScript.BASE_ITEM_SICKLE };
     public static int[] woodBasicBlueprints = new int[] { 114, 115, NWScript.BASE_ITEM_SMALLSHIELD, NWScript.BASE_ITEM_CLUB, NWScript.BASE_ITEM_DART, NWScript.BASE_ITEM_BULLET, NWScript.BASE_ITEM_HEAVYCROSSBOW, NWScript.BASE_ITEM_LIGHTCROSSBOW, NWScript.BASE_ITEM_QUARTERSTAFF, NWScript.BASE_ITEM_SLING, NWScript.BASE_ITEM_ARROW, NWScript.BASE_ITEM_BOLT };
     public static int[] leatherBasicBlueprints = new int[] { -1, -2, -3, -9, 114, 115, NWScript.BASE_ITEM_BELT, NWScript.BASE_ITEM_BOOTS, NWScript.BASE_ITEM_BRACER, NWScript.BASE_ITEM_CLOAK, NWScript.BASE_ITEM_GLOVES, NWScript.BASE_ITEM_WHIP };
     public static int[] lowBlueprints = new int[] { -1, -2, -3, -9, 114, 115, NWScript.BASE_ITEM_LIGHTMACE, NWScript.BASE_ITEM_HELMET, NWScript.BASE_ITEM_DAGGER, NWScript.BASE_ITEM_MORNINGSTAR, NWScript.BASE_ITEM_SHORTSPEAR, NWScript.BASE_ITEM_SICKLE, NWScript.BASE_ITEM_ARROW, NWScript.BASE_ITEM_BELT, NWScript.BASE_ITEM_AMULET, NWScript.BASE_ITEM_BOLT, NWScript.BASE_ITEM_BOOTS, NWScript.BASE_ITEM_BRACER, NWScript.BASE_ITEM_BULLET, NWScript.BASE_ITEM_CLOAK, NWScript.BASE_ITEM_CLUB, NWScript.BASE_ITEM_DART, NWScript.BASE_ITEM_GLOVES, NWScript.BASE_ITEM_HEAVYCROSSBOW, NWScript.BASE_ITEM_LIGHTCROSSBOW, NWScript.BASE_ITEM_QUARTERSTAFF, NWScript.BASE_ITEM_RING, NWScript.BASE_ITEM_SHURIKEN, NWScript.BASE_ITEM_SLING, NWScript.BASE_ITEM_SMALLSHIELD, NWScript.BASE_ITEM_TORCH };
@@ -106,25 +100,8 @@ namespace NWN.Systems.Craft.Collect
     public static int[] highBlueprints = new int[] { -6, -7, -8, NWScript.BASE_ITEM_WHIP, NWScript.BASE_ITEM_TWOBLADEDSWORD, NWScript.BASE_ITEM_TOWERSHIELD, NWScript.BASE_ITEM_SCYTHE, NWScript.BASE_ITEM_KUKRI, NWScript.BASE_ITEM_KATANA, NWScript.BASE_ITEM_KAMA, NWScript.BASE_ITEM_DWARVENWARAXE, NWScript.BASE_ITEM_DOUBLEAXE, NWScript.BASE_ITEM_DIREMACE, NWScript.BASE_ITEM_BASTARDSWORD };
 
     public static Dictionary<int, Blueprint> blueprintDictionnary = new Dictionary<int, Blueprint>();
-    private static int HandleBeforeCollectCycleCancel(uint oidSelf)
-    {
-      if (Players.TryGetValue(oidSelf, out Player player))
-      {
-        player.CancelCollectCycle();
-      }
 
-      return 0;
-    }
-    private static int HandleAfterCollectCycleComplete(uint oidSelf)
-    {
-      if (Players.TryGetValue(oidSelf, out Player player))
-      {
-        player.CompleteCollectCycle();
-      }
-
-      return 0;
-    }    
-    public static void StartCollectCycle(Player player, uint oPlaceable, Action completeCallback)
+    public static void StartCollectCycle(PlayerSystem.Player player, uint oPlaceable, Action completeCallback)
     {
       player.OnCollectCycleCancel = () => {
         NWN.Utils.RemoveTaggedEffect(oPlaceable, $"_{NWScript.GetPCPublicCDKey(player.oid)}_MINING_BEAM");
@@ -146,36 +123,36 @@ namespace NWN.Systems.Craft.Collect
         cycleDuration = cycleDuration - (cycleDuration * NWScript.GetLocalInt(resourceExtractor, "_ITEM_LEVEL") * 2 / 100);
       }
 
-      Effect eRay = NWScript.EffectBeam(NWScript.VFX_BEAM_DISINTEGRATE, resourceExtractor, 1, 0, 3);
+      Core.Effect eRay = NWScript.EffectBeam(NWScript.VFX_BEAM_DISINTEGRATE, resourceExtractor, 1, 0, 3);
       eRay = NWScript.TagEffect(eRay, $"_{NWScript.GetPCPublicCDKey(player.oid)}_MINING_BEAM");
       NWScript.ApplyEffectToObject(NWScript.DURATION_TYPE_TEMPORARY, eRay, oPlaceable, cycleDuration);
-      
-      PlayerPlugin.StartGuiTimingBar(player.oid, cycleDuration, "on_collect_cycle_complete");
-      
-      EventsPlugin.AddObjectToDispatchList("NWNX_ON_TIMING_BAR_CANCEL_BEFORE", "event_collect_cycle_cancel", player.oid);
-      EventsPlugin.AddObjectToDispatchList("NWNX_ON_CLIENT_DISCONNECT_BEFORE", "event_collect_cycle_cancel", player.oid);
-      EventsPlugin.AddObjectToDispatchList("NWNX_ON_ITEM_EQUIP_BEFORE", "event_collect_cycle_cancel", player.oid);
-      EventsPlugin.AddObjectToDispatchList("NWNX_ON_ITEM_UNEQUIP_BEFORE", "event_collect_cycle_cancel", player.oid);
-      EventsPlugin.AddObjectToDispatchList("NWNX_ON_START_COMBAT_ROUND_AFTER", "event_collect_cycle_cancel", player.oid);
-      EventsPlugin.AddObjectToDispatchList("NWNX_ON_INPUT_CAST_SPELL_BEFORE", "event_collect_cycle_cancel", player.oid);
+
+      PlayerPlugin.StartGuiTimingBar(player.oid, cycleDuration, "collect_complete");
+
+      EventsPlugin.AddObjectToDispatchList("NWNX_ON_TIMING_BAR_CANCEL_BEFORE", "collect_cancel", player.oid);
+      EventsPlugin.AddObjectToDispatchList("NWNX_ON_CLIENT_DISCONNECT_BEFORE", "collect_cancel", player.oid);
+      EventsPlugin.AddObjectToDispatchList("NWNX_ON_ITEM_EQUIP_BEFORE", "collect_cancel", player.oid);
+      EventsPlugin.AddObjectToDispatchList("NWNX_ON_ITEM_UNEQUIP_BEFORE", "collect_cancel", player.oid);
+      EventsPlugin.AddObjectToDispatchList("NWNX_ON_START_COMBAT_ROUND_AFTER", "collect_cancel", player.oid);
+      EventsPlugin.AddObjectToDispatchList("NWNX_ON_INPUT_CAST_SPELL_BEFORE", "collect_cancel", player.oid);
     }
-    private static void RemoveCollectCycleCallbacks(Player player)
+    private static void RemoveCollectCycleCallbacks(PlayerSystem.Player player)
     {
       player.OnCollectCycleCancel = () => { };
       player.OnCollectCycleComplete = () => { };
-      EventsPlugin.RemoveObjectFromDispatchList("NWNX_ON_TIMING_BAR_CANCEL_BEFORE", "event_collect_cycle_cancel", player.oid);
-      EventsPlugin.RemoveObjectFromDispatchList("NWNX_ON_CLIENT_DISCONNECT_BEFORE", "event_collect_cycle_cancel", player.oid);
-      EventsPlugin.RemoveObjectFromDispatchList("NWNX_ON_ITEM_EQUIP_BEFORE", "event_collect_cycle_cancel", player.oid);
-      EventsPlugin.RemoveObjectFromDispatchList("NWNX_ON_ITEM_UNEQUIP_BEFORE", "event_collect_cycle_cancel", player.oid);
-      EventsPlugin.RemoveObjectFromDispatchList("NWNX_ON_START_COMBAT_ROUND_AFTER", "event_collect_cycle_cancel", player.oid);
-      EventsPlugin.RemoveObjectFromDispatchList("NWNX_ON_INPUT_CAST_SPELL_BEFORE", "event_collect_cycle_cancel", player.oid);
+      EventsPlugin.RemoveObjectFromDispatchList("NWNX_ON_TIMING_BAR_CANCEL_BEFORE", "collect_cancel", player.oid);
+      EventsPlugin.RemoveObjectFromDispatchList("NWNX_ON_CLIENT_DISCONNECT_BEFORE", "collect_cancel", player.oid);
+      EventsPlugin.RemoveObjectFromDispatchList("NWNX_ON_ITEM_EQUIP_BEFORE", "collect_cancel", player.oid);
+      EventsPlugin.RemoveObjectFromDispatchList("NWNX_ON_ITEM_UNEQUIP_BEFORE", "collect_cancel", player.oid);
+      EventsPlugin.RemoveObjectFromDispatchList("NWNX_ON_START_COMBAT_ROUND_AFTER", "collect_cancel", player.oid);
+      EventsPlugin.RemoveObjectFromDispatchList("NWNX_ON_INPUT_CAST_SPELL_BEFORE", "collect_cancel", player.oid);
     }
     public static void AddCraftedItemProperties(uint craftedItem, string material)
     {
       NWScript.SetName(craftedItem, NWScript.GetName(craftedItem) + " en " + material);
       NWScript.SetLocalString(craftedItem, "_ITEM_MATERIAL", material);
 
-      foreach (ItemProperty ip in GetCraftItemProperties(material, craftedItem))
+      foreach (NWN.Core.ItemProperty ip in GetCraftItemProperties(material, craftedItem))
       {
         //NWScript.SendMessageToPC(NWScript.GetFirstPC(), $"Adding IP : {ip}");
         NWScript.AddItemProperty(NWScript.DURATION_TYPE_PERMANENT, ip, craftedItem);
@@ -211,7 +188,7 @@ namespace NWN.Systems.Craft.Collect
         || Array.FindIndex(normalPelts, x => x == itemTag) > -1)
         return "pelt";
 
-        Utils.LogMessageToDMs($"Could not find item template for tag : {itemTag}");
+      NWN.Utils.LogMessageToDMs($"Could not find item template for tag : {itemTag}");
       return "";
     }
   }
