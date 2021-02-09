@@ -1,9 +1,8 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
+using NWN.API;
 using NWN.Core;
 using NWN.Core.NWNX;
-using static NWN.Systems.PlayerSystem;
+using NWN.Services;
 
 namespace NWN.Systems
 {
@@ -12,7 +11,7 @@ namespace NWN.Systems
     public class LearnableSpell
     {
       public readonly int oid;
-      private readonly Player player;
+      private readonly PlayerSystem.Player player;
       public float acquiredPoints { get; set; }
       public string name { get; set; }
       public string description { get; set; }
@@ -25,20 +24,20 @@ namespace NWN.Systems
       public readonly int primaryAbility;
       public readonly int secondaryAbility;
 
-      public LearnableSpell(int Id, float SP, Player player)
+      public LearnableSpell(int Id, float SP, PlayerSystem.Player player)
       {
         this.oid = Id;
         this.player = player;
         this.acquiredPoints = SP;
         this.trained = false;
-        
+
         int value;
         if (int.TryParse(NWScript.Get2DAString("spells", "Name", Id), out value))
           this.name = NWScript.GetStringByStrRef(value);
         else
         {
           this.name = "Nom indisponible";
-          Utils.LogMessageToDMs($"SKILL SYSTEM ERROR - Spell {this.oid} : no available name");
+          NWN.Utils.LogMessageToDMs($"SKILL SYSTEM ERROR - Spell {this.oid} : no available name");
         }
 
         if (int.TryParse(NWScript.Get2DAString("spells", "SpellDesc", Id), out value))
@@ -46,7 +45,7 @@ namespace NWN.Systems
         else
         {
           this.description = "Description indisponible";
-          Utils.LogMessageToDMs($"SKILL SYSTEM ERROR - Spell {this.oid} : no available description");
+          NWN.Utils.LogMessageToDMs($"SKILL SYSTEM ERROR - Spell {this.oid} : no available description");
         }
 
         if (int.TryParse(NWScript.Get2DAString("spells", "Wiz_Sorc", Id), out value))
@@ -54,12 +53,12 @@ namespace NWN.Systems
         else
         {
           this.multiplier = 1;
-          Utils.LogMessageToDMs($"SKILL SYSTEM ERROR - Spell {this.oid} : no available level");
+          NWN.Utils.LogMessageToDMs($"SKILL SYSTEM ERROR - Spell {this.oid} : no available level");
         }
 
         if (multiplier <= 0)
           multiplier = 1;
-        
+
         if (int.TryParse(NWScript.Get2DAString("spells", "Druid", Id), out value) || int.TryParse(NWScript.Get2DAString("spells", "Cleric", Id), out value) || int.TryParse(NWScript.Get2DAString("spells", "Ranger", Id), out value))
           primaryAbility = NWScript.ABILITY_WISDOM;
         else
@@ -73,7 +72,7 @@ namespace NWN.Systems
 
         if (knownSpells < 1)
           knownSpells = 1;
-        
+
         this.pointsToNextLevel = 250 * (this.multiplier) * (int)Math.Pow(Math.Sqrt(32), knownSpells - 1);
 
         if (this.player.currentSkillJob == this.oid)
@@ -91,7 +90,7 @@ namespace NWN.Systems
       {
         player.playerJournal.skillJobCountDown = DateTime.Now.AddSeconds(this.GetTimeToNextLevel(this.CalculateSkillPointsPerSecond()));
         JournalEntry journalEntry = new JournalEntry();
-        journalEntry.sName = $"Etude - {Utils.StripTimeSpanMilliseconds((TimeSpan)(player.playerJournal.skillJobCountDown - DateTime.Now))}";
+        journalEntry.sName = $"Etude - {NWN.Utils.StripTimeSpanMilliseconds((TimeSpan)(player.playerJournal.skillJobCountDown - DateTime.Now))}";
         journalEntry.sText = $"Etude en cours :\n\n " +
           $"{this.name}\n\n" +
           $"{this.description}";

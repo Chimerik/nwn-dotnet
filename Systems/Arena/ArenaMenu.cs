@@ -2,6 +2,9 @@
 using NWN.Core;
 using static NWN.Systems.PlayerSystem;
 using static NWN.Systems.Arena.Config;
+using NWN.API;
+using System.Linq;
+using NWN.API.Events;
 
 namespace NWN.Systems.Arena
 {
@@ -48,24 +51,18 @@ namespace NWN.Systems.Arena
     {
       player.menu.Close();
 
-      var oArena = NWScript.GetArea(player.oid);
+      NwArea oArena = player.oid.Area;
       // TODO - Ajouter un malus aléatoire au joueur
-      var oWaypoint = AreaUtils.GetObjectInAreaByTag(oArena, PVE_ARENA_WAYPOINT_TAG);
+      NwWaypoint oWaypoint = oArena.FindObjectsOfTypeInArea<NwWaypoint>().Where(w => w.Tag == PVE_ARENA_WAYPOINT_TAG).FirstOrDefault();
       var roundCreatures = Utils.GetCreaturesForRound(player.pveArena.currentRound, player.pveArena.currentDifficulty);
       player.pveArena.potentialPoints = roundCreatures.points;
 
       foreach (var creatureResref in roundCreatures.resrefs)
       {
-        var oCreature = NWScript.CreateObject(
-          NWScript.OBJECT_TYPE_CREATURE,
-          creatureResref,
-          NWScript.GetLocation(oWaypoint),
-          1,
-          PVE_ARENA_CREATURE_TAG
-        );
-        NWScript.SetLocalInt(oCreature, PVE_ARENA_CHALLENGER_VARNAME, (int)player.oid);
-        NWScript.SetEventScript(oCreature, NWScript.EVENT_SCRIPT_CREATURE_ON_DEATH, PVE_ARENA_CREATURE_ON_DEATH_SCRIPT);
-        NWScript.ChangeToStandardFaction(oCreature, NWScript.STANDARD_FACTION_HOSTILE);
+        NwCreature creature = NwCreature.Create(creatureResref, oWaypoint.Location, true, PVE_ARENA_CREATURE_TAG);
+        NWScript.SetLocalInt(creature, PVE_ARENA_CHALLENGER_VARNAME, player.characterId);
+        ScriptHandlers.nativeEventService.Subscribe<NwCreature, CreatureEvents.OnDeath>(creature, ScriptHandlers.HandleCreatureOnDeath);
+        creature.ChangeToStandardFaction(API.Constants.StandardFaction.Hostile);
       }
     }
 
@@ -73,11 +70,8 @@ namespace NWN.Systems.Arena
     {
       player.menu.Close();
       Utils.StopCurrentRun(player);
-      var oArea = NWScript.GetArea(player.oid);
-      if (AreaSystem.areaDictionnary.TryGetValue(NWScript.GetObjectUUID(oArea), out Area area))
-      {
-        area.DeferDestroy();
-      }
+      NwArea oArea = player.oid.Area;
+      AreaSystem.AreaDestroyer(oArea);
       var oWaypoint = NWScript.GetObjectByTag(PVE_ENTRY_WAYPOINT_TAG);
       var location = NWScript.GetLocation(oWaypoint);
       NWScript.AssignCommand(player.oid, () => NWScript.ClearAllActions());

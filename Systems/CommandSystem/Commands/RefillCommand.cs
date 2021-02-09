@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using NWN.Core;
-using NWN.Core.NWNX;
+﻿using NWN.Core;
 
 namespace NWN.Systems
 {
@@ -11,7 +8,7 @@ namespace NWN.Systems
     {
       if (NWScript.GetIsDM(ctx.oSender) == 1)
       {
-        ModuleSystem.module.SpawnCollectableResources(0.0f);
+        ModuleSystem.SpawnCollectableResources(0.0f);
       }
     }
   }

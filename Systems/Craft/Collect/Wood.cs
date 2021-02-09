@@ -1,14 +1,14 @@
 ﻿using System;
+using NWN.API;
 using NWN.Core;
 using NWN.Core.NWNX;
 using static NWN.Systems.Craft.Collect.Config;
-using static NWN.Systems.PlayerSystem;
 
 namespace NWN.Systems.Craft.Collect
 {
   public static class Wood
   {
-    public static void HandleCompleteCycle(Player player, uint oPlaceable, uint oExtractor)
+    public static void HandleCompleteCycle(PlayerSystem.Player player, uint oPlaceable, uint oExtractor)
     {
       if (NWScript.GetIsObjectValid(oPlaceable) != 1 || NWScript.GetDistanceBetween(player.oid, oPlaceable) > 5.0f)
       {
@@ -31,7 +31,7 @@ namespace NWN.Systems.Craft.Collect
 
       if (int.TryParse(NWScript.Get2DAString("feat", "GAINMULTIPLE", CreaturePlugin.GetHighestLevelOfFeat(player.oid, (int)Feat.WoodExpertise)), out value))
         bonusYield += miningYield * value * 5 / 100;
-      
+
       miningYield += bonusYield;
 
       int remainingOre = NWScript.GetLocalInt(oPlaceable, "_ORE_AMOUNT") - miningYield;
@@ -49,21 +49,21 @@ namespace NWN.Systems.Craft.Collect
       var ore = NWScript.CreateItemOnObject("wood", player.oid, miningYield, NWScript.GetName(oPlaceable));
       NWScript.SetName(ore, NWScript.GetName(oPlaceable));
 
-      Items.Utils.DecreaseItemDurability(oExtractor);
+      ItemUtils.DecreaseItemDurability(oExtractor);
     }
 
-    public static void HandleCompleteProspectionCycle(Player player)
+    public static void HandleCompleteProspectionCycle(PlayerSystem.Player player)
     {
-      if (!AreaSystem.areaDictionnary.TryGetValue(NWScript.GetObjectUUID(NWScript.GetArea(player.oid)), out Area area)) return;
+      NwArea area = NWScript.GetArea(player.oid).ToNwObject<NwArea>();
 
-      if (area.level < 2)
+      if (area.GetLocalVariable<int>("_AREA_LEVEL").Value < 2)
       {
         NWScript.SendMessageToPC(player.oid, "Cet endroit ne semble disposer d'aucune ressource récoltable.");
         return;
       }
 
-      var query = NWScript.SqlPrepareQueryCampaign(ModuleSystem.database, $"SELECT wood from areaResourceStock where areaTag = @areaTag");
-      NWScript.SqlBindString(query, "@areaTag", area.tag);
+      var query = NWScript.SqlPrepareQueryCampaign(Systems.Config.database, $"SELECT wood from areaResourceStock where areaTag = @areaTag");
+      NWScript.SqlBindString(query, "@areaTag", area.Tag);
       NWScript.SqlStep(query);
 
       if (NWScript.SqlGetInt(query, 0) < 1)
@@ -88,11 +88,11 @@ namespace NWN.Systems.Craft.Collect
 
       while (NWScript.GetIsObjectValid(resourcePoint) == 1)
       {
-        int iRandom = Utils.random.Next(1, 101);
+        int iRandom = NWN.Utils.random.Next(1, 101);
         if (iRandom < respawnChance)
         {
           var newRock = NWScript.CreateObject(NWScript.OBJECT_TYPE_PLACEABLE, "mineable_tree", NWScript.GetLocation(resourcePoint));
-          NWScript.SetName(newRock, Enum.GetName(typeof(WoodType), GetRandomWoodSpawnFromAreaLevel(area.level)));
+          NWScript.SetName(newRock, Enum.GetName(typeof(WoodType), GetRandomWoodSpawnFromAreaLevel(area.GetLocalVariable<int>("_AREA_LEVEL").Value)));
           NWScript.SetLocalInt(newRock, "_ORE_AMOUNT", 50 * iRandom + 50 * iRandom * skillBonus / 100);
           NWScript.DestroyObject(resourcePoint);
           nbSpawns++;
@@ -105,9 +105,9 @@ namespace NWN.Systems.Craft.Collect
       if (nbSpawns > 0)
       {
         NWScript.SendMessageToPC(player.oid, $"Votre repérage a permis d'identifier {nbSpawns} arbre(s) aux propriétés exploitables !");
-        
-        query = NWScript.SqlPrepareQueryCampaign(ModuleSystem.database, $"UPDATE areaResourceStock SET wood = wood - 1 where areaTag = @areaTag");
-        NWScript.SqlBindString(query, "@areaTag", area.tag);
+
+        query = NWScript.SqlPrepareQueryCampaign(Systems.Config.database, $"UPDATE areaResourceStock SET wood = wood - 1 where areaTag = @areaTag");
+        NWScript.SqlBindString(query, "@areaTag", area.Tag);
         NWScript.SqlStep(query);
       }
       else

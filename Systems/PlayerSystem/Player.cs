@@ -5,18 +5,19 @@ using NWN.Core;
 using NWN.Core.NWNX;
 using static NWN.Systems.SkillSystem;
 using NWN.Systems.Craft;
+using NWN.API;
 
 namespace NWN.Systems
 {
-  public static partial class PlayerSystem
+  public partial class PlayerSystem
   {
     public class Player
     {
-      public readonly uint oid;
+      public readonly NwPlayer oid;
       public readonly int accountId;
       public readonly int characterId;
+      public API.Location location { get; set; }
       public int bonusRolePlay { get; set; }
-      public Location location { get; set; }
       public Boolean isConnected { get; set; }
       public Boolean isAFK { get; set; }
       public Boolean DoJournalUpdate { get; set; }
@@ -27,14 +28,11 @@ namespace NWN.Systems
       public int currentSkillJob { get; set; }
       public SkillType currentSkillType { get; set; }
       public Job craftJob { get; set; }
-      public uint autoAttackTarget { get; set; }
       public Boolean isFrostAttackOn { get; set; }
       public uint previousArea { get; set; }
-      public DateTime lycanCurseTimer { get; set; }
       public Feat activeLanguage { get; set; }
       public TargetEvent targetEvent { get; set; }
       public Menu menu { get; }
-      public string disguiseName { get; set; }
       public uint deathCorpse { get; set; }
       public int setValue { get; set; }
       public QuickbarType loadedQuickBar { get; set; }
@@ -42,37 +40,31 @@ namespace NWN.Systems
 
       public Dictionary<uint, Player> listened = new Dictionary<uint, Player>();
       public Dictionary<uint, Player> blocked = new Dictionary<uint, Player>();
-      public Dictionary<uint, DateTime> disguiseDetectTimer = new Dictionary<uint, DateTime>();
-      public Dictionary<uint, DateTime> pickpocketDetectTimer = new Dictionary<uint, DateTime>();
-      public Dictionary<uint, DateTime> inviDetectTimer = new Dictionary<uint, DateTime>();
-      public Dictionary<uint, DateTime> inviEffectDetectTimer = new Dictionary<uint, DateTime>();
-      public Dictionary<uint, uint> summons = new Dictionary<uint, uint>();
-      public Dictionary<int, SkillSystem.Skill> learnableSkills = new Dictionary<int, SkillSystem.Skill>();
-      public Dictionary<int, SkillSystem.LearnableSpell> learnableSpells = new Dictionary<int, SkillSystem.LearnableSpell>();
-      public Dictionary<int, SkillSystem.Skill> removeableMalus = new Dictionary<int, SkillSystem.Skill>();
+      public Dictionary<int, Skill> learnableSkills = new Dictionary<int, Skill>();
+      public Dictionary<int, LearnableSpell> learnableSpells = new Dictionary<int, LearnableSpell>();
+      public Dictionary<int, Skill> removeableMalus = new Dictionary<int, Skill>();
       public Dictionary<string, int> materialStock = new Dictionary<string, int>();
-      public List<Effect> effectList = new List<Effect>();
+      public List<API.Effect> effectList = new List<API.Effect>();
       public List<QuickBarSlot> savedQuickBar = new List<QuickBarSlot>();
       public Dictionary<int, MapPin> mapPinDictionnary = new Dictionary<int, MapPin>();
 
       public Action OnCollectCycleCancel = delegate { };
       public Action OnCollectCycleComplete = delegate { };
 
-      public Player(uint nwobj)
+      public Player(NwPlayer nwobj)
       {
         this.oid = nwobj;
         this.menu = new PrivateMenu(this);
-       
-        if (ObjectPlugin.GetInt(this.oid, "accountId") == 0 && !Convert.ToBoolean(NWScript.GetIsDM(oid)))
+
+        if (ObjectPlugin.GetInt(this.oid, "accountId") == 0 && !oid.IsDM)
           InitializeNewPlayer(this.oid);
 
         this.accountId = ObjectPlugin.GetInt(this.oid, "accountId");
-        
-        if (ObjectPlugin.GetInt(this.oid, "characterId") == 0 && !Convert.ToBoolean(NWScript.GetIsDM(oid)))
+
+        if (ObjectPlugin.GetInt(this.oid, "characterId") == 0 && !oid.IsDM)
           InitializeNewCharacter(this);
 
         this.characterId = ObjectPlugin.GetInt(this.oid, "characterId");
-        this.isConnected = true;
 
         if (!Convert.ToBoolean(NWScript.GetIsDM(this.oid)))
           InitializePlayer(this);
@@ -114,7 +106,6 @@ namespace NWN.Systems
           this.player = player;
         }
       }
-
       public void DoActionOnTargetSelected(uint oTarget, Vector3 vTarget)
       {
         if (Convert.ToBoolean(NWScript.GetIsObjectValid(oTarget)))
@@ -128,7 +119,7 @@ namespace NWN.Systems
         switch (this.targetEvent)
         {
           case TargetEvent.SitTarget:
-          NWScript.EnterTargetingMode(this.oid);
+            NWScript.EnterTargetingMode(this.oid);
             break;
           case TargetEvent.Creature:
             NWScript.EnterTargetingMode(this.oid, NWScript.OBJECT_TYPE_CREATURE);
@@ -139,42 +130,6 @@ namespace NWN.Systems
             break;
         }
       }
-      public void RemoveLycanCurse()
-      {
-        NWScript.ApplyEffectToObject(NWScript.DURATION_TYPE_INSTANT, NWScript.EffectVisualEffect(NWScript.VFX_IMP_SUPER_HEROISM), this.oid);
-        RenamePlugin.ClearPCNameOverride(this.oid, NWScript.OBJECT_INVALID, 1);
-        CreaturePlugin.SetMovementRate(this.oid, CreaturePlugin.NWNX_CREATURE_MOVEMENT_RATE_PC);
-
-        EventsPlugin.RemoveObjectFromDispatchList("NWNX_ON_EFFECT_REMOVED_AFTER", "event_effects", this.oid);
-      }
-      public void ApplyLycanCurse()
-      {
-        Effect ePoly = NWScript.EffectPolymorph(107, 1);
-        Effect eLink = NWScript.SupernaturalEffect(ePoly);
-        eLink = NWScript.TagEffect(eLink, "lycan_curse");
-
-        NWScript.ApplyEffectToObject(NWScript.DURATION_TYPE_TEMPORARY, eLink, this.oid, 900.0f);
-        NWScript.ApplyEffectToObject(NWScript.DURATION_TYPE_INSTANT, NWScript.EffectVisualEffect(NWScript.VFX_IMP_SUPER_HEROISM), this.oid);
-        
-        RenamePlugin.SetPCNameOverride(this.oid, "Loup-garou", "", "", RenamePlugin.NWNX_RENAME_PLAYERNAME_OVERRIDE);
-        CreaturePlugin.SetMovementRate(this.oid, CreaturePlugin.NWNX_CREATURE_MOVEMENT_RATE_FAST);
-
-        EventsPlugin.AddObjectToDispatchList("NWNX_ON_EFFECT_REMOVED_AFTER", "event_effects", this.oid);
-      }
-
-      /*public void BoulderBlock()
-      {
-        NWScript.SendMessageToPC(this.oid, $"Creating boulders");
-        BoulderUnblock();
-        var location = NWScript.GetLocation(oid);
-        blockingBoulder = NWScript.CreateObject(NWScript.OBJECT_TYPE_PLACEABLE, "plc_boulder", location, 0, $"block_rock_{NWScript.GetPCPublicCDKey(this.oid)}");
-        ObjectPlugin.SetPosition(oid, NWScript.GetPositionFromLocation(location));
-        NWScript.ApplyEffectToObject(
-          NWScript.DURATION_TYPE_PERMANENT,
-          NWScript.EffectVisualEffect(NWScript.VFX_DUR_CUTSCENE_INVISIBILITY),
-          blockingBoulder
-        );
-      }*/
       public void LoadMenuQuickbar(QuickbarType type)
       {
         if (this.loadedQuickBar == QuickbarType.Invalid)
@@ -284,7 +239,7 @@ namespace NWN.Systems
         if (craftJob.IsActive())
         {
           craftJob.remainingTime = craftJob.remainingTime - (float)(DateTime.Now - dateLastSaved).TotalSeconds;
-          
+
           if (craftJob.remainingTime < 0)
           {
             AcquireCraftedItem();
@@ -315,7 +270,7 @@ namespace NWN.Systems
             else
             {
               NWScript.SendMessageToPC(oid, "[ERREUR HRP] Il semble que votre dernière création soit invalide. Le staff a été informé du problème.");
-              Utils.LogMessageToDMs($"AcquireCraftedItem : {NWScript.GetName(oid)} - Blueprint invalid - {craftJob.baseItemType} - For {NWScript.GetName(oid)}");
+              NWN.Utils.LogMessageToDMs($"AcquireCraftedItem : {NWScript.GetName(oid)} - Blueprint invalid - {craftJob.baseItemType} - For {NWScript.GetName(oid)}");
             }
             break;
         }
@@ -326,7 +281,7 @@ namespace NWN.Systems
       }
       public void AcquireSkillPoints()
       {
-        switch(currentSkillType)
+        switch (currentSkillType)
         {
           case SkillType.Skill:
             if (this.learnableSkills.TryGetValue(this.currentSkillJob, out Skill skill))
@@ -355,7 +310,7 @@ namespace NWN.Systems
             }
             break;
         }
-        
+
         /*else
         {
           if (this.removeableMalus.TryGetValue(this.currentSkillJob, out skill))
@@ -371,34 +326,17 @@ namespace NWN.Systems
           }
         }*/
       }
-      public void RemoveMalus(SkillSystem.Skill skill)
+      public void RemoveMalus(Skill skill)
       {
         CreaturePlugin.RemoveFeat(oid, skill.oid);
 
-        Func<PlayerSystem.Player, int, int> handler;
-        if (SkillSystem.RegisterRemoveCustomFeatEffect.TryGetValue(skill.oid, out handler))
-        {
-          try
-          {
-            handler.Invoke(this, skill.oid);
-          }
-          catch (Exception e)
-          {
-            Utils.LogException(e);
-          }
-        }
+        if (RegisterRemoveCustomFeatEffect.TryGetValue(skill.oid, out Func<Player, int, int> handler))
+          handler.Invoke(this, skill.oid);
 
         ObjectPlugin.DeleteInt(oid, "_CURRENT_JOB");
-       // NWScript.DelayCommand(10.0f, () => this.PlayNewSkillAcquiredEffects(skill)); // Décalage de 10 secondes pour être sur que le joueur a fini de charger la map à la reco
+        // NWScript.DelayCommand(10.0f, () => this.PlayNewSkillAcquiredEffects(skill)); // Décalage de 10 secondes pour être sur que le joueur a fini de charger la map à la reco
 
         this.removeableMalus.Remove(skill.oid);
-      }
-      public void PlayNoCurrentTrainingEffects()
-      {
-        NWScript.PostString(oid, $"Vous n'avez aucun apprentissage en cours !", 80, 10, NWScript.SCREEN_ANCHOR_TOP_LEFT, 5.0f, unchecked((int)0xC0C0C0FF), unchecked((int)0xC0C0C0FF), 9, "fnt_galahad14");
-        NWScript.SendMessageToPC(oid, "Vous n'avez aucun apprentissage en cours !");
-        PlayerPlugin.PlaySound(oid, "gui_dm_drop");
-        PlayerPlugin.ApplyInstantVisualEffectToObject(oid, oid, NWScript.VFX_IMP_REDUCE_ABILITY_SCORE);
       }
       public void CancelCollectCycle()
       {
@@ -413,60 +351,17 @@ namespace NWN.Systems
           () => OnCollectCycleComplete()
         );
       }
-      
-      public Effect GetPartySizeEffect(int iPartySize = 0)
-      {
-        var oPartyMember = NWScript.GetFirstFactionMember(oid, 1);
-        while (NWScript.GetIsObjectValid(oPartyMember) == 1)
-        {
-          iPartySize++;
-          oPartyMember = NWScript.GetNextFactionMember(oid, 1);
-        }
-
-        Effect eParty = NWScript.EffectVisualEffect(NWScript.VFX_NONE);
-
-        switch (iPartySize) // déterminer quel est l'effet de groupe à appliquer
-        {
-          case 1:
-            break;
-          case 2:
-            eParty = NWScript.TagEffect(NWScript.EffectACIncrease(1, NWScript.AC_DODGE_BONUS), "PartyEffect");
-            break;
-          case 3:
-            eParty = NWScript.EffectLinkEffects(NWScript.EffectACIncrease(1, NWScript.AC_DODGE_BONUS), NWScript.EffectAttackIncrease(1));
-            eParty = NWScript.TagEffect(eParty, "PartyEffect");
-            break;
-          case 4:
-          case 5:
-            eParty = NWScript.EffectLinkEffects(NWScript.EffectACIncrease(1, NWScript.AC_DODGE_BONUS), NWScript.EffectAttackIncrease(1));
-            eParty = NWScript.EffectLinkEffects(NWScript.EffectDamageIncrease(1, NWScript.DAMAGE_TYPE_BLUDGEONING), eParty);
-            eParty = NWScript.TagEffect(eParty, "PartyEffect");
-            break;
-          case 6:
-            eParty = NWScript.EffectLinkEffects(NWScript.EffectACIncrease(1, NWScript.AC_DODGE_BONUS), NWScript.EffectAttackIncrease(1));
-            eParty = NWScript.TagEffect(eParty, "PartyEffect");
-            break;
-          case 7:
-            eParty = NWScript.TagEffect(NWScript.EffectACIncrease(1, NWScript.AC_DODGE_BONUS), "PartyEffect");
-            break;
-          default:
-            break;
-        }
-
-        return NWScript.SupernaturalEffect(eParty);
-      }
       public void UpdateJournal()
       {
         JournalEntry journalEntry;
-        Area area;
 
-        if (playerJournal.craftJobCountDown != null 
-          && AreaSystem.areaDictionnary.TryGetValue(NWScript.GetObjectUUID(NWScript.GetArea(oid)), out area) && area.level == 0)
+        if (playerJournal.craftJobCountDown != null
+            && NWScript.GetArea(oid).ToNwObject<NwArea>().GetLocalVariable<int>("_AREA_LEVEL").Value == 0)
         {
           journalEntry = PlayerPlugin.GetJournalEntry(oid, "craft_job");
           if (journalEntry.nUpdated != -1)
           {
-            journalEntry.sName = $"Travail artisanal - {Utils.StripTimeSpanMilliseconds((TimeSpan)(playerJournal.craftJobCountDown - DateTime.Now))}";
+            journalEntry.sName = $"Travail artisanal - {NWN.Utils.StripTimeSpanMilliseconds((TimeSpan)(playerJournal.craftJobCountDown - DateTime.Now))}";
             PlayerPlugin.AddCustomJournalEntry(oid, journalEntry, 1);
           }
           this.CraftJobProgression();
@@ -477,11 +372,11 @@ namespace NWN.Systems
           journalEntry = PlayerPlugin.GetJournalEntry(oid, "skill_job");
           if (journalEntry.nUpdated != -1)
           {
-            journalEntry.sName = $"Entrainement - {Utils.StripTimeSpanMilliseconds((TimeSpan)(playerJournal.skillJobCountDown - DateTime.Now))}";
+            journalEntry.sName = $"Entrainement - {NWN.Utils.StripTimeSpanMilliseconds((TimeSpan)(playerJournal.skillJobCountDown - DateTime.Now))}";
             PlayerPlugin.AddCustomJournalEntry(oid, journalEntry, 1);
           }
 
-          switch(currentSkillType)
+          switch (currentSkillType)
           {
             case SkillType.Skill:
               Skill skill;
@@ -504,27 +399,19 @@ namespace NWN.Systems
       public void rebootUpdate()
       {
         JournalEntry journalEntry = PlayerPlugin.GetJournalEntry(this.oid, "reboot");
-        journalEntry.sName = $"REBOOT SERVEUR - {Utils.StripTimeSpanMilliseconds((TimeSpan)(this.playerJournal.rebootCountDown - DateTime.Now))}";
+        journalEntry.sName = $"REBOOT SERVEUR - {NWN.Utils.StripTimeSpanMilliseconds((TimeSpan)(this.playerJournal.rebootCountDown - DateTime.Now))}";
         PlayerPlugin.AddCustomJournalEntry(this.oid, journalEntry);
 
         NWScript.DelayCommand(1.0f, () => this.rebootUpdate());
       }
       public string CheckDBPlayerAccount()
       {
-        var query = NWScript.SqlPrepareQueryCampaign(ModuleSystem.database, $"select accountName from PlayerAccounts  where rowId = @accountId");
+        var query = NWScript.SqlPrepareQueryCampaign(Config.database, $"select accountName from PlayerAccounts  where rowId = @accountId");
         NWScript.SqlBindInt(query, "@accountId", accountId);
         NWScript.SqlStep(query);
 
         return NWScript.SqlGetString(query, 0);
       }
-      public Boolean IsDialogQuickbarOn()
-      {
-        QuickBarSlot qbs = PlayerPlugin.GetQuickBarSlot(this.oid, 0);
-        if (qbs.nObjectType == 4 && qbs.nINTParam1 == (int)Feat.CustomMenuDOWN)
-          return true;
-        return false;
-      }
-
       // Take gold from the PC or from his bank account
       public void PayOrBorrowGold(int price)
       {

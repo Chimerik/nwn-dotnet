@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using NWN.Core;
 using NWN.Core.NWNX;
-using static NWN.Systems.PlayerSystem;
 
 namespace NWN.Systems
 {
@@ -12,7 +11,7 @@ namespace NWN.Systems
     public class Skill
     {
       public readonly int oid;
-      private readonly Player player;
+      private readonly PlayerSystem.Player player;
       public float acquiredPoints { get; set; }
       public string name { get; set; }
       public string description { get; set; }
@@ -25,7 +24,7 @@ namespace NWN.Systems
       public readonly int primaryAbility;
       public readonly int secondaryAbility;
 
-      public Skill(int Id, float SP, Player player)
+      public Skill(int Id, float SP, PlayerSystem.Player player)
       {
         this.oid = Id;
         this.player = player;
@@ -38,7 +37,7 @@ namespace NWN.Systems
         else
         {
           this.name = "Nom indisponible";
-          Utils.LogMessageToDMs($"SKILL SYSTEM ERROR - Skill {this.oid} : no available name");
+          NWN.Utils.LogMessageToDMs($"SKILL SYSTEM ERROR - Skill {this.oid} : no available name");
         }
 
         if (int.TryParse(NWScript.Get2DAString("feat", "DESCRIPTION", Id), out value))
@@ -46,7 +45,7 @@ namespace NWN.Systems
         else
         {
           this.description = "Description indisponible";
-          Utils.LogMessageToDMs($"SKILL SYSTEM ERROR - Skill {this.oid} : no available description");
+          NWN.Utils.LogMessageToDMs($"SKILL SYSTEM ERROR - Skill {this.oid} : no available description");
         }
 
         if (int.TryParse(NWScript.Get2DAString("feat", "GAINMULTIPLE", Id), out value))
@@ -62,14 +61,14 @@ namespace NWN.Systems
 
         if (currentLevel < 1)
           currentLevel = 1;
- 
+
         if (int.TryParse(NWScript.Get2DAString("feat", "CRValue", Id), out value))
           this.multiplier = value;
         else
           this.multiplier = 1;
 
         Dictionary<int, int> iSkillAbilities = new Dictionary<int, int>();
-        
+
         if (int.TryParse(NWScript.Get2DAString("feat", "MINSTR", Id), out value))
           iSkillAbilities.Add(NWScript.ABILITY_STRENGTH, value);
         if (int.TryParse(NWScript.Get2DAString("feat", "MINDEX", Id), out value))
@@ -90,7 +89,7 @@ namespace NWN.Systems
         else
         {
           this.primaryAbility = NWScript.ABILITY_INTELLIGENCE;
-          Utils.LogMessageToDMs($"SKILL SYSTEM ERROR - Skill {this.oid} : Primary ability not set");
+          NWN.Utils.LogMessageToDMs($"SKILL SYSTEM ERROR - Skill {this.oid} : Primary ability not set");
         }
 
         if (iSkillAbilities.Count > 1)
@@ -98,13 +97,13 @@ namespace NWN.Systems
         else
         {
           this.secondaryAbility = NWScript.ABILITY_WISDOM;
-          Utils.LogMessageToDMs($"SKILL SYSTEM ERROR - Skill {this.oid} : Secondary ability not set");
+          NWN.Utils.LogMessageToDMs($"SKILL SYSTEM ERROR - Skill {this.oid} : Secondary ability not set");
         }
 
         this.pointsToNextLevel = 250 * this.multiplier * (int)Math.Pow(Math.Sqrt(32), this.currentLevel - 1);
 
         if (NWN.Systems.Config.env == NWN.Systems.Config.Env.Chim)
-          pointsToNextLevel = - 10;
+          pointsToNextLevel = -10;
 
         if (this.player.currentSkillJob == this.oid)
         {
@@ -121,7 +120,7 @@ namespace NWN.Systems
       {
         player.playerJournal.skillJobCountDown = DateTime.Now.AddSeconds(this.GetTimeToNextLevel(CalculateSkillPointsPerSecond()));
         JournalEntry journalEntry = new JournalEntry();
-        journalEntry.sName = $"Entrainement - {Utils.StripTimeSpanMilliseconds((TimeSpan)(player.playerJournal.skillJobCountDown - DateTime.Now))}";
+        journalEntry.sName = $"Entrainement - {NWN.Utils.StripTimeSpanMilliseconds((TimeSpan)(player.playerJournal.skillJobCountDown - DateTime.Now))}";
         journalEntry.sText = $"Entrainement en cours :\n\n " +
           $"{this.name}\n\n" +
           $"{this.description}";
@@ -210,22 +209,12 @@ namespace NWN.Systems
           }
           else
           {
-            Utils.LogMessageToDMs($"SKILL LEVEL UP ERROR - Player : {NWScript.GetName(player.oid)}, Skill : {name} ({oid}), Current level : {skillCurrentLevel}");
+            NWN.Utils.LogMessageToDMs($"SKILL LEVEL UP ERROR - Player : {NWScript.GetName(player.oid)}, Skill : {name} ({oid}), Current level : {skillCurrentLevel}");
           }
         }
 
-        Func<Player, int, int> handler;
-        if (RegisterAddCustomFeatEffect.TryGetValue(oid, out handler))
-        {
-          try
-          {
-            handler.Invoke(player, oid);
-          }
-          catch (Exception e)
-          {
-            Utils.LogException(e);
-          }
-        }
+        if (RegisterAddCustomFeatEffect.TryGetValue(oid, out Func<PlayerSystem.Player, int, int> handler))
+          handler.Invoke(player, oid);
 
         trained = true;
         player.currentSkillJob = (int)Feat.Invalid;

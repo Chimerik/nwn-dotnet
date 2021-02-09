@@ -1,4 +1,7 @@
-﻿using NWN.Core;
+﻿using NWN.API;
+using System.Linq;
+using NWN.API.Constants;
+using System.Collections.Generic;
 
 namespace NWN.Systems
 {
@@ -6,10 +9,15 @@ namespace NWN.Systems
   {
     private static void ExecuteTouchCommand(ChatSystem.Context ctx, Options.Result options)
     {
-      if (!Spells.GetHasEffect(NWScript.GetEffectType(NWScript.EffectCutsceneGhost()), ctx.oSender))
-        NWScript.ApplyEffectToObject(NWScript.DURATION_TYPE_PERMANENT, NWScript.SupernaturalEffect(NWScript.EffectCutsceneGhost()), ctx.oSender);
-      else
-        Spells.RemoveEffectOfType(NWScript.GetEffectType(NWScript.EffectCutsceneGhost()), ctx.oSender);
+        NwPlayer oPC = ctx.oSender.ToNwObject<NwPlayer>();
+            
+        List<Effect> effectList = oPC.ActiveEffects.Where(e => e.EffectType == EffectType.CutsceneGhost).ToList();
+
+        if (effectList.Count == 0)
+            oPC.ApplyEffect(EffectDuration.Permanent, Effect.CutsceneGhost());
+        else
+            foreach (Effect eff in effectList)
+                oPC.RemoveEffect(eff);
     }
   }
 }

@@ -1,14 +1,16 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using NWN.API;
 using NWN.Core;
 using NWN.Core.NWNX;
+using NWNX.API.Events;
 
 namespace NWN.Systems
 {
-  public static partial class PlayerSystem
+  public partial class PlayerSystem
   {
-    public static int HandleBeforePlayerSave(uint oidSelf)
+    public void HandleBeforePlayerSave(ServerVaultEvents.OnServerCharacterSaveBefore onSaveBefore)
     {
       /* Fix polymorph bug : Lorsqu'un PJ métamorphosé est sauvegardé, toutes ses buffs sont supprimées afin que les stats de 
        * la nouvelle forme ne remplace pas celles du PJ dans son fichier .bic. Après sauvegarde, les stats de la métamorphose 
@@ -19,43 +21,32 @@ namespace NWN.Systems
        * Mais il se peut que dans ce cas, ses buffs soient perdues à la reco. A vérifier. Si c'est le cas, une meilleure
        * correction pourrait être de parcourir tous ses buffs et de les réappliquer dans l'event AFTER de la sauvegarde*/
 
-      if (Convert.ToBoolean(NWScript.GetIsDM(oidSelf)) || Convert.ToBoolean(NWScript.GetIsDMPossessed(oidSelf)) || Convert.ToBoolean(NWScript.GetIsPlayerDM(oidSelf)))
+      if (onSaveBefore.Player.IsDM || onSaveBefore.Player.IsDMPossessed || onSaveBefore.Player.IsPlayerDM)
       {
-        EventsPlugin.SkipEvent();
-        return 0;
+        onSaveBefore.Skip = true;
+        return;
       }
 
-      if (Players.TryGetValue(oidSelf, out Player player))
+      if (Players.TryGetValue(onSaveBefore.Player, out Player player))
       {
         if (player.isConnected)
         {
-          if (Utils.HasAnyEffect(player.oid, NWScript.EFFECT_TYPE_POLYMORPH))
-          {
-            Effect eff = NWScript.GetFirstEffect(player.oid);
-
-            while (Convert.ToBoolean(NWScript.GetIsEffectValid(eff)))
-            {
-              if (NWScript.GetEffectType(eff) != NWScript.EFFECT_TYPE_POLYMORPH)
-                player.effectList.Add(eff);
-              eff = NWScript.GetNextEffect(player.oid);
-            }
-
-            //EventsPlugin.SkipEvent();
-            return 0;
-          }
+          API.Effect polymorphEffect = onSaveBefore.Player.ActiveEffects.Where(e => e.EffectType == API.Constants.EffectType.Polymorph).FirstOrDefault();
+          if (polymorphEffect != null)
+            player.effectList = onSaveBefore.Player.ActiveEffects.ToList();
         }
 
-          // TODO : probablement faire pour chaque joueur tous les check faim / soif / jobs etc ici
+        // TODO : probablement faire pour chaque joueur tous les check faim / soif / jobs etc ici
 
         // AFK detection
-        if (player.location == NWScript.GetLocation(player.oid))
+        if (player.location == player.oid.Location)
           player.isAFK = true;
         else
           player.location = NWScript.GetLocation(player.oid);
 
-        player.currentHP = NWScript.GetCurrentHitPoints(player.oid);
+        player.currentHP = onSaveBefore.Player.HP;
 
-        if (AreaSystem.areaDictionnary.TryGetValue(NWScript.GetObjectUUID(NWScript.GetArea(player.oid)), out Area area) && area.level == 0)
+        if (NWScript.GetArea(player.oid).ToNwObject<NwArea>().GetLocalVariable<int>("_AREA_LEVEL").Value == 0)
           player.CraftJobProgression();
 
         player.AcquireSkillPoints();
@@ -68,10 +59,8 @@ namespace NWN.Systems
         SavePlayerStoredMaterialsToDatabase(player);
         SavePlayerMapPinsToDatabase(player);
       }
-
-      return 0;
     }
-    public static int HandleAfterPlayerSave(uint oidSelf)
+    public void HandleAfterPlayerSave(ServerVaultEvents.OnServerCharacterSaveAfter onSaveAfter)
     {
       /* Fix polymorph bug : Lorsqu'un PJ métamorphosé est sauvegardé, toutes ses buffs sont supprimées afin que les stats de 
        * la nouvelle forme ne remplace pas celles du PJ dans son fichier .bic. Après sauvegarde, les stats de la métamorphose 
@@ -82,32 +71,23 @@ namespace NWN.Systems
        * Mais il se peut que dans ce cas, ses buffs soient perdues à la reco. A vérifier. Si c'est le cas, une meilleure
        * correction pourrait être de parcourir tous ses buffs et de les réappliquer dans l'event AFTER de la sauvegarde*/
 
-      if (Players.TryGetValue(oidSelf, out Player player))
+      if (Players.TryGetValue(onSaveAfter.Player, out Player player))
       {
         if (player.isConnected)
         {
-          if (Utils.HasAnyEffect(player.oid, NWScript.EFFECT_TYPE_POLYMORPH))
-          {
-            foreach (Effect eff in player.effectList)
-            {
-              float duration = EffectPlugin.UnpackEffect(eff).fDuration;
-              if (duration > 0)
-                NWScript.ApplyEffectToObject(NWScript.DURATION_TYPE_TEMPORARY, eff, player.oid, duration);
-              else
-                NWScript.ApplyEffectToObject(NWScript.DURATION_TYPE_PERMANENT, eff, player.oid);
-            }
-          }
+          API.Effect polymorphEffect = onSaveAfter.Player.ActiveEffects.Where(e => e.EffectType == API.Constants.EffectType.Polymorph).FirstOrDefault();
+          if (polymorphEffect != null)
+            foreach (API.Effect eff in player.effectList)
+              onSaveAfter.Player.ApplyEffect(eff.DurationType, eff, TimeSpan.FromSeconds((double)eff.DurationRemaining));
         }
       }
-
-      return 0;
     }
     private static void SavePlayerCharacterToDatabase(Player player)
     {
-      var query = NWScript.SqlPrepareQueryCampaign(ModuleSystem.database, $"UPDATE playerCharacters SET areaTag = @areaTag, position = @position, facing = @facing, currentHP = @currentHP, bankGold = @bankGold, dateLastSaved = @dateLastSaved, currentSkillType = @currentSkillType, currentSkillJob = @currentSkillJob, currentCraftJob = @currentCraftJob, currentCraftObject = @currentCraftObject, currentCraftJobRemainingTime = @currentCraftJobRemainingTime, currentCraftJobMaterial = @currentCraftJobMaterial, menuOriginTop = @menuOriginTop, menuOriginLeft = @menuOriginLeft where rowid = @characterId");
+      var query = NWScript.SqlPrepareQueryCampaign(Config.database, $"UPDATE playerCharacters SET areaTag = @areaTag, position = @position, facing = @facing, currentHP = @currentHP, bankGold = @bankGold, dateLastSaved = @dateLastSaved, currentSkillType = @currentSkillType, currentSkillJob = @currentSkillJob, currentCraftJob = @currentCraftJob, currentCraftObject = @currentCraftObject, currentCraftJobRemainingTime = @currentCraftJobRemainingTime, currentCraftJobMaterial = @currentCraftJobMaterial, menuOriginTop = @menuOriginTop, menuOriginLeft = @menuOriginLeft where rowid = @characterId");
       NWScript.SqlBindInt(query, "@characterId", player.characterId);
-      
-      if(Convert.ToBoolean(NWScript.GetIsObjectValid(NWScript.GetAreaFromLocation(player.location))))
+
+      if (Convert.ToBoolean(NWScript.GetIsObjectValid(NWScript.GetAreaFromLocation(player.location))))
         NWScript.SqlBindString(query, "@areaTag", NWScript.GetTag(NWScript.GetAreaFromLocation(player.location)));
       else
         NWScript.SqlBindString(query, "@areaTag", NWScript.GetTag(player.previousArea));
@@ -131,9 +111,9 @@ namespace NWN.Systems
     }
     private static void SavePlayerLearnableSkillsToDatabase(Player player)
     {
-      foreach(KeyValuePair<int, SkillSystem.Skill> skillListEntry in player.learnableSkills)
+      foreach (KeyValuePair<int, SkillSystem.Skill> skillListEntry in player.learnableSkills)
       {
-        var query = NWScript.SqlPrepareQueryCampaign(ModuleSystem.database, $"INSERT INTO playerLearnableSkills (characterId, skillId, skillPoints, trained) VALUES (@characterId, @skillId, @skillPoints, @trained)" +
+        var query = NWScript.SqlPrepareQueryCampaign(Systems.Config.database, $"INSERT INTO playerLearnableSkills (characterId, skillId, skillPoints, trained) VALUES (@characterId, @skillId, @skillPoints, @trained)" +
         "ON CONFLICT (characterId, skillId) DO UPDATE SET skillPoints = @skillPoints, trained = @trained");
         NWScript.SqlBindInt(query, "@characterId", player.characterId);
         NWScript.SqlBindInt(query, "@skillId", skillListEntry.Key);
@@ -149,7 +129,7 @@ namespace NWN.Systems
     {
       foreach (KeyValuePair<int, SkillSystem.LearnableSpell> skillListEntry in player.learnableSpells)
       {
-        var query = NWScript.SqlPrepareQueryCampaign(ModuleSystem.database, $"INSERT INTO playerLearnableSpells (characterId, skillId, skillPoints, trained) VALUES (@characterId, @skillId, @skillPoints, @trained)" +
+        var query = NWScript.SqlPrepareQueryCampaign(Systems.Config.database, $"INSERT INTO playerLearnableSpells (characterId, skillId, skillPoints, trained) VALUES (@characterId, @skillId, @skillPoints, @trained)" +
         "ON CONFLICT (characterId, skillId) DO UPDATE SET skillPoints = @skillPoints, trained = @trained");
         NWScript.SqlBindInt(query, "@characterId", player.characterId);
         NWScript.SqlBindInt(query, "@skillId", skillListEntry.Key);
@@ -167,11 +147,11 @@ namespace NWN.Systems
       {
         foreach (string material in player.materialStock.Keys)
         {
-          var query = NWScript.SqlPrepareQueryCampaign(ModuleSystem.database, $"INSERT INTO playerMaterialStorage (characterId, materialName, materialStock) VALUES (@characterId, @materialName, @materialStock)" +
+          var query = NWScript.SqlPrepareQueryCampaign(Systems.Config.database, $"INSERT INTO playerMaterialStorage (characterId, materialName, materialStock) VALUES (@characterId, @materialName, @materialStock)" +
               $"ON CONFLICT (characterId, materialName) DO UPDATE SET materialStock = @materialStock where characterId = @characterId and materialName = @{material}");
           NWScript.SqlBindInt(query, "@characterId", player.characterId);
           NWScript.SqlBindString(query, "@materialName", material);
-          NWScript.SqlBindInt(query, "@materialStock", player.materialStock[material]); 
+          NWScript.SqlBindInt(query, "@materialStock", player.materialStock[material]);
           NWScript.SqlStep(query);
         }
       }
@@ -185,7 +165,7 @@ namespace NWN.Systems
 
         foreach (MapPin mapPin in player.mapPinDictionnary.Values)
         {
-          var query = NWScript.SqlPrepareQueryCampaign(ModuleSystem.database, queryString);
+          var query = NWScript.SqlPrepareQueryCampaign(Systems.Config.database, queryString);
           NWScript.SqlBindInt(query, "@characterId", player.characterId);
           NWScript.SqlBindInt(query, "@mapPinId", mapPin.id);
           NWScript.SqlBindString(query, "@areaTag", mapPin.areaTag);

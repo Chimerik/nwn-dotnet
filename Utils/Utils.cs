@@ -1,63 +1,37 @@
-﻿using System;
+﻿using Discord;
+using NWN.Systems;
+using System;
+using NWN.Core.NWNX;
+using NWN.Core;
+using System.Numerics;
 using System.Collections.Generic;
 using System.Linq;
-using NWN.Core;
-using NWN.Core.NWNX;
-using NWN.Systems;
-using System.Numerics;
-using Discord;
-using Discord.Commands;
-using Microsoft.Data.Sqlite;
+using NWN.API;
 
 namespace NWN
 {
   public static class Utils
   {
     public static Random random = new Random();
-
-    public static void LogException(Exception e)
-    {
-      Console.WriteLine(e.Message);
-      NWScript.WriteTimestampedLogEntry(e.Message);
-
-      switch (Config.env)
-      {
-        case Config.Env.Prod:
-          (Bot._client.GetChannel(703964971549196339) as IMessageChannel).SendMessageAsync(Module.currentScript + " : " + e.Message);
-          break;
-        case Config.Env.Bigby:
-          Bot._client.GetUser(225961076448034817).SendMessageAsync(Module.currentScript + " : " + e.Message);
-          break;
-        case Config.Env.Chim:
-          Bot._client.GetUser(232218662080086017).SendMessageAsync(Module.currentScript + " : " + e.Message);
-          break;
-      }
-    }
     public static void LogMessageToDMs(string message)
     {
       switch (Config.env)
       {
         case Config.Env.Prod:
-          (Bot._client.GetChannel(703964971549196339) as IMessageChannel).SendMessageAsync(Module.currentScript + " : " + message);
+          (Bot._client.GetChannel(703964971549196339) as IMessageChannel).SendMessageAsync(UtilPlugin.GetCurrentScriptName() + " : " + message);
           break;
         case Config.Env.Bigby:
-          Bot._client.GetUser(225961076448034817).SendMessageAsync(Module.currentScript + " : " + message);
+          Bot._client.GetUser(225961076448034817).SendMessageAsync(UtilPlugin.GetCurrentScriptName() + " : " + message);
           break;
         case Config.Env.Chim:
-          Bot._client.GetUser(232218662080086017).SendMessageAsync(Module.currentScript + " : " + message);
+          Bot._client.GetUser(232218662080086017).SendMessageAsync(UtilPlugin.GetCurrentScriptName() + " : " + message);
           break;
       }
     }
-
     public static void DestroyInventory(uint oContainer)
     {
-      var oObj = NWScript.GetFirstItemInInventory(oContainer);
-
-      while (NWScript.GetIsObjectValid(oObj) == 1)
-      {
-        NWScript.DestroyObject(oObj);
-        oObj = NWScript.GetNextItemInInventory(oContainer);
-      }
+      foreach (NwItem item in oContainer.ToNwObject<NwGameObject>().Items)
+        item.Destroy();
     }
     public static void DestroyEquippedItems(uint oCreature)
     {
@@ -65,7 +39,7 @@ namespace NWN
         NWScript.DestroyObject(NWScript.GetItemInSlot(i, oCreature));
     }
 
-    public static string LocationToString(Location l)
+    public static string LocationToString(Core.Location l)
     {
       uint area = NWScript.GetAreaFromLocation(l);
       Vector3 pos = NWScript.GetPositionFromLocation(l);
@@ -84,17 +58,9 @@ namespace NWN
       return result + destMin;
     }
 
-    public static Location GetLocationFromDatabase(string areaTag, Vector3 position, float facing)
+    public static API.Location GetLocationFromDatabase(string areaTag, Vector3 position, float facing)
     {
-      uint area = NWScript.GetFirstArea();
-      while (Convert.ToBoolean(NWScript.GetIsObjectValid(area)))
-      {
-        if (NWScript.GetTag(area) == areaTag)
-          break;
-        area = NWScript.GetNextArea();
-      }
-
-      return NWScript.Location(area, position, facing);
+      return API.Location.Create(NwModule.Instance.Areas.Where(a => a.Tag == areaTag).FirstOrDefault(), position, facing);
     }
     public static Boolean IsPartyMember(uint oPC, uint oTarget)
     {
@@ -146,7 +112,7 @@ namespace NWN
       {
         NWScript.BootPC(PlayerListEntry.Key, "Le serveur redémarre. Vous pourrez vous reconnecter dans une minute.");
 
-        var query = NWScript.SqlPrepareQueryCampaign(ModuleSystem.database, $"INSERT INTO moduleInfo (year, month, day, hour, minute, second) VALUES (@year, @month, @day, @hour, @minute, @second)");
+        var query = NWScript.SqlPrepareQueryCampaign(Config.db_path, $"INSERT INTO moduleInfo (year, month, day, hour, minute, second) VALUES (@year, @month, @day, @hour, @minute, @second)");
         NWScript.SqlBindInt(query, "@year", NWScript.GetCalendarYear());
         NWScript.SqlBindInt(query, "@month", NWScript.GetCalendarMonth());
         NWScript.SqlBindInt(query, "@day", NWScript.GetCalendarDay());
@@ -158,30 +124,6 @@ namespace NWN
         AdminPlugin.ShutdownServer();
       }
     }
-    public static bool HasAnyEffect(uint oObject, params int[] effectIDs)
-    {
-      var eff = NWScript.GetFirstEffect(oObject);
-      while (NWScript.GetIsEffectValid(eff) == 1)
-      {
-        if (effectIDs.Contains(NWScript.GetEffectType(eff)))
-          return true;
-        eff = NWScript.GetNextEffect(oObject);
-      }
-
-      return false;
-    }
-    public static Boolean HasTagEffect(uint oObject, string sTag)
-    {
-      var eff = NWScript.GetFirstEffect(oObject);
-      while (NWScript.GetIsEffectValid(eff) == 1)
-      {
-        if (NWScript.GetEffectTag(eff) == sTag)
-          return true;
-        eff = NWScript.GetNextEffect(oObject);
-      }
-      return false;
-    }
-
     public static void RemoveTaggedEffect(uint oObject, string Tag)
     {
       var eff = NWScript.GetFirstEffect(oObject);
@@ -218,67 +160,6 @@ namespace NWN
     public static TimeSpan StripTimeSpanMilliseconds(TimeSpan timespan)
     {
       return new TimeSpan(timespan.Days, timespan.Hours, timespan.Minutes, timespan.Seconds);
-    }
-    public static int CheckPlayerCredentialsFromDiscord(SocketCommandContext context, string sPCName)
-    {
-      using (var connection = new SqliteConnection($"{ModuleSystem.db_path}"))
-      {
-        connection.Open();
-
-        var command = connection.CreateCommand();
-        command.CommandText =
-        @"
-        SELECT pc.ROWID
-        FROM PlayerAccounts
-        LEFT join playerCharacters pc on pc.accountId = PlayerAccounts.ROWID
-        WHERE discordId = $discordId and pc.characterName = $characterName
-        ";
-        command.Parameters.AddWithValue("$discordId", context.User.Id);
-        command.Parameters.AddWithValue("$characterName", sPCName);
-
-        int result = 0;
-
-        using (var reader = command.ExecuteReader())
-        {
-          while (reader.Read())
-          {
-            result = reader.GetInt32(0);
-          }
-        }
-
-        if (result > 0)
-          return result;
-      }
-
-      return 0;
-    }
-    public static string GetPlayerStaffRankFromDiscord(ulong UserId)
-    {
-      using (var connection = new SqliteConnection($"{ModuleSystem.db_path}"))
-      {
-        connection.Open();
-
-        var command = connection.CreateCommand();
-        command.CommandText =
-        @"
-        SELECT rank
-        FROM PlayerAccounts
-        WHERE discordId = $discordId
-        ";
-        command.Parameters.AddWithValue("$discordId", UserId);
-
-        string result = "";
-
-        using (var reader = command.ExecuteReader())
-        {
-          while (reader.Read())
-          {
-            result = reader.GetString(0);
-          }
-        }
-
-        return result;
-      }
     }
     public static int TranslateEngineAnimation(int nAnimation)
     {

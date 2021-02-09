@@ -84,7 +84,7 @@ namespace NWN.Systems
         else
         {
           player.menu.titleLines.Add($"HRP - Erreur, votre peau brut n'a pas correctement été reconnue. Le staff a été informé du problème.");
-          Utils.LogMessageToDMs($"TANNERIE - Could not recognize pelt type : {oreName} - Used by : {NWScript.GetName(player.oid)}");
+          NWN.Utils.LogMessageToDMs($"TANNERIE - Could not recognize pelt type : {oreName} - Used by : {NWScript.GetName(player.oid)}");
         }
       }
 

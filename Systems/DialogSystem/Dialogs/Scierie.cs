@@ -84,7 +84,7 @@ namespace NWN.Systems
         else
         {
           player.menu.titleLines.Add($"HRP - Erreur, votre bois brut n'a pas correctement été reconnu. Le staff a été informé du problème.");
-          Utils.LogMessageToDMs($"SCIERIE - Could not recognize wood type : {oreName} - Used by : {NWScript.GetName(player.oid)}");
+          NWN.Utils.LogMessageToDMs($"SCIERIE - Could not recognize wood type : {oreName} - Used by : {NWScript.GetName(player.oid)}");
         }
       }
 

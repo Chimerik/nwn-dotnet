@@ -1,5 +1,4 @@
-﻿using NWN.Core;
-using NWN.Core.NWNX;
+﻿using NWN.API;
 
 namespace NWN.Systems
 {
@@ -7,19 +6,17 @@ namespace NWN.Systems
   {
     private static void ExecutePlaceablePersistanceCommand(ChatSystem.Context ctx, Options.Result options)
     {
-      if (NWScript.GetIsDM(ctx.oSender) == 1)
-      {
-        if (ObjectPlugin.GetInt(ctx.oSender, "_SPAWN_PERSIST") != 0)
-        {
-          ObjectPlugin.DeleteInt(ctx.oSender, "_SPAWN_PERSIST");
-          NWScript.SendMessageToPC(ctx.oSender, "Persistance des placeables créés par DM désactivée.");
+       NwPlayer oPC = ctx.oSender.ToNwObject<NwPlayer>();
+       if (oPC.GetLocalVariable<int>("_SPAWN_PERSIST").HasValue)
+       {
+            oPC.GetLocalVariable<int>("_SPAWN_PERSIST").Delete();
+            oPC.SendServerMessage("Persistance des placeables créés par DM désactivée.");
         }
         else
         {
-          ObjectPlugin.SetInt(ctx.oSender, "_SPAWN_PERSIST", 1, 1);
-          NWScript.SendMessageToPC(ctx.oSender, "Persistance des placeables créés par DM activée.");
+            oPC.GetLocalVariable<int>("_SPAWN_PERSIST").Value = 1;
+            oPC.SendServerMessage("Persistance des placeables créés par DM activée.");
         }
-      }
     }
   }
 }

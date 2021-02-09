@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using NWN.Core;
+﻿using NWN.Core;
 using NWN.Core.NWNX;
 
 namespace NWN.Systems
@@ -24,7 +22,7 @@ namespace NWN.Systems
               NWScript.SendMessageToPC(ctx.oTarget, "Votre bonus roleplay est désormais de 2");
             }
             
-            Utils.LogMessageToDMs($"{NWScript.GetName(ctx.oSender)} vient de recommander {NWScript.GetName(ctx.oTarget)} pour une augmentation de bonus roleplay.");
+            NWN.Utils.LogMessageToDMs($"{NWScript.GetName(ctx.oSender)} vient de recommander {NWScript.GetName(ctx.oTarget)} pour une augmentation de bonus roleplay.");
           }
 
           NWScript.SendMessageToPC(ctx.oSender, $"Vous venez de recommander {NWScript.GetName(ctx.oTarget)} pour une augmentation de bonus roleplay !");

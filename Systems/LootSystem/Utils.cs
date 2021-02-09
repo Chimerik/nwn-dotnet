@@ -1,19 +1,17 @@
 ﻿using System;
 using System.Collections.Generic;
+using NWN.API;
 using NWN.Core;
-using static NWN.Systems.PlayerSystem;
 
 namespace NWN.Systems
 {
-  public static partial class LootSystem
+  public partial class LootSystem
   {
-    private static Dictionary<string, List<uint>> chestTagToLootsDic = new Dictionary<string, List<uint>> { };
-    private static void UpdateDB(uint oChest)
+    private void UpdateDB(uint oChest)
     {
-      Player oPC;
-      if (Players.TryGetValue(NWScript.GetLastClosedBy(), out oPC))
+      if (PlayerSystem.Players.TryGetValue(NWScript.GetLastClosedBy(), out PlayerSystem.Player oPC))
       {
-        var query = NWScript.SqlPrepareQueryCampaign(ModuleSystem.database, $"INSERT INTO {SQL_TABLE}(chestTag, accountId, serializedChest, position, facing)" +
+        var query = NWScript.SqlPrepareQueryCampaign(Systems.Config.database, $"INSERT INTO {SQL_TABLE}(chestTag, accountId, serializedChest, position, facing)" +
       " VALUES(@chestTag, @accountId, @serializedChest, @position, @facing)" +
       " ON CONFLICT(chestTag) DO UPDATE SET serializedChest = @serializedChest, position = @position, facing = @facing;");
         NWScript.SqlBindString(query, "@chestTag", NWScript.GetTag(oChest));
@@ -24,38 +22,16 @@ namespace NWN.Systems
         NWScript.SqlStep(query);
       }
     }
-    private static List<uint> GetPlaceables(uint oArea)
+    private void UpdateChestTagToLootsDic(uint oChest)
     {
-      var oPlaceable = NWScript.GetFirstObjectInArea(oArea);
-      var list = new List<uint> { };
+      NwPlaceable chest = oChest.ToNwObject<NwPlaceable>();
+      var loots = new List<NwItem> { };
 
-      while (NWScript.GetIsObjectValid(oPlaceable) == 1)
+      foreach (NwItem item in chest.Items)
       {
-        if (NWScript.GetObjectType(oPlaceable) == NWScript.OBJECT_TYPE_PLACEABLE &&
-            NWScript.GetHasInventory(oPlaceable) == 1)
-        {
-          list.Add(oPlaceable);
-        }
-
-        oPlaceable = NWScript.GetNextObjectInArea(oArea);
+        loots.Add(item);
       }
-
-      return list;
-    }
-    private static void UpdateChestTagToLootsDic(uint oChest)
-    {
-      var tag = NWScript.GetTag(oChest);
-      var loots = new List<uint> { };
-
-      var oLoot = NWScript.GetFirstItemInInventory(oChest);
-
-      while (NWScript.GetIsObjectValid(oLoot) == 1)
-      {
-        loots.Add(oLoot);
-        oLoot = NWScript.GetNextItemInInventory(oChest);
-      }
-
-      chestTagToLootsDic[tag] = loots;
+      chestTagToLootsDic[chest.Tag] = loots;
     }
     private static void ThrowException(string message)
     {

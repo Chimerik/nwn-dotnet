@@ -1,6 +1,6 @@
 ﻿namespace NWN.Systems
 {
-  class GoldBalance
+  public class GoldBalance
   {
     public int nbTimesLooted { get; set; }
     public int cumulatedGold { get; set; }

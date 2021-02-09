@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using NWN.API;
 using NWN.Core;
 
 namespace NWN.Systems
@@ -24,7 +25,8 @@ namespace NWN.Systems
 
           if (NWScript.GetHasInventory(oContainer) == 0)
           {
-            ThrowException($"Can't GenerateLoot : Object '{containerTag}' has no inventory.");
+            NWN.Utils.LogMessageToDMs($"Can't GenerateLoot : Object '{containerTag}' has no inventory.");
+            return;
           }
 
           if (gold != null)
@@ -60,9 +62,9 @@ namespace NWN.Systems
 
         public void Generate(uint oContainer, string goldResRef = "nw_it_gold001")
         {
-          if (Utils.random.Next(1, 100) <= chance)
+          if (NWN.Utils.random.Next(1, 100) <= chance)
           {
-            var goldCount = Utils.random.Next((int)min, (int)max);
+            var goldCount = NWN.Utils.random.Next((int)min, (int)max);
 
             if (NWScript.GetObjectType(oContainer) == NWScript.OBJECT_TYPE_CREATURE)
             {
@@ -99,20 +101,19 @@ namespace NWN.Systems
 
         public void Generate(uint oContainer)
         {
-          List<uint> loots;
           NWScript.WriteTimestampedLogEntry($"tag : {chestTag}");
-          if (chestTagToLootsDic.TryGetValue(chestTag, out loots))
+          if (chestTagToLootsDic.TryGetValue(chestTag, out List<NwItem> loots))
           {
             if (loots.Count > 0)
             {
               for (var i = 0; i < count; i++)
               {
-                int rand = Utils.random.Next(1, 101);
+                int rand = NWN.Utils.random.Next(1, 101);
                 NWScript.WriteTimestampedLogEntry($"LOOT : {rand}/{chance}");
                 if (rand <= chance)
                 {
                   uint oItem = NWScript.CopyItem(
-                      loots[Utils.random.Next(0, loots.Count - 1)],
+                      loots[NWN.Utils.random.Next(0, loots.Count - 1)],
                       oContainer,
                       1
                   );

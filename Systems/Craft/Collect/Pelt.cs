@@ -1,14 +1,14 @@
 ﻿using System;
+using NWN.API;
 using NWN.Core;
 using NWN.Core.NWNX;
 using static NWN.Systems.Craft.Collect.Config;
-using static NWN.Systems.PlayerSystem;
 
 namespace NWN.Systems.Craft.Collect
 {
   public static class Pelt
   {
-    public static void HandleCompleteCycle(Player player, uint oPlaceable, uint oExtractor)
+    public static void HandleCompleteCycle(PlayerSystem.Player player, uint oPlaceable, uint oExtractor)
     {
       if (NWScript.GetIsObjectValid(oPlaceable) != 1 || NWScript.GetDistanceBetween(player.oid, oPlaceable) > 5.0f)
       {
@@ -31,7 +31,7 @@ namespace NWN.Systems.Craft.Collect
 
       if (int.TryParse(NWScript.Get2DAString("feat", "GAINMULTIPLE", CreaturePlugin.GetHighestLevelOfFeat(player.oid, (int)Feat.AnimalExpertise)), out value))
         bonusYield += miningYield * value * 5 / 100;
-      
+
       miningYield += bonusYield;
 
       int remainingOre = NWScript.GetLocalInt(oPlaceable, "_ORE_AMOUNT") - miningYield;
@@ -51,21 +51,21 @@ namespace NWN.Systems.Craft.Collect
       NWScript.SetName(ore, $"Peau de {NWScript.GetName(oPlaceable)}");
       //NWScript.SetLocalString(ore, "_PELT_RESREF", NWScript.GetResRef(oPlaceable));
 
-      Items.Utils.DecreaseItemDurability(oExtractor);
+      ItemUtils.DecreaseItemDurability(oExtractor);
     }
 
-    public static void HandleCompleteProspectionCycle(Player player)
+    public static void HandleCompleteProspectionCycle(PlayerSystem.Player player)
     {
-      if (!AreaSystem.areaDictionnary.TryGetValue(NWScript.GetObjectUUID(NWScript.GetArea(player.oid)), out Area area)) return;
+      NwArea area = NWScript.GetArea(player.oid).ToNwObject<NwArea>();
 
-      if (area.level < 2)
+      if (area.GetLocalVariable<int>("_AREA_LEVEL").Value < 2)
       {
         NWScript.SendMessageToPC(player.oid, "Cet endroit ne semble disposer d'aucun animal dont la peau soit réutilisable.");
         return;
       }
 
-      var query = NWScript.SqlPrepareQueryCampaign(ModuleSystem.database, $"SELECT animals from areaResourceStock where areaTag = @areaTag");
-      NWScript.SqlBindString(query, "@areaTag", area.tag);
+      var query = NWScript.SqlPrepareQueryCampaign(Systems.Config.database, $"SELECT animals from areaResourceStock where areaTag = @areaTag");
+      NWScript.SqlBindString(query, "@areaTag", area.Tag);
       NWScript.SqlStep(query);
 
       if (NWScript.SqlGetInt(query, 0) < 1)
@@ -90,11 +90,11 @@ namespace NWN.Systems.Craft.Collect
 
       while (NWScript.GetIsObjectValid(resourcePoint) == 1)
       {
-        int iRandom = Utils.random.Next(1, 101);
+        int iRandom = NwRandom.Roll(NWN.Utils.random, 100, 1);
 
         if (iRandom < respawnChance || NWN.Systems.Config.env == NWN.Systems.Config.Env.Chim)
         {
-          var newRock = NWScript.CreateObject(NWScript.OBJECT_TYPE_CREATURE, GetRandomPeltSpawnFromAreaLevel(area.level), NWScript.GetLocation(resourcePoint));
+          var newRock = NWScript.CreateObject(NWScript.OBJECT_TYPE_CREATURE, GetRandomPeltSpawnFromAreaLevel(area.GetLocalVariable<int>("_AREA_LEVEL").Value), NWScript.GetLocation(resourcePoint));
           NWScript.SetLocalInt(newRock, "_ORE_AMOUNT", 50 * iRandom + 50 * iRandom * skillBonus / 100);
           NWScript.SetDroppableFlag(NWScript.CreateItemOnObject("undroppable_item", newRock), 1);
           NWScript.DestroyObject(resourcePoint);
@@ -108,9 +108,9 @@ namespace NWN.Systems.Craft.Collect
       if (nbSpawns.Length > 0)
       {
         NWScript.SendMessageToPC(player.oid, $"Votre traque a permis d'identifier les traces des créatures suivantes : {nbSpawns} leurs peaux semblent exploitables, à vous de jouer !");
-        
-        query = NWScript.SqlPrepareQueryCampaign(ModuleSystem.database, $"UPDATE areaResourceStock SET animals = animals - 1 where areaTag = @areaTag");
-        NWScript.SqlBindString(query, "@areaTag", area.tag);
+
+        query = NWScript.SqlPrepareQueryCampaign(Systems.Config.database, $"UPDATE areaResourceStock SET animals = animals - 1 where areaTag = @areaTag");
+        NWScript.SqlBindString(query, "@areaTag", area.Tag);
         NWScript.SqlStep(query);
       }
       else

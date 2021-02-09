@@ -2,9 +2,9 @@
 
 namespace NWN.Systems
 {
-  public static partial class CommandSystem
-  {
-    private static Dictionary<string, Command> commandDic = new Dictionary<string, Command>
+    public static partial class CommandSystem
+    {
+        private static Dictionary<string, Command> commandDic = new Dictionary<string, Command>
     {
       {
         "help", new Command(
@@ -427,5 +427,5 @@ namespace NWN.Systems
         )
       }
     };
-  }
+    }
 }

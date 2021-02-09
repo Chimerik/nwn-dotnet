@@ -1,23 +1,35 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using NWN.API;
+using NWN.API.Events;
 using NWN.Core;
 using NWN.Core.NWNX;
-using static NWN.Systems.PlayerSystem;
+using NWN.Services;
 
 namespace NWN.Systems
 {
-  public static class ChatSystem
+  [ServiceBinding(typeof(ChatSystem))]
+  public class ChatSystem
   {
-    public const string CHAT_SCRIPT = "on_chat";
-    public static Dictionary<string, Func<uint, int>> Register = new Dictionary<string, Func<uint, int>>
+    public ChatSystem(NativeEventService eventService)
     {
-      { CHAT_SCRIPT, HandleChat },
-    };
+      eventService.Subscribe<NwModule, ModuleEvents.OnModuleLoad>(NwModule.Instance, OnModuleLoad);
+    }
+    private void OnModuleLoad(ModuleEvents.OnModuleLoad onModuleLoad)
+    {
+      ChatPlugin.RegisterChatScript("on_chat");
+    }
 
-    public static void Init ()
+    [ScriptHandler("on_chat")]
+    private void OnNWNXChatEvent(CallInfo callInfo)
     {
-      ChatPlugin.RegisterChatScript(CHAT_SCRIPT);
+      pipeline.Execute(new Context(
+        msg: ChatPlugin.GetMessage(),
+        oSender: ChatPlugin.GetSender(),
+        oTarget: ChatPlugin.GetTarget(),
+        channel: ChatPlugin.GetChannel()
+      ));
     }
 
     public class Context
@@ -36,51 +48,39 @@ namespace NWN.Systems
       }
     }
 
-    private static int HandleChat (uint oidself)
-    {
-      pipeline.Execute(new Context(
-        msg: ChatPlugin.GetMessage(),
-        oSender: ChatPlugin.GetSender(),
-        oTarget: ChatPlugin.GetTarget(),
-        channel: ChatPlugin.GetChannel()
-      ));
-
-      return 0;
-    }
-
     private static Pipeline<Context> pipeline = new Pipeline<Context>(
       new Action<Context, Action>[]
       {
-        ChatSystem.ProcessWriteLogMiddleware,
-        CommandSystem.ProcessChatCommandMiddleware,
-        ChatSystem.ProcessSpeakValueMiddleware,
-        ChatSystem.ProcessMutePMMiddleware,
-        ChatSystem.ProcessPMMiddleware,
-        ChatSystem.ProcessAFKDetectionMiddleware,
-        ChatSystem.ProcessDeadPlayerMiddleware,
-        ChatSystem.ProcessDMListenMiddleware,
-        ChatSystem.ProcessLanguageMiddleware
+            ChatSystem.ProcessWriteLogMiddleware,
+            CommandSystem.ProcessChatCommandMiddleware,
+            ChatSystem.ProcessSpeakValueMiddleware,
+            ChatSystem.ProcessMutePMMiddleware,
+            ChatSystem.ProcessPMMiddleware,
+            ChatSystem.ProcessAFKDetectionMiddleware,
+            ChatSystem.ProcessDeadPlayerMiddleware,
+            ChatSystem.ProcessDMListenMiddleware,
+            ChatSystem.ProcessLanguageMiddleware
       }
     );
-    public static void ProcessWriteLogMiddleware(ChatSystem.Context ctx, Action next)
+    public static void ProcessWriteLogMiddleware(Context ctx, Action next)
     {
-      if (ctx.channel != ChatPlugin.NWNX_CHAT_CHANNEL_SERVER_MSG && Convert.ToBoolean(NWScript.GetIsPC(ctx.oSender)))
+      if (ctx.channel != ChatPlugin.NWNX_CHAT_CHANNEL_SERVER_MSG && ctx.oSender.ToNwObjectSafe<NwPlayer>() != null)
       {
-        if (NWScript.GetIsObjectValid(ctx.oTarget) != 1)
+        if (ctx.oTarget.ToNwObjectSafe<NwPlayer>() != null)
         {
           string filename = String.Format("{0:yyyy-MM-dd}_{1}.txt", DateTime.Now, "chatlog");
           string path = Path.Combine(Environment.GetEnvironmentVariable("HOME") + "/ChatLog", filename);
 
           using (StreamWriter file =
           new StreamWriter(path, true))
-              file.WriteLineAsync(DateTime.Now.ToShortTimeString() + " - [" + ctx.channel + " - " + NWScript.GetName(NWScript.GetArea(ctx.oSender)) + "] " + NWScript.GetName(ctx.oSender, 1) + " : " + ctx.msg);
+            file.WriteLineAsync(DateTime.Now.ToShortTimeString() + " - [" + ctx.channel + " - " + NWScript.GetName(NWScript.GetArea(ctx.oSender)) + "] " + NWScript.GetName(ctx.oSender, 1) + " : " + ctx.msg);
         }
         else
         {
-          string filename = $"{NWScript.GetPCPlayerName(ctx.oTarget)}_{NWScript.GetPCPlayerName(ctx.oSender)}.txt"; 
+          string filename = $"{NWScript.GetPCPlayerName(ctx.oTarget)}_{NWScript.GetPCPlayerName(ctx.oSender)}.txt";
           string path = Path.Combine(Environment.GetEnvironmentVariable("HOME") + "/ChatLog", filename);
 
-          if(!File.Exists(path))
+          if (!File.Exists(path))
           {
             filename = $"{NWScript.GetPCPlayerName(ctx.oSender)}_{NWScript.GetPCPlayerName(ctx.oTarget)}.txt";
             path = Path.Combine(Environment.GetEnvironmentVariable("HOME") + "/ChatLog", filename);
@@ -93,7 +93,7 @@ namespace NWN.Systems
         next();
       }
     }
-    public static void ProcessSpeakValueMiddleware(ChatSystem.Context ctx, Action next)
+    public static void ProcessSpeakValueMiddleware(Context ctx, Action next)
     {
       if (NWScript.GetLocalString(ctx.oSender, "_IS_LISTENING_VAR") == NWScript.GetName(ctx.oSender))
       {
@@ -145,7 +145,7 @@ namespace NWN.Systems
       PlayerSystem.Player player;
       if (PlayerSystem.Players.TryGetValue(ctx.oSender, out player))
       {
-        if(player.isAFK)
+        if (player.isAFK)
           if (ctx.channel == ChatPlugin.NWNX_CHAT_CHANNEL_PLAYER_TALK || ctx.channel == ChatPlugin.NWNX_CHAT_CHANNEL_PLAYER_WHISPER)
             if (!ctx.msg.Contains("(") && !ctx.msg.Contains(")"))
               if (NWScript.GetDistanceBetween(ctx.oSender, NWScript.GetNearestCreature(1, 1, ctx.oSender)) < 35.0f)
@@ -168,9 +168,9 @@ namespace NWN.Systems
       if (ctx.channel == ChatPlugin.NWNX_CHAT_CHANNEL_PLAYER_TALK || ctx.channel == ChatPlugin.NWNX_CHAT_CHANNEL_PLAYER_WHISPER)
       {
         var oInviSender = NWScript.GetObjectByTag("_invisible_sender"); // TODO : créer un _INVISIBLE_SENDER dans le module
-        foreach (KeyValuePair<uint, Player> PlayerListEntry in Players)
+        foreach (KeyValuePair<uint, PlayerSystem.Player> PlayerListEntry in PlayerSystem.Players)
         {
-          Player oDM = PlayerListEntry.Value;
+          PlayerSystem.Player oDM = PlayerListEntry.Value;
           if (NWScript.GetIsDM(oDM.oid) == 1)
           {
             if (oDM.listened.ContainsKey(ctx.oSender))
@@ -180,7 +180,7 @@ namespace NWN.Systems
                 NWScript.SetName(oInviSender, NWScript.GetName(ctx.oSender));
                 var oPossessed = NWScript.GetLocalObject(oDM.oid, "_POSSESSING");
                 if (NWScript.GetIsObjectValid(oPossessed) != 1)
-                    ChatPlugin.SendMessage((int)ChatPlugin.NWNX_CHAT_CHANNEL_PLAYER_TELL, "[COPIE - " + NWScript.GetName(NWScript.GetArea(ctx.oSender)) + "] " + ctx.msg, oInviSender, oDM.oid);
+                  ChatPlugin.SendMessage((int)ChatPlugin.NWNX_CHAT_CHANNEL_PLAYER_TELL, "[COPIE - " + NWScript.GetName(NWScript.GetArea(ctx.oSender)) + "] " + ctx.msg, oInviSender, oDM.oid);
                 else
                   ChatPlugin.SendMessage((int)ChatPlugin.NWNX_CHAT_CHANNEL_PLAYER_TELL, "[COPIE - " + NWScript.GetName(NWScript.GetArea(ctx.oSender)) + "] " + ctx.msg, oInviSender, oPossessed);
               }
@@ -193,15 +193,15 @@ namespace NWN.Systems
     }
     public static void ProcessLanguageMiddleware(Context ctx, Action next) // SYSTEME DE LANGUE
     {
-      if (Players.TryGetValue(ctx.oSender, out Player player))
+      if (PlayerSystem.Players.TryGetValue(ctx.oSender, out PlayerSystem.Player player))
       {
-        if (player.activeLanguage != Feat.Invalid && (ctx.channel == ChatPlugin.NWNX_CHAT_CHANNEL_PLAYER_TALK || ctx.channel == ChatPlugin.NWNX_CHAT_CHANNEL_PLAYER_WHISPER || ctx.channel == ChatPlugin.NWNX_CHAT_CHANNEL_DM_TALK || ctx.channel == ChatPlugin.NWNX_CHAT_CHANNEL_DM_WHISPER))
+        if (player.oid.GetLocalVariable<int>("_ACTIVE_LANGUAGE").Value != (int)Feat.Invalid && (ctx.channel == ChatPlugin.NWNX_CHAT_CHANNEL_PLAYER_TALK || ctx.channel == ChatPlugin.NWNX_CHAT_CHANNEL_PLAYER_WHISPER || ctx.channel == ChatPlugin.NWNX_CHAT_CHANNEL_DM_TALK || ctx.channel == ChatPlugin.NWNX_CHAT_CHANNEL_DM_WHISPER))
         {
-          string sLanguageName = Languages.GetLanguageName(player.activeLanguage);
+          string sLanguageName = Enum.GetName(typeof(Feat), player.oid.GetLocalVariable<int>("_ACTIVE_LANGUAGE").Value);
           string sName = NWScript.GetLocalString(ctx.oSender, "__DISGUISE_NAME");
           if (sName == "") sName = NWScript.GetName(ctx.oSender);
 
-          foreach (KeyValuePair<uint, Player> PlayerListEntry in Players)
+          foreach (KeyValuePair<uint, PlayerSystem.Player> PlayerListEntry in PlayerSystem.Players)
           {
             if ((uint)ctx.oSender != PlayerListEntry.Key && (uint)ctx.oSender != NWScript.GetLocalObject(PlayerListEntry.Key, "_POSSESSING"))
             {

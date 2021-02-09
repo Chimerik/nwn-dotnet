@@ -15,7 +15,7 @@ namespace NWN.Systems
         if (descriptionName.Length == 0)
           return;
 
-        var query = NWScript.SqlPrepareQueryCampaign(ModuleSystem.database, $"SELECT description from playerDescriptions where characterId = @characterId and descriptionName = @descriptionName");
+        var query = NWScript.SqlPrepareQueryCampaign(Systems.Config.database, $"SELECT description from playerDescriptions where characterId = @characterId and descriptionName = @descriptionName");
         NWScript.SqlBindInt(query, "@characterId", player.characterId);
         NWScript.SqlBindString(query, "@descriptionName", descriptionName);
         NWScript.SqlStep(query);

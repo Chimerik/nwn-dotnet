@@ -14,7 +14,7 @@ namespace NWN.Systems
         if (NWScript.GetArea(oPC) != NWScript.GetArea(ctx.oSender))
           break;
 
-        if (!Utils.IsPartyMember(ctx.oSender, oPC))
+        if (!NWN.Utils.IsPartyMember(ctx.oSender, oPC))
           NWScript.SetPCDislike(ctx.oSender, oPC);
 
         iCount++;

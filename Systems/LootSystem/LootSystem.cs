@@ -1,41 +1,57 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
+using NWN.API;
+using NWN.API.Events;
 using NWN.Core;
 using NWN.Core.NWNX;
+using NWN.Services;
 using NWN.Systems.Craft;
 
 namespace NWN.Systems
 {
-  public static partial class LootSystem
+  [ServiceBinding(typeof(LootSystem))]
+  public partial class LootSystem
   {
-    public static Dictionary<string, Func<uint, int>> Register = new Dictionary<string, Func<uint, int>>
-        {
-            { LOOT_CONTAINER_ON_CLOSE_SCRIPT, HandleContainerClose },
-            { ON_LOOT_SCRIPT, HandleLoot },
-        };
-
-    public static void InitChestArea()
+    private readonly NativeEventService nativeEventService;
+    private static Dictionary<string, List<NwItem>> chestTagToLootsDic = new Dictionary<string, List<NwItem>> { };
+    public LootSystem(NativeEventService eventService)
     {
-      var oArea = NWScript.GetObjectByTag(CHEST_AREA_TAG);
-
-      if (oArea != NWScript.OBJECT_INVALID)
-      {
-        var query = NWScript.SqlPrepareQueryCampaign(ModuleSystem.database, $"SELECT serializedChest, position, facing from {SQL_TABLE}");
-        
-        while (Convert.ToBoolean(NWScript.SqlStep(query)))
-          UpdateChestTagToLootsDic(NWScript.SqlGetObject(query, 0, Utils.GetLocationFromDatabase(CHEST_AREA_TAG, NWScript.SqlGetVector(query, 1), NWScript.SqlGetFloat(query, 2))));
-
-        InitializeLootChestFromArray(NWScript.GetObjectByTag("low_blueprints"), Craft.Collect.System.lowBlueprints);
-        InitializeLootChestFromArray(NWScript.GetObjectByTag("medium_blueprints"), Craft.Collect.System.mediumBlueprints);
-
-        InitializeLootChestFromFeatArray(NWScript.GetObjectByTag("low_skillbooks"), SkillSystem.lowSkillBooks);
-        InitializeLootChestFromFeatArray(NWScript.GetObjectByTag("medium_skillbooks"), SkillSystem.mediumSkillBooks);
-      }
-      else
-        Utils.LogMessageToDMs("Attention - La zone des loots n'est pas initialisée.");
+      this.nativeEventService = eventService;
+      eventService.Subscribe<NwModule, ModuleEvents.OnModuleLoad>(NwModule.Instance, OnModuleLoad);
     }
-    private static void InitializeLootChestFromArray(uint oChest, int[] array)
+    private void OnModuleLoad(ModuleEvents.OnModuleLoad onModuleLoad)
+    {
+      InitChestArea();
+    }
+    private void InitChestArea()
+    {
+      NwArea area = NwModule.Instance.Areas.Where(a => a.Tag == CHEST_AREA_TAG).FirstOrDefault();
+      if (!area.IsValid)
+      {
+        NWN.Utils.LogMessageToDMs("Attention - La zone des loots n'est pas initialisée.");
+        return;
+      }
+
+      var query = NWScript.SqlPrepareQueryCampaign(Config.database, $"SELECT serializedChest, position, facing from {SQL_TABLE}");
+
+      while (Convert.ToBoolean(NWScript.SqlStep(query)))
+      {
+        uint oChest = NWScript.SqlGetObject(query, 0, NWN.Utils.GetLocationFromDatabase(CHEST_AREA_TAG, NWScript.SqlGetVector(query, 1), NWScript.SqlGetFloat(query, 2)));
+        if (!Convert.ToBoolean(NWScript.GetIsObjectValid(oChest)))
+          continue;
+        UpdateChestTagToLootsDic(oChest);
+        nativeEventService.Subscribe<NwPlaceable, PlaceableEvents.OnClose>(oChest.ToNwObject<NwPlaceable>(), OnLootConfigContainerClose);
+      }
+
+      InitializeLootChestFromArray(NWScript.GetObjectByTag("low_blueprints"), Craft.Collect.System.lowBlueprints);
+      InitializeLootChestFromArray(NWScript.GetObjectByTag("medium_blueprints"), Craft.Collect.System.mediumBlueprints);
+
+      InitializeLootChestFromFeatArray(NWScript.GetObjectByTag("low_skillbooks"), SkillSystem.lowSkillBooks);
+      InitializeLootChestFromFeatArray(NWScript.GetObjectByTag("medium_skillbooks"), SkillSystem.mediumSkillBooks);
+    }
+
+    private void InitializeLootChestFromArray(uint oChest, int[] array)
     {
       foreach (int baseItemType in array)
       {
@@ -51,12 +67,12 @@ namespace NWN.Systems
 
       UpdateChestTagToLootsDic(oChest);
     }
-    private static void InitializeLootChestFromFeatArray(uint oChest, Feat[] array)
+    private void InitializeLootChestFromFeatArray(uint oChest, Feat[] array)
     {
       foreach (Feat feat in array)
       {
         uint skillBook = NWScript.CreateItemOnObject("skillbookgeneriq", oChest, 10, "skillbook");
-        ItemPlugin.SetItemAppearance(skillBook, NWScript.ITEM_APPR_TYPE_SIMPLE_MODEL, 2, Utils.random.Next(0, 50));
+        ItemPlugin.SetItemAppearance(skillBook, NWScript.ITEM_APPR_TYPE_SIMPLE_MODEL, 2, NWN.Utils.random.Next(0, 50));
         NWScript.SetLocalInt(skillBook, "_SKILL_ID", (int)feat);
 
         int value;
@@ -69,33 +85,25 @@ namespace NWN.Systems
 
       UpdateChestTagToLootsDic(oChest);
     }
-    private static int HandleContainerClose(uint oidSelf)
+    private void OnLootConfigContainerClose(PlaceableEvents.OnClose onClose)
     {
-      UpdateChestTagToLootsDic(oidSelf);
-      UpdateDB(oidSelf);
-      return 0;
+      UpdateChestTagToLootsDic(onClose.Placeable);
+      UpdateDB(onClose.Placeable);
     }
-
-    private static int HandleLoot(uint oidSelf)
+    public static void HandleLoot(CreatureEvents.OnDeath onDeath)
     {
-      var oContainer = oidSelf;
-      var oArea = NWScript.GetArea(oContainer);
+      var oContainer = onDeath.KilledCreature;
 
-      var containerTag = NWScript.GetTag(oContainer);
-      Lootable.Config lootableConfig;
-
-      if (!lootablesDic.TryGetValue(containerTag, out lootableConfig))
+      if (lootablesDic.TryGetValue(oContainer.Tag, out Lootable.Config lootableConfig))
       {
-        ThrowException($"Unregistered container tag=\"{containerTag}\"");
+        NWN.Utils.DestroyInventory(oContainer);
+        NWScript.AssignCommand(oContainer.Area, () => NWScript.DelayCommand(
+            0.1f,
+            () => lootableConfig.GenerateLoot(oContainer)
+        ));
       }
-      
-      Utils.DestroyInventory(oContainer);
-      NWScript.AssignCommand(oArea, () => NWScript.DelayCommand(
-          0.1f,
-          () => lootableConfig.GenerateLoot(oContainer)
-      ));
-
-      return 0;
+      else
+        ThrowException($"Unregistered container tag=\"{oContainer.Tag}\"");
     }
   }
 }

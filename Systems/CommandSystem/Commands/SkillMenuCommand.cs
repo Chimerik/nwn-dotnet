@@ -51,7 +51,7 @@ namespace NWN.Systems
           if(skill.currentJob)
             skill.RefreshAcquiredSkillPoints();
 
-          player.menu.choices.Add(($"{skill.name} - Temps restant : {Utils.StripTimeSpanMilliseconds((DateTime.Now.AddSeconds(skill.GetTimeToNextLevel(skill.CalculateSkillPointsPerSecond())) - DateTime.Now))}", () => __HandleSkillSelection(player, skill)));
+          player.menu.choices.Add(($"{skill.name} - Temps restant : {NWN.Utils.StripTimeSpanMilliseconds((DateTime.Now.AddSeconds(skill.GetTimeToNextLevel(skill.CalculateSkillPointsPerSecond())) - DateTime.Now))}", () => __HandleSkillSelection(player, skill)));
         }
         // TODO : Suivant, précédent
       }
@@ -84,7 +84,7 @@ namespace NWN.Systems
           if (spell.currentJob)
             spell.RefreshAcquiredSkillPoints();
 
-          player.menu.choices.Add(($"{spell.name} - Temps restant : {Utils.StripTimeSpanMilliseconds((TimeSpan)(DateTime.Now.AddSeconds(spell.GetTimeToNextLevel(spell.CalculateSkillPointsPerSecond())) - DateTime.Now))}", () => __HandleSpellSelection(player, spell)));
+          player.menu.choices.Add(($"{spell.name} - Temps restant : {NWN.Utils.StripTimeSpanMilliseconds((TimeSpan)(DateTime.Now.AddSeconds(spell.GetTimeToNextLevel(spell.CalculateSkillPointsPerSecond())) - DateTime.Now))}", () => __HandleSpellSelection(player, spell)));
         }
         // TODO : Suivant, précédent
       }
@@ -103,7 +103,7 @@ namespace NWN.Systems
         // TODO :  afficher le skill en cours en premier ?
 
         skill.RefreshAcquiredSkillPoints();
-        player.menu.choices.Add(($"{skill.name} - Temps restant : {Utils.StripTimeSpanMilliseconds((TimeSpan)(player.playerJournal.skillJobCountDown - DateTime.Now))}", () => __HandleSkillSelection(player, skill)));
+        player.menu.choices.Add(($"{skill.name} - Temps restant : {NWN.Utils.StripTimeSpanMilliseconds((TimeSpan)(player.playerJournal.skillJobCountDown - DateTime.Now))}", () => __HandleSkillSelection(player, skill)));
 
         // TODO : Suivant, précédent et quitter
       }
@@ -118,8 +118,7 @@ namespace NWN.Systems
         //if(CurrentSkill == null)
         //CurrentSkill = player.removeableMalus[player.currentSkillJob];
 
-        PlayerSystem.HandleBeforePlayerSave(player.oid);
-        PlayerSystem.HandleAfterPlayerSave(player.oid);
+        player.oid.ExportCharacter();
 
         if (SelectedSkill.currentJob) // Job en cours sélectionné => mise en pause
         {
@@ -164,8 +163,7 @@ namespace NWN.Systems
     {
       if (player.currentSkillJob != (int)Feat.Invalid)
       {
-        PlayerSystem.HandleBeforePlayerSave(player.oid);
-        PlayerSystem.HandleAfterPlayerSave(player.oid);
+        player.oid.ExportCharacter();
 
         if (selectedSpell.currentJob) // Job en cours sélectionné => mise en pause
         {

@@ -1,6 +1,5 @@
 ﻿using System.Collections.Generic;
 using NWN.Core;
-using static NWN.Systems.PlayerSystem;
 
 namespace NWN.Systems
 {
@@ -8,13 +7,13 @@ namespace NWN.Systems
   {
     private static void ExecuteHelpCommand(ChatSystem.Context ctx, Options.Result options)
     {
-      if (Players.TryGetValue(ctx.oSender, out Player player))
+      if (PlayerSystem.Players.TryGetValue(ctx.oSender, out PlayerSystem.Player player))
       {
         DrawAllCommandsPage(player);
       }
     }
 
-    private static void DrawAllCommandsPage(Player player)
+    private static void DrawAllCommandsPage(PlayerSystem.Player player)
     {
       player.menu.Clear();
       player.menu.titleLines.Add("Voici la liste de toutes les commandes disponibles :");
@@ -30,7 +29,7 @@ namespace NWN.Systems
       player.menu.Draw();
     }
 
-    private static void DrawSingleCommandPage(Player player, string description)
+    private static void DrawSingleCommandPage(PlayerSystem.Player player, string description)
     {
       player.menu.Clear();
 
