@@ -93,8 +93,7 @@ namespace NWN.Systems
         }
       }
 
-      if (oPC.GetItemInSlot(API.Constants.InventorySlot.Neck) != null &&
-        oPC.GetItemInSlot(API.Constants.InventorySlot.Neck).Tag != "amulettorillink")
+      if (oPC.GetItemInSlot(API.Constants.InventorySlot.Neck)?.Tag != "amulettorillink")
       {
         API.Effect eff = API.Effect.SpellFailure(50);
         eff.Tag = "erylies_spell_failure";

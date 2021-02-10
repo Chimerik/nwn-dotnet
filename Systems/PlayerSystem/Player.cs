@@ -29,7 +29,7 @@ namespace NWN.Systems
       public SkillType currentSkillType { get; set; }
       public Job craftJob { get; set; }
       public Boolean isFrostAttackOn { get; set; }
-      public NwArea previousArea { get; set; }
+      public API.Location previousLocation { get; set; }
       public Feat activeLanguage { get; set; }
       public TargetEvent targetEvent { get; set; }
       public Menu menu { get; }
@@ -286,8 +286,8 @@ namespace NWN.Systems
           case SkillType.Skill:
             if (this.learnableSkills.TryGetValue(this.currentSkillJob, out Skill skill))
             {
-              float skillPointRate = skill.CalculateSkillPointsPerSecond();
-              skill.acquiredPoints += skillPointRate * (float)(DateTime.Now - this.dateLastSaved).TotalSeconds;
+              double skillPointRate = skill.CalculateSkillPointsPerSecond();
+              skill.acquiredPoints += skillPointRate * (DateTime.Now - this.dateLastSaved).TotalSeconds;
               double RemainingTime = skill.GetTimeToNextLevel(skillPointRate);
 
               if (RemainingTime <= 0)
@@ -299,8 +299,8 @@ namespace NWN.Systems
           case SkillType.Spell:
             if (this.learnableSpells.TryGetValue(this.currentSkillJob, out LearnableSpell spell))
             {
-              float skillPointRate = spell.CalculateSkillPointsPerSecond();
-              spell.acquiredPoints += skillPointRate * (float)(DateTime.Now - this.dateLastSaved).TotalSeconds;
+              double skillPointRate = spell.CalculateSkillPointsPerSecond();
+              spell.acquiredPoints += skillPointRate * (DateTime.Now - this.dateLastSaved).TotalSeconds;
               double RemainingTime = spell.GetTimeToNextLevel(skillPointRate);
 
               if (RemainingTime <= 0)

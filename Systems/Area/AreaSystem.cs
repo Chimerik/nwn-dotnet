@@ -100,7 +100,7 @@ namespace NWN.Systems
             else if (area.Tag == $"entry_scene_{oPC.CDKey}")
                 AreaDestroyer(area);
             else if (PlayerSystem.Players.TryGetValue(oPC, out PlayerSystem.Player player))
-                player.previousArea = area;
+                player.previousLocation = player.location;
         }
         private void DoAreaSpecificInitialisation(NwArea area)
         {

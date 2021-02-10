@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using NWN.Core;
 using NWN.Core.NWNX;
+using NWN.API.Constants;
 
 namespace NWN.Systems
 {
@@ -12,7 +13,7 @@ namespace NWN.Systems
     {
       public readonly int oid;
       private readonly PlayerSystem.Player player;
-      public float acquiredPoints { get; set; }
+      public double acquiredPoints { get; set; }
       public string name { get; set; }
       public string description { get; set; }
       public Boolean currentJob { get; set; }
@@ -37,7 +38,7 @@ namespace NWN.Systems
         else
         {
           this.name = "Nom indisponible";
-          NWN.Utils.LogMessageToDMs($"SKILL SYSTEM ERROR - Skill {this.oid} : no available name");
+          Utils.LogMessageToDMs($"SKILL SYSTEM ERROR - Skill {this.oid} : no available name");
         }
 
         if (int.TryParse(NWScript.Get2DAString("feat", "DESCRIPTION", Id), out value))
@@ -45,7 +46,7 @@ namespace NWN.Systems
         else
         {
           this.description = "Description indisponible";
-          NWN.Utils.LogMessageToDMs($"SKILL SYSTEM ERROR - Skill {this.oid} : no available description");
+          Utils.LogMessageToDMs($"SKILL SYSTEM ERROR - Skill {this.oid} : no available description");
         }
 
         if (int.TryParse(NWScript.Get2DAString("feat", "GAINMULTIPLE", Id), out value))
@@ -97,13 +98,13 @@ namespace NWN.Systems
         else
         {
           this.secondaryAbility = NWScript.ABILITY_WISDOM;
-          NWN.Utils.LogMessageToDMs($"SKILL SYSTEM ERROR - Skill {this.oid} : Secondary ability not set");
+          Utils.LogMessageToDMs($"SKILL SYSTEM ERROR - Skill {this.oid} : Secondary ability not set");
         }
 
         this.pointsToNextLevel = 250 * this.multiplier * (int)Math.Pow(Math.Sqrt(32), this.currentLevel - 1);
 
-        if (NWN.Systems.Config.env == NWN.Systems.Config.Env.Chim)
-          pointsToNextLevel = -10;
+        //if (Config.env == Config.Env.Chim)
+          //pointsToNextLevel = 10;
 
         if (this.player.currentSkillJob == this.oid)
         {
@@ -111,16 +112,16 @@ namespace NWN.Systems
           this.CreateSkillJournalEntry();
         }
       }
-      public double GetTimeToNextLevel(float pointPerSecond)
+      public double GetTimeToNextLevel(double pointPerSecond)
       {
-        float RemainingPoints = this.pointsToNextLevel - this.acquiredPoints;
+        double RemainingPoints = this.pointsToNextLevel - this.acquiredPoints;
         return RemainingPoints / pointPerSecond;
       }
       public void CreateSkillJournalEntry()
       {
         player.playerJournal.skillJobCountDown = DateTime.Now.AddSeconds(this.GetTimeToNextLevel(CalculateSkillPointsPerSecond()));
         JournalEntry journalEntry = new JournalEntry();
-        journalEntry.sName = $"Entrainement - {NWN.Utils.StripTimeSpanMilliseconds((TimeSpan)(player.playerJournal.skillJobCountDown - DateTime.Now))}";
+        journalEntry.sName = $"Entrainement - {Utils.StripTimeSpanMilliseconds((TimeSpan)(player.playerJournal.skillJobCountDown - DateTime.Now))}";
         journalEntry.sText = $"Entrainement en cours :\n\n " +
           $"{this.name}\n\n" +
           $"{this.description}";
@@ -148,9 +149,9 @@ namespace NWN.Systems
         PlayerPlugin.AddCustomJournalEntry(player.oid, journalEntry);
         player.playerJournal.skillJobCountDown = null;
       }
-      public float CalculateSkillPointsPerSecond()
+      public double CalculateSkillPointsPerSecond()
       {
-        float SP = (float)(NWScript.GetAbilityScore(player.oid, primaryAbility) + (NWScript.GetAbilityScore(player.oid, secondaryAbility) / 2)) / 60;
+        double SP = ((double)player.oid.GetAbilityScore((Ability)primaryAbility) + ((double)player.oid.GetAbilityScore((Ability)secondaryAbility) / 2.0)) / 60.0;
 
         switch (player.bonusRolePlay)
         {
@@ -180,8 +181,8 @@ namespace NWN.Systems
       }
       public void RefreshAcquiredSkillPoints()
       {
-        float skillPointRate = CalculateSkillPointsPerSecond();
-        acquiredPoints += skillPointRate * (float)(DateTime.Now - player.dateLastSaved).TotalSeconds;
+        double skillPointRate = CalculateSkillPointsPerSecond();
+        acquiredPoints += skillPointRate * (DateTime.Now - player.dateLastSaved).TotalSeconds;
         double remainingTime = GetTimeToNextLevel(skillPointRate);
         player.playerJournal.skillJobCountDown = DateTime.Now.AddSeconds(remainingTime);
 
@@ -193,12 +194,12 @@ namespace NWN.Systems
         if (player.menu.isOpen)
           player.menu.Close();
 
-        if (!Convert.ToBoolean(CreaturePlugin.GetKnowsFeat(player.oid, oid)))
-        {
+        //if (!Convert.ToBoolean(CreaturePlugin.GetKnowsFeat(player.oid, oid)))
+       // {
           CreaturePlugin.AddFeat(player.oid, oid);
           PlayNewSkillAcquiredEffects();
-        }
-        else
+        //}
+       /* else
         {
           int value;
           int skillCurrentLevel = CreaturePlugin.GetHighestLevelOfFeat(player.oid, oid);
@@ -211,7 +212,7 @@ namespace NWN.Systems
           {
             NWN.Utils.LogMessageToDMs($"SKILL LEVEL UP ERROR - Player : {NWScript.GetName(player.oid)}, Skill : {name} ({oid}), Current level : {skillCurrentLevel}");
           }
-        }
+        }*/
 
         if (RegisterAddCustomFeatEffect.TryGetValue(oid, out Func<PlayerSystem.Player, int, int> handler))
           handler.Invoke(player, oid);
@@ -225,7 +226,7 @@ namespace NWN.Systems
           player.learnableSkills.Add(successorId, new Skill(successorId, 0, player));
         }
 
-        NWScript.ExportSingleCharacter(player.oid);
+        player.oid.ExportCharacter();
       }
       public void PlayNewSkillAcquiredEffects()
       {

@@ -177,11 +177,11 @@ namespace NWN.Systems
 
         if (skill.successorId > 0)
         {
-          player.learnableSkills.Add(skill.successorId, new SkillSystem.Skill(skill.successorId, 0, player));
+          player.learnableSkills.Add(skill.successorId, new Skill(skill.successorId, 0, player));
         }
 
-        if (CreaturePlugin.GetHighestLevelOfFeat(player.oid, skill.oid - 1) == skill.oid) // Suppression du prédécesseur
-          CreaturePlugin.RemoveFeat(player.oid, skill.oid -1);
+        //if (CreaturePlugin.GetHighestLevelOfFeat(player.oid, skill.oid - 1) == skill.oid) // Suppression du prédécesseur
+          //CreaturePlugin.RemoveFeat(player.oid, skill.oid -1);
 
         ObjectPlugin.SetInt(player.oid, "_STARTING_SKILL_POINTS", remainingPoints -= skill.pointsToNextLevel, 1);
         skill.CreateSkillJournalEntry();

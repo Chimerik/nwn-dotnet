@@ -30,7 +30,6 @@ namespace NWN.Systems
     }
     private void OnModuleLoad(ModuleEvents.OnModuleLoad onModuleLoad)
     {
-      //DoAsyncStuff();
       LoadDiscordBot();
       //Console.WriteLine($" enum name : {Feat.LegendaryPeltReprocessing5.ToDescription()}", Color.PINK);
 
@@ -59,16 +58,15 @@ namespace NWN.Systems
         return true;
       });
     }
-    private async void DoAsyncStuff()
+    private void LoadDiscordBot()
     {
-      await NwTask.WaitUntilValueChanged(() => NwModule.Instance.Players.Count());
-      NwModule.Instance.Players.First().SendServerMessage("Message async. C'est chouette, non ?");
-    }
-    private async void LoadDiscordBot()
-    {
-      await Bot.MainAsync();
-      if (Config.env == Config.Env.Prod)
-        await (Bot._client.GetChannel(786218144296468481) as IMessageChannel).SendMessageAsync($"Module en ligne !");
+      Task spawnResources = NwTask.Run(async () =>
+      {
+        await Bot.MainAsync();
+        if (Config.env == Config.Env.Prod)
+          await (Bot._client.GetChannel(786218144296468481) as IMessageChannel).SendMessageAsync($"Module en ligne !");
+        return true;
+      });
     }
 
     private void CreateDatabase()
@@ -346,8 +344,12 @@ namespace NWN.Systems
 
       if (delay > 0.0f)
       {
-        await NwTask.Delay(TimeSpan.FromDays(1));
-        await SpawnCollectableResources(delay);
+        Task task3 = NwTask.Run(async () =>
+        {
+          await NwTask.Delay(TimeSpan.FromDays(1));
+          await SpawnCollectableResources(delay);
+          return true;
+        });
       }
     }
     private async void SaveServerVault()

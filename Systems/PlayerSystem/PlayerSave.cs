@@ -42,7 +42,7 @@ namespace NWN.Systems
         if (player.location == player.oid.Location)
           player.isAFK = true;
         else
-          player.location = NWScript.GetLocation(player.oid);
+          player.location = player.oid.Location;
 
         player.currentHP = onSaveBefore.Player.HP;
 
@@ -88,12 +88,18 @@ namespace NWN.Systems
       NWScript.SqlBindInt(query, "@characterId", player.characterId);
 
       if (player.location != null)
+      {
         NWScript.SqlBindString(query, "@areaTag", player.location.Area.Tag);
+        NWScript.SqlBindVector(query, "@position", player.location.Position);
+        NWScript.SqlBindFloat(query, "@facing", player.location.Rotation);
+      }
       else
-        NWScript.SqlBindString(query, "@areaTag", player.previousArea.Tag);
+      {
+        NWScript.SqlBindString(query, "@areaTag", player.previousLocation.Area.Tag);
+        NWScript.SqlBindVector(query, "@position", player.previousLocation.Position);
+        NWScript.SqlBindFloat(query, "@facing", player.previousLocation.Rotation);
+      }
 
-      NWScript.SqlBindVector(query, "@position", NWScript.GetPositionFromLocation(player.location));
-      NWScript.SqlBindFloat(query, "@facing", NWScript.GetFacingFromLocation(player.location));
       NWScript.SqlBindInt(query, "@currentHP", player.currentHP);
       NWScript.SqlBindInt(query, "@bankGold", player.bankGold);
       NWScript.SqlBindString(query, "@dateLastSaved", player.dateLastSaved.ToString());

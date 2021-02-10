@@ -12,7 +12,7 @@ namespace NWN.Systems
     {
       public readonly int oid;
       private readonly PlayerSystem.Player player;
-      public float acquiredPoints { get; set; }
+      public double acquiredPoints { get; set; }
       public string name { get; set; }
       public string description { get; set; }
       public Boolean currentJob { get; set; }
@@ -81,9 +81,9 @@ namespace NWN.Systems
           this.CreateSkillJournalEntry();
         }
       }
-      public double GetTimeToNextLevel(float pointPerSecond)
+      public double GetTimeToNextLevel(double pointPerSecond)
       {
-        float RemainingPoints = this.pointsToNextLevel - this.acquiredPoints;
+        double RemainingPoints = this.pointsToNextLevel - this.acquiredPoints;
         return RemainingPoints / pointPerSecond;
       }
       public void CreateSkillJournalEntry()
@@ -118,9 +118,9 @@ namespace NWN.Systems
         PlayerPlugin.AddCustomJournalEntry(player.oid, journalEntry);
         player.playerJournal.skillJobCountDown = null;
       }
-      public float CalculateSkillPointsPerSecond()
+      public double CalculateSkillPointsPerSecond()
       {
-        float SP = (float)(NWScript.GetAbilityScore(player.oid, primaryAbility) + (NWScript.GetAbilityScore(player.oid, secondaryAbility) / 2)) / 60;
+        double SP = (NWScript.GetAbilityScore(player.oid, primaryAbility) + (NWScript.GetAbilityScore(player.oid, secondaryAbility) / 2)) / 60;
 
         switch (player.bonusRolePlay)
         {
@@ -150,7 +150,7 @@ namespace NWN.Systems
       }
       public void RefreshAcquiredSkillPoints()
       {
-        float skillPointRate = CalculateSkillPointsPerSecond();
+        double skillPointRate = CalculateSkillPointsPerSecond();
         acquiredPoints += skillPointRate * (float)(DateTime.Now - player.dateLastSaved).TotalSeconds;
         double remainingTime = GetTimeToNextLevel(skillPointRate);
         player.playerJournal.skillJobCountDown = DateTime.Now.AddSeconds(remainingTime);
