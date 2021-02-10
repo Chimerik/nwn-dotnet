@@ -39,14 +39,15 @@ namespace NWN.Systems
         // TODO : probablement faire pour chaque joueur tous les check faim / soif / jobs etc ici
 
         // AFK detection
-        if (player.location == player.oid.Location)
+        if (player.oid.Location != null && player.location == player.oid.Location)
           player.isAFK = true;
         else
           player.location = player.oid.Location;
 
         player.currentHP = onSaveBefore.Player.HP;
 
-        if (NWScript.GetArea(player.oid).ToNwObject<NwArea>().GetLocalVariable<int>("_AREA_LEVEL").Value == 0)
+
+        if (player.location.Area.GetLocalVariable<int>("_AREA_LEVEL").Value == 0)
           player.CraftJobProgression();
 
         player.AcquireSkillPoints();

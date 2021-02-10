@@ -44,7 +44,11 @@ namespace NWN.Systems
       Task teleportPlayer = NwTask.Run(async () =>
       {
         await NwTask.WaitUntilValueChanged(() => oPC.Area != null);
-        oPC.Location = player.location;
+
+        if (NwModule.Instance.Areas.Any(a => a.Tag == player.location.Area.Tag))
+          oPC.Location = player.location;
+        else
+          oPC.Location = NwModule.FindObjectsWithTag<NwWaypoint>("WP_START_NEW_CHAR").FirstOrDefault().Location;
         return true;
       });
 
