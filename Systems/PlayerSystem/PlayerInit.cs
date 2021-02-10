@@ -40,7 +40,6 @@ namespace NWN.Systems
         oPC.ApplyEffect(EffectDuration.Instant, API.Effect.Death());
       else
         oPC.HP = player.currentHP;
-
       Task teleportPlayer = NwTask.Run(async () =>
       {
         await NwTask.WaitUntilValueChanged(() => oPC.Area != null);
@@ -54,7 +53,6 @@ namespace NWN.Systems
         player.CraftJobProgression();
         player.craftJob.CreateCraftJournalEntry();
       }
-
       if (player.currentSkillJob != (int)Feat.Invalid)
       {
         switch (player.currentSkillType)
@@ -95,18 +93,17 @@ namespace NWN.Systems
         }
       }
 
-      if (oPC.GetItemInSlot(API.Constants.InventorySlot.Neck).Tag != "amulettorillink")
+      if (oPC.GetItemInSlot(API.Constants.InventorySlot.Neck) != null &&
+        oPC.GetItemInSlot(API.Constants.InventorySlot.Neck).Tag != "amulettorillink")
       {
         API.Effect eff = API.Effect.SpellFailure(50);
         eff.Tag = "erylies_spell_failure";
         eff.SubType = API.Constants.EffectSubType.Supernatural;
         oPC.ApplyEffect(EffectDuration.Permanent, eff);
       }
-
       player.isConnected = true;
       player.isAFK = false;
       player.DoJournalUpdate = false;
-
       player.dateLastSaved = DateTime.Now;
     }
     private static void InitializeNewPlayer(NwPlayer newPlayer)

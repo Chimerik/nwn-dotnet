@@ -29,7 +29,7 @@ namespace NWN.Systems
       public SkillType currentSkillType { get; set; }
       public Job craftJob { get; set; }
       public Boolean isFrostAttackOn { get; set; }
-      public uint previousArea { get; set; }
+      public NwArea previousArea { get; set; }
       public Feat activeLanguage { get; set; }
       public TargetEvent targetEvent { get; set; }
       public Menu menu { get; }

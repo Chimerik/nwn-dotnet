@@ -87,10 +87,10 @@ namespace NWN.Systems
       var query = NWScript.SqlPrepareQueryCampaign(Config.database, $"UPDATE playerCharacters SET areaTag = @areaTag, position = @position, facing = @facing, currentHP = @currentHP, bankGold = @bankGold, dateLastSaved = @dateLastSaved, currentSkillType = @currentSkillType, currentSkillJob = @currentSkillJob, currentCraftJob = @currentCraftJob, currentCraftObject = @currentCraftObject, currentCraftJobRemainingTime = @currentCraftJobRemainingTime, currentCraftJobMaterial = @currentCraftJobMaterial, menuOriginTop = @menuOriginTop, menuOriginLeft = @menuOriginLeft where rowid = @characterId");
       NWScript.SqlBindInt(query, "@characterId", player.characterId);
 
-      if (Convert.ToBoolean(NWScript.GetIsObjectValid(NWScript.GetAreaFromLocation(player.location))))
-        NWScript.SqlBindString(query, "@areaTag", NWScript.GetTag(NWScript.GetAreaFromLocation(player.location)));
+      if (player.location != null)
+        NWScript.SqlBindString(query, "@areaTag", player.location.Area.Tag);
       else
-        NWScript.SqlBindString(query, "@areaTag", NWScript.GetTag(player.previousArea));
+        NWScript.SqlBindString(query, "@areaTag", player.previousArea.Tag);
 
       NWScript.SqlBindVector(query, "@position", NWScript.GetPositionFromLocation(player.location));
       NWScript.SqlBindFloat(query, "@facing", NWScript.GetFacingFromLocation(player.location));
