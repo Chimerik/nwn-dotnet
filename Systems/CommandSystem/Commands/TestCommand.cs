@@ -4,6 +4,7 @@ using System.Net;
 using System.Numerics;
 using System.Web;
 using Discord;
+using NWN.API;
 using NWN.Core;
 using NWN.Core.NWNX;
 using static NWN.Systems.SkillSystem;
@@ -16,6 +17,7 @@ namespace NWN.Systems
     {
       if (PlayerSystem.Players.TryGetValue(ctx.oSender, out PlayerSystem.Player player))
       {
+        //NwModule.Instance.ExportAllCharacters();
         if(NWScript.GetPCPlayerName(player.oid) == "Chim")
         {
           //PlayerPlugin.PlaySound(player.oid, "song_test");

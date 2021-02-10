@@ -40,6 +40,7 @@ namespace NWN.Systems
         oPC.ApplyEffect(EffectDuration.Instant, API.Effect.Death());
       else
         oPC.HP = player.currentHP;
+
       Task teleportPlayer = NwTask.Run(async () =>
       {
         await NwTask.WaitUntilValueChanged(() => oPC.Area != null);
@@ -304,7 +305,7 @@ namespace NWN.Systems
 
       player.playerJournal = new PlayerJournal();
       player.loadedQuickBar = QuickbarType.Invalid;
-      player.location = NWN.Utils.GetLocationFromDatabase(NWScript.SqlGetString(query, 0), NWScript.SqlGetVector(query, 1), NWScript.SqlGetFloat(query, 2));
+      player.location = Utils.GetLocationFromDatabase(NWScript.SqlGetString(query, 0), NWScript.SqlGetVector(query, 1), NWScript.SqlGetFloat(query, 2));
       player.currentHP = NWScript.SqlGetInt(query, 3);
       player.bankGold = NWScript.SqlGetInt(query, 4);
       player.dateLastSaved = DateTime.Parse(NWScript.SqlGetString(query, 5));

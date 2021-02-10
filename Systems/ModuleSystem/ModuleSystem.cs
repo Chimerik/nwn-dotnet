@@ -26,7 +26,7 @@ namespace NWN.Systems
     }
     private void OnModuleStart(ModuleEvents.OnModuleStart onModuleStart)
     {
-      ;
+      
     }
     private void OnModuleLoad(ModuleEvents.OnModuleLoad onModuleLoad)
     {
@@ -58,15 +58,9 @@ namespace NWN.Systems
         return true;
       });
     }
-    private void LoadDiscordBot()
+    private async void LoadDiscordBot()
     {
-      Task spawnResources = NwTask.Run(async () =>
-      {
-        await Bot.MainAsync();
-        if (Config.env == Config.Env.Prod)
-          await (Bot._client.GetChannel(786218144296468481) as IMessageChannel).SendMessageAsync($"Module en ligne !");
-        return true;
-      });
+      await Bot.MainAsync();
     }
 
     private void CreateDatabase()
@@ -352,10 +346,8 @@ namespace NWN.Systems
         });
       }
     }
-    private async void SaveServerVault()
+    private void SaveServerVault()
     {
-      await NwTask.Delay(TimeSpan.FromMinutes(10));
-
       var query = NWScript.SqlPrepareQueryCampaign(Config.database, $"UPDATE moduleInfo SET year = @year, month = @month, day = @day, hour = @hour, minute = @minute, second = @second where rowid = 1");
       NWScript.SqlBindInt(query, "@year", NWScript.GetCalendarYear());
       NWScript.SqlBindInt(query, "@month", NWScript.GetCalendarMonth());
@@ -384,7 +376,7 @@ namespace NWN.Systems
           perfentry.Value.nbExecution = 0;
       }*/
 
-      foreach (KeyValuePair<string, GoldBalance> goldEntry in goldBalanceMonitoring)
+     /* foreach (KeyValuePair<string, GoldBalance> goldEntry in goldBalanceMonitoring)
       {
         query = NWScript.SqlPrepareQueryCampaign(Config.database, $"INSERT INTO goldBalance (lootedTag, nbTimesLooted, averageGold, cumulatedGold) VALUES (@lootedTag, @nbTimesLooted, @averageGold, @cumulatedGold)" +
         "ON CONFLICT (lootedTag) DO UPDATE SET nbTimesLooted = nbTimesLooted + @nbTimesLooted, averageGold = (cumulatedGold + @cumulatedGold) / (nbTimesLooted + @nbTimesLooted), cumulatedGold = cumulatedGold + @cumulatedGold");
@@ -396,7 +388,7 @@ namespace NWN.Systems
 
         goldEntry.Value.cumulatedGold = 0;
         goldEntry.Value.nbTimesLooted = 0;
-      }
+      }*/
 
       Task DownloadDiscordUsers = NwTask.Run(async () =>
       {
@@ -404,7 +396,12 @@ namespace NWN.Systems
         return true;
       });
 
-      SaveServerVault();
+      Task scheduleNextSave = NwTask.Run(async () =>
+      {
+        await NwTask.Delay(TimeSpan.FromMinutes(10));
+        SaveServerVault();
+        return true;
+      });      
     }
     public void RestorePlayerCorpseFromDatabase()
     {

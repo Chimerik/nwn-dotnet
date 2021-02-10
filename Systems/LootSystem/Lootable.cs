@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using NWN.API;
 using NWN.Core;
 
@@ -19,13 +20,11 @@ namespace NWN.Systems
           this.items = items;
         }
 
-        public void GenerateLoot(uint oContainer)
+        public void GenerateLoot(NwGameObject oContainer)
         {
-          var containerTag = NWScript.GetTag(oContainer);
-
           if (NWScript.GetHasInventory(oContainer) == 0)
           {
-            NWN.Utils.LogMessageToDMs($"Can't GenerateLoot : Object '{containerTag}' has no inventory.");
+            Utils.LogMessageToDMs($"Can't GenerateLoot : Object '{oContainer.Tag}' in area '{oContainer.Area.Name}' has no inventory.");
             return;
           }
 
@@ -37,9 +36,9 @@ namespace NWN.Systems
           GenerateItems(oContainer);
         }
 
-        private void GenerateItems(uint oContainer)
+        private void GenerateItems(NwGameObject oContainer)
         {
-          NWScript.WriteTimestampedLogEntry($"LOOT SYSTEM : name {NWScript.GetName(oContainer)}");
+          NWScript.WriteTimestampedLogEntry($"LOOT SYSTEM : name {oContainer.Name}");
           foreach (var item in items)
           {
             item.Generate(oContainer);
@@ -60,28 +59,30 @@ namespace NWN.Systems
           this.chance = chance;
         }
 
-        public void Generate(uint oContainer, string goldResRef = "nw_it_gold001")
+        public void Generate(NwGameObject oContainer, string goldResRef = "nw_it_gold001")
         {
-          if (NWN.Utils.random.Next(1, 100) <= chance)
+          if (Utils.random.Next(1, 100) <= chance)
           {
             var goldCount = NWN.Utils.random.Next((int)min, (int)max);
 
-            if (NWScript.GetObjectType(oContainer) == NWScript.OBJECT_TYPE_CREATURE)
+            if (oContainer is NwCreature)
             {
-              NWScript.GiveGoldToCreature(oContainer, goldCount);
+              ((NwCreature)oContainer).GiveGold(goldCount);
             }
             else
             {
-              NWScript.CreateItemOnObject(goldResRef, oContainer, goldCount);
+              NwItem.Create(goldResRef, oContainer, goldCount);
             }
 
-            if (ModuleSystem.goldBalanceMonitoring.TryGetValue(NWScript.GetTag(oContainer), out GoldBalance gold))
+            if (ModuleSystem.goldBalanceMonitoring.TryGetValue(oContainer.Tag, out GoldBalance gold))
             {
               gold.nbTimesLooted++;
               gold.cumulatedGold += goldCount;
             }
             else
-              ModuleSystem.goldBalanceMonitoring.Add(NWScript.GetTag(oContainer), new GoldBalance(goldCount));
+            {
+              ModuleSystem.goldBalanceMonitoring.Add(oContainer.Tag, new GoldBalance(goldCount));
+            }
           }
         }
       }

@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using NWN.Services;
 
 namespace NWN.Systems
 {

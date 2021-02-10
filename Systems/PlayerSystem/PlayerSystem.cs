@@ -52,15 +52,20 @@ namespace NWN.Systems
       if (callInfo.ObjectSelf is NwPlayer)
       {
         NwPlayer oPC = (NwPlayer)callInfo.ObjectSelf;
-        oPC.RemoveEffect(oPC.ActiveEffects.Where(e => e.EffectType == EffectType.CutsceneGhost).FirstOrDefault());
+        API.Effect effPC = oPC.ActiveEffects.Where(e => e.EffectType == EffectType.CutsceneGhost).FirstOrDefault();
+        if (effPC != null)
+          oPC.RemoveEffect(effPC);
       }
 
-      uint oTarget = NWScript.StringToObject(EventsPlugin.GetEventData("TARGET_OBJECT_ID"));
+      NwObject oTarget = NWScript.StringToObject(EventsPlugin.GetEventData("TARGET_OBJECT_ID")).ToNwObject();
 
-      if (NWScript.GetIsPC(oTarget) == 1)
+      if (oTarget is NwPlayer)
       {
-        NwPlayer target = oTarget.ToNwObject<NwPlayer>();
-        target.RemoveEffect(target.ActiveEffects.Where(e => e.EffectType == EffectType.CutsceneGhost).FirstOrDefault());
+        NwPlayer target = (NwPlayer)oTarget;
+        API.Effect effTarget = target.ActiveEffects.Where(e => e.EffectType == EffectType.CutsceneGhost).FirstOrDefault();
+        if (effTarget != null)
+          target.RemoveEffect(effTarget);
+        
         NWScript.SetPCDislike(callInfo.ObjectSelf, oTarget);
       }
     }
