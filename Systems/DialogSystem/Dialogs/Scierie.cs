@@ -77,14 +77,14 @@ namespace NWN.Systems
           else
             player.materialStock.Add(mineralName, refinedMinerals);
 
-          NWScript.SendMessageToPC(player.oid, $"Vous venez de fabriquer {refinedMinerals} planches de {mineralName}. Les planches sont en cours d'acheminage vers votre entrepôt.");
+          player.oid.SendServerMessage($"Vous venez de fabriquer {refinedMinerals} planches de {mineralName}. Les planches sont en cours d'acheminage vers votre entrepôt.");
 
           player.menu.titleLines.Add($"Voilà qui est fait !");
         }
         else
         {
           player.menu.titleLines.Add($"HRP - Erreur, votre bois brut n'a pas correctement été reconnu. Le staff a été informé du problème.");
-          NWN.Utils.LogMessageToDMs($"SCIERIE - Could not recognize wood type : {oreName} - Used by : {NWScript.GetName(player.oid)}");
+          NWN.Utils.LogMessageToDMs($"SCIERIE - Could not recognize wood type : {oreName} - Used by : {player.oid.Name}");
         }
       }
 

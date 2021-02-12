@@ -30,10 +30,9 @@ namespace NWN.Systems
       public Job craftJob { get; set; }
       public Boolean isFrostAttackOn { get; set; }
       public API.Location previousLocation { get; set; }
-      public Feat activeLanguage { get; set; }
       public TargetEvent targetEvent { get; set; }
       public Menu menu { get; }
-      public uint deathCorpse { get; set; }
+      public NwCreature deathCorpse { get; set; }
       public int setValue { get; set; }
       public QuickbarType loadedQuickBar { get; set; }
       public Arena.PlayerData pveArena = new Arena.PlayerData();

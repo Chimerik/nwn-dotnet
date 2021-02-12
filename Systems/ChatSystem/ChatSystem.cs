@@ -214,16 +214,16 @@ namespace NWN.Systems
 
               if ((NWScript.GetArea(ctx.oSender) == NWScript.GetArea(oEavesdrop)) && (NWScript.GetDistanceBetween(oEavesdrop, ctx.oSender) < ChatPlugin.GetChatHearingDistance(oEavesdrop, ctx.channel)))
               {
-                if (NWScript.GetHasFeat((int)player.activeLanguage, oEavesdrop) == 1 || NWScript.GetIsDM(PlayerListEntry.Key) == 1 || NWScript.GetIsDMPossessed(oEavesdrop) == 1)
+                if (NWScript.GetHasFeat(player.oid.GetLocalVariable<int>("_ACTIVE_LANGUAGE").Value, oEavesdrop) == 1 || NWScript.GetIsDM(PlayerListEntry.Key) == 1 || NWScript.GetIsDMPossessed(oEavesdrop) == 1)
                 {
                   ChatPlugin.SkipMessage();
                   ChatPlugin.SendMessage((int)ctx.channel, "[" + sLanguageName + "] " + ctx.msg, ctx.oSender, oEavesdrop);
-                  NWScript.SendMessageToPC(oEavesdrop, sName + " : [" + sLanguageName + "] " + Languages.GetLangueStringConvertedHRPProtection(ctx.msg, player.activeLanguage));
+                  NWScript.SendMessageToPC(oEavesdrop, sName + " : [" + sLanguageName + "] " + Languages.GetLangueStringConvertedHRPProtection(ctx.msg, (Feat)player.oid.GetLocalVariable<int>("_ACTIVE_LANGUAGE").Value));
                 }
                 else
                 {
                   ChatPlugin.SkipMessage();
-                  ChatPlugin.SendMessage((int)ctx.channel, Languages.GetLangueStringConvertedHRPProtection(ctx.msg, player.activeLanguage), ctx.oSender, oEavesdrop);
+                  ChatPlugin.SendMessage((int)ctx.channel, Languages.GetLangueStringConvertedHRPProtection(ctx.msg, (Feat)player.oid.GetLocalVariable<int>("_ACTIVE_LANGUAGE").Value), ctx.oSender, oEavesdrop);
                 }
               }
             }
@@ -231,7 +231,7 @@ namespace NWN.Systems
 
           ChatPlugin.SkipMessage();
           ChatPlugin.SendMessage((int)ctx.channel, "[" + sLanguageName + "] " + ctx.msg, ctx.oSender, ctx.oSender);
-          NWScript.SendMessageToPC(ctx.oSender, sName + " : [" + sLanguageName + "] " + Languages.GetLangueStringConvertedHRPProtection(ctx.msg, player.activeLanguage));
+          NWScript.SendMessageToPC(ctx.oSender, sName + " : [" + sLanguageName + "] " + Languages.GetLangueStringConvertedHRPProtection(ctx.msg, (Feat)player.oid.GetLocalVariable<int>("_ACTIVE_LANGUAGE").Value));
           return;
         }
 

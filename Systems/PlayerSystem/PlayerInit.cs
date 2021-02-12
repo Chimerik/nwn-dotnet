@@ -23,7 +23,7 @@ namespace NWN.Systems
         Players.Add(oPC, player);
       }
 
-      player.activeLanguage = Feat.Invalid;
+      oPC.GetLocalVariable<int>("_ACTIVE_LANGUAGE").Value = (int)Feat.Invalid;
 
       if (oPC.IsDM)
         return;
@@ -112,10 +112,10 @@ namespace NWN.Systems
     }
     private static void InitializeNewPlayer(NwPlayer newPlayer)
     {
-      NWScript.DelayCommand(4.0f, () => newPlayer.PostString("a", 40, 15, API.Constants.ScreenAnchor.TopLeft, 0f, API.Color.BLACK, API.Color.BLACK, 9999, "fnt_my_gui"));
+      NWScript.DelayCommand(4.0f, () => newPlayer.PostString("a", 40, 15, API.Constants.ScreenAnchor.TopLeft, 0f, API.Color.WHITE, API.Color.WHITE, 9999, "fnt_my_gui"));
       EventsPlugin.AddObjectToDispatchList("NWNX_ON_INPUT_TOGGLE_PAUSE_BEFORE", "spacebar_down", newPlayer);
 
-      var query = NWScript.SqlPrepareQueryCampaign(Systems.Config.database, $"SELECT rowid FROM PlayerAccounts WHERE accountName = @accountName");
+      var query = NWScript.SqlPrepareQueryCampaign(Config.database, $"SELECT rowid FROM PlayerAccounts WHERE accountName = @accountName");
       NWScript.SqlBindString(query, "@accountName", newPlayer.PlayerName);
 
       if (!Convert.ToBoolean(NWScript.SqlStep(query)))
@@ -180,6 +180,13 @@ namespace NWN.Systems
 
         foreach (NwObject fog in arrivalArea.FindObjectsOfTypeInArea<NwPlaceable>().Where(o => o.Tag == "intro_brouillard"))
           VisibilityPlugin.SetVisibilityOverride(NWScript.OBJECT_INVALID, fog, VisibilityPlugin.NWNX_VISIBILITY_HIDDEN);
+
+        Task allPointsSpent = NwTask.Run(async () =>
+        {
+          await NwTask.WaitUntil(() => ObjectPlugin.GetInt(newCharacter.oid, "_STARTING_SKILL_POINTS") <= 0);
+          arrivalArea.GetLocalVariable<int>("_GO").Value = 1;
+          return true;
+        });
       }
       else
       {

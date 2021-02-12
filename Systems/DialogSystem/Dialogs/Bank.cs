@@ -1,6 +1,4 @@
 ﻿using System.Collections.Generic;
-using NWN.Core;
-using NWN.Core.NWNX;
 using static NWN.Systems.PlayerSystem;
 
 namespace NWN.Systems
@@ -11,7 +9,7 @@ namespace NWN.Systems
     {
       this.DrawWelcomePage(player);
     }
-    private void DrawWelcomePage(PlayerSystem.Player player)
+    private void DrawWelcomePage(Player player)
     {
       player.menu.Clear();
       player.menu.titleLines = new List<string> {
@@ -26,10 +24,10 @@ namespace NWN.Systems
       player.menu.choices.Add(("Quitter", () => player.menu.Close()));
       player.menu.Draw();
     }
-    private void HandleMoneyDepositSelection(PlayerSystem.Player player)
+    private void HandleMoneyDepositSelection(Player player)
     {
       player.menu.Clear();
-      int availableGold = NWScript.GetGold(player.oid);
+      int availableGold = player.oid.Gold;
 
       if (availableGold < 1)
       {
@@ -60,10 +58,10 @@ namespace NWN.Systems
       player.menu.choices.Add(("Quitter", () => player.menu.Close()));
       player.menu.Draw();
     }
-    private void HandleValidateDeposit(PlayerSystem.Player player)
+    private void HandleValidateDeposit(Player player)
     {
       player.menu.Clear();
-      int availableGold = NWScript.GetGold(player.oid);
+      int availableGold = player.oid.Gold;
 
       if (player.setValue <= 0)
       {
@@ -84,7 +82,8 @@ namespace NWN.Systems
           $"{player.setValue} ? Tu pourrais faire mieux.",
           "Enfin, c'est toujours ça..."
         };
-        CreaturePlugin.SetGold(player.oid, availableGold - player.setValue);
+
+        player.oid.TakeGold(player.setValue);
         player.bankGold += player.setValue;
       }
       else if (player.setValue == availableGold)
@@ -93,7 +92,8 @@ namespace NWN.Systems
           $"Oh, oui, toooout. Donnez moi tooooout !",
           "Vous pouvez me faire confiance ... oui, confiance ..."
         };
-        CreaturePlugin.SetGold(player.oid, 0);
+
+        player.oid.TakeGold(player.oid.Gold);
         player.bankGold += player.setValue;
       }
 
@@ -101,7 +101,7 @@ namespace NWN.Systems
       player.menu.choices.Add(("Quitter", () => player.menu.Close()));
       player.menu.Draw();
     }
-    private void HandleMoneyWithdrawalSelection(PlayerSystem.Player player)
+    private void HandleMoneyWithdrawalSelection(Player player)
     {
       player.menu.Clear();
 
@@ -128,7 +128,7 @@ namespace NWN.Systems
       player.menu.choices.Add(("Quitter", () => player.menu.Close()));
       player.menu.Draw();
     }
-    private void HandleValidateWithdrawal(PlayerSystem.Player player)
+    private void HandleValidateWithdrawal(Player player)
     {
       player.menu.Clear();
 
@@ -155,7 +155,8 @@ namespace NWN.Systems
           $"{player.setValue} ? Pas très malin par les temps qui courent ...",
           "un coup de gourdin est si vite arrivé. Enfin, si vous y tenez ..."
         };
-        NWScript.GiveGoldToCreature(player.oid, player.setValue);
+
+        player.oid.GiveGold(player.setValue);
         player.bankGold -= player.setValue;
       }
       else if (player.setValue == player.bankGold)

@@ -5,6 +5,7 @@ using NWN.Core;
 using static NWN.Systems.PlayerSystem;
 using static NWN.Systems.Craft.Collect.System;
 using static NWN.Systems.Craft.Collect.Config;
+using NWN.API;
 
 namespace NWN.Systems
 {
@@ -38,36 +39,27 @@ namespace NWN.Systems
         "Merci pour ta contribution à la cause !"
     };
 
-      var oItem = NWScript.GetFirstItemInInventory(player.oid);
-
-      while(Convert.ToBoolean(NWScript.GetIsObjectValid(oItem)))
+      foreach (NwItem item in player.oid.Items.Where(i => IsItemCraftMaterial(i.Tag) == true))
       {
-        string itemTag = NWScript.GetTag(oItem);
-        if (IsItemCraftMaterial(itemTag))
-        {
-          int addedOre = NWScript.GetItemStackSize(oItem) * 95 / 100;
+        int addedOre = item.StackSize * 95 / 100;
 
-          PeltType peltType = GetPeltTypeFromItemTag(itemTag);
-          
-          if(peltType != PeltType.Invalid)
-            itemTag = Enum.GetName(typeof(PeltType), peltType);
+        PeltType peltType = GetPeltTypeFromItemTag(item.Tag);
+        if (peltType != PeltType.Invalid)
+          item.Tag = peltType.ToDescription();
 
-          if (player.materialStock.ContainsKey(itemTag))
-            player.materialStock[itemTag] += addedOre;
-          else
-            player.materialStock.Add(itemTag, addedOre);
+        if (player.materialStock.ContainsKey(item.Tag))
+          player.materialStock[item.Tag] += addedOre;
+        else
+          player.materialStock.Add(item.Tag, addedOre);
 
-          NWScript.DestroyObject(oItem);
-        }
-
-        oItem = NWScript.GetNextItemInInventory(player.oid);
+        item.Destroy();
       }
 
       player.menu.choices.Add(($"Retour.", () => DrawWelcomePage(player)));
       player.menu.choices.Add(("Quitter", () => player.menu.Close()));
       player.menu.Draw();
     }
-    private void HandleDropMaterialSelection(PlayerSystem.Player player)
+    private void HandleDropMaterialSelection(Player player)
     {
       player.menu.Clear();
       player.menu.titleLines = new List<string> {
@@ -75,18 +67,9 @@ namespace NWN.Systems
         "(Utilisez !set X pour préciser la quantité avant de valider votre choix)"
       };
 
-      var oItem = NWScript.GetFirstItemInInventory(player.oid);
-
-      while (Convert.ToBoolean(NWScript.GetIsObjectValid(oItem)))
-      {
-        string itemTag = NWScript.GetTag(oItem);
-        if (IsItemCraftMaterial(itemTag))
-        {
-          inventoryMaterials.Add(oItem, itemTag);
-        }
-
-        oItem = NWScript.GetNextItemInInventory(player.oid);
-      }
+      foreach (NwItem item in player.oid.Items.Where(i => IsItemCraftMaterial(i.Tag) == true))
+        if (IsItemCraftMaterial(item.Tag))
+          inventoryMaterials.Add(item, item.Tag);
 
       foreach (string value in inventoryMaterials.Values.Distinct())
         player.menu.choices.Add(($"{value}.", () => HandleValidateDropMaterial(player, value)));
@@ -112,23 +95,25 @@ namespace NWN.Systems
         int valueToStock = player.setValue;
         foreach (KeyValuePair<uint, string> materialEntry in inventoryMaterials.Where(v => v.Value == material))
         {
-          if (Convert.ToBoolean(NWScript.GetIsObjectValid(materialEntry.Key)))
+          NwItem item = materialEntry.Key.ToNwObject<NwItem>();
+          if (item != null)
           {
-            int stackSize = NWScript.GetItemStackSize(materialEntry.Key);
+            int stackSize = item.StackSize;
+
             if (stackSize >= valueToStock)
             {
               player.materialStock[material] += valueToStock * 95 / 100;
               if (stackSize == valueToStock)
-                NWScript.DestroyObject(materialEntry.Key);
+                item.Destroy();
               else
-                NWScript.SetItemStackSize(materialEntry.Key, stackSize - valueToStock);
+                item.StackSize -= valueToStock;
 
               break;
             }
             else
             {
               player.materialStock[material] += stackSize * 95 / 100;
-              NWScript.DestroyObject(materialEntry.Key);
+              item.Destroy();
             }
           }
         }
@@ -191,12 +176,14 @@ namespace NWN.Systems
           {
             if (remainingValue >= 50000)
             {
-              NWScript.SetName(NWScript.CreateItemOnObject(itemTemplate, player.oid, 50000, material), material);
+              NwItem item = NwItem.Create(itemTemplate, player.oid, 50000, material);
+              item.Name = material;
               remainingValue -= 50000;
             }
             else
             {
-              NWScript.SetName(NWScript.CreateItemOnObject(itemTemplate, player.oid, remainingValue, material), material);
+              NwItem item = NwItem.Create(itemTemplate, player.oid, remainingValue, material);
+              item.Name = material;
               break;
             }
           }

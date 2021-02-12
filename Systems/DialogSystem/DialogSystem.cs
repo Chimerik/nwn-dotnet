@@ -26,12 +26,9 @@ namespace NWN.Systems
       if (!Convert.ToBoolean(NWScript.GetIsObjectValid(oPC)))
         oPC = NWScript.GetLastUsedBy();
 
-      Player player;
-      if (Players.TryGetValue(oPC, out player))
+      if (Players.TryGetValue(oPC, out Player player))
       {
-        string tag = NWScript.GetTag(callInfo.ObjectSelf);
-
-        switch (tag)
+        switch (callInfo.ObjectSelf.Tag)
         {
           case "bank_npc":
             new Bank(player);
@@ -61,7 +58,7 @@ namespace NWN.Systems
             new HotelDesVentes(player);
             break;
           case "jukebox":
-            new Jukebox(player, callInfo.ObjectSelf);
+            new Jukebox(player, (NwCreature)callInfo.ObjectSelf);
             break;
           case "blacksmith":
             new Blacksmith(player, (NwCreature)callInfo.ObjectSelf);
@@ -80,17 +77,6 @@ namespace NWN.Systems
             break;
         }
       }
-    }
-
-    [ScriptHandler("intro_validation")]
-    private void HandleIntroValidation(CallInfo callInfo)
-    {
-      uint oPC = NWScript.GetLastSpeaker();
-
-      if (ObjectPlugin.GetInt(oPC, "_STARTING_SKILL_POINTS") > 0)
-        NWScript.SendMessageToPC(oPC, $"Il vous reste encore {ObjectPlugin.GetInt(oPC, "_STARTING_SKILL_POINTS")} points de compétences à dépenser auprès du reflet avant de pouvoir débarquer !");
-      else
-        NWScript.SetLocalInt(callInfo.ObjectSelf, "_GO", 1);
     }
   }
 }

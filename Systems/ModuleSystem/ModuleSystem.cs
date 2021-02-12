@@ -409,7 +409,7 @@ namespace NWN.Systems
 
       while (Convert.ToBoolean(NWScript.SqlStep(query)))
       {
-        NwPlaceable corpse = NWScript.SqlGetObject(query, 0, NWN.Utils.GetLocationFromDatabase(NWScript.SqlGetString(query, 1), NWScript.SqlGetVector(query, 2), 0)).ToNwObject<NwPlaceable>();
+        NwCreature corpse = NWScript.SqlGetObject(query, 0, NWN.Utils.GetLocationFromDatabase(NWScript.SqlGetString(query, 1), NWScript.SqlGetVector(query, 2), 0)).ToNwObject<NwCreature>();
         corpse.GetLocalVariable<int>("_PC_ID").Value = NWScript.SqlGetInt(query, 3);
 
         foreach (NwItem item in corpse.Items.Where(i => i.Tag != "item_pccorpse"))

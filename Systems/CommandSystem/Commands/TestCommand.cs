@@ -18,7 +18,11 @@ namespace NWN.Systems
       if (PlayerSystem.Players.TryGetValue(ctx.oSender, out PlayerSystem.Player player))
       {
         //NwModule.Instance.ExportAllCharacters();
-        if(NWScript.GetPCPlayerName(player.oid) == "Chim")
+
+        //ctx.oSender.ToNwObject<NwPlayer>().HP = 10;
+        ctx.oSender.ToNwObject<NwPlayer>().ApplyEffect(API.EffectDuration.Instant, API.Effect.Death());
+
+        if (NWScript.GetPCPlayerName(player.oid) == "Chim")
         {
           //PlayerPlugin.PlaySound(player.oid, "song_test");
           Action<uint, Vector3> callback = (uint oTarget, Vector3 position) =>

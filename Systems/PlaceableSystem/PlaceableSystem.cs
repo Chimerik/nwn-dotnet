@@ -76,8 +76,7 @@ namespace NWN.Systems
                             VisibilityPlugin.SetVisibilityOverride(NWScript.OBJECT_INVALID, plc, visibilty);
             break;
             case "portal_start":
-            NWScript.AssignCommand(player.oid, () => NWScript.ClearAllActions());
-            NWScript.AssignCommand(player.oid, () => NWScript.JumpToLocation(NWScript.GetLocation(NWScript.GetWaypointByTag("WP_START_NEW_CHAR"))));
+            player.oid.Location = NwModule.FindObjectsWithTag<NwWaypoint>("WP_START_NEW_CHAR").FirstOrDefault().Location;
             break;
           case "portal_storage_in":
             NwArea area = NwArea.Create("entrepotperso", $"entrepotpersonnel_{NWScript.GetPCPublicCDKey(player.oid)}", $"Entrepot dimensionnel de {NWScript.GetName(player.oid)}");
@@ -88,14 +87,13 @@ namespace NWN.Systems
             NWScript.SqlStep(query);
 
             NWScript.SqlGetObject(query, 0, NWScript.GetLocation(storage));
-            NWScript.DestroyObject(storage);
+            storage.Destroy();
 
-            NWScript.AssignCommand(player.oid, () => NWScript.ClearAllActions());
-            NWScript.AssignCommand(player.oid, () => NWScript.JumpToLocation(NWScript.GetLocation(NWScript.GetWaypointByTag("wp_inentrepot"))));
+            player.oid.Location = area.FindObjectsOfTypeInArea<NwWaypoint>().Where(w => w.Tag == "wp_inentrepot").FirstOrDefault().Location;
+            nativeEventService.Subscribe<NwPlaceable, PlaceableEvents.OnUsed>(area.FindObjectsOfTypeInArea<NwPlaceable>().Where(p => p.Tag == "portal_storage_out").FirstOrDefault(), HandlePlaceableUsed);
             break;
           case "portal_storage_out":
-            NWScript.AssignCommand(player.oid, () => NWScript.ClearAllActions());
-            NWScript.AssignCommand(player.oid, () => NWScript.JumpToLocation(NWScript.GetLocation(NWScript.GetObjectByTag("wp_outentrepot"))));
+            player.oid.Location = NwModule.FindObjectsWithTag<NwWaypoint>("wp_outentrepot").FirstOrDefault().Location;
             break;
         case Arena.Config.PVE_ARENA_PULL_ROPE_CHAIN_TAG:
             Arena.ScriptHandlers.HandlePullRopeChainUse();

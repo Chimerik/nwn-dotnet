@@ -1,5 +1,4 @@
 ﻿using System.Collections.Generic;
-using NWN.Core;
 using static NWN.Systems.PlayerSystem;
 
 namespace NWN.Systems
@@ -25,7 +24,7 @@ namespace NWN.Systems
     private void HandleStealBankGold(Player player)
     {
       player.menu.Clear();
-      NWScript.GiveGoldToCreature(player.oid, 500);
+      player.oid.GiveGold(500);
       player.bankGold -= 500 + 500 * 30 / 100;
 
       player.menu.titleLines.Add("En voilà un gain simple et facile !");

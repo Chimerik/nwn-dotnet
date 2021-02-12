@@ -77,14 +77,14 @@ namespace NWN.Systems
           else
             player.materialStock.Add(mineralName, refinedMinerals);
 
-          NWScript.SendMessageToPC(player.oid, $"Vous venez de tanner {refinedMinerals} peaux de {mineralName}. Les cuirs sont en cours d'acheminage vers votre entrepôt.");
+          player.oid.SendServerMessage($"Vous venez de tanner {refinedMinerals} peaux de {mineralName}. Les cuirs sont en cours d'acheminage vers votre entrepôt.");
 
           player.menu.titleLines.Add($"Voilà qui est fait !");
         }
         else
         {
           player.menu.titleLines.Add($"HRP - Erreur, votre peau brut n'a pas correctement été reconnue. Le staff a été informé du problème.");
-          NWN.Utils.LogMessageToDMs($"TANNERIE - Could not recognize pelt type : {oreName} - Used by : {NWScript.GetName(player.oid)}");
+          NWN.Utils.LogMessageToDMs($"TANNERIE - Could not recognize pelt type : {oreName} - Used by : {player.oid.Name}");
         }
       }
 
