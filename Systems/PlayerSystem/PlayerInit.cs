@@ -49,66 +49,67 @@ namespace NWN.Systems
           oPC.Location = player.location;
         else
           oPC.Location = NwModule.FindObjectsWithTag<NwWaypoint>("WP_START_NEW_CHAR").FirstOrDefault().Location;
-        return true;
-      });
 
-      if (player.craftJob.IsActive()
+        if (player.craftJob.IsActive()
         && player.location.Area.GetLocalVariable<int>("_AREA_LEVEL").Value == 0)
-      {
-        player.CraftJobProgression();
-        player.craftJob.CreateCraftJournalEntry();
-      }
-      if (player.currentSkillJob != (int)Feat.Invalid)
-      {
-        switch (player.currentSkillType)
         {
-          case SkillSystem.SkillType.Skill:
-            if (player.learnableSkills.ContainsKey(player.currentSkillJob))
-              player.learnableSkills[player.currentSkillJob].currentJob = true;
-            else
-            {
-              if (!Convert.ToBoolean(CreaturePlugin.GetKnowsFeat(player.oid, player.currentSkillJob)))
-                CreaturePlugin.AddFeat(player.oid, player.currentSkillJob);
-              player.currentSkillJob = (int)Feat.Invalid;
-            }
-            break;
-          case SkillSystem.SkillType.Spell:
-            if (player.learnableSpells.ContainsKey(player.currentSkillJob))
-              player.learnableSpells[player.currentSkillJob].currentJob = true;
-            else
-              player.currentSkillJob = (int)Feat.Invalid;
-            break;
+          player.CraftJobProgression();
+          player.craftJob.CreateCraftJournalEntry();
         }
-
-        player.AcquireSkillPoints();
-        player.isConnected = true;
-        player.isAFK = false;
-
         if (player.currentSkillJob != (int)Feat.Invalid)
         {
           switch (player.currentSkillType)
           {
             case SkillSystem.SkillType.Skill:
-              player.learnableSkills[player.currentSkillJob].CreateSkillJournalEntry();
+              if (player.learnableSkills.ContainsKey(player.currentSkillJob))
+                player.learnableSkills[player.currentSkillJob].currentJob = true;
+              else
+              {
+                if (!Convert.ToBoolean(CreaturePlugin.GetKnowsFeat(player.oid, player.currentSkillJob)))
+                  CreaturePlugin.AddFeat(player.oid, player.currentSkillJob);
+                player.currentSkillJob = (int)Feat.Invalid;
+              }
               break;
             case SkillSystem.SkillType.Spell:
-              player.learnableSpells[player.currentSkillJob].CreateSkillJournalEntry();
+              if (player.learnableSpells.ContainsKey(player.currentSkillJob))
+                player.learnableSpells[player.currentSkillJob].currentJob = true;
+              else
+                player.currentSkillJob = (int)Feat.Invalid;
               break;
           }
-        }
-      }
 
-      if (oPC.GetItemInSlot(API.Constants.InventorySlot.Neck)?.Tag != "amulettorillink")
-      {
-        API.Effect eff = API.Effect.SpellFailure(50);
-        eff.Tag = "erylies_spell_failure";
-        eff.SubType = API.Constants.EffectSubType.Supernatural;
-        oPC.ApplyEffect(EffectDuration.Permanent, eff);
-      }
-      player.isConnected = true;
-      player.isAFK = false;
-      player.DoJournalUpdate = false;
-      player.dateLastSaved = DateTime.Now;
+          player.AcquireSkillPoints();
+          player.isConnected = true;
+          player.isAFK = false;
+
+          if (player.currentSkillJob != (int)Feat.Invalid)
+          {
+            switch (player.currentSkillType)
+            {
+              case SkillSystem.SkillType.Skill:
+                player.learnableSkills[player.currentSkillJob].CreateSkillJournalEntry();
+                break;
+              case SkillSystem.SkillType.Spell:
+                player.learnableSpells[player.currentSkillJob].CreateSkillJournalEntry();
+                break;
+            }
+          }
+        }
+
+        if (oPC.GetItemInSlot(API.Constants.InventorySlot.Neck)?.Tag != "amulettorillink")
+        {
+          API.Effect eff = API.Effect.SpellFailure(50);
+          eff.Tag = "erylies_spell_failure";
+          eff.SubType = API.Constants.EffectSubType.Supernatural;
+          oPC.ApplyEffect(EffectDuration.Permanent, eff);
+        }
+        player.isConnected = true;
+        player.isAFK = false;
+        player.DoJournalUpdate = false;
+        player.dateLastSaved = DateTime.Now;
+
+        return true;
+      });
     }
     private static void InitializeNewPlayer(NwPlayer newPlayer)
     {

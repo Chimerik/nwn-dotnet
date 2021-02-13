@@ -38,13 +38,13 @@ namespace NWN.Systems
     private void CreatePlayerCorpse(Player player)
     {
       NwCreature oPCCorpse = player.oid.Clone(player.oid.Location, "pccorpse");
-
+      
       oPCCorpse.ApplyEffect(EffectDuration.Instant, API.Effect.Resurrection());
       NwItem oCorpseItem = NwItem.Create("item_pccorpse", oPCCorpse);
-
+      
       foreach (NwItem item in oPCCorpse.Items.Where(i => i.ResRef != "item_pccorpse"))
         item.Destroy();
-
+      
       oPCCorpse.Lootable = true;
       oPCCorpse.Name = $"Corps inconscient de {player.oid.Name}";
       oPCCorpse.Description = $"Corps inconscient de {player.oid.Name}. \n\n\n Allez savoir combien de temps il va tenir dans cet état.";
@@ -53,7 +53,7 @@ namespace NWN.Systems
       oPCCorpse.Position = player.oid.Position;
       oPCCorpse.GetLocalVariable<int>("_PC_ID").Value = player.characterId;
 
-      for(int i = 0; i <= (int)InventorySlot.Bolts; i++)
+      for (int i = 0; i <= (int)InventorySlot.Bolts; i++)
         if(oPCCorpse.GetItemInSlot((InventorySlot)i) != null)
           oPCCorpse.GetItemInSlot((InventorySlot)i).Droppable = false;
 
@@ -62,7 +62,6 @@ namespace NWN.Systems
       oCorpseItem.GetLocalVariable<int>("_PC_ID").Value = player.characterId;
       oCorpseItem.Name = $"Corps inconscient de {player.oid.Name}";
       oCorpseItem.Description = $"Corps inconscient de {player.oid.Name}\n\n\n Pas très ragoûtant. Allez savoir combien de temps il va tenir avant de se lâcher.";
-
       oCorpseItem.GetLocalVariable<string>("_SERIALIZED_CORPSE").Value = oPCCorpse.Serialize();
       player.deathCorpse = oPCCorpse;
     }
