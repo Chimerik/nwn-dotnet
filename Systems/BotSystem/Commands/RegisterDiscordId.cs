@@ -1,6 +1,7 @@
 ﻿using System.Threading.Tasks;
 using Discord.Commands;
-using Microsoft.Data.Sqlite;
+using NWN.API;
+using NWN.Core;
 
 namespace NWN.Systems
 {
@@ -8,21 +9,12 @@ namespace NWN.Systems
   {
     public static async Task ExecuteRegisterDiscordId(SocketCommandContext context, string cdKey)
     {
-      using (var connection = new SqliteConnection($"{Config.db_path}"))
-      {
-        connection.Open();
+      await NwTask.SwitchToMainThread();
 
-        var command = connection.CreateCommand();
-        command.CommandText =
-        @"
-        UPDATE PlayerAccounts
-        SET discordId = $discordId
-        WHERE cdKey = $cdKey
-    ";
-        command.Parameters.AddWithValue("$cdKey", cdKey);
-        command.Parameters.AddWithValue("$discordId", context.User.Id);
-        command.ExecuteNonQuery();
-      }
+      var query = NWScript.SqlPrepareQueryCampaign(Config.database, $"UPDATE PlayerAccounts SET discordId = @discordId WHERE cdKey = @cdKey");
+      NWScript.SqlBindString(query, "@cdKey", cdKey);
+      NWScript.SqlBindInt(query, "@discordId", (int)context.User.Id);
+      NWScript.SqlStep(query);
 
       await context.Channel.SendMessageAsync("Voilà qui est fait. Enfin, pour tant soit peu que la clef fournie fusse valide !");
     }

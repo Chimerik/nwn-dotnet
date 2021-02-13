@@ -1,6 +1,5 @@
 ﻿using System.Threading.Tasks;
 using Discord.Commands;
-using Microsoft.Data.Sqlite;
 using NWN.API;
 using NWN.Core;
 
@@ -10,6 +9,8 @@ namespace NWN.Systems
   {
     public static async Task ExecuteDeleteDescriptionCommand(SocketCommandContext context, string pcName, string descriptionName)
     {
+      await NwTask.SwitchToMainThread();
+
       int pcID = DiscordUtils.CheckPlayerCredentialsFromDiscord(context, pcName);
       if (pcID == 0)
       {
@@ -19,8 +20,6 @@ namespace NWN.Systems
       }
 
       await context.Channel.SendMessageAsync($"Description {descriptionName} supprimée pour le personnage {pcName}");
-
-      await NwTask.SwitchToMainThread();
 
       var query = NWScript.SqlPrepareQueryCampaign(Config.database, "DELETE FROM playerDescriptions WHERE characterId = @characterId AND descriptionName = @descriptionName");
       NWScript.SqlBindInt(query, "@characterId", pcID);

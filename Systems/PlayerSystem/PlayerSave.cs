@@ -21,8 +21,11 @@ namespace NWN.Systems
        * Mais il se peut que dans ce cas, ses buffs soient perdues à la reco. A vérifier. Si c'est le cas, une meilleure
        * correction pourrait être de parcourir tous ses buffs et de les réappliquer dans l'event AFTER de la sauvegarde*/
 
+      NWScript.WriteTimestampedLogEntry($"Before saving {onSaveBefore.Player.Name}");
+
       if (onSaveBefore.Player.IsDM || onSaveBefore.Player.IsDMPossessed || onSaveBefore.Player.IsPlayerDM)
       {
+        NWScript.WriteTimestampedLogEntry($"DM detected. Skipping save");
         onSaveBefore.Skip = true;
         return;
       }
@@ -33,32 +36,50 @@ namespace NWN.Systems
         {
           API.Effect polymorphEffect = onSaveBefore.Player.ActiveEffects.Where(e => e.EffectType == API.Constants.EffectType.Polymorph).FirstOrDefault();
           if (polymorphEffect != null)
+          {
             player.effectList = onSaveBefore.Player.ActiveEffects.ToList();
+            NWScript.WriteTimestampedLogEntry($"Polymorph detected, saving effect list");
+          }
         }
 
         // TODO : probablement faire pour chaque joueur tous les check faim / soif / jobs etc ici
 
         // AFK detection
-        if (player.oid.Location != null && player.location == player.oid.Location)
+        if (player.location == player.oid?.Location)
+        {
           player.isAFK = true;
+          NWScript.WriteTimestampedLogEntry($"Player AFK");
+        }
         else
           player.location = player.oid.Location;
 
+        NWScript.WriteTimestampedLogEntry($"saved Location");
+
         player.currentHP = onSaveBefore.Player.HP;
 
+        NWScript.WriteTimestampedLogEntry($"Saved HP");
 
         if (player.location.Area.GetLocalVariable<int>("_AREA_LEVEL").Value == 0)
           player.CraftJobProgression();
 
+        NWScript.WriteTimestampedLogEntry($"Craft job progression done");
+
         player.AcquireSkillPoints();
+
+        NWScript.WriteTimestampedLogEntry($"Acquire skill points done");
 
         player.dateLastSaved = DateTime.Now;
 
         SavePlayerCharacterToDatabase(player);
+        NWScript.WriteTimestampedLogEntry($"Save player to DB done");
         SavePlayerLearnableSkillsToDatabase(player);
+        NWScript.WriteTimestampedLogEntry($"Saved skills to DB");
         SavePlayerLearnableSpellsToDatabase(player);
+        NWScript.WriteTimestampedLogEntry($"Saved Spells to DB");
         SavePlayerStoredMaterialsToDatabase(player);
+        NWScript.WriteTimestampedLogEntry($"Saved materials to DB");
         SavePlayerMapPinsToDatabase(player);
+        NWScript.WriteTimestampedLogEntry($"Saved map pin to DB");
       }
     }
     public void HandleAfterPlayerSave(ServerVaultEvents.OnServerCharacterSaveAfter onSaveAfter)
@@ -72,14 +93,20 @@ namespace NWN.Systems
        * Mais il se peut que dans ce cas, ses buffs soient perdues à la reco. A vérifier. Si c'est le cas, une meilleure
        * correction pourrait être de parcourir tous ses buffs et de les réappliquer dans l'event AFTER de la sauvegarde*/
 
+      NWScript.WriteTimestampedLogEntry($"After saving {onSaveAfter.Player.Name}");
+
       if (Players.TryGetValue(onSaveAfter.Player, out Player player))
       {
         if (player.isConnected)
         {
           API.Effect polymorphEffect = onSaveAfter.Player.ActiveEffects.Where(e => e.EffectType == API.Constants.EffectType.Polymorph).FirstOrDefault();
           if (polymorphEffect != null)
+          {
+            NWScript.WriteTimestampedLogEntry($"Polymorph detected. Reapplying effect list");
             foreach (API.Effect eff in player.effectList)
               onSaveAfter.Player.ApplyEffect(eff.DurationType, eff, TimeSpan.FromSeconds((double)eff.DurationRemaining));
+            NWScript.WriteTimestampedLogEntry($"Reapplied effect list");
+          }
         }
       }
     }

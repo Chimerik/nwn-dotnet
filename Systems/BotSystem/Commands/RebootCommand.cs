@@ -4,8 +4,8 @@ using System.Threading.Tasks;
 using NWN.API;
 using NWN.Services;
 using NWNX.API;
-using Microsoft.Data.Sqlite;
 using NWN.Core.NWNX;
+using NWN.Core;
 
 namespace NWN.Systems
 {
@@ -13,13 +13,13 @@ namespace NWN.Systems
   {
     public static async Task ExecuteRebootCommand(SocketCommandContext context)
     {
+      await NwTask.SwitchToMainThread();
+
       if (DiscordUtils.GetPlayerStaffRankFromDiscord(context.User.Id) != "admin")
       {
         await context.Channel.SendMessageAsync("Noooon, vous n'êtes pas la maaaaaître ! Le maaaaître est bien plus poli, d'habitude !");
         return;
       }
-
-      await NwTask.SwitchToMainThread();
 
       Administration.PlayerPassword = "REBOOT";
 
@@ -49,23 +49,17 @@ namespace NWN.Systems
       {
         await NwTask.Delay(TimeSpan.FromSeconds(30));
 
-        using (var connection = new SqliteConnection($"{Config.db_path}"))
-        {
-          connection.Open();
+        var query = NWScript.SqlPrepareQueryCampaign(Config.database, $"UPDATE moduleInfo SET year = @year, month = @month, " +
+          $"second = @second");
+        NWScript.SqlBindInt(query, "@year", NwDateTime.Now.Year);
+        NWScript.SqlBindInt(query, "@month", NwDateTime.Now.Month);
+        NWScript.SqlBindInt(query, "@day", NwDateTime.Now.DayInMonth);
+        NWScript.SqlBindInt(query, "@hour", NwDateTime.Now.Hour);
+        NWScript.SqlBindInt(query, "@minute", NwDateTime.Now.Minute);
+        NWScript.SqlBindInt(query, "@second", NwDateTime.Now.Second);
+        NWScript.SqlStep(query);
 
-          var command = connection.CreateCommand();
-          command.CommandText =
-                @"UPDATE moduleInfo SET year = @year, month = @month, day = @day, hour = @hour, minute = @minute, 
-                    second = @second
-                    ";
-          command.Parameters.AddWithValue("year", NwDateTime.Now.Year);
-          command.Parameters.AddWithValue("month", NwDateTime.Now.Month);
-          command.Parameters.AddWithValue("day", NwDateTime.Now.DayInMonth);
-          command.Parameters.AddWithValue("hour", NwDateTime.Now.Hour);
-          command.Parameters.AddWithValue("minute", NwDateTime.Now.Minute);
-          command.Parameters.AddWithValue("second", NwDateTime.Now.Second);
-          command.ExecuteNonQuery();
-        }
+        await NwModule.Instance.AddActionToQueue(() => NWN.Utils.BootAllPC());
 
         Administration.ShutdownServer();
         return 20;

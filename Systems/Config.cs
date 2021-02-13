@@ -4,7 +4,6 @@ namespace NWN.Systems
 {
   public static class Config
   {
-    public static string db_path = "Data Source=" + Environment.GetEnvironmentVariable("DB_DIRECTORY");
     public static string database = Environment.GetEnvironmentVariable("DB_NAME");
     public enum Env
     {

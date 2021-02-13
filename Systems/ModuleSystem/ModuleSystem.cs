@@ -1,6 +1,5 @@
 ﻿using Discord;
 using Google.Cloud.Translation.V2;
-using Microsoft.Data.Sqlite;
 using NWN.API;
 using NWN.API.Events;
 using NWN.Core;
@@ -65,125 +64,64 @@ namespace NWN.Systems
 
     private void CreateDatabase()
     {
-      using (var connection = new SqliteConnection($"{Config.db_path}"))
-      {
-        connection.Open();
+      var query = NWScript.SqlPrepareQueryCampaign(Config.database, $"CREATE TABLE IF NOT EXISTS moduleInfo" +
+        $"('year' INTEGER NOT NULL, 'month' INTEGER NOT NULL, 'day' INTEGER NOT NULL, 'hour' INTEGER NOT NULL, 'minute' INTEGER NOT NULL, 'second' INTEGER NOT NULL");
+      NWScript.SqlStep(query);
 
-        var command = connection.CreateCommand();
-        command.CommandText =
-        @"
-                CREATE TABLE IF NOT EXISTS moduleInfo('year' INTEGER NOT NULL, 'month' INTEGER NOT NULL, 'day' INTEGER NOT NULL,
-                'hour' INTEGER NOT NULL, 'minute' INTEGER NOT NULL, 'second' INTEGER NOT NULL)
-                ";
-        command.ExecuteNonQuery();
+      query = NWScript.SqlPrepareQueryCampaign(Config.database, $"CREATE TABLE IF NOT EXISTS PlayerAccounts" +
+        $"('accountName' TEXT NOT NULL, 'cdKey' TEXT, 'bonusRolePlay' INTEGER NOT NULL, 'discordId' INTEGER, 'rank' TEXT)");
+      NWScript.SqlStep(query);
 
-        command = connection.CreateCommand();
-        command.CommandText =
-        @"
-                CREATE TABLE IF NOT EXISTS PlayerAccounts('accountName' TEXT NOT NULL, 'cdKey' TEXT, 'bonusRolePlay' INTEGER NOT NULL,
-                'discordId' INTEGER, 'rank' TEXT)
-                ";
-        command.ExecuteNonQuery();
+      query = NWScript.SqlPrepareQueryCampaign(Config.database, $"CREATE TABLE IF NOT EXISTS playerCharacters" +
+        $"('accountId' INTEGER NOT NULL, 'characterName' TEXT NOT NULL, 'dateLastSaved' TEXT NOT NULL, 'currentSkillType' INTEGER NOT NULL, 'currentSkillJob' INTEGER NOT NULL," +
+        $"'currentCraftJobRemainingTime' REAL, 'currentCraftJob' INTEGER NOT NULL, 'currentCraftObject' TEXT NOT NULL," +
+        $"currentCraftJobMaterial TEXT, 'frostAttackOn' INTEGER NOT NULL, areaTag TEXT, position TEXT, facing REAL," +
+        $"currentHP INTEGER, bankGold INTEGER, menuOriginTop INTEGER, menuOriginLeft INTEGER, storage TEXT)");
+      NWScript.SqlStep(query);
 
-        command = connection.CreateCommand();
-        command.CommandText =
-        @"
-                CREATE TABLE IF NOT EXISTS playerCharacters('accountId' INTEGER NOT NULL, 'characterName' TEXT NOT NULL,
-                'dateLastSaved' TEXT NOT NULL, 'currentSkillType' INTEGER NOT NULL, 'currentSkillJob' INTEGER NOT NULL,
-                'currentCraftJobRemainingTime' REAL, 'currentCraftJob' INTEGER NOT NULL, 'currentCraftObject' TEXT NOT NULL,
-                currentCraftJobMaterial TEXT, 'frostAttackOn' INTEGER NOT NULL, areaTag TEXT, position TEXT, facing REAL,
-                currentHP INTEGER, bankGold INTEGER, menuOriginTop INTEGER, menuOriginLeft INTEGER, storage TEXT)
-                ";
-        command.ExecuteNonQuery();
+      query = NWScript.SqlPrepareQueryCampaign(Config.database, $"CREATE TABLE IF NOT EXISTS playerLearnableSkills" +
+        $"('characterId' INTEGER NOT NULL, 'skillId' INTEGER NOT NULL, 'skillPoints' INTEGER NOT NULL, 'trained' INTEGER, UNIQUE (characterId, skillId))");
+      NWScript.SqlStep(query);
 
-        command = connection.CreateCommand();
-        command.CommandText =
-        @"
-                CREATE TABLE IF NOT EXISTS playerLearnableSkills('characterId' INTEGER NOT NULL, 'skillId' INTEGER NOT NULL,
-                'skillPoints' INTEGER NOT NULL, 'trained' INTEGER, UNIQUE (characterId, skillId))
-                ";
-        command.ExecuteNonQuery();
+      query = NWScript.SqlPrepareQueryCampaign(Config.database, $"CREATE TABLE IF NOT EXISTS playerLearnableSpells" +
+        $"('characterId' INTEGER NOT NULL, 'skillId' INTEGER NOT NULL 'skillPoints' INTEGER NOT NULL, 'trained' INTEGER, UNIQUE (characterId, skillId)),");
+      NWScript.SqlStep(query);
 
-        command = connection.CreateCommand();
-        command.CommandText =
-        @"
-                CREATE TABLE IF NOT EXISTS playerLearnableSpells('characterId' INTEGER NOT NULL, 'skillId' INTEGER NOT NULL,
-                'skillPoints' INTEGER NOT NULL, 'trained' INTEGER, UNIQUE (characterId, skillId))
-                ";
-        command.ExecuteNonQuery();
+      query = NWScript.SqlPrepareQueryCampaign(Config.database, $"CREATE TABLE IF NOT EXISTS playerMaterialStorage" +
+        $"('characterId' INTEGER NOT NULL, 'materialName' TEXT NOT NULL, 'materialStock' INTEGER, UNIQUE (characterId, materialName))");
+      NWScript.SqlStep(query);
 
-        command = connection.CreateCommand();
-        command.CommandText =
-        @"
-                CREATE TABLE IF NOT EXISTS playerMaterialStorage('characterId' INTEGER NOT NULL, 'materialName' TEXT NOT NULL,
-                'materialStock' INTEGER, UNIQUE (characterId, materialName))
-                ";
-        command.ExecuteNonQuery();
+      query = NWScript.SqlPrepareQueryCampaign(Config.database, $"CREATE TABLE IF NOT EXISTS playerDeathCorpses" +
+        $"('characterId' INTEGER NOT NULL, 'deathCorpse' TEXT NOT NULL, 'areaTag' TEXT NOT NULL, 'position' TEXT NOT NULL)");
+      NWScript.SqlStep(query);
 
-        command = connection.CreateCommand();
-        command.CommandText =
-        @"
-                CREATE TABLE IF NOT EXISTS playerDeathCorpses('characterId' INTEGER NOT NULL, 'deathCorpse' TEXT NOT NULL,
-                'areaTag' TEXT NOT NULL, 'position' TEXT NOT NULL)
-                ";
-        command.ExecuteNonQuery();
+      query = NWScript.SqlPrepareQueryCampaign(Config.database, $"CREATE TABLE IF NOT EXISTS loot_containers" +
+        $"('chestTag' TEXT NOT NULL, 'accountID' INTEGER NOT NULL, 'serializedChest' TEXT NOT NULL, 'position' TEXT NOT NULL, 'facing' REAL NOT NULL, PRIMARY KEY(chestTag))");
+      NWScript.SqlStep(query);
 
-        command = connection.CreateCommand();
-        command.CommandText =
-        @"
-                CREATE TABLE IF NOT EXISTS loot_containers('chestTag' TEXT NOT NULL, 'accountID' INTEGER NOT NULL,
-                'serializedChest' TEXT NOT NULL, 'position' TEXT NOT NULL, 'facing' REAL NOT NULL, PRIMARY KEY(chestTag))
-                ";
-        command.ExecuteNonQuery();
+      query = NWScript.SqlPrepareQueryCampaign(Config.database, $"CREATE TABLE IF NOT EXISTS dm_persistant_placeable" +
+        $"CREATE TABLE IF NOT EXISTS ('accountID' INTEGER NOT NULL, 'serializedPlaceable' TEXT NOT NULL, 'areaTag' TEXT NOT NULL, 'position' TEXT NOT NULL, 'facing' REAL NOT NULL)");
+      NWScript.SqlStep(query);
 
-        command = connection.CreateCommand();
-        command.CommandText =
-        @"
-                CREATE TABLE IF NOT EXISTS dm_persistant_placeable('accountID' INTEGER NOT NULL, 'serializedPlaceable' TEXT NOT NULL,
-                'areaTag' TEXT NOT NULL, 'position' TEXT NOT NULL, 'facing' REAL NOT NULL)
-                ";
-        command.ExecuteNonQuery();
+      query = NWScript.SqlPrepareQueryCampaign(Config.database, $"CREATE TABLE IF NOT EXISTS playerMapPins" +
+        $"('characterId' INTEGER NOT NULL, 'mapPinId' INTEGER NOT NULL, 'areaTag' TEXT NOT NULL, 'x' REAL NOT NULL, 'y' REAL NOT NULL, 'note' TEXT, UNIQUE (characterId, mapPinId))");
+      NWScript.SqlStep(query);
 
-        command = connection.CreateCommand();
-        command.CommandText =
-        @"
-                CREATE TABLE IF NOT EXISTS playerMapPins('characterId' INTEGER NOT NULL, 'mapPinId' INTEGER NOT NULL,
-                'areaTag' TEXT NOT NULL, 'x' REAL NOT NULL, 'y' REAL NOT NULL, 'note' TEXT, UNIQUE (characterId, mapPinId))
-                ";
-        command.ExecuteNonQuery();
+      query = NWScript.SqlPrepareQueryCampaign(Config.database, $"CREATE TABLE IF NOT EXISTS playerDescriptions" +
+        $"('characterId' INTEGER NOT NULL, 'descriptionName' TEXT NOT NULL, 'description' TEXT NOT NULL, UNIQUE (characterId, descriptionName))");
+      NWScript.SqlStep(query);
 
-        command = connection.CreateCommand();
-        command.CommandText =
-        @"
-                CREATE TABLE IF NOT EXISTS playerDescriptions('characterId' INTEGER NOT NULL, 'descriptionName' TEXT NOT NULL,
-                'description' TEXT NOT NULL, UNIQUE (characterId, descriptionName))
-                ";
-        command.ExecuteNonQuery();
+      query = NWScript.SqlPrepareQueryCampaign(Config.database, $"CREATE TABLE IF NOT EXISTS areaResourceStock" +
+        $"('areaTag' TEXT NOT NULL, 'mining' INTEGER, 'wood' INTEGER, 'animals' INTEGER, PRIMARY KEY(areaTag))");
+      NWScript.SqlStep(query);
 
-        command = connection.CreateCommand();
-        command.CommandText =
-        @"
-                CREATE TABLE IF NOT EXISTS areaResourceStock('areaTag' TEXT NOT NULL, 'mining' INTEGER, 'wood' INTEGER,
-                'animals' INTEGER, PRIMARY KEY(areaTag))
-                ";
-        command.ExecuteNonQuery();
+      query = NWScript.SqlPrepareQueryCampaign(Config.database, $"CREATE TABLE IF NOT EXISTS scriptPerformance" +
+        $"('script' TEXT NOT NULL, 'nbExecutions' INTEGER NOT NULL, 'averageExecutionTime' REAL NOT NULL, 'cumulatedExecutionTime' REAL NOT NULL, PRIMARY KEY(script))");
+      NWScript.SqlStep(query);
 
-        command = connection.CreateCommand();
-        command.CommandText =
-        @"
-                CREATE TABLE IF NOT EXISTS scriptPerformance('script' TEXT NOT NULL, 'nbExecutions' INTEGER NOT NULL,
-                'averageExecutionTime' REAL NOT NULL, 'cumulatedExecutionTime' REAL NOT NULL, PRIMARY KEY(script))
-                ";
-        command.ExecuteNonQuery();
-
-        command = connection.CreateCommand();
-        command.CommandText =
-        @"
-                CREATE TABLE IF NOT EXISTS goldBalance('lootedTag' TEXT NOT NULL, 'nbTimesLooted' INTEGER NOT NULL,
-                'averageGold' INT NOT NULL, 'cumulatedGold' INT NOT NULL, PRIMARY KEY(lootedTag))
-                ";
-        command.ExecuteNonQuery();
-      }
+      query = NWScript.SqlPrepareQueryCampaign(Config.database, $"CREATE TABLE IF NOT EXISTS goldBalance" +
+        $"('lootedTag' TEXT NOT NULL, 'nbTimesLooted' INTEGER NOT NULL, 'averageGold' INT NOT NULL, 'cumulatedGold' INT NOT NULL, PRIMARY KEY(lootedTag))");
+      NWScript.SqlStep(query);
     }
     private void InitializeEvents()
     {
@@ -250,39 +188,19 @@ namespace NWN.Systems
     }
     private void SetModuleTime()
     {
-      using (var connection = new SqliteConnection($"{Config.db_path}"))
+      var query = NWScript.SqlPrepareQueryCampaign(Config.database, $"SELECT year, month, day, hour, minute, second from moduleInfo where rowid = 1");
+      if(NWScript.SqlStep(query) == 1)
+        NwDateTime.Now = new NwDateTime(NWScript.SqlGetInt(query, 0), NWScript.SqlGetInt(query, 1), NWScript.SqlGetInt(query, 2), NWScript.SqlGetInt(query, 3), NWScript.SqlGetInt(query, 4), NWScript.SqlGetInt(query, 5));
+      else
       {
-        connection.Open();
-
-        var command = connection.CreateCommand();
-        command.CommandText =
-        @"
-                SELECT year, month, day, hour, minute, second from moduleInfo where rowid = 1
-                ";
-
-        using (var reader = command.ExecuteReader())
-        {
-          if (reader.Read())
-          {
-            NwDateTime.Now = new NwDateTime(reader.GetInt32(0), reader.GetInt32(1), reader.GetInt32(2), reader.GetInt32(3), reader.GetInt32(4), reader.GetInt32(5));
-          }
-          else
-          {
-            command = connection.CreateCommand();
-            command.CommandText =
-            @"
-                        INSERT INTO moduleInfo (year, month, day, hour, minute, second) VALUES (@year, @month, @day, @hour, @minute, @second)
-                        ";
-
-            command.Parameters.AddWithValue("$year", NwDateTime.Now.Year);
-            command.Parameters.AddWithValue("$month", NwDateTime.Now.Month);
-            command.Parameters.AddWithValue("$day", NwDateTime.Now.DayInMonth);
-            command.Parameters.AddWithValue("$hour", NwDateTime.Now.Hour);
-            command.Parameters.AddWithValue("$minute", NwDateTime.Now.Minute);
-            command.Parameters.AddWithValue("$second", NwDateTime.Now.Second);
-            command.ExecuteNonQuery();
-          }
-        }
+        query = NWScript.SqlPrepareQueryCampaign(Config.database, $"INSERT INTO moduleInfo (year, month, day, hour, minute, second) VALUES (@year, @month, @day, @hour, @minute, @second)");
+        NWScript.SqlStep(query);
+        NWScript.SqlBindInt(query, "@year", NwDateTime.Now.Year);
+        NWScript.SqlBindInt(query, "@month", NwDateTime.Now.Month);
+        NWScript.SqlBindInt(query, "@day", NwDateTime.Now.DayInMonth);
+        NWScript.SqlBindInt(query, "@hour", NwDateTime.Now.Hour);
+        NWScript.SqlBindInt(query, "@minute", NwDateTime.Now.Minute);
+        NWScript.SqlBindInt(query, "@second", NwDateTime.Now.Second);
       }
     }
     public static async Task SpawnCollectableResources(float delay)
@@ -318,22 +236,13 @@ namespace NWN.Systems
       {
         int areaLevel = area.GetLocalVariable<int>("_AREA_LEVEL").Value;
 
-        using (var connection = new SqliteConnection($"{Config.db_path}"))
-        {
-          connection.Open();
-
-          var command = connection.CreateCommand();
-          command.CommandText =
-          @"
-                    INSERT INTO areaResourceStock (areaTag, mining, wood, animals) VALUES (@areaTag, @mining, @wood, @animals)
-                    ON CONFLICT (areaTag) DO UPDATE SET mining = @mining, wood = @wood, animals = @animals;
-                    ";
-          command.Parameters.AddWithValue("areaTag", area.Tag);
-          command.Parameters.AddWithValue("mining", areaLevel * 2);
-          command.Parameters.AddWithValue("wood", areaLevel * 2);
-          command.Parameters.AddWithValue("animals", areaLevel * 2);
-          command.ExecuteNonQuery();
-        }
+        var query = NWScript.SqlPrepareQueryCampaign(Systems.Config.database, $"INSERT INTO areaResourceStock (areaTag, mining, wood, animals) VALUES (@areaTag, @mining, @wood, @animals)" +
+          $"ON CONFLICT (areaTag) DO UPDATE SET mining = @mining, wood = @wood, animals = @animals;");
+        NWScript.SqlBindString(query, "@areaTag", area.Tag);
+        NWScript.SqlBindInt(query, "@mining", areaLevel * 2);
+        NWScript.SqlBindInt(query, "@wood", areaLevel * 2);
+        NWScript.SqlBindInt(query, "@animals", areaLevel * 2);
+        NWScript.SqlStep(query);
       }
 
       if (delay > 0.0f)

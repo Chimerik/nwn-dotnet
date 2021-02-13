@@ -81,7 +81,7 @@ namespace NWN.Systems
         [ScriptHandler("a_dm_jump_target")]
         private void HandleAfterDmJumpTarget(CallInfo callInfo)
         {
-            NwPlayer oTarget = NWScript.StringToObject(EventsPlugin.GetEventData("TARGET_1")).ToNwObject<NwPlayer>();
+            NwCreature oTarget = NWScript.StringToObject(EventsPlugin.GetEventData("TARGET_1")).ToNwObject<NwCreature>();
 
             if (oTarget.Area.Tag == "Labrume")
             {

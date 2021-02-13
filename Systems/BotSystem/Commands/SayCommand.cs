@@ -9,11 +9,11 @@ namespace NWN.Systems
   {
     public static async Task ExecuteSayCommand(SocketCommandContext context, string sPCName, string text)
     {
+      await NwTask.SwitchToMainThread();
+
       int result = DiscordUtils.CheckPlayerCredentialsFromDiscord(context, sPCName);
       if (result > 0)
       {
-        await NwTask.SwitchToMainThread();
-
         foreach (NwPlayer player in NwModule.Instance.Players)
         {
           if (ObjectPlugin.GetInt(player, "characterId") == result)

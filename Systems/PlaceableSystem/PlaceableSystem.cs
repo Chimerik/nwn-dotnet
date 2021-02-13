@@ -26,7 +26,7 @@ namespace NWN.Systems
             foreach (NwPlaceable plc in NwModule.FindObjectsWithTag<NwPlaceable>(Arena.Config.PVE_ARENA_PULL_ROPE_CHAIN_TAG, "portal_storage_out", "portal_storage_in", "portal_start", "respawn_neutral", "respawn_dire", "respawn_radiant", "theater_rope"))
                 eventService.Subscribe<NwPlaceable, PlaceableEvents.OnUsed>(plc, HandlePlaceableUsed);
 
-            foreach (NwCreature statue in NwModule.FindObjectsWithTag<NwCreature>("Statuereptilienne", "statue_tiamat"))
+            foreach (NwCreature statue in NwModule.FindObjectsWithTag<NwCreature>("Statuereptilienne", "Statuereptilienne2", "statue_tiamat"))
             {
                 eventService.Subscribe<NwCreature, CreatureEvents.OnConversation>(statue, HandleCancelStatueConversation);
                 eventService.Subscribe<NwCreature, CreatureEvents.OnPerception>(statue, HandleStatufyCreature);
@@ -127,9 +127,9 @@ namespace NWN.Systems
       eff.SubType = EffectSubType.Supernatural;
       creature.ApplyEffect(EffectDuration.Permanent, eff);
 
-      eff = API.Effect.VisualEffect(VfxType.DurIceskin);
-      eff.SubType = EffectSubType.Supernatural;
-      creature.ApplyEffect(EffectDuration.Permanent, eff);
+      //eff = API.Effect.VisualEffect(VfxType.DurIceskin);
+      //eff.SubType = EffectSubType.Supernatural;
+      //creature.ApplyEffect(EffectDuration.Permanent, eff);
       creature.HiliteColor = Color.WHITE;
       NWScript.SetObjectMouseCursor(creature, NWScript.MOUSECURSOR_WALK);
       creature.PlotFlag = true;

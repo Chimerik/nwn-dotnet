@@ -317,6 +317,9 @@ namespace NWN.Systems
       player.playerJournal = new PlayerJournal();
       player.loadedQuickBar = QuickbarType.Invalid;
       player.location = Utils.GetLocationFromDatabase(NWScript.SqlGetString(query, 0), NWScript.SqlGetVector(query, 1), NWScript.SqlGetFloat(query, 2));
+
+      NWScript.WriteTimestampedLogEntry($"Got location : {player.location.Area.Name}");
+
       player.currentHP = NWScript.SqlGetInt(query, 3);
       player.bankGold = NWScript.SqlGetInt(query, 4);
       player.dateLastSaved = DateTime.Parse(NWScript.SqlGetString(query, 5));
