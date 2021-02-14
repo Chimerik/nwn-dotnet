@@ -29,7 +29,7 @@ namespace NWN.Systems
             if (playerReturned.IsCompletedSuccessfully)
                 return;
 
-            foreach(NwCreature creature in area.FindObjectsOfTypeInArea<NwCreature>().Where(c => c.Tag != "Statuereptilienne" && !c.IsDMPossessed))
+            foreach(NwCreature creature in area.FindObjectsOfTypeInArea<NwCreature>().Where(c => c.Tag != "Statuereptilienne" && c.Tag != "Statuereptilienne2" && !c.IsDMPossessed && c.Tag != "pccorpse"))
             {
                 if (creature.GetLocalVariable<API.Location>("_SPAWN_LOCATION").HasValue)
                 {
@@ -43,7 +43,7 @@ namespace NWN.Systems
                 creature.Destroy();
             }
 
-            foreach (NwGameObject bodyBag in area.FindObjectsOfTypeInArea<NwGameObject>().Where(o => o.Tag != "BodyBag"))
+            foreach (NwGameObject bodyBag in area.FindObjectsOfTypeInArea<NwGameObject>().Where(o => o.Tag == "BodyBag"))
             {
                 NWN.Utils.DestroyInventory(bodyBag);
                 bodyBag.Destroy();

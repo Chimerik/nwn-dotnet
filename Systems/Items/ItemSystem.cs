@@ -180,7 +180,7 @@ namespace NWN.Systems
         NWScript.SqlBindInt(query, "@characterId", NWScript.GetLocalInt(oItem, "_PC_ID"));
         NWScript.SqlStep(query);
 
-        PlayerSystem.SavePlayerCorpseToDatabase(oItem.GetLocalVariable<int>("_PC_ID").Value, oCorpse, oCorpse.Area.Tag, oCorpse.Position);
+        PlayerSystem.SavePlayerCorpseToDatabase(oItem.GetLocalVariable<int>("_PC_ID").Value, oCorpse);
       }
 
       /* En pause jusqu'à ce que le système de transport soit en place

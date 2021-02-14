@@ -17,38 +17,38 @@ namespace NWN.Systems
     {
       NwPlayer oPC = HandlePlayerConnect.Player;
 
-      if (!Players.TryGetValue(oPC, out Player player))
-      {
-        player = new Player(oPC);
-        Players.Add(oPC, player);
-      }
-
       oPC.GetLocalVariable<int>("_ACTIVE_LANGUAGE").Value = (int)Feat.Invalid;
-
-      if (oPC.IsDM)
-        return;
-
-      string pcAccount = player.CheckDBPlayerAccount();
-      if (pcAccount != oPC.PlayerName)
-      {
-        oPC.BootPlayer($"Attention - Ce personnage est enregistré sous le compte {pcAccount}, or vous venez de vous connecter sous {oPC.PlayerName}, veuillez vous reconnecter avec le bon compte !");
-        NWN.Utils.LogMessageToDMs($"Attention - {oPC.PlayerName} vient de se connecter avec un personnage enregistré sous le compte : {pcAccount} !");
-        return;
-      }
-
-      if (player.currentHP <= 0)
-        oPC.ApplyEffect(EffectDuration.Instant, API.Effect.Death());
-      else
-        oPC.HP = player.currentHP;
 
       Task teleportPlayer = NwTask.Run(async () =>
       {
         await NwTask.WaitUntilValueChanged(() => oPC.Area != null);
 
+        if (!Players.TryGetValue(oPC, out Player player))
+        {
+          player = new Player(oPC);
+          Players.Add(oPC, player);
+        }
+
+        if (oPC.IsDM)
+          return false;
+
+        string pcAccount = player.CheckDBPlayerAccount();
+        if (pcAccount != oPC.PlayerName)
+        {
+          oPC.BootPlayer($"Attention - Ce personnage est enregistré sous le compte {pcAccount}, or vous venez de vous connecter sous {oPC.PlayerName}, veuillez vous reconnecter avec le bon compte !");
+          Utils.LogMessageToDMs($"Attention - {oPC.PlayerName} vient de se connecter avec un personnage enregistré sous le compte : {pcAccount} !");
+          return false;
+        }
+
         if (NwModule.Instance.Areas.Any(a => a.Tag == player.location.Area.Tag))
           oPC.Location = player.location;
         else
           oPC.Location = NwModule.FindObjectsWithTag<NwWaypoint>("WP_START_NEW_CHAR").FirstOrDefault().Location;
+
+        if (player.currentHP <= 0)
+          oPC.ApplyEffect(EffectDuration.Instant, API.Effect.Death());
+        else
+          oPC.HP = player.currentHP;
 
         if (player.craftJob.IsActive()
         && player.location.Area.GetLocalVariable<int>("_AREA_LEVEL").Value == 0)
@@ -56,6 +56,7 @@ namespace NWN.Systems
           player.CraftJobProgression();
           player.craftJob.CreateCraftJournalEntry();
         }
+
         if (player.currentSkillJob != (int)Feat.Invalid)
         {
           switch (player.currentSkillType)

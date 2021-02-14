@@ -1,12 +1,11 @@
 ﻿using System;
-using System.Numerics;
+using System.Linq;
 using System.Threading.Tasks;
 using NWN.API;
+using NWN.API.Constants;
 using NWN.API.Events;
 using NWN.Core;
 using NWN.Core.NWNX;
-using NWN.API.Constants;
-using System.Linq;
 
 namespace NWN.Systems
 {
@@ -26,10 +25,7 @@ namespace NWN.Systems
 
         Task task3 = NwTask.Run(async () =>
         {
-          // Executed in the server thread, you can use NWN APIs here.
-          await NwTask.Delay(TimeSpan.FromSeconds(1.3));
-          SavePlayerCorpseToDatabase(player.characterId, player.deathCorpse, player.deathCorpse.Area.Tag, player.deathCorpse.Position);
-          //await NwTask.Delay(TimeSpan.FromSeconds(2.7));
+          await NwTask.Delay(TimeSpan.FromSeconds(1));
           SendPlayerToLimbo(player);
           return true;
         });
@@ -57,13 +53,15 @@ namespace NWN.Systems
         if(oPCCorpse.GetItemInSlot((InventorySlot)i) != null)
           oPCCorpse.GetItemInSlot((InventorySlot)i).Droppable = false;
 
-      SetupPCCorpse(oPCCorpse);
-
       oCorpseItem.GetLocalVariable<int>("_PC_ID").Value = player.characterId;
       oCorpseItem.Name = $"Corps inconscient de {player.oid.Name}";
       oCorpseItem.Description = $"Corps inconscient de {player.oid.Name}\n\n\n Pas très ragoûtant. Allez savoir combien de temps il va tenir avant de se lâcher.";
       oCorpseItem.GetLocalVariable<string>("_SERIALIZED_CORPSE").Value = oPCCorpse.Serialize();
       player.deathCorpse = oPCCorpse;
+
+      SavePlayerCorpseToDatabase(player.characterId, player.deathCorpse);
+
+      SetupPCCorpse(oPCCorpse);
     }
     private static void StripPlayerGoldAfterDeath(Player player)
     {
@@ -90,13 +88,13 @@ namespace NWN.Systems
         oItem.Destroy();
       }
     }
-    public static void SavePlayerCorpseToDatabase(int characterId, uint deathCorpse, string areaTag, Vector3 position)
+    public static void SavePlayerCorpseToDatabase(int characterId, NwCreature deathCorpse)
     {
-      var query = NWScript.SqlPrepareQueryCampaign(Systems.Config.database, $"INSERT INTO playerDeathCorpses (characterId, deathCorpse, areaTag, position) VALUES (@characterId, @deathCorpse, @areaTag, @position)");
+      var query = NWScript.SqlPrepareQueryCampaign(Config.database, $"INSERT INTO playerDeathCorpses (characterId, deathCorpse, areaTag, position) VALUES (@characterId, @deathCorpse, @areaTag, @position)");
       NWScript.SqlBindInt(query, "@characterId", characterId);
       NWScript.SqlBindObject(query, "@deathCorpse", deathCorpse);
-      NWScript.SqlBindString(query, "@areaTag", areaTag);
-      NWScript.SqlBindVector(query, "@position", position);
+      NWScript.SqlBindString(query, "@areaTag", deathCorpse.Area.Tag);
+      NWScript.SqlBindVector(query, "@position", deathCorpse.Position);
       NWScript.SqlStep(query);
     }
     private static void SendPlayerToLimbo(Player player)

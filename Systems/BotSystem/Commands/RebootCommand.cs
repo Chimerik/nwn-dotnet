@@ -64,6 +64,8 @@ namespace NWN.Systems
         Administration.ShutdownServer();
         return 20;
       });
+
+      await context.Channel.SendMessageAsync("Reboot effectif dans 30 secondes.");
     }
   }
 }

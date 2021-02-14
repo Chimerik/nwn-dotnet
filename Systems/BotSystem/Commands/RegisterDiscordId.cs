@@ -13,7 +13,7 @@ namespace NWN.Systems
 
       var query = NWScript.SqlPrepareQueryCampaign(Config.database, $"UPDATE PlayerAccounts SET discordId = @discordId WHERE cdKey = @cdKey");
       NWScript.SqlBindString(query, "@cdKey", cdKey);
-      NWScript.SqlBindInt(query, "@discordId", (int)context.User.Id);
+      NWScript.SqlBindString(query, "@discordId", context.User.Id.ToString());
       NWScript.SqlStep(query);
 
       await context.Channel.SendMessageAsync("Voilà qui est fait. Enfin, pour tant soit peu que la clef fournie fusse valide !");

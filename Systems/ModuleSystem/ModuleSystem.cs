@@ -69,7 +69,7 @@ namespace NWN.Systems
       NWScript.SqlStep(query);
 
       query = NWScript.SqlPrepareQueryCampaign(Config.database, $"CREATE TABLE IF NOT EXISTS PlayerAccounts" +
-        $"('accountName' TEXT NOT NULL, 'cdKey' TEXT, 'bonusRolePlay' INTEGER NOT NULL, 'discordId' INTEGER, 'rank' TEXT)");
+        $"('accountName' TEXT NOT NULL, 'cdKey' TEXT, 'bonusRolePlay' INTEGER NOT NULL, 'discordId' TEXT, 'rank' TEXT)");
       NWScript.SqlStep(query);
 
       query = NWScript.SqlPrepareQueryCampaign(Config.database, $"CREATE TABLE IF NOT EXISTS playerCharacters" +
@@ -324,13 +324,7 @@ namespace NWN.Systems
         foreach (NwItem item in corpse.Items.Where(i => i.Tag != "item_pccorpse"))
           item.Destroy();
 
-        Task setupCorpse = NwTask.Run(async () =>
-        {
-          await NwTask.Delay(TimeSpan.FromSeconds(3));
-          PlayerSystem.SetupPCCorpse(corpse);
-          PlayerSystem.SetupPCCorpse(corpse);
-          return true;
-        });
+        PlayerSystem.SetupPCCorpse(corpse);
       }
     }
     public void RestoreDMPersistentPlaceableFromDatabase()
@@ -338,7 +332,7 @@ namespace NWN.Systems
       var query = NWScript.SqlPrepareQueryCampaign(Config.database, $"SELECT serializedPlaceable, areaTag, position, facing FROM dm_persistant_placeable");
 
       while (Convert.ToBoolean(NWScript.SqlStep(query)))
-        NWScript.SqlGetObject(query, 0, NWN.Utils.GetLocationFromDatabase(NWScript.SqlGetString(query, 1), NWScript.SqlGetVector(query, 2), NWScript.SqlGetFloat(query, 3)));
+        NWScript.SqlGetObject(query, 0, Utils.GetLocationFromDatabase(NWScript.SqlGetString(query, 1), NWScript.SqlGetVector(query, 2), NWScript.SqlGetFloat(query, 3)));
     }
   }
 }

@@ -17,6 +17,9 @@ namespace NWN.Systems
     }
     private void OnPlayerDisconnectBefore(ClientEvents.OnClientDisconnectBefore onPCDisconnect)
     {
+      if (onPCDisconnect.Player == null)
+        return;
+
       NWScript.WriteTimestampedLogEntry($"{onPCDisconnect.Player.Name} disconnecting.");
 
       if (PlayerSystem.Players.TryGetValue(onPCDisconnect.Player, out PlayerSystem.Player player))

@@ -9,7 +9,7 @@ namespace NWN.Systems
     {
       var query = NWScript.SqlPrepareQueryCampaign(Systems.Config.database, $"SELECT pc.ROWID from PlayerAccounts " +
         $"LEFT join playerCharacters pc on pc.accountId = PlayerAccounts.ROWID WHERE discordId = @discordId and pc.characterName = @characterName");
-      NWScript.SqlBindInt(query, "@discordId", (int)context.User.Id);
+      NWScript.SqlBindString(query, "@discordId", context.User.Id.ToString());
       NWScript.SqlBindString(query, "@characterName", sPCName);
       if(NWScript.SqlStep(query) == 1)
         return NWScript.SqlGetInt(query, 0);
@@ -18,8 +18,8 @@ namespace NWN.Systems
     }
     public static string GetPlayerStaffRankFromDiscord(ulong UserId)
     {
-      var query = NWScript.SqlPrepareQueryCampaign(Systems.Config.database, $"SELECT rank from PlayerAccounts WHERE discordId = @discordId");
-      NWScript.SqlBindInt(query, "@discordId", (int)UserId);
+      var query = NWScript.SqlPrepareQueryCampaign(Config.database, $"SELECT rank from PlayerAccounts WHERE discordId = @discordId");
+      NWScript.SqlBindString(query, "@discordId", UserId.ToString());
       if (NWScript.SqlStep(query) == 1)
         return NWScript.SqlGetString(query, 0);
 
