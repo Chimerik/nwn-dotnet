@@ -50,10 +50,10 @@ namespace NWN.Systems
         await NwTask.Delay(TimeSpan.FromSeconds(30));
 
         var query = NWScript.SqlPrepareQueryCampaign(Config.database, $"UPDATE moduleInfo SET year = @year, month = @month, " +
-          $"second = @second");
+          $"day = @day, hour = @hour, minute = @minute, second = @second");
         NWScript.SqlBindInt(query, "@year", NwDateTime.Now.Year);
         NWScript.SqlBindInt(query, "@month", NwDateTime.Now.Month);
-        NWScript.SqlBindInt(query, "@day", NwDateTime.Now.DayInMonth);
+        NWScript.SqlBindInt(query, "@day", NwDateTime.Now.DayInTenday);
         NWScript.SqlBindInt(query, "@hour", NwDateTime.Now.Hour);
         NWScript.SqlBindInt(query, "@minute", NwDateTime.Now.Minute);
         NWScript.SqlBindInt(query, "@second", NwDateTime.Now.Second);

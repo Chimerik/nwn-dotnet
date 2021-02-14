@@ -357,20 +357,24 @@ namespace NWN.Systems
       while (Convert.ToBoolean(NWScript.SqlStep(query)))
         player.learnableSpells.Add(NWScript.SqlGetInt(query, 0), new SkillSystem.LearnableSpell(NWScript.SqlGetInt(query, 0), NWScript.SqlGetInt(query, 1), player));
     }
-    private static void InitializeNewCharacterStorage(PlayerSystem.Player player)
+    private static void InitializeNewCharacterStorage(Player player)
     {
-      uint storage = NWScript.GetFirstObjectInArea(NWScript.GetObjectByTag("entrepotpersonnel"));
-      if (NWScript.GetTag(storage) != "ps_entrepot")
-        storage = NWScript.GetNearestObjectByTag("ps_entrepot", storage);
+      NwPlaceable storage = NwModule.Instance.Areas.Where(a => a.Tag == "entrepotpersonnel").FirstOrDefault()?.FindObjectsOfTypeInArea<NwPlaceable>().Where(s => s.Tag == "ps_entrepot").FirstOrDefault();
 
+      if(storage == null)
+      {
+        Utils.LogMessageToDMs($"Could not initialize new character storage for player {player.oid.PlayerName}, character {player.oid.Name}");
+        return;
+      }
+      
       NWN.Utils.DestroyInventory(storage);
-      NWScript.CreateItemOnObject("bad_armor", storage);
-      NWScript.CreateItemOnObject("bad_club", storage);
-      NWScript.CreateItemOnObject("bad_shield", storage);
-      NWScript.CreateItemOnObject("bad_sling", storage);
-      NWScript.CreateItemOnObject("NW_WAMBU001", storage, 99);
+      NwItem.Create("bad_armor", storage);
+      NwItem.Create("bad_club", storage);
+      NwItem.Create("bad_shield", storage);
+      NwItem.Create("bad_sling", storage);
+      NwItem.Create("NW_WAMBU001", storage, 99);
 
-      NWScript.SetName(storage, $"Entrepôt de {NWScript.GetName(player.oid)}");
+      storage.Name = $"Entrepôt de {player.oid.Name}";
 
       var query = NWScript.SqlPrepareQueryCampaign(Systems.Config.database, $"UPDATE playerCharacters set storage = @storage where rowid = @characterId");
       NWScript.SqlBindInt(query, "@characterId", ObjectPlugin.GetInt(player.oid, "characterId"));

@@ -75,6 +75,9 @@ namespace NWN.Systems
           case "tribunal_hotesse":
             new TribunalHotesse(player, (NwCreature)callInfo.ObjectSelf);
             break;
+          case "pve_arena_host":
+            Arena.WelcomeMenu.DrawMainPage(player);
+            break;
         }
       }
     }

@@ -197,7 +197,7 @@ namespace NWN.Systems
         NWScript.SqlStep(query);
         NWScript.SqlBindInt(query, "@year", NwDateTime.Now.Year);
         NWScript.SqlBindInt(query, "@month", NwDateTime.Now.Month);
-        NWScript.SqlBindInt(query, "@day", NwDateTime.Now.DayInMonth);
+        NWScript.SqlBindInt(query, "@day", NwDateTime.Now.DayInTenday);
         NWScript.SqlBindInt(query, "@hour", NwDateTime.Now.Hour);
         NWScript.SqlBindInt(query, "@minute", NwDateTime.Now.Minute);
         NWScript.SqlBindInt(query, "@second", NwDateTime.Now.Second);
@@ -205,6 +205,7 @@ namespace NWN.Systems
     }
     public static async Task SpawnCollectableResources(float delay)
     {
+      NWScript.WriteTimestampedLogEntry("Starting to spawn collectable ressources");
       foreach (NwPlaceable ressourcePoint in NwModule.FindObjectsWithTag<NwPlaceable>(new string[] { "ore_spawn_wp", "wood_spawn_wp" }).Where(l => l.Area.GetLocalVariable<int>("_AREA_LEVEL").Value > 1))
       {
         int areaLevel = ressourcePoint.Area.GetLocalVariable<int>("_AREA_LEVEL").Value;
@@ -258,12 +259,12 @@ namespace NWN.Systems
     private void SaveServerVault()
     {
       var query = NWScript.SqlPrepareQueryCampaign(Config.database, $"UPDATE moduleInfo SET year = @year, month = @month, day = @day, hour = @hour, minute = @minute, second = @second where rowid = 1");
-      NWScript.SqlBindInt(query, "@year", NWScript.GetCalendarYear());
-      NWScript.SqlBindInt(query, "@month", NWScript.GetCalendarMonth());
-      NWScript.SqlBindInt(query, "@day", NWScript.GetCalendarDay());
-      NWScript.SqlBindInt(query, "@hour", NWScript.GetTimeHour());
-      NWScript.SqlBindInt(query, "@minute", NWScript.GetTimeMinute());
-      NWScript.SqlBindInt(query, "@second", NWScript.GetTimeSecond());
+      NWScript.SqlBindInt(query, "@year", NwDateTime.Now.Year);
+      NWScript.SqlBindInt(query, "@month", NwDateTime.Now.Month);
+      NWScript.SqlBindInt(query, "@day", NwDateTime.Now.DayInTenday);
+      NWScript.SqlBindInt(query, "@hour", NwDateTime.Now.Hour);
+      NWScript.SqlBindInt(query, "@minute", NwDateTime.Now.Minute);
+      NWScript.SqlBindInt(query, "@second", NwDateTime.Now.Second);
       NWScript.SqlStep(query);
 
       NWScript.ExportAllCharacters();

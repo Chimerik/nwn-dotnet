@@ -6,7 +6,7 @@ namespace NWN.Systems.Arena
 {
   public static class Config
   {
-    public const string PVE_ARENA_AREA_RESREF = "pve_arena";
+    public const string PVE_ARENA_AREA_RESREF = "c2c_arena";
     public const string PVE_ARENA_WAYPOINT_TAG = "waypoint";
     public const string PVE_ENTRY_WAYPOINT_TAG = "arena_entry_waypoint";
     public const string PVE_ARENA_PULL_ROPE_CHAIN_TAG = "PullRopeChain";

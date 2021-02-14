@@ -73,6 +73,8 @@ namespace NWN.Systems
 
       NwPlayer oPC = (NwPlayer)oExited;
 
+      NWScript.WriteTimestampedLogEntry($"{oPC.Name} exited area {area.Name}");
+
       if (oPC.IsDM || oPC.IsDMPossessed || oPC.IsPlayerDM)
         return;
 

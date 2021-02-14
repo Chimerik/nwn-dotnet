@@ -1,4 +1,5 @@
 ﻿using NWN.API;
+using NWN.Core;
 using NWN.Services;
 using System;
 using System.Linq;
@@ -14,6 +15,8 @@ namespace NWN.Systems
     {
       if (area.GetLocalVariable<int>("_NO_SPAWN_ALLOWED").HasValue)
         return;
+
+      NWScript.WriteTimestampedLogEntry($"Handling spawns for area {area.Name}");
 
       foreach (NwWaypoint wp in area.FindObjectsOfTypeInArea<NwWaypoint>().Where(a => a.Tag == "creature_spawn"))
         HandleSpawnWaypoint(wp);

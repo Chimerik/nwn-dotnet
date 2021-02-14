@@ -12,11 +12,11 @@ namespace NWN.Systems
     {
         public Party(NWNXEventService nwnxEventService)
         {
-            nwnxEventService.Subscribe<PartyEvents.OnLeaveBefore>(OnPartyLeaveBefore);
+            /*nwnxEventService.Subscribe<PartyEvents.OnLeaveBefore>(OnPartyLeaveBefore);
             nwnxEventService.Subscribe<PartyEvents.OnLeaveAfter>(OnPartyLeaveAfter);
             nwnxEventService.Subscribe<PartyEvents.OnKickBefore>(OnPartyKickBefore);
             nwnxEventService.Subscribe<PartyEvents.OnKickAfter>(OnPartyKickAfter);
-            nwnxEventService.Subscribe<PartyEvents.OnAcceptInvitationAfter>(OnPartyJoinAfter);
+            nwnxEventService.Subscribe<PartyEvents.OnAcceptInvitationAfter>(OnPartyJoinAfter);*/
         }
         private void OnPartyLeaveBefore(PartyEvents.OnLeaveBefore onPartyLeave)
         {

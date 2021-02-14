@@ -42,9 +42,9 @@ namespace NWN.Systems
         player.setValue = 0;
         player.OnKeydown -= player.menu.HandleMenuFeatUsed;
 
-        RemovePartyBuffOnDisconnect(onPCDisconnect.Player);
+        //RemovePartyBuffOnDisconnect(onPCDisconnect.Player);
 
-        NWScript.WriteTimestampedLogEntry($"Party buff removed");
+        //NWScript.WriteTimestampedLogEntry($"Party buff removed");
 
         if (player.oid.Area.Tag == $"entrepotpersonnel_{player.oid.CDKey}")
         {
