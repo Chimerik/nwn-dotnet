@@ -1,9 +1,9 @@
-﻿using NWN.API;
+﻿using NLog;
+using NWN.API;
 using NWN.Core;
 using NWN.Services;
 using NWNX.API.Events;
 using NWNX.Services;
-using System;
 using System.Linq;
 
 namespace NWN.Systems
@@ -11,6 +11,7 @@ namespace NWN.Systems
   [ServiceBinding(typeof(PlayerDisconnection))]
   class PlayerDisconnection
   {
+    private static readonly Logger Log = LogManager.GetCurrentClassLogger();
     public PlayerDisconnection(NWNXEventService nwnxEventService)
     {
       nwnxEventService.Subscribe<ClientEvents.OnClientDisconnectBefore>(OnPlayerDisconnectBefore);
@@ -42,9 +43,9 @@ namespace NWN.Systems
         player.setValue = 0;
         player.OnKeydown -= player.menu.HandleMenuFeatUsed;
 
-        //RemovePartyBuffOnDisconnect(onPCDisconnect.Player);
+        RemovePartyBuffOnDisconnect(onPCDisconnect.Player);
 
-        //NWScript.WriteTimestampedLogEntry($"Party buff removed");
+        NWScript.WriteTimestampedLogEntry($"Party buff removed");
 
         if (player.oid.Area.Tag == $"entrepotpersonnel_{player.oid.CDKey}")
         {
@@ -61,6 +62,8 @@ namespace NWN.Systems
     }
     private void RemovePartyBuffOnDisconnect(NwPlayer player)
     {
+      Log.Info($"Removing party buff on disconnection for {player.Name}");
+
       API.Effect eParty = Party.GetPartySizeEffect(player.PartyMembers.Count<NwPlayer>() - 1);
 
       foreach (NwPlayer partyMember in player.PartyMembers.Where<NwPlayer>(p => !p.IsPlayerDM))
@@ -69,6 +72,7 @@ namespace NWN.Systems
         if (eff != null)
         {
           player.RemoveEffect(eff);
+          Log.Info($"Removing party buff {eff.EffectType.ToString()} on disconnection for {partyMember.Name}");
 
           if (player != partyMember)
             partyMember.ApplyEffect(EffectDuration.Permanent, eParty);

@@ -5,6 +5,7 @@ using System.Linq;
 using NWN.Core.NWNX;
 using NWN.Core;
 using System;
+using NLog;
 
 namespace NWN.Systems
 {
@@ -12,6 +13,7 @@ namespace NWN.Systems
   partial class AreaSystem
   {
     private static NativeEventService nativeEventService;
+    private static readonly Logger Log = LogManager.GetCurrentClassLogger();
     public AreaSystem(NativeEventService eventService)
     {
       nativeEventService = eventService;

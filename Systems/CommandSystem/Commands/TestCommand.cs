@@ -20,7 +20,7 @@ namespace NWN.Systems
         //NwModule.Instance.ExportAllCharacters();
 
         //ctx.oSender.ToNwObject<NwPlayer>().HP = 10;
-        ctx.oSender.ToNwObject<NwPlayer>().ApplyEffect(API.EffectDuration.Instant, API.Effect.Death());
+        //ctx.oSender.ToNwObject<NwPlayer>().ApplyEffect(API.EffectDuration.Instant, API.Effect.Death());
 
         if (NWScript.GetPCPlayerName(player.oid) == "Chim")
         {

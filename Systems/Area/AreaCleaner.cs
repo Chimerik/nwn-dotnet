@@ -12,7 +12,7 @@ namespace NWN.Systems
   {
     private async static void AreaCleaner(NwArea area)
     {
-      NWScript.WriteTimestampedLogEntry($"Initiating cleaning for area {area.Name}");
+      Log.Info($"Initiating cleaning for area {area.Name}");
 
       Task playerReturned = NwTask.Run(async () =>
       {
@@ -30,22 +30,38 @@ namespace NWN.Systems
 
       if (playerReturned.IsCompletedSuccessfully)
       {
-        NWScript.WriteTimestampedLogEntry($"Canceling cleaning for area {area.Name}");
+        Log.Info($"Canceling cleaning for area {area.Name}");
         return;
       }
 
-      NWScript.WriteTimestampedLogEntry($"Cleaning area {area.Name}");
+      Log.Info($"Cleaning area {area.Name}");
 
-      foreach (NwCreature creature in area.FindObjectsOfTypeInArea<NwCreature>().Where(c => c.Tag != "Statuereptilienne" && c.Tag != "Statuereptilienne2" && !c.IsDMPossessed && c.Tag != "pccorpse"))
+      foreach (NwCreature creature in area.FindObjectsOfTypeInArea<NwCreature>().Where(c => c.Tag != "Statuereptilienne" && c.Tag != "Statuereptilienne2" && !c.IsDMPossessed && c.Tag != "pccorpse" && !(c is NwPlayer)))
       {
         if (creature.GetLocalVariable<API.Location>("_SPAWN_LOCATION").HasValue)
         {
-          NwWaypoint waypoint = NwWaypoint.Create(creature.GetLocalVariable<string>("_WAYPOINT_TEMPLATE"), creature.GetLocalVariable<API.Location>("_SPAWN_LOCATION").Value);
-          waypoint.GetLocalVariable<string>("_CREATURE_TEMPLATE").Value = creature.ResRef;
+          Task createWP = NwTask.Run(async () =>
+          {
+            await NwTask.Delay(TimeSpan.FromSeconds(0.2));
+
+            NwWaypoint waypoint = NwWaypoint.Create(creature.GetLocalVariable<string>("_WAYPOINT_TEMPLATE"), creature.GetLocalVariable<API.Location>("_SPAWN_LOCATION").Value);
+            waypoint.GetLocalVariable<string>("_CREATURE_TEMPLATE").Value = creature.ResRef;
+
+            return true;
+          });
+
         }
         else if (creature.Tag == "mineable_animal")
-          NWScript.CreateObject(NWScript.OBJECT_TYPE_WAYPOINT, "animal_spawn_wp", creature.Location);
+        {
+          Task createWP = NwTask.Run(async () =>
+          {
+            await NwTask.Delay(TimeSpan.FromSeconds(0.2));
+            NwWaypoint.Create("animal_spawn_wp", creature.Location);
+            return true;
+          });
+        }
 
+        Log.Info($"destroying creature {creature.Name}");
         NWN.Utils.DestroyInventory(creature);
         creature.Destroy();
       }
@@ -53,14 +69,21 @@ namespace NWN.Systems
       foreach (NwGameObject bodyBag in area.FindObjectsOfTypeInArea<NwGameObject>().Where(o => o.Tag == "BodyBag"))
       {
         NWN.Utils.DestroyInventory(bodyBag);
+        Log.Info($"destroying body bag {bodyBag.Name}");
         bodyBag.Destroy();
       }
 
       foreach (NwItem item in area.FindObjectsOfTypeInArea<NwItem>())
+      {
+        Log.Info($"destroying item {item.Name}");
         item.Destroy();
+      }
 
       foreach (NwStore store in area.FindObjectsOfTypeInArea<NwStore>())
+      {
+        Log.Info($"destroying store {store.Name}");
         store.Destroy();
+      }
     }
     public async static void AreaDestroyer(NwArea area)
     {
