@@ -1,5 +1,6 @@
 ﻿using System;
 using NWN.API;
+using NWN.API.Constants;
 using NWN.Core;
 using NWN.Core.NWNX;
 using NWN.Services;
@@ -120,12 +121,12 @@ namespace NWN.Systems
       }
       public double CalculateSkillPointsPerSecond()
       {
-        double SP = (NWScript.GetAbilityScore(player.oid, primaryAbility) + (NWScript.GetAbilityScore(player.oid, secondaryAbility) / 2)) / 60;
+        double SP = ((double)player.oid.GetAbilityScore((Ability)primaryAbility) + ((double)player.oid.GetAbilityScore((Ability)secondaryAbility) / 2.0)) / 60.0;
 
         switch (player.bonusRolePlay)
         {
           case 0:
-            SP = SP * 80 / 100;
+            SP = SP * 10 / 100;
             break;
           case 1:
             SP = SP * 90 / 100;

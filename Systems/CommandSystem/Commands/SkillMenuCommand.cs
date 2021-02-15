@@ -75,16 +75,16 @@ namespace NWN.Systems
       player.menu.Clear();
       player.menu.titleLines.Add("Liste des sorts disponibles pour étude.");
 
-      foreach (KeyValuePair<int, SkillSystem.LearnableSpell> SpellListEntry in player.learnableSpells.OrderByDescending(key => key.Value.currentJob))
+      foreach (KeyValuePair<int, LearnableSpell> SpellListEntry in player.learnableSpells.OrderByDescending(key => key.Value.currentJob))
       {
-        SkillSystem.LearnableSpell spell = SpellListEntry.Value;
+        LearnableSpell spell = SpellListEntry.Value;
 
         if (!spell.trained)
         {
           if (spell.currentJob)
             spell.RefreshAcquiredSkillPoints();
 
-          player.menu.choices.Add(($"{spell.name} - Temps restant : {NWN.Utils.StripTimeSpanMilliseconds((TimeSpan)(DateTime.Now.AddSeconds(spell.GetTimeToNextLevel(spell.CalculateSkillPointsPerSecond())) - DateTime.Now))}", () => __HandleSpellSelection(player, spell)));
+          player.menu.choices.Add(($"{spell.name} - Temps restant : {Utils.StripTimeSpanMilliseconds(DateTime.Now.AddSeconds(spell.GetTimeToNextLevel(spell.CalculateSkillPointsPerSecond())) - DateTime.Now)}", () => __HandleSpellSelection(player, spell)));
         }
         // TODO : Suivant, précédent
       }
@@ -159,7 +159,7 @@ namespace NWN.Systems
 
       __HandleClose(player);
     }
-    private static void __HandleSpellSelection(PlayerSystem.Player player, SkillSystem.LearnableSpell selectedSpell)
+    private static void __HandleSpellSelection(PlayerSystem.Player player, LearnableSpell selectedSpell)
     {
       if (player.currentSkillJob != (int)Feat.Invalid)
       {
