@@ -37,7 +37,7 @@ namespace NWN.Systems
       public QuickbarType loadedQuickBar { get; set; }
       public Arena.PlayerData pveArena = new Arena.PlayerData();
 
-      public Dictionary<uint, Player> listened = new Dictionary<uint, Player>();
+      public List<NwPlayer> listened = new List<NwPlayer>();
       public Dictionary<uint, Player> blocked = new Dictionary<uint, Player>();
       public Dictionary<int, Skill> learnableSkills = new Dictionary<int, Skill>();
       public Dictionary<int, LearnableSpell> learnableSpells = new Dictionary<int, LearnableSpell>();

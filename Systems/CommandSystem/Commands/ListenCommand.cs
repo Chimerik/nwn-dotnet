@@ -1,4 +1,6 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
+using NWN.API;
 using NWN.Core;
 
 namespace NWN.Systems
@@ -7,34 +9,31 @@ namespace NWN.Systems
   {
     private static void ExecuteListenCommand(ChatSystem.Context ctx, Options.Result options)
     {
-      if (NWScript.GetIsDM(ctx.oSender) == 1)
+      NwPlayer oDM = ctx.oSender.ToNwObject<NwPlayer>();
+      if (oDM.IsDM || oDM.IsDMPossessed || oDM.IsPlayerDM)
       {
-        PlayerSystem.Player oDM;
-        if (PlayerSystem.Players.TryGetValue(ctx.oSender, out oDM))
+        if (PlayerSystem.Players.TryGetValue(ctx.oSender, out PlayerSystem.Player dungeonMaster))
         {
           if (NWScript.GetIsObjectValid(ctx.oTarget) != 1)
           {
-            if (oDM.listened.Count > 0)
-              oDM.listened.Clear();
+            if (dungeonMaster.listened.Count > 0)
+            {
+              oDM.SendServerMessage("Vous cessez d'écouter les conversations des joueurs?");
+              dungeonMaster.listened.Clear();
+            }
             else
             {
-              foreach (KeyValuePair<uint, PlayerSystem.Player> PlayerListEntry in PlayerSystem.Players)
-              {
-                if (NWScript.GetIsDM(PlayerListEntry.Key) != 1)
-                  oDM.listened.Add(PlayerListEntry.Key, PlayerListEntry.Value);
-              }
+              foreach(NwPlayer oPC in NwModule.Instance.Players.Where(p => !p.IsDM && !p.IsDMPossessed && !p.IsPlayerDM))
+                dungeonMaster.listened.Add(oPC);
             }
           }
           else
           {
-            if (oDM.listened.ContainsKey(ctx.oTarget))
-              oDM.listened.Remove(ctx.oTarget);
+            NwPlayer oPC = ctx.oTarget.ToNwObject<NwPlayer>();
+            if (dungeonMaster.listened.Contains(oPC))
+              dungeonMaster.listened.Remove(oPC);
             else
-            {
-              PlayerSystem.Player oPC;
-              if (PlayerSystem.Players.TryGetValue(ctx.oTarget, out oPC))
-                oDM.listened.Add(ctx.oTarget, oPC);
-            }
+                dungeonMaster.listened.Add(oPC);
           }
         }
       }

@@ -36,7 +36,7 @@ namespace NWN.Systems
 
       Log.Info($"Cleaning area {area.Name}");
 
-      foreach (NwCreature creature in area.FindObjectsOfTypeInArea<NwCreature>().Where(c => c.Tag != "Statuereptilienne" && c.Tag != "Statuereptilienne2" && !c.IsDMPossessed && c.Tag != "pccorpse" && !(c is NwPlayer)))
+      foreach (NwCreature creature in area.FindObjectsOfTypeInArea<NwCreature>().Where(c => c.Tag != "Statuereptilienne" && c.Tag != "Statuereptilienne2" && c.Tag != "statue_tiamat" && !c.IsDMPossessed && c.Tag != "pccorpse" && !(c is NwPlayer)))
       {
         if (creature.GetLocalVariable<API.Location>("_SPAWN_LOCATION").HasValue)
         {

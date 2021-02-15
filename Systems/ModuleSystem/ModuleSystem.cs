@@ -1,5 +1,6 @@
 ﻿using Discord;
 using Google.Cloud.Translation.V2;
+using NLog;
 using NWN.API;
 using NWN.API.Events;
 using NWN.Core;
@@ -16,6 +17,7 @@ namespace NWN.Systems
   [ServiceBinding(typeof(ModuleSystem))]
   public class ModuleSystem
   {
+    private static readonly Logger Log = LogManager.GetCurrentClassLogger();
     public static readonly TranslationClient googleTranslationClient = TranslationClient.Create();
     public static Dictionary<string, GoldBalance> goldBalanceMonitoring = new Dictionary<string, GoldBalance>();
     public ModuleSystem(NativeEventService eventService)
@@ -205,8 +207,9 @@ namespace NWN.Systems
     }
     public static async Task SpawnCollectableResources(float delay)
     {
-      NWScript.WriteTimestampedLogEntry("Starting to spawn collectable ressources");
-      foreach (NwPlaceable ressourcePoint in NwModule.FindObjectsWithTag<NwPlaceable>(new string[] { "ore_spawn_wp", "wood_spawn_wp" }).Where(l => l.Area.GetLocalVariable<int>("_AREA_LEVEL").Value > 1))
+      Log.Info("Starting to spawn collectable ressources");
+
+      foreach (NwWaypoint ressourcePoint in NwModule.FindObjectsWithTag<NwWaypoint>(new string[] { "ore_spawn_wp", "wood_spawn_wp" }).Where(l => l.Area.GetLocalVariable<int>("_AREA_LEVEL").Value > 1))
       {
         int areaLevel = ressourcePoint.Area.GetLocalVariable<int>("_AREA_LEVEL").Value;
         if (NwRandom.Roll(NWN.Utils.random, 100) >= (areaLevel * 20) - 20)
@@ -230,6 +233,8 @@ namespace NWN.Systems
           newRock.Name = name;
           newRock.GetLocalVariable<int>("_ORE_AMOUNT").Value = 50 * NwRandom.Roll(NWN.Utils.random, 100);
           ressourcePoint.Destroy();
+
+          Log.Info($"REFILL - {ressourcePoint.Area} - {ressourcePoint.Name}");
         }
       }
 

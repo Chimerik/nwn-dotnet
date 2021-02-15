@@ -127,10 +127,14 @@ namespace NWN.Systems
       eff.SubType = EffectSubType.Supernatural;
       creature.ApplyEffect(EffectDuration.Permanent, eff);
 
-      eff = API.Effect.VisualEffect(VfxType.DurProtGreaterStoneskin);
-      eff.SubType = EffectSubType.Supernatural;
-      creature.ApplyEffect(EffectDuration.Permanent, eff);
-      creature.HiliteColor = Color.WHITE;
+      if (creature.Tag != "statue_tiamat")
+      {
+        eff = API.Effect.VisualEffect(VfxType.DurProtGreaterStoneskin);
+        eff.SubType = EffectSubType.Supernatural;
+        creature.ApplyEffect(EffectDuration.Permanent, eff);
+      }
+
+      creature.HiliteColor = Color.BLACK;
       NWScript.SetObjectMouseCursor(creature, NWScript.MOUSECURSOR_WALK);
       creature.PlotFlag = true;
     }
