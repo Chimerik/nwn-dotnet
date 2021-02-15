@@ -11,7 +11,7 @@ namespace NWN.Systems
   [ServiceBinding(typeof(AreaSystem))]
   partial class AreaSystem
   {
-    private static void AreaSpawner(NwArea area)
+    public static void AreaSpawner(NwArea area)
     {
       if (area.GetLocalVariable<int>("_NO_SPAWN_ALLOWED").HasValue)
         return;

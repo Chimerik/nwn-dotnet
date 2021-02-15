@@ -24,7 +24,6 @@ namespace NWN.Systems
 
         if (NWScript.GetPCPlayerName(player.oid) == "Chim")
         {
-          //PlayerPlugin.PlaySound(player.oid, "song_test");
           Action<uint, Vector3> callback = (uint oTarget, Vector3 position) =>
           {
             // HP TEST

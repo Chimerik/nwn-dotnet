@@ -111,7 +111,7 @@ namespace NWN.Systems
         if (onPerception.Creature.Tag != "statue_tiamat")
         {
           await onPerception.Creature.PlayAnimation((Animation)NWN.Utils.random.Next(100, 116), 3);
-          await NwTask.Delay(TimeSpan.FromSeconds(0.3));
+          await NwTask.Delay(TimeSpan.FromSeconds(0.5));
           FreezeCreature(onPerception.Creature);
         }
         else
@@ -127,9 +127,9 @@ namespace NWN.Systems
       eff.SubType = EffectSubType.Supernatural;
       creature.ApplyEffect(EffectDuration.Permanent, eff);
 
-      //eff = API.Effect.VisualEffect(VfxType.DurIceskin);
-      //eff.SubType = EffectSubType.Supernatural;
-      //creature.ApplyEffect(EffectDuration.Permanent, eff);
+      eff = API.Effect.VisualEffect(VfxType.DurProtGreaterStoneskin);
+      eff.SubType = EffectSubType.Supernatural;
+      creature.ApplyEffect(EffectDuration.Permanent, eff);
       creature.HiliteColor = Color.WHITE;
       NWScript.SetObjectMouseCursor(creature, NWScript.MOUSECURSOR_WALK);
       creature.PlotFlag = true;

@@ -53,7 +53,6 @@ namespace NWN.Systems
       {
             ChatSystem.ProcessWriteLogMiddleware,
             CommandSystem.ProcessChatCommandMiddleware,
-            ChatSystem.ProcessSpeakValueMiddleware,
             ChatSystem.ProcessMutePMMiddleware,
             ChatSystem.ProcessPMMiddleware,
             ChatSystem.ProcessAFKDetectionMiddleware,
@@ -92,18 +91,6 @@ namespace NWN.Systems
 
         next();
       }
-    }
-    public static void ProcessSpeakValueMiddleware(Context ctx, Action next)
-    {
-      if (NWScript.GetLocalString(ctx.oSender, "_IS_LISTENING_VAR") == NWScript.GetName(ctx.oSender))
-      {
-        ChatPlugin.SkipMessage();
-        NWScript.SetLocalString(ctx.oSender, "_LISTENING_VAR", ctx.msg);
-        NWScript.DeleteLocalString(ctx.oSender, "_IS_LISTENING_VAR");
-        return;
-      }
-
-      next();
     }
     public static void ProcessMutePMMiddleware(Context ctx, Action next)
     {

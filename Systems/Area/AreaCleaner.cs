@@ -42,7 +42,7 @@ namespace NWN.Systems
         {
           Task createWP = NwTask.Run(async () =>
           {
-            await NwTask.Delay(TimeSpan.FromSeconds(0.2));
+            await NwTask.Delay(TimeSpan.FromSeconds(0.1));
 
             NwWaypoint waypoint = NwWaypoint.Create(creature.GetLocalVariable<string>("_WAYPOINT_TEMPLATE"), creature.GetLocalVariable<API.Location>("_SPAWN_LOCATION").Value);
             waypoint.GetLocalVariable<string>("_CREATURE_TEMPLATE").Value = creature.ResRef;
@@ -63,7 +63,7 @@ namespace NWN.Systems
 
         Log.Info($"destroying creature {creature.Name}");
         NWN.Utils.DestroyInventory(creature);
-        creature.Destroy();
+        creature.Destroy(0.2f);
       }
 
       foreach (NwGameObject bodyBag in area.FindObjectsOfTypeInArea<NwGameObject>().Where(o => o.Tag == "BodyBag"))
