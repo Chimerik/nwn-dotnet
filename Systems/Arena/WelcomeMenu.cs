@@ -99,6 +99,8 @@ namespace NWN.Systems.Arena
 
     private static void HandleConfirm(Player player)
     {
+      player.menu.Close();
+
       NwArea oArena = NwArea.Create(PVE_ARENA_AREA_RESREF);
       NwWaypoint oWaypoint = oArena.FindObjectsOfTypeInArea<NwWaypoint>().Where(w => w.Tag == PVE_ARENA_WAYPOINT_TAG).FirstOrDefault();
       NwPlaceable oPullRopeChain = oArena.FindObjectsOfTypeInArea<NwPlaceable>().Where(w => w.Tag == PVE_ARENA_PULL_ROPE_CHAIN_TAG).FirstOrDefault();
