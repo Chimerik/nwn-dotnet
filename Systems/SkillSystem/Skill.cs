@@ -109,7 +109,8 @@ namespace NWN.Systems
         if (this.player.currentSkillJob == this.oid)
         {
           this.currentJob = true;
-          this.CreateSkillJournalEntry();
+          if(player.oid.GetLocalVariable<int>("_CONNECTING").HasNothing)
+            this.CreateSkillJournalEntry();
         }
       }
       public double GetTimeToNextLevel(double pointPerSecond)
@@ -119,6 +120,7 @@ namespace NWN.Systems
       }
       public void CreateSkillJournalEntry()
       {
+        Log.Info("Calculating Skill Points from Create journal entry");
         player.playerJournal.skillJobCountDown = DateTime.Now.AddSeconds(this.GetTimeToNextLevel(CalculateSkillPointsPerSecond()));
         JournalEntry journalEntry = new JournalEntry();
         journalEntry.sName = $"Entrainement - {Utils.StripTimeSpanMilliseconds((TimeSpan)(player.playerJournal.skillJobCountDown - DateTime.Now))}";
@@ -172,15 +174,24 @@ namespace NWN.Systems
             break;
         }
 
-        if (!player.isConnected)
+        if (player.oid.GetLocalVariable<int>("_CONNECTING").HasValue)
+        {
           SP = SP * 60 / 100;
+          Log.Info($"{player.oid.Name} was not connected. Applying 40 % malus.");
+        }
         else if (player.isAFK)
+        {
           SP = SP * 80 / 100;
+          Log.Info($"{player.oid.Name} was afk. Applying 20 % malus.");
+        }
+
+        Log.Info($"SP CALCULATION - {player.oid.Name} - {SP} SP.");
 
         return SP;
       }
       public void RefreshAcquiredSkillPoints()
       {
+        Log.Info("Calculating skill points from refresh");
         double skillPointRate = CalculateSkillPointsPerSecond();
         acquiredPoints += skillPointRate * (DateTime.Now - player.dateLastSaved).TotalSeconds;
         double remainingTime = GetTimeToNextLevel(skillPointRate);

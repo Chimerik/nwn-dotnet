@@ -63,6 +63,9 @@ namespace NWN.Systems
         }
         else if (player.playerJournal.craftJobCountDown != null)
           player.craftJob.CancelCraftJournalEntry();
+
+        if (player.areaExplorationStateDictionnary.ContainsKey(onEnter.Area.Tag))
+          PlayerPlugin.SetAreaExplorationState(onEnter.EnteringObject, onEnter.Area, player.areaExplorationStateDictionnary[onEnter.Area.Tag]);
       }
     }
     public static void OnAreaExit(AreaEvents.OnExit onExit)
@@ -104,7 +107,14 @@ namespace NWN.Systems
       else if (area.Tag == $"entry_scene_{oPC.CDKey}")
         AreaDestroyer(area);
       else if (PlayerSystem.Players.TryGetValue(oPC, out PlayerSystem.Player player))
+      {
         player.previousLocation = player.location;
+
+        if (!player.areaExplorationStateDictionnary.ContainsKey(onExit.Area.Tag))
+          player.areaExplorationStateDictionnary.Add(onExit.Area.Tag, PlayerPlugin.GetAreaExplorationState(onExit.ExitingObject, onExit.Area));
+        else
+          player.areaExplorationStateDictionnary[onExit.Area.Tag] = PlayerPlugin.GetAreaExplorationState(onExit.ExitingObject, onExit.Area);
+      }
     }
     private void DoAreaSpecificInitialisation(NwArea area)
     {

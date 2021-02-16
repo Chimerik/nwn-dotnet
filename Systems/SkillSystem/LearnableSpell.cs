@@ -79,7 +79,8 @@ namespace NWN.Systems
         if (this.player.currentSkillJob == this.oid)
         {
           this.currentJob = true;
-          this.CreateSkillJournalEntry();
+          if (player.oid.GetLocalVariable<int>("_CONNECTING").HasNothing)
+            this.CreateSkillJournalEntry();
         }
       }
       public double GetTimeToNextLevel(double pointPerSecond)
@@ -142,7 +143,7 @@ namespace NWN.Systems
             break;
         }
 
-        if (!player.isConnected)
+        if (player.oid.GetLocalVariable<int>("_CONNECTING").HasValue)
           SP = SP * 60 / 100;
         else if (player.isAFK)
           SP = SP * 80 / 100;

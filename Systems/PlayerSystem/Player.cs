@@ -18,7 +18,6 @@ namespace NWN.Systems
       public readonly int characterId;
       public API.Location location { get; set; }
       public int bonusRolePlay { get; set; }
-      public Boolean isConnected { get; set; }
       public Boolean isAFK { get; set; }
       public Boolean DoJournalUpdate { get; set; }
       public int currentHP { get; set; }
@@ -46,6 +45,7 @@ namespace NWN.Systems
       public List<API.Effect> effectList = new List<API.Effect>();
       public List<QuickBarSlot> savedQuickBar = new List<QuickBarSlot>();
       public Dictionary<int, MapPin> mapPinDictionnary = new Dictionary<int, MapPin>();
+      public Dictionary<string, string> areaExplorationStateDictionnary = new Dictionary<string, string>();
 
       public Action OnCollectCycleCancel = delegate { };
       public Action OnCollectCycleComplete = delegate { };

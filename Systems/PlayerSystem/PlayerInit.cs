@@ -18,6 +18,8 @@ namespace NWN.Systems
       NwPlayer oPC = HandlePlayerConnect.Player;
 
       oPC.GetLocalVariable<int>("_ACTIVE_LANGUAGE").Value = (int)Feat.Invalid;
+      oPC.GetLocalVariable<int>("_CONNECTING").Value = 1;
+      oPC.GetLocalVariable<int>("_DISCONNECTING").Delete();
 
       Task teleportPlayer = NwTask.Run(async () =>
       {
@@ -30,14 +32,14 @@ namespace NWN.Systems
         }
 
         if (oPC.IsDM)
-          return false;
+          return;
 
         string pcAccount = player.CheckDBPlayerAccount();
         if (pcAccount != oPC.PlayerName)
         {
           oPC.BootPlayer($"Attention - Ce personnage est enregistré sous le compte {pcAccount}, or vous venez de vous connecter sous {oPC.PlayerName}, veuillez vous reconnecter avec le bon compte !");
           Utils.LogMessageToDMs($"Attention - {oPC.PlayerName} vient de se connecter avec un personnage enregistré sous le compte : {pcAccount} !");
-          return false;
+          return;
         }
 
         if (NwModule.Instance.Areas.Any(a => a.Tag == player.location.Area.Tag))
@@ -79,8 +81,9 @@ namespace NWN.Systems
               break;
           }
 
+          Log.Info("Acquiring Skill Points from player init.");
           player.AcquireSkillPoints();
-          player.isConnected = true;
+          oPC.GetLocalVariable<int>("_CONNECTING").Delete();
           player.isAFK = false;
 
           if (player.currentSkillJob != (int)Feat.Invalid)
@@ -104,12 +107,11 @@ namespace NWN.Systems
           eff.SubType = API.Constants.EffectSubType.Supernatural;
           oPC.ApplyEffect(EffectDuration.Permanent, eff);
         }
-        player.isConnected = true;
+
+        oPC.GetLocalVariable<int>("_CONNECTING").Delete();
         player.isAFK = false;
         player.DoJournalUpdate = false;
         player.dateLastSaved = DateTime.Now;
-
-        return true;
       });
     }
     private static void InitializeNewPlayer(NwPlayer newPlayer)
@@ -290,6 +292,7 @@ namespace NWN.Systems
       InitializePlayerLearnableSkills(player);
       InitializePlayerLearnableSpells(player);
       InitializeCharacterMapPins(player);
+      InitializeCharacterAreaExplorationState(player);
     }
     private static void InitializePlayerEvents(uint player)
     {
@@ -304,7 +307,7 @@ namespace NWN.Systems
     }
     private static void InitializePlayerAccount(Player player)
     {
-      var query = NWScript.SqlPrepareQueryCampaign(Systems.Config.database, $"SELECT bonusRolePlay from PlayerAccounts where rowid = @accountId");
+      var query = NWScript.SqlPrepareQueryCampaign(Config.database, $"SELECT bonusRolePlay from PlayerAccounts where rowid = @accountId");
       NWScript.SqlBindInt(query, "@accountId", player.accountId);
       NWScript.SqlStep(query);
 
@@ -312,7 +315,7 @@ namespace NWN.Systems
     }
     private static void InitializePlayerCharacter(Player player)
     {
-      var query = NWScript.SqlPrepareQueryCampaign(Systems.Config.database, $"SELECT areaTag, position, facing, currentHP, bankGold, dateLastSaved, currentSkillJob, currentCraftJob, currentCraftObject, currentCraftJobRemainingTime, currentCraftJobMaterial, frostAttackOn, menuOriginTop, menuOriginLeft, currentSkillType from playerCharacters where rowid = @characterId");
+      var query = NWScript.SqlPrepareQueryCampaign(Config.database, $"SELECT areaTag, position, facing, currentHP, bankGold, dateLastSaved, currentSkillJob, currentCraftJob, currentCraftObject, currentCraftJobRemainingTime, currentCraftJobMaterial, frostAttackOn, menuOriginTop, menuOriginLeft, currentSkillType from playerCharacters where rowid = @characterId");
       NWScript.SqlBindInt(query, "@characterId", player.characterId);
       NWScript.SqlStep(query);
 
@@ -332,26 +335,23 @@ namespace NWN.Systems
       player.menu.originLeft = NWScript.SqlGetInt(query, 13);
       player.currentSkillType = (SkillSystem.SkillType)NWScript.SqlGetInt(query, 14);
 
-      query = NWScript.SqlPrepareQueryCampaign(Systems.Config.database, $"SELECT materialName, materialStock from playerMaterialStorage where characterId = @characterId");
+      query = NWScript.SqlPrepareQueryCampaign(Config.database, $"SELECT materialName, materialStock from playerMaterialStorage where characterId = @characterId");
       NWScript.SqlBindInt(query, "@characterId", player.characterId);
 
       while (Convert.ToBoolean(NWScript.SqlStep(query)))
         player.materialStock.Add(NWScript.SqlGetString(query, 0), NWScript.SqlGetInt(query, 1));
     }
-    private static void InitializePlayerLearnableSkills(PlayerSystem.Player player)
+    private static void InitializePlayerLearnableSkills(Player player)
     {
-      var query = NWScript.SqlPrepareQueryCampaign(Systems.Config.database, $"SELECT skillId, skillPoints from playerLearnableSkills where characterId = @characterId and trained = 0");
+      var query = NWScript.SqlPrepareQueryCampaign(Config.database, $"SELECT skillId, skillPoints from playerLearnableSkills where characterId = @characterId and trained = 0");
       NWScript.SqlBindInt(query, "@characterId", player.characterId);
 
       while (Convert.ToBoolean(NWScript.SqlStep(query)))
         player.learnableSkills.Add(NWScript.SqlGetInt(query, 0), new SkillSystem.Skill(NWScript.SqlGetInt(query, 0), NWScript.SqlGetInt(query, 1), player));
-
-      if (!player.learnableSkills.ContainsKey((int)Feat.TwoWeaponFighting) && !Convert.ToBoolean(CreaturePlugin.GetKnowsFeat(player.oid, (int)Feat.TwoWeaponFighting)))
-        player.learnableSkills.Add((int)Feat.TwoWeaponFighting, new SkillSystem.Skill((int)Feat.TwoWeaponFighting, 0.0f, player));
     }
-    private static void InitializePlayerLearnableSpells(PlayerSystem.Player player)
+    private static void InitializePlayerLearnableSpells(Player player)
     {
-      var query = NWScript.SqlPrepareQueryCampaign(Systems.Config.database, $"SELECT skillId, skillPoints from playerLearnableSpells where characterId = @characterId and trained = 0");
+      var query = NWScript.SqlPrepareQueryCampaign(Config.database, $"SELECT skillId, skillPoints from playerLearnableSpells where characterId = @characterId and trained = 0");
       NWScript.SqlBindInt(query, "@characterId", player.characterId);
 
       while (Convert.ToBoolean(NWScript.SqlStep(query)))
@@ -376,14 +376,15 @@ namespace NWN.Systems
 
       storage.Name = $"Entrepôt de {player.oid.Name}";
 
-      var query = NWScript.SqlPrepareQueryCampaign(Systems.Config.database, $"UPDATE playerCharacters set storage = @storage where rowid = @characterId");
+      var query = NWScript.SqlPrepareQueryCampaign(Config.database, $"UPDATE playerCharacters set storage = @storage where rowid = @characterId");
       NWScript.SqlBindInt(query, "@characterId", ObjectPlugin.GetInt(player.oid, "characterId"));
       NWScript.SqlBindObject(query, "@storage", storage);
       NWScript.SqlStep(query);
     }
-    private static void InitializeCharacterMapPins(PlayerSystem.Player player)
+    
+    private static void InitializeCharacterMapPins(Player player)
     {
-      var query = NWScript.SqlPrepareQueryCampaign(Systems.Config.database, $"SELECT mapPinId, areaTag, x, y, note from playerMapPins where characterId = @characterId");
+      var query = NWScript.SqlPrepareQueryCampaign(Config.database, $"SELECT mapPinId, areaTag, x, y, note from playerMapPins where characterId = @characterId");
       NWScript.SqlBindInt(query, "@characterId", player.characterId);
 
       while (Convert.ToBoolean(NWScript.SqlStep(query)))
@@ -399,6 +400,14 @@ namespace NWN.Systems
 
       if (player.mapPinDictionnary.Count > 0)
         NWScript.SetLocalInt(player.oid, "NW_TOTAL_MAP_PINS", player.mapPinDictionnary.Max(v => v.Key));
+    }
+    private static void InitializeCharacterAreaExplorationState(Player player)
+    {
+      var query = NWScript.SqlPrepareQueryCampaign(Config.database, $"SELECT areaTag, explorationState from playerAreaExplorationState where characterId = @characterId");
+      NWScript.SqlBindInt(query, "@characterId", player.characterId);
+
+      while (Convert.ToBoolean(NWScript.SqlStep(query)))
+        player.areaExplorationStateDictionnary.Add(NWScript.SqlGetString(query, 0), NWScript.SqlGetString(query, 1));
     }
   }
 }

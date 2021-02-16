@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using NLog;
 using NWN.Core;
 using NWN.Core.NWNX;
 
@@ -7,6 +8,7 @@ namespace NWN.Systems
 {
   public static partial class SkillSystem
   {
+    public static readonly Logger Log = LogManager.GetCurrentClassLogger();
     public enum SkillType
     {
       Invalid = 0,

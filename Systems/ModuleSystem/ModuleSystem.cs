@@ -17,7 +17,7 @@ namespace NWN.Systems
   [ServiceBinding(typeof(ModuleSystem))]
   public class ModuleSystem
   {
-    private static readonly Logger Log = LogManager.GetCurrentClassLogger();
+    public static readonly Logger Log = LogManager.GetCurrentClassLogger();
     public static readonly TranslationClient googleTranslationClient = TranslationClient.Create();
     public static Dictionary<string, GoldBalance> goldBalanceMonitoring = new Dictionary<string, GoldBalance>();
     public ModuleSystem(NativeEventService eventService)
@@ -123,6 +123,10 @@ namespace NWN.Systems
 
       query = NWScript.SqlPrepareQueryCampaign(Config.database, $"CREATE TABLE IF NOT EXISTS goldBalance" +
         $"('lootedTag' TEXT NOT NULL, 'nbTimesLooted' INTEGER NOT NULL, 'averageGold' INT NOT NULL, 'cumulatedGold' INT NOT NULL, PRIMARY KEY(lootedTag))");
+      NWScript.SqlStep(query);
+
+      query = NWScript.SqlPrepareQueryCampaign(Config.database, $"CREATE TABLE IF NOT EXISTS playerAreaExplorationState" +
+        $"('characterId' INTEGER NOT NULL, 'areaTag' TEXT NOT NULL, 'explorationState' TEXT NOT NULL, UNIQUE (characterId, areaTag))");
       NWScript.SqlStep(query);
     }
     private void InitializeEvents()

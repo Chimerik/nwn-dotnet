@@ -9,6 +9,7 @@ using NWN.API.Events;
 using NWNX.Services;
 using NWNX.API.Events;
 using NWN.API.Constants;
+using NLog;
 
 namespace NWN.Systems
 {
@@ -16,6 +17,7 @@ namespace NWN.Systems
   public partial class PlayerSystem
   {
     private static NativeEventService nativeEventService;
+    public static readonly Logger Log = LogManager.GetCurrentClassLogger();
     public PlayerSystem(NativeEventService eventService, NWNXEventService nwnxEventService)
     {
       nativeEventService = eventService;

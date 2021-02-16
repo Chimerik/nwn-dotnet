@@ -1,9 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using NWN.API;
 using NWN.Core;
-using NWN.Core.NWNX;
 using NWNX.API.Events;
 
 namespace NWN.Systems
@@ -21,24 +19,23 @@ namespace NWN.Systems
        * Mais il se peut que dans ce cas, ses buffs soient perdues à la reco. A vérifier. Si c'est le cas, une meilleure
        * correction pourrait être de parcourir tous ses buffs et de les réappliquer dans l'event AFTER de la sauvegarde*/
 
-      NWScript.WriteTimestampedLogEntry($"Before saving {onSaveBefore.Player.Name}");
+      Log.Info($"Before saving {onSaveBefore.Player.Name}");
 
       if (onSaveBefore.Player.IsDM || onSaveBefore.Player.IsDMPossessed || onSaveBefore.Player.IsPlayerDM)
       {
-        NWScript.WriteTimestampedLogEntry($"DM detected. Skipping save");
+        Log.Info("DM detected. Skipping save");
         onSaveBefore.Skip = true;
         return;
       }
 
       if (Players.TryGetValue(onSaveBefore.Player, out Player player))
       {
-        if (player.isConnected)
+        if (onSaveBefore.Player.GetLocalVariable<int>("_DISCONNECTING").HasNothing)
         {
-          API.Effect polymorphEffect = onSaveBefore.Player.ActiveEffects.Where(e => e.EffectType == API.Constants.EffectType.Polymorph).FirstOrDefault();
-          if (polymorphEffect != null)
+          if (onSaveBefore.Player.ActiveEffects.Any(e => e.EffectType == API.Constants.EffectType.Polymorph))
           {
             player.effectList = onSaveBefore.Player.ActiveEffects.ToList();
-            NWScript.WriteTimestampedLogEntry($"Polymorph detected, saving effect list");
+            Log.Info($"Polymorph detected, saving effect list");
           }
         }
 
@@ -48,38 +45,39 @@ namespace NWN.Systems
         if (player.location == player.oid?.Location)
         {
           player.isAFK = true;
-          NWScript.WriteTimestampedLogEntry($"Player AFK");
+          Log.Info("Player AFK");
         }
         else
           player.location = player.oid.Location;
 
-        NWScript.WriteTimestampedLogEntry($"saved Location");
+        Log.Info("saved Location");
 
         player.currentHP = onSaveBefore.Player.HP;
 
-        NWScript.WriteTimestampedLogEntry($"Saved HP");
+        Log.Info("Saved HP");
 
         if (player.location.Area.GetLocalVariable<int>("_AREA_LEVEL").Value == 0)
           player.CraftJobProgression();
 
-        NWScript.WriteTimestampedLogEntry($"Craft job progression done");
+        Log.Info("Craft job progression done");
 
         player.AcquireSkillPoints();
-
-        NWScript.WriteTimestampedLogEntry($"Acquire skill points done");
+        Log.Info("Acquire skill points done");
 
         player.dateLastSaved = DateTime.Now;
 
         SavePlayerCharacterToDatabase(player);
-        NWScript.WriteTimestampedLogEntry($"Save player to DB done");
+        Log.Info("Save player to DB done");
         SavePlayerLearnableSkillsToDatabase(player);
-        NWScript.WriteTimestampedLogEntry($"Saved skills to DB");
+        Log.Info("Saved skills to DB");
         SavePlayerLearnableSpellsToDatabase(player);
-        NWScript.WriteTimestampedLogEntry($"Saved Spells to DB");
+        Log.Info("Saved Spells to DB");
         SavePlayerStoredMaterialsToDatabase(player);
-        NWScript.WriteTimestampedLogEntry($"Saved materials to DB");
+        Log.Info("Saved materials to DB");
         SavePlayerMapPinsToDatabase(player);
-        NWScript.WriteTimestampedLogEntry($"Saved map pin to DB");
+        Log.Info("Saved map pin to DB");
+        SavePlayerAreaExplorationStateToDatabase(player);
+        Log.Info("Saved area exploration state to DB");
       }
     }
     public void HandleAfterPlayerSave(ServerVaultEvents.OnServerCharacterSaveAfter onSaveAfter)
@@ -93,19 +91,18 @@ namespace NWN.Systems
        * Mais il se peut que dans ce cas, ses buffs soient perdues à la reco. A vérifier. Si c'est le cas, une meilleure
        * correction pourrait être de parcourir tous ses buffs et de les réappliquer dans l'event AFTER de la sauvegarde*/
 
-      NWScript.WriteTimestampedLogEntry($"After saving {onSaveAfter.Player.Name}");
+      Log.Info($"After saving {onSaveAfter.Player.Name}");
 
       if (Players.TryGetValue(onSaveAfter.Player, out Player player))
       {
-        if (player.isConnected)
+        if (onSaveAfter.Player.GetLocalVariable<int>("_DISCONNECTING").HasNothing)
         {
-          API.Effect polymorphEffect = onSaveAfter.Player.ActiveEffects.Where(e => e.EffectType == API.Constants.EffectType.Polymorph).FirstOrDefault();
-          if (polymorphEffect != null)
+          if (onSaveAfter.Player.ActiveEffects.Any(e => e.EffectType == API.Constants.EffectType.Polymorph))
           {
-            NWScript.WriteTimestampedLogEntry($"Polymorph detected. Reapplying effect list");
+            Log.Info("Polymorph detected. Reapplying effect list");
             foreach (API.Effect eff in player.effectList)
               onSaveAfter.Player.ApplyEffect(eff.DurationType, eff, TimeSpan.FromSeconds((double)eff.DurationRemaining));
-            NWScript.WriteTimestampedLogEntry($"Reapplied effect list");
+            Log.Info("Reapplied effect list");
           }
         }
       }
@@ -141,13 +138,13 @@ namespace NWN.Systems
       NWScript.SqlBindInt(query, "@menuOriginLeft", player.menu.originLeft);
       NWScript.SqlStep(query);
 
-      NWScript.WriteTimestampedLogEntry($"{NWScript.GetName(player.oid)} saved location : {NWScript.GetTag(NWScript.GetAreaFromLocation(player.location))} - {NWScript.GetPositionFromLocation(player.location)} - {NWScript.GetFacingFromLocation(player.location)}");
+      Log.Info($"{NWScript.GetName(player.oid)} saved location : {NWScript.GetTag(NWScript.GetAreaFromLocation(player.location))} - {NWScript.GetPositionFromLocation(player.location)} - {NWScript.GetFacingFromLocation(player.location)}");
     }
     private static void SavePlayerLearnableSkillsToDatabase(Player player)
     {
       foreach (KeyValuePair<int, SkillSystem.Skill> skillListEntry in player.learnableSkills)
       {
-        var query = NWScript.SqlPrepareQueryCampaign(Systems.Config.database, $"INSERT INTO playerLearnableSkills (characterId, skillId, skillPoints, trained) VALUES (@characterId, @skillId, @skillPoints, @trained)" +
+        var query = NWScript.SqlPrepareQueryCampaign(Config.database, $"INSERT INTO playerLearnableSkills (characterId, skillId, skillPoints, trained) VALUES (@characterId, @skillId, @skillPoints, @trained)" +
         "ON CONFLICT (characterId, skillId) DO UPDATE SET skillPoints = @skillPoints, trained = @trained");
         NWScript.SqlBindInt(query, "@characterId", player.characterId);
         NWScript.SqlBindInt(query, "@skillId", skillListEntry.Key);
@@ -163,7 +160,7 @@ namespace NWN.Systems
     {
       foreach (KeyValuePair<int, SkillSystem.LearnableSpell> skillListEntry in player.learnableSpells)
       {
-        var query = NWScript.SqlPrepareQueryCampaign(Systems.Config.database, $"INSERT INTO playerLearnableSpells (characterId, skillId, skillPoints, trained) VALUES (@characterId, @skillId, @skillPoints, @trained)" +
+        var query = NWScript.SqlPrepareQueryCampaign(Config.database, $"INSERT INTO playerLearnableSpells (characterId, skillId, skillPoints, trained) VALUES (@characterId, @skillId, @skillPoints, @trained)" +
         "ON CONFLICT (characterId, skillId) DO UPDATE SET skillPoints = @skillPoints, trained = @trained");
         NWScript.SqlBindInt(query, "@characterId", player.characterId);
         NWScript.SqlBindInt(query, "@skillId", skillListEntry.Key);
@@ -181,7 +178,7 @@ namespace NWN.Systems
       {
         foreach (string material in player.materialStock.Keys)
         {
-          var query = NWScript.SqlPrepareQueryCampaign(Systems.Config.database, $"INSERT INTO playerMaterialStorage (characterId, materialName, materialStock) VALUES (@characterId, @materialName, @materialStock)" +
+          var query = NWScript.SqlPrepareQueryCampaign(Config.database, $"INSERT INTO playerMaterialStorage (characterId, materialName, materialStock) VALUES (@characterId, @materialName, @materialStock)" +
               $"ON CONFLICT (characterId, materialName) DO UPDATE SET materialStock = @materialStock where characterId = @characterId and materialName = @{material}");
           NWScript.SqlBindInt(query, "@characterId", player.characterId);
           NWScript.SqlBindString(query, "@materialName", material);
@@ -199,13 +196,30 @@ namespace NWN.Systems
 
         foreach (MapPin mapPin in player.mapPinDictionnary.Values)
         {
-          var query = NWScript.SqlPrepareQueryCampaign(Systems.Config.database, queryString);
+          var query = NWScript.SqlPrepareQueryCampaign(Config.database, queryString);
           NWScript.SqlBindInt(query, "@characterId", player.characterId);
           NWScript.SqlBindInt(query, "@mapPinId", mapPin.id);
           NWScript.SqlBindString(query, "@areaTag", mapPin.areaTag);
           NWScript.SqlBindFloat(query, "@x", mapPin.x);
           NWScript.SqlBindFloat(query, "@y", mapPin.y);
           NWScript.SqlBindString(query, "@note", mapPin.note);
+          NWScript.SqlStep(query);
+        }
+      }
+    }
+    private static void SavePlayerAreaExplorationStateToDatabase(Player player)
+    {
+      if (player.areaExplorationStateDictionnary.Count > 0)
+      {
+        string queryString = "INSERT INTO playerAreaExplorationState (characterId, areaTag, explorationState) VALUES (@characterId, @areaTag, @explorationState)" +
+          "ON CONFLICT (characterId, areaTag) DO UPDATE SET explorationState = @explorationState";
+
+        foreach (KeyValuePair<string, string> explorationStateListEntry in player.areaExplorationStateDictionnary)
+        {
+          var query = NWScript.SqlPrepareQueryCampaign(Config.database, queryString);
+          NWScript.SqlBindInt(query, "@characterId", player.characterId);
+          NWScript.SqlBindString(query, "@areaTag", explorationStateListEntry.Key);
+          NWScript.SqlBindString(query, "@explorationState", explorationStateListEntry.Value);
           NWScript.SqlStep(query);
         }
       }

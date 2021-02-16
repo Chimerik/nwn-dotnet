@@ -21,20 +21,20 @@ namespace NWN.Systems
       if (onPCDisconnect.Player == null)
         return;
 
-      NWScript.WriteTimestampedLogEntry($"{onPCDisconnect.Player.Name} disconnecting.");
+      Log.Info($"{onPCDisconnect.Player.Name} disconnecting.");
 
       if (PlayerSystem.Players.TryGetValue(onPCDisconnect.Player, out PlayerSystem.Player player))
       {
-        player.isConnected = false;
+        onPCDisconnect.Player.GetLocalVariable<int>("_DISCONNECTING").Value = 1;
 
-        if(player.menu.isOpen)
+        if (player.menu.isOpen)
           player.menu.Close();
 
-        NWScript.WriteTimestampedLogEntry($"menu closed");
+        Log.Info($"menu closed");
 
         player.UnloadMenuQuickbar();
 
-        NWScript.WriteTimestampedLogEntry($"quickbar unloaded");
+        Log.Info($"quickbar unloaded");
 
         onPCDisconnect.Player.VisualTransform.Rotation.X = 0.0f;
         onPCDisconnect.Player.VisualTransform.Translation.X = 0.0f;
@@ -45,7 +45,7 @@ namespace NWN.Systems
 
         RemovePartyBuffOnDisconnect(onPCDisconnect.Player);
 
-        NWScript.WriteTimestampedLogEntry($"Party buff removed");
+        Log.Info($"Party buff removed");
 
         if (player.oid.Area.Tag == $"entrepotpersonnel_{player.oid.CDKey}")
         {
@@ -56,7 +56,7 @@ namespace NWN.Systems
           NWScript.SqlStep(saveStorage);
           player.location = NwObject.FindObjectsWithTag<NwPlaceable>("portal_storage_in").FirstOrDefault()?.Location;
 
-          NWScript.WriteTimestampedLogEntry($"Saved personnal storage");
+          Log.Info($"Saved personnal storage");
         }
       }
     }

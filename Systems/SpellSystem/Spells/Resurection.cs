@@ -18,7 +18,7 @@ namespace NWN.Systems
             int PcId = oTarget.GetLocalVariable<int>("_PC_ID").Value;
             PlayerSystem.Player oPC = PlayerSystem.Players.Where(p => p.Value.characterId == PcId).FirstOrDefault().Value;
 
-            if (oPC != null && oPC.isConnected)
+            if (oPC != null && NwModule.Instance.Players.Any(p => p == oPC.oid))
             {
                 oPC.oid.ClearActionQueue();
                 oPC.oid.JumpToObject(oTarget);
