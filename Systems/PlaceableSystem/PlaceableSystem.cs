@@ -80,6 +80,8 @@ namespace NWN.Systems
             break;
           case "portal_storage_in":
             NwArea area = NwArea.Create("entrepotperso", $"entrepotpersonnel_{NWScript.GetPCPublicCDKey(player.oid)}", $"Entrepot dimensionnel de {NWScript.GetName(player.oid)}");
+            AreaSystem.nativeEventService.Subscribe<NwArea, AreaEvents.OnExit>(area, AreaSystem.OnAreaExit);
+
             NwPlaceable storage = area.FindObjectsOfTypeInArea<NwPlaceable>().Where(s => s.Tag == "ps_entrepot").FirstOrDefault();
 
             var query = NWScript.SqlPrepareQueryCampaign(Config.database, $"SELECT storage from playerCharacters where rowid = @characterId");

@@ -1,4 +1,5 @@
-﻿using NWN.API;
+﻿using NLog;
+using NWN.API;
 using NWN.Core;
 using NWN.Core.NWNX;
 using NWN.Services;
@@ -11,13 +12,14 @@ namespace NWN.Systems
   [ServiceBinding(typeof(ExamineSystem))]
   public class ExamineSystem
   {
+    public static readonly Logger Log = LogManager.GetCurrentClassLogger();
     public ExamineSystem(NWNXEventService nwnxEventService)
     {
       nwnxEventService.Subscribe<ExamineEvents.OnExamineObjectBefore>(OnExamineBefore);
     }
     private void OnExamineBefore(ExamineEvents.OnExamineObjectBefore onExamine)
     {
-      NWScript.WriteTimestampedLogEntry($"{onExamine.Examiner.Name} examining {onExamine.Examinee.Name}");
+      Log.Info($"{onExamine.Examiner.Name} examining {onExamine.Examinee.Name}");
 
       if (!PlayerSystem.Players.TryGetValue(onExamine.Examiner, out PlayerSystem.Player player))
         return;

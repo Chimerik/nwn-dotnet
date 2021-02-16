@@ -82,8 +82,10 @@ namespace NWN.Systems
     }
     private static void StripPlayerOfCraftResources(Player player)
     {
+      Log.Debug($"{player.oid.Name} dead. Stripping him of craft resources");
       foreach (NwItem oItem in player.oid.Items.Where(i => Craft.Collect.System.IsItemCraftMaterial(i.Tag) || i.Tag == "blueprint"))
       {
+        Log.Debug($"{oItem.Name} stripped");
         oItem.Copy(player.deathCorpse, true);
         oItem.Destroy();
       }
@@ -248,7 +250,7 @@ namespace NWN.Systems
     }
     public static void SetupPCCorpse(NwCreature oPCCorpse)
     {
-      oPCCorpse.ApplyEffect(EffectDuration.Instant, API.Effect.Death());
+      NWScript.DelayCommand(0.0f, () => oPCCorpse.ApplyEffect(EffectDuration.Instant, API.Effect.Death()));
       NwWaypoint wp = NwWaypoint.Create("NW_WAYPOINT001", oPCCorpse.Location, false, $"wp_pccorpse_{oPCCorpse.GetLocalVariable<int>("_PC_ID").Value}");
       NWScript.DelayCommand(1.0f, () => VisibilityPlugin.SetVisibilityOverride(NWScript.OBJECT_INVALID, oPCCorpse, VisibilityPlugin.NWNX_VISIBILITY_DEFAULT));
       NWScript.DelayCommand(1.2f, () => oPCCorpse.Tag = "pccorpse");

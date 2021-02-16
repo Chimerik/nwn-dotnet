@@ -5,12 +5,15 @@ using NWN.API;
 using System.Linq;
 using NWN.API.Constants;
 using Discord;
+using NLog;
 
 namespace NWN.Systems
 {
   [ServiceBinding(typeof(SpellSystem))]
   public partial class SpellSystem
   {
+    public static readonly Logger Log = LogManager.GetCurrentClassLogger();
+
     [ScriptHandler("a_spellbroadcast")]
     private void HandleAfterSpellBroadcast(CallInfo callInfo)
     {
@@ -22,7 +25,7 @@ namespace NWN.Systems
       if (oPC.IsDM || oPC.IsDMPossessed || oPC.IsPlayerDM)
         return;
 
-      if (!oPC.ActiveEffects.Where(e => e.EffectType == API.Constants.EffectType.Invisibility || e.EffectType == API.Constants.EffectType.ImprovedInvisibility).Any())
+      if (!oPC.ActiveEffects.Where(e => e.EffectType == EffectType.Invisibility || e.EffectType == EffectType.ImprovedInvisibility).Any())
         return;
 
       if (int.Parse(EventsPlugin.GetEventData("META_TYPE")) == NWScript.METAMAGIC_SILENT)
@@ -45,9 +48,9 @@ namespace NWN.Systems
 
       NwPlayer player = (NwPlayer)callInfo.ObjectSelf;
 
-      player.GetLocalVariable<int>("_DELAYED_SPELLHOOK_REFLEX").Value = player.GetBaseSavingThrow(SavingThrow.Reflex);
-      player.GetLocalVariable<int>("_DELAYED_SPELLHOOK_WILL").Value = player.GetBaseSavingThrow(SavingThrow.Will);
-      player.GetLocalVariable<int>("_DELAYED_SPELLHOOK_FORT").Value = player.GetBaseSavingThrow(SavingThrow.Fortitude);
+      player.GetLocalVariable<int>("_DELAYED_SPELLHOOK_REFLEX").Value = CreaturePlugin.GetBaseSavingThrow(player, NWScript.SAVING_THROW_REFLEX);
+      player.GetLocalVariable<int>("_DELAYED_SPELLHOOK_WILL").Value = CreaturePlugin.GetBaseSavingThrow(player, NWScript.SAVING_THROW_WILL);
+      player.GetLocalVariable<int>("_DELAYED_SPELLHOOK_FORT").Value = CreaturePlugin.GetBaseSavingThrow(player, NWScript.SAVING_THROW_FORT);
 
       if (int.TryParse(NWScript.Get2DAString("feat", "GAINMULTIPLE", CreaturePlugin.GetHighestLevelOfFeat(player, (int)Feat.ImprovedCasterLevel)), out int casterLevel))
         CreaturePlugin.SetLevelByPosition(player, 0, casterLevel + 1);

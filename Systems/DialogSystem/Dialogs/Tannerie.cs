@@ -43,6 +43,8 @@ namespace NWN.Systems
         "(Prononcez simplement la quantité à l'oral. Dites 0 si vous souhaitez tout traiter.)"
       };
 
+      player.oid.GetLocalVariable<int>("_PLAYER_INPUT").Value = 1;
+
       Task playerInput = NwTask.Run(async () =>
       {
         await NwTask.WaitUntilValueChanged(() => player.oid.GetLocalVariable<int>("_PLAYER_INPUT").HasValue);
@@ -52,7 +54,7 @@ namespace NWN.Systems
           player.oid.GetLocalVariable<int>("_PLAYER_INPUT_CANCELLED").Delete();
       });
 
-      //player.menu.choices.Add(("Retour.", () => DrawWelcomePage(player)));
+      player.menu.choices.Add(("Tout tanner.", () => HandleRefineAll(player, oreName)));
       player.menu.choices.Add(("Quitter", () => player.menu.Close()));
       player.menu.Draw();
     }
@@ -110,6 +112,49 @@ namespace NWN.Systems
           player.menu.titleLines.Add($"HRP - Erreur, votre peau brut n'a pas correctement été reconnue. Le staff a été informé du problème.");
           NWN.Utils.LogMessageToDMs($"TANNERIE - Could not recognize pelt type : {oreName} - Used by : {player.oid.Name}");
         }
+      }
+
+      player.menu.choices.Add(("Retour.", () => DrawWelcomePage(player)));
+      player.menu.choices.Add(("Quitter", () => player.menu.Close()));
+      player.menu.Draw();
+    }
+    private void HandleRefineAll(Player player, string oreName)
+    {
+      player.menu.Clear();
+
+        float reprocessingEfficiency = 0.3f;
+
+        float value;
+        if (float.TryParse(NWScript.Get2DAString("feat", "GAINMULTIPLE", CreaturePlugin.GetHighestLevelOfFeat(player.oid, (int)Feat.PeltReprocessing)), out value))
+          reprocessingEfficiency += reprocessingEfficiency + 3 * value / 100;
+
+        if (float.TryParse(NWScript.Get2DAString("feat", "GAINMULTIPLE", CreaturePlugin.GetHighestLevelOfFeat(player.oid, (int)Feat.PeltReprocessingEfficiency)), out value))
+          reprocessingEfficiency += reprocessingEfficiency + 2 * value / 100;
+
+        if (float.TryParse(NWScript.Get2DAString("feat", "GAINMULTIPLE", CreaturePlugin.GetHighestLevelOfFeat(player.oid, (int)Feat.Connections)), out value))
+          reprocessingEfficiency += reprocessingEfficiency + 1 * value / 100;
+
+      if (Enum.TryParse(oreName, out PeltType myOreType) && peltDictionnary.TryGetValue(myOreType, out Pelt processedOre))
+      {
+        if (float.TryParse(NWScript.Get2DAString("feat", "GAINMULTIPLE", CreaturePlugin.GetHighestLevelOfFeat(player.oid, (int)processedOre.feat)), out value))
+          reprocessingEfficiency += reprocessingEfficiency + 2 * value / 100;
+
+        int refinedMinerals = Convert.ToInt32(player.materialStock[oreName] * processedOre.leathers * reprocessingEfficiency);
+        string mineralName = Enum.GetName(typeof(LeatherType), processedOre.refinedType) ?? "";
+
+        if (player.materialStock.ContainsKey(mineralName))
+          player.materialStock[mineralName] += refinedMinerals;
+        else
+          player.materialStock.Add(mineralName, refinedMinerals);
+
+        player.oid.SendServerMessage($"Vous venez de tanner {refinedMinerals} peaux de {mineralName}. Les cuirs sont en cours d'acheminage vers votre entrepôt.");
+        player.materialStock[oreName] = 0;
+        player.menu.titleLines.Add($"Voilà qui est fait !");
+      }
+      else
+      {
+        player.menu.titleLines.Add($"HRP - Erreur, votre peau brut n'a pas correctement été reconnue. Le staff a été informé du problème.");
+        NWN.Utils.LogMessageToDMs($"TANNERIE - Could not recognize pelt type : {oreName} - Used by : {player.oid.Name}");
       }
 
       player.menu.choices.Add(("Retour.", () => DrawWelcomePage(player)));

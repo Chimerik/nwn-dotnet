@@ -53,7 +53,7 @@ namespace NWN.Systems
           $"Mes narines frémissent à l'odeur des {availableGold} pièces d'or qui doivent te peser bien trop lourd.",
           "De combien puis-je te débarrasser ? (Dites moi simplement la valeur correspondante à l'oral)"
         };
-        //player.menu.choices.Add(($"Valider.", () => HandleValidateDeposit(player)));
+        player.menu.choices.Add(($"Tout déposer.", () => HandleDepositAll(player)));
         player.menu.choices.Add(($"Retour.", () => DrawWelcomePage(player)));
 
         player.oid.GetLocalVariable<int>("_PLAYER_INPUT").Value = 1;
@@ -67,6 +67,21 @@ namespace NWN.Systems
             player.oid.GetLocalVariable<int>("_PLAYER_INPUT_CANCELLED").Delete();
         });
       }
+
+      player.menu.choices.Add(("Quitter", () => player.menu.Close()));
+      player.menu.Draw();
+    }
+    private void HandleDepositAll(Player player)
+    {
+      player.menu.Clear();
+
+        player.oid.TakeGold(player.oid.Gold);
+        player.bankGold += player.oid.Gold;
+
+        player.menu.titleLines = new List<string> {
+          $"Oh, oui, toooout. Donnez moi tooooout !",
+          "Vous pouvez me faire confiance ... oui, confiance ..."
+        };
 
       player.menu.choices.Add(("Quitter", () => player.menu.Close()));
       player.menu.Draw();
@@ -146,7 +161,7 @@ namespace NWN.Systems
             player.oid.GetLocalVariable<int>("_PLAYER_INPUT_CANCELLED").Delete();
         });
         
-        //player.menu.choices.Add(($"Retour.", () => DrawWelcomePage(player)));
+        player.menu.choices.Add(($"Tout retirer.", () => HandleWithdrawAll(player)));
       }
 
       player.menu.choices.Add(("Quitter", () => player.menu.Close()));
@@ -201,6 +216,30 @@ namespace NWN.Systems
       }
 
       player.setValue = 0;
+      player.menu.choices.Add(("Quitter", () => player.menu.Close()));
+      player.menu.Draw();
+    }
+    private void HandleWithdrawAll(Player player)
+    {
+      player.menu.Clear();
+
+      if (player.bankGold <= 1)
+        player.menu.titleLines = new List<string> {
+          $"Génial, encore un petit rigolo, c'est pas veine ...",
+          "Vous me devez plus que ce que vous pouvez bien retirer, pauvre amie ..."
+        };
+      else
+      {
+        player.menu.titleLines = new List<string> {
+          "QUOI ?! Mais tu es fada ma parole ? Tu veux ma ruine ?",
+          "Non, non, soit raisonnable. Tout retirer serait pure folie !",
+          "Bon bon, si tu insistes ... je vais quand même garder une pièce en sureté, au cas. Un coup de gourdin est si vite arrivé ..."
+        };
+
+        player.oid.GiveGold(player.bankGold - 1);
+        player.bankGold = 1;
+      }
+
       player.menu.choices.Add(("Quitter", () => player.menu.Close()));
       player.menu.Draw();
     }

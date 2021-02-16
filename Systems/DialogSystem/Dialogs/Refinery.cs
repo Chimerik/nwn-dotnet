@@ -39,8 +39,10 @@ namespace NWN.Systems
 
       player.menu.titleLines = new List<string> {
         $"Quelle quantité de {oreName} souhaitez-vous fondre parmi vos {player.materialStock[oreName]} disponibles ?",
-        "(Prononcez simplement la quantité à l'oral. Dites 0 si vous souhaitez tout fondre.)"
+        "(Prononcez simplement la quantité à l'oral.)"
       };
+
+      player.oid.GetLocalVariable<int>("_PLAYER_INPUT").Value = 1;
 
       Task playerInput = NwTask.Run(async () =>
       {
@@ -51,7 +53,8 @@ namespace NWN.Systems
           player.oid.GetLocalVariable<int>("_PLAYER_INPUT_CANCELLED").Delete();
       });
 
-      //player.menu.choices.Add(("Retour.", () => DrawWelcomePage(player)));
+      player.setValue = 0;
+      player.menu.choices.Add(("Fondre tout le stock.", () => HandleRefineAll(player, oreName)));
       player.menu.choices.Add(("Quitter", () => player.menu.Close()));
       player.menu.Draw();
     }
@@ -112,6 +115,54 @@ namespace NWN.Systems
           player.menu.titleLines.Add($"HRP - Erreur, votre minerai brut n'a pas correctement été reconnu. Le staff a été informé du problème.");
           NWN.Utils.LogMessageToDMs($"REFINERY - Could not recognize ore type : {oreName} - Used by : {player.oid.Name}");
         }
+      }
+
+      //player.menu.choices.Add(("Retour.", () => DrawWelcomePage(player)));
+      player.menu.choices.Add(("Quitter", () => player.menu.Close()));
+      player.menu.Draw();
+    }
+    private void HandleRefineAll(Player player, string oreName)
+    {
+      player.menu.Clear();
+
+      float reprocessingEfficiency = 0.3f;
+
+      float value;
+      if (float.TryParse(NWScript.Get2DAString("feat", "GAINMULTIPLE", CreaturePlugin.GetHighestLevelOfFeat(player.oid, (int)Feat.Reprocessing)), out value))
+        reprocessingEfficiency += reprocessingEfficiency + 3 * value / 100;
+
+      if (float.TryParse(NWScript.Get2DAString("feat", "GAINMULTIPLE", CreaturePlugin.GetHighestLevelOfFeat(player.oid, (int)Feat.ReprocessingEfficiency)), out value))
+        reprocessingEfficiency += reprocessingEfficiency + 2 * value / 100;
+
+      if (float.TryParse(NWScript.Get2DAString("feat", "GAINMULTIPLE", CreaturePlugin.GetHighestLevelOfFeat(player.oid, (int)Feat.Connections)), out value))
+        reprocessingEfficiency += reprocessingEfficiency + 1 * value / 100;
+
+      if (Enum.TryParse(oreName, out OreType myOreType) && oresDictionnary.TryGetValue(myOreType, out Ore processedOre))
+      {
+        if (float.TryParse(NWScript.Get2DAString("feat", "GAINMULTIPLE", CreaturePlugin.GetHighestLevelOfFeat(player.oid, (int)processedOre.feat)), out value))
+          reprocessingEfficiency += reprocessingEfficiency + 2 * value / 100;
+
+        foreach (KeyValuePair<MineralType, float> mineralKeyValuePair in processedOre.mineralsDictionnary)
+        {
+          int refinedMinerals = Convert.ToInt32(player.materialStock[oreName] * mineralKeyValuePair.Value * reprocessingEfficiency);
+          string mineralName = Enum.GetName(typeof(MineralType), mineralKeyValuePair.Key);
+
+          if (player.materialStock.ContainsKey(mineralName))
+            player.materialStock[mineralName] += refinedMinerals;
+          else
+            player.materialStock.Add(mineralName, refinedMinerals);
+
+          player.oid.SendServerMessage($"Vous venez de raffiner {refinedMinerals} unités de {mineralName}. Les lingots sont en cours d'acheminage vers votre entrepôt.");
+        }
+
+        player.materialStock[oreName] = 0;
+
+        player.menu.titleLines.Add($"Voilà qui est fait !");
+      }
+      else
+      {
+        player.menu.titleLines.Add($"HRP - Erreur, votre minerai brut n'a pas correctement été reconnu. Le staff a été informé du problème.");
+        Utils.LogMessageToDMs($"REFINERY - Could not recognize ore type : {oreName} - Used by : {player.oid.Name}");
       }
 
       //player.menu.choices.Add(("Retour.", () => DrawWelcomePage(player)));

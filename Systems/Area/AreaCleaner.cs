@@ -89,6 +89,7 @@ namespace NWN.Systems
     {
       await NwTask.WaitUntil(() => area.FindObjectsOfTypeInArea<NwPlayer>().Count() == 0);
       await NwTask.WaitUntil(() => NwModule.FindObjectsOfType<NwPlayer>().Where(p => p.Area is null).Count() == 0);
+      AreaSystem.Log.Info($"Destroyed area {area.Name}");
       area.Destroy();
     }
   }

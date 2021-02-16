@@ -12,7 +12,7 @@ namespace NWN.Systems
   [ServiceBinding(typeof(AreaSystem))]
   partial class AreaSystem
   {
-    private static NativeEventService nativeEventService;
+    public static NativeEventService nativeEventService;
     private static readonly Logger Log = LogManager.GetCurrentClassLogger();
     public AreaSystem(NativeEventService eventService)
     {
