@@ -25,6 +25,9 @@ namespace NWN.Systems
     private void UpdateChestTagToLootsDic(uint oChest)
     {
       NwPlaceable chest = oChest.ToNwObject<NwPlaceable>();
+
+      if (chest == null) return;
+
       var loots = new List<NwItem> { };
 
       foreach (NwItem item in chest.Items)
