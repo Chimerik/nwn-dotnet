@@ -1,4 +1,6 @@
 ﻿using System.Collections.Generic;
+using System.Threading.Tasks;
+using NWN.API;
 using static NWN.Systems.PlayerSystem;
 
 namespace NWN.Systems
@@ -49,10 +51,21 @@ namespace NWN.Systems
       {
         player.menu.titleLines = new List<string> {
           $"Mes narines frémissent à l'odeur des {availableGold} pièces d'or qui doivent te peser bien trop lourd.",
-          "De combien puis-je te débarrasser ? (Utilisez la commande !set X puis validez votre choix)"
+          "De combien puis-je te débarrasser ? (Dites moi simplement la valeur correspondante à l'oral)"
         };
-        player.menu.choices.Add(($"Valider.", () => HandleValidateDeposit(player)));
+        //player.menu.choices.Add(($"Valider.", () => HandleValidateDeposit(player)));
         player.menu.choices.Add(($"Retour.", () => DrawWelcomePage(player)));
+
+        player.oid.GetLocalVariable<int>("_PLAYER_INPUT").Value = 1;
+
+        Task playerInput = NwTask.Run(async () =>
+        {
+          await NwTask.WaitUntilValueChanged(() => player.oid.GetLocalVariable<int>("_PLAYER_INPUT").HasValue);
+          if (player.oid.GetLocalVariable<int>("_PLAYER_INPUT_CANCELLED").HasNothing)
+            HandleValidateDeposit(player);
+          else
+            player.oid.GetLocalVariable<int>("_PLAYER_INPUT_CANCELLED").Delete();
+        });
       }
 
       player.menu.choices.Add(("Quitter", () => player.menu.Close()));
@@ -65,7 +78,7 @@ namespace NWN.Systems
 
       if (player.setValue <= 0)
       {
-        player.menu.titleLines.Add($"Plait-il ? Je n'ai pas bien compris. (Utilisez la commande !set X avant de valider votre choix)");
+        player.menu.titleLines.Add($"Plait-il ? Je n'ai pas bien compris.");
         player.menu.choices.Add(($"Valider.", () => HandleValidateDeposit(player)));
       }
       else if (player.setValue > availableGold)
@@ -119,10 +132,21 @@ namespace NWN.Systems
         {
           $"Votre solde actuel est de {player.bankGold} pièces d'or.",
           "Vous êtes sur de vouloir courir le risque de nous les retirer ?",
-          "(Utilisez la commande !set X puis validez votre choix)"
+          "(Dites moi simplement la valeur souhaitée à l'oral)"
         };
-        player.menu.choices.Add(($"Valider.", () => HandleValidateWithdrawal(player)));
-        player.menu.choices.Add(($"Retour.", () => DrawWelcomePage(player)));
+
+        player.oid.GetLocalVariable<int>("_PLAYER_INPUT").Value = 1;
+
+        Task playerInput = NwTask.Run(async () =>
+        {
+          await NwTask.WaitUntilValueChanged(() => player.oid.GetLocalVariable<int>("_PLAYER_INPUT").HasValue);
+          if (player.oid.GetLocalVariable<int>("_PLAYER_INPUT_CANCELLED").HasNothing)
+            HandleValidateWithdrawal(player);
+          else
+            player.oid.GetLocalVariable<int>("_PLAYER_INPUT_CANCELLED").Delete();
+        });
+        
+        //player.menu.choices.Add(($"Retour.", () => DrawWelcomePage(player)));
       }
 
       player.menu.choices.Add(("Quitter", () => player.menu.Close()));
@@ -165,7 +189,15 @@ namespace NWN.Systems
           "QUOI ?! Mais tu es fada ma parole ? Tu veux ma ruine ?",
           "Non, non, soit raisonnable. Tout retirer serait pure folie !"
         };
-        player.menu.choices.Add(($"Valider.", () => HandleValidateWithdrawal(player)));
+        
+        Task playerInput = NwTask.Run(async () =>
+        {
+          await NwTask.WaitUntilValueChanged(() => player.oid.GetLocalVariable<int>("_PLAYER_INPUT").HasValue);
+          if (player.oid.GetLocalVariable<int>("_PLAYER_INPUT_CANCELLED").HasNothing)
+            HandleValidateWithdrawal(player);
+          else
+            player.oid.GetLocalVariable<int>("_PLAYER_INPUT_CANCELLED").Delete();
+        });
       }
 
       player.setValue = 0;

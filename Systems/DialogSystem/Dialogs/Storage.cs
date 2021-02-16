@@ -26,7 +26,7 @@ namespace NWN.Systems
         "Vas-y file moi ça. Oublie pas qu'on prend 5 % pour le service."
       };
       player.menu.choices.Add(($"Tout déposer.", () => HandleDropAll(player)));
-      player.menu.choices.Add(($"Déposer une matière en particulier.", () => HandleDropMaterialSelection(player)));
+      //player.menu.choices.Add(($"Déposer une matière en particulier.", () => HandleDropMaterialSelection(player)));
       //player.menu.choices.Add(($"A vrai dire, je suis là pour un retrait.", () => HandleWithdrawMaterialSelection(player)));
       player.menu.choices.Add(("Quitter", () => player.menu.Close()));
       player.menu.Draw();
@@ -63,8 +63,7 @@ namespace NWN.Systems
     {
       player.menu.Clear();
       player.menu.titleLines = new List<string> {
-        "D'ac. Dépôt de quelle matière première ?",
-        "(Utilisez !set X pour préciser la quantité avant de valider votre choix)"
+        "D'ac. Dépôt de quelle matière première ?"
       };
 
       foreach (NwItem item in player.oid.Items.Where(i => IsItemCraftMaterial(i.Tag) == true))

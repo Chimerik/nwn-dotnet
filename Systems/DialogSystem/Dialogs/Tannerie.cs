@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
+using NWN.API;
 using NWN.Core;
 using NWN.Core.NWNX;
 using static NWN.Systems.Craft.Collect.Config;
@@ -26,9 +28,31 @@ namespace NWN.Systems
       foreach (KeyValuePair<string, int> materialEntry in player.materialStock)
       {
         if (materialEntry.Value > 100 && Enum.TryParse(materialEntry.Key, out PeltType myOreType) && myOreType != PeltType.Invalid)
-          player.menu.choices.Add(($"{materialEntry.Key} - {materialEntry.Value} unité(s).", () => HandleRefineOre(player, materialEntry.Key)));
+          player.menu.choices.Add(($"{materialEntry.Key} - {materialEntry.Value} unité(s).", () => HandleRefineOreQuantity(player, materialEntry.Key)));
       }
 
+      player.menu.choices.Add(("Quitter", () => player.menu.Close()));
+      player.menu.Draw();
+    }
+    private void HandleRefineOreQuantity(Player player, string oreName)
+    {
+      player.menu.Clear();
+
+      player.menu.titleLines = new List<string> {
+        $"Quelle quantité de {oreName} souhaitez-vous traiter parmi vos {player.materialStock[oreName]} disponibles ?",
+        "(Prononcez simplement la quantité à l'oral. Dites 0 si vous souhaitez tout traiter.)"
+      };
+
+      Task playerInput = NwTask.Run(async () =>
+      {
+        await NwTask.WaitUntilValueChanged(() => player.oid.GetLocalVariable<int>("_PLAYER_INPUT").HasValue);
+        if (player.oid.GetLocalVariable<int>("_PLAYER_INPUT_CANCELLED").HasNothing)
+          HandleRefineOre(player, oreName);
+        else
+          player.oid.GetLocalVariable<int>("_PLAYER_INPUT_CANCELLED").Delete();
+      });
+
+      //player.menu.choices.Add(("Retour.", () => DrawWelcomePage(player)));
       player.menu.choices.Add(("Quitter", () => player.menu.Close()));
       player.menu.Draw();
     }

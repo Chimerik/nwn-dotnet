@@ -87,6 +87,9 @@ namespace NWN.Systems
         }
 
         isOpen = false;
+        player.oid.GetLocalVariable<int>("_PLAYER_INPUT_CANCELLED").Value = 1;
+        player.oid.GetLocalVariable<int>("_PLAYER_INPUT").Delete();
+        player.oid.GetLocalVariable<int>("_PLAYER_INPUT_CANCELLED").Delete();
       }
 
       public void ResetConfig ()

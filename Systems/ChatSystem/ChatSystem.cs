@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using NWN.API;
@@ -89,6 +88,17 @@ namespace NWN.Systems
             file.WriteLineAsync(DateTime.Now.ToShortDateString() + " " + DateTime.Now.ToShortTimeString() + " -  " + NWScript.GetName(ctx.oSender) + " To : " + NWScript.GetName(ctx.oTarget, 1) + " : " + ctx.msg);
         }
 
+        if (PlayerSystem.Players.TryGetValue(ctx.oSender, out PlayerSystem.Player player) && player.oid.GetLocalVariable<int>("_PLAYER_INPUT").HasValue)
+        {
+          if (Int32.TryParse(ctx.msg, out int value))
+          {
+            player.setValue = value;
+            player.oid.GetLocalVariable<int>("_PLAYER_INPUT").Delete();
+            return;
+          }
+        }
+           
+
         next();
       }
     }
@@ -127,10 +137,9 @@ namespace NWN.Systems
 
       next();
     }
-    public static void ProcessAFKDetectionMiddleware(ChatSystem.Context ctx, Action next)
+    public static void ProcessAFKDetectionMiddleware(Context ctx, Action next)
     {
-      PlayerSystem.Player player;
-      if (PlayerSystem.Players.TryGetValue(ctx.oSender, out player))
+      if (PlayerSystem.Players.TryGetValue(ctx.oSender, out PlayerSystem.Player player))
       {
         if (player.isAFK)
           if (ctx.channel == ChatPlugin.NWNX_CHAT_CHANNEL_PLAYER_TALK || ctx.channel == ChatPlugin.NWNX_CHAT_CHANNEL_PLAYER_WHISPER)
