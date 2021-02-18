@@ -81,6 +81,7 @@ namespace NWN.Systems
           case "portal_storage_in":
             NwArea area = NwArea.Create("entrepotperso", $"entrepotpersonnel_{NWScript.GetPCPublicCDKey(player.oid)}", $"Entrepot dimensionnel de {NWScript.GetName(player.oid)}");
             AreaSystem.nativeEventService.Subscribe<NwArea, AreaEvents.OnExit>(area, AreaSystem.OnAreaExit);
+            area.GetLocalVariable<int>("_AREA_LEVEL").Value = 0;
 
             NwPlaceable storage = area.FindObjectsOfTypeInArea<NwPlaceable>().Where(s => s.Tag == "ps_entrepot").FirstOrDefault();
 

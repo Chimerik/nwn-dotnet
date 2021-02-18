@@ -16,7 +16,7 @@ namespace NWN.Systems
     private void HandlePlayerConnect(ModuleEvents.OnClientEnter HandlePlayerConnect)
     {
       NwPlayer oPC = HandlePlayerConnect.Player;
-
+      
       oPC.GetLocalVariable<int>("_ACTIVE_LANGUAGE").Value = (int)Feat.Invalid;
       oPC.GetLocalVariable<int>("_CONNECTING").Value = 1;
       oPC.GetLocalVariable<int>("_DISCONNECTING").Delete();
@@ -42,7 +42,7 @@ namespace NWN.Systems
           return;
         }
 
-        if (NwModule.Instance.Areas.Any(a => a.Tag == player.location.Area.Tag))
+        if (player.location.Area != null)
           oPC.Location = player.location;
         else
           oPC.Location = NwModule.FindObjectsWithTag<NwWaypoint>("WP_START_NEW_CHAR").FirstOrDefault().Location;
@@ -53,7 +53,7 @@ namespace NWN.Systems
           oPC.HP = player.currentHP;
 
         if (player.craftJob.IsActive()
-        && player.location.Area.GetLocalVariable<int>("_AREA_LEVEL").Value == 0)
+        && player.location.Area.GetLocalVariable<int>("_AREA_LEVEL")?.Value == 0)
         {
           player.CraftJobProgression();
           player.craftJob.CreateCraftJournalEntry();
@@ -287,12 +287,19 @@ namespace NWN.Systems
     private static void InitializePlayer(Player player)
     {
       InitializePlayerEvents(player.oid);
+      Log.Info($"events done");
       InitializePlayerAccount(player);
+      Log.Info($"account done");
       InitializePlayerCharacter(player);
+      Log.Info($"PC done");
       InitializePlayerLearnableSkills(player);
+      Log.Info($"skills done");
       InitializePlayerLearnableSpells(player);
+      Log.Info($"spells done");
       InitializeCharacterMapPins(player);
+      Log.Info($"map pins done");
       InitializeCharacterAreaExplorationState(player);
+      Log.Info($"explo done");
     }
     private static void InitializePlayerEvents(uint player)
     {
@@ -315,15 +322,17 @@ namespace NWN.Systems
     }
     private static void InitializePlayerCharacter(Player player)
     {
+      Log.Info("Initialisation from database");
+
       var query = NWScript.SqlPrepareQueryCampaign(Config.database, $"SELECT areaTag, position, facing, currentHP, bankGold, dateLastSaved, currentSkillJob, currentCraftJob, currentCraftObject, currentCraftJobRemainingTime, currentCraftJobMaterial, frostAttackOn, menuOriginTop, menuOriginLeft, currentSkillType from playerCharacters where rowid = @characterId");
       NWScript.SqlBindInt(query, "@characterId", player.characterId);
       NWScript.SqlStep(query);
-
+      Log.Info($"got current craft job : {NWScript.SqlGetInt(query, 7)}");
       player.playerJournal = new PlayerJournal();
       player.loadedQuickBar = QuickbarType.Invalid;
       player.location = Utils.GetLocationFromDatabase(NWScript.SqlGetString(query, 0), NWScript.SqlGetVector(query, 1), NWScript.SqlGetFloat(query, 2));
 
-      NWScript.WriteTimestampedLogEntry($"Got location : {player.location.Area.Name}");
+      Log.Info($"got location : {player.location.Area}");
 
       player.currentHP = NWScript.SqlGetInt(query, 3);
       player.bankGold = NWScript.SqlGetInt(query, 4);

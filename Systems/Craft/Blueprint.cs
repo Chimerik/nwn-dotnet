@@ -66,12 +66,12 @@ namespace NWN.Systems.Craft
           break;
       }
     }
-    public static Core.ItemProperty[] GetCraftItemProperties(string material, uint craftedItem)
+    public static Core.ItemProperty[] GetCraftItemProperties(string material, NwItem craftedItem)
     {
-      ItemCategory itemCategory = GetItemCategory(NWScript.GetBaseItemType(craftedItem));
+      ItemCategory itemCategory = GetItemCategory((int)craftedItem.BaseItemType);
       if (itemCategory == ItemCategory.Invalid)
       {
-        NWN.Utils.LogMessageToDMs($"Item {NWScript.GetName(craftedItem)} - Base {NWScript.GetBaseItemType(craftedItem)} - Category invalid");
+        NWN.Utils.LogMessageToDMs($"Item {craftedItem.Name} - Base {craftedItem.BaseItemType} - Category invalid");
 
         return new Core.ItemProperty[]
         {

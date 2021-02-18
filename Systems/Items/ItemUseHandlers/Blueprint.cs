@@ -23,9 +23,7 @@ namespace NWN.Systems.Items.ItemUseHandlers
                         {
                             if ((int)oPC.GetItemInSlot(InventorySlot.RightHand).BaseItemType == 114) // 114 = marteau de forgeron
                             {
-                                NwPlaceable forge = oPC.Area.FindObjectsOfTypeInArea<NwPlaceable>().Where(f => f.Tag == blueprint.workshopTag && f.Distance(oPC) < 5).FirstOrDefault();
-
-                                if (forge.IsValid)
+                                if (oPC.GetNearestObjectsByType<NwPlaceable>().Any(f => f.Tag == blueprint.workshopTag && f.Distance(oPC) < 5))
                                 {
                                     string sMaterial = blueprint.GetMaterialFromTargetItem(oTarget);
 

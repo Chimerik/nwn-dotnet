@@ -6,6 +6,7 @@ using NWN.Core.NWNX;
 using static NWN.Systems.SkillSystem;
 using NWN.Systems.Craft;
 using NWN.API;
+using System.Threading.Tasks;
 
 namespace NWN.Systems
 {
@@ -241,6 +242,7 @@ namespace NWN.Systems
 
           if (craftJob.remainingTime < 0)
           {
+            Log.Info($"craft job done. Acquiring item - Type : {craftJob.type} - BaseItem : {craftJob.baseItemType}");
             AcquireCraftedItem();
           }
         }
@@ -265,7 +267,17 @@ namespace NWN.Systems
             break;
           default:
             if (Craft.Collect.System.blueprintDictionnary.TryGetValue(craftJob.baseItemType, out Blueprint blueprint))
-              Craft.Collect.System.AddCraftedItemProperties(NWScript.CreateItemOnObject(blueprint.craftedItemTag, oid), craftJob.material);
+            {
+              NwItem craftedItem = NwItem.Create(blueprint.craftedItemTag, oid);
+
+              if (craftedItem == null)
+              {
+                oid.SendServerMessage($"Votre fabrication artisanale est terminée. Ouvrez votre journal pour obtenir le résultat de votre travail !");
+                return;
+              }
+
+              Craft.Collect.System.AddCraftedItemProperties(craftedItem, craftJob.material);
+            }
             else
             {
               NWScript.SendMessageToPC(oid, "[ERREUR HRP] Il semble que votre dernière création soit invalide. Le staff a été informé du problème.");
@@ -275,6 +287,7 @@ namespace NWN.Systems
         }
 
         PlayerPlugin.ApplyInstantVisualEffectToObject(oid, oid, NWScript.VFX_IMP_GLOBE_USE);
+
         craftJob.CloseCraftJournalEntry();
         craftJob = new Job(-10, "", 0, this);
       }
@@ -355,7 +368,7 @@ namespace NWN.Systems
         JournalEntry journalEntry;
 
         if (playerJournal.craftJobCountDown != null
-            && NWScript.GetArea(oid).ToNwObject<NwArea>().GetLocalVariable<int>("_AREA_LEVEL").Value == 0)
+            && NWScript.GetArea(oid).ToNwObject<NwArea>().GetLocalVariable<int>("_AREA_LEVEL")?.Value == 0)
         {
           journalEntry = PlayerPlugin.GetJournalEntry(oid, "craft_job");
           if (journalEntry.nUpdated != -1)

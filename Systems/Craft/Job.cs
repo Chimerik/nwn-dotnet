@@ -22,6 +22,7 @@ namespace NWN.Systems.Craft
     {
       //this.name = name;
       this.baseItemType = baseItemType;
+      ModuleSystem.Log.Info($"got base item : {baseItemType}");
       this.craftedItem = item;
       this.material = material;
       if (Config.env == Config.Env.Chim)
@@ -241,7 +242,10 @@ namespace NWN.Systems.Craft
 
       player.playerJournal.craftJobCountDown = DateTime.Now.AddSeconds(remainingTime);
       JournalEntry journalEntry = new JournalEntry();
-      journalEntry.sName = $"Travail artisanal - {NWN.Utils.StripTimeSpanMilliseconds((TimeSpan)(player.playerJournal.craftJobCountDown - DateTime.Now))}";
+      if(remainingTime > 0)
+        journalEntry.sName = $"Travail artisanal - {Utils.StripTimeSpanMilliseconds((TimeSpan)(player.playerJournal.craftJobCountDown - DateTime.Now))}";
+      else
+        journalEntry.sName = $"Travail artisanal - Terminé !";
 
       switch (this.type)
       {

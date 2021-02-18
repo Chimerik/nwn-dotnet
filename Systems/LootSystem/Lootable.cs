@@ -113,11 +113,7 @@ namespace NWN.Systems
                 NWScript.WriteTimestampedLogEntry($"LOOT : {rand}/{chance}");
                 if (rand <= chance)
                 {
-                  uint oItem = NWScript.CopyItem(
-                      loots[NWN.Utils.random.Next(0, loots.Count - 1)],
-                      oContainer,
-                      1
-                  );
+                  NwItem oItem = loots[NWN.Utils.random.Next(0, loots.Count - 1)].Copy(oContainer.ToNwObject<NwGameObject>(), true);
                   NWScript.WriteTimestampedLogEntry($"SUCCESS : item created {NWScript.GetName(oItem)}");
 
                   Craft.Collect.System.AddCraftedItemProperties(oItem, "mauvais état");

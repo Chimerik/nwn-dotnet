@@ -6,11 +6,13 @@ using static NWN.Systems.Craft.Collect.Config;
 using static NWN.Systems.Craft.Blueprint;
 using NWN.Services;
 using NWN.API;
+using NLog;
 
 namespace NWN.Systems.Craft.Collect
 {
   public static class System
   {
+    public static readonly Logger Log = LogManager.GetCurrentClassLogger();
     public static string[] badPelts = new string[] { "paraceratherium", "ankheg", "gorille", "giantlizard" };
     public static string[] commonPelts = new string[] { "alligator", "crocodile", "crocblinde", "varan" };
     public static string[] normalPelts = new string[] { "basilisk", "jhakar", "gorgon", "bulette", "dagon" };
@@ -147,16 +149,18 @@ namespace NWN.Systems.Craft.Collect
       EventsPlugin.RemoveObjectFromDispatchList("NWNX_ON_START_COMBAT_ROUND_AFTER", "collect_cancel", player.oid);
       EventsPlugin.RemoveObjectFromDispatchList("NWNX_ON_INPUT_CAST_SPELL_BEFORE", "collect_cancel", player.oid);
     }
-    public static void AddCraftedItemProperties(uint craftedItem, string material)
+    public static void AddCraftedItemProperties(NwItem craftedItem, string material)
     {
-      NWScript.SetName(craftedItem, NWScript.GetName(craftedItem) + " en " + material);
-      NWScript.SetLocalString(craftedItem, "_ITEM_MATERIAL", material);
+      craftedItem.Name = $"{craftedItem.Name} en {material}";
+      craftedItem.GetLocalVariable<string>("_ITEM_MATERIAL").Value = material;
 
       foreach (NWN.Core.ItemProperty ip in GetCraftItemProperties(material, craftedItem))
       {
         //NWScript.SendMessageToPC(NWScript.GetFirstPC(), $"Adding IP : {ip}");
         NWScript.AddItemProperty(NWScript.DURATION_TYPE_PERMANENT, ip, craftedItem);
       }
+
+      Log.Info("properties added");
     }
     public static bool IsItemCraftMaterial(string itemTag)
     {

@@ -56,8 +56,13 @@ namespace NWN.Systems
 
         Log.Info("Saved HP");
 
-        if (player.location.Area.GetLocalVariable<int>("_AREA_LEVEL").Value == 0)
+        Log.Info($"player location : {player.location.Area}");
+
+        if (player.location.Area?.GetLocalVariable<int>("_AREA_LEVEL").Value == 0)
+        {
+          Log.Info($"area level : {player.location.Area.GetLocalVariable<int>("_AREA_LEVEL").Value}");
           player.CraftJobProgression();
+        }
 
         Log.Info("Craft job progression done");
 
@@ -109,10 +114,15 @@ namespace NWN.Systems
     }
     private static void SavePlayerCharacterToDatabase(Player player)
     {
+      Log.Info("Saving to database");
+
       var query = NWScript.SqlPrepareQueryCampaign(Config.database, $"UPDATE playerCharacters SET areaTag = @areaTag, position = @position, facing = @facing, currentHP = @currentHP, bankGold = @bankGold, dateLastSaved = @dateLastSaved, currentSkillType = @currentSkillType, currentSkillJob = @currentSkillJob, currentCraftJob = @currentCraftJob, currentCraftObject = @currentCraftObject, currentCraftJobRemainingTime = @currentCraftJobRemainingTime, currentCraftJobMaterial = @currentCraftJobMaterial, menuOriginTop = @menuOriginTop, menuOriginLeft = @menuOriginLeft where rowid = @characterId");
       NWScript.SqlBindInt(query, "@characterId", player.characterId);
 
-      if (player.location != null)
+      Log.Info($"location : {player.location.Area}");
+      Log.Info($"previous location : {player.previousLocation.Area}");
+
+      if (player.location.Area != null)
       {
         NWScript.SqlBindString(query, "@areaTag", player.location.Area.Tag);
         NWScript.SqlBindVector(query, "@position", player.location.Position);
@@ -131,6 +141,7 @@ namespace NWN.Systems
       NWScript.SqlBindInt(query, "@currentSkillType", (int)player.currentSkillType);
       NWScript.SqlBindInt(query, "@currentSkillJob", player.currentSkillJob);
       NWScript.SqlBindInt(query, "@currentCraftJob", player.craftJob.baseItemType);
+      Log.Info($"saved currentCraftJob :{player.craftJob.baseItemType}");
       NWScript.SqlBindString(query, "@currentCraftObject", player.craftJob.craftedItem);
       NWScript.SqlBindFloat(query, "@currentCraftJobRemainingTime", player.craftJob.remainingTime);
       NWScript.SqlBindString(query, "@currentCraftJobMaterial", player.craftJob.material);
@@ -176,10 +187,10 @@ namespace NWN.Systems
     {
       if (player.materialStock.Count > 0)
       {
-        foreach (string material in player.materialStock.Keys)
+        foreach (string material in player.materialStock.Keys)  
         {
           var query = NWScript.SqlPrepareQueryCampaign(Config.database, $"INSERT INTO playerMaterialStorage (characterId, materialName, materialStock) VALUES (@characterId, @materialName, @materialStock)" +
-              $"ON CONFLICT (characterId, materialName) DO UPDATE SET materialStock = @materialStock where characterId = @characterId and materialName = @{material}");
+              $"ON CONFLICT (characterId, materialName) DO UPDATE SET materialStock = @materialStock where characterId = @characterId and materialName = @materialName");
           NWScript.SqlBindInt(query, "@characterId", player.characterId);
           NWScript.SqlBindString(query, "@materialName", material);
           NWScript.SqlBindInt(query, "@materialStock", player.materialStock[material]);
