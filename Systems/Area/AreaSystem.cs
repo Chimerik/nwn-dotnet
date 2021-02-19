@@ -27,9 +27,13 @@ namespace NWN.Systems
         nativeEventService.Subscribe<NwArea, AreaEvents.OnExit>(area, OnAreaExit);
 
         DoAreaSpecificInitialisation(area);
+
+        Log.Info($"initializing area : {area.Name}");
+
         foreach (NwPlaceable coffre in area.Objects.Where(o => o.Tag == "loot_chest"))
         {
           coffre.Tag = coffre.GetLocalVariable<string>("_LOOT_REFERENCE").Value;
+          Log.Info($"initializing chest : {coffre.Name} with : {coffre.Tag}");
         }
       }
     }

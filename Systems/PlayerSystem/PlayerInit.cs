@@ -16,7 +16,7 @@ namespace NWN.Systems
     private void HandlePlayerConnect(ModuleEvents.OnClientEnter HandlePlayerConnect)
     {
       NwPlayer oPC = HandlePlayerConnect.Player;
-      
+
       oPC.GetLocalVariable<int>("_ACTIVE_LANGUAGE").Value = (int)Feat.Invalid;
       oPC.GetLocalVariable<int>("_CONNECTING").Value = 1;
       oPC.GetLocalVariable<int>("_DISCONNECTING").Delete();
@@ -107,6 +107,8 @@ namespace NWN.Systems
           eff.SubType = API.Constants.EffectSubType.Supernatural;
           oPC.ApplyEffect(EffectDuration.Permanent, eff);
         }
+
+        ItemSystem.ApplyNakedMalus(oPC);
 
         oPC.GetLocalVariable<int>("_CONNECTING").Delete();
         player.isAFK = false;

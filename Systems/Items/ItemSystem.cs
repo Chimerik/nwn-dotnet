@@ -51,7 +51,10 @@ namespace NWN.Systems
         eff.SubType = EffectSubType.Supernatural;
         oPC.ApplyEffect(EffectDuration.Permanent, eff);
       }
+
+      ApplyNakedMalus(oPC);
     }
+
     [ScriptHandler("b_unequip")]
     private void HandleUnequipItemBefore(CallInfo callInfo)
     {
@@ -79,6 +82,8 @@ namespace NWN.Systems
         oPC.ApplyEffect(EffectDuration.Permanent, eff);
         (Bot._client.GetChannel(680072044364562532) as IMessageChannel).SendMessageAsync($"{oPC.Name} vient d'ôter son amulette de traçage. L'Amiral surveille désormais directement ses activités en rp.");
       }
+
+      ApplyNakedMalus(oPC);
     }
     private void OnItemUseBefore(ItemEvents.OnItemUseBefore onItemUse)
     {
@@ -187,6 +192,45 @@ namespace NWN.Systems
       if (NWScript.GetMovementRate(oPC) == CreaturePlugin.NWNX_CREATURE_MOVEMENT_RATE_IMMOBILE)
         if (NWScript.GetWeight(oPC) <= int.Parse(NWScript.Get2DAString("encumbrance", "Heavy", NWScript.GetAbilityScore(oPC, NWScript.ABILITY_STRENGTH))))
           CreaturePlugin.SetMovementRate(oPC, CreaturePlugin.NWNX_CREATURE_MOVEMENT_RATE_PC);*/
+    }
+    public static void ApplyNakedMalus(NwPlayer oPC)
+    {
+      if (oPC.GetItemInSlot(InventorySlot.Head) == null)
+      {
+        if (!oPC.ActiveEffects.Any(e => e.Tag == "NO_HELMET_MALUS"))
+        {
+          API.Effect eff = API.Effect.DamageImmunityDecrease(DamageType.Piercing, 100);
+          eff.SubType = EffectSubType.Supernatural;
+          oPC.ApplyEffect(EffectDuration.Permanent, eff);
+        }
+      }
+      else if (oPC.ActiveEffects.Any(e => e.Tag == "NO_HELMET_MALUS"))
+        oPC.RemoveEffect(oPC.ActiveEffects.Where(e => e.Tag == "NO_HELMET_MALUS").FirstOrDefault());
+
+      if (oPC.GetItemInSlot(InventorySlot.Chest) == null)
+      {
+        if (!oPC.ActiveEffects.Any(e => e.Tag == "NO_ARMOR_MALUS"))
+        {
+          API.Effect eff = API.Effect.DamageImmunityDecrease(DamageType.Slashing, 100);
+          eff.SubType = EffectSubType.Supernatural;
+          oPC.ApplyEffect(EffectDuration.Permanent, eff);
+        }
+      }
+      else if (oPC.ActiveEffects.Any(e => e.Tag == "NO_ARMOR_MALUS"))
+        oPC.RemoveEffect(oPC.ActiveEffects.Where(e => e.Tag == "NO_ARMOR_MALUS").FirstOrDefault());
+
+      if (oPC.GetItemInSlot(InventorySlot.LeftHand) == null && (oPC.GetItemInSlot(InventorySlot.RightHand) == null 
+        ||  (oPC.GetItemInSlot(InventorySlot.RightHand) != null && ItemUtils.GetItemCategory((int)oPC.GetItemInSlot(InventorySlot.RightHand).BaseItemType) == ItemUtils.ItemCategory.OneHandedMeleeWeapon)))
+      {
+        if (!oPC.ActiveEffects.Any(e => e.Tag == "NO_SHIELD_MALUS"))
+        {
+          API.Effect eff = API.Effect.DamageImmunityDecrease(DamageType.Bludgeoning, 100);
+          eff.SubType = EffectSubType.Supernatural;
+          oPC.ApplyEffect(EffectDuration.Permanent, eff);
+        }
+      }
+      else if (oPC.ActiveEffects.Any(e => e.Tag == "NO_SHIELD_MALUS"))
+        oPC.RemoveEffect(oPC.ActiveEffects.Where(e => e.Tag == "NO_ARMOR_MALUS").FirstOrDefault());
     }
   }
 }

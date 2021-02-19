@@ -77,7 +77,7 @@ namespace NWN.Systems
       creature.AiLevel = AiLevel.Low;
       spawnPoint.Destroy();
 
-      Log.Info($"SPAWN - From {spawnPoint.GetLocalVariable<string>("_CREATURE_TEMPLATE").Value} -  {creature.Name} in {creature.GetLocalVariable<API.Location>("_SPAWN_LOCATION").Value.Area.Name}");
+      //Log.Info($"SPAWN - From {spawnPoint.GetLocalVariable<string>("_CREATURE_TEMPLATE").Value} -  {creature.Name} in {creature.GetLocalVariable<API.Location>("_SPAWN_LOCATION").Value.Area.Name}");
 
       return creature;
     }
@@ -95,7 +95,7 @@ namespace NWN.Systems
       if (Int32.TryParse(NWScript.Get2DAString("appearance", "STRING_REF", appearance), out int value))
         creature.Name = NWScript.GetStringByStrRef(value);
       else
-        NWN.Utils.LogMessageToDMs($"Apparence {appearance} - Nom non défini.");
+        Utils.LogMessageToDMs($"Apparence {appearance} - Nom non défini.");
 
 
     }

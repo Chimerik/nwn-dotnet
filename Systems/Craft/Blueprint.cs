@@ -71,7 +71,7 @@ namespace NWN.Systems.Craft
       ItemCategory itemCategory = GetItemCategory((int)craftedItem.BaseItemType);
       if (itemCategory == ItemCategory.Invalid)
       {
-        NWN.Utils.LogMessageToDMs($"Item {craftedItem.Name} - Base {craftedItem.BaseItemType} - Category invalid");
+        Utils.LogMessageToDMs($"Item {craftedItem.Name} - Base {craftedItem.BaseItemType} - Category invalid");
 
         return new Core.ItemProperty[]
         {

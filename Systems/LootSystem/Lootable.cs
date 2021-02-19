@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 using NWN.API;
 using NWN.Core;
 
@@ -29,16 +31,13 @@ namespace NWN.Systems
           }
 
           if (gold != null)
-          {
             gold.GetValueOrDefault().Generate(oContainer);
-          }
 
           GenerateItems(oContainer);
         }
 
         private void GenerateItems(NwGameObject oContainer)
         {
-          NWScript.WriteTimestampedLogEntry($"LOOT SYSTEM : name {oContainer.Name}");
           foreach (var item in items)
           {
             item.Generate(oContainer);
@@ -59,20 +58,17 @@ namespace NWN.Systems
           this.chance = chance;
         }
 
-        public void Generate(NwGameObject oContainer, string goldResRef = "nw_it_gold001")
+        public void Generate(NwGameObject oContainer)
         {
-          if (Utils.random.Next(1, 100) <= chance)
+          Log.Info($"tag : {oContainer.Tag}");
+          int rand = Utils.random.Next(1, 101);
+          Log.Info($"GOLD CHANCE : {rand}/{chance}");
+          if (rand <= chance)
           {
-            var goldCount = NWN.Utils.random.Next((int)min, (int)max);
-
-            if (oContainer is NwCreature)
-            {
-              ((NwCreature)oContainer).GiveGold(goldCount);
-            }
-            else
-            {
-              NwItem.Create(goldResRef, oContainer, goldCount);
-            }
+            int goldCount = Utils.random.Next((int)min, (int)max);
+            
+            NwItem.Create("NW_IT_GOLD001", oContainer, goldCount);
+            Log.Info($"GOLD LOOTED : {goldCount}");
 
             if (ModuleSystem.goldBalanceMonitoring.TryGetValue(oContainer.Tag, out GoldBalance gold))
             {
@@ -100,21 +96,21 @@ namespace NWN.Systems
           this.chance = chance;
         }
 
-        public void Generate(uint oContainer)
+        public void Generate(NwGameObject oContainer)
         {
-          NWScript.WriteTimestampedLogEntry($"tag : {chestTag}");
+          Log.Info($"tag : {oContainer.Tag}");
           if (chestTagToLootsDic.TryGetValue(chestTag, out List<NwItem> loots))
           {
             if (loots.Count > 0)
             {
               for (var i = 0; i < count; i++)
               {
-                int rand = NWN.Utils.random.Next(1, 101);
-                NWScript.WriteTimestampedLogEntry($"LOOT : {rand}/{chance}");
+                int rand = Utils.random.Next(1, 101);
+                Log.Info($"LOOT CHANCE : {rand}/{chance}");
                 if (rand <= chance)
                 {
-                  NwItem oItem = loots[NWN.Utils.random.Next(0, loots.Count - 1)].Copy(oContainer.ToNwObject<NwGameObject>(), true);
-                  NWScript.WriteTimestampedLogEntry($"SUCCESS : item created {NWScript.GetName(oItem)}");
+                  NwItem oItem = loots[NWN.Utils.random.Next(0, loots.Count - 1)].Copy(oContainer, true);
+                  Log.Info($"SUCCESS : item created {oItem.Name}");
 
                   Craft.Collect.System.AddCraftedItemProperties(oItem, "mauvais état");
                 }

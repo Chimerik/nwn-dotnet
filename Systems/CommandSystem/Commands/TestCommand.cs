@@ -17,17 +17,15 @@ namespace NWN.Systems
     {
       if (PlayerSystem.Players.TryGetValue(ctx.oSender, out PlayerSystem.Player player))
       {
-        //NwModule.Instance.ExportAllCharacters();
-
         //ctx.oSender.ToNwObject<NwPlayer>().HP = 10;
-        ctx.oSender.ToNwObject<NwPlayer>().ApplyEffect(API.EffectDuration.Instant, API.Effect.Death());
+        //ctx.oSender.ToNwObject<NwPlayer>().ApplyEffect(API.EffectDuration.Instant, API.Effect.Death());
 
         if (NWScript.GetPCPlayerName(player.oid) == "Chim")
         {
           Action<uint, Vector3> callback = (uint oTarget, Vector3 position) =>
           {
             // HP TEST
-            int improvedConst = CreaturePlugin.GetHighestLevelOfFeat(oTarget, (int)Feat.ImprovedConstitution);
+            /*int improvedConst = CreaturePlugin.GetHighestLevelOfFeat(oTarget, (int)Feat.ImprovedConstitution);
             if (improvedConst == (int)Feat.Invalid)
               improvedConst = 0;
             else
@@ -39,6 +37,7 @@ namespace NWN.Systems
               + (1 + 3 * ((NWScript.GetAbilityScore(oTarget, NWScript.ABILITY_CONSTITUTION, 1)
               + improvedConst - 10) / 2
               + CreaturePlugin.GetKnowsFeat(oTarget, (int)Feat.Toughness))) * Int32.Parse(NWScript.Get2DAString("feat", "GAINMULTIPLE", CreaturePlugin.GetHighestLevelOfFeat(oTarget, (int)Feat.ImprovedHealth))));
+          */
           };
 
           player.targetEvent = TargetEvent.LootSaverTarget;

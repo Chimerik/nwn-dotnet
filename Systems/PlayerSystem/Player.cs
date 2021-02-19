@@ -408,13 +408,16 @@ namespace NWN.Systems
         if (DoJournalUpdate)
           NWScript.DelayCommand(1.0f, () => UpdateJournal());
       }
-      public void rebootUpdate()
+      public async void rebootUpdate(int countDown)
       {
-        JournalEntry journalEntry = PlayerPlugin.GetJournalEntry(this.oid, "reboot");
-        journalEntry.sName = $"REBOOT SERVEUR - {NWN.Utils.StripTimeSpanMilliseconds((TimeSpan)(this.playerJournal.rebootCountDown - DateTime.Now))}";
-        PlayerPlugin.AddCustomJournalEntry(this.oid, journalEntry);
+        await NwTask.Delay(TimeSpan.FromSeconds(1));
 
-        NWScript.DelayCommand(1.0f, () => this.rebootUpdate());
+        JournalEntry journalEntry = PlayerPlugin.GetJournalEntry(this.oid, "reboot");
+        journalEntry.sName = $"REBOOT SERVEUR - {countDown}";
+        PlayerPlugin.AddCustomJournalEntry(this.oid, journalEntry);
+        
+        if (countDown >= 0)
+          this.rebootUpdate(countDown - 1);
       }
       public string CheckDBPlayerAccount()
       {

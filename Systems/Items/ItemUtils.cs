@@ -15,6 +15,8 @@ namespace NWN.Systems
             Armor = 4,
             Ammunition = 5,
             CraftTool = 6,
+            Potions = 7,
+            Scroll = 8,
         }
 
         public static ItemCategory GetItemCategory(int baseItemType)
@@ -73,6 +75,15 @@ namespace NWN.Systems
                 case NWScript.BASE_ITEM_BOLT:
                 case NWScript.BASE_ITEM_BULLET:
                     return ItemCategory.Ammunition;
+        case NWScript.BASE_ITEM_POTIONS:
+        case NWScript.BASE_ITEM_BLANK_POTION:
+        case NWScript.BASE_ITEM_ENCHANTED_POTION:
+          return ItemCategory.Potions;
+        case NWScript.BASE_ITEM_BLANK_SCROLL:
+        case NWScript.BASE_ITEM_ENCHANTED_SCROLL:
+        case NWScript.BASE_ITEM_SCROLL:
+        case NWScript.BASE_ITEM_SPELLSCROLL:
+          return ItemCategory.Scroll;
                 case 114: //marteau de forgeron
                 case 115: //extracteur de minerai
                     return ItemCategory.CraftTool;

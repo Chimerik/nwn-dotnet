@@ -22,19 +22,15 @@ namespace NWN.Systems
         NWScript.SqlStep(query);
       }
     }
-    private void UpdateChestTagToLootsDic(uint oChest)
+    private void UpdateChestTagToLootsDic(NwPlaceable oChest)
     {
-      NwPlaceable chest = oChest.ToNwObject<NwPlaceable>();
-
-      if (chest == null) return;
-
       var loots = new List<NwItem> { };
 
-      foreach (NwItem item in chest.Items)
+      foreach (NwItem item in oChest.Items)
       {
         loots.Add(item);
       }
-      chestTagToLootsDic[chest.Tag] = loots;
+      chestTagToLootsDic[oChest.Tag] = loots;
     }
     private static void ThrowException(string message)
     {

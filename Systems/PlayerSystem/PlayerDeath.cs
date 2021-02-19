@@ -128,6 +128,8 @@ namespace NWN.Systems
         player.oid.ApplyEffect(EffectDuration.Permanent, eff);
       }
 
+      ItemSystem.ApplyNakedMalus(player.oid);
+
       switch (entity)
       {
         case "radiant":

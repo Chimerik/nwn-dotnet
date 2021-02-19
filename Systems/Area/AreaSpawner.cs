@@ -16,26 +16,28 @@ namespace NWN.Systems
       if (area.GetLocalVariable<int>("_NO_SPAWN_ALLOWED").HasValue)
         return;
 
-      NWScript.WriteTimestampedLogEntry($"Handling spawns for area {area.Name}");
+      Log.Info($"Handling spawns for area {area.Name}");
 
       foreach (NwWaypoint wp in area.FindObjectsOfTypeInArea<NwWaypoint>().Where(a => a.Tag == "creature_spawn"))
         HandleSpawnWaypoint(wp);
 
       foreach (NwPlaceable chest in area.FindObjectsOfTypeInArea<NwPlaceable>().Where(c => c.GetLocalVariable<string>("_LOOT_REFERENCE").HasValue))
       {
+        Log.Info($"Found chest : {chest.Name}");
+
         Utils.DestroyInventory(chest); 
 
         if (lootablesDic.TryGetValue(chest.Tag, out Lootable.Config lootableConfig))
         {
-          Task generateLoot = NwTask.Run(async () =>
+          lootableConfig.GenerateLoot(chest);
+          /*Task generateLoot = NwTask.Run(async () =>
           {
             await NwTask.Delay(TimeSpan.FromSeconds(0.1));
-            await area.AddActionToQueue(() => lootableConfig.GenerateLoot(chest));
-            return true;
-          });
+            lootableConfig.GenerateLoot(chest);
+          });*/
         }
         else
-          NWN.Utils.LogMessageToDMs($"AREA - {area.Name} - Unregistered container tag=\"{chest.Tag}\", name : {chest.Name}");
+          Utils.LogMessageToDMs($"AREA - {area.Name} - Unregistered container tag=\"{chest.Tag}\", name : {chest.Name}");
       }
 
       area.GetLocalVariable<int>("_NO_SPAWN_ALLOWED").Value = 1;
