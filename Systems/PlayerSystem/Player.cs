@@ -265,6 +265,13 @@ namespace NWN.Systems
             uint improvedTEBlueprint = NWScript.CopyItem(ObjectPlugin.Deserialize((craftJob.craftedItem)), oid, 1);
             NWScript.SetLocalInt(improvedTEBlueprint, "_BLUEPRINT_TIME_EFFICIENCY", NWScript.GetLocalInt(improvedTEBlueprint, "_BLUEPRINT_TIME_EFFICIENCY") + 1);
             break;
+          case Job.JobType.Enchantement:
+            NwItem enchantedItem = NWScript.CopyItem(ObjectPlugin.Deserialize((craftJob.craftedItem)), oid, 1).ToNwObject<NwItem>();
+            enchantedItem.GetLocalVariable<int>("_AVAILABLE_ENCHANTEMENT_SLOT").Value -= 1;
+            if (enchantedItem.GetLocalVariable<int>("_AVAILABLE_ENCHANTEMENT_SLOT").Value <= 0)
+              enchantedItem.GetLocalVariable<int>("_AVAILABLE_ENCHANTEMENT_SLOT").Delete();
+            Craft.Collect.System.AddCraftedEnchantementProperties(enchantedItem, Int32.Parse(craftJob.material));
+            break;
           default:
             if (Craft.Collect.System.blueprintDictionnary.TryGetValue(craftJob.baseItemType, out Blueprint blueprint))
             {
@@ -281,7 +288,7 @@ namespace NWN.Systems
             else
             {
               NWScript.SendMessageToPC(oid, "[ERREUR HRP] Il semble que votre dernière création soit invalide. Le staff a été informé du problème.");
-              NWN.Utils.LogMessageToDMs($"AcquireCraftedItem : {NWScript.GetName(oid)} - Blueprint invalid - {craftJob.baseItemType} - For {NWScript.GetName(oid)}");
+              Utils.LogMessageToDMs($"AcquireCraftedItem : {NWScript.GetName(oid)} - Blueprint invalid - {craftJob.baseItemType} - For {NWScript.GetName(oid)}");
             }
             break;
         }

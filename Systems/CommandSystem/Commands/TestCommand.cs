@@ -5,6 +5,7 @@ using System.Numerics;
 using System.Web;
 using Discord;
 using NWN.API;
+using NWN.API.Constants;
 using NWN.Core;
 using NWN.Core.NWNX;
 using static NWN.Systems.SkillSystem;
@@ -22,8 +23,17 @@ namespace NWN.Systems
 
         if (NWScript.GetPCPlayerName(player.oid) == "Chim")
         {
+          /*NwItem oScroll = NwItem.Create("spellscroll", player.oid, 1, "scroll");
+          int spellId = int.Parse(NWScript.Get2DAString("iprp_spells", "SpellIndex", 540));
+          oScroll.Name = $"{NWScript.GetStringByStrRef(int.Parse(NWScript.Get2DAString("spells", "Name", spellId)))}";
+          oScroll.Description = $"{NWScript.GetStringByStrRef(int.Parse(NWScript.Get2DAString("spells", "SpellDesc", spellId)))}";
+
+          oScroll.AddItemProperty(API.ItemProperty.CastSpell((IPCastSpell)540, IPCastSpellNumUses.SingleUse), EffectDuration.Permanent);
+          */
+
           Action<uint, Vector3> callback = (uint oTarget, Vector3 position) =>
           {
+            NWScript.SetLocalInt(oTarget, "_AVAILABLE_ENCHANTEMENT_SLOT", 2);
             // HP TEST
             /*int improvedConst = CreaturePlugin.GetHighestLevelOfFeat(oTarget, (int)Feat.ImprovedConstitution);
             if (improvedConst == (int)Feat.Invalid)

@@ -45,12 +45,12 @@ namespace NWN.Systems
           if (onExamine.Examiner.IsDM || onExamine.Examiner.IsDMPossessed || onExamine.Examiner.IsPlayerDM)
           {
             if (int.TryParse(NWScript.Get2DAString("feat", "GAINMULTIPLE", CreaturePlugin.GetHighestLevelOfFeat(onExamine.Examiner, (int)Feat.WoodExpertise)), out int woodExpertiseSkillLevel))
-              onExamine.Examinee.Description = $"Minerai disponible : {NWN.Utils.random.Next(woodAmount * woodExpertiseSkillLevel * 20 / 100, 2 * woodAmount - woodExpertiseSkillLevel * 20 / 100)}";
+              onExamine.Examinee.Description = $"Bois disponible : {NWN.Utils.random.Next(woodAmount * woodExpertiseSkillLevel * 20 / 100, 2 * woodAmount - woodExpertiseSkillLevel * 20 / 100)}";
             else
-              onExamine.Examinee.Description = $"Minerai disponible estimé : {NWN.Utils.random.Next(0, 2 * woodAmount)}";
+              onExamine.Examinee.Description = $"Bois disponible estimé : {NWN.Utils.random.Next(0, 2 * woodAmount)}";
           }
           else
-            onExamine.Examinee.Description = $"Minerai disponible : {woodAmount}";
+            onExamine.Examinee.Description = $"Bois disponible : {woodAmount}";
 
           break;
         case "mineable_animal":
@@ -58,12 +58,12 @@ namespace NWN.Systems
           if (onExamine.Examiner.IsDM || onExamine.Examiner.IsDMPossessed || onExamine.Examiner.IsPlayerDM)
           {
             if (int.TryParse(NWScript.Get2DAString("feat", "GAINMULTIPLE", CreaturePlugin.GetHighestLevelOfFeat(onExamine.Examinee, (int)Feat.AnimalExpertise)), out int animalExpertiseSkillLevel))
-              onExamine.Examinee.Description = $"Minerai disponible : {NWN.Utils.random.Next(peltAmount * animalExpertiseSkillLevel * 20 / 100, 2 * peltAmount - animalExpertiseSkillLevel * 20 / 100)}";
+              onExamine.Examinee.Description = $"Peau disponible : {NWN.Utils.random.Next(peltAmount * animalExpertiseSkillLevel * 20 / 100, 2 * peltAmount - animalExpertiseSkillLevel * 20 / 100)}";
             else
-              onExamine.Examinee.Description = $"Minerai disponible estimé : {NWN.Utils.random.Next(0, 2 * peltAmount)}";
+              onExamine.Examinee.Description = $"Peau disponible estimé : {NWN.Utils.random.Next(0, 2 * peltAmount)}";
           }
           else
-            onExamine.Examinee.Description = $"Minerai disponible : {peltAmount}";
+            onExamine.Examinee.Description = $"Peau disponible : {peltAmount}";
 
           break;
         case "blueprint":
@@ -145,9 +145,26 @@ namespace NWN.Systems
           string descriptionPlank = "Stock actuel de planches de bois raffinées : \n\n\n";
           foreach (var entry in Craft.Collect.Config.plankDictionnary)
             if (player.materialStock.TryGetValue(entry.Value.name, out int playerStock))
-              descriptionPlank += $"* {entry.Value.name}: {playerStock}\n\n";
+              descriptionPlank += $"* {entry.Key.ToDescription()}: {playerStock}\n\n";
 
           onExamine.Examinee.Description = descriptionPlank;
+          break;
+        case "tannerie_peau":
+          string descriptionPelt = "Stock actuel de peaux brut : \n\n\n";
+          foreach (var entry in Craft.Collect.Config.peltDictionnary)
+            if (player.materialStock.TryGetValue(entry.Value.name, out int playerStock))
+              descriptionPelt += $"* {entry.Key.ToDescription()}: {playerStock}\n\n";
+
+          onExamine.Examinee.Description = descriptionPelt;
+          break;
+
+        case "tannerie":
+          string descriptionLeather = "Stock actuel de planches de cuir tanné : \n\n\n";
+          foreach (var entry in Craft.Collect.Config.leatherDictionnary)
+            if (player.materialStock.TryGetValue(entry.Value.name, out int playerStock))
+              descriptionLeather += $"* {entry.Key.ToDescription()}: {playerStock}\n\n";
+
+          onExamine.Examinee.Description = descriptionLeather;
           break;
       }
     }

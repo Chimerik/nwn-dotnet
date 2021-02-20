@@ -12,26 +12,26 @@ namespace NWN.Systems
   [ServiceBinding(typeof(PlaceableSystem))]
   public class PlaceableSystem
   {
-        public static NativeEventService nativeEventService;
-        public PlaceableSystem(NativeEventService eventService)
-        {
-            nativeEventService = eventService;
+    public static NativeEventService nativeEventService;
+    public PlaceableSystem(NativeEventService eventService)
+    {
+      nativeEventService = eventService;
 
-            foreach (NwDoor door in NwModule.FindObjectsOfType<NwDoor>())
-                eventService.Subscribe<NwDoor, DoorEvents.OnOpen>(door, HandleDoorAutoClose);
+      foreach (NwDoor door in NwModule.FindObjectsOfType<NwDoor>())
+        eventService.Subscribe<NwDoor, DoorEvents.OnOpen>(door, HandleDoorAutoClose);
 
-            foreach (NwPlaceable bassin in NwModule.FindObjectsWithTag<NwPlaceable>("ench_bsn"))
-                eventService.Subscribe<NwPlaceable, PlaceableEvents.OnClose>(bassin, HandleCloseEnchantementBassin);
+      foreach (NwPlaceable bassin in NwModule.FindObjectsWithTag<NwPlaceable>("ench_bsn"))
+        eventService.Subscribe<NwPlaceable, PlaceableEvents.OnClose>(bassin, HandleCloseEnchantementBassin);
 
-            foreach (NwPlaceable plc in NwModule.FindObjectsWithTag<NwPlaceable>(Arena.Config.PVE_ARENA_PULL_ROPE_CHAIN_TAG, "portal_storage_out", "portal_storage_in", "portal_start", "respawn_neutral", "respawn_dire", "respawn_radiant", "theater_rope"))
-                eventService.Subscribe<NwPlaceable, PlaceableEvents.OnUsed>(plc, HandlePlaceableUsed);
+      foreach (NwPlaceable plc in NwModule.FindObjectsWithTag<NwPlaceable>(Arena.Config.PVE_ARENA_PULL_ROPE_CHAIN_TAG, "portal_storage_out", "portal_storage_in", "portal_start", "respawn_neutral", "respawn_dire", "respawn_radiant", "theater_rope"))
+        eventService.Subscribe<NwPlaceable, PlaceableEvents.OnUsed>(plc, HandlePlaceableUsed);
 
-            foreach (NwCreature statue in NwModule.FindObjectsWithTag<NwCreature>("Statuereptilienne", "Statuereptilienne2", "statue_tiamat"))
-            {
-                eventService.Subscribe<NwCreature, CreatureEvents.OnConversation>(statue, HandleCancelStatueConversation);
-                eventService.Subscribe<NwCreature, CreatureEvents.OnPerception>(statue, HandleStatufyCreature);
-            }
-        }
+      foreach (NwCreature statue in NwModule.FindObjectsWithTag<NwCreature>("Statuereptilienne", "Statuereptilienne2", "statue_tiamat"))
+      {
+        eventService.Subscribe<NwCreature, CreatureEvents.OnConversation>(statue, HandleCancelStatueConversation);
+        eventService.Subscribe<NwCreature, CreatureEvents.OnPerception>(statue, HandleStatufyCreature);
+      }
+    }
     public static void HandleCleanDMPLC(PlaceableEvents.OnDeath onDeath)
     {
       NwPlaceable plc = onDeath.KilledObject;
@@ -47,12 +47,12 @@ namespace NWN.Systems
     }
     public static void HandlePlaceableUsed(PlaceableEvents.OnUsed onUsed)
     {
-        if (PlayerSystem.Players.TryGetValue(onUsed.UsedBy, out PlayerSystem.Player player))
+      if (PlayerSystem.Players.TryGetValue(onUsed.UsedBy, out PlayerSystem.Player player))
         switch (onUsed.Placeable.Tag)
         {
           case "respawn_neutral":
             PlayerSystem.Respawn(player, "neutral");
-            break;  
+            break;
           case "respawn_radiant":
             PlayerSystem.Respawn(player, "radiant");
             break;
@@ -63,19 +63,19 @@ namespace NWN.Systems
             int visibilty;
             if (onUsed.UsedBy.Area.GetLocalVariable<int>("_THEATER_CURTAIN_OPEN").HasNothing)
             {
-                visibilty = VisibilityPlugin.NWNX_VISIBILITY_HIDDEN;
-                onUsed.UsedBy.Area.GetLocalVariable<int>("_THEATER_CURTAIN_OPEN").Value = 1;
+              visibilty = VisibilityPlugin.NWNX_VISIBILITY_HIDDEN;
+              onUsed.UsedBy.Area.GetLocalVariable<int>("_THEATER_CURTAIN_OPEN").Value = 1;
             }
             else
             {
-                visibilty = VisibilityPlugin.NWNX_VISIBILITY_VISIBLE;
-                onUsed.UsedBy.Area.GetLocalVariable<int>("_THEATER_CURTAIN_OPEN").Delete();
+              visibilty = VisibilityPlugin.NWNX_VISIBILITY_VISIBLE;
+              onUsed.UsedBy.Area.GetLocalVariable<int>("_THEATER_CURTAIN_OPEN").Delete();
             }
 
             foreach (NwPlaceable plc in onUsed.UsedBy.Area.FindObjectsOfTypeInArea<NwPlaceable>().Where(o => o.Tag == "theater_curtain"))
-                            VisibilityPlugin.SetVisibilityOverride(NWScript.OBJECT_INVALID, plc, visibilty);
+              VisibilityPlugin.SetVisibilityOverride(NWScript.OBJECT_INVALID, plc, visibilty);
             break;
-            case "portal_start":
+          case "portal_start":
             player.oid.Location = NwModule.FindObjectsWithTag<NwWaypoint>("WP_START_NEW_CHAR").FirstOrDefault().Location;
             break;
           case "portal_storage_in":
@@ -98,7 +98,7 @@ namespace NWN.Systems
           case "portal_storage_out":
             player.oid.Location = NwModule.FindObjectsWithTag<NwWaypoint>("wp_outentrepot").FirstOrDefault().Location;
             break;
-        case Arena.Config.PVE_ARENA_PULL_ROPE_CHAIN_TAG:
+          case Arena.Config.PVE_ARENA_PULL_ROPE_CHAIN_TAG:
             Arena.ScriptHandlers.HandlePullRopeChainUse();
             break;
         }
@@ -143,35 +143,35 @@ namespace NWN.Systems
     }
     private async void HandleDoorAutoClose(DoorEvents.OnOpen onOpen)
     {
-        await NwTask.Delay(TimeSpan.FromSeconds(5));
-        await onOpen.Door.PlayAnimation(Animation.DoorClose, 1);
+      await NwTask.Delay(TimeSpan.FromSeconds(5));
+      await onOpen.Door.PlayAnimation(Animation.DoorClose, 1);
     }
-        public void HandleCloseEnchantementBassin(PlaceableEvents.OnClose onClose)
-        {
-            NwCreature oPC = onClose.LastClosedBy;
+    public void HandleCloseEnchantementBassin(PlaceableEvents.OnClose onClose)
+    {
+      NwCreature oPC = onClose.LastClosedBy;
 
-            if (!PlayerSystem.Players.TryGetValue(oPC, out PlayerSystem.Player player))
-                NWScript.SendMessageToPC(oPC, "Player is not valid.");
+      if (!PlayerSystem.Players.TryGetValue(oPC, out PlayerSystem.Player player))
+        NWScript.SendMessageToPC(oPC, "Player is not valid.");
 
-            var oItem = NWScript.GetFirstItemInInventory(oPC);
+      var oItem = NWScript.GetFirstItemInInventory(oPC);
 
-            if (oItem == NWScript.OBJECT_INVALID)
-                NWScript.SendMessageToPC(oPC, "Item is not valid.");
-
-
-            if (!ItemUtils.IsEquipable(oItem))
-                NWScript.SendMessageToPC(oPC, "Item is not equipable.");
-
-            if (NWScript.GetPlotFlag(oItem) == 1)
-                NWScript.SendMessageToPC(oPC, "Cannot enchant a plot item.");
+      if (oItem == NWScript.OBJECT_INVALID)
+        NWScript.SendMessageToPC(oPC, "Item is not valid.");
 
 
-            var oSecondItem = NWScript.GetNextItemInInventory(onClose.Placeable);
-            if (oSecondItem != NWScript.OBJECT_INVALID)
-                NWScript.SendMessageToPC(oPC, "Invalid number of items.");
+      if (!ItemUtils.IsEquipable(oItem))
+        NWScript.SendMessageToPC(oPC, "Item is not equipable.");
 
-            var tag = NWScript.GetTag(oItem);
-            EnchantmentBasinSystem.GetEnchantmentBasinFromTag(tag).DrawMenu(player, oItem, onClose.Placeable);
-        }
+      if (NWScript.GetPlotFlag(oItem) == 1)
+        NWScript.SendMessageToPC(oPC, "Cannot enchant a plot item.");
+
+
+      var oSecondItem = NWScript.GetNextItemInInventory(onClose.Placeable);
+      if (oSecondItem != NWScript.OBJECT_INVALID)
+        NWScript.SendMessageToPC(oPC, "Invalid number of items.");
+
+      var tag = NWScript.GetTag(oItem);
+      EnchantmentBasinSystem.GetEnchantmentBasinFromTag(tag).DrawMenu(player, oItem, onClose.Placeable);
     }
+  }
 }

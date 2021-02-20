@@ -175,33 +175,41 @@ namespace NWN.Systems.Craft.Collect
     public enum PeltType
     {
       Invalid = 0,
-      [Description("Peau de mauvaise qualité")]
+      [Description("Peau_de_mauvaise_qualite")]
       MauvaisePeau = 1,
-      [Description("Peau commune")]
+      [Description("Peau_commune")]
       PeauCommune = 2,
-      [Description("Peau normale")]
+      [Description("Peau_normale")]
       PeauNormale = 3,
-      [Description("Peau peu commune")]
+      [Description("Peau_peu_commune")]
       PeauPeuCommune = 4,
-      [Description("Peau rare")]
+      [Description("Peau_rare")]
       PeauRare = 5,
-      [Description("Peau magique")]
+      [Description("Peau_magique")]
       PeauMagique = 6,
-      [Description("Peau épique")]
+      [Description("Peau_epique")]
       PeauEpique = 7,
-      [Description("Peau légendaire")]
+      [Description("Peau_legendaire")]
       PeauLegendaire = 8,
     }
     public enum LeatherType
     {
       Invalid = 0,
+      [Description("Cuir_de_mauvaise_qualite")]
       MauvaisCuir = 1,
+      [Description("Cuir_commun")]
       CuirCommun = 2,
+      [Description("Cuir_normal")]
       CuirNormal = 3,
+      [Description("Cuir_peu_commun")]
       CuirPeuCommun = 4,
+      [Description("Cuir_rare")]
       CuirRare = 5,
+      [Description("Cuir_magique")]
       CuirMagique = 6,
+      [Description("Cuir_epique")]
       CuirEpique = 7,
+      [Description("Cuir_legendaire")]
       CuirLegendaire = 8,
     }
     public static Dictionary<PeltType, Pelt> peltDictionnary = new Dictionary<PeltType, Pelt>()
@@ -294,13 +302,21 @@ namespace NWN.Systems.Craft.Collect
     public enum PlankType
     {
       Invalid = 0,
+      [Description("Bois_de_Laurelin")]
       Laurelinade = 1, // Silmarillion : capture la lumière divine dorée
+      [Description("Bois_de_Telperion")]
       Telperionade = 2, // Silmarillion : capture la lumière divine argentée
+      [Description("Bois_de_Mallorn")]
       Mallornade = 3,
+      [Description("Bois_de_Nimloth")]
       Nimlothade = 4,
+      [Description("Bois_de_Oiolaire")]
       Oiolaireade = 5,
+      [Description("Bois_de_Qlipoth")]
       Qliphothade = 6,
+      [Description("Bois_de_Ferochene")]
       Ferochenade = 7,
+      [Description("Bois_de_Valinor")]
       Valinorade = 8,
     }
     public static ItemProperty[] GetBadItemProperties(ItemCategory itemCategory, uint craftedItem)
@@ -593,5 +609,7 @@ namespace NWN.Systems.Craft.Collect
 
       return PeltType.Invalid;
     }
+
+
   }
 }

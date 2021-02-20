@@ -4,69 +4,72 @@ using System;
 
 namespace NWN.Systems.Items.ItemUseHandlers
 {
-    public static class ResourceExtractor
+  public static class ResourceExtractor
+  {
+    public static void HandleActivate(NwItem oItem, NwPlayer oPC, uint oTarget)
     {
-        public static void HandleActivate(NwItem oItem, NwPlayer oPC, uint oTarget)
-        {
-            if (!PlayerSystem.Players.TryGetValue(oPC, out PlayerSystem.Player player))
-                return;
+      if (!PlayerSystem.Players.TryGetValue(oPC, out PlayerSystem.Player player))
+        return;
 
-            NwGameObject target = oTarget.ToNwObject<NwGameObject>();
+      NwGameObject target = oTarget.ToNwObject<NwGameObject>();
 
-            player.CancelCollectCycle();
+      if (target == null)
+        return;
 
-            if (oPC.Distance(target) > 5.0f)
-            {
-                oPC.SendServerMessage("Vous êtes trop éloigné de votre cible pour démarrer l'extraction.");
-                return;
-            }
+      player.CancelCollectCycle();
 
-            switch (target.Tag)
-            {
-                case "mineable_rock":
-                    Craft.Collect.System.StartCollectCycle(
-                      player,
-                      oTarget,
-                      () => Craft.Collect.Ore.HandleCompleteCycle(player, oTarget, oItem)
-                    );
-                    break;
+      if (oPC.Distance(target) > 5.0f)
+      {
+        oPC.SendServerMessage("Vous êtes trop éloigné de votre cible pour démarrer l'extraction.");
+        return;
+      }
 
-                case "fissurerocheuse":
-                    Craft.Collect.System.StartCollectCycle(
-                      player,
-                      oTarget,
-                      () => Craft.Collect.Ore.HandleCompleteProspectionCycle(player, oTarget, oItem)
-                    );
+      switch (target.Tag)
+      {
+        case "mineable_rock":
+          Craft.Collect.System.StartCollectCycle(
+            player,
+            oTarget,
+            () => Craft.Collect.Ore.HandleCompleteCycle(player, oTarget, oItem)
+          );
+          break;
 
-                    //SpawnDisturbedMonsters(player.oid, oTarget);
+        case "fissurerocheuse":
+          Craft.Collect.System.StartCollectCycle(
+            player,
+            oTarget,
+            () => Craft.Collect.Ore.HandleCompleteProspectionCycle(player, oTarget, oItem)
+          );
 
-                    break;
+          //SpawnDisturbedMonsters(player.oid, oTarget);
 
-                case "mineable_tree":
-                    Craft.Collect.System.StartCollectCycle(
-                      player,
-                      oTarget,
-                      () => Craft.Collect.Wood.HandleCompleteCycle(player, oTarget, oItem)
-                    );
-                    break;
+          break;
 
-                case "mineable_animal":
-                    if (Convert.ToBoolean(NWScript.GetIsDead(oTarget)))
-                    {
-                        Craft.Collect.System.StartCollectCycle(
-                          player,
-                          oTarget,
-                          () => Craft.Collect.Pelt.HandleCompleteCycle(player, oTarget, oItem)
-                        );
-                    }
-                    else
-                        oPC.SendServerMessage("La cible doit être abattue avant de pouvoir commencer le dépeçage.");
-                    break;
+        case "mineable_tree":
+          Craft.Collect.System.StartCollectCycle(
+            player,
+            oTarget,
+            () => Craft.Collect.Wood.HandleCompleteCycle(player, oTarget, oItem)
+          );
+          break;
 
-                default:
-                    oPC.SendServerMessage($"{target.Name} n'est pas une cible valide pour l'extraction de matières premières.");
-                    break;
-            }
-        }
+        case "mineable_animal":
+          if (Convert.ToBoolean(NWScript.GetIsDead(oTarget)))
+          {
+            Craft.Collect.System.StartCollectCycle(
+              player,
+              oTarget,
+              () => Craft.Collect.Pelt.HandleCompleteCycle(player, oTarget, oItem)
+            );
+          }
+          else
+            oPC.SendServerMessage("La cible doit être abattue avant de pouvoir commencer le dépeçage.");
+          break;
+
+        default:
+          oPC.SendServerMessage($"{target.Name} n'est pas une cible valide pour l'extraction de matières premières.");
+          break;
+      }
     }
+  }
 }

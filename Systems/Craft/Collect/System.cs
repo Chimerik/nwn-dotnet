@@ -7,6 +7,7 @@ using static NWN.Systems.Craft.Blueprint;
 using NWN.Services;
 using NWN.API;
 using NLog;
+using System.Linq;
 
 namespace NWN.Systems.Craft.Collect
 {
@@ -151,16 +152,28 @@ namespace NWN.Systems.Craft.Collect
     }
     public static void AddCraftedItemProperties(NwItem craftedItem, string material)
     {
-      craftedItem.Name = $"{craftedItem.Name} en {material}";
+      string name = material;
+
+      if (leatherDictionnary.Any(l => l.Value.name == material))
+        name = leatherDictionnary.First(l => l.Value.name == material).Key.ToDescription();
+      else if (plankDictionnary.Any(l => l.Value.name == material))
+        name = plankDictionnary.First(l => l.Value.name == material).Key.ToDescription();
+
+      craftedItem.Name = $"{craftedItem.Name} en {name}";
       craftedItem.GetLocalVariable<string>("_ITEM_MATERIAL").Value = material;
 
-      foreach (NWN.Core.ItemProperty ip in GetCraftItemProperties(material, craftedItem))
+      foreach (Core.ItemProperty ip in GetCraftItemProperties(material, craftedItem))
       {
         //NWScript.SendMessageToPC(NWScript.GetFirstPC(), $"Adding IP : {ip}");
         NWScript.AddItemProperty(NWScript.DURATION_TYPE_PERMANENT, ip, craftedItem);
       }
 
       Log.Info("properties added");
+    }
+    public static void AddCraftedEnchantementProperties(NwItem craftedItem, int spellId)
+    {
+      craftedItem.AddItemProperty(GetCraftEnchantementProperties(craftedItem, spellId), EffectDuration.Permanent);
+      Log.Info("Enchantement properties added");
     }
     public static bool IsItemCraftMaterial(string itemTag)
     {

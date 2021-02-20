@@ -185,7 +185,7 @@ namespace NWN.Systems
           Log.Info($"{player.oid.Name} was afk. Applying 20 % malus.");
         }
 
-        Log.Info($"SP CALCULATION - {player.oid.Name} - {SP} SP.");
+        //Log.Info($"SP CALCULATION - {player.oid.Name} - {SP} SP.");
 
         return SP;
       }

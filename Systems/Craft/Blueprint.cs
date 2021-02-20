@@ -1,5 +1,7 @@
 ﻿using System;
+using System.Linq;
 using NWN.API;
+using NWN.API.Constants;
 using NWN.Core;
 using NWN.Core.NWNX;
 using static NWN.Systems.Craft.Collect.Config;
@@ -239,6 +241,25 @@ namespace NWN.Systems.Craft
       }
 
       return "Invalid";
+    }
+    public static API.ItemProperty GetCraftEnchantementProperties(NwItem craftedItem, int spellId)
+    {
+      switch (NWScript.GetSpellId())
+      {
+        case 840:
+          API.ItemProperty currentIP = craftedItem.ItemProperties.FirstOrDefault(ip => ip.Tag == "ENCH_CON_BONUS");
+
+          if (currentIP != null)
+          {
+            craftedItem.RemoveItemProperty(currentIP);
+            return NWScript.TagItemProperty(API.ItemProperty.AbilityBonus(IPAbility.Constitution, currentIP.CostTableValue + 1), "ENCH_CON_BONUS");
+          }
+          else
+            return NWScript.TagItemProperty(API.ItemProperty.AbilityBonus(IPAbility.Constitution, 1), "ENCH_CON_BONUS");
+        default:
+          Utils.LogMessageToDMs($"ENCHANTEMENT - Aucune propriétée correspondant au sort {spellId} n'a pu être trouvée");
+          return API.ItemProperty.Material(0);
+      }
     }
   }
 }

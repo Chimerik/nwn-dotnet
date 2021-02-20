@@ -127,7 +127,7 @@ namespace NWN.Systems
 
       foreach (var entry in plankDictionnary)
         if(player.materialStock.TryGetValue(entry.Value.name, out int playerStock))
-          player.menu.titleLines.Add($"* {entry.Value.name}: {playerStock}");
+          player.menu.titleLines.Add($"* {entry.Key.ToDescription()}: {playerStock}");
 
       player.menu.choices.Add((
         "Retour",
@@ -162,7 +162,7 @@ namespace NWN.Systems
 
       foreach (var entry in peltDictionnary)
         if (player.materialStock.TryGetValue(entry.Value.name, out int playerStock))
-          player.menu.titleLines.Add($"* {entry.Value.name}: {playerStock}");
+          player.menu.titleLines.Add($"* {entry.Key.ToDescription()}: {playerStock}");
 
       player.menu.choices.Add((
         "Retour",
@@ -178,7 +178,7 @@ namespace NWN.Systems
 
       foreach (var entry in leatherDictionnary)
         if (player.materialStock.TryGetValue(entry.Value.name, out int playerStock))
-          player.menu.titleLines.Add($"* {entry.Value.name}: {playerStock}");
+          player.menu.titleLines.Add($"* {entry.Key.ToDescription()}: {playerStock}");
 
       player.menu.choices.Add((
         "Retour",

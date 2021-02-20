@@ -45,7 +45,7 @@ namespace NWN.Systems
 
         PeltType peltType = GetPeltTypeFromItemTag(item.Tag);
         if (peltType != PeltType.Invalid)
-          item.Tag = peltType.ToDescription();
+          item.Tag = Enum.GetName(typeof(PeltType), peltType) ?? "";
 
         if (player.materialStock.ContainsKey(item.Tag))
           player.materialStock[item.Tag] += addedOre;

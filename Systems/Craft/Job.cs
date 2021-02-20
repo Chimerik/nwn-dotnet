@@ -43,6 +43,9 @@ namespace NWN.Systems.Craft
         case -13:
           this.type = JobType.BlueprintResearchTimeEfficiency;
           break;
+        case -14:
+          this.type = JobType.Enchantement;
+          break;
         default:
           this.type = JobType.Item;
           break;
@@ -61,6 +64,7 @@ namespace NWN.Systems.Craft
       BlueprintCopy = 2,
       BlueprintResearchMaterialEfficiency = 3,
       BlueprintResearchTimeEfficiency = 4,
+      Enchantement = 5,
     }
     public Boolean IsActive()
     {
@@ -81,7 +85,7 @@ namespace NWN.Systems.Craft
     }
     public Boolean CanStartJob(uint player, uint blueprint, JobType type)
     {
-      if ((int)type > 1) // Dans le cas d'une copie ou d'une recherche de BP
+      if (type == JobType.BlueprintCopy || type == JobType.BlueprintResearchMaterialEfficiency || type == JobType.BlueprintResearchTimeEfficiency) // Dans le cas d'une copie ou d'une recherche de BP
       {
         if (!IsBlueprintOriginal(blueprint))
         {
@@ -134,6 +138,9 @@ namespace NWN.Systems.Craft
       {
         case JobType.Item:
           StartItemCraft(blueprint, oItem, oTarget, sMaterial);
+          break;
+        case JobType.Enchantement:
+          StartEnchantementCraft(oTarget, sMaterial);
           break;
         case JobType.BlueprintCopy:
           StartBlueprintCopy(player, oItem, blueprint);
@@ -203,6 +210,49 @@ namespace NWN.Systems.Craft
         }
       }
     }
+    public void StartEnchantementCraft(uint oTarget, string spellId)
+    {
+      if (!int.TryParse(NWScript.Get2DAString("spells", "Wiz_Sorc", Int32.Parse(spellId)), out int spellLevel))
+      {
+        player.oid.SendServerMessage("HRP - Le niveau de sort de votre enchantement est incorrectement configuré. Le staff a été prévenu !");
+        Utils.LogMessageToDMs($"ENCHANTEMENT - {player.oid.Name} - spell level introuvable pour spellid : {spellId}");
+        return;
+      }
+
+      int baseItemType = NWScript.GetBaseItemType(oTarget);
+      int baseCost = 9999;
+
+      if (baseItemType == NWScript.BASE_ITEM_ARMOR)
+      {
+        if (!int.TryParse(NWScript.Get2DAString("armor", "COST", ItemPlugin.GetBaseArmorClass(oTarget)), out baseCost))
+        {
+          player.oid.SendServerMessage("HRP - Le coût de base de l'object à enchanter est incorrectement configuré. Le staff a été prévenu !");
+          Utils.LogMessageToDMs($"ENCHANTEMENT - {player.oid.Name} - baseCost introuvable pour baseItemType : {baseItemType}");
+          return;
+        }
+      }
+      else
+      {
+        if (!int.TryParse(NWScript.Get2DAString("baseitems", "BaseCost", baseItemType), out baseCost))
+        {
+          player.oid.SendServerMessage("HRP - Le coût de base de l'object à enchanter est incorrectement configuré. Le staff a été prévenu !");
+          Utils.LogMessageToDMs($"ENCHANTEMENT - {player.oid.Name} - baseCost introuvable pour baseItemType : {baseItemType}");
+          return;
+        }
+      }
+
+      float iJobDuration = baseCost * spellLevel * 100;
+
+      player.craftJob = new Job(-14, spellId, iJobDuration, player, ObjectPlugin.Serialize(oTarget)); // -14 = JobType enchantement
+
+      NWScript.SendMessageToPC(player.oid, $"Vous venez de démarrer l'enchantement de : {NWScript.GetName(oTarget)}");
+      // TODO : afficher des effets visuels
+
+      NWScript.DestroyObject(oTarget);
+      NWScript.SendMessageToPC(player.oid, $"L'objet {NWScript.GetName(oTarget)} ne sera pas disponible jusqu'à la fin du travail d'enchantement.");
+
+      player.craftJob.isCancelled = false;
+    }
     public void StartBlueprintMaterialEfficiencyResearch(PlayerSystem.Player player, uint oBlueprint, Blueprint blueprint)
     {
       if (player.craftJob.CanStartJob(player.oid, oBlueprint, JobType.BlueprintResearchMaterialEfficiency))
@@ -258,6 +308,9 @@ namespace NWN.Systems.Craft
         case JobType.BlueprintResearchTimeEfficiency:
           journalEntry.sText = $"Recherche d'efficacité en cours : {NWScript.GetName(ObjectPlugin.Deserialize(craftedItem))}";
           break;
+        case JobType.Enchantement:
+          journalEntry.sText = $"Enchantement en cours : {NWScript.GetName(ObjectPlugin.Deserialize(craftedItem))}";
+          break;
         default:
           journalEntry.sText = $"Fabrication en cours : {blueprintDictionnary[baseItemType].name}";
           break;
@@ -283,6 +336,9 @@ namespace NWN.Systems.Craft
         case JobType.BlueprintResearchTimeEfficiency:
           journalEntry.sName = $"Travail artisanal en pause - Recherche en efficacité";
           break;
+        case JobType.Enchantement:
+          journalEntry.sText = $"Enchantement en pause";
+          break;
         default:
           journalEntry.sName = $"Travail artisanal en pause - {blueprintDictionnary[baseItemType].name}";
           break;
@@ -307,6 +363,9 @@ namespace NWN.Systems.Craft
           break;
         case JobType.BlueprintResearchTimeEfficiency:
           journalEntry.sName = $"Travail artisanal terminé - Recherche en efficacité";
+          break;
+        case JobType.Enchantement:
+          journalEntry.sName = $"Enchantement terminé - {NWScript.GetName(ObjectPlugin.Deserialize(craftedItem))}";
           break;
         default:
           journalEntry.sName = $"Travail artisanal terminé - {blueprintDictionnary[baseItemType].name}";

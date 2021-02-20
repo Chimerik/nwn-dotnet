@@ -1,9 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
 using NWN.API;
-using NWN.API.Events;
 using NWN.Core;
-using NWN.Core.NWNX;
 using NWN.Services;
 using static NWN.Systems.PlayerSystem;
 

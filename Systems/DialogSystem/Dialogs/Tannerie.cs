@@ -20,7 +20,7 @@ namespace NWN.Systems
       player.setValue = 0;
       player.menu.Clear();
       player.menu.titleLines = new List<string> {
-        $"Scierie - Les peaux brutes sont acheminées de votre entrepôt.",
+        $"Tannerie - Les peaux brutes sont acheminées de votre entrepôt.",
         "Efficacité : -35 %. Que souhaitez-vous transformer en cuir ?",
         "(Utilisez la commande !set X avant de valider votre choix)"
       };
@@ -28,7 +28,7 @@ namespace NWN.Systems
       foreach (KeyValuePair<string, int> materialEntry in player.materialStock)
       {
         if (materialEntry.Value > 100 && Enum.TryParse(materialEntry.Key, out PeltType myOreType) && myOreType != PeltType.Invalid)
-          player.menu.choices.Add(($"{materialEntry.Key} - {materialEntry.Value} unité(s).", () => HandleRefineOreQuantity(player, materialEntry.Key)));
+          player.menu.choices.Add(($"{myOreType.ToDescription()} - {materialEntry.Value} unité(s).", () => HandleRefineOreQuantity(player, materialEntry.Key)));
       }
 
       player.menu.choices.Add(("Quitter", () => player.menu.Close()));
