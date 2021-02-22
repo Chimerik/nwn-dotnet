@@ -170,7 +170,7 @@ namespace NWN.Systems.Craft.Collect
 
       Log.Info("properties added");
     }
-    public static void AddCraftedEnchantementProperties(NwItem craftedItem, int spellId)
+    public static void AddCraftedEnchantementProperties(NwItem craftedItem, string spellId)
     {
       craftedItem.AddItemProperty(GetCraftEnchantementProperties(craftedItem, spellId), EffectDuration.Permanent);
       Log.Info("Enchantement properties added");

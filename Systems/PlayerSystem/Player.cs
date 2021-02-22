@@ -270,7 +270,7 @@ namespace NWN.Systems
             enchantedItem.GetLocalVariable<int>("_AVAILABLE_ENCHANTEMENT_SLOT").Value -= 1;
             if (enchantedItem.GetLocalVariable<int>("_AVAILABLE_ENCHANTEMENT_SLOT").Value <= 0)
               enchantedItem.GetLocalVariable<int>("_AVAILABLE_ENCHANTEMENT_SLOT").Delete();
-            Craft.Collect.System.AddCraftedEnchantementProperties(enchantedItem, Int32.Parse(craftJob.material));
+            Craft.Collect.System.AddCraftedEnchantementProperties(enchantedItem, craftJob.material);
             break;
           default:
             if (Craft.Collect.System.blueprintDictionnary.TryGetValue(craftJob.baseItemType, out Blueprint blueprint))

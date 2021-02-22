@@ -14,6 +14,10 @@ namespace NWN.Systems
 {
   public static partial class CommandSystem
   {
+    private static Dictionary<int, API.ItemProperty[]> enchantementCategories = new Dictionary<int, API.ItemProperty[]>()
+    {
+      {841, new API.ItemProperty[] { API.ItemProperty.ACBonusVsRace(IPRacialType.HumanoidGoblinoid, 1), API.ItemProperty.ACBonusVsRace(IPRacialType.Animal, 1), API.ItemProperty.ACBonusVsRace(IPRacialType.HumanoidReptilian, 1), API.ItemProperty.ACBonusVsRace(IPRacialType.Vermin, 1), API.ItemProperty.AttackBonusVsRace(IPRacialType.HumanoidGoblinoid, 1), API.ItemProperty.AttackBonusVsRace(IPRacialType.Animal, 1), API.ItemProperty.AttackBonusVsRace(IPRacialType.HumanoidReptilian, 1), API.ItemProperty.AttackBonusVsRace(IPRacialType.Vermin, 1) } },
+    };
     private static void ExecuteTestCommand(ChatSystem.Context ctx, Options.Result options)
     {
       if (PlayerSystem.Players.TryGetValue(ctx.oSender, out PlayerSystem.Player player))
@@ -23,17 +27,20 @@ namespace NWN.Systems
 
         if (NWScript.GetPCPlayerName(player.oid) == "Chim")
         {
-          /*NwItem oScroll = NwItem.Create("spellscroll", player.oid, 1, "scroll");
-          int spellId = int.Parse(NWScript.Get2DAString("iprp_spells", "SpellIndex", 540));
+          NwItem oScroll = NwItem.Create("spellscroll", player.oid, 1, "scroll");
+          int spellId = int.Parse(NWScript.Get2DAString("iprp_spells", "SpellIndex", 541));
           oScroll.Name = $"{NWScript.GetStringByStrRef(int.Parse(NWScript.Get2DAString("spells", "Name", spellId)))}";
           oScroll.Description = $"{NWScript.GetStringByStrRef(int.Parse(NWScript.Get2DAString("spells", "SpellDesc", spellId)))}";
 
-          oScroll.AddItemProperty(API.ItemProperty.CastSpell((IPCastSpell)540, IPCastSpellNumUses.SingleUse), EffectDuration.Permanent);
-          */
+          oScroll.AddItemProperty(API.ItemProperty.CastSpell((IPCastSpell)541, IPCastSpellNumUses.SingleUse), EffectDuration.Permanent);
+          
+
+          //DrawEnchantementChoicePage(player, "PLACEHOLDER", 841);
 
           Action<uint, Vector3> callback = (uint oTarget, Vector3 position) =>
           {
-            NWScript.SetLocalInt(oTarget, "_AVAILABLE_ENCHANTEMENT_SLOT", 2);
+            //NWScript.SetLocalInt(oTarget, "_AVAILABLE_ENCHANTEMENT_SLOT", 2);
+
             // HP TEST
             /*int improvedConst = CreaturePlugin.GetHighestLevelOfFeat(oTarget, (int)Feat.ImprovedConstitution);
             if (improvedConst == (int)Feat.Invalid)
@@ -74,26 +81,44 @@ namespace NWN.Systems
         }
       }
     }
-
-   /* public static String Translate(String word)
+    private static void DrawEnchantementChoicePage(PlayerSystem.Player player, string itemName, int spellId)
     {
-      var toLanguage = "en";
-      var fromLanguage = "fr";
-      var url = $"https://translate.googleapis.com/translate_a/single?client=gtx&sl={fromLanguage}&tl={toLanguage}&dt=t&q={HttpUtility.UrlEncode(word)}";
-      var webClient = new WebClient
-      {
-        Encoding = System.Text.Encoding.UTF8
+      player.menu.Clear();
+      player.menu.titleLines = new List<string> {
+        $"Quel enchantement souhaitez-vous appliquer sur votre {itemName} ?"
       };
-      var result = webClient.DownloadString(url);
-      try
-      {
-        result = result.Substring(4, result.IndexOf("\"", 4, StringComparison.Ordinal) - 4);
-        return result;
-      }
-      catch
-      {
-        return "Error";
-      }
-    }*/
+
+      foreach(API.ItemProperty ip in enchantementCategories[spellId])
+        player.menu.choices.Add(($"{NWScript.GetStringByStrRef(Int32.Parse(NWScript.Get2DAString("itempropdef", "Name", (int)ip.PropertyType)))} - {NWScript.GetStringByStrRef(Int32.Parse(NWScript.Get2DAString(NWScript.Get2DAString("itempropdef", "SubTypeResRef", (int)ip.PropertyType), "Name", (int)ip.SubType)))}", () => HandleEnchantementChoice(player, spellId, ip)));
+      
+      //player.menu.choices.Add(("Quitter", () => player.menu.Close()));
+      player.menu.Draw();
+    }
+
+    private static void HandleEnchantementChoice(PlayerSystem.Player player, int spellId, API.ItemProperty ip)
+    {
+      player.oid.SendServerMessage($"ip choisie : {ip.ToString()}");
+    }
+
+    /* public static String Translate(String word)
+     {
+       var toLanguage = "en";
+       var fromLanguage = "fr";
+       var url = $"https://translate.googleapis.com/translate_a/single?client=gtx&sl={fromLanguage}&tl={toLanguage}&dt=t&q={HttpUtility.UrlEncode(word)}";
+       var webClient = new WebClient
+       {
+         Encoding = System.Text.Encoding.UTF8
+       };
+       var result = webClient.DownloadString(url);
+       try
+       {
+         result = result.Substring(4, result.IndexOf("\"", 4, StringComparison.Ordinal) - 4);
+         return result;
+       }
+       catch
+       {
+         return "Error";
+       }
+     }*/
   }
 }

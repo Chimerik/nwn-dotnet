@@ -18,7 +18,10 @@ namespace NWN.Systems
       nativeEventService = eventService;
 
       foreach (NwDoor door in NwModule.FindObjectsOfType<NwDoor>())
+      {
         eventService.Subscribe<NwDoor, DoorEvents.OnOpen>(door, HandleDoorAutoClose);
+        eventService.Subscribe<NwDoor, DoorEvents.OnAreaTransitionClick>(door, HandleDoorAutoClose);
+      }
 
       foreach (NwPlaceable bassin in NwModule.FindObjectsWithTag<NwPlaceable>("ench_bsn"))
         eventService.Subscribe<NwPlaceable, PlaceableEvents.OnClose>(bassin, HandleCloseEnchantementBassin);
@@ -142,6 +145,11 @@ namespace NWN.Systems
       creature.PlotFlag = true;
     }
     private async void HandleDoorAutoClose(DoorEvents.OnOpen onOpen)
+    {
+      await NwTask.Delay(TimeSpan.FromSeconds(5));
+      await onOpen.Door.PlayAnimation(Animation.DoorClose, 1);
+    }
+    private async void HandleDoorAutoClose(DoorEvents.OnAreaTransitionClick onOpen)
     {
       await NwTask.Delay(TimeSpan.FromSeconds(5));
       await onOpen.Door.PlayAnimation(Animation.DoorClose, 1);

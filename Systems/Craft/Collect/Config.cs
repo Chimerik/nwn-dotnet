@@ -410,6 +410,9 @@ namespace NWN.Systems.Craft.Collect
     }
     public static ItemProperty[] GetPyeriteItemProperties(ItemCategory itemCategory, uint craftedItem = NWScript.OBJECT_INVALID)
     {
+      NWScript.SetLocalInt(craftedItem, "_DURABILITY", 20);
+      NWScript.SetLocalInt(craftedItem, "_AVAILABLE_ENCHANTEMENT_SLOT", 1);
+
       switch (itemCategory)
       {
         case ItemCategory.OneHandedMeleeWeapon: return GetPyeriteOneHandedMeleeWeaponProperties();

@@ -203,6 +203,8 @@ namespace NWN.Systems
           eff.SubType = EffectSubType.Supernatural;
           oPC.ApplyEffect(EffectDuration.Permanent, eff);
         }
+
+        oPC.SendServerMessage("Attention, en l'absence d'un casque, une vulnérabilité de 100 ¨% aux dégâts perforants vous est appliquée !");
       }
       else if (oPC.ActiveEffects.Any(e => e.Tag == "NO_HELMET_MALUS"))
         oPC.RemoveEffect(oPC.ActiveEffects.Where(e => e.Tag == "NO_HELMET_MALUS").FirstOrDefault());
@@ -215,6 +217,8 @@ namespace NWN.Systems
           eff.SubType = EffectSubType.Supernatural;
           oPC.ApplyEffect(EffectDuration.Permanent, eff);
         }
+
+        oPC.SendServerMessage("Attention, en l'absence d'une armure ou d'un vêtement, une vulnérabilité de 100 ¨% aux dégâts tranchants vous est appliquée !");
       }
       else if (oPC.ActiveEffects.Any(e => e.Tag == "NO_ARMOR_MALUS"))
         oPC.RemoveEffect(oPC.ActiveEffects.Where(e => e.Tag == "NO_ARMOR_MALUS").FirstOrDefault());
@@ -228,6 +232,8 @@ namespace NWN.Systems
           eff.SubType = EffectSubType.Supernatural;
           oPC.ApplyEffect(EffectDuration.Permanent, eff);
         }
+
+        oPC.SendServerMessage("Attention, en l'absence d'un bouclier, d'une arme à deux mains, ou d'une arme secondaire, une vulnérabilité de 100 ¨% aux dégâts contondants vous est appliquée !");
       }
       else if (oPC.ActiveEffects.Any(e => e.Tag == "NO_SHIELD_MALUS"))
         oPC.RemoveEffect(oPC.ActiveEffects.Where(e => e.Tag == "NO_ARMOR_MALUS").FirstOrDefault());

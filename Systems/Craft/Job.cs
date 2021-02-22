@@ -210,9 +210,15 @@ namespace NWN.Systems.Craft
         }
       }
     }
-    public void StartEnchantementCraft(uint oTarget, string spellId)
+    public void StartEnchantementCraft(uint oTarget, string ipString)
     {
-      if (!int.TryParse(NWScript.Get2DAString("spells", "Wiz_Sorc", Int32.Parse(spellId)), out int spellLevel))
+      Log.Info("start ench craft");
+
+      int spellId = Int32.Parse(ipString.Remove(ipString.IndexOf("_")));
+      ipString = ipString.Remove(0, ipString.IndexOf("_") + 1);
+      Log.Info($"ipString : {ipString}");
+
+      if (!int.TryParse(NWScript.Get2DAString("spells", "Wiz_Sorc", spellId), out int spellLevel))
       {
         player.oid.SendServerMessage("HRP - Le niveau de sort de votre enchantement est incorrectement configuré. Le staff a été prévenu !");
         Utils.LogMessageToDMs($"ENCHANTEMENT - {player.oid.Name} - spell level introuvable pour spellid : {spellId}");
@@ -221,6 +227,8 @@ namespace NWN.Systems.Craft
 
       int baseItemType = NWScript.GetBaseItemType(oTarget);
       int baseCost = 9999;
+
+      Log.Info($"base item type job : {baseItemType}");
 
       if (baseItemType == NWScript.BASE_ITEM_ARMOR)
       {
@@ -242,8 +250,8 @@ namespace NWN.Systems.Craft
       }
 
       float iJobDuration = baseCost * spellLevel * 100;
-
-      player.craftJob = new Job(-14, spellId, iJobDuration, player, ObjectPlugin.Serialize(oTarget)); // -14 = JobType enchantement
+      Log.Info($"duration : {iJobDuration}");
+      player.craftJob = new Job(-14, ipString, iJobDuration, player, ObjectPlugin.Serialize(oTarget)); // -14 = JobType enchantement
 
       NWScript.SendMessageToPC(player.oid, $"Vous venez de démarrer l'enchantement de : {NWScript.GetName(oTarget)}");
       // TODO : afficher des effets visuels
