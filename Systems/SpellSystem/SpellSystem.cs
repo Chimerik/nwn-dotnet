@@ -13,6 +13,9 @@ namespace NWN.Systems
   public partial class SpellSystem
   {
     public static readonly Logger Log = LogManager.GetCurrentClassLogger();
+    public static int[] lowEnchantements = new int[] { 540, 541, 542, 543, 544, 545, 546, 547, 548, 549, 550, 551, 552, 553, 554 };
+    public static int[] mediumEnchantements = new int[] { 555, 556, 557, 558, 559, 560, 561, 562 };
+    public static int[] highEnchantements = new int[] { 563, 564, 565, 566, 567, 568 };
 
     [ScriptHandler("a_spellbroadcast")]
     private void HandleAfterSpellBroadcast(CallInfo callInfo)

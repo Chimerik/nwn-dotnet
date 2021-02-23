@@ -16,6 +16,7 @@ namespace NWN.Systems
     public ExamineSystem(NWNXEventService nwnxEventService)
     {
       nwnxEventService.Subscribe<ExamineEvents.OnExamineObjectBefore>(OnExamineBefore);
+      nwnxEventService.Subscribe<ExamineEvents.OnExamineObjectAfter>(OnExamineAfter);
     }
     private void OnExamineBefore(ExamineEvents.OnExamineObjectBefore onExamine)
     {
@@ -167,6 +168,16 @@ namespace NWN.Systems
           onExamine.Examinee.Description = descriptionLeather;
           break;
       }
+
+      if (onExamine.Examinee is NwItem)
+        if (onExamine.Examinee.GetLocalVariable<int>("_AVAILABLE_ENCHANTEMENT_SLOT").HasValue)
+          onExamine.Examinee.Description += $"\n\n Emplacement(s) d'enchantement disponibles : {onExamine.Examinee.GetLocalVariable<int>("_AVAILABLE_ENCHANTEMENT_SLOT").Value}";
+    }
+    private void OnExamineAfter(ExamineEvents.OnExamineObjectAfter onExamine)
+    {
+      if (onExamine.Examinee is NwItem)
+        if (onExamine.Examinee.GetLocalVariable<int>("_AVAILABLE_ENCHANTEMENT_SLOT").HasValue)
+          onExamine.Examinee.Description.Remove(onExamine.Examinee.Description.IndexOf($"\n\n Emplacement(s) d'enchantement disponibles : {onExamine.Examinee.GetLocalVariable<int>("_AVAILABLE_ENCHANTEMENT_SLOT").Value}"), onExamine.Examinee.Description.Length);
     }
   }
 }

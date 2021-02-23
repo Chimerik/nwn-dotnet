@@ -20,6 +20,7 @@ namespace NWN.Systems
                     new Lootable.Item(chestTag: "ammunitions", count: 1, chance: 25),
                     new Lootable.Item(chestTag: "low_blueprints", count: 1, chance: 1),
                     new Lootable.Item(chestTag: "low_skillbooks", count: 1, chance: 1),
+                    new Lootable.Item(chestTag: "low_enchantements", count: 1, chance: 1),
                     new Lootable.Item(chestTag: "low_potions", count: 2, chance: 80),
                     new Lootable.Item(chestTag: "low_scrolls", count: 1, chance: 30),
                 }
@@ -56,6 +57,7 @@ namespace NWN.Systems
                     new Lootable.Item(chestTag: "ammunitions", count: 1, chance: 50),
                     new Lootable.Item(chestTag: "low_blueprints", count: 1, chance: 1),
                     new Lootable.Item(chestTag: "low_skillbooks", count: 1, chance: 1),
+                    new Lootable.Item(chestTag: "low_enchantements", count: 1, chance: 1),
                     new Lootable.Item(chestTag: "low_potions", count: 2, chance: 80),
                     new Lootable.Item(chestTag: "low_scrolls", count: 1, chance: 80),
                 }
@@ -68,6 +70,7 @@ namespace NWN.Systems
                     new Lootable.Item(chestTag: "ammunitions", count: 1, chance: 35),
                     new Lootable.Item(chestTag: "low_blueprints", count: 1, chance: 1),
                     new Lootable.Item(chestTag: "low_skillbooks", count: 1, chance: 1),
+                    new Lootable.Item(chestTag: "low_enchantements", count: 1, chance: 1),
                     new Lootable.Item(chestTag: "low_potions", count: 3, chance: 50),
                     new Lootable.Item(chestTag: "low_scrolls", count: 2, chance: 25),
                 }
@@ -80,6 +83,7 @@ namespace NWN.Systems
                     new Lootable.Item(chestTag: "ammunitions", count: 1, chance: 50),
                     new Lootable.Item(chestTag: "low_blueprints", count: 1, chance: 2),
                     new Lootable.Item(chestTag: "low_skillbooks", count: 1, chance: 1),
+                    new Lootable.Item(chestTag: "low_enchantements", count: 1, chance: 1),
                     new Lootable.Item(chestTag: "low_potions", count: 3, chance: 85),
                     new Lootable.Item(chestTag: "low_scrolls", count: 2, chance: 85),
                 }
@@ -103,6 +107,7 @@ namespace NWN.Systems
                     new Lootable.Item(chestTag: "light_armor", count: 1, chance: 1),
                     new Lootable.Item(chestTag: "low_blueprints", count: 1, chance: 1),
                     new Lootable.Item(chestTag: "low_skillbooks", count: 1, chance: 1),
+                    new Lootable.Item(chestTag: "low_enchantements", count: 1, chance: 1),
                 }
             )},
             { "ourslonguegriffe", new Lootable.Config(
@@ -112,6 +117,7 @@ namespace NWN.Systems
                     new Lootable.Item(chestTag: "light_armor", count: 1, chance: 10),
                     new Lootable.Item(chestTag: "low_blueprints", count: 1, chance: 5),
                     new Lootable.Item(chestTag: "low_skillbooks", count: 1, chance: 5),
+                    new Lootable.Item(chestTag: "low_enchantements", count: 1, chance: 1),
                     new Lootable.Item(chestTag: "low_potions", count: 3, chance: 85),
                     new Lootable.Item(chestTag: "low_scrolls", count: 2, chance: 85),
                 }
@@ -123,6 +129,7 @@ namespace NWN.Systems
                     new Lootable.Item(chestTag: "light_armor", count: 1, chance: 10),
                     new Lootable.Item(chestTag: "low_blueprints", count: 1, chance: 5),
                     new Lootable.Item(chestTag: "low_skillbooks", count: 1, chance: 5),
+                    new Lootable.Item(chestTag: "low_enchantements", count: 1, chance: 5),
                     new Lootable.Item(chestTag: "low_potions", count: 3, chance: 85),
                     new Lootable.Item(chestTag: "low_scrolls", count: 2, chance: 85),
                 }
@@ -157,8 +164,9 @@ namespace NWN.Systems
                     new Lootable.Item(chestTag: "simple_weapons", count: 1, chance: 4),
                     new Lootable.Item(chestTag: "light_armor", count: 1, chance: 4),
                     new Lootable.Item(chestTag: "ammunitions", count: 1, chance: 45),
-                    new Lootable.Item(chestTag: "low_blueprints", count: 1, chance: 1),
-                    new Lootable.Item(chestTag: "low_skillbooks", count: 1, chance: 1),
+                    new Lootable.Item(chestTag: "low_blueprints", count: 1, chance: 3),
+                    new Lootable.Item(chestTag: "low_skillbooks", count: 1, chance: 3),
+                    new Lootable.Item(chestTag: "low_enchantements", count: 1, chance: 3),
                     new Lootable.Item(chestTag: "low_potions", count: 3, chance: 75),
                     new Lootable.Item(chestTag: "low_scrolls", count: 2, chance: 45),
                 }
@@ -169,8 +177,9 @@ namespace NWN.Systems
                     new Lootable.Item(chestTag: "simple_weapons", count: 1, chance: 5),
                     new Lootable.Item(chestTag: "light_armor", count: 1, chance: 5),
                     new Lootable.Item(chestTag: "ammunitions", count: 1, chance: 50),
-                    new Lootable.Item(chestTag: "low_blueprints", count: 1, chance: 1),
-                    new Lootable.Item(chestTag: "low_skillbooks", count: 1, chance: 1),
+                    new Lootable.Item(chestTag: "low_blueprints", count: 1, chance: 3),
+                    new Lootable.Item(chestTag: "low_skillbooks", count: 1, chance: 3),
+                    new Lootable.Item(chestTag: "low_enchantements", count: 1, chance: 3),
                     new Lootable.Item(chestTag: "low_potions", count: 3, chance: 85),
                     new Lootable.Item(chestTag: "low_scrolls", count: 2, chance: 85),
                 }
@@ -257,8 +266,10 @@ namespace NWN.Systems
                     new Lootable.Item(chestTag: "medium_scrolls", count: 1, chance: 100),
                     new Lootable.Item(chestTag: "low_blueprints", count: 1, chance: 10),
                     new Lootable.Item(chestTag: "low_skillbooks", count: 1, chance: 10),
+                    new Lootable.Item(chestTag: "low_enchantements", count: 1, chance: 10),
                     new Lootable.Item(chestTag: "medium_blueprints", count: 1, chance: 1),
                     new Lootable.Item(chestTag: "medium_skillbooks", count: 1, chance: 1),
+                    new Lootable.Item(chestTag: "medium_enchantements", count: 1, chance: 1),
                 }
             )},
             { "omniscience_chest", new Lootable.Config(
@@ -274,8 +285,10 @@ namespace NWN.Systems
                     new Lootable.Item(chestTag: "medium_scrolls", count: 1, chance: 60),
                     new Lootable.Item(chestTag: "low_blueprints", count: 1, chance: 10),
                     new Lootable.Item(chestTag: "low_skillbooks", count: 1, chance: 10),
+                    new Lootable.Item(chestTag: "low_enchantements", count: 1, chance: 10),
                     new Lootable.Item(chestTag: "medium_blueprints", count: 1, chance: 1),
                     new Lootable.Item(chestTag: "medium_skillbooks", count: 1, chance: 1),
+                    new Lootable.Item(chestTag: "medium_enchantements", count: 1, chance: 1),
                 }
             )},
             { "Banditnain", new Lootable.Config(
@@ -362,7 +375,10 @@ namespace NWN.Systems
                     new Lootable.Item(chestTag: "medium_scrolls", count: 1, chance: 100),
                     new Lootable.Item(chestTag: "low_blueprints", count: 1, chance: 5),
                     new Lootable.Item(chestTag: "low_skillbooks", count: 1, chance: 5),
+                    new Lootable.Item(chestTag: "low_enchantements", count: 1, chance: 5),
                     new Lootable.Item(chestTag: "medium_skillbooks", count: 1, chance: 1),
+                    new Lootable.Item(chestTag: "medium_blueprints", count: 1, chance: 1),
+                    new Lootable.Item(chestTag: "medium_enchantements", count: 1, chance: 1),
                 }
             )},
             { "gnoll_chest", new Lootable.Config(
@@ -378,8 +394,10 @@ namespace NWN.Systems
                     new Lootable.Item(chestTag: "medium_scrolls", count: 1, chance: 45),
                     new Lootable.Item(chestTag: "low_blueprints", count: 1, chance: 4),
                     new Lootable.Item(chestTag: "low_skillbooks", count: 1, chance: 4),
+                    new Lootable.Item(chestTag: "low_enchantements", count: 1, chance: 4),
                     new Lootable.Item(chestTag: "medium_skillbooks", count: 1, chance: 1),
                     new Lootable.Item(chestTag: "medium_blueprints", count: 1, chance: 1),
+                    new Lootable.Item(chestTag: "medium_enchantements", count: 1, chance: 1),
                 }
             )},
             { "ant_chest", new Lootable.Config(
@@ -395,8 +413,10 @@ namespace NWN.Systems
                     new Lootable.Item(chestTag: "medium_scrolls", count: 1, chance: 65),
                     new Lootable.Item(chestTag: "low_blueprints", count: 1, chance: 3),
                     new Lootable.Item(chestTag: "low_skillbooks", count: 1, chance: 3),
+                    new Lootable.Item(chestTag: "low_enchantements", count: 1, chance: 3),
                     new Lootable.Item(chestTag: "medium_skillbooks", count: 1, chance: 1),
                     new Lootable.Item(chestTag: "medium_blueprints", count: 1, chance: 1),
+                    new Lootable.Item(chestTag: "medium_enchantements", count: 1, chance: 1),
                 }
             )},
             { "Gobelourscombattant", new Lootable.Config(
@@ -447,7 +467,10 @@ namespace NWN.Systems
                     new Lootable.Item(chestTag: "medium_scrolls", count: 1, chance: 100),
                     new Lootable.Item(chestTag: "low_blueprints", count: 1, chance: 5),
                     new Lootable.Item(chestTag: "low_skillbooks", count: 1, chance: 5),
+                    new Lootable.Item(chestTag: "low_enchantements", count: 1, chance: 5),
+                    new Lootable.Item(chestTag: "medium_blueprints", count: 1, chance: 1),
                     new Lootable.Item(chestTag: "medium_skillbooks", count: 1, chance: 1),
+                    new Lootable.Item(chestTag: "medium_enchantements", count: 1, chance: 1),
                 }
             )},
             { "gobelours_chest", new Lootable.Config(
@@ -463,8 +486,10 @@ namespace NWN.Systems
                     new Lootable.Item(chestTag: "medium_scrolls", count: 1, chance: 45),
                     new Lootable.Item(chestTag: "low_blueprints", count: 1, chance: 4),
                     new Lootable.Item(chestTag: "low_skillbooks", count: 1, chance: 4),
+                    new Lootable.Item(chestTag: "low_enchantements", count: 1, chance: 5),
                     new Lootable.Item(chestTag: "medium_skillbooks", count: 1, chance: 1),
                     new Lootable.Item(chestTag: "medium_blueprints", count: 1, chance: 1),
+                    new Lootable.Item(chestTag: "medium_enchantements", count: 1, chance: 1),
                 }
             )},
             { "Orcchoc", new Lootable.Config(
@@ -514,8 +539,10 @@ namespace NWN.Systems
                     new Lootable.Item(chestTag: "medium_scrolls", count: 1, chance: 100),
                     new Lootable.Item(chestTag: "low_blueprints", count: 1, chance: 5),
                     new Lootable.Item(chestTag: "low_skillbooks", count: 1, chance: 5),
+                    new Lootable.Item(chestTag: "low_enchantements", count: 1, chance: 5),
                     new Lootable.Item(chestTag: "medium_skillbooks", count: 1, chance: 1),
                     new Lootable.Item(chestTag: "medium_blueprint", count: 1, chance: 1),
+                    new Lootable.Item(chestTag: "medium_enchantements", count: 1, chance: 1),
                 }
             )},
             { "orc_chest", new Lootable.Config(
@@ -531,8 +558,10 @@ namespace NWN.Systems
                     new Lootable.Item(chestTag: "medium_scrolls", count: 1, chance: 55),
                     new Lootable.Item(chestTag: "low_blueprints", count: 1, chance: 4),
                     new Lootable.Item(chestTag: "low_skillbooks", count: 1, chance: 4),
+                    new Lootable.Item(chestTag: "low_enchantements", count: 1, chance: 4),
                     new Lootable.Item(chestTag: "medium_skillbooks", count: 1, chance: 1),
                     new Lootable.Item(chestTag: "medium_blueprints", count: 1, chance: 1),
+                    new Lootable.Item(chestTag: "medium_enchantements", count: 1, chance: 1),
                 }
             )},
         };

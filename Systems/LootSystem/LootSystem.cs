@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using NLog;
 using NWN.API;
+using NWN.API.Constants;
 using NWN.API.Events;
 using NWN.Core;
 using NWN.Core.NWNX;
@@ -67,6 +68,10 @@ namespace NWN.Systems
 
       InitializeLootChestFromFeatArray(NwModule.FindObjectsWithTag<NwPlaceable>("low_skillbooks").FirstOrDefault(), SkillSystem.lowSkillBooks);
       InitializeLootChestFromFeatArray(NwModule.FindObjectsWithTag<NwPlaceable>("medium_skillbooks").FirstOrDefault(), SkillSystem.mediumSkillBooks);
+
+      InitializeLootChestFromScrollArray(NwModule.FindObjectsWithTag<NwPlaceable>("low_enchantements").FirstOrDefault(), SpellSystem.lowEnchantements);
+      InitializeLootChestFromScrollArray(NwModule.FindObjectsWithTag<NwPlaceable>("medium_enchantements").FirstOrDefault(), SpellSystem.mediumEnchantements);
+      InitializeLootChestFromScrollArray(NwModule.FindObjectsWithTag<NwPlaceable>("high_enchantements").FirstOrDefault(), SpellSystem.highEnchantements);
     }
 
     private void InitializeLootChestFromArray(NwPlaceable oChest, int[] array)
@@ -99,6 +104,20 @@ namespace NWN.Systems
 
         if (int.TryParse(NWScript.Get2DAString("feat", "DESCRIPTION", (int)feat), out value))
           skillBook.Description = NWScript.GetStringByStrRef(value);
+      }
+
+      UpdateChestTagToLootsDic(oChest);
+    }
+    private void InitializeLootChestFromScrollArray(NwPlaceable oChest, int[] array)
+    {
+      foreach (int itemPropertyId in array)
+      {
+        NwItem oScroll = NwItem.Create("spellscroll", oChest, 1, "scroll");
+        int spellId = int.Parse(NWScript.Get2DAString("iprp_spells", "SpellIndex", itemPropertyId));
+        oScroll.Name = $"{NWScript.GetStringByStrRef(int.Parse(NWScript.Get2DAString("spells", "Name", spellId)))}";
+        oScroll.Description = $"{NWScript.GetStringByStrRef(int.Parse(NWScript.Get2DAString("spells", "SpellDesc", spellId)))}";
+
+        oScroll.AddItemProperty(API.ItemProperty.CastSpell((IPCastSpell)itemPropertyId, IPCastSpellNumUses.SingleUse), EffectDuration.Permanent);
       }
 
       UpdateChestTagToLootsDic(oChest);
