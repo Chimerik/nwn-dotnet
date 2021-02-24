@@ -201,6 +201,7 @@ namespace NWN.Systems
         {
           API.Effect eff = API.Effect.DamageImmunityDecrease(DamageType.Piercing, 100);
           eff.SubType = EffectSubType.Supernatural;
+          eff.Tag = "NO_HELMET_MALUS";
           oPC.ApplyEffect(EffectDuration.Permanent, eff);
         }
 
@@ -215,6 +216,7 @@ namespace NWN.Systems
         {
           API.Effect eff = API.Effect.DamageImmunityDecrease(DamageType.Slashing, 100);
           eff.SubType = EffectSubType.Supernatural;
+          eff.Tag = "NO_ARMOR_MALUS";
           oPC.ApplyEffect(EffectDuration.Permanent, eff);
         }
 
@@ -230,6 +232,7 @@ namespace NWN.Systems
         {
           API.Effect eff = API.Effect.DamageImmunityDecrease(DamageType.Bludgeoning, 100);
           eff.SubType = EffectSubType.Supernatural;
+          eff.Tag = "NO_SHIELD_MALUS";
           oPC.ApplyEffect(EffectDuration.Permanent, eff);
         }
 
