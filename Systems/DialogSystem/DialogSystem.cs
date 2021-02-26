@@ -1,4 +1,5 @@
 ﻿using System;
+using NLog;
 using NWN.API;
 using NWN.Core;
 using NWN.Services;
@@ -10,6 +11,7 @@ namespace NWN.Systems
   public class DialogSystem
   {
     private readonly NativeEventService nativeEventService;
+    public static readonly Logger Log = LogManager.GetCurrentClassLogger();
     public DialogSystem(NativeEventService eventService)
     {
       nativeEventService = eventService;

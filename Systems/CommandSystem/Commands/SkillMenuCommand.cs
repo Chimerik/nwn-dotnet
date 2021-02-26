@@ -7,6 +7,8 @@ namespace NWN.Systems
 {
   public static partial class CommandSystem
   {
+    private const int _PAGINATION = 35;
+    private static int page = 0;
     private static void ExecuteSkillMenuCommand(ChatSystem.Context ctx, Options.Result options)
     {
       PlayerSystem.Player player;
@@ -41,8 +43,11 @@ namespace NWN.Systems
       player.menu.Clear();
       player.menu.titleLines.Add("Liste des talents disponibles pour entrainement.");
 
+      if (page < 0)
+        page = 0;
+
       //var sortedDict = from entry in player.learnableSkills orderby entry.Value ascending select entry;
-      foreach (KeyValuePair<int, Skill> SkillListEntry in player.learnableSkills.OrderByDescending(key => key.Value.currentJob))
+      foreach (KeyValuePair<int, Skill> SkillListEntry in player.learnableSkills.OrderByDescending(key => key.Value.currentJob).Skip(page).Take(_PAGINATION))
       {
         Skill skill = SkillListEntry.Value;
 
@@ -51,9 +56,8 @@ namespace NWN.Systems
           if(skill.currentJob)
             skill.RefreshAcquiredSkillPoints();
 
-          player.menu.choices.Add(($"{skill.name} - Temps restant : {NWN.Utils.StripTimeSpanMilliseconds((DateTime.Now.AddSeconds(skill.GetTimeToNextLevel(skill.CalculateSkillPointsPerSecond())) - DateTime.Now))}", () => __HandleSkillSelection(player, skill)));
+          player.menu.choices.Add(($"{skill.name} - Temps restant : {Utils.StripTimeSpanMilliseconds((DateTime.Now.AddSeconds(skill.GetTimeToNextLevel(skill.CalculateSkillPointsPerSecond())) - DateTime.Now))}", () => __HandleSkillSelection(player, skill)));
         }
-        // TODO : Suivant, précédent
       }
 
       /*foreach (KeyValuePair<int, SkillSystem.Skill> SkillListEntry in player.learnableSkills)
@@ -62,13 +66,27 @@ namespace NWN.Systems
         // TODO :  afficher le skill en cours en premier ?
 
         if(!skill.trained)
-          player.menu.choices.Add(($"{skill.name} - Temps restant : {skill.GetTimeToNextLevelAsString(player)}", () => __HandleSkillSelection(player, skill)));
-          
-        // TODO : Suivant, précédent et quitter
+          player.menu.choices.Add(($"{skill.name} - Temps restant : {skill.GetTimeToNextLevelAsString(player)}", () => __HandleSkillSelection(player, skill))); 
       }*/
+
+      if(page > 0)
+        player.menu.choices.Add(("Retour", () => __DrawPreviousPage(player)));
+
+      if(player.learnableSkills.Count > page + _PAGINATION)
+        player.menu.choices.Add(("Suivant", () => __DrawNextPage(player)));
 
       player.menu.choices.Add(("Quitter", () => __HandleClose(player)));
       player.menu.Draw();
+    }
+    private static void __DrawPreviousPage(PlayerSystem.Player player)
+    {
+      page -= _PAGINATION;
+      __DrawSkillPage(player);
+    }
+    private static void __DrawNextPage(PlayerSystem.Player player)
+    {
+      page += _PAGINATION;
+      __DrawSkillPage(player);
     }
     private static void __DrawSpellPage(PlayerSystem.Player player)
     {

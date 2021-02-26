@@ -137,14 +137,14 @@ namespace NWN.Systems
 
           if (oTarget.Gold >= iStolenGold)
           {
-            CreaturePlugin.SetGold(oTarget, oTarget.Gold - iStolenGold);
+            CreaturePlugin.SetGold(oTarget, (int)oTarget.Gold - iStolenGold);
             oPC.GiveGold(iStolenGold);
             oPC.FloatingTextString($"Vous venez de dérober {iStolenGold} pièces d'or des poches de {oTarget.Name} !", false);
           }
           else
           {
             oPC.FloatingTextString($"Vous venez de vider les poches de {oTarget.Name} ! {oTarget.Gold} pièces d'or de plus pour vous.", false);
-            oPC.GiveGold(oTarget.Gold);
+            oPC.GiveGold((int)oTarget.Gold);
             CreaturePlugin.SetGold(oTarget, 0);
           }
 

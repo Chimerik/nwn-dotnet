@@ -20,7 +20,7 @@ namespace NWN.Systems
       foreach (NwDoor door in NwModule.FindObjectsOfType<NwDoor>())
       {
         eventService.Subscribe<NwDoor, DoorEvents.OnOpen>(door, HandleDoorAutoClose);
-        eventService.Subscribe<NwDoor, DoorEvents.OnAreaTransitionClick>(door, HandleDoorAutoClose);
+        //eventService.Subscribe<NwDoor, DoorEvents.OnAreaTransitionClick>(door, HandleDoorAutoClose);
       }
 
       foreach (NwPlaceable bassin in NwModule.FindObjectsWithTag<NwPlaceable>("ench_bsn"))

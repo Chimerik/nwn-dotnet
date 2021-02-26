@@ -26,7 +26,7 @@ namespace NWN.Systems
     {
       var loots = new List<NwItem> { };
 
-      foreach (NwItem item in oChest.Items)
+      foreach (NwItem item in oChest.Inventory.Items)
       {
         loots.Add(item);
       }

@@ -8,12 +8,15 @@ using System.Linq;
 using NWN.Core;
 using Discord;
 using NWN.API.Events;
+using System.Threading.Tasks;
+using NLog;
 
 namespace NWN.Systems
 {
   [ServiceBinding(typeof(ItemSystem))]
   public class ItemSystem
   {
+    public static readonly Logger Log = LogManager.GetCurrentClassLogger();
     public ItemSystem(NativeEventService eventService, NWNXEventService nwnxEventService)
     {
       nwnxEventService.Subscribe<ItemEvents.OnItemEquipBefore>(OnItemEquipBefore);
@@ -34,25 +37,13 @@ namespace NWN.Systems
 
       int iSlot = int.Parse(EventsPlugin.GetEventData("SLOT"));
       NwItem oUnequip = oPC.GetItemInSlot((InventorySlot)iSlot);
-
-      if (oUnequip != null && ObjectPlugin.CheckFit(oPC, (int)oUnequip.BaseItemType) == 0)
+      
+      if (oUnequip != null && !oPC.Inventory.CheckFit(oUnequip))
       {
-        oPC.SendServerMessage("Attention, votre inventaire est plein. Déséquipper cet objet risquerait de vous le faire perdre !");
+        oPC.SendServerMessage("Attention, votre inventaire est plein. Déséquipper cet objet risquerait de vous le faire perdre !", API.Color.RED);
         onItemEquip.Skip = true;
         return;
       }
-
-      if (oItem.Tag == "amulettorillink")
-        oPC.RemoveEffect(oPC.ActiveEffects.Where(e => e.Tag == "erylies_spell_failure").FirstOrDefault());
-      else if (oUnequip?.Tag == "amulettorillink")
-      {
-        API.Effect eff = API.Effect.SpellFailure(50);
-        eff.Tag = "erylies_spell_failure";
-        eff.SubType = EffectSubType.Supernatural;
-        oPC.ApplyEffect(EffectDuration.Permanent, eff);
-      }
-
-      ApplyNakedMalus(oPC);
     }
 
     [ScriptHandler("b_unequip")]
@@ -73,17 +64,6 @@ namespace NWN.Systems
         EventsPlugin.SkipEvent();
         return;
       }
-
-      if (oItem.Tag == "amulettorillink")
-      {
-        API.Effect eff = API.Effect.SpellFailure(50);
-        eff.Tag = "erylies_spell_failure";
-        eff.SubType = API.Constants.EffectSubType.Supernatural;
-        oPC.ApplyEffect(EffectDuration.Permanent, eff);
-        (Bot._client.GetChannel(680072044364562532) as IMessageChannel).SendMessageAsync($"{oPC.Name} vient d'ôter son amulette de traçage. L'Amiral surveille désormais directement ses activités en rp.");
-      }
-
-      ApplyNakedMalus(oPC);
     }
     private void OnItemUseBefore(ItemEvents.OnItemUseBefore onItemUse)
     {
@@ -193,6 +173,110 @@ namespace NWN.Systems
         if (NWScript.GetWeight(oPC) <= int.Parse(NWScript.Get2DAString("encumbrance", "Heavy", NWScript.GetAbilityScore(oPC, NWScript.ABILITY_STRENGTH))))
           CreaturePlugin.SetMovementRate(oPC, CreaturePlugin.NWNX_CREATURE_MOVEMENT_RATE_PC);*/
     }
+    public static async void OnTorilNecklaceRemoved(NwPlayer oPC)
+    {
+      oPC.SendServerMessage("Votre lien avec la Toile semble particulièrement faible. Un échec des sorts de 50 % vous est appliqué.", API.Color.PINK);
+      API.Effect eff = API.Effect.SpellFailure(50);
+      eff.Tag = "erylies_spell_failure";
+      eff.SubType = EffectSubType.Supernatural;
+      oPC.ApplyEffect(EffectDuration.Permanent, eff);
+
+      //await (Bot._client.GetChannel(680072044364562532) as IMessageChannel).SendMessageAsync($"{oPC.Name} ne dispose pas d'amulette de traçage, ce qui le rend suspect aux yeux de l'Amiral.");
+
+      await NwTask.WaitUntil(() => oPC.GetItemInSlot(InventorySlot.Neck)?.Tag == "amulettorillink");
+      OnTorilNecklaceEquipped(oPC);
+    }
+    public static async void OnTorilNecklaceEquipped(NwPlayer oPC)
+    {
+      oPC.SendServerMessage("Votre lien avec la Toile se renforce de manière significative.", API.Color.PINK);
+
+      if (oPC.ActiveEffects.Any(e => e.Tag == "erylies_spell_failure"))
+        oPC.RemoveEffect(oPC.ActiveEffects.Where(e => e.Tag == "erylies_spell_failure").FirstOrDefault());
+
+      await NwTask.WaitUntil(() => oPC.GetItemInSlot(InventorySlot.Neck)?.Tag != "amulettorillink");
+      OnTorilNecklaceRemoved(oPC);
+    }
+    public static async void OnArmorRemoved(NwPlayer oPC)
+    {
+      oPC.SendServerMessage("Attention, en l'absence d'une armure ou d'un vêtement, une vulnérabilité de 100 % aux dégâts tranchants vous est appliquée !", API.Color.ROSE);
+      API.Effect eff = API.Effect.DamageImmunityDecrease(DamageType.Slashing, 100);
+      eff.SubType = EffectSubType.Supernatural;
+      eff.Tag = "NO_ARMOR_MALUS";
+      oPC.ApplyEffect(EffectDuration.Permanent, eff);
+
+      await NwTask.WaitUntil(() => oPC.GetItemInSlot(InventorySlot.Chest) != null);
+      OnArmorEquipped(oPC);
+    }
+    public static async void OnArmorEquipped(NwPlayer oPC)
+    {
+      if (oPC.ActiveEffects.Any(e => e.Tag == "NO_ARMOR_MALUS"))
+      {
+        oPC.RemoveEffect(oPC.ActiveEffects.Where(e => e.Tag == "NO_ARMOR_MALUS").FirstOrDefault());
+
+        if (oPC.GetItemInSlot(InventorySlot.Head) == null)
+          oPC.SendServerMessage("Attention, en l'absence d'un casque, une vulnérabilité de 100 % aux dégâts perforants vous est appliquée !", API.Color.CYAN);
+
+        if (oPC.GetItemInSlot(InventorySlot.LeftHand) == null && (oPC.GetItemInSlot(InventorySlot.RightHand) == null || ItemUtils.GetItemCategory((int)oPC.GetItemInSlot(InventorySlot.RightHand)?.BaseItemType) == ItemUtils.ItemCategory.OneHandedMeleeWeapon))
+          oPC.SendServerMessage("Attention, en l'absence d'un bouclier, d'une arme à deux mains, ou d'une arme secondaire, une vulnérabilité de 100 % aux dégâts contondants vous est appliquée !", API.Color.WHITE);
+      }
+
+      await NwTask.WaitUntil(() => oPC.GetItemInSlot(InventorySlot.Chest) == null);
+      OnArmorRemoved(oPC);
+    }
+    public static async void OnHelmetRemoved(NwPlayer oPC)
+    {
+      oPC.SendServerMessage("Attention, en l'absence d'un casque, une vulnérabilité de 100 % aux dégâts perforants vous est appliquée !", API.Color.CYAN);
+      API.Effect eff = API.Effect.DamageImmunityDecrease(DamageType.Piercing, 100);
+      eff.SubType = EffectSubType.Supernatural;
+      eff.Tag = "NO_HELMET_MALUS";
+      oPC.ApplyEffect(EffectDuration.Permanent, eff);
+
+      await NwTask.WaitUntil(() => oPC.GetItemInSlot(InventorySlot.Head) != null);
+      OnHelmetEquipped(oPC);
+    }
+    public static async void OnHelmetEquipped(NwPlayer oPC)
+    {
+      if (oPC.ActiveEffects.Any(e => e.Tag == "NO_HELMET_MALUS"))
+      {
+        oPC.RemoveEffect(oPC.ActiveEffects.Where(e => e.Tag == "NO_HELMET_MALUS").FirstOrDefault());
+
+        if (oPC.GetItemInSlot(InventorySlot.Chest) == null)
+          oPC.SendServerMessage("Attention, en l'absence d'une armure ou d'un vêtement, une vulnérabilité de 100 % aux dégâts tranchants vous est appliquée !", API.Color.ROSE);
+
+        if (oPC.GetItemInSlot(InventorySlot.LeftHand) == null && (oPC.GetItemInSlot(InventorySlot.RightHand) == null || ItemUtils.GetItemCategory((int)oPC.GetItemInSlot(InventorySlot.RightHand)?.BaseItemType) == ItemUtils.ItemCategory.OneHandedMeleeWeapon))
+          oPC.SendServerMessage("Attention, en l'absence d'un bouclier, d'une arme à deux mains, ou d'une arme secondaire, une vulnérabilité de 100 % aux dégâts contondants vous est appliquée !", API.Color.WHITE);
+      }
+
+      await NwTask.WaitUntil(() => oPC.GetItemInSlot(InventorySlot.Head) == null);
+      OnHelmetRemoved(oPC);
+    }
+    public static async void OnShieldRemoved(NwPlayer oPC)
+    {
+      oPC.SendServerMessage("Attention, en l'absence d'un bouclier, d'une arme à deux mains, ou d'une arme secondaire, une vulnérabilité de 100 % aux dégâts contondants vous est appliquée !", API.Color.WHITE);
+      API.Effect eff = API.Effect.DamageImmunityDecrease(DamageType.Bludgeoning, 100);
+      eff.SubType = EffectSubType.Supernatural;
+      eff.Tag = "NO_SHIELD_MALUS";
+      oPC.ApplyEffect(EffectDuration.Permanent, eff);
+      
+      await NwTask.WaitUntil(() => oPC.GetItemInSlot(InventorySlot.LeftHand) != null || (oPC.GetItemInSlot(InventorySlot.RightHand) != null && ItemUtils.GetItemCategory((int)oPC.GetItemInSlot(InventorySlot.RightHand).BaseItemType) != ItemUtils.ItemCategory.OneHandedMeleeWeapon));
+      OnShieldEquipped(oPC);
+    }
+    public static async void OnShieldEquipped(NwPlayer oPC)
+    {
+      if (oPC.ActiveEffects.Any(e => e.Tag == "NO_SHIELD_MALUS"))
+      {
+        oPC.RemoveEffect(oPC.ActiveEffects.Where(e => e.Tag == "NO_SHIELD_MALUS").FirstOrDefault());
+
+        if (oPC.GetItemInSlot(InventorySlot.Head) == null)
+          oPC.SendServerMessage("Attention, en l'absence d'un casque, une vulnérabilité de 100 % aux dégâts perforants vous est appliquée !", API.Color.CYAN);
+
+        if (oPC.GetItemInSlot(InventorySlot.Chest) == null)
+          oPC.SendServerMessage("Attention, en l'absence d'une armure ou d'un vêtement, une vulnérabilité de 100 % aux dégâts tranchants vous est appliquée !", API.Color.ROSE);
+      }
+
+      await NwTask.WaitUntil(() => oPC.GetItemInSlot(InventorySlot.LeftHand) == null && (oPC.GetItemInSlot(InventorySlot.RightHand) == null || ItemUtils.GetItemCategory((int)oPC.GetItemInSlot(InventorySlot.RightHand)?.BaseItemType) == ItemUtils.ItemCategory.OneHandedMeleeWeapon));
+      OnShieldRemoved(oPC);
+    }
     public static void ApplyNakedMalus(NwPlayer oPC)
     {
       if (oPC.GetItemInSlot(InventorySlot.Head) == null)
@@ -204,8 +288,8 @@ namespace NWN.Systems
           eff.Tag = "NO_HELMET_MALUS";
           oPC.ApplyEffect(EffectDuration.Permanent, eff);
         }
-
-        oPC.SendServerMessage("Attention, en l'absence d'un casque, une vulnérabilité de 100 ¨% aux dégâts perforants vous est appliquée !");
+        
+        oPC.SendServerMessage("Attention, en l'absence d'un casque, une vulnérabilité de 100 ¨% aux dégâts perforants vous est appliquée !", API.Color.BROWN);
       }
       else if (oPC.ActiveEffects.Any(e => e.Tag == "NO_HELMET_MALUS"))
         oPC.RemoveEffect(oPC.ActiveEffects.Where(e => e.Tag == "NO_HELMET_MALUS").FirstOrDefault());
@@ -220,7 +304,7 @@ namespace NWN.Systems
           oPC.ApplyEffect(EffectDuration.Permanent, eff);
         }
 
-        oPC.SendServerMessage("Attention, en l'absence d'une armure ou d'un vêtement, une vulnérabilité de 100 ¨% aux dégâts tranchants vous est appliquée !");
+        oPC.SendServerMessage("Attention, en l'absence d'une armure ou d'un vêtement, une vulnérabilité de 100 ¨% aux dégâts tranchants vous est appliquée !", API.Color.SILVER);
       }
       else if (oPC.ActiveEffects.Any(e => e.Tag == "NO_ARMOR_MALUS"))
         oPC.RemoveEffect(oPC.ActiveEffects.Where(e => e.Tag == "NO_ARMOR_MALUS").FirstOrDefault());
@@ -236,10 +320,10 @@ namespace NWN.Systems
           oPC.ApplyEffect(EffectDuration.Permanent, eff);
         }
 
-        oPC.SendServerMessage("Attention, en l'absence d'un bouclier, d'une arme à deux mains, ou d'une arme secondaire, une vulnérabilité de 100 ¨% aux dégâts contondants vous est appliquée !");
+        oPC.SendServerMessage("Attention, en l'absence d'un bouclier, d'une arme à deux mains, ou d'une arme secondaire, une vulnérabilité de 100 ¨% aux dégâts contondants vous est appliquée !", API.Color.MAROON);
       }
       else if (oPC.ActiveEffects.Any(e => e.Tag == "NO_SHIELD_MALUS"))
-        oPC.RemoveEffect(oPC.ActiveEffects.Where(e => e.Tag == "NO_ARMOR_MALUS").FirstOrDefault());
+        oPC.RemoveEffect(oPC.ActiveEffects.Where(e => e.Tag == "NO_SHIELD_MALUS").FirstOrDefault());
     }
   }
 }

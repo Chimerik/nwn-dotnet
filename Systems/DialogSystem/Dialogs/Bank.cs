@@ -29,7 +29,7 @@ namespace NWN.Systems
     private void HandleMoneyDepositSelection(Player player)
     {
       player.menu.Clear();
-      int availableGold = player.oid.Gold;
+      uint availableGold = player.oid.Gold;
 
       if (availableGold < 1)
       {
@@ -60,7 +60,7 @@ namespace NWN.Systems
 
         Task playerInput = NwTask.Run(async () =>
         {
-          await NwTask.WaitUntilValueChanged(() => player.oid.GetLocalVariable<int>("_PLAYER_INPUT").HasValue);
+          await NwTask.WaitUntil(() => player.oid.GetLocalVariable<int>("_PLAYER_INPUT").HasValue);
           if (player.oid.GetLocalVariable<int>("_PLAYER_INPUT_CANCELLED").HasNothing)
             HandleValidateDeposit(player);
           else
@@ -75,13 +75,13 @@ namespace NWN.Systems
     {
       player.menu.Clear();
 
-        player.oid.TakeGold(player.oid.Gold);
-        player.bankGold += player.oid.Gold;
+      player.bankGold += (int)player.oid.Gold;
+      player.oid.TakeGold((int)player.oid.Gold);
 
-        player.menu.titleLines = new List<string> {
-          $"Oh, oui, toooout. Donnez moi tooooout !",
-          "Vous pouvez me faire confiance ... oui, confiance ..."
-        };
+      player.menu.titleLines = new List<string> {
+        $"Oh, oui, toooout. Donnez moi tooooout !",
+        "Vous pouvez me faire confiance ... oui, confiance ..."
+      };
 
       player.menu.choices.Add(("Quitter", () => player.menu.Close()));
       player.menu.Draw();
@@ -89,7 +89,7 @@ namespace NWN.Systems
     private void HandleValidateDeposit(Player player)
     {
       player.menu.Clear();
-      int availableGold = player.oid.Gold;
+      uint availableGold = player.oid.Gold;
 
       if (player.setValue <= 0)
       {
@@ -121,7 +121,7 @@ namespace NWN.Systems
           "Vous pouvez me faire confiance ... oui, confiance ..."
         };
 
-        player.oid.TakeGold(player.oid.Gold);
+        player.oid.TakeGold((int)player.oid.Gold);
         player.bankGold += player.setValue;
       }
 

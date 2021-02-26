@@ -250,38 +250,41 @@ namespace NWN.Systems.Craft
       if (currentIP != null)
       {
         craftedItem.RemoveItemProperty(currentIP);
-        GC.SuppressFinalize(currentIP); // Permet de corriger un problème d'interaction entre Managed et le Unpack de NWNX, les deux essayant de supprimer l'IP en mémoire en même temps => BOOM
-        IPUnpacked unpackedIP = ItempropPlugin.UnpackIP(currentIP);
-        unpackedIP.nCostTableValue += 1;
+        currentIP.CostTableValue += 1;
+        //GC.SuppressFinalize(currentIP); // Permet de corriger un problème d'interaction entre Managed et le Unpack de NWNX, les deux essayant de supprimer l'IP en mémoire en même temps => BOOM
+        //IPUnpacked unpackedIP = ItempropPlugin.UnpackIP(currentIP);
+        //unpackedIP.nCostTableValue += 1;
 
-        return ItempropPlugin.PackIP(unpackedIP);
+        return currentIP;
       }
       else
       {
-        IPUnpacked newIP = new IPUnpacked();
+       // IPUnpacked newIP = new IPUnpacked();
         string[] IPproperties = ipString.Split("_");
+
+        API.ItemProperty newIP = API.ItemProperty.Quality(IPQuality.Unknown);
 
         int value;
         if (Int32.TryParse(IPproperties[0], out value))
-          newIP.nProperty = value;
+          newIP.PropertyType = (ItemPropertyType)value;
         else
           Utils.LogMessageToDMs($"Could not parse nProperty in : {ipString}");
         if (Int32.TryParse(IPproperties[0], out value))
-          newIP.nSubType = Int32.Parse(IPproperties[1]);
+          newIP.SubType = Int32.Parse(IPproperties[1]);
         else
           Utils.LogMessageToDMs($"Could not parse nSubType in : {ipString}");
         if (Int32.TryParse(IPproperties[0], out value))
-          newIP.nCostTable = Int32.Parse(IPproperties[2]);
+          newIP.CostTable = Int32.Parse(IPproperties[2]);
         else
           Utils.LogMessageToDMs($"Could not parse nCostTable in : {ipString}");
         if (Int32.TryParse(IPproperties[0], out value))
-          newIP.nCostTableValue = Int32.Parse(IPproperties[3]);
+          newIP.CostTableValue = Int32.Parse(IPproperties[3]);
         else
           Utils.LogMessageToDMs($"Could not parse nCostTableValue in : {ipString}");
 
-        newIP.sTag = enchTag;
+        newIP.Tag = enchTag;
 
-        return ItempropPlugin.PackIP(newIP);
+        return newIP;
       }
     }
   }

@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using Discord;
 using NLog.Fluent;
 using NWN.API;
+using NWN.API.Constants;
 using NWN.API.Events;
 using NWN.Core;
 using NWN.Core.NWNX;
@@ -100,15 +101,29 @@ namespace NWN.Systems
           }
         }
 
-        if (oPC.GetItemInSlot(API.Constants.InventorySlot.Neck)?.Tag != "amulettorillink")
+        Task waitForTorilNecklaceChange = NwTask.Run(async () =>
         {
-          API.Effect eff = API.Effect.SpellFailure(50);
-          eff.Tag = "erylies_spell_failure";
-          eff.SubType = API.Constants.EffectSubType.Supernatural;
-          oPC.ApplyEffect(EffectDuration.Permanent, eff);
-        }
+          await NwTask.WaitUntil(() => oPC.GetItemInSlot(InventorySlot.Neck)?.Tag != "amulettorillink");
+          ItemSystem.OnTorilNecklaceRemoved(oPC);
+        });
 
-        ItemSystem.ApplyNakedMalus(oPC);
+        Task waitForArmorChange = NwTask.Run(async () =>
+        {
+          await NwTask.WaitUntil(() => oPC.GetItemInSlot(InventorySlot.Chest) == null);
+          ItemSystem.OnArmorRemoved(oPC);
+        });
+
+        Task waitForHelmetChange = NwTask.Run(async () =>
+        {
+          await NwTask.WaitUntil(() => oPC.GetItemInSlot(InventorySlot.Head) == null);
+          ItemSystem.OnHelmetRemoved(oPC);
+        });
+
+        Task waitForShieldChange = NwTask.Run(async () =>
+        {
+          await NwTask.WaitUntil(() => oPC.GetItemInSlot(InventorySlot.LeftHand) == null && (oPC.GetItemInSlot(InventorySlot.RightHand) == null || ItemUtils.GetItemCategory((int)oPC.GetItemInSlot(InventorySlot.RightHand)?.BaseItemType) == ItemUtils.ItemCategory.OneHandedMeleeWeapon));
+          ItemSystem.OnShieldRemoved(oPC);
+        });
 
         oPC.GetLocalVariable<int>("_CONNECTING").Delete();
         player.isAFK = false;
@@ -191,7 +206,6 @@ namespace NWN.Systems
         {
           await NwTask.WaitUntil(() => ObjectPlugin.GetInt(newCharacter.oid, "_STARTING_SKILL_POINTS") <= 0);
           arrivalArea.GetLocalVariable<int>("_GO").Value = 1;
-          return true;
         });
       }
       else

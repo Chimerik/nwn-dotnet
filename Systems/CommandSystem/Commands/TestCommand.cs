@@ -27,16 +27,6 @@ namespace NWN.Systems
 
         if (NWScript.GetPCPlayerName(player.oid) == "Chim")
         {
-          NwItem oScroll = NwItem.Create("spellscroll", player.oid, 1, "scroll");
-          int spellId = int.Parse(NWScript.Get2DAString("iprp_spells", "SpellIndex", 541));
-          oScroll.Name = $"{NWScript.GetStringByStrRef(int.Parse(NWScript.Get2DAString("spells", "Name", spellId)))}";
-          oScroll.Description = $"{NWScript.GetStringByStrRef(int.Parse(NWScript.Get2DAString("spells", "SpellDesc", spellId)))}";
-
-          oScroll.AddItemProperty(API.ItemProperty.CastSpell((IPCastSpell)541, IPCastSpellNumUses.SingleUse), EffectDuration.Permanent);
-          
-
-          //DrawEnchantementChoicePage(player, "PLACEHOLDER", 841);
-
           Action<uint, Vector3> callback = (uint oTarget, Vector3 position) =>
           {
             //NWScript.SetLocalInt(oTarget, "_AVAILABLE_ENCHANTEMENT_SLOT", 2);

@@ -35,7 +35,7 @@ namespace NWN.Systems
                 NWScript.SqlStep(query);
             }
 
-            oTarget.Items.Where(c => c.Tag == "item_pccorpse").FirstOrDefault().Destroy();
+            oTarget.Inventory.Items.Where(c => c.Tag == "item_pccorpse").FirstOrDefault().Destroy();
             oTarget.Destroy();
 
             PlayerSystem.DeletePlayerCorpseFromDatabase(PcId);

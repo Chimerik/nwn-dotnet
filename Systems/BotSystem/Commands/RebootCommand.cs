@@ -21,7 +21,8 @@ namespace NWN.Systems
         return;
       }
 
-      Administration.PlayerPassword = "REBOOT";
+      NwServer.Instance.ShutdownServer();
+      //Administration.PlayerPassword = "REBOOT";
 
       foreach (NwPlayer oPC in NwModule.Instance.Players)
       {
@@ -57,7 +58,8 @@ namespace NWN.Systems
 
         await NwModule.Instance.AddActionToQueue(() => NWN.Utils.BootAllPC());
 
-        Administration.ShutdownServer();
+        NwServer.Instance.ShutdownServer();
+        //Administration.ShutdownServer();
         return 20;
       });
 

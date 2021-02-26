@@ -38,7 +38,7 @@ namespace NWN.Systems
       oPCCorpse.ApplyEffect(EffectDuration.Instant, API.Effect.Resurrection());
       NwItem oCorpseItem = NwItem.Create("item_pccorpse", oPCCorpse);
       
-      foreach (NwItem item in oPCCorpse.Items.Where(i => i.ResRef != "item_pccorpse"))
+      foreach (NwItem item in oPCCorpse.Inventory.Items.Where(i => i.ResRef != "item_pccorpse"))
         item.Destroy();
       
       oPCCorpse.Lootable = true;
@@ -74,8 +74,8 @@ namespace NWN.Systems
         }
         else
         {
-          player.oid.TakeGold(player.oid.Gold);
-          NWScript.DelayCommand(1.4f, () => NwItem.Create("nw_it_gold001", player.deathCorpse, player.oid.Gold));
+          player.oid.TakeGold((int)player.oid.Gold);
+          NWScript.DelayCommand(1.4f, () => NwItem.Create("nw_it_gold001", player.deathCorpse, (int)player.oid.Gold));
           break;
         }
       }
@@ -83,7 +83,7 @@ namespace NWN.Systems
     private static void StripPlayerOfCraftResources(Player player)
     {
       Log.Debug($"{player.oid.Name} dead. Stripping him of craft resources");
-      foreach (NwItem oItem in player.oid.Items.Where(i => Craft.Collect.System.IsItemCraftMaterial(i.Tag) || i.Tag == "blueprint"))
+      foreach (NwItem oItem in player.oid.Inventory.Items.Where(i => Craft.Collect.System.IsItemCraftMaterial(i.Tag) || i.Tag == "blueprint"))
       {
         Log.Debug($"{oItem.Name} stripped");
         oItem.Copy(player.deathCorpse, true);

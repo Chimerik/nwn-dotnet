@@ -39,7 +39,7 @@ namespace NWN.Systems
         "Merci pour ta contribution à la cause !"
     };
 
-      foreach (NwItem item in player.oid.Items.Where(i => IsItemCraftMaterial(i.Tag) == true))
+      foreach (NwItem item in player.oid.Inventory.Items.Where(i => IsItemCraftMaterial(i.Tag) == true))
       {
         int addedOre = item.StackSize * 95 / 100;
 
@@ -66,7 +66,7 @@ namespace NWN.Systems
         "D'ac. Dépôt de quelle matière première ?"
       };
 
-      foreach (NwItem item in player.oid.Items.Where(i => IsItemCraftMaterial(i.Tag) == true))
+      foreach (NwItem item in player.oid.Inventory.Items.Where(i => IsItemCraftMaterial(i.Tag) == true))
         if (IsItemCraftMaterial(item.Tag))
           inventoryMaterials.Add(item, item.Tag);
 

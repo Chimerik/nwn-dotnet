@@ -49,8 +49,9 @@ namespace NWN.Systems
           NWScript.SqlStep(query);
 
           await NwModule.Instance.AddActionToQueue(() => Utils.BootAllPC());
-
-          Administration.ShutdownServer();
+          
+          NwServer.Instance.ShutdownServer();
+          //Administration.ShutdownServer();
         });
       }
     }
