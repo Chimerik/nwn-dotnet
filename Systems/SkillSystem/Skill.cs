@@ -191,7 +191,6 @@ namespace NWN.Systems
       }
       public void RefreshAcquiredSkillPoints()
       {
-        Log.Info("Calculating skill points from refresh");
         double skillPointRate = CalculateSkillPointsPerSecond();
         acquiredPoints += skillPointRate * (DateTime.Now - player.dateLastSaved).TotalSeconds;
         double remainingTime = GetTimeToNextLevel(skillPointRate);

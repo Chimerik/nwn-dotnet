@@ -98,7 +98,7 @@ namespace NWN.Systems
 
         if (!storage.IsValid)
         {
-          NWN.Utils.LogMessageToDMs($"{area.Name} - {oPC.Name} - Le coffre personnel n'a pas pu être trouvé.");
+          Utils.LogMessageToDMs($"{area.Name} - {oPC.Name} - Le coffre personnel n'a pas pu être trouvé.");
           return;
         }
 
@@ -115,9 +115,15 @@ namespace NWN.Systems
         player.previousLocation = player.location;
 
         if (!player.areaExplorationStateDictionnary.ContainsKey(onExit.Area.Tag))
+        {
+          Log.Info("Adding exploration state to player dictionnary.");
           player.areaExplorationStateDictionnary.Add(onExit.Area.Tag, PlayerPlugin.GetAreaExplorationState(onExit.ExitingObject, onExit.Area));
+        }
         else
+        {
+          Log.Info("Updating exploration state.");
           player.areaExplorationStateDictionnary[onExit.Area.Tag] = PlayerPlugin.GetAreaExplorationState(onExit.ExitingObject, onExit.Area);
+        }
       }
     }
     private void DoAreaSpecificInitialisation(NwArea area)
