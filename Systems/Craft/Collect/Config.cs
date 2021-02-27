@@ -399,6 +399,7 @@ namespace NWN.Systems.Craft.Collect
     public static ItemProperty[] GetTritaniumItemProperties(uint craftedItem = NWScript.OBJECT_INVALID)
     {
       NWScript.SetLocalInt(craftedItem, "_DURABILITY", 10);
+      NWScript.SetLocalInt(craftedItem, "_AVAILABLE_ENCHANTEMENT_SLOT", 1);
 
       return new ItemProperty[]
       {
@@ -411,7 +412,7 @@ namespace NWN.Systems.Craft.Collect
     public static ItemProperty[] GetPyeriteItemProperties(ItemCategory itemCategory, uint craftedItem = NWScript.OBJECT_INVALID)
     {
       NWScript.SetLocalInt(craftedItem, "_DURABILITY", 20);
-      NWScript.SetLocalInt(craftedItem, "_AVAILABLE_ENCHANTEMENT_SLOT", 1);
+      NWScript.SetLocalInt(craftedItem, "_AVAILABLE_ENCHANTEMENT_SLOT", 2);
 
       switch (itemCategory)
       {

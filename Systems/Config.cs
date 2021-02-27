@@ -5,6 +5,7 @@ namespace NWN.Systems
   public static class Config
   {
     public static string database = Environment.GetEnvironmentVariable("DB_NAME");
+    public const int invalidInput = -999999;
     public enum Env
     {
       Prod,

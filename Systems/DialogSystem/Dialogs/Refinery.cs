@@ -46,11 +46,11 @@ namespace NWN.Systems
 
       Task playerInput = NwTask.Run(async () =>
       {
-        await NwTask.WaitUntilValueChanged(() => player.oid.GetLocalVariable<int>("_PLAYER_INPUT").HasValue);
-        if (player.oid.GetLocalVariable<int>("_PLAYER_INPUT_CANCELLED").HasNothing)
+        await NwTask.WaitUntil(() => player.oid.GetLocalVariable<int>("_PLAYER_INPUT").HasValue);
+        if (player.oid.GetLocalVariable<int>("_PLAYER_INPUT").Value != Config.invalidInput)
           HandleRefineOre(player, oreName);
         else
-          player.oid.GetLocalVariable<int>("_PLAYER_INPUT_CANCELLED").Delete();
+          player.oid.GetLocalVariable<int>("_PLAYER_INPUT").Delete();
       });
 
       player.setValue = 0;

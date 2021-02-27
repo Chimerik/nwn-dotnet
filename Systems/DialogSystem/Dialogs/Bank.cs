@@ -20,6 +20,7 @@ namespace NWN.Systems
         "",
         $"Votre solde actuel est de {player.bankGold}"
       };
+
       player.menu.choices.Add(($"Je voudrais déposer de l'or", () => HandleMoneyDepositSelection(player)));
       if (player.bankGold > 0)
         player.menu.choices.Add(($"Je voudrais retirer de l'or", () => HandleMoneyWithdrawalSelection(player)));
@@ -56,15 +57,15 @@ namespace NWN.Systems
         player.menu.choices.Add(($"Tout déposer.", () => HandleDepositAll(player)));
         player.menu.choices.Add(($"Retour.", () => DrawWelcomePage(player)));
 
-        player.oid.GetLocalVariable<int>("_PLAYER_INPUT").Value = 1;
+        player.oid.GetLocalVariable<int>("_PLAYER_INPUT").Delete();
 
         Task playerInput = NwTask.Run(async () =>
         {
           await NwTask.WaitUntil(() => player.oid.GetLocalVariable<int>("_PLAYER_INPUT").HasValue);
-          if (player.oid.GetLocalVariable<int>("_PLAYER_INPUT_CANCELLED").HasNothing)
+          if (player.oid.GetLocalVariable<int>("_PLAYER_INPUT").Value != Config.invalidInput)
             HandleValidateDeposit(player);
           else
-            player.oid.GetLocalVariable<int>("_PLAYER_INPUT_CANCELLED").Delete();
+            player.oid.GetLocalVariable<int>("_PLAYER_INPUT").Delete();
         });
       }
 
@@ -154,11 +155,11 @@ namespace NWN.Systems
 
         Task playerInput = NwTask.Run(async () =>
         {
-          await NwTask.WaitUntilValueChanged(() => player.oid.GetLocalVariable<int>("_PLAYER_INPUT").HasValue);
-          if (player.oid.GetLocalVariable<int>("_PLAYER_INPUT_CANCELLED").HasNothing)
+          await NwTask.WaitUntil(() => player.oid.GetLocalVariable<int>("_PLAYER_INPUT").HasValue);
+          if (player.oid.GetLocalVariable<int>("_PLAYER_INPUT") != Config.invalidInput)
             HandleValidateWithdrawal(player);
           else
-            player.oid.GetLocalVariable<int>("_PLAYER_INPUT_CANCELLED").Delete();
+            player.oid.GetLocalVariable<int>("_PLAYER_INPUT").Delete();
         });
         
         player.menu.choices.Add(($"Tout retirer.", () => HandleWithdrawAll(player)));
@@ -207,11 +208,11 @@ namespace NWN.Systems
         
         Task playerInput = NwTask.Run(async () =>
         {
-          await NwTask.WaitUntilValueChanged(() => player.oid.GetLocalVariable<int>("_PLAYER_INPUT").HasValue);
-          if (player.oid.GetLocalVariable<int>("_PLAYER_INPUT_CANCELLED").HasNothing)
+          await NwTask.WaitUntil(() => player.oid.GetLocalVariable<int>("_PLAYER_INPUT").HasValue);
+          if (player.oid.GetLocalVariable<int>("_PLAYER_INPUT").Value != Config.invalidInput)
             HandleValidateWithdrawal(player);
           else
-            player.oid.GetLocalVariable<int>("_PLAYER_INPUT_CANCELLED").Delete();
+            player.oid.GetLocalVariable<int>("_PLAYER_INPUT").Delete();
         });
       }
 
