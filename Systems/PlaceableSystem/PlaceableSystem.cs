@@ -34,6 +34,12 @@ namespace NWN.Systems
         eventService.Subscribe<NwCreature, CreatureEvents.OnConversation>(statue, HandleCancelStatueConversation);
         eventService.Subscribe<NwCreature, CreatureEvents.OnPerception>(statue, HandleStatufyCreature);
       }
+
+      foreach (NwCreature corpse in NwModule.FindObjectsWithTag<NwCreature>("dead_wererat"))
+      {
+        eventService.Subscribe<NwCreature, CreatureEvents.OnConversation>(corpse, HandleCancelStatueConversation);
+        eventService.Subscribe<NwCreature, CreatureEvents.OnSpawn>(corpse, HandleSetUpDeadCreatureCorpse);
+      }
     }
     public static void HandleCleanDMPLC(PlaceableEvents.OnDeath onDeath)
     {
@@ -180,6 +186,12 @@ namespace NWN.Systems
 
       var tag = NWScript.GetTag(oItem);
       EnchantmentBasinSystem.GetEnchantmentBasinFromTag(tag).DrawMenu(player, oItem, onClose.Placeable);
+    }
+    private void HandleSetUpDeadCreatureCorpse(CreatureEvents.OnSpawn onSpawn)
+    {
+      NwItem.Create("undroppable_item", onSpawn.Creature).Droppable = true;
+      onSpawn.Creature.Lootable = true;
+      onSpawn.Creature.ApplyEffect(EffectDuration.Instant, API.Effect.Death());
     }
   }
 }

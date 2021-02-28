@@ -114,7 +114,7 @@ namespace NWN.Systems.Craft.Collect
         NWScript.SqlStep(query);
       }
       else
-        NWScript.SendMessageToPC(player.oid, $"Votre traque ne semble pas avoir aboutie au repérage d'animaux aux propriétés exploitables.");
+        player.oid.SendServerMessage("Votre traque ne semble pas avoir aboutie au repérage d'animaux aux propriétés exploitables.", Color.OLIVE);
     }
   }
 }

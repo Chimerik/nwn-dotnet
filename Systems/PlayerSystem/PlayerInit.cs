@@ -147,13 +147,13 @@ namespace NWN.Systems
           (Bot._client.GetChannel(680072044364562532) as IMessageChannel).SendMessageAsync($"{Bot._client.GetGuild(680072044364562528).EveryoneRole.Mention} Toute première connexion de {newPlayer.Name} => nouveau joueur à accueillir !");
         }
 
-        query = NWScript.SqlPrepareQueryCampaign(Systems.Config.database, $"INSERT INTO PlayerAccounts (accountName, cdKey, bonusRolePlay) VALUES (@name, @cdKey, @brp)");
+        query = NWScript.SqlPrepareQueryCampaign(Config.database, $"INSERT INTO PlayerAccounts (accountName, cdKey, bonusRolePlay) VALUES (@name, @cdKey, @brp)");
         NWScript.SqlBindInt(query, "@brp", 1);
         NWScript.SqlBindString(query, "@name", newPlayer.PlayerName);
         NWScript.SqlBindString(query, "@cdKey", newPlayer.CDKey);
         NWScript.SqlStep(query);
 
-        query = NWScript.SqlPrepareQueryCampaign(Systems.Config.database, $"SELECT last_insert_rowid()");
+        query = NWScript.SqlPrepareQueryCampaign(Config.database, $"SELECT last_insert_rowid()");
         NWScript.SqlStep(query);
       }
 
@@ -162,17 +162,17 @@ namespace NWN.Systems
         case NWScript.RACIAL_TYPE_DWARF:
           CreaturePlugin.AddFeat(newPlayer, (int)Feat.Nain);
           break;
-        case API.Constants.RacialType.Elf:
-        case API.Constants.RacialType.HalfElf:
+        case RacialType.Elf:
+        case RacialType.HalfElf:
           CreaturePlugin.AddFeat(newPlayer, (int)Feat.Elfique);
           break;
-        case API.Constants.RacialType.Halfling:
+        case RacialType.Halfling:
           CreaturePlugin.AddFeat(newPlayer, (int)Feat.Halfelin);
           break;
-        case API.Constants.RacialType.Gnome:
+        case RacialType.Gnome:
           CreaturePlugin.AddFeat(newPlayer, (int)Feat.Gnome);
           break;
-        case API.Constants.RacialType.HalfOrc:
+        case RacialType.HalfOrc:
           CreaturePlugin.AddFeat(newPlayer, (int)Feat.Orc);
           break;
       }

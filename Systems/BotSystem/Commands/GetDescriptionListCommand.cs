@@ -26,7 +26,7 @@ namespace NWN.Systems
 
       string result = "";
 
-      while(NWScript.SqlStep(query)> 0);
+      while(NWScript.SqlStep(query) > 0);
         result += NWScript.SqlGetString(query, 0) + "\n";
 
       await context.Channel.SendMessageAsync($"Voici la liste des descriptions enregistrées pour {pcName} :\n{result}");
