@@ -90,8 +90,8 @@ namespace NWN.Systems
 
       if (player.setValue <= 0)
       {
-        player.menu.titleLines.Add($"La  valeur indiquée n'est pas valide, veuillez ré-essayer.");
-        player.menu.choices.Add(($"Entrer une nouvelle valeur.", () => WriteContractPage(player)));
+        player.menu.titleLines.Add($"La quantité indiquée n'est pas valide, veuillez ré-essayer.");
+        player.menu.choices.Add(($"Entrer une nouvelle valeur.", () => HandleValidateMaterialSelection(player, material)));
       }
       else
       {
