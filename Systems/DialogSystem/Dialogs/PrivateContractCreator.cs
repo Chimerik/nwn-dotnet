@@ -4,7 +4,6 @@ using NWN.API;
 using static NWN.Systems.PlayerSystem;
 using System;
 using NWN.Core;
-using NWN.Core.NWNX;
 
 namespace NWN.Systems
 {
@@ -48,6 +47,7 @@ namespace NWN.Systems
 
     private void WriteContractPage(Player player)
     {
+      //TODO : ne permettre la rédaction d'un nouveau contrat qu'en fonction du skill de rédaction de contrat + supprimer contrats expirés du calcul
       player.menu.Clear();
       player.menu.titleLines.Add("Quelle ressource souhaitez-vous faire figurer dans ce contrat ?");
 
@@ -74,14 +74,14 @@ namespace NWN.Systems
 
       Task playerInput = NwTask.Run(async () =>
       {
-        await NwTask.WaitUntil(() => player.oid.GetLocalVariable<int>("_PLAYER_INPUT").HasValue);
-        if (player.oid.GetLocalVariable<int>("_PLAYER_INPUT").Value != Config.invalidInput)
-          HandleSetupPriceContract(player, material);
-        else
-          player.oid.GetLocalVariable<int>("_PLAYER_INPUT").Delete();
+        player.oid.GetLocalVariable<int>("_PLAYER_INPUT").Value = 1;
+        player.setValue = Config.invalidInput;
+        await NwTask.WaitUntil(() => player.setValue != Config.invalidInput);
+        HandleSetupPriceContract(player, material);
+        player.setValue = Config.invalidInput;
       });
 
-      player.setValue = 0;
+      player.setValue = Config.invalidInput;
       player.menu.Draw();
     }
     private void HandleSetupPriceContract(Player player, string material)
@@ -107,16 +107,16 @@ namespace NWN.Systems
           Task playerInput = NwTask.Run(async () =>
           {
             int quantity = player.setValue;
-            await NwTask.WaitUntil(() => player.oid.GetLocalVariable<int>("_PLAYER_INPUT").HasValue);
-            if (player.oid.GetLocalVariable<int>("_PLAYER_INPUT").Value != Config.invalidInput)
-              HandleRegisterMaterialToContract(player, material, quantity);
-            else
-              player.oid.GetLocalVariable<int>("_PLAYER_INPUT").Delete();
+            player.oid.GetLocalVariable<int>("_PLAYER_INPUT").Value = 1;
+            player.setValue = Config.invalidInput;
+            await NwTask.WaitUntil(() => player.setValue != Config.invalidInput);
+            HandleRegisterMaterialToContract(player, material, quantity);
+            player.setValue = Config.invalidInput;
           });
         }
       }
 
-      player.setValue = 0;
+      player.setValue = Config.invalidInput;
       player.menu.Draw();
     }
     private void HandleRegisterMaterialToContract(Player player, string material, int quantity)
@@ -152,7 +152,7 @@ namespace NWN.Systems
         player.menu.choices.Add(($"Finaliser la rédaction du contrat.", () => HandleRegisterContractExpirationDate(player)));
       }
 
-      player.setValue = 0;
+      player.setValue = Config.invalidInput;
       player.menu.Draw();
     }
     private void HandleRegisterContractExpirationDate(Player player)
@@ -166,14 +166,14 @@ namespace NWN.Systems
 
       Task playerInput = NwTask.Run(async () =>
       {
-        await NwTask.WaitUntil(() => player.oid.GetLocalVariable<int>("_PLAYER_INPUT").HasValue);
-        if (player.oid.GetLocalVariable<int>("_PLAYER_INPUT").Value != Config.invalidInput)
-          CreateContractPage(player);
-        else
-          player.oid.GetLocalVariable<int>("_PLAYER_INPUT").Delete();
+        player.oid.GetLocalVariable<int>("_PLAYER_INPUT").Value = 1;
+        player.setValue = Config.invalidInput;
+        await NwTask.WaitUntil(() => player.setValue != Config.invalidInput);
+        CreateContractPage(player);
+        player.setValue = Config.invalidInput;
       });
 
-      player.setValue = 0;
+      player.setValue = Config.invalidInput;
       player.menu.Draw();
     }
     private void CreateContractPage(Player player)
@@ -190,11 +190,11 @@ namespace NWN.Systems
         return;
       }
 
-      NwItem contract = NwItem.Create("skillbookgeneriq", player.oid);
-      contract.Tag = "private_contract";
-
+      NwItem contract = NwItem.Create("skillbookgeneriq", player.oid.Location, false, "private_contract");
+      
       int grandTotal = 0;
       string serializedContract = "";
+      contract.Description = "";
 
       foreach (KeyValuePair<string, Contract> entry in materialContractDictionnary)
       {
@@ -224,8 +224,9 @@ namespace NWN.Systems
       contract.GetLocalVariable<int>("_CONTRACT_ID").Value = NWScript.SqlGetInt(query, 0);
       contract.Name = $"Contrat {NWScript.SqlGetInt(query, 0)} de {player.oid.Name}";
 
-      player.oid.SendServerMessage("Votre contrat d'échange privé de ressources a bien été créé.", Color.GREEN);
-      player.setValue = 0;
+      player.oid.SendServerMessage("Votre contrat d'échange privé de ressources a bien été créé.", Color.OLIVE);
+      player.oid.AcquireItem(contract, true);
+      player.setValue = Config.invalidInput;
       player.menu.Close();
     }
     private void DrawCurrentContractPage(Player player)

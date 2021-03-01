@@ -94,7 +94,7 @@ namespace NWN.Systems
     {
       foreach (Feat feat in array)
       {
-        NwItem skillBook = NwItem.Create("skillbookgeneriq", oChest, 10, "skillbook");
+        NwItem skillBook = NwItem.Create("skillbookgeneriq", oChest, 1, "skillbook");
         ItemPlugin.SetItemAppearance(skillBook, NWScript.ITEM_APPR_TYPE_SIMPLE_MODEL, 2, NWN.Utils.random.Next(0, 50));
         skillBook.GetLocalVariable<int>("_SKILL_ID").Value = (int)feat;
 

@@ -35,7 +35,7 @@ namespace NWN.Systems
           execute: ExecuteWalkCommand
         )
       },
-      {
+      /*{
         "set",
         new Command(
           name: "set",
@@ -52,7 +52,7 @@ namespace NWN.Systems
             }
           )
         )
-      },
+      },*/
       {
         "reveal",
         new Command(
@@ -197,6 +197,14 @@ namespace NWN.Systems
               )
             }
           )
+        )
+      },
+      {
+        "contrat",
+        new Command(
+          name: "contrat",
+          description: new Command.Description(title: "Affiche le menu de rédaction/consultation de contrats privés d'échangé de ressources."),
+          execute: ExecuteContractMenuCommand
         )
       },
       {

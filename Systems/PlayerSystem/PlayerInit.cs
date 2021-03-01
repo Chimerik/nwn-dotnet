@@ -129,6 +129,7 @@ namespace NWN.Systems
         player.isAFK = false;
         player.DoJournalUpdate = false;
         player.dateLastSaved = DateTime.Now;
+        player.setValue = Config.invalidInput;
       });
     }
     private static void InitializeNewPlayer(NwPlayer newPlayer)

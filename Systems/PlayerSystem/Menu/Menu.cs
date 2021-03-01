@@ -45,7 +45,7 @@ namespace NWN.Systems
       private int selectedChoiceID = 0;
       public bool isOpen = false;
 
-      public Menu(PlayerSystem.Player player)
+      public Menu(Player player)
       {
         this.player = player;
         ResetConfig();
@@ -75,7 +75,8 @@ namespace NWN.Systems
         {
           player.OnKeydown -= HandleMenuFeatUsed;
           player.UnloadMenuQuickbar();
-          player.setValue = 0;
+          player.setValue = Systems.Config.invalidInput;
+          player.oid.GetLocalVariable<int>("_PLAYER_INPUT").Delete();
 
           if (NWScript.GetTag(NWScript.GetArea(player.oid)).StartsWith("entry_scene_"))
           {
@@ -88,6 +89,7 @@ namespace NWN.Systems
 
         isOpen = false;
         player.oid.GetLocalVariable<int>("_PLAYER_INPUT").Value = Systems.Config.invalidInput;
+        player.oid.GetLocalVariable<int>("_PLAYER_INPUT").Delete();
       }
 
       public void ResetConfig ()
@@ -353,7 +355,7 @@ namespace NWN.Systems
                 NWScript.SetObjectVisualTransform(player.oid, NWScript.OBJECT_VISUAL_TRANSFORM_TRANSLATE_X, 0.0f);
                 NWScript.SetObjectVisualTransform(player.oid, NWScript.OBJECT_VISUAL_TRANSFORM_TRANSLATE_Y, 0.0f);
                 NWScript.SetObjectVisualTransform(player.oid, NWScript.OBJECT_VISUAL_TRANSFORM_TRANSLATE_Z, 0.0f);
-                player.setValue = 0;
+                player.setValue = Systems.Config.invalidInput;
                 player.OnKeydown -= HandleMenuFeatUsed;
                 return;
             }

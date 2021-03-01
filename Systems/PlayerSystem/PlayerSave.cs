@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
+using NWN.API;
 using NWN.Core;
 using NWNX.API.Events;
 
@@ -83,6 +85,7 @@ namespace NWN.Systems
         Log.Info("Saved map pin to DB");
         SavePlayerAreaExplorationStateToDatabase(player);
         Log.Info("Saved area exploration state to DB");
+        HandleExpiredContracts(player);
       }
     }
     public void HandleAfterPlayerSave(ServerVaultEvents.OnServerCharacterSaveAfter onSaveAfter)
@@ -234,6 +237,45 @@ namespace NWN.Systems
           NWScript.SqlStep(query);
         }
       }
+    }
+    private static void HandleExpiredContracts(Player player)
+    {
+      var query = NWScript.SqlPrepareQueryCampaign(Config.database, $"SELECT expirationDate rowid from playerPrivateContracts where characterId = @characterId");
+      NWScript.SqlBindInt(query, "@characterId", player.characterId);
+
+      while (NWScript.SqlStep(query) > 0)
+      {
+        int contractId = NWScript.SqlGetInt(query, 1);
+
+        if ((DateTime.Parse(NWScript.SqlGetString(query, 0)) - DateTime.Now).TotalSeconds < 0)
+        {
+          Task contractExpiration = NwTask.Run(async () =>
+          {
+            await NwTask.Delay(TimeSpan.FromSeconds(0.2));
+            DeleteExpiredContract(player, contractId);
+          });
+        }
+      }
+    }
+    private static void DeleteExpiredContract(Player player, int contractId)
+    {
+      var query = NWScript.SqlPrepareQueryCampaign(Config.database, $"SELECT serializedContract from playerPrivateContracts where rowid = @rowid");
+      NWScript.SqlBindInt(query, "@rowid", contractId);
+      NWScript.SqlStep(query);
+
+      foreach (string materialString in NWScript.SqlGetString(query, 0).Split("|"))
+      {
+        string[] descriptionString = materialString.Split("$");
+        if (descriptionString.Length == 3)
+          if (player.materialStock.ContainsKey(descriptionString[0]))
+            player.materialStock[descriptionString[0]] += Int32.Parse(descriptionString[1]);
+          else
+            player.materialStock.Add(descriptionString[0], Int32.Parse(descriptionString[1]));
+      }
+
+      var deletionQuery = NWScript.SqlPrepareQueryCampaign(Config.database, $"DELETE from playerPrivateContracts where rowid = @rowid");
+      NWScript.SqlBindInt(deletionQuery, "@rowid", contractId);
+      NWScript.SqlStep(deletionQuery);
     }
   }
 }

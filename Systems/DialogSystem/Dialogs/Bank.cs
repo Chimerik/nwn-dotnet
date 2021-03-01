@@ -61,11 +61,11 @@ namespace NWN.Systems
 
         Task playerInput = NwTask.Run(async () =>
         {
-          await NwTask.WaitUntil(() => player.oid.GetLocalVariable<int>("_PLAYER_INPUT").HasValue);
-          if (player.oid.GetLocalVariable<int>("_PLAYER_INPUT").Value != Config.invalidInput)
-            HandleValidateDeposit(player);
-          else
-            player.oid.GetLocalVariable<int>("_PLAYER_INPUT").Delete();
+          player.oid.GetLocalVariable<int>("_PLAYER_INPUT").Value = 1;
+          player.setValue = Config.invalidInput;
+          await NwTask.WaitUntil(() => player.setValue != Config.invalidInput);
+          HandleValidateDeposit(player);
+          player.setValue = Config.invalidInput;
         });
       }
 
@@ -126,7 +126,7 @@ namespace NWN.Systems
         player.bankGold += player.setValue;
       }
 
-      player.setValue = 0;
+      player.setValue = Config.invalidInput;
       player.menu.choices.Add(("Quitter", () => player.menu.Close()));
       player.menu.Draw();
     }
@@ -151,15 +151,13 @@ namespace NWN.Systems
           "(Dites moi simplement la valeur souhaitée à l'oral)"
         };
 
-        player.oid.GetLocalVariable<int>("_PLAYER_INPUT").Value = 1;
-
         Task playerInput = NwTask.Run(async () =>
         {
-          await NwTask.WaitUntil(() => player.oid.GetLocalVariable<int>("_PLAYER_INPUT").HasValue);
-          if (player.oid.GetLocalVariable<int>("_PLAYER_INPUT") != Config.invalidInput)
-            HandleValidateWithdrawal(player);
-          else
-            player.oid.GetLocalVariable<int>("_PLAYER_INPUT").Delete();
+          player.oid.GetLocalVariable<int>("_PLAYER_INPUT").Value = 1;
+          player.setValue = Config.invalidInput;
+          await NwTask.WaitUntil(() => player.setValue != Config.invalidInput);
+          HandleValidateWithdrawal(player);
+          player.setValue = Config.invalidInput;
         });
         
         player.menu.choices.Add(($"Tout retirer.", () => HandleWithdrawAll(player)));
@@ -208,15 +206,15 @@ namespace NWN.Systems
         
         Task playerInput = NwTask.Run(async () =>
         {
-          await NwTask.WaitUntil(() => player.oid.GetLocalVariable<int>("_PLAYER_INPUT").HasValue);
-          if (player.oid.GetLocalVariable<int>("_PLAYER_INPUT").Value != Config.invalidInput)
-            HandleValidateWithdrawal(player);
-          else
-            player.oid.GetLocalVariable<int>("_PLAYER_INPUT").Delete();
+          player.oid.GetLocalVariable<int>("_PLAYER_INPUT").Value = 1;
+          player.setValue = Config.invalidInput;
+          await NwTask.WaitUntil(() => player.setValue != Config.invalidInput);
+          HandleValidateWithdrawal(player);
+          player.setValue = Config.invalidInput;
         });
       }
 
-      player.setValue = 0;
+      player.setValue = Config.invalidInput;
       player.menu.choices.Add(("Quitter", () => player.menu.Close()));
       player.menu.Draw();
     }

@@ -18,7 +18,7 @@ namespace NWN.Systems
           }   
         }
 
-        player.setValue = 0;
+        player.setValue = Config.invalidInput;
       }
     }
   }

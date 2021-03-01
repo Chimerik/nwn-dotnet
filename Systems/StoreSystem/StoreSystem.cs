@@ -73,7 +73,7 @@ namespace NWN.System
             {
                 EventsPlugin.SkipEvent();
                 ChatPlugin.SendMessage(ChatPlugin.NWNX_CHAT_CHANNEL_PLAYER_TALK, "Navré, je n'achète rien. J'arrive déjà tout juste à m'acquiter de ma dette.",
-                    NWScript.GetLocalObject(NWScript.StringToObject(EventsPlugin.GetEventData("STORE")), "_STORE_NPC"), callInfo.ObjectSelf);
+                NWScript.GetLocalObject(NWScript.StringToObject(EventsPlugin.GetEventData("STORE")), "_STORE_NPC"), callInfo.ObjectSelf);
             }
         }
     }

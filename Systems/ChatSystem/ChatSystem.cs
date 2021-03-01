@@ -85,7 +85,7 @@ namespace NWN.Systems
           }
           using (StreamWriter file =
           new StreamWriter(path, true))
-            file.WriteLineAsync(DateTime.Now.ToShortDateString() + " " + DateTime.Now.ToShortTimeString() + " -  " + NWScript.GetName(ctx.oSender) + " To : " + NWScript.GetName(ctx.oTarget, 1) + " : " + ctx.msg);
+            file.WriteLineAsync(DateTime.Now.ToShortDateString() + " " + DateTime.Now.ToShortTimeString() + " - " + NWScript.GetName(ctx.oSender) + " To : " + NWScript.GetName(ctx.oTarget, 1) + " : " + ctx.msg);
         }
 
         if (PlayerSystem.Players.TryGetValue(ctx.oSender, out PlayerSystem.Player player) && player.oid.GetLocalVariable<int>("_PLAYER_INPUT").HasValue)
@@ -94,11 +94,11 @@ namespace NWN.Systems
           {
             player.setValue = value;
             player.oid.GetLocalVariable<int>("_PLAYER_INPUT").Delete();
+            ChatPlugin.SkipMessage();
             return;
           }
         }
            
-
         next();
       }
     }

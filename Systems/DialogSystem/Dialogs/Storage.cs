@@ -119,7 +119,7 @@ namespace NWN.Systems
         player.menu.titleLines.Add("Voilà qui est fait !");
       }
 
-      player.setValue = 0;
+      player.setValue = Config.invalidInput;
       player.menu.choices.Add(("Retour", () => DrawWelcomePage(player)));
       player.menu.choices.Add(("Quitter", () => player.menu.Close()));
       player.menu.Draw();
@@ -189,7 +189,7 @@ namespace NWN.Systems
         }
       }
 
-      player.setValue = 0;
+      player.setValue = Config.invalidInput;
       player.menu.choices.Add(($"Retour.", () => DrawWelcomePage(player)));
       player.menu.choices.Add(("Quitter", () => player.menu.Close()));
       player.menu.Draw();

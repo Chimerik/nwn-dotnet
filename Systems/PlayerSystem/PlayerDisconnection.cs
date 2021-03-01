@@ -40,7 +40,7 @@ namespace NWN.Systems
         onPCDisconnect.Player.VisualTransform.Translation.X = 0.0f;
         onPCDisconnect.Player.VisualTransform.Translation.Y = 0.0f;
         onPCDisconnect.Player.VisualTransform.Translation.Z = 0.0f;
-        player.setValue = 0;
+        player.setValue = Config.invalidInput;
         player.OnKeydown -= player.menu.HandleMenuFeatUsed;
 
         RemovePartyBuffOnDisconnect(onPCDisconnect.Player);

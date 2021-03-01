@@ -6,9 +6,7 @@ using NWNX.Services;
 using NWN.API.Constants;
 using System.Linq;
 using NWN.Core;
-using Discord;
 using NWN.API.Events;
-using System.Threading.Tasks;
 using NLog;
 
 namespace NWN.Systems
@@ -97,6 +95,12 @@ namespace NWN.Systems
           FeedbackPlugin.SetFeedbackMessageHidden(23, 1, player);
           onItemUse.Skip = true;
           Items.ItemUseHandlers.ResourceExtractor.HandleActivate(oItem, player, oTarget);
+          NWScript.DelayCommand(0.2f, () => FeedbackPlugin.SetFeedbackMessageHidden(23, 1, player));
+          break;
+        case "private_contract":
+          FeedbackPlugin.SetFeedbackMessageHidden(23, 1, player);
+          onItemUse.Skip = true;
+          new PrivateContract(player, oItem);
           NWScript.DelayCommand(0.2f, () => FeedbackPlugin.SetFeedbackMessageHidden(23, 1, player));
           break;
       }

@@ -17,7 +17,7 @@ namespace NWN.Systems
     }
     private void DrawWelcomePage(Player player)
     {
-      player.setValue = 0;
+      player.setValue = Config.invalidInput;
       player.menu.Clear();
       player.menu.titleLines = new List<string> {
         $"Tannerie - Les peaux brutes sont acheminées de votre entrepôt.",
@@ -43,15 +43,13 @@ namespace NWN.Systems
         "(Prononcez simplement la quantité à l'oral. Dites 0 si vous souhaitez tout traiter.)"
       };
 
-      player.oid.GetLocalVariable<int>("_PLAYER_INPUT").Value = 1;
-
       Task playerInput = NwTask.Run(async () =>
       {
-        await NwTask.WaitUntil(() => player.oid.GetLocalVariable<int>("_PLAYER_INPUT").HasValue);
-        if (player.oid.GetLocalVariable<int>("_PLAYER_INPUT").Value != Config.invalidInput)
-          HandleRefineOre(player, oreName);
-        else
-          player.oid.GetLocalVariable<int>("_PLAYER_INPUT").Delete();
+        player.oid.GetLocalVariable<int>("_PLAYER_INPUT").Value = 1;
+        player.setValue = Config.invalidInput;
+        await NwTask.WaitUntil(() => player.setValue != Config.invalidInput);
+        HandleRefineOre(player, oreName);
+        player.setValue = Config.invalidInput;
       });
 
       player.menu.choices.Add(("Tout tanner.", () => HandleRefineAll(player, oreName)));
