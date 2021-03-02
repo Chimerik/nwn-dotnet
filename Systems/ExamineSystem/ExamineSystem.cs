@@ -16,6 +16,7 @@ namespace NWN.Systems
     public ExamineSystem(NWNXEventService nwnxEventService)
     {
       nwnxEventService.Subscribe<ExamineEvents.OnExamineObjectBefore>(OnExamineBefore);
+      nwnxEventService.Subscribe<ExamineEvents.OnExamineObjectAfter>(OnExamineAfter);
     }
     private void OnExamineBefore(ExamineEvents.OnExamineObjectBefore onExamine)
     {
@@ -169,7 +170,18 @@ namespace NWN.Systems
       }
 
       if (onExamine.Examinee is NwItem && onExamine.Examinee.GetLocalVariable<int>("_AVAILABLE_ENCHANTEMENT_SLOT").HasValue)
-        onExamine.Examiner.SendServerMessage($"{onExamine.Examinee.Name} : {onExamine.Examinee.GetLocalVariable<int>("_AVAILABLE_ENCHANTEMENT_SLOT").Value} emplacement(s) d'enchantement disponible(s)", Color.CYAN);
+      {
+        onExamine.Examinee.GetLocalVariable<string>("_TEMP_DESC").Value = onExamine.Examinee.Description;
+        onExamine.Examinee.Description += $"\n\n{onExamine.Examinee.GetLocalVariable<int>("_AVAILABLE_ENCHANTEMENT_SLOT").Value} emplacement(s) d'enchantement disponible(s)";
+      }
+    }
+    private void OnExamineAfter(ExamineEvents.OnExamineObjectAfter onExamine)
+    {
+      if (onExamine.Examinee is NwItem && onExamine.Examinee.GetLocalVariable<int>("_AVAILABLE_ENCHANTEMENT_SLOT").HasValue)
+      {
+        onExamine.Examinee.Description = onExamine.Examinee.GetLocalVariable<string>("_TEMP_DESC").Value = onExamine.Examinee.Description;
+        onExamine.Examinee.GetLocalVariable<string>("_TEMP_DESC").Delete();
+      }
     }
   }
 }

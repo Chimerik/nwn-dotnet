@@ -86,6 +86,8 @@ namespace NWN.Systems
         SavePlayerAreaExplorationStateToDatabase(player);
         Log.Info("Saved area exploration state to DB");
         HandleExpiredContracts(player);
+        HandleExpiredBuyOrders(player);
+        HandleExpiredSellOrders(player);
       }
     }
     public void HandleAfterPlayerSave(ServerVaultEvents.OnServerCharacterSaveAfter onSaveAfter)
@@ -267,13 +269,89 @@ namespace NWN.Systems
       {
         string[] descriptionString = materialString.Split("$");
         if (descriptionString.Length == 3)
+        {
           if (player.materialStock.ContainsKey(descriptionString[0]))
             player.materialStock[descriptionString[0]] += Int32.Parse(descriptionString[1]);
           else
             player.materialStock.Add(descriptionString[0], Int32.Parse(descriptionString[1]));
+
+          player.oid.SendServerMessage($"Expiration du contrat {contractId} - {descriptionString[1]} unité(s) de {descriptionString[0]} ont été réintégrées à votre entrepôt.");
+        }
       }
 
       var deletionQuery = NWScript.SqlPrepareQueryCampaign(Config.database, $"DELETE from playerPrivateContracts where rowid = @rowid");
+      NWScript.SqlBindInt(deletionQuery, "@rowid", contractId);
+      NWScript.SqlStep(deletionQuery);
+    }
+    private static void HandleExpiredBuyOrders(Player player)
+    {
+      var query = NWScript.SqlPrepareQueryCampaign(Config.database, $"SELECT expirationDate rowid from playerBuyOrders where characterId = @characterId");
+      NWScript.SqlBindInt(query, "@characterId", player.characterId);
+
+      while (NWScript.SqlStep(query) > 0)
+      {
+        int contractId = NWScript.SqlGetInt(query, 1);
+
+        if ((DateTime.Parse(NWScript.SqlGetString(query, 0)) - DateTime.Now).TotalSeconds < 0)
+        {
+          Task contractExpiration = NwTask.Run(async () =>
+          {
+            await NwTask.Delay(TimeSpan.FromSeconds(0.2));
+            DeleteExpiredBuyOrder(player, contractId);
+          });
+        }
+      }
+    }
+    private static void DeleteExpiredBuyOrder(Player player, int contractId)
+    {
+      var query = NWScript.SqlPrepareQueryCampaign(Config.database, $"SELECT quantity, unitPrice from playerBuyOrders where rowid = @rowid");
+      NWScript.SqlBindInt(query, "@rowid", contractId);
+      NWScript.SqlStep(query);
+
+      int gold = NWScript.SqlGetInt(query, 0) + NWScript.SqlGetInt(query, 1);
+      player.bankGold += gold;
+      player.oid.SendServerMessage($"Expiration de l'ordre d'achat {contractId} - {gold} pièce(s) d'or ont été reversées à votre banque.");
+
+      var deletionQuery = NWScript.SqlPrepareQueryCampaign(Config.database, $"DELETE from playerBuyOrders where rowid = @rowid");
+      NWScript.SqlBindInt(deletionQuery, "@rowid", contractId);
+      NWScript.SqlStep(deletionQuery);
+    }
+    private static void HandleExpiredSellOrders(Player player)
+    {
+      var query = NWScript.SqlPrepareQueryCampaign(Config.database, $"SELECT expirationDate rowid from playerSellOrders where characterId = @characterId");
+      NWScript.SqlBindInt(query, "@characterId", player.characterId);
+
+      while (NWScript.SqlStep(query) > 0)
+      {
+        int contractId = NWScript.SqlGetInt(query, 1);
+
+        if ((DateTime.Parse(NWScript.SqlGetString(query, 0)) - DateTime.Now).TotalSeconds < 0)
+        {
+          Task contractExpiration = NwTask.Run(async () =>
+          {
+            await NwTask.Delay(TimeSpan.FromSeconds(0.2));
+            DeleteExpiredBuyOrder(player, contractId);
+          });
+        }
+      }
+    }
+    private static void DeleteExpiredSellOrder(Player player, int contractId)
+    {
+      var query = NWScript.SqlPrepareQueryCampaign(Config.database, $"SELECT playerSellOrders, quantity from playerSellOrders where rowid = @rowid");
+      NWScript.SqlBindInt(query, "@rowid", contractId);
+      NWScript.SqlStep(query);
+
+      string material = NWScript.SqlGetString(query, 0);
+      int quantity = NWScript.SqlGetInt(query, 1);
+
+      if (player.materialStock.ContainsKey(material))
+        player.materialStock[material] += quantity;
+      else
+        player.materialStock.Add(material, quantity);
+
+      player.oid.SendServerMessage($"Expiration de l'ordre de vente {contractId} - {quantity} unité(s) de {material} sont en cours de transfert vers votre entrepôt.");
+
+      var deletionQuery = NWScript.SqlPrepareQueryCampaign(Config.database, $"DELETE from playerSellOrders where rowid = @rowid");
       NWScript.SqlBindInt(deletionQuery, "@rowid", contractId);
       NWScript.SqlStep(deletionQuery);
     }

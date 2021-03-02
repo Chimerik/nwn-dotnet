@@ -68,8 +68,8 @@ namespace NWN.Systems
         secondaryAbility = NWScript.ABILITY_CHARISMA;
 
         int knownSpells = CreaturePlugin.GetKnownSpellCount(player.oid, 43, multiplier);
-        if (knownSpells > 5)
-          knownSpells = 5;
+        if (knownSpells > 4)
+          knownSpells = 4;
 
         if (knownSpells < 1)
           knownSpells = 1;

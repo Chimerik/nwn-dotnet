@@ -132,6 +132,14 @@ namespace NWN.Systems
       query = NWScript.SqlPrepareQueryCampaign(Config.database, $"CREATE TABLE IF NOT EXISTS playerPrivateContracts" +
         $"('characterId' INTEGER NOT NULL, 'expirationDate' TEXT NOT NULL, 'serializedContract' TEXT NOT NULL, 'totalValue' INTEGER NOT NULL)");
       NWScript.SqlStep(query);
+
+      query = NWScript.SqlPrepareQueryCampaign(Config.database, $"CREATE TABLE IF NOT EXISTS playerBuyOrders" +
+        $"('characterId' INTEGER NOT NULL, 'expirationDate' TEXT NOT NULL, 'material' TEXT NOT NULL, 'quantity' INTEGER NOT NULL, 'unitPrice' INTEGER NOT NULL)");
+      NWScript.SqlStep(query);
+
+      query = NWScript.SqlPrepareQueryCampaign(Config.database, $"CREATE TABLE IF NOT EXISTS playerSellOrders" +
+        $"('characterId' INTEGER NOT NULL, 'expirationDate' TEXT NOT NULL, 'material' TEXT NOT NULL, 'quantity' INTEGER NOT NULL, 'unitPrice' INTEGER NOT NULL)");
+      NWScript.SqlStep(query);
     }
     private void InitializeEvents()
     {
@@ -220,7 +228,7 @@ namespace NWN.Systems
       foreach (NwWaypoint ressourcePoint in NwModule.FindObjectsWithTag<NwWaypoint>(new string[] { "ore_spawn_wp", "wood_spawn_wp" }).Where(l => l.Area.GetLocalVariable<int>("_AREA_LEVEL").Value > 1))
       {
         int areaLevel = ressourcePoint.Area.GetLocalVariable<int>("_AREA_LEVEL").Value;
-        if (NwRandom.Roll(NWN.Utils.random, 100) >= (areaLevel * 20) - 20)
+        if (NwRandom.Roll(Utils.random, 100) >= (areaLevel * 20) - 20)
         {
           string resRef = "";
           string name = "";

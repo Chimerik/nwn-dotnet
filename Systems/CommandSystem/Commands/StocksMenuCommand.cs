@@ -7,9 +7,7 @@ namespace NWN.Systems
     private static void ExecuteStocksMenuCommand(ChatSystem.Context ctx, Options.Result options)
     {
       if (PlayerSystem.Players.TryGetValue(ctx.oSender, out PlayerSystem.Player player))
-      {
         DrawMainPage(player);
-      }
     }
 
     private static void DrawMainPage(PlayerSystem.Player player)

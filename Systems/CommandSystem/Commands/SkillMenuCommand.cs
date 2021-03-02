@@ -88,12 +88,25 @@ namespace NWN.Systems
       page += _PAGINATION;
       __DrawSkillPage(player);
     }
+    private static void __DrawPreviousSpellPage(PlayerSystem.Player player)
+    {
+      page -= _PAGINATION;
+      __DrawSpellPage(player);
+    }
+    private static void __DrawNextSpellPage(PlayerSystem.Player player)
+    {
+      page += _PAGINATION;
+      __DrawSpellPage(player);
+    }
     private static void __DrawSpellPage(PlayerSystem.Player player)
     {
+      if (page < 0)
+        page = 0;
+
       player.menu.Clear();
       player.menu.titleLines.Add("Liste des sorts disponibles pour étude.");
 
-      foreach (KeyValuePair<int, LearnableSpell> SpellListEntry in player.learnableSpells.OrderByDescending(key => key.Value.currentJob))
+      foreach (KeyValuePair<int, LearnableSpell> SpellListEntry in player.learnableSpells.OrderByDescending(key => key.Value.currentJob).Skip(page).Take(_PAGINATION))
       {
         LearnableSpell spell = SpellListEntry.Value;
 
@@ -106,6 +119,11 @@ namespace NWN.Systems
         }
         // TODO : Suivant, précédent
       }
+      if (page > 0)
+        player.menu.choices.Add(("Retour", () => __DrawPreviousSpellPage(player)));
+
+      if (player.learnableSkills.Count > page + _PAGINATION)
+        player.menu.choices.Add(("Suivant", () => __DrawNextSpellPage(player)));
 
       player.menu.choices.Add(("Quitter", () => __HandleClose(player)));
       player.menu.Draw();

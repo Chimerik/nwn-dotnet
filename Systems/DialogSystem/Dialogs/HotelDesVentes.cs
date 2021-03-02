@@ -6,6 +6,7 @@ using NWN.API;
 using NWN.Core;
 using NWN.Core.NWNX;
 using static NWN.Systems.PlayerSystem;
+using static NWN.Systems.Craft.Collect.Config;
 
 namespace NWN.Systems
 {
@@ -148,7 +149,7 @@ namespace NWN.Systems
         {
           int transferedQuantity = 0;
 
-          var selectCharacterId = NWScript.SqlPrepareQueryCampaign(Config.database, $"SELECT characterId where rowid = @rowid");
+          var selectCharacterId = NWScript.SqlPrepareQueryCampaign(Config.database, $"SELECT characterId from playerBuyOrders where rowid = @rowid");
           NWScript.SqlBindInt(selectCharacterId, "@rowid", entry.Key);
           NWScript.SqlStep(selectCharacterId);
 
@@ -178,11 +179,11 @@ namespace NWN.Systems
             else
               buyer.materialStock.Add(material, entry.Value);
 
-            oBuyer.SendServerMessage($"Votre ordre d'achat {entry.Key} vous a permis d'acquérir {entry.Key} unité(s) de {material}", Color.PINK);
+            oBuyer.SendServerMessage($"Votre ordre d'achat {entry.Key} vous a permis d'acquérir {transferedQuantity} unité(s) de {material}", Color.PINK);
           }
           else
           {
-            // TODO : A la prochaine connexion du joueur, lui envoyer un courrier afin de lui indiquer que son order d'achat a porté ses fruits
+            // TODO : A la prochaine connexion du joueur, lui envoyer un courrier afin de lui indiquer que son ordre d'achat a porté ses fruits
             var buyerQuery = NWScript.SqlPrepareQueryCampaign(Config.database, $"INSERT INTO playerMaterialStorage (characterId, materialName, materialStock) VALUES (@characterId, @materialName, @materialStock)" +
               $"ON CONFLICT (characterId, materialName) DO UPDATE SET materialStock = materialStock + @materialStock where characterId = @characterId and materialName = @materialName");
             NWScript.SqlBindInt(buyerQuery, "@characterId", buyerID);
@@ -225,7 +226,219 @@ namespace NWN.Systems
     }
     private void DrawBuyOrderPage(Player player)
     {
+      player.menu.Clear();
+      player.menu.titleLines = new List<string> { "Pour quelle ressources souhaitez-vous créer un ordre d'achat ?" };
 
+      foreach (var entry in oresDictionnary)
+          player.menu.choices.Add(($"* {entry.Value.name}", () => HandleValidateBuyOrderMaterialSelection(player, Enum.GetName(typeof(OreType), entry.Key))));
+
+      foreach (var entry in mineralDictionnary)
+        player.menu.choices.Add(($"* {entry.Value.name}", () => HandleValidateBuyOrderMaterialSelection(player, Enum.GetName(typeof(OreType), entry.Key))));
+
+      foreach (var entry in woodDictionnary)
+        player.menu.choices.Add(($"* {entry.Value.name}", () => HandleValidateBuyOrderMaterialSelection(player, Enum.GetName(typeof(OreType), entry.Key))));
+
+      foreach (var entry in plankDictionnary)
+        player.menu.choices.Add(($"* {entry.Value.name}", () => HandleValidateBuyOrderMaterialSelection(player, Enum.GetName(typeof(OreType), entry.Key))));
+
+      foreach (var entry in peltDictionnary)
+        player.menu.choices.Add(($"* {entry.Value.name}", () => HandleValidateBuyOrderMaterialSelection(player, Enum.GetName(typeof(OreType), entry.Key))));
+
+      foreach (var entry in leatherDictionnary)
+        player.menu.choices.Add(($"* {entry.Value.name}", () => HandleValidateBuyOrderMaterialSelection(player, Enum.GetName(typeof(OreType), entry.Key))));
+
+      player.menu.choices.Add((
+        "Retour",
+        () => DrawWelcomePage(player)
+      ));
+
+      player.menu.Draw();
+    }
+    private void HandleValidateBuyOrderMaterialSelection(Player player, string material)
+    {
+      player.menu.Clear();
+      player.menu.titleLines = new List<string> {
+          $"Quelle quantité de {material} doit être comprise dans cet ordre de vente ?",
+          "(Indiquez simplement la valeur à l'oral)"
+        };
+
+      Task playerInput = NwTask.Run(async () =>
+      {
+        player.oid.GetLocalVariable<int>("_PLAYER_INPUT").Value = 1;
+        player.setValue = Config.invalidInput;
+        await NwTask.WaitUntil(() => player.setValue != Config.invalidInput);
+        HandleSetupBuyOrderPrice(player, material);
+        player.setValue = Config.invalidInput;
+      });
+
+      player.setValue = Config.invalidInput;
+      player.menu.Draw();
+    }
+    private void HandleSetupBuyOrderPrice(Player player, string material)
+    {
+      player.menu.Clear();
+
+      if (player.setValue <= 0)
+      {
+        player.menu.titleLines.Add($"La quantité indiquée n'est pas valide, veuillez ré-essayer.");
+        player.menu.choices.Add(($"Entrer une nouvelle valeur.", () => HandleValidateBuyOrderMaterialSelection(player, material)));
+      }
+      else
+      {
+        if (player.setValue >= player.materialStock[material])
+          player.setValue = player.materialStock[material];
+        else
+        {
+          player.menu.titleLines = new List<string> {
+          $"{player.setValue} de {material}. A quel prix unitaire ?",
+          "Pour tout ordre non immédiat, il convient de s'acquiter à l'avance de 5 % du prix de vente",
+          $"(Indiquez à l'oral le prix que vous souhaitez pour chaque unité de {material}"
+          };
+
+          Task playerInput = NwTask.Run(async () =>
+          {
+            int quantity = player.setValue;
+            player.oid.GetLocalVariable<int>("_PLAYER_INPUT").Value = 1;
+            player.setValue = Config.invalidInput;
+            await NwTask.WaitUntil(() => player.setValue != Config.invalidInput);
+            CreateBuyOrderPage(player, material, quantity);
+            player.setValue = Config.invalidInput;
+          });
+        }
+      }
+
+      player.setValue = Config.invalidInput;
+      player.menu.Draw();
+    }
+    private void CreateBuyOrderPage(Player player, string material, int quantity)
+    {
+      if (player.setValue < 0)
+      {
+        player.menu.Clear();
+        player.menu.titleLines.Add($"Le prix indiqué n'est pas valide, veuillez ré-essayer.");
+        player.menu.choices.Add(($"Entrer une nouvelle valeur.", () => HandleValidateBuyOrderMaterialSelection(player, material)));
+        player.menu.Draw();
+      }
+      else
+      {
+        if(player.bankGold < quantity * player.setValue)
+        {
+          player.menu.Clear();
+          player.menu.titleLines.Add($"Votre compte en banque n'est pas créditeur des {quantity * player.setValue + quantity * player.setValue * 0.05} pièce(s) d'or nécessaire au placement de cet ordre d'achat.");
+          player.menu.choices.Add(($"Entrer une nouvelle valeur.", () => HandleValidateBuyOrderMaterialSelection(player, material)));
+          player.menu.Draw();
+        }
+
+        player.bankGold -= quantity * player.setValue;
+
+        var sellOrdersQuery = NWScript.SqlPrepareQueryCampaign(Config.database, $"SELECT rowid, quantity, unitPrice from playerSellOrders where material = @material AND unitPrice <= @unitPrice AND expirationDate < @now");
+        NWScript.SqlBindString(sellOrdersQuery, "@expirationDate", DateTime.Now.ToString());
+        NWScript.SqlBindString(sellOrdersQuery, "@material", material);
+        NWScript.SqlBindInt(sellOrdersQuery, "@unitPrice", player.setValue);
+
+        int remainingQuantity = quantity;
+
+        while (NWScript.SqlStep(sellOrdersQuery) > 0 || remainingQuantity > 0)
+        {
+          int sellOrderQuantity = NWScript.SqlGetInt(sellOrdersQuery, 1);
+          int soldQuantity = 0;
+
+          if (remainingQuantity < sellOrderQuantity)
+          {
+            soldQuantity = sellOrderQuantity - remainingQuantity;
+            ordersDictionnary.Add(NWScript.SqlGetInt(sellOrdersQuery, 0), soldQuantity);
+          }
+          else
+          {
+            soldQuantity = remainingQuantity - sellOrderQuantity;
+            ordersDictionnary.Add(NWScript.SqlGetInt(sellOrdersQuery, 0), -soldQuantity);
+          }
+
+          remainingQuantity -= soldQuantity;
+
+          if (player.materialStock.ContainsKey(material))
+            player.materialStock[material] += soldQuantity;
+          else
+            player.materialStock.Add(material, soldQuantity);
+
+          player.oid.SendServerMessage($"Vous venez d'acheter {soldQuantity} unité(s) de {material} en achat direct. Les matériaux sont en cours de transport vers votre entrepot.", Color.PINK);
+        }
+
+        foreach (var entry in ordersDictionnary)
+        {
+          int transferedQuantity = 0;
+
+          var selectCharacterId = NWScript.SqlPrepareQueryCampaign(Config.database, $"SELECT characterId, unitPrice from playerSellOrders where rowid = @rowid");
+          NWScript.SqlBindInt(selectCharacterId, "@rowid", entry.Key);
+          NWScript.SqlStep(selectCharacterId);
+
+          int sellerID = NWScript.SqlGetInt(selectCharacterId, 0);
+
+          if (entry.Value > 0)
+          {
+            var updateQuery = NWScript.SqlPrepareQueryCampaign(Config.database, $"UPDATE playerSellOrders SET quantity = @quantity where rowid = @rowid");
+            NWScript.SqlBindInt(updateQuery, "@quantity", entry.Value);
+            NWScript.SqlBindInt(updateQuery, "@rowid", entry.Key);
+            NWScript.SqlStep(updateQuery);
+            transferedQuantity = entry.Value;
+          }
+          else
+          {
+            var deletionQuery = NWScript.SqlPrepareQueryCampaign(Config.database, $"DELETE from playerSellOrders where rowid = @rowid");
+            NWScript.SqlBindInt(deletionQuery, "@rowid", entry.Key);
+            NWScript.SqlStep(deletionQuery);
+            transferedQuantity = -entry.Value;
+          }
+
+          NwPlayer oSeller = NwModule.Instance.Players.FirstOrDefault(p => ObjectPlugin.GetInt(p, "characterId") == sellerID);
+          int acquiredGold = transferedQuantity * NWScript.SqlGetInt(selectCharacterId, 1);
+
+          if (oSeller != null && Players.TryGetValue(oSeller, out Player seller))
+          {
+            seller.bankGold += acquiredGold;
+            oSeller.SendServerMessage($"Votre ordre d'achat {entry.Key} vous a permis d'acquérir {transferedQuantity} unité(s) de {material}", Color.PINK);
+          }
+          else
+          {
+            // TODO : A la prochaine connexion du joueur, lui envoyer un courrier afin de lui indiquer que son ordre de vente a porté ses fruits
+            var buyerQuery = NWScript.SqlPrepareQueryCampaign(Config.database, $"UPDATE playerCharacters SET bankGold = bankGold + @gold where characterId = @characterId");
+            NWScript.SqlBindInt(buyerQuery, "@characterId", sellerID);
+            NWScript.SqlBindInt(buyerQuery, "@gold", acquiredGold);
+            NWScript.SqlStep(buyerQuery);
+          }
+        }
+
+        if (remainingQuantity <= 0)
+        {
+          player.oid.SendServerMessage($"Votre ordre d'achat a été entièrement traité en transaction directe. Il n'est pas nécessaire de placer un ordre différée.", Color.PINK);
+          player.menu.Close();
+          return;
+        }
+
+        int brokerFee = remainingQuantity * player.setValue * 5 / 100;
+        if (player.bankGold < brokerFee)
+        {
+          player.oid.SendServerMessage($"Vous ne disposez pas de suffisament d'or en banque pour placer un ordre de vente différé.", Color.LIME);
+          player.bankGold += remainingQuantity * player.setValue;
+          player.menu.Close();
+          return;
+        }
+
+        player.bankGold -= brokerFee;
+        player.oid.SendServerMessage($"{brokerFee} pièce(s) d'or ont été prélevées de votre banque pour la taxe de courtage.", Color.PINK);
+
+        var query = NWScript.SqlPrepareQueryCampaign(Config.database, $"INSERT INTO playerBuyOrders (characterId, expirationDate, material, quantity, unitPrice) VALUES (@characterId, @expirationDate, @material, @quantity, @unitPrice)");
+        NWScript.SqlBindInt(query, "@characterId", player.characterId);
+        NWScript.SqlBindString(query, "@expirationDate", DateTime.Now.AddDays(30).ToString());
+        NWScript.SqlBindString(query, "@material", material);
+        NWScript.SqlBindInt(query, "@quantity", remainingQuantity);
+        NWScript.SqlBindInt(query, "@unitPrice", player.setValue);
+        NWScript.SqlStep(query);
+
+
+        player.oid.SendServerMessage($"Votre ordre d'achat de {remainingQuantity} unité(s) de {material} a bien été enregistré.", Color.PINK);
+        player.menu.Close();
+      }
     }
   }
 }

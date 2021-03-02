@@ -65,7 +65,7 @@ namespace NWN.Systems.Craft.Collect
       public Ore(OreType oreType, Feat oreFeat, Dictionary<MineralType, float> mineralsDictionnary)
       {
         this.type = oreType;
-        this.name = Enum.GetName(typeof(OreType), oreType) ?? "";
+        this.name = oreType.ToDescription() ?? "";
         this.feat = oreFeat;
         this.mineralsDictionnary = mineralsDictionnary;
       }
@@ -79,7 +79,7 @@ namespace NWN.Systems.Craft.Collect
       public Mineral(MineralType type)
       {
         this.type = type;
-        this.name = Enum.GetName(typeof(MineralType), type) ?? "";
+        this.name = type.ToDescription() ?? "";
       }
     }
     public enum OreType
@@ -137,7 +137,7 @@ namespace NWN.Systems.Craft.Collect
       public Pelt(PeltType oreType, Feat oreFeat)
       {
         this.type = oreType;
-        this.name = Enum.GetName(typeof(PeltType), oreType) ?? "";
+        this.name = oreType.ToDescription() ?? "";
         this.feat = oreFeat;
 
         switch (oreType)
@@ -169,7 +169,7 @@ namespace NWN.Systems.Craft.Collect
       public Leather(LeatherType type)
       {
         this.type = type;
-        this.name = Enum.GetName(typeof(LeatherType), type) ?? "";
+        this.name = type.ToDescription() ?? "";
       }
     }
     public enum PeltType
@@ -252,7 +252,7 @@ namespace NWN.Systems.Craft.Collect
       public Wood(WoodType oreType, Feat oreFeat)
       {
         this.type = oreType;
-        this.name = Enum.GetName(typeof(WoodType), oreType) ?? "";
+        this.name = oreType.ToDescription() ?? "";
         this.feat = oreFeat;
 
         switch (oreType)
@@ -284,7 +284,7 @@ namespace NWN.Systems.Craft.Collect
       public Plank(PlankType type)
       {
         this.type = type;
-        this.name = Enum.GetName(typeof(PlankType), type) ?? "";
+        this.name = type.ToDescription() ?? "";
       }
     }
     public enum WoodType
