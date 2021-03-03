@@ -22,6 +22,7 @@ namespace NWN.Systems
     {
       nativeEventService = eventService;
       eventService.Subscribe<NwModule, ModuleEvents.OnClientEnter>(NwModule.Instance, HandlePlayerConnect);
+      eventService.Subscribe<NwModule, ModuleEvents.OnClientLeave>(NwModule.Instance, HandlePlayerLeave);
       eventService.Subscribe<NwModule, ModuleEvents.OnPlayerDeath>(NwModule.Instance, HandlePlayerDeath);
       eventService.Subscribe<NwModule, ModuleEvents.OnPlayerTarget>(NwModule.Instance, HandlePlayerTarget);
       nwnxEventService.Subscribe<ServerVaultEvents.OnServerCharacterSaveBefore>(HandleBeforePlayerSave);

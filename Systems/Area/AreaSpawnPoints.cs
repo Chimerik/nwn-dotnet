@@ -23,6 +23,8 @@ namespace NWN.Systems
       {
         await NwTask.Delay(TimeSpan.FromSeconds(0.1));
 
+        Log.Info($"Found : {spawnPoint.GetLocalVariable<string>("_SPAWN_TYPE").Value}");
+
         switch (spawnPoint.GetLocalVariable<string>("_SPAWN_TYPE").Value)
         {
           case "npc":
@@ -50,7 +52,7 @@ namespace NWN.Systems
         return true;
       });
     }
-    private static uint SpawnCreatureFromSpawnPoint(NwWaypoint spawnPoint)
+    private static NwCreature SpawnCreatureFromSpawnPoint(NwWaypoint spawnPoint)
     {
       NwCreature creature = NwCreature.Create(spawnPoint.GetLocalVariable<string>("_CREATURE_TEMPLATE").Value, spawnPoint.Location);
 
@@ -66,6 +68,8 @@ namespace NWN.Systems
           break;
       }
 
+      Log.Info($"SPAWN - From {spawnPoint.GetLocalVariable<string>("_CREATURE_TEMPLATE").Value} -  {creature.Name}");
+
       return creature;
     }
     private static NwCreature SpawnNPCFromSpawnPoint(NwWaypoint spawnPoint)
@@ -77,7 +81,7 @@ namespace NWN.Systems
       creature.AiLevel = AiLevel.Low;
       spawnPoint.Destroy();
 
-      //Log.Info($"SPAWN - From {spawnPoint.GetLocalVariable<string>("_CREATURE_TEMPLATE").Value} -  {creature.Name} in {creature.GetLocalVariable<API.Location>("_SPAWN_LOCATION").Value.Area.Name}");
+      Log.Info($"SPAWN - From {spawnPoint.GetLocalVariable<string>("_CREATURE_TEMPLATE").Value} -  {creature.Name} in {creature.GetLocalVariable<API.Location>("_SPAWN_LOCATION").Value.Area.Name}");
 
       return creature;
     }

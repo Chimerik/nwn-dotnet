@@ -30,7 +30,11 @@ namespace NWN.Systems
       };
 
       player.menu.choices.Add(("Créer un nouvel ordre de vente.", () => DrawSellOrderPage(player)));
-      player.menu.choices.Add(("Créer un nouvel ordre de vente.", () => DrawBuyOrderPage(player)));
+      player.menu.choices.Add(("Créer un nouvel ordre d'achat.", () => DrawBuyOrderPage(player)));
+      player.menu.choices.Add(("Consulter les ordres de vente actifs.", () => DrawSellOrderList(player)));
+      player.menu.choices.Add(("Consulter les ordres d'achat actifs.", () => DrawBuyOrderList(player)));
+      player.menu.choices.Add(("Consulter mes ordres de vente.", () => DrawMySellOrderPage(player)));
+      player.menu.choices.Add(("Consulter mes ordres d'achat.", () => DrawMyBuyOrderPage(player)));
       player.menu.choices.Add(("Quitter.", () => player.menu.Close()));
       player.menu.Draw();
     }
@@ -439,6 +443,223 @@ namespace NWN.Systems
         player.oid.SendServerMessage($"Votre ordre d'achat de {remainingQuantity} unité(s) de {material} a bien été enregistré.", Color.PINK);
         player.menu.Close();
       }
+    }
+    private void DrawMySellOrderPage(Player player)
+    {
+      player.menu.Clear();
+      player.menu.titleLines = new List<string> { "Voici la liste de vos ordres de vente actifs. Souhaitez-vous en annuler un ?" };
+
+      var query = NWScript.SqlPrepareQueryCampaign(Config.database, $"SELECT expirationDate, material, quantity, unitPrice, rowid from playerSellOrders where characterId = @characterId");
+      NWScript.SqlBindInt(query, "@characterId", player.characterId);
+
+      while (NWScript.SqlStep(query) > 0)
+      {
+        int contractId = NWScript.SqlGetInt(query, 4);
+
+        TimeSpan remainingTime = (DateTime.Parse(NWScript.SqlGetString(query, 0)) - DateTime.Now);
+        if (remainingTime.TotalMinutes > 0)
+          player.menu.choices.Add(($"{contractId} - {NWScript.SqlGetString(query, 1)} - {NWScript.SqlGetInt(query, 2)} - {NWScript.SqlGetInt(query, 3)} po/u - Expire dans : {remainingTime.Days}:{remainingTime.Hours}:{remainingTime.Minutes}:{remainingTime.Seconds}", () => CancelSellOrder(player, contractId)));
+        else
+        {
+          Task contractExpiration = NwTask.Run(async () =>
+          {
+            await NwTask.Delay(TimeSpan.FromSeconds(0.2));
+            DeleteExpiredSellOrder(player, contractId);
+          });
+        }
+      }
+
+      player.menu.choices.Add((
+          "Retour",
+          () => DrawWelcomePage(player)
+        ));
+
+      player.menu.Draw();
+    }
+    private void CancelSellOrder(Player player, int contractId)
+    {
+      DeleteExpiredSellOrder(player, contractId);
+      player.oid.SendServerMessage($"L'ordre de vente {contractId} a été annulé.", Color.MAGENTA);
+      DrawMySellOrderPage(player);
+    }
+    private void DeleteExpiredSellOrder(Player player, int contractId)
+    {
+      var query = NWScript.SqlPrepareQueryCampaign(Config.database, $"SELECT material, quantity from playerSellOrders where rowid = @rowid");
+      NWScript.SqlBindInt(query, "@rowid", contractId);
+      NWScript.SqlStep(query);
+
+      string material = NWScript.SqlGetString(query, 0);
+      int quantity = NWScript.SqlGetInt(query, 1);
+
+      if (player.materialStock.ContainsKey(material))
+        player.materialStock[material] += quantity;
+      else
+        player.materialStock.Add(material, quantity);
+
+      var deletionQuery = NWScript.SqlPrepareQueryCampaign(Config.database, $"DELETE from playerSellOrders where rowid = @rowid");
+      NWScript.SqlBindInt(deletionQuery, "@rowid", contractId);
+      NWScript.SqlStep(deletionQuery);
+
+      player.oid.SendServerMessage($"Expiration de l'ordre de vente {contractId}. {quantity} unité(s) de {material} sont en cours de transfert vers votre entrepôt.", Color.MAGENTA);
+    }
+    private void DrawMyBuyOrderPage(Player player)
+    {
+      player.menu.Clear();
+      player.menu.titleLines = new List<string> { "Voici la liste de vos ordres d'achats actifs. Souhaitez-vous en annuler un ?" };
+
+      var query = NWScript.SqlPrepareQueryCampaign(Config.database, $"SELECT expirationDate, material, quantity, unitPrice, rowid from playerBuyOrders where characterId = @characterId");
+      NWScript.SqlBindInt(query, "@characterId", player.characterId);
+
+      while (NWScript.SqlStep(query) > 0)
+      {
+        int contractId = NWScript.SqlGetInt(query, 4);
+
+        TimeSpan remainingTime = (DateTime.Parse(NWScript.SqlGetString(query, 0)) - DateTime.Now);
+        if (remainingTime.TotalMinutes > 0)
+          player.menu.choices.Add(($"{contractId} - {NWScript.SqlGetString(query, 1)} - {NWScript.SqlGetInt(query, 2)} - {NWScript.SqlGetInt(query, 3)} po/u - Expire dans : {remainingTime.Days}:{remainingTime.Hours}:{remainingTime.Minutes}:{remainingTime.Seconds}", () => CancelBuyOrder(player, contractId)));
+        else
+        {
+          Task contractExpiration = NwTask.Run(async () =>
+          {
+            await NwTask.Delay(TimeSpan.FromSeconds(0.2));
+            DeleteExpiredBuyOrder(player, contractId);
+          });
+        }
+      }
+
+      player.menu.choices.Add((
+          "Retour",
+          () => DrawWelcomePage(player)
+        ));
+
+      player.menu.Draw();
+    }
+    private void CancelBuyOrder(Player player, int contractId)
+    {
+      DeleteExpiredBuyOrder(player, contractId);
+      player.oid.SendServerMessage($"L'ordre d'achat {contractId} a été annulé.", Color.MAGENTA);
+      DrawMySellOrderPage(player);
+    }
+    private void DeleteExpiredBuyOrder(Player player, int contractId)
+    {
+      var query = NWScript.SqlPrepareQueryCampaign(Config.database, $"SELECT unitPrice, quantity from playerBuyOrders where rowid = @rowid");
+      NWScript.SqlBindInt(query, "@rowid", contractId);
+      NWScript.SqlStep(query);
+
+      int gold = NWScript.SqlGetInt(query, 0) * NWScript.SqlGetInt(query, 1);
+      player.bankGold += gold;
+
+      var deletionQuery = NWScript.SqlPrepareQueryCampaign(Config.database, $"DELETE from playerSellOrders where rowid = @rowid");
+      NWScript.SqlBindInt(deletionQuery, "@rowid", contractId);
+      NWScript.SqlStep(deletionQuery);
+
+      player.oid.SendServerMessage($"Expiration de l'ordre d'achat {contractId}. {gold} pièces d'or ont été transférées à votre banque.", Color.MAGENTA);
+    }
+    private void SellOrderListMaterialSelection(Player player)
+    {
+      player.menu.Clear();
+      player.menu.titleLines = new List<string> { "De quel matériau souhaitez-vous consulter la liste des ordres de vente actifs ?" };
+
+      foreach (var entry in oresDictionnary)
+        player.menu.choices.Add(($"* {entry.Value.name}", () => HandleSelectMaterialSellOrderList(player, Enum.GetName(typeof(OreType), entry.Key))));
+
+      foreach (var entry in mineralDictionnary)
+        player.menu.choices.Add(($"* {entry.Value.name}", () => HandleSelectMaterialSellOrderList(player, Enum.GetName(typeof(OreType), entry.Key))));
+
+      foreach (var entry in woodDictionnary)
+        player.menu.choices.Add(($"* {entry.Value.name}", () => HandleSelectMaterialSellOrderList(player, Enum.GetName(typeof(OreType), entry.Key))));
+
+      foreach (var entry in plankDictionnary)
+        player.menu.choices.Add(($"* {entry.Value.name}", () => HandleSelectMaterialSellOrderList(player, Enum.GetName(typeof(OreType), entry.Key))));
+
+      foreach (var entry in peltDictionnary)
+        player.menu.choices.Add(($"* {entry.Value.name}", () => HandleSelectMaterialSellOrderList(player, Enum.GetName(typeof(OreType), entry.Key))));
+
+      foreach (var entry in leatherDictionnary)
+        player.menu.choices.Add(($"* {entry.Value.name}", () => HandleSelectMaterialSellOrderList(player, Enum.GetName(typeof(OreType), entry.Key))));
+
+      player.menu.choices.Add((
+          "Retour",
+          () => DrawWelcomePage(player)
+        ));
+
+      player.menu.Draw();
+    }
+    private void HandleSelectMaterialSellOrderList(Player player, string material)
+    {
+      player.menu.Clear();
+      player.menu.titleLines = new List<string> { "Voici la liste de tous les ordres de vente actifs." };
+
+      var query = NWScript.SqlPrepareQueryCampaign(Config.database, $"SELECT expirationDate, material, quantity, unitPrice, rowid from playerSellOrders order by unitPrice ASC");
+
+      while (NWScript.SqlStep(query) > 0)
+      {
+        int contractId = NWScript.SqlGetInt(query, 4);
+
+        TimeSpan remainingTime = (DateTime.Parse(NWScript.SqlGetString(query, 0)) - DateTime.Now);
+        if (remainingTime.TotalMinutes > 0)
+          player.menu.titleLines.Add(($"{contractId} - {NWScript.SqlGetString(query, 1)} - {NWScript.SqlGetInt(query, 2)} - {NWScript.SqlGetInt(query, 3)} po/u - Expire dans : {remainingTime.Days}:{remainingTime.Hours}:{remainingTime.Minutes}:{remainingTime.Seconds}"));
+      }
+
+      player.menu.choices.Add((
+          "Retour",
+          () => DrawWelcomePage(player)
+        ));
+
+      player.menu.Draw();
+    }
+    private void BuyOrderListMaterialSelection(Player player)
+    {
+      player.menu.Clear();
+      player.menu.titleLines = new List<string> { "De quel matériau souhaitez-vous consulter la liste des ordres d'achat actifs ?" };
+
+      foreach (var entry in oresDictionnary)
+        player.menu.choices.Add(($"* {entry.Value.name}", () => HandleSelectMaterialBuyOrderList(player, Enum.GetName(typeof(OreType), entry.Key))));
+
+      foreach (var entry in mineralDictionnary)
+        player.menu.choices.Add(($"* {entry.Value.name}", () => HandleSelectMaterialBuyOrderList(player, Enum.GetName(typeof(OreType), entry.Key))));
+
+      foreach (var entry in woodDictionnary)
+        player.menu.choices.Add(($"* {entry.Value.name}", () => HandleSelectMaterialBuyOrderList(player, Enum.GetName(typeof(OreType), entry.Key))));
+
+      foreach (var entry in plankDictionnary)
+        player.menu.choices.Add(($"* {entry.Value.name}", () => HandleSelectMaterialBuyOrderList(player, Enum.GetName(typeof(OreType), entry.Key))));
+
+      foreach (var entry in peltDictionnary)
+        player.menu.choices.Add(($"* {entry.Value.name}", () => HandleSelectMaterialBuyOrderList(player, Enum.GetName(typeof(OreType), entry.Key))));
+
+      foreach (var entry in leatherDictionnary)
+        player.menu.choices.Add(($"* {entry.Value.name}", () => HandleSelectMaterialBuyOrderList(player, Enum.GetName(typeof(OreType), entry.Key))));
+
+      player.menu.choices.Add((
+          "Retour",
+          () => DrawWelcomePage(player)
+        ));
+
+      player.menu.Draw();
+    }
+    private void HandleSelectMaterialBuyOrderList(Player player, string material)
+    {
+      player.menu.Clear();
+      player.menu.titleLines = new List<string> { "Voici la liste de tous les ordres d'achat actifs." };
+
+      var query = NWScript.SqlPrepareQueryCampaign(Config.database, $"SELECT expirationDate, material, quantity, unitPrice, rowid from playerBuyOrders order by unitPrice DESC");
+
+      while (NWScript.SqlStep(query) > 0)
+      {
+        int contractId = NWScript.SqlGetInt(query, 4);
+
+        TimeSpan remainingTime = (DateTime.Parse(NWScript.SqlGetString(query, 0)) - DateTime.Now);
+        if (remainingTime.TotalMinutes > 0)
+          player.menu.titleLines.Add(($"{contractId} - {NWScript.SqlGetString(query, 1)} - {NWScript.SqlGetInt(query, 2)} - {NWScript.SqlGetInt(query, 3)} po/u - Expire dans : {remainingTime.Days}:{remainingTime.Hours}:{remainingTime.Minutes}:{remainingTime.Seconds}"));
+      }
+
+      player.menu.choices.Add((
+          "Retour",
+          () => DrawWelcomePage(player)
+        ));
+
+      player.menu.Draw();
     }
   }
 }

@@ -44,6 +44,7 @@ namespace NWN.Systems
 
       Task spawnAllowed = NwTask.Run(async () =>
       {
+        Log.Info($"Spawns blocked for the next 10 minutes");
         await NwTask.Delay(TimeSpan.FromMinutes(10));
         area.GetLocalVariable<int>("_NO_SPAWN_ALLOWED").Delete();
         return true;

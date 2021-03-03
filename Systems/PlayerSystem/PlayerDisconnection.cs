@@ -1,5 +1,6 @@
 ﻿using NLog;
 using NWN.API;
+using NWN.API.Events;
 using NWN.Core;
 using NWN.Services;
 using NWNX.API.Events;
@@ -8,33 +9,23 @@ using System.Linq;
 
 namespace NWN.Systems
 {
-  [ServiceBinding(typeof(PlayerDisconnection))]
-  class PlayerDisconnection
+  public partial class PlayerSystem
   {
-    private static readonly Logger Log = LogManager.GetCurrentClassLogger();
-    public PlayerDisconnection(NWNXEventService nwnxEventService)
-    {
-      nwnxEventService.Subscribe<ClientEvents.OnClientDisconnectBefore>(OnPlayerDisconnectBefore);
-    }
-    private void OnPlayerDisconnectBefore(ClientEvents.OnClientDisconnectBefore onPCDisconnect)
+    private void HandlePlayerLeave(ModuleEvents.OnClientLeave onPCDisconnect)
     {
       if (onPCDisconnect.Player == null)
         return;
 
       Log.Info($"{onPCDisconnect.Player.Name} disconnecting.");
 
-      if (PlayerSystem.Players.TryGetValue(onPCDisconnect.Player, out PlayerSystem.Player player))
+      if (Players.TryGetValue(onPCDisconnect.Player, out Player player))
       {
         onPCDisconnect.Player.GetLocalVariable<int>("_DISCONNECTING").Value = 1;
 
         if (player.menu.isOpen)
           player.menu.Close();
 
-        Log.Info($"menu closed");
-
         player.UnloadMenuQuickbar();
-
-        Log.Info($"quickbar unloaded");
 
         onPCDisconnect.Player.VisualTransform.Rotation.X = 0.0f;
         onPCDisconnect.Player.VisualTransform.Translation.X = 0.0f;
@@ -49,7 +40,7 @@ namespace NWN.Systems
 
         if (player.oid.Area.Tag == $"entrepotpersonnel_{player.oid.CDKey}")
         {
-          var saveStorage = NWScript.SqlPrepareQueryCampaign(Systems.Config.database,
+          var saveStorage = NWScript.SqlPrepareQueryCampaign(Config.database,
             $"UPDATE playerCharacters set storage = @storage where rowid = @characterId");
           NWScript.SqlBindInt(saveStorage, "@characterId", player.characterId);
           NWScript.SqlBindObject(saveStorage, "@storage", player.oid.Area.FindObjectsOfTypeInArea<NwPlaceable>().Where(c => c.Tag == "ps_entrepot").FirstOrDefault());
