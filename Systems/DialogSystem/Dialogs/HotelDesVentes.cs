@@ -31,8 +31,8 @@ namespace NWN.Systems
 
       player.menu.choices.Add(("Créer un nouvel ordre de vente.", () => DrawSellOrderPage(player)));
       player.menu.choices.Add(("Créer un nouvel ordre d'achat.", () => DrawBuyOrderPage(player)));
-      player.menu.choices.Add(("Consulter les ordres de vente actifs.", () => DrawSellOrderList(player)));
-      player.menu.choices.Add(("Consulter les ordres d'achat actifs.", () => DrawBuyOrderList(player)));
+      player.menu.choices.Add(("Consulter les ordres de vente actifs.", () => SellOrderListMaterialSelection(player)));
+      player.menu.choices.Add(("Consulter les ordres d'achat actifs.", () => BuyOrderListMaterialSelection(player)));
       player.menu.choices.Add(("Consulter mes ordres de vente.", () => DrawMySellOrderPage(player)));
       player.menu.choices.Add(("Consulter mes ordres d'achat.", () => DrawMyBuyOrderPage(player)));
       player.menu.choices.Add(("Quitter.", () => player.menu.Close()));
