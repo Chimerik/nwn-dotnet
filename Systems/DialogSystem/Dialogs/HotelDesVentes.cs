@@ -120,10 +120,11 @@ namespace NWN.Systems
       }
       else
       {
-        var buyOrdersQuery = NWScript.SqlPrepareQueryCampaign(Config.database, $"SELECT rowid, quantity, unitPrice from playerBuyOrders where material = @material AND unitPrice >= @unitPrice AND expirationDate < @now");
+        var buyOrdersQuery = NWScript.SqlPrepareQueryCampaign(Config.database, $"SELECT rowid, quantity, unitPrice from playerBuyOrders where material = @material AND unitPrice >= @unitPrice AND expirationDate < @now and @characterId != @characterId");
         NWScript.SqlBindString(buyOrdersQuery, "@expirationDate", DateTime.Now.ToString());
         NWScript.SqlBindString(buyOrdersQuery, "@material", material);
         NWScript.SqlBindInt(buyOrdersQuery, "@unitPrice", player.setValue);
+        NWScript.SqlBindInt(buyOrdersQuery, "@characterId", player.characterId);
 
         int remainingQuantity = quantity;
 
@@ -335,10 +336,11 @@ namespace NWN.Systems
 
         player.bankGold -= quantity * player.setValue;
 
-        var sellOrdersQuery = NWScript.SqlPrepareQueryCampaign(Config.database, $"SELECT rowid, quantity, unitPrice from playerSellOrders where material = @material AND unitPrice <= @unitPrice AND expirationDate < @now");
+        var sellOrdersQuery = NWScript.SqlPrepareQueryCampaign(Config.database, $"SELECT rowid, quantity, unitPrice from playerSellOrders where material = @material AND unitPrice <= @unitPrice AND expirationDate < @now and characterId != @characterId");
         NWScript.SqlBindString(sellOrdersQuery, "@expirationDate", DateTime.Now.ToString());
         NWScript.SqlBindString(sellOrdersQuery, "@material", material);
         NWScript.SqlBindInt(sellOrdersQuery, "@unitPrice", player.setValue);
+        NWScript.SqlBindInt(sellOrdersQuery, "@characterId", player.characterId);
 
         int remainingQuantity = quantity;
 
