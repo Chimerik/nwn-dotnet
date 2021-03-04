@@ -59,6 +59,7 @@ namespace NWN.Systems
     }
     public static void HandlePlaceableUsed(PlaceableEvents.OnUsed onUsed)
     {
+      Log.Info($"{onUsed.UsedBy.Name} used {onUsed.Placeable.Tag}");
       if (PlayerSystem.Players.TryGetValue(onUsed.UsedBy, out PlayerSystem.Player player))
         switch (onUsed.Placeable.Tag)
         {
@@ -136,7 +137,6 @@ namespace NWN.Systems
 
                 NWScript.SqlGetObject(query, 0, NWScript.GetLocation(storage));
                 storage.Destroy();
-
 
                 NwPlaceable portalOut = area.FindObjectsOfTypeInArea<NwPlaceable>().FirstOrDefault(p => p.Tag == "portal_storage_out");
 
