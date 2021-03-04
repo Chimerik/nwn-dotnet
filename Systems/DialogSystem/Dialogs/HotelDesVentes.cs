@@ -86,24 +86,22 @@ namespace NWN.Systems
       {
         if (player.setValue >= player.materialStock[material])
           player.setValue = player.materialStock[material];
-        else
-        {
-          player.menu.titleLines = new List<string> {
+
+        player.menu.titleLines = new List<string> {
           $"{player.setValue} de {material}. A quel prix unitaire ?",
           "Pour tout ordre non immédiat, il convient de s'acquiter à l'avance de 5 % du prix de vente",
           $"(Indiquez à l'oral le prix que vous souhaitez pour chaque unité de {material}"
           };
 
-          Task playerInput = NwTask.Run(async () =>
-          {
-            int quantity = player.setValue;
-            player.oid.GetLocalVariable<int>("_PLAYER_INPUT").Value = 1;
-            player.setValue = Config.invalidInput;
-            await NwTask.WaitUntil(() => player.setValue != Config.invalidInput);
-            CreateSellOrderPage(player, material, quantity);
-            player.setValue = Config.invalidInput;
-          });
-        }
+        Task playerInput = NwTask.Run(async () =>
+        {
+          int quantity = player.setValue;
+          player.oid.GetLocalVariable<int>("_PLAYER_INPUT").Value = 1;
+          player.setValue = Config.invalidInput;
+          await NwTask.WaitUntil(() => player.setValue != Config.invalidInput);
+          CreateSellOrderPage(player, material, quantity);
+          player.setValue = Config.invalidInput;
+        });
       }
 
       player.setValue = Config.invalidInput;
@@ -120,15 +118,15 @@ namespace NWN.Systems
       }
       else
       {
-        var buyOrdersQuery = NWScript.SqlPrepareQueryCampaign(Config.database, $"SELECT rowid, quantity, unitPrice from playerBuyOrders where material = @material AND unitPrice >= @unitPrice AND expirationDate < @now and @characterId != @characterId");
-        NWScript.SqlBindString(buyOrdersQuery, "@expirationDate", DateTime.Now.ToString());
+        var buyOrdersQuery = NWScript.SqlPrepareQueryCampaign(Config.database, $"SELECT rowid, quantity, unitPrice from playerBuyOrders where material = @material AND unitPrice >= @unitPrice AND expirationDate < @now and @characterId != @characterId order by unitPrice DESC");
+        NWScript.SqlBindString(buyOrdersQuery, "@now", DateTime.Now.ToString());
         NWScript.SqlBindString(buyOrdersQuery, "@material", material);
         NWScript.SqlBindInt(buyOrdersQuery, "@unitPrice", player.setValue);
         NWScript.SqlBindInt(buyOrdersQuery, "@characterId", player.characterId);
 
         int remainingQuantity = quantity;
 
-        while(NWScript.SqlStep(buyOrdersQuery) > 0 || remainingQuantity > 0)
+        while(NWScript.SqlStep(buyOrdersQuery) > 0)
         {
           int buyOrderQuantity = NWScript.SqlGetInt(buyOrdersQuery, 1);
           int boughtQuantity = 0;
@@ -146,8 +144,11 @@ namespace NWN.Systems
 
           remainingQuantity -= boughtQuantity;
 
-          player.bankGold += boughtQuantity * NWScript.SqlGetInt(buyOrdersQuery, 2);
+          player.bankGold += boughtQuantity * NWScript.SqlGetInt(buyOrdersQuery, 2) * 95 / 100;
           player.oid.SendServerMessage($"Vous venez de vendre {boughtQuantity} unité(s) de {material} en vente directe. L'or a été versé directement à votre banque.", Color.PINK);
+
+          if (remainingQuantity <= 0)
+            break;
         }
 
         foreach (var entry in ordersDictionnary)
@@ -206,6 +207,9 @@ namespace NWN.Systems
         }
 
         int brokerFee = remainingQuantity * player.setValue * 5 / 100;
+        if (brokerFee < 1)
+          brokerFee = 1;
+
         if (player.bankGold < brokerFee)
         {
           player.oid.SendServerMessage($"Vous ne disposez pas de suffisament d'or en banque pour placer un ordre de vente différé.", Color.LIME);
@@ -238,19 +242,19 @@ namespace NWN.Systems
           player.menu.choices.Add(($"* {entry.Value.name}", () => HandleValidateBuyOrderMaterialSelection(player, Enum.GetName(typeof(OreType), entry.Key))));
 
       foreach (var entry in mineralDictionnary)
-        player.menu.choices.Add(($"* {entry.Value.name}", () => HandleValidateBuyOrderMaterialSelection(player, Enum.GetName(typeof(OreType), entry.Key))));
+        player.menu.choices.Add(($"* {entry.Value.name}", () => HandleValidateBuyOrderMaterialSelection(player, Enum.GetName(typeof(MineralType), entry.Key))));
 
       foreach (var entry in woodDictionnary)
-        player.menu.choices.Add(($"* {entry.Value.name}", () => HandleValidateBuyOrderMaterialSelection(player, Enum.GetName(typeof(OreType), entry.Key))));
+        player.menu.choices.Add(($"* {entry.Value.name}", () => HandleValidateBuyOrderMaterialSelection(player, Enum.GetName(typeof(WoodType), entry.Key))));
 
       foreach (var entry in plankDictionnary)
-        player.menu.choices.Add(($"* {entry.Value.name}", () => HandleValidateBuyOrderMaterialSelection(player, Enum.GetName(typeof(OreType), entry.Key))));
+        player.menu.choices.Add(($"* {entry.Value.name}", () => HandleValidateBuyOrderMaterialSelection(player, Enum.GetName(typeof(PlankType), entry.Key))));
 
       foreach (var entry in peltDictionnary)
-        player.menu.choices.Add(($"* {entry.Value.name}", () => HandleValidateBuyOrderMaterialSelection(player, Enum.GetName(typeof(OreType), entry.Key))));
+        player.menu.choices.Add(($"* {entry.Value.name}", () => HandleValidateBuyOrderMaterialSelection(player, Enum.GetName(typeof(PeltType), entry.Key))));
 
       foreach (var entry in leatherDictionnary)
-        player.menu.choices.Add(($"* {entry.Value.name}", () => HandleValidateBuyOrderMaterialSelection(player, Enum.GetName(typeof(OreType), entry.Key))));
+        player.menu.choices.Add(($"* {entry.Value.name}", () => HandleValidateBuyOrderMaterialSelection(player, Enum.GetName(typeof(LeatherType), entry.Key))));
 
       player.menu.choices.Add((
         "Retour",
@@ -263,7 +267,7 @@ namespace NWN.Systems
     {
       player.menu.Clear();
       player.menu.titleLines = new List<string> {
-          $"Quelle quantité de {material} doit être comprise dans cet ordre de vente ?",
+          $"Quelle quantité de {material} doit être comprise dans cet ordre d'achat ?",
           "(Indiquez simplement la valeur à l'oral)"
         };
 
@@ -290,10 +294,6 @@ namespace NWN.Systems
       }
       else
       {
-        if (player.setValue >= player.materialStock[material])
-          player.setValue = player.materialStock[material];
-        else
-        {
           player.menu.titleLines = new List<string> {
           $"{player.setValue} de {material}. A quel prix unitaire ?",
           "Pour tout ordre non immédiat, il convient de s'acquiter à l'avance de 5 % du prix de vente",
@@ -309,7 +309,6 @@ namespace NWN.Systems
             CreateBuyOrderPage(player, material, quantity);
             player.setValue = Config.invalidInput;
           });
-        }
       }
 
       player.setValue = Config.invalidInput;
@@ -335,16 +334,17 @@ namespace NWN.Systems
         }
 
         player.bankGold -= quantity * player.setValue;
+        player.oid.SendServerMessage($"Afin de placer votre d'achat, {quantity * player.setValue} pièce(s) d'or ont été retenues du solde de votre compte.", Color.MAGENTA);
 
-        var sellOrdersQuery = NWScript.SqlPrepareQueryCampaign(Config.database, $"SELECT rowid, quantity, unitPrice from playerSellOrders where material = @material AND unitPrice <= @unitPrice AND expirationDate < @now and characterId != @characterId");
-        NWScript.SqlBindString(sellOrdersQuery, "@expirationDate", DateTime.Now.ToString());
+        var sellOrdersQuery = NWScript.SqlPrepareQueryCampaign(Config.database, $"SELECT rowid, quantity, unitPrice from playerSellOrders where material = @material AND unitPrice <= @unitPrice AND expirationDate < @now and characterId != @characterId order by unitPrice ASC");
+        NWScript.SqlBindString(sellOrdersQuery, "@now", DateTime.Now.ToString());
         NWScript.SqlBindString(sellOrdersQuery, "@material", material);
         NWScript.SqlBindInt(sellOrdersQuery, "@unitPrice", player.setValue);
         NWScript.SqlBindInt(sellOrdersQuery, "@characterId", player.characterId);
 
         int remainingQuantity = quantity;
 
-        while (NWScript.SqlStep(sellOrdersQuery) > 0 || remainingQuantity > 0)
+        while (NWScript.SqlStep(sellOrdersQuery) > 0)
         {
           int sellOrderQuantity = NWScript.SqlGetInt(sellOrdersQuery, 1);
           int soldQuantity = 0;
@@ -368,6 +368,9 @@ namespace NWN.Systems
             player.materialStock.Add(material, soldQuantity);
 
           player.oid.SendServerMessage($"Vous venez d'acheter {soldQuantity} unité(s) de {material} en achat direct. Les matériaux sont en cours de transport vers votre entrepot.", Color.PINK);
+
+          if (remainingQuantity <= 0)
+            break;
         }
 
         foreach (var entry in ordersDictionnary)
@@ -397,7 +400,7 @@ namespace NWN.Systems
           }
 
           NwPlayer oSeller = NwModule.Instance.Players.FirstOrDefault(p => ObjectPlugin.GetInt(p, "characterId") == sellerID);
-          int acquiredGold = transferedQuantity * NWScript.SqlGetInt(selectCharacterId, 1);
+          int acquiredGold = transferedQuantity * NWScript.SqlGetInt(selectCharacterId, 1) * 95 / 100;
 
           if (oSeller != null && Players.TryGetValue(oSeller, out Player seller))
           {
@@ -422,6 +425,9 @@ namespace NWN.Systems
         }
 
         int brokerFee = remainingQuantity * player.setValue * 5 / 100;
+        if (brokerFee < 1)
+          brokerFee = 1;
+
         if (player.bankGold < brokerFee)
         {
           player.oid.SendServerMessage($"Vous ne disposez pas de suffisament d'or en banque pour placer un ordre de vente différé.", Color.LIME);
@@ -566,19 +572,19 @@ namespace NWN.Systems
         player.menu.choices.Add(($"* {entry.Value.name}", () => HandleSelectMaterialSellOrderList(player, Enum.GetName(typeof(OreType), entry.Key))));
 
       foreach (var entry in mineralDictionnary)
-        player.menu.choices.Add(($"* {entry.Value.name}", () => HandleSelectMaterialSellOrderList(player, Enum.GetName(typeof(OreType), entry.Key))));
+        player.menu.choices.Add(($"* {entry.Value.name}", () => HandleSelectMaterialSellOrderList(player, Enum.GetName(typeof(MineralType), entry.Key))));
 
       foreach (var entry in woodDictionnary)
-        player.menu.choices.Add(($"* {entry.Value.name}", () => HandleSelectMaterialSellOrderList(player, Enum.GetName(typeof(OreType), entry.Key))));
+        player.menu.choices.Add(($"* {entry.Value.name}", () => HandleSelectMaterialSellOrderList(player, Enum.GetName(typeof(WoodType), entry.Key))));
 
       foreach (var entry in plankDictionnary)
-        player.menu.choices.Add(($"* {entry.Value.name}", () => HandleSelectMaterialSellOrderList(player, Enum.GetName(typeof(OreType), entry.Key))));
+        player.menu.choices.Add(($"* {entry.Value.name}", () => HandleSelectMaterialSellOrderList(player, Enum.GetName(typeof(PlankType), entry.Key))));
 
       foreach (var entry in peltDictionnary)
-        player.menu.choices.Add(($"* {entry.Value.name}", () => HandleSelectMaterialSellOrderList(player, Enum.GetName(typeof(OreType), entry.Key))));
+        player.menu.choices.Add(($"* {entry.Value.name}", () => HandleSelectMaterialSellOrderList(player, Enum.GetName(typeof(PeltType), entry.Key))));
 
       foreach (var entry in leatherDictionnary)
-        player.menu.choices.Add(($"* {entry.Value.name}", () => HandleSelectMaterialSellOrderList(player, Enum.GetName(typeof(OreType), entry.Key))));
+        player.menu.choices.Add(($"* {entry.Value.name}", () => HandleSelectMaterialSellOrderList(player, Enum.GetName(typeof(LeatherType), entry.Key))));
 
       player.menu.choices.Add((
           "Retour",
@@ -619,19 +625,19 @@ namespace NWN.Systems
         player.menu.choices.Add(($"* {entry.Value.name}", () => HandleSelectMaterialBuyOrderList(player, Enum.GetName(typeof(OreType), entry.Key))));
 
       foreach (var entry in mineralDictionnary)
-        player.menu.choices.Add(($"* {entry.Value.name}", () => HandleSelectMaterialBuyOrderList(player, Enum.GetName(typeof(OreType), entry.Key))));
+        player.menu.choices.Add(($"* {entry.Value.name}", () => HandleSelectMaterialBuyOrderList(player, Enum.GetName(typeof(MineralType), entry.Key))));
 
       foreach (var entry in woodDictionnary)
-        player.menu.choices.Add(($"* {entry.Value.name}", () => HandleSelectMaterialBuyOrderList(player, Enum.GetName(typeof(OreType), entry.Key))));
+        player.menu.choices.Add(($"* {entry.Value.name}", () => HandleSelectMaterialBuyOrderList(player, Enum.GetName(typeof(WoodType), entry.Key))));
 
       foreach (var entry in plankDictionnary)
-        player.menu.choices.Add(($"* {entry.Value.name}", () => HandleSelectMaterialBuyOrderList(player, Enum.GetName(typeof(OreType), entry.Key))));
+        player.menu.choices.Add(($"* {entry.Value.name}", () => HandleSelectMaterialBuyOrderList(player, Enum.GetName(typeof(PlankType), entry.Key))));
 
       foreach (var entry in peltDictionnary)
-        player.menu.choices.Add(($"* {entry.Value.name}", () => HandleSelectMaterialBuyOrderList(player, Enum.GetName(typeof(OreType), entry.Key))));
+        player.menu.choices.Add(($"* {entry.Value.name}", () => HandleSelectMaterialBuyOrderList(player, Enum.GetName(typeof(PeltType), entry.Key))));
 
       foreach (var entry in leatherDictionnary)
-        player.menu.choices.Add(($"* {entry.Value.name}", () => HandleSelectMaterialBuyOrderList(player, Enum.GetName(typeof(OreType), entry.Key))));
+        player.menu.choices.Add(($"* {entry.Value.name}", () => HandleSelectMaterialBuyOrderList(player, Enum.GetName(typeof(LeatherType), entry.Key))));
 
       player.menu.choices.Add((
           "Retour",

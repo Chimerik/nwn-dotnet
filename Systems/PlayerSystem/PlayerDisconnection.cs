@@ -45,7 +45,8 @@ namespace NWN.Systems
           NWScript.SqlBindInt(saveStorage, "@characterId", player.characterId);
           NWScript.SqlBindObject(saveStorage, "@storage", player.oid.Area.FindObjectsOfTypeInArea<NwPlaceable>().Where(c => c.Tag == "ps_entrepot").FirstOrDefault());
           NWScript.SqlStep(saveStorage);
-          player.location = NwObject.FindObjectsWithTag<NwPlaceable>("portal_storage_in").FirstOrDefault()?.Location;
+
+          player.location = NwModule.FindObjectsWithTag<NwWaypoint>("wp_outentrepot").FirstOrDefault().Location;
 
           Log.Info($"Saved personnal storage");
         }

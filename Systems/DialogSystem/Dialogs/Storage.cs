@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using NWN.Core;
 using static NWN.Systems.PlayerSystem;
 using static NWN.Systems.Craft.Collect.System;
 using static NWN.Systems.Craft.Collect.Config;

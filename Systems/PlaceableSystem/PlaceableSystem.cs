@@ -6,12 +6,15 @@ using NWN.Core.NWNX;
 using NWN.Services;
 using NWN.API.Constants;
 using System.Linq;
+using NLog;
+using System.Threading.Tasks;
 
 namespace NWN.Systems
 {
   [ServiceBinding(typeof(PlaceableSystem))]
   public class PlaceableSystem
   {
+    public static readonly Logger Log = LogManager.GetCurrentClassLogger();
     public static NativeEventService nativeEventService;
     public PlaceableSystem(NativeEventService eventService)
     {
@@ -88,24 +91,74 @@ namespace NWN.Systems
             player.oid.Location = NwModule.FindObjectsWithTag<NwWaypoint>("WP_START_NEW_CHAR").FirstOrDefault().Location;
             break;
           case "portal_storage_in":
-            NwArea area = NwArea.Create("entrepotperso", $"entrepotpersonnel_{NWScript.GetPCPublicCDKey(player.oid)}", $"Entrepot dimensionnel de {NWScript.GetName(player.oid)}");
-            AreaSystem.nativeEventService.Subscribe<NwArea, AreaEvents.OnExit>(area, AreaSystem.OnAreaExit);
-            area.GetLocalVariable<int>("_AREA_LEVEL").Value = 0;
+            string uniqueTag = $"entrepotpersonnel_{player.oid.CDKey}";
+            string name = $"Entrepot dimensionnel de {player.oid.Name}";
 
-            NwPlaceable storage = area.FindObjectsOfTypeInArea<NwPlaceable>().Where(s => s.Tag == "ps_entrepot").FirstOrDefault();
+            NwArea area = NwArea.Create("entrepotperso", uniqueTag, name);
 
-            var query = NWScript.SqlPrepareQueryCampaign(Config.database, $"SELECT storage from playerCharacters where rowid = @characterId");
-            NWScript.SqlBindInt(query, "@characterId", player.characterId);
-            NWScript.SqlStep(query);
+            if (area != null)
+            {
+              NwWaypoint waypoint = area.FindObjectsOfTypeInArea<NwWaypoint>().FirstOrDefault(w => w.Tag == "wp_inentrepot");
 
-            NWScript.SqlGetObject(query, 0, NWScript.GetLocation(storage));
-            storage.Destroy();
+              if (waypoint != null)
+              {
+                NWScript.AssignCommand(player.oid, () => NWScript.JumpToLocation(waypoint.Location));
+                //player.oid.Location = waypoint.Location;
+              }
+              else
+              {
+                Log.Warn("Waypoint is null");
+              }
 
-            player.oid.Location = area.FindObjectsOfTypeInArea<NwWaypoint>().Where(w => w.Tag == "wp_inentrepot").FirstOrDefault().Location;
-            nativeEventService.Subscribe<NwPlaceable, PlaceableEvents.OnUsed>(area.FindObjectsOfTypeInArea<NwPlaceable>().Where(p => p.Tag == "portal_storage_out").FirstOrDefault(), HandlePlaceableUsed);
+              Task spawnResources = NwTask.Run(async () =>
+              {
+                await NwTask.WaitUntil(() => player.oid.Area != null);
+                Log.Info("Subscribing new entrepot");
+
+                NwPlaceable placeable = area.FindObjectsOfTypeInArea<NwPlaceable>().FirstOrDefault(p => p.Tag == "portal_storage_out");
+
+                if (placeable != null)
+                {
+                  nativeEventService.Subscribe<NwArea, AreaEvents.OnExit>(area, AreaSystem.OnAreaExit);
+                }
+                else
+                {
+                  Log.Warn("Placeable is null");
+                }
+
+                area.GetLocalVariable<int>("_AREA_LEVEL").Value = 0;
+
+                NwPlaceable storage = area.FindObjectsOfTypeInArea<NwPlaceable>().FirstOrDefault(s => s.Tag == "ps_entrepot");
+
+                var query = NWScript.SqlPrepareQueryCampaign(Config.database, $"SELECT storage from playerCharacters where rowid = @characterId");
+                NWScript.SqlBindInt(query, "@characterId", player.characterId);
+                NWScript.SqlStep(query);
+
+                NWScript.SqlGetObject(query, 0, NWScript.GetLocation(storage));
+                storage.Destroy();
+
+
+                NwPlaceable portalOut = area.FindObjectsOfTypeInArea<NwPlaceable>().FirstOrDefault(p => p.Tag == "portal_storage_out");
+
+                if (portalOut != null)
+                {
+                  nativeEventService.Subscribe<NwPlaceable, PlaceableEvents.OnUsed>(portalOut, HandlePlaceableUsed);
+                }
+                else
+                {
+                  Log.Warn("portalOut is null");
+                }
+              });
+            }
+            else
+            {
+              Log.Warn($"Could not create {name}");
+            }
+
             break;
           case "portal_storage_out":
-            player.oid.Location = NwModule.FindObjectsWithTag<NwWaypoint>("wp_outentrepot").FirstOrDefault().Location;
+            NWScript.AssignCommand(player.oid, () => NWScript.JumpToLocation(NwModule.FindObjectsWithTag<NwWaypoint>("wp_outentrepot").FirstOrDefault().Location));
+            //player.oid.Location = NwModule.FindObjectsWithTag<NwWaypoint>("wp_outentrepot").FirstOrDefault().Location;
             break;
           case Arena.Config.PVE_ARENA_PULL_ROPE_CHAIN_TAG:
             Arena.ScriptHandlers.HandlePullRopeChainUse();
@@ -192,6 +245,58 @@ namespace NWN.Systems
       NwItem.Create("undroppable_item", onSpawn.Creature).Droppable = true;
       onSpawn.Creature.Lootable = true;
       onSpawn.Creature.ApplyEffect(EffectDuration.Instant, API.Effect.Death());
+    }
+    private static async void HandleClickOnPortalStorageIn(PlayerSystem.Player player, NwArea area)
+    {
+
+      NwWaypoint waypoint = area.FindObjectsOfTypeInArea<NwWaypoint>().FirstOrDefault(w => w.Tag == "wp_inentrepot");
+
+      if (waypoint != null)
+      {
+        player.oid.Location = waypoint.Location;
+        Log.Info("Teleporting!");
+      }
+      else
+      {
+        Log.Warn("Waypoint is null");
+      }
+
+      await NwTask.WaitUntil(() => player.oid.Area != null);
+      Log.Info("Subscribing new entrepot");
+
+      NwPlaceable placeable = area.FindObjectsOfTypeInArea<NwPlaceable>().FirstOrDefault(p => p.Tag == "portal_storage_out");
+
+      if (placeable != null)
+      {
+        nativeEventService.Subscribe<NwArea, AreaEvents.OnExit>(area, AreaSystem.OnAreaExit);
+      }
+      else
+      {
+        Log.Warn("Placeable is null");
+      }
+
+      area.GetLocalVariable<int>("_AREA_LEVEL").Value = 0;
+
+      NwPlaceable storage = area.FindObjectsOfTypeInArea<NwPlaceable>().FirstOrDefault(s => s.Tag == "ps_entrepot");
+
+      var query = NWScript.SqlPrepareQueryCampaign(Config.database, $"SELECT storage from playerCharacters where rowid = @characterId");
+      NWScript.SqlBindInt(query, "@characterId", player.characterId);
+      NWScript.SqlStep(query);
+
+      NWScript.SqlGetObject(query, 0, NWScript.GetLocation(storage));
+      storage.Destroy();
+      
+
+      NwPlaceable portalOut = area.FindObjectsOfTypeInArea<NwPlaceable>().FirstOrDefault(p => p.Tag == "portal_storage_out");
+
+      if (portalOut != null)
+      {
+        nativeEventService.Subscribe<NwPlaceable, PlaceableEvents.OnUsed>(portalOut, HandlePlaceableUsed);
+      }
+      else
+      {
+        Log.Warn("portalOut is null");
+      }
     }
   }
 }

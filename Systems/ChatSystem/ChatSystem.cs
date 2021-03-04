@@ -1,6 +1,7 @@
 ﻿using System;
 using System.IO;
 using System.Linq;
+using NLog;
 using NWN.API;
 using NWN.API.Events;
 using NWN.Core;
@@ -12,6 +13,7 @@ namespace NWN.Systems
   [ServiceBinding(typeof(ChatSystem))]
   public class ChatSystem
   {
+    public static readonly Logger Log = LogManager.GetCurrentClassLogger();
     public ChatSystem(NativeEventService eventService)
     {
       eventService.Subscribe<NwModule, ModuleEvents.OnModuleLoad>(NwModule.Instance, OnModuleLoad);

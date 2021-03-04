@@ -56,7 +56,6 @@ namespace NWN.Systems
       {
         await NwTask.Delay(TimeSpan.FromSeconds(resourceRespawnTime));
         await SpawnCollectableResources(resourceRespawnTime);
-        return true;
       });
     }
     private async void LoadDiscordBot()

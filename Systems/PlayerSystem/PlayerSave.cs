@@ -64,6 +64,9 @@ namespace NWN.Systems
           player.CraftJobProgression();
         }
 
+        if (player.oid.Area.Tag == $"entrepotpersonnel_{player.oid.CDKey}")
+          player.location = NwModule.FindObjectsWithTag<NwWaypoint>("wp_outentrepot").FirstOrDefault().Location;
+
         Log.Info("Craft job progression done");
 
         player.AcquireSkillPoints();
@@ -84,8 +87,11 @@ namespace NWN.Systems
         SavePlayerAreaExplorationStateToDatabase(player);
         Log.Info("Saved area exploration state to DB");
         HandleExpiredContracts(player);
+        Log.Info("Handled expired contracts");
         HandleExpiredBuyOrders(player);
+        Log.Info("Handled expired buy orders");
         HandleExpiredSellOrders(player);
+        Log.Info("Handled expired sell orders");
       }
     }
     public void HandleAfterPlayerSave(ServerVaultEvents.OnServerCharacterSaveAfter onSaveAfter)
@@ -240,7 +246,7 @@ namespace NWN.Systems
     }
     private static void HandleExpiredContracts(Player player)
     {
-      var query = NWScript.SqlPrepareQueryCampaign(Config.database, $"SELECT expirationDate rowid from playerPrivateContracts where characterId = @characterId");
+      var query = NWScript.SqlPrepareQueryCampaign(Config.database, $"SELECT expirationDate, rowid from playerPrivateContracts where characterId = @characterId");
       NWScript.SqlBindInt(query, "@characterId", player.characterId);
 
       while (NWScript.SqlStep(query) > 0)
@@ -250,7 +256,7 @@ namespace NWN.Systems
         if ((DateTime.Parse(NWScript.SqlGetString(query, 0)) - DateTime.Now).TotalSeconds < 0)
         {
           Task contractExpiration = NwTask.Run(async () =>
-          {
+          { 
             await NwTask.Delay(TimeSpan.FromSeconds(0.2));
             DeleteExpiredContract(player, contractId);
           });
@@ -261,29 +267,30 @@ namespace NWN.Systems
     {
       var query = NWScript.SqlPrepareQueryCampaign(Config.database, $"SELECT serializedContract from playerPrivateContracts where rowid = @rowid");
       NWScript.SqlBindInt(query, "@rowid", contractId);
-      NWScript.SqlStep(query);
-
-      foreach (string materialString in NWScript.SqlGetString(query, 0).Split("|"))
+      if (NWScript.SqlStep(query) > 0)
       {
-        string[] descriptionString = materialString.Split("$");
-        if (descriptionString.Length == 3)
+        foreach (string materialString in NWScript.SqlGetString(query, 0).Split("|"))
         {
-          if (player.materialStock.ContainsKey(descriptionString[0]))
-            player.materialStock[descriptionString[0]] += Int32.Parse(descriptionString[1]);
-          else
-            player.materialStock.Add(descriptionString[0], Int32.Parse(descriptionString[1]));
+          string[] descriptionString = materialString.Split("$");
+          if (descriptionString.Length == 3)
+          {
+            if (player.materialStock.ContainsKey(descriptionString[0]))
+              player.materialStock[descriptionString[0]] += Int32.Parse(descriptionString[1]);
+            else
+              player.materialStock.Add(descriptionString[0], Int32.Parse(descriptionString[1]));
 
-          player.oid.SendServerMessage($"Expiration du contrat {contractId} - {descriptionString[1]} unité(s) de {descriptionString[0]} ont été réintégrées à votre entrepôt.");
+            player.oid.SendServerMessage($"Expiration du contrat {contractId} - {descriptionString[1]} unité(s) de {descriptionString[0]} ont été réintégrées à votre entrepôt.");
+          }
         }
-      }
 
-      var deletionQuery = NWScript.SqlPrepareQueryCampaign(Config.database, $"DELETE from playerPrivateContracts where rowid = @rowid");
-      NWScript.SqlBindInt(deletionQuery, "@rowid", contractId);
-      NWScript.SqlStep(deletionQuery);
+        var deletionQuery = NWScript.SqlPrepareQueryCampaign(Config.database, $"DELETE from playerPrivateContracts where rowid = @rowid");
+        NWScript.SqlBindInt(deletionQuery, "@rowid", contractId);
+        NWScript.SqlStep(deletionQuery);
+      }
     }
     private static void HandleExpiredBuyOrders(Player player)
     {
-      var query = NWScript.SqlPrepareQueryCampaign(Config.database, $"SELECT expirationDate rowid from playerBuyOrders where characterId = @characterId");
+      var query = NWScript.SqlPrepareQueryCampaign(Config.database, $"SELECT expirationDate, rowid from playerBuyOrders where characterId = @characterId");
       NWScript.SqlBindInt(query, "@characterId", player.characterId);
 
       while (NWScript.SqlStep(query) > 0)
@@ -316,7 +323,7 @@ namespace NWN.Systems
     }
     private static void HandleExpiredSellOrders(Player player)
     {
-      var query = NWScript.SqlPrepareQueryCampaign(Config.database, $"SELECT expirationDate rowid from playerSellOrders where characterId = @characterId");
+      var query = NWScript.SqlPrepareQueryCampaign(Config.database, $"SELECT expirationDate, rowid from playerSellOrders where characterId = @characterId");
       NWScript.SqlBindInt(query, "@characterId", player.characterId);
 
       while (NWScript.SqlStep(query) > 0)
