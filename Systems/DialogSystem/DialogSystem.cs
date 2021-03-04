@@ -10,13 +10,8 @@ namespace NWN.Systems
   [ServiceBinding(typeof(DialogSystem))]
   public class DialogSystem
   {
-    private readonly NativeEventService nativeEventService;
     public static readonly Logger Log = LogManager.GetCurrentClassLogger();
-    public DialogSystem(NativeEventService eventService)
-    {
-      nativeEventService = eventService;
-    }
-
+ 
     [ScriptHandler("diag_root")]
     private void HandleDialogStart(CallInfo callInfo)
     {

@@ -20,19 +20,13 @@ namespace NWN.Systems
     public static readonly Logger Log = LogManager.GetCurrentClassLogger();
     public static readonly TranslationClient googleTranslationClient = TranslationClient.Create();
     public static Dictionary<string, GoldBalance> goldBalanceMonitoring = new Dictionary<string, GoldBalance>();
-    public ModuleSystem(NativeEventService eventService)
+    public ModuleSystem()
     {
-      eventService.Subscribe<NwModule, ModuleEvents.OnModuleStart>(NwModule.Instance, OnModuleStart);
-      eventService.Subscribe<NwModule, ModuleEvents.OnModuleLoad>(NwModule.Instance, OnModuleLoad);
-    }
-    private void OnModuleStart(ModuleEvents.OnModuleStart onModuleStart)
-    {
-      
+      NwModule.Instance.OnModuleLoad += OnModuleLoad;
     }
     private void OnModuleLoad(ModuleEvents.OnModuleLoad onModuleLoad)
     {
       LoadDiscordBot();
-      //Console.WriteLine($" enum name : {Feat.LegendaryPeltReprocessing5.ToDescription()}", Color.PINK);
 
       NwModule.Instance.GetLocalVariable<string>("X2_S_UD_SPELLSCRIPT").Value = "spellhook";
 

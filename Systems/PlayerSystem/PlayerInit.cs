@@ -197,8 +197,8 @@ namespace NWN.Systems
       if (Config.env == Config.Env.Prod || Config.env == Config.Env.Chim)
       {
         arrivalArea = NwArea.Create("intro_galere", $"entry_scene_{newCharacter.oid.CDKey}", $"La galère de {newCharacter.oid.Name} (Bienvenue !)");
-        nativeEventService.Subscribe<NwArea, AreaEvents.OnExit>(arrivalArea, AreaSystem.OnAreaExit);
-        arrivalPoint = arrivalArea.FindObjectsOfTypeInArea<NwWaypoint>().Where(o => o.Tag == "ENTRY_POINT").FirstOrDefault();
+        arrivalArea.OnExit += AreaSystem.OnAreaExit;
+        arrivalPoint = arrivalArea.FindObjectsOfTypeInArea<NwWaypoint>().FirstOrDefault(o => o.Tag == "ENTRY_POINT");
 
         foreach (NwObject fog in arrivalArea.FindObjectsOfTypeInArea<NwPlaceable>().Where(o => o.Tag == "intro_brouillard"))
           VisibilityPlugin.SetVisibilityOverride(NWScript.OBJECT_INVALID, fog, VisibilityPlugin.NWNX_VISIBILITY_HIDDEN);

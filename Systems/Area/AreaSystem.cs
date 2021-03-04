@@ -12,19 +12,17 @@ namespace NWN.Systems
   [ServiceBinding(typeof(AreaSystem))]
   partial class AreaSystem
   {
-    public static NativeEventService nativeEventService;
     private static readonly Logger Log = LogManager.GetCurrentClassLogger();
-    public AreaSystem(NativeEventService eventService)
+    public AreaSystem()
     {
-      nativeEventService = eventService;
-      eventService.Subscribe<NwModule, ModuleEvents.OnModuleLoad>(NwModule.Instance, OnModuleLoad);
+      NwModule.Instance.OnModuleLoad += OnModuleLoad;
     }
     private void OnModuleLoad(ModuleEvents.OnModuleLoad onModuleLoad)
     {
       foreach (NwArea area in NwModule.Instance.Areas)
       {
-        nativeEventService.Subscribe<NwArea, AreaEvents.OnEnter>(area, OnAreaEnter);
-        nativeEventService.Subscribe<NwArea, AreaEvents.OnExit>(area, OnAreaExit);
+        area.OnEnter += OnAreaEnter;
+        area.OnExit += OnAreaExit;
 
         DoAreaSpecificInitialisation(area);
 
@@ -138,8 +136,8 @@ namespace NWN.Systems
           break;
         case "SimilisseThetreSalledeSpectacle":
           NwTrigger trigger = (NwTrigger)NwModule.FindObjectsWithTag("theater_scene").FirstOrDefault();
-          nativeEventService.Subscribe<NwTrigger, TriggerEvents.OnEnter>(trigger, OnTheaterSceneEnter);
-          nativeEventService.Subscribe<NwTrigger, TriggerEvents.OnExit>(trigger, OnTheaterSceneExit);
+          trigger.OnEnter += OnTheaterSceneEnter;
+          trigger.OnExit += OnTheaterSceneExit;
           area.GetLocalVariable<int>("_AREA_LEVEL").Value = 0;
           break;
         case "SIMILISCITYGATE":

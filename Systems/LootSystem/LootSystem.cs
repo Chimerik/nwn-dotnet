@@ -16,13 +16,11 @@ namespace NWN.Systems
   [ServiceBinding(typeof(LootSystem))]
   public partial class LootSystem
   {
-    private readonly NativeEventService nativeEventService;
     public static readonly Logger Log = LogManager.GetCurrentClassLogger();
     private static Dictionary<string, List<NwItem>> chestTagToLootsDic = new Dictionary<string, List<NwItem>> { };
-    public LootSystem(NativeEventService eventService)
+    public LootSystem()
     {
-      this.nativeEventService = eventService;
-      eventService.Subscribe<NwModule, ModuleEvents.OnModuleLoad>(NwModule.Instance, OnModuleLoad);
+      NwModule.Instance.OnModuleLoad += OnModuleLoad;
     }
     private void OnModuleLoad(ModuleEvents.OnModuleLoad onModuleLoad)
     {
@@ -60,7 +58,7 @@ namespace NWN.Systems
         }
 
         UpdateChestTagToLootsDic(oChest);
-        nativeEventService.Subscribe<NwPlaceable, PlaceableEvents.OnClose>(oChest, OnLootConfigContainerClose);
+        oChest.OnClose += OnLootConfigContainerClose;
       }
 
       InitializeLootChestFromArray(NwModule.FindObjectsWithTag<NwPlaceable>("low_blueprints").FirstOrDefault(), Craft.Collect.System.lowBlueprints);

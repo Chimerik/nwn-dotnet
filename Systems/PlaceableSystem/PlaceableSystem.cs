@@ -15,33 +15,27 @@ namespace NWN.Systems
   public class PlaceableSystem
   {
     public static readonly Logger Log = LogManager.GetCurrentClassLogger();
-    public static NativeEventService nativeEventService;
-    public PlaceableSystem(NativeEventService eventService)
+    public PlaceableSystem()
     {
-      nativeEventService = eventService;
-
       foreach (NwDoor door in NwModule.FindObjectsOfType<NwDoor>())
-      {
-        eventService.Subscribe<NwDoor, DoorEvents.OnOpen>(door, HandleDoorAutoClose);
-        //eventService.Subscribe<NwDoor, DoorEvents.OnAreaTransitionClick>(door, HandleDoorAutoClose);
-      }
+        door.OnOpen += HandleDoorAutoClose;
 
       foreach (NwPlaceable bassin in NwModule.FindObjectsWithTag<NwPlaceable>("ench_bsn"))
-        eventService.Subscribe<NwPlaceable, PlaceableEvents.OnClose>(bassin, HandleCloseEnchantementBassin);
+        bassin.OnClose += HandleCloseEnchantementBassin;
 
       foreach (NwPlaceable plc in NwModule.FindObjectsWithTag<NwPlaceable>(Arena.Config.PVE_ARENA_PULL_ROPE_CHAIN_TAG, "portal_storage_out", "portal_storage_in", "portal_start", "respawn_neutral", "respawn_dire", "respawn_radiant", "theater_rope"))
-        eventService.Subscribe<NwPlaceable, PlaceableEvents.OnUsed>(plc, HandlePlaceableUsed);
+        plc.OnUsed += HandlePlaceableUsed;
 
       foreach (NwCreature statue in NwModule.FindObjectsWithTag<NwCreature>("Statuereptilienne", "Statuereptilienne2", "statue_tiamat"))
       {
-        eventService.Subscribe<NwCreature, CreatureEvents.OnConversation>(statue, HandleCancelStatueConversation);
-        eventService.Subscribe<NwCreature, CreatureEvents.OnPerception>(statue, HandleStatufyCreature);
+        statue.OnConversation += HandleCancelStatueConversation;
+        statue.OnPerception += HandleStatufyCreature;
       }
 
       foreach (NwCreature corpse in NwModule.FindObjectsWithTag<NwCreature>("dead_wererat"))
       {
-        eventService.Subscribe<NwCreature, CreatureEvents.OnConversation>(corpse, HandleCancelStatueConversation);
-        eventService.Subscribe<NwCreature, CreatureEvents.OnSpawn>(corpse, HandleSetUpDeadCreatureCorpse);
+        corpse.OnConversation += HandleCancelStatueConversation;
+        corpse.OnSpawn += HandleSetUpDeadCreatureCorpse;
       }
     }
     public static void HandleCleanDMPLC(PlaceableEvents.OnDeath onDeath)
@@ -103,8 +97,7 @@ namespace NWN.Systems
 
               if (waypoint != null)
               {
-                NWScript.AssignCommand(player.oid, () => NWScript.JumpToLocation(waypoint.Location));
-                //player.oid.Location = waypoint.Location;
+                player.oid.Location = waypoint.Location;
               }
               else
               {
@@ -114,13 +107,12 @@ namespace NWN.Systems
               Task spawnResources = NwTask.Run(async () =>
               {
                 await NwTask.WaitUntil(() => player.oid.Area != null);
-                Log.Info("Subscribing new entrepot");
 
                 NwPlaceable placeable = area.FindObjectsOfTypeInArea<NwPlaceable>().FirstOrDefault(p => p.Tag == "portal_storage_out");
 
                 if (placeable != null)
                 {
-                  nativeEventService.Subscribe<NwArea, AreaEvents.OnExit>(area, AreaSystem.OnAreaExit);
+                  area.OnExit += AreaSystem.OnAreaExit;
                 }
                 else
                 {
@@ -142,7 +134,7 @@ namespace NWN.Systems
 
                 if (portalOut != null)
                 {
-                  nativeEventService.Subscribe<NwPlaceable, PlaceableEvents.OnUsed>(portalOut, HandlePlaceableUsed);
+                  portalOut.OnUsed += HandlePlaceableUsed;
                 }
                 else
                 {
@@ -157,8 +149,7 @@ namespace NWN.Systems
 
             break;
           case "portal_storage_out":
-            NWScript.AssignCommand(player.oid, () => NWScript.JumpToLocation(NwModule.FindObjectsWithTag<NwWaypoint>("wp_outentrepot").FirstOrDefault().Location));
-            //player.oid.Location = NwModule.FindObjectsWithTag<NwWaypoint>("wp_outentrepot").FirstOrDefault().Location;
+            player.oid.Location = NwModule.FindObjectsWithTag<NwWaypoint>("wp_outentrepot").FirstOrDefault().Location;
             break;
           case Arena.Config.PVE_ARENA_PULL_ROPE_CHAIN_TAG:
             Arena.ScriptHandlers.HandlePullRopeChainUse();
@@ -183,7 +174,7 @@ namespace NWN.Systems
           FreezeCreature(onPerception.Creature);
 
         onPerception.Creature.AiLevel = AiLevel.VeryLow;
-        nativeEventService.Unsubscribe<NwCreature, CreatureEvents.OnPerception>(onPerception.Creature, HandleStatufyCreature);
+        onPerception.Creature.OnPerception -= HandleStatufyCreature;
       }
     }
     private static void FreezeCreature(NwCreature creature)
@@ -245,58 +236,6 @@ namespace NWN.Systems
       NwItem.Create("undroppable_item", onSpawn.Creature).Droppable = true;
       onSpawn.Creature.Lootable = true;
       onSpawn.Creature.ApplyEffect(EffectDuration.Instant, API.Effect.Death());
-    }
-    private static async void HandleClickOnPortalStorageIn(PlayerSystem.Player player, NwArea area)
-    {
-
-      NwWaypoint waypoint = area.FindObjectsOfTypeInArea<NwWaypoint>().FirstOrDefault(w => w.Tag == "wp_inentrepot");
-
-      if (waypoint != null)
-      {
-        player.oid.Location = waypoint.Location;
-        Log.Info("Teleporting!");
-      }
-      else
-      {
-        Log.Warn("Waypoint is null");
-      }
-
-      await NwTask.WaitUntil(() => player.oid.Area != null);
-      Log.Info("Subscribing new entrepot");
-
-      NwPlaceable placeable = area.FindObjectsOfTypeInArea<NwPlaceable>().FirstOrDefault(p => p.Tag == "portal_storage_out");
-
-      if (placeable != null)
-      {
-        nativeEventService.Subscribe<NwArea, AreaEvents.OnExit>(area, AreaSystem.OnAreaExit);
-      }
-      else
-      {
-        Log.Warn("Placeable is null");
-      }
-
-      area.GetLocalVariable<int>("_AREA_LEVEL").Value = 0;
-
-      NwPlaceable storage = area.FindObjectsOfTypeInArea<NwPlaceable>().FirstOrDefault(s => s.Tag == "ps_entrepot");
-
-      var query = NWScript.SqlPrepareQueryCampaign(Config.database, $"SELECT storage from playerCharacters where rowid = @characterId");
-      NWScript.SqlBindInt(query, "@characterId", player.characterId);
-      NWScript.SqlStep(query);
-
-      NWScript.SqlGetObject(query, 0, NWScript.GetLocation(storage));
-      storage.Destroy();
-      
-
-      NwPlaceable portalOut = area.FindObjectsOfTypeInArea<NwPlaceable>().FirstOrDefault(p => p.Tag == "portal_storage_out");
-
-      if (portalOut != null)
-      {
-        nativeEventService.Subscribe<NwPlaceable, PlaceableEvents.OnUsed>(portalOut, HandlePlaceableUsed);
-      }
-      else
-      {
-        Log.Warn("portalOut is null");
-      }
     }
   }
 }

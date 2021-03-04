@@ -16,15 +16,13 @@ namespace NWN.Systems
   [ServiceBinding(typeof(PlayerSystem))]
   public partial class PlayerSystem
   {
-    private static NativeEventService nativeEventService;
     public static readonly Logger Log = LogManager.GetCurrentClassLogger();
-    public PlayerSystem(NativeEventService eventService, NWNXEventService nwnxEventService)
+    public PlayerSystem(NWNXEventService nwnxEventService)
     {
-      nativeEventService = eventService;
-      eventService.Subscribe<NwModule, ModuleEvents.OnClientEnter>(NwModule.Instance, HandlePlayerConnect);
-      eventService.Subscribe<NwModule, ModuleEvents.OnClientLeave>(NwModule.Instance, HandlePlayerLeave);
-      eventService.Subscribe<NwModule, ModuleEvents.OnPlayerDeath>(NwModule.Instance, HandlePlayerDeath);
-      eventService.Subscribe<NwModule, ModuleEvents.OnPlayerTarget>(NwModule.Instance, HandlePlayerTarget);
+      NwModule.Instance.OnClientEnter += HandlePlayerConnect;
+      NwModule.Instance.OnClientLeave += HandlePlayerLeave;
+      NwModule.Instance.OnPlayerDeath += HandlePlayerDeath;
+      NwModule.Instance.OnPlayerTarget += HandlePlayerTarget;
       nwnxEventService.Subscribe<ServerVaultEvents.OnServerCharacterSaveBefore>(HandleBeforePlayerSave);
       nwnxEventService.Subscribe<ServerVaultEvents.OnServerCharacterSaveAfter>(HandleAfterPlayerSave);
     }

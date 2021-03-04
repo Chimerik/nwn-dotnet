@@ -15,12 +15,12 @@ namespace NWN.Systems
   public class ItemSystem
   {
     public static readonly Logger Log = LogManager.GetCurrentClassLogger();
-    public ItemSystem(NativeEventService eventService, NWNXEventService nwnxEventService)
+    public ItemSystem(NWNXEventService nwnxEventService)
     {
       nwnxEventService.Subscribe<ItemEvents.OnItemEquipBefore>(OnItemEquipBefore);
       nwnxEventService.Subscribe<ItemEvents.OnItemUseBefore>(OnItemUseBefore);
-      eventService.Subscribe<NwModule, ModuleEvents.OnAcquireItem>(NwModule.Instance, OnAcquireItem);
-      eventService.Subscribe<NwModule, ModuleEvents.OnUnacquireItem>(NwModule.Instance, OnUnacquireItem);
+      NwModule.Instance.OnAcquireItem += OnAcquireItem;
+      NwModule.Instance.OnUnacquireItem += OnUnacquireItem;
     }
     private void OnItemEquipBefore(ItemEvents.OnItemEquipBefore onItemEquip)
     {

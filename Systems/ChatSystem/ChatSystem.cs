@@ -14,9 +14,9 @@ namespace NWN.Systems
   public class ChatSystem
   {
     public static readonly Logger Log = LogManager.GetCurrentClassLogger();
-    public ChatSystem(NativeEventService eventService)
+    public ChatSystem()
     {
-      eventService.Subscribe<NwModule, ModuleEvents.OnModuleLoad>(NwModule.Instance, OnModuleLoad);
+      NwModule.Instance.OnModuleLoad += OnModuleLoad;
     }
     private void OnModuleLoad(ModuleEvents.OnModuleLoad onModuleLoad)
     {

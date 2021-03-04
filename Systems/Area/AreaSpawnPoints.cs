@@ -64,7 +64,7 @@ namespace NWN.Systems
           break;
         default:
           creature.AiLevel = AiLevel.Low;
-          nativeEventService.Subscribe<NwCreature, CreatureEvents.OnDeath>(creature, LootSystem.HandleLoot);
+          creature.OnDeath += LootSystem.HandleLoot;
           break;
       }
 
@@ -75,7 +75,7 @@ namespace NWN.Systems
     private static NwCreature SpawnNPCFromSpawnPoint(NwWaypoint spawnPoint)
     {
       NwCreature creature = NwCreature.Create(spawnPoint.GetLocalVariable<string>("_CREATURE_TEMPLATE").Value, spawnPoint.Location);
-      nativeEventService.Subscribe<NwCreature, CreatureEvents.OnDeath>(creature, OnDeathSpawnNPCWaypoint);
+      creature.OnDeath += OnDeathSpawnNPCWaypoint;
       creature.GetLocalVariable<string>("_WAYPOINT_TEMPLATE").Value = spawnPoint.ResRef;
       creature.GetLocalVariable<API.Location>("_SPAWN_LOCATION").Value = spawnPoint.Location;
       creature.AiLevel = AiLevel.Low;

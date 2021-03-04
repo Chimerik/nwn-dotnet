@@ -61,7 +61,7 @@ namespace NWN.Systems.Arena
       {
         NwCreature creature = NwCreature.Create(creatureResref, oWaypoint.Location, true, PVE_ARENA_CREATURE_TAG);
         NWScript.SetLocalInt(creature, PVE_ARENA_CHALLENGER_VARNAME, player.characterId);
-        ScriptHandlers.nativeEventService.Subscribe<NwCreature, CreatureEvents.OnDeath>(creature, ScriptHandlers.HandleCreatureOnDeath);
+        creature.OnDeath += ScriptHandlers.HandleCreatureOnDeath;
         creature.ChangeToStandardFaction(API.Constants.StandardFaction.Hostile);
       }
     }
@@ -72,10 +72,8 @@ namespace NWN.Systems.Arena
       Utils.StopCurrentRun(player);
       NwArea oArea = player.oid.Area;
       AreaSystem.AreaDestroyer(oArea);
-      var oWaypoint = NWScript.GetObjectByTag(PVE_ENTRY_WAYPOINT_TAG);
-      var location = NWScript.GetLocation(oWaypoint);
-      NWScript.AssignCommand(player.oid, () => NWScript.ClearAllActions());
-      NWScript.AssignCommand(player.oid, () => NWScript.JumpToLocation(location));
+      player.oid.ClearActionQueue();
+      player.oid.Location = NwModule.FindObjectsWithTag<NwWaypoint>(PVE_ENTRY_WAYPOINT_TAG).FirstOrDefault()?.Location;
 
       player.OnDeath -= Utils.HandlePlayerDied;
     }

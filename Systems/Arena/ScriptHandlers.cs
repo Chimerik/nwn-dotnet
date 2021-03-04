@@ -10,11 +10,6 @@ namespace NWN.Systems.Arena
   [ServiceBinding(typeof(ScriptHandlers))]
   public class ScriptHandlers
   {
-    public static NativeEventService nativeEventService;
-    public ScriptHandlers(NativeEventService eventService)
-    {
-        nativeEventService = eventService;
-    }
     public static void HandlePullRopeChainUse()
     {
       var oPC = NWScript.GetLastUsedBy();
