@@ -10,7 +10,7 @@ namespace NWN.Systems
   {
     public Blacksmith(Player player, NwCreature blacksmith)
     {
-      NwStore shop = blacksmith.GetNearestObjectsByType<NwStore>().Where(s => s.Tag == "blacksmith_shop").FirstOrDefault();
+      NwStore shop = blacksmith.GetNearestObjectsByType<NwStore>().FirstOrDefault(s => s.Tag == "blacksmith_shop");
       
       if (shop == null)
       {

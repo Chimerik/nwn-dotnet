@@ -52,7 +52,7 @@ namespace NWN.Systems.Arena
       player.menu.Draw();
     }
 
-    private static void DrawSubcribePage(PlayerSystem.Player player)
+    private static void DrawSubcribePage(Player player)
     {
       player.menu.Clear();
       player.menu.titleLines.Add("Veuillez choisir votre niveau de difficulté");
@@ -108,7 +108,7 @@ namespace NWN.Systems.Arena
       player.OnDeath += Utils.HandlePlayerDied;
     }
 
-    private static void DrawRewardPage(PlayerSystem.Player player)
+    private static void DrawRewardPage(Player player)
     {
       player.menu.Clear();
       player.menu.titleLines = new List<string>() {

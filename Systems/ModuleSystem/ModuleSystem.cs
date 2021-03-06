@@ -37,6 +37,7 @@ namespace NWN.Systems
       SaveServerVault();
 
       RestorePlayerCorpseFromDatabase();
+      RestorePlayerShopsFromDatabase();
       RestoreDMPersistentPlaceableFromDatabase();
 
       float resourceRespawnTime;
@@ -132,6 +133,10 @@ namespace NWN.Systems
       query = NWScript.SqlPrepareQueryCampaign(Config.database, $"CREATE TABLE IF NOT EXISTS playerSellOrders" +
         $"('characterId' INTEGER NOT NULL, 'expirationDate' TEXT NOT NULL, 'material' TEXT NOT NULL, 'quantity' INTEGER NOT NULL, 'unitPrice' INTEGER NOT NULL)");
       NWScript.SqlStep(query);
+
+      query = NWScript.SqlPrepareQueryCampaign(Config.database, $"CREATE TABLE IF NOT EXISTS playerShops" +
+        $"('characterId' INTEGER NOT NULL, 'shop' TEXT NOT NULL, 'expirationDate' TEXT NOT NULL, 'areaTag' TEXT NOT NULL, 'position' TEXT NOT NULL, 'facing' REAL NOT NULL)");
+      NWScript.SqlStep(query);
     }
     private void InitializeEvents()
     {
@@ -186,6 +191,7 @@ namespace NWN.Systems
       EventsPlugin.SubscribeEvent("NWNX_ON_JOURNAL_CLOSE_AFTER", "on_journal_close");
 
       EventsPlugin.SubscribeEvent("NWNX_ON_STORE_REQUEST_BUY_BEFORE", "before_store_buy");
+      EventsPlugin.SubscribeEvent("NWNX_ON_STORE_REQUEST_BUY_AFTER", "after_store_buy");
       EventsPlugin.SubscribeEvent("NWNX_ON_STORE_REQUEST_SELL_BEFORE", "b_store_sell");
 
       EventsPlugin.SubscribeEvent("NWNX_ON_MAP_PIN_ADD_PIN_AFTER", "map_pin_added");
@@ -250,7 +256,7 @@ namespace NWN.Systems
       {
         int areaLevel = area.GetLocalVariable<int>("_AREA_LEVEL").Value;
 
-        var query = NWScript.SqlPrepareQueryCampaign(Systems.Config.database, $"INSERT INTO areaResourceStock (areaTag, mining, wood, animals) VALUES (@areaTag, @mining, @wood, @animals)" +
+        var query = NWScript.SqlPrepareQueryCampaign(Config.database, $"INSERT INTO areaResourceStock (areaTag, mining, wood, animals) VALUES (@areaTag, @mining, @wood, @animals)" +
           $"ON CONFLICT (areaTag) DO UPDATE SET mining = @mining, wood = @wood, animals = @animals;");
         NWScript.SqlBindString(query, "@areaTag", area.Tag);
         NWScript.SqlBindInt(query, "@mining", areaLevel * 2);
@@ -339,6 +345,23 @@ namespace NWN.Systems
           item.Destroy();
 
         PlayerSystem.SetupPCCorpse(corpse);
+      }
+    }
+    public void RestorePlayerShopsFromDatabase()
+    {
+      // TODO : envoyer un courrier aux joueurs pour indiquer que leur shop à expiré
+      // TODO : Plutôt que de détruire les shops expirées, rendre leurs inventaires accessibles à n'importe qui (ceux-ci n'étant pas protégés par Polpo)
+      var deletionQuery = NWScript.SqlPrepareQueryCampaign(Config.database, $"DELETE FROM playerShops where expirationDate < @now");
+      NWScript.SqlBindString(deletionQuery, "@now", DateTime.Now.ToString());
+      NWScript.SqlStep(deletionQuery);
+
+      var query = NWScript.SqlPrepareQueryCampaign(Config.database, $"SELECT shop, characterId, rowid, expirationDate, areaTag, position, facing FROM playerShops");
+
+      while (Convert.ToBoolean(NWScript.SqlStep(query)))
+      {
+        NwPlaceable shop = NWScript.SqlGetObject(query, 0, Utils.GetLocationFromDatabase(NWScript.SqlGetString(query, 4), NWScript.SqlGetVector(query, 5), NWScript.SqlGetFloat(query, 6))).ToNwObject<NwPlaceable>();
+        shop.GetLocalVariable<int>("_OWNER_ID").Value = NWScript.SqlGetInt(query, 1);
+        shop.GetLocalVariable<int>("_SHOP_ID").Value = NWScript.SqlGetInt(query, 2);
       }
     }
     public void RestoreDMPersistentPlaceableFromDatabase()

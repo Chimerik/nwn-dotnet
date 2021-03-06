@@ -103,13 +103,13 @@ namespace NWN.Systems
           new PrivateContract(player, oItem);
           NWScript.DelayCommand(0.2f, () => FeedbackPlugin.SetFeedbackMessageHidden(23, 1, player));
           break;
-        case "shop_authorization":
+        case "shop_clearance":
           FeedbackPlugin.SetFeedbackMessageHidden(23, 1, player);
           onItemUse.Skip = true;
           new PlayerShop(player, oItem);
           NWScript.DelayCommand(0.2f, () => FeedbackPlugin.SetFeedbackMessageHidden(23, 1, player));
           break;
-        case "auction_authorization":
+        case "auction_clearance":
           FeedbackPlugin.SetFeedbackMessageHidden(23, 1, player);
           onItemUse.Skip = true;
           //new PlayerAuction(player, oItem);

@@ -33,7 +33,7 @@ namespace NWN.Systems
 
       if ((expirationDate - DateTime.Now).TotalSeconds < 0)
       {
-        oPC.SendServerMessage("Ce contrat a expiré et n'est donc plus valide.", Color.BLUE);
+        oPC.SendServerMessage("Ce contrat est expiré et n'est donc plus valide.", Color.BLUE);
         contract.Destroy();
         return;
       }

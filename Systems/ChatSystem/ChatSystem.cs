@@ -87,7 +87,7 @@ namespace NWN.Systems
             file.WriteLineAsync(DateTime.Now.ToShortDateString() + " " + DateTime.Now.ToShortTimeString() + " - " + NWScript.GetName(ctx.oSender) + " To : " + NWScript.GetName(ctx.oTarget, 1) + " : " + ctx.msg);
         }
 
-        if (PlayerSystem.Players.TryGetValue(ctx.oSender, out PlayerSystem.Player player) && player.oid.GetLocalVariable<int>("_PLAYER_INPUT").HasValue)
+        if (PlayerSystem.Players.TryGetValue(ctx.oSender, out PlayerSystem.Player player) && (player.oid.GetLocalVariable<int>("_PLAYER_INPUT").HasValue || player.oid.GetLocalVariable<int>("_PLAYER_INPUT_STRING").HasValue))
         {
           if (Int32.TryParse(ctx.msg, out int value))
           {
@@ -95,6 +95,12 @@ namespace NWN.Systems
             player.oid.GetLocalVariable<int>("_PLAYER_INPUT").Delete();
             ChatPlugin.SkipMessage();
             return;
+          }
+          else
+          {
+            player.setString = ctx.msg;
+            player.oid.GetLocalVariable<int>("_PLAYER_INPUT_STRING").Delete();
+            ChatPlugin.SkipMessage();
           }
         }
            

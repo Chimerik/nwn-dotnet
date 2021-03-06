@@ -34,6 +34,7 @@ namespace NWN.Systems
       public Menu menu { get; }
       public NwCreature deathCorpse { get; set; }
       public int setValue { get; set; }
+      public string setString { get; set; }
       public QuickbarType loadedQuickBar { get; set; }
       public Arena.PlayerData pveArena = new Arena.PlayerData();
 

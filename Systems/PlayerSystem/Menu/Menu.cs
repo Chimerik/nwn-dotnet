@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using NWN.API;
 using NWN.Core;
 using NWN.Core.NWNX;
 
@@ -78,9 +79,9 @@ namespace NWN.Systems
           player.setValue = Systems.Config.invalidInput;
           player.oid.GetLocalVariable<int>("_PLAYER_INPUT").Delete();
 
-          if (NWScript.GetTag(NWScript.GetArea(player.oid)).StartsWith("entry_scene_"))
+          if (player.oid.Area.Tag.StartsWith("entry_scene_"))
           {
-            uint oClone = NWScript.GetNearestObjectByTag($"clone_{NWScript.GetPCPublicCDKey(player.oid)}", player.oid);
+            uint oClone = NWScript.GetNearestObjectByTag($"clone_{player.oid.CDKey}", player.oid);
             VisibilityPlugin.SetVisibilityOverride(player.oid, NWScript.GetNearestObjectByTag("intro_mirror", player.oid), VisibilityPlugin.NWNX_VISIBILITY_VISIBLE);
             CreaturePlugin.JumpToLimbo(oClone);
             NWScript.DestroyObject(oClone);
@@ -88,8 +89,8 @@ namespace NWN.Systems
         }
 
         isOpen = false;
-        player.oid.GetLocalVariable<int>("_PLAYER_INPUT").Value = Systems.Config.invalidInput;
         player.oid.GetLocalVariable<int>("_PLAYER_INPUT").Delete();
+        player.oid.GetLocalVariable<int>("_PLAYER_INPUT_STRING").Delete();
       }
 
       public void ResetConfig ()

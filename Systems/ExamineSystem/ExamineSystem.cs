@@ -6,6 +6,7 @@ using NWN.Services;
 using NWNX.API.Events;
 using NWNX.Services;
 using System;
+using System.Threading.Tasks;
 
 namespace NWN.Systems
 {
@@ -172,14 +173,14 @@ namespace NWN.Systems
       if (onExamine.Examinee is NwItem && onExamine.Examinee.GetLocalVariable<int>("_AVAILABLE_ENCHANTEMENT_SLOT").HasValue)
       {
         onExamine.Examinee.GetLocalVariable<string>("_TEMP_DESC").Value = onExamine.Examinee.Description;
-        onExamine.Examinee.Description += $"\n\n{onExamine.Examinee.GetLocalVariable<int>("_AVAILABLE_ENCHANTEMENT_SLOT").Value} emplacement(s) d'enchantement disponible(s)";
+        onExamine.Examinee.Description += $"\n\n emplacement(s) d'enchantement : [{onExamine.Examinee.GetLocalVariable<int>("_AVAILABLE_ENCHANTEMENT_SLOT").Value.ToString().ColorString(Color.GREEN)}] ".ColorString(Color.ORANGE);
       }
     }
     private void OnExamineAfter(ExamineEvents.OnExamineObjectAfter onExamine)
     {
       if (onExamine.Examinee is NwItem && onExamine.Examinee.GetLocalVariable<int>("_AVAILABLE_ENCHANTEMENT_SLOT").HasValue)
       {
-        onExamine.Examinee.Description = onExamine.Examinee.GetLocalVariable<string>("_TEMP_DESC").Value = onExamine.Examinee.Description;
+        onExamine.Examinee.Description = onExamine.Examinee.GetLocalVariable<string>("_TEMP_DESC").Value;
         onExamine.Examinee.GetLocalVariable<string>("_TEMP_DESC").Delete();
       }
     }
