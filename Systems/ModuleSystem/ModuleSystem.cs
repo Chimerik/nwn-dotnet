@@ -22,19 +22,18 @@ namespace NWN.Systems
     public static Dictionary<string, GoldBalance> goldBalanceMonitoring = new Dictionary<string, GoldBalance>();
     public ModuleSystem()
     {
+      LoadDiscordBot();
+      CreateDatabase();
+      InitializeEvents();
+      FeatSystem.InitializeFeatModifiers();
+
       NwModule.Instance.OnModuleLoad += OnModuleLoad;
     }
     private void OnModuleLoad(ModuleEvents.OnModuleLoad onModuleLoad)
     {
-      LoadDiscordBot();
-
       NwModule.Instance.GetLocalVariable<string>("X2_S_UD_SPELLSCRIPT").Value = "spellhook";
 
-      CreateDatabase();
       SetModuleTime();
-      InitializeEvents();
-      FeatSystem.InitializeFeatModifiers();
-
       SaveServerVault();
 
       RestorePlayerCorpseFromDatabase();

@@ -1,9 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using NWN.API;
-using NWN.API.Events;
-using NWN.Core;
 using static NWN.Systems.Arena.Config;
 using static NWN.Systems.PlayerSystem;
 

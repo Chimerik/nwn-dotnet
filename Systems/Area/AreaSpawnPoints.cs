@@ -75,7 +75,7 @@ namespace NWN.Systems
     private static NwCreature SpawnNPCFromSpawnPoint(NwWaypoint spawnPoint)
     {
       NwCreature creature = NwCreature.Create(spawnPoint.GetLocalVariable<string>("_CREATURE_TEMPLATE").Value, spawnPoint.Location);
-      creature.OnDeath += OnDeathSpawnNPCWaypoint;
+      SetNPCEvents(creature);
       creature.GetLocalVariable<string>("_WAYPOINT_TEMPLATE").Value = spawnPoint.ResRef;
       creature.GetLocalVariable<API.Location>("_SPAWN_LOCATION").Value = spawnPoint.Location;
       creature.AiLevel = AiLevel.Low;
@@ -107,6 +107,44 @@ namespace NWN.Systems
     {
       NwWaypoint waypoint = NwWaypoint.Create(onDeath.KilledCreature.GetLocalVariable<string>("_WAYPOINT_TEMPLATE"), onDeath.KilledCreature.GetLocalVariable<API.Location>("_SPAWN_LOCATION").Value);
       waypoint.GetLocalVariable<string>("_CREATURE_TEMPLATE").Value = onDeath.KilledCreature.ResRef;
+    }
+    private static void SetNPCEvents(NwCreature creature)
+    {
+      creature.OnDeath += OnDeathSpawnNPCWaypoint;
+      
+      switch(creature.Tag)
+      {
+        case "bank_npc":
+          creature.OnConversation += DialogSystem.StartBankerDialog;
+          break;
+        case "blacksmith":
+          creature.OnConversation += DialogSystem.StartBlacksmithDialog;
+          break;
+        case "woodworker":
+          creature.OnConversation += DialogSystem.StartWoodworkerDialog;
+          break;
+        case "tanneur":
+          creature.OnConversation += DialogSystem.StartTanneurDialog;
+          break;
+        case "le_bibliothecaire":
+          creature.OnConversation += DialogSystem.StartBibliothecaireDialog;
+          break;
+        case "jukebox":
+          creature.OnConversation += DialogSystem.StartJukeboxDialog;
+          break;
+        case "tribunal_hotesse":
+          creature.OnConversation += DialogSystem.StartTribunalShopDialog;
+          break;
+        case "pve_arena_host":
+          creature.OnConversation += DialogSystem.StartPvEArenaHostDialog;
+          break;
+        case "bal_system":
+          creature.OnConversation += DialogSystem.StartMessengerDialog;
+          break;
+        case "storage_npc":
+          creature.OnConversation += DialogSystem.StartStorageDialog;
+          break;
+      }
     }
   }
 }

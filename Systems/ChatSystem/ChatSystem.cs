@@ -16,16 +16,13 @@ namespace NWN.Systems
     public static readonly Logger Log = LogManager.GetCurrentClassLogger();
     public ChatSystem()
     {
-      NwModule.Instance.OnModuleLoad += OnModuleLoad;
-    }
-    private void OnModuleLoad(ModuleEvents.OnModuleLoad onModuleLoad)
-    {
       ChatPlugin.RegisterChatScript("on_chat");
     }
 
     [ScriptHandler("on_chat")]
     private void OnNWNXChatEvent(CallInfo callInfo)
     {
+      Log.Info($"chat received : {ChatPlugin.GetMessage()}");
       pipeline.Execute(new Context(
         msg: ChatPlugin.GetMessage(),
         oSender: ChatPlugin.GetSender(),

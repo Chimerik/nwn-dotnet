@@ -15,10 +15,6 @@ namespace NWN.Systems
     private static readonly Logger Log = LogManager.GetCurrentClassLogger();
     public AreaSystem()
     {
-      NwModule.Instance.OnModuleLoad += OnModuleLoad;
-    }
-    private void OnModuleLoad(ModuleEvents.OnModuleLoad onModuleLoad)
-    {
       foreach (NwArea area in NwModule.Instance.Areas)
       {
         area.OnEnter += OnAreaEnter;
@@ -26,12 +22,12 @@ namespace NWN.Systems
 
         DoAreaSpecificInitialisation(area);
 
-        Log.Info($"initializing area : {area.Name}");
+        //Log.Info($"initializing area : {area.Name}");
 
         foreach (NwPlaceable coffre in area.Objects.Where(o => o.Tag == "loot_chest"))
         {
           coffre.Tag = coffre.GetLocalVariable<string>("_LOOT_REFERENCE").Value;
-          Log.Info($"initializing chest : {coffre.Name} with : {coffre.Tag}");
+          //Log.Info($"initializing chest : {coffre.Name} with : {coffre.Tag}");
         }
       }
     }
