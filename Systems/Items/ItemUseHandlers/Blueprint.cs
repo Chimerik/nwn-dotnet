@@ -21,7 +21,7 @@ namespace NWN.Systems.Items.ItemUseHandlers
                     {
                         if (player.craftJob.CanStartJob(oPC, oBlueprint, Craft.Job.JobType.Item))
                         {
-                            if ((int)oPC.GetItemInSlot(InventorySlot.RightHand).BaseItemType == 114) // 114 = marteau de forgeron
+                            if (oPC.GetItemInSlot(InventorySlot.RightHand) != null && (int)oPC.GetItemInSlot(InventorySlot.RightHand).BaseItemType == 114) // 114 = marteau de forgeron
                             {
                                 if (oPC.GetNearestObjectsByType<NwPlaceable>().Any(f => f.Tag == blueprint.workshopTag && f.Distance(oPC) < 5))
                                 {

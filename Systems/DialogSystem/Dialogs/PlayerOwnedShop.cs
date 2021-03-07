@@ -1,44 +1,84 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using NWN.API;
 using NWN.Core;
 using NWN.Core.NWNX;
+using NWN.Services;
+using NWNX.API;
 using static NWN.Systems.PlayerSystem;
 
 namespace NWN.Systems
 {
   public static class PlayerOwnedShop
   {
-    public static void DrawMainPage(Player player, NwPlaceable shop)
+    public static void DrawMainPage(PlayerSystem.Player player, NwPlaceable storePanel)
     {
       player.menu.Clear();
 
+      NwStore store = storePanel.GetNearestObjectsByType<NwStore>().FirstOrDefault(s => s.Tag == $"_PLAYER_SHOP_{player.oid.CDKey}");
+
       player.menu.titleLines = new List<string>() {
-        $"Souhaitez-vous modifier l'échoppe {shop.Name.ColorString(Color.GREEN)} ?"
+        $"Quelle modification souhaitez-vous apporter à votre échoppe {storePanel.Name.ColorString(Color.GREEN)} ?"
       };
+
+      player.menu.choices.Add((
+        "Ajouter un objet",
+        () => GetObjectToAdd(player, store)
+      ));
+
+      if (store.GetLocalVariable<int>("_SHOP_ID").HasValue)
+      {
+        player.menu.choices.Add((
+          "Visualiser et modifier le contenu",
+          () => OpenStore(player, store)
+        ));
+      }
+
       player.menu.choices.Add((
         "Changer le nom",
-        () => GetNewName(player, shop)
+        () => GetNewName(player, storePanel)
       ));
       player.menu.choices.Add((
         "Modifier la description",
-        () => GetNewDescription(player, shop)
+        () => GetNewDescription(player, storePanel)
       ));
       player.menu.choices.Add((
-        "Fermer l'échoppe",
-        () => DestroyShop(player, shop)
+        "Fermer boutique (destruction de l'échoppe)",
+        () => DestroyShop(player, store)
       ));
       player.menu.choices.Add((
         "Quitter",
         () => player.menu.Close()
       ));
 
-      player.oid.GetLocalVariable<NwPlaceable>("_SETTING_SHOP").Value = shop;
-
       player.menu.Draw();
     }
-    private static void GetNewName(Player player, NwPlaceable shop)
+    private static void GetObjectToAdd(PlayerSystem.Player player, NwStore store)
+    {
+      player.oid.SendServerMessage("Veuillez maintenant sélectionnner l'objet que vous souhaitez mettre en vente.", Color.ROSE);
+      //NWScript.SetLocalObject(player.oid, "_ACTIVE_STORE", store);
+      player.oid.GetLocalVariable<NwObject>("_ACTIVE_STORE").Value = store;
+      cursorTargetService.EnterTargetMode(player.oid, OnSellItemSelected, API.Constants.ObjectTypes.Item, API.Constants.MouseCursor.Pickup);
+    }
+    private static void OnSellItemSelected(CursorTargetData selection)
+    {
+      if (!Players.TryGetValue(selection.Player, out PlayerSystem.Player player))
+        return;
+
+      if (selection.TargetObj is null || !(selection.TargetObj is NwItem))
+        return;
+
+      NwStore store = (NwStore)player.oid.GetLocalVariable<NwObject>("_ACTIVE_STORE").Value;
+      player.oid.GetLocalVariable<NwObject>("_ACTIVE_STORE").Delete();
+
+      if (store == null)
+        return;
+
+      DrawItemAddedPage(player, (NwItem)selection.TargetObj, store);
+    }
+    private static void GetNewName(PlayerSystem.Player player, NwPlaceable shop)
     {
       player.menu.titleLines = new List<string>() {
         $"Nom actuel : {shop.Name.ColorString(Color.GREEN)}",
@@ -60,7 +100,7 @@ namespace NWN.Systems
 
       player.menu.Draw();
     }
-    private static void GetNewDescription(Player player, NwPlaceable shop)
+    private static void GetNewDescription(PlayerSystem.Player player, NwPlaceable shop)
     {
       player.menu.titleLines = new List<string>() {
         "Veuillez prononcer la nouvelle description à l'oral."
@@ -81,12 +121,15 @@ namespace NWN.Systems
 
       player.menu.Draw();
     }
-    private static void DestroyShop(Player player, NwPlaceable shop)
+    private static void DestroyShop(PlayerSystem.Player player, NwStore shop)
     {
-      foreach (NwItem item in shop.Inventory.Items)
-        player.oid.AcquireItem(item);
+      foreach (NwItem item in shop.Items)
+      {
+        item.Copy(player.oid, true);
+        item.Destroy();
+      }
 
-      NwItem authorization = NwItem.Create("shop_authorization", player.oid.Location);
+      NwItem authorization = NwItem.Create("shop_clearance", player.oid.Location);
       player.oid.AcquireItem(authorization);
 
       if (shop.GetLocalVariable<int>("_SHOP_ID").HasValue)
@@ -97,21 +140,23 @@ namespace NWN.Systems
       }
 
       player.oid.SendServerMessage($"Votre échoppe a été supprimée et votre autorisation et vos objets ont été restitués.", Color.ORANGE);
-      player.oid.GetLocalVariable<int>("_SETTING_SHOP").Delete();
+
       player.menu.Close();
+      shop.Destroy();
     }
-    public static void SaveShop(Player player, NwPlaceable shop)
+    public static void SaveShop(PlayerSystem.Player player, NwStore shop)
     {
       if (shop.Area.Tag != "Promenadetest") // TODO : Plutôt que de ne pas enregistrer les shops or de la Promenade, rendre leurs inventaires accessibles à n'importe qui (ceux-ci n'étant pas protégés par Polpo)
         return;
 
+      NwPlaceable panel = shop.GetNearestObjectsByType<NwPlaceable>().FirstOrDefault(p => p.Tag == $"_PLAYER_SHOP_PLC_{player.oid.CDKey}");
+
       if (shop.GetLocalVariable<int>("_SHOP_ID").HasNothing)
       {
-        VisibilityPlugin.SetVisibilityOverride(NWScript.OBJECT_INVALID, shop, VisibilityPlugin.NWNX_VISIBILITY_VISIBLE);
-
-        var query = NWScript.SqlPrepareQueryCampaign(Config.database, $"INSERT INTO playerShops (characterId, shop, expirationDate, areaTag, position, facing) VALUES (@characterId, @shop, @expirationDate, @areaTag, @position, @facing)");
+        var query = NWScript.SqlPrepareQueryCampaign(Config.database, $"INSERT INTO playerShops (characterId, shop, panel, expirationDate, areaTag, position, facing) VALUES (@characterId, @shop, @panel, @expirationDate, @areaTag, @position, @facing)");
         NWScript.SqlBindInt(query, "@characterId", player.characterId);
-        NWScript.SqlBindObject(query, "@shop", shop);
+        NWScript.SqlBindString(query, "@shop", shop.Serialize());
+        NWScript.SqlBindString(query, "@panel", panel.Serialize());
         NWScript.SqlBindString(query, "@expirationDate", DateTime.Now.AddDays(30).ToString());
         NWScript.SqlBindString(query, "@areaTag", shop.Area.Tag);
         NWScript.SqlBindVector(query, "@position", shop.Position);
@@ -122,17 +167,19 @@ namespace NWN.Systems
         NWScript.SqlStep(query);
 
         shop.GetLocalVariable<int>("_SHOP_ID").Value = NWScript.SqlGetInt(query, 0);
+        panel.GetLocalVariable<int>("_SHOP_ID").Value = NWScript.SqlGetInt(query, 0);
       }
       else
       {
-        var query = NWScript.SqlPrepareQueryCampaign(Config.database, $"UPDATE playerShops set shop = @shop where rowid = @shopId");
+        var query = NWScript.SqlPrepareQueryCampaign(Config.database, $"UPDATE playerShops set shop = @shop, panel = @panel where rowid = @shopId");
         NWScript.SqlBindInt(query, "@shopId", shop.GetLocalVariable<int>("_SHOP_ID").Value);
-        NWScript.SqlBindString(query, "@shop", ObjectPlugin.Serialize(shop));
+        NWScript.SqlBindString(query, "@shop", shop.Serialize());
+        NWScript.SqlBindString(query, "@panel", panel.Serialize());
         NWScript.SqlStep(query);
       }
     }
 
-    public static void DrawItemAddedPage(Player player, NwItem item, NwPlaceable shop)
+    public static void DrawItemAddedPage(PlayerSystem.Player player, NwItem item, NwStore shop)
     {
       player.menu.Clear();
       player.menu.titleLines = new List<string> {
@@ -149,31 +196,38 @@ namespace NWN.Systems
         await NwTask.WaitUntil(() => player.setValue != Config.invalidInput);
         SetItemPrice(player, item, shop);
         player.setValue = Config.invalidInput;
-
-
       });
 
       player.menu.Draw();
     }
 
-    private static void SetItemPrice(Player player, NwItem item, NwPlaceable shop)
+    private static void SetItemPrice(PlayerSystem.Player player, NwItem item, NwStore shop)
     {
       player.menu.Clear();
-      uint availableGold = player.oid.Gold;
+      int goldValue;
 
       if (player.setValue <= 0)
       {
-        player.menu.titleLines.Add($"Le prix fourni est invalide.");
-        player.menu.choices.Add(($"Entrer une nouvelle valeur.", () => DrawItemAddedPage(player, item, shop)));
-        player.menu.Draw();
+        goldValue = item.GoldValue;
+        player.oid.SendServerMessage($"Le prix saisi est invalide. {item.Name.ColorString(Color.ORANGE)} est désormais en vente au prix de {goldValue.ToString().ColorString(Color.GREEN)} pièce(s) d'or.");
       }
       else
       {
-        ItemPlugin.SetBaseGoldPieceValue(item, player.setValue);
-        player.oid.SendServerMessage($"{item.Name} est désormais en vente au prix de {player.setValue} pièce(s) d'or.", Color.PINK);
-        SaveShop(player, shop);
-        player.menu.Close();
+        goldValue = player.setValue;
+        player.oid.SendServerMessage($"{item.Name.ColorString(Color.ORANGE)} est désormais en vente au prix de {goldValue.ToString().ColorString(Color.GREEN)} pièce(s) d'or.");
       }
+
+      NwItem copy = item.Copy(shop, true);
+      ItemPlugin.SetBaseGoldPieceValue(copy, goldValue);
+      copy.GetLocalVariable<int>("_SET_SELL_PRICE").Value = goldValue;
+      item.Destroy();
+
+      SaveShop(player, shop);
+      player.menu.Close();
+    }
+    private static void OpenStore(PlayerSystem.Player player, NwStore shop)
+    {
+      shop.Open(player.oid);
     }
   }
 }

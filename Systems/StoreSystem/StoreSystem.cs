@@ -6,6 +6,7 @@ using NWN.Systems;
 using System;
 using NWN.API;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace NWN.System
 {
@@ -19,14 +20,31 @@ namespace NWN.System
         return;
 
       NwStore store = NWScript.StringToObject(EventsPlugin.GetEventData("STORE")).ToNwObject<NwStore>();
-      player.oid.SendServerMessage($"store : {store.Tag}");
-      if (store.Tag.StartsWith("_PLAYER_SHOP_"))
-        return;
+      NwItem item = NWScript.StringToObject(EventsPlugin.GetEventData("ITEM")).ToNwObject<NwItem>();
 
-      uint item = NWScript.StringToObject(EventsPlugin.GetEventData("ITEM"));
+      if (store.Tag.StartsWith("_PLAYER_SHOP_"))
+      {
+        if(store.GetLocalVariable<int>("_OWNER_ID").Value != player.characterId)
+          return;
+        else
+        {
+          EventsPlugin.SkipEvent();
+          item.Copy(player.oid, true);
+          item.Destroy();
+
+          Task awaitItemDestruction = NwTask.Run(async () =>
+          {
+            await NwTask.Delay(TimeSpan.FromSeconds(0.2));
+            PlayerOwnedShop.SaveShop(player, store);
+          });
+          
+          return;
+        }
+      }
+
       int price = Int32.Parse(EventsPlugin.GetEventData("PRICE"));
       int pocketGold = (int)player.oid.Gold;
-      player.oid.SendServerMessage($"1");
+      
       if (pocketGold < price)
       {
         if (pocketGold + player.bankGold < price)
@@ -60,10 +78,10 @@ namespace NWN.System
 
       switch (store.Tag)
       {
-        case "blacksmith":
-        case "woodworker":
-        case "tanneur":
-        case "tribunal_hotesse":
+        case "blacksmith_shop":
+        case "woodworker_shop":
+        case "tannery_shop":
+        case "magic_shop":
           break;
         default:
           NWScript.DestroyObject(item);
@@ -97,7 +115,7 @@ namespace NWN.System
         return;
 
       NwStore store = NWScript.StringToObject(EventsPlugin.GetEventData("STORE")).ToNwObject<NwStore>();
-      if (store.Tag.StartsWith("_PLAYER_SHOP_"))
+      if (!store.Tag.StartsWith("_PLAYER_SHOP_"))
         return;
 
       int price = Int32.Parse(EventsPlugin.GetEventData("PRICE")) * 95 / 100;
@@ -123,19 +141,7 @@ namespace NWN.System
         NWScript.SqlStep(query);
       }
 
-      NwPlaceable placeableShop = NwPlaceable.FindObjectsWithTag<NwPlaceable>().FirstOrDefault(plc => plc.GetLocalVariable<int>("_SHOP_ID").Value == shopId);
-      if(placeableShop == null)
-      {
-        Utils.LogMessageToDMs($"Store System - Impossible de trouver l'échoppe {shopId} lors de la vente d'un objet par {buyer.oid.Name} à {oSeller.Name}");
-        return;
-      }
-
-      placeableShop.OnDisturbed -= PlaceableSystem.OnDisturbedPLayerOwnedShop;
-      foreach (NwItem storeItem in store.Items)
-        placeableShop.AcquireItem(item, false);
-      placeableShop.OnDisturbed += PlaceableSystem.OnDisturbedPLayerOwnedShop;
-
-      PlayerOwnedShop.SaveShop(buyer, placeableShop);
+      PlayerOwnedShop.SaveShop(buyer, store);
     }
   }
 }

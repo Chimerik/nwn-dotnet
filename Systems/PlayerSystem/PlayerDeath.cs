@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using NWN.API;
 using NWN.API.Constants;
 using NWN.API.Events;
+using NWNX.API;
 using NWN.Core;
 using NWN.Core.NWNX;
 
@@ -17,76 +18,83 @@ namespace NWN.Systems
       {
         onPlayerDeath.DeadPlayer.SendServerMessage("Tout se brouille autour de vous. Avant de perdre connaissance, vous sentez comme un étrange maëlstrom vous aspirer.");
 
-        CreatePlayerCorpse(player);
-        StripPlayerGoldAfterDeath(player);
-        StripPlayerOfCraftResources(player);
-
+        API.Location playerDeathLocation = player.oid.Location;
+        
         player.EmitDeath(new Player.DeathEventArgs(player, onPlayerDeath.Killer));
 
-        Task task3 = NwTask.Run(async () =>
+        Task handleDeath = NwTask.Run(async () =>
         {
-          await NwTask.Delay(TimeSpan.FromSeconds(1));
+          await NwTask.Delay(TimeSpan.FromSeconds(3));
+          player.oid.Location = NwModule.FindObjectsWithTag<NwWaypoint>("WP__RESPAWN_AREA").FirstOrDefault().Location;
+          await NwTask.WaitUntil(() => player.oid.Area != null);
           SendPlayerToLimbo(player);
-          return true;
+          CreatePlayerCorpse(player, playerDeathLocation);
+          StripPlayerGoldAfterDeath(player);
+          StripPlayerOfCraftResources(player);
         });
       }
     }
-    private void CreatePlayerCorpse(Player player)
+    private void CreatePlayerCorpse(Player player, API.Location deathLocation)
     {
-      NwCreature oPCCorpse = player.oid.Clone(player.oid.Location, "pccorpse");
-      
-      oPCCorpse.ApplyEffect(EffectDuration.Instant, API.Effect.Resurrection());
-      NwItem oCorpseItem = NwItem.Create("item_pccorpse", oPCCorpse);
-      
-      foreach (NwItem item in oPCCorpse.Inventory.Items.Where(i => i.ResRef != "item_pccorpse"))
+      NwCreature oPCCorpse = player.oid.Clone(deathLocation, "pccorpse");
+
+      foreach (NwItem item in oPCCorpse.Inventory.Items)
         item.Destroy();
+
+      NwItem oCorpseItem = NwItem.Create("item_pccorpse", oPCCorpse.Location);
+      oPCCorpse.AcquireItem(oCorpseItem);
       
       oPCCorpse.Lootable = true;
       oPCCorpse.Name = $"Corps inconscient de {player.oid.Name}";
       oPCCorpse.Description = $"Corps inconscient de {player.oid.Name}. \n\n\n Allez savoir combien de temps il va tenir dans cet état.";
       VisibilityPlugin.SetVisibilityOverride(NWScript.OBJECT_INVALID, oPCCorpse, VisibilityPlugin.NWNX_VISIBILITY_HIDDEN);
-      oPCCorpse.ApplyEffect(EffectDuration.Instant, API.Effect.CutsceneGhost());
-      oPCCorpse.Position = player.oid.Position;
+      
       oPCCorpse.GetLocalVariable<int>("_PC_ID").Value = player.characterId;
-
+      
       for (int i = 0; i <= (int)InventorySlot.Bolts; i++)
         if(oPCCorpse.GetItemInSlot((InventorySlot)i) != null)
           oPCCorpse.GetItemInSlot((InventorySlot)i).Droppable = false;
-
+      
       oCorpseItem.GetLocalVariable<int>("_PC_ID").Value = player.characterId;
       oCorpseItem.Name = $"Corps inconscient de {player.oid.Name}";
       oCorpseItem.Description = $"Corps inconscient de {player.oid.Name}\n\n\n Pas très ragoûtant. Allez savoir combien de temps il va tenir avant de se lâcher.";
+      oCorpseItem.Droppable = true;
+
       oCorpseItem.GetLocalVariable<string>("_SERIALIZED_CORPSE").Value = oPCCorpse.Serialize();
       player.deathCorpse = oPCCorpse;
-
+      
       SavePlayerCorpseToDatabase(player.characterId, player.deathCorpse);
 
       SetupPCCorpse(oPCCorpse);
+
+      Log.Info($"Corpse {oPCCorpse.Name} created");
     }
     private static void StripPlayerGoldAfterDeath(Player player)
     {
+      Log.Info($"{player.oid.Name} dead. Stripping him of gold");
+
       while (player.oid.Gold > 0)
       {
         if (player.oid.Gold >= 50000)
         {
-          //NWScript.DelayCommand(1.4f, () => NwItem.Create("nw_it_gold001", player.deathCorpse, 50000));
+          player.deathCorpse.Gold += 50000;
           player.oid.TakeGold(50000);
         }
         else
         {
+          player.deathCorpse.Gold += player.oid.Gold;
           player.oid.TakeGold((int)player.oid.Gold);
-          NWScript.DelayCommand(1.4f, () => NwItem.Create("nw_it_gold001", player.deathCorpse, (int)player.oid.Gold));
           break;
         }
       }
     }
     private static void StripPlayerOfCraftResources(Player player)
     {
-      Log.Debug($"{player.oid.Name} dead. Stripping him of craft resources");
+      Log.Info($"{player.oid.Name} dead. Stripping him of craft resources");
       foreach (NwItem oItem in player.oid.Inventory.Items.Where(i => Craft.Collect.System.IsItemCraftMaterial(i.Tag) || i.Tag == "blueprint"))
       {
-        Log.Debug($"{oItem.Name} stripped");
-        oItem.Copy(player.deathCorpse, true);
+        Log.Info($"{oItem.Name} stripped");
+        oItem.Copy(player.deathCorpse, true).Droppable = true;
         oItem.Destroy();
       }
     }
@@ -94,23 +102,16 @@ namespace NWN.Systems
     {
       var query = NWScript.SqlPrepareQueryCampaign(Config.database, $"INSERT INTO playerDeathCorpses (characterId, deathCorpse, areaTag, position) VALUES (@characterId, @deathCorpse, @areaTag, @position)");
       NWScript.SqlBindInt(query, "@characterId", characterId);
-      NWScript.SqlBindObject(query, "@deathCorpse", deathCorpse);
+      NWScript.SqlBindString(query, "@deathCorpse", deathCorpse.Serialize());
       NWScript.SqlBindString(query, "@areaTag", deathCorpse.Area.Tag);
       NWScript.SqlBindVector(query, "@position", deathCorpse.Position);
       NWScript.SqlStep(query);
     }
     private static void SendPlayerToLimbo(Player player)
     {
-      player.oid.Location = NwModule.FindObjectsWithTag<NwWaypoint>("WP__RESPAWN_AREA").FirstOrDefault().Location;
-
-      Task teleportPlayer = NwTask.Run(async () =>
-      {
-        await NwTask.WaitUntilValueChanged(() => player.oid.Area != null);
-        player.oid.ApplyEffect(EffectDuration.Instant, API.Effect.VisualEffect(VfxType.ImpRestorationGreater));
-        player.oid.ApplyEffect(EffectDuration.Instant, API.Effect.Resurrection());
-        player.oid.ApplyEffect(EffectDuration.Instant, API.Effect.Heal(player.oid.MaxHP));
-        return true;
-      });
+      player.oid.ApplyEffect(EffectDuration.Instant, API.Effect.VisualEffect(VfxType.ImpRestorationGreater));
+      player.oid.ApplyEffect(EffectDuration.Instant, API.Effect.Resurrection());
+      player.oid.ApplyEffect(EffectDuration.Instant, API.Effect.Heal(player.oid.MaxHP));
     }
     public static void Respawn(Player player, string entity)
     {
@@ -252,12 +253,19 @@ namespace NWN.Systems
     }
     public static void SetupPCCorpse(NwCreature oPCCorpse)
     {
-      NWScript.DelayCommand(0.0f, () => oPCCorpse.ApplyEffect(EffectDuration.Instant, API.Effect.Death()));
-      NwWaypoint wp = NwWaypoint.Create("NW_WAYPOINT001", oPCCorpse.Location, false, $"wp_pccorpse_{oPCCorpse.GetLocalVariable<int>("_PC_ID").Value}");
-      NWScript.DelayCommand(1.0f, () => VisibilityPlugin.SetVisibilityOverride(NWScript.OBJECT_INVALID, oPCCorpse, VisibilityPlugin.NWNX_VISIBILITY_DEFAULT));
-      NWScript.DelayCommand(1.2f, () => oPCCorpse.Tag = "pccorpse");
-      NWScript.DelayCommand(1.2f, () => NWScript.SetTag(NWScript.GetNearestObjectByTag("BodyBag", wp), "pccorpse_bodybag"));
-      NWScript.DelayCommand(1.3f, () => wp.Destroy());
+      Task settingUpCorpse = NwTask.Run(async () =>
+      {
+        await NwTask.Delay(TimeSpan.FromSeconds(0.2));
+        oPCCorpse.ApplyEffect(EffectDuration.Instant, API.Effect.Death());
+        NwWaypoint wp = NwWaypoint.Create("NW_WAYPOINT001", oPCCorpse.Location, false, $"wp_pccorpse_{oPCCorpse.GetLocalVariable<int>("_PC_ID").Value}");
+        await NwTask.Delay(TimeSpan.FromSeconds(0.8));
+        VisibilityPlugin.SetVisibilityOverride(NWScript.OBJECT_INVALID, oPCCorpse, VisibilityPlugin.NWNX_VISIBILITY_DEFAULT);
+        await NwTask.Delay(TimeSpan.FromSeconds(0.2));
+        oPCCorpse.Tag = "pccorpse";
+        await NwTask.Delay(TimeSpan.FromSeconds(0.2));
+        NWScript.SetTag(NWScript.GetNearestObjectByTag("BodyBag", wp), "pccorpse_bodybag");
+        wp.Destroy(0.1f);
+      });
     }
   }
 }

@@ -170,9 +170,9 @@ namespace NWN.Systems
       if (oItem.Tag == "item_pccorpse" && oGivenTo == null) // signifie que l'item a été drop au sol et pas donné à un autre PJ ou mis dans un placeable
       {
         NwCreature oCorpse = ObjectPlugin.Deserialize(oItem.GetLocalVariable<string>("_SERIALIZED_CORPSE")).ToNwObject<NwCreature>();
-        ObjectPlugin.AddToArea(oCorpse, oItem.Area, oItem.Position);
-        NWN.Utils.DestroyInventory(oCorpse);
-        ObjectPlugin.AcquireItem(oCorpse, oItem);
+        oCorpse.Location = oItem.Location;
+        Utils.DestroyInventory(oCorpse);
+        oCorpse.AcquireItem(oItem);
         VisibilityPlugin.SetVisibilityOverride(NWScript.OBJECT_INVALID, oCorpse, VisibilityPlugin.NWNX_VISIBILITY_HIDDEN);
         PlayerSystem.SetupPCCorpse(oCorpse);
         //NWScript.DelayCommand(1.3f, () => ObjectPlugin.AcquireItem(NWScript.GetNearestObjectByTag("pccorpse_bodybag", oCorpse), oItem));

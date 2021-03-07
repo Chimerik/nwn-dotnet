@@ -22,7 +22,6 @@ namespace NWN.Systems
     [ScriptHandler("on_chat")]
     private void OnNWNXChatEvent(CallInfo callInfo)
     {
-      Log.Info($"chat received : {ChatPlugin.GetMessage()}");
       pipeline.Execute(new Context(
         msg: ChatPlugin.GetMessage(),
         oSender: ChatPlugin.GetSender(),

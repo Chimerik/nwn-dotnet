@@ -98,7 +98,8 @@ namespace NWN.Systems
 
               if (waypoint != null)
               {
-                player.oid.Location = waypoint.Location;
+                NWScript.AssignCommand(player.oid, () => NWScript.JumpToLocation(waypoint.Location));
+                //player.oid.Location = waypoint.Location;
               }
               else
               {
@@ -141,6 +142,12 @@ namespace NWN.Systems
                 {
                   Log.Warn("portalOut is null");
                 }
+
+                NwPlaceable auctionHouse = area.FindObjectsOfTypeInArea<NwPlaceable>().FirstOrDefault(p => p.Tag == "hventes");
+                auctionHouse.OnUsed += DialogSystem.StartAuctionHouseDialog;
+
+                NwCreature messenger = area.FindObjectsOfTypeInArea<NwCreature>().FirstOrDefault(p => p.Tag == "bal_system");
+                messenger.OnConversation += DialogSystem.StartStorageDialog;
               });
             }
             else
@@ -240,75 +247,20 @@ namespace NWN.Systems
 
       if (onUsed.Placeable.GetLocalVariable<int>("_OWNER_ID").Value == player.characterId)
       {
-        PlayerPlugin.ForcePlaceableInventoryWindow(onUsed.UsedBy, onUsed.Placeable);
-        onUsed.Placeable.GetLocalVariable<int>("_CURRENTLY_OPENED_BY").Value = player.characterId;
-
-        NwStore shop = onUsed.Placeable.GetNearestObjectsByType<NwStore>().FirstOrDefault(s => s.GetLocalVariable<int>("_SHOP_ID").Value == onUsed.Placeable.GetLocalVariable<int>("_SHOP_ID").Value);
-        if (shop != null)
-        {
-          onUsed.Placeable.OnDisturbed -= OnDisturbedPLayerOwnedShop;
-
-          foreach (NwItem item in shop.Items)
-            onUsed.Placeable.AcquireItem(item, false);
-          shop.Destroy();
-
-          onUsed.Placeable.OnDisturbed += OnDisturbedPLayerOwnedShop;
-        }
+        PlayerOwnedShop.DrawMainPage(player, onUsed.Placeable);
       }
       else
       {
-        if (onUsed.Placeable.GetLocalVariable<int>("_CURRENTLY_OPENED_BY").HasValue)
-        {
-          NwPlayer alreadyOpenedBy = NwModule.Instance.Players.FirstOrDefault(p => ObjectPlugin.GetInt(p, "characterId") == onUsed.Placeable.GetLocalVariable<int>("_CURRENTLY_OPENED_BY").Value);
-          if (alreadyOpenedBy != null)
-          {
-            player.oid.SendServerMessage($"Cette échoppe n'est pas accessible pour le moment.", Color.ORANGE);
-            return;
-          }
-        }
-
-        if (onUsed.Placeable.GetLocalVariable<int>("_SHOP_ID").HasNothing)
+        NwStore shop = onUsed.Placeable.GetNearestObjectsByType<NwStore>().FirstOrDefault(s => s.GetLocalVariable<int>("_SHOP_ID").Value == onUsed.Placeable.GetLocalVariable<int>("_SHOP_ID").Value);
+        
+        if (shop == null)
         {
           player.oid.SendServerMessage("Cette boutique n'est pas accessible pour le moment.", Color.ORANGE);
           return;
         }
 
-        NwStore shop = onUsed.Placeable.GetNearestObjectsByType<NwStore>().FirstOrDefault(s => s.GetLocalVariable<int>("_SHOP_ID").Value == onUsed.Placeable.GetLocalVariable<int>("_SHOP_ID").Value);
-        
-        if (shop == null)
-        {
-          shop = NwStore.Create("generic_shop_res", onUsed.Placeable.Location, false, $"_PLAYER_SHOP_{onUsed.Placeable.GetLocalVariable<int>("_SHOP_ID").Value}");
-          shop.Name = onUsed.Placeable.Name;
-          shop.GetLocalVariable<int>("_OWNER_ID").Value = onUsed.Placeable.GetLocalVariable<int>("_OWNER_ID").Value;
-          shop.GetLocalVariable<int>("_SHOP_ID").Value = onUsed.Placeable.GetLocalVariable<int>("_SHOP_ID").Value;
-          foreach (NwItem item in onUsed.Placeable.Inventory.Items)
-            shop.AcquireItem(item, false);
-        }
-
         shop.Open(player.oid);
       }
-    }
-    public static void OnClosedPlayerOwnedShop(PlaceableEvents.OnClose onClosed)
-    {
-      if (!Players.TryGetValue(onClosed.LastClosedBy, out Player player) || onClosed.Placeable.GetLocalVariable<int>("_OWNER_ID").Value != player.characterId)
-        return;
-
-      PlayerOwnedShop.DrawMainPage(player, onClosed.Placeable);
-      onClosed.Placeable.GetLocalVariable<int>("_CURRENTLY_OPENED_BY").Delete();
-    }
-    public static void OnDisturbedPLayerOwnedShop(PlaceableEvents.OnDisturbed onDisturbed)
-    {
-      if (!Players.TryGetValue(onDisturbed.Disturber, out Player player))
-        return;
-
-      NwPlaceable shop = onDisturbed.Placeable;
-
-      if (onDisturbed.DisturbType == InventoryDisturbType.Added && shop.GetLocalVariable<int>("_OWNER_ID").Value == player.characterId)
-      {
-        PlayerOwnedShop.DrawItemAddedPage(player, onDisturbed.DisturbedItem, shop);
-      }
-      else
-        PlayerOwnedShop.SaveShop(player, shop);
     }
   }
 }

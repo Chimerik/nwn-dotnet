@@ -2,7 +2,6 @@
 using System.Linq;
 using System.Threading.Tasks;
 using Discord;
-using NLog.Fluent;
 using NWN.API;
 using NWN.API.Constants;
 using NWN.API.Events;
@@ -180,7 +179,7 @@ namespace NWN.Systems
 
       ObjectPlugin.SetInt(newPlayer, "accountId", NWScript.SqlGetInt(query, 0), 1);
     }
-    private static void InitializeNewCharacter(PlayerSystem.Player newCharacter)
+    private static void InitializeNewCharacter(Player newCharacter)
     {
       if (Config.env == Config.Env.Prod)
         (Bot._client.GetChannel(680072044364562532) as IMessageChannel).SendMessageAsync($"{newCharacter.oid.PlayerName} vient de créer un nouveau personnage : {newCharacter.oid.Name}");
@@ -203,6 +202,8 @@ namespace NWN.Systems
         foreach (NwObject fog in arrivalArea.FindObjectsOfTypeInArea<NwPlaceable>().Where(o => o.Tag == "intro_brouillard"))
           VisibilityPlugin.SetVisibilityOverride(NWScript.OBJECT_INVALID, fog, VisibilityPlugin.NWNX_VISIBILITY_HIDDEN);
 
+        arrivalArea.FindObjectsOfTypeInArea<NwPlaceable>().FirstOrDefault(o => o.Tag == "intro_mirror").OnUsed += DialogSystem.StartIntroMirrorDialog;
+
         Task allPointsSpent = NwTask.Run(async () =>
         {
           await NwTask.WaitUntil(() => ObjectPlugin.GetInt(newCharacter.oid, "_STARTING_SKILL_POINTS") <= 0);
@@ -214,7 +215,7 @@ namespace NWN.Systems
         arrivalArea = newCharacter.oid.Area;
       }
 
-      NWN.Utils.DestroyInventory(newCharacter.oid);
+      Utils.DestroyInventory(newCharacter.oid);
 
       var query = NWScript.SqlPrepareQueryCampaign(Systems.Config.database, $"INSERT INTO playerCharacters (accountId , characterName, dateLastSaved, currentSkillType, currentSkillJob, currentCraftJob, currentCraftObject, frostAttackOn, areaTag, position, facing, menuOriginLeft, currentHP) VALUES (@accountId, @name, @dateLastSaved, @currentSkillType, @currentSkillJob, @currentCraftJob, @currentCraftObject, @frostAttackOn, @areaTag, @position, @facing, @menuOriginLeft, @currentHP)");
       NWScript.SqlBindInt(query, "@accountId", newCharacter.accountId);
@@ -385,7 +386,7 @@ namespace NWN.Systems
     }
     private static void InitializeNewCharacterStorage(Player player)
     {
-      NwPlaceable storage = NwModule.Instance.Areas.Where(a => a.Tag == "entrepotpersonnel").FirstOrDefault()?.FindObjectsOfTypeInArea<NwPlaceable>().Where(s => s.Tag == "ps_entrepot").FirstOrDefault();
+      NwPlaceable storage = NwModule.Instance.Areas.FirstOrDefault(a => a.Tag == "entrepotpersonnel").FindObjectsOfTypeInArea<NwPlaceable>().FirstOrDefault(s => s.Tag == "ps_entrepot");
 
       if(storage == null)
       {
@@ -393,12 +394,17 @@ namespace NWN.Systems
         return;
       }
       
-      NWN.Utils.DestroyInventory(storage);
-      NwItem.Create("bad_armor", storage);
-      NwItem.Create("bad_club", storage);
-      NwItem.Create("bad_shield", storage);
-      NwItem.Create("bad_sling", storage);
-      NwItem.Create("NW_WAMBU001", storage, 99);
+      Utils.DestroyInventory(storage);
+      NwItem oItem = NwItem.Create("bad_armor", storage.Location);
+      storage.AcquireItem(oItem);
+      oItem = NwItem.Create("bad_club", storage);
+      storage.AcquireItem(oItem);
+      oItem = NwItem.Create("bad_shield", storage);
+      storage.AcquireItem(oItem);
+      oItem = NwItem.Create("bad_sling", storage);
+      storage.AcquireItem(oItem);
+      oItem = NwItem.Create("NW_WAMBU001", storage, 99);
+      storage.AcquireItem(oItem);
 
       storage.Name = $"Entrepôt de {player.oid.Name}";
 

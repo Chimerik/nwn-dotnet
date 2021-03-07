@@ -6,7 +6,6 @@ using NWN.Services;
 using NWNX.API.Events;
 using NWNX.Services;
 using System;
-using System.Threading.Tasks;
 
 namespace NWN.Systems
 {
@@ -21,11 +20,11 @@ namespace NWN.Systems
     }
     private void OnExamineBefore(ExamineEvents.OnExamineObjectBefore onExamine)
     {
-      Log.Info($"{onExamine.Examiner.Name} examining {onExamine.Examinee.Name}");
+      Log.Info($"{onExamine.Examiner.Name} examining {onExamine.Examinee.Name} - Tag : {onExamine.Examinee.Tag}");
 
       if (!PlayerSystem.Players.TryGetValue(onExamine.Examiner, out PlayerSystem.Player player))
         return;
-
+      
       switch (onExamine.Examinee.Tag)
       {
         case "mineable_rock":

@@ -135,7 +135,7 @@ namespace NWN.Systems
       NWScript.SqlStep(query);
 
       query = NWScript.SqlPrepareQueryCampaign(Config.database, $"CREATE TABLE IF NOT EXISTS playerShops" +
-        $"('characterId' INTEGER NOT NULL, 'shop' TEXT NOT NULL, 'expirationDate' TEXT NOT NULL, 'areaTag' TEXT NOT NULL, 'position' TEXT NOT NULL, 'facing' REAL NOT NULL)");
+        $"('characterId' INTEGER NOT NULL, 'shop' TEXT NOT NULL, 'panel' TEXT NOT NULL, 'expirationDate' TEXT NOT NULL, 'areaTag' TEXT NOT NULL, 'position' TEXT NOT NULL, 'facing' REAL NOT NULL)");
       NWScript.SqlStep(query);
     }
     private void InitializeEvents()
@@ -338,7 +338,8 @@ namespace NWN.Systems
 
       while (Convert.ToBoolean(NWScript.SqlStep(query)))
       {
-        NwCreature corpse = NWScript.SqlGetObject(query, 0, NWN.Utils.GetLocationFromDatabase(NWScript.SqlGetString(query, 1), NWScript.SqlGetVector(query, 2), 0)).ToNwObject<NwCreature>();
+        NwCreature corpse = ObjectPlugin.Deserialize(NWScript.SqlGetString(query, 0)).ToNwObject<NwCreature>();
+        corpse.Location = Utils.GetLocationFromDatabase(NWScript.SqlGetString(query, 1), NWScript.SqlGetVector(query, 2), 0);
         corpse.GetLocalVariable<int>("_PC_ID").Value = NWScript.SqlGetInt(query, 3);
 
         foreach (NwItem item in corpse.Inventory.Items.Where(i => i.Tag != "item_pccorpse"))
@@ -355,13 +356,23 @@ namespace NWN.Systems
       NWScript.SqlBindString(deletionQuery, "@now", DateTime.Now.ToString());
       NWScript.SqlStep(deletionQuery);
 
-      var query = NWScript.SqlPrepareQueryCampaign(Config.database, $"SELECT shop, characterId, rowid, expirationDate, areaTag, position, facing FROM playerShops");
+      var query = NWScript.SqlPrepareQueryCampaign(Config.database, $"SELECT shop, panel, characterId, rowid, expirationDate, areaTag, position, facing FROM playerShops");
 
       while (Convert.ToBoolean(NWScript.SqlStep(query)))
       {
-        NwPlaceable shop = NWScript.SqlGetObject(query, 0, Utils.GetLocationFromDatabase(NWScript.SqlGetString(query, 4), NWScript.SqlGetVector(query, 5), NWScript.SqlGetFloat(query, 6))).ToNwObject<NwPlaceable>();
-        shop.GetLocalVariable<int>("_OWNER_ID").Value = NWScript.SqlGetInt(query, 1);
-        shop.GetLocalVariable<int>("_SHOP_ID").Value = NWScript.SqlGetInt(query, 2);
+        NwStore shop = ObjectPlugin.Deserialize(NWScript.SqlGetString(query, 0)).ToNwObject<NwStore>();
+        NwPlaceable panel = ObjectPlugin.Deserialize(NWScript.SqlGetString(query, 1)).ToNwObject<NwPlaceable>();
+        shop.Location = Utils.GetLocationFromDatabase(NWScript.SqlGetString(query, 5), NWScript.SqlGetVector(query, 6), NWScript.SqlGetFloat(query, 7));
+        panel.Location = Utils.GetLocationFromDatabase(NWScript.SqlGetString(query, 5), NWScript.SqlGetVector(query, 6), NWScript.SqlGetFloat(query, 7));
+        shop.GetLocalVariable<int>("_OWNER_ID").Value = NWScript.SqlGetInt(query, 2);
+        shop.GetLocalVariable<int>("_SHOP_ID").Value = NWScript.SqlGetInt(query, 3);
+        panel.GetLocalVariable<int>("_OWNER_ID").Value = NWScript.SqlGetInt(query, 2);
+        panel.GetLocalVariable<int>("_SHOP_ID").Value = NWScript.SqlGetInt(query, 3);
+
+        panel.OnUsed += PlaceableSystem.OnUsedPlayerOwnedShop;
+
+        foreach(NwItem item in shop.Items)
+          ItemPlugin.SetBaseGoldPieceValue(item, item.GetLocalVariable<int>("_SET_SELL_PRICE").Value);
       }
     }
     public void RestoreDMPersistentPlaceableFromDatabase()

@@ -17,7 +17,8 @@ namespace NWN.Systems
   public partial class PlayerSystem
   {
     public static readonly Logger Log = LogManager.GetCurrentClassLogger();
-    public PlayerSystem(NWNXEventService nwnxEventService)
+    public static CursorTargetService cursorTargetService { get; set; }
+    public PlayerSystem(NWNXEventService nwnxEventService, CursorTargetService cursorTService)
     {
       NwModule.Instance.OnClientEnter += HandlePlayerConnect;
       NwModule.Instance.OnClientLeave += HandlePlayerLeave;
@@ -25,6 +26,7 @@ namespace NWN.Systems
       NwModule.Instance.OnPlayerTarget += HandlePlayerTarget;
       nwnxEventService.Subscribe<ServerVaultEvents.OnServerCharacterSaveBefore>(HandleBeforePlayerSave);
       nwnxEventService.Subscribe<ServerVaultEvents.OnServerCharacterSaveAfter>(HandleAfterPlayerSave);
+      cursorTargetService = cursorTService;
     }
 
     public static Dictionary<uint, Player> Players = new Dictionary<uint, Player>();
@@ -116,11 +118,11 @@ namespace NWN.Systems
           FeedbackPlugin.SetFeedbackMessageHidden(13, 1, oTarget); // 13 = COMBAT_TOUCH_ATTACK
           NWScript.DelayCommand(2.0f, () => FeedbackPlugin.SetFeedbackMessageHidden(13, 0, oTarget));
 
-          int iSpot = oTarget.GetSkillRank(API.Constants.Skill.Spot);
+          int iSpot = oTarget.GetSkillRank(Skill.Spot);
           if (oTarget.DetectModeActive || oTarget.HasFeatEffect(API.Constants.Feat.KeenSense))
-            iSpot += NwRandom.Roll(NWN.Utils.random, 20, 1);
+            iSpot += NwRandom.Roll(Utils.random, 20, 1);
 
-          if (!oPC.DoSkillCheck(API.Constants.Skill.PickPocket, iSpot))
+          if (!oPC.DoSkillCheck(Skill.PickPocket, iSpot))
           {
             oTarget.FloatingTextString($"{oPC} est en train d'essayer de faire les poches de {oTarget} !", true);
             oPC.FloatingTextString($"{oPC} est en train d'essayer de faire les poches de {oTarget} !", true);
@@ -132,7 +134,7 @@ namespace NWN.Systems
             return;
           }
 
-          int iStolenGold = (NwRandom.Roll(NWN.Utils.random, 20, 1) + oPC.GetSkillRank(API.Constants.Skill.PickPocket) - iSpot) * 10;
+          int iStolenGold = (NwRandom.Roll(Utils.random, 20, 1) + oPC.GetSkillRank(Skill.PickPocket) - iSpot) * 10;
 
           if (oTarget.Gold >= iStolenGold)
           {

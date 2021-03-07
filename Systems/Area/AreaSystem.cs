@@ -131,7 +131,7 @@ namespace NWN.Systems
           area.GetLocalVariable<int>("_AREA_LEVEL").Value = 0;
           break;
         case "SimilisseThetreSalledeSpectacle":
-          NwTrigger trigger = (NwTrigger)NwModule.FindObjectsWithTag("theater_scene").FirstOrDefault();
+          NwTrigger trigger = area.FindObjectsOfTypeInArea<NwTrigger>().FirstOrDefault(t => t.Tag == "theater_scene");
           trigger.OnEnter += OnTheaterSceneEnter;
           trigger.OnExit += OnTheaterSceneExit;
           area.GetLocalVariable<int>("_AREA_LEVEL").Value = 0;
@@ -160,6 +160,11 @@ namespace NWN.Systems
         case "Sawmill":
         case "similissebanque":
         case "tannery":
+        case "qg_marten":
+        case "ToursdesInventeurs":
+        case "SIMILISPALAISNOU":
+        case "SimilisseQuartierduGouvernementP":
+        case "qg_kathra":
           area.GetLocalVariable<int>("_AREA_LEVEL").Value = 0;
           break;
         case "lepontdaruthen":
@@ -196,17 +201,14 @@ namespace NWN.Systems
           break;
       }
     }
-    private static void OnTheaterSceneEnter(TriggerEvents.OnEnter enteringObject)
+    private static void OnTheaterSceneEnter(TriggerEvents.OnEnter onEnter)
     {
-      if (enteringObject.EnteringObject is NwCreature enteringCreature)
-        enteringCreature.VisualTransform.Translation.Z += 2.01f;
+      onEnter.EnteringObject.VisualTransform.Translation.Z += 2.01f;
     }
 
-    private static void OnTheaterSceneExit(TriggerEvents.OnExit exitingObject)
+    private static void OnTheaterSceneExit(TriggerEvents.OnExit onExit)
     {
-      if (exitingObject.ExitingObject is NwCreature exitingCreature)
-        exitingCreature.VisualTransform.Translation.Z = 0.0f;
+      onExit.ExitingObject.VisualTransform.Translation.Z = 0.0f;
     }
-
   }
 }

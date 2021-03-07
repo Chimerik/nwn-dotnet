@@ -4,7 +4,6 @@ using System.Linq;
 using NWN.API;
 using NWN.Core;
 using NWN.Core.NWNX;
-using NWN.API.Constants;
 using static NWN.Systems.PlayerSystem;
 using static NWN.Systems.SkillSystem;
 

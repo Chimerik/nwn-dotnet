@@ -51,7 +51,6 @@ namespace NWN.Systems
 
       public Action OnCollectCycleCancel = delegate { };
       public Action OnCollectCycleComplete = delegate { };
-
       public Player(NwPlayer nwobj)
       {
         this.oid = nwobj;

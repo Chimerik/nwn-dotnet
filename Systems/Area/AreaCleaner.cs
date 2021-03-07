@@ -73,17 +73,17 @@ namespace NWN.Systems
         bodyBag.Destroy();
       }
 
-      foreach (NwItem item in area.FindObjectsOfTypeInArea<NwItem>())
+      foreach (NwItem item in area.FindObjectsOfTypeInArea<NwItem>().Where(i => i.Possessor == null))
       {
         Log.Info($"destroying item {item.Name}");
         item.Destroy();
       }
 
-      foreach (NwStore store in area.FindObjectsOfTypeInArea<NwStore>())
+      /*foreach (NwStore store in area.FindObjectsOfTypeInArea<NwStore>())
       {
         Log.Info($"destroying store {store.Name}");
         store.Destroy();
-      }
+      }*/
     }
     public async static void AreaDestroyer(NwArea area)
     {
