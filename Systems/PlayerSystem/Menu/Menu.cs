@@ -295,7 +295,7 @@ namespace NWN.Systems
                 NWScript.SetObjectVisualTransform(player.oid, NWScript.OBJECT_VISUAL_TRANSFORM_TRANSLATE_Z, NWScript.GetObjectVisualTransform(player.oid, NWScript.OBJECT_VISUAL_TRANSFORM_TRANSLATE_Z) + newValue);
                 zPos = NWScript.GetObjectVisualTransform(player.oid, NWScript.OBJECT_VISUAL_TRANSFORM_TRANSLATE_Z);
                 if (zPos < NWScript.GetGroundHeight(NWScript.GetLocation(player.oid)))
-                  NWN.Utils.LogMessageToDMs($"SIT COMMAND - Player {NWScript.GetName(player.oid)} - Z translation = {zPos}");
+                  Utils.LogMessageToDMs($"SIT COMMAND - Player {NWScript.GetName(player.oid)} - Z translation = {zPos}");
                 break;
 
               case Feat.CustomPositionRotateRight:

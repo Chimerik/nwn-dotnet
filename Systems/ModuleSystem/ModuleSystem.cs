@@ -200,6 +200,8 @@ namespace NWN.Systems
 
       EventsPlugin.SubscribeEvent("NWNX_ON_INPUT_EMOTE_BEFORE", "on_input_emote");
 
+      EventsPlugin.SubscribeEvent("NWNX_ON_ELC_VALIDATE_CHARACTER_BEFORE", "before_elc");
+
       //EventsPlugin.SubscribeEvent("NWNX_ON_HAS_FEAT_AFTER", "event_has_feat");
     }
     private void SetModuleTime()
@@ -381,6 +383,36 @@ namespace NWN.Systems
 
       while (Convert.ToBoolean(NWScript.SqlStep(query)))
         NWScript.SqlGetObject(query, 0, Utils.GetLocationFromDatabase(NWScript.SqlGetString(query, 1), NWScript.SqlGetVector(query, 2), NWScript.SqlGetFloat(query, 3)));
+    }
+
+    [ScriptHandler("before_elc")]
+    private void HandleBeforeELCValidation(CallInfo callInfo)
+    {
+      int characterId = ObjectPlugin.GetInt(callInfo.ObjectSelf, "characterId");
+      
+      if (characterId > 0)
+      {
+        var query = NWScript.SqlPrepareQueryCampaign(Config.database, $"SELECT areaTag, position, facing from playerCharacters where rowid = @characterId");
+        NWScript.SqlBindInt(query, "@characterId", characterId);
+        NWScript.SqlStep(query);
+
+        API.Location loc = Utils.GetLocationFromDatabase(NWScript.SqlGetString(query, 0), NWScript.SqlGetVector(query, 1), NWScript.SqlGetFloat(query, 2));
+        NwWaypoint wp = NwWaypoint.Create("NW_WAYPOINT001", loc, false, $"wp_start_{NWScript.GetPCPublicCDKey(callInfo.ObjectSelf)}");
+        Log.Info($"wp created : {wp.Tag}");
+        PlayerPlugin.SetPersistentLocation(NWScript.GetPCPublicCDKey(callInfo.ObjectSelf), PlayerPlugin.GetBicFileName(callInfo.ObjectSelf), wp);
+      }
+    }
+
+    [ScriptHandler("on_elc_check")]
+    private void HandleELCValidation(CallInfo callInfo)
+    {
+      int characterId = ObjectPlugin.GetInt(callInfo.ObjectSelf, "characterId");
+      if (characterId > 0)
+      {
+        ElcPlugin.SkipValidationFailure();
+      }
+      else
+        Utils.LogMessageToDMs($"ELC VALIDATION FAILURE - Player {NWScript.GetPCPlayerName(callInfo.ObjectSelf)} - Character {NWScript.GetName(callInfo.ObjectSelf)}");
     }
   }
 }

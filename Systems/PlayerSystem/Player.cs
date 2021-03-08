@@ -6,7 +6,6 @@ using NWN.Core.NWNX;
 using static NWN.Systems.SkillSystem;
 using NWN.Systems.Craft;
 using NWN.API;
-using System.Threading.Tasks;
 
 namespace NWN.Systems
 {

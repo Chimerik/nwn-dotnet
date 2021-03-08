@@ -46,7 +46,7 @@ namespace NWN.Systems
       ));
       player.menu.choices.Add((
         "Fermer boutique (destruction de l'échoppe)",
-        () => DestroyShop(player, store)
+        () => DestroyShop(player, store, storePanel)
       ));
       player.menu.choices.Add((
         "Quitter",
@@ -121,10 +121,16 @@ namespace NWN.Systems
 
       player.menu.Draw();
     }
-    private static void DestroyShop(PlayerSystem.Player player, NwStore shop)
+    private static void DestroyShop(PlayerSystem.Player player, NwStore shop, NwPlaceable panel)
     {
       foreach (NwItem item in shop.Items)
       {
+        if(!player.oid.Inventory.CheckFit(item))
+        {
+          player.oid.SendServerMessage("Attention, tous les objets ne rentrent pas dans votre inventaire. Impossible de détruire votre échoppe pour le moment !", Color.ORANGE);
+          return;
+        }
+
         item.Copy(player.oid, true);
         item.Destroy();
       }
@@ -143,6 +149,7 @@ namespace NWN.Systems
 
       player.menu.Close();
       shop.Destroy();
+      panel.Destroy();
     }
     public static void SaveShop(PlayerSystem.Player player, NwStore shop)
     {
@@ -218,8 +225,8 @@ namespace NWN.Systems
       }
 
       NwItem copy = item.Copy(shop, true);
-      ItemPlugin.SetBaseGoldPieceValue(copy, goldValue);
-      copy.GetLocalVariable<int>("_SET_SELL_PRICE").Value = goldValue;
+      ItemPlugin.SetBaseGoldPieceValue(copy, goldValue / item.StackSize);
+      copy.GetLocalVariable<int>("_SET_SELL_PRICE").Value = goldValue / item.StackSize;
       item.Destroy();
 
       SaveShop(player, shop);

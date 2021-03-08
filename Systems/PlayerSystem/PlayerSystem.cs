@@ -191,7 +191,7 @@ namespace NWN.Systems
           iMoveSilentlyCheck += 10;
 
         if (CreaturePlugin.GetMovementType(oTarget) == CreaturePlugin.NWNX_CREATURE_MOVEMENT_TYPE_RUN
-            || oPC.DoSkillCheck(API.Constants.Skill.Listen, iMoveSilentlyCheck))
+            || oPC.DoSkillCheck(Skill.Listen, iMoveSilentlyCheck))
         {
           oPC.FloatingTextString("Vous entendez quelqu'un se faufiler dans les environs.", false);
           PlayerPlugin.ShowVisualEffect(oPC, NWScript.VFX_FNF_SMOKE_PUFF, oTarget.Position);

@@ -42,10 +42,10 @@ namespace NWN.Systems
           return;
         }
 
-        if (player.location.Area != null)
+        /*if (player.location.Area != null)
           oPC.Location = player.location;
         else
-          oPC.Location = NwModule.FindObjectsWithTag<NwWaypoint>("WP_START_NEW_CHAR").FirstOrDefault().Location;
+          oPC.Location = NwModule.FindObjectsWithTag<NwWaypoint>("WP_START_NEW_CHAR").FirstOrDefault().Location;*/
 
         if (player.currentHP <= 0)
           oPC.ApplyEffect(EffectDuration.Instant, API.Effect.Death());
@@ -133,7 +133,7 @@ namespace NWN.Systems
     }
     private static void InitializeNewPlayer(NwPlayer newPlayer)
     {
-      NWScript.DelayCommand(4.0f, () => newPlayer.PostString("a", 40, 15, API.Constants.ScreenAnchor.TopLeft, 0f, API.Color.WHITE, API.Color.WHITE, 9999, "fnt_my_gui"));
+      NWScript.DelayCommand(4.0f, () => newPlayer.PostString("a", 40, 15, ScreenAnchor.TopLeft, 0f, API.Color.WHITE, API.Color.WHITE, 9999, "fnt_my_gui"));
       EventsPlugin.AddObjectToDispatchList("NWNX_ON_INPUT_TOGGLE_PAUSE_BEFORE", "spacebar_down", newPlayer);
 
       var query = NWScript.SqlPrepareQueryCampaign(Config.database, $"SELECT rowid FROM PlayerAccounts WHERE accountName = @accountName");
