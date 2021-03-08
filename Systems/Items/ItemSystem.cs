@@ -109,10 +109,10 @@ namespace NWN.Systems
           new PlayerShop(player, oItem);
           NWScript.DelayCommand(0.2f, () => FeedbackPlugin.SetFeedbackMessageHidden(23, 1, player));
           break;
-        case "auction_clearance":
+        case "auction_clearanc":
           FeedbackPlugin.SetFeedbackMessageHidden(23, 1, player);
           onItemUse.Skip = true;
-          //new PlayerAuction(player, oItem);
+          new PlayerAuction(player, oItem);
           NWScript.DelayCommand(0.2f, () => FeedbackPlugin.SetFeedbackMessageHidden(23, 1, player));
           break;
       }

@@ -1,8 +1,4 @@
-﻿using System;
-using System.Linq;
-using NWN.API;
-using NWN.Core;
-using NWN.Core.NWNX;
+﻿using NWN.API;
 using static NWN.Systems.PlayerSystem;
 
 namespace NWN.Systems

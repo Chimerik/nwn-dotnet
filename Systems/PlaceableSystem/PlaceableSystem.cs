@@ -262,5 +262,28 @@ namespace NWN.Systems
         shop.Open(player.oid);
       }
     }
+    public static void OnUsedPlayerOwnedAuction(PlaceableEvents.OnUsed onUsed)
+    {
+      if (!Players.TryGetValue(onUsed.UsedBy, out Player player))
+        return;
+
+      if (onUsed.Placeable.GetLocalVariable<int>("_OWNER_ID").Value == player.characterId)
+      {
+        PlayerOwnedAuction.DrawMainPage(player, onUsed.Placeable);
+      }
+      else
+      {
+        NwStore shop = onUsed.Placeable.GetNearestObjectsByType<NwStore>().FirstOrDefault(s => s.GetLocalVariable<int>("_AUCTION_ID").Value == onUsed.Placeable.GetLocalVariable<int>("_AUCTION_ID").Value);
+
+        if (shop == null)
+        {
+          player.oid.SendServerMessage("Cette enchère n'est pas accessible pour le moment.", Color.ORANGE);
+          return;
+        }
+
+        shop.Open(player.oid);
+        PlayerOwnedAuction.GetAuctionPrice(player, shop, onUsed.Placeable);
+      }
+    }
   }
 }

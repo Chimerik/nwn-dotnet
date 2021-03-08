@@ -137,6 +137,10 @@ namespace NWN.Systems
       query = NWScript.SqlPrepareQueryCampaign(Config.database, $"CREATE TABLE IF NOT EXISTS playerShops" +
         $"('characterId' INTEGER NOT NULL, 'shop' TEXT NOT NULL, 'panel' TEXT NOT NULL, 'expirationDate' TEXT NOT NULL, 'areaTag' TEXT NOT NULL, 'position' TEXT NOT NULL, 'facing' REAL NOT NULL)");
       NWScript.SqlStep(query);
+
+      query = NWScript.SqlPrepareQueryCampaign(Config.database, $"CREATE TABLE IF NOT EXISTS playerAuctions" +
+        $"('characterId' INTEGER NOT NULL, 'shop' TEXT NOT NULL, 'panel' TEXT NOT NULL, 'expirationDate' TEXT NOT NULL, 'highestAuction' INTEGER NOT NULL, 'highestAuctionner' INTEGER NOT NULL, 'areaTag' TEXT NOT NULL, 'position' TEXT NOT NULL, 'facing' REAL NOT NULL)");
+      NWScript.SqlStep(query);
     }
     private void InitializeEvents()
     {
@@ -288,6 +292,8 @@ namespace NWN.Systems
       NWScript.SqlBindInt(query, "@second", NwDateTime.Now.Second);
       NWScript.SqlStep(query);
 
+      HandleExpiredAuctions();
+
       NWScript.ExportAllCharacters();
 
       /*foreach (KeyValuePair<string, ScriptPerf> perfentry in ModuleSystem.scriptPerformanceMonitoring)
@@ -374,8 +380,138 @@ namespace NWN.Systems
         panel.OnUsed += PlaceableSystem.OnUsedPlayerOwnedShop;
 
         foreach(NwItem item in shop.Items)
-          ItemPlugin.SetBaseGoldPieceValue(item, item.GetLocalVariable<int>("_SET_SELL_PRICE").Value);
+          ItemPlugin.SetBaseGoldPieceValue(item, item.GetLocalVariable<int>("_SET_SELL_PRICE").Value / item.StackSize);
       }
+    }
+    public void RestorePlayerAuctionsFromDatabase()
+    {
+      // TODO : envoyer un courrier aux joueurs pour indiquer que leur shop à expiré
+      // TODO : Plutôt que de détruire les shops expirées, rendre leurs inventaires accessibles à n'importe qui (ceux-ci n'étant pas protégés par Polpo)
+      var query = NWScript.SqlPrepareQueryCampaign(Config.database, $"SELECT shop, panel, characterId, rowid, expirationDate, highestAuction, highestAuctionner, areaTag, position, facing FROM playerAuctions where shop != 'deleted'");
+
+      while (Convert.ToBoolean(NWScript.SqlStep(query)))
+      {
+        NwStore shop = ObjectPlugin.Deserialize(NWScript.SqlGetString(query, 0)).ToNwObject<NwStore>();
+        NwPlaceable panel = ObjectPlugin.Deserialize(NWScript.SqlGetString(query, 1)).ToNwObject<NwPlaceable>();
+        shop.Location = Utils.GetLocationFromDatabase(NWScript.SqlGetString(query, 7), NWScript.SqlGetVector(query, 8), NWScript.SqlGetFloat(query, 9));
+        panel.Location = Utils.GetLocationFromDatabase(NWScript.SqlGetString(query, 7), NWScript.SqlGetVector(query, 8), NWScript.SqlGetFloat(query, 9));
+        shop.GetLocalVariable<int>("_OWNER_ID").Value = NWScript.SqlGetInt(query, 2);
+        shop.GetLocalVariable<int>("_SHOP_ID").Value = NWScript.SqlGetInt(query, 3);
+        shop.GetLocalVariable<int>("_CURRENT_AUCTION").Value = NWScript.SqlGetInt(query, 5);
+        shop.GetLocalVariable<int>("_CURRENT_AUCTIONNER").Value = NWScript.SqlGetInt(query, 6);
+        panel.GetLocalVariable<int>("_OWNER_ID").Value = NWScript.SqlGetInt(query, 2);
+        panel.GetLocalVariable<int>("_SHOP_ID").Value = NWScript.SqlGetInt(query, 3);
+
+        panel.OnUsed += PlaceableSystem.OnUsedPlayerOwnedAuction;
+
+        foreach (NwItem item in shop.Items)
+          ItemPlugin.SetBaseGoldPieceValue(item, item.GetLocalVariable<int>("_CURRENT_AUCTION").Value / item.StackSize);
+      }
+    }
+    public void HandleExpiredAuctions()
+    {
+      // TODO : envoyer un courrier aux joueurs pour indiquer que leur shop à expiré
+      // TODO : Plutôt que de détruire les shops expirées, rendre leurs inventaires accessibles à n'importe qui (ceux-ci n'étant pas protégés par Polpo)
+      var query = NWScript.SqlPrepareQueryCampaign(Config.database, $"SELECT characterId, rowid, highestAuction, highestAuctionner, shop FROM playerAuctions WHERE expirationDate > @now");
+      NWScript.SqlBindString(query, "@now", DateTime.Now.ToString());
+
+      while (Convert.ToBoolean(NWScript.SqlStep(query)))
+      {
+        int buyerId = NWScript.SqlGetInt(query, 3);
+        int sellerId = NWScript.SqlGetInt(query, 0);
+        int auctionId = NWScript.SqlGetInt(query, 1);
+
+        NwPlayer oSeller = NwModule.Instance.Players.FirstOrDefault(p => ObjectPlugin.GetInt(p, "characterId") == sellerId);
+        NwStore store = NwModule.FindObjectsOfType<NwStore>().FirstOrDefault(p => p.GetLocalVariable<int>("_AUCTION_ID").Value == auctionId);
+
+        if (buyerId <= 0) // pas d'acheteur
+        {
+          // S'il est co, on rend l'item au seller et on détruit la ligne en BDD. S'il est pas co, on attend la prochaine occurence pour lui rendre l'item
+          if (oSeller != null)
+          {
+            NwStore tempStore = ObjectPlugin.Deserialize(NWScript.SqlGetString(query, 4)).ToNwObject<NwStore>();
+            NwItem tempItem = tempStore.Items.FirstOrDefault();
+            tempItem.Copy(oSeller, true);
+            oSeller.SendServerMessage($"Aucune enchère sur votre {tempItem.Name.ColorString(API.Color.ORANGE)}. L'objet vous a donc été restitué.");
+
+            Task delayedDeletion = NwTask.Run(async () =>
+            {
+              await NwTask.Delay(TimeSpan.FromSeconds(0.2));
+              DeleteExpiredAuction(auctionId);
+            });
+          }
+        }
+        else
+        {
+          // Si highestAuction > 0 On donne les sous au seller et on lui envoie un message s'il est co. S'il n'est pas co on met à jour en bdd et on lui envoie un courrier
+          int highestAuction = NWScript.SqlGetInt(query, 2);
+
+          if(highestAuction > 0)
+          {
+            if (oSeller != null)
+            {
+              if (PlayerSystem.Players.TryGetValue(oSeller, out PlayerSystem.Player seller))
+              {
+                seller.bankGold += highestAuction * 95 / 100;
+                oSeller.SendServerMessage($"Votre enchère vous a permis de remporter {(highestAuction * 95 / 100).ToString().ColorString(API.Color.ORANGE)}. L'or a été versé à votre banque !");
+              }
+            }
+            else 
+            {
+              var buyerQuery = NWScript.SqlPrepareQueryCampaign(Config.database, $"UPDATE playerCharacters SET bankGold = bankGold + @gold where characterId = @characterId");
+              NWScript.SqlBindInt(buyerQuery, "@characterId", sellerId);
+              NWScript.SqlBindInt(buyerQuery, "@gold", highestAuction);
+              NWScript.SqlStep(buyerQuery);
+
+              // TODO : envoyer un courrier au vendeur
+            }
+          }
+          // Si le buyer est co, on lui file l'item et on détruit la ligne en BDD. S'il est pas co, on met highestAuction à 0 et on attend la prochaine occurence
+          NwPlayer oBuyer = NwModule.Instance.Players.FirstOrDefault(p => ObjectPlugin.GetInt(p, "characterId") == buyerId);
+
+          if (oBuyer != null)
+          {
+            NwStore tempStore = ObjectPlugin.Deserialize(NWScript.SqlGetString(query, 4)).ToNwObject<NwStore>();
+            NwItem tempItem = tempStore.Items.FirstOrDefault();
+            tempItem.Copy(oSeller, true);
+            oSeller.SendServerMessage($"Vous venez de remporter l'enchère sur {tempItem.Name.ColorString(API.Color.ORANGE)}. L'objet se trouve désormais dans votre inventaire.");
+
+            Task delayedDeletion = NwTask.Run(async () =>
+            {
+              await NwTask.Delay(TimeSpan.FromSeconds(0.2));
+              DeleteExpiredAuction(auctionId);
+            });
+          }
+          else
+          {
+            Task delayedUpdate = NwTask.Run(async () =>
+            {
+              await NwTask.Delay(TimeSpan.FromSeconds(0.2));
+              UpdateExpiredAuction(auctionId);
+            });
+          }
+        }
+
+        // On détruit la shop et le panel s'ils ne sont pas null
+        if (store != null)
+          store.Destroy();
+
+        NwPlaceable panel = NwModule.FindObjectsOfType<NwPlaceable>().FirstOrDefault(p => p.GetLocalVariable<int>("_AUCTION_ID").Value == auctionId);
+        if (panel != null)
+          panel.Destroy();
+      }
+    }
+    private void DeleteExpiredAuction(int auctionId)
+    {
+      var deletionQuery = NWScript.SqlPrepareQueryCampaign(Config.database, $"DELETE from playerAuctions where rowid = @rowid");
+      NWScript.SqlBindInt(deletionQuery, "@rowid", auctionId);
+      NWScript.SqlStep(deletionQuery);
+    }
+    private void UpdateExpiredAuction(int auctionId)
+    {
+      var deletionQuery = NWScript.SqlPrepareQueryCampaign(Config.database, $"UPDATE playerAuctions set highestAuction = 0 where rowid = @rowid");
+      NWScript.SqlBindInt(deletionQuery, "@rowid", auctionId);
+      NWScript.SqlStep(deletionQuery);
     }
     public void RestoreDMPersistentPlaceableFromDatabase()
     {

@@ -42,6 +42,13 @@ namespace NWN.System
         }
       }
 
+      if (store.Tag.StartsWith("_PLAYER_AUCTION_"))
+      {
+        EventsPlugin.SkipEvent();
+        player.oid.SendServerMessage("Veuillez attendre la fin de l'enchère avant de pouvoir obtenir ce bien.", Color.ROSE);
+        return;
+      }
+
       int price = Int32.Parse(EventsPlugin.GetEventData("PRICE"));
       int pocketGold = (int)player.oid.Gold;
       
