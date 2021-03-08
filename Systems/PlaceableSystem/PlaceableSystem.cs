@@ -50,22 +50,22 @@ namespace NWN.Systems
         NWScript.SqlStep(query);
       }
       else
-        NWN.Utils.LogMessageToDMs($"Persistent placeable {plc.Name} in area {plc.Area.Name} does not have a valid ID !");
+        Utils.LogMessageToDMs($"Persistent placeable {plc.Name} in area {plc.Area.Name} does not have a valid ID !");
     }
     public static void HandlePlaceableUsed(PlaceableEvents.OnUsed onUsed)
     {
       Log.Info($"{onUsed.UsedBy.Name} used {onUsed.Placeable.Tag}");
-      if (PlayerSystem.Players.TryGetValue(onUsed.UsedBy, out PlayerSystem.Player player))
+      if (Players.TryGetValue(onUsed.UsedBy, out Player player))
         switch (onUsed.Placeable.Tag)
         {
           case "respawn_neutral":
-            PlayerSystem.Respawn(player, "neutral");
+            Respawn(player, "neutral");
             break;
           case "respawn_radiant":
-            PlayerSystem.Respawn(player, "radiant");
+            Respawn(player, "radiant");
             break;
           case "respawn_dire":
-            PlayerSystem.Respawn(player, "radiant");
+            Respawn(player, "radiant");
             break;
           case "theater_rope":
             int visibilty;
@@ -84,7 +84,9 @@ namespace NWN.Systems
               VisibilityPlugin.SetVisibilityOverride(NWScript.OBJECT_INVALID, plc, visibilty);
             break;
           case "portal_start":
-            player.oid.Location = NwModule.FindObjectsWithTag<NwWaypoint>("WP_START_NEW_CHAR").FirstOrDefault().Location;
+            NWScript.AssignCommand(player.oid, () => NWScript.JumpToLocation(NwModule.FindObjectsWithTag<NwWaypoint>("WP_START_NEW_CHAR").FirstOrDefault().Location));
+            //Log.Info("Trying to teleport player to la plage de départ");
+            //player.oid.Location = NwModule.FindObjectsWithTag<NwWaypoint>("WP_START_NEW_CHAR").FirstOrDefault().Location;
             break;
           case "portal_storage_in":
             string uniqueTag = $"entrepotpersonnel_{player.oid.CDKey}";
@@ -99,6 +101,7 @@ namespace NWN.Systems
               if (waypoint != null)
               {
                 NWScript.AssignCommand(player.oid, () => NWScript.JumpToLocation(waypoint.Location));
+                //Log.Info("Trying to teleport player to dimensionnal storage");
                 //player.oid.Location = waypoint.Location;
               }
               else
@@ -157,7 +160,9 @@ namespace NWN.Systems
 
             break;
           case "portal_storage_out":
-            player.oid.Location = NwModule.FindObjectsWithTag<NwWaypoint>("wp_outentrepot").FirstOrDefault().Location;
+            NWScript.AssignCommand(player.oid, () => NWScript.JumpToLocation(NwModule.FindObjectsWithTag<NwWaypoint>("wp_outentrepot").FirstOrDefault().Location));
+            //Log.Info("Trying to teleport player out of dimensionnal storage");
+            //player.oid.Location = NwModule.FindObjectsWithTag<NwWaypoint>("wp_outentrepot").FirstOrDefault().Location;
             break;
           case Arena.Config.PVE_ARENA_PULL_ROPE_CHAIN_TAG:
             Arena.ScriptHandlers.HandlePullRopeChainUse();

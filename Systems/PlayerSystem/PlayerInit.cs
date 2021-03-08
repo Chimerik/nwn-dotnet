@@ -20,116 +20,110 @@ namespace NWN.Systems
       oPC.GetLocalVariable<int>("_ACTIVE_LANGUAGE").Value = (int)Feat.Invalid;
       oPC.GetLocalVariable<int>("_CONNECTING").Value = 1;
       oPC.GetLocalVariable<int>("_DISCONNECTING").Delete();
-
-      Task teleportPlayer = NwTask.Run(async () =>
+      
+      if (!Players.TryGetValue(oPC, out Player player))
       {
-        await NwTask.WaitUntilValueChanged(() => oPC.Area != null);
+        player = new Player(oPC);
+        Players.Add(oPC, player);
+      }
+      
+      if (oPC.IsDM)
+        return;
 
-        if (!Players.TryGetValue(oPC, out Player player))
+      string pcAccount = player.CheckDBPlayerAccount();
+      if (pcAccount != oPC.PlayerName)
+      {
+        oPC.BootPlayer($"Attention - Ce personnage est enregistré sous le compte {pcAccount}, or vous venez de vous connecter sous {oPC.PlayerName}, veuillez vous reconnecter avec le bon compte !");
+        Utils.LogMessageToDMs($"Attention - {oPC.PlayerName} vient de se connecter avec un personnage enregistré sous le compte : {pcAccount} !");
+        return;
+      }
+
+      if (player.currentHP <= 0)
+        oPC.ApplyEffect(EffectDuration.Instant, API.Effect.Death());
+      else
+        oPC.HP = player.currentHP;
+
+      if (player.craftJob.IsActive()
+      && player.location.Area.GetLocalVariable<int>("_AREA_LEVEL")?.Value == 0)
+      {
+        player.CraftJobProgression();
+        player.craftJob.CreateCraftJournalEntry();
+      }
+
+      if (player.currentSkillJob != (int)Feat.Invalid)
+      {
+        switch (player.currentSkillType)
         {
-          player = new Player(oPC);
-          Players.Add(oPC, player);
+          case SkillSystem.SkillType.Skill:
+            if (player.learnableSkills.ContainsKey(player.currentSkillJob))
+              player.learnableSkills[player.currentSkillJob].currentJob = true;
+            else
+            {
+              if (!Convert.ToBoolean(CreaturePlugin.GetKnowsFeat(player.oid, player.currentSkillJob)))
+                CreaturePlugin.AddFeat(player.oid, player.currentSkillJob);
+              player.currentSkillJob = (int)Feat.Invalid;
+            }
+            break;
+          case SkillSystem.SkillType.Spell:
+            if (player.learnableSpells.ContainsKey(player.currentSkillJob))
+              player.learnableSpells[player.currentSkillJob].currentJob = true;
+            else
+              player.currentSkillJob = (int)Feat.Invalid;
+            break;
         }
 
-        if (oPC.IsDM)
-          return;
-
-        string pcAccount = player.CheckDBPlayerAccount();
-        if (pcAccount != oPC.PlayerName)
-        {
-          oPC.BootPlayer($"Attention - Ce personnage est enregistré sous le compte {pcAccount}, or vous venez de vous connecter sous {oPC.PlayerName}, veuillez vous reconnecter avec le bon compte !");
-          Utils.LogMessageToDMs($"Attention - {oPC.PlayerName} vient de se connecter avec un personnage enregistré sous le compte : {pcAccount} !");
-          return;
-        }
-
-        /*if (player.location.Area != null)
-          oPC.Location = player.location;
-        else
-          oPC.Location = NwModule.FindObjectsWithTag<NwWaypoint>("WP_START_NEW_CHAR").FirstOrDefault().Location;*/
-
-        if (player.currentHP <= 0)
-          oPC.ApplyEffect(EffectDuration.Instant, API.Effect.Death());
-        else
-          oPC.HP = player.currentHP;
-
-        if (player.craftJob.IsActive()
-        && player.location.Area.GetLocalVariable<int>("_AREA_LEVEL")?.Value == 0)
-        {
-          player.CraftJobProgression();
-          player.craftJob.CreateCraftJournalEntry();
-        }
+        Log.Info("Acquiring Skill Points from player init.");
+        player.AcquireSkillPoints();
+        oPC.GetLocalVariable<int>("_CONNECTING").Delete();
+        player.isAFK = false;
 
         if (player.currentSkillJob != (int)Feat.Invalid)
         {
           switch (player.currentSkillType)
           {
             case SkillSystem.SkillType.Skill:
-              if (player.learnableSkills.ContainsKey(player.currentSkillJob))
-                player.learnableSkills[player.currentSkillJob].currentJob = true;
-              else
-              {
-                if (!Convert.ToBoolean(CreaturePlugin.GetKnowsFeat(player.oid, player.currentSkillJob)))
-                  CreaturePlugin.AddFeat(player.oid, player.currentSkillJob);
-                player.currentSkillJob = (int)Feat.Invalid;
-              }
+              player.learnableSkills[player.currentSkillJob].CreateSkillJournalEntry();
               break;
             case SkillSystem.SkillType.Spell:
-              if (player.learnableSpells.ContainsKey(player.currentSkillJob))
-                player.learnableSpells[player.currentSkillJob].currentJob = true;
-              else
-                player.currentSkillJob = (int)Feat.Invalid;
+              player.learnableSpells[player.currentSkillJob].CreateSkillJournalEntry();
               break;
           }
-
-          Log.Info("Acquiring Skill Points from player init.");
-          player.AcquireSkillPoints();
-          oPC.GetLocalVariable<int>("_CONNECTING").Delete();
-          player.isAFK = false;
-
-          if (player.currentSkillJob != (int)Feat.Invalid)
-          {
-            switch (player.currentSkillType)
-            {
-              case SkillSystem.SkillType.Skill:
-                player.learnableSkills[player.currentSkillJob].CreateSkillJournalEntry();
-                break;
-              case SkillSystem.SkillType.Spell:
-                player.learnableSpells[player.currentSkillJob].CreateSkillJournalEntry();
-                break;
-            }
-          }
         }
+      }
+      Log.Info("After Acquiring Skill Points from player init.");
 
-        Task waitForTorilNecklaceChange = NwTask.Run(async () =>
-        {
-          await NwTask.WaitUntil(() => oPC.GetItemInSlot(InventorySlot.Neck)?.Tag != "amulettorillink");
-          ItemSystem.OnTorilNecklaceRemoved(oPC);
-        });
-
-        Task waitForArmorChange = NwTask.Run(async () =>
-        {
-          await NwTask.WaitUntil(() => oPC.GetItemInSlot(InventorySlot.Chest) == null);
-          ItemSystem.OnArmorRemoved(oPC);
-        });
-
-        Task waitForHelmetChange = NwTask.Run(async () =>
-        {
-          await NwTask.WaitUntil(() => oPC.GetItemInSlot(InventorySlot.Head) == null);
-          ItemSystem.OnHelmetRemoved(oPC);
-        });
-
-        Task waitForShieldChange = NwTask.Run(async () =>
-        {
-          await NwTask.WaitUntil(() => oPC.GetItemInSlot(InventorySlot.LeftHand) == null && (oPC.GetItemInSlot(InventorySlot.RightHand) == null || ItemUtils.GetItemCategory((int)oPC.GetItemInSlot(InventorySlot.RightHand)?.BaseItemType) == ItemUtils.ItemCategory.OneHandedMeleeWeapon));
-          ItemSystem.OnShieldRemoved(oPC);
-        });
-
-        oPC.GetLocalVariable<int>("_CONNECTING").Delete();
-        player.isAFK = false;
-        player.DoJournalUpdate = false;
-        player.dateLastSaved = DateTime.Now;
-        player.setValue = Config.invalidInput;
+      Task waitForTorilNecklaceChange = NwTask.Run(async () =>
+      {
+        await NwTask.WaitUntil(() => oPC.GetItemInSlot(InventorySlot.Neck)?.Tag != "amulettorillink");
+        ItemSystem.OnTorilNecklaceRemoved(oPC);
       });
+      Log.Info("After Toril.");
+
+      Task waitForArmorChange = NwTask.Run(async () =>
+      {
+        await NwTask.WaitUntil(() => oPC.GetItemInSlot(InventorySlot.Chest) == null);
+        ItemSystem.OnArmorRemoved(oPC);
+      });
+      Log.Info("After armor.");
+      Task waitForHelmetChange = NwTask.Run(async () =>
+      {
+        await NwTask.WaitUntil(() => oPC.GetItemInSlot(InventorySlot.Head) == null);
+        ItemSystem.OnHelmetRemoved(oPC);
+      });
+      Log.Info("After Helmet.");
+      Task waitForShieldChange = NwTask.Run(async () =>
+      {
+        await NwTask.WaitUntil(() => oPC.GetItemInSlot(InventorySlot.LeftHand) == null && (oPC.GetItemInSlot(InventorySlot.RightHand) == null || ItemUtils.GetItemCategory((int)oPC.GetItemInSlot(InventorySlot.RightHand)?.BaseItemType) == ItemUtils.ItemCategory.OneHandedMeleeWeapon));
+        ItemSystem.OnShieldRemoved(oPC);
+      });
+      Log.Info("After shield.");
+      oPC.GetLocalVariable<int>("_CONNECTING").Delete();
+      player.isAFK = false;
+      player.DoJournalUpdate = false;
+      player.dateLastSaved = DateTime.Now;
+      player.setValue = Config.invalidInput;
+      player.setString = "";
+      Log.Info("End of player init.");
     }
     private static void InitializeNewPlayer(NwPlayer newPlayer)
     {

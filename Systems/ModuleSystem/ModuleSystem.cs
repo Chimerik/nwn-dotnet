@@ -525,7 +525,7 @@ namespace NWN.Systems
     private void HandleBeforeELCValidation(CallInfo callInfo)
     {
       int characterId = ObjectPlugin.GetInt(callInfo.ObjectSelf, "characterId");
-      
+
       if (characterId > 0)
       {
         var query = NWScript.SqlPrepareQueryCampaign(Config.database, $"SELECT areaTag, position, facing from playerCharacters where rowid = @characterId");
@@ -534,7 +534,6 @@ namespace NWN.Systems
 
         API.Location loc = Utils.GetLocationFromDatabase(NWScript.SqlGetString(query, 0), NWScript.SqlGetVector(query, 1), NWScript.SqlGetFloat(query, 2));
         NwWaypoint wp = NwWaypoint.Create("NW_WAYPOINT001", loc, false, $"wp_start_{NWScript.GetPCPublicCDKey(callInfo.ObjectSelf)}");
-        Log.Info($"wp created : {wp.Tag}");
         PlayerPlugin.SetPersistentLocation(NWScript.GetPCPublicCDKey(callInfo.ObjectSelf), PlayerPlugin.GetBicFileName(callInfo.ObjectSelf), wp);
       }
     }

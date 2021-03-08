@@ -73,7 +73,9 @@ namespace NWN.Systems.Arena
       NwArea oArea = player.oid.Area;
       AreaSystem.AreaDestroyer(oArea);
       player.oid.ClearActionQueue();
-      player.oid.Location = NwModule.FindObjectsWithTag<NwWaypoint>(PVE_ENTRY_WAYPOINT_TAG).FirstOrDefault()?.Location;
+
+      NWScript.AssignCommand(player.oid, () => NWScript.JumpToLocation(NwModule.FindObjectsWithTag<NwWaypoint>(PVE_ENTRY_WAYPOINT_TAG).FirstOrDefault()?.Location));
+      //player.oid.Location = NwModule.FindObjectsWithTag<NwWaypoint>(PVE_ENTRY_WAYPOINT_TAG).FirstOrDefault()?.Location;
 
       player.OnDeath -= Utils.HandlePlayerDied;
     }

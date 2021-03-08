@@ -16,14 +16,14 @@ namespace NWN.Systems
       if (area.GetLocalVariable<int>("_NO_SPAWN_ALLOWED").HasValue)
         return;
 
-      Log.Info($"Handling spawns for area {area.Name}");
+      //Log.Info($"Handling spawns for area {area.Name}");
 
       foreach (NwWaypoint wp in area.FindObjectsOfTypeInArea<NwWaypoint>().Where(a => a.Tag == "creature_spawn"))
         HandleSpawnWaypoint(wp);
 
       foreach (NwPlaceable chest in area.FindObjectsOfTypeInArea<NwPlaceable>().Where(c => c.GetLocalVariable<string>("_LOOT_REFERENCE").HasValue))
       {
-        Log.Info($"Found chest : {chest.Name}");
+        //Log.Info($"Found chest : {chest.Name}");
 
         Utils.DestroyInventory(chest); 
 
@@ -44,7 +44,7 @@ namespace NWN.Systems
 
       Task spawnAllowed = NwTask.Run(async () =>
       {
-        Log.Info($"Spawns blocked for the next 10 minutes");
+        //Log.Info($"Spawns blocked for the next 10 minutes");
         await NwTask.Delay(TimeSpan.FromMinutes(10));
         area.GetLocalVariable<int>("_NO_SPAWN_ALLOWED").Delete();
         return true;
