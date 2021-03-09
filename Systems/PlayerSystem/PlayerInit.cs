@@ -20,12 +20,14 @@ namespace NWN.Systems
       oPC.GetLocalVariable<int>("_ACTIVE_LANGUAGE").Value = (int)Feat.Invalid;
       oPC.GetLocalVariable<int>("_CONNECTING").Value = 1;
       oPC.GetLocalVariable<int>("_DISCONNECTING").Delete();
-      
+
       if (!Players.TryGetValue(oPC, out Player player))
       {
         player = new Player(oPC);
         Players.Add(oPC, player);
       }
+      else
+        player.oid = oPC;
       
       if (oPC.IsDM)
         return;
@@ -74,8 +76,11 @@ namespace NWN.Systems
 
         Log.Info("Acquiring Skill Points from player init.");
         player.AcquireSkillPoints();
+        Log.Info("Acquired Skill Points.");
         oPC.GetLocalVariable<int>("_CONNECTING").Delete();
         player.isAFK = false;
+
+        Log.Info($"current skill job initiation : {player.currentSkillJob}");
 
         if (player.currentSkillJob != (int)Feat.Invalid)
         {
@@ -89,8 +94,9 @@ namespace NWN.Systems
               break;
           }
         }
+
+        Log.Info("Current skill job initiated.");
       }
-      Log.Info("After Acquiring Skill Points from player init.");
 
       Task waitForTorilNecklaceChange = NwTask.Run(async () =>
       {

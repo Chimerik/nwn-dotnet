@@ -136,6 +136,23 @@ namespace NWN.Systems
       }
       else
         ThrowException($"Unregistered container tag=\"{oContainer.Tag}\"");
+
+      if(oContainer.Tag.StartsWith("boss_"))
+      {
+        foreach (NwPlaceable chest in oContainer.Area.FindObjectsOfTypeInArea<NwPlaceable>().Where(c => lootablesDic.ContainsKey(c.Tag)))
+        {
+          //Log.Info($"Found chest : {chest.Name}");
+
+          Utils.DestroyInventory(chest);
+
+          if (lootablesDic.TryGetValue(chest.Tag, out Lootable.Config lootableChest))
+          {
+            lootableChest.GenerateLoot(chest);
+          }
+          else
+            Utils.LogMessageToDMs($"AREA - {oContainer.Area.Name} - Unregistered container tag=\"{chest.Tag}\", name : {chest.Name}");
+        }
+      }
     }
   }
 }

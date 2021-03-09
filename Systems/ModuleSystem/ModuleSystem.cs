@@ -167,6 +167,10 @@ namespace NWN.Systems
       EventsPlugin.SubscribeEvent("NWNX_ON_DM_POSSESS_BEFORE", "b_dm_possess");
       EventsPlugin.SubscribeEvent("NWNX_ON_DM_SPAWN_OBJECT_AFTER", "dm_spawn_object");
       EventsPlugin.SubscribeEvent("NWNX_ON_DM_JUMP_TARGET_TO_POINT_AFTER", "a_dm_jump_target");
+      EventsPlugin.SubscribeEvent("NWNX_ON_DM_GIVE_XP_BEFORE", "on_dm_give_xp");
+      EventsPlugin.SubscribeEvent("NWNX_ON_DM_GIVE_LEVEL_BEFORE", "on_dm_give_xp");
+      EventsPlugin.SubscribeEvent("NWNX_ON_DM_GIVE_GOLD_BEFORE", "on_dm_give_gold");
+      EventsPlugin.SubscribeEvent("NWNX_ON_DM_GIVE_ITEM_AFTER", "on_dm_give_item");
 
       EventsPlugin.SubscribeEvent("NWNX_ON_START_COMBAT_ROUND_AFTER", "a_start_combat");
       EventsPlugin.ToggleDispatchListMode("NWNX_ON_START_COMBAT_ROUND_AFTER", "a_start_combat", 1);
@@ -379,8 +383,10 @@ namespace NWN.Systems
 
         panel.OnUsed += PlaceableSystem.OnUsedPlayerOwnedShop;
 
-        foreach(NwItem item in shop.Items)
-          ItemPlugin.SetBaseGoldPieceValue(item, item.GetLocalVariable<int>("_SET_SELL_PRICE").Value / item.StackSize);
+        foreach (NwItem item in shop.Items)
+        {
+          ItemPlugin.SetBaseGoldPieceValue(item, item.GetLocalVariable<int>("_SET_SELL_PRICE").Value);
+        }
       }
     }
     public void RestorePlayerAuctionsFromDatabase()
@@ -405,7 +411,7 @@ namespace NWN.Systems
         panel.OnUsed += PlaceableSystem.OnUsedPlayerOwnedAuction;
 
         foreach (NwItem item in shop.Items)
-          ItemPlugin.SetBaseGoldPieceValue(item, item.GetLocalVariable<int>("_CURRENT_AUCTION").Value / item.StackSize);
+          ItemPlugin.SetBaseGoldPieceValue(item, item.GetLocalVariable<int>("_CURRENT_AUCTION").Value);
       }
     }
     public void HandleExpiredAuctions()
@@ -432,6 +438,8 @@ namespace NWN.Systems
             NwStore tempStore = ObjectPlugin.Deserialize(NWScript.SqlGetString(query, 4)).ToNwObject<NwStore>();
             NwItem tempItem = tempStore.Items.FirstOrDefault();
             tempItem.Copy(oSeller, true);
+            NwItem authorization = NwItem.Create("auction_clearanc", oSeller.Location);
+            oSeller.AcquireItem(authorization);
             oSeller.SendServerMessage($"Aucune enchère sur votre {tempItem.Name.ColorString(API.Color.ORANGE)}. L'objet vous a donc été restitué.");
 
             Task delayedDeletion = NwTask.Run(async () =>
@@ -455,6 +463,9 @@ namespace NWN.Systems
                 seller.bankGold += highestAuction * 95 / 100;
                 oSeller.SendServerMessage($"Votre enchère vous a permis de remporter {(highestAuction * 95 / 100).ToString().ColorString(API.Color.ORANGE)}. L'or a été versé à votre banque !");
               }
+
+              NwItem authorization = NwItem.Create("auction_clearanc", oSeller.Location);
+              oSeller.AcquireItem(authorization);
             }
             else 
             {

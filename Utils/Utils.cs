@@ -4,7 +4,6 @@ using System;
 using NWN.Core.NWNX;
 using NWN.Core;
 using System.Numerics;
-using System.Collections.Generic;
 using System.Linq;
 using NWN.API;
 
@@ -18,13 +17,13 @@ namespace NWN
       switch (Config.env)
       {
         case Config.Env.Prod:
-          (Bot._client.GetChannel(703964971549196339) as IMessageChannel).SendMessageAsync(UtilPlugin.GetCurrentScriptName() + " : " + message);
+          (Bot._client.GetChannel(703964971549196339) as IMessageChannel).SendMessageAsync(message);
           break;
         case Config.Env.Bigby:
-          Bot._client.GetUser(225961076448034817).SendMessageAsync(UtilPlugin.GetCurrentScriptName() + " : " + message);
+          Bot._client.GetUser(225961076448034817).SendMessageAsync(message);
           break;
         case Config.Env.Chim:
-          Bot._client.GetUser(232218662080086017).SendMessageAsync(UtilPlugin.GetCurrentScriptName() + " : " + message);
+          Bot._client.GetUser(232218662080086017).SendMessageAsync(message);
           break;
       }
     }
@@ -37,19 +36,6 @@ namespace NWN
     {
       for (int i = 0; i < 17; i++)
         NWScript.DestroyObject(NWScript.GetItemInSlot(i, oCreature));
-    }
-
-    public static string LocationToString(Core.Location l)
-    {
-      uint area = NWScript.GetAreaFromLocation(l);
-      Vector3 pos = NWScript.GetPositionFromLocation(l);
-      float facing = NWScript.GetFacingFromLocation(l);
-
-      return "#TAG#" + NWScript.GetTag(area) + "#RESREF#" + NWScript.GetResRef(area) +
-              "#X#" + NWScript.FloatToString(pos.X, 5, 2) +
-              "#Y#" + NWScript.FloatToString(pos.Y, 5, 2) +
-              "#Z#" + NWScript.FloatToString(pos.Z, 5, 2) +
-              "#F#" + NWScript.FloatToString(facing, 5, 2) + "#";
     }
 
     public static double ScaleToRange(double value, double originalMin, double originalMax, double destMin, double destMax)

@@ -49,7 +49,7 @@ namespace NWN.Systems
                     new Lootable.Item(chestTag: "ammunitions", count: 1, chance: 35),
                 }
             )},
-            { "Roishaman", new Lootable.Config(
+            { "boss_gobelin", new Lootable.Config(
                 gold: new Lootable.Gold(min: 25, max: 150, chance: 75),
                 items: new List<Lootable.Item> {
                     new Lootable.Item(chestTag: "simple_weapons", count: 1, chance: 10),
@@ -75,7 +75,7 @@ namespace NWN.Systems
                     new Lootable.Item(chestTag: "low_scrolls", count: 2, chance: 25),
                 }
             )},
-            { "Koboltchieftain", new Lootable.Config(
+            { "boss_kobolt", new Lootable.Config(
                 gold: new Lootable.Gold(min: 35, max: 175, chance: 100),
                 items: new List<Lootable.Item> {
                     new Lootable.Item(chestTag: "simple_weapons", count: 1, chance: 10),
@@ -110,7 +110,7 @@ namespace NWN.Systems
                     new Lootable.Item(chestTag: "low_enchantements", count: 1, chance: 1),
                 }
             )},
-            { "ourslonguegriffe", new Lootable.Config(
+            { "boss_gothra", new Lootable.Config(
                 gold: new Lootable.Gold(min: 75, max: 250, chance: 100),
                 items: new List<Lootable.Item> {
                     new Lootable.Item(chestTag: "simple_weapons", count: 1, chance: 10),
@@ -171,7 +171,7 @@ namespace NWN.Systems
                     new Lootable.Item(chestTag: "low_scrolls", count: 2, chance: 45),
                 }
             )},
-            { "harpiemarine", new Lootable.Config(
+            { "boss_harpie", new Lootable.Config(
                 gold: new Lootable.Gold(min: 250, max: 400, chance: 100),
                 items: new List<Lootable.Item> {
                     new Lootable.Item(chestTag: "simple_weapons", count: 1, chance: 5),
@@ -253,7 +253,7 @@ namespace NWN.Systems
                     new Lootable.Item(chestTag: "medium_scrolls", count: 1, chance: 50),
                 }
             )},
-            { "PuristedelOmniscience", new Lootable.Config(
+            { "boss_omni", new Lootable.Config(
                 gold: new Lootable.Gold(min: 500, max: 850, chance: 80),
                 items: new List<Lootable.Item> {
                     new Lootable.Item(chestTag: "simple_weapons", count: 1, chance: 100),
@@ -291,7 +291,7 @@ namespace NWN.Systems
                     new Lootable.Item(chestTag: "medium_enchantements", count: 1, chance: 1),
                 }
             )},
-            { "Banditnain", new Lootable.Config(
+            { "boss_bandit", new Lootable.Config(
                 gold: new Lootable.Gold(min: 50, max: 150, chance: 20),
                 items: new List<Lootable.Item> {
                     new Lootable.Item(chestTag: "simple_weapons", count: 1, chance: 15),
@@ -362,7 +362,7 @@ namespace NWN.Systems
                     new Lootable.Item(chestTag: "medium_scrolls", count: 1, chance: 2),
                 }
             )},
-            { "gnollboss", new Lootable.Config(
+            { "boss_gnoll", new Lootable.Config(
                 gold: new Lootable.Gold(min: 250, max: 500, chance: 80),
                 items: new List<Lootable.Item> {
                     new Lootable.Item(chestTag: "simple_weapons", count: 1, chance: 75),
@@ -454,7 +454,7 @@ namespace NWN.Systems
                     new Lootable.Item(chestTag: "medium_scrolls", count: 1, chance: 2),
                 }
             )},
-            { "Gobelourscheftain", new Lootable.Config(
+            { "boss_gobelours", new Lootable.Config(
                 gold: new Lootable.Gold(min: 250, max: 500, chance: 80),
                 items: new List<Lootable.Item> {
                     new Lootable.Item(chestTag: "simple_weapons", count: 1, chance: 75),
@@ -526,7 +526,7 @@ namespace NWN.Systems
                     new Lootable.Item(chestTag: "medium_scrolls", count: 1, chance: 20),
                 }
             )},
-            { "Orcseigneur", new Lootable.Config(
+            { "boss_orc", new Lootable.Config(
                 gold: new Lootable.Gold(min: 500, max: 750, chance: 80),
                 items: new List<Lootable.Item> {
                     new Lootable.Item(chestTag: "simple_weapons", count: 1, chance: 75),

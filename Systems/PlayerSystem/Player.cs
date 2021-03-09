@@ -13,7 +13,7 @@ namespace NWN.Systems
   {
     public class Player
     {
-      public readonly NwPlayer oid;
+      public NwPlayer oid { get; set; }
       public readonly int accountId;
       public readonly int characterId;
       public API.Location location { get; set; }

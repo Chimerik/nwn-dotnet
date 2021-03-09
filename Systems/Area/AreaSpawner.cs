@@ -21,25 +21,6 @@ namespace NWN.Systems
       foreach (NwWaypoint wp in area.FindObjectsOfTypeInArea<NwWaypoint>().Where(a => a.Tag == "creature_spawn"))
         HandleSpawnWaypoint(wp);
 
-      foreach (NwPlaceable chest in area.FindObjectsOfTypeInArea<NwPlaceable>().Where(c => c.GetLocalVariable<string>("_LOOT_REFERENCE").HasValue))
-      {
-        //Log.Info($"Found chest : {chest.Name}");
-
-        Utils.DestroyInventory(chest); 
-
-        if (lootablesDic.TryGetValue(chest.Tag, out Lootable.Config lootableConfig))
-        {
-          lootableConfig.GenerateLoot(chest);
-          /*Task generateLoot = NwTask.Run(async () =>
-          {
-            await NwTask.Delay(TimeSpan.FromSeconds(0.1));
-            lootableConfig.GenerateLoot(chest);
-          });*/
-        }
-        else
-          Utils.LogMessageToDMs($"AREA - {area.Name} - Unregistered container tag=\"{chest.Tag}\", name : {chest.Name}");
-      }
-
       area.GetLocalVariable<int>("_NO_SPAWN_ALLOWED").Value = 1;
 
       Task spawnAllowed = NwTask.Run(async () =>

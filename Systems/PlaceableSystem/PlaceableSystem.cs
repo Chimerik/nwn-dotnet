@@ -30,7 +30,22 @@ namespace NWN.Systems
       foreach (NwCreature statue in NwModule.FindObjectsWithTag<NwCreature>("Statuereptilienne", "Statuereptilienne2", "statue_tiamat"))
       {
         statue.OnConversation += HandleCancelStatueConversation;
-        statue.OnPerception += HandleStatufyCreature;
+        //statue.OnPerception += HandleStatufyCreature;
+        Task waitForPlayer = NwTask.Run(async () =>
+        {
+          await NwTask.WaitUntil(() => statue.GetNearestObjectsByType<NwPlayer>().FirstOrDefault(p => p.Distance(statue) < 35) != null);
+          Log.Info($"Triggered : {statue.Name} - {statue.Tag} in {statue.Area.Name}");
+          if (statue.Tag != "statue_tiamat")
+          {
+            await statue.PlayAnimation((Animation)Utils.random.Next(100, 116), 8);
+            await NwTask.Delay(TimeSpan.FromSeconds(0.2));
+            FreezeCreature(statue);
+          }
+          else
+            FreezeCreature(statue);
+
+          statue.AiLevel = AiLevel.VeryLow;
+        });
       }
 
       foreach (NwCreature corpse in NwModule.FindObjectsWithTag<NwCreature>("dead_wererat"))
@@ -84,9 +99,9 @@ namespace NWN.Systems
               VisibilityPlugin.SetVisibilityOverride(NWScript.OBJECT_INVALID, plc, visibilty);
             break;
           case "portal_start":
-            NWScript.AssignCommand(player.oid, () => NWScript.JumpToLocation(NwModule.FindObjectsWithTag<NwWaypoint>("WP_START_NEW_CHAR").FirstOrDefault().Location));
-            //Log.Info("Trying to teleport player to la plage de départ");
-            //player.oid.Location = NwModule.FindObjectsWithTag<NwWaypoint>("WP_START_NEW_CHAR").FirstOrDefault().Location;
+            //NWScript.AssignCommand(player.oid, () => NWScript.JumpToLocation(NwModule.FindObjectsWithTag<NwWaypoint>("WP_START_NEW_CHAR").FirstOrDefault().Location));
+            Log.Info("Trying to teleport player to la plage de départ");
+            player.oid.Location = NwModule.FindObjectsWithTag<NwWaypoint>("WP_START_NEW_CHAR").FirstOrDefault().Location;
             break;
           case "portal_storage_in":
             string uniqueTag = $"entrepotpersonnel_{player.oid.CDKey}";
@@ -100,9 +115,9 @@ namespace NWN.Systems
 
               if (waypoint != null)
               {
-                NWScript.AssignCommand(player.oid, () => NWScript.JumpToLocation(waypoint.Location));
-                //Log.Info("Trying to teleport player to dimensionnal storage");
-                //player.oid.Location = waypoint.Location;
+                //NWScript.AssignCommand(player.oid, () => NWScript.JumpToLocation(waypoint.Location));
+                Log.Info("Trying to teleport player to dimensionnal storage");
+                player.oid.Location = waypoint.Location;
               }
               else
               {
@@ -160,9 +175,9 @@ namespace NWN.Systems
 
             break;
           case "portal_storage_out":
-            NWScript.AssignCommand(player.oid, () => NWScript.JumpToLocation(NwModule.FindObjectsWithTag<NwWaypoint>("wp_outentrepot").FirstOrDefault().Location));
-            //Log.Info("Trying to teleport player out of dimensionnal storage");
-            //player.oid.Location = NwModule.FindObjectsWithTag<NwWaypoint>("wp_outentrepot").FirstOrDefault().Location;
+            //NWScript.AssignCommand(player.oid, () => NWScript.JumpToLocation(NwModule.FindObjectsWithTag<NwWaypoint>("wp_outentrepot").FirstOrDefault().Location));
+            Log.Info("Trying to teleport player out of dimensionnal storage");
+            player.oid.Location = NwModule.FindObjectsWithTag<NwWaypoint>("wp_outentrepot").FirstOrDefault().Location;
             break;
           case Arena.Config.PVE_ARENA_PULL_ROPE_CHAIN_TAG:
             Arena.ScriptHandlers.HandlePullRopeChainUse();
@@ -177,9 +192,10 @@ namespace NWN.Systems
     {
       if (onPerception.PerceivedCreature is NwPlayer)
       {
+        Log.Info($"Triggered : {onPerception.Creature.Name} - {onPerception.Creature.Tag} in {onPerception.Creature.Area.Name}");
         if (onPerception.Creature.Tag != "statue_tiamat")
         {
-          await onPerception.Creature.PlayAnimation((Animation)NWN.Utils.random.Next(100, 116), 3);
+          onPerception.Creature.PlayAnimation((Animation)NWN.Utils.random.Next(100, 116), 3);
           await NwTask.Delay(TimeSpan.FromSeconds(0.5));
           FreezeCreature(onPerception.Creature);
         }
@@ -190,9 +206,14 @@ namespace NWN.Systems
         onPerception.Creature.OnPerception -= HandleStatufyCreature;
       }
     }
+  
     private static void FreezeCreature(NwCreature creature)
     {
-      API.Effect eff = API.Effect.VisualEffect(VfxType.DurFreezeAnimation);
+      API.Effect eff = API.Effect.CutsceneGhost();
+      eff.SubType = EffectSubType.Supernatural;
+      creature.ApplyEffect(EffectDuration.Permanent, eff);
+
+      eff = API.Effect.VisualEffect(VfxType.DurFreezeAnimation);
       eff.SubType = EffectSubType.Supernatural;
       creature.ApplyEffect(EffectDuration.Permanent, eff);
 

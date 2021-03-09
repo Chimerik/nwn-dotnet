@@ -24,6 +24,7 @@ namespace NWN.Systems
       NwModule.Instance.OnClientLeave += HandlePlayerLeave;
       NwModule.Instance.OnPlayerDeath += HandlePlayerDeath;
       NwModule.Instance.OnPlayerTarget += HandlePlayerTarget;
+      NwModule.Instance.OnPlayerLevelUp += CancelPlayerLevelUp;
       nwnxEventService.Subscribe<ServerVaultEvents.OnServerCharacterSaveBefore>(HandleBeforePlayerSave);
       nwnxEventService.Subscribe<ServerVaultEvents.OnServerCharacterSaveAfter>(HandleAfterPlayerSave);
       cursorTargetService = cursorTService;
@@ -340,15 +341,40 @@ namespace NWN.Systems
     [ScriptHandler("collect_cancel")]
     private void HandleBeforeCollectCycleCancel(CallInfo callInfo)
     {
-      if (PlayerSystem.Players.TryGetValue(callInfo.ObjectSelf, out PlayerSystem.Player player))
+      if (Players.TryGetValue(callInfo.ObjectSelf, out Player player))
         player.CancelCollectCycle();
     }
 
     [ScriptHandler("collect_complete")]
     private void HandleAfterCollectCycleComplete(CallInfo callInfo)
     {
-      if (PlayerSystem.Players.TryGetValue(callInfo.ObjectSelf, out PlayerSystem.Player player))
+      if (PlayerSystem.Players.TryGetValue(callInfo.ObjectSelf, out Player player))
         player.CompleteCollectCycle();
+    }
+
+    [ScriptHandler("on_dm_give_xp")]
+    private void HandleBeforeDmGiveXP(CallInfo callInfo)
+    {
+      EventsPlugin.SkipEvent();
+      Utils.LogMessageToDMs($"{((NwPlayer)callInfo.ObjectSelf).PlayerName} vient d'essayer de donner de l'xp à {NWScript.StringToObject(EventsPlugin.GetEventData("OBJECT")).ToNwObject().Name}");
+    }
+
+    [ScriptHandler("on_dm_give_gold")]
+    private void HandleBeforeDmGiveGold(CallInfo callInfo)
+    {
+      Utils.LogMessageToDMs($"{((NwPlayer)callInfo.ObjectSelf).PlayerName} vient de donner {Int32.Parse(EventsPlugin.GetEventData("OBJECT"))} d'or à {NWScript.StringToObject(EventsPlugin.GetEventData("OBJECT")).ToNwObject().Name}");
+    }
+
+    [ScriptHandler("on_dm_give_item")]
+    private void HandleAfterDmGiveItem(CallInfo callInfo)
+    {
+      Utils.LogMessageToDMs($"{((NwPlayer)callInfo.ObjectSelf).PlayerName} vient de donner {NWScript.StringToObject(EventsPlugin.GetEventData("ITEM")).ToNwObject().Name} d'or à {NWScript.StringToObject(EventsPlugin.GetEventData("TARGET")).ToNwObject().Name}");
+    }
+
+    private void CancelPlayerLevelUp(ModuleEvents.OnPlayerLevelUp onLevelUp)
+    {
+      onLevelUp.Player.Xp = 1;
+      Utils.LogMessageToDMs($"{onLevelUp.Player} vient d'essayer de level up.");
     }
 
     /*public static Dictionary<string, Func<uint, int>> Register = new Dictionary<string, Func<uint, int>>

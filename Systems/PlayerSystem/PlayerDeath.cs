@@ -25,9 +25,9 @@ namespace NWN.Systems
         Task handleDeath = NwTask.Run(async () =>
         {
           await NwTask.Delay(TimeSpan.FromSeconds(3));
-          NWScript.AssignCommand(player.oid, () => NWScript.JumpToLocation(NwModule.FindObjectsWithTag<NwWaypoint>("WP__RESPAWN_AREA").FirstOrDefault().Location));
-          //Log.Info("Trying to teleport player to respawn area");
-          //player.oid.Location = NwModule.FindObjectsWithTag<NwWaypoint>("WP__RESPAWN_AREA").FirstOrDefault().Location;
+          //NWScript.AssignCommand(player.oid, () => NWScript.JumpToLocation(NwModule.FindObjectsWithTag<NwWaypoint>("WP__RESPAWN_AREA").FirstOrDefault().Location));
+          Log.Info("Trying to teleport player to respawn area");
+          player.oid.Location = NwModule.FindObjectsWithTag<NwWaypoint>("WP__RESPAWN_AREA").FirstOrDefault().Location;
           await NwTask.WaitUntil(() => player.oid.Area != null);
           SendPlayerToLimbo(player);
           CreatePlayerCorpse(player, playerDeathLocation);
@@ -120,9 +120,9 @@ namespace NWN.Systems
       // TODO : Diminuer la durabilité de tous les objets équipés et dans l'inventaire du PJ
 
       DestroyPlayerCorpse(player);
-      NWScript.AssignCommand(player.oid, () => NWScript.JumpToLocation(NwModule.FindObjectsWithTag<NwWaypoint>("WP_RESPAWN_DISPENSAIRE").FirstOrDefault().Location));
-      //Log.Info("Trying to teleport player to dispensaire");
-      //player.oid.Location = NwModule.FindObjectsWithTag<NwWaypoint>("WP_RESPAWN_DISPENSAIRE").FirstOrDefault()?.Location;
+      //NWScript.AssignCommand(player.oid, () => NWScript.JumpToLocation(NwModule.FindObjectsWithTag<NwWaypoint>("WP_RESPAWN_DISPENSAIRE").FirstOrDefault().Location));
+      Log.Info("Trying to teleport player to dispensaire");
+      player.oid.Location = NwModule.FindObjectsWithTag<NwWaypoint>("WP_RESPAWN_DISPENSAIRE").FirstOrDefault()?.Location;
 
 
       if (player.oid.GetItemInSlot(InventorySlot.Neck)?.Tag != "amulettorillink")
