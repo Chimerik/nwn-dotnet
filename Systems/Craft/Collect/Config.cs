@@ -329,6 +329,7 @@ namespace NWN.Systems.Craft.Collect
         case ItemCategory.Shield: return GetBadShieldProperties();
         case ItemCategory.CraftTool: return GetBadToolProperties(craftedItem);
         case ItemCategory.RangedWeapon: return GetBadRangedWeaponProperties();
+        case ItemCategory.Clothes: return GetBadClothesProperties();
       }
 
       return new ItemProperty[]
@@ -396,6 +397,16 @@ namespace NWN.Systems.Craft.Collect
 
       };
     }
+    public static ItemProperty[] GetBadClothesProperties()
+    {
+      return new ItemProperty[]
+      {
+        NWScript.ItemPropertyDamageVulnerability(NWScript.IP_CONST_DAMAGETYPE_BLUDGEONING, NWScript.IP_CONST_DAMAGEVULNERABILITY_10_PERCENT),
+        NWScript.ItemPropertyDecreaseAC(NWScript.IP_CONST_ACMODIFIERTYPE_ARMOR, 2),
+        NWScript.ItemPropertyWeightIncrease(NWScript.IP_CONST_WEIGHTINCREASE_30_LBS),
+
+      };
+    }
     public static ItemProperty[] GetTritaniumItemProperties(uint craftedItem = NWScript.OBJECT_INVALID)
     {
       NWScript.SetLocalInt(craftedItem, "_DURABILITY", 10);
@@ -423,6 +434,7 @@ namespace NWN.Systems.Craft.Collect
         case ItemCategory.CraftTool: return GetPyeriteToolProperties(craftedItem);
         case ItemCategory.RangedWeapon: return GetPyeriteOneHandedMeleeWeaponProperties();
         case ItemCategory.Ammunition: return GetPyeriteAmmunitionProperties();
+        case ItemCategory.Clothes: return GetPyeriteArmorProperties();
       }
 
       return new ItemProperty[]

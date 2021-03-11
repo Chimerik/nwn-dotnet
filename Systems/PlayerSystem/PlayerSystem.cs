@@ -352,25 +352,6 @@ namespace NWN.Systems
         player.CompleteCollectCycle();
     }
 
-    [ScriptHandler("on_dm_give_xp")]
-    private void HandleBeforeDmGiveXP(CallInfo callInfo)
-    {
-      EventsPlugin.SkipEvent();
-      Utils.LogMessageToDMs($"{((NwPlayer)callInfo.ObjectSelf).PlayerName} vient d'essayer de donner de l'xp à {NWScript.StringToObject(EventsPlugin.GetEventData("OBJECT")).ToNwObject().Name}");
-    }
-
-    [ScriptHandler("on_dm_give_gold")]
-    private void HandleBeforeDmGiveGold(CallInfo callInfo)
-    {
-      Utils.LogMessageToDMs($"{((NwPlayer)callInfo.ObjectSelf).PlayerName} vient de donner {Int32.Parse(EventsPlugin.GetEventData("OBJECT"))} d'or à {NWScript.StringToObject(EventsPlugin.GetEventData("OBJECT")).ToNwObject().Name}");
-    }
-
-    [ScriptHandler("on_dm_give_item")]
-    private void HandleAfterDmGiveItem(CallInfo callInfo)
-    {
-      Utils.LogMessageToDMs($"{((NwPlayer)callInfo.ObjectSelf).PlayerName} vient de donner {NWScript.StringToObject(EventsPlugin.GetEventData("ITEM")).ToNwObject().Name} d'or à {NWScript.StringToObject(EventsPlugin.GetEventData("TARGET")).ToNwObject().Name}");
-    }
-
     private void CancelPlayerLevelUp(ModuleEvents.OnPlayerLevelUp onLevelUp)
     {
       onLevelUp.Player.Xp = 1;

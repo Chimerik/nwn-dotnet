@@ -11,7 +11,6 @@ namespace NWN.Systems
     private static int page = 0;
     private static void ExecuteSkillMenuCommand(ChatSystem.Context ctx, Options.Result options)
     {
-      Log.Info("Executing Skill menu command");
       PlayerSystem.Player player;
       if (PlayerSystem.Players.TryGetValue(ctx.oSender, out player))
       {

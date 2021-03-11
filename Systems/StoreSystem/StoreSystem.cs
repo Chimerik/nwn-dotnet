@@ -29,7 +29,7 @@ namespace NWN.System
         else
         {
           EventsPlugin.SkipEvent();
-          item.Copy(player.oid, true);
+          item.Clone(player.oid, null, true);
           item.Destroy();
 
           Task awaitItemDestruction = NwTask.Run(async () =>

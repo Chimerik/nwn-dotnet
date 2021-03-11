@@ -161,14 +161,12 @@ namespace NWN.Systems.Craft.Collect
 
       craftedItem.Name = $"{craftedItem.Name} en {name}";
       craftedItem.GetLocalVariable<string>("_ITEM_MATERIAL").Value = material;
-
+      
       foreach (Core.ItemProperty ip in GetCraftItemProperties(material, craftedItem))
       {
         //NWScript.SendMessageToPC(NWScript.GetFirstPC(), $"Adding IP : {ip}");
         NWScript.AddItemProperty(NWScript.DURATION_TYPE_PERMANENT, ip, craftedItem);
       }
-
-      Log.Info("properties added");
     }
     public static void AddCraftedEnchantementProperties(NwItem craftedItem, string spellId)
     {

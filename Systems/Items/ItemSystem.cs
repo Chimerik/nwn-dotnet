@@ -65,10 +65,9 @@ namespace NWN.Systems
     }
     private void OnItemUseBefore(ItemEvents.OnItemUseBefore onItemUse)
     {
-      if (!(onItemUse.Creature is NwPlayer))
+      if (!(PlayerSystem.Players.TryGetValue(onItemUse.Creature, out PlayerSystem.Player player)))
         return;
 
-      NwPlayer player = (NwPlayer)onItemUse.Creature;
       NwItem oItem = onItemUse.Item;
       NwGameObject oTarget = onItemUse.TargetObject;
 
@@ -78,42 +77,50 @@ namespace NWN.Systems
       switch (oItem.Tag)
       {
         case "skillbook":
-          FeedbackPlugin.SetFeedbackMessageHidden(23, 1, player);
+          FeedbackPlugin.SetFeedbackMessageHidden(23, 1, player.oid);
           onItemUse.Skip = true;
-          Items.ItemUseHandlers.SkillBook.HandleActivate(oItem, player);
-          NWScript.DelayCommand(0.2f, () => FeedbackPlugin.SetFeedbackMessageHidden(23, 1, player));
+          Items.ItemUseHandlers.SkillBook.HandleActivate(oItem, player.oid);
+          NWScript.DelayCommand(0.2f, () => FeedbackPlugin.SetFeedbackMessageHidden(23, 0, player.oid));
           break;
 
         case "blueprint":
-          FeedbackPlugin.SetFeedbackMessageHidden(23, 1, player);
+          FeedbackPlugin.SetFeedbackMessageHidden(23, 1, player.oid);
           onItemUse.Skip = true;
-          Items.ItemUseHandlers.Blueprint.HandleActivate(oItem, player, oTarget);
-          NWScript.DelayCommand(0.2f, () => FeedbackPlugin.SetFeedbackMessageHidden(23, 1, player));
+          Items.ItemUseHandlers.Blueprint.HandleActivate(oItem, player.oid, oTarget);
+          NWScript.DelayCommand(0.2f, () => FeedbackPlugin.SetFeedbackMessageHidden(23, 0, player.oid));
           break;
 
         case "oreextractor":
-          FeedbackPlugin.SetFeedbackMessageHidden(23, 1, player);
+          FeedbackPlugin.SetFeedbackMessageHidden(23, 1, player.oid);
           onItemUse.Skip = true;
-          Items.ItemUseHandlers.ResourceExtractor.HandleActivate(oItem, player, oTarget);
-          NWScript.DelayCommand(0.2f, () => FeedbackPlugin.SetFeedbackMessageHidden(23, 1, player));
+          Items.ItemUseHandlers.ResourceExtractor.HandleActivate(oItem, player.oid, oTarget);
+          NWScript.DelayCommand(0.2f, () => FeedbackPlugin.SetFeedbackMessageHidden(23, 0, player.oid));
           break;
         case "private_contract":
-          FeedbackPlugin.SetFeedbackMessageHidden(23, 1, player);
+          FeedbackPlugin.SetFeedbackMessageHidden(23, 1, player.oid);
           onItemUse.Skip = true;
-          new PrivateContract(player, oItem);
-          NWScript.DelayCommand(0.2f, () => FeedbackPlugin.SetFeedbackMessageHidden(23, 1, player));
+          new PrivateContract(player.oid, oItem);
+          NWScript.DelayCommand(0.2f, () => FeedbackPlugin.SetFeedbackMessageHidden(23, 0, player.oid));
           break;
         case "shop_clearance":
-          FeedbackPlugin.SetFeedbackMessageHidden(23, 1, player);
+          FeedbackPlugin.SetFeedbackMessageHidden(23, 1, player.oid);
           onItemUse.Skip = true;
-          new PlayerShop(player, oItem);
-          NWScript.DelayCommand(0.2f, () => FeedbackPlugin.SetFeedbackMessageHidden(23, 1, player));
+          new PlayerShop(player.oid, oItem);
+          NWScript.DelayCommand(0.2f, () => FeedbackPlugin.SetFeedbackMessageHidden(23, 0, player.oid));
           break;
         case "auction_clearanc":
-          FeedbackPlugin.SetFeedbackMessageHidden(23, 1, player);
+          FeedbackPlugin.SetFeedbackMessageHidden(23, 1, player.oid);
           onItemUse.Skip = true;
-          new PlayerAuction(player, oItem);
-          NWScript.DelayCommand(0.2f, () => FeedbackPlugin.SetFeedbackMessageHidden(23, 1, player));
+          new PlayerAuction(player.oid, oItem);
+          NWScript.DelayCommand(0.2f, () => FeedbackPlugin.SetFeedbackMessageHidden(23, 0, player.oid));
+          break;
+        case "forgehammer":
+          onItemUse.Skip = true;
+
+          if (oTarget is NwItem)
+            new CraftTool(player, (NwItem)oTarget);
+          else
+            player.oid.SendServerMessage($"Vous ne pouvez pas modifier l'apparence de {oTarget.Name.ColorString(Color.WHITE)}.".ColorString(Color.RED));
           break;
       }
     }
@@ -135,7 +142,7 @@ namespace NWN.Systems
 
       if (oItem.Tag == "undroppable_item")
       {
-        oItem.Copy(oAcquiredFrom, true);
+        oItem.Clone(oAcquiredFrom, null, true);
         oItem.Destroy();
         return;
       }

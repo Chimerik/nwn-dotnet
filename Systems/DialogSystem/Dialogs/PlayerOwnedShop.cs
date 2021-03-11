@@ -58,7 +58,6 @@ namespace NWN.Systems
     private static void GetObjectToAdd(PlayerSystem.Player player, NwStore store)
     {
       player.oid.SendServerMessage("Veuillez maintenant sélectionnner l'objet que vous souhaitez mettre en vente.", Color.ROSE);
-      //NWScript.SetLocalObject(player.oid, "_ACTIVE_STORE", store);
       player.oid.GetLocalVariable<NwObject>("_ACTIVE_STORE").Value = store;
       cursorTargetService.EnterTargetMode(player.oid, OnSellItemSelected, API.Constants.ObjectTypes.Item, API.Constants.MouseCursor.Pickup);
     }
@@ -131,7 +130,7 @@ namespace NWN.Systems
           return;
         }
 
-        item.Copy(player.oid, true);
+        item.Clone(player.oid, "", true);
         item.Destroy();
       }
 
@@ -224,7 +223,7 @@ namespace NWN.Systems
         player.oid.SendServerMessage($"{item.Name.ColorString(Color.ORANGE)} est désormais en vente au prix de {goldValue.ToString().ColorString(Color.GREEN)} pièce(s) d'or.");
       }
 
-      NwItem copy = item.Copy(shop, true);
+      NwItem copy = item.Clone(shop, "", true);
       ItemPlugin.SetBaseGoldPieceValue(copy, goldValue / item.StackSize);
       copy.GetLocalVariable<int>("_SET_SELL_PRICE").Value = goldValue / item.StackSize;
       item.Destroy();

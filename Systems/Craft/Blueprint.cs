@@ -95,7 +95,7 @@ namespace NWN.Systems.Craft
       {
         switch (myPlankType)
         {
-          case PlankType.Laurelinade: return GetTritaniumItemProperties();
+          case PlankType.Laurelinade: return GetTritaniumItemProperties(craftedItem);
           case PlankType.Telperionade: return GetPyeriteItemProperties(itemCategory);
         }
       }
@@ -103,12 +103,12 @@ namespace NWN.Systems.Craft
       {
         switch (myLeatherType)
         {
-          case LeatherType.MauvaisCuir: return GetTritaniumItemProperties();
+          case LeatherType.MauvaisCuir: return GetTritaniumItemProperties(craftedItem);
           case LeatherType.CuirCommun: return GetPyeriteItemProperties(itemCategory);
         }
       }
 
-      NWN.Utils.LogMessageToDMs($"No craft property found for material {material} and item {itemCategory}");
+      Utils.LogMessageToDMs($"No craft property found for material {material} and item {itemCategory}");
 
       return new Core.ItemProperty[]
       {

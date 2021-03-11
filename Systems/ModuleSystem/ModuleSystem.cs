@@ -437,7 +437,7 @@ namespace NWN.Systems
           {
             NwStore tempStore = ObjectPlugin.Deserialize(NWScript.SqlGetString(query, 4)).ToNwObject<NwStore>();
             NwItem tempItem = tempStore.Items.FirstOrDefault();
-            tempItem.Copy(oSeller, true);
+            tempItem.Clone(oSeller, null, true);
             NwItem authorization = NwItem.Create("auction_clearanc", oSeller.Location);
             oSeller.AcquireItem(authorization);
             oSeller.SendServerMessage($"Aucune enchère sur votre {tempItem.Name.ColorString(API.Color.ORANGE)}. L'objet vous a donc été restitué.");
@@ -484,7 +484,7 @@ namespace NWN.Systems
           {
             NwStore tempStore = ObjectPlugin.Deserialize(NWScript.SqlGetString(query, 4)).ToNwObject<NwStore>();
             NwItem tempItem = tempStore.Items.FirstOrDefault();
-            tempItem.Copy(oSeller, true);
+            tempItem.Clone(oSeller, null, true);
             oSeller.SendServerMessage($"Vous venez de remporter l'enchère sur {tempItem.Name.ColorString(API.Color.ORANGE)}. L'objet se trouve désormais dans votre inventaire.");
 
             Task delayedDeletion = NwTask.Run(async () =>

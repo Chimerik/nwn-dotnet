@@ -109,7 +109,7 @@ namespace NWN.Systems
                 Log.Info($"LOOT CHANCE : {rand}/{chance}");
                 if (rand <= chance)
                 {
-                  NwItem oItem = loots[NWN.Utils.random.Next(0, loots.Count - 1)].Copy(oContainer, true);
+                  NwItem oItem = loots[NWN.Utils.random.Next(0, loots.Count - 1)].Clone(oContainer, "", true);
                   Log.Info($"SUCCESS : item created {oItem.Name}");
 
                   Craft.Collect.System.AddCraftedItemProperties(oItem, "mauvais état");

@@ -211,7 +211,7 @@ namespace NWN.Systems
         player.oid.SendServerMessage($"{item.Name.ColorString(Color.ORANGE)} est désormais aux enchères avec une mise à prix de base de {goldValue.ToString().ColorString(Color.GREEN)} pièce(s) d'or pour une durée de {auctionDuration} jour(s).");
       }
 
-      NwItem copy = item.Copy(shop, true);
+      NwItem copy = item.Clone(shop, "", true);
       ItemPlugin.SetBaseGoldPieceValue(copy, goldValue / item.StackSize);
       copy.GetLocalVariable<int>("_CURRENT_AUCTION").Value = goldValue / item.StackSize;
       item.Destroy();

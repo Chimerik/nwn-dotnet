@@ -24,7 +24,7 @@ namespace NWN.Systems
 
       if (!PlayerSystem.Players.TryGetValue(onExamine.Examiner, out PlayerSystem.Player player))
         return;
-      
+
       switch (onExamine.Examinee.Tag)
       {
         case "mineable_rock":
@@ -145,15 +145,15 @@ namespace NWN.Systems
         case "scierie":
           string descriptionPlank = "Stock actuel de planches de bois raffinées : \n\n\n";
           foreach (var entry in Craft.Collect.Config.plankDictionnary)
-            if (player.materialStock.TryGetValue(entry.Value.name, out int playerStock))
+            if (player.materialStock.TryGetValue(entry.Key.ToString(), out int playerStock))
               descriptionPlank += $"* {entry.Key.ToDescription()}: {playerStock}\n\n";
 
           onExamine.Examinee.Description = descriptionPlank;
           break;
         case "tannerie_peau":
-          string descriptionPelt = "Stock actuel de peaux brut : \n\n\n";
+          string descriptionPelt = "Stock actuel de peaux brutes : \n\n\n";
           foreach (var entry in Craft.Collect.Config.peltDictionnary)
-            if (player.materialStock.TryGetValue(entry.Value.name, out int playerStock))
+            if (player.materialStock.TryGetValue(entry.Key.ToString(), out int playerStock))
               descriptionPelt += $"* {entry.Key.ToDescription()}: {playerStock}\n\n";
 
           onExamine.Examinee.Description = descriptionPelt;
@@ -162,7 +162,7 @@ namespace NWN.Systems
         case "tannerie":
           string descriptionLeather = "Stock actuel de planches de cuir tanné : \n\n\n";
           foreach (var entry in Craft.Collect.Config.leatherDictionnary)
-            if (player.materialStock.TryGetValue(entry.Value.name, out int playerStock))
+            if (player.materialStock.TryGetValue(entry.Key.ToString(), out int playerStock))
               descriptionLeather += $"* {entry.Key.ToDescription()}: {playerStock}\n\n";
 
           onExamine.Examinee.Description = descriptionLeather;

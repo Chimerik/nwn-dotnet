@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Net;
 using System.Numerics;
+using System.Threading.Tasks;
 using System.Web;
 using Discord;
 using NWN.API;

@@ -281,7 +281,7 @@ namespace NWN.Systems
                 oid.SendServerMessage($"Votre fabrication artisanale est terminée. Ouvrez votre journal pour obtenir le résultat de votre travail !");
                 return;
               }
-
+              
               Craft.Collect.System.AddCraftedItemProperties(craftedItem, craftJob.material);
             }
             else

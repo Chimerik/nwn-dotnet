@@ -96,7 +96,7 @@ namespace NWN.Systems
       foreach (NwItem oItem in player.oid.Inventory.Items.Where(i => Craft.Collect.System.IsItemCraftMaterial(i.Tag) || i.Tag == "blueprint"))
       {
         Log.Info($"{oItem.Name} stripped");
-        oItem.Copy(player.deathCorpse, true).Droppable = true;
+        oItem.Clone(player.deathCorpse, "", true).Droppable = true;
         oItem.Destroy();
       }
     }
