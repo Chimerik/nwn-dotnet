@@ -89,7 +89,7 @@ namespace NWN.Systems
     public static void StartIntroMirrorDialog(PlaceableEvents.OnUsed onUsed)
     {
       if (Players.TryGetValue(onUsed.UsedBy, out Player player))
-        new IntroMirror(player);
+        new IntroMirror(player, onUsed.Placeable);
     }
     public static void StartScierieDialog(PlaceableEvents.OnUsed onUsed)
     {

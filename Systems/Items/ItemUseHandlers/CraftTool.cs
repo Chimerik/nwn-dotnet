@@ -239,8 +239,7 @@ namespace NWN.Systems
 
           if (modification != 0)
           {
-            FeedbackPlugin.SetFeedbackMessageHidden(50, 1, player.oid);
-            FeedbackPlugin.SetFeedbackMessageHidden(51, 1, player.oid);
+            HandleFeedbackMessages(1);
 
             if (modification == 1)
             {
@@ -264,8 +263,7 @@ namespace NWN.Systems
             Task waitDestruction = NwTask.Run(async () =>
             {
               await NwTask.Delay(TimeSpan.FromSeconds(0.4));
-              FeedbackPlugin.SetFeedbackMessageHidden(50, 0, player.oid);
-              FeedbackPlugin.SetFeedbackMessageHidden(51, 0, player.oid);
+              HandleFeedbackMessages(0);
             });
           }
 
@@ -275,8 +273,7 @@ namespace NWN.Systems
         {
           byte currentValue = item.Appearance.GetArmorPieceColor((ItemAppearanceArmorModel)armorPartChoice, (ItemAppearanceArmorColor)colorChannelChoice);
 
-          FeedbackPlugin.SetFeedbackMessageHidden(50, 1, player.oid);
-          FeedbackPlugin.SetFeedbackMessageHidden(51, 1, player.oid);
+          HandleFeedbackMessages(1);
 
           if (modification != 0)
           {
@@ -302,8 +299,7 @@ namespace NWN.Systems
             Task waitDestruction = NwTask.Run(async () =>
             {
               await NwTask.Delay(TimeSpan.FromSeconds(0.4));
-              FeedbackPlugin.SetFeedbackMessageHidden(50, 0, player.oid);
-              FeedbackPlugin.SetFeedbackMessageHidden(51, 0, player.oid);
+              HandleFeedbackMessages(0);
             });
           }
 
@@ -323,8 +319,7 @@ namespace NWN.Systems
 
           if (modification != 0)
           {
-            FeedbackPlugin.SetFeedbackMessageHidden(50, 1, player.oid);
-            FeedbackPlugin.SetFeedbackMessageHidden(51, 1, player.oid);
+            HandleFeedbackMessages(1);
 
             if (modification == 1)
               currentValue++;
@@ -333,12 +328,9 @@ namespace NWN.Systems
 
             int currentAC = ItemPlugin.GetBaseArmorClass(item);
 
-            //item.Appearance.SetArmorModel(ItemAppearanceArmorModel.Torso, currentValue);
-            //NwItem newItem = item.Clone(player.oid, "", true);
-            NwItem newItem = NWScript.CopyItemAndModify(item, NWScript.ITEM_APPR_TYPE_ARMOR_MODEL, NWScript.ITEM_APPR_ARMOR_MODEL_TORSO, currentValue, 1).ToNwObject<NwItem>();
-
-            Log.Info($"current AC : {currentAC}");
-            Log.Info($"new AC : {ItemPlugin.GetBaseArmorClass(newItem)}");
+            item.Appearance.SetArmorModel(ItemAppearanceArmorModel.Torso, currentValue);
+            NwItem newItem = item.Clone(player.oid, "", true);
+            //NwItem newItem = NWScript.CopyItemAndModify(item, NWScript.ITEM_APPR_TYPE_ARMOR_MODEL, NWScript.ITEM_APPR_ARMOR_MODEL_TORSO, currentValue, 1).ToNwObject<NwItem>();
 
             while (currentAC != ItemPlugin.GetBaseArmorClass(newItem))
             {
@@ -352,7 +344,8 @@ namespace NWN.Systems
               if (currentValue > 255)
                 currentValue = 0;
 
-              newItem = newItem = NWScript.CopyItemAndModify(item, NWScript.ITEM_APPR_TYPE_ARMOR_MODEL, NWScript.ITEM_APPR_ARMOR_MODEL_TORSO, currentValue, 1).ToNwObject<NwItem>();
+              item.Appearance.SetArmorModel(ItemAppearanceArmorModel.Torso, currentValue);
+              newItem = item.Clone(player.oid, "", true);
             }
 
             item.Destroy(0.2f);
@@ -375,8 +368,7 @@ namespace NWN.Systems
             Task waitDestruction = NwTask.Run(async () =>
             {
               await NwTask.Delay(TimeSpan.FromSeconds(0.4));
-              FeedbackPlugin.SetFeedbackMessageHidden(50, 0, player.oid);
-              FeedbackPlugin.SetFeedbackMessageHidden(51, 0, player.oid);
+              HandleFeedbackMessages(0);
             });
           }
 
@@ -386,8 +378,7 @@ namespace NWN.Systems
         {
           byte currentValue = item.Appearance.GetArmorModel((ItemAppearanceArmorModel)armorPartChoice);
 
-          FeedbackPlugin.SetFeedbackMessageHidden(50, 1, player.oid);
-          FeedbackPlugin.SetFeedbackMessageHidden(51, 1, player.oid);
+          HandleFeedbackMessages(1);
 
           if (modification != 0)
           {
@@ -406,8 +397,7 @@ namespace NWN.Systems
           Task waitDestruction = NwTask.Run(async () =>
           {
             await NwTask.Delay(TimeSpan.FromSeconds(0.4));
-            FeedbackPlugin.SetFeedbackMessageHidden(50, 0, player.oid);
-            FeedbackPlugin.SetFeedbackMessageHidden(51, 0, player.oid);
+            HandleFeedbackMessages(0);
           });
 
           player.menu.titleLines.Add($"Apparence actuelle : {currentValue.ToString().ColorString(Color.LIME)}");
@@ -421,6 +411,17 @@ namespace NWN.Systems
       player.menu.choices.Add(("Quitter.", () => player.menu.Close()));
 
       player.menu.Draw();
+    }
+    private void HandleFeedbackMessages(int hidden)
+    {
+      FeedbackPlugin.SetFeedbackMessageHidden(50, hidden, player.oid);
+      FeedbackPlugin.SetFeedbackMessageHidden(51, hidden, player.oid);
+      FeedbackPlugin.SetFeedbackMessageHidden(123, hidden, player.oid);
+      FeedbackPlugin.SetFeedbackMessageHidden(71, hidden, player.oid);
+      FeedbackPlugin.SetFeedbackMessageHidden(12, hidden, player.oid);
+      FeedbackPlugin.SetFeedbackMessageHidden(8, hidden, player.oid);
+      FeedbackPlugin.SetFeedbackMessageHidden(9, hidden, player.oid);
+      FeedbackPlugin.SetFeedbackMessageHidden(204, hidden, player.oid);
     }
   }
 }

@@ -202,8 +202,16 @@ namespace NWN.Systems
         foreach (NwObject fog in arrivalArea.FindObjectsOfTypeInArea<NwPlaceable>().Where(o => o.Tag == "intro_brouillard"))
           VisibilityPlugin.SetVisibilityOverride(NWScript.OBJECT_INVALID, fog, VisibilityPlugin.NWNX_VISIBILITY_HIDDEN);
 
-        arrivalArea.FindObjectsOfTypeInArea<NwPlaceable>().FirstOrDefault(o => o.Tag == "intro_mirror").OnUsed += DialogSystem.StartIntroMirrorDialog;
+        NwPlaceable introMirror = arrivalArea.FindObjectsOfTypeInArea<NwPlaceable>().FirstOrDefault(o => o.Tag == "intro_mirror");
+        introMirror.OnUsed += DialogSystem.StartIntroMirrorDialog;
+        introMirror.ApplyEffect(EffectDuration.Permanent, API.Effect.CutsceneGhost());
 
+        Task waitDefaultMapLoaded = NwTask.Run(async () =>
+        {
+          await NwTask.WaitUntil(() => newCharacter.oid.Location.Area != null);
+          newCharacter.oid.Location = arrivalPoint.Location;
+        });
+        
         Task allPointsSpent = NwTask.Run(async () =>
         {
           await NwTask.WaitUntil(() => ObjectPlugin.GetInt(newCharacter.oid, "_STARTING_SKILL_POINTS") <= 0);

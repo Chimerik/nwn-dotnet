@@ -558,7 +558,15 @@ namespace NWN.Systems
         ElcPlugin.SkipValidationFailure();
       }
       else
-        Utils.LogMessageToDMs($"ELC VALIDATION FAILURE - Player {NWScript.GetPCPlayerName(callInfo.ObjectSelf)} - Character {NWScript.GetName(callInfo.ObjectSelf)}");
+      {
+        int validationFailureType = ElcPlugin.GetValidationFailureType();
+        int validationFailureSubType = ElcPlugin.GetValidationFailureSubType();
+
+        if (validationFailureType == ElcPlugin.NWNX_ELC_VALIDATION_FAILURE_TYPE_CHARACTER && validationFailureSubType == 15 && ((NwPlayer)callInfo.ObjectSelf).GetAbilityScore(API.Constants.Ability.Intelligence, true) < 11)
+          ElcPlugin.SkipValidationFailure();
+        else
+          Utils.LogMessageToDMs($"ELC VALIDATION FAILURE - Player {NWScript.GetPCPlayerName(callInfo.ObjectSelf)} - Character {NWScript.GetName(callInfo.ObjectSelf)} - type : {validationFailureType} - SubType : {validationFailureSubType}");
+      }
     }
   }
 }

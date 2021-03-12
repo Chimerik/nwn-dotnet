@@ -81,10 +81,14 @@ namespace NWN.Systems
 
           if (player.oid.Area.Tag.StartsWith("entry_scene_"))
           {
-            uint oClone = NWScript.GetNearestObjectByTag($"clone_{player.oid.CDKey}", player.oid);
-            VisibilityPlugin.SetVisibilityOverride(player.oid, NWScript.GetNearestObjectByTag("intro_mirror", player.oid), VisibilityPlugin.NWNX_VISIBILITY_VISIBLE);
-            CreaturePlugin.JumpToLimbo(oClone);
-            NWScript.DestroyObject(oClone);
+            NwCreature oClone = player.oid.GetNearestObjectsByType<NwCreature>().FirstOrDefault(c => c.Tag == "clone");
+
+            if(oClone != null)
+            {
+              CreaturePlugin.JumpToLimbo(oClone);
+              oClone.Destroy();
+              VisibilityPlugin.SetVisibilityOverride(player.oid, NWScript.GetNearestObjectByTag("intro_mirror", player.oid), VisibilityPlugin.NWNX_VISIBILITY_VISIBLE);
+            }
           }
         }
 

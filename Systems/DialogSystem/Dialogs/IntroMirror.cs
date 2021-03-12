@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using NWN.API;
 using NWN.Core;
 using NWN.Core.NWNX;
@@ -11,8 +10,11 @@ namespace NWN.Systems
 {
   class IntroMirror
   {
-    public IntroMirror(Player player)
+    NwPlaceable mirror;
+    NwCreature clone { get; set; }
+    public IntroMirror(Player player, NwPlaceable oMirror)
     {
+      mirror = oMirror;
       this.DrawWelcomePage(player);
     }
     private void DrawWelcomePage(Player player)
@@ -31,47 +33,48 @@ namespace NWN.Systems
       if(ObjectPlugin.GetInt(player.oid, "_STARTING_SKILL_POINTS") > 0)
         player.menu.choices.Add(($"Me préparer à l'avenir.", () => HandleSkillSelection(player)));
       
-      player.menu.choices.Add(("M'éloigner du miroir.", () => ExitDialog(player)));
+      player.menu.choices.Add(("M'éloigner du miroir.", () => player.menu.Close()));
       player.menu.Draw();
 
       RestoreMirror(player);
     }
     private void HandleBodyCloneSpawn(Player player)
     {
-      NwPlaceable oMirror = player.oid.GetNearestObjectsByType<NwPlaceable>().Where(c => c.Tag == "intro_mirror").FirstOrDefault();
-      NwCreature oClone = player.oid.Clone(oMirror.Location, $"clone_{player.oid.CDKey}");
-      VisibilityPlugin.SetVisibilityOverride(player.oid, oMirror, VisibilityPlugin.NWNX_VISIBILITY_HIDDEN);
-      oClone.Name = $"Reflet de {player.oid.Name}";
-      oClone.Rotation = oMirror.Rotation + 180;
-      oClone.Position = oMirror.Position;
+      clone = player.oid.Clone(mirror.Location, "clone");
+      clone.ApplyEffect(EffectDuration.Permanent, API.Effect.CutsceneGhost());
+      clone.HiliteColor = Color.SILVER;
+      clone.Name = $"Reflet de {player.oid.Name}";
+      clone.Rotation += 180;
 
-      HandleBodyModification(player, oClone);
+      VisibilityPlugin.SetVisibilityOverride(player.oid, mirror, VisibilityPlugin.NWNX_VISIBILITY_HIDDEN);
+      
+      HandleBodyModification(player);
     }
-    private void HandleBodyModification(Player player, NwCreature oClone)
+    private void HandleBodyModification(Player player)
     {
       player.menu.Clear();
       player.menu.titleLines = new List<string> {
         $"Vous vous concentrez sur le miroir de façon à mieux vous mirer.",
         "Qu'ajusteriez-vous dans ce reflet ?"
       };
-      player.menu.choices.Add(($"Apparence suivante.", () => ChangeCloneHead(player, oClone, 1)));
-      player.menu.choices.Add(($"Apparence précédente.", () => ChangeCloneHead(player, oClone, -1)));
+      player.menu.choices.Add(($"Apparence suivante.", () => ChangeCloneHead(player, 1)));
+      player.menu.choices.Add(($"Apparence précédente.", () => ChangeCloneHead(player, -1)));
       
-      if (oClone.VisualTransform.Scale > 0.75)
-        player.menu.choices.Add(($"Réduire ma taille.", () => ChangeCloneHeight(player, oClone, -0.02f)));
+      if (clone.VisualTransform.Scale > 0.75)
+        player.menu.choices.Add(($"Réduire ma taille.", () => ChangeCloneHeight(player, -0.02f)));
       
-      if (oClone.VisualTransform.Scale < 1.25)
-        player.menu.choices.Add(($"Augmenter ma taille.", () => ChangeCloneHeight(player, oClone, 0.02f)));
+      if (clone.VisualTransform.Scale < 1.25)
+        player.menu.choices.Add(($"Augmenter ma taille.", () => ChangeCloneHeight(player, 0.02f)));
 
-      player.menu.choices.Add(($"Yeux, couleur suivante.", () => ChangeCloneEyeColor(player, oClone, 1)));
-      player.menu.choices.Add(($"Yeux, couleur précédente.", () => ChangeCloneEyeColor(player, oClone, -1)));
-      player.menu.choices.Add(($"Cheveux, couleur suivante.", () => ChangeCloneHairColor(player, oClone, 1)));
-      player.menu.choices.Add(($"Cheveux, couleur précédente.", () => ChangeCloneHairColor(player, oClone, -1)));
-      player.menu.choices.Add(($"Lèvres, couleur suivante.", () => ChangeCloneLipsColor(player, oClone, 1)));
-      player.menu.choices.Add(($"Lèvres, couleur précédente.", () => ChangeCloneLipsColor(player, oClone, -1)));
-      player.menu.choices.Add(($"Appliquer les modifications.", () => ApplyBodyChangesOnPlayer(player, oClone)));
+      player.menu.choices.Add(($"Yeux, couleur suivante.", () => ChangeCloneEyeColor(player, 1)));
+      player.menu.choices.Add(($"Yeux, couleur précédente.", () => ChangeCloneEyeColor(player, -1)));
+      player.menu.choices.Add(($"Cheveux, couleur suivante.", () => ChangeCloneHairColor(player, 1)));
+      player.menu.choices.Add(($"Cheveux, couleur précédente.", () => ChangeCloneHairColor(player, -1)));
+      player.menu.choices.Add(($"Lèvres, couleur suivante.", () => ChangeCloneLipsColor(player, 1)));
+      player.menu.choices.Add(($"Lèvres, couleur précédente.", () => ChangeCloneLipsColor(player, -1)));
+      player.menu.choices.Add(($"Appliquer les modifications.", () => ApplyBodyChangesOnPlayer(player)));
       player.menu.choices.Add(($"Retour.", () => DrawWelcomePage(player)));
-      player.menu.choices.Add(("Quitter", () => ExitDialog(player)));
+      player.menu.choices.Add(("Quitter", () => player.menu.Close()));
       player.menu.Draw();
     }
     private void HandleBackgroundChoice(Player player)
@@ -93,7 +96,7 @@ namespace NWN.Systems
       player.menu.choices.Add(($"né sous une bonne étoile, Tymora vous ayant jusque là sourit plus que de raison.", () => AddTrait(player, Feat.LuckOfHeroes)));
 
       player.menu.choices.Add(($"Retour.", () => DrawWelcomePage(player)));
-      player.menu.choices.Add(("Quitter", () => ExitDialog(player)));
+      player.menu.choices.Add(("Quitter", () => player.menu.Close()));
       player.menu.Draw();
     }
     private void HandleSkillSelection(Player player)
@@ -105,9 +108,9 @@ namespace NWN.Systems
         "Quelles capacités initiales votre personnage possède-t-il ?"
       };
 
-      foreach (KeyValuePair<int, SkillSystem.Skill> SkillListEntry in player.learnableSkills)
+      foreach (KeyValuePair<int, Skill> SkillListEntry in player.learnableSkills)
       {
-        SkillSystem.Skill skill = SkillListEntry.Value;
+        Skill skill = SkillListEntry.Value;
 
         if (!skill.trained)
         {
@@ -115,60 +118,56 @@ namespace NWN.Systems
         }
       }
 
-      player.menu.choices.Add(($"Retour.", () => DrawWelcomePage(player)));
-      player.menu.choices.Add(("Quitter", () => ExitDialog(player)));
+      player.menu.choices.Add(("Retour.", () => DrawWelcomePage(player)));
+      player.menu.choices.Add(("Quitter", () => player.menu.Close()));
       player.menu.Draw();
     }
-    private void ExitDialog(Player player)
-    {
-      player.menu.Close();
-      RestoreMirror(player);
-    }
     private void RestoreMirror(Player player)
-    {
-      NwCreature oClone = player.oid.GetNearestObjectsByType<NwCreature>().Where(c => c.Tag == $"clone_{player.oid.CDKey}").FirstOrDefault();
-      
-      if (oClone != null)
+    {   
+      if (clone != null)
       {
-        VisibilityPlugin.SetVisibilityOverride(player.oid, player.oid.GetNearestObjectsByType<NwPlaceable>().Where(c => c.Tag == "intro_mirror").FirstOrDefault(), VisibilityPlugin.NWNX_VISIBILITY_VISIBLE);
-        oClone.Destroy();
+        VisibilityPlugin.SetVisibilityOverride(player.oid, mirror, VisibilityPlugin.NWNX_VISIBILITY_VISIBLE);
+        clone.Destroy();
       }
     }
-    private void ChangeCloneHead(Player player, NwCreature oClone, int model)
+    private void ChangeCloneHead(Player player, int model)
     {
-      NWScript.SetCreatureBodyPart(NWScript.CREATURE_PART_HEAD, NWScript.GetCreatureBodyPart(NWScript.CREATURE_PART_HEAD, oClone) + model, oClone);
-      //HandleBodyModification(player, oClone);
+      NWScript.SetCreatureBodyPart(NWScript.CREATURE_PART_HEAD, NWScript.GetCreatureBodyPart(NWScript.CREATURE_PART_HEAD, clone) + model, clone);
     }
-    private void ChangeCloneHeight(Player player, uint oClone, float size)
+    private void ChangeCloneHeight(Player player, float size)
     {
-      NWScript.SetObjectVisualTransform(oClone, NWScript.OBJECT_VISUAL_TRANSFORM_SCALE, NWScript.GetObjectVisualTransform(oClone, NWScript.OBJECT_VISUAL_TRANSFORM_SCALE) + size);
-      //HandleBodyModification(player, oClone);
+      if ((size < 0 && clone.VisualTransform.Scale > 0.75) || (size > 0 && clone.VisualTransform.Scale < 1.25))
+      {
+        VisualTransform scale = clone.VisualTransform;
+        scale.Scale += size;
+        clone.VisualTransform = scale;
+      }
     }
-    private void ApplyBodyChangesOnPlayer(Player player, NwCreature oClone)
+    private void ApplyBodyChangesOnPlayer(Player player)
     {
-      NWScript.SetCreatureBodyPart(NWScript.CREATURE_PART_HEAD, NWScript.GetCreatureBodyPart(NWScript.CREATURE_PART_HEAD, oClone), player.oid);
-      NWScript.SetColor(player.oid, NWScript.COLOR_CHANNEL_TATTOO_1, NWScript.GetColor(oClone, NWScript.COLOR_CHANNEL_TATTOO_1));
-      NWScript.SetColor(player.oid, NWScript.COLOR_CHANNEL_TATTOO_2, NWScript.GetColor(oClone, NWScript.COLOR_CHANNEL_TATTOO_2));
-      NWScript.SetColor(player.oid, NWScript.COLOR_CHANNEL_HAIR, NWScript.GetColor(oClone, NWScript.COLOR_CHANNEL_HAIR));
-      player.oid.VisualTransform.Scale = oClone.VisualTransform.Scale;
-      HandleBodyModification(player, oClone);
+      NWScript.SetCreatureBodyPart(NWScript.CREATURE_PART_HEAD, NWScript.GetCreatureBodyPart(NWScript.CREATURE_PART_HEAD, clone), player.oid);
+      NWScript.SetColor(player.oid, NWScript.COLOR_CHANNEL_TATTOO_1, NWScript.GetColor(clone, NWScript.COLOR_CHANNEL_TATTOO_1));
+      NWScript.SetColor(player.oid, NWScript.COLOR_CHANNEL_TATTOO_2, NWScript.GetColor(clone, NWScript.COLOR_CHANNEL_TATTOO_2));
+      NWScript.SetColor(player.oid, NWScript.COLOR_CHANNEL_HAIR, NWScript.GetColor(clone, NWScript.COLOR_CHANNEL_HAIR));
+      player.oid.VisualTransform.Scale = clone.VisualTransform.Scale;
+      HandleBodyModification(player);
     }
-    private void ChangeCloneEyeColor(Player player, uint oClone, int color)
+    private void ChangeCloneEyeColor(Player player, int color)
     {
-      NWScript.SetColor(oClone, NWScript.COLOR_CHANNEL_TATTOO_1, NWScript.GetColor(oClone, NWScript.COLOR_CHANNEL_TATTOO_1) + color);
-      //HandleBodyModification(player, oClone);
+      NWScript.SetColor(clone, NWScript.COLOR_CHANNEL_TATTOO_1, NWScript.GetColor(clone, NWScript.COLOR_CHANNEL_TATTOO_1) + color);
+      //HandleBodyModification(player, clone);
     }
-    private void ChangeCloneHairColor(Player player, uint oClone, int color)
+    private void ChangeCloneHairColor(Player player, int color)
     {
-      NWScript.SetColor(oClone, NWScript.COLOR_CHANNEL_HAIR, NWScript.GetColor(oClone, NWScript.COLOR_CHANNEL_HAIR) + color);
-      //HandleBodyModification(player, oClone);
+      NWScript.SetColor(clone, NWScript.COLOR_CHANNEL_HAIR, NWScript.GetColor(clone, NWScript.COLOR_CHANNEL_HAIR) + color);
+      //HandleBodyModification(player, clone);
     }
-    private void ChangeCloneLipsColor(Player player, uint oClone, int color)
+    private void ChangeCloneLipsColor(Player player, int color)
     {
-      NWScript.SetColor(oClone, NWScript.COLOR_CHANNEL_TATTOO_2, NWScript.GetColor(oClone, NWScript.COLOR_CHANNEL_TATTOO_2) + color);
-      //HandleBodyModification(player, oClone);
+      NWScript.SetColor(clone, NWScript.COLOR_CHANNEL_TATTOO_2, NWScript.GetColor(clone, NWScript.COLOR_CHANNEL_TATTOO_2) + color);
+      //HandleBodyModification(player, clone);
     }
-    private void HandleSkillSelected(Player player, SkillSystem.Skill skill)
+    private void HandleSkillSelected(Player player, Skill skill)
     {
       int remainingPoints = ObjectPlugin.GetInt(player.oid, "_STARTING_SKILL_POINTS");
 
@@ -179,7 +178,7 @@ namespace NWN.Systems
 
         if (skill.successorId > 0)
         {
-          player.learnableSkills.Add(skill.successorId, new SkillSystem.Skill(skill.successorId, 0, player));
+          player.learnableSkills.Add(skill.successorId, new Skill(skill.successorId, 0, player));
         }
 
         //if (CreaturePlugin.GetHighestLevelOfFeat(player.oid, skill.oid - 1) == skill.oid) // Suppression du prédécesseur
