@@ -14,6 +14,7 @@ namespace NWN.Systems
       PlayerSystem.Player player;
       if (PlayerSystem.Players.TryGetValue(ctx.oSender, out player))
       {
+        player.menu.Close();
         __DrawWelcomePage(player);
       }
     }

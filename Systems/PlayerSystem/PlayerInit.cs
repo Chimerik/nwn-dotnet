@@ -74,13 +74,9 @@ namespace NWN.Systems
             break;
         }
 
-        Log.Info("Acquiring Skill Points from player init.");
         player.AcquireSkillPoints();
-        Log.Info("Acquired Skill Points.");
         oPC.GetLocalVariable<int>("_CONNECTING").Delete();
         player.isAFK = false;
-
-        Log.Info($"current skill job initiation : {player.currentSkillJob}");
 
         if (player.currentSkillJob != (int)Feat.Invalid)
         {
@@ -94,35 +90,46 @@ namespace NWN.Systems
               break;
           }
         }
-
-        Log.Info("Current skill job initiated.");
       }
+
+      int improvedConst = CreaturePlugin.GetHighestLevelOfFeat(player.oid, (int)Feat.ImprovedConstitution);
+      if (improvedConst == (int)Feat.Invalid)
+        improvedConst = 0;
+      else
+        improvedConst = Int32.Parse(NWScript.Get2DAString("feat", "GAINMULTIPLE", improvedConst));
+
+      //NWScript.SendMessageToPC(player.oid, $"pv : {Int32.Parse(NWScript.Get2DAString("classes", "HitDie", 43)) + (1 + 3 * ((NWScript.GetAbilityScore(oTarget, NWScript.ABILITY_CONSTITUTION, 1) + improvedConst - 10) / 2 + CreaturePlugin.GetKnowsFeat(oTarget, (int)Feat.Toughness))) * Int32.Parse(NWScript.Get2DAString("feat", "GAINMULTIPLE", CreaturePlugin.GetHighestLevelOfFeat(oTarget, (int)Feat.ImprovedHealth)))}");
+
+      CreaturePlugin.SetMaxHitPointsByLevel(player.oid, 1, Int32.Parse(NWScript.Get2DAString("classes", "HitDie", 43))
+        + (1 + 3 * ((NWScript.GetAbilityScore(player.oid, NWScript.ABILITY_CONSTITUTION, 1)
+        + improvedConst - 10) / 2
+        + CreaturePlugin.GetKnowsFeat(player.oid, (int)Feat.Toughness))) * Int32.Parse(NWScript.Get2DAString("feat", "GAINMULTIPLE", CreaturePlugin.GetHighestLevelOfFeat(player.oid, (int)Feat.ImprovedHealth))));
 
       Task waitForTorilNecklaceChange = NwTask.Run(async () =>
       {
         await NwTask.WaitUntil(() => oPC.GetItemInSlot(InventorySlot.Neck)?.Tag != "amulettorillink");
         ItemSystem.OnTorilNecklaceRemoved(oPC);
       });
-      Log.Info("After Toril.");
+
 
       Task waitForArmorChange = NwTask.Run(async () =>
       {
         await NwTask.WaitUntil(() => oPC.GetItemInSlot(InventorySlot.Chest) == null);
         ItemSystem.OnArmorRemoved(oPC);
       });
-      Log.Info("After armor.");
+
       Task waitForHelmetChange = NwTask.Run(async () =>
       {
         await NwTask.WaitUntil(() => oPC.GetItemInSlot(InventorySlot.Head) == null);
         ItemSystem.OnHelmetRemoved(oPC);
       });
-      Log.Info("After Helmet.");
+
       Task waitForShieldChange = NwTask.Run(async () =>
       {
         await NwTask.WaitUntil(() => oPC.GetItemInSlot(InventorySlot.LeftHand) == null && (oPC.GetItemInSlot(InventorySlot.RightHand) == null || ItemUtils.GetItemCategory((int)oPC.GetItemInSlot(InventorySlot.RightHand)?.BaseItemType) == ItemUtils.ItemCategory.OneHandedMeleeWeapon));
         ItemSystem.OnShieldRemoved(oPC);
       });
-      Log.Info("After shield.");
+
       oPC.GetLocalVariable<int>("_CONNECTING").Delete();
       player.isAFK = false;
       player.DoJournalUpdate = false;

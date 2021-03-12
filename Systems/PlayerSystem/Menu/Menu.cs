@@ -78,18 +78,6 @@ namespace NWN.Systems
           player.UnloadMenuQuickbar();
           player.setValue = Systems.Config.invalidInput;
           player.oid.GetLocalVariable<int>("_PLAYER_INPUT").Delete();
-
-          if (player.oid.Area.Tag.StartsWith("entry_scene_"))
-          {
-            NwCreature oClone = player.oid.GetNearestObjectsByType<NwCreature>().FirstOrDefault(c => c.Tag == "clone");
-
-            if(oClone != null)
-            {
-              CreaturePlugin.JumpToLimbo(oClone);
-              oClone.Destroy();
-              VisibilityPlugin.SetVisibilityOverride(player.oid, NWScript.GetNearestObjectByTag("intro_mirror", player.oid), VisibilityPlugin.NWNX_VISIBILITY_VISIBLE);
-            }
-          }
         }
 
         isOpen = false;
@@ -237,7 +225,7 @@ namespace NWN.Systems
         }
       }
 
-      public void HandleMenuFeatUsed(object sender, PlayerSystem.Player.MenuFeatEventArgs e)
+      public void HandleMenuFeatUsed(object sender, Player.MenuFeatEventArgs e)
       {
         switch (player.loadedQuickBar)
         {

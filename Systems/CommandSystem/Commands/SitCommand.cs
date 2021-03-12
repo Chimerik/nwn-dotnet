@@ -15,9 +15,11 @@ namespace NWN.Systems
     }
     private static void ExecuteSitCommand(ChatSystem.Context ctx, Options.Result options)
     {
-      PlayerSystem.Player player;
-      if (PlayerSystem.Players.TryGetValue(ctx.oSender, out player))
+      if (PlayerSystem.Players.TryGetValue(ctx.oSender, out PlayerSystem.Player player))
       {
+        player.menu.Close();
+        player.menu.isOpen = true;
+
         var animOpt = (bool)options.named.GetValueOrDefault("down");
         int animation;
 

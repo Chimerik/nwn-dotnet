@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using NWN.API;
 using NWN.Core;
 using NWN.Core.NWNX;
@@ -49,6 +50,12 @@ namespace NWN.Systems
       VisibilityPlugin.SetVisibilityOverride(player.oid, mirror, VisibilityPlugin.NWNX_VISIBILITY_HIDDEN);
       
       HandleBodyModification(player);
+
+      Task waitMenuClosed = NwTask.Run(async () =>
+      {
+        await NwTask.WaitUntil(() => player.oid == null || !player.menu.isOpen);
+        RestoreMirror(player);
+      });
     }
     private void HandleBodyModification(Player player)
     {
@@ -126,8 +133,8 @@ namespace NWN.Systems
     {   
       if (clone != null)
       {
-        VisibilityPlugin.SetVisibilityOverride(player.oid, mirror, VisibilityPlugin.NWNX_VISIBILITY_VISIBLE);
         clone.Destroy();
+        VisibilityPlugin.SetVisibilityOverride(player.oid, mirror, VisibilityPlugin.NWNX_VISIBILITY_VISIBLE);
       }
     }
     private void ChangeCloneHead(Player player, int model)
