@@ -210,6 +210,8 @@ namespace NWN.Systems
 
       EventsPlugin.SubscribeEvent("NWNX_ON_ELC_VALIDATE_CHARACTER_BEFORE", "before_elc");
 
+      DamagePlugin.SetAttackEventScript("on_attack");
+
       //EventsPlugin.SubscribeEvent("NWNX_ON_HAS_FEAT_AFTER", "event_has_feat");
     }
     private void SetModuleTime()

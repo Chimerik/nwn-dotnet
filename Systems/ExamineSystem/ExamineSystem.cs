@@ -169,15 +169,19 @@ namespace NWN.Systems
           break;
       }
 
-      if (onExamine.Examinee is NwItem && onExamine.Examinee.GetLocalVariable<int>("_AVAILABLE_ENCHANTEMENT_SLOT").HasValue)
+      if (onExamine.Examinee is NwItem)
       {
         onExamine.Examinee.GetLocalVariable<string>("_TEMP_DESC").Value = onExamine.Examinee.Description;
-        onExamine.Examinee.Description += $"\n\n emplacement(s) d'enchantement : [{onExamine.Examinee.GetLocalVariable<int>("_AVAILABLE_ENCHANTEMENT_SLOT").Value.ToString().ColorString(Color.GREEN)}] ".ColorString(Color.ORANGE);
+        
+        if (onExamine.Examinee.GetLocalVariable<int>("_AVAILABLE_ENCHANTEMENT_SLOT").HasValue)
+          onExamine.Examinee.Description += $"\n\n emplacement(s) d'enchantement : [{onExamine.Examinee.GetLocalVariable<int>("_AVAILABLE_ENCHANTEMENT_SLOT").Value.ToString().ColorString(Color.GREEN)}] ".ColorString(Color.ORANGE);
+
+        onExamine.Examinee.Description += $"\n\n {ItemUtils.GetItemDurabilityState((NwItem)onExamine.Examinee)}";
       }
     }
     private void OnExamineAfter(ExamineEvents.OnExamineObjectAfter onExamine)
     {
-      if (onExamine.Examinee is NwItem && onExamine.Examinee.GetLocalVariable<int>("_AVAILABLE_ENCHANTEMENT_SLOT").HasValue)
+      if (onExamine.Examinee is NwItem)
       {
         onExamine.Examinee.Description = onExamine.Examinee.GetLocalVariable<string>("_TEMP_DESC").Value;
         onExamine.Examinee.GetLocalVariable<string>("_TEMP_DESC").Delete();

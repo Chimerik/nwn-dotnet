@@ -275,28 +275,9 @@ namespace NWN.Systems.Craft
       Log.Info($"{player.oid.Name} starts recycling {item.Name} - material : {material}");
 
       int baseItemType = (int)item.BaseItemType;
-      int baseCost = 9999;
+      int baseCost = ItemUtils.GetBaseItemCost(item);
 
       Log.Info($"base item type job : {baseItemType}");
-
-      if (baseItemType == NWScript.BASE_ITEM_ARMOR)
-      {
-        if (!int.TryParse(NWScript.Get2DAString("armor", "COST", ItemPlugin.GetBaseArmorClass(oTarget)), out baseCost))
-        {
-          player.oid.SendServerMessage("HRP - La valeur de recyclage de cet objet est incorrectement configuré. Le staff a été prévenu !");
-          Utils.LogMessageToDMs($"RECYCLAGE - {player.oid.Name} - baseCost introuvable pour baseItemType : {baseItemType}");
-          return;
-        }
-      }
-      else
-      {
-        if (!int.TryParse(NWScript.Get2DAString("baseitems", "BaseCost", baseItemType), out baseCost))
-        {
-          player.oid.SendServerMessage("HRP - La valeur de recyclage est incorrectement configuré. Le staff a été prévenu !");
-          Utils.LogMessageToDMs($"RECYCLAGE - {player.oid.Name} - baseCost introuvable pour baseItemType : {baseItemType}");
-          return;
-        }
-      }
 
       float iJobDuration = baseCost * 25;
       Log.Info($"duration : {iJobDuration}");

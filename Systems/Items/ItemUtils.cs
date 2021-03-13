@@ -1,5 +1,9 @@
 ﻿using System;
+using NWN.API;
+using NWN.API.Constants;
 using NWN.Core;
+using NWN.Core.NWNX;
+using static NWN.Systems.Craft.Collect.Config;
 
 namespace NWN.Systems
 {
@@ -118,7 +122,7 @@ namespace NWN.Systems
     // ----------------------------------------------------------------------------
     public static void RemoveMatchingItemProperties(uint oItem, int nItemPropertyType, int nItemPropertyDuration = NWScript.DURATION_TYPE_TEMPORARY, int nItemPropertySubType = -1)
     {
-      ItemProperty ip = NWScript.GetFirstItemProperty(oItem);
+      Core.ItemProperty ip = NWScript.GetFirstItemProperty(oItem);
 
       // valid ip?
       while (NWScript.GetIsItemPropertyValid(ip) == 1)
@@ -252,6 +256,70 @@ namespace NWN.Systems
       }
 
       return nPropBonus;
+    }
+    public static int GetBaseItemCost(NwItem item)
+    {
+      BaseItemType baseItemType = item.BaseItemType;
+      int baseCost;
+
+      if (baseItemType == BaseItemType.Armor)
+      {
+        if (!int.TryParse(NWScript.Get2DAString("armor", "COST", ItemPlugin.GetBaseArmorClass(item)), out baseCost))
+        {
+          Utils.LogMessageToDMs($"RECYCLAGE - {item.Name} - baseCost introuvable pour baseItemType : {baseItemType}");
+          return 999999;
+        }
+      }
+      else
+      {
+        if (!int.TryParse(NWScript.Get2DAString("baseitems", "BaseCost", (int)baseItemType), out baseCost))
+        {
+          Utils.LogMessageToDMs($"RECYCLAGE - {item.Name} - baseCost introuvable pour baseItemType : {baseItemType}");
+          return 999999;
+        }
+      }
+
+      return baseCost;
+    }
+    public static string GetItemDurabilityState(NwItem item)
+    {
+      int durabilityState = item.GetLocalVariable<int>("_DURABILITY").Value / GetItemMaxDurability(item) * 100;
+
+      if (durabilityState == 100)
+        return "Flambant neuf".ColorString(Color.GREEN);
+      else if (durabilityState < 100 && durabilityState >= 75)
+        return "Très bon état".ColorString(Color.OLIVE);
+      else if (durabilityState < 75 && durabilityState >= 50)
+        return "Bon état".ColorString(Color.LIME);
+      else if (durabilityState < 50 && durabilityState >= 25)
+        return "Usé".ColorString(Color.ORANGE);
+      else if (durabilityState < 25 && durabilityState >= 5)
+        return "Vétuste".ColorString(Color.RED);
+      else if (durabilityState < 5)
+        return "Vétuste".ColorString(Color.PURPLE);
+
+      return "";
+    }
+
+    public static int GetItemMaxDurability(NwItem item)
+    {
+      int itemLevel = 0;
+      string material = item.GetLocalVariable<string>("_ITEM_MATERIAL").Value;
+
+      if (Enum.TryParse(material, out MineralType myMineralType))
+        itemLevel = (int)myMineralType;
+      else if (Enum.TryParse(material, out PlankType myPlankType))
+        itemLevel = (int)myPlankType;
+      else if (Enum.TryParse(material, out LeatherType myLeatherType))
+        itemLevel = (int)myLeatherType;
+
+      int maxDurability;
+      if (itemLevel > 0)
+        maxDurability = GetBaseItemCost(item) * itemLevel * 10;
+      else
+        maxDurability = GetBaseItemCost(item);
+
+      return maxDurability;
     }
   }
 }

@@ -140,6 +140,9 @@ namespace NWN.Systems
 
       //Console.WriteLine(NWScript.GetTag(oItem));
 
+      if (oItem.GetLocalVariable<int>("_DURABILITY").HasNothing)
+        oItem.GetLocalVariable<int>("_DURABILITY").Value = ItemUtils.GetItemMaxDurability(oItem);
+
       if (oItem.Tag == "undroppable_item")
       {
         oItem.Clone(oAcquiredFrom, null, true);

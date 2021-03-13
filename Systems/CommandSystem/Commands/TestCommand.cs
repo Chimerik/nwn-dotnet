@@ -28,14 +28,8 @@ namespace NWN.Systems
 
         if (NWScript.GetPCPlayerName(player.oid) == "Chim")
         {
-          Action<uint, Vector3> callback = (uint oTarget, Vector3 position) =>
-          {
-            //NWScript.SetLocalInt(oTarget, "_AVAILABLE_ENCHANTEMENT_SLOT", 2);
-
-          };
-
-          player.targetEvent = TargetEvent.LootSaverTarget;
-          player.SelectTarget(callback);
+          player.oid.SendServerMessage($"modificateur de dex : {player.oid.GetAbilityModifier(Ability.Dexterity)}");
+          
         }
       }
     }

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using NWN.Core;
 using System.ComponentModel;
 using static NWN.Systems.ItemUtils;
+using NWN.API;
 
 namespace NWN.Systems.Craft.Collect
 {
@@ -319,8 +320,10 @@ namespace NWN.Systems.Craft.Collect
       [Description("Bois_de_Valinor")]
       Valinorade = 8,
     }
-    public static ItemProperty[] GetBadItemProperties(ItemCategory itemCategory, uint craftedItem)
+    public static Core.ItemProperty[] GetBadItemProperties(ItemCategory itemCategory, uint craftedItem)
     {
+      NWScript.SetLocalInt(craftedItem, "_DURABILITY", GetBaseItemCost(craftedItem.ToNwObject<NwItem>()));
+      
       switch (itemCategory)
       {
         case ItemCategory.OneHandedMeleeWeapon: return GetBadOneHandedMeleeWeaponProperties();
@@ -332,14 +335,14 @@ namespace NWN.Systems.Craft.Collect
         case ItemCategory.Clothes: return GetBadClothesProperties();
       }
 
-      return new ItemProperty[]
+      return new Core.ItemProperty[]
       {
           NWScript.ItemPropertyVisualEffect(NWScript.VFX_NONE)
       };
     }
-    public static ItemProperty[] GetBadOneHandedMeleeWeaponProperties()
+    public static Core.ItemProperty[] GetBadOneHandedMeleeWeaponProperties()
     {
-      return new ItemProperty[]
+      return new Core.ItemProperty[]
       {
           NWScript.ItemPropertyAttackPenalty(2),
           NWScript.ItemPropertyDamagePenalty(2),
@@ -347,9 +350,9 @@ namespace NWN.Systems.Craft.Collect
           NWScript.ItemPropertyWeightIncrease(NWScript.IP_CONST_WEIGHTINCREASE_30_LBS),
       };
     }
-    public static ItemProperty[] GetBadTwoHandedMeleeWeaponProperties()
+    public static Core.ItemProperty[] GetBadTwoHandedMeleeWeaponProperties()
     {
-      return new ItemProperty[]
+      return new Core.ItemProperty[]
       {
           NWScript.ItemPropertyAttackPenalty(1),
           NWScript.ItemPropertyDamagePenalty(1),
@@ -357,18 +360,18 @@ namespace NWN.Systems.Craft.Collect
           NWScript.ItemPropertyWeightIncrease(NWScript.IP_CONST_WEIGHTINCREASE_30_LBS),
       };
     }
-    public static ItemProperty[] GetBadRangedWeaponProperties()
+    public static Core.ItemProperty[] GetBadRangedWeaponProperties()
     {
-      return new ItemProperty[]
+      return new Core.ItemProperty[]
       {
           NWScript.ItemPropertyAttackPenalty(1),
           NWScript.ItemPropertyDamageVulnerability(NWScript.IP_CONST_DAMAGETYPE_SLASHING, NWScript.IP_CONST_DAMAGEVULNERABILITY_5_PERCENT),
           NWScript.ItemPropertyWeightIncrease(NWScript.IP_CONST_WEIGHTINCREASE_30_LBS),
       };
     }
-    public static ItemProperty[] GetBadArmorProperties()
+    public static Core.ItemProperty[] GetBadArmorProperties()
     {
-      return new ItemProperty[]
+      return new Core.ItemProperty[]
       {
         NWScript.ItemPropertyDamageVulnerability(NWScript.IP_CONST_DAMAGETYPE_BLUDGEONING, NWScript.IP_CONST_DAMAGEVULNERABILITY_10_PERCENT),
         NWScript.ItemPropertyDecreaseAC(NWScript.IP_CONST_ACMODIFIERTYPE_ARMOR, 2),
@@ -376,9 +379,9 @@ namespace NWN.Systems.Craft.Collect
 
       };
     }
-    public static ItemProperty[] GetBadShieldProperties()
+    public static Core.ItemProperty[] GetBadShieldProperties()
     {
-      return new ItemProperty[]
+      return new Core.ItemProperty[]
       {
         NWScript.ItemPropertyDamageVulnerability(NWScript.IP_CONST_DAMAGETYPE_PIERCING, NWScript.IP_CONST_DAMAGEVULNERABILITY_10_PERCENT),
         NWScript.ItemPropertyDecreaseAC(NWScript.IP_CONST_ACMODIFIERTYPE_SHIELD, 2),
@@ -386,20 +389,20 @@ namespace NWN.Systems.Craft.Collect
 
       };
     }
-    public static ItemProperty[] GetBadToolProperties(uint craftedItem)
+    public static Core.ItemProperty[] GetBadToolProperties(uint craftedItem)
     {
       NWScript.SetLocalInt(craftedItem, "_DURABILITY", 5);
 
-      return new ItemProperty[]
+      return new Core.ItemProperty[]
       {
         NWScript.ItemPropertyDamageVulnerability(NWScript.IP_CONST_DAMAGETYPE_PIERCING, NWScript.IP_CONST_DAMAGEVULNERABILITY_10_PERCENT),
         NWScript.ItemPropertyWeightIncrease(NWScript.IP_CONST_WEIGHTINCREASE_15_LBS),
 
       };
     }
-    public static ItemProperty[] GetBadClothesProperties()
+    public static Core.ItemProperty[] GetBadClothesProperties()
     {
-      return new ItemProperty[]
+      return new Core.ItemProperty[]
       {
         NWScript.ItemPropertyDamageVulnerability(NWScript.IP_CONST_DAMAGETYPE_BLUDGEONING, NWScript.IP_CONST_DAMAGEVULNERABILITY_10_PERCENT),
         NWScript.ItemPropertyDecreaseAC(NWScript.IP_CONST_ACMODIFIERTYPE_ARMOR, 2),
@@ -407,12 +410,12 @@ namespace NWN.Systems.Craft.Collect
 
       };
     }
-    public static ItemProperty[] GetTritaniumItemProperties(uint craftedItem = NWScript.OBJECT_INVALID)
+    public static Core.ItemProperty[] GetTritaniumItemProperties(uint craftedItem = NWScript.OBJECT_INVALID)
     {
-      NWScript.SetLocalInt(craftedItem, "_DURABILITY", 10);
+      NWScript.SetLocalInt(craftedItem, "_DURABILITY", GetBaseItemCost(craftedItem.ToNwObject<NwItem>()) * 10);
       NWScript.SetLocalInt(craftedItem, "_AVAILABLE_ENCHANTEMENT_SLOT", 1);
 
-      return new ItemProperty[]
+      return new Core.ItemProperty[]
       {
           NWScript.ItemPropertyDamageVulnerability(NWScript.IP_CONST_DAMAGETYPE_FIRE, NWScript.IP_CONST_DAMAGEVULNERABILITY_50_PERCENT),
           NWScript.ItemPropertyDamageVulnerability(NWScript.IP_CONST_DAMAGETYPE_COLD, NWScript.IP_CONST_DAMAGEVULNERABILITY_50_PERCENT),
@@ -420,9 +423,9 @@ namespace NWN.Systems.Craft.Collect
           NWScript.ItemPropertyWeightIncrease(NWScript.IP_CONST_WEIGHTINCREASE_15_LBS)
       };
     }
-    public static ItemProperty[] GetPyeriteItemProperties(ItemCategory itemCategory, uint craftedItem = NWScript.OBJECT_INVALID)
+    public static Core.ItemProperty[] GetPyeriteItemProperties(ItemCategory itemCategory, uint craftedItem = NWScript.OBJECT_INVALID)
     {
-      NWScript.SetLocalInt(craftedItem, "_DURABILITY", 20);
+      NWScript.SetLocalInt(craftedItem, "_DURABILITY", GetBaseItemCost(craftedItem.ToNwObject<NwItem>()) * 20);
       NWScript.SetLocalInt(craftedItem, "_AVAILABLE_ENCHANTEMENT_SLOT", 2);
 
       switch (itemCategory)
@@ -437,14 +440,14 @@ namespace NWN.Systems.Craft.Collect
         case ItemCategory.Clothes: return GetPyeriteArmorProperties();
       }
 
-      return new ItemProperty[]
+      return new Core.ItemProperty[]
       {
           NWScript.ItemPropertyVisualEffect(NWScript.VFX_NONE)
       };
     }
-    public static ItemProperty[] GetPyeriteOneHandedMeleeWeaponProperties()
+    public static Core.ItemProperty[] GetPyeriteOneHandedMeleeWeaponProperties()
     {
-      return new ItemProperty[]
+      return new Core.ItemProperty[]
       {
         NWScript.ItemPropertyDamageVulnerability(NWScript.IP_CONST_DAMAGETYPE_FIRE, NWScript.IP_CONST_DAMAGEVULNERABILITY_25_PERCENT),
         NWScript.ItemPropertyDamageVulnerability(NWScript.IP_CONST_DAMAGETYPE_COLD, NWScript.IP_CONST_DAMAGEVULNERABILITY_25_PERCENT),
@@ -456,9 +459,9 @@ namespace NWN.Systems.Craft.Collect
         NWScript.ItemPropertyDamageBonusVsRace(NWScript.RACIAL_TYPE_HUMANOID_REPTILIAN, NWScript.IP_CONST_DAMAGETYPE_PIERCING, NWScript.DAMAGE_BONUS_1)
       };
     }
-    public static ItemProperty[] GetPyeriteAmmunitionProperties()
+    public static Core.ItemProperty[] GetPyeriteAmmunitionProperties()
     {
-      return new ItemProperty[]
+      return new Core.ItemProperty[]
       {
           NWScript.ItemPropertyDamageVulnerability(NWScript.IP_CONST_DAMAGETYPE_FIRE, NWScript.IP_CONST_DAMAGEVULNERABILITY_25_PERCENT),
           NWScript.ItemPropertyDamageVulnerability(NWScript.IP_CONST_DAMAGETYPE_COLD, NWScript.IP_CONST_DAMAGEVULNERABILITY_25_PERCENT),
@@ -469,9 +472,9 @@ namespace NWN.Systems.Craft.Collect
           NWScript.ItemPropertyDamageBonusVsRace(NWScript.RACIAL_TYPE_HUMANOID_REPTILIAN, NWScript.IP_CONST_DAMAGETYPE_PIERCING, NWScript.DAMAGE_BONUS_1)
       };
     }
-    public static ItemProperty[] GetPyeriteTwoHandedMeleeWeaponProperties()
+    public static Core.ItemProperty[] GetPyeriteTwoHandedMeleeWeaponProperties()
     {
-      return new ItemProperty[]
+      return new Core.ItemProperty[]
       {
           NWScript.ItemPropertyDamageVulnerability(NWScript.IP_CONST_DAMAGETYPE_FIRE, NWScript.IP_CONST_DAMAGEVULNERABILITY_25_PERCENT),
           NWScript.ItemPropertyDamageVulnerability(NWScript.IP_CONST_DAMAGETYPE_COLD, NWScript.IP_CONST_DAMAGEVULNERABILITY_25_PERCENT),
@@ -483,9 +486,9 @@ namespace NWN.Systems.Craft.Collect
           NWScript.ItemPropertyDamageBonusVsRace(NWScript.RACIAL_TYPE_HUMANOID_REPTILIAN, NWScript.IP_CONST_DAMAGETYPE_PIERCING, NWScript.DAMAGE_BONUS_2)
       };
     }
-    public static ItemProperty[] GetPyeriteArmorProperties()
+    public static Core.ItemProperty[] GetPyeriteArmorProperties()
     {
-      return new ItemProperty[]
+      return new Core.ItemProperty[]
       {
           NWScript.ItemPropertyDamageVulnerability(NWScript.IP_CONST_DAMAGETYPE_FIRE, NWScript.IP_CONST_DAMAGEVULNERABILITY_25_PERCENT),
           NWScript.ItemPropertyDamageVulnerability(NWScript.IP_CONST_DAMAGETYPE_COLD, NWScript.IP_CONST_DAMAGEVULNERABILITY_25_PERCENT),
@@ -494,9 +497,9 @@ namespace NWN.Systems.Craft.Collect
           NWScript.ItemPropertyACBonusVsDmgType(NWScript.IP_CONST_DAMAGETYPE_BLUDGEONING, 1)
       };
     }
-    public static ItemProperty[] GetPyeriteShieldProperties()
+    public static Core.ItemProperty[] GetPyeriteShieldProperties()
     {
-      return new ItemProperty[]
+      return new Core.ItemProperty[]
       {
           NWScript.ItemPropertyDamageVulnerability(NWScript.IP_CONST_DAMAGETYPE_FIRE, NWScript.IP_CONST_DAMAGEVULNERABILITY_25_PERCENT),
           NWScript.ItemPropertyDamageVulnerability(NWScript.IP_CONST_DAMAGETYPE_COLD, NWScript.IP_CONST_DAMAGEVULNERABILITY_25_PERCENT),
@@ -505,19 +508,19 @@ namespace NWN.Systems.Craft.Collect
           NWScript.ItemPropertyACBonusVsDmgType(NWScript.IP_CONST_DAMAGETYPE_PIERCING, 1)
       };
     }
-    public static ItemProperty[] GetPyeriteToolProperties(uint craftedItem)
+    public static Core.ItemProperty[] GetPyeriteToolProperties(uint craftedItem)
     {
       NWScript.SetLocalInt(craftedItem, "_DURABILITY", 25);
       NWScript.SetLocalInt(craftedItem, "_ITEM_LEVEL", 1);
 
-      return new ItemProperty[]
+      return new Core.ItemProperty[]
       {
           NWScript.ItemPropertyWeightIncrease(NWScript.IP_CONST_WEIGHTINCREASE_10_LBS),
       };
     }
     public static OreType GetRandomOreSpawnFromAreaLevel(int level)
     {
-      int random = NWN.Utils.random.Next(1, 101);
+      int random = Utils.random.Next(1, 101);
       switch (level)
       {
         case 2:
