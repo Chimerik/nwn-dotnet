@@ -16,13 +16,13 @@ namespace NWN.Systems.Craft.Collect
         return;
       }
 
-      int miningYield = 50;
+      int miningYield = 10;
 
       // TODO : Idée pour plus tard, le strip miner le plus avancé pourra équipper un cristal
       // de spécialisation pour extraire deux fois plus de minerai en un cycle sur son minerai de spécialité
       if (NWScript.GetIsObjectValid(oExtractor) != 1) return;
 
-      miningYield += NWScript.GetLocalInt(oExtractor, "_ITEM_LEVEL") * 50;
+      miningYield += NWScript.GetLocalInt(oExtractor, "_ITEM_LEVEL") * 5;
       int bonusYield = 0;
 
       int value;

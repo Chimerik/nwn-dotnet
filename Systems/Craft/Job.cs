@@ -204,7 +204,7 @@ namespace NWN.Systems.Craft
         int value;
         if (int.TryParse(NWScript.Get2DAString("feat", "GAINMULTIPLE", CreaturePlugin.GetHighestLevelOfFeat(player.oid, (int)Feat.BlueprintCopy)), out value))
         {
-          int timeCost = blueprint.mineralsCost * 80 / 100;
+          int timeCost = blueprint.mineralsCost * 80;
           float iJobDuration = timeCost - timeCost * (value * 5) / 100;
           player.craftJob = new Job(-11, "", iJobDuration, player, ObjectPlugin.Serialize(oBlueprint)); // - 11 = blueprint copy
         }
@@ -271,7 +271,7 @@ namespace NWN.Systems.Craft
         int advancedCraftLevel = 0;
         int.TryParse(NWScript.Get2DAString("feat", "GAINMULTIPLE", CreaturePlugin.GetHighestLevelOfFeat(player.oid, (int)Feat.AdvancedCraft)), out advancedCraftLevel);
 
-        float iJobDuration = blueprint.mineralsCost - blueprint.mineralsCost * (metallurgyLevel * 5 + advancedCraftLevel * 3) / 100;
+        float iJobDuration = blueprint.mineralsCost * 100 - blueprint.mineralsCost * (metallurgyLevel * 5 + advancedCraftLevel * 3) / 100;
         player.craftJob = new Job(-12, "", iJobDuration, player, ObjectPlugin.Serialize(oBlueprint)); // - 12 = recherche ME
         NWScript.DestroyObject(oBlueprint);
         NWScript.SendMessageToPC(player.oid, $"L'objet {NWScript.GetName(oBlueprint)} ne sera pas disponible jusqu'à la fin du travail de recherche métallurgique.");
@@ -287,7 +287,7 @@ namespace NWN.Systems.Craft
         int advancedCraftLevel = 0;
         int.TryParse(NWScript.Get2DAString("feat", "GAINMULTIPLE", CreaturePlugin.GetHighestLevelOfFeat(player.oid, (int)Feat.AdvancedCraft)), out advancedCraftLevel);
 
-        float iJobDuration = blueprint.mineralsCost - blueprint.mineralsCost * (researchLevel * 5 + advancedCraftLevel * 3) / 100;
+        float iJobDuration = blueprint.mineralsCost * 100 - blueprint.mineralsCost * (researchLevel * 5 + advancedCraftLevel * 3) / 100;
         player.craftJob = new Job(-13, "", iJobDuration, player, ObjectPlugin.Serialize(oBlueprint)); // -13 = recherche TE
         NWScript.DestroyObject(oBlueprint);
         NWScript.SendMessageToPC(player.oid, $"L'objet {NWScript.GetName(oBlueprint)} ne sera pas disponible jusqu'à la fin du travail de recherche d'efficacité.");

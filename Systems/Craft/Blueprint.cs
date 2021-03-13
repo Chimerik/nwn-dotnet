@@ -32,7 +32,7 @@ namespace NWN.Systems.Craft
         int value;
         if (int.TryParse(NWScript.Get2DAString("armor", "COST", -baseItemType), out value))
         {
-          this.mineralsCost = value * 1000;
+          this.mineralsCost = value * 10;
           this.goldCost = value * 5;
         }
 
@@ -50,7 +50,7 @@ namespace NWN.Systems.Craft
 
         if (int.TryParse(NWScript.Get2DAString("baseitems", "BaseCost", baseItemType), out value))
         {
-          this.mineralsCost = value * 1000;
+          this.mineralsCost = value * 10;
           this.goldCost = value * 5;
         }
 
@@ -139,7 +139,7 @@ namespace NWN.Systems.Craft
         else
         {
           oPlayer.SendServerMessage("[ERREUR HRP] - Le patron utilisé n'est pas correctement initialisé. Le bug a été remonté au staff.");
-          NWN.Utils.LogMessageToDMs($"Blueprint Invalid : {item.Name} - Base Item Type : {baseItemType} - Used by : {oPlayer.Name}");
+          Utils.LogMessageToDMs($"Blueprint Invalid : {item.Name} - Base Item Type : {baseItemType} - Used by : {oPlayer.Name}");
         }
     }
     private void StartJob(PlayerSystem.Player player, uint blueprint, Feat feat)
@@ -204,7 +204,7 @@ namespace NWN.Systems.Craft
     public float GetBlueprintTimeCostForPlayer(NwPlayer player, NwItem item)
     {
       int iSkillLevel = 1;
-      float fJobDuration = this.mineralsCost;
+      float fJobDuration = this.mineralsCost * 100;
 
       int value;
       if (int.TryParse(NWScript.Get2DAString("feat", "GAINMULTIPLE", CreaturePlugin.GetHighestLevelOfFeat(player, (int)jobFeat)), out value))

@@ -8,15 +8,10 @@ namespace NWN.Systems
     public static async Task ExecuteDisplayBacklogInfoCommand(SocketCommandContext context)
     {
       await context.Channel.SendMessageAsync("Backlog de projets en attente\n" +
-        "    - Backlog\n" +
-        "    - Craft menuiserie / ébeniste\n" +
-        "    - Craft tannerie\n" +
-        "    - Boutiques PJs\n" +
         "    - Malus de mort\n" +
         "    - Système de durabilité des objets\n" +
         "    - Système de lycanthropie(et autres malédictions)\n" +
         "    - Métier recherche d'enchantement\n" +
-        "    - Systéme d'amélioration des items craftés (application des enchantements)\n" +
         "    - Système de remboursement de la dette en cas de non solvabilité\n" +
         "    - Système de repos\n" +
         "    - Système de transport de matières premières\n" +
@@ -38,7 +33,8 @@ namespace NWN.Systems
         "    - Coloration spécifique des emotes(texte rp entre * *)\n" +
         "    - Permettre destruction de cadavres PJs\n" +
         "    - Canal groupe rp (autres pjs à portée d'oreille peuvent entendre)\n" +
-        "    - Système de personnalisation d'apparence de vêtements (seul le crafteur initial pourra modifier)\n" +
+        "    - Métier 'Styliste', permet de modifier l'apparence d'items sans en être le créateur d'origine\n" +
+        "    - Amélioration chasse : système d'appâts\n" +
         "    - Cooldowns sur dons activables(renversement, furtif, etc)\n"
         );
 

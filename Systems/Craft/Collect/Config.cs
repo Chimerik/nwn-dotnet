@@ -17,7 +17,7 @@ namespace NWN.Systems.Craft.Collect
           oreFeat: Feat.VeldsparReprocessing,
           mineralsDictionnary: new Dictionary<MineralType, float>
           {
-            { MineralType.Tritanium, 41.500f }
+            { MineralType.Tritanium, 2.075f }
           }
         )
       },
@@ -28,8 +28,8 @@ namespace NWN.Systems.Craft.Collect
           oreFeat: Feat.ScorditeReprocessing,
           mineralsDictionnary: new Dictionary<MineralType, float>
           {
-            { MineralType.Tritanium, 23.067f },
-            { MineralType.Pyerite, 11.533f }
+            { MineralType.Tritanium, 1.15335f },
+            { MineralType.Pyerite, 0.57665f}
           }
         )
       },
@@ -40,10 +40,10 @@ namespace NWN.Systems.Craft.Collect
           oreFeat: Feat.PyroxeresReprocessing,
           mineralsDictionnary: new Dictionary<MineralType, float>
           {
-            { MineralType.Tritanium, 11.700f },
-            { MineralType.Pyerite, 0.833f },
-            { MineralType.Mexallon,  1.667f },
-            { MineralType.Noxcium, 0.167f }
+            { MineralType.Tritanium, 0.585f },
+            { MineralType.Pyerite, 0.04165f },
+            { MineralType.Mexallon,  0.08335f },
+            { MineralType.Noxcium, 0.00835f }
           }
         )
       }
@@ -143,15 +143,15 @@ namespace NWN.Systems.Craft.Collect
         switch (oreType)
         {
           case PeltType.MauvaisePeau:
-            leathers = 41.500f;
+            leathers = 2.075f;
             refinedType = LeatherType.MauvaisCuir;
             break;
           case PeltType.PeauCommune:
-            leathers = 34.567f;
+            leathers = 1.72835f;
             refinedType = LeatherType.CuirCommun;
             break;
           case PeltType.PeauNormale:
-            leathers = 15.000f;
+            leathers = 0.75f;
             refinedType = LeatherType.CuirNormal;
             break;
           default:
@@ -258,15 +258,15 @@ namespace NWN.Systems.Craft.Collect
         switch (oreType)
         {
           case WoodType.Laurelin:
-            planks = 41.500f;
+            planks = 2.075f;
             refinedType = PlankType.Laurelinade;
             break;
           case WoodType.Telperion:
-            planks = 34.567f;
+            planks = 1.72835f;
             refinedType = PlankType.Telperionade;
             break;
           case WoodType.Mallorn:
-            planks = 15.000f;
+            planks = 0.75f;
             refinedType = PlankType.Mallornade;
             break;
           default:
