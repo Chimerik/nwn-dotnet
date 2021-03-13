@@ -283,7 +283,6 @@ namespace NWN.Systems
         {
           await NwTask.Delay(TimeSpan.FromDays(1));
           await SpawnCollectableResources(delay);
-          return true;
         });
       }
     }

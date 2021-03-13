@@ -90,9 +90,9 @@ namespace NWN.Systems.Craft.Collect
 
       while (NWScript.GetIsObjectValid(resourcePoint) == 1)
       {
-        int iRandom = NwRandom.Roll(NWN.Utils.random, 100, 1);
+        int iRandom = NwRandom.Roll(Utils.random, 100, 1);
 
-        if (iRandom < respawnChance || NWN.Systems.Config.env == NWN.Systems.Config.Env.Chim)
+        if (iRandom < respawnChance || Systems.Config.env == Systems.Config.Env.Chim)
         {
           var newRock = NWScript.CreateObject(NWScript.OBJECT_TYPE_CREATURE, GetRandomPeltSpawnFromAreaLevel(area.GetLocalVariable<int>("_AREA_LEVEL").Value), NWScript.GetLocation(resourcePoint));
           NWScript.SetLocalInt(newRock, "_ORE_AMOUNT", 50 * iRandom + 50 * iRandom * skillBonus / 100);

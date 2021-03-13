@@ -6,6 +6,7 @@ using NWN.Core.NWNX;
 using static NWN.Systems.SkillSystem;
 using NWN.Systems.Craft;
 using NWN.API;
+using System.Threading.Tasks;
 
 namespace NWN.Systems
 {
@@ -389,13 +390,24 @@ namespace NWN.Systems
       {
         JournalEntry journalEntry;
 
-        if (playerJournal.craftJobCountDown != null
-            && NWScript.GetArea(oid).ToNwObject<NwArea>().GetLocalVariable<int>("_AREA_LEVEL")?.Value == 0)
+        if (oid.Location.Area == null && DoJournalUpdate)
+        {
+          Task waitAreaLoaded = NwTask.Run(async () =>
+          {
+            await NwTask.WaitUntil(() => oid.Location.Area != null);
+            await NwTask.Delay(TimeSpan.FromSeconds(1));
+            UpdateJournal();
+          });
+
+          return;
+        }
+
+        if (playerJournal.craftJobCountDown != null && oid.Area.GetLocalVariable<int>("_AREA_LEVEL").Value == 0)
         {
           journalEntry = PlayerPlugin.GetJournalEntry(oid, "craft_job");
           if (journalEntry.nUpdated != -1)
           {
-            journalEntry.sName = $"Travail artisanal - {NWN.Utils.StripTimeSpanMilliseconds((TimeSpan)(playerJournal.craftJobCountDown - DateTime.Now))}";
+            journalEntry.sName = $"Travail artisanal - {Utils.StripTimeSpanMilliseconds((TimeSpan)(playerJournal.craftJobCountDown - DateTime.Now))}";
             PlayerPlugin.AddCustomJournalEntry(oid, journalEntry, 1);
           }
           this.CraftJobProgression();
@@ -406,7 +418,7 @@ namespace NWN.Systems
           journalEntry = PlayerPlugin.GetJournalEntry(oid, "skill_job");
           if (journalEntry.nUpdated != -1)
           {
-            journalEntry.sName = $"Entrainement - {NWN.Utils.StripTimeSpanMilliseconds((TimeSpan)(playerJournal.skillJobCountDown - DateTime.Now))}";
+            journalEntry.sName = $"Entrainement - {Utils.StripTimeSpanMilliseconds((TimeSpan)(playerJournal.skillJobCountDown - DateTime.Now))}";
             PlayerPlugin.AddCustomJournalEntry(oid, journalEntry, 1);
           }
 

@@ -262,6 +262,9 @@ namespace NWN.Systems
       BaseItemType baseItemType = item.BaseItemType;
       int baseCost;
 
+      if (baseItemType == BaseItemType.CreatureItem)
+        return 999999;
+
       if (baseItemType == BaseItemType.Armor)
       {
         if (!int.TryParse(NWScript.Get2DAString("armor", "COST", ItemPlugin.GetBaseArmorClass(item)), out baseCost))
@@ -318,6 +321,9 @@ namespace NWN.Systems
         maxDurability = GetBaseItemCost(item) * itemLevel * 10;
       else
         maxDurability = GetBaseItemCost(item);
+
+      if (maxDurability < 1)
+        maxDurability = 1;
 
       return maxDurability;
     }

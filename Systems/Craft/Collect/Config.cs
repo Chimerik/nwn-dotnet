@@ -586,33 +586,36 @@ namespace NWN.Systems.Craft.Collect
     }
     public static string GetRandomPeltSpawnFromAreaLevel(int level)
     {
-      int random = NWN.Utils.random.Next(1, 101);
+      int random = Utils.random.Next(1, 101);
       switch (level)
       {
         case 2:
-          return System.badPelts[NWN.Utils.random.Next(0, System.badPelts.Length)];
+          if (random > 80)
+            return System.commonPelts[Utils.random.Next(0, System.commonPelts.Length)];
+          else
+            return System.badPelts[Utils.random.Next(0, System.badPelts.Length)];
         case 3:
-          if (random > 80)
-            return System.commonPelts[NWN.Utils.random.Next(0, System.commonPelts.Length)];
+          if (random > 60)
+            return System.commonPelts[Utils.random.Next(0, System.commonPelts.Length)];
           else
-            return System.badPelts[NWN.Utils.random.Next(0, System.badPelts.Length)];
+            return System.badPelts[Utils.random.Next(0, System.badPelts.Length)];
         case 4:
-          if (random > 60)
-            return System.commonPelts[NWN.Utils.random.Next(0, System.commonPelts.Length)];
-          else
-            return System.badPelts[NWN.Utils.random.Next(0, System.badPelts.Length)];
-        case 5:
           if (random > 80)
-            return System.normalPelts[NWN.Utils.random.Next(0, System.normalPelts.Length)];
+            return System.normalPelts[Utils.random.Next(0, System.normalPelts.Length)];
           else if (random > 40)
-            return System.commonPelts[NWN.Utils.random.Next(0, System.commonPelts.Length)];
-          return System.badPelts[NWN.Utils.random.Next(0, System.badPelts.Length)];
-        case 6:
+            return System.commonPelts[Utils.random.Next(0, System.commonPelts.Length)];
+          return System.badPelts[Utils.random.Next(0, System.badPelts.Length)];
+        case 5:
           if (random > 60)
-            return System.normalPelts[NWN.Utils.random.Next(0, System.normalPelts.Length)];
+            return System.normalPelts[Utils.random.Next(0, System.normalPelts.Length)];
           else if (random > 20)
-            return System.commonPelts[NWN.Utils.random.Next(0, System.commonPelts.Length)];
-          return System.badPelts[NWN.Utils.random.Next(0, System.badPelts.Length)];
+            return System.commonPelts[Utils.random.Next(0, System.commonPelts.Length)];
+          return System.badPelts[Utils.random.Next(0, System.badPelts.Length)];
+        case 6:
+          if (random > 40)
+            return System.normalPelts[Utils.random.Next(0, System.normalPelts.Length)];
+
+          return System.commonPelts[Utils.random.Next(0, System.commonPelts.Length)];
       }
 
       return "";
