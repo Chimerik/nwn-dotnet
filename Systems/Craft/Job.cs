@@ -1,16 +1,16 @@
 ﻿using System;
+using NWN.API;
 using NWN.Core;
 using NWN.Core.NWNX;
+using NWNX.API;
 using static NWN.Systems.Craft.Collect.Config;
 using static NWN.Systems.Craft.Collect.System;
-using NWN.API;
 
 namespace NWN.Systems.Craft
 {
   public class Job
   {
     public JobType type;
-    //public string name { get; set; }
     public int baseItemType { get; }
     public string craftedItem { get; set; }
     public float remainingTime { get; set; }
@@ -46,6 +46,9 @@ namespace NWN.Systems.Craft
         case -14:
           this.type = JobType.Enchantement;
           break;
+        case -15:
+          this.type = JobType.Recycling;
+          break;
         default:
           this.type = JobType.Item;
           break;
@@ -65,6 +68,7 @@ namespace NWN.Systems.Craft
       BlueprintResearchMaterialEfficiency = 3,
       BlueprintResearchTimeEfficiency = 4,
       Enchantement = 5,
+      Recycling = 6,
     }
     public Boolean IsActive()
     {
@@ -142,6 +146,9 @@ namespace NWN.Systems.Craft
         case JobType.Enchantement:
           StartEnchantementCraft(oTarget, sMaterial);
           break;
+        case JobType.Recycling:
+          StartRecycleCraft(oTarget, sMaterial);
+          break;
         case JobType.BlueprintCopy:
           StartBlueprintCopy(player, oItem, blueprint);
           break;
@@ -210,7 +217,7 @@ namespace NWN.Systems.Craft
         }
       }
     }
-    public void StartEnchantementCraft(uint oTarget, string ipString)
+    private void StartEnchantementCraft(uint oTarget, string ipString)
     {
       Log.Info("start ench craft");
 
@@ -258,6 +265,50 @@ namespace NWN.Systems.Craft
 
       NWScript.DestroyObject(oTarget);
       NWScript.SendMessageToPC(player.oid, $"L'objet {NWScript.GetName(oTarget)} ne sera pas disponible jusqu'à la fin du travail d'enchantement.");
+
+      player.craftJob.isCancelled = false;
+    }
+    private void StartRecycleCraft(uint oTarget, string material)
+    {
+      NwItem item = oTarget.ToNwObject<NwItem>();
+
+      Log.Info($"{player.oid.Name} starts recycling {item.Name} - material : {material}");
+
+      int baseItemType = (int)item.BaseItemType;
+      int baseCost = 9999;
+
+      Log.Info($"base item type job : {baseItemType}");
+
+      if (baseItemType == NWScript.BASE_ITEM_ARMOR)
+      {
+        if (!int.TryParse(NWScript.Get2DAString("armor", "COST", ItemPlugin.GetBaseArmorClass(oTarget)), out baseCost))
+        {
+          player.oid.SendServerMessage("HRP - La valeur de recyclage de cet objet est incorrectement configuré. Le staff a été prévenu !");
+          Utils.LogMessageToDMs($"RECYCLAGE - {player.oid.Name} - baseCost introuvable pour baseItemType : {baseItemType}");
+          return;
+        }
+      }
+      else
+      {
+        if (!int.TryParse(NWScript.Get2DAString("baseitems", "BaseCost", baseItemType), out baseCost))
+        {
+          player.oid.SendServerMessage("HRP - La valeur de recyclage est incorrectement configuré. Le staff a été prévenu !");
+          Utils.LogMessageToDMs($"RECYCLAGE - {player.oid.Name} - baseCost introuvable pour baseItemType : {baseItemType}");
+          return;
+        }
+      }
+
+      float iJobDuration = baseCost * 25;
+      Log.Info($"duration : {iJobDuration}");
+
+      item.GetLocalVariable<int>("_BASE_COST").Value = baseCost;
+      player.craftJob = new Job(-15, material, iJobDuration, player, item.Serialize()); // -15 = JobType recyclage
+
+      player.oid.SendServerMessage($"Vous venez de démarrer l'enchantement de : {item.Name.ColorString(Color.WHITE)}", Color.ORANGE);
+      // TODO : afficher des effets visuels
+
+      item.Destroy();
+      player.oid.SendServerMessage($"L'objet {item.Name.ColorString(Color.WHITE)} ne sera pas disponible jusqu'à la fin du travail d'enchantement.", Color.RED);
 
       player.craftJob.isCancelled = false;
     }
@@ -319,6 +370,9 @@ namespace NWN.Systems.Craft
         case JobType.Enchantement:
           journalEntry.sText = $"Enchantement en cours : {NWScript.GetName(ObjectPlugin.Deserialize(craftedItem))}";
           break;
+        case JobType.Recycling:
+          journalEntry.sText = $"Recyclage en cours : {NWScript.GetName(ObjectPlugin.Deserialize(craftedItem))}";
+          break;
         default:
           journalEntry.sText = $"Fabrication en cours : {blueprintDictionnary[baseItemType].name}";
           break;
@@ -347,6 +401,9 @@ namespace NWN.Systems.Craft
         case JobType.Enchantement:
           journalEntry.sText = $"Enchantement en pause";
           break;
+        case JobType.Recycling:
+          journalEntry.sText = $"Recyclage en pause";
+          break;
         default:
           journalEntry.sName = $"Travail artisanal en pause - {blueprintDictionnary[baseItemType].name}";
           break;
@@ -374,6 +431,9 @@ namespace NWN.Systems.Craft
           break;
         case JobType.Enchantement:
           journalEntry.sName = $"Enchantement terminé - {NWScript.GetName(ObjectPlugin.Deserialize(craftedItem))}";
+          break;
+        case JobType.Recycling:
+          journalEntry.sName = $"Recyclage terminé - {NWScript.GetName(ObjectPlugin.Deserialize(craftedItem))}";
           break;
         default:
           journalEntry.sName = $"Travail artisanal terminé - {blueprintDictionnary[baseItemType].name}";

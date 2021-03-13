@@ -1975,6 +1975,7 @@ namespace NWN
     LegendaryPeltReprocessing3,
     LegendaryPeltReprocessing4,
     LegendaryPeltReprocessing5,
+    Recycler,
     Invalid = 65535
   }
 }

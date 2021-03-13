@@ -166,6 +166,14 @@ namespace NWN.Systems
         )
       },
       {
+        "recycle",
+        new Command(
+          name: "recycle",
+          description: new Command.Description(title: "Permet de tester le recyclage."),
+          execute: ExecuteRecycleCommand
+        )
+      },
+      {
         "mute",
         new Command(
           name: "mute",

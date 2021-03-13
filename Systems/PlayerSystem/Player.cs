@@ -265,11 +265,27 @@ namespace NWN.Systems
             NWScript.SetLocalInt(improvedTEBlueprint, "_BLUEPRINT_TIME_EFFICIENCY", NWScript.GetLocalInt(improvedTEBlueprint, "_BLUEPRINT_TIME_EFFICIENCY") + 1);
             break;
           case Job.JobType.Enchantement:
-            NwItem enchantedItem = NWScript.CopyItem(ObjectPlugin.Deserialize((craftJob.craftedItem)), oid, 1).ToNwObject<NwItem>();
+            NwItem enchantedItem = NwObject.Deserialize<NwItem>(craftJob.craftedItem);
+            oid.AcquireItem(enchantedItem);
+
             enchantedItem.GetLocalVariable<int>("_AVAILABLE_ENCHANTEMENT_SLOT").Value -= 1;
             if (enchantedItem.GetLocalVariable<int>("_AVAILABLE_ENCHANTEMENT_SLOT").Value <= 0)
               enchantedItem.GetLocalVariable<int>("_AVAILABLE_ENCHANTEMENT_SLOT").Delete();
             Craft.Collect.System.AddCraftedEnchantementProperties(enchantedItem, craftJob.material);
+
+            break;
+          case Job.JobType.Recycling:
+            NwItem recycledItem = NwObject.Deserialize<NwItem>(craftJob.craftedItem);
+            int recycledValue = recycledItem.GetLocalVariable<int>("_BASE_COST").Value;
+
+            if (materialStock.ContainsKey(craftJob.material))
+              materialStock[craftJob.material] += recycledValue;
+            else
+              materialStock.Add(craftJob.material, recycledValue);
+
+            oid.SendServerMessage($"Recyclage de {recycledItem.Name.ColorString(Color.WHITE)} terminé. Vous en retirez {recycledValue} unité(s) de {craftJob.material}", Color.GREEN) ;
+            recycledItem.Destroy();
+
             break;
           default:
             if (Craft.Collect.System.blueprintDictionnary.TryGetValue(craftJob.baseItemType, out Blueprint blueprint))

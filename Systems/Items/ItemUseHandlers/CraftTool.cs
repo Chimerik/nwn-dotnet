@@ -19,6 +19,7 @@ namespace NWN.Systems
     ItemAppearanceWeaponModel? weaponPartChoice;
     ItemAppearanceWeaponColor? weaponColorChoice;
     string serializedInitialItem;
+    List<ItemAppearanceArmorColor> colorChannelList;
 
     public CraftTool(PlayerSystem.Player player, NwItem item)
     {
@@ -31,7 +32,9 @@ namespace NWN.Systems
       this.player = player;
       this.item = item;
       this.serializedInitialItem = item.Serialize();
-      
+
+      colorChannelList = new List<ItemAppearanceArmorColor>{ ItemAppearanceArmorColor.Cloth1, ItemAppearanceArmorColor.Cloth2, ItemAppearanceArmorColor.Leather1, ItemAppearanceArmorColor.Leather2, ItemAppearanceArmorColor.Metal1, ItemAppearanceArmorColor.Metal2 };
+
       switch (item.BaseItemType)
       {
         case BaseItemType.Armor:
@@ -383,59 +386,73 @@ namespace NWN.Systems
       {
         case ItemAppearanceArmorModel.LeftBicep:
           item.Appearance.SetArmorModel(ItemAppearanceArmorModel.RightBicep, item.Appearance.GetArmorModel(ItemAppearanceArmorModel.LeftBicep));
-          item.Appearance.SetArmorPieceColor(ItemAppearanceArmorModel.RightBicep, (ItemAppearanceArmorColor)colorChannelChoice, item.Appearance.GetArmorPieceColor(ItemAppearanceArmorModel.LeftBicep, (ItemAppearanceArmorColor)colorChannelChoice));       
+          foreach(ItemAppearanceArmorColor channel in colorChannelList)
+            item.Appearance.SetArmorPieceColor(ItemAppearanceArmorModel.RightBicep, channel, item.Appearance.GetArmorPieceColor(ItemAppearanceArmorModel.LeftBicep, channel));
           break;
         case ItemAppearanceArmorModel.LeftFoot:
           item.Appearance.SetArmorModel(ItemAppearanceArmorModel.RightFoot, item.Appearance.GetArmorModel(ItemAppearanceArmorModel.LeftFoot));
-          item.Appearance.SetArmorPieceColor(ItemAppearanceArmorModel.RightFoot, (ItemAppearanceArmorColor)colorChannelChoice, item.Appearance.GetArmorPieceColor(ItemAppearanceArmorModel.LeftFoot, (ItemAppearanceArmorColor)colorChannelChoice));
+          foreach (ItemAppearanceArmorColor channel in colorChannelList)
+            item.Appearance.SetArmorPieceColor(ItemAppearanceArmorModel.RightFoot, channel, item.Appearance.GetArmorPieceColor(ItemAppearanceArmorModel.LeftFoot, channel));
           break;
         case ItemAppearanceArmorModel.LeftForearm:
           item.Appearance.SetArmorModel(ItemAppearanceArmorModel.RightForearm, item.Appearance.GetArmorModel(ItemAppearanceArmorModel.LeftForearm));
-          item.Appearance.SetArmorPieceColor(ItemAppearanceArmorModel.RightForearm, (ItemAppearanceArmorColor)colorChannelChoice, item.Appearance.GetArmorPieceColor(ItemAppearanceArmorModel.LeftForearm, (ItemAppearanceArmorColor)colorChannelChoice));
+          foreach (ItemAppearanceArmorColor channel in colorChannelList)
+            item.Appearance.SetArmorPieceColor(ItemAppearanceArmorModel.RightForearm, channel, item.Appearance.GetArmorPieceColor(ItemAppearanceArmorModel.LeftForearm, channel));
           break;
         case ItemAppearanceArmorModel.LeftHand:
           item.Appearance.SetArmorModel(ItemAppearanceArmorModel.RightHand, item.Appearance.GetArmorModel(ItemAppearanceArmorModel.LeftHand));
-          item.Appearance.SetArmorPieceColor(ItemAppearanceArmorModel.RightHand, (ItemAppearanceArmorColor)colorChannelChoice, item.Appearance.GetArmorPieceColor(ItemAppearanceArmorModel.LeftHand, (ItemAppearanceArmorColor)colorChannelChoice));
+          foreach (ItemAppearanceArmorColor channel in colorChannelList)
+            item.Appearance.SetArmorPieceColor(ItemAppearanceArmorModel.RightHand, channel, item.Appearance.GetArmorPieceColor(ItemAppearanceArmorModel.LeftHand, channel));
           break;
         case ItemAppearanceArmorModel.LeftShin:
           item.Appearance.SetArmorModel(ItemAppearanceArmorModel.RightShin, item.Appearance.GetArmorModel(ItemAppearanceArmorModel.LeftShin));
-          item.Appearance.SetArmorPieceColor(ItemAppearanceArmorModel.RightShin, (ItemAppearanceArmorColor)colorChannelChoice, item.Appearance.GetArmorPieceColor(ItemAppearanceArmorModel.LeftShin, (ItemAppearanceArmorColor)colorChannelChoice));
+          foreach (ItemAppearanceArmorColor channel in colorChannelList)
+            item.Appearance.SetArmorPieceColor(ItemAppearanceArmorModel.RightShin, channel, item.Appearance.GetArmorPieceColor(ItemAppearanceArmorModel.LeftShin, channel));
           break;
         case ItemAppearanceArmorModel.LeftShoulder:
           item.Appearance.SetArmorModel(ItemAppearanceArmorModel.RightShoulder, item.Appearance.GetArmorModel(ItemAppearanceArmorModel.LeftShoulder));
-          item.Appearance.SetArmorPieceColor(ItemAppearanceArmorModel.RightShoulder, (ItemAppearanceArmorColor)colorChannelChoice, item.Appearance.GetArmorPieceColor(ItemAppearanceArmorModel.LeftShoulder, (ItemAppearanceArmorColor)colorChannelChoice));
+          foreach (ItemAppearanceArmorColor channel in colorChannelList)
+            item.Appearance.SetArmorPieceColor(ItemAppearanceArmorModel.RightShoulder, channel, item.Appearance.GetArmorPieceColor(ItemAppearanceArmorModel.LeftShoulder, channel));
           break;
         case ItemAppearanceArmorModel.LeftThigh:
           item.Appearance.SetArmorModel(ItemAppearanceArmorModel.RightThigh, item.Appearance.GetArmorModel(ItemAppearanceArmorModel.LeftThigh));
-          item.Appearance.SetArmorPieceColor(ItemAppearanceArmorModel.RightThigh, (ItemAppearanceArmorColor)colorChannelChoice, item.Appearance.GetArmorPieceColor(ItemAppearanceArmorModel.LeftThigh, (ItemAppearanceArmorColor)colorChannelChoice));
+          foreach (ItemAppearanceArmorColor channel in colorChannelList)
+            item.Appearance.SetArmorPieceColor(ItemAppearanceArmorModel.RightThigh, channel, item.Appearance.GetArmorPieceColor(ItemAppearanceArmorModel.LeftThigh, channel));
           break;
         case ItemAppearanceArmorModel.RightBicep:
           item.Appearance.SetArmorModel(ItemAppearanceArmorModel.LeftBicep, item.Appearance.GetArmorModel(ItemAppearanceArmorModel.RightBicep));
-          item.Appearance.SetArmorPieceColor(ItemAppearanceArmorModel.LeftBicep, (ItemAppearanceArmorColor)colorChannelChoice, item.Appearance.GetArmorPieceColor(ItemAppearanceArmorModel.RightBicep, (ItemAppearanceArmorColor)colorChannelChoice));
+          foreach (ItemAppearanceArmorColor channel in colorChannelList)
+            item.Appearance.SetArmorPieceColor(ItemAppearanceArmorModel.LeftBicep, channel, item.Appearance.GetArmorPieceColor(ItemAppearanceArmorModel.RightBicep, channel));
           break;
         case ItemAppearanceArmorModel.RightFoot:
           item.Appearance.SetArmorModel(ItemAppearanceArmorModel.LeftFoot, item.Appearance.GetArmorModel(ItemAppearanceArmorModel.RightFoot));
-          item.Appearance.SetArmorPieceColor(ItemAppearanceArmorModel.LeftFoot, (ItemAppearanceArmorColor)colorChannelChoice, item.Appearance.GetArmorPieceColor(ItemAppearanceArmorModel.RightFoot, (ItemAppearanceArmorColor)colorChannelChoice));
+          foreach (ItemAppearanceArmorColor channel in colorChannelList)
+            item.Appearance.SetArmorPieceColor(ItemAppearanceArmorModel.LeftFoot, channel, item.Appearance.GetArmorPieceColor(ItemAppearanceArmorModel.RightFoot, channel));
           break;
         case ItemAppearanceArmorModel.RightForearm:
           item.Appearance.SetArmorModel(ItemAppearanceArmorModel.LeftForearm, item.Appearance.GetArmorModel(ItemAppearanceArmorModel.RightForearm));
-          item.Appearance.SetArmorPieceColor(ItemAppearanceArmorModel.LeftForearm, (ItemAppearanceArmorColor)colorChannelChoice, item.Appearance.GetArmorPieceColor(ItemAppearanceArmorModel.RightForearm, (ItemAppearanceArmorColor)colorChannelChoice));
+          foreach (ItemAppearanceArmorColor channel in colorChannelList)
+            item.Appearance.SetArmorPieceColor(ItemAppearanceArmorModel.LeftForearm, channel, item.Appearance.GetArmorPieceColor(ItemAppearanceArmorModel.RightForearm, channel));
           break;
         case ItemAppearanceArmorModel.RightHand:
           item.Appearance.SetArmorModel(ItemAppearanceArmorModel.LeftHand, item.Appearance.GetArmorModel(ItemAppearanceArmorModel.RightHand));
-          item.Appearance.SetArmorPieceColor(ItemAppearanceArmorModel.LeftHand, (ItemAppearanceArmorColor)colorChannelChoice, item.Appearance.GetArmorPieceColor(ItemAppearanceArmorModel.RightHand, (ItemAppearanceArmorColor)colorChannelChoice));
+          foreach (ItemAppearanceArmorColor channel in colorChannelList)
+            item.Appearance.SetArmorPieceColor(ItemAppearanceArmorModel.LeftHand, channel, item.Appearance.GetArmorPieceColor(ItemAppearanceArmorModel.RightHand, channel));
           break;
         case ItemAppearanceArmorModel.RightShin:
           item.Appearance.SetArmorModel(ItemAppearanceArmorModel.LeftShin, item.Appearance.GetArmorModel(ItemAppearanceArmorModel.RightShin));
-          item.Appearance.SetArmorPieceColor(ItemAppearanceArmorModel.LeftShin, (ItemAppearanceArmorColor)colorChannelChoice, item.Appearance.GetArmorPieceColor(ItemAppearanceArmorModel.RightShin, (ItemAppearanceArmorColor)colorChannelChoice));
+          foreach (ItemAppearanceArmorColor channel in colorChannelList)
+            item.Appearance.SetArmorPieceColor(ItemAppearanceArmorModel.LeftShin, channel, item.Appearance.GetArmorPieceColor(ItemAppearanceArmorModel.RightShin, channel));
           break;
         case ItemAppearanceArmorModel.RightShoulder:
           item.Appearance.SetArmorModel(ItemAppearanceArmorModel.LeftShoulder, item.Appearance.GetArmorModel(ItemAppearanceArmorModel.RightShoulder));
-          item.Appearance.SetArmorPieceColor(ItemAppearanceArmorModel.LeftShoulder, (ItemAppearanceArmorColor)colorChannelChoice, item.Appearance.GetArmorPieceColor(ItemAppearanceArmorModel.RightShoulder, (ItemAppearanceArmorColor)colorChannelChoice));
+          foreach (ItemAppearanceArmorColor channel in colorChannelList)
+            item.Appearance.SetArmorPieceColor(ItemAppearanceArmorModel.LeftShoulder, channel, item.Appearance.GetArmorPieceColor(ItemAppearanceArmorModel.RightShoulder, channel));
           break;
         case ItemAppearanceArmorModel.RightThigh:
           item.Appearance.SetArmorModel(ItemAppearanceArmorModel.LeftThigh, item.Appearance.GetArmorModel(ItemAppearanceArmorModel.RightThigh));
-          item.Appearance.SetArmorPieceColor(ItemAppearanceArmorModel.LeftThigh, (ItemAppearanceArmorColor)colorChannelChoice, item.Appearance.GetArmorPieceColor(ItemAppearanceArmorModel.RightThigh, (ItemAppearanceArmorColor)colorChannelChoice));
+          foreach (ItemAppearanceArmorColor channel in colorChannelList)
+            item.Appearance.SetArmorPieceColor(ItemAppearanceArmorModel.LeftThigh, channel, item.Appearance.GetArmorPieceColor(ItemAppearanceArmorModel.RightThigh, channel));
           break;
       }
 
@@ -460,59 +477,73 @@ namespace NWN.Systems
       {
         case ItemAppearanceArmorModel.LeftBicep:
           item.Appearance.SetArmorModel(ItemAppearanceArmorModel.LeftBicep, item.Appearance.GetArmorModel(ItemAppearanceArmorModel.RightBicep));
-          item.Appearance.SetArmorPieceColor(ItemAppearanceArmorModel.LeftBicep, (ItemAppearanceArmorColor)colorChannelChoice, item.Appearance.GetArmorPieceColor(ItemAppearanceArmorModel.RightBicep, (ItemAppearanceArmorColor)colorChannelChoice));
+          foreach (ItemAppearanceArmorColor channel in colorChannelList)
+            item.Appearance.SetArmorPieceColor(ItemAppearanceArmorModel.LeftBicep, channel, item.Appearance.GetArmorPieceColor(ItemAppearanceArmorModel.RightBicep, channel));
           break;
         case ItemAppearanceArmorModel.LeftFoot:
           item.Appearance.SetArmorModel(ItemAppearanceArmorModel.LeftFoot, item.Appearance.GetArmorModel(ItemAppearanceArmorModel.RightFoot));
-          item.Appearance.SetArmorPieceColor(ItemAppearanceArmorModel.LeftFoot, (ItemAppearanceArmorColor)colorChannelChoice, item.Appearance.GetArmorPieceColor(ItemAppearanceArmorModel.RightFoot, (ItemAppearanceArmorColor)colorChannelChoice));
+          foreach (ItemAppearanceArmorColor channel in colorChannelList)
+            item.Appearance.SetArmorPieceColor(ItemAppearanceArmorModel.LeftFoot, channel, item.Appearance.GetArmorPieceColor(ItemAppearanceArmorModel.RightFoot, channel));
           break;
         case ItemAppearanceArmorModel.LeftForearm:
           item.Appearance.SetArmorModel(ItemAppearanceArmorModel.LeftForearm, item.Appearance.GetArmorModel(ItemAppearanceArmorModel.RightForearm));
-          item.Appearance.SetArmorPieceColor(ItemAppearanceArmorModel.LeftForearm, (ItemAppearanceArmorColor)colorChannelChoice, item.Appearance.GetArmorPieceColor(ItemAppearanceArmorModel.RightForearm, (ItemAppearanceArmorColor)colorChannelChoice));
+          foreach (ItemAppearanceArmorColor channel in colorChannelList)
+            item.Appearance.SetArmorPieceColor(ItemAppearanceArmorModel.LeftForearm, channel, item.Appearance.GetArmorPieceColor(ItemAppearanceArmorModel.RightForearm, channel));
           break;
         case ItemAppearanceArmorModel.LeftHand:
           item.Appearance.SetArmorModel(ItemAppearanceArmorModel.LeftHand, item.Appearance.GetArmorModel(ItemAppearanceArmorModel.RightHand));
-          item.Appearance.SetArmorPieceColor(ItemAppearanceArmorModel.LeftHand, (ItemAppearanceArmorColor)colorChannelChoice, item.Appearance.GetArmorPieceColor(ItemAppearanceArmorModel.RightHand, (ItemAppearanceArmorColor)colorChannelChoice));
+          foreach (ItemAppearanceArmorColor channel in colorChannelList)
+            item.Appearance.SetArmorPieceColor(ItemAppearanceArmorModel.LeftHand, channel, item.Appearance.GetArmorPieceColor(ItemAppearanceArmorModel.RightHand, channel));
           break;
         case ItemAppearanceArmorModel.LeftShin:
           item.Appearance.SetArmorModel(ItemAppearanceArmorModel.LeftShin, item.Appearance.GetArmorModel(ItemAppearanceArmorModel.RightShin));
-          item.Appearance.SetArmorPieceColor(ItemAppearanceArmorModel.LeftShin, (ItemAppearanceArmorColor)colorChannelChoice, item.Appearance.GetArmorPieceColor(ItemAppearanceArmorModel.RightShin, (ItemAppearanceArmorColor)colorChannelChoice));
+          foreach (ItemAppearanceArmorColor channel in colorChannelList)
+            item.Appearance.SetArmorPieceColor(ItemAppearanceArmorModel.LeftShin, channel, item.Appearance.GetArmorPieceColor(ItemAppearanceArmorModel.RightShin, channel));
           break;
         case ItemAppearanceArmorModel.LeftShoulder:
           item.Appearance.SetArmorModel(ItemAppearanceArmorModel.LeftShoulder, item.Appearance.GetArmorModel(ItemAppearanceArmorModel.RightShoulder));
-          item.Appearance.SetArmorPieceColor(ItemAppearanceArmorModel.LeftShoulder, (ItemAppearanceArmorColor)colorChannelChoice, item.Appearance.GetArmorPieceColor(ItemAppearanceArmorModel.RightShoulder, (ItemAppearanceArmorColor)colorChannelChoice));
+          foreach (ItemAppearanceArmorColor channel in colorChannelList)
+            item.Appearance.SetArmorPieceColor(ItemAppearanceArmorModel.LeftShoulder, channel, item.Appearance.GetArmorPieceColor(ItemAppearanceArmorModel.RightShoulder, channel));
           break;
         case ItemAppearanceArmorModel.LeftThigh:
           item.Appearance.SetArmorModel(ItemAppearanceArmorModel.LeftThigh, item.Appearance.GetArmorModel(ItemAppearanceArmorModel.RightThigh));
-          item.Appearance.SetArmorPieceColor(ItemAppearanceArmorModel.LeftThigh, (ItemAppearanceArmorColor)colorChannelChoice, item.Appearance.GetArmorPieceColor(ItemAppearanceArmorModel.RightThigh, (ItemAppearanceArmorColor)colorChannelChoice));
+          foreach (ItemAppearanceArmorColor channel in colorChannelList)
+            item.Appearance.SetArmorPieceColor(ItemAppearanceArmorModel.LeftThigh, channel, item.Appearance.GetArmorPieceColor(ItemAppearanceArmorModel.RightThigh, channel));
           break;
         case ItemAppearanceArmorModel.RightBicep:
           item.Appearance.SetArmorModel(ItemAppearanceArmorModel.RightBicep, item.Appearance.GetArmorModel(ItemAppearanceArmorModel.LeftBicep));
-          item.Appearance.SetArmorPieceColor(ItemAppearanceArmorModel.RightBicep, (ItemAppearanceArmorColor)colorChannelChoice, item.Appearance.GetArmorPieceColor(ItemAppearanceArmorModel.LeftBicep, (ItemAppearanceArmorColor)colorChannelChoice));
+          foreach (ItemAppearanceArmorColor channel in colorChannelList)
+            item.Appearance.SetArmorPieceColor(ItemAppearanceArmorModel.RightBicep, channel, item.Appearance.GetArmorPieceColor(ItemAppearanceArmorModel.LeftBicep, channel));
           break;
         case ItemAppearanceArmorModel.RightFoot:
           item.Appearance.SetArmorModel(ItemAppearanceArmorModel.RightFoot, item.Appearance.GetArmorModel(ItemAppearanceArmorModel.LeftFoot));
-          item.Appearance.SetArmorPieceColor(ItemAppearanceArmorModel.RightFoot, (ItemAppearanceArmorColor)colorChannelChoice, item.Appearance.GetArmorPieceColor(ItemAppearanceArmorModel.LeftFoot, (ItemAppearanceArmorColor)colorChannelChoice));
+          foreach (ItemAppearanceArmorColor channel in colorChannelList)
+            item.Appearance.SetArmorPieceColor(ItemAppearanceArmorModel.RightFoot, channel, item.Appearance.GetArmorPieceColor(ItemAppearanceArmorModel.LeftFoot, channel));
           break;
         case ItemAppearanceArmorModel.RightForearm:
           item.Appearance.SetArmorModel(ItemAppearanceArmorModel.RightForearm, item.Appearance.GetArmorModel(ItemAppearanceArmorModel.LeftForearm));
-          item.Appearance.SetArmorPieceColor(ItemAppearanceArmorModel.RightForearm, (ItemAppearanceArmorColor)colorChannelChoice, item.Appearance.GetArmorPieceColor(ItemAppearanceArmorModel.LeftForearm, (ItemAppearanceArmorColor)colorChannelChoice));
+          foreach (ItemAppearanceArmorColor channel in colorChannelList)
+            item.Appearance.SetArmorPieceColor(ItemAppearanceArmorModel.RightForearm, channel, item.Appearance.GetArmorPieceColor(ItemAppearanceArmorModel.LeftForearm, channel));
           break;
         case ItemAppearanceArmorModel.RightHand:
           item.Appearance.SetArmorModel(ItemAppearanceArmorModel.RightHand, item.Appearance.GetArmorModel(ItemAppearanceArmorModel.LeftHand));
-          item.Appearance.SetArmorPieceColor(ItemAppearanceArmorModel.RightHand, (ItemAppearanceArmorColor)colorChannelChoice, item.Appearance.GetArmorPieceColor(ItemAppearanceArmorModel.LeftHand, (ItemAppearanceArmorColor)colorChannelChoice));
+          foreach (ItemAppearanceArmorColor channel in colorChannelList)
+            item.Appearance.SetArmorPieceColor(ItemAppearanceArmorModel.RightHand, channel, item.Appearance.GetArmorPieceColor(ItemAppearanceArmorModel.LeftHand, channel));
           break;
         case ItemAppearanceArmorModel.RightShin:
           item.Appearance.SetArmorModel(ItemAppearanceArmorModel.RightShin, item.Appearance.GetArmorModel(ItemAppearanceArmorModel.LeftShin));
-          item.Appearance.SetArmorPieceColor(ItemAppearanceArmorModel.RightShin, (ItemAppearanceArmorColor)colorChannelChoice, item.Appearance.GetArmorPieceColor(ItemAppearanceArmorModel.LeftShin, (ItemAppearanceArmorColor)colorChannelChoice));
+          foreach (ItemAppearanceArmorColor channel in colorChannelList)
+            item.Appearance.SetArmorPieceColor(ItemAppearanceArmorModel.RightShin, channel, item.Appearance.GetArmorPieceColor(ItemAppearanceArmorModel.LeftShin, channel));
           break;
         case ItemAppearanceArmorModel.RightShoulder:
           item.Appearance.SetArmorModel(ItemAppearanceArmorModel.RightShoulder, item.Appearance.GetArmorModel(ItemAppearanceArmorModel.LeftShoulder));
-          item.Appearance.SetArmorPieceColor(ItemAppearanceArmorModel.RightShoulder, (ItemAppearanceArmorColor)colorChannelChoice, item.Appearance.GetArmorPieceColor(ItemAppearanceArmorModel.LeftShoulder, (ItemAppearanceArmorColor)colorChannelChoice));
+          foreach (ItemAppearanceArmorColor channel in colorChannelList)
+            item.Appearance.SetArmorPieceColor(ItemAppearanceArmorModel.RightShoulder, channel, item.Appearance.GetArmorPieceColor(ItemAppearanceArmorModel.LeftShoulder, channel));
           break;
         case ItemAppearanceArmorModel.RightThigh:
           item.Appearance.SetArmorModel(ItemAppearanceArmorModel.RightThigh, item.Appearance.GetArmorModel(ItemAppearanceArmorModel.LeftThigh));
-          item.Appearance.SetArmorPieceColor(ItemAppearanceArmorModel.RightThigh, (ItemAppearanceArmorColor)colorChannelChoice, item.Appearance.GetArmorPieceColor(ItemAppearanceArmorModel.LeftThigh, (ItemAppearanceArmorColor)colorChannelChoice));
+          foreach (ItemAppearanceArmorColor channel in colorChannelList)
+            item.Appearance.SetArmorPieceColor(ItemAppearanceArmorModel.RightThigh, channel, item.Appearance.GetArmorPieceColor(ItemAppearanceArmorModel.LeftThigh, channel));
           break;
       }
 

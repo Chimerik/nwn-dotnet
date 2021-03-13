@@ -66,6 +66,10 @@ namespace NWN.Systems
           Craft.Blueprint.BlueprintValidation(player, onUseFeat.TargetGameObject, (Feat)onUseFeat.Feat);
           break;
 
+        case Feat.Recycler:
+          new Recycler(player, onUseFeat.TargetGameObject);
+          break;
+
         case Feat.CustomMenuUP:
         case Feat.CustomMenuDOWN:
         case Feat.CustomMenuSELECT:
