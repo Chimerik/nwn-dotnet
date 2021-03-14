@@ -9,16 +9,13 @@ using NWN.API;
 using NWN.API.Constants;
 using NWN.Core;
 using NWN.Core.NWNX;
+using NWN.Services;
 using static NWN.Systems.SkillSystem;
 
 namespace NWN.Systems
 {
   public static partial class CommandSystem
   {
-    private static Dictionary<int, API.ItemProperty[]> enchantementCategories = new Dictionary<int, API.ItemProperty[]>()
-    {
-      {841, new API.ItemProperty[] { API.ItemProperty.ACBonusVsRace(IPRacialType.HumanoidGoblinoid, 1), API.ItemProperty.ACBonusVsRace(IPRacialType.Animal, 1), API.ItemProperty.ACBonusVsRace(IPRacialType.HumanoidReptilian, 1), API.ItemProperty.ACBonusVsRace(IPRacialType.Vermin, 1), API.ItemProperty.AttackBonusVsRace(IPRacialType.HumanoidGoblinoid, 1), API.ItemProperty.AttackBonusVsRace(IPRacialType.Animal, 1), API.ItemProperty.AttackBonusVsRace(IPRacialType.HumanoidReptilian, 1), API.ItemProperty.AttackBonusVsRace(IPRacialType.Vermin, 1) } },
-    };
     private static void ExecuteTestCommand(ChatSystem.Context ctx, Options.Result options)
     {
       if (PlayerSystem.Players.TryGetValue(ctx.oSender, out PlayerSystem.Player player))
@@ -29,13 +26,17 @@ namespace NWN.Systems
         if (NWScript.GetPCPlayerName(player.oid) == "Chim")
         {
           player.oid.SendServerMessage($"modificateur de dex : {player.oid.GetAbilityModifier(Ability.Dexterity)}");
-          
+
+          PlayerSystem.cursorTargetService.EnterTargetMode(player.oid, SelectObject, ObjectTypes.All, MouseCursor.Kill);
         }
       }
     }
-    private static void HandleEnchantementChoice(PlayerSystem.Player player, int spellId, API.ItemProperty ip)
+    private static void SelectObject(CursorTargetData selection)
     {
-      player.oid.SendServerMessage($"ip choisie : {ip.ToString()}");
+      NWScript.SetObjectVisualTransform(selection.TargetObj, NWScript.OBJECT_VISUAL_TRANSFORM_TRANSLATE_Y, 10, 
+        NWScript.OBJECT_VISUAL_TRANSFORM_LERP_LINEAR, 10);
+      NWScript.SetObjectVisualTransform(selection.TargetObj, NWScript.OBJECT_VISUAL_TRANSFORM_TRANSLATE_Z, 10,
+        NWScript.OBJECT_VISUAL_TRANSFORM_LERP_SMOOTHERSTEP, 10);
     }
 
     /* public static String Translate(String word)

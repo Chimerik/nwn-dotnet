@@ -5,6 +5,8 @@ using NWN.Core.NWNX;
 using NWN.Services;
 using NWNX.API.Events;
 using NWNX.Services;
+using System.Collections.Generic;
+using NWN.API.Constants;
 
 namespace NWN.Systems
 {
@@ -12,6 +14,10 @@ namespace NWN.Systems
   public class FeatSystem
   {
     private static readonly Logger Log = LogManager.GetCurrentClassLogger();
+    public static Dictionary<API.Constants.Feat, CustomFeats> customFeatsDictionnary = new Dictionary<API.Constants.Feat, CustomFeats>()
+      {
+            { (API.Constants.Feat)2051, new CustomFeats("Recyclage", "Permet de recycler des objets en matière raffinée.\n\n Diminue le temps nécessaire au recyclage et augmente le rendement de 1 % par niveau.") },
+    };
     public FeatSystem(NWNXEventService nwnxEventService)
     {
       nwnxEventService.Subscribe<FeatUseEvents.OnUseFeatBefore>(OnUseFeatBefore);

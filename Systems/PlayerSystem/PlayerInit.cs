@@ -98,12 +98,18 @@ namespace NWN.Systems
       else
         improvedConst = Int32.Parse(NWScript.Get2DAString("feat", "GAINMULTIPLE", improvedConst));
 
+      int improvedHealth = CreaturePlugin.GetHighestLevelOfFeat(player.oid, (int)Feat.ImprovedHealth);
+      if (improvedHealth == (int)Feat.Invalid)
+        improvedHealth = 0;
+      else
+        improvedHealth = Int32.Parse(NWScript.Get2DAString("feat", "GAINMULTIPLE", improvedHealth));
+
       //NWScript.SendMessageToPC(player.oid, $"pv : {Int32.Parse(NWScript.Get2DAString("classes", "HitDie", 43)) + (1 + 3 * ((NWScript.GetAbilityScore(oTarget, NWScript.ABILITY_CONSTITUTION, 1) + improvedConst - 10) / 2 + CreaturePlugin.GetKnowsFeat(oTarget, (int)Feat.Toughness))) * Int32.Parse(NWScript.Get2DAString("feat", "GAINMULTIPLE", CreaturePlugin.GetHighestLevelOfFeat(oTarget, (int)Feat.ImprovedHealth)))}");
 
       CreaturePlugin.SetMaxHitPointsByLevel(player.oid, 1, Int32.Parse(NWScript.Get2DAString("classes", "HitDie", 43))
         + (1 + 3 * ((NWScript.GetAbilityScore(player.oid, NWScript.ABILITY_CONSTITUTION, 1)
         + improvedConst - 10) / 2
-        + CreaturePlugin.GetKnowsFeat(player.oid, (int)Feat.Toughness))) * Int32.Parse(NWScript.Get2DAString("feat", "GAINMULTIPLE", CreaturePlugin.GetHighestLevelOfFeat(player.oid, (int)Feat.ImprovedHealth))));
+        + CreaturePlugin.GetKnowsFeat(player.oid, (int)Feat.Toughness))) * improvedHealth);
 
       Task waitForTorilNecklaceChange = NwTask.Run(async () =>
       {

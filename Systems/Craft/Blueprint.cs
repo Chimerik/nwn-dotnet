@@ -251,15 +251,11 @@ namespace NWN.Systems.Craft
       {
         craftedItem.RemoveItemProperty(currentIP);
         currentIP.CostTableValue += 1;
-        //GC.SuppressFinalize(currentIP); // Permet de corriger un problème d'interaction entre Managed et le Unpack de NWNX, les deux essayant de supprimer l'IP en mémoire en même temps => BOOM
-        //IPUnpacked unpackedIP = ItempropPlugin.UnpackIP(currentIP);
-        //unpackedIP.nCostTableValue += 1;
 
         return currentIP;
       }
       else
       {
-       // IPUnpacked newIP = new IPUnpacked();
         string[] IPproperties = ipString.Split("_");
 
         API.ItemProperty newIP = API.ItemProperty.Quality(IPQuality.Unknown);
