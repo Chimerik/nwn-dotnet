@@ -61,7 +61,7 @@ namespace NWN.Systems
           else
             material = "Tritanium";
 
-          player.craftJob.Start(Craft.Job.JobType.Recycling, null, player, NWScript.OBJECT_INVALID, item, material);
+          player.craftJob.Start(Craft.Job.JobType.Recycling, null, player, null, item, material);
           break;
         
         case BaseItemType.HeavyCrossbow:
@@ -83,7 +83,7 @@ namespace NWN.Systems
           else
             material = "Laurelinade";
 
-          player.craftJob.Start(Craft.Job.JobType.Recycling, null, player, NWScript.OBJECT_INVALID, item, material);
+          player.craftJob.Start(Craft.Job.JobType.Recycling, null, player, null, item, material);
           break;
 
         case BaseItemType.Belt:
@@ -98,7 +98,7 @@ namespace NWN.Systems
           else
             material = "MauvaisCuir";
 
-          player.craftJob.Start(Craft.Job.JobType.Recycling, null, player, NWScript.OBJECT_INVALID, item, material);
+          player.craftJob.Start(Craft.Job.JobType.Recycling, null, player, null, item, material);
           break;
 
         default:

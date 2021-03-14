@@ -1,6 +1,10 @@
 ﻿using System;
 using System.Numerics;
+using NWN.API;
+using NWN.API.Constants;
 using NWN.Core;
+using NWN.Core.NWNX;
+using NWN.Services;
 
 namespace NWN.Systems
 {
@@ -8,22 +12,24 @@ namespace NWN.Systems
   {
     private static void ExecuteRenameCreatureCommand(ChatSystem.Context ctx, Options.Result options)
     {
-      PlayerSystem.Player player;
-      if (PlayerSystem.Players.TryGetValue(ctx.oSender, out player))
+      if (!PlayerSystem.Players.TryGetValue(ctx.oSender, out PlayerSystem.Player player))
+        return;
+
+      if(CreaturePlugin.GetKnowsFeat(player.oid, (int)API.Constants.Feat.SpellFocusConjuration) == 0)
       {
-        string newName = (string)options.positional[0];
-
-        Action<uint, Vector3> callback = (uint target, Vector3 position) =>
-        {
-          var oCreature = target;
-          if (NWScript.GetIsDM(player.oid) == 1 || NWScript.GetMaster(oCreature) == player.oid)
-            NWScript.SetName(oCreature, newName);
-          else
-            NWScript.SendMessageToPC(player.oid, $"{NWScript.GetName(oCreature)} n'est pas une de vos invocations, vous ne pouvez pas modifier son nom");
-        };
-
-        player.SelectTarget(callback);
+        player.oid.SendServerMessage("Le don de spécialisation en invocation est nécessaire pour pouvoir renommer une invocation.", Color.ORANGE);
+        return;
       }
+
+      player.oid.GetLocalVariable<string>("_RENAME_VALUE").Value = (string)options.positional[0];
+      PlayerSystem.cursorTargetService.EnterTargetMode(player.oid, SummonRenameTarget, ObjectTypes.Creature, MouseCursor.Create);
+    }
+    private static void SummonRenameTarget(CursorTargetData selection)
+    {
+      if (selection.TargetObj != null && ((NwCreature)selection.TargetObj).Master == selection.Player)
+        selection.TargetObj.Name = selection.Player.GetLocalVariable<string>("_RENAME_VALUE").Value;
+      else
+        selection.Player.SendServerMessage("Veuillez sélectionner une cible valide.", Color.RED);
     }
   }
 }

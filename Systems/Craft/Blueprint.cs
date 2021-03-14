@@ -142,7 +142,7 @@ namespace NWN.Systems.Craft
           Utils.LogMessageToDMs($"Blueprint Invalid : {item.Name} - Base Item Type : {baseItemType} - Used by : {oPlayer.Name}");
         }
     }
-    private void StartJob(PlayerSystem.Player player, uint blueprint, Feat feat)
+    private void StartJob(PlayerSystem.Player player, NwItem blueprint, Feat feat)
     {
       switch (feat)
       {

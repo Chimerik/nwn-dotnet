@@ -90,7 +90,7 @@ namespace NWN.Systems
         else
         {
           this.primaryAbility = NWScript.ABILITY_INTELLIGENCE;
-          NWN.Utils.LogMessageToDMs($"SKILL SYSTEM ERROR - Skill {this.oid} : Primary ability not set");
+          Utils.LogMessageToDMs($"SKILL SYSTEM ERROR - Skill {this.oid} : Primary ability not set");
         }
 
         if (iSkillAbilities.Count > 1)

@@ -6,6 +6,7 @@ using NWN.Core;
 using System.Numerics;
 using System.Linq;
 using NWN.API;
+using NWN.API.Constants;
 
 namespace NWN
 {
@@ -27,15 +28,15 @@ namespace NWN
           break;
       }
     }
-    public static void DestroyInventory(uint oContainer)
+    public static void DestroyInventory(NwGameObject oContainer)
     {
-      foreach (NwItem item in oContainer.ToNwObject<NwGameObject>().Items)
+      foreach (NwItem item in oContainer.Items)
         item.Destroy();
     }
-    public static void DestroyEquippedItems(uint oCreature)
+    public static void DestroyEquippedItems(NwCreature oCreature)
     {
       for (int i = 0; i < 17; i++)
-        NWScript.DestroyObject(NWScript.GetItemInSlot(i, oCreature));
+        oCreature.GetItemInSlot((InventorySlot)i)?.Destroy();
     }
 
     public static double ScaleToRange(double value, double originalMin, double originalMax, double destMin, double destMax)
@@ -47,19 +48,6 @@ namespace NWN
     public static API.Location GetLocationFromDatabase(string areaTag, Vector3 position, float facing)
     {
       return API.Location.Create(NwModule.Instance.Areas.Where(a => a.Tag == areaTag).FirstOrDefault(), position, facing);
-    }
-    public static Boolean IsPartyMember(uint oPC, uint oTarget)
-    {
-      // Get the first PC party member
-      var oPartyMember = NWScript.GetFirstFactionMember(oPC, 1);
-
-      while (NWScript.GetIsObjectValid(oPartyMember) == 1)
-      {
-        if (oPartyMember == oTarget)
-          return true;
-        oPartyMember = NWScript.GetNextFactionMember(oPC, 1);
-      }
-      return false;
     }
     public static int GUI_DrawWindow(uint oPlayer, int nStartID, int nAnchor, int nX, int nY, int nWidth, int nHeight, float fLifetime = 0.0f)
     {

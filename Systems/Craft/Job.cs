@@ -1,5 +1,7 @@
 ﻿using System;
+using System.Threading.Tasks;
 using NWN.API;
+using NWN.API.Constants;
 using NWN.Core;
 using NWN.Core.NWNX;
 using NWNX.API;
@@ -80,40 +82,48 @@ namespace NWN.Systems.Craft
     {
       this.isCancelled = false;
     }
-    public void AskCancellationConfirmation(uint player)
+    public void AskCancellationConfirmation(NwPlayer player)
     {
-      NWScript.SendMessageToPC(player, $"Attention, votre travail précédent n'est pas terminé. Lancer un nouveau travail signifie perdre la totalité du travail en cours !");
-      NWScript.SendMessageToPC(player, $"Utilisez une seconde fois le plan pour confirmer l'annulation du travail en cours.");
+      player.SendServerMessage($"Attention, votre travail précédent n'est pas terminé. Lancer un nouveau travail signifie perdre la totalité du travail en cours !", Color.MAGENTA);
+      player.SendServerMessage($"Utilisez une seconde fois le plan pour confirmer l'annulation du travail en cours.", Color.SILVER);
       this.isCancelled = true;
-      NWScript.DelayCommand(60.0f, () => this.ResetCancellation());
-    }
-    public Boolean CanStartJob(uint player, uint blueprint, JobType type)
-    {
-      if (type == JobType.BlueprintCopy || type == JobType.BlueprintResearchMaterialEfficiency || type == JobType.BlueprintResearchTimeEfficiency) // Dans le cas d'une copie ou d'une recherche de BP
-      {
-        if (!IsBlueprintOriginal(blueprint))
-        {
-          NWScript.SendMessageToPC(player, "Il vous faut un patron original afin d'effectuer une recherche ou une copie.");
-          return false;
-        }
-      }
 
-      switch (type)
+      Task waitSpellUsed = NwTask.Run(async () =>
       {
-        case JobType.BlueprintResearchTimeEfficiency:
-          if (NWScript.GetLocalInt(blueprint, "_BLUEPRINT_TIME_EFFICIENCY") >= 10)
+        await NwTask.Delay(TimeSpan.FromSeconds(60));
+        ResetCancellation();
+      });
+    }
+    public Boolean CanStartJob(NwPlayer player, NwItem blueprint, JobType type)
+    {
+      if (blueprint != null)
+      {
+        if (type == JobType.BlueprintCopy || type == JobType.BlueprintResearchMaterialEfficiency || type == JobType.BlueprintResearchTimeEfficiency) // Dans le cas d'une copie ou d'une recherche de BP
+        {
+          if (!IsBlueprintOriginal(blueprint))
           {
-            NWScript.SendMessageToPC(player, "Ce patron dispose déjà d'un niveau de recherche maximal.");
+            player.SendServerMessage("Il vous faut un patron original afin d'effectuer une recherche ou une copie.", Color.ORANGE);
             return false;
           }
-          break;
-        case JobType.BlueprintResearchMaterialEfficiency:
-          if (NWScript.GetLocalInt(blueprint, "_BLUEPRINT_MATERIAL_EFFICIENCY") >= 10)
-          {
-            NWScript.SendMessageToPC(player, "Ce patron dispose déjà d'un niveau de recherche métallurgique maximal.");
-            return false;
-          }
-          break;
+        }
+
+        switch (type)
+        {
+          case JobType.BlueprintResearchTimeEfficiency:
+            if (blueprint.GetLocalVariable<int>("_BLUEPRINT_TIME_EFFICIENCY").Value >= 10)
+            {
+              player.SendServerMessage("Ce patron dispose déjà d'un niveau de recherche maximal.", Color.ORANGE);
+              return false;
+            }
+            break;
+          case JobType.BlueprintResearchMaterialEfficiency:
+            if (blueprint.GetLocalVariable<int>("_BLUEPRINT_MATERIAL_EFFICIENCY").Value >= 10)
+            {
+              player.SendServerMessage("Ce patron dispose déjà d'un niveau de recherche métallurgique maximal.", Color.ORANGE);
+              return false;
+            }
+            break;
+        }
       }
 
       if (IsActive() && !isCancelled)
@@ -124,19 +134,19 @@ namespace NWN.Systems.Craft
 
       if (this.isCancelled)
       {
-        ObjectPlugin.AcquireItem(player, ObjectPlugin.Deserialize(this.craftedItem));
+        player.AcquireItem(NwGameObject.Deserialize<NwItem>(craftedItem));
       }
 
       return true;
     }
-    private Boolean IsBlueprintOriginal(uint oBlueprint)
+    private Boolean IsBlueprintOriginal(NwItem oBlueprint)
     {
-      if (NWScript.GetLocalInt(oBlueprint, "_BLUEPRINT_RUNS") > 0)
+      if (oBlueprint.GetLocalVariable<int>("_BLUEPRINT_RUNS").Value > 0)
         return false;
       else
         return true;
     }
-    public void Start(JobType type, Blueprint blueprint, PlayerSystem.Player player, uint oItem, uint oTarget = 0, string sMaterial = "")
+    public void Start(JobType type, Blueprint blueprint, PlayerSystem.Player player, NwItem oItem, NwGameObject oTarget = null, string sMaterial = "")
     {
       switch (type)
       {
@@ -161,10 +171,10 @@ namespace NWN.Systems.Craft
       }
 
     }
-    public void StartItemCraft(Blueprint blueprint, uint oItem, uint oTarget, string sMaterial)
+    public void StartItemCraft(Blueprint blueprint, NwItem oItem, NwGameObject oTarget, string sMaterial)
     {
-      int iMineralCost = blueprint.GetBlueprintMineralCostForPlayer(player.oid, oItem.ToNwObject<NwItem>());
-      float iJobDuration = blueprint.GetBlueprintTimeCostForPlayer(player.oid, oItem.ToNwObject<NwItem>());
+      int iMineralCost = blueprint.GetBlueprintMineralCostForPlayer(player.oid, oItem);
+      float iJobDuration = blueprint.GetBlueprintTimeCostForPlayer(player.oid, oItem);
 
       int materialType = 0;
       if (Enum.TryParse(material, out MineralType myMineralType))
@@ -181,30 +191,30 @@ namespace NWN.Systems.Craft
         player.craftJob = new Job(blueprint.baseItemType, sMaterial, iJobDuration, player);
         player.materialStock[sMaterial] -= iMineralCost;
 
-        NWScript.SendMessageToPC(player.oid, $"Vous venez de démarrer la fabrication de l'objet artisanal : {blueprint.name} en {sMaterial}");
+        player.oid.SendServerMessage($"Vous venez de démarrer la fabrication de l'objet artisanal : {blueprint.name.ColorString(Color.WHITE)} en {sMaterial.ColorString(Color.WHITE)}", Color.GREEN);
         // TODO : afficher des effets visuels sur la forge
 
-        if (NWScript.GetTag(oTarget) == blueprint.craftedItemTag) // En cas d'amélioration d'un objet, on détruit l'original
+        if (oTarget.Tag == blueprint.craftedItemTag) // En cas d'amélioration d'un objet, on détruit l'original
         {
-          NWScript.DestroyObject(oTarget);
-          NWScript.SendMessageToPC(player.oid, $"L'objet {NWScript.GetName(oTarget)} ne sera pas disponible jusqu'à la fin du travail artisanal.");
+          oTarget.Destroy();
+          player.oid.SendServerMessage($"L'objet {oTarget.Name.ColorString(Color.WHITE)} ne sera pas disponible jusqu'à la fin du travail artisanal.", Color.ORANGE);
         }
 
         // s'il s'agit d'une copie de blueprint, alors le nombre d'utilisation diminue de 1
-        int iBlueprintRemainingRuns = NWScript.GetLocalInt(oItem, "_BLUEPRINT_RUNS");
+        int iBlueprintRemainingRuns = oItem.GetLocalVariable<int>("_BLUEPRINT_RUNS").Value;
         if (iBlueprintRemainingRuns == 1)
-          NWScript.DestroyObject(oItem);
+          oItem.Destroy();
         if (iBlueprintRemainingRuns > 0)
-          NWScript.SetLocalInt(oItem, "_BLUEPRINT_RUNS", iBlueprintRemainingRuns - 1);
+          oItem.GetLocalVariable<int>("_BLUEPRINT_RUNS").Value -= 1;
 
-        ItemUtils.DecreaseItemDurability(NWScript.GetItemInSlot(NWScript.INVENTORY_SLOT_RIGHTHAND, player.oid));
+        ItemUtils.DecreaseItemDurability(player.oid.GetItemInSlot(InventorySlot.RightHand));
       }
       else
-        NWScript.SendMessageToPC(player.oid, $"Vous n'avez pas les ressources nécessaires pour démarrer la fabrication de cet objet artisanal.");
+        player.oid.SendServerMessage("Vous n'avez pas les ressources nécessaires pour démarrer la fabrication de cet objet artisanal.", Color.RED);
 
       player.craftJob.isCancelled = false;
     }
-    public void StartBlueprintCopy(PlayerSystem.Player player, uint oBlueprint, Blueprint blueprint)
+    public void StartBlueprintCopy(PlayerSystem.Player player, NwItem oBlueprint, Blueprint blueprint)
     {
       if (player.craftJob.CanStartJob(player.oid, oBlueprint, JobType.BlueprintCopy))
       {
@@ -213,11 +223,11 @@ namespace NWN.Systems.Craft
         {
           int timeCost = blueprint.mineralsCost * 80;
           float iJobDuration = timeCost - timeCost * (value * 5) / 100;
-          player.craftJob = new Job(-11, "", iJobDuration, player, ObjectPlugin.Serialize(oBlueprint)); // - 11 = blueprint copy
+          player.craftJob = new Job(-11, "", iJobDuration, player, oBlueprint.Serialize()); // - 11 = blueprint copy
         }
       }
     }
-    private void StartEnchantementCraft(uint oTarget, string ipString)
+    private void StartEnchantementCraft(NwGameObject oTarget, string ipString)
     {
       Log.Info("start ench craft");
 
@@ -233,44 +243,25 @@ namespace NWN.Systems.Craft
       }
 
       int baseItemType = NWScript.GetBaseItemType(oTarget);
-      int baseCost = 9999;
+      int baseCost = ItemUtils.GetBaseItemCost((NwItem)oTarget);
 
       Log.Info($"base item type job : {baseItemType}");
 
-      if (baseItemType == NWScript.BASE_ITEM_ARMOR)
-      {
-        if (!int.TryParse(NWScript.Get2DAString("armor", "COST", ItemPlugin.GetBaseArmorClass(oTarget)), out baseCost))
-        {
-          player.oid.SendServerMessage("HRP - Le coût de base de l'object à enchanter est incorrectement configuré. Le staff a été prévenu !");
-          Utils.LogMessageToDMs($"ENCHANTEMENT - {player.oid.Name} - baseCost introuvable pour baseItemType : {baseItemType}");
-          return;
-        }
-      }
-      else
-      {
-        if (!int.TryParse(NWScript.Get2DAString("baseitems", "BaseCost", baseItemType), out baseCost))
-        {
-          player.oid.SendServerMessage("HRP - Le coût de base de l'object à enchanter est incorrectement configuré. Le staff a été prévenu !");
-          Utils.LogMessageToDMs($"ENCHANTEMENT - {player.oid.Name} - baseCost introuvable pour baseItemType : {baseItemType}");
-          return;
-        }
-      }
-
       float iJobDuration = baseCost * spellLevel * 100;
       Log.Info($"duration : {iJobDuration}");
-      player.craftJob = new Job(-14, ipString, iJobDuration, player, ObjectPlugin.Serialize(oTarget)); // -14 = JobType enchantement
+      player.craftJob = new Job(-14, ipString, iJobDuration, player, oTarget.Serialize()); // -14 = JobType enchantement
 
-      NWScript.SendMessageToPC(player.oid, $"Vous venez de démarrer l'enchantement de : {NWScript.GetName(oTarget)}");
+      player.oid.SendServerMessage($"Vous venez de démarrer l'enchantement de : {NWScript.GetName(oTarget).ColorString(Color.WHITE)}", Color.GREEN);
       // TODO : afficher des effets visuels
 
-      NWScript.DestroyObject(oTarget);
-      NWScript.SendMessageToPC(player.oid, $"L'objet {NWScript.GetName(oTarget)} ne sera pas disponible jusqu'à la fin du travail d'enchantement.");
+      oTarget.Destroy();
+      player.oid.SendServerMessage($"L'objet {oTarget.Name.ColorString(Color.WHITE)} ne sera pas disponible jusqu'à la fin du travail d'enchantement.", Color.ORANGE);
 
       player.craftJob.isCancelled = false;
     }
-    private void StartRecycleCraft(uint oTarget, string material)
+    private void StartRecycleCraft(NwGameObject oTarget, string material)
     {
-      NwItem item = oTarget.ToNwObject<NwItem>();
+      NwItem item = (NwItem)oTarget;
 
       Log.Info($"{player.oid.Name} starts recycling {item.Name} - material : {material}");
 
@@ -293,7 +284,7 @@ namespace NWN.Systems.Craft
 
       player.craftJob.isCancelled = false;
     }
-    public void StartBlueprintMaterialEfficiencyResearch(PlayerSystem.Player player, uint oBlueprint, Blueprint blueprint)
+    public void StartBlueprintMaterialEfficiencyResearch(PlayerSystem.Player player, NwItem oBlueprint, Blueprint blueprint)
     {
       if (player.craftJob.CanStartJob(player.oid, oBlueprint, JobType.BlueprintResearchMaterialEfficiency))
       {
@@ -305,11 +296,11 @@ namespace NWN.Systems.Craft
 
         float iJobDuration = blueprint.mineralsCost * 100 - blueprint.mineralsCost * (metallurgyLevel * 5 + advancedCraftLevel * 3) / 100;
         player.craftJob = new Job(-12, "", iJobDuration, player, ObjectPlugin.Serialize(oBlueprint)); // - 12 = recherche ME
-        NWScript.DestroyObject(oBlueprint);
-        NWScript.SendMessageToPC(player.oid, $"L'objet {NWScript.GetName(oBlueprint)} ne sera pas disponible jusqu'à la fin du travail de recherche métallurgique.");
+        oBlueprint.Destroy();
+        player.oid.SendServerMessage($"L'objet {oBlueprint.Name.ColorString(Color.WHITE)} ne sera pas disponible jusqu'à la fin du travail de recherche métallurgique.", Color.ORANGE);
       }
     }
-    public void StartBlueprintTimeEfficiencyResearch(PlayerSystem.Player player, uint oBlueprint, Blueprint blueprint)
+    public void StartBlueprintTimeEfficiencyResearch(PlayerSystem.Player player, NwItem oBlueprint, Blueprint blueprint)
     {
       if (player.craftJob.CanStartJob(player.oid, oBlueprint, JobType.BlueprintResearchTimeEfficiency))
       {
@@ -321,8 +312,8 @@ namespace NWN.Systems.Craft
 
         float iJobDuration = blueprint.mineralsCost * 100 - blueprint.mineralsCost * (researchLevel * 5 + advancedCraftLevel * 3) / 100;
         player.craftJob = new Job(-13, "", iJobDuration, player, ObjectPlugin.Serialize(oBlueprint)); // -13 = recherche TE
-        NWScript.DestroyObject(oBlueprint);
-        NWScript.SendMessageToPC(player.oid, $"L'objet {NWScript.GetName(oBlueprint)} ne sera pas disponible jusqu'à la fin du travail de recherche d'efficacité.");
+        oBlueprint.Destroy();
+        player.oid.SendServerMessage($"L'objet {oBlueprint.Name.ColorString(Color.WHITE)} ne sera pas disponible jusqu'à la fin du travail de recherche d'efficacité.", Color.ORANGE);
       }
     }
     public void CreateCraftJournalEntry()
@@ -340,22 +331,22 @@ namespace NWN.Systems.Craft
       switch (this.type)
       {
         case JobType.BlueprintCopy:
-          journalEntry.sText = $"Copie de {NWScript.GetName(ObjectPlugin.Deserialize(craftedItem))} en cours";
+          journalEntry.sText = $"Copie de {NwItem.Deserialize<NwItem>(craftedItem).Name.ColorString(Color.ORANGE)} en cours";
           break;
         case JobType.BlueprintResearchMaterialEfficiency:
-          journalEntry.sText = $"Recherche métallurgique en cours : {NWScript.GetName(ObjectPlugin.Deserialize(craftedItem))}";
+          journalEntry.sText = $"Recherche métallurgique en cours : {NwItem.Deserialize<NwItem>(craftedItem).Name.ColorString(Color.ORANGE)}";
           break;
         case JobType.BlueprintResearchTimeEfficiency:
-          journalEntry.sText = $"Recherche d'efficacité en cours : {NWScript.GetName(ObjectPlugin.Deserialize(craftedItem))}";
+          journalEntry.sText = $"Recherche d'efficacité en cours : {NwItem.Deserialize<NwItem>(craftedItem).Name.ColorString(Color.ORANGE)}";
           break;
         case JobType.Enchantement:
-          journalEntry.sText = $"Enchantement en cours : {NWScript.GetName(ObjectPlugin.Deserialize(craftedItem))}";
+          journalEntry.sText = $"Enchantement en cours : {NwItem.Deserialize<NwItem>(craftedItem).Name.ColorString(Color.ORANGE)}";
           break;
         case JobType.Recycling:
-          journalEntry.sText = $"Recyclage en cours : {NWScript.GetName(ObjectPlugin.Deserialize(craftedItem))}";
+          journalEntry.sText = $"Recyclage en cours : {NwItem.Deserialize<NwItem>(craftedItem).Name.ColorString(Color.ORANGE)}";
           break;
         default:
-          journalEntry.sText = $"Fabrication en cours : {blueprintDictionnary[baseItemType].name}";
+          journalEntry.sText = $"Fabrication en cours : {blueprintDictionnary[baseItemType].name.ColorString(Color.ORANGE)}";
           break;
       }
 
@@ -386,7 +377,7 @@ namespace NWN.Systems.Craft
           journalEntry.sText = $"Recyclage en pause";
           break;
         default:
-          journalEntry.sName = $"Travail artisanal en pause - {blueprintDictionnary[baseItemType].name}";
+          journalEntry.sName = $"Travail artisanal en pause - {blueprintDictionnary[baseItemType].name.ColorString(Color.ORANGE)}";
           break;
       }
 
@@ -411,13 +402,13 @@ namespace NWN.Systems.Craft
           journalEntry.sName = $"Travail artisanal terminé - Recherche en efficacité";
           break;
         case JobType.Enchantement:
-          journalEntry.sName = $"Enchantement terminé - {NWScript.GetName(ObjectPlugin.Deserialize(craftedItem))}";
+          journalEntry.sName = $"Enchantement terminé - {NwItem.Deserialize<NwItem>(craftedItem).Name.ColorString(Color.ORANGE)}";
           break;
         case JobType.Recycling:
-          journalEntry.sName = $"Recyclage terminé - {NWScript.GetName(ObjectPlugin.Deserialize(craftedItem))}";
+          journalEntry.sName = $"Recyclage terminé - {NwItem.Deserialize<NwItem>(craftedItem).Name.ColorString(Color.ORANGE)}";
           break;
         default:
-          journalEntry.sName = $"Travail artisanal terminé - {blueprintDictionnary[baseItemType].name}";
+          journalEntry.sName = $"Travail artisanal terminé - {blueprintDictionnary[baseItemType].name.ColorString(Color.ORANGE)}";
           break;
       }
 

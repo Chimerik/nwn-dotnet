@@ -53,48 +53,31 @@ namespace NWN.Systems
         else
           player.location = player.oid.Location;
 
-        Log.Info("saved Location");
-
         player.currentHP = onSaveBefore.Player.HP;
-
-        Log.Info("Saved HP");
-
-        Log.Info($"player location : {player.location.Area}");
 
         if (player.location.Area?.GetLocalVariable<int>("_AREA_LEVEL").Value == 0)
         {
-          Log.Info($"area level : {player.location.Area.GetLocalVariable<int>("_AREA_LEVEL").Value}");
           player.CraftJobProgression();
         }
 
         if (player.oid.Area.Tag == $"entrepotpersonnel_{player.oid.CDKey}")
           player.location = NwModule.FindObjectsWithTag<NwWaypoint>("wp_outentrepot").FirstOrDefault().Location;
 
-        Log.Info("Craft job progression done");
-
         player.AcquireSkillPoints();
-        Log.Info("Acquire skill points done");
 
         player.dateLastSaved = DateTime.Now;
 
         SavePlayerCharacterToDatabase(player);
-        Log.Info("Save player to DB done");
         SavePlayerLearnableSkillsToDatabase(player);
-        Log.Info("Saved skills to DB");
         SavePlayerLearnableSpellsToDatabase(player);
-        Log.Info("Saved Spells to DB");
         SavePlayerStoredMaterialsToDatabase(player);
-        Log.Info("Saved materials to DB");
         SavePlayerMapPinsToDatabase(player);
-        Log.Info("Saved map pin to DB");
         SavePlayerAreaExplorationStateToDatabase(player);
-        Log.Info("Saved area exploration state to DB");
         HandleExpiredContracts(player);
-        Log.Info("Handled expired contracts");
         HandleExpiredBuyOrders(player);
-        Log.Info("Handled expired buy orders");
         HandleExpiredSellOrders(player);
-        Log.Info("Handled expired sell orders");
+
+        Log.Info("Finished saving player");
       }
     }
     public void HandleAfterPlayerSave(ServerVaultEvents.OnServerCharacterSaveAfter onSaveAfter)
@@ -129,13 +112,8 @@ namespace NWN.Systems
     }
     private static void SavePlayerCharacterToDatabase(Player player)
     {
-      Log.Info("Saving to database");
-
       var query = NWScript.SqlPrepareQueryCampaign(Config.database, $"UPDATE playerCharacters SET areaTag = @areaTag, position = @position, facing = @facing, currentHP = @currentHP, bankGold = @bankGold, dateLastSaved = @dateLastSaved, currentSkillType = @currentSkillType, currentSkillJob = @currentSkillJob, currentCraftJob = @currentCraftJob, currentCraftObject = @currentCraftObject, currentCraftJobRemainingTime = @currentCraftJobRemainingTime, currentCraftJobMaterial = @currentCraftJobMaterial, menuOriginTop = @menuOriginTop, menuOriginLeft = @menuOriginLeft where rowid = @characterId");
       NWScript.SqlBindInt(query, "@characterId", player.characterId);
-
-      //Log.Info($"location : {player.location.Area}");
-      //Log.Info($"previous location : {player.previousLocation.Area}");
 
       if (player.location.Area != null)
       {
@@ -156,15 +134,12 @@ namespace NWN.Systems
       NWScript.SqlBindInt(query, "@currentSkillType", (int)player.currentSkillType);
       NWScript.SqlBindInt(query, "@currentSkillJob", player.currentSkillJob);
       NWScript.SqlBindInt(query, "@currentCraftJob", player.craftJob.baseItemType);
-      Log.Info($"saved currentCraftJob :{player.craftJob.baseItemType}");
       NWScript.SqlBindString(query, "@currentCraftObject", player.craftJob.craftedItem);
       NWScript.SqlBindFloat(query, "@currentCraftJobRemainingTime", player.craftJob.remainingTime);
       NWScript.SqlBindString(query, "@currentCraftJobMaterial", player.craftJob.material);
       NWScript.SqlBindInt(query, "@menuOriginTop", player.menu.originTop);
       NWScript.SqlBindInt(query, "@menuOriginLeft", player.menu.originLeft);
       NWScript.SqlStep(query);
-
-      Log.Info($"{NWScript.GetName(player.oid)} saved location : {NWScript.GetTag(NWScript.GetAreaFromLocation(player.location))} - {NWScript.GetPositionFromLocation(player.location)} - {NWScript.GetFacingFromLocation(player.location)}");
     }
     private static void SavePlayerLearnableSkillsToDatabase(Player player)
     {

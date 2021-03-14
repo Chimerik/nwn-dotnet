@@ -30,7 +30,7 @@ namespace NWN.Systems.Items.ItemUseHandlers
           Craft.Collect.System.StartCollectCycle(
             player,
             oTarget,
-            () => Craft.Collect.Ore.HandleCompleteCycle(player, oTarget, oItem)
+            () => Craft.Collect.Ore.HandleCompleteCycle(player, target, oItem)
           );
           break;
 
@@ -38,7 +38,7 @@ namespace NWN.Systems.Items.ItemUseHandlers
           Craft.Collect.System.StartCollectCycle(
             player,
             oTarget,
-            () => Craft.Collect.Ore.HandleCompleteProspectionCycle(player, oTarget, oItem)
+            () => Craft.Collect.Ore.HandleCompleteProspectionCycle(player, target, oItem)
           );
 
           //SpawnDisturbedMonsters(player.oid, oTarget);
@@ -49,7 +49,7 @@ namespace NWN.Systems.Items.ItemUseHandlers
           Craft.Collect.System.StartCollectCycle(
             player,
             oTarget,
-            () => Craft.Collect.Wood.HandleCompleteCycle(player, oTarget, oItem)
+            () => Craft.Collect.Wood.HandleCompleteCycle(player, target, oItem)
           );
           break;
 
@@ -59,15 +59,15 @@ namespace NWN.Systems.Items.ItemUseHandlers
             Craft.Collect.System.StartCollectCycle(
               player,
               oTarget,
-              () => Craft.Collect.Pelt.HandleCompleteCycle(player, oTarget, oItem)
+              () => Craft.Collect.Pelt.HandleCompleteCycle(player, target, oItem)
             );
           }
           else
-            oPC.SendServerMessage("La cible doit être abattue avant de pouvoir commencer le dépeçage.");
+            oPC.SendServerMessage("La cible doit être abattue avant de pouvoir commencer le dépeçage.", Color.ORANGE);
           break;
 
         default:
-          oPC.SendServerMessage($"{target.Name} n'est pas une cible valide pour l'extraction de matières premières.");
+          oPC.SendServerMessage($"{target.Name} n'est pas une cible valide pour l'extraction de matières premières.", Color.RED);
           break;
       }
     }

@@ -67,7 +67,7 @@ namespace NWN.Systems
           NWScript.SqlStep(query);
           NWScript.SetLocalInt(oObject, "_ID", NWScript.SqlGetInt(query, 0));
 
-          oPC.SendServerMessage($"Création persistante - Vous posez le placeable  {oObject.Name}");
+          oPC.SendServerMessage($"Création persistante - Vous posez le placeable  {oObject.Name.ColorString(Color.WHITE)}", Color.GREEN);
         }
         else
           oPC.SendServerMessage("Création temporaire - Ce placeable sera effacé par le prochain reboot.");

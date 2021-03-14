@@ -70,6 +70,8 @@ namespace NWN.Systems
           InitializePlayer(this);
         else
           InitializeDM(this);
+
+        Log.Info($"Player initialization : DONE");
       }
 
       public void EmitKeydown(MenuFeatEventArgs e)
@@ -104,30 +106,6 @@ namespace NWN.Systems
         {
           this.oKiller = oKiller;
           this.player = player;
-        }
-      }
-      public void DoActionOnTargetSelected(uint oTarget, Vector3 vTarget)
-      {
-        if (Convert.ToBoolean(NWScript.GetIsObjectValid(oTarget)))
-          this.OnSelectTarget(oTarget, vTarget);
-      }
-      private Action<uint, Vector3> OnSelectTarget = delegate { };
-      public void SelectTarget(Action<uint, Vector3> callback)
-      {
-        this.OnSelectTarget = callback;
-
-        switch (this.targetEvent)
-        {
-          case TargetEvent.SitTarget:
-            NWScript.EnterTargetingMode(this.oid);
-            break;
-          case TargetEvent.Creature:
-            NWScript.EnterTargetingMode(this.oid, NWScript.OBJECT_TYPE_CREATURE);
-            targetEvent = TargetEvent.LootSaverTarget;
-            break;
-          default:
-            NWScript.EnterTargetingMode(this.oid);
-            break;
         }
       }
       public void LoadMenuQuickbar(QuickbarType type)

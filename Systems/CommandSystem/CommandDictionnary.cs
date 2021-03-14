@@ -223,7 +223,7 @@ namespace NWN.Systems
           execute: ExecuteCommendCommand
         )
       },
-      {
+      { 
         "renamecreature",
         new Command(
           name: "renamecreature",

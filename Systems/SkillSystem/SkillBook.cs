@@ -1,4 +1,5 @@
 ﻿using System;
+using NWN.API;
 using NWN.Core;
 using NWN.Core.NWNX;
 
@@ -8,11 +9,11 @@ namespace NWN.Systems
   {
     public class Context
     {
-      public uint oItem { get; }
+      public NwItem oItem { get; }
       public PlayerSystem.Player oActivator { get; }
       public int skillId { get; }
 
-      public Context(uint oItem, PlayerSystem.Player oActivator, int SkillId)
+      public Context(NwItem oItem, PlayerSystem.Player oActivator, int SkillId)
       {
         this.oItem = oItem;
         this.oActivator = oActivator;
@@ -137,7 +138,7 @@ namespace NWN.Systems
     private static void ValidationMiddleware(Context ctx, Action next)
     {
       ctx.oActivator.learnableSkills.Add(ctx.skillId, new SkillSystem.Skill(ctx.skillId, 0, ctx.oActivator));
-      NWScript.DestroyObject(ctx.oItem);
+      ctx.oItem.Destroy();
 
       next();
     }

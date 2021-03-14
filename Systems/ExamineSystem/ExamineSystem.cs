@@ -46,9 +46,9 @@ namespace NWN.Systems
           if (onExamine.Examiner.IsDM || onExamine.Examiner.IsDMPossessed || onExamine.Examiner.IsPlayerDM)
           {
             if (int.TryParse(NWScript.Get2DAString("feat", "GAINMULTIPLE", CreaturePlugin.GetHighestLevelOfFeat(onExamine.Examiner, (int)Feat.WoodExpertise)), out int woodExpertiseSkillLevel))
-              onExamine.Examinee.Description = $"Bois disponible : {NWN.Utils.random.Next(woodAmount * woodExpertiseSkillLevel * 20 / 100, 2 * woodAmount - woodExpertiseSkillLevel * 20 / 100)}";
+              onExamine.Examinee.Description = $"Bois disponible : {Utils.random.Next(woodAmount * woodExpertiseSkillLevel * 20 / 100, 2 * woodAmount - woodExpertiseSkillLevel * 20 / 100)}";
             else
-              onExamine.Examinee.Description = $"Bois disponible estimé : {NWN.Utils.random.Next(0, 2 * woodAmount)}";
+              onExamine.Examinee.Description = $"Bois disponible estimé : {Utils.random.Next(0, 2 * woodAmount)}";
           }
           else
             onExamine.Examinee.Description = $"Bois disponible : {woodAmount}";
@@ -59,9 +59,9 @@ namespace NWN.Systems
           if (onExamine.Examiner.IsDM || onExamine.Examiner.IsDMPossessed || onExamine.Examiner.IsPlayerDM)
           {
             if (int.TryParse(NWScript.Get2DAString("feat", "GAINMULTIPLE", CreaturePlugin.GetHighestLevelOfFeat(onExamine.Examinee, (int)Feat.AnimalExpertise)), out int animalExpertiseSkillLevel))
-              onExamine.Examinee.Description = $"Peau disponible : {NWN.Utils.random.Next(peltAmount * animalExpertiseSkillLevel * 20 / 100, 2 * peltAmount - animalExpertiseSkillLevel * 20 / 100)}";
+              onExamine.Examinee.Description = $"Peau disponible : {Utils.random.Next(peltAmount * animalExpertiseSkillLevel * 20 / 100, 2 * peltAmount - animalExpertiseSkillLevel * 20 / 100)}";
             else
-              onExamine.Examinee.Description = $"Peau disponible estimé : {NWN.Utils.random.Next(0, 2 * peltAmount)}";
+              onExamine.Examinee.Description = $"Peau disponible estimé : {Utils.random.Next(0, 2 * peltAmount)}";
           }
           else
             onExamine.Examinee.Description = $"Peau disponible : {peltAmount}";
@@ -75,7 +75,7 @@ namespace NWN.Systems
           else
           {
             onExamine.Examiner.SendServerMessage("[ERREUR HRP] - Le patron utilisé n'est pas correctement initialisé. Le bug a été remonté au staff.");
-            NWN.Utils.LogMessageToDMs($"Blueprint Invalid : {onExamine.Examinee.Name} - Base Item Type : {baseItemType} - Examined by : {onExamine.Examiner.Name}");
+            Utils.LogMessageToDMs($"Blueprint Invalid : {onExamine.Examinee.Name} - Base Item Type : {baseItemType} - Examined by : {onExamine.Examiner.Name}");
           }
           break;
         case "ore":

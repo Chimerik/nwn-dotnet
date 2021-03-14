@@ -146,9 +146,6 @@ namespace NWN.Systems
     }
     private static void InitializeNewPlayer(NwPlayer newPlayer)
     {
-      NWScript.DelayCommand(4.0f, () => newPlayer.PostString("a", 40, 15, ScreenAnchor.TopLeft, 0f, API.Color.WHITE, API.Color.WHITE, 9999, "fnt_my_gui"));
-      EventsPlugin.AddObjectToDispatchList("NWNX_ON_INPUT_TOGGLE_PAUSE_BEFORE", "spacebar_down", newPlayer);
-
       var query = NWScript.SqlPrepareQueryCampaign(Config.database, $"SELECT rowid FROM PlayerAccounts WHERE accountName = @accountName");
       NWScript.SqlBindString(query, "@accountName", newPlayer.PlayerName);
 
@@ -158,6 +155,9 @@ namespace NWN.Systems
         {
           (Bot._client.GetChannel(786218144296468481) as IMessageChannel).SendMessageAsync($"Toute première connexion de {newPlayer.Name}. Accueillons le comme il se doit !");
           (Bot._client.GetChannel(680072044364562532) as IMessageChannel).SendMessageAsync($"{Bot._client.GetGuild(680072044364562528).EveryoneRole.Mention} Toute première connexion de {newPlayer.Name} => nouveau joueur à accueillir !");
+
+          NWScript.DelayCommand(4.0f, () => newPlayer.PostString("a", 40, 15, ScreenAnchor.TopLeft, 0f, API.Color.WHITE, API.Color.WHITE, 9999, "fnt_my_gui"));
+          EventsPlugin.AddObjectToDispatchList("NWNX_ON_INPUT_TOGGLE_PAUSE_BEFORE", "spacebar_down", newPlayer);
         }
 
         query = NWScript.SqlPrepareQueryCampaign(Config.database, $"INSERT INTO PlayerAccounts (accountName, cdKey, bonusRolePlay) VALUES (@name, @cdKey, @brp)");
@@ -172,7 +172,7 @@ namespace NWN.Systems
 
       switch (newPlayer.RacialType)
       {
-        case NWScript.RACIAL_TYPE_DWARF:
+        case RacialType.Dwarf:
           CreaturePlugin.AddFeat(newPlayer, (int)Feat.Nain);
           break;
         case RacialType.Elf:
@@ -326,19 +326,12 @@ namespace NWN.Systems
     private static void InitializePlayer(Player player)
     {
       InitializePlayerEvents(player.oid);
-      Log.Info($"events done");
       InitializePlayerAccount(player);
-      Log.Info($"account done");
       InitializePlayerCharacter(player);
-      Log.Info($"PC done");
       InitializePlayerLearnableSkills(player);
-      Log.Info($"skills done");
       InitializePlayerLearnableSpells(player);
-      Log.Info($"spells done");
       InitializeCharacterMapPins(player);
-      Log.Info($"map pins done");
       InitializeCharacterAreaExplorationState(player);
-      Log.Info($"explo done");
     }
     private static void InitializePlayerEvents(uint player)
     {

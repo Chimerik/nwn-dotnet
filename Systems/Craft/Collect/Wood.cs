@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using NWN.API;
 using NWN.Core;
 using NWN.Core.NWNX;
@@ -8,11 +9,11 @@ namespace NWN.Systems.Craft.Collect
 {
   public static class Wood
   {
-    public static void HandleCompleteCycle(PlayerSystem.Player player, uint oPlaceable, uint oExtractor)
+    public static void HandleCompleteCycle(PlayerSystem.Player player, NwGameObject oPlaceable, NwItem oExtractor)
     {
-      if (NWScript.GetIsObjectValid(oPlaceable) != 1 || NWScript.GetDistanceBetween(player.oid, oPlaceable) > 5.0f)
+      if (oPlaceable == null || player.oid.Distance(oPlaceable) > 5.0f)
       {
-        NWScript.SendMessageToPC(player.oid, "Vous êtes trop éloigné de l'arbre ciblé, ou alors celui-ci n'existe plus.");
+        player.oid.SendServerMessage("Vous êtes trop éloigné de l'arbre ciblé, ou alors celui-ci n'existe plus.", Color.MAGENTA);
         return;
       }
 
@@ -20,9 +21,9 @@ namespace NWN.Systems.Craft.Collect
 
       // TODO : Idée pour plus tard, le strip miner le plus avancé pourra équipper un cristal
       // de spécialisation pour extraire deux fois plus de minerai en un cycle sur son minerai de spécialité
-      if (NWScript.GetIsObjectValid(oExtractor) != 1) return;
+      if (oExtractor == null) return;
 
-      miningYield += NWScript.GetLocalInt(oExtractor, "_ITEM_LEVEL") * 5;
+      miningYield += oExtractor.GetLocalVariable<int>("_ITEM_LEVEL").Value * 5;
       int bonusYield = 0;
 
       int value;
@@ -34,31 +35,32 @@ namespace NWN.Systems.Craft.Collect
 
       miningYield += bonusYield;
 
-      int remainingOre = NWScript.GetLocalInt(oPlaceable, "_ORE_AMOUNT") - miningYield;
+      int remainingOre = oPlaceable.GetLocalVariable<int>("_ORE_AMOUNT").Value - miningYield;
       if (remainingOre <= 0)
       {
-        miningYield = NWScript.GetLocalInt(oPlaceable, "_ORE_AMOUNT");
-        NWScript.DestroyObject(oPlaceable);
+        miningYield = oPlaceable.GetLocalVariable<int>("_ORE_AMOUNT").Value;
+        oPlaceable.Destroy();
 
-        NWScript.CreateObject(NWScript.OBJECT_TYPE_WAYPOINT, "wood_spawn_wp", NWScript.GetLocation(oPlaceable));
+        NwWaypoint.Create("wood_spawn_wp", oPlaceable.Location);
       }
       else
       {
-        NWScript.SetLocalInt(oPlaceable, "_ORE_AMOUNT", remainingOre);
+        oPlaceable.GetLocalVariable<int>("_ORE_AMOUNT").Value = remainingOre;
       }
-      var ore = NWScript.CreateItemOnObject("wood", player.oid, miningYield, NWScript.GetName(oPlaceable));
-      NWScript.SetName(ore, NWScript.GetName(oPlaceable));
+
+      NwItem ore = NWScript.CreateItemOnObject("wood", player.oid, miningYield, oPlaceable.Name).ToNwObject<NwItem>();
+      ore.Name = oPlaceable.Name;
 
       ItemUtils.DecreaseItemDurability(oExtractor);
     }
 
     public static void HandleCompleteProspectionCycle(PlayerSystem.Player player)
     {
-      NwArea area = NWScript.GetArea(player.oid).ToNwObject<NwArea>();
+      NwArea area = player.oid.Area;
 
       if (area.GetLocalVariable<int>("_AREA_LEVEL").Value < 2)
       {
-        NWScript.SendMessageToPC(player.oid, "Cet endroit ne semble disposer d'aucune ressource récoltable.");
+        player.oid.SendServerMessage("Cet endroit ne semble disposer d'aucune ressource récoltable.", Color.MAROON);
         return;
       }
 
@@ -68,12 +70,9 @@ namespace NWN.Systems.Craft.Collect
 
       if (NWScript.SqlGetInt(query, 0) < 1)
       {
-        NWScript.SendMessageToPC(player.oid, "Cette zone est épuisée. Les arbres restant disposant de propriétés intéressantes ne semblent pas encore avoir atteint l'âge d'être exploités.");
+        player.oid.SendServerMessage("Cette zone est épuisée. Les arbres restant disposant de propriétés intéressantes ne semblent pas encore avoir atteint l'âge d'être exploités.", Color.MAROON);
         return;
       }
-
-      uint resourcePoint = NWScript.GetNearestObjectByTag("wood_spawn_wp", player.oid);
-      int i = 1;
 
       int skillBonus = 0;
       int value;
@@ -86,32 +85,29 @@ namespace NWN.Systems.Craft.Collect
       int respawnChance = skillBonus * 5;
       int nbSpawns = 0;
 
-      while (NWScript.GetIsObjectValid(resourcePoint) == 1)
+      foreach(NwWaypoint resourcePoint in player.oid.GetNearestObjectsByType<NwWaypoint>().Where(w => w.Tag == "wood_spawn_wp"))
       {
-        int iRandom = NWN.Utils.random.Next(1, 101);
+        int iRandom = Utils.random.Next(1, 101);
         if (iRandom < respawnChance)
         {
-          var newRock = NWScript.CreateObject(NWScript.OBJECT_TYPE_PLACEABLE, "mineable_tree", NWScript.GetLocation(resourcePoint));
-          NWScript.SetName(newRock, Enum.GetName(typeof(WoodType), GetRandomWoodSpawnFromAreaLevel(area.GetLocalVariable<int>("_AREA_LEVEL").Value)));
-          NWScript.SetLocalInt(newRock, "_ORE_AMOUNT", 50 * iRandom + 50 * iRandom * skillBonus / 100);
-          NWScript.DestroyObject(resourcePoint);
+          NwPlaceable newRock = NwPlaceable.Create("mineable_tree", NWScript.GetLocation(resourcePoint));
+          newRock.Name = Enum.GetName(typeof(WoodType), GetRandomWoodSpawnFromAreaLevel(area.GetLocalVariable<int>("_AREA_LEVEL").Value));
+          newRock.GetLocalVariable<int>("_ORE_AMOUNT").Value = 10 * iRandom + 10 * iRandom * skillBonus / 100;
+          resourcePoint.Destroy();
           nbSpawns++;
         }
-
-        i++;
-        resourcePoint = NWScript.GetNearestObjectByTag("ore_spawn_wp", player.oid, i);
       }
 
       if (nbSpawns > 0)
       {
-        NWScript.SendMessageToPC(player.oid, $"Votre repérage a permis d'identifier {nbSpawns} arbre(s) aux propriétés exploitables !");
+        player.oid.SendServerMessage($"Votre repérage a permis d'identifier {nbSpawns} arbre(s) aux propriétés exploitables !", Color.GREEN);
 
         query = NWScript.SqlPrepareQueryCampaign(Systems.Config.database, $"UPDATE areaResourceStock SET wood = wood - 1 where areaTag = @areaTag");
         NWScript.SqlBindString(query, "@areaTag", area.Tag);
         NWScript.SqlStep(query);
       }
       else
-        NWScript.SendMessageToPC(player.oid, $"Votre repérage semble pas avoir abouti à la découverte d'un arbre aux propriétés exploitables.");
+        player.oid.SendServerMessage($"Votre repérage semble pas avoir abouti à la découverte d'un arbre aux propriétés exploitables.", Color.MAROON);
     }
   }
 }

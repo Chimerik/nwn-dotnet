@@ -78,7 +78,7 @@ namespace NWN.Systems
 
       NwPlayer oCaster = (NwPlayer)callInfo.ObjectSelf;
 
-      if (!player.craftJob.CanStartJob(oCaster, NWScript.OBJECT_INVALID, Craft.Job.JobType.Enchantement))
+      if (!player.craftJob.CanStartJob(oCaster, null, Craft.Job.JobType.Enchantement))
         return;
 
       if(oTarget.GetLocalVariable<int>("_AVAILABLE_ENCHANTEMENT_SLOT").HasNothing)
@@ -123,7 +123,7 @@ namespace NWN.Systems
     {
       //player.oid.SendServerMessage($"ip string : {$"{spellId}_{(int)ip.PropertyType}_{ip.SubType}_{ip.CostTable}_{ip.CostTableValue}"}");
 
-      player.craftJob.Start(Craft.Job.JobType.Enchantement, null, player, NWScript.OBJECT_INVALID, oItem, $"{spellId}_{(int)ip.PropertyType}_{ip.SubType}_{ip.CostTable}_{ip.CostTableValue}");
+      player.craftJob.Start(Craft.Job.JobType.Enchantement, null, player, null, oItem, $"{spellId}_{(int)ip.PropertyType}_{ip.SubType}_{ip.CostTable}_{ip.CostTableValue}");
       player.oid.ApplyEffect(EffectDuration.Instant, API.Effect.VisualEffect(VfxType.ImpSuperHeroism));
 
       player.menu.Close();

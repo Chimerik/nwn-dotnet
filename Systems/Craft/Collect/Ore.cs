@@ -3,26 +3,26 @@ using NWN.Core;
 using NWN.Core.NWNX;
 using static NWN.Systems.Craft.Collect.Config;
 using NWN.API;
+using System.Linq;
 
 namespace NWN.Systems.Craft.Collect
 {
   public static class Ore
   {
-    public static void HandleCompleteCycle(PlayerSystem.Player player, uint oPlaceable, uint oExtractor)
+    public static void HandleCompleteCycle(PlayerSystem.Player player, NwGameObject oPlaceable, NwItem oExtractor)
     {
-      if (NWScript.GetIsObjectValid(oPlaceable) != 1 || NWScript.GetDistanceBetween(player.oid, oPlaceable) > 5.0f)
+      if (oPlaceable == null || player.oid.Distance(oPlaceable) > 5.0f)
       {
-        NWScript.SendMessageToPC(player.oid, "Vous êtes trop éloigné du bloc ciblé, ou alors celui-ci n'existe plus.");
+        player.oid.SendServerMessage("Vous êtes trop éloigné du filon ciblé, ou alors celui-ci n'existe plus.", Color.MAGENTA);
         return;
       }
 
-      int miningYield = 10;
-
       // TODO : Idée pour plus tard, le strip miner le plus avancé pourra équipper un cristal
       // de spécialisation pour extraire deux fois plus de minerai en un cycle sur son minerai de spécialité
-      if (NWScript.GetIsObjectValid(oExtractor) != 1) return;
+      if (oExtractor == null) return;
 
-      miningYield += NWScript.GetLocalInt(oExtractor, "_ITEM_LEVEL") * 5;
+      int miningYield = 10;
+      miningYield += oExtractor.GetLocalVariable<int>("_ITEM_LEVEL").Value * 5;
       int bonusYield = 0;
 
       int value;
@@ -34,37 +34,35 @@ namespace NWN.Systems.Craft.Collect
 
       miningYield += bonusYield;
 
-      int remainingOre = NWScript.GetLocalInt(oPlaceable, "_ORE_AMOUNT") - miningYield;
+      int remainingOre = oPlaceable.GetLocalVariable<int>("_ORE_AMOUNT").Value - miningYield;
       if (remainingOre <= 0)
       {
-        miningYield = NWScript.GetLocalInt(oPlaceable, "_ORE_AMOUNT");
-        NWScript.DestroyObject(oPlaceable);
+        miningYield = oPlaceable.GetLocalVariable<int>("_ORE_AMOUNT").Value;
+        oPlaceable.Destroy();
 
-        NWScript.CreateObject(NWScript.OBJECT_TYPE_WAYPOINT, "ore_spawn_wp", NWScript.GetLocation(oPlaceable));
+        NwWaypoint.Create("ore_spawn_wp", oPlaceable.Location);
       }
       else
       {
-        NWScript.SetLocalInt(oPlaceable, "_ORE_AMOUNT", remainingOre);
+        oPlaceable.GetLocalVariable<int>("_ORE_AMOUNT").Value = remainingOre;
       }
-      var ore = NWScript.CreateItemOnObject("ore", player.oid, miningYield, NWScript.GetName(oPlaceable));
-      NWScript.SetName(ore, NWScript.GetName(oPlaceable));
+      
+      NwItem ore = NWScript.CreateItemOnObject("ore", player.oid, miningYield, NWScript.GetName(oPlaceable)).ToNwObject<NwItem>();
+      ore.Name = oPlaceable.Name;
 
       ItemUtils.DecreaseItemDurability(oExtractor);
     }
-    public static void HandleCompleteProspectionCycle(PlayerSystem.Player player, uint oPlaceable, uint oExtractor)
+    public static void HandleCompleteProspectionCycle(PlayerSystem.Player player, NwGameObject oPlaceable, NwItem oExtractor)
     {
-      if (!Convert.ToBoolean(NWScript.GetIsObjectValid(oPlaceable)) || NWScript.GetDistanceBetween(player.oid, oPlaceable) > 5.0f)
+      if (oPlaceable is null || player.oid.Distance(oPlaceable) > 5.0f)
       {
-        NWScript.SendMessageToPC(player.oid, "Vous êtes trop éloigné de la veine ciblée, ou alors celle-ci n'existe plus.");
+        player.oid.SendServerMessage("Vous êtes trop éloigné de la veine ciblée, ou alors celui-ci n'existe plus.", Color.MAGENTA);
         return;
       }
 
-      if (NWScript.GetIsObjectValid(oExtractor) != 1) return;
+      if (oExtractor == null) return;
 
-      uint resourcePoint = NWScript.GetNearestObjectByTag("ore_spawn_wp", oPlaceable);
-      int i = 1;
-
-      NwArea area = NWScript.GetArea(resourcePoint).ToNwObject<NwArea>();
+      NwArea area = player.oid.Area;
 
       var query = NWScript.SqlPrepareQueryCampaign(Systems.Config.database, $"SELECT mining from areaResourceStock where areaTag = @areaTag");
       NWScript.SqlBindString(query, "@areaTag", area.Tag);
@@ -72,7 +70,7 @@ namespace NWN.Systems.Craft.Collect
 
       if (NWScript.SqlGetInt(query, 0) < 1)
       {
-        NWScript.SendMessageToPC(player.oid, "Cette veine est épuisée. Reste à espérer qu'un prochain glissement de terrain permette d'atteindre de nouveaux filons.");
+        player.oid.SendServerMessage("Cette veine est épuisée. Reste à espérer qu'un prochain glissement de terrain permette d'atteindre de nouveaux filons.", Color.MAROON);
         return;
       }
 
@@ -87,32 +85,29 @@ namespace NWN.Systems.Craft.Collect
       int respawnChance = skillBonus * 5;
       int nbSpawns = 0;
 
-      while (NWScript.GetIsObjectValid(resourcePoint) == 1)
+      foreach (NwWaypoint resourcePoint in player.oid.GetNearestObjectsByType<NwWaypoint>().Where(w => w.Tag == "ore_spawn_wp"))
       {
-        int iRandom = NWN.Utils.random.Next(1, 101);
+        int iRandom = Utils.random.Next(1, 101);
         if (iRandom < respawnChance)
         {
-          var newRock = NWScript.CreateObject(NWScript.OBJECT_TYPE_PLACEABLE, "mineable_rock", NWScript.GetLocation(resourcePoint));
-          NWScript.SetName(newRock, Enum.GetName(typeof(OreType), GetRandomOreSpawnFromAreaLevel(area.GetLocalVariable<int>("_AREA_LEVEL").Value)));
-          NWScript.SetLocalInt(newRock, "_ORE_AMOUNT", 50 * iRandom + 50 * iRandom * skillBonus / 100);
-          NWScript.DestroyObject(resourcePoint);
+          NwPlaceable newRock = NwPlaceable.Create("mineable_rock", NWScript.GetLocation(resourcePoint));
+          newRock.Name = Enum.GetName(typeof(OreType), GetRandomOreSpawnFromAreaLevel(area.GetLocalVariable<int>("_AREA_LEVEL").Value));
+          newRock.GetLocalVariable<int>("_ORE_AMOUNT").Value = 10 * iRandom + 10 * iRandom * skillBonus / 100;
+          resourcePoint.Destroy();
           nbSpawns++;
         }
-
-        i++;
-        resourcePoint = NWScript.GetNearestObjectByTag("ore_spawn_wp", oPlaceable, i);
       }
 
       if (nbSpawns > 0)
       {
-        NWScript.SendMessageToPC(player.oid, $"Votre prospection a permis de mettre à découvert {nbSpawns} veine(s) de minerai !");
+        player.oid.SendServerMessage($"Votre prospection a permis de mettre à découvert {nbSpawns} veine(s) de minerai !", Color.GREEN);
 
         query = NWScript.SqlPrepareQueryCampaign(Systems.Config.database, $"UPDATE areaResourceStock SET mining = mining - 1 where areaTag = @areaTag");
         NWScript.SqlBindString(query, "@areaTag", area.Tag);
         NWScript.SqlStep(query);
       }
       else
-        NWScript.SendMessageToPC(player.oid, $"Votre prospection ne semble pas avoir abouti à la découverte d'une veine exploitable");
+        player.oid.SendServerMessage($"Votre prospection ne semble pas avoir abouti à la découverte d'une veine exploitable", Color.MAROON);
 
       ItemUtils.DecreaseItemDurability(oExtractor);
     }

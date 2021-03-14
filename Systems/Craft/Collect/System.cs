@@ -107,7 +107,7 @@ namespace NWN.Systems.Craft.Collect
     public static void StartCollectCycle(PlayerSystem.Player player, uint oPlaceable, Action completeCallback)
     {
       player.OnCollectCycleCancel = () => {
-        NWN.Utils.RemoveTaggedEffect(oPlaceable, $"_{NWScript.GetPCPublicCDKey(player.oid)}_MINING_BEAM");
+        Utils.RemoveTaggedEffect(oPlaceable, $"_{NWScript.GetPCPublicCDKey(player.oid)}_MINING_BEAM");
         RemoveCollectCycleCallbacks(player);
         PlayerPlugin.StopGuiTimingBar(player.oid);
       };
@@ -118,7 +118,7 @@ namespace NWN.Systems.Craft.Collect
 
       var resourceExtractor = NWScript.GetItemInSlot(NWScript.INVENTORY_SLOT_RIGHTHAND, player.oid);
       float cycleDuration = 180.0f;
-      if (NWN.Systems.Config.env == NWN.Systems.Config.Env.Chim)
+      if (Systems.Config.env == Systems.Config.Env.Chim)
         cycleDuration = 10.0f;
 
       if (NWScript.GetIsObjectValid(resourceExtractor) == 1) // TODO : Idée pour plus tard, le strip miner le plus avancé pourra équipper un cristal de spécialisation pour extraire deux fois plus de minerai en un cycle sur son minerai de spécialité

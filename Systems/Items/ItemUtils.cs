@@ -149,13 +149,16 @@ namespace NWN.Systems
         ip = NWScript.GetNextItemProperty(oItem);
       }
     }
-    public static void DecreaseItemDurability(uint oItem)
+    public static void DecreaseItemDurability(NwItem oItem)
     {
-      int itemDurability = NWScript.GetLocalInt(oItem, "_DURABILITY");
+      if (oItem == null)
+        return;
+
+      int itemDurability = oItem.GetLocalVariable<int>("_DURABILITY").Value; 
       if (itemDurability <= 1)
-        NWScript.DestroyObject(oItem);
+        oItem.Destroy();
       else
-        NWScript.SetLocalInt(oItem, "_DURABILITY", itemDurability - 1);
+        oItem.GetLocalVariable<int>("_DURABILITY").Value -= 1;
     }
     public static bool IsEquipable(uint oItem)
     {
@@ -269,7 +272,7 @@ namespace NWN.Systems
       {
         if (!int.TryParse(NWScript.Get2DAString("armor", "COST", ItemPlugin.GetBaseArmorClass(item)), out baseCost))
         {
-          Utils.LogMessageToDMs($"RECYCLAGE - {item.Name} - baseCost introuvable pour baseItemType : {baseItemType}");
+          Utils.LogMessageToDMs($"{item.Name} - baseCost introuvable pour baseItemType : {baseItemType}");
           return 999999;
         }
       }
@@ -277,7 +280,7 @@ namespace NWN.Systems
       {
         if (!int.TryParse(NWScript.Get2DAString("baseitems", "BaseCost", (int)baseItemType), out baseCost))
         {
-          Utils.LogMessageToDMs($"RECYCLAGE - {item.Name} - baseCost introuvable pour baseItemType : {baseItemType}");
+          Utils.LogMessageToDMs($"{item.Name} - baseCost introuvable pour baseItemType : {baseItemType}");
           return 999999;
         }
       }
