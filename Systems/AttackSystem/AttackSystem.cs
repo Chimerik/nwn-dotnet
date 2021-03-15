@@ -86,7 +86,11 @@ namespace NWN.Systems
             if (item == null || item.Tag == "amulettorillink")
               return;
 
-            if (NwRandom.Roll(Utils.random, 100, 1) < 40 - player.oid.GetAbilityModifier(Ability.Dexterity)) // diminuer le pourcentage en fonction des compétences
+            int dexBonus = player.oid.GetAbilityModifier(Ability.Dexterity) - (CreaturePlugin.GetArmorCheckPenalty(player.oid) + CreaturePlugin.GetShieldCheckPenalty(player.oid));
+            if (dexBonus < 0)
+              dexBonus = 0;
+
+            if (NwRandom.Roll(Utils.random, 100, 1) < 40 - dexBonus) // diminuer le pourcentage en fonction des compétences
             {
               item.GetLocalVariable<int>("_DURABILITY").Value -= 1;
               if (item.GetLocalVariable<int>("_DURABILITY").Value <= 0)
@@ -135,6 +139,12 @@ namespace NWN.Systems
             default:
               return;
           }
+
+          int dexBonus = player.oid.GetAbilityModifier(Ability.Dexterity) - (CreaturePlugin.GetArmorCheckPenalty(player.oid) + CreaturePlugin.GetShieldCheckPenalty(player.oid));
+          if (dexBonus < 0)
+            dexBonus = 0;
+
+          durabilityChance -= dexBonus;
 
           if (NwRandom.Roll(Utils.random, 100, 1) < durabilityChance) // diminuer le pourcentage en fonction des compétences
           {

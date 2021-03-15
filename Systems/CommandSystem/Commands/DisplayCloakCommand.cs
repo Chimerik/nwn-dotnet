@@ -1,4 +1,4 @@
-﻿using NWN.Core;
+﻿using NWN.API;
 
 namespace NWN.Systems
 {
@@ -6,17 +6,17 @@ namespace NWN.Systems
   {
     private static void ExecuteDisplayCloakCommand(ChatSystem.Context ctx, Options.Result options)
     {
-      var oCloak = NWScript.GetItemInSlot(NWScript.INVENTORY_SLOT_CLOAK, ctx.oSender);
+      NwItem oCloak = ctx.oSender.GetItemInSlot(API.Constants.InventorySlot.Cloak);
 
-      if (NWScript.GetIsObjectValid(oCloak) == 1)
+      if (oCloak != null)
       {
-        if (NWScript.GetHiddenWhenEquipped(oCloak) == 0)
-          NWScript.SetHiddenWhenEquipped(oCloak, 1);
+        if (oCloak.HiddenWhenEquipped == 0)
+          oCloak.HiddenWhenEquipped = 1;
         else
-          NWScript.SetHiddenWhenEquipped(oCloak, 0);
+          oCloak.HiddenWhenEquipped = 0;
       }
       else
-        NWScript.FloatingTextStringOnCreature("Vous ne portez pas de cape !", ctx.oSender, 0);
+        ctx.oSender.SendServerMessage("Vous ne portez pas de cape!", Color.RED);
     }
   }
 }

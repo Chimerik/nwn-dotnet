@@ -35,24 +35,6 @@ namespace NWN.Systems
           execute: ExecuteWalkCommand
         )
       },
-      /*{
-        "set",
-        new Command(
-          name: "set",
-          description: new Command.Description(title: "Permet d'enregistrer une valeur à utiliser dans les dialogues."),
-          execute: ExecuteSetValueCommand,
-          options: new Options(
-            positional: new List<Option>()
-            {
-              new Option(
-                name: "Value",
-                description: "Value, doit être un chiffre entier positif.",
-                defaultValue: ""
-              )
-            }
-          )
-        )
-      },*/
       {
         "reveal",
         new Command(

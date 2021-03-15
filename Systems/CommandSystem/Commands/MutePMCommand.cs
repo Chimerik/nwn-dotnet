@@ -1,4 +1,4 @@
-﻿using NWN.Core;
+﻿using NWN.API;
 using NWN.Core.NWNX;
 
 namespace NWN.Systems
@@ -7,17 +7,17 @@ namespace NWN.Systems
   {
     private static void ExecuteMutePMCommand(ChatSystem.Context ctx, Options.Result options)
     {
-      if (NWScript.GetIsObjectValid(ctx.oTarget) == 1)
+      if (ctx.oTarget != null)
       {
-        if (ObjectPlugin.GetInt(ctx.oSender, "__BLOCK_" + NWScript.GetName(ctx.oTarget) + "_MP") == 0)
+        if (ObjectPlugin.GetInt(ctx.oSender, "__BLOCK_" + ctx.oTarget.Name + "_MP") == 0)
         {
-          ObjectPlugin.SetInt(ctx.oSender, "__BLOCK_" + NWScript.GetName(ctx.oTarget) + "_MP", 1, 1);
-          NWScript.SendMessageToPC(ctx.oSender, "Vous bloquez désormais tous les mps de " + NWScript.GetName(ctx.oTarget) + ". Cette commande ne fonctionne pas sur les Dms.");
+          ObjectPlugin.SetInt(ctx.oSender, "__BLOCK_" + ctx.oTarget.Name + "_MP", 1, 1);
+          ctx.oSender.SendServerMessage($"Vous bloquez désormais tous les mps de {ctx.oTarget.Name.ColorString(Color.WHITE)}. Cette commande ne fonctionne pas sur les Dms.", Color.BLUE);
         }
         else
         {
-          ObjectPlugin.DeleteInt(ctx.oSender, "__BLOCK_" + NWScript.GetName(ctx.oTarget) + "_MP");
-          NWScript.SendMessageToPC(ctx.oSender, "Vous ne bloquez plus les mps de " + NWScript.GetName(ctx.oTarget));
+          ObjectPlugin.DeleteInt(ctx.oSender, "__BLOCK_" + ctx.oTarget.Name + "_MP");
+          ctx.oSender.SendServerMessage($"Vous ne bloquez plus les mps de {ctx.oTarget.Name.ColorString(Color.WHITE)}", Color.BLUE);
         }
       }
       else
@@ -25,12 +25,12 @@ namespace NWN.Systems
         if (ObjectPlugin.GetInt(ctx.oSender, "__BLOCK_ALL_MP") == 0)
         {
           ObjectPlugin.SetInt(ctx.oSender, "__BLOCK_ALL_MP", 1, 1);
-          NWScript.SendMessageToPC(ctx.oSender, "Vous bloquez désormais l'affichage global des mps. Vous recevrez cependant toujours ceux des DMs.");
+          ctx.oSender.SendServerMessage("Vous bloquez désormais l'affichage global des mps. Vous recevrez cependant toujours ceux des DMs.", Color.BLUE);
         }
         else
         {
           ObjectPlugin.DeleteInt(ctx.oSender, "__BLOCK_ALL_MP");
-          NWScript.SendMessageToPC(ctx.oSender, "Vous réactivez désormais l'affichage global des mps. Vous ne recevrez cependant pas ceux que vous bloqué individuellement.");
+          ctx.oSender.SendServerMessage("Vous réactivez désormais l'affichage global des mps. Vous ne recevrez cependant pas ceux que vous bloqué individuellement.", Color.BLUE);
         }
       }
     }

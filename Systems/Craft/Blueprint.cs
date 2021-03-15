@@ -68,17 +68,17 @@ namespace NWN.Systems.Craft
           break;
       }
     }
-    public static Core.ItemProperty[] GetCraftItemProperties(string material, NwItem craftedItem)
+    public static API.ItemProperty[] GetCraftItemProperties(string material, NwItem craftedItem)
     {
-      ItemCategory itemCategory = GetItemCategory((int)craftedItem.BaseItemType);
+      ItemCategory itemCategory = GetItemCategory(craftedItem.BaseItemType);
       if (itemCategory == ItemCategory.Invalid)
       {
         Utils.LogMessageToDMs($"Item {craftedItem.Name} - Base {craftedItem.BaseItemType} - Category invalid");
-
-        return new Core.ItemProperty[]
+        
+        return new API.ItemProperty[]
         {
-          NWScript.ItemPropertyVisualEffect(NWScript.VFX_NONE)
-        };
+          API.ItemProperty.Quality(IPQuality.Unknown)
+      };
       }
 
       if (material == "mauvais état")
@@ -110,10 +110,10 @@ namespace NWN.Systems.Craft
 
       Utils.LogMessageToDMs($"No craft property found for material {material} and item {itemCategory}");
 
-      return new Core.ItemProperty[]
+      return new API.ItemProperty[]
       {
-          NWScript.ItemPropertyVisualEffect(NWScript.VFX_NONE)
-      };
+          API.ItemProperty.Quality(IPQuality.Unknown)
+    };
     }
     public static void BlueprintValidation(NwPlayer oPlayer, NwGameObject target, Feat feat)
     {
@@ -173,15 +173,15 @@ namespace NWN.Systems.Craft
     {
       int iMineralCost = this.GetBlueprintMineralCostForPlayer(player, oItem);
       float iJobDuration = this.GetBlueprintTimeCostForPlayer(player, oItem);
-      string sMaterial = GetMaterialFromTargetItem(NWScript.GetObjectByTag(workshopTag));
+      string sMaterial = GetMaterialFromTargetItem(NwModule.FindObjectsWithTag<NwPlaceable>(workshopTag).FirstOrDefault());
 
       string bpDescription = $"Patron de création de l'objet artisanal : {name}\n\n\n" +
-        $"Recherche d'efficacité matérielle niveau {NWScript.GetLocalInt(oItem, "_BLUEPRINT_MATERIAL_EFFICIENCY")}\n\n" +
+        $"Recherche d'efficacité matérielle niveau {oItem.GetLocalVariable<int>("_BLUEPRINT_MATERIAL_EFFICIENCY").Value}\n\n" +
         $"Coût initial en {sMaterial} : {iMineralCost}.\n Puis 10 % de moins par amélioration vers un matériau supérieur.\n" +
-        $"Recherche d'efficacité de temps niveau {NWScript.GetLocalInt(oItem, "_BLUEPRINT_TIME_EFFICIENCY")}\n\n" +
-        $"Temps de fabrication et d'amélioration : {NWN.Utils.StripTimeSpanMilliseconds(DateTime.Now.AddSeconds(iJobDuration).Subtract(DateTime.Now))}.";
-
-      int runs = NWScript.GetLocalInt(oItem, "_BLUEPRINT_RUNS");
+        $"Recherche d'efficacité de temps niveau {oItem.GetLocalVariable<int>("_BLUEPRINT_TIME_EFFICIENCY").Value}\n\n" +
+        $"Temps de fabrication et d'amélioration : {Utils.StripTimeSpanMilliseconds(DateTime.Now.AddSeconds(iJobDuration).Subtract(DateTime.Now))}.";
+      
+      int runs = oItem.GetLocalVariable<int>("_BLUEPRINT_RUNS").Value; 
 
       if (runs > 0)
         bpDescription += $"\n\nUtilisation(s) restante(s) : {runs}";
@@ -215,9 +215,9 @@ namespace NWN.Systems.Craft
 
       return fJobDuration - (fJobDuration * (iSkillLevel + NWScript.GetLocalInt(item, "_BLUEPRINT_TIME_EFFICIENCY")) / 100);
     }
-    public string GetMaterialFromTargetItem(uint oTarget)
+    public string GetMaterialFromTargetItem(NwGameObject oTarget)
     {
-      if (NWScript.GetTag(oTarget) == workshopTag)
+      if (oTarget.Tag == workshopTag)
       {
         switch (workshopTag)
         {
@@ -229,9 +229,9 @@ namespace NWN.Systems.Craft
             return Enum.GetName(typeof(LeatherType), LeatherType.MauvaisCuir);
         }
       }
-      else if (NWScript.GetTag(oTarget) == this.craftedItemTag)
+      else if (oTarget.Tag == this.craftedItemTag)
       {
-        string material = NWScript.GetLocalString(oTarget, "_ITEM_MATERIAL");
+        string material = oTarget.GetLocalVariable<string>("_ITEM_MATERIAL").Value;
         if (Enum.TryParse(material, out MineralType myMineralType))
           return Enum.GetName(typeof(MineralType), myMineralType + 1);
         else if (Enum.TryParse(material, out PlankType myPlankType))

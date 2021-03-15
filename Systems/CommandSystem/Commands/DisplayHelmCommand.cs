@@ -1,4 +1,4 @@
-﻿using NWN.Core;
+﻿using NWN.API;
 
 namespace NWN.Systems
 {
@@ -6,17 +6,17 @@ namespace NWN.Systems
   {
     private static void ExecuteDisplayHelmCommand(ChatSystem.Context ctx, Options.Result options)
     {
-      var oHelmet = NWScript.GetItemInSlot(NWScript.INVENTORY_SLOT_HEAD, ctx.oSender);
+      NwItem oHelmet = ctx.oSender.GetItemInSlot(API.Constants.InventorySlot.Head);
 
-      if (NWScript.GetIsObjectValid(oHelmet) == 1)
+      if (oHelmet != null)
       {
-        if (NWScript.GetHiddenWhenEquipped(oHelmet) == 0)
-          NWScript.SetHiddenWhenEquipped(oHelmet, 1);
+        if (oHelmet.HiddenWhenEquipped == 0)
+          oHelmet.HiddenWhenEquipped = 1;
         else
-          NWScript.SetHiddenWhenEquipped(oHelmet, 0);
+          oHelmet.HiddenWhenEquipped = 0;
       }
       else
-        NWScript.FloatingTextStringOnCreature("Vous ne portez pas de casque !", ctx.oSender, 0);
+        ctx.oSender.SendServerMessage("Vous ne portez pas de casque !", Color.RED);
     }
   }
 }

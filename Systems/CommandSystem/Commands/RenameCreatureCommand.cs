@@ -12,17 +12,14 @@ namespace NWN.Systems
   {
     private static void ExecuteRenameCreatureCommand(ChatSystem.Context ctx, Options.Result options)
     {
-      if (!PlayerSystem.Players.TryGetValue(ctx.oSender, out PlayerSystem.Player player))
-        return;
-
-      if(CreaturePlugin.GetKnowsFeat(player.oid, (int)API.Constants.Feat.SpellFocusConjuration) == 0)
+      if(CreaturePlugin.GetKnowsFeat(ctx.oSender, (int)API.Constants.Feat.SpellFocusConjuration) == 0)
       {
-        player.oid.SendServerMessage("Le don de spécialisation en invocation est nécessaire pour pouvoir renommer une invocation.", Color.ORANGE);
+        ctx.oSender.SendServerMessage("Le don de spécialisation en invocation est nécessaire pour pouvoir renommer une invocation.", Color.ORANGE);
         return;
       }
 
-      player.oid.GetLocalVariable<string>("_RENAME_VALUE").Value = (string)options.positional[0];
-      PlayerSystem.cursorTargetService.EnterTargetMode(player.oid, SummonRenameTarget, ObjectTypes.Creature, MouseCursor.Create);
+      ctx.oSender.GetLocalVariable<string>("_RENAME_VALUE").Value = (string)options.positional[0];
+      PlayerSystem.cursorTargetService.EnterTargetMode(ctx.oSender, SummonRenameTarget, ObjectTypes.Creature, MouseCursor.Create);
     }
     private static void SummonRenameTarget(CursorTargetData selection)
     {

@@ -6,10 +6,8 @@ namespace NWN.Systems
   {
     private static void ExecuteRefillCommand(ChatSystem.Context ctx, Options.Result options)
     {
-      if (NWScript.GetIsDM(ctx.oSender) == 1)
-      {
+      if (ctx.oSender.PlayerName == "Chim")
         ModuleSystem.SpawnCollectableResources(0.0f);
-      }
     }
   }
 }

@@ -7,17 +7,11 @@ namespace NWN.Systems
   {
     private static void ExecuteRecycleCommand(ChatSystem.Context ctx, Options.Result options)
     {
-      if (PlayerSystem.Players.TryGetValue(ctx.oSender, out PlayerSystem.Player player))
-      {
-        player.oid.SendServerMessage("Veuillez maintenant sélectionnner l'objet que vous souhaitez recycler.", Color.ROSE);
-        PlayerSystem.cursorTargetService.EnterTargetMode(player.oid, OnItemSelected, API.Constants.ObjectTypes.Item, API.Constants.MouseCursor.Kill);
-      }
+      ctx.oSender.SendServerMessage("Veuillez maintenant sélectionnner l'objet que vous souhaitez recycler.", Color.ROSE);
+      PlayerSystem.cursorTargetService.EnterTargetMode(ctx.oSender, OnItemSelected, API.Constants.ObjectTypes.Item, API.Constants.MouseCursor.Kill);
     }
     private static void OnItemSelected(CursorTargetData selection)
     {
-      if (!PlayerSystem.Players.TryGetValue(selection.Player, out PlayerSystem.Player player))
-        return;
-
       if (selection.TargetObj is null || !(selection.TargetObj is NwItem))
         return;
 

@@ -10,16 +10,13 @@ namespace NWN.Systems
   {
     private static void ExecuteVFXCommand(ChatSystem.Context ctx, Options.Result options)
     {
-      if (PlayerSystem.Players.TryGetValue(ctx.oSender, out PlayerSystem.Player player))
+      if (((string)options.positional[0]).Length != 0)
       {
-        if (((string)options.positional[0]).Length != 0)
+        if (Int32.TryParse((string)options.positional[0], out int value))
         {
-          if (Int32.TryParse((string)options.positional[0], out int value))
-          {
-            player.oid.GetLocalVariable<int>("_VXF_TEST_ID").Value = value;
-            PlayerSystem.cursorTargetService.EnterTargetMode(player.oid, VFXTarget, ObjectTypes.Creature, MouseCursor.Magic);
-          }
-        }        
+          ctx.oSender.GetLocalVariable<int>("_VXF_TEST_ID").Value = value;
+          PlayerSystem.cursorTargetService.EnterTargetMode(ctx.oSender, VFXTarget, ObjectTypes.Creature, MouseCursor.Magic);
+        }
       }
     }
     private static void VFXTarget(CursorTargetData selection)

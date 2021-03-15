@@ -11,16 +11,13 @@ namespace NWN.Systems
   {
     private static void ExecuteTagCommand(ChatSystem.Context ctx, Options.Result options)
     {
-      if (PlayerSystem.Players.TryGetValue(ctx.oSender, out PlayerSystem.Player player))
+      if (ctx.oSender.IsDM || ctx.oSender.IsDMPossessed || ctx.oSender.IsPlayerDM)
       {
-        if (player.oid.IsDM || player.oid.IsDMPossessed || player.oid.IsPlayerDM)
-        {
-          player.oid.GetLocalVariable<string>("_RENAME_VALUE").Value = (string)options.positional[0];
-          PlayerSystem.cursorTargetService.EnterTargetMode(player.oid, ChangeTagTarget, ObjectTypes.All, MouseCursor.Create);
-        }
-        else
-          player.oid.SendServerMessage("Il s'agit d'une commande DM, vous ne pouvez pas en faire usage en PJ.", Color.ORANGE);
+        ctx.oSender.GetLocalVariable<string>("_RENAME_VALUE").Value = (string)options.positional[0];
+        PlayerSystem.cursorTargetService.EnterTargetMode(ctx.oSender, ChangeTagTarget, ObjectTypes.All, MouseCursor.Create);
       }
+      else
+        ctx.oSender.SendServerMessage("Il s'agit d'une commande DM, vous ne pouvez pas en faire usage en PJ.", Color.ORANGE);
     }
     private static void ChangeTagTarget(CursorTargetData selection)
     {

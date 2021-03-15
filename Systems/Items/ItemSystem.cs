@@ -242,7 +242,7 @@ namespace NWN.Systems
         if (oPC.GetItemInSlot(InventorySlot.Head) == null)
           oPC.SendServerMessage("Attention, en l'absence d'un casque, une vulnérabilité de 100 % aux dégâts perforants vous est appliquée !", API.Color.CYAN);
 
-        if (oPC.GetItemInSlot(InventorySlot.LeftHand) == null && (oPC.GetItemInSlot(InventorySlot.RightHand) == null || ItemUtils.GetItemCategory((int)oPC.GetItemInSlot(InventorySlot.RightHand)?.BaseItemType) == ItemUtils.ItemCategory.OneHandedMeleeWeapon))
+        if (oPC.GetItemInSlot(InventorySlot.LeftHand) == null && (oPC.GetItemInSlot(InventorySlot.RightHand) == null || ItemUtils.GetItemCategory((BaseItemType)oPC.GetItemInSlot(InventorySlot.RightHand)?.BaseItemType) == ItemUtils.ItemCategory.OneHandedMeleeWeapon))
           oPC.SendServerMessage("Attention, en l'absence d'un bouclier, d'une arme à deux mains, ou d'une arme secondaire, une vulnérabilité de 100 % aux dégâts contondants vous est appliquée !", API.Color.WHITE);
       }
 
@@ -269,7 +269,7 @@ namespace NWN.Systems
         if (oPC.GetItemInSlot(InventorySlot.Chest) == null)
           oPC.SendServerMessage("Attention, en l'absence d'une armure ou d'un vêtement, une vulnérabilité de 100 % aux dégâts tranchants vous est appliquée !", API.Color.ROSE);
 
-        if (oPC.GetItemInSlot(InventorySlot.LeftHand) == null && (oPC.GetItemInSlot(InventorySlot.RightHand) == null || ItemUtils.GetItemCategory((int)oPC.GetItemInSlot(InventorySlot.RightHand)?.BaseItemType) == ItemUtils.ItemCategory.OneHandedMeleeWeapon))
+        if (oPC.GetItemInSlot(InventorySlot.LeftHand) == null && (oPC.GetItemInSlot(InventorySlot.RightHand) == null || ItemUtils.GetItemCategory((BaseItemType)oPC.GetItemInSlot(InventorySlot.RightHand)?.BaseItemType) == ItemUtils.ItemCategory.OneHandedMeleeWeapon))
           oPC.SendServerMessage("Attention, en l'absence d'un bouclier, d'une arme à deux mains, ou d'une arme secondaire, une vulnérabilité de 100 % aux dégâts contondants vous est appliquée !", API.Color.WHITE);
       }
 
@@ -284,7 +284,7 @@ namespace NWN.Systems
       eff.Tag = "NO_SHIELD_MALUS";
       oPC.ApplyEffect(EffectDuration.Permanent, eff);
       
-      await NwTask.WaitUntil(() => oPC.GetItemInSlot(InventorySlot.LeftHand) != null || (oPC.GetItemInSlot(InventorySlot.RightHand) != null && ItemUtils.GetItemCategory((int)oPC.GetItemInSlot(InventorySlot.RightHand).BaseItemType) != ItemUtils.ItemCategory.OneHandedMeleeWeapon));
+      await NwTask.WaitUntil(() => oPC.GetItemInSlot(InventorySlot.LeftHand) != null || (oPC.GetItemInSlot(InventorySlot.RightHand) != null && ItemUtils.GetItemCategory((BaseItemType)oPC.GetItemInSlot(InventorySlot.RightHand).BaseItemType) != ItemUtils.ItemCategory.OneHandedMeleeWeapon));
       OnShieldEquipped(oPC);
     }
     public static async void OnShieldEquipped(NwPlayer oPC)
@@ -300,7 +300,7 @@ namespace NWN.Systems
           oPC.SendServerMessage("Attention, en l'absence d'une armure ou d'un vêtement, une vulnérabilité de 100 % aux dégâts tranchants vous est appliquée !", API.Color.ROSE);
       }
 
-      await NwTask.WaitUntil(() => oPC.GetItemInSlot(InventorySlot.LeftHand) == null && (oPC.GetItemInSlot(InventorySlot.RightHand) == null || ItemUtils.GetItemCategory((int)oPC.GetItemInSlot(InventorySlot.RightHand)?.BaseItemType) == ItemUtils.ItemCategory.OneHandedMeleeWeapon));
+      await NwTask.WaitUntil(() => oPC.GetItemInSlot(InventorySlot.LeftHand) == null && (oPC.GetItemInSlot(InventorySlot.RightHand) == null || ItemUtils.GetItemCategory((BaseItemType)oPC.GetItemInSlot(InventorySlot.RightHand)?.BaseItemType) == ItemUtils.ItemCategory.OneHandedMeleeWeapon));
       OnShieldRemoved(oPC);
     }
     public static void ApplyNakedMalus(NwPlayer oPC)
@@ -336,7 +336,7 @@ namespace NWN.Systems
         oPC.RemoveEffect(oPC.ActiveEffects.Where(e => e.Tag == "NO_ARMOR_MALUS").FirstOrDefault());
 
       if (oPC.GetItemInSlot(InventorySlot.LeftHand) == null && (oPC.GetItemInSlot(InventorySlot.RightHand) == null 
-        ||  (oPC.GetItemInSlot(InventorySlot.RightHand) != null && ItemUtils.GetItemCategory((int)oPC.GetItemInSlot(InventorySlot.RightHand).BaseItemType) == ItemUtils.ItemCategory.OneHandedMeleeWeapon)))
+        ||  (oPC.GetItemInSlot(InventorySlot.RightHand) != null && ItemUtils.GetItemCategory(oPC.GetItemInSlot(InventorySlot.RightHand).BaseItemType) == ItemUtils.ItemCategory.OneHandedMeleeWeapon)))
       {
         if (!oPC.ActiveEffects.Any(e => e.Tag == "NO_SHIELD_MALUS"))
         {

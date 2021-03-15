@@ -1,6 +1,7 @@
 ﻿using System;
 using NWN.Core;
 using System.Numerics;
+using NWN.API;
 
 namespace NWN.Systems
 {
@@ -15,7 +16,7 @@ namespace NWN.Systems
         if (descriptionName.Length == 0)
           return;
 
-        var query = NWScript.SqlPrepareQueryCampaign(Systems.Config.database, $"SELECT description from playerDescriptions where characterId = @characterId and descriptionName = @descriptionName");
+        var query = NWScript.SqlPrepareQueryCampaign(Config.database, $"SELECT description from playerDescriptions where characterId = @characterId and descriptionName = @descriptionName");
         NWScript.SqlBindInt(query, "@characterId", player.characterId);
         NWScript.SqlBindString(query, "@descriptionName", descriptionName);
         NWScript.SqlStep(query);
@@ -24,13 +25,12 @@ namespace NWN.Systems
 
         if (description.Length == 0)
         {
-          NWScript.SendMessageToPC(player.oid, $"Aucune description valide du nom {descriptionName} n'a été trouvée pour le personnage {NWScript.GetName(player.oid)}.");
+          player.oid.SendServerMessage($"Aucune description valide du nom {descriptionName.ColorString(Color.WHITE)} n'a été trouvée pour le personnage {ctx.oSender.Name}.", Color.ORANGE);
           return;
         }
 
-        NWScript.SetDescription(player.oid, description);
-
-        NWScript.SendMessageToPC(player.oid, $"La description {descriptionName} a bien été appliquée à votre personnage.");
+        ctx.oSender.Description = description;
+        ctx.oSender.SendServerMessage($"La description {descriptionName.ColorString(Color.WHITE)} a bien été appliquée à votre personnage.", Color.BLUE);
       }
     }
   }

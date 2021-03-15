@@ -7,7 +7,7 @@ namespace NWN.Systems
   {
     private static void ExecuteRevealCommand(ChatSystem.Context ctx, Options.Result options)
     {
-      if (NWScript.GetIsObjectValid(ctx.oTarget) == 1)
+      if (ctx.oTarget == null)
         RevealPlugin.SetRevealToParty(ctx.oSender, 1, RevealPlugin.NWNX_REVEAL_SEEN);
       else
         RevealPlugin.RevealTo(ctx.oSender, ctx.oTarget, RevealPlugin.NWNX_REVEAL_SEEN);

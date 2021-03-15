@@ -107,7 +107,7 @@ namespace NWN.Systems.Craft.Collect
     public static void StartCollectCycle(PlayerSystem.Player player, uint oPlaceable, Action completeCallback)
     {
       player.OnCollectCycleCancel = () => {
-        Utils.RemoveTaggedEffect(oPlaceable, $"_{NWScript.GetPCPublicCDKey(player.oid)}_MINING_BEAM");
+        Utils.RemoveTaggedEffect(oPlaceable, $"_{player.oid.CDKey}_MINING_BEAM");
         RemoveCollectCycleCallbacks(player);
         PlayerPlugin.StopGuiTimingBar(player.oid);
       };
@@ -116,18 +116,18 @@ namespace NWN.Systems.Craft.Collect
         RemoveCollectCycleCallbacks(player);
       };
 
-      var resourceExtractor = NWScript.GetItemInSlot(NWScript.INVENTORY_SLOT_RIGHTHAND, player.oid);
+      NwItem resourceExtractor = player.oid.GetItemInSlot(API.Constants.InventorySlot.RightHand);
       float cycleDuration = 180.0f;
       if (Systems.Config.env == Systems.Config.Env.Chim)
         cycleDuration = 10.0f;
 
-      if (NWScript.GetIsObjectValid(resourceExtractor) == 1) // TODO : Idée pour plus tard, le strip miner le plus avancé pourra équipper un cristal de spécialisation pour extraire deux fois plus de minerai en un cycle sur son minerai de spécialité
+      if (resourceExtractor != null) // TODO : Idée pour plus tard, le strip miner le plus avancé pourra équipper un cristal de spécialisation pour extraire deux fois plus de minerai en un cycle sur son minerai de spécialité
       {
-        cycleDuration = cycleDuration - (cycleDuration * NWScript.GetLocalInt(resourceExtractor, "_ITEM_LEVEL") * 2 / 100);
+        cycleDuration = cycleDuration - (cycleDuration * resourceExtractor.GetLocalVariable<int>("_ITEM_LEVEL").Value * 2 / 100);
       }
 
       Core.Effect eRay = NWScript.EffectBeam(NWScript.VFX_BEAM_DISINTEGRATE, resourceExtractor, 1, 0, 3);
-      eRay = NWScript.TagEffect(eRay, $"_{NWScript.GetPCPublicCDKey(player.oid)}_MINING_BEAM");
+      eRay = NWScript.TagEffect(eRay, $"_{player.oid.CDKey}_MINING_BEAM");
       NWScript.ApplyEffectToObject(NWScript.DURATION_TYPE_TEMPORARY, eRay, oPlaceable, cycleDuration);
 
       PlayerPlugin.StartGuiTimingBar(player.oid, cycleDuration, "collect_complete");
@@ -162,10 +162,10 @@ namespace NWN.Systems.Craft.Collect
       craftedItem.Name = $"{craftedItem.Name} en {name}";
       craftedItem.GetLocalVariable<string>("_ITEM_MATERIAL").Value = material;
       
-      foreach (Core.ItemProperty ip in GetCraftItemProperties(material, craftedItem))
+      foreach (API.ItemProperty ip in GetCraftItemProperties(material, craftedItem))
       {
         //NWScript.SendMessageToPC(NWScript.GetFirstPC(), $"Adding IP : {ip}");
-        NWScript.AddItemProperty(NWScript.DURATION_TYPE_PERMANENT, ip, craftedItem);
+        craftedItem.AddItemProperty(ip, EffectDuration.Permanent);
       }
     }
     public static void AddCraftedEnchantementProperties(NwItem craftedItem, string spellId)
@@ -203,7 +203,7 @@ namespace NWN.Systems.Craft.Collect
         || Array.FindIndex(normalPelts, x => x == itemTag) > -1)
         return "pelt";
 
-      NWN.Utils.LogMessageToDMs($"Could not find item template for tag : {itemTag}");
+      Utils.LogMessageToDMs($"Could not find item template for tag : {itemTag}");
       return "";
     }
   }

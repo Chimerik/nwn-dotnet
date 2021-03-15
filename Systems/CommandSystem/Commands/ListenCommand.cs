@@ -9,16 +9,15 @@ namespace NWN.Systems
   {
     private static void ExecuteListenCommand(ChatSystem.Context ctx, Options.Result options)
     {
-      NwPlayer oDM = ctx.oSender.ToNwObject<NwPlayer>();
-      if (oDM.IsDM || oDM.IsDMPossessed || oDM.IsPlayerDM)
+      if (ctx.oSender.IsDM || ctx.oSender.IsDMPossessed || ctx.oSender.IsPlayerDM)
       {
         if (PlayerSystem.Players.TryGetValue(ctx.oSender, out PlayerSystem.Player dungeonMaster))
         {
-          if (NWScript.GetIsObjectValid(ctx.oTarget) != 1)
+          if (ctx.oTarget != null)
           {
             if (dungeonMaster.listened.Count > 0)
             {
-              oDM.SendServerMessage("Vous cessez d'écouter les conversations des joueurs?");
+              ctx.oSender.SendServerMessage("Vous cessez d'écouter les conversations des joueurs", Color.CYAN);
               dungeonMaster.listened.Clear();
             }
             else
@@ -29,11 +28,10 @@ namespace NWN.Systems
           }
           else
           {
-            NwPlayer oPC = ctx.oTarget.ToNwObject<NwPlayer>();
-            if (dungeonMaster.listened.Contains(oPC))
-              dungeonMaster.listened.Remove(oPC);
+            if (dungeonMaster.listened.Contains(ctx.oTarget))
+              dungeonMaster.listened.Remove(ctx.oTarget);
             else
-                dungeonMaster.listened.Add(oPC);
+                dungeonMaster.listened.Add(ctx.oTarget);
           }
         }
       }

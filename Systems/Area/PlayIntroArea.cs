@@ -32,15 +32,15 @@ namespace NWN.Systems
       sailorList[1].ActionRandomWalk();
       sailorList[0].SpeakString("Umberlie, épargne-nous !".ColorString(Color.ORANGE));
       sailorList[1].SpeakString("Oh non, non, non, faut faire quelque chose, vite !");
-      CreaturePlugin.SetMovementRate(sailorList[0], CreaturePlugin.NWNX_CREATURE_MOVEMENT_RATE_DM_FAST);
-      CreaturePlugin.SetMovementRate(sailorList[1], CreaturePlugin.NWNX_CREATURE_MOVEMENT_RATE_DM_FAST);
+      sailorList[0].MovementRate = MovementRate.DM;
+      sailorList[1].MovementRate = MovementRate.DM;
 
       VisibilityPlugin.SetVisibilityOverride(NWScript.OBJECT_INVALID, NWScript.GetNearestObjectByTag("intro_brouillard", player), VisibilityPlugin.NWNX_VISIBILITY_VISIBLE);
       VisibilityPlugin.SetVisibilityOverride(NWScript.OBJECT_INVALID, NWScript.GetNearestObjectByTag("intro_brouillard", player, 2), VisibilityPlugin.NWNX_VISIBILITY_VISIBLE);
 
-      //area.Weather = API.Constants.WeatherType.Rain;
-      //AreaPlugin.SetDayNightCycle(area, AreaPlugin.NWNX_AREA_DAYNIGHTCYCLE_ALWAYS_DARK);
-      //AreaPlugin.SetWeatherChance(area, AreaPlugin.NWNX_AREA_WEATHER_CHANCE_LIGHTNING, 100);
+      area.Weather = WeatherType.Rain;
+      AreaPlugin.SetDayNightCycle(area, AreaPlugin.NWNX_AREA_DAYNIGHTCYCLE_ALWAYS_DARK);
+      AreaPlugin.SetWeatherChance(area, AreaPlugin.NWNX_AREA_WEATHER_CHANCE_LIGHTNING, 100);
       NWScript.SetAreaWind(area, NWScript.Vector(1, 0, 0), 10.0f, 25.0f, 10.0f);
 
       uint rock1 = NWScript.GetNearestObjectByTag("intro_recif", player);

@@ -1,7 +1,5 @@
 ﻿using System;
 using NWN.Core;
-using System.Numerics;
-using NWN.Core.NWNX;
 using NWN.API.Constants;
 using NWN.Services;
 using NWN.API;
@@ -12,22 +10,19 @@ namespace NWN.Systems
   {
     private static void ExecuteFollowCommand(ChatSystem.Context ctx, Options.Result options)
     {
-      if (PlayerSystem.Players.TryGetValue(ctx.oSender, out PlayerSystem.Player player))
+      if (ctx.oSender.MovementRate == MovementRate.Immobile
+        || ctx.oSender.TotalWeight > int.Parse(NWScript.Get2DAString("encumbrance", "Heavy", ctx.oSender.GetAbilityScore(Ability.Strength))))
       {
-        if (NWScript.GetMovementRate(player.oid) == CreaturePlugin.NWNX_CREATURE_MOVEMENT_RATE_IMMOBILE
-          || NWScript.GetWeight(player.oid) > int.Parse(NWScript.Get2DAString("encumbrance", "Heavy", player.oid.GetAbilityScore(Ability.Strength))))
-        { 
-          NWScript.SendMessageToPC(player.oid, "Cette commande ne peut être utilisée en étant surchargé."); 
-          return; 
-        }
-
-        PlayerSystem.cursorTargetService.EnterTargetMode(player.oid, FollowTarget, ObjectTypes.Creature, MouseCursor.Follow);
+        ctx.oSender.SendServerMessage("Cette commande ne peut être utilisée en étant surchargé.", Color.RED);
+        return;
       }
+
+      PlayerSystem.cursorTargetService.EnterTargetMode(ctx.oSender, FollowTarget, ObjectTypes.Creature, MouseCursor.Follow);
     }
     private static void FollowTarget(CursorTargetData selection)
     {
-      if (NWScript.GetMovementRate(selection.Player) == CreaturePlugin.NWNX_CREATURE_MOVEMENT_RATE_IMMOBILE
-            || NWScript.GetWeight(selection.Player) > int.Parse(NWScript.Get2DAString("encumbrance", "Heavy", selection.Player.GetAbilityScore(Ability.Strength))))
+      if (selection.Player.MovementRate == MovementRate.Immobile
+            || selection.Player.TotalWeight > int.Parse(NWScript.Get2DAString("encumbrance", "Heavy", selection.Player.GetAbilityScore(Ability.Strength))))
       {
         selection.Player.SendServerMessage("Cette commande ne peut être utilisée en étant surchargé.", Color.RED);
         return;

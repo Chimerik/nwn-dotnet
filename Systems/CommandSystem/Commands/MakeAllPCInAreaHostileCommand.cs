@@ -8,12 +8,8 @@ namespace NWN.Systems
   {
     private static void ExecuteMakeAllPCInAreaHostileCommand(ChatSystem.Context ctx, Options.Result options)
     {
-      NwPlayer oPC = ctx.oSender.ToNwObject<NwPlayer>();
-
-      foreach(NwPlayer disliked in oPC.Area.FindObjectsOfTypeInArea<NwPlayer>().Where(p => p != oPC && !oPC.PartyMembers.Contains(p)))
-      {
-        NWScript.SetPCDislike(disliked, oPC);
-      }
+      foreach(NwPlayer disliked in ctx.oSender.Area.FindObjectsOfTypeInArea<NwPlayer>().Where(p => p != ctx.oSender && !ctx.oSender.PartyMembers.Contains(p)))
+        NWScript.SetPCDislike(disliked, ctx.oSender);
     }
   }
 }

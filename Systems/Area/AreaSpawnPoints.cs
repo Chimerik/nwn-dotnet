@@ -49,7 +49,6 @@ namespace NWN.Systems
             SpawnCreatureFromSpawnPoint(spawnPoint);
             break;
         }
-        return true;
       });
     }
     private static NwCreature SpawnCreatureFromSpawnPoint(NwWaypoint spawnPoint)

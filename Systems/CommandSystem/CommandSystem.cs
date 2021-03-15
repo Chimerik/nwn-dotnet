@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
 using NLog;
+using NWN.API;
 using NWN.Core;
 using NWN.Core.NWNX;
 
@@ -34,9 +35,9 @@ namespace NWN.Systems
       Command command;
       if (!commandDic.TryGetValue(commandName, out command))
       {
-        NWScript.SendMessageToPC(ctx.oSender,
+        ctx.oSender.SendServerMessage(
        $"\nUnknown command \"{commandName}\".\n\n" +
-      $"Type \"{PREFIX}help\" for a list of all available commands."
+      $"Type \"{PREFIX}help\" for a list of all available commands.", Color.TEAL
         );
         return;
       }
@@ -51,7 +52,7 @@ namespace NWN.Systems
         var msg = $"\nInvalid options :\n" +
           err.Message + "\n\n" +
           $"Please type \"{PREFIX}help {commandName}\" to get a description of the command.";
-        NWScript.SendMessageToPC(ctx.oSender, msg);
+        ctx.oSender.SendServerMessage(msg, Color.RED);
         return;
       }
 
@@ -61,7 +62,7 @@ namespace NWN.Systems
       }
       catch (Exception err)
       {
-        NWScript.SendMessageToPC(ctx.oSender, $"\nUnable to process command: {err.Message}");
+        ctx.oSender.SendServerMessage($"\nUnable to process command: {err.Message}", Color.RED);
       }
     }
 
