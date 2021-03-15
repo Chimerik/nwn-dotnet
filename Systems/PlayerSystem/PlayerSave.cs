@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using NWN.API;
+using NWN.API.Constants;
 using NWN.Core;
 using NWNX.API.Events;
 
@@ -143,12 +144,12 @@ namespace NWN.Systems
     }
     private static void SavePlayerLearnableSkillsToDatabase(Player player)
     {
-      foreach (KeyValuePair<int, SkillSystem.Skill> skillListEntry in player.learnableSkills)
+      foreach (KeyValuePair<Feat, SkillSystem.Skill> skillListEntry in player.learnableSkills)
       {
         var query = NWScript.SqlPrepareQueryCampaign(Config.database, $"INSERT INTO playerLearnableSkills (characterId, skillId, skillPoints, trained) VALUES (@characterId, @skillId, @skillPoints, @trained)" +
         "ON CONFLICT (characterId, skillId) DO UPDATE SET skillPoints = @skillPoints, trained = @trained");
         NWScript.SqlBindInt(query, "@characterId", player.characterId);
-        NWScript.SqlBindInt(query, "@skillId", skillListEntry.Key);
+        NWScript.SqlBindInt(query, "@skillId", (int)skillListEntry.Key);
         NWScript.SqlBindFloat(query, "@skillPoints", Convert.ToInt32(skillListEntry.Value.acquiredPoints));
         NWScript.SqlBindInt(query, "@trained", Convert.ToInt32(skillListEntry.Value.trained));
         NWScript.SqlStep(query);

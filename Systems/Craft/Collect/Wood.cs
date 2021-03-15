@@ -27,10 +27,10 @@ namespace NWN.Systems.Craft.Collect
       int bonusYield = 0;
 
       int value;
-      if (int.TryParse(NWScript.Get2DAString("feat", "GAINMULTIPLE", CreaturePlugin.GetHighestLevelOfFeat(player.oid, (int)Feat.WoodCutter)), out value))
+      if (int.TryParse(NWScript.Get2DAString("feat", "GAINMULTIPLE", CreaturePlugin.GetHighestLevelOfFeat(player.oid, (int)CustomFeats.WoodCutter)), out value))
         bonusYield += miningYield * value * 5 / 100;
 
-      if (int.TryParse(NWScript.Get2DAString("feat", "GAINMULTIPLE", CreaturePlugin.GetHighestLevelOfFeat(player.oid, (int)Feat.WoodExpertise)), out value))
+      if (int.TryParse(NWScript.Get2DAString("feat", "GAINMULTIPLE", CreaturePlugin.GetHighestLevelOfFeat(player.oid, (int)CustomFeats.WoodExpertise)), out value))
         bonusYield += miningYield * value * 5 / 100;
 
       miningYield += bonusYield;
@@ -76,10 +76,10 @@ namespace NWN.Systems.Craft.Collect
 
       int skillBonus = 0;
       int value;
-      if (int.TryParse(NWScript.Get2DAString("feat", "GAINMULTIPLE", CreaturePlugin.GetHighestLevelOfFeat(player.oid, (int)Feat.WoodExpertise)), out value))
+      if (int.TryParse(NWScript.Get2DAString("feat", "GAINMULTIPLE", CreaturePlugin.GetHighestLevelOfFeat(player.oid, (int)CustomFeats.WoodExpertise)), out value))
         skillBonus += value;
 
-      if (int.TryParse(NWScript.Get2DAString("feat", "GAINMULTIPLE", CreaturePlugin.GetHighestLevelOfFeat(player.oid, (int)Feat.WoodProspection)), out value))
+      if (int.TryParse(NWScript.Get2DAString("feat", "GAINMULTIPLE", CreaturePlugin.GetHighestLevelOfFeat(player.oid, (int)CustomFeats.WoodProspection)), out value))
         skillBonus += value;
 
       int respawnChance = skillBonus * 5;

@@ -3,9 +3,11 @@ using System.IO;
 using System.Linq;
 using NLog;
 using NWN.API;
+using NWN.API.Constants;
 using NWN.Core;
 using NWN.Core.NWNX;
 using NWN.Services;
+using Action = System.Action;
 
 namespace NWN.Systems
 {
@@ -200,9 +202,9 @@ namespace NWN.Systems
     public static void ProcessLanguageMiddleware(Context ctx, Action next) // SYSTEME DE LANGUE
     {
       int iLanguage = ctx.oSender.GetLocalVariable<int>("_ACTIVE_LANGUAGE").Value;
-      if (iLanguage != (int)Feat.Invalid && (ctx.channel == ChatPlugin.NWNX_CHAT_CHANNEL_PLAYER_TALK || ctx.channel == ChatPlugin.NWNX_CHAT_CHANNEL_PLAYER_WHISPER || ctx.channel == ChatPlugin.NWNX_CHAT_CHANNEL_DM_TALK || ctx.channel == ChatPlugin.NWNX_CHAT_CHANNEL_DM_WHISPER))
+      if (iLanguage != (int)CustomFeats.Invalid && (ctx.channel == ChatPlugin.NWNX_CHAT_CHANNEL_PLAYER_TALK || ctx.channel == ChatPlugin.NWNX_CHAT_CHANNEL_PLAYER_WHISPER || ctx.channel == ChatPlugin.NWNX_CHAT_CHANNEL_DM_TALK || ctx.channel == ChatPlugin.NWNX_CHAT_CHANNEL_DM_WHISPER))
       {
-        string sLanguageName = Enum.GetName(typeof(Feat), iLanguage);
+        string sLanguageName = Enum.GetName(typeof(CustomFeats), iLanguage);
         //string sName = NWScript.GetLocalString(ctx.oSender, "__DISGUISE_NAME");
         //if (sName == "") sName = NWScript.GetName(ctx.oSender);
 

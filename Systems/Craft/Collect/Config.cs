@@ -16,7 +16,7 @@ namespace NWN.Systems.Craft.Collect
         OreType.Veldspar,
         new Ore(
           oreType: OreType.Veldspar,
-          oreFeat: Feat.VeldsparReprocessing,
+          oreFeat: CustomFeats.VeldsparReprocessing,
           mineralsDictionnary: new Dictionary<MineralType, float>
           {
             { MineralType.Tritanium, 2.075f }
@@ -27,7 +27,7 @@ namespace NWN.Systems.Craft.Collect
         OreType.Scordite,
         new Ore(
           oreType: OreType.Scordite,
-          oreFeat: Feat.ScorditeReprocessing,
+          oreFeat: CustomFeats.ScorditeReprocessing,
           mineralsDictionnary: new Dictionary<MineralType, float>
           {
             { MineralType.Tritanium, 1.15335f },
@@ -39,7 +39,7 @@ namespace NWN.Systems.Craft.Collect
         OreType.Pyroxeres,
         new Ore(
           oreType: OreType.Pyroxeres,
-          oreFeat: Feat.PyroxeresReprocessing,
+          oreFeat: CustomFeats.PyroxeresReprocessing,
           mineralsDictionnary: new Dictionary<MineralType, float>
           {
             { MineralType.Tritanium, 0.585f },
@@ -105,21 +105,21 @@ namespace NWN.Systems.Craft.Collect
         WoodType.Laurelin,
         new Wood(
           oreType: WoodType.Laurelin,
-          oreFeat: Feat.LaurelinReprocessing
+          oreFeat: CustomFeats.LaurelinReprocessing
         )
       },
       {
         WoodType.Telperion,
         new Wood(
           oreType: WoodType.Telperion,
-          oreFeat: Feat.TelperionReprocessing
+          oreFeat: CustomFeats.TelperionReprocessing
         )
       },
       {
         WoodType.Mallorn,
         new Wood(
           oreType: WoodType.Mallorn,
-          oreFeat: Feat.MallornReprocessing
+          oreFeat: CustomFeats.MallornReprocessing
         )
       }
       };
@@ -183,7 +183,7 @@ namespace NWN.Systems.Craft.Collect
       PeauCommune = 2,
       [Description("Peau_normale")]
       PeauNormale = 3,
-      [Description("Peau_peu_commune")]
+      [Description("Peau_inhabituelle")]
       PeauPeuCommune = 4,
       [Description("Peau_rare")]
       PeauRare = 5,
@@ -220,21 +220,21 @@ namespace NWN.Systems.Craft.Collect
         PeltType.MauvaisePeau,
         new Pelt(
           oreType: PeltType.MauvaisePeau,
-          oreFeat: Feat.BadPeltReprocessing
+          oreFeat: CustomFeats.BadPeltReprocessing
         )
       },
       {
         PeltType.PeauCommune,
         new Pelt(
           oreType: PeltType.PeauCommune,
-          oreFeat: Feat.CommonPeltReprocessing
+          oreFeat: CustomFeats.CommonPeltReprocessing
         )
       },
       {
         PeltType.PeauNormale,
         new Pelt(
           oreType: PeltType.PeauNormale,
-          oreFeat: Feat.NormalPeltReprocessing
+          oreFeat: CustomFeats.NormalPeltReprocessing
         )
       }
       };

@@ -79,13 +79,13 @@ namespace NWN.Systems
         float reprocessingEfficiency = 0.3f;
 
         float value;
-        if (float.TryParse(NWScript.Get2DAString("feat", "GAINMULTIPLE", CreaturePlugin.GetHighestLevelOfFeat(player.oid, (int)Feat.Reprocessing)), out value))
+        if (float.TryParse(NWScript.Get2DAString("feat", "GAINMULTIPLE", CreaturePlugin.GetHighestLevelOfFeat(player.oid, (int)CustomFeats.Reprocessing)), out value))
           reprocessingEfficiency += reprocessingEfficiency + 3 * value / 100;
 
-        if (float.TryParse(NWScript.Get2DAString("feat", "GAINMULTIPLE", CreaturePlugin.GetHighestLevelOfFeat(player.oid, (int)Feat.ReprocessingEfficiency)), out value))
+        if (float.TryParse(NWScript.Get2DAString("feat", "GAINMULTIPLE", CreaturePlugin.GetHighestLevelOfFeat(player.oid, (int)CustomFeats.ReprocessingEfficiency)), out value))
           reprocessingEfficiency += reprocessingEfficiency + 2 * value / 100;
 
-        if (float.TryParse(NWScript.Get2DAString("feat", "GAINMULTIPLE", CreaturePlugin.GetHighestLevelOfFeat(player.oid, (int)Feat.Connections)), out value))
+        if (float.TryParse(NWScript.Get2DAString("feat", "GAINMULTIPLE", CreaturePlugin.GetHighestLevelOfFeat(player.oid, (int)CustomFeats.Connections)), out value))
           reprocessingEfficiency += reprocessingEfficiency + 1 * value / 100;
 
         if (Enum.TryParse(oreName, out OreType myOreType) && oresDictionnary.TryGetValue(myOreType, out Ore processedOre))
@@ -126,13 +126,13 @@ namespace NWN.Systems
       float reprocessingEfficiency = 0.3f;
 
       float value;
-      if (float.TryParse(NWScript.Get2DAString("feat", "GAINMULTIPLE", CreaturePlugin.GetHighestLevelOfFeat(player.oid, (int)Feat.Reprocessing)), out value))
+      if (float.TryParse(NWScript.Get2DAString("feat", "GAINMULTIPLE", CreaturePlugin.GetHighestLevelOfFeat(player.oid, (int)CustomFeats.Reprocessing)), out value))
         reprocessingEfficiency += reprocessingEfficiency + 3 * value / 100;
 
-      if (float.TryParse(NWScript.Get2DAString("feat", "GAINMULTIPLE", CreaturePlugin.GetHighestLevelOfFeat(player.oid, (int)Feat.ReprocessingEfficiency)), out value))
+      if (float.TryParse(NWScript.Get2DAString("feat", "GAINMULTIPLE", CreaturePlugin.GetHighestLevelOfFeat(player.oid, (int)CustomFeats.ReprocessingEfficiency)), out value))
         reprocessingEfficiency += reprocessingEfficiency + 2 * value / 100;
 
-      if (float.TryParse(NWScript.Get2DAString("feat", "GAINMULTIPLE", CreaturePlugin.GetHighestLevelOfFeat(player.oid, (int)Feat.Connections)), out value))
+      if (float.TryParse(NWScript.Get2DAString("feat", "GAINMULTIPLE", CreaturePlugin.GetHighestLevelOfFeat(player.oid, (int)CustomFeats.Connections)), out value))
         reprocessingEfficiency += reprocessingEfficiency + 1 * value / 100;
 
       if (Enum.TryParse(oreName, out OreType myOreType) && oresDictionnary.TryGetValue(myOreType, out Ore processedOre))

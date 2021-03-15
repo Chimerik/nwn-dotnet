@@ -55,7 +55,7 @@ namespace NWN.Systems
       player.GetLocalVariable<int>("_DELAYED_SPELLHOOK_WILL").Value = CreaturePlugin.GetBaseSavingThrow(player, NWScript.SAVING_THROW_WILL);
       player.GetLocalVariable<int>("_DELAYED_SPELLHOOK_FORT").Value = CreaturePlugin.GetBaseSavingThrow(player, NWScript.SAVING_THROW_FORT);
 
-      if (int.TryParse(NWScript.Get2DAString("feat", "GAINMULTIPLE", CreaturePlugin.GetHighestLevelOfFeat(player, (int)Feat.ImprovedCasterLevel)), out int casterLevel))
+      if (int.TryParse(NWScript.Get2DAString("feat", "GAINMULTIPLE", CreaturePlugin.GetHighestLevelOfFeat(player, (int)CustomFeats.ImprovedCasterLevel)), out int casterLevel))
         CreaturePlugin.SetLevelByPosition(player, 0, casterLevel + 1);
 
       int spellId = NWScript.GetSpellId();

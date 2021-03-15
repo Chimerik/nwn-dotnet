@@ -168,7 +168,7 @@ namespace NWN.Systems
         CreaturePlugin.AddKnownSpell(player.oid, 43, level, oid);
         PlayNewSkillAcquiredEffects();
         trained = true;
-        player.currentSkillJob = (int)Feat.Invalid;
+        player.currentSkillJob = (int)CustomFeats.Invalid;
         player.currentSkillType = SkillType.Invalid;
         NWScript.ExportSingleCharacter(player.oid);
       }

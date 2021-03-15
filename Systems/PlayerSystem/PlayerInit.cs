@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Discord;
@@ -17,7 +18,7 @@ namespace NWN.Systems
     {
       NwPlayer oPC = HandlePlayerConnect.Player;
 
-      oPC.GetLocalVariable<int>("_ACTIVE_LANGUAGE").Value = (int)Feat.Invalid;
+      oPC.GetLocalVariable<int>("_ACTIVE_LANGUAGE").Value = (int)CustomFeats.Invalid;
       oPC.GetLocalVariable<int>("_CONNECTING").Value = 1;
       oPC.GetLocalVariable<int>("_DISCONNECTING").Delete();
 
@@ -52,25 +53,25 @@ namespace NWN.Systems
         player.craftJob.CreateCraftJournalEntry();
       }
 
-      if (player.currentSkillJob != (int)Feat.Invalid)
+      if (player.currentSkillJob != (int)CustomFeats.Invalid)
       {
         switch (player.currentSkillType)
         {
           case SkillSystem.SkillType.Skill:
-            if (player.learnableSkills.ContainsKey(player.currentSkillJob))
-              player.learnableSkills[player.currentSkillJob].currentJob = true;
+            if (player.learnableSkills.ContainsKey((API.Constants.Feat)player.currentSkillJob))
+              player.learnableSkills[(API.Constants.Feat)player.currentSkillJob].currentJob = true;
             else
             {
               if (!Convert.ToBoolean(CreaturePlugin.GetKnowsFeat(player.oid, player.currentSkillJob)))
                 CreaturePlugin.AddFeat(player.oid, player.currentSkillJob);
-              player.currentSkillJob = (int)Feat.Invalid;
+              player.currentSkillJob = (int)CustomFeats.Invalid;
             }
             break;
           case SkillSystem.SkillType.Spell:
             if (player.learnableSpells.ContainsKey(player.currentSkillJob))
               player.learnableSpells[player.currentSkillJob].currentJob = true;
             else
-              player.currentSkillJob = (int)Feat.Invalid;
+              player.currentSkillJob = (int)CustomFeats.Invalid;
             break;
         }
 
@@ -78,12 +79,12 @@ namespace NWN.Systems
         oPC.GetLocalVariable<int>("_CONNECTING").Delete();
         player.isAFK = false;
 
-        if (player.currentSkillJob != (int)Feat.Invalid)
+        if (player.currentSkillJob != (int)CustomFeats.Invalid)
         {
           switch (player.currentSkillType)
           {
             case SkillSystem.SkillType.Skill:
-              player.learnableSkills[player.currentSkillJob].CreateSkillJournalEntry();
+              player.learnableSkills[(API.Constants.Feat)player.currentSkillJob].CreateSkillJournalEntry();
               break;
             case SkillSystem.SkillType.Spell:
               player.learnableSpells[player.currentSkillJob].CreateSkillJournalEntry();
@@ -92,24 +93,41 @@ namespace NWN.Systems
         }
       }
 
-      int improvedConst = CreaturePlugin.GetHighestLevelOfFeat(player.oid, (int)Feat.ImprovedConstitution);
-      if (improvedConst == (int)Feat.Invalid)
+      foreach(KeyValuePair<API.Constants.Feat, int> feat in player.learntCustomFeats)
+      {
+        CustomFeat customFeat = SkillSystem.customFeatsDictionnary[feat.Key];
+
+        /*if (int.TryParse(NWScript.Get2DAString("feat", "FEAT", (int)feat.Key), out int nameValue))
+          //PlayerPlugin.SetTlkOverride(player.oid, nameValue, $"{customFeat.name} {SkillSystem.GetCustomFeatLevelFromSkillPoints(feat.Key, feat.Value)}");
+        else
+          Utils.LogMessageToDMs($"CUSTOM SKILL SYSTEM ERROR - Skill {customFeat.name} : no available custom name StrRef");
+
+        if (int.TryParse(NWScript.Get2DAString("feat", "DESCRIPTION", (int)feat.Key), out int descriptionValue))
+          //PlayerPlugin.SetTlkOverride(player.oid, descriptionValue, customFeat.description);
+        else
+            {
+          Utils.LogMessageToDMs($"CUSTOM SKILL SYSTEM ERROR - Skill {customFeat.name} : no available custom description StrRef");
+        }*/
+      }
+
+      int improvedConst = CreaturePlugin.GetHighestLevelOfFeat(player.oid, (int)CustomFeats.ImprovedConstitution);
+      if (improvedConst == (int)CustomFeats.Invalid)
         improvedConst = 0;
       else
         improvedConst = Int32.Parse(NWScript.Get2DAString("feat", "GAINMULTIPLE", improvedConst));
 
-      int improvedHealth = CreaturePlugin.GetHighestLevelOfFeat(player.oid, (int)Feat.ImprovedHealth);
-      if (improvedHealth == (int)Feat.Invalid)
+      int improvedHealth = CreaturePlugin.GetHighestLevelOfFeat(player.oid, (int)CustomFeats.ImprovedHealth);
+      if (improvedHealth == (int)CustomFeats.Invalid)
         improvedHealth = 0;
       else
         improvedHealth = Int32.Parse(NWScript.Get2DAString("feat", "GAINMULTIPLE", improvedHealth));
 
       //NWScript.SendMessageToPC(player.oid, $"pv : {Int32.Parse(NWScript.Get2DAString("classes", "HitDie", 43)) + (1 + 3 * ((NWScript.GetAbilityScore(oTarget, NWScript.ABILITY_CONSTITUTION, 1) + improvedConst - 10) / 2 + CreaturePlugin.GetKnowsFeat(oTarget, (int)Feat.Toughness))) * Int32.Parse(NWScript.Get2DAString("feat", "GAINMULTIPLE", CreaturePlugin.GetHighestLevelOfFeat(oTarget, (int)Feat.ImprovedHealth)))}");
 
-      CreaturePlugin.SetMaxHitPointsByLevel(player.oid, 1, Int32.Parse(NWScript.Get2DAString("classes", "HitDie", 43))
+      player.oid.MaxHP = Int32.Parse(NWScript.Get2DAString("classes", "HitDie", 43))
         + (1 + 3 * ((NWScript.GetAbilityScore(player.oid, NWScript.ABILITY_CONSTITUTION, 1)
-        + improvedConst - 10) / 2
-        + CreaturePlugin.GetKnowsFeat(player.oid, (int)Feat.Toughness))) * improvedHealth);
+        + improvedConst - 10) / 2)
+        + CreaturePlugin.GetKnowsFeat(player.oid, (int)Feat.Toughness)) * improvedHealth;
 
       Task waitForTorilNecklaceChange = NwTask.Run(async () =>
       {
@@ -173,20 +191,20 @@ namespace NWN.Systems
       switch (newPlayer.RacialType)
       {
         case RacialType.Dwarf:
-          CreaturePlugin.AddFeat(newPlayer, (int)Feat.Nain);
+          CreaturePlugin.AddFeat(newPlayer, (int)CustomFeats.Nain);
           break;
         case RacialType.Elf:
         case RacialType.HalfElf:
-          CreaturePlugin.AddFeat(newPlayer, (int)Feat.Elfique);
+          CreaturePlugin.AddFeat(newPlayer, (int)CustomFeats.Elfique);
           break;
         case RacialType.Halfling:
-          CreaturePlugin.AddFeat(newPlayer, (int)Feat.Halfelin);
+          CreaturePlugin.AddFeat(newPlayer, (int)CustomFeats.Halfelin);
           break;
         case RacialType.Gnome:
-          CreaturePlugin.AddFeat(newPlayer, (int)Feat.Gnome);
+          CreaturePlugin.AddFeat(newPlayer, (int)CustomFeats.Gnome);
           break;
         case RacialType.HalfOrc:
-          CreaturePlugin.AddFeat(newPlayer, (int)Feat.Orc);
+          CreaturePlugin.AddFeat(newPlayer, (int)CustomFeats.Orc);
           break;
       }
 
@@ -243,7 +261,7 @@ namespace NWN.Systems
       NWScript.SqlBindString(query, "@name", NWScript.GetName(newCharacter.oid));
       NWScript.SqlBindString(query, "@dateLastSaved", DateTime.Now.ToString());
       NWScript.SqlBindInt(query, "@currentSkillType", (int)SkillSystem.SkillType.Invalid);
-      NWScript.SqlBindInt(query, "@currentSkillJob", (int)Feat.Invalid);
+      NWScript.SqlBindInt(query, "@currentSkillJob", (int)CustomFeats.Invalid);
       NWScript.SqlBindInt(query, "@currentCraftJob", -10);
       NWScript.SqlBindString(query, "@currentCraftObject", "");
       NWScript.SqlBindInt(query, "@frostAttackOn", 0);
@@ -278,46 +296,46 @@ namespace NWN.Systems
     }
     public static void InitializeNewPlayerLearnableSkills(Player player)
     {
-      player.learnableSkills.Add((int)Feat.ImprovedHealth, new SkillSystem.Skill((int)Feat.ImprovedHealth, 0.0f, player));
-      player.learnableSkills.Add((int)Feat.Toughness, new SkillSystem.Skill((int)Feat.Toughness, 0.0f, player));
-      player.learnableSkills.Add((int)Feat.ImprovedAttackBonus, new SkillSystem.Skill((int)Feat.ImprovedAttackBonus, 0.0f, player));
-      player.learnableSkills.Add((int)Feat.ImprovedCasterLevel, new SkillSystem.Skill((int)Feat.ImprovedCasterLevel, 0.0f, player));
-      player.learnableSkills.Add((int)Feat.WeaponProficiencySimple, new SkillSystem.Skill((int)Feat.WeaponProficiencySimple, 0.0f, player));
-      player.learnableSkills.Add((int)Feat.ArmorProficiencyLight, new SkillSystem.Skill((int)Feat.ArmorProficiencyLight, 0.0f, player));
-      player.learnableSkills.Add((int)Feat.ShieldProficiency, new SkillSystem.Skill((int)Feat.ShieldProficiency, 0.0f, player));
-      player.learnableSkills.Add((int)Feat.WeaponFinesse, new SkillSystem.Skill((int)Feat.WeaponFinesse, 0.0f, player));
-      player.learnableSkills.Add((int)Feat.TwoWeaponFighting, new SkillSystem.Skill((int)Feat.TwoWeaponFighting, 0.0f, player));
-      player.learnableSkills.Add((int)Feat.ImprovedSavingThrowFortitude, new SkillSystem.Skill((int)Feat.ImprovedSavingThrowFortitude, 0.0f, player));
-      player.learnableSkills.Add((int)Feat.ImprovedSavingThrowReflex, new SkillSystem.Skill((int)Feat.ImprovedSavingThrowReflex, 0.0f, player));
-      player.learnableSkills.Add((int)Feat.ImprovedSavingThrowWill, new SkillSystem.Skill((int)Feat.ImprovedSavingThrowWill, 0.0f, player));
-      player.learnableSkills.Add((int)Feat.ImprovedSpellSlot0_1, new SkillSystem.Skill((int)Feat.ImprovedSpellSlot0_1, 0.0f, player));
-      player.learnableSkills.Add((int)Feat.ImprovedSpellSlot1_1, new SkillSystem.Skill((int)Feat.ImprovedSpellSlot1_1, 0.0f, player));
-      player.learnableSkills.Add((int)Feat.ImprovedStrength, new SkillSystem.Skill((int)Feat.ImprovedStrength, 0.0f, player));
-      player.learnableSkills.Add((int)Feat.ImprovedDexterity, new SkillSystem.Skill((int)Feat.ImprovedDexterity, 0.0f, player));
-      player.learnableSkills.Add((int)Feat.ImprovedConstitution, new SkillSystem.Skill((int)Feat.ImprovedConstitution, 0.0f, player));
-      player.learnableSkills.Add((int)Feat.ImprovedIntelligence, new SkillSystem.Skill((int)Feat.ImprovedIntelligence, 0.0f, player));
-      player.learnableSkills.Add((int)Feat.ImprovedWisdom, new SkillSystem.Skill((int)Feat.ImprovedWisdom, 0.0f, player));
-      player.learnableSkills.Add((int)Feat.ImprovedCharisma, new SkillSystem.Skill((int)Feat.ImprovedCharisma, 0.0f, player));
-      player.learnableSkills.Add((int)Feat.ImprovedAnimalEmpathy, new SkillSystem.Skill((int)Feat.ImprovedAnimalEmpathy, 0.0f, player));
-      player.learnableSkills.Add((int)Feat.ImprovedConcentration, new SkillSystem.Skill((int)Feat.ImprovedConcentration, 0.0f, player));
-      player.learnableSkills.Add((int)Feat.ImprovedDisableTraps, new SkillSystem.Skill((int)Feat.ImprovedDisableTraps, 0.0f, player));
-      player.learnableSkills.Add((int)Feat.ImprovedDiscipline, new SkillSystem.Skill((int)Feat.ImprovedDiscipline, 0.0f, player));
-      player.learnableSkills.Add((int)Feat.ImprovedSkillParry, new SkillSystem.Skill((int)Feat.ImprovedSkillParry, 0.0f, player));
-      player.learnableSkills.Add((int)Feat.ImprovedPerform, new SkillSystem.Skill((int)Feat.ImprovedPerform, 0.0f, player));
-      player.learnableSkills.Add((int)Feat.ImprovedPickpocket, new SkillSystem.Skill((int)Feat.ImprovedPickpocket, 0.0f, player));
-      player.learnableSkills.Add((int)Feat.ImprovedSearch, new SkillSystem.Skill((int)Feat.ImprovedSearch, 0.0f, player));
-      player.learnableSkills.Add((int)Feat.ImprovedSetTrap, new SkillSystem.Skill((int)Feat.ImprovedSetTrap, 0.0f, player));
-      player.learnableSkills.Add((int)Feat.ImprovedSpellcraft, new SkillSystem.Skill((int)Feat.ImprovedSpellcraft, 0.0f, player));
-      player.learnableSkills.Add((int)Feat.ImprovedSpot, new SkillSystem.Skill((int)Feat.ImprovedSpot, 0.0f, player));
-      player.learnableSkills.Add((int)Feat.ImprovedTaunt, new SkillSystem.Skill((int)Feat.ImprovedTaunt, 0.0f, player));
-      player.learnableSkills.Add((int)Feat.ImprovedUseMagicDevice, new SkillSystem.Skill((int)Feat.ImprovedUseMagicDevice, 0.0f, player));
-      player.learnableSkills.Add((int)Feat.ImprovedTumble, new SkillSystem.Skill((int)Feat.ImprovedTumble, 0.0f, player));
-      player.learnableSkills.Add((int)Feat.ImprovedBluff, new SkillSystem.Skill((int)Feat.ImprovedBluff, 0.0f, player));
-      player.learnableSkills.Add((int)Feat.ImprovedIntimidate, new SkillSystem.Skill((int)Feat.ImprovedIntimidate, 0.0f, player));
-      player.learnableSkills.Add((int)Feat.ImprovedMoveSilently, new SkillSystem.Skill((int)Feat.ImprovedMoveSilently, 0.0f, player));
-      player.learnableSkills.Add((int)Feat.ImprovedListen, new SkillSystem.Skill((int)Feat.ImprovedListen, 0.0f, player));
-      player.learnableSkills.Add((int)Feat.ImprovedHide, new SkillSystem.Skill((int)Feat.ImprovedHide, 0.0f, player));
-      player.learnableSkills.Add((int)Feat.ImprovedOpenLock, new SkillSystem.Skill((int)Feat.ImprovedOpenLock, 0.0f, player));
+      player.learnableSkills.Add(CustomFeats.ImprovedHealth, new SkillSystem.Skill(CustomFeats.ImprovedHealth, 0.0f, player));
+      player.learnableSkills.Add(Feat.Toughness, new SkillSystem.Skill(Feat.Toughness, 0.0f, player));
+      player.learnableSkills.Add(CustomFeats.ImprovedAttackBonus, new SkillSystem.Skill(CustomFeats.ImprovedAttackBonus, 0.0f, player));
+      player.learnableSkills.Add(CustomFeats.ImprovedCasterLevel, new SkillSystem.Skill(CustomFeats.ImprovedCasterLevel, 0.0f, player));
+      player.learnableSkills.Add(Feat.WeaponProficiencySimple, new SkillSystem.Skill(Feat.WeaponProficiencySimple, 0.0f, player));
+      player.learnableSkills.Add(Feat.ArmorProficiencyLight, new SkillSystem.Skill(Feat.ArmorProficiencyLight, 0.0f, player));
+      player.learnableSkills.Add(Feat.ShieldProficiency, new SkillSystem.Skill(Feat.ShieldProficiency, 0.0f, player));
+      player.learnableSkills.Add(Feat.WeaponFinesse, new SkillSystem.Skill(Feat.WeaponFinesse, 0.0f, player));
+      player.learnableSkills.Add(Feat.TwoWeaponFighting, new SkillSystem.Skill(Feat.TwoWeaponFighting, 0.0f, player));
+      player.learnableSkills.Add(CustomFeats.ImprovedSavingThrowFortitude, new SkillSystem.Skill(CustomFeats.ImprovedSavingThrowFortitude, 0.0f, player));
+      player.learnableSkills.Add(CustomFeats.ImprovedSavingThrowReflex, new SkillSystem.Skill(CustomFeats.ImprovedSavingThrowReflex, 0.0f, player));
+      player.learnableSkills.Add(CustomFeats.ImprovedSavingThrowWill, new SkillSystem.Skill(CustomFeats.ImprovedSavingThrowWill, 0.0f, player));
+      player.learnableSkills.Add(CustomFeats.ImprovedSpellSlot0, new SkillSystem.Skill(CustomFeats.ImprovedSpellSlot0, 0.0f, player));
+      player.learnableSkills.Add(CustomFeats.ImprovedSpellSlot1, new SkillSystem.Skill(CustomFeats.ImprovedSpellSlot1, 0.0f, player));
+      player.learnableSkills.Add(CustomFeats.ImprovedStrength, new SkillSystem.Skill(CustomFeats.ImprovedStrength, 0.0f, player));
+      player.learnableSkills.Add(CustomFeats.ImprovedDexterity, new SkillSystem.Skill(CustomFeats.ImprovedDexterity, 0.0f, player));
+      player.learnableSkills.Add(CustomFeats.ImprovedConstitution, new SkillSystem.Skill(CustomFeats.ImprovedConstitution, 0.0f, player));
+      player.learnableSkills.Add(CustomFeats.ImprovedIntelligence, new SkillSystem.Skill(CustomFeats.ImprovedIntelligence, 0.0f, player));
+      player.learnableSkills.Add(CustomFeats.ImprovedWisdom, new SkillSystem.Skill(CustomFeats.ImprovedWisdom, 0.0f, player));
+      player.learnableSkills.Add(CustomFeats.ImprovedCharisma, new SkillSystem.Skill(CustomFeats.ImprovedCharisma, 0.0f, player));
+      player.learnableSkills.Add(CustomFeats.ImprovedAnimalEmpathy, new SkillSystem.Skill(CustomFeats.ImprovedAnimalEmpathy, 0.0f, player));
+      player.learnableSkills.Add(CustomFeats.ImprovedConcentration, new SkillSystem.Skill(CustomFeats.ImprovedConcentration, 0.0f, player));
+      player.learnableSkills.Add(CustomFeats.ImprovedDisableTraps, new SkillSystem.Skill(CustomFeats.ImprovedDisableTraps, 0.0f, player));
+      player.learnableSkills.Add(CustomFeats.ImprovedDiscipline, new SkillSystem.Skill(CustomFeats.ImprovedDiscipline, 0.0f, player));
+      player.learnableSkills.Add(CustomFeats.ImprovedSkillParry, new SkillSystem.Skill(CustomFeats.ImprovedSkillParry, 0.0f, player));
+      player.learnableSkills.Add(CustomFeats.ImprovedPerform, new SkillSystem.Skill(CustomFeats.ImprovedPerform, 0.0f, player));
+      player.learnableSkills.Add(CustomFeats.ImprovedPickpocket, new SkillSystem.Skill(CustomFeats.ImprovedPickpocket, 0.0f, player));
+      player.learnableSkills.Add(CustomFeats.ImprovedSearch, new SkillSystem.Skill(CustomFeats.ImprovedSearch, 0.0f, player));
+      player.learnableSkills.Add(CustomFeats.ImprovedSetTrap, new SkillSystem.Skill(CustomFeats.ImprovedSetTrap, 0.0f, player));
+      player.learnableSkills.Add(CustomFeats.ImprovedSpellcraft, new SkillSystem.Skill(CustomFeats.ImprovedSpellcraft, 0.0f, player));
+      player.learnableSkills.Add(CustomFeats.ImprovedSpot, new SkillSystem.Skill(CustomFeats.ImprovedSpot, 0.0f, player));
+      player.learnableSkills.Add(CustomFeats.ImprovedTaunt, new SkillSystem.Skill(CustomFeats.ImprovedTaunt, 0.0f, player));
+      player.learnableSkills.Add(CustomFeats.ImprovedUseMagicDevice, new SkillSystem.Skill(CustomFeats.ImprovedUseMagicDevice, 0.0f, player));
+      player.learnableSkills.Add(CustomFeats.ImprovedTumble, new SkillSystem.Skill(CustomFeats.ImprovedTumble, 0.0f, player));
+      player.learnableSkills.Add(CustomFeats.ImprovedBluff, new SkillSystem.Skill(CustomFeats.ImprovedBluff, 0.0f, player));
+      player.learnableSkills.Add(CustomFeats.ImprovedIntimidate, new SkillSystem.Skill(CustomFeats.ImprovedIntimidate, 0.0f, player));
+      player.learnableSkills.Add(CustomFeats.ImprovedMoveSilently, new SkillSystem.Skill(CustomFeats.ImprovedMoveSilently, 0.0f, player));
+      player.learnableSkills.Add(CustomFeats.ImprovedListen, new SkillSystem.Skill(CustomFeats.ImprovedListen, 0.0f, player));
+      player.learnableSkills.Add(CustomFeats.ImprovedHide, new SkillSystem.Skill(CustomFeats.ImprovedHide, 0.0f, player));
+      player.learnableSkills.Add(CustomFeats.ImprovedOpenLock, new SkillSystem.Skill(CustomFeats.ImprovedOpenLock, 0.0f, player));
     }
     private static void InitializeDM(Player player)
     {
@@ -384,11 +402,20 @@ namespace NWN.Systems
     }
     private static void InitializePlayerLearnableSkills(Player player)
     {
-      var query = NWScript.SqlPrepareQueryCampaign(Config.database, $"SELECT skillId, skillPoints from playerLearnableSkills where characterId = @characterId and trained = 0");
+      var query = NWScript.SqlPrepareQueryCampaign(Config.database, $"SELECT skillId, skillPoints, trained from playerLearnableSkills where characterId = @characterId");
       NWScript.SqlBindInt(query, "@characterId", player.characterId);
 
       while (Convert.ToBoolean(NWScript.SqlStep(query)))
-        player.learnableSkills.Add(NWScript.SqlGetInt(query, 0), new SkillSystem.Skill(NWScript.SqlGetInt(query, 0), NWScript.SqlGetInt(query, 1), player));
+      {
+        Feat skillId = (Feat)NWScript.SqlGetInt(query, 0);
+        int currentSkillPoints = NWScript.SqlGetInt(query, 1);
+
+        if (NWScript.SqlGetInt(query, 2) == 0)
+          player.learnableSkills.Add(skillId, new SkillSystem.Skill(skillId, currentSkillPoints, player));
+      
+        if(SkillSystem.customFeatsDictionnary.ContainsKey(skillId))
+          player.learntCustomFeats.Add(skillId, currentSkillPoints);
+      }
     }
     private static void InitializePlayerLearnableSpells(Player player)
     {

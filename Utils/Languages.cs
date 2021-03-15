@@ -1,4 +1,5 @@
 ﻿using Google.Cloud.Translation.V2;
+using NWN.API.Constants;
 
 namespace NWN.Systems
 {
@@ -39,37 +40,37 @@ namespace NWN.Systems
 
       switch (langue)
       {
-        case Feat.Elfique:
+        case CustomFeats.Elfique:
           return LanguageCodes.Basque;
-        case Feat.Abyssal:
+        case CustomFeats.Abyssal:
           return LanguageCodes.Latin;
-        case Feat.Céleste:
+        case CustomFeats.Céleste:
           return LanguageCodes.Swedish;
-        case Feat.Profond:
+        case CustomFeats.Profond:
           return LanguageCodes.Welsh;
-        case Feat.Draconique:
+        case CustomFeats.Draconique:
           return LanguageCodes.Icelandic;
-        case Feat.Druidique:
+        case CustomFeats.Druidique:
           return LanguageCodes.Corsican;
-        case Feat.Nain:
+        case CustomFeats.Nain:
           return LanguageCodes.German;
-        case Feat.Gnome:
+        case CustomFeats.Gnome:
           return LanguageCodes.Albanian;
-        case Feat.Géant:
+        case CustomFeats.Géant:
           return LanguageCodes.Georgian;
-        case Feat.Gobelin:
+        case CustomFeats.Gobelin:
           return LanguageCodes.Zulu;
-        case Feat.Halfelin:
+        case CustomFeats.Halfelin:
           return LanguageCodes.Yoruba;
-        case Feat.Infernal:
+        case CustomFeats.Infernal:
           return LanguageCodes.Xhosa;
-        case Feat.Orc:
+        case CustomFeats.Orc:
           return LanguageCodes.Uzbek;
-        case Feat.Primordial:
+        case CustomFeats.Primordiale:
           return LanguageCodes.Urdu;
-        case Feat.Sylvain:
+        case CustomFeats.Sylvain:
           return LanguageCodes.Thai;
-        case Feat.Voleur:
+        case CustomFeats.Voleur:
           return LanguageCodes.Serbian;
       }
 

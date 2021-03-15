@@ -11,7 +11,7 @@ namespace NWN.Systems
   {
     public class Skill
     {
-      public readonly int oid;
+      public readonly Feat oid;
       private readonly PlayerSystem.Player player;
       public double acquiredPoints { get; set; }
       public string name { get; set; }
@@ -21,11 +21,11 @@ namespace NWN.Systems
       public int successorId { get; set; }
       public Boolean trained { get; set; }
       private int multiplier;
-      public readonly int pointsToNextLevel;
+      public int pointsToNextLevel;
       public readonly int primaryAbility;
       public readonly int secondaryAbility;
 
-      public Skill(int Id, float SP, PlayerSystem.Player player)
+      public Skill(Feat Id, float SP, PlayerSystem.Player player)
       {
         this.oid = Id;
         this.player = player;
@@ -33,54 +33,66 @@ namespace NWN.Systems
         this.trained = false;
 
         int value;
-        if (int.TryParse(NWScript.Get2DAString("feat", "FEAT", Id), out value))
-          this.name = NWScript.GetStringByStrRef(value);
-        else
+        if (customFeatsDictionnary.ContainsKey(Id))
         {
-          this.name = "Nom indisponible";
-          Utils.LogMessageToDMs($"SKILL SYSTEM ERROR - Skill {this.oid} : no available name");
-        }
-
-        if (int.TryParse(NWScript.Get2DAString("feat", "DESCRIPTION", Id), out value))
-          this.description = NWScript.GetStringByStrRef(value);
-        else
-        {
-          this.description = "Description indisponible";
-          Utils.LogMessageToDMs($"SKILL SYSTEM ERROR - Skill {this.oid} : no available description");
-        }
-
-        if (int.TryParse(NWScript.Get2DAString("feat", "GAINMULTIPLE", Id), out value))
-        {
-          this.currentLevel = value;
-          if (int.TryParse(NWScript.Get2DAString("feat", "SUCCESSOR", Id), out value))
-            this.successorId = value;
+          name = customFeatsDictionnary[Id].name;
+          description = customFeatsDictionnary[Id].description;
+          if (player.learntCustomFeats.ContainsKey(Id))
+            currentLevel = GetCustomFeatLevelFromSkillPoints(Id, player.learntCustomFeats[Id]);
           else
-            this.successorId = 0;
+            currentLevel = 1;
         }
         else
-          this.currentLevel = 1;
+        {
+          if (int.TryParse(NWScript.Get2DAString("feat", "FEAT", (int)Id), out value))
+            this.name = NWScript.GetStringByStrRef(value);
+          else
+          {
+            this.name = "Nom indisponible";
+            Utils.LogMessageToDMs($"SKILL SYSTEM ERROR - Skill {this.oid} : no available name");
+          }
+
+          if (int.TryParse(NWScript.Get2DAString("feat", "DESCRIPTION", (int)Id), out value))
+            this.description = NWScript.GetStringByStrRef(value);
+          else
+          {
+            this.description = "Description indisponible";
+            Utils.LogMessageToDMs($"SKILL SYSTEM ERROR - Skill {this.oid} : no available description");
+          }
+
+          if (int.TryParse(NWScript.Get2DAString("feat", "GAINMULTIPLE", (int)Id), out value))
+          {
+            this.currentLevel = value;
+            if (int.TryParse(NWScript.Get2DAString("feat", "SUCCESSOR", (int)Id), out value))
+              this.successorId = value;
+            else
+              this.successorId = 0;
+          }
+          else
+            this.currentLevel = 1;
+        }
 
         if (currentLevel < 1)
           currentLevel = 1;
 
-        if (int.TryParse(NWScript.Get2DAString("feat", "CRValue", Id), out value))
+        if (int.TryParse(NWScript.Get2DAString("feat", "CRValue", (int)Id), out value))
           this.multiplier = value;
         else
           this.multiplier = 1;
 
         Dictionary<int, int> iSkillAbilities = new Dictionary<int, int>();
 
-        if (int.TryParse(NWScript.Get2DAString("feat", "MINSTR", Id), out value))
+        if (int.TryParse(NWScript.Get2DAString("feat", "MINSTR", (int)Id), out value))
           iSkillAbilities.Add(NWScript.ABILITY_STRENGTH, value);
-        if (int.TryParse(NWScript.Get2DAString("feat", "MINDEX", Id), out value))
+        if (int.TryParse(NWScript.Get2DAString("feat", "MINDEX", (int)Id), out value))
           iSkillAbilities.Add(NWScript.ABILITY_DEXTERITY, value);
-        if (int.TryParse(NWScript.Get2DAString("feat", "MINCON", Id), out value))
+        if (int.TryParse(NWScript.Get2DAString("feat", "MINCON", (int)Id), out value))
           iSkillAbilities.Add(NWScript.ABILITY_CONSTITUTION, value);
-        if (int.TryParse(NWScript.Get2DAString("feat", "MININT", Id), out value))
+        if (int.TryParse(NWScript.Get2DAString("feat", "MININT", (int)Id), out value))
           iSkillAbilities.Add(NWScript.ABILITY_INTELLIGENCE, value);
-        if (int.TryParse(NWScript.Get2DAString("feat", "MINWIS", Id), out value))
+        if (int.TryParse(NWScript.Get2DAString("feat", "MINWIS", (int)Id), out value))
           iSkillAbilities.Add(NWScript.ABILITY_WISDOM, value);
-        if (int.TryParse(NWScript.Get2DAString("feat", "MINCHA", Id), out value))
+        if (int.TryParse(NWScript.Get2DAString("feat", "MINCHA", (int)Id), out value))
           iSkillAbilities.Add(NWScript.ABILITY_CHARISMA, value);
 
         iSkillAbilities.OrderBy(key => key.Value);
@@ -106,7 +118,7 @@ namespace NWN.Systems
         //if (Config.env == Config.Env.Chim)
           //pointsToNextLevel = 10;
 
-        if (this.player.currentSkillJob == this.oid)
+        if (this.player.currentSkillJob == (int)oid)
         {
           this.currentJob = true;
           if(player.oid.GetLocalVariable<int>("_CONNECTING").HasNothing)
@@ -204,9 +216,39 @@ namespace NWN.Systems
         if (player.menu.isOpen)
           player.menu.Close();
 
+        if(customFeatsDictionnary.ContainsKey(oid)) // Il s'agit d'un Custom Feat
+        {
+          if (player.learntCustomFeats.ContainsKey(oid))
+            player.learntCustomFeats[oid] = (int)acquiredPoints;
+          else
+            player.learntCustomFeats.Add(oid, (int)acquiredPoints);
+
+          string customFeatName = customFeatsDictionnary[oid].name;
+          name = customFeatName;
+          currentLevel += 1;
+          pointsToNextLevel = 250 * this.multiplier * (int)Math.Pow(Math.Sqrt(32), this.currentLevel - 1);
+
+          /*if (int.TryParse(NWScript.Get2DAString("feat", "FEAT", oid), out int nameValue))
+          //PlayerPlugin.SetTlkOverride(player.oid, nameValue, $"{customFeatName} {currentLevel}");
+          else
+            Utils.LogMessageToDMs($"CUSTOM SKILL SYSTEM ERROR - Skill {customFeatName} : no available custom name StrRef");*/
+
+          if (currentLevel >= customFeatsDictionnary[oid].maxLevel)
+            trained = true;
+        }
+        else
+        {
+          trained = true;
+
+          if (successorId > 0)
+          {
+            player.learnableSkills.Add((Feat)successorId, new Skill((Feat)successorId, 0, player));
+          }
+        }
+
         //if (!Convert.ToBoolean(CreaturePlugin.GetKnowsFeat(player.oid, oid)))
        // {
-          CreaturePlugin.AddFeat(player.oid, oid);
+          CreaturePlugin.AddFeat(player.oid, (int)oid);
           PlayNewSkillAcquiredEffects();
         //}
        /* else
@@ -224,17 +266,11 @@ namespace NWN.Systems
           }
         }*/
 
-        if (RegisterAddCustomFeatEffect.TryGetValue(oid, out Func<PlayerSystem.Player, int, int> handler))
+        if (RegisterAddCustomFeatEffect.TryGetValue(oid, out Func<PlayerSystem.Player, Feat, int> handler))
           handler.Invoke(player, oid);
 
-        trained = true;
-        player.currentSkillJob = (int)Feat.Invalid;
+        player.currentSkillJob = (int)CustomFeats.Invalid;
         player.currentSkillType = SkillType.Invalid;
-
-        if (successorId > 0)
-        {
-          player.learnableSkills.Add(successorId, new Skill(successorId, 0, player));
-        }
 
         player.oid.ExportCharacter();
       }

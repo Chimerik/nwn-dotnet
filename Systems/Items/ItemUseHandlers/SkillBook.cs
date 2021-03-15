@@ -1,4 +1,5 @@
 ﻿using NWN.API;
+using NWN.API.Constants;
 using NWN.Core.NWNX;
 
 namespace NWN.Systems.Items.ItemUseHandlers
@@ -7,9 +8,9 @@ namespace NWN.Systems.Items.ItemUseHandlers
   {
     public static void HandleActivate(NwItem skillBook, NwPlayer oPC)
     {
-      int FeatId = skillBook.GetLocalVariable<int>("_SKILL_ID").Value;
+      Feat FeatId = (Feat)skillBook.GetLocalVariable<int>("_SKILL_ID").Value;
 
-      if (CreaturePlugin.GetHighestLevelOfFeat(oPC, FeatId) == (int)Feat.Invalid)
+      if (CreaturePlugin.GetHighestLevelOfFeat(oPC, (int)FeatId) == (int)CustomFeats.Invalid)
       {
         if (PlayerSystem.Players.TryGetValue(oPC, out PlayerSystem.Player player))
         {

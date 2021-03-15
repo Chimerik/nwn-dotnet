@@ -61,10 +61,10 @@ namespace NWN.Systems.Craft
       switch (workshopTag)
       {
         case "forge":
-          jobFeat = Feat.Forge;
+          jobFeat = CustomFeats.Forge;
           break;
         case "scierie":
-          jobFeat = Feat.Ebeniste;
+          jobFeat = CustomFeats.Ebeniste;
           break;
       }
     }
@@ -146,25 +146,13 @@ namespace NWN.Systems.Craft
     {
       switch (feat)
       {
-        case Feat.BlueprintCopy:
-        case Feat.BlueprintCopy2:
-        case Feat.BlueprintCopy3:
-        case Feat.BlueprintCopy4:
-        case Feat.BlueprintCopy5:
+        case CustomFeats.BlueprintCopy:
           player.craftJob.Start(Job.JobType.BlueprintCopy, this, player, blueprint);
           break;
-        case Feat.Research:
-        case Feat.Research2:
-        case Feat.Research3:
-        case Feat.Research4:
-        case Feat.Research5:
+        case CustomFeats.Research:
           player.craftJob.Start(Job.JobType.BlueprintResearchTimeEfficiency, this, player, blueprint);
           break;
-        case Feat.Metallurgy:
-        case Feat.Metallurgy2:
-        case Feat.Metallurgy3:
-        case Feat.Metallurgy4:
-        case Feat.Metallurgy5:
+        case CustomFeats.Metallurgy:
           player.craftJob.Start(Job.JobType.BlueprintResearchMaterialEfficiency, this, player, blueprint);
           break;
       }

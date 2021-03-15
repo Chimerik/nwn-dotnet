@@ -219,7 +219,7 @@ namespace NWN.Systems.Craft
       if (player.craftJob.CanStartJob(player.oid, oBlueprint, JobType.BlueprintCopy))
       {
         int value;
-        if (int.TryParse(NWScript.Get2DAString("feat", "GAINMULTIPLE", CreaturePlugin.GetHighestLevelOfFeat(player.oid, (int)Feat.BlueprintCopy)), out value))
+        if (int.TryParse(NWScript.Get2DAString("feat", "GAINMULTIPLE", CreaturePlugin.GetHighestLevelOfFeat(player.oid, (int)CustomFeats.BlueprintCopy)), out value))
         {
           int timeCost = blueprint.mineralsCost * 80;
           float iJobDuration = timeCost - timeCost * (value * 5) / 100;
@@ -289,10 +289,10 @@ namespace NWN.Systems.Craft
       if (player.craftJob.CanStartJob(player.oid, oBlueprint, JobType.BlueprintResearchMaterialEfficiency))
       {
         int metallurgyLevel = 0;
-        int.TryParse(NWScript.Get2DAString("feat", "GAINMULTIPLE", CreaturePlugin.GetHighestLevelOfFeat(player.oid, (int)Feat.Metallurgy)), out metallurgyLevel);
+        int.TryParse(NWScript.Get2DAString("feat", "GAINMULTIPLE", CreaturePlugin.GetHighestLevelOfFeat(player.oid, (int)CustomFeats.Metallurgy)), out metallurgyLevel);
 
         int advancedCraftLevel = 0;
-        int.TryParse(NWScript.Get2DAString("feat", "GAINMULTIPLE", CreaturePlugin.GetHighestLevelOfFeat(player.oid, (int)Feat.AdvancedCraft)), out advancedCraftLevel);
+        int.TryParse(NWScript.Get2DAString("feat", "GAINMULTIPLE", CreaturePlugin.GetHighestLevelOfFeat(player.oid, (int)CustomFeats.AdvancedCraft)), out advancedCraftLevel);
 
         float iJobDuration = blueprint.mineralsCost * 100 - blueprint.mineralsCost * (metallurgyLevel * 5 + advancedCraftLevel * 3) / 100;
         player.craftJob = new Job(-12, "", iJobDuration, player, ObjectPlugin.Serialize(oBlueprint)); // - 12 = recherche ME
@@ -305,10 +305,10 @@ namespace NWN.Systems.Craft
       if (player.craftJob.CanStartJob(player.oid, oBlueprint, JobType.BlueprintResearchTimeEfficiency))
       {
         int researchLevel = 0;
-        int.TryParse(NWScript.Get2DAString("feat", "GAINMULTIPLE", CreaturePlugin.GetHighestLevelOfFeat(player.oid, (int)Feat.Research)), out researchLevel);
+        int.TryParse(NWScript.Get2DAString("feat", "GAINMULTIPLE", CreaturePlugin.GetHighestLevelOfFeat(player.oid, (int)CustomFeats.Research)), out researchLevel);
 
         int advancedCraftLevel = 0;
-        int.TryParse(NWScript.Get2DAString("feat", "GAINMULTIPLE", CreaturePlugin.GetHighestLevelOfFeat(player.oid, (int)Feat.AdvancedCraft)), out advancedCraftLevel);
+        int.TryParse(NWScript.Get2DAString("feat", "GAINMULTIPLE", CreaturePlugin.GetHighestLevelOfFeat(player.oid, (int)CustomFeats.AdvancedCraft)), out advancedCraftLevel);
 
         float iJobDuration = blueprint.mineralsCost * 100 - blueprint.mineralsCost * (researchLevel * 5 + advancedCraftLevel * 3) / 100;
         player.craftJob = new Job(-13, "", iJobDuration, player, ObjectPlugin.Serialize(oBlueprint)); // -13 = recherche TE

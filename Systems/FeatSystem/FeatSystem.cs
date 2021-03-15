@@ -14,10 +14,7 @@ namespace NWN.Systems
   public class FeatSystem
   {
     private static readonly Logger Log = LogManager.GetCurrentClassLogger();
-    public static Dictionary<API.Constants.Feat, CustomFeats> customFeatsDictionnary = new Dictionary<API.Constants.Feat, CustomFeats>()
-      {
-            { (API.Constants.Feat)2051, new CustomFeats("Recyclage", "Permet de recycler des objets en matière raffinée.\n\n Diminue le temps nécessaire au recyclage et augmente le rendement de 1 % par niveau.") },
-    };
+    
     public FeatSystem(NWNXEventService nwnxEventService)
     {
       nwnxEventService.Subscribe<FeatUseEvents.OnUseFeatBefore>(OnUseFeatBefore);
@@ -30,71 +27,55 @@ namespace NWN.Systems
       if (!PlayerSystem.Players.TryGetValue(player, out PlayerSystem.Player oPC))
         return;
 
-      Log.Info($"{oPC.oid.Name} used feat {((Feat)onUseFeat.Feat).ToString()}");
+      Log.Info($"{oPC.oid.Name} used feat {(onUseFeat.Feat).ToString()}");
 
-      switch ((Feat)onUseFeat.Feat)
+      switch (onUseFeat.Feat)
       {
-        case Feat.Elfique:
-        case Feat.Abyssal:
-        case Feat.Céleste:
-        case Feat.Profond:
-        case Feat.Draconique:
-        case Feat.Druidique:
-        case Feat.Nain:
-        case Feat.Géant:
-        case Feat.Gobelin:
-        case Feat.Halfelin:
-        case Feat.Infernal:
-        case Feat.Orc:
-        case Feat.Primordial:
-        case Feat.Sylvain:
-        case Feat.Voleur:
-        case Feat.Gnome:
+        case CustomFeats.Elfique:
+        case CustomFeats.Abyssal:
+        case CustomFeats.Céleste:
+        case CustomFeats.Profond:
+        case CustomFeats.Draconique:
+        case CustomFeats.Druidique:
+        case CustomFeats.Nain:
+        case CustomFeats.Géant:
+        case CustomFeats.Gobelin:
+        case CustomFeats.Halfelin:
+        case CustomFeats.Infernal:
+        case CustomFeats.Orc:
+        case CustomFeats.Primordiale:
+        case CustomFeats.Sylvain:
+        case CustomFeats.Voleur:
+        case CustomFeats.Gnome:
           new Language(player, (int)onUseFeat.Feat);
           break;
-        case Feat.BlueprintCopy:
-        case Feat.BlueprintCopy2:
-        case Feat.BlueprintCopy3:
-        case Feat.BlueprintCopy4:
-        case Feat.BlueprintCopy5:
-        case Feat.Research:
-        case Feat.Research2:
-        case Feat.Research3:
-        case Feat.Research4:
-        case Feat.Research5:
-        case Feat.Metallurgy:
-        case Feat.Metallurgy2:
-        case Feat.Metallurgy3:
-        case Feat.Metallurgy4:
-        case Feat.Metallurgy5:
+        case CustomFeats.BlueprintCopy:
+        case CustomFeats.Research:
+        case CustomFeats.Metallurgy:
 
           onUseFeat.Skip = true;
           Craft.Blueprint.BlueprintValidation(player, onUseFeat.TargetGameObject, (Feat)onUseFeat.Feat);
           break;
 
-        case Feat.Recycler:
+        case CustomFeats.Recycler:
           new Recycler(player, onUseFeat.TargetGameObject);
           break;
 
-        case Feat.CustomMenuUP:
-        case Feat.CustomMenuDOWN:
-        case Feat.CustomMenuSELECT:
-        case Feat.CustomMenuEXIT:
-        case Feat.CustomPositionRight:
-        case Feat.CustomPositionLeft:
-        case Feat.CustomPositionForward:
-        case Feat.CustomPositionBackward:
-        case Feat.CustomPositionRotateRight:
-        case Feat.CustomPositionRotateLeft:
+        case CustomFeats.CustomMenuUP:
+        case CustomFeats.CustomMenuDOWN:
+        case CustomFeats.CustomMenuSELECT:
+        case CustomFeats.CustomMenuEXIT:
+        case CustomFeats.CustomPositionRight:
+        case CustomFeats.CustomPositionLeft:
+        case CustomFeats.CustomPositionForward:
+        case CustomFeats.CustomPositionBackward:
+        case CustomFeats.CustomPositionRotateRight:
+        case CustomFeats.CustomPositionRotateLeft:
 
           onUseFeat.Skip = true;
-          oPC.EmitKeydown(new PlayerSystem.Player.MenuFeatEventArgs((Feat)onUseFeat.Feat));
+          oPC.EmitKeydown(new PlayerSystem.Player.MenuFeatEventArgs(onUseFeat.Feat));
           break;
-        case Feat.WoodProspection:
-        case Feat.WoodProspection2:
-        case Feat.WoodProspection3:
-        case Feat.WoodProspection4:
-        case Feat.WoodProspection5:
+        case CustomFeats.WoodProspection:
 
           onUseFeat.Skip = true;
           Craft.Collect.System.StartCollectCycle(
@@ -103,11 +84,7 @@ namespace NWN.Systems
               () => Craft.Collect.Wood.HandleCompleteProspectionCycle(oPC)
           );
           break;
-        case Feat.Hunting:
-        case Feat.Hunting2:
-        case Feat.Hunting3:
-        case Feat.Hunting4:
-        case Feat.Hunting5:
+        case CustomFeats.Hunting:
 
           onUseFeat.Skip = true;
           Craft.Collect.System.StartCollectCycle(
@@ -120,7 +97,7 @@ namespace NWN.Systems
     }
     public static void InitializeFeatModifiers()
     {
-      int feat = (int)Feat.ImprovedStrength;
+      int feat = (int)CustomFeats.ImprovedStrength;
       int value = 1;
       for (int ability = NWScript.ABILITY_STRENGTH; ability <= NWScript.ABILITY_CHARISMA; ability++)
       {
@@ -133,7 +110,7 @@ namespace NWN.Systems
         }
       }
 
-      feat = (int)Feat.ImprovedAnimalEmpathy;
+      feat = (int)CustomFeats.ImprovedAnimalEmpathy;
       for (int skill = NWScript.SKILL_ANIMAL_EMPATHY; skill <= NWScript.SKILL_INTIMIDATE; skill++)
       {
 
@@ -154,13 +131,13 @@ namespace NWN.Systems
       }
 
       value = 1;
-      for (int attackBonusfeat = (int)Feat.ImprovedAttackBonus; attackBonusfeat < (int)Feat.ImprovedAttackBonus + 5; attackBonusfeat++)
+      for (int attackBonusfeat = (int)CustomFeats.ImprovedAttackBonus; attackBonusfeat < (int)CustomFeats.ImprovedAttackBonus + 5; attackBonusfeat++)
       {
         FeatPlugin.SetFeatModifier(attackBonusfeat, FeatPlugin.NWNX_FEAT_MODIFIER_AB, 1);
         value++;
       }
 
-      feat = (int)Feat.ImprovedSpellSlot0_1;
+      feat = (int)CustomFeats.ImprovedSpellSlot0;
       for (int spellLevel = 0; spellLevel < 10; spellLevel++)
       {
         value = 1;
@@ -172,7 +149,7 @@ namespace NWN.Systems
         }
       }
 
-      feat = (int)Feat.ImprovedSavingThrowAll;
+      feat = (int)CustomFeats.ImprovedSavingThrowAll;
       for (int savingThrow = NWScript.SAVING_THROW_ALL; savingThrow < NWScript.SAVING_THROW_WILL; savingThrow++)
       {
         value = 1;
