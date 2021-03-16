@@ -30,7 +30,7 @@ namespace NWN.Systems
             if (item == null)
               return;
 
-           if(NwRandom.Roll(Utils.random, 100, 1) < 40) // diminuer le pourcentage en fonction des compétences
+           if(NwRandom.Roll(Utils.random, 100, 1) < 20) // diminuer le pourcentage en fonction des compétences
             {
               item.GetLocalVariable<int>("_DURABILITY").Value -= 1;
               if (item.GetLocalVariable<int>("_DURABILITY").Value <= 0)
@@ -54,7 +54,7 @@ namespace NWN.Systems
             if (item == null)
               return;
 
-            if (NwRandom.Roll(Utils.random, 100, 1) < 40) // diminuer le pourcentage en fonction des compétences
+            if (NwRandom.Roll(Utils.random, 100, 1) < 20) // diminuer le pourcentage en fonction des compétences
             {
               item.GetLocalVariable<int>("_DURABILITY").Value -= 1;
               if (item.GetLocalVariable<int>("_DURABILITY").Value <= 0)
@@ -89,7 +89,11 @@ namespace NWN.Systems
             if (dexBonus < 0)
               dexBonus = 0;
 
-            if (NwRandom.Roll(Utils.random, 100, 1) < 40 - dexBonus) // diminuer le pourcentage en fonction des compétences
+            int durabilityRate = 20 - dexBonus; // diminuer le pourcentage en fonction des compétences
+            if (durabilityRate < 1)
+              durabilityRate = 1;
+
+            if (NwRandom.Roll(Utils.random, 100, 1) < durabilityRate) 
             {
               item.GetLocalVariable<int>("_DURABILITY").Value -= 1;
               if (item.GetLocalVariable<int>("_DURABILITY").Value <= 0)
@@ -130,10 +134,10 @@ namespace NWN.Systems
             case 1:
             case 2:
             case 5:
-              durabilityChance = 60;
+              durabilityChance = 20;
               break;
             case 4:
-              durabilityChance = 40;
+              durabilityChance = 10;
               break;
             default:
               return;

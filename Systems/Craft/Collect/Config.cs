@@ -323,7 +323,7 @@ namespace NWN.Systems.Craft.Collect
     }
     public static API.ItemProperty[] GetBadItemProperties(ItemCategory itemCategory, NwItem craftedItem)
     {
-      craftedItem.GetLocalVariable<int>("_DURABILITY").Value = GetBaseItemCost(craftedItem);
+      craftedItem.GetLocalVariable<int>("_DURABILITY").Value = GetBaseItemCost(craftedItem) * 10;
 
       switch (itemCategory)
       {
@@ -411,7 +411,7 @@ namespace NWN.Systems.Craft.Collect
     {
       if (craftedItem != null)
       {
-        craftedItem.GetLocalVariable<int>("_DURABILITY").Value = GetBaseItemCost(craftedItem) * 10;
+        craftedItem.GetLocalVariable<int>("_DURABILITY").Value = GetBaseItemCost(craftedItem) * 100;
         craftedItem.GetLocalVariable<int>("_AVAILABLE_ENCHANTEMENT_SLOT").Value = 1;
       }
 
@@ -427,7 +427,7 @@ namespace NWN.Systems.Craft.Collect
     {
       if (craftedItem != null)
       {
-        craftedItem.GetLocalVariable<int>("_DURABILITY").Value = GetBaseItemCost(craftedItem) * 20;
+        craftedItem.GetLocalVariable<int>("_DURABILITY").Value = GetBaseItemCost(craftedItem) * 200;
         craftedItem.GetLocalVariable<int>("_AVAILABLE_ENCHANTEMENT_SLOT").Value = 2;
       }
 
