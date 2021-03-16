@@ -222,20 +222,16 @@ namespace NWN.Systems
 
     private static int HandleHealthPoints(PlayerSystem.Player player, Feat feat)
     {
-      int improvedConst = CreaturePlugin.GetHighestLevelOfFeat(player.oid, (int)CustomFeats.ImprovedConstitution);
-      if (improvedConst == (int)CustomFeats.Invalid)
-        improvedConst = 0;
-      else
-        improvedConst = Int32.Parse(NWScript.Get2DAString("feat", "GAINMULTIPLE", improvedConst));
+      int improvedConst = 0;
+      if (player.learntCustomFeats.ContainsKey(CustomFeats.ImprovedConstitution))
+        improvedConst = SkillSystem.GetCustomFeatLevelFromSkillPoints(CustomFeats.ImprovedConstitution, player.learntCustomFeats[CustomFeats.ImprovedConstitution]);
 
-      int improvedHealth = CreaturePlugin.GetHighestLevelOfFeat(player.oid, (int)CustomFeats.ImprovedHealth);
-      if (improvedHealth == (int)CustomFeats.Invalid)
-        improvedHealth = 0;
-      else
-        improvedHealth = Int32.Parse(NWScript.Get2DAString("feat", "GAINMULTIPLE", improvedHealth));
+      int improvedHealth = 0;
+      if (player.learntCustomFeats.ContainsKey(CustomFeats.ImprovedHealth))
+        improvedHealth = SkillSystem.GetCustomFeatLevelFromSkillPoints(CustomFeats.ImprovedHealth, player.learntCustomFeats[CustomFeats.ImprovedHealth]);
 
       player.oid.MaxHP = Int32.Parse(NWScript.Get2DAString("classes", "HitDie", 43))
-        + (1 + 3 * ((NWScript.GetAbilityScore(player.oid, NWScript.ABILITY_CONSTITUTION, 1)
+        + (1 + 3 * ((player.oid.GetAbilityScore(Ability.Constitution, true)
         + improvedConst - 10) / 2)
         + CreaturePlugin.GetKnowsFeat(player.oid, (int)Feat.Toughness)) * improvedHealth;
       return 0;

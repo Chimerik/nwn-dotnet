@@ -176,30 +176,34 @@ namespace NWN.Systems.Craft
 
       return bpDescription;
     }
-    public int GetBlueprintMineralCostForPlayer(NwPlayer player, NwItem item)
+    public int GetBlueprintMineralCostForPlayer(NwPlayer oPC, NwItem item)
     {
+      if (!PlayerSystem.Players.TryGetValue(oPC, out PlayerSystem.Player player))
+        return 999999999;
+
       int iSkillLevel = 1;
 
-      int value;
-      if (int.TryParse(NWScript.Get2DAString("feat", "GAINMULTIPLE", CreaturePlugin.GetHighestLevelOfFeat(player, (int)jobFeat)), out value))
-        iSkillLevel += value;
+      if (player.learntCustomFeats.ContainsKey(jobFeat))
+        iSkillLevel += SkillSystem.GetCustomFeatLevelFromSkillPoints(jobFeat, player.learntCustomFeats[jobFeat]);
 
-      if (int.TryParse(NWScript.Get2DAString("feat", "GAINMULTIPLE", CreaturePlugin.GetHighestLevelOfFeat(player, (int)feat)), out value))
-        iSkillLevel += value;
+      if (player.learntCustomFeats.ContainsKey(feat))
+        iSkillLevel += SkillSystem.GetCustomFeatLevelFromSkillPoints(feat, player.learntCustomFeats[feat]);
 
       return this.mineralsCost - (this.mineralsCost * (iSkillLevel + NWScript.GetLocalInt(item, "_BLUEPRINT_MATERIAL_EFFICIENCY")) / 100);
     }
-    public float GetBlueprintTimeCostForPlayer(NwPlayer player, NwItem item)
+    public float GetBlueprintTimeCostForPlayer(NwPlayer oPC, NwItem item)
     {
+      if (!PlayerSystem.Players.TryGetValue(oPC, out PlayerSystem.Player player))
+        return 999999999;
+
       int iSkillLevel = 1;
       float fJobDuration = this.mineralsCost * 100;
 
-      int value;
-      if (int.TryParse(NWScript.Get2DAString("feat", "GAINMULTIPLE", CreaturePlugin.GetHighestLevelOfFeat(player, (int)jobFeat)), out value))
-        iSkillLevel += value;
+      if (player.learntCustomFeats.ContainsKey(jobFeat))
+        iSkillLevel += SkillSystem.GetCustomFeatLevelFromSkillPoints(jobFeat, player.learntCustomFeats[jobFeat]);
 
-      if (int.TryParse(NWScript.Get2DAString("feat", "GAINMULTIPLE", CreaturePlugin.GetHighestLevelOfFeat(player, (int)feat)), out value))
-        iSkillLevel += value;
+      if (player.learntCustomFeats.ContainsKey(feat))
+        iSkillLevel += SkillSystem.GetCustomFeatLevelFromSkillPoints(feat, player.learntCustomFeats[feat]);
 
       return fJobDuration - (fJobDuration * (iSkillLevel + NWScript.GetLocalInt(item, "_BLUEPRINT_TIME_EFFICIENCY")) / 100);
     }

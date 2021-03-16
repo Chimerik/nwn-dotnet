@@ -26,12 +26,11 @@ namespace NWN.Systems.Craft.Collect
       miningYield += oExtractor.GetLocalVariable<int>("_ITEM_LEVEL").Value * 5;
       int bonusYield = 0;
 
-      int value;
-      if (int.TryParse(NWScript.Get2DAString("feat", "GAINMULTIPLE", CreaturePlugin.GetHighestLevelOfFeat(player.oid, (int)CustomFeats.Skinning)), out value))
-        bonusYield += miningYield * value * 5 / 100;
+      if (player.learntCustomFeats.ContainsKey(CustomFeats.Skinning))
+        bonusYield += miningYield * 5 * SkillSystem.GetCustomFeatLevelFromSkillPoints(CustomFeats.Skinning, player.learntCustomFeats[CustomFeats.Skinning]) / 100;
 
-      if (int.TryParse(NWScript.Get2DAString("feat", "GAINMULTIPLE", CreaturePlugin.GetHighestLevelOfFeat(player.oid, (int)CustomFeats.AnimalExpertise)), out value))
-        bonusYield += miningYield * value * 5 / 100;
+      if (player.learntCustomFeats.ContainsKey(CustomFeats.AnimalExpertise))
+        bonusYield += miningYield * 5 * SkillSystem.GetCustomFeatLevelFromSkillPoints(CustomFeats.AnimalExpertise, player.learntCustomFeats[CustomFeats.AnimalExpertise]) / 100;
 
       miningYield += bonusYield;
 
@@ -75,12 +74,12 @@ namespace NWN.Systems.Craft.Collect
       }
 
       int skillBonus = 0;
-      int value;
-      if (int.TryParse(NWScript.Get2DAString("feat", "GAINMULTIPLE", CreaturePlugin.GetHighestLevelOfFeat(player.oid, (int)CustomFeats.AnimalExpertise)), out value))
-        skillBonus += value;
 
-      if (int.TryParse(NWScript.Get2DAString("feat", "GAINMULTIPLE", CreaturePlugin.GetHighestLevelOfFeat(player.oid, (int)CustomFeats.Hunting)), out value))
-        skillBonus += value;
+      if (player.learntCustomFeats.ContainsKey(CustomFeats.Hunting))
+        skillBonus += SkillSystem.GetCustomFeatLevelFromSkillPoints(CustomFeats.Hunting, player.learntCustomFeats[CustomFeats.Hunting]);
+
+      if (player.learntCustomFeats.ContainsKey(CustomFeats.AnimalExpertise))
+        skillBonus += SkillSystem.GetCustomFeatLevelFromSkillPoints(CustomFeats.AnimalExpertise, player.learntCustomFeats[CustomFeats.AnimalExpertise]);
 
       int respawnChance = skillBonus * 5 + (NWScript.GetSkillRank(NWScript.SKILL_SPOT, player.oid) + NWScript.GetSkillRank(NWScript.SKILL_LISTEN, player.oid)) / 2;
       string nbSpawns = "";

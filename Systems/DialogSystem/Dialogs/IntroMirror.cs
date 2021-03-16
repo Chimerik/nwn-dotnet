@@ -188,9 +188,6 @@ namespace NWN.Systems
           player.learnableSkills.Add((API.Constants.Feat)skill.successorId, new Skill((API.Constants.Feat)skill.successorId, 0, player));
         }
 
-        //if (CreaturePlugin.GetHighestLevelOfFeat(player.oid, skill.oid - 1) == skill.oid) // Suppression du prédécesseur
-          //CreaturePlugin.RemoveFeat(player.oid, skill.oid -1);
-
         ObjectPlugin.SetInt(player.oid, "_STARTING_SKILL_POINTS", remainingPoints -= skill.pointsToNextLevel, 1);
         skill.CreateSkillJournalEntry();
         skill.PlayNewSkillAcquiredEffects();

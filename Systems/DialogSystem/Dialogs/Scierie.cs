@@ -78,20 +78,19 @@ namespace NWN.Systems
 
         float reprocessingEfficiency = 0.3f;
 
-        float value;
-        if (float.TryParse(NWScript.Get2DAString("feat", "GAINMULTIPLE", CreaturePlugin.GetHighestLevelOfFeat(player.oid, (int)CustomFeats.WoodReprocessing)), out value))
-          reprocessingEfficiency += reprocessingEfficiency + 3 * value / 100;
+        if(player.learntCustomFeats.ContainsKey(CustomFeats.WoodReprocessing))
+          reprocessingEfficiency += 3 * SkillSystem.GetCustomFeatLevelFromSkillPoints(CustomFeats.WoodReprocessing, player.learntCustomFeats[CustomFeats.WoodReprocessing]) / 100;
 
-        if (float.TryParse(NWScript.Get2DAString("feat", "GAINMULTIPLE", CreaturePlugin.GetHighestLevelOfFeat(player.oid, (int)CustomFeats.WoodReprocessingEfficiency)), out value))
-          reprocessingEfficiency += reprocessingEfficiency + 2 * value / 100;
+        if (player.learntCustomFeats.ContainsKey(CustomFeats.WoodReprocessingEfficiency))
+          reprocessingEfficiency += 2 * SkillSystem.GetCustomFeatLevelFromSkillPoints(CustomFeats.WoodReprocessingEfficiency, player.learntCustomFeats[CustomFeats.WoodReprocessingEfficiency]) / 100;
 
-        if (float.TryParse(NWScript.Get2DAString("feat", "GAINMULTIPLE", CreaturePlugin.GetHighestLevelOfFeat(player.oid, (int)CustomFeats.Connections)), out value))
-          reprocessingEfficiency += reprocessingEfficiency + 1 * value / 100;
+        if (player.learntCustomFeats.ContainsKey(CustomFeats.Connections))
+          reprocessingEfficiency += 1 * SkillSystem.GetCustomFeatLevelFromSkillPoints(CustomFeats.Connections, player.learntCustomFeats[CustomFeats.Connections]) / 100;
 
         if (Enum.TryParse(oreName, out WoodType myOreType) && woodDictionnary.TryGetValue(myOreType, out Wood processedOre))
         {
-          if (float.TryParse(NWScript.Get2DAString("feat", "GAINMULTIPLE", CreaturePlugin.GetHighestLevelOfFeat(player.oid, (int)processedOre.feat)), out value))
-            reprocessingEfficiency += reprocessingEfficiency + 2 * value / 100;
+          if (player.learntCustomFeats.ContainsKey(processedOre.feat))
+            reprocessingEfficiency += 2 * SkillSystem.GetCustomFeatLevelFromSkillPoints(processedOre.feat, player.learntCustomFeats[processedOre.feat]) / 100;
 
           int refinedMinerals = Convert.ToInt32(player.setValue * processedOre.planks * reprocessingEfficiency);
           string mineralName = Enum.GetName(typeof(PlankType), processedOre.refinedType) ?? "";
@@ -108,7 +107,7 @@ namespace NWN.Systems
         else
         {
           player.menu.titleLines.Add($"HRP - Erreur, votre bois brut n'a pas correctement été reconnu. Le staff a été informé du problème.");
-          NWN.Utils.LogMessageToDMs($"SCIERIE - Could not recognize wood type : {oreName} - Used by : {player.oid.Name}");
+          Utils.LogMessageToDMs($"SCIERIE - Could not recognize wood type : {oreName} - Used by : {player.oid.Name}");
         }
       }
 
@@ -122,20 +121,19 @@ namespace NWN.Systems
 
       float reprocessingEfficiency = 0.3f;
 
-      float value;
-      if (float.TryParse(NWScript.Get2DAString("feat", "GAINMULTIPLE", CreaturePlugin.GetHighestLevelOfFeat(player.oid, (int)CustomFeats.WoodReprocessing)), out value))
-        reprocessingEfficiency += reprocessingEfficiency + 3 * value / 100;
+      if (player.learntCustomFeats.ContainsKey(CustomFeats.WoodReprocessing))
+        reprocessingEfficiency += 3 * SkillSystem.GetCustomFeatLevelFromSkillPoints(CustomFeats.WoodReprocessing, player.learntCustomFeats[CustomFeats.WoodReprocessing]) / 100;
 
-      if (float.TryParse(NWScript.Get2DAString("feat", "GAINMULTIPLE", CreaturePlugin.GetHighestLevelOfFeat(player.oid, (int)CustomFeats.WoodReprocessingEfficiency)), out value))
-        reprocessingEfficiency += reprocessingEfficiency + 2 * value / 100;
+      if (player.learntCustomFeats.ContainsKey(CustomFeats.WoodReprocessingEfficiency))
+        reprocessingEfficiency += 3 * SkillSystem.GetCustomFeatLevelFromSkillPoints(CustomFeats.WoodReprocessingEfficiency, player.learntCustomFeats[CustomFeats.WoodReprocessingEfficiency]) / 100;
 
-      if (float.TryParse(NWScript.Get2DAString("feat", "GAINMULTIPLE", CreaturePlugin.GetHighestLevelOfFeat(player.oid, (int)CustomFeats.Connections)), out value))
-        reprocessingEfficiency += reprocessingEfficiency + 1 * value / 100;
+      if (player.learntCustomFeats.ContainsKey(CustomFeats.Connections))
+        reprocessingEfficiency += 3 * SkillSystem.GetCustomFeatLevelFromSkillPoints(CustomFeats.Connections, player.learntCustomFeats[CustomFeats.Connections]) / 100;
 
       if (Enum.TryParse(oreName, out WoodType myOreType) && woodDictionnary.TryGetValue(myOreType, out Wood processedOre))
       {
-        if (float.TryParse(NWScript.Get2DAString("feat", "GAINMULTIPLE", CreaturePlugin.GetHighestLevelOfFeat(player.oid, (int)processedOre.feat)), out value))
-          reprocessingEfficiency += reprocessingEfficiency + 2 * value / 100;
+        if (player.learntCustomFeats.ContainsKey(processedOre.feat))
+          reprocessingEfficiency += 3 * SkillSystem.GetCustomFeatLevelFromSkillPoints(processedOre.feat, player.learntCustomFeats[processedOre.feat]) / 100;
 
         int refinedMinerals = Convert.ToInt32(player.materialStock[oreName] * processedOre.planks * reprocessingEfficiency);
         string mineralName = Enum.GetName(typeof(PlankType), processedOre.refinedType) ?? "";

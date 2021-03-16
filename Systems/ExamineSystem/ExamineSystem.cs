@@ -33,10 +33,14 @@ namespace NWN.Systems
 
           if (onExamine.Examiner.IsDM || onExamine.Examiner.IsDMPossessed || onExamine.Examiner.IsPlayerDM)
           {
-            if (int.TryParse(NWScript.Get2DAString("feat", "GAINMULTIPLE", CreaturePlugin.GetHighestLevelOfFeat(onExamine.Examiner, (int)CustomFeats.Geology)), out int geologySkillLevel))
-              onExamine.Examinee.Description = $"Minerai disponible : {NWN.Utils.random.Next(oreAmount * geologySkillLevel * 20 / 100, 2 * oreAmount - geologySkillLevel * 20 / 100)}";
+            int geologySkillLevel = 0;
+            if (player.learntCustomFeats.ContainsKey(CustomFeats.Geology))
+            {
+              geologySkillLevel = SkillSystem.GetCustomFeatLevelFromSkillPoints(CustomFeats.Geology, player.learntCustomFeats[CustomFeats.Geology]);
+              onExamine.Examinee.Description = $"Minerai disponible estimé : {Utils.random.Next(oreAmount * geologySkillLevel * 20 / 100, 2 * oreAmount - geologySkillLevel * 20 / 100)}";
+            }
             else
-              onExamine.Examinee.Description = $"Minerai disponible estimé : {NWN.Utils.random.Next(0, 2 * oreAmount)}";
+              onExamine.Examinee.Description = $"Minerai disponible estimé : {Utils.random.Next(0, 2 * oreAmount)}";
           }
           else
             onExamine.Examinee.Description = $"Minerai disponible : {oreAmount}";
@@ -46,8 +50,12 @@ namespace NWN.Systems
           int woodAmount = onExamine.Examinee.GetLocalVariable<int>("_ORE_AMOUNT").Value;
           if (onExamine.Examiner.IsDM || onExamine.Examiner.IsDMPossessed || onExamine.Examiner.IsPlayerDM)
           {
-            if (int.TryParse(NWScript.Get2DAString("feat", "GAINMULTIPLE", CreaturePlugin.GetHighestLevelOfFeat(onExamine.Examiner, (int)CustomFeats.WoodExpertise)), out int woodExpertiseSkillLevel))
-              onExamine.Examinee.Description = $"Bois disponible : {Utils.random.Next(woodAmount * woodExpertiseSkillLevel * 20 / 100, 2 * woodAmount - woodExpertiseSkillLevel * 20 / 100)}";
+            int woodExpertiseSkillLevel = 0;
+            if (player.learntCustomFeats.ContainsKey(CustomFeats.WoodExpertise))
+            {
+              woodExpertiseSkillLevel = SkillSystem.GetCustomFeatLevelFromSkillPoints(CustomFeats.WoodExpertise, player.learntCustomFeats[CustomFeats.WoodExpertise]);
+              onExamine.Examinee.Description = $"Minerai disponible estimé : {Utils.random.Next(woodAmount * woodExpertiseSkillLevel * 20 / 100, 2 * woodAmount - woodExpertiseSkillLevel * 20 / 100)}";
+            }
             else
               onExamine.Examinee.Description = $"Bois disponible estimé : {Utils.random.Next(0, 2 * woodAmount)}";
           }
@@ -59,8 +67,12 @@ namespace NWN.Systems
           int peltAmount = onExamine.Examinee.GetLocalVariable<int>("_ORE_AMOUNT").Value;
           if (onExamine.Examiner.IsDM || onExamine.Examiner.IsDMPossessed || onExamine.Examiner.IsPlayerDM)
           {
-            if (int.TryParse(NWScript.Get2DAString("feat", "GAINMULTIPLE", CreaturePlugin.GetHighestLevelOfFeat(onExamine.Examinee, (int)CustomFeats.AnimalExpertise)), out int animalExpertiseSkillLevel))
-              onExamine.Examinee.Description = $"Peau disponible : {Utils.random.Next(peltAmount * animalExpertiseSkillLevel * 20 / 100, 2 * peltAmount - animalExpertiseSkillLevel * 20 / 100)}";
+            int animalExpertiseSkillLevel = 0;
+            if (player.learntCustomFeats.ContainsKey(CustomFeats.AnimalExpertise))
+            {
+              animalExpertiseSkillLevel = SkillSystem.GetCustomFeatLevelFromSkillPoints(CustomFeats.AnimalExpertise, player.learntCustomFeats[CustomFeats.AnimalExpertise]);
+              onExamine.Examinee.Description = $"Minerai disponible estimé : {Utils.random.Next(peltAmount * animalExpertiseSkillLevel * 20 / 100, 2 * peltAmount - animalExpertiseSkillLevel * 20 / 100)}";
+            }
             else
               onExamine.Examinee.Description = $"Peau disponible estimé : {Utils.random.Next(0, 2 * peltAmount)}";
           }
@@ -81,41 +93,67 @@ namespace NWN.Systems
           break;
         case "ore":
           string reprocessingData = $"{onExamine.Examinee.Name} : Efficacité raffinage -30 % (base fonderie Amirauté)";
+          int skillLevel = 0;
 
-          int value;
-          if (int.TryParse(NWScript.Get2DAString("feat", "GAINMULTIPLE", CreaturePlugin.GetHighestLevelOfFeat(onExamine.Examiner, (int)CustomFeats.Reprocessing)), out value))
-            reprocessingData += $"\n x1.{3 * value} (Raffinage)";
+          if (player.learntCustomFeats.ContainsKey(CustomFeats.Reprocessing))
+          {
+            skillLevel = 3 * SkillSystem.GetCustomFeatLevelFromSkillPoints(CustomFeats.Reprocessing, player.learntCustomFeats[CustomFeats.Reprocessing]);
+            reprocessingData += $"\n x1.{skillLevel} (Raffinage)";
+          }
 
-          if (int.TryParse(NWScript.Get2DAString("feat", "GAINMULTIPLE", CreaturePlugin.GetHighestLevelOfFeat(onExamine.Examiner, (int)CustomFeats.ReprocessingEfficiency)), out value))
-            reprocessingData += $"\n x1.{2 * value} (Raffinage efficace)";
+          if (player.learntCustomFeats.ContainsKey(CustomFeats.ReprocessingEfficiency))
+          {
+            skillLevel = 2 * SkillSystem.GetCustomFeatLevelFromSkillPoints(CustomFeats.ReprocessingEfficiency, player.learntCustomFeats[CustomFeats.ReprocessingEfficiency]);
+            reprocessingData += $"\n x1.{skillLevel} (Raffinage Efficace)";
+          }
 
           if (Enum.TryParse(onExamine.Examinee.Name, out Craft.Collect.Config.OreType myOreType) && Craft.Collect.Config.oresDictionnary.TryGetValue(myOreType, out Craft.Collect.Config.Ore processedOre))
-            if (int.TryParse(NWScript.Get2DAString("feat", "GAINMULTIPLE", CreaturePlugin.GetHighestLevelOfFeat(onExamine.Examiner, (int)processedOre.feat)), out value))
-              reprocessingData += $"\n x1.{2 * value} (Raffinage {onExamine.Examinee.Name})";
+          {
+            if (player.learntCustomFeats.ContainsKey(processedOre.feat))
+            {
+              skillLevel = 2 * SkillSystem.GetCustomFeatLevelFromSkillPoints(processedOre.feat, player.learntCustomFeats[processedOre.feat]);
+              reprocessingData += $"\n x1.{skillLevel} (Raffinage spécialisé {onExamine.Examinee.Name})";
+            }
+          }
 
-          float connectionsLevel;
-          if (float.TryParse(NWScript.Get2DAString("feat", "GAINMULTIPLE", CreaturePlugin.GetHighestLevelOfFeat(onExamine.Examiner, (int)CustomFeats.Connections)), out connectionsLevel))
-            reprocessingData += $"\n x{1.00 - connectionsLevel / 100} (Raffinage {onExamine.Examinee.Name})";
+          if (player.learntCustomFeats.ContainsKey(CustomFeats.Connections))
+          {
+            skillLevel = 1 * SkillSystem.GetCustomFeatLevelFromSkillPoints(CustomFeats.Connections, player.learntCustomFeats[CustomFeats.Connections]);
+            reprocessingData += $"\n x{1.00 - skillLevel / 100} (Relations Amirauté)";
+          }
 
           onExamine.Examinee.Description = reprocessingData;
           break;
         case "wood":
           string reprocessingString = $"{onExamine.Examinee.Name} : Efficacité raffinage -30 % (base scierie Amirauté)";
+          int featLevel = 0;
 
-          int bonus;
-          if (int.TryParse(NWScript.Get2DAString("feat", "GAINMULTIPLE", CreaturePlugin.GetHighestLevelOfFeat(onExamine.Examiner, (int)CustomFeats.WoodReprocessing)), out bonus))
-            reprocessingString += $"\n x1.{3 * bonus} (Raffinage)";
+          if (player.learntCustomFeats.ContainsKey(CustomFeats.WoodReprocessing))
+          {
+            featLevel = 3 * SkillSystem.GetCustomFeatLevelFromSkillPoints(CustomFeats.WoodReprocessing, player.learntCustomFeats[CustomFeats.WoodReprocessing]);
+            reprocessingString += $"\n x1.{featLevel} (Sciage)";
+          }
 
-          if (int.TryParse(NWScript.Get2DAString("feat", "GAINMULTIPLE", CreaturePlugin.GetHighestLevelOfFeat(onExamine.Examiner, (int)CustomFeats.WoodReprocessingEfficiency)), out bonus))
-            reprocessingString += $"\n x1.{2 * bonus} (Raffinage efficace)";
+          if (player.learntCustomFeats.ContainsKey(CustomFeats.WoodReprocessingEfficiency))
+          {
+            featLevel = 2 * SkillSystem.GetCustomFeatLevelFromSkillPoints(CustomFeats.WoodReprocessingEfficiency, player.learntCustomFeats[CustomFeats.WoodReprocessingEfficiency]);
+            reprocessingString += $"\n x1.{featLevel} (Sciage Efficace)";
+          }
 
           if (Enum.TryParse(onExamine.Examinee.Name, out Craft.Collect.Config.WoodType myWoodType) && Craft.Collect.Config.woodDictionnary.TryGetValue(myWoodType, out Craft.Collect.Config.Wood processedWood))
-            if (int.TryParse(NWScript.Get2DAString("feat", "GAINMULTIPLE", CreaturePlugin.GetHighestLevelOfFeat(onExamine.Examiner, (int)processedWood.feat)), out bonus))
-              reprocessingString += $"\n x1.{2 * bonus} (Raffinage {onExamine.Examinee.Name})";
+          {
+            if (player.learntCustomFeats.ContainsKey(processedWood.feat))
+            {
+              featLevel = 2 * SkillSystem.GetCustomFeatLevelFromSkillPoints(processedWood.feat, player.learntCustomFeats[processedWood.feat]);
+              reprocessingString += $"\n x1.{featLevel} (Sciage spécialisé {onExamine.Examinee.Name})";
+            }
+          }
 
-          float connectionsBonus;
-          if (float.TryParse(NWScript.Get2DAString("feat", "GAINMULTIPLE", CreaturePlugin.GetHighestLevelOfFeat(onExamine.Examiner, (int)CustomFeats.Connections)), out connectionsBonus))
-            reprocessingString += $"\n x{1.00 - connectionsBonus / 100} (Raffinage {onExamine.Examinee.Name})";
+          if (player.learntCustomFeats.ContainsKey(CustomFeats.Connections))
+          {
+            featLevel = 1 * SkillSystem.GetCustomFeatLevelFromSkillPoints(CustomFeats.Connections, player.learntCustomFeats[CustomFeats.Connections]);
+            reprocessingString += $"\n x{1.00 - featLevel / 100} (Relations Amirauté)";
+          }
 
           onExamine.Examinee.Description = reprocessingString;
           break;
@@ -175,7 +213,7 @@ namespace NWN.Systems
         onExamine.Examinee.GetLocalVariable<string>("_TEMP_DESC").Value = onExamine.Examinee.Description;
         
         if (onExamine.Examinee.GetLocalVariable<int>("_AVAILABLE_ENCHANTEMENT_SLOT").HasValue)
-          onExamine.Examinee.Description += $"\n\n emplacement(s) d'enchantement : [{onExamine.Examinee.GetLocalVariable<int>("_AVAILABLE_ENCHANTEMENT_SLOT").Value.ToString().ColorString(Color.GREEN)}] ".ColorString(Color.ORANGE);
+          onExamine.Examinee.Description += $"\n\nEmplacement(s) d'enchantement : [{onExamine.Examinee.GetLocalVariable<int>("_AVAILABLE_ENCHANTEMENT_SLOT").Value.ToString().ColorString(Color.ORANGE)}] ".ColorString(Color.ORANGE);
 
         onExamine.Examinee.Description += $"\n\n {ItemUtils.GetItemDurabilityState((NwItem)onExamine.Examinee)}";
       }

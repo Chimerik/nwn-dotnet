@@ -218,13 +218,13 @@ namespace NWN.Systems.Craft
     {
       if (player.craftJob.CanStartJob(player.oid, oBlueprint, JobType.BlueprintCopy))
       {
-        int value;
-        if (int.TryParse(NWScript.Get2DAString("feat", "GAINMULTIPLE", CreaturePlugin.GetHighestLevelOfFeat(player.oid, (int)CustomFeats.BlueprintCopy)), out value))
-        {
-          int timeCost = blueprint.mineralsCost * 80;
-          float iJobDuration = timeCost - timeCost * (value * 5) / 100;
-          player.craftJob = new Job(-11, "", iJobDuration, player, oBlueprint.Serialize()); // - 11 = blueprint copy
-        }
+        int BPCopyLevel = 0;
+        if (player.learntCustomFeats.ContainsKey(CustomFeats.BlueprintCopy))
+          BPCopyLevel = SkillSystem.GetCustomFeatLevelFromSkillPoints(CustomFeats.BlueprintCopy, player.learntCustomFeats[CustomFeats.BlueprintCopy]);
+
+        int timeCost = blueprint.mineralsCost * 8000;
+        float iJobDuration = timeCost - timeCost * (BPCopyLevel * 5) / 100;
+        player.craftJob = new Job(-11, "", iJobDuration, player, oBlueprint.Serialize()); // - 11 = blueprint copy
       }
     }
     private void StartEnchantementCraft(NwGameObject oTarget, string ipString)
@@ -289,12 +289,14 @@ namespace NWN.Systems.Craft
       if (player.craftJob.CanStartJob(player.oid, oBlueprint, JobType.BlueprintResearchMaterialEfficiency))
       {
         int metallurgyLevel = 0;
-        int.TryParse(NWScript.Get2DAString("feat", "GAINMULTIPLE", CreaturePlugin.GetHighestLevelOfFeat(player.oid, (int)CustomFeats.Metallurgy)), out metallurgyLevel);
+        if (player.learntCustomFeats.ContainsKey(CustomFeats.Metallurgy))
+          metallurgyLevel += SkillSystem.GetCustomFeatLevelFromSkillPoints(CustomFeats.Metallurgy, player.learntCustomFeats[CustomFeats.Metallurgy]);
 
         int advancedCraftLevel = 0;
-        int.TryParse(NWScript.Get2DAString("feat", "GAINMULTIPLE", CreaturePlugin.GetHighestLevelOfFeat(player.oid, (int)CustomFeats.AdvancedCraft)), out advancedCraftLevel);
+        if (player.learntCustomFeats.ContainsKey(CustomFeats.AdvancedCraft))
+          advancedCraftLevel += SkillSystem.GetCustomFeatLevelFromSkillPoints(CustomFeats.AdvancedCraft, player.learntCustomFeats[CustomFeats.AdvancedCraft]);
 
-        float iJobDuration = blueprint.mineralsCost * 100 - blueprint.mineralsCost * (metallurgyLevel * 5 + advancedCraftLevel * 3) / 100;
+        float iJobDuration = blueprint.mineralsCost * 10000 - blueprint.mineralsCost * (metallurgyLevel * 5 + advancedCraftLevel * 3) / 100;
         player.craftJob = new Job(-12, "", iJobDuration, player, ObjectPlugin.Serialize(oBlueprint)); // - 12 = recherche ME
         oBlueprint.Destroy();
         player.oid.SendServerMessage($"L'objet {oBlueprint.Name.ColorString(Color.WHITE)} ne sera pas disponible jusqu'à la fin du travail de recherche métallurgique.", Color.ORANGE);
@@ -305,12 +307,14 @@ namespace NWN.Systems.Craft
       if (player.craftJob.CanStartJob(player.oid, oBlueprint, JobType.BlueprintResearchTimeEfficiency))
       {
         int researchLevel = 0;
-        int.TryParse(NWScript.Get2DAString("feat", "GAINMULTIPLE", CreaturePlugin.GetHighestLevelOfFeat(player.oid, (int)CustomFeats.Research)), out researchLevel);
+        if (player.learntCustomFeats.ContainsKey(CustomFeats.Research))
+          researchLevel += SkillSystem.GetCustomFeatLevelFromSkillPoints(CustomFeats.Research, player.learntCustomFeats[CustomFeats.Research]);
 
         int advancedCraftLevel = 0;
-        int.TryParse(NWScript.Get2DAString("feat", "GAINMULTIPLE", CreaturePlugin.GetHighestLevelOfFeat(player.oid, (int)CustomFeats.AdvancedCraft)), out advancedCraftLevel);
+        if (player.learntCustomFeats.ContainsKey(CustomFeats.AdvancedCraft))
+          advancedCraftLevel += SkillSystem.GetCustomFeatLevelFromSkillPoints(CustomFeats.AdvancedCraft, player.learntCustomFeats[CustomFeats.AdvancedCraft]);
 
-        float iJobDuration = blueprint.mineralsCost * 100 - blueprint.mineralsCost * (researchLevel * 5 + advancedCraftLevel * 3) / 100;
+        float iJobDuration = blueprint.mineralsCost * 10000 - blueprint.mineralsCost * (researchLevel * 5 + advancedCraftLevel * 3) / 100;
         player.craftJob = new Job(-13, "", iJobDuration, player, ObjectPlugin.Serialize(oBlueprint)); // -13 = recherche TE
         oBlueprint.Destroy();
         player.oid.SendServerMessage($"L'objet {oBlueprint.Name.ColorString(Color.WHITE)} ne sera pas disponible jusqu'à la fin du travail de recherche d'efficacité.", Color.ORANGE);

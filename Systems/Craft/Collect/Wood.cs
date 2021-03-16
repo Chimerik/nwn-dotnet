@@ -26,12 +26,11 @@ namespace NWN.Systems.Craft.Collect
       miningYield += oExtractor.GetLocalVariable<int>("_ITEM_LEVEL").Value * 5;
       int bonusYield = 0;
 
-      int value;
-      if (int.TryParse(NWScript.Get2DAString("feat", "GAINMULTIPLE", CreaturePlugin.GetHighestLevelOfFeat(player.oid, (int)CustomFeats.WoodCutter)), out value))
-        bonusYield += miningYield * value * 5 / 100;
-
-      if (int.TryParse(NWScript.Get2DAString("feat", "GAINMULTIPLE", CreaturePlugin.GetHighestLevelOfFeat(player.oid, (int)CustomFeats.WoodExpertise)), out value))
-        bonusYield += miningYield * value * 5 / 100;
+      if (player.learntCustomFeats.ContainsKey(CustomFeats.WoodCutter))
+        bonusYield += bonusYield * 5 * SkillSystem.GetCustomFeatLevelFromSkillPoints(CustomFeats.WoodCutter, player.learntCustomFeats[CustomFeats.WoodCutter]) / 100;
+      
+      if (player.learntCustomFeats.ContainsKey(CustomFeats.WoodExpertise))
+        bonusYield += bonusYield * 5 * SkillSystem.GetCustomFeatLevelFromSkillPoints(CustomFeats.WoodExpertise, player.learntCustomFeats[CustomFeats.WoodExpertise]) / 100;
 
       miningYield += bonusYield;
 
@@ -75,12 +74,12 @@ namespace NWN.Systems.Craft.Collect
       }
 
       int skillBonus = 0;
-      int value;
-      if (int.TryParse(NWScript.Get2DAString("feat", "GAINMULTIPLE", CreaturePlugin.GetHighestLevelOfFeat(player.oid, (int)CustomFeats.WoodExpertise)), out value))
-        skillBonus += value;
 
-      if (int.TryParse(NWScript.Get2DAString("feat", "GAINMULTIPLE", CreaturePlugin.GetHighestLevelOfFeat(player.oid, (int)CustomFeats.WoodProspection)), out value))
-        skillBonus += value;
+      if (player.learntCustomFeats.ContainsKey(CustomFeats.WoodExpertise))
+        skillBonus += SkillSystem.GetCustomFeatLevelFromSkillPoints(CustomFeats.WoodExpertise, player.learntCustomFeats[CustomFeats.WoodExpertise]);
+
+      if (player.learntCustomFeats.ContainsKey(CustomFeats.WoodProspection))
+        skillBonus += SkillSystem.GetCustomFeatLevelFromSkillPoints(CustomFeats.WoodProspection, player.learntCustomFeats[CustomFeats.WoodProspection]);
 
       int respawnChance = skillBonus * 5;
       int nbSpawns = 0;

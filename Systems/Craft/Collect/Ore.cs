@@ -25,12 +25,11 @@ namespace NWN.Systems.Craft.Collect
       miningYield += oExtractor.GetLocalVariable<int>("_ITEM_LEVEL").Value * 5;
       int bonusYield = 0;
 
-      int value;
-      if (int.TryParse(NWScript.Get2DAString("feat", "GAINMULTIPLE", CreaturePlugin.GetHighestLevelOfFeat(player.oid, (int)CustomFeats.Miner)), out value))
-        bonusYield += miningYield * value * 5 / 100;
+      if (player.learntCustomFeats.ContainsKey(CustomFeats.Miner))
+        bonusYield += bonusYield * 5 * SkillSystem.GetCustomFeatLevelFromSkillPoints(CustomFeats.Miner, player.learntCustomFeats[CustomFeats.Miner]) / 100;
 
-      if (int.TryParse(NWScript.Get2DAString("feat", "GAINMULTIPLE", CreaturePlugin.GetHighestLevelOfFeat(player.oid, (int)CustomFeats.Geology)), out value))
-        bonusYield += miningYield * value * 5 / 100;
+      if (player.learntCustomFeats.ContainsKey(CustomFeats.Geology))
+        bonusYield += bonusYield * 5 * SkillSystem.GetCustomFeatLevelFromSkillPoints(CustomFeats.Geology, player.learntCustomFeats[CustomFeats.Geology]) / 100;
 
       miningYield += bonusYield;
 
@@ -75,12 +74,12 @@ namespace NWN.Systems.Craft.Collect
       }
 
       int skillBonus = 0;
-      int value;
-      if (int.TryParse(NWScript.Get2DAString("feat", "GAINMULTIPLE", CreaturePlugin.GetHighestLevelOfFeat(player.oid, (int)CustomFeats.Geology)), out value))
-        skillBonus += value;
 
-      if (int.TryParse(NWScript.Get2DAString("feat", "GAINMULTIPLE", CreaturePlugin.GetHighestLevelOfFeat(player.oid, (int)CustomFeats.Prospection)), out value))
-        skillBonus += value;
+      if (player.learntCustomFeats.ContainsKey(CustomFeats.Geology))
+        skillBonus += SkillSystem.GetCustomFeatLevelFromSkillPoints(CustomFeats.Geology, player.learntCustomFeats[CustomFeats.Geology]) / 100;
+
+      if (player.learntCustomFeats.ContainsKey(CustomFeats.Prospection))
+        skillBonus += SkillSystem.GetCustomFeatLevelFromSkillPoints(CustomFeats.Prospection, player.learntCustomFeats[CustomFeats.Prospection]) / 100;
 
       int respawnChance = skillBonus * 5;
       int nbSpawns = 0;
