@@ -322,7 +322,7 @@ namespace NWN.Systems.Craft.Collect
     }
     public static Core.ItemProperty[] GetBadItemProperties(ItemCategory itemCategory, uint craftedItem)
     {
-      NWScript.SetLocalInt(craftedItem, "_DURABILITY", GetBaseItemCost(craftedItem.ToNwObject<NwItem>()));
+      NWScript.SetLocalInt(craftedItem, "_DURABILITY", GetBaseItemCost(craftedItem.ToNwObject<NwItem>()) * 10);
       
       switch (itemCategory)
       {
@@ -412,7 +412,7 @@ namespace NWN.Systems.Craft.Collect
     }
     public static Core.ItemProperty[] GetTritaniumItemProperties(uint craftedItem = NWScript.OBJECT_INVALID)
     {
-      NWScript.SetLocalInt(craftedItem, "_DURABILITY", GetBaseItemCost(craftedItem.ToNwObject<NwItem>()) * 10);
+      NWScript.SetLocalInt(craftedItem, "_DURABILITY", GetBaseItemCost(craftedItem.ToNwObject<NwItem>()) * 100);
       NWScript.SetLocalInt(craftedItem, "_AVAILABLE_ENCHANTEMENT_SLOT", 1);
 
       return new Core.ItemProperty[]
@@ -425,7 +425,7 @@ namespace NWN.Systems.Craft.Collect
     }
     public static Core.ItemProperty[] GetPyeriteItemProperties(ItemCategory itemCategory, uint craftedItem = NWScript.OBJECT_INVALID)
     {
-      NWScript.SetLocalInt(craftedItem, "_DURABILITY", GetBaseItemCost(craftedItem.ToNwObject<NwItem>()) * 20);
+      NWScript.SetLocalInt(craftedItem, "_DURABILITY", GetBaseItemCost(craftedItem.ToNwObject<NwItem>()) * 200);
       NWScript.SetLocalInt(craftedItem, "_AVAILABLE_ENCHANTEMENT_SLOT", 2);
 
       switch (itemCategory)
