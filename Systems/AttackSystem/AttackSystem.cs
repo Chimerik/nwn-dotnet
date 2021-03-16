@@ -130,10 +130,10 @@ namespace NWN.Systems
             case 1:
             case 2:
             case 5:
-              durabilityChance = 60;
+              durabilityChance = 20;
               break;
             case 4:
-              durabilityChance = 40;
+              durabilityChance = 10;
               break;
             default:
               return;
