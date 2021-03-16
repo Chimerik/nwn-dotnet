@@ -70,17 +70,16 @@ namespace NWN.Systems
           case 4:
 
             int random = NwRandom.Roll(Utils.random, 11, 1) - 1;
-            int loop = -1;
+            int loop = random + 1;
             item = player.oid.GetItemInSlot((InventorySlot)random);
 
-            while (item == null || loop != random)
+            while (item == null && loop != random)
             {
-              loop++;
-
               if (loop > 10)
                 loop = 0;
               
               item = player.oid.GetItemInSlot((InventorySlot)loop);
+              loop++;
             }
 
             if (item == null || item.Tag == "amulettorillink")
