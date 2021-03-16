@@ -25,7 +25,7 @@ namespace NWN.Systems
       LoadDiscordBot();
       CreateDatabase();
       InitializeEvents();
-      FeatSystem.InitializeFeatModifiers();
+      //FeatSystem.InitializeFeatModifiers();
 
       NwModule.Instance.OnModuleLoad += OnModuleLoad;
     }

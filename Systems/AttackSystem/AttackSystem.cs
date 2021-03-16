@@ -75,12 +75,11 @@ namespace NWN.Systems
 
             while (item == null && loop != random)
             {
-              loop++;
-
               if (loop > 10)
                 loop = 0;
               
               item = player.oid.GetItemInSlot((InventorySlot)loop);
+              loop++;
             }
 
             if (item == null || item.Tag == "amulettorillink")

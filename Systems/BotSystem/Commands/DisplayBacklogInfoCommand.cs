@@ -77,6 +77,7 @@ namespace NWN.Systems
         "    - Intégration des acessoires (type lunettes, chapeaux), sous forme de VFX\n" +
         "    - Système de PNJ factory (outil DM permettant la création et la sauvegarde de pnjs sans passer par l'éditeur)\n" +
         "    - Zones spécifiques 'cachées' donnant des bonus d'apprentissage lorsqu'on y déco\n" +
+        "    - Système de formations pour pnj contrôlés par pjs (avec ForceFollow + offset)\n" +
         "    - Utilisation d'un 'sceau d'élite' sur les boss permet de débloquer l'apprentissage d'une compétence\n"
         );
     }

@@ -4,6 +4,7 @@ using System.Linq;
 using NWN.Core;
 using NWN.Core.NWNX;
 using NWN.API.Constants;
+using NWN.API;
 
 namespace NWN.Systems
 {
@@ -228,10 +229,10 @@ namespace NWN.Systems
           currentLevel += 1;
           pointsToNextLevel = 250 * this.multiplier * (int)Math.Pow(Math.Sqrt(32), this.currentLevel - 1);
 
-          /*if (int.TryParse(NWScript.Get2DAString("feat", "FEAT", oid), out int nameValue))
-          //PlayerPlugin.SetTlkOverride(player.oid, nameValue, $"{customFeatName} {currentLevel}");
+          if (int.TryParse(NWScript.Get2DAString("feat", "FEAT", (int)oid), out int nameValue))
+            player.oid.SetTlkOverride(nameValue, $"{customFeatName} - {currentLevel}");
           else
-            Utils.LogMessageToDMs($"CUSTOM SKILL SYSTEM ERROR - Skill {customFeatName} : no available custom name StrRef");*/
+            Utils.LogMessageToDMs($"CUSTOM SKILL SYSTEM ERROR - Skill {customFeatName} - {(int)oid} : no available custom name StrRef");
 
           if (currentLevel >= customFeatsDictionnary[oid].maxLevel)
             trained = true;

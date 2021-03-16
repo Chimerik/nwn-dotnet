@@ -93,21 +93,21 @@ namespace NWN.Systems
         }
       }
 
-      foreach(KeyValuePair<API.Constants.Feat, int> feat in player.learntCustomFeats)
+      foreach(KeyValuePair<Feat, int> feat in player.learntCustomFeats)
       {
         CustomFeat customFeat = SkillSystem.customFeatsDictionnary[feat.Key];
 
-        /*if (int.TryParse(NWScript.Get2DAString("feat", "FEAT", (int)feat.Key), out int nameValue))
-          //PlayerPlugin.SetTlkOverride(player.oid, nameValue, $"{customFeat.name} {SkillSystem.GetCustomFeatLevelFromSkillPoints(feat.Key, feat.Value)}");
+        if (int.TryParse(NWScript.Get2DAString("feat", "FEAT", (int)feat.Key), out int nameValue))
+          player.oid.SetTlkOverride(nameValue, $"{customFeat.name} - {SkillSystem.GetCustomFeatLevelFromSkillPoints(feat.Key, feat.Value)}");
         else
           Utils.LogMessageToDMs($"CUSTOM SKILL SYSTEM ERROR - Skill {customFeat.name} : no available custom name StrRef");
 
         if (int.TryParse(NWScript.Get2DAString("feat", "DESCRIPTION", (int)feat.Key), out int descriptionValue))
-          //PlayerPlugin.SetTlkOverride(player.oid, descriptionValue, customFeat.description);
+          player.oid.SetTlkOverride(descriptionValue, customFeat.description);
         else
-            {
+        {
           Utils.LogMessageToDMs($"CUSTOM SKILL SYSTEM ERROR - Skill {customFeat.name} : no available custom description StrRef");
-        }*/
+        }
       }
 
       int improvedConst = 0;
