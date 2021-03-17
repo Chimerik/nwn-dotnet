@@ -250,15 +250,34 @@ namespace NWN.Systems
             NwItem enchantedItem = NwObject.Deserialize<NwItem>(craftJob.craftedItem);
             oid.AcquireItem(enchantedItem);
 
-            enchantedItem.GetLocalVariable<int>("_AVAILABLE_ENCHANTEMENT_SLOT").Value -= 1;
-            if (enchantedItem.GetLocalVariable<int>("_AVAILABLE_ENCHANTEMENT_SLOT").Value <= 0)
-              enchantedItem.GetLocalVariable<int>("_AVAILABLE_ENCHANTEMENT_SLOT").Delete();
-            Craft.Collect.System.AddCraftedEnchantementProperties(enchantedItem, craftJob.material);
+            int enchanteurChanceuxLevel = 0;
+            if (learntCustomFeats.ContainsKey(CustomFeats.EnchanteurChanceux))
+              enchanteurChanceuxLevel += SkillSystem.GetCustomFeatLevelFromSkillPoints(CustomFeats.EnchanteurChanceux, learntCustomFeats[CustomFeats.EnchanteurChanceux]);
+
+            if (NwRandom.Roll(Utils.random, 100) > enchanteurChanceuxLevel)
+            {
+              enchantedItem.GetLocalVariable<int>("_AVAILABLE_ENCHANTEMENT_SLOT").Value -= 1;
+              if (enchantedItem.GetLocalVariable<int>("_AVAILABLE_ENCHANTEMENT_SLOT").Value <= 0)
+                enchantedItem.GetLocalVariable<int>("_AVAILABLE_ENCHANTEMENT_SLOT").Delete();
+            }
+
+            int enchanteurExpertLevel = 0;
+            if (learntCustomFeats.ContainsKey(CustomFeats.EnchanteurExpert))
+              enchanteurExpertLevel += SkillSystem.GetCustomFeatLevelFromSkillPoints(CustomFeats.EnchanteurExpert, learntCustomFeats[CustomFeats.EnchanteurExpert]);
+
+            int boost = 0;
+            if (NwRandom.Roll(Utils.random, 100) <= enchanteurExpertLevel * 2)
+              boost = 1;
+
+            Craft.Collect.System.AddCraftedEnchantementProperties(enchantedItem, craftJob.material, boost);
 
             break;
           case Job.JobType.Recycling:
             NwItem recycledItem = NwObject.Deserialize<NwItem>(craftJob.craftedItem);
             int recycledValue = recycledItem.GetLocalVariable<int>("_BASE_COST").Value;
+
+            if (learntCustomFeats.ContainsKey(CustomFeats.Recycler))
+              recycledValue +=  recycledValue * 1 * GetCustomFeatLevelFromSkillPoints(CustomFeats.Recycler, learntCustomFeats[CustomFeats.Recycler]) / 100;
 
             if (materialStock.ContainsKey(craftJob.material))
               materialStock[craftJob.material] += recycledValue;
@@ -267,6 +286,16 @@ namespace NWN.Systems
 
             oid.SendServerMessage($"Recyclage de {recycledItem.Name.ColorString(Color.WHITE)} terminé. Vous en retirez {recycledValue} unité(s) de {craftJob.material}", Color.GREEN) ;
             recycledItem.Destroy();
+
+            break;
+          case Job.JobType.Renforcement:
+            NwItem reinforcedItem = NwObject.Deserialize<NwItem>(craftJob.craftedItem);
+            oid.AcquireItem(reinforcedItem);
+
+            reinforcedItem.GetLocalVariable<int>("_DURABILITY").Value *= (5 / 100);
+            reinforcedItem.GetLocalVariable<int>("_REINFORCEMENT_LEVEL").Value += 1;
+
+            oid.SendServerMessage($"Renforcement de {reinforcedItem.Name.ColorString(Color.WHITE)} terminé.", Color.GREEN);
 
             break;
           default:
@@ -279,8 +308,28 @@ namespace NWN.Systems
                 oid.SendServerMessage($"Votre fabrication artisanale est terminée. Ouvrez votre journal pour obtenir le résultat de votre travail !");
                 return;
               }
-              
+
               Craft.Collect.System.AddCraftedItemProperties(craftedItem, craftJob.material);
+
+              int artisanExceptionnelLevel = 0;
+              if (learntCustomFeats.ContainsKey(CustomFeats.ArtisanExceptionnel))
+                artisanExceptionnelLevel += SkillSystem.GetCustomFeatLevelFromSkillPoints(CustomFeats.ArtisanExceptionnel, learntCustomFeats[CustomFeats.ArtisanExceptionnel]);
+
+              if (NwRandom.Roll(Utils.random, 100) <= artisanExceptionnelLevel)
+              {
+                craftedItem.GetLocalVariable<int>("_AVAILABLE_ENCHANTEMENT_SLOT").Value += 1;
+                oid.SendServerMessage("Votre talent d'artisan vous a permis de créer un objet exceptionnel disposant d'un emplacement d'enchantement supplémentaire !", Color.NAVY);
+              }
+
+              int artisanAppliqueLevel = 0;
+              if (learntCustomFeats.ContainsKey(CustomFeats.ArtisanApplique))
+                artisanAppliqueLevel += SkillSystem.GetCustomFeatLevelFromSkillPoints(CustomFeats.ArtisanApplique, learntCustomFeats[CustomFeats.ArtisanApplique]);
+
+              if (NwRandom.Roll(Utils.random, 100) <= artisanAppliqueLevel * 3)
+              {
+                craftedItem.GetLocalVariable<int>("_DURABILITY").Value *= (20 / 100);
+                oid.SendServerMessage("En travaillant de manière particulièrement appliquée, vous parvenez à fabriquer un objet plus résistant !", Color.NAVY);
+              }
             }
             else
             {

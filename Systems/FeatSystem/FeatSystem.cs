@@ -61,6 +61,14 @@ namespace NWN.Systems
           new Recycler(player, onUseFeat.TargetGameObject);
           break;
 
+        case CustomFeats.Renforcement:
+          new Renforcement(player, onUseFeat.TargetGameObject);
+          break;
+
+        case CustomFeats.SurchargeArcanique:
+          new SurchargeArcanique(player, onUseFeat.TargetGameObject);
+          break;
+
         case CustomFeats.CustomMenuUP:
         case CustomFeats.CustomMenuDOWN:
         case CustomFeats.CustomMenuSELECT:

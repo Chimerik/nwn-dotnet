@@ -234,7 +234,7 @@ namespace NWN.Systems.Craft
 
       return "Invalid";
     }
-    public static API.ItemProperty GetCraftEnchantementProperties(NwItem craftedItem, string ipString)
+    public static API.ItemProperty GetCraftEnchantementProperties(NwItem craftedItem, string ipString, int boost)
     {
       string enchTag = $"ENCHANTEMENT_{ipString}";
       API.ItemProperty currentIP = craftedItem.ItemProperties.FirstOrDefault(ip => ip.Tag == enchTag);
@@ -242,7 +242,7 @@ namespace NWN.Systems.Craft
       if (currentIP != null)
       {
         craftedItem.RemoveItemProperty(currentIP);
-        currentIP.CostTableValue += 1;
+        currentIP.CostTableValue += 1 + boost;
 
         return currentIP;
       }
@@ -266,7 +266,7 @@ namespace NWN.Systems.Craft
         else
           Utils.LogMessageToDMs($"Could not parse nCostTable in : {ipString}");
         if (Int32.TryParse(IPproperties[0], out value))
-          newIP.CostTableValue = Int32.Parse(IPproperties[3]);
+          newIP.CostTableValue = Int32.Parse(IPproperties[3]) + boost;
         else
           Utils.LogMessageToDMs($"Could not parse nCostTableValue in : {ipString}");
 

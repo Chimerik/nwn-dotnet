@@ -51,6 +51,9 @@ namespace NWN.Systems.Craft
         case -15:
           this.type = JobType.Recycling;
           break;
+        case -16:
+          this.type = JobType.Renforcement;
+          break;
         default:
           this.type = JobType.Item;
           break;
@@ -71,6 +74,7 @@ namespace NWN.Systems.Craft
       BlueprintResearchTimeEfficiency = 4,
       Enchantement = 5,
       Recycling = 6,
+      Renforcement = 7,
     }
     public Boolean IsActive()
     {
@@ -168,6 +172,9 @@ namespace NWN.Systems.Craft
         case JobType.BlueprintResearchMaterialEfficiency:
           StartBlueprintMaterialEfficiencyResearch(player, oItem, blueprint);
           break;
+        case JobType.Renforcement:
+          StartRenforcementCraft(oTarget);
+          break;
       }
 
     }
@@ -245,9 +252,15 @@ namespace NWN.Systems.Craft
       int baseItemType = NWScript.GetBaseItemType(oTarget);
       int baseCost = ItemUtils.GetBaseItemCost((NwItem)oTarget);
 
+      int enchanteurLevel = 0;
+
+      if (player.learntCustomFeats.ContainsKey(CustomFeats.Enchanteur))
+        enchanteurLevel += SkillSystem.GetCustomFeatLevelFromSkillPoints(CustomFeats.Enchanteur, player.learntCustomFeats[CustomFeats.Enchanteur]);
+
+
       Log.Info($"base item type job : {baseItemType}");
 
-      float iJobDuration = baseCost * spellLevel * 100;
+      float iJobDuration = baseCost * spellLevel * (100 - enchanteurLevel);
       Log.Info($"duration : {iJobDuration}");
       player.craftJob = new Job(-14, ipString, iJobDuration, player, oTarget.Serialize()); // -14 = JobType enchantement
 
@@ -271,16 +284,52 @@ namespace NWN.Systems.Craft
       Log.Info($"base item type job : {baseItemType}");
 
       float iJobDuration = baseCost * 25;
+
+      if (this.player.learntCustomFeats.ContainsKey(CustomFeats.Recycler))
+        iJobDuration -= iJobDuration * 1 * SkillSystem.GetCustomFeatLevelFromSkillPoints(CustomFeats.Recycler, this.player.learntCustomFeats[CustomFeats.Recycler]) / 100;
+
       Log.Info($"duration : {iJobDuration}");
 
       item.GetLocalVariable<int>("_BASE_COST").Value = baseCost;
       player.craftJob = new Job(-15, material, iJobDuration, player, item.Serialize()); // -15 = JobType recyclage
 
-      player.oid.SendServerMessage($"Vous venez de démarrer l'enchantement de : {item.Name.ColorString(Color.WHITE)}", Color.ORANGE);
+      player.oid.SendServerMessage($"Vous venez de démarrer le recyclage de : {item.Name.ColorString(Color.WHITE)}", Color.ORANGE);
       // TODO : afficher des effets visuels
 
       item.Destroy();
-      player.oid.SendServerMessage($"L'objet {item.Name.ColorString(Color.WHITE)} ne sera pas disponible jusqu'à la fin du travail d'enchantement.", Color.RED);
+      player.oid.SendServerMessage($"L'objet {item.Name.ColorString(Color.WHITE)} ne sera pas disponible jusqu'à la fin du travail de recyclage.", Color.RED);
+
+      player.craftJob.isCancelled = false;
+    }
+    private void StartRenforcementCraft(NwGameObject oTarget)
+    {
+      NwItem item = (NwItem)oTarget;
+
+      if(item.GetLocalVariable<int>("_REINFORCEMENT_LEVEL").Value >= 10)
+      {
+        player.oid.SendServerMessage($"{item.Name.ColorString(Color.WHITE)} a déjà été renforcé au maximum des capacités du matériau.", Color.ORANGE);
+        return;
+      }
+
+      int renforcementLevel = 0;
+      if (player.learntCustomFeats.ContainsKey(CustomFeats.Renforcement))
+        renforcementLevel += SkillSystem.GetCustomFeatLevelFromSkillPoints(CustomFeats.Renforcement, player.learntCustomFeats[CustomFeats.Renforcement]);
+
+      int baseItemType = (int)item.BaseItemType;
+      int baseCost = ItemUtils.GetBaseItemCost(item);
+
+      float iJobDuration = baseCost * 15 * (100 - renforcementLevel * 5) / 100;
+
+      
+
+      item.GetLocalVariable<int>("_BASE_COST").Value = baseCost;
+      player.craftJob = new Job(-16, material, iJobDuration, player, item.Serialize()); // -16 = JobType recyclage
+
+      player.oid.SendServerMessage($"Vous venez de démarrer le renforcement de : {item.Name.ColorString(Color.WHITE)}", Color.ORANGE);
+      // TODO : afficher des effets visuels
+
+      item.Destroy();
+      player.oid.SendServerMessage($"L'objet {item.Name.ColorString(Color.WHITE)} ne sera pas disponible jusqu'à la fin du travail de renforcement.", Color.RED);
 
       player.craftJob.isCancelled = false;
     }

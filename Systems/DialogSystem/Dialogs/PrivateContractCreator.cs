@@ -29,10 +29,21 @@ namespace NWN.Systems
     {
       player.menu.Clear();
       player.menu.titleLines.Add("Que souhaitez-vous faire ?");
-      player.menu.choices.Add((
+
+      int contractScienceLevel = 1;
+      if(player.learntCustomFeats.ContainsKey(CustomFeats.ContractScience))
+        contractScienceLevel += SkillSystem.GetCustomFeatLevelFromSkillPoints(CustomFeats.ContractScience, player.learntCustomFeats[CustomFeats.ContractScience]);
+
+      var query = NWScript.SqlPrepareQueryCampaign(Config.database, $"SELECT count(rowid) from playerPrivateContracts where characterId = @characterId");
+      NWScript.SqlBindInt(query, "@characterId", player.characterId);
+
+      if (NWScript.SqlStep(query) == 0 || NWScript.SqlGetInt(query, 0) <= contractScienceLevel)
+      {
+        player.menu.choices.Add((
         "Rédiger un nouveau contrat",
         () => WriteContractPage(player)
-      ));
+        ));
+      }
       player.menu.choices.Add((
         "Consulter mes contrats en attente",
         () => DrawCurrentContractPage(player)

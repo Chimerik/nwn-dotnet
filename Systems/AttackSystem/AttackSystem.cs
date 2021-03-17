@@ -18,6 +18,21 @@ namespace NWN.Systems
         // La cible de l'attaque est un joueur. Si l'attaque échoue, c'est qu'un objet d'armure a été utilisé et on fait diminuer la durabilité
         NwItem item;
 
+        int dexBonus = player.oid.GetAbilityModifier(Ability.Dexterity) - (CreaturePlugin.GetArmorCheckPenalty(player.oid) + CreaturePlugin.GetShieldCheckPenalty(player.oid));
+        if (dexBonus < 0)
+          dexBonus = 0;
+
+        int safetyLevel = 0;
+        if (player.learntCustomFeats.ContainsKey(CustomFeats.CombattantPrecautionneux))
+          safetyLevel += SkillSystem.GetCustomFeatLevelFromSkillPoints(CustomFeats.CombattantPrecautionneux, player.learntCustomFeats[CustomFeats.CombattantPrecautionneux]);
+
+        int durabilityRate = 30 - dexBonus - safetyLevel;
+        if (durabilityRate < 1)
+          durabilityRate = 1;
+
+        if (NwRandom.Roll(Utils.random, 100, 1) > 1 && NwRandom.Roll(Utils.random, 100, 1) > durabilityRate)
+          return;
+
         switch (attackData.iAttackResult)
         {
           // Attaque parée, c'est donc l'arme, ou le gantelet qui prend
@@ -25,21 +40,18 @@ namespace NWN.Systems
             item = player.oid.GetItemInSlot(InventorySlot.RightHand);
             if (item == null)
               item = player.oid.GetItemInSlot(InventorySlot.LeftHand);
-            if(item == null)
+            if (item == null)
               item = player.oid.GetItemInSlot(InventorySlot.Arms);
             if (item == null)
               return;
 
-           if(NwRandom.Roll(Utils.random, 100, 1) < 20) // diminuer le pourcentage en fonction des compétences
+            item.GetLocalVariable<int>("_DURABILITY").Value -= 1;
+            if (item.GetLocalVariable<int>("_DURABILITY").Value <= 0)
             {
-              item.GetLocalVariable<int>("_DURABILITY").Value -= 1;
-              if (item.GetLocalVariable<int>("_DURABILITY").Value <= 0)
-              {
-                item.Destroy();
-                player.oid.SendServerMessage($"Il ne reste plus que des ruines irrécuprables de votre {item.Name.ColorString(Color.WHITE)}.", Color.RED);
-              }
+              item.Destroy();
+              player.oid.SendServerMessage($"Il ne reste plus que des ruines irrécuprables de votre {item.Name.ColorString(Color.WHITE)}.", Color.RED);
             }
-            
+
             break;
           // Attaque résistée, c'est donc l'armure, le casque ou le bouclier qui prennent
           case 5:
@@ -54,14 +66,11 @@ namespace NWN.Systems
             if (item == null)
               return;
 
-            if (NwRandom.Roll(Utils.random, 100, 1) < 20) // diminuer le pourcentage en fonction des compétences
+            item.GetLocalVariable<int>("_DURABILITY").Value -= 1;
+            if (item.GetLocalVariable<int>("_DURABILITY").Value <= 0)
             {
-              item.GetLocalVariable<int>("_DURABILITY").Value -= 1;
-              if (item.GetLocalVariable<int>("_DURABILITY").Value <= 0)
-              {
-                item.Destroy();
-                player.oid.SendServerMessage($"Il ne reste plus que des ruines irrécuprables de votre {item.Name.ColorString(Color.WHITE)}.", Color.RED);
-              }
+              item.Destroy();
+              player.oid.SendServerMessage($"Il ne reste plus que des ruines irrécuprables de votre {item.Name.ColorString(Color.WHITE)}.", Color.RED);
             }
 
             break;
@@ -77,7 +86,7 @@ namespace NWN.Systems
             {
               if (loop > 10)
                 loop = 0;
-              
+
               item = player.oid.GetItemInSlot((InventorySlot)loop);
               loop++;
             }
@@ -85,78 +94,77 @@ namespace NWN.Systems
             if (item == null || item.Tag == "amulettorillink")
               return;
 
-            int dexBonus = player.oid.GetAbilityModifier(Ability.Dexterity) - (CreaturePlugin.GetArmorCheckPenalty(player.oid) + CreaturePlugin.GetShieldCheckPenalty(player.oid));
-            if (dexBonus < 0)
-              dexBonus = 0;
-
-            int durabilityRate = 20 - dexBonus; // diminuer le pourcentage en fonction des compétences
-            if (durabilityRate < 1)
-              durabilityRate = 1;
-
-            if (NwRandom.Roll(Utils.random, 100, 1) < durabilityRate) 
+            item.GetLocalVariable<int>("_DURABILITY").Value -= 1;
+            if (item.GetLocalVariable<int>("_DURABILITY").Value <= 0)
             {
-              item.GetLocalVariable<int>("_DURABILITY").Value -= 1;
-              if (item.GetLocalVariable<int>("_DURABILITY").Value <= 0)
-              {
-                item.Destroy();
-                player.oid.SendServerMessage($"Il ne reste plus que des ruines irrécuprables de votre {item.Name.ColorString(Color.WHITE)}.", Color.RED);
-              }
+              item.Destroy();
+              player.oid.SendServerMessage($"Il ne reste plus que des ruines irrécupérables de votre {item.Name.ColorString(Color.WHITE)}.", Color.RED);
             }
 
             break;
         }
+      }
 
-        if (PlayerSystem.Players.TryGetValue(callInfo.ObjectSelf, out PlayerSystem.Player attacker))
+      if (PlayerSystem.Players.TryGetValue(callInfo.ObjectSelf, out PlayerSystem.Player attacker))
+      {
+        // L'attaquant est un joueur. On diminue la durabilité de son arme
+
+        NwItem weapon;
+
+        switch (attackData.iWeaponAttackType)
         {
-          // L'attaquant est un joueur. On diminue la durabilité de son arme
-
-          NwItem weapon;
-
-          switch(attackData.iAttackType)
-          {
-            case 1:
-              weapon = attacker.oid.GetItemInSlot(InventorySlot.RightHand);
-              break;
-            case 2:
-              weapon = attacker.oid.GetItemInSlot(InventorySlot.LeftHand);
-              break;
-              default:
-              return;
-          }
-
-          if (weapon == null)
+          case 1:
+          case 6:
+            weapon = attacker.oid.GetItemInSlot(InventorySlot.RightHand);
+            break;
+          case 2:
+            weapon = attacker.oid.GetItemInSlot(InventorySlot.LeftHand);
+            break;
+          case 7:
+          case 8:
+            weapon = attacker.oid.GetItemInSlot(InventorySlot.Arms);
+            break;
+          default:
             return;
+        }
 
-          int durabilityChance;
+        if (weapon == null)
+          return;
 
-          switch (attackData.iAttackResult)
+        int durabilityChance;
+
+        switch (attackData.iAttackResult)
+        {
+          case 1:
+          case 2:
+          case 5:
+            durabilityChance = 30;
+            break;
+          case 4:
+          case 7:
+            durabilityChance = 20;
+            break;
+          default:
+            return;
+        }
+
+        int dexBonus = attacker.oid.GetAbilityModifier(Ability.Dexterity) - (CreaturePlugin.GetArmorCheckPenalty(attacker.oid) + CreaturePlugin.GetShieldCheckPenalty(attacker.oid));
+        if (dexBonus < 0)
+          dexBonus = 0;
+
+        int safetyLevel = 0;
+        if (attacker.learntCustomFeats.ContainsKey(CustomFeats.CombattantPrecautionneux))
+          safetyLevel += SkillSystem.GetCustomFeatLevelFromSkillPoints(CustomFeats.CombattantPrecautionneux, attacker.learntCustomFeats[CustomFeats.CombattantPrecautionneux]);
+
+        durabilityChance -= dexBonus + safetyLevel;
+
+        if (NwRandom.Roll(Utils.random, 100, 1) < 2 && NwRandom.Roll(Utils.random, 100, 1) < durabilityChance)
+        {
+          weapon.GetLocalVariable<int>("_DURABILITY").Value -= 1;
+          if (weapon.GetLocalVariable<int>("_DURABILITY").Value <= 0)
           {
-            case 1:
-            case 2:
-            case 5:
-              durabilityChance = 20;
-              break;
-            case 4:
-              durabilityChance = 10;
-              break;
-            default:
-              return;
-          }
-
-          int dexBonus = player.oid.GetAbilityModifier(Ability.Dexterity) - (CreaturePlugin.GetArmorCheckPenalty(player.oid) + CreaturePlugin.GetShieldCheckPenalty(player.oid));
-          if (dexBonus < 0)
-            dexBonus = 0;
-
-          durabilityChance -= dexBonus;
-
-          if (NwRandom.Roll(Utils.random, 100, 1) < durabilityChance) // diminuer le pourcentage en fonction des compétences
-          {
-            weapon.GetLocalVariable<int>("_DURABILITY").Value -= 1;
-            if (weapon.GetLocalVariable<int>("_DURABILITY").Value <= 0)
-            {
-              weapon.Destroy();
-              player.oid.SendServerMessage($"Il ne reste plus que des ruines irrécupérables de votre {weapon.Name.ColorString(Color.WHITE)}.", Color.RED);
-            }
+            weapon.Destroy();
+            attacker.oid.SendServerMessage($"Il ne reste plus que des ruines irrécupérables de votre {weapon.Name.ColorString(Color.WHITE)}.", Color.RED);
           }
         }
       }

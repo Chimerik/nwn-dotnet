@@ -199,7 +199,7 @@ namespace NWN.Systems
           break;
 
         case "tannerie":
-          string descriptionLeather = "Stock actuel de planches de cuir tanné : \n\n\n";
+          string descriptionLeather = "Stock actuel de cuir tanné : \n\n\n";
           foreach (var entry in Craft.Collect.Config.leatherDictionnary)
             if (player.materialStock.TryGetValue(entry.Key.ToString(), out int playerStock))
               descriptionLeather += $"* {entry.Key.ToDescription()}: {playerStock}\n\n";
