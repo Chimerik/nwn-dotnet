@@ -31,7 +31,11 @@ namespace NWN.Systems
       if (sender == null)
         return;
 
-      NwPlayer target = ChatPlugin.GetTarget().ToNwObjectSafe<NwPlayer>();
+      NwPlayer target = null;
+
+      if (ChatPlugin.GetTarget() != NWScript.OBJECT_INVALID)
+        target = ChatPlugin.GetTarget().ToNwObjectSafe<NwPlayer>();
+
 
       pipeline.Execute(new Context(
         msg: ChatPlugin.GetMessage(),
@@ -71,48 +75,48 @@ namespace NWN.Systems
     );
     public static void ProcessWriteLogMiddleware(Context ctx, Action next)
     {
-        if (ctx.oTarget != null)
-        {
-          string filename = String.Format("{0:yyyy-MM-dd}_{1}.txt", DateTime.Now, "chatlog");
-          string path = Path.Combine(Environment.GetEnvironmentVariable("HOME") + "/ChatLog", filename);
+      if (ctx.oTarget == null)
+      {
+        string filename = String.Format("{0:yyyy-MM-dd}_{1}.txt", DateTime.Now, "chatlog");
+        string path = Path.Combine(Environment.GetEnvironmentVariable("HOME") + "/ChatLog", filename);
 
-          using (StreamWriter file =
-          new StreamWriter(path, true))
-            file.WriteLineAsync(DateTime.Now.ToShortTimeString() + " - [" + ctx.channel + " - " + ctx.oSender.Area.Name + "] " + NWScript.GetName(ctx.oSender, 1) + " : " + ctx.msg);
+        using (StreamWriter file =
+        new StreamWriter(path, true))
+          file.WriteLineAsync(DateTime.Now.ToShortTimeString() + " - [" + ctx.channel + " - " + ctx.oSender.Area.Name + "] " + NWScript.GetName(ctx.oSender, 1) + " : " + ctx.msg);
+      }
+      else
+      {
+        string filename = $"{ctx.oTarget.PlayerName}_{ctx.oSender.PlayerName}.txt";
+        string path = Path.Combine(Environment.GetEnvironmentVariable("HOME") + "/ChatLog", filename);
+
+        if (!File.Exists(path))
+        {
+          filename = $"{ctx.oSender.PlayerName}_{ctx.oTarget.PlayerName}.txt";
+          path = Path.Combine(Environment.GetEnvironmentVariable("HOME") + "/ChatLog", filename);
+        }
+        using (StreamWriter file =
+        new StreamWriter(path, true))
+          file.WriteLineAsync(DateTime.Now.ToShortDateString() + " " + DateTime.Now.ToShortTimeString() + " - " + ctx.oSender.Name + " To : " + NWScript.GetName(ctx.oTarget, 1) + " : " + ctx.msg);
+      }
+      
+      if (PlayerSystem.Players.TryGetValue(ctx.oSender, out PlayerSystem.Player player) && (player.oid.GetLocalVariable<int>("_PLAYER_INPUT").HasValue || player.oid.GetLocalVariable<int>("_PLAYER_INPUT_STRING").HasValue))
+      {
+        if (Int32.TryParse(ctx.msg, out int value))
+        {
+          player.setValue = value;
+          player.oid.GetLocalVariable<int>("_PLAYER_INPUT").Delete();
+          ChatPlugin.SkipMessage();
+          return;
         }
         else
         {
-          string filename = $"{ctx.oTarget.PlayerName}_{ctx.oSender.PlayerName}.txt";
-          string path = Path.Combine(Environment.GetEnvironmentVariable("HOME") + "/ChatLog", filename);
-
-          if (!File.Exists(path))
-          {
-            filename = $"{ctx.oSender.PlayerName}_{ctx.oTarget.PlayerName}.txt";
-            path = Path.Combine(Environment.GetEnvironmentVariable("HOME") + "/ChatLog", filename);
-          }
-          using (StreamWriter file =
-          new StreamWriter(path, true))
-            file.WriteLineAsync(DateTime.Now.ToShortDateString() + " " + DateTime.Now.ToShortTimeString() + " - " + ctx.oSender.Name + " To : " + NWScript.GetName(ctx.oTarget, 1) + " : " + ctx.msg);
+          player.setString = ctx.msg;
+          player.oid.GetLocalVariable<int>("_PLAYER_INPUT_STRING").Delete();
+          ChatPlugin.SkipMessage();
         }
+      }
 
-        if (PlayerSystem.Players.TryGetValue(ctx.oSender, out PlayerSystem.Player player) && (player.oid.GetLocalVariable<int>("_PLAYER_INPUT").HasValue || player.oid.GetLocalVariable<int>("_PLAYER_INPUT_STRING").HasValue))
-        {
-          if (Int32.TryParse(ctx.msg, out int value))
-          {
-            player.setValue = value;
-            player.oid.GetLocalVariable<int>("_PLAYER_INPUT").Delete();
-            ChatPlugin.SkipMessage();
-            return;
-          }
-          else
-          {
-            player.setString = ctx.msg;
-            player.oid.GetLocalVariable<int>("_PLAYER_INPUT_STRING").Delete();
-            ChatPlugin.SkipMessage();
-          }
-        }
-           
-        next();
+      next();
     }
     public static void ProcessMutePMMiddleware(Context ctx, Action next)
     {
@@ -185,7 +189,7 @@ namespace NWN.Systems
                   else
                   {
                     NwCreature oPossessed = (NwCreature)oDM.GetLocalVariable<NwObject>("_POSSESSING").Value;
-                    if(oPossessed != null)
+                    if (oPossessed != null)
                       ChatPlugin.SendMessage(ChatPlugin.NWNX_CHAT_CHANNEL_PLAYER_TELL, "[COPIE - " + ctx.oSender.Area.Name + "] " + ctx.msg, oInviSender, oPossessed);
                   }
                 }

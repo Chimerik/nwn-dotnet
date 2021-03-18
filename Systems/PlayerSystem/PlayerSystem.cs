@@ -352,7 +352,7 @@ namespace NWN.Systems
       onLevelUp.Player.Xp = 1;
       Utils.LogMessageToDMs($"{onLevelUp.Player.Name} vient d'essayer de level up.");
     }
-    [ScriptHandler("on_client_levelup")]
+    [ScriptHandler("client_lvlup")]
     private void HandleOnClientLevelUp(CallInfo callInfo)
     {
       EventsPlugin.SkipEvent();

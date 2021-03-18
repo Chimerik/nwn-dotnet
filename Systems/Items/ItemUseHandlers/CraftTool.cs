@@ -225,7 +225,7 @@ namespace NWN.Systems
       colorChannelChoice = choice;
       if(LocationTypeColorChoice == 2)
         HandleArmorPartChoice();
-      if (LocationTypeColorChoice == 1)
+      else if (LocationTypeColorChoice == 1)
         ApplyArmorModifications(-2);
       else
         ApplyHelmetCloakModification(-2);
@@ -239,6 +239,9 @@ namespace NWN.Systems
         player.menu.Close();
         return;
       }
+
+      if (modification == -2)
+        player.menu.Clear();
 
       byte currentValue = 0;
 
@@ -348,23 +351,32 @@ namespace NWN.Systems
         }
       }
 
-      player.menu.choices.Add(($"Suivant", () => ApplyArmorModifications(1)));
-      player.menu.choices.Add(($"Précédent.", () => ApplyArmorModifications(-1)));
-
-      if (armorPartChoice == ItemAppearanceArmorModel.LeftBicep || armorPartChoice == ItemAppearanceArmorModel.LeftFoot
-        || armorPartChoice == ItemAppearanceArmorModel.LeftForearm || armorPartChoice == ItemAppearanceArmorModel.LeftHand
-        || armorPartChoice == ItemAppearanceArmorModel.LeftShin || armorPartChoice == ItemAppearanceArmorModel.LeftShoulder
-        || armorPartChoice == ItemAppearanceArmorModel.LeftThigh || armorPartChoice == ItemAppearanceArmorModel.RightBicep
-        || armorPartChoice == ItemAppearanceArmorModel.RightFoot || armorPartChoice == ItemAppearanceArmorModel.RightThigh
-        || armorPartChoice == ItemAppearanceArmorModel.RightForearm || armorPartChoice == ItemAppearanceArmorModel.RightHand
-        || armorPartChoice == ItemAppearanceArmorModel.RightShin || armorPartChoice == ItemAppearanceArmorModel.RightShoulder)
+      if (modification > -2)
       {
-        player.menu.choices.Add(("Copier vers le côté opposé.", () => HandleToSymmetry()));
-        player.menu.choices.Add(("Copier à partir du côté opposé.", () => HandleFromSymmetry()));
+        player.menu.DrawText();
       }
+      else
+      {
+        player.menu.choices.Add(($"Suivant", () => ApplyArmorModifications(1)));
+        player.menu.choices.Add(($"Précédent.", () => ApplyArmorModifications(-1)));
 
-      player.menu.choices.Add(("Retour.", () => DrawArmorModificationMenu()));
-      player.menu.choices.Add(("Quitter.", () => player.menu.Close()));
+        if (armorPartChoice == ItemAppearanceArmorModel.LeftBicep || armorPartChoice == ItemAppearanceArmorModel.LeftFoot
+          || armorPartChoice == ItemAppearanceArmorModel.LeftForearm || armorPartChoice == ItemAppearanceArmorModel.LeftHand
+          || armorPartChoice == ItemAppearanceArmorModel.LeftShin || armorPartChoice == ItemAppearanceArmorModel.LeftShoulder
+          || armorPartChoice == ItemAppearanceArmorModel.LeftThigh || armorPartChoice == ItemAppearanceArmorModel.RightBicep
+          || armorPartChoice == ItemAppearanceArmorModel.RightFoot || armorPartChoice == ItemAppearanceArmorModel.RightThigh
+          || armorPartChoice == ItemAppearanceArmorModel.RightForearm || armorPartChoice == ItemAppearanceArmorModel.RightHand
+          || armorPartChoice == ItemAppearanceArmorModel.RightShin || armorPartChoice == ItemAppearanceArmorModel.RightShoulder)
+        {
+          player.menu.choices.Add(("Copier vers le côté opposé.", () => HandleToSymmetry()));
+          player.menu.choices.Add(("Copier à partir du côté opposé.", () => HandleFromSymmetry()));
+        }
+
+        player.menu.choices.Add(("Retour.", () => DrawArmorModificationMenu()));
+        player.menu.choices.Add(("Quitter.", () => player.menu.Close()));
+
+        player.menu.Draw();
+      }
 
       Task waitPlayerInput = NwTask.Run(async () =>
       {
@@ -374,16 +386,6 @@ namespace NWN.Systems
         ApplyArmorModifications(player.setValue);
         player.setValue = Config.invalidInput;
       });
-
-      if (modification > -2)
-      {
-        player.menu.titleLines[player.menu.titleLines.Count] = $"Couleur actuelle : {currentValue.ToString().ColorString(Color.LIME)}";
-      }
-      else
-      {
-        player.menu.Clear();
-        player.menu.Draw();
-      }
     }
     private void HandleToSymmetry()
     {
@@ -847,7 +849,8 @@ namespace NWN.Systems
     }
     private void ApplyWeaponModifications(int modification)
     {
-      player.menu.Clear();
+      if(modification == -2)
+        player.menu.Clear();
 
       if (item == null || item.Possessor != player.oid)
       {
@@ -943,11 +946,20 @@ namespace NWN.Systems
         player.menu.titleLines.Add($"Modèle actuel : {currentValue.ToString().ColorString(Color.LIME)}");
       }
 
-      player.menu.choices.Add(($"Suivant", () => ApplyWeaponModifications(1)));
-      player.menu.choices.Add(($"Précédent.", () => ApplyWeaponModifications(-1)));
+      if (modification > -2)
+      {
+        player.menu.DrawText();
+      }
+      else
+      {
+        player.menu.choices.Add(($"Suivant", () => ApplyWeaponModifications(1)));
+        player.menu.choices.Add(($"Précédent.", () => ApplyWeaponModifications(-1)));
 
-      player.menu.choices.Add(("Retour.", () => DrawWeaponModificationMenu()));
-      player.menu.choices.Add(("Quitter.", () => player.menu.Close()));
+        player.menu.choices.Add(("Retour.", () => DrawWeaponModificationMenu()));
+        player.menu.choices.Add(("Quitter.", () => player.menu.Close()));
+
+        player.menu.Draw();
+      }
 
       Task waitPlayerInput = NwTask.Run(async () =>
       {
@@ -957,8 +969,6 @@ namespace NWN.Systems
         ApplyWeaponModifications(player.setValue);
         player.setValue = Config.invalidInput;
       });
-      
-      player.menu.Draw();
     }
     private void DrawSimpleModificationMenu()
     {
@@ -977,7 +987,8 @@ namespace NWN.Systems
     }
     private void ApplySimpleModification(int modification)
     {
-      player.menu.Clear();
+      if(modification == -2)
+        player.menu.Clear();
 
       if (item == null || item.Possessor != player.oid)
       {
@@ -1027,13 +1038,22 @@ namespace NWN.Systems
         });
       }
 
-      player.menu.titleLines.Add($"Modèle actuel : {currentValue.ToString().ColorString(Color.LIME)}");
+      if (modification > 2)
+      {
+        player.menu.DrawText();
+      }
+      else
+      {
+        player.menu.titleLines.Add($"Modèle actuel : {currentValue.ToString().ColorString(Color.LIME)}");
 
-      player.menu.choices.Add(($"Suivant", () => ApplySimpleModification(1)));
-      player.menu.choices.Add(($"Précédent.", () => ApplySimpleModification(-1)));
+        player.menu.choices.Add(($"Suivant", () => ApplySimpleModification(1)));
+        player.menu.choices.Add(($"Précédent.", () => ApplySimpleModification(-1)));
 
-      player.menu.choices.Add(("Retour.", () => DrawSimpleModificationMenu()));
-      player.menu.choices.Add(("Quitter.", () => player.menu.Close()));
+        player.menu.choices.Add(("Retour.", () => DrawSimpleModificationMenu()));
+        player.menu.choices.Add(("Quitter.", () => player.menu.Close()));
+
+        player.menu.Draw();
+      }
 
       Task waitPlayerInput = NwTask.Run(async () =>
       {
@@ -1043,8 +1063,6 @@ namespace NWN.Systems
         ApplySimpleModification(player.setValue);
         player.setValue = Config.invalidInput;
       });
-
-      player.menu.Draw();
     }
     private void DrawHelmetCloakModificationMenu()
     {
@@ -1067,7 +1085,8 @@ namespace NWN.Systems
     }
     private void ApplyHelmetCloakModification(int modification)
     {
-      player.menu.Clear();
+      if(modification == -2)
+        player.menu.Clear();
 
       if (item == null || item.Possessor != player.oid)
       {
@@ -1158,11 +1177,20 @@ namespace NWN.Systems
         player.menu.titleLines.Add($"Modèle actuel : {currentValue.ToString().ColorString(Color.LIME)}");
       }
 
-      player.menu.choices.Add(($"Suivant", () => ApplyHelmetCloakModification(1)));
-      player.menu.choices.Add(($"Précédent.", () => ApplyHelmetCloakModification(-1)));
+      if (modification > -2)
+      {
+        player.menu.DrawText();
+      }
+      else
+      {
+        player.menu.choices.Add(($"Suivant", () => ApplyHelmetCloakModification(1)));
+        player.menu.choices.Add(($"Précédent.", () => ApplyHelmetCloakModification(-1)));
 
-      player.menu.choices.Add(("Retour.", () => DrawArmorModificationMenu()));
-      player.menu.choices.Add(("Quitter.", () => player.menu.Close()));
+        player.menu.choices.Add(("Retour.", () => DrawArmorModificationMenu()));
+        player.menu.choices.Add(("Quitter.", () => player.menu.Close()));
+
+        player.menu.Draw();
+      }
 
       Task waitPlayerInput = NwTask.Run(async () =>
       {
@@ -1172,8 +1200,6 @@ namespace NWN.Systems
         ApplyHelmetCloakModification(player.setValue);
         player.setValue = Config.invalidInput;
       });
-
-      player.menu.Draw();
     }
   }
 }

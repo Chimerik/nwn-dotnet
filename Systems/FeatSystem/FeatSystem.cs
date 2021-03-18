@@ -27,7 +27,7 @@ namespace NWN.Systems
       if (!PlayerSystem.Players.TryGetValue(player, out PlayerSystem.Player oPC))
         return;
 
-      Log.Info($"{oPC.oid.Name} used feat {(onUseFeat.Feat).ToString()}");
+      //Log.Info($"{oPC.oid.Name} used feat {onUseFeat.Feat}");
 
       switch (onUseFeat.Feat)
       {

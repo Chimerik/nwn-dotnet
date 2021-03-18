@@ -213,7 +213,7 @@ namespace NWN.Systems
       EventsPlugin.SubscribeEvent("NWNX_ON_INPUT_EMOTE_BEFORE", "on_input_emote");
 
       EventsPlugin.SubscribeEvent("NWNX_ON_ELC_VALIDATE_CHARACTER_BEFORE", "before_elc");
-      EventsPlugin.SubscribeEvent("NWNX_ON_CLIENT_LEVEL_UP_BEGIN_BEFORE", "on_client_levelup");
+      EventsPlugin.SubscribeEvent("NWNX_ON_CLIENT_LEVEL_UP_BEGIN_BEFORE", "client_lvlup");
 
       DamagePlugin.SetAttackEventScript("on_attack");
 

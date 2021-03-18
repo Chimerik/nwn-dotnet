@@ -52,7 +52,7 @@ namespace NWN.Systems
       foreach (KeyValuePair<Feat, Skill> SkillListEntry in player.learnableSkills.OrderByDescending(key => key.Value.currentJob).Skip(page).Take(_PAGINATION))
       {
         Skill skill = SkillListEntry.Value;
-
+        
         if (!skill.trained)
         {
           if(skill.currentJob)
@@ -149,7 +149,7 @@ namespace NWN.Systems
       player.menu.choices.Add(("Quitter", () => __HandleClose(player)));
       player.menu.Draw();
     }
-    private static void __HandleSkillSelection(PlayerSystem.Player player, SkillSystem.Skill SelectedSkill)
+    private static void __HandleSkillSelection(PlayerSystem.Player player, Skill SelectedSkill)
     {
       if (player.currentSkillJob != (int)CustomFeats.Invalid)
       {

@@ -156,6 +156,8 @@ namespace NWN.Systems
       player.dateLastSaved = DateTime.Now;
       player.setValue = Config.invalidInput;
       player.setString = "";
+
+
       Log.Info("End of player init.");
     }
     private static void InitializeNewPlayer(NwPlayer newPlayer)
@@ -212,10 +214,11 @@ namespace NWN.Systems
         (Bot._client.GetChannel(680072044364562532) as IMessageChannel).SendMessageAsync($"{newCharacter.oid.PlayerName} vient de créer un nouveau personnage : {newCharacter.oid.Name}");
 
       int startingSP = 5000;
-      if (Convert.ToBoolean(CreaturePlugin.GetKnowsFeat(newCharacter.oid, (int)Feat.QuickToMaster)))
+      if (newCharacter.oid.KnowsFeat(Feat.QuickToMaster))
         startingSP += 500;
 
       ObjectPlugin.SetInt(newCharacter.oid, "_STARTING_SKILL_POINTS", startingSP, 1);
+      ObjectPlugin.SetInt(newCharacter.oid, "_REINIT_DONE", 1, 1);
 
       NwArea arrivalArea;
       NwWaypoint arrivalPoint = null;
@@ -368,18 +371,12 @@ namespace NWN.Systems
     }
     private static void InitializePlayerCharacter(Player player)
     {
-      Log.Info("Initialisation from database");
-
       var query = NWScript.SqlPrepareQueryCampaign(Config.database, $"SELECT areaTag, position, facing, currentHP, bankGold, dateLastSaved, currentSkillJob, currentCraftJob, currentCraftObject, currentCraftJobRemainingTime, currentCraftJobMaterial, frostAttackOn, menuOriginTop, menuOriginLeft, currentSkillType from playerCharacters where rowid = @characterId");
       NWScript.SqlBindInt(query, "@characterId", player.characterId);
       NWScript.SqlStep(query);
-      Log.Info($"got current craft job : {NWScript.SqlGetInt(query, 7)}");
       player.playerJournal = new PlayerJournal();
       player.loadedQuickBar = QuickbarType.Invalid;
       player.location = Utils.GetLocationFromDatabase(NWScript.SqlGetString(query, 0), NWScript.SqlGetVector(query, 1), NWScript.SqlGetFloat(query, 2));
-
-      Log.Info($"got location : {player.location.Area}");
-
       player.currentHP = NWScript.SqlGetInt(query, 3);
       player.bankGold = NWScript.SqlGetInt(query, 4);
       player.dateLastSaved = DateTime.Parse(NWScript.SqlGetString(query, 5));
@@ -390,6 +387,9 @@ namespace NWN.Systems
       player.menu.originLeft = NWScript.SqlGetInt(query, 13);
       player.currentSkillType = (SkillSystem.SkillType)NWScript.SqlGetInt(query, 14);
 
+      if (ObjectPlugin.GetInt(player.oid, "_REINIT_DONE") == 0 && player.currentSkillType == SkillSystem.SkillType.Skill)
+        player.currentSkillJob = (int)CustomFeats.Invalid;
+
       query = NWScript.SqlPrepareQueryCampaign(Config.database, $"SELECT materialName, materialStock from playerMaterialStorage where characterId = @characterId");
       NWScript.SqlBindInt(query, "@characterId", player.characterId);
 
@@ -398,20 +398,67 @@ namespace NWN.Systems
     }
     private static void InitializePlayerLearnableSkills(Player player)
     {
-      var query = NWScript.SqlPrepareQueryCampaign(Config.database, $"SELECT skillId, skillPoints, trained from playerLearnableSkills where characterId = @characterId");
+      // TEMP REINIT POUR JOUEURS EXISTANTS AVANT LE NOUVEAU SYSTEME DE DONS
+      if (ObjectPlugin.GetInt(player.oid, "_REINIT_DONE") == 0)
+        TempFeatReinit(player);
+      else
+      {
+        var query = NWScript.SqlPrepareQueryCampaign(Config.database, $"SELECT skillId, skillPoints, trained from playerLearnableSkills where characterId = @characterId");
+        NWScript.SqlBindInt(query, "@characterId", player.characterId);
+
+        while (Convert.ToBoolean(NWScript.SqlStep(query)))
+        {
+          Feat skillId = (Feat)NWScript.SqlGetInt(query, 0);
+          int currentSkillPoints = NWScript.SqlGetInt(query, 1);
+
+          if (NWScript.SqlGetInt(query, 2) == 0)
+            player.learnableSkills.Add(skillId, new SkillSystem.Skill(skillId, currentSkillPoints, player));
+
+          if (SkillSystem.customFeatsDictionnary.ContainsKey(skillId))
+            player.learntCustomFeats.Add(skillId, currentSkillPoints);
+        }
+      }
+    }
+    private static void TempFeatReinit(Player player)
+    {
+      Log.Info("starting temp feat reinit");
+
+      var query = NWScript.SqlPrepareQueryCampaign(Config.database, $"SELECT skillPoints from playerLearnableSkills where characterId = @characterId");
       NWScript.SqlBindInt(query, "@characterId", player.characterId);
 
-      while (Convert.ToBoolean(NWScript.SqlStep(query)))
-      {
-        Feat skillId = (Feat)NWScript.SqlGetInt(query, 0);
-        int currentSkillPoints = NWScript.SqlGetInt(query, 1);
-
-        if (NWScript.SqlGetInt(query, 2) == 0)
-          player.learnableSkills.Add(skillId, new SkillSystem.Skill(skillId, currentSkillPoints, player));
+      int skillPoints = 0;
       
-        if(SkillSystem.customFeatsDictionnary.ContainsKey(skillId))
-          player.learntCustomFeats.Add(skillId, currentSkillPoints);
+      for(int i = 0; i < CreaturePlugin.GetFeatCount(player.oid); i++)
+      {
+        int feat = CreaturePlugin.GetFeatByIndex(player.oid, i);
+
+        if (feat != (int)Feat.KeenSense && feat != (int)Feat.QuickToMaster && feat != (int)Feat.Lucky && feat != (int)Feat.BattleTrainingVersusGiants && feat != (int)Feat.BattleTrainingVersusGoblins && feat != (int)Feat.BattleTrainingVersusOrcs && feat != (int)Feat.BattleTrainingVersusReptilians && feat != (int)Feat.Darkvision && feat != (int)Feat.Lowlightvision && feat != (int)Feat.Fearless && feat != (int)Feat.GoodAim && feat != (int)Feat.HardinessVersusEnchantments && feat != (int)Feat.HardinessVersusIllusions && feat != (int)Feat.HardinessVersusPoisons && feat != (int)Feat.HardinessVersusSpells && feat != (int)Feat.ImmunityToSleep && feat != (int)Feat.PartialSkillAffinityListen && feat != (int)Feat.PartialSkillAffinitySearch && feat != (int)Feat.PartialSkillAffinitySpot && feat != (int)Feat.SkillAffinityConcentration
+           && feat != (int)Feat.SkillAffinityListen && feat != (int)Feat.SkillAffinityLore && feat != (int)Feat.SkillAffinityMoveSilently && feat != (int)Feat.SkillAffinitySearch && feat != (int)Feat.SkillAffinitySpot && feat != (int)Feat.Stonecunning && feat != (int)Feat.WeaponProficiencyElf)
+        {
+          Task waitLoopEndToRemove = NwTask.Run(async () =>
+          {
+            await NwTask.Delay(TimeSpan.FromSeconds(0.1f));
+            CreaturePlugin.RemoveFeat(player.oid, feat);
+          });
+        }
       }
+
+      while (Convert.ToBoolean(NWScript.SqlStep(query)))
+        skillPoints += NWScript.SqlGetInt(query, 0);
+
+      query = NWScript.SqlPrepareQueryCampaign(Config.database, $"DELETE from playerLearnableSkills where characterId = @characterId");
+      NWScript.SqlBindInt(query, "@characterId", player.characterId);
+      NWScript.SqlStep(query);
+
+      skillPoints += 5000;
+
+      if (player.oid.KnowsFeat(Feat.QuickToMaster))
+        skillPoints += 500;
+
+      InitializeNewPlayerLearnableSkills(player);
+
+      ObjectPlugin.SetInt(player.oid, "_STARTING_SKILL_POINTS", skillPoints, 1);
+      ObjectPlugin.SetInt(player.oid, "_REINIT_DONE", 1, 1);
     }
     private static void InitializePlayerLearnableSpells(Player player)
     {

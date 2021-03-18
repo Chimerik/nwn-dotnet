@@ -268,23 +268,23 @@ namespace NWN.Systems
       switch(feat)
       {
         case CustomFeats.ImprovedStrength:
-          CreaturePlugin.ModifyRawAbilityScore(player.oid, (int)Ability.Strength, player.oid.GetAbilityScore(Ability.Strength, true) + 1);
+          CreaturePlugin.ModifyRawAbilityScore(player.oid, (int)Ability.Strength, 1);
           break;
         case CustomFeats.ImprovedDexterity:
-          CreaturePlugin.ModifyRawAbilityScore(player.oid, (int)Ability.Dexterity, player.oid.GetAbilityScore(Ability.Dexterity, true) + 1);
+          CreaturePlugin.ModifyRawAbilityScore(player.oid, (int)Ability.Dexterity, 1);
           break;
         case CustomFeats.ImprovedConstitution:
-          CreaturePlugin.ModifyRawAbilityScore(player.oid, (int)Ability.Constitution, player.oid.GetAbilityScore(Ability.Constitution, true) + 1);
+          CreaturePlugin.ModifyRawAbilityScore(player.oid, (int)Ability.Constitution, 1);
           HandleHealthPoints(player, feat);
           break;
         case CustomFeats.ImprovedIntelligence:
-          CreaturePlugin.ModifyRawAbilityScore(player.oid, (int)Ability.Intelligence, player.oid.GetAbilityScore(Ability.Intelligence, true) + 1);
+          CreaturePlugin.ModifyRawAbilityScore(player.oid, (int)Ability.Intelligence, 1);
           break;
         case CustomFeats.ImprovedWisdom:
-          CreaturePlugin.ModifyRawAbilityScore(player.oid, (int)Ability.Wisdom, player.oid.GetAbilityScore(Ability.Wisdom, true) + 1);
+          CreaturePlugin.ModifyRawAbilityScore(player.oid, (int)Ability.Wisdom, 1);
           break;
         case CustomFeats.ImprovedCharisma:
-          CreaturePlugin.ModifyRawAbilityScore(player.oid, (int)Ability.Charisma, player.oid.GetAbilityScore(Ability.Charisma, true) + 1);
+          CreaturePlugin.ModifyRawAbilityScore(player.oid, (int)Ability.Charisma, 1);
           break;
       }
 
@@ -452,7 +452,7 @@ namespace NWN.Systems
       int multiplier = 1;
       int.TryParse(NWScript.Get2DAString("feat", "CRValue", (int)feat), out multiplier);
 
-      return (int)(1 + (Math.Log(currentSkillPoints / 250 * multiplier)) / (Math.Log(Math.Sqrt(32))));
+      return (int)(Math.Log(currentSkillPoints / 250 * multiplier) / Math.Log(Math.Sqrt(32)));
     }
   }
 }

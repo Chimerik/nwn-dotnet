@@ -39,9 +39,9 @@ namespace NWN.Systems
           name = customFeatsDictionnary[Id].name;
           description = customFeatsDictionnary[Id].description;
           if (player.learntCustomFeats.ContainsKey(Id))
-            currentLevel = GetCustomFeatLevelFromSkillPoints(Id, player.learntCustomFeats[Id]);
+            currentLevel = GetCustomFeatLevelFromSkillPoints(Id, (int)SP);
           else
-            currentLevel = 1;
+            currentLevel = 0;
         }
         else
         {
@@ -72,9 +72,6 @@ namespace NWN.Systems
           else
             this.currentLevel = 1;
         }
-
-        if (currentLevel < 1)
-          currentLevel = 1;
 
         if (int.TryParse(NWScript.Get2DAString("feat", "CRValue", (int)Id), out value))
           this.multiplier = value;
@@ -114,10 +111,10 @@ namespace NWN.Systems
           Utils.LogMessageToDMs($"SKILL SYSTEM ERROR - Skill {this.oid} : Secondary ability not set");
         }
 
-        this.pointsToNextLevel = 250 * this.multiplier * (int)Math.Pow(Math.Sqrt(32), this.currentLevel - 1);
+        this.pointsToNextLevel = 250 * this.multiplier * (int)Math.Pow(Math.Sqrt(32), this.currentLevel);
 
         //if (Config.env == Config.Env.Chim)
-          //pointsToNextLevel = 10;
+        //pointsToNextLevel = 10;
 
         if (this.player.currentSkillJob == (int)oid)
         {
@@ -133,7 +130,6 @@ namespace NWN.Systems
       }
       public void CreateSkillJournalEntry()
       {
-        Log.Info("Calculating Skill Points from Create journal entry");
         player.playerJournal.skillJobCountDown = DateTime.Now.AddSeconds(this.GetTimeToNextLevel(CalculateSkillPointsPerSecond()));
         JournalEntry journalEntry = new JournalEntry();
         journalEntry.sName = $"Entrainement - {Utils.StripTimeSpanMilliseconds((TimeSpan)(player.playerJournal.skillJobCountDown - DateTime.Now))}";
@@ -204,6 +200,22 @@ namespace NWN.Systems
       }
       public void RefreshAcquiredSkillPoints()
       {
+        int pooledPoints = ObjectPlugin.GetInt(player.oid, "_STARTING_SKILL_POINTS");
+        
+        if (pooledPoints > 0)
+        {
+          if (pooledPoints > pointsToNextLevel)
+          {
+            ObjectPlugin.SetInt(player.oid, "_STARTING_SKILL_POINTS", pooledPoints - pointsToNextLevel, 1);
+            acquiredPoints += pointsToNextLevel;
+          }
+          else
+          {
+            acquiredPoints += pooledPoints;
+            ObjectPlugin.DeleteInt(player.oid, "_STARTING_SKILL_POINTS");
+          }
+        }
+
         double skillPointRate = CalculateSkillPointsPerSecond();
         acquiredPoints += skillPointRate * (DateTime.Now - player.dateLastSaved).TotalSeconds;
         double remainingTime = GetTimeToNextLevel(skillPointRate);
@@ -216,7 +228,7 @@ namespace NWN.Systems
       {
         if (player.menu.isOpen)
           player.menu.Close();
-
+       
         if(customFeatsDictionnary.ContainsKey(oid)) // Il s'agit d'un Custom Feat
         {
           if (player.learntCustomFeats.ContainsKey(oid))
@@ -226,8 +238,9 @@ namespace NWN.Systems
 
           string customFeatName = customFeatsDictionnary[oid].name;
           name = customFeatName;
-          currentLevel += 1;
-          pointsToNextLevel = 250 * this.multiplier * (int)Math.Pow(Math.Sqrt(32), this.currentLevel - 1);
+
+          currentLevel = SkillSystem.GetCustomFeatLevelFromSkillPoints(oid, (int)acquiredPoints);
+          pointsToNextLevel = 250 * this.multiplier * (int)Math.Pow(Math.Sqrt(32), this.currentLevel);
 
           if (int.TryParse(NWScript.Get2DAString("feat", "FEAT", (int)oid), out int nameValue))
             player.oid.SetTlkOverride(nameValue, $"{customFeatName} - {currentLevel}");
@@ -272,6 +285,7 @@ namespace NWN.Systems
 
         player.currentSkillJob = (int)CustomFeats.Invalid;
         player.currentSkillType = SkillType.Invalid;
+        currentJob = false;
 
         player.oid.ExportCharacter();
       }

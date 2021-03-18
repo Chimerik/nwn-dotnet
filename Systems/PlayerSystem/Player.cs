@@ -351,6 +351,21 @@ namespace NWN.Systems
           case SkillType.Skill:
             if (this.learnableSkills.TryGetValue((Feat)currentSkillJob, out Skill skill))
             {
+              int pooledPoints = ObjectPlugin.GetInt(oid, "_STARTING_SKILL_POINTS");
+              if (pooledPoints > 0)
+              {
+                if (pooledPoints > skill.pointsToNextLevel)
+                {
+                  ObjectPlugin.SetInt(oid, "_STARTING_SKILL_POINTS", pooledPoints - skill.pointsToNextLevel, 1);
+                  skill.acquiredPoints += skill.pointsToNextLevel;
+                }
+                else
+                {
+                  skill.acquiredPoints += pooledPoints;
+                  ObjectPlugin.DeleteInt(oid, "_STARTING_SKILL_POINTS");
+                }
+              }
+
               double skillPointRate = skill.CalculateSkillPointsPerSecond();
               skill.acquiredPoints += skillPointRate * (DateTime.Now - this.dateLastSaved).TotalSeconds;
               double RemainingTime = skill.GetTimeToNextLevel(skillPointRate);
