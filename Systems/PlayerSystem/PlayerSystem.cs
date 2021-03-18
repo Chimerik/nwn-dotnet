@@ -350,7 +350,13 @@ namespace NWN.Systems
     private void CancelPlayerLevelUp(ModuleEvents.OnPlayerLevelUp onLevelUp)
     {
       onLevelUp.Player.Xp = 1;
-      Utils.LogMessageToDMs($"{onLevelUp.Player} vient d'essayer de level up.");
+      Utils.LogMessageToDMs($"{onLevelUp.Player.Name} vient d'essayer de level up.");
+    }
+    [ScriptHandler("on_client_levelup")]
+    private void HandleOnClientLevelUp(CallInfo callInfo)
+    {
+      EventsPlugin.SkipEvent();
+      Utils.LogMessageToDMs($"{callInfo.ObjectSelf.Name} vient d'essayer de level up.");
     }
 
     /*public static Dictionary<string, Func<uint, int>> Register = new Dictionary<string, Func<uint, int>>

@@ -233,14 +233,14 @@ namespace NWN.Systems
 
     private void ApplyArmorModifications(int modification)
     {
-      player.menu.Clear();
-
       if(item == null || item.Possessor != player.oid)
       {
         player.oid.SendServerMessage($"L'objet que vous essayez de modifier n'existe plus ou n'est plus en votre possession.", Color.RED);
         player.menu.Close();
         return;
       }
+
+      byte currentValue = 0;
 
       if (LocationTypeColorChoice > 0)
       {
@@ -251,7 +251,7 @@ namespace NWN.Systems
 
         if(LocationTypeColorChoice == 1)
         {
-          byte currentValue = item.Appearance.GetArmorColor((ItemAppearanceArmorColor)colorChannelChoice);
+          currentValue = item.Appearance.GetArmorColor((ItemAppearanceArmorColor)colorChannelChoice);
 
           if (modification > -2)
           {
@@ -289,7 +289,7 @@ namespace NWN.Systems
         }
         else
         {
-          byte currentValue = item.Appearance.GetArmorPieceColor((ItemAppearanceArmorModel)armorPartChoice, (ItemAppearanceArmorColor)colorChannelChoice);
+          currentValue = item.Appearance.GetArmorPieceColor((ItemAppearanceArmorModel)armorPartChoice, (ItemAppearanceArmorColor)colorChannelChoice);
 
           HandleFeedbackMessages(1);
 
@@ -350,7 +350,6 @@ namespace NWN.Systems
 
       player.menu.choices.Add(($"Suivant", () => ApplyArmorModifications(1)));
       player.menu.choices.Add(($"Précédent.", () => ApplyArmorModifications(-1)));
-      player.menu.choices.Add(($"Retirer.", () => ApplyArmorModifications(0)));
 
       if (armorPartChoice == ItemAppearanceArmorModel.LeftBicep || armorPartChoice == ItemAppearanceArmorModel.LeftFoot
         || armorPartChoice == ItemAppearanceArmorModel.LeftForearm || armorPartChoice == ItemAppearanceArmorModel.LeftHand
@@ -376,7 +375,15 @@ namespace NWN.Systems
         player.setValue = Config.invalidInput;
       });
 
-      player.menu.Draw();
+      if (modification > -2)
+      {
+        player.menu.titleLines[player.menu.titleLines.Count] = $"Couleur actuelle : {currentValue.ToString().ColorString(Color.LIME)}";
+      }
+      else
+      {
+        player.menu.Clear();
+        player.menu.Draw();
+      }
     }
     private void HandleToSymmetry()
     {
@@ -938,7 +945,6 @@ namespace NWN.Systems
 
       player.menu.choices.Add(($"Suivant", () => ApplyWeaponModifications(1)));
       player.menu.choices.Add(($"Précédent.", () => ApplyWeaponModifications(-1)));
-      player.menu.choices.Add(($"Retirer.", () => ApplyWeaponModifications(0)));
 
       player.menu.choices.Add(("Retour.", () => DrawWeaponModificationMenu()));
       player.menu.choices.Add(("Quitter.", () => player.menu.Close()));
@@ -1025,7 +1031,6 @@ namespace NWN.Systems
 
       player.menu.choices.Add(($"Suivant", () => ApplySimpleModification(1)));
       player.menu.choices.Add(($"Précédent.", () => ApplySimpleModification(-1)));
-      player.menu.choices.Add(($"Retirer.", () => ApplySimpleModification(0)));
 
       player.menu.choices.Add(("Retour.", () => DrawSimpleModificationMenu()));
       player.menu.choices.Add(("Quitter.", () => player.menu.Close()));
@@ -1155,7 +1160,6 @@ namespace NWN.Systems
 
       player.menu.choices.Add(($"Suivant", () => ApplyHelmetCloakModification(1)));
       player.menu.choices.Add(($"Précédent.", () => ApplyHelmetCloakModification(-1)));
-      player.menu.choices.Add(($"Retirer.", () => ApplyHelmetCloakModification(0)));
 
       player.menu.choices.Add(("Retour.", () => DrawArmorModificationMenu()));
       player.menu.choices.Add(("Quitter.", () => player.menu.Close()));

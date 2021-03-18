@@ -343,6 +343,22 @@ namespace NWN.Systems
         )
       },
       {
+        "saveapparence",
+        new Command(
+          name: "saveapparence",
+          description: new Command.Description(title: "Permet de sauvegarder l'apparence de l'objet sélectionné."),
+          execute: ExecuteSaveAppearanceCommand
+        )
+      },
+      {
+        "restoreapparence",
+        new Command(
+          name: "restoreapparence",
+          description: new Command.Description(title: "Permet d'appliquer une apparence d'objet sauvegardée à l'object sélectionné."),
+          execute: ExecuteLoadAppearanceCommand
+        )
+      },
+      {
         "resetpos",
         new Command(
           name: "resetpos",
