@@ -98,11 +98,19 @@ namespace NWN.Systems
         new StreamWriter(path, true))
           file.WriteLineAsync(DateTime.Now.ToShortDateString() + " " + DateTime.Now.ToShortTimeString() + " - " + ctx.oSender.Name + " To : " + NWScript.GetName(ctx.oTarget, 1) + " : " + ctx.msg);
       }
-      
-      if (PlayerSystem.Players.TryGetValue(ctx.oSender, out PlayerSystem.Player player) && (player.oid.GetLocalVariable<int>("_PLAYER_INPUT").HasValue || player.oid.GetLocalVariable<int>("_PLAYER_INPUT_STRING").HasValue))
+
+      /*Log.Info($"int hasValue : {ctx.oSender.GetLocalVariable<int>("_PLAYER_INPUT").HasValue}");
+      Log.Info($"string hasValue: {ctx.oSender.GetLocalVariable<int>("_PLAYER_INPUT_STRING").HasValue}");
+      Log.Info($"int hasNothing : {ctx.oSender.GetLocalVariable<int>("_PLAYER_INPUT").HasNothing}");
+      Log.Info($"string hasNothing: {ctx.oSender.GetLocalVariable<int>("_PLAYER_INPUT_STRING").HasNothing}");
+      Log.Info($"int Value : {ctx.oSender.GetLocalVariable<int>("_PLAYER_INPUT").Value}");
+      Log.Info($"string Value: {ctx.oSender.GetLocalVariable<int>("_PLAYER_INPUT_STRING").Value}");*/
+
+      if (PlayerSystem.Players.TryGetValue(ctx.oSender, out PlayerSystem.Player player) && (ctx.oSender.GetLocalVariable<int>("_PLAYER_INPUT").HasValue || ctx.oSender.GetLocalVariable<int>("_PLAYER_INPUT_STRING").HasValue))
       {
         if (Int32.TryParse(ctx.msg, out int value))
         {
+          Log.Info($"listened value : {value}");
           player.setValue = value;
           player.oid.GetLocalVariable<int>("_PLAYER_INPUT").Delete();
           ChatPlugin.SkipMessage();
@@ -110,6 +118,7 @@ namespace NWN.Systems
         }
         else
         {
+          Log.Info($"listened string : {ctx.msg}");
           player.setString = ctx.msg;
           player.oid.GetLocalVariable<int>("_PLAYER_INPUT_STRING").Delete();
           ChatPlugin.SkipMessage();

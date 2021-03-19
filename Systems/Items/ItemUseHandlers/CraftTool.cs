@@ -19,6 +19,7 @@ namespace NWN.Systems
     ItemAppearanceWeaponModel? weaponPartChoice;
     ItemAppearanceWeaponColor? weaponColorChoice;
     string serializedInitialItem;
+    string file;
     List<ItemAppearanceArmorColor> colorChannelList;
 
     public CraftTool(PlayerSystem.Player player, NwItem item)
@@ -141,34 +142,35 @@ namespace NWN.Systems
         $"Quelle partie de l'armure souhaitez-vous modifier ?"
       };
 
-      player.menu.choices.Add(($"Robe", () => ValidateArmorPartChoice(ItemAppearanceArmorModel.Robe)));
-      player.menu.choices.Add(($"Cou", () => ValidateArmorPartChoice(ItemAppearanceArmorModel.Neck)));
-      player.menu.choices.Add(($"Torse", () => ValidateArmorPartChoice(ItemAppearanceArmorModel.Torso)));
-      player.menu.choices.Add(($"Pelvis", () => ValidateArmorPartChoice(ItemAppearanceArmorModel.Pelvis)));
-      player.menu.choices.Add(($"Ceinture", () => ValidateArmorPartChoice(ItemAppearanceArmorModel.Belt)));
-      player.menu.choices.Add(($"Epaule gauche", () => ValidateArmorPartChoice(ItemAppearanceArmorModel.LeftShoulder)));
-      player.menu.choices.Add(($"Epaule droite", () => ValidateArmorPartChoice(ItemAppearanceArmorModel.RightShoulder)));
-      player.menu.choices.Add(($"Biceps gauche.", () => ValidateArmorPartChoice(ItemAppearanceArmorModel.LeftBicep)));
-      player.menu.choices.Add(($"Biceps droit.", () => ValidateArmorPartChoice(ItemAppearanceArmorModel.RightBicep)));
-      player.menu.choices.Add(($"Avant-bras gauche.", () => ValidateArmorPartChoice(ItemAppearanceArmorModel.LeftForearm)));
-      player.menu.choices.Add(($"Avant-bras droit.", () => ValidateArmorPartChoice(ItemAppearanceArmorModel.RightForearm)));
-      player.menu.choices.Add(($"Main gauche.", () => ValidateArmorPartChoice(ItemAppearanceArmorModel.LeftHand)));
-      player.menu.choices.Add(($"Main droite.", () => ValidateArmorPartChoice(ItemAppearanceArmorModel.RightHand)));
-      player.menu.choices.Add(($"Cuisse gauche.", () => ValidateArmorPartChoice(ItemAppearanceArmorModel.LeftThigh)));
-      player.menu.choices.Add(($"Cuisse droite.", () => ValidateArmorPartChoice(ItemAppearanceArmorModel.RightThigh)));
-      player.menu.choices.Add(($"Tibia gauche.", () => ValidateArmorPartChoice(ItemAppearanceArmorModel.LeftShin)));
-      player.menu.choices.Add(($"Tibia droit.", () => ValidateArmorPartChoice(ItemAppearanceArmorModel.RightShin)));
-      player.menu.choices.Add(($"Pied gauche.", () => ValidateArmorPartChoice(ItemAppearanceArmorModel.LeftFoot)));
-      player.menu.choices.Add(($"PIed droit.", () => ValidateArmorPartChoice(ItemAppearanceArmorModel.RightFoot)));
+      player.menu.choices.Add(($"Robe", () => ValidateArmorPartChoice(ItemAppearanceArmorModel.Robe, "parts_robe")));
+      player.menu.choices.Add(($"Cou", () => ValidateArmorPartChoice(ItemAppearanceArmorModel.Neck, "parts_neck")));
+      player.menu.choices.Add(($"Torse", () => ValidateArmorPartChoice(ItemAppearanceArmorModel.Torso, "parts_torso")));
+      player.menu.choices.Add(($"Pelvis", () => ValidateArmorPartChoice(ItemAppearanceArmorModel.Pelvis, "parts_pelvis")));
+      player.menu.choices.Add(($"Ceinture", () => ValidateArmorPartChoice(ItemAppearanceArmorModel.Belt, "parts_belt")));
+      player.menu.choices.Add(($"Epaule gauche", () => ValidateArmorPartChoice(ItemAppearanceArmorModel.LeftShoulder, "parts_shoulder")));
+      player.menu.choices.Add(($"Epaule droite", () => ValidateArmorPartChoice(ItemAppearanceArmorModel.RightShoulder, "parts_shoulder")));
+      player.menu.choices.Add(($"Biceps gauche.", () => ValidateArmorPartChoice(ItemAppearanceArmorModel.LeftBicep, "parts_bicep")));
+      player.menu.choices.Add(($"Biceps droit.", () => ValidateArmorPartChoice(ItemAppearanceArmorModel.RightBicep, "parts_bicep")));
+      player.menu.choices.Add(($"Avant-bras gauche.", () => ValidateArmorPartChoice(ItemAppearanceArmorModel.LeftForearm, "parts_forearm")));
+      player.menu.choices.Add(($"Avant-bras droit.", () => ValidateArmorPartChoice(ItemAppearanceArmorModel.RightForearm, "parts_forearm")));
+      player.menu.choices.Add(($"Main gauche.", () => ValidateArmorPartChoice(ItemAppearanceArmorModel.LeftHand, "parts_hand")));
+      player.menu.choices.Add(($"Main droite.", () => ValidateArmorPartChoice(ItemAppearanceArmorModel.RightHand, "parts_hand")));
+      player.menu.choices.Add(($"Cuisse gauche.", () => ValidateArmorPartChoice(ItemAppearanceArmorModel.LeftThigh, "parts_leg")));
+      player.menu.choices.Add(($"Cuisse droite.", () => ValidateArmorPartChoice(ItemAppearanceArmorModel.RightThigh, "parts_leg")));
+      player.menu.choices.Add(($"Tibia gauche.", () => ValidateArmorPartChoice(ItemAppearanceArmorModel.LeftShin, "parts_shin")));
+      player.menu.choices.Add(($"Tibia droit.", () => ValidateArmorPartChoice(ItemAppearanceArmorModel.RightShin, "parts_shin")));
+      player.menu.choices.Add(($"Pied gauche.", () => ValidateArmorPartChoice(ItemAppearanceArmorModel.LeftFoot, "parts_foot")));
+      player.menu.choices.Add(($"PIed droit.", () => ValidateArmorPartChoice(ItemAppearanceArmorModel.RightFoot, "parts_foot")));
 
       player.menu.choices.Add(("Retour.", () => DrawArmorModificationMenu()));
       player.menu.choices.Add(("Quitter.", () => player.menu.Close()));
 
       player.menu.Draw();
     }
-    private void ValidateArmorPartChoice(ItemAppearanceArmorModel choice)
+    private void ValidateArmorPartChoice(ItemAppearanceArmorModel choice, string part)
     {
       armorPartChoice = choice;
+      file = part;
       ApplyArmorModifications(-2);
     }
     private void HandleColorLocationChoice()
@@ -336,19 +338,10 @@ namespace NWN.Systems
         "Ou bien prononcez directement une valeur d'apparence à l'oral (entre 0 et 255)"
         };
 
-        switch(armorPartChoice)
-        {
-          case ItemAppearanceArmorModel.Torso:
-            HandleTorsoModelModification(modification);
-            break;
-          case ItemAppearanceArmorModel.Robe:
-            HandleRobeModelModification(modification);
-            break;
-          default:
-            HandleDefaultModelModification(modification);
-            break;
-
-        }
+        if(armorPartChoice == ItemAppearanceArmorModel.Torso)
+          HandleTorsoModelModification(modification);
+        else
+          HandleDefaultModelModification(modification);
       }
 
       if (modification > -2)
@@ -629,9 +622,9 @@ namespace NWN.Systems
 
       player.menu.titleLines.Add($"Apparence actuelle : {currentValue.ToString().ColorString(Color.LIME)}");
     }
-    private void HandleRobeModelModification(int modification)
+    private void HandleDefaultModelModification(int modification)
     {
-      byte currentValue = item.Appearance.GetArmorModel(ItemAppearanceArmorModel.Robe);
+      byte currentValue = item.Appearance.GetArmorModel((ItemAppearanceArmorModel)armorPartChoice);
 
       if (modification > -2)
       {
@@ -644,7 +637,7 @@ namespace NWN.Systems
         else if (player.setValue != Config.invalidInput)
           currentValue = (byte)player.setValue;
 
-        while (!Int32.TryParse(NWScript.Get2DAString("parts_robe", "HASMODEL", currentValue), out int hasModel))
+        while (!float.TryParse(NWScript.Get2DAString(file, "ACBONUS", currentValue), out float hasModel))
         {
           if (modification == 1)
             currentValue++;
@@ -652,7 +645,7 @@ namespace NWN.Systems
             currentValue--;
         }
 
-        item.Appearance.SetArmorModel(ItemAppearanceArmorModel.Robe, currentValue);
+        item.Appearance.SetArmorModel((ItemAppearanceArmorModel)armorPartChoice, currentValue);
         NwItem newItem = item.Clone(player.oid, "", true);
         player.oid.ActionEquipItem(newItem, InventorySlot.Chest);
 
@@ -665,36 +658,6 @@ namespace NWN.Systems
           HandleFeedbackMessages(0);
         });
       }
-
-      player.menu.titleLines.Add($"Apparence actuelle : {currentValue.ToString().ColorString(Color.LIME)}");
-    }
-    private void HandleDefaultModelModification(int modification)
-    {
-      byte currentValue = item.Appearance.GetArmorModel((ItemAppearanceArmorModel)armorPartChoice);
-
-      HandleFeedbackMessages(1);
-
-      if (modification > -2)
-      {
-        if (modification == 1)
-          currentValue++;
-        else if (modification == -1)
-          currentValue--;
-        else if (player.setValue != Config.invalidInput)
-          currentValue = (byte)player.setValue;
-
-        item.Appearance.SetArmorModel((ItemAppearanceArmorModel)armorPartChoice, currentValue);
-        NwItem newItem = item.Clone(player.oid, "", true);
-        player.oid.ActionEquipItem(newItem, InventorySlot.Chest);
-        item.Destroy();
-        item = newItem;
-      }
-
-      Task waitDestruction = NwTask.Run(async () =>
-      {
-        await NwTask.Delay(TimeSpan.FromSeconds(0.4));
-        HandleFeedbackMessages(0);
-      });
 
       player.menu.titleLines.Add($"Apparence actuelle : {currentValue.ToString().ColorString(Color.LIME)}");
     }
@@ -875,14 +838,14 @@ namespace NWN.Systems
           if (modification == 1)
           {
             currentValue++;
-            if (currentValue > 8)
-              currentValue = 0;
+            //if (currentValue > 8)
+              //currentValue = 0;
           }
           else if (modification == -1)
           {
             currentValue--;
-            if (currentValue > 8)
-              currentValue = 8;
+            //if (currentValue > 8)
+              //currentValue = 8;
           }
           else if (player.setValue != Config.invalidInput)
             currentValue = (byte)player.setValue;
@@ -918,14 +881,14 @@ namespace NWN.Systems
           if (modification == 1)
           {
             currentValue++;
-            if (currentValue > 8)
-              currentValue = 0;
+            //if (currentValue > 8)
+              //currentValue = 0;
           }
           else if (modification == -1)
           {
             currentValue--;
-            if (currentValue > 8)
-              currentValue = 8;
+            //if (currentValue > 8)
+              //currentValue = 8;
           }
           else if (player.setValue != Config.invalidInput)
             currentValue = (byte)player.setValue;
