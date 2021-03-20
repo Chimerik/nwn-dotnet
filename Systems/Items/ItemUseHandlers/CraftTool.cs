@@ -144,7 +144,7 @@ namespace NWN.Systems
 
       player.menu.choices.Add(($"Robe", () => ValidateArmorPartChoice(ItemAppearanceArmorModel.Robe, "parts_robe")));
       player.menu.choices.Add(($"Cou", () => ValidateArmorPartChoice(ItemAppearanceArmorModel.Neck, "parts_neck")));
-      player.menu.choices.Add(($"Torse", () => ValidateArmorPartChoice(ItemAppearanceArmorModel.Torso, "parts_torso")));
+      player.menu.choices.Add(($"Torse", () => ValidateArmorPartChoice(ItemAppearanceArmorModel.Torso, "parts_chest")));
       player.menu.choices.Add(($"Pelvis", () => ValidateArmorPartChoice(ItemAppearanceArmorModel.Pelvis, "parts_pelvis")));
       player.menu.choices.Add(($"Ceinture", () => ValidateArmorPartChoice(ItemAppearanceArmorModel.Belt, "parts_belt")));
       player.menu.choices.Add(($"Epaule gauche", () => ValidateArmorPartChoice(ItemAppearanceArmorModel.LeftShoulder, "parts_shoulder")));
@@ -155,8 +155,8 @@ namespace NWN.Systems
       player.menu.choices.Add(($"Avant-bras droit.", () => ValidateArmorPartChoice(ItemAppearanceArmorModel.RightForearm, "parts_forearm")));
       player.menu.choices.Add(($"Main gauche.", () => ValidateArmorPartChoice(ItemAppearanceArmorModel.LeftHand, "parts_hand")));
       player.menu.choices.Add(($"Main droite.", () => ValidateArmorPartChoice(ItemAppearanceArmorModel.RightHand, "parts_hand")));
-      player.menu.choices.Add(($"Cuisse gauche.", () => ValidateArmorPartChoice(ItemAppearanceArmorModel.LeftThigh, "parts_leg")));
-      player.menu.choices.Add(($"Cuisse droite.", () => ValidateArmorPartChoice(ItemAppearanceArmorModel.RightThigh, "parts_leg")));
+      player.menu.choices.Add(($"Cuisse gauche.", () => ValidateArmorPartChoice(ItemAppearanceArmorModel.LeftThigh, "parts_legs")));
+      player.menu.choices.Add(($"Cuisse droite.", () => ValidateArmorPartChoice(ItemAppearanceArmorModel.RightThigh, "parts_legs")));
       player.menu.choices.Add(($"Tibia gauche.", () => ValidateArmorPartChoice(ItemAppearanceArmorModel.LeftShin, "parts_shin")));
       player.menu.choices.Add(($"Tibia droit.", () => ValidateArmorPartChoice(ItemAppearanceArmorModel.RightShin, "parts_shin")));
       player.menu.choices.Add(($"Pied gauche.", () => ValidateArmorPartChoice(ItemAppearanceArmorModel.LeftFoot, "parts_foot")));
@@ -578,23 +578,19 @@ namespace NWN.Systems
           currentValue = (byte)player.setValue;
 
         int currentAC = ItemPlugin.GetBaseArmorClass(item);
+        int gender = (int)player.oid.Gender;
 
-        item.Appearance.SetArmorModel(ItemAppearanceArmorModel.Torso, currentValue);
-        NwItem newItem = item.Clone(player.oid, "", true);
-        //NwItem newItem = NWScript.CopyItemAndModify(item, NWScript.ITEM_APPR_TYPE_ARMOR_MODEL, NWScript.ITEM_APPR_ARMOR_MODEL_TORSO, currentValue, 1).ToNwObject<NwItem>();
-
-        while (currentAC != ItemPlugin.GetBaseArmorClass(newItem))
+        while ((!float.TryParse(NWScript.Get2DAString(file, "ACBONUS", currentValue), out float hasModel) || (int)hasModel != currentAC)
+          || (float.TryParse(NWScript.Get2DAString(file, "GENDER", currentValue), out float modelGender) && modelGender != gender))
         {
-          newItem.Destroy();
-
           if (modification == 1)
             currentValue++;
           else if (modification == -1)
             currentValue--;
-
-          item.Appearance.SetArmorModel(ItemAppearanceArmorModel.Torso, currentValue);
-          newItem = item.Clone(player.oid, "", true);
         }
+
+        item.Appearance.SetArmorModel(ItemAppearanceArmorModel.Torso, currentValue);
+        NwItem newItem = item.Clone(player.oid, "", true);
 
         item.Destroy(0.2f);
         item = newItem;
@@ -637,7 +633,10 @@ namespace NWN.Systems
         else if (player.setValue != Config.invalidInput)
           currentValue = (byte)player.setValue;
 
-        while (!float.TryParse(NWScript.Get2DAString(file, "ACBONUS", currentValue), out float hasModel))
+        int gender = (int)player.oid.Gender;
+
+        while (!float.TryParse(NWScript.Get2DAString(file, "ACBONUS", currentValue), out float hasModel) 
+          || (float.TryParse(NWScript.Get2DAString(file, "GENDER", currentValue), out float modelGender) && modelGender != gender))
         {
           if (modification == 1)
             currentValue++;

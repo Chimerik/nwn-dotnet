@@ -115,12 +115,15 @@ namespace NWN.Systems
           NWScript.DelayCommand(0.2f, () => FeedbackPlugin.SetFeedbackMessageHidden(23, 0, player.oid));
           break;
         case "forgehammer":
+          FeedbackPlugin.SetFeedbackMessageHidden(23, 1, player.oid);
           onItemUse.Skip = true;
 
           if (oTarget is NwItem)
             new CraftTool(player, (NwItem)oTarget);
           else
             player.oid.SendServerMessage($"Vous ne pouvez pas modifier l'apparence de {oTarget.Name.ColorString(Color.WHITE)}.".ColorString(Color.RED));
+
+          NWScript.DelayCommand(0.2f, () => FeedbackPlugin.SetFeedbackMessageHidden(23, 0, player.oid));
           break;
       }
     }
