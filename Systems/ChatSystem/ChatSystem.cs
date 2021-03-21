@@ -15,6 +15,7 @@ namespace NWN.Systems
   public class ChatSystem
   {
     public static readonly Logger Log = LogManager.GetCurrentClassLogger();
+    private static string areaName = "";
     public ChatSystem()
     {
       ChatPlugin.RegisterChatScript("on_chat");
@@ -36,6 +37,10 @@ namespace NWN.Systems
       if (ChatPlugin.GetTarget() != NWScript.OBJECT_INVALID)
         target = ChatPlugin.GetTarget().ToNwObjectSafe<NwPlayer>();
 
+      if (sender.Area != null)
+        areaName = sender.Area.Name;
+      else
+        areaName = "Entre deux zones";
 
       pipeline.Execute(new Context(
         msg: ChatPlugin.GetMessage(),
@@ -82,7 +87,7 @@ namespace NWN.Systems
 
         using (StreamWriter file =
         new StreamWriter(path, true))
-          file.WriteLineAsync(DateTime.Now.ToShortTimeString() + " - [" + ctx.channel + " - " + ctx.oSender.Area.Name + "] " + NWScript.GetName(ctx.oSender, 1) + " : " + ctx.msg);
+          file.WriteLineAsync(DateTime.Now.ToShortTimeString() + " - [" + ctx.channel + " - " + areaName + "] " + NWScript.GetName(ctx.oSender, 1) + " : " + ctx.msg);
       }
       else
       {
@@ -94,23 +99,16 @@ namespace NWN.Systems
           filename = $"{ctx.oSender.PlayerName}_{ctx.oTarget.PlayerName}.txt";
           path = Path.Combine(Environment.GetEnvironmentVariable("HOME") + "/ChatLog", filename);
         }
+
         using (StreamWriter file =
         new StreamWriter(path, true))
           file.WriteLineAsync(DateTime.Now.ToShortDateString() + " " + DateTime.Now.ToShortTimeString() + " - " + ctx.oSender.Name + " To : " + NWScript.GetName(ctx.oTarget, 1) + " : " + ctx.msg);
       }
 
-      /*Log.Info($"int hasValue : {ctx.oSender.GetLocalVariable<int>("_PLAYER_INPUT").HasValue}");
-      Log.Info($"string hasValue: {ctx.oSender.GetLocalVariable<int>("_PLAYER_INPUT_STRING").HasValue}");
-      Log.Info($"int hasNothing : {ctx.oSender.GetLocalVariable<int>("_PLAYER_INPUT").HasNothing}");
-      Log.Info($"string hasNothing: {ctx.oSender.GetLocalVariable<int>("_PLAYER_INPUT_STRING").HasNothing}");
-      Log.Info($"int Value : {ctx.oSender.GetLocalVariable<int>("_PLAYER_INPUT").Value}");
-      Log.Info($"string Value: {ctx.oSender.GetLocalVariable<int>("_PLAYER_INPUT_STRING").Value}");*/
-
       if (PlayerSystem.Players.TryGetValue(ctx.oSender, out PlayerSystem.Player player) && (ctx.oSender.GetLocalVariable<int>("_PLAYER_INPUT").HasValue || ctx.oSender.GetLocalVariable<int>("_PLAYER_INPUT_STRING").HasValue))
       {
         if (Int32.TryParse(ctx.msg, out int value))
         {
-          Log.Info($"listened value : {value}");
           player.setValue = value;
           player.oid.GetLocalVariable<int>("_PLAYER_INPUT").Delete();
           ChatPlugin.SkipMessage();
@@ -118,7 +116,6 @@ namespace NWN.Systems
         }
         else
         {
-          Log.Info($"listened string : {ctx.msg}");
           player.setString = ctx.msg;
           player.oid.GetLocalVariable<int>("_PLAYER_INPUT_STRING").Delete();
           ChatPlugin.SkipMessage();
@@ -194,12 +191,12 @@ namespace NWN.Systems
                   oInviSender.Name = ctx.oSender.Name;
 
                   if (oDM.GetLocalVariable<NwObject>("_POSSESSING").HasNothing)
-                    ChatPlugin.SendMessage(ChatPlugin.NWNX_CHAT_CHANNEL_PLAYER_TELL, "[COPIE - " + ctx.oSender.Area.Name + "] " + ctx.msg, oInviSender, oDM);
+                    ChatPlugin.SendMessage(ChatPlugin.NWNX_CHAT_CHANNEL_PLAYER_TELL, "[COPIE - " + areaName + "] " + ctx.msg, oInviSender, oDM);
                   else
                   {
                     NwCreature oPossessed = (NwCreature)oDM.GetLocalVariable<NwObject>("_POSSESSING").Value;
                     if (oPossessed != null)
-                      ChatPlugin.SendMessage(ChatPlugin.NWNX_CHAT_CHANNEL_PLAYER_TELL, "[COPIE - " + ctx.oSender.Area.Name + "] " + ctx.msg, oInviSender, oPossessed);
+                      ChatPlugin.SendMessage(ChatPlugin.NWNX_CHAT_CHANNEL_PLAYER_TELL, "[COPIE - " + areaName + "] " + ctx.msg, oInviSender, oPossessed);
                   }
                 }
               }

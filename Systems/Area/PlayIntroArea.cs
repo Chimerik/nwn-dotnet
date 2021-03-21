@@ -5,7 +5,6 @@ using NWN.Services;
 using System.Numerics;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using System;
 using NWN.API.Constants;
@@ -43,19 +42,18 @@ namespace NWN.Systems
       AreaPlugin.SetWeatherChance(area, AreaPlugin.NWNX_AREA_WEATHER_CHANCE_LIGHTNING, 100);
       NWScript.SetAreaWind(area, NWScript.Vector(1, 0, 0), 10.0f, 25.0f, 10.0f);
 
-      uint rock1 = NWScript.GetNearestObjectByTag("intro_recif", player);
-      uint rock2 = NWScript.GetNearestObjectByTag("intro_recif", player, 2);
-      uint rock3 = NWScript.GetNearestObjectByTag("intro_recif", player, 3);
-      uint tourbillon = NWScript.GetNearestObjectByTag("intro_tourbillon", player);
+      List<NwPlaceable> rocks = player.GetNearestObjectsByType<NwPlaceable>().Where(c => c.Tag == "intro_recif").ToList();
+      NwPlaceable tourbillon = player.GetNearestObjectsByType<NwPlaceable>().FirstOrDefault(c => c.Tag == "intro_tourbillon");
 
-      VisibilityPlugin.SetVisibilityOverride(NWScript.OBJECT_INVALID, rock1, VisibilityPlugin.NWNX_VISIBILITY_ALWAYS_VISIBLE);
-      VisibilityPlugin.SetVisibilityOverride(NWScript.OBJECT_INVALID, rock2, VisibilityPlugin.NWNX_VISIBILITY_ALWAYS_VISIBLE);
-      VisibilityPlugin.SetVisibilityOverride(NWScript.OBJECT_INVALID, rock3, VisibilityPlugin.NWNX_VISIBILITY_ALWAYS_VISIBLE);
-      VisibilityPlugin.SetVisibilityOverride(NWScript.OBJECT_INVALID, tourbillon, VisibilityPlugin.NWNX_VISIBILITY_ALWAYS_VISIBLE);
+      VisibilityPlugin.SetVisibilityOverride(NWScript.OBJECT_INVALID, rocks[0], VisibilityPlugin.NWNX_VISIBILITY_VISIBLE);
+      VisibilityPlugin.SetVisibilityOverride(NWScript.OBJECT_INVALID, rocks[1], VisibilityPlugin.NWNX_VISIBILITY_VISIBLE);
+      VisibilityPlugin.SetVisibilityOverride(NWScript.OBJECT_INVALID, rocks[2], VisibilityPlugin.NWNX_VISIBILITY_VISIBLE);
+      VisibilityPlugin.SetVisibilityOverride(NWScript.OBJECT_INVALID, tourbillon, VisibilityPlugin.NWNX_VISIBILITY_VISIBLE);
 
-
-      NWScript.SetObjectVisualTransform(rock1, NWScript.OBJECT_VISUAL_TRANSFORM_TRANSLATE_Y, -80, 1, 24);
-      NWScript.SetObjectVisualTransform(tourbillon, NWScript.OBJECT_VISUAL_TRANSFORM_TRANSLATE_Y, -50, 1, 50);
+      NWScript.SetObjectVisualTransform(rocks[0], NWScript.OBJECT_VISUAL_TRANSFORM_TRANSLATE_Y, -72, 1, 30);
+      NWScript.SetObjectVisualTransform(rocks[1], NWScript.OBJECT_VISUAL_TRANSFORM_TRANSLATE_Y, -80, 1, 24); 
+      NWScript.SetObjectVisualTransform(rocks[2], NWScript.OBJECT_VISUAL_TRANSFORM_TRANSLATE_Y, -64, 1, 38);
+      NWScript.SetObjectVisualTransform(tourbillon, NWScript.OBJECT_VISUAL_TRANSFORM_TRANSLATE_Y, -15, 1, 40);
 
       Task waitIntroEvents = NwTask.Run(async () =>
       {
@@ -67,16 +65,10 @@ namespace NWN.Systems
         await NwTask.Delay(TimeSpan.FromSeconds(1.7));
         TriggerRandomLightnings(area, player.Position, 25, player);
 
-        await NwTask.Delay(TimeSpan.FromSeconds(6));
-        NWScript.SetObjectVisualTransform(rock2, NWScript.OBJECT_VISUAL_TRANSFORM_TRANSLATE_Y, -80, 1, 24);
-
-        await NwTask.Delay(TimeSpan.FromSeconds(8));
-        NWScript.SetObjectVisualTransform(rock3, NWScript.OBJECT_VISUAL_TRANSFORM_TRANSLATE_Y, -80, 1, 24);
-
-        await NwTask.Delay(TimeSpan.FromSeconds(9));
+        await NwTask.Delay(TimeSpan.FromSeconds(23));
         StrikeSailor(sailorList[1], sailorList[0]);
 
-        await NwTask.Delay(TimeSpan.FromSeconds(20));
+        await NwTask.Delay(TimeSpan.FromSeconds(10));
         await captain.SpeakString("Qu'est ce que c'est que ce truc ? On ne peut pas éviter la collision, ABANDONNEZ LE NAVIRE !".ColorString(Color.RED));
         await NwTask.Delay(TimeSpan.FromSeconds(5));
         PlayTourbillonEffects(area, player);

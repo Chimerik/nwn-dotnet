@@ -32,7 +32,7 @@ namespace NWN.Systems.Arena
         case Difficulty.Level1: return new RoundCreatures[]
         {
           new RoundCreatures(
-            resrefs: new string[] { "nw_chicken", "nw_chicken", "nw_chicken", "nw_chicken" },
+            resrefs: new string[] { "gobelineclaireur", "gobelineclaireur", "gobelineclaireur", "gobelineclaireur" },
             points: 1  
           ),
           new RoundCreatures(

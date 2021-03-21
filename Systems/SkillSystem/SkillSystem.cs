@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using NLog;
+using NWN.API;
 using NWN.API.Constants;
 using NWN.Core;
 using NWN.Core.NWNX;
@@ -245,6 +246,16 @@ namespace NWN.Systems
             { CustomFeats.ImprovedTumble, HandleImproveTumble },
             { CustomFeats.ImprovedBluff, HandleImproveBluff },
             { CustomFeats.ImprovedIntimidate, HandleImproveIntimidate },
+            { CustomFeats.ImprovedSpellSlot0, HandleImproveSpellSlot0 },
+            { CustomFeats.ImprovedSpellSlot1, HandleImproveSpellSlot1 },
+            { CustomFeats.ImprovedSpellSlot2, HandleImproveSpellSlot2 },
+            { CustomFeats.ImprovedSpellSlot3, HandleImproveSpellSlot3 },
+            { CustomFeats.ImprovedSpellSlot4, HandleImproveSpellSlot4 },
+            { CustomFeats.ImprovedSpellSlot5, HandleImproveSpellSlot5 },
+            { CustomFeats.ImprovedSpellSlot6, HandleImproveSpellSlot6 },
+            { CustomFeats.ImprovedSpellSlot7, HandleImproveSpellSlot7 },
+            { CustomFeats.ImprovedSpellSlot8, HandleImproveSpellSlot8 },
+            { CustomFeats.ImprovedSpellSlot9, HandleImproveSpellSlot9 },
     };
 
     public static Dictionary<Feat, Func<PlayerSystem.Player, Feat, int>> RegisterRemoveCustomFeatEffect = new Dictionary<Feat, Func<PlayerSystem.Player, Feat, int>>
@@ -423,6 +434,107 @@ namespace NWN.Systems
     private static int HandleImproveIntimidate(PlayerSystem.Player player, Feat feat)
     {
       CreaturePlugin.SetSkillRank(player.oid, NWScript.SKILL_INTIMIDATE, player.oid.GetSkillRank(API.Constants.Skill.Intimidate, true) + 1);
+      return 0;
+    }
+
+    private static int HandleImproveSpellSlot0(PlayerSystem.Player player, Feat feat)
+    {
+      NwItem skin = player.oid.GetItemInSlot(InventorySlot.CreatureSkin);
+      if (skin != null)
+        skin.AddItemProperty(API.ItemProperty.BonusLevelSpell((IPClass)43, IPSpellLevel.SL0), EffectDuration.Permanent);
+      else
+        Utils.LogMessageToDMs($"Skill System - On Improve Spell Slot : {player.oid.Name} is null !");
+
+      return 0;
+    }
+    private static int HandleImproveSpellSlot1(PlayerSystem.Player player, Feat feat)
+    {
+      NwItem skin = player.oid.GetItemInSlot(InventorySlot.CreatureSkin);
+      if (skin != null)
+        skin.AddItemProperty(API.ItemProperty.BonusLevelSpell((IPClass)43, IPSpellLevel.SL1), EffectDuration.Permanent);
+      else
+        Utils.LogMessageToDMs($"Skill System - On Improve Spell Slot : {player.oid.Name} is null !");
+
+      return 0;
+    }
+    private static int HandleImproveSpellSlot2(PlayerSystem.Player player, Feat feat)
+    {
+      NwItem skin = player.oid.GetItemInSlot(InventorySlot.CreatureSkin);
+      if (skin != null)
+        skin.AddItemProperty(API.ItemProperty.BonusLevelSpell((IPClass)43, IPSpellLevel.SL2), EffectDuration.Permanent);
+      else
+        Utils.LogMessageToDMs($"Skill System - On Improve Spell Slot : {player.oid.Name} is null !");
+
+      return 0;
+    }
+    private static int HandleImproveSpellSlot3(PlayerSystem.Player player, Feat feat)
+    {
+      NwItem skin = player.oid.GetItemInSlot(InventorySlot.CreatureSkin);
+      if (skin != null)
+        skin.AddItemProperty(API.ItemProperty.BonusLevelSpell((IPClass)43, IPSpellLevel.SL3), EffectDuration.Permanent);
+      else
+        Utils.LogMessageToDMs($"Skill System - On Improve Spell Slot : {player.oid.Name} is null !");
+
+      return 0;
+    }
+    private static int HandleImproveSpellSlot4(PlayerSystem.Player player, Feat feat)
+    {
+      NwItem skin = player.oid.GetItemInSlot(InventorySlot.CreatureSkin);
+      if (skin != null)
+        skin.AddItemProperty(API.ItemProperty.BonusLevelSpell((IPClass)43, IPSpellLevel.SL4), EffectDuration.Permanent);
+      else
+        Utils.LogMessageToDMs($"Skill System - On Improve Spell Slot : {player.oid.Name} is null !");
+
+      return 0;
+    }
+    private static int HandleImproveSpellSlot5(PlayerSystem.Player player, Feat feat)
+    {
+      NwItem skin = player.oid.GetItemInSlot(InventorySlot.CreatureSkin);
+      if (skin != null)
+        skin.AddItemProperty(API.ItemProperty.BonusLevelSpell((IPClass)43, IPSpellLevel.SL5), EffectDuration.Permanent);
+      else
+        Utils.LogMessageToDMs($"Skill System - On Improve Spell Slot : {player.oid.Name} is null !");
+
+      return 0;
+    }
+    private static int HandleImproveSpellSlot6(PlayerSystem.Player player, Feat feat)
+    {
+      NwItem skin = player.oid.GetItemInSlot(InventorySlot.CreatureSkin);
+      if (skin != null)
+        skin.AddItemProperty(API.ItemProperty.BonusLevelSpell((IPClass)43, IPSpellLevel.SL6), EffectDuration.Permanent);
+      else
+        Utils.LogMessageToDMs($"Skill System - On Improve Spell Slot : {player.oid.Name} is null !");
+
+      return 0;
+    }
+    private static int HandleImproveSpellSlot7(PlayerSystem.Player player, Feat feat)
+    {
+      NwItem skin = player.oid.GetItemInSlot(InventorySlot.CreatureSkin);
+      if (skin != null)
+        skin.AddItemProperty(API.ItemProperty.BonusLevelSpell((IPClass)43, IPSpellLevel.SL7), EffectDuration.Permanent);
+      else
+        Utils.LogMessageToDMs($"Skill System - On Improve Spell Slot : {player.oid.Name} is null !");
+
+      return 0;
+    }
+    private static int HandleImproveSpellSlot8(PlayerSystem.Player player, Feat feat)
+    {
+      NwItem skin = player.oid.GetItemInSlot(InventorySlot.CreatureSkin);
+      if (skin != null)
+        skin.AddItemProperty(API.ItemProperty.BonusLevelSpell((IPClass)43, IPSpellLevel.SL8), EffectDuration.Permanent);
+      else
+        Utils.LogMessageToDMs($"Skill System - On Improve Spell Slot : {player.oid.Name} is null !");
+
+      return 0;
+    }
+    private static int HandleImproveSpellSlot9(PlayerSystem.Player player, Feat feat)
+    {
+      NwItem skin = player.oid.GetItemInSlot(InventorySlot.CreatureSkin);
+      if (skin != null)
+        skin.AddItemProperty(API.ItemProperty.BonusLevelSpell((IPClass)43, IPSpellLevel.SL9), EffectDuration.Permanent);
+      else
+        Utils.LogMessageToDMs($"Skill System - On Improve Spell Slot : {player.oid.Name} is null !");
+
       return 0;
     }
 

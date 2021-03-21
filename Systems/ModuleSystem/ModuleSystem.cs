@@ -40,14 +40,6 @@ namespace NWN.Systems
       RestorePlayerShopsFromDatabase();
       RestoreDMPersistentPlaceableFromDatabase();
 
-      Log.Info($"test hasvalue : {NwModule.Instance.GetLocalVariable<int>("_TEST").HasValue}");
-      Log.Info($"test hasnothing : {NwModule.Instance.GetLocalVariable<int>("_TEST").HasNothing}");
-      Log.Info($"test value : {NwModule.Instance.GetLocalVariable<int>("_TEST").Value}");
-      NwModule.Instance.GetLocalVariable<int>("_TEST").Value = 1;
-      Log.Info($"test hasvalue : {NwModule.Instance.GetLocalVariable<int>("_TEST").HasValue}");
-      Log.Info($"test hasnothing : {NwModule.Instance.GetLocalVariable<int>("_TEST").HasNothing}");
-      Log.Info($"test value : {NwModule.Instance.GetLocalVariable<int>("_TEST").Value}");
-
       float resourceRespawnTime;
       if (DateTime.Now.Hour < 5)
         resourceRespawnTime = (float)(TimeSpan.Parse("05:00:00") - DateTime.Now.TimeOfDay).TotalSeconds;

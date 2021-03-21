@@ -25,20 +25,15 @@ namespace NWN.Systems
 
         if (NWScript.GetPCPlayerName(player.oid) == "Chim")
         {
-          player.oid.SendServerMessage($"modificateur de dex : {player.oid.GetAbilityModifier(Ability.Dexterity)}");
-
-          PlayerSystem.cursorTargetService.EnterTargetMode(player.oid, SelectObject, ObjectTypes.All, MouseCursor.Kill);
+          PlayerSystem.cursorTargetService.EnterTargetMode(player.oid, OnTargetSelected, ObjectTypes.All, MouseCursor.Pickup);
         }
       }
     }
-    private static void SelectObject(CursorTargetData selection)
-    {
-      NWScript.SetObjectVisualTransform(selection.TargetObj, NWScript.OBJECT_VISUAL_TRANSFORM_TRANSLATE_Y, 10, 
-        NWScript.OBJECT_VISUAL_TRANSFORM_LERP_LINEAR, 10);
-      NWScript.SetObjectVisualTransform(selection.TargetObj, NWScript.OBJECT_VISUAL_TRANSFORM_TRANSLATE_Z, 10,
-        NWScript.OBJECT_VISUAL_TRANSFORM_LERP_SMOOTHERSTEP, 10);
-    }
 
+    public static void OnTargetSelected(CursorTargetData selection)
+    {
+      NWScript.SetObjectVisualTransform(selection.TargetObj, NWScript.OBJECT_VISUAL_TRANSFORM_TRANSLATE_Y, -300, 1, 20);
+    }
     /* public static String Translate(String word)
      {
        var toLanguage = "en";

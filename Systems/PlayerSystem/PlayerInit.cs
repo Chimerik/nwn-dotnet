@@ -131,7 +131,6 @@ namespace NWN.Systems
         ItemSystem.OnTorilNecklaceRemoved(oPC);
       });
 
-
       Task waitForArmorChange = NwTask.Run(async () =>
       {
         await NwTask.WaitUntil(() => oPC.GetItemInSlot(InventorySlot.Chest) == null);
@@ -231,6 +230,15 @@ namespace NWN.Systems
 
         foreach (NwObject fog in arrivalArea.FindObjectsOfTypeInArea<NwPlaceable>().Where(o => o.Tag == "intro_brouillard"))
           VisibilityPlugin.SetVisibilityOverride(NWScript.OBJECT_INVALID, fog, VisibilityPlugin.NWNX_VISIBILITY_HIDDEN);
+
+        foreach (NwObject recif in arrivalArea.FindObjectsOfTypeInArea<NwPlaceable>().Where(o => o.Tag == "intro_recif")) 
+          VisibilityPlugin.SetVisibilityOverride(NWScript.OBJECT_INVALID, recif, VisibilityPlugin.NWNX_VISIBILITY_HIDDEN);
+
+        NwPlaceable tourbillon = arrivalArea.FindObjectsOfTypeInArea<NwPlaceable>().FirstOrDefault(c => c.Tag == "intro_tourbillon");
+        VisibilityPlugin.SetVisibilityOverride(NWScript.OBJECT_INVALID, tourbillon, VisibilityPlugin.NWNX_VISIBILITY_HIDDEN);
+        VisualTransform transfo = tourbillon.VisualTransform;
+        transfo.Translation.Y = 115;
+        tourbillon.VisualTransform = transfo;
 
         NwPlaceable introMirror = arrivalArea.FindObjectsOfTypeInArea<NwPlaceable>().FirstOrDefault(o => o.Tag == "intro_mirror");
         introMirror.OnUsed += DialogSystem.StartIntroMirrorDialog;
