@@ -14,7 +14,7 @@ namespace NWN.Systems
     private static void ExecuteLoadAppearanceCommand(ChatSystem.Context ctx, Options.Result options)
     {
       ctx.oSender.SendServerMessage("Veuillez sélectionnner l'objet dont vous souhaitez modifier l'apparence.", Color.ROSE);
-      PlayerSystem.cursorTargetService.EnterTargetMode(ctx.oSender, OnModifyAppearanceItemSelected, API.Constants.ObjectTypes.Item, API.Constants.MouseCursor.Create);
+      PlayerSystem.cursorTargetService.EnterTargetMode(ctx.oSender, OnModifyAppearanceItemSelected, ObjectTypes.Item, MouseCursor.Create);
     }
     private static void OnModifyAppearanceItemSelected(CursorTargetData selection)
     {
@@ -23,13 +23,13 @@ namespace NWN.Systems
 
       NwItem item = (NwItem)selection.TargetObj;
       int ACValue = -1;
-      if (item.BaseItemType == API.Constants.BaseItemType.Armor)
+      if (item.BaseItemType == BaseItemType.Armor)
         ACValue = ItemPlugin.GetBaseArmorClass(selection.TargetObj);
 
       player.menu.Clear();
       player.menu.titleLines = new List<string>() {
         $"Voici la liste de vos apparences sauvegardées qui peuvent être appliquées sur votre {item.Name.ColorString(Color.WHITE)}".ColorString(Color.NAVY)
-    };
+      };
 
       var query = NWScript.SqlPrepareQueryCampaign(Config.database, $"SELECT appearanceName, serializedAppearance from playerItemAppearance where characterId = @characterId and AC = @AC and baseItemType = @baseItemType");
       NWScript.SqlBindInt(query, "@characterId", player.characterId);
@@ -39,10 +39,11 @@ namespace NWN.Systems
       while (NWScript.SqlStep(query) > 0)
       {
         string message = $"- {NWScript.SqlGetString(query, 0)}".ColorString(Color.CYAN);
+        string appearance = NWScript.SqlGetString(query, 1);
 
         player.menu.choices.Add((
           message,
-          () => ApplySelectedAppareance(player, item, NWScript.SqlGetString(query, 1))
+          () => ApplySelectedAppareance(player, item, appearance)
         ));
       }
 
@@ -51,6 +52,8 @@ namespace NWN.Systems
 
     private static void ApplySelectedAppareance(PlayerSystem.Player player, NwItem item, string serializedAppearance)
     {
+      player.menu.Close();
+
       if(item == null || item.Possessor != player.oid)
       {
         player.oid.SendServerMessage($"L'objet dont vous essayez de modifier l'apparence n'existe plus ou n'est plus en votre possession !", Color.RED);
@@ -90,9 +93,9 @@ namespace NWN.Systems
         FeedbackPlugin.SetFeedbackMessageHidden(8, 0, player.oid);
         FeedbackPlugin.SetFeedbackMessageHidden(9, 0, player.oid);
         FeedbackPlugin.SetFeedbackMessageHidden(204, 0, player.oid);
-      });
 
-      player.oid.SendServerMessage($"L'apparence de votre {item.Name.ColorString(Color.WHITE)} a bien été modifiée.", Color.GREEN);
+        player.oid.SendServerMessage($"L'apparence de votre {item.Name.ColorString(Color.WHITE)} a bien été modifiée.", Color.GREEN);
+      });
     }
   }
 }

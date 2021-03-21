@@ -37,10 +37,10 @@ namespace NWN.Systems
         await NwTask.WaitUntil(() => player.setString != "");
 
         var query = NWScript.SqlPrepareQueryCampaign(Config.database, $"INSERT INTO playerItemAppearance (characterId, appearanceName, serializedAppearance, baseItemType, AC) VALUES (@characterId, @appearanceName, @serializedAppearance, @baseItemType, @AC)" +
-              $"ON CONFLICT (characterId, appearanceName) DO UPDATE SET serializedAppearance = @serializedAppearance, baseItemType = @baseItemType, AC = @ AC where characterId = @characterId and appearanceName = @appearanceName");
+              $"ON CONFLICT (characterId, appearanceName) DO UPDATE SET serializedAppearance = @serializedAppearance, baseItemType = @baseItemType, AC = @AC where characterId = @characterId and appearanceName = @appearanceName");
         NWScript.SqlBindInt(query, "@characterId", player.characterId);
-        NWScript.SqlBindString(query, "@materialName", player.setString);
-        NWScript.SqlBindString(query, "@materialStock", ItemPlugin.GetEntireItemAppearance(selection.TargetObj));
+        NWScript.SqlBindString(query, "@appearanceName", player.setString);
+        NWScript.SqlBindString(query, "@serializedAppearance", ItemPlugin.GetEntireItemAppearance(selection.TargetObj));
         NWScript.SqlBindInt(query, "@baseItemType", (int)item.BaseItemType);
         NWScript.SqlBindInt(query, "@AC", ACValue);
         NWScript.SqlStep(query);
