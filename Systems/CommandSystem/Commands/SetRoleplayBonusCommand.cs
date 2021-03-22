@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using NWN.API;
 using NWN.Core;
 using NWN.Core.NWNX;
 
@@ -8,42 +9,40 @@ namespace NWN.Systems
   {
     private static void ExecuteSetRoleplayBonusCommand(ChatSystem.Context ctx, Options.Result options)
     {
-      if (NWScript.GetIsDM(ctx.oSender) == 1)
+      if (ctx.oSender.IsDM)
       {
-        if (NWScript.GetIsObjectValid(ctx.oTarget) == 1)
+        if (ctx.oTarget != null)
         {
           if (((string)options.positional[0]).Length == 0)
           {
-            NWScript.SendMessageToPC(ctx.oSender, $"Le bonus roleplay de {NWScript.GetName(ctx.oTarget)} est de {ObjectPlugin.GetInt(ctx.oTarget, "_BRP")}");
+            ctx.oSender.SendServerMessage($"Le bonus roleplay de {ctx.oTarget.Name.ColorString(Color.WHITE)} est de {ObjectPlugin.GetInt(ctx.oTarget, "_BRP").ToString().ColorString(Color.WHITE)}", Color.PINK);
           }
           else
           {
-            int iBRP;
-            if (int.TryParse((string)options.positional[0], out iBRP))
+            if (int.TryParse((string)options.positional[0], out int iBRP))
             {
               if (iBRP > -1 && iBRP < 5)
               {
-                PlayerSystem.Player player;
-                if (PlayerSystem.Players.TryGetValue(ctx.oTarget, out player))
+                if (PlayerSystem.Players.TryGetValue(ctx.oTarget, out PlayerSystem.Player player))
                 {
                   player.bonusRolePlay = iBRP;
-                  NWScript.SendMessageToPC(ctx.oSender, $"Le bonus roleplay de {NWScript.GetName(ctx.oTarget)} est de {player.bonusRolePlay}");
-                  NWScript.SendMessageToPC(ctx.oTarget, $"Votre bonus roleplay est désormais de {player.bonusRolePlay}");
+                  ctx.oSender.SendServerMessage($"Le bonus roleplay de {ctx.oTarget.Name.ColorString(Color.WHITE)} est de {player.bonusRolePlay.ToString().ColorString(Color.WHITE)}", Color.PINK);
+                  ctx.oTarget.SendServerMessage($"Votre bonus roleplay est désormais de {player.bonusRolePlay.ToString().ColorString(Color.WHITE)}", Color.TEAL);
                 }
               }
               else
-                NWScript.SendMessageToPC(ctx.oSender, $"Le bonus roleplay doit être compris entre 0 et 4");
+                ctx.oSender.SendServerMessage("Le bonus roleplay doit être compris entre 0 et 4", Color.ORANGE);
             }
             else
-              NWScript.SendMessageToPC(ctx.oSender, $"Cette valeur n'est pas acceptée. Le bonus roleplay doit être compris entre 0 et 4");
+              if (PlayerSystem.Players.TryGetValue(ctx.oTarget, out PlayerSystem.Player player))
+                ctx.oSender.SendServerMessage($"Le bonus roleplay de {ctx.oTarget.Name.ColorString(Color.WHITE)} est de {player.bonusRolePlay.ToString().ColorString(Color.WHITE)}", Color.CYAN);
           }
         }
       }
       else
       {
-        PlayerSystem.Player player;
-        if (PlayerSystem.Players.TryGetValue(ctx.oTarget, out player))
-          NWScript.SendMessageToPC(ctx.oSender, $"Votre bonus roleplay est de {player.bonusRolePlay}");
+        if (PlayerSystem.Players.TryGetValue(ctx.oSender, out PlayerSystem.Player player))
+          ctx.oSender.SendServerMessage($"Votre bonus roleplay est de {player.bonusRolePlay.ToString().ColorString(Color.WHITE)}", Color.CYAN);
       }
     }
   }

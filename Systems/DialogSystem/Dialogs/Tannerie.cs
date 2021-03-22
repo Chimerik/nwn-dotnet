@@ -78,20 +78,19 @@ namespace NWN.Systems
 
         float reprocessingEfficiency = 0.3f;
 
-        float value;
-        if (float.TryParse(NWScript.Get2DAString("feat", "GAINMULTIPLE", CreaturePlugin.GetHighestLevelOfFeat(player.oid, (int)Feat.PeltReprocessing)), out value))
-          reprocessingEfficiency += reprocessingEfficiency + 3 * value / 100;
+        if (player.learntCustomFeats.ContainsKey(CustomFeats.PeltReprocessing))
+          reprocessingEfficiency += 3 * SkillSystem.GetCustomFeatLevelFromSkillPoints(CustomFeats.PeltReprocessing, player.learntCustomFeats[CustomFeats.PeltReprocessing]) / 100;
 
-        if (float.TryParse(NWScript.Get2DAString("feat", "GAINMULTIPLE", CreaturePlugin.GetHighestLevelOfFeat(player.oid, (int)Feat.PeltReprocessingEfficiency)), out value))
-          reprocessingEfficiency += reprocessingEfficiency + 2 * value / 100;
+        if (player.learntCustomFeats.ContainsKey(CustomFeats.PeltReprocessingEfficiency))
+          reprocessingEfficiency += 2 * SkillSystem.GetCustomFeatLevelFromSkillPoints(CustomFeats.PeltReprocessingEfficiency, player.learntCustomFeats[CustomFeats.PeltReprocessingEfficiency]) / 100;
 
-        if (float.TryParse(NWScript.Get2DAString("feat", "GAINMULTIPLE", CreaturePlugin.GetHighestLevelOfFeat(player.oid, (int)Feat.Connections)), out value))
-          reprocessingEfficiency += reprocessingEfficiency + 1 * value / 100;
+        if (player.learntCustomFeats.ContainsKey(CustomFeats.Connections))
+          reprocessingEfficiency += 1 * SkillSystem.GetCustomFeatLevelFromSkillPoints(CustomFeats.Connections, player.learntCustomFeats[CustomFeats.Connections]) / 100;
 
         if (Enum.TryParse(oreName, out PeltType myOreType) && peltDictionnary.TryGetValue(myOreType, out Pelt processedOre))
         {
-          if (float.TryParse(NWScript.Get2DAString("feat", "GAINMULTIPLE", CreaturePlugin.GetHighestLevelOfFeat(player.oid, (int)processedOre.feat)), out value))
-            reprocessingEfficiency += reprocessingEfficiency + 2 * value / 100;
+          if (player.learntCustomFeats.ContainsKey(processedOre.feat))
+            reprocessingEfficiency += 2 * SkillSystem.GetCustomFeatLevelFromSkillPoints(processedOre.feat, player.learntCustomFeats[processedOre.feat]) / 100;
 
           int refinedMinerals = Convert.ToInt32(player.setValue * processedOre.leathers * reprocessingEfficiency);
           string mineralName = Enum.GetName(typeof(LeatherType), processedOre.refinedType) ?? "";
@@ -122,20 +121,19 @@ namespace NWN.Systems
 
         float reprocessingEfficiency = 0.3f;
 
-        float value;
-        if (float.TryParse(NWScript.Get2DAString("feat", "GAINMULTIPLE", CreaturePlugin.GetHighestLevelOfFeat(player.oid, (int)Feat.PeltReprocessing)), out value))
-          reprocessingEfficiency += reprocessingEfficiency + 3 * value / 100;
+      if (player.learntCustomFeats.ContainsKey(CustomFeats.PeltReprocessing))
+        reprocessingEfficiency += 3 * SkillSystem.GetCustomFeatLevelFromSkillPoints(CustomFeats.PeltReprocessing, player.learntCustomFeats[CustomFeats.PeltReprocessing]) / 100;
 
-        if (float.TryParse(NWScript.Get2DAString("feat", "GAINMULTIPLE", CreaturePlugin.GetHighestLevelOfFeat(player.oid, (int)Feat.PeltReprocessingEfficiency)), out value))
-          reprocessingEfficiency += reprocessingEfficiency + 2 * value / 100;
+      if (player.learntCustomFeats.ContainsKey(CustomFeats.PeltReprocessingEfficiency))
+        reprocessingEfficiency += 2 * SkillSystem.GetCustomFeatLevelFromSkillPoints(CustomFeats.PeltReprocessingEfficiency, player.learntCustomFeats[CustomFeats.PeltReprocessingEfficiency]) / 100;
 
-        if (float.TryParse(NWScript.Get2DAString("feat", "GAINMULTIPLE", CreaturePlugin.GetHighestLevelOfFeat(player.oid, (int)Feat.Connections)), out value))
-          reprocessingEfficiency += reprocessingEfficiency + 1 * value / 100;
+      if (player.learntCustomFeats.ContainsKey(CustomFeats.Connections))
+        reprocessingEfficiency += 1 * SkillSystem.GetCustomFeatLevelFromSkillPoints(CustomFeats.Connections, player.learntCustomFeats[CustomFeats.Connections]) / 100;
 
       if (Enum.TryParse(oreName, out PeltType myOreType) && peltDictionnary.TryGetValue(myOreType, out Pelt processedOre))
       {
-        if (float.TryParse(NWScript.Get2DAString("feat", "GAINMULTIPLE", CreaturePlugin.GetHighestLevelOfFeat(player.oid, (int)processedOre.feat)), out value))
-          reprocessingEfficiency += reprocessingEfficiency + 2 * value / 100;
+        if (player.learntCustomFeats.ContainsKey(processedOre.feat))
+          reprocessingEfficiency += 2 * SkillSystem.GetCustomFeatLevelFromSkillPoints(processedOre.feat, player.learntCustomFeats[processedOre.feat]) / 100;
 
         int refinedMinerals = Convert.ToInt32(player.materialStock[oreName] * processedOre.leathers * reprocessingEfficiency);
         string mineralName = Enum.GetName(typeof(LeatherType), processedOre.refinedType) ?? "";

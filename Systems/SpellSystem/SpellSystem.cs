@@ -38,7 +38,7 @@ namespace NWN.Systems
       {
         if (NWScript.GetObjectSeen(oPC, spotter) != 1)
         {
-          spotter.SendServerMessage("Quelqu'un d'invisible est en train de lancer un sort à proximité !");
+          spotter.SendServerMessage("Quelqu'un d'invisible est en train de lancer un sort à proximité !", API.Color.CYAN);
           PlayerPlugin.ShowVisualEffect(spotter, 191, NWScript.GetPosition(oPC));
         }
       }
@@ -49,19 +49,22 @@ namespace NWN.Systems
       if (!(callInfo.ObjectSelf is NwPlayer))
         return;
 
-      NwPlayer player = (NwPlayer)callInfo.ObjectSelf;
+      NwPlayer oPC = (NwPlayer)callInfo.ObjectSelf;
 
-      player.GetLocalVariable<int>("_DELAYED_SPELLHOOK_REFLEX").Value = CreaturePlugin.GetBaseSavingThrow(player, NWScript.SAVING_THROW_REFLEX);
-      player.GetLocalVariable<int>("_DELAYED_SPELLHOOK_WILL").Value = CreaturePlugin.GetBaseSavingThrow(player, NWScript.SAVING_THROW_WILL);
-      player.GetLocalVariable<int>("_DELAYED_SPELLHOOK_FORT").Value = CreaturePlugin.GetBaseSavingThrow(player, NWScript.SAVING_THROW_FORT);
+      if (!PlayerSystem.Players.TryGetValue(oPC, out PlayerSystem.Player player))
+        return;
 
-      if (int.TryParse(NWScript.Get2DAString("feat", "GAINMULTIPLE", CreaturePlugin.GetHighestLevelOfFeat(player, (int)Feat.ImprovedCasterLevel)), out int casterLevel))
-        CreaturePlugin.SetLevelByPosition(player, 0, casterLevel + 1);
+      oPC.GetLocalVariable<int>("_DELAYED_SPELLHOOK_REFLEX").Value = CreaturePlugin.GetBaseSavingThrow(oPC, NWScript.SAVING_THROW_REFLEX);
+      oPC.GetLocalVariable<int>("_DELAYED_SPELLHOOK_WILL").Value = CreaturePlugin.GetBaseSavingThrow(oPC, NWScript.SAVING_THROW_WILL);
+      oPC.GetLocalVariable<int>("_DELAYED_SPELLHOOK_FORT").Value = CreaturePlugin.GetBaseSavingThrow(oPC, NWScript.SAVING_THROW_FORT);
+
+      if (player.learntCustomFeats.ContainsKey(CustomFeats.ImprovedCasterLevel))
+        CreaturePlugin.SetLevelByPosition(oPC, 0, SkillSystem.GetCustomFeatLevelFromSkillPoints(CustomFeats.ImprovedCasterLevel, player.learntCustomFeats[CustomFeats.ImprovedCasterLevel]) + 1);
 
       int spellId = NWScript.GetSpellId();
       int classe = 43; // aventurier
 
-      if (player.GetAbilityScore(Ability.Charisma) > player.GetAbilityScore(Ability.Intelligence))
+      if (oPC.GetAbilityScore(Ability.Charisma) > oPC.GetAbilityScore(Ability.Intelligence))
         classe = (int)ClassType.Sorcerer;
 
       if (int.TryParse(NWScript.Get2DAString("spells", "Cleric", spellId), out int value))
@@ -75,8 +78,8 @@ namespace NWN.Systems
       else if (int.TryParse(NWScript.Get2DAString("spells", "Ranger", spellId), out value))
         classe = (int)ClassType.Ranger;
 
-      CreaturePlugin.SetClassByPosition(player, 0, classe);
-      NWScript.DelayCommand(0.0f, () => DelayedSpellHook(player));
+      CreaturePlugin.SetClassByPosition(oPC, 0, classe);
+      NWScript.DelayCommand(0.0f, () => DelayedSpellHook(oPC));
     }
     private void DelayedSpellHook(NwPlayer player)
     {

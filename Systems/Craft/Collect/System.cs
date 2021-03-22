@@ -4,10 +4,11 @@ using NWN.Core;
 using NWN.Core.NWNX;
 using static NWN.Systems.Craft.Collect.Config;
 using static NWN.Systems.Craft.Blueprint;
-using NWN.Services;
 using NWN.API;
 using NLog;
 using System.Linq;
+using NWN.API.Constants;
+using Action = System.Action;
 
 namespace NWN.Systems.Craft.Collect
 {
@@ -20,80 +21,79 @@ namespace NWN.Systems.Craft.Collect
 
     public static Dictionary<int, Feat> craftBaseItemFeatDictionnary = new Dictionary<int, Feat>()
     {
-      {-13, Feat.Research },
-      {-12, Feat.Metallurgy },
-      {-11, Feat.BlueprintCopy },
-      {-9, Feat.CraftClothing },
-      {-8, Feat.CraftFullPlate },
-      {-7, Feat.CraftHalfPlate },
-      {-6, Feat.CraftSplintMail },
-      {-5, Feat.CraftBreastPlate },
-      {-4, Feat.CraftScaleMail },
-      {-3, Feat.CraftStuddedLeather },
-      {-2, Feat.CraftLeatherArmor },
-      {-1, Feat.CraftPaddedArmor },
-      {0, Feat.CraftShortsword },
-      {1, Feat.CraftLongsword },
-      {2, Feat.CraftBattleAxe },
-      {3, Feat.CraftBastardSword },
-      {4, Feat.CraftLightFlail },
-      {5, Feat.CraftWarHammer },
-      {6, Feat.CraftHeavyCrossbow },
-      {7, Feat.CraftLightCrossbow },
-      {8, Feat.CraftLongBow },
-      {9, Feat.CraftLightMace },
-      {10, Feat.CraftHalberd },
-      {11, Feat.CraftShortBow },
-      {12, Feat.CraftTwoBladedSword },
-      {13, Feat.CraftGreatSword },
-      {14, Feat.CraftSmallShield },
-      {15, Feat.CraftTorch },
-      {17, Feat.CraftHelmet },
-      {18, Feat.CraftGreatAxe },
-      {19, Feat.CraftAmulet },
-      {20, Feat.CraftArrow },
-      {21, Feat.CraftBelt },
-      {22, Feat.CraftDagger },
-      {25, Feat.CraftBolt },
-      {26, Feat.CraftBoots },
-      {27, Feat.CraftBullets },
-      {28, Feat.CraftClub },
-      {31, Feat.CraftDarts },
-      {32, Feat.CraftDireMace },
-      {33, Feat.CraftDoubleAxe },
-      {35, Feat.CraftHeavyFlail },
-      {36, Feat.CraftGloves },
-      {37, Feat.CraftLightHammer },
-      {38, Feat.CraftHandAxe },
-      {40, Feat.CraftKama },
-      {41, Feat.CraftKatana },
-      {42, Feat.CraftKukri },
-      {44, Feat.CraftMagicRod },
-      {45, Feat.CraftStaff },
-      {46, Feat.CraftMagicWand },
-      {47, Feat.CraftMorningStar },
-      {49, Feat.CraftPotion },
-      {50, Feat.CraftQuarterstaff },
-      {51, Feat.CraftRapier },
-      {52, Feat.CraftRing },
-      {53, Feat.CraftScimitar },
-      {55, Feat.CraftScythe },
-      {56, Feat.CraftLargeShield },
-      {57, Feat.CraftTowerShield },
-      {58, Feat.CraftShortSpear },
-      {59, Feat.CraftShuriken },
-      {60, Feat.CraftSickle },
-      {61, Feat.CraftSling },
-      {63, Feat.CraftThrowingAxe },
-      {75, Feat.CraftSpellScroll },
-      {78, Feat.CraftBracer },
-      {80, Feat.CraftCloak },
-      {92, Feat.CraftLance },
-      {95, Feat.CraftTrident },
-      {108, Feat.CraftDwarvenWarAxe },
-      {111, Feat.CraftWhip },
-      {114, Feat.CraftForgeHammer },
-      {115, Feat.CraftOreExtractor },
+      {-13, CustomFeats.Research },
+      {-12, CustomFeats.Metallurgy },
+      {-11, CustomFeats.BlueprintCopy },
+      {-9, CustomFeats.CraftClothing },
+      {-8, CustomFeats.CraftFullPlate },
+      {-7, CustomFeats.CraftHalfPlate },
+      {-6, CustomFeats.CraftSplintMail },
+      {-5, CustomFeats.CraftBreastPlate },
+      {-4, CustomFeats.CraftScaleMail },
+      {-3, CustomFeats.CraftStuddedLeather },
+      {-2, CustomFeats.CraftLeatherArmor },
+      {-1, CustomFeats.CraftPaddedArmor },
+      {0, CustomFeats.CraftShortsword },
+      {1, CustomFeats.CraftLongsword },
+      {2, CustomFeats.CraftBattleAxe },
+      {3, CustomFeats.CraftBastardSword },
+      {4, CustomFeats.CraftLightFlail },
+      {5, CustomFeats.CraftWarHammer },
+      {6, CustomFeats.CraftHeavyCrossbow },
+      {7, CustomFeats.CraftLightCrossbow },
+      {8, CustomFeats.CraftLongBow },
+      {9, CustomFeats.CraftLightMace },
+      {10, CustomFeats.CraftHalberd },
+      {11, CustomFeats.CraftShortBow },
+      {12, CustomFeats.CraftTwoBladedSword },
+      {13, CustomFeats.CraftGreatSword },
+      {14, CustomFeats.CraftSmallShield },
+      {15, CustomFeats.CraftTorch },
+      {17, CustomFeats.CraftHelmet },
+      {18, CustomFeats.CraftGreatAxe },
+      {19, CustomFeats.CraftAmulet },
+      {20, CustomFeats.CraftArrow },
+      {21, CustomFeats.CraftBelt },
+      {22, CustomFeats.CraftDagger },
+      {25, CustomFeats.CraftBolt },
+      {26, CustomFeats.CraftBoots },
+      {27, CustomFeats.CraftBullets },
+      {28, CustomFeats.CraftClub },
+      {31, CustomFeats.CraftDarts },
+      {32, CustomFeats.CraftDireMace },
+      {33, CustomFeats.CraftDoubleAxe },
+      {35, CustomFeats.CraftHeavyFlail },
+      {36, CustomFeats.CraftGloves },
+      {37, CustomFeats.CraftLightHammer },
+      {38, CustomFeats.CraftHandAxe },
+      {40, CustomFeats.CraftKama },
+      {41, CustomFeats.CraftKatana },
+      {42, CustomFeats.CraftKukri },
+      {44, CustomFeats.CraftMagicRod },
+      {45, CustomFeats.CraftStaff },
+      {46, CustomFeats.CraftMagicWand },
+      {47, CustomFeats.CraftMorningStar },
+      {49, CustomFeats.CraftPotion },
+      {50, CustomFeats.CraftQuarterstaff },
+      {51, CustomFeats.CraftRapier },
+      {52, CustomFeats.CraftRing },
+      {53, CustomFeats.CraftScimitar },
+      {55, CustomFeats.CraftScythe },
+      {56, CustomFeats.CraftLargeShield },
+      {57, CustomFeats.CraftTowerShield },
+      {58, CustomFeats.CraftShortSpear },
+      {59, CustomFeats.CraftShuriken },
+      {60, CustomFeats.CraftSickle },
+      {61, CustomFeats.CraftSling },
+      {63, CustomFeats.CraftThrowingAxe },
+      {75, CustomFeats.CraftSpellScroll },
+      {78, CustomFeats.CraftBracer },
+      {80, CustomFeats.CraftCloak },
+      {95, CustomFeats.CraftTrident },
+      {108, CustomFeats.CraftDwarvenWarAxe },
+      {111, CustomFeats.CraftWhip },
+      {114, CustomFeats.CraftForgeHammer },
+      {115, CustomFeats.CraftOreExtractor },
     };
     public static int[] forgeBasicBlueprints = new int[] { -4, 114, 115, NWScript.BASE_ITEM_LIGHTMACE, NWScript.BASE_ITEM_HELMET, NWScript.BASE_ITEM_DAGGER, NWScript.BASE_ITEM_MORNINGSTAR, NWScript.BASE_ITEM_SHORTSPEAR, NWScript.BASE_ITEM_SICKLE };
     public static int[] woodBasicBlueprints = new int[] { 114, 115, NWScript.BASE_ITEM_SMALLSHIELD, NWScript.BASE_ITEM_CLUB, NWScript.BASE_ITEM_DART, NWScript.BASE_ITEM_BULLET, NWScript.BASE_ITEM_HEAVYCROSSBOW, NWScript.BASE_ITEM_LIGHTCROSSBOW, NWScript.BASE_ITEM_QUARTERSTAFF, NWScript.BASE_ITEM_SLING, NWScript.BASE_ITEM_ARROW, NWScript.BASE_ITEM_BOLT };
@@ -107,7 +107,7 @@ namespace NWN.Systems.Craft.Collect
     public static void StartCollectCycle(PlayerSystem.Player player, uint oPlaceable, Action completeCallback)
     {
       player.OnCollectCycleCancel = () => {
-        NWN.Utils.RemoveTaggedEffect(oPlaceable, $"_{NWScript.GetPCPublicCDKey(player.oid)}_MINING_BEAM");
+        Utils.RemoveTaggedEffect(oPlaceable, $"_{player.oid.CDKey}_MINING_BEAM");
         RemoveCollectCycleCallbacks(player);
         PlayerPlugin.StopGuiTimingBar(player.oid);
       };
@@ -116,18 +116,18 @@ namespace NWN.Systems.Craft.Collect
         RemoveCollectCycleCallbacks(player);
       };
 
-      var resourceExtractor = NWScript.GetItemInSlot(NWScript.INVENTORY_SLOT_RIGHTHAND, player.oid);
+      NwItem resourceExtractor = player.oid.GetItemInSlot(API.Constants.InventorySlot.RightHand);
       float cycleDuration = 180.0f;
-      if (NWN.Systems.Config.env == NWN.Systems.Config.Env.Chim)
+      if (Systems.Config.env == Systems.Config.Env.Chim)
         cycleDuration = 10.0f;
 
-      if (NWScript.GetIsObjectValid(resourceExtractor) == 1) // TODO : Idée pour plus tard, le strip miner le plus avancé pourra équipper un cristal de spécialisation pour extraire deux fois plus de minerai en un cycle sur son minerai de spécialité
+      if (resourceExtractor != null) // TODO : Idée pour plus tard, le strip miner le plus avancé pourra équipper un cristal de spécialisation pour extraire deux fois plus de minerai en un cycle sur son minerai de spécialité
       {
-        cycleDuration = cycleDuration - (cycleDuration * NWScript.GetLocalInt(resourceExtractor, "_ITEM_LEVEL") * 2 / 100);
+        cycleDuration = cycleDuration - (cycleDuration * resourceExtractor.GetLocalVariable<int>("_ITEM_LEVEL").Value * 2 / 100);
       }
 
       Core.Effect eRay = NWScript.EffectBeam(NWScript.VFX_BEAM_DISINTEGRATE, resourceExtractor, 1, 0, 3);
-      eRay = NWScript.TagEffect(eRay, $"_{NWScript.GetPCPublicCDKey(player.oid)}_MINING_BEAM");
+      eRay = NWScript.TagEffect(eRay, $"_{player.oid.CDKey}_MINING_BEAM");
       NWScript.ApplyEffectToObject(NWScript.DURATION_TYPE_TEMPORARY, eRay, oPlaceable, cycleDuration);
 
       PlayerPlugin.StartGuiTimingBar(player.oid, cycleDuration, "collect_complete");
@@ -162,15 +162,15 @@ namespace NWN.Systems.Craft.Collect
       craftedItem.Name = $"{craftedItem.Name} en {name}";
       craftedItem.GetLocalVariable<string>("_ITEM_MATERIAL").Value = material;
       
-      foreach (Core.ItemProperty ip in GetCraftItemProperties(material, craftedItem))
+      foreach (API.ItemProperty ip in GetCraftItemProperties(material, craftedItem))
       {
         //NWScript.SendMessageToPC(NWScript.GetFirstPC(), $"Adding IP : {ip}");
-        NWScript.AddItemProperty(NWScript.DURATION_TYPE_PERMANENT, ip, craftedItem);
+        craftedItem.AddItemProperty(ip, EffectDuration.Permanent);
       }
     }
-    public static void AddCraftedEnchantementProperties(NwItem craftedItem, string spellId)
+    public static void AddCraftedEnchantementProperties(NwItem craftedItem, string spellId, int boost)
     {
-      craftedItem.AddItemProperty(GetCraftEnchantementProperties(craftedItem, spellId), EffectDuration.Permanent);
+      craftedItem.AddItemProperty(GetCraftEnchantementProperties(craftedItem, spellId, boost), EffectDuration.Permanent);
       Log.Info("Enchantement properties added");
     }
     public static bool IsItemCraftMaterial(string itemTag)
@@ -203,7 +203,7 @@ namespace NWN.Systems.Craft.Collect
         || Array.FindIndex(normalPelts, x => x == itemTag) > -1)
         return "pelt";
 
-      NWN.Utils.LogMessageToDMs($"Could not find item template for tag : {itemTag}");
+      Utils.LogMessageToDMs($"Could not find item template for tag : {itemTag}");
       return "";
     }
   }

@@ -24,79 +24,79 @@ namespace NWN.Systems
       Clothes = 9,
     }
 
-    public static ItemCategory GetItemCategory(int baseItemType)
+    public static ItemCategory GetItemCategory(BaseItemType baseItemType)
     {
       switch (baseItemType)
       {
-        case NWScript.BASE_ITEM_ARMOR:
-        case NWScript.BASE_ITEM_HELMET:
+        case BaseItemType.Armor:
+        case BaseItemType.Helmet:
           return ItemCategory.Armor;
-        case NWScript.BASE_ITEM_SMALLSHIELD:
-        case NWScript.BASE_ITEM_TOWERSHIELD:
-        case NWScript.BASE_ITEM_LARGESHIELD:
+        case BaseItemType.SmallShield:
+        case BaseItemType.TowerShield:
+        case BaseItemType.LargeShield:
           return ItemCategory.Shield;
-        case NWScript.BASE_ITEM_DOUBLEAXE:
-        case NWScript.BASE_ITEM_GREATAXE:
-        case NWScript.BASE_ITEM_GREATSWORD:
-        case NWScript.BASE_ITEM_HALBERD:
-        case NWScript.BASE_ITEM_HEAVYFLAIL:
-        case NWScript.BASE_ITEM_QUARTERSTAFF:
-        case NWScript.BASE_ITEM_SCYTHE:
-        case NWScript.BASE_ITEM_TWOBLADEDSWORD:
-        case NWScript.BASE_ITEM_DIREMACE:
-        case NWScript.BASE_ITEM_TRIDENT:
-        case NWScript.BASE_ITEM_SHORTSPEAR:
+        case BaseItemType.Doubleaxe:
+        case BaseItemType.Greataxe:
+        case BaseItemType.Greatsword:
+        case BaseItemType.Halberd:
+        case BaseItemType.HeavyFlail:
+        case BaseItemType.Quarterstaff:
+        case BaseItemType.Scythe:
+        case BaseItemType.TwoBladedSword:
+        case BaseItemType.DireMace:
+        case BaseItemType.Trident:
+        case BaseItemType.ShortSpear:
           return ItemCategory.TwoHandedMeleeWeapon;
-        case NWScript.BASE_ITEM_BASTARDSWORD:
-        case NWScript.BASE_ITEM_LONGSWORD:
-        case NWScript.BASE_ITEM_BATTLEAXE:
-        case NWScript.BASE_ITEM_CLUB:
-        case NWScript.BASE_ITEM_DAGGER:
-        case NWScript.BASE_ITEM_DWARVENWARAXE:
-        case NWScript.BASE_ITEM_HANDAXE:
-        case NWScript.BASE_ITEM_KAMA:
-        case NWScript.BASE_ITEM_KATANA:
-        case NWScript.BASE_ITEM_KUKRI:
-        case NWScript.BASE_ITEM_LIGHTFLAIL:
-        case NWScript.BASE_ITEM_LIGHTHAMMER:
-        case NWScript.BASE_ITEM_LIGHTMACE:
-        case NWScript.BASE_ITEM_MORNINGSTAR:
-        case NWScript.BASE_ITEM_RAPIER:
-        case NWScript.BASE_ITEM_SHORTSWORD:
-        case NWScript.BASE_ITEM_SCIMITAR:
-        case NWScript.BASE_ITEM_SICKLE:
-        case NWScript.BASE_ITEM_WARHAMMER:
-        case NWScript.BASE_ITEM_WHIP:
+        case BaseItemType.Bastardsword:
+        case BaseItemType.Longsword:
+        case BaseItemType.Battleaxe:
+        case BaseItemType.Club:
+        case BaseItemType.Dagger:
+        case BaseItemType.DwarvenWaraxe:
+        case BaseItemType.Handaxe:
+        case BaseItemType.Kama:
+        case BaseItemType.Katana:
+        case BaseItemType.Kukri:
+        case BaseItemType.LightFlail:
+        case BaseItemType.LightHammer:
+        case BaseItemType.LightMace:
+        case BaseItemType.Morningstar:
+        case BaseItemType.Rapier:
+        case BaseItemType.Shortsword:
+        case BaseItemType.Scimitar:
+        case BaseItemType.Sickle:
+        case BaseItemType.Warhammer:
+        case BaseItemType.Whip:
           return ItemCategory.OneHandedMeleeWeapon;
-        case NWScript.BASE_ITEM_HEAVYCROSSBOW:
-        case NWScript.BASE_ITEM_LIGHTCROSSBOW:
-        case NWScript.BASE_ITEM_SHORTBOW:
-        case NWScript.BASE_ITEM_LONGBOW:
-        case NWScript.BASE_ITEM_DART:
-        case NWScript.BASE_ITEM_SLING:
-        case NWScript.BASE_ITEM_THROWINGAXE:
+        case BaseItemType.HeavyCrossbow:
+        case BaseItemType.LightCrossbow:
+        case BaseItemType.Shortbow:
+        case BaseItemType.Longbow:
+        case BaseItemType.Dart:
+        case BaseItemType.Sling:
+        case BaseItemType.ThrowingAxe:
           return ItemCategory.RangedWeapon;
-        case NWScript.BASE_ITEM_ARROW:
-        case NWScript.BASE_ITEM_BOLT:
-        case NWScript.BASE_ITEM_BULLET:
+        case BaseItemType.Arrow:
+        case BaseItemType.Bolt:
+        case BaseItemType.Bullet:
           return ItemCategory.Ammunition;
-        case NWScript.BASE_ITEM_POTIONS:
-        case NWScript.BASE_ITEM_BLANK_POTION:
-        case NWScript.BASE_ITEM_ENCHANTED_POTION:
+        case BaseItemType.Potions:
+        case BaseItemType.BlankPotion:
+        case BaseItemType.EnchantedPotion:
           return ItemCategory.Potions;
-        case NWScript.BASE_ITEM_BLANK_SCROLL:
-        case NWScript.BASE_ITEM_ENCHANTED_SCROLL:
-        case NWScript.BASE_ITEM_SCROLL:
-        case NWScript.BASE_ITEM_SPELLSCROLL:
+        case BaseItemType.Scroll:
+        case BaseItemType.BlankScroll:
+        case BaseItemType.EnchantedScroll:
+        case BaseItemType.SpellScroll:
           return ItemCategory.Scroll;
-        case NWScript.BASE_ITEM_BELT:
-        case NWScript.BASE_ITEM_BOOTS:
-        case NWScript.BASE_ITEM_BRACER:
-        case NWScript.BASE_ITEM_CLOAK:
-        case NWScript.BASE_ITEM_GLOVES:
+        case BaseItemType.Belt:
+        case BaseItemType.Boots:
+        case BaseItemType.Bracer:
+        case BaseItemType.Cloak:
+        case BaseItemType.Gloves:
           return ItemCategory.Clothes;
-        case 114: //marteau de forgeron
-        case 115: //extracteur de minerai
+        case (BaseItemType)114: //marteau de forgeron
+        case (BaseItemType)115: //extracteur de minerai
           return ItemCategory.CraftTool;
         default:
           return ItemCategory.Invalid;
@@ -149,13 +149,16 @@ namespace NWN.Systems
         ip = NWScript.GetNextItemProperty(oItem);
       }
     }
-    public static void DecreaseItemDurability(uint oItem)
+    public static void DecreaseItemDurability(NwItem oItem)
     {
-      int itemDurability = NWScript.GetLocalInt(oItem, "_DURABILITY");
+      if (oItem == null)
+        return;
+
+      int itemDurability = oItem.GetLocalVariable<int>("_DURABILITY").Value; 
       if (itemDurability <= 1)
-        NWScript.DestroyObject(oItem);
+        oItem.Destroy();
       else
-        NWScript.SetLocalInt(oItem, "_DURABILITY", itemDurability - 1);
+        oItem.GetLocalVariable<int>("_DURABILITY").Value -= 1;
     }
     public static bool IsEquipable(uint oItem)
     {
@@ -269,7 +272,7 @@ namespace NWN.Systems
       {
         if (!int.TryParse(NWScript.Get2DAString("armor", "COST", ItemPlugin.GetBaseArmorClass(item)), out baseCost))
         {
-          Utils.LogMessageToDMs($"RECYCLAGE - {item.Name} - baseCost introuvable pour baseItemType : {baseItemType}");
+          Utils.LogMessageToDMs($"{item.Name} - baseCost introuvable pour baseItemType : {baseItemType}");
           return 999999;
         }
       }
@@ -277,7 +280,7 @@ namespace NWN.Systems
       {
         if (!int.TryParse(NWScript.Get2DAString("baseitems", "BaseCost", (int)baseItemType), out baseCost))
         {
-          Utils.LogMessageToDMs($"RECYCLAGE - {item.Name} - baseCost introuvable pour baseItemType : {baseItemType}");
+          Utils.LogMessageToDMs($"{item.Name} - baseCost introuvable pour baseItemType : {baseItemType}");
           return 999999;
         }
       }

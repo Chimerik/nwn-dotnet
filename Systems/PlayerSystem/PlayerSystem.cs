@@ -23,7 +23,6 @@ namespace NWN.Systems
       NwModule.Instance.OnClientEnter += HandlePlayerConnect;
       NwModule.Instance.OnClientLeave += HandlePlayerLeave;
       NwModule.Instance.OnPlayerDeath += HandlePlayerDeath;
-      NwModule.Instance.OnPlayerTarget += HandlePlayerTarget;
       NwModule.Instance.OnPlayerLevelUp += CancelPlayerLevelUp;
       nwnxEventService.Subscribe<ServerVaultEvents.OnServerCharacterSaveBefore>(HandleBeforePlayerSave);
       nwnxEventService.Subscribe<ServerVaultEvents.OnServerCharacterSaveAfter>(HandleAfterPlayerSave);
@@ -31,18 +30,6 @@ namespace NWN.Systems
     }
 
     public static Dictionary<uint, Player> Players = new Dictionary<uint, Player>();
-
-    private void HandlePlayerTarget(ModuleEvents.OnPlayerTarget onPlayerTarget)
-    {
-      var oPC = onPlayerTarget.Player;
-      var oTarget = onPlayerTarget.TargetObject;
-      var vTarget = onPlayerTarget.TargetPosition;
-
-      if (Players.TryGetValue(oPC, out Player player))
-      {
-        player.DoActionOnTargetSelected(oTarget, vTarget);
-      }
-    }
 
     [ScriptHandler("spacebar_down")]
     private void HandleSpacebarDown(CallInfo callInfo)
@@ -91,15 +78,23 @@ namespace NWN.Systems
       NwPlayer oPC = (NwPlayer)callInfo.ObjectSelf;
       int skillID = int.Parse(EventsPlugin.GetEventData("SKILL_ID"));
 
-      switch (skillID)
+      switch ((Skill)skillID)
       {
-        case NWScript.SKILL_TAUNT:
+        case Skill.Taunt:
           oPC.GetLocalVariable<int>("_ACTIVATED_TAUNT").Value = 1;
-          NWScript.DelayCommand(12.0f, () => oPC.GetLocalVariable<int>("_ACTIVATED_TAUNT").Delete());
+          NWScript.DelayCommand(6.0f, () => oPC.GetLocalVariable<int>("_ACTIVATED_TAUNT").Delete());
           break;
-        case NWScript.SKILL_PICK_POCKET:
+        case Skill.PickPocket:
           EventsPlugin.SkipEvent();
-          NwPlayer oTarget = NWScript.StringToObject(EventsPlugin.GetEventData("TARGET_OBJECT_ID")).ToNwObject<NwPlayer>();
+          NwObject oObject = NWScript.StringToObject(EventsPlugin.GetEventData("TARGET_OBJECT_ID")).ToNwObject();
+
+          if(!(oObject is NwPlayer))
+          {
+            oPC.FloatingTextString("Seuls d'autres joueurs peuvent être ciblés par cette compétence. Les tentatives de vol sur PNJ doivent être jouées en rp avec un dm.".ColorString(Color.RED), false);
+            return;
+          }
+
+          NwPlayer oTarget = (NwPlayer)oObject;
 
           if (oTarget.IsDM || oTarget.IsDMPossessed || oTarget.IsPlayerDM)
           {
@@ -151,7 +146,7 @@ namespace NWN.Systems
           }
 
           break;
-        case NWScript.SKILL_ANIMAL_EMPATHY:
+        case Skill.AnimalEmpathy:
           if (oPC.Area.Tag == "Promenadetest")
           {
             oPC.FloatingTextString("L'endroit est bien trop agité pour que vous puissiez vous permettre de nouer un lien avec l'animal.", false);
@@ -308,7 +303,7 @@ namespace NWN.Systems
 
       if (spellId < 0 || spellLevel < 0)
       {
-        NWN.Utils.LogMessageToDMs($"LEARN SPELL FROM SCROLL - Player : {oPC.Name}, SpellId : {spellId}, SpellLevel : {spellLevel} - INVALID");
+        Utils.LogMessageToDMs($"LEARN SPELL FROM SCROLL - Player : {oPC.Name}, SpellId : {spellId}, SpellLevel : {spellLevel} - INVALID");
         oPC.SendServerMessage("HRP - Ce parchemin ne semble pas correctement configuré, impossible d'en apprendre quoique ce soit. Le staff a été informé du problème.");
         return;
       }
@@ -323,7 +318,7 @@ namespace NWN.Systems
             return;
           }
 
-      if (PlayerSystem.Players.TryGetValue(oPC, out PlayerSystem.Player player))
+      if (Players.TryGetValue(oPC, out Player player))
         if (player.learnableSpells.ContainsKey(spellId))
         {
           oPC.SendServerMessage("Ce sort se trouve déjà dans votre liste d'apprentissage.");
@@ -355,7 +350,13 @@ namespace NWN.Systems
     private void CancelPlayerLevelUp(ModuleEvents.OnPlayerLevelUp onLevelUp)
     {
       onLevelUp.Player.Xp = 1;
-      Utils.LogMessageToDMs($"{onLevelUp.Player} vient d'essayer de level up.");
+      Utils.LogMessageToDMs($"{onLevelUp.Player.Name} vient d'essayer de level up.");
+    }
+    [ScriptHandler("client_lvlup")]
+    private void HandleOnClientLevelUp(CallInfo callInfo)
+    {
+      EventsPlugin.SkipEvent();
+      Utils.LogMessageToDMs($"{callInfo.ObjectSelf.Name} vient d'essayer de level up.");
     }
 
     /*public static Dictionary<string, Func<uint, int>> Register = new Dictionary<string, Func<uint, int>>
@@ -380,7 +381,7 @@ namespace NWN.Systems
 
         CreaturePlugin.DeserializeQuickbar(oidSelf, sQuickBar);
     }*/
-    // Probablement refaire le système de déguisement plus proprement
+    // TODO : Probablement refaire le système de déguisement plus proprement
     /*private static int HandlePlayerPerceived(CallInfo callInfo)
     {
         Player oPC;

@@ -35,24 +35,6 @@ namespace NWN.Systems
           execute: ExecuteWalkCommand
         )
       },
-      /*{
-        "set",
-        new Command(
-          name: "set",
-          description: new Command.Description(title: "Permet d'enregistrer une valeur à utiliser dans les dialogues."),
-          execute: ExecuteSetValueCommand,
-          options: new Options(
-            positional: new List<Option>()
-            {
-              new Option(
-                name: "Value",
-                description: "Value, doit être un chiffre entier positif.",
-                defaultValue: ""
-              )
-            }
-          )
-        )
-      },*/
       {
         "reveal",
         new Command(
@@ -223,7 +205,7 @@ namespace NWN.Systems
           execute: ExecuteCommendCommand
         )
       },
-      {
+      { 
         "renamecreature",
         new Command(
           name: "renamecreature",
@@ -358,6 +340,22 @@ namespace NWN.Systems
               )
             }
           )
+        )
+      },
+      {
+        "saveapparence",
+        new Command(
+          name: "saveapparence",
+          description: new Command.Description(title: "Permet de sauvegarder l'apparence de l'objet sélectionné."),
+          execute: ExecuteSaveAppearanceCommand
+        )
+      },
+      {
+        "restoreapparence",
+        new Command(
+          name: "restoreapparence",
+          description: new Command.Description(title: "Permet d'appliquer une apparence d'objet sauvegardée à l'object sélectionné."),
+          execute: ExecuteLoadAppearanceCommand
         )
       },
       {

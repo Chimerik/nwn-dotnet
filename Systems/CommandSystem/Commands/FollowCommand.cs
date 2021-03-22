@@ -1,7 +1,8 @@
 ﻿using System;
 using NWN.Core;
-using System.Numerics;
-using NWN.Core.NWNX;
+using NWN.API.Constants;
+using NWN.Services;
+using NWN.API;
 
 namespace NWN.Systems
 {
@@ -9,30 +10,25 @@ namespace NWN.Systems
   {
     private static void ExecuteFollowCommand(ChatSystem.Context ctx, Options.Result options)
     {
-      if (PlayerSystem.Players.TryGetValue(ctx.oSender, out PlayerSystem.Player player))
+      if (ctx.oSender.MovementRate == MovementRate.Immobile
+        || ctx.oSender.TotalWeight > int.Parse(NWScript.Get2DAString("encumbrance", "Heavy", ctx.oSender.GetAbilityScore(Ability.Strength))))
       {
-        if (NWScript.GetMovementRate(player.oid) == CreaturePlugin.NWNX_CREATURE_MOVEMENT_RATE_IMMOBILE
-          || NWScript.GetWeight(player.oid) > int.Parse(NWScript.Get2DAString("encumbrance", "Heavy", NWScript.GetAbilityScore(player.oid, NWScript.ABILITY_STRENGTH))))
-        { 
-          NWScript.SendMessageToPC(player.oid, "Cette commande ne peut être utilisée en étant surchargé."); 
-          return; 
-        }
-
-        Action<uint, Vector3> callback = (uint oTarget, Vector3 position) =>
-        {
-          if (NWScript.GetMovementRate(player.oid) == CreaturePlugin.NWNX_CREATURE_MOVEMENT_RATE_IMMOBILE
-            || NWScript.GetWeight(player.oid) > int.Parse(NWScript.Get2DAString("encumbrance", "Heavy", NWScript.GetAbilityScore(player.oid, NWScript.ABILITY_STRENGTH))))
-          {
-            NWScript.SendMessageToPC(player.oid, "Cette commande ne peut être utilisée en étant surchargé.");
-            return;
-          }
-
-          NWScript.AssignCommand(ctx.oSender, () => NWScript.ActionForceFollowObject(oTarget, 3.0f));
-        };
-
-        player.targetEvent = TargetEvent.Creature;
-        player.SelectTarget(callback);
+        ctx.oSender.SendServerMessage("Cette commande ne peut être utilisée en étant surchargé.", Color.RED);
+        return;
       }
+
+      PlayerSystem.cursorTargetService.EnterTargetMode(ctx.oSender, FollowTarget, ObjectTypes.Creature, MouseCursor.Follow);
+    }
+    private static void FollowTarget(CursorTargetData selection)
+    {
+      if (selection.Player.MovementRate == MovementRate.Immobile
+            || selection.Player.TotalWeight > int.Parse(NWScript.Get2DAString("encumbrance", "Heavy", selection.Player.GetAbilityScore(Ability.Strength))))
+      {
+        selection.Player.SendServerMessage("Cette commande ne peut être utilisée en étant surchargé.", Color.RED);
+        return;
+      }
+
+      selection.Player.ActionForceFollowObject((NwGameObject)selection.TargetObj, 3.0f);
     }
   }
 }

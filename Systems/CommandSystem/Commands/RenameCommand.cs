@@ -1,6 +1,8 @@
 ﻿using System;
 using NWN.Core;
-using System.Numerics;
+using NWN.Services;
+using NWN.API;
+using NWN.API.Constants;
 
 namespace NWN.Systems
 {
@@ -8,24 +10,20 @@ namespace NWN.Systems
   {
     private static void ExecuteRenameCommand(ChatSystem.Context ctx, Options.Result options)
     {
-      PlayerSystem.Player player;
-      if (PlayerSystem.Players.TryGetValue(ctx.oSender, out player))
+      if (ctx.oSender.IsDM || ctx.oSender.IsDMPossessed || ctx.oSender.IsPlayerDM)
       {
-        if (Convert.ToBoolean(NWScript.GetIsDM(player.oid)))
-        {
-          string newName = (string)options.positional[0];
-
-          Action<uint, Vector3> callback = (uint oTarget, Vector3 position) =>
-          {
-            NWScript.SetName(oTarget, newName);
-          };
-
-          player.targetEvent = TargetEvent.LootSaverTarget;
-          player.SelectTarget(callback);
-        }
-        else
-          NWScript.SendMessageToPC(player.oid, "Il s'agit d'une commande DM, vous ne pouvez pas en faire usage en PJ.");
+        ctx.oSender.GetLocalVariable<string>("_RENAME_VALUE").Value = (string)options.positional[0];
+        PlayerSystem.cursorTargetService.EnterTargetMode(ctx.oSender, RenameTarget, ObjectTypes.All, MouseCursor.Create);
       }
+      else
+        ctx.oSender.SendServerMessage("Il s'agit d'une commande DM, vous ne pouvez pas en faire usage en PJ.", Color.ORANGE);
+    }
+    private static void RenameTarget(CursorTargetData selection)
+    {
+      if (selection.TargetObj != null)
+        selection.TargetObj.Name = selection.Player.GetLocalVariable<string>("_RENAME_VALUE").Value;
+      else
+        selection.Player.SendServerMessage("Veuillez sélectionner une cible valide.", Color.RED);
     }
   }
 }

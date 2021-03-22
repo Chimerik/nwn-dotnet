@@ -1,7 +1,4 @@
-﻿using System;
-using NWN.Core;
-using System.Numerics;
-using NWN.Core.NWNX;
+﻿using NWN.Core.NWNX;
 
 namespace NWN.Systems
 {
@@ -9,10 +6,7 @@ namespace NWN.Systems
   {
     private static void ExecuteDeleteCharacterCommand(ChatSystem.Context ctx, Options.Result options)
     {
-      if (PlayerSystem.Players.TryGetValue(ctx.oSender, out PlayerSystem.Player player))
-      {
-        AdminPlugin.DeletePlayerCharacter(player.oid, 1, $"Le personnage {NWScript.GetName(player.oid)} a été supprimé.");
-      }
+      AdminPlugin.DeletePlayerCharacter(ctx.oSender, 1, $"Le personnage {ctx.oSender.Name} a été supprimé.");
     }
   }
 }

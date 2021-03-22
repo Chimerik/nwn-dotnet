@@ -13,7 +13,7 @@ namespace NWN.Systems
     public readonly static Dictionary<string, Lootable.Config> lootablesDic = new Dictionary<string, Lootable.Config>
         {
             { "gobelin_chest", new Lootable.Config(
-                gold: new Lootable.Gold(min: 25, max: 75, chance: 75),
+                gold: new Lootable.Gold(min: 15, max: 65, chance: 75),
                 items: new List<Lootable.Item> {
                     new Lootable.Item(chestTag: "simple_weapons", count: 1, chance: 2),
                     new Lootable.Item(chestTag: "light_armor", count: 1, chance: 2),
@@ -31,26 +31,26 @@ namespace NWN.Systems
                 }
             )},
             { "Gobelinchairacanon", new Lootable.Config(
-                gold: new Lootable.Gold(min: 5, max: 25, chance: 20),
+                gold: new Lootable.Gold(min: 1, max: 12, chance: 20),
                 items: new List<Lootable.Item> {
                     new Lootable.Item(chestTag: "ammunitions", count: 1, chance: 5),
                     new Lootable.Item(chestTag: "light_armor", count: 1, chance: 1),
                 }
             )},
             { "Gobelinfrondeur", new Lootable.Config(
-                gold: new Lootable.Gold(min: 5, max: 25, chance: 20),
+                gold: new Lootable.Gold(min: 1, max: 12, chance: 20),
                 items: new List<Lootable.Item> {
                     new Lootable.Item(chestTag: "ammunitions", count: 1, chance: 25),
                 }
             )},
             { "Gobelinfourbe", new Lootable.Config(
-                gold: new Lootable.Gold(min: 5, max: 25, chance: 20),
+                gold: new Lootable.Gold(min: 1, max: 12, chance: 20),
                 items: new List<Lootable.Item> {
                     new Lootable.Item(chestTag: "ammunitions", count: 1, chance: 35),
                 }
             )},
             { "boss_gobelin", new Lootable.Config(
-                gold: new Lootable.Gold(min: 25, max: 150, chance: 75),
+                gold: new Lootable.Gold(min: 15, max: 75, chance: 75),
                 items: new List<Lootable.Item> {
                     new Lootable.Item(chestTag: "simple_weapons", count: 1, chance: 10),
                     new Lootable.Item(chestTag: "light_armor", count: 1, chance: 5),
@@ -63,7 +63,7 @@ namespace NWN.Systems
                 }
             )},
             { "kobolt_chest", new Lootable.Config(
-                gold: new Lootable.Gold(min: 35, max: 100, chance: 75),
+                gold: new Lootable.Gold(min: 15, max: 65, chance: 75),
                 items: new List<Lootable.Item> {
                     new Lootable.Item(chestTag: "simple_weapons", count: 1, chance: 3),
                     new Lootable.Item(chestTag: "light_armor", count: 1, chance: 3),
@@ -76,7 +76,7 @@ namespace NWN.Systems
                 }
             )},
             { "boss_kobolt", new Lootable.Config(
-                gold: new Lootable.Gold(min: 35, max: 175, chance: 100),
+                gold: new Lootable.Gold(min: 25, max: 75, chance: 100),
                 items: new List<Lootable.Item> {
                     new Lootable.Item(chestTag: "simple_weapons", count: 1, chance: 10),
                     new Lootable.Item(chestTag: "light_armor", count: 1, chance: 5),
@@ -89,14 +89,14 @@ namespace NWN.Systems
                 }
             )},
             { "Koboltfantassin", new Lootable.Config(
-                gold: new Lootable.Gold(min: 15, max: 40, chance: 35),
+                gold: new Lootable.Gold(min: 2, max: 12, chance: 35),
                 items: new List<Lootable.Item> {
                     new Lootable.Item(chestTag: "light_armor", count: 1, chance: 1),
                     new Lootable.Item(chestTag: "ammunitions", count: 1, chance: 5),
                 }
             )},
             { "Koboltsournois", new Lootable.Config(
-                gold: new Lootable.Gold(min: 15, max: 40, chance: 35),
+                gold: new Lootable.Gold(min: 2, max: 12, chance: 35),
                 items: new List<Lootable.Item> {
                     new Lootable.Item(chestTag: "ammunitions", count: 1, chance: 10),
                 }

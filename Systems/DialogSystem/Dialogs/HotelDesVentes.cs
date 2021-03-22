@@ -29,8 +29,27 @@ namespace NWN.Systems
         "Que souhaitez-vous faire ?"
       };
 
-      player.menu.choices.Add(("Créer un nouvel ordre de vente.", () => DrawSellOrderPage(player)));
-      player.menu.choices.Add(("Créer un nouvel ordre d'achat.", () => DrawBuyOrderPage(player)));
+      int negociateurLevel = 1;
+      if (player.learntCustomFeats.ContainsKey(CustomFeats.Negociateur))
+        negociateurLevel += SkillSystem.GetCustomFeatLevelFromSkillPoints(CustomFeats.Negociateur, player.learntCustomFeats[CustomFeats.Negociateur]);
+
+      int currentOrders = 0;
+      var query = NWScript.SqlPrepareQueryCampaign(Config.database, $"SELECT count(rowid) from playerBuyOrders where characterId = @characterId");
+      NWScript.SqlBindInt(query, "@characterId", player.characterId);
+      if (NWScript.SqlStep(query) == 1)
+        currentOrders += NWScript.SqlGetInt(query, 0);
+
+      query = NWScript.SqlPrepareQueryCampaign(Config.database, $"SELECT count(rowid) from playerSellOrders where characterId = @characterId");
+      NWScript.SqlBindInt(query, "@characterId", player.characterId);
+      if (NWScript.SqlStep(query) == 1)
+        currentOrders += NWScript.SqlGetInt(query, 0);
+
+      if (currentOrders <= negociateurLevel * 3)
+      {
+        player.menu.choices.Add(("Créer un nouvel ordre de vente.", () => DrawSellOrderPage(player)));
+        player.menu.choices.Add(("Créer un nouvel ordre d'achat.", () => DrawBuyOrderPage(player)));
+      }
+
       player.menu.choices.Add(("Consulter les ordres de vente actifs.", () => SellOrderListMaterialSelection(player)));
       player.menu.choices.Add(("Consulter les ordres d'achat actifs.", () => BuyOrderListMaterialSelection(player)));
       player.menu.choices.Add(("Consulter mes ordres de vente.", () => DrawMySellOrderPage(player)));
@@ -126,7 +145,11 @@ namespace NWN.Systems
 
         int remainingQuantity = quantity;
 
-        while(NWScript.SqlStep(buyOrdersQuery) > 0)
+        int comptabiliteLevel = 0;
+        if (player.learntCustomFeats.ContainsKey(CustomFeats.Comptabilite))
+          comptabiliteLevel += SkillSystem.GetCustomFeatLevelFromSkillPoints(CustomFeats.Comptabilite, player.learntCustomFeats[CustomFeats.Comptabilite]);
+
+        while (NWScript.SqlStep(buyOrdersQuery) > 0)
         {
           int buyOrderQuantity = NWScript.SqlGetInt(buyOrdersQuery, 1);
           int boughtQuantity = 0;
@@ -144,7 +167,7 @@ namespace NWN.Systems
 
           remainingQuantity -= boughtQuantity;
 
-          player.bankGold += boughtQuantity * NWScript.SqlGetInt(buyOrdersQuery, 2) * 95 / 100;
+          player.bankGold += boughtQuantity * NWScript.SqlGetInt(buyOrdersQuery, 2) * (95 + comptabiliteLevel) / 100;
           player.oid.SendServerMessage($"Vous venez de vendre {boughtQuantity} unité(s) de {material} en vente directe. L'or a été versé directement à votre banque.", Color.PINK);
 
           if (remainingQuantity <= 0)
@@ -206,7 +229,15 @@ namespace NWN.Systems
           return;
         }
 
+        int brokerLevel = 0;
+        if (player.learntCustomFeats.ContainsKey(CustomFeats.BrokerRelations))
+          brokerLevel += SkillSystem.GetCustomFeatLevelFromSkillPoints(CustomFeats.BrokerRelations, player.learntCustomFeats[CustomFeats.BrokerRelations]);
+
+        if (player.learntCustomFeats.ContainsKey(CustomFeats.BrokerAffinity))
+          brokerLevel += SkillSystem.GetCustomFeatLevelFromSkillPoints(CustomFeats.BrokerAffinity, player.learntCustomFeats[CustomFeats.BrokerAffinity]);
+
         int brokerFee = remainingQuantity * player.setValue * 5 / 100;
+        brokerFee -= brokerFee * 6 * brokerLevel / 100;
         if (brokerFee < 1)
           brokerFee = 1;
 
@@ -400,16 +431,25 @@ namespace NWN.Systems
           }
 
           NwPlayer oSeller = NwModule.Instance.Players.FirstOrDefault(p => ObjectPlugin.GetInt(p, "characterId") == sellerID);
-          int acquiredGold = transferedQuantity * NWScript.SqlGetInt(selectCharacterId, 1) * 95 / 100;
+
+          int acquiredGold;
 
           if (oSeller != null && Players.TryGetValue(oSeller, out Player seller))
           {
+            int comptabiliteLevel = 0;
+            if (seller.learntCustomFeats.ContainsKey(CustomFeats.Comptabilite))
+              comptabiliteLevel += SkillSystem.GetCustomFeatLevelFromSkillPoints(CustomFeats.Comptabilite, seller.learntCustomFeats[CustomFeats.Comptabilite]);
+
+            acquiredGold = transferedQuantity * NWScript.SqlGetInt(selectCharacterId, 1) * (95 + comptabiliteLevel) / 100;
+
             seller.bankGold += acquiredGold;
             oSeller.SendServerMessage($"Votre ordre d'achat {entry.Key} vous a permis d'acquérir {transferedQuantity} unité(s) de {material}", Color.PINK);
           }
           else
           {
             // TODO : A la prochaine connexion du joueur, lui envoyer un courrier afin de lui indiquer que son ordre de vente a porté ses fruits
+            acquiredGold = transferedQuantity * NWScript.SqlGetInt(selectCharacterId, 1) * 95 / 100;
+
             var buyerQuery = NWScript.SqlPrepareQueryCampaign(Config.database, $"UPDATE playerCharacters SET bankGold = bankGold + @gold where characterId = @characterId");
             NWScript.SqlBindInt(buyerQuery, "@characterId", sellerID);
             NWScript.SqlBindInt(buyerQuery, "@gold", acquiredGold);
@@ -424,7 +464,15 @@ namespace NWN.Systems
           return;
         }
 
+        int brokerLevel = 0;
+        if (player.learntCustomFeats.ContainsKey(CustomFeats.BrokerRelations))
+          brokerLevel += SkillSystem.GetCustomFeatLevelFromSkillPoints(CustomFeats.BrokerRelations, player.learntCustomFeats[CustomFeats.BrokerRelations]);
+
+        if (player.learntCustomFeats.ContainsKey(CustomFeats.BrokerAffinity))
+          brokerLevel += SkillSystem.GetCustomFeatLevelFromSkillPoints(CustomFeats.BrokerAffinity, player.learntCustomFeats[CustomFeats.BrokerAffinity]);
+
         int brokerFee = remainingQuantity * player.setValue * 5 / 100;
+        brokerFee -= brokerFee * 6 * brokerLevel / 100;
         if (brokerFee < 1)
           brokerFee = 1;
 

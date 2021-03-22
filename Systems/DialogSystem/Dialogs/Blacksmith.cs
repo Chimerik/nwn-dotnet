@@ -1,5 +1,6 @@
 ﻿using System.Linq;
 using NWN.API;
+using NWN.API.Constants;
 using NWN.Core;
 using NWN.Core.NWNX;
 using static NWN.Systems.PlayerSystem;
@@ -34,18 +35,25 @@ namespace NWN.Systems
         foreach (Feat feat in SkillSystem.forgeBasicSkillBooks)
         {
           NwItem skillBook = NwItem.Create("skillbookgeneriq", shop, 1, "skillbook");
-          ItemPlugin.SetItemAppearance(skillBook, NWScript.ITEM_APPR_TYPE_SIMPLE_MODEL, 2, NWN.Utils.random.Next(0, 50));
+          ItemPlugin.SetItemAppearance(skillBook, NWScript.ITEM_APPR_TYPE_SIMPLE_MODEL, 2, Utils.random.Next(0, 50));
           skillBook.GetLocalVariable<int>("_SKILL_ID").Value = (int)feat;
 
-          int value;
-          if (int.TryParse(NWScript.Get2DAString("feat", "FEAT", (int)feat), out value))
-            skillBook.Name = NWScript.GetStringByStrRef(value);
+          if (SkillSystem.customFeatsDictionnary.ContainsKey(feat))
+          {
+            skillBook.Name = SkillSystem.customFeatsDictionnary[feat].name;
+            skillBook.Description = SkillSystem.customFeatsDictionnary[feat].description;
+          }
+          else
+          {
+            if (int.TryParse(NWScript.Get2DAString("feat", "FEAT", (int)feat), out int nameValue))
+              skillBook.Name = NWScript.GetStringByStrRef(nameValue);
 
-          if (int.TryParse(NWScript.Get2DAString("feat", "DESCRIPTION", (int)feat), out value))
-            skillBook.Description = NWScript.GetStringByStrRef(value);
+            if (int.TryParse(NWScript.Get2DAString("feat", "DESCRIPTION", (int)feat), out int descriptionValue))
+              skillBook.Description = NWScript.GetStringByStrRef(descriptionValue);
+          }
 
-          if (int.TryParse(NWScript.Get2DAString("feat", "CRValue", (int)feat), out value))
-            ItemPlugin.SetBaseGoldPieceValue(skillBook, value * 1000);
+          if (int.TryParse(NWScript.Get2DAString("feat", "CRValue", (int)feat), out int crValue))
+            ItemPlugin.SetBaseGoldPieceValue(skillBook, crValue * 1000);
         }
 
         NwItem craftTool = NwItem.Create("oreextractor", shop, 1, "oreextractor");

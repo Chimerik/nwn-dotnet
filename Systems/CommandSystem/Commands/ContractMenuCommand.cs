@@ -1,9 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Threading.Tasks;
-using NWN.API;
-using static NWN.Systems.Craft.Collect.Config;
-
-namespace NWN.Systems
+﻿namespace NWN.Systems
 {
   public static partial class CommandSystem
   {

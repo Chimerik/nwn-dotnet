@@ -4,7 +4,6 @@ using NWN.Services;
 using System.Linq;
 using NWN.Core.NWNX;
 using NWN.Core;
-using System;
 using NLog;
 
 namespace NWN.Systems

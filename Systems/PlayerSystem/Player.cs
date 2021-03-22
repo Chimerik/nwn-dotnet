@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Numerics;
 using System.Collections.Generic;
 using NWN.Core;
 using NWN.Core.NWNX;
@@ -7,6 +6,9 @@ using static NWN.Systems.SkillSystem;
 using NWN.Systems.Craft;
 using NWN.API;
 using System.Threading.Tasks;
+using Skill = NWN.Systems.SkillSystem.Skill;
+using Action = System.Action;
+using NWN.API.Constants;
 
 namespace NWN.Systems
 {
@@ -40,9 +42,10 @@ namespace NWN.Systems
 
       public List<NwPlayer> listened = new List<NwPlayer>();
       public Dictionary<uint, Player> blocked = new Dictionary<uint, Player>();
-      public Dictionary<int, Skill> learnableSkills = new Dictionary<int, Skill>();
+      public Dictionary<Feat, int> learntCustomFeats = new Dictionary<Feat, int>();
+      public Dictionary<Feat, Skill> learnableSkills = new Dictionary<Feat, Skill>();
       public Dictionary<int, LearnableSpell> learnableSpells = new Dictionary<int, LearnableSpell>();
-      public Dictionary<int, Skill> removeableMalus = new Dictionary<int, Skill>();
+      public Dictionary<Feat, Skill> removeableMalus = new Dictionary<Feat, Skill>();
       public Dictionary<string, int> materialStock = new Dictionary<string, int>();
       public List<API.Effect> effectList = new List<API.Effect>();
       public List<QuickBarSlot> savedQuickBar = new List<QuickBarSlot>();
@@ -70,6 +73,8 @@ namespace NWN.Systems
           InitializePlayer(this);
         else
           InitializeDM(this);
+
+        Log.Info($"Player initialization : DONE");
       }
 
       public void EmitKeydown(MenuFeatEventArgs e)
@@ -106,30 +111,6 @@ namespace NWN.Systems
           this.player = player;
         }
       }
-      public void DoActionOnTargetSelected(uint oTarget, Vector3 vTarget)
-      {
-        if (Convert.ToBoolean(NWScript.GetIsObjectValid(oTarget)))
-          this.OnSelectTarget(oTarget, vTarget);
-      }
-      private Action<uint, Vector3> OnSelectTarget = delegate { };
-      public void SelectTarget(Action<uint, Vector3> callback)
-      {
-        this.OnSelectTarget = callback;
-
-        switch (this.targetEvent)
-        {
-          case TargetEvent.SitTarget:
-            NWScript.EnterTargetingMode(this.oid);
-            break;
-          case TargetEvent.Creature:
-            NWScript.EnterTargetingMode(this.oid, NWScript.OBJECT_TYPE_CREATURE);
-            targetEvent = TargetEvent.LootSaverTarget;
-            break;
-          default:
-            NWScript.EnterTargetingMode(this.oid);
-            break;
-        }
-      }
       public void LoadMenuQuickbar(QuickbarType type)
       {
         if (this.loadedQuickBar == QuickbarType.Invalid)
@@ -139,10 +120,10 @@ namespace NWN.Systems
           switch (type)
           {
             case QuickbarType.Menu:
-              CreaturePlugin.AddFeat(this.oid, (int)Feat.CustomMenuDOWN);
-              CreaturePlugin.AddFeat(this.oid, (int)Feat.CustomMenuUP);
-              CreaturePlugin.AddFeat(this.oid, (int)Feat.CustomMenuSELECT);
-              CreaturePlugin.AddFeat(this.oid, (int)Feat.CustomMenuEXIT);
+              CreaturePlugin.AddFeat(this.oid, (int)CustomFeats.CustomMenuDOWN);
+              CreaturePlugin.AddFeat(this.oid, (int)CustomFeats.CustomMenuUP);
+              CreaturePlugin.AddFeat(this.oid, (int)CustomFeats.CustomMenuSELECT);
+              CreaturePlugin.AddFeat(this.oid, (int)CustomFeats.CustomMenuEXIT);
 
               this.savedQuickBar.Clear();
               emptyQBS.nObjectType = 0;
@@ -154,27 +135,27 @@ namespace NWN.Systems
               }
 
               emptyQBS.nObjectType = 4;
-              emptyQBS.nINTParam1 = (int)Feat.CustomMenuDOWN;
+              emptyQBS.nINTParam1 = (int)CustomFeats.CustomMenuDOWN;
               PlayerPlugin.SetQuickBarSlot(this.oid, 0, emptyQBS);
-              emptyQBS.nINTParam1 = (int)Feat.CustomMenuUP;
+              emptyQBS.nINTParam1 = (int)CustomFeats.CustomMenuUP;
               PlayerPlugin.SetQuickBarSlot(this.oid, 1, emptyQBS);
-              emptyQBS.nINTParam1 = (int)Feat.CustomMenuSELECT;
+              emptyQBS.nINTParam1 = (int)CustomFeats.CustomMenuSELECT;
               PlayerPlugin.SetQuickBarSlot(this.oid, 2, emptyQBS);
-              emptyQBS.nINTParam1 = (int)Feat.CustomMenuEXIT;
+              emptyQBS.nINTParam1 = (int)CustomFeats.CustomMenuEXIT;
               PlayerPlugin.SetQuickBarSlot(this.oid, 3, emptyQBS);
 
               this.loadedQuickBar = QuickbarType.Menu;
               break;
             case QuickbarType.Sit:
-              CreaturePlugin.AddFeat(this.oid, (int)Feat.CustomMenuDOWN);
-              CreaturePlugin.AddFeat(this.oid, (int)Feat.CustomMenuUP);
-              CreaturePlugin.AddFeat(this.oid, (int)Feat.CustomPositionRight);
-              CreaturePlugin.AddFeat(this.oid, (int)Feat.CustomPositionLeft);
-              CreaturePlugin.AddFeat(this.oid, (int)Feat.CustomPositionForward);
-              CreaturePlugin.AddFeat(this.oid, (int)Feat.CustomPositionBackward);
-              CreaturePlugin.AddFeat(this.oid, (int)Feat.CustomPositionRotateRight);
-              CreaturePlugin.AddFeat(this.oid, (int)Feat.CustomPositionRotateLeft);
-              CreaturePlugin.AddFeat(this.oid, (int)Feat.CustomMenuEXIT);
+              CreaturePlugin.AddFeat(this.oid, (int)CustomFeats.CustomMenuDOWN);
+              CreaturePlugin.AddFeat(this.oid, (int)CustomFeats.CustomMenuUP);
+              CreaturePlugin.AddFeat(this.oid, (int)CustomFeats.CustomPositionRight);
+              CreaturePlugin.AddFeat(this.oid, (int)CustomFeats.CustomPositionLeft);
+              CreaturePlugin.AddFeat(this.oid, (int)CustomFeats.CustomPositionForward);
+              CreaturePlugin.AddFeat(this.oid, (int)CustomFeats.CustomPositionBackward);
+              CreaturePlugin.AddFeat(this.oid, (int)CustomFeats.CustomPositionRotateRight);
+              CreaturePlugin.AddFeat(this.oid, (int)CustomFeats.CustomPositionRotateLeft);
+              CreaturePlugin.AddFeat(this.oid, (int)CustomFeats.CustomMenuEXIT);
 
               this.savedQuickBar.Clear();
               emptyQBS = new QuickBarSlot();
@@ -186,23 +167,23 @@ namespace NWN.Systems
                 PlayerPlugin.SetQuickBarSlot(this.oid, i, emptyQBS);
               }
               emptyQBS.nObjectType = 4;
-              emptyQBS.nINTParam1 = (int)Feat.CustomMenuDOWN;
+              emptyQBS.nINTParam1 = (int)CustomFeats.CustomMenuDOWN;
               PlayerPlugin.SetQuickBarSlot(this.oid, 0, emptyQBS);
-              emptyQBS.nINTParam1 = (int)Feat.CustomMenuUP;
+              emptyQBS.nINTParam1 = (int)CustomFeats.CustomMenuUP;
               PlayerPlugin.SetQuickBarSlot(this.oid, 1, emptyQBS);
-              emptyQBS.nINTParam1 = (int)Feat.CustomPositionLeft;
+              emptyQBS.nINTParam1 = (int)CustomFeats.CustomPositionLeft;
               PlayerPlugin.SetQuickBarSlot(this.oid, 2, emptyQBS);
-              emptyQBS.nINTParam1 = (int)Feat.CustomPositionRight;
+              emptyQBS.nINTParam1 = (int)CustomFeats.CustomPositionRight;
               PlayerPlugin.SetQuickBarSlot(this.oid, 3, emptyQBS);
-              emptyQBS.nINTParam1 = (int)Feat.CustomPositionForward;
+              emptyQBS.nINTParam1 = (int)CustomFeats.CustomPositionForward;
               PlayerPlugin.SetQuickBarSlot(this.oid, 4, emptyQBS);
-              emptyQBS.nINTParam1 = (int)Feat.CustomPositionBackward;
+              emptyQBS.nINTParam1 = (int)CustomFeats.CustomPositionBackward;
               PlayerPlugin.SetQuickBarSlot(this.oid, 5, emptyQBS);
-              emptyQBS.nINTParam1 = (int)Feat.CustomPositionRotateLeft;
+              emptyQBS.nINTParam1 = (int)CustomFeats.CustomPositionRotateLeft;
               PlayerPlugin.SetQuickBarSlot(this.oid, 6, emptyQBS);
-              emptyQBS.nINTParam1 = (int)Feat.CustomPositionRotateRight;
+              emptyQBS.nINTParam1 = (int)CustomFeats.CustomPositionRotateRight;
               PlayerPlugin.SetQuickBarSlot(this.oid, 7, emptyQBS);
-              emptyQBS.nINTParam1 = (int)Feat.CustomMenuEXIT;
+              emptyQBS.nINTParam1 = (int)CustomFeats.CustomMenuEXIT;
               PlayerPlugin.SetQuickBarSlot(this.oid, 8, emptyQBS);
 
               this.loadedQuickBar = QuickbarType.Sit;
@@ -213,16 +194,16 @@ namespace NWN.Systems
       }
       public void UnloadMenuQuickbar()
       {
-        CreaturePlugin.RemoveFeat(this.oid, (int)Feat.CustomMenuUP);
-        CreaturePlugin.RemoveFeat(this.oid, (int)Feat.CustomMenuDOWN);
-        CreaturePlugin.RemoveFeat(this.oid, (int)Feat.CustomMenuSELECT);
-        CreaturePlugin.RemoveFeat(this.oid, (int)Feat.CustomMenuEXIT);
-        CreaturePlugin.RemoveFeat(this.oid, (int)Feat.CustomPositionLeft);
-        CreaturePlugin.RemoveFeat(this.oid, (int)Feat.CustomPositionRight);
-        CreaturePlugin.RemoveFeat(this.oid, (int)Feat.CustomPositionForward);
-        CreaturePlugin.RemoveFeat(this.oid, (int)Feat.CustomPositionBackward);
-        CreaturePlugin.RemoveFeat(this.oid, (int)Feat.CustomPositionRotateLeft);
-        CreaturePlugin.RemoveFeat(this.oid, (int)Feat.CustomPositionRotateRight);
+        CreaturePlugin.RemoveFeat(this.oid, (int)CustomFeats.CustomMenuUP);
+        CreaturePlugin.RemoveFeat(this.oid, (int)CustomFeats.CustomMenuDOWN);
+        CreaturePlugin.RemoveFeat(this.oid, (int)CustomFeats.CustomMenuSELECT);
+        CreaturePlugin.RemoveFeat(this.oid, (int)CustomFeats.CustomMenuEXIT);
+        CreaturePlugin.RemoveFeat(this.oid, (int)CustomFeats.CustomPositionLeft);
+        CreaturePlugin.RemoveFeat(this.oid, (int)CustomFeats.CustomPositionRight);
+        CreaturePlugin.RemoveFeat(this.oid, (int)CustomFeats.CustomPositionForward);
+        CreaturePlugin.RemoveFeat(this.oid, (int)CustomFeats.CustomPositionBackward);
+        CreaturePlugin.RemoveFeat(this.oid, (int)CustomFeats.CustomPositionRotateLeft);
+        CreaturePlugin.RemoveFeat(this.oid, (int)CustomFeats.CustomPositionRotateRight);
 
         int i = 0;
         foreach (QuickBarSlot qbs in this.savedQuickBar)
@@ -269,15 +250,34 @@ namespace NWN.Systems
             NwItem enchantedItem = NwObject.Deserialize<NwItem>(craftJob.craftedItem);
             oid.AcquireItem(enchantedItem);
 
-            enchantedItem.GetLocalVariable<int>("_AVAILABLE_ENCHANTEMENT_SLOT").Value -= 1;
-            if (enchantedItem.GetLocalVariable<int>("_AVAILABLE_ENCHANTEMENT_SLOT").Value <= 0)
-              enchantedItem.GetLocalVariable<int>("_AVAILABLE_ENCHANTEMENT_SLOT").Delete();
-            Craft.Collect.System.AddCraftedEnchantementProperties(enchantedItem, craftJob.material);
+            int enchanteurChanceuxLevel = 0;
+            if (learntCustomFeats.ContainsKey(CustomFeats.EnchanteurChanceux))
+              enchanteurChanceuxLevel += SkillSystem.GetCustomFeatLevelFromSkillPoints(CustomFeats.EnchanteurChanceux, learntCustomFeats[CustomFeats.EnchanteurChanceux]);
+
+            if (NwRandom.Roll(Utils.random, 100) > enchanteurChanceuxLevel)
+            {
+              enchantedItem.GetLocalVariable<int>("_AVAILABLE_ENCHANTEMENT_SLOT").Value -= 1;
+              if (enchantedItem.GetLocalVariable<int>("_AVAILABLE_ENCHANTEMENT_SLOT").Value <= 0)
+                enchantedItem.GetLocalVariable<int>("_AVAILABLE_ENCHANTEMENT_SLOT").Delete();
+            }
+
+            int enchanteurExpertLevel = 0;
+            if (learntCustomFeats.ContainsKey(CustomFeats.EnchanteurExpert))
+              enchanteurExpertLevel += SkillSystem.GetCustomFeatLevelFromSkillPoints(CustomFeats.EnchanteurExpert, learntCustomFeats[CustomFeats.EnchanteurExpert]);
+
+            int boost = 0;
+            if (NwRandom.Roll(Utils.random, 100) <= enchanteurExpertLevel * 2)
+              boost = 1;
+
+            Craft.Collect.System.AddCraftedEnchantementProperties(enchantedItem, craftJob.material, boost);
 
             break;
           case Job.JobType.Recycling:
             NwItem recycledItem = NwObject.Deserialize<NwItem>(craftJob.craftedItem);
             int recycledValue = recycledItem.GetLocalVariable<int>("_BASE_COST").Value;
+
+            if (learntCustomFeats.ContainsKey(CustomFeats.Recycler))
+              recycledValue +=  recycledValue * 1 * GetCustomFeatLevelFromSkillPoints(CustomFeats.Recycler, learntCustomFeats[CustomFeats.Recycler]) / 100;
 
             if (materialStock.ContainsKey(craftJob.material))
               materialStock[craftJob.material] += recycledValue;
@@ -286,6 +286,16 @@ namespace NWN.Systems
 
             oid.SendServerMessage($"Recyclage de {recycledItem.Name.ColorString(Color.WHITE)} terminé. Vous en retirez {recycledValue} unité(s) de {craftJob.material}", Color.GREEN) ;
             recycledItem.Destroy();
+
+            break;
+          case Job.JobType.Renforcement:
+            NwItem reinforcedItem = NwObject.Deserialize<NwItem>(craftJob.craftedItem);
+            oid.AcquireItem(reinforcedItem);
+
+            reinforcedItem.GetLocalVariable<int>("_DURABILITY").Value *= (5 / 100);
+            reinforcedItem.GetLocalVariable<int>("_REINFORCEMENT_LEVEL").Value += 1;
+
+            oid.SendServerMessage($"Renforcement de {reinforcedItem.Name.ColorString(Color.WHITE)} terminé.", Color.GREEN);
 
             break;
           default:
@@ -298,8 +308,28 @@ namespace NWN.Systems
                 oid.SendServerMessage($"Votre fabrication artisanale est terminée. Ouvrez votre journal pour obtenir le résultat de votre travail !");
                 return;
               }
-              
+
               Craft.Collect.System.AddCraftedItemProperties(craftedItem, craftJob.material);
+
+              int artisanExceptionnelLevel = 0;
+              if (learntCustomFeats.ContainsKey(CustomFeats.ArtisanExceptionnel))
+                artisanExceptionnelLevel += SkillSystem.GetCustomFeatLevelFromSkillPoints(CustomFeats.ArtisanExceptionnel, learntCustomFeats[CustomFeats.ArtisanExceptionnel]);
+
+              if (NwRandom.Roll(Utils.random, 100) <= artisanExceptionnelLevel)
+              {
+                craftedItem.GetLocalVariable<int>("_AVAILABLE_ENCHANTEMENT_SLOT").Value += 1;
+                oid.SendServerMessage("Votre talent d'artisan vous a permis de créer un objet exceptionnel disposant d'un emplacement d'enchantement supplémentaire !", Color.NAVY);
+              }
+
+              int artisanAppliqueLevel = 0;
+              if (learntCustomFeats.ContainsKey(CustomFeats.ArtisanApplique))
+                artisanAppliqueLevel += SkillSystem.GetCustomFeatLevelFromSkillPoints(CustomFeats.ArtisanApplique, learntCustomFeats[CustomFeats.ArtisanApplique]);
+
+              if (NwRandom.Roll(Utils.random, 100) <= artisanAppliqueLevel * 3)
+              {
+                craftedItem.GetLocalVariable<int>("_DURABILITY").Value *= (20 / 100);
+                oid.SendServerMessage("En travaillant de manière particulièrement appliquée, vous parvenez à fabriquer un objet plus résistant !", Color.NAVY);
+              }
             }
             else
             {
@@ -319,8 +349,23 @@ namespace NWN.Systems
         switch (currentSkillType)
         {
           case SkillType.Skill:
-            if (this.learnableSkills.TryGetValue(this.currentSkillJob, out Skill skill))
+            if (this.learnableSkills.TryGetValue((Feat)currentSkillJob, out Skill skill))
             {
+              int pooledPoints = ObjectPlugin.GetInt(oid, "_STARTING_SKILL_POINTS");
+              if (pooledPoints > 0)
+              {
+                if (pooledPoints > skill.pointsToNextLevel)
+                {
+                  ObjectPlugin.SetInt(oid, "_STARTING_SKILL_POINTS", pooledPoints - skill.pointsToNextLevel, 1);
+                  skill.acquiredPoints += skill.pointsToNextLevel;
+                }
+                else
+                {
+                  skill.acquiredPoints += pooledPoints;
+                  ObjectPlugin.DeleteInt(oid, "_STARTING_SKILL_POINTS");
+                }
+              }
+
               double skillPointRate = skill.CalculateSkillPointsPerSecond();
               skill.acquiredPoints += skillPointRate * (DateTime.Now - this.dateLastSaved).TotalSeconds;
               double RemainingTime = skill.GetTimeToNextLevel(skillPointRate);
@@ -363,9 +408,9 @@ namespace NWN.Systems
       }
       public void RemoveMalus(Skill skill)
       {
-        CreaturePlugin.RemoveFeat(oid, skill.oid);
+        oid.RemoveFeat(skill.oid);
 
-        if (RegisterRemoveCustomFeatEffect.TryGetValue(skill.oid, out Func<Player, int, int> handler))
+        if (RegisterRemoveCustomFeatEffect.TryGetValue(skill.oid, out Func<Player, Feat, int> handler))
           handler.Invoke(this, skill.oid);
 
         ObjectPlugin.DeleteInt(oid, "_CURRENT_JOB");
@@ -426,7 +471,7 @@ namespace NWN.Systems
           {
             case SkillType.Skill:
               Skill skill;
-              if (learnableSkills.TryGetValue(currentSkillJob, out skill))
+              if (learnableSkills.TryGetValue((Feat)currentSkillJob, out skill))
                 skill.RefreshAcquiredSkillPoints();
               break;
             case SkillType.Spell:

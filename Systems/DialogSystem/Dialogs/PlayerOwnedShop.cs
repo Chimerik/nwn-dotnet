@@ -23,10 +23,17 @@ namespace NWN.Systems
         $"Quelle modification souhaitez-vous apporter à votre échoppe {storePanel.Name.ColorString(Color.GREEN)} ?"
       };
 
-      player.menu.choices.Add((
-        "Ajouter un objet",
-        () => GetObjectToAdd(player, store)
-      ));
+      int traderLevel = 1;
+      if (player.learntCustomFeats.ContainsKey(CustomFeats.Marchand))
+        traderLevel = SkillSystem.GetCustomFeatLevelFromSkillPoints(CustomFeats.Marchand, player.learntCustomFeats[CustomFeats.Marchand]);
+
+      if (store.Items.Count() < traderLevel * 5)
+      {
+        player.menu.choices.Add((
+          "Ajouter un objet",
+          () => GetObjectToAdd(player, store)
+        ));
+      }
 
       if (store.GetLocalVariable<int>("_SHOP_ID").HasValue)
       {

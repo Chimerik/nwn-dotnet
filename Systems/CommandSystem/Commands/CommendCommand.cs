@@ -1,4 +1,4 @@
-﻿using NWN.Core;
+﻿using NWN.API;
 using NWN.Core.NWNX;
 
 namespace NWN.Systems
@@ -9,23 +9,22 @@ namespace NWN.Systems
     {
       if (ObjectPlugin.GetInt(ctx.oSender, "_BRP") == 4)
       {
-        if (NWScript.GetIsObjectValid(ctx.oTarget) == 1)
+        if (ctx.oTarget != null)
         {
           int iBRP = ObjectPlugin.GetInt(ctx.oTarget, "_BRP");
           if (iBRP < 4)
           {
-            NWScript.SendMessageToPC(ctx.oTarget, $"Un joueur vient de vous recommander pour une augmentation de bonus roleplay !");
+            ctx.oTarget.SendServerMessage("Un joueur vient de vous recommander pour une augmentation de bonus roleplay !", Color.ROSE);
 
             if (iBRP == 1)
             {
               ObjectPlugin.SetInt(ctx.oTarget, "_BRP", 2, 1);
-              NWScript.SendMessageToPC(ctx.oTarget, "Votre bonus roleplay est désormais de 2");
+              ctx.oTarget.SendServerMessage("Votre bonus roleplay est désormais de 2", Color.GREEN);
             }
             
-            NWN.Utils.LogMessageToDMs($"{NWScript.GetName(ctx.oSender)} vient de recommander {NWScript.GetName(ctx.oTarget)} pour une augmentation de bonus roleplay.");
+            Utils.LogMessageToDMs($"{ctx.oSender.Name} vient de recommander {ctx.oTarget.Name} pour une augmentation de bonus roleplay.");
           }
-
-          NWScript.SendMessageToPC(ctx.oSender, $"Vous venez de recommander {NWScript.GetName(ctx.oTarget)} pour une augmentation de bonus roleplay !");
+          ctx.oSender.SendServerMessage($"Vous venez de recommander {ctx.oTarget.Name} pour une augmentation de bonus roleplay !", Color.ROSE);
         }
       }
     }

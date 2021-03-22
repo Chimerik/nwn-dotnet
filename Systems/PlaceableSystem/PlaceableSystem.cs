@@ -195,7 +195,7 @@ namespace NWN.Systems
         Log.Info($"Triggered : {onPerception.Creature.Name} - {onPerception.Creature.Tag} in {onPerception.Creature.Area.Name}");
         if (onPerception.Creature.Tag != "statue_tiamat")
         {
-          onPerception.Creature.PlayAnimation((Animation)NWN.Utils.random.Next(100, 116), 3);
+          onPerception.Creature.PlayAnimation((Animation)Utils.random.Next(100, 116), 3);
           await NwTask.Delay(TimeSpan.FromSeconds(0.5));
           FreezeCreature(onPerception.Creature);
         }

@@ -1,6 +1,9 @@
 ﻿using System;
 using NWN.Core;
 using System.Numerics;
+using NWN.Services;
+using NWN.API;
+using NWN.API.Constants;
 
 namespace NWN.Systems
 {
@@ -8,24 +11,20 @@ namespace NWN.Systems
   {
     private static void ExecuteTagCommand(ChatSystem.Context ctx, Options.Result options)
     {
-      PlayerSystem.Player player;
-      if (PlayerSystem.Players.TryGetValue(ctx.oSender, out player))
+      if (ctx.oSender.IsDM || ctx.oSender.IsDMPossessed || ctx.oSender.IsPlayerDM)
       {
-        if (Convert.ToBoolean(NWScript.GetIsDM(player.oid)))
-        {
-          string newTag = (string)options.positional[0];
-
-          Action<uint, Vector3> callback = (uint oTarget, Vector3 position) =>
-          {
-            NWScript.SetTag(oTarget, newTag);
-          };
-
-          player.targetEvent = TargetEvent.LootSaverTarget;
-          player.SelectTarget(callback);
-        }
-        else
-          NWScript.SendMessageToPC(player.oid, "Il s'agit d'une commande DM, vous ne pouvez pas en faire usage en PJ.");
+        ctx.oSender.GetLocalVariable<string>("_RENAME_VALUE").Value = (string)options.positional[0];
+        PlayerSystem.cursorTargetService.EnterTargetMode(ctx.oSender, ChangeTagTarget, ObjectTypes.All, MouseCursor.Create);
       }
+      else
+        ctx.oSender.SendServerMessage("Il s'agit d'une commande DM, vous ne pouvez pas en faire usage en PJ.", Color.ORANGE);
+    }
+    private static void ChangeTagTarget(CursorTargetData selection)
+    {
+      if (selection.TargetObj != null)
+        selection.TargetObj.Tag = selection.Player.GetLocalVariable<string>("_RENAME_VALUE").Value;
+      else
+        selection.Player.SendServerMessage("Veuillez sélectionner une cible valide.", Color.RED);
     }
   }
 }

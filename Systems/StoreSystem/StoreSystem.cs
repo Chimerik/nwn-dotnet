@@ -51,7 +51,7 @@ namespace NWN.System
 
       int price = Int32.Parse(EventsPlugin.GetEventData("PRICE"));
       int pocketGold = (int)player.oid.Gold;
-      
+
       if (pocketGold < price)
       {
         if (pocketGold + player.bankGold < price)
@@ -78,10 +78,11 @@ namespace NWN.System
         }
       }
       else
-        NWScript.TakeGoldFromCreature(price, player.oid, 1);
+        player.oid.TakeGold(price);
 
       EventsPlugin.SkipEvent();
-      NWScript.CopyItem(item, player.oid, 1);
+
+      item.Clone(player.oid);
 
       switch (store.Tag)
       {
@@ -91,7 +92,7 @@ namespace NWN.System
         case "magic_shop":
           break;
         default:
-          NWScript.DestroyObject(item);
+          item.Destroy();
           break;
       }
     }

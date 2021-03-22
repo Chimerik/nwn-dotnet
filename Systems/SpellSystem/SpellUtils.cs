@@ -49,20 +49,20 @@ namespace NWN.Systems
       return nResist;
     }
 
-    public static int MaximizeOrEmpower(int nDice, int nNumberOfDice, int nMeta, int nBonus = 0)
+    public static int MaximizeOrEmpower(int nDice, int nNumberOfDice, MetaMagic nMeta, int nBonus = 0)
     {
       int i = 0;
       int nDamage = 0;
       for (i = 1; i <= nNumberOfDice; i++)
       {
-        nDamage = nDamage + NWN.Utils.random.Next(nDice) + 1;
+        nDamage = nDamage + Utils.random.Next(nDice) + 1;
       }
       //Resolve metamagic
-      if (nMeta == NWScript.METAMAGIC_MAXIMIZE)
+      if (nMeta == MetaMagic.Maximize)
       {
         nDamage = nDice * nNumberOfDice;
       }
-      else if (nMeta == NWScript.METAMAGIC_EMPOWER)
+      else if (nMeta == MetaMagic.Empower)
       {
         nDamage = nDamage + nDamage / 2;
       }
@@ -70,7 +70,7 @@ namespace NWN.Systems
     }
     public static void RemoveAnySpellEffects(int spell, uint oTarget)
     {
-            NwCreature oCreature = oTarget.ToNwObject<NwCreature>();
+      NwCreature oCreature = oTarget.ToNwObject<NwCreature>();
                 
       if (oCreature.HasSpellEffect((Spell)spell))
       {

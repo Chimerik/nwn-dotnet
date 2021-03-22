@@ -2,6 +2,8 @@
 using System.Linq;
 using System;
 using static NWN.Systems.SkillSystem;
+using NWN.API.Constants;
+using Skill = NWN.Systems.SkillSystem.Skill;
 
 namespace NWN.Systems
 {
@@ -11,8 +13,7 @@ namespace NWN.Systems
     private static int page = 0;
     private static void ExecuteSkillMenuCommand(ChatSystem.Context ctx, Options.Result options)
     {
-      PlayerSystem.Player player;
-      if (PlayerSystem.Players.TryGetValue(ctx.oSender, out player))
+      if (PlayerSystem.Players.TryGetValue(ctx.oSender, out PlayerSystem.Player player))
       {
         player.menu.Close();
         __DrawWelcomePage(player);
@@ -48,10 +49,10 @@ namespace NWN.Systems
         page = 0;
 
       //var sortedDict = from entry in player.learnableSkills orderby entry.Value ascending select entry;
-      foreach (KeyValuePair<int, Skill> SkillListEntry in player.learnableSkills.OrderByDescending(key => key.Value.currentJob).Skip(page).Take(_PAGINATION))
+      foreach (KeyValuePair<Feat, Skill> SkillListEntry in player.learnableSkills.OrderByDescending(key => key.Value.currentJob).Skip(page).Take(_PAGINATION))
       {
         Skill skill = SkillListEntry.Value;
-
+        
         if (!skill.trained)
         {
           if(skill.currentJob)
@@ -134,7 +135,7 @@ namespace NWN.Systems
       player.menu.Clear();
       player.menu.titleLines.Add("Liste des blessures persistantes nécessitant une rééducation.");
 
-      foreach (KeyValuePair<int, SkillSystem.Skill> SkillListEntry in player.removeableMalus)
+      foreach (KeyValuePair<Feat, SkillSystem.Skill> SkillListEntry in player.removeableMalus)
       {
         SkillSystem.Skill skill = SkillListEntry.Value;
         // TODO :  afficher le skill en cours en premier ?
@@ -148,9 +149,9 @@ namespace NWN.Systems
       player.menu.choices.Add(("Quitter", () => __HandleClose(player)));
       player.menu.Draw();
     }
-    private static void __HandleSkillSelection(PlayerSystem.Player player, SkillSystem.Skill SelectedSkill)
+    private static void __HandleSkillSelection(PlayerSystem.Player player, Skill SelectedSkill)
     {
-      if (player.currentSkillJob != (int)Feat.Invalid)
+      if (player.currentSkillJob != (int)CustomFeats.Invalid)
       {
         //if(CurrentSkill == null)
         //CurrentSkill = player.removeableMalus[player.currentSkillJob];
@@ -160,7 +161,7 @@ namespace NWN.Systems
         if (SelectedSkill.currentJob) // Job en cours sélectionné => mise en pause
         {
           SelectedSkill.currentJob = false;
-          player.currentSkillJob = (int)Feat.Invalid;
+          player.currentSkillJob = (int)CustomFeats.Invalid;
           player.currentSkillType = SkillType.Invalid;
           SelectedSkill.CancelSkillJournalEntry();
         }
@@ -169,7 +170,7 @@ namespace NWN.Systems
           switch (player.currentSkillType)
           {
             case SkillType.Skill:
-              Skill currentSkill = player.learnableSkills[player.currentSkillJob];
+              Skill currentSkill = player.learnableSkills[(Feat)player.currentSkillJob];
               currentSkill.currentJob = false;
               currentSkill.CancelSkillJournalEntry();
               break;
@@ -181,7 +182,7 @@ namespace NWN.Systems
           }
 
           SelectedSkill.currentJob = true;
-          player.currentSkillJob = SelectedSkill.oid;
+          player.currentSkillJob = (int)SelectedSkill.oid;
           player.currentSkillType = SkillType.Skill;
           SelectedSkill.CreateSkillJournalEntry();
         }
@@ -189,7 +190,7 @@ namespace NWN.Systems
       else
       {
         SelectedSkill.currentJob = true;
-        player.currentSkillJob = SelectedSkill.oid;
+        player.currentSkillJob = (int)SelectedSkill.oid;
         player.currentSkillType = SkillType.Skill;
         SelectedSkill.CreateSkillJournalEntry();
       }
@@ -198,14 +199,14 @@ namespace NWN.Systems
     }
     private static void __HandleSpellSelection(PlayerSystem.Player player, LearnableSpell selectedSpell)
     {
-      if (player.currentSkillJob != (int)Feat.Invalid)
+      if (player.currentSkillJob != (int)CustomFeats.Invalid)
       {
         player.oid.ExportCharacter();
 
         if (selectedSpell.currentJob) // Job en cours sélectionné => mise en pause
         {
           selectedSpell.currentJob = false;
-          player.currentSkillJob = (int)Feat.Invalid;
+          player.currentSkillJob = (int)CustomFeats.Invalid;
           player.currentSkillType = SkillType.Invalid;
           selectedSpell.CancelSkillJournalEntry();
         }
@@ -214,7 +215,7 @@ namespace NWN.Systems
           switch(player.currentSkillType)
           {
             case SkillType.Skill:
-              Skill currentSkill = player.learnableSkills[player.currentSkillJob];
+              Skill currentSkill = player.learnableSkills[(Feat)player.currentSkillJob];
               currentSkill.currentJob = false;
               currentSkill.CancelSkillJournalEntry();
               break;

@@ -25,7 +25,6 @@ namespace NWN.Systems
       LoadDiscordBot();
       CreateDatabase();
       InitializeEvents();
-      FeatSystem.InitializeFeatModifiers();
 
       NwModule.Instance.OnModuleLoad += OnModuleLoad;
     }
@@ -141,6 +140,10 @@ namespace NWN.Systems
       query = NWScript.SqlPrepareQueryCampaign(Config.database, $"CREATE TABLE IF NOT EXISTS playerAuctions" +
         $"('characterId' INTEGER NOT NULL, 'shop' TEXT NOT NULL, 'panel' TEXT NOT NULL, 'expirationDate' TEXT NOT NULL, 'highestAuction' INTEGER NOT NULL, 'highestAuctionner' INTEGER NOT NULL, 'areaTag' TEXT NOT NULL, 'position' TEXT NOT NULL, 'facing' REAL NOT NULL)");
       NWScript.SqlStep(query);
+
+      query = NWScript.SqlPrepareQueryCampaign(Config.database, $"CREATE TABLE IF NOT EXISTS playerItemAppearance" +
+        $"('characterId' INTEGER NOT NULL, 'appearanceName' TEXT NOT NULL, 'serializedAppearance' TEXT NOT NULL, 'baseItemType' INTEGER NOT NULL, 'AC' INTEGER NOT NULL, UNIQUE (characterId, appearanceName))");
+      NWScript.SqlStep(query);
     }
     private void InitializeEvents()
     {
@@ -209,6 +212,7 @@ namespace NWN.Systems
       EventsPlugin.SubscribeEvent("NWNX_ON_INPUT_EMOTE_BEFORE", "on_input_emote");
 
       EventsPlugin.SubscribeEvent("NWNX_ON_ELC_VALIDATE_CHARACTER_BEFORE", "before_elc");
+      EventsPlugin.SubscribeEvent("NWNX_ON_CLIENT_LEVEL_UP_BEGIN_BEFORE", "client_lvlup");
 
       DamagePlugin.SetAttackEventScript("on_attack");
 

@@ -1,5 +1,6 @@
 ﻿using NLog;
 using NWN.API;
+using NWN.API.Constants;
 using NWN.Core;
 using NWN.Services;
 using NWNX.API.Events;
@@ -77,21 +78,21 @@ namespace NWN.Systems
       {
         case 2:
         case 7:
-          eParty = API.Effect.ACIncrease(1, API.Constants.ACBonus.Dodge);
+          eParty = API.Effect.ACIncrease(1, ACBonus.Dodge);
           break;
         case 3:
         case 6:
-          eParty = NWScript.EffectLinkEffects(NWScript.EffectACIncrease(1, NWScript.AC_DODGE_BONUS), NWScript.EffectAttackIncrease(1));
+          eParty = NWScript.EffectLinkEffects(API.Effect.ACIncrease(1, ACBonus.Dodge), API.Effect.AttackIncrease(1));
           break;
         case 4:
         case 5:
-          eParty = NWScript.EffectLinkEffects(NWScript.EffectACIncrease(1, NWScript.AC_DODGE_BONUS), NWScript.EffectAttackIncrease(1));
-          eParty = NWScript.EffectLinkEffects(NWScript.EffectDamageIncrease(1, NWScript.DAMAGE_TYPE_BLUDGEONING), eParty);
+          eParty = NWScript.EffectLinkEffects(API.Effect.ACIncrease(1, ACBonus.Dodge), API.Effect.AttackIncrease(1));
+          eParty = NWScript.EffectLinkEffects(API.Effect.DamageIncrease(1, DamageType.Bludgeoning), eParty);
           break;
       }
 
       eParty.Tag = "PartyEffect";
-      eParty.SubType = API.Constants.EffectSubType.Supernatural;
+      eParty.SubType = EffectSubType.Supernatural;
       return eParty;
     }
   }

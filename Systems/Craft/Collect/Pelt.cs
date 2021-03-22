@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using NWN.API;
 using NWN.Core;
 using NWN.Core.NWNX;
@@ -8,11 +9,11 @@ namespace NWN.Systems.Craft.Collect
 {
   public static class Pelt
   {
-    public static void HandleCompleteCycle(PlayerSystem.Player player, uint oPlaceable, uint oExtractor)
+    public static void HandleCompleteCycle(PlayerSystem.Player player, NwGameObject oPlaceable, NwItem oExtractor)
     {
-      if (NWScript.GetIsObjectValid(oPlaceable) != 1 || NWScript.GetDistanceBetween(player.oid, oPlaceable) > 5.0f)
+      if (oPlaceable == null || player.oid.Distance(oPlaceable) > 5.0f)
       {
-        NWScript.SendMessageToPC(player.oid, "Vous êtes trop éloigné de l'animal ciblé, ou alors celui-ci n'existe plus.");
+        player.oid.SendServerMessage("Vous êtes trop éloigné de l'animal ciblé, ou alors celui-ci n'existe plus.", Color.MAROON);
         return;
       }
 
@@ -20,47 +21,45 @@ namespace NWN.Systems.Craft.Collect
 
       // TODO : Idée pour plus tard, le strip miner le plus avancé pourra équipper un cristal
       // de spécialisation pour extraire deux fois plus de minerai en un cycle sur son minerai de spécialité
-      if (NWScript.GetIsObjectValid(oExtractor) != 1) return;
+      if (oExtractor == null) return;
 
-      miningYield += NWScript.GetLocalInt(oExtractor, "_ITEM_LEVEL") * 5;
+      miningYield += oExtractor.GetLocalVariable<int>("_ITEM_LEVEL").Value * 5;
       int bonusYield = 0;
 
-      int value;
-      if (int.TryParse(NWScript.Get2DAString("feat", "GAINMULTIPLE", CreaturePlugin.GetHighestLevelOfFeat(player.oid, (int)Feat.Skinning)), out value))
-        bonusYield += miningYield * value * 5 / 100;
+      if (player.learntCustomFeats.ContainsKey(CustomFeats.Skinning))
+        bonusYield += miningYield * 5 * SkillSystem.GetCustomFeatLevelFromSkillPoints(CustomFeats.Skinning, player.learntCustomFeats[CustomFeats.Skinning]) / 100;
 
-      if (int.TryParse(NWScript.Get2DAString("feat", "GAINMULTIPLE", CreaturePlugin.GetHighestLevelOfFeat(player.oid, (int)Feat.AnimalExpertise)), out value))
-        bonusYield += miningYield * value * 5 / 100;
+      if (player.learntCustomFeats.ContainsKey(CustomFeats.AnimalExpertise))
+        bonusYield += miningYield * 5 * SkillSystem.GetCustomFeatLevelFromSkillPoints(CustomFeats.AnimalExpertise, player.learntCustomFeats[CustomFeats.AnimalExpertise]) / 100;
 
       miningYield += bonusYield;
 
-      int remainingOre = NWScript.GetLocalInt(oPlaceable, "_ORE_AMOUNT") - miningYield;
+      int remainingOre = oPlaceable.GetLocalVariable<int>("_ORE_AMOUNT").Value; 
       if (remainingOre <= 0)
       {
-        miningYield = NWScript.GetLocalInt(oPlaceable, "_ORE_AMOUNT");
-        NWScript.DestroyObject(oPlaceable);
+        miningYield = oPlaceable.GetLocalVariable<int>("_ORE_AMOUNT").Value;
+        oPlaceable.Destroy();
 
-        NWScript.CreateObject(NWScript.OBJECT_TYPE_WAYPOINT, "animal_spawn_wp", NWScript.GetLocation(oPlaceable));
+        NwWaypoint.Create("animal_spawn_wp", oPlaceable.Location);
       }
       else
       {
-        NWScript.SetLocalInt(oPlaceable, "_ORE_AMOUNT", remainingOre);
+        oPlaceable.GetLocalVariable<int>("_ORE_AMOUNT").Value = remainingOre;
       }
 
-      var ore = NWScript.CreateItemOnObject("pelt", player.oid, miningYield, NWScript.GetResRef(oPlaceable));
-      NWScript.SetName(ore, $"Peau de {NWScript.GetName(oPlaceable)}");
-      //NWScript.SetLocalString(ore, "_PELT_RESREF", NWScript.GetResRef(oPlaceable));
+      NwItem ore = NWScript.CreateItemOnObject("pelt", player.oid, miningYield, oPlaceable.ResRef).ToNwObject<NwItem>();
+      ore.Name = $"Peau de {oPlaceable.Name}";
 
       ItemUtils.DecreaseItemDurability(oExtractor);
     }
 
     public static void HandleCompleteProspectionCycle(PlayerSystem.Player player)
     {
-      NwArea area = NWScript.GetArea(player.oid).ToNwObject<NwArea>();
+      NwArea area = player.oid.Area;
 
       if (area.GetLocalVariable<int>("_AREA_LEVEL").Value < 2)
       {
-        NWScript.SendMessageToPC(player.oid, "Cet endroit ne semble disposer d'aucun animal dont la peau soit réutilisable.");
+        player.oid.SendServerMessage("Cet endroit ne semble disposer d'aucun animal dont la peau soit réutilisable.", Color.MAROON);
         return;
       }
 
@@ -70,44 +69,37 @@ namespace NWN.Systems.Craft.Collect
 
       if (NWScript.SqlGetInt(query, 0) < 1)
       {
-        NWScript.SendMessageToPC(player.oid, "Cette zone est épuisée. Les animaux restants disposant de propriétés intéressantes ne semblent pas encore avoir atteint l'âge d'être exploités.");
+        player.oid.SendServerMessage("Cette zone est épuisée. Les animaux restants disposant de propriétés intéressantes ne semblent pas encore avoir atteint l'âge d'être exploités.", Color.MAROON);
         return;
       }
 
-      uint resourcePoint = NWScript.GetNearestObjectByTag("animal_spawn_wp", player.oid);
-      int i = 1;
-
       int skillBonus = 0;
-      int value;
-      if (int.TryParse(NWScript.Get2DAString("feat", "GAINMULTIPLE", CreaturePlugin.GetHighestLevelOfFeat(player.oid, (int)Feat.AnimalExpertise)), out value))
-        skillBonus += value;
 
-      if (int.TryParse(NWScript.Get2DAString("feat", "GAINMULTIPLE", CreaturePlugin.GetHighestLevelOfFeat(player.oid, (int)Feat.Hunting)), out value))
-        skillBonus += value;
+      if (player.learntCustomFeats.ContainsKey(CustomFeats.Hunting))
+        skillBonus += SkillSystem.GetCustomFeatLevelFromSkillPoints(CustomFeats.Hunting, player.learntCustomFeats[CustomFeats.Hunting]);
+
+      if (player.learntCustomFeats.ContainsKey(CustomFeats.AnimalExpertise))
+        skillBonus += SkillSystem.GetCustomFeatLevelFromSkillPoints(CustomFeats.AnimalExpertise, player.learntCustomFeats[CustomFeats.AnimalExpertise]);
 
       int respawnChance = skillBonus * 5 + (NWScript.GetSkillRank(NWScript.SKILL_SPOT, player.oid) + NWScript.GetSkillRank(NWScript.SKILL_LISTEN, player.oid)) / 2;
       string nbSpawns = "";
 
-      while (NWScript.GetIsObjectValid(resourcePoint) == 1)
+      foreach (NwWaypoint resourcePoint in player.oid.GetNearestObjectsByType<NwWaypoint>().Where(w => w.Tag == "animal_spawn_wp"))
       {
-        int iRandom = NwRandom.Roll(Utils.random, 100, 1);
-
-        if (iRandom < respawnChance || Systems.Config.env == Systems.Config.Env.Chim)
+        int iRandom = Utils.random.Next(1, 101);
+        if (iRandom < respawnChance)
         {
-          var newRock = NWScript.CreateObject(NWScript.OBJECT_TYPE_CREATURE, GetRandomPeltSpawnFromAreaLevel(area.GetLocalVariable<int>("_AREA_LEVEL").Value), NWScript.GetLocation(resourcePoint));
-          NWScript.SetLocalInt(newRock, "_ORE_AMOUNT", 50 * iRandom + 50 * iRandom * skillBonus / 100);
-          NWScript.SetDroppableFlag(NWScript.CreateItemOnObject("undroppable_item", newRock), 1);
-          NWScript.DestroyObject(resourcePoint);
-          nbSpawns += NWScript.GetName(newRock) + ", ";
+          NwCreature newRock = NwCreature.Create(GetRandomPeltSpawnFromAreaLevel(area.GetLocalVariable<int>("_AREA_LEVEL").Value), resourcePoint.Location);
+          newRock.GetLocalVariable<int>("_ORE_AMOUNT").Value = 10 * iRandom + 10 * iRandom * skillBonus / 100;
+          NwItem.Create("undroppable_item", newRock).Droppable = true;
+          resourcePoint.Destroy();
+          nbSpawns += newRock.Name + ", ";
         }
-
-        i++;
-        resourcePoint = NWScript.GetNearestObjectByTag("animal_spawn_wp", player.oid, i);
       }
 
       if (nbSpawns.Length > 0)
       {
-        NWScript.SendMessageToPC(player.oid, $"Votre traque a permis d'identifier les traces des créatures suivantes : {nbSpawns} leurs peaux semblent exploitables, à vous de jouer !");
+        player.oid.SendServerMessage($"Votre traque a permis d'identifier les traces des créatures suivantes : {nbSpawns.ColorString(Color.WHITE)} leurs peaux semblent exploitables, à vous de jouer !", Color.GREEN);
 
         query = NWScript.SqlPrepareQueryCampaign(Systems.Config.database, $"UPDATE areaResourceStock SET animals = animals - 1 where areaTag = @areaTag");
         NWScript.SqlBindString(query, "@areaTag", area.Tag);

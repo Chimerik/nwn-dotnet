@@ -1,6 +1,7 @@
-﻿using NWN.API;
+﻿using System;
+using NWN.API;
 using NWN.API.Constants;
-using NWN.Core;
+using static NWN.Systems.Craft.Collect.Config;
 
 namespace NWN.Systems
 {
@@ -19,6 +20,7 @@ namespace NWN.Systems
 
       NwItem item = (NwItem)oTarget;
       string material;
+      string itemRegisteredMaterial;
       
       switch (item.BaseItemType)
       {
@@ -56,12 +58,13 @@ namespace NWN.Systems
         case (BaseItemType)114:
         case (BaseItemType)115:
 
-          if (item.GetLocalVariable<string>("_ITEM_MATERIAL").HasValue)
+          if (item.GetLocalVariable<string>("_ITEM_MATERIAL").HasValue
+            && Enum.TryParse(item.GetLocalVariable<string>("_ITEM_MATERIAL").Value, out OreType myOreType) && myOreType != OreType.Invalid)
             material = item.GetLocalVariable<string>("_ITEM_MATERIAL").Value;
           else
             material = "Tritanium";
 
-          player.craftJob.Start(Craft.Job.JobType.Recycling, null, player, NWScript.OBJECT_INVALID, item, material);
+          player.craftJob.Start(Craft.Job.JobType.Recycling, null, player, null, item, material);
           break;
         
         case BaseItemType.HeavyCrossbow:
@@ -78,12 +81,13 @@ namespace NWN.Systems
         case BaseItemType.SmallShield:
         case BaseItemType.Club:
 
-          if (item.GetLocalVariable<string>("_ITEM_MATERIAL").HasValue)
+          if (item.GetLocalVariable<string>("_ITEM_MATERIAL").HasValue
+            && Enum.TryParse(item.GetLocalVariable<string>("_ITEM_MATERIAL").Value, out WoodType myWoodType) && myWoodType != WoodType.Invalid)
             material = item.GetLocalVariable<string>("_ITEM_MATERIAL").Value;
           else
             material = "Laurelinade";
 
-          player.craftJob.Start(Craft.Job.JobType.Recycling, null, player, NWScript.OBJECT_INVALID, item, material);
+            player.craftJob.Start(Craft.Job.JobType.Recycling, null, player, null, item, material);
           break;
 
         case BaseItemType.Belt:
@@ -93,12 +97,13 @@ namespace NWN.Systems
         case BaseItemType.Gloves:
         case BaseItemType.Whip:
 
-          if (item.GetLocalVariable<string>("_ITEM_MATERIAL").HasValue)
+          if (item.GetLocalVariable<string>("_ITEM_MATERIAL").HasValue
+            && Enum.TryParse(item.GetLocalVariable<string>("_ITEM_MATERIAL").Value, out PeltType myPeltType) && myPeltType != PeltType.Invalid)
             material = item.GetLocalVariable<string>("_ITEM_MATERIAL").Value;
           else
             material = "MauvaisCuir";
 
-          player.craftJob.Start(Craft.Job.JobType.Recycling, null, player, NWScript.OBJECT_INVALID, item, material);
+          player.craftJob.Start(Craft.Job.JobType.Recycling, null, player, null, item, material);
           break;
 
         default:

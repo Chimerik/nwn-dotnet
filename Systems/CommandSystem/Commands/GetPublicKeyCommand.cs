@@ -1,4 +1,4 @@
-﻿using NWN.Core;
+﻿using NWN.API;
 
 namespace NWN.Systems
 {
@@ -6,7 +6,7 @@ namespace NWN.Systems
   {
     private static void ExecuteGetPublicKeyCommand(ChatSystem.Context ctx, Options.Result options)
     {
-      NWScript.SendMessageToPC(ctx.oSender, "Votre clef publique est : " + NWScript.GetPCPublicCDKey(ctx.oSender));
+      ctx.oSender.SendServerMessage($"Votre clef publique est : {ctx.oSender.CDKey.ColorString(Color.WHITE)}", Color.PINK);
     }
   }
 }

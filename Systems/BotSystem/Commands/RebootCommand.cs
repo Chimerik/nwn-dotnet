@@ -21,9 +21,6 @@ namespace NWN.Systems
         return;
       }
 
-      NwServer.Instance.ShutdownServer();
-      //Administration.PlayerPassword = "REBOOT";
-
       foreach (NwPlayer oPC in NwModule.Instance.Players)
       {
         if (PlayerSystem.Players.TryGetValue(oPC, out PlayerSystem.Player player))
@@ -56,11 +53,9 @@ namespace NWN.Systems
         NWScript.SqlBindInt(query, "@second", NwDateTime.Now.Second);
         NWScript.SqlStep(query);
 
-        await NwModule.Instance.AddActionToQueue(() => NWN.Utils.BootAllPC());
+        await NwModule.Instance.AddActionToQueue(() => Utils.BootAllPC());
 
         NwServer.Instance.ShutdownServer();
-        //Administration.ShutdownServer();
-        return 20;
       });
 
       await context.Channel.SendMessageAsync("Reboot effectif dans 30 secondes.");

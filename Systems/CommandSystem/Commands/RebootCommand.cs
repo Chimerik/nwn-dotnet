@@ -4,7 +4,6 @@ using NWN.API;
 using NWN.Core;
 using NWN.Core.NWNX;
 using NWN.Services;
-using NWNX.API;
 
 namespace NWN.Systems
 {
@@ -12,7 +11,7 @@ namespace NWN.Systems
   {
     private static void ExecuteRebootCommand(ChatSystem.Context ctx, Options.Result options)
     {
-      if (NWScript.GetIsDM(ctx.oSender) == 1 || NWScript.GetPCPlayerName(ctx.oSender) == "Chim")
+      if (ctx.oSender.IsDM || ctx.oSender.PlayerName == "Chim")
       {
         AdminPlugin.SetPlayerPassword("REBOOT");
 

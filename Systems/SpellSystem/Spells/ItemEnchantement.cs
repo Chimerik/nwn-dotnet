@@ -18,6 +18,7 @@ namespace NWN.Systems
       {842, new API.ItemProperty[] { API.ItemProperty.MassiveCritical(IPDamageBonus.Plus2) } },
       {843, new API.ItemProperty[] { API.ItemProperty.SkillBonus(Skill.AnimalEmpathy, 1), API.ItemProperty.SkillBonus(Skill.Appraise, 1), API.ItemProperty.SkillBonus(Skill.Bluff, 1), API.ItemProperty.SkillBonus(Skill.Concentration, 1), API.ItemProperty.SkillBonus(Skill.DisableTrap, 1), API.ItemProperty.SkillBonus(Skill.Discipline, 1), API.ItemProperty.SkillBonus(Skill.Heal, 1), API.ItemProperty.SkillBonus(Skill.Hide, 1), API.ItemProperty.SkillBonus(Skill.Intimidate, 1), API.ItemProperty.SkillBonus(Skill.Listen, 1), API.ItemProperty.SkillBonus(Skill.Lore, 1), API.ItemProperty.SkillBonus(Skill.MoveSilently, 1), API.ItemProperty.SkillBonus(Skill.OpenLock, 1), API.ItemProperty.SkillBonus(Skill.Parry, 1), API.ItemProperty.SkillBonus(Skill.Perform, 1), API.ItemProperty.SkillBonus(Skill.Persuade, 1), API.ItemProperty.SkillBonus(Skill.PickPocket, 1), API.ItemProperty.SkillBonus(Skill.Search, 1), API.ItemProperty.SkillBonus(Skill.SetTrap, 1), API.ItemProperty.SkillBonus(Skill.Spellcraft, 1), API.ItemProperty.SkillBonus(Skill.Spot, 1), API.ItemProperty.SkillBonus(Skill.Taunt, 1), API.ItemProperty.SkillBonus(Skill.Taunt, 1), API.ItemProperty.SkillBonus(Skill.Tumble, 1), API.ItemProperty.SkillBonus(Skill.UseMagicDevice, 1) } },
       {844, new API.ItemProperty[] { API.ItemProperty.BonusSavingThrowVsX(IPSaveVs.Fear, 1) } },
+      
       //NIVEAU 1
       {845, new API.ItemProperty[] { API.ItemProperty.AbilityBonus(IPAbility.Constitution, 1) } },
       {846, new API.ItemProperty[] { API.ItemProperty.DamageBonus(IPDamageType.Acid, IPDamageBonus.Plus1), API.ItemProperty.DamageBonus(IPDamageType.Fire, IPDamageBonus.Plus1), API.ItemProperty.DamageBonus(IPDamageType.Cold, IPDamageBonus.Plus1), API.ItemProperty.DamageBonus(IPDamageType.Electrical, IPDamageBonus.Plus1), API.ItemProperty.DamageBonus(IPDamageType.Negative, IPDamageBonus.Plus1) , API.ItemProperty.DamageBonus(IPDamageType.Positive, IPDamageBonus.Plus1) } },
@@ -77,7 +78,7 @@ namespace NWN.Systems
 
       NwPlayer oCaster = (NwPlayer)callInfo.ObjectSelf;
 
-      if (!player.craftJob.CanStartJob(oCaster, NWScript.OBJECT_INVALID, Craft.Job.JobType.Enchantement))
+      if (!player.craftJob.CanStartJob(oCaster, null, Craft.Job.JobType.Enchantement))
         return;
 
       if(oTarget.GetLocalVariable<int>("_AVAILABLE_ENCHANTEMENT_SLOT").HasNothing)
@@ -122,7 +123,7 @@ namespace NWN.Systems
     {
       //player.oid.SendServerMessage($"ip string : {$"{spellId}_{(int)ip.PropertyType}_{ip.SubType}_{ip.CostTable}_{ip.CostTableValue}"}");
 
-      player.craftJob.Start(Craft.Job.JobType.Enchantement, null, player, NWScript.OBJECT_INVALID, oItem, $"{spellId}_{(int)ip.PropertyType}_{ip.SubType}_{ip.CostTable}_{ip.CostTableValue}");
+      player.craftJob.Start(Craft.Job.JobType.Enchantement, null, player, null, oItem, $"{spellId}_{(int)ip.PropertyType}_{ip.SubType}_{ip.CostTable}_{ip.CostTableValue}");
       player.oid.ApplyEffect(EffectDuration.Instant, API.Effect.VisualEffect(VfxType.ImpSuperHeroism));
 
       player.menu.Close();

@@ -124,7 +124,7 @@ namespace NWN.Systems
       player.menu.titleLines.Add("Voici votre stock de planches de bois raffinées :");
 
       foreach (var entry in plankDictionnary)
-        if(player.materialStock.TryGetValue(entry.Value.name, out int playerStock))
+        if(player.materialStock.TryGetValue(entry.Key.ToString(), out int playerStock))
           player.menu.titleLines.Add($"* {entry.Key.ToDescription()}: {playerStock}");
 
       player.menu.choices.Add((
@@ -159,7 +159,7 @@ namespace NWN.Systems
       player.menu.titleLines.Add("Voici votre stock de peaux brutes :");
 
       foreach (var entry in peltDictionnary)
-        if (player.materialStock.TryGetValue(entry.Value.name, out int playerStock))
+        if (player.materialStock.TryGetValue(entry.Key.ToString(), out int playerStock))
           player.menu.titleLines.Add($"* {entry.Key.ToDescription()}: {playerStock}");
 
       player.menu.choices.Add((
@@ -175,7 +175,7 @@ namespace NWN.Systems
       player.menu.titleLines.Add("Voici votre stock de cuirs raffinés :");
 
       foreach (var entry in leatherDictionnary)
-        if (player.materialStock.TryGetValue(entry.Value.name, out int playerStock))
+        if (player.materialStock.TryGetValue(entry.Key.ToString(), out int playerStock))
           player.menu.titleLines.Add($"* {entry.Key.ToDescription()}: {playerStock}");
 
       player.menu.choices.Add((

@@ -92,15 +92,15 @@ namespace NWN.Systems
         "Vous vous revoyez ..."
       };
 
-      player.menu.choices.Add(($"véritable brute, parcourant les rues de votre ville en recherche d'un prochain écolier à martyriser.", () => AddTrait(player, Feat.Thug)));
-      player.menu.choices.Add(($"au temple, en tant que simple adepte, entouré de vos semblables en communion.", () => AddTrait(player, Feat.Strongsoul)));
-      player.menu.choices.Add(($"entouré de votre famille, issue d'une noble et ancienne lignée aristocratique sombrée en désuétude.", () => AddTrait(player, Feat.SilverPalm)));
-      player.menu.choices.Add(($"occupé à contempler les oeuvres artistiques de votre précédent maître.", () => AddTrait(player, Feat.Artist)));
-      player.menu.choices.Add(($"athlète acclamé, auréolé de plusieurs victoires.", () => AddTrait(player, Feat.Bullheaded)));
-      player.menu.choices.Add(($"gamin des rues, arpentant les venelles mal famées de votre ville natale.", () => AddTrait(player, Feat.Snakeblood)));
-      player.menu.choices.Add(($"milicien volontaire de votre ville ou village natal, garant de la paix en ses rues.", () => AddTrait(player, Feat.Blooded)));
-      player.menu.choices.Add(($"jeune apprenti, étudiant parchemins et grimoires anciens afin d'appréhender les bases mêmes de la magie.", () => AddTrait(player, Feat.CourtlyMagocracy)));
-      player.menu.choices.Add(($"né sous une bonne étoile, Tymora vous ayant jusque là sourit plus que de raison.", () => AddTrait(player, Feat.LuckOfHeroes)));
+      player.menu.choices.Add(($"véritable brute, parcourant les rues de votre ville en recherche d'un prochain écolier à martyriser.", () => AddTrait(player, API.Constants.Feat.Thug)));
+      player.menu.choices.Add(($"au temple, en tant que simple adepte, entouré de vos semblables en communion.", () => AddTrait(player, API.Constants.Feat.Strongsoul)));
+      player.menu.choices.Add(($"entouré de votre famille, issue d'une noble et ancienne lignée aristocratique sombrée en désuétude.", () => AddTrait(player, API.Constants.Feat.SilverPalm)));
+      player.menu.choices.Add(($"occupé à contempler les oeuvres artistiques de votre précédent maître.", () => AddTrait(player, API.Constants.Feat.Artist)));
+      player.menu.choices.Add(($"athlète acclamé, auréolé de plusieurs victoires.", () => AddTrait(player, API.Constants.Feat.Bullheaded)));
+      player.menu.choices.Add(($"gamin des rues, arpentant les venelles mal famées de votre ville natale.", () => AddTrait(player, API.Constants.Feat.Snakeblood)));
+      player.menu.choices.Add(($"milicien volontaire de votre ville ou village natal, garant de la paix en ses rues.", () => AddTrait(player, API.Constants.Feat.Blooded)));
+      player.menu.choices.Add(($"jeune apprenti, étudiant parchemins et grimoires anciens afin d'appréhender les bases mêmes de la magie.", () => AddTrait(player, API.Constants.Feat.CourtlyMagocracy)));
+      player.menu.choices.Add(($"né sous une bonne étoile, Tymora vous ayant jusque là sourit plus que de raison.", () => AddTrait(player, API.Constants.Feat.LuckOfHeroes)));
 
       player.menu.choices.Add(($"Retour.", () => DrawWelcomePage(player)));
       player.menu.choices.Add(("Quitter", () => player.menu.Close()));
@@ -115,7 +115,7 @@ namespace NWN.Systems
         "Quelles capacités initiales votre personnage possède-t-il ?"
       };
 
-      foreach (KeyValuePair<int, Skill> SkillListEntry in player.learnableSkills)
+      foreach (KeyValuePair< API.Constants.Feat, Skill > SkillListEntry in player.learnableSkills)
       {
         Skill skill = SkillListEntry.Value;
 
@@ -180,23 +180,20 @@ namespace NWN.Systems
 
       if (remainingPoints >= skill.pointsToNextLevel)
       {
-        CreaturePlugin.AddFeat(player.oid, skill.oid);
+        player.oid.AddFeat(skill.oid);
         skill.trained = true;
 
         if (skill.successorId > 0)
         {
-          player.learnableSkills.Add(skill.successorId, new Skill(skill.successorId, 0, player));
+          player.learnableSkills.Add((API.Constants.Feat)skill.successorId, new Skill((API.Constants.Feat)skill.successorId, 0, player));
         }
-
-        //if (CreaturePlugin.GetHighestLevelOfFeat(player.oid, skill.oid - 1) == skill.oid) // Suppression du prédécesseur
-          //CreaturePlugin.RemoveFeat(player.oid, skill.oid -1);
 
         ObjectPlugin.SetInt(player.oid, "_STARTING_SKILL_POINTS", remainingPoints -= skill.pointsToNextLevel, 1);
         skill.CreateSkillJournalEntry();
         skill.PlayNewSkillAcquiredEffects();
         HandleSkillSelection(player);
 
-        if (RegisterAddCustomFeatEffect.TryGetValue(skill.oid, out Func<Player, int, int> handler))
+        if (RegisterAddCustomFeatEffect.TryGetValue(skill.oid, out Func<Player, API.Constants.Feat, int> handler))
         {
           try
           {
@@ -204,7 +201,7 @@ namespace NWN.Systems
           }
           catch (Exception e)
           {
-            NWN.Utils.LogMessageToDMs(e.Message);
+            Utils.LogMessageToDMs(e.Message);
           }
         }
       }
@@ -213,15 +210,15 @@ namespace NWN.Systems
         skill.acquiredPoints += remainingPoints;
         ObjectPlugin.DeleteInt(player.oid, "_STARTING_SKILL_POINTS");
         skill.currentJob = true;
-        player.currentSkillJob = skill.oid;
+        player.currentSkillJob = (int)skill.oid;
         skill.CreateSkillJournalEntry();
         DrawWelcomePage(player);
       }
     }
-    private void AddTrait(Player player, Feat trait)
+    private void AddTrait(Player player, API.Constants.Feat trait)
     {
-      CreaturePlugin.AddFeat(player.oid, (int)trait);
-      NWScript.SetLocalInt(NWScript.GetNearestObjectByTag("intro_mirror", player.oid), "_TRAIT_SELECTED", 1);
+      player.oid.AddFeat(trait);
+      mirror.GetLocalVariable<int>("_TRAIT_SELECTED").Value = 1;
       DrawWelcomePage(player);
     }
   }
