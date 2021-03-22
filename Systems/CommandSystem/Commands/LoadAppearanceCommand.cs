@@ -22,6 +22,14 @@ namespace NWN.Systems
         return;
 
       NwItem item = (NwItem)selection.TargetObj;
+
+      // TODO : ajouter un métier permettant de modifier n'importe quelle tenue
+      if (item.GetLocalVariable<string>("_ORIGINAL_CRAFTER_NAME").HasValue && item.GetLocalVariable<string>("_ORIGINAL_CRAFTER_NAME").Value != player.oid.Name)
+      {
+        player.oid.SendServerMessage($"Il est indiqué : Pour tout modification, s'adresser à {item.GetLocalVariable<string>("_ORIGINAL_CRAFTER_NAME").Value.ColorString(Color.WHITE)}", Color.ORANGE);
+        return;
+      }
+
       int ACValue = -1;
       if (item.BaseItemType == BaseItemType.Armor)
         ACValue = ItemPlugin.GetBaseArmorClass(selection.TargetObj);

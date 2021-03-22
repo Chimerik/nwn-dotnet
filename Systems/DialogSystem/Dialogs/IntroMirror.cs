@@ -2,10 +2,12 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using NWN.API;
+using NWN.API.Constants;
 using NWN.Core;
 using NWN.Core.NWNX;
 using static NWN.Systems.PlayerSystem;
 using static NWN.Systems.SkillSystem;
+using Skill = NWN.Systems.SkillSystem.Skill;
 
 namespace NWN.Systems
 {
@@ -180,20 +182,47 @@ namespace NWN.Systems
 
       if (remainingPoints >= skill.pointsToNextLevel)
       {
-        player.oid.AddFeat(skill.oid);
-        skill.trained = true;
+        ObjectPlugin.SetInt(player.oid, "_STARTING_SKILL_POINTS", remainingPoints -= skill.pointsToNextLevel, 1);
 
-        if (skill.successorId > 0)
+        if (customFeatsDictionnary.ContainsKey(skill.oid)) // Il s'agit d'un Custom Feat
         {
-          player.learnableSkills.Add((API.Constants.Feat)skill.successorId, new Skill((API.Constants.Feat)skill.successorId, 0, player));
+          skill.acquiredPoints = skill.pointsToNextLevel;
+
+          if (player.learntCustomFeats.ContainsKey(skill.oid))
+            player.learntCustomFeats[skill.oid] = (int)skill.acquiredPoints;
+          else
+            player.learntCustomFeats.Add(skill.oid, (int)skill.acquiredPoints);
+
+          string customFeatName = customFeatsDictionnary[skill.oid].name;
+          skill.name = customFeatName;
+
+          skill.currentLevel = GetCustomFeatLevelFromSkillPoints(skill.oid, (int)skill.acquiredPoints);
+          skill.pointsToNextLevel = (int)(250 * skill.multiplier * Math.Pow(5, skill.currentLevel));
+
+          if (int.TryParse(NWScript.Get2DAString("feat", "FEAT", (int)skill.oid), out int nameValue))
+            player.oid.SetTlkOverride(nameValue, $"{customFeatName} - {skill.currentLevel}");
+          else
+            Utils.LogMessageToDMs($"CUSTOM SKILL SYSTEM ERROR - Skill {customFeatName} - {(int)skill.oid} : no available custom name StrRef");
+
+          if (skill.currentLevel >= customFeatsDictionnary[skill.oid].maxLevel)
+            skill.trained = true;
+        }
+        else
+        {
+          skill.trained = true;
+
+          if (skill.successorId > 0)
+          {
+            player.learnableSkills.Add((Feat)skill.successorId, new Skill((Feat)skill.successorId, 0, player));
+          }
         }
 
-        ObjectPlugin.SetInt(player.oid, "_STARTING_SKILL_POINTS", remainingPoints -= skill.pointsToNextLevel, 1);
+        player.oid.AddFeat(skill.oid);
         skill.CreateSkillJournalEntry();
         skill.PlayNewSkillAcquiredEffects();
         HandleSkillSelection(player);
 
-        if (RegisterAddCustomFeatEffect.TryGetValue(skill.oid, out Func<Player, API.Constants.Feat, int> handler))
+        if (RegisterAddCustomFeatEffect.TryGetValue(skill.oid, out Func<Player, Feat, int> handler))
         {
           try
           {
@@ -215,7 +244,7 @@ namespace NWN.Systems
         DrawWelcomePage(player);
       }
     }
-    private void AddTrait(Player player, API.Constants.Feat trait)
+    private void AddTrait(Player player, Feat trait)
     {
       player.oid.AddFeat(trait);
       mirror.GetLocalVariable<int>("_TRAIT_SELECTED").Value = 1;

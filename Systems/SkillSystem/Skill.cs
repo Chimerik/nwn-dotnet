@@ -21,7 +21,7 @@ namespace NWN.Systems
       public int currentLevel { get; set; }
       public int successorId { get; set; }
       public Boolean trained { get; set; }
-      private int multiplier;
+      public int multiplier { get; }
       public int pointsToNextLevel;
       public readonly int primaryAbility;
       public readonly int secondaryAbility;
@@ -111,7 +111,7 @@ namespace NWN.Systems
           Utils.LogMessageToDMs($"SKILL SYSTEM ERROR - Skill {this.oid} : Secondary ability not set");
         }
 
-        this.pointsToNextLevel = 250 * this.multiplier * (int)Math.Pow(Math.Sqrt(32), this.currentLevel);
+        this.pointsToNextLevel = (int)(250 * this.multiplier * Math.Pow(5, this.currentLevel));
 
         //if (Config.env == Config.Env.Chim)
         //pointsToNextLevel = 10;
@@ -239,8 +239,8 @@ namespace NWN.Systems
           string customFeatName = customFeatsDictionnary[oid].name;
           name = customFeatName;
 
-          currentLevel = SkillSystem.GetCustomFeatLevelFromSkillPoints(oid, (int)acquiredPoints);
-          pointsToNextLevel = 250 * this.multiplier * (int)Math.Pow(Math.Sqrt(32), this.currentLevel);
+          currentLevel = GetCustomFeatLevelFromSkillPoints(oid, (int)acquiredPoints);
+          pointsToNextLevel = (int)(250 * this.multiplier * Math.Pow(5, this.currentLevel));
 
           if (int.TryParse(NWScript.Get2DAString("feat", "FEAT", (int)oid), out int nameValue))
             player.oid.SetTlkOverride(nameValue, $"{customFeatName} - {currentLevel}");
@@ -261,9 +261,9 @@ namespace NWN.Systems
         }
 
         //if (!Convert.ToBoolean(CreaturePlugin.GetKnowsFeat(player.oid, oid)))
-       // {
-          CreaturePlugin.AddFeat(player.oid, (int)oid);
-          PlayNewSkillAcquiredEffects();
+        // {
+        player.oid.AddFeat(oid);
+        PlayNewSkillAcquiredEffects();
         //}
        /* else
         {

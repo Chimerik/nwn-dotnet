@@ -45,14 +45,11 @@ namespace NWN.Systems
             if (item == null)
               return;
 
-           if(NwRandom.Roll(Utils.random, 100, 1) < 20) // diminuer le pourcentage en fonction des compétences
+            item.GetLocalVariable<int>("_DURABILITY").Value -= 1;
+            if (item.GetLocalVariable<int>("_DURABILITY").Value <= 0)
             {
-              item.GetLocalVariable<int>("_DURABILITY").Value -= 1;
-              if (item.GetLocalVariable<int>("_DURABILITY").Value <= 0)
-              {
-                item.Destroy();
-                player.oid.SendServerMessage($"Il ne reste plus que des ruines irrécupérables de votre {item.Name.ColorString(Color.WHITE)}.", Color.RED);
-              }
+              item.Destroy();
+              player.oid.SendServerMessage($"Il ne reste plus que des ruines irrécupérables de votre {item.Name.ColorString(Color.WHITE)}.", Color.RED);
             }
 
             break;
@@ -69,8 +66,9 @@ namespace NWN.Systems
             if (item == null)
               return;
 
-            if (NwRandom.Roll(Utils.random, 100, 1) < 20) // diminuer le pourcentage en fonction des compétences
-            {
+            item.GetLocalVariable<int>("_DURABILITY").Value -= 1;
+            if (item.GetLocalVariable<int>("_DURABILITY").Value <= 0)
+            { 
               item.Destroy();
               player.oid.SendServerMessage($"Il ne reste plus que des ruines irrécuprables de votre {item.Name.ColorString(Color.WHITE)}.", Color.RED);
             }
@@ -96,11 +94,8 @@ namespace NWN.Systems
             if (item == null || item.Tag == "amulettorillink")
               return;
 
-            int durabilityRate = 20 - player.oid.GetAbilityModifier(Ability.Dexterity); // diminuer le pourcentage en fonction des compétences
-            if (durabilityRate < 1)
-              durabilityRate = 1;
-
-            if (NwRandom.Roll(Utils.random, 100, 1) < durabilityRate) 
+            item.GetLocalVariable<int>("_DURABILITY").Value -= 1;
+            if (item.GetLocalVariable<int>("_DURABILITY").Value <= 0)
             {
               item.Destroy();
               player.oid.SendServerMessage($"Il ne reste plus que des ruines irrécupérables de votre {item.Name.ColorString(Color.WHITE)}.", Color.RED);

@@ -41,6 +41,12 @@ namespace NWN.Systems
         return;
       }
 
+      if (oPC.GetItemInSlot(InventorySlot.CreatureSkin) == null)
+      {
+        NwItem pcSkin = NwItem.Create("peaudejoueur", oPC);
+        oPC.ActionEquipItem(pcSkin, InventorySlot.CreatureSkin);
+      }
+
       if (player.currentHP <= 0)
         oPC.ApplyEffect(EffectDuration.Instant, API.Effect.Death());
       else
@@ -120,10 +126,9 @@ namespace NWN.Systems
 
       //NWScript.SendMessageToPC(player.oid, $"pv : {Int32.Parse(NWScript.Get2DAString("classes", "HitDie", 43)) + (1 + 3 * ((NWScript.GetAbilityScore(oTarget, NWScript.ABILITY_CONSTITUTION, 1) + improvedConst - 10) / 2 + CreaturePlugin.GetKnowsFeat(oTarget, (int)Feat.Toughness))) * Int32.Parse(NWScript.Get2DAString("feat", "GAINMULTIPLE", CreaturePlugin.GetHighestLevelOfFeat(oTarget, (int)Feat.ImprovedHealth)))}");
 
-      player.oid.MaxHP = Int32.Parse(NWScript.Get2DAString("classes", "HitDie", 43))
-        + (1 + 3 * ((player.oid.GetAbilityScore(Ability.Constitution, true)
-        + improvedConst - 10) / 2)
-        + CreaturePlugin.GetKnowsFeat(player.oid, (int)Feat.Toughness)) * improvedHealth;
+      CreaturePlugin.SetMaxHitPointsByLevel(player.oid, 1, Int32.Parse(NWScript.Get2DAString("classes", "HitDie", 43))
+        + (1 + 3 * ((player.oid.GetAbilityScore(Ability.Constitution, true) - 10) / 2)
+        + CreaturePlugin.GetKnowsFeat(player.oid, (int)Feat.Toughness)) * improvedHealth);
 
       Task waitForTorilNecklaceChange = NwTask.Run(async () =>
       {
@@ -262,6 +267,12 @@ namespace NWN.Systems
       }
 
       Utils.DestroyInventory(newCharacter.oid);
+
+      if (newCharacter.oid.GetItemInSlot(InventorySlot.CreatureSkin) == null)
+      {
+        NwItem pcSkin = NwItem.Create("peaudejoueur", newCharacter.oid);
+        newCharacter.oid.ActionEquipItem(pcSkin, InventorySlot.CreatureSkin);
+      }
 
       var query = NWScript.SqlPrepareQueryCampaign(Systems.Config.database, $"INSERT INTO playerCharacters (accountId , characterName, dateLastSaved, currentSkillType, currentSkillJob, currentCraftJob, currentCraftObject, frostAttackOn, areaTag, position, facing, menuOriginLeft, currentHP) VALUES (@accountId, @name, @dateLastSaved, @currentSkillType, @currentSkillJob, @currentCraftJob, @currentCraftObject, @frostAttackOn, @areaTag, @position, @facing, @menuOriginLeft, @currentHP)");
       NWScript.SqlBindInt(query, "@accountId", newCharacter.accountId);

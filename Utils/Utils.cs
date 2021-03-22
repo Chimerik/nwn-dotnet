@@ -35,7 +35,7 @@ namespace NWN
     }
     public static void DestroyEquippedItems(NwCreature oCreature)
     {
-      for (int i = 0; i < 17; i++)
+      for (int i = (int)InventorySlot.Head; i < (int)InventorySlot.CreatureBiteWeapon; i++)
         oCreature.GetItemInSlot((InventorySlot)i)?.Destroy();
     }
 

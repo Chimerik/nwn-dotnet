@@ -74,7 +74,7 @@ namespace NWN.Systems
         if (knownSpells < 1)
           knownSpells = 1;
 
-        this.pointsToNextLevel = 250 * (this.multiplier) * (int)Math.Pow(Math.Sqrt(32), knownSpells - 1);
+        this.pointsToNextLevel = (int)(250 * multiplier * Math.Pow(5, knownSpells - 1));
 
         if (this.player.currentSkillJob == this.oid)
         {

@@ -310,6 +310,7 @@ namespace NWN.Systems
               }
 
               Craft.Collect.System.AddCraftedItemProperties(craftedItem, craftJob.material);
+              craftedItem.GetLocalVariable<string>("_ORIGINAL_CRAFTER_NAME").Value = oid.Name;
 
               int artisanExceptionnelLevel = 0;
               if (learntCustomFeats.ContainsKey(CustomFeats.ArtisanExceptionnel))

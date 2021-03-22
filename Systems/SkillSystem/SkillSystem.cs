@@ -265,13 +265,16 @@ namespace NWN.Systems
 
     private static int HandleHealthPoints(PlayerSystem.Player player, Feat feat)
     {
+      Log.Info($"max hp before : {player.oid.MaxHP}");
+
       int improvedHealth = 0;
       if (player.learntCustomFeats.ContainsKey(CustomFeats.ImprovedHealth))
         improvedHealth = GetCustomFeatLevelFromSkillPoints(CustomFeats.ImprovedHealth, player.learntCustomFeats[CustomFeats.ImprovedHealth]);
 
-      player.oid.MaxHP = Int32.Parse(NWScript.Get2DAString("classes", "HitDie", 43))
+      CreaturePlugin.SetMaxHitPointsByLevel(player.oid, 1, Int32.Parse(NWScript.Get2DAString("classes", "HitDie", 43))
         + (1 + 3 * ((player.oid.GetAbilityScore(Ability.Constitution, true) - 10) / 2)
-        + CreaturePlugin.GetKnowsFeat(player.oid, (int)Feat.Toughness)) * improvedHealth;
+        + CreaturePlugin.GetKnowsFeat(player.oid, (int)Feat.Toughness)) * improvedHealth);
+
       return 0;
     }
     private static int HandleImproveAbility(PlayerSystem.Player player, Feat feat)
@@ -443,7 +446,7 @@ namespace NWN.Systems
       if (skin != null)
         skin.AddItemProperty(API.ItemProperty.BonusLevelSpell((IPClass)43, IPSpellLevel.SL0), EffectDuration.Permanent);
       else
-        Utils.LogMessageToDMs($"Skill System - On Improve Spell Slot : {player.oid.Name} is null !");
+        Utils.LogMessageToDMs($"Skill System - On Improve Spell Slot : {player.oid.Name} creature skin is null !");
 
       return 0;
     }
@@ -453,7 +456,7 @@ namespace NWN.Systems
       if (skin != null)
         skin.AddItemProperty(API.ItemProperty.BonusLevelSpell((IPClass)43, IPSpellLevel.SL1), EffectDuration.Permanent);
       else
-        Utils.LogMessageToDMs($"Skill System - On Improve Spell Slot : {player.oid.Name} is null !");
+        Utils.LogMessageToDMs($"Skill System - On Improve Spell Slot : {player.oid.Name} creature skin is null !");
 
       return 0;
     }
@@ -463,7 +466,7 @@ namespace NWN.Systems
       if (skin != null)
         skin.AddItemProperty(API.ItemProperty.BonusLevelSpell((IPClass)43, IPSpellLevel.SL2), EffectDuration.Permanent);
       else
-        Utils.LogMessageToDMs($"Skill System - On Improve Spell Slot : {player.oid.Name} is null !");
+        Utils.LogMessageToDMs($"Skill System - On Improve Spell Slot : {player.oid.Name} creature skin is null !");
 
       return 0;
     }
@@ -473,7 +476,7 @@ namespace NWN.Systems
       if (skin != null)
         skin.AddItemProperty(API.ItemProperty.BonusLevelSpell((IPClass)43, IPSpellLevel.SL3), EffectDuration.Permanent);
       else
-        Utils.LogMessageToDMs($"Skill System - On Improve Spell Slot : {player.oid.Name} is null !");
+        Utils.LogMessageToDMs($"Skill System - On Improve Spell Slot : {player.oid.Name} creature skin is null !");
 
       return 0;
     }
@@ -483,7 +486,7 @@ namespace NWN.Systems
       if (skin != null)
         skin.AddItemProperty(API.ItemProperty.BonusLevelSpell((IPClass)43, IPSpellLevel.SL4), EffectDuration.Permanent);
       else
-        Utils.LogMessageToDMs($"Skill System - On Improve Spell Slot : {player.oid.Name} is null !");
+        Utils.LogMessageToDMs($"Skill System - On Improve Spell Slot : {player.oid.Name} creature skin is null !");
 
       return 0;
     }
@@ -493,7 +496,7 @@ namespace NWN.Systems
       if (skin != null)
         skin.AddItemProperty(API.ItemProperty.BonusLevelSpell((IPClass)43, IPSpellLevel.SL5), EffectDuration.Permanent);
       else
-        Utils.LogMessageToDMs($"Skill System - On Improve Spell Slot : {player.oid.Name} is null !");
+        Utils.LogMessageToDMs($"Skill System - On Improve Spell Slot : {player.oid.Name} creature skin is null !");
 
       return 0;
     }
@@ -503,7 +506,7 @@ namespace NWN.Systems
       if (skin != null)
         skin.AddItemProperty(API.ItemProperty.BonusLevelSpell((IPClass)43, IPSpellLevel.SL6), EffectDuration.Permanent);
       else
-        Utils.LogMessageToDMs($"Skill System - On Improve Spell Slot : {player.oid.Name} is null !");
+        Utils.LogMessageToDMs($"Skill System - On Improve Spell Slot : {player.oid.Name} creature skin is null !");
 
       return 0;
     }
@@ -513,7 +516,7 @@ namespace NWN.Systems
       if (skin != null)
         skin.AddItemProperty(API.ItemProperty.BonusLevelSpell((IPClass)43, IPSpellLevel.SL7), EffectDuration.Permanent);
       else
-        Utils.LogMessageToDMs($"Skill System - On Improve Spell Slot : {player.oid.Name} is null !");
+        Utils.LogMessageToDMs($"Skill System - On Improve Spell Slot : {player.oid.Name} creature skin is null !");
 
       return 0;
     }
@@ -523,7 +526,7 @@ namespace NWN.Systems
       if (skin != null)
         skin.AddItemProperty(API.ItemProperty.BonusLevelSpell((IPClass)43, IPSpellLevel.SL8), EffectDuration.Permanent);
       else
-        Utils.LogMessageToDMs($"Skill System - On Improve Spell Slot : {player.oid.Name} is null !");
+        Utils.LogMessageToDMs($"Skill System - On Improve Spell Slot : {player.oid.Name} creature skin is null !");
 
       return 0;
     }
@@ -533,7 +536,7 @@ namespace NWN.Systems
       if (skin != null)
         skin.AddItemProperty(API.ItemProperty.BonusLevelSpell((IPClass)43, IPSpellLevel.SL9), EffectDuration.Permanent);
       else
-        Utils.LogMessageToDMs($"Skill System - On Improve Spell Slot : {player.oid.Name} is null !");
+        Utils.LogMessageToDMs($"Skill System - On Improve Spell Slot : {player.oid.Name} creature skin is null !");
 
       return 0;
     }
@@ -564,7 +567,15 @@ namespace NWN.Systems
       int multiplier = 1;
       int.TryParse(NWScript.Get2DAString("feat", "CRValue", (int)feat), out multiplier);
 
-      return (int)(Math.Log(currentSkillPoints / 250 * multiplier) / Math.Log(Math.Sqrt(32)));
+      var result = Math.Log(currentSkillPoints / (250 * multiplier)) / Math.Log(5);
+      Log.Info($"currentSkillPoints : {currentSkillPoints}");
+
+      Log.Info($"result : {result}");
+
+      if (result < 0)
+        return 0;
+      else
+        return 1 + (int)result;
     }
   }
 }
