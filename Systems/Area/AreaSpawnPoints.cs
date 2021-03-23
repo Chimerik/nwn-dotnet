@@ -131,6 +131,9 @@ namespace NWN.Systems
         case "jukebox":
           creature.OnConversation += DialogSystem.StartJukeboxDialog;
           break;
+        case "jukebox2":
+          creature.OnConversation += DialogSystem.StartBardeDragonDialog;
+          break;
         case "tribunal_hotesse":
           creature.OnConversation += DialogSystem.StartTribunalShopDialog;
           break;

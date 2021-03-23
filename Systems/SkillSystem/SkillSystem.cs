@@ -265,8 +265,6 @@ namespace NWN.Systems
 
     private static int HandleHealthPoints(PlayerSystem.Player player, Feat feat)
     {
-      Log.Info($"max hp before : {player.oid.MaxHP}");
-
       int improvedHealth = 0;
       if (player.learntCustomFeats.ContainsKey(CustomFeats.ImprovedHealth))
         improvedHealth = GetCustomFeatLevelFromSkillPoints(CustomFeats.ImprovedHealth, player.learntCustomFeats[CustomFeats.ImprovedHealth]);
@@ -568,9 +566,6 @@ namespace NWN.Systems
       int.TryParse(NWScript.Get2DAString("feat", "CRValue", (int)feat), out multiplier);
 
       var result = Math.Log(currentSkillPoints / (250 * multiplier)) / Math.Log(5);
-      Log.Info($"currentSkillPoints : {currentSkillPoints}");
-
-      Log.Info($"result : {result}");
 
       if (result < 0)
         return 0;

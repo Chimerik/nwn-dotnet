@@ -12,8 +12,8 @@ namespace NWN.Systems
     public static readonly Logger Log = LogManager.GetCurrentClassLogger();
     public DialogSystem()
     {
-      foreach (NwPlaceable plc in NwModule.FindObjectsWithTag<NwPlaceable>("bank_gold"))
-        plc.OnUsed += StartGoldStealDialog;
+      /*foreach (NwPlaceable plc in NwModule.FindObjectsWithTag<NwPlaceable>("bank_gold"))
+        plc.OnUsed += StartGoldStealDialog;*/
 
       foreach (NwPlaceable plc in NwModule.FindObjectsWithTag<NwPlaceable>("intro_mirror"))
         plc.OnUsed += StartIntroMirrorDialog;
@@ -60,6 +60,11 @@ namespace NWN.Systems
     {
       if (Players.TryGetValue(onConversation.LastSpeaker, out Player player))
         new Jukebox(player, onConversation.CurrentSpeaker);
+    }
+    public static void StartBardeDragonDialog(CreatureEvents.OnConversation onConversation)
+    {
+      if (Players.TryGetValue(onConversation.LastSpeaker, out Player player))
+        new BardeDragon(player, onConversation.CurrentSpeaker);
     }
     public static void StartTribunalShopDialog(CreatureEvents.OnConversation onConversation)
     {
