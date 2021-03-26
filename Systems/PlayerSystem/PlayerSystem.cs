@@ -6,10 +6,9 @@ using NWN.Core.NWNX;
 using NWN.API;
 using NWN.Services;
 using NWN.API.Events;
-using NWNX.Services;
-using NWNX.API.Events;
 using NWN.API.Constants;
 using NLog;
+using System.Threading.Tasks;
 
 namespace NWN.Systems
 {
@@ -18,14 +17,15 @@ namespace NWN.Systems
   {
     public static readonly Logger Log = LogManager.GetCurrentClassLogger();
     public static CursorTargetService cursorTargetService { get; set; }
-    public PlayerSystem(NWNXEventService nwnxEventService, CursorTargetService cursorTService)
+    private static EventService eventService { get; set; }
+    public PlayerSystem(CursorTargetService cursorTService, EventService eventServices)
     {
       NwModule.Instance.OnClientEnter += HandlePlayerConnect;
       NwModule.Instance.OnClientLeave += HandlePlayerLeave;
       NwModule.Instance.OnPlayerDeath += HandlePlayerDeath;
       NwModule.Instance.OnPlayerLevelUp += CancelPlayerLevelUp;
-      nwnxEventService.Subscribe<ServerVaultEvents.OnServerCharacterSaveBefore>(HandleBeforePlayerSave);
-      nwnxEventService.Subscribe<ServerVaultEvents.OnServerCharacterSaveAfter>(HandleAfterPlayerSave);
+
+      eventService = eventServices;
       cursorTargetService = cursorTService;
     }
 
@@ -357,6 +357,40 @@ namespace NWN.Systems
     {
       EventsPlugin.SkipEvent();
       Utils.LogMessageToDMs($"{callInfo.ObjectSelf.Name} vient d'essayer de level up.");
+    }
+
+    private static void HandlePlayerPerception(CreatureEvents.OnPerception onPerception)
+    {
+      if (onPerception.PerceptionEventType != PerceptionEventType.Seen)
+        return;
+
+      if (onPerception.PerceivedCreature.Tag != "Statuereptilienne")
+        return;
+
+      Log.Info($"Perception event : {onPerception.PerceptionEventType}");
+
+      NwPlayer oPC = (NwPlayer)onPerception.Creature;
+
+      if (onPerception.PerceivedCreature.GetLocalVariable<int>($"_PERCEPTION_STATUS_{oPC.CDKey}").HasValue)
+        return;
+
+      onPerception.PerceivedCreature.GetLocalVariable<int>($"_PERCEPTION_STATUS_{oPC.CDKey}").Value = 1;
+
+      API.Effect effectToRemove = onPerception.PerceivedCreature.ActiveEffects.FirstOrDefault(e => e.Tag == "_FREEZE_EFFECT");
+      if (effectToRemove != null)
+        onPerception.PerceivedCreature.RemoveEffect(effectToRemove);
+
+      Task waitForAnimation = NwTask.Run(async () =>
+      {
+        onPerception.PerceivedCreature.PlayAnimation((Animation)Utils.random.Next(100, 116), 6);
+        await NwTask.Delay(TimeSpan.FromSeconds(0.1));
+        Log.Info($"Starting applying Freeze : {onPerception.PerceivedCreature.Name} - {onPerception.PerceivedCreature.Tag} in {onPerception.PerceivedCreature.Area.Name} at {onPerception.PerceivedCreature.Location.Position.X} {onPerception.PerceivedCreature.Location.Position.Y}");
+        
+        API.Effect eff = eff = API.Effect.VisualEffect(VfxType.DurFreezeAnimation);
+        eff.Tag = "_FREEZE_EFFECT";
+        eff.SubType = EffectSubType.Supernatural;
+        onPerception.PerceivedCreature.ApplyEffect(EffectDuration.Permanent, eff);
+      });
     }
 
     /*public static Dictionary<string, Func<uint, int>> Register = new Dictionary<string, Func<uint, int>>

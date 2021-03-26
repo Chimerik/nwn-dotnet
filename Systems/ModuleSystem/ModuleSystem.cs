@@ -144,6 +144,10 @@ namespace NWN.Systems
       query = NWScript.SqlPrepareQueryCampaign(Config.database, $"CREATE TABLE IF NOT EXISTS playerItemAppearance" +
         $"('characterId' INTEGER NOT NULL, 'appearanceName' TEXT NOT NULL, 'serializedAppearance' TEXT NOT NULL, 'baseItemType' INTEGER NOT NULL, 'AC' INTEGER NOT NULL, UNIQUE (characterId, appearanceName))");
       NWScript.SqlStep(query);
+
+      query = NWScript.SqlPrepareQueryCampaign(Config.database, $"CREATE TABLE IF NOT EXISTS savedNPC" +
+        $"('accountName' TEXT NOT NULL, 'name' TEXT NOT NULL, 'serializedCreature' TEXT NOT NULL, UNIQUE (accountName, name))");
+      NWScript.SqlStep(query);
     }
     private void InitializeEvents()
     {
@@ -355,7 +359,7 @@ namespace NWN.Systems
 
       while (Convert.ToBoolean(NWScript.SqlStep(query)))
       {
-        NwCreature corpse = ObjectPlugin.Deserialize(NWScript.SqlGetString(query, 0)).ToNwObject<NwCreature>();
+        NwCreature corpse = NwCreature.Deserialize<NwCreature>(NWScript.SqlGetString(query, 0));
         corpse.Location = Utils.GetLocationFromDatabase(NWScript.SqlGetString(query, 1), NWScript.SqlGetVector(query, 2), 0);
         corpse.GetLocalVariable<int>("_PC_ID").Value = NWScript.SqlGetInt(query, 3);
 
@@ -377,8 +381,8 @@ namespace NWN.Systems
 
       while (Convert.ToBoolean(NWScript.SqlStep(query)))
       {
-        NwStore shop = ObjectPlugin.Deserialize(NWScript.SqlGetString(query, 0)).ToNwObject<NwStore>();
-        NwPlaceable panel = ObjectPlugin.Deserialize(NWScript.SqlGetString(query, 1)).ToNwObject<NwPlaceable>();
+        NwStore shop = NwStore.Deserialize<NwStore>(NWScript.SqlGetString(query, 0));
+        NwPlaceable panel = NwPlaceable.Deserialize<NwPlaceable>(NWScript.SqlGetString(query, 1));
         shop.Location = Utils.GetLocationFromDatabase(NWScript.SqlGetString(query, 5), NWScript.SqlGetVector(query, 6), NWScript.SqlGetFloat(query, 7));
         panel.Location = Utils.GetLocationFromDatabase(NWScript.SqlGetString(query, 5), NWScript.SqlGetVector(query, 6), NWScript.SqlGetFloat(query, 7));
         shop.GetLocalVariable<int>("_OWNER_ID").Value = NWScript.SqlGetInt(query, 2);
@@ -402,8 +406,8 @@ namespace NWN.Systems
 
       while (Convert.ToBoolean(NWScript.SqlStep(query)))
       {
-        NwStore shop = ObjectPlugin.Deserialize(NWScript.SqlGetString(query, 0)).ToNwObject<NwStore>();
-        NwPlaceable panel = ObjectPlugin.Deserialize(NWScript.SqlGetString(query, 1)).ToNwObject<NwPlaceable>();
+        NwStore shop = NwStore.Deserialize<NwStore>(NWScript.SqlGetString(query, 0));
+        NwPlaceable panel = NwPlaceable.Deserialize<NwPlaceable>(NWScript.SqlGetString(query, 1));
         shop.Location = Utils.GetLocationFromDatabase(NWScript.SqlGetString(query, 7), NWScript.SqlGetVector(query, 8), NWScript.SqlGetFloat(query, 9));
         panel.Location = Utils.GetLocationFromDatabase(NWScript.SqlGetString(query, 7), NWScript.SqlGetVector(query, 8), NWScript.SqlGetFloat(query, 9));
         shop.GetLocalVariable<int>("_OWNER_ID").Value = NWScript.SqlGetInt(query, 2);
@@ -440,7 +444,7 @@ namespace NWN.Systems
           // S'il est co, on rend l'item au seller et on détruit la ligne en BDD. S'il est pas co, on attend la prochaine occurence pour lui rendre l'item
           if (oSeller != null)
           {
-            NwStore tempStore = ObjectPlugin.Deserialize(NWScript.SqlGetString(query, 4)).ToNwObject<NwStore>();
+            NwStore tempStore = NwStore.Deserialize<NwStore>(NWScript.SqlGetString(query, 4));
             NwItem tempItem = tempStore.Items.FirstOrDefault();
             tempItem.Clone(oSeller, null, true);
             NwItem authorization = NwItem.Create("auction_clearanc", oSeller.Location);
@@ -487,7 +491,7 @@ namespace NWN.Systems
 
           if (oBuyer != null)
           {
-            NwStore tempStore = ObjectPlugin.Deserialize(NWScript.SqlGetString(query, 4)).ToNwObject<NwStore>();
+            NwStore tempStore = NwStore.Deserialize<NwStore>(NWScript.SqlGetString(query, 4));
             NwItem tempItem = tempStore.Items.FirstOrDefault();
             tempItem.Clone(oSeller, null, true);
             oSeller.SendServerMessage($"Vous venez de remporter l'enchère sur {tempItem.Name.ColorString(API.Color.ORANGE)}. L'objet se trouve désormais dans votre inventaire.");
@@ -548,9 +552,11 @@ namespace NWN.Systems
         NWScript.SqlBindInt(query, "@characterId", characterId);
         NWScript.SqlStep(query);
 
-        API.Location loc = Utils.GetLocationFromDatabase(NWScript.SqlGetString(query, 0), NWScript.SqlGetVector(query, 1), NWScript.SqlGetFloat(query, 2));
-        NwWaypoint wp = NwWaypoint.Create("NW_WAYPOINT001", loc, false, $"wp_start_{NWScript.GetPCPublicCDKey(callInfo.ObjectSelf)}");
-        PlayerPlugin.SetPersistentLocation(NWScript.GetPCPublicCDKey(callInfo.ObjectSelf), PlayerPlugin.GetBicFileName(callInfo.ObjectSelf), wp);
+        //API.Location loc = Utils.GetLocationFromDatabase(NWScript.SqlGetString(query, 0), NWScript.SqlGetVector(query, 1), NWScript.SqlGetFloat(query, 2));
+        //NwWaypoint wp = NwWaypoint.Create("NW_WAYPOINT001", loc, false, $"wp_start_{NWScript.GetPCPublicCDKey(callInfo.ObjectSelf)}");
+        //PlayerPlugin.SetPersistentLocation(NWScript.GetPCPublicCDKey(callInfo.ObjectSelf), PlayerPlugin.GetBicFileName(callInfo.ObjectSelf), wp);
+        
+        PlayerPlugin.SetSpawnLocation(callInfo.ObjectSelf, Utils.GetLocationFromDatabase(NWScript.SqlGetString(query, 0), NWScript.SqlGetVector(query, 1), NWScript.SqlGetFloat(query, 2)));
       }
     }
 

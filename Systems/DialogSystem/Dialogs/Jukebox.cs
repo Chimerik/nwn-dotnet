@@ -26,7 +26,7 @@ namespace NWN.Systems
         "Souhaitez-vous que je vous joue autre chose ?"
       };
 
-      int[] musicArray = new int[] { 96, 97, 98, 121, 151, 152, 153 };
+      int[] musicArray = new int[] { 96, 97, 98, 121, 151, 152, 153, 162, 163, 164, 165, 166, 167, 168, 169, 170, 171, 172, 173, 174, 175, 176, 177, 178 };
 
       foreach (int music in musicArray)
       {

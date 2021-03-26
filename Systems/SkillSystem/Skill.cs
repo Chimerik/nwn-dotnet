@@ -110,8 +110,14 @@ namespace NWN.Systems
           this.secondaryAbility = NWScript.ABILITY_WISDOM;
           Utils.LogMessageToDMs($"SKILL SYSTEM ERROR - Skill {this.oid} : Secondary ability not set");
         }
-
-        this.pointsToNextLevel = (int)(250 * this.multiplier * Math.Pow(5, this.currentLevel));
+  
+        if (this.currentLevel > 4)
+        {
+          int skillLevelCap = 4;
+          this.pointsToNextLevel = (int)(250 * this.multiplier * Math.Pow(5, skillLevelCap)) * (1 + currentLevel - skillLevelCap);
+        }
+        else
+          this.pointsToNextLevel = (int)(250 * this.multiplier * Math.Pow(5, currentLevel));
 
         //if (Config.env == Config.Env.Chim)
         //pointsToNextLevel = 10;
@@ -153,6 +159,13 @@ namespace NWN.Systems
       public void CloseSkillJournalEntry()
       {
         JournalEntry journalEntry = PlayerPlugin.GetJournalEntry(player.oid, "skill_job");
+
+        if (journalEntry.nUpdated == -1)
+        {
+          CreateSkillJournalEntry();
+          journalEntry = PlayerPlugin.GetJournalEntry(player.oid, "skill_job");
+        }
+
         journalEntry.sName = $"Entrainement terminé - {this.name}";
         journalEntry.sTag = "skill_job";
         journalEntry.nQuestCompleted = 1;
@@ -240,13 +253,23 @@ namespace NWN.Systems
           name = customFeatName;
 
           currentLevel = GetCustomFeatLevelFromSkillPoints(oid, (int)acquiredPoints);
-          pointsToNextLevel = (int)(250 * this.multiplier * Math.Pow(5, this.currentLevel));
+
+          int skillLevelCap = currentLevel;
+
+          if (this.currentLevel > 4)
+          {
+            skillLevelCap = 4;
+            pointsToNextLevel += (int)(250 * this.multiplier * Math.Pow(5, skillLevelCap));
+          }
+          else
+            pointsToNextLevel = (int)(250 * this.multiplier * Math.Pow(5, skillLevelCap));
 
           if (int.TryParse(NWScript.Get2DAString("feat", "FEAT", (int)oid), out int nameValue))
-            player.oid.SetTlkOverride(nameValue, $"{customFeatName} - {currentLevel}");
+            PlayerPlugin.SetTlkOverride(player.oid, nameValue, $"{customFeatName} - {currentLevel}");
+            //player.oid.SetTlkOverride(nameValue, $"{customFeatName} - {currentLevel}");
           else
             Utils.LogMessageToDMs($"CUSTOM SKILL SYSTEM ERROR - Skill {customFeatName} - {(int)oid} : no available custom name StrRef");
-
+          
           if (currentLevel >= customFeatsDictionnary[oid].maxLevel)
             trained = true;
         }

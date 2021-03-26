@@ -75,7 +75,8 @@ namespace NWN.Systems
             ChatSystem.ProcessPMMiddleware,
             ChatSystem.ProcessAFKDetectionMiddleware,
             ChatSystem.ProcessDMListenMiddleware,
-            ChatSystem.ProcessLanguageMiddleware
+            ChatSystem.ProcessLanguageMiddleware,
+            ChatSystem.ProcessEmoteColorationMiddleware
       }
     );
     public static void ProcessWriteLogMiddleware(Context ctx, Action next)
@@ -248,6 +249,27 @@ namespace NWN.Systems
         NWScript.SendMessageToPC(ctx.oSender, ctx.oSender.Name + " : [" + sLanguageName + "] " + Languages.GetLangueStringConvertedHRPProtection(ctx.msg, (Feat)ctx.oSender.GetLocalVariable<int>("_ACTIVE_LANGUAGE").Value));
         return;
       }
+
+      next();
+    }
+    public static void ProcessEmoteColorationMiddleware(Context ctx, Action next)
+    {
+      string[] sArray = ctx.msg.Split('*', '*');
+      string sColored = "";
+      int i = 0;
+
+      foreach (string s in sArray)
+      {
+        if (i % 2 == 0)
+          sColored += s;
+        else
+          sColored += $" * {s} * ".ColorString(Color.ORANGE);
+
+        i++;
+      }
+
+      ChatPlugin.SkipMessage();
+      ChatPlugin.SendMessage(ctx.channel, sColored, ctx.oSender);
 
       next();
     }

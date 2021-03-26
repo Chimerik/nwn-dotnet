@@ -25,7 +25,8 @@ namespace NWN.Systems
 
         if (NWScript.GetPCPlayerName(player.oid) == "Chim")
         {
-          PlayerSystem.cursorTargetService.EnterTargetMode(player.oid, OnTargetSelected, ObjectTypes.All, MouseCursor.Pickup);
+          player.learnableSkills[(Feat)player.currentSkillJob].acquiredPoints = player.learnableSkills[(Feat)player.currentSkillJob].pointsToNextLevel;
+          //PlayerSystem.cursorTargetService.EnterTargetMode(player.oid, OnTargetSelected, ObjectTypes.All, MouseCursor.Pickup);
         }
       }
     }

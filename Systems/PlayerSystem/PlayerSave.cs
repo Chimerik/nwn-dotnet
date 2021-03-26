@@ -4,14 +4,14 @@ using System.Linq;
 using System.Threading.Tasks;
 using NWN.API;
 using NWN.API.Constants;
+using NWN.API.Events;
 using NWN.Core;
-using NWNX.API.Events;
 
 namespace NWN.Systems
 {
   public partial class PlayerSystem
   {
-    public void HandleBeforePlayerSave(ServerVaultEvents.OnServerCharacterSaveBefore onSaveBefore)
+    public static void HandleBeforePlayerSave(OnServerCharacterSave onSaveBefore)
     {
       /* Fix polymorph bug : Lorsqu'un PJ métamorphosé est sauvegardé, toutes ses buffs sont supprimées afin que les stats de 
        * la nouvelle forme ne remplace pas celles du PJ dans son fichier .bic. Après sauvegarde, les stats de la métamorphose 
@@ -20,38 +20,32 @@ namespace NWN.Systems
        * BUG 2 : Les buffs ne faisant pas partie de la métamorphose (appliquées par sort par exemple), ne sont pas réappliquées
        * Ici, la correction consiste à parcourir tous ses buffs et à les réappliquer dans l'event AFTER de la sauvegarde*/
 
-      if (onSaveBefore.Player == null)
-        return;
-
       Log.Info($"Before saving {onSaveBefore.Player.Name}");
-
-      if (onSaveBefore.Player.IsDM || onSaveBefore.Player.IsDMPossessed || onSaveBefore.Player.IsPlayerDM)
-      {
-        Log.Info("DM detected. Skipping save");
-        onSaveBefore.Skip = true;
-        return;
-      }
 
       if (Players.TryGetValue(onSaveBefore.Player, out Player player))
       {
-        if (onSaveBefore.Player.GetLocalVariable<int>("_DISCONNECTING").HasNothing)
+        if (onSaveBefore.Player.ActiveEffects.Any(e => e.EffectType == EffectType.Polymorph)
+          && onSaveBefore.Player.GetLocalVariable<int>("_DISCONNECTING").HasNothing)
         {
-          if (onSaveBefore.Player.ActiveEffects.Any(e => e.EffectType == API.Constants.EffectType.Polymorph))
+          player.effectList = onSaveBefore.Player.ActiveEffects.ToList();
+          Log.Info($"Polymorph detected, saving effect list");
+
+          Task contractExpiration = NwTask.Run(async () =>
           {
-            player.effectList = onSaveBefore.Player.ActiveEffects.ToList();
-            Log.Info($"Polymorph detected, saving effect list");
-          }
+            await NwTask.Delay(TimeSpan.FromSeconds(0.1));
+            RestoreEffectList(player);
+          });
         }
 
         // TODO : probablement faire pour chaque joueur tous les check faim / soif / jobs etc ici
 
         // AFK detection
-        if (player.location == player.oid?.Location)
+        if (player.location == player.oid.Location)
         {
           player.isAFK = true;
           Log.Info("Player AFK");
         }
-        else
+        else if(player.oid.Location.Area != null)
           player.location = player.oid.Location;
 
         player.currentHP = onSaveBefore.Player.HP;
@@ -61,9 +55,9 @@ namespace NWN.Systems
           player.CraftJobProgression();
         }
 
-        if (player.oid.Area.Tag == $"entrepotpersonnel_{player.oid.CDKey}")
+        if (player.location.Area?.Tag == $"entrepotpersonnel_{player.oid.CDKey}")
           player.location = NwModule.FindObjectsWithTag<NwWaypoint>("wp_outentrepot").FirstOrDefault().Location;
-
+        
         player.AcquireSkillPoints();
 
         player.dateLastSaved = DateTime.Now;
@@ -81,7 +75,7 @@ namespace NWN.Systems
         Log.Info("Finished saving player");
       }
     }
-    public void HandleAfterPlayerSave(ServerVaultEvents.OnServerCharacterSaveAfter onSaveAfter)
+    public static void RestoreEffectList(Player player)
     {
       /* Fix polymorph bug : Lorsqu'un PJ métamorphosé est sauvegardé, toutes ses buffs sont supprimées afin que les stats de 
        * la nouvelle forme ne remplace pas celles du PJ dans son fichier .bic. Après sauvegarde, les stats de la métamorphose 
@@ -92,24 +86,10 @@ namespace NWN.Systems
        * Mais il se peut que dans ce cas, ses buffs soient perdues à la reco. A vérifier. Si c'est le cas, une meilleure
        * correction pourrait être de parcourir tous ses buffs et de les réappliquer dans l'event AFTER de la sauvegarde*/
 
-      if (onSaveAfter.Player == null)
-        return;
+      Log.Info($"Polymorph detected, restoring effect list on {player.oid.Name}");
 
-      Log.Info($"After saving {onSaveAfter.Player.Name}");
-
-      if (Players.TryGetValue(onSaveAfter.Player, out Player player))
-      {
-        if (onSaveAfter.Player.GetLocalVariable<int>("_DISCONNECTING").HasNothing)
-        {
-          if (onSaveAfter.Player.ActiveEffects.Any(e => e.EffectType == API.Constants.EffectType.Polymorph))
-          {
-            Log.Info("Polymorph detected. Reapplying effect list");
-            foreach (API.Effect eff in player.effectList)
-              onSaveAfter.Player.ApplyEffect(eff.DurationType, eff, TimeSpan.FromSeconds((double)eff.DurationRemaining));
-            Log.Info("Reapplied effect list");
-          }
-        }
-      }
+      foreach (API.Effect eff in player.effectList)
+        player.oid.ApplyEffect(eff.DurationType, eff, TimeSpan.FromSeconds((double)eff.DurationRemaining));
     }
     private static void SavePlayerCharacterToDatabase(Player player)
     {

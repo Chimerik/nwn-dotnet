@@ -457,6 +457,14 @@ namespace NWN.Systems
           description: new Command.Description(title: "test pour le systeme d'arene"),
           execute: ExecuteTestArenaCommand
         )
+      },
+      {
+        "pnj",
+        new Command(
+          name: "pnj",
+          description: new Command.Description(title: "Commande dm : permet d'ouvrir le menu de modification de pnjs"),
+          execute: ExecutePNJFactoryCommand
+        )
       }
     };
     }

@@ -15,13 +15,9 @@ namespace NWN.Systems
     private static readonly Logger Log = LogManager.GetCurrentClassLogger();
     public Party(NWNXEventService nwnxEventService)
     {
-      nwnxEventService.Subscribe<PartyEvents.OnLeaveBefore>(OnPartyLeaveBefore);
-      nwnxEventService.Subscribe<PartyEvents.OnLeaveAfter>(OnPartyLeaveAfter);
-      nwnxEventService.Subscribe<PartyEvents.OnKickBefore>(OnPartyKickBefore);
-      nwnxEventService.Subscribe<PartyEvents.OnKickAfter>(OnPartyKickAfter);
-      nwnxEventService.Subscribe<PartyEvents.OnAcceptInvitationAfter>(OnPartyJoinAfter);
+
     }
-    private void OnPartyLeaveBefore(PartyEvents.OnLeaveBefore onPartyLeave)
+    public static void OnPartyLeaveBefore(PartyEvents.OnLeaveBefore onPartyLeave)
     {
       API.Effect eParty = GetPartySizeEffect(onPartyLeave.Player.PartyMembers.Count<NwPlayer>() - 1);
 
@@ -33,12 +29,12 @@ namespace NWN.Systems
         partyMember.ApplyEffect(EffectDuration.Permanent, eParty);
       }
     }
-    private void OnPartyLeaveAfter(PartyEvents.OnLeaveAfter onPartyLeave)
+    public static void OnPartyLeaveAfter(PartyEvents.OnLeaveAfter onPartyLeave)
     {
       Log.Info($"Removing buff after party leave for {onPartyLeave.Player.Name}");
       onPartyLeave.Player.RemoveEffect(onPartyLeave.Player.ActiveEffects.Where(e => e.Tag == "PartyEffect").FirstOrDefault());
     }
-    private void OnPartyKickBefore(PartyEvents.OnKickBefore onPartyKicked)
+    public static void OnPartyKickBefore(PartyEvents.OnKickBefore onPartyKicked)
     {
       NwPlayer player = ((uint)onPartyKicked.Kicked).ToNwObject<NwPlayer>();
       API.Effect eParty = GetPartySizeEffect(player.PartyMembers.Count<NwPlayer>() - 1);
@@ -51,12 +47,12 @@ namespace NWN.Systems
         partyMember.ApplyEffect(EffectDuration.Permanent, eParty);
       }
     }
-    private void OnPartyKickAfter(PartyEvents.OnKickAfter onPartyLeave)
+    public static void OnPartyKickAfter(PartyEvents.OnKickAfter onPartyLeave)
     {
       Log.Info($"Removing buff after party leave for {onPartyLeave.Kicked.Name}");
       onPartyLeave.Kicked.RemoveEffect(onPartyLeave.Kicked.ActiveEffects.Where(e => e.Tag == "PartyEffect").FirstOrDefault());
     }
-    private void OnPartyJoinAfter(PartyEvents.OnAcceptInvitationAfter onPartyJoin)
+    public static void OnPartyJoinAfter(PartyEvents.OnAcceptInvitationAfter onPartyJoin)
     {
       API.Effect eParty = GetPartySizeEffect(onPartyJoin.AcceptedBy.PartyMembers.Count<NwPlayer>());
 

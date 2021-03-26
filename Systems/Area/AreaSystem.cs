@@ -64,6 +64,9 @@ namespace NWN.Systems
         if (player.areaExplorationStateDictionnary.ContainsKey(onEnter.Area.Tag))
           PlayerPlugin.SetAreaExplorationState(onEnter.EnteringObject, onEnter.Area, player.areaExplorationStateDictionnary[onEnter.Area.Tag]);
       }
+
+      foreach (NwCreature statue in area.FindObjectsOfTypeInArea<NwCreature>().Where(c => c.Tag == "Statuereptilienne"))
+        statue.GetLocalVariable<int>($"_PERCEPTION_STATUS_{oPC.CDKey}").Delete();
     }
     public static void OnAreaExit(AreaEvents.OnExit onExit)
     {

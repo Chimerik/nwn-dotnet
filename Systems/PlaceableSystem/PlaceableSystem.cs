@@ -20,32 +20,17 @@ namespace NWN.Systems
     {
       foreach (NwDoor door in NwModule.FindObjectsOfType<NwDoor>())
         door.OnOpen += HandleDoorAutoClose;
-
+      
       foreach (NwPlaceable bassin in NwModule.FindObjectsWithTag<NwPlaceable>("ench_bsn"))
         bassin.OnClose += HandleCloseEnchantementBassin;
 
       foreach (NwPlaceable plc in NwModule.FindObjectsWithTag<NwPlaceable>(Arena.Config.PVE_ARENA_PULL_ROPE_CHAIN_TAG, "portal_storage_out", "portal_storage_in", "portal_start", "respawn_neutral", "respawn_dire", "respawn_radiant", "theater_rope"))
         plc.OnUsed += HandlePlaceableUsed;
 
-      foreach (NwCreature statue in NwModule.FindObjectsWithTag<NwCreature>("Statuereptilienne", "Statuereptilienne2", "statue_tiamat"))
+      foreach (NwCreature statue in NwModule.FindObjectsWithTag<NwCreature>("Statuereptilienne", "statue_tiamat"))
       {
         statue.OnConversation += HandleCancelStatueConversation;
-        //statue.OnPerception += HandleStatufyCreature;
-        Task waitForPlayer = NwTask.Run(async () =>
-        {
-          await NwTask.WaitUntil(() => statue.GetNearestObjectsByType<NwPlayer>().FirstOrDefault(p => p.Distance(statue) < 35) != null);
-          Log.Info($"Triggered : {statue.Name} - {statue.Tag} in {statue.Area.Name}");
-          if (statue.Tag != "statue_tiamat")
-          {
-            await statue.PlayAnimation((Animation)Utils.random.Next(100, 116), 8);
-            await NwTask.Delay(TimeSpan.FromSeconds(0.2));
-            FreezeCreature(statue);
-          }
-          else
-            FreezeCreature(statue);
-
-          statue.AiLevel = AiLevel.VeryLow;
-        });
+        statue.OnSpawn += HandleSpawnStatufy;
       }
 
       foreach (NwCreature corpse in NwModule.FindObjectsWithTag<NwCreature>("dead_wererat"))
@@ -188,46 +173,28 @@ namespace NWN.Systems
     {
 
     }
-    private async void HandleStatufyCreature(CreatureEvents.OnPerception onPerception)
-    {
-      if (onPerception.PerceivedCreature is NwPlayer)
-      {
-        Log.Info($"Triggered : {onPerception.Creature.Name} - {onPerception.Creature.Tag} in {onPerception.Creature.Area.Name}");
-        if (onPerception.Creature.Tag != "statue_tiamat")
-        {
-          onPerception.Creature.PlayAnimation((Animation)Utils.random.Next(100, 116), 3);
-          await NwTask.Delay(TimeSpan.FromSeconds(0.5));
-          FreezeCreature(onPerception.Creature);
-        }
-        else
-          FreezeCreature(onPerception.Creature);
-
-        onPerception.Creature.AiLevel = AiLevel.VeryLow;
-        onPerception.Creature.OnPerception -= HandleStatufyCreature;
-      }
-    }
-  
-    private static void FreezeCreature(NwCreature creature)
+    private void HandleSpawnStatufy(CreatureEvents.OnSpawn onSpawn)
     {
       API.Effect eff = API.Effect.CutsceneGhost();
       eff.SubType = EffectSubType.Supernatural;
-      creature.ApplyEffect(EffectDuration.Permanent, eff);
+      onSpawn.Creature.ApplyEffect(EffectDuration.Permanent, eff);
 
       eff = API.Effect.VisualEffect(VfxType.DurFreezeAnimation);
+      eff.Tag = "_FREEZE_EFFECT";
       eff.SubType = EffectSubType.Supernatural;
-      creature.ApplyEffect(EffectDuration.Permanent, eff);
+      onSpawn.Creature.ApplyEffect(EffectDuration.Permanent, eff);
 
-      if (creature.Tag != "statue_tiamat")
+      if (onSpawn.Creature.Tag != "statue_tiamat")
       {
         eff = API.Effect.VisualEffect(VfxType.DurProtGreaterStoneskin);
         eff.SubType = EffectSubType.Supernatural;
-        creature.ApplyEffect(EffectDuration.Permanent, eff);
+        onSpawn.Creature.ApplyEffect(EffectDuration.Permanent, eff);
       }
 
-      creature.HiliteColor = Color.BLACK;
-      NWScript.SetObjectMouseCursor(creature, NWScript.MOUSECURSOR_WALK);
-      creature.PlotFlag = true;
-    }
+      onSpawn.Creature.HiliteColor = Color.BLACK;
+      NWScript.SetObjectMouseCursor(onSpawn.Creature, NWScript.MOUSECURSOR_WALK);
+      onSpawn.Creature.AiLevel = AiLevel.VeryLow;
+    }  
     private async void HandleDoorAutoClose(DoorEvents.OnOpen onOpen)
     {
       await NwTask.Delay(TimeSpan.FromSeconds(5));

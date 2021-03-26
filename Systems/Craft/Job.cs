@@ -384,22 +384,22 @@ namespace NWN.Systems.Craft
       switch (this.type)
       {
         case JobType.BlueprintCopy:
-          journalEntry.sText = $"Copie de {NwItem.Deserialize<NwItem>(craftedItem).Name.ColorString(Color.ORANGE)} en cours";
+          journalEntry.sText = $"Copie de {NwItem.Deserialize<NwItem>(craftedItem).Name} en cours";
           break;
         case JobType.BlueprintResearchMaterialEfficiency:
-          journalEntry.sText = $"Recherche métallurgique en cours : {NwItem.Deserialize<NwItem>(craftedItem).Name.ColorString(Color.ORANGE)}";
+          journalEntry.sText = $"Recherche métallurgique en cours : {NwItem.Deserialize<NwItem>(craftedItem).Name}";
           break;
         case JobType.BlueprintResearchTimeEfficiency:
-          journalEntry.sText = $"Recherche d'efficacité en cours : {NwItem.Deserialize<NwItem>(craftedItem).Name.ColorString(Color.ORANGE)}";
+          journalEntry.sText = $"Recherche d'efficacité en cours : {NwItem.Deserialize<NwItem>(craftedItem).Name}";
           break;
         case JobType.Enchantement:
-          journalEntry.sText = $"Enchantement en cours : {NwItem.Deserialize<NwItem>(craftedItem).Name.ColorString(Color.ORANGE)}";
+          journalEntry.sText = $"Enchantement en cours : {NwItem.Deserialize<NwItem>(craftedItem).Name}";
           break;
         case JobType.Recycling:
-          journalEntry.sText = $"Recyclage en cours : {NwItem.Deserialize<NwItem>(craftedItem).Name.ColorString(Color.ORANGE)}";
+          journalEntry.sText = $"Recyclage en cours : {NwItem.Deserialize<NwItem>(craftedItem).Name}";
           break;
         default:
-          journalEntry.sText = $"Fabrication en cours : {blueprintDictionnary[baseItemType].name.ColorString(Color.ORANGE)}";
+          journalEntry.sText = $"Fabrication en cours : {blueprintDictionnary[baseItemType].name}";
           break;
       }
 

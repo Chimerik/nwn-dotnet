@@ -96,7 +96,7 @@ namespace NWN.Systems.Craft
         switch (myPlankType)
         {
           case PlankType.Laurelinade: return GetTritaniumItemProperties(craftedItem);
-          case PlankType.Telperionade: return GetPyeriteItemProperties(itemCategory);
+          case PlankType.Telperionade: return GetPyeriteItemProperties(itemCategory, craftedItem);
         }
       }
       else if (Enum.TryParse(material, out LeatherType myLeatherType))
@@ -104,7 +104,7 @@ namespace NWN.Systems.Craft
         switch (myLeatherType)
         {
           case LeatherType.MauvaisCuir: return GetTritaniumItemProperties(craftedItem);
-          case LeatherType.CuirCommun: return GetPyeriteItemProperties(itemCategory);
+          case LeatherType.CuirCommun: return GetPyeriteItemProperties(itemCategory, craftedItem);
         }
       }
 

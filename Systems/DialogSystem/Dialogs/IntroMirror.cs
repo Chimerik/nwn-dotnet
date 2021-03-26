@@ -200,10 +200,11 @@ namespace NWN.Systems
           skill.pointsToNextLevel = (int)(250 * skill.multiplier * Math.Pow(5, skill.currentLevel));
 
           if (int.TryParse(NWScript.Get2DAString("feat", "FEAT", (int)skill.oid), out int nameValue))
-            player.oid.SetTlkOverride(nameValue, $"{customFeatName} - {skill.currentLevel}");
+            PlayerPlugin.SetTlkOverride(player.oid, nameValue, $"{customFeatName} - {skill.currentLevel}");
+          //player.oid.SetTlkOverride(nameValue, $"{customFeatName} - {skill.currentLevel}");
           else
             Utils.LogMessageToDMs($"CUSTOM SKILL SYSTEM ERROR - Skill {customFeatName} - {(int)skill.oid} : no available custom name StrRef");
-
+         
           if (skill.currentLevel >= customFeatsDictionnary[skill.oid].maxLevel)
             skill.trained = true;
         }

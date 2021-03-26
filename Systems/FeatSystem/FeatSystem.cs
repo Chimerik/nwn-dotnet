@@ -1,11 +1,8 @@
 ﻿using NLog;
 using NWN.API;
-using NWN.Core;
-using NWN.Core.NWNX;
 using NWN.Services;
 using NWNX.API.Events;
 using NWNX.Services;
-using System.Collections.Generic;
 using NWN.API.Constants;
 
 namespace NWN.Systems
@@ -17,14 +14,11 @@ namespace NWN.Systems
     
     public FeatSystem(NWNXEventService nwnxEventService)
     {
-      nwnxEventService.Subscribe<FeatUseEvents.OnUseFeatBefore>(OnUseFeatBefore);
+      
     }
-    private void OnUseFeatBefore(FeatUseEvents.OnUseFeatBefore onUseFeat)
+    public static void OnUseFeatBefore(FeatUseEvents.OnUseFeatBefore onUseFeat)
     {
-      if (!(onUseFeat.FeatUser is NwPlayer player))
-        return;
-
-      if (!PlayerSystem.Players.TryGetValue(player, out PlayerSystem.Player oPC))
+      if (!PlayerSystem.Players.TryGetValue(onUseFeat.FeatUser, out PlayerSystem.Player oPC))
         return;
 
       //Log.Info($"{oPC.oid.Name} used feat {onUseFeat.Feat}");
@@ -47,26 +41,26 @@ namespace NWN.Systems
         case CustomFeats.Sylvain:
         case CustomFeats.Voleur:
         case CustomFeats.Gnome:
-          new Language(player, (int)onUseFeat.Feat);
+          new Language(oPC.oid, (int)onUseFeat.Feat);
           break;
         case CustomFeats.BlueprintCopy:
         case CustomFeats.Research:
         case CustomFeats.Metallurgy:
 
           onUseFeat.Skip = true;
-          Craft.Blueprint.BlueprintValidation(player, onUseFeat.TargetGameObject, (Feat)onUseFeat.Feat);
+          Craft.Blueprint.BlueprintValidation(oPC.oid, onUseFeat.TargetGameObject, (Feat)onUseFeat.Feat);
           break;
 
         case CustomFeats.Recycler:
-          new Recycler(player, onUseFeat.TargetGameObject);
+          new Recycler(oPC.oid, onUseFeat.TargetGameObject);
           break;
 
         case CustomFeats.Renforcement:
-          new Renforcement(player, onUseFeat.TargetGameObject);
+          new Renforcement(oPC.oid, onUseFeat.TargetGameObject);
           break;
 
         case CustomFeats.SurchargeArcanique:
-          new SurchargeArcanique(player, onUseFeat.TargetGameObject);
+          new SurchargeArcanique(oPC.oid, onUseFeat.TargetGameObject);
           break;
 
         case CustomFeats.CustomMenuUP:
@@ -88,7 +82,7 @@ namespace NWN.Systems
           onUseFeat.Skip = true;
           Craft.Collect.System.StartCollectCycle(
               oPC,
-              player.Area,
+              oPC.oid.Area,
               () => Craft.Collect.Wood.HandleCompleteProspectionCycle(oPC)
           );
           break;
@@ -97,7 +91,7 @@ namespace NWN.Systems
           onUseFeat.Skip = true;
           Craft.Collect.System.StartCollectCycle(
               oPC,
-              player.Area,
+              oPC.oid.Area,
               () => Craft.Collect.Pelt.HandleCompleteProspectionCycle(oPC)
           );
           break;

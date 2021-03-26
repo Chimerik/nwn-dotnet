@@ -1007,7 +1007,7 @@ namespace NWN.Systems
         });
       }
 
-      if (modification > 2)
+      if (modification > -2)
       {
         player.menu.DrawText();
       }

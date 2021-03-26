@@ -1,6 +1,7 @@
 ﻿using System;
 using NWN.API;
 using NWN.API.Constants;
+using NWN.Core.NWNX;
 using static NWN.Systems.Craft.Collect.Config;
 
 namespace NWN.Systems
@@ -25,6 +26,30 @@ namespace NWN.Systems
       switch (item.BaseItemType)
       {
         case BaseItemType.Armor:
+
+          if (item.GetLocalVariable<string>("_ITEM_MATERIAL").HasValue
+            && Enum.TryParse(item.GetLocalVariable<string>("_ITEM_MATERIAL").Value, out OreType myOreType) && myOreType != OreType.Invalid)
+            material = item.GetLocalVariable<string>("_ITEM_MATERIAL").Value;
+          else
+          {
+            switch(ItemPlugin.GetBaseArmorClass(item))
+            {
+              case 0:
+              case 1:
+              case 2:
+              case 3:
+                material = "MauvaisCuir";
+                break;
+              default:
+                material = "Tritanium";
+                break;
+            }
+          }
+
+          player.craftJob.Start(Craft.Job.JobType.Recycling, null, player, null, item, material);
+          break;
+
+          break;
         case BaseItemType.Helmet:
         case BaseItemType.TowerShield:
         case BaseItemType.LargeShield:
@@ -59,7 +84,7 @@ namespace NWN.Systems
         case (BaseItemType)115:
 
           if (item.GetLocalVariable<string>("_ITEM_MATERIAL").HasValue
-            && Enum.TryParse(item.GetLocalVariable<string>("_ITEM_MATERIAL").Value, out OreType myOreType) && myOreType != OreType.Invalid)
+            && Enum.TryParse(item.GetLocalVariable<string>("_ITEM_MATERIAL").Value, out OreType myOre) && myOre != OreType.Invalid)
             material = item.GetLocalVariable<string>("_ITEM_MATERIAL").Value;
           else
             material = "Tritanium";

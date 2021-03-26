@@ -9,6 +9,8 @@ using NWN.API.Events;
 using NWN.Core;
 using NWN.Core.NWNX;
 using NWN.Systems.Craft;
+using NWNX.API.Events;
+using NWNX.Services;
 
 namespace NWN.Systems
 {
@@ -46,11 +48,6 @@ namespace NWN.Systems
         NwItem pcSkin = NwItem.Create("peaudejoueur", oPC);
         oPC.ActionEquipItem(pcSkin, InventorySlot.CreatureSkin);
       }
-
-      if (player.currentHP <= 0)
-        oPC.ApplyEffect(EffectDuration.Instant, API.Effect.Death());
-      else
-        oPC.HP = player.currentHP;
 
       if (player.craftJob.IsActive()
       && player.location.Area.GetLocalVariable<int>("_AREA_LEVEL")?.Value == 0)
@@ -104,12 +101,14 @@ namespace NWN.Systems
         CustomFeat customFeat = SkillSystem.customFeatsDictionnary[feat.Key];
 
         if (int.TryParse(NWScript.Get2DAString("feat", "FEAT", (int)feat.Key), out int nameValue))
-          player.oid.SetTlkOverride(nameValue, $"{customFeat.name} - {SkillSystem.GetCustomFeatLevelFromSkillPoints(feat.Key, feat.Value)}");
+          PlayerPlugin.SetTlkOverride(player.oid, nameValue, $"{customFeat.name} - {SkillSystem.GetCustomFeatLevelFromSkillPoints(feat.Key, feat.Value)}");
+          //player.oid.SetTlkOverride(nameValue, $"{customFeat.name} - {SkillSystem.GetCustomFeatLevelFromSkillPoints(feat.Key, feat.Value)}");
         else
           Utils.LogMessageToDMs($"CUSTOM SKILL SYSTEM ERROR - Skill {customFeat.name} : no available custom name StrRef");
-
+      
         if (int.TryParse(NWScript.Get2DAString("feat", "DESCRIPTION", (int)feat.Key), out int descriptionValue))
-          player.oid.SetTlkOverride(descriptionValue, customFeat.description);
+           PlayerPlugin.SetTlkOverride(player.oid, descriptionValue, customFeat.description);
+       // player.oid.SetTlkOverride(descriptionValue, customFeat.description);
         else
         {
           Utils.LogMessageToDMs($"CUSTOM SKILL SYSTEM ERROR - Skill {customFeat.name} : no available custom description StrRef");
@@ -124,11 +123,16 @@ namespace NWN.Systems
       if (player.learntCustomFeats.ContainsKey(CustomFeats.ImprovedHealth))
         improvedHealth = SkillSystem.GetCustomFeatLevelFromSkillPoints(CustomFeats.ImprovedHealth, player.learntCustomFeats[CustomFeats.ImprovedHealth]);
 
+      if (player.currentHP <= 0)
+        oPC.ApplyEffect(EffectDuration.Instant, API.Effect.Death());
+      else
+        oPC.HP = player.currentHP;
+
       //NWScript.SendMessageToPC(player.oid, $"pv : {Int32.Parse(NWScript.Get2DAString("classes", "HitDie", 43)) + (1 + 3 * ((NWScript.GetAbilityScore(oTarget, NWScript.ABILITY_CONSTITUTION, 1) + improvedConst - 10) / 2 + CreaturePlugin.GetKnowsFeat(oTarget, (int)Feat.Toughness))) * Int32.Parse(NWScript.Get2DAString("feat", "GAINMULTIPLE", CreaturePlugin.GetHighestLevelOfFeat(oTarget, (int)Feat.ImprovedHealth)))}");
 
-      CreaturePlugin.SetMaxHitPointsByLevel(player.oid, 1, Int32.Parse(NWScript.Get2DAString("classes", "HitDie", 43))
+      /*CreaturePlugin.SetMaxHitPointsByLevel(player.oid, 1, Int32.Parse(NWScript.Get2DAString("classes", "HitDie", 43))
         + (1 + 3 * ((player.oid.GetAbilityScore(Ability.Constitution, true) - 10) / 2)
-        + CreaturePlugin.GetKnowsFeat(player.oid, (int)Feat.Toughness)) * improvedHealth);
+        + CreaturePlugin.GetKnowsFeat(player.oid, (int)Feat.Toughness)) * improvedHealth);*/
 
       Task waitForTorilNecklaceChange = NwTask.Run(async () =>
       {
@@ -358,6 +362,19 @@ namespace NWN.Systems
     private static void InitializeDM(Player player)
     {
       player.playerJournal = new PlayerJournal();
+
+      eventService.Subscribe<ItemEvents.OnItemUseBefore, NWNXEventFactory>(player.oid, ItemSystem.OnItemUseBefore)
+        .Register<ItemEvents.OnItemUseBefore>();
+      eventService.Subscribe<ExamineEvents.OnExamineObjectBefore, NWNXEventFactory>(player.oid, ExamineSystem.OnExamineBefore)
+        .Register<ExamineEvents.OnExamineObjectBefore>();
+      eventService.Subscribe<ExamineEvents.OnExamineObjectAfter, NWNXEventFactory>(player.oid, ExamineSystem.OnExamineAfter)
+        .Register<ExamineEvents.OnExamineObjectAfter>();
+      eventService.Subscribe<FeatUseEvents.OnUseFeatBefore, NWNXEventFactory>(player.oid, FeatSystem.OnUseFeatBefore)
+        .Register<FeatUseEvents.OnUseFeatBefore>();
+      eventService.Subscribe<ModuleEvents.OnAcquireItem, GameEventFactory>(player.oid, ItemSystem.OnAcquireItem)
+        .Register<ModuleEvents.OnAcquireItem>(NwModule.Instance);
+      eventService.Subscribe<ModuleEvents.OnUnacquireItem, GameEventFactory>(player.oid, ItemSystem.OnUnacquireItem)
+        .Register<ModuleEvents.OnUnacquireItem>(NwModule.Instance);
     }
     private static void InitializePlayer(Player player)
     {
@@ -368,9 +385,63 @@ namespace NWN.Systems
       InitializePlayerLearnableSpells(player);
       InitializeCharacterMapPins(player);
       InitializeCharacterAreaExplorationState(player);
+
+      switch (player.oid.RacialType)
+      {
+        case RacialType.Dwarf:
+          if(!player.oid.KnowsFeat(CustomFeats.Nain))
+            player.oid.AddFeat(CustomFeats.Nain);
+          break;
+        case RacialType.Elf:
+        case RacialType.HalfElf:
+          if (!player.oid.KnowsFeat(CustomFeats.Elfique))
+            player.oid.AddFeat(CustomFeats.Elfique);
+          break;
+        case RacialType.Halfling:
+          if (!player.oid.KnowsFeat(CustomFeats.Halfelin))
+            player.oid.AddFeat(CustomFeats.Halfelin);
+          break;
+        case RacialType.Gnome:
+          if (!player.oid.KnowsFeat(CustomFeats.Gnome))
+            player.oid.AddFeat(CustomFeats.Gnome);
+          break;
+        case RacialType.HalfOrc:
+          if (!player.oid.KnowsFeat(CustomFeats.Orc))
+            player.oid.AddFeat(CustomFeats.Orc);
+          break;
+      }
     }
-    private static void InitializePlayerEvents(uint player)
+    private static void InitializePlayerEvents(NwPlayer player)
     {
+      player.OnServerCharacterSave += HandleBeforePlayerSave;
+      
+      eventService.Subscribe<PartyEvents.OnAcceptInvitationAfter, NWNXEventFactory>(player, Party.OnPartyJoinAfter)
+        .Register<PartyEvents.OnAcceptInvitationAfter>();
+      eventService.Subscribe<PartyEvents.OnLeaveBefore, NWNXEventFactory>(player, Party.OnPartyLeaveBefore)
+        .Register<PartyEvents.OnLeaveBefore>();
+      eventService.Subscribe<PartyEvents.OnLeaveAfter, NWNXEventFactory>(player, Party.OnPartyLeaveAfter)
+        .Register<PartyEvents.OnLeaveAfter>();
+      eventService.Subscribe<PartyEvents.OnKickBefore, NWNXEventFactory>(player, Party.OnPartyKickBefore)
+        .Register<PartyEvents.OnKickBefore>();
+      eventService.Subscribe<PartyEvents.OnKickAfter, NWNXEventFactory>(player, Party.OnPartyKickAfter)
+        .Register<PartyEvents.OnKickAfter>();
+      eventService.Subscribe<ItemEvents.OnItemEquipBefore, NWNXEventFactory>(player, ItemSystem.OnItemEquipBefore)
+        .Register<ItemEvents.OnItemEquipBefore>();
+      eventService.Subscribe<ItemEvents.OnItemUseBefore, NWNXEventFactory>(player, ItemSystem.OnItemUseBefore)
+        .Register<ItemEvents.OnItemUseBefore>();
+      eventService.Subscribe<ExamineEvents.OnExamineObjectBefore, NWNXEventFactory>(player, ExamineSystem.OnExamineBefore)
+        .Register<ExamineEvents.OnExamineObjectBefore>();
+      eventService.Subscribe<ExamineEvents.OnExamineObjectAfter, NWNXEventFactory>(player, ExamineSystem.OnExamineAfter)
+        .Register<ExamineEvents.OnExamineObjectAfter>();
+      eventService.Subscribe<FeatUseEvents.OnUseFeatBefore, NWNXEventFactory>(player, FeatSystem.OnUseFeatBefore)
+        .Register<FeatUseEvents.OnUseFeatBefore>();
+      eventService.Subscribe<ModuleEvents.OnAcquireItem, GameEventFactory>(player, ItemSystem.OnAcquireItem)
+        .Register<ModuleEvents.OnAcquireItem>(NwModule.Instance);
+      eventService.Subscribe<ModuleEvents.OnUnacquireItem, GameEventFactory>(player, ItemSystem.OnUnacquireItem)
+        .Register<ModuleEvents.OnUnacquireItem>(NwModule.Instance);
+
+      player.OnPerception += HandlePlayerPerception;
+
       EventsPlugin.AddObjectToDispatchList("NWNX_ON_BROADCAST_CAST_SPELL_AFTER", "a_spellbroadcast", player);
       EventsPlugin.AddObjectToDispatchList("NWNX_ON_CAST_SPELL_BEFORE", "b_spellcast", player);
       EventsPlugin.AddObjectToDispatchList("NWNX_ON_CAST_SPELL_AFTER", "a_spellcast", player);
@@ -430,11 +501,11 @@ namespace NWN.Systems
           Feat skillId = (Feat)NWScript.SqlGetInt(query, 0);
           int currentSkillPoints = NWScript.SqlGetInt(query, 1);
 
-          if (NWScript.SqlGetInt(query, 2) == 0)
-            player.learnableSkills.Add(skillId, new SkillSystem.Skill(skillId, currentSkillPoints, player));
-
           if (SkillSystem.customFeatsDictionnary.ContainsKey(skillId))
             player.learntCustomFeats.Add(skillId, currentSkillPoints);
+
+          if (NWScript.SqlGetInt(query, 2) == 0)
+            player.learnableSkills.Add(skillId, new SkillSystem.Skill(skillId, currentSkillPoints, player));
         }
       }
     }

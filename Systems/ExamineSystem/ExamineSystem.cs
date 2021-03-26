@@ -16,10 +16,9 @@ namespace NWN.Systems
     public static readonly Logger Log = LogManager.GetCurrentClassLogger();
     public ExamineSystem(NWNXEventService nwnxEventService)
     {
-      nwnxEventService.Subscribe<ExamineEvents.OnExamineObjectBefore>(OnExamineBefore);
-      nwnxEventService.Subscribe<ExamineEvents.OnExamineObjectAfter>(OnExamineAfter);
+      
     }
-    private void OnExamineBefore(ExamineEvents.OnExamineObjectBefore onExamine)
+    public static void OnExamineBefore(ExamineEvents.OnExamineObjectBefore onExamine)
     {
       Log.Info($"{onExamine.Examiner.Name} examining {onExamine.Examinee.Name} - Tag : {onExamine.Examinee.Tag}");
 
@@ -218,7 +217,7 @@ namespace NWN.Systems
         onExamine.Examinee.Description += $"\n\n {ItemUtils.GetItemDurabilityState((NwItem)onExamine.Examinee)}";
       }
     }
-    private void OnExamineAfter(ExamineEvents.OnExamineObjectAfter onExamine)
+    public static void OnExamineAfter(ExamineEvents.OnExamineObjectAfter onExamine)
     {
       if (onExamine.Examinee is NwItem)
       {

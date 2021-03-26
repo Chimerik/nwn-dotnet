@@ -17,16 +17,11 @@ namespace NWN.Systems
     public static readonly Logger Log = LogManager.GetCurrentClassLogger();
     public ItemSystem(NWNXEventService nwnxEventService)
     {
-      nwnxEventService.Subscribe<ItemEvents.OnItemEquipBefore>(OnItemEquipBefore);
-      nwnxEventService.Subscribe<ItemEvents.OnItemUseBefore>(OnItemUseBefore);
-      NwModule.Instance.OnAcquireItem += OnAcquireItem;
-      NwModule.Instance.OnUnacquireItem += OnUnacquireItem;
+      //NwModule.Instance.OnAcquireItem += OnAcquireItem;
+      //NwModule.Instance.OnUnacquireItem += OnUnacquireItem;
     }
-    private void OnItemEquipBefore(ItemEvents.OnItemEquipBefore onItemEquip)
+    public static void OnItemEquipBefore(ItemEvents.OnItemEquipBefore onItemEquip)
     {
-      if (!(onItemEquip.Creature is NwPlayer))
-        return;
-
       NwPlayer oPC = (NwPlayer)onItemEquip.Creature;
       NwItem oItem = onItemEquip.Item;
 
@@ -63,7 +58,7 @@ namespace NWN.Systems
         return;
       }
     }
-    private void OnItemUseBefore(ItemEvents.OnItemUseBefore onItemUse)
+    public static void OnItemUseBefore(ItemEvents.OnItemUseBefore onItemUse)
     {
       if (!(PlayerSystem.Players.TryGetValue(onItemUse.Creature, out PlayerSystem.Player player)))
         return;
@@ -127,11 +122,8 @@ namespace NWN.Systems
           break;
       }
     }
-    private void OnAcquireItem(ModuleEvents.OnAcquireItem onAcquireItem)
+    public static void OnAcquireItem(ModuleEvents.OnAcquireItem onAcquireItem)
     {
-      if (!(onAcquireItem.AcquiredBy is NwPlayer))
-        return;
-
       NwPlayer oPC = (NwPlayer)onAcquireItem.AcquiredBy;
       //Console.WriteLine(NWScript.GetName(oPC));
 
@@ -167,11 +159,8 @@ namespace NWN.Systems
       //if (NWScript.GetWeight(oPC) > int.Parse(NWScript.Get2DAString("encumbrance", "Heavy", NWScript.GetAbilityScore(oPC, NWScript.ABILITY_STRENGTH))))
       //CreaturePlugin.SetMovementRate(oPC, CreaturePlugin.NWNX_CREATURE_MOVEMENT_RATE_IMMOBILE);
     }
-    private void OnUnacquireItem(ModuleEvents.OnUnacquireItem onUnacquireItem)
+    public static void OnUnacquireItem(ModuleEvents.OnUnacquireItem onUnacquireItem)
     {
-      if (!(onUnacquireItem.LostBy is NwPlayer))
-        return;
-
       NwPlayer oPC = (NwPlayer)onUnacquireItem.LostBy;
       NwItem oItem = onUnacquireItem.Item;
 

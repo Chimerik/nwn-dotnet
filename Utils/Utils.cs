@@ -47,7 +47,7 @@ namespace NWN
 
     public static API.Location GetLocationFromDatabase(string areaTag, Vector3 position, float facing)
     {
-      return API.Location.Create(NwModule.Instance.Areas.Where(a => a.Tag == areaTag).FirstOrDefault(), position, facing);
+      return API.Location.Create(NwModule.Instance.Areas.FirstOrDefault(a => a.Tag == areaTag), position, facing);
     }
     public static int GUI_DrawWindow(uint oPlayer, int nStartID, int nAnchor, int nX, int nY, int nWidth, int nHeight, float fLifetime = 0.0f)
     {
