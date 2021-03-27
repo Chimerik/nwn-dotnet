@@ -148,6 +148,10 @@ namespace NWN.Systems
       query = NWScript.SqlPrepareQueryCampaign(Config.database, $"CREATE TABLE IF NOT EXISTS savedNPC" +
         $"('accountName' TEXT NOT NULL, 'name' TEXT NOT NULL, 'serializedCreature' TEXT NOT NULL, UNIQUE (accountName, name))");
       NWScript.SqlStep(query);
+
+      query = NWScript.SqlPrepareQueryCampaign(Config.database, $"CREATE TABLE IF NOT EXISTS areaDescriptions" +
+        $"('areaTag' TEXT NOT NULL, 'description' TEXT NOT NULL, PRIMARY KEY(areaTag))");
+      NWScript.SqlStep(query);
     }
     private void InitializeEvents()
     {

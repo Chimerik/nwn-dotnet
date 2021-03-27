@@ -441,6 +441,7 @@ namespace NWN.Systems
         player.menu.choices.Add(("Les lèvres", () => DrawModifyLipsPage(player, oPNJ, -2)));
         player.menu.choices.Add(("Les ailes", () => DrawModifyWingsPage(player, oPNJ, -2)));
         player.menu.choices.Add(("La queue", () => DrawModifyTailPage(player, oPNJ, -2)));
+        player.menu.choices.Add(("Ré-appliquer le corps par défaut pour modèle complexe", () => HandleApplyDefaultModel(player, oPNJ)));
       }
 
       player.menu.choices.Add(("Le portrait", () => DrawModifyPortraitPage(player, oPNJ, -2)));
@@ -635,7 +636,7 @@ namespace NWN.Systems
         "Faites défiler les apparences à l'aide de Suivant et Précédent.",
         "Ou bien prononcez directement une valeur d'apparence à l'oral."
         };
-
+      
       int currentValue = NWScript.GetCreatureBodyPart(NWScript.CREATURE_PART_HEAD, oPNJ);
       
       if (modification > -2)
@@ -1040,6 +1041,27 @@ namespace NWN.Systems
         NwCreature oNPC = NwCreature.Deserialize<NwCreature>(NWScript.SqlGetString(query, 0));
         oNPC.Location = API.Location.Create(selection.Player.Area, selection.TargetPos, selection.Player.Rotation);
       }
+    }
+    private static void HandleApplyDefaultModel(Player player, NwCreature oPNJ)
+    {
+      NWScript.SetCreatureBodyPart(NWScript.CREATURE_PART_BELT, 0, oPNJ);
+      NWScript.SetCreatureBodyPart(NWScript.CREATURE_PART_LEFT_BICEP, 1, oPNJ);
+      NWScript.SetCreatureBodyPart(NWScript.CREATURE_PART_RIGHT_BICEP, 1, oPNJ);
+      NWScript.SetCreatureBodyPart(NWScript.CREATURE_PART_LEFT_FOOT, 1, oPNJ);
+      NWScript.SetCreatureBodyPart(NWScript.CREATURE_PART_RIGHT_FOOT, 1, oPNJ);
+      NWScript.SetCreatureBodyPart(NWScript.CREATURE_PART_LEFT_FOREARM, 1, oPNJ);
+      NWScript.SetCreatureBodyPart(NWScript.CREATURE_PART_RIGHT_FOREARM, 1, oPNJ);
+      NWScript.SetCreatureBodyPart(NWScript.CREATURE_PART_LEFT_HAND, 1, oPNJ);
+      NWScript.SetCreatureBodyPart(NWScript.CREATURE_PART_RIGHT_HAND, 1, oPNJ);
+      NWScript.SetCreatureBodyPart(NWScript.CREATURE_PART_LEFT_SHIN, 1, oPNJ);
+      NWScript.SetCreatureBodyPart(NWScript.CREATURE_PART_RIGHT_SHIN, 1, oPNJ);
+      NWScript.SetCreatureBodyPart(NWScript.CREATURE_PART_LEFT_SHOULDER, 0, oPNJ);
+      NWScript.SetCreatureBodyPart(NWScript.CREATURE_PART_RIGHT_SHOULDER, 0, oPNJ);
+      NWScript.SetCreatureBodyPart(NWScript.CREATURE_PART_LEFT_THIGH, 1, oPNJ);
+      NWScript.SetCreatureBodyPart(NWScript.CREATURE_PART_RIGHT_THIGH, 1, oPNJ);
+      NWScript.SetCreatureBodyPart(NWScript.CREATURE_PART_NECK, 1, oPNJ);
+      NWScript.SetCreatureBodyPart(NWScript.CREATURE_PART_PELVIS, 1, oPNJ);
+      NWScript.SetCreatureBodyPart(NWScript.CREATURE_PART_TORSO, 1, oPNJ);
     }
   }
 }

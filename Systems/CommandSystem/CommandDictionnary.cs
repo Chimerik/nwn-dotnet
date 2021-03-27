@@ -459,11 +459,27 @@ namespace NWN.Systems
         )
       },
       {
+        "examinezone",
+        new Command(
+          name: "examinezone",
+          description: new Command.Description(title: "Permet d'obtenir la description de la zone dans laquelle vous vous trouvez."),
+          execute: ExecuteExamineAreaCommand
+        )
+      },
+      {
         "pnj",
         new Command(
           name: "pnj",
           description: new Command.Description(title: "Commande dm : permet d'ouvrir le menu de modification de pnjs"),
           execute: ExecutePNJFactoryCommand
+        )
+      },
+      {
+        "areatag",
+        new Command(
+          name: "areatag",
+          description: new Command.Description(title: "Commande dm : permet d'obtenir le tag de la zone"),
+          execute: ExecuteAreaTagCommand
         )
       }
     };
