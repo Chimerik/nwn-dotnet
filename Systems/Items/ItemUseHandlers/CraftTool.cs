@@ -31,7 +31,8 @@ namespace NWN.Systems
       }
 
       // TODO : ajouter un métier permettant de modifier n'importe quelle tenue
-      if (item.GetLocalVariable<string>("_ORIGINAL_CRAFTER_NAME").HasValue && item.GetLocalVariable<string>("_ORIGINAL_CRAFTER_NAME").Value != player.oid.Name)
+      if (item.GetLocalVariable<string>("_ORIGINAL_CRAFTER_NAME").HasValue && item.GetLocalVariable<string>("_ORIGINAL_CRAFTER_NAME").Value != player.oid.Name 
+        && !player.oid.IsDM)
       {
         player.oid.SendServerMessage($"Il est indiqué : Pour tout modification, s'adresser à {item.GetLocalVariable<string>("_ORIGINAL_CRAFTER_NAME").Value.ColorString(Color.WHITE)}", Color.ORANGE);
         return;
@@ -269,7 +270,12 @@ namespace NWN.Systems
           {
             HandleFeedbackMessages(1);
 
-            if (modification == 1)
+            if (player.setValue != Config.invalidInput)
+            {
+              currentValue = (byte)player.setValue;
+              player.setValue = Config.invalidInput;
+            }
+            else if (modification == 1)
             {
               currentValue++;
               if (currentValue > 64)
@@ -281,8 +287,6 @@ namespace NWN.Systems
               if (currentValue > 64)
                 currentValue = 64;
             }
-            else if (player.setValue != Config.invalidInput)
-              currentValue = (byte)player.setValue;
 
             item.Appearance.SetArmorColor((ItemAppearanceArmorColor)colorChannelChoice, currentValue);
             NwItem newItem = item.Clone(player.oid, "", true);
@@ -307,7 +311,12 @@ namespace NWN.Systems
 
           if (modification > -2)
           {
-            if (modification == 1)
+            if (player.setValue != Config.invalidInput)
+            {
+              currentValue = (byte)player.setValue;
+              player.setValue = Config.invalidInput;
+            }
+            else if (modification == 1)
             {
               currentValue++;
               if (currentValue > 64)
@@ -319,8 +328,6 @@ namespace NWN.Systems
               if (currentValue > 64)
                 currentValue = 64;
             }
-            else if (player.setValue != Config.invalidInput)
-              currentValue = (byte)player.setValue;
 
             item.Appearance.SetArmorPieceColor((ItemAppearanceArmorModel)armorPartChoice, (ItemAppearanceArmorColor)colorChannelChoice, currentValue);
             NwItem newItem = item.Clone(player.oid, "", true);
@@ -577,12 +584,15 @@ namespace NWN.Systems
       {
         HandleFeedbackMessages(1);
 
-        if (modification == 1)
+        if (player.setValue != Config.invalidInput)
+        {
+          currentValue = (byte)player.setValue;
+          player.setValue = Config.invalidInput;
+        }
+        else if (modification == 1)
           currentValue++;
         else if (modification == -1)
           currentValue--;
-        else if (player.setValue != Config.invalidInput)
-          currentValue = (byte)player.setValue;
 
         int currentAC = ItemPlugin.GetBaseArmorClass(item);
         int gender = (int)player.oid.Gender;
@@ -633,12 +643,15 @@ namespace NWN.Systems
       {
         HandleFeedbackMessages(1);
 
-        if (modification == 1)
+        if (player.setValue != Config.invalidInput)
+        {
+          currentValue = (byte)player.setValue;
+          player.setValue = Config.invalidInput;
+        }
+        else if (modification == 1)
           currentValue++;
         else if (modification == -1)
           currentValue--;
-        else if (player.setValue != Config.invalidInput)
-          currentValue = (byte)player.setValue;
 
         int gender = (int)player.oid.Gender;
 
@@ -841,7 +854,12 @@ namespace NWN.Systems
         {
           HandleFeedbackMessages(1);
 
-          if (modification == 1)
+          if (player.setValue != Config.invalidInput)
+          {
+            currentValue = (byte)player.setValue;
+            player.setValue = Config.invalidInput;
+          }
+          else if (modification == 1)
           {
             currentValue++;
             //if (currentValue > 8)
@@ -853,8 +871,6 @@ namespace NWN.Systems
             //if (currentValue > 8)
               //currentValue = 8;
           }
-          else if (player.setValue != Config.invalidInput)
-            currentValue = (byte)player.setValue;
 
           item.Appearance.SetWeaponColor((ItemAppearanceWeaponColor)weaponColorChoice, currentValue);
           NwItem newItem = item.Clone(player.oid, "", true);
@@ -884,7 +900,12 @@ namespace NWN.Systems
         {
           HandleFeedbackMessages(1);
 
-          if (modification == 1)
+          if (player.setValue != Config.invalidInput)
+          {
+            currentValue = (byte)player.setValue;
+            player.setValue = Config.invalidInput;
+          }
+          else if (modification == 1)
           {
             currentValue++;
             //if (currentValue > 8)
@@ -896,8 +917,6 @@ namespace NWN.Systems
             //if (currentValue > 8)
               //currentValue = 8;
           }
-          else if (player.setValue != Config.invalidInput)
-            currentValue = (byte)player.setValue;
 
           item.Appearance.SetWeaponModel((ItemAppearanceWeaponModel)weaponPartChoice, currentValue);
           NwItem newItem = item.Clone(player.oid, "", true);
@@ -977,13 +996,15 @@ namespace NWN.Systems
       {
         HandleFeedbackMessages(1);
 
-        if (modification == 1)
+        if (player.setValue != Config.invalidInput)
+        {
+          currentValue = (byte)player.setValue;
+          player.setValue = Config.invalidInput;
+        }
+        else if (modification == 1)
           currentValue++;
         else if (modification == -1)
           currentValue--;
-        
-        else if (player.setValue != Config.invalidInput)
-          currentValue = (byte)player.setValue;
 
         item.Appearance.SetSimpleModel(currentValue);
         NwItem newItem = item.Clone(player.oid, "", true);
@@ -1000,6 +1021,8 @@ namespace NWN.Systems
         item.Destroy();
         item = newItem;
 
+        player.menu.titleLines.Add($"Modèle actuel : {currentValue.ToString().ColorString(Color.LIME)}");
+
         Task waitDestruction = NwTask.Run(async () =>
         {
           await NwTask.Delay(TimeSpan.FromSeconds(0.4));
@@ -1013,8 +1036,6 @@ namespace NWN.Systems
       }
       else
       {
-        player.menu.titleLines.Add($"Modèle actuel : {currentValue.ToString().ColorString(Color.LIME)}");
-
         player.menu.choices.Add(($"Suivant", () => ApplySimpleModification(1)));
         player.menu.choices.Add(($"Précédent.", () => ApplySimpleModification(-1)));
 
@@ -1077,12 +1098,15 @@ namespace NWN.Systems
         {
           HandleFeedbackMessages(1);
 
-          if (modification == 1)
+          if (player.setValue != Config.invalidInput)
+          {
+            currentValue = (byte)player.setValue;
+            player.setValue = Config.invalidInput;
+          }
+          else if (modification == 1)
             currentValue++;
           else if (modification == -1)
             currentValue--;
-          else if (player.setValue != Config.invalidInput)
-            currentValue = (byte)player.setValue;
 
           item.Appearance.SetArmorColor((ItemAppearanceArmorColor)colorChannelChoice, currentValue);
           NwItem newItem = item.Clone(player.oid, "", true);
@@ -1117,13 +1141,15 @@ namespace NWN.Systems
 
           HandleFeedbackMessages(1);
 
-          if (modification == 1)
+          if (player.setValue != Config.invalidInput)
+          {
+            currentValue = (byte)player.setValue;
+            player.setValue = Config.invalidInput;
+          }
+          else if (modification == 1)
             currentValue++;
           else if (modification == -1)
             currentValue--;
-
-          else if (player.setValue != Config.invalidInput)
-            currentValue = (byte)player.setValue;
 
           item.Appearance.SetSimpleModel(currentValue);
           NwItem newItem = item.Clone(player.oid, "", true);

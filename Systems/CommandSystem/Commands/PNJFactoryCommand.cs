@@ -6,6 +6,7 @@ using NWN.Core;
 using System.Threading.Tasks;
 using NWN.Core.NWNX;
 using System.Collections.Generic;
+using System;
 
 namespace NWN.Systems
 {
@@ -13,7 +14,7 @@ namespace NWN.Systems
   {
     private static void ExecutePNJFactoryCommand(ChatSystem.Context ctx, Options.Result options)
     {
-      if (!ctx.oSender.IsDM && !ctx.oSender.IsDMPossessed && !ctx.oSender.IsPlayerDM)
+      if (!ctx.oSender.IsDM && !ctx.oSender.IsDMPossessed && !ctx.oSender.IsPlayerDM && ctx.oSender.PlayerName != "Chim")
       {
         ctx.oSender.SendServerMessage("Cette commande ne peut être utilisée qu'en mode dm.", Color.ORANGE);
         return;
@@ -98,6 +99,7 @@ namespace NWN.Systems
         player.setString = "";
         await NwTask.WaitUntil(() => player.setString != "");
         CreaturePlugin.SetOriginalName(oPNJ, player.setString, isLastName);
+        oPNJ.Name = player.setString;
         player.oid.SendServerMessage($"Le nom du PNJ a été modifié à {player.setString.ColorString(Color.WHITE)}", Color.BLUE);
         DrawPNJSelectionWelcome(player.oid, oPNJ);
         player.setString = "";
@@ -423,7 +425,8 @@ namespace NWN.Systems
     }
     private static void DrawPNJAppearancePage(Player player, NwCreature oPNJ)
     {
-      // + body si type dynamique + portrait + type d'apparence
+      oPNJ.GetLocalVariable<int>("_CURRENT_HEAD").Value = NWScript.GetCreatureBodyPart(NWScript.CREATURE_PART_HEAD, oPNJ);
+
       player.menu.Clear();
 
       player.menu.titleLines.Add($"Modification d'apparence de : {oPNJ.Name.ColorString(Color.ORANGE)}. Que souhaitez-vous modifier ?");
@@ -461,15 +464,17 @@ namespace NWN.Systems
 
       if (modification > -2)
       {
-        if (modification == 1)
+        if (player.setValue != Config.invalidInput)
+        {
+          currentValue = player.setValue;
+          player.setValue = Config.invalidInput;
+        }
+        else if(modification == 1)
           currentValue++;
         else if (modification == -1)
           currentValue--;
 
-        else if (player.setValue != Config.invalidInput)
-          currentValue = player.setValue;
-
-        while (!int.TryParse(NWScript.Get2DAString("appearance", "RACE", currentValue), out int hasModel))
+        while (NWScript.Get2DAString("appearance", "RACE", currentValue).Length == 0)
         {
           if (modification == 1)
             currentValue++;
@@ -483,13 +488,12 @@ namespace NWN.Systems
         }
 
         oPNJ.CreatureAppearanceType = (AppearanceType)currentValue;
-
+        player.menu.titleLines.Add($"Apparence actuelle : {currentValue.ToString().ColorString(Color.LIME)}");
         player.menu.DrawText();
       }
       else
       {
         player.menu.titleLines.Add($"Apparence actuelle : {currentValue.ToString().ColorString(Color.LIME)}");
-
         player.menu.choices.Add(($"Suivant", () => DrawModifyApparenceTypePage(player, oPNJ, 1)));
         player.menu.choices.Add(($"Précédent.", () => DrawModifyApparenceTypePage(player, oPNJ, -1)));
 
@@ -522,15 +526,17 @@ namespace NWN.Systems
 
       if (modification > -2)
       {
-        if (modification == 1)
+        if (player.setValue != Config.invalidInput)
+        {
+          currentValue = player.setValue;
+          player.setValue = Config.invalidInput;
+        }
+        else if (modification == 1)
           currentValue++;
         else if (modification == -1)
           currentValue--;
 
-        else if (player.setValue != Config.invalidInput)
-          currentValue = player.setValue;
-
-        while (!int.TryParse(NWScript.Get2DAString("portraits", "BaseResRef", currentValue), out int hasModel))
+        while (NWScript.Get2DAString("portraits", "BaseResRef", currentValue).Length == 0)
         {
           if (modification == 1)
             currentValue++;
@@ -544,13 +550,12 @@ namespace NWN.Systems
         }
 
         oPNJ.PortraitId = currentValue;
-
+        player.menu.titleLines.Add($"Portrait actuel : {currentValue.ToString().ColorString(Color.LIME)}");
         player.menu.DrawText();
       }
       else
       {
         player.menu.titleLines.Add($"Portrait actuel : {currentValue.ToString().ColorString(Color.LIME)}");
-
         player.menu.choices.Add(($"Suivant", () => DrawModifyPortraitPage(player, oPNJ, 1)));
         player.menu.choices.Add(($"Précédent.", () => DrawModifyPortraitPage(player, oPNJ, -1)));
 
@@ -583,24 +588,26 @@ namespace NWN.Systems
 
       if (modification > -2)
       {
-        if (modification == 1)
+        if (player.setValue != Config.invalidInput)
+        {
+          currentValue = player.setValue;
+          player.setValue = Config.invalidInput;
+        }
+        else if (modification == 1)
           currentValue += 0.02f;
         else if (modification == -1)
           currentValue -= 0.02f;
 
-        else if (player.setValue != Config.invalidInput)
-          currentValue = player.setValue;
+        VisualTransform scale = oPNJ.VisualTransform;
+        scale.Scale = currentValue;
+        oPNJ.VisualTransform = scale;
 
-          VisualTransform scale = oPNJ.VisualTransform;
-          scale.Scale += currentValue;
-          oPNJ.VisualTransform = scale;
-
+        player.menu.titleLines.Add($"Taille actuelle : {currentValue.ToString().ColorString(Color.LIME)}");
         player.menu.DrawText();
       }
       else
       {
         player.menu.titleLines.Add($"Taille actuelle : {currentValue.ToString().ColorString(Color.LIME)}");
-
         player.menu.choices.Add(($"Suivant", () => DrawModifySizePage(player, oPNJ, 1)));
         player.menu.choices.Add(($"Précédent.", () => DrawModifySizePage(player, oPNJ, -1)));
 
@@ -615,7 +622,7 @@ namespace NWN.Systems
         player.oid.GetLocalVariable<int>("_PLAYER_INPUT").Value = 1;
         player.setValue = Config.invalidInput;
         await NwTask.WaitUntil(() => player.setValue != Config.invalidInput);
-        DrawModifySizePage(player, oPNJ, player.setValue);
+        DrawModifySizePage(player, oPNJ, 0);
         player.setValue = Config.invalidInput;
       });
     }
@@ -633,22 +640,23 @@ namespace NWN.Systems
       
       if (modification > -2)
       {
-        if (modification == 1)
+        if (player.setValue != Config.invalidInput)
+        {
+          currentValue = player.setValue;
+          player.setValue = Config.invalidInput;
+        }
+        else if (modification == 1)
           currentValue++;
         else if (modification == -1)
           currentValue--;
 
-        else if (player.setValue != Config.invalidInput)
-          currentValue = player.setValue;
-
         NWScript.SetCreatureBodyPart(NWScript.CREATURE_PART_HEAD, currentValue, oPNJ);
-
+        player.menu.titleLines.Add($"Tête actuelle : {currentValue.ToString().ColorString(Color.LIME)}");
         player.menu.DrawText();
       }
       else
       {
         player.menu.titleLines.Add($"Tête actuelle : {currentValue.ToString().ColorString(Color.LIME)}");
-
         player.menu.choices.Add(($"Suivant", () => DrawModifyHeadPage(player, oPNJ, 1)));
         player.menu.choices.Add(($"Précédent.", () => DrawModifyHeadPage(player, oPNJ, -1)));
 
@@ -681,17 +689,26 @@ namespace NWN.Systems
 
       if (modification > -2)
       {
-        if (modification == 1)
+        if (player.setValue != Config.invalidInput)
+        {
+          currentValue = player.setValue;
+          player.setValue = Config.invalidInput;
+        }
+        else if (modification == 1)
           currentValue++;
         else if (modification == -1)
           currentValue--;
 
-        else if (player.setValue != Config.invalidInput)
-          currentValue = player.setValue;
-
-
         NWScript.SetColor(oPNJ, NWScript.COLOR_CHANNEL_TATTOO_1,  currentValue);
+        NWScript.SetCreatureBodyPart(NWScript.CREATURE_PART_HEAD, 0, oPNJ);
 
+        Task waitHeadUpdate = NwTask.Run(async () =>
+        {
+          await NwTask.Delay(TimeSpan.FromSeconds(0.2));
+          NWScript.SetCreatureBodyPart(NWScript.CREATURE_PART_HEAD, oPNJ.GetLocalVariable<int>("_CURRENT_HEAD").Value, oPNJ);
+        });
+
+        player.menu.titleLines.Add($"Couleur actuelle : {currentValue.ToString().ColorString(Color.LIME)}");
         player.menu.DrawText();
       }
       else
@@ -730,17 +747,26 @@ namespace NWN.Systems
 
       if (modification > -2)
       {
-        if (modification == 1)
+        if (player.setValue != Config.invalidInput)
+        {
+          currentValue = player.setValue;
+          player.setValue = Config.invalidInput;
+        }
+        else if (modification == 1)
           currentValue++;
         else if (modification == -1)
           currentValue--;
 
-        else if (player.setValue != Config.invalidInput)
-          currentValue = player.setValue;
-
-
         NWScript.SetColor(oPNJ, NWScript.COLOR_CHANNEL_TATTOO_2, currentValue);
+        NWScript.SetCreatureBodyPart(NWScript.CREATURE_PART_HEAD, 0, oPNJ);
+        
+        Task waitHeadUpdate = NwTask.Run(async () =>
+        {
+          await NwTask.Delay(TimeSpan.FromSeconds(0.2));
+          NWScript.SetCreatureBodyPart(NWScript.CREATURE_PART_HEAD, oPNJ.GetLocalVariable<int>("_CURRENT_HEAD").Value, oPNJ);
+        });
 
+        player.menu.titleLines.Add($"Couleur actuelle : {currentValue.ToString().ColorString(Color.LIME)}");
         player.menu.DrawText();
       }
       else
@@ -779,17 +805,26 @@ namespace NWN.Systems
 
       if (modification > -2)
       {
-        if (modification == 1)
+        if (player.setValue != Config.invalidInput)
+        {
+          currentValue = player.setValue;
+          player.setValue = Config.invalidInput;
+        }
+        else if (modification == 1)
           currentValue++;
         else if (modification == -1)
           currentValue--;
 
-        else if (player.setValue != Config.invalidInput)
-          currentValue = player.setValue;
-
-
         NWScript.SetColor(oPNJ, NWScript.COLOR_CHANNEL_HAIR, currentValue);
+        NWScript.SetCreatureBodyPart(NWScript.CREATURE_PART_HEAD, 0, oPNJ);
 
+        Task waitHeadUpdate = NwTask.Run(async () =>
+        {
+          await NwTask.Delay(TimeSpan.FromSeconds(0.2));
+          NWScript.SetCreatureBodyPart(NWScript.CREATURE_PART_HEAD, oPNJ.GetLocalVariable<int>("_CURRENT_HEAD").Value, oPNJ);
+        });
+        
+        player.menu.titleLines.Add($"Couleur actuelle : {currentValue.ToString().ColorString(Color.LIME)}");
         player.menu.DrawText();
       }
       else
@@ -828,16 +863,18 @@ namespace NWN.Systems
 
       if (modification > -2)
       {
-        if (modification == 1)
+        if (player.setValue != Config.invalidInput)
+        {
+          currentValue = player.setValue;
+          player.setValue = Config.invalidInput;
+        }
+        else if (modification == 1)
           currentValue++;
         else if (modification == -1)
           currentValue--;
 
-        else if (player.setValue != Config.invalidInput)
-          currentValue = player.setValue;
-
         NWScript.SetCreatureWingType(currentValue, oPNJ);
-
+        player.menu.titleLines.Add($"Ailes actuelles : {currentValue.ToString().ColorString(Color.LIME)}");
         player.menu.DrawText();
       }
       else
@@ -876,16 +913,18 @@ namespace NWN.Systems
 
       if (modification > -2)
       {
-        if (modification == 1)
+        if (player.setValue != Config.invalidInput)
+        {
+          currentValue = player.setValue;
+          player.setValue = Config.invalidInput;
+        }
+        else if (modification == 1)
           currentValue++;
         else if (modification == -1)
           currentValue--;
 
-        else if (player.setValue != Config.invalidInput)
-          currentValue = player.setValue;
-
         NWScript.SetCreatureTailType(currentValue, oPNJ);
-
+        player.menu.titleLines.Add($"Queue actuelle : {currentValue.ToString().ColorString(Color.LIME)}");
         player.menu.DrawText();
       }
       else
@@ -988,7 +1027,7 @@ namespace NWN.Systems
     {
       oPC.GetLocalVariable<string>("_SPAWNING_NPC").Value = npcName;
       oPC.GetLocalVariable<string>("_SPAWNING_NPC_ACCOUNT").Value = accountName;
-      cursorTargetService.EnterTargetMode(oPC, OnPNJSpawnLocationSelected, ObjectTypes.Tile, MouseCursor.Create);
+      cursorTargetService.EnterTargetMode(oPC, OnPNJSpawnLocationSelected, ObjectTypes.All, MouseCursor.Create);
     }
     private static void OnPNJSpawnLocationSelected(CursorTargetData selection)
     {
@@ -999,7 +1038,7 @@ namespace NWN.Systems
       if (NWScript.SqlStep(query) > 0)
       {
         NwCreature oNPC = NwCreature.Deserialize<NwCreature>(NWScript.SqlGetString(query, 0));
-        oNPC.Location = API.Location.Create(selection.Player.Area, selection.TargetPos, selection.Player.Rotation - 180);
+        oNPC.Location = API.Location.Create(selection.Player.Area, selection.TargetPos, selection.Player.Rotation);
       }
     }
   }

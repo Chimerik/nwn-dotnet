@@ -59,7 +59,7 @@ namespace NWN.Systems
                     new Lootable.Item(chestTag: "low_skillbooks", count: 1, chance: 1),
                     new Lootable.Item(chestTag: "low_enchantements", count: 1, chance: 1),
                     new Lootable.Item(chestTag: "low_potions", count: 2, chance: 80),
-                    new Lootable.Item(chestTag: "low_scrolls", count: 1, chance: 80),
+                    new Lootable.Item(chestTag: "low_scrolls", count: 1, chance: 35),
                 }
             )},
             { "kobolt_chest", new Lootable.Config(
@@ -85,7 +85,7 @@ namespace NWN.Systems
                     new Lootable.Item(chestTag: "low_skillbooks", count: 1, chance: 1),
                     new Lootable.Item(chestTag: "low_enchantements", count: 1, chance: 1),
                     new Lootable.Item(chestTag: "low_potions", count: 3, chance: 85),
-                    new Lootable.Item(chestTag: "low_scrolls", count: 2, chance: 85),
+                    new Lootable.Item(chestTag: "low_scrolls", count: 2, chance: 35),
                 }
             )},
             { "Koboltfantassin", new Lootable.Config(

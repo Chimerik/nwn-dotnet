@@ -61,6 +61,8 @@ namespace NWN.Systems
     }
     private void HandleBodyModification(Player player)
     {
+      clone.GetLocalVariable<int>("_CURRENT_HEAD").Value = NWScript.GetCreatureBodyPart(NWScript.CREATURE_PART_HEAD, clone);
+
       player.menu.Clear();
       player.menu.titleLines = new List<string> {
         $"Vous vous concentrez sur le miroir de façon à mieux vous mirer.",
@@ -117,7 +119,7 @@ namespace NWN.Systems
         "Quelles capacités initiales votre personnage possède-t-il ?"
       };
 
-      foreach (KeyValuePair< API.Constants.Feat, Skill > SkillListEntry in player.learnableSkills)
+      foreach (KeyValuePair<Feat, Skill > SkillListEntry in player.learnableSkills)
       {
         Skill skill = SkillListEntry.Value;
 
@@ -142,6 +144,7 @@ namespace NWN.Systems
     private void ChangeCloneHead(Player player, int model)
     {
       NWScript.SetCreatureBodyPart(NWScript.CREATURE_PART_HEAD, NWScript.GetCreatureBodyPart(NWScript.CREATURE_PART_HEAD, clone) + model, clone);
+      clone.GetLocalVariable<int>("_CURRENT_HEAD").Value = NWScript.GetCreatureBodyPart(NWScript.CREATURE_PART_HEAD, clone);
     }
     private void ChangeCloneHeight(Player player, float size)
     {
@@ -164,17 +167,35 @@ namespace NWN.Systems
     private void ChangeCloneEyeColor(Player player, int color)
     {
       NWScript.SetColor(clone, NWScript.COLOR_CHANNEL_TATTOO_1, NWScript.GetColor(clone, NWScript.COLOR_CHANNEL_TATTOO_1) + color);
-      //HandleBodyModification(player, clone);
+      NWScript.SetCreatureBodyPart(NWScript.CREATURE_PART_HEAD, 0, clone);
+
+      Task waitHeadUpdate = NwTask.Run(async () =>
+      {
+        await NwTask.Delay(TimeSpan.FromSeconds(0.2));
+        NWScript.SetCreatureBodyPart(NWScript.CREATURE_PART_HEAD, clone.GetLocalVariable<int>("_CURRENT_HEAD").Value, clone);
+      });
     }
     private void ChangeCloneHairColor(Player player, int color)
     {
       NWScript.SetColor(clone, NWScript.COLOR_CHANNEL_HAIR, NWScript.GetColor(clone, NWScript.COLOR_CHANNEL_HAIR) + color);
-      //HandleBodyModification(player, clone);
+      NWScript.SetCreatureBodyPart(NWScript.CREATURE_PART_HEAD, 0, clone);
+
+      Task waitHeadUpdate = NwTask.Run(async () =>
+      {
+        await NwTask.Delay(TimeSpan.FromSeconds(0.2));
+        NWScript.SetCreatureBodyPart(NWScript.CREATURE_PART_HEAD, clone.GetLocalVariable<int>("_CURRENT_HEAD").Value, clone);
+      });
     }
     private void ChangeCloneLipsColor(Player player, int color)
     {
       NWScript.SetColor(clone, NWScript.COLOR_CHANNEL_TATTOO_2, NWScript.GetColor(clone, NWScript.COLOR_CHANNEL_TATTOO_2) + color);
-      //HandleBodyModification(player, clone);
+      NWScript.SetCreatureBodyPart(NWScript.CREATURE_PART_HEAD, 0, clone);
+
+      Task waitHeadUpdate = NwTask.Run(async () =>
+      {
+        await NwTask.Delay(TimeSpan.FromSeconds(0.2));
+        NWScript.SetCreatureBodyPart(NWScript.CREATURE_PART_HEAD, clone.GetLocalVariable<int>("_CURRENT_HEAD").Value, clone);
+      });
     }
     private void HandleSkillSelected(Player player, Skill skill)
     {

@@ -113,7 +113,6 @@ namespace NWN.Systems
           player.setValue = value;
           player.oid.GetLocalVariable<int>("_PLAYER_INPUT").Delete();
           ChatPlugin.SkipMessage();
-          return;
         }
         else
         {
@@ -121,6 +120,7 @@ namespace NWN.Systems
           player.oid.GetLocalVariable<int>("_PLAYER_INPUT_STRING").Delete();
           ChatPlugin.SkipMessage();
         }
+        return;
       }
 
       next();

@@ -367,8 +367,6 @@ namespace NWN.Systems
       if (onPerception.PerceivedCreature.Tag != "Statuereptilienne")
         return;
 
-      Log.Info($"Perception event : {onPerception.PerceptionEventType}");
-
       NwPlayer oPC = (NwPlayer)onPerception.Creature;
 
       if (onPerception.PerceivedCreature.GetLocalVariable<int>($"_PERCEPTION_STATUS_{oPC.CDKey}").HasValue)
@@ -384,8 +382,7 @@ namespace NWN.Systems
       {
         onPerception.PerceivedCreature.PlayAnimation((Animation)Utils.random.Next(100, 116), 6);
         await NwTask.Delay(TimeSpan.FromSeconds(0.1));
-        Log.Info($"Starting applying Freeze : {onPerception.PerceivedCreature.Name} - {onPerception.PerceivedCreature.Tag} in {onPerception.PerceivedCreature.Area.Name} at {onPerception.PerceivedCreature.Location.Position.X} {onPerception.PerceivedCreature.Location.Position.Y}");
-        
+
         API.Effect eff = eff = API.Effect.VisualEffect(VfxType.DurFreezeAnimation);
         eff.Tag = "_FREEZE_EFFECT";
         eff.SubType = EffectSubType.Supernatural;
