@@ -66,6 +66,11 @@ namespace NWN.Systems
       if (Players.TryGetValue(onConversation.LastSpeaker, out Player player))
         new BardeDragon(player, onConversation.CurrentSpeaker);
     }
+    public static void StartRumorsDialog(CreatureEvents.OnConversation onConversation)
+    {
+      if (Players.TryGetValue(onConversation.LastSpeaker, out Player player))
+        new Rumors(player);
+    }
     public static void StartTribunalShopDialog(CreatureEvents.OnConversation onConversation)
     {
       if (Players.TryGetValue(onConversation.LastSpeaker, out Player player))

@@ -128,6 +128,13 @@ namespace NWN.Systems
         classe = NWScript.CLASS_TYPE_CLERIC;
 
       CreaturePlugin.SetClassByPosition(oPC, 0, classe);
+
+      if(oPC.GetLocalVariable<int>("_AUTO_SPELL").HasValue && oPC.GetLocalVariable<int>("_AUTO_SPELL").Value != spellId)
+      {
+        oPC.GetLocalVariable<int>("_AUTO_SPELL").Delete();
+        oPC.GetLocalVariable<NwObject>("_AUTO_SPELL_TARGET").Delete();
+        oPC.OnCombatRoundEnd -= PlayerSystem.HandleCombatRoundEndForAutoSpells;
+      }
     }
     [ScriptHandler("a_spellcast")]
     private void HandleAfterSpellCast(CallInfo callInfo)

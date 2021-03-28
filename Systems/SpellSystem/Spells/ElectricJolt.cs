@@ -13,9 +13,10 @@ namespace NWN.Systems
     private void HandleElectricJolt(CallInfo callInfo)
     {
       var oTarget = NWScript.GetSpellTargetObject().ToNwObject<NwGameObject>();
-      var oCaster = callInfo.ObjectSelf;
+      var oCaster = (NwGameObject)callInfo.ObjectSelf;
       int nCasterLevel = NWScript.GetCasterLevel(oCaster);
-      NWScript.SignalEvent(oTarget, NWScript.EventSpellCastAt(oCaster, NWScript.GetSpellId()));
+      int spellId = NWScript.GetSpellId();
+      NWScript.SignalEvent(oTarget, NWScript.EventSpellCastAt(oCaster, spellId));
       MetaMagic nMetaMagic = (MetaMagic)NWScript.GetMetaMagicFeat();
 
       API.Effect eVis = API.Effect.VisualEffect(VfxType.ImpLightningS);
@@ -30,11 +31,29 @@ namespace NWN.Systems
         oTarget.ApplyEffect(EffectDuration.Instant, eBad);
       }
 
-      Task waitSpellUsed = NwTask.Run(async () =>
+      if (oCaster is NwPlayer && nMetaMagic == MetaMagic.None)
       {
-        await NwTask.Delay(TimeSpan.FromSeconds(0.2));
-        RestoreSpell(oCaster, NWScript.GetSpellId());
-      });
+        oCaster.GetLocalVariable<int>("_AUTO_SPELL").Value = spellId;
+        oCaster.GetLocalVariable<NwObject>("_AUTO_SPELL_TARGET").Value = oTarget;
+        ((NwPlayer)oCaster).OnCombatRoundEnd += PlayerSystem.HandleCombatRoundEndForAutoSpells;
+
+        Task waitMovement = NwTask.Run(async () =>
+        {
+          float posX = oCaster.Position.X;
+          float posY = oCaster.Position.Y;
+          await NwTask.WaitUntil(() => oCaster.Position.X != posX || oCaster.Position.Y != posY);
+
+          oCaster.GetLocalVariable<int>("_AUTO_SPELL").Delete();
+          oCaster.GetLocalVariable<NwObject>("_AUTO_SPELL_TARGET").Delete();
+          ((NwPlayer)oCaster).OnCombatRoundEnd -= PlayerSystem.HandleCombatRoundEndForAutoSpells;
+        });
+
+        Task waitSpellUsed = NwTask.Run(async () =>
+        {
+          await NwTask.Delay(TimeSpan.FromSeconds(0.2));
+          RestoreSpell(oCaster, spellId);
+        });
+      }
     }
   }
 }

@@ -20,7 +20,7 @@ namespace NWN.Systems
         ctx.oSender.ClearActionQueue();
         ctx.oSender.ActionExamine(ctx.oSender);
 
-        Task spawnResources = NwTask.Run(async () =>
+        Task waitForDescriptionRewrite = NwTask.Run(async () =>
         {
           await NwTask.Delay(TimeSpan.FromSeconds(0.2));
           ctx.oSender.Description = originalDesc;

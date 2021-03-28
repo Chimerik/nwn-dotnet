@@ -91,8 +91,6 @@ namespace NWN.Systems
 
       player.menu.Draw();
 
-      player.oid.GetLocalVariable<int>("_PLAYER_INPUT_STRING").Delete();
-
       Task playerInput = NwTask.Run(async () =>
       {
         player.oid.GetLocalVariable<int>("_PLAYER_INPUT_STRING").Value = 1;

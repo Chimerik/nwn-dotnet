@@ -25,5 +25,14 @@ namespace NWN.Systems
 
       return "";
     }
+    public static int GetPlayerAccountIdFromDiscord(ulong UserId)
+    {
+      var query = NWScript.SqlPrepareQueryCampaign(Config.database, $"SELECT accountId from PlayerAccounts WHERE discordId = @discordId");
+      NWScript.SqlBindString(query, "@discordId", UserId.ToString());
+      if (NWScript.SqlStep(query) == 1)
+        return NWScript.SqlGetInt(query, 0);
+
+      return -1;
+    }
   }
 }

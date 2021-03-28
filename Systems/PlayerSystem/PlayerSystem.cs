@@ -260,7 +260,7 @@ namespace NWN.Systems
     [ScriptHandler("on_input_emote")]
     private void HandleInputEmote(CallInfo callInfo)
     {
-      int animation = NWN.Utils.TranslateEngineAnimation(Int32.Parse(EventsPlugin.GetEventData("ANIMATION")));
+      int animation = Utils.TranslateEngineAnimation(Int32.Parse(EventsPlugin.GetEventData("ANIMATION")));
 
       switch (animation)
       {
@@ -388,6 +388,26 @@ namespace NWN.Systems
         eff.SubType = EffectSubType.Supernatural;
         onPerception.PerceivedCreature.ApplyEffect(EffectDuration.Permanent, eff);
       });
+    }
+    public static void HandleCombatRoundEndForAutoSpells(CreatureEvents.OnCombatRoundEnd onCombatRoundEnd)
+    {
+      if(onCombatRoundEnd.Creature.GetLocalVariable<int>("_AUTO_SPELL").HasNothing)
+      {
+        onCombatRoundEnd.Creature.OnCombatRoundEnd -= HandleCombatRoundEndForAutoSpells;
+        return;
+      }
+
+      int spellId = onCombatRoundEnd.Creature.GetLocalVariable<int>("_AUTO_SPELL").Value;
+      NwObject target = onCombatRoundEnd.Creature.GetLocalVariable<NwObject>("_AUTO_SPELL_TARGET").Value;
+
+      if(target != null)
+        onCombatRoundEnd.Creature.ActionCastSpellAt((Spell)spellId, (NwGameObject)target);
+      else
+      {
+        onCombatRoundEnd.Creature.GetLocalVariable<int>("_AUTO_SPELL").Delete();
+        onCombatRoundEnd.Creature.GetLocalVariable<NwObject>("_AUTO_SPELL_TARGET").Delete();
+        onCombatRoundEnd.Creature.OnCombatRoundEnd -= HandleCombatRoundEndForAutoSpells;
+      }
     }
 
     /*public static Dictionary<string, Func<uint, int>> Register = new Dictionary<string, Func<uint, int>>

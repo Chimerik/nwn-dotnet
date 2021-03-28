@@ -128,12 +128,6 @@ namespace NWN.Systems
       else
         oPC.HP = player.currentHP;
 
-      //NWScript.SendMessageToPC(player.oid, $"pv : {Int32.Parse(NWScript.Get2DAString("classes", "HitDie", 43)) + (1 + 3 * ((NWScript.GetAbilityScore(oTarget, NWScript.ABILITY_CONSTITUTION, 1) + improvedConst - 10) / 2 + CreaturePlugin.GetKnowsFeat(oTarget, (int)Feat.Toughness))) * Int32.Parse(NWScript.Get2DAString("feat", "GAINMULTIPLE", CreaturePlugin.GetHighestLevelOfFeat(oTarget, (int)Feat.ImprovedHealth)))}");
-
-      /*CreaturePlugin.SetMaxHitPointsByLevel(player.oid, 1, Int32.Parse(NWScript.Get2DAString("classes", "HitDie", 43))
-        + (1 + 3 * ((player.oid.GetAbilityScore(Ability.Constitution, true) - 10) / 2)
-        + CreaturePlugin.GetKnowsFeat(player.oid, (int)Feat.Toughness)) * improvedHealth);*/
-
       Task waitForTorilNecklaceChange = NwTask.Run(async () =>
       {
         await NwTask.WaitUntil(() => oPC.GetItemInSlot(InventorySlot.Neck)?.Tag != "amulettorillink");
@@ -278,7 +272,7 @@ namespace NWN.Systems
         newCharacter.oid.ActionEquipItem(pcSkin, InventorySlot.CreatureSkin);
       }
 
-      var query = NWScript.SqlPrepareQueryCampaign(Systems.Config.database, $"INSERT INTO playerCharacters (accountId , characterName, dateLastSaved, currentSkillType, currentSkillJob, currentCraftJob, currentCraftObject, frostAttackOn, areaTag, position, facing, menuOriginLeft, currentHP) VALUES (@accountId, @name, @dateLastSaved, @currentSkillType, @currentSkillJob, @currentCraftJob, @currentCraftObject, @frostAttackOn, @areaTag, @position, @facing, @menuOriginLeft, @currentHP)");
+      var query = NWScript.SqlPrepareQueryCampaign(Config.database, $"INSERT INTO playerCharacters (accountId , characterName, dateLastSaved, currentSkillType, currentSkillJob, currentCraftJob, currentCraftObject, areaTag, position, facing, menuOriginLeft, currentHP) VALUES (@accountId, @name, @dateLastSaved, @currentSkillType, @currentSkillJob, @currentCraftJob, @currentCraftObject, @areaTag, @position, @facing, @menuOriginLeft, @currentHP)");
       NWScript.SqlBindInt(query, "@accountId", newCharacter.accountId);
       NWScript.SqlBindString(query, "@name", NWScript.GetName(newCharacter.oid));
       NWScript.SqlBindString(query, "@dateLastSaved", DateTime.Now.ToString());
@@ -286,7 +280,6 @@ namespace NWN.Systems
       NWScript.SqlBindInt(query, "@currentSkillJob", (int)CustomFeats.Invalid);
       NWScript.SqlBindInt(query, "@currentCraftJob", -10);
       NWScript.SqlBindString(query, "@currentCraftObject", "");
-      NWScript.SqlBindInt(query, "@frostAttackOn", 0);
       NWScript.SqlBindString(query, "@areaTag", NWScript.GetTag(arrivalArea));
 
       if (arrivalPoint.IsValid)
@@ -461,7 +454,7 @@ namespace NWN.Systems
     }
     private static void InitializePlayerCharacter(Player player)
     {
-      var query = NWScript.SqlPrepareQueryCampaign(Config.database, $"SELECT areaTag, position, facing, currentHP, bankGold, dateLastSaved, currentSkillJob, currentCraftJob, currentCraftObject, currentCraftJobRemainingTime, currentCraftJobMaterial, frostAttackOn, menuOriginTop, menuOriginLeft, currentSkillType from playerCharacters where rowid = @characterId");
+      var query = NWScript.SqlPrepareQueryCampaign(Config.database, $"SELECT areaTag, position, facing, currentHP, bankGold, dateLastSaved, currentSkillJob, currentCraftJob, currentCraftObject, currentCraftJobRemainingTime, currentCraftJobMaterial, menuOriginTop, menuOriginLeft, currentSkillType from playerCharacters where rowid = @characterId");
       NWScript.SqlBindInt(query, "@characterId", player.characterId);
       NWScript.SqlStep(query);
       player.playerJournal = new PlayerJournal();
@@ -472,10 +465,9 @@ namespace NWN.Systems
       player.dateLastSaved = DateTime.Parse(NWScript.SqlGetString(query, 5));
       player.currentSkillJob = NWScript.SqlGetInt(query, 6);
       player.craftJob = new Job(NWScript.SqlGetInt(query, 7), NWScript.SqlGetString(query, 10), NWScript.SqlGetFloat(query, 9), player, NWScript.SqlGetString(query, 8));
-      player.isFrostAttackOn = Convert.ToBoolean(NWScript.SqlGetInt(query, 11));
-      player.menu.originTop = NWScript.SqlGetInt(query, 12);
-      player.menu.originLeft = NWScript.SqlGetInt(query, 13);
-      player.currentSkillType = (SkillSystem.SkillType)NWScript.SqlGetInt(query, 14);
+      player.menu.originTop = NWScript.SqlGetInt(query, 11);
+      player.menu.originLeft = NWScript.SqlGetInt(query, 12);
+      player.currentSkillType = (SkillSystem.SkillType)NWScript.SqlGetInt(query, 13);
 
       if (ObjectPlugin.GetInt(player.oid, "_REINIT_DONE") == 0 && player.currentSkillType == SkillSystem.SkillType.Skill)
         player.currentSkillJob = (int)CustomFeats.Invalid;

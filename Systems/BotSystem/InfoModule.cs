@@ -56,7 +56,7 @@ namespace NWN.Systems
     public async Task GetDescriptionAsync(string nom_perso, string nom_description)
       => await BotSystem.ExecuteGetDescriptionCommand(Context, nom_perso, nom_description);
 
-    [Command("remdesc")]
+    [Command("supdesc")]
     [Summary("Supprime la description demandée pour un personnage donné.")]
     public async Task DeleteDescriptionAsync(string nom_perso, string nom_description)
       => await BotSystem.ExecuteDeleteDescriptionCommand(Context, nom_perso, nom_description);
@@ -65,6 +65,26 @@ namespace NWN.Systems
     [Summary("Enregistre ou modifie la description pour une zone donnée à partir de son tag.")]
     public async Task SaveAreaDescriptionAsync(string tag_zone, string texte_description)
           => await BotSystem.ExecuteSaveAreaDescriptionCommand(Context, tag_zone, texte_description);
+
+    [Command("rumeur")]
+    [Summary("Enregistre ou modifie une rumeur.")]
+    public async Task SaveRumorAsync(string titre_rumeur, string contenu_rumeur)
+      => await BotSystem.ExecuteSaveRumorCommand(Context, titre_rumeur, contenu_rumeur);
+
+    [Command("rumeur")]
+    [Summary("Affiche la liste de vos rumeurs actives.")]
+    public async Task GetMyRumorsListAsync()
+      => await BotSystem.ExecuteGetMyRumorsListCommand(Context);
+
+    [Command("rumeur")]
+    [Summary("Affiche le contenu de la rumeur demandée.")]
+    public async Task GetRumorAsync(int numero_rumeur)
+      => await BotSystem.ExecuteGetRumorCommand(Context, numero_rumeur);
+
+    [Command("suprumeur")]
+    [Summary("Supprime la rumeur indiquée.")]
+    public async Task DeleteRumorAsync(int numero_rumeur)
+      => await BotSystem.ExecuteDeleteRumorCommand(Context, numero_rumeur);
 
     [Command("reboot")]
     [Summary("Reboot le module.")]
@@ -75,6 +95,11 @@ namespace NWN.Systems
     [Summary("Lié à reboot.")]
     public async Task RefillAsync()
       => await BotSystem.ExecuteRefillCommand(Context);
+
+    [Command("requete")]
+    [Summary("Commande dm.")]
+    public async Task HandleDBRequestAsync(string content)
+      => await BotSystem.ExecuteDBRequestCommand(Context, content);
 
     [Command("univers")]
     [Summary("Affiche des informations au sujet de l'univers des Larmes des Erylies et de l'arrivée des joueurs dans l'archipel.")]
