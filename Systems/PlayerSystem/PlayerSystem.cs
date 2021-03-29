@@ -400,7 +400,7 @@ namespace NWN.Systems
       int spellId = onCombatRoundEnd.Creature.GetLocalVariable<int>("_AUTO_SPELL").Value;
       NwObject target = onCombatRoundEnd.Creature.GetLocalVariable<NwObject>("_AUTO_SPELL_TARGET").Value;
 
-      if(target != null)
+      if(target != null && target.IsValid)
         onCombatRoundEnd.Creature.ActionCastSpellAt((Spell)spellId, (NwGameObject)target);
       else
       {

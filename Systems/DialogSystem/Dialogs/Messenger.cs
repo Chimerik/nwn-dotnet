@@ -12,15 +12,19 @@ namespace NWN.Systems
     {
       this.DrawWelcomePage(player);
     }
-    private void DrawWelcomePage(PlayerSystem.Player player)
+    private void DrawWelcomePage(Player player)
     {
       player.menu.Clear();
       player.menu.titleLines = new List<string> {
-        $"Bientôt, il me sera possible de transmettre et recevoir des messages pour vous.",
-        "Mais le temps n'est pas encore venu ..."
+        "Salutations. Je suis à votre service pour l'envoi et la réception de message écrits.",
+        "Je puis également vous assister dans la création d'ouvrages.",
+        "Que souhaitez-vous faire ?"
       };
 
-      player.menu.choices.Add(("Quitter [En cours de développement]", () => player.menu.Close()));
+      /*player.menu.choices.Add(("Lire mes messages.", () => player.menu.Close()));
+      player.menu.choices.Add(("Rédiger un message.", () => player.menu.Close()));
+      player.menu.choices.Add(("Rédiger un ouvrage.", () => player.menu.Close()));*/
+      player.menu.choices.Add(("Quitter.", () => player.menu.Close()));
       player.menu.Draw();
     }
   }

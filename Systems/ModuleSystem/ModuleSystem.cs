@@ -37,6 +37,7 @@ namespace NWN.Systems
 
       RestorePlayerCorpseFromDatabase();
       RestorePlayerShopsFromDatabase();
+      RestorePlayerAuctionsFromDatabase();
       RestoreDMPersistentPlaceableFromDatabase();
 
       float resourceRespawnTime;

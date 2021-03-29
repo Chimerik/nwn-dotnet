@@ -9,7 +9,6 @@ namespace NWN.Systems
     {
       await context.Channel.SendMessageAsync("Backlog de projets en attente\n" +
         "    - Malus de mort\n" +
-        "    - Système de durabilité des objets\n" +
         "    - Système de lycanthropie(et autres malédictions)\n" +
         "    - Métier recherche d'enchantement\n" +
         "    - Système de remboursement de la dette en cas de non solvabilité\n" +
@@ -19,7 +18,6 @@ namespace NWN.Systems
         "    - Métier Craft potions\n" +
         "    - Métier Craft baguettes\n" +
         "    - Métier Craft meubles persistants(via menuiserie / ébenisterie)\n" +
-        "    - Système de messagerie + écriture de livre\n" +
         "    - Métier 'Professeur'\n" +
         "    - Système de déguisement\n" +
         "    - Renommer ses invocations\n" +

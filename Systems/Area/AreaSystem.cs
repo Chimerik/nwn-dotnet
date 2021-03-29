@@ -205,12 +205,23 @@ namespace NWN.Systems
     }
     private static void OnTheaterSceneEnter(TriggerEvents.OnEnter onEnter)
     {
-      onEnter.EnteringObject.VisualTransform.Translation.Z += 2.01f;
+      VisualTransform transfo = onEnter.EnteringObject.VisualTransform;
+      transfo.Translation.Z += 2.01f;
+      onEnter.EnteringObject.VisualTransform = transfo;
     }
 
     private static void OnTheaterSceneExit(TriggerEvents.OnExit onExit)
     {
-      onExit.ExitingObject.VisualTransform.Translation.Z = 0.0f;
+      if (onExit.ExitingObject == null)
+      {
+        Log.Info("Exiting object was null");
+      }
+      else
+      {
+        VisualTransform transfo = onExit.ExitingObject.VisualTransform;
+        transfo.Translation.Z = 0.0f;
+        onExit.ExitingObject.VisualTransform = transfo;
+      }
     }
   }
 }

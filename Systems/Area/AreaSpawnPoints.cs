@@ -5,6 +5,7 @@ using System;
 using NWN.API.Constants;
 using NWN.Core;
 using System.Threading.Tasks;
+using System.Linq;
 
 namespace NWN.Systems
 {
@@ -59,7 +60,10 @@ namespace NWN.Systems
       {
         case "ratgarou":
         case "wereboar":
+          creature.OnDeath += HandleWereInfiniteSpawn;
+          break;
         case "sim_wraith":
+          creature.OnDeath += HandleWraithInfiniteSpawn;
           break;
         default:
           creature.AiLevel = AiLevel.Low;
@@ -86,7 +90,7 @@ namespace NWN.Systems
     }
     private static void SetRandomAppearanceAndNameFrom2da(NwCreature creature, int[] appearanceArray, bool setName = false)
     {
-      int appearance = appearanceArray[NWN.Utils.random.Next(0, appearanceArray.Length)];
+      int appearance = appearanceArray[Utils.random.Next(0, appearanceArray.Length)];
       creature.CreatureAppearanceType = (AppearanceType)appearance;
 
       creature.PortraitResRef = NWScript.Get2DAString("appearance", "PORTRAIT", appearance);
@@ -99,13 +103,22 @@ namespace NWN.Systems
         creature.Name = NWScript.GetStringByStrRef(value);
       else
         Utils.LogMessageToDMs($"Apparence {appearance} - Nom non défini.");
-
-
     }
     private static void OnDeathSpawnNPCWaypoint(CreatureEvents.OnDeath onDeath)
     {
       NwWaypoint waypoint = NwWaypoint.Create(onDeath.KilledCreature.GetLocalVariable<string>("_WAYPOINT_TEMPLATE"), onDeath.KilledCreature.GetLocalVariable<API.Location>("_SPAWN_LOCATION").Value);
       waypoint.GetLocalVariable<string>("_CREATURE_TEMPLATE").Value = onDeath.KilledCreature.ResRef;
+    }
+    private static void HandleWereInfiniteSpawn(CreatureEvents.OnDeath onDeath)
+    {
+      NwWaypoint wp = onDeath.KilledCreature.GetNearestObjectsByType<NwWaypoint>().FirstOrDefault(w => w.GetLocalVariable<string>("_CREATURE_TEMPLATE").Value == onDeath.KilledCreature.ResRef);
+      NwCreature.Create(onDeath.KilledCreature.ResRef, wp.Location).OnDeath += HandleWereInfiniteSpawn;
+    }
+    private static void HandleWraithInfiniteSpawn(CreatureEvents.OnDeath onDeath)
+    {
+      NwWaypoint wp = onDeath.KilledCreature.GetNearestObjectsByType<NwWaypoint>().FirstOrDefault(w => w.GetLocalVariable<string>("_CREATURE_TEMPLATE").Value == onDeath.KilledCreature.ResRef);
+      NwCreature.Create(onDeath.KilledCreature.ResRef, wp.Location).OnDeath += HandleWraithInfiniteSpawn;
+      NwCreature.Create(onDeath.KilledCreature.ResRef, wp.Location).OnDeath += HandleWraithInfiniteSpawn;
     }
     private static void SetNPCEvents(NwCreature creature)
     {

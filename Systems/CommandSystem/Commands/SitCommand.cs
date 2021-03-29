@@ -18,7 +18,7 @@ namespace NWN.Systems
         player.menu.Close();
         player.menu.isOpen = true;
 
-        PlayerSystem.cursorTargetService.EnterTargetMode(player.oid, SitDown, ObjectTypes.All, MouseCursor.Walk);
+        PlayerSystem.cursorTargetService.EnterTargetMode(player.oid, SitDown, ObjectTypes.All, MouseCursor.Action);
       }
     }
     private static async void SitDown(CursorTargetData selection)

@@ -8,7 +8,7 @@ namespace NWN.Systems
         public static async Task ExecuteDisplayDevInfoCommand(SocketCommandContext context)
         {
             await context.Channel.SendMessageAsync("Développements et tâches en cours\n" +
-              "    - Système d'usure du matériel + recyclage + réparation\n" +
+              "    - Système de messagerie + écriture de livre\n" +
               "    - Système de transport de matières premières\n" +
               "    - Système d'arène PvE => construire combats intéressants et équilibrés + récompenses\n" +
               "    - Maps ?\n" +

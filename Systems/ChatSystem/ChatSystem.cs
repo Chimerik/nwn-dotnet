@@ -263,7 +263,7 @@ namespace NWN.Systems
         if (i % 2 == 0)
           sColored += s;
         else
-          sColored += $" * {s} * ".ColorString(Color.ORANGE);
+          sColored += $" * {s} * ".ColorString(new Color(32, 255, 32));
 
         i++;
       }
