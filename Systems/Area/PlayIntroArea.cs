@@ -112,7 +112,7 @@ namespace NWN.Systems
 
         await NwTask.WaitUntil(() => oPC.Location.Area != null);
         await oPC.PlayAnimation(Animation.LoopingDeadBack, 1, true, TimeSpan.FromSeconds(99999999));
-        oPC.FloatingTextString("En dehors des épaves de navires éparpillées toutes autour de vous, la plage sur laquelle vous avez atterri semble étrangement calme et agréable. Nulle trace de votre équipage ou des biens que vous aviez emportés. Devant vous se dressent les murailles d'une ville ancienne et délabrée. Qu'allez-vous faire maintenant ?".ColorString(Color.SILVER), false);
+        oPC.FloatingTextString("En dehors des épaves de navires éparpillées tout autour de vous, la plage sur laquelle vous avez atterri semble étrangement calme et agréable. Nulle trace de votre équipage ou des biens que vous aviez emportés. Devant vous se dressent les murailles d'une ville ancienne et délabrée. Qu'allez-vous faire maintenant ?".ColorString(Color.SILVER), false);
       });
     }
     private static void TriggerRandomLightnings(NwArea area, Vector3 center, int maxDistance, NwPlayer oPC)

@@ -84,8 +84,7 @@ namespace NWN.Systems
     {
       player.menu.Clear();
       player.menu.titleLines.Add($"Quelle rumeur souhaitez-vous supprimer ?");
-      player.menu.Draw();
-
+      
       var query = NWScript.SqlPrepareQueryCampaign(Config.database, $"SELECT title, rowid from rumors where accountId = @accountId");
       NWScript.SqlBindInt(query, "@accountId", player.accountId);
 
@@ -95,6 +94,9 @@ namespace NWN.Systems
         rumorTitle = NWScript.SqlGetString(query, 0);
         player.menu.choices.Add((rumorTitle, () => HandleDeleteRumor(rumorId)));
       }
+
+      player.menu.choices.Add(("Retour", () => DrawWelcomePage()));
+      player.menu.Draw();
     }
     private void HandleDeleteRumor(int rumorId)
     {
@@ -109,8 +111,7 @@ namespace NWN.Systems
     {
       player.menu.Clear();
       player.menu.titleLines.Add("Quelle rumeur majeure souhaitez-vous entendre ?");
-      player.menu.Draw();
-
+      
       var query = NWScript.SqlPrepareQueryCampaign(Config.database, "SELECT title, content from rumors r " +
         "LEFT JOIN PlayerAccounts pa on r.accountId = pa.ROWID " +
         "where pa.rank in ('admin', 'staff')");
@@ -121,12 +122,14 @@ namespace NWN.Systems
         rumorTitle = NWScript.SqlGetString(query, 0);
         player.menu.choices.Add((rumorTitle, () => HandleRumorSelected(rumorContent)));
       }
+
+      player.menu.choices.Add(("Retour", () => DrawWelcomePage()));
+      player.menu.Draw();
     }
     private void DrawPCRumorsList()
     {
       player.menu.Clear();
       player.menu.titleLines.Add("Quel potin souhaitez-vous entendre ?");
-      player.menu.Draw();
 
       var query = NWScript.SqlPrepareQueryCampaign(Config.database, "SELECT title, content from rumors r " +
         "LEFT JOIN PlayerAccounts pa on r.accountId = pa.ROWID " +
@@ -138,6 +141,9 @@ namespace NWN.Systems
         rumorTitle = NWScript.SqlGetString(query, 0);
         player.menu.choices.Add((rumorTitle, () => HandleRumorSelected(rumorContent)));
       }
+
+      player.menu.choices.Add(("Retour", () => DrawWelcomePage()));
+      player.menu.Draw();
     }
     private void HandleRumorSelected(string rumorContent)
     {
@@ -153,7 +159,7 @@ namespace NWN.Systems
         player.oid.Description = originalDesc;
       });
 
-      player.menu.Close();
+      //player.menu.Close();
     }
   }
 }

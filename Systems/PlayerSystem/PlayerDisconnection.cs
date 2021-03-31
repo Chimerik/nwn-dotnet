@@ -38,7 +38,7 @@ namespace NWN.Systems
 
         Log.Info($"Party buff removed");
 
-        if (player.oid.Area.Tag == $"entrepotpersonnel_{player.oid.CDKey}")
+        if (player.oid.Area != null && player.oid.Area.Tag == $"entrepotpersonnel_{player.oid.CDKey}")
         {
           var saveStorage = NWScript.SqlPrepareQueryCampaign(Config.database,
             $"UPDATE playerCharacters set storage = @storage where rowid = @characterId");

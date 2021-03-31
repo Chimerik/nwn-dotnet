@@ -202,7 +202,7 @@ namespace NWN.Systems
     }
     public void HandleCloseEnchantementBassin(PlaceableEvents.OnClose onClose)
     {
-      NwCreature oPC = onClose.LastClosedBy;
+      NwCreature oPC = onClose.ClosedBy;
 
       if (!PlayerSystem.Players.TryGetValue(oPC, out PlayerSystem.Player player))
         NWScript.SendMessageToPC(oPC, "Player is not valid.");
@@ -229,8 +229,8 @@ namespace NWN.Systems
     }
     private void HandleSetUpDeadCreatureCorpse(CreatureEvents.OnSpawn onSpawn)
     {
-      NwItem.Create("undroppable_item", onSpawn.Creature).Droppable = true;
-      onSpawn.Creature.Lootable = true;
+      //NwItem.Create("undroppable_item", onSpawn.Creature).Droppable = true;
+      //onSpawn.Creature.Lootable = true;
       onSpawn.Creature.ApplyEffect(EffectDuration.Instant, API.Effect.Death());
     }
     public static void OnUsedPlayerOwnedShop(PlaceableEvents.OnUsed onUsed)

@@ -277,7 +277,7 @@ namespace NWN.Systems
           newRock.GetLocalVariable<int>("_ORE_AMOUNT").Value = 50 * NwRandom.Roll(NWN.Utils.random, 100);
           ressourcePoint.Destroy();
 
-          Log.Info($"REFILL - {ressourcePoint.Area} - {ressourcePoint.Name}");
+          Log.Info($"REFILL - {ressourcePoint.Area.Name} - {ressourcePoint.Name}");
         }
       }
 

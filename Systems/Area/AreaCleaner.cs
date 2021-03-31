@@ -61,8 +61,7 @@ namespace NWN.Systems
           });
         }
 
-        Log.Info($"destroying creature {creature.Name}");
-        NWN.Utils.DestroyInventory(creature);
+        Utils.DestroyInventory(creature);
         creature.Destroy(0.2f);
       }
 

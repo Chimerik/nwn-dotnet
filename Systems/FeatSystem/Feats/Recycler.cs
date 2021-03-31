@@ -21,7 +21,6 @@ namespace NWN.Systems
 
       NwItem item = (NwItem)oTarget;
       string material;
-      string itemRegisteredMaterial;
       
       switch (item.BaseItemType)
       {
@@ -49,7 +48,6 @@ namespace NWN.Systems
           player.craftJob.Start(Craft.Job.JobType.Recycling, null, player, null, item, material);
           break;
 
-          break;
         case BaseItemType.Helmet:
         case BaseItemType.TowerShield:
         case BaseItemType.LargeShield:

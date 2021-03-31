@@ -7,7 +7,7 @@ namespace NWN.Systems
   {
     public static int CheckPlayerCredentialsFromDiscord(SocketCommandContext context, string sPCName)
     {
-      var query = NWScript.SqlPrepareQueryCampaign(Systems.Config.database, $"SELECT pc.ROWID from PlayerAccounts " +
+      var query = NWScript.SqlPrepareQueryCampaign(Config.database, $"SELECT pc.ROWID from PlayerAccounts " +
         $"LEFT join playerCharacters pc on pc.accountId = PlayerAccounts.ROWID WHERE discordId = @discordId and pc.characterName = @characterName");
       NWScript.SqlBindString(query, "@discordId", context.User.Id.ToString());
       NWScript.SqlBindString(query, "@characterName", sPCName);
@@ -27,7 +27,7 @@ namespace NWN.Systems
     }
     public static int GetPlayerAccountIdFromDiscord(ulong UserId)
     {
-      var query = NWScript.SqlPrepareQueryCampaign(Config.database, $"SELECT accountId from PlayerAccounts WHERE discordId = @discordId");
+      var query = NWScript.SqlPrepareQueryCampaign(Config.database, $"SELECT ROWID from PlayerAccounts WHERE discordId = @discordId");
       NWScript.SqlBindString(query, "@discordId", UserId.ToString());
       if (NWScript.SqlStep(query) == 1)
         return NWScript.SqlGetInt(query, 0);
