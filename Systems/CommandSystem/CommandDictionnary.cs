@@ -116,6 +116,14 @@ namespace NWN.Systems
         )
       },
       {
+        "kick",
+        new Command(
+          name: "kick",
+          description: new Command.Description(title: "Permet de kick un joueur hors du serveur."),
+          execute: ExecuteKickCommand
+        )
+      },
+      {
         "persist",
         new Command(
           name: "persist",

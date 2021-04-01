@@ -51,6 +51,56 @@ namespace NWN.Systems
         await NwTask.Delay(TimeSpan.FromSeconds(resourceRespawnTime));
         await SpawnCollectableResources(resourceRespawnTime);
       });
+
+      API.Location spawnLoc = NwModule.Instance.Areas.FirstOrDefault(a => a.Tag == "entrepotpersonnel").FindObjectsOfTypeInArea<NwPlaceable>().FirstOrDefault(s => s.Tag == "ps_entrepot").Location;
+
+      var query = NWScript.SqlPrepareQueryCampaign(Config.database, $"SELECT storage, ROWID from playerCharacters");
+      while (NWScript.SqlStep(query) != 0)
+      {
+        NwObject test = NWScript.SqlGetObject(query, 0, spawnLoc).ToNwObject<NwObject>();
+
+        if (test is NwStore)
+          continue;
+
+        NwPlaceable oldStorage;
+        NwStore newStorage = NwStore.Create("generic_shop_res", spawnLoc);
+
+        if (test == null)
+        {
+          NwItem oItem = NwItem.Create("bad_armor", newStorage.Location);
+          newStorage.AcquireItem(oItem);
+          oItem = NwItem.Create("bad_club", newStorage);
+          newStorage.AcquireItem(oItem);
+          oItem = NwItem.Create("bad_shield", newStorage);
+          newStorage.AcquireItem(oItem);
+          oItem = NwItem.Create("bad_sling", newStorage);
+          newStorage.AcquireItem(oItem);
+          oItem = NwItem.Create("NW_WAMBU001", newStorage, 99);
+          newStorage.AcquireItem(oItem);
+        }
+        else
+        {
+          oldStorage = (NwPlaceable)test;
+          foreach (NwItem item in oldStorage.Inventory.Items)
+            item.Clone(newStorage);
+
+          oldStorage.Destroy();
+        }
+
+        int characterId = NWScript.SqlGetInt(query, 1);
+
+        Task waitLoopEnd = NwTask.Run(async () =>
+        {
+          await NwTask.Delay(TimeSpan.FromSeconds(1));
+
+          var query = NWScript.SqlPrepareQueryCampaign(Config.database, $"UPDATE playerCharacters set storage = @storage where rowid = @characterId");
+          NWScript.SqlBindInt(query, "@characterId", characterId);
+          NWScript.SqlBindObject(query, "@storage", newStorage);
+          NWScript.SqlStep(query);
+
+          newStorage.Destroy();
+        });
+      }
     }
     private async void LoadDiscordBot()
     {

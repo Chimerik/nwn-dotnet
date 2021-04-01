@@ -42,6 +42,14 @@ namespace NWN.System
         }
       }
 
+      if (store.Tag.StartsWith("_PLAYER_STORAGE_"))
+      {
+        EventsPlugin.SkipEvent();
+        item.Clone(player.oid, null, true);
+        item.Destroy();
+        return;
+      }
+
       if (store.Tag.StartsWith("_PLAYER_AUCTION_"))
       {
         EventsPlugin.SkipEvent();
@@ -102,7 +110,18 @@ namespace NWN.System
       if (PlayerSystem.Players.TryGetValue(callInfo.ObjectSelf, out PlayerSystem.Player player))
       {
         EventsPlugin.SkipEvent();
-        if (!NWScript.StringToObject(EventsPlugin.GetEventData("STORE")).ToNwObject<NwStore>().Tag.StartsWith("_PLAYER_SHOP_"))
+
+        NwStore store = NWScript.StringToObject(EventsPlugin.GetEventData("STORE")).ToNwObject<NwStore>();
+
+        if (store.Tag.StartsWith("_PLAYER_STORAGE_"))
+        {
+          NwItem item = NWScript.StringToObject(EventsPlugin.GetEventData("ITEM")).ToNwObject<NwItem>();
+          item.Clone(store, null, true);
+          item.Destroy();
+          return;
+        }
+
+        if (!store.Tag.StartsWith("_PLAYER_SHOP_"))
         {
           ChatPlugin.SendMessage(ChatPlugin.NWNX_CHAT_CHANNEL_PLAYER_TALK, "Navré, je n'achète rien. J'arrive déjà tout juste à m'acquiter de ma dette.",
           NWScript.GetLocalObject(NWScript.StringToObject(EventsPlugin.GetEventData("STORE")), "_STORE_NPC"), callInfo.ObjectSelf);

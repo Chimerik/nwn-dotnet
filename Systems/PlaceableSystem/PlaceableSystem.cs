@@ -97,54 +97,27 @@ namespace NWN.Systems
             if (area != null)
             {
               NwWaypoint waypoint = area.FindObjectsOfTypeInArea<NwWaypoint>().FirstOrDefault(w => w.Tag == "wp_inentrepot");
+              area.GetLocalVariable<int>("_AREA_LEVEL").Value = 0;
+              area.OnExit += AreaSystem.OnPersonnalStorageAreaExit;
 
-              if (waypoint != null)
-              {
-                //NWScript.AssignCommand(player.oid, () => NWScript.JumpToLocation(waypoint.Location));
-                Log.Info("Trying to teleport player to dimensionnal storage");
-                player.oid.Location = waypoint.Location;
-              }
-              else
-              {
-                Log.Warn("Waypoint is null");
-              }
+              player.oid.Location = waypoint.Location;
 
-              Task spawnResources = NwTask.Run(async () =>
+              Task waitAreaLoad = NwTask.Run(async () =>
               {
                 await NwTask.WaitUntil(() => player.oid.Area != null);
 
-                NwPlaceable placeable = area.FindObjectsOfTypeInArea<NwPlaceable>().FirstOrDefault(p => p.Tag == "portal_storage_out");
-
-                if (placeable != null)
-                {
-                  area.OnExit += AreaSystem.OnAreaExit;
-                }
-                else
-                {
-                  Log.Warn("Placeable is null");
-                }
-
-                area.GetLocalVariable<int>("_AREA_LEVEL").Value = 0;
-
                 NwPlaceable storage = area.FindObjectsOfTypeInArea<NwPlaceable>().FirstOrDefault(s => s.Tag == "ps_entrepot");
+                storage.OnUsed += OnUsedPersonnalStorage;
+                storage.Name = $"Entrepôt de {player.oid.Name}";
 
                 var query = NWScript.SqlPrepareQueryCampaign(Config.database, $"SELECT storage from playerCharacters where rowid = @characterId");
                 NWScript.SqlBindInt(query, "@characterId", player.characterId);
                 NWScript.SqlStep(query);
 
                 NWScript.SqlGetObject(query, 0, NWScript.GetLocation(storage));
-                storage.Destroy();
 
                 NwPlaceable portalOut = area.FindObjectsOfTypeInArea<NwPlaceable>().FirstOrDefault(p => p.Tag == "portal_storage_out");
-
-                if (portalOut != null)
-                {
-                  portalOut.OnUsed += HandlePlaceableUsed;
-                }
-                else
-                {
-                  Log.Warn("portalOut is null");
-                }
+                portalOut.OnUsed += HandlePlaceableUsed;
 
                 NwPlaceable auctionHouse = area.FindObjectsOfTypeInArea<NwPlaceable>().FirstOrDefault(p => p.Tag == "hventes");
                 auctionHouse.OnUsed += DialogSystem.StartAuctionHouseDialog;
@@ -197,8 +170,10 @@ namespace NWN.Systems
     }  
     private async void HandleDoorAutoClose(DoorEvents.OnOpen onOpen)
     {
-      await NwTask.Delay(TimeSpan.FromSeconds(5));
-      await onOpen.Door.PlayAnimation(Animation.DoorClose, 1);
+      await NwTask.Delay(TimeSpan.FromSeconds(10));
+      await onOpen.Door.Close();
+      if (onOpen.Door.TransitionTarget is NwDoor)
+        await ((NwDoor)onOpen.Door.TransitionTarget).Close();
     }
     public void HandleCloseEnchantementBassin(PlaceableEvents.OnClose onClose)
     {
@@ -277,6 +252,23 @@ namespace NWN.Systems
         shop.Open(player.oid);
         PlayerOwnedAuction.GetAuctionPrice(player, shop, onUsed.Placeable);
       }
+    }
+    public static void OnUsedPersonnalStorage(PlaceableEvents.OnUsed onUsed)
+    {
+      if (!Players.TryGetValue(onUsed.UsedBy, out Player player))
+        return;
+
+      NwStore storage = onUsed.Placeable.GetNearestObjectsByType<NwStore>().FirstOrDefault();
+
+      if(storage == null)
+      {
+        Utils.LogMessageToDMs($"Entrepôt personnel non initialisé pour : {onUsed.UsedBy.Name}");
+        return;
+      }
+
+      storage.Tag = $"_PLAYER_STORAGE_{player.characterId}";
+      storage.GetLocalVariable<int>("_OWNER_ID").Value = player.characterId;
+      storage.Open(player.oid);
     }
   }
 }

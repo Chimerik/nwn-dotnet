@@ -254,22 +254,35 @@ namespace NWN.Systems
     }
     public static void ProcessEmoteColorationMiddleware(Context ctx, Action next)
     {
-      string[] sArray = ctx.msg.Split('*', '*');
-      string sColored = "";
-      int i = 0;
+      int starCount = ctx.msg.ToCharArray().Count(c => c == '*');
+      string message = ctx.msg;
 
-      foreach (string s in sArray)
+      if (starCount == 1)
       {
-        if (i % 2 == 0)
-          sColored += s;
-        else
-          sColored += $" * {s} * ".ColorString(new Color(32, 255, 32));
+        message.ColorString(Color.RED);
+      }
+      else if (starCount > 1)
+      {
+        string[] sArray = ctx.msg.Split('*', '*');
+        string sColored = "";
+        int i = 0;
 
-        i++;
+        foreach (string s in sArray)
+        {
+          if (i % 2 == 0)
+            sColored += s;
+          else
+            sColored += $" * {s} * ".ColorString(new Color(168, 64, 49));
+          // test : color vert mp = new Color(32, 255, 32)
+
+          i++;
+        }
+
+        message = sColored;
       }
 
       ChatPlugin.SkipMessage();
-      ChatPlugin.SendMessage(ctx.channel, sColored, ctx.oSender);
+      ChatPlugin.SendMessage(ctx.channel, message, ctx.oSender);
 
       next();
     }

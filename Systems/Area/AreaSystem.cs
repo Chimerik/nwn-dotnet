@@ -82,31 +82,13 @@ namespace NWN.Systems
 
       if (oPC.IsDM || oPC.IsDMPossessed || oPC.IsPlayerDM)
         return;
-
+      
       int nbPlayersInArea = area.FindObjectsOfTypeInArea<NwPlayer>().Count(p => !p.IsDM && !p.IsDMPossessed && !p.IsPlayerDM);
 
       if (nbPlayersInArea < 1)
         AreaCleaner(area);
 
-      if (area.Tag == $"entrepotpersonnel_{oPC.CDKey}")
-      {
-        NwPlaceable storage = area.FindObjectsOfTypeInArea<NwPlaceable>().Where(s => s.Tag == "ps_entrepot").FirstOrDefault();
-
-        if (!storage.IsValid)
-        {
-          Utils.LogMessageToDMs($"{area.Name} - {oPC.Name} - Le coffre personnel n'a pas pu être trouvé.");
-          return;
-        }
-
-        var saveStorage = NWScript.SqlPrepareQueryCampaign(Config.database, $"UPDATE playerCharacters set storage = @storage where rowid = @characterId");
-        NWScript.SqlBindInt(saveStorage, "@characterId", ObjectPlugin.GetInt(oPC, "characterId"));
-        NWScript.SqlBindObject(saveStorage, "@storage", storage);
-        NWScript.SqlStep(saveStorage);
-        AreaDestroyer(area);
-      }
-      else if (area.Tag == $"entry_scene_{oPC.CDKey}")
-        AreaDestroyer(area);
-      else if (PlayerSystem.Players.TryGetValue(oPC, out PlayerSystem.Player player))
+      if (PlayerSystem.Players.TryGetValue(oPC, out PlayerSystem.Player player))
       {
         player.previousLocation = player.location;
 
@@ -121,6 +103,53 @@ namespace NWN.Systems
           player.areaExplorationStateDictionnary[onExit.Area.Tag] = PlayerPlugin.GetAreaExplorationState(onExit.ExitingObject, onExit.Area);
         }
       }
+    }
+    public static void OnPersonnalStorageAreaExit(AreaEvents.OnExit onExit)
+    {
+      NwArea area = onExit.Area;
+      NwGameObject oExited = onExit.ExitingObject;
+
+      if (!(oExited is NwPlayer))
+        return;
+
+      NwPlayer oPC = (NwPlayer)oExited;
+
+      NWScript.WriteTimestampedLogEntry($"{oPC.Name} exited area {area.Name}");
+
+      if (area.Tag == $"entrepotpersonnel_{oPC.CDKey}")
+      {
+        NwStore storage = area.FindObjectsOfTypeInArea<NwStore>().FirstOrDefault();
+
+        if (!storage.IsValid)
+        {
+          Utils.LogMessageToDMs($"{area.Name} - {oPC.Name} - Le coffre personnel n'a pas pu être trouvé.");
+          return;
+        }
+
+        var saveStorage = NWScript.SqlPrepareQueryCampaign(Config.database, $"UPDATE playerCharacters set storage = @storage where rowid = @characterId");
+        NWScript.SqlBindInt(saveStorage, "@characterId", ObjectPlugin.GetInt(oPC, "characterId"));
+        NWScript.SqlBindObject(saveStorage, "@storage", storage);
+        NWScript.SqlStep(saveStorage);
+        AreaDestroyer(area);
+      }
+    }
+    public static void OnIntroAreaExit(AreaEvents.OnExit onExit)
+    {
+      NwArea area = onExit.Area;
+      NwGameObject oExited = onExit.ExitingObject;
+
+      if (!(oExited is NwPlayer))
+        return;
+
+      NwPlayer oPC = (NwPlayer)oExited;
+
+      NWScript.WriteTimestampedLogEntry($"{oPC.Name} exited area {area.Name}");
+
+      if (oPC.IsDM || oPC.IsDMPossessed || oPC.IsPlayerDM)
+        return;
+
+      if (area.Tag == $"entry_scene_{oPC.CDKey}")
+        AreaDestroyer(area);
     }
     private void DoAreaSpecificInitialisation(NwArea area)
     {

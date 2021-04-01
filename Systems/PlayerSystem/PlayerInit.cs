@@ -115,13 +115,13 @@ namespace NWN.Systems
         }
       }
 
-      int improvedConst = 0;
-      if (player.learntCustomFeats.ContainsKey(CustomFeats.ImprovedConstitution))
-        improvedConst = SkillSystem.GetCustomFeatLevelFromSkillPoints(CustomFeats.ImprovedConstitution, player.learntCustomFeats[CustomFeats.ImprovedConstitution]);
-
       int improvedHealth = 0;
       if (player.learntCustomFeats.ContainsKey(CustomFeats.ImprovedHealth))
         improvedHealth = SkillSystem.GetCustomFeatLevelFromSkillPoints(CustomFeats.ImprovedHealth, player.learntCustomFeats[CustomFeats.ImprovedHealth]);
+
+      CreaturePlugin.SetMaxHitPointsByLevel(player.oid, 1, Int32.Parse(NWScript.Get2DAString("classes", "HitDie", 43))
+        + (1 + 3 * ((player.oid.GetAbilityScore(Ability.Constitution, true) - 10) / 2)
+        + CreaturePlugin.GetKnowsFeat(player.oid, (int)Feat.Toughness)) * improvedHealth);
 
       if (player.currentHP <= 0)
         oPC.ApplyEffect(EffectDuration.Instant, API.Effect.Death());
@@ -228,7 +228,7 @@ namespace NWN.Systems
       if (Config.env == Config.Env.Prod || Config.env == Config.Env.Chim)
       {
         arrivalArea = NwArea.Create("intro_galere", $"entry_scene_{newCharacter.oid.CDKey}", $"La galère de {newCharacter.oid.Name} (Bienvenue !)");
-        arrivalArea.OnExit += AreaSystem.OnAreaExit;
+        arrivalArea.OnExit += AreaSystem.OnIntroAreaExit;
         arrivalPoint = arrivalArea.FindObjectsOfTypeInArea<NwWaypoint>().FirstOrDefault(o => o.Tag == "ENTRY_POINT");
 
         foreach (NwObject fog in arrivalArea.FindObjectsOfTypeInArea<NwPlaceable>().Where(o => o.Tag == "intro_brouillard"))
@@ -552,7 +552,7 @@ namespace NWN.Systems
     }
     private static void InitializeNewCharacterStorage(Player player)
     {
-      NwPlaceable storage = NwModule.Instance.Areas.FirstOrDefault(a => a.Tag == "entrepotpersonnel").FindObjectsOfTypeInArea<NwPlaceable>().FirstOrDefault(s => s.Tag == "ps_entrepot");
+      NwStore storage = NwStore.Create("generic_shop_res", NwModule.Instance.Areas.FirstOrDefault(a => a.Tag == "entrepotpersonnel").FindObjectsOfTypeInArea<NwPlaceable>().FirstOrDefault(s => s.Tag == "ps_entrepot").Location);
 
       if(storage == null)
       {
@@ -578,6 +578,8 @@ namespace NWN.Systems
       NWScript.SqlBindInt(query, "@characterId", ObjectPlugin.GetInt(player.oid, "characterId"));
       NWScript.SqlBindObject(query, "@storage", storage);
       NWScript.SqlStep(query);
+
+      storage.Destroy();
     }
     
     private static void InitializeCharacterMapPins(Player player)
