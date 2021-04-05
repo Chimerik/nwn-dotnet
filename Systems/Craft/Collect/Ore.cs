@@ -61,10 +61,8 @@ namespace NWN.Systems.Craft.Collect
 
       if (oExtractor == null) return;
 
-      NwArea area = player.oid.Area;
-
       var query = NWScript.SqlPrepareQueryCampaign(Systems.Config.database, $"SELECT mining from areaResourceStock where areaTag = @areaTag");
-      NWScript.SqlBindString(query, "@areaTag", area.Tag);
+      NWScript.SqlBindString(query, "@areaTag", player.oid.Area.Tag);
       NWScript.SqlStep(query);
 
       if (NWScript.SqlGetInt(query, 0) < 1)
@@ -84,13 +82,19 @@ namespace NWN.Systems.Craft.Collect
       int respawnChance = skillBonus * 5;
       int nbSpawns = 0;
 
+      if(respawnChance <= 0)
+      {
+        player.oid.SendServerMessage("Vous ne maîtrisez pas suffisament l'art de la prospection de minerai pour débusquer de nouveaux filons.", Color.MAROON);
+        return;
+      }
+
       foreach (NwWaypoint resourcePoint in player.oid.GetNearestObjectsByType<NwWaypoint>().Where(w => w.Tag == "ore_spawn_wp"))
       {
         int iRandom = Utils.random.Next(1, 101);
         if (iRandom < respawnChance)
         {
           NwPlaceable newRock = NwPlaceable.Create("mineable_rock", NWScript.GetLocation(resourcePoint));
-          newRock.Name = Enum.GetName(typeof(OreType), GetRandomOreSpawnFromAreaLevel(area.GetLocalVariable<int>("_AREA_LEVEL").Value));
+          newRock.Name = Enum.GetName(typeof(OreType), GetRandomOreSpawnFromAreaLevel(player.oid.Area.GetLocalVariable<int>("_AREA_LEVEL").Value));
           newRock.GetLocalVariable<int>("_ORE_AMOUNT").Value = 10 * iRandom + 10 * iRandom * skillBonus / 100;
           resourcePoint.Destroy();
           nbSpawns++;
@@ -102,7 +106,7 @@ namespace NWN.Systems.Craft.Collect
         player.oid.SendServerMessage($"Votre prospection a permis de mettre à découvert {nbSpawns} veine(s) de minerai !", Color.GREEN);
 
         query = NWScript.SqlPrepareQueryCampaign(Systems.Config.database, $"UPDATE areaResourceStock SET mining = mining - 1 where areaTag = @areaTag");
-        NWScript.SqlBindString(query, "@areaTag", area.Tag);
+        NWScript.SqlBindString(query, "@areaTag", player.oid.Area.Tag);
         NWScript.SqlStep(query);
       }
       else

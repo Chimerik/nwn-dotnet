@@ -4,6 +4,7 @@ using NWN.Services;
 using NWNX.API.Events;
 using NWNX.Services;
 using NWN.API.Constants;
+using NWN.API.Events;
 
 namespace NWN.Systems
 {
@@ -12,13 +13,9 @@ namespace NWN.Systems
   {
     private static readonly Logger Log = LogManager.GetCurrentClassLogger();
     
-    public FeatSystem(NWNXEventService nwnxEventService)
+    public static void OnUseFeatBefore(OnUseFeat onUseFeat)
     {
-      
-    }
-    public static void OnUseFeatBefore(FeatUseEvents.OnUseFeatBefore onUseFeat)
-    {
-      if (!PlayerSystem.Players.TryGetValue(onUseFeat.FeatUser, out PlayerSystem.Player oPC))
+      if (!PlayerSystem.Players.TryGetValue(onUseFeat.Creature, out PlayerSystem.Player oPC))
         return;
 
       //Log.Info($"{oPC.oid.Name} used feat {onUseFeat.Feat}");
@@ -47,20 +44,20 @@ namespace NWN.Systems
         case CustomFeats.Research:
         case CustomFeats.Metallurgy:
 
-          onUseFeat.Skip = true;
-          Craft.Blueprint.BlueprintValidation(oPC.oid, onUseFeat.TargetGameObject, (Feat)onUseFeat.Feat);
+          onUseFeat.PreventFeatUse = true;
+          Craft.Blueprint.BlueprintValidation(oPC.oid, onUseFeat.TargetObject, (Feat)onUseFeat.Feat);
           break;
 
         case CustomFeats.Recycler:
-          new Recycler(oPC.oid, onUseFeat.TargetGameObject);
+          new Recycler(oPC.oid, onUseFeat.TargetObject);
           break;
 
         case CustomFeats.Renforcement:
-          new Renforcement(oPC.oid, onUseFeat.TargetGameObject);
+          new Renforcement(oPC.oid, onUseFeat.TargetObject);
           break;
 
         case CustomFeats.SurchargeArcanique:
-          new SurchargeArcanique(oPC.oid, onUseFeat.TargetGameObject);
+          new SurchargeArcanique(oPC.oid, onUseFeat.TargetObject);
           break;
 
         case CustomFeats.CustomMenuUP:
@@ -74,12 +71,12 @@ namespace NWN.Systems
         case CustomFeats.CustomPositionRotateRight:
         case CustomFeats.CustomPositionRotateLeft:
 
-          onUseFeat.Skip = true;
+          onUseFeat.PreventFeatUse = true;
           oPC.EmitKeydown(new PlayerSystem.Player.MenuFeatEventArgs(onUseFeat.Feat));
           break;
         case CustomFeats.WoodProspection:
 
-          onUseFeat.Skip = true;
+          onUseFeat.PreventFeatUse = true;
           Craft.Collect.System.StartCollectCycle(
               oPC,
               oPC.oid.Area,
@@ -88,7 +85,7 @@ namespace NWN.Systems
           break;
         case CustomFeats.Hunting:
 
-          onUseFeat.Skip = true;
+          onUseFeat.PreventFeatUse = true;
           Craft.Collect.System.StartCollectCycle(
               oPC,
               oPC.oid.Area,

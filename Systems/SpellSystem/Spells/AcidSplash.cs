@@ -1,5 +1,4 @@
 ﻿using NWN.Core;
-using NWN.Services;
 using NWN.API;
 using NWN.API.Constants;
 using System.Threading.Tasks;
@@ -8,37 +7,32 @@ using NWN.API.Events;
 
 namespace NWN.Systems
 {
-  public partial class SpellSystem
+  class AcidSplash
   {
-    [ScriptHandler("X0_S0_AcidSplash")]
-    private void HandleAcidSplash(CallInfo callInfo)
+    public AcidSplash(SpellEvents.OnSpellCast onSpellCast)
     {
-      SpellEvents.OnSpellCast onSpellCast = new SpellEvents.OnSpellCast();
+      NwPlayer oCaster = (NwPlayer)onSpellCast.Caster;
+      int nCasterLevel = oCaster.LastSpellCasterLevel;
 
-      int nCasterLevel = 15;
-
-      if (onSpellCast.Caster is NwCreature)
-        nCasterLevel = ((NwCreature)onSpellCast.Caster).LastSpellCasterLevel;
-
-      NWScript.SignalEvent(onSpellCast.TargetObject, NWScript.EventSpellCastAt(onSpellCast.Caster, (int)onSpellCast.Spell));
-      MetaMagic nMetaMagic = (MetaMagic)NWScript.GetMetaMagicFeat();
+      NWScript.SignalEvent(onSpellCast.TargetObject, NWScript.EventSpellCastAt(oCaster, (int)onSpellCast.Spell));
 
       API.Effect eVis = API.Effect.VisualEffect(VfxType.ImpAcidS);
-      
+
       //Make SR Check
       if (SpellUtils.MyResistSpell(onSpellCast.Caster, onSpellCast.TargetObject) == 0)
       {
         //Set damage effect
         int iDamage = 3;
-        int nDamage = SpellUtils.MaximizeOrEmpower(iDamage, 1 + nCasterLevel / 6, nMetaMagic);
+        int nDamage = SpellUtils.MaximizeOrEmpower(iDamage, 1 + nCasterLevel / 6, onSpellCast.MetaMagicFeat);
         onSpellCast.TargetObject.ApplyEffect(EffectDuration.Instant, NWScript.EffectLinkEffects(eVis, API.Effect.Damage(nDamage, DamageType.Acid)));
       }
 
-      if (onSpellCast.Caster is NwPlayer && nMetaMagic == MetaMagic.None)
+      if (onSpellCast.MetaMagicFeat == MetaMagic.None)
       {
-        onSpellCast.Caster.GetLocalVariable<int>("_AUTO_SPELL").Value = (int)onSpellCast.Spell;
-        onSpellCast.Caster.GetLocalVariable<NwObject>("_AUTO_SPELL_TARGET").Value = onSpellCast.TargetObject;
-        ((NwPlayer)onSpellCast.Caster).OnCombatRoundEnd += PlayerSystem.HandleCombatRoundEndForAutoSpells;
+        oCaster.GetLocalVariable<int>("_AUTO_SPELL").Value = (int)onSpellCast.Spell;
+        oCaster.GetLocalVariable<NwObject>("_AUTO_SPELL_TARGET").Value = onSpellCast.TargetObject;
+        oCaster.OnCombatRoundEnd -= PlayerSystem.HandleCombatRoundEndForAutoSpells;
+        oCaster.OnCombatRoundEnd += PlayerSystem.HandleCombatRoundEndForAutoSpells;
 
         Task waitMovement = NwTask.Run(async () =>
         {
@@ -46,15 +40,15 @@ namespace NWN.Systems
           float posY = onSpellCast.Caster.Position.Y;
           await NwTask.WaitUntil(() => onSpellCast.Caster.Position.X != posX || onSpellCast.Caster.Position.Y != posY);
 
-          onSpellCast.Caster.GetLocalVariable<int>("_AUTO_SPELL").Delete();
-          onSpellCast.Caster.GetLocalVariable<NwObject>("_AUTO_SPELL_TARGET").Delete();
-          ((NwPlayer)onSpellCast.Caster).OnCombatRoundEnd -= PlayerSystem.HandleCombatRoundEndForAutoSpells;
+          oCaster.GetLocalVariable<int>("_AUTO_SPELL").Delete();
+          oCaster.GetLocalVariable<NwObject>("_AUTO_SPELL_TARGET").Delete();
+          oCaster.OnCombatRoundEnd -= PlayerSystem.HandleCombatRoundEndForAutoSpells;
         });
 
         Task waitSpellUsed = NwTask.Run(async () =>
         {
           await NwTask.Delay(TimeSpan.FromSeconds(0.2));
-          RestoreSpell(onSpellCast.Caster, (int)onSpellCast.Spell);
+          SpellSystem.RestoreSpell(onSpellCast.Caster, (int)onSpellCast.Spell);
         });
       }
     }

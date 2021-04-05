@@ -38,27 +38,19 @@ namespace NWN.Systems
       EventsPlugin.RemoveObjectFromDispatchList("NWNX_ON_INPUT_TOGGLE_PAUSE_BEFORE", "spacebar_down", callInfo.ObjectSelf);
     }
     [ScriptHandler("a_start_combat")]
-    private void HandleAfterStartCombat(CallInfo callInfo)
+    public static void OnCombatStarted(OnCombatStatusChange onCombatStatusChange)
     {
-      if (callInfo.ObjectSelf is NwPlayer)
-      {
-        NwPlayer oPC = (NwPlayer)callInfo.ObjectSelf;
-        API.Effect effPC = oPC.ActiveEffects.Where(e => e.EffectType == EffectType.CutsceneGhost).FirstOrDefault();
-        if (effPC != null)
-          oPC.RemoveEffect(effPC);
-      }
 
-      NwObject oTarget = NWScript.StringToObject(EventsPlugin.GetEventData("TARGET_OBJECT_ID")).ToNwObject();
+      if (onCombatStatusChange.CombatStatus == CombatStatus.ExitCombat)
+        return;
 
-      if (oTarget is NwPlayer)
-      {
-        NwPlayer target = (NwPlayer)oTarget;
-        API.Effect effTarget = target.ActiveEffects.Where(e => e.EffectType == EffectType.CutsceneGhost).FirstOrDefault();
-        if (effTarget != null)
-          target.RemoveEffect(effTarget);
-        
-        NWScript.SetPCDislike(callInfo.ObjectSelf, oTarget);
-      }
+      API.Effect effPC = onCombatStatusChange.Player.ActiveEffects.FirstOrDefault(e => e.EffectType == EffectType.CutsceneGhost);
+      if (effPC != null)
+        onCombatStatusChange.Player.RemoveEffect(effPC);
+    }
+    public static void OnCombatRoundStart(OnCombatRoundStart onStartCombatRound)
+    {
+      NWScript.SetPCDislike(onStartCombatRound.Creature, onStartCombatRound.Target);
     }
     [ScriptHandler("event_combatmode")]
     private void HandleCombatModeOff(CallInfo callInfo)
@@ -260,6 +252,9 @@ namespace NWN.Systems
     [ScriptHandler("on_input_emote")]
     private void HandleInputEmote(CallInfo callInfo)
     {
+      if (!Players.TryGetValue(callInfo.ObjectSelf, out Player player))
+        return;
+
       int animation = Utils.TranslateEngineAnimation(Int32.Parse(EventsPlugin.GetEventData("ANIMATION")));
 
       switch (animation)
@@ -267,18 +262,14 @@ namespace NWN.Systems
         case NWScript.ANIMATION_LOOPING_MEDITATE:
         case NWScript.ANIMATION_LOOPING_CONJURE1:
         case NWScript.ANIMATION_LOOPING_CONJURE2:
-        case NWScript.ANIMATION_LOOPING_DEAD_BACK:
         case NWScript.ANIMATION_LOOPING_GET_MID:
         case NWScript.ANIMATION_LOOPING_GET_LOW:
         case NWScript.ANIMATION_LOOPING_LISTEN:
-        case NWScript.ANIMATION_LOOPING_DEAD_FRONT:
         case NWScript.ANIMATION_LOOPING_LOOK_FAR:
         case NWScript.ANIMATION_LOOPING_PAUSE:
         case NWScript.ANIMATION_LOOPING_PAUSE_DRUNK:
         case NWScript.ANIMATION_LOOPING_PAUSE_TIRED:
         case NWScript.ANIMATION_LOOPING_PAUSE2:
-        case NWScript.ANIMATION_LOOPING_SIT_CHAIR:
-        case NWScript.ANIMATION_LOOPING_SIT_CROSS:
         case NWScript.ANIMATION_LOOPING_SPASM:
         case NWScript.ANIMATION_LOOPING_TALK_FORCEFUL:
         case NWScript.ANIMATION_LOOPING_TALK_LAUGHING:
@@ -287,6 +278,17 @@ namespace NWN.Systems
         case NWScript.ANIMATION_LOOPING_WORSHIP:
           EventsPlugin.SkipEvent();
           NWScript.PlayAnimation(animation, 1, 30000.0f);
+          break;
+        case NWScript.ANIMATION_LOOPING_DEAD_BACK:
+        case NWScript.ANIMATION_LOOPING_DEAD_FRONT:
+        case NWScript.ANIMATION_LOOPING_SIT_CHAIR:
+        case NWScript.ANIMATION_LOOPING_SIT_CROSS:
+          EventsPlugin.SkipEvent();
+          NWScript.PlayAnimation(animation, 1, 30000.0f);
+
+          player.menu.Close();
+          player.menu.isOpen = true;
+          player.LoadMenuQuickbar(QuickbarType.Sit);
           break;
       }
     }
@@ -391,6 +393,7 @@ namespace NWN.Systems
     }
     public static void HandleCombatRoundEndForAutoSpells(CreatureEvents.OnCombatRoundEnd onCombatRoundEnd)
     {
+      Log.Info("auto spell triggered");
       if(onCombatRoundEnd.Creature.GetLocalVariable<int>("_AUTO_SPELL").HasNothing)
       {
         onCombatRoundEnd.Creature.OnCombatRoundEnd -= HandleCombatRoundEndForAutoSpells;

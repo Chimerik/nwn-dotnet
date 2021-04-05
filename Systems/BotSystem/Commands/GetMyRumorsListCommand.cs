@@ -32,7 +32,7 @@ namespace NWN.Systems
           return;
         case "admin":
         case "staff":
-          var staffQuery = NWScript.SqlPrepareQueryCampaign(Config.database, "SELECT title, rowid, accountName from rumors r " +
+          var staffQuery = NWScript.SqlPrepareQueryCampaign(Config.database, "SELECT title, r.rowid, accountName from rumors r " +
         "LEFT JOIN PlayerAccounts pa on r.accountId = pa.ROWID ");
           string staffResult = "";
 

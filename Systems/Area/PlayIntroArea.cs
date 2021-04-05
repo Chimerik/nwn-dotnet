@@ -105,8 +105,7 @@ namespace NWN.Systems
         await oPC.ClearActionQueue();
         Utils.DestroyInventory(oPC);
         Utils.DestroyEquippedItems(oPC);
-        NwItem item = NwItem.Create("rags", oPC.Location);
-        oPC.AcquireItem(item);
+        NwItem item = NwItem.Create("rags", oPC);
         await oPC.ActionEquipItem(item, InventorySlot.Chest);
         oPC.Location = ((NwWaypoint)NwModule.FindObjectsWithTag("WP_START_NEW_CHAR").FirstOrDefault()).Location;
 

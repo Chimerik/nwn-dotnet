@@ -1,45 +1,43 @@
 ﻿using NWN.Core;
-using NWN.Services;
 using NWN.API;
 using NWN.API.Constants;
 using System;
 using System.Threading.Tasks;
+using NWN.API.Events;
 
 namespace NWN.Systems
 {
-  public partial class SpellSystem
+  class RayOfFrost
   {
-    [ScriptHandler("NW_S0_RayFrost")]
-    private void HandleRayOfFrost(CallInfo callInfo)
+    public RayOfFrost(SpellEvents.OnSpellCast onSpellCast)
     {
-      var oTarget = NWScript.GetSpellTargetObject().ToNwObject<NwGameObject>();
-      var oCaster = (NwGameObject)callInfo.ObjectSelf;
-      int nCasterLevel = NWScript.GetCasterLevel(oCaster);
-      int spellId = NWScript.GetSpellId();
-      NWScript.SignalEvent(oTarget, NWScript.EventSpellCastAt(oCaster, spellId));
-      MetaMagic nMetaMagic = (MetaMagic)NWScript.GetMetaMagicFeat();
+      NwPlayer oCaster = (NwPlayer)onSpellCast.Caster;
+      int nCasterLevel = oCaster.LastSpellCasterLevel;
+
+      NWScript.SignalEvent(onSpellCast.TargetObject, NWScript.EventSpellCastAt(oCaster, (int)onSpellCast.Spell));
 
       API.Effect eVis = API.Effect.VisualEffect(VfxType.ImpFrostS);
       API.Effect eRay = API.Effect.Beam(VfxType.BeamCold, oCaster, BodyNode.Hand);
 
       //Make SR Check
-      if (SpellUtils.MyResistSpell(oCaster, oTarget) == 0)
+      if (SpellUtils.MyResistSpell(oCaster, onSpellCast.TargetObject) == 0)
       {
-        int nDamage = SpellUtils.MaximizeOrEmpower(4, 1 + nCasterLevel / 6, nMetaMagic);
+        int nDamage = SpellUtils.MaximizeOrEmpower(4, 1 + nCasterLevel / 6, onSpellCast.MetaMagicFeat);
         //Set damage effect
         API.Effect eDam = API.Effect.Damage(nDamage, DamageType.Cold);
         //Apply the VFX impact and damage effect
-        oTarget.ApplyEffect(EffectDuration.Instant, eVis);
-        oTarget.ApplyEffect(EffectDuration.Instant, eDam);
+        onSpellCast.TargetObject.ApplyEffect(EffectDuration.Instant, eVis);
+        onSpellCast.TargetObject.ApplyEffect(EffectDuration.Instant, eDam);
       }
 
-      oTarget.ApplyEffect(EffectDuration.Temporary, eRay, TimeSpan.FromSeconds(1.7));
+      onSpellCast.TargetObject.ApplyEffect(EffectDuration.Temporary, eRay, TimeSpan.FromSeconds(1.7));
 
-      if (oCaster is NwPlayer && nMetaMagic == MetaMagic.None)
+      if (oCaster is NwPlayer && onSpellCast.MetaMagicFeat == MetaMagic.None)
       {
-        oCaster.GetLocalVariable<int>("_AUTO_SPELL").Value = spellId;
-        oCaster.GetLocalVariable<NwObject>("_AUTO_SPELL_TARGET").Value = oTarget;
-        ((NwPlayer)oCaster).OnCombatRoundEnd += PlayerSystem.HandleCombatRoundEndForAutoSpells;
+        oCaster.GetLocalVariable<int>("_AUTO_SPELL").Value = (int)onSpellCast.Spell;
+        oCaster.GetLocalVariable<NwObject>("_AUTO_SPELL_TARGET").Value = onSpellCast.TargetObject;
+        oCaster.OnCombatRoundEnd -= PlayerSystem.HandleCombatRoundEndForAutoSpells;
+        oCaster.OnCombatRoundEnd += PlayerSystem.HandleCombatRoundEndForAutoSpells;
 
         Task waitMovement = NwTask.Run(async () =>
         {
@@ -49,13 +47,13 @@ namespace NWN.Systems
 
           oCaster.GetLocalVariable<int>("_AUTO_SPELL").Delete();
           oCaster.GetLocalVariable<NwObject>("_AUTO_SPELL_TARGET").Delete();
-          ((NwPlayer)oCaster).OnCombatRoundEnd -= PlayerSystem.HandleCombatRoundEndForAutoSpells;
+          oCaster.OnCombatRoundEnd -= PlayerSystem.HandleCombatRoundEndForAutoSpells;
         });
-
+        
         Task waitSpellUsed = NwTask.Run(async () =>
         {
           await NwTask.Delay(TimeSpan.FromSeconds(0.2));
-          RestoreSpell(oCaster, spellId);
+          SpellSystem.RestoreSpell(oCaster, (int)onSpellCast.Spell);
         });
       }      
     }

@@ -58,31 +58,34 @@ namespace NWN.Systems
       while (NWScript.SqlStep(query) != 0)
       {
         NwObject test = NWScript.SqlGetObject(query, 0, spawnLoc).ToNwObject<NwObject>();
-
+        Log.Info($"idChar : {NWScript.SqlGetInt(query, 1)}");
         if (test is NwStore)
           continue;
+
+        Log.Info($"PLC detected, converting");
 
         NwPlaceable oldStorage;
         NwStore newStorage = NwStore.Create("generic_shop_res", spawnLoc);
 
         if (test == null)
         {
-          NwItem oItem = NwItem.Create("bad_armor", newStorage.Location);
-          newStorage.AcquireItem(oItem);
+          Log.Info($"get object was null, creating new storage with basic items");
+
+          NwItem oItem = NwItem.Create("bad_armor", newStorage);
           oItem = NwItem.Create("bad_club", newStorage);
-          newStorage.AcquireItem(oItem);
           oItem = NwItem.Create("bad_shield", newStorage);
-          newStorage.AcquireItem(oItem);
           oItem = NwItem.Create("bad_sling", newStorage);
-          newStorage.AcquireItem(oItem);
           oItem = NwItem.Create("NW_WAMBU001", newStorage, 99);
-          newStorage.AcquireItem(oItem);
         }
         else
         {
+          Log.Info($"object found, converting items");
           oldStorage = (NwPlaceable)test;
           foreach (NwItem item in oldStorage.Inventory.Items)
+          {
             item.Clone(newStorage);
+            item.Destroy();
+          }
 
           oldStorage.Destroy();
         }
@@ -99,6 +102,8 @@ namespace NWN.Systems
           NWScript.SqlStep(query);
 
           newStorage.Destroy();
+
+          Log.Info($"saved new storage");
         });
       }
     }
@@ -210,15 +215,6 @@ namespace NWN.Systems
     }
     private void InitializeEvents()
     {
-      EventsPlugin.SubscribeEvent("NWNX_ON_BROADCAST_CAST_SPELL_AFTER", "a_spellbroadcast");
-      EventsPlugin.ToggleDispatchListMode("NWNX_ON_BROADCAST_CAST_SPELL_AFTER", "a_spellbroadcast", 1);
-      EventsPlugin.SubscribeEvent("NWNX_ON_CAST_SPELL_BEFORE", "b_spellcast");
-      EventsPlugin.ToggleDispatchListMode("NWNX_ON_CAST_SPELL_BEFORE", "b_spellcast", 1);
-      EventsPlugin.SubscribeEvent("NWNX_ON_CAST_SPELL_AFTER", "a_spellcast");
-      EventsPlugin.ToggleDispatchListMode("NWNX_ON_CAST_SPELL_AFTER", "a_spellcast", 1);
-      //EventsPlugin.SubscribeEvent("NWNX_ON_SPELL_INTERRUPTED_AFTER", "_onspellinterrupted_after");
-      //EventsPlugin.ToggleDispatchListMode("NWNX_ON_SPELL_INTERRUPTED_AFTER", "_onspellinterrupted_after", 1);
-
       EventsPlugin.SubscribeEvent("NWNX_ON_ITEM_SCROLL_LEARN_BEFORE", "b_learn_scroll");
 
       EventsPlugin.SubscribeEvent("NWNX_ON_INPUT_TOGGLE_PAUSE_BEFORE", "spacebar_down");
@@ -238,8 +234,6 @@ namespace NWN.Systems
       EventsPlugin.SubscribeEvent("NWNX_ON_DM_GIVE_GOLD_BEFORE", "on_dm_give_gold");
       EventsPlugin.SubscribeEvent("NWNX_ON_DM_GIVE_ITEM_AFTER", "on_dm_give_item");
 
-      EventsPlugin.SubscribeEvent("NWNX_ON_START_COMBAT_ROUND_AFTER", "a_start_combat");
-      EventsPlugin.ToggleDispatchListMode("NWNX_ON_START_COMBAT_ROUND_AFTER", "a_start_combat", 1);
       EventsPlugin.SubscribeEvent("NWNX_ON_COMBAT_MODE_OFF", "event_combatmode");
       EventsPlugin.ToggleDispatchListMode("NWNX_ON_COMBAT_MODE_OFF", "event_combatmode", 1);
       EventsPlugin.SubscribeEvent("NWNX_ON_USE_SKILL_BEFORE", "event_skillused");
@@ -264,10 +258,6 @@ namespace NWN.Systems
       EventsPlugin.SubscribeEvent("NWNX_ON_JOURNAL_OPEN_AFTER", "on_journal_open");
       EventsPlugin.SubscribeEvent("NWNX_ON_JOURNAL_CLOSE_AFTER", "on_journal_close");
 
-      EventsPlugin.SubscribeEvent("NWNX_ON_STORE_REQUEST_BUY_BEFORE", "before_store_buy");
-      EventsPlugin.SubscribeEvent("NWNX_ON_STORE_REQUEST_BUY_AFTER", "after_store_buy");
-      EventsPlugin.SubscribeEvent("NWNX_ON_STORE_REQUEST_SELL_BEFORE", "b_store_sell");
-
       EventsPlugin.SubscribeEvent("NWNX_ON_MAP_PIN_ADD_PIN_AFTER", "map_pin_added");
       EventsPlugin.SubscribeEvent("NWNX_ON_MAP_PIN_CHANGE_PIN_AFTER", "map_pin_changed");
       EventsPlugin.SubscribeEvent("NWNX_ON_MAP_PIN_DESTROY_PIN_AFTER", "mappin_destroyed");
@@ -284,7 +274,7 @@ namespace NWN.Systems
     private void SetModuleTime()
     {
       var query = NWScript.SqlPrepareQueryCampaign(Config.database, $"SELECT year, month, day, hour, minute, second from moduleInfo where rowid = 1");
-      if(NWScript.SqlStep(query) == 1)
+      if(NWScript.SqlStep(query) != 0)
         NwDateTime.Now = new NwDateTime(NWScript.SqlGetInt(query, 0), NWScript.SqlGetInt(query, 1), NWScript.SqlGetInt(query, 2), NWScript.SqlGetInt(query, 3), NWScript.SqlGetInt(query, 4), NWScript.SqlGetInt(query, 5));
       else
       {
@@ -385,19 +375,19 @@ namespace NWN.Systems
           perfentry.Value.nbExecution = 0;
       }*/
 
-     /* foreach (KeyValuePair<string, GoldBalance> goldEntry in goldBalanceMonitoring)
-      {
-        query = NWScript.SqlPrepareQueryCampaign(Config.database, $"INSERT INTO goldBalance (lootedTag, nbTimesLooted, averageGold, cumulatedGold) VALUES (@lootedTag, @nbTimesLooted, @averageGold, @cumulatedGold)" +
-        "ON CONFLICT (lootedTag) DO UPDATE SET nbTimesLooted = nbTimesLooted + @nbTimesLooted, averageGold = (cumulatedGold + @cumulatedGold) / (nbTimesLooted + @nbTimesLooted), cumulatedGold = cumulatedGold + @cumulatedGold");
-        NWScript.SqlBindString(query, "@lootedTag", goldEntry.Key);
-        NWScript.SqlBindInt(query, "@nbTimesLooted", goldEntry.Value.nbTimesLooted);
-        NWScript.SqlBindInt(query, "@cumulatedGold", goldEntry.Value.cumulatedGold);
-        NWScript.SqlBindInt(query, "@averageGold", goldEntry.Value.cumulatedGold / goldEntry.Value.nbTimesLooted);
-        NWScript.SqlStep(query);
+      /* foreach (KeyValuePair<string, GoldBalance> goldEntry in goldBalanceMonitoring)
+       {
+         query = NWScript.SqlPrepareQueryCampaign(Config.database, $"INSERT INTO goldBalance (lootedTag, nbTimesLooted, averageGold, cumulatedGold) VALUES (@lootedTag, @nbTimesLooted, @averageGold, @cumulatedGold)" +
+         "ON CONFLICT (lootedTag) DO UPDATE SET nbTimesLooted = nbTimesLooted + @nbTimesLooted, averageGold = (cumulatedGold + @cumulatedGold) / (nbTimesLooted + @nbTimesLooted), cumulatedGold = cumulatedGold + @cumulatedGold");
+         NWScript.SqlBindString(query, "@lootedTag", goldEntry.Key);
+         NWScript.SqlBindInt(query, "@nbTimesLooted", goldEntry.Value.nbTimesLooted);
+         NWScript.SqlBindInt(query, "@cumulatedGold", goldEntry.Value.cumulatedGold);
+         NWScript.SqlBindInt(query, "@averageGold", goldEntry.Value.cumulatedGold / goldEntry.Value.nbTimesLooted);
+         NWScript.SqlStep(query);
 
-        goldEntry.Value.cumulatedGold = 0;
-        goldEntry.Value.nbTimesLooted = 0;
-      }*/
+         goldEntry.Value.cumulatedGold = 0;
+         goldEntry.Value.nbTimesLooted = 0;
+       }*/
 
       Task DownloadDiscordUsers = NwTask.Run(async () =>
       {
@@ -503,11 +493,8 @@ namespace NWN.Systems
           // S'il est co, on rend l'item au seller et on détruit la ligne en BDD. S'il est pas co, on attend la prochaine occurence pour lui rendre l'item
           if (oSeller != null)
           {
-            NwStore tempStore = NwStore.Deserialize<NwStore>(NWScript.SqlGetString(query, 4));
-            NwItem tempItem = tempStore.Items.FirstOrDefault();
-            tempItem.Clone(oSeller, null, true);
-            NwItem authorization = NwItem.Create("auction_clearanc", oSeller.Location);
-            oSeller.AcquireItem(authorization);
+            NwItem tempItem = NwStore.Deserialize<NwStore>(NWScript.SqlGetString(query, 4)).Items.FirstOrDefault().Clone(oSeller);
+            NwItem authorization = NwItem.Create("auction_clearanc", oSeller);
             oSeller.SendServerMessage($"Aucune enchère sur votre {tempItem.Name.ColorString(API.Color.ORANGE)}. L'objet vous a donc été restitué.");
 
             Task delayedDeletion = NwTask.Run(async () =>
@@ -532,8 +519,7 @@ namespace NWN.Systems
                 oSeller.SendServerMessage($"Votre enchère vous a permis de remporter {(highestAuction * 95 / 100).ToString().ColorString(API.Color.ORANGE)}. L'or a été versé à votre banque !");
               }
 
-              NwItem authorization = NwItem.Create("auction_clearanc", oSeller.Location);
-              oSeller.AcquireItem(authorization);
+              NwItem authorization = NwItem.Create("auction_clearanc", oSeller);
             }
             else 
             {

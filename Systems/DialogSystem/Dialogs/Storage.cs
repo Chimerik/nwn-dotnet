@@ -16,7 +16,7 @@ namespace NWN.Systems
       this.inventoryMaterials = new Dictionary<uint, string>();
       this.DrawWelcomePage(player);
     }
-    private void DrawWelcomePage(PlayerSystem.Player player)
+    private void DrawWelcomePage(Player player)
     {
       inventoryMaterials.Clear();
       player.menu.Clear();

@@ -120,10 +120,7 @@ namespace NWN.Systems
       // TODO : Diminuer la durabilité de tous les objets équipés et dans l'inventaire du PJ
 
       DestroyPlayerCorpse(player);
-      //NWScript.AssignCommand(player.oid, () => NWScript.JumpToLocation(NwModule.FindObjectsWithTag<NwWaypoint>("WP_RESPAWN_DISPENSAIRE").FirstOrDefault().Location));
-      Log.Info("Trying to teleport player to dispensaire");
       player.oid.Location = NwModule.FindObjectsWithTag<NwWaypoint>("WP_RESPAWN_DISPENSAIRE").FirstOrDefault()?.Location;
-
 
       if (player.oid.GetItemInSlot(InventorySlot.Neck)?.Tag != "amulettorillink")
       {
@@ -233,6 +230,8 @@ namespace NWN.Systems
       eLink = NWScript.EffectLinkEffects(eLink, eDamImm11);
       eLink = NWScript.EffectLinkEffects(eLink, eDamImm12);
 
+      eLink = NWScript.SupernaturalEffect(eLink);
+
       NWScript.DelayCommand(5.0f, () => NWScript.ApplyEffectToObject(NWScript.DURATION_TYPE_PERMANENT, eLink, player.oid));
     }
     private static void ApplyDireRespawnEffects(PlayerSystem.Player player)
@@ -251,6 +250,7 @@ namespace NWN.Systems
       Link = NWScript.EffectLinkEffects(Link, eAtt);
       Link = NWScript.EffectLinkEffects(Link, eMS);
 
+      Link = NWScript.SupernaturalEffect(Link);
       // +1 jet d'attaque; +1 dégat divin; +movement speed 10 %
 
       NWScript.DelayCommand(5.0f, () => NWScript.ApplyEffectToObject(NWScript.DURATION_TYPE_PERMANENT, Link, player.oid));

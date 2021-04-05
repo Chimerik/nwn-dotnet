@@ -8,6 +8,7 @@ using NWN.API.Constants;
 using NWN.API.Events;
 using NWN.Core;
 using NWN.Core.NWNX;
+using NWN.System;
 using NWN.Systems.Craft;
 using NWNX.API.Events;
 using NWNX.Services;
@@ -358,16 +359,16 @@ namespace NWN.Systems
 
       eventService.Subscribe<ItemEvents.OnItemUseBefore, NWNXEventFactory>(player.oid, ItemSystem.OnItemUseBefore)
         .Register<ItemEvents.OnItemUseBefore>();
-      eventService.Subscribe<ExamineEvents.OnExamineObjectBefore, NWNXEventFactory>(player.oid, ExamineSystem.OnExamineBefore)
-        .Register<ExamineEvents.OnExamineObjectBefore>();
-      eventService.Subscribe<ExamineEvents.OnExamineObjectAfter, NWNXEventFactory>(player.oid, ExamineSystem.OnExamineAfter)
-        .Register<ExamineEvents.OnExamineObjectAfter>();
-      eventService.Subscribe<FeatUseEvents.OnUseFeatBefore, NWNXEventFactory>(player.oid, FeatSystem.OnUseFeatBefore)
-        .Register<FeatUseEvents.OnUseFeatBefore>();
       eventService.Subscribe<ModuleEvents.OnAcquireItem, GameEventFactory>(player.oid, ItemSystem.OnAcquireItem)
         .Register<ModuleEvents.OnAcquireItem>(NwModule.Instance);
       eventService.Subscribe<ModuleEvents.OnUnacquireItem, GameEventFactory>(player.oid, ItemSystem.OnUnacquireItem)
         .Register<ModuleEvents.OnUnacquireItem>(NwModule.Instance);
+
+      player.oid.OnUseFeat += FeatSystem.OnUseFeatBefore;
+      player.oid.OnSpellCast += SpellSystem.HandleBeforeSpellCast;
+      player.oid.OnExamineObject += ExamineSystem.OnExamineBefore;
+      player.oid.OnStoreRequestBuy += StoreSystem.HandleBeforeStoreBuy;
+      player.oid.OnStoreRequestSell += StoreSystem.HandleBeforeStoreSell;
     }
     private static void InitializePlayer(Player player)
     {
@@ -422,27 +423,26 @@ namespace NWN.Systems
         .Register<ItemEvents.OnItemEquipBefore>();
       eventService.Subscribe<ItemEvents.OnItemUseBefore, NWNXEventFactory>(player, ItemSystem.OnItemUseBefore)
         .Register<ItemEvents.OnItemUseBefore>();
-      eventService.Subscribe<ExamineEvents.OnExamineObjectBefore, NWNXEventFactory>(player, ExamineSystem.OnExamineBefore)
-        .Register<ExamineEvents.OnExamineObjectBefore>();
-      eventService.Subscribe<ExamineEvents.OnExamineObjectAfter, NWNXEventFactory>(player, ExamineSystem.OnExamineAfter)
-        .Register<ExamineEvents.OnExamineObjectAfter>();
-      eventService.Subscribe<FeatUseEvents.OnUseFeatBefore, NWNXEventFactory>(player, FeatSystem.OnUseFeatBefore)
-        .Register<FeatUseEvents.OnUseFeatBefore>();
       eventService.Subscribe<ModuleEvents.OnAcquireItem, GameEventFactory>(player, ItemSystem.OnAcquireItem)
         .Register<ModuleEvents.OnAcquireItem>(NwModule.Instance);
       eventService.Subscribe<ModuleEvents.OnUnacquireItem, GameEventFactory>(player, ItemSystem.OnUnacquireItem)
         .Register<ModuleEvents.OnUnacquireItem>(NwModule.Instance);
 
+      player.OnUseFeat += FeatSystem.OnUseFeatBefore;
+      player.OnSpellCast += SpellSystem.HandleBeforeSpellCast;
+      player.OnExamineObject += ExamineSystem.OnExamineBefore;
       player.OnPerception += HandlePlayerPerception;
+      player.OnStoreRequestBuy += StoreSystem.HandleBeforeStoreBuy;
+      player.OnStoreRequestSell += StoreSystem.HandleBeforeStoreSell;
+      player.OnCombatStatusChange += OnCombatStarted;
+      player.OnCombatRoundStart += OnCombatRoundStart;
+      player.OnSpellBroadcast += SpellSystem.OnSpellBroadcast;
+      player.OnSpellAction += SpellSystem.RegisterMetaMagicOnSpellInput;
 
-      EventsPlugin.AddObjectToDispatchList("NWNX_ON_BROADCAST_CAST_SPELL_AFTER", "a_spellbroadcast", player);
-      EventsPlugin.AddObjectToDispatchList("NWNX_ON_CAST_SPELL_BEFORE", "b_spellcast", player);
-      EventsPlugin.AddObjectToDispatchList("NWNX_ON_CAST_SPELL_AFTER", "a_spellcast", player);
       EventsPlugin.AddObjectToDispatchList("NWNX_ON_ITEM_UNEQUIP_BEFORE", "b_unequip", player);
       EventsPlugin.AddObjectToDispatchList("NWNX_ON_COMBAT_MODE_OFF", "event_combatmode", player);
       EventsPlugin.AddObjectToDispatchList("NWNX_ON_USE_SKILL_BEFORE", "event_skillused", player);
       EventsPlugin.AddObjectToDispatchList("NWNX_ON_DO_LISTEN_DETECTION_AFTER", "a_detection", player);
-      EventsPlugin.AddObjectToDispatchList("NWNX_ON_START_COMBAT_ROUND_AFTER", "a_start_combat", player);
     }
     private static void InitializePlayerAccount(Player player)
     {
@@ -475,8 +475,13 @@ namespace NWN.Systems
       query = NWScript.SqlPrepareQueryCampaign(Config.database, $"SELECT materialName, materialStock from playerMaterialStorage where characterId = @characterId");
       NWScript.SqlBindInt(query, "@characterId", player.characterId);
 
+      Log.Info($"Loading material for {player.oid.Name} - Id : {player.characterId}");
+
       while (Convert.ToBoolean(NWScript.SqlStep(query)))
+      {
+        Log.Info($"Loading material for {player.oid.Name} - Id : {player.characterId} - GOT {NWScript.SqlGetString(query, 0)} - {NWScript.SqlGetInt(query, 1)}");
         player.materialStock.Add(NWScript.SqlGetString(query, 0), NWScript.SqlGetInt(query, 1));
+      }
     }
     private static void InitializePlayerLearnableSkills(Player player)
     {
@@ -561,16 +566,11 @@ namespace NWN.Systems
       }
       
       Utils.DestroyInventory(storage);
-      NwItem oItem = NwItem.Create("bad_armor", storage.Location);
-      storage.AcquireItem(oItem);
+      NwItem oItem = NwItem.Create("bad_armor", storage);
       oItem = NwItem.Create("bad_club", storage);
-      storage.AcquireItem(oItem);
       oItem = NwItem.Create("bad_shield", storage);
-      storage.AcquireItem(oItem);
       oItem = NwItem.Create("bad_sling", storage);
-      storage.AcquireItem(oItem);
       oItem = NwItem.Create("NW_WAMBU001", storage, 99);
-      storage.AcquireItem(oItem);
 
       storage.Name = $"Entrepôt de {player.oid.Name}";
 

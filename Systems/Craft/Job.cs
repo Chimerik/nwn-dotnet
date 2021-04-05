@@ -193,7 +193,7 @@ namespace NWN.Systems.Craft
 
       iMineralCost -= iMineralCost * (int)materialType / 10;
 
-      if (player.materialStock[sMaterial] >= iMineralCost)
+      if (player.materialStock.ContainsKey(sMaterial) && player.materialStock[sMaterial] >= iMineralCost)
       {
         player.craftJob = new Job(blueprint.baseItemType, sMaterial, iJobDuration, player);
         player.materialStock[sMaterial] -= iMineralCost;

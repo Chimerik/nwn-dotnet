@@ -161,7 +161,7 @@ namespace NWN.Systems
       NWScript.SetColor(player.oid, NWScript.COLOR_CHANNEL_TATTOO_1, NWScript.GetColor(clone, NWScript.COLOR_CHANNEL_TATTOO_1));
       NWScript.SetColor(player.oid, NWScript.COLOR_CHANNEL_TATTOO_2, NWScript.GetColor(clone, NWScript.COLOR_CHANNEL_TATTOO_2));
       NWScript.SetColor(player.oid, NWScript.COLOR_CHANNEL_HAIR, NWScript.GetColor(clone, NWScript.COLOR_CHANNEL_HAIR));
-      player.oid.VisualTransform.Scale = clone.VisualTransform.Scale;
+      player.oid.VisualTransform = clone.VisualTransform;
       HandleBodyModification(player);
     }
     private void ChangeCloneEyeColor(Player player, int color)

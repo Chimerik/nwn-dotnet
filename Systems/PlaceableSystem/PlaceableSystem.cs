@@ -204,8 +204,6 @@ namespace NWN.Systems
     }
     private void HandleSetUpDeadCreatureCorpse(CreatureEvents.OnSpawn onSpawn)
     {
-      //NwItem.Create("undroppable_item", onSpawn.Creature).Droppable = true;
-      //onSpawn.Creature.Lootable = true;
       onSpawn.Creature.ApplyEffect(EffectDuration.Instant, API.Effect.Death());
     }
     public static void OnUsedPlayerOwnedShop(PlaceableEvents.OnUsed onUsed)

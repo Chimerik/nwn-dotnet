@@ -141,8 +141,7 @@ namespace NWN.Systems
         item.Destroy();
       }
 
-      NwItem authorization = NwItem.Create("shop_clearance", player.oid.Location);
-      player.oid.AcquireItem(authorization);
+      NwItem authorization = NwItem.Create("shop_clearance", player.oid);
 
       if (shop.GetLocalVariable<int>("_SHOP_ID").HasValue)
       {

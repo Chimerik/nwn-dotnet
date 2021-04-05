@@ -38,7 +38,7 @@ namespace NWN.Systems
           await NwTask.Delay(TimeSpan.FromSeconds(30));
 
           var query = NWScript.SqlPrepareQueryCampaign(Config.database, $"UPDATE moduleInfo SET year = @year, month = @month, " +
-          $"second = @second");
+          $"second = @second where rowid = 1");
           NWScript.SqlBindInt(query, "@year", NwDateTime.Now.Year);
           NWScript.SqlBindInt(query, "@month", NwDateTime.Now.Month);
           NWScript.SqlBindInt(query, "@day", NwDateTime.Now.DayInTenday);
@@ -50,7 +50,6 @@ namespace NWN.Systems
           await NwModule.Instance.AddActionToQueue(() => Utils.BootAllPC());
           
           NwServer.Instance.ShutdownServer();
-          //Administration.ShutdownServer();
         });
       }
     }

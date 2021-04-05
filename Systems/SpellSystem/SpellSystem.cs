@@ -6,6 +6,9 @@ using System.Linq;
 using NWN.API.Constants;
 using Discord;
 using NLog;
+using NWN.API.Events;
+using System.Threading.Tasks;
+using System;
 
 namespace NWN.Systems
 {
@@ -17,35 +20,43 @@ namespace NWN.Systems
     public static int[] mediumEnchantements = new int[] { 555, 556, 557, 558, 559, 560, 561, 562 };
     public static int[] highEnchantements = new int[] { 563, 564, 565, 566, 567, 568 };
 
-    [ScriptHandler("a_spellbroadcast")]
-    private void HandleAfterSpellBroadcast(CallInfo callInfo)
+    public static void RegisterMetaMagicOnSpellInput(OnSpellAction onSpellAction)
     {
-      if (!(callInfo.ObjectSelf is NwPlayer))
-        return;
-
-      NwPlayer oPC = (NwPlayer)callInfo.ObjectSelf;
+      if (onSpellAction.MetaMagic == MetaMagic.Silent)
+        onSpellAction.Caster.GetLocalVariable<int>("_IS_SILENT_SPELL").Value = 1;
+    }
+    public static void OnSpellBroadcast(OnSpellBroadcast onSpellBroadcast)
+    {
+      NwPlayer oPC = (NwPlayer)onSpellBroadcast.Caster;
 
       if (oPC.IsDM || oPC.IsDMPossessed || oPC.IsPlayerDM)
         return;
-
-      if (!oPC.ActiveEffects.Where(e => e.EffectType == EffectType.Invisibility || e.EffectType == EffectType.ImprovedInvisibility).Any())
+      
+      if (!oPC.ActiveEffects.Any(e => e.EffectType == EffectType.Invisibility || e.EffectType == EffectType.ImprovedInvisibility))
         return;
 
-      if (int.Parse(EventsPlugin.GetEventData("META_TYPE")) == NWScript.METAMAGIC_SILENT)
+      SpellEvents.OnSpellCast onSpellCast = new SpellEvents.OnSpellCast();
+
+      if (onSpellBroadcast.Caster.GetLocalVariable<int>("_IS_SILENT_SPELL").HasValue)
+      {
+        onSpellBroadcast.Caster.GetLocalVariable<int>("_IS_SILENT_SPELL").Delete();
         return;
+      }
 
       foreach (NwPlayer spotter in oPC.Area.FindObjectsOfTypeInArea<NwPlayer>().Where(p => p.Distance(oPC) < 20.0f))
       {
         if (NWScript.GetObjectSeen(oPC, spotter) != 1)
         {
           spotter.SendServerMessage("Quelqu'un d'invisible est en train de lancer un sort à proximité !", API.Color.CYAN);
-          PlayerPlugin.ShowVisualEffect(spotter, 191, NWScript.GetPosition(oPC));
+          PlayerPlugin.ShowVisualEffect(spotter, 191, oPC.Position);
         }
       }
     }
     [ScriptHandler("spellhook")]
     private void HandleSpellHook(CallInfo callInfo)
     {
+      Log.Info("Spellhook triggered");
+
       if (!(callInfo.ObjectSelf is NwPlayer))
         return;
 
@@ -54,6 +65,57 @@ namespace NWN.Systems
       if (!PlayerSystem.Players.TryGetValue(oPC, out PlayerSystem.Player player))
         return;
 
+      SpellEvents.OnSpellCast onSpellCast = new SpellEvents.OnSpellCast();
+
+      switch (onSpellCast.Spell)
+      {
+        case Spell.AcidSplash:
+          new AcidSplash(onSpellCast);
+          oPC.GetLocalVariable<int>("X2_L_BLOCK_LAST_SPELL").Value = 1;
+          break;
+
+        case Spell.Daze:
+          new Daze(onSpellCast);
+          oPC.GetLocalVariable<int>("X2_L_BLOCK_LAST_SPELL").Value = 1;
+          break;
+
+        case Spell.ElectricJolt:
+          new EletricJolt(onSpellCast);
+          oPC.GetLocalVariable<int>("X2_L_BLOCK_LAST_SPELL").Value = 1;
+          break;
+
+        case Spell.Flare:
+          new Flare(onSpellCast);
+          oPC.GetLocalVariable<int>("X2_L_BLOCK_LAST_SPELL").Value = 1;
+          break;
+
+        case Spell.Light:
+          new Light(onSpellCast);
+          oPC.GetLocalVariable<int>("X2_L_BLOCK_LAST_SPELL").Value = 1;
+          break;
+
+        case Spell.RayOfFrost:
+          new RayOfFrost(onSpellCast);
+          oPC.GetLocalVariable<int>("X2_L_BLOCK_LAST_SPELL").Value = 1;
+          break;
+
+        case Spell.Resistance:
+          new Resistance(onSpellCast);
+          oPC.GetLocalVariable<int>("X2_L_BLOCK_LAST_SPELL").Value = 1;
+          break;
+
+        case Spell.Virtue:
+          new Virtue(onSpellCast);
+          oPC.GetLocalVariable<int>("X2_L_BLOCK_LAST_SPELL").Value = 1;
+          break;
+
+        case Spell.RaiseDead:
+        case Spell.Resurrection:
+          new RaiseDead(onSpellCast);
+          oPC.GetLocalVariable<int>("X2_L_BLOCK_LAST_SPELL").Value = 1;
+          break;
+      }
+
       oPC.GetLocalVariable<int>("_DELAYED_SPELLHOOK_REFLEX").Value = CreaturePlugin.GetBaseSavingThrow(oPC, NWScript.SAVING_THROW_REFLEX);
       oPC.GetLocalVariable<int>("_DELAYED_SPELLHOOK_WILL").Value = CreaturePlugin.GetBaseSavingThrow(oPC, NWScript.SAVING_THROW_WILL);
       oPC.GetLocalVariable<int>("_DELAYED_SPELLHOOK_FORT").Value = CreaturePlugin.GetBaseSavingThrow(oPC, NWScript.SAVING_THROW_FORT);
@@ -61,21 +123,19 @@ namespace NWN.Systems
       if (player.learntCustomFeats.ContainsKey(CustomFeats.ImprovedCasterLevel))
         CreaturePlugin.SetLevelByPosition(oPC, 0, SkillSystem.GetCustomFeatLevelFromSkillPoints(CustomFeats.ImprovedCasterLevel, player.learntCustomFeats[CustomFeats.ImprovedCasterLevel]) + 1);
 
-      int spellId = NWScript.GetSpellId();
       int classe = 43; // aventurier
 
       if (oPC.GetAbilityScore(Ability.Charisma) > oPC.GetAbilityScore(Ability.Intelligence))
         classe = (int)ClassType.Sorcerer;
-
-      if (int.TryParse(NWScript.Get2DAString("spells", "Cleric", spellId), out int value))
+      if (int.TryParse(NWScript.Get2DAString("spells", "Cleric", (int)onSpellCast.Spell), out int value))
         classe = (int)ClassType.Cleric;
-      else if (int.TryParse(NWScript.Get2DAString("spells", "Druid", spellId), out value))
+      else if (int.TryParse(NWScript.Get2DAString("spells", "Druid", (int)onSpellCast.Spell), out value))
         classe = (int)ClassType.Druid;
-      else if (int.TryParse(NWScript.Get2DAString("spells", "Bard", spellId), out value))
+      else if (int.TryParse(NWScript.Get2DAString("spells", "Bard", (int)onSpellCast.Spell), out value))
         classe = (int)ClassType.Bard;
-      else if (int.TryParse(NWScript.Get2DAString("spells", "Paladin", spellId), out value))
+      else if (int.TryParse(NWScript.Get2DAString("spells", "Paladin", (int)onSpellCast.Spell), out value))
         classe = (int)ClassType.Paladin;
-      else if (int.TryParse(NWScript.Get2DAString("spells", "Ranger", spellId), out value))
+      else if (int.TryParse(NWScript.Get2DAString("spells", "Ranger", (int)onSpellCast.Spell), out value))
         classe = (int)ClassType.Ranger;
 
       CreaturePlugin.SetClassByPosition(oPC, 0, classe);
@@ -89,7 +149,7 @@ namespace NWN.Systems
       CreaturePlugin.SetBaseSavingThrow(player, NWScript.SAVING_THROW_WILL, player.GetLocalVariable<int>("_DELAYED_SPELLHOOK_WILL").Value);
       CreaturePlugin.SetBaseSavingThrow(player, NWScript.SAVING_THROW_FORT, player.GetLocalVariable<int>("_DELAYED_SPELLHOOK_FORT").Value);
     }
-    private void RestoreSpell(uint caster, int spellId)
+    public static void RestoreSpell(uint caster, int spellId)
     {
       for (int i = 0; i < CreaturePlugin.GetMemorisedSpellCountByLevel(caster, 43, 0); i++)
       {
@@ -102,56 +162,34 @@ namespace NWN.Systems
         }
       }
     }
-    [ScriptHandler("b_spellcast")]
-    private void HandleBeforeSpellCast(CallInfo callInfo)
+    public static void HandleBeforeSpellCast(OnSpellCast onSpellCast)
     {
-      if (!(callInfo.ObjectSelf is NwPlayer))
-        return;
-
-      NwPlayer oPC = (NwPlayer)callInfo.ObjectSelf;
-
-      var spellId = int.Parse(EventsPlugin.GetEventData("SPELL_ID"));
-
-      if (int.TryParse(NWScript.Get2DAString("spells", "Bard", spellId), out int classe))
+      int classe = 43; // aventurier
+      if (int.TryParse(NWScript.Get2DAString("spells", "Bard", (int)onSpellCast.Spell), out int value))
         classe = NWScript.CLASS_TYPE_BARD;
-
-      if (int.TryParse(NWScript.Get2DAString("spells", "Ranger", spellId), out classe))
+      if (int.TryParse(NWScript.Get2DAString("spells", "Ranger", (int)onSpellCast.Spell), out value))
         classe = NWScript.CLASS_TYPE_RANGER;
-
-      if (int.TryParse(NWScript.Get2DAString("spells", "Paladin", spellId), out classe))
+      if (int.TryParse(NWScript.Get2DAString("spells", "Paladin", (int)onSpellCast.Spell), out value))
         classe = NWScript.CLASS_TYPE_PALADIN;
-
-      if (int.TryParse(NWScript.Get2DAString("spells", "Druid", spellId), out classe))
+      if (int.TryParse(NWScript.Get2DAString("spells", "Druid", (int)onSpellCast.Spell), out value))
         classe = NWScript.CLASS_TYPE_DRUID;
-
-      if (int.TryParse(NWScript.Get2DAString("spells", "Cleric", spellId), out classe))
+      if (int.TryParse(NWScript.Get2DAString("spells", "Cleric", (int)onSpellCast.Spell), out value))
         classe = NWScript.CLASS_TYPE_CLERIC;
 
-      CreaturePlugin.SetClassByPosition(oPC, 0, classe);
+      CreaturePlugin.SetClassByPosition(onSpellCast.Caster, 0, classe);
 
-      if(oPC.GetLocalVariable<int>("_AUTO_SPELL").HasValue && oPC.GetLocalVariable<int>("_AUTO_SPELL").Value != spellId)
+      if (onSpellCast.Caster.GetLocalVariable<int>("_AUTO_SPELL").HasValue && onSpellCast.Caster.GetLocalVariable<int>("_AUTO_SPELL").Value != (int)onSpellCast.Spell)
       {
-        oPC.GetLocalVariable<int>("_AUTO_SPELL").Delete();
-        oPC.GetLocalVariable<NwObject>("_AUTO_SPELL_TARGET").Delete();
-        oPC.OnCombatRoundEnd -= PlayerSystem.HandleCombatRoundEndForAutoSpells;
+        onSpellCast.Caster.GetLocalVariable<int>("_AUTO_SPELL").Delete();
+        onSpellCast.Caster.GetLocalVariable<NwObject>("_AUTO_SPELL_TARGET").Delete();
+        ((NwCreature)onSpellCast.Caster).OnCombatRoundEnd -= PlayerSystem.HandleCombatRoundEndForAutoSpells;
       }
-    }
-    [ScriptHandler("a_spellcast")]
-    private void HandleAfterSpellCast(CallInfo callInfo)
-    {
-      if (!(callInfo.ObjectSelf is NwPlayer))
-        return;
 
-      NwPlayer oPC = (NwPlayer)callInfo.ObjectSelf;
-
-      var spellId = int.Parse(EventsPlugin.GetEventData("SPELL_ID"));
-      CreaturePlugin.SetClassByPosition(oPC, 0, 43); // 43 = aventurier
-
-      if (NWScript.Get2DAString("spells", "School", spellId) == "D" && oPC.GetItemInSlot(InventorySlot.Neck).Tag != "amulettorillink")
+      if (NWScript.Get2DAString("spells", "School", (int)onSpellCast.Spell) == "D" && ((NwCreature)onSpellCast.Caster).GetItemInSlot(InventorySlot.Neck).Tag != "amulettorillink")
       {
         (Bot._client.GetChannel(680072044364562532) as IMessageChannel).SendMessageAsync(
-          $"{oPC.Name} " +
-          $"vient de lancer un sort de divination ({NWScript.GetStringByStrRef(int.Parse(NWScript.Get2DAString("spells", "Name", spellId)))})" +
+          $"{onSpellCast.Caster.Name} " +
+          $"vient de lancer un sort de divination ({NWScript.GetStringByStrRef(int.Parse(NWScript.Get2DAString("spells", "Name", (int)onSpellCast.Spell)))})" +
           $" en portant l'amulette de traçage. L'Amiral s'apprête à punir l'impudent !");
       }
     }

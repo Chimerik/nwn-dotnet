@@ -1,51 +1,75 @@
-﻿using NWN.API;
+﻿using System;
+using System.Threading.Tasks;
+using NWN.API;
+using NWN.API.Constants;
+using NWN.API.Events;
 using NWN.Core;
-using NWN.Services;
 
 namespace NWN.Systems
 {
-    public partial class SpellSystem
+  class Daze
+  {
+    public Daze(SpellEvents.OnSpellCast onSpellCast)
     {
-        [ScriptHandler("NW_S0_Daze")]
-        private void HandleDaze(CallInfo callInfo)
+      NwPlayer oCaster = (NwPlayer)onSpellCast.Caster;
+      int nCasterLevel = oCaster.LastSpellCasterLevel;
+
+      NWScript.SignalEvent(onSpellCast.TargetObject, NWScript.EventSpellCastAt(oCaster, (int)onSpellCast.Spell));
+
+      Core.Effect eMind = NWScript.EffectVisualEffect(NWScript.VFX_DUR_MIND_AFFECTING_NEGATIVE);
+      Core.Effect eDaze = NWScript.EffectDazed();
+      Core.Effect eDur = NWScript.EffectVisualEffect((NWScript.VFX_DUR_CESSATE_NEGATIVE));
+
+      Core.Effect eLink = NWScript.EffectLinkEffects(eMind, eDaze);
+      eLink = NWScript.EffectLinkEffects(eLink, eDur);
+
+      Core.Effect eVis = NWScript.EffectVisualEffect(NWScript.VFX_IMP_DAZED_S);
+
+      int nDuration = 2;
+
+      //check meta magic for extend
+      if (onSpellCast.MetaMagicFeat == API.Constants.MetaMagic.Extend)
+        nDuration = 4;
+
+      if (NWScript.GetHitDice(onSpellCast.TargetObject) <= 5 + nCasterLevel / 6)
+      {
+        //Make SR check
+        if (SpellUtils.MyResistSpell(oCaster, onSpellCast.TargetObject) == 0)
         {
-            var oTarget = (NWScript.GetSpellTargetObject());
-            var oCaster = callInfo.ObjectSelf;
-            int nCasterLevel = NWScript.GetCasterLevel(oCaster);
-            NWScript.SignalEvent(oTarget, NWScript.EventSpellCastAt(oCaster, NWScript.GetSpellId()));
-            int nMetaMagic = NWScript.GetMetaMagicFeat();
-
-            Core.Effect eMind = NWScript.EffectVisualEffect(NWScript.VFX_DUR_MIND_AFFECTING_NEGATIVE);
-            Core.Effect eDaze = NWScript.EffectDazed();
-            Core.Effect eDur = NWScript.EffectVisualEffect((NWScript.VFX_DUR_CESSATE_NEGATIVE));
-
-            Core.Effect eLink = NWScript.EffectLinkEffects(eMind, eDaze);
-            eLink = NWScript.EffectLinkEffects(eLink, eDur);
-
-            Core.Effect eVis = NWScript.EffectVisualEffect(NWScript.VFX_IMP_DAZED_S);
-
-            int nDuration = 2;
-            //check meta magic for extend
-            if (nMetaMagic == NWScript.METAMAGIC_EXTEND)
-            {
-                nDuration = 4;
-            }
-
-            if (NWScript.GetHitDice(oTarget) <= 5 + nCasterLevel / 6)
-            {
-                //Make SR check
-                if (SpellUtils.MyResistSpell(oCaster, oTarget) == 0)
-                {
-                    //Make Will Save to negate effect
-                    if (SpellUtils.MySavingThrow(NWScript.SAVING_THROW_WILL, oTarget, NWScript.GetSpellSaveDC(), NWScript.SAVING_THROW_TYPE_MIND_SPELLS) == 0) // 0 = SAVE FAILED
-                    {
-                        //Apply VFX Impact and daze effect
-                        NWScript.ApplyEffectToObject(NWScript.DURATION_TYPE_TEMPORARY, eLink, oTarget, NWScript.RoundsToSeconds(nDuration));
-                        NWScript.ApplyEffectToObject(NWScript.DURATION_TYPE_INSTANT, eVis, oTarget);
-                    }
-                }
-            }
-            NWScript.DelayCommand(0.2f, () => RestoreSpell(oCaster, NWScript.GetSpellId()));
+          //Make Will Save to negate effect
+          if (SpellUtils.MySavingThrow(NWScript.SAVING_THROW_WILL, onSpellCast.TargetObject, NWScript.GetSpellSaveDC(), NWScript.SAVING_THROW_TYPE_MIND_SPELLS) == 0) // 0 = SAVE FAILED
+          {
+            //Apply VFX Impact and daze effect
+            NWScript.ApplyEffectToObject(NWScript.DURATION_TYPE_TEMPORARY, eLink, onSpellCast.TargetObject, NWScript.RoundsToSeconds(nDuration));
+            NWScript.ApplyEffectToObject(NWScript.DURATION_TYPE_INSTANT, eVis, onSpellCast.TargetObject);
+          }
         }
+      }
+
+      if (onSpellCast.MetaMagicFeat == MetaMagic.None)
+      {
+        oCaster.GetLocalVariable<int>("_AUTO_SPELL").Value = (int)onSpellCast.Spell;
+        oCaster.GetLocalVariable<NwObject>("_AUTO_SPELL_TARGET").Value = onSpellCast.TargetObject;
+        oCaster.OnCombatRoundEnd -= PlayerSystem.HandleCombatRoundEndForAutoSpells;
+        oCaster.OnCombatRoundEnd += PlayerSystem.HandleCombatRoundEndForAutoSpells;
+
+        Task waitMovement = NwTask.Run(async () =>
+        {
+          float posX = onSpellCast.Caster.Position.X;
+          float posY = onSpellCast.Caster.Position.Y;
+          await NwTask.WaitUntil(() => onSpellCast.Caster.Position.X != posX || onSpellCast.Caster.Position.Y != posY);
+
+          oCaster.GetLocalVariable<int>("_AUTO_SPELL").Delete();
+          oCaster.GetLocalVariable<NwObject>("_AUTO_SPELL_TARGET").Delete();
+          oCaster.OnCombatRoundEnd -= PlayerSystem.HandleCombatRoundEndForAutoSpells;
+        });
+
+        Task waitSpellUsed = NwTask.Run(async () =>
+        {
+          await NwTask.Delay(TimeSpan.FromSeconds(0.2));
+          SpellSystem.RestoreSpell(onSpellCast.Caster, (int)onSpellCast.Spell);
+        });
+      }
     }
+  }
 }

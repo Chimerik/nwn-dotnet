@@ -323,7 +323,7 @@ namespace NWN.Systems.Craft.Collect
     }
     public static API.ItemProperty[] GetBadItemProperties(ItemCategory itemCategory, NwItem craftedItem)
     {
-      craftedItem.GetLocalVariable<int>("_DURABILITY").Value = GetBaseItemCost(craftedItem) * 10;
+      craftedItem.GetLocalVariable<int>("_DURABILITY").Value = GetBaseItemCost(craftedItem) * 50;
 
       switch (itemCategory)
       {
