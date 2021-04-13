@@ -260,35 +260,6 @@ namespace NWN.Systems
         )
       },
       {
-        "sit",
-        new Command(
-          name: "sit",
-          description: new Command.Description(title: "Permet de s'asseoir."),
-          execute: ExecuteSitCommand,
-          options: new Options(
-            positional: new List<Option>()
-            {
-              new Option(
-                name: "hauteur",
-                description: "Hauteur",
-                defaultValue: "5"
-              )
-            },
-            named: new Dictionary<string, Option>()
-            {
-              { "down",
-                new Option(
-                  name: "down",
-                  description: "Utilise l'animation assis au sol, jambes croisées, plutôt que l'animation assis sur une chaise.",
-                  defaultValue: false,
-                  type: OptionTypes.Bool
-                )
-              },
-            }
-          )
-        )
-      },
-      {
         "rename",
         new Command(
           name: "rename",

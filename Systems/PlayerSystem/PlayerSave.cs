@@ -6,6 +6,7 @@ using NWN.API;
 using NWN.API.Constants;
 using NWN.API.Events;
 using NWN.Core;
+using NWN.Core.NWNX;
 
 namespace NWN.Systems
 {
@@ -93,7 +94,7 @@ namespace NWN.Systems
     }
     private static void SavePlayerCharacterToDatabase(Player player)
     {
-      var query = NWScript.SqlPrepareQueryCampaign(Config.database, $"UPDATE playerCharacters SET areaTag = @areaTag, position = @position, facing = @facing, currentHP = @currentHP, bankGold = @bankGold, dateLastSaved = @dateLastSaved, currentSkillType = @currentSkillType, currentSkillJob = @currentSkillJob, currentCraftJob = @currentCraftJob, currentCraftObject = @currentCraftObject, currentCraftJobRemainingTime = @currentCraftJobRemainingTime, currentCraftJobMaterial = @currentCraftJobMaterial, menuOriginTop = @menuOriginTop, menuOriginLeft = @menuOriginLeft where rowid = @characterId");
+      var query = NWScript.SqlPrepareQueryCampaign(Config.database, $"UPDATE playerCharacters SET characterName = @characterName, areaTag = @areaTag, position = @position, facing = @facing, currentHP = @currentHP, bankGold = @bankGold, dateLastSaved = @dateLastSaved, currentSkillType = @currentSkillType, currentSkillJob = @currentSkillJob, currentCraftJob = @currentCraftJob, currentCraftObject = @currentCraftObject, currentCraftJobRemainingTime = @currentCraftJobRemainingTime, currentCraftJobMaterial = @currentCraftJobMaterial, menuOriginTop = @menuOriginTop, menuOriginLeft = @menuOriginLeft where rowid = @characterId");
       NWScript.SqlBindInt(query, "@characterId", player.characterId);
 
       if (player.location.Area != null)
@@ -109,6 +110,7 @@ namespace NWN.Systems
         NWScript.SqlBindFloat(query, "@facing", player.previousLocation.Rotation);
       }
 
+      NWScript.SqlBindString(query, "@characterName", $"{CreaturePlugin.GetOriginalName(player.oid, 0)} {CreaturePlugin.GetOriginalName(player.oid, 1)}");
       NWScript.SqlBindInt(query, "@currentHP", player.currentHP);
       NWScript.SqlBindInt(query, "@bankGold", player.bankGold);
       NWScript.SqlBindString(query, "@dateLastSaved", player.dateLastSaved.ToString());

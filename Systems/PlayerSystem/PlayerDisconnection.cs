@@ -34,10 +34,6 @@ namespace NWN.Systems
         player.setValue = Config.invalidInput;
         player.OnKeydown -= player.menu.HandleMenuFeatUsed;
 
-        RemovePartyBuffOnDisconnect(onPCDisconnect.Player);
-
-        Log.Info($"Party buff removed");
-
         if (player.oid.Area != null && player.oid.Area.Tag == $"entrepotpersonnel_{player.oid.CDKey}")
         {
           var saveStorage = NWScript.SqlPrepareQueryCampaign(Config.database,
@@ -49,25 +45,6 @@ namespace NWN.Systems
           player.location = NwModule.FindObjectsWithTag<NwWaypoint>("wp_outentrepot").FirstOrDefault().Location;
 
           Log.Info($"Saved personnal storage");
-        }
-      }
-    }
-    private void RemovePartyBuffOnDisconnect(NwPlayer player)
-    {
-      Log.Info($"Removing party buff on disconnection for {player.Name}");
-
-      API.Effect eParty = Party.GetPartySizeEffect(player.PartyMembers.Count<NwPlayer>() - 1);
-
-      foreach (NwPlayer partyMember in player.PartyMembers.Where<NwPlayer>(p => !p.IsPlayerDM))
-      {
-        API.Effect eff = partyMember.ActiveEffects.Where(e => e.Tag == "PartyEffect").FirstOrDefault();
-        if (eff != null)
-        {
-          player.RemoveEffect(eff);
-          Log.Info($"Removing party buff {eff.EffectType.ToString()} on disconnection for {partyMember.Name}");
-
-          if (player != partyMember)
-            partyMember.ApplyEffect(EffectDuration.Permanent, eParty);
         }
       }
     }

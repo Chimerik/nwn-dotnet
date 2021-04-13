@@ -44,12 +44,6 @@ namespace NWN.Systems
         return;
       }
 
-      if (oPC.GetItemInSlot(InventorySlot.CreatureSkin) == null)
-      {
-        NwItem pcSkin = NwItem.Create("peaudejoueur", oPC);
-        oPC.ActionEquipItem(pcSkin, InventorySlot.CreatureSkin);
-      }
-
       if (player.craftJob.IsActive()
       && player.location.Area.GetLocalVariable<int>("_AREA_LEVEL")?.Value == 0)
       {
@@ -129,6 +123,12 @@ namespace NWN.Systems
       else
         oPC.HP = player.currentHP;
 
+      if (player.learntCustomFeats.ContainsKey(CustomFeats.ImprovedAttackBonus))
+        CreaturePlugin.SetBaseAttackBonus(player.oid, player.oid.BaseAttackBonus + SkillSystem.GetCustomFeatLevelFromSkillPoints(CustomFeats.ImprovedAttackBonus, player.learntCustomFeats[CustomFeats.ImprovedAttackBonus]));
+
+      if (!player.oid.KnowsFeat(CustomFeats.Sit))
+        player.oid.AddFeat(CustomFeats.Sit);
+
       Task waitForTorilNecklaceChange = NwTask.Run(async () =>
       {
         await NwTask.WaitUntil(() => oPC.GetItemInSlot(InventorySlot.Neck)?.Tag != "amulettorillink");
@@ -151,6 +151,12 @@ namespace NWN.Systems
       {
         await NwTask.WaitUntil(() => oPC.GetItemInSlot(InventorySlot.LeftHand) == null && (oPC.GetItemInSlot(InventorySlot.RightHand) == null || ItemUtils.GetItemCategory((BaseItemType)oPC.GetItemInSlot(InventorySlot.RightHand)?.BaseItemType) == ItemUtils.ItemCategory.OneHandedMeleeWeapon));
         ItemSystem.OnShieldRemoved(oPC);
+      });
+
+      Task waitForPartyChange = NwTask.Run(async () =>
+      {
+        await NwTask.WaitUntilValueChanged(() => oPC.PartyMembers.Count<NwPlayer>(p => !p.IsDM));
+        Party.HandlePartyChange(oPC);
       });
 
       oPC.GetLocalVariable<int>("_CONNECTING").Delete();
@@ -270,7 +276,13 @@ namespace NWN.Systems
       if (newCharacter.oid.GetItemInSlot(InventorySlot.CreatureSkin) == null)
       {
         NwItem pcSkin = NwItem.Create("peaudejoueur", newCharacter.oid);
-        newCharacter.oid.ActionEquipItem(pcSkin, InventorySlot.CreatureSkin);
+        pcSkin.Name = $"Propriétés de {newCharacter.oid.Name}";
+
+        Task waitSkinEquipped = NwTask.Run(async () =>
+        {
+          await newCharacter.oid.ClearActionQueue();
+          await newCharacter.oid.ActionEquipItem(pcSkin, InventorySlot.CreatureSkin);
+        });
       }
 
       var query = NWScript.SqlPrepareQueryCampaign(Config.database, $"INSERT INTO playerCharacters (accountId , characterName, dateLastSaved, currentSkillType, currentSkillJob, currentCraftJob, currentCraftObject, areaTag, position, facing, menuOriginLeft, currentHP) VALUES (@accountId, @name, @dateLastSaved, @currentSkillType, @currentSkillJob, @currentCraftJob, @currentCraftObject, @areaTag, @position, @facing, @menuOriginLeft, @currentHP)");
@@ -409,16 +421,6 @@ namespace NWN.Systems
     {
       player.OnServerCharacterSave += HandleBeforePlayerSave;
       
-      eventService.Subscribe<PartyEvents.OnAcceptInvitationAfter, NWNXEventFactory>(player, Party.OnPartyJoinAfter)
-        .Register<PartyEvents.OnAcceptInvitationAfter>();
-      eventService.Subscribe<PartyEvents.OnLeaveBefore, NWNXEventFactory>(player, Party.OnPartyLeaveBefore)
-        .Register<PartyEvents.OnLeaveBefore>();
-      eventService.Subscribe<PartyEvents.OnLeaveAfter, NWNXEventFactory>(player, Party.OnPartyLeaveAfter)
-        .Register<PartyEvents.OnLeaveAfter>();
-      eventService.Subscribe<PartyEvents.OnKickBefore, NWNXEventFactory>(player, Party.OnPartyKickBefore)
-        .Register<PartyEvents.OnKickBefore>();
-      eventService.Subscribe<PartyEvents.OnKickAfter, NWNXEventFactory>(player, Party.OnPartyKickAfter)
-        .Register<PartyEvents.OnKickAfter>();
       eventService.Subscribe<ItemEvents.OnItemEquipBefore, NWNXEventFactory>(player, ItemSystem.OnItemEquipBefore)
         .Register<ItemEvents.OnItemEquipBefore>();
       eventService.Subscribe<ItemEvents.OnItemUseBefore, NWNXEventFactory>(player, ItemSystem.OnItemUseBefore)
@@ -438,6 +440,8 @@ namespace NWN.Systems
       player.OnCombatRoundStart += OnCombatRoundStart;
       player.OnSpellBroadcast += SpellSystem.OnSpellBroadcast;
       player.OnSpellAction += SpellSystem.RegisterMetaMagicOnSpellInput;
+      player.OnCreatureAttack += AttackSystem.HandleAttackEvent;
+      player.OnPhysicalAttacked += AttackSystem.HandlePlayerAttackedEvent;
 
       EventsPlugin.AddObjectToDispatchList("NWNX_ON_ITEM_UNEQUIP_BEFORE", "b_unequip", player);
       EventsPlugin.AddObjectToDispatchList("NWNX_ON_COMBAT_MODE_OFF", "event_combatmode", player);
@@ -475,13 +479,8 @@ namespace NWN.Systems
       query = NWScript.SqlPrepareQueryCampaign(Config.database, $"SELECT materialName, materialStock from playerMaterialStorage where characterId = @characterId");
       NWScript.SqlBindInt(query, "@characterId", player.characterId);
 
-      Log.Info($"Loading material for {player.oid.Name} - Id : {player.characterId}");
-
       while (Convert.ToBoolean(NWScript.SqlStep(query)))
-      {
-        Log.Info($"Loading material for {player.oid.Name} - Id : {player.characterId} - GOT {NWScript.SqlGetString(query, 0)} - {NWScript.SqlGetInt(query, 1)}");
         player.materialStock.Add(NWScript.SqlGetString(query, 0), NWScript.SqlGetInt(query, 1));
-      }
     }
     private static void InitializePlayerLearnableSkills(Player player)
     {

@@ -1,10 +1,8 @@
 ﻿using NLog;
-using NWN.API;
 using NWN.Services;
-using NWNX.API.Events;
-using NWNX.Services;
 using NWN.API.Constants;
 using NWN.API.Events;
+using NWN.Core.NWNX;
 
 namespace NWN.Systems
 {
@@ -15,7 +13,7 @@ namespace NWN.Systems
     
     public static void OnUseFeatBefore(OnUseFeat onUseFeat)
     {
-      if (!PlayerSystem.Players.TryGetValue(onUseFeat.Creature, out PlayerSystem.Player oPC))
+      if (!PlayerSystem.Players.TryGetValue(onUseFeat.Creature, out PlayerSystem.Player player))
         return;
 
       //Log.Info($"{oPC.oid.Name} used feat {onUseFeat.Feat}");
@@ -38,26 +36,26 @@ namespace NWN.Systems
         case CustomFeats.Sylvain:
         case CustomFeats.Voleur:
         case CustomFeats.Gnome:
-          new Language(oPC.oid, (int)onUseFeat.Feat);
+          new Language(player.oid, (int)onUseFeat.Feat);
           break;
         case CustomFeats.BlueprintCopy:
         case CustomFeats.Research:
         case CustomFeats.Metallurgy:
 
           onUseFeat.PreventFeatUse = true;
-          Craft.Blueprint.BlueprintValidation(oPC.oid, onUseFeat.TargetObject, (Feat)onUseFeat.Feat);
+          Craft.Blueprint.BlueprintValidation(player.oid, onUseFeat.TargetObject, (Feat)onUseFeat.Feat);
           break;
 
         case CustomFeats.Recycler:
-          new Recycler(oPC.oid, onUseFeat.TargetObject);
+          new Recycler(player.oid, onUseFeat.TargetObject);
           break;
 
         case CustomFeats.Renforcement:
-          new Renforcement(oPC.oid, onUseFeat.TargetObject);
+          new Renforcement(player.oid, onUseFeat.TargetObject);
           break;
 
         case CustomFeats.SurchargeArcanique:
-          new SurchargeArcanique(oPC.oid, onUseFeat.TargetObject);
+          new SurchargeArcanique(player.oid, onUseFeat.TargetObject);
           break;
 
         case CustomFeats.CustomMenuUP:
@@ -72,25 +70,28 @@ namespace NWN.Systems
         case CustomFeats.CustomPositionRotateLeft:
 
           onUseFeat.PreventFeatUse = true;
-          oPC.EmitKeydown(new PlayerSystem.Player.MenuFeatEventArgs(onUseFeat.Feat));
+          player.EmitKeydown(new PlayerSystem.Player.MenuFeatEventArgs(onUseFeat.Feat));
           break;
         case CustomFeats.WoodProspection:
 
           onUseFeat.PreventFeatUse = true;
           Craft.Collect.System.StartCollectCycle(
-              oPC,
-              oPC.oid.Area,
-              () => Craft.Collect.Wood.HandleCompleteProspectionCycle(oPC)
+              player,
+              () => Craft.Collect.Wood.HandleCompleteProspectionCycle(player)
           );
           break;
         case CustomFeats.Hunting:
-
+          
           onUseFeat.PreventFeatUse = true;
           Craft.Collect.System.StartCollectCycle(
-              oPC,
-              oPC.oid.Area,
-              () => Craft.Collect.Pelt.HandleCompleteProspectionCycle(oPC)
+              player,
+              () => Craft.Collect.Pelt.HandleCompleteProspectionCycle(player)
           );
+          break;
+        case CustomFeats.Sit:
+
+          onUseFeat.PreventFeatUse = true;
+          new Sit(player);
           break;
       }
     }

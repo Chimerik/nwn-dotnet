@@ -218,6 +218,7 @@ namespace NWN.Systems
     public const Feat ArtisanApplique = (Feat)1327;
     public const Feat Renforcement = (Feat)1328;
     public const Feat CombattantPrecautionneux = (Feat)1329;
+    public const Feat Sit = (Feat)1330;
 
     public const Feat Invalid = (Feat)65535;
   }

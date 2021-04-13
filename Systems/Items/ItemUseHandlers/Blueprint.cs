@@ -1,5 +1,4 @@
 ﻿using NWN.API;
-using NWN.Core;
 using NWN.API.Constants;
 using System.Linq;
 

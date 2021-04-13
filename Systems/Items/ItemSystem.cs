@@ -8,6 +8,8 @@ using System.Linq;
 using NWN.Core;
 using NWN.API.Events;
 using NLog;
+using System.Threading.Tasks;
+using System;
 
 namespace NWN.Systems
 {
@@ -119,6 +121,19 @@ namespace NWN.Systems
             player.oid.SendServerMessage($"Vous ne pouvez pas modifier l'apparence de {oTarget.Name.ColorString(Color.WHITE)}.".ColorString(Color.RED));
 
           NWScript.DelayCommand(0.2f, () => FeedbackPlugin.SetFeedbackMessageHidden(23, 0, player.oid));
+          break;
+        case "Peaudejoueur":
+          FeedbackPlugin.SetFeedbackMessageHidden(23, 1, player.oid);
+          onItemUse.Skip = true;
+
+          Task waitSkinEquipped = NwTask.Run(async () =>
+          {
+            await player.oid.ClearActionQueue();
+            await player.oid.ActionEquipItem(onItemUse.Item, InventorySlot.CreatureSkin);
+            await NwTask.Delay(TimeSpan.FromSeconds(0.2));
+            FeedbackPlugin.SetFeedbackMessageHidden(23, 0, player.oid);
+          });
+          
           break;
       }
     }

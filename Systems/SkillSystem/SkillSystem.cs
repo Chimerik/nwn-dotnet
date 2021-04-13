@@ -208,6 +208,7 @@ namespace NWN.Systems
       { CustomFeats.ArtisanApplique, new CustomFeat("Artisan Appliqué", "Augmente de 3 % par niveau la chance d'augmenter la durabilité d'un objet lors de sa fabrication.", 10) },
       { CustomFeats.Renforcement, new CustomFeat("Renforcement", "Permet d'augmenter la durabilité d'un objet de 5 % par renforcement. Cumulable 10 fois.\n\nDiminue le temps de travail nécessaire de 5 % par niveau.", 10) },
       { CustomFeats.CombattantPrecautionneux, new CustomFeat("Combattant précautionneux", "Diminue de 1 % par niveau le risque d'usure des objets.", 10) },
+      { CustomFeats.Sit, new CustomFeat("S'asseoir", "Ce don vous permet de vous asseoir puis d'ajuster l'affichage de votre personnage (mais pas sa position réelle). \n\nIl est possible de choisir une autre emote afin de s'afficher sous une autre posture.", 1) },
     };
 
     public static Dictionary<Feat, Func<PlayerSystem.Player, Feat, int>> RegisterAddCustomFeatEffect = new Dictionary<Feat, Func<PlayerSystem.Player, Feat, int>>

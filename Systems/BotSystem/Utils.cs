@@ -8,9 +8,9 @@ namespace NWN.Systems
     public static int CheckPlayerCredentialsFromDiscord(SocketCommandContext context, string sPCName)
     {
       var query = NWScript.SqlPrepareQueryCampaign(Config.database, $"SELECT pc.ROWID from PlayerAccounts " +
-        $"LEFT join playerCharacters pc on pc.accountId = PlayerAccounts.ROWID WHERE discordId = @discordId and pc.characterName = @characterName");
+        $"LEFT join playerCharacters pc on pc.accountId = PlayerAccounts.ROWID WHERE discordId = @discordId and pc.characterName like '{sPCName}%'");
       NWScript.SqlBindString(query, "@discordId", context.User.Id.ToString());
-      NWScript.SqlBindString(query, "@characterName", sPCName);
+      //NWScript.SqlBindString(query, "@characterName", sPCName);
       if(NWScript.SqlStep(query) == 1)
         return NWScript.SqlGetInt(query, 0);
 

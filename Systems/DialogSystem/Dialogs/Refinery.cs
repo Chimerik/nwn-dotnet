@@ -26,7 +26,7 @@ namespace NWN.Systems
 
       foreach (KeyValuePair<string, int> materialEntry in player.materialStock)
       {
-        if(materialEntry.Value > 100 && Enum.TryParse(materialEntry.Key, out OreType myOreType) && myOreType != OreType.Invalid)
+        if(Enum.TryParse(materialEntry.Key, out OreType myOreType) && myOreType != OreType.Invalid)
           player.menu.choices.Add(($"{materialEntry.Key} - {materialEntry.Value} unité(s).", () => HandleRefineOreQuantity(player, materialEntry.Key)));
       }
 

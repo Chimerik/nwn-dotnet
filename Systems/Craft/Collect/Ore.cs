@@ -63,9 +63,8 @@ namespace NWN.Systems.Craft.Collect
 
       var query = NWScript.SqlPrepareQueryCampaign(Systems.Config.database, $"SELECT mining from areaResourceStock where areaTag = @areaTag");
       NWScript.SqlBindString(query, "@areaTag", player.oid.Area.Tag);
-      NWScript.SqlStep(query);
 
-      if (NWScript.SqlGetInt(query, 0) < 1)
+      if (NWScript.SqlStep(query) == 0 || NWScript.SqlGetInt(query, 0) < 1)
       {
         player.oid.SendServerMessage("Cette veine est épuisée. Reste à espérer qu'un prochain glissement de terrain permette d'atteindre de nouveaux filons.", Color.MAROON);
         return;
@@ -74,10 +73,10 @@ namespace NWN.Systems.Craft.Collect
       int skillBonus = 0;
 
       if (player.learntCustomFeats.ContainsKey(CustomFeats.Geology))
-        skillBonus += SkillSystem.GetCustomFeatLevelFromSkillPoints(CustomFeats.Geology, player.learntCustomFeats[CustomFeats.Geology]) / 100;
+        skillBonus += SkillSystem.GetCustomFeatLevelFromSkillPoints(CustomFeats.Geology, player.learntCustomFeats[CustomFeats.Geology]);
 
       if (player.learntCustomFeats.ContainsKey(CustomFeats.Prospection))
-        skillBonus += SkillSystem.GetCustomFeatLevelFromSkillPoints(CustomFeats.Prospection, player.learntCustomFeats[CustomFeats.Prospection]) / 100;
+        skillBonus += SkillSystem.GetCustomFeatLevelFromSkillPoints(CustomFeats.Prospection, player.learntCustomFeats[CustomFeats.Prospection]);
 
       int respawnChance = skillBonus * 5;
       int nbSpawns = 0;

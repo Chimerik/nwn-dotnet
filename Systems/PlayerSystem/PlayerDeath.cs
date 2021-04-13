@@ -25,13 +25,12 @@ namespace NWN.Systems
         Task handleDeath = NwTask.Run(async () =>
         {
           await NwTask.Delay(TimeSpan.FromSeconds(3));
-          //NWScript.AssignCommand(player.oid, () => NWScript.JumpToLocation(NwModule.FindObjectsWithTag<NwWaypoint>("WP__RESPAWN_AREA").FirstOrDefault().Location));
-          Log.Info("Trying to teleport player to respawn area");
           player.oid.Location = NwModule.FindObjectsWithTag<NwWaypoint>("WP__RESPAWN_AREA").FirstOrDefault().Location;
           await NwTask.WaitUntil(() => player.oid.Area != null);
           SendPlayerToLimbo(player);
           CreatePlayerCorpse(player, playerDeathLocation);
-          StripPlayerGoldAfterDeath(player);
+          player.oid.SendServerMessage($"{player.oid.Gold.ToString().ColorString(Color.WHITE)} pièces d'or ont été abandonnées sur place !", Color.RED);
+          player.oid.Gold = 0;
           StripPlayerOfCraftResources(player);
         });
       }
@@ -70,25 +69,6 @@ namespace NWN.Systems
       SetupPCCorpse(oPCCorpse);
 
       Log.Info($"Corpse {oPCCorpse.Name} created");
-    }
-    private static void StripPlayerGoldAfterDeath(Player player)
-    {
-      Log.Info($"{player.oid.Name} dead. Stripping him of gold");
-
-      while (player.oid.Gold > 0)
-      {
-        if (player.oid.Gold >= 50000)
-        {
-          player.deathCorpse.Gold += 50000;
-          player.oid.TakeGold(50000);
-        }
-        else
-        {
-          player.deathCorpse.Gold += player.oid.Gold;
-          player.oid.TakeGold((int)player.oid.Gold);
-          break;
-        }
-      }
     }
     private static void StripPlayerOfCraftResources(Player player)
     {

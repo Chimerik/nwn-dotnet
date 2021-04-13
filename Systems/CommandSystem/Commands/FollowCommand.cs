@@ -28,11 +28,11 @@ namespace NWN.Systems
         return;
       }
 
-      if(selection.Player.Area != ((NwCreature)selection.TargetObj).Area)
+      /*if(selection.Player.Area != ((NwCreature)selection.TargetObj).Area // TODO : A DECOMMENTER A LA FIN DE L'ALPHA
       {
         selection.Player.SendServerMessage("Vous ne pouvez pas suivre quelqu'un qui ne se trouve pas dans la même zone que vous.", Color.RED);
         return;
-      }
+      }*/
 
       selection.Player.ActionForceFollowObject((NwGameObject)selection.TargetObj, 3.0f);
     }

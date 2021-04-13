@@ -38,7 +38,7 @@ namespace NWN.Systems
           await NwTask.Delay(TimeSpan.FromSeconds(30));
 
           var query = NWScript.SqlPrepareQueryCampaign(Config.database, $"UPDATE moduleInfo SET year = @year, month = @month, " +
-          $"second = @second where rowid = 1");
+          $"day = @day, hour = @hour, minute = @minute, second = @second where rowid = 1");
           NWScript.SqlBindInt(query, "@year", NwDateTime.Now.Year);
           NWScript.SqlBindInt(query, "@month", NwDateTime.Now.Month);
           NWScript.SqlBindInt(query, "@day", NwDateTime.Now.DayInTenday);

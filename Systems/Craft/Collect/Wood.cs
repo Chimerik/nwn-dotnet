@@ -65,9 +65,8 @@ namespace NWN.Systems.Craft.Collect
 
       var query = NWScript.SqlPrepareQueryCampaign(Systems.Config.database, $"SELECT wood from areaResourceStock where areaTag = @areaTag");
       NWScript.SqlBindString(query, "@areaTag", area.Tag);
-      NWScript.SqlStep(query);
-
-      if (NWScript.SqlGetInt(query, 0) < 1)
+      
+      if (NWScript.SqlStep(query) == 0 || NWScript.SqlGetInt(query, 0) < 1)
       {
         player.oid.SendServerMessage("Cette zone est épuisée. Les arbres restant disposant de propriétés intéressantes ne semblent pas encore avoir atteint l'âge d'être exploités.", Color.MAROON);
         return;

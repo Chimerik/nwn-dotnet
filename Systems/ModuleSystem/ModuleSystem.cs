@@ -32,6 +32,9 @@ namespace NWN.Systems
     {
       NwModule.Instance.GetLocalVariable<string>("X2_S_UD_SPELLSCRIPT").Value = "spellhook";
 
+      NwServer.Instance.ServerInfo.PlayOptions.RestoreSpellUses = false;
+      NwServer.Instance.ServerInfo.PlayOptions.ShowDMJoinMessage = false;
+
       SetModuleTime();
       SaveServerVault();
 
@@ -267,7 +270,7 @@ namespace NWN.Systems
       EventsPlugin.SubscribeEvent("NWNX_ON_ELC_VALIDATE_CHARACTER_BEFORE", "before_elc");
       EventsPlugin.SubscribeEvent("NWNX_ON_CLIENT_LEVEL_UP_BEGIN_BEFORE", "client_lvlup");
 
-      DamagePlugin.SetAttackEventScript("on_attack");
+      EventsPlugin.SubscribeEvent("NWNX_ON_CHARACTER_SHEET_OPEN_BEFORE", "pc_sheet_open");
 
       //EventsPlugin.SubscribeEvent("NWNX_ON_HAS_FEAT_AFTER", "event_has_feat");
     }

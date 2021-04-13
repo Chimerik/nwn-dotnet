@@ -55,6 +55,7 @@ namespace NWN.Systems.Craft.Collect
 
     public static void HandleCompleteProspectionCycle(PlayerSystem.Player player)
     {
+      Console.WriteLine("Handle complete prospection cycle");
       NwArea area = player.oid.Area;
 
       if (area.GetLocalVariable<int>("_AREA_LEVEL").Value < 2)
@@ -65,9 +66,8 @@ namespace NWN.Systems.Craft.Collect
 
       var query = NWScript.SqlPrepareQueryCampaign(Systems.Config.database, $"SELECT animals from areaResourceStock where areaTag = @areaTag");
       NWScript.SqlBindString(query, "@areaTag", area.Tag);
-      NWScript.SqlStep(query);
-
-      if (NWScript.SqlGetInt(query, 0) < 1)
+      
+      if (NWScript.SqlStep(query) == 0 || NWScript.SqlGetInt(query, 0) < 1)
       {
         player.oid.SendServerMessage("Cette zone est épuisée. Les animaux restants disposant de propriétés intéressantes ne semblent pas encore avoir atteint l'âge d'être exploités.", Color.MAROON);
         return;

@@ -55,8 +55,6 @@ namespace NWN.Systems
     [ScriptHandler("spellhook")]
     private void HandleSpellHook(CallInfo callInfo)
     {
-      Log.Info("Spellhook triggered");
-
       if (!(callInfo.ObjectSelf is NwPlayer))
         return;
 
@@ -66,6 +64,34 @@ namespace NWN.Systems
         return;
 
       SpellEvents.OnSpellCast onSpellCast = new SpellEvents.OnSpellCast();
+
+      CreaturePlugin.SetClassByPosition(oPC, 0, 43);
+
+      oPC.GetLocalVariable<int>("_DELAYED_SPELLHOOK_REFLEX").Value = CreaturePlugin.GetBaseSavingThrow(oPC, NWScript.SAVING_THROW_REFLEX);
+      oPC.GetLocalVariable<int>("_DELAYED_SPELLHOOK_WILL").Value = CreaturePlugin.GetBaseSavingThrow(oPC, NWScript.SAVING_THROW_WILL);
+      oPC.GetLocalVariable<int>("_DELAYED_SPELLHOOK_FORT").Value = CreaturePlugin.GetBaseSavingThrow(oPC, NWScript.SAVING_THROW_FORT);
+
+      Log.Info($"spellhook fort : {oPC.GetLocalVariable<int>("_DELAYED_SPELLHOOK_FORT").Value}");
+
+      if (player.learntCustomFeats.ContainsKey(CustomFeats.ImprovedCasterLevel))
+        CreaturePlugin.SetLevelByPosition(oPC, 0, SkillSystem.GetCustomFeatLevelFromSkillPoints(CustomFeats.ImprovedCasterLevel, player.learntCustomFeats[CustomFeats.ImprovedCasterLevel]) + 1);
+
+      int classe = 43; // aventurier
+
+      if (oPC.GetAbilityScore(Ability.Charisma) > oPC.GetAbilityScore(Ability.Intelligence))
+        classe = (int)ClassType.Sorcerer;
+      if (int.TryParse(NWScript.Get2DAString("spells", "Cleric", (int)onSpellCast.Spell), out int value))
+        classe = (int)ClassType.Cleric;
+      else if (int.TryParse(NWScript.Get2DAString("spells", "Druid", (int)onSpellCast.Spell), out value))
+        classe = (int)ClassType.Druid;
+      else if (int.TryParse(NWScript.Get2DAString("spells", "Bard", (int)onSpellCast.Spell), out value))
+        classe = (int)ClassType.Bard;
+      else if (int.TryParse(NWScript.Get2DAString("spells", "Paladin", (int)onSpellCast.Spell), out value))
+        classe = (int)ClassType.Paladin;
+      else if (int.TryParse(NWScript.Get2DAString("spells", "Ranger", (int)onSpellCast.Spell), out value))
+        classe = (int)ClassType.Ranger;
+
+      CreaturePlugin.SetClassByPosition(oPC, 0, classe);
 
       switch (onSpellCast.Spell)
       {
@@ -116,29 +142,6 @@ namespace NWN.Systems
           break;
       }
 
-      oPC.GetLocalVariable<int>("_DELAYED_SPELLHOOK_REFLEX").Value = CreaturePlugin.GetBaseSavingThrow(oPC, NWScript.SAVING_THROW_REFLEX);
-      oPC.GetLocalVariable<int>("_DELAYED_SPELLHOOK_WILL").Value = CreaturePlugin.GetBaseSavingThrow(oPC, NWScript.SAVING_THROW_WILL);
-      oPC.GetLocalVariable<int>("_DELAYED_SPELLHOOK_FORT").Value = CreaturePlugin.GetBaseSavingThrow(oPC, NWScript.SAVING_THROW_FORT);
-
-      if (player.learntCustomFeats.ContainsKey(CustomFeats.ImprovedCasterLevel))
-        CreaturePlugin.SetLevelByPosition(oPC, 0, SkillSystem.GetCustomFeatLevelFromSkillPoints(CustomFeats.ImprovedCasterLevel, player.learntCustomFeats[CustomFeats.ImprovedCasterLevel]) + 1);
-
-      int classe = 43; // aventurier
-
-      if (oPC.GetAbilityScore(Ability.Charisma) > oPC.GetAbilityScore(Ability.Intelligence))
-        classe = (int)ClassType.Sorcerer;
-      if (int.TryParse(NWScript.Get2DAString("spells", "Cleric", (int)onSpellCast.Spell), out int value))
-        classe = (int)ClassType.Cleric;
-      else if (int.TryParse(NWScript.Get2DAString("spells", "Druid", (int)onSpellCast.Spell), out value))
-        classe = (int)ClassType.Druid;
-      else if (int.TryParse(NWScript.Get2DAString("spells", "Bard", (int)onSpellCast.Spell), out value))
-        classe = (int)ClassType.Bard;
-      else if (int.TryParse(NWScript.Get2DAString("spells", "Paladin", (int)onSpellCast.Spell), out value))
-        classe = (int)ClassType.Paladin;
-      else if (int.TryParse(NWScript.Get2DAString("spells", "Ranger", (int)onSpellCast.Spell), out value))
-        classe = (int)ClassType.Ranger;
-
-      CreaturePlugin.SetClassByPosition(oPC, 0, classe);
       NWScript.DelayCommand(0.0f, () => DelayedSpellHook(oPC));
     }
     private void DelayedSpellHook(NwPlayer player)
@@ -148,6 +151,8 @@ namespace NWN.Systems
       CreaturePlugin.SetBaseSavingThrow(player, NWScript.SAVING_THROW_REFLEX, player.GetLocalVariable<int>("_DELAYED_SPELLHOOK_REFLEX").Value);
       CreaturePlugin.SetBaseSavingThrow(player, NWScript.SAVING_THROW_WILL, player.GetLocalVariable<int>("_DELAYED_SPELLHOOK_WILL").Value);
       CreaturePlugin.SetBaseSavingThrow(player, NWScript.SAVING_THROW_FORT, player.GetLocalVariable<int>("_DELAYED_SPELLHOOK_FORT").Value);
+
+      Log.Info($"after spellhook fort : {player.GetLocalVariable<int>("_DELAYED_SPELLHOOK_FORT").Value}");
     }
     public static void RestoreSpell(uint caster, int spellId)
     {
@@ -164,6 +169,8 @@ namespace NWN.Systems
     }
     public static void HandleBeforeSpellCast(OnSpellCast onSpellCast)
     {
+      Log.Info($"before cast fort : {CreaturePlugin.GetBaseSavingThrow(onSpellCast.Caster, NWScript.SAVING_THROW_FORT)}");
+
       int classe = 43; // aventurier
       if (int.TryParse(NWScript.Get2DAString("spells", "Bard", (int)onSpellCast.Spell), out int value))
         classe = NWScript.CLASS_TYPE_BARD;
@@ -177,6 +184,8 @@ namespace NWN.Systems
         classe = NWScript.CLASS_TYPE_CLERIC;
 
       CreaturePlugin.SetClassByPosition(onSpellCast.Caster, 0, classe);
+
+      Log.Info($"end before cast fort : {CreaturePlugin.GetBaseSavingThrow(onSpellCast.Caster, NWScript.SAVING_THROW_FORT)}");
 
       if (onSpellCast.Caster.GetLocalVariable<int>("_AUTO_SPELL").HasValue && onSpellCast.Caster.GetLocalVariable<int>("_AUTO_SPELL").Value != (int)onSpellCast.Spell)
       {

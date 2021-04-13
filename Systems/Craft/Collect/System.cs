@@ -9,6 +9,7 @@ using NLog;
 using System.Linq;
 using NWN.API.Constants;
 using Action = System.Action;
+using System.Threading.Tasks;
 
 namespace NWN.Systems.Craft.Collect
 {
@@ -104,19 +105,25 @@ namespace NWN.Systems.Craft.Collect
 
     public static Dictionary<int, Blueprint> blueprintDictionnary = new Dictionary<int, Blueprint>();
 
-    public static void StartCollectCycle(PlayerSystem.Player player, uint oPlaceable, Action completeCallback)
+    public static void StartCollectCycle(PlayerSystem.Player player, Action completeCallback, NwGameObject oTarget = null)
     {
-      player.OnCollectCycleCancel = () => {
-        Utils.RemoveTaggedEffect(oPlaceable, $"_{player.oid.CDKey}_MINING_BEAM");
+      /*player.OnCollectCycleCancel = () => {
+        Log.Info("callback canceled");
+
+        if(oTarget != null)
+          Utils.RemoveTaggedEffect(oTarget, $"_{player.oid.CDKey}_MINING_BEAM");
+
         RemoveCollectCycleCallbacks(player);
         PlayerPlugin.StopGuiTimingBar(player.oid);
-      };
-      player.OnCollectCycleComplete = () => {
+      };*/
+
+      /*player.OnCollectCycleComplete = () => {
+        Log.Info("callback complete");
         completeCallback();
         RemoveCollectCycleCallbacks(player);
-      };
+      };*/
 
-      NwItem resourceExtractor = player.oid.GetItemInSlot(API.Constants.InventorySlot.RightHand);
+      NwItem resourceExtractor = player.oid.GetItemInSlot(InventorySlot.RightHand);
       float cycleDuration = 180.0f;
       if (Systems.Config.env == Systems.Config.Env.Chim)
         cycleDuration = 10.0f;
@@ -126,11 +133,15 @@ namespace NWN.Systems.Craft.Collect
         cycleDuration = cycleDuration - (cycleDuration * resourceExtractor.GetLocalVariable<int>("_ITEM_LEVEL").Value * 2 / 100);
       }
 
-      Core.Effect eRay = NWScript.EffectBeam(NWScript.VFX_BEAM_DISINTEGRATE, resourceExtractor, 1, 0, 3);
-      eRay = NWScript.TagEffect(eRay, $"_{player.oid.CDKey}_MINING_BEAM");
-      NWScript.ApplyEffectToObject(NWScript.DURATION_TYPE_TEMPORARY, eRay, oPlaceable, cycleDuration);
-
-      PlayerPlugin.StartGuiTimingBar(player.oid, cycleDuration, "collect_complete");
+      if (oTarget != null)
+      {
+        Core.Effect eRay = NWScript.EffectBeam(NWScript.VFX_BEAM_DISINTEGRATE, resourceExtractor, 1, 0, 3);
+        eRay = NWScript.TagEffect(eRay, $"_{player.oid.CDKey}_MINING_BEAM");
+        NWScript.ApplyEffectToObject(NWScript.DURATION_TYPE_TEMPORARY, eRay, oTarget, cycleDuration);
+      }
+      
+      PlayerPlugin.StartGuiTimingBar(player.oid, cycleDuration);
+      Log.Info($"starting collect cycle for {player.oid}");
 
       EventsPlugin.AddObjectToDispatchList("NWNX_ON_TIMING_BAR_CANCEL_BEFORE", "collect_cancel", player.oid);
       EventsPlugin.AddObjectToDispatchList("NWNX_ON_CLIENT_DISCONNECT_BEFORE", "collect_cancel", player.oid);
@@ -138,11 +149,48 @@ namespace NWN.Systems.Craft.Collect
       EventsPlugin.AddObjectToDispatchList("NWNX_ON_ITEM_UNEQUIP_BEFORE", "collect_cancel", player.oid);
       EventsPlugin.AddObjectToDispatchList("NWNX_ON_START_COMBAT_ROUND_AFTER", "collect_cancel", player.oid);
       EventsPlugin.AddObjectToDispatchList("NWNX_ON_INPUT_CAST_SPELL_BEFORE", "collect_cancel", player.oid);
+
+      Task waitForCollectCompletion = NwTask.Run(async () =>
+      {
+        player.oid.GetLocalVariable<int>("_COLLECT_IN_PROGRESS").Value = 1;
+
+        Task collectCancelled = NwTask.Run(async () =>
+        {
+          await NwTask.WaitUntil(() => player.oid.GetLocalVariable<int>("_COLLECT_CANCELLED").Value == 1);
+          return true;
+        });
+
+        Task collectCompleted = NwTask.Run(async () =>
+        {
+          await NwTask.Delay(TimeSpan.FromSeconds(cycleDuration));
+          return true;
+        });
+
+        await NwTask.WhenAny(collectCancelled, collectCompleted);
+
+        if (collectCancelled.IsCompletedSuccessfully)
+        {
+          player.oid.GetLocalVariable<int>("_COLLECT_CANCELLED").Delete();
+
+          if (oTarget != null)
+            Utils.RemoveTaggedEffect(oTarget, $"_{player.oid.CDKey}_MINING_BEAM");
+
+          RemoveCollectCycleCallbacks(player);
+          PlayerPlugin.StopGuiTimingBar(player.oid);
+          player.oid.GetLocalVariable<int>("_COLLECT_IN_PROGRESS").Delete();
+          return;
+        }
+
+        completeCallback();
+        RemoveCollectCycleCallbacks(player);
+        PlayerPlugin.StopGuiTimingBar(player.oid);
+        player.oid.GetLocalVariable<int>("_COLLECT_IN_PROGRESS").Delete();
+      });
     }
     private static void RemoveCollectCycleCallbacks(PlayerSystem.Player player)
     {
-      player.OnCollectCycleCancel = () => { };
-      player.OnCollectCycleComplete = () => { };
+      //player.OnCollectCycleCancel = () => { };
+      //player.OnCollectCycleComplete = () => { };
       EventsPlugin.RemoveObjectFromDispatchList("NWNX_ON_TIMING_BAR_CANCEL_BEFORE", "collect_cancel", player.oid);
       EventsPlugin.RemoveObjectFromDispatchList("NWNX_ON_CLIENT_DISCONNECT_BEFORE", "collect_cancel", player.oid);
       EventsPlugin.RemoveObjectFromDispatchList("NWNX_ON_ITEM_EQUIP_BEFORE", "collect_cancel", player.oid);

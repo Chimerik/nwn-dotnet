@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using NWN.Core.NWNX;
 
 namespace NWN.Systems
 {
@@ -24,6 +25,7 @@ namespace NWN.Systems
     {
       player.menu.Clear();
       player.menu.titleLines.Add("Configuration de l'affichage du menu.");
+      player.menu.choices.Add(("Intervertir options Monter et Descendre.", () => __HandleSwapHotkeys(player)));
       player.menu.choices.Add(("Deplacer vers la gauche.", () => __HandleMoveLeft(player)));
       player.menu.choices.Add(("Deplacer vers la droite.", () => __HandleMoveRight(player)));
       player.menu.choices.Add(("Deplacer vers le haut.", () => __HandleMoveUp(player)));
@@ -31,6 +33,18 @@ namespace NWN.Systems
       player.menu.choices.Add(("Reset la position à la valeur par defaut", () => __HandleReset(player)));
       player.menu.choices.Add(("Sauvegarder et quitter", () => __HandleSaveAndClose(player)));
       player.menu.Draw();
+    }
+
+    private static void __HandleSwapHotkeys(PlayerSystem.Player player)
+    {
+      if(ObjectPlugin.GetInt(player.oid, "_MENU_HOTKEYS_SWAPPED") == 0)
+        ObjectPlugin.SetInt(player.oid, "_MENU_HOTKEYS_SWAPPED", 1, 1);
+      else
+        ObjectPlugin.DeleteInt(player.oid, "_MENU_HOTKEYS_SWAPPED");
+
+      QuickBarSlot swapQBS = PlayerPlugin.GetQuickBarSlot(player.oid, 0);
+      PlayerPlugin.SetQuickBarSlot(player.oid, 0, PlayerPlugin.GetQuickBarSlot(player.oid, 1));
+      PlayerPlugin.SetQuickBarSlot(player.oid, 1, swapQBS);
     }
 
     private static void __HandleMoveLeft(PlayerSystem.Player player)

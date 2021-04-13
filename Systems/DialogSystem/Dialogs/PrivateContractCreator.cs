@@ -201,8 +201,8 @@ namespace NWN.Systems
         return;
       }
 
-      NwItem contract = NwItem.Create("skillbookgeneriq", player.oid.Location, false, "private_contract");
-      
+      NwItem contract = NwItem.Create("skillbookgeneriq", player.oid, 1, "private_contract");
+
       int grandTotal = 0;
       string serializedContract = "";
       contract.Description = "";

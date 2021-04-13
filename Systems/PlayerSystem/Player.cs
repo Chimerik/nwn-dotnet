@@ -52,8 +52,8 @@ namespace NWN.Systems
       public Dictionary<int, MapPin> mapPinDictionnary = new Dictionary<int, MapPin>();
       public Dictionary<string, string> areaExplorationStateDictionnary = new Dictionary<string, string>();
 
-      public Action OnCollectCycleCancel = delegate { };
-      public Action OnCollectCycleComplete = delegate { };
+      //public Action OnCollectCycleCancel = delegate { };
+      //public Action OnCollectCycleComplete = delegate { };
       public Player(NwPlayer nwobj)
       {
         this.oid = nwobj;
@@ -120,13 +120,9 @@ namespace NWN.Systems
           switch (type)
           {
             case QuickbarType.Menu:
-              CreaturePlugin.AddFeat(this.oid, (int)CustomFeats.CustomMenuDOWN);
-              CreaturePlugin.AddFeat(this.oid, (int)CustomFeats.CustomMenuUP);
-              CreaturePlugin.AddFeat(this.oid, (int)CustomFeats.CustomMenuSELECT);
-              CreaturePlugin.AddFeat(this.oid, (int)CustomFeats.CustomMenuEXIT);
 
               this.savedQuickBar.Clear();
-              emptyQBS.nObjectType = 0;
+              emptyQBS.nObjectType = 4;
 
               for (int i = 0; i < 12; i++)
               {
@@ -134,13 +130,33 @@ namespace NWN.Systems
                 PlayerPlugin.SetQuickBarSlot(this.oid, i, emptyQBS);
               }
 
-              emptyQBS.nObjectType = 4;
-              emptyQBS.nINTParam1 = (int)CustomFeats.CustomMenuDOWN;
-              PlayerPlugin.SetQuickBarSlot(this.oid, 0, emptyQBS);
-              emptyQBS.nINTParam1 = (int)CustomFeats.CustomMenuUP;
-              PlayerPlugin.SetQuickBarSlot(this.oid, 1, emptyQBS);
-              emptyQBS.nINTParam1 = (int)CustomFeats.CustomMenuSELECT;
-              PlayerPlugin.SetQuickBarSlot(this.oid, 2, emptyQBS);
+              if (menu.choices.Count > 0)
+              {
+                oid.AddFeat(CustomFeats.CustomMenuDOWN);
+                oid.AddFeat(CustomFeats.CustomMenuUP);
+                oid.AddFeat(CustomFeats.CustomMenuSELECT);
+
+                if (ObjectPlugin.GetInt(this.oid, "_MENU_HOTKEYS_SWAPPED") == 0)
+                {
+                  emptyQBS.nINTParam1 = (int)CustomFeats.CustomMenuDOWN;
+                  PlayerPlugin.SetQuickBarSlot(this.oid, 0, emptyQBS);
+                  emptyQBS.nINTParam1 = (int)CustomFeats.CustomMenuUP;
+                  PlayerPlugin.SetQuickBarSlot(this.oid, 1, emptyQBS);
+                }
+                else
+                {
+                  emptyQBS.nINTParam1 = (int)CustomFeats.CustomMenuDOWN;
+                  PlayerPlugin.SetQuickBarSlot(this.oid, 1, emptyQBS);
+                  emptyQBS.nINTParam1 = (int)CustomFeats.CustomMenuUP;
+                  PlayerPlugin.SetQuickBarSlot(this.oid, 0, emptyQBS);
+                }
+                  
+                emptyQBS.nINTParam1 = (int)CustomFeats.CustomMenuSELECT;
+                PlayerPlugin.SetQuickBarSlot(this.oid, 2, emptyQBS);
+              }
+
+              oid.AddFeat(CustomFeats.CustomMenuEXIT);
+              
               emptyQBS.nINTParam1 = (int)CustomFeats.CustomMenuEXIT;
               PlayerPlugin.SetQuickBarSlot(this.oid, 3, emptyQBS);
 
@@ -419,19 +435,20 @@ namespace NWN.Systems
 
         this.removeableMalus.Remove(skill.oid);
       }
-      public void CancelCollectCycle()
+      /*public void CancelCollectCycle()
       {
         OnCollectCycleCancel();
-      }
-      public void CompleteCollectCycle()
+      }*/
+      /*public void CompleteCollectCycle()
       {
+        Log.Info("on cycle complete");
         // AssignCommand permet de "patcher" un bug de comportement undéfinie
         // qui apparait en appelant une callback depuis l'event de la GUI TIMING BAR
         NWScript.AssignCommand(
           NWScript.GetModule(),
           () => OnCollectCycleComplete()
         );
-      }
+      }*/
       public void UpdateJournal()
       {
         JournalEntry journalEntry;

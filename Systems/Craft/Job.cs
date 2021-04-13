@@ -138,7 +138,8 @@ namespace NWN.Systems.Craft
 
       if (this.isCancelled)
       {
-        player.AcquireItem(NwGameObject.Deserialize<NwItem>(craftedItem));
+        if(craftedItem != "")
+          player.AcquireItem(NwGameObject.Deserialize<NwItem>(craftedItem));
       }
 
       return true;
@@ -430,7 +431,7 @@ namespace NWN.Systems.Craft
           journalEntry.sText = $"Recyclage en pause";
           break;
         default:
-          journalEntry.sName = $"Travail artisanal en pause - {blueprintDictionnary[baseItemType].name.ColorString(Color.ORANGE)}";
+          journalEntry.sName = $"Travail artisanal en pause - {blueprintDictionnary[baseItemType].name}";
           break;
       }
 
@@ -455,13 +456,13 @@ namespace NWN.Systems.Craft
           journalEntry.sName = $"Travail artisanal terminé - Recherche en efficacité";
           break;
         case JobType.Enchantement:
-          journalEntry.sName = $"Enchantement terminé - {NwItem.Deserialize<NwItem>(craftedItem).Name.ColorString(Color.ORANGE)}";
+          journalEntry.sName = $"Enchantement terminé - {NwItem.Deserialize<NwItem>(craftedItem).Name}";
           break;
         case JobType.Recycling:
-          journalEntry.sName = $"Recyclage terminé - {NwItem.Deserialize<NwItem>(craftedItem).Name.ColorString(Color.ORANGE)}";
+          journalEntry.sName = $"Recyclage terminé - {NwItem.Deserialize<NwItem>(craftedItem).Name}";
           break;
         default:
-          journalEntry.sName = $"Travail artisanal terminé - {blueprintDictionnary[baseItemType].name.ColorString(Color.ORANGE)}";
+          journalEntry.sName = $"Travail artisanal terminé - {blueprintDictionnary[baseItemType].name}";
           break;
       }
 

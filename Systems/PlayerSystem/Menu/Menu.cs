@@ -1,8 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
-using NWN.API;
-using NWN.API.Constants;
 using NWN.Core;
 using NWN.Core.NWNX;
 using Action = System.Action;
@@ -56,15 +53,15 @@ namespace NWN.Systems
 
       public void Draw()
       {
+        DrawWindow();
+        DrawText();
+        DrawSelection();
+
         if (!isOpen)
         {
           player.LoadMenuQuickbar(QuickbarType.Menu);
           player.OnKeydown += HandleMenuFeatUsed;
         }
-
-        DrawWindow();
-        DrawText();
-        DrawSelection();
 
         isOpen = true;
       }
@@ -239,6 +236,10 @@ namespace NWN.Systems
               default: return;
 
               case CustomFeats.CustomMenuUP:
+
+                if (choices.Count <= 0)
+                  return;
+
                 selectedChoiceID = (selectedChoiceID + choices.Count - 1) % choices.Count;
                 EraseLastSelection();
                 PlayerPlugin.PlaySound(player.oid, "gui_select", NWScript.OBJECT_INVALID);
@@ -246,6 +247,10 @@ namespace NWN.Systems
                 return;
 
               case CustomFeats.CustomMenuDOWN:
+
+                if (choices.Count <= 0)
+                  return;
+
                 selectedChoiceID = (selectedChoiceID + 1) % choices.Count;
                 EraseLastSelection();
                 PlayerPlugin.PlaySound(player.oid, "gui_select", NWScript.OBJECT_INVALID);
@@ -253,6 +258,10 @@ namespace NWN.Systems
                 return;
 
               case CustomFeats.CustomMenuSELECT:
+
+                if (choices.Count <= 0)
+                  return;
+
                 var handler = choices.ElementAtOrDefault(selectedChoiceID).handler;
                 PlayerPlugin.PlaySound(player.oid, "gui_picklockopen", NWScript.OBJECT_INVALID);
                 handler?.Invoke();

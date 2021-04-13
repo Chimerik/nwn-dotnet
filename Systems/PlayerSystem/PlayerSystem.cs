@@ -37,7 +37,6 @@ namespace NWN.Systems
       NWScript.PostString(callInfo.ObjectSelf, "", 40, 15, 0, 0.000001f, unchecked((int)0xFFFFFFFF), unchecked((int)0xFFFFFFFF), 9999, "fnt_my_gui");
       EventsPlugin.RemoveObjectFromDispatchList("NWNX_ON_INPUT_TOGGLE_PAUSE_BEFORE", "spacebar_down", callInfo.ObjectSelf);
     }
-    [ScriptHandler("a_start_combat")]
     public static void OnCombatStarted(OnCombatStatusChange onCombatStatusChange)
     {
 
@@ -224,7 +223,7 @@ namespace NWN.Systems
       }
     }
 
-    [ScriptHandler("map_pin_changed")]
+    [ScriptHandler("mappin_destroyed")]
     private void HandleDestroyMapPin(CallInfo callInfo)
     {
       if (Players.TryGetValue(callInfo.ObjectSelf, out Player player))
@@ -238,7 +237,7 @@ namespace NWN.Systems
         NWScript.SqlStep(query);
       }
     }
-    [ScriptHandler("mappin_destroyed")]
+    [ScriptHandler("map_pin_changed")] 
     private void HandleChangeMapPin(CallInfo callInfo)
     {
       if (Players.TryGetValue(callInfo.ObjectSelf, out Player player))
@@ -247,6 +246,34 @@ namespace NWN.Systems
         updatedMapPin.x = float.Parse(EventsPlugin.GetEventData("PIN_X"));
         updatedMapPin.y = float.Parse(EventsPlugin.GetEventData("PIN_Y"));
         updatedMapPin.note = EventsPlugin.GetEventData("PIN_NOTE");
+      }
+    }
+    [ScriptHandler("pc_sheet_open")]
+    private void HandleCharacterSheetOpened(CallInfo callInfo)
+    {
+      if(((NwPlayer)callInfo.ObjectSelf).IsDM)
+      {
+        NwObject oTarget = NWScript.StringToObject(EventsPlugin.GetEventData("TARGET")).ToNwObject();
+
+        if(oTarget is NwPlayer && Players.TryGetValue(oTarget, out Player target))
+        {
+          foreach (KeyValuePair<Feat, int> feat in target.learntCustomFeats)
+          {
+            CustomFeat customFeat = SkillSystem.customFeatsDictionnary[feat.Key];
+
+            if (int.TryParse(NWScript.Get2DAString("feat", "FEAT", (int)feat.Key), out int nameValue))
+              PlayerPlugin.SetTlkOverride(callInfo.ObjectSelf, nameValue, $"{customFeat.name} - {SkillSystem.GetCustomFeatLevelFromSkillPoints(feat.Key, feat.Value)}");
+            else
+              Utils.LogMessageToDMs($"CUSTOM SKILL SYSTEM ERROR - Skill {customFeat.name} : no available custom name StrRef");
+
+            if (int.TryParse(NWScript.Get2DAString("feat", "DESCRIPTION", (int)feat.Key), out int descriptionValue))
+              PlayerPlugin.SetTlkOverride(callInfo.ObjectSelf, descriptionValue, customFeat.description);
+            else
+            {
+              Utils.LogMessageToDMs($"CUSTOM SKILL SYSTEM ERROR - Skill {customFeat.name} : no available custom description StrRef");
+            }
+          }
+        }
       }
     }
     [ScriptHandler("on_input_emote")]
@@ -338,16 +365,19 @@ namespace NWN.Systems
     [ScriptHandler("collect_cancel")]
     private void HandleBeforeCollectCycleCancel(CallInfo callInfo)
     {
-      if (Players.TryGetValue(callInfo.ObjectSelf, out Player player))
-        player.CancelCollectCycle();
+      Log.Info("collect canceled");
+      callInfo.ObjectSelf.GetLocalVariable<int>("_COLLECT_CANCELLED").Value = 1;
+      /*if (Players.TryGetValue(callInfo.ObjectSelf, out Player player))
+        player.CancelCollectCycle();*/
     }
 
-    [ScriptHandler("collect_complete")]
+    /*[ScriptHandler("collect_complete")]
     private void HandleAfterCollectCycleComplete(CallInfo callInfo)
     {
-      if (PlayerSystem.Players.TryGetValue(callInfo.ObjectSelf, out Player player))
+      Log.Info("collect complete");
+      if (Players.TryGetValue(callInfo.ObjectSelf, out Player player))
         player.CompleteCollectCycle();
-    }
+    }*/
 
     private void CancelPlayerLevelUp(ModuleEvents.OnPlayerLevelUp onLevelUp)
     {
