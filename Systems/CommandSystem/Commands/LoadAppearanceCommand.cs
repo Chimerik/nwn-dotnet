@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using NWN.API;
 using NWN.API.Constants;
+using NWN.API.Events;
 using NWN.Core;
 using NWN.Core.NWNX;
 using NWN.Services;
@@ -16,12 +17,12 @@ namespace NWN.Systems
       ctx.oSender.SendServerMessage("Veuillez sélectionnner l'objet dont vous souhaitez modifier l'apparence.", Color.ROSE);
       PlayerSystem.cursorTargetService.EnterTargetMode(ctx.oSender, OnModifyAppearanceItemSelected, ObjectTypes.Item, MouseCursor.Create);
     }
-    private static void OnModifyAppearanceItemSelected(CursorTargetData selection)
+    private static void OnModifyAppearanceItemSelected(ModuleEvents.OnPlayerTarget selection)
     {
-      if (selection.TargetObj is null || !(selection.TargetObj is NwItem) || !PlayerSystem.Players.TryGetValue(selection.Player, out PlayerSystem.Player player))
+      if (selection.TargetObject is null || !(selection.TargetObject is NwItem) || !PlayerSystem.Players.TryGetValue(selection.Player, out PlayerSystem.Player player))
         return;
 
-      NwItem item = (NwItem)selection.TargetObj;
+      NwItem item = (NwItem)selection.TargetObject;
 
       // TODO : ajouter un métier permettant de modifier n'importe quelle tenue
       if (item.GetLocalVariable<string>("_ORIGINAL_CRAFTER_NAME").HasValue && item.GetLocalVariable<string>("_ORIGINAL_CRAFTER_NAME").Value != player.oid.Name)
@@ -32,7 +33,7 @@ namespace NWN.Systems
 
       int ACValue = -1;
       if (item.BaseItemType == BaseItemType.Armor)
-        ACValue = ItemPlugin.GetBaseArmorClass(selection.TargetObj);
+        ACValue = ItemPlugin.GetBaseArmorClass(selection.TargetObject);
 
       player.menu.Clear();
       player.menu.titleLines = new List<string>() {

@@ -2,6 +2,7 @@
 using System.Numerics;
 using NWN.API;
 using NWN.API.Constants;
+using NWN.API.Events;
 using NWN.Core;
 using NWN.Core.NWNX;
 using NWN.Services;
@@ -21,10 +22,10 @@ namespace NWN.Systems
       ctx.oSender.GetLocalVariable<string>("_RENAME_VALUE").Value = (string)options.positional[0];
       PlayerSystem.cursorTargetService.EnterTargetMode(ctx.oSender, SummonRenameTarget, ObjectTypes.Creature, MouseCursor.Create);
     }
-    private static void SummonRenameTarget(CursorTargetData selection)
+    private static void SummonRenameTarget(ModuleEvents.OnPlayerTarget selection)
     {
-      if (selection.TargetObj != null && ((NwCreature)selection.TargetObj).Master == selection.Player)
-        selection.TargetObj.Name = selection.Player.GetLocalVariable<string>("_RENAME_VALUE").Value;
+      if (selection.TargetObject != null && ((NwCreature)selection.TargetObject).Master == selection.Player)
+        selection.TargetObject.Name = selection.Player.GetLocalVariable<string>("_RENAME_VALUE").Value;
       else
         selection.Player.SendServerMessage("Veuillez sélectionner une cible valide.", Color.RED);
     }

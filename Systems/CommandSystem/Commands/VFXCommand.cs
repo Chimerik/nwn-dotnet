@@ -2,6 +2,7 @@
 using System.Numerics;
 using NWN.API;
 using NWN.API.Constants;
+using NWN.API.Events;
 using NWN.Services;
 
 namespace NWN.Systems
@@ -19,9 +20,9 @@ namespace NWN.Systems
         }
       }
     }
-    private static void VFXTarget(CursorTargetData selection)
+    private static void VFXTarget(ModuleEvents.OnPlayerTarget selection)
     {
-      ((NwGameObject)selection.TargetObj).ApplyEffect(EffectDuration.Temporary, Effect.VisualEffect((VfxType)selection.Player.GetLocalVariable<int>("_VXF_TEST_ID").Value), TimeSpan.FromSeconds(10));
+      ((NwGameObject)selection.TargetObject).ApplyEffect(EffectDuration.Temporary, Effect.VisualEffect((VfxType)selection.Player.GetLocalVariable<int>("_VXF_TEST_ID").Value), TimeSpan.FromSeconds(10));
     }
   }
 }

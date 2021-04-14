@@ -1,17 +1,13 @@
-﻿using NLog;
-using NWN.API;
+﻿using NWN.API;
 using NWN.API.Events;
 using NWN.Core;
-using NWN.Services;
-using NWNX.API.Events;
-using NWNX.Services;
 using System.Linq;
 
 namespace NWN.Systems
 {
   public partial class PlayerSystem
   {
-    private void HandlePlayerLeave(ModuleEvents.OnClientLeave onPCDisconnect)
+    private void HandlePlayerLeave(OnClientDisconnect onPCDisconnect)
     {
       if (onPCDisconnect.Player == null)
         return;

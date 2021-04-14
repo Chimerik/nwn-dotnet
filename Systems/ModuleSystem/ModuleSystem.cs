@@ -9,6 +9,7 @@ using NWN.Services;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Numerics;
 using System.Threading.Tasks;
 using static NWN.Systems.Craft.Collect.Config;
 
@@ -55,60 +56,34 @@ namespace NWN.Systems
         await SpawnCollectableResources(resourceRespawnTime);
       });
 
-      API.Location spawnLoc = NwModule.Instance.Areas.FirstOrDefault(a => a.Tag == "entrepotpersonnel").FindObjectsOfTypeInArea<NwPlaceable>().FirstOrDefault(s => s.Tag == "ps_entrepot").Location;
+      /*var query = NWScript.SqlPrepareQueryCampaign("recovery", $"SELECT storage from playerCharacters where rowid = 1");
+      NWScript.SqlStep(query);
+      string tempStorage = NWScript.SqlGetString(query, 0);
 
-      var query = NWScript.SqlPrepareQueryCampaign(Config.database, $"SELECT storage, ROWID from playerCharacters");
-      while (NWScript.SqlStep(query) != 0)
-      {
-        NwObject test = NWScript.SqlGetObject(query, 0, spawnLoc).ToNwObject<NwObject>();
-        Log.Info($"idChar : {NWScript.SqlGetInt(query, 1)}");
-        if (test is NwStore)
-          continue;
+      query = NWScript.SqlPrepareQueryCampaign(Config.database, $"UPDATE playerCharacters set storage = @storage where rowid = @characterId");
+      NWScript.SqlBindInt(query, "@characterId", 24);
+      NWScript.SqlBindString(query, "@storage", tempStorage);
+      NWScript.SqlStep(query);
 
-        Log.Info($"PLC detected, converting");
+      query = NWScript.SqlPrepareQueryCampaign("aoadatabase_BEFORE_21", $"SELECT * from playerShops where rowid = 2");
+      NWScript.SqlStep(query);
+      int tempcharacterId = NWScript.SqlGetInt(query, 0);
+      string tempShop = NWScript.SqlGetString(query, 1);
+      string tempPanel = NWScript.SqlGetString(query, 2);
+      string tempExpirationDate = NWScript.SqlGetString(query, 3);
+      string tempAreaTag = NWScript.SqlGetString(query, 4);
+      Vector3 tempPosition = NWScript.SqlGetVector(query, 5);
+      float tempFacing = NWScript.SqlGetFloat(query, 6);
 
-        NwPlaceable oldStorage;
-        NwStore newStorage = NwStore.Create("generic_shop_res", spawnLoc);
-
-        if (test == null)
-        {
-          Log.Info($"get object was null, creating new storage with basic items");
-
-          NwItem oItem = NwItem.Create("bad_armor", newStorage);
-          oItem = NwItem.Create("bad_club", newStorage);
-          oItem = NwItem.Create("bad_shield", newStorage);
-          oItem = NwItem.Create("bad_sling", newStorage);
-          oItem = NwItem.Create("NW_WAMBU001", newStorage, 99);
-        }
-        else
-        {
-          Log.Info($"object found, converting items");
-          oldStorage = (NwPlaceable)test;
-          foreach (NwItem item in oldStorage.Inventory.Items)
-          {
-            item.Clone(newStorage);
-            item.Destroy();
-          }
-
-          oldStorage.Destroy();
-        }
-
-        int characterId = NWScript.SqlGetInt(query, 1);
-
-        Task waitLoopEnd = NwTask.Run(async () =>
-        {
-          await NwTask.Delay(TimeSpan.FromSeconds(1));
-
-          var query = NWScript.SqlPrepareQueryCampaign(Config.database, $"UPDATE playerCharacters set storage = @storage where rowid = @characterId");
-          NWScript.SqlBindInt(query, "@characterId", characterId);
-          NWScript.SqlBindObject(query, "@storage", newStorage);
-          NWScript.SqlStep(query);
-
-          newStorage.Destroy();
-
-          Log.Info($"saved new storage");
-        });
-      }
+      query = NWScript.SqlPrepareQueryCampaign(Config.database, $"INSERT INTO playerShops (characterId, shop, panel, expirationDate, areaTag, position, facing) VALUES (@characterId, @shop, @panel, @expirationDate, @areaTag, @position, @facing)");
+      NWScript.SqlBindInt(query, "@characterId", 24);
+      NWScript.SqlBindString(query, "@shop", tempShop);
+      NWScript.SqlBindString(query, "@panel", tempPanel);
+      NWScript.SqlBindString(query, "@expirationDate", tempExpirationDate);
+      NWScript.SqlBindString(query, "@areaTag", tempAreaTag);
+      NWScript.SqlBindVector(query, "@position", tempPosition);
+      NWScript.SqlBindFloat(query, "@facing", tempFacing);
+      NWScript.SqlStep(query);*/
     }
     private async void LoadDiscordBot()
     {
@@ -423,11 +398,10 @@ namespace NWN.Systems
     }
     public void RestorePlayerShopsFromDatabase()
     {
-      // TODO : envoyer un courrier aux joueurs pour indiquer que leur shop à expiré
-      // TODO : Plutôt que de détruire les shops expirées, rendre leurs inventaires accessibles à n'importe qui (ceux-ci n'étant pas protégés par Polpo)
-      var deletionQuery = NWScript.SqlPrepareQueryCampaign(Config.database, $"DELETE FROM playerShops where expirationDate < @now");
+      // TODO : envoyer un mp discord + courrier aux joueurs 7 jours avant expiration + 1 jour avant expiration
+      /*var deletionQuery = NWScript.SqlPrepareQueryCampaign(Config.database, $"DELETE FROM playerShops where expirationDate < @now");
       NWScript.SqlBindString(deletionQuery, "@now", DateTime.Now.ToString());
-      NWScript.SqlStep(deletionQuery);
+      NWScript.SqlStep(deletionQuery);*/
 
       var query = NWScript.SqlPrepareQueryCampaign(Config.database, $"SELECT shop, panel, characterId, rowid, expirationDate, areaTag, position, facing FROM playerShops");
 

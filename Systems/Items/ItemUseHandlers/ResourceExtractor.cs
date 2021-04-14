@@ -14,13 +14,9 @@ namespace NWN.Systems.Items.ItemUseHandlers
       if (oTarget == null)
         return;
 
-      //player.CancelCollectCycle();
-      if(player.oid.GetLocalVariable<int>("_COLLECT_IN_PROGRESS").HasValue)
-        player.oid.GetLocalVariable<int>("_COLLECT_CANCELLED").Value = 1;
-
       if (oPC.Distance(oTarget) > 5.0f)
       {
-        oPC.SendServerMessage("Vous êtes trop éloigné de votre cible pour démarrer l'extraction.");
+        oPC.SendServerMessage("Vous êtes trop éloigné de votre cible pour démarrer l'extraction.", Color.ORANGE);
         return;
       }
 

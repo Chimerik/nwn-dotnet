@@ -21,7 +21,7 @@ namespace NWN.Systems
     public PlayerSystem(CursorTargetService cursorTService, EventService eventServices)
     {
       NwModule.Instance.OnClientEnter += HandlePlayerConnect;
-      NwModule.Instance.OnClientLeave += HandlePlayerLeave;
+      NwModule.Instance.OnClientDisconnect += HandlePlayerLeave;
       NwModule.Instance.OnPlayerDeath += HandlePlayerDeath;
       NwModule.Instance.OnPlayerLevelUp += CancelPlayerLevelUp;
 

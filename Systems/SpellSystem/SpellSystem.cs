@@ -71,8 +71,6 @@ namespace NWN.Systems
       oPC.GetLocalVariable<int>("_DELAYED_SPELLHOOK_WILL").Value = CreaturePlugin.GetBaseSavingThrow(oPC, NWScript.SAVING_THROW_WILL);
       oPC.GetLocalVariable<int>("_DELAYED_SPELLHOOK_FORT").Value = CreaturePlugin.GetBaseSavingThrow(oPC, NWScript.SAVING_THROW_FORT);
 
-      Log.Info($"spellhook fort : {oPC.GetLocalVariable<int>("_DELAYED_SPELLHOOK_FORT").Value}");
-
       if (player.learntCustomFeats.ContainsKey(CustomFeats.ImprovedCasterLevel))
         CreaturePlugin.SetLevelByPosition(oPC, 0, SkillSystem.GetCustomFeatLevelFromSkillPoints(CustomFeats.ImprovedCasterLevel, player.learntCustomFeats[CustomFeats.ImprovedCasterLevel]) + 1);
 
@@ -151,8 +149,6 @@ namespace NWN.Systems
       CreaturePlugin.SetBaseSavingThrow(player, NWScript.SAVING_THROW_REFLEX, player.GetLocalVariable<int>("_DELAYED_SPELLHOOK_REFLEX").Value);
       CreaturePlugin.SetBaseSavingThrow(player, NWScript.SAVING_THROW_WILL, player.GetLocalVariable<int>("_DELAYED_SPELLHOOK_WILL").Value);
       CreaturePlugin.SetBaseSavingThrow(player, NWScript.SAVING_THROW_FORT, player.GetLocalVariable<int>("_DELAYED_SPELLHOOK_FORT").Value);
-
-      Log.Info($"after spellhook fort : {player.GetLocalVariable<int>("_DELAYED_SPELLHOOK_FORT").Value}");
     }
     public static void RestoreSpell(uint caster, int spellId)
     {
@@ -169,8 +165,6 @@ namespace NWN.Systems
     }
     public static void HandleBeforeSpellCast(OnSpellCast onSpellCast)
     {
-      Log.Info($"before cast fort : {CreaturePlugin.GetBaseSavingThrow(onSpellCast.Caster, NWScript.SAVING_THROW_FORT)}");
-
       int classe = 43; // aventurier
       if (int.TryParse(NWScript.Get2DAString("spells", "Bard", (int)onSpellCast.Spell), out int value))
         classe = NWScript.CLASS_TYPE_BARD;
@@ -184,8 +178,6 @@ namespace NWN.Systems
         classe = NWScript.CLASS_TYPE_CLERIC;
 
       CreaturePlugin.SetClassByPosition(onSpellCast.Caster, 0, classe);
-
-      Log.Info($"end before cast fort : {CreaturePlugin.GetBaseSavingThrow(onSpellCast.Caster, NWScript.SAVING_THROW_FORT)}");
 
       if (onSpellCast.Caster.GetLocalVariable<int>("_AUTO_SPELL").HasValue && onSpellCast.Caster.GetLocalVariable<int>("_AUTO_SPELL").Value != (int)onSpellCast.Spell)
       {

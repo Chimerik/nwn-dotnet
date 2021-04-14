@@ -3,6 +3,7 @@ using NWN.Core;
 using NWN.API.Constants;
 using NWN.Services;
 using NWN.API;
+using NWN.API.Events;
 
 namespace NWN.Systems
 {
@@ -19,7 +20,7 @@ namespace NWN.Systems
 
       PlayerSystem.cursorTargetService.EnterTargetMode(ctx.oSender, FollowTarget, ObjectTypes.Creature, MouseCursor.Follow);
     }
-    private static void FollowTarget(CursorTargetData selection)
+    private static void FollowTarget(ModuleEvents.OnPlayerTarget selection)
     {
       if (selection.Player.MovementRate == MovementRate.Immobile
             || selection.Player.TotalWeight > int.Parse(NWScript.Get2DAString("encumbrance", "Heavy", selection.Player.GetAbilityScore(Ability.Strength))))
@@ -34,7 +35,7 @@ namespace NWN.Systems
         return;
       }*/
 
-      selection.Player.ActionForceFollowObject((NwGameObject)selection.TargetObj, 3.0f);
+      selection.Player.ActionForceFollowObject((NwGameObject)selection.TargetObject, 3.0f);
     }
   }
 }

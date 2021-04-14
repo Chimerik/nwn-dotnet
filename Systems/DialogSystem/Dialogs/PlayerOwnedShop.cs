@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using NWN.API;
+using NWN.API.Events;
 using NWN.Core;
 using NWN.Core.NWNX;
 using NWN.Services;
@@ -52,6 +53,10 @@ namespace NWN.Systems
         () => GetNewDescription(player, storePanel)
       ));
       player.menu.choices.Add((
+        "Faire tourner de 20°",
+        () => HandleRotation(player, storePanel)
+      ));
+      player.menu.choices.Add((
         "Fermer boutique (destruction de l'échoppe)",
         () => DestroyShop(player, store, storePanel)
       ));
@@ -68,12 +73,12 @@ namespace NWN.Systems
       player.oid.GetLocalVariable<NwObject>("_ACTIVE_STORE").Value = store;
       cursorTargetService.EnterTargetMode(player.oid, OnSellItemSelected, API.Constants.ObjectTypes.Item, API.Constants.MouseCursor.Pickup);
     }
-    private static void OnSellItemSelected(CursorTargetData selection)
+    private static void OnSellItemSelected(ModuleEvents.OnPlayerTarget selection)
     {
       if (!Players.TryGetValue(selection.Player, out PlayerSystem.Player player))
         return;
 
-      if (selection.TargetObj is null || !(selection.TargetObj is NwItem))
+      if (selection.TargetObject is null || !(selection.TargetObject is NwItem))
         return;
 
       NwStore store = (NwStore)player.oid.GetLocalVariable<NwObject>("_ACTIVE_STORE").Value;
@@ -82,7 +87,7 @@ namespace NWN.Systems
       if (store == null)
         return;
 
-      DrawItemAddedPage(player, (NwItem)selection.TargetObj, store);
+      DrawItemAddedPage(player, (NwItem)selection.TargetObject, store);
     }
     private static void GetNewName(PlayerSystem.Player player, NwPlaceable shop)
     {
@@ -155,6 +160,10 @@ namespace NWN.Systems
       player.menu.Close();
       shop.Destroy();
       panel.Destroy();
+    }
+    private static void HandleRotation(PlayerSystem.Player player, NwPlaceable shop)
+    {
+      shop.Rotation += 20;
     }
     public static void SaveShop(PlayerSystem.Player player, NwStore shop)
     {

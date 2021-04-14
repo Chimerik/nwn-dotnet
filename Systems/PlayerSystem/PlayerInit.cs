@@ -153,11 +153,7 @@ namespace NWN.Systems
         ItemSystem.OnShieldRemoved(oPC);
       });
 
-      Task waitForPartyChange = NwTask.Run(async () =>
-      {
-        await NwTask.WaitUntilValueChanged(() => oPC.PartyMembers.Count<NwPlayer>(p => !p.IsDM));
-        Party.HandlePartyChange(oPC);
-      });
+      WaitForPartyChange(oPC);
 
       oPC.GetLocalVariable<int>("_CONNECTING").Delete();
       player.isAFK = false;
@@ -168,6 +164,37 @@ namespace NWN.Systems
 
 
       Log.Info("End of player init.");
+    }
+    private static void WaitForPartyChange(NwPlayer oPC)
+    {
+      Task waitForPartyChange = NwTask.Run(async () =>
+      {
+        Task playerGetsDMRights = NwTask.Run(async () =>
+        {
+          await NwTask.WaitUntil(() => oPC.IsDM);
+          return true;
+        });
+
+        Task partyChanged = NwTask.Run(async () =>
+        {
+          await NwTask.WaitUntilValueChanged(() => oPC.PartyMembers.Count<NwPlayer>(p => !p.IsDM));
+          return true;
+        });
+
+        await NwTask.WhenAny(playerGetsDMRights, partyChanged);
+
+        if (playerGetsDMRights.IsCompletedSuccessfully)
+        {
+          Task playerLosesDMRights = NwTask.Run(async () =>
+          {
+            await NwTask.WaitUntil(() => !oPC.IsDM);
+            WaitForPartyChange(oPC);
+          });
+          return;
+        }
+
+        Party.HandlePartyChange(oPC);
+      });
     }
     private static void InitializeNewPlayer(NwPlayer newPlayer)
     {

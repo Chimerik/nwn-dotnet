@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using NWN.API;
+using NWN.API.Events;
 using NWN.Core;
 using NWN.Core.NWNX;
 using NWN.Services;
@@ -45,6 +46,11 @@ namespace NWN.Systems
       ));
 
       player.menu.choices.Add((
+        "Faire tourner de 20°",
+        () => HandleRotation(player, storePanel)
+      ));
+
+      player.menu.choices.Add((
         "Quitter",
         () => player.menu.Close()
       ));
@@ -58,12 +64,12 @@ namespace NWN.Systems
       player.oid.GetLocalVariable<NwObject>("_ACTIVE_PANEL").Value = panel;
       cursorTargetService.EnterTargetMode(player.oid, OnSellItemSelected, API.Constants.ObjectTypes.Item, API.Constants.MouseCursor.Pickup);
     }
-    private static void OnSellItemSelected(CursorTargetData selection)
+    private static void OnSellItemSelected(ModuleEvents.OnPlayerTarget selection)
     {
       if (!Players.TryGetValue(selection.Player, out PlayerSystem.Player player))
         return;
 
-      if (selection.TargetObj is null || !(selection.TargetObj is NwItem))
+      if (selection.TargetObject is null || !(selection.TargetObject is NwItem))
         return;
 
       NwStore store = (NwStore)player.oid.GetLocalVariable<NwObject>("_ACTIVE_STORE").Value;
@@ -74,7 +80,7 @@ namespace NWN.Systems
       if (store == null || panel == null)
         return;
 
-      DrawItemAddedPage(player, (NwItem)selection.TargetObj, store, panel);
+      DrawItemAddedPage(player, (NwItem)selection.TargetObject, store, panel);
     }
     private static void GetNewDescription(PlayerSystem.Player player, NwPlaceable shop)
     {
@@ -225,7 +231,10 @@ namespace NWN.Systems
     {
       shop.Open(player.oid);
     }
-
+    private static void HandleRotation(PlayerSystem.Player player, NwPlaceable shop)
+    {
+      shop.Rotation += 20;
+    }
     public static void GetAuctionPrice(PlayerSystem.Player player, NwStore shop, NwPlaceable panel)
     {
       player.menu.Clear();

@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using NWN.Core.NWNX;
 using System.Collections.Generic;
 using System;
+using NWN.API.Events;
 
 namespace NWN.Systems
 {
@@ -42,15 +43,15 @@ namespace NWN.Systems
     {
       cursorTargetService.EnterTargetMode(oPC, OnPNJSelected, ObjectTypes.Creature, MouseCursor.Create);
     }
-    public static void OnPNJSelected(CursorTargetData selection)
+    public static void OnPNJSelected(ModuleEvents.OnPlayerTarget selection)
     {
-      if (selection.TargetObj is NwPlayer && selection.Player.PlayerName != "Chim")
+      if (selection.TargetObject is NwPlayer && selection.Player.PlayerName != "Chim")
       {
         selection.Player.SendServerMessage("Seuls les pnjs peuvent être modifiés à l'aide de cet outil.");
         return;
       }
 
-      DrawPNJSelectionWelcome(selection.Player, (NwCreature)selection.TargetObj);
+      DrawPNJSelectionWelcome(selection.Player, (NwCreature)selection.TargetObject);
     }
     private static void DrawPNJSelectionWelcome(NwPlayer oPC, NwCreature oPNJ)
     {
@@ -1028,7 +1029,7 @@ namespace NWN.Systems
       oPC.GetLocalVariable<string>("_SPAWNING_NPC_ACCOUNT").Value = accountName;
       cursorTargetService.EnterTargetMode(oPC, OnPNJSpawnLocationSelected, ObjectTypes.All, MouseCursor.Create);
     }
-    private static void OnPNJSpawnLocationSelected(CursorTargetData selection)
+    private static void OnPNJSpawnLocationSelected(ModuleEvents.OnPlayerTarget selection)
     {
       var query = NWScript.SqlPrepareQueryCampaign(Config.database, $"SELECT serializedCreature from savedNPC where accountName = @accountName and name = @name");
       NWScript.SqlBindString(query, "@accountName", selection.Player.GetLocalVariable<string>("_SPAWNING_NPC_ACCOUNT").Value);
@@ -1037,7 +1038,7 @@ namespace NWN.Systems
       if (NWScript.SqlStep(query) > 0)
       {
         NwCreature oNPC = NwCreature.Deserialize<NwCreature>(NWScript.SqlGetString(query, 0));
-        oNPC.Location = API.Location.Create(selection.Player.Area, selection.TargetPos, selection.Player.Rotation);
+        oNPC.Location = API.Location.Create(selection.Player.Area, selection.TargetPosition, selection.Player.Rotation);
       }
     }
     private static void HandleApplyDefaultModel(Player player, NwCreature oPNJ)

@@ -11,8 +11,15 @@ namespace NWN.Systems
   [ServiceBinding(typeof(Party))]
   class Party
   {
-    public static void HandlePartyChange(NwPlayer oPC)
+    public static void HandlePartyChange(NwGameObject oPartyChanger)
     {
+      NwPlayer oPC = null;
+
+      if (oPartyChanger is NwPlayer)
+        oPC = (NwPlayer)oPartyChanger;
+      else
+        oPC = (NwPlayer)((NwCreature)oPartyChanger).Master;
+
       API.Effect partyEffect = oPC.ActiveEffects.FirstOrDefault(e => e.Tag == "PartyEffect");
       if (partyEffect != null)
         oPC.RemoveEffect(partyEffect);

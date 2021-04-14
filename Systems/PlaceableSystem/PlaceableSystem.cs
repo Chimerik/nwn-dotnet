@@ -24,6 +24,9 @@ namespace NWN.Systems
       foreach (NwPlaceable bassin in NwModule.FindObjectsWithTag<NwPlaceable>("ench_bsn"))
         bassin.OnClose += HandleCloseEnchantementBassin;
 
+      foreach (NwPlaceable balancoire in NwModule.FindObjectsWithTag<NwPlaceable>("balancoire"))
+        balancoire.OnUsed += OnUsedBalancoire;
+
       foreach (NwPlaceable plc in NwModule.FindObjectsWithTag<NwPlaceable>(Arena.Config.PVE_ARENA_PULL_ROPE_CHAIN_TAG, "portal_storage_out", "portal_storage_in", "portal_start", "respawn_neutral", "respawn_dire", "respawn_radiant", "theater_rope"))
         plc.OnUsed += HandlePlaceableUsed;
 
@@ -38,6 +41,88 @@ namespace NWN.Systems
         corpse.OnConversation += HandleCancelStatueConversation;
         corpse.OnSpawn += HandleSetUpDeadCreatureCorpse;
       }
+    }
+    public static void OnUsedBalancoire(PlaceableEvents.OnUsed onUsed)
+    {
+      Task waitForAnimation = NwTask.Run(async () =>
+      {
+        NwPlaceable sitter = onUsed.Placeable.GetNearestObjectsByType<NwPlaceable>().FirstOrDefault(p => p.Tag == "balancoiresitter");
+        NwPlaceable usedSwing = onUsed.Placeable;
+        NwCreature oPC = onUsed.UsedBy;
+
+        await oPC.ActionSit(sitter);
+
+        usedSwing.OnUsed -= OnUsedBalancoire;
+        usedSwing.OnLeftClick += OnClickSwingBalancoire;
+
+        usedSwing.GetLocalVariable<NwObject>("_SWING_TARGET").Value = oPC;
+
+        Task onMovementCancelSwing = NwTask.Run(async () =>
+        {
+          await NwTask.Delay(TimeSpan.FromSeconds(1));
+          await NwTask.WaitUntilValueChanged(() => oPC.Position);
+
+          usedSwing.GetLocalVariable<NwObject>("_SWING_TARGET").Delete();
+          usedSwing.GetLocalVariable<int>("_IS_SWINGING").Delete();
+
+          NWScript.SetObjectVisualTransform(usedSwing, NWScript.OBJECT_VISUAL_TRANSFORM_TRANSLATE_X, 0, NWScript.OBJECT_VISUAL_TRANSFORM_LERP_SMOOTHERSTEP, 2);
+          NWScript.SetObjectVisualTransform(usedSwing, NWScript.OBJECT_VISUAL_TRANSFORM_ROTATE_Z, 0, NWScript.OBJECT_VISUAL_TRANSFORM_LERP_SMOOTHERSTEP, 2);
+          NWScript.SetObjectVisualTransform(oPC, NWScript.OBJECT_VISUAL_TRANSFORM_TRANSLATE_X, 0, NWScript.OBJECT_VISUAL_TRANSFORM_LERP_SMOOTHERSTEP, 2);
+          NWScript.SetObjectVisualTransform(oPC, NWScript.OBJECT_VISUAL_TRANSFORM_ROTATE_Z, 0, NWScript.OBJECT_VISUAL_TRANSFORM_LERP_SMOOTHERSTEP, 2);
+
+          usedSwing.OnUsed += OnUsedBalancoire;
+          usedSwing.OnLeftClick -= OnClickSwingBalancoire;
+        });
+      });
+    }
+    public static void OnClickSwingBalancoire(PlaceableEvents.OnLeftClick onClick)
+    {
+      NwPlaceable swing = onClick.Placeable;
+      NwObject oPC = onClick.Placeable.GetLocalVariable<NwObject>("_SWING_TARGET").Value;
+
+      if (swing.GetLocalVariable<int>("_IS_SWINGING").HasValue)
+      {
+        swing.GetLocalVariable<int>("_IS_SWINGING").Delete();
+
+        Task waitSwingEnd = NwTask.Run(async () =>
+        {
+          await NwTask.Delay(TimeSpan.FromSeconds(2));
+          NWScript.SetObjectVisualTransform(swing, NWScript.OBJECT_VISUAL_TRANSFORM_TRANSLATE_X, 0, NWScript.OBJECT_VISUAL_TRANSFORM_LERP_SMOOTHERSTEP, 1);
+          NWScript.SetObjectVisualTransform(swing, NWScript.OBJECT_VISUAL_TRANSFORM_ROTATE_Z, 0, NWScript.OBJECT_VISUAL_TRANSFORM_LERP_SMOOTHERSTEP, 1);
+          NWScript.SetObjectVisualTransform(oPC, NWScript.OBJECT_VISUAL_TRANSFORM_TRANSLATE_X, 0, NWScript.OBJECT_VISUAL_TRANSFORM_LERP_SMOOTHERSTEP, 1);
+          NWScript.SetObjectVisualTransform(oPC, NWScript.OBJECT_VISUAL_TRANSFORM_ROTATE_Z, 0, NWScript.OBJECT_VISUAL_TRANSFORM_LERP_SMOOTHERSTEP, 1);
+        });
+      }
+      else
+      {
+        swing.GetLocalVariable<int>("_IS_SWINGING").Value = 1;
+
+        NWScript.SetObjectVisualTransform(oPC, NWScript.OBJECT_VISUAL_TRANSFORM_TRANSLATE_X, -0.75f, NWScript.OBJECT_VISUAL_TRANSFORM_LERP_SMOOTHERSTEP, 2);
+        NWScript.SetObjectVisualTransform(oPC, NWScript.OBJECT_VISUAL_TRANSFORM_ROTATE_Z, 15, NWScript.OBJECT_VISUAL_TRANSFORM_LERP_SMOOTHERSTEP, 2);
+        NWScript.SetObjectVisualTransform(swing, NWScript.OBJECT_VISUAL_TRANSFORM_TRANSLATE_X, 0.75f, NWScript.OBJECT_VISUAL_TRANSFORM_LERP_SMOOTHERSTEP, 2);
+        NWScript.SetObjectVisualTransform(swing, NWScript.OBJECT_VISUAL_TRANSFORM_ROTATE_Z, -15, NWScript.OBJECT_VISUAL_TRANSFORM_LERP_SMOOTHERSTEP, 2);
+
+        Task waitLoopEnd = NwTask.Run(async () =>
+        {
+          await NwTask.Delay(TimeSpan.FromSeconds(2));
+          if(swing.GetLocalVariable<int>("_IS_SWINGING").HasValue)
+            HandleSwing(swing, oPC);
+        });
+      }
+    }
+    public static void HandleSwing(NwObject swing, NwObject oPC)
+    {
+      NWScript.SetObjectVisualTransform(oPC, NWScript.OBJECT_VISUAL_TRANSFORM_TRANSLATE_X, -NWScript.GetObjectVisualTransform(oPC, NWScript.OBJECT_VISUAL_TRANSFORM_TRANSLATE_X), NWScript.OBJECT_VISUAL_TRANSFORM_LERP_SMOOTHERSTEP, 2);
+      NWScript.SetObjectVisualTransform(oPC, NWScript.OBJECT_VISUAL_TRANSFORM_ROTATE_Z, -NWScript.GetObjectVisualTransform(oPC, NWScript.OBJECT_VISUAL_TRANSFORM_ROTATE_Z), NWScript.OBJECT_VISUAL_TRANSFORM_LERP_SMOOTHERSTEP, 2);
+      NWScript.SetObjectVisualTransform(swing, NWScript.OBJECT_VISUAL_TRANSFORM_TRANSLATE_X, -NWScript.GetObjectVisualTransform(swing, NWScript.OBJECT_VISUAL_TRANSFORM_TRANSLATE_X), NWScript.OBJECT_VISUAL_TRANSFORM_LERP_SMOOTHERSTEP, 2);
+      NWScript.SetObjectVisualTransform(swing, NWScript.OBJECT_VISUAL_TRANSFORM_ROTATE_Z, -NWScript.GetObjectVisualTransform(swing, NWScript.OBJECT_VISUAL_TRANSFORM_ROTATE_Z), NWScript.OBJECT_VISUAL_TRANSFORM_LERP_SMOOTHERSTEP, 2);
+
+      Task waitLoopEnd = NwTask.Run(async () =>
+      {
+        await NwTask.Delay(TimeSpan.FromSeconds(2));
+        if (swing.GetLocalVariable<int>("_IS_SWINGING").HasValue)
+          HandleSwing(swing, oPC);
+      });
     }
     public static void HandleCleanDMPLC(PlaceableEvents.OnDeath onDeath)
     {

@@ -27,24 +27,21 @@ namespace NWN.Systems
       if (ChatPlugin.GetChannel() == ChatPlugin.NWNX_CHAT_CHANNEL_SERVER_MSG)
         return;
 
-      NwPlayer sender = ChatPlugin.GetSender().ToNwObjectSafe<NwPlayer>();
+      NwPlayer oSender = ChatPlugin.GetSender().ToNwObjectSafe<NwPlayer>();
 
-      if (sender == null)
+      if (oSender == null)
         return;
 
-      NwPlayer target = null;
+      NwPlayer target = ChatPlugin.GetTarget().ToNwObjectSafe<NwPlayer>();
 
-      if (ChatPlugin.GetTarget() != NWScript.OBJECT_INVALID)
-        target = ChatPlugin.GetTarget().ToNwObjectSafe<NwPlayer>();
-
-      if (sender.Area != null)
-        areaName = sender.Area.Name;
+      if (oSender.Area != null)
+        areaName = oSender.Area.Name;
       else
         areaName = "Entre deux zones";
 
       pipeline.Execute(new Context(
         msg: ChatPlugin.GetMessage(),
-        oSender: sender,
+        oSender: oSender,
         oTarget: target,
         channel: ChatPlugin.GetChannel()
       ));
@@ -181,9 +178,9 @@ namespace NWN.Systems
         NwCreature oInviSender = NwModule.FindObjectsWithTag<NwCreature>("_invisible_sender").FirstOrDefault();
         if (oInviSender != null)
         {
-          foreach (NwPlayer oDM in NwModule.Instance.Players.Where(d => d.IsDM || d.IsDMPossessed || d.IsPlayerDM))
+          foreach (NwPlayer oDM in NwModule.Instance.Players.Where(d => d.IsDM))
           {
-            if (PlayerSystem.Players.TryGetValue(oDM, out PlayerSystem.Player dungeonMaster))
+           if (PlayerSystem.Players.TryGetValue(oDM, out PlayerSystem.Player dungeonMaster))
             {
               if (dungeonMaster.listened.Contains(ctx.oSender))
               {
@@ -212,10 +209,17 @@ namespace NWN.Systems
     }
     public static void ProcessLanguageMiddleware(Context ctx, Action next) // SYSTEME DE LANGUE
     {
-      int iLanguage = ctx.oSender.GetLocalVariable<int>("_ACTIVE_LANGUAGE").Value;
+      NwCreature master = ctx.oSender.Master;
+      int iLanguage = (int)CustomFeats.Invalid;
+
+      if (master != null)
+        iLanguage = master.GetLocalVariable<int>("_ACTIVE_LANGUAGE").Value;
+      else
+        iLanguage = ctx.oSender.GetLocalVariable<int>("_ACTIVE_LANGUAGE").Value;
+
       if (iLanguage != (int)CustomFeats.Invalid && (ctx.channel == ChatPlugin.NWNX_CHAT_CHANNEL_PLAYER_TALK || ctx.channel == ChatPlugin.NWNX_CHAT_CHANNEL_PLAYER_WHISPER || ctx.channel == ChatPlugin.NWNX_CHAT_CHANNEL_DM_TALK || ctx.channel == ChatPlugin.NWNX_CHAT_CHANNEL_DM_WHISPER))
       {
-        string sLanguageName = Enum.GetName(typeof(CustomFeats), iLanguage);
+        string sLanguageName = SkillSystem.customFeatsDictionnary[(Feat)iLanguage].name;
         //string sName = NWScript.GetLocalString(ctx.oSender, "__DISGUISE_NAME");
         //if (sName == "") sName = NWScript.GetName(ctx.oSender);
 

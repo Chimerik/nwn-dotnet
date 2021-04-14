@@ -1,4 +1,5 @@
 ﻿using NWN.API;
+using NWN.API.Events;
 using NWN.Services;
 
 namespace NWN.Systems
@@ -10,12 +11,12 @@ namespace NWN.Systems
       ctx.oSender.SendServerMessage("Veuillez maintenant sélectionnner l'objet que vous souhaitez recycler.", Color.ROSE);
       PlayerSystem.cursorTargetService.EnterTargetMode(ctx.oSender, OnItemSelected, API.Constants.ObjectTypes.Item, API.Constants.MouseCursor.Kill);
     }
-    private static void OnItemSelected(CursorTargetData selection)
+    private static void OnItemSelected(ModuleEvents.OnPlayerTarget selection)
     {
-      if (selection.TargetObj is null || !(selection.TargetObj is NwItem))
+      if (selection.TargetObject is null || !(selection.TargetObject is NwItem))
         return;
 
-      new Recycler(selection.Player, (NwItem)selection.TargetObj);
+      new Recycler(selection.Player, (NwItem)selection.TargetObject);
     }
   }
 }
