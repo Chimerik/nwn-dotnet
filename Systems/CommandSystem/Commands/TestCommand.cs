@@ -38,30 +38,7 @@ namespace NWN.Systems
 
     public static void OnTargetSelected(ModuleEvents.OnPlayerTarget selection)
     {
-      NWScript.SetObjectVisualTransform(selection.TargetObject, NWScript.OBJECT_VISUAL_TRANSFORM_TRANSLATE_X, 0.75f, NWScript.OBJECT_VISUAL_TRANSFORM_LERP_SMOOTHERSTEP, 2);
-      //NWScript.SetObjectVisualTransform(selection.TargetObj, NWScript.OBJECT_VISUAL_TRANSFORM_ROTATE_X, -10, NWScript.OBJECT_VISUAL_TRANSFORM_LERP_SMOOTHERSTEP, 2);
-      //NWScript.SetObjectVisualTransform(selection.TargetObj, NWScript.OBJECT_VISUAL_TRANSFORM_ROTATE_Y, -20, NWScript.OBJECT_VISUAL_TRANSFORM_LERP_SMOOTHERSTEP, 2);
-      NWScript.SetObjectVisualTransform(selection.TargetObject, NWScript.OBJECT_VISUAL_TRANSFORM_ROTATE_Z, -15, NWScript.OBJECT_VISUAL_TRANSFORM_LERP_SMOOTHERSTEP, 2);
 
-      Task waitLoopEndToRemove = NwTask.Run(async () =>
-      {
-        await NwTask.Delay(TimeSpan.FromSeconds(2));
-        HandleSwing(selection.TargetObject);
-      });
-    }
-
-    public static void HandleSwing(NwObject swing)
-    {
-      NWScript.SetObjectVisualTransform(swing, NWScript.OBJECT_VISUAL_TRANSFORM_TRANSLATE_X, -NWScript.GetObjectVisualTransform(swing, NWScript.OBJECT_VISUAL_TRANSFORM_TRANSLATE_X), NWScript.OBJECT_VISUAL_TRANSFORM_LERP_SMOOTHERSTEP, 2);
-      //NWScript.SetObjectVisualTransform(swing, NWScript.OBJECT_VISUAL_TRANSFORM_ROTATE_X, -NWScript.GetObjectVisualTransform(swing, NWScript.OBJECT_VISUAL_TRANSFORM_ROTATE_X), NWScript.OBJECT_VISUAL_TRANSFORM_LERP_SMOOTHERSTEP, 2);
-      //NWScript.SetObjectVisualTransform(swing, NWScript.OBJECT_VISUAL_TRANSFORM_ROTATE_Y, -NWScript.GetObjectVisualTransform(swing, NWScript.OBJECT_VISUAL_TRANSFORM_ROTATE_Y), NWScript.OBJECT_VISUAL_TRANSFORM_LERP_SMOOTHERSTEP, 2);
-      NWScript.SetObjectVisualTransform(swing, NWScript.OBJECT_VISUAL_TRANSFORM_ROTATE_Z, -NWScript.GetObjectVisualTransform(swing, NWScript.OBJECT_VISUAL_TRANSFORM_ROTATE_Z), NWScript.OBJECT_VISUAL_TRANSFORM_LERP_SMOOTHERSTEP, 2);
-
-      Task waitLoopEndToRemove = NwTask.Run(async () =>
-      {
-        await NwTask.Delay(TimeSpan.FromSeconds(2));
-        HandleSwing(swing);
-      });
     }
     /* public static String Translate(String word)
      {

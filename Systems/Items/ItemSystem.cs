@@ -17,8 +17,10 @@ namespace NWN.Systems
   public class ItemSystem
   {
     public static readonly Logger Log = LogManager.GetCurrentClassLogger();
-    public ItemSystem(NWNXEventService nwnxEventService)
+    public static FeedbackService feedbackService;
+    public ItemSystem(FeedbackService feedback)
     {
+      feedbackService = feedback;
       //NwModule.Instance.OnAcquireItem += OnAcquireItem;
       //NwModule.Instance.OnUnacquireItem += OnUnacquireItem;
     }
@@ -70,49 +72,48 @@ namespace NWN.Systems
 
       if(player == null || oItem == null)
         return;
-
+      
       switch (oItem.Tag)
       {
         case "skillbook":
-          FeedbackPlugin.SetFeedbackMessageHidden(23, 1, player.oid);
+          feedbackService.AddFeedbackMessageFilter(FeedbackMessage.UseItemCantUse, player.oid);
           onItemUse.Skip = true;
           Items.ItemUseHandlers.SkillBook.HandleActivate(oItem, player.oid);
-          NWScript.DelayCommand(0.2f, () => FeedbackPlugin.SetFeedbackMessageHidden(23, 0, player.oid));
           break;
 
         case "blueprint":
-          FeedbackPlugin.SetFeedbackMessageHidden(23, 1, player.oid);
+          feedbackService.AddFeedbackMessageFilter(FeedbackMessage.UseItemCantUse, player.oid);
           onItemUse.Skip = true;
           Items.ItemUseHandlers.Blueprint.HandleActivate(oItem, player.oid, oTarget);
-          NWScript.DelayCommand(0.2f, () => FeedbackPlugin.SetFeedbackMessageHidden(23, 0, player.oid));
+
           break;
 
         case "oreextractor":
-          FeedbackPlugin.SetFeedbackMessageHidden(23, 1, player.oid);
+          feedbackService.AddFeedbackMessageFilter(FeedbackMessage.UseItemCantUse, player.oid);
           onItemUse.Skip = true;
           Items.ItemUseHandlers.ResourceExtractor.HandleActivate(oItem, player.oid, oTarget);
-          NWScript.DelayCommand(0.2f, () => FeedbackPlugin.SetFeedbackMessageHidden(23, 0, player.oid));
+
           break;
         case "private_contract":
-          FeedbackPlugin.SetFeedbackMessageHidden(23, 1, player.oid);
+          feedbackService.AddFeedbackMessageFilter(FeedbackMessage.UseItemCantUse, player.oid);
           onItemUse.Skip = true;
           new PrivateContract(player.oid, oItem);
-          NWScript.DelayCommand(0.2f, () => FeedbackPlugin.SetFeedbackMessageHidden(23, 0, player.oid));
+
           break;
         case "shop_clearance":
-          FeedbackPlugin.SetFeedbackMessageHidden(23, 1, player.oid);
+          feedbackService.AddFeedbackMessageFilter(FeedbackMessage.UseItemCantUse, player.oid);
           onItemUse.Skip = true;
           new PlayerShop(player.oid, oItem);
-          NWScript.DelayCommand(0.2f, () => FeedbackPlugin.SetFeedbackMessageHidden(23, 0, player.oid));
+
           break;
         case "auction_clearanc":
-          FeedbackPlugin.SetFeedbackMessageHidden(23, 1, player.oid);
+          feedbackService.AddFeedbackMessageFilter(FeedbackMessage.UseItemCantUse, player.oid);
           onItemUse.Skip = true;
           new PlayerAuction(player.oid, oItem);
-          NWScript.DelayCommand(0.2f, () => FeedbackPlugin.SetFeedbackMessageHidden(23, 0, player.oid));
+
           break;
         case "forgehammer":
-          FeedbackPlugin.SetFeedbackMessageHidden(23, 1, player.oid);
+          feedbackService.AddFeedbackMessageFilter(FeedbackMessage.UseItemCantUse, player.oid);
           onItemUse.Skip = true;
 
           if (oTarget is NwItem)
@@ -120,22 +121,25 @@ namespace NWN.Systems
           else
             player.oid.SendServerMessage($"Vous ne pouvez pas modifier l'apparence de {oTarget.Name.ColorString(Color.WHITE)}.".ColorString(Color.RED));
 
-          NWScript.DelayCommand(0.2f, () => FeedbackPlugin.SetFeedbackMessageHidden(23, 0, player.oid));
           break;
         case "Peaudejoueur":
-          FeedbackPlugin.SetFeedbackMessageHidden(23, 1, player.oid);
+          feedbackService.AddFeedbackMessageFilter(FeedbackMessage.UseItemCantUse, player.oid);
           onItemUse.Skip = true;
 
           Task waitSkinEquipped = NwTask.Run(async () =>
           {
             await player.oid.ClearActionQueue();
             await player.oid.ActionEquipItem(onItemUse.Item, InventorySlot.CreatureSkin);
-            await NwTask.Delay(TimeSpan.FromSeconds(0.2));
-            FeedbackPlugin.SetFeedbackMessageHidden(23, 0, player.oid);
           });
           
           break;
       }
+
+      Task wait = NwTask.Run(async () =>
+      {
+        await NwTask.Delay(TimeSpan.FromSeconds(0.2));
+        feedbackService.RemoveFeedbackMessageFilter(FeedbackMessage.UseItemCantUse, player.oid);
+      });
     }
     public static void OnAcquireItem(ModuleEvents.OnAcquireItem onAcquireItem)
     {

@@ -1,33 +1,59 @@
-﻿using System;
-using System.Numerics;
+﻿using System.Collections.Generic;
+using System.Threading.Tasks;
 using NWN.API;
 using NWN.API.Constants;
 using NWN.API.Events;
-using NWN.Core;
 using NWN.Core.NWNX;
-using NWN.Services;
 
 namespace NWN.Systems
 {
-  public static partial class CommandSystem
+  class RenameSummon
   {
-    private static void ExecuteRenameCreatureCommand(ChatSystem.Context ctx, Options.Result options)
+    public RenameSummon(NwPlayer oPC)
     {
-      if(CreaturePlugin.GetKnowsFeat(ctx.oSender, (int)API.Constants.Feat.SpellFocusConjuration) == 0)
+      if (!oPC.KnowsFeat(Feat.SpellFocusConjuration))
       {
-        ctx.oSender.SendServerMessage("Le don de spécialisation en invocation est nécessaire pour pouvoir renommer une invocation.", Color.ORANGE);
+        oPC.SendServerMessage("Le don de spécialisation en invocation est nécessaire pour pouvoir renommer une invocation.", Color.ORANGE);
         return;
       }
 
-      ctx.oSender.GetLocalVariable<string>("_RENAME_VALUE").Value = (string)options.positional[0];
-      PlayerSystem.cursorTargetService.EnterTargetMode(ctx.oSender, SummonRenameTarget, ObjectTypes.Creature, MouseCursor.Create);
+      oPC.SendServerMessage("Veuillez sélectionnner la créature dont vous souhaitez modifier le nom.", Color.ROSE);
+
+      PlayerSystem.cursorTargetService.EnterTargetMode(oPC, SummonRenameTarget, ObjectTypes.Creature, MouseCursor.Create);
     }
     private static void SummonRenameTarget(ModuleEvents.OnPlayerTarget selection)
     {
+      if (!PlayerSystem.Players.TryGetValue(selection.Player, out PlayerSystem.Player player))
+        return;
+
       if (selection.TargetObject != null && ((NwCreature)selection.TargetObject).Master == selection.Player)
-        selection.TargetObject.Name = selection.Player.GetLocalVariable<string>("_RENAME_VALUE").Value;
+      {
+        player.menu.Clear();
+
+        player.menu.titleLines = new List<string>() {
+        "Quel nom souhaitez-vous donner à votre invocation ?"
+        };
+
+        Task playerInput = NwTask.Run(async () =>
+        {
+          player.oid.GetLocalVariable<int>("_PLAYER_INPUT_STRING").Value = 1;
+          player.setString = "";
+          await NwTask.WaitUntil(() => player.setString != "");
+
+          player.oid.SendServerMessage($"{selection.TargetObject.Name.ColorString(Color.WHITE)} a été renommé {player.setString.ColorString(Color.WHITE)}.", Color.GREEN);
+          player.setString = "";
+          player.menu.Close();
+        });
+
+        player.menu.choices.Add(("Retour", () => CommandSystem.DrawCommandList(player)));
+        player.menu.choices.Add(("Quitter", () => player.menu.Close()));
+        player.menu.Draw();
+      }
       else
+      {
         selection.Player.SendServerMessage("Veuillez sélectionner une cible valide.", Color.RED);
+        PlayerSystem.cursorTargetService.EnterTargetMode(selection.Player, SummonRenameTarget, ObjectTypes.Creature, MouseCursor.Create);
+      }
     }
   }
 }

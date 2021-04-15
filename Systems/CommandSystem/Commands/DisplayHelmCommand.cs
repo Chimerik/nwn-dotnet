@@ -2,11 +2,11 @@
 
 namespace NWN.Systems
 {
-  public static partial class CommandSystem
+  class DisplayHelm
   {
-    private static void ExecuteDisplayHelmCommand(ChatSystem.Context ctx, Options.Result options)
+    public DisplayHelm(NwPlayer oPC)
     {
-      NwItem oHelmet = ctx.oSender.GetItemInSlot(API.Constants.InventorySlot.Head);
+      NwItem oHelmet = oPC.GetItemInSlot(API.Constants.InventorySlot.Head);
 
       if (oHelmet != null)
       {
@@ -16,7 +16,7 @@ namespace NWN.Systems
           oHelmet.HiddenWhenEquipped = 0;
       }
       else
-        ctx.oSender.SendServerMessage("Vous ne portez pas de casque !", Color.RED);
+        oPC.SendServerMessage("Vous ne portez pas de casque !", Color.RED);
     }
   }
 }

@@ -2,11 +2,11 @@
 
 namespace NWN.Systems
 {
-  public static partial class CommandSystem
+  class GetPublicKey
   {
-    private static void ExecuteGetPublicKeyCommand(ChatSystem.Context ctx, Options.Result options)
+    public GetPublicKey(NwPlayer oPC)
     {
-      ctx.oSender.SendServerMessage($"Votre clef publique est : {ctx.oSender.CDKey.ColorString(Color.WHITE)}", Color.PINK);
+      oPC.SendServerMessage($"Votre clef publique est : {oPC.CDKey.ColorString(Color.WHITE)}", Color.PINK);
     }
   }
 }

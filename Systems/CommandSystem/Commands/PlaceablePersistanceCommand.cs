@@ -2,22 +2,19 @@
 
 namespace NWN.Systems
 {
-  public static partial class CommandSystem
+  class PlaceablePersistance
   {
-    private static void ExecutePlaceablePersistanceCommand(ChatSystem.Context ctx, Options.Result options)
+    public PlaceablePersistance(NwPlayer oPC)
     {
-      if (!ctx.oSender.IsDM && ctx.oSender.IsDMPossessed && ctx.oSender.IsPlayerDM)
-        return;
-
-      if (ctx.oSender.GetLocalVariable<int>("_SPAWN_PERSIST").HasValue)
+      if (oPC.GetLocalVariable<int>("_SPAWN_PERSIST").HasValue)
       {
-        ctx.oSender.GetLocalVariable<int>("_SPAWN_PERSIST").Delete();
-        ctx.oSender.SendServerMessage("Persistance des placeables créés par DM désactivée.", Color.BLUE);
+        oPC.GetLocalVariable<int>("_SPAWN_PERSIST").Delete();
+        oPC.SendServerMessage("Persistance des placeables créés par DM désactivée.", Color.BLUE);
       }
       else
       {
-        ctx.oSender.GetLocalVariable<int>("_SPAWN_PERSIST").Value = 1;
-        ctx.oSender.SendServerMessage("Persistance des placeables créés par DM activée.", Color.BLUE);
+        oPC.GetLocalVariable<int>("_SPAWN_PERSIST").Value = 1;
+        oPC.SendServerMessage("Persistance des placeables créés par DM activée.", Color.BLUE);
       }
     }
   }

@@ -18,6 +18,9 @@ namespace NWN.Systems
       foreach (NwPlaceable plc in NwModule.FindObjectsWithTag<NwPlaceable>("intro_mirror"))
         plc.OnUsed += StartIntroMirrorDialog;
 
+      foreach (NwPlaceable plc in NwModule.FindObjectsWithTag<NwPlaceable>("body_modifier"))
+        plc.OnUsed += StartBodyModifierDialog;
+
       foreach (NwPlaceable plc in NwModule.FindObjectsWithTag<NwPlaceable>("refinery"))
         plc.OnUsed += StartRefineryDialog;
 
@@ -100,6 +103,11 @@ namespace NWN.Systems
     {
       if (Players.TryGetValue(onUsed.UsedBy, out Player player))
         new IntroMirror(player, onUsed.Placeable);
+    }
+    public static void StartBodyModifierDialog(PlaceableEvents.OnUsed onUsed)
+    {
+      if (Players.TryGetValue(onUsed.UsedBy, out Player player))
+        new BodyModifier(player, onUsed.Placeable);
     }
     public static void StartScierieDialog(PlaceableEvents.OnUsed onUsed)
     {

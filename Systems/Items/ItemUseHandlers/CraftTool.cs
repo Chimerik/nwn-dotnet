@@ -6,6 +6,7 @@ using NWN.API.Constants;
 using NWNX.API;
 using NWN.Core;
 using NWN.Core.NWNX;
+using NWN.Services;
 
 namespace NWN.Systems
 {
@@ -268,7 +269,7 @@ namespace NWN.Systems
 
           if (modification > -2)
           {
-            HandleFeedbackMessages(1);
+            DisableFeedbackMessages();
 
             if (player.setValue != Config.invalidInput)
             {
@@ -297,7 +298,7 @@ namespace NWN.Systems
             Task waitDestruction = NwTask.Run(async () =>
             {
               await NwTask.Delay(TimeSpan.FromSeconds(0.4));
-              HandleFeedbackMessages(0);
+              EnableFeedbackMessages();
             });
           }
 
@@ -307,7 +308,7 @@ namespace NWN.Systems
         {
           currentValue = item.Appearance.GetArmorPieceColor((ItemAppearanceArmorModel)armorPartChoice, (ItemAppearanceArmorColor)colorChannelChoice);
 
-          HandleFeedbackMessages(1);
+          DisableFeedbackMessages();
 
           if (modification > -2)
           {
@@ -338,7 +339,7 @@ namespace NWN.Systems
             Task waitDestruction = NwTask.Run(async () =>
             {
               await NwTask.Delay(TimeSpan.FromSeconds(0.4));
-              HandleFeedbackMessages(0);
+              EnableFeedbackMessages();
             });
           }
 
@@ -396,7 +397,7 @@ namespace NWN.Systems
     }
     private void HandleToSymmetry()
     {
-      HandleFeedbackMessages(1);
+      DisableFeedbackMessages();
 
       switch(armorPartChoice)
       {
@@ -480,14 +481,14 @@ namespace NWN.Systems
       Task waitDestruction = NwTask.Run(async () =>
       {
         await NwTask.Delay(TimeSpan.FromSeconds(0.4));
-        HandleFeedbackMessages(0);
+        EnableFeedbackMessages();
       });
 
       ApplyArmorModifications(-2);
     }
     private void HandleFromSymmetry()
     {
-      HandleFeedbackMessages(1);
+      DisableFeedbackMessages();
 
       switch (armorPartChoice)
       {
@@ -571,7 +572,7 @@ namespace NWN.Systems
       Task waitDestruction = NwTask.Run(async () =>
       {
         await NwTask.Delay(TimeSpan.FromSeconds(0.4));
-        HandleFeedbackMessages(0);
+        EnableFeedbackMessages();
       });
 
       ApplyArmorModifications(-2);
@@ -582,7 +583,7 @@ namespace NWN.Systems
 
       if (modification > -2)
       {
-        HandleFeedbackMessages(1);
+        DisableFeedbackMessages();
 
         if (player.setValue != Config.invalidInput)
         {
@@ -629,7 +630,7 @@ namespace NWN.Systems
         Task waitDestruction = NwTask.Run(async () =>
         {
           await NwTask.Delay(TimeSpan.FromSeconds(0.4));
-          HandleFeedbackMessages(0);
+          EnableFeedbackMessages();
         });
       }
 
@@ -641,7 +642,7 @@ namespace NWN.Systems
 
       if (modification > -2)
       {
-        HandleFeedbackMessages(1);
+        DisableFeedbackMessages();
 
         if (player.setValue != Config.invalidInput)
         {
@@ -674,22 +675,33 @@ namespace NWN.Systems
         Task waitDestruction = NwTask.Run(async () =>
         {
           await NwTask.Delay(TimeSpan.FromSeconds(0.4));
-          HandleFeedbackMessages(0);
+          EnableFeedbackMessages();
         });
       }
 
       player.menu.titleLines.Add($"Apparence actuelle : {currentValue.ToString().ColorString(Color.LIME)}");
     }
-    private void HandleFeedbackMessages(int hidden)
+    private void DisableFeedbackMessages()
     {
-      FeedbackPlugin.SetFeedbackMessageHidden(50, hidden, player.oid);
-      FeedbackPlugin.SetFeedbackMessageHidden(51, hidden, player.oid);
-      FeedbackPlugin.SetFeedbackMessageHidden(123, hidden, player.oid);
-      FeedbackPlugin.SetFeedbackMessageHidden(71, hidden, player.oid);
-      FeedbackPlugin.SetFeedbackMessageHidden(12, hidden, player.oid);
-      FeedbackPlugin.SetFeedbackMessageHidden(8, hidden, player.oid);
-      FeedbackPlugin.SetFeedbackMessageHidden(9, hidden, player.oid);
-      FeedbackPlugin.SetFeedbackMessageHidden(204, hidden, player.oid);
+      ItemSystem.feedbackService.AddFeedbackMessageFilter(FeedbackMessage.ItemReceived, player.oid);
+      ItemSystem.feedbackService.AddFeedbackMessageFilter(FeedbackMessage.ItemLost, player.oid);
+      ItemSystem.feedbackService.AddFeedbackMessageFilter(FeedbackMessage.EquipWeaponSwappedOut, player.oid);
+      ItemSystem.feedbackService.AddFeedbackMessageFilter(FeedbackMessage.EquipSkillSpellModifiers, player.oid);
+      ItemSystem.feedbackService.AddFeedbackMessageFilter(FeedbackMessage.InventoryFull, player.oid);
+      ItemSystem.feedbackService.AddFeedbackMessageFilter(FeedbackMessage.WeightTooEncumberedToRun, player.oid);
+      ItemSystem.feedbackService.AddFeedbackMessageFilter(FeedbackMessage.WeightTooEncumberedWalkSlow, player.oid);
+      ItemSystem.feedbackService.AddFeedbackMessageFilter(FeedbackMessage.SendMessageToPc, player.oid);
+    }
+    private void EnableFeedbackMessages()
+    {
+      ItemSystem.feedbackService.RemoveFeedbackMessageFilter(FeedbackMessage.ItemReceived, player.oid);
+      ItemSystem.feedbackService.RemoveFeedbackMessageFilter(FeedbackMessage.ItemLost, player.oid);
+      ItemSystem.feedbackService.RemoveFeedbackMessageFilter(FeedbackMessage.EquipWeaponSwappedOut, player.oid);
+      ItemSystem.feedbackService.RemoveFeedbackMessageFilter(FeedbackMessage.EquipSkillSpellModifiers, player.oid);
+      ItemSystem.feedbackService.RemoveFeedbackMessageFilter(FeedbackMessage.InventoryFull, player.oid);
+      ItemSystem.feedbackService.RemoveFeedbackMessageFilter(FeedbackMessage.WeightTooEncumberedToRun, player.oid);
+      ItemSystem.feedbackService.RemoveFeedbackMessageFilter(FeedbackMessage.WeightTooEncumberedWalkSlow, player.oid);
+      ItemSystem.feedbackService.RemoveFeedbackMessageFilter(FeedbackMessage.SendMessageToPc, player.oid);
     }
     private void GetNewName()
     {
@@ -743,7 +755,7 @@ namespace NWN.Systems
         return;
       }
 
-      HandleFeedbackMessages(1);
+      DisableFeedbackMessages();
       item.Destroy();
       NwItem newItem = NwObject.Deserialize<NwItem>(serializedInitialItem);
       player.oid.AcquireItem(newItem);
@@ -760,7 +772,7 @@ namespace NWN.Systems
       Task waitDestruction = NwTask.Run(async () =>
       {
         await NwTask.Delay(TimeSpan.FromSeconds(0.4));
-        HandleFeedbackMessages(0);
+        EnableFeedbackMessages();
       });
     }
     private void DrawWeaponModificationMenu()
@@ -852,7 +864,7 @@ namespace NWN.Systems
 
         if (modification > -2)
         {
-          HandleFeedbackMessages(1);
+          DisableFeedbackMessages();
 
           if (player.setValue != Config.invalidInput)
           {
@@ -881,7 +893,7 @@ namespace NWN.Systems
           Task waitDestruction = NwTask.Run(async () =>
           {
             await NwTask.Delay(TimeSpan.FromSeconds(0.4));
-            HandleFeedbackMessages(0);
+            EnableFeedbackMessages();
           });
         }
 
@@ -898,7 +910,7 @@ namespace NWN.Systems
 
         if (modification > -2)
         {
-          HandleFeedbackMessages(1);
+          DisableFeedbackMessages();
 
           if (player.setValue != Config.invalidInput)
           {
@@ -927,7 +939,7 @@ namespace NWN.Systems
           Task waitDestruction = NwTask.Run(async () =>
           {
             await NwTask.Delay(TimeSpan.FromSeconds(0.4));
-            HandleFeedbackMessages(0);
+            EnableFeedbackMessages();
           });
         }
 
@@ -994,7 +1006,7 @@ namespace NWN.Systems
 
       if (modification > -2)
       {
-        HandleFeedbackMessages(1);
+        DisableFeedbackMessages();
 
         if (player.setValue != Config.invalidInput)
         {
@@ -1026,7 +1038,7 @@ namespace NWN.Systems
         Task waitDestruction = NwTask.Run(async () =>
         {
           await NwTask.Delay(TimeSpan.FromSeconds(0.4));
-          HandleFeedbackMessages(0);
+          EnableFeedbackMessages();
         });
       }
 
@@ -1096,7 +1108,7 @@ namespace NWN.Systems
 
         if (modification > -2)
         {
-          HandleFeedbackMessages(1);
+          DisableFeedbackMessages();
 
           if (player.setValue != Config.invalidInput)
           {
@@ -1122,7 +1134,7 @@ namespace NWN.Systems
           Task waitDestruction = NwTask.Run(async () =>
           {
             await NwTask.Delay(TimeSpan.FromSeconds(0.4));
-            HandleFeedbackMessages(0);
+            EnableFeedbackMessages();
           });
         }
 
@@ -1139,7 +1151,7 @@ namespace NWN.Systems
         "Ou bien prononcez directement une valeur d'apparence à l'oral (entre 0 et 255)"
         };
 
-          HandleFeedbackMessages(1);
+          DisableFeedbackMessages();
 
           if (player.setValue != Config.invalidInput)
           {
@@ -1165,7 +1177,7 @@ namespace NWN.Systems
           Task waitDestruction = NwTask.Run(async () =>
           {
             await NwTask.Delay(TimeSpan.FromSeconds(0.4));
-            HandleFeedbackMessages(0);
+            EnableFeedbackMessages();
           });
         }
 

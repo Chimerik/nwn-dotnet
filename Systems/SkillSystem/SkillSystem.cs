@@ -20,8 +20,8 @@ namespace NWN.Systems
 
     public static Dictionary<Feat, CustomFeat> customFeatsDictionnary = new Dictionary<Feat, CustomFeat>()
     {
-      { CustomFeats.BlueprintCopy, new CustomFeat("Copie patron", "Permet la copie de patrons pour l'artisanat.\n\n Diminue le temps de copie de 5 % par niveau.", 5) },
-      { CustomFeats.Research, new CustomFeat("Recherche patron", "Permet de rechercher une amélioration pour un patron.\n\n Diminue le temps de recherche de 5 % par niveau.", 5) },
+      { CustomFeats.BlueprintCopy, new CustomFeat("Copie patron", "Permet la copie de patrons pour l'artisanat.\n\n Diminue le temps de copie de 5 % par niveau.\n\n Le travail artisanal ne peut progresser que dans les zones sécurisées de Similisse.", 5) },
+      { CustomFeats.Research, new CustomFeat("Recherche patron", "Permet de rechercher une amélioration pour un patron.\n\n Diminue le temps de recherche de 5 % par niveau.\n\n Le travail artisanal ne peut progresser que dans les zones sécurisées de Similisse.", 5) },
       { CustomFeats.ImprovedStrength, new CustomFeat("Force accrue", "Augmente la force d'un point par niveau d'entraînement.", 6) },
       { CustomFeats.ImprovedDexterity, new CustomFeat("Dextérité accrue", "Augmente la dextérité d'un point par niveau d'entraînement.", 6) },
       { CustomFeats.ImprovedConstitution, new CustomFeat("Constitution accrue", "Augmente la constitution d'un point par niveau d'entraînement.", 6) },
@@ -67,7 +67,7 @@ namespace NWN.Systems
       { CustomFeats.ImprovedSavingThrowFortitude, new CustomFeat("JdS Vigueur", "Augmente le jet de sauvegarde de vigueur d'un point par niveau.", 6) },
       { CustomFeats.ImprovedSavingThrowReflex, new CustomFeat("JdS Réflexes", "Augmente le jet de sauvegarde de réflexes d'un point par niveau.", 6) },
       { CustomFeats.ImprovedSavingThrowWill, new CustomFeat("JdS Volonté", "Augmente le jet de sauvegarde de volonté d'un point par niveau.", 6) },
-      { CustomFeats.Metallurgy, new CustomFeat("Métallurgie", "Diminue le temps de recherche d'un patron en efficacité matérielle de 5 % par niveau.", 5) },
+      { CustomFeats.Metallurgy, new CustomFeat("Métallurgie", "Diminue le temps de recherche d'un patron en efficacité matérielle de 5 % par niveau.\n\n Le travail artisanal ne peut progresser que dans les zones sécurisées de Similisse.", 5) },
       { CustomFeats.AdvancedCraft, new CustomFeat("Artisanat Avancé", "Diminue le temps de recherche d'un patron en efficacité de production matérielle et temporelle de 3 % par niveau.", 5) },
       { CustomFeats.Miner, new CustomFeat("Mineur", "Augmente la quantité de minerai extrait par cycle de 5 % par niveau.", 10) },
       { CustomFeats.Geology, new CustomFeat("Géologie", "Augmente la quantité de minerai extrait par cycle de 5 % par niveau.\n\nAugmente les chances de trouver un filon lors de la prospection de 5 % par niveau.", 10) },
@@ -191,7 +191,7 @@ namespace NWN.Systems
       { CustomFeats.MagicPeltReprocessing, new CustomFeat("Tannage peaux magiques", "Réduit la quantité de peaux gachées lors du tannage des mauvaises peaux de 2 % par niveau.", 5) },
       { CustomFeats.EpicPeltReprocessing, new CustomFeat("Tannage peaux épiques", "Réduit la quantité de peaux gachées lors du tannage des mauvaises peaux de 2 % par niveau.", 5) },
       { CustomFeats.LegendaryPeltReprocessing, new CustomFeat("Tannage peaux légendaires", "Réduit la quantité de peaux gachées lors du tannage des mauvaises peaux de 2 % par niveau.", 5) },
-      { CustomFeats.Recycler, new CustomFeat("Recyclage", "Permet de recycler des objets en matière raffinée.\n\n Diminue le temps nécessaire au recyclage et augmente le rendement de 1 % par niveau.", 20) },
+      { CustomFeats.Recycler, new CustomFeat("Recyclage", "Permet de recycler des objets en matière raffinée.\n\n Diminue le temps nécessaire au recyclage et augmente le rendement de 1 % par niveau.\n\n Le travail artisanal ne peut progresser que dans les zones sécurisées de Similisse.", 20) },
       { CustomFeats.ContractScience, new CustomFeat("Science du contrat", "Permet de créer un contrat supplémentaire par niveau (enchères comprises).", 5) },
       { CustomFeats.Marchand, new CustomFeat("Marchand", "Permet de vendre cinq objets supplémentaires par échoppe.", 20) },
       { CustomFeats.Magnat, new CustomFeat("Magnat", "Permet d'ouvrir une échoppe supplémentaire par niveau.", 5) },

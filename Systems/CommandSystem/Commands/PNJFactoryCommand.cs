@@ -1,7 +1,6 @@
 ﻿using NWN.API.Constants;
 using NWN.API;
 using static NWN.Systems.PlayerSystem;
-using NWN.Services;
 using NWN.Core;
 using System.Threading.Tasks;
 using NWN.Core.NWNX;
@@ -11,21 +10,11 @@ using NWN.API.Events;
 
 namespace NWN.Systems
 {
-  public static partial class CommandSystem
+  class PNJFactory
   {
-    private static void ExecutePNJFactoryCommand(ChatSystem.Context ctx, Options.Result options)
+    public PNJFactory(Player player)
     {
-      if (!ctx.oSender.IsDM && !ctx.oSender.IsDMPossessed && !ctx.oSender.IsPlayerDM && ctx.oSender.PlayerName != "Chim")
-      {
-        ctx.oSender.SendServerMessage("Cette commande ne peut être utilisée qu'en mode dm.", Color.ORANGE);
-        return;
-      }
-
-      if (Players.TryGetValue(ctx.oSender, out Player player))
-      {
-        player.menu.Close();
-        DrawPNJFactoryWelcome(player);
-      }
+      DrawPNJFactoryWelcome(player);
     }
     private static void DrawPNJFactoryWelcome(Player player)
     {

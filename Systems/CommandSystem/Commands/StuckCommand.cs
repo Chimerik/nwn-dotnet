@@ -1,13 +1,14 @@
-﻿using NWN.Core;
+﻿using NWN.API;
+using NWN.Core;
 
 namespace NWN.Systems
 {
-  public static partial class CommandSystem
+  class Unstuck
   {
-    private static void ExecuteStuckCommand(ChatSystem.Context ctx, Options.Result options)
+    public Unstuck(NwPlayer oPC)
     {
-      NWScript.JumpToLocation(NWScript.GetLocation(ctx.oSender));
-      NWScript.SendMessageToPC(ctx.oSender, "Tentative de déblocage !");
+      NWScript.JumpToLocation(oPC.Location);
+      oPC.SendServerMessage("Tentative de déblocage !", Color.ORANGE);
     }
   }
 }

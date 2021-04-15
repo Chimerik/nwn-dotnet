@@ -1,30 +1,43 @@
-﻿using System;
-using NWN.Core;
-using NWN.Services;
-using NWN.API;
+﻿using NWN.API;
 using NWN.API.Constants;
 using NWN.API.Events;
+using System.Threading.Tasks;
+using System.Collections.Generic;
 
 namespace NWN.Systems
 {
-  public static partial class CommandSystem
+  class DMRenameTarget
   {
-    private static void ExecuteRenameCommand(ChatSystem.Context ctx, Options.Result options)
+    public DMRenameTarget(NwPlayer oPC)
     {
-      if (ctx.oSender.IsDM || ctx.oSender.IsDMPossessed || ctx.oSender.IsPlayerDM)
-      {
-        ctx.oSender.GetLocalVariable<string>("_RENAME_VALUE").Value = (string)options.positional[0];
-        PlayerSystem.cursorTargetService.EnterTargetMode(ctx.oSender, RenameTarget, ObjectTypes.All, MouseCursor.Create);
-      }
-      else
-        ctx.oSender.SendServerMessage("Il s'agit d'une commande DM, vous ne pouvez pas en faire usage en PJ.", Color.ORANGE);
+      oPC.SendServerMessage("Veuillez sélectionner la cible à renommer");
+      PlayerSystem.cursorTargetService.EnterTargetMode(oPC, RenameTarget, ObjectTypes.All, MouseCursor.Create);
     }
-    private static void RenameTarget(ModuleEvents.OnPlayerTarget selection)
+    private void RenameTarget(ModuleEvents.OnPlayerTarget selection)
     {
-      if (selection.TargetObject != null)
-        selection.TargetObject.Name = selection.Player.GetLocalVariable<string>("_RENAME_VALUE").Value;
-      else
-        selection.Player.SendServerMessage("Veuillez sélectionner une cible valide.", Color.RED);
+      if (!PlayerSystem.Players.TryGetValue(selection.Player, out PlayerSystem.Player player) || selection.TargetObject == null)
+        return;
+
+      player.menu.Clear();
+
+      player.menu.titleLines = new List<string>() {
+        "Veuillez saisir le nouveau nom."
+        };
+
+      Task playerInput = NwTask.Run(async () =>
+      {
+        player.oid.GetLocalVariable<int>("_PLAYER_INPUT_STRING").Value = 1;
+        player.setString = "";
+        await NwTask.WaitUntil(() => player.setString != "");
+
+        player.oid.SendServerMessage($"{selection.TargetObject.Name.ColorString(Color.WHITE)} a été renommé {player.setString.ColorString(Color.WHITE)}.", Color.GREEN);
+        player.setString = "";
+        player.menu.Close();
+      });
+
+      player.menu.choices.Add(("Retour", () => CommandSystem.DrawDMCommandList(player)));
+      player.menu.choices.Add(("Quitter", () => player.menu.Close()));
+      player.menu.Draw();
     }
   }
 }

@@ -1,5 +1,4 @@
-﻿using System.Collections.Generic;
-using NWN.API;
+﻿using NWN.API;
 using NWN.Core;
 using NWN.Core.NWNX;
 
@@ -28,6 +27,11 @@ namespace NWN.Systems
                   player.bonusRolePlay = iBRP;
                   ctx.oSender.SendServerMessage($"Le bonus roleplay de {ctx.oTarget.Name.ColorString(Color.WHITE)} est de {player.bonusRolePlay.ToString().ColorString(Color.WHITE)}", Color.PINK);
                   ctx.oTarget.SendServerMessage($"Votre bonus roleplay est désormais de {player.bonusRolePlay.ToString().ColorString(Color.WHITE)}", Color.TEAL);
+
+                  var updateQuery = NWScript.SqlPrepareQueryCampaign(Config.database, $"UPDATE PlayerAccounts SET bonusRolePlay = @bonusRolePlay where rowid = @rowid");
+                  NWScript.SqlBindInt(updateQuery, "@bonusRolePlay", player.bonusRolePlay);
+                  NWScript.SqlBindInt(updateQuery, "@rowid", player.accountId);
+                  NWScript.SqlStep(updateQuery);
                 }
               }
               else

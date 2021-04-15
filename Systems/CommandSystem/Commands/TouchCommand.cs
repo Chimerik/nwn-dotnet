@@ -5,18 +5,17 @@ using System.Collections.Generic;
 
 namespace NWN.Systems
 {
-  public static partial class CommandSystem
+  class TouchMode
   {
-    private static void ExecuteTouchCommand(ChatSystem.Context ctx, Options.Result options)
+    public TouchMode(NwPlayer oPC)
     {
-
-      List<Effect> effectList = ctx.oSender.ActiveEffects.Where(e => e.EffectType == EffectType.CutsceneGhost).ToList();
+      List<Effect> effectList = oPC.ActiveEffects.Where(e => e.EffectType == EffectType.CutsceneGhost).ToList();
 
       if (effectList.Count == 0)
-        ctx.oSender.ApplyEffect(EffectDuration.Permanent, Effect.CutsceneGhost());
+        oPC.ApplyEffect(EffectDuration.Permanent, Effect.CutsceneGhost());
       else
         foreach (Effect eff in effectList)
-          ctx.oSender.RemoveEffect(eff);
+          oPC.RemoveEffect(eff);
     }
   }
 }

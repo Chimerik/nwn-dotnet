@@ -1,40 +1,34 @@
-﻿using System.Collections.Generic;
-using System.Linq;
+﻿using System.Linq;
 using NWN.API;
-using NWN.Core;
+using NWN.API.Constants;
+using NWN.API.Events;
 
 namespace NWN.Systems
 {
-  public static partial class CommandSystem
+  class ListenTarget
   {
-    private static void ExecuteListenCommand(ChatSystem.Context ctx, Options.Result options)
+    public ListenTarget(NwPlayer oPC)
     {
-      if (ctx.oSender.IsDM || ctx.oSender.IsDMPossessed || ctx.oSender.IsPlayerDM)
+      oPC.SendServerMessage("Veuillez sélectionnner le joueur à écouter.", Color.ROSE);
+      PlayerSystem.cursorTargetService.EnterTargetMode(oPC, OnListenTargetSelected, ObjectTypes.Creature, MouseCursor.Magic);
+    }
+    private void OnListenTargetSelected(ModuleEvents.OnPlayerTarget selection)
+    {
+      if (!PlayerSystem.Players.TryGetValue(selection.Player, out PlayerSystem.Player player))
+        return;
+
+      if (!(selection.TargetObject is NwPlayer) || ((NwPlayer)selection.TargetObject).IsDM)
       {
-        if (PlayerSystem.Players.TryGetValue(ctx.oSender, out PlayerSystem.Player dungeonMaster))
-        {
-          if (ctx.oTarget != null)
-          {
-            if (dungeonMaster.listened.Count > 0)
-            {
-              ctx.oSender.SendServerMessage("Vous cessez d'écouter les conversations des joueurs", Color.CYAN);
-              dungeonMaster.listened.Clear();
-            }
-            else
-            {
-              foreach(NwPlayer oPC in NwModule.Instance.Players.Where(p => !p.IsDM && !p.IsDMPossessed && !p.IsPlayerDM))
-                dungeonMaster.listened.Add(oPC);
-            }
-          }
-          else
-          {
-            if (dungeonMaster.listened.Contains(ctx.oTarget))
-              dungeonMaster.listened.Remove(ctx.oTarget);
-            else
-                dungeonMaster.listened.Add(ctx.oTarget);
-          }
-        }
+        selection.Player.SendServerMessage("La cible de l'écoute doit être un joueur.", Color.ORANGE);
+        return;
       }
+
+      NwPlayer oPC = (NwPlayer)selection.TargetObject;
+
+      if (player.listened.Contains(oPC))
+        player.listened.Remove(oPC);
+      else
+        player.listened.Add(oPC);
     }
   }
 }

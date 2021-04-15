@@ -1,31 +1,42 @@
-﻿using System;
-using NWN.Core;
-using System.Numerics;
-using NWN.Services;
+﻿using System.Collections.Generic;
+using System.Threading.Tasks;
 using NWN.API;
 using NWN.API.Constants;
 using NWN.API.Events;
 
 namespace NWN.Systems
 {
-  public static partial class CommandSystem
+  class SetTargetTag
   {
-    private static void ExecuteTagCommand(ChatSystem.Context ctx, Options.Result options)
+    public SetTargetTag(NwPlayer oPC)
     {
-      if (ctx.oSender.IsDM || ctx.oSender.IsDMPossessed || ctx.oSender.IsPlayerDM)
-      {
-        ctx.oSender.GetLocalVariable<string>("_RENAME_VALUE").Value = (string)options.positional[0];
-        PlayerSystem.cursorTargetService.EnterTargetMode(ctx.oSender, ChangeTagTarget, ObjectTypes.All, MouseCursor.Create);
-      }
-      else
-        ctx.oSender.SendServerMessage("Il s'agit d'une commande DM, vous ne pouvez pas en faire usage en PJ.", Color.ORANGE);
+      PlayerSystem.cursorTargetService.EnterTargetMode(oPC, ChangeTagTarget, ObjectTypes.All, MouseCursor.Create);
     }
     private static void ChangeTagTarget(ModuleEvents.OnPlayerTarget selection)
     {
-      if (selection.TargetObject != null)
-        selection.TargetObject.Tag = selection.Player.GetLocalVariable<string>("_RENAME_VALUE").Value;
-      else
-        selection.Player.SendServerMessage("Veuillez sélectionner une cible valide.", Color.RED);
+      if (!PlayerSystem.Players.TryGetValue(selection.Player, out PlayerSystem.Player player) || selection.TargetObject == null)
+        return;
+
+      player.menu.Clear();
+
+      player.menu.titleLines = new List<string>() {
+        "Veuillez saisir le nouveau tag."
+        };
+
+      Task playerInput = NwTask.Run(async () =>
+      {
+        player.oid.GetLocalVariable<int>("_PLAYER_INPUT_STRING").Value = 1;
+        player.setString = "";
+        await NwTask.WaitUntil(() => player.setString != "");
+
+        player.oid.SendServerMessage($"{selection.TargetObject.Name.ColorString(Color.WHITE)} a été taggué {player.setString.ColorString(Color.WHITE)}.", Color.GREEN);
+        player.setString = "";
+        player.menu.Close();
+      });
+
+      player.menu.choices.Add(("Retour", () => CommandSystem.DrawDMCommandList(player)));
+      player.menu.choices.Add(("Quitter", () => player.menu.Close()));
+      player.menu.Draw();
     }
   }
 }

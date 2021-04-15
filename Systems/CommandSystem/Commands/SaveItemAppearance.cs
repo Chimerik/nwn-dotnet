@@ -4,16 +4,15 @@ using NWN.API;
 using NWN.API.Events;
 using NWN.Core;
 using NWN.Core.NWNX;
-using NWN.Services;
 
 namespace NWN.Systems
 {
-  public static partial class CommandSystem
+  class SaveItemAppearance
   {
-    private static void ExecuteSaveAppearanceCommand(ChatSystem.Context ctx, Options.Result options)
+    public SaveItemAppearance(NwPlayer oPC)
     {
-      ctx.oSender.SendServerMessage("Veuillez sélectionnner l'objet dont vous souhaitez sauvegarder l'apparence.", Color.ROSE);
-      PlayerSystem.cursorTargetService.EnterTargetMode(ctx.oSender, OnAppearanceSelected, API.Constants.ObjectTypes.Item, API.Constants.MouseCursor.Create);
+      oPC.SendServerMessage("Veuillez sélectionnner l'objet dont vous souhaitez sauvegarder l'apparence.", Color.ROSE);
+      PlayerSystem.cursorTargetService.EnterTargetMode(oPC, OnAppearanceSelected, API.Constants.ObjectTypes.Item, API.Constants.MouseCursor.Create);
     }
     private static void OnAppearanceSelected(ModuleEvents.OnPlayerTarget selection)
     {

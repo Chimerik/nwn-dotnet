@@ -10,12 +10,12 @@ using NWN.Services;
 
 namespace NWN.Systems
 {
-  public static partial class CommandSystem
+  class LoadAppearance
   {
-    private static void ExecuteLoadAppearanceCommand(ChatSystem.Context ctx, Options.Result options)
+    public LoadAppearance(NwPlayer oPC)
     {
-      ctx.oSender.SendServerMessage("Veuillez sélectionnner l'objet dont vous souhaitez modifier l'apparence.", Color.ROSE);
-      PlayerSystem.cursorTargetService.EnterTargetMode(ctx.oSender, OnModifyAppearanceItemSelected, ObjectTypes.Item, MouseCursor.Create);
+      oPC.SendServerMessage("Veuillez sélectionnner l'objet dont vous souhaitez modifier l'apparence.", Color.ROSE);
+      PlayerSystem.cursorTargetService.EnterTargetMode(oPC, OnModifyAppearanceItemSelected, ObjectTypes.Item, MouseCursor.Create);
     }
     private static void OnModifyAppearanceItemSelected(ModuleEvents.OnPlayerTarget selection)
     {
@@ -56,6 +56,9 @@ namespace NWN.Systems
         ));
       }
 
+      player.menu.choices.Add(("Retour.", () => CommandSystem.DrawCommandList(player)));
+      player.menu.choices.Add(("Quitter.", () => player.menu.Close()));
+
       player.menu.Draw();
     }
 
@@ -69,14 +72,14 @@ namespace NWN.Systems
         return;
       }
 
-      FeedbackPlugin.SetFeedbackMessageHidden(50, 1, player.oid);
-      FeedbackPlugin.SetFeedbackMessageHidden(51, 1, player.oid);
-      FeedbackPlugin.SetFeedbackMessageHidden(123, 1, player.oid);
-      FeedbackPlugin.SetFeedbackMessageHidden(71, 1, player.oid);
-      FeedbackPlugin.SetFeedbackMessageHidden(12, 1, player.oid);
-      FeedbackPlugin.SetFeedbackMessageHidden(8, 1, player.oid);
-      FeedbackPlugin.SetFeedbackMessageHidden(9, 1, player.oid);
-      FeedbackPlugin.SetFeedbackMessageHidden(204, 1, player.oid);
+      ItemSystem.feedbackService.AddFeedbackMessageFilter(FeedbackMessage.ItemReceived, player.oid);
+      ItemSystem.feedbackService.AddFeedbackMessageFilter(FeedbackMessage.ItemLost, player.oid);
+      ItemSystem.feedbackService.AddFeedbackMessageFilter(FeedbackMessage.EquipWeaponSwappedOut, player.oid);
+      ItemSystem.feedbackService.AddFeedbackMessageFilter(FeedbackMessage.EquipSkillSpellModifiers, player.oid);
+      ItemSystem.feedbackService.AddFeedbackMessageFilter(FeedbackMessage.InventoryFull, player.oid);
+      ItemSystem.feedbackService.AddFeedbackMessageFilter(FeedbackMessage.WeightTooEncumberedToRun, player.oid);
+      ItemSystem.feedbackService.AddFeedbackMessageFilter(FeedbackMessage.WeightTooEncumberedWalkSlow, player.oid);
+      ItemSystem.feedbackService.AddFeedbackMessageFilter(FeedbackMessage.SendMessageToPc, player.oid);
 
       ItemPlugin.RestoreItemAppearance(item, serializedAppearance);
       NwItem newItem = item.Clone(player.oid);
@@ -91,17 +94,19 @@ namespace NWN.Systems
         }
       }
 
+      player.menu.Close();
+
       Task waitDestruction = NwTask.Run(async () =>
       {
         await NwTask.Delay(TimeSpan.FromSeconds(0.4));
-        FeedbackPlugin.SetFeedbackMessageHidden(50, 0, player.oid);
-        FeedbackPlugin.SetFeedbackMessageHidden(51, 0, player.oid);
-        FeedbackPlugin.SetFeedbackMessageHidden(123, 0, player.oid);
-        FeedbackPlugin.SetFeedbackMessageHidden(71, 0, player.oid);
-        FeedbackPlugin.SetFeedbackMessageHidden(12, 0, player.oid);
-        FeedbackPlugin.SetFeedbackMessageHidden(8, 0, player.oid);
-        FeedbackPlugin.SetFeedbackMessageHidden(9, 0, player.oid);
-        FeedbackPlugin.SetFeedbackMessageHidden(204, 0, player.oid);
+        ItemSystem.feedbackService.RemoveFeedbackMessageFilter(FeedbackMessage.ItemReceived, player.oid);
+        ItemSystem.feedbackService.RemoveFeedbackMessageFilter(FeedbackMessage.ItemLost, player.oid);
+        ItemSystem.feedbackService.RemoveFeedbackMessageFilter(FeedbackMessage.EquipWeaponSwappedOut, player.oid);
+        ItemSystem.feedbackService.RemoveFeedbackMessageFilter(FeedbackMessage.EquipSkillSpellModifiers, player.oid);
+        ItemSystem.feedbackService.RemoveFeedbackMessageFilter(FeedbackMessage.InventoryFull, player.oid);
+        ItemSystem.feedbackService.RemoveFeedbackMessageFilter(FeedbackMessage.WeightTooEncumberedToRun, player.oid);
+        ItemSystem.feedbackService.RemoveFeedbackMessageFilter(FeedbackMessage.WeightTooEncumberedWalkSlow, player.oid);
+        ItemSystem.feedbackService.RemoveFeedbackMessageFilter(FeedbackMessage.SendMessageToPc, player.oid);
 
         player.oid.SendServerMessage($"L'apparence de votre {item.Name.ColorString(Color.WHITE)} a bien été modifiée.", Color.GREEN);
       });

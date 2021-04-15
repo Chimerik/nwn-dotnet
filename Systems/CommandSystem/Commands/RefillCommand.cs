@@ -2,12 +2,11 @@
 
 namespace NWN.Systems
 {
-  public static partial class CommandSystem
+  class Refill
   {
-    private static void ExecuteRefillCommand(ChatSystem.Context ctx, Options.Result options)
+    public Refill()
     {
-      if (ctx.oSender.PlayerName == "Chim")
-        ModuleSystem.SpawnCollectableResources(0.0f);
+      ModuleSystem.SpawnCollectableResources(0.0f);
     }
   }
 }

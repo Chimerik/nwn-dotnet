@@ -2,11 +2,11 @@
 
 namespace NWN.Systems
 {
-  public static partial class CommandSystem
+  class DisplayCloak
   {
-    private static void ExecuteDisplayCloakCommand(ChatSystem.Context ctx, Options.Result options)
+    public DisplayCloak(NwPlayer oPC)
     {
-      NwItem oCloak = ctx.oSender.GetItemInSlot(API.Constants.InventorySlot.Cloak);
+      NwItem oCloak = oPC.GetItemInSlot(API.Constants.InventorySlot.Cloak);
 
       if (oCloak != null)
       {
@@ -16,7 +16,7 @@ namespace NWN.Systems
           oCloak.HiddenWhenEquipped = 0;
       }
       else
-        ctx.oSender.SendServerMessage("Vous ne portez pas de cape!", Color.RED);
+        oPC.SendServerMessage("Vous ne portez pas de cape!", Color.RED);
     }
   }
 }

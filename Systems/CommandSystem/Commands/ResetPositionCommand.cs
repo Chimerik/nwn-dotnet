@@ -1,15 +1,18 @@
-﻿using NWN.Core;
+﻿using NWN.API;
+using NWN.Core;
 
 namespace NWN.Systems
 {
-  public static partial class CommandSystem
+  class ResetPosition
   {
-    private static void ExecuteResetPositionCommand(ChatSystem.Context ctx, Options.Result options)
+    public ResetPosition(NwPlayer oPC)
     {
-      NWScript.SetObjectVisualTransform(ctx.oSender, NWScript.OBJECT_VISUAL_TRANSFORM_ROTATE_X, 0.0f);
-      NWScript.SetObjectVisualTransform(ctx.oSender, NWScript.OBJECT_VISUAL_TRANSFORM_TRANSLATE_X, 0.0f);
-      NWScript.SetObjectVisualTransform(ctx.oSender, NWScript.OBJECT_VISUAL_TRANSFORM_TRANSLATE_Y, 0.0f);
-      NWScript.SetObjectVisualTransform(ctx.oSender, NWScript.OBJECT_VISUAL_TRANSFORM_TRANSLATE_Z, 0.0f);
+      NWScript.SetObjectVisualTransform(oPC, NWScript.OBJECT_VISUAL_TRANSFORM_ROTATE_X, 0.0f);
+      NWScript.SetObjectVisualTransform(oPC, NWScript.OBJECT_VISUAL_TRANSFORM_ROTATE_Y, 0.0f);
+      NWScript.SetObjectVisualTransform(oPC, NWScript.OBJECT_VISUAL_TRANSFORM_ROTATE_Z, 0.0f);
+      NWScript.SetObjectVisualTransform(oPC, NWScript.OBJECT_VISUAL_TRANSFORM_TRANSLATE_X, 0.0f);
+      NWScript.SetObjectVisualTransform(oPC, NWScript.OBJECT_VISUAL_TRANSFORM_TRANSLATE_Y, 0.0f);
+      NWScript.SetObjectVisualTransform(oPC, NWScript.OBJECT_VISUAL_TRANSFORM_TRANSLATE_Z, 0.0f);
     }
   }
 }

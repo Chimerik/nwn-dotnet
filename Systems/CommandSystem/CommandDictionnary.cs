@@ -20,14 +20,6 @@ namespace NWN.Systems
         )
       },
       {
-        "walk",
-        new Command(
-          name: "walk",
-          description: new Command.Description(title: "Active/Désactive le mode marche."),
-          execute: ExecuteWalkCommand
-        )
-      },
-      {
         "reveal",
         new Command(
           name: "reveal",
@@ -68,54 +60,6 @@ namespace NWN.Systems
         )
       },
       {
-        "medic",
-        new Command(
-          name: "medic",
-          description: new Command.Description(title: "Dissipe tout effet de maladie sur vous pour faciliter l'alpha"),
-          execute: ExecuteDispelDiseaseCommand
-        )
-      },
-      {
-        "casque",
-        new Command(
-          name: "casque",
-          description: new Command.Description(title: "Active/Désactive l'affichage de votre casque"),
-          execute: ExecuteDisplayHelmCommand
-        )
-      },
-      {
-        "cape",
-        new Command(
-          name: "cape",
-          description: new Command.Description(title: "Active/Désactive l'affichage de votre cape"),
-          execute: ExecuteDisplayCloakCommand
-        )
-      },
-      {
-        "touch",
-        new Command(
-          name: "touch",
-          description: new Command.Description(title: "Active/Désactive le mode toucher (évite les collisions entre personnages)"),
-          execute: ExecuteTouchCommand
-        )
-      },
-      {
-        "reboot",
-        new Command(
-          name: "reboot",
-          description: new Command.Description(title: "Permet de redémarrer le module (bas les pattes, vils joueurs) !)"),
-          execute: ExecuteRebootCommand
-        )
-      },
-      {
-        "refill",
-        new Command(
-          name: "refill",
-          description: new Command.Description(title: "Lié à reboot et aux tests"),
-          execute: ExecuteRefillCommand
-        )
-      },
-      {
         "kick",
         new Command(
           name: "kick",
@@ -124,11 +68,11 @@ namespace NWN.Systems
         )
       },
       {
-        "persist",
+        "tp",
         new Command(
-          name: "persist",
-          description: new Command.Description(title: "Active/Désactive le système de persistance des placeables créés par DM"),
-          execute: ExecutePlaceablePersistanceCommand
+          name: "t^p",
+          description: new Command.Description(title: "Commande de téléportation DM."),
+          execute: ExecuteDMTeleportationCommand
         )
       },
       {
@@ -140,35 +84,11 @@ namespace NWN.Systems
         )
       },
       {
-        "publickey",
-        new Command(
-          name: "publickey",
-          description: new Command.Description(title: "Affiche votre clef publique, utilisable sur les API du module."),
-          execute: ExecuteGetPublicKeyCommand
-        )
-      },
-      {
-        "recycle",
-        new Command(
-          name: "recycle",
-          description: new Command.Description(title: "Permet de tester le recyclage."),
-          execute: ExecuteRecycleCommand
-        )
-      },
-      {
         "mute",
         new Command(
           name: "mute",
           description: new Command.Description(title: "Active/Désactive la réception des MP. Peut-être utilisé comme commande ciblée."),
           execute: ExecuteMutePMCommand
-        )
-      },
-      {
-        "listen",
-        new Command(
-          name: "listen",
-          description: new Command.Description(title: "Commande DM : Active/Désactive le suivi de conversation."),
-          execute: ExecuteListenCommand
         )
       },
       {
@@ -183,40 +103,6 @@ namespace NWN.Systems
               new Option(
                 name: "Bonus",
                 description: "Bonus, doit être compris entre 0 et et 4.",
-                defaultValue: ""
-              )
-            }
-          )
-        )
-      },
-      {
-        "contrat",
-        new Command(
-          name: "contrat",
-          description: new Command.Description(title: "Affiche le menu de rédaction/consultation de contrats privés d'échangé de ressources."),
-          execute: ExecuteContractMenuCommand
-        )
-      },
-      {
-        "commend",
-        new Command(
-          name: "commend",
-          description: new Command.Description(title: "Permet de recommander un joueur pour une augmentation de BRP. Disponible uniquement pour les joueurs de BRP 4."),
-          execute: ExecuteCommendCommand
-        )
-      },
-      { 
-        "renamecreature",
-        new Command(
-          name: "renamecreature",
-          description: new Command.Description(title: "Permet de modifier le nom de la créature ciblée, à condition qu'il s'agisse d'une de vos invocations."),
-          execute: ExecuteRenameCreatureCommand,
-          options: new Options(
-            positional: new List<Option>()
-            {
-              new Option(
-                name: "Nom",
-                description: "Le nouveau nom de la créature.",
                 defaultValue: ""
               )
             }
@@ -260,105 +146,11 @@ namespace NWN.Systems
         )
       },
       {
-        "rename",
-        new Command(
-          name: "rename",
-          description: new Command.Description(title: "Commande DM - Permet de modifier le nom de la cible."),
-          execute: ExecuteRenameCommand,
-          options: new Options(
-            positional: new List<Option>()
-            {
-              new Option(
-                name: "Nom",
-                description: "Le nouveau nom de la cible.",
-                defaultValue: ""
-              )
-            }
-          )
-        )
-      },
-      {
-        "tag",
-        new Command(
-          name: "tag",
-          description: new Command.Description(title: "Commande DM - Permet de modifier le tag de la cible."),
-          execute: ExecuteTagCommand,
-          options: new Options(
-            positional: new List<Option>()
-            {
-              new Option(
-                name: "Tag",
-                description: "Le nouveau tag de la cible.",
-                defaultValue: ""
-              )
-            }
-          )
-        )
-      },
-      {
-        "description",
-        new Command(
-          name: "description",
-          description: new Command.Description(title: "Modifie la description de votre personnage à partir du nom de la description enregristré via Discord."),
-          execute: ExecuteLoadDescriptionCommand,
-          options: new Options(
-            positional: new List<Option>()
-            {
-              new Option(
-                name: "Nom",
-                description: "Le nom de la description enregistrée.",
-                defaultValue: ""
-              )
-            }
-          )
-        )
-      },
-      {
-        "saveapparence",
-        new Command(
-          name: "saveapparence",
-          description: new Command.Description(title: "Permet de sauvegarder l'apparence de l'objet sélectionné."),
-          execute: ExecuteSaveAppearanceCommand
-        )
-      },
-      {
-        "restoreapparence",
-        new Command(
-          name: "restoreapparence",
-          description: new Command.Description(title: "Permet d'appliquer une apparence d'objet sauvegardée à l'object sélectionné."),
-          execute: ExecuteLoadAppearanceCommand
-        )
-      },
-      {
-        "resetpos",
-        new Command(
-          name: "resetpos",
-          description: new Command.Description(title: "Réinitialise la position d'affichage du personnage à sa position réelle."),
-          execute: ExecuteResetPositionCommand
-        )
-      },
-      {
-        "stuck",
-        new Command(
-          name: "stuck",
-          description: new Command.Description(title: "Permet de décoincer un personnage bloqué dans le décor."),
-          execute: ExecuteStuckCommand
-        )
-      },
-      {
         "suivre",
         new Command(
           name: "suivre",
           description: new Command.Description(title: "Suit automatiquement le personnage ciblé."),
           execute: ExecuteFollowCommand
-        )
-      },
-      {
-        "supprimer",
-        new Command(
-          name: "supprimer",
-          description: new Command.Description(title: "Attention, cette commande supprime définitivement le personnage avec lequel vous êtes actuellement connecté."),
-          execute: ExecuteDeleteCharacterCommand
         )
       },
       {
@@ -389,26 +181,23 @@ namespace NWN.Systems
         )
       },
       {
+        "dm",
+        new Command(
+          name: "dm",
+          description: new Command.Description(
+            title: "Affiche le menu dm."
+          ),
+          execute: ExecuteDMMenuCommand
+        )
+      },
+      {
         "skills",
         new Command(
           name: "skills",
           description: new Command.Description(
             title: "Affiche le menu permettant de sélectionner de nouveaux skills à entrainer."
           ),
-          execute: ExecuteSkillMenuCommand,
-          options: new Options(
-            named: new Dictionary<string, Option>()
-            {
-              { "config",
-                new Option(
-                  name: "config",
-                  description: "Affiche la configuration du menu de skills.",
-                  defaultValue: false,
-                  type: OptionTypes.Bool
-                )
-              },
-            }
-          )
+          execute: ExecuteSkillMenuCommand
         )
       },
       {
@@ -429,30 +218,6 @@ namespace NWN.Systems
           execute: ExecuteTestArenaCommand
         )
       },
-      {
-        "examinezone",
-        new Command(
-          name: "examinezone",
-          description: new Command.Description(title: "Permet d'obtenir la description de la zone dans laquelle vous vous trouvez."),
-          execute: ExecuteExamineAreaCommand
-        )
-      },
-      {
-        "pnj",
-        new Command(
-          name: "pnj",
-          description: new Command.Description(title: "Commande dm : permet d'ouvrir le menu de modification de pnjs"),
-          execute: ExecutePNJFactoryCommand
-        )
-      },
-      {
-        "areatag",
-        new Command(
-          name: "areatag",
-          description: new Command.Description(title: "Commande dm : permet d'obtenir le tag de la zone"),
-          execute: ExecuteAreaTagCommand
-        )
-      }
     };
     }
 }
