@@ -55,35 +55,6 @@ namespace NWN.Systems
         await NwTask.Delay(TimeSpan.FromSeconds(resourceRespawnTime));
         await SpawnCollectableResources(resourceRespawnTime);
       });
-
-      /*var query = NWScript.SqlPrepareQueryCampaign("recovery", $"SELECT storage from playerCharacters where rowid = 1");
-      NWScript.SqlStep(query);
-      string tempStorage = NWScript.SqlGetString(query, 0);
-
-      query = NWScript.SqlPrepareQueryCampaign(Config.database, $"UPDATE playerCharacters set storage = @storage where rowid = @characterId");
-      NWScript.SqlBindInt(query, "@characterId", 24);
-      NWScript.SqlBindString(query, "@storage", tempStorage);
-      NWScript.SqlStep(query);
-
-      query = NWScript.SqlPrepareQueryCampaign("aoadatabase_BEFORE_21", $"SELECT * from playerShops where rowid = 2");
-      NWScript.SqlStep(query);
-      int tempcharacterId = NWScript.SqlGetInt(query, 0);
-      string tempShop = NWScript.SqlGetString(query, 1);
-      string tempPanel = NWScript.SqlGetString(query, 2);
-      string tempExpirationDate = NWScript.SqlGetString(query, 3);
-      string tempAreaTag = NWScript.SqlGetString(query, 4);
-      Vector3 tempPosition = NWScript.SqlGetVector(query, 5);
-      float tempFacing = NWScript.SqlGetFloat(query, 6);
-
-      query = NWScript.SqlPrepareQueryCampaign(Config.database, $"INSERT INTO playerShops (characterId, shop, panel, expirationDate, areaTag, position, facing) VALUES (@characterId, @shop, @panel, @expirationDate, @areaTag, @position, @facing)");
-      NWScript.SqlBindInt(query, "@characterId", 24);
-      NWScript.SqlBindString(query, "@shop", tempShop);
-      NWScript.SqlBindString(query, "@panel", tempPanel);
-      NWScript.SqlBindString(query, "@expirationDate", tempExpirationDate);
-      NWScript.SqlBindString(query, "@areaTag", tempAreaTag);
-      NWScript.SqlBindVector(query, "@position", tempPosition);
-      NWScript.SqlBindFloat(query, "@facing", tempFacing);
-      NWScript.SqlStep(query);*/
     }
     private async void LoadDiscordBot()
     {

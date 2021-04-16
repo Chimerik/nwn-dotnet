@@ -38,7 +38,7 @@ namespace NWN.Systems
       player.menu.choices.Add(("Renommer une de mes invocations.", () => new RenameSummon(player.oid)));
       player.menu.choices.Add(("Créer un contrat d'échange de ressources privé.", () => new ContractMenu(player)));
       player.menu.choices.Add(("Tenter de me débloquer du décor.", () => new Unstuck(player.oid)));
-      player.menu.choices.Add(("Réinitialiser l'affichage de ma position.", () => new ContractMenu(player)));
+      player.menu.choices.Add(("Réinitialiser l'affichage de ma position.", () => new ResetPosition(player.oid)));
       player.menu.choices.Add(("Obtenir ma clé CD publique.", () => new GetPublicKey(player.oid)));
       player.menu.choices.Add(("Supprimer mon personnage.", () => new DeleteCharacter(player)));
       player.menu.choices.Add(("Quitter", () => player.menu.Close()));
