@@ -198,10 +198,7 @@ namespace NWN.Systems
                 var query = NWScript.SqlPrepareQueryCampaign(Config.database, $"SELECT storage from playerCharacters where rowid = @characterId");
                 NWScript.SqlBindInt(query, "@characterId", player.characterId);
                 NWScript.SqlStep(query);
-
-                Log.Info($"before");
                 NWScript.SqlGetObject(query, 0, NWScript.GetLocation(storage));
-                Log.Info($"after");
 
                 NwPlaceable portalOut = area.FindObjectsOfTypeInArea<NwPlaceable>().FirstOrDefault(p => p.Tag == "portal_storage_out");
                 portalOut.OnUsed += HandlePlaceableUsed;
