@@ -27,10 +27,6 @@ namespace NWN.Systems.Craft
       ModuleSystem.Log.Info($"got base item : {baseItemType}");
       this.craftedItem = item;
       this.material = material;
-      if (Config.env == Config.Env.Chim)
-        this.remainingTime = 10.0f;
-      else
-        this.remainingTime = time;
       this.isCancelled = false;
       this.player = player;
 
@@ -284,7 +280,7 @@ namespace NWN.Systems.Craft
 
       Log.Info($"base item type job : {baseItemType}");
 
-      float iJobDuration = baseCost * 25;
+      float iJobDuration = baseCost * 125;
 
       if (this.player.learntCustomFeats.ContainsKey(CustomFeats.Recycler))
         iJobDuration -= iJobDuration * 1 * SkillSystem.GetCustomFeatLevelFromSkillPoints(CustomFeats.Recycler, this.player.learntCustomFeats[CustomFeats.Recycler]) / 100;
@@ -319,7 +315,7 @@ namespace NWN.Systems.Craft
       int baseItemType = (int)item.BaseItemType;
       int baseCost = ItemUtils.GetBaseItemCost(item);
 
-      float iJobDuration = baseCost * 15 * (100 - renforcementLevel * 5) / 100;
+      float iJobDuration = baseCost * 100 * (100 - renforcementLevel * 5) / 100;
 
       item.GetLocalVariable<int>("_BASE_COST").Value = baseCost;
       player.craftJob = new Job(-16, material, iJobDuration, player, item.Serialize()); // -16 = JobType recyclage
@@ -397,6 +393,9 @@ namespace NWN.Systems.Craft
         case JobType.Recycling:
           journalEntry.sText = $"Recyclage en cours : {NwItem.Deserialize<NwItem>(craftedItem).Name}";
           break;
+        case JobType.Renforcement:
+          journalEntry.sText = $"Renforcement en cours : {NwItem.Deserialize<NwItem>(craftedItem).Name}";
+          break;
         default:
           journalEntry.sText = $"Fabrication en cours : {blueprintDictionnary[baseItemType].name}";
           break;
@@ -428,6 +427,9 @@ namespace NWN.Systems.Craft
         case JobType.Recycling:
           journalEntry.sText = $"Recyclage en pause";
           break;
+        case JobType.Renforcement:
+          journalEntry.sText = $"Renforcement en pause";
+          break;
         default:
           journalEntry.sName = $"Travail artisanal en pause - {blueprintDictionnary[baseItemType].name}";
           break;
@@ -458,6 +460,9 @@ namespace NWN.Systems.Craft
           break;
         case JobType.Recycling:
           journalEntry.sName = $"Recyclage terminé - {NwItem.Deserialize<NwItem>(craftedItem).Name}";
+          break;
+        case JobType.Renforcement:
+          journalEntry.sName = $"Renforcement terminé - {NwItem.Deserialize<NwItem>(craftedItem).Name}";
           break;
         default:
           journalEntry.sName = $"Travail artisanal terminé - {blueprintDictionnary[baseItemType].name}";

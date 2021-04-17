@@ -3,6 +3,7 @@ using NWN.Services;
 using NWN.API.Constants;
 using NWN.API.Events;
 using NWN.Core.NWNX;
+using NWN.API;
 
 namespace NWN.Systems
 {
@@ -43,18 +44,52 @@ namespace NWN.Systems
         case CustomFeats.Metallurgy:
 
           onUseFeat.PreventFeatUse = true;
+
+          if(player.oid.Area.GetLocalVariable<int>("_AREA_LEVEL").Value != 0)
+          {
+            player.oid.SendServerMessage($"Impossible de démarrer un travail artisanal sans pouvoir accéder à un atelier.", Color.RED);
+            return;
+          }
+
           Craft.Blueprint.BlueprintValidation(player.oid, onUseFeat.TargetObject, (Feat)onUseFeat.Feat);
           break;
 
         case CustomFeats.Recycler:
+
+          onUseFeat.PreventFeatUse = true;
+
+          if (player.oid.Area.GetLocalVariable<int>("_AREA_LEVEL").Value != 0)
+          {
+            player.oid.SendServerMessage($"Impossible de démarrer un travail artisanal sans pouvoir accéder à un atelier.", Color.RED);
+            return;
+          }
+
           new Recycler(player.oid, onUseFeat.TargetObject);
           break;
 
         case CustomFeats.Renforcement:
+
+          onUseFeat.PreventFeatUse = true;
+
+          if (player.oid.Area.GetLocalVariable<int>("_AREA_LEVEL").Value != 0)
+          {
+            player.oid.SendServerMessage($"Impossible de démarrer un travail artisanal sans pouvoir accéder à un atelier.", Color.RED);
+            return;
+          }
+
           new Renforcement(player.oid, onUseFeat.TargetObject);
           break;
 
         case CustomFeats.SurchargeArcanique:
+
+          onUseFeat.PreventFeatUse = true;
+
+          if (player.oid.Area.GetLocalVariable<int>("_AREA_LEVEL").Value != 0)
+          {
+            player.oid.SendServerMessage($"Impossible de démarrer un travail artisanal sans pouvoir accéder à un atelier.", Color.RED);
+            return;
+          }
+
           new SurchargeArcanique(player.oid, onUseFeat.TargetObject);
           break;
 

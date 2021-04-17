@@ -6,6 +6,7 @@ using NWN.Services;
 using NWNX.API;
 using NWN.Core.NWNX;
 using NWN.Core;
+using System.Linq;
 
 namespace NWN.Systems
 {
@@ -55,7 +56,11 @@ namespace NWN.Systems
 
         await NwModule.Instance.AddActionToQueue(() => Utils.BootAllPC());
 
-        NwServer.Instance.ShutdownServer();
+        Task waitServerEmpty = NwTask.Run(async () =>
+        {
+          await NwTask.WaitUntil(() => NwModule.Instance.Players.Count() < 1);
+          NwServer.Instance.ShutdownServer();
+        });
       });
 
       await context.Channel.SendMessageAsync("Reboot effectif dans 30 secondes.");

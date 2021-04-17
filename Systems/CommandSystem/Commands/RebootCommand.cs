@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using System.Threading.Tasks;
 using NWN.API;
 using NWN.Core;
@@ -47,7 +48,11 @@ namespace NWN.Systems
 
         await NwModule.Instance.AddActionToQueue(() => Utils.BootAllPC());
 
-        NwServer.Instance.ShutdownServer();
+        Task waitServerEmpty = NwTask.Run(async () =>
+        {
+          await NwTask.WaitUntil(() => NwModule.Instance.Players.Count() < 1);
+          NwServer.Instance.ShutdownServer();
+        });
       });
     }
   }
