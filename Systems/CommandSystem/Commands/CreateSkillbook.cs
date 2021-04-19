@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using NWN.API;
 using NWN.API.Constants;
@@ -10,32 +11,31 @@ namespace NWN.Systems
 {
   class CreateSkillbook
   {
-    PlayerSystem.Player dm;
     public CreateSkillbook(PlayerSystem.Player player)
     {
-      dm = player;
-      dm.menu.Clear();
-      dm.menu.titleLines = new List<string>() {
+      player.menu.Clear();
+      player.menu.titleLines = new List<string>() {
         "Quel don ?"
         };
 
       Task playerInput = NwTask.Run(async () =>
       {
-        dm.oid.GetLocalVariable<int>("_PLAYER_INPUT").Value = 1;
-        dm.setValue = Config.invalidInput;
-        await NwTask.WaitUntil(() => dm.setValue != Config.invalidInput);
-
-        HandleCreateSkillbook(dm.setValue);
-        dm.setValue = Config.invalidInput;
+        player.oid.GetLocalVariable<int>("_PLAYER_INPUT").Value = 1;
+        player.setValue = Config.invalidInput;
+        await NwTask.WaitUntil(() => player.setValue != Config.invalidInput);
+        await NwModule.Instance.WaitForObjectContext();
+        HandleCreateSkillbook(player.setValue, player.oid);
+        player.setValue = Config.invalidInput;
+        player.menu.Close();
       });
 
-      dm.menu.choices.Add(("Retour", () => CommandSystem.DrawDMCommandList(dm)));
-      dm.menu.choices.Add(("Quitter", () => dm.menu.Close()));
-      dm.menu.Draw();
+      player.menu.choices.Add(("Retour", () => CommandSystem.DrawDMCommandList(player)));
+      player.menu.choices.Add(("Quitter", () => player.menu.Close()));
+      player.menu.Draw();
     }
-    private void HandleCreateSkillbook(int skillId)
+    private void HandleCreateSkillbook(int skillId, NwPlayer oPC)
     {
-      NwItem skillBook = NwItem.Create("skillbookgeneriq", dm.oid, 1, "skillbook");
+      NwItem skillBook = NwItem.Create("skillbookgeneriq", oPC, 1, "skillbook");
       ItemPlugin.SetItemAppearance(skillBook, NWScript.ITEM_APPR_TYPE_SIMPLE_MODEL, 2, Utils.random.Next(0, 50));
       skillBook.GetLocalVariable<int>("_SKILL_ID").Value = skillId;
 
@@ -54,8 +54,6 @@ namespace NWN.Systems
         if (int.TryParse(NWScript.Get2DAString("feat", "DESCRIPTION", skillId), out int descriptionValue))
           skillBook.Description = NWScript.GetStringByStrRef(descriptionValue);
       }
-
-      dm.menu.Close();
     }
   }
 }

@@ -365,20 +365,8 @@ namespace NWN.Systems
     [ScriptHandler("collect_cancel")]
     private void HandleBeforeCollectCycleCancel(CallInfo callInfo)
     {
-      Log.Info("collect canceled");
       callInfo.ObjectSelf.GetLocalVariable<int>("_COLLECT_CANCELLED").Value = 1;
-      /*if (Players.TryGetValue(callInfo.ObjectSelf, out Player player))
-        player.CancelCollectCycle();*/
     }
-
-    /*[ScriptHandler("collect_complete")]
-    private void HandleAfterCollectCycleComplete(CallInfo callInfo)
-    {
-      Log.Info("collect complete");
-      if (Players.TryGetValue(callInfo.ObjectSelf, out Player player))
-        player.CompleteCollectCycle();
-    }*/
-
     private void CancelPlayerLevelUp(ModuleEvents.OnPlayerLevelUp onLevelUp)
     {
       onLevelUp.Player.Xp = 1;
@@ -423,7 +411,6 @@ namespace NWN.Systems
     }
     public static void HandleCombatRoundEndForAutoSpells(CreatureEvents.OnCombatRoundEnd onCombatRoundEnd)
     {
-      Log.Info("auto spell triggered");
       if(onCombatRoundEnd.Creature.GetLocalVariable<int>("_AUTO_SPELL").HasNothing)
       {
         onCombatRoundEnd.Creature.OnCombatRoundEnd -= HandleCombatRoundEndForAutoSpells;

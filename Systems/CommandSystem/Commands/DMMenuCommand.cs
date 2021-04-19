@@ -1,6 +1,4 @@
-﻿using System.Collections.Generic;
-using NWN.API;
-using NWN.Core.NWNX;
+﻿using NWN.API;
 
 namespace NWN.Systems
 {

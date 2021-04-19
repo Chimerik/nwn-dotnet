@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Linq;
+using System.Threading.Tasks;
 using NWN.API;
 using NWN.Core;
 using NWN.Core.NWNX;
@@ -11,9 +12,9 @@ namespace NWN.Systems.Craft.Collect
   {
     public static void HandleCompleteCycle(PlayerSystem.Player player, NwGameObject oPlaceable, NwItem oExtractor)
     {
-      if (oPlaceable == null || player.oid.Distance(oPlaceable) > 5.0f)
+      if (oPlaceable == null)
       {
-        player.oid.SendServerMessage("Vous êtes trop éloigné de l'arbre ciblé, ou alors celui-ci n'existe plus.", Color.MAGENTA);
+        player.oid.SendServerMessage("L'arbre ciblé n'existe plus, impossible de mener à bien l'extraction.", Color.MAGENTA);
         return;
       }
 
@@ -47,8 +48,12 @@ namespace NWN.Systems.Craft.Collect
         oPlaceable.GetLocalVariable<int>("_ORE_AMOUNT").Value = remainingOre;
       }
 
-      NwItem ore = NWScript.CreateItemOnObject("wood", player.oid, miningYield, oPlaceable.Name).ToNwObject<NwItem>();
-      ore.Name = oPlaceable.Name;
+      Task playerInput = NwTask.Run(async () =>
+      {
+        await NwModule.Instance.WaitForObjectContext();
+        NwItem ore = NwItem.Create("wood", player.oid, miningYield, oPlaceable.Name);
+        ore.Name = oPlaceable.Name;
+      });
 
       ItemUtils.DecreaseItemDurability(oExtractor);
     }

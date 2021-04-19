@@ -21,7 +21,7 @@ namespace NWN.Systems
 
         DoAreaSpecificInitialisation(area);
 
-        //Log.Info($"initializing area : {area.Name}");
+          //Log.Info($"initializing area : {area.Name}");
 
         foreach (NwPlaceable coffre in area.Objects.Where(o => o.Tag == "loot_chest"))
         {
@@ -70,67 +70,49 @@ namespace NWN.Systems
     }
     public static void OnAreaExit(AreaEvents.OnExit onExit)
     {
-      NwArea area = onExit.Area;
-      NwGameObject oExited = onExit.ExitingObject;
-
-      if (!(oExited is NwPlayer))
-        return;
-
-      NwPlayer oPC = (NwPlayer)oExited;
-
-      NWScript.WriteTimestampedLogEntry($"{oPC.Name} exited area {area.Name}");
-
-      if (oPC.IsDM || oPC.IsDMPossessed || oPC.IsPlayerDM)
+      if (!PlayerSystem.Players.TryGetValue(onExit.ExitingObject, out PlayerSystem.Player player))
         return;
       
-      int nbPlayersInArea = area.FindObjectsOfTypeInArea<NwPlayer>().Count(p => !p.IsDM && !p.IsDMPossessed && !p.IsPlayerDM);
+      if (player.oid.IsDM)
+        return;
 
-      if (nbPlayersInArea < 1)
-        AreaCleaner(area);
+      Log.Info($"{player.oid.Name} vient de quitter la zone {onExit.Area.Name}");
 
-      if (PlayerSystem.Players.TryGetValue(oPC, out PlayerSystem.Player player))
-      {
-        player.previousLocation = player.location;
+      player.previousLocation = player.location;
 
-        if (!player.areaExplorationStateDictionnary.ContainsKey(onExit.Area.Tag))
-        {
-          Log.Info("Adding exploration state to player dictionnary.");
-          player.areaExplorationStateDictionnary.Add(onExit.Area.Tag, PlayerPlugin.GetAreaExplorationState(onExit.ExitingObject, onExit.Area));
-        }
-        else
-        {
-          Log.Info("Updating exploration state.");
-          player.areaExplorationStateDictionnary[onExit.Area.Tag] = PlayerPlugin.GetAreaExplorationState(onExit.ExitingObject, onExit.Area);
-        }
-      }
+      if (onExit.Area.FindObjectsOfTypeInArea<NwPlayer>().Count(p => !p.IsDM) < 1)
+        AreaCleaner(onExit.Area);
+
+      if (onExit.IsDisconnectingPlayer)
+        return;
+
+      if (!player.areaExplorationStateDictionnary.ContainsKey(onExit.Area.Tag))
+        player.areaExplorationStateDictionnary.Add(onExit.Area.Tag, PlayerPlugin.GetAreaExplorationState(player.oid, onExit.Area));
+      else
+        player.areaExplorationStateDictionnary[onExit.Area.Tag] = PlayerPlugin.GetAreaExplorationState(player.oid, onExit.Area);
     }
     public static void OnPersonnalStorageAreaExit(AreaEvents.OnExit onExit)
     {
-      NwArea area = onExit.Area;
-      NwGameObject oExited = onExit.ExitingObject;
-
-      if (!(oExited is NwPlayer))
+      if (!PlayerSystem.Players.TryGetValue(onExit.ExitingObject, out PlayerSystem.Player player))
         return;
 
-      NwPlayer oPC = (NwPlayer)oExited;
+      Log.Info($"{player.oid.Name} exited area {onExit.Area.Name}");
 
-      NWScript.WriteTimestampedLogEntry($"{oPC.Name} exited area {area.Name}");
-
-      if (area.Tag == $"entrepotpersonnel_{oPC.CDKey}")
+      if (onExit.Area.Tag == $"entrepotpersonnel_{player.oid.CDKey}")
       {
-        NwStore storage = area.FindObjectsOfTypeInArea<NwStore>().FirstOrDefault();
+        NwStore storage = onExit.Area.FindObjectsOfTypeInArea<NwStore>().FirstOrDefault();
 
         if (!storage.IsValid)
         {
-          Utils.LogMessageToDMs($"{area.Name} - {oPC.Name} - Le coffre personnel n'a pas pu être trouvé.");
+          Utils.LogMessageToDMs($"{onExit.Area.Name} - {player.oid.Name} - Le coffre personnel n'a pas pu être trouvé.");
           return;
         }
 
         var saveStorage = NWScript.SqlPrepareQueryCampaign(Config.database, $"UPDATE playerCharacters set storage = @storage where rowid = @characterId");
-        NWScript.SqlBindInt(saveStorage, "@characterId", ObjectPlugin.GetInt(oPC, "characterId"));
+        NWScript.SqlBindInt(saveStorage, "@characterId", player.characterId);
         NWScript.SqlBindObject(saveStorage, "@storage", storage);
         NWScript.SqlStep(saveStorage);
-        AreaDestroyer(area);
+        AreaDestroyer(onExit.Area);
       }
     }
     public static void OnIntroAreaExit(AreaEvents.OnExit onExit)
@@ -145,7 +127,7 @@ namespace NWN.Systems
 
       NWScript.WriteTimestampedLogEntry($"{oPC.Name} exited area {area.Name}");
 
-      if (oPC.IsDM || oPC.IsDMPossessed || oPC.IsPlayerDM)
+      if (oPC.IsDM)
         return;
 
       if (area.Tag == $"entry_scene_{oPC.CDKey}")

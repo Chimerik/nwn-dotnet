@@ -114,34 +114,33 @@ namespace NWN.Systems.Craft.Collect
         player.oid.SendServerMessage("Annulation de la tâche en cours.", Color.ORANGE);
         return;
       }
-
+      
       NwItem resourceExtractor = player.oid.GetItemInSlot(InventorySlot.RightHand);
       float cycleDuration = 180.0f;
       if (Systems.Config.env == Systems.Config.Env.Chim)
         cycleDuration = 10.0f;
-
+      
       if (resourceExtractor != null) // TODO : Idée pour plus tard, le strip miner le plus avancé pourra équipper un cristal de spécialisation pour extraire deux fois plus de minerai en un cycle sur son minerai de spécialité
       {
         cycleDuration = cycleDuration - (cycleDuration * resourceExtractor.GetLocalVariable<int>("_ITEM_LEVEL").Value * 2 / 100);
       }
-
+      
       if (oTarget != null)
       {
         Core.Effect eRay = NWScript.EffectBeam(NWScript.VFX_BEAM_DISINTEGRATE, resourceExtractor, 1, 0, 3);
         eRay = NWScript.TagEffect(eRay, $"_{player.oid.CDKey}_MINING_BEAM");
         NWScript.ApplyEffectToObject(NWScript.DURATION_TYPE_TEMPORARY, eRay, oTarget, cycleDuration);
       }
-
+     
       PlayerPlugin.StartGuiTimingBar(player.oid, cycleDuration);
-      Log.Info($"starting collect cycle for {player.oid}");
 
+      player.oid.OnServerDisconnect += OnDisconnectCancelCollect;
       EventsPlugin.AddObjectToDispatchList("NWNX_ON_TIMING_BAR_CANCEL_BEFORE", "collect_cancel", player.oid);
-      EventsPlugin.AddObjectToDispatchList("NWNX_ON_CLIENT_DISCONNECT_BEFORE", "collect_cancel", player.oid);
       EventsPlugin.AddObjectToDispatchList("NWNX_ON_ITEM_EQUIP_BEFORE", "collect_cancel", player.oid);
       EventsPlugin.AddObjectToDispatchList("NWNX_ON_ITEM_UNEQUIP_BEFORE", "collect_cancel", player.oid);
       EventsPlugin.AddObjectToDispatchList("NWNX_ON_START_COMBAT_ROUND_AFTER", "collect_cancel", player.oid);
       EventsPlugin.AddObjectToDispatchList("NWNX_ON_INPUT_CAST_SPELL_BEFORE", "collect_cancel", player.oid);
-
+      
       Task waitForCollectCompletion = NwTask.Run(async () =>
       {
         player.oid.GetLocalVariable<int>("_COLLECT_IN_PROGRESS").Value = 1;
@@ -149,7 +148,6 @@ namespace NWN.Systems.Craft.Collect
         Task collectCancelled = NwTask.Run(async () =>
         {
           await NwTask.WaitUntil(() => player.oid.GetLocalVariable<int>("_COLLECT_CANCELLED").Value == 1);
-          Log.Info("Collect cancelled detected");
           return true;
         });
 
@@ -164,7 +162,7 @@ namespace NWN.Systems.Craft.Collect
           await NwTask.Delay(TimeSpan.FromSeconds(cycleDuration));
           return true;
         });
-
+        
         await NwTask.WhenAny(collectCancelled, onMovementCancelCollect, collectCompleted);
 
         if (collectCancelled.IsCompletedSuccessfully || onMovementCancelCollect.IsCompletedSuccessfully)
@@ -174,26 +172,34 @@ namespace NWN.Systems.Craft.Collect
           if (oTarget != null)
             Utils.RemoveTaggedEffect(oTarget, $"_{player.oid.CDKey}_MINING_BEAM");
 
-          RemoveCollectCycleCallbacks(player);
+          RemoveCollectCycleCallbacks(player.oid);
           PlayerPlugin.StopGuiTimingBar(player.oid);
+    
           player.oid.GetLocalVariable<int>("_COLLECT_IN_PROGRESS").Delete();
           return;
         }
 
         completeCallback();
-        RemoveCollectCycleCallbacks(player);
+        RemoveCollectCycleCallbacks(player.oid);
         PlayerPlugin.StopGuiTimingBar(player.oid);
         player.oid.GetLocalVariable<int>("_COLLECT_IN_PROGRESS").Delete();
       });
     }
-    private static void RemoveCollectCycleCallbacks(PlayerSystem.Player player)
+    private static void OnDisconnectCancelCollect(OnClientDisconnect onDisconnect)
     {
-      EventsPlugin.RemoveObjectFromDispatchList("NWNX_ON_TIMING_BAR_CANCEL_BEFORE", "collect_cancel", player.oid);
-      EventsPlugin.RemoveObjectFromDispatchList("NWNX_ON_CLIENT_DISCONNECT_BEFORE", "collect_cancel", player.oid);
-      EventsPlugin.RemoveObjectFromDispatchList("NWNX_ON_ITEM_EQUIP_BEFORE", "collect_cancel", player.oid);
-      EventsPlugin.RemoveObjectFromDispatchList("NWNX_ON_ITEM_UNEQUIP_BEFORE", "collect_cancel", player.oid);
-      EventsPlugin.RemoveObjectFromDispatchList("NWNX_ON_START_COMBAT_ROUND_AFTER", "collect_cancel", player.oid);
-      EventsPlugin.RemoveObjectFromDispatchList("NWNX_ON_INPUT_CAST_SPELL_BEFORE", "collect_cancel", player.oid);
+      onDisconnect.Player.GetLocalVariable<int>("_COLLECT_CANCELLED").Delete();
+      onDisconnect.Player.GetLocalVariable<int>("_COLLECT_IN_PROGRESS").Delete();
+      RemoveCollectCycleCallbacks(onDisconnect.Player);
+      PlayerPlugin.StopGuiTimingBar(onDisconnect.Player);
+    }
+    private static void RemoveCollectCycleCallbacks(NwPlayer oPC)
+    {
+      oPC.OnServerDisconnect -= OnDisconnectCancelCollect;
+      EventsPlugin.RemoveObjectFromDispatchList("NWNX_ON_TIMING_BAR_CANCEL_BEFORE", "collect_cancel", oPC);
+      EventsPlugin.RemoveObjectFromDispatchList("NWNX_ON_ITEM_EQUIP_BEFORE", "collect_cancel", oPC);
+      EventsPlugin.RemoveObjectFromDispatchList("NWNX_ON_ITEM_UNEQUIP_BEFORE", "collect_cancel", oPC);
+      EventsPlugin.RemoveObjectFromDispatchList("NWNX_ON_START_COMBAT_ROUND_AFTER", "collect_cancel", oPC);
+      EventsPlugin.RemoveObjectFromDispatchList("NWNX_ON_INPUT_CAST_SPELL_BEFORE", "collect_cancel", oPC);
     }
     public static void AddCraftedItemProperties(NwItem craftedItem, string material)
     {

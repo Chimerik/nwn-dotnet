@@ -456,7 +456,7 @@ namespace NWN.Systems
         .Register<ModuleEvents.OnAcquireItem>(NwModule.Instance);
       eventService.Subscribe<ModuleEvents.OnUnacquireItem, GameEventFactory>(player, ItemSystem.OnUnacquireItem)
         .Register<ModuleEvents.OnUnacquireItem>(NwModule.Instance);
-
+      
       player.OnUseFeat += FeatSystem.OnUseFeatBefore;
       player.OnSpellCast += SpellSystem.HandleBeforeSpellCast;
       player.OnExamineObject += ExamineSystem.OnExamineBefore;

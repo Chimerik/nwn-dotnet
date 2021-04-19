@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Net;
 using System.Numerics;
 using System.Threading.Tasks;
@@ -26,11 +27,6 @@ namespace NWN.Systems
 
         if (NWScript.GetPCPlayerName(player.oid) == "Chim")
         {
-          if (player.currentSkillType == SkillType.Skill)
-            player.learnableSkills[(Feat)player.currentSkillJob].acquiredPoints = player.learnableSkills[(Feat)player.currentSkillJob].pointsToNextLevel;
-          else if (player.currentSkillType == SkillType.Spell)
-            player.learnableSpells[player.currentSkillJob].acquiredPoints = player.learnableSpells[player.currentSkillJob].pointsToNextLevel;
-          
           //PlayerSystem.cursorTargetService.EnterTargetMode(player.oid, OnTargetSelected, ObjectTypes.All, MouseCursor.Pickup);
         }
       }

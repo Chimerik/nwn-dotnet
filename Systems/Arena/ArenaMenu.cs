@@ -4,7 +4,6 @@ using static NWN.Systems.PlayerSystem;
 using static NWN.Systems.Arena.Config;
 using NWN.API;
 using System.Linq;
-using NWN.API.Events;
 
 namespace NWN.Systems.Arena
 {

@@ -9,7 +9,6 @@ using NWN.Services;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Numerics;
 using System.Threading.Tasks;
 using static NWN.Systems.Craft.Collect.Config;
 

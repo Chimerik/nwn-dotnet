@@ -1,9 +1,9 @@
 ﻿using System;
 using NWN.Core;
-using NWN.Core.NWNX;
 using static NWN.Systems.Craft.Collect.Config;
 using NWN.API;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace NWN.Systems.Craft.Collect
 {
@@ -11,9 +11,9 @@ namespace NWN.Systems.Craft.Collect
   {
     public static void HandleCompleteCycle(PlayerSystem.Player player, NwGameObject oPlaceable, NwItem oExtractor)
     {
-      if (oPlaceable == null || player.oid.Distance(oPlaceable) > 5.0f)
+      if (oPlaceable == null)
       {
-        player.oid.SendServerMessage("Vous êtes trop éloigné du filon ciblé, ou alors celui-ci n'existe plus.", Color.MAGENTA);
+        player.oid.SendServerMessage("Le filon ciblé n'existe plus, impossible de mener à bien l'extraction.", Color.MAGENTA);
         return;
       }
 
@@ -46,10 +46,15 @@ namespace NWN.Systems.Craft.Collect
         oPlaceable.GetLocalVariable<int>("_ORE_AMOUNT").Value = remainingOre;
       }
       
-      NwItem ore = NWScript.CreateItemOnObject("ore", player.oid, miningYield, NWScript.GetName(oPlaceable)).ToNwObject<NwItem>();
-      ore.Name = oPlaceable.Name;
-
+      Task playerInput = NwTask.Run(async () =>
+      {
+        await NwModule.Instance.WaitForObjectContext();
+        NwItem ore = NwItem.Create("ore", player.oid, miningYield, oPlaceable.Name);
+        ore.Name = oPlaceable.Name;
+      });
+      
       ItemUtils.DecreaseItemDurability(oExtractor);
+      PlayerSystem.Log.Info("end cycle");
     }
     public static void HandleCompleteProspectionCycle(PlayerSystem.Player player, NwGameObject oPlaceable, NwItem oExtractor)
     {
