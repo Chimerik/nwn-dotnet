@@ -141,7 +141,7 @@ namespace NWN.Systems
           return;
         }
 
-        item.Clone(player.oid, "", true);
+        item.Clone(player.oid);
         item.Destroy();
       }
 
@@ -237,7 +237,7 @@ namespace NWN.Systems
         player.oid.SendServerMessage($"{item.Name.ColorString(Color.ORANGE)} est désormais en vente au prix de {goldValue.ToString().ColorString(Color.GREEN)} pièce(s) d'or.");
       }
 
-      NwItem copy = item.Clone(shop, "", true);
+      NwItem copy = item.Clone(shop);
       ItemPlugin.SetBaseGoldPieceValue(copy, goldValue / item.StackSize);
       copy.GetLocalVariable<int>("_SET_SELL_PRICE").Value = goldValue / item.StackSize;
       item.Destroy();

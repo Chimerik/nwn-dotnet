@@ -53,7 +53,7 @@ namespace NWN.System
         else
         {
           onStoreRequestBuy.PreventBuy = true;
-          onStoreRequestBuy.Item.Clone(player.oid, null, true);
+          onStoreRequestBuy.Item.Clone(player.oid);
           onStoreRequestBuy.Item.Destroy();
 
           Task awaitItemDestruction = NwTask.Run(async () =>
@@ -69,7 +69,7 @@ namespace NWN.System
       if (onStoreRequestBuy.Store.Tag.StartsWith("_PLAYER_STORAGE_"))
       {
         onStoreRequestBuy.PreventBuy = true;
-        onStoreRequestBuy.Item.Clone(player.oid, null, true);
+        onStoreRequestBuy.Item.Clone(player.oid);
         onStoreRequestBuy.Item.Destroy();
         return;
       }
@@ -135,7 +135,7 @@ namespace NWN.System
 
         if (onStoreRequestSell.Store.Tag.StartsWith("_PLAYER_STORAGE_"))
         {
-          onStoreRequestSell.Item.Clone(onStoreRequestSell.Store, null, true);
+          onStoreRequestSell.Item.Clone(onStoreRequestSell.Store);
           onStoreRequestSell.Item.Destroy();
           return;
         }

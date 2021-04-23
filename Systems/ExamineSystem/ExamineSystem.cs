@@ -1,13 +1,10 @@
 ﻿using NLog;
 using NWN.API;
-using NWN.API.Constants;
 using NWN.API.Events;
-using NWN.Core;
-using NWN.Core.NWNX;
 using NWN.Services;
-using NWNX.API.Events;
 using NWNX.Services;
 using System;
+using System.Threading.Tasks;
 
 namespace NWN.Systems
 {
@@ -15,10 +12,6 @@ namespace NWN.Systems
   public class ExamineSystem
   {
     public static readonly Logger Log = LogManager.GetCurrentClassLogger();
-    public ExamineSystem(NWNXEventService nwnxEventService)
-    {
-      
-    }
     public static void OnExamineBefore(OnExamineObject onExamine)
     {
       Log.Info($"{onExamine.ExaminedBy.Name} examining {onExamine.ExaminedObject.Name} - Tag : {onExamine.ExaminedObject.Tag}");
@@ -82,7 +75,6 @@ namespace NWN.Systems
           break;
         case "blueprint":
           int baseItemType = onExamine.ExaminedObject.GetLocalVariable<int>("_BASE_ITEM_TYPE").Value;
-
           if (Craft.Collect.System.blueprintDictionnary.ContainsKey(baseItemType))
             onExamine.ExaminedObject.Description = Craft.Collect.System.blueprintDictionnary[baseItemType].DisplayBlueprintInfo(onExamine.ExaminedBy, (NwItem)onExamine.ExaminedObject);
           else
@@ -210,8 +202,8 @@ namespace NWN.Systems
 
       if (onExamine.ExaminedObject is NwItem)
       {
-        if (onExamine.ExaminedObject is NwItem && onExamine.ExaminedObject.GetLocalVariable<string>("_TEMP_DESC").HasValue)
-          onExamine.ExaminedObject.Description = onExamine.ExaminedObject.GetLocalVariable<string>("_TEMP_DESC").Value;
+        //if (onExamine.ExaminedObject is NwItem && onExamine.ExaminedObject.GetLocalVariable<string>("_TEMP_DESC").HasValue)
+          //onExamine.ExaminedObject.Description = onExamine.ExaminedObject.GetLocalVariable<string>("_TEMP_DESC").Value;
 
         onExamine.ExaminedObject.GetLocalVariable<string>("_TEMP_DESC").Value = onExamine.ExaminedObject.Description;
         
@@ -219,6 +211,12 @@ namespace NWN.Systems
           onExamine.ExaminedObject.Description += $"\n\nEmplacement(s) d'enchantement : [{onExamine.ExaminedObject.GetLocalVariable<int>("_AVAILABLE_ENCHANTEMENT_SLOT").Value.ToString().ColorString(Color.ORANGE)}] ".ColorString(Color.ORANGE);
 
         onExamine.ExaminedObject.Description += $"\n\n {ItemUtils.GetItemDurabilityState((NwItem)onExamine.ExaminedObject)}";
+
+        Task waitExamineEnd = NwTask.Run(async () =>
+        {
+          await NwTask.Delay(TimeSpan.FromSeconds(0.1f));
+          onExamine.ExaminedObject.Description = onExamine.ExaminedObject.GetLocalVariable<string>("_TEMP_DESC").Value;
+        });
       }
     }
   }

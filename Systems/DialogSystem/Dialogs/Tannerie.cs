@@ -27,7 +27,7 @@ namespace NWN.Systems
 
       foreach (KeyValuePair<string, int> materialEntry in player.materialStock)
       {
-        if (materialEntry.Value > 100 && Enum.TryParse(materialEntry.Key, out PeltType myOreType) && myOreType != PeltType.Invalid)
+        if (Enum.TryParse(materialEntry.Key, out PeltType myOreType) && myOreType != PeltType.Invalid)
           player.menu.choices.Add(($"{myOreType.ToDescription()} - {materialEntry.Value} unité(s).", () => HandleRefineOreQuantity(player, materialEntry.Key)));
       }
 

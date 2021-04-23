@@ -162,11 +162,10 @@ namespace NWN.Systems.Craft
       int iMineralCost = this.GetBlueprintMineralCostForPlayer(player, oItem);
       float iJobDuration = this.GetBlueprintTimeCostForPlayer(player, oItem);
       string sMaterial = GetMaterialFromTargetItem(NwModule.FindObjectsWithTag<NwPlaceable>(workshopTag).FirstOrDefault());
-
       string bpDescription = $"Patron de création de l'objet artisanal : {name}\n\n\n" +
         $"Recherche d'efficacité matérielle niveau {oItem.GetLocalVariable<int>("_BLUEPRINT_MATERIAL_EFFICIENCY").Value}\n\n" +
         $"Coût initial en {sMaterial} : {iMineralCost}.\n Puis 10 % de moins par amélioration vers un matériau supérieur.\n" +
-        $"Recherche d'efficacité de temps niveau {oItem.GetLocalVariable<int>("_BLUEPRINT_TIME_EFFICIENCY").Value}\n\n" +
+        $"Recherche d'efficacité de temps niveau {oItem.GetLocalVariable<int>("_BLUEPRINT_TIME_EFFICIENCY").Value} \n\n" +
         $"Temps de fabrication et d'amélioration : {Utils.StripTimeSpanMilliseconds(DateTime.Now.AddSeconds(iJobDuration).Subtract(DateTime.Now))}.";
       
       int runs = oItem.GetLocalVariable<int>("_BLUEPRINT_RUNS").Value; 
@@ -191,7 +190,7 @@ namespace NWN.Systems.Craft
 
       iSkillLevel += item.GetLocalVariable<int>("_BLUEPRINT_MATERIAL_EFFICIENCY").Value;
 
-      return (mineralsCost - iSkillLevel) / 100;
+      return mineralsCost * (100 - iSkillLevel) / 100;
     }
     public float GetBlueprintTimeCostForPlayer(NwPlayer oPC, NwItem item)
     {
@@ -209,7 +208,7 @@ namespace NWN.Systems.Craft
 
       iSkillLevel += item.GetLocalVariable<int>("_BLUEPRINT_TIME_EFFICIENCY").Value;
 
-      return (fJobDuration - iSkillLevel) / 100;
+      return fJobDuration * (100 - iSkillLevel) / 100;
     }
     public string GetMaterialFromTargetItem(NwGameObject oTarget)
     {
@@ -228,6 +227,7 @@ namespace NWN.Systems.Craft
       else if (oTarget.Tag == this.craftedItemTag)
       {
         string material = oTarget.GetLocalVariable<string>("_ITEM_MATERIAL").Value;
+
         if (Enum.TryParse(material, out MineralType myMineralType))
           return Enum.GetName(typeof(MineralType), myMineralType + 1);
         else if (Enum.TryParse(material, out PlankType myPlankType))

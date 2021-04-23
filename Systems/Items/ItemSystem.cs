@@ -159,7 +159,7 @@ namespace NWN.Systems
 
       if (oItem.Tag == "undroppable_item")
       {
-        oItem.Clone(oAcquiredFrom, null, true);
+        oItem.Clone(oAcquiredFrom);
         oItem.Destroy();
         return;
       }

@@ -36,7 +36,7 @@ namespace NWN.Systems
       NwServer.Instance.ServerInfo.PlayOptions.ShowDMJoinMessage = false;
 
       SetModuleTime();
-      SaveServerVault();
+      SaveServerVault();  
 
       RestorePlayerCorpseFromDatabase();
       RestorePlayerShopsFromDatabase();
@@ -485,7 +485,7 @@ namespace NWN.Systems
           {
             NwStore tempStore = NwStore.Deserialize<NwStore>(NWScript.SqlGetString(query, 4));
             NwItem tempItem = tempStore.Items.FirstOrDefault();
-            tempItem.Clone(oSeller, null, true);
+            tempItem.Clone(oSeller);
             oSeller.SendServerMessage($"Vous venez de remporter l'enchère sur {tempItem.Name.ColorString(API.Color.ORANGE)}. L'objet se trouve désormais dans votre inventaire.");
 
             Task delayedDeletion = NwTask.Run(async () =>

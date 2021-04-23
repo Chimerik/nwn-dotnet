@@ -1,6 +1,5 @@
 ﻿using NWN.API;
 using NWN.API.Constants;
-using NWN.Core.NWNX;
 
 namespace NWN.Systems.Items.ItemUseHandlers
 {
@@ -9,6 +8,8 @@ namespace NWN.Systems.Items.ItemUseHandlers
     public static void HandleActivate(NwItem skillBook, NwPlayer oPC)
     {
       Feat FeatId = (Feat)skillBook.GetLocalVariable<int>("_SKILL_ID").Value;
+
+      PlayerSystem.Log.Info($"{oPC.Name} used skillBook {FeatId}");
 
       if (!PlayerSystem.Players.TryGetValue(oPC, out PlayerSystem.Player player))
         return;

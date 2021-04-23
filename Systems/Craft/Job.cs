@@ -22,10 +22,11 @@ namespace NWN.Systems.Craft
 
     public Job(int baseItemType, string material, float time, PlayerSystem.Player player, string item = "")
     {
+      ModuleSystem.Log.Info($"Craft new job from {player.oid.Name} - base item : {baseItemType} - remaining Time {time} - material {material}");
       //this.name = name;
       this.baseItemType = baseItemType;
-      ModuleSystem.Log.Info($"got base item : {baseItemType}");
       this.craftedItem = item;
+      remainingTime = time;
       this.material = material;
       this.isCancelled = false;
       this.player = player;
@@ -227,17 +228,14 @@ namespace NWN.Systems.Craft
           BPCopyLevel = SkillSystem.GetCustomFeatLevelFromSkillPoints(CustomFeats.BlueprintCopy, player.learntCustomFeats[CustomFeats.BlueprintCopy]);
 
         int timeCost = blueprint.mineralsCost * 200;
-        float iJobDuration =  (timeCost - (BPCopyLevel * 5)) / 100;
+        float iJobDuration =  timeCost * (100 - (BPCopyLevel * 5)) / 100;
         player.craftJob = new Job(-11, "", iJobDuration, player, oBlueprint.Serialize()); // - 11 = blueprint copy
       }
     }
     private void StartEnchantementCraft(NwGameObject oTarget, string ipString)
     {
-      Log.Info("start ench craft");
-
       int spellId = Int32.Parse(ipString.Remove(ipString.IndexOf("_")));
       ipString = ipString.Remove(0, ipString.IndexOf("_") + 1);
-      Log.Info($"ipString : {ipString}");
 
       if (!int.TryParse(NWScript.Get2DAString("spells", "Wiz_Sorc", spellId), out int spellLevel))
       {
@@ -254,11 +252,7 @@ namespace NWN.Systems.Craft
       if (player.learntCustomFeats.ContainsKey(CustomFeats.Enchanteur))
         enchanteurLevel += SkillSystem.GetCustomFeatLevelFromSkillPoints(CustomFeats.Enchanteur, player.learntCustomFeats[CustomFeats.Enchanteur]);
 
-
-      Log.Info($"base item type job : {baseItemType}");
-
       float iJobDuration = baseCost * spellLevel * (100 - enchanteurLevel);
-      Log.Info($"duration : {iJobDuration}");
       player.craftJob = new Job(-14, ipString, iJobDuration, player, oTarget.Serialize()); // -14 = JobType enchantement
 
       player.oid.SendServerMessage($"Vous venez de démarrer l'enchantement de : {NWScript.GetName(oTarget).ColorString(Color.WHITE)}", Color.GREEN);
@@ -273,19 +267,13 @@ namespace NWN.Systems.Craft
     {
       NwItem item = (NwItem)oTarget;
 
-      Log.Info($"{player.oid.Name} starts recycling {item.Name} - material : {material}");
-
       int baseItemType = (int)item.BaseItemType;
       int baseCost = ItemUtils.GetBaseItemCost(item);
-
-      Log.Info($"base item type job : {baseItemType}");
 
       float iJobDuration = baseCost * 125;
 
       if (this.player.learntCustomFeats.ContainsKey(CustomFeats.Recycler))
         iJobDuration -= iJobDuration * 1 * SkillSystem.GetCustomFeatLevelFromSkillPoints(CustomFeats.Recycler, this.player.learntCustomFeats[CustomFeats.Recycler]) / 100;
-
-      Log.Info($"duration : {iJobDuration}");
 
       item.GetLocalVariable<int>("_BASE_COST").Value = baseCost;
       player.craftJob = new Job(-15, material, iJobDuration, player, item.Serialize()); // -15 = JobType recyclage
@@ -340,7 +328,7 @@ namespace NWN.Systems.Craft
         if (player.learntCustomFeats.ContainsKey(CustomFeats.AdvancedCraft))
           advancedCraftLevel += SkillSystem.GetCustomFeatLevelFromSkillPoints(CustomFeats.AdvancedCraft, player.learntCustomFeats[CustomFeats.AdvancedCraft]);
 
-        float iJobDuration = ((blueprint.mineralsCost * 200) - (metallurgyLevel * 5 + advancedCraftLevel * 3)) / 100;
+        float iJobDuration = blueprint.mineralsCost * 200 * (100 - (metallurgyLevel * 5 + advancedCraftLevel * 3)) / 100;
         player.craftJob = new Job(-12, "", iJobDuration, player, ObjectPlugin.Serialize(oBlueprint)); // - 12 = recherche ME
         oBlueprint.Destroy();
         player.oid.SendServerMessage($"L'objet {oBlueprint.Name.ColorString(Color.WHITE)} ne sera pas disponible jusqu'à la fin du travail de recherche métallurgique.", Color.ORANGE);
@@ -358,7 +346,8 @@ namespace NWN.Systems.Craft
         if (player.learntCustomFeats.ContainsKey(CustomFeats.AdvancedCraft))
           advancedCraftLevel += SkillSystem.GetCustomFeatLevelFromSkillPoints(CustomFeats.AdvancedCraft, player.learntCustomFeats[CustomFeats.AdvancedCraft]);
 
-        float iJobDuration = ((blueprint.mineralsCost * 200) - (researchLevel * 5 + advancedCraftLevel * 3)) / 100;
+        float iJobDuration = blueprint.mineralsCost * 200 * (100 - (researchLevel * 5 + advancedCraftLevel * 3)) / 100;
+        
         player.craftJob = new Job(-13, "", iJobDuration, player, oBlueprint.Serialize()); // -13 = recherche TE
         oBlueprint.Destroy();
         player.oid.SendServerMessage($"L'objet {oBlueprint.Name.ColorString(Color.WHITE)} ne sera pas disponible jusqu'à la fin du travail de recherche d'efficacité.", Color.ORANGE);

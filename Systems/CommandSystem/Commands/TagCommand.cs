@@ -29,6 +29,7 @@ namespace NWN.Systems
         player.setString = "";
         await NwTask.WaitUntil(() => player.setString != "");
 
+        selection.TargetObject.Tag = player.setString;
         player.oid.SendServerMessage($"{selection.TargetObject.Name.ColorString(Color.WHITE)} a été taggué {player.setString.ColorString(Color.WHITE)}.", Color.GREEN);
         player.setString = "";
         player.menu.Close();

@@ -35,22 +35,23 @@ namespace NWN.Systems.Craft.Collect
 
       miningYield += bonusYield;
 
-      int remainingOre = oPlaceable.GetLocalVariable<int>("_ORE_AMOUNT").Value; 
-      if (remainingOre <= 0)
-      {
-        miningYield = oPlaceable.GetLocalVariable<int>("_ORE_AMOUNT").Value;
-        oPlaceable.Destroy();
-
-        NwWaypoint.Create("animal_spawn_wp", oPlaceable.Location);
-      }
-      else
-      {
-        oPlaceable.GetLocalVariable<int>("_ORE_AMOUNT").Value = remainingOre;
-      }
-
       Task playerInput = NwTask.Run(async () =>
       {
         await NwModule.Instance.WaitForObjectContext();
+
+        int remainingOre = oPlaceable.GetLocalVariable<int>("_ORE_AMOUNT").Value;
+        if (remainingOre <= 0)
+        {
+          miningYield = oPlaceable.GetLocalVariable<int>("_ORE_AMOUNT").Value;
+          oPlaceable.Destroy();
+
+          NwWaypoint.Create("animal_spawn_wp", oPlaceable.Location);
+        }
+        else
+        {
+          oPlaceable.GetLocalVariable<int>("_ORE_AMOUNT").Value = remainingOre;
+        }
+
         NwItem ore = NwItem.Create("pelt", player.oid, miningYield, oPlaceable.Name);
         ore.Name = oPlaceable.Name;
       });

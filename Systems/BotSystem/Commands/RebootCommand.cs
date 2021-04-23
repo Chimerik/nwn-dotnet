@@ -3,7 +3,6 @@ using System;
 using System.Threading.Tasks;
 using NWN.API;
 using NWN.Services;
-using NWNX.API;
 using NWN.Core.NWNX;
 using NWN.Core;
 using System.Linq;
@@ -15,6 +14,8 @@ namespace NWN.Systems
     public static async Task ExecuteRebootCommand(SocketCommandContext context)
     {
       await NwTask.SwitchToMainThread();
+
+      PlayerSystem.Log.Info($"Reboot command used by {context.User.Username}");
 
       if (DiscordUtils.GetPlayerStaffRankFromDiscord(context.User.Id) != "admin")
       {

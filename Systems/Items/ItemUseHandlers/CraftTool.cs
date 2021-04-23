@@ -290,7 +290,7 @@ namespace NWN.Systems
             }
 
             item.Appearance.SetArmorColor((ItemAppearanceArmorColor)colorChannelChoice, currentValue);
-            NwItem newItem = item.Clone(player.oid, "", true);
+            NwItem newItem = item.Clone(player.oid);
             player.oid.ActionEquipItem(newItem, InventorySlot.Chest);
             item.Destroy();
             item = newItem;
@@ -331,7 +331,7 @@ namespace NWN.Systems
             }
 
             item.Appearance.SetArmorPieceColor((ItemAppearanceArmorModel)armorPartChoice, (ItemAppearanceArmorColor)colorChannelChoice, currentValue);
-            NwItem newItem = item.Clone(player.oid, "", true);
+            NwItem newItem = item.Clone(player.oid);
             player.oid.ActionEquipItem(newItem, InventorySlot.Chest);
             item.Destroy();
             item = newItem;
@@ -473,7 +473,7 @@ namespace NWN.Systems
           break;
       }
 
-      NwItem newItem = item.Clone(player.oid, "", true);
+      NwItem newItem = item.Clone(player.oid);
       player.oid.ActionEquipItem(newItem, InventorySlot.Chest);
       item.Destroy();
       item = newItem;
@@ -564,7 +564,7 @@ namespace NWN.Systems
           break;
       }
 
-      NwItem newItem = item.Clone(player.oid, "", true);
+      NwItem newItem = item.Clone(player.oid);
       player.oid.ActionEquipItem(newItem, InventorySlot.Chest);
       item.Destroy();
       item = newItem;
@@ -608,7 +608,7 @@ namespace NWN.Systems
         }
 
         item.Appearance.SetArmorModel(ItemAppearanceArmorModel.Torso, currentValue);
-        NwItem newItem = item.Clone(player.oid, "", true);
+        NwItem newItem = item.Clone(player.oid);
 
         item.Destroy(0.2f);
         item = newItem;
@@ -666,7 +666,7 @@ namespace NWN.Systems
         }
 
         item.Appearance.SetArmorModel((ItemAppearanceArmorModel)armorPartChoice, currentValue);
-        NwItem newItem = item.Clone(player.oid, "", true);
+        NwItem newItem = item.Clone(player.oid);
         player.oid.ActionEquipItem(newItem, InventorySlot.Chest);
 
         item.Destroy();
@@ -885,7 +885,7 @@ namespace NWN.Systems
           }
 
           item.Appearance.SetWeaponColor((ItemAppearanceWeaponColor)weaponColorChoice, currentValue);
-          NwItem newItem = item.Clone(player.oid, "", true);
+          NwItem newItem = item.Clone(player.oid);
           player.oid.ActionEquipItem(newItem, InventorySlot.RightHand);
           item.Destroy();
           item = newItem;
@@ -931,7 +931,7 @@ namespace NWN.Systems
           }
 
           item.Appearance.SetWeaponModel((ItemAppearanceWeaponModel)weaponPartChoice, currentValue);
-          NwItem newItem = item.Clone(player.oid, "", true);
+          NwItem newItem = item.Clone(player.oid);
           player.oid.ActionEquipItem(newItem, InventorySlot.RightHand);
           item.Destroy();
           item = newItem;
@@ -1019,7 +1019,7 @@ namespace NWN.Systems
           currentValue--;
 
         item.Appearance.SetSimpleModel(currentValue);
-        NwItem newItem = item.Clone(player.oid, "", true);
+        NwItem newItem = item.Clone(player.oid);
     
         for (int i = (int)InventorySlot.Head; i == (int)InventorySlot.Bolts; i++)
         {
@@ -1121,7 +1121,7 @@ namespace NWN.Systems
             currentValue--;
 
           item.Appearance.SetArmorColor((ItemAppearanceArmorColor)colorChannelChoice, currentValue);
-          NwItem newItem = item.Clone(player.oid, "", true);
+          NwItem newItem = item.Clone(player.oid);
 
           if (item.BaseItemType == BaseItemType.Cloak)
             player.oid.ActionEquipItem(newItem, InventorySlot.Cloak);
@@ -1164,7 +1164,7 @@ namespace NWN.Systems
             currentValue--;
 
           item.Appearance.SetSimpleModel(currentValue);
-          NwItem newItem = item.Clone(player.oid, "", true);
+          NwItem newItem = item.Clone(player.oid);
 
           if (item.BaseItemType == BaseItemType.Cloak)
             player.oid.ActionEquipItem(newItem, InventorySlot.Cloak);

@@ -2,8 +2,6 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using NWN.API;
-using NWN.Core;
-using NWN.Core.NWNX;
 using static NWN.Systems.Craft.Collect.Config;
 using static NWN.Systems.PlayerSystem;
 
@@ -27,7 +25,7 @@ namespace NWN.Systems
 
       foreach (KeyValuePair<string, int> materialEntry in player.materialStock)
       {
-        if (materialEntry.Value > 100 && Enum.TryParse(materialEntry.Key, out WoodType myOreType) && myOreType != WoodType.Invalid)
+        if (Enum.TryParse(materialEntry.Key, out WoodType myOreType) && myOreType != WoodType.Invalid)
           player.menu.choices.Add(($"{materialEntry.Key} - {materialEntry.Value} unité(s).", () => HandleRefineOreQuantity(player, materialEntry.Key)));
       }
 

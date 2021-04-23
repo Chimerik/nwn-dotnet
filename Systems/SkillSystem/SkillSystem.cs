@@ -405,7 +405,7 @@ namespace NWN.Systems
     }
     private static int HandleImproveSpellcraft(PlayerSystem.Player player, Feat feat)
     {
-      CreaturePlugin.SetSkillRank(player.oid, NWScript.SKILL_ANIMAL_EMPATHY, player.oid.GetSkillRank(API.Constants.Skill.AnimalEmpathy, true) + 1);
+      CreaturePlugin.SetSkillRank(player.oid, NWScript.SKILL_SPELLCRAFT, player.oid.GetSkillRank(API.Constants.Skill.AnimalEmpathy, true) + 1);
       return 0;
     }
     private static int HandleImproveSpot(PlayerSystem.Player player, Feat feat)

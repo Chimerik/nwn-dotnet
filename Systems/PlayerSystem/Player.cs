@@ -235,7 +235,12 @@ namespace NWN.Systems
       {
         if (craftJob.IsActive())
         {
+          Log.Info($"remaining : {craftJob.remainingTime}");
+          Log.Info($"Time since last save : {(float)(DateTime.Now - dateLastSaved).TotalSeconds}");
+
           craftJob.remainingTime = craftJob.remainingTime - (float)(DateTime.Now - dateLastSaved).TotalSeconds;
+
+          Log.Info($"result : {craftJob.remainingTime}");
 
           if (craftJob.remainingTime < 0)
           {
@@ -259,8 +264,7 @@ namespace NWN.Systems
             NWScript.SetLocalInt(improvedMEBP, "_BLUEPRINT_MATERIAL_EFFICIENCY", NWScript.GetLocalInt(improvedMEBP, "_BLUEPRINT_MATERIAL_EFFICIENCY") + 1);
             break;
           case Job.JobType.BlueprintResearchTimeEfficiency:
-            uint improvedTEBlueprint = NWScript.CopyItem(ObjectPlugin.Deserialize((craftJob.craftedItem)), oid, 1);
-            NWScript.SetLocalInt(improvedTEBlueprint, "_BLUEPRINT_TIME_EFFICIENCY", NWScript.GetLocalInt(improvedTEBlueprint, "_BLUEPRINT_TIME_EFFICIENCY") + 1);
+            ((NwItem)NwItem.Deserialize(craftJob.craftedItem)).Clone(oid).GetLocalVariable<int>("_BLUEPRINT_TIME_EFFICIENCY").Value += 1;
             break;
           case Job.JobType.Enchantement:
             NwItem enchantedItem = NwObject.Deserialize<NwItem>(craftJob.craftedItem);
@@ -308,7 +312,7 @@ namespace NWN.Systems
             NwItem reinforcedItem = NwObject.Deserialize<NwItem>(craftJob.craftedItem);
             oid.AcquireItem(reinforcedItem);
 
-            reinforcedItem.GetLocalVariable<int>("_DURABILITY").Value *= (5 / 100);
+            reinforcedItem.GetLocalVariable<int>("_DURABILITY").Value += reinforcedItem.GetLocalVariable<int>("_DURABILITY").Value * 5 / 100;
             reinforcedItem.GetLocalVariable<int>("_REINFORCEMENT_LEVEL").Value += 1;
 
             oid.SendServerMessage($"Renforcement de {reinforcedItem.Name.ColorString(Color.WHITE)} terminé.", Color.GREEN);
@@ -344,7 +348,7 @@ namespace NWN.Systems
 
               if (NwRandom.Roll(Utils.random, 100) <= artisanAppliqueLevel * 3)
               {
-                craftedItem.GetLocalVariable<int>("_DURABILITY").Value *= (20 / 100);
+                craftedItem.GetLocalVariable<int>("_DURABILITY").Value += craftedItem.GetLocalVariable<int>("_DURABILITY").Value * 20 / 100;
                 oid.SendServerMessage("En travaillant de manière particulièrement appliquée, vous parvenez à fabriquer un objet plus résistant !", Color.NAVY);
               }
             }
@@ -508,6 +512,9 @@ namespace NWN.Systems
       public async void rebootUpdate(int countDown)
       {
         await NwTask.Delay(TimeSpan.FromSeconds(1));
+
+        if (!this.oid.IsValid)
+          return;
 
         JournalEntry journalEntry = PlayerPlugin.GetJournalEntry(this.oid, "reboot");
         journalEntry.sName = $"REBOOT SERVEUR - {countDown}";

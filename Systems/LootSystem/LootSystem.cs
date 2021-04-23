@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Numerics;
 using System.Threading.Tasks;
 using NLog;
 using NWN.API;
@@ -10,6 +11,7 @@ using NWN.Core;
 using NWN.Core.NWNX;
 using NWN.Services;
 using NWN.Systems.Craft;
+using NWNX.API;
 
 namespace NWN.Systems
 {
