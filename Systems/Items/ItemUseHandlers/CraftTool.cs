@@ -41,7 +41,7 @@ namespace NWN.Systems
 
       this.player = player;
       this.item = item;
-      this.serializedInitialItem = item.Serialize();
+      this.serializedInitialItem = item.Serialize().ToBase64EncodedString();
 
       colorChannelList = new List<ItemAppearanceArmorColor>{ ItemAppearanceArmorColor.Cloth1, ItemAppearanceArmorColor.Cloth2, ItemAppearanceArmorColor.Leather1, ItemAppearanceArmorColor.Leather2, ItemAppearanceArmorColor.Metal1, ItemAppearanceArmorColor.Metal2 };
 
@@ -757,7 +757,7 @@ namespace NWN.Systems
 
       DisableFeedbackMessages();
       item.Destroy();
-      NwItem newItem = NwObject.Deserialize<NwItem>(serializedInitialItem);
+      NwItem newItem = NwItem.Deserialize(serializedInitialItem.ToByteArray());
       player.oid.AcquireItem(newItem);
       
       for(int i = (int)InventorySlot.Head; i == (int)InventorySlot.Bolts; i++)

@@ -264,10 +264,10 @@ namespace NWN.Systems
             NWScript.SetLocalInt(improvedMEBP, "_BLUEPRINT_MATERIAL_EFFICIENCY", NWScript.GetLocalInt(improvedMEBP, "_BLUEPRINT_MATERIAL_EFFICIENCY") + 1);
             break;
           case Job.JobType.BlueprintResearchTimeEfficiency:
-            ((NwItem)NwItem.Deserialize(craftJob.craftedItem)).Clone(oid).GetLocalVariable<int>("_BLUEPRINT_TIME_EFFICIENCY").Value += 1;
+            ((NwItem)NwItem.Deserialize(craftJob.craftedItem.ToByteArray())).Clone(oid).GetLocalVariable<int>("_BLUEPRINT_TIME_EFFICIENCY").Value += 1;
             break;
           case Job.JobType.Enchantement:
-            NwItem enchantedItem = NwObject.Deserialize<NwItem>(craftJob.craftedItem);
+            NwItem enchantedItem = NwItem.Deserialize(craftJob.craftedItem.ToByteArray());
             oid.AcquireItem(enchantedItem);
 
             int enchanteurChanceuxLevel = 0;
@@ -293,7 +293,7 @@ namespace NWN.Systems
 
             break;
           case Job.JobType.Recycling:
-            NwItem recycledItem = NwObject.Deserialize<NwItem>(craftJob.craftedItem);
+            NwItem recycledItem = NwItem.Deserialize(craftJob.craftedItem.ToByteArray());
             int recycledValue = recycledItem.GetLocalVariable<int>("_BASE_COST").Value;
 
             if (learntCustomFeats.ContainsKey(CustomFeats.Recycler))
@@ -309,7 +309,7 @@ namespace NWN.Systems
 
             break;
           case Job.JobType.Renforcement:
-            NwItem reinforcedItem = NwObject.Deserialize<NwItem>(craftJob.craftedItem);
+            NwItem reinforcedItem = NwItem.Deserialize(craftJob.craftedItem.ToByteArray());
             oid.AcquireItem(reinforcedItem);
 
             reinforcedItem.GetLocalVariable<int>("_DURABILITY").Value += reinforcedItem.GetLocalVariable<int>("_DURABILITY").Value * 5 / 100;
@@ -534,16 +534,18 @@ namespace NWN.Systems
       // Take gold from the PC or from his bank account
       public void PayOrBorrowGold(int price)
       {
-        int pocketGold = NWScript.GetGold(oid);
+        int pocketGold = (int)oid.Gold;
 
         if (pocketGold >= price)
         {
-          CreaturePlugin.SetGold(oid, pocketGold - price);
+          oid.TakeGold(price);
           return;
         }
 
         var borrowedGold = price - pocketGold;
         bankGold -= borrowedGold;
+
+        oid.SendServerMessage($"Vous ne disposez pas de la somme requise. {price} pièces d'or ont donc été prélevées sur votre compte.");
       }
     }
   }

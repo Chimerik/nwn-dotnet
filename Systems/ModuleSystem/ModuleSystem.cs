@@ -43,17 +43,7 @@ namespace NWN.Systems
       RestorePlayerAuctionsFromDatabase();
       RestoreDMPersistentPlaceableFromDatabase();
 
-      float resourceRespawnTime;
-      if (DateTime.Now.Hour < 5)
-        resourceRespawnTime = (float)(TimeSpan.Parse("05:00:00") - DateTime.Now.TimeOfDay).TotalSeconds;
-      else
-        resourceRespawnTime = (float)((DateTime.Now.AddDays(1).Date).AddHours(5) - DateTime.Now).TotalSeconds;
-
-      Task spawnResources = NwTask.Run(async () =>
-      {
-        await NwTask.Delay(TimeSpan.FromSeconds(resourceRespawnTime));
-        await SpawnCollectableResources(resourceRespawnTime);
-      });
+      Task spawnResources = SpawnCollectableResources(1);
     }
     private async void LoadDiscordBot()
     {
@@ -238,7 +228,11 @@ namespace NWN.Systems
     }
     public static async Task SpawnCollectableResources(float delay)
     {
+      if(delay > 0)
+        await NwTask.WaitUntil(() => DateTime.Now.Hour == 5);
+
       Log.Info("Starting to spawn collectable ressources");
+      Utils.LogMessageToDMs("Starting to spawn collectable ressources");
 
       foreach (NwWaypoint ressourcePoint in NwModule.FindObjectsWithTag<NwWaypoint>(new string[] { "ore_spawn_wp", "wood_spawn_wp" }).Where(l => l.Area.GetLocalVariable<int>("_AREA_LEVEL").Value > 1))
       {
@@ -282,14 +276,8 @@ namespace NWN.Systems
         NWScript.SqlStep(query);
       }
 
-      if (delay > 0.0f)
-      {
-        Task task3 = NwTask.Run(async () =>
-        {
-          await NwTask.Delay(TimeSpan.FromDays(1));
-          await SpawnCollectableResources(delay);
-        });
-      }
+      Task waitNextDay = NwTask.WaitUntilValueChanged(() => DateTime.Now.Day);
+      await SpawnCollectableResources(1);
     }
     private void SaveServerVault()
     {
@@ -356,7 +344,7 @@ namespace NWN.Systems
 
       while (Convert.ToBoolean(NWScript.SqlStep(query)))
       {
-        NwCreature corpse = NwCreature.Deserialize<NwCreature>(NWScript.SqlGetString(query, 0));
+        NwCreature corpse = NwCreature.Deserialize(NWScript.SqlGetString(query, 0).ToByteArray());
         corpse.Location = Utils.GetLocationFromDatabase(NWScript.SqlGetString(query, 1), NWScript.SqlGetVector(query, 2), 0);
         corpse.GetLocalVariable<int>("_PC_ID").Value = NWScript.SqlGetInt(query, 3);
 
@@ -377,8 +365,8 @@ namespace NWN.Systems
 
       while (Convert.ToBoolean(NWScript.SqlStep(query)))
       {
-        NwStore shop = NwStore.Deserialize<NwStore>(NWScript.SqlGetString(query, 0));
-        NwPlaceable panel = NwPlaceable.Deserialize<NwPlaceable>(NWScript.SqlGetString(query, 1));
+        NwStore shop = NwStore.Deserialize(NWScript.SqlGetString(query, 0).ToByteArray());
+        NwPlaceable panel = NwPlaceable.Deserialize(NWScript.SqlGetString(query, 1).ToByteArray());
         shop.Location = Utils.GetLocationFromDatabase(NWScript.SqlGetString(query, 5), NWScript.SqlGetVector(query, 6), NWScript.SqlGetFloat(query, 7));
         panel.Location = Utils.GetLocationFromDatabase(NWScript.SqlGetString(query, 5), NWScript.SqlGetVector(query, 6), NWScript.SqlGetFloat(query, 7));
         shop.GetLocalVariable<int>("_OWNER_ID").Value = NWScript.SqlGetInt(query, 2);
@@ -402,8 +390,8 @@ namespace NWN.Systems
 
       while (Convert.ToBoolean(NWScript.SqlStep(query)))
       {
-        NwStore shop = NwStore.Deserialize<NwStore>(NWScript.SqlGetString(query, 0));
-        NwPlaceable panel = NwPlaceable.Deserialize<NwPlaceable>(NWScript.SqlGetString(query, 1));
+        NwStore shop = NwStore.Deserialize(NWScript.SqlGetString(query, 0).ToByteArray());
+        NwPlaceable panel = NwPlaceable.Deserialize(NWScript.SqlGetString(query, 1).ToByteArray());
         shop.Location = Utils.GetLocationFromDatabase(NWScript.SqlGetString(query, 7), NWScript.SqlGetVector(query, 8), NWScript.SqlGetFloat(query, 9));
         panel.Location = Utils.GetLocationFromDatabase(NWScript.SqlGetString(query, 7), NWScript.SqlGetVector(query, 8), NWScript.SqlGetFloat(query, 9));
         shop.GetLocalVariable<int>("_OWNER_ID").Value = NWScript.SqlGetInt(query, 2);
@@ -440,7 +428,7 @@ namespace NWN.Systems
           // S'il est co, on rend l'item au seller et on détruit la ligne en BDD. S'il est pas co, on attend la prochaine occurence pour lui rendre l'item
           if (oSeller != null)
           {
-            NwItem tempItem = NwStore.Deserialize<NwStore>(NWScript.SqlGetString(query, 4)).Items.FirstOrDefault().Clone(oSeller);
+            NwItem tempItem = NwStore.Deserialize(NWScript.SqlGetString(query, 4).ToByteArray()).Items.FirstOrDefault().Clone(oSeller);
             NwItem authorization = NwItem.Create("auction_clearanc", oSeller);
             oSeller.SendServerMessage($"Aucune enchère sur votre {tempItem.Name.ColorString(API.Color.ORANGE)}. L'objet vous a donc été restitué.");
 
@@ -483,7 +471,7 @@ namespace NWN.Systems
 
           if (oBuyer != null)
           {
-            NwStore tempStore = NwStore.Deserialize<NwStore>(NWScript.SqlGetString(query, 4));
+            NwStore tempStore = NwStore.Deserialize(NWScript.SqlGetString(query, 4).ToByteArray());
             NwItem tempItem = tempStore.Items.FirstOrDefault();
             tempItem.Clone(oSeller);
             oSeller.SendServerMessage($"Vous venez de remporter l'enchère sur {tempItem.Name.ColorString(API.Color.ORANGE)}. L'objet se trouve désormais dans votre inventaire.");

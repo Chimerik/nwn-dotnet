@@ -1026,7 +1026,7 @@ namespace NWN.Systems
 
       if (NWScript.SqlStep(query) > 0)
       {
-        NwCreature oNPC = NwCreature.Deserialize<NwCreature>(NWScript.SqlGetString(query, 0));
+        NwCreature oNPC = NwCreature.Deserialize(NWScript.SqlGetString(query, 0).ToByteArray());
         oNPC.Location = API.Location.Create(selection.Player.Area, selection.TargetPosition, selection.Player.Rotation);
       }
     }

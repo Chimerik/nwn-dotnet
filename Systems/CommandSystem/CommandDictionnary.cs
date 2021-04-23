@@ -210,14 +210,6 @@ namespace NWN.Systems
           execute: ExecuteStocksMenuCommand
         )
       },
-      {
-        "test_arena",
-        new Command(
-          name: "test_arena",
-          description: new Command.Description(title: "test pour le systeme d'arene"),
-          execute: ExecuteTestArenaCommand
-        )
-      },
     };
     }
 }

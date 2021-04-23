@@ -61,7 +61,7 @@ namespace NWN.Systems
       oCorpseItem.Description = $"Corps inconscient de {player.oid.Name}\n\n\n Pas très ragoûtant. Allez savoir combien de temps il va tenir avant de se lâcher.";
       oCorpseItem.Droppable = true;
 
-      oCorpseItem.GetLocalVariable<string>("_SERIALIZED_CORPSE").Value = oPCCorpse.Serialize();
+      oCorpseItem.GetLocalVariable<string>("_SERIALIZED_CORPSE").Value = oPCCorpse.Serialize().ToBase64EncodedString();
       player.deathCorpse = oPCCorpse;
       
       SavePlayerCorpseToDatabase(player.characterId, player.deathCorpse);
@@ -84,7 +84,7 @@ namespace NWN.Systems
     {
       var query = NWScript.SqlPrepareQueryCampaign(Config.database, $"INSERT INTO playerDeathCorpses (characterId, deathCorpse, areaTag, position) VALUES (@characterId, @deathCorpse, @areaTag, @position)");
       NWScript.SqlBindInt(query, "@characterId", characterId);
-      NWScript.SqlBindString(query, "@deathCorpse", deathCorpse.Serialize());
+      NWScript.SqlBindString(query, "@deathCorpse", deathCorpse.Serialize().ToBase64EncodedString());
       NWScript.SqlBindString(query, "@areaTag", deathCorpse.Area.Tag);
       NWScript.SqlBindVector(query, "@position", deathCorpse.Position);
       NWScript.SqlStep(query);

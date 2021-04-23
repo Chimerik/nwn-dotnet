@@ -136,7 +136,7 @@ namespace NWN.Systems.Craft
       if (this.isCancelled)
       {
         if(craftedItem != "")
-          player.AcquireItem(NwGameObject.Deserialize<NwItem>(craftedItem));
+          player.AcquireItem(NwItem.Deserialize(craftedItem.ToByteArray()));
       }
 
       return true;
@@ -229,7 +229,7 @@ namespace NWN.Systems.Craft
 
         int timeCost = blueprint.mineralsCost * 200;
         float iJobDuration =  timeCost * (100 - (BPCopyLevel * 5)) / 100;
-        player.craftJob = new Job(-11, "", iJobDuration, player, oBlueprint.Serialize()); // - 11 = blueprint copy
+        player.craftJob = new Job(-11, "", iJobDuration, player, oBlueprint.Serialize().ToBase64EncodedString()); // - 11 = blueprint copy
       }
     }
     private void StartEnchantementCraft(NwGameObject oTarget, string ipString)
@@ -253,7 +253,7 @@ namespace NWN.Systems.Craft
         enchanteurLevel += SkillSystem.GetCustomFeatLevelFromSkillPoints(CustomFeats.Enchanteur, player.learntCustomFeats[CustomFeats.Enchanteur]);
 
       float iJobDuration = baseCost * spellLevel * (100 - enchanteurLevel);
-      player.craftJob = new Job(-14, ipString, iJobDuration, player, oTarget.Serialize()); // -14 = JobType enchantement
+      player.craftJob = new Job(-14, ipString, iJobDuration, player, oTarget.Serialize().ToBase64EncodedString()); // -14 = JobType enchantement
 
       player.oid.SendServerMessage($"Vous venez de démarrer l'enchantement de : {NWScript.GetName(oTarget).ColorString(Color.WHITE)}", Color.GREEN);
       // TODO : afficher des effets visuels
@@ -276,7 +276,7 @@ namespace NWN.Systems.Craft
         iJobDuration -= iJobDuration * 1 * SkillSystem.GetCustomFeatLevelFromSkillPoints(CustomFeats.Recycler, this.player.learntCustomFeats[CustomFeats.Recycler]) / 100;
 
       item.GetLocalVariable<int>("_BASE_COST").Value = baseCost;
-      player.craftJob = new Job(-15, material, iJobDuration, player, item.Serialize()); // -15 = JobType recyclage
+      player.craftJob = new Job(-15, material, iJobDuration, player, item.Serialize().ToBase64EncodedString()); // -15 = JobType recyclage
 
       player.oid.SendServerMessage($"Vous venez de démarrer le recyclage de : {item.Name.ColorString(Color.WHITE)}", Color.ORANGE);
       // TODO : afficher des effets visuels
@@ -306,7 +306,7 @@ namespace NWN.Systems.Craft
       float iJobDuration = baseCost * 100 * (100 - renforcementLevel * 5) / 100;
 
       item.GetLocalVariable<int>("_BASE_COST").Value = baseCost;
-      player.craftJob = new Job(-16, material, iJobDuration, player, item.Serialize()); // -16 = JobType recyclage
+      player.craftJob = new Job(-16, material, iJobDuration, player, item.Serialize().ToBase64EncodedString()); // -16 = JobType recyclage
 
       player.oid.SendServerMessage($"Vous venez de démarrer le renforcement de : {item.Name.ColorString(Color.WHITE)}", Color.ORANGE);
       // TODO : afficher des effets visuels
@@ -348,7 +348,7 @@ namespace NWN.Systems.Craft
 
         float iJobDuration = blueprint.mineralsCost * 200 * (100 - (researchLevel * 5 + advancedCraftLevel * 3)) / 100;
         
-        player.craftJob = new Job(-13, "", iJobDuration, player, oBlueprint.Serialize()); // -13 = recherche TE
+        player.craftJob = new Job(-13, "", iJobDuration, player, oBlueprint.Serialize().ToBase64EncodedString()); // -13 = recherche TE
         oBlueprint.Destroy();
         player.oid.SendServerMessage($"L'objet {oBlueprint.Name.ColorString(Color.WHITE)} ne sera pas disponible jusqu'à la fin du travail de recherche d'efficacité.", Color.ORANGE);
       }
@@ -368,22 +368,22 @@ namespace NWN.Systems.Craft
       switch (this.type)
       {
         case JobType.BlueprintCopy:
-          journalEntry.sText = $"Copie de {NwItem.Deserialize<NwItem>(craftedItem).Name} en cours";
+          journalEntry.sText = $"Copie de {NwItem.Deserialize(craftedItem.ToByteArray()).Name} en cours";
           break;
         case JobType.BlueprintResearchMaterialEfficiency:
-          journalEntry.sText = $"Recherche métallurgique en cours : {NwItem.Deserialize<NwItem>(craftedItem).Name}";
+          journalEntry.sText = $"Recherche métallurgique en cours : {NwItem.Deserialize(craftedItem.ToByteArray()).Name}";
           break;
         case JobType.BlueprintResearchTimeEfficiency:
-          journalEntry.sText = $"Recherche d'efficacité en cours : {NwItem.Deserialize<NwItem>(craftedItem).Name}";
+          journalEntry.sText = $"Recherche d'efficacité en cours : {NwItem.Deserialize(craftedItem.ToByteArray()).Name}";
           break;
         case JobType.Enchantement:
-          journalEntry.sText = $"Enchantement en cours : {NwItem.Deserialize<NwItem>(craftedItem).Name}";
+          journalEntry.sText = $"Enchantement en cours : {NwItem.Deserialize(craftedItem.ToByteArray()).Name}";
           break;
         case JobType.Recycling:
-          journalEntry.sText = $"Recyclage en cours : {NwItem.Deserialize<NwItem>(craftedItem).Name}";
+          journalEntry.sText = $"Recyclage en cours : {NwItem.Deserialize(craftedItem.ToByteArray()).Name}";
           break;
         case JobType.Renforcement:
-          journalEntry.sText = $"Renforcement en cours : {NwItem.Deserialize<NwItem>(craftedItem).Name}";
+          journalEntry.sText = $"Renforcement en cours : {NwItem.Deserialize(craftedItem.ToByteArray()).Name}";
           break;
         default:
           journalEntry.sText = $"Fabrication en cours : {blueprintDictionnary[baseItemType].name}";
@@ -445,13 +445,13 @@ namespace NWN.Systems.Craft
           journalEntry.sName = $"Travail artisanal terminé - Recherche en efficacité";
           break;
         case JobType.Enchantement:
-          journalEntry.sName = $"Enchantement terminé - {NwItem.Deserialize<NwItem>(craftedItem).Name}";
+          journalEntry.sName = $"Enchantement terminé - {NwItem.Deserialize(craftedItem.ToByteArray()).Name}";
           break;
         case JobType.Recycling:
-          journalEntry.sName = $"Recyclage terminé - {NwItem.Deserialize<NwItem>(craftedItem).Name}";
+          journalEntry.sName = $"Recyclage terminé - {NwItem.Deserialize(craftedItem.ToByteArray()).Name}";
           break;
         case JobType.Renforcement:
-          journalEntry.sName = $"Renforcement terminé - {NwItem.Deserialize<NwItem>(craftedItem).Name}";
+          journalEntry.sName = $"Renforcement terminé - {NwItem.Deserialize(craftedItem.ToByteArray()).Name}";
           break;
         default:
           journalEntry.sName = $"Travail artisanal terminé - {blueprintDictionnary[baseItemType].name}";

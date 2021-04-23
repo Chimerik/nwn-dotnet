@@ -3,6 +3,7 @@ using NWN.Core;
 using NWN.Services;
 using System;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace NWN.Systems
@@ -14,19 +15,12 @@ namespace NWN.Systems
     {
       Log.Info($"Initiating cleaning for area {area.Name}");
 
-      Task playerReturned = NwTask.Run(async () =>
-      {
-        await NwTask.WaitUntil(() => area.FindObjectsOfTypeInArea<NwPlayer>().Count(p => !p.IsDM && !p.IsDMPossessed && !p.IsPlayerDM) > 0);
-        return true;
-      });
+      CancellationTokenSource tokenSource = new CancellationTokenSource();
 
-      Task activateCleaner = NwTask.Run(async () =>
-      {
-        await NwTask.Delay(TimeSpan.FromMinutes(25));
-        return true;
-      });
-
+      Task playerReturned = NwTask.WaitUntil(() => area.FindObjectsOfTypeInArea<NwPlayer>().Count(p => !p.IsDM && !p.IsDMPossessed && !p.IsPlayerDM) > 0, tokenSource.Token);
+      Task activateCleaner = NwTask.Delay(TimeSpan.FromMinutes(25), tokenSource.Token);
       await NwTask.WhenAny(playerReturned, activateCleaner);
+      tokenSource.Cancel();
 
       if (playerReturned.IsCompletedSuccessfully)
       {

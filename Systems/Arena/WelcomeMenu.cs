@@ -1,6 +1,9 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using NWN.API;
+using NWN.API.Constants;
 using static NWN.Systems.Arena.Config;
 using static NWN.Systems.PlayerSystem;
 
@@ -12,27 +15,8 @@ namespace NWN.Systems.Arena
     {
       player.menu.Clear();
 
-      if (player.pveArena.currentRound > 1)
-      {
-        player.menu.titleLines = new List<string>()
-        {
-          "Bienvenue dans l'arène de Similisse !",
-          "Il semblerait que vous ayez déjà un combat en court.",
-          "Que souhaitez-vous faire ?"
-        };
-
-        player.menu.choices.Add((
-          "Continuer les combats",
-          () => HandleConfirm(player)
-        ));
-        player.menu.choices.Add((
-          $"Annuler et conserver les points acquis ({player.pveArena.currentPoints})",
-          () => Utils.StopCurrentRun(player)
-        ));
-      } else
-      {
         player.menu.titleLines = new List<string>() {
-        "Bienvenue dans l'arene de Similisse !",
+        "Bienvenue dans l'arène de la Couronne de Cuivre !",
         "Que puis-je faire pour vous aujourd'hui ?"
       };
         player.menu.choices.Add((
@@ -40,14 +24,17 @@ namespace NWN.Systems.Arena
           () => DrawSubcribePage(player)
         ));
         player.menu.choices.Add((
-          "Depenser mes points de victoire pour acheter des récompenses",
+          "Depenser mes points de victoires pour acheter des récompenses",
           () => DrawRewardPage(player)
         ));
         player.menu.choices.Add((
           "Voir la liste des meilleurs combattants",
           () => DrawHighscoresPage(player)
         ));
-      }
+      player.menu.choices.Add((
+          "Quitter",
+          () => player.menu.Close()
+        ));
 
       player.menu.Draw();
     }
@@ -65,6 +52,10 @@ namespace NWN.Systems.Arena
          "Retour",
          () => DrawMainPage(player)
       ));
+      player.menu.choices.Add((
+          "Quitter",
+          () => player.menu.Close()
+        ));
 
       player.menu.Draw();
     }
@@ -97,15 +88,21 @@ namespace NWN.Systems.Arena
     private static void HandleConfirm(Player player)
     {
       player.menu.Close();
+      player.pveArena.currentMalus = 0;
 
       NwArea oArena = NwArea.Create(PVE_ARENA_AREA_RESREF);
-      NwWaypoint oWaypoint = oArena.FindObjectsOfTypeInArea<NwWaypoint>().Where(w => w.Tag == PVE_ARENA_WAYPOINT_TAG).FirstOrDefault();
-      NwPlaceable oPullRopeChain = oArena.FindObjectsOfTypeInArea<NwPlaceable>().Where(w => w.Tag == PVE_ARENA_PULL_ROPE_CHAIN_TAG).FirstOrDefault();
-      oPullRopeChain.OnUsed += PlaceableSystem.HandlePlaceableUsed;
+      oArena.FindObjectsOfTypeInArea<NwPlaceable>().FirstOrDefault(w => w.Tag == PVE_ARENA_PULL_ROPE_CHAIN_TAG).OnUsed += ScriptHandlers.HandlePullRopeChainUse;
       
       player.oid.ClearActionQueue();
-      player.oid.JumpToObject(oWaypoint);
+      player.oid.JumpToObject(oArena.FindObjectsOfTypeInArea<NwWaypoint>().FirstOrDefault(w => w.Tag == PVE_ARENA_WAYPOINT_TAG));
       player.OnDeath += Utils.HandlePlayerDied;
+
+      Task waitAreaLoaded = NwTask.Run(async () =>
+      {
+        await NwTask.WaitUntil(() => player.oid.Area != null);
+        await NwTask.Delay(TimeSpan.FromSeconds(5));
+        ScriptHandlers.HandleFight(player);
+      });
     }
 
     private static void DrawRewardPage(Player player)

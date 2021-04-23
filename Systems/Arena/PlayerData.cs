@@ -8,10 +8,10 @@ namespace NWN.Systems.Arena
     public uint currentPoints { get; set; }
     public uint totalPoints { get; set; }
     public uint potentialPoints { get; set; }
-
+    public uint currentMalus { get; set; }
     public PlayerData(
       uint currentRound = 1, Config.Difficulty currentDifficulty = Config.Difficulty.Level1,
-      uint currentPoints = 0, uint totalPoints = 0, uint potentialPoints = 0
+      uint currentPoints = 0, uint totalPoints = 0, uint potentialPoints = 0, uint currentMalus = 0
     )
     {
       this.currentRound = currentRound;
@@ -19,6 +19,7 @@ namespace NWN.Systems.Arena
       this.currentPoints = currentPoints;
       this.totalPoints = totalPoints;
       this.potentialPoints = potentialPoints;
+      this.currentMalus = currentMalus;
     }
   }
 }

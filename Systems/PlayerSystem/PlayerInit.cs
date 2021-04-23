@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using Discord;
 using NWN.API;
@@ -169,19 +170,12 @@ namespace NWN.Systems
     {
       Task waitForPartyChange = NwTask.Run(async () =>
       {
-        Task playerGetsDMRights = NwTask.Run(async () =>
-        {
-          await NwTask.WaitUntil(() => oPC.IsDM);
-          return true;
-        });
+        CancellationTokenSource tokenSource = new CancellationTokenSource();
 
-        Task partyChanged = NwTask.Run(async () =>
-        {
-          await NwTask.WaitUntilValueChanged(() => oPC.PartyMembers.Count<NwPlayer>(p => !p.IsDM));
-          return true;
-        });
-
+        Task playerGetsDMRights = NwTask.WaitUntil(() => oPC.IsDM, tokenSource.Token);
+        Task partyChanged = NwTask.WaitUntilValueChanged(() => oPC.PartyMembers.Count<NwPlayer>(p => !p.IsDM), tokenSource.Token);
         await NwTask.WhenAny(playerGetsDMRights, partyChanged);
+        tokenSource.Cancel();
 
         if (playerGetsDMRights.IsCompletedSuccessfully)
         {

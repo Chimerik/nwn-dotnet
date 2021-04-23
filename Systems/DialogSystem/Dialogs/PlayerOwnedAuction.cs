@@ -117,8 +117,8 @@ namespace NWN.Systems
       {
         var query = NWScript.SqlPrepareQueryCampaign(Config.database, $"INSERT INTO playerAuctions (characterId, shop, panel, expirationDate, highestAuction, highestAuctionner, areaTag, position, facing) VALUES (@characterId, @shop, @panel, @expirationDate, @highestAuction, @highestAuctionner, @areaTag, @position, @facing)");
         NWScript.SqlBindInt(query, "@characterId", player.characterId);
-        NWScript.SqlBindString(query, "@shop", shop.Serialize());
-        NWScript.SqlBindString(query, "@panel", panel.Serialize());
+        NWScript.SqlBindString(query, "@shop", shop.Serialize().ToBase64EncodedString());
+        NWScript.SqlBindString(query, "@panel", panel.Serialize().ToBase64EncodedString());
         NWScript.SqlBindString(query, "@expirationDate", shop.GetLocalVariable<string>("_AUCTION_END_DATE").Value);
         NWScript.SqlBindInt(query, "@highestAuction", shop.GetLocalVariable<int>("_CURRENT_AUCTION").Value);
         NWScript.SqlBindInt(query, "@highestAuctionner", 0);
@@ -139,8 +139,8 @@ namespace NWN.Systems
         NWScript.SqlBindInt(query, "@shopId", shop.GetLocalVariable<int>("_AUCTION_ID").Value);
         NWScript.SqlBindInt(query, "@highestAuction", shop.GetLocalVariable<int>("_CURRENT_AUCTION").Value);
         NWScript.SqlBindInt(query, "@highestAuctionner", shop.GetLocalVariable<int>("_CURRENT_AUCTIONNER").Value);
-        NWScript.SqlBindString(query, "@shop", shop.Serialize());
-        NWScript.SqlBindString(query, "@panel", panel.Serialize());
+        NWScript.SqlBindString(query, "@shop", shop.Serialize().ToBase64EncodedString());
+        NWScript.SqlBindString(query, "@panel", panel.Serialize().ToBase64EncodedString());
         NWScript.SqlStep(query);
       }
     }

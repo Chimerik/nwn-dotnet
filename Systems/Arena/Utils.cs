@@ -1,5 +1,8 @@
 ﻿using System;
-using NWN.Core;
+using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
+using NWN.API;
 using static NWN.Systems.Arena.Config;
 using static NWN.Systems.PlayerSystem;
 
@@ -27,12 +30,15 @@ namespace NWN.Systems.Arena
       player.pveArena.currentPoints = 0;
       player.pveArena.currentRound = 1;
     }
-
-    public static bool GetIsRoundInProgress(Player player)
+    public static void CancelCurrentRun(Player player)
     {
-      var creature = NWScript.GetNearestObjectByTag(PVE_ARENA_CREATURE_TAG, player.oid);
+      player.pveArena.currentPoints = 0;
+      player.pveArena.currentRound = 1;
+    }
 
-      return NWScript.GetIsObjectValid(creature) == 1;
+    /*public static bool GetIsRoundInProgress(Player player)
+    {
+      return player.oid.Area.FindObjectsOfTypeInArea<NwCreature>().Any(c => c.Tag == PVE_ARENA_CREATURE_TAG);
     }
 
     public static Action<Player> CheckRoundEnded = TimingUtils.Debounce((Player player) =>
@@ -42,7 +48,7 @@ namespace NWN.Systems.Arena
         player.pveArena.currentPoints += player.pveArena.potentialPoints;
         player.pveArena.currentRound += 1;
       }
-    }, 0.5f);
+    }, 0.5f);*/
 
     public static void HandlePlayerDied(object sender, Player.DeathEventArgs e)
     {
@@ -95,6 +101,49 @@ namespace NWN.Systems.Arena
       var encounters = GetBossEncounters(difficulty);
 
       return encounters[NWN.Utils.random.Next(0, encounters.Length - 1)];
+    }
+    public static async void RandomizeMalusSelection(Player player)
+    {
+      CancellationTokenSource tokenSource = new CancellationTokenSource();
+
+      Task malusSelected = NwTask.WaitUntil(() => player.oid.GetLocalVariable<int>("_ARENA_MALUS_APPLIED").HasValue, tokenSource.Token);
+      Task waitingForSelection = NwTask.Delay(TimeSpan.FromSeconds(0.2), tokenSource.Token);
+
+      await NwTask.WhenAny(malusSelected, waitingForSelection);
+      tokenSource.Cancel();
+
+      if (malusSelected.IsCompletedSuccessfully)
+      {
+        player.oid.GetLocalVariable<int>("_ARENA_MALUS_APPLIED").Delete();
+        return;
+      }
+
+      int random = NwRandom.Roll(NWN.Utils.random, 20);
+
+      player.menu.choices.Clear();
+
+      player.menu.choices.Add((
+        Config.arenaMalusDictionary[(uint)random].name,
+        () => ApplyArenaMalus(player, (uint)random)
+      ));
+
+      player.menu.DrawText();
+
+      RandomizeMalusSelection(player);
+    }
+    private static void ApplyArenaMalus(Player player, uint malus)
+    {
+      player.oid.SendServerMessage($"Malus appliqué : {malus}");
+      player.oid.GetLocalVariable<int>("_ARENA_MALUS_APPLIED").Value = 1;
+      player.pveArena.currentMalus = malus;
+      player.menu.Close();
+
+      // TODO : appliquer le malus
+
+      Effect paralysis = player.oid.ActiveEffects.FirstOrDefault(e => e.Tag == "_ARENA_CUTSCENE_PARALYZE_EFFECT");
+      player.oid.RemoveEffect(paralysis);
+
+      ScriptHandlers.HandleFight(player);
     }
   }
 }

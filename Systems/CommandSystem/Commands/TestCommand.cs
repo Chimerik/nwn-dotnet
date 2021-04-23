@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Numerics;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Web;
 using Discord;
@@ -13,6 +14,7 @@ using NWN.Core;
 using NWN.Core.NWNX;
 using NWN.Services;
 using static NWN.Systems.SkillSystem;
+using Action = System.Action;
 
 namespace NWN.Systems
 {
@@ -27,12 +29,87 @@ namespace NWN.Systems
 
         if (NWScript.GetPCPlayerName(player.oid) == "Chim")
         {
+          player.menu.Clear();
+
+          player.menu.titleLines = new List<string>() {
+          "Sélectionnez votre malus !",
+          };
+
+          int random = NwRandom.Roll(Utils.random, 20);
+
+          player.menu.choices.Add((
+            arenaMalusDictionary[random],
+            () => ApplyArenaMalus(player, random)
+          ));
+
+          player.menu.Draw();
+          RandomizeMalusSelection(player);
+
           //PlayerSystem.cursorTargetService.EnterTargetMode(player.oid, OnTargetSelected, ObjectTypes.All, MouseCursor.Pickup);
         }
       }
     }
+    private static async void RandomizeMalusSelection(PlayerSystem.Player player)
+    {
+      CancellationTokenSource tokenSource = new CancellationTokenSource();
 
-    public static void OnTargetSelected(ModuleEvents.OnPlayerTarget selection)
+      Task malusSelected = NwTask.WaitUntil(() => player.oid.GetLocalVariable<int>("_ARENA_MALUS_APPLIED").HasValue, tokenSource.Token);
+      Task waitingForSelection = NwTask.Delay(TimeSpan.FromSeconds(0.2), tokenSource.Token);
+
+      await NwTask.WhenAny(malusSelected, waitingForSelection);
+      tokenSource.Cancel();
+
+      if (malusSelected.IsCompletedSuccessfully)
+      {
+        player.oid.GetLocalVariable<int>("_ARENA_MALUS_APPLIED").Delete();
+        return;
+      }
+
+      int random = NwRandom.Roll(Utils.random, 20);
+
+      player.menu.choices.Clear();
+
+      player.menu.choices.Add((
+        arenaMalusDictionary[random],
+        () => ApplyArenaMalus(player, random)
+      ));
+
+      player.menu.DrawText();
+
+      RandomizeMalusSelection(player);
+    }
+    private static void ApplyArenaMalus(PlayerSystem.Player player, int malus)
+    {
+      player.oid.SendServerMessage($"malus appliqué : {malus}");
+      player.oid.GetLocalVariable<int>("_ARENA_MALUS_APPLIED").Value = 1;
+      player.menu.Close();
+    }
+
+    private static Dictionary<int, string> arenaMalusDictionary = new Dictionary<int, string>()
+    {
+      { 1, "Soins magiques interdits" },
+      { 2, "Invocations interdites" },
+      { 3, "Magie offensive interdite" },
+      { 4, "Buffs interdits" },
+      { 5, "Magie interdite" },
+      { 6, "Accessoires interdits" },
+      { 7, "Armure interdite" },
+      { 8, "Armes interdites" },
+      { 9, "Utilisation d'objets interdite" },
+      { 10, "Ralentissement" },
+      { 11, "Mini" },
+      { 12, "Poison" },
+      { 13, "Crapaud" },
+      { 14, "Temps x5" },
+      { 15, "1/2 HP" },
+      { 16, "Echec des sorts" },
+      { 17, "1/2 HP + Echec des sorts" },
+      { 18, "Dissipation" },
+      { 19, "Chance" },
+      { 20, "Soins" },
+    };
+
+    private static void OnTargetSelected(ModuleEvents.OnPlayerTarget selection)
     {
 
     }

@@ -175,8 +175,8 @@ namespace NWN.Systems
       {
         var query = NWScript.SqlPrepareQueryCampaign(Config.database, $"INSERT INTO playerShops (characterId, shop, panel, expirationDate, areaTag, position, facing) VALUES (@characterId, @shop, @panel, @expirationDate, @areaTag, @position, @facing)");
         NWScript.SqlBindInt(query, "@characterId", player.characterId);
-        NWScript.SqlBindString(query, "@shop", shop.Serialize());
-        NWScript.SqlBindString(query, "@panel", panel.Serialize());
+        NWScript.SqlBindString(query, "@shop", shop.Serialize().ToBase64EncodedString());
+        NWScript.SqlBindString(query, "@panel", panel.Serialize().ToBase64EncodedString());
         NWScript.SqlBindString(query, "@expirationDate", DateTime.Now.AddDays(30).ToString());
         NWScript.SqlBindString(query, "@areaTag", shop.Area.Tag);
         NWScript.SqlBindVector(query, "@position", shop.Position);
@@ -193,8 +193,8 @@ namespace NWN.Systems
       {
         var query = NWScript.SqlPrepareQueryCampaign(Config.database, $"UPDATE playerShops set shop = @shop, panel = @panel where rowid = @shopId");
         NWScript.SqlBindInt(query, "@shopId", shop.GetLocalVariable<int>("_SHOP_ID").Value);
-        NWScript.SqlBindString(query, "@shop", shop.Serialize());
-        NWScript.SqlBindString(query, "@panel", panel.Serialize());
+        NWScript.SqlBindString(query, "@shop", shop.Serialize().ToBase64EncodedString());
+        NWScript.SqlBindString(query, "@panel", panel.Serialize().ToBase64EncodedString());
         NWScript.SqlStep(query);
       }
     }

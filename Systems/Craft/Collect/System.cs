@@ -11,6 +11,7 @@ using NWN.API.Constants;
 using Action = System.Action;
 using System.Threading.Tasks;
 using NWN.API.Events;
+using System.Threading;
 
 namespace NWN.Systems.Craft.Collect
 {
@@ -145,25 +146,12 @@ namespace NWN.Systems.Craft.Collect
       {
         player.oid.GetLocalVariable<int>("_COLLECT_IN_PROGRESS").Value = 1;
 
-        Task collectCancelled = NwTask.Run(async () =>
-        {
-          await NwTask.WaitUntil(() => player.oid.GetLocalVariable<int>("_COLLECT_CANCELLED").Value == 1);
-          return true;
-        });
-
-        Task onMovementCancelCollect = NwTask.Run(async () =>
-        {
-          await NwTask.WaitUntilValueChanged(() => player.oid.Position);
-          return true;
-        });
-
-        Task collectCompleted = NwTask.Run(async () =>
-        {
-          await NwTask.Delay(TimeSpan.FromSeconds(cycleDuration));
-          return true;
-        });
-        
+        CancellationTokenSource tokenSource = new CancellationTokenSource();
+        Task collectCancelled = NwTask.WaitUntil(() => player.oid.GetLocalVariable<int>("_COLLECT_CANCELLED").Value == 1, tokenSource.Token);
+        Task onMovementCancelCollect = NwTask.WaitUntilValueChanged(() => player.oid.Position, tokenSource.Token);
+        Task collectCompleted = NwTask.Delay(TimeSpan.FromSeconds(cycleDuration), tokenSource.Token);
         await NwTask.WhenAny(collectCancelled, onMovementCancelCollect, collectCompleted);
+        tokenSource.Cancel();
 
         if (collectCancelled.IsCompletedSuccessfully || onMovementCancelCollect.IsCompletedSuccessfully)
         {

@@ -27,7 +27,7 @@ namespace NWN.Systems
       foreach (NwPlaceable balancoire in NwModule.FindObjectsWithTag<NwPlaceable>("balancoire"))
         balancoire.OnUsed += OnUsedBalancoire;
 
-      foreach (NwPlaceable plc in NwModule.FindObjectsWithTag<NwPlaceable>(Arena.Config.PVE_ARENA_PULL_ROPE_CHAIN_TAG, "portal_storage_out", "portal_storage_in", "portal_start", "respawn_neutral", "respawn_dire", "respawn_radiant", "theater_rope"))
+      foreach (NwPlaceable plc in NwModule.FindObjectsWithTag<NwPlaceable>("portal_storage_out", "portal_storage_in", "portal_start", "respawn_neutral", "respawn_dire", "respawn_radiant", "theater_rope"))
         plc.OnUsed += HandlePlaceableUsed;
 
       foreach (NwCreature statue in NwModule.FindObjectsWithTag<NwCreature>("Statuereptilienne", "statue_tiamat"))
@@ -220,9 +220,6 @@ namespace NWN.Systems
             //NWScript.AssignCommand(player.oid, () => NWScript.JumpToLocation(NwModule.FindObjectsWithTag<NwWaypoint>("wp_outentrepot").FirstOrDefault().Location));
             Log.Info("Trying to teleport player out of dimensionnal storage");
             player.oid.Location = NwModule.FindObjectsWithTag<NwWaypoint>("wp_outentrepot").FirstOrDefault().Location;
-            break;
-          case Arena.Config.PVE_ARENA_PULL_ROPE_CHAIN_TAG:
-            Arena.ScriptHandlers.HandlePullRopeChainUse();
             break;
         }
     }
