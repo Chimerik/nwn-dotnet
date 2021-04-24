@@ -6,13 +6,16 @@ using System.Threading.Tasks;
 using NWN.API;
 using NWN.API.Constants;
 using NWN.API.Events;
-using NWN.Core;
+using NWN.Services;
+using NWNX.API.Events;
+using NWNX.Services;
 using static NWN.Systems.Arena.Utils;
 
 namespace NWN.Systems.Arena
 {
   public static class Config
   {
+    private static EventService eventService { get; set; }
     public const string PVE_ARENA_AREA_RESREF = "c2c_arena";
     public const string PVE_ARENA_WAYPOINT_TAG = "waypoint";
     public const string PVE_ENTRY_WAYPOINT_TAG = "arena_entry_waypoint";
@@ -41,10 +44,10 @@ namespace NWN.Systems.Arena
       { 6, new ArenaMalus("Accessoires interdits", ApplyNoAccessoriesMalus) },
       { 7, new ArenaMalus("Armure interdite", ApplyNoArmorMalus) },
       { 8, new ArenaMalus("Armes interdites", ApplyNoWeaponsMalus) },
-      { 9, new ArenaMalus("Utilisation d'objets interdite", ApplyNoSummonsMalus) },
-      { 10, new ArenaMalus("Ralentissement", ApplyNoSummonsMalus) },
-      { 11, new ArenaMalus("Mini", ApplyNoSummonsMalus) },
-      { 12, new ArenaMalus("Poison", ApplyNoSummonsMalus) },
+      { 9, new ArenaMalus("Utilisation d'objets interdite", ApplyNoUseableItemMalus) },
+      { 10, new ArenaMalus("Ralentissement", ApplySlowMalus) },
+      { 11, new ArenaMalus("Mini", ApplyMiniMalus) },
+      { 12, new ArenaMalus("Poison", ApplyPoisonMalus) },
       { 13, new ArenaMalus("Crapaud", ApplyNoSummonsMalus) },
       { 14, new ArenaMalus("Temps x5", ApplyNoSummonsMalus) },
       { 15, new ArenaMalus("1/2 HP", ApplyNoSummonsMalus) },
@@ -57,11 +60,13 @@ namespace NWN.Systems.Arena
 
     private static void ApplyNoMagicMalus(PlayerSystem.Player player)
     {
+      player.oid.OnSpellCast -= SpellSystem.HandleBeforeSpellCast;
       player.oid.OnSpellCast += NoMagicMalus;
 
       Task malusSelected = NwTask.Run(async () =>
       {
         await NwTask.WaitUntil(() => player.pveArena.currentRound == 1);
+        player.oid.OnSpellCast += SpellSystem.HandleBeforeSpellCast;
         player.oid.OnSpellCast -= NoMagicMalus;
       });
     }
@@ -69,7 +74,7 @@ namespace NWN.Systems.Arena
     private static void NoMagicMalus(OnSpellCast onSpellCast)
     {
       onSpellCast.PreventSpellCast = true;
-      ((NwPlayer)onSpellCast.Caster).SendServerMessage("Votre malus actuel vous empêche de faire usage de sorts !", Color.RED);
+      ((NwPlayer)onSpellCast.Caster).SendServerMessage("L'interdiction d'usage de sorts est en vigueur.", Color.RED);
     }
 
     private static void ApplyNoHealingSpellMalus(PlayerSystem.Player player)
@@ -106,7 +111,7 @@ namespace NWN.Systems.Arena
         case Spell.NaturesBalance:
         case Spell.NeutralizePoison:
           onSpellCast.PreventSpellCast = true;
-          ((NwPlayer)onSpellCast.Caster).SendServerMessage("Votre malus actuel vous empêche de faire usage de sorts de soins !", Color.RED);
+          ((NwPlayer)onSpellCast.Caster).SendServerMessage("L'interdiction d'usage de magie curative est en vigueur.", Color.RED);
           break;
       }
     }
@@ -168,7 +173,7 @@ namespace NWN.Systems.Arena
         case Spell.MordenkainensSword:
         case Spell.ShelgarnsPersistentBlade:
           onSpellCast.PreventSpellCast = true;
-          ((NwPlayer)onSpellCast.Caster).SendServerMessage("Votre malus actuel vous empêche de faire usage de sorts d'invocation !", Color.RED);
+          ((NwPlayer)onSpellCast.Caster).SendServerMessage("L'interdiction d'usage de sorts d'invocation est en vigueur.", Color.RED);
           break;
       }
     }
@@ -270,7 +275,7 @@ namespace NWN.Systems.Arena
         case Spell.Weird:
         case Spell.WordOfFaith:
           onSpellCast.PreventSpellCast = true;
-          ((NwPlayer)onSpellCast.Caster).SendServerMessage("Votre malus actuel vous empêche de faire usage de sorts offensifs !", Color.RED);
+          ((NwPlayer)onSpellCast.Caster).SendServerMessage("L'interdiction d'usage de magie offensive est en vigueur.", Color.RED);
           break;
       }
     }
@@ -415,7 +420,7 @@ namespace NWN.Systems.Arena
         case Spell.WarCry:
         case Spell.WoundingWhispers:
           onSpellCast.PreventSpellCast = true;
-          ((NwPlayer)onSpellCast.Caster).SendServerMessage("Votre malus actuel vous empêche de faire usage de sorts défensifs !", Color.RED);
+          ((NwPlayer)onSpellCast.Caster).SendServerMessage("L'interdiction d'usage de magie défensive est en vigueur !", Color.RED);
           break;
       }
     }
@@ -437,6 +442,7 @@ namespace NWN.Systems.Arena
 
       await player.oid.ActionUnequipItem(player.oid.GetItemInSlot(InventorySlot.Chest));
 
+      player.oid.SendServerMessage("L'interdiction de port d'armure est en vigueur.", Color.RED);
       ApplyNoArmorMalus(player);
     }
     private static async void ApplyNoWeaponsMalus(PlayerSystem.Player player)
@@ -462,6 +468,7 @@ namespace NWN.Systems.Arena
       if(waitLeftHandEquip.IsCompletedSuccessfully)
         await player.oid.ActionUnequipItem(player.oid.GetItemInSlot(InventorySlot.LeftHand));
 
+      player.oid.SendServerMessage("L'interdiction de port d'armes est en vigueur.", Color.RED);
       ApplyNoWeaponsMalus(player);
     }
     private static async void ApplyNoAccessoriesMalus(PlayerSystem.Player player)
@@ -504,7 +511,165 @@ namespace NWN.Systems.Arena
       if (waitRightRingEquip.IsCompletedSuccessfully)
         await player.oid.ActionUnequipItem(player.oid.GetItemInSlot(InventorySlot.RightRing));
 
+      player.oid.SendServerMessage("L'interdiction de port d'accessoires est en vigueur.", Color.RED);
       ApplyNoAccessoriesMalus(player);
+    }
+    private static async void ApplyNoUseableItemMalus(PlayerSystem.Player player)
+    {
+      eventService.Unsubscribe<ItemEvents.OnItemUseBefore, NWNXEventFactory>(player.oid, ItemSystem.OnItemUseBefore);
+      eventService.Subscribe<ItemEvents.OnItemUseBefore, NWNXEventFactory>(player.oid, NoUseableItemMalus)
+        .Register<ItemEvents.OnItemUseBefore>();
+
+      await NwTask.WaitUntil(() => player.pveArena.currentRound == 1);
+
+      eventService.Unsubscribe<ItemEvents.OnItemUseBefore, NWNXEventFactory>(player.oid, NoUseableItemMalus);
+      eventService.Subscribe<ItemEvents.OnItemUseBefore, NWNXEventFactory>(player.oid, ItemSystem.OnItemUseBefore)
+        .Register<ItemEvents.OnItemUseBefore>();
+
+      player.oid.SendServerMessage("L'interdiction de l'utilisation d'objets a été levée.", Color.ORANGE);
+    }
+    private static void NoUseableItemMalus(ItemEvents.OnItemUseBefore onItemUse)
+    {
+      onItemUse.Skip = true;
+      ((NwPlayer)onItemUse.Creature).SendServerMessage("L'interdiction d'utilisation d'objets est en vigueur.", Color.RED);
+    }
+    private static async void ApplySlowMalus(PlayerSystem.Player player)
+    {
+      Effect slow = Effect.Slow();
+      slow.Tag = "_ARENA_MALUS_SLOW";
+      slow.SubType = EffectSubType.Supernatural;
+
+      Effect msDecrease = Effect.MovementSpeedDecrease(10);
+      slow.Tag = "_ARENA_MALUS_SLOW";
+      slow.SubType = EffectSubType.Supernatural;
+
+      player.oid.ApplyEffect(EffectDuration.Permanent, slow);
+      player.oid.ApplyEffect(EffectDuration.Permanent, msDecrease);
+
+      player.oid.OnSpellCastAt += SlowMalusCure;
+
+      await NwTask.WaitUntil(() => player.pveArena.currentRound == 1);
+
+      foreach (Effect eff in player.oid.ActiveEffects.Where(e => e.Tag == "_ARENA_MALUS_SLOW"))
+        player.oid.RemoveEffect(eff);
+
+      player.oid.OnSpellCastAt -= SlowMalusCure;
+      player.oid.SendServerMessage("Le handicap de ralentissement a été levé.", Color.ORANGE);
+    }
+    public static void SlowMalusCure(CreatureEvents.OnSpellCastAt onSpellCastAt)
+    {
+      switch (onSpellCastAt.Spell)
+      {
+        case Spell.LesserRestoration:
+        case Spell.Restoration:
+        case Spell.GreaterRestoration:
+        case Spell.RemoveCurse:
+        case Spell.Haste:
+        case Spell.MassHaste:
+
+          foreach (Effect eff in onSpellCastAt.Creature.ActiveEffects.Where(e => e.Tag == "_ARENA_MALUS_SLOW"))
+            onSpellCastAt.Creature.RemoveEffect(eff);
+
+          onSpellCastAt.Creature.OnSpellCastAt -= SlowMalusCure;
+          break;
+      }
+    }
+    private static async void ApplyMiniMalus(PlayerSystem.Player player)
+    {
+      if (player.oid.GetLocalVariable<float>("_ARENA_MALUS_MINI").HasValue)
+        return;
+
+      VisualTransform visualT = player.oid.VisualTransform;
+      player.oid.GetLocalVariable<float>("_ARENA_MALUS_MINI").Value = player.oid.VisualTransform.Scale;
+      visualT.Scale *= 0.3f;
+      player.oid.VisualTransform = visualT;
+
+      player.oid.OnCreatureDamage += MiniMalus;
+      player.oid.OnSpellCastAt += MiniMalusCure;
+
+      await NwTask.WaitUntil(() => player.pveArena.currentRound == 1);
+
+      if (player.oid.GetLocalVariable<float>("_ARENA_MALUS_MINI").HasValue)
+      {
+        visualT.Scale = player.oid.GetLocalVariable<float>("_ARENA_MALUS_MINI").Value;
+        player.oid.GetLocalVariable<float>("_ARENA_MALUS_MINI").Delete();
+        player.oid.VisualTransform = visualT;
+      }
+          
+      player.oid.OnCreatureDamage -= MiniMalus;
+      player.oid.OnSpellCastAt -= MiniMalusCure;
+      player.oid.SendServerMessage("Le handicap de miniaturisation a été levé.", Color.ORANGE);
+    }
+    public static void MiniMalusCure(CreatureEvents.OnSpellCastAt onSpellCastAt)
+    {
+      switch (onSpellCastAt.Spell)
+      {
+        case Spell.LesserRestoration:
+        case Spell.Restoration:
+        case Spell.GreaterRestoration:
+        case Spell.RemoveCurse:
+
+          if (onSpellCastAt.Creature.GetLocalVariable<float>("_ARENA_MALUS_MINI").HasValue)
+          {
+            VisualTransform vt = onSpellCastAt.Creature.VisualTransform;
+            vt.Scale = onSpellCastAt.Creature.GetLocalVariable<float>("_ARENA_MALUS_MINI").Value;
+            onSpellCastAt.Creature.GetLocalVariable<float>("_ARENA_MALUS_MINI").Delete();
+            onSpellCastAt.Creature.VisualTransform = vt;
+          }
+
+          onSpellCastAt.Creature.OnCreatureDamage -= MiniMalus;
+          onSpellCastAt.Creature.OnSpellCastAt -= MiniMalusCure;
+          break;
+      }
+    }
+    public static void MiniMalus(OnCreatureDamage onDamage)
+    {
+      onDamage.DamageData.Base = 1;
+    }
+    private static async void ApplyPoisonMalus(PlayerSystem.Player player)
+    {
+      if (player.oid.RollSavingThrow(SavingThrow.Fortitude, 15 + ((int)player.pveArena.currentDifficulty * 2), SavingThrowType.Poison) != SavingThrowResult.Failure)
+        return;
+
+      Effect poison = Effect.VisualEffect(VfxType.DurGlowGreen);
+      poison.SubType = EffectSubType.Supernatural;
+      poison.Tag = "_ARENA_MALUS_POISON";
+      player.oid.ApplyEffect(EffectDuration.Permanent, poison);
+
+      player.oid.ApplyEffect(EffectDuration.Instant, Effect.Damage(player.oid.MaxHP / 4, DamageType.Acid));
+      player.oid.OnHeartbeat += PoisonMalus;
+      player.oid.OnSpellCastAt += PoisonMalusCure;
+
+      await NwTask.WaitUntil(() => player.pveArena.currentRound == 1);
+
+      player.oid.RemoveEffect(poison);
+      player.oid.OnHeartbeat -= PoisonMalus;
+      player.oid.OnSpellCastAt -= PoisonMalusCure;
+      player.oid.SendServerMessage("Le handicap d'empoisonnement a été levé.", Color.ORANGE);
+    }
+    public static void PoisonMalus(CreatureEvents.OnHeartbeat onHearbeat)
+    {
+      int hpLost = onHearbeat.Creature.MaxHP / 32;
+      if (hpLost < 1)
+        hpLost = 1;
+
+      onHearbeat.Creature.ApplyEffect(EffectDuration.Instant, Effect.Damage(hpLost, DamageType.Acid));
+    }
+    public static void PoisonMalusCure(CreatureEvents.OnSpellCastAt onSpellCastAt)
+    {
+      switch(onSpellCastAt.Spell)
+      {
+        case Spell.LesserRestoration:
+        case Spell.Restoration:
+        case Spell.GreaterRestoration:
+        case Spell.NeutralizePoison:
+          Effect poison = onSpellCastAt.Creature.ActiveEffects.FirstOrDefault(e => e.Tag == "_ARENA_MALUS_POISON");
+          if(poison != null)
+            onSpellCastAt.Creature.RemoveEffect(poison);
+          onSpellCastAt.Creature.OnHeartbeat -= PoisonMalus;
+          onSpellCastAt.Creature.OnSpellCastAt -= PoisonMalusCure;
+          break;
+      }
     }
     public static RoundCreatures[] GetNormalEncounters(Difficulty difficulty) {
       switch(difficulty)
