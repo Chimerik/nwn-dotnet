@@ -1,4 +1,6 @@
 ﻿
+using System;
+
 namespace NWN.Systems.Arena
 {
   public struct PlayerData
@@ -9,6 +11,7 @@ namespace NWN.Systems.Arena
     public uint totalPoints { get; set; }
     public uint potentialPoints { get; set; }
     public uint currentMalus { get; set; }
+    public DateTime dateArenaEntered { get; set; }
     public PlayerData(
       uint currentRound = 1, Config.Difficulty currentDifficulty = Config.Difficulty.Level1,
       uint currentPoints = 0, uint totalPoints = 0, uint potentialPoints = 0, uint currentMalus = 0
@@ -20,6 +23,7 @@ namespace NWN.Systems.Arena
       this.totalPoints = totalPoints;
       this.potentialPoints = potentialPoints;
       this.currentMalus = currentMalus;
+      this.dateArenaEntered = DateTime.Now;
     }
   }
 }

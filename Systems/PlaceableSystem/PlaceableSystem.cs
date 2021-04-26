@@ -9,6 +9,7 @@ using System.Linq;
 using NLog;
 using System.Threading.Tasks;
 using static NWN.Systems.PlayerSystem;
+using NWN.System;
 
 namespace NWN.Systems
 {
@@ -27,7 +28,10 @@ namespace NWN.Systems
       foreach (NwPlaceable balancoire in NwModule.FindObjectsWithTag<NwPlaceable>("balancoire"))
         balancoire.OnUsed += OnUsedBalancoire;
 
-      foreach (NwPlaceable plc in NwModule.FindObjectsWithTag<NwPlaceable>("portal_storage_out", "portal_storage_in", "portal_start", "respawn_neutral", "respawn_dire", "respawn_radiant", "theater_rope"))
+      foreach (NwPlaceable portal in NwModule.FindObjectsWithTag<NwPlaceable>("portal_storage_in"))
+        portal.OnUsed += OnUsedStoragePortalIn;
+
+      foreach (NwPlaceable plc in NwModule.FindObjectsWithTag<NwPlaceable>("portal_start", "respawn_neutral", "respawn_dire", "respawn_radiant", "theater_rope"))
         plc.OnUsed += HandlePlaceableUsed;
 
       foreach (NwCreature statue in NwModule.FindObjectsWithTag<NwCreature>("Statuereptilienne", "statue_tiamat"))
@@ -41,6 +45,19 @@ namespace NWN.Systems
         corpse.OnConversation += HandleCancelStatueConversation;
         corpse.OnSpawn += HandleSetUpDeadCreatureCorpse;
       }
+    }
+    public static void OnUsedStoragePortalIn(PlaceableEvents.OnUsed onUsed)
+    {
+      if (!Players.TryGetValue(onUsed.UsedBy, out Player player))
+        return;
+
+      NwArea area = AreaSystem.CreatePersonnalStorageArea(player.oid, player.characterId);
+
+      player.oid.Location = area.FindObjectsOfTypeInArea<NwWaypoint>().FirstOrDefault(w => w.Tag == "wp_inentrepot").Location;
+    }
+    public static void OnUsedStoragePortalOut(PlaceableEvents.OnUsed onUsed)
+    {
+      onUsed.UsedBy.Location = NwModule.FindObjectsWithTag<NwWaypoint>("wp_outentrepot").FirstOrDefault().Location;
     }
     public static void OnUsedBalancoire(PlaceableEvents.OnUsed onUsed)
     {
@@ -169,57 +186,7 @@ namespace NWN.Systems
               VisibilityPlugin.SetVisibilityOverride(NWScript.OBJECT_INVALID, plc, visibilty);
             break;
           case "portal_start":
-            //NWScript.AssignCommand(player.oid, () => NWScript.JumpToLocation(NwModule.FindObjectsWithTag<NwWaypoint>("WP_START_NEW_CHAR").FirstOrDefault().Location));
-            Log.Info("Trying to teleport player to la plage de départ");
             player.oid.Location = NwModule.FindObjectsWithTag<NwWaypoint>("WP_START_NEW_CHAR").FirstOrDefault().Location;
-            break;
-          case "portal_storage_in":
-            string uniqueTag = $"entrepotpersonnel_{player.oid.CDKey}";
-            string name = $"Entrepot dimensionnel de {player.oid.Name}";
-
-            NwArea area = NwArea.Create("entrepotperso", uniqueTag, name);
-
-            if (area != null)
-            {
-              NwWaypoint waypoint = area.FindObjectsOfTypeInArea<NwWaypoint>().FirstOrDefault(w => w.Tag == "wp_inentrepot");
-              area.GetLocalVariable<int>("_AREA_LEVEL").Value = 0;
-              area.OnExit += AreaSystem.OnPersonnalStorageAreaExit;
-
-              player.oid.Location = waypoint.Location;
-
-              Task waitAreaLoad = NwTask.Run(async () =>
-              {
-                await NwTask.WaitUntil(() => player.oid.Area != null);
-
-                NwPlaceable storage = area.FindObjectsOfTypeInArea<NwPlaceable>().FirstOrDefault(s => s.Tag == "ps_entrepot");
-                storage.OnUsed += OnUsedPersonnalStorage;
-                storage.Name = $"Entrepôt de {player.oid.Name}";
-
-                var query = NWScript.SqlPrepareQueryCampaign(Config.database, $"SELECT storage from playerCharacters where rowid = @characterId");
-                NWScript.SqlBindInt(query, "@characterId", player.characterId);
-                NWScript.SqlStep(query);
-                NWScript.SqlGetObject(query, 0, NWScript.GetLocation(storage));
-
-                NwPlaceable portalOut = area.FindObjectsOfTypeInArea<NwPlaceable>().FirstOrDefault(p => p.Tag == "portal_storage_out");
-                portalOut.OnUsed += HandlePlaceableUsed;
-
-                NwPlaceable auctionHouse = area.FindObjectsOfTypeInArea<NwPlaceable>().FirstOrDefault(p => p.Tag == "hventes");
-                auctionHouse.OnUsed += DialogSystem.StartAuctionHouseDialog;
-
-                NwCreature messenger = area.FindObjectsOfTypeInArea<NwCreature>().FirstOrDefault(p => p.Tag == "bal_system");
-                messenger.OnConversation += DialogSystem.StartStorageDialog;
-              });
-            }
-            else
-            {
-              Log.Warn($"Could not create {name}");
-            }
-
-            break;
-          case "portal_storage_out":
-            //NWScript.AssignCommand(player.oid, () => NWScript.JumpToLocation(NwModule.FindObjectsWithTag<NwWaypoint>("wp_outentrepot").FirstOrDefault().Location));
-            Log.Info("Trying to teleport player out of dimensionnal storage");
-            player.oid.Location = NwModule.FindObjectsWithTag<NwWaypoint>("wp_outentrepot").FirstOrDefault().Location;
             break;
         }
     }
@@ -306,6 +273,7 @@ namespace NWN.Systems
           return;
         }
 
+        shop.OnOpen += StoreSystem.OnOpenPlayerShop;
         shop.Open(player.oid);
       }
     }
@@ -328,6 +296,7 @@ namespace NWN.Systems
           return;
         }
 
+        shop.OnOpen += StoreSystem.OnOpenPlayerAuction;
         shop.Open(player.oid);
         PlayerOwnedAuction.GetAuctionPrice(player, shop, onUsed.Placeable);
       }
@@ -345,8 +314,9 @@ namespace NWN.Systems
         return;
       }
 
-      storage.Tag = $"_PLAYER_STORAGE_{player.characterId}";
+      storage.Tag = "_PLAYER_STORAGE";
       storage.GetLocalVariable<int>("_OWNER_ID").Value = player.characterId;
+      storage.OnOpen += StoreSystem.OnOpenPersonnalStorage;
       storage.Open(player.oid);
     }
   }

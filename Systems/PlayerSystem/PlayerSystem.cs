@@ -17,12 +17,11 @@ namespace NWN.Systems
   {
     public static readonly Logger Log = LogManager.GetCurrentClassLogger();
     public static CursorTargetService cursorTargetService { get; set; }
-    private static EventService eventService { get; set; }
+    public static EventService eventService { get; set; }
     public PlayerSystem(CursorTargetService cursorTService, EventService eventServices)
     {
       NwModule.Instance.OnClientEnter += HandlePlayerConnect;
       NwModule.Instance.OnClientDisconnect += HandlePlayerLeave;
-      NwModule.Instance.OnPlayerDeath += HandlePlayerDeath;
       NwModule.Instance.OnPlayerLevelUp += CancelPlayerLevelUp;
 
       eventService = eventServices;

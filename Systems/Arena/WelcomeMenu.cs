@@ -4,6 +4,9 @@ using System.Linq;
 using System.Threading.Tasks;
 using NWN.API;
 using NWN.API.Constants;
+using NWN.Core;
+using NWN.Core.NWNX;
+using NWN.System;
 using static NWN.Systems.Arena.Config;
 using static NWN.Systems.PlayerSystem;
 
@@ -27,7 +30,14 @@ namespace NWN.Systems.Arena
           "Depenser mes points de victoires pour acheter des récompenses",
           () => DrawRewardPage(player)
         ));
+      if (player.oid.PlayerName == "Chim")
+      {
         player.menu.choices.Add((
+            "Modifier les récompenses",
+            () => OpenArenaRewardShop(player)
+          ));
+      }
+      player.menu.choices.Add((
           "Voir la liste des meilleurs combattants",
           () => DrawHighscoresPage(player)
         ));
@@ -73,6 +83,7 @@ namespace NWN.Systems.Arena
         {
           player.PayOrBorrowGold(Utils.GetGoldEntryCost(difficulty));
           player.pveArena.currentRound = 1;
+          player.pveArena.currentMalus = 19;
           player.pveArena.currentDifficulty = difficulty;
           HandleConfirm(player);
         }
@@ -88,14 +99,17 @@ namespace NWN.Systems.Arena
     private static void HandleConfirm(Player player)
     {
       player.menu.Close();
-      player.pveArena.currentMalus = 0;
+      player.pveArena.dateArenaEntered = DateTime.Now;
 
       NwArea oArena = NwArea.Create(PVE_ARENA_AREA_RESREF);
       oArena.FindObjectsOfTypeInArea<NwPlaceable>().FirstOrDefault(w => w.Tag == PVE_ARENA_PULL_ROPE_CHAIN_TAG).OnUsed += ScriptHandlers.HandlePullRopeChainUse;
-      
+      oArena.OnExit += Utils.OnExitArena;
+
       player.oid.ClearActionQueue();
       player.oid.JumpToObject(oArena.FindObjectsOfTypeInArea<NwWaypoint>().FirstOrDefault(w => w.Tag == PVE_ARENA_WAYPOINT_TAG));
-      player.OnDeath += Utils.HandlePlayerDied;
+      
+      player.oid.OnPlayerDeath -= HandlePlayerDeath;
+      player.oid.OnPlayerDeath += Utils.HandlePlayerDied;
 
       Task waitAreaLoaded = NwTask.Run(async () =>
       {
@@ -128,6 +142,26 @@ namespace NWN.Systems.Arena
         () => DrawMainPage(player)
       ));
       player.menu.Draw();
+    }
+    private static void OpenArenaRewardShop(Player player)
+    {
+      NwStore shop = player.oid.GetNearestObjectsByType<NwStore>().FirstOrDefault(s => s.Tag == "arena_reward_shop");
+
+      if (shop == null)
+      {
+        var query = NWScript.SqlPrepareQueryCampaign(Systems.Config.database, $"SELECT shop facing FROM arenaRewardShop");
+        NWScript.SqlStep(query);
+
+        shop = NwStore.Deserialize(NWScript.SqlGetString(query, 0).ToByteArray());
+
+        foreach (NwItem item in shop.Items)
+        {
+          ItemPlugin.SetBaseGoldPieceValue(item, item.GetLocalVariable<int>("_SET_SELL_PRICE").Value);
+        }
+      }
+
+      shop.OnOpen += StoreSystem.OnOpenModifyArenaRewardStore;
+      shop.Open(player.oid);
     }
   }
 }

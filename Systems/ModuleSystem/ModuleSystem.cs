@@ -532,11 +532,12 @@ namespace NWN.Systems
         NWScript.SqlBindInt(query, "@characterId", characterId);
         NWScript.SqlStep(query);
 
-        //API.Location loc = Utils.GetLocationFromDatabase(NWScript.SqlGetString(query, 0), NWScript.SqlGetVector(query, 1), NWScript.SqlGetFloat(query, 2));
-        //NwWaypoint wp = NwWaypoint.Create("NW_WAYPOINT001", loc, false, $"wp_start_{NWScript.GetPCPublicCDKey(callInfo.ObjectSelf)}");
-        //PlayerPlugin.SetPersistentLocation(NWScript.GetPCPublicCDKey(callInfo.ObjectSelf), PlayerPlugin.GetBicFileName(callInfo.ObjectSelf), wp);
-        
-        PlayerPlugin.SetSpawnLocation(callInfo.ObjectSelf, Utils.GetLocationFromDatabase(NWScript.SqlGetString(query, 0), NWScript.SqlGetVector(query, 1), NWScript.SqlGetFloat(query, 2)));
+        string tag = NWScript.SqlGetString(query, 0);
+
+        if (tag.StartsWith("entrepotpersonnel"))
+          AreaSystem.CreatePersonnalStorageArea((NwPlayer)callInfo.ObjectSelf, characterId);
+
+        PlayerPlugin.SetSpawnLocation(callInfo.ObjectSelf, Utils.GetLocationFromDatabase(tag, NWScript.SqlGetVector(query, 1), NWScript.SqlGetFloat(query, 2)));
       }
     }
 

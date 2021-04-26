@@ -12,7 +12,7 @@ namespace NWN.Systems
 {
   public partial class PlayerSystem
   {
-    private void HandlePlayerDeath(ModuleEvents.OnPlayerDeath onPlayerDeath)
+    public static void HandlePlayerDeath(ModuleEvents.OnPlayerDeath onPlayerDeath)
     {
       if (Players.TryGetValue(onPlayerDeath.DeadPlayer, out Player player))
       {
@@ -20,8 +20,6 @@ namespace NWN.Systems
 
         API.Location playerDeathLocation = player.oid.Location;
         
-        player.EmitDeath(new Player.DeathEventArgs(player, onPlayerDeath.Killer));
-
         Task handleDeath = NwTask.Run(async () =>
         {
           await NwTask.Delay(TimeSpan.FromSeconds(3));
@@ -35,7 +33,7 @@ namespace NWN.Systems
         });
       }
     }
-    private void CreatePlayerCorpse(Player player, API.Location deathLocation)
+    private static void CreatePlayerCorpse(Player player, API.Location deathLocation)
     {
       NwCreature oPCCorpse = player.oid.Clone(deathLocation, "pccorpse");
 

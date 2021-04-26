@@ -37,6 +37,6 @@
         <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="5.0.1" />
         <PackageReference Include="NWN.Core" Version="8193.22.4" />
         <PackageReference Include="NWN.Native" Version="8193.22.0" />
-        <ProjectReference Include="..\..\NWN.Managed\NWN.Managed\NWN.Managed.csproj" />
+        <ProjectReference Include="..\..\NWN.Managed\NWN.Managed\NWN.Anvil.csproj" />
     </ItemGroup>
 </Project>

@@ -55,9 +55,6 @@ namespace NWN.Systems
         {
           player.CraftJobProgression();
         }
-
-        if (player.location.Area?.Tag == $"entrepotpersonnel_{player.oid.CDKey}")
-          player.location = NwModule.FindObjectsWithTag<NwWaypoint>("wp_outentrepot").FirstOrDefault().Location;
         
         player.AcquireSkillPoints();
 

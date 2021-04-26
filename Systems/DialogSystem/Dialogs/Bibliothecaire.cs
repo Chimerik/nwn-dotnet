@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using NWN.API;
 using NWN.Core;
 using NWN.Core.NWNX;
+using NWN.System;
 using static NWN.Systems.PlayerSystem;
 
 namespace NWN.Systems
@@ -48,6 +49,7 @@ namespace NWN.Systems
           ItemPlugin.SetBaseGoldPieceValue(skillBook, 3000);
         }
 
+        shop.OnOpen += StoreSystem.OnOpenBiblioStore;
         shop.Open(player.oid);
 
         Task task = NwTask.Run(async () =>

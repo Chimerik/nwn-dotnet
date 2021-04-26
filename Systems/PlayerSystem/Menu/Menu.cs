@@ -24,7 +24,7 @@ namespace NWN.Systems
       private const int heightPadding = 1;
       private const int titleBottomMargin = 1;
 
-      private readonly PlayerSystem.Player player;
+      private readonly Player player;
       
       private int titleHeight
       {

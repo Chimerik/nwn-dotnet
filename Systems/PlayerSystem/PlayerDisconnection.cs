@@ -1,8 +1,5 @@
-﻿using NWN.API;
-using NWN.API.Events;
-using NWN.Core;
+﻿using NWN.API.Events;
 using NWN.Core.NWNX;
-using System.Linq;
 
 namespace NWN.Systems
 {
@@ -30,6 +27,7 @@ namespace NWN.Systems
       onPCDisconnect.Player.VisualTransform.Translation.Y = 0.0f;
       onPCDisconnect.Player.VisualTransform.Translation.Z = 0.0f;
       player.setValue = Config.invalidInput;
+      player.setString = "";
       player.OnKeydown -= player.menu.HandleMenuFeatUsed;
 
       if (!player.areaExplorationStateDictionnary.ContainsKey(player.oid.Area.Tag))

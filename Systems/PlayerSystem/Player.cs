@@ -74,7 +74,7 @@ namespace NWN.Systems
         else
           InitializeDM(this);
 
-        Log.Info($"Player initialization : DONE");
+        Log.Info($"Player first initialization : DONE");
       }
 
       public void EmitKeydown(MenuFeatEventArgs e)
@@ -91,24 +91,6 @@ namespace NWN.Systems
         public MenuFeatEventArgs(Feat feat)
         {
           this.feat = feat;
-        }
-      }
-
-      public event EventHandler<DeathEventArgs> OnDeath = delegate { };
-      public void EmitDeath(DeathEventArgs e)
-      {
-        OnDeath(this, e);
-      }
-
-      public class DeathEventArgs : EventArgs
-      {
-        public uint oKiller;
-        public Player player;
-
-        public DeathEventArgs(Player player, uint oKiller)
-        {
-          this.oKiller = oKiller;
-          this.player = player;
         }
       }
       public void LoadMenuQuickbar(QuickbarType type)

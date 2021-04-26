@@ -80,8 +80,8 @@ namespace NWN.Systems
     }
     public async static void AreaDestroyer(NwArea area)
     {
-      await NwTask.WaitUntil(() => area.FindObjectsOfTypeInArea<NwPlayer>().Count() == 0);
-      await NwTask.WaitUntil(() => NwModule.FindObjectsOfType<NwPlayer>().Where(p => p.Area is null).Count() == 0);
+      await NwTask.WaitUntil(() => !area.FindObjectsOfTypeInArea<NwPlayer>().Any());
+      await NwTask.WaitUntil(() => !NwModule.Instance.Players.Any(p => p.Location.Area == null));
       AreaSystem.Log.Info($"Destroyed area {area.Name}");
       area.Destroy();
     }

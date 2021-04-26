@@ -3,6 +3,9 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using NWN.API;
+using NWN.API.Events;
+using NWN.Core;
+using NWN.Core.NWNX;
 using static NWN.Systems.Arena.Config;
 using static NWN.Systems.PlayerSystem;
 
@@ -23,40 +26,45 @@ namespace NWN.Systems.Arena
         case Difficulty.Level5: return 5000;
       }
     }
-
-    public static void StopCurrentRun(Player player)
+    public static async void HandlePlayerDied(ModuleEvents.OnPlayerDeath onPlayerDeath)
     {
-      player.pveArena.totalPoints += player.pveArena.currentPoints;
+      onPlayerDeath.DeadPlayer.Location = NwModule.FindObjectsWithTag<NwWaypoint>(PVE_ENTRY_WAYPOINT_TAG).FirstOrDefault().Location;
+
+      await NwTask.WaitUntil(() => onPlayerDeath.DeadPlayer.Location.Area != null);
+      await NwTask.Delay(TimeSpan.FromSeconds(3));
+
+      onPlayerDeath.DeadPlayer.ApplyEffect(EffectDuration.Instant, API.Effect.VisualEffect(API.Constants.VfxType.ImpRaiseDead));
+      onPlayerDeath.DeadPlayer.ApplyEffect(EffectDuration.Instant, API.Effect.Resurrection());
+
+      ChatPlugin.SendMessage(ChatPlugin.NWNX_CHAT_CHANNEL_PLAYER_TALK, "Hé ben. Ils vous ont pas loupé là-dedans. On y retourne pour leur montrer ?",
+        NwModule.FindObjectsWithTag<NwCreature>("pve_arena_host").FirstOrDefault(), onPlayerDeath.DeadPlayer);
+    }
+    public static void OnExitArena(AreaEvents.OnExit onExit)
+    {
+      if (!Players.TryGetValue(onExit.ExitingObject, out Player player))
+        return;
+
+      player.oid.OnPlayerDeath -= HandlePlayerDied;
+      player.oid.OnPlayerDeath += HandlePlayerDeath;
+
       player.pveArena.currentPoints = 0;
       player.pveArena.currentRound = 1;
-    }
-    public static void CancelCurrentRun(Player player)
-    {
-      player.pveArena.currentPoints = 0;
-      player.pveArena.currentRound = 1;
-    }
 
-    /*public static bool GetIsRoundInProgress(Player player)
-    {
-      return player.oid.Area.FindObjectsOfTypeInArea<NwCreature>().Any(c => c.Tag == PVE_ARENA_CREATURE_TAG);
-    }
+      foreach (API.Effect paralysis in player.oid.ActiveEffects.Where(e => e.Tag == "_ARENA_CUTSCENE_PARALYZE_EFFECT"))
+        player.oid.RemoveEffect(paralysis);
 
-    public static Action<Player> CheckRoundEnded = TimingUtils.Debounce((Player player) =>
-    {
-      if (!GetIsRoundInProgress(player))
+      AreaSystem.AreaDestroyer(onExit.Area);
+
+      if(onExit.IsDisconnectingPlayer)
       {
-        player.pveArena.currentPoints += player.pveArena.potentialPoints;
-        player.pveArena.currentRound += 1;
+        API.Location arenaStartLoc = NwModule.FindObjectsWithTag<NwWaypoint>(PVE_ENTRY_WAYPOINT_TAG).FirstOrDefault().Location;
+
+        var query = NWScript.SqlPrepareQueryCampaign(Systems.Config.database, $"UPDATE playerCharacters SET areaTag = @areaTag, position = @position WHERE characterId = @characterId");
+        NWScript.SqlBindInt(query, "@characterId", player.characterId);
+        NWScript.SqlBindString(query, "@areaTag", arenaStartLoc.Area.Tag);
+        NWScript.SqlBindVector(query, "@position", arenaStartLoc.Position);
+        NWScript.SqlStep(query);
       }
-    }, 0.5f);*/
-
-    public static void HandlePlayerDied(object sender, Player.DeathEventArgs e)
-    {
-      e.player.OnDeath -= HandlePlayerDied;
-      e.player.pveArena.currentPoints = 0;
-      e.player.pveArena.currentRound = 1;
-
-      AreaSystem.AreaDestroyer(e.player.oid.Area);
     }
 
     public struct RoundCreatures
@@ -131,17 +139,26 @@ namespace NWN.Systems.Arena
 
       RandomizeMalusSelection(player);
     }
-    private static void ApplyArenaMalus(Player player, uint malus)
+    public static void ApplyArenaMalus(Player player, uint malus)
     {
-      player.oid.SendServerMessage($"Malus appliqué : {malus}");
       player.oid.GetLocalVariable<int>("_ARENA_MALUS_APPLIED").Value = 1;
       player.pveArena.currentMalus = malus;
       player.menu.Close();
 
-      // TODO : appliquer le malus
+      foreach (API.Effect paralysis in player.oid.ActiveEffects.Where(e => e.Tag == "_ARENA_CUTSCENE_PARALYZE_EFFECT"))
+        player.oid.RemoveEffect(paralysis);
 
-      Effect paralysis = player.oid.ActiveEffects.FirstOrDefault(e => e.Tag == "_ARENA_CUTSCENE_PARALYZE_EFFECT");
-      player.oid.RemoveEffect(paralysis);
+      if (arenaMalusDictionary.TryGetValue(malus, out ArenaMalus arenaMalus))
+      {
+        try
+        {
+          arenaMalus.applyMalus.Invoke(player);
+        }
+        catch (Exception e)
+        {
+          NWN.Utils.LogMessageToDMs(e.Message);
+        }
+      }
 
       ScriptHandlers.HandleFight(player);
     }

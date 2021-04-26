@@ -3,6 +3,7 @@ using NWN.API;
 using NWN.API.Constants;
 using NWN.Core;
 using NWN.Core.NWNX;
+using NWN.System;
 using static NWN.Systems.PlayerSystem;
 
 namespace NWN.Systems
@@ -65,6 +66,7 @@ namespace NWN.Systems
         craftTool.GetLocalVariable<int>("_DURABILITY").Value = 5;
       }
 
+      shop.OnOpen += StoreSystem.OnOpenGenericStore;
       shop.Open(player.oid);
     }
   }

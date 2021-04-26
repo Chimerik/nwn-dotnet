@@ -4,6 +4,7 @@ using NWN.Core;
 using NWN.Core.NWNX;
 using NWN.API.Constants;
 using static NWN.Systems.PlayerSystem;
+using NWN.System;
 
 namespace NWN.Systems
 {
@@ -53,6 +54,7 @@ namespace NWN.Systems
       }
 
       ChatPlugin.SendMessage(ChatPlugin.NWNX_CHAT_CHANNEL_PLAYER_TALK, "Pour obtenir votre amulette de concentration de l'arcane, il vous faut vous enregistrer auprès du juge.", magicshop, player.oid);
+      shop.OnOpen += StoreSystem.OnOpenGenericStore;
       shop.Open(player.oid);
     }
   }

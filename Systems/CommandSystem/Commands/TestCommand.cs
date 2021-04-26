@@ -25,11 +25,11 @@ namespace NWN.Systems
       if (PlayerSystem.Players.TryGetValue(ctx.oSender, out PlayerSystem.Player player))
       {
         //ctx.oSender.ToNwObject<NwPlayer>().HP = 10;
-        //ctx.oSender.ToNwObject<NwPlayer>().ApplyEffect(API.EffectDuration.Instant, API.Effect.Death());
+        ctx.oSender.ApplyEffect(EffectDuration.Instant, API.Effect.Death());
 
         if (NWScript.GetPCPlayerName(player.oid) == "Chim")
         {
-          player.menu.Clear();
+          /*player.menu.Clear();
 
           player.menu.titleLines = new List<string>() {
           "Sélectionnez votre malus !",
@@ -43,7 +43,7 @@ namespace NWN.Systems
           ));
 
           player.menu.Draw();
-          RandomizeMalusSelection(player);
+          RandomizeMalusSelection(player);*/
 
           //PlayerSystem.cursorTargetService.EnterTargetMode(player.oid, OnTargetSelected, ObjectTypes.All, MouseCursor.Pickup);
         }

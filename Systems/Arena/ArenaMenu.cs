@@ -41,7 +41,7 @@ namespace NWN.Systems.Arena
 
       player.menu.choices.Add((
         "Combat suivant !",
-        () => ScriptHandlers.HandleFight(player)
+        () => DrawMalusSelectionPage(player)
       ));
       player.menu.choices.Add((
         "S'arrêter et conserver les points accumulés",
@@ -51,28 +51,39 @@ namespace NWN.Systems.Arena
 
       player.menu.Draw();
     }
+    public static void DrawMalusSelectionPage(Player player)
+    {
+      player.oid.RemoveFeat(CustomFeats.CustomMenuEXIT);
 
+      player.menu.Clear();
+
+      player.menu.titleLines = new List<string>() {
+          "Sélectionnez votre malus !",
+          };
+
+      uint random = (uint)NwRandom.Roll(NWN.Utils.random, 20);
+
+      player.menu.choices.Add((
+        arenaMalusDictionary[random].name,
+        () => Utils.ApplyArenaMalus(player, random)
+      ));
+
+      player.menu.Draw();
+      Utils.RandomizeMalusSelection(player);
+    }
     public static void HandleStop(Player player)
     {
       player.menu.Close();
-      Utils.StopCurrentRun(player);
+      player.pveArena.totalPoints += player.pveArena.currentPoints;
 
-      //AreaSystem.AreaDestroyer(oArea);
-      
       player.oid.ClearActionQueue();
-      player.oid.Location = NwModule.FindObjectsWithTag<NwWaypoint>(PVE_ENTRY_WAYPOINT_TAG).FirstOrDefault()?.Location;
-      player.OnDeath -= Utils.HandlePlayerDied;
+      player.oid.Location = NwModule.FindObjectsWithTag<NwWaypoint>(PVE_ENTRY_WAYPOINT_TAG).FirstOrDefault().Location;
     }
     private static void HandleRunAway(Player player)
     {
       player.menu.Close();
-      Utils.CancelCurrentRun(player);
-
-      //AreaSystem.AreaDestroyer(oArea);
-
       player.oid.ClearActionQueue();
       player.oid.Location = NwModule.FindObjectsWithTag<NwWaypoint>(PVE_ENTRY_WAYPOINT_TAG).FirstOrDefault()?.Location;
-      player.OnDeath -= Utils.HandlePlayerDied;
     }
   }
 }

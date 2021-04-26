@@ -98,22 +98,8 @@ namespace NWN.Systems
 
       Log.Info($"{player.oid.Name} exited area {onExit.Area.Name}");
 
-      if (onExit.Area.Tag == $"entrepotpersonnel_{player.oid.CDKey}")
-      {
-        NwStore storage = onExit.Area.FindObjectsOfTypeInArea<NwStore>().FirstOrDefault();
-
-        if (!storage.IsValid)
-        {
-          Utils.LogMessageToDMs($"{onExit.Area.Name} - {player.oid.Name} - Le coffre personnel n'a pas pu être trouvé.");
-          return;
-        }
-
-        var saveStorage = NWScript.SqlPrepareQueryCampaign(Config.database, $"UPDATE playerCharacters set storage = @storage where rowid = @characterId");
-        NWScript.SqlBindInt(saveStorage, "@characterId", player.characterId);
-        NWScript.SqlBindObject(saveStorage, "@storage", storage);
-        NWScript.SqlStep(saveStorage);
+      if (!onExit.Area.FindObjectsOfTypeInArea<NwPlayer>().Any())
         AreaDestroyer(onExit.Area);
-      }
     }
     public static void OnIntroAreaExit(AreaEvents.OnExit onExit)
     {
@@ -233,6 +219,29 @@ namespace NWN.Systems
         transfo.Translation.Z = 0.0f;
         onExit.ExitingObject.VisualTransform = transfo;
       }
+    }
+    public static NwArea CreatePersonnalStorageArea(NwPlayer oPC, int characterId)
+    {
+      Log.Info($"Creating personnal storage area for : {oPC.Name} ID : {characterId}");
+
+      NwArea area = NwArea.Create("entrepotperso", $"entrepotpersonnel_{oPC.CDKey}", $"Entrepot dimensionnel de {oPC.Name}");
+      area.GetLocalVariable<int>("_AREA_LEVEL").Value = 0;
+      area.OnExit += OnPersonnalStorageAreaExit;
+
+      NwPlaceable storage = area.FindObjectsOfTypeInArea<NwPlaceable>().FirstOrDefault(s => s.Tag == "ps_entrepot");
+      storage.OnUsed += PlaceableSystem.OnUsedPersonnalStorage;
+      storage.Name = $"Entrepôt de {oPC.Name}";
+
+      var query = NWScript.SqlPrepareQueryCampaign(Config.database, $"SELECT storage from playerCharacters where rowid = @characterId");
+      NWScript.SqlBindInt(query, "@characterId", characterId);
+      NWScript.SqlStep(query);
+      NWScript.SqlGetObject(query, 0, NWScript.GetLocation(storage));
+
+      area.FindObjectsOfTypeInArea<NwPlaceable>().FirstOrDefault(p => p.Tag == "portal_storage_out").OnUsed += PlaceableSystem.OnUsedStoragePortalOut;
+      area.FindObjectsOfTypeInArea<NwPlaceable>().FirstOrDefault(p => p.Tag == "hventes").OnUsed += DialogSystem.StartAuctionHouseDialog;
+      area.FindObjectsOfTypeInArea<NwCreature>().FirstOrDefault(p => p.Tag == "bal_system").OnConversation += DialogSystem.StartStorageDialog;
+
+      return area;
     }
   }
 }

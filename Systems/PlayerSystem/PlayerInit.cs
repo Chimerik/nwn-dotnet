@@ -9,7 +9,6 @@ using NWN.API.Constants;
 using NWN.API.Events;
 using NWN.Core;
 using NWN.Core.NWNX;
-using NWN.System;
 using NWN.Systems.Craft;
 using NWNX.API.Events;
 using NWNX.Services;
@@ -32,7 +31,24 @@ namespace NWN.Systems
         Players.Add(oPC, player);
       }
       else
+      {
         player.oid = oPC;
+
+        if (player.location.Area == null)
+        {
+          var query = NWScript.SqlPrepareQueryCampaign(Config.database, $"SELECT areaTag, position, facing from playerCharacters where rowid = @characterId");
+          NWScript.SqlBindInt(query, "@characterId", player.characterId);
+          NWScript.SqlStep(query);
+
+          player.location = Utils.GetLocationFromDatabase(NWScript.SqlGetString(query, 0), NWScript.SqlGetVector(query, 1), NWScript.SqlGetFloat(query, 2));
+
+          Task waitAreaLoaded = NwTask.Run(async () =>
+          {
+            await NwTask.WaitUntil(() => oPC.Location.Area != null);
+            oPC.Location = player.location;
+          });
+        }
+      }
       
       if (oPC.IsDM)
         return;
@@ -400,8 +416,8 @@ namespace NWN.Systems
       player.oid.OnUseFeat += FeatSystem.OnUseFeatBefore;
       player.oid.OnSpellCast += SpellSystem.HandleBeforeSpellCast;
       player.oid.OnExamineObject += ExamineSystem.OnExamineBefore;
-      player.oid.OnStoreRequestBuy += StoreSystem.HandleBeforeStoreBuy;
-      player.oid.OnStoreRequestSell += StoreSystem.HandleBeforeStoreSell;
+      //player.oid.OnStoreRequestBuy += StoreSystem.HandleBeforeStoreBuy;
+      //player.oid.OnStoreRequestSell += StoreSystem.HandleBeforeStoreSell;
     }
     private static void InitializePlayer(Player player)
     {
@@ -450,13 +466,12 @@ namespace NWN.Systems
         .Register<ModuleEvents.OnAcquireItem>(NwModule.Instance);
       eventService.Subscribe<ModuleEvents.OnUnacquireItem, GameEventFactory>(player, ItemSystem.OnUnacquireItem)
         .Register<ModuleEvents.OnUnacquireItem>(NwModule.Instance);
-      
+
+      player.OnPlayerDeath += HandlePlayerDeath;
       player.OnUseFeat += FeatSystem.OnUseFeatBefore;
       player.OnSpellCast += SpellSystem.HandleBeforeSpellCast;
       player.OnExamineObject += ExamineSystem.OnExamineBefore;
       player.OnPerception += HandlePlayerPerception;
-      player.OnStoreRequestBuy += StoreSystem.HandleBeforeStoreBuy;
-      player.OnStoreRequestSell += StoreSystem.HandleBeforeStoreSell;
       player.OnCombatStatusChange += OnCombatStarted;
       player.OnCombatRoundStart += OnCombatRoundStart;
       player.OnSpellBroadcast += SpellSystem.OnSpellBroadcast;

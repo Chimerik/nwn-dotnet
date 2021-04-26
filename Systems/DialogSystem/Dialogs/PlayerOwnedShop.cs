@@ -1,19 +1,17 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using NWN.API;
 using NWN.API.Events;
 using NWN.Core;
 using NWN.Core.NWNX;
-using NWNX.API;
 using static NWN.Systems.PlayerSystem;
 
 namespace NWN.Systems
 {
   public static class PlayerOwnedShop
   {
-    public static void DrawMainPage(PlayerSystem.Player player, NwPlaceable storePanel)
+    public static void DrawMainPage(Player player, NwPlaceable storePanel)
     {
       player.menu.Clear();
 
@@ -66,7 +64,7 @@ namespace NWN.Systems
 
       player.menu.Draw();
     }
-    private static void GetObjectToAdd(PlayerSystem.Player player, NwStore store)
+    private static void GetObjectToAdd(Player player, NwStore store)
     {
       player.oid.SendServerMessage("Veuillez maintenant sélectionnner l'objet que vous souhaitez mettre en vente.", Color.ROSE);
       player.oid.GetLocalVariable<NwObject>("_ACTIVE_STORE").Value = store;
@@ -74,7 +72,7 @@ namespace NWN.Systems
     }
     private static void OnSellItemSelected(ModuleEvents.OnPlayerTarget selection)
     {
-      if (!Players.TryGetValue(selection.Player, out PlayerSystem.Player player))
+      if (!Players.TryGetValue(selection.Player, out Player player))
         return;
 
       if (selection.TargetObject is null || !(selection.TargetObject is NwItem))
@@ -160,11 +158,11 @@ namespace NWN.Systems
       shop.Destroy();
       panel.Destroy();
     }
-    private static void HandleRotation(PlayerSystem.Player player, NwPlaceable shop)
+    private static void HandleRotation(Player player, NwPlaceable shop)
     {
       shop.Rotation += 20;
     }
-    public static void SaveShop(PlayerSystem.Player player, NwStore shop)
+    /*public static void SaveShop(PlayerSystem.Player player, NwStore shop)
     {
       if (shop.Area.Tag != "Promenadetest") // TODO : Plutôt que de ne pas enregistrer les shops or de la Promenade, rendre leurs inventaires accessibles à n'importe qui (ceux-ci n'étant pas protégés par Polpo)
         return;
@@ -197,9 +195,9 @@ namespace NWN.Systems
         NWScript.SqlBindString(query, "@panel", panel.Serialize().ToBase64EncodedString());
         NWScript.SqlStep(query);
       }
-    }
+    }*/
 
-    public static void DrawItemAddedPage(PlayerSystem.Player player, NwItem item, NwStore shop)
+    public static void DrawItemAddedPage(Player player, NwItem item, NwStore shop)
     {
       player.menu.Clear();
       player.menu.titleLines = new List<string> {
@@ -221,7 +219,7 @@ namespace NWN.Systems
       player.menu.Draw();
     }
 
-    private static void SetItemPrice(PlayerSystem.Player player, NwItem item, NwStore shop)
+    private static void SetItemPrice(Player player, NwItem item, NwStore shop)
     {
       player.menu.Clear();
       int goldValue;
@@ -242,10 +240,9 @@ namespace NWN.Systems
       copy.GetLocalVariable<int>("_SET_SELL_PRICE").Value = goldValue / item.StackSize;
       item.Destroy();
 
-      SaveShop(player, shop);
       player.menu.Close();
     }
-    private static void OpenStore(PlayerSystem.Player player, NwStore shop)
+    private static void OpenStore(Player player, NwStore shop)
     {
       shop.Open(player.oid);
     }

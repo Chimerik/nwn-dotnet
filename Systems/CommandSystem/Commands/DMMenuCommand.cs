@@ -26,6 +26,7 @@ namespace NWN.Systems
 
       if (player.oid.PlayerName == "Chim")
       {
+        player.menu.choices.Add(("Activer/désactiver mode DM.", () => new DMMode(player.oid)));
         player.menu.choices.Add(("Reboot du module.", () => new Reboot()));
         player.menu.choices.Add(("Refill des ressources.", () => new Refill()));
         player.menu.choices.Add(("Changer le tag de la cible.", () => new SetTargetTag(player.oid)));
