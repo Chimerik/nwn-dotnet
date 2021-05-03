@@ -72,7 +72,7 @@ namespace NWN.Systems
 
       player.menu.Draw();
     }
-    private void HandleValidateMaterialSelection(Player player, string material)
+    private async void HandleValidateMaterialSelection(Player player, string material)
     {
       player.menu.Clear();
       player.menu.titleLines = new List<string> {
@@ -80,55 +80,52 @@ namespace NWN.Systems
           "(Indiquez simplement la valeur à l'oral)"
         };
 
-      Task playerInput = NwTask.Run(async () =>
-      {
-        player.oid.GetLocalVariable<int>("_PLAYER_INPUT").Value = 1;
-        player.setValue = Config.invalidInput;
-        await NwTask.WaitUntil(() => player.setValue != Config.invalidInput);
-        HandleSetupSellOrderPrice(player, material);
-        player.setValue = Config.invalidInput;
-      });
-
-      player.setValue = Config.invalidInput;
       player.menu.Draw();
+
+      bool awaitedValue = await player.WaitForPlayerInputInt();
+
+      if (awaitedValue)
+      {
+        HandleSetupSellOrderPrice(player, material);
+        player.oid.GetLocalVariable<string>("_PLAYER_INPUT").Delete();
+      }
     }
-    private void HandleSetupSellOrderPrice(Player player, string material)
+    private async void HandleSetupSellOrderPrice(Player player, string material)
     {
       player.menu.Clear();
 
-      if (player.setValue <= 0)
+      int input = int.Parse(player.oid.GetLocalVariable<string>("_PLAYER_INPUT"));
+
+      if (input <= 0)
       {
         player.menu.titleLines.Add($"La quantité indiquée n'est pas valide, veuillez ré-essayer.");
         player.menu.choices.Add(($"Entrer une nouvelle valeur.", () => HandleValidateMaterialSelection(player, material)));
       }
       else
       {
-        if (player.setValue >= player.materialStock[material])
-          player.setValue = player.materialStock[material];
+        if (input >= player.materialStock[material])
+          input = player.materialStock[material];
 
         player.menu.titleLines = new List<string> {
-          $"{player.setValue} de {material}. A quel prix unitaire ?",
+          $"{input} de {material}. A quel prix unitaire ?",
           "Pour tout ordre non immédiat, il convient de s'acquiter à l'avance de 5 % du prix de vente",
           $"(Indiquez à l'oral le prix que vous souhaitez pour chaque unité de {material}"
           };
 
-        Task playerInput = NwTask.Run(async () =>
-        {
-          int quantity = player.setValue;
-          player.oid.GetLocalVariable<int>("_PLAYER_INPUT").Value = 1;
-          player.setValue = Config.invalidInput;
-          await NwTask.WaitUntil(() => player.setValue != Config.invalidInput);
-          CreateSellOrderPage(player, material, quantity);
-          player.setValue = Config.invalidInput;
-        });
-      }
+        bool awaitedValue = await player.WaitForPlayerInputInt();
 
-      player.setValue = Config.invalidInput;
-      player.menu.Draw();
+        if (awaitedValue)
+        {
+          CreateSellOrderPage(player, material, input);
+          player.oid.GetLocalVariable<string>("_PLAYER_INPUT").Delete();
+        }
+      }
     }
     private void CreateSellOrderPage(Player player, string material, int quantity)
     {
-      if (player.setValue < 0)
+      int input = int.Parse(player.oid.GetLocalVariable<string>("_PLAYER_INPUT"));
+
+      if (input < 0)
       {
         player.menu.Clear();
         player.menu.titleLines.Add($"Le prix indiqué n'est pas valide, veuillez ré-essayer.");
@@ -140,7 +137,7 @@ namespace NWN.Systems
         var buyOrdersQuery = NWScript.SqlPrepareQueryCampaign(Config.database, $"SELECT rowid, quantity, unitPrice from playerBuyOrders where material = @material AND unitPrice >= @unitPrice AND expirationDate < @now and @characterId != @characterId order by unitPrice DESC");
         NWScript.SqlBindString(buyOrdersQuery, "@now", DateTime.Now.ToString());
         NWScript.SqlBindString(buyOrdersQuery, "@material", material);
-        NWScript.SqlBindInt(buyOrdersQuery, "@unitPrice", player.setValue);
+        NWScript.SqlBindInt(buyOrdersQuery, "@unitPrice", input);
         NWScript.SqlBindInt(buyOrdersQuery, "@characterId", player.characterId);
 
         int remainingQuantity = quantity;
@@ -236,7 +233,7 @@ namespace NWN.Systems
         if (player.learntCustomFeats.ContainsKey(CustomFeats.BrokerAffinity))
           brokerLevel += SkillSystem.GetCustomFeatLevelFromSkillPoints(CustomFeats.BrokerAffinity, player.learntCustomFeats[CustomFeats.BrokerAffinity]);
 
-        int brokerFee = remainingQuantity * player.setValue * 5 / 100;
+        int brokerFee = remainingQuantity * input * 5 / 100;
         brokerFee -= brokerFee * 6 * brokerLevel / 100;
         if (brokerFee < 1)
           brokerFee = 1;
@@ -256,7 +253,7 @@ namespace NWN.Systems
         NWScript.SqlBindString(query, "@expirationDate", DateTime.Now.AddDays(30).ToString());
         NWScript.SqlBindString(query, "@material", material);
         NWScript.SqlBindInt(query, "@quantity", remainingQuantity);
-        NWScript.SqlBindInt(query, "@unitPrice", player.setValue);
+        NWScript.SqlBindInt(query, "@unitPrice", input);
         NWScript.SqlStep(query);
 
 
@@ -294,7 +291,7 @@ namespace NWN.Systems
 
       player.menu.Draw();
     }
-    private void HandleValidateBuyOrderMaterialSelection(Player player, string material)
+    private async void HandleValidateBuyOrderMaterialSelection(Player player, string material)
     {
       player.menu.Clear();
       player.menu.titleLines = new List<string> {
@@ -302,52 +299,53 @@ namespace NWN.Systems
           "(Indiquez simplement la valeur à l'oral)"
         };
 
-      Task playerInput = NwTask.Run(async () =>
-      {
-        player.oid.GetLocalVariable<int>("_PLAYER_INPUT").Value = 1;
-        player.setValue = Config.invalidInput;
-        await NwTask.WaitUntil(() => player.setValue != Config.invalidInput);
-        HandleSetupBuyOrderPrice(player, material);
-        player.setValue = Config.invalidInput;
-      });
-
-      player.setValue = Config.invalidInput;
       player.menu.Draw();
+
+      bool awaitedValue = await player.WaitForPlayerInputInt();
+
+      if (awaitedValue)
+      {
+        HandleSetupBuyOrderPrice(player, material);
+        player.oid.GetLocalVariable<string>("_PLAYER_INPUT").Delete();
+      }
     }
-    private void HandleSetupBuyOrderPrice(Player player, string material)
+    private async void HandleSetupBuyOrderPrice(Player player, string material)
     {
       player.menu.Clear();
 
-      if (player.setValue <= 0)
+      int input = int.Parse(player.oid.GetLocalVariable<string>("_PLAYER_INPUT"));
+
+      if (input <= 0)
       {
         player.menu.titleLines.Add($"La quantité indiquée n'est pas valide, veuillez ré-essayer.");
         player.menu.choices.Add(($"Entrer une nouvelle valeur.", () => HandleValidateBuyOrderMaterialSelection(player, material)));
+
+        player.menu.Draw();
       }
       else
       {
           player.menu.titleLines = new List<string> {
-          $"{player.setValue} de {material}. A quel prix unitaire ?",
+          $"{input} de {material}. A quel prix unitaire ?",
           "Pour tout ordre non immédiat, il convient de s'acquiter à l'avance de 5 % du prix de vente",
           $"(Indiquez à l'oral le prix que vous souhaitez pour chaque unité de {material}"
           };
 
-          Task playerInput = NwTask.Run(async () =>
-          {
-            int quantity = player.setValue;
-            player.oid.GetLocalVariable<int>("_PLAYER_INPUT").Value = 1;
-            player.setValue = Config.invalidInput;
-            await NwTask.WaitUntil(() => player.setValue != Config.invalidInput);
-            CreateBuyOrderPage(player, material, quantity);
-            player.setValue = Config.invalidInput;
-          });
-      }
+        player.menu.Draw();
 
-      player.setValue = Config.invalidInput;
-      player.menu.Draw();
+        bool awaitedValue = await player.WaitForPlayerInputInt();
+
+        if (awaitedValue)
+        {
+          CreateBuyOrderPage(player, material, input);
+          player.oid.GetLocalVariable<string>("_PLAYER_INPUT").Delete();
+        }
+      }
     }
     private void CreateBuyOrderPage(Player player, string material, int quantity)
     {
-      if (player.setValue < 0)
+      int input = int.Parse(player.oid.GetLocalVariable<string>("_PLAYER_INPUT"));
+
+      if (input < 0)
       {
         player.menu.Clear();
         player.menu.titleLines.Add($"Le prix indiqué n'est pas valide, veuillez ré-essayer.");
@@ -356,21 +354,21 @@ namespace NWN.Systems
       }
       else
       {
-        if(player.bankGold < quantity * player.setValue)
+        if(player.bankGold < quantity * input)
         {
           player.menu.Clear();
-          player.menu.titleLines.Add($"Votre compte en banque n'est pas créditeur des {quantity * player.setValue + quantity * player.setValue * 0.05} pièce(s) d'or nécessaire au placement de cet ordre d'achat.");
+          player.menu.titleLines.Add($"Votre compte en banque n'est pas créditeur des {quantity * input + quantity * input * 0.05} pièce(s) d'or nécessaire au placement de cet ordre d'achat.");
           player.menu.choices.Add(($"Entrer une nouvelle valeur.", () => HandleValidateBuyOrderMaterialSelection(player, material)));
           player.menu.Draw();
         }
 
-        player.bankGold -= quantity * player.setValue;
-        player.oid.SendServerMessage($"Afin de placer votre d'achat, {quantity * player.setValue} pièce(s) d'or ont été retenues du solde de votre compte.", Color.MAGENTA);
+        player.bankGold -= quantity * input;
+        player.oid.SendServerMessage($"Afin de placer votre d'achat, {quantity * input} pièce(s) d'or ont été retenues du solde de votre compte.", Color.MAGENTA);
 
         var sellOrdersQuery = NWScript.SqlPrepareQueryCampaign(Config.database, $"SELECT rowid, quantity, unitPrice from playerSellOrders where material = @material AND unitPrice <= @unitPrice AND expirationDate < @now and characterId != @characterId order by unitPrice ASC");
         NWScript.SqlBindString(sellOrdersQuery, "@now", DateTime.Now.ToString());
         NWScript.SqlBindString(sellOrdersQuery, "@material", material);
-        NWScript.SqlBindInt(sellOrdersQuery, "@unitPrice", player.setValue);
+        NWScript.SqlBindInt(sellOrdersQuery, "@unitPrice", input);
         NWScript.SqlBindInt(sellOrdersQuery, "@characterId", player.characterId);
 
         int remainingQuantity = quantity;
@@ -471,7 +469,7 @@ namespace NWN.Systems
         if (player.learntCustomFeats.ContainsKey(CustomFeats.BrokerAffinity))
           brokerLevel += SkillSystem.GetCustomFeatLevelFromSkillPoints(CustomFeats.BrokerAffinity, player.learntCustomFeats[CustomFeats.BrokerAffinity]);
 
-        int brokerFee = remainingQuantity * player.setValue * 5 / 100;
+        int brokerFee = remainingQuantity * input * 5 / 100;
         brokerFee -= brokerFee * 6 * brokerLevel / 100;
         if (brokerFee < 1)
           brokerFee = 1;
@@ -479,7 +477,7 @@ namespace NWN.Systems
         if (player.bankGold < brokerFee)
         {
           player.oid.SendServerMessage($"Vous ne disposez pas de suffisament d'or en banque pour placer un ordre de vente différé.", Color.LIME);
-          player.bankGold += remainingQuantity * player.setValue;
+          player.bankGold += remainingQuantity * input;
           player.menu.Close();
           return;
         }
@@ -492,7 +490,7 @@ namespace NWN.Systems
         NWScript.SqlBindString(query, "@expirationDate", DateTime.Now.AddDays(30).ToString());
         NWScript.SqlBindString(query, "@material", material);
         NWScript.SqlBindInt(query, "@quantity", remainingQuantity);
-        NWScript.SqlBindInt(query, "@unitPrice", player.setValue);
+        NWScript.SqlBindInt(query, "@unitPrice", input);
         NWScript.SqlStep(query);
 
 

@@ -48,7 +48,7 @@ namespace NWN.Systems
         Task waitSpellUsed = NwTask.Run(async () =>
         {
           await NwTask.Delay(TimeSpan.FromSeconds(0.2));
-          SpellSystem.RestoreSpell(onSpellCast.Caster, (int)onSpellCast.Spell);
+          SpellSystem.RestoreSpell(oCaster, onSpellCast.Spell);
         });
       }
     }

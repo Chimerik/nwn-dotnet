@@ -64,7 +64,7 @@ namespace NWN.Systems
         $"('accountId' INTEGER NOT NULL, 'characterName' TEXT NOT NULL, 'dateLastSaved' TEXT NOT NULL, 'currentSkillType' INTEGER NOT NULL, 'currentSkillJob' INTEGER NOT NULL," +
         $"'currentCraftJobRemainingTime' REAL, 'currentCraftJob' INTEGER NOT NULL, 'currentCraftObject' TEXT NOT NULL," +
         $"currentCraftJobMaterial TEXT, areaTag TEXT, position TEXT, facing REAL," +
-        $"currentHP INTEGER, bankGold INTEGER, menuOriginTop INTEGER, menuOriginLeft INTEGER, storage TEXT)");
+        $"currentHP INTEGER, bankGold INTEGER, pveArenaCurrentPoints, menuOriginTop INTEGER, menuOriginLeft INTEGER, storage TEXT)");
       NWScript.SqlStep(query);
 
       query = NWScript.SqlPrepareQueryCampaign(Config.database, $"CREATE TABLE IF NOT EXISTS playerLearnableSkills" +
@@ -149,6 +149,14 @@ namespace NWN.Systems
 
       query = NWScript.SqlPrepareQueryCampaign(Config.database, $"CREATE TABLE IF NOT EXISTS rumors" +
         $"('accountId' INTEGER NOT NULL, 'title' TEXT NOT NULL, 'content' TEXT NOT NULL, UNIQUE (accountId, title))");
+      NWScript.SqlStep(query);
+
+      query = NWScript.SqlPrepareQueryCampaign(Config.database, $"CREATE TABLE IF NOT EXISTS arenaRewardShop" +
+        $"('id' INTEGER NOT NULL, 'shop' TEXT NOT NULL, PRIMARY KEY(id))");
+      NWScript.SqlStep(query);
+
+      query = NWScript.SqlPrepareQueryCampaign(Config.database, $"CREATE TABLE IF NOT EXISTS chatColors" +
+        $"('accountId' INTEGER NOT NULL, 'channel' INTEGER NOT NULL, 'color' INTEGER NOT NULL, UNIQUE (accountId, channel))");
       NWScript.SqlStep(query);
     }
     private void InitializeEvents()
@@ -256,7 +264,7 @@ namespace NWN.Systems
 
           var newRock = NwPlaceable.Create(resRef, ressourcePoint.Location);
           newRock.Name = name;
-          newRock.GetLocalVariable<int>("_ORE_AMOUNT").Value = 50 * NwRandom.Roll(NWN.Utils.random, 100);
+          newRock.GetLocalVariable<int>("_ORE_AMOUNT").Value = 50 * NwRandom.Roll(Utils.random, 100);
           ressourcePoint.Destroy();
 
           Log.Info($"REFILL - {ressourcePoint.Area.Name} - {ressourcePoint.Name}");
@@ -276,7 +284,7 @@ namespace NWN.Systems
         NWScript.SqlStep(query);
       }
 
-      Task waitNextDay = NwTask.WaitUntilValueChanged(() => DateTime.Now.Day);
+      await NwTask.WaitUntilValueChanged(() => DateTime.Now.Day);
       await SpawnCollectableResources(1);
     }
     private void SaveServerVault()
@@ -362,7 +370,7 @@ namespace NWN.Systems
       NWScript.SqlStep(deletionQuery);*/
 
       var query = NWScript.SqlPrepareQueryCampaign(Config.database, $"SELECT shop, panel, characterId, rowid, expirationDate, areaTag, position, facing FROM playerShops");
-
+      
       while (Convert.ToBoolean(NWScript.SqlStep(query)))
       {
         NwStore shop = NwStore.Deserialize(NWScript.SqlGetString(query, 0).ToByteArray());

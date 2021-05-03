@@ -18,20 +18,22 @@ namespace NWN.Systems
         "Quel don ?"
         };
 
-      Task playerInput = NwTask.Run(async () =>
-      {
-        player.oid.GetLocalVariable<int>("_PLAYER_INPUT").Value = 1;
-        player.setValue = Config.invalidInput;
-        await NwTask.WaitUntil(() => player.setValue != Config.invalidInput);
-        await NwModule.Instance.WaitForObjectContext();
-        HandleCreateSkillbook(player.setValue, player.oid);
-        player.setValue = Config.invalidInput;
-        player.menu.Close();
-      });
-
       player.menu.choices.Add(("Retour", () => CommandSystem.DrawDMCommandList(player)));
       player.menu.choices.Add(("Quitter", () => player.menu.Close()));
       player.menu.Draw();
+
+      WaitPlayerInput(player);
+    }
+    private async void WaitPlayerInput(PlayerSystem.Player player)
+    {
+      bool awaitedValue = await player.WaitForPlayerInputInt();
+
+      if (awaitedValue)
+      {
+        HandleCreateSkillbook(int.Parse(player.oid.GetLocalVariable<string>("_PLAYER_INPUT").Value), player.oid);
+        player.oid.GetLocalVariable<string>("_PLAYER_INPUT").Delete();
+        player.menu.Close();
+      }
     }
     private void HandleCreateSkillbook(int skillId, NwPlayer oPC)
     {

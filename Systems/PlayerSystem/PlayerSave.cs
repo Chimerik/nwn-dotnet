@@ -66,6 +66,7 @@ namespace NWN.Systems
         SavePlayerStoredMaterialsToDatabase(player);
         SavePlayerMapPinsToDatabase(player);
         SavePlayerAreaExplorationStateToDatabase(player);
+        SavePlayerChatColorsToDatabase(player);
         HandleExpiredContracts(player);
         HandleExpiredBuyOrders(player);
         HandleExpiredSellOrders(player);
@@ -91,7 +92,7 @@ namespace NWN.Systems
     }
     private static void SavePlayerCharacterToDatabase(Player player)
     {
-      var query = NWScript.SqlPrepareQueryCampaign(Config.database, $"UPDATE playerCharacters SET characterName = @characterName, areaTag = @areaTag, position = @position, facing = @facing, currentHP = @currentHP, bankGold = @bankGold, dateLastSaved = @dateLastSaved, currentSkillType = @currentSkillType, currentSkillJob = @currentSkillJob, currentCraftJob = @currentCraftJob, currentCraftObject = @currentCraftObject, currentCraftJobRemainingTime = @currentCraftJobRemainingTime, currentCraftJobMaterial = @currentCraftJobMaterial, menuOriginTop = @menuOriginTop, menuOriginLeft = @menuOriginLeft where rowid = @characterId");
+      var query = NWScript.SqlPrepareQueryCampaign(Config.database, $"UPDATE playerCharacters SET characterName = @characterName, areaTag = @areaTag, position = @position, facing = @facing, currentHP = @currentHP, bankGold = @bankGold, dateLastSaved = @dateLastSaved, currentSkillType = @currentSkillType, currentSkillJob = @currentSkillJob, currentCraftJob = @currentCraftJob, currentCraftObject = @currentCraftObject, currentCraftJobRemainingTime = @currentCraftJobRemainingTime, currentCraftJobMaterial = @currentCraftJobMaterial, pveArenaCurrentPoints = @pveArenaCurrentPoints, menuOriginTop = @menuOriginTop, menuOriginLeft = @menuOriginLeft where rowid = @characterId");
       NWScript.SqlBindInt(query, "@characterId", player.characterId);
 
       if (player.location.Area != null)
@@ -117,6 +118,7 @@ namespace NWN.Systems
       NWScript.SqlBindString(query, "@currentCraftObject", player.craftJob.craftedItem);
       NWScript.SqlBindFloat(query, "@currentCraftJobRemainingTime", player.craftJob.remainingTime);
       NWScript.SqlBindString(query, "@currentCraftJobMaterial", player.craftJob.material);
+      NWScript.SqlBindInt(query, "@pveArenaCurrentPoints", (int)player.pveArena.currentPoints);
       NWScript.SqlBindInt(query, "@menuOriginTop", player.menu.originTop);
       NWScript.SqlBindInt(query, "@menuOriginLeft", player.menu.originLeft);
       NWScript.SqlStep(query);
@@ -201,6 +203,23 @@ namespace NWN.Systems
           NWScript.SqlBindInt(query, "@characterId", player.characterId);
           NWScript.SqlBindString(query, "@areaTag", explorationStateListEntry.Key);
           NWScript.SqlBindString(query, "@explorationState", explorationStateListEntry.Value);
+          NWScript.SqlStep(query);
+        }
+      }
+    }
+    private static void SavePlayerChatColorsToDatabase(Player player)
+    {
+      if (player.chatColors.Count > 0)
+      {
+        string queryString = "INSERT INTO chatColors (accountId, channel, color) VALUES (@accountId, @channel, @color)" +
+          "ON CONFLICT (accountId, channel) DO UPDATE SET color = @color";
+
+        foreach (KeyValuePair<int, Color> chatColorEntry in player.chatColors)
+        {
+          var query = NWScript.SqlPrepareQueryCampaign(Config.database, queryString);
+          NWScript.SqlBindInt(query, "@accountId", player.accountId);
+          NWScript.SqlBindInt(query, "@channel", chatColorEntry.Key);
+          NWScript.SqlBindInt(query, "@color", chatColorEntry.Value.ToInt());
           NWScript.SqlStep(query);
         }
       }

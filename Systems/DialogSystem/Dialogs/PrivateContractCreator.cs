@@ -75,7 +75,7 @@ namespace NWN.Systems
 
       player.menu.Draw();
     }
-    private void HandleValidateMaterialSelection(Player player, string material)
+    private async void HandleValidateMaterialSelection(Player player, string material)
     {
       player.menu.Clear();
       player.menu.titleLines = new List<string> {
@@ -83,58 +83,56 @@ namespace NWN.Systems
           "(Indiquez simplement la valeur à l'oral)"
         };
 
-      Task playerInput = NwTask.Run(async () =>
-      {
-        player.oid.GetLocalVariable<int>("_PLAYER_INPUT").Value = 1;
-        player.setValue = Config.invalidInput;
-        await NwTask.WaitUntil(() => player.setValue != Config.invalidInput);
-        HandleSetupPriceContract(player, material);
-        player.setValue = Config.invalidInput;
-      });
-
-      player.setValue = Config.invalidInput;
       player.menu.Draw();
+
+      bool awaitedValue = await player.WaitForPlayerInputInt();
+
+      if (awaitedValue)
+      {
+        HandleSetupPriceContract(player, material);
+        player.oid.GetLocalVariable<string>("_PLAYER_INPUT").Delete();
+      }
     }
-    private void HandleSetupPriceContract(Player player, string material)
+    private async void HandleSetupPriceContract(Player player, string material)
     {
       player.menu.Clear();
+      int input = int.Parse(player.oid.GetLocalVariable<string>("_PLAYER_INPUT"));
 
-      if (player.setValue <= 0)
+      if (input <= 0)
       {
         player.menu.titleLines.Add($"La quantité indiquée n'est pas valide, veuillez ré-essayer.");
         player.menu.choices.Add(($"Entrer une nouvelle valeur.", () => HandleValidateMaterialSelection(player, material)));
+        player.menu.Draw();
       }
       else
       {
-        if (player.setValue >= player.materialStock[material])
-          player.setValue = player.materialStock[material];
+        if (input >= player.materialStock[material])
+          input = player.materialStock[material];
         else
         {
           player.menu.titleLines = new List<string> {
-          $"{player.setValue} de {material}. A quel prix unitaire ?",
+          $"{input} de {material}. A quel prix unitaire ?",
           $"(Indiquez à l'oral le prix que vous souhaitez pour chaque unité de {material}"
           };
 
-          Task playerInput = NwTask.Run(async () =>
+          player.menu.Draw();
+
+          bool awaitedValue = await player.WaitForPlayerInputInt();
+
+          if (awaitedValue)
           {
-            int quantity = player.setValue;
-            player.oid.GetLocalVariable<int>("_PLAYER_INPUT").Value = 1;
-            player.setValue = Config.invalidInput;
-            await NwTask.WaitUntil(() => player.setValue != Config.invalidInput);
-            HandleRegisterMaterialToContract(player, material, quantity);
-            player.setValue = Config.invalidInput;
-          });
+            HandleRegisterMaterialToContract(player, material, input);
+            player.oid.GetLocalVariable<string>("_PLAYER_INPUT").Delete();
+          }
         }
       }
-
-      player.setValue = Config.invalidInput;
-      player.menu.Draw();
     }
     private void HandleRegisterMaterialToContract(Player player, string material, int quantity)
     {
       player.menu.Clear();
+      int input = int.Parse(player.oid.GetLocalVariable<string>("_PLAYER_INPUT"));
 
-      if (player.setValue < 0)
+      if (input < 0)
       {
         player.menu.titleLines.Add($"Le prix indiqué n'est pas valide, veuillez ré-essayer.");
         player.menu.choices.Add(($"Entrer une nouvelle valeur.", () => WriteContractPage(player)));
@@ -144,10 +142,10 @@ namespace NWN.Systems
         if (materialContractDictionnary.ContainsKey(material))
         {
           materialContractDictionnary[material].quantity += quantity;
-          materialContractDictionnary[material].unitPrice = player.setValue;
+          materialContractDictionnary[material].unitPrice = input;
         }
         else
-          materialContractDictionnary.Add(material, new Contract(quantity, player.setValue));
+          materialContractDictionnary.Add(material, new Contract(quantity, input));
 
         player.menu.titleLines = new List<string>();
         int grandTotal = 0;
@@ -163,10 +161,9 @@ namespace NWN.Systems
         player.menu.choices.Add(($"Finaliser la rédaction du contrat.", () => HandleRegisterContractExpirationDate(player)));
       }
 
-      player.setValue = Config.invalidInput;
       player.menu.Draw();
     }
-    private void HandleRegisterContractExpirationDate(Player player)
+    private async void HandleRegisterContractExpirationDate(Player player)
     {
       player.menu.Clear();
 
@@ -175,24 +172,24 @@ namespace NWN.Systems
           $"(Indiquez à l'oral le nombre de jours, compris entre 1 et 30, pendant lequel ce contrat sera valide)"
       };
 
-      Task playerInput = NwTask.Run(async () =>
-      {
-        player.oid.GetLocalVariable<int>("_PLAYER_INPUT").Value = 1;
-        player.setValue = Config.invalidInput;
-        await NwTask.WaitUntil(() => player.setValue != Config.invalidInput);
-        CreateContractPage(player);
-        player.setValue = Config.invalidInput;
-      });
-
-      player.setValue = Config.invalidInput;
       player.menu.Draw();
+
+      bool awaitedValue = await player.WaitForPlayerInputInt();
+
+      if (awaitedValue)
+      {
+        CreateContractPage(player);
+        player.oid.GetLocalVariable<string>("_PLAYER_INPUT").Delete();
+      }
     }
     private void CreateContractPage(Player player)
     {
       int expirationDate = 30;
 
-      if (player.setValue > 0 || player.setValue < 31)
-        expirationDate = player.setValue;
+      int input = int.Parse(player.oid.GetLocalVariable<string>("_PLAYER_INPUT"));
+
+      if (input > 0 || input < 31)
+        expirationDate = input;
 
       if (materialContractDictionnary.Count < 1)
       {
@@ -237,7 +234,6 @@ namespace NWN.Systems
 
       player.oid.SendServerMessage("Votre contrat d'échange privé de ressources a bien été créé.", Color.OLIVE);
       player.oid.AcquireItem(contract, true);
-      player.setValue = Config.invalidInput;
       player.menu.Close();
     }
     private void DrawCurrentContractPage(Player player)

@@ -27,21 +27,23 @@ namespace NWN.Systems
         "Quelle ressource ?"
         };
 
-      Task playerInput = NwTask.Run(async () =>
-      {
-        dm.oid.GetLocalVariable<int>("_PLAYER_INPUT_STRING").Value = 1;
-        dm.setString = "";
-        await NwTask.WaitUntil(() => dm.setString != "");
-
-        GetResourceQuantity(targetPlayer, dm.setString);
-        dm.setString = "";
-      });
-
       dm.menu.choices.Add(("Retour", () => CommandSystem.DrawDMCommandList(dm)));
       dm.menu.choices.Add(("Quitter", () => dm.menu.Close()));
       dm.menu.Draw();
+
+      WaitPlayerInput(targetPlayer);
     }
-    private void GetResourceQuantity(PlayerSystem.Player target, string material)
+    private async void WaitPlayerInput(PlayerSystem.Player target)
+    {
+      bool awaitedValue = await dm.WaitForPlayerInputString();
+
+      if (awaitedValue)
+      {
+        GetResourceQuantity(target, dm.oid.GetLocalVariable<string>("_PLAYER_INPUT").Value);
+        dm.oid.GetLocalVariable<string>("_PLAYER_INPUT").Delete();
+      }
+    }
+    private async void GetResourceQuantity(PlayerSystem.Player target, string material)
     {
       dm.menu.Clear();
 
@@ -49,19 +51,17 @@ namespace NWN.Systems
         "Quelle quantité ?"
         };
 
-      Task playerInput = NwTask.Run(async () =>
-      {
-        dm.oid.GetLocalVariable<int>("_PLAYER_INPUT").Value = 1;
-        dm.setValue = Config.invalidInput;
-        await NwTask.WaitUntil(() => dm.setValue != Config.invalidInput);
-
-        HandleGiveResources(target, material, dm.setValue);
-        dm.setValue = Config.invalidInput;
-      });
-
       dm.menu.choices.Add(("Retour", () => CommandSystem.DrawDMCommandList(dm)));
       dm.menu.choices.Add(("Quitter", () => dm.menu.Close()));
       dm.menu.Draw();
+
+      bool awaitedValue = await dm.WaitForPlayerInputInt();
+
+      if (awaitedValue)
+      {
+        HandleGiveResources(target, material, int.Parse(dm.oid.GetLocalVariable<string>("_PLAYER_INPUT").Value));
+        dm.oid.GetLocalVariable<string>("_PLAYER_INPUT").Delete();
+      }
     }
     private void HandleGiveResources(PlayerSystem.Player player, string material, int quantity)
     {

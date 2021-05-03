@@ -1,7 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Threading.Tasks;
-using NWN.API;
 using static NWN.Systems.Craft.Collect.Config;
 using static NWN.Systems.PlayerSystem;
 
@@ -15,7 +13,6 @@ namespace NWN.Systems
     }
     private void DrawWelcomePage(Player player)
     {
-      player.setValue = Config.invalidInput;
       player.menu.Clear();
       player.menu.titleLines = new List<string> {
         $"Scierie - Le bois brut est acheminé de votre entrepôt.",
@@ -32,7 +29,7 @@ namespace NWN.Systems
       player.menu.choices.Add(("Quitter", () => player.menu.Close()));
       player.menu.Draw();
     }
-    private void HandleRefineOreQuantity(Player player, string oreName)
+    private async void HandleRefineOreQuantity(Player player, string oreName)
     {
       player.menu.Clear();
 
@@ -41,38 +38,40 @@ namespace NWN.Systems
         "(Prononcez simplement la quantité à l'oral.)"
       };
 
-      Task playerInput = NwTask.Run(async () =>
-      {
-        player.oid.GetLocalVariable<int>("_PLAYER_INPUT").Value = 1;
-        player.setValue = Config.invalidInput;
-        await NwTask.WaitUntil(() => player.setValue != Config.invalidInput);
-        HandleRefineOre(player, oreName);
-        player.setValue = Config.invalidInput;
-      });
 
       player.menu.choices.Add(("Tout scier.", () => HandleRefineAll(player, oreName)));
       player.menu.choices.Add(("Quitter", () => player.menu.Close()));
       player.menu.Draw();
+
+      bool awaitedValue = await player.WaitForPlayerInputInt();
+
+      if (awaitedValue)
+      {
+        HandleRefineOre(player, oreName);
+        player.oid.GetLocalVariable<string>("_PLAYER_INPUT").Delete();
+      }
     }
     private void HandleRefineOre(Player player, string oreName)
     {
       player.menu.Clear();
+      int input = int.Parse(player.oid.GetLocalVariable<string>("_PLAYER_INPUT"));
 
-      if (player.setValue < 100)
+      if (input < 100)
       {
         player.menu.titleLines = new List<string> {
           $"Les ouvriers chargés du transfert ne se dérangeant pas pour moins de 100 unités.",
           "Souhaitez-vous utiliser tout votre stock ?"
         };
+
         player.menu.choices.Add(("Valider.", () => HandleRefineOre(player, oreName)));
-        player.setValue = player.materialStock[oreName];
+        input = player.materialStock[oreName];
       }
       else
       {
-        if (player.setValue > player.materialStock[oreName])
-          player.setValue = player.materialStock[oreName];
+        if (input > player.materialStock[oreName])
+          input = player.materialStock[oreName];
 
-        player.materialStock[oreName] -= player.setValue;
+        player.materialStock[oreName] -= input;
 
         float reprocessingEfficiency = 0.3f;
 
@@ -90,7 +89,7 @@ namespace NWN.Systems
           if (player.learntCustomFeats.ContainsKey(processedOre.feat))
             reprocessingEfficiency += 2 * SkillSystem.GetCustomFeatLevelFromSkillPoints(processedOre.feat, player.learntCustomFeats[processedOre.feat]) / 100;
 
-          int refinedMinerals = Convert.ToInt32(player.setValue * processedOre.planks * reprocessingEfficiency);
+          int refinedMinerals = Convert.ToInt32(input * processedOre.planks * reprocessingEfficiency);
           string mineralName = Enum.GetName(typeof(PlankType), processedOre.refinedType) ?? "";
 
           if (player.materialStock.ContainsKey(mineralName))

@@ -273,7 +273,8 @@ namespace NWN.Systems
           return;
         }
 
-        shop.OnOpen += StoreSystem.OnOpenPlayerShop;
+        shop.OnOpen -= StoreSystem.OnOpenOtherPlayerShop;
+        shop.OnOpen += StoreSystem.OnOpenOtherPlayerShop;
         shop.Open(player.oid);
       }
     }
@@ -296,7 +297,8 @@ namespace NWN.Systems
           return;
         }
 
-        shop.OnOpen += StoreSystem.OnOpenPlayerAuction;
+        shop.OnOpen -= StoreSystem.OnOpenOtherPlayerAuction;
+        shop.OnOpen += StoreSystem.OnOpenOtherPlayerAuction;
         shop.Open(player.oid);
         PlayerOwnedAuction.GetAuctionPrice(player, shop, onUsed.Placeable);
       }

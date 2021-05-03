@@ -32,7 +32,7 @@ namespace NWN.Systems
       player.menu.choices.Add(("Quitter", () => player.menu.Close()));
       player.menu.Draw();
     }
-    private void GetRumorTitle()
+    private async void GetRumorTitle()
     {
       rumorTitle = "";
 
@@ -40,30 +40,28 @@ namespace NWN.Systems
       player.menu.titleLines.Add($"Veuillez indiquer le titre de votre rumeur à l'oral.");
       player.menu.Draw();
 
-      Task playerInput = NwTask.Run(async () =>
+      bool awaitedValue = await player.WaitForPlayerInputInt();
+
+      if (awaitedValue)
       {
-        player.oid.GetLocalVariable<int>("_PLAYER_INPUT_STRING").Value = 1;
-        player.setString = "";
-        await NwTask.WaitUntil(() => player.setString != "");
-        rumorTitle = player.setString;
+        rumorTitle = player.oid.GetLocalVariable<string>("_PLAYER_INPUT").Value;
         GetRumorContent();
-        player.setString = "";
-      });
+        player.oid.GetLocalVariable<string>("_PLAYER_INPUT").Delete();
+      }
     }
-    private void GetRumorContent()
+    private async void GetRumorContent()
     {
       player.menu.Clear();
       player.menu.titleLines.Add($"Veuillez indiquer le contenu de votre rumeur à l'oral.");
       player.menu.Draw();
 
-      Task playerInput = NwTask.Run(async () =>
+      bool awaitedValue = await player.WaitForPlayerInputInt();
+
+      if (awaitedValue)
       {
-        player.oid.GetLocalVariable<int>("_PLAYER_INPUT_STRING").Value = 1;
-        player.setString = "";
-        await NwTask.WaitUntil(() => player.setString != "");
-        SaveRumorToDatabase(player.setString);
-        player.setString = "";
-      });
+        SaveRumorToDatabase(player.oid.GetLocalVariable<string>("_PLAYER_INPUT").Value);
+        player.oid.GetLocalVariable<string>("_PLAYER_INPUT").Delete();
+      }
     }
     private void SaveRumorToDatabase(string rumorContent)
     {

@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Threading;
 using System.Threading.Tasks;
 using NWN.API;
 using static NWN.Systems.PlayerSystem;
@@ -27,7 +28,7 @@ namespace NWN.Systems
       player.menu.choices.Add(("Quitter", () => player.menu.Close()));
       player.menu.Draw();
     }
-    private void HandleMoneyDepositSelection(Player player)
+    private async void HandleMoneyDepositSelection(Player player)
     {
       player.menu.Clear();
       uint availableGold = player.oid.Gold;
@@ -57,16 +58,10 @@ namespace NWN.Systems
         player.menu.choices.Add(($"Tout déposer.", () => HandleDepositAll(player)));
         player.menu.choices.Add(($"Retour.", () => DrawWelcomePage(player)));
 
-        player.oid.GetLocalVariable<int>("_PLAYER_INPUT").Delete();
+        bool awaitedValue = await player.WaitForPlayerInputInt();
 
-        Task playerInput = NwTask.Run(async () =>
-        {
-          player.oid.GetLocalVariable<int>("_PLAYER_INPUT").Value = 1;
-          player.setValue = Config.invalidInput;
-          await NwTask.WaitUntil(() => player.setValue != Config.invalidInput);
+        if (awaitedValue)
           HandleValidateDeposit(player);
-          player.setValue = Config.invalidInput;
-        });
       }
 
       player.menu.choices.Add(("Quitter", () => player.menu.Close()));
@@ -91,31 +86,34 @@ namespace NWN.Systems
     {
       player.menu.Clear();
       uint availableGold = player.oid.Gold;
+      int playerInput = int.Parse(player.oid.GetLocalVariable<string>("_PLAYER_INPUT"));
+      player.oid.GetLocalVariable<string>("_PLAYER_INPUT").Delete();
 
-      if (player.setValue <= 0)
+      if (playerInput <= 0)
       {
         player.menu.titleLines.Add($"Plait-il ? Je n'ai pas bien compris.");
-        player.menu.choices.Add(($"Valider.", () => HandleValidateDeposit(player)));
+        player.menu.choices.Add(($"Valider.", () => HandleMoneyDepositSelection(player)));
+
       }
-      else if (player.setValue > availableGold)
+      else if (playerInput > availableGold)
       {
         player.menu.titleLines = new List<string> {
           $"Rien qu'à l'odeur, je sais que tu as {availableGold} pièces d'or sur toi.",
-          $"Pas {player.setValue}. Fini de faire le mariole ?"
+          $"Pas {playerInput}. Fini de faire le mariole ?"
         };
-        player.menu.choices.Add(($"Valider.", () => HandleValidateDeposit(player)));
+        player.menu.choices.Add(($"Valider.", () => HandleMoneyDepositSelection(player)));
       }
-      else if (player.setValue < availableGold)
+      else if (playerInput < availableGold)
       {
         player.menu.titleLines = new List<string> {
-          $"{player.setValue} ? Tu pourrais faire mieux.",
+          $"{playerInput} ? Tu pourrais faire mieux.",
           "Enfin, c'est toujours ça..."
         };
 
-        player.oid.TakeGold(player.setValue);
-        player.bankGold += player.setValue;
+        player.oid.TakeGold(playerInput);
+        player.bankGold += playerInput;
       }
-      else if (player.setValue == availableGold)
+      else if (playerInput == availableGold)
       {
         player.menu.titleLines = new List<string> {
           $"Oh, oui, toooout. Donnez moi tooooout !",
@@ -123,14 +121,14 @@ namespace NWN.Systems
         };
 
         player.oid.TakeGold((int)player.oid.Gold);
-        player.bankGold += player.setValue;
+        player.bankGold += playerInput;
       }
 
-      player.setValue = Config.invalidInput;
+      playerInput = Config.invalidInput;
       player.menu.choices.Add(("Quitter", () => player.menu.Close()));
       player.menu.Draw();
     }
-    private void HandleMoneyWithdrawalSelection(Player player)
+    private async void HandleMoneyWithdrawalSelection(Player player)
     {
       player.menu.Clear();
 
@@ -140,7 +138,10 @@ namespace NWN.Systems
           $"Quoi ? Tu me casses les roubignoles pour une pièce ?",
           "Du balai, mendiant."
         };
+
         player.menu.choices.Add(($"Retour.", () => DrawWelcomePage(player)));
+        player.menu.choices.Add(("Quitter", () => player.menu.Close()));
+        player.menu.Draw();
       }
       else
       {
@@ -151,70 +152,58 @@ namespace NWN.Systems
           "(Dites moi simplement la valeur souhaitée à l'oral)"
         };
 
-        Task playerInput = NwTask.Run(async () =>
-        {
-          player.oid.GetLocalVariable<int>("_PLAYER_INPUT").Value = 1;
-          player.setValue = Config.invalidInput;
-          await NwTask.WaitUntil(() => player.setValue != Config.invalidInput);
-          HandleValidateWithdrawal(player);
-          player.setValue = Config.invalidInput;
-        });
-        
         player.menu.choices.Add(($"Tout retirer.", () => HandleWithdrawAll(player)));
-      }
+        player.menu.choices.Add(("Quitter", () => player.menu.Close()));
+        player.menu.Draw();
 
-      player.menu.choices.Add(("Quitter", () => player.menu.Close()));
-      player.menu.Draw();
+        bool awaitedValue = await player.WaitForPlayerInputInt();
+
+        if (awaitedValue)
+          HandleValidateWithdrawal(player);
+      }
     }
     private void HandleValidateWithdrawal(Player player)
     {
       player.menu.Clear();
+      int playerInput = int.Parse(player.oid.GetLocalVariable<string>("_PLAYER_INPUT"));
+      player.oid.GetLocalVariable<string>("_PLAYER_INPUT").Delete();
 
-      if (player.setValue <= 0)
+      if (playerInput <= 0)
       {
-        player.menu.titleLines = new List<string> {
-          $"Plait-il ? Je n'ai pas bien compris.",
-          "(Utilisez la commande !set X avant de valider votre choix)"
-        };
-        player.menu.choices.Add(($"Valider.", () => HandleValidateWithdrawal(player)));
+        player.oid.SendServerMessage("La valeur saisie doit être supérieure à 0.", Color.RED);
+        HandleMoneyWithdrawalSelection(player);
+        return;
       }
-      else if (player.setValue > player.bankGold)
+      else if (playerInput > player.bankGold)
       {
         player.menu.titleLines = new List<string> {
           "Ah, encore un petit rigolo qui se croit malin.",
           $"Gamin, t'as {player.bankGold} pièces d'or dans mon coffre.",
-          $"Pas {player.setValue}."
+          $"Pas {playerInput}."
         };
-        player.menu.choices.Add(($"Valider.", () => HandleValidateWithdrawal(player)));
+        player.menu.choices.Add(($"Valider.", () => HandleMoneyWithdrawalSelection(player)));
       }
-      else if (player.setValue < player.bankGold)
+      else if (playerInput < player.bankGold)
       {
         player.menu.titleLines = new List<string> {
-          $"{player.setValue} ? Pas très malin par les temps qui courent ...",
+          $"{playerInput} ? Pas très malin par les temps qui courent ...",
           "un coup de gourdin est si vite arrivé. Enfin, si vous y tenez ..."
         };
 
-        player.oid.GiveGold(player.setValue);
-        player.bankGold -= player.setValue;
+        player.oid.GiveGold(playerInput);
+        player.bankGold -= playerInput;
       }
-      else if (player.setValue == player.bankGold)
+      else if (playerInput == player.bankGold)
       {
         player.menu.titleLines = new List<string> {
           "QUOI ?! Mais tu es fada ma parole ? Tu veux ma ruine ?",
-          "Non, non, soit raisonnable. Tout retirer serait pure folie !"
+          "Bon, bon, mais on garde une pièce d'or pour que le compte reste ouvert !"
         };
-        
-        Task playerInput = NwTask.Run(async () =>
-        {
-          player.oid.GetLocalVariable<int>("_PLAYER_INPUT").Value = 1;
-          player.setValue = Config.invalidInput;
-          await NwTask.WaitUntil(() => player.setValue != Config.invalidInput);
-          HandleValidateWithdrawal(player);
-          player.setValue = Config.invalidInput;
-        });
+
+        player.oid.GiveGold(player.bankGold - 1);
+        player.bankGold = 1;
       }
 
-      player.setValue = Config.invalidInput;
       player.menu.choices.Add(("Quitter", () => player.menu.Close()));
       player.menu.Draw();
     }

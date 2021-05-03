@@ -7,6 +7,7 @@ using NWNX.API;
 using NWN.Core;
 using NWN.Core.NWNX;
 using NWN.Services;
+using System.Threading;
 
 namespace NWN.Systems
 {
@@ -242,7 +243,7 @@ namespace NWN.Systems
         ApplyHelmetCloakModification(-2);
     }
 
-    private void ApplyArmorModifications(int modification)
+    private async void ApplyArmorModifications(int modification)
     {
       if(item == null || item.Possessor != player.oid)
       {
@@ -253,6 +254,16 @@ namespace NWN.Systems
 
       if (modification == -2)
         player.menu.Clear();
+
+      int choice = -1;
+      if(player.oid.GetLocalVariable<string>("_PLAYER_INPUT").HasValue)
+      {
+        choice = int.Parse(player.oid.GetLocalVariable<string>("_PLAYER_INPUT").Value);
+        player.oid.GetLocalVariable<string>("_PLAYER_INPUT").Delete();
+      }
+
+      if (player.oid.GetLocalVariable<int>("_AWAITING_PLAYER_INPUT").HasValue)
+        player.oid.GetLocalVariable<int>("_PLAYER_INPUT_CANCELLED").Value = 1;
 
       byte currentValue = 0;
 
@@ -271,11 +282,8 @@ namespace NWN.Systems
           {
             DisableFeedbackMessages();
 
-            if (player.setValue != Config.invalidInput)
-            {
-              currentValue = (byte)player.setValue;
-              player.setValue = Config.invalidInput;
-            }
+            if (choice > -1)
+              currentValue = (byte)choice;
             else if (modification == 1)
             {
               currentValue++;
@@ -291,7 +299,7 @@ namespace NWN.Systems
 
             item.Appearance.SetArmorColor((ItemAppearanceArmorColor)colorChannelChoice, currentValue);
             NwItem newItem = item.Clone(player.oid);
-            player.oid.ActionEquipItem(newItem, InventorySlot.Chest);
+            await player.oid.ActionEquipItem(newItem, InventorySlot.Chest);
             item.Destroy();
             item = newItem;
 
@@ -312,11 +320,8 @@ namespace NWN.Systems
 
           if (modification > -2)
           {
-            if (player.setValue != Config.invalidInput)
-            {
-              currentValue = (byte)player.setValue;
-              player.setValue = Config.invalidInput;
-            }
+            if (choice > -1)
+              currentValue = (byte)choice;
             else if (modification == 1)
             {
               currentValue++;
@@ -332,7 +337,7 @@ namespace NWN.Systems
 
             item.Appearance.SetArmorPieceColor((ItemAppearanceArmorModel)armorPartChoice, (ItemAppearanceArmorColor)colorChannelChoice, currentValue);
             NwItem newItem = item.Clone(player.oid);
-            player.oid.ActionEquipItem(newItem, InventorySlot.Chest);
+            await player.oid.ActionEquipItem(newItem, InventorySlot.Chest);
             item.Destroy();
             item = newItem;
 
@@ -386,16 +391,12 @@ namespace NWN.Systems
         player.menu.Draw();
       }
 
-      Task waitPlayerInput = NwTask.Run(async () =>
-      {
-        player.oid.GetLocalVariable<int>("_PLAYER_INPUT").Value = 1;
-        player.setValue = Config.invalidInput;
-        await NwTask.WaitUntil(() => player.setValue != Config.invalidInput);
-        ApplyArmorModifications(player.setValue);
-        player.setValue = Config.invalidInput;
-      });
+      bool awaitedValue = await player.WaitForPlayerInputByte();
+      
+      if(awaitedValue)
+        ApplyArmorModifications(int.Parse(player.oid.GetLocalVariable<string>("_PLAYER_INPUT")));
     }
-    private void HandleToSymmetry()
+    private async void HandleToSymmetry()
     {
       DisableFeedbackMessages();
 
@@ -474,7 +475,7 @@ namespace NWN.Systems
       }
 
       NwItem newItem = item.Clone(player.oid);
-      player.oid.ActionEquipItem(newItem, InventorySlot.Chest);
+      await player.oid.ActionEquipItem(newItem, InventorySlot.Chest);
       item.Destroy();
       item = newItem;
 
@@ -577,7 +578,7 @@ namespace NWN.Systems
 
       ApplyArmorModifications(-2);
     }
-    private void HandleTorsoModelModification(int modification)
+    private async void HandleTorsoModelModification(int modification)
     {
       byte currentValue = item.Appearance.GetArmorModel(ItemAppearanceArmorModel.Torso);
 
@@ -585,11 +586,18 @@ namespace NWN.Systems
       {
         DisableFeedbackMessages();
 
-        if (player.setValue != Config.invalidInput)
+        int choice = -1;
+        if (player.oid.GetLocalVariable<string>("_PLAYER_INPUT").HasValue)
         {
-          currentValue = (byte)player.setValue;
-          player.setValue = Config.invalidInput;
+          choice = int.Parse(player.oid.GetLocalVariable<string>("_PLAYER_INPUT").Value);
+          player.oid.GetLocalVariable<string>("_PLAYER_INPUT").Delete();
         }
+
+        if (player.oid.GetLocalVariable<int>("_AWAITING_PLAYER_INPUT").HasValue)
+          player.oid.GetLocalVariable<int>("_PLAYER_INPUT_CANCELLED").Value = 1;
+
+        if (choice > -1)
+          currentValue = (byte)choice;
         else if (modification == 1)
           currentValue++;
         else if (modification == -1)
@@ -614,7 +622,7 @@ namespace NWN.Systems
         item = newItem;
 
         if (player.oid.Inventory.CheckFit(newItem))
-          player.oid.ActionEquipItem(newItem, InventorySlot.Chest);
+          await player .oid.ActionEquipItem(newItem, InventorySlot.Chest);
         else
         {
           newItem.Location = player.oid.Location;
@@ -636,7 +644,7 @@ namespace NWN.Systems
 
       player.menu.titleLines.Add($"Apparence actuelle : {currentValue.ToString().ColorString(Color.LIME)}");
     }
-    private void HandleDefaultModelModification(int modification)
+    private async void HandleDefaultModelModification(int modification)
     {
       byte currentValue = item.Appearance.GetArmorModel((ItemAppearanceArmorModel)armorPartChoice);
 
@@ -644,11 +652,18 @@ namespace NWN.Systems
       {
         DisableFeedbackMessages();
 
-        if (player.setValue != Config.invalidInput)
+        int choice = -1;
+        if (player.oid.GetLocalVariable<string>("_PLAYER_INPUT").HasValue)
         {
-          currentValue = (byte)player.setValue;
-          player.setValue = Config.invalidInput;
+          choice = int.Parse(player.oid.GetLocalVariable<string>("_PLAYER_INPUT").Value);
+          player.oid.GetLocalVariable<string>("_PLAYER_INPUT").Delete();
         }
+
+        if (player.oid.GetLocalVariable<int>("_AWAITING_PLAYER_INPUT").HasValue)
+          player.oid.GetLocalVariable<int>("_PLAYER_INPUT_CANCELLED").Value = 1;
+
+        if (choice > -1)
+          currentValue = (byte)choice;
         else if (modification == 1)
           currentValue++;
         else if (modification == -1)
@@ -667,7 +682,7 @@ namespace NWN.Systems
 
         item.Appearance.SetArmorModel((ItemAppearanceArmorModel)armorPartChoice, currentValue);
         NwItem newItem = item.Clone(player.oid);
-        player.oid.ActionEquipItem(newItem, InventorySlot.Chest);
+        await player.oid.ActionEquipItem(newItem, InventorySlot.Chest);
 
         item.Destroy();
         item = newItem;
@@ -703,48 +718,42 @@ namespace NWN.Systems
       ItemSystem.feedbackService.RemoveFeedbackMessageFilter(FeedbackMessage.WeightTooEncumberedWalkSlow, player.oid);
       ItemSystem.feedbackService.RemoveFeedbackMessageFilter(FeedbackMessage.SendMessageToPc, player.oid);
     }
-    private void GetNewName()
+    private async void GetNewName()
     {
       player.menu.titleLines = new List<string>() {
         $"Nom actuel : {item.Name.ColorString(Color.GREEN)}",
         "Veuillez prononcer le nouveau nom à l'oral."
       };
 
-      player.oid.GetLocalVariable<int>("_PLAYER_INPUT_STRING").Delete();
-
-      Task playerInput = NwTask.Run(async () =>
-      {
-        player.oid.GetLocalVariable<int>("_PLAYER_INPUT_STRING").Value = 1;
-        player.setString = "";
-        await NwTask.WaitUntil(() => player.setString != "");
-        item.Name = player.setString;
-        player.oid.SendServerMessage($"Votre objet est désormais nommé {player.setString.ColorString(Color.GREEN)}.");
-        player.setString = "";
-        player.menu.Close();
-      });
-
       player.menu.Draw();
+
+      bool awaitedValue = await player.WaitForPlayerInputString();
+
+      if (awaitedValue)
+      {
+        item.Name = player.oid.GetLocalVariable<string>("_PLAYER_INPUT").Value;
+        player.oid.GetLocalVariable<string>("_PLAYER_INPUT").Delete();
+        player.oid.SendServerMessage($"Votre objet est désormais nommé {item.Name.ColorString(Color.GREEN)}.");
+        player.menu.Close();
+      }
     }
-    private void GetNewDescription()
+    private async void GetNewDescription()
     {
       player.menu.titleLines = new List<string>() {
         "Veuillez prononcer la nouvelle description à l'oral."
       };
 
-      player.oid.GetLocalVariable<int>("_PLAYER_INPUT_STRING").Delete();
-
-      Task playerInput = NwTask.Run(async () =>
-      {
-        player.oid.GetLocalVariable<int>("_PLAYER_INPUT_STRING").Value = 1;
-        player.setString = "";
-        await NwTask.WaitUntil(() => player.setString != "");
-        item.Description = player.setString;
-        player.oid.SendServerMessage($"La description de votre objet a été modifiée.", Color.ROSE);
-        player.setString = "";
-        player.menu.Close();
-      });
-
       player.menu.Draw();
+
+      bool awaitedValue = await player.WaitForPlayerInputString();
+
+      if (awaitedValue)
+      {
+        item.Description = player.oid.GetLocalVariable<string>("_PLAYER_INPUT").Value;
+        player.oid.GetLocalVariable<string>("_PLAYER_INPUT").Delete();
+        player.oid.SendServerMessage($"La description de votre objet a été modifiée.", Color.ROSE);
+        player.menu.Close();
+      }
     }
     private void HandleReinitialisation()
     {
@@ -841,7 +850,7 @@ namespace NWN.Systems
       weaponColorChoice = choice;
       ApplyWeaponModifications(-2);
     }
-    private void ApplyWeaponModifications(int modification)
+    private async void ApplyWeaponModifications(int modification)
     {
       if(modification == -2)
         player.menu.Clear();
@@ -866,10 +875,19 @@ namespace NWN.Systems
         {
           DisableFeedbackMessages();
 
-          if (player.setValue != Config.invalidInput)
+          int choice = -1;
+          if (player.oid.GetLocalVariable<string>("_PLAYER_INPUT").HasValue)
           {
-            currentValue = (byte)player.setValue;
-            player.setValue = Config.invalidInput;
+            choice = int.Parse(player.oid.GetLocalVariable<string>("_PLAYER_INPUT").Value);
+            player.oid.GetLocalVariable<string>("_PLAYER_INPUT").Delete();
+          }
+
+          if (player.oid.GetLocalVariable<int>("_AWAITING_PLAYER_INPUT").HasValue)
+            player.oid.GetLocalVariable<int>("_PLAYER_INPUT_CANCELLED").Value = 1;
+
+          if (choice > -1)
+          {
+            currentValue = (byte)choice;
           }
           else if (modification == 1)
           {
@@ -886,7 +904,7 @@ namespace NWN.Systems
 
           item.Appearance.SetWeaponColor((ItemAppearanceWeaponColor)weaponColorChoice, currentValue);
           NwItem newItem = item.Clone(player.oid);
-          player.oid.ActionEquipItem(newItem, InventorySlot.RightHand);
+          await player.oid.ActionEquipItem(newItem, InventorySlot.RightHand);
           item.Destroy();
           item = newItem;
 
@@ -912,10 +930,19 @@ namespace NWN.Systems
         {
           DisableFeedbackMessages();
 
-          if (player.setValue != Config.invalidInput)
+          int choice = -1;
+          if (player.oid.GetLocalVariable<string>("_PLAYER_INPUT").HasValue)
           {
-            currentValue = (byte)player.setValue;
-            player.setValue = Config.invalidInput;
+            choice = int.Parse(player.oid.GetLocalVariable<string>("_PLAYER_INPUT").Value);
+            player.oid.GetLocalVariable<string>("_PLAYER_INPUT").Delete();
+          }
+
+          if (player.oid.GetLocalVariable<int>("_AWAITING_PLAYER_INPUT").HasValue)
+            player.oid.GetLocalVariable<int>("_PLAYER_INPUT_CANCELLED").Value = 1;
+
+          if (choice > -1)
+          {
+            currentValue = (byte)choice;
           }
           else if (modification == 1)
           {
@@ -932,7 +959,7 @@ namespace NWN.Systems
 
           item.Appearance.SetWeaponModel((ItemAppearanceWeaponModel)weaponPartChoice, currentValue);
           NwItem newItem = item.Clone(player.oid);
-          player.oid.ActionEquipItem(newItem, InventorySlot.RightHand);
+          await player.oid.ActionEquipItem(newItem, InventorySlot.RightHand);
           item.Destroy();
           item = newItem;
 
@@ -961,14 +988,10 @@ namespace NWN.Systems
         player.menu.Draw();
       }
 
-      Task waitPlayerInput = NwTask.Run(async () =>
-      {
-        player.oid.GetLocalVariable<int>("_PLAYER_INPUT").Value = 1;
-        player.setValue = Config.invalidInput;
-        await NwTask.WaitUntil(() => player.setValue != Config.invalidInput);
-        ApplyWeaponModifications(player.setValue);
-        player.setValue = Config.invalidInput;
-      });
+      bool awaitedValue = await player.WaitForPlayerInputByte();
+
+      if (awaitedValue)
+        ApplyWeaponModifications(int.Parse(player.oid.GetLocalVariable<string>("_PLAYER_INPUT").Value));
     }
     private void DrawSimpleModificationMenu()
     {
@@ -985,7 +1008,7 @@ namespace NWN.Systems
       player.menu.choices.Add(("Quitter.", () => player.menu.Close()));
       player.menu.Draw();
     }
-    private void ApplySimpleModification(int modification)
+    private async void ApplySimpleModification(int modification)
     {
       if(modification == -2)
         player.menu.Clear();
@@ -1008,10 +1031,19 @@ namespace NWN.Systems
       {
         DisableFeedbackMessages();
 
-        if (player.setValue != Config.invalidInput)
+        int choice = -1;
+        if (player.oid.GetLocalVariable<string>("_PLAYER_INPUT").HasValue)
         {
-          currentValue = (byte)player.setValue;
-          player.setValue = Config.invalidInput;
+          choice = int.Parse(player.oid.GetLocalVariable<string>("_PLAYER_INPUT").Value);
+          player.oid.GetLocalVariable<string>("_PLAYER_INPUT").Delete();
+        }
+
+        if (player.oid.GetLocalVariable<int>("_AWAITING_PLAYER_INPUT").HasValue)
+          player.oid.GetLocalVariable<int>("_PLAYER_INPUT_CANCELLED").Value = 1;
+
+        if (choice > -1)
+        {
+          currentValue = (byte)choice;
         }
         else if (modification == 1)
           currentValue++;
@@ -1025,7 +1057,7 @@ namespace NWN.Systems
         {
           if (player.oid.GetItemInSlot((InventorySlot)i) == item)
           {
-            player.oid.ActionEquipItem(newItem, (InventorySlot)i);
+            await player.oid.ActionEquipItem(newItem, (InventorySlot)i);
             break;
           }
         }
@@ -1057,14 +1089,10 @@ namespace NWN.Systems
         player.menu.Draw();
       }
 
-      Task waitPlayerInput = NwTask.Run(async () =>
-      {
-        player.oid.GetLocalVariable<int>("_PLAYER_INPUT").Value = 1;
-        player.setValue = Config.invalidInput;
-        await NwTask.WaitUntil(() => player.setValue != Config.invalidInput);
-        ApplySimpleModification(player.setValue);
-        player.setValue = Config.invalidInput;
-      });
+      bool awaitedValue = await player.WaitForPlayerInputByte();
+
+      if (awaitedValue)
+        ApplySimpleModification(int.Parse(player.oid.GetLocalVariable<string>("_PLAYER_INPUT").Value));
     }
     private void DrawHelmetCloakModificationMenu()
     {
@@ -1085,7 +1113,7 @@ namespace NWN.Systems
       player.menu.choices.Add(("Quitter.", () => player.menu.Close()));
       player.menu.Draw();
     }
-    private void ApplyHelmetCloakModification(int modification)
+    private async void ApplyHelmetCloakModification(int modification)
     {
       if(modification == -2)
         player.menu.Clear();
@@ -1110,10 +1138,19 @@ namespace NWN.Systems
         {
           DisableFeedbackMessages();
 
-          if (player.setValue != Config.invalidInput)
+          int choice = -1;
+          if (player.oid.GetLocalVariable<string>("_PLAYER_INPUT").HasValue)
           {
-            currentValue = (byte)player.setValue;
-            player.setValue = Config.invalidInput;
+            choice = int.Parse(player.oid.GetLocalVariable<string>("_PLAYER_INPUT").Value);
+            player.oid.GetLocalVariable<string>("_PLAYER_INPUT").Delete();
+          }
+
+          if (player.oid.GetLocalVariable<int>("_AWAITING_PLAYER_INPUT").HasValue)
+            player.oid.GetLocalVariable<int>("_PLAYER_INPUT_CANCELLED").Value = 1;
+
+          if (choice > -1)
+          {
+            currentValue = (byte)choice;
           }
           else if (modification == 1)
             currentValue++;
@@ -1124,9 +1161,9 @@ namespace NWN.Systems
           NwItem newItem = item.Clone(player.oid);
 
           if (item.BaseItemType == BaseItemType.Cloak)
-            player.oid.ActionEquipItem(newItem, InventorySlot.Cloak);
+            await player.oid.ActionEquipItem(newItem, InventorySlot.Cloak);
           else
-            player.oid.ActionEquipItem(newItem, InventorySlot.Head);
+            await player.oid.ActionEquipItem(newItem, InventorySlot.Head);
 
           item.Destroy();
           item = newItem;
@@ -1153,10 +1190,19 @@ namespace NWN.Systems
 
           DisableFeedbackMessages();
 
-          if (player.setValue != Config.invalidInput)
+          int choice = -1;
+          if (player.oid.GetLocalVariable<string>("_PLAYER_INPUT").HasValue)
           {
-            currentValue = (byte)player.setValue;
-            player.setValue = Config.invalidInput;
+            choice = int.Parse(player.oid.GetLocalVariable<string>("_PLAYER_INPUT").Value);
+            player.oid.GetLocalVariable<string>("_PLAYER_INPUT").Delete();
+          }
+
+          if (player.oid.GetLocalVariable<int>("_AWAITING_PLAYER_INPUT").HasValue)
+            player.oid.GetLocalVariable<int>("_PLAYER_INPUT_CANCELLED").Value = 1;
+
+          if (choice > -1)
+          {
+            currentValue = (byte)choice;
           }
           else if (modification == 1)
             currentValue++;
@@ -1167,9 +1213,9 @@ namespace NWN.Systems
           NwItem newItem = item.Clone(player.oid);
 
           if (item.BaseItemType == BaseItemType.Cloak)
-            player.oid.ActionEquipItem(newItem, InventorySlot.Cloak);
+            await player .oid.ActionEquipItem(newItem, InventorySlot.Cloak);
           else
-            player.oid.ActionEquipItem(newItem, InventorySlot.Head);
+            await player.oid.ActionEquipItem(newItem, InventorySlot.Head);
 
           item.Destroy();
           item = newItem;
@@ -1199,14 +1245,10 @@ namespace NWN.Systems
         player.menu.Draw();
       }
 
-      Task waitPlayerInput = NwTask.Run(async () =>
-      {
-        player.oid.GetLocalVariable<int>("_PLAYER_INPUT").Value = 1;
-        player.setValue = Config.invalidInput;
-        await NwTask.WaitUntil(() => player.setValue != Config.invalidInput);
-        ApplyHelmetCloakModification(player.setValue);
-        player.setValue = Config.invalidInput;
-      });
+      bool awaitedValue = await player.WaitForPlayerInputByte();
+
+      if (awaitedValue)
+        ApplyHelmetCloakModification(int.Parse(player.oid.GetLocalVariable<string>("_PLAYER_INPUT").Value));
     }
   }
 }

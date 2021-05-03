@@ -20,14 +20,14 @@ namespace NWN.Systems
       if (player.menu.isOpen)
         player.menu.Close();
 
-      player.UnloadMenuQuickbar();
+      if(player.serializedQuickbar != null)
+        player.UnloadMenuQuickbar();
 
       onPCDisconnect.Player.VisualTransform.Rotation.X = 0.0f;
       onPCDisconnect.Player.VisualTransform.Translation.X = 0.0f;
       onPCDisconnect.Player.VisualTransform.Translation.Y = 0.0f;
       onPCDisconnect.Player.VisualTransform.Translation.Z = 0.0f;
-      player.setValue = Config.invalidInput;
-      player.setString = "";
+
       player.OnKeydown -= player.menu.HandleMenuFeatUsed;
 
       if (!player.areaExplorationStateDictionnary.ContainsKey(player.oid.Area.Tag))

@@ -21,7 +21,7 @@ namespace NWN.Systems
 
       PlayerSystem.cursorTargetService.EnterTargetMode(oPC, SummonRenameTarget, ObjectTypes.Creature, MouseCursor.Create);
     }
-    private static void SummonRenameTarget(ModuleEvents.OnPlayerTarget selection)
+    private static async void SummonRenameTarget(ModuleEvents.OnPlayerTarget selection)
     {
       if (!PlayerSystem.Players.TryGetValue(selection.Player, out PlayerSystem.Player player))
         return;
@@ -34,20 +34,19 @@ namespace NWN.Systems
         "Quel nom souhaitez-vous donner à votre invocation ?"
         };
 
-        Task playerInput = NwTask.Run(async () =>
-        {
-          player.oid.GetLocalVariable<int>("_PLAYER_INPUT_STRING").Value = 1;
-          player.setString = "";
-          await NwTask.WaitUntil(() => player.setString != "");
-
-          player.oid.SendServerMessage($"{selection.TargetObject.Name.ColorString(Color.WHITE)} a été renommé {player.setString.ColorString(Color.WHITE)}.", Color.GREEN);
-          player.setString = "";
-          player.menu.Close();
-        });
-
         player.menu.choices.Add(("Retour", () => CommandSystem.DrawCommandList(player)));
         player.menu.choices.Add(("Quitter", () => player.menu.Close()));
         player.menu.Draw();
+
+        bool awaitedValue = await player.WaitForPlayerInputString();
+
+        if (awaitedValue)
+        {
+          selection.TargetObject.Name = player.oid.GetLocalVariable<string>("_PLAYER_INPUT").Value;
+          player.oid.GetLocalVariable<string>("_PLAYER_INPUT").Delete();
+          player.oid.SendServerMessage($"{selection.TargetObject.Name.ColorString(Color.WHITE)} a été renommé {selection.TargetObject.Name.ColorString(Color.WHITE)}.", Color.GREEN);
+          player.menu.Close();
+        }
       }
       else
       {

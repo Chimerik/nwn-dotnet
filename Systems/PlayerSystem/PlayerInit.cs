@@ -176,9 +176,6 @@ namespace NWN.Systems
       player.isAFK = false;
       player.DoJournalUpdate = false;
       player.dateLastSaved = DateTime.Now;
-      player.setValue = Config.invalidInput;
-      player.setString = "";
-
 
       Log.Info("End of player init.");
     }
@@ -416,8 +413,6 @@ namespace NWN.Systems
       player.oid.OnUseFeat += FeatSystem.OnUseFeatBefore;
       player.oid.OnSpellCast += SpellSystem.HandleBeforeSpellCast;
       player.oid.OnExamineObject += ExamineSystem.OnExamineBefore;
-      //player.oid.OnStoreRequestBuy += StoreSystem.HandleBeforeStoreBuy;
-      //player.oid.OnStoreRequestSell += StoreSystem.HandleBeforeStoreSell;
     }
     private static void InitializePlayer(Player player)
     {
@@ -428,6 +423,7 @@ namespace NWN.Systems
       InitializePlayerLearnableSpells(player);
       InitializeCharacterMapPins(player);
       InitializeCharacterAreaExplorationState(player);
+      InitializePlayerChatColors(player);
 
       switch (player.oid.RacialType)
       {
@@ -478,6 +474,7 @@ namespace NWN.Systems
       player.OnSpellAction += SpellSystem.RegisterMetaMagicOnSpellInput;
       player.OnCreatureAttack += AttackSystem.HandleAttackEvent;
       player.OnPhysicalAttacked += AttackSystem.HandlePlayerAttackedEvent;
+      player.OnCreatureDamage += AttackSystem.HandleDamageEvent;
 
       EventsPlugin.AddObjectToDispatchList("NWNX_ON_ITEM_UNEQUIP_BEFORE", "b_unequip", player);
       EventsPlugin.AddObjectToDispatchList("NWNX_ON_COMBAT_MODE_OFF", "event_combatmode", player);
@@ -494,7 +491,7 @@ namespace NWN.Systems
     }
     private static void InitializePlayerCharacter(Player player)
     {
-      var query = NWScript.SqlPrepareQueryCampaign(Config.database, $"SELECT areaTag, position, facing, currentHP, bankGold, dateLastSaved, currentSkillJob, currentCraftJob, currentCraftObject, currentCraftJobRemainingTime, currentCraftJobMaterial, menuOriginTop, menuOriginLeft, currentSkillType from playerCharacters where rowid = @characterId");
+      var query = NWScript.SqlPrepareQueryCampaign(Config.database, $"SELECT areaTag, position, facing, currentHP, bankGold, dateLastSaved, currentSkillJob, currentCraftJob, currentCraftObject, currentCraftJobRemainingTime, currentCraftJobMaterial, menuOriginTop, menuOriginLeft, currentSkillType, pveArenaCurrentPoints from playerCharacters where rowid = @characterId");
       NWScript.SqlBindInt(query, "@characterId", player.characterId);
       NWScript.SqlStep(query);
       player.playerJournal = new PlayerJournal();
@@ -508,6 +505,7 @@ namespace NWN.Systems
       player.menu.originTop = NWScript.SqlGetInt(query, 11);
       player.menu.originLeft = NWScript.SqlGetInt(query, 12);
       player.currentSkillType = (SkillSystem.SkillType)NWScript.SqlGetInt(query, 13);
+      player.pveArena.totalPoints = (uint)NWScript.SqlGetInt(query, 14);
 
       if (ObjectPlugin.GetInt(player.oid, "_REINIT_DONE") == 0 && player.currentSkillType == SkillSystem.SkillType.Skill)
         player.currentSkillJob = (int)CustomFeats.Invalid;
@@ -643,6 +641,17 @@ namespace NWN.Systems
 
       while (Convert.ToBoolean(NWScript.SqlStep(query)))
         player.areaExplorationStateDictionnary.Add(NWScript.SqlGetString(query, 0), NWScript.SqlGetString(query, 1));
+    }
+    private static void InitializePlayerChatColors(Player player)
+    {
+      var query = NWScript.SqlPrepareQueryCampaign(Config.database, $"SELECT channel, color from chatColors where accountId = @accountId");
+      NWScript.SqlBindInt(query, "@accountId", player.accountId);
+
+      while (Convert.ToBoolean(NWScript.SqlStep(query)))
+      {
+        byte[] colorConverter = BitConverter.GetBytes(NWScript.SqlGetInt(query, 1));
+        player.chatColors.Add(NWScript.SqlGetInt(query, 0), new API.Color(colorConverter[3], colorConverter[2], colorConverter[1], colorConverter[0]));
+      }
     }
   }
 }

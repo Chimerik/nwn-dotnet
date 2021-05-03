@@ -1,10 +1,9 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
 using NWN.API;
-using NWN.API.Events;
 using NWN.Core;
 using NWN.Core.NWNX;
+using NWN.System;
 using static NWN.Systems.PlayerSystem;
 
 namespace NWN.Systems
@@ -21,25 +20,10 @@ namespace NWN.Systems
         $"Quelle modification souhaitez-vous apporter à votre échoppe {storePanel.Name.ColorString(Color.GREEN)} ?"
       };
 
-      int traderLevel = 1;
-      if (player.learntCustomFeats.ContainsKey(CustomFeats.Marchand))
-        traderLevel = SkillSystem.GetCustomFeatLevelFromSkillPoints(CustomFeats.Marchand, player.learntCustomFeats[CustomFeats.Marchand]);
-
-      if (store.Items.Count() < traderLevel * 5)
-      {
-        player.menu.choices.Add((
-          "Ajouter un objet",
-          () => GetObjectToAdd(player, store)
-        ));
-      }
-
-      if (store.GetLocalVariable<int>("_SHOP_ID").HasValue)
-      {
-        player.menu.choices.Add((
+      player.menu.choices.Add((
           "Visualiser et modifier le contenu",
           () => OpenStore(player, store)
         ));
-      }
 
       player.menu.choices.Add((
         "Changer le nom",
@@ -64,72 +48,45 @@ namespace NWN.Systems
 
       player.menu.Draw();
     }
-    private static void GetObjectToAdd(Player player, NwStore store)
-    {
-      player.oid.SendServerMessage("Veuillez maintenant sélectionnner l'objet que vous souhaitez mettre en vente.", Color.ROSE);
-      player.oid.GetLocalVariable<NwObject>("_ACTIVE_STORE").Value = store;
-      cursorTargetService.EnterTargetMode(player.oid, OnSellItemSelected, API.Constants.ObjectTypes.Item, API.Constants.MouseCursor.Pickup);
-    }
-    private static void OnSellItemSelected(ModuleEvents.OnPlayerTarget selection)
-    {
-      if (!Players.TryGetValue(selection.Player, out Player player))
-        return;
-
-      if (selection.TargetObject is null || !(selection.TargetObject is NwItem))
-        return;
-
-      NwStore store = (NwStore)player.oid.GetLocalVariable<NwObject>("_ACTIVE_STORE").Value;
-      player.oid.GetLocalVariable<NwObject>("_ACTIVE_STORE").Delete();
-
-      if (store == null)
-        return;
-
-      DrawItemAddedPage(player, (NwItem)selection.TargetObject, store);
-    }
-    private static void GetNewName(PlayerSystem.Player player, NwPlaceable shop)
+    private static async void GetNewName(Player player, NwPlaceable shop)
     {
       player.menu.titleLines = new List<string>() {
         $"Nom actuel : {shop.Name.ColorString(Color.GREEN)}",
         "Veuillez prononcer le nouveau nom à l'oral."
       };
 
-      player.oid.GetLocalVariable<int>("_PLAYER_INPUT_STRING").Delete();
-
-      Task playerInput = NwTask.Run(async () =>
-      {
-        player.oid.GetLocalVariable<int>("_PLAYER_INPUT_STRING").Value = 1;
-        player.setString = "";
-        await NwTask.WaitUntil(() => player.setString != "");
-        shop.Name = player.setString;
-        player.oid.SendServerMessage($"Votre échoppe est désormais nommée {player.setString.ColorString(Color.GREEN)}.");
-        player.setString = "";
-        DrawMainPage(player, shop);
-      });
-
       player.menu.Draw();
+
+      bool awaitedValue = await player.WaitForPlayerInputString();
+
+      if (awaitedValue)
+      {
+        shop.Name = player.oid.GetLocalVariable<string>("_PLAYER_INPUT").Value;
+        player.oid.GetLocalVariable<string>("_PLAYER_INPUT").Delete();
+        player.oid.SendServerMessage($"Votre objet est désormais nommé {shop.Name.ColorString(Color.GREEN)}.");
+        DrawMainPage(player, shop);
+      }
     }
-    private static void GetNewDescription(PlayerSystem.Player player, NwPlaceable shop)
+    private static async void GetNewDescription(PlayerSystem.Player player, NwPlaceable shop)
     {
       player.menu.titleLines = new List<string>() {
         "Veuillez prononcer la nouvelle description à l'oral."
       };
 
-      player.oid.GetLocalVariable<int>("_PLAYER_INPUT_STRING").Delete();
-
-      Task playerInput = NwTask.Run(async () =>
-      {
-        player.oid.GetLocalVariable<int>("_PLAYER_INPUT_STRING").Value = 1;
-        player.setString = "";
-        await NwTask.WaitUntil(() => player.setString != "");
-        shop.Description = player.setString;
-        player.oid.SendServerMessage($"La description de votre échoppe a été modifiée.", Color.ROSE);
-        player.setString = "";
-        DrawMainPage(player, shop);
-      });
-
       player.menu.Draw();
+
+      bool awaitedValue = await player.WaitForPlayerInputString();
+
+      if (awaitedValue)
+      {
+        shop.Description = player.oid.GetLocalVariable<string>("_PLAYER_INPUT").Value;
+        player.oid.GetLocalVariable<string>("_PLAYER_INPUT").Delete();
+        player.oid.SendServerMessage($"La description de votre échoppe a été modifiée.", Color.ROSE);
+        DrawMainPage(player, shop);
+      }
     }
-    private static void DestroyShop(PlayerSystem.Player player, NwStore shop, NwPlaceable panel)
+
+    private static async void DestroyShop(Player player, NwStore shop, NwPlaceable panel)
     {
       foreach (NwItem item in shop.Items)
       {
@@ -143,6 +100,7 @@ namespace NWN.Systems
         item.Destroy();
       }
 
+      await NwModule.Instance.WaitForObjectContext();
       NwItem authorization = NwItem.Create("shop_clearance", player.oid);
 
       if (shop.GetLocalVariable<int>("_SHOP_ID").HasValue)
@@ -162,42 +120,7 @@ namespace NWN.Systems
     {
       shop.Rotation += 20;
     }
-    /*public static void SaveShop(PlayerSystem.Player player, NwStore shop)
-    {
-      if (shop.Area.Tag != "Promenadetest") // TODO : Plutôt que de ne pas enregistrer les shops or de la Promenade, rendre leurs inventaires accessibles à n'importe qui (ceux-ci n'étant pas protégés par Polpo)
-        return;
-
-      NwPlaceable panel = shop.GetNearestObjectsByType<NwPlaceable>().FirstOrDefault(p => p.Tag == $"_PLAYER_SHOP_PLC_{player.oid.CDKey}");
-
-      if (shop.GetLocalVariable<int>("_SHOP_ID").HasNothing)
-      {
-        var query = NWScript.SqlPrepareQueryCampaign(Config.database, $"INSERT INTO playerShops (characterId, shop, panel, expirationDate, areaTag, position, facing) VALUES (@characterId, @shop, @panel, @expirationDate, @areaTag, @position, @facing)");
-        NWScript.SqlBindInt(query, "@characterId", player.characterId);
-        NWScript.SqlBindString(query, "@shop", shop.Serialize().ToBase64EncodedString());
-        NWScript.SqlBindString(query, "@panel", panel.Serialize().ToBase64EncodedString());
-        NWScript.SqlBindString(query, "@expirationDate", DateTime.Now.AddDays(30).ToString());
-        NWScript.SqlBindString(query, "@areaTag", shop.Area.Tag);
-        NWScript.SqlBindVector(query, "@position", shop.Position);
-        NWScript.SqlBindFloat(query, "@facing", shop.Rotation);
-        NWScript.SqlStep(query);
-
-        query = NWScript.SqlPrepareQueryCampaign(Config.database, $"SELECT last_insert_rowid()");
-        NWScript.SqlStep(query);
-
-        shop.GetLocalVariable<int>("_SHOP_ID").Value = NWScript.SqlGetInt(query, 0);
-        panel.GetLocalVariable<int>("_SHOP_ID").Value = NWScript.SqlGetInt(query, 0);
-      }
-      else
-      {
-        var query = NWScript.SqlPrepareQueryCampaign(Config.database, $"UPDATE playerShops set shop = @shop, panel = @panel where rowid = @shopId");
-        NWScript.SqlBindInt(query, "@shopId", shop.GetLocalVariable<int>("_SHOP_ID").Value);
-        NWScript.SqlBindString(query, "@shop", shop.Serialize().ToBase64EncodedString());
-        NWScript.SqlBindString(query, "@panel", panel.Serialize().ToBase64EncodedString());
-        NWScript.SqlStep(query);
-      }
-    }*/
-
-    public static void DrawItemAddedPage(Player player, NwItem item, NwStore shop)
+    public static async void DrawItemAddedPage(Player player, NwItem item, NwStore shop)
     {
       player.menu.Clear();
       player.menu.titleLines = new List<string> {
@@ -205,16 +128,13 @@ namespace NWN.Systems
         "(prononcez simplement le prix à haute voix)"
       };
 
-      player.oid.GetLocalVariable<int>("_PLAYER_INPUT").Delete();
+      bool awaitedValue = await player.WaitForPlayerInputString();
 
-      Task playerInput = NwTask.Run(async () =>
+      if (awaitedValue)
       {
-        player.oid.GetLocalVariable<int>("_PLAYER_INPUT").Value = 1;
-        player.setValue = Config.invalidInput;
-        await NwTask.WaitUntil(() => player.setValue != Config.invalidInput);
         SetItemPrice(player, item, shop);
-        player.setValue = Config.invalidInput;
-      });
+        player.oid.GetLocalVariable<string>("_PLAYER_INPUT").Delete();
+      }
 
       player.menu.Draw();
     }
@@ -223,15 +143,16 @@ namespace NWN.Systems
     {
       player.menu.Clear();
       int goldValue;
+      int input = int.Parse(player.oid.GetLocalVariable<string>("_PLAYER_INPUT"));
 
-      if (player.setValue <= 0)
+      if (input <= 0)
       {
         goldValue = item.GoldValue;
         player.oid.SendServerMessage($"Le prix saisi est invalide. {item.Name.ColorString(Color.ORANGE)} est désormais en vente au prix de {goldValue.ToString().ColorString(Color.GREEN)} pièce(s) d'or.");
       }
       else
       {
-        goldValue = player.setValue;
+        goldValue = input;
         player.oid.SendServerMessage($"{item.Name.ColorString(Color.ORANGE)} est désormais en vente au prix de {goldValue.ToString().ColorString(Color.GREEN)} pièce(s) d'or.");
       }
 
@@ -244,6 +165,8 @@ namespace NWN.Systems
     }
     private static void OpenStore(Player player, NwStore shop)
     {
+      shop.OnOpen -= StoreSystem.OnOpenOwnedPlayerShop;
+      shop.OnOpen += StoreSystem.OnOpenOwnedPlayerShop;
       shop.Open(player.oid);
     }
   }

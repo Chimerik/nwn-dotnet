@@ -66,7 +66,7 @@ namespace NWN.Systems.Arena
       player.oid.OnSpellCast += NoMagicMalus;
       player.oid.ApplyEffect(EffectDuration.Instant, Effect.VisualEffect(VfxType.FnfPwkill));
 
-      await NwTask.WaitUntil(() => player.pveArena.currentRound == 1);
+      await NwTask.WaitUntil(() => player.pveArena.currentRound == 0);
 
       player.oid.OnSpellCast += SpellSystem.HandleBeforeSpellCast;
       player.oid.OnSpellCast -= NoMagicMalus;
@@ -86,7 +86,7 @@ namespace NWN.Systems.Arena
       player.oid.OnSpellCast += NoHealingSpellMalus;
       player.oid.ApplyEffect(EffectDuration.Instant, Effect.VisualEffect(VfxType.FnfPwkill));
 
-      await NwTask.WaitUntil(() => player.pveArena.currentRound == 1);
+      await NwTask.WaitUntil(() => player.pveArena.currentRound == 0);
 
       player.oid.OnSpellCast -= NoHealingSpellMalus;
       player.oid.SendServerMessage("L'interdiction d'usage de magie curative a été levée.", Color.ORANGE);
@@ -134,7 +134,7 @@ namespace NWN.Systems.Arena
         summon.Destroy();
       }
 
-      await NwTask.WaitUntil(() => player.pveArena.currentRound == 1);
+      await NwTask.WaitUntil(() => player.pveArena.currentRound == 0);
 
       player.oid.OnSpellCast -= NoSummoningSpellMalus;
       player.oid.SendServerMessage("L'interdiction d'usage d'invocations a été levée.", Color.ORANGE);
@@ -190,7 +190,7 @@ namespace NWN.Systems.Arena
       player.oid.OnSpellCast += NoOffensiveSpellMalus;
       player.oid.ApplyEffect(EffectDuration.Instant, Effect.VisualEffect(VfxType.FnfPwkill));
 
-      await NwTask.WaitUntil(() => player.pveArena.currentRound == 1);
+      await NwTask.WaitUntil(() => player.pveArena.currentRound == 0);
 
       player.oid.OnSpellCast -= NoOffensiveSpellMalus;
       player.oid.SendServerMessage("L'interdiction d'usage de magie offensive a été levée.", Color.ORANGE);
@@ -299,7 +299,7 @@ namespace NWN.Systems.Arena
 
       player.oid.ApplyEffect(EffectDuration.Instant, Effect.VisualEffect(VfxType.ImpDispelDisjunction));
 
-      await NwTask.WaitUntil(() => player.pveArena.currentRound == 1);
+      await NwTask.WaitUntil(() => player.pveArena.currentRound == 0);
 
       player.oid.OnSpellCast -= NoBuffMalus;
       player.oid.SendServerMessage("L'interdiction d'usage de magie défensive a été levée.", Color.ORANGE);
@@ -440,7 +440,7 @@ namespace NWN.Systems.Arena
       CancellationTokenSource tokenSource = new CancellationTokenSource();
 
       Task waitArmorEquip = NwTask.WaitUntil(() => player.oid.GetItemInSlot(InventorySlot.Chest) != null, tokenSource.Token);
-      Task waitArenaExit = NwTask.WaitUntil(() => player.pveArena.currentRound == 1, tokenSource.Token);
+      Task waitArenaExit = NwTask.WaitUntil(() => player.pveArena.currentRound == 0, tokenSource.Token);
 
       await NwTask.WhenAny(waitArmorEquip, waitArenaExit);
       tokenSource.Cancel();
@@ -451,7 +451,19 @@ namespace NWN.Systems.Arena
         return;
       }
 
-      await player.oid.ActionUnequipItem(player.oid.GetItemInSlot(InventorySlot.Chest));
+      await NwTask.Delay(TimeSpan.FromSeconds(0.5));
+
+      Task armorUnequip = NwTask.Run(async () =>
+      {
+        NwItem armor = player.oid.GetItemInSlot(InventorySlot.Chest);
+        await player.oid.ActionUnequipItem(player.oid.GetItemInSlot(InventorySlot.Chest));
+        if (armor != null)
+        {
+          armor.Clone(player.oid);
+          armor.Destroy();
+        }
+      });
+
       await NwTask.WaitUntil(() => player.oid.GetItemInSlot(InventorySlot.Chest) == null);
 
       player.oid.SendServerMessage("L'interdiction de port d'armure est en vigueur.", Color.RED);
@@ -465,7 +477,7 @@ namespace NWN.Systems.Arena
 
       Task waitRightHandEquip = NwTask.WaitUntil(() => player.oid.GetItemInSlot(InventorySlot.RightHand) != null, tokenSource.Token);
       Task waitLeftHandEquip = NwTask.WaitUntil(() => player.oid.GetItemInSlot(InventorySlot.LeftHand) != null, tokenSource.Token);
-      Task waitArenaExit = NwTask.WaitUntil(() => player.pveArena.currentRound == 1, tokenSource.Token);
+      Task waitArenaExit = NwTask.WaitUntil(() => player.pveArena.currentRound == 0, tokenSource.Token);
 
       await NwTask.WhenAny(waitRightHandEquip, waitLeftHandEquip, waitArenaExit);
       tokenSource.Cancel();
@@ -476,15 +488,25 @@ namespace NWN.Systems.Arena
         return;
       }
 
+      await NwTask.Delay(TimeSpan.FromSeconds(0.5));
+
       if (waitRightHandEquip.IsCompletedSuccessfully)
       {
-        await player.oid.ActionUnequipItem(player.oid.GetItemInSlot(InventorySlot.RightHand));
+        Task unequip = NwTask.Run(async () =>
+        {
+          await player.oid.ActionUnequipItem(player.oid.GetItemInSlot(InventorySlot.RightHand));
+        });
+
         await NwTask.WaitUntil(() => player.oid.GetItemInSlot(InventorySlot.RightHand) == null);
       }
 
       if (waitLeftHandEquip.IsCompletedSuccessfully)
       {
-        await player.oid.ActionUnequipItem(player.oid.GetItemInSlot(InventorySlot.LeftHand));
+        Task unequip = NwTask.Run(async () =>
+        {
+          await player.oid.ActionUnequipItem(player.oid.GetItemInSlot(InventorySlot.LeftHand));
+        });
+
         await NwTask.WaitUntil(() => player.oid.GetItemInSlot(InventorySlot.LeftHand) == null);
       }
 
@@ -503,7 +525,7 @@ namespace NWN.Systems.Arena
       Task waitCloakEquip = NwTask.WaitUntil(() => player.oid.GetItemInSlot(InventorySlot.Cloak) != null, tokenSource.Token);
       Task waitLeftRingEquip = NwTask.WaitUntil(() => player.oid.GetItemInSlot(InventorySlot.LeftRing) != null, tokenSource.Token);
       Task waitRightRingEquip = NwTask.WaitUntil(() => player.oid.GetItemInSlot(InventorySlot.RightRing) != null, tokenSource.Token);
-      Task waitArenaExit = NwTask.WaitUntil(() => player.pveArena.currentRound == 1, tokenSource.Token);
+      Task waitArenaExit = NwTask.WaitUntil(() => player.pveArena.currentRound == 0, tokenSource.Token);
 
       await NwTask.WhenAny(waitBeltEquip, waitArmsEquip, waitBootsEquip, waitCloakEquip, waitLeftRingEquip, waitRightRingEquip, waitArenaExit);
       tokenSource.Cancel();
@@ -514,34 +536,66 @@ namespace NWN.Systems.Arena
         return;
       }
 
+      await NwTask.Delay(TimeSpan.FromSeconds(0.5));
+
       if (waitBeltEquip.IsCompletedSuccessfully)
       {
-        await player.oid.ActionUnequipItem(player.oid.GetItemInSlot(InventorySlot.Belt));
+        Task unequip = NwTask.Run(async () =>
+        {
+          await player.oid.ActionUnequipItem(player.oid.GetItemInSlot(InventorySlot.Belt));
+        });
+
         await NwTask.WaitUntil(() => player.oid.GetItemInSlot(InventorySlot.Belt) == null);
       }
 
       if (waitArmsEquip.IsCompletedSuccessfully)
       {
-        await player.oid.ActionUnequipItem(player.oid.GetItemInSlot(InventorySlot.Arms));
+        Task unequip = NwTask.Run(async () =>
+        {
+          await player.oid.ActionUnequipItem(player.oid.GetItemInSlot(InventorySlot.Arms));
+        });
+
         await NwTask.WaitUntil(() => player.oid.GetItemInSlot(InventorySlot.Arms) == null);
       }
 
       if (waitBootsEquip.IsCompletedSuccessfully)
       {
-        await player.oid.ActionUnequipItem(player.oid.GetItemInSlot(InventorySlot.Boots));
+        Task unequip = NwTask.Run(async () =>
+        {
+          await player.oid.ActionUnequipItem(player.oid.GetItemInSlot(InventorySlot.Boots));
+        });
+
         await NwTask.WaitUntil(() => player.oid.GetItemInSlot(InventorySlot.Boots) == null);
       }
 
       if (waitLeftRingEquip.IsCompletedSuccessfully)
       {
-        await player.oid.ActionUnequipItem(player.oid.GetItemInSlot(InventorySlot.LeftRing));
+        Task unequip = NwTask.Run(async () =>
+        {
+          await player.oid.ActionUnequipItem(player.oid.GetItemInSlot(InventorySlot.LeftRing));
+        });
+
         await NwTask.WaitUntil(() => player.oid.GetItemInSlot(InventorySlot.LeftRing) == null);
       }
 
       if (waitRightRingEquip.IsCompletedSuccessfully)
       {
-        await player.oid.ActionUnequipItem(player.oid.GetItemInSlot(InventorySlot.RightRing));
+        Task unequip = NwTask.Run(async () =>
+        {
+          await player.oid.ActionUnequipItem(player.oid.GetItemInSlot(InventorySlot.RightRing));
+        });
+
         await NwTask.WaitUntil(() => player.oid.GetItemInSlot(InventorySlot.RightRing) == null);
+      }
+
+      if (waitCloakEquip.IsCompletedSuccessfully)
+      {
+        Task unequip = NwTask.Run(async () =>
+        {
+          await player.oid.ActionUnequipItem(player.oid.GetItemInSlot(InventorySlot.Cloak));
+        });
+
+        await NwTask.WaitUntil(() => player.oid.GetItemInSlot(InventorySlot.Cloak) == null);
       }
 
       player.oid.SendServerMessage("L'interdiction de port d'accessoires est en vigueur.", Color.RED);
@@ -555,7 +609,7 @@ namespace NWN.Systems.Arena
       PlayerSystem.eventService.Subscribe<ItemEvents.OnItemUseBefore, NWNXEventFactory>(player.oid, NoUseableItemMalus)
         .Register<ItemEvents.OnItemUseBefore>();
 
-      await NwTask.WaitUntil(() => player.pveArena.currentRound == 1);
+      await NwTask.WaitUntil(() => player.pveArena.currentRound == 0);
 
       PlayerSystem.eventService.Unsubscribe<ItemEvents.OnItemUseBefore, NWNXEventFactory>(player.oid, NoUseableItemMalus);
       PlayerSystem.eventService.Subscribe<ItemEvents.OnItemUseBefore, NWNXEventFactory>(player.oid, ItemSystem.OnItemUseBefore)
@@ -586,7 +640,7 @@ namespace NWN.Systems.Arena
       player.oid.OnSpellCastAt -= SlowMalusCure;
       player.oid.OnSpellCastAt += SlowMalusCure;
 
-      await NwTask.WaitUntil(() => player.pveArena.currentRound == 1);
+      await NwTask.WaitUntil(() => player.pveArena.currentRound == 0);
 
       foreach (Effect eff in player.oid.ActiveEffects.Where(e => e.Tag == "_ARENA_MALUS_SLOW"))
         player.oid.RemoveEffect(eff);
@@ -629,7 +683,7 @@ namespace NWN.Systems.Arena
       player.oid.OnCreatureDamage += MiniMalus;
       player.oid.OnSpellCastAt += MiniMalusCure;
 
-      await NwTask.WaitUntil(() => player.pveArena.currentRound == 1);
+      await NwTask.WaitUntil(() => player.pveArena.currentRound == 0);
 
       if (player.oid.GetLocalVariable<float>("_ARENA_MALUS_MINI").HasValue)
       {
@@ -685,7 +739,7 @@ namespace NWN.Systems.Arena
       player.oid.OnSpellCastAt += FrogMalusCure;
       player.oid.OnSpellCast += FrogSpellMalus;
 
-      await NwTask.WaitUntil(() => player.pveArena.currentRound == 1);
+      await NwTask.WaitUntil(() => player.pveArena.currentRound == 0);
 
       if (player.oid.GetLocalVariable<int>("_ARENA_MALUS_FROG").HasValue)
         player.oid.CreatureAppearanceType = (AppearanceType)player.oid.GetLocalVariable<int>("_ARENA_MALUS_FROG").Value;
@@ -751,7 +805,7 @@ namespace NWN.Systems.Arena
       player.oid.OnHeartbeat += PoisonMalus;
       player.oid.OnSpellCastAt += PoisonMalusCure;
 
-      await NwTask.WaitUntil(() => player.pveArena.currentRound == 1);
+      await NwTask.WaitUntil(() => player.pveArena.currentRound == 0);
 
       player.oid.RemoveEffect(poison);
       player.oid.OnHeartbeat -= PoisonMalus;
@@ -786,19 +840,20 @@ namespace NWN.Systems.Arena
     {
       player.oid.ApplyEffect(EffectDuration.Instant, Effect.VisualEffect(VfxType.ImpNegativeEnergy));
 
-      int damage = (DateTime.Now - player.pveArena.dateArenaEntered).Minutes * 5;
+      int damage = (DateTime.Now - player.pveArena.dateArenaEntered).Seconds / 10;
       player.oid.ApplyEffect(EffectDuration.Instant, Effect.Damage(damage, DamageType.Magical));
     }
     private static async void ApplyHealthHalvedMalus(PlayerSystem.Player player)
     {
       if (player.oid.GetLocalVariable<int>("_ARENA_MALUS_HEALTH").HasNothing)
-        player.oid.GetLocalVariable<int>("_ARENA_MALUS_HEALTH").Value = player.oid.MaxHP;
+        player.oid.GetLocalVariable<int>("_ARENA_MALUS_HEALTH").Value = CreaturePlugin.GetMaxHitPointsByLevel(player.oid, 1);
 
-      CreaturePlugin.SetMaxHitPointsByLevel(player.oid, 1, player.oid.MaxHP / 2);
+      CreaturePlugin.SetMaxHitPointsByLevel(player.oid, 1, CreaturePlugin.GetMaxHitPointsByLevel(player.oid, 1) / 2);
+
       if (player.oid.HP > player.oid.MaxHP)
         player.oid.HP = player.oid.MaxHP;
       
-      await NwTask.WaitUntil(() => player.pveArena.currentRound == 1);
+      await NwTask.WaitUntil(() => player.pveArena.currentRound == 0);
 
       if (player.oid.GetLocalVariable<int>("_ARENA_MALUS_HEALTH").HasNothing)
         return;
@@ -814,7 +869,7 @@ namespace NWN.Systems.Arena
 
       player.oid.OnSpellCast += SpellFailureMalus;
 
-      await NwTask.WaitUntil(() => player.pveArena.currentRound == 1);
+      await NwTask.WaitUntil(() => player.pveArena.currentRound == 0);
 
       player.oid.OnSpellCast -= SpellFailureMalus;
       player.oid.SendServerMessage("Le handicap d'échec des sorts a été levé.", Color.ORANGE);
@@ -835,13 +890,13 @@ namespace NWN.Systems.Arena
       player.oid.OnSpellCast += SpellFailureMalus;
 
       if (player.oid.GetLocalVariable<int>("_ARENA_MALUS_HEALTH").HasNothing)
-        player.oid.GetLocalVariable<int>("_ARENA_MALUS_HEALTH").Value = player.oid.MaxHP;
+        player.oid.GetLocalVariable<int>("_ARENA_MALUS_HEALTH").Value = CreaturePlugin.GetMaxHitPointsByLevel(player.oid, 1);
 
-      CreaturePlugin.SetMaxHitPointsByLevel(player.oid, 1, player.oid.MaxHP / 2);
+      CreaturePlugin.SetMaxHitPointsByLevel(player.oid, 1, CreaturePlugin.GetMaxHitPointsByLevel(player.oid, 1) / 2);
       if (player.oid.HP > player.oid.MaxHP)
         player.oid.HP = player.oid.MaxHP;
 
-      await NwTask.WaitUntil(() => player.pveArena.currentRound == 1);
+      await NwTask.WaitUntil(() => player.pveArena.currentRound == 0);
 
       player.oid.OnSpellCast -= SpellFailureMalus;
       player.oid.SendServerMessage("Le handicap d'échec des sorts a été levé.", Color.ORANGE);
@@ -883,27 +938,27 @@ namespace NWN.Systems.Arena
         case Difficulty.Level1: return new RoundCreatures[]
         {
           new RoundCreatures(
-            resrefs: new string[] { "gobelineclaireur", "gobelineclaireur", "gobelineclaireur", "gobelineclaireur" },
+            resrefs: new string[] { "goblinfooder", "goblinfooder", "gobelinfrondeur", "gobelinfrondeur", "gobelinfourbe" },
             points: 1  
           ),
           new RoundCreatures(
-            resrefs: new string[] { "nw_bat", "nw_bat", "nw_bat" },
+            resrefs: new string[] { "bat_sewer", "bat_sewer", "bat_sewer", "bat_sewer" },
             points: 1
           ),
           new RoundCreatures(
-            resrefs: new string[] { "nw_rat001", "nw_rat001" },
+            resrefs: new string[] { "rat_sewer_infect", "rat_sewer_infect", "rat_sewer_infect", "rat_sewer_infect", "rat_sewer_infect", "rat_sewer_infect"   },
             points: 2
           ),
           new RoundCreatures(
-            resrefs: new string[] { "nw_cougar" },
+            resrefs: new string[] { "dog_sewer_starve", "dog_sewer_starve", "dog_sewer_starve" },
             points: 5
           ),
           new RoundCreatures(
-            resrefs: new string[] { "nw_jaguar" },
+            resrefs: new string[] { "rat_meca", "rat_meca", "rat_meca", "rat_meca" },
             points: 6
           ),
           new RoundCreatures(
-            resrefs: new string[] { "nw_dog", "nw_dog" },
+            resrefs: new string[] { "crab_meca", "crab_meca", "pingu_meca", "pingu_meca" },
             points: 4
           ),
         };
@@ -935,15 +990,7 @@ namespace NWN.Systems.Arena
         case Difficulty.Level1: return new RoundCreatures[]
         {
           new RoundCreatures(
-            resrefs: new string[] { "nw_orca" },
-            points: 10
-          ),
-          new RoundCreatures(
-            resrefs: new string[] { "nw_gnoll001" },
-            points: 10
-          ),
-          new RoundCreatures(
-            resrefs: new string[] { "nw_boar" },
+            resrefs: new string[] { "cutter_meca", "cutter_meca" },
             points: 10
           ),
         };
@@ -975,15 +1022,7 @@ namespace NWN.Systems.Arena
         case Difficulty.Level1: return new RoundCreatures[]
         {
           new RoundCreatures(
-            resrefs: new string[] { "nw_bearbrwn" },
-            points: 20
-          ),
-          new RoundCreatures(
-            resrefs: new string[] { "nw_fire" },
-            points: 20
-          ),
-          new RoundCreatures(
-            resrefs: new string[] { "nw_spiddire" },
+            resrefs: new string[] { "rat_meca", "rat_meca", "rat_meca", "dog_meca_defect" },
             points: 20
           ),
         };

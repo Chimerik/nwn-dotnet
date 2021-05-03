@@ -150,18 +150,17 @@ namespace NWN.Systems
       CreaturePlugin.SetBaseSavingThrow(player, NWScript.SAVING_THROW_WILL, player.GetLocalVariable<int>("_DELAYED_SPELLHOOK_WILL").Value);
       CreaturePlugin.SetBaseSavingThrow(player, NWScript.SAVING_THROW_FORT, player.GetLocalVariable<int>("_DELAYED_SPELLHOOK_FORT").Value);
     }
-    public static void RestoreSpell(uint caster, int spellId)
+    public static void RestoreSpell(NwCreature caster, Spell spell)
     {
-      for (int i = 0; i < CreaturePlugin.GetMemorisedSpellCountByLevel(caster, 43, 0); i++)
-      {
-        MemorisedSpell spell = CreaturePlugin.GetMemorisedSpell(caster, 43, 0, i);
-        if (spell.id == spellId)
-        {
-          spell.ready = 1;
-          CreaturePlugin.SetMemorisedSpell(caster, 43, 0, i, spell);
-          break;
-        }
-      }
+      if (caster == null)
+        Log.Info("caster is null");
+
+      Log.Info($"spell: {spell}");
+
+      Log.Info($"spell slots : {caster.GetClassInfo((ClassType)43).GetMemorizedSpellSlotCountByLevel(0)}");
+
+      foreach (MemorizedSpellSlot spellSlot in caster.GetClassInfo((ClassType)43).GetMemorizedSpellSlots(0).Where(s => s.Spell == spell && !s.IsReady))
+        spellSlot.IsReady = true;
     }
     public static void HandleBeforeSpellCast(OnSpellCast onSpellCast)
     {

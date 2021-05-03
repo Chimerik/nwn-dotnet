@@ -57,7 +57,7 @@ namespace NWN.Systems
       player.menu.choices.Add(("Modifier l'apparence", () => DrawPNJAppearancePage(player, oPNJ)));
       player.menu.choices.Add(("Modifier la CA de base", () => ModifyPNJBaseArmorClass(player, oPNJ)));
       player.menu.choices.Add(("Modifier les caractéristiques", () => DrawAbilityList(player, oPNJ)));
-      player.menu.choices.Add(("Modifier les PV par niveau", () => ModifyPNJHealthByLevel(player, oPNJ)));
+      player.menu.choices.Add(("Modifier les points de vie", () => ModifyPNJHealthByLevel(player, oPNJ)));
       player.menu.choices.Add(("Modifier la vitesse", () => DrawSpeedList(player, oPNJ)));
       player.menu.choices.Add(("Modifier la voix", () => ModifyPNJSoundset(player, oPNJ)));
       player.menu.choices.Add(("Modifier l'attaque de base", () => ModifyPNJBaseAttack(player, oPNJ)));
@@ -72,7 +72,7 @@ namespace NWN.Systems
       player.menu.choices.Add(("Quitter", () => player.menu.Close()));
       player.menu.Draw();
     }
-    private static void ModifyPNJName(Player player, NwCreature oPNJ, int isLastName)
+    private static async void ModifyPNJName(Player player, NwCreature oPNJ, int isLastName)
     {
       player.menu.Clear();
 
@@ -81,19 +81,18 @@ namespace NWN.Systems
 
       player.menu.Draw();
 
-      Task playerInput = NwTask.Run(async () =>
+      bool awaitedValue = await player.WaitForPlayerInputString();
+
+      if (awaitedValue)
       {
-        player.oid.GetLocalVariable<int>("_PLAYER_INPUT_STRING").Value = 1;
-        player.setString = "";
-        await NwTask.WaitUntil(() => player.setString != "");
-        CreaturePlugin.SetOriginalName(oPNJ, player.setString, isLastName);
-        oPNJ.Name = player.setString;
-        player.oid.SendServerMessage($"Le nom du PNJ a été modifié à {player.setString.ColorString(Color.WHITE)}", Color.BLUE);
+        CreaturePlugin.SetOriginalName(oPNJ, player.oid.GetLocalVariable<string>("_PLAYER_INPUT").Value, isLastName);
+        oPNJ.Name = player.oid.GetLocalVariable<string>("_PLAYER_INPUT").Value;
+        player.oid.SendServerMessage($"Le nom du PNJ a été modifié à {oPNJ.Name.ColorString(Color.WHITE)}", Color.BLUE);
         DrawPNJSelectionWelcome(player.oid, oPNJ);
-        player.setString = "";
-      });
+        player.oid.GetLocalVariable<string>("_PLAYER_INPUT").Delete();
+      }
     }
-    private static void ModifyPNJDescription(Player player, NwCreature oPNJ)
+    private static async void ModifyPNJDescription(Player player, NwCreature oPNJ)
     {
       player.menu.Clear();
 
@@ -102,20 +101,17 @@ namespace NWN.Systems
 
       player.menu.Draw();
 
-      player.oid.GetLocalVariable<int>("_PLAYER_INPUT_STRING").Delete();
+      bool awaitedValue = await player.WaitForPlayerInputString();
 
-      Task playerInput = NwTask.Run(async () =>
+      if (awaitedValue)
       {
-        player.oid.GetLocalVariable<int>("_PLAYER_INPUT_STRING").Value = 1;
-        player.setString = "";
-        await NwTask.WaitUntil(() => player.setString != "");
-        oPNJ.Description = player.setString;
+        oPNJ.Description = player.oid.GetLocalVariable<string>("_PLAYER_INPUT").Value;
         player.oid.SendServerMessage($"La description de {oPNJ.Name.ColorString(Color.WHITE)} a été modifiée.", Color.BLUE);
         DrawPNJSelectionWelcome(player.oid, oPNJ);
-        player.setString = "";
-      });
+        player.oid.GetLocalVariable<string>("_PLAYER_INPUT").Delete();
+      }
     }
-    private static void ModifyPNJBaseArmorClass(Player player, NwCreature oPNJ)
+    private static async void ModifyPNJBaseArmorClass(Player player, NwCreature oPNJ)
     {
       player.menu.Clear();
 
@@ -124,18 +120,15 @@ namespace NWN.Systems
 
       player.menu.Draw();
 
-      player.oid.GetLocalVariable<int>("_PLAYER_INPUT").Delete();
+      bool awaitedValue = await player.WaitForPlayerInputInt();
 
-      Task playerInput = NwTask.Run(async () =>
+      if (awaitedValue)
       {
-        player.oid.GetLocalVariable<int>("_PLAYER_INPUT").Value = 1;
-        player.setValue = Config.invalidInput;
-        await NwTask.WaitUntil(() => player.setValue != Config.invalidInput);
-        CreaturePlugin.SetBaseAC(oPNJ, player.setValue);
-        player.oid.SendServerMessage($"La CA de base de {oPNJ.Name.ColorString(Color.WHITE)} a été modifiée à {player.setValue.ToString().ColorString(Color.WHITE)}", Color.BLUE);
+        CreaturePlugin.SetBaseAC(oPNJ, int.Parse(player.oid.GetLocalVariable<string>("_PLAYER_INPUT").Value));
+        player.oid.SendServerMessage($"La CA de base de {oPNJ.Name.ColorString(Color.WHITE)} a été modifiée à {int.Parse(player.oid.GetLocalVariable<string>("_PLAYER_INPUT").Value)}", Color.BLUE);
         DrawPNJSelectionWelcome(player.oid, oPNJ);
-        player.setValue = Config.invalidInput;
-      });
+        player.oid.GetLocalVariable<string>("_PLAYER_INPUT").Delete();
+      }
     }
     private static void DrawAbilityList(Player player, NwCreature oPNJ)
     {
@@ -154,7 +147,7 @@ namespace NWN.Systems
       player.menu.choices.Add(("Quitter", () => player.menu.Close()));
       player.menu.Draw();
     }
-    private static void ModifySelectedAbility(Player player, NwCreature oPNJ, int ability)
+    private static async void ModifySelectedAbility(Player player, NwCreature oPNJ, int ability)
     {
       player.menu.Clear();
 
@@ -163,20 +156,17 @@ namespace NWN.Systems
 
       player.menu.Draw();
 
-      player.oid.GetLocalVariable<int>("_PLAYER_INPUT").Delete();
+      bool awaitedValue = await player.WaitForPlayerInputInt();
 
-      Task playerInput = NwTask.Run(async () =>
+      if (awaitedValue)
       {
-        player.oid.GetLocalVariable<int>("_PLAYER_INPUT").Value = 1;
-        player.setValue = Config.invalidInput;
-        await NwTask.WaitUntil(() => player.setValue != Config.invalidInput);
-        CreaturePlugin.SetRawAbilityScore(oPNJ, ability, player.setValue);
-        player.oid.SendServerMessage($"La caractéristique de base de {oPNJ.Name.ColorString(Color.WHITE)} a été modifiée à {player.setValue.ToString().ColorString(Color.WHITE)}", Color.BLUE);
-        DrawSavingThrowList(player, oPNJ);
-        player.setValue = Config.invalidInput;
-      });
+        CreaturePlugin.SetRawAbilityScore(oPNJ, ability, int.Parse(player.oid.GetLocalVariable<string>("_PLAYER_INPUT").Value));
+        player.oid.SendServerMessage($"La caractéristique de base de {oPNJ.Name.ColorString(Color.WHITE)} a été modifiée à {int.Parse(player.oid.GetLocalVariable<string>("_PLAYER_INPUT").Value)}", Color.BLUE);
+        DrawPNJSelectionWelcome(player.oid, oPNJ);
+        player.oid.GetLocalVariable<string>("_PLAYER_INPUT").Delete();
+      }
     }
-    private static void ModifyPNJHealthByLevel(Player player, NwCreature oPNJ)
+    private static async void ModifyPNJHealthByLevel(Player player, NwCreature oPNJ)
     {
       player.menu.Clear();
 
@@ -185,18 +175,19 @@ namespace NWN.Systems
 
       player.menu.Draw();
 
-      player.oid.GetLocalVariable<int>("_PLAYER_INPUT").Delete();
+      bool awaitedValue = await player.WaitForPlayerInputInt();
 
-      Task playerInput = NwTask.Run(async () =>
+      if (awaitedValue)
       {
-        player.oid.GetLocalVariable<int>("_PLAYER_INPUT").Value = 1;
-        player.setValue = Config.invalidInput;
-        await NwTask.WaitUntil(() => player.setValue != Config.invalidInput);
-        CreaturePlugin.SetMaxHitPointsByLevel(oPNJ, 1, player.setValue);
-        player.oid.SendServerMessage($"Le nombre de points de vie par niveau de {oPNJ.Name.ColorString(Color.WHITE)} a été modifiée à {player.setValue.ToString().ColorString(Color.WHITE)}", Color.BLUE);
+        if (oPNJ is NwPlayer)
+          CreaturePlugin.SetMaxHitPointsByLevel(oPNJ, 1, int.Parse(player.oid.GetLocalVariable<string>("_PLAYER_INPUT").Value));
+        else
+          ObjectPlugin.SetMaxHitPoints(oPNJ, int.Parse(player.oid.GetLocalVariable<string>("_PLAYER_INPUT").Value));
+
+        player.oid.SendServerMessage($"Le nombre de points de vie de {oPNJ.Name.ColorString(Color.WHITE)} a été modifiée à {int.Parse(player.oid.GetLocalVariable<string>("_PLAYER_INPUT").Value)}", Color.BLUE);
         DrawPNJSelectionWelcome(player.oid, oPNJ);
-        player.setValue = Config.invalidInput;
-      });
+        player.oid.GetLocalVariable<string>("_PLAYER_INPUT").Delete();
+      }
     }
     private static void DrawSpeedList(Player player, NwCreature oPNJ)
     {
@@ -223,7 +214,7 @@ namespace NWN.Systems
       player.oid.SendServerMessage($"La vitesse de {oPNJ.Name.ColorString(Color.WHITE)} a bien été modifiée.", Color.BLUE);
       DrawPNJSelectionWelcome(player.oid, oPNJ);
     }
-    private static void ModifyPNJSoundset(Player player, NwCreature oPNJ)
+    private static async void ModifyPNJSoundset(Player player, NwCreature oPNJ)
     {
       player.menu.Clear();
 
@@ -232,20 +223,17 @@ namespace NWN.Systems
 
       player.menu.Draw();
 
-      player.oid.GetLocalVariable<int>("_PLAYER_INPUT").Delete();
+      bool awaitedValue = await player.WaitForPlayerInputInt();
 
-      Task playerInput = NwTask.Run(async () =>
+      if (awaitedValue)
       {
-        player.oid.GetLocalVariable<int>("_PLAYER_INPUT").Value = 1;
-        player.setValue = Config.invalidInput;
-        await NwTask.WaitUntil(() => player.setValue != Config.invalidInput);
-        CreaturePlugin.SetSoundset(oPNJ, player.setValue);
-        player.oid.SendServerMessage($"La voix de {oPNJ.Name.ColorString(Color.WHITE)} a été modifiée à {player.setValue.ToString().ColorString(Color.WHITE)}", Color.BLUE);
+        CreaturePlugin.SetSoundset(oPNJ, int.Parse(player.oid.GetLocalVariable<string>("_PLAYER_INPUT").Value));
+        player.oid.SendServerMessage($"La voix de {oPNJ.Name.ColorString(Color.WHITE)} a été modifiée à {int.Parse(player.oid.GetLocalVariable<string>("_PLAYER_INPUT").Value)}", Color.BLUE);
         DrawPNJSelectionWelcome(player.oid, oPNJ);
-        player.setValue = Config.invalidInput;
-      });
+        player.oid.GetLocalVariable<string>("_PLAYER_INPUT").Delete();
+      }
     }
-    private static void ModifyPNJBaseAttack(Player player, NwCreature oPNJ)
+    private static async void ModifyPNJBaseAttack(Player player, NwCreature oPNJ)
     {
       player.menu.Clear();
 
@@ -254,18 +242,15 @@ namespace NWN.Systems
 
       player.menu.Draw();
 
-      player.oid.GetLocalVariable<int>("_PLAYER_INPUT").Delete();
+      bool awaitedValue = await player.WaitForPlayerInputInt();
 
-      Task playerInput = NwTask.Run(async () =>
+      if (awaitedValue)
       {
-        player.oid.GetLocalVariable<int>("_PLAYER_INPUT").Value = 1;
-        player.setValue = Config.invalidInput;
-        await NwTask.WaitUntil(() => player.setValue != Config.invalidInput);
-        CreaturePlugin.SetBaseAttackBonus(oPNJ, player.setValue);
-        player.oid.SendServerMessage($"L'attaque de base de {oPNJ.Name.ColorString(Color.WHITE)} a été modifiée à {player.setValue.ToString().ColorString(Color.WHITE)}", Color.BLUE);
+        CreaturePlugin.SetBaseAttackBonus(oPNJ, int.Parse(player.oid.GetLocalVariable<string>("_PLAYER_INPUT").Value));
+        player.oid.SendServerMessage($"L'attaque de base de {oPNJ.Name.ColorString(Color.WHITE)} a été modifiée à {int.Parse(player.oid.GetLocalVariable<string>("_PLAYER_INPUT").Value)}", Color.BLUE);
         DrawPNJSelectionWelcome(player.oid, oPNJ);
-        player.setValue = Config.invalidInput;
-      });
+        player.oid.GetLocalVariable<string>("_PLAYER_INPUT").Delete();
+      }
     }
     private static void DrawGenderList(Player player, NwCreature oPNJ)
     {
@@ -367,7 +352,7 @@ namespace NWN.Systems
       player.menu.choices.Add(("Quitter", () => player.menu.Close()));
       player.menu.Draw();
     }
-    private static void ModifySelectedSavingThrow(Player player, NwCreature oPNJ, int savingThrow)
+    private static async void ModifySelectedSavingThrow(Player player, NwCreature oPNJ, int savingThrow)
     {
       player.menu.Clear();
 
@@ -376,20 +361,17 @@ namespace NWN.Systems
 
       player.menu.Draw();
 
-      player.oid.GetLocalVariable<int>("_PLAYER_INPUT").Delete();
+      bool awaitedValue = await player.WaitForPlayerInputInt();
 
-      Task playerInput = NwTask.Run(async () =>
+      if (awaitedValue)
       {
-        player.oid.GetLocalVariable<int>("_PLAYER_INPUT").Value = 1;
-        player.setValue = Config.invalidInput;
-        await NwTask.WaitUntil(() => player.setValue != Config.invalidInput);
-        CreaturePlugin.SetBaseSavingThrow(oPNJ, savingThrow, player.setValue);
-        player.oid.SendServerMessage($"Le jet de sauvegarde de base de {oPNJ.Name.ColorString(Color.WHITE)} a été modifié à {player.setValue.ToString().ColorString(Color.WHITE)}", Color.BLUE);
+        CreaturePlugin.SetBaseSavingThrow(oPNJ, savingThrow, int.Parse(player.oid.GetLocalVariable<string>("_PLAYER_INPUT").Value));
+        player.oid.SendServerMessage($"Le jet de sauvegarde de base de {oPNJ.Name.ColorString(Color.WHITE)} a été modifiée à {int.Parse(player.oid.GetLocalVariable<string>("_PLAYER_INPUT").Value)}", Color.BLUE);
         DrawSavingThrowList(player, oPNJ);
-        player.setValue = Config.invalidInput;
-      });
+        player.oid.GetLocalVariable<string>("_PLAYER_INPUT").Delete();
+      }
     }
-    private static void ModifyPNJSpellResistance(Player player, NwCreature oPNJ)
+    private static async void ModifyPNJSpellResistance(Player player, NwCreature oPNJ)
     {
       player.menu.Clear();
 
@@ -398,18 +380,15 @@ namespace NWN.Systems
 
       player.menu.Draw();
 
-      player.oid.GetLocalVariable<int>("_PLAYER_INPUT").Delete();
+      bool awaitedValue = await player.WaitForPlayerInputInt();
 
-      Task playerInput = NwTask.Run(async () =>
+      if (awaitedValue)
       {
-        player.oid.GetLocalVariable<int>("_PLAYER_INPUT").Value = 1;
-        player.setValue = Config.invalidInput;
-        await NwTask.WaitUntil(() => player.setValue != Config.invalidInput);
-        CreaturePlugin.SetSpellResistance(oPNJ, player.setValue);
-        player.oid.SendServerMessage($"La résistance aux sorts de {oPNJ.Name.ColorString(Color.WHITE)} a été modifiée à {player.setValue.ToString().ColorString(Color.WHITE)}", Color.BLUE);
+        CreaturePlugin.SetSpellResistance(oPNJ, int.Parse(player.oid.GetLocalVariable<string>("_PLAYER_INPUT").Value));
+        player.oid.SendServerMessage($"La résistance aux sorts de {oPNJ.Name.ColorString(Color.WHITE)} a été modifiée à {int.Parse(player.oid.GetLocalVariable<string>("_PLAYER_INPUT").Value)}", Color.BLUE);
         DrawPNJSelectionWelcome(player.oid, oPNJ);
-        player.setValue = Config.invalidInput;
-      });
+        player.oid.GetLocalVariable<string>("_PLAYER_INPUT").Delete();
+      }
     }
     private static void DrawPNJAppearancePage(Player player, NwCreature oPNJ)
     {
@@ -439,7 +418,7 @@ namespace NWN.Systems
       player.menu.choices.Add(("Quitter", () => player.menu.Close()));
       player.menu.Draw();
     }
-    private static void DrawModifyApparenceTypePage(Player player, NwCreature oPNJ, int modification)
+    private static async void DrawModifyApparenceTypePage(Player player, NwCreature oPNJ, int modification)
     {
       if (modification == -2)
         player.menu.Clear();
@@ -453,11 +432,18 @@ namespace NWN.Systems
 
       if (modification > -2)
       {
-        if (player.setValue != Config.invalidInput)
+        int choice = -1;
+        if (player.oid.GetLocalVariable<string>("_PLAYER_INPUT").HasValue)
         {
-          currentValue = player.setValue;
-          player.setValue = Config.invalidInput;
+          choice = int.Parse(player.oid.GetLocalVariable<string>("_PLAYER_INPUT").Value);
+          player.oid.GetLocalVariable<string>("_PLAYER_INPUT").Delete();
         }
+
+        if (player.oid.GetLocalVariable<int>("_AWAITING_PLAYER_INPUT").HasValue)
+          player.oid.GetLocalVariable<int>("_PLAYER_INPUT_CANCELLED").Value = 1;
+
+        if (choice > -1)
+          currentValue = choice;
         else if(modification == 1)
           currentValue++;
         else if (modification == -1)
@@ -492,16 +478,12 @@ namespace NWN.Systems
         player.menu.Draw();
       }
 
-      Task waitPlayerInput = NwTask.Run(async () =>
-      {
-        player.oid.GetLocalVariable<int>("_PLAYER_INPUT").Value = 1;
-        player.setValue = Config.invalidInput;
-        await NwTask.WaitUntil(() => player.setValue != Config.invalidInput);
-        DrawModifyApparenceTypePage(player, oPNJ, player.setValue);
-        player.setValue = Config.invalidInput;
-      });
+      bool awaitedValue = await player.WaitForPlayerInputInt();
+
+      if (awaitedValue)
+        DrawModifyApparenceTypePage(player, oPNJ, int.Parse(player.oid.GetLocalVariable<string>("_PLAYER_INPUT").Value));
     }
-    private static void DrawModifyPortraitPage(Player player, NwCreature oPNJ, int modification)
+    private static async void DrawModifyPortraitPage(Player player, NwCreature oPNJ, int modification)
     {
       if (modification == -2)
         player.menu.Clear();
@@ -515,11 +497,18 @@ namespace NWN.Systems
 
       if (modification > -2)
       {
-        if (player.setValue != Config.invalidInput)
+        int choice = -1;
+        if (player.oid.GetLocalVariable<string>("_PLAYER_INPUT").HasValue)
         {
-          currentValue = player.setValue;
-          player.setValue = Config.invalidInput;
+          choice = int.Parse(player.oid.GetLocalVariable<string>("_PLAYER_INPUT").Value);
+          player.oid.GetLocalVariable<string>("_PLAYER_INPUT").Delete();
         }
+
+        if (player.oid.GetLocalVariable<int>("_AWAITING_PLAYER_INPUT").HasValue)
+          player.oid.GetLocalVariable<int>("_PLAYER_INPUT_CANCELLED").Value = 1;
+
+        if (choice > -1)
+          currentValue = choice;
         else if (modification == 1)
           currentValue++;
         else if (modification == -1)
@@ -554,16 +543,12 @@ namespace NWN.Systems
         player.menu.Draw();
       }
 
-      Task waitPlayerInput = NwTask.Run(async () =>
-      {
-        player.oid.GetLocalVariable<int>("_PLAYER_INPUT").Value = 1;
-        player.setValue = Config.invalidInput;
-        await NwTask.WaitUntil(() => player.setValue != Config.invalidInput);
-        DrawModifyPortraitPage(player, oPNJ, player.setValue);
-        player.setValue = Config.invalidInput;
-      });
+      bool awaitedValue = await player.WaitForPlayerInputInt();
+
+      if (awaitedValue)
+        DrawModifyPortraitPage(player, oPNJ, int.Parse(player.oid.GetLocalVariable<string>("_PLAYER_INPUT").Value));
     }
-    private static void DrawModifySizePage(Player player, NwCreature oPNJ, int modification)
+    private static async void DrawModifySizePage(Player player, NwCreature oPNJ, int modification)
     {
       if (modification == -2)
         player.menu.Clear();
@@ -577,11 +562,18 @@ namespace NWN.Systems
 
       if (modification > -2)
       {
-        if (player.setValue != Config.invalidInput)
+        int choice = -1;
+        if (player.oid.GetLocalVariable<string>("_PLAYER_INPUT").HasValue)
         {
-          currentValue = player.setValue;
-          player.setValue = Config.invalidInput;
+          choice = int.Parse(player.oid.GetLocalVariable<string>("_PLAYER_INPUT").Value);
+          player.oid.GetLocalVariable<string>("_PLAYER_INPUT").Delete();
         }
+
+        if (player.oid.GetLocalVariable<int>("_AWAITING_PLAYER_INPUT").HasValue)
+          player.oid.GetLocalVariable<int>("_PLAYER_INPUT_CANCELLED").Value = 1;
+
+        if (choice > -1)
+          currentValue = choice;
         else if (modification == 1)
           currentValue += 0.02f;
         else if (modification == -1)
@@ -606,16 +598,12 @@ namespace NWN.Systems
         player.menu.Draw();
       }
 
-      Task waitPlayerInput = NwTask.Run(async () =>
-      {
-        player.oid.GetLocalVariable<int>("_PLAYER_INPUT").Value = 1;
-        player.setValue = Config.invalidInput;
-        await NwTask.WaitUntil(() => player.setValue != Config.invalidInput);
+      bool awaitedValue = await player.WaitForPlayerInputInt();
+
+      if (awaitedValue)
         DrawModifySizePage(player, oPNJ, 0);
-        player.setValue = Config.invalidInput;
-      });
     }
-    private static void DrawModifyHeadPage(Player player, NwCreature oPNJ, int modification)
+    private static async void DrawModifyHeadPage(Player player, NwCreature oPNJ, int modification)
     {
       if (modification == -2)
         player.menu.Clear();
@@ -629,11 +617,18 @@ namespace NWN.Systems
       
       if (modification > -2)
       {
-        if (player.setValue != Config.invalidInput)
+        int choice = -1;
+        if (player.oid.GetLocalVariable<string>("_PLAYER_INPUT").HasValue)
         {
-          currentValue = player.setValue;
-          player.setValue = Config.invalidInput;
+          choice = int.Parse(player.oid.GetLocalVariable<string>("_PLAYER_INPUT").Value);
+          player.oid.GetLocalVariable<string>("_PLAYER_INPUT").Delete();
         }
+
+        if (player.oid.GetLocalVariable<int>("_AWAITING_PLAYER_INPUT").HasValue)
+          player.oid.GetLocalVariable<int>("_PLAYER_INPUT_CANCELLED").Value = 1;
+
+        if (choice > -1)
+          currentValue = choice;
         else if (modification == 1)
           currentValue++;
         else if (modification == -1)
@@ -655,16 +650,12 @@ namespace NWN.Systems
         player.menu.Draw();
       }
 
-      Task waitPlayerInput = NwTask.Run(async () =>
-      {
-        player.oid.GetLocalVariable<int>("_PLAYER_INPUT").Value = 1;
-        player.setValue = Config.invalidInput;
-        await NwTask.WaitUntil(() => player.setValue != Config.invalidInput);
-        DrawModifyHeadPage(player, oPNJ, player.setValue);
-        player.setValue = Config.invalidInput;
-      });
+      bool awaitedValue = await player.WaitForPlayerInputInt();
+
+      if (awaitedValue)
+        DrawModifyHeadPage(player, oPNJ, 0);
     }
-    private static void DrawModifyEyesPage(Player player, NwCreature oPNJ, int modification)
+    private static async void DrawModifyEyesPage(Player player, NwCreature oPNJ, int modification)
     {
       if (modification == -2)
         player.menu.Clear();
@@ -678,11 +669,18 @@ namespace NWN.Systems
 
       if (modification > -2)
       {
-        if (player.setValue != Config.invalidInput)
+        int choice = -1;
+        if (player.oid.GetLocalVariable<string>("_PLAYER_INPUT").HasValue)
         {
-          currentValue = player.setValue;
-          player.setValue = Config.invalidInput;
+          choice = int.Parse(player.oid.GetLocalVariable<string>("_PLAYER_INPUT").Value);
+          player.oid.GetLocalVariable<string>("_PLAYER_INPUT").Delete();
         }
+
+        if (player.oid.GetLocalVariable<int>("_AWAITING_PLAYER_INPUT").HasValue)
+          player.oid.GetLocalVariable<int>("_PLAYER_INPUT_CANCELLED").Value = 1;
+
+        if (choice > -1)
+          currentValue = choice;
         else if (modification == 1)
           currentValue++;
         else if (modification == -1)
@@ -713,16 +711,12 @@ namespace NWN.Systems
         player.menu.Draw();
       }
 
-      Task waitPlayerInput = NwTask.Run(async () =>
-      {
-        player.oid.GetLocalVariable<int>("_PLAYER_INPUT").Value = 1;
-        player.setValue = Config.invalidInput;
-        await NwTask.WaitUntil(() => player.setValue != Config.invalidInput);
-        DrawModifyEyesPage(player, oPNJ, player.setValue);
-        player.setValue = Config.invalidInput;
-      });
+      bool awaitedValue = await player.WaitForPlayerInputInt();
+
+      if (awaitedValue)
+        DrawModifyEyesPage(player, oPNJ, 0);
     }
-    private static void DrawModifyLipsPage(Player player, NwCreature oPNJ, int modification)
+    private static async void DrawModifyLipsPage(Player player, NwCreature oPNJ, int modification)
     {
       if (modification == -2)
         player.menu.Clear();
@@ -736,11 +730,18 @@ namespace NWN.Systems
 
       if (modification > -2)
       {
-        if (player.setValue != Config.invalidInput)
+        int choice = -1;
+        if (player.oid.GetLocalVariable<string>("_PLAYER_INPUT").HasValue)
         {
-          currentValue = player.setValue;
-          player.setValue = Config.invalidInput;
+          choice = int.Parse(player.oid.GetLocalVariable<string>("_PLAYER_INPUT").Value);
+          player.oid.GetLocalVariable<string>("_PLAYER_INPUT").Delete();
         }
+
+        if (player.oid.GetLocalVariable<int>("_AWAITING_PLAYER_INPUT").HasValue)
+          player.oid.GetLocalVariable<int>("_PLAYER_INPUT_CANCELLED").Value = 1;
+
+        if (choice > -1)
+          currentValue = choice;
         else if (modification == 1)
           currentValue++;
         else if (modification == -1)
@@ -771,16 +772,12 @@ namespace NWN.Systems
         player.menu.Draw();
       }
 
-      Task waitPlayerInput = NwTask.Run(async () =>
-      {
-        player.oid.GetLocalVariable<int>("_PLAYER_INPUT").Value = 1;
-        player.setValue = Config.invalidInput;
-        await NwTask.WaitUntil(() => player.setValue != Config.invalidInput);
-        DrawModifyLipsPage(player, oPNJ, player.setValue);
-        player.setValue = Config.invalidInput;
-      });
+      bool awaitedValue = await player.WaitForPlayerInputInt();
+
+      if (awaitedValue)
+        DrawModifyLipsPage(player, oPNJ, 0);
     }
-    private static void DrawModifyHairPage(Player player, NwCreature oPNJ, int modification)
+    private static async void DrawModifyHairPage(Player player, NwCreature oPNJ, int modification)
     {
       if (modification == -2)
         player.menu.Clear();
@@ -794,11 +791,18 @@ namespace NWN.Systems
 
       if (modification > -2)
       {
-        if (player.setValue != Config.invalidInput)
+        int choice = -1;
+        if (player.oid.GetLocalVariable<string>("_PLAYER_INPUT").HasValue)
         {
-          currentValue = player.setValue;
-          player.setValue = Config.invalidInput;
+          choice = int.Parse(player.oid.GetLocalVariable<string>("_PLAYER_INPUT").Value);
+          player.oid.GetLocalVariable<string>("_PLAYER_INPUT").Delete();
         }
+
+        if (player.oid.GetLocalVariable<int>("_AWAITING_PLAYER_INPUT").HasValue)
+          player.oid.GetLocalVariable<int>("_PLAYER_INPUT_CANCELLED").Value = 1;
+
+        if (choice > -1)
+          currentValue = choice;
         else if (modification == 1)
           currentValue++;
         else if (modification == -1)
@@ -829,16 +833,12 @@ namespace NWN.Systems
         player.menu.Draw();
       }
 
-      Task waitPlayerInput = NwTask.Run(async () =>
-      {
-        player.oid.GetLocalVariable<int>("_PLAYER_INPUT").Value = 1;
-        player.setValue = Config.invalidInput;
-        await NwTask.WaitUntil(() => player.setValue != Config.invalidInput);
-        DrawModifyHairPage(player, oPNJ, player.setValue);
-        player.setValue = Config.invalidInput;
-      });
+      bool awaitedValue = await player.WaitForPlayerInputInt();
+
+      if (awaitedValue)
+        DrawModifyHairPage(player, oPNJ, 0);
     }
-    private static void DrawModifyWingsPage(Player player, NwCreature oPNJ, int modification)
+    private static async void DrawModifyWingsPage(Player player, NwCreature oPNJ, int modification)
     {
       if (modification == -2)
         player.menu.Clear();
@@ -852,11 +852,18 @@ namespace NWN.Systems
 
       if (modification > -2)
       {
-        if (player.setValue != Config.invalidInput)
+        int choice = -1;
+        if (player.oid.GetLocalVariable<string>("_PLAYER_INPUT").HasValue)
         {
-          currentValue = player.setValue;
-          player.setValue = Config.invalidInput;
+          choice = int.Parse(player.oid.GetLocalVariable<string>("_PLAYER_INPUT").Value);
+          player.oid.GetLocalVariable<string>("_PLAYER_INPUT").Delete();
         }
+
+        if (player.oid.GetLocalVariable<int>("_AWAITING_PLAYER_INPUT").HasValue)
+          player.oid.GetLocalVariable<int>("_PLAYER_INPUT_CANCELLED").Value = 1;
+
+        if (choice > -1)
+          currentValue = choice;
         else if (modification == 1)
           currentValue++;
         else if (modification == -1)
@@ -879,16 +886,12 @@ namespace NWN.Systems
         player.menu.Draw();
       }
 
-      Task waitPlayerInput = NwTask.Run(async () =>
-      {
-        player.oid.GetLocalVariable<int>("_PLAYER_INPUT").Value = 1;
-        player.setValue = Config.invalidInput;
-        await NwTask.WaitUntil(() => player.setValue != Config.invalidInput);
-        DrawModifyWingsPage(player, oPNJ, player.setValue);
-        player.setValue = Config.invalidInput;
-      });
+      bool awaitedValue = await player.WaitForPlayerInputInt();
+
+      if (awaitedValue)
+        DrawModifyWingsPage(player, oPNJ, 0);
     }
-    private static void DrawModifyTailPage(Player player, NwCreature oPNJ, int modification)
+    private static async void DrawModifyTailPage(Player player, NwCreature oPNJ, int modification)
     {
       if (modification == -2)
         player.menu.Clear();
@@ -902,11 +905,18 @@ namespace NWN.Systems
 
       if (modification > -2)
       {
-        if (player.setValue != Config.invalidInput)
+        int choice = -1;
+        if (player.oid.GetLocalVariable<string>("_PLAYER_INPUT").HasValue)
         {
-          currentValue = player.setValue;
-          player.setValue = Config.invalidInput;
+          choice = int.Parse(player.oid.GetLocalVariable<string>("_PLAYER_INPUT").Value);
+          player.oid.GetLocalVariable<string>("_PLAYER_INPUT").Delete();
         }
+
+        if (player.oid.GetLocalVariable<int>("_AWAITING_PLAYER_INPUT").HasValue)
+          player.oid.GetLocalVariable<int>("_PLAYER_INPUT_CANCELLED").Value = 1;
+
+        if (choice > -1)
+          currentValue = choice;
         else if (modification == 1)
           currentValue++;
         else if (modification == -1)
@@ -929,14 +939,10 @@ namespace NWN.Systems
         player.menu.Draw();
       }
 
-      Task waitPlayerInput = NwTask.Run(async () =>
-      {
-        player.oid.GetLocalVariable<int>("_PLAYER_INPUT").Value = 1;
-        player.setValue = Config.invalidInput;
-        await NwTask.WaitUntil(() => player.setValue != Config.invalidInput);
-        DrawModifyTailPage(player, oPNJ, player.setValue);
-        player.setValue = Config.invalidInput;
-      });
+      bool awaitedValue = await player.WaitForPlayerInputInt();
+
+      if (awaitedValue)
+        DrawModifyTailPage(player, oPNJ, 0);
     }
     private static void HandleSaveNPC(Player player, NwCreature oPNJ)
     {

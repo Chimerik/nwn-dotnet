@@ -15,24 +15,20 @@ namespace NWN.Systems
       player.menu.choices.Add(("Quitter.", () => player.menu.Close()));
       player.menu.Draw();
 
-      player.oid.GetLocalVariable<int>("_PLAYER_INPUT_STRING").Delete();
+      WaitPlayerInput(player);
+    }
 
-      Task playerInput = NwTask.Run(async () =>
+    private async void WaitPlayerInput(PlayerSystem.Player player)
+    {
+      bool awaitedValue = await player.WaitForPlayerInputString();
+
+      if (awaitedValue)
+        AdminPlugin.DeletePlayerCharacter(player.oid, 1, $"Le personnage {player.oid.Name} a été supprimé.");
+      else
       {
-        player.oid.GetLocalVariable<int>("_PLAYER_INPUT_STRING").Value = 1;
-        player.setString = "";
-        await NwTask.WaitUntil(() => player.setString != "");
-        if(player.setString == player.oid.Name)
-        {
-          AdminPlugin.DeletePlayerCharacter(player.oid, 1, $"Le personnage {player.oid.Name} a été supprimé.");
-        }
-        else
-        {
-          player.oid.SendServerMessage($"Le nom saisit ne correspond pas. Annulation de la suppression.", Color.ORANGE);
-          player.setString = "";
-          CommandSystem.DrawCommandList(player);
-        }
-      });
+        player.oid.SendServerMessage($"Le nom saisit ne correspond pas. Annulation de la suppression.", Color.ORANGE);
+        CommandSystem.DrawCommandList(player);
+      }
     }
   }
 }

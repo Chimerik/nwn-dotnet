@@ -9,6 +9,7 @@ using System.Threading.Tasks;
 using Skill = NWN.Systems.SkillSystem.Skill;
 using Action = System.Action;
 using NWN.API.Constants;
+using System.Threading;
 
 namespace NWN.Systems
 {
@@ -35,10 +36,9 @@ namespace NWN.Systems
       public TargetEvent targetEvent { get; set; }
       public Menu menu { get; }
       public NwCreature deathCorpse { get; set; }
-      public int setValue { get; set; }
-      public string setString { get; set; }
       public QuickbarType loadedQuickBar { get; set; }
-      public Arena.PlayerData pveArena = new Arena.PlayerData();
+      public string serializedQuickbar { get; set; }
+      public Arena.PlayerData pveArena { get; set; }
 
       public List<NwPlayer> listened = new List<NwPlayer>();
       public Dictionary<uint, Player> blocked = new Dictionary<uint, Player>();
@@ -48,16 +48,15 @@ namespace NWN.Systems
       public Dictionary<Feat, Skill> removeableMalus = new Dictionary<Feat, Skill>();
       public Dictionary<string, int> materialStock = new Dictionary<string, int>();
       public List<API.Effect> effectList = new List<API.Effect>();
-      public List<QuickBarSlot> savedQuickBar = new List<QuickBarSlot>();
       public Dictionary<int, MapPin> mapPinDictionnary = new Dictionary<int, MapPin>();
       public Dictionary<string, string> areaExplorationStateDictionnary = new Dictionary<string, string>();
+      public Dictionary<int, Color> chatColors = new Dictionary<int, Color>();
 
-      //public Action OnCollectCycleCancel = delegate { };
-      //public Action OnCollectCycleComplete = delegate { };
       public Player(NwPlayer nwobj)
       {
         this.oid = nwobj;
         this.menu = new PrivateMenu(this);
+        this.pveArena = new Arena.PlayerData();
 
         if (ObjectPlugin.GetInt(this.oid, "accountId") == 0 && !oid.IsDM)
           InitializeNewPlayer(this.oid);
@@ -97,20 +96,27 @@ namespace NWN.Systems
       {
         if (this.loadedQuickBar == QuickbarType.Invalid)
         {
+          //Log.Info("new qbs");
+          //PlayerQuickBarButton emptyQBS = new PlayerQuickBarButton();
           QuickBarSlot emptyQBS = new QuickBarSlot();
 
           switch (type)
           {
             case QuickbarType.Menu:
 
-              this.savedQuickBar.Clear();
-              emptyQBS.nObjectType = 4;
+              Log.Info("serializing");
+              this.serializedQuickbar = oid.SerializeQuickbar().ToBase64EncodedString();
+              //emptyQBS.ObjectType = QuickBarButtonType.Empty;
+              emptyQBS.nObjectType = 0;
 
-              for (int i = 0; i < 12; i++)
+              for (byte i = 0; i < 12; i++)
               {
-                this.savedQuickBar.Add(PlayerPlugin.GetQuickBarSlot(this.oid, i));
+                Log.Info($"setting qbs {i}");
                 PlayerPlugin.SetQuickBarSlot(this.oid, i, emptyQBS);
+                //oid.SetQuickBarSlot(i, emptyQBS);
               }
+
+              Log.Info("after setting qbs");
 
               if (menu.choices.Count > 0)
               {
@@ -118,12 +124,19 @@ namespace NWN.Systems
                 oid.AddFeat(CustomFeats.CustomMenuUP);
                 oid.AddFeat(CustomFeats.CustomMenuSELECT);
 
+                //emptyQBS.ObjectType = QuickBarButtonType.Feat;
+                emptyQBS.nObjectType = 4;
+
                 if (ObjectPlugin.GetInt(this.oid, "_MENU_HOTKEYS_SWAPPED") == 0)
                 {
                   emptyQBS.nINTParam1 = (int)CustomFeats.CustomMenuDOWN;
                   PlayerPlugin.SetQuickBarSlot(this.oid, 0, emptyQBS);
                   emptyQBS.nINTParam1 = (int)CustomFeats.CustomMenuUP;
                   PlayerPlugin.SetQuickBarSlot(this.oid, 1, emptyQBS);
+                  /*emptyQBS.Param1 = (int)CustomFeats.CustomMenuDOWN;
+                  oid.SetQuickBarSlot(0, emptyQBS);
+                  emptyQBS.Param1 = (int)CustomFeats.CustomMenuUP;
+                  oid.SetQuickBarSlot(1, emptyQBS);*/
                 }
                 else
                 {
@@ -131,16 +144,24 @@ namespace NWN.Systems
                   PlayerPlugin.SetQuickBarSlot(this.oid, 1, emptyQBS);
                   emptyQBS.nINTParam1 = (int)CustomFeats.CustomMenuUP;
                   PlayerPlugin.SetQuickBarSlot(this.oid, 0, emptyQBS);
+                  /*emptyQBS.Param1 = (int)CustomFeats.CustomMenuDOWN;
+                  oid.SetQuickBarSlot(1, emptyQBS);
+                  emptyQBS.Param1 = (int)CustomFeats.CustomMenuUP;
+                  oid.SetQuickBarSlot(0, emptyQBS);*/
                 }
-                  
+
                 emptyQBS.nINTParam1 = (int)CustomFeats.CustomMenuSELECT;
                 PlayerPlugin.SetQuickBarSlot(this.oid, 2, emptyQBS);
+                /*emptyQBS.Param1 = (int)CustomFeats.CustomMenuSELECT;
+                oid.SetQuickBarSlot(2, emptyQBS);*/
               }
 
               oid.AddFeat(CustomFeats.CustomMenuEXIT);
-              
+
               emptyQBS.nINTParam1 = (int)CustomFeats.CustomMenuEXIT;
               PlayerPlugin.SetQuickBarSlot(this.oid, 3, emptyQBS);
+              /*emptyQBS.Param1 = (int)CustomFeats.CustomMenuEXIT;
+              oid.SetQuickBarSlot(3, emptyQBS);*/
 
               this.loadedQuickBar = QuickbarType.Menu;
               break;
@@ -155,15 +176,12 @@ namespace NWN.Systems
               CreaturePlugin.AddFeat(this.oid, (int)CustomFeats.CustomPositionRotateLeft);
               CreaturePlugin.AddFeat(this.oid, (int)CustomFeats.CustomMenuEXIT);
 
-              this.savedQuickBar.Clear();
-              emptyQBS = new QuickBarSlot();
-              emptyQBS.nObjectType = 0;
+              this.serializedQuickbar = oid.SerializeQuickbar().ToBase64EncodedString();
 
               for (int i = 0; i < 12; i++)
-              {
-                this.savedQuickBar.Add(PlayerPlugin.GetQuickBarSlot(this.oid, i));
                 PlayerPlugin.SetQuickBarSlot(this.oid, i, emptyQBS);
-              }
+              //oid.SetQuickBarSlot((byte)i, emptyQBS);
+
               emptyQBS.nObjectType = 4;
               emptyQBS.nINTParam1 = (int)CustomFeats.CustomMenuDOWN;
               PlayerPlugin.SetQuickBarSlot(this.oid, 0, emptyQBS);
@@ -183,6 +201,25 @@ namespace NWN.Systems
               PlayerPlugin.SetQuickBarSlot(this.oid, 7, emptyQBS);
               emptyQBS.nINTParam1 = (int)CustomFeats.CustomMenuEXIT;
               PlayerPlugin.SetQuickBarSlot(this.oid, 8, emptyQBS);
+              /*emptyQBS.ObjectType = QuickBarButtonType.Feat;
+              emptyQBS.Param1 = (int)CustomFeats.CustomMenuDOWN;
+              oid.SetQuickBarSlot(0, emptyQBS);
+              emptyQBS.Param1 = (int)CustomFeats.CustomMenuUP;
+              oid.SetQuickBarSlot(1, emptyQBS);
+              emptyQBS.Param1 = (int)CustomFeats.CustomPositionLeft;
+              oid.SetQuickBarSlot(2, emptyQBS);
+              emptyQBS.Param1 = (int)CustomFeats.CustomPositionRight;
+              oid.SetQuickBarSlot(3, emptyQBS);
+              emptyQBS.Param1 = (int)CustomFeats.CustomPositionForward;
+              oid.SetQuickBarSlot(4, emptyQBS);
+              emptyQBS.Param1 = (int)CustomFeats.CustomPositionBackward;
+              oid.SetQuickBarSlot(5, emptyQBS);
+              emptyQBS.Param1 = (int)CustomFeats.CustomPositionRotateLeft;
+              oid.SetQuickBarSlot(6, emptyQBS);
+              emptyQBS.Param1 = (int)CustomFeats.CustomPositionRotateRight;
+              oid.SetQuickBarSlot(7, emptyQBS);
+              emptyQBS.Param1 = (int)CustomFeats.CustomMenuEXIT;
+              oid.SetQuickBarSlot(8, emptyQBS);*/
 
               this.loadedQuickBar = QuickbarType.Sit;
               this.OnKeydown += this.menu.HandleMenuFeatUsed;
@@ -203,14 +240,7 @@ namespace NWN.Systems
         CreaturePlugin.RemoveFeat(this.oid, (int)CustomFeats.CustomPositionRotateLeft);
         CreaturePlugin.RemoveFeat(this.oid, (int)CustomFeats.CustomPositionRotateRight);
 
-        int i = 0;
-        foreach (QuickBarSlot qbs in this.savedQuickBar)
-        {
-          PlayerPlugin.SetQuickBarSlot(this.oid, i, qbs);
-          i++;
-        }
-
-        savedQuickBar.Clear();
+        bool returned = oid.DeserializeQuickbar(this.serializedQuickbar.ToByteArray());
         loadedQuickBar = QuickbarType.Invalid;
       }
       public void CraftJobProgression()
@@ -232,7 +262,7 @@ namespace NWN.Systems
         }
       }
 
-      public void AcquireCraftedItem()
+      public async void AcquireCraftedItem()
       {
         switch (craftJob.type)
         {
@@ -303,6 +333,7 @@ namespace NWN.Systems
           default:
             if (Craft.Collect.System.blueprintDictionnary.TryGetValue(craftJob.baseItemType, out Blueprint blueprint))
             {
+              await NwModule.Instance.WaitForObjectContext();
               NwItem craftedItem = NwItem.Create(blueprint.craftedItemTag, oid);
 
               if (craftedItem == null)
@@ -528,6 +559,69 @@ namespace NWN.Systems
         bankGold -= borrowedGold;
 
         oid.SendServerMessage($"Vous ne disposez pas de la somme requise. {price} pièces d'or ont donc été prélevées sur votre compte.");
+      }
+      public async Task<bool> WaitForPlayerInputInt()
+      {
+        this.oid.GetLocalVariable<int>("_AWAITING_PLAYER_INPUT").Value = 1;
+
+        this.oid.OnChat -= ChatSystem.HandlePlayerInputInt;
+        this.oid.OnChat += ChatSystem.HandlePlayerInputInt;
+
+        CancellationTokenSource tokenSource = new CancellationTokenSource();
+        Task awaitPlayerInput = NwTask.WaitUntil(() => this.oid.GetLocalVariable<string>("_PLAYER_INPUT").HasValue, tokenSource.Token);
+        Task awaitPlayerCancellation = NwTask.WaitUntil(() => this.oid.GetLocalVariable<int>("_PLAYER_INPUT_CANCELLED").HasValue, tokenSource.Token);
+
+        await NwTask.WhenAny(awaitPlayerInput, awaitPlayerCancellation);
+        tokenSource.Cancel();
+
+        this.oid.GetLocalVariable<int>("_PLAYER_INPUT_CANCELLED").Delete();
+
+        if (awaitPlayerCancellation.IsCompletedSuccessfully)
+          return false;
+        else
+          return true;
+      }
+      public async Task<bool> WaitForPlayerInputByte()
+      {
+        this.oid.GetLocalVariable<int>("_AWAITING_PLAYER_INPUT").Value = 1;
+
+        this.oid.OnChat -= ChatSystem.HandlePlayerInputByte;
+        this.oid.OnChat += ChatSystem.HandlePlayerInputByte;
+
+        CancellationTokenSource tokenSource = new CancellationTokenSource();
+        Task awaitPlayerInput = NwTask.WaitUntil(() => this.oid.GetLocalVariable<string>("_PLAYER_INPUT").HasValue, tokenSource.Token);
+        Task awaitPlayerCancellation = NwTask.WaitUntil(() => this.oid.GetLocalVariable<int>("_PLAYER_INPUT_CANCELLED").HasValue, tokenSource.Token);
+
+        await NwTask.WhenAny(awaitPlayerInput, awaitPlayerCancellation);
+        tokenSource.Cancel();
+
+        this.oid.GetLocalVariable<int>("_PLAYER_INPUT_CANCELLED").Delete();
+
+        if (awaitPlayerCancellation.IsCompletedSuccessfully)
+          return false;
+        else
+          return true;
+      }
+      public async Task<bool> WaitForPlayerInputString()
+      {
+        this.oid.GetLocalVariable<int>("_AWAITING_PLAYER_INPUT").Value = 1;
+
+        this.oid.OnChat -= ChatSystem.HandlePlayerInputString;
+        this.oid.OnChat += ChatSystem.HandlePlayerInputString;
+
+        CancellationTokenSource tokenSource = new CancellationTokenSource();
+        Task awaitPlayerInput = NwTask.WaitUntil(() => this.oid.GetLocalVariable<string>("_PLAYER_INPUT").HasValue, tokenSource.Token);
+        Task awaitPlayerCancellation = NwTask.WaitUntil(() => this.oid.GetLocalVariable<int>("_PLAYER_INPUT_CANCELLED").HasValue, tokenSource.Token);
+
+        await NwTask.WhenAny(awaitPlayerInput, awaitPlayerCancellation);
+        tokenSource.Cancel();
+
+        this.oid.GetLocalVariable<int>("_PLAYER_INPUT_CANCELLED").Delete();
+
+        if (awaitPlayerCancellation.IsCompletedSuccessfully)
+          return false;
+        else
+          return true;
       }
     }
   }

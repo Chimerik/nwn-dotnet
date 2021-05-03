@@ -6,8 +6,7 @@ using NWN.API;
 using NWN.API.Events;
 using NWN.Core;
 using NWN.Core.NWNX;
-using NWN.Services;
-using NWNX.API;
+using NWN.System;
 using static NWN.Systems.PlayerSystem;
 
 namespace NWN.Systems
@@ -57,7 +56,7 @@ namespace NWN.Systems
 
       player.menu.Draw();
     }
-    private static void GetObjectToAdd(PlayerSystem.Player player, NwStore store, NwPlaceable panel)
+    private static void GetObjectToAdd(Player player, NwStore store, NwPlaceable panel)
     {
       player.oid.SendServerMessage("Veuillez maintenant sélectionnner l'objet que vous souhaitez mettre en vente.", Color.ROSE);
       player.oid.GetLocalVariable<NwObject>("_ACTIVE_STORE").Value = store;
@@ -66,7 +65,7 @@ namespace NWN.Systems
     }
     private static void OnSellItemSelected(ModuleEvents.OnPlayerTarget selection)
     {
-      if (!Players.TryGetValue(selection.Player, out PlayerSystem.Player player))
+      if (!Players.TryGetValue(selection.Player, out Player player))
         return;
 
       if (selection.TargetObject is null || !(selection.TargetObject is NwItem))
@@ -82,26 +81,23 @@ namespace NWN.Systems
 
       DrawItemAddedPage(player, (NwItem)selection.TargetObject, store, panel);
     }
-    private static void GetNewDescription(PlayerSystem.Player player, NwPlaceable shop)
+    private static async void GetNewDescription(PlayerSystem.Player player, NwPlaceable shop)
     {
       player.menu.titleLines = new List<string>() {
         "Veuillez prononcer la nouvelle description à l'oral."
       };
 
-      player.oid.GetLocalVariable<int>("_PLAYER_INPUT_STRING").Delete();
-
-      Task playerInput = NwTask.Run(async () =>
-      {
-        player.oid.GetLocalVariable<int>("_PLAYER_INPUT_STRING").Value = 1;
-        player.setString = "";
-        await NwTask.WaitUntil(() => player.setString != "");
-        shop.Description = player.setString;
-        player.oid.SendServerMessage($"La description de votre échoppe a été modifiée.", Color.ROSE);
-        player.setString = "";
-        DrawMainPage(player, shop);
-      });
-
       player.menu.Draw();
+
+      bool awaitedValue = await player.WaitForPlayerInputString();
+
+      if (awaitedValue)
+      {
+        shop.Description = player.oid.GetLocalVariable<string>("_PLAYER_INPUT").Value;
+        player.oid.GetLocalVariable<string>("_PLAYER_INPUT").Delete();
+        player.oid.SendServerMessage($"La description de votre échoppe a été modifiée.", Color.ROSE);
+        DrawMainPage(player, shop);
+      }
     }
     public static void SaveAuction(PlayerSystem.Player player, NwStore shop)
     {
@@ -145,7 +141,7 @@ namespace NWN.Systems
       }
     }
 
-    public static void DrawItemAddedPage(PlayerSystem.Player player, NwItem item, NwStore shop, NwPlaceable panel)
+    public static async void DrawItemAddedPage(Player player, NwItem item, NwStore shop, NwPlaceable panel)
     {
       player.menu.Clear();
       player.menu.titleLines = new List<string> {
@@ -153,32 +149,30 @@ namespace NWN.Systems
         "(prononcez simplement la mise à prix à haute voix)"
       };
 
-      player.oid.GetLocalVariable<int>("_PLAYER_INPUT").Delete();
-
-      Task playerInput = NwTask.Run(async () =>
-      {
-        player.oid.GetLocalVariable<int>("_PLAYER_INPUT").Value = 1;
-        player.setValue = Config.invalidInput;
-        await NwTask.WaitUntil(() => player.setValue != Config.invalidInput);
-        GetAuctionDuration(player, item, shop, panel);
-        player.setValue = Config.invalidInput;
-      });
-
       player.menu.Draw();
+
+      bool awaitedValue = await player.WaitForPlayerInputInt();
+
+      if (awaitedValue)
+      {
+        GetAuctionDuration(player, item, shop, panel);
+        player.oid.GetLocalVariable<string>("_PLAYER_INPUT").Delete();
+      }
     }
-    public static void GetAuctionDuration(PlayerSystem.Player player, NwItem item, NwStore shop, NwPlaceable panel)
+    public static async void GetAuctionDuration(Player player, NwItem item, NwStore shop, NwPlaceable panel)
     {
       player.menu.Clear();
       int goldValue;
+      int input = int.Parse(player.oid.GetLocalVariable<string>("_PLAYER_INPUT"));
 
-      if (player.setValue <= 0)
+      if (input <= 0)
       {
         goldValue = item.GoldValue;
         player.oid.SendServerMessage($"La mise à prix saisie est invalide. {item.Name.ColorString(Color.ORANGE)} est désormais aux enchères avec une mise à prix de base de {goldValue.ToString().ColorString(Color.GREEN)} pièce(s) d'or.");
       }
       else
       {
-        goldValue = player.setValue;
+        goldValue = input;
         player.oid.SendServerMessage($"{item.Name.ColorString(Color.ORANGE)} est désormais aux enchères avec une mise à prix de base de {goldValue.ToString().ColorString(Color.GREEN)} pièce(s) d'or.");
       }
 
@@ -187,33 +181,31 @@ namespace NWN.Systems
         "(prononcez simplement le nombre de jours, compris entre 1 et 30, à haute voix)"
       };
 
-      player.oid.GetLocalVariable<int>("_PLAYER_INPUT").Delete();
-
-      Task playerInput = NwTask.Run(async () =>
-      {
-        player.oid.GetLocalVariable<int>("_PLAYER_INPUT").Value = 1;
-        player.setValue = Config.invalidInput;
-        await NwTask.WaitUntil(() => player.setValue != Config.invalidInput);
-        ValidateAuction(player, item, shop, panel, goldValue);
-        player.setValue = Config.invalidInput;
-      });
-
       player.menu.Draw();
+
+      bool awaitedValue = await player.WaitForPlayerInputInt();
+
+      if (awaitedValue)
+      {
+        ValidateAuction(player, item, shop, panel, goldValue);
+        player.oid.GetLocalVariable<string>("_PLAYER_INPUT").Delete();
+      }
     }
 
-    private static void ValidateAuction(PlayerSystem.Player player, NwItem item, NwStore shop, NwPlaceable panel, int goldValue)
+    private static void ValidateAuction(Player player, NwItem item, NwStore shop, NwPlaceable panel, int goldValue)
     {
       player.menu.Clear();
       int auctionDuration;
+      int input = int.Parse(player.oid.GetLocalVariable<string>("_PLAYER_INPUT"));
 
-      if (player.setValue <= 0 || player.setValue > 30)
+      if (input <= 0 || input > 30)
       {
         auctionDuration = 1;
         player.oid.SendServerMessage($"La durée saisie est invalide. {item.Name.ColorString(Color.ORANGE)} est désormais aux enchères avec une mise à prix de base de {goldValue.ToString().ColorString(Color.GREEN)} pièce(s) d'or pour une durée de {auctionDuration} jour.");
       }
       else
       {
-        auctionDuration = player.setValue;
+        auctionDuration = input;
         player.oid.SendServerMessage($"{item.Name.ColorString(Color.ORANGE)} est désormais aux enchères avec une mise à prix de base de {goldValue.ToString().ColorString(Color.GREEN)} pièce(s) d'or pour une durée de {auctionDuration} jour(s).");
       }
 
@@ -229,13 +221,15 @@ namespace NWN.Systems
     }
     private static void OpenStore(PlayerSystem.Player player, NwStore shop)
     {
+      shop.OnOpen -= StoreSystem.OnOpenOwnedPlayerAuction;
+      shop.OnOpen += StoreSystem.OnOpenOwnedPlayerAuction;
       shop.Open(player.oid);
     }
     private static void HandleRotation(PlayerSystem.Player player, NwPlaceable shop)
     {
       shop.Rotation += 20;
     }
-    public static void GetAuctionPrice(PlayerSystem.Player player, NwStore shop, NwPlaceable panel)
+    public static async void GetAuctionPrice(Player player, NwStore shop, NwPlaceable panel)
     {
       player.menu.Clear();
       player.menu.titleLines = new List<string> {
@@ -244,39 +238,37 @@ namespace NWN.Systems
         "(prononcez simplement la valeur de votre enchère à haute voix)"
       };
 
-      player.oid.GetLocalVariable<int>("_PLAYER_INPUT").Delete();
-
-      Task playerInput = NwTask.Run(async () =>
-      {
-        player.oid.GetLocalVariable<int>("_PLAYER_INPUT").Value = 1;
-        player.setValue = Config.invalidInput;
-        await NwTask.WaitUntil(() => player.setValue != Config.invalidInput);
-        SetAuctionPrice(player, shop, panel);
-        player.setValue = Config.invalidInput;
-      });
-
       player.menu.Draw();
+
+      bool awaitedValue = await player.WaitForPlayerInputInt();
+
+      if (awaitedValue)
+      {
+        SetAuctionPrice(player, shop, panel);
+        player.oid.GetLocalVariable<string>("_PLAYER_INPUT").Delete();
+      }
     }
-    private static void SetAuctionPrice(PlayerSystem.Player player, NwStore shop, NwPlaceable panel)
+    private static void SetAuctionPrice(Player player, NwStore shop, NwPlaceable panel)
     {
       player.menu.Clear();
       int auctionSetPrice;
+      int input = int.Parse(player.oid.GetLocalVariable<string>("_PLAYER_INPUT"));
 
-      if(player.setValue > player.oid.Gold)
+      if (input > player.oid.Gold)
       {
-        player.oid.SendServerMessage($"Vous n'avez pas {player.setValue.ToString().ColorString(Color.GREEN)} pièce(s) d'or en poche !");
+        player.oid.SendServerMessage($"Vous n'avez pas {input.ToString().ColorString(Color.GREEN)} pièce(s) d'or en poche !");
         player.menu.Close();
         return;
       }
 
-      if (player.setValue <= shop.GetLocalVariable<int>("_CURRENT_AUCTION").Value)
+      if (input <= shop.GetLocalVariable<int>("_CURRENT_AUCTION").Value)
       {
         auctionSetPrice = shop.GetLocalVariable<int>("_CURRENT_AUCTION").Value + 1;
         player.oid.SendServerMessage($"La valeur saisie est invalide.  Par défaut, vous avez donc surenchérit à hauteur de {auctionSetPrice.ToString().ColorString(Color.GREEN)} pièce(s) d'or.");
       }
       else
       {
-        auctionSetPrice = player.setValue;
+        auctionSetPrice = input;
         player.oid.SendServerMessage($"Vous venez de surenchérir à hauteur de {auctionSetPrice.ToString().ColorString(Color.GREEN)} pièce(s) d'or.");
       }
 

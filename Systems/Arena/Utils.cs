@@ -26,11 +26,31 @@ namespace NWN.Systems.Arena
         case Difficulty.Level5: return 5000;
       }
     }
-    public static async void HandlePlayerDied(ModuleEvents.OnPlayerDeath onPlayerDeath)
+    public static async void HandleArenaDeath(ModuleEvents.OnPlayerDeath onPlayerDeath)
     {
+      await NwTask.Delay(TimeSpan.FromSeconds(3));
+
+      NWScript.SetObjectVisualTransform(onPlayerDeath.DeadPlayer, NWScript.OBJECT_VISUAL_TRANSFORM_ROTATE_X, 360.0f, NWScript.OBJECT_VISUAL_TRANSFORM_LERP_SMOOTHERSTEP, 7f);
+      NWScript.SetObjectVisualTransform(onPlayerDeath.DeadPlayer, NWScript.OBJECT_VISUAL_TRANSFORM_ROTATE_Y, 360.0f, NWScript.OBJECT_VISUAL_TRANSFORM_LERP_QUADRATIC, 7f);
+      NWScript.SetObjectVisualTransform(onPlayerDeath.DeadPlayer, NWScript.OBJECT_VISUAL_TRANSFORM_ROTATE_Z, 360.0f, NWScript.OBJECT_VISUAL_TRANSFORM_LERP_INVERSE_SMOOTHSTEP, 7f);
+      NWScript.SetObjectVisualTransform(onPlayerDeath.DeadPlayer, NWScript.OBJECT_VISUAL_TRANSFORM_TRANSLATE_Z, 2.5f, NWScript.OBJECT_VISUAL_TRANSFORM_LERP_EASE_OUT, 4f);
+
+      await NwTask.Delay(TimeSpan.FromSeconds(5));
+
+      onPlayerDeath.DeadPlayer.ApplyEffect(EffectDuration.Instant, API.Effect.VisualEffect(API.Constants.VfxType.FnfSummonEpicUndead));
+      onPlayerDeath.DeadPlayer.ApplyEffect(EffectDuration.Instant, API.Effect.VisualEffect(API.Constants.VfxType.ImpHarm));
+      onPlayerDeath.DeadPlayer.ApplyEffect(EffectDuration.Instant, API.Effect.VisualEffect(API.Constants.VfxType.ComChunkRedLarge));
+
+      await NwTask.Delay(TimeSpan.FromSeconds(2));
       onPlayerDeath.DeadPlayer.Location = NwModule.FindObjectsWithTag<NwWaypoint>(PVE_ENTRY_WAYPOINT_TAG).FirstOrDefault().Location;
 
       await NwTask.WaitUntil(() => onPlayerDeath.DeadPlayer.Location.Area != null);
+
+      NWScript.SetObjectVisualTransform(onPlayerDeath.DeadPlayer, NWScript.OBJECT_VISUAL_TRANSFORM_ROTATE_X, 0);
+      NWScript.SetObjectVisualTransform(onPlayerDeath.DeadPlayer, NWScript.OBJECT_VISUAL_TRANSFORM_ROTATE_Y, 0);
+      NWScript.SetObjectVisualTransform(onPlayerDeath.DeadPlayer, NWScript.OBJECT_VISUAL_TRANSFORM_ROTATE_Z, 0);
+      NWScript.SetObjectVisualTransform(onPlayerDeath.DeadPlayer, NWScript.OBJECT_VISUAL_TRANSFORM_TRANSLATE_Z, 0);
+
       await NwTask.Delay(TimeSpan.FromSeconds(3));
 
       onPlayerDeath.DeadPlayer.ApplyEffect(EffectDuration.Instant, API.Effect.VisualEffect(API.Constants.VfxType.ImpRaiseDead));
@@ -44,14 +64,30 @@ namespace NWN.Systems.Arena
       if (!Players.TryGetValue(onExit.ExitingObject, out Player player))
         return;
 
-      player.oid.OnPlayerDeath -= HandlePlayerDied;
+      if (player.pveArena.currentRound == 0)
+      {
+        player.oid.OnSpellCast += SpellSystem.HandleBeforeSpellCast;
+        player.oid.OnSpellCast -= Utils.NoMagicMalus;
+        return;
+      }
+        
+
+      player.oid.OnPlayerDeath -= HandleArenaDeath; 
       player.oid.OnPlayerDeath += HandlePlayerDeath;
 
       player.pveArena.currentPoints = 0;
-      player.pveArena.currentRound = 1;
+      player.pveArena.currentRound = 0;
+
+      player.pveArena.currentMalusList.Clear();
 
       foreach (API.Effect paralysis in player.oid.ActiveEffects.Where(e => e.Tag == "_ARENA_CUTSCENE_PARALYZE_EFFECT"))
         player.oid.RemoveEffect(paralysis);
+
+      foreach(NwPlayer spectator in NwModule.Instance.Players.Where(p => p.Area == onExit.Area))
+      {
+        spectator.SendServerMessage($"La tentative de {player.oid.Name} s'achève. Vous êtes reconduit à la salle principale.");
+        spectator.Location = NwModule.FindObjectsWithTag<NwWaypoint>(Config.PVE_ENTRY_WAYPOINT_TAG).FirstOrDefault().Location;
+      }
 
       AreaSystem.AreaDestroyer(onExit.Area);
 
@@ -93,22 +129,22 @@ namespace NWN.Systems.Arena
     public static RoundCreatures GetRandomNormalEncounter(Difficulty difficulty)
     {
       var encounters = GetNormalEncounters(difficulty);
-
-      return encounters[NWN.Utils.random.Next(0, encounters.Length - 1)];
+      int rand = NWN.Utils.random.Next(0, encounters.Length);
+      return encounters[rand];
     }
 
     public static RoundCreatures GetRandomEliteEncounter(Difficulty difficulty)
     {
       var encounters = GetEliteEncounters(difficulty);
 
-      return encounters[NWN.Utils.random.Next(0, encounters.Length - 1)];
+      return encounters[NWN.Utils.random.Next(0, encounters.Length)];
     }
 
     public static RoundCreatures GetRandomBossEncounter(Difficulty difficulty)
     {
       var encounters = GetBossEncounters(difficulty);
 
-      return encounters[NWN.Utils.random.Next(0, encounters.Length - 1)];
+      return encounters[NWN.Utils.random.Next(0, encounters.Length)];
     }
     public static async void RandomizeMalusSelection(Player player)
     {
@@ -135,6 +171,12 @@ namespace NWN.Systems.Arena
         () => ApplyArenaMalus(player, (uint)random)
       ));
 
+      foreach (string malus in player.pveArena.currentMalusList)
+        player.menu.choices.Add((
+        malus,
+        () => Utils.ApplyArenaMalus(player, (uint)random)
+      ));
+
       player.menu.DrawText();
 
       RandomizeMalusSelection(player);
@@ -152,6 +194,7 @@ namespace NWN.Systems.Arena
       {
         try
         {
+          player.pveArena.currentMalusList.Add(arenaMalus.name);
           arenaMalus.applyMalus.Invoke(player);
         }
         catch (Exception e)
@@ -160,7 +203,13 @@ namespace NWN.Systems.Arena
         }
       }
 
+      player.oid.JumpToObject(player.oid.Area.FindObjectsOfTypeInArea<NwWaypoint>().FirstOrDefault(w => w.Tag == PVE_ARENA_WAYPOINT_TAG));
       ScriptHandlers.HandleFight(player);
+    }
+    public static void NoMagicMalus(OnSpellCast onSpellCast)
+    {
+      onSpellCast.PreventSpellCast = true;
+      ((NwPlayer)onSpellCast.Caster).SendServerMessage("Le contrat de spectateur vous interdit de lancer des sorts à l'intérieur de l'arène.", Color.RED);
     }
   }
 }

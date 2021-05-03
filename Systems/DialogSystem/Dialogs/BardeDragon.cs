@@ -15,7 +15,6 @@ namespace NWN.Systems
     }
     private void DrawWelcomePage(Player player, NwCreature bard)
     {
-      player.setValue = Config.invalidInput;
       player.menu.Clear();
 
       int currentMusic = bard.Area.MusicBackgroundDayTrack;

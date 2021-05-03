@@ -1,9 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
 using NWN.API;
-using NWN.API.Constants;
+using NWN.API.Events;
 using NWN.Core;
 using NWN.Core.NWNX;
 using NWN.System;
@@ -18,28 +17,29 @@ namespace NWN.Systems.Arena
     {
       player.menu.Clear();
 
-        player.menu.titleLines = new List<string>() {
+      player.menu.titleLines = new List<string>() {
         "Bienvenue dans l'arène de la Couronne de Cuivre !",
         "Que puis-je faire pour vous aujourd'hui ?"
       };
-        player.menu.choices.Add((
-          "M'inscrire pour participer aux prochains combats",
-          () => DrawSubcribePage(player)
-        ));
-        player.menu.choices.Add((
-          "Depenser mes points de victoires pour acheter des récompenses",
-          () => DrawRewardPage(player)
-        ));
+
+      player.menu.choices.Add((
+        "M'inscrire pour participer aux prochains combats",
+        () => DrawSubcribePage(player)
+      ));
+      player.menu.choices.Add((
+        "Dépenser mes points de victoires pour acheter des récompenses",
+        () => OpenArenaRewardShop(player)
+      ));
       if (player.oid.PlayerName == "Chim")
       {
         player.menu.choices.Add((
             "Modifier les récompenses",
-            () => OpenArenaRewardShop(player)
+            () => ModifyArenaRewardShop(player)
           ));
       }
       player.menu.choices.Add((
-          "Voir la liste des meilleurs combattants",
-          () => DrawHighscoresPage(player)
+          "Afficher la liste des combats en cours",
+          () => DrawCurrentRunList(player)
         ));
       player.menu.choices.Add((
           "Quitter",
@@ -96,72 +96,136 @@ namespace NWN.Systems.Arena
       player.menu.Draw();
     }
 
-    private static void HandleConfirm(Player player)
+    private static async void HandleConfirm(Player player)
     {
       player.menu.Close();
       player.pveArena.dateArenaEntered = DateTime.Now;
 
       NwArea oArena = NwArea.Create(PVE_ARENA_AREA_RESREF);
-      oArena.FindObjectsOfTypeInArea<NwPlaceable>().FirstOrDefault(w => w.Tag == PVE_ARENA_PULL_ROPE_CHAIN_TAG).OnUsed += ScriptHandlers.HandlePullRopeChainUse;
+      oArena.FindObjectsOfTypeInArea<NwPlaceable>().FirstOrDefault(w => w.Tag == PVE_ARENA_PULL_ROPE_CHAIN_TAG).OnLeftClick += ScriptHandlers.HandlePullRopeChainUse;
       oArena.OnExit += Utils.OnExitArena;
 
-      player.oid.ClearActionQueue();
-      player.oid.JumpToObject(oArena.FindObjectsOfTypeInArea<NwWaypoint>().FirstOrDefault(w => w.Tag == PVE_ARENA_WAYPOINT_TAG));
+      await player.oid.ClearActionQueue();
+      await player.oid.JumpToObject(oArena.FindObjectsOfTypeInArea<NwWaypoint>().FirstOrDefault(w => w.Tag == PVE_ARENA_WAYPOINT_TAG));
       
       player.oid.OnPlayerDeath -= HandlePlayerDeath;
-      player.oid.OnPlayerDeath += Utils.HandlePlayerDied;
+      player.oid.OnPlayerDeath += Utils.HandleArenaDeath;
 
-      Task waitAreaLoaded = NwTask.Run(async () =>
-      {
-        await NwTask.WaitUntil(() => player.oid.Area != null);
-        await NwTask.Delay(TimeSpan.FromSeconds(5));
-        ScriptHandlers.HandleFight(player);
-      });
+      await NwTask.WaitUntil(() => player.oid.Area != null);
+      await NwTask.Delay(TimeSpan.FromSeconds(5));
+      ScriptHandlers.HandleFight(player);
     }
 
-    private static void DrawRewardPage(Player player)
-    {
-      player.menu.Clear();
-      player.menu.titleLines = new List<string>() {
-        $"Vous avez actuellement {player.pveArena.totalPoints} points de victoire.",
-        "Voici la liste des récompenses disponibles :"
-      };
-      player.menu.choices.Add((
-        "Retour",
-        () => DrawMainPage(player)
-      ));
-      player.menu.Draw();
-    }
-
-    private static void DrawHighscoresPage(Player player)
-    {
-      player.menu.Clear();
-      player.menu.titleLines.Add("Voici la liste de nos meilleurs champions :");
-      player.menu.choices.Add((
-        "Retour",
-        () => DrawMainPage(player)
-      ));
-      player.menu.Draw();
-    }
     private static void OpenArenaRewardShop(Player player)
     {
+      player.menu.Close();
+
       NwStore shop = player.oid.GetNearestObjectsByType<NwStore>().FirstOrDefault(s => s.Tag == "arena_reward_shop");
 
       if (shop == null)
       {
-        var query = NWScript.SqlPrepareQueryCampaign(Systems.Config.database, $"SELECT shop facing FROM arenaRewardShop");
-        NWScript.SqlStep(query);
+        var query = NWScript.SqlPrepareQueryCampaign(Systems.Config.database, $"SELECT shop FROM arenaRewardShop");
 
-        shop = NwStore.Deserialize(NWScript.SqlGetString(query, 0).ToByteArray());
-
-        foreach (NwItem item in shop.Items)
+        if (NWScript.SqlStep(query) == 0)
         {
-          ItemPlugin.SetBaseGoldPieceValue(item, item.GetLocalVariable<int>("_SET_SELL_PRICE").Value);
+          player.oid.SendServerMessage("La boutique de récompenses n'a pas encore été initialisée. Le staff a été prévenu de cette erreur", Color.RED);
+          NWN.Utils.LogMessageToDMs("La boutique de récompense de l'arène PvE n'est pas initialisée.");
+          return;
+        }
+        else
+        {
+          shop = NWScript.SqlGetObject(query, 0, player.oid.Location).ToNwObject<NwStore>();
+
+          foreach (NwItem item in shop.Items)
+          {
+            ItemPlugin.SetBaseGoldPieceValue(item, item.GetLocalVariable<int>("_SET_SELL_PRICE").Value);
+          }
         }
       }
 
+      shop.OnOpen -= StoreSystem.OnOpenArenaRewardStore;
+      shop.OnOpen += StoreSystem.OnOpenArenaRewardStore;
+      shop.Open(player.oid);
+    }
+
+    private static void DrawCurrentRunList(Player player)
+    {
+      player.menu.Clear();
+      player.menu.titleLines.Add("");
+      player.menu.titleLines = new List<string>()
+        {
+          "Voici la liste des combats auquels vous pouvez assister.",
+          "Sélectionnez le spectacle auquel vous souhaitez assister."
+        };
+
+      foreach (NwPlayer oPC in NwModule.Instance.Players)
+      {
+        if (Players.TryGetValue(oPC, out Player fighter) && fighter.pveArena.currentRound > 0)
+        {
+          Player targetToObserve = fighter;
+          player.menu.choices.Add((
+          $"{oPC.Name} - Difficulté {fighter.pveArena.currentDifficulty} - Round {fighter.pveArena.currentRound} - Points {fighter.pveArena.currentPoints}",
+          () => SpectateArena(player, targetToObserve)
+          ));
+        }
+      }
+
+      player.menu.choices.Add((
+          "Retour",
+          () => DrawMainPage(player)
+        ));
+      player.menu.choices.Add((
+          "Quitter",
+          () => player.menu.Close()
+        ));
+
+      player.menu.Draw();
+    }
+    private static void ModifyArenaRewardShop(Player player)
+    {
+      player.menu.Close();
+
+      NwStore shop = player.oid.GetNearestObjectsByType<NwStore>().FirstOrDefault(s => s.Tag == "arena_reward_shop");
+
+      if (shop == null)
+      {
+        var query = NWScript.SqlPrepareQueryCampaign(Systems.Config.database, $"SELECT shop FROM arenaRewardShop where id = 1");
+
+        if (NWScript.SqlStep(query) == 0)
+        {
+          shop = NwStore.Create("generic_shop_res", player.oid.Location);
+        }
+        else
+        {
+          shop = NWScript.SqlGetObject(query, 0, player.oid.Location).ToNwObject<NwStore>();
+
+          foreach (NwItem item in shop.Items)
+          {
+            ItemPlugin.SetBaseGoldPieceValue(item, item.GetLocalVariable<int>("_SET_SELL_PRICE").Value);
+          }
+        }
+      }
+
+      shop.OnOpen -= StoreSystem.OnOpenModifyArenaRewardStore;
       shop.OnOpen += StoreSystem.OnOpenModifyArenaRewardStore;
       shop.Open(player.oid);
+    }
+    private static void SpectateArena(Player player, Player playerToSpectate)
+    {
+      player.menu.Close();
+
+      if(playerToSpectate.pveArena.currentRound == 0)
+      {
+        player.oid.SendServerMessage($"{playerToSpectate} n'est plus en combat. Veuillez choisir un autre spectacle.");
+        DrawCurrentRunList(player);
+        return;
+      }
+
+      player.oid.Location = NwModule.FindObjectsWithTag<NwWaypoint>("_SPECTATOR_WAYPOINT").FirstOrDefault().Location;
+
+      player.oid.OnSpellCast -= SpellSystem.HandleBeforeSpellCast;
+      player.oid.OnSpellCast -= Utils.NoMagicMalus;
+      player.oid.OnSpellCast += Utils.NoMagicMalus;
     }
   }
 }

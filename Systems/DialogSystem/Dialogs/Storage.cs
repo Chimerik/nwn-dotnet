@@ -80,7 +80,9 @@ namespace NWN.Systems
     {
       player.menu.Clear();
 
-      if (player.setValue <= 0)
+      int input = int.Parse(player.oid.GetLocalVariable<string>("_PLAYER_INPUT"));
+
+      if (input <= 0)
       {
         player.menu.titleLines = new List<string> {
           "Plait-il ? Je n'ai pas bien compris.",
@@ -90,7 +92,7 @@ namespace NWN.Systems
       }
       else
       {
-        int valueToStock = player.setValue;
+        int valueToStock = input;
         foreach (KeyValuePair<uint, string> materialEntry in inventoryMaterials.Where(v => v.Value == material))
         {
           NwItem item = materialEntry.Key.ToNwObject<NwItem>();
@@ -118,7 +120,6 @@ namespace NWN.Systems
         player.menu.titleLines.Add("Voilà qui est fait !");
       }
 
-      player.setValue = Config.invalidInput;
       player.menu.choices.Add(("Retour", () => DrawWelcomePage(player)));
       player.menu.choices.Add(("Quitter", () => player.menu.Close()));
       player.menu.Draw();
@@ -142,7 +143,9 @@ namespace NWN.Systems
     {
       player.menu.Clear();
 
-      if (player.setValue <= 0)
+      int input = int.Parse(player.oid.GetLocalVariable<string>("_PLAYER_INPUT"));
+
+      if (input <= 0)
       {
         player.menu.titleLines = new List<string> {
           "Plait-il ? Je n'ai pas bien compris.",
@@ -157,7 +160,7 @@ namespace NWN.Systems
         {
           int remainingValue = 0;
 
-          if (player.setValue >= player.materialStock[material])
+          if (input >= player.materialStock[material])
           {
             player.menu.titleLines.Add($"Ouais, j'te file tout en gros. D'ac, démerde toi avec ça.");
             remainingValue = player.materialStock[material];
@@ -165,9 +168,9 @@ namespace NWN.Systems
           }
           else
           {
-            player.menu.titleLines.Add($"{player.setValue} de {material} ? C'est parti !");
-            remainingValue = player.setValue;
-            player.materialStock[material] -= player.setValue;
+            player.menu.titleLines.Add($"{input} de {material} ? C'est parti !");
+            remainingValue = input;
+            player.materialStock[material] -= input;
           }
 
           while (remainingValue > 0)
@@ -188,7 +191,6 @@ namespace NWN.Systems
         }
       }
 
-      player.setValue = Config.invalidInput;
       player.menu.choices.Add(($"Retour.", () => DrawWelcomePage(player)));
       player.menu.choices.Add(("Quitter", () => player.menu.Close()));
       player.menu.Draw();

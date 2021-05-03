@@ -54,12 +54,14 @@ namespace NWN.Systems.Arena
     public static void DrawMalusSelectionPage(Player player)
     {
       player.oid.RemoveFeat(CustomFeats.CustomMenuEXIT);
+      player.oid.RemoveFeat(CustomFeats.CustomMenuUP);
+      player.oid.RemoveFeat(CustomFeats.CustomMenuDOWN);
 
       player.menu.Clear();
 
       player.menu.titleLines = new List<string>() {
-          "Sélectionnez votre malus !",
-          };
+          "Arrêtez la roulette pour définir votre handicap !",
+          }; 
 
       uint random = (uint)NwRandom.Roll(NWN.Utils.random, 20);
 
@@ -68,22 +70,25 @@ namespace NWN.Systems.Arena
         () => Utils.ApplyArenaMalus(player, random)
       ));
 
+      foreach (string malus in player.pveArena.currentMalusList)
+        player.menu.choices.Add((
+        malus,
+        () => Utils.ApplyArenaMalus(player, random)
+      ));
+
       player.menu.Draw();
       Utils.RandomizeMalusSelection(player);
     }
     public static void HandleStop(Player player)
     {
-      player.menu.Close();
       player.pveArena.totalPoints += player.pveArena.currentPoints;
-
-      player.oid.ClearActionQueue();
-      player.oid.Location = NwModule.FindObjectsWithTag<NwWaypoint>(PVE_ENTRY_WAYPOINT_TAG).FirstOrDefault().Location;
+      HandleRunAway(player);
     }
     private static void HandleRunAway(Player player)
     {
       player.menu.Close();
       player.oid.ClearActionQueue();
-      player.oid.Location = NwModule.FindObjectsWithTag<NwWaypoint>(PVE_ENTRY_WAYPOINT_TAG).FirstOrDefault()?.Location;
+      player.oid.Location = NwModule.FindObjectsWithTag<NwWaypoint>(PVE_ENTRY_WAYPOINT_TAG).FirstOrDefault().Location;
     }
   }
 }

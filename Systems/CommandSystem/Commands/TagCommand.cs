@@ -12,7 +12,7 @@ namespace NWN.Systems
     {
       PlayerSystem.cursorTargetService.EnterTargetMode(oPC, ChangeTagTarget, ObjectTypes.All, MouseCursor.Create);
     }
-    private static void ChangeTagTarget(ModuleEvents.OnPlayerTarget selection)
+    private static async void ChangeTagTarget(ModuleEvents.OnPlayerTarget selection)
     {
       if (!PlayerSystem.Players.TryGetValue(selection.Player, out PlayerSystem.Player player) || selection.TargetObject == null)
         return;
@@ -23,21 +23,18 @@ namespace NWN.Systems
         "Veuillez saisir le nouveau tag."
         };
 
-      Task playerInput = NwTask.Run(async () =>
-      {
-        player.oid.GetLocalVariable<int>("_PLAYER_INPUT_STRING").Value = 1;
-        player.setString = "";
-        await NwTask.WaitUntil(() => player.setString != "");
-
-        selection.TargetObject.Tag = player.setString;
-        player.oid.SendServerMessage($"{selection.TargetObject.Name.ColorString(Color.WHITE)} a été taggué {player.setString.ColorString(Color.WHITE)}.", Color.GREEN);
-        player.setString = "";
-        player.menu.Close();
-      });
-
       player.menu.choices.Add(("Retour", () => CommandSystem.DrawDMCommandList(player)));
       player.menu.choices.Add(("Quitter", () => player.menu.Close()));
       player.menu.Draw();
+
+      bool awaitedValue = await player.WaitForPlayerInputInt();
+
+      if (awaitedValue)
+      {
+        selection.TargetObject.Tag = player.oid.GetLocalVariable<string>("_PLAYER_INPUT").Value;
+        player.oid.SendServerMessage($"{selection.TargetObject.Name.ColorString(Color.WHITE)} a été taggué {selection.TargetObject.Tag.ColorString(Color.WHITE)}.", Color.GREEN);
+        player.oid.GetLocalVariable<string>("_PLAYER_INPUT").Delete();
+      }
     }
   }
 }

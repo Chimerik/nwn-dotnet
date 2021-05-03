@@ -8,7 +8,7 @@ using NLog;
 namespace NWN.Systems
 {
   [ServiceBinding(typeof(AttackSystem))]
-  public class AttackSystem
+  public partial class AttackSystem
   {
     private static readonly Logger Log = LogManager.GetCurrentClassLogger();
     public static void HandlePlayerAttackedEvent(CreatureEvents.OnPhysicalAttacked onAttacked)
