@@ -209,13 +209,15 @@ namespace NWN.Systems
           }
           else
           {
-            // TODO : A la prochaine connexion du joueur, lui envoyer un courrier afin de lui indiquer que son ordre d'achat a porté ses fruits
             var buyerQuery = NWScript.SqlPrepareQueryCampaign(Config.database, $"INSERT INTO playerMaterialStorage (characterId, materialName, materialStock) VALUES (@characterId, @materialName, @materialStock)" +
               $"ON CONFLICT (characterId, materialName) DO UPDATE SET materialStock = materialStock + @materialStock where characterId = @characterId and materialName = @materialName");
             NWScript.SqlBindInt(buyerQuery, "@characterId", buyerID);
             NWScript.SqlBindString(buyerQuery, "@materialName", material);
             NWScript.SqlBindInt(buyerQuery, "@materialStock", transferedQuantity);
             NWScript.SqlStep(buyerQuery);
+
+            Utils.SendMailToPC(buyerID, "Hotel des ventes de Similisse", $"Succès de votre d'achat {entry.Key}",
+              $"Très honoré acheteur, \n\n Nous avons l'immense plaisir de vous annoncer que votre d'achat numéro {entry.Key} a porté ses fruits. \n\n Celui-ci vous a permis d'acquérir {transferedQuantity} unité(s) de {material} ! \n\n Signé : Polpo");
           }
         }
 
@@ -452,6 +454,9 @@ namespace NWN.Systems
             NWScript.SqlBindInt(buyerQuery, "@characterId", sellerID);
             NWScript.SqlBindInt(buyerQuery, "@gold", acquiredGold);
             NWScript.SqlStep(buyerQuery);
+
+            Utils.SendMailToPC(sellerID, "Hotel des ventes de Similisse", $"Succès de votre ordre de vente {entry.Key}",
+              $"Très honoré vendeur, \n\n Nous avons l'immense plaisir de vous annoncer que votre de vente numéro {entry.Key} a porté ses fruits. \n\n Celui-ci vous a permis d'acquérir {acquiredGold} pièce(s) d'or ! \n\n Signé : Polpo");
           }
         }
 

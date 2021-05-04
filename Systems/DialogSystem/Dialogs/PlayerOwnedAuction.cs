@@ -99,9 +99,9 @@ namespace NWN.Systems
         DrawMainPage(player, shop);
       }
     }
-    public static void SaveAuction(PlayerSystem.Player player, NwStore shop)
+    public static void SaveAuction(Player player, NwStore shop)
     {
-      if (shop.Area.Tag != "Promenadetest") // TODO : Plutôt que de ne pas enregistrer les shops or de la Promenade, rendre leurs inventaires accessibles à n'importe qui (ceux-ci n'étant pas protégés par Polpo)
+      if (shop.Area.Tag != "Promenadetest")
         return;
 
       NwPlaceable panel = shop.GetNearestObjectsByType<NwPlaceable>().FirstOrDefault(p => p.Tag == $"_PLAYER_AUCTION_PLC_{player.oid.CDKey}");

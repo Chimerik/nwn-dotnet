@@ -191,5 +191,42 @@ namespace NWN
 
       return nAnimation;
     }
+    public static async void SendMailToPC(int characterId, string senderName, string title, string message)
+    {
+      await NwTask.Delay(TimeSpan.FromSeconds(0.2));
+
+      var messengerQuery = NWScript.SqlPrepareQueryCampaign(Config.database, $"INSERT INTO messenger (characterId, senderName, title, message, sentDate, read) VALUES (@characterId, @senderName, @title, @message, @sentDate, @read)");
+      NWScript.SqlBindInt(messengerQuery, "@characterId", characterId);
+      NWScript.SqlBindString(messengerQuery, "@senderName", senderName);
+      NWScript.SqlBindString(messengerQuery, "@title", title);
+      NWScript.SqlBindString(messengerQuery, "@message", message);
+      NWScript.SqlBindString(messengerQuery, "@sentDate", DateTime.Now.ToLongDateString());
+      NWScript.SqlBindInt(messengerQuery, "@read", 0);
+      NWScript.SqlStep(messengerQuery);
+    }
+    public static async void SendItemToPCStorage(int characterId, NwItem item)
+    {
+      await NwTask.Delay(TimeSpan.FromSeconds(0.2));
+
+      var storageQuery = NWScript.SqlPrepareQueryCampaign(Config.database, $"SELECT storage from playerCharacters where ROWID = @characterId");
+      NWScript.SqlBindInt(storageQuery, "@characterId", characterId);
+      if(NWScript.SqlStep(storageQuery) != 0)
+      {
+        NwStore storage = NWScript.SqlGetObject(storageQuery, 0, ((NwPlaceable)NwModule.FindObjectsWithTag("ps_entrepot").FirstOrDefault()).Location).ToNwObject<NwStore>();
+        item.Clone(storage);
+        item.Destroy();
+
+        var updateQuery = NWScript.SqlPrepareQueryCampaign(Config.database, $"UPDATE playerCharacters set storage = @storage where ROWID = @characterId");
+        NWScript.SqlBindInt(updateQuery, "@characterId", characterId);
+        NWScript.SqlBindObject(updateQuery, "@storage", storage);
+        NWScript.SqlStep(updateQuery);
+
+        storage.Destroy();
+      }
+      else
+      {
+        LogMessageToDMs($"Impossible de trouver le storage du pj {characterId} et d'y déposer un objet !");
+      }
+    }
   }
 }

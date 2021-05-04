@@ -70,6 +70,7 @@ namespace NWN.Systems
         HandleExpiredContracts(player);
         HandleExpiredBuyOrders(player);
         HandleExpiredSellOrders(player);
+        HandleNewMails(player);
 
         Log.Info("Finished saving player");
       }
@@ -339,6 +340,16 @@ namespace NWN.Systems
       var deletionQuery = NWScript.SqlPrepareQueryCampaign(Config.database, $"DELETE from playerSellOrders where rowid = @rowid");
       NWScript.SqlBindInt(deletionQuery, "@rowid", contractId);
       NWScript.SqlStep(deletionQuery);
+    }
+    private static void HandleNewMails(Player player)
+    {
+      var query = NWScript.SqlPrepareQueryCampaign(Config.database, $"SELECT count (*) from messenger where characterId = @characterId and read = 0");
+      NWScript.SqlBindInt(query, "@characterId", player.characterId);
+
+      if(NWScript.SqlStep(query) != 0)
+      {
+        player.oid.SendServerMessage($"{NWScript.SqlGetString(query, 0).ColorString(Color.WHITE)} lettres non lues se trouvent dans votre boîte aux lettres.", Color.PINK);
+      }
     }
   }
 }

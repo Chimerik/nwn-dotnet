@@ -44,6 +44,7 @@ namespace NWN.Systems
       RestoreDMPersistentPlaceableFromDatabase();
 
       Task spawnResources = SpawnCollectableResources(1);
+      Task deleteExpiredMail = DeleteExpiredMail();
     }
     private async void LoadDiscordBot()
     {
@@ -157,6 +158,10 @@ namespace NWN.Systems
 
       query = NWScript.SqlPrepareQueryCampaign(Config.database, $"CREATE TABLE IF NOT EXISTS chatColors" +
         $"('accountId' INTEGER NOT NULL, 'channel' INTEGER NOT NULL, 'color' INTEGER NOT NULL, UNIQUE (accountId, channel))");
+      NWScript.SqlStep(query);
+
+      query = NWScript.SqlPrepareQueryCampaign(Config.database, $"CREATE TABLE IF NOT EXISTS messenger" +
+        $"('characterId' INTEGER NOT NULL, 'senderName' TEXT NOT NULL, 'title' TEXT NOT NULL, 'message', TEXT NOT NULL, 'sentDate' TEXT NOT NULL, 'read' INTEGER NOT NULL)");
       NWScript.SqlStep(query);
     }
     private void InitializeEvents()
@@ -415,10 +420,9 @@ namespace NWN.Systems
           ItemPlugin.SetBaseGoldPieceValue(item, item.GetLocalVariable<int>("_CURRENT_AUCTION").Value);
       }
     }
-    public void HandleExpiredAuctions()
+    public async void HandleExpiredAuctions()
     {
       // TODO : envoyer un courrier aux joueurs pour indiquer que leur shop à expiré
-      // TODO : Plutôt que de détruire les shops expirées, rendre leurs inventaires accessibles à n'importe qui (ceux-ci n'étant pas protégés par Polpo)
       var query = NWScript.SqlPrepareQueryCampaign(Config.database, $"SELECT characterId, rowid, highestAuction, highestAuctionner, shop FROM playerAuctions WHERE expirationDate > @now");
       NWScript.SqlBindString(query, "@now", DateTime.Now.ToString());
 
@@ -430,21 +434,24 @@ namespace NWN.Systems
 
         NwPlayer oSeller = NwModule.Instance.Players.FirstOrDefault(p => ObjectPlugin.GetInt(p, "characterId") == sellerId);
         NwStore store = NwModule.FindObjectsOfType<NwStore>().FirstOrDefault(p => p.GetLocalVariable<int>("_AUCTION_ID").Value == auctionId);
+        NwItem tempItem = NwStore.Deserialize(NWScript.SqlGetString(query, 4).ToByteArray()).Items.FirstOrDefault();
 
         if (buyerId <= 0) // pas d'acheteur
         {
           // S'il est co, on rend l'item au seller et on détruit la ligne en BDD. S'il est pas co, on attend la prochaine occurence pour lui rendre l'item
           if (oSeller != null)
           {
-            NwItem tempItem = NwStore.Deserialize(NWScript.SqlGetString(query, 4).ToByteArray()).Items.FirstOrDefault().Clone(oSeller);
+            await NwModule.Instance.WaitForObjectContext();
+            tempItem.Clone(oSeller);
             NwItem authorization = NwItem.Create("auction_clearanc", oSeller);
             oSeller.SendServerMessage($"Aucune enchère sur votre {tempItem.Name.ColorString(API.Color.ORANGE)}. L'objet vous a donc été restitué.");
+          }
+          else
+          {
+            Utils.SendMailToPC(sellerId, "Hotel des ventes de Similisse", $"Enchère sur {tempItem.Name} expirée",
+              $"Très honoré vendeur, \n\n Nous avons le regret de vous annoncer que votre mise aux enchères de {tempItem.Name} a expiré sans trouver d'acheteur. \n\n L'objet a été restitué à votre entrepot. \n\n Signé : Polpo");
 
-            Task delayedDeletion = NwTask.Run(async () =>
-            {
-              await NwTask.Delay(TimeSpan.FromSeconds(0.2));
-              DeleteExpiredAuction(auctionId);
-            });
+            Utils.SendItemToPCStorage(sellerId, tempItem);
           }
         }
         else
@@ -462,41 +469,39 @@ namespace NWN.Systems
                 oSeller.SendServerMessage($"Votre enchère vous a permis de remporter {(highestAuction * 95 / 100).ToString().ColorString(API.Color.ORANGE)}. L'or a été versé à votre banque !");
               }
 
+              await NwModule.Instance.WaitForObjectContext();
               NwItem authorization = NwItem.Create("auction_clearanc", oSeller);
             }
             else 
             {
-              var buyerQuery = NWScript.SqlPrepareQueryCampaign(Config.database, $"UPDATE playerCharacters SET bankGold = bankGold + @gold where characterId = @characterId");
-              NWScript.SqlBindInt(buyerQuery, "@characterId", sellerId);
-              NWScript.SqlBindInt(buyerQuery, "@gold", highestAuction);
-              NWScript.SqlStep(buyerQuery);
+              Task delayedUpdate = NwTask.Run(async () =>
+              {
+                await NwTask.Delay(TimeSpan.FromSeconds(0.2));
 
-              // TODO : envoyer un courrier au vendeur
+                var buyerQuery = NWScript.SqlPrepareQueryCampaign(Config.database, $"UPDATE playerCharacters SET bankGold = bankGold + @gold where characterId = @characterId");
+                NWScript.SqlBindInt(buyerQuery, "@characterId", sellerId);
+                NWScript.SqlBindInt(buyerQuery, "@gold", highestAuction);
+                NWScript.SqlStep(buyerQuery);
+              });
+
+              Utils.SendMailToPC(sellerId, "Hotel des ventes de Similisse", $"Enchère sur {tempItem.Name} conclue",
+                $"Très honoré vendeur, \n\n Nous avons l'immense plaisir de vous annoncer que votre enchère sur {tempItem.Name} a porté ses fruits. \n\n Celle-ci vous a permis d'acquérir {highestAuction} pièce(s) d'or ! \n\n Signé : Polpo");             
             }
           }
-          // Si le buyer est co, on lui file l'item et on détruit la ligne en BDD. S'il est pas co, on met highestAuction à 0 et on attend la prochaine occurence
+          // Si le buyer est co, on lui file l'item et on détruit la ligne en BDD. S'il est pas co, on transfère dans son entrepot perso
           NwPlayer oBuyer = NwModule.Instance.Players.FirstOrDefault(p => ObjectPlugin.GetInt(p, "characterId") == buyerId);
 
           if (oBuyer != null)
           {
-            NwStore tempStore = NwStore.Deserialize(NWScript.SqlGetString(query, 4).ToByteArray());
-            NwItem tempItem = tempStore.Items.FirstOrDefault();
-            tempItem.Clone(oSeller);
+            tempItem.Clone(oBuyer);
             oSeller.SendServerMessage($"Vous venez de remporter l'enchère sur {tempItem.Name.ColorString(API.Color.ORANGE)}. L'objet se trouve désormais dans votre inventaire.");
-
-            Task delayedDeletion = NwTask.Run(async () =>
-            {
-              await NwTask.Delay(TimeSpan.FromSeconds(0.2));
-              DeleteExpiredAuction(auctionId);
-            });
           }
           else
           {
-            Task delayedUpdate = NwTask.Run(async () =>
-            {
-              await NwTask.Delay(TimeSpan.FromSeconds(0.2));
-              UpdateExpiredAuction(auctionId);
-            });
+            Utils.SendMailToPC(sellerId, "Hotel des ventes de Similisse", $"Enchère sur {tempItem.Name} remportée",
+                $"Très honoré vendeur, \n\n Nous avons l'immense plaisir de vous annoncer que vous avez remporté l'enchère sur {tempItem.Name}. \n\n L'objet a été transformé dans votre entrepôt personnel ! \n\n Signé : Polpo");
+
+            Utils.SendItemToPCStorage(buyerId, tempItem);
           }
         }
 
@@ -507,6 +512,14 @@ namespace NWN.Systems
         NwPlaceable panel = NwModule.FindObjectsOfType<NwPlaceable>().FirstOrDefault(p => p.GetLocalVariable<int>("_AUCTION_ID").Value == auctionId);
         if (panel != null)
           panel.Destroy();
+
+        tempItem.Destroy();
+
+        Task delayedDeletion = NwTask.Run(async () =>
+        {
+          await NwTask.Delay(TimeSpan.FromSeconds(0.2));
+          DeleteExpiredAuction(auctionId);
+        });
       }
     }
     private void DeleteExpiredAuction(int auctionId)
@@ -567,6 +580,20 @@ namespace NWN.Systems
         else
           Utils.LogMessageToDMs($"ELC VALIDATION FAILURE - Player {NWScript.GetPCPlayerName(callInfo.ObjectSelf)} - Character {NWScript.GetName(callInfo.ObjectSelf)} - type : {validationFailureType} - SubType : {validationFailureSubType}");
       }
+    }
+    public static async Task DeleteExpiredMail()
+    {
+      await NwTask.WaitUntil(() => DateTime.Now.Hour == 5);
+
+      Log.Info("Deleting expired mails");
+      Utils.LogMessageToDMs("Deleting expired mails");
+
+      var deletionQuery = NWScript.SqlPrepareQueryCampaign(Config.database, $"DELETE from messenger where sendDate > @expirationDate");
+      NWScript.SqlBindString(deletionQuery, "@expirationDate", DateTime.Now.AddDays(30).ToLongDateString());
+      NWScript.SqlStep(deletionQuery);
+
+      await NwTask.WaitUntilValueChanged(() => DateTime.Now.Day);
+      await DeleteExpiredMail();
     }
   }
 }
