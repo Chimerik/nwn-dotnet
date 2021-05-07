@@ -7,7 +7,6 @@ using NWN.Systems.Craft;
 using NWN.API;
 using System.Threading.Tasks;
 using Skill = NWN.Systems.SkillSystem.Skill;
-using Action = System.Action;
 using NWN.API.Constants;
 using System.Threading;
 
@@ -96,27 +95,19 @@ namespace NWN.Systems
       {
         if (this.loadedQuickBar == QuickbarType.Invalid)
         {
-          //Log.Info("new qbs");
-          //PlayerQuickBarButton emptyQBS = new PlayerQuickBarButton();
-          QuickBarSlot emptyQBS = new QuickBarSlot();
+          PlayerQuickBarButton emptyQBS = new PlayerQuickBarButton();
 
           switch (type)
           {
             case QuickbarType.Menu:
 
-              Log.Info("serializing");
               this.serializedQuickbar = oid.SerializeQuickbar().ToBase64EncodedString();
-              //emptyQBS.ObjectType = QuickBarButtonType.Empty;
-              emptyQBS.nObjectType = 0;
+              emptyQBS.ObjectType = QuickBarButtonType.Empty;
 
               for (byte i = 0; i < 12; i++)
               {
-                Log.Info($"setting qbs {i}");
-                PlayerPlugin.SetQuickBarSlot(this.oid, i, emptyQBS);
-                //oid.SetQuickBarSlot(i, emptyQBS);
+                oid.SetQuickBarButton(i, emptyQBS);
               }
-
-              Log.Info("after setting qbs");
 
               if (menu.choices.Count > 0)
               {
@@ -124,102 +115,69 @@ namespace NWN.Systems
                 oid.AddFeat(CustomFeats.CustomMenuUP);
                 oid.AddFeat(CustomFeats.CustomMenuSELECT);
 
-                //emptyQBS.ObjectType = QuickBarButtonType.Feat;
-                emptyQBS.nObjectType = 4;
+                emptyQBS.ObjectType = QuickBarButtonType.Feat;
 
                 if (ObjectPlugin.GetInt(this.oid, "_MENU_HOTKEYS_SWAPPED") == 0)
                 {
-                  emptyQBS.nINTParam1 = (int)CustomFeats.CustomMenuDOWN;
-                  PlayerPlugin.SetQuickBarSlot(this.oid, 0, emptyQBS);
-                  emptyQBS.nINTParam1 = (int)CustomFeats.CustomMenuUP;
-                  PlayerPlugin.SetQuickBarSlot(this.oid, 1, emptyQBS);
-                  /*emptyQBS.Param1 = (int)CustomFeats.CustomMenuDOWN;
-                  oid.SetQuickBarSlot(0, emptyQBS);
+                  emptyQBS.Param1 = (int)CustomFeats.CustomMenuDOWN;
+                  oid.SetQuickBarButton(0, emptyQBS);
                   emptyQBS.Param1 = (int)CustomFeats.CustomMenuUP;
-                  oid.SetQuickBarSlot(1, emptyQBS);*/
+                  oid.SetQuickBarButton(1, emptyQBS);
                 }
                 else
                 {
-                  emptyQBS.nINTParam1 = (int)CustomFeats.CustomMenuDOWN;
-                  PlayerPlugin.SetQuickBarSlot(this.oid, 1, emptyQBS);
-                  emptyQBS.nINTParam1 = (int)CustomFeats.CustomMenuUP;
-                  PlayerPlugin.SetQuickBarSlot(this.oid, 0, emptyQBS);
-                  /*emptyQBS.Param1 = (int)CustomFeats.CustomMenuDOWN;
-                  oid.SetQuickBarSlot(1, emptyQBS);
+                  emptyQBS.Param1 = (int)CustomFeats.CustomMenuDOWN;
+                  oid.SetQuickBarButton(1, emptyQBS);
                   emptyQBS.Param1 = (int)CustomFeats.CustomMenuUP;
-                  oid.SetQuickBarSlot(0, emptyQBS);*/
+                  oid.SetQuickBarButton(0, emptyQBS);
                 }
 
-                emptyQBS.nINTParam1 = (int)CustomFeats.CustomMenuSELECT;
-                PlayerPlugin.SetQuickBarSlot(this.oid, 2, emptyQBS);
-                /*emptyQBS.Param1 = (int)CustomFeats.CustomMenuSELECT;
-                oid.SetQuickBarSlot(2, emptyQBS);*/
+                emptyQBS.Param1 = (int)CustomFeats.CustomMenuSELECT;
+                oid.SetQuickBarButton(2, emptyQBS);
               }
 
               oid.AddFeat(CustomFeats.CustomMenuEXIT);
 
-              emptyQBS.nINTParam1 = (int)CustomFeats.CustomMenuEXIT;
-              PlayerPlugin.SetQuickBarSlot(this.oid, 3, emptyQBS);
-              /*emptyQBS.Param1 = (int)CustomFeats.CustomMenuEXIT;
-              oid.SetQuickBarSlot(3, emptyQBS);*/
+              emptyQBS.Param1 = (int)CustomFeats.CustomMenuEXIT;
+              oid.SetQuickBarButton(3, emptyQBS);
 
               this.loadedQuickBar = QuickbarType.Menu;
               break;
             case QuickbarType.Sit:
-              CreaturePlugin.AddFeat(this.oid, (int)CustomFeats.CustomMenuDOWN);
-              CreaturePlugin.AddFeat(this.oid, (int)CustomFeats.CustomMenuUP);
-              CreaturePlugin.AddFeat(this.oid, (int)CustomFeats.CustomPositionRight);
-              CreaturePlugin.AddFeat(this.oid, (int)CustomFeats.CustomPositionLeft);
-              CreaturePlugin.AddFeat(this.oid, (int)CustomFeats.CustomPositionForward);
-              CreaturePlugin.AddFeat(this.oid, (int)CustomFeats.CustomPositionBackward);
-              CreaturePlugin.AddFeat(this.oid, (int)CustomFeats.CustomPositionRotateRight);
-              CreaturePlugin.AddFeat(this.oid, (int)CustomFeats.CustomPositionRotateLeft);
-              CreaturePlugin.AddFeat(this.oid, (int)CustomFeats.CustomMenuEXIT);
+              oid.AddFeat(CustomFeats.CustomMenuDOWN);
+              oid.AddFeat(CustomFeats.CustomMenuUP);
+              oid.AddFeat(CustomFeats.CustomPositionRight);
+              oid.AddFeat(CustomFeats.CustomPositionLeft);
+              oid.AddFeat(CustomFeats.CustomPositionForward);
+              oid.AddFeat(CustomFeats.CustomPositionBackward);
+              oid.AddFeat(CustomFeats.CustomPositionRotateRight);
+              oid.AddFeat(CustomFeats.CustomPositionRotateLeft);
+              oid.AddFeat(CustomFeats.CustomMenuEXIT);
 
               this.serializedQuickbar = oid.SerializeQuickbar().ToBase64EncodedString();
 
               for (int i = 0; i < 12; i++)
-                PlayerPlugin.SetQuickBarSlot(this.oid, i, emptyQBS);
-              //oid.SetQuickBarSlot((byte)i, emptyQBS);
+                oid.SetQuickBarButton((byte)i, emptyQBS);
 
-              emptyQBS.nObjectType = 4;
-              emptyQBS.nINTParam1 = (int)CustomFeats.CustomMenuDOWN;
-              PlayerPlugin.SetQuickBarSlot(this.oid, 0, emptyQBS);
-              emptyQBS.nINTParam1 = (int)CustomFeats.CustomMenuUP;
-              PlayerPlugin.SetQuickBarSlot(this.oid, 1, emptyQBS);
-              emptyQBS.nINTParam1 = (int)CustomFeats.CustomPositionLeft;
-              PlayerPlugin.SetQuickBarSlot(this.oid, 2, emptyQBS);
-              emptyQBS.nINTParam1 = (int)CustomFeats.CustomPositionRight;
-              PlayerPlugin.SetQuickBarSlot(this.oid, 3, emptyQBS);
-              emptyQBS.nINTParam1 = (int)CustomFeats.CustomPositionForward;
-              PlayerPlugin.SetQuickBarSlot(this.oid, 4, emptyQBS);
-              emptyQBS.nINTParam1 = (int)CustomFeats.CustomPositionBackward;
-              PlayerPlugin.SetQuickBarSlot(this.oid, 5, emptyQBS);
-              emptyQBS.nINTParam1 = (int)CustomFeats.CustomPositionRotateLeft;
-              PlayerPlugin.SetQuickBarSlot(this.oid, 6, emptyQBS);
-              emptyQBS.nINTParam1 = (int)CustomFeats.CustomPositionRotateRight;
-              PlayerPlugin.SetQuickBarSlot(this.oid, 7, emptyQBS);
-              emptyQBS.nINTParam1 = (int)CustomFeats.CustomMenuEXIT;
-              PlayerPlugin.SetQuickBarSlot(this.oid, 8, emptyQBS);
-              /*emptyQBS.ObjectType = QuickBarButtonType.Feat;
+              emptyQBS.ObjectType = QuickBarButtonType.Feat;
               emptyQBS.Param1 = (int)CustomFeats.CustomMenuDOWN;
-              oid.SetQuickBarSlot(0, emptyQBS);
+              oid.SetQuickBarButton(0, emptyQBS);
               emptyQBS.Param1 = (int)CustomFeats.CustomMenuUP;
-              oid.SetQuickBarSlot(1, emptyQBS);
+              oid.SetQuickBarButton(1, emptyQBS);
               emptyQBS.Param1 = (int)CustomFeats.CustomPositionLeft;
-              oid.SetQuickBarSlot(2, emptyQBS);
+              oid.SetQuickBarButton(2, emptyQBS);
               emptyQBS.Param1 = (int)CustomFeats.CustomPositionRight;
-              oid.SetQuickBarSlot(3, emptyQBS);
+              oid.SetQuickBarButton(3, emptyQBS);
               emptyQBS.Param1 = (int)CustomFeats.CustomPositionForward;
-              oid.SetQuickBarSlot(4, emptyQBS);
+              oid.SetQuickBarButton(4, emptyQBS);
               emptyQBS.Param1 = (int)CustomFeats.CustomPositionBackward;
-              oid.SetQuickBarSlot(5, emptyQBS);
+              oid.SetQuickBarButton(5, emptyQBS);
               emptyQBS.Param1 = (int)CustomFeats.CustomPositionRotateLeft;
-              oid.SetQuickBarSlot(6, emptyQBS);
+              oid.SetQuickBarButton(6, emptyQBS);
               emptyQBS.Param1 = (int)CustomFeats.CustomPositionRotateRight;
-              oid.SetQuickBarSlot(7, emptyQBS);
+              oid.SetQuickBarButton(7, emptyQBS);
               emptyQBS.Param1 = (int)CustomFeats.CustomMenuEXIT;
-              oid.SetQuickBarSlot(8, emptyQBS);*/
+              oid.SetQuickBarButton(8, emptyQBS);
 
               this.loadedQuickBar = QuickbarType.Sit;
               this.OnKeydown += this.menu.HandleMenuFeatUsed;
@@ -229,16 +187,16 @@ namespace NWN.Systems
       }
       public void UnloadMenuQuickbar()
       {
-        CreaturePlugin.RemoveFeat(this.oid, (int)CustomFeats.CustomMenuUP);
-        CreaturePlugin.RemoveFeat(this.oid, (int)CustomFeats.CustomMenuDOWN);
-        CreaturePlugin.RemoveFeat(this.oid, (int)CustomFeats.CustomMenuSELECT);
-        CreaturePlugin.RemoveFeat(this.oid, (int)CustomFeats.CustomMenuEXIT);
-        CreaturePlugin.RemoveFeat(this.oid, (int)CustomFeats.CustomPositionLeft);
-        CreaturePlugin.RemoveFeat(this.oid, (int)CustomFeats.CustomPositionRight);
-        CreaturePlugin.RemoveFeat(this.oid, (int)CustomFeats.CustomPositionForward);
-        CreaturePlugin.RemoveFeat(this.oid, (int)CustomFeats.CustomPositionBackward);
-        CreaturePlugin.RemoveFeat(this.oid, (int)CustomFeats.CustomPositionRotateLeft);
-        CreaturePlugin.RemoveFeat(this.oid, (int)CustomFeats.CustomPositionRotateRight);
+        oid.RemoveFeat(CustomFeats.CustomMenuUP);
+        oid.RemoveFeat(CustomFeats.CustomMenuDOWN);
+        oid.RemoveFeat(CustomFeats.CustomMenuSELECT);
+        oid.RemoveFeat(CustomFeats.CustomMenuEXIT);
+        oid.RemoveFeat(CustomFeats.CustomPositionLeft);
+        oid.RemoveFeat(CustomFeats.CustomPositionRight);
+        oid.RemoveFeat(CustomFeats.CustomPositionForward);
+        oid.RemoveFeat(CustomFeats.CustomPositionBackward);
+        oid.RemoveFeat(CustomFeats.CustomPositionRotateLeft);
+        oid.RemoveFeat(CustomFeats.CustomPositionRotateRight);
 
         bool returned = oid.DeserializeQuickbar(this.serializedQuickbar.ToByteArray());
         loadedQuickBar = QuickbarType.Invalid;

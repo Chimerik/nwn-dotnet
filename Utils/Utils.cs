@@ -204,6 +204,18 @@ namespace NWN
       NWScript.SqlBindInt(messengerQuery, "@read", 0);
       NWScript.SqlStep(messengerQuery);
     }
+    public static async void SendDiscordPMToPlayer(int characterId, string message)
+    {
+      await NwTask.Delay(TimeSpan.FromSeconds(0.2));
+
+      var discordQuery = NWScript.SqlPrepareQueryCampaign(Config.database, $"SELECT discordId from PlayerAccounts where ROWID = @characterId");
+      NWScript.SqlBindInt(discordQuery, "@characterId", characterId);
+
+      if (NWScript.SqlStep(discordQuery) != 0)
+      {
+        await Bot._client.GetUser(ulong.Parse(NWScript.SqlGetString(discordQuery, 0))).SendMessageAsync(message);
+      }
+    }
     public static async void SendItemToPCStorage(int characterId, NwItem item)
     {
       await NwTask.Delay(TimeSpan.FromSeconds(0.2));

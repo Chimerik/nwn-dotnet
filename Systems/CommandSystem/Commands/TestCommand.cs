@@ -29,6 +29,9 @@ namespace NWN.Systems
 
         if (NWScript.GetPCPlayerName(player.oid) == "Chim")
         {
+          //PlayerPlugin.ApplyLoopingVisualEffectToObject(player.oid, player.oid, NWScript.VFX_DUR_PROT_BARKSKIN);
+          //foreach(NwPlayer oPC in NwModule.Instance.Players/*.Where(p => p != player.oid)*/)
+
           //PlayerSystem.cursorTargetService.EnterTargetMode(player.oid, OnTargetSelected, ObjectTypes.All, MouseCursor.Pickup);
         }
       }

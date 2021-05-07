@@ -370,9 +370,7 @@ namespace NWN.Systems
     public void RestorePlayerShopsFromDatabase()
     {
       // TODO : envoyer un mp discord + courrier aux joueurs 7 jours avant expiration + 1 jour avant expiration
-      /*var deletionQuery = NWScript.SqlPrepareQueryCampaign(Config.database, $"DELETE FROM playerShops where expirationDate < @now");
-      NWScript.SqlBindString(deletionQuery, "@now", DateTime.Now.ToString());
-      NWScript.SqlStep(deletionQuery);*/
+      
 
       var query = NWScript.SqlPrepareQueryCampaign(Config.database, $"SELECT shop, panel, characterId, rowid, expirationDate, areaTag, position, facing FROM playerShops");
       
@@ -386,6 +384,32 @@ namespace NWN.Systems
         shop.GetLocalVariable<int>("_SHOP_ID").Value = NWScript.SqlGetInt(query, 3);
         panel.GetLocalVariable<int>("_OWNER_ID").Value = NWScript.SqlGetInt(query, 2);
         panel.GetLocalVariable<int>("_SHOP_ID").Value = NWScript.SqlGetInt(query, 3);
+        double expirationTime = (DateTime.Now - DateTime.Parse(NWScript.SqlGetString(query, 4))).TotalDays;
+
+        int ownerId = shop.GetLocalVariable<int>("_OWNER_ID").Value;
+
+        if (expirationTime < 0)
+        {
+          Utils.SendMailToPC(ownerId, "Hôtel des ventes de Similisse", "Expiration du certificat de votre échoppe", 
+            $"Cher Marchand, \n\n Nous sommes au regret de vous informer que votre échoppe {panel.Name} a expiré. Nos hommes n'étant plus en mesure de la protéger, il se peut qu'elle ait été pillée par des vandales de passage ! \n\n Nous vous enjoignons à renouveller au plus vite votre certificat auprès de nos service. \n\n Signé : Polpo");
+
+          DeleteExpiredShop(ownerId);
+          Utils.SendDiscordPMToPlayer(ownerId, $"Cher Marchand, \n\n Nous sommes au regret de vous informer que votre échoppe { panel.Name} a expiré. Nos hommes n'étant plus en mesure de la protéger, il se peut qu'elle ait été pillée par des vandales de passage! \n\n Nous vous enjoignons à renouveller au plus vite votre certificat auprès de nos service. \n\n Signé : Polpo");
+        }
+        if (expirationTime < 2)
+        {
+          Utils.SendMailToPC(ownerId, "Hôtel des ventes de Similisse", "Expiration prochaine du certificat de votre échoppe",
+            $"Cher Marchand, \n\n Nous sommes au devoir de vous informer que le certificat de votre échoppe {panel.Name} aura expiré dès demain. Nos hommes ne seront alors plus en mesure de la protéger, c'est courir le risque de la voir pillée par des vandales de passage ! \n\n Nous vous enjoignons à renouveller au plus vite votre certificat auprès de nos service. \n\n Signé : Polpo");
+
+          Utils.SendDiscordPMToPlayer(ownerId, $"Cher Marchand, \n\n Nous sommes au regret de vous informer que votre échoppe { panel.Name} aura expiré dès demain. Nos hommes ne seront alors plus en mesure de la protéger, c'est courir le risque de la voir pillée par des vandales de passage ! \n\n Nous vous enjoignons à renouveller au plus vite votre certificat auprès de nos service. \n\n Signé : Polpo");
+        }
+        else if(expirationTime < 8)
+        {
+          Utils.SendMailToPC(ownerId, "Hôtel des ventes de Similisse", "Expiration prochaine du certificat de votre échoppe",
+            $"Cher Marchand, \n\n Nous sommes au devoir de vous informer que le certificat de votre échoppe {panel.Name} aura expiré dès la semaine prochaine. Nos hommes ne seront alors plus en mesure de la protéger, c'est courir le risque de la voir pillée par des vandales de passage ! \n\n Nous vous enjoignons à renouveller au plus vite votre certificat auprès de nos service. \n\n Signé : Polpo");
+
+          Utils.SendDiscordPMToPlayer(ownerId, $"Cher Marchand, \n\n Nous sommes au regret de vous informer que votre échoppe { panel.Name} aura expiré dès la semaine prochaine. Nos hommes ne seront alors plus en mesure de la protéger, c'est courir le risque de la voir pillée par des vandales de passage ! \n\n Nous vous enjoignons à renouveller au plus vite votre certificat auprès de nos service. \n\n Signé : Polpo");
+        }
 
         panel.OnUsed += PlaceableSystem.OnUsedPlayerOwnedShop;
 
@@ -395,10 +419,16 @@ namespace NWN.Systems
         }
       }
     }
-    public void RestorePlayerAuctionsFromDatabase()
+    private async void DeleteExpiredShop(int rowid)
     {
-      // TODO : envoyer un courrier aux joueurs pour indiquer que leur shop à expiré
-      // TODO : Plutôt que de détruire les shops expirées, rendre leurs inventaires accessibles à n'importe qui (ceux-ci n'étant pas protégés par Polpo)
+      await NwTask.Delay(TimeSpan.FromSeconds(0.2));
+
+      var deletionQuery = NWScript.SqlPrepareQueryCampaign(Config.database, $"DELETE FROM playerShops where rowid = @rowid");
+      NWScript.SqlBindInt(deletionQuery, "@rowid", rowid);
+      NWScript.SqlStep(deletionQuery);
+    }
+    private void RestorePlayerAuctionsFromDatabase()
+    {
       var query = NWScript.SqlPrepareQueryCampaign(Config.database, $"SELECT shop, panel, characterId, rowid, expirationDate, highestAuction, highestAuctionner, areaTag, position, facing FROM playerAuctions where shop != 'deleted'");
 
       while (Convert.ToBoolean(NWScript.SqlStep(query)))
@@ -422,7 +452,6 @@ namespace NWN.Systems
     }
     public async void HandleExpiredAuctions()
     {
-      // TODO : envoyer un courrier aux joueurs pour indiquer que leur shop à expiré
       var query = NWScript.SqlPrepareQueryCampaign(Config.database, $"SELECT characterId, rowid, highestAuction, highestAuctionner, shop FROM playerAuctions WHERE expirationDate > @now");
       NWScript.SqlBindString(query, "@now", DateTime.Now.ToString());
 

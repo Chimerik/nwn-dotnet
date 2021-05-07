@@ -1,7 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Globalization;
-using System.Threading;
 using System.Threading.Tasks;
 using NWN.API;
 using NWN.Core;
@@ -27,8 +25,6 @@ namespace NWN.Systems
       };
 
       player.menu.choices.Add(("Lire mes messages.", () => DrawInbox()));
-      /*player.menu.choices.Add(("Rédiger un message.", () => player.menu.Close()));
-      player.menu.choices.Add(("Rédiger un ouvrage.", () => player.menu.Close()));*/
       player.menu.choices.Add(("Quitter.", () => player.menu.Close()));
       player.menu.Draw();
     }
@@ -75,7 +71,8 @@ namespace NWN.Systems
         "Que souhaitez-vous faire ?"
       };
 
-      player.menu.choices.Add(("Lire.", () => DisplayMessage( title, message, messageId)));
+      player.menu.choices.Add(("Lire.", () => DisplayMessage(title, message, messageId)));
+      player.menu.choices.Add(("Le récupérer.", () => PrintMessage(title, message, messageId)));
       player.menu.choices.Add(("Supprimer.", () => RemoveMessage(messageId)));
       player.menu.choices.Add(("Retour.", () => DrawInbox()));
       player.menu.choices.Add(("Quitter.", () => player.menu.Close()));
@@ -99,6 +96,17 @@ namespace NWN.Systems
         player.oid.Description = originalDesc;
       });
     }
+    private async void PrintMessage(string title, string message, int messageId)
+    {
+      var query = NWScript.SqlPrepareQueryCampaign(Config.database, $"UPDATE messenger SET read = 1 where rowid = @messageId");
+      NWScript.SqlBindInt(query, "@messageId", messageId);
+      NWScript.SqlStep(query);
+
+      await NwModule.Instance.WaitForObjectContext();
+      NwItem letter = NwItem.Create("skillbookgeneriq", player.oid, 1, "letter");
+      letter.Name = title;
+      letter.Description = message;
+    }
     private void RemoveMessage(int messageId)
     {
       var deletionQuery = NWScript.SqlPrepareQueryCampaign(Config.database, $"DELETE from messenger where rowid = @rowid");
@@ -106,7 +114,7 @@ namespace NWN.Systems
       NWScript.SqlStep(deletionQuery);
 
       player.oid.SendServerMessage("Message supprimé.");
-      player.menu.choices.Add(("Retour.", () => DrawInbox()));
+      DrawInbox();
     }
   }
 }

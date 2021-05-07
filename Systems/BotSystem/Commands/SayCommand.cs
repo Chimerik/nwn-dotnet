@@ -23,15 +23,6 @@ namespace NWN.Systems
           await context.Channel.SendMessageAsync("Texte en cours de relais vers votre personnage.");
           return;
         }
-        
-        /*foreach (NwPlayer player in NwModule.Instance.Players)
-        {
-          if (ObjectPlugin.GetInt(player, "characterId") == result)
-          {
-            await player.SpeakString(text);
-            break;
-          }
-        }*/
       }
 
       await context.Channel.SendMessageAsync("Le personnage indiqué n'existe pas, n'est pas connecté ou n'a pas été enregistré avec votre code Discord et votre clef cd.");
