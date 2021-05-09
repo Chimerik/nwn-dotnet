@@ -242,7 +242,7 @@ namespace NWN.Systems
 
             int enchanteurChanceuxLevel = 0;
             if (learntCustomFeats.ContainsKey(CustomFeats.EnchanteurChanceux))
-              enchanteurChanceuxLevel += SkillSystem.GetCustomFeatLevelFromSkillPoints(CustomFeats.EnchanteurChanceux, learntCustomFeats[CustomFeats.EnchanteurChanceux]);
+              enchanteurChanceuxLevel += GetCustomFeatLevelFromSkillPoints(CustomFeats.EnchanteurChanceux, learntCustomFeats[CustomFeats.EnchanteurChanceux]);
 
             if (NwRandom.Roll(Utils.random, 100) > enchanteurChanceuxLevel)
             {
@@ -253,7 +253,7 @@ namespace NWN.Systems
 
             int enchanteurExpertLevel = 0;
             if (learntCustomFeats.ContainsKey(CustomFeats.EnchanteurExpert))
-              enchanteurExpertLevel += SkillSystem.GetCustomFeatLevelFromSkillPoints(CustomFeats.EnchanteurExpert, learntCustomFeats[CustomFeats.EnchanteurExpert]);
+              enchanteurExpertLevel += GetCustomFeatLevelFromSkillPoints(CustomFeats.EnchanteurExpert, learntCustomFeats[CustomFeats.EnchanteurExpert]);
 
             int boost = 0;
             if (NwRandom.Roll(Utils.random, 100) <= enchanteurExpertLevel * 2)
@@ -292,7 +292,14 @@ namespace NWN.Systems
             if (Craft.Collect.System.blueprintDictionnary.TryGetValue(craftJob.baseItemType, out Blueprint blueprint))
             {
               await NwModule.Instance.WaitForObjectContext();
-              NwItem craftedItem = NwItem.Create(blueprint.craftedItemTag, oid);
+              NwItem craftedItem;
+              if (craftJob.craftedItem != "")
+              {
+                craftedItem = NwItem.Deserialize(craftJob.craftedItem.ToByteArray());
+                oid.AcquireItem(craftedItem);
+              }
+              else
+                craftedItem = NwItem.Create(blueprint.craftedItemTag, oid);
 
               if (craftedItem == null)
               {
@@ -305,7 +312,7 @@ namespace NWN.Systems
 
               int artisanExceptionnelLevel = 0;
               if (learntCustomFeats.ContainsKey(CustomFeats.ArtisanExceptionnel))
-                artisanExceptionnelLevel += SkillSystem.GetCustomFeatLevelFromSkillPoints(CustomFeats.ArtisanExceptionnel, learntCustomFeats[CustomFeats.ArtisanExceptionnel]);
+                artisanExceptionnelLevel += GetCustomFeatLevelFromSkillPoints(CustomFeats.ArtisanExceptionnel, learntCustomFeats[CustomFeats.ArtisanExceptionnel]);
 
               if (NwRandom.Roll(Utils.random, 100) <= artisanExceptionnelLevel)
               {
@@ -315,7 +322,7 @@ namespace NWN.Systems
 
               int artisanAppliqueLevel = 0;
               if (learntCustomFeats.ContainsKey(CustomFeats.ArtisanApplique))
-                artisanAppliqueLevel += SkillSystem.GetCustomFeatLevelFromSkillPoints(CustomFeats.ArtisanApplique, learntCustomFeats[CustomFeats.ArtisanApplique]);
+                artisanAppliqueLevel += GetCustomFeatLevelFromSkillPoints(CustomFeats.ArtisanApplique, learntCustomFeats[CustomFeats.ArtisanApplique]);
 
               if (NwRandom.Roll(Utils.random, 100) <= artisanAppliqueLevel * 3)
               {

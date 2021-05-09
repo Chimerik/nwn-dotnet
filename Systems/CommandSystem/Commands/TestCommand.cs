@@ -29,20 +29,9 @@ namespace NWN.Systems
 
         if (NWScript.GetPCPlayerName(player.oid) == "Chim")
         {
-          NwPlayer follow = player.oid.GetNearestObjectsByType<NwPlayer>().FirstOrDefault(); 
-          NwPlaceable plcTest = NwPlaceable.Create("silhouette", follow.Location);
-
-          OnPositionChanged(follow, plcTest);
-
           //PlayerSystem.cursorTargetService.EnterTargetMode(player.oid, OnTargetSelected, ObjectTypes.All, MouseCursor.Pickup);
         }
       }
-    }
-    private static async void OnPositionChanged(NwPlayer oPC, NwPlaceable silhouette)
-    {
-      await NwTask.WaitUntilValueChanged(() => oPC.Location.Position);
-      silhouette.Location = oPC.Location;
-      OnPositionChanged(oPC, silhouette);
     }
 
     private static void OnTargetSelected(ModuleEvents.OnPlayerTarget selection)

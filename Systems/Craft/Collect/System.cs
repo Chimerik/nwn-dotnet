@@ -198,12 +198,26 @@ namespace NWN.Systems.Craft.Collect
       else if (plankDictionnary.Any(l => l.Value.name == material))
         name = plankDictionnary.First(l => l.Value.name == material).Key.ToDescription();
 
+      int previousMaterialNamePosition = craftedItem.Name.IndexOf(" en");
+      if (previousMaterialNamePosition > -1)
+        craftedItem.Name.Remove(previousMaterialNamePosition);
+
       craftedItem.Name = $"{craftedItem.Name} en {name}";
       craftedItem.GetLocalVariable<string>("_ITEM_MATERIAL").Value = material;
       
       foreach (API.ItemProperty ip in GetCraftItemProperties(material, craftedItem))
       {
         //NWScript.SendMessageToPC(NWScript.GetFirstPC(), $"Adding IP : {ip}");
+        API.ItemProperty existingIP = craftedItem.ItemProperties.FirstOrDefault(i => i.DurationType == EffectDuration.Permanent && i.PropertyType == ip.PropertyType && i.SubType == ip.SubType && i.Param1Table == ip.Param1Table);
+          
+        if(existingIP != null)
+        {
+          if (existingIP.CostTableValue > ip.CostTableValue)
+            ip.CostTableValue = existingIP.CostTableValue + 1;
+          else
+            ip.CostTableValue += 1;
+        }
+        
         craftedItem.AddItemProperty(ip, EffectDuration.Permanent);
       }
     }

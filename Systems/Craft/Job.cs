@@ -193,7 +193,6 @@ namespace NWN.Systems.Craft
 
       if (player.materialStock.ContainsKey(sMaterial) && player.materialStock[sMaterial] >= iMineralCost)
       {
-        player.craftJob = new Job(blueprint.baseItemType, sMaterial, iJobDuration, player);
         player.materialStock[sMaterial] -= iMineralCost;
 
         player.oid.SendServerMessage($"Vous venez de démarrer la fabrication de l'objet artisanal : {blueprint.name.ColorString(Color.WHITE)} en {sMaterial.ColorString(Color.WHITE)}", Color.GREEN);
@@ -201,9 +200,12 @@ namespace NWN.Systems.Craft
 
         if (oTarget.Tag == blueprint.craftedItemTag) // En cas d'amélioration d'un objet, on détruit l'original
         {
+          player.craftJob = new Job(blueprint.baseItemType, sMaterial, iJobDuration, player, oTarget.Serialize().ToBase64EncodedString());
           oTarget.Destroy();
           player.oid.SendServerMessage($"L'objet {oTarget.Name.ColorString(Color.WHITE)} ne sera pas disponible jusqu'à la fin du travail artisanal.", Color.ORANGE);
         }
+        else
+          player.craftJob = new Job(blueprint.baseItemType, sMaterial, iJobDuration, player);
 
         // s'il s'agit d'une copie de blueprint, alors le nombre d'utilisation diminue de 1
         int iBlueprintRemainingRuns = oItem.GetLocalVariable<int>("_BLUEPRINT_RUNS").Value;

@@ -241,43 +241,42 @@ namespace NWN.Systems.Craft
     public static API.ItemProperty GetCraftEnchantementProperties(NwItem craftedItem, string ipString, int boost)
     {
       string enchTag = $"ENCHANTEMENT_{ipString}";
-      API.ItemProperty currentIP = craftedItem.ItemProperties.FirstOrDefault(ip => ip.Tag == enchTag);
 
-      if (currentIP != null)
-      {
-        craftedItem.RemoveItemProperty(currentIP);
-        currentIP.CostTableValue += 1 + boost;
+      string[] IPproperties = ipString.Split("_");
 
-        return currentIP;
-      }
+      API.ItemProperty newIP = API.ItemProperty.Quality(IPQuality.Unknown);
+
+      int value;
+      if (Int32.TryParse(IPproperties[0], out value))
+        newIP.PropertyType = (ItemPropertyType)value;
       else
+        Utils.LogMessageToDMs($"Could not parse nProperty in : {ipString}");
+      if (Int32.TryParse(IPproperties[0], out value))
+        newIP.SubType = Int32.Parse(IPproperties[1]);
+      else
+        Utils.LogMessageToDMs($"Could not parse nSubType in : {ipString}");
+      if (Int32.TryParse(IPproperties[0], out value))
+        newIP.CostTable = Int32.Parse(IPproperties[2]);
+      else
+        Utils.LogMessageToDMs($"Could not parse nCostTable in : {ipString}");
+      if (Int32.TryParse(IPproperties[0], out value))
+        newIP.CostTableValue = Int32.Parse(IPproperties[3]) + boost;
+      else
+        Utils.LogMessageToDMs($"Could not parse nCostTableValue in : {ipString}");
+
+      newIP.Tag = enchTag;
+
+      API.ItemProperty existingIP = craftedItem.ItemProperties.FirstOrDefault(i => i.DurationType == EffectDuration.Permanent && i.PropertyType == newIP.PropertyType && i.SubType == newIP.SubType && i.Param1Table == newIP.Param1Table);
+
+      if (existingIP != null)
       {
-        string[] IPproperties = ipString.Split("_");
-
-        API.ItemProperty newIP = API.ItemProperty.Quality(IPQuality.Unknown);
-
-        int value;
-        if (Int32.TryParse(IPproperties[0], out value))
-          newIP.PropertyType = (ItemPropertyType)value;
+        if (existingIP.CostTableValue > newIP.CostTableValue)
+          newIP.CostTableValue = existingIP.CostTableValue + 1;
         else
-          Utils.LogMessageToDMs($"Could not parse nProperty in : {ipString}");
-        if (Int32.TryParse(IPproperties[0], out value))
-          newIP.SubType = Int32.Parse(IPproperties[1]);
-        else
-          Utils.LogMessageToDMs($"Could not parse nSubType in : {ipString}");
-        if (Int32.TryParse(IPproperties[0], out value))
-          newIP.CostTable = Int32.Parse(IPproperties[2]);
-        else
-          Utils.LogMessageToDMs($"Could not parse nCostTable in : {ipString}");
-        if (Int32.TryParse(IPproperties[0], out value))
-          newIP.CostTableValue = Int32.Parse(IPproperties[3]) + boost;
-        else
-          Utils.LogMessageToDMs($"Could not parse nCostTableValue in : {ipString}");
-
-        newIP.Tag = enchTag;
-
-        return newIP;
+          newIP.CostTableValue += 1;
       }
+
+      return newIP;
     }
   }
 }
