@@ -1,4 +1,6 @@
-﻿using NWN.API.Events;
+﻿using System;
+using NWN.API;
+using NWN.API.Events;
 using NWN.Core.NWNX;
 
 namespace NWN.Systems

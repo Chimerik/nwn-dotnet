@@ -346,7 +346,7 @@ namespace NWN.Systems
       var query = NWScript.SqlPrepareQueryCampaign(Config.database, $"SELECT count (*) from messenger where characterId = @characterId and read = 0");
       NWScript.SqlBindInt(query, "@characterId", player.characterId);
 
-      if(NWScript.SqlStep(query) != 0)
+      if(NWScript.SqlStep(query) != 0 && NWScript.SqlGetInt(query, 0) > 0)
       {
         player.oid.SendServerMessage($"{NWScript.SqlGetString(query, 0).ColorString(Color.WHITE)} lettres non lues se trouvent dans votre boîte aux lettres.", Color.PINK);
       }

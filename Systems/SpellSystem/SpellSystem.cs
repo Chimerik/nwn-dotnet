@@ -9,6 +9,7 @@ using NLog;
 using NWN.API.Events;
 using System.Threading.Tasks;
 using System;
+using System.Threading;
 
 namespace NWN.Systems
 {
@@ -192,6 +193,64 @@ namespace NWN.Systems
           $"vient de lancer un sort de divination ({NWScript.GetStringByStrRef(int.Parse(NWScript.Get2DAString("spells", "Name", (int)onSpellCast.Spell)))})" +
           $" en portant l'amulette de traçage. L'Amiral s'apprête à punir l'impudent !");
       }
+    }
+    [ScriptHandler("invi_hb")]
+    private void HandleInvisibiltyHeartBeat(CallInfo callInfo)
+    {
+      NwAreaOfEffect inviAoE = (NwAreaOfEffect)callInfo.ObjectSelf;
+      NwPlayer oInvi = (NwPlayer)inviAoE.Creator;
+
+      int iMoveSilentlyCheck = oInvi.GetSkillRank(Skill.MoveSilently) + NwRandom.Roll(Utils.random, 20);
+      NwPlaceable invisMarker = NwObject.FindObjectsWithTag<NwPlaceable>($"invis_marker_{oInvi.PlayerName}").FirstOrDefault();
+      bool listenTriggered = false;
+
+      foreach (NwCreature oSpotter in inviAoE.GetObjectsInEffectArea<NwPlayer>().Where(p => NWScript.GetObjectSeen(oInvi, p) == 0 && (p.DetectModeActive || p.HasFeatEffect(Feat.KeenSense))))
+      {
+        int iListencheck = oSpotter.GetSkillRank(Skill.Listen) + NwRandom.Roll(Utils.random, 20) - (int)oInvi.Distance(oSpotter);
+
+        if (NWScript.GetDetectMode(oSpotter) == 2)
+          iListencheck -= 10;
+
+        if (iMoveSilentlyCheck >= iListencheck)
+          continue;
+
+        if (invisMarker == null)
+        {
+          invisMarker = NwPlaceable.Create("silhouette", oInvi.Location, false, $"invis_marker_{oInvi.PlayerName}");
+          VisibilityPlugin.SetVisibilityOverride(NWScript.OBJECT_INVALID, invisMarker, VisibilityPlugin.NWNX_VISIBILITY_HIDDEN);
+          OnInvisMarkerPositionChanged(oInvi, invisMarker);
+        }
+
+        VisibilityPlugin.SetVisibilityOverride(oSpotter, invisMarker, VisibilityPlugin.NWNX_VISIBILITY_VISIBLE);
+        listenTriggered = true;
+      }
+
+      if (!listenTriggered && invisMarker != null)
+        invisMarker.Destroy();
+    }
+    private static async void OnInvisMarkerPositionChanged(NwPlayer oPC, NwPlaceable silhouette)
+    {
+      CancellationTokenSource tokenSource = new CancellationTokenSource();
+
+      Task markerDestroyed = NwTask.WaitUntil(() => silhouette == null, tokenSource.Token);
+      Task playerDisconnecting = NwTask.WaitUntil(() => !oPC.IsValid, tokenSource.Token);
+      Task positionChanged = NwTask.WaitUntilValueChanged(() => oPC.Location.Position, tokenSource.Token);
+      
+      await NwTask.WhenAny(positionChanged, markerDestroyed, playerDisconnecting);
+      tokenSource.Cancel();
+
+      if (markerDestroyed.IsCompletedSuccessfully)
+        return;
+
+      if(playerDisconnecting.IsCompletedSuccessfully)
+      {
+        if(silhouette != null)
+          silhouette.Destroy();
+        return;
+      }
+
+      silhouette.Location = oPC.Location;
+      OnInvisMarkerPositionChanged(oPC, silhouette);
     }
   }
 }

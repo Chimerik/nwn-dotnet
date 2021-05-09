@@ -325,7 +325,7 @@ namespace NWN.Systems.Craft.Collect
     {
       craftedItem.GetLocalVariable<int>("_DURABILITY").Value = GetBaseItemCost(craftedItem) * 50;
 
-      switch (itemCategory)
+      /*switch (itemCategory)
       {
         case ItemCategory.OneHandedMeleeWeapon: return GetBadOneHandedMeleeWeaponProperties();
         case ItemCategory.TwoHandedMeleeWeapon: return GetBadTwoHandedMeleeWeaponProperties();
@@ -334,12 +334,12 @@ namespace NWN.Systems.Craft.Collect
         case ItemCategory.CraftTool: return GetBadToolProperties(craftedItem);
         case ItemCategory.RangedWeapon: return GetBadRangedWeaponProperties();
         case ItemCategory.Clothes: return GetBadClothesProperties();
-      }
+      }*/
 
       return new API.ItemProperty[]
       {
-          API.ItemProperty.Quality(IPQuality.Unknown)
-    };
+          API.ItemProperty.Quality(IPQuality.VeryPoor)
+      };
     }
     public static API.ItemProperty[] GetBadOneHandedMeleeWeaponProperties()
     {
@@ -417,10 +417,7 @@ namespace NWN.Systems.Craft.Collect
 
       return new API.ItemProperty[]
       {
-        API.ItemProperty.DamageVulnerability(IPDamageType.Fire, IPDamageVulnerabilityType.Vulnerable50Pct),
-        API.ItemProperty.DamageVulnerability(IPDamageType.Cold, IPDamageVulnerabilityType.Vulnerable50Pct),
-        API.ItemProperty.DamageVulnerability(IPDamageType.Electrical, IPDamageVulnerabilityType.Vulnerable50Pct),
-        API.ItemProperty.WeightIncrease(IPWeightIncrease.Plus15Lbs),
+          API.ItemProperty.Quality(IPQuality.Poor)
       };
     }
     public static API.ItemProperty[] GetPyeriteItemProperties(ItemCategory itemCategory, NwItem craftedItem = null)
@@ -452,12 +449,8 @@ namespace NWN.Systems.Craft.Collect
     {
       return new API.ItemProperty[]
       {
-        API.ItemProperty.DamageVulnerability(IPDamageType.Fire, IPDamageVulnerabilityType.Vulnerable25Pct),
-        API.ItemProperty.DamageVulnerability(IPDamageType.Cold, IPDamageVulnerabilityType.Vulnerable25Pct),
-        API.ItemProperty.DamageVulnerability(IPDamageType.Electrical, IPDamageVulnerabilityType.Vulnerable25Pct),
-        API.ItemProperty.WeightIncrease(IPWeightIncrease.Plus10Lbs),
         API.ItemProperty.AttackBonusVsRace(IPRacialType.HumanoidGoblinoid, 1),
-        API.ItemProperty.AttackBonusVsRace(IPRacialType.HumanoidReptilian, 2),
+        API.ItemProperty.AttackBonusVsRace(IPRacialType.HumanoidReptilian, 1),
         API.ItemProperty.DamageBonusVsRace(IPRacialType.HumanoidGoblinoid, IPDamageType.Piercing, IPDamageBonus.Plus1),
         API.ItemProperty.DamageBonusVsRace(IPRacialType.HumanoidReptilian, IPDamageType.Piercing, IPDamageBonus.Plus1),
       };
@@ -466,9 +459,6 @@ namespace NWN.Systems.Craft.Collect
     {
       return new API.ItemProperty[]
       {
-        API.ItemProperty.DamageVulnerability(IPDamageType.Fire, IPDamageVulnerabilityType.Vulnerable25Pct),
-        API.ItemProperty.DamageVulnerability(IPDamageType.Cold, IPDamageVulnerabilityType.Vulnerable25Pct),
-        API.ItemProperty.DamageVulnerability(IPDamageType.Electrical, IPDamageVulnerabilityType.Vulnerable25Pct),
         API.ItemProperty.AttackBonusVsRace(IPRacialType.HumanoidGoblinoid, 1),
         API.ItemProperty.AttackBonusVsRace(IPRacialType.HumanoidReptilian, 1),
         API.ItemProperty.DamageBonusVsRace(IPRacialType.HumanoidGoblinoid, IPDamageType.Piercing, IPDamageBonus.Plus1),
@@ -479,10 +469,6 @@ namespace NWN.Systems.Craft.Collect
     {
       return new API.ItemProperty[]
       {
-        API.ItemProperty.DamageVulnerability(IPDamageType.Fire, IPDamageVulnerabilityType.Vulnerable25Pct),
-        API.ItemProperty.DamageVulnerability(IPDamageType.Cold, IPDamageVulnerabilityType.Vulnerable25Pct),
-        API.ItemProperty.DamageVulnerability(IPDamageType.Electrical, IPDamageVulnerabilityType.Vulnerable25Pct),
-        API.ItemProperty.WeightIncrease(IPWeightIncrease.Plus10Lbs),
         API.ItemProperty.AttackBonusVsRace(IPRacialType.HumanoidGoblinoid, 2),
         API.ItemProperty.AttackBonusVsRace(IPRacialType.HumanoidReptilian, 2),
         API.ItemProperty.DamageBonusVsRace(IPRacialType.HumanoidGoblinoid, IPDamageType.Piercing, IPDamageBonus.Plus2),
@@ -493,10 +479,6 @@ namespace NWN.Systems.Craft.Collect
     {
       return new API.ItemProperty[]
       {
-        API.ItemProperty.DamageVulnerability(IPDamageType.Fire, IPDamageVulnerabilityType.Vulnerable25Pct),
-        API.ItemProperty.DamageVulnerability(IPDamageType.Cold, IPDamageVulnerabilityType.Vulnerable25Pct),
-        API.ItemProperty.DamageVulnerability(IPDamageType.Electrical, IPDamageVulnerabilityType.Vulnerable25Pct),
-        API.ItemProperty.WeightIncrease(IPWeightIncrease.Plus10Lbs),
         API.ItemProperty.ACBonusVsDmgType(IPDamageType.Bludgeoning, 1),
       };
     }
@@ -504,10 +486,6 @@ namespace NWN.Systems.Craft.Collect
     {
       return new API.ItemProperty[]
       {
-        API.ItemProperty.DamageVulnerability(IPDamageType.Fire, IPDamageVulnerabilityType.Vulnerable25Pct),
-        API.ItemProperty.DamageVulnerability(IPDamageType.Cold, IPDamageVulnerabilityType.Vulnerable25Pct),
-        API.ItemProperty.DamageVulnerability(IPDamageType.Electrical, IPDamageVulnerabilityType.Vulnerable25Pct),
-        API.ItemProperty.WeightIncrease(IPWeightIncrease.Plus10Lbs),
         API.ItemProperty.ACBonusVsDmgType(IPDamageType.Piercing, 1),
       };
     }

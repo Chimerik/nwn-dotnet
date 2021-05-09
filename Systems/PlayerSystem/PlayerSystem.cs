@@ -145,55 +145,7 @@ namespace NWN.Systems
           break;
       }
     }
-    [ScriptHandler("a_detection")]
-    private void HandleAfterDetection(CallInfo callInfo)
-    {
-      if (!(callInfo.ObjectSelf is NwPlayer))
-        return;
-      NwPlayer oPC = (NwPlayer)callInfo.ObjectSelf;
-      NwGameObject oTarget = NWScript.StringToObject(EventsPlugin.GetEventData("TARGET")).ToNwObject<NwGameObject>();
 
-      if (!(oTarget is NwPlayer) && NWScript.GetIsPossessedFamiliar(oTarget) == 0)
-        return;
-
-      if (CreaturePlugin.GetMovementType(oTarget) == CreaturePlugin.NWNX_CREATURE_MOVEMENT_TYPE_STATIONARY)
-        return;
-
-      if (NWScript.GetIsDM(oTarget) == 1 || NWScript.GetIsDMPossessed(oTarget) == 1 || NWScript.GetIsPlayerDM(oTarget) == 1)
-        return;
-
-      if (NWScript.GetObjectSeen(oTarget, oPC) == 1 && oPC.Distance(oTarget) > 20.0f)
-        return;
-
-      if (int.Parse(EventsPlugin.GetEventData("TARGET_INVISIBLE")) != 1
-          || (!oPC.DetectModeActive && oPC.HasFeatEffect(API.Constants.Feat.KeenSense)))
-        return;
-
-      if (!DateTime.TryParse(oPC.GetLocalVariable<string>($"_INVI_DETECT_TIMER_{oTarget.Name}"), out DateTime previousDate)
-          || (DateTime.Now - previousDate).TotalSeconds > 6)
-      {
-        int iMoveSilentlyCheck = NWScript.GetSkillRank(NWScript.SKILL_MOVE_SILENTLY, oTarget) + NwRandom.Roll(NWN.Utils.random, 20) + (int)oPC.Distance(oTarget);
-        if (NWScript.GetDetectMode(oPC) == 2)
-          iMoveSilentlyCheck += 10;
-
-        if (CreaturePlugin.GetMovementType(oTarget) == CreaturePlugin.NWNX_CREATURE_MOVEMENT_TYPE_RUN
-            || oPC.DoSkillCheck(Skill.Listen, iMoveSilentlyCheck))
-        {
-          oPC.FloatingTextString("Vous entendez quelqu'un se faufiler dans les environs.", false);
-          PlayerPlugin.ShowVisualEffect(oPC, NWScript.VFX_FNF_SMOKE_PUFF, oTarget.Position);
-          oPC.GetLocalVariable<string>($"_INVI_DETECT_TIMER_{oTarget.Name}").Value = DateTime.Now.ToString();
-          oPC.GetLocalVariable<string>($"_INVI_EFFECT_DETECT_TIMER_{oTarget.Name}").Value = DateTime.Now.ToString();
-        }
-        else
-          oPC.GetLocalVariable<string>($"_INVI_DETECT_TIMER_{oTarget.Name}").Delete();
-      }
-      else if (DateTime.TryParse(oPC.GetLocalVariable<string>($"_INVI_EFFECT_DETECT_TIMER_{oTarget.Name}"), out DateTime previousEffectDate)
-          || (DateTime.Now - previousEffectDate).TotalSeconds > 1)
-      {
-        PlayerPlugin.ShowVisualEffect(oPC, NWScript.VFX_FNF_SMOKE_PUFF, oTarget.Position);
-        oPC.GetLocalVariable<string>($"_INVI_EFFECT_DETECT_TIMER_{oTarget.Name}").Value = DateTime.Now.ToString();
-      }
-    }
     [ScriptHandler("on_journal_open")]
     private void HandlePCJournalOpen(CallInfo callInfo)
     {
@@ -429,28 +381,6 @@ namespace NWN.Systems
       }
     }
 
-    /*public static Dictionary<string, Func<uint, int>> Register = new Dictionary<string, Func<uint, int>>
-    {
-        { "a_detection", HandleAfterDetection },
-        { "on_pc_death", HandlePlayerDeath },
-    };
-    private static void RefreshQBS(uint oidSelf, int feat)
-    {
-        string sQuickBar = CreaturePlugin.SerializeQuickbar(oidSelf);
-        QuickBarSlot emptyQBS = NWN.Utils.CreateEmptyQBS();
-
-        for (int i = 0; i < 36; i++)
-        {
-            QuickBarSlot qbs = PlayerPlugin.GetQuickBarSlot(oidSelf, i);
-
-            if (qbs.nObjectType == 4 && qbs.nINTParam1 == feat)
-            {
-                PlayerPlugin.SetQuickBarSlot(oidSelf, i, emptyQBS);
-            }
-        }
-
-        CreaturePlugin.DeserializeQuickbar(oidSelf, sQuickBar);
-    }*/
     // TODO : Probablement refaire le système de déguisement plus proprement
     /*private static int HandlePlayerPerceived(CallInfo callInfo)
     {
