@@ -174,11 +174,10 @@ namespace NWN.Systems.Arena
       foreach (string malus in player.pveArena.currentMalusList)
         player.menu.choices.Add((
         malus,
-        () => Utils.ApplyArenaMalus(player, (uint)random)
+        () => ApplyArenaMalus(player, (uint)random)
       ));
 
       player.menu.DrawText();
-
       RandomizeMalusSelection(player);
     }
     public static void ApplyArenaMalus(Player player, uint malus)

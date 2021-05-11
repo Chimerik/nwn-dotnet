@@ -3,11 +3,9 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using NWN.API;
 using NWN.API.Constants;
-using NWNX.API;
 using NWN.Core;
 using NWN.Core.NWNX;
 using NWN.Services;
-using System.Threading;
 
 namespace NWN.Systems
 {

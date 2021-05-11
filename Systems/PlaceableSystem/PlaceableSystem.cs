@@ -19,28 +19,31 @@ namespace NWN.Systems
     public static readonly Logger Log = LogManager.GetCurrentClassLogger();
     public PlaceableSystem()
     {
-      foreach (NwDoor door in NwModule.FindObjectsOfType<NwDoor>())
+      foreach (NwDoor door in NwObject.FindObjectsOfType<NwDoor>())
         door.OnOpen += HandleDoorAutoClose;
       
-      foreach (NwPlaceable bassin in NwModule.FindObjectsWithTag<NwPlaceable>("ench_bsn"))
+      foreach (NwPlaceable bassin in NwObject.FindObjectsWithTag<NwPlaceable>("ench_bsn"))
         bassin.OnClose += HandleCloseEnchantementBassin;
 
-      foreach (NwPlaceable balancoire in NwModule.FindObjectsWithTag<NwPlaceable>("balancoire"))
+      foreach (NwPlaceable balancoire in NwObject.FindObjectsWithTag<NwPlaceable>("balancoire"))
         balancoire.OnUsed += OnUsedBalancoire;
 
-      foreach (NwPlaceable portal in NwModule.FindObjectsWithTag<NwPlaceable>("portal_storage_in"))
+      foreach (NwPlaceable dicePoker in NwObject.FindObjectsWithTag<NwPlaceable>("dice_poker"))
+        dicePoker.OnUsed += OnUsedDicePoker;
+
+      foreach (NwPlaceable portal in NwObject.FindObjectsWithTag<NwPlaceable>("portal_storage_in"))
         portal.OnUsed += OnUsedStoragePortalIn;
 
-      foreach (NwPlaceable plc in NwModule.FindObjectsWithTag<NwPlaceable>("portal_start", "respawn_neutral", "respawn_dire", "respawn_radiant", "theater_rope"))
+      foreach (NwPlaceable plc in NwObject.FindObjectsWithTag<NwPlaceable>("portal_start", "respawn_neutral", "respawn_dire", "respawn_radiant", "theater_rope"))
         plc.OnUsed += HandlePlaceableUsed;
 
-      foreach (NwCreature statue in NwModule.FindObjectsWithTag<NwCreature>("Statuereptilienne", "statue_tiamat"))
+      foreach (NwCreature statue in NwObject.FindObjectsWithTag<NwCreature>("Statuereptilienne", "statue_tiamat"))
       {
         statue.OnConversation += HandleCancelStatueConversation;
         statue.OnSpawn += HandleSpawnStatufy;
       }
 
-      foreach (NwCreature corpse in NwModule.FindObjectsWithTag<NwCreature>("dead_wererat"))
+      foreach (NwCreature corpse in NwObject.FindObjectsWithTag<NwCreature>("dead_wererat"))
       {
         corpse.OnConversation += HandleCancelStatueConversation;
         corpse.OnSpawn += HandleSetUpDeadCreatureCorpse;
@@ -320,6 +323,31 @@ namespace NWN.Systems
       storage.GetLocalVariable<int>("_OWNER_ID").Value = player.characterId;
       storage.OnOpen += StoreSystem.OnOpenPersonnalStorage;
       storage.Open(player.oid);
+    }
+    public static void OnUsedDicePoker(PlaceableEvents.OnUsed onUsed)
+    {
+      if (!Players.TryGetValue(onUsed.UsedBy, out Player player))
+        return;
+
+      if (onUsed.Placeable.GetLocalVariable<int>("_AVAILABLE_SLOTS").HasNothing)
+        onUsed.Placeable.GetLocalVariable<int>("_AVAILABLE_SLOTS").Value = 2;
+
+      int availableSlots = onUsed.Placeable.GetLocalVariable<int>("_AVAILABLE_SLOTS").Value;
+
+      if (availableSlots == 0)
+      {
+        player.oid.SendServerMessage("Aucune place n'est disponible sur ce plateau de dés !");
+        return;
+      }
+      else if(availableSlots == 1)
+      {
+        onUsed.Placeable.GetLocalVariable<int>("_AVAILABLE_SLOTS").Value = 0;
+        onUsed.Placeable.GetLocalVariable<NwObject>("_PLAYER_TWO").Value = player.oid;
+      }
+      else if (availableSlots == 2)
+      {
+        new DicePoker.DicePoker(player, onUsed.Placeable);
+      }
     }
   }
 }

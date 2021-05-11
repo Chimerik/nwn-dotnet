@@ -48,7 +48,6 @@ namespace NWN.Systems.Arena
         () => HandleStop(player)
       ));
 
-
       player.menu.Draw();
     }
     public static void DrawMalusSelectionPage(Player player)

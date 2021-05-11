@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using NWN.Core;
 using System.ComponentModel;
 using static NWN.Systems.ItemUtils;
 using NWN.API;

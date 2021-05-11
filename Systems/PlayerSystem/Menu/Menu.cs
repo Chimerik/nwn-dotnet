@@ -73,6 +73,7 @@ namespace NWN.Systems
 
         if (isOpen)
         {
+          player.oid.GetLocalVariable<int>("_CURRENT_MENU_CLOSED").Value = 1;
           player.OnKeydown -= HandleMenuFeatUsed;
           player.UnloadMenuQuickbar();
         }

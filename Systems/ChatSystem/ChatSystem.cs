@@ -289,7 +289,6 @@ namespace NWN.Systems
         if (player.chatColors.ContainsKey(100)) // 100 = emote
           coloredChat = HandleEmoteColoration(player, coloredChat);
 
-        Log.Info($"colored chat : {coloredChat}");
         ChatPlugin.SendMessage(ctx.channel, coloredChat, ctx.oSender, chatReceiver.Key);
       }
       next();
