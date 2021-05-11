@@ -78,7 +78,7 @@ namespace NWN.System
       if (!PlayerSystem.Players.TryGetValue(onStoreRequestBuy.Creature, out PlayerSystem.Player buyer))
         return;
 
-      if (onStoreRequestBuy.Result.Value)
+      if (onStoreRequestBuy.Result.Value || HasEnoughBankGold(buyer, onStoreRequestBuy.Price))
       {
         int price = onStoreRequestBuy.Price * 95 / 100;
         int ownerId = onStoreRequestBuy.Store.GetLocalVariable<int>("_OWNER_ID").Value;
@@ -94,7 +94,7 @@ namespace NWN.System
         }
         else
         {
-          // TODO : envoyer un courrier à la prochaine connexion du seller pour le prévenir de sa vente.
+          Utils.SendMailToPC(ownerId, "Hotel des ventes de Similisse", $"{onStoreRequestBuy.Item.Name} vendu !", $"Très honoré marchand, \n\n Nous avons l'insigne honneur de vous informer que votre {onStoreRequestBuy.Item.Name} a été vendu au doux prix de {onStoreRequestBuy.Price}. Félicitations ! \n\n Signé, Polpo");
 
           var query = NWScript.SqlPrepareQueryCampaign(Config.database, $"UPDATE playerCharacters SET bankGold = bankGold + @bankGold where rowid = @characterId");
           NWScript.SqlBindInt(query, "@characterId", ownerId);
@@ -592,6 +592,20 @@ namespace NWN.System
 
       if (PlayerSystem.Players.TryGetValue(onStoreRequestSell.Creature, out PlayerSystem.Player player))
         player.oid.SendServerMessage("Impossible de vendre dans ce type d'échoppe.", Color.ORANGE);
+    }
+    private static bool HasEnoughBankGold(PlayerSystem.Player player, int itemPrice)
+    {
+      if (player.oid.Gold + player.bankGold >= itemPrice)
+      {
+        int goldFromBank = (int)(itemPrice - player.oid.Gold);
+        player.bankGold -= goldFromBank;
+        player.oid.TakeGold((int)player.oid.Gold);
+        player.oid.SendServerMessage($"{goldFromBank} pièce(s) d'or ont été retirées de votre compte en banque afin de mener à bien cette transaction.");
+        
+        return true;
+      }
+
+      return false;
     }
   }
 }
