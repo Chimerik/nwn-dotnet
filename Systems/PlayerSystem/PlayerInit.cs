@@ -593,11 +593,11 @@ namespace NWN.Systems
     }
     private static void InitializePlayerLearnableSpells(Player player)
     {
-      var query = NWScript.SqlPrepareQueryCampaign(Config.database, $"SELECT skillId, skillPoints from playerLearnableSpells where characterId = @characterId and trained = 0");
+      var query = NWScript.SqlPrepareQueryCampaign(Config.database, $"SELECT skillId, skillPoints, nbScrolls from playerLearnableSpells where characterId = @characterId and trained = 0");
       NWScript.SqlBindInt(query, "@characterId", player.characterId);
 
       while (Convert.ToBoolean(NWScript.SqlStep(query)))
-        player.learnableSpells.Add(NWScript.SqlGetInt(query, 0), new SkillSystem.LearnableSpell(NWScript.SqlGetInt(query, 0), NWScript.SqlGetInt(query, 1), player));
+        player.learnableSpells.Add(NWScript.SqlGetInt(query, 0), new SkillSystem.LearnableSpell(NWScript.SqlGetInt(query, 0), NWScript.SqlGetInt(query, 1), player, NWScript.SqlGetInt(query, 2)));
     }
     private static void InitializeNewCharacterStorage(Player player)
     {

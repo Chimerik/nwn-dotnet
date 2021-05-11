@@ -144,12 +144,13 @@ namespace NWN.Systems
     {
       foreach (KeyValuePair<int, SkillSystem.LearnableSpell> skillListEntry in player.learnableSpells)
       {
-        var query = NWScript.SqlPrepareQueryCampaign(Config.database, $"INSERT INTO playerLearnableSpells (characterId, skillId, skillPoints, trained) VALUES (@characterId, @skillId, @skillPoints, @trained)" +
-        "ON CONFLICT (characterId, skillId) DO UPDATE SET skillPoints = @skillPoints, trained = @trained");
+        var query = NWScript.SqlPrepareQueryCampaign(Config.database, $"INSERT INTO playerLearnableSpells (characterId, skillId, skillPoints, trained, nbScrolls) VALUES (@characterId, @skillId, @skillPoints, @trained, @nbScrolls)" +
+        "ON CONFLICT (characterId, skillId) DO UPDATE SET skillPoints = @skillPoints, trained = @trained, nbScrolls = @nbScrolls");
         NWScript.SqlBindInt(query, "@characterId", player.characterId);
         NWScript.SqlBindInt(query, "@skillId", skillListEntry.Key);
         NWScript.SqlBindFloat(query, "@skillPoints", Convert.ToInt32(skillListEntry.Value.acquiredPoints));
         NWScript.SqlBindInt(query, "@trained", Convert.ToInt32(skillListEntry.Value.trained));
+        NWScript.SqlBindInt(query, "@nbScrolls", skillListEntry.Value.nbScrollsUsed);
         NWScript.SqlStep(query);
       }
 

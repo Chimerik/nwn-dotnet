@@ -301,7 +301,14 @@ namespace NWN.Systems
       if (Players.TryGetValue(oPC, out Player player))
         if (player.learnableSpells.ContainsKey(spellId))
         {
-          oPC.SendServerMessage("Ce sort se trouve déjà dans votre liste d'apprentissage.");
+          if (player.learnableSpells[spellId].nbScrollsUsed <= 5)
+          {
+            player.learnableSpells[spellId].acquiredPoints += player.learnableSpells[spellId].pointsToNextLevel / 20;
+            player.learnableSpells[spellId].nbScrollsUsed += 1;
+            oPC.SendServerMessage("A l'aide de ce parchemin, vous affinez votre connaissance de ce sort. Votre apprentissage sera plus rapide.");
+          }
+          else
+            oPC.SendServerMessage("Vous avez déjà retiré tout ce que vous pouviez de ce parchemin.");
           return;
         }
         else

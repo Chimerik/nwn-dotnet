@@ -21,16 +21,18 @@ namespace NWN.Systems
       public int successorId { get; set; }
       public Boolean trained { get; set; }
       private int multiplier;
+      public int nbScrollsUsed { get; set; }
       public readonly int pointsToNextLevel;
       public readonly int primaryAbility;
       public readonly int secondaryAbility;
 
-      public LearnableSpell(int Id, float SP, PlayerSystem.Player player)
+      public LearnableSpell(int Id, float SP, PlayerSystem.Player player, int scrollsUsed = 0)
       {
         this.oid = Id;
         this.player = player;
         this.acquiredPoints = SP;
         this.trained = false;
+        this.nbScrollsUsed = scrollsUsed;
 
         int value;
         if (int.TryParse(NWScript.Get2DAString("spells", "Name", Id), out value))
