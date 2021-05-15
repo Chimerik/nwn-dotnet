@@ -8,8 +8,8 @@ using Discord;
 using NLog;
 using NWN.API.Events;
 using System.Threading.Tasks;
-using System;
 using System.Threading;
+using System;
 
 namespace NWN.Systems
 {
@@ -29,6 +29,41 @@ namespace NWN.Systems
     public static void OnSpellBroadcast(OnSpellBroadcast onSpellBroadcast)
     {
       NwPlayer oPC = (NwPlayer)onSpellBroadcast.Caster;
+
+      int classe = 43; // aventurier
+
+      if (oPC.GetAbilityScore(Ability.Charisma) > oPC.GetAbilityScore(Ability.Intelligence))
+        classe = (int)ClassType.Sorcerer;
+      if (int.TryParse(NWScript.Get2DAString("spells", "Cleric", (int)onSpellBroadcast.Spell), out int value))
+        classe = (int)ClassType.Cleric;
+      else if (int.TryParse(NWScript.Get2DAString("spells", "Druid", (int)onSpellBroadcast.Spell), out value))
+        classe = (int)ClassType.Druid;
+      else if (int.TryParse(NWScript.Get2DAString("spells", "Bard", (int)onSpellBroadcast.Spell), out value))
+        classe = (int)ClassType.Bard;
+      else if (int.TryParse(NWScript.Get2DAString("spells", "Paladin", (int)onSpellBroadcast.Spell), out value))
+        classe = (int)ClassType.Paladin;
+      else if (int.TryParse(NWScript.Get2DAString("spells", "Ranger", (int)onSpellBroadcast.Spell), out value))
+        classe = (int)ClassType.Ranger;
+
+      if (classe != 43)
+      {
+        Task resetClassOnNextFrame = NwTask.Run(async () =>
+        {
+          await NwTask.Delay(TimeSpan.FromSeconds(0.7));
+          
+          CreaturePlugin.SetClassByPosition(oPC, 0, classe);
+          CancellationTokenSource tokenSource = new CancellationTokenSource();
+
+          Task spellCast = NwTask.WaitUntil(() => oPC.GetLocalVariable<int>("_SPELLCAST").HasValue, tokenSource.Token);
+          Task timeOut = NwTask.Delay(TimeSpan.FromSeconds(0.1), tokenSource.Token);
+
+          await NwTask.WhenAny(spellCast, timeOut);
+          tokenSource.Cancel();
+
+          CreaturePlugin.SetClassByPosition(oPC, 0, 43);
+          oPC.GetLocalVariable<int>("_SPELLCAST").Delete();
+        });
+      }
 
       if (oPC.IsDM || oPC.IsDMPossessed || oPC.IsPlayerDM)
         return;
@@ -156,28 +191,15 @@ namespace NWN.Systems
       if (caster == null)
         Log.Info("caster is null");
 
-      Log.Info($"spell: {spell}");
-
-      Log.Info($"spell slots : {caster.GetClassInfo((ClassType)43).GetMemorizedSpellSlotCountByLevel(0)}");
-
       foreach (MemorizedSpellSlot spellSlot in caster.GetClassInfo((ClassType)43).GetMemorizedSpellSlots(0).Where(s => s.Spell == spell && !s.IsReady))
         spellSlot.IsReady = true;
     }
     public static void HandleBeforeSpellCast(OnSpellCast onSpellCast)
     {
-      int classe = 43; // aventurier
-      if (int.TryParse(NWScript.Get2DAString("spells", "Bard", (int)onSpellCast.Spell), out int value))
-        classe = NWScript.CLASS_TYPE_BARD;
-      if (int.TryParse(NWScript.Get2DAString("spells", "Ranger", (int)onSpellCast.Spell), out value))
-        classe = NWScript.CLASS_TYPE_RANGER;
-      if (int.TryParse(NWScript.Get2DAString("spells", "Paladin", (int)onSpellCast.Spell), out value))
-        classe = NWScript.CLASS_TYPE_PALADIN;
-      if (int.TryParse(NWScript.Get2DAString("spells", "Druid", (int)onSpellCast.Spell), out value))
-        classe = NWScript.CLASS_TYPE_DRUID;
-      if (int.TryParse(NWScript.Get2DAString("spells", "Cleric", (int)onSpellCast.Spell), out value))
-        classe = NWScript.CLASS_TYPE_CLERIC;
+      NwPlayer oPC = (NwPlayer)onSpellCast.Caster;
 
-      CreaturePlugin.SetClassByPosition(onSpellCast.Caster, 0, classe);
+      if(oPC.Classes.Any(c => (int)c != 43))
+        oPC.GetLocalVariable<int>("_SPELLCAST").Value = 1;
 
       if (onSpellCast.Caster.GetLocalVariable<int>("_AUTO_SPELL").HasValue && onSpellCast.Caster.GetLocalVariable<int>("_AUTO_SPELL").Value != (int)onSpellCast.Spell)
       {
@@ -212,7 +234,11 @@ namespace NWN.Systems
           iListencheck -= 10;
 
         if (iMoveSilentlyCheck >= iListencheck)
+        {
+          if (invisMarker != null)
+            VisibilityPlugin.SetVisibilityOverride(oSpotter, invisMarker, VisibilityPlugin.NWNX_VISIBILITY_HIDDEN);
           continue;
+        }
 
         if (invisMarker == null)
         {
@@ -251,6 +277,133 @@ namespace NWN.Systems
 
       silhouette.Location = oPC.Location;
       OnInvisMarkerPositionChanged(oPC, silhouette);
+    }
+    [ScriptHandler("effect_applied")]
+    private void HandleEffectApplied(CallInfo callInfo)
+    {
+      string customTag = EventsPlugin.GetEventData("CUSTOM_TAG");
+
+      if (customTag == "")
+      {
+        if (!int.TryParse(EventsPlugin.GetEventData("TYPE"), out int effectType))
+          return;
+
+        switch (effectType)
+        {
+          case 47: // 47 = Invisibility
+
+            API.Effect inviAoE = API.Effect.AreaOfEffect(193, null, "invi_hb"); // 193 = AoE 20 m
+            inviAoE.Creator = callInfo.ObjectSelf;
+            inviAoE.Tag = "invi_aoe";
+            inviAoE.SubType = EffectSubType.Supernatural;
+            ((NwGameObject)callInfo.ObjectSelf).ApplyEffect(EffectDuration.Permanent, inviAoE);
+
+            break;
+        }
+        return;
+      }
+        
+      switch (customTag)
+      {
+        case "CUSTOM_EFFECT_FROG":
+          new Frog((NwCreature)callInfo.ObjectSelf);
+          break;
+        case "CUSTOM_EFFECT_POISON":
+          new Poison((NwCreature)callInfo.ObjectSelf);
+          break;
+        case "CUSTOM_EFFECT_NOMAGIC":
+          new NoMagic((NwCreature)callInfo.ObjectSelf);
+          break;
+        case "CUSTOM_EFFECT_NOHEALMAGIC":
+          new NoHealMagic((NwCreature)callInfo.ObjectSelf);
+          break;
+        case "CUSTOM_EFFECT_NOSUMMON":
+          new NoSummon((NwCreature)callInfo.ObjectSelf);
+          break;
+        case "CUSTOM_EFFECT_NOOFFENSIVEMAGIC":
+          new NoOffensiveMagic((NwCreature)callInfo.ObjectSelf);
+          break;
+        case "CUSTOM_EFFECT_NOBUFF":
+          new NoBuff((NwCreature)callInfo.ObjectSelf);
+          break;
+        case "CUSTOM_EFFECT_NOUSEABLEITEM":
+          new NoUseableItem((NwCreature)callInfo.ObjectSelf);
+          break;
+        case "CUSTOM_EFFECT_SLOW":
+          new Slow((NwCreature)callInfo.ObjectSelf);
+          break;
+        case "CUSTOM_EFFECT_MINI":
+          new Mini((NwCreature)callInfo.ObjectSelf);
+          break;
+        case "CUSTOM_EFFECT_HALF_HEALTH":
+          new HalfHealth((NwCreature)callInfo.ObjectSelf);
+          break;
+        case "CUSTOM_EFFECT_SPELL_FAILURE":
+          new SpellFailure((NwCreature)callInfo.ObjectSelf);
+          break;
+      }
+    }
+    [ScriptHandler("effect_removed")]
+    private void HandleEffectRemoved(CallInfo callInfo)
+    {
+      string customTag = EventsPlugin.GetEventData("CUSTOM_TAG");
+
+      if (customTag == "")
+      {
+        if (!int.TryParse(EventsPlugin.GetEventData("TYPE"), out int effectType))
+          return;
+
+        switch (effectType)
+        {
+          case 47: // 47 = Invisibility
+
+            foreach (API.Effect inviAoE in ((NwCreature)callInfo.ObjectSelf).ActiveEffects.Where(f => f.Tag == "invi_aoe"))
+              ((NwGameObject)callInfo.ObjectSelf).RemoveEffect(inviAoE);
+
+            break;
+        }
+        return;
+      }
+
+      switch (customTag)
+      {
+        case "CUSTOM_EFFECT_FROG":
+          new Frog((NwCreature)callInfo.ObjectSelf, false);
+          break;
+        case "CUSTOM_EFFECT_POISON":
+          new Poison((NwCreature)callInfo.ObjectSelf, false);
+          break;
+        case "CUSTOM_EFFECT_NOMAGIC":
+          new NoMagic((NwCreature)callInfo.ObjectSelf, false);
+          break;
+        case "CUSTOM_EFFECT_NOHEALMAGIC":
+          new NoHealMagic((NwCreature)callInfo.ObjectSelf, false);
+          break;
+        case "CUSTOM_EFFECT_NOSUMMON":
+          new NoSummon((NwCreature)callInfo.ObjectSelf, false);
+          break;
+        case "CUSTOM_EFFECT_NOOFFENSIVEMAGIC":
+          new NoOffensiveMagic((NwCreature)callInfo.ObjectSelf, false);
+          break;
+        case "CUSTOM_EFFECT_NOBUFF":
+          new NoBuff((NwCreature)callInfo.ObjectSelf, false);
+          break;
+        case "CUSTOM_EFFECT_NOUSEABLEITEM":
+          new NoUseableItem((NwCreature)callInfo.ObjectSelf, false);
+          break;
+        case "CUSTOM_EFFECT_SLOW":
+          new Slow((NwCreature)callInfo.ObjectSelf, false);
+          break;
+        case "CUSTOM_EFFECT_MINI":
+          new Mini((NwCreature)callInfo.ObjectSelf, false);
+          break;
+        case "CUSTOM_EFFECT_HALF_HEALTH":
+          new HalfHealth((NwCreature)callInfo.ObjectSelf, false);
+          break;
+        case "CUSTOM_EFFECT_SPELL_FAILURE":
+          new SpellFailure((NwCreature)callInfo.ObjectSelf, false);
+          break;
+      }
     }
   }
 }

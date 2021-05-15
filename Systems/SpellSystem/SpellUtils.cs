@@ -2,6 +2,8 @@
 using NWN.Core;
 using NWN.API.Constants;
 using System.Linq;
+using System;
+using NWN.Core.NWNX;
 
 namespace NWN.Systems
 {
@@ -183,6 +185,19 @@ namespace NWN.Systems
     public static int GetSpellSchoolFromString(string school)
     {
       return "GACDEVINT".IndexOf(school);
+    }
+    public static void ApplyCustomEffectToTarget(NwGameObject target, string effectTag, int iconId, int effectDuration = 0)
+    {
+      API.Effect eff = API.Effect.HitPointChangeWhenDying(1);
+      eff.Tag = effectTag;
+      eff.SubType = EffectSubType.Supernatural;
+
+      if (effectDuration > 0)
+        target.ApplyEffect(EffectDuration.Temporary, eff, TimeSpan.FromSeconds(effectDuration));
+      else
+        target.ApplyEffect(EffectDuration.Permanent, eff);
+
+      ObjectPlugin.AddIconEffect(target, iconId, effectDuration);
     }
   }
 }

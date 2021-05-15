@@ -217,6 +217,9 @@ namespace NWN.Systems
 
       EventsPlugin.SubscribeEvent("NWNX_ON_CHARACTER_SHEET_OPEN_BEFORE", "pc_sheet_open");
 
+      EventsPlugin.SubscribeEvent("NWNX_ON_EFFECT_APPLIED_BEFORE", "effect_applied");
+      EventsPlugin.SubscribeEvent("NWNX_ON_EFFECT_REMOVED_BEFORE", "effect_removed");
+
       //EventsPlugin.SubscribeEvent("NWNX_ON_HAS_FEAT_AFTER", "event_has_feat");
     }
     private void SetModuleTime()
@@ -338,7 +341,6 @@ namespace NWN.Systems
       Task DownloadDiscordUsers = NwTask.Run(async () =>
       {
         await Bot._client.DownloadUsersAsync(new List<IGuild> { { Bot._client.GetGuild(680072044364562528) } });
-        return true;
       });
 
       Task scheduleNextSave = NwTask.Run(async () =>

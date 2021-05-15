@@ -32,6 +32,8 @@ namespace NWN.Systems
 
       player.OnKeydown -= player.menu.HandleMenuFeatUsed;
 
+      Party.HandlePartyChange(onPCDisconnect.Player);
+
       if (!player.areaExplorationStateDictionnary.ContainsKey(player.oid.Area.Tag))
         player.areaExplorationStateDictionnary.Add(player.oid.Area.Tag, PlayerPlugin.GetAreaExplorationState(player.oid, player.oid.Area));
       else

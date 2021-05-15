@@ -210,5 +210,14 @@ namespace NWN.Systems.Arena
       onSpellCast.PreventSpellCast = true;
       ((NwPlayer)onSpellCast.Caster).SendServerMessage("Le contrat de spectateur vous interdit de lancer des sorts à l'intérieur de l'arène.", Color.RED);
     }
+    public static async void RemoveArenaMalus(Player player, string malus, string message)
+    {
+      await NwTask.WaitUntil(() => player.pveArena.currentRound == 0);
+
+      foreach (API.Effect arenaMalus in player.oid.ActiveEffects.Where(f => f.Tag == malus))
+        player.oid.RemoveEffect(arenaMalus);
+
+      player.oid.SendServerMessage(message, Color.ORANGE);
+    }
   }
 }

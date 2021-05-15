@@ -387,7 +387,7 @@ namespace NWN.Systems
         onCombatRoundEnd.Creature.OnCombatRoundEnd -= HandleCombatRoundEndForAutoSpells;
       }
     }
-
+   
     // TODO : Probablement refaire le système de déguisement plus proprement
     /*private static int HandlePlayerPerceived(CallInfo callInfo)
     {

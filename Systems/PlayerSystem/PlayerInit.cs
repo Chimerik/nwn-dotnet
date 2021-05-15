@@ -151,61 +151,7 @@ namespace NWN.Systems
       player.DoJournalUpdate = false;
       player.dateLastSaved = DateTime.Now;
 
-      WaitForInviEffect(player.oid);
-
       Log.Info("End of player init.");
-    }
-    private static async void WaitForPartyChange(NwPlayer oPC)
-    {
-      CancellationTokenSource tokenSource = new CancellationTokenSource();
-
-      Task playerGetsDMRights = NwTask.WaitUntil(() => oPC.IsDM, tokenSource.Token);
-      Task partyChanged = NwTask.WaitUntilValueChanged(() => oPC.PartyMembers.Count<NwPlayer>(p => !p.IsDM), tokenSource.Token);
-      await NwTask.WhenAny(playerGetsDMRights, partyChanged);
-      tokenSource.Cancel();
-
-      if (playerGetsDMRights.IsCompletedSuccessfully)
-      {
-        Task playerLosesDMRights = NwTask.Run(async () =>
-        {
-          await NwTask.WaitUntil(() => !oPC.IsDM);
-          WaitForPartyChange(oPC);
-        });
-        return;
-      }
-
-      Party.HandlePartyChange(oPC);
-    }
-    private static async void WaitForInviEffect(NwPlayer oPC)
-    {
-      CancellationTokenSource tokenSource = new CancellationTokenSource();
-      Task playerDisconnecting = NwTask.WaitUntil(() => !oPC.IsValid, tokenSource.Token);
-      Task inviApplied = NwTask.WaitUntil(() => oPC.ActiveEffects.Any(e => e.EffectType == EffectType.Invisibility || e.EffectType == EffectType.ImprovedInvisibility), tokenSource.Token);
-      
-      await NwTask.WhenAny(inviApplied, playerDisconnecting);
-      tokenSource.Cancel();
-
-      if (playerDisconnecting.IsCompletedSuccessfully)
-        return;
-
-      API.Effect inviAoE = API.Effect.AreaOfEffect(193, null, "invi_hb");
-      inviAoE.Creator = oPC;
-      inviAoE.Tag = "invi_aoe";
-      oPC.ApplyEffect(EffectDuration.Permanent, inviAoE);
-
-      CancellationTokenSource tokenSource2 = new CancellationTokenSource();
-
-      Task playerDisconnected = NwTask.WaitUntil(() => !oPC.IsValid, tokenSource2.Token);
-      Task inviDispelled = NwTask.WaitUntil(() => !oPC.ActiveEffects.Any(e => e.EffectType == EffectType.Invisibility || e.EffectType == EffectType.ImprovedInvisibility), tokenSource2.Token);
-      
-      await NwTask.WhenAny(inviDispelled, playerDisconnected);
-      tokenSource2.Cancel();
-
-      if (playerDisconnected.IsCompletedSuccessfully)
-        return;
-
-      oPC.RemoveEffect(inviAoE);
-      WaitForInviEffect(oPC);
     }
     private static void InitializeNewPlayer(NwPlayer newPlayer)
     {
@@ -479,6 +425,7 @@ namespace NWN.Systems
       player.OnCreatureAttack += AttackSystem.HandleAttackEvent;
       player.OnPhysicalAttacked += AttackSystem.HandlePlayerAttackedEvent;
       player.OnCreatureDamage += AttackSystem.HandleDamageEvent;
+      player.OnPartyEvent += Party.HandlePartyEvent;
 
       EventsPlugin.AddObjectToDispatchList("NWNX_ON_ITEM_UNEQUIP_BEFORE", "b_unequip", player);
       EventsPlugin.AddObjectToDispatchList("NWNX_ON_COMBAT_MODE_OFF", "event_combatmode", player);
@@ -489,8 +436,6 @@ namespace NWN.Systems
         await NwTask.WaitUntil(() => player.GetItemInSlot(InventorySlot.Neck)?.Tag != "amulettorillink");
         ItemSystem.OnTorilNecklaceRemoved(player);
       });
-
-      WaitForPartyChange(player);
     }
     private static void InitializePlayerAccount(Player player)
     {

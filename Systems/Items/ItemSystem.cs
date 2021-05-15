@@ -133,6 +133,12 @@ namespace NWN.Systems
           });
           
           break;
+        case "potion_cure_mini":
+            new PotionCureMini(player.oid);
+          break;
+        case "potion_cure_frog":
+          new PotionCureFrog(player.oid);
+          break;
       }
 
       Task wait = NwTask.Run(async () =>

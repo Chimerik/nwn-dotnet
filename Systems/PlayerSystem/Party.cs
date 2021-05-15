@@ -1,6 +1,7 @@
 ﻿using NLog;
 using NWN.API;
 using NWN.API.Constants;
+using NWN.API.Events;
 using NWN.Core;
 using NWN.Services;
 using System.Linq;
@@ -11,28 +12,26 @@ namespace NWN.Systems
   [ServiceBinding(typeof(Party))]
   class Party
   {
-    public static void HandlePartyChange(NwGameObject oPartyChanger)
+    public static void HandlePartyEvent(OnPartyEvent onPartyEvent)
     {
-      NwPlayer oPC = null;
-
-      if (oPartyChanger is NwPlayer)
-        oPC = (NwPlayer)oPartyChanger;
-      else
-        oPC = (NwPlayer)((NwCreature)oPartyChanger).Master;
-
-      API.Effect partyEffect = oPC.ActiveEffects.FirstOrDefault(e => e.Tag == "PartyEffect");
-      if (partyEffect != null)
-        oPC.RemoveEffect(partyEffect);
-
-      oPC.ApplyEffect(EffectDuration.Permanent, GetPartySizeEffect(oPC.PartyMembers.Count<NwPlayer>(p => !p.IsDM)));
-
-      Task waitForPartyChange = NwTask.Run(async () =>
+      switch (onPartyEvent.EventType)
       {
-        await NwTask.WaitUntilValueChanged(() => oPC.PartyMembers.Count<NwPlayer>(p => !p.IsDM));
-        Party.HandlePartyChange(oPC);
-      });
+        case PartyEventType.AcceptInvitation:
+        case PartyEventType.Kick:
+        case PartyEventType.Leave:
+          HandlePartyChange(onPartyEvent.Player);
+          break;
+      }
     }
-    public static API.Effect GetPartySizeEffect(int iPartySize = 0)
+    public static void HandlePartyChange(NwPlayer oPartyChanger)
+    {
+      API.Effect partyEffect = oPartyChanger.ActiveEffects.FirstOrDefault(e => e.Tag == "PartyEffect");
+      if (partyEffect != null)
+        oPartyChanger.RemoveEffect(partyEffect);
+
+      oPartyChanger.ApplyEffect(EffectDuration.Permanent, GetPartySizeEffect(oPartyChanger.PartyMembers.Count<NwPlayer>(p => !p.IsDM)));
+    }
+    private static API.Effect GetPartySizeEffect(int iPartySize = 0)
     {
       API.Effect eParty = API.Effect.VisualEffect(VfxType.None);
 
