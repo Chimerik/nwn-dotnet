@@ -10,12 +10,11 @@ namespace NWN.Systems
   [ServiceBinding(typeof(AttackSystem))]
   public partial class AttackSystem
   {
-    private static readonly Logger Log = LogManager.GetCurrentClassLogger();
     public static void HandlePlayerAttackedEvent(CreatureEvents.OnPhysicalAttacked onAttacked)
     {
       if (PlayerSystem.Players.TryGetValue(onAttacked.Creature, out PlayerSystem.Player player))
       {
-        // La cible de l'attaque est un joueur. Si l'attaque échoue, c'est qu'un objet d'armure a été utilisé et on fait diminuer la durabilité
+        // La cible de l'attaque est un joueur, on fait diminuer la durabilité
 
         int dexBonus = player.oid.GetAbilityModifier(Ability.Dexterity) - (CreaturePlugin.GetArmorCheckPenalty(player.oid) + CreaturePlugin.GetShieldCheckPenalty(player.oid));
         if (dexBonus < 0)

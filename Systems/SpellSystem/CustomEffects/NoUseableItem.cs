@@ -19,20 +19,20 @@ namespace NWN.Systems
     {
       oTarget.ApplyEffect(EffectDuration.Instant, Effect.VisualEffect(VfxType.FnfPwkill));
 
-      PlayerSystem.eventService.Unsubscribe<ItemEvents.OnItemUseBefore, NWNXEventFactory>(oTarget, ItemSystem.OnItemUseBefore);
-      PlayerSystem.eventService.Subscribe<ItemEvents.OnItemUseBefore, NWNXEventFactory>(oTarget, NoUseableItemMalus)
-        .Register<ItemEvents.OnItemUseBefore>();
+      oTarget.OnItemUse -= ItemSystem.OnItemUseBefore;
+      oTarget.OnItemUse -= NoUseableItemMalus;
+      oTarget.OnItemUse += NoUseableItemMalus;
     }
     private void RemoveEffectFromTarget(NwCreature oTarget)
     {
-      PlayerSystem.eventService.Unsubscribe<ItemEvents.OnItemUseBefore, NWNXEventFactory>(oTarget, NoUseableItemMalus);
-      PlayerSystem.eventService.Subscribe<ItemEvents.OnItemUseBefore, NWNXEventFactory>(oTarget, ItemSystem.OnItemUseBefore)
-        .Register<ItemEvents.OnItemUseBefore>();
+      oTarget.OnItemUse -= ItemSystem.OnItemUseBefore;
+      oTarget.OnItemUse += ItemSystem.OnItemUseBefore;
+      oTarget.OnItemUse -= NoUseableItemMalus;
     }
-    private void NoUseableItemMalus(ItemEvents.OnItemUseBefore onItemUse)
+    private void NoUseableItemMalus(OnItemUse onItemUse)
     {
-      onItemUse.Skip = true;
-      ((NwPlayer)onItemUse.Creature).SendServerMessage("L'interdiction d'utilisation d'objets est en vigueur.", Color.RED);
+      onItemUse.PreventUseItem = true;
+      ((NwPlayer)onItemUse.UsedBy).SendServerMessage("L'interdiction d'utilisation d'objets est en vigueur.", Color.RED);
     }
   }
 }

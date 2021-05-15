@@ -1,8 +1,6 @@
 ﻿using NWN.API;
 using NWN.Core.NWNX;
 using NWN.Services;
-using NWNX.API.Events;
-using NWNX.Services;
 using NWN.API.Constants;
 using System.Linq;
 using NWN.Core;
@@ -24,21 +22,20 @@ namespace NWN.Systems
       //NwModule.Instance.OnAcquireItem += OnAcquireItem;
       //NwModule.Instance.OnUnacquireItem += OnUnacquireItem;
     }
-    public static void OnItemEquipBefore(ItemEvents.OnItemEquipBefore onItemEquip)
+    public static void OnItemEquipBefore(OnItemEquip onItemEquip)
     {
-      NwPlayer oPC = (NwPlayer)onItemEquip.Creature;
+      NwPlayer oPC = (NwPlayer)onItemEquip.EquippedBy;
       NwItem oItem = onItemEquip.Item;
 
       if (oPC == null || oItem == null)
         return;
 
-      int iSlot = int.Parse(EventsPlugin.GetEventData("SLOT"));
-      NwItem oUnequip = oPC.GetItemInSlot((InventorySlot)iSlot);
+      NwItem oUnequip = oPC.GetItemInSlot((InventorySlot)onItemEquip.Slot);
       
       if (oUnequip != null && !oPC.Inventory.CheckFit(oUnequip))
       {
         oPC.SendServerMessage("Attention, votre inventaire est plein. Déséquipper cet objet risquerait de vous le faire perdre !", API.Color.RED);
-        onItemEquip.Skip = true;
+        onItemEquip.PreventEquip = true;
         return;
       }
     }
@@ -62,89 +59,88 @@ namespace NWN.Systems
         return;
       }
     }
-    public static void OnItemUseBefore(ItemEvents.OnItemUseBefore onItemUse)
+    public static void OnItemUseBefore(OnItemUse onItemUse)
     {
-      if (!(PlayerSystem.Players.TryGetValue(onItemUse.Creature, out PlayerSystem.Player player)))
-        return;
+      NwPlayer oPC = (NwPlayer)onItemUse.UsedBy;
 
       NwItem oItem = onItemUse.Item;
       NwGameObject oTarget = onItemUse.TargetObject;
 
-      if(player == null || oItem == null)
+      if(oPC == null || oItem == null)
         return;
       
       switch (oItem.Tag)
       {
         case "skillbook":
-          feedbackService.AddFeedbackMessageFilter(FeedbackMessage.UseItemCantUse, player.oid);
-          onItemUse.Skip = true;
-          Items.ItemUseHandlers.SkillBook.HandleActivate(oItem, player.oid);
+          feedbackService.AddFeedbackMessageFilter(FeedbackMessage.UseItemCantUse, oPC);
+          onItemUse.PreventUseItem = true;
+          Items.ItemUseHandlers.SkillBook.HandleActivate(oItem, oPC);
           break;
 
         case "blueprint":
-          feedbackService.AddFeedbackMessageFilter(FeedbackMessage.UseItemCantUse, player.oid);
-          onItemUse.Skip = true;
-          Items.ItemUseHandlers.Blueprint.HandleActivate(oItem, player.oid, oTarget);
+          feedbackService.AddFeedbackMessageFilter(FeedbackMessage.UseItemCantUse, oPC);
+          onItemUse.PreventUseItem = true;
+          Items.ItemUseHandlers.Blueprint.HandleActivate(oItem, oPC, oTarget);
 
           break;
 
         case "oreextractor":
-          feedbackService.AddFeedbackMessageFilter(FeedbackMessage.UseItemCantUse, player.oid);
-          onItemUse.Skip = true;
-          Items.ItemUseHandlers.ResourceExtractor.HandleActivate(oItem, player.oid, oTarget);
+          feedbackService.AddFeedbackMessageFilter(FeedbackMessage.UseItemCantUse, oPC);
+          onItemUse.PreventUseItem = true;
+          Items.ItemUseHandlers.ResourceExtractor.HandleActivate(oItem, oPC, oTarget);
 
           break;
         case "private_contract":
-          feedbackService.AddFeedbackMessageFilter(FeedbackMessage.UseItemCantUse, player.oid);
-          onItemUse.Skip = true;
-          new PrivateContract(player.oid, oItem);
+          feedbackService.AddFeedbackMessageFilter(FeedbackMessage.UseItemCantUse, oPC);
+          onItemUse.PreventUseItem = true;
+          new PrivateContract(oPC, oItem);
 
           break;
         case "shop_clearance":
-          feedbackService.AddFeedbackMessageFilter(FeedbackMessage.UseItemCantUse, player.oid);
-          onItemUse.Skip = true;
-          new PlayerShop(player.oid, oItem);
+          feedbackService.AddFeedbackMessageFilter(FeedbackMessage.UseItemCantUse, oPC);
+          onItemUse.PreventUseItem = true;
+          new PlayerShop(oPC, oItem);
 
           break;
         case "auction_clearanc":
-          feedbackService.AddFeedbackMessageFilter(FeedbackMessage.UseItemCantUse, player.oid);
-          onItemUse.Skip = true;
-          new PlayerAuction(player.oid, oItem);
+          feedbackService.AddFeedbackMessageFilter(FeedbackMessage.UseItemCantUse, oPC);
+          onItemUse.PreventUseItem = true;
+          new PlayerAuction(oPC, oItem);
 
           break;
         case "forgehammer":
-          feedbackService.AddFeedbackMessageFilter(FeedbackMessage.UseItemCantUse, player.oid);
-          onItemUse.Skip = true;
+          feedbackService.AddFeedbackMessageFilter(FeedbackMessage.UseItemCantUse, oPC);
+          onItemUse.PreventUseItem = true;
 
           if (oTarget is NwItem)
-            new CraftTool(player, (NwItem)oTarget);
+            new CraftTool(oPC, (NwItem)oTarget);
           else
-            player.oid.SendServerMessage($"Vous ne pouvez pas modifier l'apparence de {oTarget.Name.ColorString(Color.WHITE)}.".ColorString(Color.RED));
+            oPC.SendServerMessage($"Vous ne pouvez pas modifier l'apparence de {oTarget.Name.ColorString(Color.WHITE)}.".ColorString(Color.RED));
 
           break;
         case "Peaudejoueur":
-          feedbackService.AddFeedbackMessageFilter(FeedbackMessage.UseItemCantUse, player.oid);
-          onItemUse.Skip = true;
+          feedbackService.AddFeedbackMessageFilter(FeedbackMessage.UseItemCantUse, oPC);
+          onItemUse.PreventUseItem = true;
 
           Task waitSkinEquipped = NwTask.Run(async () =>
           {
-            await player.oid.ClearActionQueue();
-            await player.oid.ActionEquipItem(onItemUse.Item, InventorySlot.CreatureSkin);
+            await oPC.ClearActionQueue();
+            await oPC.ActionEquipItem(onItemUse.Item, InventorySlot.CreatureSkin);
           });
           
           break;
         case "potion_cure_mini":
-            new PotionCureMini(player.oid);
+            new PotionCureMini(oPC);
           break;
         case "potion_cure_frog":
-          new PotionCureFrog(player.oid);
+          new PotionCureFrog(oPC);
           break;
       }
 
       Task wait = NwTask.Run(async () =>
       {
         await NwTask.Delay(TimeSpan.FromSeconds(0.2));
-        feedbackService.RemoveFeedbackMessageFilter(FeedbackMessage.UseItemCantUse, player.oid);
+        feedbackService.RemoveFeedbackMessageFilter(FeedbackMessage.UseItemCantUse, oPC);
       });
     }
     public static void OnAcquireItem(ModuleEvents.OnAcquireItem onAcquireItem)

@@ -353,13 +353,12 @@ namespace NWN.Systems
     {
       player.playerJournal = new PlayerJournal();
 
-      eventService.Subscribe<ItemEvents.OnItemUseBefore, NWNXEventFactory>(player.oid, ItemSystem.OnItemUseBefore)
-        .Register<ItemEvents.OnItemUseBefore>();
       eventService.Subscribe<ModuleEvents.OnAcquireItem, GameEventFactory>(player.oid, ItemSystem.OnAcquireItem)
         .Register<ModuleEvents.OnAcquireItem>(NwModule.Instance);
       eventService.Subscribe<ModuleEvents.OnUnacquireItem, GameEventFactory>(player.oid, ItemSystem.OnUnacquireItem)
         .Register<ModuleEvents.OnUnacquireItem>(NwModule.Instance);
 
+      player.oid.OnItemEquip += ItemSystem.OnItemEquipBefore;
       player.oid.OnUseFeat += FeatSystem.OnUseFeatBefore;
       player.oid.OnSpellCast += SpellSystem.HandleBeforeSpellCast;
       player.oid.OnExamineObject += ExamineSystem.OnExamineBefore;
@@ -404,15 +403,13 @@ namespace NWN.Systems
     {
       player.OnServerCharacterSave += HandleBeforePlayerSave;
       
-      eventService.Subscribe<ItemEvents.OnItemEquipBefore, NWNXEventFactory>(player, ItemSystem.OnItemEquipBefore)
-        .Register<ItemEvents.OnItemEquipBefore>();
-      eventService.Subscribe<ItemEvents.OnItemUseBefore, NWNXEventFactory>(player, ItemSystem.OnItemUseBefore)
-        .Register<ItemEvents.OnItemUseBefore>();
       eventService.Subscribe<ModuleEvents.OnAcquireItem, GameEventFactory>(player, ItemSystem.OnAcquireItem)
         .Register<ModuleEvents.OnAcquireItem>(NwModule.Instance);
       eventService.Subscribe<ModuleEvents.OnUnacquireItem, GameEventFactory>(player, ItemSystem.OnUnacquireItem)
         .Register<ModuleEvents.OnUnacquireItem>(NwModule.Instance);
 
+      player.OnItemEquip += ItemSystem.OnItemEquipBefore;
+      player.OnItemUse += ItemSystem.OnItemUseBefore;
       player.OnPlayerDeath += HandlePlayerDeath;
       player.OnUseFeat += FeatSystem.OnUseFeatBefore;
       player.OnSpellCast += SpellSystem.HandleBeforeSpellCast;

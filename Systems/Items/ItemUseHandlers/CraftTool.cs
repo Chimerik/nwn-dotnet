@@ -22,23 +22,25 @@ namespace NWN.Systems
     string file;
     List<ItemAppearanceArmorColor> colorChannelList;
 
-    public CraftTool(PlayerSystem.Player player, NwItem item)
+    public CraftTool(NwPlayer oPC, NwItem item)
     {
-      if (item.Possessor != player.oid) // TODO : vérifier qu'il est bien le crafteur de l'objet
+      if (item.Possessor != oPC) // TODO : vérifier qu'il est bien le crafteur de l'objet
       {
-        player.oid.SendServerMessage($"Vous devez être en possession de l'objet {item.Name.ColorString(Color.LIME)} pour pouvoir le modifier", Color.ORANGE);
+        oPC.SendServerMessage($"Vous devez être en possession de l'objet {item.Name.ColorString(Color.LIME)} pour pouvoir le modifier", Color.ORANGE);
         return;
       }
 
       // TODO : ajouter un métier permettant de modifier n'importe quelle tenue
-      if (item.GetLocalVariable<string>("_ORIGINAL_CRAFTER_NAME").HasValue && item.GetLocalVariable<string>("_ORIGINAL_CRAFTER_NAME").Value != player.oid.Name 
-        && !player.oid.IsDM)
+      if (item.GetLocalVariable<string>("_ORIGINAL_CRAFTER_NAME").HasValue && item.GetLocalVariable<string>("_ORIGINAL_CRAFTER_NAME").Value != oPC.Name 
+        && !oPC.IsDM)
       {
-        player.oid.SendServerMessage($"Il est indiqué : Pour tout modification, s'adresser à {item.GetLocalVariable<string>("_ORIGINAL_CRAFTER_NAME").Value.ColorString(Color.WHITE)}", Color.ORANGE);
+        oPC.SendServerMessage($"Il est indiqué : Pour tout modification, s'adresser à {item.GetLocalVariable<string>("_ORIGINAL_CRAFTER_NAME").Value.ColorString(Color.WHITE)}", Color.ORANGE);
         return;
       }
 
-      this.player = player;
+      if (!PlayerSystem.Players.TryGetValue(oPC, out player))
+        return;
+
       this.item = item;
       this.serializedInitialItem = item.Serialize().ToBase64EncodedString();
 
