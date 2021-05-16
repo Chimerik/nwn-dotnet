@@ -333,7 +333,7 @@ namespace NWN.Systems
 
       onChat.Sender.GetLocalVariable<string>("_PLAYER_INPUT").Value = onChat.Message;
       onChat.Sender.GetLocalVariable<string>("_AWAITING_PLAYER_INPUT").Delete();
-      onChat.Sender.OnChat -= HandlePlayerInputByte;
+      onChat.Sender.OnPlayerChat -= HandlePlayerInputByte;
     }
     public static void HandlePlayerInputInt(ModuleEvents.OnPlayerChat onChat)
     {
@@ -347,7 +347,7 @@ namespace NWN.Systems
 
       onChat.Sender.GetLocalVariable<string>("_PLAYER_INPUT").Value = onChat.Message;
       onChat.Sender.GetLocalVariable<int>("_AWAITING_PLAYER_INPUT").Delete();
-      onChat.Sender.OnChat -= HandlePlayerInputInt;
+      onChat.Sender.OnPlayerChat -= HandlePlayerInputInt;
     }
     public static void HandlePlayerInputString(ModuleEvents.OnPlayerChat onChat)
     {
@@ -355,7 +355,7 @@ namespace NWN.Systems
 
       onChat.Sender.GetLocalVariable<string>("_PLAYER_INPUT").Value = onChat.Message;
       onChat.Sender.GetLocalVariable<int>("_AWAITING_PLAYER_INPUT").Delete();
-      onChat.Sender.OnChat -= HandlePlayerInputString;
+      onChat.Sender.OnPlayerChat -= HandlePlayerInputString;
     }
   }
 }

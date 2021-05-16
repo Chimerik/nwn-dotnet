@@ -22,7 +22,6 @@ namespace NWN.Systems
     {
       NwModule.Instance.OnClientEnter += HandlePlayerConnect;
       NwModule.Instance.OnClientDisconnect += HandlePlayerLeave;
-      NwModule.Instance.OnPlayerLevelUp += CancelPlayerLevelUp;
 
       eventService = eventServices;
       cursorTargetService = cursorTService;
@@ -325,16 +324,11 @@ namespace NWN.Systems
     {
       callInfo.ObjectSelf.GetLocalVariable<int>("_COLLECT_CANCELLED").Value = 1;
     }
-    private void CancelPlayerLevelUp(ModuleEvents.OnPlayerLevelUp onLevelUp)
+    public static void HandleOnClientLevelUp(OnClientLevelUpBegin onLevelUp)
     {
-      onLevelUp.Player.Xp = 1;
+      onLevelUp.PreventLevelUp = true;
       Utils.LogMessageToDMs($"{onLevelUp.Player.Name} vient d'essayer de level up.");
-    }
-    [ScriptHandler("client_lvlup")]
-    private void HandleOnClientLevelUp(CallInfo callInfo)
-    {
-      EventsPlugin.SkipEvent();
-      Utils.LogMessageToDMs($"{callInfo.ObjectSelf.Name} vient d'essayer de level up.");
+      onLevelUp.Player.Xp = 1;
     }
 
     private static void HandlePlayerPerception(CreatureEvents.OnPerception onPerception)

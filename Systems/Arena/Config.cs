@@ -85,173 +85,20 @@ namespace NWN.Systems.Arena
       RemoveArenaMalus(player, "CUSTOM_EFFECT_NOBUFF", "L'interdiction d'usage de magie défensive a été levée.");
     }
     
-    private static async void ApplyNoArmorMalus(PlayerSystem.Player player)
+    private static void ApplyNoArmorMalus(PlayerSystem.Player player)
     {
-      player.oid.ApplyEffect(EffectDuration.Instant, Effect.VisualEffect(VfxType.FnfPwkill));
-
-      CancellationTokenSource tokenSource = new CancellationTokenSource();
-
-      Task waitArmorEquip = NwTask.WaitUntil(() => player.oid.GetItemInSlot(InventorySlot.Chest) != null, tokenSource.Token);
-      Task waitArenaExit = NwTask.WaitUntil(() => player.pveArena.currentRound == 0, tokenSource.Token);
-
-      await NwTask.WhenAny(waitArmorEquip, waitArenaExit);
-      tokenSource.Cancel();
-
-      if (waitArenaExit.IsCompletedSuccessfully)
-      {
-        player.oid.SendServerMessage("L'interdiction de port d'armure a été levée.", Color.ORANGE);
-        return;
-      }
-
-      await NwTask.Delay(TimeSpan.FromSeconds(0.5));
-
-      Task armorUnequip = NwTask.Run(async () =>
-      {
-        NwItem armor = player.oid.GetItemInSlot(InventorySlot.Chest);
-        await player.oid.ActionUnequipItem(player.oid.GetItemInSlot(InventorySlot.Chest));
-        if (armor != null)
-        {
-          armor.Clone(player.oid);
-          armor.Destroy();
-        }
-      });
-
-      await NwTask.WaitUntil(() => player.oid.GetItemInSlot(InventorySlot.Chest) == null);
-
-      player.oid.SendServerMessage("L'interdiction de port d'armure est en vigueur.", Color.RED);
-      ApplyNoArmorMalus(player);
+      SpellUtils.ApplyCustomEffectToTarget(player.oid, "CUSTOM_EFFECT_NOARMOR", 109);
+      RemoveArenaMalus(player, "CUSTOM_EFFECT_NOARMOR", "L'interdiction de port d'armure a été levée.");
     }
-    private static async void ApplyNoWeaponsMalus(PlayerSystem.Player player)
+    private static void ApplyNoWeaponsMalus(PlayerSystem.Player player)
     {
-      player.oid.ApplyEffect(EffectDuration.Instant, Effect.VisualEffect(VfxType.FnfPwkill));
-
-      CancellationTokenSource tokenSource = new CancellationTokenSource();
-
-      Task waitRightHandEquip = NwTask.WaitUntil(() => player.oid.GetItemInSlot(InventorySlot.RightHand) != null, tokenSource.Token);
-      Task waitLeftHandEquip = NwTask.WaitUntil(() => player.oid.GetItemInSlot(InventorySlot.LeftHand) != null, tokenSource.Token);
-      Task waitArenaExit = NwTask.WaitUntil(() => player.pveArena.currentRound == 0, tokenSource.Token);
-
-      await NwTask.WhenAny(waitRightHandEquip, waitLeftHandEquip, waitArenaExit);
-      tokenSource.Cancel();
-
-      if (waitArenaExit.IsCompletedSuccessfully)
-      {
-        player.oid.SendServerMessage("L'interdiction de port d'arme a été levée.", Color.ORANGE);
-        return;
-      }
-
-      await NwTask.Delay(TimeSpan.FromSeconds(0.5));
-
-      if (waitRightHandEquip.IsCompletedSuccessfully)
-      {
-        Task unequip = NwTask.Run(async () =>
-        {
-          await player.oid.ActionUnequipItem(player.oid.GetItemInSlot(InventorySlot.RightHand));
-        });
-
-        await NwTask.WaitUntil(() => player.oid.GetItemInSlot(InventorySlot.RightHand) == null);
-      }
-
-      if (waitLeftHandEquip.IsCompletedSuccessfully)
-      {
-        Task unequip = NwTask.Run(async () =>
-        {
-          await player.oid.ActionUnequipItem(player.oid.GetItemInSlot(InventorySlot.LeftHand));
-        });
-
-        await NwTask.WaitUntil(() => player.oid.GetItemInSlot(InventorySlot.LeftHand) == null);
-      }
-
-      player.oid.SendServerMessage("L'interdiction de port d'armes est en vigueur.", Color.RED);
-      ApplyNoWeaponsMalus(player);
+      SpellUtils.ApplyCustomEffectToTarget(player.oid, "CUSTOM_EFFECT_NOWEAPON", 109);
+      RemoveArenaMalus(player, "CUSTOM_EFFECT_NOARMOR", "L'interdiction de port d'arme a été levée.");
     }
-    private static async void ApplyNoAccessoriesMalus(PlayerSystem.Player player)
+    private static void ApplyNoAccessoriesMalus(PlayerSystem.Player player)
     {
-      player.oid.ApplyEffect(EffectDuration.Instant, Effect.VisualEffect(VfxType.FnfPwkill));
-
-      CancellationTokenSource tokenSource = new CancellationTokenSource();
-
-      Task waitBeltEquip = NwTask.WaitUntil(() => player.oid.GetItemInSlot(InventorySlot.Belt) != null, tokenSource.Token);
-      Task waitArmsEquip = NwTask.WaitUntil(() => player.oid.GetItemInSlot(InventorySlot.Arms) != null, tokenSource.Token);
-      Task waitBootsEquip = NwTask.WaitUntil(() => player.oid.GetItemInSlot(InventorySlot.Boots) != null, tokenSource.Token);
-      Task waitCloakEquip = NwTask.WaitUntil(() => player.oid.GetItemInSlot(InventorySlot.Cloak) != null, tokenSource.Token);
-      Task waitLeftRingEquip = NwTask.WaitUntil(() => player.oid.GetItemInSlot(InventorySlot.LeftRing) != null, tokenSource.Token);
-      Task waitRightRingEquip = NwTask.WaitUntil(() => player.oid.GetItemInSlot(InventorySlot.RightRing) != null, tokenSource.Token);
-      Task waitArenaExit = NwTask.WaitUntil(() => player.pveArena.currentRound == 0, tokenSource.Token);
-
-      await NwTask.WhenAny(waitBeltEquip, waitArmsEquip, waitBootsEquip, waitCloakEquip, waitLeftRingEquip, waitRightRingEquip, waitArenaExit);
-      tokenSource.Cancel();
-
-      if (waitArenaExit.IsCompletedSuccessfully)
-      {
-        player.oid.SendServerMessage("L'interdiction de port d'accessoire a été levée.", Color.ORANGE);
-        return;
-      }
-
-      await NwTask.Delay(TimeSpan.FromSeconds(0.5));
-
-      if (waitBeltEquip.IsCompletedSuccessfully)
-      {
-        Task unequip = NwTask.Run(async () =>
-        {
-          await player.oid.ActionUnequipItem(player.oid.GetItemInSlot(InventorySlot.Belt));
-        });
-
-        await NwTask.WaitUntil(() => player.oid.GetItemInSlot(InventorySlot.Belt) == null);
-      }
-
-      if (waitArmsEquip.IsCompletedSuccessfully)
-      {
-        Task unequip = NwTask.Run(async () =>
-        {
-          await player.oid.ActionUnequipItem(player.oid.GetItemInSlot(InventorySlot.Arms));
-        });
-
-        await NwTask.WaitUntil(() => player.oid.GetItemInSlot(InventorySlot.Arms) == null);
-      }
-
-      if (waitBootsEquip.IsCompletedSuccessfully)
-      {
-        Task unequip = NwTask.Run(async () =>
-        {
-          await player.oid.ActionUnequipItem(player.oid.GetItemInSlot(InventorySlot.Boots));
-        });
-
-        await NwTask.WaitUntil(() => player.oid.GetItemInSlot(InventorySlot.Boots) == null);
-      }
-
-      if (waitLeftRingEquip.IsCompletedSuccessfully)
-      {
-        Task unequip = NwTask.Run(async () =>
-        {
-          await player.oid.ActionUnequipItem(player.oid.GetItemInSlot(InventorySlot.LeftRing));
-        });
-
-        await NwTask.WaitUntil(() => player.oid.GetItemInSlot(InventorySlot.LeftRing) == null);
-      }
-
-      if (waitRightRingEquip.IsCompletedSuccessfully)
-      {
-        Task unequip = NwTask.Run(async () =>
-        {
-          await player.oid.ActionUnequipItem(player.oid.GetItemInSlot(InventorySlot.RightRing));
-        });
-
-        await NwTask.WaitUntil(() => player.oid.GetItemInSlot(InventorySlot.RightRing) == null);
-      }
-
-      if (waitCloakEquip.IsCompletedSuccessfully)
-      {
-        Task unequip = NwTask.Run(async () =>
-        {
-          await player.oid.ActionUnequipItem(player.oid.GetItemInSlot(InventorySlot.Cloak));
-        });
-
-        await NwTask.WaitUntil(() => player.oid.GetItemInSlot(InventorySlot.Cloak) == null);
-      }
-
-      player.oid.SendServerMessage("L'interdiction de port d'accessoires est en vigueur.", Color.RED);
-      ApplyNoAccessoriesMalus(player);
+      SpellUtils.ApplyCustomEffectToTarget(player.oid, "CUSTOM_EFFECT_NOACCESSORY", 109);
+      RemoveArenaMalus(player, "CUSTOM_EFFECT_NOARMOR", "L'interdiction de port d'accessoire a été levée.");
     }
     private static void ApplyNoUseableItemMalus(PlayerSystem.Player player)
     {

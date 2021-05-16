@@ -89,7 +89,7 @@ namespace NWN.Systems
       {
         if (player.oid.GetItemInSlot((InventorySlot)i) == item)
         {
-          player.oid.ActionEquipItem(newItem, (InventorySlot)i);
+          CreaturePlugin.RunEquip(player.oid, newItem, i);
           break;
         }
       }

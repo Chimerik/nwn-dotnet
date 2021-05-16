@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading;
 using System.Threading.Tasks;
 using Discord;
 using NWN.API;
@@ -10,8 +9,6 @@ using NWN.API.Events;
 using NWN.Core;
 using NWN.Core.NWNX;
 using NWN.Systems.Craft;
-using NWNX.API.Events;
-using NWNX.Services;
 
 namespace NWN.Systems
 {
@@ -261,12 +258,7 @@ namespace NWN.Systems
       {
         NwItem pcSkin = NwItem.Create("peaudejoueur", newCharacter.oid);
         pcSkin.Name = $"Propriétés de {newCharacter.oid.Name}";
-
-        Task waitSkinEquipped = NwTask.Run(async () =>
-        {
-          await newCharacter.oid.ClearActionQueue();
-          await newCharacter.oid.ActionEquipItem(pcSkin, InventorySlot.CreatureSkin);
-        });
+        CreaturePlugin.RunEquip(newCharacter.oid, pcSkin, (int)InventorySlot.CreatureSkin);    
       }
 
       var query = NWScript.SqlPrepareQueryCampaign(Config.database, $"INSERT INTO playerCharacters (accountId , characterName, dateLastSaved, currentSkillType, currentSkillJob, currentCraftJob, currentCraftObject, areaTag, position, facing, menuOriginLeft, currentHP) VALUES (@accountId, @name, @dateLastSaved, @currentSkillType, @currentSkillJob, @currentCraftJob, @currentCraftObject, @areaTag, @position, @facing, @menuOriginLeft, @currentHP)");
@@ -352,12 +344,8 @@ namespace NWN.Systems
     private static void InitializeDM(Player player)
     {
       player.playerJournal = new PlayerJournal();
-
-      eventService.Subscribe<ModuleEvents.OnAcquireItem, GameEventFactory>(player.oid, ItemSystem.OnAcquireItem)
-        .Register<ModuleEvents.OnAcquireItem>(NwModule.Instance);
-      eventService.Subscribe<ModuleEvents.OnUnacquireItem, GameEventFactory>(player.oid, ItemSystem.OnUnacquireItem)
-        .Register<ModuleEvents.OnUnacquireItem>(NwModule.Instance);
-
+      player.oid.OnAcquireItem += ItemSystem.OnAcquireItem;
+      player.oid.OnUnacquireItem += ItemSystem.OnUnacquireItem;
       player.oid.OnItemEquip += ItemSystem.OnItemEquipBefore;
       player.oid.OnUseFeat += FeatSystem.OnUseFeatBefore;
       player.oid.OnSpellCast += SpellSystem.HandleBeforeSpellCast;
@@ -402,12 +390,8 @@ namespace NWN.Systems
     private static void InitializePlayerEvents(NwPlayer player)
     {
       player.OnServerCharacterSave += HandleBeforePlayerSave;
-      
-      eventService.Subscribe<ModuleEvents.OnAcquireItem, GameEventFactory>(player, ItemSystem.OnAcquireItem)
-        .Register<ModuleEvents.OnAcquireItem>(NwModule.Instance);
-      eventService.Subscribe<ModuleEvents.OnUnacquireItem, GameEventFactory>(player, ItemSystem.OnUnacquireItem)
-        .Register<ModuleEvents.OnUnacquireItem>(NwModule.Instance);
-
+      player.OnAcquireItem += ItemSystem.OnAcquireItem;
+      player.OnUnacquireItem += ItemSystem.OnUnacquireItem;
       player.OnItemEquip += ItemSystem.OnItemEquipBefore;
       player.OnItemUse += ItemSystem.OnItemUseBefore;
       player.OnPlayerDeath += HandlePlayerDeath;
@@ -423,7 +407,8 @@ namespace NWN.Systems
       player.OnPhysicalAttacked += AttackSystem.HandlePlayerAttackedEvent;
       player.OnCreatureDamage += AttackSystem.HandleDamageEvent;
       player.OnPartyEvent += Party.HandlePartyEvent;
-
+      player.OnClientLevelUpBegin += HandleOnClientLevelUp;
+      
       EventsPlugin.AddObjectToDispatchList("NWNX_ON_ITEM_UNEQUIP_BEFORE", "b_unequip", player);
       EventsPlugin.AddObjectToDispatchList("NWNX_ON_COMBAT_MODE_OFF", "event_combatmode", player);
       EventsPlugin.AddObjectToDispatchList("NWNX_ON_USE_SKILL_BEFORE", "event_skillused", player);

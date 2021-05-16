@@ -1,8 +1,6 @@
 ﻿using NWN.API;
 using NWN.API.Constants;
 using NWN.API.Events;
-using NWNX.API.Events;
-using NWNX.Services;
 
 namespace NWN.Systems
 {
@@ -20,19 +18,18 @@ namespace NWN.Systems
       oTarget.ApplyEffect(EffectDuration.Instant, Effect.VisualEffect(VfxType.FnfPwkill));
 
       oTarget.OnItemUse -= ItemSystem.OnItemUseBefore;
-      oTarget.OnItemUse -= NoUseableItemMalus;
-      oTarget.OnItemUse += NoUseableItemMalus;
+      oTarget.OnItemValidateUse -= NoUseableItemMalus;
+      oTarget.OnItemValidateUse += NoUseableItemMalus;
     }
     private void RemoveEffectFromTarget(NwCreature oTarget)
     {
       oTarget.OnItemUse -= ItemSystem.OnItemUseBefore;
       oTarget.OnItemUse += ItemSystem.OnItemUseBefore;
-      oTarget.OnItemUse -= NoUseableItemMalus;
+      oTarget.OnItemValidateUse -= NoUseableItemMalus;
     }
-    private void NoUseableItemMalus(OnItemUse onItemUse)
+    private void NoUseableItemMalus(OnItemValidateUse onItemValidateUse)
     {
-      onItemUse.PreventUseItem = true;
-      ((NwPlayer)onItemUse.UsedBy).SendServerMessage("L'interdiction d'utilisation d'objets est en vigueur.", Color.RED);
+        onItemValidateUse.CanUse = false;
     }
   }
 }

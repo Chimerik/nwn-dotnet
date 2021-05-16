@@ -341,6 +341,15 @@ namespace NWN.Systems
         case "CUSTOM_EFFECT_SPELL_FAILURE":
           new SpellFailure((NwCreature)callInfo.ObjectSelf);
           break;
+        case "CUSTOM_EFFECT_NOARMOR":
+          new NoArmor((NwCreature)callInfo.ObjectSelf);
+          break;
+        case "CUSTOM_EFFECT_NOWEAPON":
+          new NoWeapon((NwCreature)callInfo.ObjectSelf);
+          break;
+        case "CUSTOM_EFFECT_NOACCESSORY":
+          new NoAccessory((NwCreature)callInfo.ObjectSelf);
+          break;
       }
     }
     [ScriptHandler("effect_removed")]
@@ -402,6 +411,15 @@ namespace NWN.Systems
           break;
         case "CUSTOM_EFFECT_SPELL_FAILURE":
           new SpellFailure((NwCreature)callInfo.ObjectSelf, false);
+          break;
+        case "CUSTOM_EFFECT_NOARMOR":
+          new NoArmor((NwCreature)callInfo.ObjectSelf, false);
+          break;
+        case "CUSTOM_EFFECT_NOWEAPON":
+          new NoWeapon((NwCreature)callInfo.ObjectSelf, false);
+          break;
+        case "CUSTOM_EFFECT_NOACCESSORY":
+          new NoAccessory((NwCreature)callInfo.ObjectSelf, false);
           break;
       }
     }

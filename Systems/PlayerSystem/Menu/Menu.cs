@@ -84,8 +84,8 @@ namespace NWN.Systems
         {
           player.oid.GetLocalVariable<int>("_PLAYER_INPUT_CANCELLED").Delete();
           player.oid.GetLocalVariable<int>("_AWAITING_PLAYER_INPUT").Delete();
-          player.oid.OnChat -= ChatSystem.HandlePlayerInputByte;
-          player.oid.OnChat -= ChatSystem.HandlePlayerInputInt;
+          player.oid.OnPlayerChat -= ChatSystem.HandlePlayerInputByte;
+          player.oid.OnPlayerChat -= ChatSystem.HandlePlayerInputInt;
         }
       }
 

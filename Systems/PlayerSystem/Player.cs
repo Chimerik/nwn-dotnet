@@ -529,8 +529,8 @@ namespace NWN.Systems
       {
         this.oid.GetLocalVariable<int>("_AWAITING_PLAYER_INPUT").Value = 1;
 
-        this.oid.OnChat -= ChatSystem.HandlePlayerInputInt;
-        this.oid.OnChat += ChatSystem.HandlePlayerInputInt;
+        this.oid.OnPlayerChat -= ChatSystem.HandlePlayerInputInt;
+        this.oid.OnPlayerChat += ChatSystem.HandlePlayerInputInt;
 
         CancellationTokenSource tokenSource = new CancellationTokenSource();
         Task awaitPlayerInput = NwTask.WaitUntil(() => this.oid.GetLocalVariable<string>("_PLAYER_INPUT").HasValue, tokenSource.Token);
@@ -550,8 +550,8 @@ namespace NWN.Systems
       {
         this.oid.GetLocalVariable<int>("_AWAITING_PLAYER_INPUT").Value = 1;
 
-        this.oid.OnChat -= ChatSystem.HandlePlayerInputByte;
-        this.oid.OnChat += ChatSystem.HandlePlayerInputByte;
+        this.oid.OnPlayerChat -= ChatSystem.HandlePlayerInputByte;
+        this.oid.OnPlayerChat += ChatSystem.HandlePlayerInputByte;
 
         CancellationTokenSource tokenSource = new CancellationTokenSource();
         Task awaitPlayerInput = NwTask.WaitUntil(() => this.oid.GetLocalVariable<string>("_PLAYER_INPUT").HasValue, tokenSource.Token);
@@ -571,8 +571,8 @@ namespace NWN.Systems
       {
         this.oid.GetLocalVariable<int>("_AWAITING_PLAYER_INPUT").Value = 1;
 
-        this.oid.OnChat -= ChatSystem.HandlePlayerInputString;
-        this.oid.OnChat += ChatSystem.HandlePlayerInputString;
+        this.oid.OnPlayerChat -= ChatSystem.HandlePlayerInputString;
+        this.oid.OnPlayerChat += ChatSystem.HandlePlayerInputString;
 
         CancellationTokenSource tokenSource = new CancellationTokenSource();
         Task awaitPlayerInput = NwTask.WaitUntil(() => this.oid.GetLocalVariable<string>("_PLAYER_INPUT").HasValue, tokenSource.Token);
