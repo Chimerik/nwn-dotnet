@@ -7,7 +7,7 @@ namespace NWN.Systems
   {
     private static void ExecuteHelpCommand(ChatSystem.Context ctx, Options.Result options)
     {
-      if (PlayerSystem.Players.TryGetValue(ctx.oSender, out PlayerSystem.Player player))
+      if (PlayerSystem.Players.TryGetValue(ctx.oSender.LoginCreature, out PlayerSystem.Player player))
       {
         DrawAllCommandsPage(player);
       }

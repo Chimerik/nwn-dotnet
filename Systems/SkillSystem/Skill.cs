@@ -125,7 +125,7 @@ namespace NWN.Systems
         if (this.player.currentSkillJob == (int)oid)
         {
           this.currentJob = true;
-          if(player.oid.GetLocalVariable<int>("_CONNECTING").HasNothing)
+          if(player.oid.LoginCreature.GetLocalVariable<int>("_CONNECTING").HasNothing)
             this.CreateSkillJournalEntry();
         }
       }
@@ -145,37 +145,37 @@ namespace NWN.Systems
         journalEntry.sTag = "skill_job";
         journalEntry.nPriority = 1;
         journalEntry.nQuestDisplayed = 1;
-        PlayerPlugin.AddCustomJournalEntry(player.oid, journalEntry);
+        PlayerPlugin.AddCustomJournalEntry(player.oid.LoginCreature, journalEntry);
       }
       public void CancelSkillJournalEntry()
       {
-        JournalEntry journalEntry = PlayerPlugin.GetJournalEntry(player.oid, "skill_job");
+        JournalEntry journalEntry = PlayerPlugin.GetJournalEntry(player.oid.LoginCreature, "skill_job");
         journalEntry.sName = $"Entrainement annulé - {this.name}";
         journalEntry.sTag = "skill_job";
         journalEntry.nQuestDisplayed = 0;
-        PlayerPlugin.AddCustomJournalEntry(player.oid, journalEntry);
+        PlayerPlugin.AddCustomJournalEntry(player.oid.LoginCreature, journalEntry);
         player.playerJournal.skillJobCountDown = null;
       }
       public void CloseSkillJournalEntry()
       {
-        JournalEntry journalEntry = PlayerPlugin.GetJournalEntry(player.oid, "skill_job");
+        JournalEntry journalEntry = PlayerPlugin.GetJournalEntry(player.oid.LoginCreature, "skill_job");
 
         if (journalEntry.nUpdated == -1)
         {
           CreateSkillJournalEntry();
-          journalEntry = PlayerPlugin.GetJournalEntry(player.oid, "skill_job");
+          journalEntry = PlayerPlugin.GetJournalEntry(player.oid.LoginCreature, "skill_job");
         }
 
         journalEntry.sName = $"Entrainement terminé - {this.name}";
         journalEntry.sTag = "skill_job";
         journalEntry.nQuestCompleted = 1;
         journalEntry.nQuestDisplayed = 0;
-        PlayerPlugin.AddCustomJournalEntry(player.oid, journalEntry);
+        PlayerPlugin.AddCustomJournalEntry(player.oid.LoginCreature, journalEntry);
         player.playerJournal.skillJobCountDown = null;
       }
       public double CalculateSkillPointsPerSecond()
       {
-        double SP = ((double)player.oid.GetAbilityScore((Ability)primaryAbility) + ((double)player.oid.GetAbilityScore((Ability)secondaryAbility) / 2.0)) / 60.0;
+        double SP = ((double)player.oid.LoginCreature.GetAbilityScore((Ability)primaryAbility) + ((double)player.oid.LoginCreature.GetAbilityScore((Ability)secondaryAbility) / 2.0)) / 60.0;
 
         switch (player.bonusRolePlay)
         {
@@ -196,15 +196,15 @@ namespace NWN.Systems
             break;
         }
 
-        if (player.oid.GetLocalVariable<int>("_CONNECTING").HasValue)
+        if (player.oid.LoginCreature.GetLocalVariable<int>("_CONNECTING").HasValue)
         {
           SP = SP * 60 / 100;
-          Log.Info($"{player.oid.Name} was not connected. Applying 40 % malus.");
+          Log.Info($"{player.oid.LoginCreature.Name} was not connected. Applying 40 % malus.");
         }
         else if (player.isAFK)
         {
           SP = SP * 80 / 100;
-          Log.Info($"{player.oid.Name} was afk. Applying 20 % malus.");
+          Log.Info($"{player.oid.LoginCreature.Name} was afk. Applying 20 % malus.");
         }
 
         //Log.Info($"SP CALCULATION - {player.oid.Name} - {SP} SP.");
@@ -213,19 +213,19 @@ namespace NWN.Systems
       }
       public void RefreshAcquiredSkillPoints()
       {
-        int pooledPoints = ObjectPlugin.GetInt(player.oid, "_STARTING_SKILL_POINTS");
+        int pooledPoints = ObjectPlugin.GetInt(player.oid.LoginCreature, "_STARTING_SKILL_POINTS");
         
         if (pooledPoints > 0)
         {
           if (pooledPoints > pointsToNextLevel)
           {
-            ObjectPlugin.SetInt(player.oid, "_STARTING_SKILL_POINTS", pooledPoints - pointsToNextLevel, 1);
+            ObjectPlugin.SetInt(player.oid.LoginCreature, "_STARTING_SKILL_POINTS", pooledPoints - pointsToNextLevel, 1);
             acquiredPoints += pointsToNextLevel;
           }
           else
           {
             acquiredPoints += pooledPoints;
-            ObjectPlugin.DeleteInt(player.oid, "_STARTING_SKILL_POINTS");
+            ObjectPlugin.DeleteInt(player.oid.LoginCreature, "_STARTING_SKILL_POINTS");
           }
         }
 
@@ -265,7 +265,7 @@ namespace NWN.Systems
             pointsToNextLevel = (int)(250 * this.multiplier * Math.Pow(5, skillLevelCap));
 
           if (int.TryParse(NWScript.Get2DAString("feat", "FEAT", (int)oid), out int nameValue))
-            PlayerPlugin.SetTlkOverride(player.oid, nameValue, $"{customFeatName} - {currentLevel}");
+            PlayerPlugin.SetTlkOverride(player.oid.LoginCreature, nameValue, $"{customFeatName} - {currentLevel}");
             //player.oid.SetTlkOverride(nameValue, $"{customFeatName} - {currentLevel}");
           else
             Utils.LogMessageToDMs($"CUSTOM SKILL SYSTEM ERROR - Skill {customFeatName} - {(int)oid} : no available custom name StrRef");
@@ -285,7 +285,7 @@ namespace NWN.Systems
 
         //if (!Convert.ToBoolean(CreaturePlugin.GetKnowsFeat(player.oid, oid)))
         // {
-        player.oid.AddFeat(oid);
+        player.oid.LoginCreature.AddFeat(oid);
         PlayNewSkillAcquiredEffects();
         //}
        /* else
@@ -314,7 +314,7 @@ namespace NWN.Systems
       }
       public void PlayNewSkillAcquiredEffects()
       {
-        PlayerPlugin.ApplyInstantVisualEffectToObject(player.oid, player.oid, NWScript.VFX_IMP_GLOBE_USE);
+        PlayerPlugin.ApplyInstantVisualEffectToObject(player.oid.LoginCreature, player.oid.LoginCreature, NWScript.VFX_IMP_GLOBE_USE);
         CloseSkillJournalEntry();
       }
     }

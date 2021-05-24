@@ -33,91 +33,82 @@ namespace NWN.Systems
     public static void OnAreaEnter(AreaEvents.OnEnter onEnter)
     {
       NwArea area = onEnter.Area;
-      NwGameObject oEntered = onEnter.EnteringObject;
 
-      if (!(oEntered is NwPlayer))
-        return;
-
-      NwPlayer oPC = (NwPlayer)oEntered;
-
-      if (oPC.IsDM || oPC.IsDMPossessed || oPC.IsPlayerDM)
+      if (!PlayerSystem.Players.TryGetValue(onEnter.EnteringObject, out PlayerSystem.Player player)) //EN FONCTION DE SI LA ZONE EST REST OU PAS, ON AFFICHE LA PROGRESSION DU JOURNAL DE CRAFT
         return;
 
       AreaSpawner(area);
 
-      if (PlayerSystem.Players.TryGetValue(oPC, out PlayerSystem.Player player)) //EN FONCTION DE SI LA ZONE EST REST OU PAS, ON AFFICHE LA PROGRESSION DU JOURNAL DE CRAFT
+      if (player.menu.isOpen)
+        player.menu.Close();
+
+      if (area.GetLocalVariable<int>("_AREA_LEVEL") < 2)
+        NWScript.ExploreAreaForPlayer(area, player.oid.LoginCreature, 1);
+
+      if (area.GetLocalVariable<int>("_AREA_LEVEL") == 0)
       {
-        if (player.menu.isOpen)
-          player.menu.Close();
-
-        if (area.GetLocalVariable<int>("_AREA_LEVEL") < 2)
-          NWScript.ExploreAreaForPlayer(area, player.oid, 1);
-
-        if (area.GetLocalVariable<int>("_AREA_LEVEL") == 0)
-        {
-          if (player.craftJob.IsActive() && player.playerJournal.craftJobCountDown == null)
-            player.craftJob.CreateCraftJournalEntry();
-        }
-        else if (player.playerJournal.craftJobCountDown != null)
-          player.craftJob.CancelCraftJournalEntry();
-
-        if (player.areaExplorationStateDictionnary.ContainsKey(onEnter.Area.Tag))
-          PlayerPlugin.SetAreaExplorationState(onEnter.EnteringObject, onEnter.Area, player.areaExplorationStateDictionnary[onEnter.Area.Tag]);
+        if (player.craftJob.IsActive() && player.playerJournal.craftJobCountDown == null)
+          player.craftJob.CreateCraftJournalEntry();
       }
+      else if (player.playerJournal.craftJobCountDown != null)
+        player.craftJob.CancelCraftJournalEntry();
+
+      if (player.areaExplorationStateDictionnary.ContainsKey(onEnter.Area.Tag))
+        PlayerPlugin.SetAreaExplorationState(player.oid.LoginCreature, onEnter.Area, player.areaExplorationStateDictionnary[onEnter.Area.Tag]);
 
       foreach (NwCreature statue in area.FindObjectsOfTypeInArea<NwCreature>().Where(c => c.Tag == "Statuereptilienne"))
-        statue.GetLocalVariable<int>($"_PERCEPTION_STATUS_{oPC.CDKey}").Delete();
+        statue.GetLocalVariable<int>($"_PERCEPTION_STATUS_{player.oid.CDKey}").Delete();
     }
     public static void OnAreaExit(AreaEvents.OnExit onExit)
     {
-      if (!PlayerSystem.Players.TryGetValue(onExit.ExitingObject, out PlayerSystem.Player player))
-        return;
-      
-      if (player.oid.IsDM)
+      if (!(onExit.ExitingObject is NwCreature creature))
         return;
 
-      Log.Info($"{player.oid.Name} vient de quitter la zone {onExit.Area.Name}");
+      if (creature.IsPlayerControlled) // Cas normal de changement de zone
+      {
+        Log.Info($"{creature.ControllingPlayer.LoginCreature.Name} vient de quitter la zone {onExit.Area.Name}");
 
-      player.previousLocation = player.location;
+        if (!onExit.Area.FindObjectsOfTypeInArea<NwCreature>().Any(p => p.IsPlayerControlled))
+          AreaCleaner(onExit.Area);
 
-      if (onExit.Area.FindObjectsOfTypeInArea<NwPlayer>().Count(p => !p.IsDM) < 1)
-        AreaCleaner(onExit.Area);
+        if (!PlayerSystem.Players.TryGetValue(creature.ControllingPlayer.LoginCreature, out PlayerSystem.Player player))
+          return;
 
-      if (onExit.IsDisconnectingPlayer)
-        return;
+        player.previousLocation = player.location;
 
-      if (!player.areaExplorationStateDictionnary.ContainsKey(onExit.Area.Tag))
-        player.areaExplorationStateDictionnary.Add(onExit.Area.Tag, PlayerPlugin.GetAreaExplorationState(player.oid, onExit.Area));
-      else
-        player.areaExplorationStateDictionnary[onExit.Area.Tag] = PlayerPlugin.GetAreaExplorationState(player.oid, onExit.Area);
+        if (!player.areaExplorationStateDictionnary.ContainsKey(onExit.Area.Tag))
+          player.areaExplorationStateDictionnary.Add(onExit.Area.Tag, PlayerPlugin.GetAreaExplorationState(player.oid.LoginCreature, onExit.Area));
+        else
+          player.areaExplorationStateDictionnary[onExit.Area.Tag] = PlayerPlugin.GetAreaExplorationState(player.oid.LoginCreature, onExit.Area);
+      }
+      else // Edge case où le joueur se déconnecte
+      {
+        if (!PlayerSystem.Players.TryGetValue(onExit.ExitingObject, out PlayerSystem.Player player))
+          return;
+
+        Log.Info($"{player.oid.PlayerName} vient de quitter la zone {onExit.Area.Name} en se déconnectant.");
+
+        if (!onExit.Area.FindObjectsOfTypeInArea<NwCreature>().Any(p => p.IsPlayerControlled))
+          AreaCleaner(onExit.Area);
+      }
     }
     public static void OnPersonnalStorageAreaExit(AreaEvents.OnExit onExit)
     {
       if (!PlayerSystem.Players.TryGetValue(onExit.ExitingObject, out PlayerSystem.Player player))
         return;
 
-      Log.Info($"{player.oid.Name} exited area {onExit.Area.Name}");
+      Log.Info($"{player.oid.LoginCreature.Name} exited area {onExit.Area.Name}");
 
-      if (!onExit.Area.FindObjectsOfTypeInArea<NwPlayer>().Any())
+      if (!onExit.Area.FindObjectsOfTypeInArea<NwCreature>().Any(p => p.IsPlayerControlled))
         AreaDestroyer(onExit.Area);
     }
     public static void OnIntroAreaExit(AreaEvents.OnExit onExit)
     {
-      NwArea area = onExit.Area;
-      NwGameObject oExited = onExit.ExitingObject;
-
-      if (!(oExited is NwPlayer))
+      if (!(onExit.ExitingObject is NwCreature oPC) || !oPC.IsPlayerControlled || onExit.Area.Tag != $"entry_scene_{oPC.ControllingPlayer.CDKey}")
         return;
 
-      NwPlayer oPC = (NwPlayer)oExited;
-
-      NWScript.WriteTimestampedLogEntry($"{oPC.Name} exited area {area.Name}");
-
-      if (oPC.IsDM)
-        return;
-
-      if (area.Tag == $"entry_scene_{oPC.CDKey}")
-        AreaDestroyer(area);
+      NWScript.WriteTimestampedLogEntry($"{oPC.Name} exited area {onExit.Area.Name}");
+      AreaDestroyer(onExit.Area);
     }
     private void DoAreaSpecificInitialisation(NwArea area)
     {
@@ -220,17 +211,17 @@ namespace NWN.Systems
         onExit.ExitingObject.VisualTransform = transfo;
       }
     }
-    public static NwArea CreatePersonnalStorageArea(NwPlayer oPC, int characterId)
+    public static NwArea CreatePersonnalStorageArea(NwCreature oPC, int characterId)
     {
       Log.Info($"Creating personnal storage area for : {oPC.Name} ID : {characterId}");
 
-      NwArea area = NwArea.Create("entrepotperso", $"entrepotpersonnel_{oPC.CDKey}", $"Entrepot dimensionnel de {oPC.Name}");
+      NwArea area = NwArea.Create("entrepotperso", $"entrepotpersonnel_{oPC.ControllingPlayer.CDKey}", $"Entrepot dimensionnel de {oPC.ControllingPlayer.LoginCreature.Name}");
       area.GetLocalVariable<int>("_AREA_LEVEL").Value = 0;
       area.OnExit += OnPersonnalStorageAreaExit;
 
       NwPlaceable storage = area.FindObjectsOfTypeInArea<NwPlaceable>().FirstOrDefault(s => s.Tag == "ps_entrepot");
       storage.OnUsed += PlaceableSystem.OnUsedPersonnalStorage;
-      storage.Name = $"Entrepôt de {oPC.Name}";
+      storage.Name = $"Entrepôt de {oPC.ControllingPlayer.LoginCreature.Name}";
 
       var query = NWScript.SqlPrepareQueryCampaign(Config.database, $"SELECT storage from playerCharacters where rowid = @characterId");
       NWScript.SqlBindInt(query, "@characterId", characterId);

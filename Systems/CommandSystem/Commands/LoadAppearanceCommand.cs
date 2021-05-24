@@ -19,13 +19,13 @@ namespace NWN.Systems
     }
     private static void OnModifyAppearanceItemSelected(ModuleEvents.OnPlayerTarget selection)
     {
-      if (selection.TargetObject is null || !(selection.TargetObject is NwItem) || !PlayerSystem.Players.TryGetValue(selection.Player, out PlayerSystem.Player player))
+      if (selection.TargetObject is null || !(selection.TargetObject is NwItem) || !PlayerSystem.Players.TryGetValue(selection.Player.LoginCreature, out PlayerSystem.Player player))
         return;
 
       NwItem item = (NwItem)selection.TargetObject;
 
       // TODO : ajouter un métier permettant de modifier n'importe quelle tenue
-      if (item.GetLocalVariable<string>("_ORIGINAL_CRAFTER_NAME").HasValue && item.GetLocalVariable<string>("_ORIGINAL_CRAFTER_NAME").Value != player.oid.Name)
+      if (item.GetLocalVariable<string>("_ORIGINAL_CRAFTER_NAME").HasValue && item.GetLocalVariable<string>("_ORIGINAL_CRAFTER_NAME").Value != player.oid.LoginCreature.Name)
       {
         player.oid.SendServerMessage($"Il est indiqué : Pour tout modification, s'adresser à {item.GetLocalVariable<string>("_ORIGINAL_CRAFTER_NAME").Value.ColorString(Color.WHITE)}", Color.ORANGE);
         return;
@@ -66,7 +66,7 @@ namespace NWN.Systems
     {
       player.menu.Close();
 
-      if(item == null || item.Possessor != player.oid)
+      if(item == null || item.Possessor != player.oid.ControlledCreature)
       {
         player.oid.SendServerMessage($"L'objet dont vous essayez de modifier l'apparence n'existe plus ou n'est plus en votre possession !", Color.RED);
         return;
@@ -82,14 +82,14 @@ namespace NWN.Systems
       ItemSystem.feedbackService.AddFeedbackMessageFilter(FeedbackMessage.SendMessageToPc, player.oid);
 
       ItemPlugin.RestoreItemAppearance(item, serializedAppearance);
-      NwItem newItem = item.Clone(player.oid);
+      NwItem newItem = item.Clone(player.oid.ControlledCreature);
       item.Destroy();
 
       for(int i = 0; i <= (int)InventorySlot.Bolts; i++)
       {
-        if (player.oid.GetItemInSlot((InventorySlot)i) == item)
+        if (player.oid.ControlledCreature.GetItemInSlot((InventorySlot)i) == item)
         {
-          CreaturePlugin.RunEquip(player.oid, newItem, i);
+          CreaturePlugin.RunEquip(player.oid.ControlledCreature, newItem, i);
           break;
         }
       }

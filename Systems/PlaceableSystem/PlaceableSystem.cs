@@ -51,12 +51,12 @@ namespace NWN.Systems
     }
     public static void OnUsedStoragePortalIn(PlaceableEvents.OnUsed onUsed)
     {
-      if (!Players.TryGetValue(onUsed.UsedBy, out Player player))
+      if (!Players.TryGetValue(onUsed.UsedBy.ControllingPlayer.LoginCreature, out Player player))
         return;
 
-      NwArea area = AreaSystem.CreatePersonnalStorageArea(player.oid, player.characterId);
+      NwArea area = AreaSystem.CreatePersonnalStorageArea(onUsed.UsedBy, player.characterId);
 
-      player.oid.Location = area.FindObjectsOfTypeInArea<NwWaypoint>().FirstOrDefault(w => w.Tag == "wp_inentrepot").Location;
+      onUsed.UsedBy.Location = area.FindObjectsOfTypeInArea<NwWaypoint>().FirstOrDefault(w => w.Tag == "wp_inentrepot").Location;
     }
     public static void OnUsedStoragePortalOut(PlaceableEvents.OnUsed onUsed)
     {
@@ -160,38 +160,40 @@ namespace NWN.Systems
     public static void HandlePlaceableUsed(PlaceableEvents.OnUsed onUsed)
     {
       Log.Info($"{onUsed.UsedBy.Name} used {onUsed.Placeable.Tag}");
-      if (Players.TryGetValue(onUsed.UsedBy, out Player player))
-        switch (onUsed.Placeable.Tag)
-        {
-          case "respawn_neutral":
-            Respawn(player, "neutral");
-            break;
-          case "respawn_radiant":
-            Respawn(player, "radiant");
-            break;
-          case "respawn_dire":
-            Respawn(player, "radiant");
-            break;
-          case "theater_rope":
-            int visibilty;
-            if (onUsed.UsedBy.Area.GetLocalVariable<int>("_THEATER_CURTAIN_OPEN").HasNothing)
-            {
-              visibilty = VisibilityPlugin.NWNX_VISIBILITY_HIDDEN;
-              onUsed.UsedBy.Area.GetLocalVariable<int>("_THEATER_CURTAIN_OPEN").Value = 1;
-            }
-            else
-            {
-              visibilty = VisibilityPlugin.NWNX_VISIBILITY_VISIBLE;
-              onUsed.UsedBy.Area.GetLocalVariable<int>("_THEATER_CURTAIN_OPEN").Delete();
-            }
+      if (!Players.TryGetValue(onUsed.UsedBy.ControllingPlayer.ControlledCreature, out Player player))
+        return;
 
-            foreach (NwPlaceable plc in onUsed.UsedBy.Area.FindObjectsOfTypeInArea<NwPlaceable>().Where(o => o.Tag == "theater_curtain"))
-              VisibilityPlugin.SetVisibilityOverride(NWScript.OBJECT_INVALID, plc, visibilty);
-            break;
-          case "portal_start":
-            player.oid.Location = NwModule.FindObjectsWithTag<NwWaypoint>("WP_START_NEW_CHAR").FirstOrDefault().Location;
-            break;
-        }
+      switch (onUsed.Placeable.Tag)
+      {
+        case "respawn_neutral":
+          Respawn(player, "neutral");
+          break;
+        case "respawn_radiant":
+          Respawn(player, "radiant");
+          break;
+        case "respawn_dire":
+          Respawn(player, "radiant");
+          break;
+        case "theater_rope":
+          int visibilty;
+          if (onUsed.UsedBy.Area.GetLocalVariable<int>("_THEATER_CURTAIN_OPEN").HasNothing)
+          {
+            visibilty = VisibilityPlugin.NWNX_VISIBILITY_HIDDEN;
+            onUsed.UsedBy.Area.GetLocalVariable<int>("_THEATER_CURTAIN_OPEN").Value = 1;
+          }
+          else
+          {
+            visibilty = VisibilityPlugin.NWNX_VISIBILITY_VISIBLE;
+            onUsed.UsedBy.Area.GetLocalVariable<int>("_THEATER_CURTAIN_OPEN").Delete();
+          }
+
+          foreach (NwPlaceable plc in onUsed.UsedBy.Area.FindObjectsOfTypeInArea<NwPlaceable>().Where(o => o.Tag == "theater_curtain"))
+            VisibilityPlugin.SetVisibilityOverride(NWScript.OBJECT_INVALID, plc, visibilty);
+          break;
+        case "portal_start":
+          onUsed.UsedBy.Location = NwObject.FindObjectsWithTag<NwWaypoint>("WP_START_NEW_CHAR").FirstOrDefault().Location;
+          break;
+      }
     }
     private void HandleCancelStatueConversation(CreatureEvents.OnConversation onConversation)
     {
@@ -342,7 +344,7 @@ namespace NWN.Systems
       else if(availableSlots == 1)
       {
         onUsed.Placeable.GetLocalVariable<int>("_AVAILABLE_SLOTS").Value = 0;
-        onUsed.Placeable.GetLocalVariable<NwObject>("_PLAYER_TWO").Value = player.oid;
+        onUsed.Placeable.GetLocalVariable<NwObject>("_PLAYER_TWO").Value = player.oid.ControlledCreature;
       }
       else if (availableSlots == 2)
       {

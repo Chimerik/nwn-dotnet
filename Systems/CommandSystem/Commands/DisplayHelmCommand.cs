@@ -6,7 +6,7 @@ namespace NWN.Systems
   {
     public DisplayHelm(NwPlayer oPC)
     {
-      NwItem oHelmet = oPC.GetItemInSlot(API.Constants.InventorySlot.Head);
+      NwItem oHelmet = oPC.ControlledCreature.GetItemInSlot(API.Constants.InventorySlot.Head);
 
       if (oHelmet != null)
       {

@@ -84,16 +84,16 @@ namespace NWN.Systems
       NWScript.SqlBindInt(query, "@messageId", messageId);
       NWScript.SqlStep(query);
 
-      string originalDesc = player.oid.Description;
+      string originalDesc = player.oid.LoginCreature.Description;
       string tempDescription = title.ColorString(Color.ORANGE) + "\n\n" + message;
-      player.oid.Description = tempDescription;
-      await player.oid.ClearActionQueue();
-      await player.oid.ActionExamine(player.oid);
+      player.oid.ControlledCreature.Description = tempDescription;
+      await player.oid.ControlledCreature.ClearActionQueue();
+      await player.oid.ActionExamine(player.oid.ControlledCreature);
 
       Task waitForDescriptionRewrite = NwTask.Run(async () =>
       {
         await NwTask.Delay(TimeSpan.FromSeconds(0.2));
-        player.oid.Description = originalDesc;
+        player.oid.ControlledCreature.Description = originalDesc;
       });
     }
     private async void PrintMessage(string title, string message, int messageId)
@@ -103,7 +103,7 @@ namespace NWN.Systems
       NWScript.SqlStep(query);
 
       await NwModule.Instance.WaitForObjectContext();
-      NwItem letter = NwItem.Create("skillbookgeneriq", player.oid, 1, "letter");
+      NwItem letter = NwItem.Create("skillbookgeneriq", player.oid.ControlledCreature, 1, "letter");
       letter.Name = title;
       letter.Description = message;
     }

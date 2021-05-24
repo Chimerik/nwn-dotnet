@@ -4,26 +4,19 @@ using NWN.API.Events;
 
 namespace NWN.Systems
 {
-  class NoHealMagic
+  static class NoHealMagic
   {
-    public NoHealMagic(NwCreature oTarget, bool apply = true)
-    {
-      if (apply)
-        ApplyEffectToTarget(oTarget);
-      else
-        RemoveEffectFromTarget(oTarget);
-    }
-    private void ApplyEffectToTarget(NwCreature oTarget)
+    public static void ApplyEffectToTarget(NwCreature oTarget)
     {
       oTarget.OnSpellCast -= NoHealingSpellMalus;
       oTarget.OnSpellCast += NoHealingSpellMalus;
       oTarget.ApplyEffect(EffectDuration.Instant, Effect.VisualEffect(VfxType.FnfPwkill));
     }
-    private void RemoveEffectFromTarget(NwCreature oTarget)
+    public static void RemoveEffectFromTarget(NwCreature oTarget)
     {
       oTarget.OnSpellCast -= NoHealingSpellMalus;
     }
-    private void NoHealingSpellMalus(OnSpellCast onSpellCast)
+    private static void NoHealingSpellMalus(OnSpellCast onSpellCast)
     {
       switch (onSpellCast.Spell)
       {
@@ -48,7 +41,9 @@ namespace NWN.Systems
         case Spell.Regenerate:
         case Spell.MonstrousRegeneration:
           onSpellCast.PreventSpellCast = true;
-          ((NwPlayer)onSpellCast.Caster).SendServerMessage("L'interdiction d'usage de magie curative est en vigueur.", Color.RED);
+
+          if (onSpellCast.Caster is NwCreature { IsPlayerControlled: true } oPC)
+            oPC.ControllingPlayer.SendServerMessage("L'interdiction d'usage de magie curative est en vigueur.", Color.RED);
           break;
       }
     }

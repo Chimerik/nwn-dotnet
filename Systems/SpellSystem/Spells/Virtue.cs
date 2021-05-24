@@ -10,7 +10,9 @@ namespace NWN.Systems
   {
     public Virtue(SpellEvents.OnSpellCast onSpellCast)
     {
-      NwPlayer oCaster = (NwPlayer)onSpellCast.Caster;
+      if (!(onSpellCast.Caster is NwCreature { IsPlayerControlled: true } oCaster))
+        return;
+
       int nCasterLevel = oCaster.LastSpellCasterLevel;
 
       NWScript.SignalEvent(onSpellCast.TargetObject, NWScript.EventSpellCastAt(oCaster, NWScript.GetSpellId()));

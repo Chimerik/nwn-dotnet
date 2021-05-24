@@ -6,7 +6,7 @@ namespace NWN.Systems
 {
   class PlayerShop
   {
-    public PlayerShop(NwPlayer oPC, NwItem authorization)
+    public PlayerShop(NwCreature oPC, NwItem authorization)
     {
       if (!(Players.TryGetValue(oPC, out Player player)))
         return;
@@ -25,8 +25,8 @@ namespace NWN.Systems
         return;
       }
 
-      NwPlaceable plcShop = NwPlaceable.Create("player_shop_plc", oPC.Location, false, $"_PLAYER_SHOP_PLC_{oPC.CDKey}");
-      NwStore shop = NwStore.Create("generic_shop_res", oPC.Location, false, $"_PLAYER_SHOP_{oPC.CDKey}");
+      NwPlaceable plcShop = NwPlaceable.Create("player_shop_plc", oPC.Location, false, $"_PLAYER_SHOP_PLC_{player.oid.CDKey}");
+      NwStore shop = NwStore.Create("generic_shop_res", oPC.Location, false, $"_PLAYER_SHOP_{player.oid.CDKey}");
 
       plcShop.GetLocalVariable<int>("_OWNER_ID").Value = player.characterId;
       plcShop.Name = $"Echoppe de {oPC.Name.ColorString(Color.GREEN)}";

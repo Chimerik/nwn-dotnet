@@ -5,16 +5,9 @@ using NWN.API.Events;
 
 namespace NWN.Systems
 {
-  class Frog
+  static class Frog
   {
-    public Frog(NwCreature oTarget, bool apply = true)
-    {
-      if (apply)
-        ApplyFrogEffectToTarget(oTarget);
-      else
-        RemoveFrogEffectFromTarget(oTarget);
-    }
-    private void ApplyFrogEffectToTarget(NwCreature oTarget)
+    public static void ApplyFrogEffectToTarget(NwCreature oTarget)
     {
       oTarget.ApplyEffect(EffectDuration.Instant, Effect.VisualEffect(VfxType.ImpPolymorph));
 
@@ -31,7 +24,7 @@ namespace NWN.Systems
       oTarget.OnSpellCastAt += FrogMalusCure;
       oTarget.OnSpellCast += FrogSpellMalus;
     }
-    private void RemoveFrogEffectFromTarget(NwCreature oTarget)
+    public static void RemoveFrogEffectFromTarget(NwCreature oTarget)
     {
       oTarget.ApplyEffect(EffectDuration.Instant, Effect.VisualEffect(VfxType.ImpPolymorph));
 
@@ -42,7 +35,7 @@ namespace NWN.Systems
       oTarget.OnSpellCastAt -= FrogMalusCure;
       oTarget.OnSpellCast -= FrogSpellMalus;
     }
-    private void FrogMalusCure(CreatureEvents.OnSpellCastAt onSpellCastAt)
+    private static void FrogMalusCure(CreatureEvents.OnSpellCastAt onSpellCastAt)
     {
       switch (onSpellCastAt.Spell)
       {
@@ -56,14 +49,14 @@ namespace NWN.Systems
           break;
       }
     }
-    private void FrogMalus(OnCreatureDamage onDamage)
+    private static void FrogMalus(OnCreatureDamage onDamage)
     {
       int damage = onDamage.DamageData.Base / 4;
       if (damage < 1)
         damage = 1;
       onDamage.DamageData.Base = damage;
     }
-    private void FrogSpellMalus(OnSpellCast onSpellCast)
+    private static void FrogSpellMalus(OnSpellCast onSpellCast)
     {
       switch (onSpellCast.Spell)
       {
@@ -74,7 +67,9 @@ namespace NWN.Systems
       }
 
       onSpellCast.PreventSpellCast = true;
-      ((NwPlayer)onSpellCast.Caster).SendServerMessage("La métamorphose vous empêche de faire usage de magie !");
+
+      if(onSpellCast.Caster is NwCreature { IsPlayerControlled: true } oPC)
+        oPC.ControllingPlayer.SendServerMessage("La métamorphose vous empêche de faire usage de magie !");
     }
   }
 }

@@ -11,7 +11,9 @@ namespace NWN.Systems
   {
     public Light(SpellEvents.OnSpellCast onSpellCast)
     {
-      NwPlayer oCaster = (NwPlayer)onSpellCast.Caster;
+      if (!(onSpellCast.Caster is NwCreature { IsPlayerControlled: true } oCaster))
+        return;
+
       int nCasterLevel = oCaster.LastSpellCasterLevel;
 
       NWScript.SignalEvent(onSpellCast.TargetObject, NWScript.EventSpellCastAt(oCaster, (int)onSpellCast.Spell));
@@ -20,7 +22,7 @@ namespace NWN.Systems
       {
         // Do not allow casting on not equippable items
         if (!ItemUtils.GetIsItemEquipable(onSpellCast.TargetObject))
-          oCaster.FloatingTextStrRef(83326);
+          oCaster.ControllingPlayer.FloatingTextStrRef(83326);
         else
         {
           Core.ItemProperty ip = NWScript.ItemPropertyLight(NWScript.IP_CONST_LIGHTBRIGHTNESS_NORMAL, NWScript.IP_CONST_LIGHTCOLOR_WHITE);

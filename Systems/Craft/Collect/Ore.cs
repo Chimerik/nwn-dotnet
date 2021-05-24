@@ -50,7 +50,7 @@ namespace NWN.Systems.Craft.Collect
           oPlaceable.GetLocalVariable<int>("_ORE_AMOUNT").Value = remainingOre;
         }
 
-        NwItem ore = NwItem.Create("ore", player.oid, miningYield, oPlaceable.Name);
+        NwItem ore = NwItem.Create("ore", player.oid.LoginCreature, miningYield, oPlaceable.Name);
         ore.Name = oPlaceable.Name;
       });
       
@@ -59,7 +59,7 @@ namespace NWN.Systems.Craft.Collect
     }
     public static void HandleCompleteProspectionCycle(PlayerSystem.Player player, NwGameObject oPlaceable, NwItem oExtractor)
     {
-      if (oPlaceable is null || player.oid.Distance(oPlaceable) > 5.0f)
+      if (oPlaceable is null || player.oid.LoginCreature.Distance(oPlaceable) > 5.0f)
       {
         player.oid.SendServerMessage("Vous êtes trop éloigné de la veine ciblée, ou alors celui-ci n'existe plus.", Color.MAGENTA);
         return;
@@ -68,7 +68,7 @@ namespace NWN.Systems.Craft.Collect
       if (oExtractor == null) return;
 
       var query = NWScript.SqlPrepareQueryCampaign(Systems.Config.database, $"SELECT mining from areaResourceStock where areaTag = @areaTag");
-      NWScript.SqlBindString(query, "@areaTag", player.oid.Area.Tag);
+      NWScript.SqlBindString(query, "@areaTag", player.oid.LoginCreature.Area.Tag);
 
       if (NWScript.SqlStep(query) == 0 || NWScript.SqlGetInt(query, 0) < 1)
       {
@@ -93,13 +93,13 @@ namespace NWN.Systems.Craft.Collect
         return;
       }
 
-      foreach (NwWaypoint resourcePoint in player.oid.GetNearestObjectsByType<NwWaypoint>().Where(w => w.Tag == "ore_spawn_wp"))
+      foreach (NwWaypoint resourcePoint in player.oid.LoginCreature.GetNearestObjectsByType<NwWaypoint>().Where(w => w.Tag == "ore_spawn_wp"))
       {
         int iRandom = Utils.random.Next(1, 101);
         if (iRandom < respawnChance)
         {
           NwPlaceable newRock = NwPlaceable.Create("mineable_rock", NWScript.GetLocation(resourcePoint));
-          newRock.Name = Enum.GetName(typeof(OreType), GetRandomOreSpawnFromAreaLevel(player.oid.Area.GetLocalVariable<int>("_AREA_LEVEL").Value));
+          newRock.Name = Enum.GetName(typeof(OreType), GetRandomOreSpawnFromAreaLevel(player.oid.LoginCreature.Area.GetLocalVariable<int>("_AREA_LEVEL").Value));
           newRock.GetLocalVariable<int>("_ORE_AMOUNT").Value = 10 * iRandom + 10 * iRandom * skillBonus / 100;
           resourcePoint.Destroy();
           nbSpawns++;
@@ -111,7 +111,7 @@ namespace NWN.Systems.Craft.Collect
         player.oid.SendServerMessage($"Votre prospection a permis de mettre à découvert {nbSpawns} veine(s) de minerai !", Color.GREEN);
 
         query = NWScript.SqlPrepareQueryCampaign(Systems.Config.database, $"UPDATE areaResourceStock SET mining = mining - 1 where areaTag = @areaTag");
-        NWScript.SqlBindString(query, "@areaTag", player.oid.Area.Tag);
+        NWScript.SqlBindString(query, "@areaTag", player.oid.LoginCreature.Area.Tag);
         NWScript.SqlStep(query);
       }
       else

@@ -59,22 +59,22 @@ namespace NWN.Systems
     private static void GetObjectToAdd(Player player, NwStore store, NwPlaceable panel)
     {
       player.oid.SendServerMessage("Veuillez maintenant sélectionnner l'objet que vous souhaitez mettre en vente.", Color.ROSE);
-      player.oid.GetLocalVariable<NwObject>("_ACTIVE_STORE").Value = store;
-      player.oid.GetLocalVariable<NwObject>("_ACTIVE_PANEL").Value = panel;
+      player.oid.LoginCreature.GetLocalVariable<NwObject>("_ACTIVE_STORE").Value = store;
+      player.oid.LoginCreature.GetLocalVariable<NwObject>("_ACTIVE_PANEL").Value = panel;
       cursorTargetService.EnterTargetMode(player.oid, OnSellItemSelected, API.Constants.ObjectTypes.Item, API.Constants.MouseCursor.Pickup);
     }
     private static void OnSellItemSelected(ModuleEvents.OnPlayerTarget selection)
     {
-      if (!Players.TryGetValue(selection.Player, out Player player))
+      if (!Players.TryGetValue(selection.Player.LoginCreature, out Player player))
         return;
 
       if (selection.TargetObject is null || !(selection.TargetObject is NwItem))
         return;
 
-      NwStore store = (NwStore)player.oid.GetLocalVariable<NwObject>("_ACTIVE_STORE").Value;
-      NwPlaceable panel = (NwPlaceable)player.oid.GetLocalVariable<NwObject>("_ACTIVE_PANEL").Value;
-      player.oid.GetLocalVariable<NwObject>("_ACTIVE_STORE").Delete();
-      player.oid.GetLocalVariable<NwObject>("_ACTIVE_PANEL").Delete();
+      NwStore store = (NwStore)player.oid.LoginCreature.GetLocalVariable<NwObject>("_ACTIVE_STORE").Value;
+      NwPlaceable panel = (NwPlaceable)player.oid.LoginCreature.GetLocalVariable<NwObject>("_ACTIVE_PANEL").Value;
+      player.oid.LoginCreature.GetLocalVariable<NwObject>("_ACTIVE_STORE").Delete();
+      player.oid.LoginCreature.GetLocalVariable<NwObject>("_ACTIVE_PANEL").Delete();
 
       if (store == null || panel == null)
         return;
@@ -93,8 +93,8 @@ namespace NWN.Systems
 
       if (awaitedValue)
       {
-        shop.Description = player.oid.GetLocalVariable<string>("_PLAYER_INPUT").Value;
-        player.oid.GetLocalVariable<string>("_PLAYER_INPUT").Delete();
+        shop.Description = player.oid.LoginCreature.GetLocalVariable<string>("_PLAYER_INPUT").Value;
+        player.oid.LoginCreature.GetLocalVariable<string>("_PLAYER_INPUT").Delete();
         player.oid.SendServerMessage($"La description de votre échoppe a été modifiée.", Color.ROSE);
         DrawMainPage(player, shop);
       }
@@ -156,14 +156,14 @@ namespace NWN.Systems
       if (awaitedValue)
       {
         GetAuctionDuration(player, item, shop, panel);
-        player.oid.GetLocalVariable<string>("_PLAYER_INPUT").Delete();
+        player.oid.LoginCreature.GetLocalVariable<string>("_PLAYER_INPUT").Delete();
       }
     }
     public static async void GetAuctionDuration(Player player, NwItem item, NwStore shop, NwPlaceable panel)
     {
       player.menu.Clear();
       int goldValue;
-      int input = int.Parse(player.oid.GetLocalVariable<string>("_PLAYER_INPUT"));
+      int input = int.Parse(player.oid.LoginCreature.GetLocalVariable<string>("_PLAYER_INPUT"));
 
       if (input <= 0)
       {
@@ -188,7 +188,7 @@ namespace NWN.Systems
       if (awaitedValue)
       {
         ValidateAuction(player, item, shop, panel, goldValue);
-        player.oid.GetLocalVariable<string>("_PLAYER_INPUT").Delete();
+        player.oid.LoginCreature.GetLocalVariable<string>("_PLAYER_INPUT").Delete();
       }
     }
 
@@ -196,7 +196,7 @@ namespace NWN.Systems
     {
       player.menu.Clear();
       int auctionDuration;
-      int input = int.Parse(player.oid.GetLocalVariable<string>("_PLAYER_INPUT"));
+      int input = int.Parse(player.oid.LoginCreature.GetLocalVariable<string>("_PLAYER_INPUT"));
 
       if (input <= 0 || input > 30)
       {
@@ -245,16 +245,16 @@ namespace NWN.Systems
       if (awaitedValue)
       {
         SetAuctionPrice(player, shop, panel);
-        player.oid.GetLocalVariable<string>("_PLAYER_INPUT").Delete();
+        player.oid.LoginCreature.GetLocalVariable<string>("_PLAYER_INPUT").Delete();
       }
     }
     private static void SetAuctionPrice(Player player, NwStore shop, NwPlaceable panel)
     {
       player.menu.Clear();
       int auctionSetPrice;
-      int input = int.Parse(player.oid.GetLocalVariable<string>("_PLAYER_INPUT"));
+      int input = int.Parse(player.oid.LoginCreature.GetLocalVariable<string>("_PLAYER_INPUT"));
 
-      if (input > player.oid.Gold)
+      if (input > player.oid.LoginCreature.Gold)
       {
         player.oid.SendServerMessage($"Vous n'avez pas {input.ToString().ColorString(Color.GREEN)} pièce(s) d'or en poche !");
         player.menu.Close();
@@ -279,7 +279,7 @@ namespace NWN.Systems
     }
     private static void UpdateHighestAuctionner(NwStore shop, int auctionSetPrice, PlayerSystem.Player player)
     {
-      player.oid.TakeGold(auctionSetPrice, true);
+      player.oid.LoginCreature.TakeGold(auctionSetPrice, true);
 
       NwItem item = shop.Items.FirstOrDefault();
       ItemPlugin.SetBaseGoldPieceValue(item, auctionSetPrice / item.StackSize);
@@ -289,7 +289,7 @@ namespace NWN.Systems
       NWScript.SqlBindInt(buyerQuery, "@gold", shop.GetLocalVariable<int>("_CURRENT_AUCTION").Value);
       NWScript.SqlStep(buyerQuery);
 
-      NwPlayer oSeller = NwModule.Instance.Players.FirstOrDefault(p => ObjectPlugin.GetInt(p, "characterId") == shop.GetLocalVariable<int>("_CURRENT_AUCTIONNER").Value);
+      NwPlayer oSeller = NwModule.Instance.Players.FirstOrDefault(p => ObjectPlugin.GetInt(p.LoginCreature, "characterId") == shop.GetLocalVariable<int>("_CURRENT_AUCTIONNER").Value);
       if (oSeller != null)
         oSeller.SendServerMessage($"Votre enchère sur {item.Name.ColorString(Color.ORANGE)} vient d'être battue. Le nouveau prix est de : {auctionSetPrice.ToString().ColorString(Color.ORANGE)}. La valeur de votre enchère a été versée à votre banque.");
 

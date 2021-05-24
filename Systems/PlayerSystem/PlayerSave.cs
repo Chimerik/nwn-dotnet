@@ -21,14 +21,14 @@ namespace NWN.Systems
        * BUG 2 : Les buffs ne faisant pas partie de la métamorphose (appliquées par sort par exemple), ne sont pas réappliquées
        * Ici, la correction consiste à parcourir tous ses buffs et à les réappliquer dans l'event AFTER de la sauvegarde*/
 
-      Log.Info($"Before saving {onSaveBefore.Player.Name}");
+      Log.Info($"Before saving {onSaveBefore.Player.LoginCreature.Name}");
 
-      if (Players.TryGetValue(onSaveBefore.Player, out Player player))
+      if (Players.TryGetValue(onSaveBefore.Player.LoginCreature, out Player player))
       {
-        if (onSaveBefore.Player.ActiveEffects.Any(e => e.EffectType == EffectType.Polymorph)
-          && onSaveBefore.Player.GetLocalVariable<int>("_DISCONNECTING").HasNothing)
+        if (onSaveBefore.Player.LoginCreature.ActiveEffects.Any(e => e.EffectType == EffectType.Polymorph)
+          && onSaveBefore.Player.LoginCreature.GetLocalVariable<int>("_DISCONNECTING").HasNothing)
         {
-          player.effectList = onSaveBefore.Player.ActiveEffects.ToList();
+          player.effectList = onSaveBefore.Player.LoginCreature.ActiveEffects.ToList();
           Log.Info($"Polymorph detected, saving effect list");
 
           Task contractExpiration = NwTask.Run(async () =>
@@ -41,15 +41,15 @@ namespace NWN.Systems
         // TODO : probablement faire pour chaque joueur tous les check faim / soif / jobs etc ici
 
         // AFK detection
-        if (player.location == player.oid.Location)
+        if (player.location == player.oid.LoginCreature.Location)
         {
           player.isAFK = true;
           Log.Info("Player AFK");
         }
-        else if(player.oid.Location.Area != null)
-          player.location = player.oid.Location;
+        else if(player.oid.LoginCreature.Location.Area != null)
+          player.location = player.oid.LoginCreature.Location;
 
-        player.currentHP = onSaveBefore.Player.HP;
+        player.currentHP = onSaveBefore.Player.LoginCreature.HP;
 
         if (player.location.Area?.GetLocalVariable<int>("_AREA_LEVEL").Value == 0)
         {
@@ -86,10 +86,10 @@ namespace NWN.Systems
        * Mais il se peut que dans ce cas, ses buffs soient perdues à la reco. A vérifier. Si c'est le cas, une meilleure
        * correction pourrait être de parcourir tous ses buffs et de les réappliquer dans l'event AFTER de la sauvegarde*/
 
-      Log.Info($"Polymorph detected, restoring effect list on {player.oid.Name}");
+      Log.Info($"Polymorph detected, restoring effect list on {player.oid.LoginCreature.Name}");
 
       foreach (API.Effect eff in player.effectList)
-        player.oid.ApplyEffect(eff.DurationType, eff, TimeSpan.FromSeconds((double)eff.DurationRemaining));
+        player.oid.LoginCreature.ApplyEffect(eff.DurationType, eff, TimeSpan.FromSeconds((double)eff.DurationRemaining));
     }
     private static void SavePlayerCharacterToDatabase(Player player)
     {
@@ -109,7 +109,7 @@ namespace NWN.Systems
         NWScript.SqlBindFloat(query, "@facing", player.previousLocation.Rotation);
       }
 
-      NWScript.SqlBindString(query, "@characterName", $"{CreaturePlugin.GetOriginalName(player.oid, 0)} {CreaturePlugin.GetOriginalName(player.oid, 1)}");
+      NWScript.SqlBindString(query, "@characterName", $"{CreaturePlugin.GetOriginalName(player.oid.LoginCreature, 0)} {CreaturePlugin.GetOriginalName(player.oid.LoginCreature, 1)}");
       NWScript.SqlBindInt(query, "@currentHP", player.currentHP);
       NWScript.SqlBindInt(query, "@bankGold", player.bankGold);
       NWScript.SqlBindString(query, "@dateLastSaved", player.dateLastSaved.ToString());

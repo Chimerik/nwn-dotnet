@@ -104,13 +104,12 @@ namespace NWN.Systems.Arena
       oArena.FindObjectsOfTypeInArea<NwPlaceable>().FirstOrDefault(w => w.Tag == PVE_ARENA_PULL_ROPE_CHAIN_TAG).OnLeftClick += ScriptHandlers.HandlePullRopeChainUse;
       oArena.OnExit += Utils.OnExitArena;
 
-      await player.oid.ClearActionQueue();
-      await player.oid.JumpToObject(oArena.FindObjectsOfTypeInArea<NwWaypoint>().FirstOrDefault(w => w.Tag == PVE_ARENA_WAYPOINT_TAG));
+      player.oid.LoginCreature.Location = oArena.FindObjectsOfTypeInArea<NwWaypoint>().FirstOrDefault(w => w.Tag == PVE_ARENA_WAYPOINT_TAG).Location;
       
       player.oid.OnPlayerDeath -= HandlePlayerDeath;
       player.oid.OnPlayerDeath += Utils.HandleArenaDeath;
 
-      await NwTask.WaitUntil(() => player.oid.Area != null);
+      await NwTask.WaitUntil(() => player.oid.ControlledCreature.Area != null);
       await NwTask.Delay(TimeSpan.FromSeconds(5));
       ScriptHandlers.HandleFight(player);
     }
@@ -119,7 +118,7 @@ namespace NWN.Systems.Arena
     {
       player.menu.Close();
 
-      NwStore shop = player.oid.GetNearestObjectsByType<NwStore>().FirstOrDefault(s => s.Tag == "arena_reward_shop");
+      NwStore shop = player.oid.ControlledCreature.GetNearestObjectsByType<NwStore>().FirstOrDefault(s => s.Tag == "arena_reward_shop");
 
       if (shop == null)
       {
@@ -133,7 +132,7 @@ namespace NWN.Systems.Arena
         }
         else
         {
-          shop = NWScript.SqlGetObject(query, 0, player.oid.Location).ToNwObject<NwStore>();
+          shop = NWScript.SqlGetObject(query, 0, player.oid.ControlledCreature.Location).ToNwObject<NwStore>();
 
           foreach (NwItem item in shop.Items)
           {
@@ -159,11 +158,11 @@ namespace NWN.Systems.Arena
 
       foreach (NwPlayer oPC in NwModule.Instance.Players)
       {
-        if (Players.TryGetValue(oPC, out Player fighter) && fighter.pveArena.currentRound > 0)
+        if (Players.TryGetValue(oPC.LoginCreature, out Player fighter) && fighter.pveArena.currentRound > 0)
         {
           Player targetToObserve = fighter;
           player.menu.choices.Add((
-          $"{oPC.Name} - Difficulté {fighter.pveArena.currentDifficulty} - Round {fighter.pveArena.currentRound} - Points {fighter.pveArena.currentPoints}",
+          $"{oPC.LoginCreature.Name} - Difficulté {fighter.pveArena.currentDifficulty} - Round {fighter.pveArena.currentRound} - Points {fighter.pveArena.currentPoints}",
           () => SpectateArena(player, targetToObserve)
           ));
         }
@@ -184,7 +183,7 @@ namespace NWN.Systems.Arena
     {
       player.menu.Close();
 
-      NwStore shop = player.oid.GetNearestObjectsByType<NwStore>().FirstOrDefault(s => s.Tag == "arena_reward_shop");
+      NwStore shop = player.oid.ControlledCreature.GetNearestObjectsByType<NwStore>().FirstOrDefault(s => s.Tag == "arena_reward_shop");
 
       if (shop == null)
       {
@@ -192,11 +191,11 @@ namespace NWN.Systems.Arena
 
         if (NWScript.SqlStep(query) == 0)
         {
-          shop = NwStore.Create("generic_shop_res", player.oid.Location);
+          shop = NwStore.Create("generic_shop_res", player.oid.ControlledCreature.Location);
         }
         else
         {
-          shop = NWScript.SqlGetObject(query, 0, player.oid.Location).ToNwObject<NwStore>();
+          shop = NWScript.SqlGetObject(query, 0, player.oid.ControlledCreature.Location).ToNwObject<NwStore>();
 
           foreach (NwItem item in shop.Items)
           {
@@ -220,11 +219,11 @@ namespace NWN.Systems.Arena
         return;
       }
 
-      player.oid.Location = NwModule.FindObjectsWithTag<NwWaypoint>("_SPECTATOR_WAYPOINT").FirstOrDefault().Location;
+      player.oid.LoginCreature.Location = NwObject.FindObjectsWithTag<NwWaypoint>("_SPECTATOR_WAYPOINT").FirstOrDefault().Location;
 
-      player.oid.OnSpellCast -= SpellSystem.HandleBeforeSpellCast;
-      player.oid.OnSpellCast -= Utils.NoMagicMalus;
-      player.oid.OnSpellCast += Utils.NoMagicMalus;
+      player.oid.LoginCreature.OnSpellCast -= SpellSystem.HandleBeforeSpellCast;
+      player.oid.LoginCreature.OnSpellCast -= Utils.NoMagicMalus;
+      player.oid.LoginCreature.OnSpellCast += Utils.NoMagicMalus;
     }
   }
 }

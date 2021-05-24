@@ -38,7 +38,7 @@ namespace NWN.Systems
         "Merci pour ta contribution à la cause !"
     };
 
-      foreach (NwItem item in player.oid.Inventory.Items.Where(i => IsItemCraftMaterial(i.Tag) == true))
+      foreach (NwItem item in player.oid.LoginCreature.Inventory.Items.Where(i => IsItemCraftMaterial(i.Tag) == true))
       {
         int addedOre = item.StackSize * 95 / 100;
 
@@ -65,7 +65,7 @@ namespace NWN.Systems
         "D'ac. Dépôt de quelle matière première ?"
       };
 
-      foreach (NwItem item in player.oid.Inventory.Items.Where(i => IsItemCraftMaterial(i.Tag) == true))
+      foreach (NwItem item in player.oid.LoginCreature.Inventory.Items.Where(i => IsItemCraftMaterial(i.Tag) == true))
         if (IsItemCraftMaterial(item.Tag))
           inventoryMaterials.Add(item, item.Tag);
 
@@ -80,7 +80,7 @@ namespace NWN.Systems
     {
       player.menu.Clear();
 
-      int input = int.Parse(player.oid.GetLocalVariable<string>("_PLAYER_INPUT"));
+      int input = int.Parse(player.oid.LoginCreature.GetLocalVariable<string>("_PLAYER_INPUT"));
 
       if (input <= 0)
       {
@@ -143,7 +143,7 @@ namespace NWN.Systems
     {
       player.menu.Clear();
 
-      int input = int.Parse(player.oid.GetLocalVariable<string>("_PLAYER_INPUT"));
+      int input = int.Parse(player.oid.LoginCreature.GetLocalVariable<string>("_PLAYER_INPUT"));
 
       if (input <= 0)
       {
@@ -177,13 +177,13 @@ namespace NWN.Systems
           {
             if (remainingValue >= 50000)
             {
-              NwItem item = NwItem.Create(itemTemplate, player.oid, 50000, material);
+              NwItem item = NwItem.Create(itemTemplate, player.oid.LoginCreature, 50000, material);
               item.Name = material;
               remainingValue -= 50000;
             }
             else
             {
-              NwItem item = NwItem.Create(itemTemplate, player.oid, remainingValue, material);
+              NwItem item = NwItem.Create(itemTemplate, player.oid.LoginCreature, remainingValue, material);
               item.Name = material;
               break;
             }

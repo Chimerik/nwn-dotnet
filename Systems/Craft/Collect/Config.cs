@@ -320,9 +320,10 @@ namespace NWN.Systems.Craft.Collect
       [Description("Bois_de_Valinor")]
       Valinorade = 8,
     }
-    public static API.ItemProperty[] GetBadItemProperties(ItemCategory itemCategory, NwItem craftedItem)
+    public static ItemProperty[] GetBadItemProperties(ItemCategory itemCategory, NwItem craftedItem)
     {
-      craftedItem.GetLocalVariable<int>("_DURABILITY").Value = GetBaseItemCost(craftedItem) * 50;
+      craftedItem.GetLocalVariable<int>("_MAX_DURABILITY").Value = GetBaseItemCost(craftedItem) * 25;
+      craftedItem.GetLocalVariable<int>("_DURABILITY").Value = GetBaseItemCost(craftedItem) * 25;
 
       /*switch (itemCategory)
       {
@@ -389,6 +390,7 @@ namespace NWN.Systems.Craft.Collect
     }
     public static API.ItemProperty[] GetBadToolProperties(NwItem craftedItem)
     {
+      craftedItem.GetLocalVariable<int>("_MAX_DURABILITY").Value = 5;
       craftedItem.GetLocalVariable<int>("_DURABILITY").Value = 5;
 
       return new API.ItemProperty[]
@@ -410,6 +412,7 @@ namespace NWN.Systems.Craft.Collect
     {
       if (craftedItem != null)
       {
+        craftedItem.GetLocalVariable<int>("_MAX_DURABILITY").Value = GetBaseItemCost(craftedItem) * 100;
         craftedItem.GetLocalVariable<int>("_DURABILITY").Value = GetBaseItemCost(craftedItem) * 100;
         craftedItem.GetLocalVariable<int>("_AVAILABLE_ENCHANTEMENT_SLOT").Value = 1;
       }
@@ -423,6 +426,7 @@ namespace NWN.Systems.Craft.Collect
     {
       if (craftedItem != null)
       {
+        craftedItem.GetLocalVariable<int>("_MAX_DURABILITY").Value = GetBaseItemCost(craftedItem) * 200;
         craftedItem.GetLocalVariable<int>("_DURABILITY").Value = GetBaseItemCost(craftedItem) * 200;
         craftedItem.GetLocalVariable<int>("_AVAILABLE_ENCHANTEMENT_SLOT").Value = 2;
       }
@@ -488,8 +492,9 @@ namespace NWN.Systems.Craft.Collect
         API.ItemProperty.ACBonusVsDmgType(IPDamageType.Piercing, 1),
       };
     }
-    public static API.ItemProperty[] GetPyeriteToolProperties(NwItem craftedItem)
+    public static ItemProperty[] GetPyeriteToolProperties(NwItem craftedItem)
     {
+      craftedItem.GetLocalVariable<int>("_MAX_DURABILITY").Value = 25;
       craftedItem.GetLocalVariable<int>("_DURABILITY").Value = 25;
       craftedItem.GetLocalVariable<int>("_ITEM_LEVEL").Value = 1;
 

@@ -48,13 +48,13 @@ namespace NWN.Systems
       if (awaitedValue)
       {
         HandleRefineOre(player, oreName);
-        player.oid.GetLocalVariable<string>("_PLAYER_INPUT").Delete();
+        player.oid.LoginCreature.GetLocalVariable<string>("_PLAYER_INPUT").Delete();
       }
     }
     private void HandleRefineOre(Player player, string oreName)
     {
       player.menu.Clear();
-      int input = int.Parse(player.oid.GetLocalVariable<string>("_PLAYER_INPUT"));
+      int input = int.Parse(player.oid.LoginCreature.GetLocalVariable<string>("_PLAYER_INPUT"));
 
       if (input < 100)
       {
@@ -104,7 +104,7 @@ namespace NWN.Systems
         else
         {
           player.menu.titleLines.Add($"HRP - Erreur, votre bois brut n'a pas correctement été reconnu. Le staff a été informé du problème.");
-          Utils.LogMessageToDMs($"SCIERIE - Could not recognize wood type : {oreName} - Used by : {player.oid.Name}");
+          Utils.LogMessageToDMs($"SCIERIE - Could not recognize wood type : {oreName} - Used by : {player.oid.LoginCreature.Name}");
         }
       }
 
@@ -147,7 +147,7 @@ namespace NWN.Systems
       else
       {
         player.menu.titleLines.Add($"HRP - Erreur, votre bois brut n'a pas correctement été reconnu. Le staff a été informé du problème.");
-        NWN.Utils.LogMessageToDMs($"SCIERIE - Could not recognize wood type : {oreName} - Used by : {player.oid.Name}");
+        NWN.Utils.LogMessageToDMs($"SCIERIE - Could not recognize wood type : {oreName} - Used by : {player.oid.LoginCreature.Name}");
       }
 
       //player.menu.choices.Add(("Retour.", () => DrawWelcomePage(player)));

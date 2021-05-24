@@ -52,7 +52,7 @@ namespace NWN.Systems.Craft.Collect
           oPlaceable.GetLocalVariable<int>("_ORE_AMOUNT").Value = remainingOre;
         }
 
-        NwItem ore = NwItem.Create("pelt", player.oid, miningYield, oPlaceable.Name);
+        NwItem ore = NwItem.Create("pelt", player.oid.LoginCreature, miningYield, oPlaceable.Name);
         ore.Name = oPlaceable.Name;
       });
 
@@ -61,7 +61,7 @@ namespace NWN.Systems.Craft.Collect
 
     public static void HandleCompleteProspectionCycle(PlayerSystem.Player player)
     {
-      NwArea area = player.oid.Area;
+      NwArea area = player.oid.LoginCreature.Area;
 
       if (area.GetLocalVariable<int>("_AREA_LEVEL").Value < 2)
       {
@@ -86,10 +86,10 @@ namespace NWN.Systems.Craft.Collect
       if (player.learntCustomFeats.ContainsKey(CustomFeats.AnimalExpertise))
         skillBonus += SkillSystem.GetCustomFeatLevelFromSkillPoints(CustomFeats.AnimalExpertise, player.learntCustomFeats[CustomFeats.AnimalExpertise]);
 
-      int respawnChance = skillBonus * 5 + (NWScript.GetSkillRank(NWScript.SKILL_SPOT, player.oid) + NWScript.GetSkillRank(NWScript.SKILL_LISTEN, player.oid)) / 2;
+      int respawnChance = skillBonus * 5 + (NWScript.GetSkillRank(NWScript.SKILL_SPOT, player.oid.LoginCreature) + NWScript.GetSkillRank(NWScript.SKILL_LISTEN, player.oid.LoginCreature)) / 2;
       string nbSpawns = "";
 
-      foreach (NwWaypoint resourcePoint in player.oid.GetNearestObjectsByType<NwWaypoint>().Where(w => w.Tag == "animal_spawn_wp"))
+      foreach (NwWaypoint resourcePoint in player.oid.LoginCreature.GetNearestObjectsByType<NwWaypoint>().Where(w => w.Tag == "animal_spawn_wp"))
       {
         int iRandom = Utils.random.Next(1, 101);
         if (iRandom < respawnChance)

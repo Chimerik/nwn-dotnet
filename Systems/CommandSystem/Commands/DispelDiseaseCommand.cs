@@ -8,8 +8,8 @@ namespace NWN.Systems
   {
     public DispelDisease(NwPlayer oPC)
     {
-      foreach (API.Effect eff in oPC.ActiveEffects.Where(e => e.EffectType == EffectType.Disease))
-        oPC.RemoveEffect(eff);
+      foreach (Effect eff in oPC.ControlledCreature.ActiveEffects.Where(e => e.EffectType == EffectType.Disease))
+        oPC.ControlledCreature.RemoveEffect(eff);
     }
   }
 }

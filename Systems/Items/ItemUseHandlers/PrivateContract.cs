@@ -9,7 +9,7 @@ namespace NWN.Systems
 {
   class PrivateContract
   {
-    public PrivateContract(NwPlayer oPC, NwItem contract)
+    public PrivateContract(NwCreature oPC, NwItem contract)
     {
       if (!(Players.TryGetValue(oPC, out Player player)))
         return;
@@ -18,7 +18,7 @@ namespace NWN.Systems
         || contract.GetLocalVariable<int>("_CONTRACT_ID").HasNothing || contract.GetLocalVariable<string>("_SERIALIZED_CONTRACT_DATA").HasNothing
         || contract.GetLocalVariable<int>("_CONTRACT_TOTAL_GOLD_PRICE").HasNothing || contract.GetLocalVariable<int>("_CONTRACT_CREATOR_ID").HasNothing)
       {
-        oPC.SendServerMessage("Certaines mentions légales sont absentes de ce contrat qui ne semble donc pas valide.", Color.PURPLE);
+        player.oid.SendServerMessage("Certaines mentions légales sont absentes de ce contrat qui ne semble donc pas valide.", Color.PURPLE);
         contract.Destroy();
         return;
       }
@@ -27,13 +27,13 @@ namespace NWN.Systems
 
       if (creatorId == player.characterId)
       {
-        oPC.SendServerMessage("Vous ne pouvez pas accepter votre propre contrat.");
+        player.oid.SendServerMessage("Vous ne pouvez pas accepter votre propre contrat.");
         return;
       }
 
       if ((expirationDate - DateTime.Now).TotalSeconds < 0)
       {
-        oPC.SendServerMessage("Ce contrat est expiré et n'est donc plus valide.", Color.BLUE);
+        player.oid.SendServerMessage("Ce contrat est expiré et n'est donc plus valide.", Color.BLUE);
         contract.Destroy();
         return;
       }
@@ -45,7 +45,7 @@ namespace NWN.Systems
       
       if(NWScript.SqlStep(query) <= 0)
       {
-        oPC.SendServerMessage("Ce contrat a été annulé par son rédacteur et n'est donc plus valide.", Color.BLUE);
+        player.oid.SendServerMessage("Ce contrat a été annulé par son rédacteur et n'est donc plus valide.", Color.BLUE);
         contract.Destroy();
         return;
       }
@@ -54,24 +54,24 @@ namespace NWN.Systems
 
       if (totalPrice > player.bankGold + (int)oPC.Gold)
       {
-        oPC.SendServerMessage("Vous ne disposez pas de l'or nécessaire pour accepter ce contrat.", Color.ORANGE);
+        player.oid.SendServerMessage("Vous ne disposez pas de l'or nécessaire pour accepter ce contrat.", Color.ORANGE);
         return;
       }
 
       if ((int)oPC.Gold < totalPrice)
       {
         player.bankGold -= totalPrice - (int)oPC.Gold;
-        oPC.SendServerMessage($"{totalPrice - (int)oPC.Gold} ont été prélevés directement à la banque.", Color.ROSE);
+        player.oid.SendServerMessage($"{totalPrice - (int)oPC.Gold} ont été prélevés directement à la banque.", Color.ROSE);
         oPC.Gold = 0;
       }
       else
         oPC.Gold -= (uint)totalPrice;
 
-      NwPlayer oCreator = NwModule.Instance.Players.FirstOrDefault(p => ObjectPlugin.GetInt(p, "characterId") == creatorId);
+      NwPlayer oCreator = NwModule.Instance.Players.FirstOrDefault(p => ObjectPlugin.GetInt(p.LoginCreature, "characterId") == creatorId);
 
       if (oCreator != null)
       {
-        if (Players.TryGetValue(oCreator, out Player creator))
+        if (Players.TryGetValue(oCreator.LoginCreature, out Player creator))
           creator.bankGold += totalPrice;
 
         oCreator.SendServerMessage($"Votre contrat {contractId} a été accepté par {oPC.Name}. La somme de {totalPrice} pièce(s) d'or a été versée sur votre compte.", Color.NAVY);
@@ -100,7 +100,7 @@ namespace NWN.Systems
           else
             player.materialStock.Add(material, quantity);
 
-          oPC.SendServerMessage($"{quantity} unité(s) de {material} ont été transférés vers votre entrepôt.", Color.MAGENTA);
+          player.oid.SendServerMessage($"{quantity} unité(s) de {material} ont été transférés vers votre entrepôt.", Color.MAGENTA);
         }
       }
 

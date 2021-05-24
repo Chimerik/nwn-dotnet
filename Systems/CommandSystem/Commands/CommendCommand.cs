@@ -23,7 +23,9 @@ namespace NWN.Systems
     }
     private void OnTargetSelected(ModuleEvents.OnPlayerTarget selection)
     {
-      if (!(selection.TargetObject is NwPlayer) || !PlayerSystem.Players.TryGetValue(selection.TargetObject, out PlayerSystem.Player commendTarget))
+      NwPlayer oPC = ((NwCreature)selection.TargetObject).ControllingPlayer;
+
+      if (oPC == null || !PlayerSystem.Players.TryGetValue(oPC.LoginCreature, out PlayerSystem.Player commendTarget))
         return;
 
       if(commendTarget.bonusRolePlay < 4)
@@ -41,10 +43,10 @@ namespace NWN.Systems
           NWScript.SqlStep(updateQuery);
         }
 
-        Utils.LogMessageToDMs($"{commendTarget.oid.Name} vient de recommander {commendTarget.oid.Name} pour une augmentation de bonus roleplay.");
+        Utils.LogMessageToDMs($"{selection.Player.LoginCreature.Name} vient de recommander {oPC.LoginCreature.Name} pour une augmentation de bonus roleplay.");
       }
 
-      commendTarget.oid.SendServerMessage($"Vous venez de recommander {commendTarget.oid.Name.ColorString(Color.WHITE)} pour une augmentation de bonus roleplay !", Color.ROSE);
+      commendTarget.oid.SendServerMessage($"Vous venez de recommander {oPC.LoginCreature.Name.ColorString(Color.WHITE)} pour une augmentation de bonus roleplay !", Color.ROSE);
       CommandSystem.DrawCommandList(player);
     }
   }

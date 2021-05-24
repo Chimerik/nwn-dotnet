@@ -1,6 +1,7 @@
 ﻿using NWN.API;
 using NWN.API.Events;
 using NWN.Core;
+using NWN.Core.NWNX;
 using System.Linq;
 
 namespace NWN.Systems
@@ -9,26 +10,23 @@ namespace NWN.Systems
   {
     public RaiseDead(SpellEvents.OnSpellCast onSpellCast)
     {
-      NwPlayer oCaster = (NwPlayer)onSpellCast.Caster;
-
-      if (onSpellCast.TargetObject.Tag != "pccorpse")
+      if (!(onSpellCast.Caster is NwCreature { IsPlayerControlled: true } oCaster) || onSpellCast.TargetObject.Tag != "pccorpse")
         return;
 
       int PcId = onSpellCast.TargetObject.GetLocalVariable<int>("_PC_ID").Value;
-      
-      PlayerSystem.Player oPC = PlayerSystem.Players.Where(p => p.Value.characterId == PcId).FirstOrDefault().Value;
+      NwPlayer oPC = NwModule.Instance.Players.FirstOrDefault(p => ObjectPlugin.GetInt(p.LoginCreature, "characterId") == PcId);
 
-      if (oPC != null && NwModule.Instance.Players.Any(p => p == oPC.oid))
+      if (oPC != null)
       {
-        oPC.oid.Location = onSpellCast.TargetObject.Location;
+        oPC.LoginCreature.Location = onSpellCast.TargetObject.Location;
         onSpellCast.TargetObject.ApplyEffect(EffectDuration.Instant, API.Effect.VisualEffect(API.Constants.VfxType.ImpRaiseDead));
 
         if(onSpellCast.Spell == API.Constants.Spell.RaiseDead)
-          oPC.oid.HP = 1;
+          oPC.LoginCreature.HP = 1;
       }
       else
       {
-        oCaster.SendServerMessage("Votre sort a bien eu l'effet escompté, cependant l'individu blessé semble encore avoir besoin de repos. Il faudra un certain temps avant de le voir se relever.");
+        oCaster.ControllingPlayer.SendServerMessage("Votre sort a bien eu l'effet escompté, cependant l'individu blessé semble encore avoir besoin de repos. Il faudra un certain temps avant de le voir se relever.");
 
         var query = NWScript.SqlPrepareQueryCampaign(Config.database, $"UPDATE playerCharacters SET areaTag = @areaTag, position = @position WHERE characterId = @characterId");
         NWScript.SqlBindInt(query, "@characterId", PcId);

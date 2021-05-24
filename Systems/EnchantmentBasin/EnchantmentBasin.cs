@@ -100,7 +100,7 @@ namespace NWN.Systems
             private void DrawCostPage(ItemProperty ip, string enchantmentName)
             {
                 // Create a copy item to evaluate enchantment cost
-                uint oCopy = NWScript.CopyItem(oItem, player.oid);
+                uint oCopy = NWScript.CopyItem(oItem, player.oid.LoginCreature);
 
                 // Enchant copy item to evaluate cost
                 ItemPropertyUtils.ReplaceItemProperty(oCopy, ip);
@@ -131,13 +131,13 @@ namespace NWN.Systems
 
             private void HandleConfirm(ItemProperty ip, int cost, int successPercent)
             {
-                if (NWScript.GetGold(player.oid) <= cost)
+                if (NWScript.GetGold(player.oid.LoginCreature) <= cost)
                 {
-                    NWScript.SendMessageToPC(player.oid, "Vous n'avez pas la quantité d'or requise pour effectuer cet enchantement.");
+                    NWScript.SendMessageToPC(player.oid.LoginCreature, "Vous n'avez pas la quantité d'or requise pour effectuer cet enchantement.");
                     return;
                 }
 
-                NWScript.TakeGoldFromCreature(cost, player.oid, 1);
+                NWScript.TakeGoldFromCreature(cost, player.oid.LoginCreature, 1);
 
                 var roll = Utils.random.Next(1, 100);
                 if (roll <= successPercent)

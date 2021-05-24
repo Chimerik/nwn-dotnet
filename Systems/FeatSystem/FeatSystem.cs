@@ -45,7 +45,7 @@ namespace NWN.Systems
 
           onUseFeat.PreventFeatUse = true;
 
-          if(player.oid.Area.GetLocalVariable<int>("_AREA_LEVEL").Value != 0)
+          if(player.oid.LoginCreature.Area.GetLocalVariable<int>("_AREA_LEVEL").Value != 0)
           {
             player.oid.SendServerMessage($"Impossible de démarrer un travail artisanal sans pouvoir accéder à un atelier.", Color.RED);
             return;
@@ -58,7 +58,7 @@ namespace NWN.Systems
 
           onUseFeat.PreventFeatUse = true;
 
-          if (player.oid.Area.GetLocalVariable<int>("_AREA_LEVEL").Value != 0)
+          if (player.oid.LoginCreature.Area.GetLocalVariable<int>("_AREA_LEVEL").Value != 0)
           {
             player.oid.SendServerMessage($"Impossible de démarrer un travail artisanal sans pouvoir accéder à un atelier.", Color.RED);
             return;
@@ -71,7 +71,7 @@ namespace NWN.Systems
 
           onUseFeat.PreventFeatUse = true;
 
-          if (player.oid.Area.GetLocalVariable<int>("_AREA_LEVEL").Value != 0)
+          if (player.oid.LoginCreature.Area.GetLocalVariable<int>("_AREA_LEVEL").Value != 0)
           {
             player.oid.SendServerMessage($"Impossible de démarrer un travail artisanal sans pouvoir accéder à un atelier.", Color.RED);
             return;
@@ -84,7 +84,7 @@ namespace NWN.Systems
 
           onUseFeat.PreventFeatUse = true;
 
-          if (player.oid.Area.GetLocalVariable<int>("_AREA_LEVEL").Value != 0)
+          if (player.oid.LoginCreature.Area.GetLocalVariable<int>("_AREA_LEVEL").Value != 0)
           {
             player.oid.SendServerMessage($"Impossible de démarrer un travail artisanal sans pouvoir accéder à un atelier.", Color.RED);
             return;

@@ -25,11 +25,11 @@ namespace NWN.Systems
     }
     public static void HandlePartyChange(NwPlayer oPartyChanger)
     {
-      API.Effect partyEffect = oPartyChanger.ActiveEffects.FirstOrDefault(e => e.Tag == "PartyEffect");
+      API.Effect partyEffect = oPartyChanger.LoginCreature.ActiveEffects.FirstOrDefault(e => e.Tag == "PartyEffect");
       if (partyEffect != null)
-        oPartyChanger.RemoveEffect(partyEffect);
+        oPartyChanger.LoginCreature.RemoveEffect(partyEffect);
 
-      oPartyChanger.ApplyEffect(EffectDuration.Permanent, GetPartySizeEffect(oPartyChanger.PartyMembers.Count<NwPlayer>(p => !p.IsDM)));
+      oPartyChanger.LoginCreature.ApplyEffect(EffectDuration.Permanent, GetPartySizeEffect(oPartyChanger.PartyMembers.Count(p => !p.IsDM)));
     }
     private static API.Effect GetPartySizeEffect(int iPartySize = 0)
     {

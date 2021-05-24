@@ -34,13 +34,13 @@ namespace NWN.Systems
     }
     private void HandleBodyCloneSpawn(Player player)
     {
-      clone = player.oid.Clone(mirror.Location, "clone");
+      clone = player.oid.ControlledCreature.Clone(mirror.Location, "clone");
       clone.ApplyEffect(EffectDuration.Permanent, API.Effect.CutsceneGhost());
       clone.HiliteColor = Color.SILVER;
-      clone.Name = $"Reflet de {player.oid.Name}";
+      clone.Name = $"Reflet de {player.oid.ControlledCreature.Name}";
       clone.Rotation += 180;
 
-      VisibilityPlugin.SetVisibilityOverride(player.oid, mirror, VisibilityPlugin.NWNX_VISIBILITY_HIDDEN);
+      VisibilityPlugin.SetVisibilityOverride(player.oid.ControlledCreature, mirror, VisibilityPlugin.NWNX_VISIBILITY_HIDDEN);
 
       HandleBodyModification(player);
 
@@ -84,7 +84,7 @@ namespace NWN.Systems
       if (clone != null)
       {
         clone.Destroy();
-        VisibilityPlugin.SetVisibilityOverride(player.oid, mirror, VisibilityPlugin.NWNX_VISIBILITY_VISIBLE);
+        VisibilityPlugin.SetVisibilityOverride(player.oid.ControlledCreature, mirror, VisibilityPlugin.NWNX_VISIBILITY_VISIBLE);
       }
     }
     private void ChangeCloneHead(Player player, int model)
@@ -103,11 +103,11 @@ namespace NWN.Systems
     }
     private void ApplyBodyChangesOnPlayer(Player player)
     {
-      NWScript.SetCreatureBodyPart(NWScript.CREATURE_PART_HEAD, NWScript.GetCreatureBodyPart(NWScript.CREATURE_PART_HEAD, clone), player.oid);
-      NWScript.SetColor(player.oid, NWScript.COLOR_CHANNEL_TATTOO_1, NWScript.GetColor(clone, NWScript.COLOR_CHANNEL_TATTOO_1));
-      NWScript.SetColor(player.oid, NWScript.COLOR_CHANNEL_TATTOO_2, NWScript.GetColor(clone, NWScript.COLOR_CHANNEL_TATTOO_2));
-      NWScript.SetColor(player.oid, NWScript.COLOR_CHANNEL_HAIR, NWScript.GetColor(clone, NWScript.COLOR_CHANNEL_HAIR));
-      player.oid.VisualTransform = clone.VisualTransform;
+      NWScript.SetCreatureBodyPart(NWScript.CREATURE_PART_HEAD, NWScript.GetCreatureBodyPart(NWScript.CREATURE_PART_HEAD, clone), player.oid.ControlledCreature);
+      NWScript.SetColor(player.oid.ControlledCreature, NWScript.COLOR_CHANNEL_TATTOO_1, NWScript.GetColor(clone, NWScript.COLOR_CHANNEL_TATTOO_1));
+      NWScript.SetColor(player.oid.ControlledCreature, NWScript.COLOR_CHANNEL_TATTOO_2, NWScript.GetColor(clone, NWScript.COLOR_CHANNEL_TATTOO_2));
+      NWScript.SetColor(player.oid.ControlledCreature, NWScript.COLOR_CHANNEL_HAIR, NWScript.GetColor(clone, NWScript.COLOR_CHANNEL_HAIR));
+      player.oid.ControlledCreature.VisualTransform = clone.VisualTransform;
       HandleBodyModification(player);
     }
     private void ChangeCloneEyeColor(Player player, int color)

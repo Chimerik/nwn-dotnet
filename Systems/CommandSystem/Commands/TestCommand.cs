@@ -20,22 +20,20 @@ namespace NWN.Systems
 {
   public static partial class CommandSystem
   {
-    private static void ExecuteTestCommand(ChatSystem.Context ctx, Options.Result options)
+    private static async void ExecuteTestCommand(ChatSystem.Context ctx, Options.Result options)
     {
-      if (PlayerSystem.Players.TryGetValue(ctx.oSender, out PlayerSystem.Player player))
+      if (PlayerSystem.Players.TryGetValue(ctx.oSender.LoginCreature, out PlayerSystem.Player player))
       {
         //ctx.oSender.ToNwObject<NwPlayer>().HP = 10;
         //ctx.oSender.ApplyEffect(EffectDuration.Instant, API.Effect.Death());
 
-        if (NWScript.GetPCPlayerName(player.oid) == "Chim")
+        if (player.oid.PlayerName == "Chim")
         {
-          SpellUtils.ApplyCustomEffectToTarget(player.oid, "CUSTOM_EFFECT_NOARMOR", 109);
           //SpellUtils.ApplyCustomEffectToTarget(player.oid, "CUSTOM_EFFECT_FROG", 51, 6);
           //PlayerSystem.cursorTargetService.EnterTargetMode(player.oid, OnTargetSelected, ObjectTypes.All, MouseCursor.Pickup);
         }
       }
     }
-
     private static void OnTargetSelected(ModuleEvents.OnPlayerTarget selection)
     {
       ((NwGameObject)selection.TargetObject).ApplyEffect(EffectDuration.Permanent, API.Effect.Swarm(true, "sim_wraith"));

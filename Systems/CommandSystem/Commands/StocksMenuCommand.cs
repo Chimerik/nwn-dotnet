@@ -6,7 +6,7 @@ namespace NWN.Systems
   {
     private static void ExecuteStocksMenuCommand(ChatSystem.Context ctx, Options.Result options)
     {
-      if (PlayerSystem.Players.TryGetValue(ctx.oSender, out PlayerSystem.Player player))
+      if (PlayerSystem.Players.TryGetValue(ctx.oSender.LoginCreature, out PlayerSystem.Player player))
         DrawMainPage(player);
     }
 

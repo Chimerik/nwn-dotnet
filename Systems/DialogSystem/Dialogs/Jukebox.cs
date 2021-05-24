@@ -40,7 +40,7 @@ namespace NWN.Systems
     {
       player.menu.Clear();
 
-      NwArea area = player.oid.Area;
+      NwArea area = bard.Area;
       area.StopBackgroundMusic();
       area.MusicBackgroundDayTrack = music;
       area.MusicBackgroundNightTrack = music;
@@ -51,7 +51,7 @@ namespace NWN.Systems
       bard.ApplyEffect(EffectDuration.Instant, API.Effect.VisualEffect(API.Constants.VfxType.FnfSoundBurstSilent));
       bard.ApplyEffect(EffectDuration.Permanent, API.Effect.VisualEffect(API.Constants.VfxType.DurBardSong), TimeSpan.FromHours(24));
 
-      ChatPlugin.SendMessage(ChatPlugin.NWNX_CHAT_CHANNEL_PLAYER_TALK, $"{player.oid.Name} vient de demander à jouer {NWScript.GetStringByStrRef(Int32.Parse(NWScript.Get2DAString("ambientmusic", "Description", music)))}", bard);
+      ChatPlugin.SendMessage(ChatPlugin.NWNX_CHAT_CHANNEL_PLAYER_TALK, $"{player.oid.ControlledCreature.Name} vient de demander à jouer {NWScript.GetStringByStrRef(Int32.Parse(NWScript.Get2DAString("ambientmusic", "Description", music)))}", bard);
 
       this.DrawWelcomePage(player, bard);
     }

@@ -5,32 +5,29 @@ using NWN.Core.NWNX;
 
 namespace NWN.Systems
 {
-  class NoWeapon
+  static class NoWeapon
   {
-    public NoWeapon(NwCreature oTarget, bool apply = true)
-    {
-      if (apply)
-        ApplyEffectToTarget(oTarget);
-      else
-        RemoveEffectFromTarget(oTarget);
-    }
-    private void ApplyEffectToTarget(NwCreature oTarget)
+    public static void ApplyEffectToTarget(NwCreature oTarget)
     {
       oTarget.OnItemValidateEquip -= NoEquipWeaponMalus;
       oTarget.OnItemValidateUse -= NoUseWeaponMalus;
       oTarget.OnItemValidateEquip += NoEquipWeaponMalus;
       oTarget.OnItemValidateUse += NoUseWeaponMalus;
       oTarget.ApplyEffect(EffectDuration.Instant, Effect.VisualEffect(VfxType.FnfPwkill));
-      CreaturePlugin.RunUnequip(oTarget, oTarget.GetItemInSlot(InventorySlot.RightHand));
-      CreaturePlugin.RunUnequip(oTarget, oTarget.GetItemInSlot(InventorySlot.LeftHand));
-      CreaturePlugin.RunUnequip(oTarget, oTarget.GetItemInSlot(InventorySlot.Arms));
+
+      if (oTarget.GetItemInSlot(InventorySlot.RightHand) != null)
+        CreaturePlugin.RunUnequip(oTarget, oTarget.GetItemInSlot(InventorySlot.RightHand));
+      if (oTarget.GetItemInSlot(InventorySlot.LeftHand) != null)
+        CreaturePlugin.RunUnequip(oTarget, oTarget.GetItemInSlot(InventorySlot.LeftHand));
+      if (oTarget.GetItemInSlot(InventorySlot.Arms) != null)
+        CreaturePlugin.RunUnequip(oTarget, oTarget.GetItemInSlot(InventorySlot.Arms));
     }
-    private void RemoveEffectFromTarget(NwCreature oTarget)
+    public static void RemoveEffectFromTarget(NwCreature oTarget)
     {
       oTarget.OnItemValidateEquip -= NoEquipWeaponMalus;
       oTarget.OnItemValidateUse -= NoUseWeaponMalus;
     }
-    private void NoEquipWeaponMalus(OnItemValidateEquip onItemValidateEquip)
+    public static void NoEquipWeaponMalus(OnItemValidateEquip onItemValidateEquip)
     {
       switch(onItemValidateEquip.Slot)
       {
@@ -38,11 +35,13 @@ namespace NWN.Systems
         case InventorySlot.LeftHand:
         case InventorySlot.Arms:
           onItemValidateEquip.Result = EquipValidationResult.Denied;
-          ((NwPlayer)onItemValidateEquip.UsedBy).SendServerMessage("L'interdiction de port d'arme est en vigueur.", Color.RED);
+
+          if (onItemValidateEquip.UsedBy.IsPlayerControlled)
+            onItemValidateEquip.UsedBy.ControllingPlayer.SendServerMessage("L'interdiction de port d'arme est en vigueur.", Color.RED);
           break;
       }
     }
-    private void NoUseWeaponMalus(OnItemValidateUse onItemValidateUse)
+    private static void NoUseWeaponMalus(OnItemValidateUse onItemValidateUse)
     {
       switch (ItemUtils.GetItemCategory(onItemValidateUse.Item.BaseItemType))
       {

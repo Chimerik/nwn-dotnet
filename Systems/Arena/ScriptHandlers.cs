@@ -5,8 +5,11 @@ using System.Threading.Tasks;
 using NWN.API;
 using NWN.API.Constants;
 using NWN.API.Events;
+using NWN.Core;
 using NWN.Core.NWNX;
+using NWN.Services;
 using static NWN.Systems.PlayerSystem;
+using Effect = NWN.API.Effect;
 
 namespace NWN.Systems.Arena
 {
@@ -15,10 +18,10 @@ namespace NWN.Systems.Arena
     public static void HandlePullRopeChainUse(PlaceableEvents.OnLeftClick onUsed)
     {
       NwPlayer oPC = onUsed.ClickedBy;
-
-      if (Players.TryGetValue(oPC, out Player player))
+      
+      if (Players.TryGetValue(oPC.LoginCreature, out Player player))
       {
-        if (player.oid.Area.FindObjectsOfTypeInArea<NwCreature>().Any(c => c.GetLocalVariable<int>("_IS_PVE_ARENA_CREATURE").HasValue))
+        if (player.oid.LoginCreature.Area.FindObjectsOfTypeInArea<NwCreature>().Any(c => c.GetLocalVariable<int>("_IS_PVE_ARENA_CREATURE").HasValue))
           ArenaMenu.DrawRunAwayPage(player);
         else
           ArenaMenu.DrawNextFightPage(player);
@@ -26,7 +29,7 @@ namespace NWN.Systems.Arena
     }
     public static async void HandleFight(Player player)
     {
-      NwArea oArena = player.oid.Area;
+      NwArea oArena = player.oid.LoginCreature.Area;
       NwWaypoint oWaypoint = oArena.FindObjectsOfTypeInArea<NwWaypoint>().Where(w => w.Tag == Config.PVE_ARENA_MONSTER_WAYPOINT_TAG).FirstOrDefault();
       var roundCreatures = Utils.GetCreaturesForRound(player.pveArena.currentRound, player.pveArena.currentDifficulty);
 
@@ -55,7 +58,7 @@ namespace NWN.Systems.Arena
       }
 
       CancellationTokenSource tokenSource = new CancellationTokenSource();
-      Task waitPlayerLeavesArena = NwTask.WaitUntil(() => player.oid.Location.Area == null, tokenSource.Token);
+      Task waitPlayerLeavesArena = NwTask.WaitUntil(() => player.oid.LoginCreature.Location.Area == null, tokenSource.Token);
       Task waitRoundCreaturesDead = NwTask.WaitUntil(() => !oArena.FindObjectsOfTypeInArea<NwCreature>().Any(c => c.GetLocalVariable<int>("_IS_PVE_ARENA_CREATURE").HasValue), tokenSource.Token);
 
       await NwTask.WhenAny(waitRoundCreaturesDead, waitPlayerLeavesArena);
@@ -69,7 +72,7 @@ namespace NWN.Systems.Arena
       oArena.MusicBackgroundNightTrack = 183;
       oArena.PlayBackgroundMusic();
 
-      Log.Info($"{player.oid.Name} just finished round {player.pveArena.currentRound} - Difficulty {player.pveArena.currentDifficulty}");
+      Log.Info($"{player.oid.LoginCreature.Name} just finished round {player.pveArena.currentRound} - Difficulty {player.pveArena.currentDifficulty}");
       player.pveArena.currentPoints += GetRoundPoints(player);
       player.pveArena.currentRound += 1;
 
@@ -83,8 +86,7 @@ namespace NWN.Systems.Arena
         Effect paralyze = Effect.CutsceneParalyze();
         paralyze.SubType = EffectSubType.Supernatural;
         paralyze.Tag = "_ARENA_CUTSCENE_PARALYZE_EFFECT";
-        player.oid.ApplyEffect(EffectDuration.Permanent, paralyze);
-
+        player.oid.LoginCreature.ApplyEffect(EffectDuration.Permanent, paralyze);
         ArenaMenu.DrawNextFightPage(player);
       }
     }
@@ -111,9 +113,11 @@ namespace NWN.Systems.Arena
           oCreature.OnCreatureDamage += HandleDogAttack;
           break;
         case "rat_meca":
-          oCreature.OnCombatRoundEnd += HandleMechRatSpark;
-          oCreature.OnCreatureDamage += AttackSystem.HandleDamageEvent;
+
           oCreature.GetLocalVariable<int>("_IS_GNOME_MECH").Value = 1;
+          ApplyGnomeMechAoE(oCreature);
+          oCreature.OnCreatureDamage += AttackSystem.HandleDamageEvent;
+          
         break;
         case "bat_sewer":
           oCreature.OnCreatureDamage += HandleBatAttack;
@@ -128,13 +132,13 @@ namespace NWN.Systems.Arena
           break;
         case "dog_meca_defect":
           oCreature.GetLocalVariable<int>("_IS_GNOME_MECH").Value = 1;
-          oCreature.OnCombatRoundEnd += HandleMechRatSpark;
+          ApplyGnomeMechAoE(oCreature);
           oCreature.OnCreatureDamage += HandleDogAttack;
           oCreature.OnCreatureDamage += AttackSystem.HandleDamageEvent;
           break;
         case "cutter_meca":
           oCreature.GetLocalVariable<int>("_IS_GNOME_MECH").Value = 1;
-          oCreature.OnCombatRoundEnd += HandleMechRatSpark;
+          ApplyGnomeMechAoE(oCreature);
           break;
       }
     }
@@ -149,34 +153,6 @@ namespace NWN.Systems.Arena
         return;
 
       oTarget.ApplyEffect(EffectDuration.Temporary, Effect.Knockdown(), NwTimeSpan.FromRounds(1));
-    }
-    private static void HandleMechRatSpark(CreatureEvents.OnCombatRoundEnd onRoundEnd)
-    {
-      onRoundEnd.Creature.GetLocalVariable<int>("_SPARK_LEVEL").Value += 5;
-
-      foreach (NwCreature creature in onRoundEnd.Creature.Area.FindObjectsOfTypeInArea<NwCreature>())
-      {
-        if (NwRandom.Roll(NWN.Utils.random, 100) > onRoundEnd.Creature.GetLocalVariable<int>("_SPARK_LEVEL").Value + 20)
-          continue;
-
-        if (creature != onRoundEnd.Creature)
-          creature.ApplyEffect(EffectDuration.Temporary, Effect.Beam(VfxType.BeamLightning, onRoundEnd.Creature, BodyNode.Chest), TimeSpan.FromSeconds(1.4));
-        else
-          creature.ApplyEffect(EffectDuration.Instant, Effect.VisualEffect(VfxType.ComHitElectrical));
-
-        if (creature.GetLocalVariable<int>("_IS_PVE_ARENA_CREATURE").HasValue)
-        {
-          creature.ApplyEffect(EffectDuration.Instant, Effect.Damage(1, DamageType.Electrical));
-        }
-        else
-        {
-          if (creature.RollSavingThrow(SavingThrow.Reflex, 12, SavingThrowType.Electricity, onRoundEnd.Creature) == SavingThrowResult.Failure)
-          {
-            creature.ApplyEffect(EffectDuration.Instant, Effect.Damage(1, DamageType.Electrical));
-            creature.ApplyEffect(EffectDuration.Instant, Effect.VisualEffect(VfxType.ComHitElectrical));
-          }
-        }
-      }
     }
     private static void HandleBatAttack(OnCreatureDamage onAttack)
     {
@@ -208,6 +184,14 @@ namespace NWN.Systems.Arena
           creature.ApplyEffect(EffectDuration.Instant, Effect.VisualEffect(VfxType.ComHitElectrical));
         }
       }
+    }
+    private static void ApplyGnomeMechAoE(NwCreature oCreature)
+    {
+      Effect elecAoE = Effect.AreaOfEffect(25, "mechaura_enter", "mechaura_hb");
+      elecAoE.Creator = oCreature;
+      elecAoE.Tag = "mechaura_aoe";
+      elecAoE.SubType = EffectSubType.Supernatural;
+      oCreature.ApplyEffect(EffectDuration.Permanent, elecAoE);
     }
   }
 }

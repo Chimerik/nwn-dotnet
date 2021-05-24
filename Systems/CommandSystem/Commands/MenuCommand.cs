@@ -9,7 +9,7 @@ namespace NWN.Systems
     {
       var resetOpt = (bool)options.named.GetValueOrDefault("reset");
       
-      if (PlayerSystem.Players.TryGetValue(ctx.oSender, out PlayerSystem.Player player))
+      if (PlayerSystem.Players.TryGetValue(ctx.oSender.LoginCreature, out PlayerSystem.Player player))
       {
         if (resetOpt)
         {
@@ -62,14 +62,14 @@ namespace NWN.Systems
 
     private static void __HandleSwapHotkeys(PlayerSystem.Player player)
     {
-      if(ObjectPlugin.GetInt(player.oid, "_MENU_HOTKEYS_SWAPPED") == 0)
-        ObjectPlugin.SetInt(player.oid, "_MENU_HOTKEYS_SWAPPED", 1, 1);
+      if(ObjectPlugin.GetInt(player.oid.LoginCreature, "_MENU_HOTKEYS_SWAPPED") == 0)
+        ObjectPlugin.SetInt(player.oid.LoginCreature, "_MENU_HOTKEYS_SWAPPED", 1, 1);
       else
-        ObjectPlugin.DeleteInt(player.oid, "_MENU_HOTKEYS_SWAPPED");
+        ObjectPlugin.DeleteInt(player.oid.LoginCreature, "_MENU_HOTKEYS_SWAPPED");
 
-      QuickBarSlot swapQBS = PlayerPlugin.GetQuickBarSlot(player.oid, 0);
-      PlayerPlugin.SetQuickBarSlot(player.oid, 0, PlayerPlugin.GetQuickBarSlot(player.oid, 1));
-      PlayerPlugin.SetQuickBarSlot(player.oid, 1, swapQBS);
+      QuickBarSlot swapQBS = PlayerPlugin.GetQuickBarSlot(player.oid.LoginCreature, 0);
+      PlayerPlugin.SetQuickBarSlot(player.oid.LoginCreature, 0, PlayerPlugin.GetQuickBarSlot(player.oid.LoginCreature, 1));
+      PlayerPlugin.SetQuickBarSlot(player.oid.LoginCreature, 1, swapQBS);
     }
 
     private static void __HandleMoveLeft(PlayerSystem.Player player)

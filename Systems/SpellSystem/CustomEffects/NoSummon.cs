@@ -4,16 +4,9 @@ using NWN.API.Events;
 
 namespace NWN.Systems
 {
-  class NoSummon
+  static class NoSummon
   {
-    public NoSummon(NwCreature oTarget, bool apply = true)
-    {
-      if (apply)
-        ApplyEffectToTarget(oTarget);
-      else
-        RemoveEffectFromTarget(oTarget);
-    }
-    private void ApplyEffectToTarget(NwCreature oTarget)
+    public static void ApplyEffectToTarget(NwCreature oTarget)
     {
       oTarget.OnAssociateAdd -= NoSummoningSpellMalus;
       oTarget.OnAssociateAdd += NoSummoningSpellMalus;
@@ -25,11 +18,11 @@ namespace NWN.Systems
         summon.Destroy();
       }
     }
-    private void RemoveEffectFromTarget(NwCreature oTarget)
+    public static void RemoveEffectFromTarget(NwCreature oTarget)
     {
       oTarget.OnAssociateAdd -= NoSummoningSpellMalus;
     }
-    private void NoSummoningSpellMalus(OnAssociateAdd onAssociateAdd)
+    private static void NoSummoningSpellMalus(OnAssociateAdd onAssociateAdd)
     {
       foreach (NwCreature summon in onAssociateAdd.Owner.Henchmen)
       {
@@ -37,7 +30,8 @@ namespace NWN.Systems
         summon.Destroy();
       }
 
-      ((NwPlayer)onAssociateAdd.Owner).SendServerMessage("L'interdiction d'usage d'invocations est en vigueur.", Color.RED);
+      if (onAssociateAdd.Owner.IsPlayerControlled)
+        onAssociateAdd.Owner.ControllingPlayer.SendServerMessage("L'interdiction d'usage d'invocations est en vigueur.", Color.RED);
     }
   }
 }

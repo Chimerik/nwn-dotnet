@@ -14,9 +14,9 @@ namespace NWN.Systems
     public static readonly Logger Log = LogManager.GetCurrentClassLogger();
     public static void OnExamineBefore(OnExamineObject onExamine)
     {
-      Log.Info($"{onExamine.ExaminedBy.Name} examining {onExamine.ExaminedObject.Name} - Tag : {onExamine.ExaminedObject.Tag}");
+      Log.Info($"{onExamine.ExaminedBy.LoginCreature.Name} examining {onExamine.ExaminedObject.Name} - Tag : {onExamine.ExaminedObject.Tag}");
 
-      if (!PlayerSystem.Players.TryGetValue(onExamine.ExaminedBy, out PlayerSystem.Player player))
+      if (!PlayerSystem.Players.TryGetValue(onExamine.ExaminedBy.LoginCreature, out PlayerSystem.Player player))
         return;
 
       switch (onExamine.ExaminedObject.Tag)
@@ -24,7 +24,7 @@ namespace NWN.Systems
         case "mineable_rock":
           int oreAmount = onExamine.ExaminedObject.GetLocalVariable<int>("_ORE_AMOUNT").Value;
 
-          if (onExamine.ExaminedBy.IsDM || onExamine.ExaminedBy.IsDMPossessed || onExamine.ExaminedBy.IsPlayerDM)
+          if (onExamine.ExaminedBy.IsDM)
           {
             int geologySkillLevel = 0;
             if (player.learntCustomFeats.ContainsKey(CustomFeats.Geology))
@@ -41,7 +41,7 @@ namespace NWN.Systems
           break;
         case "mineable_tree":
           int woodAmount = onExamine.ExaminedObject.GetLocalVariable<int>("_ORE_AMOUNT").Value;
-          if (onExamine.ExaminedBy.IsDM || onExamine.ExaminedBy.IsDMPossessed || onExamine.ExaminedBy.IsPlayerDM)
+          if (onExamine.ExaminedBy.IsDM)
           {
             int woodExpertiseSkillLevel = 0;
             if (player.learntCustomFeats.ContainsKey(CustomFeats.WoodExpertise))
@@ -58,7 +58,7 @@ namespace NWN.Systems
           break;
         case "mineable_animal":
           int peltAmount = onExamine.ExaminedObject.GetLocalVariable<int>("_ORE_AMOUNT").Value;
-          if (onExamine.ExaminedBy.IsDM || onExamine.ExaminedBy.IsDMPossessed || onExamine.ExaminedBy.IsPlayerDM)
+          if (onExamine.ExaminedBy.IsDM)
           {
             int animalExpertiseSkillLevel = 0;
             if (player.learntCustomFeats.ContainsKey(CustomFeats.AnimalExpertise))
@@ -80,7 +80,7 @@ namespace NWN.Systems
           else
           {
             onExamine.ExaminedBy.SendServerMessage("[ERREUR HRP] - Le patron utilisé n'est pas correctement initialisé. Le bug a été remonté au staff.");
-            Utils.LogMessageToDMs($"Blueprint Invalid : {onExamine.ExaminedObject.Name} - Base Item Type : {baseItemType} - Examined by : {onExamine.ExaminedBy.Name}");
+            Utils.LogMessageToDMs($"Blueprint Invalid : {onExamine.ExaminedObject.Name} - Base Item Type : {baseItemType} - Examined by : {onExamine.ExaminedBy.LoginCreature.Name}");
           }
           break;
         case "ore":

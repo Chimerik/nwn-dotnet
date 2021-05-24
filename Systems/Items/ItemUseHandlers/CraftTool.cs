@@ -22,19 +22,19 @@ namespace NWN.Systems
     string file;
     List<ItemAppearanceArmorColor> colorChannelList;
 
-    public CraftTool(NwPlayer oPC, NwItem item)
+    public CraftTool(NwCreature oPC, NwItem item)
     {
       if (item.Possessor != oPC) // TODO : vérifier qu'il est bien le crafteur de l'objet
       {
-        oPC.SendServerMessage($"Vous devez être en possession de l'objet {item.Name.ColorString(Color.LIME)} pour pouvoir le modifier", Color.ORANGE);
+        oPC.ControllingPlayer.SendServerMessage($"Vous devez être en possession de l'objet {item.Name.ColorString(Color.LIME)} pour pouvoir le modifier", Color.ORANGE);
         return;
       }
 
       // TODO : ajouter un métier permettant de modifier n'importe quelle tenue
       if (item.GetLocalVariable<string>("_ORIGINAL_CRAFTER_NAME").HasValue && item.GetLocalVariable<string>("_ORIGINAL_CRAFTER_NAME").Value != oPC.Name 
-        && !oPC.IsDM)
+        && !oPC.ControllingPlayer.IsDM)
       {
-        oPC.SendServerMessage($"Il est indiqué : Pour tout modification, s'adresser à {item.GetLocalVariable<string>("_ORIGINAL_CRAFTER_NAME").Value.ColorString(Color.WHITE)}", Color.ORANGE);
+        oPC.ControllingPlayer.SendServerMessage($"Il est indiqué : Pour tout modification, s'adresser à {item.GetLocalVariable<string>("_ORIGINAL_CRAFTER_NAME").Value.ColorString(Color.WHITE)}", Color.ORANGE);
         return;
       }
 
@@ -245,7 +245,7 @@ namespace NWN.Systems
 
     private async void ApplyArmorModifications(int modification)
     {
-      if(item == null || item.Possessor != player.oid)
+      if(item == null || item.Possessor != player.oid.LoginCreature)
       {
         player.oid.SendServerMessage($"L'objet que vous essayez de modifier n'existe plus ou n'est plus en votre possession.", Color.RED);
         player.menu.Close();
@@ -256,14 +256,14 @@ namespace NWN.Systems
         player.menu.Clear();
 
       int choice = -1;
-      if(player.oid.GetLocalVariable<string>("_PLAYER_INPUT").HasValue)
+      if(player.oid.LoginCreature.GetLocalVariable<string>("_PLAYER_INPUT").HasValue)
       {
-        choice = int.Parse(player.oid.GetLocalVariable<string>("_PLAYER_INPUT").Value);
-        player.oid.GetLocalVariable<string>("_PLAYER_INPUT").Delete();
+        choice = int.Parse(player.oid.LoginCreature.GetLocalVariable<string>("_PLAYER_INPUT").Value);
+        player.oid.LoginCreature.GetLocalVariable<string>("_PLAYER_INPUT").Delete();
       }
 
-      if (player.oid.GetLocalVariable<int>("_AWAITING_PLAYER_INPUT").HasValue)
-        player.oid.GetLocalVariable<int>("_PLAYER_INPUT_CANCELLED").Value = 1;
+      if (player.oid.LoginCreature.GetLocalVariable<int>("_AWAITING_PLAYER_INPUT").HasValue)
+        player.oid.LoginCreature.GetLocalVariable<int>("_PLAYER_INPUT_CANCELLED").Value = 1;
 
       byte currentValue = 0;
 
@@ -298,8 +298,8 @@ namespace NWN.Systems
             }
 
             item.Appearance.SetArmorColor((ItemAppearanceArmorColor)colorChannelChoice, currentValue);
-            NwItem newItem = item.Clone(player.oid);
-            CreaturePlugin.RunEquip(player.oid, newItem, (int)InventorySlot.Chest);
+            NwItem newItem = item.Clone(player.oid.LoginCreature);
+            CreaturePlugin.RunEquip(player.oid.LoginCreature, newItem, (int)InventorySlot.Chest);
             item.Destroy();
             item = newItem;
 
@@ -336,8 +336,8 @@ namespace NWN.Systems
             }
 
             item.Appearance.SetArmorPieceColor((ItemAppearanceArmorModel)armorPartChoice, (ItemAppearanceArmorColor)colorChannelChoice, currentValue);
-            NwItem newItem = item.Clone(player.oid);
-            CreaturePlugin.RunEquip(player.oid, newItem, (int)InventorySlot.Chest);
+            NwItem newItem = item.Clone(player.oid.LoginCreature);
+            CreaturePlugin.RunEquip(player.oid.LoginCreature, newItem, (int)InventorySlot.Chest);
             item.Destroy();
             item = newItem;
 
@@ -394,7 +394,7 @@ namespace NWN.Systems
       bool awaitedValue = await player.WaitForPlayerInputByte();
       
       if(awaitedValue)
-        ApplyArmorModifications(int.Parse(player.oid.GetLocalVariable<string>("_PLAYER_INPUT")));
+        ApplyArmorModifications(int.Parse(player.oid.LoginCreature.GetLocalVariable<string>("_PLAYER_INPUT")));
     }
     private async void HandleToSymmetry()
     {
@@ -474,8 +474,8 @@ namespace NWN.Systems
           break;
       }
 
-      NwItem newItem = item.Clone(player.oid);
-      CreaturePlugin.RunEquip(player.oid, newItem, (int)InventorySlot.Chest);
+      NwItem newItem = item.Clone(player.oid.LoginCreature);
+      CreaturePlugin.RunEquip(player.oid.LoginCreature, newItem, (int)InventorySlot.Chest);
       item.Destroy();
       item = newItem;
 
@@ -565,8 +565,8 @@ namespace NWN.Systems
           break;
       }
 
-      NwItem newItem = item.Clone(player.oid);
-      CreaturePlugin.RunEquip(player.oid, newItem, (int)InventorySlot.Chest);
+      NwItem newItem = item.Clone(player.oid.LoginCreature);
+      CreaturePlugin.RunEquip(player.oid.LoginCreature, newItem, (int)InventorySlot.Chest);
       item.Destroy();
       item = newItem;
 
@@ -578,7 +578,7 @@ namespace NWN.Systems
 
       ApplyArmorModifications(-2);
     }
-    private async void HandleTorsoModelModification(int modification)
+    private void HandleTorsoModelModification(int modification)
     {
       byte currentValue = item.Appearance.GetArmorModel(ItemAppearanceArmorModel.Torso);
 
@@ -587,14 +587,14 @@ namespace NWN.Systems
         DisableFeedbackMessages();
 
         int choice = -1;
-        if (player.oid.GetLocalVariable<string>("_PLAYER_INPUT").HasValue)
+        if (player.oid.LoginCreature.GetLocalVariable<string>("_PLAYER_INPUT").HasValue)
         {
-          choice = int.Parse(player.oid.GetLocalVariable<string>("_PLAYER_INPUT").Value);
-          player.oid.GetLocalVariable<string>("_PLAYER_INPUT").Delete();
+          choice = int.Parse(player.oid.LoginCreature.GetLocalVariable<string>("_PLAYER_INPUT").Value);
+          player.oid.LoginCreature.GetLocalVariable<string>("_PLAYER_INPUT").Delete();
         }
 
-        if (player.oid.GetLocalVariable<int>("_AWAITING_PLAYER_INPUT").HasValue)
-          player.oid.GetLocalVariable<int>("_PLAYER_INPUT_CANCELLED").Value = 1;
+        if (player.oid.LoginCreature.GetLocalVariable<int>("_AWAITING_PLAYER_INPUT").HasValue)
+          player.oid.LoginCreature.GetLocalVariable<int>("_PLAYER_INPUT_CANCELLED").Value = 1;
 
         if (choice > -1)
           currentValue = (byte)choice;
@@ -604,7 +604,7 @@ namespace NWN.Systems
           currentValue--;
 
         int currentAC = ItemPlugin.GetBaseArmorClass(item);
-        int gender = (int)player.oid.Gender;
+        int gender = (int)player.oid.LoginCreature.Gender;
 
         while ((!float.TryParse(NWScript.Get2DAString(file, "ACBONUS", currentValue), out float hasModel) || (int)hasModel != currentAC)
           || (float.TryParse(NWScript.Get2DAString(file, "GENDER", currentValue), out float modelGender) && modelGender != gender))
@@ -616,22 +616,22 @@ namespace NWN.Systems
         }
 
         item.Appearance.SetArmorModel(ItemAppearanceArmorModel.Torso, currentValue);
-        NwItem newItem = item.Clone(player.oid);
+        NwItem newItem = item.Clone(player.oid.LoginCreature);
 
         item.Destroy(0.2f);
         item = newItem;
 
-        if (player.oid.Inventory.CheckFit(newItem))
-          CreaturePlugin.RunEquip(player.oid, newItem, (int)InventorySlot.Chest);
+        if (player.oid.LoginCreature.Inventory.CheckFit(newItem))
+          CreaturePlugin.RunEquip(player.oid.LoginCreature, newItem, (int)InventorySlot.Chest);
         else
         {
-          newItem.Location = player.oid.Location;
+          newItem.Location = player.oid.LoginCreature.Location;
 
           Task delayedEquip = NwTask.Run(async () =>
           {
             await NwTask.Delay(TimeSpan.FromSeconds(0.2));
-            player.oid.AcquireItem(newItem);
-            CreaturePlugin.RunEquip(player.oid, newItem, (int)InventorySlot.Chest);
+            player.oid.LoginCreature.AcquireItem(newItem);
+            CreaturePlugin.RunEquip(player.oid.LoginCreature, newItem, (int)InventorySlot.Chest);
           });
         }
 
@@ -644,7 +644,7 @@ namespace NWN.Systems
 
       player.menu.titleLines.Add($"Apparence actuelle : {currentValue.ToString().ColorString(Color.LIME)}");
     }
-    private async void HandleDefaultModelModification(int modification)
+    private void HandleDefaultModelModification(int modification)
     {
       byte currentValue = item.Appearance.GetArmorModel((ItemAppearanceArmorModel)armorPartChoice);
 
@@ -653,14 +653,14 @@ namespace NWN.Systems
         DisableFeedbackMessages();
 
         int choice = -1;
-        if (player.oid.GetLocalVariable<string>("_PLAYER_INPUT").HasValue)
+        if (player.oid.LoginCreature.GetLocalVariable<string>("_PLAYER_INPUT").HasValue)
         {
-          choice = int.Parse(player.oid.GetLocalVariable<string>("_PLAYER_INPUT").Value);
-          player.oid.GetLocalVariable<string>("_PLAYER_INPUT").Delete();
+          choice = int.Parse(player.oid.LoginCreature.GetLocalVariable<string>("_PLAYER_INPUT").Value);
+          player.oid.LoginCreature.GetLocalVariable<string>("_PLAYER_INPUT").Delete();
         }
 
-        if (player.oid.GetLocalVariable<int>("_AWAITING_PLAYER_INPUT").HasValue)
-          player.oid.GetLocalVariable<int>("_PLAYER_INPUT_CANCELLED").Value = 1;
+        if (player.oid.LoginCreature.GetLocalVariable<int>("_AWAITING_PLAYER_INPUT").HasValue)
+          player.oid.LoginCreature.GetLocalVariable<int>("_PLAYER_INPUT_CANCELLED").Value = 1;
 
         if (choice > -1)
           currentValue = (byte)choice;
@@ -669,7 +669,7 @@ namespace NWN.Systems
         else if (modification == -1)
           currentValue--;
 
-        int gender = (int)player.oid.Gender;
+        int gender = (int)player.oid.LoginCreature.Gender;
 
         while (!float.TryParse(NWScript.Get2DAString(file, "ACBONUS", currentValue), out float hasModel) 
           || (float.TryParse(NWScript.Get2DAString(file, "GENDER", currentValue), out float modelGender) && modelGender != gender))
@@ -681,8 +681,8 @@ namespace NWN.Systems
         }
 
         item.Appearance.SetArmorModel((ItemAppearanceArmorModel)armorPartChoice, currentValue);
-        NwItem newItem = item.Clone(player.oid);
-        CreaturePlugin.RunEquip(player.oid, newItem, (int)InventorySlot.Chest);
+        NwItem newItem = item.Clone(player.oid.LoginCreature);
+        CreaturePlugin.RunEquip(player.oid.LoginCreature, newItem, (int)InventorySlot.Chest);
 
         item.Destroy();
         item = newItem;
@@ -731,8 +731,8 @@ namespace NWN.Systems
 
       if (awaitedValue)
       {
-        item.Name = player.oid.GetLocalVariable<string>("_PLAYER_INPUT").Value;
-        player.oid.GetLocalVariable<string>("_PLAYER_INPUT").Delete();
+        item.Name = player.oid.LoginCreature.GetLocalVariable<string>("_PLAYER_INPUT").Value;
+        player.oid.LoginCreature.GetLocalVariable<string>("_PLAYER_INPUT").Delete();
         player.oid.SendServerMessage($"Votre objet est désormais nommé {item.Name.ColorString(Color.GREEN)}.");
         player.menu.Close();
       }
@@ -749,15 +749,15 @@ namespace NWN.Systems
 
       if (awaitedValue)
       {
-        item.Description = player.oid.GetLocalVariable<string>("_PLAYER_INPUT").Value;
-        player.oid.GetLocalVariable<string>("_PLAYER_INPUT").Delete();
+        item.Description = player.oid.LoginCreature.GetLocalVariable<string>("_PLAYER_INPUT").Value;
+        player.oid.LoginCreature.GetLocalVariable<string>("_PLAYER_INPUT").Delete();
         player.oid.SendServerMessage($"La description de votre objet a été modifiée.", Color.ROSE);
         player.menu.Close();
       }
     }
     private void HandleReinitialisation()
     {
-      if (item == null || item.Possessor != player.oid)
+      if (item == null || item.Possessor != player.oid.LoginCreature)
       {
         player.oid.SendServerMessage($"L'objet que vous essayez de modifier n'existe plus ou n'est plus en votre possession.", Color.RED);
         player.menu.Close();
@@ -767,13 +767,13 @@ namespace NWN.Systems
       DisableFeedbackMessages();
       item.Destroy();
       NwItem newItem = NwItem.Deserialize(serializedInitialItem.ToByteArray());
-      player.oid.AcquireItem(newItem);
+      player.oid.LoginCreature.AcquireItem(newItem);
       
       for(int i = (int)InventorySlot.Head; i == (int)InventorySlot.Bolts; i++)
       {
-        if (player.oid.GetItemInSlot((InventorySlot)i) == item)
+        if (player.oid.LoginCreature.GetItemInSlot((InventorySlot)i) == item)
         {
-          CreaturePlugin.RunEquip(player.oid, newItem, i);
+          CreaturePlugin.RunEquip(player.oid.LoginCreature, newItem, i);
           break;
         }
       }
@@ -855,7 +855,7 @@ namespace NWN.Systems
       if(modification == -2)
         player.menu.Clear();
 
-      if (item == null || item.Possessor != player.oid)
+      if (item == null || item.Possessor != player.oid.LoginCreature)
       {
         player.oid.SendServerMessage($"L'objet que vous essayez de modifier n'existe plus ou n'est plus en votre possession.", Color.RED);
         player.menu.Close();
@@ -876,14 +876,14 @@ namespace NWN.Systems
           DisableFeedbackMessages();
 
           int choice = -1;
-          if (player.oid.GetLocalVariable<string>("_PLAYER_INPUT").HasValue)
+          if (player.oid.LoginCreature.GetLocalVariable<string>("_PLAYER_INPUT").HasValue)
           {
-            choice = int.Parse(player.oid.GetLocalVariable<string>("_PLAYER_INPUT").Value);
-            player.oid.GetLocalVariable<string>("_PLAYER_INPUT").Delete();
+            choice = int.Parse(player.oid.LoginCreature.GetLocalVariable<string>("_PLAYER_INPUT").Value);
+            player.oid.LoginCreature.GetLocalVariable<string>("_PLAYER_INPUT").Delete();
           }
 
-          if (player.oid.GetLocalVariable<int>("_AWAITING_PLAYER_INPUT").HasValue)
-            player.oid.GetLocalVariable<int>("_PLAYER_INPUT_CANCELLED").Value = 1;
+          if (player.oid.LoginCreature.GetLocalVariable<int>("_AWAITING_PLAYER_INPUT").HasValue)
+            player.oid.LoginCreature.GetLocalVariable<int>("_PLAYER_INPUT_CANCELLED").Value = 1;
 
           if (choice > -1)
           {
@@ -903,8 +903,8 @@ namespace NWN.Systems
           }
 
           item.Appearance.SetWeaponColor((ItemAppearanceWeaponColor)weaponColorChoice, currentValue);
-          NwItem newItem = item.Clone(player.oid);
-          CreaturePlugin.RunEquip(player.oid, newItem, (int)InventorySlot.RightHand);
+          NwItem newItem = item.Clone(player.oid.LoginCreature);
+          CreaturePlugin.RunEquip(player.oid.LoginCreature, newItem, (int)InventorySlot.RightHand);
           item.Destroy();
           item = newItem;
 
@@ -931,14 +931,14 @@ namespace NWN.Systems
           DisableFeedbackMessages();
 
           int choice = -1;
-          if (player.oid.GetLocalVariable<string>("_PLAYER_INPUT").HasValue)
+          if (player.oid.LoginCreature.GetLocalVariable<string>("_PLAYER_INPUT").HasValue)
           {
-            choice = int.Parse(player.oid.GetLocalVariable<string>("_PLAYER_INPUT").Value);
-            player.oid.GetLocalVariable<string>("_PLAYER_INPUT").Delete();
+            choice = int.Parse(player.oid.LoginCreature.GetLocalVariable<string>("_PLAYER_INPUT").Value);
+            player.oid.LoginCreature.GetLocalVariable<string>("_PLAYER_INPUT").Delete();
           }
 
-          if (player.oid.GetLocalVariable<int>("_AWAITING_PLAYER_INPUT").HasValue)
-            player.oid.GetLocalVariable<int>("_PLAYER_INPUT_CANCELLED").Value = 1;
+          if (player.oid.LoginCreature.GetLocalVariable<int>("_AWAITING_PLAYER_INPUT").HasValue)
+            player.oid.LoginCreature.GetLocalVariable<int>("_PLAYER_INPUT_CANCELLED").Value = 1;
 
           if (choice > -1)
           {
@@ -958,8 +958,8 @@ namespace NWN.Systems
           }
 
           item.Appearance.SetWeaponModel((ItemAppearanceWeaponModel)weaponPartChoice, currentValue);
-          NwItem newItem = item.Clone(player.oid);
-          CreaturePlugin.RunEquip(player.oid, newItem, (int)InventorySlot.RightHand);
+          NwItem newItem = item.Clone(player.oid.LoginCreature);
+          CreaturePlugin.RunEquip(player.oid.LoginCreature, newItem, (int)InventorySlot.RightHand);
           item.Destroy();
           item = newItem;
 
@@ -991,7 +991,7 @@ namespace NWN.Systems
       bool awaitedValue = await player.WaitForPlayerInputByte();
 
       if (awaitedValue)
-        ApplyWeaponModifications(int.Parse(player.oid.GetLocalVariable<string>("_PLAYER_INPUT").Value));
+        ApplyWeaponModifications(int.Parse(player.oid.LoginCreature.GetLocalVariable<string>("_PLAYER_INPUT").Value));
     }
     private void DrawSimpleModificationMenu()
     {
@@ -1013,7 +1013,7 @@ namespace NWN.Systems
       if(modification == -2)
         player.menu.Clear();
 
-      if (item == null || item.Possessor != player.oid)
+      if (item == null || item.Possessor != player.oid.LoginCreature)
       {
         player.oid.SendServerMessage($"L'objet que vous essayez de modifier n'existe plus ou n'est plus en votre possession.", Color.RED);
         player.menu.Close();
@@ -1032,14 +1032,14 @@ namespace NWN.Systems
         DisableFeedbackMessages();
 
         int choice = -1;
-        if (player.oid.GetLocalVariable<string>("_PLAYER_INPUT").HasValue)
+        if (player.oid.LoginCreature.GetLocalVariable<string>("_PLAYER_INPUT").HasValue)
         {
-          choice = int.Parse(player.oid.GetLocalVariable<string>("_PLAYER_INPUT").Value);
-          player.oid.GetLocalVariable<string>("_PLAYER_INPUT").Delete();
+          choice = int.Parse(player.oid.LoginCreature.GetLocalVariable<string>("_PLAYER_INPUT").Value);
+          player.oid.LoginCreature.GetLocalVariable<string>("_PLAYER_INPUT").Delete();
         }
 
-        if (player.oid.GetLocalVariable<int>("_AWAITING_PLAYER_INPUT").HasValue)
-          player.oid.GetLocalVariable<int>("_PLAYER_INPUT_CANCELLED").Value = 1;
+        if (player.oid.LoginCreature.GetLocalVariable<int>("_AWAITING_PLAYER_INPUT").HasValue)
+          player.oid.LoginCreature.GetLocalVariable<int>("_PLAYER_INPUT_CANCELLED").Value = 1;
 
         if (choice > -1)
         {
@@ -1051,13 +1051,13 @@ namespace NWN.Systems
           currentValue--;
 
         item.Appearance.SetSimpleModel(currentValue);
-        NwItem newItem = item.Clone(player.oid);
+        NwItem newItem = item.Clone(player.oid.LoginCreature);
     
         for (int i = (int)InventorySlot.Head; i == (int)InventorySlot.Bolts; i++)
         {
-          if (player.oid.GetItemInSlot((InventorySlot)i) == item)
+          if (player.oid.LoginCreature.GetItemInSlot((InventorySlot)i) == item)
           {
-            CreaturePlugin.RunEquip(player.oid, newItem, i);
+            CreaturePlugin.RunEquip(player.oid.LoginCreature, newItem, i);
             break;
           }
         }
@@ -1092,7 +1092,7 @@ namespace NWN.Systems
       bool awaitedValue = await player.WaitForPlayerInputByte();
 
       if (awaitedValue)
-        ApplySimpleModification(int.Parse(player.oid.GetLocalVariable<string>("_PLAYER_INPUT").Value));
+        ApplySimpleModification(int.Parse(player.oid.LoginCreature.GetLocalVariable<string>("_PLAYER_INPUT").Value));
     }
     private void DrawHelmetCloakModificationMenu()
     {
@@ -1118,7 +1118,7 @@ namespace NWN.Systems
       if(modification == -2)
         player.menu.Clear();
 
-      if (item == null || item.Possessor != player.oid)
+      if (item == null || item.Possessor != player.oid.LoginCreature)
       {
         player.oid.SendServerMessage($"L'objet que vous essayez de modifier n'existe plus ou n'est plus en votre possession.", Color.RED);
         player.menu.Close();
@@ -1139,14 +1139,14 @@ namespace NWN.Systems
           DisableFeedbackMessages();
 
           int choice = -1;
-          if (player.oid.GetLocalVariable<string>("_PLAYER_INPUT").HasValue)
+          if (player.oid.LoginCreature.GetLocalVariable<string>("_PLAYER_INPUT").HasValue)
           {
-            choice = int.Parse(player.oid.GetLocalVariable<string>("_PLAYER_INPUT").Value);
-            player.oid.GetLocalVariable<string>("_PLAYER_INPUT").Delete();
+            choice = int.Parse(player.oid.LoginCreature.GetLocalVariable<string>("_PLAYER_INPUT").Value);
+            player.oid.LoginCreature.GetLocalVariable<string>("_PLAYER_INPUT").Delete();
           }
 
-          if (player.oid.GetLocalVariable<int>("_AWAITING_PLAYER_INPUT").HasValue)
-            player.oid.GetLocalVariable<int>("_PLAYER_INPUT_CANCELLED").Value = 1;
+          if (player.oid.LoginCreature.GetLocalVariable<int>("_AWAITING_PLAYER_INPUT").HasValue)
+            player.oid.LoginCreature.GetLocalVariable<int>("_PLAYER_INPUT_CANCELLED").Value = 1;
 
           if (choice > -1)
           {
@@ -1158,12 +1158,12 @@ namespace NWN.Systems
             currentValue--;
 
           item.Appearance.SetArmorColor((ItemAppearanceArmorColor)colorChannelChoice, currentValue);
-          NwItem newItem = item.Clone(player.oid);
+          NwItem newItem = item.Clone(player.oid.LoginCreature);
 
           if (item.BaseItemType == BaseItemType.Cloak)
-            CreaturePlugin.RunEquip(player.oid, newItem, (int)InventorySlot.Cloak);
+            CreaturePlugin.RunEquip(player.oid.LoginCreature, newItem, (int)InventorySlot.Cloak);
           else
-            CreaturePlugin.RunEquip(player.oid, newItem, (int)InventorySlot.Head);
+            CreaturePlugin.RunEquip(player.oid.LoginCreature, newItem, (int)InventorySlot.Head);
 
           item.Destroy();
           item = newItem;
@@ -1191,14 +1191,14 @@ namespace NWN.Systems
           DisableFeedbackMessages();
 
           int choice = -1;
-          if (player.oid.GetLocalVariable<string>("_PLAYER_INPUT").HasValue)
+          if (player.oid.LoginCreature.GetLocalVariable<string>("_PLAYER_INPUT").HasValue)
           {
-            choice = int.Parse(player.oid.GetLocalVariable<string>("_PLAYER_INPUT").Value);
-            player.oid.GetLocalVariable<string>("_PLAYER_INPUT").Delete();
+            choice = int.Parse(player.oid.LoginCreature.GetLocalVariable<string>("_PLAYER_INPUT").Value);
+            player.oid.LoginCreature.GetLocalVariable<string>("_PLAYER_INPUT").Delete();
           }
 
-          if (player.oid.GetLocalVariable<int>("_AWAITING_PLAYER_INPUT").HasValue)
-            player.oid.GetLocalVariable<int>("_PLAYER_INPUT_CANCELLED").Value = 1;
+          if (player.oid.LoginCreature.GetLocalVariable<int>("_AWAITING_PLAYER_INPUT").HasValue)
+            player.oid.LoginCreature.GetLocalVariable<int>("_PLAYER_INPUT_CANCELLED").Value = 1;
 
           if (choice > -1)
           {
@@ -1210,12 +1210,12 @@ namespace NWN.Systems
             currentValue--;
 
           item.Appearance.SetSimpleModel(currentValue);
-          NwItem newItem = item.Clone(player.oid);
+          NwItem newItem = item.Clone(player.oid.LoginCreature);
 
           if (item.BaseItemType == BaseItemType.Cloak)
-            CreaturePlugin.RunEquip(player.oid, newItem, (int)InventorySlot.Cloak);
+            CreaturePlugin.RunEquip(player.oid.LoginCreature, newItem, (int)InventorySlot.Cloak);
           else
-            CreaturePlugin.RunEquip(player.oid, newItem, (int)InventorySlot.Head);
+            CreaturePlugin.RunEquip(player.oid.LoginCreature, newItem, (int)InventorySlot.Head);
 
           item.Destroy();
           item = newItem;
@@ -1248,7 +1248,7 @@ namespace NWN.Systems
       bool awaitedValue = await player.WaitForPlayerInputByte();
 
       if (awaitedValue)
-        ApplyHelmetCloakModification(int.Parse(player.oid.GetLocalVariable<string>("_PLAYER_INPUT").Value));
+        ApplyHelmetCloakModification(int.Parse(player.oid.LoginCreature.GetLocalVariable<string>("_PLAYER_INPUT").Value));
     }
   }
 }

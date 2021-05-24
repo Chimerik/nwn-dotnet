@@ -1,5 +1,4 @@
-﻿using System.Threading.Tasks;
-using NWN.API;
+﻿using NWN.API;
 using NWN.Core.NWNX;
 
 namespace NWN.Systems
@@ -9,7 +8,7 @@ namespace NWN.Systems
     public DeleteCharacter(PlayerSystem.Player player)
     {
       player.menu.Clear();
-      player.menu.titleLines.Add($"Souhaitez-vous réellement supprimer {player.oid.Name.ColorString(Color.RED)} ?");
+      player.menu.titleLines.Add($"Souhaitez-vous réellement supprimer {player.oid.LoginCreature.Name.ColorString(Color.RED)} ?");
       player.menu.titleLines.Add($"Pour confirmer, veuillez écrire par chat le nom de votre personnage.");
       player.menu.choices.Add(("Retour.", () => CommandSystem.DrawCommandList(player)));
       player.menu.choices.Add(("Quitter.", () => player.menu.Close()));
@@ -23,7 +22,7 @@ namespace NWN.Systems
       bool awaitedValue = await player.WaitForPlayerInputString();
 
       if (awaitedValue)
-        AdminPlugin.DeletePlayerCharacter(player.oid, 1, $"Le personnage {player.oid.Name} a été supprimé.");
+        AdminPlugin.DeletePlayerCharacter(player.oid.LoginCreature, 1, $"Le personnage {player.oid.LoginCreature.Name} a été supprimé.");
       else
       {
         player.oid.SendServerMessage($"Le nom saisit ne correspond pas. Annulation de la suppression.", Color.ORANGE);

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using Discord;
 using NWN.API;
@@ -18,14 +19,14 @@ namespace NWN.Systems
     {
       NwPlayer oPC = HandlePlayerConnect.Player;
 
-      oPC.GetLocalVariable<int>("_ACTIVE_LANGUAGE").Value = (int)CustomFeats.Invalid;
-      oPC.GetLocalVariable<int>("_CONNECTING").Value = 1;
-      oPC.GetLocalVariable<int>("_DISCONNECTING").Delete();
+      oPC.LoginCreature.GetLocalVariable<int>("_ACTIVE_LANGUAGE").Value = (int)CustomFeats.Invalid;
+      oPC.LoginCreature.GetLocalVariable<int>("_CONNECTING").Value = 1;
+      oPC.LoginCreature.GetLocalVariable<int>("_DISCONNECTING").Delete();
 
-      if (!Players.TryGetValue(oPC, out Player player))
+      if (!Players.TryGetValue(oPC.LoginCreature, out Player player))
       {
         player = new Player(oPC);
-        Players.Add(oPC, player);
+        Players.Add(oPC.LoginCreature, player);
       }
       else
       {
@@ -41,8 +42,8 @@ namespace NWN.Systems
 
           Task waitAreaLoaded = NwTask.Run(async () =>
           {
-            await NwTask.WaitUntil(() => oPC.Location.Area != null);
-            oPC.Location = player.location;
+            await NwTask.WaitUntil(() => oPC.LoginCreature.Location.Area != null);
+            oPC.LoginCreature.Location = player.location;
           });
         }
       }
@@ -74,8 +75,8 @@ namespace NWN.Systems
               player.learnableSkills[(Feat)player.currentSkillJob].currentJob = true;
             else
             {
-              if (!Convert.ToBoolean(CreaturePlugin.GetKnowsFeat(player.oid, player.currentSkillJob)))
-                CreaturePlugin.AddFeat(player.oid, player.currentSkillJob);
+              if (!Convert.ToBoolean(CreaturePlugin.GetKnowsFeat(player.oid.LoginCreature, player.currentSkillJob)))
+                CreaturePlugin.AddFeat(player.oid.LoginCreature, player.currentSkillJob);
               player.currentSkillJob = (int)CustomFeats.Invalid;
             }
             break;
@@ -88,7 +89,7 @@ namespace NWN.Systems
         }
 
         player.AcquireSkillPoints();
-        oPC.GetLocalVariable<int>("_CONNECTING").Delete();
+        oPC.LoginCreature.GetLocalVariable<int>("_CONNECTING").Delete();
         player.isAFK = false;
 
         if (player.currentSkillJob != (int)CustomFeats.Invalid)
@@ -110,13 +111,13 @@ namespace NWN.Systems
         CustomFeat customFeat = SkillSystem.customFeatsDictionnary[feat.Key];
 
         if (int.TryParse(NWScript.Get2DAString("feat", "FEAT", (int)feat.Key), out int nameValue))
-          PlayerPlugin.SetTlkOverride(player.oid, nameValue, $"{customFeat.name} - {SkillSystem.GetCustomFeatLevelFromSkillPoints(feat.Key, feat.Value)}");
+          PlayerPlugin.SetTlkOverride(player.oid.LoginCreature, nameValue, $"{customFeat.name} - {SkillSystem.GetCustomFeatLevelFromSkillPoints(feat.Key, feat.Value)}");
           //player.oid.SetTlkOverride(nameValue, $"{customFeat.name} - {SkillSystem.GetCustomFeatLevelFromSkillPoints(feat.Key, feat.Value)}");
         else
           Utils.LogMessageToDMs($"CUSTOM SKILL SYSTEM ERROR - Skill {customFeat.name} : no available custom name StrRef");
       
         if (int.TryParse(NWScript.Get2DAString("feat", "DESCRIPTION", (int)feat.Key), out int descriptionValue))
-           PlayerPlugin.SetTlkOverride(player.oid, descriptionValue, customFeat.description);
+           PlayerPlugin.SetTlkOverride(player.oid.LoginCreature, descriptionValue, customFeat.description);
        // player.oid.SetTlkOverride(descriptionValue, customFeat.description);
         else
         {
@@ -128,25 +129,35 @@ namespace NWN.Systems
       if (player.learntCustomFeats.ContainsKey(CustomFeats.ImprovedHealth))
         improvedHealth = SkillSystem.GetCustomFeatLevelFromSkillPoints(CustomFeats.ImprovedHealth, player.learntCustomFeats[CustomFeats.ImprovedHealth]);
 
-      CreaturePlugin.SetMaxHitPointsByLevel(player.oid, 1, Int32.Parse(NWScript.Get2DAString("classes", "HitDie", 43))
-        + (1 + 3 * ((player.oid.GetAbilityScore(Ability.Constitution, true) - 10) / 2)
-        + CreaturePlugin.GetKnowsFeat(player.oid, (int)Feat.Toughness)) * improvedHealth);
+      CreaturePlugin.SetMaxHitPointsByLevel(player.oid.LoginCreature, 1, Int32.Parse(NWScript.Get2DAString("classes", "HitDie", 43))
+        + (1 + 3 * ((player.oid.LoginCreature.GetAbilityScore(Ability.Constitution, true) - 10) / 2)
+        + CreaturePlugin.GetKnowsFeat(player.oid.LoginCreature, (int)Feat.Toughness)) * improvedHealth);
 
       if (player.currentHP <= 0)
-        oPC.ApplyEffect(EffectDuration.Instant, API.Effect.Death());
+        oPC.LoginCreature.ApplyEffect(EffectDuration.Instant, API.Effect.Death());
       else
-        oPC.HP = player.currentHP;
+        oPC.LoginCreature.HP = player.currentHP;
 
       if (player.learntCustomFeats.ContainsKey(CustomFeats.ImprovedAttackBonus))
-        CreaturePlugin.SetBaseAttackBonus(player.oid, player.oid.BaseAttackBonus + SkillSystem.GetCustomFeatLevelFromSkillPoints(CustomFeats.ImprovedAttackBonus, player.learntCustomFeats[CustomFeats.ImprovedAttackBonus]));
+        CreaturePlugin.SetBaseAttackBonus(player.oid.LoginCreature, player.oid.LoginCreature.BaseAttackBonus + SkillSystem.GetCustomFeatLevelFromSkillPoints(CustomFeats.ImprovedAttackBonus, player.learntCustomFeats[CustomFeats.ImprovedAttackBonus]));
 
-      if (!player.oid.KnowsFeat(CustomFeats.Sit))
-        player.oid.AddFeat(CustomFeats.Sit);
+      if (!player.oid.LoginCreature.KnowsFeat(CustomFeats.Sit))
+        player.oid.LoginCreature.AddFeat(CustomFeats.Sit);
 
-      oPC.GetLocalVariable<int>("_CONNECTING").Delete();
+      oPC.LoginCreature.GetLocalVariable<int>("_CONNECTING").Delete();
       player.isAFK = false;
       player.DoJournalUpdate = false;
       player.dateLastSaved = DateTime.Now;
+
+      Task waitForTorilNecklaceChange = NwTask.Run(async () =>
+      {
+        await NwTask.WaitUntil(() => oPC.LoginCreature == null || oPC.LoginCreature.GetItemInSlot(InventorySlot.Neck)?.Tag != "amulettorillink");
+
+        if (oPC.LoginCreature == null)
+          return;
+
+        ItemSystem.OnTorilNecklaceRemoved(oPC);
+      });
 
       Log.Info("End of player init.");
     }
@@ -159,11 +170,11 @@ namespace NWN.Systems
       {
         if (Config.env == Config.Env.Prod)
         {
-          (Bot._client.GetChannel(786218144296468481) as IMessageChannel).SendMessageAsync($"Toute première connexion de {newPlayer.Name}. Accueillons le comme il se doit !");
-          (Bot._client.GetChannel(680072044364562532) as IMessageChannel).SendMessageAsync($"{Bot._client.GetGuild(680072044364562528).EveryoneRole.Mention} Toute première connexion de {newPlayer.Name} => nouveau joueur à accueillir !");
+          (Bot._client.GetChannel(786218144296468481) as IMessageChannel).SendMessageAsync($"Toute première connexion de {newPlayer.LoginCreature.Name}. Accueillons le comme il se doit !");
+          (Bot._client.GetChannel(680072044364562532) as IMessageChannel).SendMessageAsync($"{Bot._client.GetGuild(680072044364562528).EveryoneRole.Mention} Toute première connexion de {newPlayer.LoginCreature.Name} => nouveau joueur à accueillir !");
 
           NWScript.DelayCommand(4.0f, () => newPlayer.PostString("a", 40, 15, ScreenAnchor.TopLeft, 0f, API.Color.WHITE, API.Color.WHITE, 9999, "fnt_my_gui"));
-          EventsPlugin.AddObjectToDispatchList("NWNX_ON_INPUT_TOGGLE_PAUSE_BEFORE", "spacebar_down", newPlayer);
+          EventsPlugin.AddObjectToDispatchList("NWNX_ON_INPUT_TOGGLE_PAUSE_BEFORE", "spacebar_down", newPlayer.LoginCreature);
         }
 
         query = NWScript.SqlPrepareQueryCampaign(Config.database, $"INSERT INTO PlayerAccounts (accountName, cdKey, bonusRolePlay) VALUES (@name, @cdKey, @brp)");
@@ -176,46 +187,46 @@ namespace NWN.Systems
         NWScript.SqlStep(query);
       }
 
-      switch (newPlayer.RacialType)
+      switch (newPlayer.LoginCreature.RacialType)
       {
         case RacialType.Dwarf:
-          CreaturePlugin.AddFeat(newPlayer, (int)CustomFeats.Nain);
+          CreaturePlugin.AddFeat(newPlayer.LoginCreature, (int)CustomFeats.Nain);
           break;
         case RacialType.Elf:
         case RacialType.HalfElf:
-          CreaturePlugin.AddFeat(newPlayer, (int)CustomFeats.Elfique);
+          CreaturePlugin.AddFeat(newPlayer.LoginCreature, (int)CustomFeats.Elfique);
           break;
         case RacialType.Halfling:
-          CreaturePlugin.AddFeat(newPlayer, (int)CustomFeats.Halfelin);
+          CreaturePlugin.AddFeat(newPlayer.LoginCreature, (int)CustomFeats.Halfelin);
           break;
         case RacialType.Gnome:
-          CreaturePlugin.AddFeat(newPlayer, (int)CustomFeats.Gnome);
+          CreaturePlugin.AddFeat(newPlayer.LoginCreature, (int)CustomFeats.Gnome);
           break;
         case RacialType.HalfOrc:
-          CreaturePlugin.AddFeat(newPlayer, (int)CustomFeats.Orc);
+          CreaturePlugin.AddFeat(newPlayer.LoginCreature, (int)CustomFeats.Orc);
           break;
       }
 
-      ObjectPlugin.SetInt(newPlayer, "accountId", NWScript.SqlGetInt(query, 0), 1);
+      ObjectPlugin.SetInt(newPlayer.LoginCreature, "accountId", NWScript.SqlGetInt(query, 0), 1);
     }
     private static void InitializeNewCharacter(Player newCharacter)
     {
       if (Config.env == Config.Env.Prod)
-        (Bot._client.GetChannel(680072044364562532) as IMessageChannel).SendMessageAsync($"{newCharacter.oid.PlayerName} vient de créer un nouveau personnage : {newCharacter.oid.Name}");
+        (Bot._client.GetChannel(680072044364562532) as IMessageChannel).SendMessageAsync($"{newCharacter.oid.PlayerName} vient de créer un nouveau personnage : {newCharacter.oid.LoginCreature.Name}");
 
       int startingSP = 5000;
-      if (newCharacter.oid.KnowsFeat(Feat.QuickToMaster))
+      if (newCharacter.oid.LoginCreature.KnowsFeat(Feat.QuickToMaster))
         startingSP += 500;
 
-      ObjectPlugin.SetInt(newCharacter.oid, "_STARTING_SKILL_POINTS", startingSP, 1);
-      ObjectPlugin.SetInt(newCharacter.oid, "_REINIT_DONE", 1, 1);
+      ObjectPlugin.SetInt(newCharacter.oid.LoginCreature, "_STARTING_SKILL_POINTS", startingSP, 1);
+      ObjectPlugin.SetInt(newCharacter.oid.LoginCreature, "_REINIT_DONE", 1, 1);
 
       NwArea arrivalArea;
       NwWaypoint arrivalPoint = null;
 
       if (Config.env == Config.Env.Prod || Config.env == Config.Env.Chim)
       {
-        arrivalArea = NwArea.Create("intro_galere", $"entry_scene_{newCharacter.oid.CDKey}", $"La galère de {newCharacter.oid.Name} (Bienvenue !)");
+        arrivalArea = NwArea.Create("intro_galere", $"entry_scene_{newCharacter.oid.CDKey}", $"La galère de {newCharacter.oid.LoginCreature.Name} (Bienvenue !)");
         arrivalArea.OnExit += AreaSystem.OnIntroAreaExit;
         arrivalPoint = arrivalArea.FindObjectsOfTypeInArea<NwWaypoint>().FirstOrDefault(o => o.Tag == "ENTRY_POINT");
 
@@ -237,33 +248,33 @@ namespace NWN.Systems
 
         Task waitDefaultMapLoaded = NwTask.Run(async () =>
         {
-          await NwTask.WaitUntil(() => newCharacter.oid.Location.Area != null);
-          newCharacter.oid.Location = arrivalPoint.Location;
+          await NwTask.WaitUntil(() => newCharacter.oid.LoginCreature.Location.Area != null);
+          newCharacter.oid.LoginCreature.Location = arrivalPoint.Location;
         });
         
         Task allPointsSpent = NwTask.Run(async () =>
         {
-          await NwTask.WaitUntil(() => ObjectPlugin.GetInt(newCharacter.oid, "_STARTING_SKILL_POINTS") <= 0);
+          await NwTask.WaitUntil(() => ObjectPlugin.GetInt(newCharacter.oid.LoginCreature, "_STARTING_SKILL_POINTS") <= 0);
           arrivalArea.GetLocalVariable<int>("_GO").Value = 1;
         });
       }
       else
       {
-        arrivalArea = newCharacter.oid.Area;
+        arrivalArea = newCharacter.oid.LoginCreature.Area;
       }
 
-      Utils.DestroyInventory(newCharacter.oid);
+      Utils.DestroyInventory(newCharacter.oid.LoginCreature);
 
-      if (newCharacter.oid.GetItemInSlot(InventorySlot.CreatureSkin) == null)
+      if (newCharacter.oid.LoginCreature.GetItemInSlot(InventorySlot.CreatureSkin) == null)
       {
-        NwItem pcSkin = NwItem.Create("peaudejoueur", newCharacter.oid);
-        pcSkin.Name = $"Propriétés de {newCharacter.oid.Name}";
-        CreaturePlugin.RunEquip(newCharacter.oid, pcSkin, (int)InventorySlot.CreatureSkin);    
+        NwItem pcSkin = NwItem.Create("peaudejoueur", newCharacter.oid.LoginCreature);
+        pcSkin.Name = $"Propriétés de {newCharacter.oid.LoginCreature.Name}";
+        CreaturePlugin.RunEquip(newCharacter.oid.LoginCreature, pcSkin, (int)InventorySlot.CreatureSkin);    
       }
 
       var query = NWScript.SqlPrepareQueryCampaign(Config.database, $"INSERT INTO playerCharacters (accountId , characterName, dateLastSaved, currentSkillType, currentSkillJob, currentCraftJob, currentCraftObject, areaTag, position, facing, menuOriginLeft, currentHP) VALUES (@accountId, @name, @dateLastSaved, @currentSkillType, @currentSkillJob, @currentCraftJob, @currentCraftObject, @areaTag, @position, @facing, @menuOriginLeft, @currentHP)");
       NWScript.SqlBindInt(query, "@accountId", newCharacter.accountId);
-      NWScript.SqlBindString(query, "@name", NWScript.GetName(newCharacter.oid));
+      NWScript.SqlBindString(query, "@name", NWScript.GetName(newCharacter.oid.LoginCreature));
       NWScript.SqlBindString(query, "@dateLastSaved", DateTime.Now.ToString());
       NWScript.SqlBindInt(query, "@currentSkillType", (int)SkillSystem.SkillType.Invalid);
       NWScript.SqlBindInt(query, "@currentSkillJob", (int)CustomFeats.Invalid);
@@ -283,17 +294,17 @@ namespace NWN.Systems
       }
 
       NWScript.SqlBindInt(query, "@menuOriginLeft", 50);
-      NWScript.SqlBindInt(query, "@currentHP", newCharacter.oid.MaxHP);
+      NWScript.SqlBindInt(query, "@currentHP", newCharacter.oid.LoginCreature.MaxHP);
       NWScript.SqlStep(query);
 
       query = NWScript.SqlPrepareQueryCampaign(Config.database, $"SELECT last_insert_rowid()");
       NWScript.SqlStep(query);
 
-      ObjectPlugin.SetInt(newCharacter.oid, "characterId", NWScript.SqlGetInt(query, 0), 1);
+      ObjectPlugin.SetInt(newCharacter.oid.LoginCreature, "characterId", NWScript.SqlGetInt(query, 0), 1);
 
       for (int spellLevel = 0; spellLevel < 10; spellLevel++)
-        while (CreaturePlugin.GetKnownSpellCount(newCharacter.oid, 43, spellLevel) > 0)
-          CreaturePlugin.RemoveKnownSpell(newCharacter.oid, 43, spellLevel, CreaturePlugin.GetKnownSpell(newCharacter.oid, 43, spellLevel, 0));
+        while (CreaturePlugin.GetKnownSpellCount(newCharacter.oid.LoginCreature, 43, spellLevel) > 0)
+          CreaturePlugin.RemoveKnownSpell(newCharacter.oid.LoginCreature, 43, spellLevel, CreaturePlugin.GetKnownSpell(newCharacter.oid.LoginCreature, 43, spellLevel, 0));
 
       InitializeNewPlayerLearnableSkills(newCharacter);
       InitializeNewCharacterStorage(newCharacter);
@@ -344,11 +355,11 @@ namespace NWN.Systems
     private static void InitializeDM(Player player)
     {
       player.playerJournal = new PlayerJournal();
-      player.oid.OnAcquireItem += ItemSystem.OnAcquireItem;
-      player.oid.OnUnacquireItem += ItemSystem.OnUnacquireItem;
-      player.oid.OnItemEquip += ItemSystem.OnItemEquipBefore;
-      player.oid.OnUseFeat += FeatSystem.OnUseFeatBefore;
-      player.oid.OnSpellCast += SpellSystem.HandleBeforeSpellCast;
+      player.oid.LoginCreature.OnAcquireItem += ItemSystem.OnAcquireItem;
+      player.oid.LoginCreature.OnUnacquireItem += ItemSystem.OnUnacquireItem;
+      player.oid.LoginCreature.OnItemEquip += ItemSystem.OnItemEquipBefore;
+      player.oid.LoginCreature.OnUseFeat += FeatSystem.OnUseFeatBefore;
+      player.oid.LoginCreature.OnSpellCast += SpellSystem.HandleBeforeSpellCast;
       player.oid.OnExamineObject += ExamineSystem.OnExamineBefore;
     }
     private static void InitializePlayer(Player player)
@@ -362,62 +373,58 @@ namespace NWN.Systems
       InitializeCharacterAreaExplorationState(player);
       InitializePlayerChatColors(player);
 
-      switch (player.oid.RacialType)
+      switch (player.oid.LoginCreature.RacialType)
       {
         case RacialType.Dwarf:
-          if(!player.oid.KnowsFeat(CustomFeats.Nain))
-            player.oid.AddFeat(CustomFeats.Nain);
+          if(!player.oid.LoginCreature.KnowsFeat(CustomFeats.Nain))
+            player.oid.LoginCreature.AddFeat(CustomFeats.Nain);
           break;
         case RacialType.Elf:
         case RacialType.HalfElf:
-          if (!player.oid.KnowsFeat(CustomFeats.Elfique))
-            player.oid.AddFeat(CustomFeats.Elfique);
+          if (!player.oid.LoginCreature.KnowsFeat(CustomFeats.Elfique))
+            player.oid.LoginCreature.AddFeat(CustomFeats.Elfique);
           break;
         case RacialType.Halfling:
-          if (!player.oid.KnowsFeat(CustomFeats.Halfelin))
-            player.oid.AddFeat(CustomFeats.Halfelin);
+          if (!player.oid.LoginCreature.KnowsFeat(CustomFeats.Halfelin))
+            player.oid.LoginCreature.AddFeat(CustomFeats.Halfelin);
           break;
         case RacialType.Gnome:
-          if (!player.oid.KnowsFeat(CustomFeats.Gnome))
-            player.oid.AddFeat(CustomFeats.Gnome);
+          if (!player.oid.LoginCreature.KnowsFeat(CustomFeats.Gnome))
+            player.oid.LoginCreature.AddFeat(CustomFeats.Gnome);
           break;
         case RacialType.HalfOrc:
-          if (!player.oid.KnowsFeat(CustomFeats.Orc))
-            player.oid.AddFeat(CustomFeats.Orc);
+          if (!player.oid.LoginCreature.KnowsFeat(CustomFeats.Orc))
+            player.oid.LoginCreature.AddFeat(CustomFeats.Orc);
           break;
       }
     }
     private static void InitializePlayerEvents(NwPlayer player)
     {
       player.OnServerCharacterSave += HandleBeforePlayerSave;
-      player.OnAcquireItem += ItemSystem.OnAcquireItem;
-      player.OnUnacquireItem += ItemSystem.OnUnacquireItem;
-      player.OnItemEquip += ItemSystem.OnItemEquipBefore;
-      player.OnItemUse += ItemSystem.OnItemUseBefore;
+      player.LoginCreature.OnAcquireItem += ItemSystem.OnAcquireItem;
+      player.LoginCreature.OnUnacquireItem += ItemSystem.OnUnacquireItem;
+      player.LoginCreature.OnItemEquip += ItemSystem.OnItemEquipBefore;
+      player.LoginCreature.OnItemUse += ItemSystem.OnItemUseBefore;
       player.OnPlayerDeath += HandlePlayerDeath;
-      player.OnUseFeat += FeatSystem.OnUseFeatBefore;
-      player.OnSpellCast += SpellSystem.HandleBeforeSpellCast;
+      player.LoginCreature.OnUseFeat += FeatSystem.OnUseFeatBefore;
+      player.LoginCreature.OnSpellCast += SpellSystem.HandleBeforeSpellCast;
       player.OnExamineObject += ExamineSystem.OnExamineBefore;
-      player.OnPerception += HandlePlayerPerception;
+      player.LoginCreature.OnPerception += HandlePlayerPerception;
       player.OnCombatStatusChange += OnCombatStarted;
-      player.OnCombatRoundStart += OnCombatRoundStart;
-      player.OnSpellBroadcast += SpellSystem.OnSpellBroadcast;
-      player.OnSpellAction += SpellSystem.RegisterMetaMagicOnSpellInput;
-      player.OnCreatureAttack += AttackSystem.HandleAttackEvent;
-      player.OnPhysicalAttacked += AttackSystem.HandlePlayerAttackedEvent;
-      player.OnCreatureDamage += AttackSystem.HandleDamageEvent;
+      player.LoginCreature.OnCombatRoundStart += OnCombatRoundStart;
+      player.LoginCreature.OnSpellBroadcast += SpellSystem.OnSpellBroadcast;
+      player.LoginCreature.OnSpellAction += SpellSystem.RegisterMetaMagicOnSpellInput;
+      player.LoginCreature.OnCreatureAttack += AttackSystem.HandleAttackEvent;
+      player.LoginCreature.OnPhysicalAttacked += AttackSystem.HandlePlayerAttackedEvent;
+      player.LoginCreature.OnCreatureDamage += AttackSystem.HandleDamageEvent;
       player.OnPartyEvent += Party.HandlePartyEvent;
       player.OnClientLevelUpBegin += HandleOnClientLevelUp;
-      
-      EventsPlugin.AddObjectToDispatchList("NWNX_ON_ITEM_UNEQUIP_BEFORE", "b_unequip", player);
-      EventsPlugin.AddObjectToDispatchList("NWNX_ON_COMBAT_MODE_OFF", "event_combatmode", player);
-      EventsPlugin.AddObjectToDispatchList("NWNX_ON_USE_SKILL_BEFORE", "event_skillused", player);
+      player.LoginCreature.OnItemValidateEquip += ItemSystem.NoEquipRuinedItem;
+      player.LoginCreature.OnItemValidateUse += ItemSystem.NoUseRuinedItem;
 
-      Task waitForTorilNecklaceChange = NwTask.Run(async () =>
-      {
-        await NwTask.WaitUntil(() => player.GetItemInSlot(InventorySlot.Neck)?.Tag != "amulettorillink");
-        ItemSystem.OnTorilNecklaceRemoved(player);
-      });
+      EventsPlugin.AddObjectToDispatchList("NWNX_ON_ITEM_UNEQUIP_BEFORE", "b_unequip", player.LoginCreature);
+      EventsPlugin.AddObjectToDispatchList("NWNX_ON_COMBAT_MODE_OFF", "event_combatmode", player.LoginCreature);
+      EventsPlugin.AddObjectToDispatchList("NWNX_ON_USE_SKILL_BEFORE", "event_skillused", player.LoginCreature);
     }
     private static void InitializePlayerAccount(Player player)
     {
@@ -445,7 +452,7 @@ namespace NWN.Systems
       player.currentSkillType = (SkillSystem.SkillType)NWScript.SqlGetInt(query, 13);
       player.pveArena.totalPoints = (uint)NWScript.SqlGetInt(query, 14);
 
-      if (ObjectPlugin.GetInt(player.oid, "_REINIT_DONE") == 0 && player.currentSkillType == SkillSystem.SkillType.Skill)
+      if (ObjectPlugin.GetInt(player.oid.LoginCreature, "_REINIT_DONE") == 0 && player.currentSkillType == SkillSystem.SkillType.Skill)
         player.currentSkillJob = (int)CustomFeats.Invalid;
 
       query = NWScript.SqlPrepareQueryCampaign(Config.database, $"SELECT materialName, materialStock from playerMaterialStorage where characterId = @characterId");
@@ -457,7 +464,7 @@ namespace NWN.Systems
     private static void InitializePlayerLearnableSkills(Player player)
     {
       // TEMP REINIT POUR JOUEURS EXISTANTS AVANT LE NOUVEAU SYSTEME DE DONS
-      if (ObjectPlugin.GetInt(player.oid, "_REINIT_DONE") == 0)
+      if (ObjectPlugin.GetInt(player.oid.LoginCreature, "_REINIT_DONE") == 0)
         TempFeatReinit(player);
       else
       {
@@ -486,9 +493,9 @@ namespace NWN.Systems
 
       int skillPoints = 0;
       
-      for(int i = 0; i < CreaturePlugin.GetFeatCount(player.oid); i++)
+      for(int i = 0; i < CreaturePlugin.GetFeatCount(player.oid.LoginCreature); i++)
       {
-        int feat = CreaturePlugin.GetFeatByIndex(player.oid, i);
+        int feat = CreaturePlugin.GetFeatByIndex(player.oid.LoginCreature, i);
 
         if (feat != (int)Feat.KeenSense && feat != (int)Feat.QuickToMaster && feat != (int)Feat.Lucky && feat != (int)Feat.BattleTrainingVersusGiants && feat != (int)Feat.BattleTrainingVersusGoblins && feat != (int)Feat.BattleTrainingVersusOrcs && feat != (int)Feat.BattleTrainingVersusReptilians && feat != (int)Feat.Darkvision && feat != (int)Feat.Lowlightvision && feat != (int)Feat.Fearless && feat != (int)Feat.GoodAim && feat != (int)Feat.HardinessVersusEnchantments && feat != (int)Feat.HardinessVersusIllusions && feat != (int)Feat.HardinessVersusPoisons && feat != (int)Feat.HardinessVersusSpells && feat != (int)Feat.ImmunityToSleep && feat != (int)Feat.PartialSkillAffinityListen && feat != (int)Feat.PartialSkillAffinitySearch && feat != (int)Feat.PartialSkillAffinitySpot && feat != (int)Feat.SkillAffinityConcentration
            && feat != (int)Feat.SkillAffinityListen && feat != (int)Feat.SkillAffinityLore && feat != (int)Feat.SkillAffinityMoveSilently && feat != (int)Feat.SkillAffinitySearch && feat != (int)Feat.SkillAffinitySpot && feat != (int)Feat.Stonecunning && feat != (int)Feat.WeaponProficiencyElf)
@@ -496,7 +503,7 @@ namespace NWN.Systems
           Task waitLoopEndToRemove = NwTask.Run(async () =>
           {
             await NwTask.Delay(TimeSpan.FromSeconds(0.1f));
-            CreaturePlugin.RemoveFeat(player.oid, feat);
+            CreaturePlugin.RemoveFeat(player.oid.LoginCreature, feat);
           });
         }
       }
@@ -510,13 +517,13 @@ namespace NWN.Systems
 
       skillPoints += 5000;
 
-      if (player.oid.KnowsFeat(Feat.QuickToMaster))
+      if (player.oid.LoginCreature.KnowsFeat(Feat.QuickToMaster))
         skillPoints += 500;
 
       InitializeNewPlayerLearnableSkills(player);
 
-      ObjectPlugin.SetInt(player.oid, "_STARTING_SKILL_POINTS", skillPoints, 1);
-      ObjectPlugin.SetInt(player.oid, "_REINIT_DONE", 1, 1);
+      ObjectPlugin.SetInt(player.oid.LoginCreature, "_STARTING_SKILL_POINTS", skillPoints, 1);
+      ObjectPlugin.SetInt(player.oid.LoginCreature, "_REINIT_DONE", 1, 1);
     }
     private static void InitializePlayerLearnableSpells(Player player)
     {
@@ -532,7 +539,7 @@ namespace NWN.Systems
 
       if(storage == null)
       {
-        Utils.LogMessageToDMs($"Could not initialize new character storage for player {player.oid.PlayerName}, character {player.oid.Name}");
+        Utils.LogMessageToDMs($"Could not initialize new character storage for player {player.oid.PlayerName}, character {player.oid.LoginCreature.Name}");
         return;
       }
       
@@ -543,10 +550,10 @@ namespace NWN.Systems
       oItem = NwItem.Create("bad_sling", storage);
       oItem = NwItem.Create("NW_WAMBU001", storage, 99);
 
-      storage.Name = $"Entrepôt de {player.oid.Name}";
+      storage.Name = $"Entrepôt de {player.oid.LoginCreature.Name}";
 
       var query = NWScript.SqlPrepareQueryCampaign(Config.database, $"UPDATE playerCharacters set storage = @storage where rowid = @characterId");
-      NWScript.SqlBindInt(query, "@characterId", ObjectPlugin.GetInt(player.oid, "characterId"));
+      NWScript.SqlBindInt(query, "@characterId", ObjectPlugin.GetInt(player.oid.LoginCreature, "characterId"));
       NWScript.SqlBindObject(query, "@storage", storage);
       NWScript.SqlStep(query);
 
@@ -563,14 +570,14 @@ namespace NWN.Systems
         MapPin mapPin = new MapPin(NWScript.SqlGetInt(query, 0), NWScript.SqlGetString(query, 1), NWScript.SqlGetFloat(query, 2), NWScript.SqlGetFloat(query, 3), NWScript.SqlGetString(query, 4));
         player.mapPinDictionnary.Add(NWScript.SqlGetInt(query, 0), mapPin);
 
-        NWScript.SetLocalString(player.oid, "NW_MAP_PIN_NTRY_" + mapPin.id.ToString(), mapPin.note);
-        NWScript.SetLocalFloat(player.oid, "NW_MAP_PIN_XPOS_" + mapPin.id.ToString(), mapPin.x);
-        NWScript.SetLocalFloat(player.oid, "NW_MAP_PIN_YPOS_" + mapPin.id.ToString(), mapPin.y);
-        NWScript.SetLocalObject(player.oid, "NW_MAP_PIN_AREA_" + mapPin.id.ToString(), NWScript.GetObjectByTag(mapPin.areaTag));
+        NWScript.SetLocalString(player.oid.LoginCreature, "NW_MAP_PIN_NTRY_" + mapPin.id.ToString(), mapPin.note);
+        NWScript.SetLocalFloat(player.oid.LoginCreature, "NW_MAP_PIN_XPOS_" + mapPin.id.ToString(), mapPin.x);
+        NWScript.SetLocalFloat(player.oid.LoginCreature, "NW_MAP_PIN_YPOS_" + mapPin.id.ToString(), mapPin.y);
+        NWScript.SetLocalObject(player.oid.LoginCreature, "NW_MAP_PIN_AREA_" + mapPin.id.ToString(), NWScript.GetObjectByTag(mapPin.areaTag));
       }
 
       if (player.mapPinDictionnary.Count > 0)
-        NWScript.SetLocalInt(player.oid, "NW_TOTAL_MAP_PINS", player.mapPinDictionnary.Max(v => v.Key));
+        NWScript.SetLocalInt(player.oid.LoginCreature, "NW_TOTAL_MAP_PINS", player.mapPinDictionnary.Max(v => v.Key));
     }
     private static void InitializeCharacterAreaExplorationState(Player player)
     {

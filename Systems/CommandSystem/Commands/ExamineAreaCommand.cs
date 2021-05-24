@@ -10,25 +10,25 @@ namespace NWN.Systems
     public ExamineArea(NwPlayer oPC)
     {
       var query = NWScript.SqlPrepareQueryCampaign(Config.database, $"SELECT description from areaDescriptions where areaTag = @areaTag");
-      NWScript.SqlBindString(query, "@areaTag", oPC.Area.Tag);
+      NWScript.SqlBindString(query, "@areaTag", oPC.ControlledCreature.Area.Tag);
 
       if (NWScript.SqlStep(query) != 0)
       {
-        string originalDesc = oPC.Description;
-        string tempDescription = oPC.Area.Name.ColorString(Color.ORANGE) + "\n\n" + NWScript.SqlGetString(query, 0);
-        oPC.Description = tempDescription;
-        oPC.ClearActionQueue();
-        oPC.ActionExamine(oPC);
+        string originalDesc = oPC.ControlledCreature.Description;
+        string tempDescription = oPC.ControlledCreature.Area.Name.ColorString(Color.ORANGE) + "\n\n" + NWScript.SqlGetString(query, 0);
+        oPC.ControlledCreature.Description = tempDescription;
+        oPC.ControlledCreature.ClearActionQueue();
+        oPC.ActionExamine(oPC.ControlledCreature);
 
         Task waitForDescriptionRewrite = NwTask.Run(async () =>
         {
           await NwTask.Delay(TimeSpan.FromSeconds(0.2));
-          oPC.Description = originalDesc;
+          oPC.ControlledCreature.Description = originalDesc;
         });
       }
       else
       {
-        oPC.SendServerMessage($"Aucune description n'a pour le moment été rédigée pour {oPC.Area.Name}. N'hésitez pas à le signaler au staff si vous aimeriez en voir une !");
+        oPC.SendServerMessage($"Aucune description n'a pour le moment été rédigée pour {oPC.ControlledCreature.Area.Name}. N'hésitez pas à le signaler au staff si vous aimeriez en voir une !");
       }
     }
   }

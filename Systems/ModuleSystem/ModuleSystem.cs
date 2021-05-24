@@ -458,8 +458,8 @@ namespace NWN.Systems
         int sellerId = NWScript.SqlGetInt(query, 0);
         int auctionId = NWScript.SqlGetInt(query, 1);
 
-        NwPlayer oSeller = NwModule.Instance.Players.FirstOrDefault(p => ObjectPlugin.GetInt(p, "characterId") == sellerId);
-        NwStore store = NwModule.FindObjectsOfType<NwStore>().FirstOrDefault(p => p.GetLocalVariable<int>("_AUCTION_ID").Value == auctionId);
+        NwPlayer oSeller = NwModule.Instance.Players.FirstOrDefault(p => ObjectPlugin.GetInt(p.LoginCreature, "characterId") == sellerId);
+        NwStore store = NwObject.FindObjectsOfType<NwStore>().FirstOrDefault(p => p.GetLocalVariable<int>("_AUCTION_ID").Value == auctionId);
         NwItem tempItem = NwStore.Deserialize(NWScript.SqlGetString(query, 4).ToByteArray()).Items.FirstOrDefault();
 
         if (buyerId <= 0) // pas d'acheteur
@@ -468,8 +468,8 @@ namespace NWN.Systems
           if (oSeller != null)
           {
             await NwModule.Instance.WaitForObjectContext();
-            tempItem.Clone(oSeller);
-            NwItem authorization = NwItem.Create("auction_clearanc", oSeller);
+            tempItem.Clone(oSeller.LoginCreature);
+            NwItem authorization = NwItem.Create("auction_clearanc", oSeller.LoginCreature);
             oSeller.SendServerMessage($"Aucune enchère sur votre {tempItem.Name.ColorString(API.Color.ORANGE)}. L'objet vous a donc été restitué.");
           }
           else
@@ -489,14 +489,14 @@ namespace NWN.Systems
           {
             if (oSeller != null)
             {
-              if (PlayerSystem.Players.TryGetValue(oSeller, out PlayerSystem.Player seller))
+              if (PlayerSystem.Players.TryGetValue(oSeller.LoginCreature, out PlayerSystem.Player seller))
               {
                 seller.bankGold += highestAuction * 95 / 100;
                 oSeller.SendServerMessage($"Votre enchère vous a permis de remporter {(highestAuction * 95 / 100).ToString().ColorString(API.Color.ORANGE)}. L'or a été versé à votre banque !");
               }
 
               await NwModule.Instance.WaitForObjectContext();
-              NwItem authorization = NwItem.Create("auction_clearanc", oSeller);
+              NwItem authorization = NwItem.Create("auction_clearanc", oSeller.LoginCreature);
             }
             else 
             {
@@ -515,11 +515,11 @@ namespace NWN.Systems
             }
           }
           // Si le buyer est co, on lui file l'item et on détruit la ligne en BDD. S'il est pas co, on transfère dans son entrepot perso
-          NwPlayer oBuyer = NwModule.Instance.Players.FirstOrDefault(p => ObjectPlugin.GetInt(p, "characterId") == buyerId);
+          NwPlayer oBuyer = NwModule.Instance.Players.FirstOrDefault(p => ObjectPlugin.GetInt(p.LoginCreature, "characterId") == buyerId);
 
           if (oBuyer != null)
           {
-            tempItem.Clone(oBuyer);
+            tempItem.Clone(oBuyer.LoginCreature);
             oSeller.SendServerMessage($"Vous venez de remporter l'enchère sur {tempItem.Name.ColorString(API.Color.ORANGE)}. L'objet se trouve désormais dans votre inventaire.");
           }
           else
@@ -582,7 +582,7 @@ namespace NWN.Systems
         string tag = NWScript.SqlGetString(query, 0);
 
         if (tag.StartsWith("entrepotpersonnel"))
-          AreaSystem.CreatePersonnalStorageArea((NwPlayer)callInfo.ObjectSelf, characterId);
+          AreaSystem.CreatePersonnalStorageArea((NwCreature)callInfo.ObjectSelf, characterId);
 
         PlayerPlugin.SetSpawnLocation(callInfo.ObjectSelf, Utils.GetLocationFromDatabase(tag, NWScript.SqlGetVector(query, 1), NWScript.SqlGetFloat(query, 2)));
       }
@@ -601,7 +601,7 @@ namespace NWN.Systems
         int validationFailureType = ElcPlugin.GetValidationFailureType();
         int validationFailureSubType = ElcPlugin.GetValidationFailureSubType();
 
-        if (validationFailureType == ElcPlugin.NWNX_ELC_VALIDATION_FAILURE_TYPE_CHARACTER && validationFailureSubType == 15 && ((NwPlayer)callInfo.ObjectSelf).GetAbilityScore(API.Constants.Ability.Intelligence, true) < 11)
+        if (validationFailureType == ElcPlugin.NWNX_ELC_VALIDATION_FAILURE_TYPE_CHARACTER && validationFailureSubType == 15 && ((NwCreature)callInfo.ObjectSelf).GetAbilityScore(API.Constants.Ability.Intelligence, true) < 11)
           ElcPlugin.SkipValidationFailure();
         else
           Utils.LogMessageToDMs($"ELC VALIDATION FAILURE - Player {NWScript.GetPCPlayerName(callInfo.ObjectSelf)} - Character {NWScript.GetName(callInfo.ObjectSelf)} - type : {validationFailureType} - SubType : {validationFailureSubType}");

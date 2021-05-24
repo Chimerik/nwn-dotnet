@@ -192,7 +192,7 @@ namespace NWN.Systems
       eff.Tag = effectTag;
       eff.SubType = EffectSubType.Supernatural;
 
-      target.GetLocalVariable<int>(effectTag).Value = 1;
+      target.GetLocalVariable<int>(effectTag).Value = iconId;
 
       if (effectDuration > 0)
         target.ApplyEffect(EffectDuration.Temporary, eff, TimeSpan.FromSeconds(effectDuration));

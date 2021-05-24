@@ -29,7 +29,7 @@ namespace NWN.Systems
     private async void HandleMoneyDepositSelection(Player player)
     {
       player.menu.Clear();
-      uint availableGold = player.oid.Gold;
+      uint availableGold = player.oid.LoginCreature.Gold;
 
       if (availableGold < 1)
       {
@@ -69,8 +69,8 @@ namespace NWN.Systems
     {
       player.menu.Clear();
 
-      player.bankGold += (int)player.oid.Gold;
-      player.oid.TakeGold((int)player.oid.Gold);
+      player.bankGold += (int)player.oid.LoginCreature.Gold;
+      player.oid.LoginCreature.TakeGold((int)player.oid.LoginCreature.Gold);
 
       player.menu.titleLines = new List<string> {
         $"Oh, oui, toooout. Donnez moi tooooout !",
@@ -83,9 +83,9 @@ namespace NWN.Systems
     private void HandleValidateDeposit(Player player)
     {
       player.menu.Clear();
-      uint availableGold = player.oid.Gold;
-      int playerInput = int.Parse(player.oid.GetLocalVariable<string>("_PLAYER_INPUT"));
-      player.oid.GetLocalVariable<string>("_PLAYER_INPUT").Delete();
+      uint availableGold = player.oid.LoginCreature.Gold;
+      int playerInput = int.Parse(player.oid.LoginCreature.GetLocalVariable<string>("_PLAYER_INPUT"));
+      player.oid.LoginCreature.GetLocalVariable<string>("_PLAYER_INPUT").Delete();
 
       if (playerInput <= 0)
       {
@@ -108,7 +108,7 @@ namespace NWN.Systems
           "Enfin, c'est toujours ça..."
         };
 
-        player.oid.TakeGold(playerInput);
+        player.oid.LoginCreature.TakeGold(playerInput);
         player.bankGold += playerInput;
       }
       else if (playerInput == availableGold)
@@ -118,7 +118,7 @@ namespace NWN.Systems
           "Vous pouvez me faire confiance ... oui, confiance ..."
         };
 
-        player.oid.TakeGold((int)player.oid.Gold);
+        player.oid.LoginCreature.TakeGold((int)player.oid.LoginCreature.Gold);
         player.bankGold += playerInput;
       }
 
@@ -163,8 +163,8 @@ namespace NWN.Systems
     private void HandleValidateWithdrawal(Player player)
     {
       player.menu.Clear();
-      int playerInput = int.Parse(player.oid.GetLocalVariable<string>("_PLAYER_INPUT"));
-      player.oid.GetLocalVariable<string>("_PLAYER_INPUT").Delete();
+      int playerInput = int.Parse(player.oid.LoginCreature.GetLocalVariable<string>("_PLAYER_INPUT"));
+      player.oid.LoginCreature.GetLocalVariable<string>("_PLAYER_INPUT").Delete();
 
       if (playerInput <= 0)
       {
@@ -188,7 +188,7 @@ namespace NWN.Systems
           "un coup de gourdin est si vite arrivé. Enfin, si vous y tenez ..."
         };
 
-        player.oid.GiveGold(playerInput);
+        player.oid.LoginCreature.GiveGold(playerInput);
         player.bankGold -= playerInput;
       }
       else if (playerInput == player.bankGold)
@@ -198,7 +198,7 @@ namespace NWN.Systems
           "Bon, bon, mais on garde une pièce d'or pour que le compte reste ouvert !"
         };
 
-        player.oid.GiveGold(player.bankGold - 1);
+        player.oid.LoginCreature.GiveGold(player.bankGold - 1);
         player.bankGold = 1;
       }
 
@@ -222,7 +222,7 @@ namespace NWN.Systems
           "Bon bon, si tu insistes ... je vais quand même garder une pièce en sureté, au cas. Un coup de gourdin est si vite arrivé ..."
         };
 
-        player.oid.GiveGold(player.bankGold - 1);
+        player.oid.LoginCreature.GiveGold(player.bankGold - 1);
         player.bankGold = 1;
       }
 

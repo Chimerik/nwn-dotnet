@@ -10,6 +10,7 @@ using NWN.API.Events;
 using System.Threading.Tasks;
 using System.Threading;
 using System;
+using Effect = NWN.API.Effect;
 
 namespace NWN.Systems
 {
@@ -28,7 +29,8 @@ namespace NWN.Systems
     }
     public static void OnSpellBroadcast(OnSpellBroadcast onSpellBroadcast)
     {
-      NwPlayer oPC = (NwPlayer)onSpellBroadcast.Caster;
+      if (!(onSpellBroadcast.Caster is NwCreature { IsPlayerControlled: true } oPC))
+        return;
 
       int classe = 43; // aventurier
 
@@ -65,25 +67,19 @@ namespace NWN.Systems
         });
       }
 
-      if (oPC.IsDM || oPC.IsDMPossessed || oPC.IsPlayerDM)
-        return;
-      
-      if (!oPC.ActiveEffects.Any(e => e.EffectType == EffectType.Invisibility || e.EffectType == EffectType.ImprovedInvisibility))
-        return;
-
-      SpellEvents.OnSpellCast onSpellCast = new SpellEvents.OnSpellCast();
-
-      if (onSpellBroadcast.Caster.GetLocalVariable<int>("_IS_SILENT_SPELL").HasValue)
+      if (oPC.ControllingPlayer.IsDM ||
+        !oPC.ActiveEffects.Any(e => e.EffectType == EffectType.Invisibility || e.EffectType == EffectType.ImprovedInvisibility)
+        || onSpellBroadcast.Caster.GetLocalVariable<int>("_IS_SILENT_SPELL").HasValue)
       {
         onSpellBroadcast.Caster.GetLocalVariable<int>("_IS_SILENT_SPELL").Delete();
         return;
       }
 
-      foreach (NwPlayer spotter in oPC.Area.FindObjectsOfTypeInArea<NwPlayer>().Where(p => p.Distance(oPC) < 20.0f))
+      foreach (NwCreature spotter in oPC.Area.FindObjectsOfTypeInArea<NwCreature>().Where(p => p.IsPlayerControlled && p.Distance(oPC) < 20.0f))
       {
         if (NWScript.GetObjectSeen(oPC, spotter) != 1)
         {
-          spotter.SendServerMessage("Quelqu'un d'invisible est en train de lancer un sort à proximité !", API.Color.CYAN);
+          spotter.ControllingPlayer.SendServerMessage("Quelqu'un d'invisible est en train de lancer un sort à proximité !", API.Color.CYAN);
           PlayerPlugin.ShowVisualEffect(spotter, 191, oPC.Position);
         }
       }
@@ -91,10 +87,8 @@ namespace NWN.Systems
     [ScriptHandler("spellhook")]
     private void HandleSpellHook(CallInfo callInfo)
     {
-      if (!(callInfo.ObjectSelf is NwPlayer))
+      if (!(callInfo.ObjectSelf is NwCreature { IsPlayerControlled: true } oPC))
         return;
-
-      NwPlayer oPC = (NwPlayer)callInfo.ObjectSelf;
 
       if (!PlayerSystem.Players.TryGetValue(oPC, out PlayerSystem.Player player))
         return;
@@ -178,7 +172,7 @@ namespace NWN.Systems
 
       NWScript.DelayCommand(0.0f, () => DelayedSpellHook(oPC));
     }
-    private void DelayedSpellHook(NwPlayer player)
+    private void DelayedSpellHook(NwCreature player)
     {
       CreaturePlugin.SetLevelByPosition(player, 0, 1);
       CreaturePlugin.SetClassByPosition(player, 0, 43);
@@ -196,9 +190,10 @@ namespace NWN.Systems
     }
     public static void HandleBeforeSpellCast(OnSpellCast onSpellCast)
     {
-      NwPlayer oPC = (NwPlayer)onSpellCast.Caster;
+      if (!(onSpellCast.Caster is NwCreature { IsPlayerControlled: true } oPC))
+        return;
 
-      if(oPC.Classes.Any(c => (int)c != 43))
+      if (oPC.Classes.Any(c => (int)c != 43))
         oPC.GetLocalVariable<int>("_SPELLCAST").Value = 1;
 
       if (onSpellCast.Caster.GetLocalVariable<int>("_AUTO_SPELL").HasValue && onSpellCast.Caster.GetLocalVariable<int>("_AUTO_SPELL").Value != (int)onSpellCast.Spell)
@@ -220,13 +215,15 @@ namespace NWN.Systems
     private void HandleInvisibiltyHeartBeat(CallInfo callInfo)
     {
       NwAreaOfEffect inviAoE = (NwAreaOfEffect)callInfo.ObjectSelf;
-      NwPlayer oInvi = (NwPlayer)inviAoE.Creator;
+
+      if (!(inviAoE.Creator is NwCreature { IsPlayerControlled: true } oInvi))
+        return;
 
       int iMoveSilentlyCheck = oInvi.GetSkillRank(Skill.MoveSilently) + NwRandom.Roll(Utils.random, 20);
-      NwPlaceable invisMarker = NwObject.FindObjectsWithTag<NwPlaceable>($"invis_marker_{oInvi.PlayerName}").FirstOrDefault();
+      NwPlaceable invisMarker = NwObject.FindObjectsWithTag<NwPlaceable>($"invis_marker_{oInvi.ControllingPlayer.PlayerName}").FirstOrDefault();
       bool listenTriggered = false;
 
-      foreach (NwCreature oSpotter in inviAoE.GetObjectsInEffectArea<NwPlayer>().Where(p => NWScript.GetObjectSeen(oInvi, p) == 0 && (p.DetectModeActive || p.HasFeatEffect(Feat.KeenSense))))
+      foreach (NwCreature oSpotter in inviAoE.GetObjectsInEffectArea<NwCreature>().Where(p => p.IsPlayerControlled && NWScript.GetObjectSeen(oInvi, p) == 0 && (p.DetectModeActive || p.HasFeatEffect(Feat.KeenSense))))
       {
         int iListencheck = oSpotter.GetSkillRank(Skill.Listen) + NwRandom.Roll(Utils.random, 20) - (int)oInvi.Distance(oSpotter);
 
@@ -242,7 +239,7 @@ namespace NWN.Systems
 
         if (invisMarker == null)
         {
-          invisMarker = NwPlaceable.Create("silhouette", oInvi.Location, false, $"invis_marker_{oInvi.PlayerName}");
+          invisMarker = NwPlaceable.Create("silhouette", oInvi.Location, false, $"invis_marker_{oInvi.ControllingPlayer.PlayerName}");
           VisibilityPlugin.SetVisibilityOverride(NWScript.OBJECT_INVALID, invisMarker, VisibilityPlugin.NWNX_VISIBILITY_HIDDEN);
           OnInvisMarkerPositionChanged(oInvi, invisMarker);
         }
@@ -254,7 +251,7 @@ namespace NWN.Systems
       if (!listenTriggered && invisMarker != null)
         invisMarker.Destroy();
     }
-    private static async void OnInvisMarkerPositionChanged(NwPlayer oPC, NwPlaceable silhouette)
+    private static async void OnInvisMarkerPositionChanged(NwCreature oPC, NwPlaceable silhouette)
     {
       CancellationTokenSource tokenSource = new CancellationTokenSource();
 
@@ -302,53 +299,53 @@ namespace NWN.Systems
         }
         return;
       }
-        
+
       switch (customTag)
       {
         case "CUSTOM_EFFECT_FROG":
-          new Frog((NwCreature)callInfo.ObjectSelf);
+          Frog.ApplyFrogEffectToTarget((NwCreature)callInfo.ObjectSelf);
           break;
         case "CUSTOM_EFFECT_POISON":
-          new Poison((NwCreature)callInfo.ObjectSelf);
+          Poison.ApplyEffectToTarget((NwCreature)callInfo.ObjectSelf);
           break;
         case "CUSTOM_EFFECT_NOMAGIC":
-          new NoMagic((NwCreature)callInfo.ObjectSelf);
+          NoMagic.ApplyEffectToTarget((NwCreature)callInfo.ObjectSelf);
           break;
         case "CUSTOM_EFFECT_NOHEALMAGIC":
-          new NoHealMagic((NwCreature)callInfo.ObjectSelf);
+          NoHealMagic.ApplyEffectToTarget((NwCreature)callInfo.ObjectSelf);
           break;
         case "CUSTOM_EFFECT_NOSUMMON":
-          new NoSummon((NwCreature)callInfo.ObjectSelf);
+          NoSummon.ApplyEffectToTarget((NwCreature)callInfo.ObjectSelf);
           break;
         case "CUSTOM_EFFECT_NOOFFENSIVEMAGIC":
-          new NoOffensiveMagic((NwCreature)callInfo.ObjectSelf);
+          NoOffensiveMagic.ApplyEffectToTarget((NwCreature)callInfo.ObjectSelf);
           break;
         case "CUSTOM_EFFECT_NOBUFF":
-          new NoBuff((NwCreature)callInfo.ObjectSelf);
+          NoBuff.ApplyEffectToTarget((NwCreature)callInfo.ObjectSelf);
           break;
         case "CUSTOM_EFFECT_NOUSEABLEITEM":
-          new NoUseableItem((NwCreature)callInfo.ObjectSelf);
+          NoUseableItem.ApplyEffectToTarget((NwCreature)callInfo.ObjectSelf);
           break;
         case "CUSTOM_EFFECT_SLOW":
-          new Slow((NwCreature)callInfo.ObjectSelf);
+          Slow.ApplyEffectToTarget((NwCreature)callInfo.ObjectSelf);
           break;
         case "CUSTOM_EFFECT_MINI":
-          new Mini((NwCreature)callInfo.ObjectSelf);
+          Mini.ApplyEffectToTarget((NwCreature)callInfo.ObjectSelf);
           break;
         case "CUSTOM_EFFECT_HALF_HEALTH":
-          new HalfHealth((NwCreature)callInfo.ObjectSelf);
+          HalfHealth.ApplyEffectToTarget((NwCreature)callInfo.ObjectSelf);
           break;
         case "CUSTOM_EFFECT_SPELL_FAILURE":
-          new SpellFailure((NwCreature)callInfo.ObjectSelf);
+          SpellFailure.ApplyEffectToTarget((NwCreature)callInfo.ObjectSelf);
           break;
         case "CUSTOM_EFFECT_NOARMOR":
-          new NoArmor((NwCreature)callInfo.ObjectSelf);
+          NoArmor.ApplyEffectToTarget((NwCreature)callInfo.ObjectSelf);
           break;
         case "CUSTOM_EFFECT_NOWEAPON":
-          new NoWeapon((NwCreature)callInfo.ObjectSelf);
+          NoWeapon.ApplyEffectToTarget((NwCreature)callInfo.ObjectSelf);
           break;
         case "CUSTOM_EFFECT_NOACCESSORY":
-          new NoAccessory((NwCreature)callInfo.ObjectSelf);
+          NoAccessory.ApplyEffectToTarget((NwCreature)callInfo.ObjectSelf);
           break;
       }
     }
@@ -374,53 +371,108 @@ namespace NWN.Systems
         return;
       }
 
+      ObjectPlugin.RemoveIconEffect(callInfo.ObjectSelf, 109);
+      callInfo.ObjectSelf.GetLocalVariable<int>(customTag).Delete();
+
       switch (customTag)
       {
         case "CUSTOM_EFFECT_FROG":
-          new Frog((NwCreature)callInfo.ObjectSelf, false);
+          Frog.RemoveFrogEffectFromTarget((NwCreature)callInfo.ObjectSelf);
           break;
         case "CUSTOM_EFFECT_POISON":
-          new Poison((NwCreature)callInfo.ObjectSelf, false);
+          Poison.RemoveEffectFromTarget((NwCreature)callInfo.ObjectSelf);
           break;
         case "CUSTOM_EFFECT_NOMAGIC":
-          new NoMagic((NwCreature)callInfo.ObjectSelf, false);
+          NoMagic.RemoveEffectFromTarget((NwCreature)callInfo.ObjectSelf);
           break;
         case "CUSTOM_EFFECT_NOHEALMAGIC":
-          new NoHealMagic((NwCreature)callInfo.ObjectSelf, false);
+          NoHealMagic.RemoveEffectFromTarget((NwCreature)callInfo.ObjectSelf);
           break;
         case "CUSTOM_EFFECT_NOSUMMON":
-          new NoSummon((NwCreature)callInfo.ObjectSelf, false);
+          NoSummon.RemoveEffectFromTarget((NwCreature)callInfo.ObjectSelf);
           break;
         case "CUSTOM_EFFECT_NOOFFENSIVEMAGIC":
-          new NoOffensiveMagic((NwCreature)callInfo.ObjectSelf, false);
+          NoOffensiveMagic.RemoveEffectFromTarget((NwCreature)callInfo.ObjectSelf);
           break;
         case "CUSTOM_EFFECT_NOBUFF":
-          new NoBuff((NwCreature)callInfo.ObjectSelf, false);
+          NoBuff.RemoveEffectFromTarget((NwCreature)callInfo.ObjectSelf);
           break;
         case "CUSTOM_EFFECT_NOUSEABLEITEM":
-          new NoUseableItem((NwCreature)callInfo.ObjectSelf, false);
+          NoUseableItem.RemoveEffectFromTarget((NwCreature)callInfo.ObjectSelf);
           break;
         case "CUSTOM_EFFECT_SLOW":
-          new Slow((NwCreature)callInfo.ObjectSelf, false);
+          Slow.RemoveEffectFromTarget((NwCreature)callInfo.ObjectSelf);
           break;
         case "CUSTOM_EFFECT_MINI":
-          new Mini((NwCreature)callInfo.ObjectSelf, false);
+          Mini.RemoveEffectFromTarget((NwCreature)callInfo.ObjectSelf);
           break;
         case "CUSTOM_EFFECT_HALF_HEALTH":
-          new HalfHealth((NwCreature)callInfo.ObjectSelf, false);
+          HalfHealth.RemoveEffectFromTarget((NwCreature)callInfo.ObjectSelf);
           break;
         case "CUSTOM_EFFECT_SPELL_FAILURE":
-          new SpellFailure((NwCreature)callInfo.ObjectSelf, false);
+          SpellFailure.RemoveEffectFromTarget((NwCreature)callInfo.ObjectSelf);
           break;
         case "CUSTOM_EFFECT_NOARMOR":
-          new NoArmor((NwCreature)callInfo.ObjectSelf, false);
+          NoArmor.RemoveEffectFromTarget((NwCreature)callInfo.ObjectSelf);
           break;
         case "CUSTOM_EFFECT_NOWEAPON":
-          new NoWeapon((NwCreature)callInfo.ObjectSelf, false);
+          NoWeapon.RemoveEffectFromTarget((NwCreature)callInfo.ObjectSelf);
           break;
         case "CUSTOM_EFFECT_NOACCESSORY":
-          new NoAccessory((NwCreature)callInfo.ObjectSelf, false);
+          NoAccessory.RemoveEffectFromTarget((NwCreature)callInfo.ObjectSelf);
           break;
+      }
+    }
+    [ScriptHandler("mechaura_enter")]
+    private void HandleMechAuraHeartOnEnter(CallInfo callInfo)
+    {
+      NwAreaOfEffect elecAoE = (NwAreaOfEffect)callInfo.ObjectSelf;
+      elecAoE.Creator.GetLocalVariable<int>("_SPARK_LEVEL").Value += 5;
+      elecAoE.Creator.ApplyEffect(EffectDuration.Instant, Effect.VisualEffect(VfxType.ComHitElectrical));
+
+      if (!(NWScript.GetEnteringObject().ToNwObject<NwGameObject>() is NwCreature oTarget) || oTarget == elecAoE.Creator)
+        return;
+
+      if (NwRandom.Roll(Utils.random, 100) > elecAoE.Creator.GetLocalVariable<int>("_SPARK_LEVEL").Value + 20)
+        return;
+
+      oTarget.ApplyEffect(EffectDuration.Temporary, Effect.Beam(VfxType.BeamLightning, elecAoE.Creator, BodyNode.Chest), TimeSpan.FromSeconds(1.4));
+
+      if (oTarget.GetLocalVariable<int>("_IS_PVE_ARENA_CREATURE").HasValue)
+        oTarget.ApplyEffect(EffectDuration.Instant, Effect.Damage(1, DamageType.Electrical));
+      else
+      {
+        if (oTarget.RollSavingThrow(SavingThrow.Reflex, 12, SavingThrowType.Electricity, elecAoE.Creator) == SavingThrowResult.Failure)
+        {
+          oTarget.ApplyEffect(EffectDuration.Instant, Effect.Damage(1, DamageType.Electrical));
+          oTarget.ApplyEffect(EffectDuration.Instant, Effect.VisualEffect(VfxType.ComHitElectrical));
+        }
+      }
+    }
+    [ScriptHandler("mechaura_hb")]
+    private void HandleMechAuraHeartBeat(CallInfo callInfo)
+    {
+      NwAreaOfEffect elecAoE = (NwAreaOfEffect)callInfo.ObjectSelf;
+      elecAoE.Creator.GetLocalVariable<int>("_SPARK_LEVEL").Value += 5;
+      elecAoE.Creator.ApplyEffect(EffectDuration.Instant, Effect.VisualEffect(VfxType.ComHitElectrical));
+
+      foreach (NwCreature oTarget in elecAoE.GetObjectsInEffectArea<NwCreature>().Where(c => c != elecAoE.Creator))
+      {
+        if (NwRandom.Roll(Utils.random, 100) > elecAoE.Creator.GetLocalVariable<int>("_SPARK_LEVEL").Value + 20)
+          continue;
+
+        oTarget.ApplyEffect(EffectDuration.Temporary, Effect.Beam(VfxType.BeamLightning, elecAoE.Creator, BodyNode.Chest), TimeSpan.FromSeconds(1.4));
+
+        if (oTarget.GetLocalVariable<int>("_IS_PVE_ARENA_CREATURE").HasValue)
+          oTarget.ApplyEffect(EffectDuration.Instant, Effect.Damage(1, DamageType.Electrical));
+        else
+        {
+          if (oTarget.RollSavingThrow(SavingThrow.Reflex, 12, SavingThrowType.Electricity, elecAoE.Creator) == SavingThrowResult.Failure)
+          {
+            oTarget.ApplyEffect(EffectDuration.Instant, Effect.Damage(1, DamageType.Electrical));
+            oTarget.ApplyEffect(EffectDuration.Instant, Effect.VisualEffect(VfxType.ComHitElectrical));
+          }
+        }
       }
     }
   }

@@ -19,7 +19,7 @@ namespace NWN.Systems
     {
       NwCreature captain = (NwCreature)callInfo.ObjectSelf;
       NwArea area = captain.Area;
-      NwPlayer player = NWScript.GetLastSpeaker().ToNwObject<NwPlayer>();
+      NwPlayer player = NWScript.GetLastSpeaker().ToNwObject<NwCreature>().ControllingPlayer;
 
       player.SetCameraFacing(180, 65, 20);
 
@@ -34,16 +34,16 @@ namespace NWN.Systems
       sailorList[0].MovementRate = MovementRate.DM;
       sailorList[1].MovementRate = MovementRate.DM;
 
-      VisibilityPlugin.SetVisibilityOverride(NWScript.OBJECT_INVALID, NWScript.GetNearestObjectByTag("intro_brouillard", player), VisibilityPlugin.NWNX_VISIBILITY_VISIBLE);
-      VisibilityPlugin.SetVisibilityOverride(NWScript.OBJECT_INVALID, NWScript.GetNearestObjectByTag("intro_brouillard", player, 2), VisibilityPlugin.NWNX_VISIBILITY_VISIBLE);
+      VisibilityPlugin.SetVisibilityOverride(NWScript.OBJECT_INVALID, NWScript.GetNearestObjectByTag("intro_brouillard", player.LoginCreature), VisibilityPlugin.NWNX_VISIBILITY_VISIBLE);
+      VisibilityPlugin.SetVisibilityOverride(NWScript.OBJECT_INVALID, NWScript.GetNearestObjectByTag("intro_brouillard", player.LoginCreature, 2), VisibilityPlugin.NWNX_VISIBILITY_VISIBLE);
 
       area.Weather = WeatherType.Rain;
       AreaPlugin.SetDayNightCycle(area, AreaPlugin.NWNX_AREA_DAYNIGHTCYCLE_ALWAYS_DARK);
       AreaPlugin.SetWeatherChance(area, AreaPlugin.NWNX_AREA_WEATHER_CHANCE_LIGHTNING, 100);
       NWScript.SetAreaWind(area, NWScript.Vector(1, 0, 0), 10.0f, 25.0f, 10.0f);
 
-      List<NwPlaceable> rocks = player.GetNearestObjectsByType<NwPlaceable>().Where(c => c.Tag == "intro_recif").ToList();
-      NwPlaceable tourbillon = player.GetNearestObjectsByType<NwPlaceable>().FirstOrDefault(c => c.Tag == "intro_tourbillon");
+      List<NwPlaceable> rocks = player.LoginCreature.GetNearestObjectsByType<NwPlaceable>().Where(c => c.Tag == "intro_recif").ToList();
+      NwPlaceable tourbillon = player.LoginCreature.GetNearestObjectsByType<NwPlaceable>().FirstOrDefault(c => c.Tag == "intro_tourbillon");
 
       VisibilityPlugin.SetVisibilityOverride(NWScript.OBJECT_INVALID, rocks[0], VisibilityPlugin.NWNX_VISIBILITY_VISIBLE);
       VisibilityPlugin.SetVisibilityOverride(NWScript.OBJECT_INVALID, rocks[1], VisibilityPlugin.NWNX_VISIBILITY_VISIBLE);
@@ -63,7 +63,7 @@ namespace NWN.Systems
         player.LockCameraPitch(true);
 
         await NwTask.Delay(TimeSpan.FromSeconds(1.7));
-        TriggerRandomLightnings(area, player.Position, 25, player);
+        TriggerRandomLightnings(area, player.LoginCreature.Position, 25, player);
 
         await NwTask.Delay(TimeSpan.FromSeconds(23));
         StrikeSailor(sailorList[1], sailorList[0]);
@@ -89,27 +89,27 @@ namespace NWN.Systems
     }
     private static void PlayTourbillonEffects(NwArea area, NwPlayer oPC)
     {
-      oPC.Location.ApplyEffect(EffectDuration.Instant, API.Effect.VisualEffect(VfxType.FnfPwkill, false, 2, new Vector3(0, 0, 0), new Vector3(270, 90, 0)));
-      oPC.Location.ApplyEffect(EffectDuration.Instant, API.Effect.VisualEffect(VfxType.FnfFirestorm, false, 2, new Vector3(0, 0, 0), new Vector3(0, 0, 0)));
-      oPC.Location.ApplyEffect(EffectDuration.Instant, API.Effect.VisualEffect(VfxType.FnfFirestorm, false, 2, new Vector3(0, 0, 0), new Vector3(0, 90, 0)));
+      oPC.LoginCreature.Location.ApplyEffect(EffectDuration.Instant, API.Effect.VisualEffect(VfxType.FnfPwkill, false, 2, new Vector3(0, 0, 0), new Vector3(270, 90, 0)));
+      oPC.LoginCreature.Location.ApplyEffect(EffectDuration.Instant, API.Effect.VisualEffect(VfxType.FnfFirestorm, false, 2, new Vector3(0, 0, 0), new Vector3(0, 0, 0)));
+      oPC.LoginCreature.Location.ApplyEffect(EffectDuration.Instant, API.Effect.VisualEffect(VfxType.FnfFirestorm, false, 2, new Vector3(0, 0, 0), new Vector3(0, 90, 0)));
 
       Task waitTourbillonEvents = NwTask.Run(async () =>
       {
         await NwTask.Delay(TimeSpan.FromSeconds(2));
-        oPC.Location.ApplyEffect(EffectDuration.Instant, API.Effect.VisualEffect(VfxType.FnfMysticalExplosion));
+        oPC.LoginCreature.Location.ApplyEffect(EffectDuration.Instant, API.Effect.VisualEffect(VfxType.FnfMysticalExplosion));
 
         await NwTask.Delay(TimeSpan.FromSeconds(1.6));
         oPC.LockCameraDirection(false);
         oPC.LockCameraDistance(false);
         oPC.LockCameraPitch(false);
-        await oPC.ClearActionQueue();
-        Utils.DestroyInventory(oPC);
-        Utils.DestroyEquippedItems(oPC);
-        CreaturePlugin.RunEquip(oPC, NwItem.Create("rags", oPC), (int)InventorySlot.Chest);
-        oPC.Location = ((NwWaypoint)NwModule.FindObjectsWithTag("WP_START_NEW_CHAR").FirstOrDefault()).Location;
+        await oPC.LoginCreature.ClearActionQueue();
+        Utils.DestroyInventory(oPC.LoginCreature);
+        Utils.DestroyEquippedItems(oPC.LoginCreature);
+        CreaturePlugin.RunEquip(oPC.LoginCreature, NwItem.Create("rags", oPC.LoginCreature), (int)InventorySlot.Chest);
+        oPC.LoginCreature.Location = ((NwWaypoint)NwObject.FindObjectsWithTag("WP_START_NEW_CHAR").FirstOrDefault()).Location;
 
-        await NwTask.WaitUntil(() => oPC.Location.Area != null);
-        await oPC.PlayAnimation(Animation.LoopingDeadBack, 1, true, TimeSpan.FromSeconds(99999999));
+        await NwTask.WaitUntil(() => oPC.LoginCreature.Location.Area != null);
+        await oPC.LoginCreature.PlayAnimation(Animation.LoopingDeadBack, 1, true, TimeSpan.FromSeconds(99999999));
         oPC.FloatingTextString("En dehors des épaves de navires éparpillées tout autour de vous, la plage sur laquelle vous avez atterri semble étrangement calme et agréable. Nulle trace de votre équipage ou des biens que vous aviez emportés. Devant vous se dressent les murailles d'une ville ancienne et délabrée. Qu'allez-vous faire maintenant ?".ColorString(Color.SILVER), false);
       });
     }
@@ -118,27 +118,27 @@ namespace NWN.Systems
       int nbStrikes = Utils.random.Next(1, 5);
 
       for (int i = 0; i < nbStrikes; i++)
-        NWScript.ApplyEffectAtLocation(NWScript.DURATION_TYPE_INSTANT, NWScript.EffectVisualEffect(NWScript.VFX_IMP_LIGHTNING_M), NWScript.Location(area, NWScript.Vector(center.X + NWN.Utils.random.Next(-maxDistance / 4, maxDistance), center.Y + NWN.Utils.random.Next(-maxDistance / 3, maxDistance / 3), 0), 0));
+        NWScript.ApplyEffectAtLocation(NWScript.DURATION_TYPE_INSTANT, NWScript.EffectVisualEffect(NWScript.VFX_IMP_LIGHTNING_M), NWScript.Location(area, NWScript.Vector(center.X + Utils.random.Next(-maxDistance / 4, maxDistance), center.Y + Utils.random.Next(-maxDistance / 3, maxDistance / 3), 0), 0));
 
       switch (Utils.random.Next(0, 6))
       {
         case 0:
-          NWScript.AssignCommand(NWScript.GetNearestObjectByTag("intro_sailor", oPC, Utils.random.Next(1, 3)), () => NWScript.SpeakString("Oh bordel, c'est pas passé loin !"));
+          NWScript.AssignCommand(NWScript.GetNearestObjectByTag("intro_sailor", oPC.LoginCreature, Utils.random.Next(1, 3)), () => NWScript.SpeakString("Oh bordel, c'est pas passé loin !"));
           break;
         case 1:
-          NWScript.AssignCommand(NWScript.GetNearestObjectByTag("intro_sailor", oPC, Utils.random.Next(1, 3)), () => NWScript.SpeakString("Fichtre, encore un comme ça et est on foutu !"));
+          NWScript.AssignCommand(NWScript.GetNearestObjectByTag("intro_sailor", oPC.LoginCreature, Utils.random.Next(1, 3)), () => NWScript.SpeakString("Fichtre, encore un comme ça et est on foutu !"));
           break;
         case 2:
-          NWScript.AssignCommand(NWScript.GetNearestObjectByTag("intro_sailor", oPC, Utils.random.Next(1, 3)), () => NWScript.SpeakString("Talos, aie pitié de nous !"));
+          NWScript.AssignCommand(NWScript.GetNearestObjectByTag("intro_sailor", oPC.LoginCreature, Utils.random.Next(1, 3)), () => NWScript.SpeakString("Talos, aie pitié de nous !"));
           break;
         case 3:
-          NWScript.AssignCommand(NWScript.GetNearestObjectByTag("intro_sailor", oPC, Utils.random.Next(1, 3)), () => NWScript.SpeakString("Si jamais ça passe un peu plus près, j'donne pas cher de notre peau !"));
+          NWScript.AssignCommand(NWScript.GetNearestObjectByTag("intro_sailor", oPC.LoginCreature, Utils.random.Next(1, 3)), () => NWScript.SpeakString("Si jamais ça passe un peu plus près, j'donne pas cher de notre peau !"));
           break;
         case 4:
-          NWScript.AssignCommand(NWScript.GetNearestObjectByTag("intro_sailor", oPC, Utils.random.Next(1, 3)), () => NWScript.SpeakString("J'crois que le moment est venu de paniquer !"));
+          NWScript.AssignCommand(NWScript.GetNearestObjectByTag("intro_sailor", oPC.LoginCreature, Utils.random.Next(1, 3)), () => NWScript.SpeakString("J'crois que le moment est venu de paniquer !"));
           break;
         case 5:
-          NWScript.AssignCommand(NWScript.GetNearestObjectByTag("intro_sailor", oPC, Utils.random.Next(1, 3)), () => NWScript.SpeakString("C'est la fin, le ciel nous tombe sur la tête !"));
+          NWScript.AssignCommand(NWScript.GetNearestObjectByTag("intro_sailor", oPC.LoginCreature, Utils.random.Next(1, 3)), () => NWScript.SpeakString("C'est la fin, le ciel nous tombe sur la tête !"));
           break;
       }
       NWScript.DelayCommand(Utils.random.Next(5, 15), () => TriggerRandomLightnings(area, center, maxDistance, oPC));

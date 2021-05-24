@@ -30,15 +30,15 @@ namespace NWN.Systems
 
       if (awaitedValue)
       {
-        HandleCreateSkillbook(int.Parse(player.oid.GetLocalVariable<string>("_PLAYER_INPUT").Value), player.oid);
-        player.oid.GetLocalVariable<string>("_PLAYER_INPUT").Delete();
+        HandleCreateSkillbook(int.Parse(player.oid.LoginCreature.GetLocalVariable<string>("_PLAYER_INPUT").Value), player.oid);
+        player.oid.LoginCreature.GetLocalVariable<string>("_PLAYER_INPUT").Delete();
         player.menu.Close();
       }
     }
     private async void HandleCreateSkillbook(int skillId, NwPlayer oPC)
     {
       await NwModule.Instance.WaitForObjectContext();
-      NwItem skillBook = NwItem.Create("skillbookgeneriq", oPC, 1, "skillbook");
+      NwItem skillBook = NwItem.Create("skillbookgeneriq", oPC.LoginCreature, 1, "skillbook");
       ItemPlugin.SetItemAppearance(skillBook, NWScript.ITEM_APPR_TYPE_SIMPLE_MODEL, 2, Utils.random.Next(0, 50));
       skillBook.GetLocalVariable<int>("_SKILL_ID").Value = skillId;
 

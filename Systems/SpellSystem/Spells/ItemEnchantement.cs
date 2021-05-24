@@ -73,17 +73,15 @@ namespace NWN.Systems
     {
       NwItem oTarget = NWScript.GetSpellTargetObject().ToNwObject<NwItem>();
 
-      if (!(callInfo.ObjectSelf is NwPlayer) || oTarget == null || !Players.TryGetValue(callInfo.ObjectSelf, out Player player))
+      if (!(callInfo.ObjectSelf is NwCreature { IsPlayerControlled: true } oCaster) || oTarget == null || !Players.TryGetValue(oCaster.ControllingPlayer.LoginCreature, out Player player))
         return;
 
-      NwPlayer oCaster = (NwPlayer)callInfo.ObjectSelf;
-
-      if (!player.craftJob.CanStartJob(oCaster, null, Craft.Job.JobType.Enchantement))
+      if (!player.craftJob.CanStartJob(player.oid, null, Craft.Job.JobType.Enchantement))
         return;
 
       if(oTarget.GetLocalVariable<int>("_AVAILABLE_ENCHANTEMENT_SLOT").HasNothing)
       {
-        oCaster.SendServerMessage($"{oTarget.Name} ne dispose d'aucun emplacement d'enchantement disponible !");
+        player.oid.SendServerMessage($"{oTarget.Name} ne dispose d'aucun emplacement d'enchantement disponible !");
         return;
       }
 
@@ -93,7 +91,7 @@ namespace NWN.Systems
         DrawEnchantementChoicePage(player, oTarget.Name, spellId, oTarget);
       else
       {
-        oCaster.SendServerMessage("HRP - Propriétés de cet enchantement incorrectement définies. L'erreur a été remontée au staff");
+        player.oid.SendServerMessage("HRP - Propriétés de cet enchantement incorrectement définies. L'erreur a été remontée au staff");
         Utils.LogMessageToDMs($"ENCHANTEMENT - {spellId} - ItemProperties non présentes dans le dictionnaire.");
         return;
       }
@@ -124,7 +122,7 @@ namespace NWN.Systems
       //player.oid.SendServerMessage($"ip string : {$"{spellId}_{(int)ip.PropertyType}_{ip.SubType}_{ip.CostTable}_{ip.CostTableValue}"}");
 
       player.craftJob.Start(Craft.Job.JobType.Enchantement, null, player, null, oItem, $"{spellId}_{(int)ip.PropertyType}_{ip.SubType}_{ip.CostTable}_{ip.CostTableValue}");
-      player.oid.ApplyEffect(EffectDuration.Instant, API.Effect.VisualEffect(VfxType.ImpSuperHeroism));
+      player.oid.ControlledCreature.ApplyEffect(EffectDuration.Instant, API.Effect.VisualEffect(VfxType.ImpSuperHeroism));
 
       player.menu.Close();
     }

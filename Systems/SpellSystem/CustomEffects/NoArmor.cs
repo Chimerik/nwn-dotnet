@@ -5,41 +5,42 @@ using NWN.Core.NWNX;
 
 namespace NWN.Systems
 {
-  class NoArmor
+  static class NoArmor
   {
-    public NoArmor(NwCreature oTarget, bool apply = true)
-    {
-      if (apply)
-        ApplyEffectToTarget(oTarget);
-      else
-        RemoveEffectFromTarget(oTarget);
-    }
-    private void ApplyEffectToTarget(NwCreature oTarget)
+    public static void ApplyEffectToTarget(NwCreature oTarget)
     {
       oTarget.OnItemValidateEquip -= NoEquipArmorMalus;
       oTarget.OnItemValidateUse -= NoUseArmorMalus;
       oTarget.OnItemValidateEquip += NoEquipArmorMalus;
       oTarget.OnItemValidateUse += NoUseArmorMalus;
       oTarget.ApplyEffect(EffectDuration.Instant, Effect.VisualEffect(VfxType.FnfPwkill));
-      CreaturePlugin.RunUnequip(oTarget, oTarget.GetItemInSlot(InventorySlot.Chest));
+
+      if (oTarget.GetItemInSlot(InventorySlot.Chest) != null)
+        CreaturePlugin.RunUnequip(oTarget, oTarget.GetItemInSlot(InventorySlot.Chest));
     }
-    private void RemoveEffectFromTarget(NwCreature oTarget)
+    public static void RemoveEffectFromTarget(NwCreature oTarget)
     {
       oTarget.OnItemValidateEquip -= NoEquipArmorMalus;
       oTarget.OnItemValidateUse -= NoUseArmorMalus;
+      PlayerSystem.Log.Info($"removed no armor from {oTarget.Name} - oTarget: {oTarget} - LoginCreature: {oTarget.LoginPlayer.LoginCreature} - ControllingPlayer.ControllingCreature: {oTarget.ControllingPlayer.ControlledCreature} - ControllingPlayer.LoginCreature {oTarget.ControllingPlayer.ControlledCreature}");
     }
-    private void NoEquipArmorMalus(OnItemValidateEquip onItemValidateEquip)
+    private static void NoEquipArmorMalus(OnItemValidateEquip onItemValidateEquip)
     {
       if (onItemValidateEquip.Slot == InventorySlot.Chest)
       {
         onItemValidateEquip.Result = EquipValidationResult.Denied;
-        ((NwPlayer)onItemValidateEquip.UsedBy).SendServerMessage("L'interdiction de port d'armure est en vigueur.", Color.RED);
+
+        if (onItemValidateEquip.UsedBy.IsPlayerControlled)
+          onItemValidateEquip.UsedBy.ControllingPlayer.SendServerMessage("L'interdiction de port d'armure est en vigueur.", Color.RED);
       }
     }
-    private void NoUseArmorMalus(OnItemValidateUse onItemValidateUse)
+    private static void NoUseArmorMalus(OnItemValidateUse onItemValidateUse)
     {
       if (onItemValidateUse.Item.BaseItemType == BaseItemType.Armor)
+      {
+        PlayerSystem.Log.Info($"no armore : {onItemValidateUse.Item.Name} denied !");
         onItemValidateUse.CanUse = false;
+      }
     }
   }
 }

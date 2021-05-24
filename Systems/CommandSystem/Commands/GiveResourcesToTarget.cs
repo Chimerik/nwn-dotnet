@@ -39,8 +39,8 @@ namespace NWN.Systems
 
       if (awaitedValue)
       {
-        GetResourceQuantity(target, dm.oid.GetLocalVariable<string>("_PLAYER_INPUT").Value);
-        dm.oid.GetLocalVariable<string>("_PLAYER_INPUT").Delete();
+        GetResourceQuantity(target, dm.oid.LoginCreature.GetLocalVariable<string>("_PLAYER_INPUT").Value);
+        dm.oid.LoginCreature.GetLocalVariable<string>("_PLAYER_INPUT").Delete();
       }
     }
     private async void GetResourceQuantity(PlayerSystem.Player target, string material)
@@ -59,8 +59,8 @@ namespace NWN.Systems
 
       if (awaitedValue)
       {
-        HandleGiveResources(target, material, int.Parse(dm.oid.GetLocalVariable<string>("_PLAYER_INPUT").Value));
-        dm.oid.GetLocalVariable<string>("_PLAYER_INPUT").Delete();
+        HandleGiveResources(target, material, int.Parse(dm.oid.LoginCreature.GetLocalVariable<string>("_PLAYER_INPUT").Value));
+        dm.oid.LoginCreature.GetLocalVariable<string>("_PLAYER_INPUT").Delete();
       }
     }
     private void HandleGiveResources(PlayerSystem.Player player, string material, int quantity)
@@ -70,7 +70,7 @@ namespace NWN.Systems
       else
         player.materialStock.Add(material, quantity);
 
-      dm.oid.SendServerMessage($"Vous venez de donner {quantity} unité(s) de {material} à {player.oid.Name}");
+      dm.oid.SendServerMessage($"Vous venez de donner {quantity} unité(s) de {material} à {player.oid.LoginCreature.Name}");
 
       dm.menu.Close();
     }

@@ -16,13 +16,13 @@ namespace NWN.Systems
     }
     private static async void OnAppearanceSelected(ModuleEvents.OnPlayerTarget selection)
     {
-      if (selection.TargetObject is null || !(selection.TargetObject is NwItem) || !PlayerSystem.Players.TryGetValue(selection.Player, out PlayerSystem.Player player))
+      if (selection.TargetObject is null || !(selection.TargetObject is NwItem) || !PlayerSystem.Players.TryGetValue(selection.Player.LoginCreature, out PlayerSystem.Player player))
         return;
 
       NwItem item = (NwItem)selection.TargetObject;
 
       // TODO : ajouter un métier permettant de modifier n'importe quelle tenue
-      if (item.GetLocalVariable<string>("_ORIGINAL_CRAFTER_NAME").HasValue && item.GetLocalVariable<string>("_ORIGINAL_CRAFTER_NAME").Value != player.oid.Name)
+      if (item.GetLocalVariable<string>("_ORIGINAL_CRAFTER_NAME").HasValue && item.GetLocalVariable<string>("_ORIGINAL_CRAFTER_NAME").Value != player.oid.LoginCreature.Name)
       {
         player.oid.SendServerMessage($"Impossible de sauvegarder cette apparence. Il est indiqué : Pour tout modification, s'adresser à {item.GetLocalVariable<string>("_ORIGINAL_CRAFTER_NAME").Value.ColorString(Color.WHITE)}", Color.ORANGE);
         return;
@@ -44,7 +44,7 @@ namespace NWN.Systems
 
       if (awaitedValue)
       {
-        string input = player.oid.GetLocalVariable<string>("_PLAYER_INPUT").Value;
+        string input = player.oid.LoginCreature.GetLocalVariable<string>("_PLAYER_INPUT").Value;
 
         var query = NWScript.SqlPrepareQueryCampaign(Config.database, $"INSERT INTO playerItemAppearance (characterId, appearanceName, serializedAppearance, baseItemType, AC) VALUES (@characterId, @appearanceName, @serializedAppearance, @baseItemType, @AC)" +
               $"ON CONFLICT (characterId, appearanceName) DO UPDATE SET serializedAppearance = @serializedAppearance, baseItemType = @baseItemType, AC = @AC where characterId = @characterId and appearanceName = @appearanceName");
@@ -58,7 +58,7 @@ namespace NWN.Systems
         player.oid.SendServerMessage($"L'apparence de votre {selection.TargetObject.Name.ColorString(Color.WHITE)} a été sauvegardée sous le nom {input.ColorString(Color.WHITE)}.", Color.GREEN);
         player.menu.Close();
 
-        player.oid.GetLocalVariable<string>("_PLAYER_INPUT").Delete();
+        player.oid.LoginCreature.GetLocalVariable<string>("_PLAYER_INPUT").Delete();
       }
     }
   }

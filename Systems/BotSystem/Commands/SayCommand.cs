@@ -15,11 +15,11 @@ namespace NWN.Systems
       int result = DiscordUtils.CheckPlayerCredentialsFromDiscord(context, sPCName);
       if (result > 0)
       {
-        NwPlayer player = NwModule.Instance.Players.FirstOrDefault(p => ObjectPlugin.GetInt(p, "characterId") == result);
+        NwPlayer player = NwModule.Instance.Players.FirstOrDefault(p => ObjectPlugin.GetInt(p.LoginCreature, "characterId") == result);
 
         if(player != null)
         {
-          await player.SpeakString(text);
+          await player.ControlledCreature.SpeakString(text);
           await context.Channel.SendMessageAsync("Texte en cours de relais vers votre personnage.");
           return;
         }

@@ -47,14 +47,14 @@ namespace NWN.Systems
       if (awaitedValue)
       {
         HandleRefineOre(player, oreName);
-        player.oid.GetLocalVariable<string>("_PLAYER_INPUT").Delete();
+        player.oid.LoginCreature.GetLocalVariable<string>("_PLAYER_INPUT").Delete();
       }
     }
     private void HandleRefineOre(Player player, string oreName)
     {
       player.menu.Clear();
 
-      int input = int.Parse(player.oid.GetLocalVariable<string>("_PLAYER_INPUT"));
+      int input = int.Parse(player.oid.LoginCreature.GetLocalVariable<string>("_PLAYER_INPUT"));
 
       if (input < 100)
       {
@@ -103,7 +103,7 @@ namespace NWN.Systems
         else
         {
           player.menu.titleLines.Add($"HRP - Erreur, votre peau brut n'a pas correctement été reconnue. Le staff a été informé du problème.");
-          NWN.Utils.LogMessageToDMs($"TANNERIE - Could not recognize pelt type : {oreName} - Used by : {player.oid.Name}");
+          NWN.Utils.LogMessageToDMs($"TANNERIE - Could not recognize pelt type : {oreName} - Used by : {player.oid.LoginCreature.Name}");
         }
       }
 
@@ -146,7 +146,7 @@ namespace NWN.Systems
       else
       {
         player.menu.titleLines.Add($"HRP - Erreur, votre peau brut n'a pas correctement été reconnue. Le staff a été informé du problème.");
-        Utils.LogMessageToDMs($"TANNERIE - Could not recognize pelt type : {oreName} - Used by : {player.oid.Name}");
+        Utils.LogMessageToDMs($"TANNERIE - Could not recognize pelt type : {oreName} - Used by : {player.oid.LoginCreature.Name}");
       }
 
       player.menu.Close();

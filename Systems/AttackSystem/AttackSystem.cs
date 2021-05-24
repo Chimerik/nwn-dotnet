@@ -16,7 +16,7 @@ namespace NWN.Systems
       {
         // La cible de l'attaque est un joueur, on fait diminuer la durabilité
 
-        int dexBonus = player.oid.GetAbilityModifier(Ability.Dexterity) - (CreaturePlugin.GetArmorCheckPenalty(player.oid) + CreaturePlugin.GetShieldCheckPenalty(player.oid));
+        int dexBonus = onAttacked.Creature.GetAbilityModifier(Ability.Dexterity) - (CreaturePlugin.GetArmorCheckPenalty(onAttacked.Creature) + CreaturePlugin.GetShieldCheckPenalty(onAttacked.Creature));
         if (dexBonus < 0)
           dexBonus = 0;
 
@@ -33,14 +33,14 @@ namespace NWN.Systems
 
         int random = NwRandom.Roll(Utils.random, 11, 1) - 1;
         int loop = random + 1;
-        NwItem item = player.oid.GetItemInSlot((InventorySlot)random);
+        NwItem item = onAttacked.Creature.GetItemInSlot((InventorySlot)random);
 
         while (item == null && loop != random)
         {
           if (loop > 10)
             loop = 0;
 
-          item = player.oid.GetItemInSlot((InventorySlot)loop);
+          item = onAttacked.Creature.GetItemInSlot((InventorySlot)loop);
           loop++;
         }
 
@@ -50,8 +50,17 @@ namespace NWN.Systems
         item.GetLocalVariable<int>("_DURABILITY").Value -= 1;
         if (item.GetLocalVariable<int>("_DURABILITY").Value <= 0)
         {
-          item.Destroy();
-          player.oid.SendServerMessage($"Il ne reste plus que des ruines irrécupérables de votre {item.Name.ColorString(Color.WHITE)}.", Color.RED);
+          if (item.GetLocalVariable<int>("_ORIGINAL_CRAFTER_NAME").HasNothing)
+          {
+            item.Destroy();
+            player.oid.SendServerMessage($"Il ne reste plus que des ruines de votre {item.Name.ColorString(Color.WHITE)}. Ces débris ne sont même pas réparables !", Color.RED);
+          }
+          else
+          {
+            item.GetLocalVariable<int>("_DURABILITY").Value = -1;
+            HandleItemRuined(onAttacked.Creature, item);
+            player.oid.SendServerMessage($"Il ne reste plus que des ruines de votre {item.Name.ColorString(Color.WHITE)}. Des réparations s'imposent !", Color.RED);
+          }
         }
 
         /*switch (attackData.iAttackResult)
@@ -137,14 +146,14 @@ namespace NWN.Systems
         {
           case WeaponAttackType.MainHand:
           case WeaponAttackType.HastedAttack:
-            weapon = attacker.oid.GetItemInSlot(InventorySlot.RightHand);
+            weapon = onAttack.Attacker.GetItemInSlot(InventorySlot.RightHand);
             break;
           case WeaponAttackType.Offhand:
-            weapon = attacker.oid.GetItemInSlot(InventorySlot.LeftHand);
+            weapon = onAttack.Attacker.GetItemInSlot(InventorySlot.LeftHand);
             break;
           case WeaponAttackType.Unarmed:
           case WeaponAttackType.UnarmedExtra:
-            weapon = attacker.oid.GetItemInSlot(InventorySlot.Arms);
+            weapon = onAttack.Attacker.GetItemInSlot(InventorySlot.Arms);
             break;
           default:
             return;
@@ -169,7 +178,7 @@ namespace NWN.Systems
             return;
         }
 
-        int dexBonus = attacker.oid.GetAbilityModifier(Ability.Dexterity) - (CreaturePlugin.GetArmorCheckPenalty(attacker.oid) + CreaturePlugin.GetShieldCheckPenalty(attacker.oid));
+        int dexBonus = onAttack.Attacker.GetAbilityModifier(Ability.Dexterity) - (CreaturePlugin.GetArmorCheckPenalty(onAttack.Attacker) + CreaturePlugin.GetShieldCheckPenalty(onAttack.Attacker));
         if (dexBonus < 0)
           dexBonus = 0;
 
@@ -184,11 +193,25 @@ namespace NWN.Systems
           weapon.GetLocalVariable<int>("_DURABILITY").Value -= 1;
           if (weapon.GetLocalVariable<int>("_DURABILITY").Value <= 0)
           {
-            weapon.Destroy();
-            attacker.oid.SendServerMessage($"Il ne reste plus que des ruines irrécupérables de votre {weapon.Name.ColorString(Color.WHITE)}.", Color.RED);
+            if (weapon.GetLocalVariable<int>("_ORIGINAL_CRAFTER_NAME").HasNothing)
+            {
+              weapon.Destroy();
+              attacker.oid.SendServerMessage($"Il ne reste plus que des ruines de votre {weapon.Name.ColorString(Color.WHITE)}. Ces débris ne sont même pas réparables !", Color.RED);
+            }
+            else
+            {
+              weapon.GetLocalVariable<int>("_DURABILITY").Value = -1;
+              HandleItemRuined(onAttack.Attacker, weapon);
+              attacker.oid.SendServerMessage($"Il ne reste plus que des ruines de votre {weapon.Name.ColorString(Color.WHITE)}. Des réparations s'imposent !", Color.RED);
+            }
           }
         }
       }
+    }
+    private static void HandleItemRuined(NwCreature oPC, NwItem oItem)
+    {
+      CreaturePlugin.RunUnequip(oPC, oItem);
+
     }
   }
 }

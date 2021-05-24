@@ -5,16 +5,9 @@ using NWN.API.Events;
 
 namespace NWN.Systems
 {
-  class NoBuff
+  static class NoBuff
   {
-    public NoBuff(NwCreature oTarget, bool apply = true)
-    {
-      if (apply)
-        ApplyEffectToTarget(oTarget);
-      else
-        RemoveEffectFromTarget(oTarget);
-    }
-    private void ApplyEffectToTarget(NwCreature oTarget)
+    public static void ApplyEffectToTarget(NwCreature oTarget)
     {
       oTarget.OnSpellCast -= NoBuffMalus;
       oTarget.OnSpellCast += NoBuffMalus;
@@ -25,11 +18,11 @@ namespace NWN.Systems
 
       oTarget.ApplyEffect(EffectDuration.Instant, Effect.VisualEffect(VfxType.ImpDispelDisjunction));
     }
-    private void RemoveEffectFromTarget(NwCreature oTarget)
+    public static void RemoveEffectFromTarget(NwCreature oTarget)
     {
       oTarget.OnSpellCast -= NoBuffMalus;
     }
-    private void NoBuffMalus(OnSpellCast onSpellCast)
+    private static void NoBuffMalus(OnSpellCast onSpellCast)
     {
       switch (onSpellCast.Spell)
       {
@@ -154,7 +147,9 @@ namespace NWN.Systems
         case Spell.WarCry:
         case Spell.WoundingWhispers:
           onSpellCast.PreventSpellCast = true;
-          ((NwPlayer)onSpellCast.Caster).SendServerMessage("L'interdiction d'usage de magie défensive est en vigueur !", Color.RED);
+
+          if (onSpellCast.Caster is NwCreature { IsPlayerControlled: true } oPC)
+            oPC.ControllingPlayer.SendServerMessage("L'interdiction d'usage de magie défensive est en vigueur !", Color.RED);
           break;
       }
     }

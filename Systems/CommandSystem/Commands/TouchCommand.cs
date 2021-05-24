@@ -9,13 +9,13 @@ namespace NWN.Systems
   {
     public TouchMode(NwPlayer oPC)
     {
-      List<Effect> effectList = oPC.ActiveEffects.Where(e => e.EffectType == EffectType.CutsceneGhost).ToList();
+      List<Effect> effectList = oPC.ControlledCreature.ActiveEffects.Where(e => e.EffectType == EffectType.CutsceneGhost).ToList();
 
       if (effectList.Count == 0)
-        oPC.ApplyEffect(EffectDuration.Permanent, Effect.CutsceneGhost());
+        oPC.ControlledCreature.ApplyEffect(EffectDuration.Permanent, Effect.CutsceneGhost());
       else
         foreach (Effect eff in effectList)
-          oPC.RemoveEffect(eff);
+          oPC.ControlledCreature.RemoveEffect(eff);
     }
   }
 }

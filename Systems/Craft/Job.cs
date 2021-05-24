@@ -22,7 +22,7 @@ namespace NWN.Systems.Craft
 
     public Job(int baseItemType, string material, float time, PlayerSystem.Player player, string item = "")
     {
-      ModuleSystem.Log.Info($"Craft new job from {player.oid.Name} - base item : {baseItemType} - remaining Time {time} - material {material}");
+      ModuleSystem.Log.Info($"Craft new job from {player.oid.LoginCreature.Name} - base item : {baseItemType} - remaining Time {time} - material {material}");
       //this.name = name;
       this.baseItemType = baseItemType;
       this.craftedItem = item;
@@ -136,7 +136,7 @@ namespace NWN.Systems.Craft
       if (this.isCancelled)
       {
         if(craftedItem != "")
-          player.AcquireItem(NwItem.Deserialize(craftedItem.ToByteArray()));
+          player.LoginCreature.AcquireItem(NwItem.Deserialize(craftedItem.ToByteArray()));
       }
 
       return true;
@@ -214,7 +214,7 @@ namespace NWN.Systems.Craft
         if (iBlueprintRemainingRuns > 0)
           oItem.GetLocalVariable<int>("_BLUEPRINT_RUNS").Value -= 1;
 
-        ItemUtils.DecreaseItemDurability(player.oid.GetItemInSlot(InventorySlot.RightHand));
+        ItemUtils.DecreaseItemDurability(player.oid.LoginCreature.GetItemInSlot(InventorySlot.RightHand));
       }
       else
         player.oid.SendServerMessage("Vous n'avez pas les ressources nécessaires pour démarrer la fabrication de cet objet artisanal.", Color.RED);
@@ -242,7 +242,7 @@ namespace NWN.Systems.Craft
       if (!int.TryParse(NWScript.Get2DAString("spells", "Wiz_Sorc", spellId), out int spellLevel))
       {
         player.oid.SendServerMessage("HRP - Le niveau de sort de votre enchantement est incorrectement configuré. Le staff a été prévenu !");
-        Utils.LogMessageToDMs($"ENCHANTEMENT - {player.oid.Name} - spell level introuvable pour spellid : {spellId}");
+        Utils.LogMessageToDMs($"ENCHANTEMENT - {player.oid.LoginCreature.Name} - spell level introuvable pour spellid : {spellId}");
         return;
       }
 
@@ -395,11 +395,11 @@ namespace NWN.Systems.Craft
       journalEntry.sTag = "craft_job";
       journalEntry.nPriority = 1;
       journalEntry.nQuestDisplayed = 1;
-      PlayerPlugin.AddCustomJournalEntry(player.oid, journalEntry);
+      PlayerPlugin.AddCustomJournalEntry(player.oid.LoginCreature, journalEntry);
     }
     public void CancelCraftJournalEntry()
     {
-      JournalEntry journalEntry = PlayerPlugin.GetJournalEntry(player.oid, "craft_job");
+      JournalEntry journalEntry = PlayerPlugin.GetJournalEntry(player.oid.LoginCreature, "craft_job");
 
       switch (type)
       {
@@ -428,12 +428,12 @@ namespace NWN.Systems.Craft
 
       journalEntry.sTag = "craft_job";
       journalEntry.nQuestDisplayed = 0;
-      PlayerPlugin.AddCustomJournalEntry(player.oid, journalEntry);
+      PlayerPlugin.AddCustomJournalEntry(player.oid.LoginCreature, journalEntry);
       player.playerJournal.craftJobCountDown = null;
     }
     public void CloseCraftJournalEntry()
     {
-      JournalEntry journalEntry = PlayerPlugin.GetJournalEntry(player.oid, "craft_job");
+      JournalEntry journalEntry = PlayerPlugin.GetJournalEntry(player.oid.LoginCreature, "craft_job");
 
       switch (type)
       {
@@ -463,7 +463,7 @@ namespace NWN.Systems.Craft
       journalEntry.sTag = "craft_job";
       journalEntry.nQuestCompleted = 1;
       journalEntry.nQuestDisplayed = 0;
-      PlayerPlugin.AddCustomJournalEntry(player.oid, journalEntry);
+      PlayerPlugin.AddCustomJournalEntry(player.oid.LoginCreature, journalEntry);
       player.playerJournal.craftJobCountDown = null;
     }
   }

@@ -17,7 +17,7 @@ namespace NWN.Systems
 
       CancellationTokenSource tokenSource = new CancellationTokenSource();
 
-      Task playerReturned = NwTask.WaitUntil(() => area.FindObjectsOfTypeInArea<NwPlayer>().Count(p => !p.IsDM && !p.IsDMPossessed && !p.IsPlayerDM) > 0, tokenSource.Token);
+      Task playerReturned = NwTask.WaitUntil(() => area.FindObjectsOfTypeInArea<NwCreature>().Any(p => p.IsPlayerControlled), tokenSource.Token);
       Task activateCleaner = NwTask.Delay(TimeSpan.FromMinutes(25), tokenSource.Token);
       await NwTask.WhenAny(playerReturned, activateCleaner);
       tokenSource.Cancel();
@@ -80,9 +80,9 @@ namespace NWN.Systems
     }
     public async static void AreaDestroyer(NwArea area)
     {
-      await NwTask.WaitUntil(() => !area.FindObjectsOfTypeInArea<NwPlayer>().Any());
-      await NwTask.WaitUntil(() => !NwModule.Instance.Players.Any(p => p.Location.Area == null));
-      AreaSystem.Log.Info($"Destroyed area {area.Name}");
+      await NwTask.WaitUntil(() => !area.FindObjectsOfTypeInArea<NwCreature>().Any(p => p.ControllingPlayer != null));
+      await NwTask.WaitUntil(() => !NwModule.Instance.Players.Any(p => p.ControlledCreature.Location.Area == null));
+      Log.Info($"Destroyed area {area.Name}");
       area.Destroy();
     }
   }

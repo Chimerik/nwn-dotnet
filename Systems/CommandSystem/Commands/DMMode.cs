@@ -8,9 +8,9 @@ namespace NWN.Systems
     public DMMode(NwPlayer oPC)
     {
       if(!oPC.IsPlayerDM)
-        PlayerPlugin.ToggleDM(oPC, 1);
+        PlayerPlugin.ToggleDM(oPC.LoginCreature, 1);
       else
-        PlayerPlugin.ToggleDM(oPC, 0);
+        PlayerPlugin.ToggleDM(oPC.LoginCreature, 0);
     }
   }
 }

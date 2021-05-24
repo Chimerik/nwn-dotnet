@@ -14,7 +14,7 @@ namespace NWN.Systems
     }
     private async void RenameTarget(ModuleEvents.OnPlayerTarget selection)
     {
-      if (!PlayerSystem.Players.TryGetValue(selection.Player, out PlayerSystem.Player player) || selection.TargetObject == null)
+      if (!PlayerSystem.Players.TryGetValue(selection.Player.LoginCreature, out PlayerSystem.Player player) || selection.TargetObject == null)
         return;
 
       player.menu.Clear();
@@ -31,8 +31,8 @@ namespace NWN.Systems
 
       if (awaitedValue)
       {
-        selection.TargetObject.Name = player.oid.GetLocalVariable<string>("_PLAYER_INPUT").Value;
-        player.oid.GetLocalVariable<string>("_PLAYER_INPUT").Delete();
+        selection.TargetObject.Name = player.oid.LoginCreature.GetLocalVariable<string>("_PLAYER_INPUT").Value;
+        player.oid.LoginCreature.GetLocalVariable<string>("_PLAYER_INPUT").Delete();
         player.oid.SendServerMessage($"{selection.TargetObject.Name.ColorString(Color.WHITE)} a été renommé {selection.TargetObject.Name.ColorString(Color.WHITE)}.", Color.GREEN);
         player.menu.Close();
       }

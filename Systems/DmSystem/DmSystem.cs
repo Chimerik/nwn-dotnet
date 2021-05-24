@@ -47,9 +47,9 @@ namespace NWN.Systems
     {
       if (int.Parse(EventsPlugin.GetEventData("OBJECT_TYPE")) == NWScript.OBJECT_TYPE_PLACEABLE)
       {
-        NwPlayer oPC = (NwPlayer)callInfo.ObjectSelf;
+        NwCreature oPC = (NwCreature)callInfo.ObjectSelf;
 
-        if (oPC.GetLocalVariable<int>("_SPAWN_PERSIST").HasValue)
+        if (oPC.ControllingPlayer.LoginCreature.GetLocalVariable<int>("_SPAWN_PERSIST").HasValue)
         {
           NwPlaceable oObject = NWScript.StringToObject(EventsPlugin.GetEventData("OBJECT")).ToNwObject<NwPlaceable>();
           oObject.OnDeath += PlaceableSystem.HandleCleanDMPLC;
@@ -67,10 +67,10 @@ namespace NWN.Systems
           NWScript.SqlStep(query);
           NWScript.SetLocalInt(oObject, "_ID", NWScript.SqlGetInt(query, 0));
 
-          oPC.SendServerMessage($"Création persistante - Vous posez le placeable  {oObject.Name.ColorString(Color.WHITE)}", Color.GREEN);
+          oPC.ControllingPlayer.SendServerMessage($"Création persistante - Vous posez le placeable  {oObject.Name.ColorString(Color.WHITE)}", Color.GREEN);
         }
         else
-          oPC.SendServerMessage("Création temporaire - Ce placeable sera effacé par le prochain reboot.");
+          oPC.ControllingPlayer.SendServerMessage("Création temporaire - Ce placeable sera effacé par le prochain reboot.");
       }
     }
     [ScriptHandler("a_dm_jump_target")]
@@ -89,19 +89,19 @@ namespace NWN.Systems
     private void HandleBeforeDmGiveXP(CallInfo callInfo)
     {
       EventsPlugin.SkipEvent();
-      Utils.LogMessageToDMs($"{((NwPlayer)callInfo.ObjectSelf).PlayerName} vient d'essayer de donner de l'xp à {NWScript.StringToObject(EventsPlugin.GetEventData("OBJECT")).ToNwObject().Name}");
+      Utils.LogMessageToDMs($"{((NwCreature)callInfo.ObjectSelf).ControllingPlayer.PlayerName} vient d'essayer de donner de l'xp à {NWScript.StringToObject(EventsPlugin.GetEventData("OBJECT")).ToNwObject().Name}");
     }
 
     [ScriptHandler("on_dm_give_gold")]
     private void HandleBeforeDmGiveGold(CallInfo callInfo)
     {
-      Utils.LogMessageToDMs($"{((NwPlayer)callInfo.ObjectSelf).PlayerName} vient de donner {Int32.Parse(EventsPlugin.GetEventData("AMOUNT"))} d'or à {NWScript.StringToObject(EventsPlugin.GetEventData("OBJECT")).ToNwObject().Name}");
+      Utils.LogMessageToDMs($"{((NwCreature)callInfo.ObjectSelf).ControllingPlayer.PlayerName} vient de donner {Int32.Parse(EventsPlugin.GetEventData("AMOUNT"))} d'or à {NWScript.StringToObject(EventsPlugin.GetEventData("OBJECT")).ToNwObject().Name}");
     }
 
     [ScriptHandler("on_dm_give_item")]
     private void HandleAfterDmGiveItem(CallInfo callInfo)
     {
-      Utils.LogMessageToDMs($"{((NwPlayer)callInfo.ObjectSelf).PlayerName} vient de donner {NWScript.StringToObject(EventsPlugin.GetEventData("ITEM")).ToNwObject().Name} d'or à {NWScript.StringToObject(EventsPlugin.GetEventData("TARGET")).ToNwObject().Name}");
+      Utils.LogMessageToDMs($"{((NwCreature)callInfo.ObjectSelf).ControllingPlayer.PlayerName} vient de donner {NWScript.StringToObject(EventsPlugin.GetEventData("ITEM")).ToNwObject().Name} d'or à {NWScript.StringToObject(EventsPlugin.GetEventData("TARGET")).ToNwObject().Name}");
     }
   }
 }

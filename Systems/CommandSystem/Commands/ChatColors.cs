@@ -58,8 +58,8 @@ namespace NWN.Systems
 
       if (awaitedValue)
       {
-        colorArray[0] = byte.Parse(player.oid.GetLocalVariable<string>("_PLAYER_INPUT"));
-        player.oid.GetLocalVariable<string>("_PLAYER_INPUT").Delete();
+        colorArray[0] = byte.Parse(player.oid.LoginCreature.GetLocalVariable<string>("_PLAYER_INPUT"));
+        player.oid.LoginCreature.GetLocalVariable<string>("_PLAYER_INPUT").Delete();
         HandleGreenValueSelection();
       }
     }
@@ -80,8 +80,8 @@ namespace NWN.Systems
 
       if (awaitedValue)
       {
-        colorArray[1] = byte.Parse(player.oid.GetLocalVariable<string>("_PLAYER_INPUT"));
-        player.oid.GetLocalVariable<string>("_PLAYER_INPUT").Delete();
+        colorArray[1] = byte.Parse(player.oid.LoginCreature.GetLocalVariable<string>("_PLAYER_INPUT"));
+        player.oid.LoginCreature.GetLocalVariable<string>("_PLAYER_INPUT").Delete();
         HandleBlueValueSelection();
       }
     }
@@ -102,8 +102,8 @@ namespace NWN.Systems
 
       if (awaitedValue)
       {
-        colorArray[2] = byte.Parse(player.oid.GetLocalVariable<string>("_PLAYER_INPUT"));
-        player.oid.GetLocalVariable<string>("_PLAYER_INPUT").Delete();
+        colorArray[2] = byte.Parse(player.oid.LoginCreature.GetLocalVariable<string>("_PLAYER_INPUT"));
+        player.oid.LoginCreature.GetLocalVariable<string>("_PLAYER_INPUT").Delete();
 
         player.menu.Close();
 

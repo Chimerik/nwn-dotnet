@@ -5,36 +5,25 @@ using NWN.API.Events;
 
 namespace NWN.Systems
 {
-  class Slow
+  static class Slow
   {
-    public Slow(NwCreature oTarget, bool apply = true)
-    {
-      if (apply)
-        ApplyEffectToTarget(oTarget);
-      else
-        RemoveEffectFromTarget(oTarget);
-    }
-    private void ApplyEffectToTarget(NwCreature oTarget)
+    public static void ApplyEffectToTarget(NwCreature oTarget)
     {
       oTarget.ApplyEffect(EffectDuration.Instant, Effect.VisualEffect(VfxType.ImpSlow));
-
       Effect slow = Effect.Slow();
-      slow.Tag = "CUSTOM_EFFECT_SLOW";
+      slow.Tag = "CUSTOM_EFFECT_SLOW_MALUS";
       slow.SubType = EffectSubType.Supernatural;
-
       Effect msDecrease = Effect.MovementSpeedDecrease(10);
-      slow.Tag = "CUSTOM_EFFECT_SLOW";
+      slow.Tag = "CUSTOM_EFFECT_SLOW_MALUS";
       slow.SubType = EffectSubType.Supernatural;
-
       oTarget.ApplyEffect(EffectDuration.Permanent, slow);
       oTarget.ApplyEffect(EffectDuration.Permanent, msDecrease);
-
       oTarget.OnSpellCastAt -= SlowMalusCure;
       oTarget.OnSpellCastAt += SlowMalusCure;
     }
-    private void RemoveEffectFromTarget(NwCreature oTarget)
+    public static void RemoveEffectFromTarget(NwCreature oTarget)
     {
-      foreach (Effect eff in oTarget.ActiveEffects.Where(e => e.Tag == "CUSTOM_EFFECT_SLOW"))
+      foreach (Effect eff in oTarget.ActiveEffects.Where(e => e.Tag == "CUSTOM_EFFECT_SLOW_MALUS"))
         oTarget.RemoveEffect(eff);
 
       oTarget.OnSpellCastAt -= SlowMalusCure;

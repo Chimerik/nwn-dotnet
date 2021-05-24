@@ -30,10 +30,10 @@ namespace NWN.Systems
       };
       player.menu.choices.Add(($"Me refaire une beauté.", () => HandleBodyCloneSpawn(player)));
 
-      if(!Convert.ToBoolean(NWScript.GetLocalInt(NWScript.GetNearestObjectByTag("intro_mirror", player.oid), "_TRAIT_SELECTED")))
+      if(!Convert.ToBoolean(NWScript.GetLocalInt(NWScript.GetNearestObjectByTag("intro_mirror", player.oid.LoginCreature), "_TRAIT_SELECTED")))
         player.menu.choices.Add(($"Me perdre brièvement dans le passé.", () => HandleBackgroundChoice(player)));
       
-      if(ObjectPlugin.GetInt(player.oid, "_STARTING_SKILL_POINTS") > 0)
+      if(ObjectPlugin.GetInt(player.oid.LoginCreature, "_STARTING_SKILL_POINTS") > 0)
         player.menu.choices.Add(($"Me préparer à l'avenir.", () => HandleSkillSelection(player)));
       
       player.menu.choices.Add(("M'éloigner du miroir.", () => player.menu.Close()));
@@ -43,13 +43,13 @@ namespace NWN.Systems
     }
     private void HandleBodyCloneSpawn(Player player)
     {
-      clone = player.oid.Clone(mirror.Location, "clone");
+      clone = player.oid.LoginCreature.Clone(mirror.Location, "clone");
       clone.ApplyEffect(EffectDuration.Permanent, API.Effect.CutsceneGhost());
       clone.HiliteColor = Color.SILVER;
-      clone.Name = $"Reflet de {player.oid.Name}";
+      clone.Name = $"Reflet de {player.oid.LoginCreature.Name}";
       clone.Rotation += 180;
 
-      VisibilityPlugin.SetVisibilityOverride(player.oid, mirror, VisibilityPlugin.NWNX_VISIBILITY_HIDDEN);
+      VisibilityPlugin.SetVisibilityOverride(player.oid.LoginCreature, mirror, VisibilityPlugin.NWNX_VISIBILITY_HIDDEN);
       
       HandleBodyModification(player);
 
@@ -115,7 +115,7 @@ namespace NWN.Systems
       player.menu.Clear();
 
       player.menu.titleLines = new List<string> {
-        $"Vous disposez actuellement de {ObjectPlugin.GetInt(player.oid, "_STARTING_SKILL_POINTS")} points de compétence.",
+        $"Vous disposez actuellement de {ObjectPlugin.GetInt(player.oid.LoginCreature, "_STARTING_SKILL_POINTS")} points de compétence.",
         "Quelles capacités initiales votre personnage possède-t-il ?"
       };
 
@@ -138,7 +138,7 @@ namespace NWN.Systems
       if (clone != null)
       {
         clone.Destroy();
-        VisibilityPlugin.SetVisibilityOverride(player.oid, mirror, VisibilityPlugin.NWNX_VISIBILITY_VISIBLE);
+        VisibilityPlugin.SetVisibilityOverride(player.oid.LoginCreature, mirror, VisibilityPlugin.NWNX_VISIBILITY_VISIBLE);
       }
     }
     private void ChangeCloneHead(Player player, int model)
@@ -157,11 +157,11 @@ namespace NWN.Systems
     }
     private void ApplyBodyChangesOnPlayer(Player player)
     {
-      NWScript.SetCreatureBodyPart(NWScript.CREATURE_PART_HEAD, NWScript.GetCreatureBodyPart(NWScript.CREATURE_PART_HEAD, clone), player.oid);
-      NWScript.SetColor(player.oid, NWScript.COLOR_CHANNEL_TATTOO_1, NWScript.GetColor(clone, NWScript.COLOR_CHANNEL_TATTOO_1));
-      NWScript.SetColor(player.oid, NWScript.COLOR_CHANNEL_TATTOO_2, NWScript.GetColor(clone, NWScript.COLOR_CHANNEL_TATTOO_2));
-      NWScript.SetColor(player.oid, NWScript.COLOR_CHANNEL_HAIR, NWScript.GetColor(clone, NWScript.COLOR_CHANNEL_HAIR));
-      player.oid.VisualTransform = clone.VisualTransform;
+      NWScript.SetCreatureBodyPart(NWScript.CREATURE_PART_HEAD, NWScript.GetCreatureBodyPart(NWScript.CREATURE_PART_HEAD, clone), player.oid.LoginCreature);
+      NWScript.SetColor(player.oid.LoginCreature, NWScript.COLOR_CHANNEL_TATTOO_1, NWScript.GetColor(clone, NWScript.COLOR_CHANNEL_TATTOO_1));
+      NWScript.SetColor(player.oid.LoginCreature, NWScript.COLOR_CHANNEL_TATTOO_2, NWScript.GetColor(clone, NWScript.COLOR_CHANNEL_TATTOO_2));
+      NWScript.SetColor(player.oid.LoginCreature, NWScript.COLOR_CHANNEL_HAIR, NWScript.GetColor(clone, NWScript.COLOR_CHANNEL_HAIR));
+      player.oid.LoginCreature.VisualTransform = clone.VisualTransform;
       HandleBodyModification(player);
     }
     private void ChangeCloneEyeColor(Player player, int color)
@@ -199,11 +199,11 @@ namespace NWN.Systems
     }
     private void HandleSkillSelected(Player player, Skill skill)
     {
-      int remainingPoints = ObjectPlugin.GetInt(player.oid, "_STARTING_SKILL_POINTS");
+      int remainingPoints = ObjectPlugin.GetInt(player.oid.LoginCreature, "_STARTING_SKILL_POINTS");
 
       if (remainingPoints >= skill.pointsToNextLevel)
       {
-        ObjectPlugin.SetInt(player.oid, "_STARTING_SKILL_POINTS", remainingPoints -= skill.pointsToNextLevel, 1);
+        ObjectPlugin.SetInt(player.oid.LoginCreature, "_STARTING_SKILL_POINTS", remainingPoints -= skill.pointsToNextLevel, 1);
 
         if (customFeatsDictionnary.ContainsKey(skill.oid)) // Il s'agit d'un Custom Feat
         {
@@ -221,7 +221,7 @@ namespace NWN.Systems
           skill.pointsToNextLevel = (int)(250 * skill.multiplier * Math.Pow(5, skill.currentLevel));
 
           if (int.TryParse(NWScript.Get2DAString("feat", "FEAT", (int)skill.oid), out int nameValue))
-            PlayerPlugin.SetTlkOverride(player.oid, nameValue, $"{customFeatName} - {skill.currentLevel}");
+            PlayerPlugin.SetTlkOverride(player.oid.LoginCreature, nameValue, $"{customFeatName} - {skill.currentLevel}");
           //player.oid.SetTlkOverride(nameValue, $"{customFeatName} - {skill.currentLevel}");
           else
             Utils.LogMessageToDMs($"CUSTOM SKILL SYSTEM ERROR - Skill {customFeatName} - {(int)skill.oid} : no available custom name StrRef");
@@ -239,7 +239,7 @@ namespace NWN.Systems
           }
         }
 
-        player.oid.AddFeat(skill.oid);
+        player.oid.LoginCreature.AddFeat(skill.oid);
         skill.CreateSkillJournalEntry();
         skill.PlayNewSkillAcquiredEffects();
         HandleSkillSelection(player);
@@ -259,7 +259,7 @@ namespace NWN.Systems
       else
       {
         skill.acquiredPoints += remainingPoints;
-        ObjectPlugin.DeleteInt(player.oid, "_STARTING_SKILL_POINTS");
+        ObjectPlugin.DeleteInt(player.oid.LoginCreature, "_STARTING_SKILL_POINTS");
         skill.currentJob = true;
         player.currentSkillJob = (int)skill.oid;
         skill.CreateSkillJournalEntry();
@@ -268,7 +268,7 @@ namespace NWN.Systems
     }
     private void AddTrait(Player player, Feat trait)
     {
-      player.oid.AddFeat(trait);
+      player.oid.LoginCreature.AddFeat(trait);
       mirror.GetLocalVariable<int>("_TRAIT_SELECTED").Value = 1;
       DrawWelcomePage(player);
     }

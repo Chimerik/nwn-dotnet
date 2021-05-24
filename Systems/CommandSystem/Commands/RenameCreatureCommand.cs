@@ -11,7 +11,7 @@ namespace NWN.Systems
   {
     public RenameSummon(NwPlayer oPC)
     {
-      if (!oPC.KnowsFeat(Feat.SpellFocusConjuration))
+      if (!oPC.LoginCreature.KnowsFeat(Feat.SpellFocusConjuration))
       {
         oPC.SendServerMessage("Le don de spécialisation en invocation est nécessaire pour pouvoir renommer une invocation.", Color.ORANGE);
         return;
@@ -23,10 +23,10 @@ namespace NWN.Systems
     }
     private static async void SummonRenameTarget(ModuleEvents.OnPlayerTarget selection)
     {
-      if (!PlayerSystem.Players.TryGetValue(selection.Player, out PlayerSystem.Player player))
+      if (!PlayerSystem.Players.TryGetValue(selection.Player.LoginCreature, out PlayerSystem.Player player))
         return;
 
-      if (selection.TargetObject != null && ((NwCreature)selection.TargetObject).Master == selection.Player)
+      if (selection.TargetObject != null && ((NwCreature)selection.TargetObject).Master == selection.Player.LoginCreature)
       {
         player.menu.Clear();
 
@@ -42,8 +42,8 @@ namespace NWN.Systems
 
         if (awaitedValue)
         {
-          selection.TargetObject.Name = player.oid.GetLocalVariable<string>("_PLAYER_INPUT").Value;
-          player.oid.GetLocalVariable<string>("_PLAYER_INPUT").Delete();
+          selection.TargetObject.Name = player.oid.LoginCreature.GetLocalVariable<string>("_PLAYER_INPUT").Value;
+          player.oid.LoginCreature.GetLocalVariable<string>("_PLAYER_INPUT").Delete();
           player.oid.SendServerMessage($"{selection.TargetObject.Name.ColorString(Color.WHITE)} a été renommé {selection.TargetObject.Name.ColorString(Color.WHITE)}.", Color.GREEN);
           player.menu.Close();
         }

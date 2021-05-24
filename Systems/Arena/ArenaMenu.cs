@@ -52,9 +52,9 @@ namespace NWN.Systems.Arena
     }
     public static void DrawMalusSelectionPage(Player player)
     {
-      player.oid.RemoveFeat(CustomFeats.CustomMenuEXIT);
-      player.oid.RemoveFeat(CustomFeats.CustomMenuUP);
-      player.oid.RemoveFeat(CustomFeats.CustomMenuDOWN);
+      player.oid.LoginCreature.RemoveFeat(CustomFeats.CustomMenuEXIT);
+      player.oid.LoginCreature.RemoveFeat(CustomFeats.CustomMenuUP);
+      player.oid.LoginCreature.RemoveFeat(CustomFeats.CustomMenuDOWN);
 
       player.menu.Clear();
 
@@ -86,8 +86,8 @@ namespace NWN.Systems.Arena
     private static void HandleRunAway(Player player)
     {
       player.menu.Close();
-      player.oid.ClearActionQueue();
-      player.oid.Location = NwModule.FindObjectsWithTag<NwWaypoint>(PVE_ENTRY_WAYPOINT_TAG).FirstOrDefault().Location;
+      player.oid.LoginCreature.ClearActionQueue();
+      player.oid.LoginCreature.Location = NwObject.FindObjectsWithTag<NwWaypoint>(PVE_ENTRY_WAYPOINT_TAG).FirstOrDefault().Location;
     }
   }
 }

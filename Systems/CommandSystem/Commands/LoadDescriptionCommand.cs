@@ -28,7 +28,7 @@ namespace NWN.Systems
 
     private void ApplySelectedDescription(NwPlayer oPC, string descriptionName, string description)
     {
-      oPC.Description = description;
+      oPC.ControlledCreature.Description = description;
       oPC.SendServerMessage($"La description {descriptionName.ColorString(Color.WHITE)} a bien été appliquée à votre personnage.", Color.BLUE);
     }
   }

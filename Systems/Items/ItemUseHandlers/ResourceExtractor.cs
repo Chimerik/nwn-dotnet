@@ -6,7 +6,7 @@ namespace NWN.Systems.Items.ItemUseHandlers
 {
   public static class ResourceExtractor
   {
-    public static void HandleActivate(NwItem oItem, NwPlayer oPC, NwGameObject oTarget)
+    public static void HandleActivate(NwItem oItem, NwCreature oPC, NwGameObject oTarget)
     {
       if (!PlayerSystem.Players.TryGetValue(oPC, out PlayerSystem.Player player))
         return;
@@ -16,7 +16,7 @@ namespace NWN.Systems.Items.ItemUseHandlers
 
       if (oPC.Distance(oTarget) > 5.0f)
       {
-        oPC.SendServerMessage("Vous êtes trop éloigné de votre cible pour démarrer l'extraction.", Color.ORANGE);
+        player.oid.SendServerMessage("Vous êtes trop éloigné de votre cible pour démarrer l'extraction.", Color.ORANGE);
         return;
       }
 
@@ -58,11 +58,11 @@ namespace NWN.Systems.Items.ItemUseHandlers
             );
           }
           else
-            oPC.SendServerMessage("La cible doit être abattue avant de pouvoir commencer le dépeçage.", Color.ORANGE);
+            player.oid.SendServerMessage("La cible doit être abattue avant de pouvoir commencer le dépeçage.", Color.ORANGE);
           break;
 
         default:
-          oPC.SendServerMessage($"{oTarget.Name} n'est pas une cible valide pour l'extraction de matières premières.", Color.RED);
+          player.oid.SendServerMessage($"{oTarget.Name} n'est pas une cible valide pour l'extraction de matières premières.", Color.RED);
           break;
       }
     }

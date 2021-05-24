@@ -11,10 +11,12 @@ namespace NWN.Systems
   {
     public AcidSplash(SpellEvents.OnSpellCast onSpellCast)
     {
-      NwPlayer oCaster = (NwPlayer)onSpellCast.Caster;
+      if (!(onSpellCast.Caster is NwCreature { IsPlayerControlled: true } oCaster))
+        return;
+
       int nCasterLevel = oCaster.LastSpellCasterLevel;
 
-      NWScript.SignalEvent(onSpellCast.TargetObject, NWScript.EventSpellCastAt(oCaster, (int)onSpellCast.Spell));
+      NWScript.SignalEvent(onSpellCast.TargetObject, NWScript.EventSpellCastAt(onSpellCast.Caster, (int)onSpellCast.Spell));
 
       API.Effect eVis = API.Effect.VisualEffect(VfxType.ImpAcidS);
 

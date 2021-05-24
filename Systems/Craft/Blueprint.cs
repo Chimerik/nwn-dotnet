@@ -125,7 +125,7 @@ namespace NWN.Systems.Craft
 
       NwItem item = (NwItem)target;
 
-      if (item.Possessor != oPlayer)
+      if (item.Possessor != oPlayer.LoginCreature)
       {
         oPlayer.SendServerMessage("Le patron doit se trouver dans votre inventaire afin d'effectuer cette opération.");
         return;
@@ -134,12 +134,12 @@ namespace NWN.Systems.Craft
       int baseItemType = target.GetLocalVariable<int>("_BASE_ITEM_TYPE").Value;
 
       if (Collect.System.blueprintDictionnary.TryGetValue(baseItemType, out Blueprint blueprint))
-        if (PlayerSystem.Players.TryGetValue(oPlayer, out PlayerSystem.Player player))
+        if (PlayerSystem.Players.TryGetValue(oPlayer.LoginCreature, out PlayerSystem.Player player))
           blueprint.StartJob(player, item, feat);
         else
         {
           oPlayer.SendServerMessage("[ERREUR HRP] - Le patron utilisé n'est pas correctement initialisé. Le bug a été remonté au staff.");
-          Utils.LogMessageToDMs($"Blueprint Invalid : {item.Name} - Base Item Type : {baseItemType} - Used by : {oPlayer.Name}");
+          Utils.LogMessageToDMs($"Blueprint Invalid : {item.Name} - Base Item Type : {baseItemType} - Used by : {oPlayer.LoginCreature.Name}");
         }
     }
     private void StartJob(PlayerSystem.Player player, NwItem blueprint, Feat feat)
@@ -177,7 +177,7 @@ namespace NWN.Systems.Craft
     }
     public int GetBlueprintMineralCostForPlayer(NwPlayer oPC, NwItem item)
     {
-      if (!PlayerSystem.Players.TryGetValue(oPC, out PlayerSystem.Player player))
+      if (!PlayerSystem.Players.TryGetValue(oPC.LoginCreature, out PlayerSystem.Player player))
         return 999999999;
 
       int iSkillLevel = 0;
@@ -194,7 +194,7 @@ namespace NWN.Systems.Craft
     }
     public float GetBlueprintTimeCostForPlayer(NwPlayer oPC, NwItem item)
     {
-      if (!PlayerSystem.Players.TryGetValue(oPC, out PlayerSystem.Player player))
+      if (!PlayerSystem.Players.TryGetValue(oPC.LoginCreature, out PlayerSystem.Player player))
         return 999999999;
 
       int iSkillLevel = 0;

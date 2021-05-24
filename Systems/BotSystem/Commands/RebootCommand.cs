@@ -25,7 +25,7 @@ namespace NWN.Systems
 
       foreach (NwPlayer oPC in NwModule.Instance.Players)
       {
-        if (PlayerSystem.Players.TryGetValue(oPC, out PlayerSystem.Player player))
+        if (PlayerSystem.Players.TryGetValue(oPC.LoginCreature, out PlayerSystem.Player player))
         {
           JournalEntry journalEntry = new JournalEntry();
           journalEntry.sName = "REBOOT SERVEUR - 30";
@@ -35,7 +35,7 @@ namespace NWN.Systems
           journalEntry.nPriority = 1;
           journalEntry.nQuestCompleted = 0;
           journalEntry.nQuestDisplayed = 1;
-          PlayerPlugin.AddCustomJournalEntry(player.oid, journalEntry);
+          PlayerPlugin.AddCustomJournalEntry(player.oid.LoginCreature, journalEntry);
 
           player.rebootUpdate(29);
         }

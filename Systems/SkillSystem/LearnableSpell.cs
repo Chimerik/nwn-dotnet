@@ -69,7 +69,7 @@ namespace NWN.Systems
 
         secondaryAbility = NWScript.ABILITY_CHARISMA;
 
-        int knownSpells = CreaturePlugin.GetKnownSpellCount(player.oid, 43, multiplier);
+        int knownSpells = CreaturePlugin.GetKnownSpellCount(player.oid.LoginCreature, 43, multiplier);
         if (knownSpells > 4)
           knownSpells = 4;
 
@@ -81,7 +81,7 @@ namespace NWN.Systems
         if (this.player.currentSkillJob == this.oid)
         {
           this.currentJob = true;
-          if (player.oid.GetLocalVariable<int>("_CONNECTING").HasNothing)
+          if (player.oid.LoginCreature.GetLocalVariable<int>("_CONNECTING").HasNothing)
             this.CreateSkillJournalEntry();
         }
       }
@@ -101,30 +101,30 @@ namespace NWN.Systems
         journalEntry.sTag = "skill_job";
         journalEntry.nPriority = 1;
         journalEntry.nQuestDisplayed = 1;
-        PlayerPlugin.AddCustomJournalEntry(player.oid, journalEntry);
+        PlayerPlugin.AddCustomJournalEntry(player.oid.LoginCreature, journalEntry);
       }
       public void CancelSkillJournalEntry()
       {
-        JournalEntry journalEntry = PlayerPlugin.GetJournalEntry(player.oid, "skill_job");
+        JournalEntry journalEntry = PlayerPlugin.GetJournalEntry(player.oid.LoginCreature, "skill_job");
         journalEntry.sName = $"Etude annulée - {this.name}";
         journalEntry.sTag = "skill_job";
         journalEntry.nQuestDisplayed = 0;
-        PlayerPlugin.AddCustomJournalEntry(player.oid, journalEntry);
+        PlayerPlugin.AddCustomJournalEntry(player.oid.LoginCreature, journalEntry);
         player.playerJournal.skillJobCountDown = null;
       }
       public void CloseSkillJournalEntry()
       {
-        JournalEntry journalEntry = PlayerPlugin.GetJournalEntry(player.oid, "skill_job");
+        JournalEntry journalEntry = PlayerPlugin.GetJournalEntry(player.oid.LoginCreature, "skill_job");
         journalEntry.sName = $"Etude terminée - {this.name}";
         journalEntry.sTag = "skill_job";
         journalEntry.nQuestCompleted = 1;
         journalEntry.nQuestDisplayed = 0;
-        PlayerPlugin.AddCustomJournalEntry(player.oid, journalEntry);
+        PlayerPlugin.AddCustomJournalEntry(player.oid.LoginCreature, journalEntry);
         player.playerJournal.skillJobCountDown = null;
       }
       public double CalculateSkillPointsPerSecond()
       {
-        double SP = ((double)player.oid.GetAbilityScore((Ability)primaryAbility) + ((double)player.oid.GetAbilityScore((Ability)secondaryAbility) / 2.0)) / 60.0;
+        double SP = ((double)player.oid.LoginCreature.GetAbilityScore((Ability)primaryAbility) + ((double)player.oid.LoginCreature.GetAbilityScore((Ability)secondaryAbility) / 2.0)) / 60.0;
 
         switch (player.bonusRolePlay)
         {
@@ -145,7 +145,7 @@ namespace NWN.Systems
             break;
         }
 
-        if (player.oid.GetLocalVariable<int>("_CONNECTING").HasValue)
+        if (player.oid.LoginCreature.GetLocalVariable<int>("_CONNECTING").HasValue)
           SP = SP * 60 / 100;
         else if (player.isAFK)
           SP = SP * 80 / 100;
@@ -167,16 +167,16 @@ namespace NWN.Systems
         if (player.menu.isOpen)
           player.menu.Close();
 
-        CreaturePlugin.AddKnownSpell(player.oid, 43, level, oid);
+        CreaturePlugin.AddKnownSpell(player.oid.LoginCreature, 43, level, oid);
         PlayNewSkillAcquiredEffects();
         trained = true;
         player.currentSkillJob = (int)CustomFeats.Invalid;
         player.currentSkillType = SkillType.Invalid;
-        NWScript.ExportSingleCharacter(player.oid);
+        NWScript.ExportSingleCharacter(player.oid.LoginCreature);
       }
       public void PlayNewSkillAcquiredEffects()
       {
-        PlayerPlugin.ApplyInstantVisualEffectToObject(player.oid, player.oid, NWScript.VFX_IMP_SPELL_MANTLE_USE);
+        PlayerPlugin.ApplyInstantVisualEffectToObject(player.oid.LoginCreature, player.oid.LoginCreature, NWScript.VFX_IMP_SPELL_MANTLE_USE);
         CloseSkillJournalEntry();
       }
     }

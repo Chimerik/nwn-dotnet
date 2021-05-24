@@ -41,9 +41,9 @@ namespace NWN.Systems
       if (onCombatStatusChange.CombatStatus == CombatStatus.ExitCombat)
         return;
 
-      API.Effect effPC = onCombatStatusChange.Player.ActiveEffects.FirstOrDefault(e => e.EffectType == EffectType.CutsceneGhost);
+      API.Effect effPC = onCombatStatusChange.Player.ControlledCreature.ActiveEffects.FirstOrDefault(e => e.EffectType == EffectType.CutsceneGhost);
       if (effPC != null)
-        onCombatStatusChange.Player.RemoveEffect(effPC);
+        onCombatStatusChange.Player.ControlledCreature.RemoveEffect(effPC);
     }
     public static void OnCombatRoundStart(OnCombatRoundStart onStartCombatRound)
     {
@@ -61,10 +61,9 @@ namespace NWN.Systems
     [ScriptHandler("event_skillused")]
     private void HandleBeforeSkillUsed(CallInfo callInfo)
     {
-      if (!(callInfo.ObjectSelf is NwPlayer))
+      if (!(callInfo.ObjectSelf is NwCreature { IsLoginPlayerCharacter: true } oPC))
         return;
 
-      NwPlayer oPC = (NwPlayer)callInfo.ObjectSelf;
       int skillID = int.Parse(EventsPlugin.GetEventData("SKILL_ID"));
 
       switch ((Skill)skillID)
@@ -75,26 +74,18 @@ namespace NWN.Systems
           break;
         case Skill.PickPocket:
           EventsPlugin.SkipEvent();
-          NwObject oObject = NWScript.StringToObject(EventsPlugin.GetEventData("TARGET_OBJECT_ID")).ToNwObject();
 
-          if(!(oObject is NwPlayer))
+          if (!(NWScript.StringToObject(EventsPlugin.GetEventData("TARGET_OBJECT_ID")).ToNwObject() is NwCreature { IsLoginPlayerCharacter: true } oTarget)
+            || oTarget.ControllingPlayer.IsDM)
           {
-            oPC.FloatingTextString("Seuls d'autres joueurs peuvent être ciblés par cette compétence. Les tentatives de vol sur PNJ doivent être jouées en rp avec un dm.".ColorString(Color.RED), false);
-            return;
-          }
-
-          NwPlayer oTarget = (NwPlayer)oObject;
-
-          if (oTarget.IsDM || oTarget.IsDMPossessed || oTarget.IsPlayerDM)
-          {
-            oPC.FloatingTextString("Seuls d'autres joueurs peuvent être ciblés par cette compétence. Les tentatives de vol sur PNJ doivent être jouées en rp avec un dm.", false);
+            oPC.ControllingPlayer.FloatingTextString("Seuls d'autres joueurs peuvent être ciblés par cette compétence. Les tentatives de vol sur PNJ doivent être jouées en rp avec un dm.".ColorString(Color.RED), false);
             return;
           }
 
           if (!DateTime.TryParse(ObjectPlugin.GetString(oTarget, $"_PICKPOCKET_TIMER_{oPC.Name}"), out DateTime previousDate)
               || (DateTime.Now - previousDate).TotalHours < 24)
           {
-            oPC.FloatingTextString($"Vous ne serez autorisé à faire une nouvelle tentative de vol que dans : {(DateTime.Now - previousDate).TotalHours + 1}", false);
+            oPC.ControllingPlayer.FloatingTextString($"Vous ne serez autorisé à faire une nouvelle tentative de vol que dans : {(DateTime.Now - previousDate).TotalHours + 1}", false);
             return;
           }
 
@@ -109,13 +100,13 @@ namespace NWN.Systems
 
           if (!oPC.DoSkillCheck(Skill.PickPocket, iSpot))
           {
-            oTarget.FloatingTextString($"{oPC} est en train d'essayer de faire les poches de {oTarget} !", true);
-            oPC.FloatingTextString($"{oPC} est en train d'essayer de faire les poches de {oTarget} !", true);
+            oTarget.ControllingPlayer.FloatingTextString($"{oPC} est en train d'essayer de faire les poches de {oTarget} !", true);
+            oPC.ControllingPlayer.FloatingTextString($"{oPC} est en train d'essayer de faire les poches de {oTarget} !", true);
           }
 
           if (NWScript.TouchAttackMelee(oTarget) == 0)
           {
-            oPC.FloatingTextString($"Vous ne parvenez pas à atteindre les poches de {oTarget.Name} !", false);
+            oPC.ControllingPlayer.FloatingTextString($"Vous ne parvenez pas à atteindre les poches de {oTarget.Name} !", false);
             return;
           }
 
@@ -125,11 +116,11 @@ namespace NWN.Systems
           {
             CreaturePlugin.SetGold(oTarget, (int)oTarget.Gold - iStolenGold);
             oPC.GiveGold(iStolenGold);
-            oPC.FloatingTextString($"Vous venez de dérober {iStolenGold} pièces d'or des poches de {oTarget.Name} !", false);
+            oPC.ControllingPlayer.FloatingTextString($"Vous venez de dérober {iStolenGold} pièces d'or des poches de {oTarget.Name} !", false);
           }
           else
           {
-            oPC.FloatingTextString($"Vous venez de vider les poches de {oTarget.Name} ! {oTarget.Gold} pièces d'or de plus pour vous.", false);
+            oPC.ControllingPlayer.FloatingTextString($"Vous venez de vider les poches de {oTarget.Name} ! {oTarget.Gold} pièces d'or de plus pour vous.", false);
             oPC.GiveGold((int)oTarget.Gold);
             CreaturePlugin.SetGold(oTarget, 0);
           }
@@ -138,7 +129,7 @@ namespace NWN.Systems
         case Skill.AnimalEmpathy:
           if (oPC.Area.Tag == "Promenadetest")
           {
-            oPC.FloatingTextString("L'endroit est bien trop agité pour que vous puissiez vous permettre de nouer un lien avec l'animal.", false);
+            oPC.ControllingPlayer.FloatingTextString("L'endroit est bien trop agité pour que vous puissiez vous permettre de nouer un lien avec l'animal.", false);
             EventsPlugin.SkipEvent();
           }
           break;
@@ -168,8 +159,8 @@ namespace NWN.Systems
     {
       if (Players.TryGetValue(callInfo.ObjectSelf, out Player player))
       {
-        int id = NWScript.GetLocalInt(player.oid, "NW_TOTAL_MAP_PINS");
-        player.mapPinDictionnary.Add(NWScript.GetLocalInt(player.oid, "NW_TOTAL_MAP_PINS"), new MapPin(id, NWScript.GetTag(NWScript.GetArea(player.oid)), float.Parse(EventsPlugin.GetEventData("PIN_X")), float.Parse(EventsPlugin.GetEventData("PIN_Y")), EventsPlugin.GetEventData("PIN_NOTE")));
+        int id = NWScript.GetLocalInt(player.oid.LoginCreature, "NW_TOTAL_MAP_PINS");
+        player.mapPinDictionnary.Add(NWScript.GetLocalInt(player.oid.LoginCreature, "NW_TOTAL_MAP_PINS"), new MapPin(id, NWScript.GetTag(NWScript.GetArea(player.oid.ControlledCreature)), float.Parse(EventsPlugin.GetEventData("PIN_X")), float.Parse(EventsPlugin.GetEventData("PIN_Y")), EventsPlugin.GetEventData("PIN_NOTE")));
       }
     }
 
@@ -201,28 +192,27 @@ namespace NWN.Systems
     [ScriptHandler("pc_sheet_open")]
     private void HandleCharacterSheetOpened(CallInfo callInfo)
     {
-      if(((NwPlayer)callInfo.ObjectSelf).IsDM)
+      if (!(callInfo.ObjectSelf is NwCreature { IsLoginPlayerCharacter: true } player) || !player.ControllingPlayer.IsDM)
+        return;
+
+      if (!(NWScript.StringToObject(EventsPlugin.GetEventData("TARGET")).ToNwObject() is NwCreature { IsLoginPlayerCharacter: true } oTarget)
+        || !Players.TryGetValue(oTarget, out Player target))
+        return;
+
+      foreach (KeyValuePair<Feat, int> feat in target.learntCustomFeats)
       {
-        NwObject oTarget = NWScript.StringToObject(EventsPlugin.GetEventData("TARGET")).ToNwObject();
+        CustomFeat customFeat = SkillSystem.customFeatsDictionnary[feat.Key];
 
-        if(oTarget is NwPlayer && Players.TryGetValue(oTarget, out Player target))
+        if (int.TryParse(NWScript.Get2DAString("feat", "FEAT", (int)feat.Key), out int nameValue))
+          PlayerPlugin.SetTlkOverride(callInfo.ObjectSelf, nameValue, $"{customFeat.name} - {SkillSystem.GetCustomFeatLevelFromSkillPoints(feat.Key, feat.Value)}");
+        else
+          Utils.LogMessageToDMs($"CUSTOM SKILL SYSTEM ERROR - Skill {customFeat.name} : no available custom name StrRef");
+
+        if (int.TryParse(NWScript.Get2DAString("feat", "DESCRIPTION", (int)feat.Key), out int descriptionValue))
+          PlayerPlugin.SetTlkOverride(callInfo.ObjectSelf, descriptionValue, customFeat.description);
+        else
         {
-          foreach (KeyValuePair<Feat, int> feat in target.learntCustomFeats)
-          {
-            CustomFeat customFeat = SkillSystem.customFeatsDictionnary[feat.Key];
-
-            if (int.TryParse(NWScript.Get2DAString("feat", "FEAT", (int)feat.Key), out int nameValue))
-              PlayerPlugin.SetTlkOverride(callInfo.ObjectSelf, nameValue, $"{customFeat.name} - {SkillSystem.GetCustomFeatLevelFromSkillPoints(feat.Key, feat.Value)}");
-            else
-              Utils.LogMessageToDMs($"CUSTOM SKILL SYSTEM ERROR - Skill {customFeat.name} : no available custom name StrRef");
-
-            if (int.TryParse(NWScript.Get2DAString("feat", "DESCRIPTION", (int)feat.Key), out int descriptionValue))
-              PlayerPlugin.SetTlkOverride(callInfo.ObjectSelf, descriptionValue, customFeat.description);
-            else
-            {
-              Utils.LogMessageToDMs($"CUSTOM SKILL SYSTEM ERROR - Skill {customFeat.name} : no available custom description StrRef");
-            }
-          }
+          Utils.LogMessageToDMs($"CUSTOM SKILL SYSTEM ERROR - Skill {customFeat.name} : no available custom description StrRef");
         }
       }
     }
@@ -273,7 +263,8 @@ namespace NWN.Systems
     [ScriptHandler("b_learn_scroll")]
     private void HandleBeforeLearnScroll(CallInfo callInfo)
     {
-      NwPlayer oPC = (NwPlayer)callInfo.ObjectSelf;
+      if (!(callInfo.ObjectSelf is NwCreature { IsLoginPlayerCharacter: true } oPC))
+        return;
 
       EventsPlugin.SkipEvent();
       var oScroll = NWScript.StringToObject(EventsPlugin.GetEventData("SCROLL"));
@@ -283,7 +274,7 @@ namespace NWN.Systems
       if (spellId < 0 || spellLevel < 0)
       {
         Utils.LogMessageToDMs($"LEARN SPELL FROM SCROLL - Player : {oPC.Name}, SpellId : {spellId}, SpellLevel : {spellLevel} - INVALID");
-        oPC.SendServerMessage("HRP - Ce parchemin ne semble pas correctement configuré, impossible d'en apprendre quoique ce soit. Le staff a été informé du problème.");
+        oPC.ControllingPlayer.SendServerMessage("HRP - Ce parchemin ne semble pas correctement configuré, impossible d'en apprendre quoique ce soit. Le staff a été informé du problème.");
         return;
       }
 
@@ -293,7 +284,7 @@ namespace NWN.Systems
         for (int i = 0; i < knownSpellCount; i++)
           if (CreaturePlugin.GetKnownSpell(oPC, 43, spellLevel, i) == spellId)
           {
-            oPC.SendServerMessage("Ce sort est déjà inscrit dans votre grimoire.");
+            oPC.ControllingPlayer.SendServerMessage("Ce sort est déjà inscrit dans votre grimoire.");
             return;
           }
 
@@ -304,17 +295,17 @@ namespace NWN.Systems
           {
             player.learnableSpells[spellId].acquiredPoints += player.learnableSpells[spellId].pointsToNextLevel / 20;
             player.learnableSpells[spellId].nbScrollsUsed += 1;
-            oPC.SendServerMessage("A l'aide de ce parchemin, vous affinez votre connaissance de ce sort. Votre apprentissage sera plus rapide.");
+            oPC.ControllingPlayer.SendServerMessage("A l'aide de ce parchemin, vous affinez votre connaissance de ce sort. Votre apprentissage sera plus rapide.");
           }
           else
-            oPC.SendServerMessage("Vous avez déjà retiré tout ce que vous pouviez de ce parchemin.");
+            oPC.ControllingPlayer.SendServerMessage("Vous avez déjà retiré tout ce que vous pouviez de ce parchemin.");
           return;
         }
         else
         {
           SkillSystem.LearnableSpell spell = new SkillSystem.LearnableSpell(spellId, 0, player);
           player.learnableSpells.Add(spellId, spell);
-          oPC.SendServerMessage($"Le sort {spell.name} a été ajouté à votre liste d'apprentissage et est désormais disponible pour étude.");
+          oPC.ControllingPlayer.SendServerMessage($"Le sort {spell.name} a été ajouté à votre liste d'apprentissage et est désormais disponible pour étude.");
           NWScript.DestroyObject(oScroll);
         }
     }
@@ -327,24 +318,20 @@ namespace NWN.Systems
     public static void HandleOnClientLevelUp(OnClientLevelUpBegin onLevelUp)
     {
       onLevelUp.PreventLevelUp = true;
-      Utils.LogMessageToDMs($"{onLevelUp.Player.Name} vient d'essayer de level up.");
-      onLevelUp.Player.Xp = 1;
+      Utils.LogMessageToDMs($"{onLevelUp.Player.LoginCreature.Name} vient d'essayer de level up.");
+      onLevelUp.Player.LoginCreature.Xp = 1;
     }
 
     private static void HandlePlayerPerception(CreatureEvents.OnPerception onPerception)
     {
-      if (onPerception.PerceptionEventType != PerceptionEventType.Seen)
+      if (onPerception.PerceptionEventType != PerceptionEventType.Seen || onPerception.PerceivedCreature.Tag != "Statuereptilienne"
+        || !onPerception.Creature.IsLoginPlayerCharacter)
         return;
 
-      if (onPerception.PerceivedCreature.Tag != "Statuereptilienne")
+      if (onPerception.PerceivedCreature.GetLocalVariable<int>($"_PERCEPTION_STATUS_{onPerception.Creature.ControllingPlayer.CDKey}").HasValue)
         return;
 
-      NwPlayer oPC = (NwPlayer)onPerception.Creature;
-
-      if (onPerception.PerceivedCreature.GetLocalVariable<int>($"_PERCEPTION_STATUS_{oPC.CDKey}").HasValue)
-        return;
-
-      onPerception.PerceivedCreature.GetLocalVariable<int>($"_PERCEPTION_STATUS_{oPC.CDKey}").Value = 1;
+      onPerception.PerceivedCreature.GetLocalVariable<int>($"_PERCEPTION_STATUS_{onPerception.Creature.ControllingPlayer.CDKey}").Value = 1;
 
       API.Effect effectToRemove = onPerception.PerceivedCreature.ActiveEffects.FirstOrDefault(e => e.Tag == "_FREEZE_EFFECT");
       if (effectToRemove != null)

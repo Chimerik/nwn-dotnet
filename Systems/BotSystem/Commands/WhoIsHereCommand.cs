@@ -15,7 +15,7 @@ namespace NWN.Systems
       {
         string message = "";
         foreach (NwPlayer player in NwModule.Instance.Players)
-          message += player.Name + "\n";
+          message += player.LoginCreature.Name + "\n";
 
         if (message.Length == 0)
           message = "Aucun joueur n'est actuellement connecté.";

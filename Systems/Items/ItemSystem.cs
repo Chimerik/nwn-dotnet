@@ -24,7 +24,7 @@ namespace NWN.Systems
     }
     public static void OnItemEquipBefore(OnItemEquip onItemEquip)
     {
-      NwPlayer oPC = (NwPlayer)onItemEquip.EquippedBy;
+      NwCreature oPC = onItemEquip.EquippedBy;
       NwItem oItem = onItemEquip.Item;
 
       if (oPC == null || oItem == null)
@@ -34,7 +34,7 @@ namespace NWN.Systems
       
       if (oUnequip != null && !oPC.Inventory.CheckFit(oUnequip))
       {
-        oPC.SendServerMessage($"Attention, votre inventaire est plein. Vous risqueriez de perdre votre {oUnequip.Name} en déséquipant !", Color.RED);
+        oPC.ControllingPlayer.SendServerMessage($"Attention, votre inventaire est plein. Vous risqueriez de perdre votre {oUnequip.Name} en déséquipant !", Color.RED);
         onItemEquip.PreventEquip = true;
         return;
       }
@@ -43,24 +43,25 @@ namespace NWN.Systems
     [ScriptHandler("b_unequip")]
     private void HandleUnequipItemBefore(CallInfo callInfo)
     {
-      if (!(callInfo.ObjectSelf is NwPlayer))
+      NwCreature oPC = (NwCreature)callInfo.ObjectSelf;
+
+      if (oPC.ControllingPlayer == null)
         return;
 
-      NwPlayer oPC = (NwPlayer)callInfo.ObjectSelf;
       NwItem oItem = NWScript.StringToObject(EventsPlugin.GetEventData("ITEM")).ToNwObject<NwItem>();
 
-      if (oPC == null || oItem == null)
+      if (oItem == null)
         return;
-
 
       if (oPC.Inventory.CheckFit(oItem))
         return;
 
       if (oPC.GetLocalVariable<int>("CUSTOM_EFFECT_NOARMOR").HasValue
         || oPC.GetLocalVariable<int>("CUSTOM_EFFECT_NOWEAPON").HasValue
-        || oPC.GetLocalVariable<int>("CUSTOM_EFFECT_NOACCESSORY").HasValue)
+        || oPC.GetLocalVariable<int>("CUSTOM_EFFECT_NOACCESSORY").HasValue
+        || oItem.GetLocalVariable<int>("_DURABILITY") <= 0)
       {
-        oPC.SendServerMessage($"Attention, votre inventaire est plein. Votre {oItem.Name} a été déposé au sol !", Color.RED);
+        oPC.ControllingPlayer.SendServerMessage($"Attention, votre inventaire est plein. Votre {oItem.Name} a été déposé au sol !", Color.RED);
         oItem.Clone(oPC.Location);
         oItem.Destroy();
         oPC.GetLocalVariable<int>("CUSTOM_EFFECT_NOARMOR").Delete();
@@ -68,97 +69,97 @@ namespace NWN.Systems
         oPC.GetLocalVariable<int>("CUSTOM_EFFECT_NOACCESSORY").Delete();
       }
       else
-        oPC.SendServerMessage($"Attention, votre inventaire est plein. Vous risqueriez de perdre votre {oItem.Name} en déséquipant !", Color.RED);
+        oPC.ControllingPlayer.SendServerMessage($"Attention, votre inventaire est plein. Vous risqueriez de perdre votre {oItem.Name} en déséquipant !", Color.RED);
 
       EventsPlugin.SkipEvent();
     }
     public static void OnItemUseBefore(OnItemUse onItemUse)
     {
-      NwPlayer oPC = (NwPlayer)onItemUse.UsedBy;
+      NwCreature oPC = onItemUse.UsedBy;
 
       NwItem oItem = onItemUse.Item;
       NwGameObject oTarget = onItemUse.TargetObject;
 
-      if(oPC == null || oItem == null)
+      if(oPC.ControllingPlayer == null || oItem == null)
         return;
       
       switch (oItem.Tag)
       {
         case "skillbook":
-          feedbackService.AddFeedbackMessageFilter(FeedbackMessage.UseItemCantUse, oPC);
+          feedbackService.AddFeedbackMessageFilter(FeedbackMessage.UseItemCantUse, oPC.ControllingPlayer);
           onItemUse.PreventUseItem = true;
-          Items.ItemUseHandlers.SkillBook.HandleActivate(oItem, oPC);
+          Items.ItemUseHandlers.SkillBook.HandleActivate(oItem, oPC.ControllingPlayer.LoginCreature);
           break;
 
         case "blueprint":
-          feedbackService.AddFeedbackMessageFilter(FeedbackMessage.UseItemCantUse, oPC);
+          feedbackService.AddFeedbackMessageFilter(FeedbackMessage.UseItemCantUse, oPC.ControllingPlayer);
           onItemUse.PreventUseItem = true;
-          Items.ItemUseHandlers.Blueprint.HandleActivate(oItem, oPC, oTarget);
+          Items.ItemUseHandlers.Blueprint.HandleActivate(oItem, oPC.ControllingPlayer.LoginCreature, oTarget);
 
           break;
 
         case "oreextractor":
-          feedbackService.AddFeedbackMessageFilter(FeedbackMessage.UseItemCantUse, oPC);
+          feedbackService.AddFeedbackMessageFilter(FeedbackMessage.UseItemCantUse, oPC.ControllingPlayer);
           onItemUse.PreventUseItem = true;
-          Items.ItemUseHandlers.ResourceExtractor.HandleActivate(oItem, oPC, oTarget);
+          Items.ItemUseHandlers.ResourceExtractor.HandleActivate(oItem, oPC.ControllingPlayer.LoginCreature, oTarget);
 
           break;
         case "private_contract":
-          feedbackService.AddFeedbackMessageFilter(FeedbackMessage.UseItemCantUse, oPC);
+          feedbackService.AddFeedbackMessageFilter(FeedbackMessage.UseItemCantUse, oPC.ControllingPlayer);
           onItemUse.PreventUseItem = true;
-          new PrivateContract(oPC, oItem);
+          new PrivateContract(oPC.ControllingPlayer.LoginCreature, oItem);
 
           break;
         case "shop_clearance":
-          feedbackService.AddFeedbackMessageFilter(FeedbackMessage.UseItemCantUse, oPC);
+          feedbackService.AddFeedbackMessageFilter(FeedbackMessage.UseItemCantUse, oPC.ControllingPlayer);
           onItemUse.PreventUseItem = true;
-          new PlayerShop(oPC, oItem);
+          new PlayerShop(oPC.ControllingPlayer.LoginCreature, oItem);
 
           break;
         case "auction_clearanc":
-          feedbackService.AddFeedbackMessageFilter(FeedbackMessage.UseItemCantUse, oPC);
+          feedbackService.AddFeedbackMessageFilter(FeedbackMessage.UseItemCantUse, oPC.ControllingPlayer);
           onItemUse.PreventUseItem = true;
-          new PlayerAuction(oPC, oItem);
+          new PlayerAuction(oPC.ControllingPlayer.LoginCreature, oItem);
 
           break;
         case "forgehammer":
-          feedbackService.AddFeedbackMessageFilter(FeedbackMessage.UseItemCantUse, oPC);
+          feedbackService.AddFeedbackMessageFilter(FeedbackMessage.UseItemCantUse, oPC.ControllingPlayer);
           onItemUse.PreventUseItem = true;
 
           if (oTarget is NwItem)
-            new CraftTool(oPC, (NwItem)oTarget);
+            new CraftTool(oPC.ControllingPlayer.LoginCreature, (NwItem)oTarget);
           else
-            oPC.SendServerMessage($"Vous ne pouvez pas modifier l'apparence de {oTarget.Name.ColorString(Color.WHITE)}.".ColorString(Color.RED));
+            oPC.ControllingPlayer.SendServerMessage($"Vous ne pouvez pas modifier l'apparence de {oTarget.Name.ColorString(Color.WHITE)}.".ColorString(Color.RED));
 
           break;
         case "Peaudejoueur":
-          feedbackService.AddFeedbackMessageFilter(FeedbackMessage.UseItemCantUse, oPC);
+          feedbackService.AddFeedbackMessageFilter(FeedbackMessage.UseItemCantUse, oPC.ControllingPlayer);
           onItemUse.PreventUseItem = true;
           CreaturePlugin.RunEquip(oPC, onItemUse.Item, (int)InventorySlot.CreatureSkin);          
           break;
         case "potion_cure_mini":
-            new PotionCureMini(oPC);
+            new PotionCureMini(oPC.ControllingPlayer);
           break;
         case "potion_cure_frog":
-          new PotionCureFrog(oPC);
+          new PotionCureFrog(oPC.ControllingPlayer);
           break;
       }
 
       Task wait = NwTask.Run(async () =>
       {
         await NwTask.Delay(TimeSpan.FromSeconds(0.2));
-        feedbackService.RemoveFeedbackMessageFilter(FeedbackMessage.UseItemCantUse, oPC);
+        feedbackService.RemoveFeedbackMessageFilter(FeedbackMessage.UseItemCantUse, oPC.ControllingPlayer);
       });
     }
     public static void OnAcquireItem(ModuleEvents.OnAcquireItem onAcquireItem)
     {
-      NwPlayer oPC = (NwPlayer)onAcquireItem.AcquiredBy;
+      NwCreature oPC = (NwCreature)onAcquireItem.AcquiredBy;
       //Console.WriteLine(NWScript.GetName(oPC));
 
       NwItem oItem = onAcquireItem.Item;
       NwGameObject oAcquiredFrom = onAcquireItem.AcquiredFrom;
 
-      if (oPC == null || oItem == null)
+      if (oPC.ControllingPlayer == null || oItem == null)
         return;
 
       //Console.WriteLine(NWScript.GetTag(oItem));
@@ -189,10 +190,9 @@ namespace NWN.Systems
     }
     public static void OnUnacquireItem(ModuleEvents.OnUnacquireItem onUnacquireItem)
     {
-      NwPlayer oPC = (NwPlayer)onUnacquireItem.LostBy;
       NwItem oItem = onUnacquireItem.Item;
 
-      if (oPC == null || oItem == null)
+      if (onUnacquireItem.LostBy.ControllingPlayer == null || oItem == null)
         return;
 
       NwGameObject oGivenTo = oItem.Possessor;
@@ -225,22 +225,46 @@ namespace NWN.Systems
       API.Effect eff = API.Effect.SpellFailure(50);
       eff.Tag = "erylies_spell_failure";
       eff.SubType = EffectSubType.Supernatural;
-      oPC.ApplyEffect(EffectDuration.Permanent, eff);
+      oPC.LoginCreature.ApplyEffect(EffectDuration.Permanent, eff);
 
       //await (Bot._client.GetChannel(680072044364562532) as IMessageChannel).SendMessageAsync($"{oPC.Name} ne dispose pas d'amulette de traçage, ce qui le rend suspect aux yeux de l'Amiral.");
 
-      await NwTask.WaitUntil(() => oPC.GetItemInSlot(InventorySlot.Neck)?.Tag == "amulettorillink");
+      await NwTask.WaitUntil(() => oPC.LoginCreature == null || oPC.LoginCreature.GetItemInSlot(InventorySlot.Neck)?.Tag == "amulettorillink");
+
+      if (oPC.LoginCreature == null)
+        return;
+
       OnTorilNecklaceEquipped(oPC);
     }
     public static async void OnTorilNecklaceEquipped(NwPlayer oPC)
     {
       oPC.SendServerMessage("Votre lien avec la Toile se renforce de manière significative.", API.Color.PINK);
 
-      if (oPC.ActiveEffects.Any(e => e.Tag == "erylies_spell_failure"))
-        oPC.RemoveEffect(oPC.ActiveEffects.Where(e => e.Tag == "erylies_spell_failure").FirstOrDefault());
+      if (oPC.LoginCreature.ActiveEffects.Any(e => e.Tag == "erylies_spell_failure"))
+        oPC.LoginCreature.RemoveEffect(oPC.LoginCreature.ActiveEffects.Where(e => e.Tag == "erylies_spell_failure").FirstOrDefault());
 
-      await NwTask.WaitUntil(() => oPC.GetItemInSlot(InventorySlot.Neck)?.Tag != "amulettorillink");
+      await NwTask.WaitUntil(() => oPC.LoginCreature == null || oPC.LoginCreature.GetItemInSlot(InventorySlot.Neck)?.Tag != "amulettorillink");
+      
+      if (oPC.LoginCreature == null)
+        return;
+
       OnTorilNecklaceRemoved(oPC);
-    }    
+    }
+    public static void NoEquipRuinedItem(OnItemValidateEquip onItemValidateEquip)
+    {
+      if (onItemValidateEquip.Item.GetLocalVariable<int>("_DURABILITY") <= 0)
+      {
+        onItemValidateEquip.Result = EquipValidationResult.Denied;
+        onItemValidateEquip.UsedBy.ControllingPlayer.SendServerMessage($"{onItemValidateEquip.Item.Name} nécessite des réparations.", Color.RED);
+      }
+    }
+    public static void NoUseRuinedItem(OnItemValidateUse onItemValidateUse)
+    {
+      if (onItemValidateUse.Item.GetLocalVariable<int>("_DURABILITY") <= 0)
+      {
+        PlayerSystem.Log.Info($"no ruin : {onItemValidateUse.Item.Name} denied !");
+        onItemValidateUse.CanUse = false;
+      }
+    }
   }
 }

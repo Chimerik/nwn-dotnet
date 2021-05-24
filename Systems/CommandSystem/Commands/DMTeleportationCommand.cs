@@ -7,7 +7,7 @@
       if (ctx.oSender.IsDM || ctx.oSender.PlayerName == "Chim")
       {
         if (ctx.oTarget != null)
-          ctx.oSender.Location = ctx.oTarget.Location;
+          ctx.oSender.ControlledCreature.Location = ctx.oTarget.ControlledCreature.Location;
       }
     }
   }

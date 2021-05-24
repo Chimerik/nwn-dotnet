@@ -14,28 +14,28 @@ namespace NWN.Systems
   {
     public static void HandlePlayerDeath(ModuleEvents.OnPlayerDeath onPlayerDeath)
     {
-      if (Players.TryGetValue(onPlayerDeath.DeadPlayer, out Player player))
+      if (Players.TryGetValue(onPlayerDeath.DeadPlayer.LoginCreature, out Player player))
       {
         onPlayerDeath.DeadPlayer.SendServerMessage("Tout se brouille autour de vous. Avant de perdre connaissance, vous sentez comme un étrange maëlstrom vous aspirer.");
 
-        API.Location playerDeathLocation = player.oid.Location;
+        API.Location playerDeathLocation = player.oid.LoginCreature.Location;
         
         Task handleDeath = NwTask.Run(async () =>
         {
           await NwTask.Delay(TimeSpan.FromSeconds(3));
-          player.oid.Location = NwModule.FindObjectsWithTag<NwWaypoint>("WP__RESPAWN_AREA").FirstOrDefault().Location;
-          await NwTask.WaitUntil(() => player.oid.Area != null);
+          player.oid.LoginCreature.Location = NwObject.FindObjectsWithTag<NwWaypoint>("WP__RESPAWN_AREA").FirstOrDefault().Location;
+          await NwTask.WaitUntil(() => player.oid.LoginCreature.Area != null);
           SendPlayerToLimbo(player);
           CreatePlayerCorpse(player, playerDeathLocation);
-          player.oid.SendServerMessage($"{player.oid.Gold.ToString().ColorString(Color.WHITE)} pièces d'or ont été abandonnées sur place !", Color.RED);
-          player.oid.Gold = 0;
+          player.oid.SendServerMessage($"{player.oid.LoginCreature.Gold.ToString().ColorString(Color.WHITE)} pièces d'or ont été abandonnées sur place !", Color.RED);
+          player.oid.LoginCreature.Gold = 0;
           StripPlayerOfCraftResources(player);
         });
       }
     }
     private static void CreatePlayerCorpse(Player player, API.Location deathLocation)
     {
-      NwCreature oPCCorpse = player.oid.Clone(deathLocation, "pccorpse");
+      NwCreature oPCCorpse = player.oid.LoginCreature.Clone(deathLocation, "pccorpse");
 
       foreach (NwItem item in oPCCorpse.Inventory.Items)
         item.Destroy();
@@ -44,8 +44,8 @@ namespace NWN.Systems
       oPCCorpse.AcquireItem(oCorpseItem);
       
       oPCCorpse.Lootable = true;
-      oPCCorpse.Name = $"Corps inconscient de {player.oid.Name}";
-      oPCCorpse.Description = $"Corps inconscient de {player.oid.Name}. \n\n\n Allez savoir combien de temps il va tenir dans cet état.";
+      oPCCorpse.Name = $"Corps inconscient de {player.oid.LoginCreature.Name}";
+      oPCCorpse.Description = $"Corps inconscient de {player.oid.LoginCreature.Name}. \n\n\n Allez savoir combien de temps il va tenir dans cet état.";
       VisibilityPlugin.SetVisibilityOverride(NWScript.OBJECT_INVALID, oPCCorpse, VisibilityPlugin.NWNX_VISIBILITY_HIDDEN);
       
       oPCCorpse.GetLocalVariable<int>("_PC_ID").Value = player.characterId;
@@ -55,8 +55,8 @@ namespace NWN.Systems
           oPCCorpse.GetItemInSlot((InventorySlot)i).Droppable = false;
       
       oCorpseItem.GetLocalVariable<int>("_PC_ID").Value = player.characterId;
-      oCorpseItem.Name = $"Corps inconscient de {player.oid.Name}";
-      oCorpseItem.Description = $"Corps inconscient de {player.oid.Name}\n\n\n Pas très ragoûtant. Allez savoir combien de temps il va tenir avant de se lâcher.";
+      oCorpseItem.Name = $"Corps inconscient de {player.oid.LoginCreature.Name}";
+      oCorpseItem.Description = $"Corps inconscient de {player.oid.LoginCreature.Name}\n\n\n Pas très ragoûtant. Allez savoir combien de temps il va tenir avant de se lâcher.";
       oCorpseItem.Droppable = true;
 
       oCorpseItem.GetLocalVariable<string>("_SERIALIZED_CORPSE").Value = oPCCorpse.Serialize().ToBase64EncodedString();
@@ -70,8 +70,8 @@ namespace NWN.Systems
     }
     private static void StripPlayerOfCraftResources(Player player)
     {
-      Log.Info($"{player.oid.Name} dead. Stripping him of craft resources");
-      foreach (NwItem oItem in player.oid.Inventory.Items.Where(i => Craft.Collect.System.IsItemCraftMaterial(i.Tag) || i.Tag == "blueprint"))
+      Log.Info($"{player.oid.LoginCreature.Name} dead. Stripping him of craft resources");
+      foreach (NwItem oItem in player.oid.LoginCreature.Inventory.Items.Where(i => Craft.Collect.System.IsItemCraftMaterial(i.Tag) || i.Tag == "blueprint"))
       {
         Log.Info($"{oItem.Name} stripped");
         oItem.Clone(player.deathCorpse).Droppable = true;
@@ -89,23 +89,23 @@ namespace NWN.Systems
     }
     private static void SendPlayerToLimbo(Player player)
     {
-      player.oid.ApplyEffect(EffectDuration.Instant, API.Effect.VisualEffect(VfxType.ImpRestorationGreater));
-      player.oid.ApplyEffect(EffectDuration.Instant, API.Effect.Resurrection());
-      player.oid.ApplyEffect(EffectDuration.Instant, API.Effect.Heal(player.oid.MaxHP));
+      player.oid.LoginCreature.ApplyEffect(EffectDuration.Instant, API.Effect.VisualEffect(VfxType.ImpRestorationGreater));
+      player.oid.LoginCreature.ApplyEffect(EffectDuration.Instant, API.Effect.Resurrection());
+      player.oid.LoginCreature.ApplyEffect(EffectDuration.Instant, API.Effect.Heal(player.oid.LoginCreature.MaxHP));
     }
     public static void Respawn(Player player, string entity)
     {
       // TODO : Diminuer la durabilité de tous les objets équipés et dans l'inventaire du PJ
 
       DestroyPlayerCorpse(player);
-      player.oid.Location = NwModule.FindObjectsWithTag<NwWaypoint>("WP_RESPAWN_DISPENSAIRE").FirstOrDefault()?.Location;
+      player.oid.LoginCreature.Location = NwObject.FindObjectsWithTag<NwWaypoint>("WP_RESPAWN_DISPENSAIRE").FirstOrDefault()?.Location;
 
-      if (player.oid.GetItemInSlot(InventorySlot.Neck)?.Tag != "amulettorillink")
+      if (player.oid.LoginCreature.GetItemInSlot(InventorySlot.Neck)?.Tag != "amulettorillink")
       {
         API.Effect eff = API.Effect.SpellFailure(50);
         eff.Tag = "erylies_spell_failure";
         eff.SubType = EffectSubType.Supernatural;
-        player.oid.ApplyEffect(EffectDuration.Permanent, eff);
+        player.oid.LoginCreature.ApplyEffect(EffectDuration.Permanent, eff);
       }
 
       switch (entity)
@@ -208,7 +208,7 @@ namespace NWN.Systems
 
       eLink = NWScript.SupernaturalEffect(eLink);
 
-      NWScript.DelayCommand(5.0f, () => NWScript.ApplyEffectToObject(NWScript.DURATION_TYPE_PERMANENT, eLink, player.oid));
+      NWScript.DelayCommand(5.0f, () => NWScript.ApplyEffectToObject(NWScript.DURATION_TYPE_PERMANENT, eLink, player.oid.LoginCreature));
     }
     private static void ApplyDireRespawnEffects(PlayerSystem.Player player)
     {
@@ -229,7 +229,7 @@ namespace NWN.Systems
       Link = NWScript.SupernaturalEffect(Link);
       // +1 jet d'attaque; +1 dégat divin; +movement speed 10 %
 
-      NWScript.DelayCommand(5.0f, () => NWScript.ApplyEffectToObject(NWScript.DURATION_TYPE_PERMANENT, Link, player.oid));
+      NWScript.DelayCommand(5.0f, () => NWScript.ApplyEffectToObject(NWScript.DURATION_TYPE_PERMANENT, Link, player.oid.LoginCreature));
     }
     public static void SetupPCCorpse(NwCreature oPCCorpse)
     {

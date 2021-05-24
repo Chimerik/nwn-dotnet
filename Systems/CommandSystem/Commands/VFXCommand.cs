@@ -15,14 +15,14 @@ namespace NWN.Systems
       {
         if (Int32.TryParse((string)options.positional[0], out int value))
         {
-          ctx.oSender.GetLocalVariable<int>("_VXF_TEST_ID").Value = value;
+          ctx.oSender.LoginCreature.GetLocalVariable<int>("_VXF_TEST_ID").Value = value;
           PlayerSystem.cursorTargetService.EnterTargetMode(ctx.oSender, VFXTarget, ObjectTypes.Creature, MouseCursor.Magic);
         }
       }
     }
     private static void VFXTarget(ModuleEvents.OnPlayerTarget selection)
     {
-      ((NwGameObject)selection.TargetObject).ApplyEffect(EffectDuration.Temporary, Effect.VisualEffect((VfxType)selection.Player.GetLocalVariable<int>("_VXF_TEST_ID").Value), TimeSpan.FromSeconds(10));
+      ((NwGameObject)selection.TargetObject).ApplyEffect(EffectDuration.Temporary, Effect.VisualEffect((VfxType)selection.Player.LoginCreature.GetLocalVariable<int>("_VXF_TEST_ID").Value), TimeSpan.FromSeconds(10));
     }
   }
 }

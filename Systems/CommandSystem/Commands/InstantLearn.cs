@@ -14,8 +14,7 @@ namespace NWN.Systems
     }
     private void SelectLearnTarget(ModuleEvents.OnPlayerTarget selection)
     {
-      if (selection.TargetObject == null || !(selection.TargetObject is NwPlayer)
-        || !PlayerSystem.Players.TryGetValue(selection.TargetObject, out PlayerSystem.Player targetPlayer))
+      if (!PlayerSystem.Players.TryGetValue(selection.TargetObject, out PlayerSystem.Player targetPlayer))
         return;
 
       if (targetPlayer.currentSkillType == SkillType.Skill)

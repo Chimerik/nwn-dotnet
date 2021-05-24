@@ -6,19 +6,19 @@ namespace NWN.Systems.Items.ItemUseHandlers
 {
   public static class Blueprint
   {
-    public static void HandleActivate(NwItem oBlueprint, NwPlayer oPC, NwGameObject oTarget)
+    public static void HandleActivate(NwItem oBlueprint, NwCreature oPC, NwGameObject oTarget)
     {
       int baseItemType = oBlueprint.GetLocalVariable<int>("_BASE_ITEM_TYPE").Value;
 
       if (Craft.Collect.System.blueprintDictionnary.TryGetValue(baseItemType, out Craft.Blueprint blueprint))
       {
         if (oTarget == null)
-          oPC.SendServerMessage(blueprint.DisplayBlueprintInfo(oPC, oBlueprint));
+          oPC.ControllingPlayer.SendServerMessage(blueprint.DisplayBlueprintInfo(oPC.ControllingPlayer, oBlueprint));
         else
         {
           if (PlayerSystem.Players.TryGetValue(oPC, out PlayerSystem.Player player))
           {
-            if (player.craftJob.CanStartJob(oPC, oBlueprint, Craft.Job.JobType.Item))
+            if (player.craftJob.CanStartJob(oPC.ControllingPlayer, oBlueprint, Craft.Job.JobType.Item))
             {
               if (oPC.GetItemInSlot(InventorySlot.RightHand) != null && (int)oPC.GetItemInSlot(InventorySlot.RightHand).BaseItemType == 114) // 114 = marteau de forgeron
               {
@@ -29,20 +29,20 @@ namespace NWN.Systems.Items.ItemUseHandlers
                   if (sMaterial != "Invalid")
                     player.craftJob.Start(Craft.Job.JobType.Item, blueprint, player, oBlueprint, oTarget, sMaterial);
                   else
-                    oPC.SendServerMessage("Ce patron ne permet pas d'améliorer cet objet.", Color.RED);
+                    oPC.ControllingPlayer.SendServerMessage("Ce patron ne permet pas d'améliorer cet objet.", Color.RED);
                 }
                 else
-                  oPC.SendServerMessage($"Vous devez être à proximité d'un atelier de type {blueprint.workshopTag} pour commencer ce travail", Color.ORANGE);
+                  oPC.ControllingPlayer.SendServerMessage($"Vous devez être à proximité d'un atelier de type {blueprint.workshopTag} pour commencer ce travail", Color.ORANGE);
               }
               else
-                oPC.SendServerMessage($"Vous devez avoir un marteau d'artisan en main pour commencer le travail.", Color.ORANGE);
+                oPC.ControllingPlayer.SendServerMessage($"Vous devez avoir un marteau d'artisan en main pour commencer le travail.", Color.ORANGE);
             }
           }
         }
       }
       else
       {
-        oPC.SendServerMessage("[ERREUR HRP] - Ce patron n'est pas correctement initialisé. Le bug a été remonté au staff.", Color.RED);
+        oPC.ControllingPlayer.SendServerMessage("[ERREUR HRP] - Ce patron n'est pas correctement initialisé. Le bug a été remonté au staff.", Color.RED);
         Utils.LogMessageToDMs($"Invalid blueprint : {oBlueprint.Name} - Base Item Type : {baseItemType} - Used by {oPC.Name}");
       }
     }

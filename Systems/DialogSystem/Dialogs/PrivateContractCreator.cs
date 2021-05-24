@@ -90,13 +90,13 @@ namespace NWN.Systems
       if (awaitedValue)
       {
         HandleSetupPriceContract(player, material);
-        player.oid.GetLocalVariable<string>("_PLAYER_INPUT").Delete();
+        player.oid.LoginCreature.GetLocalVariable<string>("_PLAYER_INPUT").Delete();
       }
     }
     private async void HandleSetupPriceContract(Player player, string material)
     {
       player.menu.Clear();
-      int input = int.Parse(player.oid.GetLocalVariable<string>("_PLAYER_INPUT"));
+      int input = int.Parse(player.oid.LoginCreature.GetLocalVariable<string>("_PLAYER_INPUT"));
 
       if (input <= 0)
       {
@@ -122,7 +122,7 @@ namespace NWN.Systems
           if (awaitedValue)
           {
             HandleRegisterMaterialToContract(player, material, input);
-            player.oid.GetLocalVariable<string>("_PLAYER_INPUT").Delete();
+            player.oid.LoginCreature.GetLocalVariable<string>("_PLAYER_INPUT").Delete();
           }
         }
       }
@@ -130,7 +130,7 @@ namespace NWN.Systems
     private void HandleRegisterMaterialToContract(Player player, string material, int quantity)
     {
       player.menu.Clear();
-      int input = int.Parse(player.oid.GetLocalVariable<string>("_PLAYER_INPUT"));
+      int input = int.Parse(player.oid.LoginCreature.GetLocalVariable<string>("_PLAYER_INPUT"));
 
       if (input < 0)
       {
@@ -179,14 +179,14 @@ namespace NWN.Systems
       if (awaitedValue)
       {
         CreateContractPage(player);
-        player.oid.GetLocalVariable<string>("_PLAYER_INPUT").Delete();
+        player.oid.LoginCreature.GetLocalVariable<string>("_PLAYER_INPUT").Delete();
       }
     }
     private void CreateContractPage(Player player)
     {
       int expirationDate = 30;
 
-      int input = int.Parse(player.oid.GetLocalVariable<string>("_PLAYER_INPUT"));
+      int input = int.Parse(player.oid.LoginCreature.GetLocalVariable<string>("_PLAYER_INPUT"));
 
       if (input > 0 || input < 31)
         expirationDate = input;
@@ -198,7 +198,7 @@ namespace NWN.Systems
         return;
       }
 
-      NwItem contract = NwItem.Create("skillbookgeneriq", player.oid, 1, "private_contract");
+      NwItem contract = NwItem.Create("skillbookgeneriq", player.oid.LoginCreature, 1, "private_contract");
 
       int grandTotal = 0;
       string serializedContract = "";
@@ -230,10 +230,10 @@ namespace NWN.Systems
       NWScript.SqlStep(query);
 
       contract.GetLocalVariable<int>("_CONTRACT_ID").Value = NWScript.SqlGetInt(query, 0);
-      contract.Name = $"Contrat {NWScript.SqlGetInt(query, 0)} de {player.oid.Name}";
+      contract.Name = $"Contrat {NWScript.SqlGetInt(query, 0)} de {player.oid.LoginCreature.Name}";
 
       player.oid.SendServerMessage("Votre contrat d'échange privé de ressources a bien été créé.", Color.OLIVE);
-      player.oid.AcquireItem(contract, true);
+      player.oid.LoginCreature.AcquireItem(contract, true);
       player.menu.Close();
     }
     private void DrawCurrentContractPage(Player player)

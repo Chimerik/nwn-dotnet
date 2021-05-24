@@ -8,10 +8,10 @@ namespace NWN.Systems
   {
     public PotionCureFrog(NwPlayer oPC)
     {
-      foreach (Effect arenaMalus in oPC.ActiveEffects.Where(f => f.Tag == "CUSTOM_EFFECT_FROG"))
-        oPC.RemoveEffect(arenaMalus);
+      foreach (Effect arenaMalus in oPC.ControlledCreature.ActiveEffects.Where(f => f.Tag == "CUSTOM_EFFECT_FROG"))
+        oPC.ControlledCreature.RemoveEffect(arenaMalus);
 
-      oPC.ApplyEffect(EffectDuration.Instant, Effect.VisualEffect(API.Constants.VfxType.ImpRemoveCondition));
+      oPC.ControlledCreature.ApplyEffect(EffectDuration.Instant, Effect.VisualEffect(API.Constants.VfxType.ImpRemoveCondition));
     }
   }
 }

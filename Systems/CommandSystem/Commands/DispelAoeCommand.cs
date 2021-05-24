@@ -7,7 +7,7 @@ namespace NWN.Systems
   {
     private static void ExecuteDispelAoeCommand(ChatSystem.Context ctx, Options.Result options)
     {
-      foreach (NwAreaOfEffect aoe in NwModule.FindObjectsOfType<NwAreaOfEffect>().Where(aoe => aoe.Creator == ctx.oSender))
+      foreach (NwAreaOfEffect aoe in NwObject.FindObjectsOfType<NwAreaOfEffect>().Where(aoe => aoe.Creator == ctx.oSender.ControlledCreature))
         aoe.Destroy();
     }
   }

@@ -44,9 +44,9 @@ namespace NWN.Systems
 
       if (awaitedValue)
       {
-        rumorTitle = player.oid.GetLocalVariable<string>("_PLAYER_INPUT").Value;
+        rumorTitle = player.oid.LoginCreature.GetLocalVariable<string>("_PLAYER_INPUT").Value;
         GetRumorContent();
-        player.oid.GetLocalVariable<string>("_PLAYER_INPUT").Delete();
+        player.oid.LoginCreature.GetLocalVariable<string>("_PLAYER_INPUT").Delete();
       }
     }
     private async void GetRumorContent()
@@ -59,8 +59,8 @@ namespace NWN.Systems
 
       if (awaitedValue)
       {
-        SaveRumorToDatabase(player.oid.GetLocalVariable<string>("_PLAYER_INPUT").Value);
-        player.oid.GetLocalVariable<string>("_PLAYER_INPUT").Delete();
+        SaveRumorToDatabase(player.oid.LoginCreature.GetLocalVariable<string>("_PLAYER_INPUT").Value);
+        player.oid.LoginCreature.GetLocalVariable<string>("_PLAYER_INPUT").Delete();
       }
     }
     private void SaveRumorToDatabase(string rumorContent)
@@ -76,7 +76,7 @@ namespace NWN.Systems
       player.menu.Close();
 
       if(!player.oid.IsDM)
-        (Bot._client.GetChannel(680072044364562532) as Discord.IMessageChannel).SendMessageAsync($"{Bot._client.GetGuild(680072044364562528).EveryoneRole.Mention} Création de la rumeur {rumorTitle} par {player.oid.Name} à valider.");
+        (Bot._client.GetChannel(680072044364562532) as Discord.IMessageChannel).SendMessageAsync($"{Bot._client.GetGuild(680072044364562528).EveryoneRole.Mention} Création de la rumeur {rumorTitle} par {player.oid.LoginCreature.Name} à valider.");
     }
     private void DrawMyRumorsList()
     {
@@ -145,16 +145,16 @@ namespace NWN.Systems
     }
     private void HandleRumorSelected(string rumorContent)
     {
-      string originalDesc = player.oid.Description;
+      string originalDesc = player.oid.ControlledCreature.Description;
       string tempDescription = rumorTitle.ColorString(Color.ORANGE) + "\n\n" + rumorContent;
-      player.oid.Description = tempDescription;
-      player.oid.ClearActionQueue();
-      player.oid.ActionExamine(player.oid);
+      player.oid.ControlledCreature.Description = tempDescription;
+      player.oid.ControlledCreature.ClearActionQueue();
+      player.oid.ActionExamine(player.oid.ControlledCreature);
 
       Task waitForDescriptionRewrite = NwTask.Run(async () =>
       {
         await NwTask.Delay(TimeSpan.FromSeconds(0.2));
-        player.oid.Description = originalDesc;
+        player.oid.ControlledCreature.Description = originalDesc;
       });
 
       //player.menu.Close();

@@ -16,8 +16,8 @@ namespace NWN.System
     public static void OnOpenPersonnalStorage(StoreEvents.OnOpen onOpen)
     {
       onOpen.Store.OnClose += OnClosePersonnalStorage;
-      onOpen.Player.OnStoreRequestBuy += HandlePersonnalStorageBuy;
-      onOpen.Player.OnStoreRequestSell += HandlePersonnalStorageSell;
+      onOpen.Player.ControlledCreature.OnStoreRequestBuy += HandlePersonnalStorageBuy;
+      onOpen.Player.ControlledCreature.OnStoreRequestSell += HandlePersonnalStorageSell;
     }
     public static void OnClosePersonnalStorage(StoreEvents.OnClose onClose)
     {
@@ -49,8 +49,8 @@ namespace NWN.System
     public static void OnOpenOtherPlayerShop(StoreEvents.OnOpen onOpen)
     {
       onOpen.Store.OnClose += OnCloseOtherPlayerShop;
-      onOpen.Player.OnStoreRequestBuy += HandleOtherPlayerShopBuy;
-      onOpen.Player.OnStoreRequestSell += HandleOtherPlayerShopSell;
+      onOpen.Player.ControlledCreature.OnStoreRequestBuy += HandleOtherPlayerShopBuy;
+      onOpen.Player.ControlledCreature.OnStoreRequestSell += HandleOtherPlayerShopSell;
     }
     public static void OnCloseOtherPlayerShop(StoreEvents.OnClose onClose)
     {
@@ -84,13 +84,13 @@ namespace NWN.System
         int ownerId = onStoreRequestBuy.Store.GetLocalVariable<int>("_OWNER_ID").Value;
         int shopId = onStoreRequestBuy.Store.GetLocalVariable<int>("_SHOP_ID").Value;
 
-        NwPlayer oSeller = NwModule.Instance.Players.FirstOrDefault(p => ObjectPlugin.GetInt(p, "characterId") == ownerId);
+        NwPlayer oSeller = NwModule.Instance.Players.FirstOrDefault(p => ObjectPlugin.GetInt(p.LoginCreature, "characterId") == ownerId);
         if (oSeller != null)
         {
-          if (PlayerSystem.Players.TryGetValue(oSeller, out PlayerSystem.Player seller))
+          if (PlayerSystem.Players.TryGetValue(oSeller.LoginCreature, out PlayerSystem.Player seller))
             seller.bankGold += price;
 
-          oSeller.SendServerMessage($"La vente de votre {onStoreRequestBuy.Item.Name.ColorString(Color.ORANGE)} à {buyer.oid.Name.ColorString(Color.PINK)} vient de vous rapporter {price.ToString().ColorString(Color.GREEN)}");
+          oSeller.SendServerMessage($"La vente de votre {onStoreRequestBuy.Item.Name.ColorString(Color.ORANGE)} à {buyer.oid.LoginCreature.Name.ColorString(Color.PINK)} vient de vous rapporter {price.ToString().ColorString(Color.GREEN)}");
         }
         else
         {
@@ -113,8 +113,8 @@ namespace NWN.System
     public static void OnOpenOwnedPlayerShop(StoreEvents.OnOpen onOpen)
     {
       onOpen.Store.OnClose += OnCloseOwnedPlayerShop;
-      onOpen.Player.OnStoreRequestBuy += HandleOwnedPlayerShopBuy;
-      onOpen.Player.OnStoreRequestSell += HandleOwnedPlayerShopSell;
+      onOpen.Player.ControlledCreature.OnStoreRequestBuy += HandleOwnedPlayerShopBuy;
+      onOpen.Player.ControlledCreature.OnStoreRequestSell += HandleOwnedPlayerShopSell;
     }
     public static void OnCloseOwnedPlayerShop(StoreEvents.OnClose onClose)
     {
@@ -164,7 +164,7 @@ namespace NWN.System
         return;
 
       onStoreRequestBuy.PreventBuy = true;
-      onStoreRequestBuy.Item.Clone(buyer.oid);
+      onStoreRequestBuy.Item.Clone(onStoreRequestBuy.Creature);
       onStoreRequestBuy.Item.Destroy();
     }
     public static async void HandleOwnedPlayerShopSell(OnStoreRequestSell onStoreRequestSell)
@@ -199,7 +199,7 @@ namespace NWN.System
       if (awaitedValue)
       {
         SetItemPrice(player, onStoreRequestSell.Item, onStoreRequestSell.Store);
-        player.oid.GetLocalVariable<string>("_PLAYER_INPUT").Delete();
+        player.oid.LoginCreature.GetLocalVariable<string>("_PLAYER_INPUT").Delete();
       }
     }
     private static void SetItemPrice(PlayerSystem.Player player, NwItem item, NwStore shop)
@@ -207,7 +207,7 @@ namespace NWN.System
       player.menu.Clear();
       int pointValue;
 
-      int input = int.Parse(player.oid.GetLocalVariable<string>("_PLAYER_INPUT").Value);
+      int input = int.Parse(player.oid.LoginCreature.GetLocalVariable<string>("_PLAYER_INPUT").Value);
 
       if (input <= 0)
       {
@@ -230,8 +230,8 @@ namespace NWN.System
     public static void OnOpenOtherPlayerAuction(StoreEvents.OnOpen onOpen)
     {
       onOpen.Store.OnClose += OnCloseOtherPlayerAuction;
-      onOpen.Player.OnStoreRequestBuy += HandleOtherPlayerAuctionBuy;
-      onOpen.Player.OnStoreRequestSell += HandleOtherPlayerAuctionSell;
+      onOpen.Player.ControlledCreature.OnStoreRequestBuy += HandleOtherPlayerAuctionBuy;
+      onOpen.Player.ControlledCreature.OnStoreRequestSell += HandleOtherPlayerAuctionSell;
     }
     public static void OnCloseOtherPlayerAuction(StoreEvents.OnClose onClose)
     {
@@ -276,8 +276,8 @@ namespace NWN.System
     public static void OnOpenOwnedPlayerAuction(StoreEvents.OnOpen onOpen)
     {
       onOpen.Store.OnClose += OnCloseOwnedPlayerAuction;
-      onOpen.Player.OnStoreRequestBuy += HandleOwnedPlayerAuctionBuy;
-      onOpen.Player.OnStoreRequestSell += HandleOwnedPlayerAuctionSell;
+      onOpen.Player.ControlledCreature.OnStoreRequestBuy += HandleOwnedPlayerAuctionBuy;
+      onOpen.Player.ControlledCreature.OnStoreRequestSell += HandleOwnedPlayerAuctionSell;
     }
     public static void OnCloseOwnedPlayerAuction(StoreEvents.OnClose onClose)
     {
@@ -346,8 +346,8 @@ namespace NWN.System
     public static void OnOpenGenericStore(StoreEvents.OnOpen onOpen)
     {
       onOpen.Store.OnClose += OnCloseGenericStore;
-      onOpen.Player.OnStoreRequestBuy += HandleGenericStoreBuy;
-      onOpen.Player.OnStoreRequestSell += HandleGenericStoreSell;
+      onOpen.Player.ControlledCreature.OnStoreRequestBuy += HandleGenericStoreBuy;
+      onOpen.Player.ControlledCreature.OnStoreRequestSell += HandleGenericStoreSell;
     }
     public static void OnCloseGenericStore(StoreEvents.OnClose onClose)
     {
@@ -361,13 +361,13 @@ namespace NWN.System
       if (!PlayerSystem.Players.TryGetValue(onStoreRequestBuy.Creature, out PlayerSystem.Player player))
         return;
 
-      int pocketGold = (int)player.oid.Gold;
+      int pocketGold = (int)onStoreRequestBuy.Creature.Gold;
 
       if (pocketGold < onStoreRequestBuy.Price)
       {
         if (pocketGold + player.bankGold < onStoreRequestBuy.Price)
         {
-          player.oid.Gold = 0;
+          onStoreRequestBuy.Creature.Gold = 0;
           int bankGold = 0;
 
           if (player.bankGold > 0)
@@ -381,7 +381,7 @@ namespace NWN.System
         }
         else
         {
-          player.oid.Gold = 0;
+          onStoreRequestBuy.Creature.Gold = 0;
           player.bankGold -= onStoreRequestBuy.Price - pocketGold;
 
           ChatPlugin.SendMessage(ChatPlugin.NWNX_CHAT_CHANNEL_PLAYER_TALK, "Très bien, je demanderai à la banque de prélever l'or sur votre compte.",
@@ -389,10 +389,10 @@ namespace NWN.System
         }
       }
       else
-        player.oid.TakeGold(onStoreRequestBuy.Price);
+        onStoreRequestBuy.Creature.TakeGold(onStoreRequestBuy.Price);
 
       onStoreRequestBuy.PreventBuy = true;
-      onStoreRequestBuy.Item.Clone(player.oid);
+      onStoreRequestBuy.Item.Clone(onStoreRequestBuy.Creature);
     }
     public static void HandleGenericStoreSell(OnStoreRequestSell onStoreRequestSell)
     {
@@ -404,8 +404,8 @@ namespace NWN.System
     public static void OnOpenBiblioStore(StoreEvents.OnOpen onOpen)
     {
       onOpen.Store.OnClose += OnCloseBiblioStore;
-      onOpen.Player.OnStoreRequestBuy += HandleBiblioStoreBuy;
-      onOpen.Player.OnStoreRequestSell += HandleGenericStoreSell;
+      onOpen.Player.ControlledCreature.OnStoreRequestBuy += HandleBiblioStoreBuy;
+      onOpen.Player.ControlledCreature.OnStoreRequestSell += HandleGenericStoreSell;
     }
     public static void OnCloseBiblioStore(StoreEvents.OnClose onClose)
     {
@@ -419,13 +419,13 @@ namespace NWN.System
       if (!PlayerSystem.Players.TryGetValue(onStoreRequestBuy.Creature, out PlayerSystem.Player player))
         return;
 
-      int pocketGold = (int)player.oid.Gold;
+      int pocketGold = (int)onStoreRequestBuy.Creature.Gold;
 
       if (pocketGold < onStoreRequestBuy.Price)
       {
         if (pocketGold + player.bankGold < onStoreRequestBuy.Price)
         {
-          player.oid.Gold = 0;
+          onStoreRequestBuy.Creature.Gold = 0;
           int bankGold = 0;
 
           if (player.bankGold > 0)
@@ -439,7 +439,7 @@ namespace NWN.System
         }
         else
         {
-          player.oid.Gold = 0;
+          onStoreRequestBuy.Creature.Gold = 0;
           player.bankGold -= onStoreRequestBuy.Price - pocketGold;
 
           ChatPlugin.SendMessage(ChatPlugin.NWNX_CHAT_CHANNEL_PLAYER_TALK, Languages.GetLangueStringConvertedHRPProtection("Lisez ... Apprennez ... Aidez-moi ... Aidez-nous ...", CustomFeats.Primordiale),
@@ -447,10 +447,10 @@ namespace NWN.System
         }
       }
       else
-        player.oid.TakeGold(onStoreRequestBuy.Price);
+        onStoreRequestBuy.Creature.TakeGold(onStoreRequestBuy.Price);
 
       onStoreRequestBuy.PreventBuy = true;
-      onStoreRequestBuy.Item.Clone(player.oid);
+      onStoreRequestBuy.Item.Clone(onStoreRequestBuy.Creature);
       onStoreRequestBuy.Item.Destroy();
     }
     public static void HandleBiblioStoreSell(OnStoreRequestSell onStoreRequestSell)
@@ -463,8 +463,8 @@ namespace NWN.System
     public static void OnOpenModifyArenaRewardStore(StoreEvents.OnOpen onOpen)
     {
       onOpen.Store.OnClose += OnCloseModifyArenaRewardStore;
-      onOpen.Player.OnStoreRequestBuy += HandleModifyArenaRewardStoreBuy;
-      onOpen.Player.OnStoreRequestSell += HandleModifyArenaRewardStoreSell;
+      onOpen.Player.ControlledCreature.OnStoreRequestBuy += HandleModifyArenaRewardStoreBuy;
+      onOpen.Player.ControlledCreature.OnStoreRequestSell += HandleModifyArenaRewardStoreSell;
     }
     public static void OnCloseModifyArenaRewardStore(StoreEvents.OnClose onClose)
     {
@@ -488,7 +488,7 @@ namespace NWN.System
         return;
 
       onStoreRequestBuy.PreventBuy = true;
-      onStoreRequestBuy.Item.Clone(buyer.oid);
+      onStoreRequestBuy.Item.Clone(onStoreRequestBuy.Creature);
       onStoreRequestBuy.Item.Destroy();
     }
     public static async void HandleModifyArenaRewardStoreSell(OnStoreRequestSell onStoreRequestSell)
@@ -512,7 +512,7 @@ namespace NWN.System
       if (awaitedValue)
       {
         SetItemPointValue(player, onStoreRequestSell.Item, onStoreRequestSell.Store);
-        player.oid.GetLocalVariable<string>("_PLAYER_INPUT").Delete();
+        player.oid.LoginCreature.GetLocalVariable<string>("_PLAYER_INPUT").Delete();
       }
     }
 
@@ -521,7 +521,7 @@ namespace NWN.System
       player.menu.Clear();
       int pointValue;
 
-      int input = int.Parse(player.oid.GetLocalVariable<string>("_PLAYER_INPUT").Value);
+      int input = int.Parse(player.oid.LoginCreature.GetLocalVariable<string>("_PLAYER_INPUT").Value);
 
       if (input <= 0)
       {
@@ -544,8 +544,8 @@ namespace NWN.System
     public static void OnOpenArenaRewardStore(StoreEvents.OnOpen onOpen)
     {
       onOpen.Store.OnClose += OnCloseArenaRewardStore;
-      onOpen.Player.OnStoreRequestBuy += HandleArenaRewardStoreBuy;
-      onOpen.Player.OnStoreRequestSell += HandleArenaRewardStoreSell;
+      onOpen.Player.ControlledCreature.OnStoreRequestBuy += HandleArenaRewardStoreBuy;
+      onOpen.Player.ControlledCreature.OnStoreRequestSell += HandleArenaRewardStoreSell;
     }
     public static void OnCloseArenaRewardStore(StoreEvents.OnClose onClose)
     {
@@ -579,7 +579,7 @@ namespace NWN.System
       {
         buyer.pveArena.totalPoints -= (uint)onStoreRequestBuy.Price;
 
-        NwItem acquiredItem = onStoreRequestBuy.Item.Clone(buyer.oid);
+        NwItem acquiredItem = onStoreRequestBuy.Item.Clone(onStoreRequestBuy.Creature);
         acquiredItem.GetLocalVariable<int>("_DURABILITY").Value = ItemUtils.GetBaseItemCost(acquiredItem) * 50;
 
         buyer.oid.SendServerMessage($"Vous venez d'acquérir {onStoreRequestBuy.Item.Name.ColorString(Color.WHITE)}" +
@@ -595,11 +595,11 @@ namespace NWN.System
     }
     private static bool HasEnoughBankGold(PlayerSystem.Player player, int itemPrice)
     {
-      if (player.oid.Gold + player.bankGold >= itemPrice)
+      if (player.oid.LoginCreature.Gold + player.bankGold >= itemPrice)
       {
-        int goldFromBank = (int)(itemPrice - player.oid.Gold);
+        int goldFromBank = (int)(itemPrice - player.oid.LoginCreature.Gold);
         player.bankGold -= goldFromBank;
-        player.oid.TakeGold((int)player.oid.Gold);
+        player.oid.LoginCreature.TakeGold((int)player.oid.LoginCreature.Gold);
         player.oid.SendServerMessage($"{goldFromBank} pièce(s) d'or ont été retirées de votre compte en banque afin de mener à bien cette transaction.");
         
         return true;

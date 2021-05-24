@@ -57,17 +57,17 @@ namespace NWN.Systems
         this.menu = new PrivateMenu(this);
         this.pveArena = new Arena.PlayerData();
 
-        if (ObjectPlugin.GetInt(this.oid, "accountId") == 0 && !oid.IsDM)
+        if (ObjectPlugin.GetInt(this.oid.LoginCreature, "accountId") == 0 && !oid.IsDM)
           InitializeNewPlayer(this.oid);
 
-        this.accountId = ObjectPlugin.GetInt(this.oid, "accountId");
+        this.accountId = ObjectPlugin.GetInt(this.oid.LoginCreature, "accountId");
 
-        if (ObjectPlugin.GetInt(this.oid, "characterId") == 0 && !oid.IsDM)
+        if (ObjectPlugin.GetInt(this.oid.LoginCreature, "characterId") == 0 && !oid.IsDM)
           InitializeNewCharacter(this);
 
-        this.characterId = ObjectPlugin.GetInt(this.oid, "characterId");
+        this.characterId = ObjectPlugin.GetInt(this.oid.LoginCreature, "characterId");
 
-        if (!Convert.ToBoolean(NWScript.GetIsDM(this.oid)))
+        if (!Convert.ToBoolean(NWScript.GetIsDM(this.oid.LoginCreature)))
           InitializePlayer(this);
         else
           InitializeDM(this);
@@ -101,83 +101,83 @@ namespace NWN.Systems
           {
             case QuickbarType.Menu:
 
-              this.serializedQuickbar = oid.SerializeQuickbar().ToBase64EncodedString();
+              this.serializedQuickbar = oid.ControlledCreature.SerializeQuickbar().ToBase64EncodedString();
               emptyQBS.ObjectType = QuickBarButtonType.Empty;
 
               for (byte i = 0; i < 12; i++)
               {
-                oid.SetQuickBarButton(i, emptyQBS);
+                oid.ControlledCreature.SetQuickBarButton(i, emptyQBS);
               }
 
               if (menu.choices.Count > 0)
               {
-                oid.AddFeat(CustomFeats.CustomMenuDOWN);
-                oid.AddFeat(CustomFeats.CustomMenuUP);
-                oid.AddFeat(CustomFeats.CustomMenuSELECT);
+                oid.ControlledCreature.AddFeat(CustomFeats.CustomMenuDOWN);
+                oid.ControlledCreature.AddFeat(CustomFeats.CustomMenuUP);
+                oid.ControlledCreature.AddFeat(CustomFeats.CustomMenuSELECT);
 
                 emptyQBS.ObjectType = QuickBarButtonType.Feat;
 
-                if (ObjectPlugin.GetInt(this.oid, "_MENU_HOTKEYS_SWAPPED") == 0)
+                if (ObjectPlugin.GetInt(this.oid.LoginCreature, "_MENU_HOTKEYS_SWAPPED") == 0)
                 {
                   emptyQBS.Param1 = (int)CustomFeats.CustomMenuDOWN;
-                  oid.SetQuickBarButton(0, emptyQBS);
+                  oid.ControlledCreature.SetQuickBarButton(0, emptyQBS);
                   emptyQBS.Param1 = (int)CustomFeats.CustomMenuUP;
-                  oid.SetQuickBarButton(1, emptyQBS);
+                  oid.ControlledCreature.SetQuickBarButton(1, emptyQBS);
                 }
                 else
                 {
                   emptyQBS.Param1 = (int)CustomFeats.CustomMenuDOWN;
-                  oid.SetQuickBarButton(1, emptyQBS);
+                  oid.ControlledCreature.SetQuickBarButton(1, emptyQBS);
                   emptyQBS.Param1 = (int)CustomFeats.CustomMenuUP;
-                  oid.SetQuickBarButton(0, emptyQBS);
+                  oid.ControlledCreature.SetQuickBarButton(0, emptyQBS);
                 }
 
                 emptyQBS.Param1 = (int)CustomFeats.CustomMenuSELECT;
-                oid.SetQuickBarButton(2, emptyQBS);
+                oid.ControlledCreature.SetQuickBarButton(2, emptyQBS);
               }
 
-              oid.AddFeat(CustomFeats.CustomMenuEXIT);
+              oid.ControlledCreature.AddFeat(CustomFeats.CustomMenuEXIT);
 
               emptyQBS.Param1 = (int)CustomFeats.CustomMenuEXIT;
-              oid.SetQuickBarButton(3, emptyQBS);
+              oid.ControlledCreature.SetQuickBarButton(3, emptyQBS);
 
               this.loadedQuickBar = QuickbarType.Menu;
               break;
             case QuickbarType.Sit:
-              oid.AddFeat(CustomFeats.CustomMenuDOWN);
-              oid.AddFeat(CustomFeats.CustomMenuUP);
-              oid.AddFeat(CustomFeats.CustomPositionRight);
-              oid.AddFeat(CustomFeats.CustomPositionLeft);
-              oid.AddFeat(CustomFeats.CustomPositionForward);
-              oid.AddFeat(CustomFeats.CustomPositionBackward);
-              oid.AddFeat(CustomFeats.CustomPositionRotateRight);
-              oid.AddFeat(CustomFeats.CustomPositionRotateLeft);
-              oid.AddFeat(CustomFeats.CustomMenuEXIT);
+              oid.ControlledCreature.AddFeat(CustomFeats.CustomMenuDOWN);
+              oid.ControlledCreature.AddFeat(CustomFeats.CustomMenuUP);
+              oid.ControlledCreature.AddFeat(CustomFeats.CustomPositionRight);
+              oid.ControlledCreature.AddFeat(CustomFeats.CustomPositionLeft);
+              oid.ControlledCreature.AddFeat(CustomFeats.CustomPositionForward);
+              oid.ControlledCreature.AddFeat(CustomFeats.CustomPositionBackward);
+              oid.ControlledCreature.AddFeat(CustomFeats.CustomPositionRotateRight);
+              oid.ControlledCreature.AddFeat(CustomFeats.CustomPositionRotateLeft);
+              oid.ControlledCreature.AddFeat(CustomFeats.CustomMenuEXIT);
 
-              this.serializedQuickbar = oid.SerializeQuickbar().ToBase64EncodedString();
+              this.serializedQuickbar = oid.ControlledCreature.SerializeQuickbar().ToBase64EncodedString();
 
               for (int i = 0; i < 12; i++)
-                oid.SetQuickBarButton((byte)i, emptyQBS);
+                oid.ControlledCreature.SetQuickBarButton((byte)i, emptyQBS);
 
               emptyQBS.ObjectType = QuickBarButtonType.Feat;
               emptyQBS.Param1 = (int)CustomFeats.CustomMenuDOWN;
-              oid.SetQuickBarButton(0, emptyQBS);
+              oid.ControlledCreature.SetQuickBarButton(0, emptyQBS);
               emptyQBS.Param1 = (int)CustomFeats.CustomMenuUP;
-              oid.SetQuickBarButton(1, emptyQBS);
+              oid.ControlledCreature.SetQuickBarButton(1, emptyQBS);
               emptyQBS.Param1 = (int)CustomFeats.CustomPositionLeft;
-              oid.SetQuickBarButton(2, emptyQBS);
+              oid.ControlledCreature.SetQuickBarButton(2, emptyQBS);
               emptyQBS.Param1 = (int)CustomFeats.CustomPositionRight;
-              oid.SetQuickBarButton(3, emptyQBS);
+              oid.ControlledCreature.SetQuickBarButton(3, emptyQBS);
               emptyQBS.Param1 = (int)CustomFeats.CustomPositionForward;
-              oid.SetQuickBarButton(4, emptyQBS);
+              oid.ControlledCreature.SetQuickBarButton(4, emptyQBS);
               emptyQBS.Param1 = (int)CustomFeats.CustomPositionBackward;
-              oid.SetQuickBarButton(5, emptyQBS);
+              oid.ControlledCreature.SetQuickBarButton(5, emptyQBS);
               emptyQBS.Param1 = (int)CustomFeats.CustomPositionRotateLeft;
-              oid.SetQuickBarButton(6, emptyQBS);
+              oid.ControlledCreature.SetQuickBarButton(6, emptyQBS);
               emptyQBS.Param1 = (int)CustomFeats.CustomPositionRotateRight;
-              oid.SetQuickBarButton(7, emptyQBS);
+              oid.ControlledCreature.SetQuickBarButton(7, emptyQBS);
               emptyQBS.Param1 = (int)CustomFeats.CustomMenuEXIT;
-              oid.SetQuickBarButton(8, emptyQBS);
+              oid.ControlledCreature.SetQuickBarButton(8, emptyQBS);
 
               this.loadedQuickBar = QuickbarType.Sit;
               this.OnKeydown += this.menu.HandleMenuFeatUsed;
@@ -187,18 +187,18 @@ namespace NWN.Systems
       }
       public void UnloadMenuQuickbar()
       {
-        oid.RemoveFeat(CustomFeats.CustomMenuUP);
-        oid.RemoveFeat(CustomFeats.CustomMenuDOWN);
-        oid.RemoveFeat(CustomFeats.CustomMenuSELECT);
-        oid.RemoveFeat(CustomFeats.CustomMenuEXIT);
-        oid.RemoveFeat(CustomFeats.CustomPositionLeft);
-        oid.RemoveFeat(CustomFeats.CustomPositionRight);
-        oid.RemoveFeat(CustomFeats.CustomPositionForward);
-        oid.RemoveFeat(CustomFeats.CustomPositionBackward);
-        oid.RemoveFeat(CustomFeats.CustomPositionRotateLeft);
-        oid.RemoveFeat(CustomFeats.CustomPositionRotateRight);
+        oid.ControlledCreature.RemoveFeat(CustomFeats.CustomMenuUP);
+        oid.ControlledCreature.RemoveFeat(CustomFeats.CustomMenuDOWN);
+        oid.ControlledCreature.RemoveFeat(CustomFeats.CustomMenuSELECT);
+        oid.ControlledCreature.RemoveFeat(CustomFeats.CustomMenuEXIT);
+        oid.ControlledCreature.RemoveFeat(CustomFeats.CustomPositionLeft);
+        oid.ControlledCreature.RemoveFeat(CustomFeats.CustomPositionRight);
+        oid.ControlledCreature.RemoveFeat(CustomFeats.CustomPositionForward);
+        oid.ControlledCreature.RemoveFeat(CustomFeats.CustomPositionBackward);
+        oid.ControlledCreature.RemoveFeat(CustomFeats.CustomPositionRotateLeft);
+        oid.ControlledCreature.RemoveFeat(CustomFeats.CustomPositionRotateRight);
 
-        bool returned = oid.DeserializeQuickbar(this.serializedQuickbar.ToByteArray());
+        bool returned = oid.ControlledCreature.DeserializeQuickbar(this.serializedQuickbar.ToByteArray());
         loadedQuickBar = QuickbarType.Invalid;
       }
       public void CraftJobProgression()
@@ -225,20 +225,20 @@ namespace NWN.Systems
         switch (craftJob.type)
         {
           case Job.JobType.BlueprintCopy:
-            uint bpCopy = NWScript.CopyItem(ObjectPlugin.Deserialize((this.craftJob.craftedItem)), this.oid, 1);
+            uint bpCopy = NWScript.CopyItem(ObjectPlugin.Deserialize((this.craftJob.craftedItem)), this.oid.LoginCreature, 1);
             NWScript.SetLocalInt(bpCopy, "_BLUEPRINT_RUNS", 10);
             NWScript.SetName(bpCopy, $"Copie de {NWScript.GetName(bpCopy)}");
             break;
           case Job.JobType.BlueprintResearchMaterialEfficiency:
-            uint improvedMEBP = NWScript.CopyItem(ObjectPlugin.Deserialize((this.craftJob.craftedItem)), this.oid, 1);
+            uint improvedMEBP = NWScript.CopyItem(ObjectPlugin.Deserialize((this.craftJob.craftedItem)), this.oid.LoginCreature, 1);
             NWScript.SetLocalInt(improvedMEBP, "_BLUEPRINT_MATERIAL_EFFICIENCY", NWScript.GetLocalInt(improvedMEBP, "_BLUEPRINT_MATERIAL_EFFICIENCY") + 1);
             break;
           case Job.JobType.BlueprintResearchTimeEfficiency:
-            ((NwItem)NwItem.Deserialize(craftJob.craftedItem.ToByteArray())).Clone(oid).GetLocalVariable<int>("_BLUEPRINT_TIME_EFFICIENCY").Value += 1;
+            ((NwItem)NwItem.Deserialize(craftJob.craftedItem.ToByteArray())).Clone(oid.LoginCreature).GetLocalVariable<int>("_BLUEPRINT_TIME_EFFICIENCY").Value += 1;
             break;
           case Job.JobType.Enchantement:
             NwItem enchantedItem = NwItem.Deserialize(craftJob.craftedItem.ToByteArray());
-            oid.AcquireItem(enchantedItem);
+            oid.LoginCreature.AcquireItem(enchantedItem);
 
             int enchanteurChanceuxLevel = 0;
             if (learntCustomFeats.ContainsKey(CustomFeats.EnchanteurChanceux))
@@ -280,9 +280,9 @@ namespace NWN.Systems
             break;
           case Job.JobType.Renforcement:
             NwItem reinforcedItem = NwItem.Deserialize(craftJob.craftedItem.ToByteArray());
-            oid.AcquireItem(reinforcedItem);
+            oid.LoginCreature.AcquireItem(reinforcedItem);
 
-            reinforcedItem.GetLocalVariable<int>("_DURABILITY").Value += reinforcedItem.GetLocalVariable<int>("_DURABILITY").Value * 5 / 100;
+            reinforcedItem.GetLocalVariable<int>("_DURABILITY").Value += reinforcedItem.GetLocalVariable<int>("_MAX_DURABILITY").Value * 5 / 100;
             reinforcedItem.GetLocalVariable<int>("_REINFORCEMENT_LEVEL").Value += 1;
 
             oid.SendServerMessage($"Renforcement de {reinforcedItem.Name.ColorString(Color.WHITE)} terminé.", Color.GREEN);
@@ -296,10 +296,10 @@ namespace NWN.Systems
               if (craftJob.craftedItem != "")
               {
                 craftedItem = NwItem.Deserialize(craftJob.craftedItem.ToByteArray());
-                oid.AcquireItem(craftedItem);
+                oid.LoginCreature.AcquireItem(craftedItem);
               }
               else
-                craftedItem = NwItem.Create(blueprint.craftedItemTag, oid);
+                craftedItem = NwItem.Create(blueprint.craftedItemTag, oid.LoginCreature);
 
               if (craftedItem == null)
               {
@@ -308,7 +308,7 @@ namespace NWN.Systems
               }
 
               Craft.Collect.System.AddCraftedItemProperties(craftedItem, craftJob.material);
-              craftedItem.GetLocalVariable<string>("_ORIGINAL_CRAFTER_NAME").Value = oid.Name;
+              craftedItem.GetLocalVariable<string>("_ORIGINAL_CRAFTER_NAME").Value = oid.LoginCreature.Name;
 
               int artisanExceptionnelLevel = 0;
               if (learntCustomFeats.ContainsKey(CustomFeats.ArtisanExceptionnel))
@@ -332,13 +332,13 @@ namespace NWN.Systems
             }
             else
             {
-              NWScript.SendMessageToPC(oid, "[ERREUR HRP] Il semble que votre dernière création soit invalide. Le staff a été informé du problème.");
-              Utils.LogMessageToDMs($"AcquireCraftedItem : {NWScript.GetName(oid)} - Blueprint invalid - {craftJob.baseItemType} - For {NWScript.GetName(oid)}");
+              oid.SendServerMessage("[ERREUR HRP] Il semble que votre dernière création soit invalide. Le staff a été informé du problème.");
+              Utils.LogMessageToDMs($"AcquireCraftedItem : {oid.LoginCreature.Name} - Blueprint invalid - {craftJob.baseItemType} - For {oid.LoginCreature.Name}");
             }
             break;
         }
 
-        PlayerPlugin.ApplyInstantVisualEffectToObject(oid, oid, NWScript.VFX_IMP_GLOBE_USE);
+        PlayerPlugin.ApplyInstantVisualEffectToObject(oid.LoginCreature, oid.LoginCreature, NWScript.VFX_IMP_GLOBE_USE);
 
         craftJob.CloseCraftJournalEntry();
         craftJob = new Job(-10, "", 0, this);
@@ -350,18 +350,18 @@ namespace NWN.Systems
           case SkillType.Skill:
             if (this.learnableSkills.TryGetValue((Feat)currentSkillJob, out Skill skill))
             {
-              int pooledPoints = ObjectPlugin.GetInt(oid, "_STARTING_SKILL_POINTS");
+              int pooledPoints = ObjectPlugin.GetInt(oid.LoginCreature, "_STARTING_SKILL_POINTS");
               if (pooledPoints > 0)
               {
                 if (pooledPoints > skill.pointsToNextLevel)
                 {
-                  ObjectPlugin.SetInt(oid, "_STARTING_SKILL_POINTS", pooledPoints - skill.pointsToNextLevel, 1);
+                  ObjectPlugin.SetInt(oid.LoginCreature, "_STARTING_SKILL_POINTS", pooledPoints - skill.pointsToNextLevel, 1);
                   skill.acquiredPoints += skill.pointsToNextLevel;
                 }
                 else
                 {
                   skill.acquiredPoints += pooledPoints;
-                  ObjectPlugin.DeleteInt(oid, "_STARTING_SKILL_POINTS");
+                  ObjectPlugin.DeleteInt(oid.LoginCreature, "_STARTING_SKILL_POINTS");
                 }
               }
 
@@ -407,12 +407,12 @@ namespace NWN.Systems
       }
       public void RemoveMalus(Skill skill)
       {
-        oid.RemoveFeat(skill.oid);
+        oid.LoginCreature.RemoveFeat(skill.oid);
 
         if (RegisterRemoveCustomFeatEffect.TryGetValue(skill.oid, out Func<Player, Feat, int> handler))
           handler.Invoke(this, skill.oid);
 
-        ObjectPlugin.DeleteInt(oid, "_CURRENT_JOB");
+        ObjectPlugin.DeleteInt(oid.LoginCreature, "_CURRENT_JOB");
         // NWScript.DelayCommand(10.0f, () => this.PlayNewSkillAcquiredEffects(skill)); // Décalage de 10 secondes pour être sur que le joueur a fini de charger la map à la reco
 
         this.removeableMalus.Remove(skill.oid);
@@ -435,11 +435,11 @@ namespace NWN.Systems
       {
         JournalEntry journalEntry;
 
-        if (oid.Location.Area == null && DoJournalUpdate)
+        if (oid.LoginCreature.Location.Area == null && DoJournalUpdate)
         {
           Task waitAreaLoaded = NwTask.Run(async () =>
           {
-            await NwTask.WaitUntil(() => oid.Location.Area != null);
+            await NwTask.WaitUntil(() => oid.LoginCreature.Location.Area != null);
             await NwTask.Delay(TimeSpan.FromSeconds(1));
             UpdateJournal();
           });
@@ -447,24 +447,24 @@ namespace NWN.Systems
           return;
         }
 
-        if (playerJournal.craftJobCountDown != null && oid.Area.GetLocalVariable<int>("_AREA_LEVEL").Value == 0)
+        if (playerJournal.craftJobCountDown != null && oid.LoginCreature.Area.GetLocalVariable<int>("_AREA_LEVEL").Value == 0)
         {
-          journalEntry = PlayerPlugin.GetJournalEntry(oid, "craft_job");
+          journalEntry = PlayerPlugin.GetJournalEntry(oid.LoginCreature, "craft_job");
           if (journalEntry.nUpdated != -1)
           {
             journalEntry.sName = $"Travail artisanal - {Utils.StripTimeSpanMilliseconds((TimeSpan)(playerJournal.craftJobCountDown - DateTime.Now))}";
-            PlayerPlugin.AddCustomJournalEntry(oid, journalEntry, 1);
+            PlayerPlugin.AddCustomJournalEntry(oid.LoginCreature, journalEntry, 1);
           }
           this.CraftJobProgression();
         }
 
         if (playerJournal.skillJobCountDown != null)
         {
-          journalEntry = PlayerPlugin.GetJournalEntry(oid, "skill_job");
+          journalEntry = PlayerPlugin.GetJournalEntry(oid.LoginCreature, "skill_job");
           if (journalEntry.nUpdated != -1)
           {
             journalEntry.sName = $"Entrainement - {Utils.StripTimeSpanMilliseconds((TimeSpan)(playerJournal.skillJobCountDown - DateTime.Now))}";
-            PlayerPlugin.AddCustomJournalEntry(oid, journalEntry, 1);
+            PlayerPlugin.AddCustomJournalEntry(oid.LoginCreature, journalEntry, 1);
           }
 
           switch (currentSkillType)
@@ -491,12 +491,12 @@ namespace NWN.Systems
       {
         await NwTask.Delay(TimeSpan.FromSeconds(1));
 
-        if (!this.oid.IsValid)
+        if (!this.oid.LoginCreature.IsValid)
           return;
 
-        JournalEntry journalEntry = PlayerPlugin.GetJournalEntry(this.oid, "reboot");
+        JournalEntry journalEntry = PlayerPlugin.GetJournalEntry(this.oid.LoginCreature, "reboot");
         journalEntry.sName = $"REBOOT SERVEUR - {countDown}";
-        PlayerPlugin.AddCustomJournalEntry(this.oid, journalEntry);
+        PlayerPlugin.AddCustomJournalEntry(this.oid.LoginCreature, journalEntry);
         
         if (countDown >= 0)
           this.rebootUpdate(countDown - 1);
@@ -512,11 +512,11 @@ namespace NWN.Systems
       // Take gold from the PC or from his bank account
       public void PayOrBorrowGold(int price)
       {
-        int pocketGold = (int)oid.Gold;
+        int pocketGold = (int)oid.LoginCreature.Gold;
 
         if (pocketGold >= price)
         {
-          oid.TakeGold(price);
+          oid.LoginCreature.TakeGold(price);
           return;
         }
 
@@ -527,19 +527,19 @@ namespace NWN.Systems
       }
       public async Task<bool> WaitForPlayerInputInt()
       {
-        this.oid.GetLocalVariable<int>("_AWAITING_PLAYER_INPUT").Value = 1;
+        this.oid.LoginCreature.GetLocalVariable<int>("_AWAITING_PLAYER_INPUT").Value = 1;
 
         this.oid.OnPlayerChat -= ChatSystem.HandlePlayerInputInt;
         this.oid.OnPlayerChat += ChatSystem.HandlePlayerInputInt;
 
         CancellationTokenSource tokenSource = new CancellationTokenSource();
-        Task awaitPlayerInput = NwTask.WaitUntil(() => this.oid.GetLocalVariable<string>("_PLAYER_INPUT").HasValue, tokenSource.Token);
-        Task awaitPlayerCancellation = NwTask.WaitUntil(() => this.oid.GetLocalVariable<int>("_PLAYER_INPUT_CANCELLED").HasValue, tokenSource.Token);
+        Task awaitPlayerInput = NwTask.WaitUntil(() => this.oid.LoginCreature.GetLocalVariable<string>("_PLAYER_INPUT").HasValue, tokenSource.Token);
+        Task awaitPlayerCancellation = NwTask.WaitUntil(() => this.oid.LoginCreature.GetLocalVariable<int>("_PLAYER_INPUT_CANCELLED").HasValue, tokenSource.Token);
 
         await NwTask.WhenAny(awaitPlayerInput, awaitPlayerCancellation);
         tokenSource.Cancel();
 
-        this.oid.GetLocalVariable<int>("_PLAYER_INPUT_CANCELLED").Delete();
+        this.oid.LoginCreature.GetLocalVariable<int>("_PLAYER_INPUT_CANCELLED").Delete();
 
         if (awaitPlayerCancellation.IsCompletedSuccessfully)
           return false;
@@ -548,19 +548,19 @@ namespace NWN.Systems
       }
       public async Task<bool> WaitForPlayerInputByte()
       {
-        this.oid.GetLocalVariable<int>("_AWAITING_PLAYER_INPUT").Value = 1;
+        this.oid.LoginCreature.GetLocalVariable<int>("_AWAITING_PLAYER_INPUT").Value = 1;
 
         this.oid.OnPlayerChat -= ChatSystem.HandlePlayerInputByte;
         this.oid.OnPlayerChat += ChatSystem.HandlePlayerInputByte;
 
         CancellationTokenSource tokenSource = new CancellationTokenSource();
-        Task awaitPlayerInput = NwTask.WaitUntil(() => this.oid.GetLocalVariable<string>("_PLAYER_INPUT").HasValue, tokenSource.Token);
-        Task awaitPlayerCancellation = NwTask.WaitUntil(() => this.oid.GetLocalVariable<int>("_PLAYER_INPUT_CANCELLED").HasValue, tokenSource.Token);
+        Task awaitPlayerInput = NwTask.WaitUntil(() => this.oid.LoginCreature.GetLocalVariable<string>("_PLAYER_INPUT").HasValue, tokenSource.Token);
+        Task awaitPlayerCancellation = NwTask.WaitUntil(() => this.oid.LoginCreature.GetLocalVariable<int>("_PLAYER_INPUT_CANCELLED").HasValue, tokenSource.Token);
 
         await NwTask.WhenAny(awaitPlayerInput, awaitPlayerCancellation);
         tokenSource.Cancel();
 
-        this.oid.GetLocalVariable<int>("_PLAYER_INPUT_CANCELLED").Delete();
+        this.oid.LoginCreature.GetLocalVariable<int>("_PLAYER_INPUT_CANCELLED").Delete();
 
         if (awaitPlayerCancellation.IsCompletedSuccessfully)
           return false;
@@ -569,19 +569,19 @@ namespace NWN.Systems
       }
       public async Task<bool> WaitForPlayerInputString()
       {
-        this.oid.GetLocalVariable<int>("_AWAITING_PLAYER_INPUT").Value = 1;
+        this.oid.LoginCreature.GetLocalVariable<int>("_AWAITING_PLAYER_INPUT").Value = 1;
 
         this.oid.OnPlayerChat -= ChatSystem.HandlePlayerInputString;
         this.oid.OnPlayerChat += ChatSystem.HandlePlayerInputString;
 
         CancellationTokenSource tokenSource = new CancellationTokenSource();
-        Task awaitPlayerInput = NwTask.WaitUntil(() => this.oid.GetLocalVariable<string>("_PLAYER_INPUT").HasValue, tokenSource.Token);
-        Task awaitPlayerCancellation = NwTask.WaitUntil(() => this.oid.GetLocalVariable<int>("_PLAYER_INPUT_CANCELLED").HasValue, tokenSource.Token);
+        Task awaitPlayerInput = NwTask.WaitUntil(() => this.oid.LoginCreature.GetLocalVariable<string>("_PLAYER_INPUT").HasValue, tokenSource.Token);
+        Task awaitPlayerCancellation = NwTask.WaitUntil(() => this.oid.LoginCreature.GetLocalVariable<int>("_PLAYER_INPUT_CANCELLED").HasValue, tokenSource.Token);
 
         await NwTask.WhenAny(awaitPlayerInput, awaitPlayerCancellation);
         tokenSource.Cancel();
 
-        this.oid.GetLocalVariable<int>("_PLAYER_INPUT_CANCELLED").Delete();
+        this.oid.LoginCreature.GetLocalVariable<int>("_PLAYER_INPUT_CANCELLED").Delete();
 
         if (awaitPlayerCancellation.IsCompletedSuccessfully)
           return false;

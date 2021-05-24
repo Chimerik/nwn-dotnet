@@ -9,15 +9,15 @@ namespace NWN.Systems
   {
     private void HandlePlayerLeave(OnClientDisconnect onPCDisconnect)
     {
-      if (onPCDisconnect.Player == null)
+      if (onPCDisconnect.Player == null || onPCDisconnect.Player.LoginCreature == null)
         return;
 
-      Log.Info($"{onPCDisconnect.Player.Name} disconnecting.");
+      Log.Info($"{onPCDisconnect.Player.LoginCreature.Name} disconnecting.");
 
-      if (!Players.TryGetValue(onPCDisconnect.Player, out Player player))
+      if (!Players.TryGetValue(onPCDisconnect.Player.LoginCreature, out Player player))
         return;
 
-      onPCDisconnect.Player.GetLocalVariable<int>("_DISCONNECTING").Value = 1;
+      onPCDisconnect.Player.LoginCreature.GetLocalVariable<int>("_DISCONNECTING").Value = 1;
 
       if (player.menu.isOpen)
         player.menu.Close();
@@ -25,19 +25,19 @@ namespace NWN.Systems
       if(player.serializedQuickbar != null)
         player.UnloadMenuQuickbar();
 
-      onPCDisconnect.Player.VisualTransform.Rotation.X = 0.0f;
-      onPCDisconnect.Player.VisualTransform.Translation.X = 0.0f;
-      onPCDisconnect.Player.VisualTransform.Translation.Y = 0.0f;
-      onPCDisconnect.Player.VisualTransform.Translation.Z = 0.0f;
+      onPCDisconnect.Player.LoginCreature.VisualTransform.Rotation.X = 0.0f;
+      onPCDisconnect.Player.LoginCreature.VisualTransform.Translation.X = 0.0f;
+      onPCDisconnect.Player.LoginCreature.VisualTransform.Translation.Y = 0.0f;
+      onPCDisconnect.Player.LoginCreature.VisualTransform.Translation.Z = 0.0f;
 
       player.OnKeydown -= player.menu.HandleMenuFeatUsed;
 
       Party.HandlePartyChange(onPCDisconnect.Player);
 
-      if (!player.areaExplorationStateDictionnary.ContainsKey(player.oid.Area.Tag))
-        player.areaExplorationStateDictionnary.Add(player.oid.Area.Tag, PlayerPlugin.GetAreaExplorationState(player.oid, player.oid.Area));
+      if (!player.areaExplorationStateDictionnary.ContainsKey(player.oid.LoginCreature.Area.Tag))
+        player.areaExplorationStateDictionnary.Add(player.oid.LoginCreature.Area.Tag, PlayerPlugin.GetAreaExplorationState(player.oid.LoginCreature, player.oid.LoginCreature.Area));
       else
-        player.areaExplorationStateDictionnary[player.oid.Area.Tag] = PlayerPlugin.GetAreaExplorationState(player.oid, player.oid.Area);
+        player.areaExplorationStateDictionnary[player.oid.LoginCreature.Area.Tag] = PlayerPlugin.GetAreaExplorationState(player.oid.LoginCreature, player.oid.LoginCreature.Area);
     }
   }
 }

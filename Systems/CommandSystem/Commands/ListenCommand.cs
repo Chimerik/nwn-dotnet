@@ -14,21 +14,21 @@ namespace NWN.Systems
     }
     private void OnListenTargetSelected(ModuleEvents.OnPlayerTarget selection)
     {
-      if (!PlayerSystem.Players.TryGetValue(selection.Player, out PlayerSystem.Player player))
+      if (!PlayerSystem.Players.TryGetValue(selection.Player.LoginCreature, out PlayerSystem.Player player))
         return;
 
-      if (!(selection.TargetObject is NwPlayer) || ((NwPlayer)selection.TargetObject).IsDM)
+      NwCreature oPC = (NwCreature)selection.TargetObject;
+
+      if (oPC.ControllingPlayer != null || oPC.ControllingPlayer.IsDM)
       {
         selection.Player.SendServerMessage("La cible de l'écoute doit être un joueur.", Color.ORANGE);
         return;
       }
 
-      NwPlayer oPC = (NwPlayer)selection.TargetObject;
-
-      if (player.listened.Contains(oPC))
-        player.listened.Remove(oPC);
+      if (player.listened.Contains(oPC.ControllingPlayer))
+        player.listened.Remove(oPC.ControllingPlayer);
       else
-        player.listened.Add(oPC);
+        player.listened.Add(oPC.ControllingPlayer);
     }
   }
 }

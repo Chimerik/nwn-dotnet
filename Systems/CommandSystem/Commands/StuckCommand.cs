@@ -7,7 +7,7 @@ namespace NWN.Systems
   {
     public Unstuck(NwPlayer oPC)
     {
-      NWScript.JumpToLocation(oPC.Location);
+      NWScript.JumpToLocation(oPC.ControlledCreature.Location);
       oPC.SendServerMessage("Tentative de déblocage !", Color.ORANGE);
     }
   }

@@ -17,9 +17,8 @@ namespace NWN.Systems
     public static void ProcessChatCommandMiddleware(ChatSystem.Context ctx, Action next)
     {
       if (ctx.msg.Length <= PREFIX.Length ||
-              !ctx.msg.StartsWith(PREFIX) ||
-              NWScript.GetIsPC(ctx.oSender) != 1
-            )
+              !ctx.msg.StartsWith(PREFIX)
+        )
       {
         next();
         return;

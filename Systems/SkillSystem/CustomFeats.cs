@@ -219,6 +219,10 @@ namespace NWN.Systems
     public const Feat Renforcement = (Feat)1328;
     public const Feat CombattantPrecautionneux = (Feat)1329;
     public const Feat Sit = (Feat)1330;
+    public const Feat MetalRepair = (Feat)1331;
+    public const Feat WoodRepair = (Feat)1332;
+    public const Feat LeatherRepair = (Feat)1333;
+    public const Feat EnchantRepair = (Feat)1334;
 
     public const Feat Invalid = (Feat)65535;
   }

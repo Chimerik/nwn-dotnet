@@ -10,7 +10,7 @@ namespace NWN.Systems
   {
     public Recycler(NwPlayer oPC, NwGameObject oTarget)
     {
-      if (!PlayerSystem.Players.TryGetValue(oPC, out PlayerSystem.Player player))
+      if (!PlayerSystem.Players.TryGetValue(oPC.LoginCreature, out PlayerSystem.Player player))
         return;
 
       if (!(oTarget is NwItem))

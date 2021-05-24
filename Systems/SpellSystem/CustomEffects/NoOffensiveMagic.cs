@@ -4,22 +4,15 @@ using NWN.API.Events;
 
 namespace NWN.Systems
 {
-  class NoOffensiveMagic
+  static class NoOffensiveMagic
   {
-    public NoOffensiveMagic(NwCreature oTarget, bool apply = true)
-    {
-      if (apply)
-        ApplyEffectToTarget(oTarget);
-      else
-        RemoveEffectFromTarget(oTarget);
-    }
-    private void ApplyEffectToTarget(NwCreature oTarget)
+    public static void ApplyEffectToTarget(NwCreature oTarget)
     {
       oTarget.OnSpellCast -= NoOffensiveSpellMalus;
       oTarget.OnSpellCast += NoOffensiveSpellMalus;
       oTarget.ApplyEffect(EffectDuration.Instant, Effect.VisualEffect(VfxType.FnfPwkill));
     }
-    private void RemoveEffectFromTarget(NwCreature oTarget)
+    public static void RemoveEffectFromTarget(NwCreature oTarget)
     {
       oTarget.OnSpellCast -= NoOffensiveSpellMalus;
     }
@@ -111,7 +104,9 @@ namespace NWN.Systems
         case Spell.Weird:
         case Spell.WordOfFaith:
           onSpellCast.PreventSpellCast = true;
-          ((NwPlayer)onSpellCast.Caster).SendServerMessage("L'interdiction d'usage de magie offensive est en vigueur.", Color.RED);
+
+          if (onSpellCast.Caster is NwCreature { IsPlayerControlled: true } oPC)
+            oPC.ControllingPlayer.SendServerMessage("L'interdiction d'usage de magie offensive est en vigueur.", Color.RED);
           break;
       }
     }

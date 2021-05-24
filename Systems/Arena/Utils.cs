@@ -30,49 +30,55 @@ namespace NWN.Systems.Arena
     {
       await NwTask.Delay(TimeSpan.FromSeconds(3));
 
-      NWScript.SetObjectVisualTransform(onPlayerDeath.DeadPlayer, NWScript.OBJECT_VISUAL_TRANSFORM_ROTATE_X, 360.0f, NWScript.OBJECT_VISUAL_TRANSFORM_LERP_SMOOTHERSTEP, 7f);
-      NWScript.SetObjectVisualTransform(onPlayerDeath.DeadPlayer, NWScript.OBJECT_VISUAL_TRANSFORM_ROTATE_Y, 360.0f, NWScript.OBJECT_VISUAL_TRANSFORM_LERP_QUADRATIC, 7f);
-      NWScript.SetObjectVisualTransform(onPlayerDeath.DeadPlayer, NWScript.OBJECT_VISUAL_TRANSFORM_ROTATE_Z, 360.0f, NWScript.OBJECT_VISUAL_TRANSFORM_LERP_INVERSE_SMOOTHSTEP, 7f);
-      NWScript.SetObjectVisualTransform(onPlayerDeath.DeadPlayer, NWScript.OBJECT_VISUAL_TRANSFORM_TRANSLATE_Z, 2.5f, NWScript.OBJECT_VISUAL_TRANSFORM_LERP_EASE_OUT, 4f);
+      NWScript.SetObjectVisualTransform(onPlayerDeath.DeadPlayer.LoginCreature, NWScript.OBJECT_VISUAL_TRANSFORM_ROTATE_X, 360.0f, NWScript.OBJECT_VISUAL_TRANSFORM_LERP_SMOOTHERSTEP, 7f);
+      NWScript.SetObjectVisualTransform(onPlayerDeath.DeadPlayer.LoginCreature, NWScript.OBJECT_VISUAL_TRANSFORM_ROTATE_Y, 360.0f, NWScript.OBJECT_VISUAL_TRANSFORM_LERP_QUADRATIC, 7f);
+      NWScript.SetObjectVisualTransform(onPlayerDeath.DeadPlayer.LoginCreature, NWScript.OBJECT_VISUAL_TRANSFORM_ROTATE_Z, 360.0f, NWScript.OBJECT_VISUAL_TRANSFORM_LERP_INVERSE_SMOOTHSTEP, 7f);
+      NWScript.SetObjectVisualTransform(onPlayerDeath.DeadPlayer.LoginCreature, NWScript.OBJECT_VISUAL_TRANSFORM_TRANSLATE_Z, 2.5f, NWScript.OBJECT_VISUAL_TRANSFORM_LERP_EASE_OUT, 4f);
 
       await NwTask.Delay(TimeSpan.FromSeconds(5));
 
-      onPlayerDeath.DeadPlayer.ApplyEffect(EffectDuration.Instant, API.Effect.VisualEffect(API.Constants.VfxType.FnfSummonEpicUndead));
-      onPlayerDeath.DeadPlayer.ApplyEffect(EffectDuration.Instant, API.Effect.VisualEffect(API.Constants.VfxType.ImpHarm));
-      onPlayerDeath.DeadPlayer.ApplyEffect(EffectDuration.Instant, API.Effect.VisualEffect(API.Constants.VfxType.ComChunkRedLarge));
+      onPlayerDeath.DeadPlayer.LoginCreature.ApplyEffect(EffectDuration.Instant, API.Effect.VisualEffect(API.Constants.VfxType.FnfSummonEpicUndead));
+      onPlayerDeath.DeadPlayer.LoginCreature.ApplyEffect(EffectDuration.Instant, API.Effect.VisualEffect(API.Constants.VfxType.ImpHarm));
+      onPlayerDeath.DeadPlayer.LoginCreature.ApplyEffect(EffectDuration.Instant, API.Effect.VisualEffect(API.Constants.VfxType.ComChunkRedLarge));
 
       await NwTask.Delay(TimeSpan.FromSeconds(2));
-      onPlayerDeath.DeadPlayer.Location = NwModule.FindObjectsWithTag<NwWaypoint>(PVE_ENTRY_WAYPOINT_TAG).FirstOrDefault().Location;
+      onPlayerDeath.DeadPlayer.LoginCreature.Location = NwObject.FindObjectsWithTag<NwWaypoint>(PVE_ENTRY_WAYPOINT_TAG).FirstOrDefault().Location;
 
-      await NwTask.WaitUntil(() => onPlayerDeath.DeadPlayer.Location.Area != null);
+      await NwTask.WaitUntil(() => onPlayerDeath.DeadPlayer.LoginCreature.Location.Area != null);
 
-      NWScript.SetObjectVisualTransform(onPlayerDeath.DeadPlayer, NWScript.OBJECT_VISUAL_TRANSFORM_ROTATE_X, 0);
-      NWScript.SetObjectVisualTransform(onPlayerDeath.DeadPlayer, NWScript.OBJECT_VISUAL_TRANSFORM_ROTATE_Y, 0);
-      NWScript.SetObjectVisualTransform(onPlayerDeath.DeadPlayer, NWScript.OBJECT_VISUAL_TRANSFORM_ROTATE_Z, 0);
-      NWScript.SetObjectVisualTransform(onPlayerDeath.DeadPlayer, NWScript.OBJECT_VISUAL_TRANSFORM_TRANSLATE_Z, 0);
+      NWScript.SetObjectVisualTransform(onPlayerDeath.DeadPlayer.LoginCreature, NWScript.OBJECT_VISUAL_TRANSFORM_ROTATE_X, 0);
+      NWScript.SetObjectVisualTransform(onPlayerDeath.DeadPlayer.LoginCreature, NWScript.OBJECT_VISUAL_TRANSFORM_ROTATE_Y, 0);
+      NWScript.SetObjectVisualTransform(onPlayerDeath.DeadPlayer.LoginCreature, NWScript.OBJECT_VISUAL_TRANSFORM_ROTATE_Z, 0);
+      NWScript.SetObjectVisualTransform(onPlayerDeath.DeadPlayer.LoginCreature, NWScript.OBJECT_VISUAL_TRANSFORM_TRANSLATE_Z, 0);
 
       await NwTask.Delay(TimeSpan.FromSeconds(3));
 
-      onPlayerDeath.DeadPlayer.ApplyEffect(EffectDuration.Instant, API.Effect.VisualEffect(API.Constants.VfxType.ImpRaiseDead));
-      onPlayerDeath.DeadPlayer.ApplyEffect(EffectDuration.Instant, API.Effect.Resurrection());
+      onPlayerDeath.DeadPlayer.LoginCreature.ApplyEffect(EffectDuration.Instant, API.Effect.VisualEffect(API.Constants.VfxType.ImpRaiseDead));
+      onPlayerDeath.DeadPlayer.LoginCreature.ApplyEffect(EffectDuration.Instant, API.Effect.Resurrection());
 
       ChatPlugin.SendMessage(ChatPlugin.NWNX_CHAT_CHANNEL_PLAYER_TALK, "Hé ben. Ils vous ont pas loupé là-dedans. On y retourne pour leur montrer ?",
-        NwModule.FindObjectsWithTag<NwCreature>("pve_arena_host").FirstOrDefault(), onPlayerDeath.DeadPlayer);
+        NwObject.FindObjectsWithTag<NwCreature>("pve_arena_host").FirstOrDefault(), onPlayerDeath.DeadPlayer.LoginCreature);
     }
     public static void OnExitArena(AreaEvents.OnExit onExit)
     {
-      if (!Players.TryGetValue(onExit.ExitingObject, out Player player))
+      if (!(onExit.ExitingObject is NwCreature creature) || !Players.TryGetValue(onExit.ExitingObject, out Player player))
         return;
 
-      if (player.pveArena.currentRound == 0)
+      if (creature.IsPlayerControlled) // Cas normal de changement de zone
+        if (!Players.TryGetValue(creature.ControllingPlayer.LoginCreature, out player))
+          return;
+      else // cas de déconnexion du joueur
+        ResetPlayerLocation(player);
+
+      if (player.pveArena.currentRound == 0) // S'il s'agit d'un spectateur
       {
-        player.oid.OnSpellCast += SpellSystem.HandleBeforeSpellCast;
-        player.oid.OnSpellCast -= Utils.NoMagicMalus;
+        player.oid.LoginCreature.OnSpellCast += SpellSystem.HandleBeforeSpellCast;
+        player.oid.LoginCreature.OnSpellCast -= NoMagicMalus;
         return;
       }
-        
 
-      player.oid.OnPlayerDeath -= HandleArenaDeath; 
+      // A partir de là, il s'agit du gladiateur
+      player.oid.OnPlayerDeath -= HandleArenaDeath;
       player.oid.OnPlayerDeath += HandlePlayerDeath;
 
       player.pveArena.currentPoints = 0;
@@ -80,27 +86,16 @@ namespace NWN.Systems.Arena
 
       player.pveArena.currentMalusList.Clear();
 
-      foreach (API.Effect paralysis in player.oid.ActiveEffects.Where(e => e.Tag == "_ARENA_CUTSCENE_PARALYZE_EFFECT"))
-        player.oid.RemoveEffect(paralysis);
+      foreach (API.Effect paralysis in player.oid.LoginCreature.ActiveEffects.Where(e => e.Tag == "_ARENA_CUTSCENE_PARALYZE_EFFECT"))
+        player.oid.LoginCreature.RemoveEffect(paralysis);
 
-      foreach(NwPlayer spectator in NwModule.Instance.Players.Where(p => p.Area == onExit.Area))
+      foreach (NwCreature spectator in onExit.Area.FindObjectsOfTypeInArea<NwCreature>().Where(p => p.IsPlayerControlled || p.IsLoginPlayerCharacter))
       {
-        spectator.SendServerMessage($"La tentative de {player.oid.Name} s'achève. Vous êtes reconduit à la salle principale.");
-        spectator.Location = NwModule.FindObjectsWithTag<NwWaypoint>(Config.PVE_ENTRY_WAYPOINT_TAG).FirstOrDefault().Location;
+        spectator.ControllingPlayer.SendServerMessage($"La tentative de {player.oid.LoginCreature.Name} s'achève. Vous êtes reconduit à la salle principale.");
+        spectator.Location = NwObject.FindObjectsWithTag<NwWaypoint>(PVE_ENTRY_WAYPOINT_TAG).FirstOrDefault().Location;
       }
 
       AreaSystem.AreaDestroyer(onExit.Area);
-
-      if(onExit.IsDisconnectingPlayer)
-      {
-        API.Location arenaStartLoc = NwModule.FindObjectsWithTag<NwWaypoint>(PVE_ENTRY_WAYPOINT_TAG).FirstOrDefault().Location;
-
-        var query = NWScript.SqlPrepareQueryCampaign(Systems.Config.database, $"UPDATE playerCharacters SET areaTag = @areaTag, position = @position WHERE characterId = @characterId");
-        NWScript.SqlBindInt(query, "@characterId", player.characterId);
-        NWScript.SqlBindString(query, "@areaTag", arenaStartLoc.Area.Tag);
-        NWScript.SqlBindVector(query, "@position", arenaStartLoc.Position);
-        NWScript.SqlStep(query);
-      }
     }
 
     public struct RoundCreatures
@@ -130,6 +125,7 @@ namespace NWN.Systems.Arena
     {
       var encounters = GetNormalEncounters(difficulty);
       int rand = NWN.Utils.random.Next(0, encounters.Length);
+      rand = 4;
       return encounters[rand];
     }
 
@@ -150,7 +146,7 @@ namespace NWN.Systems.Arena
     {
       CancellationTokenSource tokenSource = new CancellationTokenSource();
 
-      Task malusSelected = NwTask.WaitUntil(() => player.oid.GetLocalVariable<int>("_ARENA_MALUS_APPLIED").HasValue, tokenSource.Token);
+      Task malusSelected = NwTask.WaitUntil(() => player.oid.LoginCreature.GetLocalVariable<int>("_ARENA_MALUS_APPLIED").HasValue, tokenSource.Token);
       Task waitingForSelection = NwTask.Delay(TimeSpan.FromSeconds(0.2), tokenSource.Token);
 
       await NwTask.WhenAny(malusSelected, waitingForSelection);
@@ -158,7 +154,7 @@ namespace NWN.Systems.Arena
 
       if (malusSelected.IsCompletedSuccessfully)
       {
-        player.oid.GetLocalVariable<int>("_ARENA_MALUS_APPLIED").Delete();
+        player.oid.LoginCreature.GetLocalVariable<int>("_ARENA_MALUS_APPLIED").Delete();
         return;
       }
 
@@ -167,7 +163,7 @@ namespace NWN.Systems.Arena
       player.menu.choices.Clear();
 
       player.menu.choices.Add((
-        Config.arenaMalusDictionary[(uint)random].name,
+        arenaMalusDictionary[(uint)random].name,
         () => ApplyArenaMalus(player, (uint)random)
       ));
 
@@ -182,12 +178,12 @@ namespace NWN.Systems.Arena
     }
     public static void ApplyArenaMalus(Player player, uint malus)
     {
-      player.oid.GetLocalVariable<int>("_ARENA_MALUS_APPLIED").Value = 1;
+      player.oid.LoginCreature.GetLocalVariable<int>("_ARENA_MALUS_APPLIED").Value = 1;
       player.pveArena.currentMalus = malus;
       player.menu.Close();
 
-      foreach (API.Effect paralysis in player.oid.ActiveEffects.Where(e => e.Tag == "_ARENA_CUTSCENE_PARALYZE_EFFECT"))
-        player.oid.RemoveEffect(paralysis);
+      foreach (API.Effect paralysis in player.oid.LoginCreature.ActiveEffects.Where(e => e.Tag == "_ARENA_CUTSCENE_PARALYZE_EFFECT"))
+        player.oid.LoginCreature.RemoveEffect(paralysis);
 
       if (arenaMalusDictionary.TryGetValue(malus, out ArenaMalus arenaMalus))
       {
@@ -202,22 +198,32 @@ namespace NWN.Systems.Arena
         }
       }
 
-      player.oid.JumpToObject(player.oid.Area.FindObjectsOfTypeInArea<NwWaypoint>().FirstOrDefault(w => w.Tag == PVE_ARENA_WAYPOINT_TAG));
+      player.oid.LoginCreature.Location = player.oid.LoginCreature.Area.FindObjectsOfTypeInArea<NwWaypoint>().FirstOrDefault(w => w.Tag == PVE_ARENA_WAYPOINT_TAG).Location; ;
       ScriptHandlers.HandleFight(player);
     }
     public static void NoMagicMalus(OnSpellCast onSpellCast)
     {
       onSpellCast.PreventSpellCast = true;
-      ((NwPlayer)onSpellCast.Caster).SendServerMessage("Le contrat de spectateur vous interdit de lancer des sorts à l'intérieur de l'arène.", Color.RED);
+      ((NwCreature)onSpellCast.Caster).ControllingPlayer.SendServerMessage("Le contrat de spectateur vous interdit de lancer des sorts à l'intérieur de l'arène.", Color.RED);
     }
     public static async void RemoveArenaMalus(Player player, string malus, string message)
     {
       await NwTask.WaitUntil(() => player.pveArena.currentRound == 0);
 
-      foreach (API.Effect arenaMalus in player.oid.ActiveEffects.Where(f => f.Tag == malus))
-        player.oid.RemoveEffect(arenaMalus);
+      foreach (API.Effect arenaMalus in player.oid.LoginCreature.ActiveEffects.Where(f => f.Tag == malus))
+        player.oid.LoginCreature.RemoveEffect(arenaMalus);
 
       player.oid.SendServerMessage(message, Color.ORANGE);
+    }
+    private static void ResetPlayerLocation(Player player)
+    {
+      API.Location arenaStartLoc = NwObject.FindObjectsWithTag<NwWaypoint>(PVE_ENTRY_WAYPOINT_TAG).FirstOrDefault().Location;
+
+      var query = NWScript.SqlPrepareQueryCampaign(Systems.Config.database, $"UPDATE playerCharacters SET areaTag = @areaTag, position = @position WHERE characterId = @characterId");
+      NWScript.SqlBindInt(query, "@characterId", player.characterId);
+      NWScript.SqlBindString(query, "@areaTag", arenaStartLoc.Area.Tag);
+      NWScript.SqlBindVector(query, "@position", arenaStartLoc.Position);
+      NWScript.SqlStep(query);
     }
   }
 }

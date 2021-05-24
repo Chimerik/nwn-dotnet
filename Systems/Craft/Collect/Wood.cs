@@ -52,7 +52,7 @@ namespace NWN.Systems.Craft.Collect
           oPlaceable.GetLocalVariable<int>("_ORE_AMOUNT").Value = remainingOre;
         }
 
-        NwItem ore = NwItem.Create("wood", player.oid, miningYield, oPlaceable.Name);
+        NwItem ore = NwItem.Create("wood", player.oid.LoginCreature, miningYield, oPlaceable.Name);
         ore.Name = oPlaceable.Name;
       });
 
@@ -61,7 +61,7 @@ namespace NWN.Systems.Craft.Collect
 
     public static void HandleCompleteProspectionCycle(PlayerSystem.Player player)
     {
-      NwArea area = player.oid.Area;
+      NwArea area = player.oid.LoginCreature.Area;
 
       if (area.GetLocalVariable<int>("_AREA_LEVEL").Value < 2)
       {
@@ -89,7 +89,7 @@ namespace NWN.Systems.Craft.Collect
       int respawnChance = skillBonus * 5;
       int nbSpawns = 0;
 
-      foreach(NwWaypoint resourcePoint in player.oid.GetNearestObjectsByType<NwWaypoint>().Where(w => w.Tag == "wood_spawn_wp"))
+      foreach(NwWaypoint resourcePoint in player.oid.LoginCreature.GetNearestObjectsByType<NwWaypoint>().Where(w => w.Tag == "wood_spawn_wp"))
       {
         int iRandom = Utils.random.Next(1, 101);
         if (iRandom < respawnChance)

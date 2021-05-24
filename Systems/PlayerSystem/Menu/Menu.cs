@@ -73,17 +73,17 @@ namespace NWN.Systems
 
         if (isOpen)
         {
-          player.oid.GetLocalVariable<int>("_CURRENT_MENU_CLOSED").Value = 1;
+          player.oid.LoginCreature.GetLocalVariable<int>("_CURRENT_MENU_CLOSED").Value = 1;
           player.OnKeydown -= HandleMenuFeatUsed;
           player.UnloadMenuQuickbar();
         }
 
         isOpen = false;
 
-        if (player.oid.GetLocalVariable<int>("_AWAITING_PLAYER_INPUT").HasValue)
+        if (player.oid.LoginCreature.GetLocalVariable<int>("_AWAITING_PLAYER_INPUT").HasValue)
         {
-          player.oid.GetLocalVariable<int>("_PLAYER_INPUT_CANCELLED").Delete();
-          player.oid.GetLocalVariable<int>("_AWAITING_PLAYER_INPUT").Delete();
+          player.oid.LoginCreature.GetLocalVariable<int>("_PLAYER_INPUT_CANCELLED").Delete();
+          player.oid.LoginCreature.GetLocalVariable<int>("_AWAITING_PLAYER_INPUT").Delete();
           player.oid.OnPlayerChat -= ChatSystem.HandlePlayerInputByte;
           player.oid.OnPlayerChat -= ChatSystem.HandlePlayerInputInt;
         }
@@ -113,7 +113,7 @@ namespace NWN.Systems
       {
         foreach (var (X, Y, ID) in drawnLines)
         {
-          NWScript.PostString(player.oid, "", X, Y, 0, 0.000001f, 0, 0, ID);
+          NWScript.PostString(player.oid.LoginCreature, "", X, Y, 0, 0.000001f, 0, 0, ID);
         }
         drawnLines.Clear();
       }
@@ -205,7 +205,7 @@ namespace NWN.Systems
       private void EraseLastSelection()
       {
         NWScript.PostString(
-          player.oid, "",
+          player.oid.LoginCreature, "",
           drawnSelectionIds.X,
           drawnSelectionIds.Y,
           0,
@@ -220,7 +220,7 @@ namespace NWN.Systems
       {
         int color = unchecked((int)Config.Color.White);
         NWScript.PostString(
-            player.oid, text, x, y, 0, 0f,
+            player.oid.LoginCreature, text, x, y, 0, 0f,
             color, color, id, font
         );
         if (drawnLines != null)
@@ -247,7 +247,7 @@ namespace NWN.Systems
 
                 selectedChoiceID = (selectedChoiceID + choices.Count - 1) % choices.Count;
                 EraseLastSelection();
-                PlayerPlugin.PlaySound(player.oid, "gui_select", NWScript.OBJECT_INVALID);
+                PlayerPlugin.PlaySound(player.oid.LoginCreature, "gui_select", NWScript.OBJECT_INVALID);
                 DrawSelection();
                 return;
 
@@ -258,7 +258,7 @@ namespace NWN.Systems
 
                 selectedChoiceID = (selectedChoiceID + 1) % choices.Count;
                 EraseLastSelection();
-                PlayerPlugin.PlaySound(player.oid, "gui_select", NWScript.OBJECT_INVALID);
+                PlayerPlugin.PlaySound(player.oid.LoginCreature, "gui_select", NWScript.OBJECT_INVALID);
                 DrawSelection();
                 return;
 
@@ -268,7 +268,7 @@ namespace NWN.Systems
                   return;
 
                 var handler = choices.ElementAtOrDefault(selectedChoiceID).handler;
-                PlayerPlugin.PlaySound(player.oid, "gui_picklockopen", NWScript.OBJECT_INVALID);
+                PlayerPlugin.PlaySound(player.oid.LoginCreature, "gui_picklockopen", NWScript.OBJECT_INVALID);
                 handler?.Invoke();
                 return;
               case CustomFeats.CustomMenuEXIT:
@@ -286,68 +286,68 @@ namespace NWN.Systems
               case CustomFeats.CustomMenuUP:
                 newValue = 0.1f;
 
-                NWScript.SetObjectVisualTransform(player.oid, NWScript.OBJECT_VISUAL_TRANSFORM_TRANSLATE_Z, NWScript.GetObjectVisualTransform(player.oid, NWScript.OBJECT_VISUAL_TRANSFORM_TRANSLATE_Z) + newValue);
-                  zPos = NWScript.GetObjectVisualTransform(player.oid, NWScript.OBJECT_VISUAL_TRANSFORM_TRANSLATE_Z);
+                NWScript.SetObjectVisualTransform(player.oid.LoginCreature, NWScript.OBJECT_VISUAL_TRANSFORM_TRANSLATE_Z, NWScript.GetObjectVisualTransform(player.oid.LoginCreature, NWScript.OBJECT_VISUAL_TRANSFORM_TRANSLATE_Z) + newValue);
+                  zPos = NWScript.GetObjectVisualTransform(player.oid.LoginCreature, NWScript.OBJECT_VISUAL_TRANSFORM_TRANSLATE_Z);
                   if (zPos > 5)
-                    Utils.LogMessageToDMs($"SIT COMMAND - Player {NWScript.GetName(player.oid)} - Z translation = {zPos}");
+                    Utils.LogMessageToDMs($"SIT COMMAND - Player {NWScript.GetName(player.oid.LoginCreature)} - Z translation = {zPos}");
 
                 break;
 
               case CustomFeats.CustomMenuDOWN:
                 newValue = -0.1f;
 
-                NWScript.SetObjectVisualTransform(player.oid, NWScript.OBJECT_VISUAL_TRANSFORM_TRANSLATE_Z, NWScript.GetObjectVisualTransform(player.oid, NWScript.OBJECT_VISUAL_TRANSFORM_TRANSLATE_Z) + newValue);
-                zPos = NWScript.GetObjectVisualTransform(player.oid, NWScript.OBJECT_VISUAL_TRANSFORM_TRANSLATE_Z);
-                if (zPos < NWScript.GetGroundHeight(NWScript.GetLocation(player.oid)))
-                  Utils.LogMessageToDMs($"SIT COMMAND - Player {NWScript.GetName(player.oid)} - Z translation = {zPos}");
+                NWScript.SetObjectVisualTransform(player.oid.LoginCreature, NWScript.OBJECT_VISUAL_TRANSFORM_TRANSLATE_Z, NWScript.GetObjectVisualTransform(player.oid.LoginCreature, NWScript.OBJECT_VISUAL_TRANSFORM_TRANSLATE_Z) + newValue);
+                zPos = NWScript.GetObjectVisualTransform(player.oid.LoginCreature, NWScript.OBJECT_VISUAL_TRANSFORM_TRANSLATE_Z);
+                if (zPos < NWScript.GetGroundHeight(NWScript.GetLocation(player.oid.LoginCreature)))
+                  Utils.LogMessageToDMs($"SIT COMMAND - Player {NWScript.GetName(player.oid.LoginCreature)} - Z translation = {zPos}");
                 break;
 
               case CustomFeats.CustomPositionRotateRight:
                 newValue = 20.0f;
 
-                NWScript.SetObjectVisualTransform(player.oid, NWScript.OBJECT_VISUAL_TRANSFORM_ROTATE_X, NWScript.GetObjectVisualTransform(player.oid, NWScript.OBJECT_VISUAL_TRANSFORM_ROTATE_X) + newValue);
+                NWScript.SetObjectVisualTransform(player.oid.LoginCreature, NWScript.OBJECT_VISUAL_TRANSFORM_ROTATE_X, NWScript.GetObjectVisualTransform(player.oid.LoginCreature, NWScript.OBJECT_VISUAL_TRANSFORM_ROTATE_X) + newValue);
                 break;
 
               case CustomFeats.CustomPositionRotateLeft:
                 newValue = -20.0f;
 
-                NWScript.SetObjectVisualTransform(player.oid, NWScript.OBJECT_VISUAL_TRANSFORM_ROTATE_X, NWScript.GetObjectVisualTransform(player.oid, NWScript.OBJECT_VISUAL_TRANSFORM_ROTATE_X) + newValue);
+                NWScript.SetObjectVisualTransform(player.oid.LoginCreature, NWScript.OBJECT_VISUAL_TRANSFORM_ROTATE_X, NWScript.GetObjectVisualTransform(player.oid.LoginCreature, NWScript.OBJECT_VISUAL_TRANSFORM_ROTATE_X) + newValue);
                 break;
 
               case CustomFeats.CustomPositionRight:
                 newValue = 0.1f;
 
-                NWScript.SetObjectVisualTransform(player.oid, NWScript.OBJECT_VISUAL_TRANSFORM_TRANSLATE_X,
-                NWScript.GetObjectVisualTransform(player.oid, NWScript.OBJECT_VISUAL_TRANSFORM_TRANSLATE_X) + newValue);
+                NWScript.SetObjectVisualTransform(player.oid.LoginCreature, NWScript.OBJECT_VISUAL_TRANSFORM_TRANSLATE_X,
+                NWScript.GetObjectVisualTransform(player.oid.LoginCreature, NWScript.OBJECT_VISUAL_TRANSFORM_TRANSLATE_X) + newValue);
                 break;
 
               case CustomFeats.CustomPositionLeft:
                 newValue = 0.1f;
 
-                NWScript.SetObjectVisualTransform(player.oid, NWScript.OBJECT_VISUAL_TRANSFORM_TRANSLATE_X,
-                NWScript.GetObjectVisualTransform(player.oid, NWScript.OBJECT_VISUAL_TRANSFORM_TRANSLATE_X) - newValue);
+                NWScript.SetObjectVisualTransform(player.oid.LoginCreature, NWScript.OBJECT_VISUAL_TRANSFORM_TRANSLATE_X,
+                NWScript.GetObjectVisualTransform(player.oid.LoginCreature, NWScript.OBJECT_VISUAL_TRANSFORM_TRANSLATE_X) - newValue);
                 break;
 
               case CustomFeats.CustomPositionForward:
                 newValue = 0.1f;
 
-                NWScript.SetObjectVisualTransform(player.oid, NWScript.OBJECT_VISUAL_TRANSFORM_TRANSLATE_Y,
-                NWScript.GetObjectVisualTransform(player.oid, NWScript.OBJECT_VISUAL_TRANSFORM_TRANSLATE_Y) + newValue);
+                NWScript.SetObjectVisualTransform(player.oid.LoginCreature, NWScript.OBJECT_VISUAL_TRANSFORM_TRANSLATE_Y,
+                NWScript.GetObjectVisualTransform(player.oid.LoginCreature, NWScript.OBJECT_VISUAL_TRANSFORM_TRANSLATE_Y) + newValue);
                 break;
 
               case CustomFeats.CustomPositionBackward:
                 newValue = 0.1f;
 
-                NWScript.SetObjectVisualTransform(player.oid, NWScript.OBJECT_VISUAL_TRANSFORM_TRANSLATE_Y,
-                NWScript.GetObjectVisualTransform(player.oid, NWScript.OBJECT_VISUAL_TRANSFORM_TRANSLATE_Y) - newValue);
+                NWScript.SetObjectVisualTransform(player.oid.LoginCreature, NWScript.OBJECT_VISUAL_TRANSFORM_TRANSLATE_Y,
+                NWScript.GetObjectVisualTransform(player.oid.LoginCreature, NWScript.OBJECT_VISUAL_TRANSFORM_TRANSLATE_Y) - newValue);
                 break;
 
               case CustomFeats.CustomMenuEXIT:
                 player.UnloadMenuQuickbar();
-                NWScript.SetObjectVisualTransform(player.oid, NWScript.OBJECT_VISUAL_TRANSFORM_ROTATE_X, 0.0f);
-                NWScript.SetObjectVisualTransform(player.oid, NWScript.OBJECT_VISUAL_TRANSFORM_TRANSLATE_X, 0.0f);
-                NWScript.SetObjectVisualTransform(player.oid, NWScript.OBJECT_VISUAL_TRANSFORM_TRANSLATE_Y, 0.0f);
-                NWScript.SetObjectVisualTransform(player.oid, NWScript.OBJECT_VISUAL_TRANSFORM_TRANSLATE_Z, 0.0f);
+                NWScript.SetObjectVisualTransform(player.oid.LoginCreature, NWScript.OBJECT_VISUAL_TRANSFORM_ROTATE_X, 0.0f);
+                NWScript.SetObjectVisualTransform(player.oid.LoginCreature, NWScript.OBJECT_VISUAL_TRANSFORM_TRANSLATE_X, 0.0f);
+                NWScript.SetObjectVisualTransform(player.oid.LoginCreature, NWScript.OBJECT_VISUAL_TRANSFORM_TRANSLATE_Y, 0.0f);
+                NWScript.SetObjectVisualTransform(player.oid.LoginCreature, NWScript.OBJECT_VISUAL_TRANSFORM_TRANSLATE_Z, 0.0f);
                 player.OnKeydown -= HandleMenuFeatUsed;
                 return;
             }

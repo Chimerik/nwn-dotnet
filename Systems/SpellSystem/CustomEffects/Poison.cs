@@ -5,16 +5,9 @@ using NWN.API.Events;
 
 namespace NWN.Systems
 {
-  class Poison
+  static class Poison
   {
-    public Poison(NwCreature oTarget, bool apply = true)
-    {
-      if (apply)
-        ApplyEffectToTarget(oTarget);
-      else
-        RemoveEffectFromTarget(oTarget);
-    }
-    private void ApplyEffectToTarget(NwCreature oTarget)
+    public static void ApplyEffectToTarget(NwCreature oTarget)
     {
       oTarget.ApplyEffect(EffectDuration.Instant, Effect.VisualEffect(VfxType.ImpPoisonL));
 
@@ -36,13 +29,13 @@ namespace NWN.Systems
       oTarget.OnHeartbeat += PoisonMalus;
       oTarget.OnSpellCastAt += PoisonMalusCure;
     }
-    private void RemoveEffectFromTarget(NwCreature oTarget)
+    public static void RemoveEffectFromTarget(NwCreature oTarget)
     {
       oTarget.ApplyEffect(EffectDuration.Instant, Effect.VisualEffect(VfxType.ImpHeadNature));
       oTarget.OnHeartbeat -= PoisonMalus;
       oTarget.OnSpellCastAt -= PoisonMalusCure;
     }
-    private void PoisonMalusCure(CreatureEvents.OnSpellCastAt onSpellCastAt)
+    private static void PoisonMalusCure(CreatureEvents.OnSpellCastAt onSpellCastAt)
     {
       switch (onSpellCastAt.Spell)
       {
@@ -57,7 +50,7 @@ namespace NWN.Systems
           break;
       }
     }
-    private void PoisonMalus(CreatureEvents.OnHeartbeat onHearbeat)
+    private static void PoisonMalus(CreatureEvents.OnHeartbeat onHearbeat)
     {
       int hpLost = onHearbeat.Creature.MaxHP / 32;
       if (hpLost < 1)

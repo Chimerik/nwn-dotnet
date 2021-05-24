@@ -6,7 +6,7 @@ namespace NWN.Systems
   {
     public DisplayCloak(NwPlayer oPC)
     {
-      NwItem oCloak = oPC.GetItemInSlot(API.Constants.InventorySlot.Cloak);
+      NwItem oCloak = oPC.ControlledCreature.GetItemInSlot(API.Constants.InventorySlot.Cloak);
 
       if (oCloak != null)
       {

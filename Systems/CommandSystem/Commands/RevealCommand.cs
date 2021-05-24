@@ -7,9 +7,9 @@ namespace NWN.Systems
     private static void ExecuteRevealCommand(ChatSystem.Context ctx, Options.Result options)
     {
       if (ctx.oTarget == null)
-        RevealPlugin.SetRevealToParty(ctx.oSender, 1, RevealPlugin.NWNX_REVEAL_SEEN);
+        RevealPlugin.SetRevealToParty(ctx.oSender.ControlledCreature, 1, RevealPlugin.NWNX_REVEAL_SEEN);
       else
-        RevealPlugin.RevealTo(ctx.oSender, ctx.oTarget, RevealPlugin.NWNX_REVEAL_SEEN);
+        RevealPlugin.RevealTo(ctx.oSender.ControlledCreature, ctx.oTarget.ControlledCreature, RevealPlugin.NWNX_REVEAL_SEEN);
     }
   }
 }
