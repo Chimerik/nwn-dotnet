@@ -369,6 +369,19 @@ namespace NWN.Systems
 
               craftedItem.GetLocalVariable<int>("_DURABILITY").Value = craftedItem.GetLocalVariable<int>("_MAX_DURABILITY").Value;
               craftedItem.GetLocalVariable<int>("_REPAIR_DONE").Delete();
+
+              foreach (API.ItemProperty ip in craftedItem.ItemProperties.Where(ip => ip.Tag.Contains("INACTIVE")))
+              {
+                Task waitLoop = NwTask.Run(async () =>
+                {
+                  API.ItemProperty deactivatedIP = ip;
+                  await NwTask.Delay(TimeSpan.FromSeconds(0.1f));
+                  craftedItem.RemoveItemProperty(deactivatedIP);
+                  await NwTask.Delay(TimeSpan.FromSeconds(0.1f));
+                  deactivatedIP.Tag = deactivatedIP.Tag.Replace("_INACTIVE", "");
+                  craftedItem.AddItemProperty(deactivatedIP, EffectDuration.Permanent);
+                });
+              }
             }
             else
             {
