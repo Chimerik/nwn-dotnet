@@ -9,6 +9,7 @@ using System.Threading.Tasks;
 using Skill = NWN.Systems.SkillSystem.Skill;
 using NWN.API.Constants;
 using System.Threading;
+using System.Linq;
 
 namespace NWN.Systems
 {
@@ -205,12 +206,7 @@ namespace NWN.Systems
       {
         if (craftJob.IsActive())
         {
-          Log.Info($"remaining : {craftJob.remainingTime}");
-          Log.Info($"Time since last save : {(float)(DateTime.Now - dateLastSaved).TotalSeconds}");
-
           craftJob.remainingTime = craftJob.remainingTime - (float)(DateTime.Now - dateLastSaved).TotalSeconds;
-
-          Log.Info($"result : {craftJob.remainingTime}");
 
           if (craftJob.remainingTime < 0)
           {
@@ -259,7 +255,33 @@ namespace NWN.Systems
             if (NwRandom.Roll(Utils.random, 100) <= enchanteurExpertLevel * 2)
               boost = 1;
 
-            Craft.Collect.System.AddCraftedEnchantementProperties(enchantedItem, craftJob.material, boost);
+            Craft.Collect.System.AddCraftedEnchantementProperties(enchantedItem, craftJob.material, boost, characterId);
+
+            break;
+          case Job.JobType.EnchantementReactivation:
+
+            NwItem reactivatedItem = NwItem.Deserialize(craftJob.craftedItem.ToByteArray());
+            oid.LoginCreature.AcquireItem(reactivatedItem);
+
+            API.ItemProperty reactivatedIP = reactivatedItem.ItemProperties.FirstOrDefault(ip => ip.Tag.StartsWith($"ENCHANTEMENT_{craftJob.material}") && ip.Tag.Contains("INACTIVE"));
+
+            Task waitLoopEnd = NwTask.Run(async () =>
+            {
+              API.ItemProperty deactivatedIP = reactivatedIP;
+              await NwTask.Delay(TimeSpan.FromSeconds(0.1f));
+              reactivatedItem.RemoveItemProperty(deactivatedIP);
+              await NwTask.Delay(TimeSpan.FromSeconds(0.1f));
+              deactivatedIP.Tag = reactivatedIP.Tag.Replace("_INACTIVE", "");
+              reactivatedItem.AddItemProperty(deactivatedIP, EffectDuration.Permanent);
+              await NwTask.Delay(TimeSpan.FromSeconds(0.1f));
+
+              if (!reactivatedItem.ItemProperties.Any(ip => ip.Tag.Contains("_INACTIVE")) && reactivatedItem.GetLocalVariable<int>("_REPAIR_DONE").HasValue)
+              {
+                reactivatedItem.GetLocalVariable<int>("_DURABILITY").Value = reactivatedItem.GetLocalVariable<int>("_MAX_DURABILITY").Value;
+                reactivatedItem.GetLocalVariable<int>("_REPAIR_DONE").Delete();
+                oid.SendServerMessage($"Réactivation de {reactivatedItem.Name.ColorString(Color.WHITE)} terminée. L'objet est comme neuf !", new Color(32, 255, 32));
+              }
+            });
 
             break;
           case Job.JobType.Recycling:
@@ -274,7 +296,7 @@ namespace NWN.Systems
             else
               materialStock.Add(craftJob.material, recycledValue);
 
-            oid.SendServerMessage($"Recyclage de {recycledItem.Name.ColorString(Color.WHITE)} terminé. Vous en retirez {recycledValue} unité(s) de {craftJob.material}", Color.GREEN) ;
+            oid.SendServerMessage($"Recyclage de {recycledItem.Name.ColorString(Color.WHITE)} terminé. Vous en retirez {recycledValue} unité(s) de {craftJob.material}", new Color(32, 255, 32)) ;
             recycledItem.Destroy();
 
             break;
@@ -285,8 +307,23 @@ namespace NWN.Systems
             reinforcedItem.GetLocalVariable<int>("_DURABILITY").Value += reinforcedItem.GetLocalVariable<int>("_MAX_DURABILITY").Value * 5 / 100;
             reinforcedItem.GetLocalVariable<int>("_REINFORCEMENT_LEVEL").Value += 1;
 
-            oid.SendServerMessage($"Renforcement de {reinforcedItem.Name.ColorString(Color.WHITE)} terminé.", Color.GREEN);
+            oid.SendServerMessage($"Renforcement de {reinforcedItem.Name.ColorString(Color.WHITE)} terminé.", new Color(32, 255, 32));
 
+            break;
+          case Job.JobType.Repair:
+            NwItem repairedItem = NwItem.Deserialize(craftJob.craftedItem.ToByteArray());
+            oid.LoginCreature.AcquireItem(repairedItem);
+
+            if(!repairedItem.ItemProperties.Any(ip => ip.Tag.Contains("_INACTIVE")))
+            {
+              repairedItem.GetLocalVariable<int>("_DURABILITY").Value = repairedItem.GetLocalVariable<int>("_MAX_DURABILITY").Value;
+              oid.SendServerMessage($"Réparation de {repairedItem.Name.ColorString(Color.WHITE)} terminée. L'objet est comme neuf !", new Color(32, 255, 32));
+            }
+            else
+            {
+              repairedItem.GetLocalVariable<int>("_REPAIR_DONE").Value = 1;
+              oid.SendServerMessage($"Réparation de {repairedItem.Name.ColorString(Color.WHITE)} terminée. Reste cependant à réactiver les enchantements.", Color.ORANGE);
+            }
             break;
           default:
             if (Craft.Collect.System.blueprintDictionnary.TryGetValue(craftJob.baseItemType, out Blueprint blueprint))
@@ -326,9 +363,12 @@ namespace NWN.Systems
 
               if (NwRandom.Roll(Utils.random, 100) <= artisanAppliqueLevel * 3)
               {
-                craftedItem.GetLocalVariable<int>("_DURABILITY").Value += craftedItem.GetLocalVariable<int>("_DURABILITY").Value * 20 / 100;
+                craftedItem.GetLocalVariable<int>("_MAX_DURABILITY").Value += craftedItem.GetLocalVariable<int>("_MAX_DURABILITY").Value * 20 / 100;
                 oid.SendServerMessage("En travaillant de manière particulièrement appliquée, vous parvenez à fabriquer un objet plus résistant !", Color.NAVY);
               }
+
+              craftedItem.GetLocalVariable<int>("_DURABILITY").Value = craftedItem.GetLocalVariable<int>("_MAX_DURABILITY").Value;
+              craftedItem.GetLocalVariable<int>("_REPAIR_DONE").Delete();
             }
             else
             {

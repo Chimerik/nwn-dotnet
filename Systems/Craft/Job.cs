@@ -1,10 +1,10 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using NWN.API;
 using NWN.API.Constants;
 using NWN.Core;
 using NWN.Core.NWNX;
-using NWNX.API;
 using static NWN.Systems.Craft.Collect.Config;
 using static NWN.Systems.Craft.Collect.System;
 
@@ -51,6 +51,12 @@ namespace NWN.Systems.Craft
         case -16:
           this.type = JobType.Renforcement;
           break;
+        case -17:
+          this.type = JobType.Repair;
+          break;
+        case -18:
+          this.type = JobType.EnchantementReactivation;
+          break;
         default:
           this.type = JobType.Item;
           break;
@@ -72,6 +78,8 @@ namespace NWN.Systems.Craft
       Enchantement = 5,
       Recycling = 6,
       Renforcement = 7,
+      Repair = 8,
+      EnchantementReactivation = 9,
     }
     public Boolean IsActive()
     {
@@ -173,6 +181,12 @@ namespace NWN.Systems.Craft
         case JobType.Renforcement:
           StartRenforcementCraft(oTarget);
           break;
+        case JobType.Repair:
+          StartItemRepair(blueprint, oItem, oTarget, sMaterial);
+          break;
+        case JobType.EnchantementReactivation:
+          StartEnchantementReactivationCraft(oTarget, sMaterial);
+          break;
       }
 
     }
@@ -190,36 +204,119 @@ namespace NWN.Systems.Craft
         materialType = (int)myLeatherType;
 
       iMineralCost -= iMineralCost * (int)materialType / 10;
+      player.craftJob.isCancelled = false;
 
-      if (player.materialStock.ContainsKey(sMaterial) && player.materialStock[sMaterial] >= iMineralCost)
+      if (!player.materialStock.ContainsKey(sMaterial))
       {
-        player.materialStock[sMaterial] -= iMineralCost;
+        player.oid.SendServerMessage($"Il vous manque {iMineralCost.ToString().ColorString(Color.WHITE)} unités de {sMaterial.ColorString(Color.WHITE)} pour réaliser ce travail artisanal.", Color.RED);
+        return;
+      }
+      else if (player.materialStock[sMaterial] < iMineralCost)
+      {
+        player.oid.SendServerMessage($"Il vous manque {(iMineralCost - player.materialStock[sMaterial]).ToString().ColorString(Color.WHITE)} unités de {sMaterial.ColorString(Color.WHITE)} pour réaliser ce travail artisanal.", Color.RED);
+        return;
+      }
+        
+      player.materialStock[sMaterial] -= iMineralCost;
 
-        player.oid.SendServerMessage($"Vous venez de démarrer la fabrication de l'objet artisanal : {blueprint.name.ColorString(Color.WHITE)} en {sMaterial.ColorString(Color.WHITE)}", Color.GREEN);
-        // TODO : afficher des effets visuels sur la forge
+      player.oid.SendServerMessage($"Vous venez de démarrer la fabrication de l'objet artisanal : {blueprint.name.ColorString(Color.WHITE)} en {sMaterial.ColorString(Color.WHITE)}", new Color(32, 255, 32));
+      // TODO : afficher des effets visuels sur la forge
 
-        if (oTarget.Tag == blueprint.craftedItemTag) // En cas d'amélioration d'un objet, on détruit l'original
-        {
-          player.craftJob = new Job(blueprint.baseItemType, sMaterial, iJobDuration, player, oTarget.Serialize().ToBase64EncodedString());
-          oTarget.Destroy();
-          player.oid.SendServerMessage($"L'objet {oTarget.Name.ColorString(Color.WHITE)} ne sera pas disponible jusqu'à la fin du travail artisanal.", Color.ORANGE);
-        }
-        else
-          player.craftJob = new Job(blueprint.baseItemType, sMaterial, iJobDuration, player);
-
-        // s'il s'agit d'une copie de blueprint, alors le nombre d'utilisation diminue de 1
-        int iBlueprintRemainingRuns = oItem.GetLocalVariable<int>("_BLUEPRINT_RUNS").Value;
-        if (iBlueprintRemainingRuns == 1)
-          oItem.Destroy();
-        if (iBlueprintRemainingRuns > 0)
-          oItem.GetLocalVariable<int>("_BLUEPRINT_RUNS").Value -= 1;
-
-        ItemUtils.DecreaseItemDurability(player.oid.LoginCreature.GetItemInSlot(InventorySlot.RightHand));
+      if (oTarget.Tag == blueprint.craftedItemTag) // En cas d'amélioration d'un objet, on détruit l'original
+      {
+        player.craftJob = new Job(blueprint.baseItemType, sMaterial, iJobDuration, player, oTarget.Serialize().ToBase64EncodedString());
+        oTarget.Destroy();
+        player.oid.SendServerMessage($"L'objet {oTarget.Name.ColorString(Color.WHITE)} ne sera pas disponible jusqu'à la fin du travail artisanal.", Color.ORANGE);
       }
       else
-        player.oid.SendServerMessage("Vous n'avez pas les ressources nécessaires pour démarrer la fabrication de cet objet artisanal.", Color.RED);
+        player.craftJob = new Job(blueprint.baseItemType, sMaterial, iJobDuration, player);
 
+      // s'il s'agit d'une copie de blueprint, alors le nombre d'utilisation diminue de 1
+      int iBlueprintRemainingRuns = oItem.GetLocalVariable<int>("_BLUEPRINT_RUNS").Value;
+      if (iBlueprintRemainingRuns == 1)
+        oItem.Destroy();
+      if (iBlueprintRemainingRuns > 0)
+        oItem.GetLocalVariable<int>("_BLUEPRINT_RUNS").Value -= 1;
+
+      ItemUtils.DecreaseItemDurability(player.oid.LoginCreature.GetItemInSlot(InventorySlot.RightHand));
+    }
+    public void StartItemRepair(Blueprint blueprint, NwItem oItem, NwGameObject oTarget, string sMaterial)
+    {
       player.craftJob.isCancelled = false;
+      int iMineralCost = blueprint.GetBlueprintMineralCostForPlayer(player.oid, oItem);
+      float iJobDuration = blueprint.GetBlueprintTimeCostForPlayer(player.oid, oItem);
+
+      if (oTarget.GetLocalVariable<string>("_ORIGINAL_CRAFTER_NAME").Value == player.oid.LoginCreature.Name)
+      {
+        iMineralCost -= iMineralCost / 4;
+        iJobDuration -= iJobDuration / 4;
+      }
+
+      int materialType = 0;
+      Dictionary<string, int> repairMaterials = new Dictionary<string, int>();
+      if (Enum.TryParse(material, out MineralType myMineralType))
+      {
+        iMineralCost -= iMineralCost * (int)materialType / 10;
+
+        for (int i = (int)materialType - 1; i == 1; i--)
+        {
+          repairMaterials.Add(myMineralType.ToString(), iMineralCost);
+          iMineralCost += iMineralCost * (10 / 100);
+        }
+      }
+      else if (Enum.TryParse(material, out PlankType myPlankType))
+      {
+        iMineralCost -= iMineralCost * (int)materialType / 10;
+
+        for (int i = (int)materialType; i == 1; i--)
+        {
+          repairMaterials.Add(myMineralType.ToString(), iMineralCost);
+          iMineralCost += iMineralCost * (10 / 100);
+        }
+      }
+      else if (Enum.TryParse(material, out LeatherType myLeatherType))
+      {
+        iMineralCost -= iMineralCost * (int)materialType / 10;
+
+        for (int i = (int)materialType; i == 1; i--)
+        {
+          repairMaterials.Add(myMineralType.ToString(), iMineralCost);
+          iMineralCost += iMineralCost * (10 / 100);
+        }
+      }
+
+      foreach (KeyValuePair<string, int> materials in repairMaterials)
+      {
+        if (!player.materialStock.ContainsKey(materials.Key))
+        {
+          player.oid.SendServerMessage($"Il vous manque {materials.Value.ToString().ColorString(Color.WHITE)} unités de {materials.Key.ColorString(Color.WHITE)} pour réaliser ce travail artisanal.", Color.RED);
+          return;
+        }
+        else if (player.materialStock[materials.Key] < materials.Value)
+        {
+          player.oid.SendServerMessage($"Il vous manque {(materials.Value - player.materialStock[materials.Key]).ToString().ColorString(Color.WHITE)} unités de {materials.Key.ColorString(Color.WHITE)} pour réaliser ce travail artisanal.", Color.RED);
+          return;
+        }
+      }
+
+      foreach (KeyValuePair<string, int> materials in repairMaterials)
+        player.materialStock[materials.Key] -= materials.Value;
+
+      player.oid.SendServerMessage($"Vous venez de démarrer la réparation de l'objet artisanal : {blueprint.name.ColorString(Color.WHITE)} en {sMaterial.ColorString(Color.WHITE)}", new Color(32, 255, 32));
+      // TODO : afficher des effets visuels sur la forge
+
+      player.craftJob = new Job(-17, sMaterial, iJobDuration, player, oTarget.Serialize().ToBase64EncodedString());
+      oTarget.Destroy();
+      player.oid.SendServerMessage($"L'objet {oTarget.Name.ColorString(Color.WHITE)} ne sera pas disponible jusqu'à la fin du travail artisanal.", Color.ORANGE);
+
+      // s'il s'agit d'une copie de blueprint, alors le nombre d'utilisation diminue de 1
+      int iBlueprintRemainingRuns = oItem.GetLocalVariable<int>("_BLUEPRINT_RUNS").Value;
+      if (iBlueprintRemainingRuns == 1)
+        oItem.Destroy();
+      if (iBlueprintRemainingRuns > 0)
+        oItem.GetLocalVariable<int>("_BLUEPRINT_RUNS").Value -= 1;
+
+      ItemUtils.DecreaseItemDurability(player.oid.LoginCreature.GetItemInSlot(InventorySlot.RightHand));
     }
     public void StartBlueprintCopy(PlayerSystem.Player player, NwItem oBlueprint, Blueprint blueprint)
     {
@@ -236,28 +333,65 @@ namespace NWN.Systems.Craft
     }
     private void StartEnchantementCraft(NwGameObject oTarget, string ipString)
     {
-      int spellId = Int32.Parse(ipString.Remove(ipString.IndexOf("_")));
-      ipString = ipString.Remove(0, ipString.IndexOf("_") + 1);
+      int spellId = int.Parse(ipString.Remove(ipString.IndexOf("_")));
 
-      if (!int.TryParse(NWScript.Get2DAString("spells", "Wiz_Sorc", spellId), out int spellLevel))
+      if (!float.TryParse(NWScript.Get2DAString("spells", "Wiz_Sorc", spellId), out float spellLevel))
       {
         player.oid.SendServerMessage("HRP - Le niveau de sort de votre enchantement est incorrectement configuré. Le staff a été prévenu !");
         Utils.LogMessageToDMs($"ENCHANTEMENT - {player.oid.LoginCreature.Name} - spell level introuvable pour spellid : {spellId}");
         return;
       }
 
-      int baseItemType = NWScript.GetBaseItemType(oTarget);
-      int baseCost = ItemUtils.GetBaseItemCost((NwItem)oTarget);
+      if (spellLevel < 1)
+        spellLevel = 0.5f;
 
+      int baseCost = ItemUtils.GetBaseItemCost((NwItem)oTarget);
       int enchanteurLevel = 0;
 
       if (player.learntCustomFeats.ContainsKey(CustomFeats.Enchanteur))
         enchanteurLevel += SkillSystem.GetCustomFeatLevelFromSkillPoints(CustomFeats.Enchanteur, player.learntCustomFeats[CustomFeats.Enchanteur]);
 
-      float iJobDuration = baseCost * spellLevel * (100 - enchanteurLevel);
+      float iJobDuration = baseCost * 10 * spellLevel * (100 - enchanteurLevel);
       player.craftJob = new Job(-14, ipString, iJobDuration, player, oTarget.Serialize().ToBase64EncodedString()); // -14 = JobType enchantement
 
-      player.oid.SendServerMessage($"Vous venez de démarrer l'enchantement de : {NWScript.GetName(oTarget).ColorString(Color.WHITE)}", Color.GREEN);
+      player.oid.SendServerMessage($"Vous venez de démarrer l'enchantement de : {NWScript.GetName(oTarget).ColorString(Color.WHITE)}", new Color(32, 255, 32));
+      // TODO : afficher des effets visuels
+
+      oTarget.Destroy();
+      player.oid.SendServerMessage($"L'objet {oTarget.Name.ColorString(Color.WHITE)} ne sera pas disponible jusqu'à la fin du travail d'enchantement.", Color.ORANGE);
+
+      player.craftJob.isCancelled = false;
+    }
+    private void StartEnchantementReactivationCraft(NwGameObject oTarget, string ipString)
+    {
+      string[] IPproperties = ipString.Split("_");
+      int spellId = int.Parse(IPproperties[0]);
+      int costValue = int.Parse(IPproperties[1]);
+      int originalEnchanterId = int.Parse(IPproperties[2]);
+
+      if (!float.TryParse(NWScript.Get2DAString("spells", "Wiz_Sorc", spellId), out float spellLevel))
+      {
+        player.oid.SendServerMessage("HRP - Le niveau de sort de votre enchantement est incorrectement configuré. Le staff a été prévenu !");
+        Utils.LogMessageToDMs($"ENCHANTEMENT - {player.oid.LoginCreature.Name} - spell level introuvable pour spellid : {spellId}");
+        return;
+      }
+
+      if (spellLevel < 1)
+        spellLevel = 0.5f;
+
+      int baseCost = ItemUtils.GetBaseItemCost((NwItem)oTarget);
+      int enchanteurLevel = 0;
+
+      if (player.learntCustomFeats.ContainsKey(CustomFeats.Enchanteur))
+        enchanteurLevel += SkillSystem.GetCustomFeatLevelFromSkillPoints(CustomFeats.Enchanteur, player.learntCustomFeats[CustomFeats.Enchanteur]);
+
+      float iJobDuration = baseCost * 10 * spellLevel * (100 - enchanteurLevel) * costValue;
+      if (player.characterId == originalEnchanterId)
+        iJobDuration -= iJobDuration / 4;
+
+      player.craftJob = new Job(-18, spellId.ToString(), iJobDuration, player, oTarget.Serialize().ToBase64EncodedString()); // -18 = JobType enchantementReactivation
+
+      player.oid.SendServerMessage($"Vous venez de démarrer la réactivation d'enchantement de : {NWScript.GetName(oTarget).ColorString(Color.WHITE)}", new Color(32, 255, 32));
       // TODO : afficher des effets visuels
 
       oTarget.Destroy();
@@ -361,6 +495,7 @@ namespace NWN.Systems.Craft
         return;
 
       player.playerJournal.craftJobCountDown = DateTime.Now.AddSeconds(remainingTime);
+
       JournalEntry journalEntry = new JournalEntry();
       if(remainingTime > 0)
         journalEntry.sName = $"Travail artisanal - {Utils.StripTimeSpanMilliseconds((TimeSpan)(player.playerJournal.craftJobCountDown - DateTime.Now))}";
@@ -386,6 +521,12 @@ namespace NWN.Systems.Craft
           break;
         case JobType.Renforcement:
           journalEntry.sText = $"Renforcement en cours : {NwItem.Deserialize(craftedItem.ToByteArray()).Name}";
+          break;
+        case JobType.Repair:
+          journalEntry.sText = $"Réparation en cours : {NwItem.Deserialize(craftedItem.ToByteArray()).Name}";
+          break;
+        case JobType.EnchantementReactivation:
+          journalEntry.sText = $"Ré-enchantement en cours : {NwItem.Deserialize(craftedItem.ToByteArray()).Name}";
           break;
         default:
           journalEntry.sText = $"Fabrication en cours : {blueprintDictionnary[baseItemType].name}";
@@ -421,6 +562,12 @@ namespace NWN.Systems.Craft
         case JobType.Renforcement:
           journalEntry.sText = $"Renforcement en pause";
           break;
+        case JobType.Repair:
+          journalEntry.sText = $"Réparations en pause";
+          break;
+        case JobType.EnchantementReactivation:
+          journalEntry.sText = $"Ré-enchantement en pause";
+          break;
         default:
           journalEntry.sName = $"Travail artisanal en pause - {blueprintDictionnary[baseItemType].name}";
           break;
@@ -454,6 +601,12 @@ namespace NWN.Systems.Craft
           break;
         case JobType.Renforcement:
           journalEntry.sName = $"Renforcement terminé - {NwItem.Deserialize(craftedItem.ToByteArray()).Name}";
+          break;
+        case JobType.Repair:
+          journalEntry.sName = $"Réparations terminées - {NwItem.Deserialize(craftedItem.ToByteArray()).Name}";
+          break;
+        case JobType.EnchantementReactivation:
+          journalEntry.sName = $"Ré-enchantement terminé - {NwItem.Deserialize(craftedItem.ToByteArray()).Name}";
           break;
         default:
           journalEntry.sName = $"Travail artisanal terminé - {blueprintDictionnary[baseItemType].name}";

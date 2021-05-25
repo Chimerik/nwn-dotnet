@@ -34,14 +34,10 @@ namespace NWN.Systems
 
       int classe = 43; // aventurier
 
-      if (oPC.GetAbilityScore(Ability.Charisma) > oPC.GetAbilityScore(Ability.Intelligence))
-        classe = (int)ClassType.Sorcerer;
       if (int.TryParse(NWScript.Get2DAString("spells", "Cleric", (int)onSpellBroadcast.Spell), out int value))
         classe = (int)ClassType.Cleric;
       else if (int.TryParse(NWScript.Get2DAString("spells", "Druid", (int)onSpellBroadcast.Spell), out value))
         classe = (int)ClassType.Druid;
-      else if (int.TryParse(NWScript.Get2DAString("spells", "Bard", (int)onSpellBroadcast.Spell), out value))
-        classe = (int)ClassType.Bard;
       else if (int.TryParse(NWScript.Get2DAString("spells", "Paladin", (int)onSpellBroadcast.Spell), out value))
         classe = (int)ClassType.Paladin;
       else if (int.TryParse(NWScript.Get2DAString("spells", "Ranger", (int)onSpellBroadcast.Spell), out value))

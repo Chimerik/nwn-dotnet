@@ -1,9 +1,7 @@
 ﻿using System.Collections.Generic;
-using System.Threading.Tasks;
 using NWN.API;
 using NWN.API.Constants;
 using NWN.API.Events;
-using NWN.Core.NWNX;
 
 namespace NWN.Systems
 {

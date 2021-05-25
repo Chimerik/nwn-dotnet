@@ -4,6 +4,9 @@ using NWN.Core.NWNX;
 using NWN.Services;
 using NWN.API.Events;
 using NLog;
+using System.Linq;
+using System.Threading.Tasks;
+using System;
 
 namespace NWN.Systems
 {
@@ -50,17 +53,13 @@ namespace NWN.Systems
         item.GetLocalVariable<int>("_DURABILITY").Value -= 1;
         if (item.GetLocalVariable<int>("_DURABILITY").Value <= 0)
         {
-          if (item.GetLocalVariable<int>("_ORIGINAL_CRAFTER_NAME").HasNothing)
+          if (item.GetLocalVariable<string>("_ORIGINAL_CRAFTER_NAME").HasNothing)
           {
             item.Destroy();
             player.oid.SendServerMessage($"Il ne reste plus que des ruines de votre {item.Name.ColorString(Color.WHITE)}. Ces débris ne sont même pas réparables !", Color.RED);
           }
           else
-          {
-            item.GetLocalVariable<int>("_DURABILITY").Value = -1;
             HandleItemRuined(onAttacked.Creature, item);
-            player.oid.SendServerMessage($"Il ne reste plus que des ruines de votre {item.Name.ColorString(Color.WHITE)}. Des réparations s'imposent !", Color.RED);
-          }
         }
 
         /*switch (attackData.iAttackResult)
@@ -193,17 +192,13 @@ namespace NWN.Systems
           weapon.GetLocalVariable<int>("_DURABILITY").Value -= 1;
           if (weapon.GetLocalVariable<int>("_DURABILITY").Value <= 0)
           {
-            if (weapon.GetLocalVariable<int>("_ORIGINAL_CRAFTER_NAME").HasNothing)
+            if (weapon.GetLocalVariable<string>("_ORIGINAL_CRAFTER_NAME").HasNothing)
             {
               weapon.Destroy();
               attacker.oid.SendServerMessage($"Il ne reste plus que des ruines de votre {weapon.Name.ColorString(Color.WHITE)}. Ces débris ne sont même pas réparables !", Color.RED);
             }
             else
-            {
-              weapon.GetLocalVariable<int>("_DURABILITY").Value = -1;
               HandleItemRuined(onAttack.Attacker, weapon);
-              attacker.oid.SendServerMessage($"Il ne reste plus que des ruines de votre {weapon.Name.ColorString(Color.WHITE)}. Des réparations s'imposent !", Color.RED);
-            }
           }
         }
       }
@@ -211,7 +206,21 @@ namespace NWN.Systems
     private static void HandleItemRuined(NwCreature oPC, NwItem oItem)
     {
       CreaturePlugin.RunUnequip(oPC, oItem);
+      oItem.GetLocalVariable<int>("_DURABILITY").Value = -1;
+      foreach (ItemProperty ip in oItem.ItemProperties.Where(ip => ip.Tag.StartsWith("ENCHANTEMENT")))
+      {
+        Task waitLoopEnd = NwTask.Run(async () =>
+        {
+          ItemProperty deactivatedIP = ip;
+          await NwTask.Delay(TimeSpan.FromSeconds(0.1f));
+          oItem.RemoveItemProperty(deactivatedIP);
+          await NwTask.Delay(TimeSpan.FromSeconds(0.1f));
+          deactivatedIP.Tag += "_INACTIVE";
+          oItem.AddItemProperty(deactivatedIP, EffectDuration.Permanent);
+        });
+      }
 
+      oPC.ControllingPlayer.SendServerMessage($"Il ne reste plus que des ruines de votre {oItem.Name.ColorString(Color.WHITE)}. Des réparations s'imposent !", Color.RED);
     }
   }
 }

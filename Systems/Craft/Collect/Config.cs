@@ -413,7 +413,6 @@ namespace NWN.Systems.Craft.Collect
       if (craftedItem != null)
       {
         craftedItem.GetLocalVariable<int>("_MAX_DURABILITY").Value = GetBaseItemCost(craftedItem) * 100;
-        craftedItem.GetLocalVariable<int>("_DURABILITY").Value = GetBaseItemCost(craftedItem) * 100;
         craftedItem.GetLocalVariable<int>("_AVAILABLE_ENCHANTEMENT_SLOT").Value = 1;
       }
 
@@ -427,7 +426,6 @@ namespace NWN.Systems.Craft.Collect
       if (craftedItem != null)
       {
         craftedItem.GetLocalVariable<int>("_MAX_DURABILITY").Value = GetBaseItemCost(craftedItem) * 200;
-        craftedItem.GetLocalVariable<int>("_DURABILITY").Value = GetBaseItemCost(craftedItem) * 200;
         craftedItem.GetLocalVariable<int>("_AVAILABLE_ENCHANTEMENT_SLOT").Value = 2;
       }
 
@@ -495,7 +493,6 @@ namespace NWN.Systems.Craft.Collect
     public static ItemProperty[] GetPyeriteToolProperties(NwItem craftedItem)
     {
       craftedItem.GetLocalVariable<int>("_MAX_DURABILITY").Value = 25;
-      craftedItem.GetLocalVariable<int>("_DURABILITY").Value = 25;
       craftedItem.GetLocalVariable<int>("_ITEM_LEVEL").Value = 1;
 
       return new API.ItemProperty[]

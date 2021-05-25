@@ -1,9 +1,10 @@
 ﻿using NLog;
 using NWN.API;
 using NWN.API.Events;
+using NWN.Core;
 using NWN.Services;
-using NWNX.Services;
 using System;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace NWN.Systems
@@ -200,17 +201,25 @@ namespace NWN.Systems
           break;
       }
 
-      if (onExamine.ExaminedObject is NwItem)
+      if (onExamine.ExaminedObject is NwItem oItem)
       {
-        //if (onExamine.ExaminedObject is NwItem && onExamine.ExaminedObject.GetLocalVariable<string>("_TEMP_DESC").HasValue)
-          //onExamine.ExaminedObject.Description = onExamine.ExaminedObject.GetLocalVariable<string>("_TEMP_DESC").Value;
-
         onExamine.ExaminedObject.GetLocalVariable<string>("_TEMP_DESC").Value = onExamine.ExaminedObject.Description;
-        
-        if (onExamine.ExaminedObject.GetLocalVariable<int>("_AVAILABLE_ENCHANTEMENT_SLOT").HasValue)
-          onExamine.ExaminedObject.Description += $"\n\nEmplacement(s) d'enchantement : [{onExamine.ExaminedObject.GetLocalVariable<int>("_AVAILABLE_ENCHANTEMENT_SLOT").Value.ToString().ColorString(Color.ORANGE)}] ".ColorString(Color.ORANGE);
 
-        onExamine.ExaminedObject.Description += $"\n\n {ItemUtils.GetItemDurabilityState((NwItem)onExamine.ExaminedObject)}";
+        onExamine.ExaminedObject.Description += $"\n\n{ItemUtils.GetItemDurabilityState(oItem)}";
+
+        if (oItem.GetLocalVariable<int>("_REPAIR_DONE").HasValue)
+          onExamine.ExaminedObject.Description += $"\nRéparé - en attente de ré-enchantement.";
+
+        if (onExamine.ExaminedObject.GetLocalVariable<int>("_AVAILABLE_ENCHANTEMENT_SLOT").HasValue)
+          onExamine.ExaminedObject.Description += $"\n\nEmplacement(s) d'enchantement : [{onExamine.ExaminedObject.GetLocalVariable<int>("_AVAILABLE_ENCHANTEMENT_SLOT").Value.ToString().ColorString(new Color(32, 255, 32))}] ".ColorString(Color.ORANGE);
+
+        foreach (API.ItemProperty ip in oItem.ItemProperties.Where(ip => ip.Tag.Contains("INACTIVE")))
+        {
+          string[] split = ip.Tag.Split("_");
+          int spellId = int.Parse(split[1]);
+          string spellName = NWScript.GetStringByStrRef(int.Parse(NWScript.Get2DAString("spells", "Name", spellId)));
+          oItem.Description += $"\n{spellName} inactif.".ColorString(Color.RED);
+        }
 
         Task waitExamineEnd = NwTask.Run(async () =>
         {

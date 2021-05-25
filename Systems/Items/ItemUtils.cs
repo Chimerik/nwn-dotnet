@@ -289,46 +289,24 @@ namespace NWN.Systems
     }
     public static string GetItemDurabilityState(NwItem item)
     {
-      int durabilityState = item.GetLocalVariable<int>("_DURABILITY").Value / GetItemMaxDurability(item) * 100;
+      int durabilityState = item.GetLocalVariable<int>("_DURABILITY").Value / item.GetLocalVariable<int>("_MAX_DURABILITY").Value * 100;
 
       if (durabilityState == 100)
-        return "Flambant neuf".ColorString(Color.GREEN);
+        return "Flambant neuf".ColorString(new Color(32, 255, 32));
       else if (durabilityState < 100 && durabilityState >= 75)
-        return "Très bon état".ColorString(Color.OLIVE);
+        return "Très bon état".ColorString(Color.GREEN);
       else if (durabilityState < 75 && durabilityState >= 50)
-        return "Bon état".ColorString(Color.LIME);
+        return "Bon état".ColorString(Color.OLIVE);
       else if (durabilityState < 50 && durabilityState >= 25)
-        return "Usé".ColorString(Color.ORANGE);
+        return "Usé".ColorString(Color.LIME);
       else if (durabilityState < 25 && durabilityState >= 5)
+        return "Abimé".ColorString(Color.ORANGE);
+      else if (durabilityState < 5 && durabilityState >= 1)
         return "Vétuste".ColorString(Color.RED);
-      else if (durabilityState < 5)
-        return "Vétuste".ColorString(Color.PURPLE);
+      else if (durabilityState < 1)
+        return "Ruiné".ColorString(Color.RED);
 
       return "";
-    }
-
-    public static int GetItemMaxDurability(NwItem item)
-    {
-      int itemLevel = 0;
-      string material = item.GetLocalVariable<string>("_ITEM_MATERIAL").Value;
-
-      if (Enum.TryParse(material, out MineralType myMineralType))
-        itemLevel = (int)myMineralType;
-      else if (Enum.TryParse(material, out PlankType myPlankType))
-        itemLevel = (int)myPlankType;
-      else if (Enum.TryParse(material, out LeatherType myLeatherType))
-        itemLevel = (int)myLeatherType;
-
-      int maxDurability;
-      if (itemLevel > 0)
-        maxDurability = GetBaseItemCost(item) * itemLevel * 10;
-      else
-        maxDurability = GetBaseItemCost(item);
-
-      if (maxDurability < 1)
-        maxDurability = 1;
-
-      return maxDurability;
     }
   }
 }

@@ -3,7 +3,6 @@ using System.Linq;
 using System.Threading.Tasks;
 using NWN.API;
 using NWN.Core;
-using NWN.Core.NWNX;
 using static NWN.Systems.Craft.Collect.Config;
 
 namespace NWN.Systems.Craft.Collect

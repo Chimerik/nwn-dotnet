@@ -5,6 +5,7 @@ using NWN.API.Constants;
 using System.Collections.Generic;
 using static NWN.Systems.PlayerSystem;
 using System;
+using System.Linq;
 
 namespace NWN.Systems
 {
@@ -79,13 +80,21 @@ namespace NWN.Systems
       if (!player.craftJob.CanStartJob(player.oid, null, Craft.Job.JobType.Enchantement))
         return;
 
-      if(oTarget.GetLocalVariable<int>("_AVAILABLE_ENCHANTEMENT_SLOT").HasNothing)
+      int spellId = NWScript.GetSpellId();
+
+      if (oTarget.ItemProperties.Any(ip => ip.Tag.StartsWith($"ENCHANTEMENT_{spellId}") && ip.Tag.Contains("INACTIVE")))
+      {
+        string inactiveIPTag = oTarget.ItemProperties.FirstOrDefault(ip => ip.Tag.StartsWith($"ENCHANTEMENT_{spellId}") && ip.Tag.Contains("INACTIVE")).Tag;
+        string[] IPproperties = inactiveIPTag.Split("_");
+        player.craftJob.Start(Craft.Job.JobType.EnchantementReactivation, null, player, null, oTarget, $"{spellId}_{IPproperties[5]}_{IPproperties[6]}");
+        return;
+      }
+
+      if (oTarget.GetLocalVariable<int>("_AVAILABLE_ENCHANTEMENT_SLOT").HasNothing)
       {
         player.oid.SendServerMessage($"{oTarget.Name} ne dispose d'aucun emplacement d'enchantement disponible !");
         return;
       }
-
-      int spellId = NWScript.GetSpellId();
 
       if (enchantementCategories.ContainsKey(spellId))
         DrawEnchantementChoicePage(player, oTarget.Name, spellId, oTarget);
@@ -110,8 +119,8 @@ namespace NWN.Systems
       };
 
       foreach (API.ItemProperty ip in enchantementCategories[spellId])
-        player.menu.choices.Add(($"{NWScript.GetStringByStrRef(Int32.Parse(NWScript.Get2DAString("itempropdef", "Name", NWScript.GetItemPropertyType(ip))))} - " +
-          $"{NWScript.GetStringByStrRef(Int32.Parse(NWScript.Get2DAString(NWScript.Get2DAString("itempropdef", "SubTypeResRef", NWScript.GetItemPropertyType(ip)), "Name", NWScript.GetItemPropertySubType(ip))))}", () => HandleEnchantementChoice(player, ip, spellId, oItem)));
+        player.menu.choices.Add(($"{NWScript.GetStringByStrRef(int.Parse(NWScript.Get2DAString("itempropdef", "Name", NWScript.GetItemPropertyType(ip))))} - " +
+          $"{NWScript.GetStringByStrRef(int.Parse(NWScript.Get2DAString(NWScript.Get2DAString("itempropdef", "SubTypeResRef", NWScript.GetItemPropertyType(ip)), "Name", NWScript.GetItemPropertySubType(ip))))}", () => HandleEnchantementChoice(player, ip, spellId, oItem)));
 
       player.menu.choices.Add(("Quitter", () => player.menu.Close()));
       player.menu.Draw();

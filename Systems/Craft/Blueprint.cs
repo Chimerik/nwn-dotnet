@@ -3,7 +3,6 @@ using System.Linq;
 using NWN.API;
 using NWN.API.Constants;
 using NWN.Core;
-using NWN.Core.NWNX;
 using static NWN.Systems.Craft.Collect.Config;
 using static NWN.Systems.ItemUtils;
 
@@ -238,44 +237,55 @@ namespace NWN.Systems.Craft
 
       return "Invalid";
     }
-    public static API.ItemProperty GetCraftEnchantementProperties(NwItem craftedItem, string ipString, int boost)
+    public static API.ItemProperty GetCraftEnchantementProperties(NwItem craftedItem, string ipString, int boost, int enchanterId)
     {
-      string enchTag = $"ENCHANTEMENT_{ipString}";
-
       string[] IPproperties = ipString.Split("_");
+      string enchTag = $"ENCHANTEMENT_{IPproperties[0]}";
 
       API.ItemProperty newIP = API.ItemProperty.Quality(IPQuality.Unknown);
 
       int value;
-      if (Int32.TryParse(IPproperties[0], out value))
+      if (Int32.TryParse(IPproperties[1], out value))
+      {
         newIP.PropertyType = (ItemPropertyType)value;
+        enchTag += $"_{newIP.PropertyType}";
+      }
       else
         Utils.LogMessageToDMs($"Could not parse nProperty in : {ipString}");
-      if (Int32.TryParse(IPproperties[0], out value))
-        newIP.SubType = Int32.Parse(IPproperties[1]);
+      if (Int32.TryParse(IPproperties[2], out value))
+      {
+        newIP.SubType = value;
+        enchTag += $"_{newIP.SubType}";
+      }
       else
         Utils.LogMessageToDMs($"Could not parse nSubType in : {ipString}");
-      if (Int32.TryParse(IPproperties[0], out value))
-        newIP.CostTable = Int32.Parse(IPproperties[2]);
+      if (Int32.TryParse(IPproperties[3], out value))
+      {
+        newIP.CostTable = value;
+        enchTag += $"_{newIP.CostTable}";
+      }
       else
         Utils.LogMessageToDMs($"Could not parse nCostTable in : {ipString}");
-      if (Int32.TryParse(IPproperties[0], out value))
-        newIP.CostTableValue = Int32.Parse(IPproperties[3]) + boost;
+      if (Int32.TryParse(IPproperties[4], out value))
+        newIP.CostTableValue = value + boost;
       else
         Utils.LogMessageToDMs($"Could not parse nCostTableValue in : {ipString}");
-
-      newIP.Tag = enchTag;
 
       API.ItemProperty existingIP = craftedItem.ItemProperties.FirstOrDefault(i => i.DurationType == EffectDuration.Permanent && i.PropertyType == newIP.PropertyType && i.SubType == newIP.SubType && i.Param1Table == newIP.Param1Table);
 
       if (existingIP != null)
       {
+        craftedItem.RemoveItemProperty(existingIP);
+
         if (existingIP.CostTableValue > newIP.CostTableValue)
           newIP.CostTableValue = existingIP.CostTableValue + 1;
         else
           newIP.CostTableValue += 1;
       }
 
+      enchTag += $"_{newIP.CostTableValue}_{enchanterId}";
+      newIP.Tag = enchTag;
+      
       return newIP;
     }
   }

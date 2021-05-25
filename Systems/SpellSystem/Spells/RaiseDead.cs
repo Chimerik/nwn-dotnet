@@ -28,7 +28,7 @@ namespace NWN.Systems
       {
         oCaster.ControllingPlayer.SendServerMessage("Votre sort a bien eu l'effet escompté, cependant l'individu blessé semble encore avoir besoin de repos. Il faudra un certain temps avant de le voir se relever.");
 
-        var query = NWScript.SqlPrepareQueryCampaign(Config.database, $"UPDATE playerCharacters SET areaTag = @areaTag, position = @position WHERE characterId = @characterId");
+        var query = NWScript.SqlPrepareQueryCampaign(Config.database, $"UPDATE playerCharacters SET areaTag = @areaTag, position = @position WHERE ROWID = @characterId");
         NWScript.SqlBindInt(query, "@characterId", PcId);
         NWScript.SqlBindString(query, "@areaTag", onSpellCast.TargetObject.Area.Tag);
         NWScript.SqlBindVector(query, "@position", onSpellCast.TargetObject.Position);

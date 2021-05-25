@@ -164,8 +164,12 @@ namespace NWN.Systems
 
       //Console.WriteLine(NWScript.GetTag(oItem));
 
-      if (oItem.GetLocalVariable<int>("_DURABILITY").HasNothing)
-        oItem.GetLocalVariable<int>("_DURABILITY").Value = ItemUtils.GetItemMaxDurability(oItem) * 25;
+      if (oItem.GetLocalVariable<int>("_MAX_DURABILITY").HasNothing)
+      {
+        int durability = ItemUtils.GetBaseItemCost(oItem) * 25;
+        oItem.GetLocalVariable<int>("_MAX_DURABILITY").Value = durability;
+        oItem.GetLocalVariable<int>("_DURABILITY").Value = durability;
+      }
 
       if (oItem.Tag == "undroppable_item")
       {
@@ -261,10 +265,7 @@ namespace NWN.Systems
     public static void NoUseRuinedItem(OnItemValidateUse onItemValidateUse)
     {
       if (onItemValidateUse.Item.GetLocalVariable<int>("_DURABILITY") <= 0)
-      {
-        PlayerSystem.Log.Info($"no ruin : {onItemValidateUse.Item.Name} denied !");
         onItemValidateUse.CanUse = false;
-      }
     }
   }
 }

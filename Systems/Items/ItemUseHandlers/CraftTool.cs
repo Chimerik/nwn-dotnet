@@ -131,7 +131,7 @@ namespace NWN.Systems
 
       player.menu.Clear();
       player.menu.titleLines = new List<string> {
-        $"Quel type de modification souhaitez-vous effectuer sur votre armure {item.Name.ColorString(Color.GREEN)} ?"
+        $"Quel type de modification souhaitez-vous effectuer sur votre armure {item.Name.ColorString(new Color(32, 255, 32))} ?"
       };
 
       player.menu.choices.Add(($"Modifier l'apparence.".ColorString(Color.ORANGE), () => HandleArmorPartChoice()));
@@ -721,7 +721,7 @@ namespace NWN.Systems
     private async void GetNewName()
     {
       player.menu.titleLines = new List<string>() {
-        $"Nom actuel : {item.Name.ColorString(Color.GREEN)}",
+        $"Nom actuel : {item.Name.ColorString(new Color(32, 255, 32))}",
         "Veuillez prononcer le nouveau nom à l'oral."
       };
 

@@ -125,7 +125,6 @@ namespace NWN.Systems.Arena
     {
       var encounters = GetNormalEncounters(difficulty);
       int rand = NWN.Utils.random.Next(0, encounters.Length);
-      rand = 4;
       return encounters[rand];
     }
 
@@ -219,7 +218,7 @@ namespace NWN.Systems.Arena
     {
       API.Location arenaStartLoc = NwObject.FindObjectsWithTag<NwWaypoint>(PVE_ENTRY_WAYPOINT_TAG).FirstOrDefault().Location;
 
-      var query = NWScript.SqlPrepareQueryCampaign(Systems.Config.database, $"UPDATE playerCharacters SET areaTag = @areaTag, position = @position WHERE characterId = @characterId");
+      var query = NWScript.SqlPrepareQueryCampaign(Systems.Config.database, $"UPDATE playerCharacters SET areaTag = @areaTag, position = @position WHERE ROWID = @characterId");
       NWScript.SqlBindInt(query, "@characterId", player.characterId);
       NWScript.SqlBindString(query, "@areaTag", arenaStartLoc.Area.Tag);
       NWScript.SqlBindVector(query, "@position", arenaStartLoc.Position);

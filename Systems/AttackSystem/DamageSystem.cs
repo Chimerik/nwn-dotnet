@@ -21,8 +21,8 @@ namespace NWN.Systems
         onDamage.Target.GetLocalVariable<int>("_SPARK_LEVEL").Value += 5;
 
         foreach (NwCreature oPC in onDamage.Target.Area.FindObjectsOfTypeInArea<NwCreature>().Where(p => p.ControllingPlayer != null))
-          PlayerPlugin.FloatingTextStringOnCreature(oPC, onDamage.Target, onDamage.DamageData.Electrical.ToString().ColorString(new Color(32, 255, 32)));
-        
+          oPC.ControllingPlayer.DisplayFloatingTextStringOnCreature((NwCreature)onDamage.Target, onDamage.DamageData.Electrical.ToString().ColorString(new Color(32, 255, 32)));
+
         if (onDamage.Target.Tag == "dog_meca_defect" && CreaturePlugin.GetAttacksPerRound(onDamage.Target) < 6
           && NwRandom.Roll(Utils.random, 100) <= onDamage.Target.GetLocalVariable<int>("_SPARK_LEVEL").Value)
         {

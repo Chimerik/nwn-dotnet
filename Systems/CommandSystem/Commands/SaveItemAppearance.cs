@@ -1,5 +1,4 @@
 ﻿using System.Collections.Generic;
-using System.Threading.Tasks;
 using NWN.API;
 using NWN.API.Events;
 using NWN.Core;

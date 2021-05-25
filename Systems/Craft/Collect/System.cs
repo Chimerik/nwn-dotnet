@@ -221,9 +221,9 @@ namespace NWN.Systems.Craft.Collect
         craftedItem.AddItemProperty(ip, EffectDuration.Permanent);
       }
     }
-    public static void AddCraftedEnchantementProperties(NwItem craftedItem, string spellId, int boost)
+    public static void AddCraftedEnchantementProperties(NwItem craftedItem, string spellId, int boost, int enchanterId)
     {
-      craftedItem.AddItemProperty(GetCraftEnchantementProperties(craftedItem, spellId, boost), EffectDuration.Permanent);
+      craftedItem.AddItemProperty(GetCraftEnchantementProperties(craftedItem, spellId, boost, enchanterId), EffectDuration.Permanent);
       Log.Info("Enchantement properties added");
     }
     public static bool IsItemCraftMaterial(string itemTag)

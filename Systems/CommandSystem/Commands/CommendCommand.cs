@@ -35,7 +35,7 @@ namespace NWN.Systems
         if(commendTarget.bonusRolePlay == 1)
         {
           commendTarget.bonusRolePlay = 2;
-          commendTarget.oid.SendServerMessage("Votre bonus roleplay est désormais de 2", Color.GREEN);
+          commendTarget.oid.SendServerMessage("Votre bonus roleplay est désormais de 2", new Color(32, 255, 32));
 
           var updateQuery = NWScript.SqlPrepareQueryCampaign(Config.database, $"UPDATE PlayerAccounts SET bonusRolePlay = @bonusRolePlay where rowid = @rowid");
           NWScript.SqlBindInt(updateQuery, "@bonusRolePlay", commendTarget.bonusRolePlay);
