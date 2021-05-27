@@ -199,13 +199,32 @@ namespace NWN.Systems
 
           onExamine.ExaminedObject.Description = descriptionLeather;
           break;
+
+        case "sequence_register":
+
+          string descriptionSequence = "Cet outil vous permet d'enregistrer une séquence de sorts dont l'incantation s'enchaînera lorsque vous l'utiliserez sur une cible, vous permettant d'économiser de nombreux clics ! \n\n";
+
+          if (onExamine.ExaminedObject.GetLocalVariable<string>("_REGISTERED_SEQUENCE").HasNothing)
+            return;
+
+          descriptionSequence += "Liste des sorts enregistrés :\n\n";
+
+          string[] spellList = onExamine.ExaminedObject.GetLocalVariable<string>("_REGISTERED_SEQUENCE").Value.Split("_");
+
+          foreach (string spellId in spellList)
+            onExamine.ExaminedObject.Description += $"- {NWScript.GetStringByStrRef(int.Parse(NWScript.Get2DAString("spells", "Name", int.Parse(spellId))))}\n";
+
+          onExamine.ExaminedObject.Description = descriptionSequence;
+
+          return;
       }
 
       if (onExamine.ExaminedObject is NwItem oItem)
       {
         onExamine.ExaminedObject.GetLocalVariable<string>("_TEMP_DESC").Value = onExamine.ExaminedObject.Description;
 
-        onExamine.ExaminedObject.Description += $"\n\n{ItemUtils.GetItemDurabilityState(oItem)}";
+        if(onExamine.ExaminedObject.GetLocalVariable<int>("_MAX_DURABILITY").HasValue)
+          onExamine.ExaminedObject.Description += $"\n\n{ItemUtils.GetItemDurabilityState(oItem)}";
 
         if (oItem.GetLocalVariable<int>("_REPAIR_DONE").HasValue)
           onExamine.ExaminedObject.Description += $"\nRéparé - en attente de ré-enchantement.";

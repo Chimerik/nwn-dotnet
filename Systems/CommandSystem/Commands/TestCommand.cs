@@ -20,7 +20,7 @@ namespace NWN.Systems
 {
   public static partial class CommandSystem
   {
-    private static async void ExecuteTestCommand(ChatSystem.Context ctx, Options.Result options)
+    private static void ExecuteTestCommand(ChatSystem.Context ctx, Options.Result options)
     {
       if (PlayerSystem.Players.TryGetValue(ctx.oSender.LoginCreature, out PlayerSystem.Player player))
       {
@@ -29,28 +29,16 @@ namespace NWN.Systems
 
         if (player.oid.PlayerName == "Chim")
         {
+
           //SpellUtils.ApplyCustomEffectToTarget(player.oid, "CUSTOM_EFFECT_FROG", 51, 6);
-          PlayerSystem.cursorTargetService.EnterTargetMode(player.oid, OnTargetSelected, ObjectTypes.All, MouseCursor.Pickup);
+          //PlayerSystem.cursorTargetService.EnterTargetMode(player.oid, OnTargetSelected, ObjectTypes.All, MouseCursor.Pickup);
         }
       }
     }
     private static void OnTargetSelected(ModuleEvents.OnPlayerTarget selection)
     {
-      selection.TargetObject.GetLocalVariable<int>("_DURABILITY").Value = -1;
-
-      foreach (API.ItemProperty ip in ((NwItem)selection.TargetObject).ItemProperties.Where(ip => ip.Tag.StartsWith("ENCHANTEMENT")))
-      {
-        Task waitLoopEnd = NwTask.Run(async () =>
-        {
-          API.ItemProperty deactivatedIP = ip;
-          await NwTask.Delay(TimeSpan.FromSeconds(0.1f));
-          ((NwItem)selection.TargetObject).RemoveItemProperty(deactivatedIP);
-          await NwTask.Delay(TimeSpan.FromSeconds(0.1f));
-          deactivatedIP.Tag += "_INACTIVE";
-          ((NwItem)selection.TargetObject).AddItemProperty(deactivatedIP, EffectDuration.Permanent);
-        });
-      }
-
+      ((NwGameObject)selection.TargetObject).Destroy();
+      
       //((NwGameObject)selection.TargetObject).ApplyEffect(EffectDuration.Permanent, API.Effect.Swarm(true, "sim_wraith"));
       //AppearancePlugin.SetOverride(selection.Player, selection.TargetObject, );
       //PlayerPlugin.ApplyLoopingVisualEffectToObject(selection.Player, selection.TargetObject, NWScript.VFX_DUR_PROT_BARKSKIN);

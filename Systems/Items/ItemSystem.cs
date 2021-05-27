@@ -132,6 +132,13 @@ namespace NWN.Systems
             oPC.ControllingPlayer.SendServerMessage($"Vous ne pouvez pas modifier l'apparence de {oTarget.Name.ColorString(Color.WHITE)}.".ColorString(Color.RED));
 
           break;
+        case "sequence_register":
+          feedbackService.AddFeedbackMessageFilter(FeedbackMessage.UseItemCantUse, oPC.ControllingPlayer);
+          onItemUse.PreventUseItem = true;
+
+          new SequenceRegister(oPC, oItem, oTarget);
+
+          break;
         case "Peaudejoueur":
           feedbackService.AddFeedbackMessageFilter(FeedbackMessage.UseItemCantUse, oPC.ControllingPlayer);
           onItemUse.PreventUseItem = true;
@@ -256,7 +263,7 @@ namespace NWN.Systems
     }
     public static void NoEquipRuinedItem(OnItemValidateEquip onItemValidateEquip)
     {
-      if (onItemValidateEquip.Item.GetLocalVariable<int>("_DURABILITY") <= 0)
+      if (onItemValidateEquip.Item.GetLocalVariable<int>("_MAX_DURABILITY").HasValue && onItemValidateEquip.Item.GetLocalVariable<int>("_DURABILITY") <= 0)
       {
         onItemValidateEquip.Result = EquipValidationResult.Denied;
         onItemValidateEquip.UsedBy.ControllingPlayer.SendServerMessage($"{onItemValidateEquip.Item.Name} nécessite des réparations.", Color.RED);
@@ -264,7 +271,7 @@ namespace NWN.Systems
     }
     public static void NoUseRuinedItem(OnItemValidateUse onItemValidateUse)
     {
-      if (onItemValidateUse.Item.GetLocalVariable<int>("_DURABILITY") <= 0)
+      if (onItemValidateUse.Item.GetLocalVariable<int>("_MAX_DURABILITY").HasValue && onItemValidateUse.Item.GetLocalVariable<int>("_DURABILITY") <= 0)
         onItemValidateUse.CanUse = false;
     }
   }

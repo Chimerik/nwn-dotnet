@@ -1,8 +1,6 @@
 ﻿using NWN.Core;
 using NWN.API;
 using NWN.API.Constants;
-using System.Threading.Tasks;
-using System;
 using NWN.API.Events;
 
 namespace NWN.Systems
@@ -37,22 +35,8 @@ namespace NWN.Systems
         oCaster.OnCombatRoundEnd -= PlayerSystem.HandleCombatRoundEndForAutoSpells;
         oCaster.OnCombatRoundEnd += PlayerSystem.HandleCombatRoundEndForAutoSpells;
 
-        Task waitMovement = NwTask.Run(async () =>
-        {
-          float posX = oCaster.Position.X;
-          float posY = oCaster.Position.Y;
-          await NwTask.WaitUntil(() => oCaster.Position.X != posX || oCaster.Position.Y != posY);
-
-          oCaster.GetLocalVariable<int>("_AUTO_SPELL").Delete();
-          oCaster.GetLocalVariable<NwObject>("_AUTO_SPELL_TARGET").Delete();
-          oCaster.OnCombatRoundEnd -= PlayerSystem.HandleCombatRoundEndForAutoSpells;
-        });
-
-        Task waitSpellUsed = NwTask.Run(async () =>
-        {
-          await NwTask.Delay(TimeSpan.FromSeconds(0.2));
-          SpellSystem.RestoreSpell(oCaster, onSpellCast.Spell);
-        });
+        SpellUtils.CancelCastOnMovement(oCaster);
+        SpellUtils.RestoreSpell(oCaster, onSpellCast.Spell);
       }
     }
   }

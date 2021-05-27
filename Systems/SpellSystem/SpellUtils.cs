@@ -201,5 +201,25 @@ namespace NWN.Systems
       
       ObjectPlugin.AddIconEffect(target, iconId, effectDuration);
     }
+    public static async void RestoreSpell(NwCreature caster, Spell spell)
+    {
+      if (caster == null)
+        return;
+
+      await NwTask.Delay(TimeSpan.FromSeconds(0.2));
+
+      foreach (MemorizedSpellSlot spellSlot in caster.GetClassInfo((ClassType)43).GetMemorizedSpellSlots(0).Where(s => s.Spell == spell && !s.IsReady))
+        spellSlot.IsReady = true;
+    }
+    public static async void CancelCastOnMovement(NwCreature caster)
+    {
+      float posX = caster.Position.X;
+      float posY = caster.Position.Y;
+      await NwTask.WaitUntil(() => caster.Position.X != posX || caster.Position.Y != posY);
+
+      caster.GetLocalVariable<int>("_AUTO_SPELL").Delete();
+      caster.GetLocalVariable<NwObject>("_AUTO_SPELL_TARGET").Delete();
+      caster.OnCombatRoundEnd -= PlayerSystem.HandleCombatRoundEndForAutoSpells;
+    }
   }
 }

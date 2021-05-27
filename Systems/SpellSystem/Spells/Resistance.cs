@@ -1,8 +1,6 @@
 ﻿using NWN.Core;
 using NWN.API;
 using NWN.API.Events;
-using System.Threading.Tasks;
-using System;
 
 namespace NWN.Systems
 {
@@ -36,11 +34,7 @@ namespace NWN.Systems
 
       if (onSpellCast.MetaMagicFeat == API.Constants.MetaMagic.None)
       {
-        Task waitSpellUsed = NwTask.Run(async () =>
-        {
-          await NwTask.Delay(TimeSpan.FromSeconds(0.2));
-          SpellSystem.RestoreSpell(oCaster, onSpellCast.Spell);
-        });
+        SpellUtils.RestoreSpell(oCaster, onSpellCast.Spell);
       }
     }
   }

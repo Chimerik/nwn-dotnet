@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading;
 using System.Threading.Tasks;
 using Discord;
 using NWN.API;
@@ -159,6 +158,7 @@ namespace NWN.Systems
         ItemSystem.OnTorilNecklaceRemoved(oPC);
       });
 
+      player.mapLoadingTime = DateTime.Now;
       Log.Info("End of player init.");
     }
     private static void InitializeNewPlayer(NwPlayer newPlayer)

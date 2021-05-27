@@ -5,6 +5,9 @@ using System.Linq;
 using NWN.Core.NWNX;
 using NWN.Core;
 using NLog;
+using System;
+using System.Numerics;
+using System.Threading.Tasks;
 
 namespace NWN.Systems
 {
@@ -14,6 +17,10 @@ namespace NWN.Systems
     private static readonly Logger Log = LogManager.GetCurrentClassLogger();
     public AreaSystem()
     {
+      foreach(NwTrigger trigger in NwObject.FindObjectsWithTag("invi_unwalkable"))
+      {
+        trigger.OnEnter += OnEnterUnwalkableBlock;
+      }
       foreach (NwArea area in NwModule.Instance.Areas)
       {
         area.OnEnter += OnAreaEnter;
@@ -36,6 +43,8 @@ namespace NWN.Systems
 
       if (!PlayerSystem.Players.TryGetValue(onEnter.EnteringObject, out PlayerSystem.Player player)) //EN FONCTION DE SI LA ZONE EST REST OU PAS, ON AFFICHE LA PROGRESSION DU JOURNAL DE CRAFT
         return;
+
+      Log.Info($"Map {area.Name} loaded in : {(DateTime.Now - player.mapLoadingTime).TotalSeconds}");
 
       AreaSpawner(area);
 
@@ -73,6 +82,8 @@ namespace NWN.Systems
 
         if (!PlayerSystem.Players.TryGetValue(creature.ControllingPlayer.LoginCreature, out PlayerSystem.Player player))
           return;
+
+        player.mapLoadingTime = DateTime.Now;
 
         player.previousLocation = player.location;
 
@@ -233,6 +244,28 @@ namespace NWN.Systems
       area.FindObjectsOfTypeInArea<NwCreature>().FirstOrDefault(p => p.Tag == "bal_system").OnConversation += DialogSystem.StartStorageDialog;
 
       return area;
+    }
+    private async void OnEnterUnwalkableBlock(TriggerEvents.OnEnter onEnter)
+    {
+      Log.Info($"onEnter : {onEnter.EnteringObject.Name}");
+
+      if (!(onEnter.EnteringObject is NwCreature oEntering))
+        return;
+
+      Vector3 initialPosition = oEntering.Position;
+      oEntering.Commandable = false;
+
+      await NwTask.Delay(TimeSpan.FromSeconds(0.8));
+      await oEntering.ClearActionQueue();
+
+      Vector3 calculations = 2 * (initialPosition - oEntering.Position);
+      Vector3 kickback = initialPosition;
+      kickback.Z = oEntering.Position.Z;
+
+      NwPlaceable.Create("wall_invi", API.Location.Create(oEntering.Area, initialPosition, oEntering.Rotation));
+
+      oEntering.Commandable = true;
+      oEntering.Location = API.Location.Create(oEntering.Area, kickback + (initialPosition - oEntering.Position), oEntering.Rotation);
     }
   }
 }

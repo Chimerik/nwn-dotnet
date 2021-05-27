@@ -176,15 +176,7 @@ namespace NWN.Systems
       CreaturePlugin.SetBaseSavingThrow(player, NWScript.SAVING_THROW_WILL, player.GetLocalVariable<int>("_DELAYED_SPELLHOOK_WILL").Value);
       CreaturePlugin.SetBaseSavingThrow(player, NWScript.SAVING_THROW_FORT, player.GetLocalVariable<int>("_DELAYED_SPELLHOOK_FORT").Value);
     }
-    public static void RestoreSpell(NwCreature caster, Spell spell)
-    {
-      if (caster == null)
-        Log.Info("caster is null");
-
-      foreach (MemorizedSpellSlot spellSlot in caster.GetClassInfo((ClassType)43).GetMemorizedSpellSlots(0).Where(s => s.Spell == spell && !s.IsReady))
-        spellSlot.IsReady = true;
-    }
-    public static void HandleBeforeSpellCast(OnSpellCast onSpellCast)
+        public static void HandleBeforeSpellCast(OnSpellCast onSpellCast)
     {
       if (!(onSpellCast.Caster is NwCreature { IsPlayerControlled: true } oPC))
         return;

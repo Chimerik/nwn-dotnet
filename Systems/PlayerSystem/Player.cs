@@ -18,6 +18,7 @@ namespace NWN.Systems
     public class Player
     {
       public NwPlayer oid { get; set; }
+      public DateTime mapLoadingTime { get; set; }
       public readonly int accountId;
       public readonly int characterId;
       public API.Location location { get; set; }
