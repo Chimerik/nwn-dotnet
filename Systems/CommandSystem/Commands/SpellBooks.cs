@@ -35,8 +35,6 @@ namespace NWN.Systems
         "Quel nom souhaitez-vous donner à ce grimoire ?"
         };
 
-      player.menu.choices.Add(("Retour", () => CommandSystem.DrawCommandList(player)));
-      player.menu.choices.Add(("Quitter", () => player.menu.Close()));
       player.menu.Draw();
 
       bool awaitedValue = await player.WaitForPlayerInputString();

@@ -30,6 +30,7 @@ namespace NWN.Systems
       player.menu.choices.Add(("Modifier l'affichage de ma cape.", () => new DisplayCloak(player.oid)));
       player.menu.choices.Add(("Examiner les environs.", () => new ExamineArea(player.oid)));
       player.menu.choices.Add(("Gérer mes grimoires.", () => new SpellBooks(player)));
+      player.menu.choices.Add(("Gérer mes raccourcis.", () => new QuickBar(player)));
       //player.menu.choices.Add(("Dissiper les maladies (uniquement pour l'alpha).", () => new DispelDisease(player.oid)));
       if (player.bonusRolePlay >= 4)
         player.menu.choices.Add(("Recommander un joueur.", () => new CommendCommand(player)));

@@ -167,6 +167,10 @@ namespace NWN.Systems
       query = NWScript.SqlPrepareQueryCampaign(Config.database, $"CREATE TABLE IF NOT EXISTS playerGrimoire" +
         $"('characterId' INTEGER NOT NULL, 'grimoireName' TEXT NOT NULL, 'serializedGrimoire' TEXT NOT NULL, UNIQUE (characterId, grimoireName))");
       NWScript.SqlStep(query);
+
+      query = NWScript.SqlPrepareQueryCampaign(Config.database, $"CREATE TABLE IF NOT EXISTS playerQuickbar" +
+        $"('characterId' INTEGER NOT NULL, 'quickbarName' TEXT NOT NULL, 'serializedQuickbar' TEXT NOT NULL, UNIQUE (characterId, quickbarName))");
+      NWScript.SqlStep(query);
     }
     private void InitializeEvents()
     {
