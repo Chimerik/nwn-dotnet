@@ -733,7 +733,7 @@ namespace NWN.Systems
       {
         item.Name = player.oid.LoginCreature.GetLocalVariable<string>("_PLAYER_INPUT").Value;
         player.oid.LoginCreature.GetLocalVariable<string>("_PLAYER_INPUT").Delete();
-        player.oid.SendServerMessage($"Votre objet est désormais nommé {item.Name.ColorString(Color.GREEN)}.");
+        player.oid.SendServerMessage($"Votre objet est désormais nommé {item.Name.ColorString(new Color(32, 255, 32))}.");
         player.menu.Close();
       }
     }

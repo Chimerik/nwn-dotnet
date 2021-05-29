@@ -75,7 +75,7 @@ namespace NWN.Systems
       {
         oRegister.Name = player.oid.LoginCreature.GetLocalVariable<string>("_PLAYER_INPUT").Value;
         player.oid.LoginCreature.GetLocalVariable<string>("_PLAYER_INPUT").Delete();
-        player.oid.SendServerMessage($"Votre séquence est désormais nommée {oRegister.Name.ColorString(Color.GREEN)}.");
+        player.oid.SendServerMessage($"Votre séquence est désormais nommée {oRegister.Name.ColorString(new Color(32, 255, 32))}.");
         DrawSequenceRegisterMainPage();
       }
     }
@@ -108,6 +108,7 @@ namespace NWN.Systems
     {
       player.oid.LoginCreature.OnSpellAction -= RegisterSpellSequence;
       player.oid.LoginCreature.OnSpellAction += RegisterSpellSequence;
+      oRegister.GetLocalVariable<string>("_REGISTERED_SEQUENCE").Delete();
 
       DrawSequenceList();
     }
@@ -120,7 +121,7 @@ namespace NWN.Systems
       else
         oRegister.GetLocalVariable<string>("_REGISTERED_SEQUENCE").Value += $"_{((int)onSpellAction.Spell)}";
 
-      HandleNewSequenceSelected();
+      DrawSequenceList();
     }
     private async void HandleCastSequence()
     {
@@ -133,7 +134,7 @@ namespace NWN.Systems
       });
 
       string[] spellList = oRegister.GetLocalVariable<string>("_REGISTERED_SEQUENCE").Value.Split("_");
-
+      PlayerSystem.Log.Info($"list : {oRegister.GetLocalVariable<string>("_REGISTERED_SEQUENCE").Value}");
       foreach (string spellId in spellList)
       {
         if (oCaster == null || oTarget == null || oCaster.GetLocalVariable<int>("_SEQUENCE_CANCELLED").HasValue)

@@ -106,10 +106,10 @@ namespace NWN.Systems
               this.serializedQuickbar = oid.ControlledCreature.SerializeQuickbar().ToBase64EncodedString();
               emptyQBS.ObjectType = QuickBarButtonType.Empty;
 
-              for (byte i = 0; i < 12; i++)
+              /*for (byte i = 0; i < 12; i++)
               {
                 oid.ControlledCreature.SetQuickBarButton(i, emptyQBS);
-              }
+              }*/
 
               if (menu.choices.Count > 0)
               {

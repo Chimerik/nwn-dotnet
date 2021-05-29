@@ -1,5 +1,6 @@
 ﻿using NWN.Core;
 using NWN.API;
+using System.Collections.Generic;
 
 namespace NWN.Systems
 {
@@ -7,6 +8,11 @@ namespace NWN.Systems
   {
     public LoadPCDescription(PlayerSystem.Player player)
     {
+      player.menu.titleLines = new List<string>() {
+        "Voici la liste de vos descriptions ?",
+        "Laquelle souhaitez-vous consulter ?"
+        };
+
       var query = NWScript.SqlPrepareQueryCampaign(Config.database, $"SELECT descriptionName, description from playerDescriptions where characterId = @characterId");
 
       while (NWScript.SqlStep(query) > 0)
