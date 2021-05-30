@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using NWN.API;
 using NWN.API.Constants;
@@ -506,30 +507,43 @@ namespace NWN.Systems.Craft
       {
         case JobType.BlueprintCopy:
           journalEntry.sText = $"Copie de {NwItem.Deserialize(craftedItem.ToByteArray()).Name} en cours";
+          PlayerPlugin.ApplyInstantVisualEffectToObject(player.oid.ControlledCreature, player.oid.ControlledCreature, 631);
           break;
         case JobType.BlueprintResearchMaterialEfficiency:
           journalEntry.sText = $"Recherche métallurgique en cours : {NwItem.Deserialize(craftedItem.ToByteArray()).Name}";
+          PlayerPlugin.ApplyInstantVisualEffectToObject(player.oid.ControlledCreature, player.oid.ControlledCreature, 792);
           break;
         case JobType.BlueprintResearchTimeEfficiency:
           journalEntry.sText = $"Recherche d'efficacité en cours : {NwItem.Deserialize(craftedItem.ToByteArray()).Name}";
+          PlayerPlugin.ApplyInstantVisualEffectToObject(player.oid.ControlledCreature, player.oid.ControlledCreature, 792);
           break;
         case JobType.Enchantement:
           journalEntry.sText = $"Enchantement en cours : {NwItem.Deserialize(craftedItem.ToByteArray()).Name}";
+          API.Effect enchantementVfx = API.Effect.VisualEffect((VfxType)832);
+          enchantementVfx.Tag = "VFX_ENCHANTEMENT";
+          player.oid.LoginCreature.ApplyEffect(EffectDuration.Permanent, enchantementVfx);
           break;
         case JobType.Recycling:
           journalEntry.sText = $"Recyclage en cours : {NwItem.Deserialize(craftedItem.ToByteArray()).Name}";
+          PlayerPlugin.ApplyInstantVisualEffectToObject(player.oid.ControlledCreature, player.oid.ControlledCreature, 818);
           break;
         case JobType.Renforcement:
           journalEntry.sText = $"Renforcement en cours : {NwItem.Deserialize(craftedItem.ToByteArray()).Name}";
+          PlayerPlugin.ApplyInstantVisualEffectToObject(player.oid.ControlledCreature, player.oid.ControlledCreature, 829);
           break;
         case JobType.Repair:
           journalEntry.sText = $"Réparation en cours : {NwItem.Deserialize(craftedItem.ToByteArray()).Name}";
+          PlayerPlugin.ApplyInstantVisualEffectToObject(player.oid.ControlledCreature, player.oid.ControlledCreature, 1501);
           break;
         case JobType.EnchantementReactivation:
+          journalEntry.sText = $"Enchantement en cours : {NwItem.Deserialize(craftedItem.ToByteArray()).Name}";
+          API.Effect reactivationVfx = API.Effect.VisualEffect((VfxType)832);
+          reactivationVfx.Tag = "VFX_ENCHANTEMENT";
           journalEntry.sText = $"Ré-enchantement en cours : {NwItem.Deserialize(craftedItem.ToByteArray()).Name}";
           break;
         default:
           journalEntry.sText = $"Fabrication en cours : {blueprintDictionnary[baseItemType].name}";
+          PlayerPlugin.ApplyInstantVisualEffectToObject(player.oid.ControlledCreature, player.oid.ControlledCreature, 1501);
           break;
       }
 
@@ -554,6 +568,8 @@ namespace NWN.Systems.Craft
           journalEntry.sName = $"Travail artisanal en pause - Recherche en efficacité";
           break;
         case JobType.Enchantement:
+          foreach (API.Effect vfx in player.oid.LoginCreature.ActiveEffects.Where(e => e.Tag == "VFX_ENCHANTEMENT"))
+            player.oid.LoginCreature.RemoveEffect(vfx);
           journalEntry.sText = $"Enchantement en pause";
           break;
         case JobType.Recycling:
@@ -566,6 +582,8 @@ namespace NWN.Systems.Craft
           journalEntry.sText = $"Réparations en pause";
           break;
         case JobType.EnchantementReactivation:
+          foreach (API.Effect vfx in player.oid.LoginCreature.ActiveEffects.Where(e => e.Tag == "VFX_ENCHANTEMENT"))
+            player.oid.LoginCreature.RemoveEffect(vfx);
           journalEntry.sText = $"Ré-enchantement en pause";
           break;
         default:
@@ -586,30 +604,48 @@ namespace NWN.Systems.Craft
       {
         case JobType.BlueprintCopy:
           journalEntry.sName = $"Travail artisanal terminé - Copie de patron";
+          PlayerPlugin.ApplyInstantVisualEffectToObject(player.oid.ControlledCreature, player.oid.ControlledCreature, 631);
           break;
         case JobType.BlueprintResearchMaterialEfficiency:
           journalEntry.sName = $"Travail artisanal terminé - Recherche métallurgique";
+          PlayerPlugin.ApplyInstantVisualEffectToObject(player.oid.ControlledCreature, player.oid.ControlledCreature, 792);
           break;
         case JobType.BlueprintResearchTimeEfficiency:
           journalEntry.sName = $"Travail artisanal terminé - Recherche en efficacité";
+          PlayerPlugin.ApplyInstantVisualEffectToObject(player.oid.ControlledCreature, player.oid.ControlledCreature, 792);
           break;
         case JobType.Enchantement:
+          foreach (API.Effect vfx in player.oid.LoginCreature.ActiveEffects.Where(e => e.Tag == "VFX_ENCHANTEMENT"))
+            player.oid.LoginCreature.RemoveEffect(vfx);
+
+          PlayerPlugin.ApplyInstantVisualEffectToObject(player.oid.ControlledCreature, player.oid.ControlledCreature, 1055);
+
           journalEntry.sName = $"Enchantement terminé - {NwItem.Deserialize(craftedItem.ToByteArray()).Name}";
           break;
         case JobType.Recycling:
           journalEntry.sName = $"Recyclage terminé - {NwItem.Deserialize(craftedItem.ToByteArray()).Name}";
+          PlayerPlugin.ApplyInstantVisualEffectToObject(player.oid.ControlledCreature, player.oid.ControlledCreature, 818);
           break;
         case JobType.Renforcement:
           journalEntry.sName = $"Renforcement terminé - {NwItem.Deserialize(craftedItem.ToByteArray()).Name}";
+          PlayerPlugin.ApplyInstantVisualEffectToObject(player.oid.ControlledCreature, player.oid.ControlledCreature, 829);
           break;
         case JobType.Repair:
           journalEntry.sName = $"Réparations terminées - {NwItem.Deserialize(craftedItem.ToByteArray()).Name}";
+          PlayerPlugin.ApplyInstantVisualEffectToObject(player.oid.ControlledCreature, player.oid.ControlledCreature, 1501);
           break;
         case JobType.EnchantementReactivation:
+          foreach (API.Effect vfx in player.oid.LoginCreature.ActiveEffects.Where(e => e.Tag == "VFX_ENCHANTEMENT"))
+            player.oid.LoginCreature.RemoveEffect(vfx);
+
+          PlayerPlugin.ApplyInstantVisualEffectToObject(player.oid.ControlledCreature, player.oid.ControlledCreature, 872);
+
           journalEntry.sName = $"Ré-enchantement terminé - {NwItem.Deserialize(craftedItem.ToByteArray()).Name}";
           break;
         default:
           journalEntry.sName = $"Travail artisanal terminé - {blueprintDictionnary[baseItemType].name}";
+
+          PlayerPlugin.ApplyInstantVisualEffectToObject(player.oid.ControlledCreature, player.oid.ControlledCreature, 1501);
           break;
       }
 

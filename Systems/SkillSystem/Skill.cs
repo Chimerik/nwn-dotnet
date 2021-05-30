@@ -146,6 +146,8 @@ namespace NWN.Systems
         journalEntry.nPriority = 1;
         journalEntry.nQuestDisplayed = 1;
         PlayerPlugin.AddCustomJournalEntry(player.oid.LoginCreature, journalEntry);
+
+        PlayerPlugin.ApplyInstantVisualEffectToObject(player.oid.ControlledCreature, player.oid.ControlledCreature, 1516);  
       }
       public void CancelSkillJournalEntry()
       {
@@ -314,7 +316,7 @@ namespace NWN.Systems
       }
       public void PlayNewSkillAcquiredEffects()
       {
-        PlayerPlugin.ApplyInstantVisualEffectToObject(player.oid.LoginCreature, player.oid.LoginCreature, NWScript.VFX_IMP_GLOBE_USE);
+        PlayerPlugin.ApplyInstantVisualEffectToObject(player.oid.ControlledCreature, player.oid.ControlledCreature, 1516);
         CloseSkillJournalEntry();
       }
     }

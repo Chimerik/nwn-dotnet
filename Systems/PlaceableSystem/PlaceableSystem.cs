@@ -212,7 +212,7 @@ namespace NWN.Systems
 
       if (onSpawn.Creature.Tag != "statue_tiamat")
       {
-        eff = API.Effect.VisualEffect(VfxType.DurProtGreaterStoneskin);
+        eff = API.Effect.VisualEffect((VfxType)927);
         eff.SubType = EffectSubType.Supernatural;
         onSpawn.Creature.ApplyEffect(EffectDuration.Permanent, eff);
       }
