@@ -23,6 +23,7 @@ namespace NWN.Systems
       player.menu.choices.Add(("Ajouter/Retirer un joueur de la liste d'écoute.", () => new ListenTarget(player.oid)));
       player.menu.choices.Add(("Changer le nom de la cible.", () => new DMRenameTarget(player.oid)));
       player.menu.choices.Add(("Activer/désactiver la persistance des placeables.", () => new PlaceablePersistance(player.oid)));
+      player.menu.choices.Add(("Gérer mes effets visuels.", () => new DMVisualEffects(player)));
 
       if (player.oid.PlayerName == "Chim")
       {

@@ -1,9 +1,9 @@
 ﻿using System;
-using System.Numerics;
 using NWN.API;
 using NWN.API.Constants;
 using NWN.API.Events;
-using NWN.Services;
+using NWN.Core;
+using NWN.Core.NWNX;
 
 namespace NWN.Systems
 {
@@ -13,16 +13,68 @@ namespace NWN.Systems
     {
       if (((string)options.positional[0]).Length != 0)
       {
+        Log.Info($"positionnal : {options.positional[0]}");
+
         if (Int32.TryParse((string)options.positional[0], out int value))
         {
-          ctx.oSender.LoginCreature.GetLocalVariable<int>("_VXF_TEST_ID").Value = value;
-          PlayerSystem.cursorTargetService.EnterTargetMode(ctx.oSender, VFXTarget, ObjectTypes.Creature, MouseCursor.Magic);
+          ctx.oSender.LoginCreature.GetLocalVariable<int>("_VFX_ID").Value = value;
+          PlayerSystem.cursorTargetService.EnterTargetMode(ctx.oSender, playerVFXTarget, ObjectTypes.Creature, MouseCursor.Magic);
+        }
+        else if (ctx.oSender.IsDM && ((string)options.positional[0]).Length > 0
+          && PlayerSystem.Players.TryGetValue(ctx.oSender.LoginCreature, out PlayerSystem.Player player))
+        {
+          string vfxName = (string)options.positional[0];
+
+          var query = NWScript.SqlPrepareQueryCampaign(Config.database, $"SELECT vfxId from dmVFX where playerName = @playerName " +
+            $"and vfxName = @vfxName");
+          NWScript.SqlBindString(query, "@playerName", player.oid.PlayerName);
+          NWScript.SqlBindString(query, "@vfxName", vfxName);
+
+          if (NWScript.SqlStep(query) > 0)
+          {
+            ctx.oSender.LoginCreature.GetLocalVariable<int>("_VFX_ID").Value = NWScript.SqlGetInt(query, 0);
+            PlayerSystem.cursorTargetService.EnterTargetMode(ctx.oSender, dmVFXTarget, ObjectTypes.All, MouseCursor.Magic);
+          }
+          else
+            ctx.oSender.SendServerMessage($"Vous n'avez pas enregistré de vfx correspondant au nom {vfxName.ColorString(Color.WHITE)}", Color.RED);
         }
       }
     }
-    private static void VFXTarget(ModuleEvents.OnPlayerTarget selection)
+    private static void playerVFXTarget(ModuleEvents.OnPlayerTarget selection)
     {
-      ((NwGameObject)selection.TargetObject).ApplyEffect(EffectDuration.Temporary, Effect.VisualEffect((VfxType)selection.Player.LoginCreature.GetLocalVariable<int>("_VXF_TEST_ID").Value), TimeSpan.FromSeconds(10));
+      if (selection.Player.LoginCreature.GetLocalVariable<int>("_VFX_ID").HasValue)
+      {
+        PlayerPlugin.ApplyInstantVisualEffectToObject(selection.Player.ControlledCreature, selection.TargetObject, selection.Player.LoginCreature.GetLocalVariable<int>("_VXF_TEST_ID").Value);
+        //((NwGameObject)selection.TargetObject).ApplyEffect(EffectDuration.Temporary, Effect.VisualEffect((VfxType)selection.Player.LoginCreature.GetLocalVariable<int>("_VXF_TEST_ID").Value), TimeSpan.FromSeconds(10));
+        selection.Player.LoginCreature.GetLocalVariable<int>("_VFX_ID").Delete();
+      }
+    }
+    private static void dmVFXTarget(ModuleEvents.OnPlayerTarget selection)
+    {
+      if (selection.Player.LoginCreature.GetLocalVariable<int>("_VFX_ID").HasNothing)
+        return;
+
+      VfxType vfxId = (VfxType)selection.Player.LoginCreature.GetLocalVariable<int>("_VFX_ID").Value;
+      selection.Player.LoginCreature.GetLocalVariable<string>("_VFX_ID").Delete();
+
+      var query = NWScript.SqlPrepareQueryCampaign(Config.database, $"SELECT vfxDuration from dmVFXDuration where playerName = @playerName");
+      NWScript.SqlBindString(query, "@playerName", selection.Player.PlayerName);
+
+      int vfxDuration = 0;
+
+      if (NWScript.SqlStep(query) > 0)
+        vfxDuration = NWScript.SqlGetInt(query, 0);
+
+      if (selection.TargetObject is NwGameObject target)
+      {
+        if (vfxDuration <= 0)
+          target.ApplyEffect(EffectDuration.Permanent, API.Effect.VisualEffect(vfxId));
+        else
+          target.ApplyEffect(EffectDuration.Temporary, API.Effect.VisualEffect(vfxId), TimeSpan.FromSeconds(vfxDuration));
+      }
+      else
+        API.Location.Create(selection.Player.ControlledCreature.Location.Area, selection.TargetPosition, selection.Player.ControlledCreature.Rotation)
+          .ApplyEffect(EffectDuration.Instant, API.Effect.VisualEffect(vfxId));
     }
   }
 }
