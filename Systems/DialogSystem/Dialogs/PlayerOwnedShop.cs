@@ -17,7 +17,7 @@ namespace NWN.Systems
       NwStore store = storePanel.GetNearestObjectsByType<NwStore>().FirstOrDefault(s => s.Tag == $"_PLAYER_SHOP_{player.oid.CDKey}");
 
       player.menu.titleLines = new List<string>() {
-        $"Quelle modification souhaitez-vous apporter à votre échoppe {storePanel.Name.ColorString(Color.GREEN)} ?"
+        $"Quelle modification souhaitez-vous apporter à votre échoppe {storePanel.Name.ColorString(ColorConstants.Green)} ?"
       };
 
       player.menu.choices.Add((
@@ -51,7 +51,7 @@ namespace NWN.Systems
     private static async void GetNewName(Player player, NwPlaceable shop)
     {
       player.menu.titleLines = new List<string>() {
-        $"Nom actuel : {shop.Name.ColorString(Color.GREEN)}",
+        $"Nom actuel : {shop.Name.ColorString(ColorConstants.Green)}",
         "Veuillez prononcer le nouveau nom à l'oral."
       };
 
@@ -63,7 +63,7 @@ namespace NWN.Systems
       {
         shop.Name = player.oid.LoginCreature.GetLocalVariable<string>("_PLAYER_INPUT").Value;
         player.oid.LoginCreature.GetLocalVariable<string>("_PLAYER_INPUT").Delete();
-        player.oid.SendServerMessage($"Votre objet est désormais nommé {shop.Name.ColorString(Color.GREEN)}.");
+        player.oid.SendServerMessage($"Votre objet est désormais nommé {shop.Name.ColorString(ColorConstants.Green)}.");
         DrawMainPage(player, shop);
       }
     }
@@ -81,7 +81,7 @@ namespace NWN.Systems
       {
         shop.Description = player.oid.LoginCreature.GetLocalVariable<string>("_PLAYER_INPUT").Value;
         player.oid.LoginCreature.GetLocalVariable<string>("_PLAYER_INPUT").Delete();
-        player.oid.SendServerMessage($"La description de votre échoppe a été modifiée.", Color.ROSE);
+        player.oid.SendServerMessage($"La description de votre échoppe a été modifiée.", ColorConstants.Rose);
         DrawMainPage(player, shop);
       }
     }
@@ -92,7 +92,7 @@ namespace NWN.Systems
       {
         if(!player.oid.LoginCreature.Inventory.CheckFit(item))
         {
-          player.oid.SendServerMessage("Attention, tous les objets ne rentrent pas dans votre inventaire. Impossible de détruire votre échoppe pour le moment !", Color.ORANGE);
+          player.oid.SendServerMessage("Attention, tous les objets ne rentrent pas dans votre inventaire. Impossible de détruire votre échoppe pour le moment !", ColorConstants.Orange);
           return;
         }
 
@@ -100,8 +100,7 @@ namespace NWN.Systems
         item.Destroy();
       }
 
-      await NwModule.Instance.WaitForObjectContext();
-      NwItem authorization = NwItem.Create("shop_clearance", player.oid.LoginCreature);
+      NwItem authorization = await NwItem.Create("shop_clearance", player.oid.LoginCreature);
 
       if (shop.GetLocalVariable<int>("_SHOP_ID").HasValue)
       {
@@ -110,7 +109,7 @@ namespace NWN.Systems
         NWScript.SqlStep(query);
       }
 
-      player.oid.SendServerMessage($"Votre échoppe a été supprimée et votre autorisation et vos objets ont été restitués.", Color.ORANGE);
+      player.oid.SendServerMessage($"Votre échoppe a été supprimée et votre autorisation et vos objets ont été restitués.", ColorConstants.Orange);
 
       player.menu.Close();
       shop.Destroy();
@@ -148,12 +147,12 @@ namespace NWN.Systems
       if (input <= 0)
       {
         goldValue = item.GoldValue;
-        player.oid.SendServerMessage($"Le prix saisi est invalide. {item.Name.ColorString(Color.ORANGE)} est désormais en vente au prix de {goldValue.ToString().ColorString(Color.GREEN)} pièce(s) d'or.");
+        player.oid.SendServerMessage($"Le prix saisi est invalide. {item.Name.ColorString(ColorConstants.Orange)} est désormais en vente au prix de {goldValue.ToString().ColorString(ColorConstants.Green)} pièce(s) d'or.");
       }
       else
       {
         goldValue = input;
-        player.oid.SendServerMessage($"{item.Name.ColorString(Color.ORANGE)} est désormais en vente au prix de {goldValue.ToString().ColorString(Color.GREEN)} pièce(s) d'or.");
+        player.oid.SendServerMessage($"{item.Name.ColorString(ColorConstants.Orange)} est désormais en vente au prix de {goldValue.ToString().ColorString(ColorConstants.Green)} pièce(s) d'or.");
       }
 
       NwItem copy = item.Clone(shop);

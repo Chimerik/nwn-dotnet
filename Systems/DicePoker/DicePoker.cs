@@ -51,7 +51,7 @@ namespace NWN.Systems.DicePoker
       {
         case 0:
           playerOne.menu.Close();
-          playerOne.oid.SendServerMessage("Vous annulez la partie !", Color.ORANGE);
+          playerOne.oid.SendServerMessage("Vous annulez la partie !", ColorConstants.Orange);
           break;
         case 1:
           foreach (API.LocalVariable local in playerTwo.oid.LoginCreature.LocalVariables.Where(l => l.Name.StartsWith("_DICE_POKER")))
@@ -142,14 +142,14 @@ namespace NWN.Systems.DicePoker
 
       if (playerInput < 0)
       {
-        playerOne.oid.SendServerMessage("La mise ne peut pas être inférieur à 0. Veuilez saisir une nouvelle mise", Color.RED);
+        playerOne.oid.SendServerMessage("La mise ne peut pas être inférieur à 0. Veuilez saisir une nouvelle mise", ColorConstants.Red);
         DrawStartingPage();
         return;
       }
 
       if(!HandleGold(playerOne))
       {
-        playerOne.oid.SendServerMessage("Vous n'avez pas assez d'or pour honorer cette mise. Veuillez saisir une valeur moins élevée.", Color.RED);
+        playerOne.oid.SendServerMessage("Vous n'avez pas assez d'or pour honorer cette mise. Veuillez saisir une valeur moins élevée.", ColorConstants.Red);
         DrawStartingPage();
         return;
       }
@@ -201,8 +201,8 @@ namespace NWN.Systems.DicePoker
           playerOne.menu.Close();
         }
 
-        playerOne.oid.SendServerMessage("Vous n'avez pas assez d'or pour honorer la mise, celle-ci a donc été réduite à la mise minimale possible.", Color.ORANGE);
-        playerTwo.oid.SendServerMessage($"{playerOne.oid.LoginCreature.Name} n'ayant pas assez d'or pour honorer la mise, celle-ci a donc été réduite à la mise minimale possible.", Color.ORANGE);
+        playerOne.oid.SendServerMessage("Vous n'avez pas assez d'or pour honorer la mise, celle-ci a donc été réduite à la mise minimale possible.", ColorConstants.Orange);
+        playerTwo.oid.SendServerMessage($"{playerOne.oid.LoginCreature.Name} n'ayant pas assez d'or pour honorer la mise, celle-ci a donc été réduite à la mise minimale possible.", ColorConstants.Orange);
       }
       else
       {
@@ -213,8 +213,8 @@ namespace NWN.Systems.DicePoker
           playerTwo.menu.Close();
         }
 
-        playerTwo.oid.SendServerMessage("Vous n'avez pas assez d'or pour honorer la mise, celle-ci a donc été réduite à la mise minimale possible.", Color.ORANGE);
-        playerOne.oid.SendServerMessage($"{playerTwo.oid.LoginCreature.Name} n'ayant pas assez d'or pour honorer la mise, celle-ci a donc été réduite à la mise minimale possible.", Color.ORANGE);
+        playerTwo.oid.SendServerMessage("Vous n'avez pas assez d'or pour honorer la mise, celle-ci a donc été réduite à la mise minimale possible.", ColorConstants.Orange);
+        playerOne.oid.SendServerMessage($"{playerTwo.oid.LoginCreature.Name} n'ayant pas assez d'or pour honorer la mise, celle-ci a donc été réduite à la mise minimale possible.", ColorConstants.Orange);
       }
 
       bet = (uint)minimumGoldAvailable - 1;
@@ -432,7 +432,7 @@ namespace NWN.Systems.DicePoker
 
       if (!HandleGold(player))
       {
-        playerOne.oid.SendServerMessage("Vous n'avez pas assez d'or pour honorer la nouvelle mise. Votre proposition a donc été réduite à 1", Color.ORANGE);
+        playerOne.oid.SendServerMessage("Vous n'avez pas assez d'or pour honorer la nouvelle mise. Votre proposition a donc été réduite à 1", ColorConstants.Orange);
         playerInput = 1;
       }
 
@@ -458,7 +458,7 @@ namespace NWN.Systems.DicePoker
         return;
 
       int opponentInput = opponent.oid.LoginCreature.GetLocalVariable<int>("_DICE_POKER_BET_RAISED").Value;
-      player.oid.SendServerMessage($"{opponent.oid.LoginCreature.Name} souhaite monter la mise de {opponentInput.ToString()}.", Color.ORANGE);
+      player.oid.SendServerMessage($"{opponent.oid.LoginCreature.Name} souhaite monter la mise de {opponentInput.ToString()}.", ColorConstants.Orange);
 
       if (playerInput >= opponentInput)
         bet += (uint)opponentInput / 2;
@@ -469,7 +469,7 @@ namespace NWN.Systems.DicePoker
       Task waitForSynchro = NwTask.Run(async () =>
       {
         await NwTask.NextFrame();
-        player.oid.SendServerMessage($"La relance moins-disante est sélectionnée. La mise est désormais de {bet.ToString()}.", Color.ORANGE);
+        player.oid.SendServerMessage($"La relance moins-disante est sélectionnée. La mise est désormais de {bet.ToString()}.", ColorConstants.Orange);
         HandleGold(player, true);
         DrawRerollMenu(player, opponent);
       });

@@ -6,7 +6,7 @@ namespace NWN.Systems
   {
     public GetPublicKey(NwPlayer oPC)
     {
-      oPC.SendServerMessage($"Votre clef publique est : {oPC.CDKey.ColorString(Color.WHITE)}", Color.PINK);
+      oPC.SendServerMessage($"Votre clef publique est : {oPC.CDKey.ColorString(ColorConstants.White)}", ColorConstants.Pink);
     }
   }
 }

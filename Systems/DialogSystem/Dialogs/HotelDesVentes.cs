@@ -165,7 +165,7 @@ namespace NWN.Systems
           remainingQuantity -= boughtQuantity;
 
           player.bankGold += boughtQuantity * NWScript.SqlGetInt(buyOrdersQuery, 2) * (95 + comptabiliteLevel) / 100;
-          player.oid.SendServerMessage($"Vous venez de vendre {boughtQuantity} unité(s) de {material} en vente directe. L'or a été versé directement à votre banque.", Color.PINK);
+          player.oid.SendServerMessage($"Vous venez de vendre {boughtQuantity} unité(s) de {material} en vente directe. L'or a été versé directement à votre banque.", ColorConstants.Pink);
 
           if (remainingQuantity <= 0)
             break;
@@ -205,7 +205,7 @@ namespace NWN.Systems
             else
               buyer.materialStock.Add(material, entry.Value);
 
-            oBuyer.SendServerMessage($"Votre ordre d'achat {entry.Key} vous a permis d'acquérir {transferedQuantity} unité(s) de {material}", Color.PINK);
+            oBuyer.SendServerMessage($"Votre ordre d'achat {entry.Key} vous a permis d'acquérir {transferedQuantity} unité(s) de {material}", ColorConstants.Pink);
           }
           else
           {
@@ -223,7 +223,7 @@ namespace NWN.Systems
 
         if(remainingQuantity <= 0)
         {
-          player.oid.SendServerMessage($"Votre ordre de vente a été entièrement traité en transaction directe. Il n'est pas nécessaire de placer un ordre différée.", Color.PINK);
+          player.oid.SendServerMessage($"Votre ordre de vente a été entièrement traité en transaction directe. Il n'est pas nécessaire de placer un ordre différée.", ColorConstants.Pink);
           player.menu.Close();
           return;
         }
@@ -242,13 +242,13 @@ namespace NWN.Systems
 
         if (player.bankGold < brokerFee)
         {
-          player.oid.SendServerMessage($"Vous ne disposez pas de suffisament d'or en banque pour placer un ordre de vente différé.", Color.LIME);
+          player.oid.SendServerMessage($"Vous ne disposez pas de suffisament d'or en banque pour placer un ordre de vente différé.", ColorConstants.Lime);
           player.menu.Close();
           return;
         }
 
         player.bankGold -= brokerFee;
-        player.oid.SendServerMessage($"{brokerFee} pièce(s) d'or ont été prélevées de votre banque pour la taxe de courtage.", Color.PINK);
+        player.oid.SendServerMessage($"{brokerFee} pièce(s) d'or ont été prélevées de votre banque pour la taxe de courtage.", ColorConstants.Pink);
 
         var query = NWScript.SqlPrepareQueryCampaign(Config.database, $"INSERT INTO playerSellOrders (characterId, expirationDate, material, quantity, unitPrice) VALUES (@characterId, @expirationDate, @material, @quantity, @unitPrice)");
         NWScript.SqlBindInt(query, "@characterId", player.characterId);
@@ -259,7 +259,7 @@ namespace NWN.Systems
         NWScript.SqlStep(query);
 
 
-        player.oid.SendServerMessage($"Votre ordre de vente de {remainingQuantity} unité(s) de {material} a bien été enregistré.", Color.PINK);
+        player.oid.SendServerMessage($"Votre ordre de vente de {remainingQuantity} unité(s) de {material} a bien été enregistré.", ColorConstants.Pink);
         player.menu.Close();
       }
     }
@@ -365,7 +365,7 @@ namespace NWN.Systems
         }
 
         player.bankGold -= quantity * input;
-        player.oid.SendServerMessage($"Afin de placer votre d'achat, {quantity * input} pièce(s) d'or ont été retenues du solde de votre compte.", Color.MAGENTA);
+        player.oid.SendServerMessage($"Afin de placer votre d'achat, {quantity * input} pièce(s) d'or ont été retenues du solde de votre compte.", ColorConstants.Magenta);
 
         var sellOrdersQuery = NWScript.SqlPrepareQueryCampaign(Config.database, $"SELECT rowid, quantity, unitPrice from playerSellOrders where material = @material AND unitPrice <= @unitPrice AND expirationDate < @now and characterId != @characterId order by unitPrice ASC");
         NWScript.SqlBindString(sellOrdersQuery, "@now", DateTime.Now.ToString());
@@ -398,7 +398,7 @@ namespace NWN.Systems
           else
             player.materialStock.Add(material, soldQuantity);
 
-          player.oid.SendServerMessage($"Vous venez d'acheter {soldQuantity} unité(s) de {material} en achat direct. Les matériaux sont en cours de transport vers votre entrepot.", Color.PINK);
+          player.oid.SendServerMessage($"Vous venez d'acheter {soldQuantity} unité(s) de {material} en achat direct. Les matériaux sont en cours de transport vers votre entrepot.", ColorConstants.Pink);
 
           if (remainingQuantity <= 0)
             break;
@@ -443,7 +443,7 @@ namespace NWN.Systems
             acquiredGold = transferedQuantity * NWScript.SqlGetInt(selectCharacterId, 1) * (95 + comptabiliteLevel) / 100;
 
             seller.bankGold += acquiredGold;
-            oSeller.SendServerMessage($"Votre ordre d'achat {entry.Key} vous a permis d'acquérir {transferedQuantity} unité(s) de {material}", Color.PINK);
+            oSeller.SendServerMessage($"Votre ordre d'achat {entry.Key} vous a permis d'acquérir {transferedQuantity} unité(s) de {material}", ColorConstants.Pink);
           }
           else
           {
@@ -462,7 +462,7 @@ namespace NWN.Systems
 
         if (remainingQuantity <= 0)
         {
-          player.oid.SendServerMessage($"Votre ordre d'achat a été entièrement traité en transaction directe. Il n'est pas nécessaire de placer un ordre différée.", Color.PINK);
+          player.oid.SendServerMessage($"Votre ordre d'achat a été entièrement traité en transaction directe. Il n'est pas nécessaire de placer un ordre différée.", ColorConstants.Pink);
           player.menu.Close();
           return;
         }
@@ -481,14 +481,14 @@ namespace NWN.Systems
 
         if (player.bankGold < brokerFee)
         {
-          player.oid.SendServerMessage($"Vous ne disposez pas de suffisament d'or en banque pour placer un ordre de vente différé.", Color.LIME);
+          player.oid.SendServerMessage($"Vous ne disposez pas de suffisament d'or en banque pour placer un ordre de vente différé.", ColorConstants.Lime);
           player.bankGold += remainingQuantity * input;
           player.menu.Close();
           return;
         }
 
         player.bankGold -= brokerFee;
-        player.oid.SendServerMessage($"{brokerFee} pièce(s) d'or ont été prélevées de votre banque pour la taxe de courtage.", Color.PINK);
+        player.oid.SendServerMessage($"{brokerFee} pièce(s) d'or ont été prélevées de votre banque pour la taxe de courtage.", ColorConstants.Pink);
 
         var query = NWScript.SqlPrepareQueryCampaign(Config.database, $"INSERT INTO playerBuyOrders (characterId, expirationDate, material, quantity, unitPrice) VALUES (@characterId, @expirationDate, @material, @quantity, @unitPrice)");
         NWScript.SqlBindInt(query, "@characterId", player.characterId);
@@ -499,7 +499,7 @@ namespace NWN.Systems
         NWScript.SqlStep(query);
 
 
-        player.oid.SendServerMessage($"Votre ordre d'achat de {remainingQuantity} unité(s) de {material} a bien été enregistré.", Color.PINK);
+        player.oid.SendServerMessage($"Votre ordre d'achat de {remainingQuantity} unité(s) de {material} a bien été enregistré.", ColorConstants.Pink);
         player.menu.Close();
       }
     }
@@ -538,7 +538,7 @@ namespace NWN.Systems
     private void CancelSellOrder(Player player, int contractId)
     {
       DeleteExpiredSellOrder(player, contractId);
-      player.oid.SendServerMessage($"L'ordre de vente {contractId} a été annulé.", Color.MAGENTA);
+      player.oid.SendServerMessage($"L'ordre de vente {contractId} a été annulé.", ColorConstants.Magenta);
       DrawMySellOrderPage(player);
     }
     private void DeleteExpiredSellOrder(Player player, int contractId)
@@ -559,7 +559,7 @@ namespace NWN.Systems
       NWScript.SqlBindInt(deletionQuery, "@rowid", contractId);
       NWScript.SqlStep(deletionQuery);
 
-      player.oid.SendServerMessage($"Expiration de l'ordre de vente {contractId}. {quantity} unité(s) de {material} sont en cours de transfert vers votre entrepôt.", Color.MAGENTA);
+      player.oid.SendServerMessage($"Expiration de l'ordre de vente {contractId}. {quantity} unité(s) de {material} sont en cours de transfert vers votre entrepôt.", ColorConstants.Magenta);
     }
     private void DrawMyBuyOrderPage(Player player)
     {
@@ -596,7 +596,7 @@ namespace NWN.Systems
     private void CancelBuyOrder(Player player, int contractId)
     {
       DeleteExpiredBuyOrder(player, contractId);
-      player.oid.SendServerMessage($"L'ordre d'achat {contractId} a été annulé.", Color.MAGENTA);
+      player.oid.SendServerMessage($"L'ordre d'achat {contractId} a été annulé.", ColorConstants.Magenta);
       DrawMySellOrderPage(player);
     }
     private void DeleteExpiredBuyOrder(Player player, int contractId)
@@ -612,7 +612,7 @@ namespace NWN.Systems
       NWScript.SqlBindInt(deletionQuery, "@rowid", contractId);
       NWScript.SqlStep(deletionQuery);
 
-      player.oid.SendServerMessage($"Expiration de l'ordre d'achat {contractId}. {gold} pièces d'or ont été transférées à votre banque.", Color.MAGENTA);
+      player.oid.SendServerMessage($"Expiration de l'ordre d'achat {contractId}. {gold} pièces d'or ont été transférées à votre banque.", ColorConstants.Magenta);
     }
     private void SellOrderListMaterialSelection(Player player)
     {

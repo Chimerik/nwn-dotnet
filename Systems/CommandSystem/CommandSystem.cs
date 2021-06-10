@@ -36,7 +36,7 @@ namespace NWN.Systems
       {
         ctx.oSender.SendServerMessage(
        $"\nUnknown command \"{commandName}\".\n\n" +
-      $"Type \"{PREFIX}help\" for a list of all available commands.", Color.TEAL
+      $"Type \"{PREFIX}help\" for a list of all available commands.", ColorConstants.Orange
         );
         return;
       }
@@ -51,7 +51,7 @@ namespace NWN.Systems
         var msg = $"\nInvalid options :\n" +
           err.Message + "\n\n" +
           $"Please type \"{PREFIX}help {commandName}\" to get a description of the command.";
-        ctx.oSender.SendServerMessage(msg, Color.RED);
+        ctx.oSender.SendServerMessage(msg, ColorConstants.Red);
         return;
       }
 
@@ -61,7 +61,7 @@ namespace NWN.Systems
       }
       catch (Exception err)
       {
-        ctx.oSender.SendServerMessage($"\nUnable to process command: {err.Message}", Color.RED);
+        ctx.oSender.SendServerMessage($"\nUnable to process command: {err.Message}", ColorConstants.Red);
       }
     }
 

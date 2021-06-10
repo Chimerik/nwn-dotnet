@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Numerics;
 using System.Threading.Tasks;
 using Discord;
 using NWN.API;
@@ -8,6 +9,7 @@ using NWN.API.Constants;
 using NWN.API.Events;
 using NWN.Core;
 using NWN.Core.NWNX;
+using NWN.Services;
 using NWN.Systems.Craft;
 
 namespace NWN.Systems
@@ -173,7 +175,7 @@ namespace NWN.Systems
           (Bot._client.GetChannel(786218144296468481) as IMessageChannel).SendMessageAsync($"Toute première connexion de {newPlayer.LoginCreature.Name}. Accueillons le comme il se doit !");
           (Bot._client.GetChannel(680072044364562532) as IMessageChannel).SendMessageAsync($"{Bot._client.GetGuild(680072044364562528).EveryoneRole.Mention} Toute première connexion de {newPlayer.LoginCreature.Name} => nouveau joueur à accueillir !");
 
-          NWScript.DelayCommand(4.0f, () => newPlayer.PostString("a", 40, 15, ScreenAnchor.TopLeft, 0f, API.Color.WHITE, API.Color.WHITE, 9999, "fnt_my_gui"));
+          NWScript.DelayCommand(4.0f, () => newPlayer.PostString("a", 40, 15, ScreenAnchor.TopLeft, 0f, API.ColorConstants.White, API.ColorConstants.White, 9999, "fnt_my_gui"));
           EventsPlugin.AddObjectToDispatchList("NWNX_ON_INPUT_TOGGLE_PAUSE_BEFORE", "spacebar_down", newPlayer.LoginCreature);
         }
 
@@ -209,10 +211,10 @@ namespace NWN.Systems
 
       ObjectPlugin.SetInt(newPlayer.LoginCreature, "accountId", NWScript.SqlGetInt(query, 0), 1);
     }
-    private static void InitializeNewCharacter(Player newCharacter)
+    private static async void InitializeNewCharacter(Player newCharacter)
     {
       if (Config.env == Config.Env.Prod)
-        (Bot._client.GetChannel(680072044364562532) as IMessageChannel).SendMessageAsync($"{newCharacter.oid.PlayerName} vient de créer un nouveau personnage : {newCharacter.oid.LoginCreature.Name}");
+        await (Bot._client.GetChannel(680072044364562532) as IMessageChannel).SendMessageAsync($"{newCharacter.oid.PlayerName} vient de créer un nouveau personnage : {newCharacter.oid.LoginCreature.Name}");
 
       int startingSP = 5000;
       if (newCharacter.oid.LoginCreature.KnowsFeat(Feat.QuickToMaster))
@@ -230,8 +232,8 @@ namespace NWN.Systems
         arrivalArea.OnExit += AreaSystem.OnIntroAreaExit;
         arrivalPoint = arrivalArea.FindObjectsOfTypeInArea<NwWaypoint>().FirstOrDefault(o => o.Tag == "ENTRY_POINT");
 
-        foreach (NwObject fog in arrivalArea.FindObjectsOfTypeInArea<NwPlaceable>().Where(o => o.Tag == "intro_brouillard"))
-          VisibilityPlugin.SetVisibilityOverride(NWScript.OBJECT_INVALID, fog, VisibilityPlugin.NWNX_VISIBILITY_HIDDEN);
+        VisibilityPlugin.SetVisibilityOverride(NWScript.OBJECT_INVALID, NwObject.FindObjectsWithTag("intro_brouillard").FirstOrDefault(), VisibilityPlugin.NWNX_VISIBILITY_HIDDEN);
+        NWScript.SetAreaWind(arrivalArea, new Vector3(1, 0, 0), 4, 0, 0);
 
         foreach (NwObject recif in arrivalArea.FindObjectsOfTypeInArea<NwPlaceable>().Where(o => o.Tag == "intro_recif")) 
           VisibilityPlugin.SetVisibilityOverride(NWScript.OBJECT_INVALID, recif, VisibilityPlugin.NWNX_VISIBILITY_HIDDEN);
@@ -239,7 +241,7 @@ namespace NWN.Systems
         NwPlaceable tourbillon = arrivalArea.FindObjectsOfTypeInArea<NwPlaceable>().FirstOrDefault(c => c.Tag == "intro_tourbillon");
         VisibilityPlugin.SetVisibilityOverride(NWScript.OBJECT_INVALID, tourbillon, VisibilityPlugin.NWNX_VISIBILITY_HIDDEN);
         VisualTransform transfo = tourbillon.VisualTransform;
-        transfo.Translation.Y = 115;
+        transfo.Translation = new Vector3(transfo.Translation.X, 115, transfo.Translation.Z);
         tourbillon.VisualTransform = transfo;
 
         NwPlaceable introMirror = arrivalArea.FindObjectsOfTypeInArea<NwPlaceable>().FirstOrDefault(o => o.Tag == "intro_mirror");
@@ -267,7 +269,7 @@ namespace NWN.Systems
 
       if (newCharacter.oid.LoginCreature.GetItemInSlot(InventorySlot.CreatureSkin) == null)
       {
-        NwItem pcSkin = NwItem.Create("peaudejoueur", newCharacter.oid.LoginCreature);
+        NwItem pcSkin = await NwItem.Create("peaudejoueur", newCharacter.oid.LoginCreature);
         pcSkin.Name = $"Propriétés de {newCharacter.oid.LoginCreature.Name}";
         CreaturePlugin.RunEquip(newCharacter.oid.LoginCreature, pcSkin, (int)InventorySlot.CreatureSkin);    
       }
@@ -361,6 +363,8 @@ namespace NWN.Systems
       player.oid.LoginCreature.OnUseFeat += FeatSystem.OnUseFeatBefore;
       player.oid.LoginCreature.OnSpellCast += SpellSystem.HandleBeforeSpellCast;
       player.oid.OnExamineObject += ExamineSystem.OnExamineBefore;
+
+      ItemSystem.feedbackService.AddCombatLogMessageFilter(CombatLogMessage.ComplexAttack, player.oid);
     }
     private static void InitializePlayer(Player player)
     {
@@ -414,9 +418,9 @@ namespace NWN.Systems
       player.LoginCreature.OnCombatRoundStart += OnCombatRoundStart;
       player.LoginCreature.OnSpellBroadcast += SpellSystem.OnSpellBroadcast;
       player.LoginCreature.OnSpellAction += SpellSystem.RegisterMetaMagicOnSpellInput;
-      player.LoginCreature.OnCreatureAttack += AttackSystem.HandleAttackEvent;
+      //player.LoginCreature.OnCreatureAttack += AttackSystem.HandleAttackEvent;
       player.LoginCreature.OnPhysicalAttacked += AttackSystem.HandlePlayerAttackedEvent;
-      player.LoginCreature.OnCreatureDamage += AttackSystem.HandleDamageEvent;
+      //player.LoginCreature.OnCreatureDamage += AttackSystem.HandleDamageEvent;
       player.OnPartyEvent += Party.HandlePartyEvent;
       player.OnClientLevelUpBegin += HandleOnClientLevelUp;
       player.LoginCreature.OnItemValidateEquip += ItemSystem.NoEquipRuinedItem;
@@ -533,7 +537,7 @@ namespace NWN.Systems
       while (Convert.ToBoolean(NWScript.SqlStep(query)))
         player.learnableSpells.Add(NWScript.SqlGetInt(query, 0), new SkillSystem.LearnableSpell(NWScript.SqlGetInt(query, 0), NWScript.SqlGetInt(query, 1), player, NWScript.SqlGetInt(query, 2)));
     }
-    private static void InitializeNewCharacterStorage(Player player)
+    private static async void InitializeNewCharacterStorage(Player player)
     {
       NwStore storage = NwStore.Create("generic_shop_res", NwModule.Instance.Areas.FirstOrDefault(a => a.Tag == "entrepotpersonnel").FindObjectsOfTypeInArea<NwPlaceable>().FirstOrDefault(s => s.Tag == "ps_entrepot").Location);
 
@@ -544,11 +548,11 @@ namespace NWN.Systems
       }
       
       Utils.DestroyInventory(storage);
-      NwItem oItem = NwItem.Create("bad_armor", storage);
-      oItem = NwItem.Create("bad_club", storage);
-      oItem = NwItem.Create("bad_shield", storage);
-      oItem = NwItem.Create("bad_sling", storage);
-      oItem = NwItem.Create("NW_WAMBU001", storage, 99);
+      NwItem oItem = await NwItem.Create("bad_armor", storage);
+      oItem = await NwItem.Create("bad_club", storage);
+      oItem = await NwItem.Create("bad_shield", storage);
+      oItem = await NwItem.Create("bad_sling", storage);
+      oItem = await NwItem.Create("NW_WAMBU001", storage, 99);
 
       storage.Name = $"Entrepôt de {player.oid.LoginCreature.Name}";
 

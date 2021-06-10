@@ -1,20 +1,9 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Net;
-using System.Numerics;
-using System.Threading;
-using System.Threading.Tasks;
-using System.Web;
-using Discord;
 using NWN.API;
 using NWN.API.Constants;
 using NWN.API.Events;
 using NWN.Core;
-using NWN.Core.NWNX;
-using NWN.Services;
-using static NWN.Systems.SkillSystem;
-using Action = System.Action;
 
 namespace NWN.Systems
 {
@@ -29,16 +18,19 @@ namespace NWN.Systems
 
         if (player.oid.PlayerName == "Chim")
         {
-
           //SpellUtils.ApplyCustomEffectToTarget(player.oid, "CUSTOM_EFFECT_FROG", 51, 6);
-          //PlayerSystem.cursorTargetService.EnterTargetMode(player.oid, OnTargetSelected, ObjectTypes.All, MouseCursor.Pickup);
+          PlayerSystem.cursorTargetService.EnterTargetMode(player.oid, OnTargetSelected, ObjectTypes.All, MouseCursor.Pickup);
         }
       }
     }
     private static void OnTargetSelected(ModuleEvents.OnPlayerTarget selection)
     {
-      ((NwGameObject)selection.TargetObject).Destroy();
-      
+      if (!(selection.TargetObject is NwItem item))
+        return;
+
+      item.AddItemProperty(API.ItemProperty.ACBonusVsDmgType((IPDamageType)5, 80), EffectDuration.Temporary, TimeSpan.FromSeconds(10));
+      //item.AddItemProperty(API.ItemProperty.Custom(NWScript.ITEM_PROPERTY_AC_BONUS, -1, 80), EffectDuration.Temporary, TimeSpan.FromSeconds(10));
+
       //((NwGameObject)selection.TargetObject).ApplyEffect(EffectDuration.Permanent, API.Effect.Swarm(true, "sim_wraith"));
       //AppearancePlugin.SetOverride(selection.Player, selection.TargetObject, );
       //PlayerPlugin.ApplyLoopingVisualEffectToObject(selection.Player, selection.TargetObject, NWScript.VFX_DUR_PROT_BARKSKIN);

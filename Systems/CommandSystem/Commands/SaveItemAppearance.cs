@@ -10,7 +10,7 @@ namespace NWN.Systems
   {
     public SaveItemAppearance(NwPlayer oPC)
     {
-      oPC.SendServerMessage("Veuillez sélectionnner l'objet dont vous souhaitez sauvegarder l'apparence.", Color.ROSE);
+      oPC.SendServerMessage("Veuillez sélectionnner l'objet dont vous souhaitez sauvegarder l'apparence.", ColorConstants.Rose);
       PlayerSystem.cursorTargetService.EnterTargetMode(oPC, OnAppearanceSelected, API.Constants.ObjectTypes.Item, API.Constants.MouseCursor.Create);
     }
     private static async void OnAppearanceSelected(ModuleEvents.OnPlayerTarget selection)
@@ -23,7 +23,7 @@ namespace NWN.Systems
       // TODO : ajouter un métier permettant de modifier n'importe quelle tenue
       if (item.GetLocalVariable<string>("_ORIGINAL_CRAFTER_NAME").HasValue && item.GetLocalVariable<string>("_ORIGINAL_CRAFTER_NAME").Value != player.oid.LoginCreature.Name)
       {
-        player.oid.SendServerMessage($"Impossible de sauvegarder cette apparence. Il est indiqué : Pour tout modification, s'adresser à {item.GetLocalVariable<string>("_ORIGINAL_CRAFTER_NAME").Value.ColorString(Color.WHITE)}", Color.ORANGE);
+        player.oid.SendServerMessage($"Impossible de sauvegarder cette apparence. Il est indiqué : Pour tout modification, s'adresser à {item.GetLocalVariable<string>("_ORIGINAL_CRAFTER_NAME").Value.ColorString(ColorConstants.White)}", ColorConstants.Orange);
         return;
       }
 
@@ -54,7 +54,7 @@ namespace NWN.Systems
         NWScript.SqlBindInt(query, "@AC", ACValue);
         NWScript.SqlStep(query);
 
-        player.oid.SendServerMessage($"L'apparence de votre {selection.TargetObject.Name.ColorString(Color.WHITE)} a été sauvegardée sous le nom {input.ColorString(Color.WHITE)}.", Color.GREEN);
+        player.oid.SendServerMessage($"L'apparence de votre {selection.TargetObject.Name.ColorString(ColorConstants.White)} a été sauvegardée sous le nom {input.ColorString(ColorConstants.White)}.", ColorConstants.Green);
         player.menu.Close();
 
         player.oid.LoginCreature.GetLocalVariable<string>("_PLAYER_INPUT").Delete();

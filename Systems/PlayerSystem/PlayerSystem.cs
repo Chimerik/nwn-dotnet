@@ -78,7 +78,7 @@ namespace NWN.Systems
           if (!(NWScript.StringToObject(EventsPlugin.GetEventData("TARGET_OBJECT_ID")).ToNwObject() is NwCreature { IsLoginPlayerCharacter: true } oTarget)
             || oTarget.ControllingPlayer.IsDM)
           {
-            oPC.ControllingPlayer.FloatingTextString("Seuls d'autres joueurs peuvent être ciblés par cette compétence. Les tentatives de vol sur PNJ doivent être jouées en rp avec un dm.".ColorString(Color.RED), false);
+            oPC.ControllingPlayer.FloatingTextString("Seuls d'autres joueurs peuvent être ciblés par cette compétence. Les tentatives de vol sur PNJ doivent être jouées en rp avec un dm.".ColorString(ColorConstants.Red), false);
             return;
           }
 

@@ -75,7 +75,7 @@ namespace NWN.Systems
       {
         if (NWScript.GetObjectSeen(oPC, spotter) != 1)
         {
-          spotter.ControllingPlayer.SendServerMessage("Quelqu'un d'invisible est en train de lancer un sort à proximité !", API.Color.CYAN);
+          spotter.ControllingPlayer.SendServerMessage("Quelqu'un d'invisible est en train de lancer un sort à proximité !", API.ColorConstants.Cyan);
           PlayerPlugin.ShowVisualEffect(spotter, 191, oPC.Position);
         }
       }

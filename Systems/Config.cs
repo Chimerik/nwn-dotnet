@@ -2,7 +2,7 @@
 
 namespace NWN.Systems
 {
-  public static class Config
+  public static partial class Config
   {
     public static string database = Environment.GetEnvironmentVariable("DB_NAME");
     public const int invalidInput = -999999;

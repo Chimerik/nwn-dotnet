@@ -139,7 +139,7 @@ namespace NWN.Systems
       player.menu.choices.Add(("Quitter", () => player.menu.Close()));
       player.menu.Draw();
     }
-    private void HandleValidateWithdrawMaterial(Player player, string material)
+    private async void HandleValidateWithdrawMaterial(Player player, string material)
     {
       player.menu.Clear();
 
@@ -177,13 +177,13 @@ namespace NWN.Systems
           {
             if (remainingValue >= 50000)
             {
-              NwItem item = NwItem.Create(itemTemplate, player.oid.LoginCreature, 50000, material);
+              NwItem item = await NwItem.Create(itemTemplate, player.oid.LoginCreature, 50000, material);
               item.Name = material;
               remainingValue -= 50000;
             }
             else
             {
-              NwItem item = NwItem.Create(itemTemplate, player.oid.LoginCreature, remainingValue, material);
+              NwItem item = await NwItem.Create(itemTemplate, player.oid.LoginCreature, remainingValue, material);
               item.Name = material;
               break;
             }

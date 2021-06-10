@@ -14,7 +14,7 @@ namespace NWN.Systems
         {
           if (((string)options.positional[0]).Length == 0)
           {
-            ctx.oSender.SendServerMessage($"Le bonus roleplay de {ctx.oTarget.LoginCreature.Name.ColorString(Color.WHITE)} est de {ObjectPlugin.GetInt(ctx.oTarget.LoginCreature, "_BRP").ToString().ColorString(Color.WHITE)}", Color.PINK);
+            ctx.oSender.SendServerMessage($"Le bonus roleplay de {ctx.oTarget.LoginCreature.Name.ColorString(ColorConstants.White)} est de {ObjectPlugin.GetInt(ctx.oTarget.LoginCreature, "_BRP").ToString().ColorString(ColorConstants.White)}", ColorConstants.Pink);
           }
           else
           {
@@ -25,8 +25,8 @@ namespace NWN.Systems
                 if (PlayerSystem.Players.TryGetValue(ctx.oTarget.LoginCreature, out PlayerSystem.Player player))
                 {
                   player.bonusRolePlay = iBRP;
-                  ctx.oSender.SendServerMessage($"Le bonus roleplay de {ctx.oTarget.LoginCreature.Name.ColorString(Color.WHITE)} est de {player.bonusRolePlay.ToString().ColorString(Color.WHITE)}", Color.PINK);
-                  ctx.oTarget.SendServerMessage($"Votre bonus roleplay est désormais de {player.bonusRolePlay.ToString().ColorString(Color.WHITE)}", Color.TEAL);
+                  ctx.oSender.SendServerMessage($"Le bonus roleplay de {ctx.oTarget.LoginCreature.Name.ColorString(ColorConstants.White)} est de {player.bonusRolePlay.ToString().ColorString(ColorConstants.White)}", ColorConstants.Pink);
+                  ctx.oTarget.SendServerMessage($"Votre bonus roleplay est désormais de {player.bonusRolePlay.ToString().ColorString(ColorConstants.White)}", ColorConstants.Pink);
 
                   var updateQuery = NWScript.SqlPrepareQueryCampaign(Config.database, $"UPDATE PlayerAccounts SET bonusRolePlay = @bonusRolePlay where rowid = @rowid");
                   NWScript.SqlBindInt(updateQuery, "@bonusRolePlay", player.bonusRolePlay);
@@ -37,18 +37,18 @@ namespace NWN.Systems
                 }
               }
               else
-                ctx.oSender.SendServerMessage("Le bonus roleplay doit être compris entre 0 et 4", Color.ORANGE);
+                ctx.oSender.SendServerMessage("Le bonus roleplay doit être compris entre 0 et 4", ColorConstants.Orange);
             }
             else
               if (PlayerSystem.Players.TryGetValue(ctx.oTarget.LoginCreature, out PlayerSystem.Player player))
-                ctx.oSender.SendServerMessage($"Le bonus roleplay de {ctx.oTarget.LoginCreature.Name.ColorString(Color.WHITE)} est de {player.bonusRolePlay.ToString().ColorString(Color.WHITE)}", Color.CYAN);
+                ctx.oSender.SendServerMessage($"Le bonus roleplay de {ctx.oTarget.LoginCreature.Name.ColorString(ColorConstants.White)} est de {player.bonusRolePlay.ToString().ColorString(ColorConstants.White)}", ColorConstants.Cyan);
           }
         }
       }
       else
       {
         if (PlayerSystem.Players.TryGetValue(ctx.oSender.LoginCreature, out PlayerSystem.Player player))
-          ctx.oSender.SendServerMessage($"Votre bonus roleplay est de {player.bonusRolePlay.ToString().ColorString(Color.WHITE)}", Color.CYAN);
+          ctx.oSender.SendServerMessage($"Votre bonus roleplay est de {player.bonusRolePlay.ToString().ColorString(ColorConstants.White)}", ColorConstants.Cyan);
       }
     }
   }

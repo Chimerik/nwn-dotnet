@@ -12,7 +12,7 @@ namespace NWN.Systems.Items.ItemUseHandlers
 
       if (!Craft.Collect.System.blueprintDictionnary.TryGetValue(baseItemType, out Craft.Blueprint blueprint))
       {
-        oPC.ControllingPlayer.SendServerMessage("[ERREUR HRP] - Ce patron n'est pas correctement initialisé. Le bug a été remonté au staff.", Color.RED);
+        oPC.ControllingPlayer.SendServerMessage("[ERREUR HRP] - Ce patron n'est pas correctement initialisé. Le bug a été remonté au staff.", ColorConstants.Red);
         Utils.LogMessageToDMs($"Invalid blueprint : {oBlueprint.Name} - Base Item Type : {baseItemType} - Used by {oPC.Name}");
         return;
       }
@@ -28,13 +28,13 @@ namespace NWN.Systems.Items.ItemUseHandlers
 
       if (oPC.GetItemInSlot(InventorySlot.RightHand) == null || (int)oPC.GetItemInSlot(InventorySlot.RightHand).BaseItemType != 114) // 114 = marteau de forgeron
       {
-        oPC.ControllingPlayer.SendServerMessage($"Vous devez avoir un marteau d'artisan en main pour commencer le travail.", Color.ORANGE);
+        oPC.ControllingPlayer.SendServerMessage($"Vous devez avoir un marteau d'artisan en main pour commencer le travail.", ColorConstants.Orange);
         return;
       }
 
       if (oPC.GetNearestObjectsByType<NwPlaceable>().Any(f => f.Tag == blueprint.workshopTag && f.Distance(oPC) >= 5))
       {
-        oPC.ControllingPlayer.SendServerMessage($"Vous devez être à proximité d'un atelier de type {blueprint.workshopTag} pour commencer ce travail", Color.ORANGE);
+        oPC.ControllingPlayer.SendServerMessage($"Vous devez être à proximité d'un atelier de type {blueprint.workshopTag} pour commencer ce travail", ColorConstants.Orange);
         return;
       }
 
@@ -44,7 +44,7 @@ namespace NWN.Systems.Items.ItemUseHandlers
       string sMaterial = blueprint.GetMaterialFromTargetItem(oTarget);
       if (sMaterial == "Invalid")
       {
-        oPC.ControllingPlayer.SendServerMessage("Ce patron ne permet pas d'améliorer cet objet.", Color.RED);
+        oPC.ControllingPlayer.SendServerMessage("Ce patron ne permet pas d'améliorer cet objet.", ColorConstants.Red);
         return;
       }
 

@@ -33,7 +33,7 @@ namespace NWN.Systems
       {
         selection.TargetObject.Name = player.oid.LoginCreature.GetLocalVariable<string>("_PLAYER_INPUT").Value;
         player.oid.LoginCreature.GetLocalVariable<string>("_PLAYER_INPUT").Delete();
-        player.oid.SendServerMessage($"{selection.TargetObject.Name.ColorString(Color.WHITE)} a été renommé {selection.TargetObject.Name.ColorString(Color.WHITE)}.", Color.GREEN);
+        player.oid.SendServerMessage($"{selection.TargetObject.Name.ColorString(ColorConstants.White)} a été renommé {selection.TargetObject.Name.ColorString(ColorConstants.White)}.", ColorConstants.Green);
         player.menu.Close();
       }
     }

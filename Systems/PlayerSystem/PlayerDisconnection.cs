@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Numerics;
 using NWN.API;
 using NWN.API.Events;
 using NWN.Core.NWNX;
@@ -25,10 +26,10 @@ namespace NWN.Systems
       if(player.serializedQuickbar != null)
         player.UnloadMenuQuickbar();
 
-      onPCDisconnect.Player.LoginCreature.VisualTransform.Rotation.X = 0.0f;
-      onPCDisconnect.Player.LoginCreature.VisualTransform.Translation.X = 0.0f;
-      onPCDisconnect.Player.LoginCreature.VisualTransform.Translation.Y = 0.0f;
-      onPCDisconnect.Player.LoginCreature.VisualTransform.Translation.Z = 0.0f;
+      VisualTransform resetVT = onPCDisconnect.Player.LoginCreature.VisualTransform;
+      resetVT.Translation = new Vector3(0,0,0);
+      resetVT.Rotation = new Vector3(0, 0, 0);
+      onPCDisconnect.Player.LoginCreature.VisualTransform = resetVT;
 
       player.OnKeydown -= player.menu.HandleMenuFeatUsed;
 

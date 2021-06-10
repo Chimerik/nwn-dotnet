@@ -26,7 +26,7 @@ namespace NWN.Systems
     {
       if (item.Possessor != oPC) // TODO : vérifier qu'il est bien le crafteur de l'objet
       {
-        oPC.ControllingPlayer.SendServerMessage($"Vous devez être en possession de l'objet {item.Name.ColorString(Color.LIME)} pour pouvoir le modifier", Color.ORANGE);
+        oPC.ControllingPlayer.SendServerMessage($"Vous devez être en possession de l'objet {item.Name.ColorString(ColorConstants.Lime)} pour pouvoir le modifier", ColorConstants.Orange);
         return;
       }
 
@@ -34,7 +34,7 @@ namespace NWN.Systems
       if (item.GetLocalVariable<string>("_ORIGINAL_CRAFTER_NAME").HasValue && item.GetLocalVariable<string>("_ORIGINAL_CRAFTER_NAME").Value != oPC.Name 
         && !oPC.ControllingPlayer.IsDM)
       {
-        oPC.ControllingPlayer.SendServerMessage($"Il est indiqué : Pour tout modification, s'adresser à {item.GetLocalVariable<string>("_ORIGINAL_CRAFTER_NAME").Value.ColorString(Color.WHITE)}", Color.ORANGE);
+        oPC.ControllingPlayer.SendServerMessage($"Il est indiqué : Pour tout modification, s'adresser à {item.GetLocalVariable<string>("_ORIGINAL_CRAFTER_NAME").Value.ColorString(ColorConstants.White)}", ColorConstants.Orange);
         return;
       }
 
@@ -134,11 +134,11 @@ namespace NWN.Systems
         $"Quel type de modification souhaitez-vous effectuer sur votre armure {item.Name.ColorString(new Color(32, 255, 32))} ?"
       };
 
-      player.menu.choices.Add(($"Modifier l'apparence.".ColorString(Color.ORANGE), () => HandleArmorPartChoice()));
-      player.menu.choices.Add(($"Modifier les couleurs.".ColorString(Color.PINK), () => HandleColorLocationChoice()));
-      player.menu.choices.Add(($"Modifier le nom.".ColorString(Color.ORANGE), () => GetNewName()));
-      player.menu.choices.Add(($"Modifier la description.".ColorString(Color.PINK), () => GetNewDescription()));
-      player.menu.choices.Add(($"Annuler toutes les modifications en cours.".ColorString(Color.ORANGE), () => HandleReinitialisation()));
+      player.menu.choices.Add(($"Modifier l'apparence.".ColorString(ColorConstants.Orange), () => HandleArmorPartChoice()));
+      player.menu.choices.Add(($"Modifier les couleurs.".ColorString(ColorConstants.Pink), () => HandleColorLocationChoice()));
+      player.menu.choices.Add(($"Modifier le nom.".ColorString(ColorConstants.Orange), () => GetNewName()));
+      player.menu.choices.Add(($"Modifier la description.".ColorString(ColorConstants.Pink), () => GetNewDescription()));
+      player.menu.choices.Add(($"Annuler toutes les modifications en cours.".ColorString(ColorConstants.Orange), () => HandleReinitialisation()));
 
       player.menu.choices.Add(("Quitter.", () => player.menu.Close()));
       player.menu.Draw();
@@ -193,8 +193,8 @@ namespace NWN.Systems
         $"S'agit-il d'une modification de couleur globale ou localisée ?"
       };
 
-      player.menu.choices.Add(($"Globale.".ColorString(Color.ORANGE), () => ValidateGlobalColorChoice()));
-      player.menu.choices.Add(($"Localisée.".ColorString(Color.PINK), () => ValidateLocalColorChoice()));
+      player.menu.choices.Add(($"Globale.".ColorString(ColorConstants.Orange), () => ValidateGlobalColorChoice()));
+      player.menu.choices.Add(($"Localisée.".ColorString(ColorConstants.Pink), () => ValidateLocalColorChoice()));
 
       player.menu.choices.Add(("Retour.", () => DrawArmorModificationMenu()));
       player.menu.choices.Add(("Quitter.", () => player.menu.Close()));
@@ -247,7 +247,7 @@ namespace NWN.Systems
     {
       if(item == null || item.Possessor != player.oid.LoginCreature)
       {
-        player.oid.SendServerMessage($"L'objet que vous essayez de modifier n'existe plus ou n'est plus en votre possession.", Color.RED);
+        player.oid.SendServerMessage($"L'objet que vous essayez de modifier n'existe plus ou n'est plus en votre possession.", ColorConstants.Red);
         player.menu.Close();
         return;
       }
@@ -310,7 +310,7 @@ namespace NWN.Systems
             });
           }
 
-          player.menu.titleLines.Add($"Couleur actuelle : {currentValue.ToString().ColorString(Color.LIME)}");
+          player.menu.titleLines.Add($"Couleur actuelle : {currentValue.ToString().ColorString(ColorConstants.Lime)}");
         }
         else
         {
@@ -348,7 +348,7 @@ namespace NWN.Systems
             });
           }
 
-          player.menu.titleLines.Add($"Couleur actuelle : {currentValue.ToString().ColorString(Color.LIME)}");
+          player.menu.titleLines.Add($"Couleur actuelle : {currentValue.ToString().ColorString(ColorConstants.Lime)}");
         }
       }
       else
@@ -642,7 +642,7 @@ namespace NWN.Systems
         });
       }
 
-      player.menu.titleLines.Add($"Apparence actuelle : {currentValue.ToString().ColorString(Color.LIME)}");
+      player.menu.titleLines.Add($"Apparence actuelle : {currentValue.ToString().ColorString(ColorConstants.Lime)}");
     }
     private void HandleDefaultModelModification(int modification)
     {
@@ -694,7 +694,7 @@ namespace NWN.Systems
         });
       }
 
-      player.menu.titleLines.Add($"Apparence actuelle : {currentValue.ToString().ColorString(Color.LIME)}");
+      player.menu.titleLines.Add($"Apparence actuelle : {currentValue.ToString().ColorString(ColorConstants.Lime)}");
     }
     private void DisableFeedbackMessages()
     {
@@ -751,7 +751,7 @@ namespace NWN.Systems
       {
         item.Description = player.oid.LoginCreature.GetLocalVariable<string>("_PLAYER_INPUT").Value;
         player.oid.LoginCreature.GetLocalVariable<string>("_PLAYER_INPUT").Delete();
-        player.oid.SendServerMessage($"La description de votre objet a été modifiée.", Color.ROSE);
+        player.oid.SendServerMessage($"La description de votre objet a été modifiée.", ColorConstants.Rose);
         player.menu.Close();
       }
     }
@@ -759,7 +759,7 @@ namespace NWN.Systems
     {
       if (item == null || item.Possessor != player.oid.LoginCreature)
       {
-        player.oid.SendServerMessage($"L'objet que vous essayez de modifier n'existe plus ou n'est plus en votre possession.", Color.RED);
+        player.oid.SendServerMessage($"L'objet que vous essayez de modifier n'existe plus ou n'est plus en votre possession.", ColorConstants.Red);
         player.menu.Close();
         return;
       }
@@ -791,14 +791,14 @@ namespace NWN.Systems
 
       player.menu.Clear();
       player.menu.titleLines = new List<string> {
-        $"Quel type de modification souhaitez-vous effectuer sur votre arme {item.Name.ColorString(Color.GREEN)} ?"
+        $"Quel type de modification souhaitez-vous effectuer sur votre arme {item.Name.ColorString(ColorConstants.Green)} ?"
       };
       
-      player.menu.choices.Add(($"Modifier l'apparence.".ColorString(Color.ORANGE), () => HandleWeaponPartChoice()));
-      player.menu.choices.Add(($"Modifier les couleurs.".ColorString(Color.PINK), () => HandleWeaponColorChoice()));
-      player.menu.choices.Add(($"Modifier le nom.".ColorString(Color.ORANGE), () => GetNewName()));
-      player.menu.choices.Add(($"Modifier la description.".ColorString(Color.PINK), () => GetNewDescription()));
-      player.menu.choices.Add(($"Annuler toutes les modifications en cours.".ColorString(Color.ORANGE), () => HandleReinitialisation()));
+      player.menu.choices.Add(($"Modifier l'apparence.".ColorString(ColorConstants.Orange), () => HandleWeaponPartChoice()));
+      player.menu.choices.Add(($"Modifier les couleurs.".ColorString(ColorConstants.Pink), () => HandleWeaponColorChoice()));
+      player.menu.choices.Add(($"Modifier le nom.".ColorString(ColorConstants.Orange), () => GetNewName()));
+      player.menu.choices.Add(($"Modifier la description.".ColorString(ColorConstants.Pink), () => GetNewDescription()));
+      player.menu.choices.Add(($"Annuler toutes les modifications en cours.".ColorString(ColorConstants.Orange), () => HandleReinitialisation()));
 
       player.menu.choices.Add(("Quitter.", () => player.menu.Close()));
       player.menu.Draw();
@@ -857,7 +857,7 @@ namespace NWN.Systems
 
       if (item == null || item.Possessor != player.oid.LoginCreature)
       {
-        player.oid.SendServerMessage($"L'objet que vous essayez de modifier n'existe plus ou n'est plus en votre possession.", Color.RED);
+        player.oid.SendServerMessage($"L'objet que vous essayez de modifier n'existe plus ou n'est plus en votre possession.", ColorConstants.Red);
         player.menu.Close();
         return;
       }
@@ -915,7 +915,7 @@ namespace NWN.Systems
           });
         }
 
-        player.menu.titleLines.Add($"Couleur actuelle : {currentValue.ToString().ColorString(Color.LIME)}");
+        player.menu.titleLines.Add($"Couleur actuelle : {currentValue.ToString().ColorString(ColorConstants.Lime)}");
       }
       else
       {
@@ -970,7 +970,7 @@ namespace NWN.Systems
           });
         }
 
-        player.menu.titleLines.Add($"Modèle actuel : {currentValue.ToString().ColorString(Color.LIME)}");
+        player.menu.titleLines.Add($"Modèle actuel : {currentValue.ToString().ColorString(ColorConstants.Lime)}");
       }
 
       if (modification > -2)
@@ -997,13 +997,13 @@ namespace NWN.Systems
     {
       player.menu.Clear();
       player.menu.titleLines = new List<string> {
-        $"Quel type de modification souhaitez-vous effectuer sur votre objet {item.Name.ColorString(Color.GREEN)} ?"
+        $"Quel type de modification souhaitez-vous effectuer sur votre objet {item.Name.ColorString(ColorConstants.Green)} ?"
       };
 
-      player.menu.choices.Add(($"Modifier l'apparence.".ColorString(Color.ORANGE), () => ApplySimpleModification(-2)));
-      player.menu.choices.Add(($"Modifier le nom.".ColorString(Color.ORANGE), () => GetNewName()));
-      player.menu.choices.Add(($"Modifier la description.".ColorString(Color.PINK), () => GetNewDescription()));
-      player.menu.choices.Add(($"Annuler toutes les modifications en cours.".ColorString(Color.ORANGE), () => HandleReinitialisation()));
+      player.menu.choices.Add(($"Modifier l'apparence.".ColorString(ColorConstants.Orange), () => ApplySimpleModification(-2)));
+      player.menu.choices.Add(($"Modifier le nom.".ColorString(ColorConstants.Orange), () => GetNewName()));
+      player.menu.choices.Add(($"Modifier la description.".ColorString(ColorConstants.Pink), () => GetNewDescription()));
+      player.menu.choices.Add(($"Annuler toutes les modifications en cours.".ColorString(ColorConstants.Orange), () => HandleReinitialisation()));
 
       player.menu.choices.Add(("Quitter.", () => player.menu.Close()));
       player.menu.Draw();
@@ -1015,7 +1015,7 @@ namespace NWN.Systems
 
       if (item == null || item.Possessor != player.oid.LoginCreature)
       {
-        player.oid.SendServerMessage($"L'objet que vous essayez de modifier n'existe plus ou n'est plus en votre possession.", Color.RED);
+        player.oid.SendServerMessage($"L'objet que vous essayez de modifier n'existe plus ou n'est plus en votre possession.", ColorConstants.Red);
         player.menu.Close();
         return;
       }
@@ -1065,7 +1065,7 @@ namespace NWN.Systems
         item.Destroy();
         item = newItem;
 
-        player.menu.titleLines.Add($"Modèle actuel : {currentValue.ToString().ColorString(Color.LIME)}");
+        player.menu.titleLines.Add($"Modèle actuel : {currentValue.ToString().ColorString(ColorConstants.Lime)}");
 
         Task waitDestruction = NwTask.Run(async () =>
         {
@@ -1101,14 +1101,14 @@ namespace NWN.Systems
 
       player.menu.Clear();
       player.menu.titleLines = new List<string> {
-        $"Quel type de modification souhaitez-vous effectuer sur votre objet {item.Name.ColorString(Color.GREEN)} ?"
+        $"Quel type de modification souhaitez-vous effectuer sur votre objet {item.Name.ColorString(ColorConstants.Green)} ?"
       };
 
-      player.menu.choices.Add(($"Modifier l'apparence.".ColorString(Color.ORANGE), () => ApplyHelmetCloakModification(-2)));
-      player.menu.choices.Add(($"Modifier les couleurs.".ColorString(Color.PINK), () => HandleColorChannelChoice()));
-      player.menu.choices.Add(($"Modifier le nom.".ColorString(Color.ORANGE), () => GetNewName()));
-      player.menu.choices.Add(($"Modifier la description.".ColorString(Color.PINK), () => GetNewDescription()));
-      player.menu.choices.Add(($"Annuler toutes les modifications en cours.".ColorString(Color.ORANGE), () => HandleReinitialisation()));
+      player.menu.choices.Add(($"Modifier l'apparence.".ColorString(ColorConstants.Orange), () => ApplyHelmetCloakModification(-2)));
+      player.menu.choices.Add(($"Modifier les couleurs.".ColorString(ColorConstants.Pink), () => HandleColorChannelChoice()));
+      player.menu.choices.Add(($"Modifier le nom.".ColorString(ColorConstants.Orange), () => GetNewName()));
+      player.menu.choices.Add(($"Modifier la description.".ColorString(ColorConstants.Pink), () => GetNewDescription()));
+      player.menu.choices.Add(($"Annuler toutes les modifications en cours.".ColorString(ColorConstants.Orange), () => HandleReinitialisation()));
 
       player.menu.choices.Add(("Quitter.", () => player.menu.Close()));
       player.menu.Draw();
@@ -1120,7 +1120,7 @@ namespace NWN.Systems
 
       if (item == null || item.Possessor != player.oid.LoginCreature)
       {
-        player.oid.SendServerMessage($"L'objet que vous essayez de modifier n'existe plus ou n'est plus en votre possession.", Color.RED);
+        player.oid.SendServerMessage($"L'objet que vous essayez de modifier n'existe plus ou n'est plus en votre possession.", ColorConstants.Red);
         player.menu.Close();
         return;
       }
@@ -1175,7 +1175,7 @@ namespace NWN.Systems
           });
         }
 
-        player.menu.titleLines.Add($"Couleur actuelle : {currentValue.ToString().ColorString(Color.LIME)}");
+        player.menu.titleLines.Add($"Couleur actuelle : {currentValue.ToString().ColorString(ColorConstants.Lime)}");
       }
       else
       {
@@ -1227,7 +1227,7 @@ namespace NWN.Systems
           });
         }
 
-        player.menu.titleLines.Add($"Modèle actuel : {currentValue.ToString().ColorString(Color.LIME)}");
+        player.menu.titleLines.Add($"Modèle actuel : {currentValue.ToString().ColorString(ColorConstants.Lime)}");
       }
 
       if (modification > -2)

@@ -106,7 +106,7 @@ namespace NWN.Systems
           onSpellCast.PreventSpellCast = true;
 
           if (onSpellCast.Caster is NwCreature { IsPlayerControlled: true } oPC)
-            oPC.ControllingPlayer.SendServerMessage("L'interdiction d'usage de magie offensive est en vigueur.", Color.RED);
+            oPC.ControllingPlayer.SendServerMessage("L'interdiction d'usage de magie offensive est en vigueur.", ColorConstants.Red);
           break;
       }
     }

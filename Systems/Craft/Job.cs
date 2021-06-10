@@ -94,8 +94,8 @@ namespace NWN.Systems.Craft
     }
     public void AskCancellationConfirmation(NwPlayer player)
     {
-      player.SendServerMessage($"Attention, votre travail précédent n'est pas terminé. Lancer un nouveau travail signifie perdre la totalité du travail en cours !", Color.MAGENTA);
-      player.SendServerMessage($"Utilisez une seconde fois le plan pour confirmer l'annulation du travail en cours.", Color.SILVER);
+      player.SendServerMessage($"Attention, votre travail précédent n'est pas terminé. Lancer un nouveau travail signifie perdre la totalité du travail en cours !", ColorConstants.Magenta);
+      player.SendServerMessage($"Utilisez une seconde fois le plan pour confirmer l'annulation du travail en cours.", ColorConstants.Silver);
       this.isCancelled = true;
 
       Task waitSpellUsed = NwTask.Run(async () =>
@@ -112,7 +112,7 @@ namespace NWN.Systems.Craft
         {
           if (!IsBlueprintOriginal(blueprint))
           {
-            player.SendServerMessage("Il vous faut un patron original afin d'effectuer une recherche ou une copie.", Color.ORANGE);
+            player.SendServerMessage("Il vous faut un patron original afin d'effectuer une recherche ou une copie.", ColorConstants.Orange);
             return false;
           }
         }
@@ -122,14 +122,14 @@ namespace NWN.Systems.Craft
           case JobType.BlueprintResearchTimeEfficiency:
             if (blueprint.GetLocalVariable<int>("_BLUEPRINT_TIME_EFFICIENCY").Value >= 10)
             {
-              player.SendServerMessage("Ce patron dispose déjà d'un niveau de recherche maximal.", Color.ORANGE);
+              player.SendServerMessage("Ce patron dispose déjà d'un niveau de recherche maximal.", ColorConstants.Orange);
               return false;
             }
             break;
           case JobType.BlueprintResearchMaterialEfficiency:
             if (blueprint.GetLocalVariable<int>("_BLUEPRINT_MATERIAL_EFFICIENCY").Value >= 10)
             {
-              player.SendServerMessage("Ce patron dispose déjà d'un niveau de recherche métallurgique maximal.", Color.ORANGE);
+              player.SendServerMessage("Ce patron dispose déjà d'un niveau de recherche métallurgique maximal.", ColorConstants.Orange);
               return false;
             }
             break;
@@ -209,25 +209,25 @@ namespace NWN.Systems.Craft
 
       if (!player.materialStock.ContainsKey(sMaterial))
       {
-        player.oid.SendServerMessage($"Il vous manque {iMineralCost.ToString().ColorString(Color.WHITE)} unités de {sMaterial.ColorString(Color.WHITE)} pour réaliser ce travail artisanal.", Color.RED);
+        player.oid.SendServerMessage($"Il vous manque {iMineralCost.ToString().ColorString(ColorConstants.White)} unités de {sMaterial.ColorString(ColorConstants.White)} pour réaliser ce travail artisanal.", ColorConstants.Red);
         return;
       }
       else if (player.materialStock[sMaterial] < iMineralCost)
       {
-        player.oid.SendServerMessage($"Il vous manque {(iMineralCost - player.materialStock[sMaterial]).ToString().ColorString(Color.WHITE)} unités de {sMaterial.ColorString(Color.WHITE)} pour réaliser ce travail artisanal.", Color.RED);
+        player.oid.SendServerMessage($"Il vous manque {(iMineralCost - player.materialStock[sMaterial]).ToString().ColorString(ColorConstants.White)} unités de {sMaterial.ColorString(ColorConstants.White)} pour réaliser ce travail artisanal.", ColorConstants.Red);
         return;
       }
         
       player.materialStock[sMaterial] -= iMineralCost;
 
-      player.oid.SendServerMessage($"Vous venez de démarrer la fabrication de l'objet artisanal : {blueprint.name.ColorString(Color.WHITE)} en {sMaterial.ColorString(Color.WHITE)}", new Color(32, 255, 32));
+      player.oid.SendServerMessage($"Vous venez de démarrer la fabrication de l'objet artisanal : {blueprint.name.ColorString(ColorConstants.White)} en {sMaterial.ColorString(ColorConstants.White)}", new Color(32, 255, 32));
       // TODO : afficher des effets visuels sur la forge
 
       if (oTarget.Tag == blueprint.craftedItemTag) // En cas d'amélioration d'un objet, on détruit l'original
       {
         player.craftJob = new Job(blueprint.baseItemType, sMaterial, iJobDuration, player, oTarget.Serialize().ToBase64EncodedString());
         oTarget.Destroy();
-        player.oid.SendServerMessage($"L'objet {oTarget.Name.ColorString(Color.WHITE)} ne sera pas disponible jusqu'à la fin du travail artisanal.", Color.ORANGE);
+        player.oid.SendServerMessage($"L'objet {oTarget.Name.ColorString(ColorConstants.White)} ne sera pas disponible jusqu'à la fin du travail artisanal.", ColorConstants.Orange);
       }
       else
         player.craftJob = new Job(blueprint.baseItemType, sMaterial, iJobDuration, player);
@@ -290,12 +290,12 @@ namespace NWN.Systems.Craft
       {
         if (!player.materialStock.ContainsKey(materials.Key))
         {
-          player.oid.SendServerMessage($"Il vous manque {materials.Value.ToString().ColorString(Color.WHITE)} unités de {materials.Key.ColorString(Color.WHITE)} pour réaliser ce travail artisanal.", Color.RED);
+          player.oid.SendServerMessage($"Il vous manque {materials.Value.ToString().ColorString(ColorConstants.White)} unités de {materials.Key.ColorString(ColorConstants.White)} pour réaliser ce travail artisanal.", ColorConstants.Red);
           return;
         }
         else if (player.materialStock[materials.Key] < materials.Value)
         {
-          player.oid.SendServerMessage($"Il vous manque {(materials.Value - player.materialStock[materials.Key]).ToString().ColorString(Color.WHITE)} unités de {materials.Key.ColorString(Color.WHITE)} pour réaliser ce travail artisanal.", Color.RED);
+          player.oid.SendServerMessage($"Il vous manque {(materials.Value - player.materialStock[materials.Key]).ToString().ColorString(ColorConstants.White)} unités de {materials.Key.ColorString(ColorConstants.White)} pour réaliser ce travail artisanal.", ColorConstants.Red);
           return;
         }
       }
@@ -303,12 +303,12 @@ namespace NWN.Systems.Craft
       foreach (KeyValuePair<string, int> materials in repairMaterials)
         player.materialStock[materials.Key] -= materials.Value;
 
-      player.oid.SendServerMessage($"Vous venez de démarrer la réparation de l'objet artisanal : {blueprint.name.ColorString(Color.WHITE)} en {sMaterial.ColorString(Color.WHITE)}", new Color(32, 255, 32));
+      player.oid.SendServerMessage($"Vous venez de démarrer la réparation de l'objet artisanal : {blueprint.name.ColorString(ColorConstants.White)} en {sMaterial.ColorString(ColorConstants.White)}", new Color(32, 255, 32));
       // TODO : afficher des effets visuels sur la forge
 
       player.craftJob = new Job(-17, sMaterial, iJobDuration, player, oTarget.Serialize().ToBase64EncodedString());
       oTarget.Destroy();
-      player.oid.SendServerMessage($"L'objet {oTarget.Name.ColorString(Color.WHITE)} ne sera pas disponible jusqu'à la fin du travail artisanal.", Color.ORANGE);
+      player.oid.SendServerMessage($"L'objet {oTarget.Name.ColorString(ColorConstants.White)} ne sera pas disponible jusqu'à la fin du travail artisanal.", ColorConstants.Orange);
 
       // s'il s'agit d'une copie de blueprint, alors le nombre d'utilisation diminue de 1
       int iBlueprintRemainingRuns = oItem.GetLocalVariable<int>("_BLUEPRINT_RUNS").Value;
@@ -355,11 +355,11 @@ namespace NWN.Systems.Craft
       float iJobDuration = baseCost * 10 * spellLevel * (100 - enchanteurLevel);
       player.craftJob = new Job(-14, ipString, iJobDuration, player, oTarget.Serialize().ToBase64EncodedString()); // -14 = JobType enchantement
 
-      player.oid.SendServerMessage($"Vous venez de démarrer l'enchantement de : {NWScript.GetName(oTarget).ColorString(Color.WHITE)}", new Color(32, 255, 32));
+      player.oid.SendServerMessage($"Vous venez de démarrer l'enchantement de : {NWScript.GetName(oTarget).ColorString(ColorConstants.White)}", new Color(32, 255, 32));
       // TODO : afficher des effets visuels
 
       oTarget.Destroy();
-      player.oid.SendServerMessage($"L'objet {oTarget.Name.ColorString(Color.WHITE)} ne sera pas disponible jusqu'à la fin du travail d'enchantement.", Color.ORANGE);
+      player.oid.SendServerMessage($"L'objet {oTarget.Name.ColorString(ColorConstants.White)} ne sera pas disponible jusqu'à la fin du travail d'enchantement.", ColorConstants.Orange);
 
       player.craftJob.isCancelled = false;
     }
@@ -392,11 +392,11 @@ namespace NWN.Systems.Craft
 
       player.craftJob = new Job(-18, spellId.ToString(), iJobDuration, player, oTarget.Serialize().ToBase64EncodedString()); // -18 = JobType enchantementReactivation
 
-      player.oid.SendServerMessage($"Vous venez de démarrer la réactivation d'enchantement de : {NWScript.GetName(oTarget).ColorString(Color.WHITE)}", new Color(32, 255, 32));
+      player.oid.SendServerMessage($"Vous venez de démarrer la réactivation d'enchantement de : {NWScript.GetName(oTarget).ColorString(ColorConstants.White)}", new Color(32, 255, 32));
       // TODO : afficher des effets visuels
 
       oTarget.Destroy();
-      player.oid.SendServerMessage($"L'objet {oTarget.Name.ColorString(Color.WHITE)} ne sera pas disponible jusqu'à la fin du travail d'enchantement.", Color.ORANGE);
+      player.oid.SendServerMessage($"L'objet {oTarget.Name.ColorString(ColorConstants.White)} ne sera pas disponible jusqu'à la fin du travail d'enchantement.", ColorConstants.Orange);
 
       player.craftJob.isCancelled = false;
     }
@@ -415,11 +415,11 @@ namespace NWN.Systems.Craft
       item.GetLocalVariable<int>("_BASE_COST").Value = baseCost;
       player.craftJob = new Job(-15, material, iJobDuration, player, item.Serialize().ToBase64EncodedString()); // -15 = JobType recyclage
 
-      player.oid.SendServerMessage($"Vous venez de démarrer le recyclage de : {item.Name.ColorString(Color.WHITE)}", Color.ORANGE);
+      player.oid.SendServerMessage($"Vous venez de démarrer le recyclage de : {item.Name.ColorString(ColorConstants.White)}", ColorConstants.Orange);
       // TODO : afficher des effets visuels
 
       item.Destroy();
-      player.oid.SendServerMessage($"L'objet {item.Name.ColorString(Color.WHITE)} ne sera pas disponible jusqu'à la fin du travail de recyclage.", Color.RED);
+      player.oid.SendServerMessage($"L'objet {item.Name.ColorString(ColorConstants.White)} ne sera pas disponible jusqu'à la fin du travail de recyclage.", ColorConstants.Red);
 
       player.craftJob.isCancelled = false;
     }
@@ -429,7 +429,7 @@ namespace NWN.Systems.Craft
 
       if(item.GetLocalVariable<int>("_REINFORCEMENT_LEVEL").Value >= 10)
       {
-        player.oid.SendServerMessage($"{item.Name.ColorString(Color.WHITE)} a déjà été renforcé au maximum des capacités du matériau.", Color.ORANGE);
+        player.oid.SendServerMessage($"{item.Name.ColorString(ColorConstants.White)} a déjà été renforcé au maximum des capacités du matériau.", ColorConstants.Orange);
         return;
       }
 
@@ -445,11 +445,11 @@ namespace NWN.Systems.Craft
       item.GetLocalVariable<int>("_BASE_COST").Value = baseCost;
       player.craftJob = new Job(-16, material, iJobDuration, player, item.Serialize().ToBase64EncodedString()); // -16 = JobType recyclage
 
-      player.oid.SendServerMessage($"Vous venez de démarrer le renforcement de : {item.Name.ColorString(Color.WHITE)}", Color.ORANGE);
+      player.oid.SendServerMessage($"Vous venez de démarrer le renforcement de : {item.Name.ColorString(ColorConstants.White)}", ColorConstants.Orange);
       // TODO : afficher des effets visuels
 
       item.Destroy();
-      player.oid.SendServerMessage($"L'objet {item.Name.ColorString(Color.WHITE)} ne sera pas disponible jusqu'à la fin du travail de renforcement.", Color.RED);
+      player.oid.SendServerMessage($"L'objet {item.Name.ColorString(ColorConstants.White)} ne sera pas disponible jusqu'à la fin du travail de renforcement.", ColorConstants.Red);
 
       player.craftJob.isCancelled = false;
     }
@@ -468,7 +468,7 @@ namespace NWN.Systems.Craft
         float iJobDuration = blueprint.mineralsCost * 200 * (100 - (metallurgyLevel * 5 + advancedCraftLevel * 3)) / 100;
         player.craftJob = new Job(-12, "", iJobDuration, player, ObjectPlugin.Serialize(oBlueprint)); // - 12 = recherche ME
         oBlueprint.Destroy();
-        player.oid.SendServerMessage($"L'objet {oBlueprint.Name.ColorString(Color.WHITE)} ne sera pas disponible jusqu'à la fin du travail de recherche métallurgique.", Color.ORANGE);
+        player.oid.SendServerMessage($"L'objet {oBlueprint.Name.ColorString(ColorConstants.White)} ne sera pas disponible jusqu'à la fin du travail de recherche métallurgique.", ColorConstants.Orange);
       }
     }
     public void StartBlueprintTimeEfficiencyResearch(PlayerSystem.Player player, NwItem oBlueprint, Blueprint blueprint)
@@ -487,7 +487,7 @@ namespace NWN.Systems.Craft
         
         player.craftJob = new Job(-13, "", iJobDuration, player, oBlueprint.Serialize().ToBase64EncodedString()); // -13 = recherche TE
         oBlueprint.Destroy();
-        player.oid.SendServerMessage($"L'objet {oBlueprint.Name.ColorString(Color.WHITE)} ne sera pas disponible jusqu'à la fin du travail de recherche d'efficacité.", Color.ORANGE);
+        player.oid.SendServerMessage($"L'objet {oBlueprint.Name.ColorString(ColorConstants.White)} ne sera pas disponible jusqu'à la fin du travail de recherche d'efficacité.", ColorConstants.Orange);
       }
     }
     public void CreateCraftJournalEntry()

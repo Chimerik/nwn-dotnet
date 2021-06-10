@@ -16,7 +16,7 @@ namespace NWN.Systems
           oHelmet.HiddenWhenEquipped = 0;
       }
       else
-        oPC.SendServerMessage("Vous ne portez pas de casque !", Color.RED);
+        oPC.SendServerMessage("Vous ne portez pas de casque !", ColorConstants.Red);
     }
   }
 }

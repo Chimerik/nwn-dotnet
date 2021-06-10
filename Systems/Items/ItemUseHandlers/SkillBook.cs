@@ -16,13 +16,13 @@ namespace NWN.Systems.Items.ItemUseHandlers
 
       if (player.learntCustomFeats.ContainsKey(FeatId))
       {
-        player.oid.SendServerMessage("Vous connaissez déjà les bases d'entrainement de cette capacité.", Color.PINK);
+        player.oid.SendServerMessage("Vous connaissez déjà les bases d'entrainement de cette capacité.", ColorConstants.Pink);
         return;
       }
 
       if (player.learnableSkills.ContainsKey(FeatId))
       {
-        player.oid.SendServerMessage("Cette capacité se trouve déjà dans votre liste d'apprentissage.", Color.ROSE);
+        player.oid.SendServerMessage("Cette capacité se trouve déjà dans votre liste d'apprentissage.", ColorConstants.Rose);
         return;
       }
 

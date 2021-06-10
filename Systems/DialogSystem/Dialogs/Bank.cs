@@ -168,7 +168,7 @@ namespace NWN.Systems
 
       if (playerInput <= 0)
       {
-        player.oid.SendServerMessage("La valeur saisie doit être supérieure à 0.", Color.RED);
+        player.oid.SendServerMessage("La valeur saisie doit être supérieure à 0.", ColorConstants.Red);
         HandleMoneyWithdrawalSelection(player);
         return;
       }

@@ -130,10 +130,65 @@ namespace NWN.Systems
     {
       //player.oid.SendServerMessage($"ip string : {$"{spellId}_{(int)ip.PropertyType}_{ip.SubType}_{ip.CostTable}_{ip.CostTableValue}"}");
 
-      player.craftJob.Start(Craft.Job.JobType.Enchantement, null, player, null, oItem, $"{spellId}_{(int)ip.PropertyType}_{ip.SubType}_{ip.CostTable}_{ip.CostTableValue}");
-      player.oid.ControlledCreature.ApplyEffect(EffectDuration.Instant, API.Effect.VisualEffect(VfxType.ImpSuperHeroism));
-
       player.menu.Close();
+
+      switch (ip.PropertyType)
+      {
+        case ItemPropertyType.AcBonus:
+
+          if (oItem.BaseItemType != BaseItemType.Armor
+            && oItem.BaseItemType != BaseItemType.Helmet
+            && oItem.BaseItemType != BaseItemType.Cloak
+            && oItem.BaseItemType != BaseItemType.Boots
+            && oItem.BaseItemType != BaseItemType.Gloves
+            && oItem.BaseItemType != BaseItemType.LargeShield
+            && oItem.BaseItemType != BaseItemType.TowerShield
+            && oItem.BaseItemType != BaseItemType.SmallShield
+            )
+
+            player.oid.SendServerMessage("Ce type d'enchantement ne peut-être utilisé que sur une armure, un bouclier, un casque, une cape, des bottes ou des gants", ColorConstants.Red);
+
+          return;
+
+        case ItemPropertyType.AcBonusVsAlignmentGroup:
+        case ItemPropertyType.AcBonusVsDamageType:
+        case ItemPropertyType.AcBonusVsRacialGroup:
+        case ItemPropertyType.AcBonusVsSpecificAlignment:
+
+          if (oItem.BaseItemType != BaseItemType.Armor
+            && oItem.BaseItemType != BaseItemType.Helmet
+            && oItem.BaseItemType != BaseItemType.Cloak
+            && oItem.BaseItemType != BaseItemType.Boots
+            && oItem.BaseItemType != BaseItemType.Gloves
+            )
+
+            player.oid.SendServerMessage("Ce type d'enchantement ne peut-être utilisé que sur une armure, un casque, une cape, des bottes ou des gants", ColorConstants.Red);
+
+          return;
+
+        case ItemPropertyType.AttackBonus:
+        case ItemPropertyType.AttackBonusVsAlignmentGroup:
+        case ItemPropertyType.AttackBonusVsRacialGroup:
+        case ItemPropertyType.AttackBonusVsSpecificAlignment:
+        case ItemPropertyType.EnhancementBonus:
+        case ItemPropertyType.EnhancementBonusVsAlignmentGroup:
+        case ItemPropertyType.EnhancementBonusVsRacialGroup:
+        case ItemPropertyType.EnhancementBonusVsSpecificAlignment:
+
+          ItemUtils.ItemCategory itemCategory = ItemUtils.GetItemCategory(oItem.BaseItemType);
+
+          if (itemCategory != ItemUtils.ItemCategory.OneHandedMeleeWeapon
+            && itemCategory != ItemUtils.ItemCategory.TwoHandedMeleeWeapon
+            && itemCategory != ItemUtils.ItemCategory.RangedWeapon
+            && oItem.BaseItemType != BaseItemType.Gloves)
+
+            player.oid.SendServerMessage("Ce type d'enchantement ne peut-être utilisé que sur une arme.", ColorConstants.Red);
+
+          return;
+      }
+
+
+      player.craftJob.Start(Craft.Job.JobType.Enchantement, null, player, null, oItem, $"{spellId}_{(int)ip.PropertyType}_{ip.SubType}_{ip.CostTable}_{ip.CostTableValue}");
     }
   }
 }

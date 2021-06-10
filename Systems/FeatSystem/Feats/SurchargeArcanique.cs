@@ -11,7 +11,7 @@ namespace NWN.Systems
 
       if (!(oTarget is NwItem))
       {
-        oPC.SendServerMessage($"{oTarget.Name.ColorString(Color.WHITE)} n'est pas un objet et ne peut donc pas être surchargé.", Color.RED);
+        oPC.SendServerMessage($"{oTarget.Name.ColorString(ColorConstants.White)} n'est pas un objet et ne peut donc pas être surchargé.", ColorConstants.Red);
         return;
       }
 
@@ -31,12 +31,12 @@ namespace NWN.Systems
       if(dice <= surchargeLevel)
       {
         item.GetLocalVariable<int>("_AVAILABLE_ENCHANTEMENT_SLOT").Value += 1;
-        oPC.SendServerMessage($"En forçant à l'aide de votre puissance brute, vous parvenez à ajouter un emplacement de sort supplémentaire à votre {item.Name.ColorString(Color.WHITE)} !", Color.NAVY);
+        oPC.SendServerMessage($"En forçant à l'aide de votre puissance brute, vous parvenez à ajouter un emplacement de sort supplémentaire à votre {item.Name.ColorString(ColorConstants.White)} !", ColorConstants.Navy);
       }
       else if (dice > surchargeLevel + controlLevel)
       {
         item.Destroy();
-        oPC.SendServerMessage($"Vous forcez, forcez, et votre {item.Name.ColorString(Color.WHITE)} se brise sous l'excès infligé.", Color.PURPLE);
+        oPC.SendServerMessage($"Vous forcez, forcez, et votre {item.Name.ColorString(ColorConstants.White)} se brise sous l'excès infligé.", ColorConstants.Purple);
       }
     }
   }

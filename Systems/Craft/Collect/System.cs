@@ -112,7 +112,7 @@ namespace NWN.Systems.Craft.Collect
       if (player.oid.LoginCreature.GetLocalVariable<int>("_COLLECT_IN_PROGRESS").HasValue)
       {
         player.oid.LoginCreature.GetLocalVariable<int>("_COLLECT_CANCELLED").Value = 1;
-        player.oid.SendServerMessage("Annulation de la tâche en cours.", Color.ORANGE);
+        player.oid.SendServerMessage("Annulation de la tâche en cours.", ColorConstants.Orange);
         return;
       }
       

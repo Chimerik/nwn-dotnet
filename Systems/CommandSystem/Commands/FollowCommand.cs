@@ -14,7 +14,7 @@ namespace NWN.Systems
       if (ctx.oSender.ControlledCreature.MovementRate == MovementRate.Immobile
         || ctx.oSender.ControlledCreature.TotalWeight > int.Parse(NWScript.Get2DAString("encumbrance", "Heavy", ctx.oSender.ControlledCreature.GetAbilityScore(Ability.Strength))))
       {
-        ctx.oSender.SendServerMessage("Cette commande ne peut être utilisée en étant surchargé.", Color.RED);
+        ctx.oSender.SendServerMessage("Cette commande ne peut être utilisée en étant surchargé.", ColorConstants.Red);
         return;
       }
 
@@ -25,13 +25,13 @@ namespace NWN.Systems
       if (selection.Player.ControlledCreature.MovementRate == MovementRate.Immobile
             || selection.Player.ControlledCreature.TotalWeight > int.Parse(NWScript.Get2DAString("encumbrance", "Heavy", selection.Player.ControlledCreature.GetAbilityScore(Ability.Strength))))
       {
-        selection.Player.SendServerMessage("Cette commande ne peut être utilisée en étant surchargé.", Color.RED);
+        selection.Player.SendServerMessage("Cette commande ne peut être utilisée en étant surchargé.", ColorConstants.Red);
         return;
       }
 
       /*if(selection.Player.Area != ((NwCreature)selection.TargetObj).Area // TODO : A DECOMMENTER A LA FIN DE L'ALPHA
       {
-        selection.Player.SendServerMessage("Vous ne pouvez pas suivre quelqu'un qui ne se trouve pas dans la même zone que vous.", Color.RED);
+        selection.Player.SendServerMessage("Vous ne pouvez pas suivre quelqu'un qui ne se trouve pas dans la même zone que vous.", ColorConstants.Red);
         return;
       }*/
 

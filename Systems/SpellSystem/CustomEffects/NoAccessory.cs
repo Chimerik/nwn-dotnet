@@ -46,7 +46,7 @@ namespace NWN.Systems
           onItemValidateEquip.Result = EquipValidationResult.Denied;
 
           if (onItemValidateEquip.UsedBy.IsPlayerControlled)
-            onItemValidateEquip.UsedBy.ControllingPlayer.SendServerMessage("L'interdiction de port d'accessoire est en vigueur.", Color.RED);
+            onItemValidateEquip.UsedBy.ControllingPlayer.SendServerMessage("L'interdiction de port d'accessoire est en vigueur.", ColorConstants.Red);
           break;
       }
     }

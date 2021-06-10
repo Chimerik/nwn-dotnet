@@ -31,7 +31,7 @@ namespace NWN.Systems
       }
 
       if (onAssociateAdd.Owner.IsPlayerControlled)
-        onAssociateAdd.Owner.ControllingPlayer.SendServerMessage("L'interdiction d'usage d'invocations est en vigueur.", Color.RED);
+        onAssociateAdd.Owner.ControllingPlayer.SendServerMessage("L'interdiction d'usage d'invocations est en vigueur.", ColorConstants.Red);
     }
   }
 }

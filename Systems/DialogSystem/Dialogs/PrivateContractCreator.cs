@@ -182,7 +182,7 @@ namespace NWN.Systems
         player.oid.LoginCreature.GetLocalVariable<string>("_PLAYER_INPUT").Delete();
       }
     }
-    private void CreateContractPage(Player player)
+    private async void CreateContractPage(Player player)
     {
       int expirationDate = 30;
 
@@ -193,12 +193,12 @@ namespace NWN.Systems
 
       if (materialContractDictionnary.Count < 1)
       {
-        player.oid.SendServerMessage("Le contrat est vide. Veuillez y faire figurer des ressources avant de le valider.", Color.ORANGE);
+        player.oid.SendServerMessage("Le contrat est vide. Veuillez y faire figurer des ressources avant de le valider.", ColorConstants.Orange);
         player.menu.Close();
         return;
       }
 
-      NwItem contract = NwItem.Create("skillbookgeneriq", player.oid.LoginCreature, 1, "private_contract");
+      NwItem contract = await NwItem.Create("skillbookgeneriq", player.oid.LoginCreature, 1, "private_contract");
 
       int grandTotal = 0;
       string serializedContract = "";
@@ -232,7 +232,7 @@ namespace NWN.Systems
       contract.GetLocalVariable<int>("_CONTRACT_ID").Value = NWScript.SqlGetInt(query, 0);
       contract.Name = $"Contrat {NWScript.SqlGetInt(query, 0)} de {player.oid.LoginCreature.Name}";
 
-      player.oid.SendServerMessage("Votre contrat d'échange privé de ressources a bien été créé.", Color.OLIVE);
+      player.oid.SendServerMessage("Votre contrat d'échange privé de ressources a bien été créé.", ColorConstants.Red);
       player.oid.LoginCreature.AcquireItem(contract, true);
       player.menu.Close();
     }
@@ -303,7 +303,7 @@ namespace NWN.Systems
     {
       DeleteExpiredContract(player, contractId);
 
-      player.oid.SendServerMessage($"Le contrat {contractId} a été annulé.", Color.MAGENTA);
+      player.oid.SendServerMessage($"Le contrat {contractId} a été annulé.", ColorConstants.Magenta);
       DrawCurrentContractPage(player);
     }
     private void DeleteExpiredContract(Player player, int contractId)

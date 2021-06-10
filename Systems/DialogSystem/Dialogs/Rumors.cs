@@ -72,7 +72,7 @@ namespace NWN.Systems
       NWScript.SqlBindString(query, "@content", rumorContent);
       NWScript.SqlStep(query);
 
-      player.oid.SendServerMessage($"Héhé {rumorTitle.ColorString(Color.WHITE)}, c'est pas tombé dans l'oreille d'un sourd !", Color.PINK);
+      player.oid.SendServerMessage($"Héhé {rumorTitle.ColorString(ColorConstants.White)}, c'est pas tombé dans l'oreille d'un sourd !", ColorConstants.Pink);
       player.menu.Close();
 
       if(!player.oid.IsDM)
@@ -102,7 +102,7 @@ namespace NWN.Systems
       NWScript.SqlBindInt(deletionQuery, "@rowid", rumorId);
       NWScript.SqlStep(deletionQuery);
 
-      player.oid.SendServerMessage($"Votre rumeur {rumorTitle.ColorString(Color.WHITE)} a bien été supprimé", Color.PINK);
+      player.oid.SendServerMessage($"Votre rumeur {rumorTitle.ColorString(ColorConstants.White)} a bien été supprimé", ColorConstants.Pink);
       player.menu.Close();
     }
     private void DrawDMRumorsList()
@@ -146,7 +146,7 @@ namespace NWN.Systems
     private void HandleRumorSelected(string rumorContent)
     {
       string originalDesc = player.oid.ControlledCreature.Description;
-      string tempDescription = rumorTitle.ColorString(Color.ORANGE) + "\n\n" + rumorContent;
+      string tempDescription = rumorTitle.ColorString(ColorConstants.Orange) + "\n\n" + rumorContent;
       player.oid.ControlledCreature.Description = tempDescription;
       player.oid.ControlledCreature.ClearActionQueue();
       player.oid.ActionExamine(player.oid.ControlledCreature);

@@ -126,7 +126,7 @@ namespace NWN.Systems.Arena
 
         if (NWScript.SqlStep(query) == 0)
         {
-          player.oid.SendServerMessage("La boutique de récompenses n'a pas encore été initialisée. Le staff a été prévenu de cette erreur", Color.RED);
+          player.oid.SendServerMessage("La boutique de récompenses n'a pas encore été initialisée. Le staff a été prévenu de cette erreur", ColorConstants.Red);
           NWN.Utils.LogMessageToDMs("La boutique de récompense de l'arène PvE n'est pas initialisée.");
           return;
         }

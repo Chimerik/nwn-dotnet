@@ -16,7 +16,7 @@ namespace NWN.Systems.Items.ItemUseHandlers
 
       if (oPC.Distance(oTarget) > 5.0f)
       {
-        player.oid.SendServerMessage("Vous êtes trop éloigné de votre cible pour démarrer l'extraction.", Color.ORANGE);
+        player.oid.SendServerMessage("Vous êtes trop éloigné de votre cible pour démarrer l'extraction.", ColorConstants.Orange);
         return;
       }
 
@@ -58,11 +58,11 @@ namespace NWN.Systems.Items.ItemUseHandlers
             );
           }
           else
-            player.oid.SendServerMessage("La cible doit être abattue avant de pouvoir commencer le dépeçage.", Color.ORANGE);
+            player.oid.SendServerMessage("La cible doit être abattue avant de pouvoir commencer le dépeçage.", ColorConstants.Orange);
           break;
 
         default:
-          player.oid.SendServerMessage($"{oTarget.Name} n'est pas une cible valide pour l'extraction de matières premières.", Color.RED);
+          player.oid.SendServerMessage($"{oTarget.Name} n'est pas une cible valide pour l'extraction de matières premières.", ColorConstants.Red);
           break;
       }
     }

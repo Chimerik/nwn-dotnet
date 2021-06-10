@@ -3,7 +3,6 @@ using NWN.API;
 using NWN.API.Constants;
 using NWN.Core;
 using NWN.Core.NWNX;
-using static NWN.Systems.Craft.Collect.Config;
 
 namespace NWN.Systems
 {
@@ -294,19 +293,25 @@ namespace NWN.Systems
       if (durabilityState == 100)
         return "Flambant neuf".ColorString(new Color(32, 255, 32));
       else if (durabilityState < 100 && durabilityState >= 75)
-        return "Très bon état".ColorString(Color.GREEN);
+        return "Très bon état".ColorString(ColorConstants.Green);
       else if (durabilityState < 75 && durabilityState >= 50)
-        return "Bon état".ColorString(Color.OLIVE);
+        return "Bon état".ColorString(ColorConstants.Red);
       else if (durabilityState < 50 && durabilityState >= 25)
-        return "Usé".ColorString(Color.LIME);
+        return "Usé".ColorString(ColorConstants.Lime);
       else if (durabilityState < 25 && durabilityState >= 5)
-        return "Abimé".ColorString(Color.ORANGE);
+        return "Abimé".ColorString(ColorConstants.Orange);
       else if (durabilityState < 5 && durabilityState >= 1)
-        return "Vétuste".ColorString(Color.RED);
+        return "Vétuste".ColorString(ColorConstants.Red);
       else if (durabilityState < 1)
-        return "Ruiné".ColorString(Color.RED);
+        return "Ruiné".ColorString(ColorConstants.Red);
 
       return "";
+    }
+    public static int GetItemDamageType(NwItem item)
+    {
+      if (!int.TryParse(NWScript.Get2DAString("baseitems", "WeaponType", (int)item.BaseItemType), out int damageType))
+        return 3; // par défaut, on retourne slashing
+      return damageType;
     }
   }
 }

@@ -13,7 +13,7 @@ namespace NWN.Systems
     public static async void HandleDamageEvent(OnCreatureDamage onDamage)
     {
       await NwModule.Instance.WaitForObjectContext();
-
+      
       if (onDamage.Target.GetLocalVariable<int>("_IS_GNOME_MECH").HasValue && onDamage.DamageData.Electrical > 0)
       {
         onDamage.Target.ApplyEffect(EffectDuration.Instant, Effect.Heal(onDamage.DamageData.Electrical));

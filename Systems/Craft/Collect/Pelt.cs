@@ -14,7 +14,7 @@ namespace NWN.Systems.Craft.Collect
     {
       if (oPlaceable == null)
       {
-        player.oid.SendServerMessage("L'animal ciblé n'existe plus, impossible de mener à bien l'extraction.", Color.MAROON);
+        player.oid.SendServerMessage("L'animal ciblé n'existe plus, impossible de mener à bien l'extraction.", ColorConstants.Maroon);
         return;
       }
 
@@ -37,8 +37,6 @@ namespace NWN.Systems.Craft.Collect
 
       Task playerInput = NwTask.Run(async () =>
       {
-        await NwModule.Instance.WaitForObjectContext();
-
         int remainingOre = oPlaceable.GetLocalVariable<int>("_ORE_AMOUNT").Value;
         if (remainingOre <= 0)
         {
@@ -52,20 +50,20 @@ namespace NWN.Systems.Craft.Collect
           oPlaceable.GetLocalVariable<int>("_ORE_AMOUNT").Value = remainingOre;
         }
 
-        NwItem ore = NwItem.Create("pelt", player.oid.LoginCreature, miningYield, oPlaceable.Name);
+        NwItem ore = await NwItem.Create("pelt", player.oid.LoginCreature, miningYield, oPlaceable.Name);
         ore.Name = oPlaceable.Name;
       });
 
       ItemUtils.DecreaseItemDurability(oExtractor);
     }
 
-    public static void HandleCompleteProspectionCycle(PlayerSystem.Player player)
+    public static async void HandleCompleteProspectionCycle(PlayerSystem.Player player)
     {
       NwArea area = player.oid.LoginCreature.Area;
 
       if (area.GetLocalVariable<int>("_AREA_LEVEL").Value < 2)
       {
-        player.oid.SendServerMessage("Cet endroit ne semble disposer d'aucun animal dont la peau soit réutilisable.", Color.MAROON);
+        player.oid.SendServerMessage("Cet endroit ne semble disposer d'aucun animal dont la peau soit réutilisable.", ColorConstants.Maroon);
         return;
       }
 
@@ -74,7 +72,7 @@ namespace NWN.Systems.Craft.Collect
       
       if (NWScript.SqlStep(query) == 0 || NWScript.SqlGetInt(query, 0) < 1)
       {
-        player.oid.SendServerMessage("Cette zone est épuisée. Les animaux restants disposant de propriétés intéressantes ne semblent pas encore avoir atteint l'âge d'être exploités.", Color.MAROON);
+        player.oid.SendServerMessage("Cette zone est épuisée. Les animaux restants disposant de propriétés intéressantes ne semblent pas encore avoir atteint l'âge d'être exploités.", ColorConstants.Maroon);
         return;
       }
 
@@ -96,7 +94,8 @@ namespace NWN.Systems.Craft.Collect
         {
           NwCreature newRock = NwCreature.Create(GetRandomPeltSpawnFromAreaLevel(area.GetLocalVariable<int>("_AREA_LEVEL").Value), resourcePoint.Location);
           newRock.GetLocalVariable<int>("_ORE_AMOUNT").Value = 10 * iRandom + 10 * iRandom * skillBonus / 100;
-          NwItem.Create("undroppable_item", newRock).Droppable = true;
+          NwItem extractedResource = await NwItem.Create("undroppable_item", newRock);
+          extractedResource.Droppable = true;
           resourcePoint.Destroy();
           nbSpawns += newRock.Name + ", ";
         }
@@ -104,14 +103,14 @@ namespace NWN.Systems.Craft.Collect
 
       if (nbSpawns.Length > 0)
       {
-        player.oid.SendServerMessage($"Votre traque a permis d'identifier les traces des créatures suivantes : {nbSpawns.ColorString(Color.WHITE)} leurs peaux semblent exploitables, à vous de jouer !", Color.GREEN);
+        player.oid.SendServerMessage($"Votre traque a permis d'identifier les traces des créatures suivantes : {nbSpawns.ColorString(ColorConstants.White)} leurs peaux semblent exploitables, à vous de jouer !", ColorConstants.Green);
 
         query = NWScript.SqlPrepareQueryCampaign(Systems.Config.database, $"UPDATE areaResourceStock SET animals = animals - 1 where areaTag = @areaTag");
         NWScript.SqlBindString(query, "@areaTag", area.Tag);
         NWScript.SqlStep(query);
       }
       else
-        player.oid.SendServerMessage("Votre traque ne semble pas avoir aboutie au repérage d'animaux aux propriétés exploitables.", Color.OLIVE);
+        player.oid.SendServerMessage("Votre traque ne semble pas avoir aboutie au repérage d'animaux aux propriétés exploitables.", ColorConstants.Red);
     }
   }
 }

@@ -1,6 +1,5 @@
 ﻿using NWN.Core;
 using NWN.API;
-using NWN.API.Constants;
 using System.Collections.Generic;
 
 namespace NWN.Systems
@@ -54,7 +53,7 @@ namespace NWN.Systems
       NWScript.SqlBindString(quickbarQuery, "@serializedQuickbar", player.oid.ControlledCreature.SerializeQuickbar().ToBase64EncodedString());
       NWScript.SqlStep(quickbarQuery);
 
-      player.oid.SendServerMessage($"Votre barre de raccourcis {quickBarName.ColorString(Color.WHITE)} a bien été enregistrée !", new Color(32, 255, 32));
+      player.oid.SendServerMessage($"Votre barre de raccourcis {quickBarName.ColorString(ColorConstants.White)} a bien été enregistrée !", new Color(32, 255, 32));
 
       DrawQuickbarWelcomePage();
     }
@@ -110,14 +109,14 @@ namespace NWN.Systems
       NWScript.SqlBindString(query, "@quickbarName", quickbarName);
       NWScript.SqlStep(query);
 
-      player.oid.SendServerMessage($"Votre barre de raccourcis {quickbarName.ColorString(Color.WHITE)} a bien été supprimée.", new Color(32, 255, 32));
+      player.oid.SendServerMessage($"Votre barre de raccourcis {quickbarName.ColorString(ColorConstants.White)} a bien été supprimée.", new Color(32, 255, 32));
       DrawQuickBarList();
     }
     private void LoadQuickbar(string quickbarName, string serializedQuickbar)
     {
       player.oid.ControlledCreature.DeserializeQuickbar(serializedQuickbar.ToByteArray());
 
-      player.oid.SendServerMessage($"Votre barre de raccourcis {quickbarName.ColorString(Color.WHITE)} a bien été chargée.", new Color(32, 255, 32));
+      player.oid.SendServerMessage($"Votre barre de raccourcis {quickbarName.ColorString(ColorConstants.White)} a bien été chargée.", new Color(32, 255, 32));
       player.menu.Close();
     }
   }

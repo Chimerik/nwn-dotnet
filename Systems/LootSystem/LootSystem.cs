@@ -30,7 +30,7 @@ namespace NWN.Systems
     }
     private void InitChestArea()
     {
-      NwArea area = NwModule.Instance.Areas.Where(a => a.Tag == CHEST_AREA_TAG).FirstOrDefault();
+      NwArea area = NwModule.Instance.Areas.FirstOrDefault(a => a.Tag == CHEST_AREA_TAG);
       if (area == null)
       {
         Task waitForDiscordBot = NwTask.Run(async () =>
@@ -63,18 +63,18 @@ namespace NWN.Systems
         oChest.OnClose += OnLootConfigContainerClose;
       }
 
-      InitializeLootChestFromArray(NwModule.FindObjectsWithTag<NwPlaceable>("low_blueprints").FirstOrDefault(), Craft.Collect.System.lowBlueprints);
-      InitializeLootChestFromArray(NwModule.FindObjectsWithTag<NwPlaceable>("medium_blueprints").FirstOrDefault(), Craft.Collect.System.mediumBlueprints);
+      InitializeLootChestFromArray(NwObject.FindObjectsWithTag<NwPlaceable>("low_blueprints").FirstOrDefault(), Craft.Collect.System.lowBlueprints);
+      InitializeLootChestFromArray(NwObject.FindObjectsWithTag<NwPlaceable>("medium_blueprints").FirstOrDefault(), Craft.Collect.System.mediumBlueprints);
 
-      InitializeLootChestFromFeatArray(NwModule.FindObjectsWithTag<NwPlaceable>("low_skillbooks").FirstOrDefault(), SkillSystem.lowSkillBooks);
-      InitializeLootChestFromFeatArray(NwModule.FindObjectsWithTag<NwPlaceable>("medium_skillbooks").FirstOrDefault(), SkillSystem.mediumSkillBooks);
+      InitializeLootChestFromFeatArray(NwObject.FindObjectsWithTag<NwPlaceable>("low_skillbooks").FirstOrDefault(), SkillSystem.lowSkillBooks);
+      InitializeLootChestFromFeatArray(NwObject.FindObjectsWithTag<NwPlaceable>("medium_skillbooks").FirstOrDefault(), SkillSystem.mediumSkillBooks);
 
-      InitializeLootChestFromScrollArray(NwModule.FindObjectsWithTag<NwPlaceable>("low_enchantements").FirstOrDefault(), SpellSystem.lowEnchantements);
-      InitializeLootChestFromScrollArray(NwModule.FindObjectsWithTag<NwPlaceable>("medium_enchantements").FirstOrDefault(), SpellSystem.mediumEnchantements);
-      InitializeLootChestFromScrollArray(NwModule.FindObjectsWithTag<NwPlaceable>("high_enchantements").FirstOrDefault(), SpellSystem.highEnchantements);
+      InitializeLootChestFromScrollArray(NwObject.FindObjectsWithTag<NwPlaceable>("low_enchantements").FirstOrDefault(), SpellSystem.lowEnchantements);
+      InitializeLootChestFromScrollArray(NwObject.FindObjectsWithTag<NwPlaceable>("medium_enchantements").FirstOrDefault(), SpellSystem.mediumEnchantements);
+      InitializeLootChestFromScrollArray(NwObject.FindObjectsWithTag<NwPlaceable>("high_enchantements").FirstOrDefault(), SpellSystem.highEnchantements);
     }
 
-    private void InitializeLootChestFromArray(NwPlaceable oChest, int[] array)
+    private async void InitializeLootChestFromArray(NwPlaceable oChest, int[] array)
     {
       foreach (int baseItemType in array)
       {
@@ -83,18 +83,18 @@ namespace NWN.Systems
         if (!Craft.Collect.System.blueprintDictionnary.ContainsKey(baseItemType))
           Craft.Collect.System.blueprintDictionnary.Add(baseItemType, blueprint);
 
-        NwItem oBlueprint = NwItem.Create("blueprintgeneric", oChest, 1, "blueprint");
+        NwItem oBlueprint = await NwItem.Create("blueprintgeneric", oChest, 1, "blueprint");
         oBlueprint.Name = $"Patron : {blueprint.name}";
         oBlueprint.GetLocalVariable<int>("_BASE_ITEM_TYPE").Value = baseItemType;
       }
 
       UpdateChestTagToLootsDic(oChest);
     }
-    private void InitializeLootChestFromFeatArray(NwPlaceable oChest, Feat[] array)
+    private async void InitializeLootChestFromFeatArray(NwPlaceable oChest, Feat[] array)
     {
       foreach (Feat feat in array)
       {
-        NwItem skillBook = NwItem.Create("skillbookgeneriq", oChest, 1, "skillbook");
+        NwItem skillBook = await NwItem.Create("skillbookgeneriq", oChest, 1, "skillbook");
         ItemPlugin.SetItemAppearance(skillBook, NWScript.ITEM_APPR_TYPE_SIMPLE_MODEL, 2, NWN.Utils.random.Next(0, 50));
         skillBook.GetLocalVariable<int>("_SKILL_ID").Value = (int)feat;
 
@@ -118,11 +118,11 @@ namespace NWN.Systems
 
       UpdateChestTagToLootsDic(oChest);
     }
-    private void InitializeLootChestFromScrollArray(NwPlaceable oChest, int[] array)
+    private async void InitializeLootChestFromScrollArray(NwPlaceable oChest, int[] array)
     {
       foreach (int itemPropertyId in array)
       {
-        NwItem oScroll = NwItem.Create("spellscroll", oChest, 1, "scroll");
+        NwItem oScroll = await NwItem.Create("spellscroll", oChest, 1, "scroll");
         int spellId = int.Parse(NWScript.Get2DAString("iprp_spells", "SpellIndex", itemPropertyId));
         oScroll.Name = $"{NWScript.GetStringByStrRef(int.Parse(NWScript.Get2DAString("spells", "Name", spellId)))}";
         oScroll.Description = $"{NWScript.GetStringByStrRef(int.Parse(NWScript.Get2DAString("spells", "SpellDesc", spellId)))}";

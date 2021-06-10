@@ -35,7 +35,7 @@ namespace NWN.Systems.Arena
 
       player.menu.titleLines = new List<string>()
         {
-          $"Vous remportez ce round. Points de la tentative : {player.pveArena.currentPoints.ToString().ColorString(Color.RED)} points de victoire !",
+          $"Vous remportez ce round. Points de la tentative : {player.pveArena.currentPoints.ToString().ColorString(ColorConstants.Red)} points de victoire !",
           "Que souhaitez vous faire ?"
         };
 

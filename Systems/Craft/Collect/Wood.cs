@@ -13,7 +13,7 @@ namespace NWN.Systems.Craft.Collect
     {
       if (oPlaceable == null)
       {
-        player.oid.SendServerMessage("L'arbre ciblé n'existe plus, impossible de mener à bien l'extraction.", Color.MAGENTA);
+        player.oid.SendServerMessage("L'arbre ciblé n'existe plus, impossible de mener à bien l'extraction.", ColorConstants.Magenta);
         return;
       }
 
@@ -36,8 +36,6 @@ namespace NWN.Systems.Craft.Collect
 
       Task playerInput = NwTask.Run(async () =>
       {
-        await NwModule.Instance.WaitForObjectContext();
-
         int remainingOre = oPlaceable.GetLocalVariable<int>("_ORE_AMOUNT").Value - miningYield;
         if (remainingOre <= 0)
         {
@@ -51,7 +49,7 @@ namespace NWN.Systems.Craft.Collect
           oPlaceable.GetLocalVariable<int>("_ORE_AMOUNT").Value = remainingOre;
         }
 
-        NwItem ore = NwItem.Create("wood", player.oid.LoginCreature, miningYield, oPlaceable.Name);
+        NwItem ore = await NwItem.Create("wood", player.oid.LoginCreature, miningYield, oPlaceable.Name);
         ore.Name = oPlaceable.Name;
       });
 
@@ -64,7 +62,7 @@ namespace NWN.Systems.Craft.Collect
 
       if (area.GetLocalVariable<int>("_AREA_LEVEL").Value < 2)
       {
-        player.oid.SendServerMessage("Cet endroit ne semble disposer d'aucune ressource récoltable.", Color.MAROON);
+        player.oid.SendServerMessage("Cet endroit ne semble disposer d'aucune ressource récoltable.", ColorConstants.Maroon);
         return;
       }
 
@@ -73,7 +71,7 @@ namespace NWN.Systems.Craft.Collect
       
       if (NWScript.SqlStep(query) == 0 || NWScript.SqlGetInt(query, 0) < 1)
       {
-        player.oid.SendServerMessage("Cette zone est épuisée. Les arbres restant disposant de propriétés intéressantes ne semblent pas encore avoir atteint l'âge d'être exploités.", Color.MAROON);
+        player.oid.SendServerMessage("Cette zone est épuisée. Les arbres restant disposant de propriétés intéressantes ne semblent pas encore avoir atteint l'âge d'être exploités.", ColorConstants.Maroon);
         return;
       }
 
@@ -103,14 +101,14 @@ namespace NWN.Systems.Craft.Collect
 
       if (nbSpawns > 0)
       {
-        player.oid.SendServerMessage($"Votre repérage a permis d'identifier {nbSpawns} arbre(s) aux propriétés exploitables !", Color.GREEN);
+        player.oid.SendServerMessage($"Votre repérage a permis d'identifier {nbSpawns} arbre(s) aux propriétés exploitables !", ColorConstants.Green);
 
         query = NWScript.SqlPrepareQueryCampaign(Systems.Config.database, $"UPDATE areaResourceStock SET wood = wood - 1 where areaTag = @areaTag");
         NWScript.SqlBindString(query, "@areaTag", area.Tag);
         NWScript.SqlStep(query);
       }
       else
-        player.oid.SendServerMessage($"Votre repérage semble pas avoir abouti à la découverte d'un arbre aux propriétés exploitables.", Color.MAROON);
+        player.oid.SendServerMessage($"Votre repérage semble pas avoir abouti à la découverte d'un arbre aux propriétés exploitables.", ColorConstants.Maroon);
     }
   }
 }

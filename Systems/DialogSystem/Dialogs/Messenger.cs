@@ -85,7 +85,7 @@ namespace NWN.Systems
       NWScript.SqlStep(query);
 
       string originalDesc = player.oid.LoginCreature.Description;
-      string tempDescription = title.ColorString(Color.ORANGE) + "\n\n" + message;
+      string tempDescription = title.ColorString(ColorConstants.Orange) + "\n\n" + message;
       player.oid.ControlledCreature.Description = tempDescription;
       await player.oid.ControlledCreature.ClearActionQueue();
       await player.oid.ActionExamine(player.oid.ControlledCreature);
@@ -102,8 +102,7 @@ namespace NWN.Systems
       NWScript.SqlBindInt(query, "@messageId", messageId);
       NWScript.SqlStep(query);
 
-      await NwModule.Instance.WaitForObjectContext();
-      NwItem letter = NwItem.Create("skillbookgeneriq", player.oid.ControlledCreature, 1, "letter");
+      NwItem letter = await NwItem.Create("skillbookgeneriq", player.oid.ControlledCreature, 1, "letter");
       letter.Name = title;
       letter.Description = message;
     }

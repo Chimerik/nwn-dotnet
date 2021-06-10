@@ -13,6 +13,10 @@ namespace NWN.Systems
   {
     public Bibliothecaire(Player player, NwCreature bibliothecaire)
     {
+      HandleBiblitohecaire(player, bibliothecaire);
+    }
+    private async void HandleBiblitohecaire(Player player, NwCreature bibliothecaire)
+    { 
       if(bibliothecaire.Area.GetLocalVariable<int>("_CANT_TRIGGER").HasNothing)
       {
         bibliothecaire.GetLocalVariable<int>("_CANT_TRIGGER").Value = 1;
@@ -24,10 +28,10 @@ namespace NWN.Systems
 
         NWScript.SetLocalObject(shop, "_STORE_NPC", bibliothecaire);
 
-        if (NWN.Utils.random.Next(1, 101) < 21)
+        if (Utils.random.Next(1, 101) < 21)
         {
           int feat = (int)SkillSystem.languageSkillBooks[NWN.Utils.random.Next(0, SkillSystem.languageSkillBooks.Length)];
-          NwItem skillBook = NwItem.Create("skillbookgeneriq", shop, 1 , "skillbook");
+          NwItem skillBook = await NwItem.Create("skillbookgeneriq", shop, 1 , "skillbook");
           ItemPlugin.SetItemAppearance(skillBook, NWScript.ITEM_APPR_TYPE_SIMPLE_MODEL, 2, NWN.Utils.random.Next(0, 50));
           skillBook.GetLocalVariable<int>("_SKILL_ID").Value = feat;
 
@@ -42,7 +46,7 @@ namespace NWN.Systems
         }
         else
         {
-          NwItem skillBook = NwItem.Create("skillbookgeneriq", shop, 1, "ruined_book");
+          NwItem skillBook = await NwItem.Create("skillbookgeneriq", shop, 1, "ruined_book");
           ItemPlugin.SetItemAppearance(skillBook, NWScript.ITEM_APPR_TYPE_SIMPLE_MODEL, 2, NWN.Utils.random.Next(0, 50));
           skillBook.Name = "Ouvrage ruiné";
           skillBook.Description = "Cet ouvrage est abîmé au-delà de toute rédemption. Il est même trop humide pour faire du feu.\n\n Il est fort probable qu'il se désagrège entre vos doigts si vous tentez de l'ouvrir.";

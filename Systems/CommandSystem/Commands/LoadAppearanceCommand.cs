@@ -14,7 +14,7 @@ namespace NWN.Systems
   {
     public LoadAppearance(NwPlayer oPC)
     {
-      oPC.SendServerMessage("Veuillez sélectionnner l'objet dont vous souhaitez modifier l'apparence.", Color.ROSE);
+      oPC.SendServerMessage("Veuillez sélectionnner l'objet dont vous souhaitez modifier l'apparence.", ColorConstants.Rose);
       PlayerSystem.cursorTargetService.EnterTargetMode(oPC, OnModifyAppearanceItemSelected, ObjectTypes.Item, MouseCursor.Create);
     }
     private static void OnModifyAppearanceItemSelected(ModuleEvents.OnPlayerTarget selection)
@@ -27,7 +27,7 @@ namespace NWN.Systems
       // TODO : ajouter un métier permettant de modifier n'importe quelle tenue
       if (item.GetLocalVariable<string>("_ORIGINAL_CRAFTER_NAME").HasValue && item.GetLocalVariable<string>("_ORIGINAL_CRAFTER_NAME").Value != player.oid.LoginCreature.Name)
       {
-        player.oid.SendServerMessage($"Il est indiqué : Pour tout modification, s'adresser à {item.GetLocalVariable<string>("_ORIGINAL_CRAFTER_NAME").Value.ColorString(Color.WHITE)}", Color.ORANGE);
+        player.oid.SendServerMessage($"Il est indiqué : Pour tout modification, s'adresser à {item.GetLocalVariable<string>("_ORIGINAL_CRAFTER_NAME").Value.ColorString(ColorConstants.White)}", ColorConstants.Orange);
         return;
       }
 
@@ -37,7 +37,7 @@ namespace NWN.Systems
 
       player.menu.Clear();
       player.menu.titleLines = new List<string>() {
-        $"Voici la liste de vos apparences sauvegardées qui peuvent être appliquées sur votre {item.Name.ColorString(Color.WHITE)}".ColorString(Color.NAVY)
+        $"Voici la liste de vos apparences sauvegardées qui peuvent être appliquées sur votre {item.Name.ColorString(ColorConstants.White)}".ColorString(ColorConstants.Navy)
       };
 
       var query = NWScript.SqlPrepareQueryCampaign(Config.database, $"SELECT appearanceName, serializedAppearance from playerItemAppearance where characterId = @characterId and AC = @AC and baseItemType = @baseItemType");
@@ -47,7 +47,7 @@ namespace NWN.Systems
 
       while (NWScript.SqlStep(query) > 0)
       {
-        string message = $"- {NWScript.SqlGetString(query, 0)}".ColorString(Color.CYAN);
+        string message = $"- {NWScript.SqlGetString(query, 0)}".ColorString(ColorConstants.Cyan);
         string appearance = NWScript.SqlGetString(query, 1);
 
         player.menu.choices.Add((
@@ -68,7 +68,7 @@ namespace NWN.Systems
 
       if(item == null || item.Possessor != player.oid.ControlledCreature)
       {
-        player.oid.SendServerMessage($"L'objet dont vous essayez de modifier l'apparence n'existe plus ou n'est plus en votre possession !", Color.RED);
+        player.oid.SendServerMessage($"L'objet dont vous essayez de modifier l'apparence n'existe plus ou n'est plus en votre possession !", ColorConstants.Red);
         return;
       }
 
@@ -108,7 +108,7 @@ namespace NWN.Systems
         ItemSystem.feedbackService.RemoveFeedbackMessageFilter(FeedbackMessage.WeightTooEncumberedWalkSlow, player.oid);
         ItemSystem.feedbackService.RemoveFeedbackMessageFilter(FeedbackMessage.SendMessageToPc, player.oid);
 
-        player.oid.SendServerMessage($"L'apparence de votre {item.Name.ColorString(Color.WHITE)} a bien été modifiée.", Color.GREEN);
+        player.oid.SendServerMessage($"L'apparence de votre {item.Name.ColorString(ColorConstants.White)} a bien été modifiée.", ColorConstants.Green);
       });
     }
   }

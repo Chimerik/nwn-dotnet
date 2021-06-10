@@ -4,7 +4,6 @@ using System.Threading.Tasks;
 using NWN.API;
 using NWN.API.Constants;
 using NWN.API.Events;
-using NWNX.API;
 using NWN.Core;
 using NWN.Core.NWNX;
 
@@ -27,13 +26,13 @@ namespace NWN.Systems
           await NwTask.WaitUntil(() => player.oid.LoginCreature.Area != null);
           SendPlayerToLimbo(player);
           CreatePlayerCorpse(player, playerDeathLocation);
-          player.oid.SendServerMessage($"{player.oid.LoginCreature.Gold.ToString().ColorString(Color.WHITE)} pièces d'or ont été abandonnées sur place !", Color.RED);
+          player.oid.SendServerMessage($"{player.oid.LoginCreature.Gold.ToString().ColorString(ColorConstants.White)} pièces d'or ont été abandonnées sur place !", ColorConstants.Red);
           player.oid.LoginCreature.Gold = 0;
           StripPlayerOfCraftResources(player);
         });
       }
     }
-    private static void CreatePlayerCorpse(Player player, API.Location deathLocation)
+    private static async void CreatePlayerCorpse(Player player, API.Location deathLocation)
     {
       NwCreature oPCCorpse = player.oid.LoginCreature.Clone(deathLocation, "pccorpse");
 

@@ -13,7 +13,7 @@ namespace NWN.Systems.Craft.Collect
     {
       if (oPlaceable == null)
       {
-        player.oid.SendServerMessage("Le filon ciblé n'existe plus, impossible de mener à bien l'extraction.", Color.MAGENTA);
+        player.oid.SendServerMessage("Le filon ciblé n'existe plus, impossible de mener à bien l'extraction.", ColorConstants.Magenta);
         return;
       }
 
@@ -35,8 +35,6 @@ namespace NWN.Systems.Craft.Collect
 
       Task playerInput = NwTask.Run(async () =>
       {
-        await NwModule.Instance.WaitForObjectContext();
-
         int remainingOre = oPlaceable.GetLocalVariable<int>("_ORE_AMOUNT").Value - miningYield;
         if (remainingOre <= 0)
         {
@@ -50,7 +48,7 @@ namespace NWN.Systems.Craft.Collect
           oPlaceable.GetLocalVariable<int>("_ORE_AMOUNT").Value = remainingOre;
         }
 
-        NwItem ore = NwItem.Create("ore", player.oid.LoginCreature, miningYield, oPlaceable.Name);
+        NwItem ore = await NwItem .Create("ore", player.oid.LoginCreature, miningYield, oPlaceable.Name);
         ore.Name = oPlaceable.Name;
       });
       
@@ -61,7 +59,7 @@ namespace NWN.Systems.Craft.Collect
     {
       if (oPlaceable is null || player.oid.LoginCreature.Distance(oPlaceable) > 5.0f)
       {
-        player.oid.SendServerMessage("Vous êtes trop éloigné de la veine ciblée, ou alors celui-ci n'existe plus.", Color.MAGENTA);
+        player.oid.SendServerMessage("Vous êtes trop éloigné de la veine ciblée, ou alors celui-ci n'existe plus.", ColorConstants.Magenta);
         return;
       }
 
@@ -72,7 +70,7 @@ namespace NWN.Systems.Craft.Collect
 
       if (NWScript.SqlStep(query) == 0 || NWScript.SqlGetInt(query, 0) < 1)
       {
-        player.oid.SendServerMessage("Cette veine est épuisée. Reste à espérer qu'un prochain glissement de terrain permette d'atteindre de nouveaux filons.", Color.MAROON);
+        player.oid.SendServerMessage("Cette veine est épuisée. Reste à espérer qu'un prochain glissement de terrain permette d'atteindre de nouveaux filons.", ColorConstants.Maroon);
         return;
       }
 
@@ -89,7 +87,7 @@ namespace NWN.Systems.Craft.Collect
 
       if(respawnChance <= 0)
       {
-        player.oid.SendServerMessage("Vous ne maîtrisez pas suffisament l'art de la prospection de minerai pour débusquer de nouveaux filons.", Color.MAROON);
+        player.oid.SendServerMessage("Vous ne maîtrisez pas suffisament l'art de la prospection de minerai pour débusquer de nouveaux filons.", ColorConstants.Maroon);
         return;
       }
 
@@ -108,14 +106,14 @@ namespace NWN.Systems.Craft.Collect
 
       if (nbSpawns > 0)
       {
-        player.oid.SendServerMessage($"Votre prospection a permis de mettre à découvert {nbSpawns} veine(s) de minerai !", Color.GREEN);
+        player.oid.SendServerMessage($"Votre prospection a permis de mettre à découvert {nbSpawns} veine(s) de minerai !", ColorConstants.Green);
 
         query = NWScript.SqlPrepareQueryCampaign(Systems.Config.database, $"UPDATE areaResourceStock SET mining = mining - 1 where areaTag = @areaTag");
         NWScript.SqlBindString(query, "@areaTag", player.oid.LoginCreature.Area.Tag);
         NWScript.SqlStep(query);
       }
       else
-        player.oid.SendServerMessage($"Votre prospection ne semble pas avoir abouti à la découverte d'une veine exploitable", Color.MAROON);
+        player.oid.SendServerMessage($"Votre prospection ne semble pas avoir abouti à la découverte d'une veine exploitable", ColorConstants.Maroon);
 
       ItemUtils.DecreaseItemDurability(oExtractor);
     }

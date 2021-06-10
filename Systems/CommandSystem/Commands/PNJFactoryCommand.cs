@@ -52,7 +52,7 @@ namespace NWN.Systems
 
       player.menu.Clear();
 
-      player.menu.titleLines.Add($"Cible de la sélection : {oPNJ.Name.ColorString(Color.ORANGE)} Que souhaitez-vous faire ?");
+      player.menu.titleLines.Add($"Cible de la sélection : {oPNJ.Name.ColorString(ColorConstants.Orange)} Que souhaitez-vous faire ?");
 
       player.menu.choices.Add(("Modifier le prénom", () => ModifyPNJName(player, oPNJ, 0)));
       player.menu.choices.Add(("Modifier le nom", () => ModifyPNJName(player, oPNJ, 1)));
@@ -79,7 +79,7 @@ namespace NWN.Systems
     {
       player.menu.Clear();
 
-      player.menu.titleLines.Add($"Cible de la sélection : {oPNJ.Name.ColorString(Color.ORANGE)}.");
+      player.menu.titleLines.Add($"Cible de la sélection : {oPNJ.Name.ColorString(ColorConstants.Orange)}.");
       player.menu.titleLines.Add($"Veuillez indiquer le nouveau nom à l'oral.");
 
       player.menu.Draw();
@@ -90,7 +90,7 @@ namespace NWN.Systems
       {
         CreaturePlugin.SetOriginalName(oPNJ, player.oid.LoginCreature.GetLocalVariable<string>("_PLAYER_INPUT").Value, isLastName);
         oPNJ.Name = player.oid.LoginCreature.GetLocalVariable<string>("_PLAYER_INPUT").Value;
-        player.oid.SendServerMessage($"Le nom du PNJ a été modifié à {oPNJ.Name.ColorString(Color.WHITE)}", Color.BLUE);
+        player.oid.SendServerMessage($"Le nom du PNJ a été modifié à {oPNJ.Name.ColorString(ColorConstants.White)}", ColorConstants.Blue);
         DrawPNJSelectionWelcome(player.oid, oPNJ);
         player.oid.LoginCreature.GetLocalVariable<string>("_PLAYER_INPUT").Delete();
       }
@@ -99,7 +99,7 @@ namespace NWN.Systems
     {
       player.menu.Clear();
 
-      player.menu.titleLines.Add($"Cible de la sélection : {oPNJ.Name.ColorString(Color.ORANGE)}.");
+      player.menu.titleLines.Add($"Cible de la sélection : {oPNJ.Name.ColorString(ColorConstants.Orange)}.");
       player.menu.titleLines.Add($"Veuillez indiquer la nouvelle description à l'oral.");
 
       player.menu.Draw();
@@ -109,7 +109,7 @@ namespace NWN.Systems
       if (awaitedValue)
       {
         oPNJ.Description = player.oid.LoginCreature.GetLocalVariable<string>("_PLAYER_INPUT").Value;
-        player.oid.SendServerMessage($"La description de {oPNJ.Name.ColorString(Color.WHITE)} a été modifiée.", Color.BLUE);
+        player.oid.SendServerMessage($"La description de {oPNJ.Name.ColorString(ColorConstants.White)} a été modifiée.", ColorConstants.Blue);
         DrawPNJSelectionWelcome(player.oid, oPNJ);
         player.oid.LoginCreature.GetLocalVariable<string>("_PLAYER_INPUT").Delete();
       }
@@ -118,7 +118,7 @@ namespace NWN.Systems
     {
       player.menu.Clear();
 
-      player.menu.titleLines.Add($"Cible de la sélection : {oPNJ.Name.ColorString(Color.ORANGE)}.");
+      player.menu.titleLines.Add($"Cible de la sélection : {oPNJ.Name.ColorString(ColorConstants.Orange)}.");
       player.menu.titleLines.Add($"Veuillez indiquer la valeur de CA de base à l'oral.");
 
       player.menu.Draw();
@@ -128,7 +128,7 @@ namespace NWN.Systems
       if (awaitedValue)
       {
         CreaturePlugin.SetBaseAC(oPNJ, int.Parse(player.oid.LoginCreature.GetLocalVariable<string>("_PLAYER_INPUT").Value));
-        player.oid.SendServerMessage($"La CA de base de {oPNJ.Name.ColorString(Color.WHITE)} a été modifiée à {int.Parse(player.oid.LoginCreature.GetLocalVariable<string>("_PLAYER_INPUT").Value)}", Color.BLUE);
+        player.oid.SendServerMessage($"La CA de base de {oPNJ.Name.ColorString(ColorConstants.White)} a été modifiée à {int.Parse(player.oid.LoginCreature.GetLocalVariable<string>("_PLAYER_INPUT").Value)}", ColorConstants.Blue);
         DrawPNJSelectionWelcome(player.oid, oPNJ);
         player.oid.LoginCreature.GetLocalVariable<string>("_PLAYER_INPUT").Delete();
       }
@@ -137,7 +137,7 @@ namespace NWN.Systems
     {
       player.menu.Clear();
 
-      player.menu.titleLines.Add($"Cible de la sélection : {oPNJ.Name.ColorString(Color.ORANGE)}. Quel caractéristique souhaitez-vous modifier ?");
+      player.menu.titleLines.Add($"Cible de la sélection : {oPNJ.Name.ColorString(ColorConstants.Orange)}. Quel caractéristique souhaitez-vous modifier ?");
 
       player.menu.choices.Add(("Force", () => ModifySelectedAbility(player, oPNJ, NWScript.ABILITY_STRENGTH)));
       player.menu.choices.Add(("Dextérité", () => ModifySelectedAbility(player, oPNJ, NWScript.ABILITY_DEXTERITY)));
@@ -154,7 +154,7 @@ namespace NWN.Systems
     {
       player.menu.Clear();
 
-      player.menu.titleLines.Add($"Cible de la sélection : {oPNJ.Name.ColorString(Color.ORANGE)}.");
+      player.menu.titleLines.Add($"Cible de la sélection : {oPNJ.Name.ColorString(ColorConstants.Orange)}.");
       player.menu.titleLines.Add($"Veuillez indiquer la valeur de la caractéristique à l'oral.");
 
       player.menu.Draw();
@@ -164,7 +164,7 @@ namespace NWN.Systems
       if (awaitedValue)
       {
         CreaturePlugin.SetRawAbilityScore(oPNJ, ability, int.Parse(player.oid.LoginCreature.GetLocalVariable<string>("_PLAYER_INPUT").Value));
-        player.oid.SendServerMessage($"La caractéristique de base de {oPNJ.Name.ColorString(Color.WHITE)} a été modifiée à {int.Parse(player.oid.LoginCreature.GetLocalVariable<string>("_PLAYER_INPUT").Value)}", Color.BLUE);
+        player.oid.SendServerMessage($"La caractéristique de base de {oPNJ.Name.ColorString(ColorConstants.White)} a été modifiée à {int.Parse(player.oid.LoginCreature.GetLocalVariable<string>("_PLAYER_INPUT").Value)}", ColorConstants.Blue);
         DrawPNJSelectionWelcome(player.oid, oPNJ);
         player.oid.LoginCreature.GetLocalVariable<string>("_PLAYER_INPUT").Delete();
       }
@@ -173,7 +173,7 @@ namespace NWN.Systems
     {
       player.menu.Clear();
 
-      player.menu.titleLines.Add($"Cible de la sélection : {oPNJ.Name.ColorString(Color.ORANGE)}.");
+      player.menu.titleLines.Add($"Cible de la sélection : {oPNJ.Name.ColorString(ColorConstants.Orange)}.");
       player.menu.titleLines.Add($"Veuillez indiquer le nombre de points de vie par niveau à l'oral.");
 
       player.menu.Draw();
@@ -187,7 +187,7 @@ namespace NWN.Systems
         else
           ObjectPlugin.SetMaxHitPoints(oPNJ, int.Parse(player.oid.LoginCreature.GetLocalVariable<string>("_PLAYER_INPUT").Value));
 
-        player.oid.SendServerMessage($"Le nombre de points de vie de {oPNJ.Name.ColorString(Color.WHITE)} a été modifiée à {int.Parse(player.oid.LoginCreature.GetLocalVariable<string>("_PLAYER_INPUT").Value)}", Color.BLUE);
+        player.oid.SendServerMessage($"Le nombre de points de vie de {oPNJ.Name.ColorString(ColorConstants.White)} a été modifiée à {int.Parse(player.oid.LoginCreature.GetLocalVariable<string>("_PLAYER_INPUT").Value)}", ColorConstants.Blue);
         DrawPNJSelectionWelcome(player.oid, oPNJ);
         player.oid.LoginCreature.GetLocalVariable<string>("_PLAYER_INPUT").Delete();
       }
@@ -196,7 +196,7 @@ namespace NWN.Systems
     {
       player.menu.Clear();
 
-      player.menu.titleLines.Add($"Cible de la sélection : {oPNJ.Name.ColorString(Color.ORANGE)}. Quelle vitesse souhaitez-vous appliquer ?");
+      player.menu.titleLines.Add($"Cible de la sélection : {oPNJ.Name.ColorString(ColorConstants.Orange)}. Quelle vitesse souhaitez-vous appliquer ?");
 
       player.menu.choices.Add(("Par défaut", () => ModifySelectedSpeed(player, oPNJ, MovementRate.CreatureDefault)));
       player.menu.choices.Add(("Immobile", () => ModifySelectedSpeed(player, oPNJ, MovementRate.Immobile)));
@@ -214,14 +214,14 @@ namespace NWN.Systems
     private static void ModifySelectedSpeed(Player player, NwCreature oPNJ, MovementRate speed)
     {
       oPNJ.MovementRate = speed;
-      player.oid.SendServerMessage($"La vitesse de {oPNJ.Name.ColorString(Color.WHITE)} a bien été modifiée.", Color.BLUE);
+      player.oid.SendServerMessage($"La vitesse de {oPNJ.Name.ColorString(ColorConstants.White)} a bien été modifiée.", ColorConstants.Blue);
       DrawPNJSelectionWelcome(player.oid, oPNJ);
     }
     private static async void ModifyPNJSoundset(Player player, NwCreature oPNJ)
     {
       player.menu.Clear();
 
-      player.menu.titleLines.Add($"Cible de la sélection : {oPNJ.Name.ColorString(Color.ORANGE)}.");
+      player.menu.titleLines.Add($"Cible de la sélection : {oPNJ.Name.ColorString(ColorConstants.Orange)}.");
       player.menu.titleLines.Add($"Veuillez indiquer la voix à utiliser à l'oral.");
 
       player.menu.Draw();
@@ -231,7 +231,7 @@ namespace NWN.Systems
       if (awaitedValue)
       {
         CreaturePlugin.SetSoundset(oPNJ, int.Parse(player.oid.LoginCreature.GetLocalVariable<string>("_PLAYER_INPUT").Value));
-        player.oid.SendServerMessage($"La voix de {oPNJ.Name.ColorString(Color.WHITE)} a été modifiée à {int.Parse(player.oid.LoginCreature.GetLocalVariable<string>("_PLAYER_INPUT").Value)}", Color.BLUE);
+        player.oid.SendServerMessage($"La voix de {oPNJ.Name.ColorString(ColorConstants.White)} a été modifiée à {int.Parse(player.oid.LoginCreature.GetLocalVariable<string>("_PLAYER_INPUT").Value)}", ColorConstants.Blue);
         DrawPNJSelectionWelcome(player.oid, oPNJ);
         player.oid.LoginCreature.GetLocalVariable<string>("_PLAYER_INPUT").Delete();
       }
@@ -240,7 +240,7 @@ namespace NWN.Systems
     {
       player.menu.Clear();
 
-      player.menu.titleLines.Add($"Cible de la sélection : {oPNJ.Name.ColorString(Color.ORANGE)}.");
+      player.menu.titleLines.Add($"Cible de la sélection : {oPNJ.Name.ColorString(ColorConstants.Orange)}.");
       player.menu.titleLines.Add($"Veuillez indiquer la valeur d'attaque de base à utiliser à l'oral.");
 
       player.menu.Draw();
@@ -250,7 +250,7 @@ namespace NWN.Systems
       if (awaitedValue)
       {
         CreaturePlugin.SetBaseAttackBonus(oPNJ, int.Parse(player.oid.LoginCreature.GetLocalVariable<string>("_PLAYER_INPUT").Value));
-        player.oid.SendServerMessage($"L'attaque de base de {oPNJ.Name.ColorString(Color.WHITE)} a été modifiée à {int.Parse(player.oid.LoginCreature.GetLocalVariable<string>("_PLAYER_INPUT").Value)}", Color.BLUE);
+        player.oid.SendServerMessage($"L'attaque de base de {oPNJ.Name.ColorString(ColorConstants.White)} a été modifiée à {int.Parse(player.oid.LoginCreature.GetLocalVariable<string>("_PLAYER_INPUT").Value)}", ColorConstants.Blue);
         DrawPNJSelectionWelcome(player.oid, oPNJ);
         player.oid.LoginCreature.GetLocalVariable<string>("_PLAYER_INPUT").Delete();
       }
@@ -259,7 +259,7 @@ namespace NWN.Systems
     {
       player.menu.Clear();
       
-      player.menu.titleLines.Add($"Cible de la sélection : {oPNJ.Name.ColorString(Color.ORANGE)}. Quel genre souhaitez-vous appliquer ?");
+      player.menu.titleLines.Add($"Cible de la sélection : {oPNJ.Name.ColorString(ColorConstants.Orange)}. Quel genre souhaitez-vous appliquer ?");
       
       player.menu.choices.Add(("Masculin", () => ModifySelectedGender(player, oPNJ, NWScript.GENDER_MALE)));
       player.menu.choices.Add(("Féminin", () => ModifySelectedGender(player, oPNJ, NWScript.GENDER_FEMALE)));
@@ -274,14 +274,14 @@ namespace NWN.Systems
     private static void ModifySelectedGender(Player player, NwCreature oPNJ, int gender)
     {
       CreaturePlugin.SetGender(oPNJ, gender);
-      player.oid.SendServerMessage($"Le genre de {oPNJ.Name.ColorString(Color.WHITE)} a bien été modifié.", Color.BLUE);
+      player.oid.SendServerMessage($"Le genre de {oPNJ.Name.ColorString(ColorConstants.White)} a bien été modifié.", ColorConstants.Blue);
       DrawPNJSelectionWelcome(player.oid, oPNJ);
     }
     private static void DrawSizeList(Player player, NwCreature oPNJ)
     {
       player.menu.Clear();
       
-      player.menu.titleLines.Add($"Cible de la sélection : {oPNJ.Name.ColorString(Color.ORANGE)}. Quel genre souhaitez-vous appliquer ?");
+      player.menu.titleLines.Add($"Cible de la sélection : {oPNJ.Name.ColorString(ColorConstants.Orange)}. Quel genre souhaitez-vous appliquer ?");
 
       player.menu.choices.Add(("Minuscule", () => ModifySelectedSize(player, oPNJ, NWScript.CREATURE_SIZE_TINY)));
       player.menu.choices.Add(("Petite", () => ModifySelectedSize(player, oPNJ, NWScript.CREATURE_SIZE_SMALL)));
@@ -296,14 +296,14 @@ namespace NWN.Systems
     private static void ModifySelectedSize(Player player, NwCreature oPNJ, int size)
     {
       CreaturePlugin.SetSize(oPNJ, size);
-      player.oid.SendServerMessage($"Le type de taille de {oPNJ.Name.ColorString(Color.WHITE)} a bien été modifié.", Color.BLUE);
+      player.oid.SendServerMessage($"Le type de taille de {oPNJ.Name.ColorString(ColorConstants.White)} a bien été modifié.", ColorConstants.Blue);
       DrawPNJSelectionWelcome(player.oid, oPNJ);
     }
     private static void DrawRacialTypeList(Player player, NwCreature oPNJ)
     {
       player.menu.Clear();
 
-      player.menu.titleLines.Add($"Cible de la sélection : {oPNJ.Name.ColorString(Color.ORANGE)}. Quel genre souhaitez-vous appliquer ?");
+      player.menu.titleLines.Add($"Cible de la sélection : {oPNJ.Name.ColorString(ColorConstants.Orange)}. Quel genre souhaitez-vous appliquer ?");
 
       player.menu.choices.Add(("Aberration", () => ModifySelectedRacialType(player, oPNJ, NWScript.RACIAL_TYPE_ABERRATION)));
       player.menu.choices.Add(("Animal", () => ModifySelectedRacialType(player, oPNJ, NWScript.RACIAL_TYPE_ANIMAL)));
@@ -338,14 +338,14 @@ namespace NWN.Systems
     private static void ModifySelectedRacialType(Player player, NwCreature oPNJ, int racialType)
     {
       CreaturePlugin.SetRacialType(oPNJ, racialType);
-      player.oid.SendServerMessage($"La race de {oPNJ.Name.ColorString(Color.WHITE)} a bien été modifié.", Color.BLUE);
+      player.oid.SendServerMessage($"La race de {oPNJ.Name.ColorString(ColorConstants.White)} a bien été modifié.", ColorConstants.Blue);
       DrawPNJSelectionWelcome(player.oid, oPNJ);
     }
     private static void DrawSavingThrowList(Player player, NwCreature oPNJ)
     {
       player.menu.Clear();
 
-      player.menu.titleLines.Add($"Cible de la sélection : {oPNJ.Name.ColorString(Color.ORANGE)}. Quel jet de sauvegarde souhaitez-vous modifier ?");
+      player.menu.titleLines.Add($"Cible de la sélection : {oPNJ.Name.ColorString(ColorConstants.Orange)}. Quel jet de sauvegarde souhaitez-vous modifier ?");
 
       player.menu.choices.Add(("Vigueur", () => ModifySelectedSavingThrow(player, oPNJ, NWScript.SAVING_THROW_FORT)));
       player.menu.choices.Add(("Réflexes", () => ModifySelectedSavingThrow(player, oPNJ, NWScript.SAVING_THROW_REFLEX)));
@@ -359,7 +359,7 @@ namespace NWN.Systems
     {
       player.menu.Clear();
 
-      player.menu.titleLines.Add($"Cible de la sélection : {oPNJ.Name.ColorString(Color.ORANGE)}.");
+      player.menu.titleLines.Add($"Cible de la sélection : {oPNJ.Name.ColorString(ColorConstants.Orange)}.");
       player.menu.titleLines.Add($"Veuillez indiquer la valeur du jet de sauvegarde à l'oral.");
 
       player.menu.Draw();
@@ -369,7 +369,7 @@ namespace NWN.Systems
       if (awaitedValue)
       {
         CreaturePlugin.SetBaseSavingThrow(oPNJ, savingThrow, int.Parse(player.oid.LoginCreature.GetLocalVariable<string>("_PLAYER_INPUT").Value));
-        player.oid.SendServerMessage($"Le jet de sauvegarde de base de {oPNJ.Name.ColorString(Color.WHITE)} a été modifiée à {int.Parse(player.oid.LoginCreature.GetLocalVariable<string>("_PLAYER_INPUT").Value)}", Color.BLUE);
+        player.oid.SendServerMessage($"Le jet de sauvegarde de base de {oPNJ.Name.ColorString(ColorConstants.White)} a été modifiée à {int.Parse(player.oid.LoginCreature.GetLocalVariable<string>("_PLAYER_INPUT").Value)}", ColorConstants.Blue);
         DrawSavingThrowList(player, oPNJ);
         player.oid.LoginCreature.GetLocalVariable<string>("_PLAYER_INPUT").Delete();
       }
@@ -378,7 +378,7 @@ namespace NWN.Systems
     {
       player.menu.Clear();
 
-      player.menu.titleLines.Add($"Cible de la sélection : {oPNJ.Name.ColorString(Color.ORANGE)}.");
+      player.menu.titleLines.Add($"Cible de la sélection : {oPNJ.Name.ColorString(ColorConstants.Orange)}.");
       player.menu.titleLines.Add($"Veuillez indiquer la valeur de résistance aux sortsà utiliser à l'oral.");
 
       player.menu.Draw();
@@ -388,7 +388,7 @@ namespace NWN.Systems
       if (awaitedValue)
       {
         CreaturePlugin.SetSpellResistance(oPNJ, int.Parse(player.oid.LoginCreature.GetLocalVariable<string>("_PLAYER_INPUT").Value));
-        player.oid.SendServerMessage($"La résistance aux sorts de {oPNJ.Name.ColorString(Color.WHITE)} a été modifiée à {int.Parse(player.oid.LoginCreature.GetLocalVariable<string>("_PLAYER_INPUT").Value)}", Color.BLUE);
+        player.oid.SendServerMessage($"La résistance aux sorts de {oPNJ.Name.ColorString(ColorConstants.White)} a été modifiée à {int.Parse(player.oid.LoginCreature.GetLocalVariable<string>("_PLAYER_INPUT").Value)}", ColorConstants.Blue);
         DrawPNJSelectionWelcome(player.oid, oPNJ);
         player.oid.LoginCreature.GetLocalVariable<string>("_PLAYER_INPUT").Delete();
       }
@@ -399,7 +399,7 @@ namespace NWN.Systems
 
       player.menu.Clear();
 
-      player.menu.titleLines.Add($"Modification d'apparence de : {oPNJ.Name.ColorString(Color.ORANGE)}. Que souhaitez-vous modifier ?");
+      player.menu.titleLines.Add($"Modification d'apparence de : {oPNJ.Name.ColorString(ColorConstants.Orange)}. Que souhaitez-vous modifier ?");
 
       player.menu.choices.Add(("Le type d'apparence", () => DrawModifyApparenceTypePage(player, oPNJ, -2)));
 
@@ -466,12 +466,12 @@ namespace NWN.Systems
         }
 
         oPNJ.CreatureAppearanceType = (AppearanceType)currentValue;
-        player.menu.titleLines.Add($"Apparence actuelle : {currentValue.ToString().ColorString(Color.LIME)}");
+        player.menu.titleLines.Add($"Apparence actuelle : {currentValue.ToString().ColorString(ColorConstants.Lime)}");
         player.menu.DrawText();
       }
       else
       {
-        player.menu.titleLines.Add($"Apparence actuelle : {currentValue.ToString().ColorString(Color.LIME)}");
+        player.menu.titleLines.Add($"Apparence actuelle : {currentValue.ToString().ColorString(ColorConstants.Lime)}");
         player.menu.choices.Add(($"Suivant", () => DrawModifyApparenceTypePage(player, oPNJ, 1)));
         player.menu.choices.Add(($"Précédent.", () => DrawModifyApparenceTypePage(player, oPNJ, -1)));
 
@@ -531,12 +531,12 @@ namespace NWN.Systems
         }
 
         oPNJ.PortraitId = currentValue;
-        player.menu.titleLines.Add($"Portrait actuel : {currentValue.ToString().ColorString(Color.LIME)}");
+        player.menu.titleLines.Add($"Portrait actuel : {currentValue.ToString().ColorString(ColorConstants.Lime)}");
         player.menu.DrawText();
       }
       else
       {
-        player.menu.titleLines.Add($"Portrait actuel : {currentValue.ToString().ColorString(Color.LIME)}");
+        player.menu.titleLines.Add($"Portrait actuel : {currentValue.ToString().ColorString(ColorConstants.Lime)}");
         player.menu.choices.Add(($"Suivant", () => DrawModifyPortraitPage(player, oPNJ, 1)));
         player.menu.choices.Add(($"Précédent.", () => DrawModifyPortraitPage(player, oPNJ, -1)));
 
@@ -586,12 +586,12 @@ namespace NWN.Systems
         scale.Scale = currentValue;
         oPNJ.VisualTransform = scale;
 
-        player.menu.titleLines.Add($"Taille actuelle : {currentValue.ToString().ColorString(Color.LIME)}");
+        player.menu.titleLines.Add($"Taille actuelle : {currentValue.ToString().ColorString(ColorConstants.Lime)}");
         player.menu.DrawText();
       }
       else
       {
-        player.menu.titleLines.Add($"Taille actuelle : {currentValue.ToString().ColorString(Color.LIME)}");
+        player.menu.titleLines.Add($"Taille actuelle : {currentValue.ToString().ColorString(ColorConstants.Lime)}");
         player.menu.choices.Add(($"Suivant", () => DrawModifySizePage(player, oPNJ, 1)));
         player.menu.choices.Add(($"Précédent.", () => DrawModifySizePage(player, oPNJ, -1)));
 
@@ -638,12 +638,12 @@ namespace NWN.Systems
           currentValue--;
 
         NWScript.SetCreatureBodyPart(NWScript.CREATURE_PART_HEAD, currentValue, oPNJ);
-        player.menu.titleLines.Add($"Tête actuelle : {currentValue.ToString().ColorString(Color.LIME)}");
+        player.menu.titleLines.Add($"Tête actuelle : {currentValue.ToString().ColorString(ColorConstants.Lime)}");
         player.menu.DrawText();
       }
       else
       {
-        player.menu.titleLines.Add($"Tête actuelle : {currentValue.ToString().ColorString(Color.LIME)}");
+        player.menu.titleLines.Add($"Tête actuelle : {currentValue.ToString().ColorString(ColorConstants.Lime)}");
         player.menu.choices.Add(($"Suivant", () => DrawModifyHeadPage(player, oPNJ, 1)));
         player.menu.choices.Add(($"Précédent.", () => DrawModifyHeadPage(player, oPNJ, -1)));
 
@@ -698,12 +698,12 @@ namespace NWN.Systems
           NWScript.SetCreatureBodyPart(NWScript.CREATURE_PART_HEAD, oPNJ.GetLocalVariable<int>("_CURRENT_HEAD").Value, oPNJ);
         });
 
-        player.menu.titleLines.Add($"Couleur actuelle : {currentValue.ToString().ColorString(Color.LIME)}");
+        player.menu.titleLines.Add($"Couleur actuelle : {currentValue.ToString().ColorString(ColorConstants.Lime)}");
         player.menu.DrawText();
       }
       else
       {
-        player.menu.titleLines.Add($"Couleur actuelle : {currentValue.ToString().ColorString(Color.LIME)}");
+        player.menu.titleLines.Add($"Couleur actuelle : {currentValue.ToString().ColorString(ColorConstants.Lime)}");
 
         player.menu.choices.Add(($"Suivant", () => DrawModifyEyesPage(player, oPNJ, 1)));
         player.menu.choices.Add(($"Précédent.", () => DrawModifyEyesPage(player, oPNJ, -1)));
@@ -759,12 +759,12 @@ namespace NWN.Systems
           NWScript.SetCreatureBodyPart(NWScript.CREATURE_PART_HEAD, oPNJ.GetLocalVariable<int>("_CURRENT_HEAD").Value, oPNJ);
         });
 
-        player.menu.titleLines.Add($"Couleur actuelle : {currentValue.ToString().ColorString(Color.LIME)}");
+        player.menu.titleLines.Add($"Couleur actuelle : {currentValue.ToString().ColorString(ColorConstants.Lime)}");
         player.menu.DrawText();
       }
       else
       {
-        player.menu.titleLines.Add($"Couleur actuelle : {currentValue.ToString().ColorString(Color.LIME)}");
+        player.menu.titleLines.Add($"Couleur actuelle : {currentValue.ToString().ColorString(ColorConstants.Lime)}");
 
         player.menu.choices.Add(($"Suivant", () => DrawModifyLipsPage(player, oPNJ, 1)));
         player.menu.choices.Add(($"Précédent.", () => DrawModifyLipsPage(player, oPNJ, -1)));
@@ -820,12 +820,12 @@ namespace NWN.Systems
           NWScript.SetCreatureBodyPart(NWScript.CREATURE_PART_HEAD, oPNJ.GetLocalVariable<int>("_CURRENT_HEAD").Value, oPNJ);
         });
         
-        player.menu.titleLines.Add($"Couleur actuelle : {currentValue.ToString().ColorString(Color.LIME)}");
+        player.menu.titleLines.Add($"Couleur actuelle : {currentValue.ToString().ColorString(ColorConstants.Lime)}");
         player.menu.DrawText();
       }
       else
       {
-        player.menu.titleLines.Add($"Couleur actuelle : {currentValue.ToString().ColorString(Color.LIME)}");
+        player.menu.titleLines.Add($"Couleur actuelle : {currentValue.ToString().ColorString(ColorConstants.Lime)}");
 
         player.menu.choices.Add(($"Suivant", () => DrawModifyHairPage(player, oPNJ, 1)));
         player.menu.choices.Add(($"Précédent.", () => DrawModifyHairPage(player, oPNJ, -1)));
@@ -873,12 +873,12 @@ namespace NWN.Systems
           currentValue--;
 
         NWScript.SetCreatureWingType(currentValue, oPNJ);
-        player.menu.titleLines.Add($"Ailes actuelles : {currentValue.ToString().ColorString(Color.LIME)}");
+        player.menu.titleLines.Add($"Ailes actuelles : {currentValue.ToString().ColorString(ColorConstants.Lime)}");
         player.menu.DrawText();
       }
       else
       {
-        player.menu.titleLines.Add($"Ailes actuelles : {currentValue.ToString().ColorString(Color.LIME)}");
+        player.menu.titleLines.Add($"Ailes actuelles : {currentValue.ToString().ColorString(ColorConstants.Lime)}");
 
         player.menu.choices.Add(($"Suivant", () => DrawModifyWingsPage(player, oPNJ, 1)));
         player.menu.choices.Add(($"Précédent.", () => DrawModifyWingsPage(player, oPNJ, -1)));
@@ -926,12 +926,12 @@ namespace NWN.Systems
           currentValue--;
 
         NWScript.SetCreatureTailType(currentValue, oPNJ);
-        player.menu.titleLines.Add($"Queue actuelle : {currentValue.ToString().ColorString(Color.LIME)}");
+        player.menu.titleLines.Add($"Queue actuelle : {currentValue.ToString().ColorString(ColorConstants.Lime)}");
         player.menu.DrawText();
       }
       else
       {
-        player.menu.titleLines.Add($"Queue actuelle : {currentValue.ToString().ColorString(Color.LIME)}");
+        player.menu.titleLines.Add($"Queue actuelle : {currentValue.ToString().ColorString(ColorConstants.Lime)}");
 
         player.menu.choices.Add(($"Suivant", () => DrawModifyTailPage(player, oPNJ, 1)));
         player.menu.choices.Add(($"Précédent.", () => DrawModifyTailPage(player, oPNJ, -1)));
@@ -956,7 +956,7 @@ namespace NWN.Systems
       NWScript.SqlBindString(query, "@serializedCreature", ObjectPlugin.Serialize(oPNJ));
       NWScript.SqlStep(query);
 
-      player.oid.SendServerMessage($"Votre PNJ {oPNJ.Name.ColorString(Color.WHITE)} a bien été enregistré.", Color.BLUE);
+      player.oid.SendServerMessage($"Votre PNJ {oPNJ.Name.ColorString(ColorConstants.White)} a bien été enregistré.", ColorConstants.Blue);
     }
     private static void DisplayPNJCreatorsList(Player player)
     {
@@ -1000,7 +1000,7 @@ namespace NWN.Systems
     {
       player.menu.Clear();
 
-      player.menu.titleLines.Add($"Sélection : {npcName.ColorString(Color.LIME)}. Que souhaitez-vous faire ?");
+      player.menu.titleLines.Add($"Sélection : {npcName.ColorString(ColorConstants.Lime)}. Que souhaitez-vous faire ?");
 
       player.menu.choices.Add(("Spawner ce pnj", () => ActivateSpawnLocationSelectionMode(player.oid, npcName, accountName)));
 
@@ -1019,7 +1019,7 @@ namespace NWN.Systems
       NWScript.SqlBindString(deletionQuery, "@name", npcName);
       NWScript.SqlStep(deletionQuery);
 
-      player.oid.SendServerMessage($"Votre PNJ {npcName.ColorString(Color.WHITE)} a bien été supprimé", Color.BLUE);
+      player.oid.SendServerMessage($"Votre PNJ {npcName.ColorString(ColorConstants.White)} a bien été supprimé", ColorConstants.Blue);
     }
     private static void ActivateSpawnLocationSelectionMode(NwPlayer oPC, string npcName, string accountName)
     {

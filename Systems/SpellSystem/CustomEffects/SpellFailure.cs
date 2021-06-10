@@ -22,7 +22,7 @@ namespace NWN.Systems
         onSpellCast.PreventSpellCast = true;
 
         if (onSpellCast.Caster is NwCreature { IsPlayerControlled: true } oPC)
-          oPC.ControllingPlayer.SendServerMessage("Votre sort échoue en raison du handicap d'échec des sorts.", Color.RED);
+          oPC.ControllingPlayer.SendServerMessage("Votre sort échoue en raison du handicap d'échec des sorts.", ColorConstants.Red);
       }
     }
   }

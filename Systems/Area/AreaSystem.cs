@@ -21,6 +21,7 @@ namespace NWN.Systems
       {
         trigger.OnEnter += OnEnterUnwalkableBlock;
       }
+
       foreach (NwArea area in NwModule.Instance.Areas)
       {
         area.OnEnter += OnAreaEnter;
@@ -126,21 +127,47 @@ namespace NWN.Systems
       switch (area.Tag)
       {
         case "entry_scene":
-          foreach (NwObject fog in NwModule.FindObjectsWithTag("intro_brouillard"))
-            VisibilityPlugin.SetVisibilityOverride(NWScript.OBJECT_INVALID, fog, VisibilityPlugin.NWNX_VISIBILITY_HIDDEN);
 
+          VisibilityPlugin.SetVisibilityOverride(NWScript.OBJECT_INVALID, NwObject.FindObjectsWithTag("intro_brouillard").FirstOrDefault(), VisibilityPlugin.NWNX_VISIBILITY_HIDDEN);
           area.GetLocalVariable<int>("_AREA_LEVEL").Value = 0;
+          NWScript.SetAreaWind(area, new Vector3(1, 0, 0), 4, 0, 0);
+
           break;
         case "SimilisseThetreSalledeSpectacle":
+
           NwTrigger trigger = area.FindObjectsOfTypeInArea<NwTrigger>().FirstOrDefault(t => t.Tag == "theater_scene");
           trigger.OnEnter += OnTheaterSceneEnter;
           trigger.OnExit += OnTheaterSceneExit;
+          area.GetLocalVariable<int>("_AREA_LEVEL").Value = 0;
+
+          break;
+        case "Gothictest":
+        case "CoteSudLaCrique":
+          NWScript.SetAreaWind(area, new Vector3(0, 1, 0), 3, 0, 0);
+          break;
+        case "laplage":
+          NWScript.SetAreaWind(area, new Vector3(1, 0, 0), 2, 0, 0);
+          break;
+        case "leschamps":
+          NWScript.SetAreaWind(area, new Vector3(-1, 0, 0), 1, 0, 0);
+          break;
+        case "Promenadetest":
+        case "Governmenttest":
+          NWScript.SetAreaWind(area, new Vector3(1, 0, 0), 4, 0, 0);
+          area.GetLocalVariable<int>("_AREA_LEVEL").Value = 0;
+          break; 
+        case "PalaceGardenTest":
+          NWScript.SetAreaWind(area, new Vector3(1, -1, 0), 2, 0, 0);
+          area.GetLocalVariable<int>("_AREA_LEVEL").Value = 0;
+          break;
+        case "SimilisseTransitionPromenadeport":
+        case "similissetempledistrict":
+          NWScript.SetAreaWind(area, new Vector3(0, -1, 0), 3, 0, 0);
           area.GetLocalVariable<int>("_AREA_LEVEL").Value = 0;
           break;
         case "SIMILISCITYGATE":
         case "Similiscityentrepot":
         case "Similisse":
-        case "Promenadetest":
         case "SimilisseQuartierdelaPromenadeAt":
         case "entrepotpersonnel":
         case "Forge":
@@ -149,11 +176,9 @@ namespace NWN.Systems
         case "SIMILISSE_BIBLIOTHEQUE":
         case "Dispensaire":
         case "couronnedecuivre":
-        case "similissetempledistrict":
         case "SIMILISSE_THERMES":
-        case "Governmenttest":
+        case "SimilisseQuartierduGouvernementP":
         case "ChateauRepoduction":
-        case "PalaceGardenTest":
         case "SimilisseTribunalBureaudesAvocat":
         case "SimilisseTribunal":
         case "SimilisseTribunalPrison":
@@ -164,16 +189,18 @@ namespace NWN.Systems
         case "qg_marten":
         case "ToursdesInventeurs":
         case "SIMILISPALAISNOU":
-        case "SimilisseQuartierduGouvernementP":
         case "qg_kathra":
           area.GetLocalVariable<int>("_AREA_LEVEL").Value = 0;
+          break;
+        case "cave_flooded":
+          NWScript.SetAreaWind(area, new Vector3(0, 1, 0), 8, 0, 0);
+          area.GetLocalVariable<int>("_AREA_LEVEL").Value = 2;
           break;
         case "lepontdaruthen":
         case "Fermesnord":
         case "fermes_ouest":
         case "terres_de_fryar":
         case "vallee":
-        case "cave_flooded":
         case "cave_uw_ruins_entry":
           area.GetLocalVariable<int>("_AREA_LEVEL").Value = 2;
           break;
@@ -204,9 +231,10 @@ namespace NWN.Systems
     }
     private static void OnTheaterSceneEnter(TriggerEvents.OnEnter onEnter)
     {
-      VisualTransform transfo = onEnter.EnteringObject.VisualTransform;
-      transfo.Translation.Z += 2.01f;
+       VisualTransform transfo = onEnter.EnteringObject.VisualTransform;
+      transfo.Translation = new Vector3(transfo.Translation.X, transfo.Translation.Y, 2.01f);
       onEnter.EnteringObject.VisualTransform = transfo;
+      NWScript.SetCameraHeight(onEnter.EnteringObject, 1 + 2.01f);
     }
 
     private static void OnTheaterSceneExit(TriggerEvents.OnExit onExit)
@@ -218,8 +246,9 @@ namespace NWN.Systems
       else
       {
         VisualTransform transfo = onExit.ExitingObject.VisualTransform;
-        transfo.Translation.Z = 0.0f;
+        transfo.Translation = new Vector3(transfo.Translation.X, transfo.Translation.Y,  0);
         onExit.ExitingObject.VisualTransform = transfo;
+        NWScript.SetCameraHeight(onExit.ExitingObject, 0);
       }
     }
     public static NwArea CreatePersonnalStorageArea(NwCreature oPC, int characterId)

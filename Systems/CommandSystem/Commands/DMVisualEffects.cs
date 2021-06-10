@@ -92,7 +92,7 @@ namespace NWN.Systems
         NWScript.SqlBindInt(query, "@vfxDuration", vfxId);
         NWScript.SqlStep(query);
 
-        player.oid.SendServerMessage($"La durée de vos effets visuels sera désormais de {vfxId.ToString().ColorString(Color.WHITE)} secondes !", new Color(32, 255, 32));
+        player.oid.SendServerMessage($"La durée de vos effets visuels sera désormais de {vfxId.ToString().ColorString(ColorConstants.White)} secondes !", new Color(32, 255, 32));
       }
     }
     private void SaveVFX()
@@ -104,7 +104,7 @@ namespace NWN.Systems
       NWScript.SqlBindInt(query, "@vfxId", vfxId);
       NWScript.SqlStep(query);
 
-      player.oid.SendServerMessage($"Votre effet visuel {vfxName.ColorString(Color.WHITE)} a bien été enregistré !", new Color(32, 255, 32));
+      player.oid.SendServerMessage($"Votre effet visuel {vfxName.ColorString(ColorConstants.White)} a bien été enregistré !", new Color(32, 255, 32));
 
       DrawVFXWelcomePage();
     }
@@ -143,7 +143,7 @@ namespace NWN.Systems
       NWScript.SqlBindString(query, "@vfxName", deletedVFXName);
       NWScript.SqlStep(query);
 
-      player.oid.SendServerMessage($"Votre effet visuel {deletedVFXName.ColorString(Color.WHITE)} a bien été supprimé.", new Color(32, 255, 32));
+      player.oid.SendServerMessage($"Votre effet visuel {deletedVFXName.ColorString(ColorConstants.White)} a bien été supprimé.", new Color(32, 255, 32));
       DrawVFXList();
     }
   }

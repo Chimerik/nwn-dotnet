@@ -240,5 +240,15 @@ namespace NWN
         LogMessageToDMs($"Impossible de trouver le storage du pj {characterId} et d'y déposer un objet !");
       }
     }
+    public static void ResetVisualTransform(NwCreature creature)
+    {
+      NWScript.SetObjectVisualTransform(creature, NWScript.OBJECT_VISUAL_TRANSFORM_ROTATE_X, 0.0f);
+      NWScript.SetObjectVisualTransform(creature, NWScript.OBJECT_VISUAL_TRANSFORM_ROTATE_Y, 0.0f);
+      NWScript.SetObjectVisualTransform(creature, NWScript.OBJECT_VISUAL_TRANSFORM_ROTATE_Z, 0.0f);
+      NWScript.SetObjectVisualTransform(creature, NWScript.OBJECT_VISUAL_TRANSFORM_TRANSLATE_X, 0.0f);
+      NWScript.SetObjectVisualTransform(creature, NWScript.OBJECT_VISUAL_TRANSFORM_TRANSLATE_Y, 0.0f);
+      NWScript.SetObjectVisualTransform(creature, NWScript.OBJECT_VISUAL_TRANSFORM_TRANSLATE_Z, 0.0f);
+      NWScript.SetCameraHeight(creature, 0);
+    }
   }
 }

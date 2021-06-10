@@ -11,11 +11,11 @@ namespace NWN.Systems
     {
       if (!oPC.LoginCreature.KnowsFeat(Feat.SpellFocusConjuration))
       {
-        oPC.SendServerMessage("Le don de spécialisation en invocation est nécessaire pour pouvoir renommer une invocation.", Color.ORANGE);
+        oPC.SendServerMessage("Le don de spécialisation en invocation est nécessaire pour pouvoir renommer une invocation.", ColorConstants.Orange);
         return;
       }
 
-      oPC.SendServerMessage("Veuillez sélectionnner la créature dont vous souhaitez modifier le nom.", Color.ROSE);
+      oPC.SendServerMessage("Veuillez sélectionnner la créature dont vous souhaitez modifier le nom.", ColorConstants.Rose);
 
       PlayerSystem.cursorTargetService.EnterTargetMode(oPC, SummonRenameTarget, ObjectTypes.Creature, MouseCursor.Create);
     }
@@ -42,13 +42,13 @@ namespace NWN.Systems
         {
           selection.TargetObject.Name = player.oid.LoginCreature.GetLocalVariable<string>("_PLAYER_INPUT").Value;
           player.oid.LoginCreature.GetLocalVariable<string>("_PLAYER_INPUT").Delete();
-          player.oid.SendServerMessage($"{selection.TargetObject.Name.ColorString(Color.WHITE)} a été renommé {selection.TargetObject.Name.ColorString(Color.WHITE)}.", Color.GREEN);
+          player.oid.SendServerMessage($"{selection.TargetObject.Name.ColorString(ColorConstants.White)} a été renommé {selection.TargetObject.Name.ColorString(ColorConstants.White)}.", ColorConstants.Green);
           player.menu.Close();
         }
       }
       else
       {
-        selection.Player.SendServerMessage("Veuillez sélectionner une cible valide.", Color.RED);
+        selection.Player.SendServerMessage("Veuillez sélectionner une cible valide.", ColorConstants.Red);
         PlayerSystem.cursorTargetService.EnterTargetMode(selection.Player, SummonRenameTarget, ObjectTypes.Creature, MouseCursor.Create);
       }
     }

@@ -12,6 +12,10 @@ namespace NWN.Systems
   {
     public TribunalHotesse(Player player, NwCreature magicshop)
     {
+      HandleHotesse(player, magicshop);
+    }
+    private async void HandleHotesse(Player player, NwCreature magicshop)
+    { 
       NwStore shop = magicshop.GetNearestObjectsByType<NwStore>().Where(s => s.Tag == "magic_shop").FirstOrDefault();
 
       if (shop == null)
@@ -21,7 +25,7 @@ namespace NWN.Systems
 
         foreach (int itemPropertyId in SkillSystem.shopBasicMagicScrolls)
         {
-          NwItem oScroll = NwItem.Create("spellscroll", shop, 1, "scroll");
+          NwItem oScroll = await NwItem.Create("spellscroll", shop, 1, "scroll");
           int spellId = int.Parse(NWScript.Get2DAString("iprp_spells", "SpellIndex", itemPropertyId));
           oScroll.Name = $"{NWScript.GetStringByStrRef(int.Parse(NWScript.Get2DAString("spells", "Name", spellId)))}";
           oScroll.Description = $"{NWScript.GetStringByStrRef(int.Parse(NWScript.Get2DAString("spells", "SpellDesc", spellId)))}";
@@ -30,7 +34,7 @@ namespace NWN.Systems
 
         foreach(Feat feat in SkillSystem.shopBasicMagicSkillBooks)
         {
-          NwItem skillBook = NwItem.Create("skillbookgeneriq", shop, 1, "skillbook");
+          NwItem skillBook = await NwItem.Create("skillbookgeneriq", shop, 1, "skillbook");
           ItemPlugin.SetItemAppearance(skillBook, NWScript.ITEM_APPR_TYPE_SIMPLE_MODEL, 2, Utils.random.Next(0, 50));
           skillBook.GetLocalVariable<int>("_SKILL_ID").Value = (int)feat;
 

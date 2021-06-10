@@ -34,6 +34,12 @@ namespace NWN.Systems
       foreach (NwPlaceable portal in NwObject.FindObjectsWithTag<NwPlaceable>("portal_storage_in"))
         portal.OnUsed += OnUsedStoragePortalIn;
 
+      foreach (NwPlaceable goplouf in NwObject.FindObjectsWithTag<NwPlaceable>("go_plouf"))
+        goplouf.OnUsed += OnUsedGoPlouf;
+
+      foreach (NwPlaceable stopplouf in NwObject.FindObjectsWithTag<NwPlaceable>("stop_plouf"))
+        stopplouf.OnUsed += OnUsedStopPlouf;
+
       foreach (NwPlaceable plc in NwObject.FindObjectsWithTag<NwPlaceable>("portal_start", "respawn_neutral", "respawn_dire", "respawn_radiant", "theater_rope"))
         plc.OnUsed += HandlePlaceableUsed;
 
@@ -217,7 +223,7 @@ namespace NWN.Systems
         onSpawn.Creature.ApplyEffect(EffectDuration.Permanent, eff);
       }
 
-      onSpawn.Creature.HiliteColor = Color.BLACK;
+      onSpawn.Creature.HiliteColor = ColorConstants.Black;
       NWScript.SetObjectMouseCursor(onSpawn.Creature, NWScript.MOUSECURSOR_WALK);
       onSpawn.Creature.AiLevel = AiLevel.VeryLow;
     }  
@@ -274,7 +280,7 @@ namespace NWN.Systems
         
         if (shop == null)
         {
-          player.oid.SendServerMessage("Cette boutique n'est pas accessible pour le moment.", Color.ORANGE);
+          player.oid.SendServerMessage("Cette boutique n'est pas accessible pour le moment.", ColorConstants.Orange);
           return;
         }
 
@@ -298,7 +304,7 @@ namespace NWN.Systems
 
         if (shop == null)
         {
-          player.oid.SendServerMessage("Cette enchère n'est pas accessible pour le moment.", Color.ORANGE);
+          player.oid.SendServerMessage("Cette enchère n'est pas accessible pour le moment.", ColorConstants.Orange);
           return;
         }
 
@@ -350,6 +356,16 @@ namespace NWN.Systems
       {
         new DicePoker.DicePoker(player, onUsed.Placeable);
       }
+    }
+    public static void OnUsedGoPlouf(PlaceableEvents.OnUsed onUsed)
+    {
+      NwPlaceable stopplouf = NwObject.FindObjectsWithTag<NwPlaceable>("stop_plouf").FirstOrDefault();
+      onUsed.UsedBy.Location = stopplouf.Location;
+    }
+    public static void OnUsedStopPlouf(PlaceableEvents.OnUsed onUsed)
+    {
+      NwPlaceable goplouf = NwObject.FindObjectsWithTag<NwPlaceable>("go_plouf").FirstOrDefault();
+      onUsed.UsedBy.Location = goplouf.Location;
     }
   }
 }

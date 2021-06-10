@@ -90,7 +90,7 @@ namespace NWN.System
           if (PlayerSystem.Players.TryGetValue(oSeller.LoginCreature, out PlayerSystem.Player seller))
             seller.bankGold += price;
 
-          oSeller.SendServerMessage($"La vente de votre {onStoreRequestBuy.Item.Name.ColorString(Color.ORANGE)} à {buyer.oid.LoginCreature.Name.ColorString(Color.PINK)} vient de vous rapporter {price.ToString().ColorString(Color.GREEN)}");
+          oSeller.SendServerMessage($"La vente de votre {onStoreRequestBuy.Item.Name.ColorString(ColorConstants.Orange)} à {buyer.oid.LoginCreature.Name.ColorString(ColorConstants.Pink)} vient de vous rapporter {price.ToString().ColorString(ColorConstants.Green)}");
         }
         else
         {
@@ -108,7 +108,7 @@ namespace NWN.System
       onStoreRequestSell.PreventSell = true;
 
       if (PlayerSystem.Players.TryGetValue(onStoreRequestSell.Creature, out PlayerSystem.Player player))
-        player.oid.SendServerMessage("Impossible de vendre dans ce type d'échoppe.", Color.ORANGE);
+        player.oid.SendServerMessage("Impossible de vendre dans ce type d'échoppe.", ColorConstants.Orange);
     }
     public static void OnOpenOwnedPlayerShop(StoreEvents.OnOpen onOpen)
     {
@@ -182,13 +182,13 @@ namespace NWN.System
 
       if(onStoreRequestSell.Store.Items.Count() > traderLevel * 5)
       {
-        player.oid.SendServerMessage($"Votre niveau de marchand actuel vous permet de mettre en vente {traderLevel * 5} objets dans cette boutique, or il s'en trouve déjà {onStoreRequestSell.Store.Items.Count()}", Color.ORANGE);
+        player.oid.SendServerMessage($"Votre niveau de marchand actuel vous permet de mettre en vente {traderLevel * 5} objets dans cette boutique, or il s'en trouve déjà {onStoreRequestSell.Store.Items.Count()}", ColorConstants.Orange);
         player.menu.Close();
         return;
       }
 
       player.menu.titleLines = new List<string> {
-        $"A quel prix souhaitez-vous mettre {onStoreRequestSell.Item.Name.ColorString(Color.LIME)} en vente ?",
+        $"A quel prix souhaitez-vous mettre {onStoreRequestSell.Item.Name.ColorString(ColorConstants.Lime)} en vente ?",
         "(prononcez simplement la valeur à haute voix)"
       };
 
@@ -217,7 +217,7 @@ namespace NWN.System
       else
       {
         pointValue = input;
-        player.oid.SendServerMessage($"{item.Name.ColorString(Color.ORANGE)} est désormais en vente au prix de {pointValue.ToString().ColorString(Color.GREEN)} pièce(s) d'or.");
+        player.oid.SendServerMessage($"{item.Name.ColorString(ColorConstants.Orange)} est désormais en vente au prix de {pointValue.ToString().ColorString(ColorConstants.Green)} pièce(s) d'or.");
 
         NwItem copy = item.Clone(shop);
         ItemPlugin.SetBaseGoldPieceValue(copy, pointValue / item.StackSize);
@@ -247,8 +247,8 @@ namespace NWN.System
         return;
 
       NwPlaceable panel = onClose.Store.GetNearestObjectsByType<NwPlaceable>().FirstOrDefault(p => p.Tag.StartsWith("_PLAYER_AUCTION_PLC_"));
-      panel.Name = "[ENCHERES] ".ColorString(Color.ORANGE) +
-        onClose.Store.Items.FirstOrDefault().Name.ColorString(Color.OLIVE) + " " +
+      panel.Name = "[ENCHERES] ".ColorString(ColorConstants.Orange) +
+        onClose.Store.Items.FirstOrDefault().Name.ColorString(ColorConstants.Red) + " " +
         onClose.Store.GetLocalVariable<int>("_CURRENT_AUCTION").Value + " Fin : " + onClose.Store.GetLocalVariable<int>("_AUCTION_END_DATE").Value;
 
       var query = NWScript.SqlPrepareQueryCampaign(Config.database, $"UPDATE playerShops set shop = @shop, panel = @panel, highestAuction = @highestAuction, highestAuctionner = @highestAuctionner where rowid = @shopId");
@@ -264,14 +264,14 @@ namespace NWN.System
       onStoreRequestBuy.PreventBuy = true;
 
       if (PlayerSystem.Players.TryGetValue(onStoreRequestBuy.Creature, out PlayerSystem.Player player))
-        player.oid.SendServerMessage("Veuillez attendre la fin de l'enchère avant de pouvoir obtenir ce bien.", Color.ROSE);
+        player.oid.SendServerMessage("Veuillez attendre la fin de l'enchère avant de pouvoir obtenir ce bien.", ColorConstants.Rose);
     }
     public static void HandleOtherPlayerAuctionSell(OnStoreRequestSell onStoreRequestSell)
     {
       onStoreRequestSell.PreventSell = true;
 
       if (PlayerSystem.Players.TryGetValue(onStoreRequestSell.Creature, out PlayerSystem.Player player))
-        player.oid.SendServerMessage("Impossible de vendre dans ce type d'échoppe.", Color.ORANGE);
+        player.oid.SendServerMessage("Impossible de vendre dans ce type d'échoppe.", ColorConstants.Orange);
     }
     public static void OnOpenOwnedPlayerAuction(StoreEvents.OnOpen onOpen)
     {
@@ -293,8 +293,8 @@ namespace NWN.System
         return;
 
       NwPlaceable panel = onClose.Store.GetNearestObjectsByType<NwPlaceable>().FirstOrDefault(p => p.Tag.StartsWith("_PLAYER_AUCTION_PLC_"));
-      panel.Name = "[ENCHERES] ".ColorString(Color.ORANGE) +
-        onClose.Store.Items.FirstOrDefault().Name.ColorString(Color.OLIVE) + " " +
+      panel.Name = "[ENCHERES] ".ColorString(ColorConstants.Orange) +
+        onClose.Store.Items.FirstOrDefault().Name.ColorString(ColorConstants.Red) + " " +
         onClose.Store.GetLocalVariable<int>("_CURRENT_AUCTION").Value + " Fin : " + onClose.Store.GetLocalVariable<int>("_AUCTION_END_DATE").Value;
 
       if (onClose.Store.GetLocalVariable<int>("_AUCTION_ID").HasNothing)
@@ -333,14 +333,14 @@ namespace NWN.System
       onStoreRequestBuy.PreventBuy = true;
 
       if (PlayerSystem.Players.TryGetValue(onStoreRequestBuy.Creature, out PlayerSystem.Player player))
-        player.oid.SendServerMessage("Veuillez attendre la fin de l'enchère avant de pouvoir obtenir ce bien.", Color.ROSE);
+        player.oid.SendServerMessage("Veuillez attendre la fin de l'enchère avant de pouvoir obtenir ce bien.", ColorConstants.Rose);
     }
     public static void HandleOwnedPlayerAuctionSell(OnStoreRequestSell onStoreRequestSell)
     {
       onStoreRequestSell.PreventSell = true;
 
       if (PlayerSystem.Players.TryGetValue(onStoreRequestSell.Creature, out PlayerSystem.Player player))
-        player.oid.SendServerMessage("Impossible de vendre dans ce type d'échoppe.", Color.ORANGE);
+        player.oid.SendServerMessage("Impossible de vendre dans ce type d'échoppe.", ColorConstants.Orange);
     }
 
     public static void OnOpenGenericStore(StoreEvents.OnOpen onOpen)
@@ -501,7 +501,7 @@ namespace NWN.System
       player.menu.Clear();
 
       player.menu.titleLines = new List<string> {
-        $"A quel nombre de points {onStoreRequestSell.Item.Name.ColorString(Color.LIME)} doit-il pouvoir être acheté ?",
+        $"A quel nombre de points {onStoreRequestSell.Item.Name.ColorString(ColorConstants.Lime)} doit-il pouvoir être acheté ?",
         "(prononcez simplement la valeur à haute voix)"
       };
 
@@ -531,7 +531,7 @@ namespace NWN.System
       else
       {
         pointValue = input;
-        player.oid.SendServerMessage($"{item.Name.ColorString(Color.ORANGE)} peut désormais être échangé contre {pointValue.ToString().ColorString(Color.GREEN)} point(s).");
+        player.oid.SendServerMessage($"{item.Name.ColorString(ColorConstants.Orange)} peut désormais être échangé contre {pointValue.ToString().ColorString(ColorConstants.Green)} point(s).");
         
         NwItem copy = item.Clone(shop);
         ItemPlugin.SetBaseGoldPieceValue(copy, pointValue / item.StackSize);
@@ -572,8 +572,8 @@ namespace NWN.System
 
      if(buyer.pveArena.totalPoints < onStoreRequestBuy.Price)
       {
-        buyer.oid.SendServerMessage($"{onStoreRequestBuy.Item.Name.ColorString(Color.WHITE)} coûte " +
-          $"{onStoreRequestBuy.Price.ToString().ColorString(Color.WHITE)} point(s), or vous n'en possédez que {buyer.pveArena.totalPoints.ToString().ColorString(Color.WHITE)}", Color.ORANGE);
+        buyer.oid.SendServerMessage($"{onStoreRequestBuy.Item.Name.ColorString(ColorConstants.White)} coûte " +
+          $"{onStoreRequestBuy.Price.ToString().ColorString(ColorConstants.White)} point(s), or vous n'en possédez que {buyer.pveArena.totalPoints.ToString().ColorString(ColorConstants.White)}", ColorConstants.Orange);
       }
      else
       {
@@ -582,8 +582,8 @@ namespace NWN.System
         NwItem acquiredItem = onStoreRequestBuy.Item.Clone(onStoreRequestBuy.Creature);
         acquiredItem.GetLocalVariable<int>("_DURABILITY").Value = ItemUtils.GetBaseItemCost(acquiredItem) * 50;
 
-        buyer.oid.SendServerMessage($"Vous venez d'acquérir {onStoreRequestBuy.Item.Name.ColorString(Color.WHITE)}" +
-          $"pour {onStoreRequestBuy.Price.ToString().ColorString(Color.WHITE)} point(s). Points restants : {buyer.pveArena.totalPoints.ToString().ColorString(Color.WHITE)}", Color.ORANGE);
+        buyer.oid.SendServerMessage($"Vous venez d'acquérir {onStoreRequestBuy.Item.Name.ColorString(ColorConstants.White)}" +
+          $"pour {onStoreRequestBuy.Price.ToString().ColorString(ColorConstants.White)} point(s). Points restants : {buyer.pveArena.totalPoints.ToString().ColorString(ColorConstants.White)}", ColorConstants.Orange);
       }
     }
     public static void HandleArenaRewardStoreSell(OnStoreRequestSell onStoreRequestSell)
@@ -591,7 +591,7 @@ namespace NWN.System
       onStoreRequestSell.PreventSell = true;
 
       if (PlayerSystem.Players.TryGetValue(onStoreRequestSell.Creature, out PlayerSystem.Player player))
-        player.oid.SendServerMessage("Impossible de vendre dans ce type d'échoppe.", Color.ORANGE);
+        player.oid.SendServerMessage("Impossible de vendre dans ce type d'échoppe.", ColorConstants.Orange);
     }
     private static bool HasEnoughBankGold(PlayerSystem.Player player, int itemPrice)
     {

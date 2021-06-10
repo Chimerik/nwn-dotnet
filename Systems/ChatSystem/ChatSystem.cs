@@ -122,7 +122,7 @@ namespace NWN.Systems
           if (!ctx.oTarget.IsDM)
           {
             ChatPlugin.SkipMessage();
-            ctx.oSender.SendServerMessage($"{ctx.oTarget.LoginCreature.Name.ColorString(Color.WHITE)} bloque actuellement la réception des mp.", Color.ORANGE);
+            ctx.oSender.SendServerMessage($"{ctx.oTarget.LoginCreature.Name.ColorString(ColorConstants.White)} bloque actuellement la réception des mp.", ColorConstants.Orange);
             return;
           }
       }
@@ -144,7 +144,7 @@ namespace NWN.Systems
       else
       {
         ChatPlugin.SkipMessage();
-        ctx.oSender.SendServerMessage("La personne à laquelle vous tentez d'envoyer un message n'est plus connectée.", Color.ORANGE);
+        ctx.oSender.SendServerMessage("La personne à laquelle vous tentez d'envoyer un message n'est plus connectée.", ColorConstants.Orange);
         return;
       }
     }

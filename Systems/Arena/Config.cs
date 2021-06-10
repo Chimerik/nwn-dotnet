@@ -157,13 +157,13 @@ namespace NWN.Systems.Arena
     }
     private static void ApplyNoMalus(PlayerSystem.Player player)
     {
-      player.oid.SendServerMessage("Quelle chance, aucun handicap !", Color.PINK);
+      player.oid.SendServerMessage("Quelle chance, aucun handicap !", ColorConstants.Pink);
     }
     private static void ApplyNoMalusAndHeal(PlayerSystem.Player player)
     {
       player.oid.LoginCreature.ApplyEffect(EffectDuration.Instant, Effect.VisualEffect(VfxType.ImpHealingG));
       player.oid.LoginCreature.ApplyEffect(EffectDuration.Instant, Effect.Heal(player.oid.LoginCreature.MaxHP / 2));
-      player.oid.SendServerMessage("Quelle chance, aucun handicap et des soins gratuits !", Color.PINK);
+      player.oid.SendServerMessage("Quelle chance, aucun handicap et des soins gratuits !", ColorConstants.Pink);
     }
     public static RoundCreatures[] GetNormalEncounters(Difficulty difficulty) {
     switch(difficulty)

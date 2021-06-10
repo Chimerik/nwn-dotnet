@@ -16,7 +16,7 @@ namespace NWN.Systems
           oCloak.HiddenWhenEquipped = 0;
       }
       else
-        oPC.SendServerMessage("Vous ne portez pas de cape!", Color.RED);
+        oPC.SendServerMessage("Vous ne portez pas de cape!", ColorConstants.Red);
     }
   }
 }

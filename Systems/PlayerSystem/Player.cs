@@ -280,7 +280,7 @@ namespace NWN.Systems
               {
                 reactivatedItem.GetLocalVariable<int>("_DURABILITY").Value = reactivatedItem.GetLocalVariable<int>("_MAX_DURABILITY").Value;
                 reactivatedItem.GetLocalVariable<int>("_REPAIR_DONE").Delete();
-                oid.SendServerMessage($"Réactivation de {reactivatedItem.Name.ColorString(Color.WHITE)} terminée. L'objet est comme neuf !", new Color(32, 255, 32));
+                oid.SendServerMessage($"Réactivation de {reactivatedItem.Name.ColorString(ColorConstants.White)} terminée. L'objet est comme neuf !", new Color(32, 255, 32));
               }
             });
 
@@ -297,7 +297,7 @@ namespace NWN.Systems
             else
               materialStock.Add(craftJob.material, recycledValue);
 
-            oid.SendServerMessage($"Recyclage de {recycledItem.Name.ColorString(Color.WHITE)} terminé. Vous en retirez {recycledValue} unité(s) de {craftJob.material}", new Color(32, 255, 32)) ;
+            oid.SendServerMessage($"Recyclage de {recycledItem.Name.ColorString(ColorConstants.White)} terminé. Vous en retirez {recycledValue} unité(s) de {craftJob.material}", new Color(32, 255, 32)) ;
             recycledItem.Destroy();
 
             break;
@@ -308,7 +308,7 @@ namespace NWN.Systems
             reinforcedItem.GetLocalVariable<int>("_DURABILITY").Value += reinforcedItem.GetLocalVariable<int>("_MAX_DURABILITY").Value * 5 / 100;
             reinforcedItem.GetLocalVariable<int>("_REINFORCEMENT_LEVEL").Value += 1;
 
-            oid.SendServerMessage($"Renforcement de {reinforcedItem.Name.ColorString(Color.WHITE)} terminé.", new Color(32, 255, 32));
+            oid.SendServerMessage($"Renforcement de {reinforcedItem.Name.ColorString(ColorConstants.White)} terminé.", new Color(32, 255, 32));
 
             break;
           case Job.JobType.Repair:
@@ -318,18 +318,17 @@ namespace NWN.Systems
             if(!repairedItem.ItemProperties.Any(ip => ip.Tag.Contains("_INACTIVE")))
             {
               repairedItem.GetLocalVariable<int>("_DURABILITY").Value = repairedItem.GetLocalVariable<int>("_MAX_DURABILITY").Value;
-              oid.SendServerMessage($"Réparation de {repairedItem.Name.ColorString(Color.WHITE)} terminée. L'objet est comme neuf !", new Color(32, 255, 32));
+              oid.SendServerMessage($"Réparation de {repairedItem.Name.ColorString(ColorConstants.White)} terminée. L'objet est comme neuf !", new Color(32, 255, 32));
             }
             else
             {
               repairedItem.GetLocalVariable<int>("_REPAIR_DONE").Value = 1;
-              oid.SendServerMessage($"Réparation de {repairedItem.Name.ColorString(Color.WHITE)} terminée. Reste cependant à réactiver les enchantements.", Color.ORANGE);
+              oid.SendServerMessage($"Réparation de {repairedItem.Name.ColorString(ColorConstants.White)} terminée. Reste cependant à réactiver les enchantements.", ColorConstants.Orange);
             }
             break;
           default:
             if (Craft.Collect.System.blueprintDictionnary.TryGetValue(craftJob.baseItemType, out Blueprint blueprint))
             {
-              await NwModule.Instance.WaitForObjectContext();
               NwItem craftedItem;
               if (craftJob.craftedItem != "")
               {
@@ -337,7 +336,7 @@ namespace NWN.Systems
                 oid.LoginCreature.AcquireItem(craftedItem);
               }
               else
-                craftedItem = NwItem.Create(blueprint.craftedItemTag, oid.LoginCreature);
+                craftedItem = await NwItem.Create(blueprint.craftedItemTag, oid.LoginCreature);
 
               if (craftedItem == null)
               {
@@ -355,7 +354,7 @@ namespace NWN.Systems
               if (NwRandom.Roll(Utils.random, 100) <= artisanExceptionnelLevel)
               {
                 craftedItem.GetLocalVariable<int>("_AVAILABLE_ENCHANTEMENT_SLOT").Value += 1;
-                oid.SendServerMessage("Votre talent d'artisan vous a permis de créer un objet exceptionnel disposant d'un emplacement d'enchantement supplémentaire !", Color.NAVY);
+                oid.SendServerMessage("Votre talent d'artisan vous a permis de créer un objet exceptionnel disposant d'un emplacement d'enchantement supplémentaire !", ColorConstants.Navy);
               }
 
               int artisanAppliqueLevel = 0;
@@ -365,7 +364,7 @@ namespace NWN.Systems
               if (NwRandom.Roll(Utils.random, 100) <= artisanAppliqueLevel * 3)
               {
                 craftedItem.GetLocalVariable<int>("_MAX_DURABILITY").Value += craftedItem.GetLocalVariable<int>("_MAX_DURABILITY").Value * 20 / 100;
-                oid.SendServerMessage("En travaillant de manière particulièrement appliquée, vous parvenez à fabriquer un objet plus résistant !", Color.NAVY);
+                oid.SendServerMessage("En travaillant de manière particulièrement appliquée, vous parvenez à fabriquer un objet plus résistant !", ColorConstants.Navy);
               }
 
               craftedItem.GetLocalVariable<int>("_DURABILITY").Value = craftedItem.GetLocalVariable<int>("_MAX_DURABILITY").Value;

@@ -19,7 +19,7 @@ namespace NWN.Systems
       NwStore store = storePanel.GetNearestObjectsByType<NwStore>().FirstOrDefault(s => s.Tag == $"_PLAYER_AUCTION_{player.oid.CDKey}");
 
       player.menu.titleLines = new List<string>() {
-        $"Quelle modification souhaitez-vous apporter à votre échoppe {storePanel.Name.ColorString(Color.GREEN)} ?"
+        $"Quelle modification souhaitez-vous apporter à votre échoppe {storePanel.Name.ColorString(ColorConstants.Green)} ?"
       };
 
       if (store.Items.Count() < 1)
@@ -57,7 +57,7 @@ namespace NWN.Systems
     }
     private static void GetObjectToAdd(Player player, NwStore store, NwPlaceable panel)
     {
-      player.oid.SendServerMessage("Veuillez maintenant sélectionnner l'objet que vous souhaitez mettre en vente.", Color.ROSE);
+      player.oid.SendServerMessage("Veuillez maintenant sélectionnner l'objet que vous souhaitez mettre en vente.", ColorConstants.Rose);
       player.oid.LoginCreature.GetLocalVariable<NwObject>("_ACTIVE_STORE").Value = store;
       player.oid.LoginCreature.GetLocalVariable<NwObject>("_ACTIVE_PANEL").Value = panel;
       cursorTargetService.EnterTargetMode(player.oid, OnSellItemSelected, API.Constants.ObjectTypes.Item, API.Constants.MouseCursor.Pickup);
@@ -94,7 +94,7 @@ namespace NWN.Systems
       {
         shop.Description = player.oid.LoginCreature.GetLocalVariable<string>("_PLAYER_INPUT").Value;
         player.oid.LoginCreature.GetLocalVariable<string>("_PLAYER_INPUT").Delete();
-        player.oid.SendServerMessage($"La description de votre échoppe a été modifiée.", Color.ROSE);
+        player.oid.SendServerMessage($"La description de votre échoppe a été modifiée.", ColorConstants.Rose);
         DrawMainPage(player, shop);
       }
     }
@@ -104,8 +104,8 @@ namespace NWN.Systems
         return;
 
       NwPlaceable panel = shop.GetNearestObjectsByType<NwPlaceable>().FirstOrDefault(p => p.Tag == $"_PLAYER_AUCTION_PLC_{player.oid.CDKey}");
-      panel.Name = "[ENCHERES] ".ColorString(Color.ORANGE) +
-        shop.Items.FirstOrDefault().Name.ColorString(Color.OLIVE) + " " +
+      panel.Name = "[ENCHERES] ".ColorString(ColorConstants.Orange) +
+        shop.Items.FirstOrDefault().Name.ColorString(ColorConstants.Red) + " " +
         shop.GetLocalVariable<int>("_CURRENT_AUCTION").Value + " Fin : " + shop.GetLocalVariable<int>("_AUCTION_END_DATE").Value;
       
       if (shop.GetLocalVariable<int>("_AUCTION_ID").HasNothing)
@@ -167,12 +167,12 @@ namespace NWN.Systems
       if (input <= 0)
       {
         goldValue = item.GoldValue;
-        player.oid.SendServerMessage($"La mise à prix saisie est invalide. {item.Name.ColorString(Color.ORANGE)} est désormais aux enchères avec une mise à prix de base de {goldValue.ToString().ColorString(Color.GREEN)} pièce(s) d'or.");
+        player.oid.SendServerMessage($"La mise à prix saisie est invalide. {item.Name.ColorString(ColorConstants.Orange)} est désormais aux enchères avec une mise à prix de base de {goldValue.ToString().ColorString(ColorConstants.Green)} pièce(s) d'or.");
       }
       else
       {
         goldValue = input;
-        player.oid.SendServerMessage($"{item.Name.ColorString(Color.ORANGE)} est désormais aux enchères avec une mise à prix de base de {goldValue.ToString().ColorString(Color.GREEN)} pièce(s) d'or.");
+        player.oid.SendServerMessage($"{item.Name.ColorString(ColorConstants.Orange)} est désormais aux enchères avec une mise à prix de base de {goldValue.ToString().ColorString(ColorConstants.Green)} pièce(s) d'or.");
       }
 
       player.menu.titleLines = new List<string> {
@@ -200,12 +200,12 @@ namespace NWN.Systems
       if (input <= 0 || input > 30)
       {
         auctionDuration = 1;
-        player.oid.SendServerMessage($"La durée saisie est invalide. {item.Name.ColorString(Color.ORANGE)} est désormais aux enchères avec une mise à prix de base de {goldValue.ToString().ColorString(Color.GREEN)} pièce(s) d'or pour une durée de {auctionDuration} jour.");
+        player.oid.SendServerMessage($"La durée saisie est invalide. {item.Name.ColorString(ColorConstants.Orange)} est désormais aux enchères avec une mise à prix de base de {goldValue.ToString().ColorString(ColorConstants.Green)} pièce(s) d'or pour une durée de {auctionDuration} jour.");
       }
       else
       {
         auctionDuration = input;
-        player.oid.SendServerMessage($"{item.Name.ColorString(Color.ORANGE)} est désormais aux enchères avec une mise à prix de base de {goldValue.ToString().ColorString(Color.GREEN)} pièce(s) d'or pour une durée de {auctionDuration} jour(s).");
+        player.oid.SendServerMessage($"{item.Name.ColorString(ColorConstants.Orange)} est désormais aux enchères avec une mise à prix de base de {goldValue.ToString().ColorString(ColorConstants.Green)} pièce(s) d'or pour une durée de {auctionDuration} jour(s).");
       }
 
       NwItem copy = item.Clone(shop);
@@ -232,7 +232,7 @@ namespace NWN.Systems
     {
       player.menu.Clear();
       player.menu.titleLines = new List<string> {
-        $"L'enchère actuelle pour {shop.Items.FirstOrDefault().Name.ColorString(Color.ORANGE)} est de {shop.GetLocalVariable<int>("_CURRENT_AUCTION").Value.ToString().ColorString(Color.GREEN)}.",
+        $"L'enchère actuelle pour {shop.Items.FirstOrDefault().Name.ColorString(ColorConstants.Orange)} est de {shop.GetLocalVariable<int>("_CURRENT_AUCTION").Value.ToString().ColorString(ColorConstants.Green)}.",
         "A hauteur de combien souhaitez-vous surenchérir ?",
         "(prononcez simplement la valeur de votre enchère à haute voix)"
       };
@@ -255,7 +255,7 @@ namespace NWN.Systems
 
       if (input > player.oid.LoginCreature.Gold)
       {
-        player.oid.SendServerMessage($"Vous n'avez pas {input.ToString().ColorString(Color.GREEN)} pièce(s) d'or en poche !");
+        player.oid.SendServerMessage($"Vous n'avez pas {input.ToString().ColorString(ColorConstants.Green)} pièce(s) d'or en poche !");
         player.menu.Close();
         return;
       }
@@ -263,12 +263,12 @@ namespace NWN.Systems
       if (input <= shop.GetLocalVariable<int>("_CURRENT_AUCTION").Value)
       {
         auctionSetPrice = shop.GetLocalVariable<int>("_CURRENT_AUCTION").Value + 1;
-        player.oid.SendServerMessage($"La valeur saisie est invalide.  Par défaut, vous avez donc surenchérit à hauteur de {auctionSetPrice.ToString().ColorString(Color.GREEN)} pièce(s) d'or.");
+        player.oid.SendServerMessage($"La valeur saisie est invalide.  Par défaut, vous avez donc surenchérit à hauteur de {auctionSetPrice.ToString().ColorString(ColorConstants.Green)} pièce(s) d'or.");
       }
       else
       {
         auctionSetPrice = input;
-        player.oid.SendServerMessage($"Vous venez de surenchérir à hauteur de {auctionSetPrice.ToString().ColorString(Color.GREEN)} pièce(s) d'or.");
+        player.oid.SendServerMessage($"Vous venez de surenchérir à hauteur de {auctionSetPrice.ToString().ColorString(ColorConstants.Green)} pièce(s) d'or.");
       }
 
       UpdateHighestAuctionner(shop, auctionSetPrice, player);
@@ -290,7 +290,7 @@ namespace NWN.Systems
 
       NwPlayer oSeller = NwModule.Instance.Players.FirstOrDefault(p => ObjectPlugin.GetInt(p.LoginCreature, "characterId") == shop.GetLocalVariable<int>("_CURRENT_AUCTIONNER").Value);
       if (oSeller != null)
-        oSeller.SendServerMessage($"Votre enchère sur {item.Name.ColorString(Color.ORANGE)} vient d'être battue. Le nouveau prix est de : {auctionSetPrice.ToString().ColorString(Color.ORANGE)}. La valeur de votre enchère a été versée à votre banque.");
+        oSeller.SendServerMessage($"Votre enchère sur {item.Name.ColorString(ColorConstants.Orange)} vient d'être battue. Le nouveau prix est de : {auctionSetPrice.ToString().ColorString(ColorConstants.Orange)}. La valeur de votre enchère a été versée à votre banque.");
 
       shop.GetLocalVariable<int>("_CURRENT_AUCTION").Value = auctionSetPrice;
       shop.GetLocalVariable<int>("_CURRENT_AUCTIONNER").Value = player.characterId;

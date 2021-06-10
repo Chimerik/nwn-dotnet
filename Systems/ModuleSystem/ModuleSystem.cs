@@ -35,6 +35,8 @@ namespace NWN.Systems
       NwServer.Instance.ServerInfo.PlayOptions.RestoreSpellUses = false;
       NwServer.Instance.ServerInfo.PlayOptions.ShowDMJoinMessage = false;
 
+      ItemSystem.feedbackService.AddCombatLogMessageFilter(CombatLogMessage.ComplexAttack);
+
       SetModuleTime();
       SaveServerVault();  
 
@@ -235,6 +237,8 @@ namespace NWN.Systems
       EventsPlugin.SubscribeEvent("NWNX_ON_EFFECT_REMOVED_BEFORE", "effect_removed");
 
       //EventsPlugin.SubscribeEvent("NWNX_ON_HAS_FEAT_AFTER", "event_has_feat");
+
+      NwModule.Instance.OnCreatureAttack += AttackSystem.HandleAttackEvent;
     }
     private void SetModuleTime()
     {
@@ -483,10 +487,9 @@ namespace NWN.Systems
           // S'il est co, on rend l'item au seller et on détruit la ligne en BDD. S'il est pas co, on attend la prochaine occurence pour lui rendre l'item
           if (oSeller != null)
           {
-            await NwModule.Instance.WaitForObjectContext();
             tempItem.Clone(oSeller.LoginCreature);
-            NwItem authorization = NwItem.Create("auction_clearanc", oSeller.LoginCreature);
-            oSeller.SendServerMessage($"Aucune enchère sur votre {tempItem.Name.ColorString(API.Color.ORANGE)}. L'objet vous a donc été restitué.");
+            NwItem authorization = await NwItem.Create("auction_clearanc", oSeller.LoginCreature);
+            oSeller.SendServerMessage($"Aucune enchère sur votre {tempItem.Name.ColorString(API.ColorConstants.Orange)}. L'objet vous a donc été restitué.");
           }
           else
           {
@@ -508,11 +511,10 @@ namespace NWN.Systems
               if (PlayerSystem.Players.TryGetValue(oSeller.LoginCreature, out PlayerSystem.Player seller))
               {
                 seller.bankGold += highestAuction * 95 / 100;
-                oSeller.SendServerMessage($"Votre enchère vous a permis de remporter {(highestAuction * 95 / 100).ToString().ColorString(API.Color.ORANGE)}. L'or a été versé à votre banque !");
+                oSeller.SendServerMessage($"Votre enchère vous a permis de remporter {(highestAuction * 95 / 100).ToString().ColorString(API.ColorConstants.Orange)}. L'or a été versé à votre banque !");
               }
 
-              await NwModule.Instance.WaitForObjectContext();
-              NwItem authorization = NwItem.Create("auction_clearanc", oSeller.LoginCreature);
+              NwItem authorization = await NwItem.Create("auction_clearanc", oSeller.LoginCreature);
             }
             else 
             {
@@ -536,7 +538,7 @@ namespace NWN.Systems
           if (oBuyer != null)
           {
             tempItem.Clone(oBuyer.LoginCreature);
-            oSeller.SendServerMessage($"Vous venez de remporter l'enchère sur {tempItem.Name.ColorString(API.Color.ORANGE)}. L'objet se trouve désormais dans votre inventaire.");
+            oSeller.SendServerMessage($"Vous venez de remporter l'enchère sur {tempItem.Name.ColorString(API.ColorConstants.Orange)}. L'objet se trouve désormais dans votre inventaire.");
           }
           else
           {

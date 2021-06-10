@@ -9,7 +9,7 @@ namespace NWN.Systems
     {
       if (player.listened.Count > 0)
       {
-        player.oid.SendServerMessage("Ecoute globale désactivée.", Color.CYAN);
+        player.oid.SendServerMessage("Ecoute globale désactivée.", ColorConstants.Cyan);
         player.listened.Clear();
       }
       else
@@ -17,7 +17,7 @@ namespace NWN.Systems
         foreach (NwPlayer oPC in NwModule.Instance.Players.Where(p => !p.IsDM))
           player.listened.Add(oPC);
 
-        player.oid.SendServerMessage("Ecoute globale activée.", Color.CYAN);
+        player.oid.SendServerMessage("Ecoute globale activée.", ColorConstants.Cyan);
       }
     }
   }

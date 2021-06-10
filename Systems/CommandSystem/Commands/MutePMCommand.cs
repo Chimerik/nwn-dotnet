@@ -12,12 +12,12 @@ namespace NWN.Systems
         if (ObjectPlugin.GetInt(ctx.oSender.LoginCreature, "__BLOCK_" + ctx.oTarget.LoginCreature.Name + "_MP") == 0)
         {
           ObjectPlugin.SetInt(ctx.oSender.LoginCreature, "__BLOCK_" + ctx.oTarget.LoginCreature.Name + "_MP", 1, 1);
-          ctx.oSender.SendServerMessage($"Vous bloquez désormais tous les mps de {ctx.oTarget.LoginCreature.Name.ColorString(Color.WHITE)}. Cette commande ne fonctionne pas sur les Dms.", Color.BLUE);
+          ctx.oSender.SendServerMessage($"Vous bloquez désormais tous les mps de {ctx.oTarget.LoginCreature.Name.ColorString(ColorConstants.White)}. Cette commande ne fonctionne pas sur les Dms.", ColorConstants.Blue);
         }
         else
         {
           ObjectPlugin.DeleteInt(ctx.oSender.LoginCreature, "__BLOCK_" + ctx.oTarget.LoginCreature.Name + "_MP");
-          ctx.oSender.SendServerMessage($"Vous ne bloquez plus les mps de {ctx.oTarget.LoginCreature.Name.ColorString(Color.WHITE)}", Color.BLUE);
+          ctx.oSender.SendServerMessage($"Vous ne bloquez plus les mps de {ctx.oTarget.LoginCreature.Name.ColorString(ColorConstants.White)}", ColorConstants.Blue);
         }
       }
       else
@@ -25,12 +25,12 @@ namespace NWN.Systems
         if (ObjectPlugin.GetInt(ctx.oSender.LoginCreature, "__BLOCK_ALL_MP") == 0)
         {
           ObjectPlugin.SetInt(ctx.oSender.LoginCreature, "__BLOCK_ALL_MP", 1, 1);
-          ctx.oSender.SendServerMessage("Vous bloquez désormais l'affichage global des mps. Vous recevrez cependant toujours ceux des DMs.", Color.BLUE);
+          ctx.oSender.SendServerMessage("Vous bloquez désormais l'affichage global des mps. Vous recevrez cependant toujours ceux des DMs.", ColorConstants.Blue);
         }
         else
         {
           ObjectPlugin.DeleteInt(ctx.oSender.LoginCreature, "__BLOCK_ALL_MP");
-          ctx.oSender.SendServerMessage("Vous réactivez désormais l'affichage global des mps. Vous ne recevrez cependant pas ceux que vous bloqué individuellement.", Color.BLUE);
+          ctx.oSender.SendServerMessage("Vous réactivez désormais l'affichage global des mps. Vous ne recevrez cependant pas ceux que vous bloqué individuellement.", ColorConstants.Blue);
         }
       }
     }

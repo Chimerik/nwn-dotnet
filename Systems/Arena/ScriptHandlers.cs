@@ -79,7 +79,7 @@ namespace NWN.Systems.Arena
       if (player.pveArena.currentRound > Config.roundMax)
       {
         ArenaMenu.HandleStop(player);
-        player.oid.SendServerMessage($"Félicitations, vous avez terminé vos combats et remporté {player.pveArena.currentPoints.ToString().ColorString(Color.WHITE)} sur cette tentative pour un total de {player.pveArena.totalPoints.ToString().ColorString(Color.WHITE)}", Color.ROSE);
+        player.oid.SendServerMessage($"Félicitations, vous avez terminé vos combats et remporté {player.pveArena.currentPoints.ToString().ColorString(ColorConstants.White)} sur cette tentative pour un total de {player.pveArena.totalPoints.ToString().ColorString(ColorConstants.White)}", ColorConstants.Rose);
       }
       else
       {
@@ -116,7 +116,7 @@ namespace NWN.Systems.Arena
 
           oCreature.GetLocalVariable<int>("_IS_GNOME_MECH").Value = 1;
           ApplyGnomeMechAoE(oCreature);
-          oCreature.OnCreatureDamage += AttackSystem.HandleDamageEvent;
+          //oCreature.OnCreatureDamage += AttackSystem.HandleDamageEvent;
           
         break;
         case "bat_sewer":
@@ -134,7 +134,7 @@ namespace NWN.Systems.Arena
           oCreature.GetLocalVariable<int>("_IS_GNOME_MECH").Value = 1;
           ApplyGnomeMechAoE(oCreature);
           oCreature.OnCreatureDamage += HandleDogAttack;
-          oCreature.OnCreatureDamage += AttackSystem.HandleDamageEvent;
+          //oCreature.OnCreatureDamage += AttackSystem.HandleDamageEvent;
           break;
         case "cutter_meca":
           oCreature.GetLocalVariable<int>("_IS_GNOME_MECH").Value = 1;

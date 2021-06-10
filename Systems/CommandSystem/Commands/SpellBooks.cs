@@ -73,7 +73,7 @@ namespace NWN.Systems
       NWScript.SqlBindString(grimoireQuery, "@serializedGrimoire", spellList);
       NWScript.SqlStep(grimoireQuery);
 
-      player.oid.SendServerMessage($"Votre grimoire {grimoireName.ColorString(Color.WHITE)} a bien été enregistré !", new Color(32, 255, 32));
+      player.oid.SendServerMessage($"Votre grimoire {grimoireName.ColorString(ColorConstants.White)} a bien été enregistré !", new Color(32, 255, 32));
 
       DrawGrimoireWelcomePage();
     }
@@ -129,7 +129,7 @@ namespace NWN.Systems
       NWScript.SqlBindString(query, "@grimoireName", grimoireName);
       NWScript.SqlStep(query);
 
-      player.oid.SendServerMessage($"Votre grimoire {grimoireName.ColorString(Color.WHITE)} a bien été supprimé.", new Color(32, 255, 32));
+      player.oid.SendServerMessage($"Votre grimoire {grimoireName.ColorString(ColorConstants.White)} a bien été supprimé.", new Color(32, 255, 32));
       DrawGrimoireList();
     }
     private void LoadGrimoire(string grimoireName, string serializedGrimoire)
@@ -163,7 +163,7 @@ namespace NWN.Systems
         i++;
       }
 
-      player.oid.SendServerMessage($"Votre grimoire {grimoireName.ColorString(Color.WHITE)} a bien été chargé.", new Color(32, 255, 32));
+      player.oid.SendServerMessage($"Votre grimoire {grimoireName.ColorString(ColorConstants.White)} a bien été chargé.", new Color(32, 255, 32));
       player.menu.Close();
     }
   }

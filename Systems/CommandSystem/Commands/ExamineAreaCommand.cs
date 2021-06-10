@@ -15,7 +15,7 @@ namespace NWN.Systems
       if (NWScript.SqlStep(query) != 0)
       {
         string originalDesc = oPC.ControlledCreature.Description;
-        string tempDescription = oPC.ControlledCreature.Area.Name.ColorString(Color.ORANGE) + "\n\n" + NWScript.SqlGetString(query, 0);
+        string tempDescription = oPC.ControlledCreature.Area.Name.ColorString(ColorConstants.Orange) + "\n\n" + NWScript.SqlGetString(query, 0);
         oPC.ControlledCreature.Description = tempDescription;
         oPC.ControlledCreature.ClearActionQueue();
         oPC.ActionExamine(oPC.ControlledCreature);

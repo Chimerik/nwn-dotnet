@@ -46,10 +46,7 @@ namespace NWN.Systems.Arena
 
       await NwTask.WaitUntil(() => onPlayerDeath.DeadPlayer.LoginCreature.Location.Area != null);
 
-      NWScript.SetObjectVisualTransform(onPlayerDeath.DeadPlayer.LoginCreature, NWScript.OBJECT_VISUAL_TRANSFORM_ROTATE_X, 0);
-      NWScript.SetObjectVisualTransform(onPlayerDeath.DeadPlayer.LoginCreature, NWScript.OBJECT_VISUAL_TRANSFORM_ROTATE_Y, 0);
-      NWScript.SetObjectVisualTransform(onPlayerDeath.DeadPlayer.LoginCreature, NWScript.OBJECT_VISUAL_TRANSFORM_ROTATE_Z, 0);
-      NWScript.SetObjectVisualTransform(onPlayerDeath.DeadPlayer.LoginCreature, NWScript.OBJECT_VISUAL_TRANSFORM_TRANSLATE_Z, 0);
+      NWN.Utils.ResetVisualTransform(onPlayerDeath.DeadPlayer.LoginCreature);
 
       await NwTask.Delay(TimeSpan.FromSeconds(3));
 
@@ -203,7 +200,7 @@ namespace NWN.Systems.Arena
     public static void NoMagicMalus(OnSpellCast onSpellCast)
     {
       onSpellCast.PreventSpellCast = true;
-      ((NwCreature)onSpellCast.Caster).ControllingPlayer.SendServerMessage("Le contrat de spectateur vous interdit de lancer des sorts à l'intérieur de l'arène.", Color.RED);
+      ((NwCreature)onSpellCast.Caster).ControllingPlayer.SendServerMessage("Le contrat de spectateur vous interdit de lancer des sorts à l'intérieur de l'arène.", ColorConstants.Red);
     }
     public static async void RemoveArenaMalus(Player player, string malus, string message)
     {
@@ -212,7 +209,7 @@ namespace NWN.Systems.Arena
       foreach (API.Effect arenaMalus in player.oid.LoginCreature.ActiveEffects.Where(f => f.Tag == malus))
         player.oid.LoginCreature.RemoveEffect(arenaMalus);
 
-      player.oid.SendServerMessage(message, Color.ORANGE);
+      player.oid.SendServerMessage(message, ColorConstants.Orange);
     }
     private static void ResetPlayerLocation(Player player)
     {

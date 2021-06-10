@@ -11,13 +11,14 @@ namespace NWN.Systems
         DrawDMCommandList(player);
       }
       else
-        ctx.oSender.SendServerMessage("Il faut être connecté en DM pour avoir accès à ce menu.", Color.ORANGE);
+        ctx.oSender.SendServerMessage("Il faut être connecté en DM pour avoir accès à ce menu.", ColorConstants.Orange);
     }
     public static void DrawDMCommandList(PlayerSystem.Player player)
     {
       player.menu.Clear();
       player.menu.titleLines.Add("Voici la liste des commandes disponibles en jeu.");
       player.menu.choices.Add(("Afficher le menu d'édition des pnjs.", () => new PNJFactory(player)));
+      player.menu.choices.Add(("Modifier le vent de la zone actuelle.", () => new Wind(player)));
       player.menu.choices.Add(("Obtenir le tag de la zone actuelle.", () => player.oid.SendServerMessage($"Tag de {player.oid.ControlledCreature.Area.Name} : {player.oid.ControlledCreature.Area.Tag}")));
       player.menu.choices.Add(("Activer/Désactiver l'écoute globale.", () => new ListenAll(player)));
       player.menu.choices.Add(("Ajouter/Retirer un joueur de la liste d'écoute.", () => new ListenTarget(player.oid)));

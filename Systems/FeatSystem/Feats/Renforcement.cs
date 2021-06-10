@@ -1,7 +1,4 @@
-﻿using System;
-using NWN.API;
-using NWN.API.Constants;
-using static NWN.Systems.Craft.Collect.Config;
+﻿using NWN.API;
 
 namespace NWN.Systems
 {
@@ -14,7 +11,7 @@ namespace NWN.Systems
 
       if (!(oTarget is NwItem))
       {
-        oPC.SendServerMessage($"{oTarget.Name.ColorString(Color.WHITE)} n'est pas un objet et ne peut donc pas être renforcé.", Color.RED);
+        oPC.SendServerMessage($"{oTarget.Name.ColorString(ColorConstants.White)} n'est pas un objet et ne peut donc pas être renforcé.", ColorConstants.Red);
         return;
       }
 

@@ -349,7 +349,7 @@ namespace NWN.Systems
 
       if(NWScript.SqlStep(query) != 0 && NWScript.SqlGetInt(query, 0) > 0)
       {
-        player.oid.SendServerMessage($"{NWScript.SqlGetString(query, 0).ColorString(Color.WHITE)} lettres non lues se trouvent dans votre boîte aux lettres.", Color.PINK);
+        player.oid.SendServerMessage($"{NWScript.SqlGetString(query, 0).ColorString(ColorConstants.White)} lettres non lues se trouvent dans votre boîte aux lettres.", ColorConstants.Pink);
       }
     }
   }

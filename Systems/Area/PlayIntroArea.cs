@@ -29,7 +29,7 @@ namespace NWN.Systems
       List<NwCreature> sailorList = captain.GetNearestCreatures(CreatureTypeFilter.PlayerChar(false)).Where(c => c.Tag == "intro_sailor").ToList();
       sailorList[0].ActionRandomWalk();
       sailorList[1].ActionRandomWalk();
-      sailorList[0].SpeakString("Umberlie, épargne-nous !".ColorString(Color.ORANGE));
+      sailorList[0].SpeakString("Umberlie, épargne-nous !".ColorString(ColorConstants.Orange));
       sailorList[1].SpeakString("Oh non, non, non, faut faire quelque chose, vite !");
       sailorList[0].MovementRate = MovementRate.DM;
       sailorList[1].MovementRate = MovementRate.DM;
@@ -40,7 +40,7 @@ namespace NWN.Systems
       area.Weather = WeatherType.Rain;
       AreaPlugin.SetDayNightCycle(area, AreaPlugin.NWNX_AREA_DAYNIGHTCYCLE_ALWAYS_DARK);
       AreaPlugin.SetWeatherChance(area, AreaPlugin.NWNX_AREA_WEATHER_CHANCE_LIGHTNING, 100);
-      NWScript.SetAreaWind(area, NWScript.Vector(1, 0, 0), 10.0f, 25.0f, 10.0f);
+      NWScript.SetAreaWind(area, new Vector3(1, 0, 0), 8, 0, 0);
 
       List<NwPlaceable> rocks = player.LoginCreature.GetNearestObjectsByType<NwPlaceable>().Where(c => c.Tag == "intro_recif").ToList();
       NwPlaceable tourbillon = player.LoginCreature.GetNearestObjectsByType<NwPlaceable>().FirstOrDefault(c => c.Tag == "intro_tourbillon");
@@ -63,13 +63,13 @@ namespace NWN.Systems
         player.LockCameraPitch(true);
 
         await NwTask.Delay(TimeSpan.FromSeconds(1.7));
-        TriggerRandomLightnings(area, player.LoginCreature.Position, 25, player);
+        TriggerRandomLightnings(area, player.LoginCreature.Position, 25, player.ControlledCreature);
 
         await NwTask.Delay(TimeSpan.FromSeconds(23));
         StrikeSailor(sailorList[1], sailorList[0]);
 
         await NwTask.Delay(TimeSpan.FromSeconds(10));
-        await captain.SpeakString("Qu'est ce que c'est que ce truc ? On ne peut pas éviter la collision, ABANDONNEZ LE NAVIRE !".ColorString(Color.RED));
+        await captain.SpeakString("Qu'est ce que c'est que ce truc ? On ne peut pas éviter la collision, ABANDONNEZ LE NAVIRE !".ColorString(ColorConstants.Red));
         await NwTask.Delay(TimeSpan.FromSeconds(5));
         PlayTourbillonEffects(area, player);
       });
@@ -89,6 +89,7 @@ namespace NWN.Systems
     }
     private static void PlayTourbillonEffects(NwArea area, NwPlayer oPC)
     {
+      oPC.LoginCreature.Location.ApplyEffect(EffectDuration.Instant, API.Effect.VisualEffect((VfxType)135));
       oPC.LoginCreature.Location.ApplyEffect(EffectDuration.Instant, API.Effect.VisualEffect(VfxType.FnfPwkill, false, 2, new Vector3(0, 0, 0), new Vector3(270, 90, 0)));
       oPC.LoginCreature.Location.ApplyEffect(EffectDuration.Instant, API.Effect.VisualEffect(VfxType.FnfFirestorm, false, 2, new Vector3(0, 0, 0), new Vector3(0, 0, 0)));
       oPC.LoginCreature.Location.ApplyEffect(EffectDuration.Instant, API.Effect.VisualEffect(VfxType.FnfFirestorm, false, 2, new Vector3(0, 0, 0), new Vector3(0, 90, 0)));
@@ -105,16 +106,18 @@ namespace NWN.Systems
         await oPC.LoginCreature.ClearActionQueue();
         Utils.DestroyInventory(oPC.LoginCreature);
         Utils.DestroyEquippedItems(oPC.LoginCreature);
-        CreaturePlugin.RunEquip(oPC.LoginCreature, NwItem.Create("rags", oPC.LoginCreature), (int)InventorySlot.Chest);
+        CreaturePlugin.RunEquip(oPC.LoginCreature, await NwItem.Create("rags", oPC.LoginCreature), (int)InventorySlot.Chest);
         oPC.LoginCreature.Location = ((NwWaypoint)NwObject.FindObjectsWithTag("WP_START_NEW_CHAR").FirstOrDefault()).Location;
 
         await NwTask.WaitUntil(() => oPC.LoginCreature.Location.Area != null);
         await oPC.LoginCreature.PlayAnimation(Animation.LoopingDeadBack, 1, true, TimeSpan.FromSeconds(99999999));
-        oPC.FloatingTextString("En dehors des épaves de navires éparpillées tout autour de vous, la plage sur laquelle vous avez atterri semble étrangement calme et agréable. Nulle trace de votre équipage ou des biens que vous aviez emportés. Devant vous se dressent les murailles d'une ville ancienne et délabrée. Qu'allez-vous faire maintenant ?".ColorString(Color.SILVER), false);
+        oPC.FloatingTextString("En dehors des épaves de navires éparpillées tout autour de vous, la plage sur laquelle vous avez atterri semble étrangement calme et agréable. Nulle trace de votre équipage ou des biens que vous aviez emportés. Devant vous se dressent les murailles d'une ville ancienne et délabrée. Qu'allez-vous faire maintenant ?".ColorString(ColorConstants.Silver), false);
       });
     }
-    private static void TriggerRandomLightnings(NwArea area, Vector3 center, int maxDistance, NwPlayer oPC)
+    private static async void TriggerRandomLightnings(NwArea area, Vector3 center, int maxDistance, NwCreature oPC)
     {
+      oPC.ApplyEffect(EffectDuration.Instant, API.Effect.VisualEffect((VfxType)286));
+
       int nbStrikes = Utils.random.Next(1, 5);
 
       for (int i = 0; i < nbStrikes; i++)
@@ -123,33 +126,53 @@ namespace NWN.Systems
       switch (Utils.random.Next(0, 6))
       {
         case 0:
-          NWScript.AssignCommand(NWScript.GetNearestObjectByTag("intro_sailor", oPC.LoginCreature, Utils.random.Next(1, 3)), () => NWScript.SpeakString("Oh bordel, c'est pas passé loin !"));
+          NWScript.AssignCommand(NWScript.GetNearestObjectByTag("intro_sailor", oPC, Utils.random.Next(1, 3)), () => NWScript.SpeakString("Oh bordel, c'est pas passé loin !"));
           break;
         case 1:
-          NWScript.AssignCommand(NWScript.GetNearestObjectByTag("intro_sailor", oPC.LoginCreature, Utils.random.Next(1, 3)), () => NWScript.SpeakString("Fichtre, encore un comme ça et est on foutu !"));
+          NWScript.AssignCommand(NWScript.GetNearestObjectByTag("intro_sailor", oPC, Utils.random.Next(1, 3)), () => NWScript.SpeakString("Fichtre, encore un comme ça et est on foutu !"));
           break;
         case 2:
-          NWScript.AssignCommand(NWScript.GetNearestObjectByTag("intro_sailor", oPC.LoginCreature, Utils.random.Next(1, 3)), () => NWScript.SpeakString("Talos, aie pitié de nous !"));
+          NWScript.AssignCommand(NWScript.GetNearestObjectByTag("intro_sailor", oPC, Utils.random.Next(1, 3)), () => NWScript.SpeakString("Talos, aie pitié de nous !"));
           break;
         case 3:
-          NWScript.AssignCommand(NWScript.GetNearestObjectByTag("intro_sailor", oPC.LoginCreature, Utils.random.Next(1, 3)), () => NWScript.SpeakString("Si jamais ça passe un peu plus près, j'donne pas cher de notre peau !"));
+          NWScript.AssignCommand(NWScript.GetNearestObjectByTag("intro_sailor", oPC, Utils.random.Next(1, 3)), () => NWScript.SpeakString("Si jamais ça passe un peu plus près, j'donne pas cher de notre peau !"));
           break;
         case 4:
-          NWScript.AssignCommand(NWScript.GetNearestObjectByTag("intro_sailor", oPC.LoginCreature, Utils.random.Next(1, 3)), () => NWScript.SpeakString("J'crois que le moment est venu de paniquer !"));
+          NWScript.AssignCommand(NWScript.GetNearestObjectByTag("intro_sailor", oPC, Utils.random.Next(1, 3)), () => NWScript.SpeakString("J'crois que le moment est venu de paniquer !"));
           break;
         case 5:
-          NWScript.AssignCommand(NWScript.GetNearestObjectByTag("intro_sailor", oPC.LoginCreature, Utils.random.Next(1, 3)), () => NWScript.SpeakString("C'est la fin, le ciel nous tombe sur la tête !"));
+          NWScript.AssignCommand(NWScript.GetNearestObjectByTag("intro_sailor", oPC, Utils.random.Next(1, 3)), () => NWScript.SpeakString("C'est la fin, le ciel nous tombe sur la tête !"));
           break;
       }
-      NWScript.DelayCommand(Utils.random.Next(5, 15), () => TriggerRandomLightnings(area, center, maxDistance, oPC));
+
+      await NwTask.Delay(TimeSpan.FromSeconds(Utils.random.Next(5, 10)));
+
+      if (oPC.Area != area)
+        return;
+
+      TriggerRandomLightnings(area, center, maxDistance, oPC);
     }
 
-    private static void StrikeSailor(uint sailor2, uint sailor1)
+    private static async void StrikeSailor(NwCreature sailor2, NwCreature sailor1)
     {
-      NWScript.ApplyEffectToObject(NWScript.DURATION_TYPE_INSTANT, NWScript.EffectVisualEffect(NWScript.VFX_IMP_LIGHTNING_M), sailor2);
-      NWScript.SetPlotFlag(sailor2, 0);
-      NWScript.ApplyEffectToObject(NWScript.DURATION_TYPE_INSTANT, NWScript.EffectDamage(120, NWScript.DAMAGE_TYPE_ELECTRICAL, NWScript.DAMAGE_POWER_ENERGY), sailor2);
-      NWScript.AssignCommand(sailor1, () => NWScript.SpeakString("NOOOOOON, OLAF, MON FRERE JUMEAU ! Quelle horreur !"));
+      await sailor2.SpeakString("Qu'est ce que ... ? Oooh, je me sens tout drôle ... A l'aide !".ColorString(ColorConstants.Lime));
+      sailor2.ApplyEffect(EffectDuration.Permanent, API.Effect.CutsceneImmobilize());
+
+      NWScript.SetObjectVisualTransform(sailor2, NWScript.OBJECT_VISUAL_TRANSFORM_ROTATE_X, 360.0f, NWScript.OBJECT_VISUAL_TRANSFORM_LERP_SMOOTHERSTEP, 12f);
+      NWScript.SetObjectVisualTransform(sailor2, NWScript.OBJECT_VISUAL_TRANSFORM_ROTATE_Y, 360.0f, NWScript.OBJECT_VISUAL_TRANSFORM_LERP_QUADRATIC, 12f);
+      NWScript.SetObjectVisualTransform(sailor2, NWScript.OBJECT_VISUAL_TRANSFORM_ROTATE_Z, 360.0f, NWScript.OBJECT_VISUAL_TRANSFORM_LERP_INVERSE_SMOOTHSTEP, 12f);
+      NWScript.SetObjectVisualTransform(sailor2, NWScript.OBJECT_VISUAL_TRANSFORM_TRANSLATE_Z, 4f, NWScript.OBJECT_VISUAL_TRANSFORM_LERP_EASE_OUT, 4f);
+
+      await NwTask.Delay(TimeSpan.FromSeconds(4));
+
+      sailor2.ApplyEffect(EffectDuration.Instant, API.Effect.VisualEffect(VfxType.ImpLightningM));
+      sailor2.ApplyEffect(EffectDuration.Instant, API.Effect.VisualEffect(VfxType.ComChunkRedLarge));
+      sailor2.PlotFlag = false;
+      sailor2.ApplyEffect(EffectDuration.Instant, API.Effect.Damage(120, DamageType.Electrical));
+
+      await sailor1.SpeakString("NOOOOOON, OLAF, MON FRERE JUMEAU ! Quelle horreur !".ColorString(ColorConstants.Red));
+
+      VisibilityPlugin.SetVisibilityOverride(NWScript.OBJECT_INVALID, sailor2, VisibilityPlugin.NWNX_VISIBILITY_HIDDEN);
     }
   }
 }

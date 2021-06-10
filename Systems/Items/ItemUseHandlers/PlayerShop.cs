@@ -21,7 +21,7 @@ namespace NWN.Systems
 
       if (NWScript.SqlStep(query) == 1 && NWScript.SqlGetInt(query, 0) > MagnatLevel)
       {
-        player.oid.SendServerMessage($"Votre niveau de magnat actuel vous permet de gérer {MagnatLevel.ToString().ColorString(Color.WHITE)}, or vous en possédez déjà {NWScript.SqlGetInt(query, 0).ToString().ColorString(Color.WHITE)}", Color.ORANGE);
+        player.oid.SendServerMessage($"Votre niveau de magnat actuel vous permet de gérer {MagnatLevel.ToString().ColorString(ColorConstants.White)}, or vous en possédez déjà {NWScript.SqlGetInt(query, 0).ToString().ColorString(ColorConstants.White)}", ColorConstants.Orange);
         return;
       }
 
@@ -29,14 +29,14 @@ namespace NWN.Systems
       NwStore shop = NwStore.Create("generic_shop_res", oPC.Location, false, $"_PLAYER_SHOP_{player.oid.CDKey}");
 
       plcShop.GetLocalVariable<int>("_OWNER_ID").Value = player.characterId;
-      plcShop.Name = $"Echoppe de {oPC.Name.ColorString(Color.GREEN)}";
+      plcShop.Name = $"Echoppe de {oPC.Name.ColorString(ColorConstants.Green)}";
 
       shop.GetLocalVariable<int>("_OWNER_ID").Value = player.characterId;
-      shop.Name = $"Echoppe de {oPC.Name.ColorString(Color.GREEN)}";
+      shop.Name = $"Echoppe de {oPC.Name.ColorString(ColorConstants.Green)}";
 
       plcShop.OnUsed += PlaceableSystem.OnUsedPlayerOwnedShop;
 
-      player.oid.SendServerMessage($"Félicitations pour l'inauguration de votre boutique {plcShop.Name.ColorString(Color.GREEN)} !");
+      player.oid.SendServerMessage($"Félicitations pour l'inauguration de votre boutique {plcShop.Name.ColorString(ColorConstants.Green)} !");
       authorization.Destroy();
     }
   }

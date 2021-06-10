@@ -119,7 +119,7 @@ namespace NWN.Systems
     {
       player.chatColors.Remove(channel);
       player.menu.Close();
-      player.oid.SendServerMessage("La couleur de ce canal a bien été réinitialisée.", Color.ROSE);
+      player.oid.SendServerMessage("La couleur de ce canal a bien été réinitialisée.", ColorConstants.Rose);
     }
   }
 }

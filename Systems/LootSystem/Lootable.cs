@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+﻿using System.Collections.Generic;
 using NWN.API;
 using NWN.Core;
 
@@ -58,7 +55,7 @@ namespace NWN.Systems
           this.chance = chance;
         }
 
-        public void Generate(NwGameObject oContainer)
+        public async void Generate(NwGameObject oContainer)
         {
           Log.Info($"tag : {oContainer.Tag}");
           int rand = Utils.random.Next(1, 101);
@@ -67,7 +64,7 @@ namespace NWN.Systems
           {
             int goldCount = Utils.random.Next((int)min, (int)max);
             
-            NwItem.Create("NW_IT_GOLD001", oContainer, goldCount);
+            await NwItem.Create("NW_IT_GOLD001", oContainer, goldCount);
             Log.Info($"GOLD LOOTED : {goldCount}");
 
             if (ModuleSystem.goldBalanceMonitoring.TryGetValue(oContainer.Tag, out GoldBalance gold))

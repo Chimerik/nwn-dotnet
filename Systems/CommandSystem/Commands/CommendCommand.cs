@@ -30,7 +30,7 @@ namespace NWN.Systems
 
       if(commendTarget.bonusRolePlay < 4)
       {
-        commendTarget.oid.SendServerMessage("Un joueur vient de vous recommander pour une augmentation de bonus roleplay !", Color.ROSE);
+        commendTarget.oid.SendServerMessage("Un joueur vient de vous recommander pour une augmentation de bonus roleplay !", ColorConstants.Rose);
         
         if(commendTarget.bonusRolePlay == 1)
         {
@@ -46,7 +46,7 @@ namespace NWN.Systems
         Utils.LogMessageToDMs($"{selection.Player.LoginCreature.Name} vient de recommander {oPC.LoginCreature.Name} pour une augmentation de bonus roleplay.");
       }
 
-      commendTarget.oid.SendServerMessage($"Vous venez de recommander {oPC.LoginCreature.Name.ColorString(Color.WHITE)} pour une augmentation de bonus roleplay !", Color.ROSE);
+      commendTarget.oid.SendServerMessage($"Vous venez de recommander {oPC.LoginCreature.Name.ColorString(ColorConstants.White)} pour une augmentation de bonus roleplay !", ColorConstants.Rose);
       CommandSystem.DrawCommandList(player);
     }
   }

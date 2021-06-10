@@ -9,7 +9,7 @@ namespace NWN.Systems
   {
     public ListenTarget(NwPlayer oPC)
     {
-      oPC.SendServerMessage("Veuillez sélectionnner le joueur à écouter.", Color.ROSE);
+      oPC.SendServerMessage("Veuillez sélectionnner le joueur à écouter.", ColorConstants.Rose);
       PlayerSystem.cursorTargetService.EnterTargetMode(oPC, OnListenTargetSelected, ObjectTypes.Creature, MouseCursor.Magic);
     }
     private void OnListenTargetSelected(ModuleEvents.OnPlayerTarget selection)
@@ -21,7 +21,7 @@ namespace NWN.Systems
 
       if (oPC.ControllingPlayer != null || oPC.ControllingPlayer.IsDM)
       {
-        selection.Player.SendServerMessage("La cible de l'écoute doit être un joueur.", Color.ORANGE);
+        selection.Player.SendServerMessage("La cible de l'écoute doit être un joueur.", ColorConstants.Orange);
         return;
       }
 

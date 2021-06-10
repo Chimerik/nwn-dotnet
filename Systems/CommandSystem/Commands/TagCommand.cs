@@ -31,7 +31,7 @@ namespace NWN.Systems
       if (awaitedValue)
       {
         selection.TargetObject.Tag = player.oid.LoginCreature.GetLocalVariable<string>("_PLAYER_INPUT").Value;
-        player.oid.SendServerMessage($"{selection.TargetObject.Name.ColorString(Color.WHITE)} a été taggué {selection.TargetObject.Tag.ColorString(Color.WHITE)}.", Color.GREEN);
+        player.oid.SendServerMessage($"{selection.TargetObject.Name.ColorString(ColorConstants.White)} a été taggué {selection.TargetObject.Tag.ColorString(ColorConstants.White)}.", ColorConstants.Green);
         player.oid.LoginCreature.GetLocalVariable<string>("_PLAYER_INPUT").Delete();
       }
     }

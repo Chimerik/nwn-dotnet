@@ -36,7 +36,7 @@ namespace NWN.Systems
             PlayerSystem.cursorTargetService.EnterTargetMode(ctx.oSender, dmVFXTarget, ObjectTypes.All, MouseCursor.Magic);
           }
           else
-            ctx.oSender.SendServerMessage($"Vous n'avez pas enregistré de vfx correspondant au nom {vfxName.ColorString(Color.WHITE)}", Color.RED);
+            ctx.oSender.SendServerMessage($"Vous n'avez pas enregistré de vfx correspondant au nom {vfxName.ColorString(ColorConstants.White)}", ColorConstants.Red);
         }
       }
     }

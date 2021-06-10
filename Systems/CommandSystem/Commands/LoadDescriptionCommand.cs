@@ -17,7 +17,7 @@ namespace NWN.Systems
 
       while (NWScript.SqlStep(query) > 0)
       {
-        string descriptionName = $"- {NWScript.SqlGetString(query, 0)}".ColorString(Color.CYAN);
+        string descriptionName = $"- {NWScript.SqlGetString(query, 0)}".ColorString(ColorConstants.Cyan);
         string description = NWScript.SqlGetString(query, 1);
 
         player.menu.choices.Add((
@@ -35,7 +35,7 @@ namespace NWN.Systems
     private void ApplySelectedDescription(NwPlayer oPC, string descriptionName, string description)
     {
       oPC.ControlledCreature.Description = description;
-      oPC.SendServerMessage($"La description {descriptionName.ColorString(Color.WHITE)} a bien été appliquée à votre personnage.", Color.BLUE);
+      oPC.SendServerMessage($"La description {descriptionName.ColorString(ColorConstants.White)} a bien été appliquée à votre personnage.", ColorConstants.Blue);
     }
   }
 }

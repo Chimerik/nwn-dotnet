@@ -34,7 +34,7 @@ namespace NWN.Systems
       
       if (oUnequip != null && !oPC.Inventory.CheckFit(oUnequip))
       {
-        oPC.ControllingPlayer.SendServerMessage($"Attention, votre inventaire est plein. Vous risqueriez de perdre votre {oUnequip.Name} en déséquipant !", Color.RED);
+        oPC.ControllingPlayer.SendServerMessage($"Attention, votre inventaire est plein. Vous risqueriez de perdre votre {oUnequip.Name} en déséquipant !", ColorConstants.Red);
         onItemEquip.PreventEquip = true;
         return;
       }
@@ -61,7 +61,7 @@ namespace NWN.Systems
         || oPC.GetLocalVariable<int>("CUSTOM_EFFECT_NOACCESSORY").HasValue
         || oItem.GetLocalVariable<int>("_DURABILITY") <= 0)
       {
-        oPC.ControllingPlayer.SendServerMessage($"Attention, votre inventaire est plein. Votre {oItem.Name} a été déposé au sol !", Color.RED);
+        oPC.ControllingPlayer.SendServerMessage($"Attention, votre inventaire est plein. Votre {oItem.Name} a été déposé au sol !", ColorConstants.Red);
         oItem.Clone(oPC.Location);
         oItem.Destroy();
         oPC.GetLocalVariable<int>("CUSTOM_EFFECT_NOARMOR").Delete();
@@ -69,7 +69,7 @@ namespace NWN.Systems
         oPC.GetLocalVariable<int>("CUSTOM_EFFECT_NOACCESSORY").Delete();
       }
       else
-        oPC.ControllingPlayer.SendServerMessage($"Attention, votre inventaire est plein. Vous risqueriez de perdre votre {oItem.Name} en déséquipant !", Color.RED);
+        oPC.ControllingPlayer.SendServerMessage($"Attention, votre inventaire est plein. Vous risqueriez de perdre votre {oItem.Name} en déséquipant !", ColorConstants.Red);
 
       EventsPlugin.SkipEvent();
     }
@@ -129,7 +129,7 @@ namespace NWN.Systems
           if (oTarget is NwItem)
             new CraftTool(oPC.ControllingPlayer.LoginCreature, (NwItem)oTarget);
           else
-            oPC.ControllingPlayer.SendServerMessage($"Vous ne pouvez pas modifier l'apparence de {oTarget.Name.ColorString(Color.WHITE)}.".ColorString(Color.RED));
+            oPC.ControllingPlayer.SendServerMessage($"Vous ne pouvez pas modifier l'apparence de {oTarget.Name.ColorString(ColorConstants.White)}.".ColorString(ColorConstants.Red));
 
           break;
         case "sequence_register":
@@ -232,7 +232,7 @@ namespace NWN.Systems
     }
     public static async void OnTorilNecklaceRemoved(NwPlayer oPC)
     {
-      oPC.SendServerMessage("Votre lien avec la Toile semble particulièrement faible. Un échec des sorts de 50 % vous est appliqué.", API.Color.PINK);
+      oPC.SendServerMessage("Votre lien avec la Toile semble particulièrement faible. Un échec des sorts de 50 % vous est appliqué.", API.ColorConstants.Pink);
       API.Effect eff = API.Effect.SpellFailure(50);
       eff.Tag = "erylies_spell_failure";
       eff.SubType = EffectSubType.Supernatural;
@@ -249,7 +249,7 @@ namespace NWN.Systems
     }
     public static async void OnTorilNecklaceEquipped(NwPlayer oPC)
     {
-      oPC.SendServerMessage("Votre lien avec la Toile se renforce de manière significative.", API.Color.PINK);
+      oPC.SendServerMessage("Votre lien avec la Toile se renforce de manière significative.", API.ColorConstants.Pink);
 
       if (oPC.LoginCreature.ActiveEffects.Any(e => e.Tag == "erylies_spell_failure"))
         oPC.LoginCreature.RemoveEffect(oPC.LoginCreature.ActiveEffects.Where(e => e.Tag == "erylies_spell_failure").FirstOrDefault());
@@ -266,7 +266,7 @@ namespace NWN.Systems
       if (onItemValidateEquip.Item.GetLocalVariable<int>("_MAX_DURABILITY").HasValue && onItemValidateEquip.Item.GetLocalVariable<int>("_DURABILITY") <= 0)
       {
         onItemValidateEquip.Result = EquipValidationResult.Denied;
-        onItemValidateEquip.UsedBy.ControllingPlayer.SendServerMessage($"{onItemValidateEquip.Item.Name} nécessite des réparations.", Color.RED);
+        onItemValidateEquip.UsedBy.ControllingPlayer.SendServerMessage($"{onItemValidateEquip.Item.Name} nécessite des réparations.", ColorConstants.Red);
       }
     }
     public static void NoUseRuinedItem(OnItemValidateUse onItemValidateUse)

@@ -45,7 +45,7 @@ namespace NWN.Systems
     {
       clone = player.oid.LoginCreature.Clone(mirror.Location, "clone");
       clone.ApplyEffect(EffectDuration.Permanent, API.Effect.CutsceneGhost());
-      clone.HiliteColor = Color.SILVER;
+      clone.HiliteColor = ColorConstants.Silver;
       clone.Name = $"Reflet de {player.oid.LoginCreature.Name}";
       clone.Rotation += 180;
 

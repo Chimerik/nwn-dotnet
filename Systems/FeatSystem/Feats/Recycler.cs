@@ -15,7 +15,7 @@ namespace NWN.Systems
 
       if (!(oTarget is NwItem))
       {
-        oPC.SendServerMessage($"{oTarget.Name.ColorString(Color.WHITE)} n'est pas un objet et ne peut donc pas être recyclé.", Color.RED);
+        oPC.SendServerMessage($"{oTarget.Name.ColorString(ColorConstants.White)} n'est pas un objet et ne peut donc pas être recyclé.", ColorConstants.Red);
         return;
       }
 
@@ -130,7 +130,7 @@ namespace NWN.Systems
           break;
 
         default:
-          oPC.SendServerMessage($"{oTarget.Name.ColorString(Color.WHITE)} n'appartient pas à une catégorie d'objet qui puisse être recyclé.", Color.ORANGE);
+          oPC.SendServerMessage($"{oTarget.Name.ColorString(ColorConstants.White)} n'appartient pas à une catégorie d'objet qui puisse être recyclé.", ColorConstants.Orange);
           break;
       }
     }

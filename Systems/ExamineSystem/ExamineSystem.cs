@@ -230,14 +230,14 @@ namespace NWN.Systems
           onExamine.ExaminedObject.Description += $"\nRéparé - en attente de ré-enchantement.";
 
         if (onExamine.ExaminedObject.GetLocalVariable<int>("_AVAILABLE_ENCHANTEMENT_SLOT").HasValue)
-          onExamine.ExaminedObject.Description += $"\n\nEmplacement(s) d'enchantement : [{onExamine.ExaminedObject.GetLocalVariable<int>("_AVAILABLE_ENCHANTEMENT_SLOT").Value.ToString().ColorString(new Color(32, 255, 32))}] ".ColorString(Color.ORANGE);
+          onExamine.ExaminedObject.Description += $"\n\nEmplacement(s) d'enchantement : [{onExamine.ExaminedObject.GetLocalVariable<int>("_AVAILABLE_ENCHANTEMENT_SLOT").Value.ToString().ColorString(new Color(32, 255, 32))}] ".ColorString(ColorConstants.Orange);
 
         foreach (API.ItemProperty ip in oItem.ItemProperties.Where(ip => ip.Tag.Contains("INACTIVE")))
         {
           string[] split = ip.Tag.Split("_");
           int spellId = int.Parse(split[1]);
           string spellName = NWScript.GetStringByStrRef(int.Parse(NWScript.Get2DAString("spells", "Name", spellId)));
-          oItem.Description += $"\n{spellName} inactif.".ColorString(Color.RED);
+          oItem.Description += $"\n{spellName} inactif.".ColorString(ColorConstants.Red);
         }
 
         Task waitExamineEnd = NwTask.Run(async () =>
