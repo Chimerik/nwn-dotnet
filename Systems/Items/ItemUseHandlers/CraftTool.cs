@@ -396,7 +396,7 @@ namespace NWN.Systems
       if(awaitedValue)
         ApplyArmorModifications(int.Parse(player.oid.LoginCreature.GetLocalVariable<string>("_PLAYER_INPUT")));
     }
-    private async void HandleToSymmetry()
+    private void HandleToSymmetry()
     {
       DisableFeedbackMessages();
 

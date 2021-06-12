@@ -12,6 +12,18 @@ namespace NWN.Systems
   {
     public static async void HandleDamageEvent(OnCreatureDamage onDamage)
     {
+      PlayerSystem.Log.Info("Entering Damage Event");
+      PlayerSystem.Log.Info("Base : " + onDamage.DamageData.Base);
+      PlayerSystem.Log.Info("Blud : " + onDamage.DamageData.Bludgeoning);
+      PlayerSystem.Log.Info("Pierce : " + onDamage.DamageData.Pierce);
+      PlayerSystem.Log.Info("Slash : " + onDamage.DamageData.Slash);
+
+      if(onDamage.Target.GetLocalVariable<int>("_DAMAGE_HANDLED").HasValue)
+      {
+        onDamage.Target.GetLocalVariable<int>("_DAMAGE_HANDLED").Delete();
+        return;
+      }
+
       await NwModule.Instance.WaitForObjectContext();
       
       if (onDamage.Target.GetLocalVariable<int>("_IS_GNOME_MECH").HasValue && onDamage.DamageData.Electrical > 0)

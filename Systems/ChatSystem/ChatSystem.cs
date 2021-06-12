@@ -92,9 +92,9 @@ namespace NWN.Systems
         string filename = String.Format("{0:yyyy-MM-dd}_{1}.txt", DateTime.Now, "chatlog");
         string path = Path.Combine(Environment.GetEnvironmentVariable("HOME") + "/ChatLog", filename);
 
-        using (StreamWriter file =
-        new StreamWriter(path, true))
-          file.WriteLineAsync(DateTime.Now.ToShortTimeString() + " - [" + ctx.channel + " - " + areaName + "] " + NWScript.GetName(ctx.oSender.ControlledCreature, 1) + " : " + ctx.msg);
+        using StreamWriter file =
+        new StreamWriter(path, true);
+        file.WriteLineAsync(DateTime.Now.ToShortTimeString() + " - [" + ctx.channel + " - " + areaName + "] " + NWScript.GetName(ctx.oSender.ControlledCreature, 1) + " : " + ctx.msg);
       }
       else
       {
@@ -107,9 +107,9 @@ namespace NWN.Systems
           path = Path.Combine(Environment.GetEnvironmentVariable("HOME") + "/ChatLog", filename);
         }
 
-        using (StreamWriter file =
-        new StreamWriter(path, true))
-          file.WriteLineAsync(DateTime.Now.ToShortDateString() + " " + DateTime.Now.ToShortTimeString() + " - " + ctx.oSender.LoginCreature.Name + " To : " + NWScript.GetName(ctx.oTarget.LoginCreature, 1) + " : " + ctx.msg);
+        using StreamWriter file =
+        new StreamWriter(path, true);
+        file.WriteLineAsync(DateTime.Now.ToShortDateString() + " " + DateTime.Now.ToShortTimeString() + " - " + ctx.oSender.LoginCreature.Name + " To : " + NWScript.GetName(ctx.oTarget.LoginCreature, 1) + " : " + ctx.msg);
       }
 
       next();

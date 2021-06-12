@@ -17,8 +17,8 @@ namespace NWN.Systems
     }
     private void SelectTarget(ModuleEvents.OnPlayerTarget selection)
     {
-      if (selection.TargetObject == null || !(selection.TargetObject is NwPlayer)
-        || !PlayerSystem.Players.TryGetValue(selection.TargetObject, out PlayerSystem.Player targetPlayer))
+      if (selection.TargetObject == null || !(selection.TargetObject is NwCreature oCreature)
+        || !PlayerSystem.Players.TryGetValue(oCreature.LoginPlayer.LoginCreature, out PlayerSystem.Player targetPlayer))
         return;
 
       dm.menu.Clear();

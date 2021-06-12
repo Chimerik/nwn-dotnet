@@ -17,11 +17,11 @@ namespace NWN.Systems
         string originalDesc = oPC.ControlledCreature.Description;
         string tempDescription = oPC.ControlledCreature.Area.Name.ColorString(ColorConstants.Orange) + "\n\n" + NWScript.SqlGetString(query, 0);
         oPC.ControlledCreature.Description = tempDescription;
-        oPC.ControlledCreature.ClearActionQueue();
-        oPC.ActionExamine(oPC.ControlledCreature);
 
         Task waitForDescriptionRewrite = NwTask.Run(async () =>
         {
+          await oPC.ControlledCreature.ClearActionQueue();
+          await oPC.ActionExamine(oPC.ControlledCreature);
           await NwTask.Delay(TimeSpan.FromSeconds(0.2));
           oPC.ControlledCreature.Description = originalDesc;
         });

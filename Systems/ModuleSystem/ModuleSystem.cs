@@ -53,7 +53,7 @@ namespace NWN.Systems
       await Bot.MainAsync();
     }
 
-    private void CreateDatabase()
+    private static void CreateDatabase()
     {
       var query = NWScript.SqlPrepareQueryCampaign(Config.database, $"CREATE TABLE IF NOT EXISTS moduleInfo" +
         $"('year' INTEGER NOT NULL, 'month' INTEGER NOT NULL, 'day' INTEGER NOT NULL, 'hour' INTEGER NOT NULL, 'minute' INTEGER NOT NULL, 'second' INTEGER NOT NULL)");
@@ -239,6 +239,7 @@ namespace NWN.Systems
       //EventsPlugin.SubscribeEvent("NWNX_ON_HAS_FEAT_AFTER", "event_has_feat");
 
       NwModule.Instance.OnCreatureAttack += AttackSystem.HandleAttackEvent;
+      NwModule.Instance.OnCreatureDamage += AttackSystem.HandleDamageEvent;
     }
     private void SetModuleTime()
     {
@@ -566,7 +567,7 @@ namespace NWN.Systems
         });
       }
     }
-    private void DeleteExpiredAuction(int auctionId)
+    private static void DeleteExpiredAuction(int auctionId)
     {
       var deletionQuery = NWScript.SqlPrepareQueryCampaign(Config.database, $"DELETE from playerAuctions where rowid = @rowid");
       NWScript.SqlBindInt(deletionQuery, "@rowid", auctionId);

@@ -223,6 +223,7 @@ namespace NWN.Systems
     public const Feat WoodRepair = (Feat)1332;
     public const Feat LeatherRepair = (Feat)1333;
     public const Feat EnchantRepair = (Feat)1334;
+    public const Feat ImprovedDodge = (Feat)1335;
 
     public const Feat Invalid = (Feat)65535;
   }

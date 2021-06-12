@@ -419,7 +419,7 @@ namespace NWN.Systems
       player.LoginCreature.OnSpellBroadcast += SpellSystem.OnSpellBroadcast;
       player.LoginCreature.OnSpellAction += SpellSystem.RegisterMetaMagicOnSpellInput;
       //player.LoginCreature.OnCreatureAttack += AttackSystem.HandleAttackEvent;
-      player.LoginCreature.OnPhysicalAttacked += AttackSystem.HandlePlayerAttackedEvent;
+      //player.LoginCreature.OnPhysicalAttacked += AttackSystem.HandlePlayerAttackedEvent;
       //player.LoginCreature.OnCreatureDamage += AttackSystem.HandleDamageEvent;
       player.OnPartyEvent += Party.HandlePartyEvent;
       player.OnClientLevelUpBegin += HandleOnClientLevelUp;
