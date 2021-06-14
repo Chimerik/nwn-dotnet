@@ -583,9 +583,7 @@ namespace NWN.Systems
         else if (modification == -1)
           currentValue -= 0.02f;
 
-        VisualTransform scale = oPNJ.VisualTransform;
-        scale.Scale = currentValue;
-        oPNJ.VisualTransform = scale;
+        oPNJ.VisualTransform.Scale = currentValue;
 
         player.menu.titleLines.Add($"Taille actuelle : {currentValue.ToString().ColorString(ColorConstants.Lime)}");
         player.menu.DrawText();

@@ -96,9 +96,7 @@ namespace NWN.Systems
     {
       if ((size < 0 && clone.VisualTransform.Scale > 0.75) || (size > 0 && clone.VisualTransform.Scale < 1.25))
       {
-        VisualTransform scale = clone.VisualTransform;
-        scale.Scale += size;
-        clone.VisualTransform = scale;
+        clone.VisualTransform.Scale += size;
       }
     }
     private void ApplyBodyChangesOnPlayer(Player player)
@@ -107,7 +105,7 @@ namespace NWN.Systems
       NWScript.SetColor(player.oid.ControlledCreature, NWScript.COLOR_CHANNEL_TATTOO_1, NWScript.GetColor(clone, NWScript.COLOR_CHANNEL_TATTOO_1));
       NWScript.SetColor(player.oid.ControlledCreature, NWScript.COLOR_CHANNEL_TATTOO_2, NWScript.GetColor(clone, NWScript.COLOR_CHANNEL_TATTOO_2));
       NWScript.SetColor(player.oid.ControlledCreature, NWScript.COLOR_CHANNEL_HAIR, NWScript.GetColor(clone, NWScript.COLOR_CHANNEL_HAIR));
-      player.oid.ControlledCreature.VisualTransform = clone.VisualTransform;
+      player.oid.ControlledCreature.VisualTransform.Scale = clone.VisualTransform.Scale;
       HandleBodyModification(player);
     }
     private void ChangeCloneEyeColor(Player player, int color)

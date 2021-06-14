@@ -240,9 +240,7 @@ namespace NWN.Systems
 
         NwPlaceable tourbillon = arrivalArea.FindObjectsOfTypeInArea<NwPlaceable>().FirstOrDefault(c => c.Tag == "intro_tourbillon");
         VisibilityPlugin.SetVisibilityOverride(NWScript.OBJECT_INVALID, tourbillon, VisibilityPlugin.NWNX_VISIBILITY_HIDDEN);
-        VisualTransform transfo = tourbillon.VisualTransform;
-        transfo.Translation = new Vector3(transfo.Translation.X, 115, transfo.Translation.Z);
-        tourbillon.VisualTransform = transfo;
+        tourbillon.VisualTransform.Translation = new Vector3(tourbillon.VisualTransform.Translation.X, 115, tourbillon.VisualTransform.Translation.Z);
 
         NwPlaceable introMirror = arrivalArea.FindObjectsOfTypeInArea<NwPlaceable>().FirstOrDefault(o => o.Tag == "intro_mirror");
         introMirror.OnUsed += DialogSystem.StartIntroMirrorDialog;

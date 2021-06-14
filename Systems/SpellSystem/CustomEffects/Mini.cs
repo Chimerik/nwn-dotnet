@@ -14,10 +14,8 @@ namespace NWN.Systems
       if (oTarget.GetLocalVariable<float>("CUSTOM_EFFECT_MINI_INITIAL_SIZE").HasValue)
         return;
 
-      VisualTransform visualT = oTarget.VisualTransform;
       oTarget.GetLocalVariable<float>("CUSTOM_EFFECT_MINI_INITIAL_SIZE").Value = oTarget.VisualTransform.Scale;
-      visualT.Scale *= 0.6f;
-      oTarget.VisualTransform = visualT;
+      oTarget.VisualTransform.Scale *= 0.6f;
 
       oTarget.OnCreatureDamage -= MiniMalus;
       oTarget.OnSpellCastAt -= MiniMalusCure;
@@ -28,10 +26,8 @@ namespace NWN.Systems
     {
       if (oTarget.GetLocalVariable<float>("CUSTOM_EFFECT_MINI_INITIAL_SIZE").HasValue)
       {
-        VisualTransform visualT = oTarget.VisualTransform;
-        visualT.Scale = oTarget.GetLocalVariable<float>("CUSTOM_EFFECT_MINI_INITIAL_SIZE").Value;
+        oTarget.VisualTransform.Scale = oTarget.GetLocalVariable<float>("CUSTOM_EFFECT_MINI_INITIAL_SIZE").Value;
         oTarget.GetLocalVariable<float>("CUSTOM_EFFECT_MINI_INITIAL_SIZE").Delete();
-        oTarget.VisualTransform = visualT;
       }
 
       oTarget.OnCreatureDamage -= MiniMalus;

@@ -17,26 +17,30 @@ namespace NWN.Systems
     public class Context
     {
       public OnCreatureAttack onAttack { get; set; }
+      public OnCreatureDamage onDamage { get; set; }
       public int baseDamageType { get; set; }
       public NwCreature oTarget { get; }
       public bool isUnarmedAttack { get; }
       public bool isRangedAttack { get; }
       public NwItem attackWeapon { get; set; }
       public NwItem targetArmor { get; set; }
+      public int maxBaseAC { get; set; }
       public int baseArmorPenetration { get; set; }
       public int bonusArmorPenetration { get; set; }
       public Config.AttackPosition attackPosition { get; set; }
       public Dictionary<DamageType, int> targetAC { get; set; }
 
-      public Context(OnCreatureAttack onAttack, NwCreature oTarget)
+      public Context(OnCreatureAttack onAttack, NwCreature oTarget, OnCreatureDamage onDamage = null)
       {
         this.onAttack = onAttack;
+        this.onDamage = onDamage;
         this.oTarget = oTarget;
         this.attackWeapon = null;
         this.targetArmor = null;
         this.baseDamageType = 3; // Slashing par défaut
         this.baseArmorPenetration = 0;
         this.bonusArmorPenetration = 0;
+        this.maxBaseAC = 0;
         this.attackPosition = Config.AttackPosition.NormalOrRanged;
         this.isUnarmedAttack = onAttack.Attacker.GetItemInSlot(InventorySlot.RightHand) == null;
         this.isRangedAttack = onAttack.Attacker.GetItemInSlot(InventorySlot.RightHand) != null
@@ -830,6 +834,14 @@ namespace NWN.Systems
         ctx.targetArmor = ctx.oTarget.GetItemInSlot(InventorySlot.CreatureSkin);
         ctx.targetAC[DamageType.BaseWeapon] = ctx.oTarget.AC;
       }
+      else if(hitSlot != InventorySlot.Chest)
+      {
+        foreach (ItemProperty ip in ctx.targetArmor.ItemProperties.Where(i
+       => i.PropertyType == ItemPropertyType.AcBonus))
+        {
+          ctx.maxBaseAC += ip.CostTableValue;
+        }
+      }
 
       next();
     }
@@ -964,6 +976,9 @@ namespace NWN.Systems
             break;
         }
       }
+
+      if (ctx.targetAC[DamageType.BaseWeapon] > ctx.maxBaseAC)
+        ctx.targetAC[DamageType.BaseWeapon] = ctx.maxBaseAC;
 
       next();
     }

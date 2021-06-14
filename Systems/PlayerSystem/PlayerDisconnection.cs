@@ -26,10 +26,8 @@ namespace NWN.Systems
       if(player.serializedQuickbar != null)
         player.UnloadMenuQuickbar();
 
-      VisualTransform resetVT = onPCDisconnect.Player.LoginCreature.VisualTransform;
-      resetVT.Translation = new Vector3(0,0,0);
-      resetVT.Rotation = new Vector3(0, 0, 0);
-      onPCDisconnect.Player.LoginCreature.VisualTransform = resetVT;
+      onPCDisconnect.Player.LoginCreature.VisualTransform.Translation = new Vector3(0, 0, 0);
+      onPCDisconnect.Player.LoginCreature.VisualTransform.Rotation = new Vector3(0, 0, 0);
 
       player.OnKeydown -= player.menu.HandleMenuFeatUsed;
 

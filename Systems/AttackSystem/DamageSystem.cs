@@ -4,15 +4,42 @@ using NWN.Core.NWNX;
 using NWN.Services;
 using NWN.API.Events;
 using System.Linq;
+using System;
+using Action = System.Action;
 
 namespace NWN.Systems
 {
   [ServiceBinding(typeof(AttackSystem))]
   public partial class AttackSystem
   {
+    public static Pipeline<Context> damagePipeline = new Pipeline<Context>(
+      new Action<Context, Action>[]
+      {
+            ProcessTargetSpellDamageAbsorption,
+            //ProcessBaseArmorSpellPenetration,
+            //ProcessBonusArmorSpellPenetration,
+            ProcessSpellAttackPosition,
+            ProcessArmorSlotHit,
+            ProcessTargetSpecificAC,
+            ProcessTargetShieldAC,
+            ProcessArmorPenetrationCalculations,
+            ProcessDamageCalculations,
+            ProcessTargetItemDurability,
+      }
+    );
     public static async void HandleDamageEvent(OnCreatureDamage onDamage)
     {
       PlayerSystem.Log.Info("Entering Damage Event");
+
+      if (onDamage.DamagedBy != null)
+        PlayerSystem.Log.Info("DamagedBy : " + onDamage.DamagedBy.Name);
+
+      if (onDamage.Target == null)
+      {
+        PlayerSystem.Log.Info("Damage target null");
+        return;
+      }
+      
       PlayerSystem.Log.Info("Base : " + onDamage.DamageData.Base);
       PlayerSystem.Log.Info("Blud : " + onDamage.DamageData.Bludgeoning);
       PlayerSystem.Log.Info("Pierce : " + onDamage.DamageData.Pierce);
@@ -24,9 +51,18 @@ namespace NWN.Systems
         return;
       }
 
+      if (!(onDamage.Target is NwCreature oTarget))
+        return;
+
       await NwModule.Instance.WaitForObjectContext();
-      
-      if (onDamage.Target.GetLocalVariable<int>("_IS_GNOME_MECH").HasValue && onDamage.DamageData.Electrical > 0)
+
+      damagePipeline.Execute(new Context(
+        onAttack: null,
+        oTarget: oTarget,
+        onDamage: onDamage
+      ));
+
+      /*if (onDamage.Target.GetLocalVariable<int>("_IS_GNOME_MECH").HasValue && onDamage.DamageData.Electrical > 0)
       {
         onDamage.Target.ApplyEffect(EffectDuration.Instant, Effect.Heal(onDamage.DamageData.Electrical));
         onDamage.Target.ApplyEffect(EffectDuration.Instant, Effect.VisualEffect(VfxType.ImpHeadElectricity));
@@ -47,7 +83,293 @@ namespace NWN.Systems
         }
         
         onDamage.DamageData.Electrical = 0;
+      }*/
+    }
+    private static void ProcessTargetSpellDamageAbsorption(Context ctx, Action next)
+    {
+      if (ctx.oTarget.GetItemInSlot(InventorySlot.CreatureSkin) == null)
+        next();
+
+      ItemProperty absorption = null;
+      int bonusAbsorbedDamage = 0;
+
+      if (ctx.onDamage.DamageData.Bludgeoning > 0)
+      {
+        absorption = ctx.oTarget.GetItemInSlot(InventorySlot.CreatureSkin).ItemProperties.Where(i => i.PropertyType == ItemPropertyType.ImmunityDamageType && (i.SubType == 0 || i.SubType == 4) && i.CostTableValue > 7).OrderByDescending(i => i.CostTableValue).FirstOrDefault();
+
+        if (absorption != null)
+        {
+          switch (absorption.CostTableValue)
+          {
+            case 8:
+              bonusAbsorbedDamage = ctx.onDamage.DamageData.Bludgeoning / 4;
+              ctx.onDamage.DamageData.Bludgeoning -= (short)bonusAbsorbedDamage;
+              HandleDamageAbsorbed(ctx, 0, bonusAbsorbedDamage, 25);
+              break;
+            case 9:
+              bonusAbsorbedDamage = ctx.onDamage.DamageData.Bludgeoning / 2;
+              ctx.onDamage.DamageData.Bludgeoning -= (short)bonusAbsorbedDamage;
+              HandleDamageAbsorbed(ctx, 0, bonusAbsorbedDamage, 50);
+              break;
+            case 10:
+              bonusAbsorbedDamage = ctx.onDamage.DamageData.Bludgeoning * 3 / 4;
+              ctx.onDamage.DamageData.Bludgeoning -= (short)bonusAbsorbedDamage;
+              HandleDamageAbsorbed(ctx, 0, bonusAbsorbedDamage, 75);
+              break;
+            case 11:
+              bonusAbsorbedDamage = ctx.onDamage.DamageData.Bludgeoning;
+              ctx.onDamage.DamageData.Bludgeoning = 0;
+              HandleDamageAbsorbed(ctx, 0, bonusAbsorbedDamage, 100);
+              break;
+          }
+        }
       }
+
+      if (ctx.onDamage.DamageData.Pierce > 0)
+      {
+        absorption = ctx.oTarget.GetItemInSlot(InventorySlot.CreatureSkin).ItemProperties.Where(i => i.PropertyType == ItemPropertyType.ImmunityDamageType && (i.SubType == 1 || i.SubType == 4) && i.CostTableValue > 7).OrderByDescending(i => i.CostTableValue).FirstOrDefault();
+
+        if (absorption != null)
+        {
+          switch (absorption.CostTableValue)
+          {
+            case 8:
+              bonusAbsorbedDamage = ctx.onDamage.DamageData.Pierce / 4;
+              ctx.onDamage.DamageData.Pierce -= (short)bonusAbsorbedDamage;
+              HandleDamageAbsorbed(ctx, 0, bonusAbsorbedDamage, 25);
+              break;
+            case 9:
+              bonusAbsorbedDamage = ctx.onDamage.DamageData.Pierce / 2;
+              ctx.onDamage.DamageData.Pierce -= (short)bonusAbsorbedDamage;
+              HandleDamageAbsorbed(ctx, 0, bonusAbsorbedDamage, 50);
+              break;
+            case 10:
+              bonusAbsorbedDamage = ctx.onDamage.DamageData.Pierce * 3 / 4;
+              ctx.onDamage.DamageData.Pierce -= (short)bonusAbsorbedDamage;
+              HandleDamageAbsorbed(ctx, 0, bonusAbsorbedDamage, 75);
+              break;
+            case 11:
+              bonusAbsorbedDamage = ctx.onDamage.DamageData.Pierce;
+              ctx.onDamage.DamageData.Pierce = 0;
+              HandleDamageAbsorbed(ctx, 0, bonusAbsorbedDamage, 100);
+              break;
+          }
+        }
+      }
+
+      if (ctx.onDamage.DamageData.Slash > 0)
+      {
+        absorption = ctx.oTarget.GetItemInSlot(InventorySlot.CreatureSkin).ItemProperties.Where(i => i.PropertyType == ItemPropertyType.ImmunityDamageType && (i.SubType == 2 || i.SubType == 4) && i.CostTableValue > 7).OrderByDescending(i => i.CostTableValue).FirstOrDefault();
+
+        if (absorption != null)
+        {
+          switch (absorption.CostTableValue)
+          {
+            case 8:
+              bonusAbsorbedDamage = ctx.onDamage.DamageData.Slash / 4;
+              ctx.onDamage.DamageData.Slash -= (short)bonusAbsorbedDamage;
+              HandleDamageAbsorbed(ctx, 0, bonusAbsorbedDamage, 25);
+              break;
+            case 9:
+              bonusAbsorbedDamage = ctx.onDamage.DamageData.Slash / 2;
+              ctx.onDamage.DamageData.Slash -= (short)bonusAbsorbedDamage;
+              HandleDamageAbsorbed(ctx, 0, bonusAbsorbedDamage, 50);
+              break;
+            case 10:
+              bonusAbsorbedDamage = ctx.onDamage.DamageData.Slash * 3 / 4;
+              ctx.onDamage.DamageData.Slash -= (short)bonusAbsorbedDamage;
+              HandleDamageAbsorbed(ctx, 0, bonusAbsorbedDamage, 75);
+              break;
+            case 11:
+              bonusAbsorbedDamage = ctx.onDamage.DamageData.Slash;
+              ctx.onDamage.DamageData.Slash = 0;
+              HandleDamageAbsorbed(ctx, 0, bonusAbsorbedDamage, 100);
+              break;
+          }
+        }
+      }
+
+      if (ctx.onDamage.DamageData.Electrical > 0)
+      {
+        absorption = ctx.oTarget.GetItemInSlot(InventorySlot.CreatureSkin).ItemProperties.Where(i => i.PropertyType == ItemPropertyType.ImmunityDamageType && (i.SubType == 9 || i.SubType == 14) && i.CostTableValue > 7).OrderByDescending(i => i.CostTableValue).FirstOrDefault();
+
+        if (absorption != null)
+        {
+          switch (absorption.CostTableValue)
+          {
+            case 8:
+              bonusAbsorbedDamage = ctx.onDamage.DamageData.Electrical / 4;
+              ctx.onDamage.DamageData.Electrical -= (short)bonusAbsorbedDamage;
+              HandleDamageAbsorbed(ctx, 0, bonusAbsorbedDamage, 25);
+              break;
+            case 9:
+              bonusAbsorbedDamage = ctx.onDamage.DamageData.Electrical / 2;
+              ctx.onDamage.DamageData.Electrical -= (short)bonusAbsorbedDamage;
+              HandleDamageAbsorbed(ctx, 0, bonusAbsorbedDamage, 50);
+              break;
+            case 10:
+              bonusAbsorbedDamage = ctx.onDamage.DamageData.Electrical * 3 / 4;
+              ctx.onDamage.DamageData.Electrical -= (short)bonusAbsorbedDamage;
+              HandleDamageAbsorbed(ctx, 0, bonusAbsorbedDamage, 75);
+              break;
+            case 11:
+              bonusAbsorbedDamage = ctx.onDamage.DamageData.Electrical;
+              ctx.onDamage.DamageData.Electrical = 0;
+              HandleDamageAbsorbed(ctx, 0, bonusAbsorbedDamage, 100);
+              break;
+          }
+        }
+      }
+
+      if (ctx.onDamage.DamageData.Cold > 0)
+      {
+        absorption = ctx.oTarget.GetItemInSlot(InventorySlot.CreatureSkin).ItemProperties.Where(i => i.PropertyType == ItemPropertyType.ImmunityDamageType && (i.SubType == 7 || i.SubType == 14) && i.CostTableValue > 7).OrderByDescending(i => i.CostTableValue).FirstOrDefault();
+
+        if (absorption != null)
+        {
+          switch (absorption.CostTableValue)
+          {
+            case 8:
+              bonusAbsorbedDamage = ctx.onDamage.DamageData.Cold / 4;
+              ctx.onDamage.DamageData.Cold -= (short)bonusAbsorbedDamage;
+              HandleDamageAbsorbed(ctx, 0, bonusAbsorbedDamage, 25);
+              break;
+            case 9:
+              bonusAbsorbedDamage = ctx.onDamage.DamageData.Cold / 2;
+              ctx.onDamage.DamageData.Cold -= (short)bonusAbsorbedDamage;
+              HandleDamageAbsorbed(ctx, 0, bonusAbsorbedDamage, 50);
+              break;
+            case 10:
+              bonusAbsorbedDamage = ctx.onDamage.DamageData.Cold * 3 / 4;
+              ctx.onDamage.DamageData.Cold -= (short)bonusAbsorbedDamage;
+              HandleDamageAbsorbed(ctx, 0, bonusAbsorbedDamage, 75);
+              break;
+            case 11:
+              bonusAbsorbedDamage = ctx.onDamage.DamageData.Cold;
+              ctx.onDamage.DamageData.Cold = 0;
+              HandleDamageAbsorbed(ctx, 0, bonusAbsorbedDamage, 100);
+              break;
+          }
+        }
+      }
+
+      if (ctx.onDamage.DamageData.Fire > 0)
+      {
+        absorption = ctx.oTarget.GetItemInSlot(InventorySlot.CreatureSkin).ItemProperties.Where(i => i.PropertyType == ItemPropertyType.ImmunityDamageType && (i.SubType == 10 || i.SubType == 14) && i.CostTableValue > 7).OrderByDescending(i => i.CostTableValue).FirstOrDefault();
+
+        if (absorption != null)
+        {
+          switch (absorption.CostTableValue)
+          {
+            case 8:
+              bonusAbsorbedDamage = ctx.onDamage.DamageData.Fire / 4;
+              ctx.onDamage.DamageData.Fire -= (short)bonusAbsorbedDamage;
+              HandleDamageAbsorbed(ctx, 0, bonusAbsorbedDamage, 25);
+              break;
+            case 9:
+              bonusAbsorbedDamage = ctx.onDamage.DamageData.Fire / 2;
+              ctx.onDamage.DamageData.Fire -= (short)bonusAbsorbedDamage;
+              HandleDamageAbsorbed(ctx, 0, bonusAbsorbedDamage, 50);
+              break;
+            case 10:
+              bonusAbsorbedDamage = ctx.onDamage.DamageData.Fire * 3 / 4;
+              ctx.onDamage.DamageData.Fire -= (short)bonusAbsorbedDamage;
+              HandleDamageAbsorbed(ctx, 0, bonusAbsorbedDamage, 75);
+              break;
+            case 11:
+              bonusAbsorbedDamage = ctx.onDamage.DamageData.Fire;
+              ctx.onDamage.DamageData.Fire = 0;
+              HandleDamageAbsorbed(ctx, 0, bonusAbsorbedDamage, 100);
+              break;
+          }
+        }
+      }
+
+      if (ctx.onDamage.DamageData.Magical > 0)
+      {
+        absorption = ctx.oTarget.GetItemInSlot(InventorySlot.CreatureSkin).ItemProperties.Where(i => i.PropertyType == ItemPropertyType.ImmunityDamageType && (i.SubType == 5 || i.SubType == 14) && i.CostTableValue > 7).OrderByDescending(i => i.CostTableValue).FirstOrDefault();
+
+        if (absorption != null)
+        {
+          switch (absorption.CostTableValue)
+          {
+            case 8:
+              bonusAbsorbedDamage = ctx.onDamage.DamageData.Magical / 4;
+              ctx.onDamage.DamageData.Magical -= (short)bonusAbsorbedDamage;
+              HandleDamageAbsorbed(ctx, 0, bonusAbsorbedDamage, 25);
+              break;
+            case 9:
+              bonusAbsorbedDamage = ctx.onDamage.DamageData.Magical / 2;
+              ctx.onDamage.DamageData.Magical -= (short)bonusAbsorbedDamage;
+              HandleDamageAbsorbed(ctx, 0, bonusAbsorbedDamage, 50);
+              break;
+            case 10:
+              bonusAbsorbedDamage = ctx.onDamage.DamageData.Magical * 3 / 4;
+              ctx.onDamage.DamageData.Magical -= (short)bonusAbsorbedDamage;
+              HandleDamageAbsorbed(ctx, 0, bonusAbsorbedDamage, 75);
+              break;
+            case 11:
+              bonusAbsorbedDamage = ctx.onDamage.DamageData.Magical;
+              ctx.onDamage.DamageData.Magical = 0;
+              HandleDamageAbsorbed(ctx, 0, bonusAbsorbedDamage, 100);
+              break;
+          }
+        }
+      }
+
+      if (ctx.onDamage.DamageData.Sonic > 0)
+      {
+        absorption = ctx.oTarget.GetItemInSlot(InventorySlot.CreatureSkin).ItemProperties.Where(i => i.PropertyType == ItemPropertyType.ImmunityDamageType && (i.SubType == 13 || i.SubType == 14) && i.CostTableValue > 7).OrderByDescending(i => i.CostTableValue).FirstOrDefault();
+
+        if (absorption != null)
+        {
+          switch (absorption.CostTableValue)
+          {
+            case 8:
+              bonusAbsorbedDamage = ctx.onDamage.DamageData.Sonic / 4;
+              ctx.onDamage.DamageData.Sonic -= (short)bonusAbsorbedDamage;
+              HandleDamageAbsorbed(ctx, 0, bonusAbsorbedDamage, 25);
+              break;
+            case 9:
+              bonusAbsorbedDamage = ctx.onDamage.DamageData.Sonic / 2;
+              ctx.onDamage.DamageData.Sonic -= (short)bonusAbsorbedDamage;
+              HandleDamageAbsorbed(ctx, 0, bonusAbsorbedDamage, 50);
+              break;
+            case 10:
+              bonusAbsorbedDamage = ctx.onDamage.DamageData.Sonic * 3 / 4;
+              ctx.onDamage.DamageData.Sonic -= (short)bonusAbsorbedDamage;
+              HandleDamageAbsorbed(ctx, 0, bonusAbsorbedDamage, 75);
+              break;
+            case 11:
+              bonusAbsorbedDamage = ctx.onDamage.DamageData.Sonic;
+              ctx.onDamage.DamageData.Sonic = 0;
+              HandleDamageAbsorbed(ctx, 0, bonusAbsorbedDamage, 100);
+              break;
+          }
+        }
+      }
+
+      next();
+    }
+
+    private static void ProcessBaseArmorSpellPenetration(Context ctx, Action next)
+    {
+      // TODO : la pénétration dépendra du caster level, du sort lancé (les sorts de foudre ont 25 % de pénétration de base) et probablement d'autres trucs entraînés
+
+      next();
+    }
+
+    private static void ProcessSpellAttackPosition(Context ctx, Action next)
+    {
+      // TODO : voir comment le "damager" est détecté dans le cas des AoE FNF et des AoE qui restent plus longtemps au sol
+
+      if (ctx.onDamage.DamagedBy == null)
+        next();
+
+      if (ctx.onDamage.DamagedBy.GetLocalVariable<int>("_SPELL_ATTACK_POSITION").HasValue)
+        ctx.attackPosition = (Config.AttackPosition)ctx.onDamage.DamagedBy.GetLocalVariable<int>("_SPELL_ATTACK_POSITION").Value;
+
+      next();
     }
   }
 }

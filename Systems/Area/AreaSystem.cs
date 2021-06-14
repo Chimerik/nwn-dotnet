@@ -231,9 +231,8 @@ namespace NWN.Systems
     }
     private static void OnTheaterSceneEnter(TriggerEvents.OnEnter onEnter)
     {
-       VisualTransform transfo = onEnter.EnteringObject.VisualTransform;
-      transfo.Translation = new Vector3(transfo.Translation.X, transfo.Translation.Y, 2.01f);
-      onEnter.EnteringObject.VisualTransform = transfo;
+      onEnter.EnteringObject.VisualTransform.Translation = new Vector3(onEnter.EnteringObject.VisualTransform.Translation.X, 
+        onEnter.EnteringObject.VisualTransform.Translation.Y, 2.01f);
       NWScript.SetCameraHeight(onEnter.EnteringObject, 1 + 2.01f);
     }
 
@@ -245,9 +244,8 @@ namespace NWN.Systems
       }
       else
       {
-        VisualTransform transfo = onExit.ExitingObject.VisualTransform;
-        transfo.Translation = new Vector3(transfo.Translation.X, transfo.Translation.Y,  0);
-        onExit.ExitingObject.VisualTransform = transfo;
+        onExit.ExitingObject.VisualTransform.Translation = new Vector3(onExit.ExitingObject.VisualTransform.Translation.X, 
+          onExit.ExitingObject.VisualTransform.Translation.Y, 0);
         NWScript.SetCameraHeight(onExit.ExitingObject, 0);
       }
     }
