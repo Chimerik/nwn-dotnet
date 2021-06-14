@@ -1,7 +1,9 @@
 ﻿using System;
+using System.Linq;
+using NWN.API;
+using NWN.API.Constants;
+using NWN.API.Events;
 using NWN.Core;
-using NWN.Core.NWNX;
-using static NWN.Systems.CollectSystem;
 
 namespace NWN.Systems
 {
@@ -9,15 +11,49 @@ namespace NWN.Systems
   {
     private static void ExecuteTestCommand(ChatSystem.Context ctx, Options.Result options)
     {
-      PlayerSystem.Player player;
-      if (PlayerSystem.Players.TryGetValue(ctx.oSender, out player))
+      if (PlayerSystem.Players.TryGetValue(ctx.oSender.LoginCreature, out PlayerSystem.Player player))
       {
-        Console.WriteLine($"uint player {ctx.oSender}");
-        int convertedUint = Convert.ToInt32(ctx.oSender);
-        NWScript.SetLocalInt(ctx.oSender, "_PC_ID", convertedUint);
-        Console.WriteLine($"int player {NWScript.GetLocalInt(ctx.oSender, "_PC_ID")}");
-        Console.WriteLine($"uint player converted {Convert.ToUInt32(NWScript.GetLocalInt(ctx.oSender, "_PC_ID"))}");
+        //ctx.oSender.ToNwObject<NwPlayer>().HP = 10;
+        //ctx.oSender.ApplyEffect(EffectDuration.Instant, API.Effect.Death());
+
+        if (player.oid.PlayerName == "Chim")
+        {
+          //SpellUtils.ApplyCustomEffectToTarget(player.oid, "CUSTOM_EFFECT_FROG", 51, 6);
+          PlayerSystem.cursorTargetService.EnterTargetMode(player.oid, OnTargetSelected, ObjectTypes.All, MouseCursor.Pickup);
+        }
       }
     }
+    private static void OnTargetSelected(ModuleEvents.OnPlayerTarget selection)
+    {
+      if (!(selection.TargetObject is NwItem item))
+        return;
+
+      item.AddItemProperty(API.ItemProperty.ACBonusVsDmgType((IPDamageType)5, 80), EffectDuration.Temporary, TimeSpan.FromSeconds(10));
+      //item.AddItemProperty(API.ItemProperty.Custom(NWScript.ITEM_PROPERTY_AC_BONUS, -1, 80), EffectDuration.Temporary, TimeSpan.FromSeconds(10));
+
+      //((NwGameObject)selection.TargetObject).ApplyEffect(EffectDuration.Permanent, API.Effect.Swarm(true, "sim_wraith"));
+      //AppearancePlugin.SetOverride(selection.Player, selection.TargetObject, );
+      //PlayerPlugin.ApplyLoopingVisualEffectToObject(selection.Player, selection.TargetObject, NWScript.VFX_DUR_PROT_BARKSKIN);
+    }
+    /* public static String Translate(String word)
+     {
+       var toLanguage = "en";
+       var fromLanguage = "fr";
+       var url = $"https://translate.googleapis.com/translate_a/single?client=gtx&sl={fromLanguage}&tl={toLanguage}&dt=t&q={HttpUtility.UrlEncode(word)}";
+       var webClient = new WebClient
+       {
+         Encoding = System.Text.Encoding.UTF8
+       };
+       var result = webClient.DownloadString(url);
+       try
+       {
+         result = result.Substring(4, result.IndexOf("\"", 4, StringComparison.Ordinal) - 4);
+         return result;
+       }
+       catch
+       {
+         return "Error";
+       }
+     }*/
   }
 }

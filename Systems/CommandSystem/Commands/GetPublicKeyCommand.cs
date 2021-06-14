@@ -1,12 +1,12 @@
-﻿using NWN.Core;
+﻿using NWN.API;
 
 namespace NWN.Systems
 {
-  public static partial class CommandSystem
+  class GetPublicKey
   {
-    private static void ExecuteGetPublicKeyCommand(ChatSystem.Context ctx, Options.Result options)
+    public GetPublicKey(NwPlayer oPC)
     {
-      NWScript.SendMessageToPC(ctx.oSender, "Votre clef publique est : " + NWScript.GetPCPublicCDKey(ctx.oSender));
+      oPC.SendServerMessage($"Votre clef publique est : {oPC.CDKey.ColorString(ColorConstants.White)}", ColorConstants.Pink);
     }
   }
 }

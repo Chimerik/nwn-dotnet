@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using NWN.Core;
 
 namespace NWN.Systems
@@ -8,41 +7,45 @@ namespace NWN.Systems
   {
     private static void ExecuteHelpCommand(ChatSystem.Context ctx, Options.Result options)
     {
-      var commandName = (string)options.positional[0];
-
-      if (commandName == null)
+      if (PlayerSystem.Players.TryGetValue(ctx.oSender.LoginCreature, out PlayerSystem.Player player))
       {
-        __ShowAllCommands(ctx);
-      } else
-      {
-        __ShowSingleCommand(ctx, commandName);
+        DrawAllCommandsPage(player);
       }
     }
 
-    private static void __ShowAllCommands (ChatSystem.Context ctx)
+    private static void DrawAllCommandsPage(PlayerSystem.Player player)
     {
-      var msg = "\nList of all available commands :\n";
+      player.menu.Clear();
+      player.menu.titleLines.Add("Voici la liste de toutes les commandes disponibles :");
+
       foreach (KeyValuePair<string, Command> entry in commandDic)
       {
-        msg += $"\n{entry.Value.shortDesc}";
+        player.menu.choices.Add((
+           entry.Value.shortDesc,
+           () => DrawSingleCommandPage(player, entry.Value.longDesc)
+        ));
       }
 
-      NWScript.SendMessageToPC(ctx.oSender, msg);
+      player.menu.Draw();
     }
 
-    private static void __ShowSingleCommand (ChatSystem.Context ctx, string name)
+    private static void DrawSingleCommandPage(PlayerSystem.Player player, string description)
     {
-      Command command;
-      string msg;
-      if (!commandDic.TryGetValue(name, out command))
+      player.menu.Clear();
+
+      var descriptionLines = description.Split("\n");
+
+      foreach (var line in descriptionLines)
       {
-        msg = $"Unknown command \"{name}\".";
-      } else
-      {
-        msg = command.longDesc;
+        player.menu.titleLines.Add(line);
       }
 
-      NWScript.SendMessageToPC(ctx.oSender, msg);
+      player.menu.choices.Add((
+        "Retour",
+        () => DrawAllCommandsPage(player)
+      ));
+
+      player.menu.Draw();
     }
   }
 }

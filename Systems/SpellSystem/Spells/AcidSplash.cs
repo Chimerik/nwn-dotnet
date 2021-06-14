@@ -1,0 +1,42 @@
+﻿using NWN.Core;
+using NWN.API;
+using NWN.API.Constants;
+using NWN.API.Events;
+
+namespace NWN.Systems
+{
+  class AcidSplash
+  {
+    public AcidSplash(SpellEvents.OnSpellCast onSpellCast)
+    {
+      if (!(onSpellCast.Caster is NwCreature { IsPlayerControlled: true } oCaster))
+        return;
+
+      int nCasterLevel = oCaster.LastSpellCasterLevel;
+
+      NWScript.SignalEvent(onSpellCast.TargetObject, NWScript.EventSpellCastAt(onSpellCast.Caster, (int)onSpellCast.Spell));
+
+      API.Effect eVis = API.Effect.VisualEffect(VfxType.ImpAcidS);
+
+      //Make SR Check
+      if (SpellUtils.MyResistSpell(onSpellCast.Caster, onSpellCast.TargetObject) == 0)
+      {
+        //Set damage effect
+        int iDamage = 3;
+        int nDamage = SpellUtils.MaximizeOrEmpower(iDamage, 1 + nCasterLevel / 6, onSpellCast.MetaMagicFeat);
+        onSpellCast.TargetObject.ApplyEffect(EffectDuration.Instant, NWScript.EffectLinkEffects(eVis, API.Effect.Damage(nDamage, DamageType.Acid)));
+      }
+
+      if (onSpellCast.MetaMagicFeat == MetaMagic.None)
+      {
+        oCaster.GetLocalVariable<int>("_AUTO_SPELL").Value = (int)onSpellCast.Spell;
+        oCaster.GetLocalVariable<NwObject>("_AUTO_SPELL_TARGET").Value = onSpellCast.TargetObject;
+        oCaster.OnCombatRoundEnd -= PlayerSystem.HandleCombatRoundEndForAutoSpells;
+        oCaster.OnCombatRoundEnd += PlayerSystem.HandleCombatRoundEndForAutoSpells;
+
+        SpellUtils.CancelCastOnMovement(oCaster);
+        SpellUtils.RestoreSpell(oCaster, onSpellCast.Spell);
+      }
+    }
+  }
+}

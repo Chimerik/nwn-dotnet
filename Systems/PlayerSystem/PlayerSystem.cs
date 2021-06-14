@@ -1,778 +1,411 @@
 ﻿using System;
-using System.Numerics;
 using System.Collections.Generic;
 using System.Linq;
-using Dapper;
 using NWN.Core;
 using NWN.Core.NWNX;
+using NWN.API;
+using NWN.Services;
+using NWN.API.Events;
+using NWN.API.Constants;
+using NLog;
+using System.Threading.Tasks;
 
 namespace NWN.Systems
 {
-  public static partial class PlayerSystem
+  [ServiceBinding(typeof(PlayerSystem))]
+  public partial class PlayerSystem
   {
-    public const string ON_PC_KEYSTROKE_SCRIPT = "on_pc_keystroke";
+    public static readonly Logger Log = LogManager.GetCurrentClassLogger();
+    public static CursorTargetService cursorTargetService { get; set; }
+    public static EventService eventService { get; set; }
+    public PlayerSystem(CursorTargetService cursorTService, EventService eventServices)
+    {
+      NwModule.Instance.OnClientEnter += HandlePlayerConnect;
+      NwModule.Instance.OnClientDisconnect += HandlePlayerLeave;
 
-    public static Dictionary<string, Func<uint, int>> Register = new Dictionary<string, Func<uint, int>>
-        {
-            { "on_pc_perceived", HandlePlayerPerceived },
-            { "on_pc_target", HandlePlayerTargetSelection },
-            { "on_pc_connect", HandlePlayerConnect },
-            { "on_pc_disconnect", HandlePlayerDisconnect },
-            { "player_exit_before", HandlePlayerBeforeDisconnect },
-            { ON_PC_KEYSTROKE_SCRIPT, HandlePlayerKeystroke },
-            { "event_player_save_before", HandleBeforePlayerSave },
-            { "event_player_save_after", HandleAfterPlayerSave },
-            { "event_dm_possess_before", HandleBeforeDMPossess },
-            { "event_dm_spawn_object_after", HandleAfterDMSpawnObject },
-            { "event_mv_plc", HandleMovePlaceable },
-            { "event_feat_used", HandleFeatUsed },
-            { "event_auto_spell", HandleAutoSpell },
-            { "_onspellcast", HandleOnSpellCast },
-            { "event_combatmode", HandleOnCombatMode },
-            { "event_skillused", HandleOnSkillUsed },
-            { "summon_add_after", HandleAfterAddSummon },
-            { "summon_remove_after", HandleAfterRemoveSummon },
-            { "event_detection_after", HandleAfterDetection },
-            { "on_pc_death", HandlePlayerDeath },
-            { "event_dm_jump_target_after", HandleAfterDMJumpTarget },
-            { "event_start_combat_after", HandleAfterStartCombat },
-            { "event_party_accept_after", HandleAfterPartyAccept },
-            { "event_party_leave_after", HandleAfterPartyLeave },
-            { "event_party_leave_before", HandleBeforePartyLeave },
-            { "event_party_kick_after", HandleAfterPartyKick },
-            { "event_examine_before", HandleBeforeExamine },
-            { "event_examine_after", HandleAfterExamine },
-            { "event_pccorpse_remove_item_after", HandleAfterItemRemovedFromPCCorpse },
-            { "event_inventory_pccorpse_removed_after", HandleAfterPCCorpseRemovedFromInventory },
-            { "pc_acquire_item", HandlePCAcquireItem },
-            { "pc_unacquire_it", HandlePCUnacquireItem },
-        };
-    
+      eventService = eventServices;
+      cursorTargetService = cursorTService;
+    }
+
     public static Dictionary<uint, Player> Players = new Dictionary<uint, Player>();
 
-    private static int HandlePlayerDisconnect(uint oidSelf)
+    [ScriptHandler("spacebar_down")]
+    private void HandleSpacebarDown(CallInfo callInfo)
     {
- /*     var oPC = NWScript.GetExitingObject();
-      EventsPlugin.RemoveObjectFromDispatchList(EventsPlugin.ON_INPUT_KEYBOARD_BEFORE, ON_PC_KEYSTROKE_SCRIPT, oPC);
-      Players.Remove(oPC);
-*/
-      return 0;
+      NWScript.PostString(callInfo.ObjectSelf, "", 40, 15, 0, 0.000001f, unchecked((int)0xFFFFFFFF), unchecked((int)0xFFFFFFFF), 9999, "fnt_my_gui");
+      EventsPlugin.RemoveObjectFromDispatchList("NWNX_ON_INPUT_TOGGLE_PAUSE_BEFORE", "spacebar_down", callInfo.ObjectSelf);
     }
-
-    private static int HandlePlayerKeystroke(uint oidSelf)
+    public static void OnCombatStarted(OnCombatStatusChange onCombatStatusChange)
     {
-      var key = EventsPlugin.GetEventData("KEY");
-      Player player;
-      if (Players.TryGetValue(oidSelf, out player))
+
+      if (onCombatStatusChange.CombatStatus == CombatStatus.ExitCombat)
+        return;
+
+      API.Effect effPC = onCombatStatusChange.Player.ControlledCreature.ActiveEffects.FirstOrDefault(e => e.EffectType == EffectType.CutsceneGhost);
+      if (effPC != null)
+        onCombatStatusChange.Player.ControlledCreature.RemoveEffect(effPC);
+    }
+    public static void OnCombatRoundStart(OnCombatRoundStart onStartCombatRound)
+    {
+      NWScript.SetPCDislike(onStartCombatRound.Creature, onStartCombatRound.Target);
+    }
+    [ScriptHandler("event_combatmode")]
+    private void HandleCombatModeOff(CallInfo callInfo)
+    {
+      if (NWScript.GetLocalInt(callInfo.ObjectSelf, "_ACTIVATED_TAUNT") != 0) // Permet de conserver sa posture de combat après avoir utilisé taunt
       {
-        player.EmitKeydown(new Player.KeydownEventArgs(key));
+        EventsPlugin.SkipEvent();
+        NWScript.DeleteLocalInt(callInfo.ObjectSelf, "_ACTIVATED_TAUNT");
       }
-
-      return 0;
     }
-
-    private static int HandlePlayerTargetSelection(uint oidSelf)
+    [ScriptHandler("event_skillused")]
+    private void HandleBeforeSkillUsed(CallInfo callInfo)
     {
-      var oPC = NWScript.GetLastPlayerToSelectTarget();
-      var oTarget = NWScript.GetTargetingModeSelectedObject();
-      Vector3 vTarget = NWScript.GetTargetingModeSelectedPosition();
+      if (!(callInfo.ObjectSelf is NwCreature { IsLoginPlayerCharacter: true } oPC))
+        return;
 
-      Player player;
-      if (Players.TryGetValue(oPC, out player))
-      {
-        player.DoActionOnTargetSelected(oTarget, vTarget);
-      }
+      int skillID = int.Parse(EventsPlugin.GetEventData("SKILL_ID"));
 
-      return 0;
-    }
-   
-    private static int HandleBeforeDMPossess(uint oidSelf)
-    {
-      var oPossessed = NWScript.StringToObject(EventsPlugin.GetEventData("TARGET"));
-      Player oPC;
-      if (Players.TryGetValue(oidSelf, out oPC))
+      switch ((Skill)skillID)
       {
-        if (NWScript.GetIsObjectValid(oPossessed) == 1)
-        { // Ici, on prend possession
-          if (NWScript.GetIsDMPossessed(oPC.oid) == 1)
+        case Skill.Taunt:
+          oPC.GetLocalVariable<int>("_ACTIVATED_TAUNT").Value = 1;
+          NWScript.DelayCommand(6.0f, () => oPC.GetLocalVariable<int>("_ACTIVATED_TAUNT").Delete());
+          break;
+        case Skill.PickPocket:
+          EventsPlugin.SkipEvent();
+
+          if (!(NWScript.StringToObject(EventsPlugin.GetEventData("TARGET_OBJECT_ID")).ToNwObject() is NwCreature { IsLoginPlayerCharacter: true } oTarget)
+            || oTarget.ControllingPlayer.IsDM)
           {
-            NWScript.SetLocalObject(NWScript.GetLocalObject(oPC.oid, "_POSSESSER"), "_POSSESSING", oPossessed);
-            NWScript.SetLocalObject(oPossessed, "_POSSESSER", NWScript.GetLocalObject(oPC.oid, "_POSSESSER"));
+            oPC.ControllingPlayer.FloatingTextString("Seuls d'autres joueurs peuvent être ciblés par cette compétence. Les tentatives de vol sur PNJ doivent être jouées en rp avec un dm.".ColorString(ColorConstants.Red), false);
+            return;
+          }
+
+          if (!DateTime.TryParse(ObjectPlugin.GetString(oTarget, $"_PICKPOCKET_TIMER_{oPC.Name}"), out DateTime previousDate)
+              || (DateTime.Now - previousDate).TotalHours < 24)
+          {
+            oPC.ControllingPlayer.FloatingTextString($"Vous ne serez autorisé à faire une nouvelle tentative de vol que dans : {(DateTime.Now - previousDate).TotalHours + 1}", false);
+            return;
+          }
+
+          ObjectPlugin.SetString(oTarget, $"_PICKPOCKET_TIMER_{oPC.Name}", DateTime.Now.ToString(), 1);
+
+          FeedbackPlugin.SetFeedbackMessageHidden(13, 1, oTarget); // 13 = COMBAT_TOUCH_ATTACK
+          NWScript.DelayCommand(2.0f, () => FeedbackPlugin.SetFeedbackMessageHidden(13, 0, oTarget));
+
+          int iSpot = oTarget.GetSkillRank(Skill.Spot);
+          if (oTarget.DetectModeActive || oTarget.HasFeatEffect(API.Constants.Feat.KeenSense))
+            iSpot += NwRandom.Roll(Utils.random, 20, 1);
+
+          if (!oPC.DoSkillCheck(Skill.PickPocket, iSpot))
+          {
+            oTarget.ControllingPlayer.FloatingTextString($"{oPC} est en train d'essayer de faire les poches de {oTarget} !", true);
+            oPC.ControllingPlayer.FloatingTextString($"{oPC} est en train d'essayer de faire les poches de {oTarget} !", true);
+          }
+
+          if (NWScript.TouchAttackMelee(oTarget) == 0)
+          {
+            oPC.ControllingPlayer.FloatingTextString($"Vous ne parvenez pas à atteindre les poches de {oTarget.Name} !", false);
+            return;
+          }
+
+          int iStolenGold = (NwRandom.Roll(Utils.random, 20, 1) + oPC.GetSkillRank(Skill.PickPocket) - iSpot) * 10;
+
+          if (oTarget.Gold >= iStolenGold)
+          {
+            CreaturePlugin.SetGold(oTarget, (int)oTarget.Gold - iStolenGold);
+            oPC.GiveGold(iStolenGold);
+            oPC.ControllingPlayer.FloatingTextString($"Vous venez de dérober {iStolenGold} pièces d'or des poches de {oTarget.Name} !", false);
           }
           else
           {
-            NWScript.SetLocalObject(oPC.oid, "_POSSESSING", oPossessed);
-            NWScript.SetLocalObject(oPossessed, "_POSSESSER", oPC.oid);
+            oPC.ControllingPlayer.FloatingTextString($"Vous venez de vider les poches de {oTarget.Name} ! {oTarget.Gold} pièces d'or de plus pour vous.", false);
+            oPC.GiveGold((int)oTarget.Gold);
+            CreaturePlugin.SetGold(oTarget, 0);
           }
+
+          break;
+        case Skill.AnimalEmpathy:
+          if (oPC.Area.Tag == "Promenadetest")
+          {
+            oPC.ControllingPlayer.FloatingTextString("L'endroit est bien trop agité pour que vous puissiez vous permettre de nouer un lien avec l'animal.", false);
+            EventsPlugin.SkipEvent();
+          }
+          break;
+      }
+    }
+
+    [ScriptHandler("on_journal_open")]
+    private void HandlePCJournalOpen(CallInfo callInfo)
+    {
+      if (Players.TryGetValue(callInfo.ObjectSelf, out Player player))
+      {
+        player.DoJournalUpdate = true;
+        player.UpdateJournal();
+      }
+    }
+    [ScriptHandler("on_journal_close")]
+    private void HandlePCJournalClose(CallInfo callInfo)
+    {
+      if (Players.TryGetValue(callInfo.ObjectSelf, out Player player))
+      {
+        player.DoJournalUpdate = false;
+      }
+    }
+
+    [ScriptHandler("map_pin_added")]
+    private void HandleAddMapPin(CallInfo callInfo)
+    {
+      if (Players.TryGetValue(callInfo.ObjectSelf, out Player player))
+      {
+        int id = NWScript.GetLocalInt(player.oid.LoginCreature, "NW_TOTAL_MAP_PINS");
+        player.mapPinDictionnary.Add(NWScript.GetLocalInt(player.oid.LoginCreature, "NW_TOTAL_MAP_PINS"), new MapPin(id, NWScript.GetTag(NWScript.GetArea(player.oid.ControlledCreature)), float.Parse(EventsPlugin.GetEventData("PIN_X")), float.Parse(EventsPlugin.GetEventData("PIN_Y")), EventsPlugin.GetEventData("PIN_NOTE")));
+      }
+    }
+
+    [ScriptHandler("mappin_destroyed")]
+    private void HandleDestroyMapPin(CallInfo callInfo)
+    {
+      if (Players.TryGetValue(callInfo.ObjectSelf, out Player player))
+      {
+        int pinId = Int32.Parse(EventsPlugin.GetEventData("PIN_ID"));
+        player.mapPinDictionnary.Remove(pinId);
+
+        var query = NWScript.SqlPrepareQueryCampaign(Systems.Config.database, "DELETE FROM playerMapPins where characterId = @characterId and mapPinId = @mapPinId");
+        NWScript.SqlBindInt(query, "@characterId", player.characterId);
+        NWScript.SqlBindInt(query, "@mapPinId", pinId);
+        NWScript.SqlStep(query);
+      }
+    }
+    [ScriptHandler("map_pin_changed")] 
+    private void HandleChangeMapPin(CallInfo callInfo)
+    {
+      if (Players.TryGetValue(callInfo.ObjectSelf, out Player player))
+      {
+        MapPin updatedMapPin = player.mapPinDictionnary[Int32.Parse(EventsPlugin.GetEventData("PIN_ID"))];
+        updatedMapPin.x = float.Parse(EventsPlugin.GetEventData("PIN_X"));
+        updatedMapPin.y = float.Parse(EventsPlugin.GetEventData("PIN_Y"));
+        updatedMapPin.note = EventsPlugin.GetEventData("PIN_NOTE");
+      }
+    }
+    [ScriptHandler("pc_sheet_open")]
+    private void HandleCharacterSheetOpened(CallInfo callInfo)
+    {
+      if (!(callInfo.ObjectSelf is NwCreature { IsLoginPlayerCharacter: true } player) || !player.ControllingPlayer.IsDM)
+        return;
+
+      if (!(NWScript.StringToObject(EventsPlugin.GetEventData("TARGET")).ToNwObject() is NwCreature { IsLoginPlayerCharacter: true } oTarget)
+        || !Players.TryGetValue(oTarget, out Player target))
+        return;
+
+      foreach (KeyValuePair<Feat, int> feat in target.learntCustomFeats)
+      {
+        CustomFeat customFeat = SkillSystem.customFeatsDictionnary[feat.Key];
+
+        if (int.TryParse(NWScript.Get2DAString("feat", "FEAT", (int)feat.Key), out int nameValue))
+          PlayerPlugin.SetTlkOverride(callInfo.ObjectSelf, nameValue, $"{customFeat.name} - {SkillSystem.GetCustomFeatLevelFromSkillPoints(feat.Key, feat.Value)}");
+        else
+          Utils.LogMessageToDMs($"CUSTOM SKILL SYSTEM ERROR - Skill {customFeat.name} : no available custom name StrRef");
+
+        if (int.TryParse(NWScript.Get2DAString("feat", "DESCRIPTION", (int)feat.Key), out int descriptionValue))
+          PlayerPlugin.SetTlkOverride(callInfo.ObjectSelf, descriptionValue, customFeat.description);
+        else
+        {
+          Utils.LogMessageToDMs($"CUSTOM SKILL SYSTEM ERROR - Skill {customFeat.name} : no available custom description StrRef");
+        }
+      }
+    }
+    [ScriptHandler("on_input_emote")]
+    private void HandleInputEmote(CallInfo callInfo)
+    {
+      if (!Players.TryGetValue(callInfo.ObjectSelf, out Player player))
+        return;
+
+      int animation = Utils.TranslateEngineAnimation(Int32.Parse(EventsPlugin.GetEventData("ANIMATION")));
+
+      switch (animation)
+      {
+        case NWScript.ANIMATION_LOOPING_MEDITATE:
+        case NWScript.ANIMATION_LOOPING_CONJURE1:
+        case NWScript.ANIMATION_LOOPING_CONJURE2:
+        case NWScript.ANIMATION_LOOPING_GET_MID:
+        case NWScript.ANIMATION_LOOPING_GET_LOW:
+        case NWScript.ANIMATION_LOOPING_LISTEN:
+        case NWScript.ANIMATION_LOOPING_LOOK_FAR:
+        case NWScript.ANIMATION_LOOPING_PAUSE:
+        case NWScript.ANIMATION_LOOPING_PAUSE_DRUNK:
+        case NWScript.ANIMATION_LOOPING_PAUSE_TIRED:
+        case NWScript.ANIMATION_LOOPING_PAUSE2:
+        case NWScript.ANIMATION_LOOPING_SPASM:
+        case NWScript.ANIMATION_LOOPING_TALK_FORCEFUL:
+        case NWScript.ANIMATION_LOOPING_TALK_LAUGHING:
+        case NWScript.ANIMATION_LOOPING_TALK_NORMAL:
+        case NWScript.ANIMATION_LOOPING_TALK_PLEADING:
+        case NWScript.ANIMATION_LOOPING_WORSHIP:
+          EventsPlugin.SkipEvent();
+          NWScript.PlayAnimation(animation, 1, 30000.0f);
+          break;
+        case NWScript.ANIMATION_LOOPING_DEAD_BACK:
+        case NWScript.ANIMATION_LOOPING_DEAD_FRONT:
+        case NWScript.ANIMATION_LOOPING_SIT_CHAIR:
+        case NWScript.ANIMATION_LOOPING_SIT_CROSS:
+          EventsPlugin.SkipEvent();
+          NWScript.PlayAnimation(animation, 1, 30000.0f);
+
+          player.menu.Close();
+          player.menu.isOpen = true;
+          player.LoadMenuQuickbar(QuickbarType.Sit);
+          break;
+      }
+    }
+
+    [ScriptHandler("b_learn_scroll")]
+    private void HandleBeforeLearnScroll(CallInfo callInfo)
+    {
+      if (!(callInfo.ObjectSelf is NwCreature { IsLoginPlayerCharacter: true } oPC))
+        return;
+
+      EventsPlugin.SkipEvent();
+      var oScroll = NWScript.StringToObject(EventsPlugin.GetEventData("SCROLL"));
+      int spellId = SpellUtils.GetSpellIDFromScroll(oScroll);
+      int spellLevel = SpellUtils.GetSpellLevelFromScroll(oScroll);
+
+      if (spellId < 0 || spellLevel < 0)
+      {
+        Utils.LogMessageToDMs($"LEARN SPELL FROM SCROLL - Player : {oPC.Name}, SpellId : {spellId}, SpellLevel : {spellLevel} - INVALID");
+        oPC.ControllingPlayer.SendServerMessage("HRP - Ce parchemin ne semble pas correctement configuré, impossible d'en apprendre quoique ce soit. Le staff a été informé du problème.");
+        return;
+      }
+
+      int knownSpellCount = CreaturePlugin.GetKnownSpellCount(oPC, 43, spellLevel);
+
+      if (knownSpellCount > 0)
+        for (int i = 0; i < knownSpellCount; i++)
+          if (CreaturePlugin.GetKnownSpell(oPC, 43, spellLevel, i) == spellId)
+          {
+            oPC.ControllingPlayer.SendServerMessage("Ce sort est déjà inscrit dans votre grimoire.");
+            return;
+          }
+
+      if (Players.TryGetValue(oPC, out Player player))
+        if (player.learnableSpells.ContainsKey(spellId))
+        {
+          if (player.learnableSpells[spellId].nbScrollsUsed <= 5)
+          {
+            player.learnableSpells[spellId].acquiredPoints += player.learnableSpells[spellId].pointsToNextLevel / 20;
+            player.learnableSpells[spellId].nbScrollsUsed += 1;
+            oPC.ControllingPlayer.SendServerMessage("A l'aide de ce parchemin, vous affinez votre connaissance de ce sort. Votre apprentissage sera plus rapide.");
+          }
+          else
+            oPC.ControllingPlayer.SendServerMessage("Vous avez déjà retiré tout ce que vous pouviez de ce parchemin.");
+          return;
         }
         else
-        {  // Ici, on cesse la possession
-          if (NWScript.GetIsDMPossessed(oPC.oid) == 1)
-          {
-            NWScript.DeleteLocalObject(NWScript.GetLocalObject(oPC.oid, "_POSSESSER"), "_POSSESSING");
-            NWScript.DeleteLocalObject(NWScript.GetLocalObject(oPC.oid, "_POSSESSER"), "_POSSESSER");
-          }
-          else
-          {
-            NWScript.DeleteLocalObject(NWScript.GetLocalObject(oPC.oid, "_POSSESSER"), "_POSSESSING");
-            NWScript.DeleteLocalObject(oPC.oid, "_POSSESSER");
-          }
-        }
-      }
-      return 0;
-    }
-
-    private static int HandleAfterDMSpawnObject(uint oidSelf)
-    {
-      Player oPC;
-      if (Players.TryGetValue(oidSelf, out oPC))
-      {
-        if (int.Parse(EventsPlugin.GetEventData("OBJECT_TYPE")) == 9)
         {
-          if (ObjectPlugin.GetInt(oPC.oid, "_SPAWN_PERSIST") != 0)
-          {
-            var oObject = NWScript.StringToObject(EventsPlugin.GetEventData("OBJECT"));
-            // TODO : Enregistrer l'objet créé en base de données. Ajouter à l'objet un script qui le supprime de la BDD OnDeath
-            NWScript.SendMessageToPC(oPC.oid, $"Création persistante - Vous posez le placeable  {NWScript.GetName(oObject)}");
-          }
-          else
-            NWScript.SendMessageToPC(oPC.oid, "Création temporaire - Ce placeable sera effacé par le prochain reboot.");
+          SkillSystem.LearnableSpell spell = new SkillSystem.LearnableSpell(spellId, 0, player);
+          player.learnableSpells.Add(spellId, spell);
+          oPC.ControllingPlayer.SendServerMessage($"Le sort {spell.name} a été ajouté à votre liste d'apprentissage et est désormais disponible pour étude.");
+          NWScript.DestroyObject(oScroll);
         }
-      }
-      return 0;
     }
 
-    private static int HandlePlayerBeforeDisconnect(uint oidSelf)
+    [ScriptHandler("collect_cancel")]
+    private void HandleBeforeCollectCycleCancel(CallInfo callInfo)
     {
-      Player player;
-      if (Players.TryGetValue(oidSelf, out player))
+      callInfo.ObjectSelf.GetLocalVariable<int>("_COLLECT_CANCELLED").Value = 1;
+    }
+    public static void HandleOnClientLevelUp(OnClientLevelUpBegin onLevelUp)
+    {
+      onLevelUp.PreventLevelUp = true;
+      Utils.LogMessageToDMs($"{onLevelUp.Player.LoginCreature.Name} vient d'essayer de level up.");
+      onLevelUp.Player.LoginCreature.Xp = 1;
+    }
+
+    private static void HandlePlayerPerception(CreatureEvents.OnPerception onPerception)
+    {
+      if (onPerception.PerceptionEventType != PerceptionEventType.Seen || onPerception.PerceivedCreature.Tag != "Statuereptilienne"
+        || !onPerception.Creature.IsLoginPlayerCharacter)
+        return;
+
+      if (onPerception.PerceivedCreature.GetLocalVariable<int>($"_PERCEPTION_STATUS_{onPerception.Creature.ControllingPlayer.CDKey}").HasValue)
+        return;
+
+      onPerception.PerceivedCreature.GetLocalVariable<int>($"_PERCEPTION_STATUS_{onPerception.Creature.ControllingPlayer.CDKey}").Value = 1;
+
+      API.Effect effectToRemove = onPerception.PerceivedCreature.ActiveEffects.FirstOrDefault(e => e.Tag == "_FREEZE_EFFECT");
+      if (effectToRemove != null)
+        onPerception.PerceivedCreature.RemoveEffect(effectToRemove);
+
+      Task waitForAnimation = NwTask.Run(async () =>
       {
-        player.isConnected = false;
-        HandleBeforePartyLeave(oidSelf);
-        HandleAfterPartyLeave(oidSelf);
-      }
+        onPerception.PerceivedCreature.PlayAnimation((Animation)Utils.random.Next(100, 116), 6);
+        await NwTask.Delay(TimeSpan.FromSeconds(0.1));
 
-      return 0;
+        API.Effect eff = eff = API.Effect.VisualEffect(VfxType.DurFreezeAnimation);
+        eff.Tag = "_FREEZE_EFFECT";
+        eff.SubType = EffectSubType.Supernatural;
+        onPerception.PerceivedCreature.ApplyEffect(EffectDuration.Permanent, eff);
+      });
     }
-
-    private static int HandleMovePlaceable(uint oidSelf)
+    public static void HandleCombatRoundEndForAutoSpells(CreatureEvents.OnCombatRoundEnd onCombatRoundEnd)
     {
-      string current_event = EventsPlugin.GetCurrentEvent();
-
-      string sKey = EventsPlugin.GetEventData("KEY");
-      var oMeuble = NWScript.GetLocalObject(oidSelf, "_MOVING_PLC");
-      Vector3 vPos = NWScript.GetPosition(oMeuble);
-
-      if (sKey == "W")
-        ObjectPlugin.AddToArea(oMeuble, NWScript.GetArea(oMeuble), NWScript.Vector(vPos.X, vPos.Y + 0.1f, vPos.Z));
-      else if (sKey == "S")
-        ObjectPlugin.AddToArea(oMeuble, NWScript.GetArea(oMeuble), NWScript.Vector(vPos.X, vPos.Y - 0.1f, vPos.Z));
-      else if (sKey == "D")
-        ObjectPlugin.AddToArea(oMeuble, NWScript.GetArea(oMeuble), NWScript.Vector(vPos.X + 0.1f, vPos.Y, vPos.Z));
-      else if (sKey == "A")
-        ObjectPlugin.AddToArea(oMeuble, NWScript.GetArea(oMeuble), NWScript.Vector(vPos.X - 0.1f, vPos.Y, vPos.Z));
-      else if (sKey == "Q")
-        NWScript.AssignCommand(oMeuble, () => NWScript.SetFacing(NWScript.GetFacing(oMeuble) - 20.0f));
-      //NWScript.AssignCommand(oMeuble, () => oMeuble.Facing (oMeuble.Facing - 20.0f));
-      else if (sKey == "E")
-        NWScript.AssignCommand(oMeuble, () => NWScript.SetFacing(NWScript.GetFacing(oMeuble) + 20.0f));
-      //NWScript.AssignCommand(oMeuble, () => NWScript.SetFacing(oMeuble.Facing + 20.0f));
-
-      return 0;
-    }
-
-    private static int HandleFeatUsed(uint oidSelf)
-    {
-      string current_event = EventsPlugin.GetCurrentEvent();
-      var feat = int.Parse(EventsPlugin.GetEventData("FEAT_ID"));
-
-      if (current_event == "NWNX_ON_USE_FEAT_BEFORE")
+      if(onCombatRoundEnd.Creature.GetLocalVariable<int>("_AUTO_SPELL").HasNothing)
       {
-        if (feat == (int)NWN.Feat.PlayerTool02)
-        {
-          EventsPlugin.SkipEvent();
-          Player oPC;
-          if (Players.TryGetValue(oidSelf, out oPC))
-          {
-            if (Utils.HasTagEffect(oPC.oid, "lycan_curse"))
-            {
-              Utils.RemoveTaggedEffect(oPC.oid, "lycan_curse");
-              oPC.RemoveLycanCurse();
-            }
-            else
-            {
-              if ((DateTime.Now - oPC.lycanCurseTimer).TotalSeconds > 10800)
-              {
-                oPC.ApplyLycanCurse();
-                oPC.lycanCurseTimer = DateTime.Now;
-              }
-              else
-                NWScript.SendMessageToPC(oPC.oid, "Vous ne vous sentez pas encore la force de changer de nouveau de forme.");
-            }
-          }
-
-          return 0;
-        }
-        else if (feat == (int)Feat.LanguageElf)
-        {
-          Player oPC;
-          if (Players.TryGetValue(oidSelf, out oPC))
-          {
-            NWScript.SendMessageToPC(oidSelf, $"langue = {oPC.activeLanguage}");
-            if (oPC.activeLanguage == Feat.LanguageElf)
-            {
-              oPC.activeLanguage = Feat.Invalid;
-              NWScript.SendMessageToPC(oidSelf, "Vous cessez de parler elfe.");
-              NWScript.SetTextureOverride("icon_elf", "", oidSelf);
-
-              RefreshQBS(oidSelf, feat);
-            }
-            else
-            {
-              oPC.activeLanguage = Feat.LanguageElf; ;
-              NWScript.SendMessageToPC(oidSelf, "Vous parlez désormais elfe.");
-              NWScript.SetTextureOverride("icon_elf", "icon_elf_active", oidSelf);
-
-              RefreshQBS(oidSelf, feat);
-            }
-          }
-        
-          return 0;
-        }
-        else if (feat == NWScript.FEAT_PLAYER_TOOL_01) // TODO : Refaire le système. Probablement mieux en changeant totalement l'apparence du PJ par l'objet, le laisser se positionner lui-même, puis sauvegarder l'emplacement
-        {
-          EventsPlugin.SkipEvent();
-          var oTarget = NWScript.StringToObject(EventsPlugin.GetEventData("TARGET_OBJECT_ID"));
-          Player myPlayer;
-          if (Players.TryGetValue(oidSelf, out myPlayer))
-          {
-            if (NWScript.GetIsObjectValid(oTarget) == 1)
-            {
-              /*Utils.Meuble result;
-              if (Enum.TryParse(oTarget.Tag, out result))
-              {
-                EventsPlugin.AddObjectToDispatchList("NWNX_ON_INPUT_KEYBOARD_AFTER", "event_mv_plc", oidSelf);
-                oidSelf.AsObject().Locals.Object.Set("_MOVING_PLC", oTarget);
-                oidSelf.AsPlayer().SendMessage($"Vous venez de sélectionner {NWScript.GetName(oTarget.oid)}, utilisez votre barre de raccourcis pour le déplacer. Pour enregistrer le nouvel emplacement et retrouver votre barre de raccourcis habituelle, activez le don sur un endroit vide (sans cible).");
-                //remplacer la ligne précédente par un PostString().
-
-                if (myPlayer.selectedObjectsList.Count == 0)
-                {
-                  myPlayer.BoulderBlock();
-                }
-
-                if (!myPlayer.selectedObjectsList.Contains(oTarget))
-                  myPlayer.selectedObjectsList.Add(oTarget);
-              }
-              else
-              {
-                oidSelf.AsPlayer().SendMessage("Vous ne pouvez pas manier cet élément.");
-              }*/
-            }
-            else
-            {
-              string sObjectSaved = "";
-
-              foreach (uint selectedObject in myPlayer.selectedObjectsList)
-              {
-                var sql = $"UPDATE sql_meubles SET objectLocation = @loc WHERE objectUUID = @uuid";
-
-                using (var connection = MySQL.GetConnection()) // TODO : à refaire, on ne va plus utiliser MySQL
-                {
-                  connection.Execute(sql, new { uuid = NWScript.GetObjectUUID(selectedObject), loc = Utils.LocationToString(NWScript.GetLocation(selectedObject)) }); // TODO : à refaire, il ne faut pas utiliser UUID entre différents reboot de serveur, mais plutôt un id incrémenté en BDD
-                }
-
-                sObjectSaved += NWScript.GetName(selectedObject) + "\n";
-              }
-
-              NWScript.SendMessageToPC(myPlayer.oid, $"Vous venez de sauvegarder le positionnement des meubles : \n{sObjectSaved}");
-              myPlayer.BoulderUnblock();
-
-              EventsPlugin.RemoveObjectFromDispatchList("NWNX_ON_INPUT_KEYBOARD_AFTER", "event_mv_plc", oidSelf);
-              NWScript.DeleteLocalObject(oidSelf, "_MOVING_PLC");
-              myPlayer.selectedObjectsList.Clear();
-            }
-          }
-          return 0;
-        }
-      }
-      return 0;
-    }
-
-    private static void RefreshQBS(uint oidSelf, int feat)
-    {
-      string sQuickBar = CreaturePlugin.SerializeQuickbar(oidSelf);
-      QuickBarSlot emptyQBS = Utils.CreateEmptyQBS();
-       
-      for (int i = 0; i < 36; i++)
-      {
-        QuickBarSlot qbs = PlayerPlugin.GetQuickBarSlot(oidSelf, i);
-        
-        if (qbs.nObjectType == 4 && qbs.nINTParam1 == feat)
-        {
-          PlayerPlugin.SetQuickBarSlot(oidSelf, i, emptyQBS);
-        }
+        onCombatRoundEnd.Creature.OnCombatRoundEnd -= HandleCombatRoundEndForAutoSpells;
+        return;
       }
 
-      CreaturePlugin.DeserializeQuickbar(oidSelf, sQuickBar);
-    }
+      int spellId = onCombatRoundEnd.Creature.GetLocalVariable<int>("_AUTO_SPELL").Value;
+      NwObject target = onCombatRoundEnd.Creature.GetLocalVariable<NwObject>("_AUTO_SPELL_TARGET").Value;
 
-    private static void RefreshQBS(uint oidSelf)
-    {
-      string sQuickBar = CreaturePlugin.SerializeQuickbar(oidSelf);
-      QuickBarSlot emptyQBS = Utils.CreateEmptyQBS();
-
-      for (int i = 0; i < 36; i++)
-      {
-        QuickBarSlot qbs = PlayerPlugin.GetQuickBarSlot(oidSelf, i);
-        PlayerPlugin.SetQuickBarSlot(oidSelf, i, emptyQBS);
-      }
-
-      CreaturePlugin.DeserializeQuickbar(oidSelf, sQuickBar);
-    }
-
-    private static int HandleAutoSpell(uint oidSelf) //Je garde ça sous la main, mais je pense que le gérer différement serait mieux, notamment en créant un mode activable "autospell" en don gratuit pour les casters. Donc : A RETRAVAILLER 
-    {
-      Player oPC;
-
-      if (Players.TryGetValue(oidSelf, out oPC))
-      {
-        var oTarget = NWScript.StringToObject(EventsPlugin.GetEventData("TARGET"));
-
-        if (NWScript.GetIsObjectValid(oTarget) == 1)
-        {
-          NWScript.ClearAllActions();
-          if (oPC.autoAttackTarget == NWScript.OBJECT_INVALID)
-          {
-            NWScript.AssignCommand(oidSelf, () => NWScript.ActionCastSpellAtObject(NWScript.SPELL_RAY_OF_FROST, oTarget));
-            NWScript.DelayCommand(6.0f, () => oPC.OnFrostAutoAttackTimedEvent());
-          }
-        }
-
-        oPC.autoAttackTarget = oTarget;
-      }
-
-      return 0;
-    }
-
-    private static int HandleOnSpellCast(uint oidSelf)
-    {
-      Player oPC;
-
-      if (Players.TryGetValue(oidSelf, out oPC))
-      {
-        var spellId = int.Parse(EventsPlugin.GetEventData("SPELL_ID"));
-
-        if (spellId != NWScript.SPELL_RAY_OF_FROST)
-          oPC.autoAttackTarget = NWScript.OBJECT_INVALID;
-      }
-
-      return 0;
-    }
-
-    private static void FrostAutoAttack(uint oClicker, uint oTarget)
-    {
-      if (NWScript.GetLocalInt(oClicker, "_FROST_ATTACK_CANCEL") == 0)
-      {
-        NWScript.AssignCommand(oClicker, () => NWScript.ActionAttack(oTarget));
-      }
+      if(target != null && target.IsValid)
+        onCombatRoundEnd.Creature.ActionCastSpellAt((Spell)spellId, (NwGameObject)target);
       else
       {
-        NWScript.DeleteLocalInt(oClicker, "_FROST_ATTACK_CANCEL");
-        NWScript.DeleteLocalObject(oClicker, "_FROST_ATTACK_TARGET");
+        onCombatRoundEnd.Creature.GetLocalVariable<int>("_AUTO_SPELL").Delete();
+        onCombatRoundEnd.Creature.GetLocalVariable<NwObject>("_AUTO_SPELL_TARGET").Delete();
+        onCombatRoundEnd.Creature.OnCombatRoundEnd -= HandleCombatRoundEndForAutoSpells;
       }
     }
-    private static int HandlePlayerPerceived(uint oidSelf)
+   
+    // TODO : Probablement refaire le système de déguisement plus proprement
+    /*private static int HandlePlayerPerceived(CallInfo callInfo)
     {
-      Player oPC;
+        Player oPC;
 
-      if (Players.TryGetValue(oidSelf, out oPC))
-      {
-        Player oPerceived;
-        if (Players.TryGetValue(NWScript.GetLastPerceived(), out oPerceived))
+        if (Players.TryGetValue(oidSelf, out oPC))
         {
-          if (NWScript.GetIsPC(oPerceived.oid) != 1 || NWScript.GetIsDM(oPerceived.oid) == 1 || NWScript.GetIsDMPossessed(oPerceived.oid) == 1 || oPerceived.disguiseName.Length == 0)
-            return 0;
-
-          if (!oPC.disguiseDetectTimer.ContainsKey(oPC.oid) || (DateTime.Now - oPC.disguiseDetectTimer[oPerceived.oid]).TotalSeconds > 1800)
-          {
-            oPC.disguiseDetectTimer[oPerceived.oid] = DateTime.Now;
-            
-            int[] iPCSenseSkill = { NWScript.GetSkillRank(NWScript.SKILL_LISTEN, oPC.oid), NWScript.GetSkillRank(NWScript.SKILL_SEARCH, oPC.oid), NWScript.GetSkillRank(NWScript.SKILL_SPOT, oPC.oid),
-            NWScript.GetSkillRank(NWScript.SKILL_BLUFF, oPC.oid) };
-
-            int[] iPerceivedHideSkill = { NWScript.GetSkillRank(NWScript.SKILL_BLUFF, oPerceived.oid), NWScript.GetSkillRank(NWScript.SKILL_HIDE, oPerceived.oid),
-            NWScript.GetSkillRank(NWScript.SKILL_PERFORM, oPerceived.oid), NWScript.GetSkillRank(NWScript.SKILL_PERSUADE, oPerceived.oid) };
-
-            Random d20 = Utils.random;
-            int iRollAttack = iPCSenseSkill.Max() + d20.Next(21);
-            int iRollDefense = iPerceivedHideSkill.Max() + d20.Next(21);
-
-            /*  if (GetLocalInt(GetModule(), "_DEBUG_DISGUISE"))
-              {
-                NWNX_Chat_SendMessage(NWNX_CHAT_CHANNEL_PLAYER_DM, SEARTH + "Jet pour percer le déguisement : " + STOPAZE + IntToString(iPCSkill) + SEARTH + " + " + STOPAZE + IntToString(iRollAttack - iPCSkill) + SEARTH + " = " + SRED + IntToString(iRollAttack) + ".", oPC);
-                NWNX_Chat_SendMessage(NWNX_CHAT_CHANNEL_PLAYER_DM, SEARTH + "Jet de déguisement : " + STOPAZE + IntToString(iPerceivedHideSkill) + SEARTH + " + " + STOPAZE + IntToString(iRollDefense - iPerceivedHideSkill) + SEARTH + " = " + SRED + IntToString(iRollDefense) + ".", oPerceived);
-              }*/
-            if (iRollAttack > iRollDefense)
+            Player oPerceived;
+            if (Players.TryGetValue(NWScript.GetLastPerceived(), out oPerceived))
             {
-              NWScript.SendMessageToPC(oPC.oid, NWScript.GetName(oPerceived.oid) + " fait usage d'un déguisement ! Sous le masque, vous reconnaissez " + NWScript.GetName(oPerceived.oid, 1));
-              //NWNX_Rename_ClearPCNameOverride(oPerceived, oPC);
-            }
-          }
-        }
-      }
+                if (NWScript.GetIsPC(oPerceived.oid) != 1 || NWScript.GetIsDM(oPerceived.oid) == 1 || NWScript.GetIsDMPossessed(oPerceived.oid) == 1 || oPerceived.disguiseName.Length == 0)
+                    return 0;
 
-      return 0;
-    }
-    private static int HandleAfterAddSummon(uint oidSelf)
-    {
-      //Pas méga utile dans l'immédiat, mais pourra être utilisé pour gérer les invocations de façon plus fine plus tard
-      // TODO : Système de possession d'invocations, compagnons animaux, etc (mais attention, vérifier que si le PJ déco en possession, ça n'écrase pas son .bic. Si oui, sauvegarde le PJ avant possession et ne plus sauvegarder le PJ en mode possession)
-      Player player;
-      if (Players.TryGetValue(oidSelf, out player))
-      {
-        var oSummon = (NWScript.StringToObject(EventsPlugin.GetEventData("ASSOCIATE_OBJECT_ID")));
+                if (!oPC.disguiseDetectTimer.ContainsKey(oPC.oid) || (DateTime.Now - oPC.disguiseDetectTimer[oPerceived.oid]).TotalSeconds > 1800)
+                {
+                    oPC.disguiseDetectTimer[oPerceived.oid] = DateTime.Now;
 
-        if (NWScript.GetIsObjectValid(oSummon) == 1)
-        {
-          player.summons.Add(oSummon, oSummon);
-        }
-      }
+                    int[] iPCSenseSkill = { NWScript.GetSkillRank(NWScript.SKILL_LISTEN, oPC.oid), NWScript.GetSkillRank(NWScript.SKILL_SEARCH, oPC.oid), NWScript.GetSkillRank(NWScript.SKILL_SPOT, oPC.oid),
+        NWScript.GetSkillRank(NWScript.SKILL_BLUFF, oPC.oid) };
 
-      return 0;
-    }
-    private static int HandleAfterRemoveSummon(uint oidSelf)
-    {
-      //Pas méga utile dans l'immédiat, mais pourra être utilisé pour gérer les invocations de façon plus fine plus tard
-      // TODO : Système de possession d'invocations, compagnons animaux, etc (mais attention, vérifier que si le PJ déco en possession, ça n'écrase pas son .bic. Si oui, sauvegarde le PJ avant possession et ne plus sauvegarder le PJ en mode possession)
-      Player player;
-      if (Players.TryGetValue(oidSelf, out player))
-      {
-        var oSummon = (NWScript.StringToObject(EventsPlugin.GetEventData("ASSOCIATE_OBJECT_ID")));
+                    int[] iPerceivedHideSkill = { NWScript.GetSkillRank(NWScript.SKILL_BLUFF, oPerceived.oid), NWScript.GetSkillRank(NWScript.SKILL_HIDE, oPerceived.oid),
+        NWScript.GetSkillRank(NWScript.SKILL_PERFORM, oPerceived.oid), NWScript.GetSkillRank(NWScript.SKILL_PERSUADE, oPerceived.oid) };
 
-        if (NWScript.GetIsObjectValid(oSummon) == 1)
-        {
-          player.summons.Remove(oSummon);
-        }
-      }
+                    Random d20 = NWN.Utils.random;
+                    int iRollAttack = iPCSenseSkill.Max() + d20.Next(21);
+                    int iRollDefense = iPerceivedHideSkill.Max() + d20.Next(21);
 
-      return 0;
-    }
-    private static int HandleOnCombatMode(uint oidSelf)
-    { 
-      Player player;
-      if (Players.TryGetValue(oidSelf, out player))
-      {
-          if (NWScript.GetLocalInt(player.oid, "_ACTIVATED_TAUNT") != 0) // Permet de conserver sa posture de combat après avoir utilisé taunt
-          {
-            EventsPlugin.SkipEvent();
-            NWScript.DeleteLocalInt(player.oid, "_ACTIVATED_TAUNT");
-          }
-      }
-
-      return 0;
-    }
-    private static int HandleOnSkillUsed(uint oidSelf)
-    {
-      Player player;
-      if (Players.TryGetValue(oidSelf, out player))
-      {
-          if (int.Parse(EventsPlugin.GetEventData("SKILL_ID")) == NWScript.SKILL_TAUNT)
-          {
-            NWScript.SetLocalInt(player.oid, "_ACTIVATED_TAUNT", 1);
-            NWScript.DelayCommand(12.0f, () => NWScript.DeleteLocalInt(player.oid, "_ACTIVATED_TAUNT"));
-          }
-          else if (int.Parse(EventsPlugin.GetEventData("SKILL_ID")) == NWScript.SKILL_PICK_POCKET)
-          {
-            EventsPlugin.SkipEvent();
-            var oObject = NWScript.StringToObject(EventsPlugin.GetEventData("TARGET_OBJECT_ID"));
-            Player oTarget;
-            if (Players.TryGetValue(oObject, out oTarget) && NWScript.GetIsDM(oTarget.oid) != 1 && NWScript.GetIsDMPossessed(oTarget.oid) != 1)
-            {
-              if (!oTarget.pickpocketDetectTimer.ContainsKey(player.oid) || (DateTime.Now - oTarget.pickpocketDetectTimer[player.oid]).TotalSeconds > 86400)
-              {
-                  oTarget.pickpocketDetectTimer.Add(player.oid, DateTime.Now);
-              
-                  FeedbackPlugin.SetFeedbackMessageHidden(13, 1, oTarget.oid); // 13 = COMBAT_TOUCH_ATTACK
-                  NWScript.DelayCommand(2.0f, () => FeedbackPlugin.SetFeedbackMessageHidden(13, 0, oTarget.oid));
-
-                  int iRandom = Utils.random.Next(21);
-                  int iVol = NWScript.GetSkillRank(NWScript.SKILL_PICK_POCKET, player.oid);
-                  int iSpot = Utils.random.Next(21) + NWScript.GetSkillRank(NWScript.SKILL_SPOT, player.oid);
-                  if ((iRandom + iVol) > iSpot)
-                  {
-                    ChatPlugin.SendMessage((int)ChatPlugin.NWNX_CHAT_CHANNEL_PLAYER_TALK, $"Vous faites un jet de Vol à la tire, le résultat est de : {iRandom} + {iVol} = {iRandom + iVol}.", player.oid, player.oid);
-                    if (NWScript.TouchAttackMelee(oTarget.oid) > 0)
+                    if (iRollAttack > iRollDefense)
                     {
-                      int iStolenGold = (iRandom + iVol - iSpot) * 10;
-                      int oTargetGold = NWScript.GetGold(oTarget.oid);
-                      if (oTargetGold >= iStolenGold)
-                      {
-                        CreaturePlugin.SetGold(oTarget.oid, oTargetGold - iStolenGold);
-                        CreaturePlugin.SetGold(player.oid, NWScript.GetGold(player.oid) + iStolenGold);
-                        NWScript.FloatingTextStringOnCreature($"Vous venez de dérober {iStolenGold} pièces d'or des poches de {NWScript.GetName(oTarget.oid)} !", player.oid);
-                      }
-                      else
-                      {
-                        NWScript.FloatingTextStringOnCreature($"Vous venez de vider les poches de {NWScript.GetName(oTarget.oid)} ! {oTargetGold} pièces d'or de plus pour vous.", player.oid);
-                        CreaturePlugin.SetGold(player.oid, NWScript.GetGold(player.oid) + oTargetGold);
-                        CreaturePlugin.SetGold(oTarget.oid, 0);
-                      }
+                        NWScript.SendMessageToPC(oPC.oid, NWScript.GetName(oPerceived.oid) + " fait usage d'un déguisement ! Sous le masque, vous reconnaissez " + NWScript.GetName(oPerceived.oid, 1));
+                        //NWNX_Rename_ClearPCNameOverride(oPerceived, oPC);
                     }
-                    else
-                    {
-                      NWScript.FloatingTextStringOnCreature($"Vous ne parvenez pas à atteindre les poches de {NWScript.GetName(oTarget.oid)} !", player.oid);
-                    }
-                  }
-                  else
-                NWScript.FloatingTextStringOnCreature($"{NWScript.GetName(player.oid)} est en train d'essayer de vous faire les poches !", oTarget.oid); 
-              }
-              else
-                NWScript.FloatingTextStringOnCreature("Vous n'êtes pas autorisé à faire une nouvelle tentative pour le moment.", player.oid);
+                }
             }
-            else
-              NWScript.FloatingTextStringOnCreature("Seuls d'autres joueurs peuvent être ciblés par cette compétence. Les tentatives de vol sur PNJ doivent être jouées en rp avec un dm.", player.oid);
-          }
-      }
-
-      return 0;
-    }
-    private static int HandleAfterDetection(uint oidSelf)
-    {
-      Player oPC;
-      if (Players.TryGetValue(oidSelf, out oPC))
-      {
-        var oTarget = NWScript.StringToObject(EventsPlugin.GetEventData("TARGET"));
-
-        if (NWScript.GetIsPC(oTarget) == 1 || NWScript.GetIsPossessedFamiliar(oTarget) == 1)
-        {
-          if (NWScript.GetObjectSeen(oTarget, oPC.oid) != 1 && NWScript.GetDistanceBetween(oTarget, oPC.oid) < 20.0f)
-          {
-            int iDetectMode = (int)NWScript.GetDetectMode(oPC.oid);
-            if (int.Parse(EventsPlugin.GetEventData("TARGET_INVISIBLE")) == 1 && iDetectMode > 0)
-            {
-              switch (CreaturePlugin.GetMovementType(oTarget))
-              {
-                case CreaturePlugin.NWNX_CREATURE_MOVEMENT_TYPE_WALK_BACKWARDS:
-                case CreaturePlugin.NWNX_CREATURE_MOVEMENT_TYPE_SIDESTEP:
-                case CreaturePlugin.NWNX_CREATURE_MOVEMENT_TYPE_WALK:
-
-                  if (!oPC.inviDetectTimer.ContainsKey(oTarget) || (DateTime.Now - oPC.inviDetectTimer[oTarget]).TotalSeconds > 6)
-                  {
-                    int iMoveSilentlyCheck = NWScript.GetSkillRank(NWScript.SKILL_MOVE_SILENTLY, oTarget) + Utils.random.Next(21) + (int)NWScript.GetDistanceBetween(oTarget, oPC.oid);
-                    int iListenCheck = NWScript.GetSkillRank(NWScript.SKILL_LISTEN, oPC.oid) + Utils.random.Next(21);
-                    if (iDetectMode == 2)
-                      iListenCheck -= 10;
-
-                    if (iListenCheck > iMoveSilentlyCheck)
-                    {
-                      NWScript.SendMessageToPC(oPC.oid, "Vous entendez quelqu'un se faufiler dans les environs.");
-                      PlayerPlugin.ShowVisualEffect(oPC.oid, NWScript.VFX_FNF_SMOKE_PUFF, NWScript.GetPosition(oTarget));
-                      oPC.inviDetectTimer.Add(oTarget, DateTime.Now);
-                      oPC.inviEffectDetectTimer.Add(oTarget, DateTime.Now);
-                    }
-                    else
-                      oPC.inviDetectTimer.Remove(oTarget);
-                  }
-                  else if ((DateTime.Now - oPC.inviEffectDetectTimer[oTarget]).TotalSeconds > 1)
-                  {
-                    PlayerPlugin.ShowVisualEffect(oPC.oid, NWScript.VFX_FNF_SMOKE_PUFF, NWScript.GetPosition(oTarget));
-                    oPC.inviEffectDetectTimer.Add(oTarget, DateTime.Now);
-                  }
-                  break;
-                case CreaturePlugin.NWNX_CREATURE_MOVEMENT_TYPE_RUN:
-
-                  if (!oPC.inviDetectTimer.ContainsKey(oTarget) || (DateTime.Now - oPC.inviDetectTimer[oTarget]).TotalSeconds > 6)
-                  {
-                    NWScript.SendMessageToPC(oPC.oid, "Vous entendez quelqu'un courir peu discrètement dans les environs.");
-                    PlayerPlugin.ShowVisualEffect(oPC.oid, NWScript.VFX_FNF_SMOKE_PUFF, NWScript.GetPosition(oTarget));
-                    oPC.inviDetectTimer.Add(oTarget, DateTime.Now);
-                    oPC.inviEffectDetectTimer.Add(oTarget, DateTime.Now);
-                  }
-                  else if ((DateTime.Now - oPC.inviEffectDetectTimer[oTarget]).TotalSeconds > 1)
-                  {
-                    PlayerPlugin.ShowVisualEffect(oPC.oid, NWScript.VFX_FNF_SMOKE_PUFF, NWScript.GetPosition(oTarget));
-                    oPC.inviEffectDetectTimer.Add(oTarget, DateTime.Now);
-                  }
-                  break;
-              }
-            }
-          }
         }
-      }
 
-      return 0;
-    }
-
-    private static int HandleAfterDMJumpTarget(uint oidSelf)
-    {
-      var oTarget = NWScript.StringToObject(EventsPlugin.GetEventData("TARGET_1"));
-
-      Player player;
-      if (Players.TryGetValue(oTarget, out player))
-      {
-        if(NWScript.GetTag(NWScript.GetArea(player.oid)) == "Labrume")
-        {
-          DestroyPlayerCorpse(player);
-        }
-      }
-
-      return 0;
-    }
-    public static PlayerSystem.Player GetPCById(int PcId)
-    {
-      foreach (KeyValuePair<uint, PlayerSystem.Player> PlayerListEntry in PlayerSystem.Players)
-      {
-        if(PlayerListEntry.Value.characterId == PcId)
-        {
-          return PlayerListEntry.Value;
-        }
-      }
-
-        return null;
-    }
-    private static int HandleAfterStartCombat(uint oidSelf)
-    {
-      Player player;
-      if (Players.TryGetValue(oidSelf, out player))
-      {
-        var oTarget = NWScript.StringToObject(EventsPlugin.GetEventData("TARGET_OBJECT_ID"));
-
-        if (Spells.GetHasEffect(NWScript.GetEffectType(NWScript.EffectCutsceneGhost()), player.oid))
-          Spells.RemoveEffectOfType(NWScript.GetEffectType(NWScript.EffectCutsceneGhost()), player.oid);          
-
-        if (NWScript.GetIsPC(oTarget) == 1)
-        {
-          NWScript.SetPCDislike(player.oid, oTarget);
-          if (Spells.GetHasEffect(NWScript.GetEffectType(NWScript.EffectCutsceneGhost()), oTarget))
-            Spells.RemoveEffectOfType(NWScript.GetEffectType(NWScript.EffectCutsceneGhost()), oTarget);
-        }
-      }
-
-      return 0;
-    }
-    private static int HandleAfterPartyAccept(uint oidSelf)
-    {
-      Player player;
-      if (Players.TryGetValue(oidSelf, out player))
-      {
-        Effect eParty = player.GetPartySizeEffect();
-
-        // appliquer l'effet sur chaque membre du groupe
-        var oPartyMember = NWScript.GetFirstFactionMember(oidSelf, 1);
-        while (NWScript.GetIsObjectValid(oPartyMember) == 1)
-        {
-          Utils.RemoveTaggedEffect(oPartyMember, "PartyEffect");
-          if (eParty != null)
-            NWScript.ApplyEffectToObject(NWScript.DURATION_TYPE_PERMANENT, eParty, oPartyMember);
-
-          oPartyMember = NWScript.GetNextFactionMember(oPartyMember, 1);
-        }
-      }   
-
-      return 0;
-    }
-    private static int HandleAfterPartyLeave(uint oidSelf)
-    {
-      Utils.RemoveTaggedEffect(oidSelf, "PartyEffect");
-      return 0;
-    }
-    private static int HandleAfterPartyKick(uint oidSelf)
-    {
-      Utils.RemoveTaggedEffect(NWScript.StringToObject(EventsPlugin.GetEventData("KICKED")), "PartyEffect");
-      return 0;
-    }
-    private static int HandleBeforePartyLeave(uint oidSelf)
-    {
-      Player player;
-      if (Players.TryGetValue(oidSelf, out player))
-      {
-        Effect eParty = player.GetPartySizeEffect(-1);
-        // appliquer l'effet sur chaque membre du groupe
-        var oPartyMember = NWScript.GetFirstFactionMember(oidSelf, 1);
-        while (NWScript.GetIsObjectValid(oPartyMember) == 1)
-        {
-          Utils.RemoveTaggedEffect(oPartyMember, "PartyEffect");
-          if (eParty != null)
-            NWScript.ApplyEffectToObject(NWScript.DURATION_TYPE_PERMANENT, eParty, oPartyMember);
-
-          oPartyMember = NWScript.GetNextFactionMember(oPartyMember, 1);
-        }
-      }
-
-      return 0;
-    }
-    private static int HandleBeforeExamine(uint oidSelf)
-    {
-      Player player;
-      if (Players.TryGetValue(oidSelf, out player))
-      {
-        var examineTarget =  NWScript.StringToObject(EventsPlugin.GetEventData("EXAMINEE_OBJECT_ID"));
-      
-        switch(NWScript.GetTag(examineTarget))
-        {
-          case "mineable_rock":
-            int oreAmount = NWScript.GetLocalInt(examineTarget, "_ORE_AMOUNT");
-            if (NWScript.GetIsDM(player.oid) != 1)
-            {
-              int geologySkillLevel;
-              if (int.TryParse(NWScript.Get2DAString("feat", "GAINMULTIPLE", CreaturePlugin.GetHighestLevelOfFeat(player.oid, 1171)), out geologySkillLevel)) // TODO : feat enum geology
-                NWScript.SetDescription(examineTarget, $"Minerai disponible : {Utils.random.Next(oreAmount * geologySkillLevel * 20 / 100, 2 * oreAmount - geologySkillLevel * 20 / 100)}");
-              else
-                NWScript.SetDescription(examineTarget, $"Minerai disponible estimé : {Utils.random.Next(0, 2 * oreAmount)}");
-            }
-            else
-              NWScript.SetDescription(examineTarget, $"Minerai disponible : {oreAmount}");
-
-              break;
-        }
-      }
-      return 0;
-    }
-    private static int HandleAfterExamine(uint oidSelf)
-    {
-      Player player;
-      if (Players.TryGetValue(oidSelf, out player))
-      {
-        var examineTarget = NWScript.StringToObject(EventsPlugin.GetEventData("EXAMINEE_OBJECT_ID"));
-
-        switch (NWScript.GetTag(examineTarget))
-        {
-          case "mineable_rock":
-              NWScript.SetDescription(examineTarget, $"");
-            break;
-        }
-      }
-      return 0;
-    }
-    private static int HandlePCUnacquireItem(uint oidSelf)
-    {
-      uint oPC = NWScript.GetModuleItemLostBy();
-      
-      if (NWScript.GetMovementRate(oPC) == CreaturePlugin.NWNX_CREATURE_MOVEMENT_RATE_IMMOBILE)
-        if (NWScript.GetWeight(oPC) <= int.Parse(NWScript.Get2DAString("encumbrance", "Heavy", NWScript.GetAbilityScore(oPC, NWScript.ABILITY_STRENGTH))))
-          CreaturePlugin.SetMovementRate(oPC, CreaturePlugin.NWNX_CREATURE_MOVEMENT_RATE_PC);
-
-      return 0;
-    }
-    private static int HandlePCAcquireItem(uint oidSelf)
-    {
-      var oPC = NWScript.GetModuleItemAcquiredBy();
-      var oItem = NWScript.GetModuleItemAcquired();
-
-      if(NWScript.GetTag(oItem) == "item_pccorpse")
-      {
-        var query = NWScript.SqlPrepareQueryCampaign("AoaDatabase", $"COUNT (*) FROM playerDeathCorpses WHERE characterId = @characterId");
-        NWScript.SqlBindInt(query, "@characterId", NWScript.GetLocalInt(oItem, "_PC_ID"));
-        if (NWScript.SqlStep(query) < 1)
-          NWScript.DestroyObject(oItem);
-      }
-
-      if (NWScript.GetMovementRate(oPC) != CreaturePlugin.NWNX_CREATURE_MOVEMENT_RATE_IMMOBILE)
-        if (NWScript.GetWeight(oPC) > int.Parse(NWScript.Get2DAString("encumbrance", "Heavy", NWScript.GetAbilityScore(oPC, NWScript.ABILITY_STRENGTH))))
-          CreaturePlugin.SetMovementRate(oPC, CreaturePlugin.NWNX_CREATURE_MOVEMENT_RATE_IMMOBILE);
-
-      return 0;
-    }
+        return 0;
+    }*/
   }
 }

@@ -1,4 +1,6 @@
-﻿using NWN.Core;
+﻿using System.Linq;
+using NWN.API;
+using NWN.Core;
 
 namespace NWN.Systems
 {
@@ -6,20 +8,8 @@ namespace NWN.Systems
   {
     private static void ExecuteMakeAllPCInAreaHostileCommand(ChatSystem.Context ctx, Options.Result options)
     {
-      int iCount = 1;
-      var oPC = NWScript.GetNearestCreature(1, 1, ctx.oSender, iCount);
-
-      while (NWScript.GetIsObjectValid(oPC) == 1)
-      {
-        if (NWScript.GetArea(oPC) != NWScript.GetArea(ctx.oSender))
-          break;
-
-        if (!Utils.IsPartyMember(ctx.oSender, oPC))
-          NWScript.SetPCDislike(ctx.oSender, oPC);
-
-        iCount++;
-        oPC = NWScript.GetNearestCreature(1, 1, ctx.oSender, iCount);
-      }
+      foreach(NwPlayer disliked in NwModule.Instance.Players.Where(p => p.ControlledCreature.Area == ctx.oSender.ControlledCreature.Area && p != ctx.oSender && !ctx.oSender.PartyMembers.Contains(p)))
+        NWScript.SetPCDislike(disliked.LoginCreature, ctx.oSender.LoginCreature);
     }
   }
 }

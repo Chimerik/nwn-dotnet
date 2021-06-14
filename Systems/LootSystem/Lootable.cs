@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using NWN.API;
 using NWN.Core;
 
 namespace NWN.Systems
@@ -9,35 +10,30 @@ namespace NWN.Systems
     {
       public struct Config
       {
-        public float? respawnDuration { get; set; }
         public Gold? gold { get; set; }
         public List<Item> items { get; set; }
 
-        public Config(List<Item> items, Gold? gold = null, float? respawnDuration = null)
+        public Config(List<Item> items, Gold? gold = null)
         {
-          this.respawnDuration = respawnDuration;
           this.gold = gold;
           this.items = items;
         }
 
-        public void GenerateLoot(uint oContainer)
+        public void GenerateLoot(NwGameObject oContainer)
         {
-          var containerTag = NWScript.GetTag(oContainer);
-
           if (NWScript.GetHasInventory(oContainer) == 0)
           {
-            ThrowException($"Can't GenerateLoot : Object '{containerTag}' has no inventory.");
+            Utils.LogMessageToDMs($"Can't GenerateLoot : Object '{oContainer.Tag}' in area '{oContainer.Area.Name}' has no inventory.");
+            return;
           }
 
           if (gold != null)
-          {
             gold.GetValueOrDefault().Generate(oContainer);
-          }
 
           GenerateItems(oContainer);
         }
 
-        private void GenerateItems(uint oContainer)
+        private void GenerateItems(NwGameObject oContainer)
         {
           foreach (var item in items)
           {
@@ -59,19 +55,26 @@ namespace NWN.Systems
           this.chance = chance;
         }
 
-        public void Generate(uint oContainer, string goldResRef = "nw_it_gold001")
+        public async void Generate(NwGameObject oContainer)
         {
-          if (Utils.random.Next(1, 100) <= chance)
+          Log.Info($"tag : {oContainer.Tag}");
+          int rand = Utils.random.Next(1, 101);
+          Log.Info($"GOLD CHANCE : {rand}/{chance}");
+          if (rand <= chance)
           {
-            var goldCount = Utils.random.Next((int)min, (int)max);
+            int goldCount = Utils.random.Next((int)min, (int)max);
+            
+            await NwItem.Create("NW_IT_GOLD001", oContainer, goldCount);
+            Log.Info($"GOLD LOOTED : {goldCount}");
 
-            if (NWScript.GetObjectType(oContainer) == NWScript.OBJECT_TYPE_CREATURE)
+            if (ModuleSystem.goldBalanceMonitoring.TryGetValue(oContainer.Tag, out GoldBalance gold))
             {
-              NWScript.GiveGoldToCreature(oContainer, goldCount);
+              gold.nbTimesLooted++;
+              gold.cumulatedGold += goldCount;
             }
             else
             {
-              NWScript.CreateItemOnObject(goldResRef, oContainer, goldCount);
+              ModuleSystem.goldBalanceMonitoring.Add(oContainer.Tag, new GoldBalance(goldCount));
             }
           }
         }
@@ -90,22 +93,23 @@ namespace NWN.Systems
           this.chance = chance;
         }
 
-        public void Generate(uint oContainer)
+        public void Generate(NwGameObject oContainer)
         {
-          List<uint> loots;
-          if (chestTagToLootsDic.TryGetValue(chestTag, out loots))
+          Log.Info($"tag : {oContainer.Tag}");
+          if (chestTagToLootsDic.TryGetValue(chestTag, out List<NwItem> loots))
           {
             if (loots.Count > 0)
             {
               for (var i = 0; i < count; i++)
               {
-                if (Utils.random.Next(1, 100) <= chance)
+                int rand = Utils.random.Next(1, 101);
+                Log.Info($"LOOT CHANCE : {rand}/{chance}");
+                if (rand <= chance)
                 {
-                  NWScript.CopyItem(
-                      loots[Utils.random.Next(0, loots.Count - 1)],
-                      oContainer,
-                      1
-                  );
+                  NwItem oItem = loots[Utils.random.Next(0, loots.Count - 1)].Clone(oContainer);
+                  Log.Info($"SUCCESS : item created {oItem.Name}");
+
+                  Craft.Collect.System.AddCraftedItemProperties(oItem, "mauvais état");
                 }
               }
             }

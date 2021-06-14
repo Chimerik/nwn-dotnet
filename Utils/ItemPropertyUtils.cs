@@ -1,149 +1,171 @@
-﻿using System;
-using NWN.Core;
+﻿using NWN.Core;
 
 namespace NWN
 {
-  class ItemPropertyUtils
+  public static class ItemPropertyUtils
   {
-    //ItemProperty CreateItemProperty(ItemPropertyType nPropID, int nParam1 = 0, int nParam2 = 0, int nParam3 = 0, int nParam4 = 0)
-    //{
-    //  switch (nPropID)
-    //  {
-    //    default: throw new Exception($"Unimplemented property type='{nPropID}'");
+    public enum DamageBonus
+    {
+      None = 0,
+      D1 = NWScript.IP_CONST_DAMAGEBONUS_1,
+      D2 = NWScript.IP_CONST_DAMAGEBONUS_2,
+      D3 = NWScript.IP_CONST_DAMAGEBONUS_3,
+      D4 = NWScript.IP_CONST_DAMAGEBONUS_4,
+      D5 = NWScript.IP_CONST_DAMAGEBONUS_5,
+      D6 = NWScript.IP_CONST_DAMAGEBONUS_6,
+      D7 = NWScript.IP_CONST_DAMAGEBONUS_7,
+      D8 = NWScript.IP_CONST_DAMAGEBONUS_8,
+      D9 = NWScript.IP_CONST_DAMAGEBONUS_9,
+      D10 = NWScript.IP_CONST_DAMAGEBONUS_10,
+      D1d4 = NWScript.IP_CONST_DAMAGEBONUS_1d4,
+      D1d6 = NWScript.IP_CONST_DAMAGEBONUS_1d6,
+      D1d8 = NWScript.IP_CONST_DAMAGEBONUS_1d8,
+      D1d10 = NWScript.IP_CONST_DAMAGEBONUS_1d10,
+      D1d12 = NWScript.IP_CONST_DAMAGEBONUS_1d12,
+      D2d4 = NWScript.IP_CONST_DAMAGEBONUS_2d4,
+      D2d6 = NWScript.IP_CONST_DAMAGEBONUS_2d6,
+      D2d8 = NWScript.IP_CONST_DAMAGEBONUS_2d8,
+      D2d10 = NWScript.IP_CONST_DAMAGEBONUS_2d10,
+      D2d12 = NWScript.IP_CONST_DAMAGEBONUS_2d12,
+    }
 
-    //    case ItemPropertyType.AttackBonus: return NWScript.ItemPropertyAttackBonus(nParam1);
-    //    case NWScript.ITEM_PROPERTY_ABILITY_BONUS: return NWScript.ItemPropertyAbilityBonus(nParam1, nParam2);
-    //    case ItemPropertyType.ACBonus: return NWScript.ItemPropertyACBonus(nParam1);
-    //    case ItemPropertyType.BaseItemWeightReduction: return NWScript.ItemPropertyWeightReduction(nParam1);
-    //    case ItemPropertyType.BonusSpellSlotOfLevelN: return NWScript.ItemPropertyBonusLevelSpell(nParam1, nParam2);
-    //    case ItemPropertyType.DamageBonus: return NWScript.ItemPropertyDamageBonus(nParam1, nParam2);
-    //    case ItemPropertyType.EnhancementBonus: return NWScript.ItemPropertyEnhancementBonus(nParam1);
-    //    case ItemPropertyType.ExtraMeleeDamageType: return NWScript.ItemPropertyExtraMeleeDamageType(nParam1);
-    //    case ItemPropertyType.ExtraRangedDamageType: return NWScript.ItemPropertyExtraRangeDamageType(nParam1);
-    //    case ItemPropertyType.Haste: return NWScript.ItemPropertyHaste();
-    //    case ItemPropertyType.Keen: return NWScript.ItemPropertyKeen();
-    //    case ItemPropertyType.MassiveCriticals: return NWScript.ItemPropertyMassiveCritical(nParam1);
-    //    case ItemPropertyType.Mighty: return NWScript.ItemPropertyMaxRangeStrengthMod(nParam1);
-    //    case ItemPropertyType.MindBlank: return NWScript.ItemPropertyImmunityMisc(IP_CONST_IMMUNITYMISC_MINDSPELLS);
-    //    case ItemPropertyType.Regeneration: return NWScript.ItemPropertyRegeneration(nParam1);
-    //    case ItemPropertyType.RegenerationVampiric: return NWScript.ItemPropertyVampiricRegeneration(nParam1);
-    //    case ItemPropertyType.SavingThrowBonus: return NWScript.ItemPropertyBonusSavingThrow(nParam1, nParam2);
-    //    case ItemPropertyType.SavingThrowBonusSpecific: return NWScript.ItemPropertyBonusSavingThrowVsX(nParam1, nParam2);
-    //    case ItemPropertyType.SkillBonus: return NWScript.ItemPropertySkillBonus(nParam1, nParam2);
-    //    case ItemPropertyType.UnlimitedAmmunition: return NWScript.ItemPropertyUnlimitedAmmo(nParam1);
-    //  }
-    //}
-
-    float GetAverageDamageFromDamageBonus(int damageBonus)
+    public static float GetAverageDamageFromDamageBonus(DamageBonus damageBonus)
     {
       switch (damageBonus)
       {
         default: return 0.0f;
 
-        case NWScript.DAMAGE_BONUS_1: return 1.0f;
-        case NWScript.DAMAGE_BONUS_2: return 2.0f;
-        case NWScript.DAMAGE_BONUS_3: return 3.0f;
-        case NWScript.DAMAGE_BONUS_4: return 4.0f;
-        case NWScript.DAMAGE_BONUS_5: return 5.0f;
-        case NWScript.DAMAGE_BONUS_6: return 6.0f;
-        case NWScript.DAMAGE_BONUS_7: return 7.0f;
-        case NWScript.DAMAGE_BONUS_8: return 8.0f;
-        case NWScript.DAMAGE_BONUS_9: return 9.0f;
-        case NWScript.DAMAGE_BONUS_10: return 10.0f;
-        case NWScript.DAMAGE_BONUS_1d4: return 2.5f;
-        case NWScript.DAMAGE_BONUS_1d6: return 3.5f;
-        case NWScript.DAMAGE_BONUS_1d8: return 4.5f;
-        case NWScript.DAMAGE_BONUS_1d10: return 5.5f;
-        case NWScript.DAMAGE_BONUS_1d12: return 6.5f;
-        case NWScript.DAMAGE_BONUS_2d4: return 5.0f;
-        case NWScript.DAMAGE_BONUS_2d6: return 7.0f;
-        case NWScript.DAMAGE_BONUS_2d8: return 9.0f;
-        case NWScript.DAMAGE_BONUS_2d10: return 11.0f;
-        case NWScript.DAMAGE_BONUS_2d12: return 13.0f;
+        case DamageBonus.None: return 0.0f;
+        case DamageBonus.D1: return 1.0f;
+        case DamageBonus.D2: return 2.0f;
+        case DamageBonus.D3: return 3.0f;
+        case DamageBonus.D4: return 4.0f;
+        case DamageBonus.D5: return 5.0f;
+        case DamageBonus.D6: return 6.0f;
+        case DamageBonus.D7: return 7.0f;
+        case DamageBonus.D8: return 8.0f;
+        case DamageBonus.D9: return 9.0f;
+        case DamageBonus.D10: return 10.0f;
+        case DamageBonus.D1d4: return 2.5f;
+        case DamageBonus.D1d6: return 3.5f;
+        case DamageBonus.D1d8: return 4.5f;
+        case DamageBonus.D1d10: return 5.5f;
+        case DamageBonus.D1d12: return 6.5f;
+        case DamageBonus.D2d4: return 5.0f;
+        case DamageBonus.D2d6: return 7.0f;
+        case DamageBonus.D2d8: return 9.0f;
+        case DamageBonus.D2d10: return 11.0f;
+        case DamageBonus.D2d12: return 13.0f;
       }
     }
 
-    int GetNextAverageDamageBonus(int damageBonus)
+    public static DamageBonus GetNextAverageDamageBonus(DamageBonus damageBonus)
     {
       switch (damageBonus)
       {
-        default: return NWScript.DAMAGE_BONUS_1;
-        case NWScript.DAMAGE_BONUS_1: return NWScript.DAMAGE_BONUS_2;
-        case NWScript.DAMAGE_BONUS_2: return NWScript.DAMAGE_BONUS_1d4;
-        case NWScript.DAMAGE_BONUS_3: return NWScript.DAMAGE_BONUS_1d6;
-        case NWScript.DAMAGE_BONUS_4: return NWScript.DAMAGE_BONUS_1d8;
-        case NWScript.DAMAGE_BONUS_5: return NWScript.DAMAGE_BONUS_1d10;
-        case NWScript.DAMAGE_BONUS_6: return NWScript.DAMAGE_BONUS_1d12;
-        case NWScript.DAMAGE_BONUS_7: return NWScript.DAMAGE_BONUS_8;
-        case NWScript.DAMAGE_BONUS_8: return NWScript.DAMAGE_BONUS_2d8;
-        case NWScript.DAMAGE_BONUS_9: return NWScript.DAMAGE_BONUS_10;
-        case NWScript.DAMAGE_BONUS_10: return NWScript.DAMAGE_BONUS_2d10;
-        case NWScript.DAMAGE_BONUS_1d4: return NWScript.DAMAGE_BONUS_3;
-        case NWScript.DAMAGE_BONUS_1d6: return NWScript.DAMAGE_BONUS_4;
-        case NWScript.DAMAGE_BONUS_1d8: return NWScript.DAMAGE_BONUS_2d4;
-        case NWScript.DAMAGE_BONUS_1d10: return NWScript.DAMAGE_BONUS_6;
-        case NWScript.DAMAGE_BONUS_1d12: return NWScript.DAMAGE_BONUS_2d6;
-        case NWScript.DAMAGE_BONUS_2d4: return NWScript.DAMAGE_BONUS_6;
-        case NWScript.DAMAGE_BONUS_2d6: return NWScript.DAMAGE_BONUS_8;
-        case NWScript.DAMAGE_BONUS_2d8: return NWScript.DAMAGE_BONUS_10;
-        case NWScript.DAMAGE_BONUS_2d10: return NWScript.DAMAGE_BONUS_2d12;
-        case NWScript.DAMAGE_BONUS_2d12: return NWScript.DAMAGE_BONUS_2d12;
+        default: return DamageBonus.D1;
+
+        case DamageBonus.None: return DamageBonus.D1;
+        case DamageBonus.D1: return DamageBonus.D2;
+        case DamageBonus.D2: return DamageBonus.D1d4;
+        case DamageBonus.D3: return DamageBonus.D1d6;
+        case DamageBonus.D4: return DamageBonus.D1d8;
+        case DamageBonus.D5: return DamageBonus.D1d10;
+        case DamageBonus.D6: return DamageBonus.D1d12;
+        case DamageBonus.D7: return DamageBonus.D8;
+        case DamageBonus.D8: return DamageBonus.D2d8;
+        case DamageBonus.D9: return DamageBonus.D10;
+        case DamageBonus.D10: return DamageBonus.D2d10;
+        case DamageBonus.D1d4: return DamageBonus.D3;
+        case DamageBonus.D1d6: return DamageBonus.D4;
+        case DamageBonus.D1d8: return DamageBonus.D2d4;
+        case DamageBonus.D1d10: return DamageBonus.D6;
+        case DamageBonus.D1d12: return DamageBonus.D2d6;
+        case DamageBonus.D2d4: return DamageBonus.D6;
+        case DamageBonus.D2d6: return DamageBonus.D8;
+        case DamageBonus.D2d8: return DamageBonus.D10;
+        case DamageBonus.D2d10: return DamageBonus.D2d12;
+        case DamageBonus.D2d12: return DamageBonus.D2d12;
       }
     }
 
-    string DamageBonusToString(int damageBonus)
+    public static string DamageBonusToString(DamageBonus damageBonus)
     {
       switch (damageBonus)
       {
         default: return "";
-        case NWScript.DAMAGE_BONUS_1: return "1";
-        case NWScript.DAMAGE_BONUS_2: return "2";
-        case NWScript.DAMAGE_BONUS_3: return "3";
-        case NWScript.DAMAGE_BONUS_4: return "4";
-        case NWScript.DAMAGE_BONUS_5: return "5";
-        case NWScript.DAMAGE_BONUS_6: return "6";
-        case NWScript.DAMAGE_BONUS_7: return "7";
-        case NWScript.DAMAGE_BONUS_8: return "8";
-        case NWScript.DAMAGE_BONUS_9: return "9";
-        case NWScript.DAMAGE_BONUS_10: return "10";
-        case NWScript.DAMAGE_BONUS_1d4: return "1d4";
-        case NWScript.DAMAGE_BONUS_1d6: return "1d6";
-        case NWScript.DAMAGE_BONUS_1d8: return "1d8";
-        case NWScript.DAMAGE_BONUS_1d10: return "1d10";
-        case NWScript.DAMAGE_BONUS_1d12: return "1d12";
-        case NWScript.DAMAGE_BONUS_2d4: return "2d4";
-        case NWScript.DAMAGE_BONUS_2d6: return "2d6";
-        case NWScript.DAMAGE_BONUS_2d8: return "2d8";
-        case NWScript.DAMAGE_BONUS_2d10: return "2d10";
-        case NWScript.DAMAGE_BONUS_2d12: return "2d12";
+
+        case DamageBonus.None: return "";
+        case DamageBonus.D1: return "1";
+        case DamageBonus.D2: return "2";
+        case DamageBonus.D3: return "3";
+        case DamageBonus.D4: return "4";
+        case DamageBonus.D5: return "5";
+        case DamageBonus.D6: return "6";
+        case DamageBonus.D7: return "7";
+        case DamageBonus.D8: return "8";
+        case DamageBonus.D9: return "9";
+        case DamageBonus.D10: return "10";
+        case DamageBonus.D1d4: return "1d4";
+        case DamageBonus.D1d6: return "1d6";
+        case DamageBonus.D1d8: return "1d8";
+        case DamageBonus.D1d10: return "1d10";
+        case DamageBonus.D1d12: return "1d12";
+        case DamageBonus.D2d4: return "2d4";
+        case DamageBonus.D2d6: return "2d6";
+        case DamageBonus.D2d8: return "2d8";
+        case DamageBonus.D2d10: return "2d10";
+        case DamageBonus.D2d12: return "2d12";
       }
     }
 
-    //int DamageBonusStringToInt(string sDamageBonus)
-    //{
-    //  if (sDamageBonus == "1") return IP_CONST_DAMAGE_BONUS_1;
-    //  if (sDamageBonus == "2") return IP_CONST_DAMAGE_BONUS_2;
-    //  if (sDamageBonus == "3") return IP_CONST_DAMAGE_BONUS_3;
-    //  if (sDamageBonus == "4") return IP_CONST_DAMAGE_BONUS_4;
-    //  if (sDamageBonus == "5") return IP_CONST_DAMAGE_BONUS_5;
-    //  if (sDamageBonus == "6") return IP_CONST_DAMAGE_BONUS_6;
-    //  if (sDamageBonus == "7") return IP_CONST_DAMAGE_BONUS_7;
-    //  if (sDamageBonus == "8") return IP_CONST_DAMAGE_BONUS_8;
-    //  if (sDamageBonus == "9") return IP_CONST_DAMAGE_BONUS_9;
-    //  if (sDamageBonus == "10") return IP_CONST_DAMAGE_BONUS_10;
-    //  if (sDamageBonus == "1d4") return IP_CONST_DAMAGE_BONUS_1d4;
-    //  if (sDamageBonus == "1d6") return IP_CONST_DAMAGE_BONUS_1d6;
-    //  if (sDamageBonus == "1d8") return IP_CONST_DAMAGE_BONUS_1d8;
-    //  if (sDamageBonus == "1d10") return IP_CONST_DAMAGE_BONUS_1d10;
-    //  if (sDamageBonus == "1d12") return IP_CONST_DAMAGE_BONUS_1d12;
-    //  if (sDamageBonus == "2d4") return IP_CONST_DAMAGE_BONUS_2d4;
-    //  if (sDamageBonus == "2d6") return IP_CONST_DAMAGE_BONUS_2d6;
-    //  if (sDamageBonus == "2d8") return IP_CONST_DAMAGE_BONUS_2d8;
-    //  if (sDamageBonus == "2d10") return IP_CONST_DAMAGE_BONUS_2d10;
-    //  if (sDamageBonus == "2d12") return IP_CONST_DAMAGE_BONUS_2d12;
+    public static string AbilityBonusToString(int abilityBonusType)
+    {
+      switch (abilityBonusType)
+      {
+        default: return "";
 
-    //  return 0;
-    //}
+        case NWScript.ABILITY_CHARISMA: return "charisme";
+        case NWScript.ABILITY_CONSTITUTION: return "constitution";
+        case NWScript.ABILITY_DEXTERITY: return "dexterite";
+        case NWScript.ABILITY_INTELLIGENCE: return "intelligence";
+        case NWScript.ABILITY_STRENGTH: return "force";
+        case NWScript.ABILITY_WISDOM: return "sagesse";
+      }
+    }
+
+    public static string DamageBonusTypeToString(int damageBonusType)
+    {
+      switch (damageBonusType)
+      {
+        default: return "";
+
+        case NWScript.IP_CONST_DAMAGETYPE_ACID: return "acide";
+        case NWScript.IP_CONST_DAMAGETYPE_BLUDGEONING: return "contondant";
+        case NWScript.IP_CONST_DAMAGETYPE_COLD: return "froid";
+        case NWScript.IP_CONST_DAMAGETYPE_DIVINE: return "divin";
+        case NWScript.IP_CONST_DAMAGETYPE_ELECTRICAL: return "electrique";
+        case NWScript.IP_CONST_DAMAGETYPE_FIRE: return "feu";
+        case NWScript.IP_CONST_DAMAGETYPE_MAGICAL: return "magique";
+        case NWScript.IP_CONST_DAMAGETYPE_NEGATIVE: return "energie negative";
+        case NWScript.IP_CONST_DAMAGETYPE_PIERCING: return "percant";
+        case NWScript.IP_CONST_DAMAGETYPE_POSITIVE: return "energie positive";
+        case NWScript.IP_CONST_DAMAGETYPE_SLASHING: return "tranchant";
+        case NWScript.IP_CONST_DAMAGETYPE_SONIC: return "sonique";
+      }
+    }
+
+    public static string SavingThrowBonusToString(int savingThrowBonusType)
+    {
+      switch (savingThrowBonusType)
+      {
+        default: return "";
+
+        case NWScript.IP_CONST_SAVEBASETYPE_FORTITUDE: return "vigueur";
+        case NWScript.IP_CONST_SAVEBASETYPE_WILL: return "volonte";
+        case NWScript.IP_CONST_SAVEBASETYPE_REFLEX: return "reflexe";
+      }
+    }
 
     public static void ReplaceItemProperty(uint oItem, ItemProperty ip, float fDuration = 0.0f, bool bIgnoreSubType = false)
     {
@@ -151,7 +173,7 @@ namespace NWN
       int nSubType = NWScript.GetItemPropertySubType(ip);
       // if duration is 0.0f, make the item property permanent
       int nDuration = fDuration == 0.0f ? NWScript.DURATION_TYPE_PERMANENT : NWScript.DURATION_TYPE_TEMPORARY;
-      
+
       // remove any matching properties
       if (bIgnoreSubType)
       {

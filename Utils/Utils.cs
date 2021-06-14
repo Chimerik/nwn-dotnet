@@ -1,58 +1,42 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using NWN.Core;
-using NWN.Core.NWNX;
+﻿using Discord;
 using NWN.Systems;
+using System;
+using NWN.Core.NWNX;
+using NWN.Core;
 using System.Numerics;
+using System.Linq;
+using NWN.API;
+using NWN.API.Constants;
 
 namespace NWN
 {
   public static class Utils
   {
     public static Random random = new Random();
-
-    public static void LogException(Exception e)
-    {
-      Console.WriteLine(e.Message);
-      NWScript.SendMessageToAllDMs(e.Message);
-      NWScript.WriteTimestampedLogEntry(e.Message);
-      WebhookPlugin.SendWebHookHTTPS("discordapp.com", "/api/webhooks/737378235402289264/3-nDoj7dEw-edzjM-DDyjWFCZbs6LXACoJ9vFnOWXc8Pn2nArFEt3HiVIhHyu_lYiNUt/slack", e.Message, "AOA CRITICAL Errors");
-    }
     public static void LogMessageToDMs(string message)
     {
-      NWScript.SendMessageToAllDMs(message);
-      WebhookPlugin.SendWebHookHTTPS("discordapp.com", "/api/webhooks/737378235402289264/3-nDoj7dEw-edzjM-DDyjWFCZbs6LXACoJ9vFnOWXc8Pn2nArFEt3HiVIhHyu_lYiNUt/slack", message, "AOA Errors");
-    }
-
-    public static void DestroyInventory(uint oContainer)
-    {
-      var objectsToDestroy = new List<uint> { };
-      var oObj = NWScript.GetFirstItemInInventory(oContainer);
-
-      while (NWScript.GetIsObjectValid(oObj) == 1)
+      switch (Config.env)
       {
-        objectsToDestroy.Add(oObj);
-        oObj = NWScript.GetNextItemInInventory(oContainer);
-      }
-
-      foreach (var oObject in objectsToDestroy)
-      {
-        NWScript.DestroyObject(oObject);
+        case Config.Env.Prod:
+          (Bot._client.GetChannel(703964971549196339) as IMessageChannel).SendMessageAsync(message);
+          break;
+        case Config.Env.Bigby:
+          Bot._client.GetUser(225961076448034817).SendMessageAsync(message);
+          break;
+        case Config.Env.Chim:
+          Bot._client.GetUser(232218662080086017).SendMessageAsync(message);
+          break;
       }
     }
-
-    public static string LocationToString(Location l)
+    public static void DestroyInventory(NwGameObject oContainer)
     {
-      uint area = NWScript.GetAreaFromLocation(l);
-      Vector3 pos = NWScript.GetPositionFromLocation(l);
-      float facing = NWScript.GetFacingFromLocation(l);
-
-      return "#TAG#" + NWScript.GetTag(area) + "#RESREF#" + NWScript.GetResRef(area) +
-              "#X#" + NWScript.FloatToString(pos.X, 5, 2) +
-              "#Y#" + NWScript.FloatToString(pos.Y, 5, 2) +
-              "#Z#" + NWScript.FloatToString(pos.Z, 5, 2) +
-              "#F#" + NWScript.FloatToString(facing, 5, 2) + "#";
+      foreach (NwItem item in oContainer.Items)
+        item.Destroy();
+    }
+    public static void DestroyEquippedItems(NwCreature oCreature)
+    {
+      for (int i = (int)InventorySlot.Head; i < (int)InventorySlot.CreatureBiteWeapon; i++)
+        oCreature.GetItemInSlot((InventorySlot)i)?.Destroy();
     }
 
     public static double ScaleToRange(double value, double originalMin, double originalMax, double destMin, double destMax)
@@ -61,42 +45,9 @@ namespace NWN
       return result + destMin;
     }
 
-    public static Location GetLocationFromDatabase(string areaTag, Vector3 position, float facing)
+    public static API.Location GetLocationFromDatabase(string areaTag, Vector3 position, float facing)
     {
-      uint area = NWScript.GetFirstArea();
-      while (Convert.ToBoolean(NWScript.GetIsObjectValid(area)))
-      {
-        if (NWScript.GetTag(area) == areaTag)
-          break;
-        area = NWScript.GetNextArea();
-      }
-
-      return NWScript.Location(area, position, facing);
-    }
-    public static Boolean IsPartyMember(uint oPC, uint oTarget)
-    {
-      // Get the first PC party member
-      var oPartyMember = NWScript.GetFirstFactionMember(oPC, 1);
-
-      while (NWScript.GetIsObjectValid(oPartyMember) == 1)
-      {
-        if (oPartyMember == oTarget)
-          return true;
-        oPartyMember = NWScript.GetNextFactionMember(oPC, 1);
-      }
-      return false;
-    }
-    public static void RebootTimer(uint oPC, int iTimer)
-    {
-      NWScript.PostString(oPC, $"REBOOT dans {iTimer} secondes !", 80, 10, NWScript.SCREEN_ANCHOR_TOP_LEFT, 30.0f, unchecked((int)0xC0C0C0FF), unchecked((int)0xC0C0C0FF), 1, "fnt_galahad14");
-      GUI_DrawWindow(oPC, 2, NWScript.SCREEN_ANCHOR_TOP_LEFT, 77, 7, 30, 5);
-      iTimer -= 1;
-      NWScript.DelayCommand(1.0f, () => RebootTimer(oPC, iTimer));
-
-      if (iTimer < 6)
-        PlayerPlugin.PlaySound(oPC, "gui_magbag_full", oPC);
-      else
-        PlayerPlugin.PlaySound(oPC, "gui_dm_alert", oPC);
+      return API.Location.Create(NwModule.Instance.Areas.FirstOrDefault(a => a.Tag == areaTag), position, facing);
     }
     public static int GUI_DrawWindow(uint oPlayer, int nStartID, int nAnchor, int nX, int nY, int nWidth, int nHeight, float fLifetime = 0.0f)
     {
@@ -131,41 +82,14 @@ namespace NWN
     }
     public static void BootAllPC()
     {
-      foreach (KeyValuePair<uint, PlayerSystem.Player> PlayerListEntry in PlayerSystem.Players)
-      {
-        if (NWScript.GetIsDM(PlayerListEntry.Key) != 1)
-          NWScript.BootPC(PlayerListEntry.Key, "Le serveur redémarre. Vous pourrez vous reconnecter dans une minute.");
-      }
+      foreach (NwPlayer oPC in NwModule.Instance.Players)
+        oPC.BootPlayer("Le serveur redémarre. Vous pourrez vous reconnecter dans une minute.");
     }
-    public static bool HasAnyEffect(uint oObject, params int[] effectIDs)
-    {
-      var eff = NWScript.GetFirstEffect(oObject);
-      while (NWScript.GetIsEffectValid(eff) == 1)
-      {
-        if (effectIDs.Contains(NWScript.GetEffectType(eff))) 
-          return true;
-        eff = NWScript.GetNextEffect(oObject);
-      }
-
-      return false;
-    }
-    public static Boolean HasTagEffect(uint oObject, string sTag)
-    {
-      var eff = NWScript.GetFirstEffect(oObject);
-      while (NWScript.GetIsEffectValid(eff) == 1)
-      {
-        if (NWScript.GetEffectTag(eff) == sTag)
-          return true;
-        eff = NWScript.GetNextEffect(oObject);
-      }
-      return false;
-    }
-
     public static void RemoveTaggedEffect(uint oObject, string Tag)
     {
       var eff = NWScript.GetFirstEffect(oObject);
       while (NWScript.GetIsEffectValid(eff) == 1)
-      { 
+      {
         if (NWScript.GetEffectTag(eff) == Tag)
         {
           NWScript.RemoveEffect(oObject, eff);
@@ -177,7 +101,7 @@ namespace NWN
     public static QuickBarSlot CreateEmptyQBS()
     {
       QuickBarSlot emptyQBS = new QuickBarSlot();
-      emptyQBS.nObjectType =  0; // 0 = EMPTY
+      emptyQBS.nObjectType = 0; // 0 = EMPTY
 
       emptyQBS.oItem = NWScript.OBJECT_INVALID;
       emptyQBS.oSecondaryItem = NWScript.OBJECT_INVALID;
@@ -193,6 +117,138 @@ namespace NWN
       emptyQBS.oAssociate = NWScript.OBJECT_INVALID;
 
       return emptyQBS;
+    }
+    public static TimeSpan StripTimeSpanMilliseconds(TimeSpan timespan)
+    {
+      return new TimeSpan(timespan.Days, timespan.Hours, timespan.Minutes, timespan.Seconds);
+    }
+    public static int TranslateEngineAnimation(int nAnimation)
+    {
+      switch (nAnimation)
+      {
+        case 0: nAnimation = NWScript.ANIMATION_LOOPING_PAUSE; break;
+        case 52: nAnimation = NWScript.ANIMATION_LOOPING_PAUSE2; break;
+        case 30: nAnimation = NWScript.ANIMATION_LOOPING_LISTEN; break;
+        case 32: nAnimation = NWScript.ANIMATION_LOOPING_MEDITATE; break;
+        case 33: nAnimation = NWScript.ANIMATION_LOOPING_WORSHIP; break;
+        case 48: nAnimation = NWScript.ANIMATION_LOOPING_LOOK_FAR; break;
+        case 36: nAnimation = NWScript.ANIMATION_LOOPING_SIT_CHAIR; break;
+        case 47: nAnimation = NWScript.ANIMATION_LOOPING_SIT_CROSS; break;
+        case 38: nAnimation = NWScript.ANIMATION_LOOPING_TALK_NORMAL; break;
+        case 39: nAnimation = NWScript.ANIMATION_LOOPING_TALK_PLEADING; break;
+        case 40: nAnimation = NWScript.ANIMATION_LOOPING_TALK_FORCEFUL; break;
+        case 41: nAnimation = NWScript.ANIMATION_LOOPING_TALK_LAUGHING; break;
+        case 59: nAnimation = NWScript.ANIMATION_LOOPING_GET_LOW; break;
+        case 60: nAnimation = NWScript.ANIMATION_LOOPING_GET_MID; break;
+        case 57: nAnimation = NWScript.ANIMATION_LOOPING_PAUSE_TIRED; break;
+        case 58: nAnimation = NWScript.ANIMATION_LOOPING_PAUSE_DRUNK; break;
+        case 6: nAnimation = NWScript.ANIMATION_LOOPING_DEAD_FRONT; break;
+        case 8: nAnimation = NWScript.ANIMATION_LOOPING_DEAD_BACK; break;
+        case 15: nAnimation = NWScript.ANIMATION_LOOPING_CONJURE1; break;
+        case 16: nAnimation = NWScript.ANIMATION_LOOPING_CONJURE2; break;
+        case 93: nAnimation = NWScript.ANIMATION_LOOPING_SPASM; break;
+        case 97: nAnimation = NWScript.ANIMATION_LOOPING_CUSTOM1; break;
+        case 98: nAnimation = NWScript.ANIMATION_LOOPING_CUSTOM2; break;
+        case 101: nAnimation = NWScript.ANIMATION_LOOPING_CUSTOM3; break;
+        case 102: nAnimation = NWScript.ANIMATION_LOOPING_CUSTOM4; break;
+        case 103: nAnimation = NWScript.ANIMATION_LOOPING_CUSTOM5; break;
+        case 104: nAnimation = NWScript.ANIMATION_LOOPING_CUSTOM6; break;
+        case 105: nAnimation = NWScript.ANIMATION_LOOPING_CUSTOM7; break;
+        case 106: nAnimation = NWScript.ANIMATION_LOOPING_CUSTOM8; break;
+        case 107: nAnimation = NWScript.ANIMATION_LOOPING_CUSTOM9; break;
+        case 108: nAnimation = NWScript.ANIMATION_LOOPING_CUSTOM10; break;
+        case 109: nAnimation = NWScript.ANIMATION_LOOPING_CUSTOM11; break;
+        case 110: nAnimation = NWScript.ANIMATION_LOOPING_CUSTOM12; break;
+        case 111: nAnimation = NWScript.ANIMATION_LOOPING_CUSTOM13; break;
+        case 112: nAnimation = NWScript.ANIMATION_LOOPING_CUSTOM14; break;
+        case 113: nAnimation = NWScript.ANIMATION_LOOPING_CUSTOM15; break;
+        case 114: nAnimation = NWScript.ANIMATION_LOOPING_CUSTOM16; break;
+        case 115: nAnimation = NWScript.ANIMATION_LOOPING_CUSTOM17; break;
+        case 116: nAnimation = NWScript.ANIMATION_LOOPING_CUSTOM18; break;
+        case 117: nAnimation = NWScript.ANIMATION_LOOPING_CUSTOM19; break;
+        case 118: nAnimation = NWScript.ANIMATION_LOOPING_CUSTOM20; break;
+        case 119: nAnimation = NWScript.ANIMATION_MOUNT1; break;
+        case 120: nAnimation = NWScript.ANIMATION_DISMOUNT1; break;
+        case 53: nAnimation = NWScript.ANIMATION_FIREFORGET_HEAD_TURN_LEFT; break;
+        case 54: nAnimation = NWScript.ANIMATION_FIREFORGET_HEAD_TURN_RIGHT; break;
+        case 55: nAnimation = NWScript.ANIMATION_FIREFORGET_PAUSE_SCRATCH_HEAD; break;
+        case 56: nAnimation = NWScript.ANIMATION_FIREFORGET_PAUSE_BORED; break;
+        case 34: nAnimation = NWScript.ANIMATION_FIREFORGET_SALUTE; break;
+        case 35: nAnimation = NWScript.ANIMATION_FIREFORGET_BOW; break;
+        case 37: nAnimation = NWScript.ANIMATION_FIREFORGET_STEAL; break;
+        case 29: nAnimation = NWScript.ANIMATION_FIREFORGET_GREETING; break;
+        case 28: nAnimation = NWScript.ANIMATION_FIREFORGET_TAUNT; break;
+        case 44: nAnimation = NWScript.ANIMATION_FIREFORGET_VICTORY1; break;
+        case 45: nAnimation = NWScript.ANIMATION_FIREFORGET_VICTORY2; break;
+        case 46: nAnimation = NWScript.ANIMATION_FIREFORGET_VICTORY3; break;
+        case 71: nAnimation = NWScript.ANIMATION_FIREFORGET_READ; break;
+        case 70: nAnimation = NWScript.ANIMATION_FIREFORGET_DRINK; break;
+        case 90: nAnimation = NWScript.ANIMATION_FIREFORGET_DODGE_SIDE; break;
+        case 91: nAnimation = NWScript.ANIMATION_FIREFORGET_DODGE_DUCK; break;
+        case 23: nAnimation = NWScript.ANIMATION_FIREFORGET_SPASM; break;
+        default: nAnimation = -1; break;
+      }
+
+      return nAnimation;
+    }
+    public static async void SendMailToPC(int characterId, string senderName, string title, string message)
+    {
+      await NwTask.Delay(TimeSpan.FromSeconds(0.2));
+
+      var messengerQuery = NWScript.SqlPrepareQueryCampaign(Config.database, $"INSERT INTO messenger (characterId, senderName, title, message, sentDate, read) VALUES (@characterId, @senderName, @title, @message, @sentDate, @read)");
+      NWScript.SqlBindInt(messengerQuery, "@characterId", characterId);
+      NWScript.SqlBindString(messengerQuery, "@senderName", senderName);
+      NWScript.SqlBindString(messengerQuery, "@title", title);
+      NWScript.SqlBindString(messengerQuery, "@message", message);
+      NWScript.SqlBindString(messengerQuery, "@sentDate", DateTime.Now.ToLongDateString());
+      NWScript.SqlBindInt(messengerQuery, "@read", 0);
+      NWScript.SqlStep(messengerQuery);
+    }
+    public static async void SendDiscordPMToPlayer(int characterId, string message)
+    {
+      await NwTask.Delay(TimeSpan.FromSeconds(0.2));
+
+      var discordQuery = NWScript.SqlPrepareQueryCampaign(Config.database, $"SELECT discordId from PlayerAccounts where ROWID = @characterId");
+      NWScript.SqlBindInt(discordQuery, "@characterId", characterId);
+
+      if (NWScript.SqlStep(discordQuery) != 0)
+      {
+        await Bot._client.GetUser(ulong.Parse(NWScript.SqlGetString(discordQuery, 0))).SendMessageAsync(message);
+      }
+    }
+    public static async void SendItemToPCStorage(int characterId, NwItem item)
+    {
+      await NwTask.Delay(TimeSpan.FromSeconds(0.2));
+
+      var storageQuery = NWScript.SqlPrepareQueryCampaign(Config.database, $"SELECT storage from playerCharacters where ROWID = @characterId");
+      NWScript.SqlBindInt(storageQuery, "@characterId", characterId);
+      if(NWScript.SqlStep(storageQuery) != 0)
+      {
+        NwStore storage = NWScript.SqlGetObject(storageQuery, 0, ((NwPlaceable)NwModule.FindObjectsWithTag("ps_entrepot").FirstOrDefault()).Location).ToNwObject<NwStore>();
+        item.Clone(storage);
+        item.Destroy();
+
+        var updateQuery = NWScript.SqlPrepareQueryCampaign(Config.database, $"UPDATE playerCharacters set storage = @storage where ROWID = @characterId");
+        NWScript.SqlBindInt(updateQuery, "@characterId", characterId);
+        NWScript.SqlBindObject(updateQuery, "@storage", storage);
+        NWScript.SqlStep(updateQuery);
+
+        storage.Destroy();
+      }
+      else
+      {
+        LogMessageToDMs($"Impossible de trouver le storage du pj {characterId} et d'y déposer un objet !");
+      }
+    }
+    public static void ResetVisualTransform(NwCreature creature)
+    {
+      NWScript.SetObjectVisualTransform(creature, NWScript.OBJECT_VISUAL_TRANSFORM_ROTATE_X, 0.0f);
+      NWScript.SetObjectVisualTransform(creature, NWScript.OBJECT_VISUAL_TRANSFORM_ROTATE_Y, 0.0f);
+      NWScript.SetObjectVisualTransform(creature, NWScript.OBJECT_VISUAL_TRANSFORM_ROTATE_Z, 0.0f);
+      NWScript.SetObjectVisualTransform(creature, NWScript.OBJECT_VISUAL_TRANSFORM_TRANSLATE_X, 0.0f);
+      NWScript.SetObjectVisualTransform(creature, NWScript.OBJECT_VISUAL_TRANSFORM_TRANSLATE_Y, 0.0f);
+      NWScript.SetObjectVisualTransform(creature, NWScript.OBJECT_VISUAL_TRANSFORM_TRANSLATE_Z, 0.0f);
+      NWScript.SetCameraHeight(creature, 0);
     }
   }
 }

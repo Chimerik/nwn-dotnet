@@ -1,38 +1,37 @@
-﻿using NWN.Core;
-
-namespace NWN.Systems
+﻿namespace NWN.Systems
 {
-  public static partial class EnchantmentBasinSystem
-  {
-    public static int HandleClose(uint oid)
+    public partial class EnchantmentBasinSystem
     {
-      var oPC = NWScript.GetLastClosedBy();
-      PlayerSystem.Player player;
+        public static EnchantmentBasin GetEnchantmentBasinFromTag(string tag)
+        {
+            switch (tag)
+            {
+                default:
+                    return new EnchantmentBasin(
+                      minSuccessPercent: 5,
+                      maxSuccessPercent: 95,
+                      maxAttackBonus: 3,
+                      maxACBonus: 3,
+                      maxAbilityBonus: 3,
+                      maxDamageBonus: ItemPropertyUtils.DamageBonus.D1d12,
+                      maxSavingThrowBonus: 3,
+                      maxRegenBonus: 2
+                    );
 
-      if (!PlayerSystem.Players.TryGetValue(oPC, out player)) return 0;
-
-      var oItem = NWScript.GetFirstItemInInventory();
-
-      if (oItem == NWScript.OBJECT_INVALID) return 0;
-      if (!ItemUtils.IsEquipable(oItem)) return 0;
-
-      if (NWScript.GetPlotFlag(oItem) == 1)
-      {
-        NWScript.SendMessageToPC(oPC, "Cannot enchant a plot item.");
-        return 0;
-      }
-
-      var oSecondItem = NWScript.GetNextItemInInventory();
-      if (oSecondItem != NWScript.OBJECT_INVALID)
-      {
-        NWScript.SendMessageToPC(oPC, "Invalid number of items.");
-        return 0;
-      }
-
-      var enchantmentBasin = new EnchantmentBasin(player, oItem);
-      enchantmentBasin.DrawMenu();
-
-      return 0;
+                case "enchantment_basin_expensive":
+                    return new EnchantmentBasin(
+                      costRate: 2,
+                      minSuccessPercent: 5,
+                      maxSuccessPercent: 95,
+                      maxCostRateForSuccessRateMin: 500000,
+                      maxAttackBonus: 5,
+                      maxACBonus: 5,
+                      maxAbilityBonus: 6,
+                      maxDamageBonus: ItemPropertyUtils.DamageBonus.D1d8,
+                      maxSavingThrowBonus: 4,
+                      maxRegenBonus: 4
+                    );
+            }
+        }
     }
-  }
 }

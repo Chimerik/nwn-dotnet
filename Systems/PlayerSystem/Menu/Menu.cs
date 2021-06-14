@@ -1,12 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using NWN.Core;
 using NWN.Core.NWNX;
+using Action = System.Action;
 
 namespace NWN.Systems
 {
-  public static partial class PlayerSystem
+  public partial class PlayerSystem
   {
     private class PrivateMenu : Menu
     {
@@ -14,7 +14,7 @@ namespace NWN.Systems
     }
     public abstract partial class Menu
     {
-      public string title { get; set; } = "";
+      public List<string> titleLines { get; set; } = new List<string>();
       public List<(string text, Action handler)> choices = new List<(string text, Action handler)>();
       public int originTop { get; set; }
       public int originLeft { get; set; }
@@ -30,8 +30,8 @@ namespace NWN.Systems
       {
         get
         {
-          if (title == "") return 0;
-          return 1 + titleBottomMargin;
+          if (titleLines.Count == 0) return 0;
+          return titleLines.Count + titleBottomMargin;
         }
       }
 
@@ -43,7 +43,7 @@ namespace NWN.Systems
       private const int arrowID = 8499;
 
       private int selectedChoiceID = 0;
-      private bool isOpen = false;
+      public bool isOpen = false;
 
       public Menu(Player player)
       {
@@ -53,15 +53,15 @@ namespace NWN.Systems
 
       public void Draw()
       {
-        if (!isOpen)
-        {
-          player.BoulderBlock();
-          player.OnKeydown += HandleKeydown;
-        }
-
         DrawWindow();
         DrawText();
         DrawSelection();
+
+        if (!isOpen)
+        {
+          player.LoadMenuQuickbar(QuickbarType.Menu);
+          player.OnKeydown += HandleMenuFeatUsed;
+        }
 
         isOpen = true;
       }
@@ -73,11 +73,20 @@ namespace NWN.Systems
 
         if (isOpen)
         {
-          player.OnKeydown -= HandleKeydown;
-          player.BoulderUnblock();
+          player.oid.LoginCreature.GetLocalVariable<int>("_CURRENT_MENU_CLOSED").Value = 1;
+          player.OnKeydown -= HandleMenuFeatUsed;
+          player.UnloadMenuQuickbar();
         }
 
         isOpen = false;
+
+        if (player.oid.LoginCreature.GetLocalVariable<int>("_AWAITING_PLAYER_INPUT").HasValue)
+        {
+          player.oid.LoginCreature.GetLocalVariable<int>("_PLAYER_INPUT_CANCELLED").Delete();
+          player.oid.LoginCreature.GetLocalVariable<int>("_AWAITING_PLAYER_INPUT").Delete();
+          player.oid.OnPlayerChat -= ChatSystem.HandlePlayerInputByte;
+          player.oid.OnPlayerChat -= ChatSystem.HandlePlayerInputInt;
+        }
       }
 
       public void ResetConfig ()
@@ -88,7 +97,7 @@ namespace NWN.Systems
 
       public void Clear()
       {
-        title = "";
+        titleLines.Clear();
         choices.Clear();
         selectedChoiceID = 0;
       }
@@ -104,14 +113,20 @@ namespace NWN.Systems
       {
         foreach (var (X, Y, ID) in drawnLines)
         {
-          NWScript.PostString(player.oid, "", X, Y, ID, 0.000001f);
+          NWScript.PostString(player.oid.LoginCreature, "", X, Y, 0, 0.000001f, 0, 0, ID);
         }
         drawnLines.Clear();
       }
 
       private int CalcWindowWidth()
       {
-        var longestText = title.Length;
+        var longestText = 0;
+
+        foreach(var line in titleLines)
+        {
+          if (line.Length > longestText) longestText = line.Length;
+        }
+
         foreach (var (text, _) in choices)
         {
           if (text.Length > longestText) longestText = text.Length;
@@ -162,15 +177,18 @@ namespace NWN.Systems
         var textY = originTop + heightPadding + borderSize;
         var textID = textBaseID;
 
-        if (title != "")
+        foreach(var text in titleLines)
         {
-          DrawLine(title, textX, textY++, textID++, Config.Font.Text, drawnLineTextIds);
+          DrawLine(text, textX, textY++, textID++, Config.Font.Text, drawnLineTextIds);
+        }
+
+        if (titleLines.Count != 0)
+        {
           textY += titleBottomMargin;
         }
 
-        for (var i = 0; i < choices.Count; i++)
+        foreach (var (text, _) in choices)
         {
-          var (text, _) = choices[i];
           DrawLine(text, textX, textY++, textID++, Config.Font.Text, drawnLineTextIds);
         }
       }
@@ -187,11 +205,14 @@ namespace NWN.Systems
       private void EraseLastSelection()
       {
         NWScript.PostString(
-          player.oid, "",
+          player.oid.LoginCreature, "",
           drawnSelectionIds.X,
           drawnSelectionIds.Y,
-          drawnSelectionIds.ID,
-          0.000001f
+          0,
+          0.000001f,
+          0,
+          0,
+          drawnSelectionIds.ID
         );
       }
 
@@ -199,7 +220,7 @@ namespace NWN.Systems
       {
         int color = unchecked((int)Config.Color.White);
         NWScript.PostString(
-            player.oid, text, x, y, 0, 0f,
+            player.oid.LoginCreature, text, x, y, 0, 0f,
             color, color, id, font
         );
         if (drawnLines != null)
@@ -208,31 +229,131 @@ namespace NWN.Systems
         }
       }
 
-      private void HandleKeydown(object sender, PlayerSystem.Player.KeydownEventArgs e)
+      public void HandleMenuFeatUsed(object sender, Player.MenuFeatEventArgs e)
       {
-        switch (e.key)
+        switch (player.loadedQuickBar)
         {
-          default: return;
-
-          case "W":
-            selectedChoiceID = (selectedChoiceID + choices.Count - 1) % choices.Count;
-            EraseLastSelection();
-            PlayerPlugin.PlaySound(player.oid, "gui_select", NWScript.OBJECT_INVALID);
-            DrawSelection();
+          case QuickbarType.Invalid:
             return;
+          case QuickbarType.Menu:
+            switch (e.feat)
+            {
+              default: return;
 
-          case "S":
-            selectedChoiceID = (selectedChoiceID + 1) % choices.Count;
-            EraseLastSelection();
-            PlayerPlugin.PlaySound(player.oid, "gui_select", NWScript.OBJECT_INVALID);
-            DrawSelection();
-            return;
+              case CustomFeats.CustomMenuUP:
 
-          case "E":
-            var handler = choices.ElementAtOrDefault(selectedChoiceID).handler;
-            PlayerPlugin.PlaySound(player.oid, "gui_picklockopen", NWScript.OBJECT_INVALID);
-            handler?.Invoke();
-            return;
+                if (choices.Count <= 0)
+                  return;
+
+                selectedChoiceID = (selectedChoiceID + choices.Count - 1) % choices.Count;
+                EraseLastSelection();
+                PlayerPlugin.PlaySound(player.oid.LoginCreature, "gui_select", NWScript.OBJECT_INVALID);
+                DrawSelection();
+                return;
+
+              case CustomFeats.CustomMenuDOWN:
+
+                if (choices.Count <= 0)
+                  return;
+
+                selectedChoiceID = (selectedChoiceID + 1) % choices.Count;
+                EraseLastSelection();
+                PlayerPlugin.PlaySound(player.oid.LoginCreature, "gui_select", NWScript.OBJECT_INVALID);
+                DrawSelection();
+                return;
+
+              case CustomFeats.CustomMenuSELECT:
+
+                if (choices.Count <= 0)
+                  return;
+
+                var handler = choices.ElementAtOrDefault(selectedChoiceID).handler;
+                PlayerPlugin.PlaySound(player.oid.LoginCreature, "gui_picklockopen", NWScript.OBJECT_INVALID);
+                handler?.Invoke();
+                return;
+              case CustomFeats.CustomMenuEXIT:
+                player.menu.Close();
+                return;
+            }
+          case QuickbarType.Sit:
+            float zPos;
+            float newValue;
+
+            switch(e.feat)
+            {
+              default: return;
+
+              case CustomFeats.CustomMenuUP:
+                newValue = 0.1f;
+
+                NWScript.SetObjectVisualTransform(player.oid.ControlledCreature, NWScript.OBJECT_VISUAL_TRANSFORM_TRANSLATE_Z, NWScript.GetObjectVisualTransform(player.oid.LoginCreature, NWScript.OBJECT_VISUAL_TRANSFORM_TRANSLATE_Z) + newValue);
+                  zPos = NWScript.GetObjectVisualTransform(player.oid.LoginCreature, NWScript.OBJECT_VISUAL_TRANSFORM_TRANSLATE_Z);
+                  if (zPos > 5)
+                    Utils.LogMessageToDMs($"SIT COMMAND - Player {NWScript.GetName(player.oid.LoginCreature)} - Z translation = {zPos}");
+
+                NWScript.SetCameraHeight(player.oid.ControlledCreature,  1 + zPos);
+
+                break;
+
+              case CustomFeats.CustomMenuDOWN:
+                newValue = -0.1f;
+
+                NWScript.SetObjectVisualTransform(player.oid.ControlledCreature, NWScript.OBJECT_VISUAL_TRANSFORM_TRANSLATE_Z, NWScript.GetObjectVisualTransform(player.oid.LoginCreature, NWScript.OBJECT_VISUAL_TRANSFORM_TRANSLATE_Z) + newValue);
+                zPos = NWScript.GetObjectVisualTransform(player.oid.LoginCreature, NWScript.OBJECT_VISUAL_TRANSFORM_TRANSLATE_Z);
+                if (zPos < NWScript.GetGroundHeight(NWScript.GetLocation(player.oid.LoginCreature)))
+                  Utils.LogMessageToDMs($"SIT COMMAND - Player {NWScript.GetName(player.oid.LoginCreature)} - Z translation = {zPos}");
+
+                NWScript.SetCameraHeight(player.oid.ControlledCreature, 1 + zPos);
+
+                break;
+
+              case CustomFeats.CustomPositionRotateRight:
+                newValue = 20.0f;
+
+                NWScript.SetObjectVisualTransform(player.oid.ControlledCreature, NWScript.OBJECT_VISUAL_TRANSFORM_ROTATE_X, NWScript.GetObjectVisualTransform(player.oid.LoginCreature, NWScript.OBJECT_VISUAL_TRANSFORM_ROTATE_X) + newValue);
+                break;
+
+              case CustomFeats.CustomPositionRotateLeft:
+                newValue = -20.0f;
+
+                NWScript.SetObjectVisualTransform(player.oid.ControlledCreature, NWScript.OBJECT_VISUAL_TRANSFORM_ROTATE_X, NWScript.GetObjectVisualTransform(player.oid.LoginCreature, NWScript.OBJECT_VISUAL_TRANSFORM_ROTATE_X) + newValue);
+                break;
+
+              case CustomFeats.CustomPositionRight:
+                newValue = 0.1f;
+
+                NWScript.SetObjectVisualTransform(player.oid.ControlledCreature, NWScript.OBJECT_VISUAL_TRANSFORM_TRANSLATE_X,
+                NWScript.GetObjectVisualTransform(player.oid.ControlledCreature, NWScript.OBJECT_VISUAL_TRANSFORM_TRANSLATE_X) + newValue);
+                break;
+
+              case CustomFeats.CustomPositionLeft:
+                newValue = 0.1f;
+
+                NWScript.SetObjectVisualTransform(player.oid.ControlledCreature, NWScript.OBJECT_VISUAL_TRANSFORM_TRANSLATE_X,
+                NWScript.GetObjectVisualTransform(player.oid.ControlledCreature, NWScript.OBJECT_VISUAL_TRANSFORM_TRANSLATE_X) - newValue);
+                break;
+
+              case CustomFeats.CustomPositionForward:
+                newValue = 0.1f;
+
+                NWScript.SetObjectVisualTransform(player.oid.ControlledCreature, NWScript.OBJECT_VISUAL_TRANSFORM_TRANSLATE_Y,
+                NWScript.GetObjectVisualTransform(player.oid.ControlledCreature, NWScript.OBJECT_VISUAL_TRANSFORM_TRANSLATE_Y) + newValue);
+                break;
+
+              case CustomFeats.CustomPositionBackward:
+                newValue = 0.1f;
+
+                NWScript.SetObjectVisualTransform(player.oid.ControlledCreature, NWScript.OBJECT_VISUAL_TRANSFORM_TRANSLATE_Y,
+                NWScript.GetObjectVisualTransform(player.oid.ControlledCreature, NWScript.OBJECT_VISUAL_TRANSFORM_TRANSLATE_Y) - newValue);
+                break;
+
+              case CustomFeats.CustomMenuEXIT:
+                player.UnloadMenuQuickbar();
+                Utils.ResetVisualTransform(player.oid.ControlledCreature);
+                player.OnKeydown -= HandleMenuFeatUsed;
+                return;
+            }
+            break;
         }
       }
     }

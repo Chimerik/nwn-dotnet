@@ -2,7 +2,9 @@
 using System.Collections.Generic;
 using System.Linq;
 using NWN.Core;
-using NWN.Systems;
+using NWN.Core.NWNX;
+using NWN.API.Constants;
+using NWN.API;
 
 namespace NWN.Systems
 {
@@ -10,73 +12,85 @@ namespace NWN.Systems
   {
     public class Skill
     {
-      public readonly int oid;
-
-      public float acquiredPoints { get; set; }
+      public readonly Feat oid;
+      private readonly PlayerSystem.Player player;
+      public double acquiredPoints { get; set; }
       public string name { get; set; }
       public string description { get; set; }
       public Boolean currentJob { get; set; }
       public int currentLevel { get; set; }
       public int successorId { get; set; }
       public Boolean trained { get; set; }
-      public Boolean databaseSaved { get; set; }
-      private int multiplier;
-      private int pointsToNextLevel;
+      public int multiplier { get; }
+      public int pointsToNextLevel;
       public readonly int primaryAbility;
       public readonly int secondaryAbility;
 
-      public Skill(int Id, float SP)
+      public Skill(Feat Id, float SP, PlayerSystem.Player player)
       {
         this.oid = Id;
+        this.player = player;
         this.acquiredPoints = SP;
         this.trained = false;
+
         int value;
-
-        if (int.TryParse(NWScript.Get2DAString("feat", "FEAT", Id), out value))
-          this.name = NWScript.GetStringByStrRef(value);
-        else
+        if (customFeatsDictionnary.ContainsKey(Id))
         {
-          this.name = "Nom non disponible";
-          Utils.LogMessageToDMs($"SKILL SYSTEM ERROR - Skill {this.oid} : no available name");
-        }
-
-        if (int.TryParse(NWScript.Get2DAString("feat", "DESCRIPTION", Id), out value))
-          this.description = NWScript.GetStringByStrRef(value);
-        else
-        {
-          this.description = "Description non disponible";
-          Utils.LogMessageToDMs($"SKILL SYSTEM ERROR - Skill {this.oid} : no available description");
-        }
-
-        if (int.TryParse(NWScript.Get2DAString("feat", "GAINMULTIPLE", Id), out value))
-        {
-          this.currentLevel = value;
-          if (int.TryParse(NWScript.Get2DAString("feat", "SUCCESSOR", Id), out value))
-            this.successorId = value;
+          name = customFeatsDictionnary[Id].name;
+          description = customFeatsDictionnary[Id].description;
+          if (player.learntCustomFeats.ContainsKey(Id))
+            currentLevel = GetCustomFeatLevelFromSkillPoints(Id, (int)SP);
           else
-            this.successorId = 0;
+            currentLevel = 0;
         }
         else
-          this.currentLevel = 1;
- 
-        if (int.TryParse(NWScript.Get2DAString("feat", "CRValue", Id), out value))
+        {
+          if (int.TryParse(NWScript.Get2DAString("feat", "FEAT", (int)Id), out value))
+            this.name = NWScript.GetStringByStrRef(value);
+          else
+          {
+            this.name = "Nom indisponible";
+            Utils.LogMessageToDMs($"SKILL SYSTEM ERROR - Skill {this.oid} : no available name");
+          }
+
+          if (int.TryParse(NWScript.Get2DAString("feat", "DESCRIPTION", (int)Id), out value))
+            this.description = NWScript.GetStringByStrRef(value);
+          else
+          {
+            this.description = "Description indisponible";
+            Utils.LogMessageToDMs($"SKILL SYSTEM ERROR - Skill {this.oid} : no available description");
+          }
+
+          if (int.TryParse(NWScript.Get2DAString("feat", "GAINMULTIPLE", (int)Id), out value))
+          {
+            this.currentLevel = value;
+            if (int.TryParse(NWScript.Get2DAString("feat", "SUCCESSOR", (int)Id), out value))
+              this.successorId = value;
+            else
+              this.successorId = 0;
+          }
+          else
+            this.currentLevel = 1;
+        }
+
+        if (int.TryParse(NWScript.Get2DAString("feat", "CRValue", (int)Id), out value))
           this.multiplier = value;
         else
           this.multiplier = 1;
 
         Dictionary<int, int> iSkillAbilities = new Dictionary<int, int>();
-        
-        if (int.TryParse(NWScript.Get2DAString("feat", "MINSTR", Id), out value))
+
+        if (int.TryParse(NWScript.Get2DAString("feat", "MINSTR", (int)Id), out value))
           iSkillAbilities.Add(NWScript.ABILITY_STRENGTH, value);
-        if (int.TryParse(NWScript.Get2DAString("feat", "MINDEX", Id), out value))
+        if (int.TryParse(NWScript.Get2DAString("feat", "MINDEX", (int)Id), out value))
           iSkillAbilities.Add(NWScript.ABILITY_DEXTERITY, value);
-        if (int.TryParse(NWScript.Get2DAString("feat", "MINCON", Id), out value))
+        if (int.TryParse(NWScript.Get2DAString("feat", "MINCON", (int)Id), out value))
           iSkillAbilities.Add(NWScript.ABILITY_CONSTITUTION, value);
-        if (int.TryParse(NWScript.Get2DAString("feat", "MININT", Id), out value))
+        if (int.TryParse(NWScript.Get2DAString("feat", "MININT", (int)Id), out value))
           iSkillAbilities.Add(NWScript.ABILITY_INTELLIGENCE, value);
-        if (int.TryParse(NWScript.Get2DAString("feat", "MINWIS", Id), out value))
+        if (int.TryParse(NWScript.Get2DAString("feat", "MINWIS", (int)Id), out value))
           iSkillAbilities.Add(NWScript.ABILITY_WISDOM, value);
-        if (int.TryParse(NWScript.Get2DAString("feat", "MINCHA", Id), out value))
+        if (int.TryParse(NWScript.Get2DAString("feat", "MINCHA", (int)Id), out value))
           iSkillAbilities.Add(NWScript.ABILITY_CHARISMA, value);
 
         iSkillAbilities.OrderBy(key => key.Value);
@@ -96,64 +110,215 @@ namespace NWN.Systems
           this.secondaryAbility = NWScript.ABILITY_WISDOM;
           Utils.LogMessageToDMs($"SKILL SYSTEM ERROR - Skill {this.oid} : Secondary ability not set");
         }
+  
+        if (this.currentLevel > 4)
+        {
+          int skillLevelCap = 4;
+          this.pointsToNextLevel = (int)(250 * this.multiplier * Math.Pow(5, skillLevelCap)) * (1 + currentLevel - skillLevelCap);
+        }
+        else
+          this.pointsToNextLevel = (int)(250 * this.multiplier * Math.Pow(5, currentLevel));
 
-        this.pointsToNextLevel = 250 * this.multiplier * (int)Math.Pow(Math.Sqrt(32), this.currentLevel);
+        //if (Config.env == Config.Env.Chim)
+        //pointsToNextLevel = 10;
+
+        if (this.player.currentSkillJob == (int)oid)
+        {
+          this.currentJob = true;
+          if(player.oid.LoginCreature.GetLocalVariable<int>("_CONNECTING").HasNothing)
+            this.CreateSkillJournalEntry();
+        }
       }
-      public double GetTimeToNextLevel(PlayerSystem.Player oPC)
+      public double GetTimeToNextLevel(double pointPerSecond)
       {
-        float RemainingPoints = this.pointsToNextLevel - this.acquiredPoints;
-        float PointsGenerationPerSecond = (float)(NWScript.GetAbilityScore(oPC.oid, primaryAbility) + (NWScript.GetAbilityScore(oPC.oid, secondaryAbility) / 2)) / 60;
-        if(!oPC.isConnected)
-          PointsGenerationPerSecond = PointsGenerationPerSecond * 60 / 100;
-        else if (oPC.isAFK)
-          PointsGenerationPerSecond = PointsGenerationPerSecond * 80 / 100;
-        return RemainingPoints / PointsGenerationPerSecond;
+        double RemainingPoints = this.pointsToNextLevel - this.acquiredPoints;
+        return RemainingPoints / pointPerSecond;
       }
-      public string GetTimeToNextLevelAsString(PlayerSystem.Player oPC)
+      public void CreateSkillJournalEntry()
       {
-        TimeSpan EndTime = DateTime.Now.AddSeconds(this.GetTimeToNextLevel(oPC)).Subtract(DateTime.Now);
-        string Countdown = "";
-        if (EndTime.Days > 0)
+        player.playerJournal.skillJobCountDown = DateTime.Now.AddSeconds(this.GetTimeToNextLevel(CalculateSkillPointsPerSecond()));
+        JournalEntry journalEntry = new JournalEntry();
+        journalEntry.sName = $"Entrainement - {Utils.StripTimeSpanMilliseconds((TimeSpan)(player.playerJournal.skillJobCountDown - DateTime.Now))}";
+        journalEntry.sText = $"Entrainement en cours :\n\n " +
+          $"{this.name}\n\n" +
+          $"{this.description}";
+        journalEntry.sTag = "skill_job";
+        journalEntry.nPriority = 1;
+        journalEntry.nQuestDisplayed = 1;
+        PlayerPlugin.AddCustomJournalEntry(player.oid.LoginCreature, journalEntry);
+
+        PlayerPlugin.ApplyInstantVisualEffectToObject(player.oid.ControlledCreature, player.oid.ControlledCreature, 1516);  
+      }
+      public void CancelSkillJournalEntry()
+      {
+        JournalEntry journalEntry = PlayerPlugin.GetJournalEntry(player.oid.LoginCreature, "skill_job");
+        journalEntry.sName = $"Entrainement annulé - {this.name}";
+        journalEntry.sTag = "skill_job";
+        journalEntry.nQuestDisplayed = 0;
+        PlayerPlugin.AddCustomJournalEntry(player.oid.LoginCreature, journalEntry);
+        player.playerJournal.skillJobCountDown = null;
+      }
+      public void CloseSkillJournalEntry()
+      {
+        JournalEntry journalEntry = PlayerPlugin.GetJournalEntry(player.oid.LoginCreature, "skill_job");
+
+        if (journalEntry.nUpdated == -1)
         {
-          if (EndTime.Days < 10)
-            Countdown += "0" + EndTime.Days + ":";
-          else
-            Countdown += EndTime.Days + ":";
-        }
-        if (EndTime.Hours > 0)
-        {
-          if (EndTime.Hours < 10)
-            Countdown += "0" + EndTime.Hours + ":";
-          else
-            Countdown += EndTime.Hours + ":";
-        }
-        if (EndTime.Minutes > 0)
-        {
-          if (EndTime.Minutes < 10)
-            Countdown += "0" + EndTime.Minutes + ":";
-          else
-            Countdown += EndTime.Minutes + ":";
-        }
-        if (EndTime.Seconds > 0)
-        {
-          if (EndTime.Seconds < 10)
-            Countdown += "0" + EndTime.Seconds;
-          else
-            Countdown += EndTime.Seconds;
+          CreateSkillJournalEntry();
+          journalEntry = PlayerPlugin.GetJournalEntry(player.oid.LoginCreature, "skill_job");
         }
 
-        return Countdown;
+        journalEntry.sName = $"Entrainement terminé - {this.name}";
+        journalEntry.sTag = "skill_job";
+        journalEntry.nQuestCompleted = 1;
+        journalEntry.nQuestDisplayed = 0;
+        PlayerPlugin.AddCustomJournalEntry(player.oid.LoginCreature, journalEntry);
+        player.playerJournal.skillJobCountDown = null;
       }
-/*      public void DisplayTimeToNextLevel(Player oPC) // TODO : revoir méthode d'affichage du temps restant pour skill + craft jobs
+      public double CalculateSkillPointsPerSecond()
       {
-        string Countdown = this.GetTimeToNextLevelAsString(oPC);
-        oPC.RefreshAcquiredSkillPoints();
+        double SP = ((double)player.oid.LoginCreature.GetAbilityScore((Ability)primaryAbility) + ((double)player.oid.LoginCreature.GetAbilityScore((Ability)secondaryAbility) / 2.0)) / 60.0;
 
-        NWScript.PostString(oPC.oid, $"Apprentissage terminé dans {Countdown}", 80, 10, NWScript.SCREEN_ANCHOR_TOP_LEFT, 1.0f, unchecked((int)0xC0C0C0FF), unchecked((int)0xC0C0C0FF), 9, "fnt_galahad14");
+        switch (player.bonusRolePlay)
+        {
+          case 0:
+            SP = SP * 10 / 100;
+            break;
+          case 1:
+            SP = SP * 90 / 100;
+            break;
+          case 3:
+            SP = SP * 110 / 100;
+            break;
+          case 4:
+            SP = SP * 120 / 100;
+            break;
+          case 100:
+            SP = SP * 10;
+            break;
+        }
+
+        if (player.oid.LoginCreature.GetLocalVariable<int>("_CONNECTING").HasValue)
+        {
+          SP = SP * 60 / 100;
+          Log.Info($"{player.oid.LoginCreature.Name} was not connected. Applying 40 % malus.");
+        }
+        else if (player.isAFK)
+        {
+          SP = SP * 80 / 100;
+          Log.Info($"{player.oid.LoginCreature.Name} was afk. Applying 20 % malus.");
+        }
+
+        //Log.Info($"SP CALCULATION - {player.oid.Name} - {SP} SP.");
+
+        return SP;
+      }
+      public void RefreshAcquiredSkillPoints()
+      {
+        int pooledPoints = ObjectPlugin.GetInt(player.oid.LoginCreature, "_STARTING_SKILL_POINTS");
         
-        if(NWScript.GetLocalInt(oPC.oid, "_DISPLAY_JOBS") == 1)
-          NWScript.DelayCommand(1.0f, () => DisplayTimeToNextLevel(oPC));
-      }*/
+        if (pooledPoints > 0)
+        {
+          if (pooledPoints > pointsToNextLevel)
+          {
+            ObjectPlugin.SetInt(player.oid.LoginCreature, "_STARTING_SKILL_POINTS", pooledPoints - pointsToNextLevel, 1);
+            acquiredPoints += pointsToNextLevel;
+          }
+          else
+          {
+            acquiredPoints += pooledPoints;
+            ObjectPlugin.DeleteInt(player.oid.LoginCreature, "_STARTING_SKILL_POINTS");
+          }
+        }
+
+        double skillPointRate = CalculateSkillPointsPerSecond();
+        acquiredPoints += skillPointRate * (DateTime.Now - player.dateLastSaved).TotalSeconds;
+        double remainingTime = GetTimeToNextLevel(skillPointRate);
+        player.playerJournal.skillJobCountDown = DateTime.Now.AddSeconds(remainingTime);
+
+        if (remainingTime <= 0)
+          LevelUpSkill();
+      }
+      public void LevelUpSkill()
+      {
+        if (player.menu.isOpen)
+          player.menu.Close();
+       
+        if(customFeatsDictionnary.ContainsKey(oid)) // Il s'agit d'un Custom Feat
+        {
+          if (player.learntCustomFeats.ContainsKey(oid))
+            player.learntCustomFeats[oid] = (int)acquiredPoints;
+          else
+            player.learntCustomFeats.Add(oid, (int)acquiredPoints);
+
+          string customFeatName = customFeatsDictionnary[oid].name;
+          name = customFeatName;
+
+          currentLevel = GetCustomFeatLevelFromSkillPoints(oid, (int)acquiredPoints);
+
+          int skillLevelCap = currentLevel;
+
+          if (this.currentLevel > 4)
+          {
+            skillLevelCap = 4;
+            pointsToNextLevel += (int)(250 * this.multiplier * Math.Pow(5, skillLevelCap));
+          }
+          else
+            pointsToNextLevel = (int)(250 * this.multiplier * Math.Pow(5, skillLevelCap));
+
+          if (int.TryParse(NWScript.Get2DAString("feat", "FEAT", (int)oid), out int nameValue))
+            PlayerPlugin.SetTlkOverride(player.oid.LoginCreature, nameValue, $"{customFeatName} - {currentLevel}");
+            //player.oid.SetTlkOverride(nameValue, $"{customFeatName} - {currentLevel}");
+          else
+            Utils.LogMessageToDMs($"CUSTOM SKILL SYSTEM ERROR - Skill {customFeatName} - {(int)oid} : no available custom name StrRef");
+          
+          if (currentLevel >= customFeatsDictionnary[oid].maxLevel)
+            trained = true;
+        }
+        else
+        {
+          trained = true;
+
+          if (successorId > 0)
+          {
+            player.learnableSkills.Add((Feat)successorId, new Skill((Feat)successorId, 0, player));
+          }
+        }
+
+        //if (!Convert.ToBoolean(CreaturePlugin.GetKnowsFeat(player.oid, oid)))
+        // {
+        player.oid.LoginCreature.AddFeat(oid);
+        PlayNewSkillAcquiredEffects();
+        //}
+       /* else
+        {
+          int value;
+          int skillCurrentLevel = CreaturePlugin.GetHighestLevelOfFeat(player.oid, oid);
+          if (int.TryParse(NWScript.Get2DAString("feat", "SUCCESSOR", skillCurrentLevel), out value))
+          {
+            CreaturePlugin.AddFeat(player.oid, value);
+            CreaturePlugin.RemoveFeat(player.oid, value);
+          }
+          else
+          {
+            NWN.Utils.LogMessageToDMs($"SKILL LEVEL UP ERROR - Player : {NWScript.GetName(player.oid)}, Skill : {name} ({oid}), Current level : {skillCurrentLevel}");
+          }
+        }*/
+
+        if (RegisterAddCustomFeatEffect.TryGetValue(oid, out Func<PlayerSystem.Player, Feat, int> handler))
+          handler.Invoke(player, oid);
+
+        player.currentSkillJob = (int)CustomFeats.Invalid;
+        player.currentSkillType = SkillType.Invalid;
+        currentJob = false;
+
+        player.oid.ExportCharacter();
+      }
+      public void PlayNewSkillAcquiredEffects()
+      {
+        PlayerPlugin.ApplyInstantVisualEffectToObject(player.oid.ControlledCreature, player.oid.ControlledCreature, 1516);
+        CloseSkillJournalEntry();
+      }
     }
   }
 }

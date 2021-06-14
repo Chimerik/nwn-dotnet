@@ -1,32 +1,42 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
+    <PropertyGroup>
+        <TargetFramework>net5.0</TargetFramework>
+        <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
+        <AppendRuntimeIdentifierToOutputPath>false</AppendRuntimeIdentifierToOutputPath>
+        <IsPackable>false</IsPackable>
+        <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
+        <EnableDynamicLoading>true</EnableDynamicLoading>
+        <RootNamespace>NWN</RootNamespace>
+        <RuntimeIdentifier>linux-x64</RuntimeIdentifier>
+        <LangVersion>8</LangVersion>
+        <AssemblyName>NWN</AssemblyName>
+    </PropertyGroup>
 
-  <PropertyGroup>
-    <TargetFramework>netcoreapp3.1</TargetFramework>
-    <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
-    <AppendRuntimeIdentifierToOutputPath>false</AppendRuntimeIdentifierToOutputPath>
-    <IsPackable>false</IsPackable>
-    <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
-    <EnableDynamicLoading>true</EnableDynamicLoading>
-    <LangVersion>8</LangVersion>
-    <Nullable>enable</Nullable>
-  </PropertyGroup>
+    <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
+        <PlatformTarget>x64</PlatformTarget>
+        <OutputPath>bin\Debug\Plugins\$(MSBuildProjectName)</OutputPath>
+    </PropertyGroup>
 
-  <Target Name="NWN" AfterTargets="Build">
+    <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
+        <DebugSymbols>false</DebugSymbols>
+        <DebugType>None</DebugType>
+        <PlatformTarget>x64</PlatformTarget>
+        <OutputPath>bin\Release\Plugins\$(MSBuildProjectName)</OutputPath>
+    </PropertyGroup>
 
     <ItemGroup>
-      <AllOutputs Include="$(OutputPath)$(MSBuildProjectName).dll" />
-      <AllOutputs Include="$(OutputPath)$(MSBuildProjectName).pdb" />
-      <AllOutputs Include="$(OutputPath)$(MSBuildProjectName).runtimeconfig.json" />
-      <AllOutputs Include="$(OutputPath)$(MSBuildProjectName).deps.json" />
+        <Compile Remove="Utils\TargetEvents.cs" />
     </ItemGroup>
 
-  </Target>
-
-  <ItemGroup>
-    <PackageReference Include="Dapper" Version="2.0.35" />
-    <PackageReference Include="MySqlConnector" Version="1.0.1" />
-    <PackageReference Include="Newtonsoft.Json" Version="12.0.3" />
-    <PackageReference Include="NWN.Core" Version="8193.16.7" />
-  </ItemGroup>
-
+    <ItemGroup>
+        <PackageReference Include="Discord.Net" Version="2.4.0" />
+        <PackageReference Include="Google.Api.Gax" Version="3.4.0-alpha01" />
+        <PackageReference Include="Google.Apis" Version="1.51.0" />
+        <PackageReference Include="Google.Apis.Auth" Version="1.51.0" />
+        <PackageReference Include="Google.Cloud.Translation.V2" Version="2.1.0" />
+        <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="5.0.1" />
+        <PackageReference Include="NWN.Core" Version="8193.23.4" />
+        <PackageReference Include="NWN.Native" Version="8193.23.3" />
+        <ProjectReference Include="..\..\NWN.Managed\NWN.Managed\NWN.Anvil.csproj" />
+    </ItemGroup>
 </Project>

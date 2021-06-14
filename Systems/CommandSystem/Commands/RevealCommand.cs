@@ -1,5 +1,4 @@
-﻿using NWN.Core;
-using NWN.Core.NWNX;
+﻿using NWN.Core.NWNX;
 
 namespace NWN.Systems
 {
@@ -7,10 +6,10 @@ namespace NWN.Systems
   {
     private static void ExecuteRevealCommand(ChatSystem.Context ctx, Options.Result options)
     {
-      if (NWScript.GetIsObjectValid(ctx.oTarget) == 1)
-        RevealPlugin.SetRevealToParty(ctx.oSender, 1, RevealPlugin.NWNX_REVEAL_SEEN);
+      if (ctx.oTarget == null)
+        RevealPlugin.SetRevealToParty(ctx.oSender.ControlledCreature, 1, RevealPlugin.NWNX_REVEAL_SEEN);
       else
-        RevealPlugin.RevealTo(ctx.oSender, ctx.oTarget, RevealPlugin.NWNX_REVEAL_SEEN);
+        RevealPlugin.RevealTo(ctx.oSender.ControlledCreature, ctx.oTarget.ControlledCreature, RevealPlugin.NWNX_REVEAL_SEEN);
     }
   }
 }

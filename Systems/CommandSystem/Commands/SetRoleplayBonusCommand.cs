@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+﻿using NWN.API;
 using NWN.Core;
 using NWN.Core.NWNX;
 
@@ -8,35 +8,48 @@ namespace NWN.Systems
   {
     private static void ExecuteSetRoleplayBonusCommand(ChatSystem.Context ctx, Options.Result options)
     {
-      if (NWScript.GetIsDM(ctx.oSender) == 1)
+      if (ctx.oSender.IsDM)
       {
-        if (NWScript.GetIsObjectValid(ctx.oTarget) == 1)
+        if (ctx.oTarget != null)
         {
           if (((string)options.positional[0]).Length == 0)
           {
-            NWScript.SendMessageToPC(ctx.oSender, $"Le bonus roleplay de {NWScript.GetName(ctx.oTarget)} est de {ObjectPlugin.GetInt(ctx.oTarget, "_BRP")}");
+            ctx.oSender.SendServerMessage($"Le bonus roleplay de {ctx.oTarget.LoginCreature.Name.ColorString(ColorConstants.White)} est de {ObjectPlugin.GetInt(ctx.oTarget.LoginCreature, "_BRP").ToString().ColorString(ColorConstants.White)}", ColorConstants.Pink);
           }
           else
           {
-            int iBRP;
-            if (int.TryParse((string)options.positional[0], out iBRP))
+            if (int.TryParse((string)options.positional[0], out int iBRP))
             {
-              if(iBRP > -1 && iBRP < 5)
+              if (iBRP > -1 && iBRP < 5)
               {
-                ObjectPlugin.SetInt(ctx.oTarget, "_BRP", iBRP, 1); // TODO : le BRP est valable pour tout le compte du joueur, pas juste le perso. A enregistrer en BDD
-                NWScript.SendMessageToPC(ctx.oSender, $"Le bonus roleplay de {NWScript.GetName(ctx.oTarget)} est de { ObjectPlugin.GetInt(ctx.oTarget, "_BRP")}");
-                NWScript.SendMessageToPC(ctx.oTarget, $"Votre bonus roleplay est désormais de { ObjectPlugin.GetInt(ctx.oTarget, "_BRP")}");
-              }                  
+                if (PlayerSystem.Players.TryGetValue(ctx.oTarget.LoginCreature, out PlayerSystem.Player player))
+                {
+                  player.bonusRolePlay = iBRP;
+                  ctx.oSender.SendServerMessage($"Le bonus roleplay de {ctx.oTarget.LoginCreature.Name.ColorString(ColorConstants.White)} est de {player.bonusRolePlay.ToString().ColorString(ColorConstants.White)}", ColorConstants.Pink);
+                  ctx.oTarget.SendServerMessage($"Votre bonus roleplay est désormais de {player.bonusRolePlay.ToString().ColorString(ColorConstants.White)}", ColorConstants.Pink);
+
+                  var updateQuery = NWScript.SqlPrepareQueryCampaign(Config.database, $"UPDATE PlayerAccounts SET bonusRolePlay = @bonusRolePlay where rowid = @rowid");
+                  NWScript.SqlBindInt(updateQuery, "@bonusRolePlay", player.bonusRolePlay);
+                  NWScript.SqlBindInt(updateQuery, "@rowid", player.accountId);
+                  NWScript.SqlStep(updateQuery);
+
+                  ObjectPlugin.SetInt(ctx.oTarget.LoginCreature, "_BRP", iBRP, 1);
+                }
+              }
               else
-                NWScript.SendMessageToPC(ctx.oSender, $"Le bonus roleplay doit être compris entre 0 et 4");
+                ctx.oSender.SendServerMessage("Le bonus roleplay doit être compris entre 0 et 4", ColorConstants.Orange);
             }
             else
-              NWScript.SendMessageToPC(ctx.oSender, $"Cette valeur n'est pas acceptée. Le bonus roleplay doit être compris entre 0 et 4");
+              if (PlayerSystem.Players.TryGetValue(ctx.oTarget.LoginCreature, out PlayerSystem.Player player))
+                ctx.oSender.SendServerMessage($"Le bonus roleplay de {ctx.oTarget.LoginCreature.Name.ColorString(ColorConstants.White)} est de {player.bonusRolePlay.ToString().ColorString(ColorConstants.White)}", ColorConstants.Cyan);
           }
         }
       }
       else
-        NWScript.SendMessageToPC(ctx.oSender, $"Votre bonus roleplay est de { ObjectPlugin.GetInt(ctx.oSender, "_BRP")}");
+      {
+        if (PlayerSystem.Players.TryGetValue(ctx.oSender.LoginCreature, out PlayerSystem.Player player))
+          ctx.oSender.SendServerMessage($"Votre bonus roleplay est de {player.bonusRolePlay.ToString().ColorString(ColorConstants.White)}", ColorConstants.Cyan);
+      }
     }
   }
 }

@@ -1,4 +1,4 @@
-﻿using NWN.Core;
+﻿using System.Linq;
 
 namespace NWN.Systems
 {
@@ -6,26 +6,12 @@ namespace NWN.Systems
   {
     private static void ExecuteDispelCommand(ChatSystem.Context ctx, Options.Result options)
     {
-      if (NWScript.GetIsObjectValid(ctx.oTarget) == 1)
-      {
-        var eff = NWScript.GetFirstEffect(ctx.oTarget);
-        while (NWScript.GetIsEffectValid(eff) == 1)
-        {
-          if (NWScript.GetEffectCreator(eff) == ctx.oSender && NWScript.GetEffectTag(eff) == "")
-            NWScript.RemoveEffect(ctx.oTarget, eff);
-          eff = NWScript.GetNextEffect(ctx.oTarget);
-        }
-      }
+      if (ctx.oTarget != null)
+        foreach (API.Effect effect in ctx.oTarget.ControlledCreature.ActiveEffects.Where(e => e.Creator == ctx.oSender.ControlledCreature))
+          ctx.oTarget.ControlledCreature.RemoveEffect(effect);
       else
-      {
-        var eff = NWScript.GetFirstEffect(ctx.oSender);
-        while (NWScript.GetIsEffectValid(eff) == 1)
-        {
-          if (NWScript.GetEffectCreator(eff) == ctx.oSender && NWScript.GetEffectTag(eff) == "")
-            NWScript.RemoveEffect(ctx.oSender, eff);
-          eff = NWScript.GetNextEffect(ctx.oSender);
-        }
-      }
+        foreach (API.Effect effect in ctx.oSender.ControlledCreature.ActiveEffects.Where(e => e.Creator == ctx.oSender.ControlledCreature))
+          ctx.oSender.ControlledCreature.RemoveEffect(effect);
     }
   }
 }

@@ -2,48 +2,21 @@
 
 namespace NWN.Systems
 {
-  public static partial class CommandSystem
-  {
-    private static Dictionary<string, Command> commandDic = new Dictionary<string, Command>
+    public static partial class CommandSystem
+    {
+        private static Dictionary<string, Command> commandDic = new Dictionary<string, Command>
     {
       {
         "help", new Command(
           name: "help",
           description: new Command.Description(
-            title: "Display the list of all available commands or a full description of the provided command.",
+            title: "Affiche la liste de toutes les commandes disponibles.",
             examples: new string[]
             {
-              "",
-              "help"
+              ""
             }
           ),
-          execute: ExecuteHelpCommand,
-          options: new Options(
-            positional: new List<Option>()
-            {
-              new Option(
-                name: "command",
-                description: "Nom de la commande.",
-                defaultValue: null
-              )
-            }
-          )
-        )
-      },
-      {
-        "frostattack",
-        new Command(
-          name: "frostattack",
-          description: new Command.Description(title: "todo"),
-          execute: ExecuteFrostAttackCommand
-        )
-      },
-      {
-        "walk",
-        new Command(
-          name: "walk",
-          description: new Command.Description(title: "Active/Désactive le mode marche."),
-          execute: ExecuteWalkCommand
+          execute: ExecuteHelpCommand
         )
       },
       {
@@ -87,43 +60,19 @@ namespace NWN.Systems
         )
       },
       {
-        "casque",
+        "kick",
         new Command(
-          name: "casque",
-          description: new Command.Description(title: "Active/Désactive l'affichage de votre casque"),
-          execute: ExecuteDisplayHelmCommand
+          name: "kick",
+          description: new Command.Description(title: "Permet de kick un joueur hors du serveur."),
+          execute: ExecuteKickCommand
         )
       },
       {
-        "cape",
+        "tp",
         new Command(
-          name: "cape",
-          description: new Command.Description(title: "Active/Désactive l'affichage de votre cape"),
-          execute: ExecuteDisplayCloakCommand
-        )
-      },
-      {
-        "touch",
-        new Command(
-          name: "touch",
-          description: new Command.Description(title: "Active/Désactive le mode toucher (évite les collisions entre personnages)"),
-          execute: ExecuteTouchCommand
-        )
-      },
-      {
-        "reboot",
-        new Command(
-          name: "reboot",
-          description: new Command.Description(title: "Permet de redémarrer le module (bas les pattes, vils joueurs) !)"),
-          execute: ExecuteRebootCommand
-        )
-      },
-      {
-        "persist",
-        new Command(
-          name: "persist",
-          description: new Command.Description(title: "Active/Désactive le système de persistance des placeables créés par DM"),
-          execute: ExecutePlaceablePersistanceCommand
+          name: "t^p",
+          description: new Command.Description(title: "Commande de téléportation DM."),
+          execute: ExecuteDMTeleportationCommand
         )
       },
       {
@@ -135,27 +84,11 @@ namespace NWN.Systems
         )
       },
       {
-        "publickey",
-        new Command(
-          name: "publickey",
-          description: new Command.Description(title: "Affiche votre clef publique, utilisable sur les API du module."),
-          execute: ExecuteGetPublicKeyCommand
-        )
-      },
-      {
         "mute",
         new Command(
           name: "mute",
           description: new Command.Description(title: "Active/Désactive la réception des MP. Peut-être utilisé comme commande ciblée."),
           execute: ExecuteMutePMCommand
-        )
-      },
-      {
-        "listen",
-        new Command(
-          name: "listen",
-          description: new Command.Description(title: "Commande DM : Active/Désactive le suivi de conversation."),
-          execute: ExecuteListenCommand
         )
       },
       {
@@ -177,48 +110,6 @@ namespace NWN.Systems
         )
       },
       {
-        "commend",
-        new Command(
-          name: "commend",
-          description: new Command.Description(title: "Permet de recommander un joueur pour une augmentation de BRP. Disponible uniquement pour les joueurs de BRP 4."),
-          execute: ExecuteCommendCommand
-        )
-      },
-      {
-        "jobs",
-        new Command(
-          name: "jobs",
-          description: new Command.Description(title: "Permet d'afficher la liste et l'état des jobs en cours."),
-          execute: ExecuteJobsCommand
-        )
-      },
-      {
-        "renamecreature",
-        new Command(
-          name: "renamecreature",
-          description: new Command.Description(title: "Permet de modifier le nom de la créature ciblée, à condition qu'il s'agisse d'une de vos invocations."),
-          execute: ExecuteRenameCreatureCommand,
-          options: new Options(
-            positional: new List<Option>()
-            {
-              new Option(
-                name: "Nom",
-                description: "Le nouveau nom de la créature.",
-                defaultValue: ""
-              )
-            }
-          )
-        )
-      },
-      {
-        "mine",
-        new Command(
-          name: "mine",
-          description: new Command.Description(title: "Débute l'extraction de minerai sur la cible."),
-          execute: ExecuteStartMiningCommand
-        )
-      },
-      {
         "test",
         new Command(
           name: "test",
@@ -234,6 +125,32 @@ namespace NWN.Systems
               )
             }
           )
+        )
+      },
+      {
+        "vfx",
+        new Command(
+          name: "vfx",
+          description: new Command.Description(title: "Permet d'essayer les effets visuels."),
+          execute: ExecuteVFXCommand,
+          options: new Options(
+            positional: new List<Option>()
+            {
+              new Option(
+                name: "vfx",
+                description: "Id du vfx à tester.",
+                defaultValue: 0
+              )
+            }
+          )
+        )
+      },
+      {
+        "suivre",
+        new Command(
+          name: "suivre",
+          description: new Command.Description(title: "Suit automatiquement le personnage ciblé."),
+          execute: ExecuteFollowCommand
         )
       },
       {
@@ -264,28 +181,35 @@ namespace NWN.Systems
         )
       },
       {
+        "dm",
+        new Command(
+          name: "dm",
+          description: new Command.Description(
+            title: "Affiche le menu dm."
+          ),
+          execute: ExecuteDMMenuCommand
+        )
+      },
+      {
         "skills",
         new Command(
           name: "skills",
           description: new Command.Description(
             title: "Affiche le menu permettant de sélectionner de nouveaux skills à entrainer."
           ),
-          execute: ExecuteSkillMenuCommand,
-          options: new Options(
-            named: new Dictionary<string, Option>()
-            {
-              { "config",
-                new Option(
-                  name: "config",
-                  description: "Affiche la configuration du menu de skills.",
-                  defaultValue: false,
-                  type: OptionTypes.Bool
-                )
-              },
-            }
-          )
+          execute: ExecuteSkillMenuCommand
         )
-      }
+      },
+      {
+        "stocks",
+        new Command(
+          name: "stocks",
+          description: new Command.Description(
+            title: "Affiche votre stock personnel de matières premières"
+          ),
+          execute: ExecuteStocksMenuCommand
+        )
+      },
     };
-  }
+    }
 }

@@ -1,35 +1,53 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using NWN.API;
+using NWN.API.Constants;
+using NWN.API.Events;
 using NWN.Core;
-using NWN.Core.NWNX;
 
 namespace NWN.Systems
 {
-  public static partial class CommandSystem
+  class CommendCommand
   {
-    private static void ExecuteCommendCommand(ChatSystem.Context ctx, Options.Result options)
+    PlayerSystem.Player player;
+    public CommendCommand(PlayerSystem.Player player)
     {
-      if (ObjectPlugin.GetInt(ctx.oSender, "_BRP") == 4)
+      this.player = player;
+
+      player.menu.Clear();
+      player.menu.titleLines.Add("Veuillez sélectionner le joueur que vous souhaitez recommander.");
+      player.menu.choices.Add(("Retour.", () => CommandSystem.DrawCommandList(player)));
+      player.menu.choices.Add(("Quitter.", () => player.menu.Close()));
+
+      PlayerSystem.cursorTargetService.EnterTargetMode(player.oid, OnTargetSelected, ObjectTypes.Creature, MouseCursor.Magic);
+
+      player.menu.Draw();
+    }
+    private void OnTargetSelected(ModuleEvents.OnPlayerTarget selection)
+    {
+      NwPlayer oPC = ((NwCreature)selection.TargetObject).ControllingPlayer;
+
+      if (oPC == null || !PlayerSystem.Players.TryGetValue(oPC.LoginCreature, out PlayerSystem.Player commendTarget))
+        return;
+
+      if(commendTarget.bonusRolePlay < 4)
       {
-        if (NWScript.GetIsObjectValid(ctx.oTarget) == 1)
+        commendTarget.oid.SendServerMessage("Un joueur vient de vous recommander pour une augmentation de bonus roleplay !", ColorConstants.Rose);
+        
+        if(commendTarget.bonusRolePlay == 1)
         {
-          int iBRP = ObjectPlugin.GetInt(ctx.oTarget, "_BRP");
-          if (iBRP < 4)
-          {
-            NWScript.SendMessageToPC(ctx.oTarget, $"Un joueur vient de vous recommander pour une augmentation de bonus roleplay !");
+          commendTarget.bonusRolePlay = 2;
+          commendTarget.oid.SendServerMessage("Votre bonus roleplay est désormais de 2", new Color(32, 255, 32));
 
-            if (iBRP == 1)
-            {
-              ObjectPlugin.SetInt(ctx.oTarget, "_BRP", 2, 1);
-              NWScript.SendMessageToPC(ctx.oTarget, "Votre bonus roleplay est désormais de 2");
-            }
-            
-            Utils.LogMessageToDMs($"{NWScript.GetName(ctx.oSender)} vient de recommander {NWScript.GetName(ctx.oTarget)} pour une augmentation de bonus roleplay.");
-          }
-
-          NWScript.SendMessageToPC(ctx.oSender, $"Vous venez de recommander {NWScript.GetName(ctx.oTarget)} pour une augmentation de bonus roleplay !");
+          var updateQuery = NWScript.SqlPrepareQueryCampaign(Config.database, $"UPDATE PlayerAccounts SET bonusRolePlay = @bonusRolePlay where rowid = @rowid");
+          NWScript.SqlBindInt(updateQuery, "@bonusRolePlay", commendTarget.bonusRolePlay);
+          NWScript.SqlBindInt(updateQuery, "@rowid", commendTarget.accountId);
+          NWScript.SqlStep(updateQuery);
         }
+
+        Utils.LogMessageToDMs($"{selection.Player.LoginCreature.Name} vient de recommander {oPC.LoginCreature.Name} pour une augmentation de bonus roleplay.");
       }
+
+      commendTarget.oid.SendServerMessage($"Vous venez de recommander {oPC.LoginCreature.Name.ColorString(ColorConstants.White)} pour une augmentation de bonus roleplay !", ColorConstants.Rose);
+      CommandSystem.DrawCommandList(player);
     }
   }
 }

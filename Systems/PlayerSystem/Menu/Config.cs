@@ -1,6 +1,6 @@
 ﻿namespace NWN.Systems
 {
-  public static partial class PlayerSystem
+  public partial class PlayerSystem
   {
     public abstract partial class Menu
     {
@@ -8,7 +8,7 @@
       {
         public static class Font
         {
-          public const string Text = "fnt_es_text";
+          public const string Text = "fnt_galahad14";
           public const string Gui = "fnt_es_gui";
         }
 

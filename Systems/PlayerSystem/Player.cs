@@ -1,412 +1,645 @@
 ﻿using System;
-using System.Numerics;
 using System.Collections.Generic;
 using NWN.Core;
 using NWN.Core.NWNX;
+using static NWN.Systems.SkillSystem;
+using NWN.Systems.Craft;
+using NWN.API;
+using System.Threading.Tasks;
+using Skill = NWN.Systems.SkillSystem.Skill;
+using NWN.API.Constants;
+using System.Threading;
+using System.Linq;
 
 namespace NWN.Systems
 {
-  public static partial class PlayerSystem
+  public partial class PlayerSystem
   {
     public class Player
-    { 
-      public readonly uint oid;
+    {
+      public NwPlayer oid { get; set; }
+      public DateTime mapLoadingTime { get; set; }
       public readonly int accountId;
       public readonly int characterId;
+      public API.Location location { get; set; }
       public int bonusRolePlay { get; set; }
-      public Location location { get; set; }
-      public Boolean isConnected { get; set; }
       public Boolean isAFK { get; set; }
+      public Boolean DoJournalUpdate { get; set; }
       public int currentHP { get; set; }
+      public int bankGold { get; set; }
+      public PlayerJournal playerJournal { get; set; }
       public DateTime dateLastSaved { get; set; }
       public int currentSkillJob { get; set; }
-      public float currentSkillJobRemainingTime { get; set; }
-      public string currentCraftJob { get; set; }
-      public float currentCraftJobRemainingTime { get; set; }
-      public string currentCraftJobMaterial { get; set; }
-      public uint autoAttackTarget { get; set; }
+      public SkillType currentSkillType { get; set; }
+      public Job craftJob { get; set; }
       public Boolean isFrostAttackOn { get; set; }
-      public DateTime lycanCurseTimer { get; set; }
-      public Feat activeLanguage { get; set; }
+      public API.Location previousLocation { get; set; }
+      public TargetEvent targetEvent { get; set; }
       public Menu menu { get; }
+      public NwCreature deathCorpse { get; set; }
+      public QuickbarType loadedQuickBar { get; set; }
+      public string serializedQuickbar { get; set; }
+      public Arena.PlayerData pveArena { get; set; }
 
-      private uint blockingBoulder;
-      public string disguiseName { get; set; }
-      public uint deathCorpse { get; set; }
-      public uint deathCorpseItem { get; set; }
-
-      private List<uint> _selectedObjectsList = new List<uint>();
-      public List<uint> selectedObjectsList
-      {
-        get => _selectedObjectsList;
-        // set => _selectedObjectsList.Add(value);
-      }
-
-      public Dictionary<uint, Player> listened = new Dictionary<uint, Player>();
+      public List<NwPlayer> listened = new List<NwPlayer>();
       public Dictionary<uint, Player> blocked = new Dictionary<uint, Player>();
-      public Dictionary<uint, DateTime> disguiseDetectTimer = new Dictionary<uint, DateTime>();
-      public Dictionary<uint, DateTime> pickpocketDetectTimer = new Dictionary<uint, DateTime>();
-      public Dictionary<uint, DateTime> inviDetectTimer = new Dictionary<uint, DateTime>();
-      public Dictionary<uint, DateTime> inviEffectDetectTimer = new Dictionary<uint, DateTime>();
-      public Dictionary<uint, uint> summons = new Dictionary<uint, uint>();
-      public Dictionary<int, SkillSystem.Skill> learnableSkills = new Dictionary<int, SkillSystem.Skill>();
-      public Dictionary<int, SkillSystem.Skill> removeableMalus = new Dictionary<int, SkillSystem.Skill>();
-      public List<Effect> effectList = new List<Effect>();
+      public Dictionary<Feat, int> learntCustomFeats = new Dictionary<Feat, int>();
+      public Dictionary<Feat, Skill> learnableSkills = new Dictionary<Feat, Skill>();
+      public Dictionary<int, LearnableSpell> learnableSpells = new Dictionary<int, LearnableSpell>();
+      public Dictionary<Feat, Skill> removeableMalus = new Dictionary<Feat, Skill>();
+      public Dictionary<string, int> materialStock = new Dictionary<string, int>();
+      public List<API.Effect> effectList = new List<API.Effect>();
+      public Dictionary<int, MapPin> mapPinDictionnary = new Dictionary<int, MapPin>();
+      public Dictionary<string, string> areaExplorationStateDictionnary = new Dictionary<string, string>();
+      public Dictionary<int, Color> chatColors = new Dictionary<int, Color>();
 
-      public Action OnMiningCycleCancelled = delegate { };
-      public Action OnMiningCycleCompleted = delegate { };
-
-      public Player(uint nwobj)
+      public Player(NwPlayer nwobj)
       {
         this.oid = nwobj;
         this.menu = new PrivateMenu(this);
-        
-        if(ObjectPlugin.GetInt(this.oid, "accountId") == 0)
+        this.pveArena = new Arena.PlayerData();
+
+        if (ObjectPlugin.GetInt(this.oid.LoginCreature, "accountId") == 0 && !oid.IsDM)
           InitializeNewPlayer(this.oid);
 
-        if (ObjectPlugin.GetInt(this.oid, "characterId") == 0)
+        this.accountId = ObjectPlugin.GetInt(this.oid.LoginCreature, "accountId");
+
+        if (ObjectPlugin.GetInt(this.oid.LoginCreature, "characterId") == 0 && !oid.IsDM)
           InitializeNewCharacter(this);
 
-        this.characterId = ObjectPlugin.GetInt(this.oid, "characterId");
+        this.characterId = ObjectPlugin.GetInt(this.oid.LoginCreature, "characterId");
 
-        this.accountId = ObjectPlugin.GetInt(this.oid, "accountId");
-
-        /*if (NWScript.GetIsDM(this.oid) != 1) // TODO : créer les tables
+        if (!Convert.ToBoolean(NWScript.GetIsDM(this.oid.LoginCreature)))
           InitializePlayer(this);
         else
-          InitializeDM(this);*/
+          InitializeDM(this);
+
+        Log.Info($"Player first initialization : DONE");
       }
 
-      public void EmitKeydown(KeydownEventArgs e)
+      public void EmitKeydown(MenuFeatEventArgs e)
       {
         OnKeydown(this, e);
       }
 
-      public event EventHandler<KeydownEventArgs> OnKeydown = delegate { };
+      public event EventHandler<MenuFeatEventArgs> OnKeydown = delegate { };
 
-      public class KeydownEventArgs : EventArgs
+      public class MenuFeatEventArgs : EventArgs
       {
-        public string key { get; }
+        public Feat feat { get; }
 
-        public KeydownEventArgs(string key)
+        public MenuFeatEventArgs(Feat feat)
         {
-          this.key = key;
+          this.feat = feat;
         }
       }
-      public void DoActionOnTargetSelected(uint oPC, Vector3 vTarget)
+      public void LoadMenuQuickbar(QuickbarType type)
       {
-        this.OnSelectTarget(oPC, vTarget);
-      }
-      private Action<uint, Vector3> OnSelectTarget = delegate { };
-      public void SelectTarget(Action<uint, Vector3> callback)
-      {
-        this.OnSelectTarget = callback;
-
-        NWScript.EnterTargetingMode(this.oid, NWScript.OBJECT_TYPE_CREATURE);
-      }
-      public void OnFrostAutoAttackTimedEvent() // conservé pour mémoire, à retravailler
-      {
-        if (NWScript.GetIsObjectValid(this.autoAttackTarget) == 1)
+        if (this.loadedQuickBar == QuickbarType.Invalid)
         {
-          NWScript.AssignCommand(this.oid, () => NWScript.ActionCastSpellAtObject(NWScript.SPELL_RAY_OF_FROST, this.autoAttackTarget));
-          NWScript.DelayCommand(6.0f, () => this.OnFrostAutoAttackTimedEvent());
+          PlayerQuickBarButton emptyQBS = new PlayerQuickBarButton();
+
+          switch (type)
+          {
+            case QuickbarType.Menu:
+
+              this.serializedQuickbar = oid.ControlledCreature.SerializeQuickbar().ToBase64EncodedString();
+              emptyQBS.ObjectType = QuickBarButtonType.Empty;
+
+              /*for (byte i = 0; i < 12; i++)
+              {
+                oid.ControlledCreature.SetQuickBarButton(i, emptyQBS);
+              }*/
+
+              if (menu.choices.Count > 0)
+              {
+                oid.ControlledCreature.AddFeat(CustomFeats.CustomMenuDOWN);
+                oid.ControlledCreature.AddFeat(CustomFeats.CustomMenuUP);
+                oid.ControlledCreature.AddFeat(CustomFeats.CustomMenuSELECT);
+
+                emptyQBS.ObjectType = QuickBarButtonType.Feat;
+
+                if (ObjectPlugin.GetInt(this.oid.LoginCreature, "_MENU_HOTKEYS_SWAPPED") == 0)
+                {
+                  emptyQBS.Param1 = (int)CustomFeats.CustomMenuDOWN;
+                  oid.ControlledCreature.SetQuickBarButton(0, emptyQBS);
+                  emptyQBS.Param1 = (int)CustomFeats.CustomMenuUP;
+                  oid.ControlledCreature.SetQuickBarButton(1, emptyQBS);
+                }
+                else
+                {
+                  emptyQBS.Param1 = (int)CustomFeats.CustomMenuDOWN;
+                  oid.ControlledCreature.SetQuickBarButton(1, emptyQBS);
+                  emptyQBS.Param1 = (int)CustomFeats.CustomMenuUP;
+                  oid.ControlledCreature.SetQuickBarButton(0, emptyQBS);
+                }
+
+                emptyQBS.Param1 = (int)CustomFeats.CustomMenuSELECT;
+                oid.ControlledCreature.SetQuickBarButton(2, emptyQBS);
+              }
+
+              oid.ControlledCreature.AddFeat(CustomFeats.CustomMenuEXIT);
+
+              emptyQBS.Param1 = (int)CustomFeats.CustomMenuEXIT;
+              oid.ControlledCreature.SetQuickBarButton(3, emptyQBS);
+
+              this.loadedQuickBar = QuickbarType.Menu;
+              break;
+            case QuickbarType.Sit:
+              oid.ControlledCreature.AddFeat(CustomFeats.CustomMenuDOWN);
+              oid.ControlledCreature.AddFeat(CustomFeats.CustomMenuUP);
+              oid.ControlledCreature.AddFeat(CustomFeats.CustomPositionRight);
+              oid.ControlledCreature.AddFeat(CustomFeats.CustomPositionLeft);
+              oid.ControlledCreature.AddFeat(CustomFeats.CustomPositionForward);
+              oid.ControlledCreature.AddFeat(CustomFeats.CustomPositionBackward);
+              oid.ControlledCreature.AddFeat(CustomFeats.CustomPositionRotateRight);
+              oid.ControlledCreature.AddFeat(CustomFeats.CustomPositionRotateLeft);
+              oid.ControlledCreature.AddFeat(CustomFeats.CustomMenuEXIT);
+
+              this.serializedQuickbar = oid.ControlledCreature.SerializeQuickbar().ToBase64EncodedString();
+
+              for (int i = 0; i < 12; i++)
+                oid.ControlledCreature.SetQuickBarButton((byte)i, emptyQBS);
+
+              emptyQBS.ObjectType = QuickBarButtonType.Feat;
+              emptyQBS.Param1 = (int)CustomFeats.CustomMenuDOWN;
+              oid.ControlledCreature.SetQuickBarButton(0, emptyQBS);
+              emptyQBS.Param1 = (int)CustomFeats.CustomMenuUP;
+              oid.ControlledCreature.SetQuickBarButton(1, emptyQBS);
+              emptyQBS.Param1 = (int)CustomFeats.CustomPositionLeft;
+              oid.ControlledCreature.SetQuickBarButton(2, emptyQBS);
+              emptyQBS.Param1 = (int)CustomFeats.CustomPositionRight;
+              oid.ControlledCreature.SetQuickBarButton(3, emptyQBS);
+              emptyQBS.Param1 = (int)CustomFeats.CustomPositionForward;
+              oid.ControlledCreature.SetQuickBarButton(4, emptyQBS);
+              emptyQBS.Param1 = (int)CustomFeats.CustomPositionBackward;
+              oid.ControlledCreature.SetQuickBarButton(5, emptyQBS);
+              emptyQBS.Param1 = (int)CustomFeats.CustomPositionRotateLeft;
+              oid.ControlledCreature.SetQuickBarButton(6, emptyQBS);
+              emptyQBS.Param1 = (int)CustomFeats.CustomPositionRotateRight;
+              oid.ControlledCreature.SetQuickBarButton(7, emptyQBS);
+              emptyQBS.Param1 = (int)CustomFeats.CustomMenuEXIT;
+              oid.ControlledCreature.SetQuickBarButton(8, emptyQBS);
+
+              this.loadedQuickBar = QuickbarType.Sit;
+              this.OnKeydown += this.menu.HandleMenuFeatUsed;
+              break;
+          }
         }
       }
-      public void RemoveLycanCurse()
+      public void UnloadMenuQuickbar()
       {
-        NWScript.ApplyEffectToObject(NWScript.DURATION_TYPE_INSTANT, NWScript.EffectVisualEffect(NWScript.VFX_IMP_SUPER_HEROISM), this.oid);
-        RenamePlugin.ClearPCNameOverride(this.oid, NWScript.OBJECT_INVALID, 1);
-        CreaturePlugin.SetMovementRate(this.oid, CreaturePlugin.NWNX_CREATURE_MOVEMENT_RATE_PC);
+        oid.ControlledCreature.RemoveFeat(CustomFeats.CustomMenuUP);
+        oid.ControlledCreature.RemoveFeat(CustomFeats.CustomMenuDOWN);
+        oid.ControlledCreature.RemoveFeat(CustomFeats.CustomMenuSELECT);
+        oid.ControlledCreature.RemoveFeat(CustomFeats.CustomMenuEXIT);
+        oid.ControlledCreature.RemoveFeat(CustomFeats.CustomPositionLeft);
+        oid.ControlledCreature.RemoveFeat(CustomFeats.CustomPositionRight);
+        oid.ControlledCreature.RemoveFeat(CustomFeats.CustomPositionForward);
+        oid.ControlledCreature.RemoveFeat(CustomFeats.CustomPositionBackward);
+        oid.ControlledCreature.RemoveFeat(CustomFeats.CustomPositionRotateLeft);
+        oid.ControlledCreature.RemoveFeat(CustomFeats.CustomPositionRotateRight);
 
-        EventsPlugin.RemoveObjectFromDispatchList("NWNX_ON_EFFECT_REMOVED_AFTER", "event_effects", this.oid);
-      }
-      public void ApplyLycanCurse()
-      {
-        Effect ePoly = NWScript.EffectPolymorph(107, 1);
-        Effect eLink = NWScript.SupernaturalEffect(ePoly);
-        eLink = NWScript.TagEffect(eLink, "lycan_curse");
-
-        NWScript.ApplyEffectToObject(NWScript.DURATION_TYPE_TEMPORARY, eLink, this.oid, 900.0f);
-        NWScript.ApplyEffectToObject(NWScript.DURATION_TYPE_INSTANT, NWScript.EffectVisualEffect(NWScript.VFX_IMP_SUPER_HEROISM), this.oid);
-        
-        RenamePlugin.SetPCNameOverride(this.oid, "Loup-garou", "", "", RenamePlugin.NWNX_RENAME_PLAYERNAME_OVERRIDE);
-        CreaturePlugin.SetMovementRate(this.oid, CreaturePlugin.NWNX_CREATURE_MOVEMENT_RATE_FAST);
-
-        EventsPlugin.AddObjectToDispatchList("NWNX_ON_EFFECT_REMOVED_AFTER", "event_effects", this.oid);
-      }
-
-      public void BoulderBlock()
-      {
-        BoulderUnblock();
-        var location = NWScript.GetLocation(oid);
-        blockingBoulder = NWScript.CreateObject(NWScript.OBJECT_TYPE_PLACEABLE, "plc_boulder", location);
-        ObjectPlugin.SetPosition(oid, NWScript.GetPositionFromLocation(location));
-        NWScript.ApplyEffectToObject(
-          NWScript.DURATION_TYPE_PERMANENT,
-          NWScript.EffectVisualEffect(NWScript.VFX_DUR_CUTSCENE_INVISIBILITY),
-          blockingBoulder
-        );
-      }
-
-      public void BoulderUnblock()
-      {
-        NWScript.DestroyObject(blockingBoulder);
+        bool returned = oid.ControlledCreature.DeserializeQuickbar(this.serializedQuickbar.ToByteArray());
+        loadedQuickBar = QuickbarType.Invalid;
       }
       public void CraftJobProgression()
       {
-        float RemainingTime = this.currentCraftJobRemainingTime - (float)(DateTime.Now - this.dateLastSaved).TotalSeconds;
+        if (craftJob.IsActive())
+        {
+          craftJob.remainingTime = craftJob.remainingTime - (float)(DateTime.Now - dateLastSaved).TotalSeconds;
 
-        if (RemainingTime < 0)
-        {
-          this.AcquireCraftedItem();
-        }
-        else if (RemainingTime < 600)
-        {
-          NWScript.AssignCommand(oid, () => NWScript.DelayCommand((float)RemainingTime, () => AcquireCraftedItem()));
+          if (craftJob.remainingTime < 0)
+          {
+            Log.Info($"craft job done. Acquiring item - Type : {craftJob.type} - BaseItem : {craftJob.baseItemType}");
+            AcquireCraftedItem();
+          }
         }
       }
 
-      public void AcquireCraftedItem()
+      public async void AcquireCraftedItem()
       {
-        CollectSystem.Blueprint blueprint;
-        CollectSystem.BlueprintType blueprintType = CollectSystem.GetBlueprintTypeFromName(this.currentCraftJob);
-
-        if (blueprintType == CollectSystem.BlueprintType.Invalid)
+        switch (craftJob.type)
         {
-          Utils.LogMessageToDMs($"AcquireCraftedItem : {NWScript.GetName(this.oid)} - Blueprint invalid - {this.currentCraftJob}");
-          return;
+          case Job.JobType.BlueprintCopy:
+            uint bpCopy = NWScript.CopyItem(ObjectPlugin.Deserialize((this.craftJob.craftedItem)), this.oid.LoginCreature, 1);
+            NWScript.SetLocalInt(bpCopy, "_BLUEPRINT_RUNS", 10);
+            NWScript.SetName(bpCopy, $"Copie de {NWScript.GetName(bpCopy)}");
+            break;
+          case Job.JobType.BlueprintResearchMaterialEfficiency:
+            uint improvedMEBP = NWScript.CopyItem(ObjectPlugin.Deserialize((this.craftJob.craftedItem)), this.oid.LoginCreature, 1);
+            NWScript.SetLocalInt(improvedMEBP, "_BLUEPRINT_MATERIAL_EFFICIENCY", NWScript.GetLocalInt(improvedMEBP, "_BLUEPRINT_MATERIAL_EFFICIENCY") + 1);
+            break;
+          case Job.JobType.BlueprintResearchTimeEfficiency:
+            ((NwItem)NwItem.Deserialize(craftJob.craftedItem.ToByteArray())).Clone(oid.LoginCreature).GetLocalVariable<int>("_BLUEPRINT_TIME_EFFICIENCY").Value += 1;
+            break;
+          case Job.JobType.Enchantement:
+            NwItem enchantedItem = NwItem.Deserialize(craftJob.craftedItem.ToByteArray());
+            oid.LoginCreature.AcquireItem(enchantedItem);
+
+            int enchanteurChanceuxLevel = 0;
+            if (learntCustomFeats.ContainsKey(CustomFeats.EnchanteurChanceux))
+              enchanteurChanceuxLevel += GetCustomFeatLevelFromSkillPoints(CustomFeats.EnchanteurChanceux, learntCustomFeats[CustomFeats.EnchanteurChanceux]);
+
+            if (NwRandom.Roll(Utils.random, 100) > enchanteurChanceuxLevel)
+            {
+              enchantedItem.GetLocalVariable<int>("_AVAILABLE_ENCHANTEMENT_SLOT").Value -= 1;
+              if (enchantedItem.GetLocalVariable<int>("_AVAILABLE_ENCHANTEMENT_SLOT").Value <= 0)
+                enchantedItem.GetLocalVariable<int>("_AVAILABLE_ENCHANTEMENT_SLOT").Delete();
+            }
+
+            int enchanteurExpertLevel = 0;
+            if (learntCustomFeats.ContainsKey(CustomFeats.EnchanteurExpert))
+              enchanteurExpertLevel += GetCustomFeatLevelFromSkillPoints(CustomFeats.EnchanteurExpert, learntCustomFeats[CustomFeats.EnchanteurExpert]);
+
+            int boost = 0;
+            if (NwRandom.Roll(Utils.random, 100) <= enchanteurExpertLevel * 2)
+              boost = 1;
+
+            Craft.Collect.System.AddCraftedEnchantementProperties(enchantedItem, craftJob.material, boost, characterId);
+
+            break;
+          case Job.JobType.EnchantementReactivation:
+
+            NwItem reactivatedItem = NwItem.Deserialize(craftJob.craftedItem.ToByteArray());
+            oid.LoginCreature.AcquireItem(reactivatedItem);
+
+            API.ItemProperty reactivatedIP = reactivatedItem.ItemProperties.FirstOrDefault(ip => ip.Tag.StartsWith($"ENCHANTEMENT_{craftJob.material}") && ip.Tag.Contains("INACTIVE"));
+
+            Task waitLoopEnd = NwTask.Run(async () =>
+            {
+              API.ItemProperty deactivatedIP = reactivatedIP;
+              await NwTask.Delay(TimeSpan.FromSeconds(0.1f));
+              reactivatedItem.RemoveItemProperty(deactivatedIP);
+              await NwTask.Delay(TimeSpan.FromSeconds(0.1f));
+              deactivatedIP.Tag = reactivatedIP.Tag.Replace("_INACTIVE", "");
+              reactivatedItem.AddItemProperty(deactivatedIP, EffectDuration.Permanent);
+              await NwTask.Delay(TimeSpan.FromSeconds(0.1f));
+
+              if (!reactivatedItem.ItemProperties.Any(ip => ip.Tag.Contains("_INACTIVE")) && reactivatedItem.GetLocalVariable<int>("_REPAIR_DONE").HasValue)
+              {
+                reactivatedItem.GetLocalVariable<int>("_DURABILITY").Value = reactivatedItem.GetLocalVariable<int>("_MAX_DURABILITY").Value;
+                reactivatedItem.GetLocalVariable<int>("_REPAIR_DONE").Delete();
+                oid.SendServerMessage($"Réactivation de {reactivatedItem.Name.ColorString(ColorConstants.White)} terminée. L'objet est comme neuf !", new Color(32, 255, 32));
+              }
+            });
+
+            break;
+          case Job.JobType.Recycling:
+            NwItem recycledItem = NwItem.Deserialize(craftJob.craftedItem.ToByteArray());
+            int recycledValue = recycledItem.GetLocalVariable<int>("_BASE_COST").Value;
+
+            if (learntCustomFeats.ContainsKey(CustomFeats.Recycler))
+              recycledValue +=  recycledValue * 1 * GetCustomFeatLevelFromSkillPoints(CustomFeats.Recycler, learntCustomFeats[CustomFeats.Recycler]) / 100;
+
+            if (materialStock.ContainsKey(craftJob.material))
+              materialStock[craftJob.material] += recycledValue;
+            else
+              materialStock.Add(craftJob.material, recycledValue);
+
+            oid.SendServerMessage($"Recyclage de {recycledItem.Name.ColorString(ColorConstants.White)} terminé. Vous en retirez {recycledValue} unité(s) de {craftJob.material}", new Color(32, 255, 32)) ;
+            recycledItem.Destroy();
+
+            break;
+          case Job.JobType.Renforcement:
+            NwItem reinforcedItem = NwItem.Deserialize(craftJob.craftedItem.ToByteArray());
+            oid.LoginCreature.AcquireItem(reinforcedItem);
+
+            reinforcedItem.GetLocalVariable<int>("_DURABILITY").Value += reinforcedItem.GetLocalVariable<int>("_MAX_DURABILITY").Value * 5 / 100;
+            reinforcedItem.GetLocalVariable<int>("_REINFORCEMENT_LEVEL").Value += 1;
+
+            oid.SendServerMessage($"Renforcement de {reinforcedItem.Name.ColorString(ColorConstants.White)} terminé.", new Color(32, 255, 32));
+
+            break;
+          case Job.JobType.Repair:
+            NwItem repairedItem = NwItem.Deserialize(craftJob.craftedItem.ToByteArray());
+            oid.LoginCreature.AcquireItem(repairedItem);
+
+            if(!repairedItem.ItemProperties.Any(ip => ip.Tag.Contains("_INACTIVE")))
+            {
+              repairedItem.GetLocalVariable<int>("_DURABILITY").Value = repairedItem.GetLocalVariable<int>("_MAX_DURABILITY").Value;
+              oid.SendServerMessage($"Réparation de {repairedItem.Name.ColorString(ColorConstants.White)} terminée. L'objet est comme neuf !", new Color(32, 255, 32));
+            }
+            else
+            {
+              repairedItem.GetLocalVariable<int>("_REPAIR_DONE").Value = 1;
+              oid.SendServerMessage($"Réparation de {repairedItem.Name.ColorString(ColorConstants.White)} terminée. Reste cependant à réactiver les enchantements.", ColorConstants.Orange);
+            }
+            break;
+          default:
+            if (Craft.Collect.System.blueprintDictionnary.TryGetValue(craftJob.baseItemType, out Blueprint blueprint))
+            {
+              NwItem craftedItem;
+              if (craftJob.craftedItem != "")
+              {
+                craftedItem = NwItem.Deserialize(craftJob.craftedItem.ToByteArray());
+                oid.LoginCreature.AcquireItem(craftedItem);
+              }
+              else
+                craftedItem = await NwItem.Create(blueprint.craftedItemTag, oid.LoginCreature);
+
+              if (craftedItem == null)
+              {
+                oid.SendServerMessage($"Votre fabrication artisanale est terminée. Ouvrez votre journal pour obtenir le résultat de votre travail !");
+                return;
+              }
+
+              Craft.Collect.System.AddCraftedItemProperties(craftedItem, craftJob.material);
+              craftedItem.GetLocalVariable<string>("_ORIGINAL_CRAFTER_NAME").Value = oid.LoginCreature.Name;
+
+              int artisanExceptionnelLevel = 0;
+              if (learntCustomFeats.ContainsKey(CustomFeats.ArtisanExceptionnel))
+                artisanExceptionnelLevel += GetCustomFeatLevelFromSkillPoints(CustomFeats.ArtisanExceptionnel, learntCustomFeats[CustomFeats.ArtisanExceptionnel]);
+
+              if (NwRandom.Roll(Utils.random, 100) <= artisanExceptionnelLevel)
+              {
+                craftedItem.GetLocalVariable<int>("_AVAILABLE_ENCHANTEMENT_SLOT").Value += 1;
+                oid.SendServerMessage("Votre talent d'artisan vous a permis de créer un objet exceptionnel disposant d'un emplacement d'enchantement supplémentaire !", ColorConstants.Navy);
+              }
+
+              int artisanAppliqueLevel = 0;
+              if (learntCustomFeats.ContainsKey(CustomFeats.ArtisanApplique))
+                artisanAppliqueLevel += GetCustomFeatLevelFromSkillPoints(CustomFeats.ArtisanApplique, learntCustomFeats[CustomFeats.ArtisanApplique]);
+
+              if (NwRandom.Roll(Utils.random, 100) <= artisanAppliqueLevel * 3)
+              {
+                craftedItem.GetLocalVariable<int>("_MAX_DURABILITY").Value += craftedItem.GetLocalVariable<int>("_MAX_DURABILITY").Value * 20 / 100;
+                oid.SendServerMessage("En travaillant de manière particulièrement appliquée, vous parvenez à fabriquer un objet plus résistant !", ColorConstants.Navy);
+              }
+
+              craftedItem.GetLocalVariable<int>("_DURABILITY").Value = craftedItem.GetLocalVariable<int>("_MAX_DURABILITY").Value;
+              craftedItem.GetLocalVariable<int>("_REPAIR_DONE").Delete();
+
+              foreach (API.ItemProperty ip in craftedItem.ItemProperties.Where(ip => ip.Tag.Contains("INACTIVE")))
+              {
+                Task waitLoop = NwTask.Run(async () =>
+                {
+                  API.ItemProperty deactivatedIP = ip;
+                  await NwTask.Delay(TimeSpan.FromSeconds(0.1f));
+                  craftedItem.RemoveItemProperty(deactivatedIP);
+                  await NwTask.Delay(TimeSpan.FromSeconds(0.1f));
+                  deactivatedIP.Tag = deactivatedIP.Tag.Replace("_INACTIVE", "");
+                  craftedItem.AddItemProperty(deactivatedIP, EffectDuration.Permanent);
+                });
+              }
+            }
+            else
+            {
+              oid.SendServerMessage("[ERREUR HRP] Il semble que votre dernière création soit invalide. Le staff a été informé du problème.");
+              Utils.LogMessageToDMs($"AcquireCraftedItem : {oid.LoginCreature.Name} - Blueprint invalid - {craftJob.baseItemType} - For {oid.LoginCreature.Name}");
+            }
+            break;
         }
 
-        if (CollectSystem.blueprintDictionnary.ContainsKey(blueprintType))
-          blueprint = CollectSystem.blueprintDictionnary[blueprintType];
-        else
-          blueprint = new CollectSystem.Blueprint(blueprintType);
-        
-        NWScript.DelayCommand(10.0f, () => this.PlayCraftJobCompletedEffects(blueprint)); // Décalage de 10 secondes pour être sur que le joueur a fini de charger la map à la reco
+        PlayerPlugin.ApplyInstantVisualEffectToObject(oid.LoginCreature, oid.LoginCreature, NWScript.VFX_IMP_GLOBE_USE);
+
+        craftJob.CloseCraftJournalEntry();
+        craftJob = new Job(-10, "", 0, this);
       }
       public void AcquireSkillPoints()
       {
-        SkillSystem.Skill skill;
-        if (this.learnableSkills.TryGetValue(this.currentSkillJob, out skill))
+        switch (currentSkillType)
         {
-          skill.acquiredPoints += this.CalculateAcquiredSkillPoints(skill);
-          double RemainingTime = skill.GetTimeToNextLevel(this);
+          case SkillType.Skill:
+            if (this.learnableSkills.TryGetValue((Feat)currentSkillJob, out Skill skill))
+            {
+              int pooledPoints = ObjectPlugin.GetInt(oid.LoginCreature, "_STARTING_SKILL_POINTS");
+              if (pooledPoints > 0)
+              {
+                if (pooledPoints > skill.pointsToNextLevel)
+                {
+                  ObjectPlugin.SetInt(oid.LoginCreature, "_STARTING_SKILL_POINTS", pooledPoints - skill.pointsToNextLevel, 1);
+                  skill.acquiredPoints += skill.pointsToNextLevel;
+                }
+                else
+                {
+                  skill.acquiredPoints += pooledPoints;
+                  ObjectPlugin.DeleteInt(oid.LoginCreature, "_STARTING_SKILL_POINTS");
+                }
+              }
 
-          if (RemainingTime < 0)
-          {
-            this.LevelUpSkill(skill);
-          }
-          else if (RemainingTime < 600)
-          {
-            NWScript.AssignCommand(oid, () => NWScript.DelayCommand((float)RemainingTime, () => LevelUpSkill(skill)));
-          }
+              double skillPointRate = skill.CalculateSkillPointsPerSecond();
+              skill.acquiredPoints += skillPointRate * (DateTime.Now - this.dateLastSaved).TotalSeconds;
+              double RemainingTime = skill.GetTimeToNextLevel(skillPointRate);
+
+              if (RemainingTime <= 0)
+              {
+                skill.LevelUpSkill();
+              }
+            }
+            break;
+          case SkillType.Spell:
+            if (this.learnableSpells.TryGetValue(this.currentSkillJob, out LearnableSpell spell))
+            {
+              double skillPointRate = spell.CalculateSkillPointsPerSecond();
+              spell.acquiredPoints += skillPointRate * (DateTime.Now - this.dateLastSaved).TotalSeconds;
+              double RemainingTime = spell.GetTimeToNextLevel(skillPointRate);
+
+              if (RemainingTime <= 0)
+              {
+                spell.LevelUpSkill();
+              }
+            }
+            break;
         }
-        else
+
+        /*else
         {
           if (this.removeableMalus.TryGetValue(this.currentSkillJob, out skill))
           {
-            skill.acquiredPoints += this.CalculateAcquiredSkillPoints(skill);
-            double RemainingTime = skill.GetTimeToNextLevel(this);
+            float skillPointRate = this.CalculateSkillPointsPerSecond(skill);
+            skill.acquiredPoints += skillPointRate * (float)(DateTime.Now - this.dateLastSaved).TotalSeconds; ;
+            double RemainingTime = skill.GetTimeToNextLevel(skillPointRate);
 
             if (RemainingTime < 0)
             {
               this.RemoveMalus(skill);
             }
-            else if (RemainingTime < 600)
-            {
-              NWScript.AssignCommand(oid, () => NWScript.DelayCommand((float)RemainingTime, () => RemoveMalus(skill)));
-            }
           }
-        }
+        }*/
       }
-      public double RefreshAcquiredSkillPoints() // TODO : revoir la méthode d'affichage du temps restant pour le skill job (et craft job aussi)
+      public void RemoveMalus(Skill skill)
       {
-        SkillSystem.Skill skill;
-        if (this.learnableSkills.TryGetValue(this.currentSkillJob, out skill))
-        {
-          skill.acquiredPoints += this.CalculateAcquiredSkillPoints(skill);
+        oid.LoginCreature.RemoveFeat(skill.oid);
 
-          double RemainingTime = skill.GetTimeToNextLevel(this);
-          ObjectPlugin.SetFloat(oid, $"_JOB_SP_{skill.oid}", skill.acquiredPoints, 1);
-          ObjectPlugin.SetString(oid, "_DATE_LAST_SAVED", DateTime.Now.ToString(), 1);
+        if (RegisterRemoveCustomFeatEffect.TryGetValue(skill.oid, out Func<Player, Feat, int> handler))
+          handler.Invoke(this, skill.oid);
 
-          return RemainingTime;
-        }
-
-        return 0;
-      }
-
-      private float CalculateAcquiredSkillPoints(SkillSystem.Skill skill)
-      {
-        var ElapsedSeconds = (float)(DateTime.Now - this.dateLastSaved).TotalSeconds;
-        float SP = (float)(NWScript.GetAbilityScore(oid, skill.primaryAbility) + (NWScript.GetAbilityScore(oid, skill.secondaryAbility) / 2)) * ElapsedSeconds / 60;
-
-        switch (this.bonusRolePlay)
-        {
-          case 0:
-            SP = SP * 80 / 100;
-            break;
-          case 1:
-            SP = SP * 90 / 100;
-            break;
-          case 3:
-            SP = SP * 110 / 100;
-            break;
-          case 4:
-            SP = SP * 120 / 100;
-            break;
-        }
-
-        if (!this.isConnected)
-          SP = SP * 60 / 100;
-        else if (this.isAFK)
-          SP = SP * 80 / 100;
-
-        return SP;
-      }
-      public void LevelUpSkill(SkillSystem.Skill skill)
-      {
-        if (!Convert.ToBoolean(CreaturePlugin.GetKnowsFeat(oid, skill.oid)))
-        {
-          CreaturePlugin.AddFeat(oid, skill.oid);
-          NWScript.DelayCommand(10.0f, () => this.PlayNewSkillAcquiredEffects(skill)); // Décalage de 10 secondes pour être sur que le joueur a fini de charger la map à la reco
-        }
-        else
-        {
-          int value;
-          int skillCurrentLevel = CreaturePlugin.GetHighestLevelOfFeat(oid, skill.oid);
-          if (int.TryParse(NWScript.Get2DAString("feat", "SUCCESSOR", skillCurrentLevel), out value))
-          {
-            CreaturePlugin.AddFeat(oid, value);
-            CreaturePlugin.RemoveFeat(oid, value);
-          }
-          else
-          {
-            Utils.LogMessageToDMs($"SKILL LEVEL UP ERROR - Player : {NWScript.GetName(oid)}, Skill : {skill.name} ({skill.oid}), Current level : {skillCurrentLevel}");
-          }
-        }
-
-        Func<PlayerSystem.Player, int, int> handler;
-        if (SkillSystem.RegisterAddCustomFeatEffect.TryGetValue(skill.oid, out handler))
-        {
-          try
-          {
-            handler.Invoke(this, skill.oid);
-          }
-          catch (Exception e)
-          {
-            Utils.LogException(e);
-          }
-        }
-
-        skill.trained = true;
-
-        if (skill.successorId > 0)
-        {
-          this.learnableSkills.Add(skill.successorId, new SkillSystem.Skill(skill.successorId, 0));
-        }
-      }
-
-      public void RemoveMalus(SkillSystem.Skill skill)
-      {
-        CreaturePlugin.RemoveFeat(oid, skill.oid);
-
-        Func<PlayerSystem.Player, int, int> handler;
-        if (SkillSystem.RegisterRemoveCustomFeatEffect.TryGetValue(skill.oid, out handler))
-        {
-          try
-          {
-            handler.Invoke(this, skill.oid);
-          }
-          catch (Exception e)
-          {
-            Utils.LogException(e);
-          }
-        }
-
-        ObjectPlugin.DeleteInt(oid, "_CURRENT_JOB");
-        NWScript.DelayCommand(10.0f, () => this.PlayNewSkillAcquiredEffects(skill)); // Décalage de 10 secondes pour être sur que le joueur a fini de charger la map à la reco
+        ObjectPlugin.DeleteInt(oid.LoginCreature, "_CURRENT_JOB");
+        // NWScript.DelayCommand(10.0f, () => this.PlayNewSkillAcquiredEffects(skill)); // Décalage de 10 secondes pour être sur que le joueur a fini de charger la map à la reco
 
         this.removeableMalus.Remove(skill.oid);
       }
+      /*public void CancelCollectCycle()
+      {
+        OnCollectCycleCancel();
+      }*/
+      /*public void CompleteCollectCycle()
+      {
+        Log.Info("on cycle complete");
+        // AssignCommand permet de "patcher" un bug de comportement undéfinie
+        // qui apparait en appelant une callback depuis l'event de la GUI TIMING BAR
+        NWScript.AssignCommand(
+          NWScript.GetModule(),
+          () => OnCollectCycleComplete()
+        );
+      }*/
+      public void UpdateJournal()
+      {
+        JournalEntry journalEntry;
 
-      public void PlayNewSkillAcquiredEffects(SkillSystem.Skill skill)
-      {
-        NWScript.PostString(oid, $"Votre apprentissage {skill.name} est terminé !", 80, 10, NWScript.SCREEN_ANCHOR_TOP_LEFT, 5.0f, unchecked((int)0xC0C0C0FF), unchecked((int)0xC0C0C0FF), 9, "fnt_galahad14");
-        PlayerPlugin.PlaySound(oid, "gui_level_up");
-        PlayerPlugin.ApplyInstantVisualEffectToObject(oid, oid, NWScript.VFX_IMP_GLOBE_USE);
-      }
-
-      public void PlayCraftJobCompletedEffects(CollectSystem.Blueprint blueprint)
-      {
-        NWScript.PostString(oid, $"La création de votre {this.currentCraftJob} est terminée !", 80, 10, NWScript.SCREEN_ANCHOR_TOP_LEFT, 5.0f, unchecked((int)0xC0C0C0FF), unchecked((int)0xC0C0C0FF), 9, "fnt_galahad14");
-        // TODO : changer les sons et effets visuels
-        PlayerPlugin.PlaySound(oid, "gui_level_up");
-        PlayerPlugin.ApplyInstantVisualEffectToObject(oid, oid, NWScript.VFX_IMP_GLOBE_USE);
-
-        CollectSystem.AddCraftedItemProperties(NWScript.CreateItemOnObject(blueprint.craftedItemTag, oid), blueprint, this.currentCraftJobMaterial);
-
-        this.currentCraftJob = "";
-        this.currentCraftJobRemainingTime = 0;
-        this.currentCraftJobMaterial = "";
-      }
-
-      public void PlayNoCurrentTrainingEffects()
-      {
-        NWScript.PostString(oid, $"Vous n'avez aucun apprentissage en cours !", 80, 10, NWScript.SCREEN_ANCHOR_TOP_LEFT, 5.0f, unchecked((int)0xC0C0C0FF), unchecked((int)0xC0C0C0FF), 9, "fnt_galahad14");
-        NWScript.SendMessageToPC(oid, "Vous n'avez aucun apprentissage en cours !");
-        PlayerPlugin.PlaySound(oid, "gui_dm_drop");
-        PlayerPlugin.ApplyInstantVisualEffectToObject(oid, oid, NWScript.VFX_IMP_REDUCE_ABILITY_SCORE);
-      }
-      public void DoActionOnMiningCycleCancelled()
-      {
-        this.OnMiningCycleCancelled();
-      }
-      public void DoActionOnMiningCycleCompleted()
-      {
-        this.OnMiningCycleCompleted();
-      }
-      
-      public Effect GetPartySizeEffect(int iPartySize = 0)
-      {
-        var oPartyMember = NWScript.GetFirstFactionMember(oid, 1);
-        while (NWScript.GetIsObjectValid(oPartyMember) == 1)
+        if (oid.LoginCreature.Location.Area == null && DoJournalUpdate)
         {
-          iPartySize++;
-          oPartyMember = NWScript.GetNextFactionMember(oid, 1);
+          Task waitAreaLoaded = NwTask.Run(async () =>
+          {
+            await NwTask.WaitUntil(() => oid.LoginCreature.Location.Area != null);
+            await NwTask.Delay(TimeSpan.FromSeconds(1));
+            UpdateJournal();
+          });
+
+          return;
         }
 
-        Effect eParty = null;
-
-        switch (iPartySize) // déterminer quel est l'effet de groupe à appliquer
+        if (playerJournal.craftJobCountDown != null && oid.LoginCreature.Area.GetLocalVariable<int>("_AREA_LEVEL").Value == 0)
         {
-          case 1:
-            break;
-          case 2:
-            eParty = NWScript.TagEffect(NWScript.EffectACIncrease(1, NWScript.AC_DODGE_BONUS), "PartyEffect");
-            break;
-          case 3:
-            eParty = NWScript.EffectLinkEffects(NWScript.EffectACIncrease(1, NWScript.AC_DODGE_BONUS), NWScript.EffectAttackIncrease(1));
-            eParty = NWScript.TagEffect(eParty, "PartyEffect");
-            break;
-          case 4:
-          case 5:
-            eParty = NWScript.EffectLinkEffects(NWScript.EffectACIncrease(1, NWScript.AC_DODGE_BONUS), NWScript.EffectAttackIncrease(1));
-            eParty = NWScript.EffectLinkEffects(NWScript.EffectDamageIncrease(1, NWScript.DAMAGE_TYPE_BLUDGEONING), eParty);
-            eParty = NWScript.TagEffect(eParty, "PartyEffect");
-            break;
-          case 6:
-            eParty = NWScript.EffectLinkEffects(NWScript.EffectACIncrease(1, NWScript.AC_DODGE_BONUS), NWScript.EffectAttackIncrease(1));
-            eParty = NWScript.TagEffect(eParty, "PartyEffect");
-            break;
-          case 7:
-            eParty = NWScript.TagEffect(NWScript.EffectACIncrease(1, NWScript.AC_DODGE_BONUS), "PartyEffect");
-            break;
-          default:
-            break;
+          journalEntry = PlayerPlugin.GetJournalEntry(oid.LoginCreature, "craft_job");
+          if (journalEntry.nUpdated != -1)
+          {
+            journalEntry.sName = $"Travail artisanal - {Utils.StripTimeSpanMilliseconds((TimeSpan)(playerJournal.craftJobCountDown - DateTime.Now))}";
+            PlayerPlugin.AddCustomJournalEntry(oid.LoginCreature, journalEntry, 1);
+          }
+          this.CraftJobProgression();
         }
 
-        return eParty;
+        if (playerJournal.skillJobCountDown != null)
+        {
+          journalEntry = PlayerPlugin.GetJournalEntry(oid.LoginCreature, "skill_job");
+          if (journalEntry.nUpdated != -1)
+          {
+            journalEntry.sName = $"Entrainement - {Utils.StripTimeSpanMilliseconds((TimeSpan)(playerJournal.skillJobCountDown - DateTime.Now))}";
+            PlayerPlugin.AddCustomJournalEntry(oid.LoginCreature, journalEntry, 1);
+          }
+
+          switch (currentSkillType)
+          {
+            case SkillType.Skill:
+              Skill skill;
+              if (learnableSkills.TryGetValue((Feat)currentSkillJob, out skill))
+                skill.RefreshAcquiredSkillPoints();
+              break;
+            case SkillType.Spell:
+              LearnableSpell spell;
+              if (learnableSpells.TryGetValue(currentSkillJob, out spell))
+                spell.RefreshAcquiredSkillPoints();
+              break;
+          }
+        }
+
+        dateLastSaved = DateTime.Now;
+
+        if (DoJournalUpdate)
+          NWScript.DelayCommand(1.0f, () => UpdateJournal());
+      }
+      public async void rebootUpdate(int countDown)
+      {
+        await NwTask.Delay(TimeSpan.FromSeconds(1));
+
+        if (!this.oid.LoginCreature.IsValid)
+          return;
+
+        JournalEntry journalEntry = PlayerPlugin.GetJournalEntry(this.oid.LoginCreature, "reboot");
+        journalEntry.sName = $"REBOOT SERVEUR - {countDown}";
+        PlayerPlugin.AddCustomJournalEntry(this.oid.LoginCreature, journalEntry);
+        
+        if (countDown >= 0)
+          this.rebootUpdate(countDown - 1);
+      }
+      public string CheckDBPlayerAccount()
+      {
+        var query = NWScript.SqlPrepareQueryCampaign(Config.database, $"select accountName from PlayerAccounts  where rowId = @accountId");
+        NWScript.SqlBindInt(query, "@accountId", accountId);
+        NWScript.SqlStep(query);
+
+        return NWScript.SqlGetString(query, 0);
+      }
+      // Take gold from the PC or from his bank account
+      public void PayOrBorrowGold(int price)
+      {
+        int pocketGold = (int)oid.LoginCreature.Gold;
+
+        if (pocketGold >= price)
+        {
+          oid.LoginCreature.TakeGold(price);
+          return;
+        }
+
+        var borrowedGold = price - pocketGold;
+        bankGold -= borrowedGold;
+
+        oid.SendServerMessage($"Vous ne disposez pas de la somme requise. {price} pièces d'or ont donc été prélevées sur votre compte.");
+      }
+      public async Task<bool> WaitForPlayerInputInt()
+      {
+        this.oid.LoginCreature.GetLocalVariable<int>("_AWAITING_PLAYER_INPUT").Value = 1;
+
+        this.oid.OnPlayerChat -= ChatSystem.HandlePlayerInputInt;
+        this.oid.OnPlayerChat += ChatSystem.HandlePlayerInputInt;
+
+        CancellationTokenSource tokenSource = new CancellationTokenSource();
+        Task awaitPlayerInput = NwTask.WaitUntil(() => this.oid.LoginCreature.GetLocalVariable<string>("_PLAYER_INPUT").HasValue, tokenSource.Token);
+        Task awaitPlayerCancellation = NwTask.WaitUntil(() => this.oid.LoginCreature.GetLocalVariable<int>("_PLAYER_INPUT_CANCELLED").HasValue, tokenSource.Token);
+
+        await NwTask.WhenAny(awaitPlayerInput, awaitPlayerCancellation);
+        tokenSource.Cancel();
+
+        this.oid.LoginCreature.GetLocalVariable<int>("_PLAYER_INPUT_CANCELLED").Delete();
+
+        if (awaitPlayerCancellation.IsCompletedSuccessfully)
+          return false;
+        else
+          return true;
+      }
+      public async Task<bool> WaitForPlayerInputByte()
+      {
+        this.oid.LoginCreature.GetLocalVariable<int>("_AWAITING_PLAYER_INPUT").Value = 1;
+
+        this.oid.OnPlayerChat -= ChatSystem.HandlePlayerInputByte;
+        this.oid.OnPlayerChat += ChatSystem.HandlePlayerInputByte;
+
+        CancellationTokenSource tokenSource = new CancellationTokenSource();
+        Task awaitPlayerInput = NwTask.WaitUntil(() => this.oid.LoginCreature.GetLocalVariable<string>("_PLAYER_INPUT").HasValue, tokenSource.Token);
+        Task awaitPlayerCancellation = NwTask.WaitUntil(() => this.oid.LoginCreature.GetLocalVariable<int>("_PLAYER_INPUT_CANCELLED").HasValue, tokenSource.Token);
+
+        await NwTask.WhenAny(awaitPlayerInput, awaitPlayerCancellation);
+        tokenSource.Cancel();
+
+        this.oid.LoginCreature.GetLocalVariable<int>("_PLAYER_INPUT_CANCELLED").Delete();
+
+        if (awaitPlayerCancellation.IsCompletedSuccessfully)
+          return false;
+        else
+          return true;
+      }
+      public async Task<bool> WaitForPlayerInputString()
+      {
+        this.oid.LoginCreature.GetLocalVariable<int>("_AWAITING_PLAYER_INPUT").Value = 1;
+
+        this.oid.OnPlayerChat -= ChatSystem.HandlePlayerInputString;
+        this.oid.OnPlayerChat += ChatSystem.HandlePlayerInputString;
+
+        CancellationTokenSource tokenSource = new CancellationTokenSource();
+        Task awaitPlayerInput = NwTask.WaitUntil(() => this.oid.LoginCreature.GetLocalVariable<string>("_PLAYER_INPUT").HasValue, tokenSource.Token);
+        Task awaitPlayerCancellation = NwTask.WaitUntil(() => this.oid.LoginCreature.GetLocalVariable<int>("_PLAYER_INPUT_CANCELLED").HasValue, tokenSource.Token);
+
+        await NwTask.WhenAny(awaitPlayerInput, awaitPlayerCancellation);
+        tokenSource.Cancel();
+
+        this.oid.LoginCreature.GetLocalVariable<int>("_PLAYER_INPUT_CANCELLED").Delete();
+
+        if (awaitPlayerCancellation.IsCompletedSuccessfully)
+          return false;
+        else
+          return true;
       }
     }
   }

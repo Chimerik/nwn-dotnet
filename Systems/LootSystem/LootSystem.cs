@@ -1,110 +1,170 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
+using System.Numerics;
+using System.Threading.Tasks;
+using NLog;
+using NWN.API;
+using NWN.API.Constants;
+using NWN.API.Events;
 using NWN.Core;
+using NWN.Core.NWNX;
+using NWN.Services;
+using NWN.Systems.Craft;
+using NWNX.API;
 
 namespace NWN.Systems
 {
-  public static partial class LootSystem
+  [ServiceBinding(typeof(LootSystem))]
+  public partial class LootSystem
   {
-    public static Dictionary<string, Func<uint, int>> Register = new Dictionary<string, Func<uint, int>>
-        {
-            { LOOT_CONTAINER_ON_CLOSE_SCRIPT, HandleContainerClose },
-            { ON_LOOT_SCRIPT, HandleLoot },
-        };
-
-    public static void InitChestArea()
+    public static readonly Logger Log = LogManager.GetCurrentClassLogger();
+    private static Dictionary<string, List<NwItem>> chestTagToLootsDic = new Dictionary<string, List<NwItem>> { };
+    public LootSystem()
     {
-      var oArea = NWScript.GetObjectByTag(CHEST_AREA_TAG);
-
-      if (oArea == NWScript.OBJECT_INVALID)
-      {
-        ThrowException($"Invalid CHEST_AREA_TAG={CHEST_AREA_TAG}");
-      }
-
-      var chestList = GetPlaceables(oArea);
-
-      CleanDatabase(chestList);
-
-      foreach (var oChest in chestList)
-      {
-        InitChest(oChest, oArea);
-      }
+      NwModule.Instance.OnModuleLoad += OnModuleLoad;
     }
-
-    private static int HandleContainerClose(uint oidSelf)
+    private void OnModuleLoad(ModuleEvents.OnModuleLoad onModuleLoad)
     {
-      UpdateChestTagToLootsDic(oidSelf);
-      UpdateDB(oidSelf);
-      return 0;
+      InitChestArea();
     }
-
-    private static int HandleLoot(uint oidSelf)
+    private void InitChestArea()
     {
-      var oLooter = NWScript.GetLastKiller();
-      var oContainer = oidSelf;
-      var oArea = NWScript.GetArea(oContainer);
-
-      var containerTag = NWScript.GetTag(oContainer);
-      Lootable.Config lootableConfig;
-
-      if (!lootablesDic.TryGetValue(containerTag, out lootableConfig))
+      NwArea area = NwModule.Instance.Areas.FirstOrDefault(a => a.Tag == CHEST_AREA_TAG);
+      if (area == null)
       {
-        ThrowException($"Unregistered container tag=\"{containerTag}\"");
+        Task waitForDiscordBot = NwTask.Run(async () =>
+        {
+          await NwTask.Delay(TimeSpan.FromSeconds(5));
+          Utils.LogMessageToDMs("Attention - La zone des loots n'est pas initialisée.");
+        });
+        
+        return;
       }
 
-      var respawnDuration = lootableConfig.respawnDuration.GetValueOrDefault();
+      var query = NWScript.SqlPrepareQueryCampaign(Config.database, $"SELECT serializedChest, position, facing from {SQL_TABLE}");
 
-      if (NWScript.GetIsObjectValid(oLooter) == 1)
+      while (Convert.ToBoolean(NWScript.SqlStep(query)))
       {
-        // Creature was killed or chest was destroyed
-        if (lootableConfig.respawnDuration != null)
-        {
-          var type = NWScript.GetObjectType(oContainer);
-          var resref = NWScript.GetResRef(oContainer);
-          var location = NWScript.GetLocation(oContainer);
+        NwPlaceable oChest = NWScript.SqlGetObject(query, 0, Utils.GetLocationFromDatabase(CHEST_AREA_TAG, NWScript.SqlGetVector(query, 1), NWScript.SqlGetFloat(query, 2))).ToNwObject<NwPlaceable>();
 
-          NWScript.AssignCommand(
-              oArea,
-              () => NWScript.DelayCommand(
-                  respawnDuration,
-                  () => NWScript.ActionDoCommand(
-                      () => NWScript.CreateObject(type, resref, location)
-                  )
-              )
-          );
+        if (oChest == null)
+        {
+          Task waitForDiscordBot = NwTask.Run(async () =>
+          {
+            await NwTask.Delay(TimeSpan.FromSeconds(5));
+            Utils.LogMessageToDMs("Attention - Un coffre initialisé de la base de données est invalide !");
+          });
+          
+          continue;
         }
+
+        UpdateChestTagToLootsDic(oChest);
+        oChest.OnClose += OnLootConfigContainerClose;
+      }
+
+      InitializeLootChestFromArray(NwObject.FindObjectsWithTag<NwPlaceable>("low_blueprints").FirstOrDefault(), Craft.Collect.System.lowBlueprints);
+      InitializeLootChestFromArray(NwObject.FindObjectsWithTag<NwPlaceable>("medium_blueprints").FirstOrDefault(), Craft.Collect.System.mediumBlueprints);
+
+      InitializeLootChestFromFeatArray(NwObject.FindObjectsWithTag<NwPlaceable>("low_skillbooks").FirstOrDefault(), SkillSystem.lowSkillBooks);
+      InitializeLootChestFromFeatArray(NwObject.FindObjectsWithTag<NwPlaceable>("medium_skillbooks").FirstOrDefault(), SkillSystem.mediumSkillBooks);
+
+      InitializeLootChestFromScrollArray(NwObject.FindObjectsWithTag<NwPlaceable>("low_enchantements").FirstOrDefault(), SpellSystem.lowEnchantements);
+      InitializeLootChestFromScrollArray(NwObject.FindObjectsWithTag<NwPlaceable>("medium_enchantements").FirstOrDefault(), SpellSystem.mediumEnchantements);
+      InitializeLootChestFromScrollArray(NwObject.FindObjectsWithTag<NwPlaceable>("high_enchantements").FirstOrDefault(), SpellSystem.highEnchantements);
+    }
+
+    private async void InitializeLootChestFromArray(NwPlaceable oChest, int[] array)
+    {
+      foreach (int baseItemType in array)
+      {
+        var blueprint = new Blueprint(baseItemType);
+
+        if (!Craft.Collect.System.blueprintDictionnary.ContainsKey(baseItemType))
+          Craft.Collect.System.blueprintDictionnary.Add(baseItemType, blueprint);
+
+        NwItem oBlueprint = await NwItem.Create("blueprintgeneric", oChest, 1, "blueprint");
+        oBlueprint.Name = $"Patron : {blueprint.name}";
+        oBlueprint.GetLocalVariable<int>("_BASE_ITEM_TYPE").Value = baseItemType;
+      }
+
+      UpdateChestTagToLootsDic(oChest);
+    }
+    private async void InitializeLootChestFromFeatArray(NwPlaceable oChest, Feat[] array)
+    {
+      foreach (Feat feat in array)
+      {
+        NwItem skillBook = await NwItem.Create("skillbookgeneriq", oChest, 1, "skillbook");
+        ItemPlugin.SetItemAppearance(skillBook, NWScript.ITEM_APPR_TYPE_SIMPLE_MODEL, 2, NWN.Utils.random.Next(0, 50));
+        skillBook.GetLocalVariable<int>("_SKILL_ID").Value = (int)feat;
+
+        if (SkillSystem.customFeatsDictionnary.ContainsKey(feat))
+        {
+          skillBook.Name = SkillSystem.customFeatsDictionnary[feat].name;
+          skillBook.Description = SkillSystem.customFeatsDictionnary[feat].description;
+        }
+        else
+        {
+          if (int.TryParse(NWScript.Get2DAString("feat", "FEAT", (int)feat), out int nameValue))
+            skillBook.Name = NWScript.GetStringByStrRef(nameValue);
+
+          if (int.TryParse(NWScript.Get2DAString("feat", "DESCRIPTION", (int)feat), out int descriptionValue))
+            skillBook.Description = NWScript.GetStringByStrRef(descriptionValue);
+        }
+
+        if (int.TryParse(NWScript.Get2DAString("feat", "CRValue", (int)feat), out int crValue))
+          ItemPlugin.SetBaseGoldPieceValue(skillBook, crValue * 1000);
+      }
+
+      UpdateChestTagToLootsDic(oChest);
+    }
+    private async void InitializeLootChestFromScrollArray(NwPlaceable oChest, int[] array)
+    {
+      foreach (int itemPropertyId in array)
+      {
+        NwItem oScroll = await NwItem.Create("spellscroll", oChest, 1, "scroll");
+        int spellId = int.Parse(NWScript.Get2DAString("iprp_spells", "SpellIndex", itemPropertyId));
+        oScroll.Name = $"{NWScript.GetStringByStrRef(int.Parse(NWScript.Get2DAString("spells", "Name", spellId)))}";
+        oScroll.Description = $"{NWScript.GetStringByStrRef(int.Parse(NWScript.Get2DAString("spells", "SpellDesc", spellId)))}";
+
+        oScroll.AddItemProperty(API.ItemProperty.CastSpell((IPCastSpell)itemPropertyId, IPCastSpellNumUses.SingleUse), EffectDuration.Permanent);
+      }
+
+      UpdateChestTagToLootsDic(oChest);
+    }
+    private void OnLootConfigContainerClose(PlaceableEvents.OnClose onClose)
+    {
+      UpdateChestTagToLootsDic(onClose.Placeable);
+      UpdateDB(onClose.Placeable);
+    }
+    public static void HandleLoot(CreatureEvents.OnDeath onDeath)
+    {
+      NwCreature oContainer = onDeath.KilledCreature;
+
+      if (lootablesDic.TryGetValue(oContainer.Tag, out Lootable.Config lootableConfig))
+      {
+        Utils.DestroyInventory(oContainer);
+        lootableConfig.GenerateLoot(oContainer);
       }
       else
+        ThrowException($"Unregistered container tag=\"{oContainer.Tag}\"");
+
+      if(oContainer.Tag.StartsWith("boss_"))
       {
-        // Chest was opened
-        oLooter = NWScript.GetLastOpenedBy();
+        foreach (NwPlaceable chest in oContainer.Area.FindObjectsOfTypeInArea<NwPlaceable>().Where(c => lootablesDic.ContainsKey(c.Tag)))
+        {
+          //Log.Info($"Found chest : {chest.Name}");
+
+          Utils.DestroyInventory(chest);
+
+          if (lootablesDic.TryGetValue(chest.Tag, out Lootable.Config lootableChest))
+          {
+            lootableChest.GenerateLoot(chest);
+          }
+          else
+            Utils.LogMessageToDMs($"AREA - {oContainer.Area.Name} - Unregistered container tag=\"{chest.Tag}\", name : {chest.Name}");
+        }
       }
-
-      if (NWScript.GetIsObjectValid(oLooter) != 1)
-      {
-        ThrowException($"Invalid Event for the script {ON_LOOT_SCRIPT}");
-      }
-
-      if (NWScript.GetLocalInt(oContainer, IS_LOOTED_VARNAME) == 1)
-      {
-        // Prevents looting from opening chest multiple times, and then looting again by destroying it.
-        return 0;
-      }
-
-      Utils.DestroyInventory(oContainer);
-      NWScript.AssignCommand(oArea, () => NWScript.DelayCommand(
-          0.1f,
-          () => lootableConfig.GenerateLoot(oContainer)
-      ));
-
-      NWScript.SetLocalInt(oContainer, IS_LOOTED_VARNAME, 1);
-      // Remove flag for next loot
-      NWScript.AssignCommand(oArea, () => NWScript.DelayCommand(
-          respawnDuration,
-          () => NWScript.SetLocalInt(oContainer, IS_LOOTED_VARNAME, 0)
-      ));
-
-      return 0;
     }
   }
 }

@@ -1,4 +1,5 @@
-﻿using NWN.Core;
+﻿using System.Linq;
+using NWN.API;
 
 namespace NWN.Systems
 {
@@ -6,14 +7,8 @@ namespace NWN.Systems
   {
     private static void ExecuteDispelAoeCommand(ChatSystem.Context ctx, Options.Result options)
     {
-      var oArea = NWScript.GetArea(ctx.oSender);
-      var oAoE = NWScript.GetFirstObjectInArea(oArea);
-      while (NWScript.GetIsObjectValid(oAoE) == 1)
-      {
-        if (NWScript.GetAreaOfEffectCreator(oAoE) == ctx.oSender)
-          NWScript.DestroyObject(oAoE);
-        oAoE = NWScript.GetNextObjectInArea(oArea);
-      }
+      foreach (NwAreaOfEffect aoe in NwObject.FindObjectsOfType<NwAreaOfEffect>().Where(aoe => aoe.Creator == ctx.oSender.ControlledCreature))
+        aoe.Destroy();
     }
   }
 }

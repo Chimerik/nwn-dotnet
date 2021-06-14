@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
+using NLog;
+using NWN.API;
 using NWN.Core;
 using NWN.Core.NWNX;
 
@@ -10,13 +12,13 @@ namespace NWN.Systems
   public static partial class CommandSystem
   {
     private const string PREFIX = "!";
+    public static readonly Logger Log = LogManager.GetCurrentClassLogger();
 
     public static void ProcessChatCommandMiddleware(ChatSystem.Context ctx, Action next)
     {
       if (ctx.msg.Length <= PREFIX.Length ||
-        !ctx.msg.StartsWith(PREFIX) ||
-        NWScript.GetIsPC(ctx.oSender) != 1
-      )
+              !ctx.msg.StartsWith(PREFIX)
+        )
       {
         next();
         return;
@@ -32,9 +34,9 @@ namespace NWN.Systems
       Command command;
       if (!commandDic.TryGetValue(commandName, out command))
       {
-        NWScript.SendMessageToPC(ctx.oSender,
+        ctx.oSender.SendServerMessage(
        $"\nUnknown command \"{commandName}\".\n\n" +
-      $"Type \"{PREFIX}help\" for a list of all available commands."
+      $"Type \"{PREFIX}help\" for a list of all available commands.", ColorConstants.Orange
         );
         return;
       }
@@ -43,12 +45,13 @@ namespace NWN.Systems
       try
       {
         optionsResult = command.options.Parse(args);
-      } catch (Exception err)
+      }
+      catch (Exception err)
       {
         var msg = $"\nInvalid options :\n" +
           err.Message + "\n\n" +
           $"Please type \"{PREFIX}help {commandName}\" to get a description of the command.";
-        NWScript.SendMessageToPC(ctx.oSender, msg);
+        ctx.oSender.SendServerMessage(msg, ColorConstants.Red);
         return;
       }
 
@@ -58,17 +61,17 @@ namespace NWN.Systems
       }
       catch (Exception err)
       {
-        NWScript.SendMessageToPC(ctx.oSender, $"\nUnable to process command: {err.Message}");
+        ctx.oSender.SendServerMessage($"\nUnable to process command: {err.Message}", ColorConstants.Red);
       }
     }
 
-    private static string[] __SplitMessage (string msg)
+    private static string[] __SplitMessage(string msg)
     {
       var rgx = new Regex(@"\\?.|^$");
       var matches = rgx.Matches(msg);
       var args = new List<string>() { "" };
       var isStartQuote = false;
-      
+
       foreach (var match in matches)
       {
         var x = match.ToString();

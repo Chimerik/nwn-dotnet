@@ -1,43 +1,34 @@
-﻿using System.Collections.Generic;
-using NWN.Core;
+﻿using System.Linq;
+using NWN.API;
+using NWN.API.Constants;
+using NWN.API.Events;
 
 namespace NWN.Systems
 {
-  public static partial class CommandSystem
+  class ListenTarget
   {
-    private static void ExecuteListenCommand(ChatSystem.Context ctx, Options.Result options)
+    public ListenTarget(NwPlayer oPC)
     {
-      if (NWScript.GetIsDM(ctx.oSender) == 1)
+      oPC.SendServerMessage("Veuillez sélectionnner le joueur à écouter.", ColorConstants.Rose);
+      PlayerSystem.cursorTargetService.EnterTargetMode(oPC, OnListenTargetSelected, ObjectTypes.Creature, MouseCursor.Magic);
+    }
+    private void OnListenTargetSelected(ModuleEvents.OnPlayerTarget selection)
+    {
+      if (!PlayerSystem.Players.TryGetValue(selection.Player.LoginCreature, out PlayerSystem.Player player))
+        return;
+
+      NwCreature oPC = (NwCreature)selection.TargetObject;
+
+      if (oPC.ControllingPlayer != null || oPC.ControllingPlayer.IsDM)
       {
-        PlayerSystem.Player oDM;
-        if (PlayerSystem.Players.TryGetValue(ctx.oSender, out oDM))
-        {
-          if (NWScript.GetIsObjectValid(ctx.oTarget) != 1)
-          {
-            if (oDM.listened.Count > 0)
-              oDM.listened.Clear();
-            else
-            {
-              foreach (KeyValuePair<uint, PlayerSystem.Player> PlayerListEntry in PlayerSystem.Players)
-              {
-                if (NWScript.GetIsDM(PlayerListEntry.Key) != 1)
-                  oDM.listened.Add(PlayerListEntry.Key, PlayerListEntry.Value);
-              }
-            }
-          }
-          else
-          {
-            if (oDM.listened.ContainsKey(ctx.oTarget))
-              oDM.listened.Remove(ctx.oTarget);
-            else
-            {
-              PlayerSystem.Player oPC;
-              if (PlayerSystem.Players.TryGetValue(ctx.oTarget, out oPC))
-                oDM.listened.Add(ctx.oTarget, oPC);
-            }
-          }
-        }
+        selection.Player.SendServerMessage("La cible de l'écoute doit être un joueur.", ColorConstants.Orange);
+        return;
       }
+
+      if (player.listened.Contains(oPC.ControllingPlayer))
+        player.listened.Remove(oPC.ControllingPlayer);
+      else
+        player.listened.Add(oPC.ControllingPlayer);
     }
   }
 }
