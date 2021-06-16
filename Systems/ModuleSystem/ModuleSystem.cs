@@ -633,7 +633,7 @@ namespace NWN.Systems
       Log.Info("Deleting expired mails");
       Utils.LogMessageToDMs("Deleting expired mails");
 
-      var deletionQuery = NWScript.SqlPrepareQueryCampaign(Config.database, $"DELETE from messenger where sendDate > @expirationDate");
+      var deletionQuery = NWScript.SqlPrepareQueryCampaign(Config.database, $"DELETE from messenger where sentDate > @expirationDate");
       NWScript.SqlBindString(deletionQuery, "@expirationDate", DateTime.Now.AddDays(30).ToLongDateString());
       NWScript.SqlStep(deletionQuery);
 
