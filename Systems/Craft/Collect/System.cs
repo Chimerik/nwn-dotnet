@@ -135,7 +135,7 @@ namespace NWN.Systems.Craft.Collect
      
       PlayerPlugin.StartGuiTimingBar(player.oid.LoginCreature, cycleDuration);
 
-      player.oid.OnServerDisconnect += OnDisconnectCancelCollect;
+      player.oid.OnClientDisconnect += OnDisconnectCancelCollect;
       EventsPlugin.AddObjectToDispatchList("NWNX_ON_TIMING_BAR_CANCEL_BEFORE", "collect_cancel", player.oid.LoginCreature);
       EventsPlugin.AddObjectToDispatchList("NWNX_ON_ITEM_EQUIP_BEFORE", "collect_cancel", player.oid.LoginCreature);
       EventsPlugin.AddObjectToDispatchList("NWNX_ON_ITEM_UNEQUIP_BEFORE", "collect_cancel", player.oid.LoginCreature);
@@ -182,7 +182,7 @@ namespace NWN.Systems.Craft.Collect
     }
     private static void RemoveCollectCycleCallbacks(NwPlayer oPC)
     {
-      oPC.OnServerDisconnect -= OnDisconnectCancelCollect;
+      oPC.OnClientDisconnect -= OnDisconnectCancelCollect;
       EventsPlugin.RemoveObjectFromDispatchList("NWNX_ON_TIMING_BAR_CANCEL_BEFORE", "collect_cancel", oPC.LoginCreature);
       EventsPlugin.RemoveObjectFromDispatchList("NWNX_ON_ITEM_EQUIP_BEFORE", "collect_cancel", oPC.LoginCreature);
       EventsPlugin.RemoveObjectFromDispatchList("NWNX_ON_ITEM_UNEQUIP_BEFORE", "collect_cancel", oPC.LoginCreature);

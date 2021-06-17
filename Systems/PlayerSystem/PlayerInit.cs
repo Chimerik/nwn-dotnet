@@ -211,10 +211,15 @@ namespace NWN.Systems
 
       ObjectPlugin.SetInt(newPlayer.LoginCreature, "accountId", NWScript.SqlGetInt(query, 0), 1);
     }
-    private static async void InitializeNewCharacter(Player newCharacter)
+    private static void InitializeNewCharacter(Player newCharacter)
     {
       if (Config.env == Config.Env.Prod)
-        await (Bot._client.GetChannel(680072044364562532) as IMessageChannel).SendMessageAsync($"{newCharacter.oid.PlayerName} vient de créer un nouveau personnage : {newCharacter.oid.LoginCreature.Name}");
+      {
+        Task waitBotMessage = NwTask.Run(async () =>
+        {
+          await (Bot._client.GetChannel(680072044364562532) as IMessageChannel).SendMessageAsync($"{newCharacter.oid.PlayerName} vient de créer un nouveau personnage : {newCharacter.oid.LoginCreature.Name}");
+        });
+      }
 
       int startingSP = 5000;
       if (newCharacter.oid.LoginCreature.KnowsFeat(Feat.QuickToMaster))
@@ -267,9 +272,12 @@ namespace NWN.Systems
 
       if (newCharacter.oid.LoginCreature.GetItemInSlot(InventorySlot.CreatureSkin) == null)
       {
-        NwItem pcSkin = await NwItem.Create("peaudejoueur", newCharacter.oid.LoginCreature);
-        pcSkin.Name = $"Propriétés de {newCharacter.oid.LoginCreature.Name}";
-        CreaturePlugin.RunEquip(newCharacter.oid.LoginCreature, pcSkin, (int)InventorySlot.CreatureSkin);    
+        Task waitSkinCreated = NwTask.Run(async () =>
+        {
+          NwItem pcSkin = await NwItem.Create("peaudejoueur", newCharacter.oid.LoginCreature);
+          pcSkin.Name = $"Propriétés de {newCharacter.oid.LoginCreature.Name}";
+          CreaturePlugin.RunEquip(newCharacter.oid.LoginCreature, pcSkin, (int)InventorySlot.CreatureSkin);
+        });
       }
 
       var query = NWScript.SqlPrepareQueryCampaign(Config.database, $"INSERT INTO playerCharacters (accountId , characterName, dateLastSaved, currentSkillType, currentSkillJob, currentCraftJob, currentCraftObject, areaTag, position, facing, menuOriginLeft, currentHP) VALUES (@accountId, @name, @dateLastSaved, @currentSkillType, @currentSkillJob, @currentCraftJob, @currentCraftObject, @areaTag, @position, @facing, @menuOriginLeft, @currentHP)");
@@ -423,6 +431,7 @@ namespace NWN.Systems
       player.OnClientLevelUpBegin += HandleOnClientLevelUp;
       player.LoginCreature.OnItemValidateEquip += ItemSystem.NoEquipRuinedItem;
       player.LoginCreature.OnItemValidateUse += ItemSystem.NoUseRuinedItem;
+      //player.LoginCreature.OnCombatModeToggle += HandleCombatModeOff;
 
       EventsPlugin.AddObjectToDispatchList("NWNX_ON_ITEM_UNEQUIP_BEFORE", "b_unequip", player.LoginCreature);
       EventsPlugin.AddObjectToDispatchList("NWNX_ON_COMBAT_MODE_OFF", "event_combatmode", player.LoginCreature);

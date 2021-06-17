@@ -191,16 +191,16 @@ namespace NWN.Systems
 
       EventsPlugin.SubscribeEvent("NWNX_ON_ITEM_UNEQUIP_BEFORE", "b_unequip");
       EventsPlugin.ToggleDispatchListMode("NWNX_ON_ITEM_UNEQUIP_BEFORE", "b_unequip", 1);
-
-      EventsPlugin.SubscribeEvent("NWNX_ON_DM_POSSESS_FULL_POWER_BEFORE", "b_dm_possess");
-      EventsPlugin.SubscribeEvent("NWNX_ON_DM_POSSESS_BEFORE", "b_dm_possess");
-      EventsPlugin.SubscribeEvent("NWNX_ON_DM_SPAWN_OBJECT_AFTER", "dm_spawn_object");
-      EventsPlugin.SubscribeEvent("NWNX_ON_DM_JUMP_TARGET_TO_POINT_AFTER", "a_dm_jump_target");
-      EventsPlugin.SubscribeEvent("NWNX_ON_DM_GIVE_XP_BEFORE", "on_dm_give_xp");
-      EventsPlugin.SubscribeEvent("NWNX_ON_DM_GIVE_LEVEL_BEFORE", "on_dm_give_xp");
-      EventsPlugin.SubscribeEvent("NWNX_ON_DM_GIVE_GOLD_BEFORE", "on_dm_give_gold");
-      EventsPlugin.SubscribeEvent("NWNX_ON_DM_GIVE_ITEM_AFTER", "on_dm_give_item");
-
+      
+      //EventsPlugin.SubscribeEvent("NWNX_ON_DM_POSSESS_FULL_POWER_BEFORE", "b_dm_possess");
+      //EventsPlugin.SubscribeEvent("NWNX_ON_DM_POSSESS_BEFORE", "b_dm_possess");
+      NwModule.Instance.OnDMSpawnObject += DmSystem.HandleAfterDmSpawnObject;
+      NwModule.Instance.OnDMJumpTargetToPoint += DmSystem.HandleAfterDmJumpTarget; 
+      NwModule.Instance.OnDMJumpAllPlayersToPoint += DmSystem.HandleBeforeDMJumpAllPlayers;
+      NwModule.Instance.OnDMGiveXP += DmSystem.HandleBeforeDmGiveXP;
+      NwModule.Instance.OnDMGiveGold += DmSystem.HandleBeforeDmGiveGold;
+      NwModule.Instance.OnDMGiveItemAfter += DmSystem.HandleAfterDmGiveItem;
+      
       EventsPlugin.SubscribeEvent("NWNX_ON_COMBAT_MODE_OFF", "event_combatmode");
       EventsPlugin.ToggleDispatchListMode("NWNX_ON_COMBAT_MODE_OFF", "event_combatmode", 1);
       EventsPlugin.SubscribeEvent("NWNX_ON_USE_SKILL_BEFORE", "event_skillused");
@@ -229,8 +229,7 @@ namespace NWN.Systems
       EventsPlugin.SubscribeEvent("NWNX_ON_INPUT_EMOTE_BEFORE", "on_input_emote");
 
       EventsPlugin.SubscribeEvent("NWNX_ON_ELC_VALIDATE_CHARACTER_BEFORE", "before_elc");
-      EventsPlugin.SubscribeEvent("NWNX_ON_CLIENT_LEVEL_UP_BEGIN_BEFORE", "client_lvlup");
-
+      
       EventsPlugin.SubscribeEvent("NWNX_ON_CHARACTER_SHEET_OPEN_BEFORE", "pc_sheet_open");
 
       EventsPlugin.SubscribeEvent("NWNX_ON_EFFECT_APPLIED_BEFORE", "effect_applied");

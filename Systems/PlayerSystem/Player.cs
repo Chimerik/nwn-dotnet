@@ -59,6 +59,8 @@ namespace NWN.Systems
         this.menu = new PrivateMenu(this);
         this.pveArena = new Arena.PlayerData();
 
+        Log.Info($"accountID : {ObjectPlugin.GetInt(this.oid.LoginCreature, "accountId")}");
+
         if (ObjectPlugin.GetInt(this.oid.LoginCreature, "accountId") == 0 && !oid.IsDM)
           InitializeNewPlayer(this.oid);
 

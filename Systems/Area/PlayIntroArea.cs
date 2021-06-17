@@ -156,11 +156,14 @@ namespace NWN.Systems
     private static async void StrikeSailor(NwCreature sailor2, NwCreature sailor1)
     {
       await sailor2.SpeakString("Qu'est ce que ... ? Oooh, je me sens tout drôle ... A l'aide !".ColorString(ColorConstants.Lime));
-      sailor2.ApplyEffect(EffectDuration.Permanent, API.Effect.CutsceneImmobilize());
+      await sailor2.ClearActionQueue();
+      await sailor2.PlayAnimation(Animation.LoopingSpasm, 3.0f, false, TimeSpan.FromSeconds(99999));
+
+      //sailor2.ApplyEffect(EffectDuration.Permanent, API.Effect.CutsceneImmobilize());
 
       NWScript.SetObjectVisualTransform(sailor2, NWScript.OBJECT_VISUAL_TRANSFORM_ROTATE_X, 360.0f, NWScript.OBJECT_VISUAL_TRANSFORM_LERP_SMOOTHERSTEP, 12f);
       NWScript.SetObjectVisualTransform(sailor2, NWScript.OBJECT_VISUAL_TRANSFORM_ROTATE_Y, 360.0f, NWScript.OBJECT_VISUAL_TRANSFORM_LERP_QUADRATIC, 12f);
-      NWScript.SetObjectVisualTransform(sailor2, NWScript.OBJECT_VISUAL_TRANSFORM_ROTATE_Z, 360.0f, NWScript.OBJECT_VISUAL_TRANSFORM_LERP_INVERSE_SMOOTHSTEP, 12f);
+      //NWScript.SetObjectVisualTransform(sailor2, NWScript.OBJECT_VISUAL_TRANSFORM_ROTATE_Z, 360.0f, NWScript.OBJECT_VISUAL_TRANSFORM_LERP_INVERSE_SMOOTHSTEP, 12f);
       NWScript.SetObjectVisualTransform(sailor2, NWScript.OBJECT_VISUAL_TRANSFORM_TRANSLATE_Z, 4f, NWScript.OBJECT_VISUAL_TRANSFORM_LERP_EASE_OUT, 4f);
 
       await NwTask.Delay(TimeSpan.FromSeconds(4));

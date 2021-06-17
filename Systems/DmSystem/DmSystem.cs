@@ -10,7 +10,7 @@ namespace NWN.Systems
   [ServiceBinding(typeof(DmSystem))]
   public class DmSystem
   {
-    [ScriptHandler("b_dm_possess")]
+    /*[ScriptHandler("b_dm_possess")]
     private void HandleBeforeDmPossess(CallInfo callInfo)
     {
       uint oPossessed = NWScript.StringToObject(EventsPlugin.GetEventData("TARGET"));
@@ -41,67 +41,67 @@ namespace NWN.Systems
           NWScript.DeleteLocalObject(callInfo.ObjectSelf, "_POSSESSER");
         }
       }
-    }
-    [ScriptHandler("dm_spawn_object")]
-    private void HandleAfterDmSpawnObject(CallInfo callInfo)
+    }*/
+    
+    public static void HandleAfterDmSpawnObject(OnDMSpawnObject onSpawn)
     {
-      if (int.Parse(EventsPlugin.GetEventData("OBJECT_TYPE")) == NWScript.OBJECT_TYPE_PLACEABLE)
+      PlayerSystem.Log.Info("dm spawn object");
+      if (!(onSpawn.SpawnedObject is NwPlaceable oPLC))
       {
-        NwCreature oPC = (NwCreature)callInfo.ObjectSelf;
+        PlayerSystem.Log.Info("dm spawn is not a PLC");
+        return;
+      }
+      else
+        PlayerSystem.Log.Info("dm spawn is a PLC !");
 
-        if (oPC.ControllingPlayer.LoginCreature.GetLocalVariable<int>("_SPAWN_PERSIST").HasValue)
+      if (onSpawn.DungeonMaster.LoginCreature.GetLocalVariable<int>("_SPAWN_PERSIST").HasValue)
         {
-          NwPlaceable oObject = NWScript.StringToObject(EventsPlugin.GetEventData("OBJECT")).ToNwObject<NwPlaceable>();
-          oObject.OnDeath += PlaceableSystem.HandleCleanDMPLC;
+          oPLC.OnDeath += PlaceableSystem.HandleCleanDMPLC;
 
           var query = NWScript.SqlPrepareQueryCampaign(Systems.Config.database, "INSERT INTO dm_persistant_placeable(accountID, serializedPlaceable, areaTag, position, facing)" +
             " VALUES(@accountId, @serializedPlaceable, @areaTag, @position, @facing)");
           NWScript.SqlBindInt(query, "@accountId", 0);
-          NWScript.SqlBindObject(query, "@serializedPlaceable", oObject);
-          NWScript.SqlBindString(query, "@areaTag", oObject.Area.Tag);
-          NWScript.SqlBindVector(query, "@position", oObject.Position);
-          NWScript.SqlBindFloat(query, "@facing", oObject.Rotation);
+          NWScript.SqlBindObject(query, "@serializedPlaceable", oPLC);
+          NWScript.SqlBindString(query, "@areaTag", oPLC.Area.Tag);
+          NWScript.SqlBindVector(query, "@position", oPLC.Position);
+          NWScript.SqlBindFloat(query, "@facing", oPLC.Rotation);
           NWScript.SqlStep(query);
 
           query = NWScript.SqlPrepareQueryCampaign(Config.database, $"SELECT last_insert_rowid()");
           NWScript.SqlStep(query);
-          NWScript.SetLocalInt(oObject, "_ID", NWScript.SqlGetInt(query, 0));
+          NWScript.SetLocalInt(oPLC, "_ID", NWScript.SqlGetInt(query, 0));
 
-          oPC.ControllingPlayer.SendServerMessage($"Création persistante - Vous posez le placeable  {oObject.Name.ColorString(ColorConstants.White)}", ColorConstants.Green);
+          onSpawn.DungeonMaster.SendServerMessage($"Création persistante - Vous posez le placeable  {oPLC.Name.ColorString(ColorConstants.White)}", new Color(32, 255, 32));
         }
         else
-          oPC.ControllingPlayer.SendServerMessage("Création temporaire - Ce placeable sera effacé par le prochain reboot.");
-      }
+          onSpawn.DungeonMaster.SendServerMessage($"Création temporaire - {oPLC.Name.ColorString(ColorConstants.White)}", new Color(32, 255, 32));
     }
-    [ScriptHandler("a_dm_jump_target")]
-    private void HandleAfterDmJumpTarget(CallInfo callInfo)
+    public static void HandleAfterDmJumpTarget(OnDMJumpTargetToPoint onJump)
     {
-      NwCreature oTarget = NWScript.StringToObject(EventsPlugin.GetEventData("TARGET_1")).ToNwObject<NwCreature>();
-
-      if (oTarget.Area.Tag == "Labrume")
-      {
-        if (PlayerSystem.Players.TryGetValue(oTarget, out PlayerSystem.Player player))
+      foreach(NwGameObject target in onJump.Targets)
+        if(target is NwCreature targetCreature && targetCreature.Area.Tag == "LaBrume" && PlayerSystem.Players.TryGetValue(targetCreature, out PlayerSystem.Player player))
           PlayerSystem.DestroyPlayerCorpse(player);
-      }
+    }
+    public static void HandleBeforeDMJumpAllPlayers(OnDMJumpAllPlayersToPoint onJump)
+    {
+      onJump.Skip = true;
+      onJump.DungeonMaster.SendServerMessage("La fonctionnalité de téléportation massive est désactivée.", ColorConstants.Orange);
     }
 
-    [ScriptHandler("on_dm_give_xp")]
-    private void HandleBeforeDmGiveXP(CallInfo callInfo)
+    public static void HandleBeforeDmGiveXP(OnDMGiveXP onGive)
     {
-      EventsPlugin.SkipEvent();
-      Utils.LogMessageToDMs($"{((NwCreature)callInfo.ObjectSelf).ControllingPlayer.PlayerName} vient d'essayer de donner de l'xp à {NWScript.StringToObject(EventsPlugin.GetEventData("OBJECT")).ToNwObject().Name}");
+      onGive.Skip = true;
+      Utils.LogMessageToDMs($"{onGive.DungeonMaster.PlayerName} vient d'essayer de donner de l'xp à {onGive.Target.Name}");
     }
 
-    [ScriptHandler("on_dm_give_gold")]
-    private void HandleBeforeDmGiveGold(CallInfo callInfo)
+    public static void HandleBeforeDmGiveGold(OnDMGiveGold onGive)
     {
-      Utils.LogMessageToDMs($"{((NwCreature)callInfo.ObjectSelf).ControllingPlayer.PlayerName} vient de donner {Int32.Parse(EventsPlugin.GetEventData("AMOUNT"))} d'or à {NWScript.StringToObject(EventsPlugin.GetEventData("OBJECT")).ToNwObject().Name}");
+      Utils.LogMessageToDMs($"{onGive.DungeonMaster.PlayerName} vient de donner {onGive.Amount} po à {onGive.Target.Name}");
     }
 
-    [ScriptHandler("on_dm_give_item")]
-    private void HandleAfterDmGiveItem(CallInfo callInfo)
+    public static void HandleAfterDmGiveItem(OnDMGiveItemAfter onGive)
     {
-      Utils.LogMessageToDMs($"{((NwCreature)callInfo.ObjectSelf).ControllingPlayer.PlayerName} vient de donner {NWScript.StringToObject(EventsPlugin.GetEventData("ITEM")).ToNwObject().Name} d'or à {NWScript.StringToObject(EventsPlugin.GetEventData("TARGET")).ToNwObject().Name}");
+      Utils.LogMessageToDMs($"{onGive.DungeonMaster.PlayerName} vient de donner {onGive.Item.Name} à {onGive.Target.Name}");
     }
   }
 }
