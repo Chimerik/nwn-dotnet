@@ -49,13 +49,12 @@ namespace NWN.Systems
     {
       NWScript.SetPCDislike(onStartCombatRound.Creature, onStartCombatRound.Target);
     }
-    [ScriptHandler("event_combatmode")]
-    private void HandleCombatModeOff(CallInfo callInfo)
+    public static void HandleCombatModeOff(OnCombatModeToggle onCombatMode)
     {
-      if (NWScript.GetLocalInt(callInfo.ObjectSelf, "_ACTIVATED_TAUNT") != 0) // Permet de conserver sa posture de combat après avoir utilisé taunt
+      if(onCombatMode.NewMode == CombatMode.None && onCombatMode.Creature.GetLocalVariable<int>("_ACTIVATED_TAUNT").HasValue) // Permet de conserver sa posture de combat après avoir utilisé taunt
       {
-        EventsPlugin.SkipEvent();
-        NWScript.DeleteLocalInt(callInfo.ObjectSelf, "_ACTIVATED_TAUNT");
+        onCombatMode.PreventToggle = true;
+        onCombatMode.Creature.GetLocalVariable<int>("_ACTIVATED_TAUNT").Delete();
       }
     }
     [ScriptHandler("event_skillused")]

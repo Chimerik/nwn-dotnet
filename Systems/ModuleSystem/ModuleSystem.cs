@@ -191,18 +191,17 @@ namespace NWN.Systems
 
       EventsPlugin.SubscribeEvent("NWNX_ON_ITEM_UNEQUIP_BEFORE", "b_unequip");
       EventsPlugin.ToggleDispatchListMode("NWNX_ON_ITEM_UNEQUIP_BEFORE", "b_unequip", 1);
-      
+
       //EventsPlugin.SubscribeEvent("NWNX_ON_DM_POSSESS_FULL_POWER_BEFORE", "b_dm_possess");
       //EventsPlugin.SubscribeEvent("NWNX_ON_DM_POSSESS_BEFORE", "b_dm_possess");
-      NwModule.Instance.OnDMSpawnObject += DmSystem.HandleAfterDmSpawnObject;
+      NwModule.Instance.OnDMSpawnObjectBefore += DmSystem.HandleBeforeDmSpawnBefore;
+      NwModule.Instance.OnDMSpawnObjectAfter += DmSystem.HandleAfterDmSpawnObject;
       NwModule.Instance.OnDMJumpTargetToPoint += DmSystem.HandleAfterDmJumpTarget; 
       NwModule.Instance.OnDMJumpAllPlayersToPoint += DmSystem.HandleBeforeDMJumpAllPlayers;
       NwModule.Instance.OnDMGiveXP += DmSystem.HandleBeforeDmGiveXP;
       NwModule.Instance.OnDMGiveGold += DmSystem.HandleBeforeDmGiveGold;
       NwModule.Instance.OnDMGiveItemAfter += DmSystem.HandleAfterDmGiveItem;
-      
-      EventsPlugin.SubscribeEvent("NWNX_ON_COMBAT_MODE_OFF", "event_combatmode");
-      EventsPlugin.ToggleDispatchListMode("NWNX_ON_COMBAT_MODE_OFF", "event_combatmode", 1);
+
       EventsPlugin.SubscribeEvent("NWNX_ON_USE_SKILL_BEFORE", "event_skillused");
       EventsPlugin.ToggleDispatchListMode("NWNX_ON_USE_SKILL_BEFORE", "event_skillused", 1);
 
@@ -323,14 +322,21 @@ namespace NWN.Systems
 
       HandleExpiredAuctions();
 
-      NWScript.ExportAllCharacters();
+      NwModule.Instance.ExportAllCharacters();
 
       /*foreach (KeyValuePair<string, ScriptPerf> perfentry in ModuleSystem.scriptPerformanceMonitoring)
       {
           if (perfentry.Value.nbExecution == 0)
               continue;
 
-          query = NWScript.SqlPrepareQueryCampaign(ModuleSystem.database, $"INSERT INTO scriptPerformance (script, nbExecutions, averageExecutionTime, cumulatedExecutionTime) VALUES (@script, @nbExecutions, @averageExecutionTime, @cumulatedExecutionTime)" +
+          query = 
+      
+      
+      
+      
+      
+      
+      SqlPrepareQueryCampaign(ModuleSystem.database, $"INSERT INTO scriptPerformance (script, nbExecutions, averageExecutionTime, cumulatedExecutionTime) VALUES (@script, @nbExecutions, @averageExecutionTime, @cumulatedExecutionTime)" +
           "ON CONFLICT (script) DO UPDATE SET nbExecutions = nbExecutions + @nbExecutions, averageExecutionTime = (cumulatedExecutionTime + @cumulatedExecutionTime) / (nbExecutions + @nbExecutions), cumulatedExecutionTime = cumulatedExecutionTime + @cumulatedExecutionTime");
           NWScript.SqlBindString(query, "@script", perfentry.Key);
           NWScript.SqlBindInt(query, "@nbExecutions", perfentry.Value.nbExecution);

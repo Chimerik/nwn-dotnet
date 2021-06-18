@@ -282,13 +282,13 @@ namespace NWN.Systems
 
       var query = NWScript.SqlPrepareQueryCampaign(Config.database, $"INSERT INTO playerCharacters (accountId , characterName, dateLastSaved, currentSkillType, currentSkillJob, currentCraftJob, currentCraftObject, areaTag, position, facing, menuOriginLeft, currentHP) VALUES (@accountId, @name, @dateLastSaved, @currentSkillType, @currentSkillJob, @currentCraftJob, @currentCraftObject, @areaTag, @position, @facing, @menuOriginLeft, @currentHP)");
       NWScript.SqlBindInt(query, "@accountId", newCharacter.accountId);
-      NWScript.SqlBindString(query, "@name", NWScript.GetName(newCharacter.oid.LoginCreature));
+      NWScript.SqlBindString(query, "@name", newCharacter.oid.LoginCreature.Name);
       NWScript.SqlBindString(query, "@dateLastSaved", DateTime.Now.ToString());
       NWScript.SqlBindInt(query, "@currentSkillType", (int)SkillSystem.SkillType.Invalid);
       NWScript.SqlBindInt(query, "@currentSkillJob", (int)CustomFeats.Invalid);
       NWScript.SqlBindInt(query, "@currentCraftJob", -10);
       NWScript.SqlBindString(query, "@currentCraftObject", "");
-      NWScript.SqlBindString(query, "@areaTag", NWScript.GetTag(arrivalArea));
+      NWScript.SqlBindString(query, "@areaTag", arrivalArea.Tag);
 
       if (arrivalPoint.IsValid)
       {
@@ -431,10 +431,9 @@ namespace NWN.Systems
       player.OnClientLevelUpBegin += HandleOnClientLevelUp;
       player.LoginCreature.OnItemValidateEquip += ItemSystem.NoEquipRuinedItem;
       player.LoginCreature.OnItemValidateUse += ItemSystem.NoUseRuinedItem;
-      //player.LoginCreature.OnCombatModeToggle += HandleCombatModeOff;
+      player.LoginCreature.OnCombatModeToggle += HandleCombatModeOff;
 
       EventsPlugin.AddObjectToDispatchList("NWNX_ON_ITEM_UNEQUIP_BEFORE", "b_unequip", player.LoginCreature);
-      EventsPlugin.AddObjectToDispatchList("NWNX_ON_COMBAT_MODE_OFF", "event_combatmode", player.LoginCreature);
       EventsPlugin.AddObjectToDispatchList("NWNX_ON_USE_SKILL_BEFORE", "event_skillused", player.LoginCreature);
     }
     private static void InitializePlayerAccount(Player player)

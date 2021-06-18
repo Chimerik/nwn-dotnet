@@ -53,7 +53,7 @@ namespace NWN.Systems
     private void HandleBodyModification(Player player)
     {
       clone.GetLocalVariable<int>("_CURRENT_HEAD").Value = NWScript.GetCreatureBodyPart(NWScript.CREATURE_PART_HEAD, clone);
-
+      
       player.menu.Clear();
       player.menu.titleLines = new List<string> {
         $"Vous vous concentrez sur le miroir de façon à mieux vous mirer.",

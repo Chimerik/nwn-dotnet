@@ -73,7 +73,7 @@ namespace NWN.Systems
 
       foreach (NwCreature spotter in oPC.Area.FindObjectsOfTypeInArea<NwCreature>().Where(p => p.IsPlayerControlled && p.Distance(oPC) < 20.0f))
       {
-        if (NWScript.GetObjectSeen(oPC, spotter) != 1)
+        if (!spotter.IsCreatureSeen(oPC))
         {
           spotter.ControllingPlayer.SendServerMessage("Quelqu'un d'invisible est en train de lancer un sort à proximité !", API.ColorConstants.Cyan);
           PlayerPlugin.ShowVisualEffect(spotter, 191, oPC.Position);
@@ -92,7 +92,7 @@ namespace NWN.Systems
       SpellEvents.OnSpellCast onSpellCast = new SpellEvents.OnSpellCast();
 
       CreaturePlugin.SetClassByPosition(oPC, 0, 43);
-
+      
       oPC.GetLocalVariable<int>("_DELAYED_SPELLHOOK_REFLEX").Value = CreaturePlugin.GetBaseSavingThrow(oPC, NWScript.SAVING_THROW_REFLEX);
       oPC.GetLocalVariable<int>("_DELAYED_SPELLHOOK_WILL").Value = CreaturePlugin.GetBaseSavingThrow(oPC, NWScript.SAVING_THROW_WILL);
       oPC.GetLocalVariable<int>("_DELAYED_SPELLHOOK_FORT").Value = CreaturePlugin.GetBaseSavingThrow(oPC, NWScript.SAVING_THROW_FORT);
@@ -211,7 +211,7 @@ namespace NWN.Systems
       NwPlaceable invisMarker = NwObject.FindObjectsWithTag<NwPlaceable>($"invis_marker_{oInvi.ControllingPlayer.PlayerName}").FirstOrDefault();
       bool listenTriggered = false;
 
-      foreach (NwCreature oSpotter in inviAoE.GetObjectsInEffectArea<NwCreature>().Where(p => p.IsPlayerControlled && NWScript.GetObjectSeen(oInvi, p) == 0 && (p.DetectModeActive || p.HasFeatEffect(Feat.KeenSense))))
+      foreach (NwCreature oSpotter in inviAoE.GetObjectsInEffectArea<NwCreature>().Where(p => p.IsPlayerControlled && p.IsCreatureSeen(oInvi) && (p.DetectModeActive || p.HasFeatEffect(Feat.KeenSense))))
       {
         int iListencheck = oSpotter.GetSkillRank(Skill.Listen) + NwRandom.Roll(Utils.random, 20) - (int)oInvi.Distance(oSpotter);
 
