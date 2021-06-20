@@ -93,7 +93,7 @@ namespace NWN.Systems
       public void CreateSkillJournalEntry()
       {
         player.playerJournal.skillJobCountDown = DateTime.Now.AddSeconds(this.GetTimeToNextLevel(this.CalculateSkillPointsPerSecond()));
-        JournalEntry journalEntry = new JournalEntry();
+        Core.NWNX.JournalEntry journalEntry = new Core.NWNX.JournalEntry();
         journalEntry.sName = $"Etude - {NWN.Utils.StripTimeSpanMilliseconds((TimeSpan)(player.playerJournal.skillJobCountDown - DateTime.Now))}";
         journalEntry.sText = $"Etude en cours :\n\n " +
           $"{this.name}\n\n" +
@@ -107,7 +107,7 @@ namespace NWN.Systems
       }
       public void CancelSkillJournalEntry()
       {
-        JournalEntry journalEntry = PlayerPlugin.GetJournalEntry(player.oid.LoginCreature, "skill_job");
+        Core.NWNX.JournalEntry journalEntry = PlayerPlugin.GetJournalEntry(player.oid.LoginCreature, "skill_job");
         journalEntry.sName = $"Etude annulée - {this.name}";
         journalEntry.sTag = "skill_job";
         journalEntry.nQuestDisplayed = 0;
@@ -116,7 +116,7 @@ namespace NWN.Systems
       }
       public void CloseSkillJournalEntry()
       {
-        JournalEntry journalEntry = PlayerPlugin.GetJournalEntry(player.oid.LoginCreature, "skill_job");
+        Core.NWNX.JournalEntry journalEntry = PlayerPlugin.GetJournalEntry(player.oid.LoginCreature, "skill_job");
         journalEntry.sName = $"Etude terminée - {this.name}";
         journalEntry.sTag = "skill_job";
         journalEntry.nQuestCompleted = 1;

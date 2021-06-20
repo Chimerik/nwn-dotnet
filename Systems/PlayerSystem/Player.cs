@@ -489,7 +489,7 @@ namespace NWN.Systems
       }*/
       public void UpdateJournal()
       {
-        JournalEntry journalEntry;
+        Core.NWNX.JournalEntry journalEntry;
 
         if (oid.LoginCreature.Location.Area == null && DoJournalUpdate)
         {
@@ -550,7 +550,7 @@ namespace NWN.Systems
         if (!this.oid.LoginCreature.IsValid)
           return;
 
-        JournalEntry journalEntry = PlayerPlugin.GetJournalEntry(this.oid.LoginCreature, "reboot");
+        Core.NWNX.JournalEntry journalEntry = PlayerPlugin.GetJournalEntry(this.oid.LoginCreature, "reboot");
         journalEntry.sName = $"REBOOT SERVEUR - {countDown}";
         PlayerPlugin.AddCustomJournalEntry(this.oid.LoginCreature, journalEntry);
         

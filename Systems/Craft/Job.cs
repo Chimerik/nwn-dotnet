@@ -497,7 +497,7 @@ namespace NWN.Systems.Craft
 
       player.playerJournal.craftJobCountDown = DateTime.Now.AddSeconds(remainingTime);
 
-      JournalEntry journalEntry = new JournalEntry();
+      Core.NWNX.JournalEntry journalEntry = new Core.NWNX.JournalEntry();
       if(remainingTime > 0)
         journalEntry.sName = $"Travail artisanal - {Utils.StripTimeSpanMilliseconds((TimeSpan)(player.playerJournal.craftJobCountDown - DateTime.Now))}";
       else
@@ -554,7 +554,7 @@ namespace NWN.Systems.Craft
     }
     public void CancelCraftJournalEntry()
     {
-      JournalEntry journalEntry = PlayerPlugin.GetJournalEntry(player.oid.LoginCreature, "craft_job");
+            Core.NWNX.JournalEntry journalEntry = PlayerPlugin.GetJournalEntry(player.oid.LoginCreature, "craft_job");
 
       switch (type)
       {
@@ -598,7 +598,7 @@ namespace NWN.Systems.Craft
     }
     public void CloseCraftJournalEntry()
     {
-      JournalEntry journalEntry = PlayerPlugin.GetJournalEntry(player.oid.LoginCreature, "craft_job");
+      Core.NWNX.JournalEntry journalEntry = PlayerPlugin.GetJournalEntry(player.oid.LoginCreature, "craft_job");
 
       switch (type)
       {
