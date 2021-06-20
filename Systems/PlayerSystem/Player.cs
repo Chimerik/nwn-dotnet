@@ -10,6 +10,7 @@ using Skill = NWN.Systems.SkillSystem.Skill;
 using NWN.API.Constants;
 using System.Threading;
 using System.Linq;
+using NWN.Services;
 
 namespace NWN.Systems
 {
@@ -51,7 +52,7 @@ namespace NWN.Systems
       public List<API.Effect> effectList = new List<API.Effect>();
       public Dictionary<int, MapPin> mapPinDictionnary = new Dictionary<int, MapPin>();
       public Dictionary<string, string> areaExplorationStateDictionnary = new Dictionary<string, string>();
-      public Dictionary<int, Color> chatColors = new Dictionary<int, Color>();
+      public Dictionary<ChatChannel, Color> chatColors = new Dictionary<ChatChannel, Color>();
 
       public Player(NwPlayer nwobj)
       {

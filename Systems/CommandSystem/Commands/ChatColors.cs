@@ -1,15 +1,13 @@
 ﻿using System.Collections.Generic;
-using System.Threading;
-using System.Threading.Tasks;
 using NWN.API;
-using NWN.Core.NWNX;
+using NWN.Services;
 
 namespace NWN.Systems
 {
   class ChatColors
   {
     private PlayerSystem.Player player;
-    private int channel;
+    private ChatChannel channel;
     private byte[] colorArray = new byte[3];
     public ChatColors(PlayerSystem.Player player)
     {
@@ -21,22 +19,22 @@ namespace NWN.Systems
         "Quel canal de chat souhaiteriez-vous modifier ?",
       };
 
-      player.menu.choices.Add(("Joueur en canal Parler.", () => HandleRedValueSelection( ChatPlugin.NWNX_CHAT_CHANNEL_PLAYER_TALK)));
-      player.menu.choices.Add(("DM en canal Parler.", () => HandleRedValueSelection(ChatPlugin.NWNX_CHAT_CHANNEL_DM_TALK)));
-      player.menu.choices.Add(("Joueur en canal Murmurer.", () => HandleRedValueSelection( ChatPlugin.NWNX_CHAT_CHANNEL_PLAYER_WHISPER)));
-      player.menu.choices.Add(("DM en canal Murmurer.", () => HandleRedValueSelection(ChatPlugin.NWNX_CHAT_CHANNEL_DM_WHISPER)));
-      player.menu.choices.Add(("Joueur en canal Groupe.", () => HandleRedValueSelection(ChatPlugin.NWNX_CHAT_CHANNEL_PLAYER_PARTY)));
-      player.menu.choices.Add(("Joueur en canal MP.", () => HandleRedValueSelection(ChatPlugin.NWNX_CHAT_CHANNEL_PLAYER_TELL)));
-      player.menu.choices.Add(("DM en canal Crier.", () => HandleRedValueSelection(ChatPlugin.NWNX_CHAT_CHANNEL_DM_SHOUT)));
-      player.menu.choices.Add(("Les emotes.", () => HandleRedValueSelection(100)));
-      player.menu.choices.Add(("Le correctif.", () => HandleRedValueSelection(101)));
+      player.menu.choices.Add(("Joueur en canal Parler.", () => HandleRedValueSelection( ChatChannel.PlayerTalk)));
+      player.menu.choices.Add(("DM en canal Parler.", () => HandleRedValueSelection(ChatChannel.DmTalk)));
+      player.menu.choices.Add(("Joueur en canal Murmurer.", () => HandleRedValueSelection(ChatChannel.PlayerWhisper)));
+      player.menu.choices.Add(("DM en canal Murmurer.", () => HandleRedValueSelection(ChatChannel.DmWhisper)));
+      player.menu.choices.Add(("Joueur en canal Groupe.", () => HandleRedValueSelection(ChatChannel.PlayerParty)));
+      player.menu.choices.Add(("Joueur en canal MP.", () => HandleRedValueSelection(ChatChannel.PlayerTell)));
+      player.menu.choices.Add(("DM en canal Crier.", () => HandleRedValueSelection(ChatChannel.DmShout)));
+      player.menu.choices.Add(("Les emotes.", () => HandleRedValueSelection((ChatChannel)100)));
+      player.menu.choices.Add(("Le correctif.", () => HandleRedValueSelection((ChatChannel)101)));
       
       player.menu.choices.Add(("Retour.", () => CommandSystem.DrawCommandList(player)));
       player.menu.choices.Add(("Quitter.", () => player.menu.Close()));
 
       player.menu.Draw();
     }
-    private async void HandleRedValueSelection(int channel)
+    private async void HandleRedValueSelection(ChatChannel channel)
     {
       this.channel = channel;
 

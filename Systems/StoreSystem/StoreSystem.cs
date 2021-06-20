@@ -376,16 +376,16 @@ namespace NWN.System
           int debt = onStoreRequestBuy.Price - (pocketGold + bankGold);
           player.bankGold -= debt;
 
-          ChatPlugin.SendMessage(ChatPlugin.NWNX_CHAT_CHANNEL_PLAYER_TALK, $"Très bien, je demanderai à la banque de vous faire un crédit sur {debt}. N'oubliez pas que les intérêts sont de 30 % par semaine.",
-          onStoreRequestBuy.Store.GetLocalVariable<NwObject>("_STORE_NPC").Value, onStoreRequestBuy.Creature);
+          ChatSystem.chatService.SendMessage(ChatChannel.PlayerTalk, $"Très bien, je demanderai à la banque de vous faire un crédit sur {debt}. N'oubliez pas que les intérêts sont de 30 % par semaine.",
+          (NwCreature)onStoreRequestBuy.Store.GetLocalVariable<NwObject>("_STORE_NPC").Value, onStoreRequestBuy.Creature.ControllingPlayer);
         }
         else
         {
           onStoreRequestBuy.Creature.Gold = 0;
           player.bankGold -= onStoreRequestBuy.Price - pocketGold;
 
-          ChatPlugin.SendMessage(ChatPlugin.NWNX_CHAT_CHANNEL_PLAYER_TALK, "Très bien, je demanderai à la banque de prélever l'or sur votre compte.",
-          onStoreRequestBuy.Store.GetLocalVariable<NwObject>("_STORE_NPC").Value, onStoreRequestBuy.Creature);
+          ChatSystem.chatService.SendMessage(ChatChannel.PlayerTalk, "Très bien, je demanderai à la banque de prélever l'or sur votre compte.",
+          (NwCreature)onStoreRequestBuy.Store.GetLocalVariable<NwObject>("_STORE_NPC").Value, onStoreRequestBuy.Creature.ControllingPlayer);
         }
       }
       else
@@ -398,8 +398,8 @@ namespace NWN.System
     {
       onStoreRequestSell.PreventSell = true;
 
-      ChatPlugin.SendMessage(ChatPlugin.NWNX_CHAT_CHANNEL_PLAYER_TALK, "Navré, je n'achète rien. J'arrive déjà tout juste à m'acquiter de ma dette.",
-      onStoreRequestSell.Store.GetLocalVariable<NwObject>("_STORE_NPC").Value, onStoreRequestSell.Creature);
+      ChatSystem.chatService.SendMessage(ChatChannel.PlayerTalk, "Navré, je n'achète rien. J'arrive déjà tout juste à m'acquiter de ma dette.",
+          (NwCreature)onStoreRequestSell.Store.GetLocalVariable<NwObject>("_STORE_NPC").Value, onStoreRequestSell.Creature.ControllingPlayer);
     }
     public static void OnOpenBiblioStore(StoreEvents.OnOpen onOpen)
     {
@@ -434,16 +434,16 @@ namespace NWN.System
           int debt = onStoreRequestBuy.Price - (pocketGold + bankGold);
           player.bankGold -= debt;
 
-          ChatPlugin.SendMessage(ChatPlugin.NWNX_CHAT_CHANNEL_PLAYER_TALK, Languages.GetLangueStringConvertedHRPProtection("Lisez ... Apprennez ... Aidez-moi ... Aidez-nous ...", CustomFeats.Primordiale),
-          onStoreRequestBuy.Store.GetLocalVariable<NwObject>("_STORE_NPC").Value, onStoreRequestBuy.Creature);
+          ChatSystem.chatService.SendMessage(ChatChannel.PlayerTalk, Languages.GetLangueStringConvertedHRPProtection("Lisez ... Apprennez ... Aidez-moi ... Aidez-nous ...", CustomFeats.Primordiale),
+          (NwCreature)onStoreRequestBuy.Store.GetLocalVariable<NwObject>("_STORE_NPC").Value, onStoreRequestBuy.Creature.ControllingPlayer);
         }
         else
         {
           onStoreRequestBuy.Creature.Gold = 0;
           player.bankGold -= onStoreRequestBuy.Price - pocketGold;
 
-          ChatPlugin.SendMessage(ChatPlugin.NWNX_CHAT_CHANNEL_PLAYER_TALK, Languages.GetLangueStringConvertedHRPProtection("Lisez ... Apprennez ... Aidez-moi ... Aidez-nous ...", CustomFeats.Primordiale),
-          onStoreRequestBuy.Store.GetLocalVariable<NwObject>("_STORE_NPC").Value, onStoreRequestBuy.Creature);
+          ChatSystem.chatService.SendMessage(ChatChannel.PlayerTalk, Languages.GetLangueStringConvertedHRPProtection("Lisez ... Apprennez ... Aidez-moi ... Aidez-nous ...", CustomFeats.Primordiale),
+          (NwCreature)onStoreRequestBuy.Store.GetLocalVariable<NwObject>("_STORE_NPC").Value, onStoreRequestBuy.Creature.ControllingPlayer);
         }
       }
       else
@@ -457,8 +457,8 @@ namespace NWN.System
     {
       onStoreRequestSell.PreventSell = true;
 
-      ChatPlugin.SendMessage(ChatPlugin.NWNX_CHAT_CHANNEL_PLAYER_TALK, Languages.GetLangueStringConvertedHRPProtection("Que pourrions-nous bien en faire ?", CustomFeats.Primordiale),
-      onStoreRequestSell.Store.GetLocalVariable<NwObject>("_STORE_NPC").Value, onStoreRequestSell.Creature);
+      ChatSystem.chatService.SendMessage(ChatChannel.PlayerTalk, Languages.GetLangueStringConvertedHRPProtection("Que pourrions-nous bien en faire ?", CustomFeats.Primordiale),
+          (NwCreature)onStoreRequestSell.Store.GetLocalVariable<NwObject>("_STORE_NPC").Value, onStoreRequestSell.Creature.ControllingPlayer);
     }
     public static void OnOpenModifyArenaRewardStore(StoreEvents.OnOpen onOpen)
     {

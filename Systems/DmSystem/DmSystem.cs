@@ -42,21 +42,10 @@ namespace NWN.Systems
         }
       }
     }*/
-    public static void HandleBeforeDmSpawnBefore(OnDMSpawnObjectBefore onSpawn)
-    {
-      PlayerSystem.Log.Info("dm spawn object before");
-      PlayerSystem.Log.Info($"resref : {onSpawn.ResRef}");
-    }
     public static void HandleAfterDmSpawnObject(OnDMSpawnObjectAfter onSpawn)
     {
-      PlayerSystem.Log.Info("dm spawn object after");
       if (!(onSpawn.SpawnedObject is NwPlaceable oPLC))
-      {
-        PlayerSystem.Log.Info("dm spawn is not a PLC");
         return;
-      }
-      else
-        PlayerSystem.Log.Info("dm spawn is a PLC !");
 
       if (onSpawn.DungeonMaster.LoginCreature.GetLocalVariable<int>("_SPAWN_PERSIST").HasValue)
         {

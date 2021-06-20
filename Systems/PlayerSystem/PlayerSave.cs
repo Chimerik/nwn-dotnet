@@ -7,6 +7,7 @@ using NWN.API.Constants;
 using NWN.API.Events;
 using NWN.Core;
 using NWN.Core.NWNX;
+using NWN.Services;
 
 namespace NWN.Systems
 {
@@ -216,11 +217,11 @@ namespace NWN.Systems
         string queryString = "INSERT INTO chatColors (accountId, channel, color) VALUES (@accountId, @channel, @color)" +
           "ON CONFLICT (accountId, channel) DO UPDATE SET color = @color";
 
-        foreach (KeyValuePair<int, Color> chatColorEntry in player.chatColors)
+        foreach (KeyValuePair<ChatChannel, Color> chatColorEntry in player.chatColors)
         {
           var query = NWScript.SqlPrepareQueryCampaign(Config.database, queryString);
           NWScript.SqlBindInt(query, "@accountId", player.accountId);
-          NWScript.SqlBindInt(query, "@channel", chatColorEntry.Key);
+          NWScript.SqlBindInt(query, "@channel", (int)chatColorEntry.Key);
           NWScript.SqlBindInt(query, "@color", chatColorEntry.Value.ToInt());
           NWScript.SqlStep(query);
         }

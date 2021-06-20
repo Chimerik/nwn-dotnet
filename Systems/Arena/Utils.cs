@@ -5,7 +5,6 @@ using System.Threading.Tasks;
 using NWN.API;
 using NWN.API.Events;
 using NWN.Core;
-using NWN.Core.NWNX;
 using static NWN.Systems.Arena.Config;
 using static NWN.Systems.PlayerSystem;
 
@@ -53,8 +52,7 @@ namespace NWN.Systems.Arena
       onPlayerDeath.DeadPlayer.LoginCreature.ApplyEffect(EffectDuration.Instant, API.Effect.VisualEffect(API.Constants.VfxType.ImpRaiseDead));
       onPlayerDeath.DeadPlayer.LoginCreature.ApplyEffect(EffectDuration.Instant, API.Effect.Resurrection());
 
-      ChatPlugin.SendMessage(ChatPlugin.NWNX_CHAT_CHANNEL_PLAYER_TALK, "Hé ben. Ils vous ont pas loupé là-dedans. On y retourne pour leur montrer ?",
-        NwObject.FindObjectsWithTag<NwCreature>("pve_arena_host").FirstOrDefault(), onPlayerDeath.DeadPlayer.LoginCreature);
+      ChatSystem.chatService.SendMessage(Services.ChatChannel.PlayerTalk, "Pour obtenir votre amulette de concentration de l'arcane, il vous faut vous enregistrer auprès du juge.", NwObject.FindObjectsWithTag<NwCreature>("pve_arena_host").FirstOrDefault(), onPlayerDeath.DeadPlayer);
     }
     public static void OnExitArena(AreaEvents.OnExit onExit)
     {

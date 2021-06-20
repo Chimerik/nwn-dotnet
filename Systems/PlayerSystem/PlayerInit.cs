@@ -424,9 +424,6 @@ namespace NWN.Systems
       player.LoginCreature.OnCombatRoundStart += OnCombatRoundStart;
       player.LoginCreature.OnSpellBroadcast += SpellSystem.OnSpellBroadcast;
       player.LoginCreature.OnSpellAction += SpellSystem.RegisterMetaMagicOnSpellInput;
-      //player.LoginCreature.OnCreatureAttack += AttackSystem.HandleAttackEvent;
-      //player.LoginCreature.OnPhysicalAttacked += AttackSystem.HandlePlayerAttackedEvent;
-      //player.LoginCreature.OnCreatureDamage += AttackSystem.HandleDamageEvent;
       player.OnPartyEvent += Party.HandlePartyEvent;
       player.OnClientLevelUpBegin += HandleOnClientLevelUp;
       player.LoginCreature.OnItemValidateEquip += ItemSystem.NoEquipRuinedItem;
@@ -605,7 +602,7 @@ namespace NWN.Systems
       while (Convert.ToBoolean(NWScript.SqlStep(query)))
       {
         byte[] colorConverter = BitConverter.GetBytes(NWScript.SqlGetInt(query, 1));
-        player.chatColors.Add(NWScript.SqlGetInt(query, 0), new API.Color(colorConverter[3], colorConverter[2], colorConverter[1], colorConverter[0]));
+        player.chatColors.Add((ChatChannel)NWScript.SqlGetInt(query, 0), new API.Color(colorConverter[3], colorConverter[2], colorConverter[1], colorConverter[0]));
       }
     }
   }

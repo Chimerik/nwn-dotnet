@@ -40,17 +40,17 @@ namespace NWN.Systems
         PlayerSystem.Log.Info("Damage target null");
         return;
       }
-      
+
+      if (onDamage.Target.GetLocalVariable<int>($"_DAMAGE_HANDLED_FROM_{onDamage.DamagedBy}").HasValue)
+      {
+        onDamage.Target.GetLocalVariable<int>($"_DAMAGE_HANDLED_FROM_{onDamage.DamagedBy}").Delete();
+        return;
+      }
+
       PlayerSystem.Log.Info("Base : " + onDamage.DamageData.Base);
       PlayerSystem.Log.Info("Blud : " + onDamage.DamageData.Bludgeoning);
       PlayerSystem.Log.Info("Pierce : " + onDamage.DamageData.Pierce);
       PlayerSystem.Log.Info("Slash : " + onDamage.DamageData.Slash);
-
-      if(onDamage.Target.GetLocalVariable<int>("_DAMAGE_HANDLED").HasValue)
-      {
-        onDamage.Target.GetLocalVariable<int>("_DAMAGE_HANDLED").Delete();
-        return;
-      }
 
       if (!(onDamage.Target is NwCreature oTarget))
         return;

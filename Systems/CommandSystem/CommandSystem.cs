@@ -4,8 +4,6 @@ using System.Linq;
 using System.Text.RegularExpressions;
 using NLog;
 using NWN.API;
-using NWN.Core;
-using NWN.Core.NWNX;
 
 namespace NWN.Systems
 {
@@ -24,7 +22,7 @@ namespace NWN.Systems
         return;
       }
 
-      ChatPlugin.SkipMessage();
+      ctx.onChat.Skip = true;
 
       var args = __SplitMessage(ctx.msg);
 

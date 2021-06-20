@@ -35,13 +35,12 @@ namespace NWN.Systems
       {
         this.onAttack = onAttack;
         this.onDamage = onDamage;
-
+        this.oAttacker = null;
+        
         if (onAttack != null)
-          this.oAttacker = oAttacker;
+          this.oAttacker = onAttack.Attacker;
         else if (onDamage != null && onDamage.DamagedBy is NwCreature oCreature)
           this.oAttacker = oCreature;
-        else
-          this.oAttacker = null;
 
         this.oTarget = oTarget;
         this.attackWeapon = null;
@@ -63,8 +62,8 @@ namespace NWN.Systems
       new Action<Context, Action>[]
       {
             IsAttackDodged,
-            ProcessAutomaticHit,
             ProcessBaseDamageTypeAndAttackWeapon,
+            ProcessAutomaticHit,
             ProcessTargetDamageAbsorption,
             ProcessBaseArmorPenetration,
             ProcessBonusArmorPenetration,
@@ -78,19 +77,19 @@ namespace NWN.Systems
             ProcessTargetItemDurability,
       }
     );
-    public static async void HandleAttackEvent(OnCreatureAttack onAttack)
+    public static void HandleAttackEvent(OnCreatureAttack onAttack)
     {
       PlayerSystem.Log.Info("Entering Attack Event");
+      PlayerSystem.Log.Info("Attacker : " + onAttack.Attacker.Name);
+      PlayerSystem.Log.Info("Target : " + onAttack.Target.Name);
+      PlayerSystem.Log.Info("Result : " + onAttack.AttackResult);
       PlayerSystem.Log.Info("Base : " + onAttack.DamageData.Base);
-      PlayerSystem.Log.Info("Blud : " + onAttack.DamageData.Bludgeoning);
-      PlayerSystem.Log.Info("Pierce : " + onAttack.DamageData.Pierce);
-      PlayerSystem.Log.Info("Slash : " + onAttack.DamageData.Slash);
+      PlayerSystem.Log.Info("attackNumber : " + onAttack.AttackNumber);
+      PlayerSystem.Log.Info("attack type : " + onAttack.WeaponAttackType);
 
       if (!(onAttack.Target is NwCreature oTarget))
         return;
-
-      await NwModule.Instance.WaitForObjectContext();
-
+      
       pipeline.Execute(new Context(
         onAttack: onAttack,
         oTarget: oTarget
@@ -143,7 +142,37 @@ namespace NWN.Systems
     private static void ProcessAutomaticHit(Context ctx, Action next)
     {
       if (ctx.onAttack.AttackResult == AttackResult.Miss)
+      {
         ctx.onAttack.AttackResult = AttackResult.AutomaticHit;
+
+        if (ctx.attackWeapon == null)
+          ctx.onAttack.DamageData.Base = (short)(NwRandom.Roll(Utils.random, 3) + ctx.oAttacker.GetAbilityModifier(Ability.Strength));
+        else
+        {
+          switch (ItemUtils.GetItemCategory(ctx.attackWeapon.BaseItemType))
+          {
+            case ItemUtils.ItemCategory.RangedWeapon:
+              switch (ctx.attackWeapon.BaseItemType)
+              {
+                case BaseItemType.LightCrossbow:
+                case BaseItemType.HeavyCrossbow:
+
+                  if (ctx.oAttacker.GetItemInSlot(InventorySlot.Bolts) != null)
+                    foreach (ItemProperty ip in ctx.oAttacker.GetItemInSlot(InventorySlot.Bolts).ItemProperties.Where(i => i.PropertyType == ItemPropertyType.DamageBonus
+                    || (i.PropertyType == ItemPropertyType.DamageBonusVsRacialGroup && i.SubType == (int)ctx.oTarget.RacialType)
+                    || (i.PropertyType == ItemPropertyType.DamageBonusVsAlignmentGroup && i.SubType == (int)ctx.oTarget.GoodEvilAlignment)
+                    || (i.PropertyType == ItemPropertyType.DamageBonusVsAlignmentGroup && i.SubType == (int)ctx.oTarget.LawChaosAlignment)
+                    || (i.PropertyType == ItemPropertyType.DamageBonusVsSpecificAlignment && i.SubType == Config.GetIPSpecificAlignmentSubTypeAsInt(ctx.oTarget))))
+                    {
+                      //switch(ip.)
+                    }
+
+                  break;
+              }
+              break;
+          }
+        }
+      }
 
       next();
     }
@@ -180,18 +209,30 @@ namespace NWN.Systems
           break;
 
         case WeaponAttackType.CreatureBite:
-          ctx.attackWeapon = ctx.oAttacker.GetItemInSlot(InventorySlot.CreatureBiteWeapon);
-          ctx.baseDamageType = ItemUtils.GetItemDamageType(ctx.attackWeapon);
+
+          if (ctx.oAttacker.GetItemInSlot(InventorySlot.CreatureBiteWeapon) != null)
+          {
+            ctx.attackWeapon = ctx.oAttacker.GetItemInSlot(InventorySlot.CreatureBiteWeapon);
+            ctx.baseDamageType = ItemUtils.GetItemDamageType(ctx.attackWeapon);
+          }
           break;
 
         case WeaponAttackType.CreatureLeft:
-          ctx.attackWeapon = ctx.oAttacker.GetItemInSlot(InventorySlot.CreatureLeftWeapon);
-          ctx.baseDamageType = ItemUtils.GetItemDamageType(ctx.attackWeapon);
+
+          if (ctx.oAttacker.GetItemInSlot(InventorySlot.CreatureLeftWeapon) != null)
+          {
+            ctx.attackWeapon = ctx.oAttacker.GetItemInSlot(InventorySlot.CreatureLeftWeapon);
+            ctx.baseDamageType = ItemUtils.GetItemDamageType(ctx.attackWeapon);
+          }
           break;
 
         case WeaponAttackType.CreatureRight:
-          ctx.attackWeapon = ctx.oAttacker.GetItemInSlot(InventorySlot.CreatureRightWeapon);
-          ctx.baseDamageType = ItemUtils.GetItemDamageType(ctx.attackWeapon);
+
+          if (ctx.oAttacker.GetItemInSlot(InventorySlot.CreatureRightWeapon) != null)
+          {
+            ctx.attackWeapon = ctx.oAttacker.GetItemInSlot(InventorySlot.CreatureRightWeapon);
+            ctx.baseDamageType = ItemUtils.GetItemDamageType(ctx.attackWeapon);
+          }
           break;
       }
 
@@ -743,7 +784,7 @@ namespace NWN.Systems
       else
         ctx.baseArmorPenetration = CreaturePlugin.GetAttackBonus(ctx.oAttacker);
 
-      if (ctx.attackWeapon.BaseItemType == BaseItemType.Gloves) // la fonction CreaturePlugin.GetAttackBonus ne prend pas en compte le + AB des gants, donc je le rajoute
+      if (ctx.attackWeapon != null && ctx.attackWeapon.BaseItemType == BaseItemType.Gloves) // la fonction CreaturePlugin.GetAttackBonus ne prend pas en compte le + AB des gants, donc je le rajoute
       {
         int glovesAttackBonus = 0;
 
@@ -759,7 +800,6 @@ namespace NWN.Systems
     {
       if (ctx.attackWeapon != null)
       {
-
         foreach (ItemProperty ip in ctx.attackWeapon.ItemProperties.Where(i => (i.PropertyType == ItemPropertyType.AttackBonusVsRacialGroup && i.SubType == (int)ctx.oTarget.RacialType)
            || (i.PropertyType == ItemPropertyType.AttackBonusVsAlignmentGroup && i.SubType == (int)ctx.oTarget.GoodEvilAlignment)
            || (i.PropertyType == ItemPropertyType.AttackBonusVsAlignmentGroup && i.SubType == (int)ctx.oTarget.LawChaosAlignment)
@@ -789,7 +829,6 @@ namespace NWN.Systems
     }
     private static void ProcessArmorSlotHit(Context ctx, Action next)
     {
-      PlayerSystem.Log.Info($"ProcessArmorSlotHit");
       InventorySlot hitSlot;
       int randLocation = NwRandom.Roll(Utils.random, 100);
 
@@ -860,7 +899,6 @@ namespace NWN.Systems
     }
     private static void ProcessTargetSpecificAC(Context ctx, Action next)
     {
-      PlayerSystem.Log.Info($"ProcessTargetSpecificAC");
       if (ctx.targetArmor != null)
       {
         foreach (ItemProperty ip in ctx.targetArmor.ItemProperties.Where(i
@@ -992,13 +1030,12 @@ namespace NWN.Systems
 
         if (ctx.targetAC[DamageType.BaseWeapon] > ctx.maxBaseAC)
           ctx.targetAC[DamageType.BaseWeapon] = ctx.maxBaseAC;
-
-        next();
       }
+
+      next();
     }
     private static void ProcessTargetShieldAC(Context ctx, Action next)
     {
-      PlayerSystem.Log.Info($"ProcessTargetShieldAC");
       NwItem targetShield = ctx.oTarget.GetItemInSlot(InventorySlot.LeftHand);
 
       if (targetShield != null && ItemUtils.GetItemCategory(targetShield.BaseItemType) == ItemUtils.ItemCategory.Shield)
@@ -1017,7 +1054,6 @@ namespace NWN.Systems
     }
     private static void ProcessArmorPenetrationCalculations(Context ctx, Action next)
     {
-      PlayerSystem.Log.Info($"ProcessArmorPenetrationCalculations");
       ctx.targetAC[DamageType.BaseWeapon] = ctx.targetAC[DamageType.BaseWeapon] * (100 - ctx.baseArmorPenetration - ctx.bonusArmorPenetration) / 100;
 
       if (ctx.targetAC[DamageType.BaseWeapon] < 0)
@@ -1092,8 +1128,11 @@ namespace NWN.Systems
       if (ctx.onAttack.DamageData.Sonic > 0)
         ctx.onAttack.DamageData.Sonic = (short)(ctx.onAttack.DamageData.Sonic * Math.Pow(0.5, (ctx.targetAC[DamageType.BaseWeapon] + ctx.targetAC.GetValueOrDefault((DamageType)14) + ctx.targetAC.GetValueOrDefault(DamageType.Sonic) - 60) / 40));
 
-      ctx.oTarget.GetLocalVariable<int>("_DAMAGE_HANDLED").Value = 1;
+      ctx.oTarget.GetLocalVariable<int>($"_DAMAGE_HANDLED_FROM_{ctx.oAttacker}").Value = 1;
 
+      PlayerSystem.Log.Info($"target base AC:  {ctx.targetAC[DamageType.BaseWeapon]}");
+      PlayerSystem.Log.Info($"final damage:  {ctx.onAttack.DamageData.Base}");
+      
       next();
     }
     private static void ProcessAttackerItemDurability(Context ctx, Action next)
@@ -1134,7 +1173,6 @@ namespace NWN.Systems
     }
     private static void ProcessTargetItemDurability(Context ctx, Action next)
     {
-      PlayerSystem.Log.Info($"ProcessTargetItemDurability");
       if (!PlayerSystem.Players.TryGetValue(ctx.oTarget, out PlayerSystem.Player player))
         return;
 

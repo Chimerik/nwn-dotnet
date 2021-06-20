@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using NWN.API;
 using NWN.Core;
-using NWN.Core.NWNX;
 using static NWN.Systems.PlayerSystem;
 
 namespace NWN.Systems
@@ -51,7 +50,7 @@ namespace NWN.Systems
       bard.ApplyEffect(EffectDuration.Instant, API.Effect.VisualEffect(API.Constants.VfxType.FnfSoundBurstSilent));
       bard.ApplyEffect(EffectDuration.Permanent, API.Effect.VisualEffect(API.Constants.VfxType.DurBardSong), TimeSpan.FromHours(24));
 
-      ChatPlugin.SendMessage(ChatPlugin.NWNX_CHAT_CHANNEL_PLAYER_TALK, $"{player.oid.ControlledCreature.Name} vient de demander à jouer {NWScript.GetStringByStrRef(Int32.Parse(NWScript.Get2DAString("ambientmusic", "Description", music)))}", bard);
+      ChatSystem.chatService.SendMessage(Services.ChatChannel.PlayerTalk, $"{player.oid.ControlledCreature.Name} vient de demander à jouer {NWScript.GetStringByStrRef(Int32.Parse(NWScript.Get2DAString("ambientmusic", "Description", music)))}", bard);
 
       this.DrawWelcomePage(player, bard);
     }

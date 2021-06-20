@@ -194,7 +194,7 @@ namespace NWN.Systems
 
       //EventsPlugin.SubscribeEvent("NWNX_ON_DM_POSSESS_FULL_POWER_BEFORE", "b_dm_possess");
       //EventsPlugin.SubscribeEvent("NWNX_ON_DM_POSSESS_BEFORE", "b_dm_possess");
-      NwModule.Instance.OnDMSpawnObjectBefore += DmSystem.HandleBeforeDmSpawnBefore;
+
       NwModule.Instance.OnDMSpawnObjectAfter += DmSystem.HandleAfterDmSpawnObject;
       NwModule.Instance.OnDMJumpTargetToPoint += DmSystem.HandleAfterDmJumpTarget; 
       NwModule.Instance.OnDMJumpAllPlayersToPoint += DmSystem.HandleBeforeDMJumpAllPlayers;

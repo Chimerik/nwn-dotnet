@@ -17,29 +17,22 @@ namespace NWN.Systems
   public class ChatSystem
   {
     public static readonly Logger Log = LogManager.GetCurrentClassLogger();
+    public static ChatService chatService { get; set; }
     private static string areaName = "";
-    private static Dictionary<NwGameObject, string> chatReceivers = new Dictionary<NwGameObject, string>();
-    public ChatSystem()
+    private static Dictionary<NwPlayer, string> chatReceivers = new Dictionary<NwPlayer, string>();
+    public ChatSystem(ChatService customChatService)
     {
-      ChatPlugin.RegisterChatScript("on_chat");
+      NwModule.Instance.OnChatMessageSend += OnNWNXChatEvent;
+      chatService = customChatService;
     }
 
-    [ScriptHandler("on_chat")]
-    private void OnNWNXChatEvent(CallInfo callInfo)
+    private void OnNWNXChatEvent(OnChatMessageSend onChat)
     {
-      if (ChatPlugin.GetChannel() == ChatPlugin.NWNX_CHAT_CHANNEL_SERVER_MSG)
+      if(onChat.ChatChannel == ChatChannel.ServerMessage)
         return;
-
-      NwCreature oSender = ChatPlugin.GetSender().ToNwObjectSafe<NwCreature>();
-
-      if (oSender.ControllingPlayer == null || oSender.GetLocalVariable<string>("_AWAITING_PLAYER_INPUT").HasValue)
+      
+      if (!(onChat.Sender is NwCreature oSender) || oSender.GetLocalVariable<string>("_AWAITING_PLAYER_INPUT").HasValue)
         return;
-
-      NwCreature target = ChatPlugin.GetTarget().ToNwObjectSafe<NwCreature>();
-      NwPlayer targetPlayer = null;
-
-      if (target != null)
-        targetPlayer = target.ControllingPlayer;
 
       if (oSender.Area != null)
         areaName = oSender.Area.Name;
@@ -47,12 +40,13 @@ namespace NWN.Systems
         areaName = "Entre deux zones";
 
       chatReceivers.Clear();
- 
+
       pipeline.Execute(new Context(
-        msg: ChatPlugin.GetMessage(),
+        msg: onChat.Message,
         oSender: oSender.ControllingPlayer,
-        oTarget: targetPlayer,
-        channel: ChatPlugin.GetChannel()
+        oTarget: onChat.Target,
+        channel: onChat.ChatChannel,
+        onChat: onChat
       ));
     }
 
@@ -61,14 +55,16 @@ namespace NWN.Systems
       public string msg { get; }
       public NwPlayer oSender { get; }
       public NwPlayer oTarget { get; }
-      public int channel { get; }
+      public ChatChannel channel { get; }
+      public OnChatMessageSend onChat { get; }
 
-      public Context(string msg, NwPlayer oSender, NwPlayer oTarget, int channel)
+      public Context(string msg, NwPlayer oSender, NwPlayer oTarget, ChatChannel channel, OnChatMessageSend onChat)
       {
         this.msg = msg;
         this.oSender = oSender;
         this.oTarget = oTarget;
         this.channel = channel;
+        this.onChat = onChat;
       }
     }
 
@@ -121,7 +117,7 @@ namespace NWN.Systems
         if (ObjectPlugin.GetInt(ctx.oTarget.LoginCreature, "__BLOCK_ALL_MP") > 0 || ObjectPlugin.GetInt(ctx.oTarget.LoginCreature, "__BLOCK_" + NWScript.GetName(ctx.oSender.LoginCreature, 1) + "_MP") > 0)
           if (!ctx.oTarget.IsDM)
           {
-            ChatPlugin.SkipMessage();
+            ctx.onChat.Skip = true;
             ctx.oSender.SendServerMessage($"{ctx.oTarget.LoginCreature.Name.ColorString(ColorConstants.White)} bloque actuellement la réception des mp.", ColorConstants.Orange);
             return;
           }
@@ -136,14 +132,14 @@ namespace NWN.Systems
         /*if (ctx.oTarget.GetLocalVariable<NwObject>("_POSSESSING").HasValue)
           ChatPlugin.SendMessage(ctx.channel, ctx.msg, ctx.oSender, ctx.oTarget.GetLocalVariable<NwObject>("_POSSESSING").Value);
         else*/
-        if (!chatReceivers.ContainsKey(ctx.oTarget.LoginCreature))
-          chatReceivers.Add(ctx.oTarget.LoginCreature, ctx.msg);
+        if (!chatReceivers.ContainsKey(ctx.oTarget))
+          chatReceivers.Add(ctx.oTarget, ctx.msg);
           //ChatPlugin.SendMessage(ctx.channel, ctx.msg, ctx.oSender, ctx.oTarget);
         ///return;
       }
       else
       {
-        ChatPlugin.SkipMessage();
+        ctx.onChat.Skip = true;
         ctx.oSender.SendServerMessage("La personne à laquelle vous tentez d'envoyer un message n'est plus connectée.", ColorConstants.Orange);
         return;
       }
@@ -153,9 +149,9 @@ namespace NWN.Systems
       if (PlayerSystem.Players.TryGetValue(ctx.oSender.LoginCreature, out PlayerSystem.Player player))
       {
         if (player.isAFK)
-          if (ctx.channel == ChatPlugin.NWNX_CHAT_CHANNEL_PLAYER_TALK || ctx.channel == ChatPlugin.NWNX_CHAT_CHANNEL_PLAYER_WHISPER)
+          if (ctx.channel == ChatChannel.PlayerTalk || ctx.channel == ChatChannel.PlayerWhisper)
             if (!ctx.msg.Contains("(") && !ctx.msg.Contains(")"))
-              if (ctx.oSender.LoginCreature.GetNearestCreatures(CreatureTypeFilter.PlayerChar(true)).Any(p => p.Distance(ctx.oSender.LoginCreature) < ChatPlugin.GetChatHearingDistance(p, ctx.channel)))
+              if (ctx.oSender.ControlledCreature.GetNearestCreatures(CreatureTypeFilter.PlayerChar(true)).Any(p => p.LoginPlayer != ctx.oSender && p.Distance(ctx.oSender.ControlledCreature) < chatService.GetPlayerChatHearingDistance(p.ControllingPlayer, ctx.channel)))
                 player.isAFK = false;
       }
 
@@ -164,7 +160,7 @@ namespace NWN.Systems
     public static void ProcessDMListenMiddleware(Context ctx, Action next)
     {
       //SYSTEME DE RECOPIE DE CHAT POUR LES DMS
-      if (ctx.channel == ChatPlugin.NWNX_CHAT_CHANNEL_PLAYER_TALK || ctx.channel == ChatPlugin.NWNX_CHAT_CHANNEL_PLAYER_WHISPER)
+      if (ctx.channel == ChatChannel.PlayerTalk || ctx.channel == ChatChannel.PlayerWhisper)
       {
         NwCreature oInviSender = NwObject.FindObjectsWithTag<NwCreature>("_invisible_sender").FirstOrDefault();
         if (oInviSender != null)
@@ -175,10 +171,10 @@ namespace NWN.Systems
             {
               if (dungeonMaster.listened.Contains(ctx.oSender))
               {
-                if (ctx.oSender.ControlledCreature.Area != oDM.ControlledCreature.Area || oDM.ControlledCreature.Distance(ctx.oSender.ControlledCreature) > ChatPlugin.GetChatHearingDistance(oDM.LoginCreature, ctx.channel))
+                if (ctx.oSender.ControlledCreature.Area != oDM.ControlledCreature.Area || oDM.ControlledCreature.Distance(ctx.oSender.ControlledCreature) > chatService.GetPlayerChatHearingDistance(oDM, ctx.channel))
                 {
                   oInviSender.Name = ctx.oSender.ControlledCreature.Name;
-                  ChatPlugin.SendMessage(ChatPlugin.NWNX_CHAT_CHANNEL_PLAYER_TELL, "[COPIE - " + areaName + "] " + ctx.msg, oInviSender, oDM.ControlledCreature);
+                  chatService.SendMessage(ChatChannel.PlayerTell, "[COPIE - " + areaName + "] " + ctx.msg, oInviSender, oDM);
                 }
               }
             }
@@ -194,39 +190,39 @@ namespace NWN.Systems
     {
       switch (ctx.channel)
       {
-        case ChatPlugin.NWNX_CHAT_CHANNEL_PLAYER_TALK:
-        case ChatPlugin.NWNX_CHAT_CHANNEL_PLAYER_WHISPER:
-        case ChatPlugin.NWNX_CHAT_CHANNEL_DM_TALK:
-        case ChatPlugin.NWNX_CHAT_CHANNEL_DM_WHISPER:
+        case ChatChannel.PlayerTalk:
+        case ChatChannel.PlayerWhisper:
+        case ChatChannel.DmTalk:
+        case ChatChannel.DmWhisper:
           HandleLanguage(ctx);
           break;
-        case ChatPlugin.NWNX_CHAT_CHANNEL_PLAYER_PARTY:
-        case ChatPlugin.NWNX_CHAT_CHANNEL_DM_PARTY:
+        case ChatChannel.PlayerParty:
+        case ChatChannel.DmParty:
           foreach (NwPlayer oPartyMember in ctx.oSender.PartyMembers)
-            if (!chatReceivers.ContainsKey(oPartyMember.ControlledCreature))
-              chatReceivers.Add(oPartyMember.ControlledCreature, ctx.msg);
+            if (!chatReceivers.ContainsKey(oPartyMember))
+              chatReceivers.Add(oPartyMember, ctx.msg);
           break;
-        case ChatPlugin.NWNX_CHAT_CHANNEL_PLAYER_TELL:
-        case ChatPlugin.NWNX_CHAT_CHANNEL_DM_TELL:
+        case ChatChannel.PlayerTell:
+        case ChatChannel.DmTell:
           HandlePM(ctx);
           break;
-        case ChatPlugin.NWNX_CHAT_CHANNEL_PLAYER_DM:
-        case ChatPlugin.NWNX_CHAT_CHANNEL_DM_DM:
+        case ChatChannel.PlayerDm:
+        case ChatChannel.DmDm:
           foreach (NwPlayer oDM in NwModule.Instance.Players.Where(p => p.IsDM))
-            if (!chatReceivers.ContainsKey(oDM.ControlledCreature))
-              chatReceivers.Add(oDM.ControlledCreature, ctx.msg);
+            if (!chatReceivers.ContainsKey(oDM))
+              chatReceivers.Add(oDM, ctx.msg);
           break;
-        case ChatPlugin.NWNX_CHAT_CHANNEL_DM_SHOUT:
+        case ChatChannel.DmShout:
           foreach (NwPlayer oPC in NwModule.Instance.Players)
-            if (!chatReceivers.ContainsKey(oPC.ControlledCreature))
-              chatReceivers.Add(oPC.ControlledCreature, ctx.msg);
+            if (!chatReceivers.ContainsKey(oPC))
+              chatReceivers.Add(oPC, ctx.msg);
           break;
       }
       next();
     }
     public static void HandleLanguage(Context ctx)
     {
-      foreach (NwPlayer player in NwModule.Instance.Players.Where(p => p.ControlledCreature.Area == ctx.oSender.ControlledCreature.Area && p.ControlledCreature.Distance(ctx.oSender.ControlledCreature) < ChatPlugin.GetChatHearingDistance(p.LoginCreature, ctx.channel)))
+      foreach (NwPlayer player in NwModule.Instance.Players.Where(p => p.ControlledCreature.Area == ctx.oSender.ControlledCreature.Area && p.ControlledCreature.Distance(ctx.oSender.ControlledCreature) < chatService.GetPlayerChatHearingDistance(p, ctx.channel)))
       {
         Feat language = (Feat)ctx.oSender.ControlledCreature.GetLocalVariable<int>("_ACTIVE_LANGUAGE").Value;
 
@@ -238,25 +234,25 @@ namespace NWN.Systems
           string sLanguageName = SkillSystem.customFeatsDictionnary[language].name;
           if (player.LoginCreature.KnowsFeat(language) || player.IsDM)
           {
-            chatReceivers.Add(player.ControlledCreature, "[" + sLanguageName + "] " + ctx.msg);
+            chatReceivers.Add(player, "[" + sLanguageName + "] " + ctx.msg);
             player.SendServerMessage(ctx.oSender.ControlledCreature + " : [" + sLanguageName + "] " + Languages.GetLangueStringConvertedHRPProtection(ctx.msg, language));
           }
           else
-            chatReceivers.Add(player.ControlledCreature, Languages.GetLangueStringConvertedHRPProtection(ctx.msg, language));
+            chatReceivers.Add(player, Languages.GetLangueStringConvertedHRPProtection(ctx.msg, language));
         }
         else
-          chatReceivers.Add(player.ControlledCreature, ctx.msg);
+          chatReceivers.Add(player, ctx.msg);
       }
     }
     public static void ProcessChatColorMiddleware(Context ctx, Action next)
     {
-      foreach (KeyValuePair<NwGameObject, string> chatReceiver in chatReceivers)
+      foreach (KeyValuePair<NwPlayer, string> chatReceiver in chatReceivers)
       {
-        ChatPlugin.SkipMessage();
+        ctx.onChat.Skip = true;
 
-        if (!PlayerSystem.Players.TryGetValue(chatReceiver.Key, out PlayerSystem.Player player))
+        if (!PlayerSystem.Players.TryGetValue(chatReceiver.Key.LoginCreature, out PlayerSystem.Player player))
         {
-          ChatPlugin.SendMessage(ctx.channel, chatReceiver.Value, ctx.oSender.ControlledCreature, chatReceiver.Key);
+          chatService.SendMessage(ctx.channel, chatReceiver.Value, ctx.oSender.ControlledCreature, chatReceiver.Key);
           return;
         }
           
@@ -265,10 +261,10 @@ namespace NWN.Systems
         if (player.chatColors.ContainsKey(ctx.channel))
           coloredChat = chatReceiver.Value.ColorString(player.chatColors[ctx.channel]);
 
-        if (player.chatColors.ContainsKey(100)) // 100 = emote
+        if (player.chatColors.ContainsKey((ChatChannel)100)) // 100 = emote
           coloredChat = HandleEmoteColoration(player, coloredChat);
 
-        ChatPlugin.SendMessage(ctx.channel, coloredChat, ctx.oSender.ControlledCreature, chatReceiver.Key);
+        chatService.SendMessage(ctx.channel, coloredChat, ctx.oSender.ControlledCreature, chatReceiver.Key);
       }
       next();
     }
@@ -276,8 +272,8 @@ namespace NWN.Systems
     {
       int starCount = chat.ToCharArray().Count(c => c == '*'); 
 
-      if (starCount == 1 && player.chatColors.ContainsKey(101)) // 101 = chat correctif
-          return chat.StripColors().ColorString(player.chatColors[101]);
+      if (starCount == 1 && player.chatColors.ContainsKey((ChatChannel)101)) // 101 = chat correctif
+          return chat.StripColors().ColorString(player.chatColors[(ChatChannel)101]);
       else if (starCount > 1)
       {
         string[] sArray = chat.Split('*', '*');
@@ -289,7 +285,7 @@ namespace NWN.Systems
           if (i % 2 == 0)
             sColored += s;
           else
-            sColored += $" * {s} * ".ColorString(player.chatColors[100]);
+            sColored += $" * {s} * ".ColorString(player.chatColors[(ChatChannel)100]);
           // test : color vert mp = new Color(32, 255, 32)
 
           i++;
