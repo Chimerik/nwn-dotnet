@@ -8,6 +8,9 @@ using System.Threading.Tasks;
 using System;
 using System.Collections.Generic;
 using Action = System.Action;
+using NWN.Core;
+using ItemProperty = NWN.API.ItemProperty;
+using Effect = NWN.API.Effect;
 
 namespace NWN.Systems
 {
@@ -144,33 +147,87 @@ namespace NWN.Systems
       if (ctx.onAttack.AttackResult == AttackResult.Miss)
       {
         ctx.onAttack.AttackResult = AttackResult.AutomaticHit;
+        int strModifier = ctx.oAttacker.GetAbilityModifier(Ability.Strength);
 
         if (ctx.attackWeapon == null)
-          ctx.onAttack.DamageData.Base = (short)(NwRandom.Roll(Utils.random, 3) + ctx.oAttacker.GetAbilityModifier(Ability.Strength));
+          ctx.onAttack.DamageData.Base = (short)(NwRandom.Roll(Utils.random, 3) + strModifier);
         else
         {
+          NwItem damageSlot = null;
+
           switch (ItemUtils.GetItemCategory(ctx.attackWeapon.BaseItemType))
           {
             case ItemUtils.ItemCategory.RangedWeapon:
+
               switch (ctx.attackWeapon.BaseItemType)
               {
                 case BaseItemType.LightCrossbow:
                 case BaseItemType.HeavyCrossbow:
+                  damageSlot = ctx.oAttacker.GetItemInSlot(InventorySlot.Bolts);
+                  strModifier = 0;
+                  break;
+                case BaseItemType.Shortbow:
+                case BaseItemType.Longbow:
+                  damageSlot = ctx.oAttacker.GetItemInSlot(InventorySlot.Arrows);
 
-                  if (ctx.oAttacker.GetItemInSlot(InventorySlot.Bolts) != null)
-                    foreach (ItemProperty ip in ctx.oAttacker.GetItemInSlot(InventorySlot.Bolts).ItemProperties.Where(i => i.PropertyType == ItemPropertyType.DamageBonus
-                    || (i.PropertyType == ItemPropertyType.DamageBonusVsRacialGroup && i.SubType == (int)ctx.oTarget.RacialType)
-                    || (i.PropertyType == ItemPropertyType.DamageBonusVsAlignmentGroup && i.SubType == (int)ctx.oTarget.GoodEvilAlignment)
-                    || (i.PropertyType == ItemPropertyType.DamageBonusVsAlignmentGroup && i.SubType == (int)ctx.oTarget.LawChaosAlignment)
-                    || (i.PropertyType == ItemPropertyType.DamageBonusVsSpecificAlignment && i.SubType == Config.GetIPSpecificAlignmentSubTypeAsInt(ctx.oTarget))))
-                    {
-                      //switch(ip.)
-                    }
+                  ItemProperty mighty = ctx.attackWeapon.ItemProperties.Where(ip => ip.PropertyType == ItemPropertyType.Mighty).OrderByDescending(ip => ip.CostTableValue).FirstOrDefault();
+                  if (mighty != null && strModifier > mighty.CostTableValue)
+                    strModifier = mighty.CostTableValue;
 
+                  break;
+                case BaseItemType.Sling:
+                  damageSlot = ctx.oAttacker.GetItemInSlot(InventorySlot.Bullets);
+                  strModifier = 0;
+                  break;
+                case BaseItemType.Dart:
+                  strModifier = 0;
                   break;
               }
               break;
+
+            case ItemUtils.ItemCategory.TwoHandedMeleeWeapon:
+              strModifier = (int)(strModifier * 1.5);
+              damageSlot = ctx.attackWeapon;
+              break;
+
+            default:
+              damageSlot = ctx.attackWeapon;
+              break;
           }
+
+          short rolledDamage = 0;
+          short currentDamage = 0;
+
+          if (damageSlot != null)
+            foreach (ItemProperty ip in damageSlot.ItemProperties.Where(i => i.PropertyType == ItemPropertyType.DamageBonus
+            || (i.PropertyType == ItemPropertyType.DamageBonusVsRacialGroup && i.SubType == (int)ctx.oTarget.RacialType)
+            || (i.PropertyType == ItemPropertyType.DamageBonusVsAlignmentGroup && i.SubType == (int)ctx.oTarget.GoodEvilAlignment)
+            || (i.PropertyType == ItemPropertyType.DamageBonusVsAlignmentGroup && i.SubType == (int)ctx.oTarget.LawChaosAlignment)
+            || (i.PropertyType == ItemPropertyType.DamageBonusVsSpecificAlignment && i.SubType == Config.GetIPSpecificAlignmentSubTypeAsInt(ctx.oTarget))))
+            {
+              switch (ip.Param1TableValue)
+              {
+                case -1: // Cas des dégâts simples
+                  rolledDamage = Config.RollDamage(ip.CostTableValue);
+                  currentDamage = ctx.onAttack.DamageData.GetDamageByType((DamageType)ip.SubType);
+
+                  if(rolledDamage > currentDamage)
+                    ctx.onAttack.DamageData.SetDamageByType((DamageType)ip.SubType, rolledDamage);
+                  break;
+                default: // Case des dégâts spécifiques, le type de dégât se trouve dans Param1TableValue au lieu de SubType. Ouais, c'est chiant
+                  rolledDamage = Config.RollDamage(ip.CostTableValue);
+                  currentDamage = ctx.onAttack.DamageData.GetDamageByType((DamageType)ip.SubType);
+
+                  if (rolledDamage > currentDamage)
+                    ctx.onAttack.DamageData.SetDamageByType((DamageType)ip.Param1TableValue, rolledDamage);
+                  break;
+              }
+            }
+          if (int.TryParse(NWScript.Get2DAString("baseitems", "NumDice", (int)ctx.attackWeapon.BaseItemType), out int NumDice)
+            && int.TryParse(NWScript.Get2DAString("baseitems", "DieToRoll", (int)ctx.attackWeapon.BaseItemType), out int DieToRoll))
+            ctx.onAttack.DamageData.Base = (short)(NwRandom.Roll(Utils.random, DieToRoll, NumDice) + strModifier);
+          else
+            ctx.onAttack.DamageData.Base = 0;
         }
       }
 
@@ -1142,8 +1199,8 @@ namespace NWN.Systems
         // L'attaquant est un joueur. On diminue la durabilité de son arme
 
         int durabilityChance = 30;
-
-        int dexBonus = ctx.oAttacker.GetAbilityModifier(Ability.Dexterity) - (CreaturePlugin.GetArmorCheckPenalty(ctx.oAttacker) + CreaturePlugin.GetShieldCheckPenalty(ctx.oAttacker));
+        
+        int dexBonus = ctx.oAttacker.GetAbilityModifier(Ability.Dexterity) - (ctx.oAttacker.ArmorCheckPenalty + ctx.oAttacker.ShieldCheckPenalty);
         if (dexBonus < 0)
           dexBonus = 0;
 
@@ -1181,7 +1238,7 @@ namespace NWN.Systems
 
         // La cible de l'attaque est un joueur, on fait diminuer la durabilité
 
-        int dexBonus = ctx.oTarget.GetAbilityModifier(Ability.Dexterity) - (CreaturePlugin.GetArmorCheckPenalty(ctx.oTarget) + CreaturePlugin.GetShieldCheckPenalty(ctx.oTarget));
+        int dexBonus = ctx.oTarget.GetAbilityModifier(Ability.Dexterity) - (ctx.oTarget.ArmorCheckPenalty + ctx.oTarget.ShieldCheckPenalty);
         if (dexBonus < 0)
           dexBonus = 0;
 

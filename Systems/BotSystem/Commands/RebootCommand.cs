@@ -27,15 +27,15 @@ namespace NWN.Systems
       {
         if (PlayerSystem.Players.TryGetValue(oPC.LoginCreature, out PlayerSystem.Player player))
         {
-          Core.NWNX.JournalEntry journalEntry = new Core.NWNX.JournalEntry();
-          journalEntry.sName = "REBOOT SERVEUR - 30";
-          journalEntry.sText = "Attention, le serveur reboot bientôt. Accrochez bien vos ceintures.\n" +
+          API.JournalEntry journalEntry = new API.JournalEntry();
+          journalEntry.Name = "REBOOT SERVEUR - 30";
+          journalEntry.Text = "Attention, le serveur reboot bientôt. Accrochez bien vos ceintures.\n" +
             "Non pas que vous ayez grand chose à faire, votre personnage est automatiquement sauvegardé et le module sera de retour dans moins d'une minute.";
-          journalEntry.sTag = "reboot";
-          journalEntry.nPriority = 1;
-          journalEntry.nQuestCompleted = 0;
-          journalEntry.nQuestDisplayed = 1;
-          PlayerPlugin.AddCustomJournalEntry(player.oid.LoginCreature, journalEntry);
+          journalEntry.QuestTag = "reboot";
+          journalEntry.Priority = 1;
+          journalEntry.QuestCompleted = false;
+          journalEntry.QuestDisplayed = true;
+          player.oid.AddCustomJournalEntry(journalEntry);
 
           player.rebootUpdate(29);
         }

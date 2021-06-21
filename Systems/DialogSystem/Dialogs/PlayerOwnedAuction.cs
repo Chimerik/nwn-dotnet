@@ -67,7 +67,7 @@ namespace NWN.Systems
       if (!Players.TryGetValue(selection.Player.LoginCreature, out Player player))
         return;
 
-      if (selection.TargetObject is null || !(selection.TargetObject is NwItem))
+      if (selection.IsCancelled || selection.TargetObject is null || !(selection.TargetObject is NwItem))
         return;
 
       NwStore store = (NwStore)player.oid.LoginCreature.GetLocalVariable<NwObject>("_ACTIVE_STORE").Value;
@@ -209,7 +209,7 @@ namespace NWN.Systems
       }
 
       NwItem copy = item.Clone(shop);
-      ItemPlugin.SetBaseGoldPieceValue(copy, goldValue / item.StackSize);
+      copy.BaseGoldValue = (uint)(goldValue / item.StackSize);
       copy.GetLocalVariable<int>("_CURRENT_AUCTION").Value = goldValue / item.StackSize;
       item.Destroy();
 
@@ -281,7 +281,7 @@ namespace NWN.Systems
       player.oid.LoginCreature.TakeGold(auctionSetPrice, true);
 
       NwItem item = shop.Items.FirstOrDefault();
-      ItemPlugin.SetBaseGoldPieceValue(item, auctionSetPrice / item.StackSize);
+      item.BaseGoldValue = (uint)(auctionSetPrice / item.StackSize);
 
       var buyerQuery = NWScript.SqlPrepareQueryCampaign(Config.database, $"UPDATE playerCharacters SET bankGold = bankGold + @gold where characterId = @characterId");
       NWScript.SqlBindInt(buyerQuery, "@characterId", shop.GetLocalVariable<int>("_CURRENT_AUCTIONNER").Value);

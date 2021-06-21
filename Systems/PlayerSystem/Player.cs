@@ -51,7 +51,7 @@ namespace NWN.Systems
       public Dictionary<string, int> materialStock = new Dictionary<string, int>();
       public List<API.Effect> effectList = new List<API.Effect>();
       public Dictionary<int, MapPin> mapPinDictionnary = new Dictionary<int, MapPin>();
-      public Dictionary<string, string> areaExplorationStateDictionnary = new Dictionary<string, string>();
+      public Dictionary<string, byte[]> areaExplorationStateDictionnary = new Dictionary<string, byte[]>();
       public Dictionary<ChatChannel, Color> chatColors = new Dictionary<ChatChannel, Color>();
 
       public Player(NwPlayer nwobj)
@@ -394,8 +394,6 @@ namespace NWN.Systems
             break;
         }
 
-        PlayerPlugin.ApplyInstantVisualEffectToObject(oid.LoginCreature, oid.LoginCreature, NWScript.VFX_IMP_GLOBE_USE);
-
         craftJob.CloseCraftJournalEntry();
         craftJob = new Job(-10, "", 0, this);
       }
@@ -489,7 +487,7 @@ namespace NWN.Systems
       }*/
       public void UpdateJournal()
       {
-        Core.NWNX.JournalEntry journalEntry;
+        API.JournalEntry journalEntry;
 
         if (oid.LoginCreature.Location.Area == null && DoJournalUpdate)
         {
@@ -505,22 +503,24 @@ namespace NWN.Systems
 
         if (playerJournal.craftJobCountDown != null && oid.LoginCreature.Area.GetLocalVariable<int>("_AREA_LEVEL").Value == 0)
         {
-          journalEntry = PlayerPlugin.GetJournalEntry(oid.LoginCreature, "craft_job");
-          if (journalEntry.nUpdated != -1)
+          journalEntry = oid.GetJournalEntry("craft_job");
+
+          if (journalEntry != null)
           {
-            journalEntry.sName = $"Travail artisanal - {Utils.StripTimeSpanMilliseconds((TimeSpan)(playerJournal.craftJobCountDown - DateTime.Now))}";
-            PlayerPlugin.AddCustomJournalEntry(oid.LoginCreature, journalEntry, 1);
+            journalEntry.Name = $"Travail artisanal - {Utils.StripTimeSpanMilliseconds((TimeSpan)(playerJournal.craftJobCountDown - DateTime.Now))}";
+            oid.AddCustomJournalEntry(journalEntry, true);
           }
           this.CraftJobProgression();
         }
 
         if (playerJournal.skillJobCountDown != null)
         {
-          journalEntry = PlayerPlugin.GetJournalEntry(oid.LoginCreature, "skill_job");
-          if (journalEntry.nUpdated != -1)
+          journalEntry = oid.GetJournalEntry("skill_job");
+
+          if (journalEntry != null)
           {
-            journalEntry.sName = $"Entrainement - {Utils.StripTimeSpanMilliseconds((TimeSpan)(playerJournal.skillJobCountDown - DateTime.Now))}";
-            PlayerPlugin.AddCustomJournalEntry(oid.LoginCreature, journalEntry, 1);
+            journalEntry.Name = $"Entrainement - {Utils.StripTimeSpanMilliseconds((TimeSpan)(playerJournal.skillJobCountDown - DateTime.Now))}";
+            oid.AddCustomJournalEntry(journalEntry, true);
           }
 
           switch (currentSkillType)
@@ -550,9 +550,9 @@ namespace NWN.Systems
         if (!this.oid.LoginCreature.IsValid)
           return;
 
-        Core.NWNX.JournalEntry journalEntry = PlayerPlugin.GetJournalEntry(this.oid.LoginCreature, "reboot");
-        journalEntry.sName = $"REBOOT SERVEUR - {countDown}";
-        PlayerPlugin.AddCustomJournalEntry(this.oid.LoginCreature, journalEntry);
+        API.JournalEntry journalEntry = oid.GetJournalEntry("reboot");
+        journalEntry.Name = $"REBOOT SERVEUR - {countDown}";
+        oid.AddCustomJournalEntry(journalEntry);
         
         if (countDown >= 0)
           this.rebootUpdate(countDown - 1);

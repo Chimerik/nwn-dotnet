@@ -42,16 +42,18 @@ namespace NWN.Systems
     }
     private static void playerVFXTarget(ModuleEvents.OnPlayerTarget selection)
     {
+      if (selection.IsCancelled)
+        return;
+
       if (selection.Player.LoginCreature.GetLocalVariable<int>("_VFX_ID").HasValue)
       {
-        PlayerPlugin.ApplyInstantVisualEffectToObject(selection.Player.ControlledCreature, selection.TargetObject, selection.Player.LoginCreature.GetLocalVariable<int>("_VXF_TEST_ID").Value);
-        //((NwGameObject)selection.TargetObject).ApplyEffect(EffectDuration.Temporary, Effect.VisualEffect((VfxType)selection.Player.LoginCreature.GetLocalVariable<int>("_VXF_TEST_ID").Value), TimeSpan.FromSeconds(10));
+        selection.Player.ApplyInstantVisualEffectToObject((VfxType)selection.Player.LoginCreature.GetLocalVariable<int>("_VXF_TEST_ID").Value, (NwGameObject)selection.TargetObject);
         selection.Player.LoginCreature.GetLocalVariable<int>("_VFX_ID").Delete();
       }
     }
     private static void dmVFXTarget(ModuleEvents.OnPlayerTarget selection)
     {
-      if (selection.Player.LoginCreature.GetLocalVariable<int>("_VFX_ID").HasNothing)
+      if (selection.IsCancelled || selection.Player.LoginCreature.GetLocalVariable<int>("_VFX_ID").HasNothing)
         return;
 
       VfxType vfxId = (VfxType)selection.Player.LoginCreature.GetLocalVariable<int>("_VFX_ID").Value;

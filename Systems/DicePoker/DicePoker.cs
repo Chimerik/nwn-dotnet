@@ -155,7 +155,7 @@ namespace NWN.Systems.DicePoker
       }
 
       bet = (uint)playerInput;
-      PlayerPlugin.PlaySound(playerOne.oid.LoginCreature, "it_coins");
+      playerOne.oid.PlaySound("it_coins");
       DrawStartingPage();
     }
 
@@ -362,7 +362,7 @@ namespace NWN.Systems.DicePoker
 
       player.menu.Draw();
 
-      PlayerPlugin.PlaySound(playerOne.oid.LoginCreature, "it_dice");
+      playerOne.oid.PlaySound("it_dice");
 
       CancellationTokenSource tokenSource = new CancellationTokenSource();
 
@@ -415,7 +415,7 @@ namespace NWN.Systems.DicePoker
 
       if (awaitedValue)
       {
-        PlayerPlugin.PlaySound(player.oid.LoginCreature, "it_coins");
+        player.oid.PlaySound("it_coins");
         WaitForOpponentRaise(player, opponent);
       }
     }
@@ -533,7 +533,7 @@ namespace NWN.Systems.DicePoker
       player.menu.Draw();
 
       player.oid.LoginCreature.GetLocalVariable<int>("_DICE_POKER_REROLLED").Value = 1;
-      PlayerPlugin.PlaySound(playerOne.oid.LoginCreature, "it_dice");
+      playerOne.oid.PlaySound("it_dice");
 
       CancellationTokenSource tokenSource = new CancellationTokenSource();
 

@@ -15,10 +15,8 @@ namespace NWN.Systems
     }
     private static async void OnAppearanceSelected(ModuleEvents.OnPlayerTarget selection)
     {
-      if (selection.TargetObject is null || !(selection.TargetObject is NwItem) || !PlayerSystem.Players.TryGetValue(selection.Player.LoginCreature, out PlayerSystem.Player player))
+      if (selection.IsCancelled || selection.TargetObject is null || !(selection.TargetObject is NwItem item) || !PlayerSystem.Players.TryGetValue(selection.Player.LoginCreature, out PlayerSystem.Player player))
         return;
-
-      NwItem item = (NwItem)selection.TargetObject;
 
       // TODO : ajouter un métier permettant de modifier n'importe quelle tenue
       if (item.GetLocalVariable<string>("_ORIGINAL_CRAFTER_NAME").HasValue && item.GetLocalVariable<string>("_ORIGINAL_CRAFTER_NAME").Value != player.oid.LoginCreature.Name)
@@ -29,7 +27,7 @@ namespace NWN.Systems
 
       int ACValue = -1;
       if (item.BaseItemType == API.Constants.BaseItemType.Armor)
-        ACValue = ItemPlugin.GetBaseArmorClass(selection.TargetObject);
+        ACValue = item.BaseACValue;
 
       player.menu.Clear();
 
@@ -39,7 +37,7 @@ namespace NWN.Systems
 
       player.menu.Draw();
 
-      bool awaitedValue = await player.WaitForPlayerInputInt();
+      bool awaitedValue = await player.WaitForPlayerInputString();
 
       if (awaitedValue)
       {
@@ -49,7 +47,7 @@ namespace NWN.Systems
               $"ON CONFLICT (characterId, appearanceName) DO UPDATE SET serializedAppearance = @serializedAppearance, baseItemType = @baseItemType, AC = @AC where characterId = @characterId and appearanceName = @appearanceName");
         NWScript.SqlBindInt(query, "@characterId", player.characterId);
         NWScript.SqlBindString(query, "@appearanceName", input);
-        NWScript.SqlBindString(query, "@serializedAppearance", ItemPlugin.GetEntireItemAppearance(selection.TargetObject));
+        NWScript.SqlBindString(query, "@serializedAppearance", item.Appearance.Serialize());
         NWScript.SqlBindInt(query, "@baseItemType", (int)item.BaseItemType);
         NWScript.SqlBindInt(query, "@AC", ACValue);
         NWScript.SqlStep(query);

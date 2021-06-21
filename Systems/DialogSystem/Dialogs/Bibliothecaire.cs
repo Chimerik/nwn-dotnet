@@ -32,7 +32,7 @@ namespace NWN.Systems
         {
           int feat = (int)SkillSystem.languageSkillBooks[NWN.Utils.random.Next(0, SkillSystem.languageSkillBooks.Length)];
           NwItem skillBook = await NwItem.Create("skillbookgeneriq", shop, 1 , "skillbook");
-          ItemPlugin.SetItemAppearance(skillBook, NWScript.ITEM_APPR_TYPE_SIMPLE_MODEL, 2, NWN.Utils.random.Next(0, 50));
+          skillBook.Appearance.SetSimpleModel((byte)Utils.random.Next(0, 50));
           skillBook.GetLocalVariable<int>("_SKILL_ID").Value = feat;
 
           int value;
@@ -42,15 +42,15 @@ namespace NWN.Systems
           if (int.TryParse(NWScript.Get2DAString("feat", "DESCRIPTION", feat), out value))
             skillBook.Description = NWScript.GetStringByStrRef(value);
 
-          ItemPlugin.SetBaseGoldPieceValue(skillBook, 3000);
+          skillBook.BaseGoldValue = 3000;
         }
         else
         {
           NwItem skillBook = await NwItem.Create("skillbookgeneriq", shop, 1, "ruined_book");
-          ItemPlugin.SetItemAppearance(skillBook, NWScript.ITEM_APPR_TYPE_SIMPLE_MODEL, 2, NWN.Utils.random.Next(0, 50));
+          skillBook.Appearance.SetSimpleModel((byte)Utils.random.Next(0, 50));
           skillBook.Name = "Ouvrage ruiné";
           skillBook.Description = "Cet ouvrage est abîmé au-delà de toute rédemption. Il est même trop humide pour faire du feu.\n\n Il est fort probable qu'il se désagrège entre vos doigts si vous tentez de l'ouvrir.";
-          ItemPlugin.SetBaseGoldPieceValue(skillBook, 3000);
+          skillBook.BaseGoldValue = 3000;
         }
 
         shop.OnOpen += StoreSystem.OnOpenBiblioStore;

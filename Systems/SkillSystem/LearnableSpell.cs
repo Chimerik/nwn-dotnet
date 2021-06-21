@@ -93,35 +93,35 @@ namespace NWN.Systems
       public void CreateSkillJournalEntry()
       {
         player.playerJournal.skillJobCountDown = DateTime.Now.AddSeconds(this.GetTimeToNextLevel(this.CalculateSkillPointsPerSecond()));
-        Core.NWNX.JournalEntry journalEntry = new Core.NWNX.JournalEntry();
-        journalEntry.sName = $"Etude - {NWN.Utils.StripTimeSpanMilliseconds((TimeSpan)(player.playerJournal.skillJobCountDown - DateTime.Now))}";
-        journalEntry.sText = $"Etude en cours :\n\n " +
+        API.JournalEntry journalEntry = new API.JournalEntry();
+        journalEntry.Name = $"Etude - {NWN.Utils.StripTimeSpanMilliseconds((TimeSpan)(player.playerJournal.skillJobCountDown - DateTime.Now))}";
+        journalEntry.Text = $"Etude en cours :\n\n " +
           $"{this.name}\n\n" +
           $"{this.description}";
-        journalEntry.sTag = "skill_job";
-        journalEntry.nPriority = 1;
-        journalEntry.nQuestDisplayed = 1;
-        PlayerPlugin.AddCustomJournalEntry(player.oid.LoginCreature, journalEntry);
+        journalEntry.QuestTag = "skill_job";
+        journalEntry.Priority = 1;
+        journalEntry.QuestDisplayed = true;
+        player.oid.AddCustomJournalEntry(journalEntry);
 
-        PlayerPlugin.ApplyInstantVisualEffectToObject(player.oid.ControlledCreature, player.oid.ControlledCreature, 1516);
+        player.oid.ApplyInstantVisualEffectToObject((VfxType)1516, player.oid.ControlledCreature);
       }
       public void CancelSkillJournalEntry()
       {
-        Core.NWNX.JournalEntry journalEntry = PlayerPlugin.GetJournalEntry(player.oid.LoginCreature, "skill_job");
-        journalEntry.sName = $"Etude annulée - {this.name}";
-        journalEntry.sTag = "skill_job";
-        journalEntry.nQuestDisplayed = 0;
-        PlayerPlugin.AddCustomJournalEntry(player.oid.LoginCreature, journalEntry);
+        API.JournalEntry journalEntry = player.oid.GetJournalEntry("skill_job");
+        journalEntry.Name = $"Etude annulée - {this.name}";
+        journalEntry.QuestTag = "skill_job";
+        journalEntry.QuestDisplayed = false;
+        player.oid.AddCustomJournalEntry(journalEntry);
         player.playerJournal.skillJobCountDown = null;
       }
       public void CloseSkillJournalEntry()
       {
-        Core.NWNX.JournalEntry journalEntry = PlayerPlugin.GetJournalEntry(player.oid.LoginCreature, "skill_job");
-        journalEntry.sName = $"Etude terminée - {this.name}";
-        journalEntry.sTag = "skill_job";
-        journalEntry.nQuestCompleted = 1;
-        journalEntry.nQuestDisplayed = 0;
-        PlayerPlugin.AddCustomJournalEntry(player.oid.LoginCreature, journalEntry);
+        API.JournalEntry journalEntry = player.oid.GetJournalEntry("skill_job");
+        journalEntry.Name = $"Etude terminée - {this.name}";
+        journalEntry.QuestTag = "skill_job";
+        journalEntry.QuestCompleted = true;
+        journalEntry.QuestDisplayed = false;
+        player.oid.AddCustomJournalEntry(journalEntry);
         player.playerJournal.skillJobCountDown = null;
       }
       public double CalculateSkillPointsPerSecond()
@@ -178,7 +178,7 @@ namespace NWN.Systems
       }
       public void PlayNewSkillAcquiredEffects()
       {
-        PlayerPlugin.ApplyInstantVisualEffectToObject(player.oid.ControlledCreature, player.oid.ControlledCreature, 1516);
+        player.oid.ApplyInstantVisualEffectToObject((VfxType)1516, player.oid.ControlledCreature);
         CloseSkillJournalEntry();
       }
     }

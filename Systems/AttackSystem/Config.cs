@@ -27,5 +27,55 @@ namespace NWN.Systems
         _ => 4,
       };
     }
+    public static short RollDamage(int costValue)
+    {
+      switch(costValue)
+      {
+        case 1:
+        case 2:
+        case 3:
+        case 4:
+        case 5:
+          return (short)costValue;
+        case 6:
+          return (short)NwRandom.Roll(Utils.random, 4);
+        case 7:
+          return (short)NwRandom.Roll(Utils.random, 6);
+        case 8:
+          return (short)NwRandom.Roll(Utils.random, 8);
+        case 9:
+          return (short)NwRandom.Roll(Utils.random, 10);
+        case 10:
+          return (short)NwRandom.Roll(Utils.random, 6, 2);
+        case 11:
+          return (short)NwRandom.Roll(Utils.random, 8, 2);
+        case 12:
+          return (short)NwRandom.Roll(Utils.random, 4, 2);
+        case 13:
+          return (short)NwRandom.Roll(Utils.random, 10, 2);
+        case 14:
+          return (short)NwRandom.Roll(Utils.random, 12, 1);
+        case 15:
+          return (short)NwRandom.Roll(Utils.random, 12, 2);
+        case 16:
+        case 17:
+        case 18:
+        case 19:
+        case 20:
+        case 21:
+        case 22:
+        case 23:
+        case 24:
+        case 25:
+        case 26:
+        case 27:
+        case 28:
+        case 29:
+        case 30:
+          return (short)(costValue - 10);
+        default:
+          return 0;
+      }
+    }
   }
 }

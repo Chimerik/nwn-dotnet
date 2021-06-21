@@ -269,7 +269,7 @@ namespace NWN.Systems
 
       if (baseItemType == BaseItemType.Armor)
       {
-        if (!int.TryParse(NWScript.Get2DAString("armor", "COST", ItemPlugin.GetBaseArmorClass(item)), out baseCost))
+        if (!int.TryParse(NWScript.Get2DAString("armor", "COST", item.BaseACValue), out baseCost))
         {
           Utils.LogMessageToDMs($"{item.Name} - baseCost introuvable pour baseItemType : {baseItemType}");
           return 999999;

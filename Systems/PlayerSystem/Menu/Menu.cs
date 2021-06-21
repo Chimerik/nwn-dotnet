@@ -247,7 +247,7 @@ namespace NWN.Systems
 
                 selectedChoiceID = (selectedChoiceID + choices.Count - 1) % choices.Count;
                 EraseLastSelection();
-                PlayerPlugin.PlaySound(player.oid.LoginCreature, "gui_select", NWScript.OBJECT_INVALID);
+                player.oid.PlaySound("gui_select");
                 DrawSelection();
                 return;
 
@@ -258,7 +258,7 @@ namespace NWN.Systems
 
                 selectedChoiceID = (selectedChoiceID + 1) % choices.Count;
                 EraseLastSelection();
-                PlayerPlugin.PlaySound(player.oid.LoginCreature, "gui_select", NWScript.OBJECT_INVALID);
+                player.oid.PlaySound("gui_select");
                 DrawSelection();
                 return;
 
@@ -268,7 +268,7 @@ namespace NWN.Systems
                   return;
 
                 var handler = choices.ElementAtOrDefault(selectedChoiceID).handler;
-                PlayerPlugin.PlaySound(player.oid.LoginCreature, "gui_picklockopen", NWScript.OBJECT_INVALID);
+                player.oid.PlaySound("gui_picklockopen");
                 handler?.Invoke();
                 return;
               case CustomFeats.CustomMenuEXIT:

@@ -220,7 +220,7 @@ namespace NWN.System
         player.oid.SendServerMessage($"{item.Name.ColorString(ColorConstants.Orange)} est désormais en vente au prix de {pointValue.ToString().ColorString(ColorConstants.Green)} pièce(s) d'or.");
 
         NwItem copy = item.Clone(shop);
-        ItemPlugin.SetBaseGoldPieceValue(copy, pointValue / item.StackSize);
+        copy.BaseGoldValue = (uint)(pointValue / item.StackSize);
         copy.GetLocalVariable<int>("_SET_SELL_PRICE").Value = pointValue / item.StackSize;
         item.Destroy();
       }
@@ -534,7 +534,7 @@ namespace NWN.System
         player.oid.SendServerMessage($"{item.Name.ColorString(ColorConstants.Orange)} peut désormais être échangé contre {pointValue.ToString().ColorString(ColorConstants.Green)} point(s).");
         
         NwItem copy = item.Clone(shop);
-        ItemPlugin.SetBaseGoldPieceValue(copy, pointValue / item.StackSize);
+        copy.BaseGoldValue = (uint)(pointValue / item.StackSize);
         copy.GetLocalVariable<int>("_SET_SELL_PRICE").Value = pointValue / item.StackSize;
         item.Destroy();
       }

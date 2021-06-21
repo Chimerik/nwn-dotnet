@@ -135,9 +135,7 @@ namespace NWN.Systems.Arena
           shop = NWScript.SqlGetObject(query, 0, player.oid.ControlledCreature.Location).ToNwObject<NwStore>();
 
           foreach (NwItem item in shop.Items)
-          {
-            ItemPlugin.SetBaseGoldPieceValue(item, item.GetLocalVariable<int>("_SET_SELL_PRICE").Value);
-          }
+            item.BaseGoldValue = (uint)(item.GetLocalVariable<int>("_SET_SELL_PRICE").Value);
         }
       }
 
@@ -198,9 +196,7 @@ namespace NWN.Systems.Arena
           shop = NWScript.SqlGetObject(query, 0, player.oid.ControlledCreature.Location).ToNwObject<NwStore>();
 
           foreach (NwItem item in shop.Items)
-          {
-            ItemPlugin.SetBaseGoldPieceValue(item, item.GetLocalVariable<int>("_SET_SELL_PRICE").Value);
-          }
+            item.BaseGoldValue = (uint)(item.GetLocalVariable<int>("_SET_SELL_PRICE").Value);
         }
       }
 

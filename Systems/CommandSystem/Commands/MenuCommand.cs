@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using NWN.API;
 using NWN.Core.NWNX;
 
 namespace NWN.Systems
@@ -69,9 +70,9 @@ namespace NWN.Systems
       else
         ObjectPlugin.DeleteInt(player.oid.LoginCreature, "_MENU_HOTKEYS_SWAPPED");
 
-      QuickBarSlot swapQBS = PlayerPlugin.GetQuickBarSlot(player.oid.LoginCreature, 0);
-      PlayerPlugin.SetQuickBarSlot(player.oid.LoginCreature, 0, PlayerPlugin.GetQuickBarSlot(player.oid.LoginCreature, 1));
-      PlayerPlugin.SetQuickBarSlot(player.oid.LoginCreature, 1, swapQBS);
+      PlayerQuickBarButton swapQBS = player.oid.ControlledCreature.GetQuickBarButton(0);
+      player.oid.ControlledCreature.SetQuickBarButton(0, player.oid.ControlledCreature.GetQuickBarButton(1));
+      player.oid.ControlledCreature.SetQuickBarButton(1, swapQBS);
     }
 
     private static void __HandleMoveLeft(PlayerSystem.Player player)

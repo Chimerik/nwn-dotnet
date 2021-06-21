@@ -10,15 +10,15 @@ namespace NWN.Systems
     {
       if (ObjectPlugin.GetInt(oPC.LoginCreature, "_ALWAYS_WALK") == 0)
       {
-        PlayerPlugin.SetAlwaysWalk(oPC.LoginCreature, 1);
+        PlayerPlugin.SetAlwaysWalk(oPC.ControlledCreature, 1);
         ObjectPlugin.SetInt(oPC.LoginCreature, "_ALWAYS_WALK", 1, 1);
-        NWScript.SendMessageToPC(oPC.LoginCreature, "Vous avez activé le mode marche.");
+        oPC.SendServerMessage("Mode marche activé.", ColorConstants.Pink);
       }
       else
       {
         PlayerPlugin.SetAlwaysWalk(oPC.LoginCreature, 0);
         ObjectPlugin.DeleteInt(oPC.LoginCreature, "_ALWAYS_WALK");
-        NWScript.SendMessageToPC(oPC.LoginCreature, "Vous avez désactivé le mode marche.");
+        oPC.SendServerMessage("Mode marche désactivé.", ColorConstants.Pink);
       }
     }
   }

@@ -34,9 +34,9 @@ namespace NWN.Systems
       Party.HandlePartyChange(onPCDisconnect.Player);
 
       if (!player.areaExplorationStateDictionnary.ContainsKey(player.oid.LoginCreature.Area.Tag))
-        player.areaExplorationStateDictionnary.Add(player.oid.LoginCreature.Area.Tag, PlayerPlugin.GetAreaExplorationState(player.oid.LoginCreature, player.oid.LoginCreature.Area));
+        player.areaExplorationStateDictionnary.Add(player.oid.LoginCreature.Area.Tag, player.oid.GetAreaExplorationState(player.oid.LoginCreature.Area));
       else
-        player.areaExplorationStateDictionnary[player.oid.LoginCreature.Area.Tag] = PlayerPlugin.GetAreaExplorationState(player.oid.LoginCreature, player.oid.LoginCreature.Area);
+        player.areaExplorationStateDictionnary[player.oid.LoginCreature.Area.Tag] = player.oid.GetAreaExplorationState(player.oid.LoginCreature.Area);
     }
   }
 }

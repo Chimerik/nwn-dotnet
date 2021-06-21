@@ -19,10 +19,8 @@ namespace NWN.Systems
     }
     private static void OnModifyAppearanceItemSelected(ModuleEvents.OnPlayerTarget selection)
     {
-      if (selection.TargetObject is null || !(selection.TargetObject is NwItem) || !PlayerSystem.Players.TryGetValue(selection.Player.LoginCreature, out PlayerSystem.Player player))
+      if (selection.IsCancelled || selection.TargetObject is null || !(selection.TargetObject is NwItem item) || !PlayerSystem.Players.TryGetValue(selection.Player.LoginCreature, out PlayerSystem.Player player))
         return;
-
-      NwItem item = (NwItem)selection.TargetObject;
 
       // TODO : ajouter un métier permettant de modifier n'importe quelle tenue
       if (item.GetLocalVariable<string>("_ORIGINAL_CRAFTER_NAME").HasValue && item.GetLocalVariable<string>("_ORIGINAL_CRAFTER_NAME").Value != player.oid.LoginCreature.Name)
@@ -33,7 +31,7 @@ namespace NWN.Systems
 
       int ACValue = -1;
       if (item.BaseItemType == BaseItemType.Armor)
-        ACValue = ItemPlugin.GetBaseArmorClass(selection.TargetObject);
+        ACValue = item.BaseACValue;
 
       player.menu.Clear();
       player.menu.titleLines = new List<string>() {
@@ -81,7 +79,7 @@ namespace NWN.Systems
       ItemSystem.feedbackService.AddFeedbackMessageFilter(FeedbackMessage.WeightTooEncumberedWalkSlow, player.oid);
       ItemSystem.feedbackService.AddFeedbackMessageFilter(FeedbackMessage.SendMessageToPc, player.oid);
 
-      ItemPlugin.RestoreItemAppearance(item, serializedAppearance);
+      item.Appearance.Deserialize(serializedAppearance);
       NwItem newItem = item.Clone(player.oid.ControlledCreature);
       item.Destroy();
 

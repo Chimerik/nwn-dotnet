@@ -34,13 +34,13 @@ namespace NWN.Systems
           oBlueprint.Name = $"Patron original : {blueprint.name}";
 
           oBlueprint.GetLocalVariable<int>("_BASE_ITEM_TYPE").Value = baseItemType;
-          ItemPlugin.SetBaseGoldPieceValue(oBlueprint, blueprint.goldCost * 10);
+          oBlueprint.BaseGoldValue = (uint)(blueprint.goldCost * 10);
         }
 
         foreach (Feat feat in SkillSystem.forgeBasicSkillBooks)
         {
           NwItem skillBook = await NwItem.Create("skillbookgeneriq", shop, 1, "skillbook");
-          ItemPlugin.SetItemAppearance(skillBook, NWScript.ITEM_APPR_TYPE_SIMPLE_MODEL, 2, Utils.random.Next(0, 50));
+          skillBook.Appearance.SetSimpleModel((byte)Utils.random.Next(0, 50));
           skillBook.GetLocalVariable<int>("_SKILL_ID").Value = (int)feat;
 
           if (SkillSystem.customFeatsDictionnary.ContainsKey(feat))
@@ -58,15 +58,15 @@ namespace NWN.Systems
           }
 
           if (int.TryParse(NWScript.Get2DAString("feat", "CRValue", (int)feat), out int crValue))
-            ItemPlugin.SetBaseGoldPieceValue(skillBook, crValue * 1000);
+            skillBook.BaseGoldValue = (uint)(crValue * 1000);
         }
 
         NwItem craftTool = await NwItem.Create("oreextractor", shop, 1, "oreextractor");
-        ItemPlugin.SetBaseGoldPieceValue(craftTool, 50);
+        craftTool.BaseGoldValue = 50;
         craftTool.GetLocalVariable<int>("_DURABILITY").Value = 10;
 
         craftTool = await NwItem.Create("forgehammer", shop, 1, "forgehammer");
-        ItemPlugin.SetBaseGoldPieceValue(craftTool, 50);
+        craftTool.BaseGoldValue = 50;
         craftTool.GetLocalVariable<int>("_DURABILITY").Value = 5;
       }
 

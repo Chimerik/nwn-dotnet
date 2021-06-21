@@ -23,9 +23,7 @@ namespace NWN.Systems
     }
     private void OnTargetSelected(ModuleEvents.OnPlayerTarget selection)
     {
-      NwPlayer oPC = ((NwCreature)selection.TargetObject).ControllingPlayer;
-
-      if (oPC == null || !PlayerSystem.Players.TryGetValue(oPC.LoginCreature, out PlayerSystem.Player commendTarget))
+      if (selection.IsCancelled || selection.TargetObject.IsPlayerControlled(out NwPlayer oPC) || oPC == null || !PlayerSystem.Players.TryGetValue(oPC.LoginCreature, out PlayerSystem.Player commendTarget))
         return;
 
       if(commendTarget.bonusRolePlay < 4)

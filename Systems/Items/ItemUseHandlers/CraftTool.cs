@@ -602,8 +602,8 @@ namespace NWN.Systems
           currentValue++;
         else if (modification == -1)
           currentValue--;
-
-        int currentAC = ItemPlugin.GetBaseArmorClass(item);
+        
+        int currentAC = item.BaseACValue;
         int gender = (int)player.oid.LoginCreature.Gender;
 
         while ((!float.TryParse(NWScript.Get2DAString(file, "ACBONUS", currentValue), out float hasModel) || (int)hasModel != currentAC)

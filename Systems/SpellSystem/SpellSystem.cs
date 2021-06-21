@@ -76,7 +76,7 @@ namespace NWN.Systems
         if (!spotter.IsCreatureSeen(oPC))
         {
           spotter.ControllingPlayer.SendServerMessage("Quelqu'un d'invisible est en train de lancer un sort à proximité !", API.ColorConstants.Cyan);
-          PlayerPlugin.ShowVisualEffect(spotter, 191, oPC.Position);
+          spotter.ControllingPlayer.ShowVisualEffect(VfxType.FnfLosNormal10, oPC.Position);
         }
       }
     }

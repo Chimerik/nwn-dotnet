@@ -31,7 +31,7 @@ namespace NWN.Systems
             material = item.GetLocalVariable<string>("_ITEM_MATERIAL").Value;
           else
           {
-            switch(ItemPlugin.GetBaseArmorClass(item))
+            switch(item.BaseACValue)
             {
               case 0:
               case 1:

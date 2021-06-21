@@ -200,12 +200,12 @@ namespace NWN.Systems
         string queryString = "INSERT INTO playerAreaExplorationState (characterId, areaTag, explorationState) VALUES (@characterId, @areaTag, @explorationState)" +
           "ON CONFLICT (characterId, areaTag) DO UPDATE SET explorationState = @explorationState";
 
-        foreach (KeyValuePair<string, string> explorationStateListEntry in player.areaExplorationStateDictionnary)
+        foreach (KeyValuePair<string, byte[]> explorationStateListEntry in player.areaExplorationStateDictionnary)
         {
           var query = NWScript.SqlPrepareQueryCampaign(Config.database, queryString);
           NWScript.SqlBindInt(query, "@characterId", player.characterId);
           NWScript.SqlBindString(query, "@areaTag", explorationStateListEntry.Key);
-          NWScript.SqlBindString(query, "@explorationState", explorationStateListEntry.Value);
+          NWScript.SqlBindString(query, "@explorationState", explorationStateListEntry.Value.ToBase64EncodedString());
           NWScript.SqlStep(query);
         }
       }

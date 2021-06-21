@@ -95,7 +95,7 @@ namespace NWN.Systems
       foreach (Feat feat in array)
       {
         NwItem skillBook = await NwItem.Create("skillbookgeneriq", oChest, 1, "skillbook");
-        ItemPlugin.SetItemAppearance(skillBook, NWScript.ITEM_APPR_TYPE_SIMPLE_MODEL, 2, NWN.Utils.random.Next(0, 50));
+        skillBook.Appearance.SetSimpleModel((byte)Utils.random.Next(0, 50));
         skillBook.GetLocalVariable<int>("_SKILL_ID").Value = (int)feat;
 
         if (SkillSystem.customFeatsDictionnary.ContainsKey(feat))
@@ -113,7 +113,7 @@ namespace NWN.Systems
         }
 
         if (int.TryParse(NWScript.Get2DAString("feat", "CRValue", (int)feat), out int crValue))
-          ItemPlugin.SetBaseGoldPieceValue(skillBook, crValue * 1000);
+          skillBook.BaseGoldValue = (uint)(crValue * 1000);
       }
 
       UpdateChestTagToLootsDic(oChest);

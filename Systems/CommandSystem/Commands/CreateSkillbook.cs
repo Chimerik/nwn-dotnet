@@ -38,7 +38,7 @@ namespace NWN.Systems
     private async void HandleCreateSkillbook(int skillId, NwPlayer oPC)
     {
       NwItem skillBook = await NwItem.Create("skillbookgeneriq", oPC.ControlledCreature, 1, "skillbook");
-      ItemPlugin.SetItemAppearance(skillBook, NWScript.ITEM_APPR_TYPE_SIMPLE_MODEL, 2, Utils.random.Next(0, 50));
+      skillBook.Appearance.SetSimpleModel((byte)Utils.random.Next(0, 50));
       skillBook.GetLocalVariable<int>("_SKILL_ID").Value = skillId;
 
       Feat feat = (Feat)skillId;

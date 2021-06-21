@@ -137,42 +137,42 @@ namespace NWN.Systems
       public void CreateSkillJournalEntry()
       {
         player.playerJournal.skillJobCountDown = DateTime.Now.AddSeconds(this.GetTimeToNextLevel(CalculateSkillPointsPerSecond()));
-        Core.NWNX.JournalEntry journalEntry = new Core.NWNX.JournalEntry();
-        journalEntry.sName = $"Entrainement - {Utils.StripTimeSpanMilliseconds((TimeSpan)(player.playerJournal.skillJobCountDown - DateTime.Now))}";
-        journalEntry.sText = $"Entrainement en cours :\n\n " +
+        API.JournalEntry journalEntry = new API.JournalEntry();
+        journalEntry.Name = $"Entrainement - {Utils.StripTimeSpanMilliseconds((TimeSpan)(player.playerJournal.skillJobCountDown - DateTime.Now))}";
+        journalEntry.Text = $"Entrainement en cours :\n\n " +
           $"{this.name}\n\n" +
           $"{this.description}";
-        journalEntry.sTag = "skill_job";
-        journalEntry.nPriority = 1;
-        journalEntry.nQuestDisplayed = 1;
-        PlayerPlugin.AddCustomJournalEntry(player.oid.LoginCreature, journalEntry);
+        journalEntry.QuestTag = "skill_job";
+        journalEntry.Priority = 1;
+        journalEntry.QuestDisplayed = true;
+        player.oid.AddCustomJournalEntry(journalEntry);
 
-        PlayerPlugin.ApplyInstantVisualEffectToObject(player.oid.ControlledCreature, player.oid.ControlledCreature, 1516);  
+        player.oid.ApplyInstantVisualEffectToObject((VfxType)1516, player.oid.ControlledCreature);
       }
       public void CancelSkillJournalEntry()
       {
-        Core.NWNX.JournalEntry journalEntry = PlayerPlugin.GetJournalEntry(player.oid.LoginCreature, "skill_job");
-        journalEntry.sName = $"Entrainement annulé - {this.name}";
-        journalEntry.sTag = "skill_job";
-        journalEntry.nQuestDisplayed = 0;
-        PlayerPlugin.AddCustomJournalEntry(player.oid.LoginCreature, journalEntry);
+        API.JournalEntry journalEntry = player.oid.GetJournalEntry("skill_job");
+        journalEntry.Name = $"Entrainement annulé - {this.name}";
+        journalEntry.QuestTag = "skill_job";
+        journalEntry.QuestDisplayed = false;
+        player.oid.AddCustomJournalEntry(journalEntry);
         player.playerJournal.skillJobCountDown = null;
       }
       public void CloseSkillJournalEntry()
       {
-        Core.NWNX.JournalEntry journalEntry = PlayerPlugin.GetJournalEntry(player.oid.LoginCreature, "skill_job");
+        API.JournalEntry journalEntry = player.oid.GetJournalEntry("skill_job");
 
-        if (journalEntry.nUpdated == -1)
+        if (journalEntry == null)
         {
           CreateSkillJournalEntry();
-          journalEntry = PlayerPlugin.GetJournalEntry(player.oid.LoginCreature, "skill_job");
+          journalEntry = player.oid.GetJournalEntry("skill_job");
         }
 
-        journalEntry.sName = $"Entrainement terminé - {this.name}";
-        journalEntry.sTag = "skill_job";
-        journalEntry.nQuestCompleted = 1;
-        journalEntry.nQuestDisplayed = 0;
-        PlayerPlugin.AddCustomJournalEntry(player.oid.LoginCreature, journalEntry);
+        journalEntry.Name = $"Entrainement terminé - {this.name}";
+        journalEntry.QuestTag = "skill_job";
+        journalEntry.QuestCompleted = true;
+        journalEntry.QuestDisplayed = false;
+        player.oid.AddCustomJournalEntry(journalEntry);
         player.playerJournal.skillJobCountDown = null;
       }
       public double CalculateSkillPointsPerSecond()
@@ -268,7 +268,7 @@ namespace NWN.Systems
 
           if (int.TryParse(NWScript.Get2DAString("feat", "FEAT", (int)oid), out int nameValue))
             PlayerPlugin.SetTlkOverride(player.oid.LoginCreature, nameValue, $"{customFeatName} - {currentLevel}");
-            //player.oid.SetTlkOverride(nameValue, $"{customFeatName} - {currentLevel}");
+          //player.oid.SetTlkOverride(nameValue, $"{customFeatName} - {currentLevel}");
           else
             Utils.LogMessageToDMs($"CUSTOM SKILL SYSTEM ERROR - Skill {customFeatName} - {(int)oid} : no available custom name StrRef");
           
@@ -316,7 +316,7 @@ namespace NWN.Systems
       }
       public void PlayNewSkillAcquiredEffects()
       {
-        PlayerPlugin.ApplyInstantVisualEffectToObject(player.oid.ControlledCreature, player.oid.ControlledCreature, 1516);
+        player.oid.ApplyInstantVisualEffectToObject((VfxType)1516, player.oid.ControlledCreature);
         CloseSkillJournalEntry();
       }
     }

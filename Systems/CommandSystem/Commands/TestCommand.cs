@@ -25,7 +25,7 @@ namespace NWN.Systems
     }
     private static void OnTargetSelected(ModuleEvents.OnPlayerTarget selection)
     {
-      if (!(selection.TargetObject is NwItem item))
+      if (selection.IsCancelled || !(selection.TargetObject is NwItem item))
         return;
 
       item.AddItemProperty(API.ItemProperty.ACBonusVsDmgType((IPDamageType)5, 80), EffectDuration.Temporary, TimeSpan.FromSeconds(10));

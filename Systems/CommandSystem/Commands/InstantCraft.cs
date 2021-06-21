@@ -13,7 +13,7 @@ namespace NWN.Systems
     }
     private void SelectCraftTarget(ModuleEvents.OnPlayerTarget selection)
     {
-      if (!PlayerSystem.Players.TryGetValue(selection.TargetObject, out PlayerSystem.Player targetPlayer))
+      if (selection.IsCancelled || !selection.TargetObject.IsPlayerControlled(out NwPlayer oPC) || !PlayerSystem.Players.TryGetValue(oPC.LoginCreature, out PlayerSystem.Player targetPlayer))
         return;
 
       if (targetPlayer.craftJob != null && targetPlayer.craftJob.baseItemType != 10)

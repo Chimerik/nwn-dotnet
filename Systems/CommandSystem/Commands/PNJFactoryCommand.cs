@@ -34,7 +34,7 @@ namespace NWN.Systems
     }
     public void OnPNJSelected(ModuleEvents.OnPlayerTarget selection)
     {
-      if (selection.TargetObject == null || !(selection.TargetObject is NwCreature oCreature))
+      if (selection.IsCancelled || selection.TargetObject == null || !(selection.TargetObject is NwCreature oCreature))
         return;
 
       if (oCreature.IsLoginPlayerCharacter && selection.Player.PlayerName != "Chim")
@@ -1028,6 +1028,9 @@ namespace NWN.Systems
     }
     private void OnPNJSpawnLocationSelected(ModuleEvents.OnPlayerTarget selection)
     {
+      if (selection.IsCancelled)
+        return;
+
       var query = NWScript.SqlPrepareQueryCampaign(Config.database, $"SELECT serializedCreature from savedNPC where accountName = @accountName and name = @name");
       NWScript.SqlBindString(query, "@accountName", selection.Player.LoginCreature.GetLocalVariable<string>("_SPAWNING_NPC_ACCOUNT").Value);
       NWScript.SqlBindString(query, "@name", selection.Player.LoginCreature.GetLocalVariable<string>("_SPAWNING_NPC").Value);

@@ -52,9 +52,6 @@ namespace NWN.Systems
       if (player.menu.isOpen)
         player.menu.Close();
 
-      if (area.GetLocalVariable<int>("_AREA_LEVEL") < 2)
-        NWScript.ExploreAreaForPlayer(area, player.oid.LoginCreature, 1);
-
       if (area.GetLocalVariable<int>("_AREA_LEVEL") == 0)
       {
         if (player.craftJob.IsActive() && player.playerJournal.craftJobCountDown == null)
@@ -63,8 +60,11 @@ namespace NWN.Systems
       else if (player.playerJournal.craftJobCountDown != null)
         player.craftJob.CancelCraftJournalEntry();
 
-      if (player.areaExplorationStateDictionnary.ContainsKey(onEnter.Area.Tag))
-        PlayerPlugin.SetAreaExplorationState(player.oid.LoginCreature, onEnter.Area, player.areaExplorationStateDictionnary[onEnter.Area.Tag]);
+      if (player.areaExplorationStateDictionnary.ContainsKey(area.Tag))
+        player.oid.SetAreaExplorationState(area, player.areaExplorationStateDictionnary[area.Tag]);
+
+      if (area.GetLocalVariable<int>("_AREA_LEVEL") < 2)
+        player.oid.SetAreaExplorationState(area, true);
 
       foreach (NwCreature statue in area.FindObjectsOfTypeInArea<NwCreature>().Where(c => c.Tag == "Statuereptilienne"))
         statue.GetLocalVariable<int>($"_PERCEPTION_STATUS_{player.oid.CDKey}").Delete();
@@ -89,9 +89,9 @@ namespace NWN.Systems
         player.previousLocation = player.location;
 
         if (!player.areaExplorationStateDictionnary.ContainsKey(onExit.Area.Tag))
-          player.areaExplorationStateDictionnary.Add(onExit.Area.Tag, PlayerPlugin.GetAreaExplorationState(player.oid.LoginCreature, onExit.Area));
+          player.areaExplorationStateDictionnary.Add(onExit.Area.Tag, player.oid.GetAreaExplorationState(onExit.Area));
         else
-          player.areaExplorationStateDictionnary[onExit.Area.Tag] = PlayerPlugin.GetAreaExplorationState(player.oid.LoginCreature, onExit.Area);
+          player.areaExplorationStateDictionnary[onExit.Area.Tag] = player.oid.GetAreaExplorationState(onExit.Area);
       }
       else // Edge case où le joueur se déconnecte
       {

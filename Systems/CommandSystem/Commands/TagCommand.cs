@@ -13,7 +13,7 @@ namespace NWN.Systems
     }
     private static async void ChangeTagTarget(ModuleEvents.OnPlayerTarget selection)
     {
-      if (!PlayerSystem.Players.TryGetValue(selection.Player.LoginCreature, out PlayerSystem.Player player) || selection.TargetObject == null)
+      if (selection.IsCancelled || !PlayerSystem.Players.TryGetValue(selection.Player.LoginCreature, out PlayerSystem.Player player) || selection.TargetObject == null)
         return;
 
       player.menu.Clear();

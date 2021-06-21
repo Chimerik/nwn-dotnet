@@ -20,8 +20,11 @@ namespace NWN.Systems
 
       PlayerSystem.cursorTargetService.EnterTargetMode(ctx.oSender, FollowTarget, ObjectTypes.Creature, MouseCursor.Follow);
     }
-    private static void FollowTarget(ModuleEvents.OnPlayerTarget selection)
+    private static async void FollowTarget(ModuleEvents.OnPlayerTarget selection)
     {
+      if (selection.IsCancelled)
+        return;
+
       if (selection.Player.ControlledCreature.MovementRate == MovementRate.Immobile
             || selection.Player.ControlledCreature.TotalWeight > int.Parse(NWScript.Get2DAString("encumbrance", "Heavy", selection.Player.ControlledCreature.GetAbilityScore(Ability.Strength))))
       {
@@ -35,7 +38,7 @@ namespace NWN.Systems
         return;
       }*/
 
-      selection.Player.ControlledCreature.ActionForceFollowObject((NwGameObject)selection.TargetObject, 3.0f);
+      await selection.Player.ControlledCreature.ActionForceFollowObject((NwGameObject)selection.TargetObject, 3.0f);
     }
   }
 }

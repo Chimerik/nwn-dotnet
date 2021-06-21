@@ -156,7 +156,7 @@ namespace NWN.Systems
       }
 
       NwItem copy = item.Clone(shop);
-      ItemPlugin.SetBaseGoldPieceValue(copy, goldValue / item.StackSize);
+      copy.BaseGoldValue = (uint)(goldValue / item.StackSize);
       copy.GetLocalVariable<int>("_SET_SELL_PRICE").Value = goldValue / item.StackSize;
       item.Destroy();
 

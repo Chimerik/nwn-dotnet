@@ -113,13 +113,13 @@ namespace NWN.Systems
 
         if (int.TryParse(NWScript.Get2DAString("feat", "FEAT", (int)feat.Key), out int nameValue))
           PlayerPlugin.SetTlkOverride(player.oid.LoginCreature, nameValue, $"{customFeat.name} - {SkillSystem.GetCustomFeatLevelFromSkillPoints(feat.Key, feat.Value)}");
-          //player.oid.SetTlkOverride(nameValue, $"{customFeat.name} - {SkillSystem.GetCustomFeatLevelFromSkillPoints(feat.Key, feat.Value)}");
+        //player.oid.SetTlkOverride(nameValue, $"{customFeat.name} - {SkillSystem.GetCustomFeatLevelFromSkillPoints(feat.Key, feat.Value)}");
         else
           Utils.LogMessageToDMs($"CUSTOM SKILL SYSTEM ERROR - Skill {customFeat.name} : no available custom name StrRef");
       
         if (int.TryParse(NWScript.Get2DAString("feat", "DESCRIPTION", (int)feat.Key), out int descriptionValue))
-           PlayerPlugin.SetTlkOverride(player.oid.LoginCreature, descriptionValue, customFeat.description);
-       // player.oid.SetTlkOverride(descriptionValue, customFeat.description);
+          PlayerPlugin.SetTlkOverride(player.oid.LoginCreature, descriptionValue, customFeat.description);
+        //player.oid.SetTlkOverride(descriptionValue, customFeat.description);
         else
         {
           Utils.LogMessageToDMs($"CUSTOM SKILL SYSTEM ERROR - Skill {customFeat.name} : no available custom description StrRef");
@@ -192,20 +192,20 @@ namespace NWN.Systems
       switch (newPlayer.LoginCreature.RacialType)
       {
         case RacialType.Dwarf:
-          CreaturePlugin.AddFeat(newPlayer.LoginCreature, (int)CustomFeats.Nain);
+          newPlayer.LoginCreature.AddFeat(CustomFeats.Nain);
           break;
         case RacialType.Elf:
         case RacialType.HalfElf:
-          CreaturePlugin.AddFeat(newPlayer.LoginCreature, (int)CustomFeats.Elfique);
+          newPlayer.LoginCreature.AddFeat(CustomFeats.Elfique);
           break;
         case RacialType.Halfling:
-          CreaturePlugin.AddFeat(newPlayer.LoginCreature, (int)CustomFeats.Halfelin);
+          newPlayer.LoginCreature.AddFeat(CustomFeats.Halfelin);
           break;
         case RacialType.Gnome:
-          CreaturePlugin.AddFeat(newPlayer.LoginCreature, (int)CustomFeats.Gnome);
+          newPlayer.LoginCreature.AddFeat(CustomFeats.Gnome);
           break;
         case RacialType.HalfOrc:
-          CreaturePlugin.AddFeat(newPlayer.LoginCreature, (int)CustomFeats.Orc);
+          newPlayer.LoginCreature.AddFeat(CustomFeats.Orc);
           break;
       }
 
@@ -592,7 +592,7 @@ namespace NWN.Systems
       NWScript.SqlBindInt(query, "@characterId", player.characterId);
 
       while (Convert.ToBoolean(NWScript.SqlStep(query)))
-        player.areaExplorationStateDictionnary.Add(NWScript.SqlGetString(query, 0), NWScript.SqlGetString(query, 1));
+        player.areaExplorationStateDictionnary.Add(NWScript.SqlGetString(query, 0), NWScript.SqlGetString(query, 1).ToByteArray());
     }
     private static void InitializePlayerChatColors(Player player)
     {

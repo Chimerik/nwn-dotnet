@@ -437,9 +437,7 @@ namespace NWN.Systems
         panel.OnUsed += PlaceableSystem.OnUsedPlayerOwnedShop;
 
         foreach (NwItem item in shop.Items)
-        {
-          ItemPlugin.SetBaseGoldPieceValue(item, item.GetLocalVariable<int>("_SET_SELL_PRICE").Value);
-        }
+          item.BaseGoldValue = (uint)item.GetLocalVariable<int>("_SET_SELL_PRICE").Value;
       }
     }
     private async void DeleteExpiredShop(int rowid)
@@ -470,7 +468,7 @@ namespace NWN.Systems
         panel.OnUsed += PlaceableSystem.OnUsedPlayerOwnedAuction;
 
         foreach (NwItem item in shop.Items)
-          ItemPlugin.SetBaseGoldPieceValue(item, item.GetLocalVariable<int>("_CURRENT_AUCTION").Value);
+          item.BaseGoldValue = (uint)item.GetLocalVariable<int>("_CURRENT_AUCTION").Value;
       }
     }
     public async void HandleExpiredAuctions()
@@ -597,7 +595,7 @@ namespace NWN.Systems
     {
       int characterId = ObjectPlugin.GetInt(callInfo.ObjectSelf, "characterId");
 
-      if (characterId > 0)
+      if (characterId > 0 && callInfo.ObjectSelf is NwCreature oPC)
       {
         var query = NWScript.SqlPrepareQueryCampaign(Config.database, $"SELECT areaTag, position, facing from playerCharacters where rowid = @characterId");
         NWScript.SqlBindInt(query, "@characterId", characterId);
@@ -606,9 +604,10 @@ namespace NWN.Systems
         string tag = NWScript.SqlGetString(query, 0);
 
         if (tag.StartsWith("entrepotpersonnel"))
-          AreaSystem.CreatePersonnalStorageArea((NwCreature)callInfo.ObjectSelf, characterId);
+          AreaSystem.CreatePersonnalStorageArea(oPC, characterId);
 
-        PlayerPlugin.SetSpawnLocation(callInfo.ObjectSelf, Utils.GetLocationFromDatabase(tag, NWScript.SqlGetVector(query, 1), NWScript.SqlGetFloat(query, 2)));
+        //oPC.ControllingPlayer.SpawnLocation = Utils.GetLocationFromDatabase(tag, NWScript.SqlGetVector(query, 1), NWScript.SqlGetFloat(query, 2));
+        PlayerPlugin.SetSpawnLocation(oPC, Utils.GetLocationFromDatabase(tag, NWScript.SqlGetVector(query, 1), NWScript.SqlGetFloat(query, 2)));
       }
     }
 

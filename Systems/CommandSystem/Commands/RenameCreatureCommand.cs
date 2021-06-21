@@ -21,7 +21,7 @@ namespace NWN.Systems
     }
     private static async void SummonRenameTarget(ModuleEvents.OnPlayerTarget selection)
     {
-      if (!PlayerSystem.Players.TryGetValue(selection.Player.LoginCreature, out PlayerSystem.Player player))
+      if (selection.IsCancelled || !PlayerSystem.Players.TryGetValue(selection.Player.LoginCreature, out PlayerSystem.Player player))
         return;
 
       if (selection.TargetObject != null && ((NwCreature)selection.TargetObject).Master == selection.Player.LoginCreature)

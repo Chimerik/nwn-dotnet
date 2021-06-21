@@ -113,7 +113,7 @@ namespace NWN.Systems
 
           if (oTarget.Gold >= iStolenGold)
           {
-            CreaturePlugin.SetGold(oTarget, (int)oTarget.Gold - iStolenGold);
+            oTarget.Gold = (uint)(oTarget.Gold - iStolenGold);
             oPC.GiveGold(iStolenGold);
             oPC.ControllingPlayer.FloatingTextString($"Vous venez de dérober {iStolenGold} pièces d'or des poches de {oTarget.Name} !", false);
           }
@@ -121,7 +121,7 @@ namespace NWN.Systems
           {
             oPC.ControllingPlayer.FloatingTextString($"Vous venez de vider les poches de {oTarget.Name} ! {oTarget.Gold} pièces d'or de plus pour vous.", false);
             oPC.GiveGold((int)oTarget.Gold);
-            CreaturePlugin.SetGold(oTarget, 0);
+            oTarget.Gold = 0;
           }
 
           break;
@@ -191,7 +191,7 @@ namespace NWN.Systems
     [ScriptHandler("pc_sheet_open")]
     private void HandleCharacterSheetOpened(CallInfo callInfo)
     {
-      if (!(callInfo.ObjectSelf is NwCreature { IsLoginPlayerCharacter: true } player) || !player.ControllingPlayer.IsDM)
+      if (!callInfo.ObjectSelf.IsLoginPlayerCharacter(out NwPlayer player) || !player.IsDM)
         return;
 
       if (!(NWScript.StringToObject(EventsPlugin.GetEventData("TARGET")).ToNwObject() is NwCreature { IsLoginPlayerCharacter: true } oTarget)
@@ -204,11 +204,13 @@ namespace NWN.Systems
 
         if (int.TryParse(NWScript.Get2DAString("feat", "FEAT", (int)feat.Key), out int nameValue))
           PlayerPlugin.SetTlkOverride(callInfo.ObjectSelf, nameValue, $"{customFeat.name} - {SkillSystem.GetCustomFeatLevelFromSkillPoints(feat.Key, feat.Value)}");
+        //player.SetTlkOverride(nameValue, $"{customFeat.name} - {SkillSystem.GetCustomFeatLevelFromSkillPoints(feat.Key, feat.Value)}");
         else
           Utils.LogMessageToDMs($"CUSTOM SKILL SYSTEM ERROR - Skill {customFeat.name} : no available custom name StrRef");
 
         if (int.TryParse(NWScript.Get2DAString("feat", "DESCRIPTION", (int)feat.Key), out int descriptionValue))
           PlayerPlugin.SetTlkOverride(callInfo.ObjectSelf, descriptionValue, customFeat.description);
+        //player.SetTlkOverride(descriptionValue, customFeat.description);
         else
         {
           Utils.LogMessageToDMs($"CUSTOM SKILL SYSTEM ERROR - Skill {customFeat.name} : no available custom description StrRef");
