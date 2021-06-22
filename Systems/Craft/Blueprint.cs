@@ -277,10 +277,29 @@ namespace NWN.Systems.Craft
       {
         craftedItem.RemoveItemProperty(existingIP);
 
-        if (existingIP.CostTableValue > newIP.CostTableValue)
-          newIP.CostTableValue = existingIP.CostTableValue + 1;
+        if(newIP.PropertyType == ItemPropertyType.DamageBonus 
+          || newIP.PropertyType == ItemPropertyType.DamageBonusVsAlignmentGroup
+          || newIP.PropertyType == ItemPropertyType.DamageBonusVsSpecificAlignment
+          || newIP.PropertyType == ItemPropertyType.DamageBonusVsSpecificAlignment)
+        {
+          if (int.TryParse(NWScript.Get2DAString("iprp_damagecost", "Rank", newIP.CostTableValue), out int newRank)
+            && int.TryParse(NWScript.Get2DAString("iprp_damagecost", "Rank", existingIP.CostTableValue), out int existingRank))
+          {
+              if (existingRank > newRank)
+                newRank = existingRank + 1;
+              else
+                newRank += 1;
+          }
+
+          newIP.CostTableValue = ItemPropertyDamageCost.ipDamageCost.GetDamageCostValueFromRank(newRank);
+        }
         else
-          newIP.CostTableValue += 1;
+        {
+          if (existingIP.CostTableValue > newIP.CostTableValue)
+            newIP.CostTableValue = existingIP.CostTableValue + 1;
+          else
+            newIP.CostTableValue += 1;
+        }
       }
 
       enchTag += $"_{newIP.CostTableValue}_{enchanterId}";
