@@ -199,30 +199,45 @@ namespace NWN.Systems
           short currentDamage = 0;
 
           if (damageSlot != null)
+          {
+            List<ItemProperty> damageIP = new List<ItemProperty>();
+
             foreach (ItemProperty ip in damageSlot.ItemProperties.Where(i => i.PropertyType == ItemPropertyType.DamageBonus
             || (i.PropertyType == ItemPropertyType.DamageBonusVsRacialGroup && i.SubType == (int)ctx.oTarget.RacialType)
             || (i.PropertyType == ItemPropertyType.DamageBonusVsAlignmentGroup && i.SubType == (int)ctx.oTarget.GoodEvilAlignment)
             || (i.PropertyType == ItemPropertyType.DamageBonusVsAlignmentGroup && i.SubType == (int)ctx.oTarget.LawChaosAlignment)
-            || (i.PropertyType == ItemPropertyType.DamageBonusVsSpecificAlignment && i.SubType == Config.GetIPSpecificAlignmentSubTypeAsInt(ctx.oTarget))))
+            || (i.PropertyType == ItemPropertyType.DamageBonusVsSpecificAlignment && i.SubType == Config.GetIPSpecificAlignmentSubTypeAsInt(ctx.oTarget))
+            || (i.PropertyType == ItemPropertyType.EnhancementBonus)
+            || (i.PropertyType == ItemPropertyType.EnhancementBonusVsRacialGroup && i.SubType == (int)ctx.oTarget.RacialType)
+            || (i.PropertyType == ItemPropertyType.EnhancementBonusVsAlignmentGroup && i.SubType == (int)ctx.oTarget.GoodEvilAlignment)
+            || (i.PropertyType == ItemPropertyType.EnhancementBonusVsAlignmentGroup && i.SubType == (int)ctx.oTarget.LawChaosAlignment)
+            || (i.PropertyType == ItemPropertyType.EnhancementBonusVsSpecificAlignment && i.SubType == Config.GetIPSpecificAlignmentSubTypeAsInt(ctx.oTarget))))
+              damageIP.Add(ip);
+
+            foreach (var propType in damageIP.GroupBy(i => i.PropertyType))
             {
-              switch (ip.Param1TableValue)
+              ItemProperty maxIP = propType.OrderByDescending(i => i.CostTableValue).FirstOrDefault();
+
+              switch (maxIP.Param1TableValue)
               {
                 case -1: // Cas des dégâts simples
-                  rolledDamage = Config.RollDamage(ip.CostTableValue);
-                  currentDamage = ctx.onAttack.DamageData.GetDamageByType((DamageType)ip.SubType);
-
-                  if(rolledDamage > currentDamage)
-                    ctx.onAttack.DamageData.SetDamageByType((DamageType)ip.SubType, rolledDamage);
-                  break;
-                default: // Case des dégâts spécifiques, le type de dégât se trouve dans Param1TableValue au lieu de SubType. Ouais, c'est chiant
-                  rolledDamage = Config.RollDamage(ip.CostTableValue);
-                  currentDamage = ctx.onAttack.DamageData.GetDamageByType((DamageType)ip.SubType);
+                  rolledDamage = Config.RollDamage(maxIP.CostTableValue);
+                  currentDamage = ctx.onAttack.DamageData.GetDamageByType((DamageType)maxIP.SubType);
 
                   if (rolledDamage > currentDamage)
-                    ctx.onAttack.DamageData.SetDamageByType((DamageType)ip.Param1TableValue, rolledDamage);
+                    ctx.onAttack.DamageData.SetDamageByType((DamageType)maxIP.SubType, rolledDamage);
+                  break;
+                default: // Case des dégâts spécifiques, le type de dégât se trouve dans Param1TableValue au lieu de SubType. Ouais, c'est chiant
+                  rolledDamage = Config.RollDamage(maxIP.CostTableValue);
+                  currentDamage = ctx.onAttack.DamageData.GetDamageByType((DamageType)maxIP.SubType);
+
+                  if (rolledDamage > currentDamage)
+                    ctx.onAttack.DamageData.SetDamageByType((DamageType)maxIP.Param1TableValue, rolledDamage);
                   break;
               }
             }
+          }
+
           if (int.TryParse(NWScript.Get2DAString("baseitems", "NumDice", (int)ctx.attackWeapon.BaseItemType), out int NumDice)
             && int.TryParse(NWScript.Get2DAString("baseitems", "DieToRoll", (int)ctx.attackWeapon.BaseItemType), out int DieToRoll))
             ctx.onAttack.DamageData.Base = (short)(NwRandom.Roll(Utils.random, DieToRoll, NumDice) + strModifier);

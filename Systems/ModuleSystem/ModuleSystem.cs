@@ -47,6 +47,17 @@ namespace NWN.Systems
 
       Task spawnResources = SpawnCollectableResources(1);
       Task deleteExpiredMail = DeleteExpiredMail();
+
+      NwItem test = NwObject.FindObjectsOfType<NwItem>().FirstOrDefault();
+
+      if(test == null)
+      {
+        Log.Info("prout !");
+        return;
+      }
+
+      test.AddItemProperty(API.ItemProperty.DamageBonus(API.Constants.IPDamageType.Fire, API.Constants.IPDamageBonus.Plus1));
+
     }
     private async void LoadDiscordBot()
     {
@@ -606,8 +617,8 @@ namespace NWN.Systems
         if (tag.StartsWith("entrepotpersonnel"))
           AreaSystem.CreatePersonnalStorageArea(oPC, characterId);
 
-        //oPC.ControllingPlayer.SpawnLocation = Utils.GetLocationFromDatabase(tag, NWScript.SqlGetVector(query, 1), NWScript.SqlGetFloat(query, 2));
-        PlayerPlugin.SetSpawnLocation(oPC, Utils.GetLocationFromDatabase(tag, NWScript.SqlGetVector(query, 1), NWScript.SqlGetFloat(query, 2)));
+        oPC.ControllingPlayer.SpawnLocation = Utils.GetLocationFromDatabase(tag, NWScript.SqlGetVector(query, 1), NWScript.SqlGetFloat(query, 2));
+        //PlayerPlugin.SetSpawnLocation(oPC, Utils.GetLocationFromDatabase(tag, NWScript.SqlGetVector(query, 1), NWScript.SqlGetFloat(query, 2)));
       }
     }
 
