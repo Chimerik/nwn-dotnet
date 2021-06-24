@@ -21,7 +21,7 @@ namespace NWN.Systems
     {
       public OnCreatureAttack onAttack { get; set; }
       public OnCreatureDamage onDamage { get; set; }
-      public int baseDamageType { get; set; }
+      public int weaponBaseDamageType { get; set; }
       public NwCreature oAttacker { get; }
       public NwCreature oTarget { get; }
       public bool isUnarmedAttack { get; }
@@ -48,7 +48,7 @@ namespace NWN.Systems
         this.oTarget = oTarget;
         this.attackWeapon = null;
         this.targetArmor = null;
-        this.baseDamageType = 3; // Slashing par défaut
+        this.weaponBaseDamageType = 0; // Slashing par défaut
         this.baseArmorPenetration = 0;
         this.bonusArmorPenetration = 0;
         this.maxBaseAC = 0;
@@ -195,14 +195,9 @@ namespace NWN.Systems
               break;
           }
 
-          short rolledDamage = 0;
-          short currentDamage = 0;
-
           if (damageSlot != null)
           {
-            List<ItemProperty> damageIP = new List<ItemProperty>();
-
-            foreach (ItemProperty ip in damageSlot.ItemProperties.Where(i => i.PropertyType == ItemPropertyType.DamageBonus
+            List<ItemProperty> damageIP = damageSlot.ItemProperties.Where(i => i.PropertyType == ItemPropertyType.DamageBonus
             || (i.PropertyType == ItemPropertyType.DamageBonusVsRacialGroup && i.SubType == (int)ctx.oTarget.RacialType)
             || (i.PropertyType == ItemPropertyType.DamageBonusVsAlignmentGroup && i.SubType == (int)ctx.oTarget.GoodEvilAlignment)
             || (i.PropertyType == ItemPropertyType.DamageBonusVsAlignmentGroup && i.SubType == (int)ctx.oTarget.LawChaosAlignment)
@@ -211,30 +206,29 @@ namespace NWN.Systems
             || (i.PropertyType == ItemPropertyType.EnhancementBonusVsRacialGroup && i.SubType == (int)ctx.oTarget.RacialType)
             || (i.PropertyType == ItemPropertyType.EnhancementBonusVsAlignmentGroup && i.SubType == (int)ctx.oTarget.GoodEvilAlignment)
             || (i.PropertyType == ItemPropertyType.EnhancementBonusVsAlignmentGroup && i.SubType == (int)ctx.oTarget.LawChaosAlignment)
-            || (i.PropertyType == ItemPropertyType.EnhancementBonusVsSpecificAlignment && i.SubType == Config.GetIPSpecificAlignmentSubTypeAsInt(ctx.oTarget))))
-              damageIP.Add(ip);
+            || (i.PropertyType == ItemPropertyType.EnhancementBonusVsSpecificAlignment && i.SubType == Config.GetIPSpecificAlignmentSubTypeAsInt(ctx.oTarget))).ToList();
 
             foreach (var propType in damageIP.GroupBy(i => i.PropertyType))
             {
               ItemProperty maxIP = propType.OrderByDescending(i => i.CostTableValue).FirstOrDefault();
+              DamageType damageType = DamageType.Slashing;
+              short rolledDamage = Config.RollDamage(maxIP.CostTableValue);
+              short currentDamage = 0;
 
               switch (maxIP.Param1TableValue)
               {
                 case -1: // Cas des dégâts simples
-                  rolledDamage = Config.RollDamage(maxIP.CostTableValue);
-                  currentDamage = ctx.onAttack.DamageData.GetDamageByType((DamageType)maxIP.SubType);
-
-                  if (rolledDamage > currentDamage)
-                    ctx.onAttack.DamageData.SetDamageByType((DamageType)maxIP.SubType, rolledDamage);
+                  damageType = ItemUtils.GetDamageTypeFromItemProperty((IPDamageType)maxIP.SubType);
                   break;
                 default: // Case des dégâts spécifiques, le type de dégât se trouve dans Param1TableValue au lieu de SubType. Ouais, c'est chiant
-                  rolledDamage = Config.RollDamage(maxIP.CostTableValue);
-                  currentDamage = ctx.onAttack.DamageData.GetDamageByType((DamageType)maxIP.SubType);
-
-                  if (rolledDamage > currentDamage)
-                    ctx.onAttack.DamageData.SetDamageByType((DamageType)maxIP.Param1TableValue, rolledDamage);
+                  damageType = ItemUtils.GetDamageTypeFromItemProperty((IPDamageType)maxIP.Param1TableValue);
                   break;
               }
+
+              currentDamage = ctx.onAttack.DamageData.GetDamageByType(damageType);
+
+              if (rolledDamage > currentDamage)
+                ctx.onAttack.DamageData.SetDamageByType(damageType, rolledDamage);
             }
           }
 
@@ -250,9 +244,11 @@ namespace NWN.Systems
     }
     private static void ProcessBaseDamageTypeAndAttackWeapon(Context ctx, Action next)
     {
+      ctx.weaponBaseDamageType = 3; // Slashing par défaut
+
       if (ctx.isUnarmedAttack)
       {
-        ctx.baseDamageType = 2; // Bludgeoning
+        ctx.weaponBaseDamageType = 2;
 
         if (ctx.oAttacker.GetItemInSlot(InventorySlot.Arms) != null)
           ctx.attackWeapon = ctx.oAttacker.GetItemInSlot(InventorySlot.Arms);
@@ -265,7 +261,7 @@ namespace NWN.Systems
           if (ctx.oAttacker.GetItemInSlot(InventorySlot.RightHand) != null)
           {
             ctx.attackWeapon = ctx.oAttacker.GetItemInSlot(InventorySlot.RightHand);
-            ctx.baseDamageType = ItemUtils.GetItemDamageType(ctx.attackWeapon);
+            ctx.weaponBaseDamageType = ItemUtils.GetItemDamageType(ctx.attackWeapon);
           }
 
           break;
@@ -275,7 +271,7 @@ namespace NWN.Systems
           if (ctx.oAttacker.GetItemInSlot(InventorySlot.LeftHand) != null)
           {
             ctx.attackWeapon = ctx.oAttacker.GetItemInSlot(InventorySlot.LeftHand);
-            ctx.baseDamageType = ItemUtils.GetItemDamageType(ctx.attackWeapon);
+            ctx.weaponBaseDamageType = ItemUtils.GetItemDamageType(ctx.attackWeapon);
           }
 
           break;
@@ -285,7 +281,7 @@ namespace NWN.Systems
           if (ctx.oAttacker.GetItemInSlot(InventorySlot.CreatureBiteWeapon) != null)
           {
             ctx.attackWeapon = ctx.oAttacker.GetItemInSlot(InventorySlot.CreatureBiteWeapon);
-            ctx.baseDamageType = ItemUtils.GetItemDamageType(ctx.attackWeapon);
+            ctx.weaponBaseDamageType = ItemUtils.GetItemDamageType(ctx.attackWeapon);
           }
           break;
 
@@ -294,7 +290,7 @@ namespace NWN.Systems
           if (ctx.oAttacker.GetItemInSlot(InventorySlot.CreatureLeftWeapon) != null)
           {
             ctx.attackWeapon = ctx.oAttacker.GetItemInSlot(InventorySlot.CreatureLeftWeapon);
-            ctx.baseDamageType = ItemUtils.GetItemDamageType(ctx.attackWeapon);
+            ctx.weaponBaseDamageType = ItemUtils.GetItemDamageType(ctx.attackWeapon);
           }
           break;
 
@@ -303,7 +299,7 @@ namespace NWN.Systems
           if (ctx.oAttacker.GetItemInSlot(InventorySlot.CreatureRightWeapon) != null)
           {
             ctx.attackWeapon = ctx.oAttacker.GetItemInSlot(InventorySlot.CreatureRightWeapon);
-            ctx.baseDamageType = ItemUtils.GetItemDamageType(ctx.attackWeapon);
+            ctx.weaponBaseDamageType = ItemUtils.GetItemDamageType(ctx.attackWeapon);
           }
           break;
       }
@@ -314,540 +310,253 @@ namespace NWN.Systems
     {
       if (ctx.oTarget.GetItemInSlot(InventorySlot.CreatureSkin) != null)
       {
-        ItemProperty absorption = null;
-        ItemProperty secondaryAbsorption = null;
-        int bonusAbsorbedDamage = 0;
+        List<ItemProperty> absorbIP = ctx.oTarget.GetItemInSlot(InventorySlot.CreatureSkin).ItemProperties.Where(i => i.PropertyType == ItemPropertyType.ImmunityDamageType && i.CostTableValue > 7).ToList();
 
-        switch (ctx.baseDamageType)
+        foreach (var propType in absorbIP.GroupBy(i => i.PropertyType))
         {
-          case 1: //Piercing
+          ItemProperty maxIP = propType.OrderByDescending(i => i.CostTableValue).FirstOrDefault();
+          DamageType ipDamageType = ItemUtils.GetDamageTypeFromItemProperty((IPDamageType)maxIP.SubType);
 
-            absorption = ctx.oTarget.GetItemInSlot(InventorySlot.CreatureSkin).ItemProperties.Where(i => i.PropertyType == ItemPropertyType.ImmunityDamageType && (i.SubType == 1 || i.SubType == 4) && i.CostTableValue > 7).OrderByDescending(i => i.CostTableValue).FirstOrDefault();
+          switch ((IPDamageType)maxIP.SubType)
+          {
+            case IPDamageType.Bludgeoning:
 
-            if (absorption == null || (ctx.onAttack.DamageData.Base < 1 && ctx.onAttack.DamageData.Pierce < 1))
-              break;
-
-            switch (absorption.CostTableValue)
-            {
-              case 8:
-                bonusAbsorbedDamage = ctx.onAttack.DamageData.Pierce / 4;
-                ctx.onAttack.DamageData.Pierce -= (short)bonusAbsorbedDamage;
-                HandleDamageAbsorbed(ctx, ctx.onAttack.DamageData.Base, bonusAbsorbedDamage, 25);
-                break;
-              case 9:
-                bonusAbsorbedDamage = ctx.onAttack.DamageData.Pierce / 2;
-                ctx.onAttack.DamageData.Pierce -= (short)bonusAbsorbedDamage;
-                HandleDamageAbsorbed(ctx, ctx.onAttack.DamageData.Base, bonusAbsorbedDamage, 50);
-                break;
-              case 10:
-                bonusAbsorbedDamage = ctx.onAttack.DamageData.Pierce * 3 / 4;
-                ctx.onAttack.DamageData.Pierce -= (short)bonusAbsorbedDamage;
-                HandleDamageAbsorbed(ctx, ctx.onAttack.DamageData.Base, bonusAbsorbedDamage, 75);
-                break;
-              case 11:
-                bonusAbsorbedDamage = ctx.onAttack.DamageData.Pierce;
-                ctx.onAttack.DamageData.Pierce = 0;
-                HandleDamageAbsorbed(ctx, ctx.onAttack.DamageData.Base, bonusAbsorbedDamage, 100);
-                break;
-            }
-
-            break;
-
-          case 2: //Bludgeoning
-
-            absorption = ctx.oTarget.GetItemInSlot(InventorySlot.CreatureSkin).ItemProperties.Where(i => i.PropertyType == ItemPropertyType.ImmunityDamageType && (i.SubType == 0 || i.SubType == 4) && i.CostTableValue > 7).OrderByDescending(i => i.CostTableValue).FirstOrDefault();
-
-            if (absorption == null || (ctx.onAttack.DamageData.Base < 1 && ctx.onAttack.DamageData.Bludgeoning < 1))
-              break;
-
-            switch (absorption.CostTableValue)
-            {
-              case 8:
-                bonusAbsorbedDamage = ctx.onAttack.DamageData.Bludgeoning / 4;
-                ctx.onAttack.DamageData.Bludgeoning -= (short)bonusAbsorbedDamage;
-                HandleDamageAbsorbed(ctx, ctx.onAttack.DamageData.Base, bonusAbsorbedDamage, 25);
-                break;
-              case 9:
-                bonusAbsorbedDamage = ctx.onAttack.DamageData.Bludgeoning / 2;
-                ctx.onAttack.DamageData.Bludgeoning -= (short)bonusAbsorbedDamage;
-                HandleDamageAbsorbed(ctx, ctx.onAttack.DamageData.Base, bonusAbsorbedDamage, 50);
-                break;
-              case 10:
-                bonusAbsorbedDamage = ctx.onAttack.DamageData.Bludgeoning * 3 / 4;
-                ctx.onAttack.DamageData.Bludgeoning -= (short)bonusAbsorbedDamage;
-                HandleDamageAbsorbed(ctx, ctx.onAttack.DamageData.Base, bonusAbsorbedDamage, 75);
-                break;
-              case 11:
-                bonusAbsorbedDamage = ctx.onAttack.DamageData.Bludgeoning;
-                ctx.onAttack.DamageData.Bludgeoning = 0;
-                HandleDamageAbsorbed(ctx, ctx.onAttack.DamageData.Base, bonusAbsorbedDamage, 100);
-                break;
-            }
-
-            break;
-
-          case 3: //Slashing
-
-            absorption = ctx.oTarget.GetItemInSlot(InventorySlot.CreatureSkin).ItemProperties.Where(i => i.PropertyType == ItemPropertyType.ImmunityDamageType && (i.SubType == 2 || i.SubType == 4) && i.CostTableValue > 7).OrderByDescending(i => i.CostTableValue).FirstOrDefault();
-
-            if (absorption == null || (ctx.onAttack.DamageData.Base < 1 && ctx.onAttack.DamageData.Slash < 1))
-              break;
-
-            switch (absorption.CostTableValue)
-            {
-              case 8:
-                bonusAbsorbedDamage = ctx.onAttack.DamageData.Slash / 4;
-                ctx.onAttack.DamageData.Slash -= (short)bonusAbsorbedDamage;
-                HandleDamageAbsorbed(ctx, ctx.onAttack.DamageData.Base, bonusAbsorbedDamage, 25);
-                break;
-              case 9:
-                bonusAbsorbedDamage = ctx.onAttack.DamageData.Slash / 2;
-                ctx.onAttack.DamageData.Slash -= (short)bonusAbsorbedDamage;
-                HandleDamageAbsorbed(ctx, ctx.onAttack.DamageData.Base, bonusAbsorbedDamage, 50);
-                break;
-              case 10:
-                bonusAbsorbedDamage = ctx.onAttack.DamageData.Slash * 3 / 4;
-                ctx.onAttack.DamageData.Slash -= (short)bonusAbsorbedDamage;
-                HandleDamageAbsorbed(ctx, ctx.onAttack.DamageData.Base, bonusAbsorbedDamage, 75);
-                break;
-              case 11:
-                bonusAbsorbedDamage = ctx.onAttack.DamageData.Slash;
-                ctx.onAttack.DamageData.Slash = 0;
-                HandleDamageAbsorbed(ctx, ctx.onAttack.DamageData.Base, bonusAbsorbedDamage, 100);
-                break;
-            }
-
-            break;
-
-          case 4: // Slashing and Piercing
-
-            absorption = ctx.oTarget.GetItemInSlot(InventorySlot.CreatureSkin).ItemProperties.Where(i => i.PropertyType == ItemPropertyType.ImmunityDamageType && (i.SubType == 4) && i.CostTableValue > 7).OrderByDescending(i => i.CostTableValue).FirstOrDefault();
-
-            if (absorption == null)
-            {
-              absorption = ctx.oTarget.GetItemInSlot(InventorySlot.CreatureSkin).ItemProperties.Where(i => i.PropertyType == ItemPropertyType.ImmunityDamageType && (i.SubType == 1) && i.CostTableValue > 7).OrderByDescending(i => i.CostTableValue).FirstOrDefault();
-
-              if (absorption == null)
-                absorption = ctx.oTarget.GetItemInSlot(InventorySlot.CreatureSkin).ItemProperties.Where(i => i.PropertyType == ItemPropertyType.ImmunityDamageType && (i.SubType == 2) && i.CostTableValue > 7).OrderByDescending(i => i.CostTableValue).FirstOrDefault();
-              else
+              if (ctx.onAttack.DamageData.Base > 0 || ctx.onAttack.DamageData.Bludgeoning > 0)
               {
-                secondaryAbsorption = ctx.oTarget.GetItemInSlot(InventorySlot.CreatureSkin).ItemProperties.Where(i => i.PropertyType == ItemPropertyType.ImmunityDamageType && (i.SubType == 2) && i.CostTableValue > 7).OrderByDescending(i => i.CostTableValue).FirstOrDefault();
+                if (absorbIP.Any(i => (IPDamageType)i.SubType == IPDamageType.Physical && i.CostTableValue > maxIP.CostTableValue))
+                  break;
 
-                if (secondaryAbsorption != null)
+                switch (ctx.weaponBaseDamageType)
                 {
-                  if (absorption.CostTableValue > secondaryAbsorption.CostTableValue)
-                    absorption = secondaryAbsorption;
+                  case 0: // Dégâts non causés par une arme, mais par un sort
+                  case 2: // Weapon Type Bludgeoning
+                    HandleDamageAbsorbed(ctx, DamageType.Bludgeoning, maxIP.CostTableValue);
+                    break;
+
+                  case 5: // Weapon type Bludgeoning/Piercing
+                    ItemProperty bonusAbsorbIP = absorbIP.Where(i => (IPDamageType)i.SubType == IPDamageType.Piercing).OrderByDescending(i => i.CostTableValue).FirstOrDefault();
+                    
+                    if(bonusAbsorbIP != null && bonusAbsorbIP.CostTableValue < maxIP.CostTable)
+                      HandleDamageAbsorbed(ctx, DamageType.Piercing, bonusAbsorbIP.CostTableValue, DamageType.Bludgeoning);
+                    else
+                      HandleDamageAbsorbed(ctx, DamageType.Bludgeoning, maxIP.CostTableValue);
+                    break;
                 }
               }
-            }
-
-            if (absorption == null || (ctx.onAttack.DamageData.Base < 1 && ctx.onAttack.DamageData.Slash < 1 && ctx.onAttack.DamageData.Pierce < 1))
               break;
 
-            switch (absorption.CostTableValue)
-            {
-              case 8:
+            case IPDamageType.Slashing:
 
-                if (absorption.SubType == 4 || absorption.SubType == 2)
-                {
-                  bonusAbsorbedDamage = ctx.onAttack.DamageData.Slash / 4;
-                  ctx.onAttack.DamageData.Slash -= (short)bonusAbsorbedDamage;
-                }
-
-                if (bonusAbsorbedDamage < 0)
-                  bonusAbsorbedDamage = 1;
-
-                if (absorption.SubType == 4 || absorption.SubType == 1)
-                {
-                  bonusAbsorbedDamage += ctx.onAttack.DamageData.Pierce / 4;
-                  ctx.onAttack.DamageData.Pierce -= (short)(ctx.onAttack.DamageData.Pierce / 4);
-                }
-
-                HandleDamageAbsorbed(ctx, ctx.onAttack.DamageData.Base, bonusAbsorbedDamage, 25);
-                break;
-              case 9:
-
-                if (absorption.SubType == 4 || absorption.SubType == 2)
-                {
-                  bonusAbsorbedDamage = ctx.onAttack.DamageData.Slash / 2;
-                  ctx.onAttack.DamageData.Slash -= (short)bonusAbsorbedDamage;
-                }
-
-                if (bonusAbsorbedDamage < 0)
-                  bonusAbsorbedDamage = 1;
-
-                if (absorption.SubType == 4 || absorption.SubType == 1)
-                {
-                  bonusAbsorbedDamage += ctx.onAttack.DamageData.Pierce / 2;
-                  ctx.onAttack.DamageData.Pierce -= (short)(ctx.onAttack.DamageData.Pierce / 2);
-                }
-
-                HandleDamageAbsorbed(ctx, ctx.onAttack.DamageData.Base, bonusAbsorbedDamage, 50);
-                break;
-              case 10:
-
-                if (absorption.SubType == 4 || absorption.SubType == 2)
-                {
-                  bonusAbsorbedDamage = ctx.onAttack.DamageData.Slash * 3 / 4;
-                  ctx.onAttack.DamageData.Slash -= (short)bonusAbsorbedDamage;
-                }
-
-                if (bonusAbsorbedDamage < 0)
-                  bonusAbsorbedDamage = 1;
-
-                if (absorption.SubType == 4 || absorption.SubType == 1)
-                {
-                  bonusAbsorbedDamage += ctx.onAttack.DamageData.Pierce * 3 / 4;
-                  ctx.onAttack.DamageData.Pierce -= (short)(ctx.onAttack.DamageData.Pierce * 3 / 4);
-                }
-
-                HandleDamageAbsorbed(ctx, ctx.onAttack.DamageData.Base, bonusAbsorbedDamage, 75);
-                break;
-              case 11:
-
-                if (absorption.SubType == 4 || absorption.SubType == 2)
-                {
-                  bonusAbsorbedDamage = ctx.onAttack.DamageData.Slash;
-                  ctx.onAttack.DamageData.Slash = 0;
-                }
-
-                if (bonusAbsorbedDamage < 0)
-                  bonusAbsorbedDamage = 1;
-
-                if (absorption.SubType == 4 || absorption.SubType == 1)
-                {
-                  bonusAbsorbedDamage += ctx.onAttack.DamageData.Pierce;
-                  ctx.onAttack.DamageData.Pierce = 0;
-                }
-
-                HandleDamageAbsorbed(ctx, ctx.onAttack.DamageData.Base, bonusAbsorbedDamage, 100);
-                break;
-            }
-
-            break;
-
-          case 5: // Bludgeoning and Piercing
-
-            absorption = ctx.oTarget.GetItemInSlot(InventorySlot.CreatureSkin).ItemProperties.Where(i => i.PropertyType == ItemPropertyType.ImmunityDamageType && (i.SubType == 4) && i.CostTableValue > 7).OrderByDescending(i => i.CostTableValue).FirstOrDefault();
-
-            if (absorption == null)
-            {
-              absorption = ctx.oTarget.GetItemInSlot(InventorySlot.CreatureSkin).ItemProperties.Where(i => i.PropertyType == ItemPropertyType.ImmunityDamageType && (i.SubType == 1) && i.CostTableValue > 7).OrderByDescending(i => i.CostTableValue).FirstOrDefault();
-
-              if (absorption == null)
-                absorption = ctx.oTarget.GetItemInSlot(InventorySlot.CreatureSkin).ItemProperties.Where(i => i.PropertyType == ItemPropertyType.ImmunityDamageType && (i.SubType == 0) && i.CostTableValue > 7).OrderByDescending(i => i.CostTableValue).FirstOrDefault();
-              else
+              if (ctx.onAttack.DamageData.Base > 0 || ctx.onAttack.DamageData.Slash > 0)
               {
-                secondaryAbsorption = ctx.oTarget.GetItemInSlot(InventorySlot.CreatureSkin).ItemProperties.Where(i => i.PropertyType == ItemPropertyType.ImmunityDamageType && (i.SubType == 0) && i.CostTableValue > 7).OrderByDescending(i => i.CostTableValue).FirstOrDefault();
+                if (absorbIP.Any(i => (IPDamageType)i.SubType == IPDamageType.Physical && i.CostTableValue > maxIP.CostTableValue))
+                  break;
 
-                if (secondaryAbsorption != null)
+                switch (ctx.weaponBaseDamageType)
                 {
-                  if (absorption.CostTableValue > secondaryAbsorption.CostTableValue)
-                    absorption = secondaryAbsorption;
+                  case 0: // Dégâts non causés par une arme, mais par un sort
+                  case 3: // Weapon Type Slashing
+                    HandleDamageAbsorbed(ctx, DamageType.Slashing, maxIP.CostTableValue);
+                    break;
+
+                  case 4: // Weapon type Slashing/Piercing
+                    ItemProperty bonusAbsorbIP = absorbIP.Where(i => (IPDamageType)i.SubType == IPDamageType.Piercing).OrderByDescending(i => i.CostTableValue).FirstOrDefault();
+
+                    if (bonusAbsorbIP != null && bonusAbsorbIP.CostTableValue < maxIP.CostTable)
+                      HandleDamageAbsorbed(ctx, DamageType.Piercing, bonusAbsorbIP.CostTableValue, DamageType.Slashing);
+                    else
+                      HandleDamageAbsorbed(ctx, DamageType.Slashing, maxIP.CostTableValue);
+                    break;
                 }
               }
-            }
-
-            if (absorption == null || (ctx.onAttack.DamageData.Base < 1 && ctx.onAttack.DamageData.Bludgeoning < 1 && ctx.onAttack.DamageData.Pierce < 1))
               break;
 
-            switch (absorption.CostTableValue)
-            {
-              case 8:
+            case IPDamageType.Piercing:
 
-                if (absorption.SubType == 4 || absorption.SubType == 0)
+              if (ctx.onAttack.DamageData.Base > 0 || ctx.onAttack.DamageData.Pierce > 0)
+              {
+                if (absorbIP.Any(i => (IPDamageType)i.SubType == IPDamageType.Physical && i.CostTableValue > maxIP.CostTableValue))
+                  break;
+
+                ItemProperty bonusAbsorbIP; 
+
+                switch (ctx.weaponBaseDamageType)
                 {
-                  bonusAbsorbedDamage = ctx.onAttack.DamageData.Bludgeoning / 4;
-                  ctx.onAttack.DamageData.Bludgeoning -= (short)bonusAbsorbedDamage;
+                  case 0: // Dégâts non causés par une arme, mais par un sort
+                  case 1: // Weapon Type Slashing
+                    HandleDamageAbsorbed(ctx, DamageType.Piercing, maxIP.CostTableValue);
+                    break;
+
+                  case 4: // Weapon type Slashing/Piercing
+                    bonusAbsorbIP = absorbIP.Where(i => (IPDamageType)i.SubType == IPDamageType.Slashing).OrderByDescending(i => i.CostTableValue).FirstOrDefault();
+
+                    if (bonusAbsorbIP != null && bonusAbsorbIP.CostTableValue < maxIP.CostTable)
+                      HandleDamageAbsorbed(ctx, DamageType.Slashing, bonusAbsorbIP.CostTableValue, DamageType.Piercing);
+                    else
+                      HandleDamageAbsorbed(ctx, DamageType.Piercing, maxIP.CostTableValue);
+                    break;
+
+                  case 5: // Weapon type Bludgeoning/Piercing
+                    bonusAbsorbIP = absorbIP.Where(i => (IPDamageType)i.SubType == IPDamageType.Bludgeoning).OrderByDescending(i => i.CostTableValue).FirstOrDefault();
+
+                    if (bonusAbsorbIP != null && bonusAbsorbIP.CostTableValue < maxIP.CostTable)
+                      HandleDamageAbsorbed(ctx, DamageType.Bludgeoning, bonusAbsorbIP.CostTableValue, DamageType.Piercing);
+                    else
+                      HandleDamageAbsorbed(ctx, DamageType.Piercing, maxIP.CostTableValue);
+                    break;
+                }
+              }
+              break;
+
+            case IPDamageType.Physical:
+
+              if (int.TryParse(NWScript.Get2DAString("iprp_immuncost", "Value", maxIP.CostTableValue), out int absorptionValue))
+              {
+                absorptionValue = 100 / (absorptionValue - 100);
+                int totalAbsorbedDamage = 0;
+                int absorbedDamage = 0;
+
+                if (ctx.onAttack.DamageData.Bludgeoning > 0)
+                {
+                  absorbedDamage = ctx.onAttack.DamageData.Bludgeoning / absorptionValue;
+                  ctx.onAttack.DamageData.Bludgeoning -= (short)absorbedDamage;
+                  totalAbsorbedDamage += absorbedDamage;
                 }
 
-                if (bonusAbsorbedDamage < 0)
-                  bonusAbsorbedDamage = 1;
-
-                if (absorption.SubType == 4 || absorption.SubType == 1)
+                if (ctx.onAttack.DamageData.Slash > 0)
                 {
-                  bonusAbsorbedDamage += ctx.onAttack.DamageData.Pierce / 4;
-                  ctx.onAttack.DamageData.Pierce -= (short)(ctx.onAttack.DamageData.Pierce / 4);
+                  absorbedDamage = ctx.onAttack.DamageData.Slash / absorptionValue;
+                  ctx.onAttack.DamageData.Slash -= (short)absorbedDamage;
+                  totalAbsorbedDamage += absorbedDamage;
                 }
 
-                HandleDamageAbsorbed(ctx, ctx.onAttack.DamageData.Base, bonusAbsorbedDamage, 25);
-                break;
-              case 9:
-
-                if (absorption.SubType == 4 || absorption.SubType == 0)
+                if (ctx.onAttack.DamageData.Pierce > 0)
                 {
-                  bonusAbsorbedDamage = ctx.onAttack.DamageData.Bludgeoning / 2;
-                  ctx.onAttack.DamageData.Bludgeoning -= (short)bonusAbsorbedDamage;
+                  absorbedDamage = ctx.onAttack.DamageData.Pierce / absorptionValue;
+                  ctx.onAttack.DamageData.Pierce -= (short)absorbedDamage;
+                  totalAbsorbedDamage += absorbedDamage;
                 }
 
-                if (bonusAbsorbedDamage < 0)
-                  bonusAbsorbedDamage = 1;
-
-                if (absorption.SubType == 4 || absorption.SubType == 1)
+                if (ctx.onAttack.DamageData.Base > 0)
                 {
-                  bonusAbsorbedDamage += ctx.onAttack.DamageData.Pierce / 2;
-                  ctx.onAttack.DamageData.Pierce -= (short)(ctx.onAttack.DamageData.Pierce / 2);
+                  absorbedDamage = ctx.onAttack.DamageData.Base / absorptionValue;
+                  ctx.onAttack.DamageData.Base -= (short)absorbedDamage;
+                  totalAbsorbedDamage += absorbedDamage;
                 }
 
-                HandleDamageAbsorbed(ctx, ctx.onAttack.DamageData.Base, bonusAbsorbedDamage, 50);
-                break;
-              case 10:
+                ctx.oTarget.ApplyEffect(EffectDuration.Instant, Effect.Heal(absorbedDamage));
+                ctx.oTarget.ApplyEffect(EffectDuration.Instant, Effect.VisualEffect(VfxType.ImpHeadHeal));
 
-                if (absorption.SubType == 4 || absorption.SubType == 0)
-                {
-                  bonusAbsorbedDamage = ctx.onAttack.DamageData.Bludgeoning * 3 / 4;
-                  ctx.onAttack.DamageData.Bludgeoning -= (short)bonusAbsorbedDamage;
-                }
+                foreach (NwCreature oPC in ctx.oTarget.Area.FindObjectsOfTypeInArea<NwCreature>().Where(p => p.IsPlayerControlled && p.DistanceSquared(ctx.oTarget) < 35))
+                  oPC.ControllingPlayer.DisplayFloatingTextStringOnCreature(ctx.oTarget, totalAbsorbedDamage.ToString().ColorString(new Color(32, 255, 32)));
+              }
+                break;
 
-                if (bonusAbsorbedDamage < 0)
-                  bonusAbsorbedDamage = 1;
+            case IPDamageType.Acid:
+              if (ctx.onAttack.DamageData.Acid > 0 && !absorbIP.Any(i => (IPDamageType)i.SubType == (IPDamageType)14 && i.CostTableValue > maxIP.CostTableValue))
+                HandleDamageAbsorbed(ctx, DamageType.BaseWeapon, maxIP.CostTableValue, DamageType.Acid);
+              break;
 
-                if (absorption.SubType == 4 || absorption.SubType == 1)
-                {
-                  bonusAbsorbedDamage += ctx.onAttack.DamageData.Pierce * 3 / 4;
-                  ctx.onAttack.DamageData.Pierce -= (short)(ctx.onAttack.DamageData.Pierce * 3 / 4);
-                }
+            case IPDamageType.Cold:
+              if (ctx.onAttack.DamageData.Cold > 0 && !absorbIP.Any(i => (IPDamageType)i.SubType == (IPDamageType)14 && i.CostTableValue > maxIP.CostTableValue))
+                HandleDamageAbsorbed(ctx, DamageType.BaseWeapon, maxIP.CostTableValue, DamageType.Cold);
+              break;
 
-                HandleDamageAbsorbed(ctx, ctx.onAttack.DamageData.Base, bonusAbsorbedDamage, 75);
-                break;
-              case 11:
+            case IPDamageType.Electrical:
+              if (ctx.onAttack.DamageData.Electrical > 0 && !absorbIP.Any(i => (IPDamageType)i.SubType == (IPDamageType)14 && i.CostTableValue > maxIP.CostTableValue))
+                HandleDamageAbsorbed(ctx, DamageType.BaseWeapon, maxIP.CostTableValue, DamageType.Electrical);
+              break;
 
-                if (absorption.SubType == 4 || absorption.SubType == 0)
-                {
-                  bonusAbsorbedDamage = ctx.onAttack.DamageData.Bludgeoning;
-                  ctx.onAttack.DamageData.Bludgeoning = 0;
-                }
+            case IPDamageType.Fire:
+              if (ctx.onAttack.DamageData.Fire > 0 && !absorbIP.Any(i => (IPDamageType)i.SubType == (IPDamageType)14 && i.CostTableValue > maxIP.CostTableValue))
+                HandleDamageAbsorbed(ctx, DamageType.BaseWeapon, maxIP.CostTableValue, DamageType.Fire);
+              break;
 
-                if (bonusAbsorbedDamage < 0)
-                  bonusAbsorbedDamage = 1;
+            case IPDamageType.Magical:
+              if (ctx.onAttack.DamageData.Magical > 0 && !absorbIP.Any(i => (IPDamageType)i.SubType == (IPDamageType)14 && i.CostTableValue > maxIP.CostTableValue))
+                HandleDamageAbsorbed(ctx, DamageType.BaseWeapon, maxIP.CostTableValue, DamageType.Magical);
+              break;
 
-                if (absorption.SubType == 4 || absorption.SubType == 1)
-                {
-                  bonusAbsorbedDamage += ctx.onAttack.DamageData.Pierce;
-                  ctx.onAttack.DamageData.Pierce = 0;
-                }
+            case IPDamageType.Sonic:
+              if (ctx.onAttack.DamageData.Sonic > 0 && !absorbIP.Any(i => (IPDamageType)i.SubType == (IPDamageType)14 && i.CostTableValue > maxIP.CostTableValue))
+                HandleDamageAbsorbed(ctx, DamageType.BaseWeapon, maxIP.CostTableValue, DamageType.Sonic);
+              break;
 
-                HandleDamageAbsorbed(ctx, ctx.onAttack.DamageData.Base, bonusAbsorbedDamage, 100);
-                break;
-            }
+            case IPDamageType.Negative:
+              if (ctx.onAttack.DamageData.Negative > 0)
+                HandleDamageAbsorbed(ctx, DamageType.BaseWeapon, maxIP.CostTableValue, DamageType.Negative);
+              break;
 
-            break;
-        }
+            case IPDamageType.Positive:
+              if (ctx.onAttack.DamageData.Positive > 0)
+                HandleDamageAbsorbed(ctx, DamageType.BaseWeapon, maxIP.CostTableValue, DamageType.Positive);
+              break;
 
-        if (ctx.onAttack.DamageData.Acid > 0)
-        {
-          absorption = ctx.oTarget.GetItemInSlot(InventorySlot.CreatureSkin).ItemProperties.Where(i => i.PropertyType == ItemPropertyType.ImmunityDamageType && (i.SubType == 6 || i.SubType == 14) && i.CostTableValue > 7).OrderByDescending(i => i.CostTableValue).FirstOrDefault();
+            case IPDamageType.Divine:
+              if (ctx.onAttack.DamageData.Divine > 0)
+                HandleDamageAbsorbed(ctx, DamageType.BaseWeapon, maxIP.CostTableValue, DamageType.Divine);
+              break;
 
-          if (absorption != null)
-          {
-            switch (absorption.CostTableValue)
-            {
-              case 8:
-                bonusAbsorbedDamage = ctx.onAttack.DamageData.Acid / 4;
-                ctx.onAttack.DamageData.Acid -= (short)bonusAbsorbedDamage;
-                HandleDamageAbsorbed(ctx, 0, bonusAbsorbedDamage, 25);
-                break;
-              case 9:
-                bonusAbsorbedDamage = ctx.onAttack.DamageData.Acid / 2;
-                ctx.onAttack.DamageData.Acid -= (short)bonusAbsorbedDamage;
-                HandleDamageAbsorbed(ctx, 0, bonusAbsorbedDamage, 50);
-                break;
-              case 10:
-                bonusAbsorbedDamage = ctx.onAttack.DamageData.Acid * 3 / 4;
-                ctx.onAttack.DamageData.Acid -= (short)bonusAbsorbedDamage;
-                HandleDamageAbsorbed(ctx, 0, bonusAbsorbedDamage, 75);
-                break;
-              case 11:
-                bonusAbsorbedDamage = ctx.onAttack.DamageData.Acid;
-                ctx.onAttack.DamageData.Acid = 0;
-                HandleDamageAbsorbed(ctx, 0, bonusAbsorbedDamage, 100);
-                break;
-            }
-          }
-        }
+            case (IPDamageType)14: // Damage type élémentaire
 
-        if (ctx.onAttack.DamageData.Electrical > 0)
-        {
-          absorption = ctx.oTarget.GetItemInSlot(InventorySlot.CreatureSkin).ItemProperties.Where(i => i.PropertyType == ItemPropertyType.ImmunityDamageType && (i.SubType == 9 || i.SubType == 14) && i.CostTableValue > 7).OrderByDescending(i => i.CostTableValue).FirstOrDefault();
+              if (ctx.onAttack.DamageData.Acid > 0)
+                HandleDamageAbsorbed(ctx, DamageType.BaseWeapon, maxIP.CostTableValue, DamageType.Acid);
 
-          if (absorption != null)
-          {
-            switch (absorption.CostTableValue)
-            {
-              case 8:
-                bonusAbsorbedDamage = ctx.onAttack.DamageData.Electrical / 4;
-                ctx.onAttack.DamageData.Electrical -= (short)bonusAbsorbedDamage;
-                HandleDamageAbsorbed(ctx, 0, bonusAbsorbedDamage, 25);
-                break;
-              case 9:
-                bonusAbsorbedDamage = ctx.onAttack.DamageData.Electrical / 2;
-                ctx.onAttack.DamageData.Electrical -= (short)bonusAbsorbedDamage;
-                HandleDamageAbsorbed(ctx, 0, bonusAbsorbedDamage, 50);
-                break;
-              case 10:
-                bonusAbsorbedDamage = ctx.onAttack.DamageData.Electrical * 3 / 4;
-                ctx.onAttack.DamageData.Electrical -= (short)bonusAbsorbedDamage;
-                HandleDamageAbsorbed(ctx, 0, bonusAbsorbedDamage, 75);
-                break;
-              case 11:
-                bonusAbsorbedDamage = ctx.onAttack.DamageData.Electrical;
-                ctx.onAttack.DamageData.Electrical = 0;
-                HandleDamageAbsorbed(ctx, 0, bonusAbsorbedDamage, 100);
-                break;
-            }
-          }
-        }
+              if (ctx.onAttack.DamageData.Cold > 0)
+                HandleDamageAbsorbed(ctx, DamageType.BaseWeapon, maxIP.CostTableValue, DamageType.Cold);
 
-        if (ctx.onAttack.DamageData.Cold > 0)
-        {
-          absorption = ctx.oTarget.GetItemInSlot(InventorySlot.CreatureSkin).ItemProperties.Where(i => i.PropertyType == ItemPropertyType.ImmunityDamageType && (i.SubType == 7 || i.SubType == 14) && i.CostTableValue > 7).OrderByDescending(i => i.CostTableValue).FirstOrDefault();
+              if (ctx.onAttack.DamageData.Electrical > 0)
+                HandleDamageAbsorbed(ctx, DamageType.BaseWeapon, maxIP.CostTableValue, DamageType.Electrical);
 
-          if (absorption != null)
-          {
-            switch (absorption.CostTableValue)
-            {
-              case 8:
-                bonusAbsorbedDamage = ctx.onAttack.DamageData.Cold / 4;
-                ctx.onAttack.DamageData.Cold -= (short)bonusAbsorbedDamage;
-                HandleDamageAbsorbed(ctx, 0, bonusAbsorbedDamage, 25);
-                break;
-              case 9:
-                bonusAbsorbedDamage = ctx.onAttack.DamageData.Cold / 2;
-                ctx.onAttack.DamageData.Cold -= (short)bonusAbsorbedDamage;
-                HandleDamageAbsorbed(ctx, 0, bonusAbsorbedDamage, 50);
-                break;
-              case 10:
-                bonusAbsorbedDamage = ctx.onAttack.DamageData.Cold * 3 / 4;
-                ctx.onAttack.DamageData.Cold -= (short)bonusAbsorbedDamage;
-                HandleDamageAbsorbed(ctx, 0, bonusAbsorbedDamage, 75);
-                break;
-              case 11:
-                bonusAbsorbedDamage = ctx.onAttack.DamageData.Cold;
-                ctx.onAttack.DamageData.Cold = 0;
-                HandleDamageAbsorbed(ctx, 0, bonusAbsorbedDamage, 100);
-                break;
-            }
-          }
-        }
+              if (ctx.onAttack.DamageData.Fire > 0)
+                HandleDamageAbsorbed(ctx, DamageType.BaseWeapon, maxIP.CostTableValue, DamageType.Fire);
 
-        if (ctx.onAttack.DamageData.Fire > 0)
-        {
-          absorption = ctx.oTarget.GetItemInSlot(InventorySlot.CreatureSkin).ItemProperties.Where(i => i.PropertyType == ItemPropertyType.ImmunityDamageType && (i.SubType == 10 || i.SubType == 14) && i.CostTableValue > 7).OrderByDescending(i => i.CostTableValue).FirstOrDefault();
+              if (ctx.onAttack.DamageData.Magical > 0)
+                HandleDamageAbsorbed(ctx, DamageType.BaseWeapon, maxIP.CostTableValue, DamageType.Magical);
 
-          if (absorption != null)
-          {
-            switch (absorption.CostTableValue)
-            {
-              case 8:
-                bonusAbsorbedDamage = ctx.onAttack.DamageData.Fire / 4;
-                ctx.onAttack.DamageData.Fire -= (short)bonusAbsorbedDamage;
-                HandleDamageAbsorbed(ctx, 0, bonusAbsorbedDamage, 25);
-                break;
-              case 9:
-                bonusAbsorbedDamage = ctx.onAttack.DamageData.Fire / 2;
-                ctx.onAttack.DamageData.Fire -= (short)bonusAbsorbedDamage;
-                HandleDamageAbsorbed(ctx, 0, bonusAbsorbedDamage, 50);
-                break;
-              case 10:
-                bonusAbsorbedDamage = ctx.onAttack.DamageData.Fire * 3 / 4;
-                ctx.onAttack.DamageData.Fire -= (short)bonusAbsorbedDamage;
-                HandleDamageAbsorbed(ctx, 0, bonusAbsorbedDamage, 75);
-                break;
-              case 11:
-                bonusAbsorbedDamage = ctx.onAttack.DamageData.Fire;
-                ctx.onAttack.DamageData.Fire = 0;
-                HandleDamageAbsorbed(ctx, 0, bonusAbsorbedDamage, 100);
-                break;
-            }
-          }
-        }
+              if (ctx.onAttack.DamageData.Sonic > 0)
+                HandleDamageAbsorbed(ctx, DamageType.BaseWeapon, maxIP.CostTableValue, DamageType.Sonic);
 
-        if (ctx.onAttack.DamageData.Magical > 0)
-        {
-          absorption = ctx.oTarget.GetItemInSlot(InventorySlot.CreatureSkin).ItemProperties.Where(i => i.PropertyType == ItemPropertyType.ImmunityDamageType && (i.SubType == 5 || i.SubType == 14) && i.CostTableValue > 7).OrderByDescending(i => i.CostTableValue).FirstOrDefault();
-
-          if (absorption != null)
-          {
-            switch (absorption.CostTableValue)
-            {
-              case 8:
-                bonusAbsorbedDamage = ctx.onAttack.DamageData.Magical / 4;
-                ctx.onAttack.DamageData.Magical -= (short)bonusAbsorbedDamage;
-                HandleDamageAbsorbed(ctx, 0, bonusAbsorbedDamage, 25);
-                break;
-              case 9:
-                bonusAbsorbedDamage = ctx.onAttack.DamageData.Magical / 2;
-                ctx.onAttack.DamageData.Magical -= (short)bonusAbsorbedDamage;
-                HandleDamageAbsorbed(ctx, 0, bonusAbsorbedDamage, 50);
-                break;
-              case 10:
-                bonusAbsorbedDamage = ctx.onAttack.DamageData.Magical * 3 / 4;
-                ctx.onAttack.DamageData.Magical -= (short)bonusAbsorbedDamage;
-                HandleDamageAbsorbed(ctx, 0, bonusAbsorbedDamage, 75);
-                break;
-              case 11:
-                bonusAbsorbedDamage = ctx.onAttack.DamageData.Magical;
-                ctx.onAttack.DamageData.Magical = 0;
-                HandleDamageAbsorbed(ctx, 0, bonusAbsorbedDamage, 100);
-                break;
-            }
-          }
-        }
-
-        if (ctx.onAttack.DamageData.Sonic > 0)
-        {
-          absorption = ctx.oTarget.GetItemInSlot(InventorySlot.CreatureSkin).ItemProperties.Where(i => i.PropertyType == ItemPropertyType.ImmunityDamageType && (i.SubType == 13 || i.SubType == 14) && i.CostTableValue > 7).OrderByDescending(i => i.CostTableValue).FirstOrDefault();
-
-          if (absorption != null)
-          {
-            switch (absorption.CostTableValue)
-            {
-              case 8:
-                bonusAbsorbedDamage = ctx.onAttack.DamageData.Sonic / 4;
-                ctx.onAttack.DamageData.Sonic -= (short)bonusAbsorbedDamage;
-                HandleDamageAbsorbed(ctx, 0, bonusAbsorbedDamage, 25);
-                break;
-              case 9:
-                bonusAbsorbedDamage = ctx.onAttack.DamageData.Sonic / 2;
-                ctx.onAttack.DamageData.Sonic -= (short)bonusAbsorbedDamage;
-                HandleDamageAbsorbed(ctx, 0, bonusAbsorbedDamage, 50);
-                break;
-              case 10:
-                bonusAbsorbedDamage = ctx.onAttack.DamageData.Sonic * 3 / 4;
-                ctx.onAttack.DamageData.Sonic -= (short)bonusAbsorbedDamage;
-                HandleDamageAbsorbed(ctx, 0, bonusAbsorbedDamage, 75);
-                break;
-              case 11:
-                bonusAbsorbedDamage = ctx.onAttack.DamageData.Sonic;
-                ctx.onAttack.DamageData.Sonic = 0;
-                HandleDamageAbsorbed(ctx, 0, bonusAbsorbedDamage, 100);
-                break;
-            }
+              break;
           }
         }
       }
 
       next();
     }
-    private static void HandleDamageAbsorbed(Context ctx, int baseDamage, int bonusDamage, int multiplier)
+    private static void HandleDamageAbsorbed(Context ctx, DamageType damageType, int ipCostValue, DamageType secondaryDamageType = DamageType.BaseWeapon)
     {
-      int absorbedDamage = 0;
-      if (baseDamage < 1)
-        baseDamage = 0;
+      if (int.TryParse(NWScript.Get2DAString("iprp_immuncost", "Value", ipCostValue), out int absorptionValue))
+      {
+        absorptionValue = 100 / (absorptionValue - 100);
+        int totalAbsorbedDamage = 0;
+        int absorbedDamage = 0;
 
-      if (bonusDamage < 1)
-        bonusDamage = 0;
+        if (secondaryDamageType == DamageType.BaseWeapon)
+          secondaryDamageType = damageType;
 
-      absorbedDamage += baseDamage * multiplier / 100;
-      ctx.onAttack.DamageData.Base -= (short)absorbedDamage;
+        short damage = ctx.onAttack.DamageData.GetDamageByType(secondaryDamageType);
 
-      absorbedDamage += bonusDamage;
+        if (damage > 0)
+        {
+          absorbedDamage = damage / absorptionValue;
+          ctx.onAttack.DamageData.SetDamageByType(secondaryDamageType, (short)(damage - absorbedDamage));
+          totalAbsorbedDamage += absorbedDamage;
+        }
 
-      ctx.oTarget.ApplyEffect(EffectDuration.Instant, Effect.Heal(absorbedDamage));
-      ctx.oTarget.ApplyEffect(EffectDuration.Instant, Effect.VisualEffect(VfxType.ImpHeadHeal));
+        if (ctx.onAttack.DamageData.Base > 0 && damageType != DamageType.BaseWeapon)
+        {
+          absorbedDamage = ctx.onAttack.DamageData.Base / absorptionValue;
+          ctx.onAttack.DamageData.Base -= (short)absorbedDamage;
+          totalAbsorbedDamage += absorbedDamage;
+        }
 
-      foreach (NwCreature oPC in ctx.oTarget.Area.FindObjectsOfTypeInArea<NwCreature>().Where(p => p.IsPlayerControlled && p.DistanceSquared(ctx.oTarget) < 35))
-        oPC.ControllingPlayer.DisplayFloatingTextStringOnCreature(ctx.oTarget, absorbedDamage.ToString().ColorString(new Color(32, 255, 32)));
+        ctx.oTarget.ApplyEffect(EffectDuration.Instant, Effect.Heal(absorbedDamage));
+        ctx.oTarget.ApplyEffect(EffectDuration.Instant, Effect.VisualEffect(VfxType.ImpHeadHeal));
+
+        foreach (NwCreature oPC in ctx.oTarget.Area.FindObjectsOfTypeInArea<NwCreature>().Where(p => p.IsPlayerControlled && p.DistanceSquared(ctx.oTarget) < 35))
+          oPC.ControllingPlayer.DisplayFloatingTextStringOnCreature(ctx.oTarget, totalAbsorbedDamage.ToString().ColorString(new Color(32, 255, 32)));
+      }
     }
     private static void ProcessBaseArmorPenetration(Context ctx, Action next)
     {
@@ -1139,7 +848,7 @@ namespace NWN.Systems
       {
         int bonusAC = 0;
 
-        switch (ctx.baseDamageType)
+        switch (ctx.weaponBaseDamageType)
         {
           case 1: // Piercing
             ctx.onAttack.DamageData.Base = (short)(ctx.onAttack.DamageData.Base * Math.Pow(0.5, (ctx.targetAC[DamageType.BaseWeapon] + ctx.targetAC.GetValueOrDefault((DamageType)4) + ctx.targetAC.GetValueOrDefault(DamageType.Piercing) - 60) / 40));

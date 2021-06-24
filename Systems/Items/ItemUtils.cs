@@ -313,5 +313,24 @@ namespace NWN.Systems
         return 3; // par défaut, on retourne slashing
       return damageType;
     }
+    public static DamageType GetDamageTypeFromItemProperty(IPDamageType ipDamageType)
+    {
+      switch(ipDamageType)
+      {
+        case IPDamageType.Bludgeoning: return DamageType.Bludgeoning;
+        case IPDamageType.Piercing: return DamageType.Piercing;
+        case IPDamageType.Slashing: return DamageType.Slashing;
+        case IPDamageType.Acid: return DamageType.Acid;
+        case IPDamageType.Magical: return DamageType.Magical;
+        case IPDamageType.Fire: return DamageType.Fire;
+        case IPDamageType.Cold: return DamageType.Cold;
+        case IPDamageType.Electrical: return DamageType.Electrical;
+        case IPDamageType.Divine: return DamageType.Divine;
+        case IPDamageType.Negative: return DamageType.Negative;
+        case IPDamageType.Positive: return DamageType.Positive;
+        case IPDamageType.Sonic: return DamageType.Sonic;
+        default: return DamageType.Slashing;
+      }
+    }
   }
 }
