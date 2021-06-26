@@ -124,12 +124,18 @@ namespace NWN.Systems
 
       player.menu.Draw();
 
-      bool awaitedValue = await player.WaitForPlayerInputInt();
+      bool awaitedValue = await player.WaitForPlayerInputByte();
 
       if (awaitedValue)
       {
-        CreaturePlugin.SetBaseAC(oPNJ, int.Parse(player.oid.LoginCreature.GetLocalVariable<string>("_PLAYER_INPUT").Value));
-        player.oid.SendServerMessage($"La CA de base de {oPNJ.Name.ColorString(ColorConstants.White)} a été modifiée à {int.Parse(player.oid.LoginCreature.GetLocalVariable<string>("_PLAYER_INPUT").Value)}", ColorConstants.Blue);
+        if (sbyte.TryParse(player.oid.LoginCreature.GetLocalVariable<string>("_PLAYER_INPUT").Value, out sbyte AC))
+        {
+          oPNJ.BaseAC = AC;
+          player.oid.SendServerMessage($"La CA de base de {oPNJ.Name.ColorString(ColorConstants.White)} a été modifiée à {AC}", ColorConstants.Blue);
+        }
+        else
+          player.oid.SendServerMessage("La valeur entrée n'est pas au format attendu. Veuillez entrer une autre valeur.");
+
         DrawPNJSelectionWelcome();
         player.oid.LoginCreature.GetLocalVariable<string>("_PLAYER_INPUT").Delete();
       }
@@ -230,9 +236,8 @@ namespace NWN.Systems
       bool awaitedValue = await player.WaitForPlayerInputInt();
 
       if (awaitedValue)
-      {
-        CreaturePlugin.SetSoundset(oPNJ, int.Parse(player.oid.LoginCreature.GetLocalVariable<string>("_PLAYER_INPUT").Value));
-        player.oid.SendServerMessage($"La voix de {oPNJ.Name.ColorString(ColorConstants.White)} a été modifiée à {int.Parse(player.oid.LoginCreature.GetLocalVariable<string>("_PLAYER_INPUT").Value)}", ColorConstants.Blue);
+      { oPNJ.SoundSet = (ushort)int.Parse(player.oid.LoginCreature.GetLocalVariable<string>("_PLAYER_INPUT").Value);
+        player.oid.SendServerMessage($"La voix de {oPNJ.Name.ColorString(ColorConstants.White)} a été modifiée à {oPNJ.SoundSet}", ColorConstants.Blue);
         DrawPNJSelectionWelcome();
         player.oid.LoginCreature.GetLocalVariable<string>("_PLAYER_INPUT").Delete();
       }
@@ -246,12 +251,12 @@ namespace NWN.Systems
 
       player.menu.Draw();
 
-      bool awaitedValue = await player.WaitForPlayerInputInt();
+      bool awaitedValue = await player.WaitForPlayerInputByte();
 
       if (awaitedValue)
       {
-        CreaturePlugin.SetBaseAttackBonus(oPNJ, int.Parse(player.oid.LoginCreature.GetLocalVariable<string>("_PLAYER_INPUT").Value));
-        player.oid.SendServerMessage($"L'attaque de base de {oPNJ.Name.ColorString(ColorConstants.White)} a été modifiée à {int.Parse(player.oid.LoginCreature.GetLocalVariable<string>("_PLAYER_INPUT").Value)}", ColorConstants.Blue);
+        oPNJ.BaseAttackBonus = byte.Parse(player.oid.LoginCreature.GetLocalVariable<string>("_PLAYER_INPUT").Value);
+        player.oid.SendServerMessage($"L'attaque de base de {oPNJ.Name.ColorString(ColorConstants.White)} a été modifiée à {oPNJ.BaseAttackBonus}", ColorConstants.Blue);
         DrawPNJSelectionWelcome();
         player.oid.LoginCreature.GetLocalVariable<string>("_PLAYER_INPUT").Delete();
       }
@@ -952,7 +957,7 @@ namespace NWN.Systems
           $"ON CONFLICT (accountName, name) DO UPDATE SET serializedCreature = @serializedCreature;");
       NWScript.SqlBindString(query, "@accountName", player.oid.PlayerName);
       NWScript.SqlBindString(query, "@name", oPNJ.Name);
-      NWScript.SqlBindString(query, "@serializedCreature", ObjectPlugin.Serialize(oPNJ));
+      NWScript.SqlBindString(query, "@serializedCreature", oPNJ.Serialize().ToBase64EncodedString());
       NWScript.SqlStep(query);
 
       player.oid.SendServerMessage($"Votre PNJ {oPNJ.Name.ColorString(ColorConstants.White)} a bien été enregistré.", ColorConstants.Blue);
@@ -1246,7 +1251,7 @@ namespace NWN.Systems
     {
       NwItem skin = await NwItem.Create("peaudejoueur", oPNJ);
       skin.Name = $"Propriétés de {oPNJ.Name}";
-      CreaturePlugin.RunEquip(oPNJ, skin, (int)InventorySlot.CreatureSkin);
+      oPNJ.RunEquip(skin, InventorySlot.CreatureSkin);
       return skin;
     }
   }

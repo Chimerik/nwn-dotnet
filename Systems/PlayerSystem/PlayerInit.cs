@@ -23,6 +23,7 @@ namespace NWN.Systems
       oPC.LoginCreature.GetLocalVariable<int>("_ACTIVE_LANGUAGE").Value = (int)CustomFeats.Invalid;
       oPC.LoginCreature.GetLocalVariable<int>("_CONNECTING").Value = 1;
       oPC.LoginCreature.GetLocalVariable<int>("_DISCONNECTING").Delete();
+      oPC.LoginCreature.GetLocalVariable<int>("_PLAYER_INPUT_CANCELLED").Delete();
 
       if (!Players.TryGetValue(oPC.LoginCreature, out Player player))
       {
@@ -76,8 +77,8 @@ namespace NWN.Systems
               player.learnableSkills[(Feat)player.currentSkillJob].currentJob = true;
             else
             {
-              if (!Convert.ToBoolean(CreaturePlugin.GetKnowsFeat(player.oid.LoginCreature, player.currentSkillJob)))
-                CreaturePlugin.AddFeat(player.oid.LoginCreature, player.currentSkillJob);
+              if (!player.oid.LoginCreature.KnowsFeat((Feat)player.currentSkillJob))
+                player.oid.LoginCreature.AddFeat((Feat)player.currentSkillJob);
               player.currentSkillJob = (int)CustomFeats.Invalid;
             }
             break;
@@ -140,7 +141,7 @@ namespace NWN.Systems
         oPC.LoginCreature.HP = player.currentHP;
 
       if (player.learntCustomFeats.ContainsKey(CustomFeats.ImprovedAttackBonus))
-        CreaturePlugin.SetBaseAttackBonus(player.oid.LoginCreature, player.oid.LoginCreature.BaseAttackBonus + SkillSystem.GetCustomFeatLevelFromSkillPoints(CustomFeats.ImprovedAttackBonus, player.learntCustomFeats[CustomFeats.ImprovedAttackBonus]));
+        player.oid.LoginCreature.BaseAttackBonus = (byte)(player.oid.LoginCreature.BaseAttackBonus + SkillSystem.GetCustomFeatLevelFromSkillPoints(CustomFeats.ImprovedAttackBonus, player.learntCustomFeats[CustomFeats.ImprovedAttackBonus]));
 
       if (!player.oid.LoginCreature.KnowsFeat(CustomFeats.Sit))
         player.oid.LoginCreature.AddFeat(CustomFeats.Sit);
@@ -276,7 +277,7 @@ namespace NWN.Systems
         {
           NwItem pcSkin = await NwItem.Create("peaudejoueur", newCharacter.oid.LoginCreature);
           pcSkin.Name = $"Propriétés de {newCharacter.oid.LoginCreature.Name}";
-          CreaturePlugin.RunEquip(newCharacter.oid.LoginCreature, pcSkin, (int)InventorySlot.CreatureSkin);
+          newCharacter.oid.LoginCreature.RunEquip(pcSkin, InventorySlot.CreatureSkin);
         });
       }
 
@@ -309,11 +310,10 @@ namespace NWN.Systems
       NWScript.SqlStep(query);
 
       ObjectPlugin.SetInt(newCharacter.oid.LoginCreature, "characterId", NWScript.SqlGetInt(query, 0), 1);
-
-      for (int spellLevel = 0; spellLevel < 10; spellLevel++)
-        while (CreaturePlugin.GetKnownSpellCount(newCharacter.oid.LoginCreature, 43, spellLevel) > 0)
-          CreaturePlugin.RemoveKnownSpell(newCharacter.oid.LoginCreature, 43, spellLevel, CreaturePlugin.GetKnownSpell(newCharacter.oid.LoginCreature, 43, spellLevel, 0));
-
+      for (byte spellLevel = 0; spellLevel < 10; spellLevel++)
+        foreach(Spell spell in newCharacter.oid.LoginCreature.GetClassInfo((ClassType)43).GetKnownSpells(spellLevel))
+          newCharacter.oid.LoginCreature.GetClassInfo((ClassType)43).RemoveKnownSpell(spellLevel, spell);
+      
       InitializeNewPlayerLearnableSkills(newCharacter);
       InitializeNewCharacterStorage(newCharacter);
     }
@@ -495,25 +495,20 @@ namespace NWN.Systems
     {
       Log.Info("starting temp feat reinit");
 
+      foreach (Feat feat in player.oid.LoginCreature.Feats.Where(f => f != Feat.KeenSense && f != Feat.QuickToMaster && f != Feat.Lucky && f != Feat.BattleTrainingVersusGiants && f != Feat.BattleTrainingVersusGoblins && f != Feat.BattleTrainingVersusOrcs && f != Feat.BattleTrainingVersusReptilians && f != Feat.Darkvision && f != Feat.Lowlightvision && f != Feat.Fearless && f != Feat.GoodAim && f != Feat.HardinessVersusEnchantments && f != Feat.HardinessVersusIllusions && f != Feat.HardinessVersusPoisons && f != Feat.HardinessVersusSpells && f != Feat.ImmunityToSleep && f != Feat.PartialSkillAffinityListen && f != Feat.PartialSkillAffinitySearch && f != Feat.PartialSkillAffinitySpot && f != Feat.SkillAffinityConcentration
+            && f != Feat.SkillAffinityListen && f != Feat.SkillAffinityLore && f != Feat.SkillAffinityMoveSilently && f != Feat.SkillAffinitySearch && f != Feat.SkillAffinitySpot && f != Feat.Stonecunning && f != Feat.WeaponProficiencyElf))
+      {
+        Task waitLoopEndToRemove = NwTask.Run(async () =>
+        {
+          await NwTask.Delay(TimeSpan.FromSeconds(0.1f));
+          player.oid.LoginCreature.RemoveFeat(feat);
+        });
+      }
+
       var query = NWScript.SqlPrepareQueryCampaign(Config.database, $"SELECT skillPoints from playerLearnableSkills where characterId = @characterId");
       NWScript.SqlBindInt(query, "@characterId", player.characterId);
 
       int skillPoints = 0;
-      
-      for(int i = 0; i < CreaturePlugin.GetFeatCount(player.oid.LoginCreature); i++)
-      {
-        int feat = CreaturePlugin.GetFeatByIndex(player.oid.LoginCreature, i);
-
-        if (feat != (int)Feat.KeenSense && feat != (int)Feat.QuickToMaster && feat != (int)Feat.Lucky && feat != (int)Feat.BattleTrainingVersusGiants && feat != (int)Feat.BattleTrainingVersusGoblins && feat != (int)Feat.BattleTrainingVersusOrcs && feat != (int)Feat.BattleTrainingVersusReptilians && feat != (int)Feat.Darkvision && feat != (int)Feat.Lowlightvision && feat != (int)Feat.Fearless && feat != (int)Feat.GoodAim && feat != (int)Feat.HardinessVersusEnchantments && feat != (int)Feat.HardinessVersusIllusions && feat != (int)Feat.HardinessVersusPoisons && feat != (int)Feat.HardinessVersusSpells && feat != (int)Feat.ImmunityToSleep && feat != (int)Feat.PartialSkillAffinityListen && feat != (int)Feat.PartialSkillAffinitySearch && feat != (int)Feat.PartialSkillAffinitySpot && feat != (int)Feat.SkillAffinityConcentration
-           && feat != (int)Feat.SkillAffinityListen && feat != (int)Feat.SkillAffinityLore && feat != (int)Feat.SkillAffinityMoveSilently && feat != (int)Feat.SkillAffinitySearch && feat != (int)Feat.SkillAffinitySpot && feat != (int)Feat.Stonecunning && feat != (int)Feat.WeaponProficiencyElf)
-        {
-          Task waitLoopEndToRemove = NwTask.Run(async () =>
-          {
-            await NwTask.Delay(TimeSpan.FromSeconds(0.1f));
-            CreaturePlugin.RemoveFeat(player.oid.LoginCreature, feat);
-          });
-        }
-      }
 
       while (Convert.ToBoolean(NWScript.SqlStep(query)))
         skillPoints += NWScript.SqlGetInt(query, 0);

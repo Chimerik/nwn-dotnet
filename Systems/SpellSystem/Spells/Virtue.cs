@@ -16,10 +16,10 @@ namespace NWN.Systems
       NWScript.SignalEvent(onSpellCast.TargetObject, NWScript.EventSpellCastAt(oCaster, NWScript.GetSpellId()));
 
       int nDuration = nCasterLevel;
-      Core.Effect eVis = NWScript.EffectVisualEffect(NWScript.VFX_IMP_HOLY_AID);
-      Core.Effect eHP = NWScript.EffectTemporaryHitpoints(1);
-      Core.Effect eDur = NWScript.EffectVisualEffect(NWScript.VFX_DUR_CESSATE_POSITIVE);
-      Core.Effect eLink = NWScript.EffectLinkEffects(eHP, eDur);
+      Effect eVis = NWScript.EffectVisualEffect(NWScript.VFX_IMP_HOLY_AID);
+      Effect eHP = NWScript.EffectTemporaryHitpoints(1);
+      Effect eDur = NWScript.EffectVisualEffect(NWScript.VFX_DUR_CESSATE_POSITIVE);
+      Effect eLink = NWScript.EffectLinkEffects(eHP, eDur);
 
       //Enter Metamagic conditions
       if (onSpellCast.MetaMagicFeat == API.Constants.MetaMagic.Extend)

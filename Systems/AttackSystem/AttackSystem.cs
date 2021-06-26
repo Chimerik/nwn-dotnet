@@ -57,7 +57,7 @@ namespace NWN.Systems
     }
     private static void HandleItemRuined(NwCreature oPC, NwItem oItem)
     {
-      CreaturePlugin.RunUnequip(oPC, oItem);
+      oPC.RunUnequip(oItem);
       oItem.GetLocalVariable<int>("_DURABILITY").Value = -1;
       foreach (ItemProperty ip in oItem.ItemProperties.Where(ip => ip.Tag.StartsWith("ENCHANTEMENT")))
       {
@@ -516,12 +516,12 @@ namespace NWN.Systems
     }
     private static void ProcessBaseArmorPenetration(Context ctx, Action next)
     {
-      if (ctx.onAttack.WeaponAttackType == WeaponAttackType.Offhand)
-        ctx.baseArmorPenetration = CreaturePlugin.GetAttackBonus(ctx.oAttacker, -1, 1);
+      if (ctx.onAttack.WeaponAttackType == WeaponAttackType.Offhand) 
+        ctx.baseArmorPenetration = ctx.oAttacker.GetAttackBonus(false, false, true);
       else
-        ctx.baseArmorPenetration = CreaturePlugin.GetAttackBonus(ctx.oAttacker);
+        ctx.baseArmorPenetration = ctx.oAttacker.GetAttackBonus();
 
-      if (ctx.attackWeapon != null && ctx.attackWeapon.BaseItemType == BaseItemType.Gloves) // la fonction CreaturePlugin.GetAttackBonus ne prend pas en compte le + AB des gants, donc je le rajoute
+      if (ctx.attackWeapon != null && ctx.attackWeapon.BaseItemType == BaseItemType.Gloves) // la fonction GetAttackBonus ne prend pas en compte le + AB des gants, donc je le rajoute
       {
         ItemProperty maxAttackBonus = ctx.attackWeapon.ItemProperties.Where(i => i.PropertyType == ItemPropertyType.AttackBonus).OrderByDescending(i => i.CostTableValue).FirstOrDefault();
         if (maxAttackBonus != null)

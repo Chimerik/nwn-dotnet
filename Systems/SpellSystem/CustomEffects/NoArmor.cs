@@ -16,7 +16,7 @@ namespace NWN.Systems
       oTarget.ApplyEffect(EffectDuration.Instant, Effect.VisualEffect(VfxType.FnfPwkill));
 
       if (oTarget.GetItemInSlot(InventorySlot.Chest) != null)
-        CreaturePlugin.RunUnequip(oTarget, oTarget.GetItemInSlot(InventorySlot.Chest));
+        oTarget.RunUnequip(oTarget.GetItemInSlot(InventorySlot.Chest));
     }
     public static void RemoveEffectFromTarget(NwCreature oTarget)
     {

@@ -110,7 +110,7 @@ namespace NWN.Systems
         NWScript.SqlBindFloat(query, "@facing", player.previousLocation.Rotation);
       }
 
-      NWScript.SqlBindString(query, "@characterName", $"{CreaturePlugin.GetOriginalName(player.oid.LoginCreature, 0)} {CreaturePlugin.GetOriginalName(player.oid.LoginCreature, 1)}");
+      NWScript.SqlBindString(query, "@characterName", $"{player.oid.LoginCreature.OriginalFirstName} {player.oid.LoginCreature.OriginalLastName}");
       NWScript.SqlBindInt(query, "@currentHP", player.currentHP);
       NWScript.SqlBindInt(query, "@bankGold", player.bankGold);
       NWScript.SqlBindString(query, "@dateLastSaved", player.dateLastSaved.ToString());

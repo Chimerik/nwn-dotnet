@@ -128,9 +128,9 @@ namespace NWN.Systems.Craft.Collect
       
       if (oTarget != null)
       {
-        Core.Effect eRay = NWScript.EffectBeam(NWScript.VFX_BEAM_DISINTEGRATE, resourceExtractor, 1, 0, 3);
-        eRay = NWScript.TagEffect(eRay, $"_{player.oid.CDKey}_MINING_BEAM");
-        NWScript.ApplyEffectToObject(NWScript.DURATION_TYPE_TEMPORARY, eRay, oTarget, cycleDuration);
+        Effect eRay = Effect.Beam(VfxType.BeamDisintegrate, resourceExtractor, BodyNode.Hand);
+        eRay.Tag = $"_{player.oid.CDKey}_MINING_BEAM";
+        oTarget.ApplyEffect(EffectDuration.Temporary, eRay, TimeSpan.FromSeconds(cycleDuration));
       }
      
       PlayerPlugin.StartGuiTimingBar(player.oid.LoginCreature, cycleDuration);

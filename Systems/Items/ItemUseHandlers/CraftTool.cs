@@ -299,7 +299,7 @@ namespace NWN.Systems
 
             item.Appearance.SetArmorColor((ItemAppearanceArmorColor)colorChannelChoice, currentValue);
             NwItem newItem = item.Clone(player.oid.LoginCreature);
-            CreaturePlugin.RunEquip(player.oid.LoginCreature, newItem, (int)InventorySlot.Chest);
+            player.oid.LoginCreature.RunEquip(newItem, InventorySlot.Chest);
             item.Destroy();
             item = newItem;
 
@@ -337,7 +337,7 @@ namespace NWN.Systems
 
             item.Appearance.SetArmorPieceColor((ItemAppearanceArmorModel)armorPartChoice, (ItemAppearanceArmorColor)colorChannelChoice, currentValue);
             NwItem newItem = item.Clone(player.oid.LoginCreature);
-            CreaturePlugin.RunEquip(player.oid.LoginCreature, newItem, (int)InventorySlot.Chest);
+            player.oid.LoginCreature.RunEquip(newItem, InventorySlot.Chest);
             item.Destroy();
             item = newItem;
 
@@ -392,8 +392,8 @@ namespace NWN.Systems
       }
 
       bool awaitedValue = await player.WaitForPlayerInputByte();
-      
-      if(awaitedValue)
+
+      if (awaitedValue)
         ApplyArmorModifications(int.Parse(player.oid.LoginCreature.GetLocalVariable<string>("_PLAYER_INPUT")));
     }
     private void HandleToSymmetry()
@@ -475,7 +475,7 @@ namespace NWN.Systems
       }
 
       NwItem newItem = item.Clone(player.oid.LoginCreature);
-      CreaturePlugin.RunEquip(player.oid.LoginCreature, newItem, (int)InventorySlot.Chest);
+      player.oid.LoginCreature.RunEquip(newItem, InventorySlot.Chest);
       item.Destroy();
       item = newItem;
 
@@ -566,7 +566,7 @@ namespace NWN.Systems
       }
 
       NwItem newItem = item.Clone(player.oid.LoginCreature);
-      CreaturePlugin.RunEquip(player.oid.LoginCreature, newItem, (int)InventorySlot.Chest);
+      player.oid.LoginCreature.RunEquip(newItem, InventorySlot.Chest);
       item.Destroy();
       item = newItem;
 
@@ -622,7 +622,7 @@ namespace NWN.Systems
         item = newItem;
 
         if (player.oid.LoginCreature.Inventory.CheckFit(newItem))
-          CreaturePlugin.RunEquip(player.oid.LoginCreature, newItem, (int)InventorySlot.Chest);
+          player.oid.LoginCreature.RunEquip(newItem, InventorySlot.Chest);
         else
         {
           newItem.Location = player.oid.LoginCreature.Location;
@@ -631,7 +631,7 @@ namespace NWN.Systems
           {
             await NwTask.Delay(TimeSpan.FromSeconds(0.2));
             player.oid.LoginCreature.AcquireItem(newItem);
-            CreaturePlugin.RunEquip(player.oid.LoginCreature, newItem, (int)InventorySlot.Chest);
+            player.oid.LoginCreature.RunEquip(newItem, InventorySlot.Chest);
           });
         }
 
@@ -682,7 +682,7 @@ namespace NWN.Systems
 
         item.Appearance.SetArmorModel((ItemAppearanceArmorModel)armorPartChoice, currentValue);
         NwItem newItem = item.Clone(player.oid.LoginCreature);
-        CreaturePlugin.RunEquip(player.oid.LoginCreature, newItem, (int)InventorySlot.Chest);
+        player.oid.LoginCreature.RunEquip(newItem, InventorySlot.Chest);
 
         item.Destroy();
         item = newItem;
@@ -764,19 +764,22 @@ namespace NWN.Systems
         return;
       }
 
-      DisableFeedbackMessages();
-      item.Destroy();
+      //DisableFeedbackMessages();
+      
       NwItem newItem = NwItem.Deserialize(serializedInitialItem.ToByteArray());
       player.oid.LoginCreature.AcquireItem(newItem);
-      
-      for(int i = (int)InventorySlot.Head; i == (int)InventorySlot.Bolts; i++)
+
+      for (int i = 0; i < 13; i++)
       {
         if (player.oid.LoginCreature.GetItemInSlot((InventorySlot)i) == item)
         {
-          CreaturePlugin.RunEquip(player.oid.LoginCreature, newItem, i);
+          player.oid.LoginCreature.RunEquip(newItem, (InventorySlot)i);
           break;
         }
       }
+
+      item.Destroy();
+      item = newItem;
 
       Task waitDestruction = NwTask.Run(async () =>
       {
@@ -904,7 +907,7 @@ namespace NWN.Systems
 
           item.Appearance.SetWeaponColor((ItemAppearanceWeaponColor)weaponColorChoice, currentValue);
           NwItem newItem = item.Clone(player.oid.LoginCreature);
-          CreaturePlugin.RunEquip(player.oid.LoginCreature, newItem, (int)InventorySlot.RightHand);
+          player.oid.LoginCreature.RunEquip(newItem, InventorySlot.RightHand);
           item.Destroy();
           item = newItem;
 
@@ -959,7 +962,7 @@ namespace NWN.Systems
 
           item.Appearance.SetWeaponModel((ItemAppearanceWeaponModel)weaponPartChoice, currentValue);
           NwItem newItem = item.Clone(player.oid.LoginCreature);
-          CreaturePlugin.RunEquip(player.oid.LoginCreature, newItem, (int)InventorySlot.RightHand);
+          player.oid.LoginCreature.RunEquip(newItem, InventorySlot.RightHand);
           item.Destroy();
           item = newItem;
 
@@ -1053,11 +1056,11 @@ namespace NWN.Systems
         item.Appearance.SetSimpleModel(currentValue);
         NwItem newItem = item.Clone(player.oid.LoginCreature);
     
-        for (int i = (int)InventorySlot.Head; i == (int)InventorySlot.Bolts; i++)
+        for (int i = 0; i < 13; i++)
         {
           if (player.oid.LoginCreature.GetItemInSlot((InventorySlot)i) == item)
           {
-            CreaturePlugin.RunEquip(player.oid.LoginCreature, newItem, i);
+            player.oid.LoginCreature.RunEquip(newItem, (InventorySlot)i);
             break;
           }
         }
@@ -1161,9 +1164,9 @@ namespace NWN.Systems
           NwItem newItem = item.Clone(player.oid.LoginCreature);
 
           if (item.BaseItemType == BaseItemType.Cloak)
-            CreaturePlugin.RunEquip(player.oid.LoginCreature, newItem, (int)InventorySlot.Cloak);
+            player.oid.LoginCreature.RunEquip(newItem, InventorySlot.Cloak);
           else
-            CreaturePlugin.RunEquip(player.oid.LoginCreature, newItem, (int)InventorySlot.Head);
+            player.oid.LoginCreature.RunEquip(newItem, InventorySlot.Head);
 
           item.Destroy();
           item = newItem;
@@ -1213,9 +1216,9 @@ namespace NWN.Systems
           NwItem newItem = item.Clone(player.oid.LoginCreature);
 
           if (item.BaseItemType == BaseItemType.Cloak)
-            CreaturePlugin.RunEquip(player.oid.LoginCreature, newItem, (int)InventorySlot.Cloak);
+            player.oid.LoginCreature.RunEquip(newItem, InventorySlot.Cloak);
           else
-            CreaturePlugin.RunEquip(player.oid.LoginCreature, newItem, (int)InventorySlot.Head);
+            player.oid.LoginCreature.RunEquip(newItem, InventorySlot.Head);
 
           item.Destroy();
           item = newItem;

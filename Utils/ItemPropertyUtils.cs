@@ -1,4 +1,5 @@
-﻿using NWN.Core;
+﻿using NWN.API;
+using NWN.Core;
 
 namespace NWN
 {

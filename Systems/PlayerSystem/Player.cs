@@ -72,7 +72,7 @@ namespace NWN.Systems
 
         this.characterId = ObjectPlugin.GetInt(this.oid.LoginCreature, "characterId");
 
-        if (!Convert.ToBoolean(NWScript.GetIsDM(this.oid.LoginCreature)))
+        if (!oid.IsDM)
           InitializePlayer(this);
         else
           InitializeDM(this);
@@ -589,18 +589,20 @@ namespace NWN.Systems
         this.oid.OnPlayerChat += ChatSystem.HandlePlayerInputInt;
 
         CancellationTokenSource tokenSource = new CancellationTokenSource();
-        Task awaitPlayerInput = NwTask.WaitUntil(() => this.oid.LoginCreature.GetLocalVariable<string>("_PLAYER_INPUT").HasValue, tokenSource.Token);
-        Task awaitPlayerCancellation = NwTask.WaitUntil(() => this.oid.LoginCreature.GetLocalVariable<int>("_PLAYER_INPUT_CANCELLED").HasValue, tokenSource.Token);
+        
+        Task awaitPlayerCancellation = NwTask.WaitUntil(() => !this.oid.IsValid || this.oid.LoginCreature.GetLocalVariable<int>("_PLAYER_INPUT_CANCELLED").HasValue, tokenSource.Token);
+        Task awaitPlayerInput = NwTask.WaitUntil(() => this.oid.IsValid && this.oid.LoginCreature.GetLocalVariable<string>("_PLAYER_INPUT").HasValue, tokenSource.Token);
 
         await NwTask.WhenAny(awaitPlayerInput, awaitPlayerCancellation);
         tokenSource.Cancel();
 
-        this.oid.LoginCreature.GetLocalVariable<int>("_PLAYER_INPUT_CANCELLED").Delete();
+        if (this.oid.IsValid)
+          this.oid.LoginCreature.GetLocalVariable<int>("_PLAYER_INPUT_CANCELLED").Delete();
 
-        if (awaitPlayerCancellation.IsCompletedSuccessfully)
-          return false;
-        else
+        if (awaitPlayerInput.IsCompletedSuccessfully)
           return true;
+        else
+          return false;
       }
       public async Task<bool> WaitForPlayerInputByte()
       {
@@ -610,18 +612,19 @@ namespace NWN.Systems
         this.oid.OnPlayerChat += ChatSystem.HandlePlayerInputByte;
 
         CancellationTokenSource tokenSource = new CancellationTokenSource();
-        Task awaitPlayerInput = NwTask.WaitUntil(() => this.oid.LoginCreature.GetLocalVariable<string>("_PLAYER_INPUT").HasValue, tokenSource.Token);
-        Task awaitPlayerCancellation = NwTask.WaitUntil(() => this.oid.LoginCreature.GetLocalVariable<int>("_PLAYER_INPUT_CANCELLED").HasValue, tokenSource.Token);
+        Task awaitPlayerCancellation = NwTask.WaitUntil(() => !this.oid.IsValid || this.oid.LoginCreature.GetLocalVariable<int>("_PLAYER_INPUT_CANCELLED").HasValue, tokenSource.Token);
+        Task awaitPlayerInput = NwTask.WaitUntil(() => this.oid.IsValid && this.oid.LoginCreature.GetLocalVariable<string>("_PLAYER_INPUT").HasValue, tokenSource.Token);
 
         await NwTask.WhenAny(awaitPlayerInput, awaitPlayerCancellation);
         tokenSource.Cancel();
 
-        this.oid.LoginCreature.GetLocalVariable<int>("_PLAYER_INPUT_CANCELLED").Delete();
+        if (this.oid.IsValid)
+          this.oid.LoginCreature.GetLocalVariable<int>("_PLAYER_INPUT_CANCELLED").Delete();
 
-        if (awaitPlayerCancellation.IsCompletedSuccessfully)
-          return false;
-        else
+        if (awaitPlayerInput.IsCompletedSuccessfully)
           return true;
+        else
+          return false;
       }
       public async Task<bool> WaitForPlayerInputString()
       {
@@ -631,18 +634,19 @@ namespace NWN.Systems
         this.oid.OnPlayerChat += ChatSystem.HandlePlayerInputString;
 
         CancellationTokenSource tokenSource = new CancellationTokenSource();
-        Task awaitPlayerInput = NwTask.WaitUntil(() => this.oid.LoginCreature.GetLocalVariable<string>("_PLAYER_INPUT").HasValue, tokenSource.Token);
-        Task awaitPlayerCancellation = NwTask.WaitUntil(() => this.oid.LoginCreature.GetLocalVariable<int>("_PLAYER_INPUT_CANCELLED").HasValue, tokenSource.Token);
+        Task awaitPlayerCancellation = NwTask.WaitUntil(() => !this.oid.IsValid || this.oid.LoginCreature.GetLocalVariable<int>("_PLAYER_INPUT_CANCELLED").HasValue, tokenSource.Token);
+        Task awaitPlayerInput = NwTask.WaitUntil(() => this.oid.IsValid && this.oid.LoginCreature.GetLocalVariable<string>("_PLAYER_INPUT").HasValue, tokenSource.Token);
 
         await NwTask.WhenAny(awaitPlayerInput, awaitPlayerCancellation);
         tokenSource.Cancel();
 
-        this.oid.LoginCreature.GetLocalVariable<int>("_PLAYER_INPUT_CANCELLED").Delete();
+        if (this.oid.IsValid)
+          this.oid.LoginCreature.GetLocalVariable<int>("_PLAYER_INPUT_CANCELLED").Delete();
 
-        if (awaitPlayerCancellation.IsCompletedSuccessfully)
-          return false;
-        else
+        if (awaitPlayerInput.IsCompletedSuccessfully)
           return true;
+        else
+          return false;
       }
     }
   }

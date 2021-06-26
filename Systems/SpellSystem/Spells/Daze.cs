@@ -18,14 +18,14 @@ namespace NWN.Systems
 
       NWScript.SignalEvent(onSpellCast.TargetObject, NWScript.EventSpellCastAt(oCaster, (int)onSpellCast.Spell));
 
-      Core.Effect eMind = NWScript.EffectVisualEffect(NWScript.VFX_DUR_MIND_AFFECTING_NEGATIVE);
-      Core.Effect eDaze = NWScript.EffectDazed();
-      Core.Effect eDur = NWScript.EffectVisualEffect((NWScript.VFX_DUR_CESSATE_NEGATIVE));
+      Effect eMind = NWScript.EffectVisualEffect(NWScript.VFX_DUR_MIND_AFFECTING_NEGATIVE);
+      Effect eDaze = NWScript.EffectDazed();
+      Effect eDur = NWScript.EffectVisualEffect((NWScript.VFX_DUR_CESSATE_NEGATIVE));
 
-      Core.Effect eLink = NWScript.EffectLinkEffects(eMind, eDaze);
+      Effect eLink = NWScript.EffectLinkEffects(eMind, eDaze);
       eLink = NWScript.EffectLinkEffects(eLink, eDur);
 
-      Core.Effect eVis = NWScript.EffectVisualEffect(NWScript.VFX_IMP_DAZED_S);
+      Effect eVis = NWScript.EffectVisualEffect(NWScript.VFX_IMP_DAZED_S);
 
       int nDuration = 2;
 

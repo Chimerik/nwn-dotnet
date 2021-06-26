@@ -142,7 +142,7 @@ namespace NWN.Systems
         case "Peaudejoueur":
           feedbackService.AddFeedbackMessageFilter(FeedbackMessage.UseItemCantUse, oPC.ControllingPlayer);
           onItemUse.PreventUseItem = true;
-          CreaturePlugin.RunEquip(oPC, onItemUse.Item, (int)InventorySlot.CreatureSkin);          
+          oPC.RunEquip(onItemUse.Item, InventorySlot.CreatureSkin);         
           break;
         case "potion_cure_mini":
             new PotionCureMini(oPC.ControllingPlayer);
@@ -210,13 +210,12 @@ namespace NWN.Systems
 
       if (oItem.Tag == "item_pccorpse" && oGivenTo == null) // signifie que l'item a été drop au sol et pas donné à un autre PJ ou mis dans un placeable
       {
-        NwCreature oCorpse = ObjectPlugin.Deserialize(oItem.GetLocalVariable<string>("_SERIALIZED_CORPSE")).ToNwObject<NwCreature>();
+        NwCreature oCorpse = NwCreature.Deserialize(oItem.GetLocalVariable<string>("_SERIALIZED_CORPSE").Value.ToByteArray());
         oCorpse.Location = oItem.Location;
         Utils.DestroyInventory(oCorpse);
         oCorpse.AcquireItem(oItem);
         VisibilityPlugin.SetVisibilityOverride(NWScript.OBJECT_INVALID, oCorpse, VisibilityPlugin.NWNX_VISIBILITY_HIDDEN);
         PlayerSystem.SetupPCCorpse(oCorpse);
-        //NWScript.DelayCommand(1.3f, () => ObjectPlugin.AcquireItem(NWScript.GetNearestObjectByTag("pccorpse_bodybag", oCorpse), oItem));
 
         var query = NWScript.SqlPrepareQueryCampaign(Config.database, $"SELECT characterName from playerCharacters where rowid = @characterId");
         NWScript.SqlBindInt(query, "@characterId", NWScript.GetLocalInt(oItem, "_PC_ID"));

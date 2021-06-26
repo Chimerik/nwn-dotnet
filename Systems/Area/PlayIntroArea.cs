@@ -106,7 +106,7 @@ namespace NWN.Systems
         await oPC.LoginCreature.ClearActionQueue();
         Utils.DestroyInventory(oPC.LoginCreature);
         Utils.DestroyEquippedItems(oPC.LoginCreature);
-        CreaturePlugin.RunEquip(oPC.LoginCreature, await NwItem.Create("rags", oPC.LoginCreature), (int)InventorySlot.Chest);
+        oPC.LoginCreature.RunEquip(await NwItem.Create("rags", oPC.LoginCreature), InventorySlot.Chest);
         oPC.LoginCreature.Location = ((NwWaypoint)NwObject.FindObjectsWithTag("WP_START_NEW_CHAR").FirstOrDefault()).Location;
 
         await NwTask.WaitUntil(() => oPC.LoginCreature.Location.Area != null);

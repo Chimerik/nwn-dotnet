@@ -22,7 +22,7 @@ namespace NWN.Systems
       bool awaitedValue = await player.WaitForPlayerInputString();
 
       if (awaitedValue)
-        AdminPlugin.DeletePlayerCharacter(player.oid.LoginCreature, 1, $"Le personnage {player.oid.LoginCreature.Name} a été supprimé.");
+        player.oid.Delete($"Le personnage {player.oid.LoginCreature.Name} a été supprimé.");
       else
       {
         player.oid.SendServerMessage($"Le nom saisit ne correspond pas. Annulation de la suppression.", ColorConstants.Orange);

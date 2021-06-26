@@ -16,17 +16,17 @@ namespace NWN.Systems
       oTarget.ApplyEffect(EffectDuration.Instant, Effect.VisualEffect(VfxType.FnfPwkill));
 
       if (oTarget.GetItemInSlot(InventorySlot.Head) != null)
-        CreaturePlugin.RunUnequip(oTarget, oTarget.GetItemInSlot(InventorySlot.Head));
+        oTarget.RunUnequip(oTarget.GetItemInSlot(InventorySlot.Head));
       if (oTarget.GetItemInSlot(InventorySlot.Boots) != null)
-        CreaturePlugin.RunUnequip(oTarget, oTarget.GetItemInSlot(InventorySlot.Boots));
+        oTarget.RunUnequip(oTarget.GetItemInSlot(InventorySlot.Boots));
       if (oTarget.GetItemInSlot(InventorySlot.Cloak) != null)
-        CreaturePlugin.RunUnequip(oTarget, oTarget.GetItemInSlot(InventorySlot.Cloak));
+        oTarget.RunUnequip(oTarget.GetItemInSlot(InventorySlot.Cloak));
       if (oTarget.GetItemInSlot(InventorySlot.RightRing) != null)
-        CreaturePlugin.RunUnequip(oTarget, oTarget.GetItemInSlot(InventorySlot.RightRing));
+        oTarget.RunUnequip(oTarget.GetItemInSlot(InventorySlot.RightRing));
       if (oTarget.GetItemInSlot(InventorySlot.LeftRing) != null)
-        CreaturePlugin.RunUnequip(oTarget, oTarget.GetItemInSlot(InventorySlot.LeftRing));
+        oTarget.RunUnequip(oTarget.GetItemInSlot(InventorySlot.LeftRing));
       if (oTarget.GetItemInSlot(InventorySlot.Belt) != null)
-        CreaturePlugin.RunUnequip(oTarget, oTarget.GetItemInSlot(InventorySlot.Belt));
+        oTarget.RunUnequip(oTarget.GetItemInSlot(InventorySlot.Belt));
     }
     public static void RemoveEffectFromTarget(NwCreature oTarget)
     {

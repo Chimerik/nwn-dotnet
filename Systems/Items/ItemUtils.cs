@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using NWN.API;
 using NWN.API.Constants;
 using NWN.Core;
@@ -119,34 +120,10 @@ namespace NWN.Systems
     // Removes all itemproperties with matching nItemPropertyType and
     // nItemPropertyDuration (a DURATION_TYPE_* constant)
     // ----------------------------------------------------------------------------
-    public static void RemoveMatchingItemProperties(uint oItem, int nItemPropertyType, int nItemPropertyDuration = NWScript.DURATION_TYPE_TEMPORARY, int nItemPropertySubType = -1)
+    public static void RemoveMatchingItemProperties(NwItem oItem, ItemPropertyType nItemPropertyType, EffectDuration nItemPropertyDuration = EffectDuration.Temporary, int nItemPropertySubType = -1)
     {
-      Core.ItemProperty ip = NWScript.GetFirstItemProperty(oItem);
-
-      // valid ip?
-      while (NWScript.GetIsItemPropertyValid(ip) == 1)
-      {
-        // same property type?
-        if (NWScript.GetItemPropertyType(ip) == nItemPropertyType)
-        {
-          // same duration or duration ignored?
-          if (NWScript.GetItemPropertyDurationType(ip) == nItemPropertyDuration || nItemPropertyDuration == -1)
-          {
-            // same subtype or subtype ignored
-            if (NWScript.GetItemPropertySubType(ip) == nItemPropertySubType || nItemPropertySubType == -1)
-            {
-              // Put a warning into the logfile if someone tries to remove a permanent ip with a temporary one!
-              /*if (nItemPropertyDuration == DURATION_TYPE_TEMPORARY &&  GetItemPropertyDurationType(ip) == DURATION_TYPE_PERMANENT)
-              {
-                 WriteTimestampedLogEntry("x2_inc_itemprop:: IPRemoveMatchingItemProperties() - WARNING: Permanent item property removed by temporary on "+GetTag(oItem));
-              }
-              */
-              NWScript.RemoveItemProperty(oItem, ip);
-            }
-          }
-        }
-        ip = NWScript.GetNextItemProperty(oItem);
-      }
+      foreach(ItemProperty ip in oItem.ItemProperties.Where(i => i.PropertyType == nItemPropertyType && (i.DurationType == nItemPropertyDuration || nItemPropertyDuration == (EffectDuration)(-1)) && (i.SubType == nItemPropertySubType || nItemPropertySubType == -1)))
+        oItem.RemoveItemProperty(ip);
     }
     public static void DecreaseItemDurability(NwItem oItem)
     {

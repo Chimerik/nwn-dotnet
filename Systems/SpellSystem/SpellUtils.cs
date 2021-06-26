@@ -16,9 +16,10 @@ namespace NWN.Systems
         fDelay = fDelay - 0.1f;
       }
       int nResist = NWScript.ResistSpell(oCaster, oTarget);
-      Core.Effect eSR = NWScript.EffectVisualEffect(NWScript.VFX_IMP_MAGIC_RESISTANCE_USE);
-      Core.Effect eGlobe = NWScript.EffectVisualEffect(NWScript.VFX_IMP_GLOBE_USE);
-      Core.Effect eMantle = NWScript.EffectVisualEffect(NWScript.VFX_IMP_SPELL_MANTLE_USE);
+      Effect eSR = Effect.VisualEffect(VfxType.ImpMagicResistanceUse);
+      Effect eGlobe = Effect.VisualEffect(VfxType.ImpGlobeUse);
+      Effect eMantle = Effect.VisualEffect(VfxType.ImpSpellMantleUse);
+
       if (nResist == 1) //Spell Resistance
       {
         //Ici oCaster a perdu le test de RM contre celle de oTarget
@@ -95,9 +96,10 @@ namespace NWN.Systems
         nDC = 255;
       }
 
-      Core.Effect eVis = NWScript.EffectVisualEffect(NWScript.VFX_IMP_FORTITUDE_SAVING_THROW_USE); 
+      Effect eVis = Effect.VisualEffect(VfxType.ImpFortitudeSavingThrowUse); 
       int bValid = 0;
       int nSpellID;
+
       if (nSavingThrow == NWScript.SAVING_THROW_FORT)
       {
         bValid = NWScript.FortitudeSave(oTarget, nDC, nSaveType, oSaveVersus);
@@ -162,25 +164,25 @@ namespace NWN.Systems
       }
       return bValid;
     }
-    public static int GetSpellIDFromScroll(uint oScroll)
+    public static Spell GetSpellIDFromScroll(uint oScroll)
     {
         NwItem scroll = oScroll.ToNwObject<NwItem>();
-        API.ItemProperty ip =scroll.ItemProperties.Where(ip => ip.PropertyType == ItemPropertyType.CastSpell).FirstOrDefault();
+        API.ItemProperty ip = scroll.ItemProperties.Where(ip => ip.PropertyType == ItemPropertyType.CastSpell).FirstOrDefault();
 
-        if (ip != null)
-            return int.Parse(NWScript.Get2DAString("iprp_spells", "SpellIndex", ip.SubType));
+        if (ip != null && int.TryParse(NWScript.Get2DAString("iprp_spells", "SpellIndex", ip.SubType), out int spellId))
+            return (Spell)spellId;
 
-      return -1;
+      return (Spell)(-1);
     }
-    public static int GetSpellLevelFromScroll(uint oScroll)
+    public static byte GetSpellLevelFromScroll(uint oScroll)
     {
         NwItem scroll = oScroll.ToNwObject<NwItem>();
         API.ItemProperty ip = scroll.ItemProperties.Where(ip => ip.PropertyType == ItemPropertyType.CastSpell).FirstOrDefault();
 
         if (ip != null)
-            return (int)(float.Parse(NWScript.Get2DAString("iprp_spells", "InnateLvl", ip.SubType)));
+            return (byte)(float.Parse(NWScript.Get2DAString("iprp_spells", "InnateLvl", ip.SubType)));
 
-      return -1;
+      return 255;
     }
     public static int GetSpellSchoolFromString(string school)
     {

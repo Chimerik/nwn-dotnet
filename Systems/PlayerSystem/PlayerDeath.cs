@@ -168,26 +168,26 @@ namespace NWN.Systems
     private static void ApplyRadiantRespawnEffects(Player player)
     {
       // TODO : augmentation du niveau d'influence de l'entité
-      Core.Effect eVis = NWScript.EffectVisualEffect(NWScript.VFX_IMP_IMPROVE_ABILITY_SCORE);
-      Core.Effect eDur = NWScript.EffectVisualEffect(NWScript.VFX_DUR_CESSATE_POSITIVE);
-      Core.Effect eCon = NWScript.EffectAbilityIncrease(NWScript.ABILITY_CONSTITUTION, 2);
-      Core.Effect eRegen = NWScript.EffectRegenerate(1, 1.0f);
-      Core.Effect eJS = NWScript.EffectSavingThrowIncrease(0, 1);
-      Core.Effect eTempHP = NWScript.EffectTemporaryHitpoints(10);
-      Core.Effect eDamImm1 = NWScript.EffectDamageImmunityIncrease(1, 10);
-      Core.Effect eDamImm2 = NWScript.EffectDamageImmunityIncrease(2, 10);
-      Core.Effect eDamImm3 = NWScript.EffectDamageImmunityIncrease(4, 10);
-      Core.Effect eDamImm4 = NWScript.EffectDamageImmunityIncrease(8, 10);
-      Core.Effect eDamImm5 = NWScript.EffectDamageImmunityIncrease(16, 10);
-      Core.Effect eDamImm6 = NWScript.EffectDamageImmunityIncrease(32, 10);
-      Core.Effect eDamImm7 = NWScript.EffectDamageImmunityIncrease(64, 10);
-      Core.Effect eDamImm8 = NWScript.EffectDamageImmunityIncrease(128, 10);
-      Core.Effect eDamImm9 = NWScript.EffectDamageImmunityIncrease(256, 10);
-      Core.Effect eDamImm10 = NWScript.EffectDamageImmunityIncrease(512, 10);
-      Core.Effect eDamImm11 = NWScript.EffectDamageImmunityIncrease(1024, 10);
-      Core.Effect eDamImm12 = NWScript.EffectDamageImmunityIncrease(2048, 10);
+      Effect eVis = NWScript.EffectVisualEffect(NWScript.VFX_IMP_IMPROVE_ABILITY_SCORE);
+      Effect eDur = NWScript.EffectVisualEffect(NWScript.VFX_DUR_CESSATE_POSITIVE);
+      Effect eCon = NWScript.EffectAbilityIncrease(NWScript.ABILITY_CONSTITUTION, 2);
+      Effect eRegen = NWScript.EffectRegenerate(1, 1.0f);
+      Effect eJS = NWScript.EffectSavingThrowIncrease(0, 1);
+      Effect eTempHP = NWScript.EffectTemporaryHitpoints(10);
+      Effect eDamImm1 = NWScript.EffectDamageImmunityIncrease(1, 10);
+      Effect eDamImm2 = NWScript.EffectDamageImmunityIncrease(2, 10);
+      Effect eDamImm3 = NWScript.EffectDamageImmunityIncrease(4, 10);
+      Effect eDamImm4 = NWScript.EffectDamageImmunityIncrease(8, 10);
+      Effect eDamImm5 = NWScript.EffectDamageImmunityIncrease(16, 10);
+      Effect eDamImm6 = NWScript.EffectDamageImmunityIncrease(32, 10);
+      Effect eDamImm7 = NWScript.EffectDamageImmunityIncrease(64, 10);
+      Effect eDamImm8 = NWScript.EffectDamageImmunityIncrease(128, 10);
+      Effect eDamImm9 = NWScript.EffectDamageImmunityIncrease(256, 10);
+      Effect eDamImm10 = NWScript.EffectDamageImmunityIncrease(512, 10);
+      Effect eDamImm11 = NWScript.EffectDamageImmunityIncrease(1024, 10);
+      Effect eDamImm12 = NWScript.EffectDamageImmunityIncrease(2048, 10);
 
-      Core.Effect eLink = NWScript.EffectLinkEffects(eVis, eDur);
+      Effect eLink = NWScript.EffectLinkEffects(eVis, eDur);
       eLink = NWScript.EffectLinkEffects(eLink, eCon);
       eLink = NWScript.EffectLinkEffects(eLink, eRegen);
       eLink = NWScript.EffectLinkEffects(eLink, eJS);
@@ -212,14 +212,14 @@ namespace NWN.Systems
     private static void ApplyDireRespawnEffects(PlayerSystem.Player player)
     {
       // TODO : augmentation du niveau d'influence de l'entité
-      Core.Effect Vis = NWScript.EffectVisualEffect(NWScript.VFX_IMP_IMPROVE_ABILITY_SCORE);
-      Core.Effect Dur = NWScript.EffectVisualEffect(NWScript.VFX_DUR_CESSATE_POSITIVE);
-      Core.Effect eStr = NWScript.EffectAbilityIncrease(NWScript.ABILITY_STRENGTH, 2);
-      Core.Effect eDam = NWScript.EffectDamageIncrease(1, NWScript.DAMAGE_TYPE_DIVINE);
-      Core.Effect eAtt = NWScript.EffectAttackIncrease(1);
-      Core.Effect eMS = NWScript.EffectMovementSpeedIncrease(10);
+      Effect Vis = NWScript.EffectVisualEffect(NWScript.VFX_IMP_IMPROVE_ABILITY_SCORE);
+      Effect Dur = NWScript.EffectVisualEffect(NWScript.VFX_DUR_CESSATE_POSITIVE);
+      Effect eStr = NWScript.EffectAbilityIncrease(NWScript.ABILITY_STRENGTH, 2);
+      Effect eDam = NWScript.EffectDamageIncrease(1, NWScript.DAMAGE_TYPE_DIVINE);
+      Effect eAtt = NWScript.EffectAttackIncrease(1);
+      Effect eMS = NWScript.EffectMovementSpeedIncrease(10);
 
-      Core.Effect Link = NWScript.EffectLinkEffects(Vis, Dur);
+      Effect Link = NWScript.EffectLinkEffects(Vis, Dur);
       Link = NWScript.EffectLinkEffects(Link, eStr);
       Link = NWScript.EffectLinkEffects(Link, eDam);
       Link = NWScript.EffectLinkEffects(Link, eAtt);

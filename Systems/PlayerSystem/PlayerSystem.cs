@@ -182,7 +182,7 @@ namespace NWN.Systems
     {
       if (Players.TryGetValue(callInfo.ObjectSelf, out Player player))
       {
-        MapPin updatedMapPin = player.mapPinDictionnary[Int32.Parse(EventsPlugin.GetEventData("PIN_ID"))];
+        MapPin updatedMapPin = player.mapPinDictionnary[int.Parse(EventsPlugin.GetEventData("PIN_ID"))];
         updatedMapPin.x = float.Parse(EventsPlugin.GetEventData("PIN_X"));
         updatedMapPin.y = float.Parse(EventsPlugin.GetEventData("PIN_Y"));
         updatedMapPin.note = EventsPlugin.GetEventData("PIN_NOTE");
@@ -223,7 +223,7 @@ namespace NWN.Systems
       if (!Players.TryGetValue(callInfo.ObjectSelf, out Player player))
         return;
 
-      int animation = Utils.TranslateEngineAnimation(Int32.Parse(EventsPlugin.GetEventData("ANIMATION")));
+      int animation = Utils.TranslateEngineAnimation(int.Parse(EventsPlugin.GetEventData("ANIMATION")));
 
       switch (animation)
       {
@@ -269,33 +269,29 @@ namespace NWN.Systems
 
       EventsPlugin.SkipEvent();
       var oScroll = NWScript.StringToObject(EventsPlugin.GetEventData("SCROLL"));
-      int spellId = SpellUtils.GetSpellIDFromScroll(oScroll);
-      int spellLevel = SpellUtils.GetSpellLevelFromScroll(oScroll);
+      Spell spellId = SpellUtils.GetSpellIDFromScroll(oScroll);
+      byte spellLevel = SpellUtils.GetSpellLevelFromScroll(oScroll);
 
-      if (spellId < 0 || spellLevel < 0)
+      if (spellId < 0 || spellLevel > 10)
       {
         Utils.LogMessageToDMs($"LEARN SPELL FROM SCROLL - Player : {oPC.Name}, SpellId : {spellId}, SpellLevel : {spellLevel} - INVALID");
         oPC.ControllingPlayer.SendServerMessage("HRP - Ce parchemin ne semble pas correctement configuré, impossible d'en apprendre quoique ce soit. Le staff a été informé du problème.");
         return;
       }
 
-      int knownSpellCount = CreaturePlugin.GetKnownSpellCount(oPC, 43, spellLevel);
-
-      if (knownSpellCount > 0)
-        for (int i = 0; i < knownSpellCount; i++)
-          if (CreaturePlugin.GetKnownSpell(oPC, 43, spellLevel, i) == spellId)
-          {
-            oPC.ControllingPlayer.SendServerMessage("Ce sort est déjà inscrit dans votre grimoire.");
-            return;
-          }
+      if (oPC.GetClassInfo((ClassType)43).GetKnownSpells(spellLevel).Any(s => s == spellId))
+      {
+        oPC.ControllingPlayer.SendServerMessage("Ce sort est déjà inscrit dans votre grimoire.");
+        return;
+      }
 
       if (Players.TryGetValue(oPC, out Player player))
-        if (player.learnableSpells.ContainsKey(spellId))
+        if (player.learnableSpells.ContainsKey((int)spellId))
         {
-          if (player.learnableSpells[spellId].nbScrollsUsed <= 5)
+          if (player.learnableSpells[(int)spellId].nbScrollsUsed <= 5)
           {
-            player.learnableSpells[spellId].acquiredPoints += player.learnableSpells[spellId].pointsToNextLevel / 20;
-            player.learnableSpells[spellId].nbScrollsUsed += 1;
+            player.learnableSpells[(int)spellId].acquiredPoints += player.learnableSpells[(int)spellId].pointsToNextLevel / 20;
+            player.learnableSpells[(int)spellId].nbScrollsUsed += 1;
             oPC.ControllingPlayer.SendServerMessage("A l'aide de ce parchemin, vous affinez votre connaissance de ce sort. Votre apprentissage sera plus rapide.");
           }
           else
@@ -304,8 +300,8 @@ namespace NWN.Systems
         }
         else
         {
-          SkillSystem.LearnableSpell spell = new SkillSystem.LearnableSpell(spellId, 0, player);
-          player.learnableSpells.Add(spellId, spell);
+          SkillSystem.LearnableSpell spell = new SkillSystem.LearnableSpell((int)spellId, 0, player);
+          player.learnableSpells.Add((int)spellId, spell);
           oPC.ControllingPlayer.SendServerMessage($"Le sort {spell.name} a été ajouté à votre liste d'apprentissage et est désormais disponible pour étude.");
           NWScript.DestroyObject(oScroll);
         }

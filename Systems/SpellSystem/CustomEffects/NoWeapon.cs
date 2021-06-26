@@ -16,11 +16,11 @@ namespace NWN.Systems
       oTarget.ApplyEffect(EffectDuration.Instant, Effect.VisualEffect(VfxType.FnfPwkill));
 
       if (oTarget.GetItemInSlot(InventorySlot.RightHand) != null)
-        CreaturePlugin.RunUnequip(oTarget, oTarget.GetItemInSlot(InventorySlot.RightHand));
+        oTarget.RunUnequip(oTarget.GetItemInSlot(InventorySlot.RightHand));
       if (oTarget.GetItemInSlot(InventorySlot.LeftHand) != null)
-        CreaturePlugin.RunUnequip(oTarget, oTarget.GetItemInSlot(InventorySlot.LeftHand));
+        oTarget.RunUnequip(oTarget.GetItemInSlot(InventorySlot.LeftHand));
       if (oTarget.GetItemInSlot(InventorySlot.Arms) != null)
-        CreaturePlugin.RunUnequip(oTarget, oTarget.GetItemInSlot(InventorySlot.Arms));
+        oTarget.RunUnequip(oTarget.GetItemInSlot(InventorySlot.Arms));
     }
     public static void RemoveEffectFromTarget(NwCreature oTarget)
     {

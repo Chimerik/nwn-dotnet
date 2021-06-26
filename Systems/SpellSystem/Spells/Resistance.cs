@@ -15,8 +15,8 @@ namespace NWN.Systems
 
       NWScript.SignalEvent(onSpellCast.TargetObject, NWScript.EventSpellCastAt(oCaster, (int)onSpellCast.Spell));
 
-      Core.Effect eVis = NWScript.EffectVisualEffect(NWScript.VFX_IMP_HEAD_HOLY);
-      Core.Effect eDur = NWScript.EffectVisualEffect(NWScript.VFX_DUR_CESSATE_POSITIVE);
+      Effect eVis = NWScript.EffectVisualEffect(NWScript.VFX_IMP_HEAD_HOLY);
+      Effect eDur = NWScript.EffectVisualEffect(NWScript.VFX_DUR_CESSATE_POSITIVE);
 
       int nBonus = 1 + nCasterLevel / 6; //Saving throw bonus to be applied
       int nDuration = 2 + nCasterLevel / 6; // Turns
@@ -25,8 +25,8 @@ namespace NWN.Systems
       if (onSpellCast.MetaMagicFeat == API.Constants.MetaMagic.Extend)
         nDuration = nDuration * 2;
       //Set the bonus save effect
-      Core.Effect eSave = NWScript.EffectSavingThrowIncrease(NWScript.SAVING_THROW_ALL, nBonus);
-      Core.Effect eLink = NWScript.EffectLinkEffects(eSave, eDur);
+      Effect eSave = NWScript.EffectSavingThrowIncrease(NWScript.SAVING_THROW_ALL, nBonus);
+      Effect eLink = NWScript.EffectLinkEffects(eSave, eDur);
 
       //Apply the bonus effect and VFX impact
       NWScript.ApplyEffectToObject(NWScript.DURATION_TYPE_TEMPORARY, eLink, onSpellCast.TargetObject, NWScript.TurnsToSeconds(nDuration));

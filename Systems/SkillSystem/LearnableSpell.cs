@@ -68,10 +68,10 @@ namespace NWN.Systems
           primaryAbility = NWScript.ABILITY_INTELLIGENCE;
 
         secondaryAbility = NWScript.ABILITY_CHARISMA;
-
-        int knownSpells = CreaturePlugin.GetKnownSpellCount(player.oid.LoginCreature, 43, multiplier);
-        if (knownSpells > 4)
-          knownSpells = 4;
+        
+        int knownSpells = player.oid.LoginCreature.GetClassInfo((ClassType)43).GetKnownSpellCountByLevel((byte)multiplier);
+        if (knownSpells > 3)
+          knownSpells = 3;
 
         if (knownSpells < 1)
           knownSpells = 1;
@@ -169,7 +169,7 @@ namespace NWN.Systems
         if (player.menu.isOpen)
           player.menu.Close();
 
-        CreaturePlugin.AddKnownSpell(player.oid.LoginCreature, 43, level, oid);
+        player.oid.LoginCreature.GetClassInfo((ClassType)43).AddKnownSpell((Spell)oid, (byte)level);
         PlayNewSkillAcquiredEffects();
         trained = true;
         player.currentSkillJob = (int)CustomFeats.Invalid;
