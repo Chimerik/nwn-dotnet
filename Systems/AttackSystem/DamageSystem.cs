@@ -1,12 +1,9 @@
 ﻿using NWN.API;
-using NWN.API.Constants;
-using NWN.Core.NWNX;
 using NWN.Services;
 using NWN.API.Events;
-using System.Linq;
 using System;
 using Action = System.Action;
-using System.Collections.Generic;
+using Context = NWN.Systems.Config.Context;
 
 namespace NWN.Systems
 {
@@ -24,7 +21,7 @@ namespace NWN.Systems
             ProcessTargetSpecificAC,
             ProcessTargetShieldAC,
             ProcessArmorPenetrationCalculations,
-            ProcessSpellDamageCalculations,
+            ProcessDamageCalculations,
             ProcessTargetItemDurability,
       }
     );
@@ -99,49 +96,9 @@ namespace NWN.Systems
       PlayerSystem.Log.Info($"ProcessSpellAttackPosition");
       // TODO : voir comment le "damager" est détecté dans le cas des AoE FNF et des AoE qui restent plus longtemps au sol
 
-      if (ctx.onDamage.DamagedBy != null)
-      {
-
-        if (ctx.onDamage.DamagedBy.GetLocalVariable<int>("_SPELL_ATTACK_POSITION").HasValue)
-          ctx.attackPosition = (Config.AttackPosition)ctx.onDamage.DamagedBy.GetLocalVariable<int>("_SPELL_ATTACK_POSITION").Value;
-      }
-      next();
-    }
-    private static void ProcessSpellDamageCalculations(Context ctx, Action next)
-    {
-      PlayerSystem.Log.Info($"ProcessSpellDamageCalculations");
-      if (ctx.onDamage.DamageData.Base > 0)
-      {
-        ctx.onDamage.DamageData.Base = (short)(ctx.onDamage.DamageData.Base * Math.Pow(0.5, (ctx.targetAC[DamageType.BaseWeapon] + ctx.targetAC.GetValueOrDefault((DamageType)4) + ctx.targetAC.GetValueOrDefault(DamageType.Piercing) - 60) / 40));
-      }
-
-      if (ctx.onDamage.DamageData.Bludgeoning > 0)
-        ctx.onDamage.DamageData.Bludgeoning = (short)(ctx.onDamage.DamageData.Bludgeoning * Math.Pow(0.5, (ctx.targetAC[DamageType.BaseWeapon] + ctx.targetAC.GetValueOrDefault((DamageType)4) + ctx.targetAC.GetValueOrDefault(DamageType.Bludgeoning) - 60) / 40));
-
-      if (ctx.onDamage.DamageData.Pierce > 0)
-        ctx.onDamage.DamageData.Pierce = (short)(ctx.onDamage.DamageData.Pierce * Math.Pow(0.5, (ctx.targetAC[DamageType.BaseWeapon] + ctx.targetAC.GetValueOrDefault((DamageType)4) + ctx.targetAC.GetValueOrDefault(DamageType.Piercing) - 60) / 40));
-
-      if (ctx.onDamage.DamageData.Slash > 0)
-        ctx.onDamage.DamageData.Slash = (short)(ctx.onDamage.DamageData.Slash * Math.Pow(0.5, (ctx.targetAC[DamageType.BaseWeapon] + ctx.targetAC.GetValueOrDefault((DamageType)4) + ctx.targetAC.GetValueOrDefault(DamageType.Slashing) - 60) / 40));
-
-      if (ctx.onDamage.DamageData.Electrical > 0)
-        ctx.onDamage.DamageData.Electrical = (short)(ctx.onDamage.DamageData.Electrical * Math.Pow(0.5, (ctx.targetAC[DamageType.BaseWeapon] + ctx.targetAC.GetValueOrDefault((DamageType)14) + ctx.targetAC.GetValueOrDefault(DamageType.Electrical) - 60) / 40));
-
-      if (ctx.onDamage.DamageData.Acid > 0)
-        ctx.onDamage.DamageData.Acid = (short)(ctx.onDamage.DamageData.Acid * Math.Pow(0.5, (ctx.targetAC[DamageType.BaseWeapon] + ctx.targetAC.GetValueOrDefault((DamageType)14) + ctx.targetAC.GetValueOrDefault(DamageType.Acid) - 60) / 40));
-
-      if (ctx.onDamage.DamageData.Cold > 0)
-        ctx.onDamage.DamageData.Cold = (short)(ctx.onDamage.DamageData.Cold * Math.Pow(0.5, (ctx.targetAC[DamageType.BaseWeapon] + ctx.targetAC.GetValueOrDefault((DamageType)14) + ctx.targetAC.GetValueOrDefault(DamageType.Cold) - 60) / 40));
-
-      if (ctx.onDamage.DamageData.Fire > 0)
-        ctx.onDamage.DamageData.Fire = (short)(ctx.onDamage.DamageData.Fire * Math.Pow(0.5, (ctx.targetAC[DamageType.BaseWeapon] + ctx.targetAC.GetValueOrDefault((DamageType)14) + ctx.targetAC.GetValueOrDefault(DamageType.Fire) - 60) / 40));
-
-      if (ctx.onDamage.DamageData.Magical > 0)
-        ctx.onDamage.DamageData.Magical = (short)(ctx.onDamage.DamageData.Magical * Math.Pow(0.5, (ctx.targetAC[DamageType.BaseWeapon] + ctx.targetAC.GetValueOrDefault((DamageType)14) + ctx.targetAC.GetValueOrDefault(DamageType.Magical) - 60) / 40));
-
-      if (ctx.onDamage.DamageData.Sonic > 0)
-        ctx.onDamage.DamageData.Sonic = (short)(ctx.onDamage.DamageData.Sonic * Math.Pow(0.5, (ctx.targetAC[DamageType.BaseWeapon] + ctx.targetAC.GetValueOrDefault((DamageType)14) + ctx.targetAC.GetValueOrDefault(DamageType.Sonic) - 60) / 40));
-
+      if (ctx.oAttacker != null && ctx.oAttacker.GetLocalVariable<int>("_SPELL_ATTACK_POSITION").HasValue)
+        ctx.attackPosition = (Config.AttackPosition)ctx.oAttacker.GetLocalVariable<int>("_SPELL_ATTACK_POSITION").Value;
+      
       next();
     }
   }

@@ -329,6 +329,8 @@ namespace NWN.Systems
         case IPDamageType.Negative: return DamageType.Negative;
         case IPDamageType.Positive: return DamageType.Positive;
         case IPDamageType.Sonic: return DamageType.Sonic;
+        case (IPDamageType)4: return (DamageType)8192; // Physical
+        case (IPDamageType)14: return (DamageType)16384; // Elemental
         default: return DamageType.Slashing;
       }
     }

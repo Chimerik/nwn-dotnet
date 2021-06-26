@@ -1,10 +1,57 @@
 ﻿
+using System.Collections.Generic;
 using NWN.API;
+using NWN.API.Constants;
+using NWN.API.Events;
 
 namespace NWN.Systems
 {
   public static partial class Config
   {
+    public class Context
+    {
+      public OnCreatureAttack onAttack { get; set; }
+      public OnCreatureDamage onDamage { get; set; }
+      public int weaponBaseDamageType { get; set; }
+      public NwCreature oAttacker { get; }
+      public NwCreature oTarget { get; }
+      public bool isUnarmedAttack { get; }
+      public bool isRangedAttack { get; }
+      public NwItem attackWeapon { get; set; }
+      public NwItem targetArmor { get; set; }
+      public int maxBaseAC { get; set; }
+      public int baseArmorPenetration { get; set; }
+      public int bonusArmorPenetration { get; set; }
+      public AttackPosition attackPosition { get; set; }
+      public Dictionary<DamageType, int> targetAC { get; set; }
+
+
+      public Context(OnCreatureAttack onAttack, NwCreature oTarget, OnCreatureDamage onDamage = null)
+      {
+        this.onAttack = onAttack;
+        this.onDamage = onDamage;
+        this.oAttacker = null;
+
+        if (onAttack != null)
+          this.oAttacker = onAttack.Attacker;
+        else if (onDamage != null && onDamage.DamagedBy is NwCreature oCreature)
+            this.oAttacker = oCreature;
+
+        this.oTarget = oTarget;
+        this.attackWeapon = null;
+        this.targetArmor = null;
+        this.weaponBaseDamageType = 0; // Slashing par défaut
+        this.baseArmorPenetration = 0;
+        this.bonusArmorPenetration = 0;
+        this.maxBaseAC = 0;
+        this.attackPosition = AttackPosition.NormalOrRanged;
+        this.isUnarmedAttack = oAttacker != null && oAttacker.GetItemInSlot(InventorySlot.RightHand) == null;
+        this.isRangedAttack = oAttacker != null && oAttacker.GetItemInSlot(InventorySlot.RightHand) != null
+        && ItemUtils.GetItemCategory(oAttacker.GetItemInSlot(InventorySlot.RightHand).BaseItemType) == ItemUtils.ItemCategory.RangedWeapon;
+        this.targetAC = new Dictionary<DamageType, int>();
+        targetAC.Add(DamageType.BaseWeapon, 0);
+      }
+    }
     public enum AttackPosition
     {
       Low = 1,
@@ -76,6 +123,29 @@ namespace NWN.Systems
         default:
           return 0;
       }
+    }
+    public static int GetContextDamage(Context ctx, DamageType damageType)
+    {
+      if (ctx.onAttack != null)
+        return ctx.onAttack.DamageData.GetDamageByType(damageType);
+      else if (ctx.onDamage != null)
+        return ctx.onDamage.DamageData.GetDamageByType(damageType);
+      
+      PlayerSystem.Log.Info("Error : trying to get damage without any event context.");
+      return -1;
+    }
+    public static void SetContextDamage(Context ctx, DamageType damageType, int value)
+    {
+      if (ctx.onAttack != null)
+        SetDamage(ctx.onAttack.DamageData, damageType, (short)value);
+      else if (ctx.onDamage != null)
+        SetDamage(ctx.onDamage.DamageData, damageType, value);
+      else
+        PlayerSystem.Log.Info("Error : trying to set damage without any event context.");
+    }
+    public static void SetDamage<T>(DamageData<T> damageData, DamageType damageType, T value) where T : unmanaged
+    {
+      damageData.SetDamageByType(damageType, value);
     }
   }
 }

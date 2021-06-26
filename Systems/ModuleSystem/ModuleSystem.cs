@@ -47,17 +47,6 @@ namespace NWN.Systems
 
       Task spawnResources = SpawnCollectableResources(1);
       Task deleteExpiredMail = DeleteExpiredMail();
-
-      NwItem test = NwObject.FindObjectsOfType<NwItem>().FirstOrDefault();
-
-      if(test == null)
-      {
-        Log.Info("prout !");
-        return;
-      }
-
-      test.AddItemProperty(API.ItemProperty.DamageBonus(API.Constants.IPDamageType.Fire, API.Constants.IPDamageBonus.Plus1));
-
     }
     private async void LoadDiscordBot()
     {
