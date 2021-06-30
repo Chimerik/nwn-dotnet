@@ -59,9 +59,9 @@ namespace NWN.Systems
         creature.Destroy(0.2f);
       }
 
-      foreach (NwGameObject bodyBag in area.FindObjectsOfTypeInArea<NwGameObject>().Where(o => o.Tag == "BodyBag"))
+      foreach (NwPlaceable bodyBag in area.FindObjectsOfTypeInArea<NwPlaceable>().Where(o => o.Tag == "BodyBag"))
       {
-        NWN.Utils.DestroyInventory(bodyBag);
+        Utils.DestroyInventory(bodyBag);
         Log.Info($"destroying body bag {bodyBag.Name}");
         bodyBag.Destroy();
       }

@@ -1,4 +1,5 @@
-﻿using System.Threading.Tasks;
+﻿using System.Collections.Generic;
+using System.Threading.Tasks;
 using Discord.Commands;
 using NWN.API;
 using NWN.Core;
@@ -11,10 +12,9 @@ namespace NWN.Systems
     {
       await NwTask.SwitchToMainThread();
 
-      var query = NWScript.SqlPrepareQueryCampaign(Config.database, $"UPDATE PlayerAccounts SET discordId = @discordId WHERE cdKey = @cdKey");
-      NWScript.SqlBindString(query, "@cdKey", cdKey);
-      NWScript.SqlBindString(query, "@discordId", context.User.Id.ToString());
-      NWScript.SqlStep(query);
+      SqLiteUtils.UpdateQuery("playerCharacters",
+          new Dictionary<string, string>() { { "discordId", context.User.Id.ToString() } },
+          new Dictionary<string, string>() { { "cdKey", cdKey } });
 
       await context.Channel.SendMessageAsync("Voilà qui est fait. Enfin, pour tant soit peu que la clef fournie fusse valide !");
     }

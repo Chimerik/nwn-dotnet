@@ -1,7 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using NWN.Core;
-using NWN.Core.NWNX;
 using Action = System.Action;
 
 namespace NWN.Systems
@@ -86,6 +85,7 @@ namespace NWN.Systems
           player.oid.LoginCreature.GetLocalVariable<int>("_AWAITING_PLAYER_INPUT").Delete();
           player.oid.OnPlayerChat -= ChatSystem.HandlePlayerInputByte;
           player.oid.OnPlayerChat -= ChatSystem.HandlePlayerInputInt;
+          player.oid.OnPlayerChat -= ChatSystem.HandlePlayerInputString;
         }
       }
 

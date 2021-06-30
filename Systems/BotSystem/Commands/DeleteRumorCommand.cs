@@ -1,4 +1,5 @@
-﻿using System.Threading.Tasks;
+﻿using System.Collections.Generic;
+using System.Threading.Tasks;
 using Discord.Commands;
 using NWN.API;
 using NWN.Core;
@@ -7,7 +8,7 @@ namespace NWN.Systems
 {
   public static partial class BotSystem
   {
-    public static async Task ExecuteDeleteRumorCommand(SocketCommandContext context, int rumorId)
+    public static async Task ExecuteDeleteRumorCommand(SocketCommandContext context, string rumorId)
     {
       await NwTask.SwitchToMainThread();
 
@@ -22,12 +23,9 @@ namespace NWN.Systems
       switch (DiscordUtils.GetPlayerStaffRankFromDiscord(context.User.Id))
       {
         default:
-          var query = NWScript.SqlPrepareQueryCampaign(Config.database, $"DELETE from rumors where accountId = @accountId AND ROWID = @rowid");
-          NWScript.SqlBindInt(query, "@accountId", accountId);
-          NWScript.SqlBindInt(query, "@rowId", rumorId);
-          NWScript.SqlStep(query);
 
-          if (NWScript.SqlGetError(query) == "")
+          if (SqLiteUtils.DeletionQuery("rumors",
+            new Dictionary<string, string>() { { "accountId", accountId.ToString() }, { "ROWID", rumorId } }))
             await context.Channel.SendMessageAsync($"Votre rumeur numéro {rumorId} a bien été supprimée.");
           else
             await context.Channel.SendMessageAsync($"Vous n'avez pas enregistré de rumeur numéro {rumorId} avec ce compte.");
@@ -36,11 +34,9 @@ namespace NWN.Systems
 
         case "admin":
         case "staff":
-          var staffQuery = NWScript.SqlPrepareQueryCampaign(Config.database, $"DELETE from rumors where ROWID = @rowid");
-          NWScript.SqlBindInt(staffQuery, "@rowId", rumorId);
-          NWScript.SqlStep(staffQuery);
 
-          if (NWScript.SqlGetError(staffQuery) == "")
+          if (SqLiteUtils.DeletionQuery("rumors",
+            new Dictionary<string, string>() { { "ROWID", rumorId } }))
             await context.Channel.SendMessageAsync($"La rumeur numéro {rumorId} a bien été supprimée.");
           else
             await context.Channel.SendMessageAsync($"La rumeur {rumorId} n'a pas pu être trouvée.");

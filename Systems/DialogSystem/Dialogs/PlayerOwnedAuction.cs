@@ -130,13 +130,9 @@ namespace NWN.Systems
       }
       else
       {
-        var query = NWScript.SqlPrepareQueryCampaign(Config.database, $"UPDATE playerShops set shop = @shop, panel = @panel, highestAuction = @highestAuction, highestAuctionner = @highestAuctionner where rowid = @shopId");
-        NWScript.SqlBindInt(query, "@shopId", shop.GetLocalVariable<int>("_AUCTION_ID").Value);
-        NWScript.SqlBindInt(query, "@highestAuction", shop.GetLocalVariable<int>("_CURRENT_AUCTION").Value);
-        NWScript.SqlBindInt(query, "@highestAuctionner", shop.GetLocalVariable<int>("_CURRENT_AUCTIONNER").Value);
-        NWScript.SqlBindString(query, "@shop", shop.Serialize().ToBase64EncodedString());
-        NWScript.SqlBindString(query, "@panel", panel.Serialize().ToBase64EncodedString());
-        NWScript.SqlStep(query);
+        SqLiteUtils.UpdateQuery("playerShops",
+          new Dictionary<string, string>() { { "shop", shop.Serialize().ToBase64EncodedString() }, { "panel", panel.Serialize().ToBase64EncodedString() }, { "highestAuction", shop.GetLocalVariable<int>("_CURRENT_AUCTION").Value.ToString() }, { "highestAuctionner", shop.GetLocalVariable<int>("_CURRENT_AUCTIONNER").Value.ToString() } },
+          new Dictionary<string, string>() { { "rowid", shop.GetLocalVariable<int>("_AUCTION_ID").Value.ToString() } });
       }
     }
 
@@ -283,10 +279,9 @@ namespace NWN.Systems
       NwItem item = shop.Items.FirstOrDefault();
       item.BaseGoldValue = (uint)(auctionSetPrice / item.StackSize);
 
-      var buyerQuery = NWScript.SqlPrepareQueryCampaign(Config.database, $"UPDATE playerCharacters SET bankGold = bankGold + @gold where characterId = @characterId");
-      NWScript.SqlBindInt(buyerQuery, "@characterId", shop.GetLocalVariable<int>("_CURRENT_AUCTIONNER").Value);
-      NWScript.SqlBindInt(buyerQuery, "@gold", shop.GetLocalVariable<int>("_CURRENT_AUCTION").Value);
-      NWScript.SqlStep(buyerQuery);
+      SqLiteUtils.UpdateQuery("playerCharacters",
+          new Dictionary<string, string>() { { "bankGold+", shop.GetLocalVariable<int>("_CURRENT_AUCTION").Value.ToString() } },
+          new Dictionary<string, string>() { { "rowid", shop.GetLocalVariable<int>("_CURRENT_AUCTIONNER").Value.ToString() } });
 
       NwPlayer oSeller = NwModule.Instance.Players.FirstOrDefault(p => ObjectPlugin.GetInt(p.LoginCreature, "characterId") == shop.GetLocalVariable<int>("_CURRENT_AUCTIONNER").Value);
       if (oSeller != null)

@@ -48,7 +48,6 @@ namespace NWN.Systems
         Task resetClassOnNextFrame = NwTask.Run(async () =>
         {
           await NwTask.Delay(TimeSpan.FromSeconds(0.7));
-          
           CreaturePlugin.SetClassByPosition(oPC, 0, classe);
           CancellationTokenSource tokenSource = new CancellationTokenSource();
 
@@ -93,10 +92,10 @@ namespace NWN.Systems
 
       CreaturePlugin.SetClassByPosition(oPC, 0, 43);
       
-      oPC.GetLocalVariable<int>("_DELAYED_SPELLHOOK_REFLEX").Value = CreaturePlugin.GetBaseSavingThrow(oPC, NWScript.SAVING_THROW_REFLEX);
-      oPC.GetLocalVariable<int>("_DELAYED_SPELLHOOK_WILL").Value = CreaturePlugin.GetBaseSavingThrow(oPC, NWScript.SAVING_THROW_WILL);
-      oPC.GetLocalVariable<int>("_DELAYED_SPELLHOOK_FORT").Value = CreaturePlugin.GetBaseSavingThrow(oPC, NWScript.SAVING_THROW_FORT);
-
+      oPC.GetLocalVariable<int>("_DELAYED_SPELLHOOK_REFLEX").Value = oPC.GetBaseSavingThrow(SavingThrow.Reflex);
+      oPC.GetLocalVariable<int>("_DELAYED_SPELLHOOK_WILL").Value = oPC.GetBaseSavingThrow(SavingThrow.Will);
+      oPC.GetLocalVariable<int>("_DELAYED_SPELLHOOK_FORT").Value = oPC.GetBaseSavingThrow(SavingThrow.Fortitude);
+      
       if (player.learntCustomFeats.ContainsKey(CustomFeats.ImprovedCasterLevel))
         CreaturePlugin.SetLevelByPosition(oPC, 0, SkillSystem.GetCustomFeatLevelFromSkillPoints(CustomFeats.ImprovedCasterLevel, player.learntCustomFeats[CustomFeats.ImprovedCasterLevel]) + 1);
 
@@ -172,11 +171,11 @@ namespace NWN.Systems
     {
       CreaturePlugin.SetLevelByPosition(player, 0, 1);
       CreaturePlugin.SetClassByPosition(player, 0, 43);
-      CreaturePlugin.SetBaseSavingThrow(player, NWScript.SAVING_THROW_REFLEX, player.GetLocalVariable<int>("_DELAYED_SPELLHOOK_REFLEX").Value);
-      CreaturePlugin.SetBaseSavingThrow(player, NWScript.SAVING_THROW_WILL, player.GetLocalVariable<int>("_DELAYED_SPELLHOOK_WILL").Value);
-      CreaturePlugin.SetBaseSavingThrow(player, NWScript.SAVING_THROW_FORT, player.GetLocalVariable<int>("_DELAYED_SPELLHOOK_FORT").Value);
+      player.SetBaseSavingThrow(SavingThrow.Reflex, (sbyte)player.GetLocalVariable<int>("_DELAYED_SPELLHOOK_REFLEX").Value);
+      player.SetBaseSavingThrow(SavingThrow.Will, (sbyte)player.GetLocalVariable<int>("_DELAYED_SPELLHOOK_WILL").Value);
+      player.SetBaseSavingThrow(SavingThrow.Fortitude, (sbyte)player.GetLocalVariable<int>("_DELAYED_SPELLHOOK_FORT").Value);
     }
-        public static void HandleBeforeSpellCast(OnSpellCast onSpellCast)
+    public static void HandleBeforeSpellCast(OnSpellCast onSpellCast)
     {
       if (!(onSpellCast.Caster is NwCreature { IsPlayerControlled: true } oPC))
         return;
@@ -351,11 +350,12 @@ namespace NWN.Systems
         {
           case 47: // 47 = Invisibility
 
-            foreach (API.Effect inviAoE in ((NwCreature)callInfo.ObjectSelf).ActiveEffects.Where(f => f.Tag == "invi_aoe"))
+            foreach (Effect inviAoE in ((NwCreature)callInfo.ObjectSelf).ActiveEffects.Where(f => f.Tag == "invi_aoe"))
               ((NwGameObject)callInfo.ObjectSelf).RemoveEffect(inviAoE);
 
             break;
         }
+
         return;
       }
 

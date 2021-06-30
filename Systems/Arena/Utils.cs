@@ -1,8 +1,10 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using NWN.API;
+using NWN.API.Constants;
 using NWN.API.Events;
 using NWN.Core;
 using static NWN.Systems.Arena.Config;
@@ -36,9 +38,9 @@ namespace NWN.Systems.Arena
 
       await NwTask.Delay(TimeSpan.FromSeconds(5));
 
-      onPlayerDeath.DeadPlayer.LoginCreature.ApplyEffect(EffectDuration.Instant, API.Effect.VisualEffect(API.Constants.VfxType.FnfSummonEpicUndead));
-      onPlayerDeath.DeadPlayer.LoginCreature.ApplyEffect(EffectDuration.Instant, API.Effect.VisualEffect(API.Constants.VfxType.ImpHarm));
-      onPlayerDeath.DeadPlayer.LoginCreature.ApplyEffect(EffectDuration.Instant, API.Effect.VisualEffect(API.Constants.VfxType.ComChunkRedLarge));
+      onPlayerDeath.DeadPlayer.LoginCreature.ApplyEffect(EffectDuration.Instant, Effect.VisualEffect(VfxType.FnfSummonEpicUndead));
+      onPlayerDeath.DeadPlayer.LoginCreature.ApplyEffect(EffectDuration.Instant, Effect.VisualEffect(VfxType.ImpHarm));
+      onPlayerDeath.DeadPlayer.LoginCreature.ApplyEffect(EffectDuration.Instant, Effect.VisualEffect(VfxType.ComChunkRedLarge));
 
       await NwTask.Delay(TimeSpan.FromSeconds(2));
       onPlayerDeath.DeadPlayer.LoginCreature.Location = NwObject.FindObjectsWithTag<NwWaypoint>(PVE_ENTRY_WAYPOINT_TAG).FirstOrDefault().Location;
@@ -211,13 +213,11 @@ namespace NWN.Systems.Arena
     }
     private static void ResetPlayerLocation(Player player)
     {
-      API.Location arenaStartLoc = NwObject.FindObjectsWithTag<NwWaypoint>(PVE_ENTRY_WAYPOINT_TAG).FirstOrDefault().Location;
+      Location arenaStartLoc = NwObject.FindObjectsWithTag<NwWaypoint>(PVE_ENTRY_WAYPOINT_TAG).FirstOrDefault().Location;
 
-      var query = NWScript.SqlPrepareQueryCampaign(Systems.Config.database, $"UPDATE playerCharacters SET areaTag = @areaTag, position = @position WHERE ROWID = @characterId");
-      NWScript.SqlBindInt(query, "@characterId", player.characterId);
-      NWScript.SqlBindString(query, "@areaTag", arenaStartLoc.Area.Tag);
-      NWScript.SqlBindVector(query, "@position", arenaStartLoc.Position);
-      NWScript.SqlStep(query);
+      SqLiteUtils.UpdateQuery("playerCharacters",
+        new Dictionary<string, string>() { { "areaTag", arenaStartLoc.Area.Tag }, { "position", arenaStartLoc.Position.ToString() } },
+        new Dictionary<string, string>() { { "rowid", player.characterId.ToString() } });
     }
   }
 }

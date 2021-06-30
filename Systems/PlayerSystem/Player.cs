@@ -109,19 +109,15 @@ namespace NWN.Systems
               this.serializedQuickbar = oid.ControlledCreature.SerializeQuickbar().ToBase64EncodedString();
               emptyQBS.ObjectType = QuickBarButtonType.Empty;
 
-              /*for (byte i = 0; i < 12; i++)
-              {
-                oid.ControlledCreature.SetQuickBarButton(i, emptyQBS);
-              }*/
-
               if (menu.choices.Count > 0)
               {
                 oid.ControlledCreature.AddFeat(CustomFeats.CustomMenuDOWN);
                 oid.ControlledCreature.AddFeat(CustomFeats.CustomMenuUP);
                 oid.ControlledCreature.AddFeat(CustomFeats.CustomMenuSELECT);
+                oid.ControlledCreature.AddFeat(CustomFeats.CustomMenuEXIT);
 
                 emptyQBS.ObjectType = QuickBarButtonType.Feat;
-
+                
                 if (ObjectPlugin.GetInt(this.oid.LoginCreature, "_MENU_HOTKEYS_SWAPPED") == 0)
                 {
                   emptyQBS.Param1 = (int)CustomFeats.CustomMenuDOWN;
@@ -136,12 +132,10 @@ namespace NWN.Systems
                   emptyQBS.Param1 = (int)CustomFeats.CustomMenuUP;
                   oid.ControlledCreature.SetQuickBarButton(0, emptyQBS);
                 }
-
+                
                 emptyQBS.Param1 = (int)CustomFeats.CustomMenuSELECT;
                 oid.ControlledCreature.SetQuickBarButton(2, emptyQBS);
               }
-
-              oid.ControlledCreature.AddFeat(CustomFeats.CustomMenuEXIT);
 
               emptyQBS.Param1 = (int)CustomFeats.CustomMenuEXIT;
               oid.ControlledCreature.SetQuickBarButton(3, emptyQBS);

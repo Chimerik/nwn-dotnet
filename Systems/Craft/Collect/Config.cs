@@ -320,38 +320,18 @@ namespace NWN.Systems.Craft.Collect
       [Description("Bois_de_Valinor")]
       Valinorade = 8,
     }
-    public static ItemProperty[] GetBadItemProperties(ItemCategory itemCategory, NwItem craftedItem)
+    
+    public static ItemProperty[] GetBadOneHandedMeleeWeaponProperties()
     {
-      craftedItem.GetLocalVariable<int>("_MAX_DURABILITY").Value = GetBaseItemCost(craftedItem) * 25;
-      craftedItem.GetLocalVariable<int>("_DURABILITY").Value = GetBaseItemCost(craftedItem) * 25;
-
-      /*switch (itemCategory)
+      return new ItemProperty[]
       {
-        case ItemCategory.OneHandedMeleeWeapon: return GetBadOneHandedMeleeWeaponProperties();
-        case ItemCategory.TwoHandedMeleeWeapon: return GetBadTwoHandedMeleeWeaponProperties();
-        case ItemCategory.Armor: return GetBadArmorProperties();
-        case ItemCategory.Shield: return GetBadShieldProperties();
-        case ItemCategory.CraftTool: return GetBadToolProperties(craftedItem);
-        case ItemCategory.RangedWeapon: return GetBadRangedWeaponProperties();
-        case ItemCategory.Clothes: return GetBadClothesProperties();
-      }*/
-
-      return new API.ItemProperty[]
-      {
-          API.ItemProperty.Quality(IPQuality.VeryPoor)
+          ItemProperty.AttackPenalty(2),
+          ItemProperty.DamagePenalty(2),
+          ItemProperty.DamageVulnerability(IPDamageType.Slashing, IPDamageVulnerabilityType.Vulnerable10Pct),
+          ItemProperty.WeightIncrease(IPWeightIncrease.Plus30Lbs),
       };
     }
-    public static API.ItemProperty[] GetBadOneHandedMeleeWeaponProperties()
-    {
-      return new API.ItemProperty[]
-      {
-          API.ItemProperty.AttackPenalty(2),
-          API.ItemProperty.DamagePenalty(2),
-          API.ItemProperty.DamageVulnerability(IPDamageType.Slashing, IPDamageVulnerabilityType.Vulnerable10Pct),
-          API.ItemProperty.WeightIncrease(IPWeightIncrease.Plus30Lbs),
-      };
-    }
-    public static API.ItemProperty[] GetBadTwoHandedMeleeWeaponProperties()
+    public static ItemProperty[] GetBadTwoHandedMeleeWeaponProperties()
     {
       return new API.ItemProperty[]
       {
@@ -361,43 +341,120 @@ namespace NWN.Systems.Craft.Collect
           API.ItemProperty.WeightIncrease(IPWeightIncrease.Plus30Lbs),
       };
     }
-    public static API.ItemProperty[] GetBadRangedWeaponProperties()
+    public static ItemProperty[] GetBadRangedWeaponProperties()
     {
-      return new API.ItemProperty[]
+      return new ItemProperty[]
       {
-          API.ItemProperty.AttackPenalty(1),
-          API.ItemProperty.DamageVulnerability(IPDamageType.Slashing, IPDamageVulnerabilityType.Vulnerable5Pct),
-          API.ItemProperty.WeightIncrease(IPWeightIncrease.Plus30Lbs),
+          ItemProperty.AttackPenalty(1),
+          ItemProperty.DamageVulnerability(IPDamageType.Slashing, IPDamageVulnerabilityType.Vulnerable5Pct),
+          ItemProperty.WeightIncrease(IPWeightIncrease.Plus30Lbs),
       };
     }
-    public static API.ItemProperty[] GetBadArmorProperties()
+    public static List<ItemProperty> GetArmorProperties(NwItem craftedItem, int materialTier)
     {
-      return new API.ItemProperty[]
-      {
-        API.ItemProperty.DamageVulnerability(IPDamageType.Bludgeoning, IPDamageVulnerabilityType.Vulnerable10Pct),
-        API.ItemProperty.DecreaseAC(IPACModifierType.Armor, 2),
-        API.ItemProperty.WeightIncrease(IPWeightIncrease.Plus30Lbs),
-      };
-    }
-    public static API.ItemProperty[] GetBadShieldProperties()
-    {
-      return new API.ItemProperty[]
-      {
-        API.ItemProperty.DamageVulnerability(IPDamageType.Piercing, IPDamageVulnerabilityType.Vulnerable10Pct),
-        API.ItemProperty.DecreaseAC(IPACModifierType.Armor, 2),
-        API.ItemProperty.WeightIncrease(IPWeightIncrease.Plus30Lbs),
-      };
-    }
-    public static API.ItemProperty[] GetBadToolProperties(NwItem craftedItem)
-    {
-      craftedItem.GetLocalVariable<int>("_MAX_DURABILITY").Value = 5;
-      craftedItem.GetLocalVariable<int>("_DURABILITY").Value = 5;
+      List<ItemProperty> badArmor = new List<ItemProperty>();
 
-      return new API.ItemProperty[]
+      switch(materialTier)
       {
-        API.ItemProperty.DamageVulnerability(IPDamageType.Piercing, IPDamageVulnerabilityType.Vulnerable10Pct),
-        API.ItemProperty.WeightIncrease(IPWeightIncrease.Plus15Lbs),
-      };
+        case 0:
+        case 1:
+          badArmor.Add(ItemProperty.ACBonus(craftedItem.BaseACValue * 3 + 7 * materialTier));
+
+          switch (craftedItem.BaseACValue)
+          {
+            case 1:
+            case 2:
+            case 3:
+            case 4:
+              badArmor.Add(ItemProperty.ACBonusVsDmgType((IPDamageType)14, craftedItem.BaseACValue * 5));
+              break;
+            case 5:
+              badArmor.Add(ItemProperty.ACBonusVsDmgType((IPDamageType)14, 30));
+              badArmor.Add(ItemProperty.ACBonusVsDmgType((IPDamageType)4, 5));
+              break;
+            case 6:
+              badArmor.Add(ItemProperty.ACBonusVsDmgType((IPDamageType)4, 10));
+              break;
+            case 7:
+              badArmor.Add(ItemProperty.ACBonusVsDmgType((IPDamageType)4, 15));
+              break;
+            case 8:
+              badArmor.Add(ItemProperty.ACBonusVsDmgType((IPDamageType)4, 20));
+              break;
+          }
+          break;
+
+        default:
+          badArmor.Add(ItemProperty.ACBonus(7));
+          break;
+      }
+
+      return badArmor;
+    }
+    public static List<ItemProperty> GetSmallShieldProperties(int materialTier)
+    {
+      List<ItemProperty> shield = new List<ItemProperty>();
+
+      switch(materialTier)
+      {
+        case 0:
+        case 1:
+          shield.Add(ItemProperty.ACBonus(2 + 2 * materialTier));
+          shield.Add(ItemProperty.ACBonusVsDmgType(IPDamageType.Piercing, 5));
+          break;
+        default:
+          shield.Add(ItemProperty.ACBonus(2));
+          break;
+      }
+
+      return shield;
+    }
+    public static List<ItemProperty> GetLargeShieldProperties(int materialTier)
+    {
+      List<ItemProperty> shield = new List<ItemProperty>();
+
+      switch (materialTier)
+      {
+        case 0:
+        case 1:
+          shield.Add(ItemProperty.ACBonus(4 + 2 * materialTier));
+          shield.Add(ItemProperty.ACBonusVsDmgType(IPDamageType.Piercing, 10));
+          break;
+        default:
+          shield.Add(ItemProperty.ACBonus(2));
+          break;
+      }
+
+      return shield;
+    }
+    public static List<ItemProperty> GetTowerShieldProperties(int materialTier)
+    {
+      List<ItemProperty> shield = new List<ItemProperty>();
+
+      switch (materialTier)
+      {
+        case 0:
+        case 1:
+          shield.Add(ItemProperty.ACBonus(2 * materialTier));
+          shield.Add(ItemProperty.ACBonusVsDmgType(IPDamageType.Piercing, 20));
+          break;
+        default:
+          shield.Add(ItemProperty.ACBonus(2));
+          break;
+      }
+
+      return shield;
+    }
+    public static List<ItemProperty> GetToolProperties(NwItem craftedItem, int materialTier)
+    {
+      craftedItem.GetLocalVariable<int>("_MAX_DURABILITY").Value = 5 + 5 * materialTier;
+      craftedItem.GetLocalVariable<int>("_DURABILITY").Value = 5 + 5 * materialTier;
+      craftedItem.GetLocalVariable<int>("_ITEM_LEVEL").Value = materialTier;
+
+      List<ItemProperty> tool = new List<ItemProperty>();
+      tool.Add(ItemProperty.Quality(IPQuality.Unknown));
+
+      return tool;
     }
     public static API.ItemProperty[] GetBadClothesProperties()
     {
@@ -421,44 +478,52 @@ namespace NWN.Systems.Craft.Collect
           API.ItemProperty.Quality(IPQuality.Poor)
       };
     }
-    public static API.ItemProperty[] GetPyeriteItemProperties(ItemCategory itemCategory, NwItem craftedItem = null)
+    public static List<ItemProperty> GetOneHandedMeleeWeaponProperties()
     {
-      if (craftedItem != null)
-      {
-        craftedItem.GetLocalVariable<int>("_MAX_DURABILITY").Value = GetBaseItemCost(craftedItem) * 200;
-        craftedItem.GetLocalVariable<int>("_AVAILABLE_ENCHANTEMENT_SLOT").Value = 2;
-      }
+      List<ItemProperty> oneHanded = new List<ItemProperty>();
+      oneHanded.Add(ItemProperty.AttackBonus(2));
 
-      switch (itemCategory)
-      {
-        case ItemCategory.OneHandedMeleeWeapon: return GetPyeriteOneHandedMeleeWeaponProperties();
-        case ItemCategory.TwoHandedMeleeWeapon: return GetPyeriteTwoHandedMeleeWeaponProperties();
-        case ItemCategory.Armor: return GetPyeriteArmorProperties();
-        case ItemCategory.Shield: return GetPyeriteShieldProperties();
-        case ItemCategory.CraftTool: return GetPyeriteToolProperties(craftedItem);
-        case ItemCategory.RangedWeapon: return GetPyeriteOneHandedMeleeWeaponProperties();
-        case ItemCategory.Ammunition: return GetPyeriteAmmunitionProperties();
-        case ItemCategory.Clothes: return GetPyeriteArmorProperties();
-      }
+      return oneHanded;
+    }
+    public static List<ItemProperty> GetRangedWeaponProperties()
+    {
+      List<ItemProperty> oneHanded = new List<ItemProperty>();
+      oneHanded.Add(ItemProperty.AttackBonus(2));
 
-      return new API.ItemProperty[]
-      {
-          API.ItemProperty.Quality(IPQuality.Unknown)
-    };
+      return oneHanded;
     }
-    public static API.ItemProperty[] GetPyeriteOneHandedMeleeWeaponProperties()
+    public static List<ItemProperty> GetTwoHandedMeleeWeaponProperties()
     {
-      return new API.ItemProperty[]
-      {
-        API.ItemProperty.AttackBonusVsRace(IPRacialType.HumanoidGoblinoid, 1),
-        API.ItemProperty.AttackBonusVsRace(IPRacialType.HumanoidReptilian, 1),
-        API.ItemProperty.DamageBonusVsRace(IPRacialType.HumanoidGoblinoid, IPDamageType.Piercing, IPDamageBonus.Plus1),
-        API.ItemProperty.DamageBonusVsRace(IPRacialType.HumanoidReptilian, IPDamageType.Piercing, IPDamageBonus.Plus1),
-      };
+      List<ItemProperty> twoHanded = new List<ItemProperty>();
+      twoHanded.Add(ItemProperty.AttackBonus(4));
+
+      return twoHanded;
     }
-    public static API.ItemProperty[] GetPyeriteAmmunitionProperties()
+    public static List<ItemProperty> GetArmorPartProperties()
     {
-      return new API.ItemProperty[]
+      List<ItemProperty> armorPart = new List<ItemProperty>();
+      armorPart.Add(ItemProperty.ACBonus(7));
+
+      return armorPart;
+    }
+    public static List<ItemProperty> GetGlovesProperties()
+    {
+      List<ItemProperty> gloves = new List<ItemProperty>();
+      gloves.Add(ItemProperty.ACBonus(7));
+      gloves.Add(ItemProperty.AttackBonus(2));
+
+      return gloves;
+    }
+    public static List<ItemProperty> GetAmmunitionProperties()
+    {
+      List<ItemProperty> ammunition = new List<ItemProperty>();
+      ammunition.Add(ItemProperty.DamageBonus(IPDamageType.Piercing, IPDamageBonus.Plus1));
+
+      return ammunition;
+    }
+    public static ItemProperty[] GetPyeriteAmmunitionProperties()
+    {
+      return new ItemProperty[]
       {
         API.ItemProperty.AttackBonusVsRace(IPRacialType.HumanoidGoblinoid, 1),
         API.ItemProperty.AttackBonusVsRace(IPRacialType.HumanoidReptilian, 1),
@@ -495,9 +560,9 @@ namespace NWN.Systems.Craft.Collect
       craftedItem.GetLocalVariable<int>("_MAX_DURABILITY").Value = 25;
       craftedItem.GetLocalVariable<int>("_ITEM_LEVEL").Value = 1;
 
-      return new API.ItemProperty[]
+      return new ItemProperty[]
       {
-          API.ItemProperty.WeightIncrease(IPWeightIncrease.Plus10Lbs),
+          ItemProperty.WeightIncrease(IPWeightIncrease.Plus10Lbs),
       };
     }
     public static OreType GetRandomOreSpawnFromAreaLevel(int level)

@@ -94,36 +94,31 @@ namespace NWN.Systems
     }
     private static void SavePlayerCharacterToDatabase(Player player)
     {
-      var query = NWScript.SqlPrepareQueryCampaign(Config.database, $"UPDATE playerCharacters SET characterName = @characterName, areaTag = @areaTag, position = @position, facing = @facing, currentHP = @currentHP, bankGold = @bankGold, dateLastSaved = @dateLastSaved, currentSkillType = @currentSkillType, currentSkillJob = @currentSkillJob, currentCraftJob = @currentCraftJob, currentCraftObject = @currentCraftObject, currentCraftJobRemainingTime = @currentCraftJobRemainingTime, currentCraftJobMaterial = @currentCraftJobMaterial, pveArenaCurrentPoints = @pveArenaCurrentPoints, menuOriginTop = @menuOriginTop, menuOriginLeft = @menuOriginLeft where rowid = @characterId");
-      NWScript.SqlBindInt(query, "@characterId", player.characterId);
+      string areaTag;
+      string position;
+      string facing;
 
       if (player.location.Area != null)
       {
-        NWScript.SqlBindString(query, "@areaTag", player.location.Area.Tag);
-        NWScript.SqlBindVector(query, "@position", player.location.Position);
-        NWScript.SqlBindFloat(query, "@facing", player.location.Rotation);
+        areaTag = player.location.Area.Tag;
+        position = player.location.Position.ToString();
+        facing = player.location.Rotation.ToString();
       }
       else
       {
-        NWScript.SqlBindString(query, "@areaTag", player.previousLocation.Area.Tag);
-        NWScript.SqlBindVector(query, "@position", player.previousLocation.Position);
-        NWScript.SqlBindFloat(query, "@facing", player.previousLocation.Rotation);
+        areaTag = player.previousLocation.Area.Tag;
+        position = player.previousLocation.Position.ToString();
+        facing = player.previousLocation.Rotation.ToString();
       }
 
-      NWScript.SqlBindString(query, "@characterName", $"{player.oid.LoginCreature.OriginalFirstName} {player.oid.LoginCreature.OriginalLastName}");
-      NWScript.SqlBindInt(query, "@currentHP", player.currentHP);
-      NWScript.SqlBindInt(query, "@bankGold", player.bankGold);
-      NWScript.SqlBindString(query, "@dateLastSaved", player.dateLastSaved.ToString());
-      NWScript.SqlBindInt(query, "@currentSkillType", (int)player.currentSkillType);
-      NWScript.SqlBindInt(query, "@currentSkillJob", player.currentSkillJob);
-      NWScript.SqlBindInt(query, "@currentCraftJob", player.craftJob.baseItemType);
-      NWScript.SqlBindString(query, "@currentCraftObject", player.craftJob.craftedItem);
-      NWScript.SqlBindFloat(query, "@currentCraftJobRemainingTime", player.craftJob.remainingTime);
-      NWScript.SqlBindString(query, "@currentCraftJobMaterial", player.craftJob.material);
-      NWScript.SqlBindInt(query, "@pveArenaCurrentPoints", (int)player.pveArena.currentPoints);
-      NWScript.SqlBindInt(query, "@menuOriginTop", player.menu.originTop);
-      NWScript.SqlBindInt(query, "@menuOriginLeft", player.menu.originLeft);
-      NWScript.SqlStep(query);
+      SqLiteUtils.UpdateQuery("playerCharacters",
+          new Dictionary<string, string>() { { "characterName", $"{player.oid.LoginCreature.OriginalFirstName} {player.oid.LoginCreature.OriginalLastName}" },
+          { "areaTag", areaTag }, { "position", position }, { "facing", facing }, { "currentHP", player.currentHP.ToString() }, { "bankGold", player.bankGold.ToString() },
+          { "dateLastSaved", player.dateLastSaved.ToString() }, { "currentSkillType", ((int)player.currentSkillType).ToString() }, { "currentCraftJob", player.currentSkillJob.ToString() },
+          { "currentCraftJob", player.craftJob.baseItemType.ToString() }, { "currentCraftObject", player.craftJob.craftedItem }, { "currentCraftJobRemainingTime", player.craftJob.remainingTime.ToString() },
+          { "currentCraftJobMaterial", player.craftJob.material }, { "currentCraftJobMaterial", player.craftJob.material }, { "pveArenaCurrentPoints", player.pveArena.currentPoints.ToString() },
+          { "menuOriginTop", player.menu.originTop.ToString() }, { "menuOriginLeft", player.menu.originLeft.ToString() } },
+          new Dictionary<string, string>() { { "rowid", player.characterId.ToString() } });
     }
     private static void SavePlayerLearnableSkillsToDatabase(Player player)
     {
@@ -266,9 +261,8 @@ namespace NWN.Systems
           }
         }
 
-        var deletionQuery = NWScript.SqlPrepareQueryCampaign(Config.database, $"DELETE from playerPrivateContracts where rowid = @rowid");
-        NWScript.SqlBindInt(deletionQuery, "@rowid", contractId);
-        NWScript.SqlStep(deletionQuery);
+        SqLiteUtils.DeletionQuery("playerPrivateContracts",
+          new Dictionary<string, string>() { { "rowid", contractId.ToString() } });
       }
     }
     private static void HandleExpiredBuyOrders(Player player)
@@ -300,9 +294,8 @@ namespace NWN.Systems
       player.bankGold += gold;
       player.oid.SendServerMessage($"Expiration de l'ordre d'achat {contractId} - {gold} pièce(s) d'or ont été reversées à votre banque.");
 
-      var deletionQuery = NWScript.SqlPrepareQueryCampaign(Config.database, $"DELETE from playerBuyOrders where rowid = @rowid");
-      NWScript.SqlBindInt(deletionQuery, "@rowid", contractId);
-      NWScript.SqlStep(deletionQuery);
+      SqLiteUtils.DeletionQuery("playerBuyOrders",
+          new Dictionary<string, string>() { { "rowid", contractId.ToString() } });
     }
     private static void HandleExpiredSellOrders(Player player)
     {
@@ -339,9 +332,8 @@ namespace NWN.Systems
 
       player.oid.SendServerMessage($"Expiration de l'ordre de vente {contractId} - {quantity} unité(s) de {material} sont en cours de transfert vers votre entrepôt.");
 
-      var deletionQuery = NWScript.SqlPrepareQueryCampaign(Config.database, $"DELETE from playerSellOrders where rowid = @rowid");
-      NWScript.SqlBindInt(deletionQuery, "@rowid", contractId);
-      NWScript.SqlStep(deletionQuery);
+      SqLiteUtils.DeletionQuery("playerSellOrders",
+         new Dictionary<string, string>() { { "rowid", contractId.ToString() } });
     }
     private static void HandleNewMails(Player player)
     {

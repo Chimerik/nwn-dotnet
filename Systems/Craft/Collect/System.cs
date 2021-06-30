@@ -205,12 +205,12 @@ namespace NWN.Systems.Craft.Collect
       craftedItem.Name = $"{craftedItem.Name} en {name}";
       craftedItem.GetLocalVariable<string>("_ITEM_MATERIAL").Value = material;
       
-      foreach (API.ItemProperty ip in GetCraftItemProperties(material, craftedItem))
+      foreach (ItemProperty ip in GetCraftItemProperties(material, craftedItem))
       {
         //NWScript.SendMessageToPC(NWScript.GetFirstPC(), $"Adding IP : {ip}");
-        API.ItemProperty existingIP = craftedItem.ItemProperties.FirstOrDefault(i => i.DurationType == EffectDuration.Permanent && i.PropertyType == ip.PropertyType && i.SubType == ip.SubType && i.Param1Table == ip.Param1Table);
+        ItemProperty existingIP = craftedItem.ItemProperties.FirstOrDefault(i => i.DurationType == EffectDuration.Permanent && i.PropertyType == ip.PropertyType && i.SubType == ip.SubType && i.Param1Table == ip.Param1Table);
           
-        if(existingIP != null)
+        if(existingIP != null) // ATTENTION : prévoir le cas particulier des damage IP basés sur le rank
         {
           if (existingIP.CostTableValue > ip.CostTableValue)
             ip.CostTableValue = existingIP.CostTableValue + 1;

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using NWN.API;
@@ -66,10 +67,11 @@ namespace NWN.Systems.Craft.Collect
         return;
       }
 
-      var query = NWScript.SqlPrepareQueryCampaign(Systems.Config.database, $"SELECT wood from areaResourceStock where areaTag = @areaTag");
-      NWScript.SqlBindString(query, "@areaTag", area.Tag);
+      var result = SqLiteUtils.SelectQuery("areaResourceStock",
+          new List<string>() { { "wood"} },
+          new Dictionary<string, string>() { { "areaTag", area.Tag } });
       
-      if (NWScript.SqlStep(query) == 0 || NWScript.SqlGetInt(query, 0) < 1)
+      if (result == null || result.Count() < 1 || result.FirstOrDefault().GetInt(0) < 1)
       {
         player.oid.SendServerMessage("Cette zone est épuisée. Les arbres restant disposant de propriétés intéressantes ne semblent pas encore avoir atteint l'âge d'être exploités.", ColorConstants.Maroon);
         return;
@@ -103,9 +105,9 @@ namespace NWN.Systems.Craft.Collect
       {
         player.oid.SendServerMessage($"Votre repérage a permis d'identifier {nbSpawns} arbre(s) aux propriétés exploitables !", ColorConstants.Green);
 
-        query = NWScript.SqlPrepareQueryCampaign(Systems.Config.database, $"UPDATE areaResourceStock SET wood = wood - 1 where areaTag = @areaTag");
-        NWScript.SqlBindString(query, "@areaTag", area.Tag);
-        NWScript.SqlStep(query);
+        SqLiteUtils.UpdateQuery("areaResourceStock",
+          new Dictionary<string, string>() { { "wood-", "1" } },
+          new Dictionary<string, string>() { { "rowid", area.Tag } });
       }
       else
         player.oid.SendServerMessage($"Votre repérage semble pas avoir abouti à la découverte d'un arbre aux propriétés exploitables.", ColorConstants.Maroon);

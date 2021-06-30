@@ -10,6 +10,7 @@ using NLog;
 using System.Threading.Tasks;
 using static NWN.Systems.PlayerSystem;
 using NWN.System;
+using System.Collections.Generic;
 
 namespace NWN.Systems
 {
@@ -156,9 +157,8 @@ namespace NWN.Systems
       int plcID = plc.GetLocalVariable<int>("_ID").Value;
       if (plcID > 0)
       {
-        var query = NWScript.SqlPrepareQueryCampaign(Config.database, "DELETE FROM dm_persistant_placeable where rowid = @plcID");
-        NWScript.SqlBindInt(query, "@rowid", plcID);
-        NWScript.SqlStep(query);
+        SqLiteUtils.DeletionQuery("dm_persistant_placeable",
+          new Dictionary<string, string>() { { "rowid", plcID.ToString() } });
       }
       else
         Utils.LogMessageToDMs($"Persistent placeable {plc.Name} in area {plc.Area.Name} does not have a valid ID !");
@@ -223,7 +223,7 @@ namespace NWN.Systems
         onSpawn.Creature.ApplyEffect(EffectDuration.Permanent, eff);
       }
 
-      onSpawn.Creature.HiliteColor = ColorConstants.Black;
+      onSpawn.Creature.HighlightColor = ColorConstants.Black;
       NWScript.SetObjectMouseCursor(onSpawn.Creature, NWScript.MOUSECURSOR_WALK);
       onSpawn.Creature.AiLevel = AiLevel.VeryLow;
     }  

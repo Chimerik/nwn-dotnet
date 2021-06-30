@@ -1,4 +1,5 @@
-﻿using NWN.API;
+﻿using System.Collections.Generic;
+using NWN.API;
 using NWN.API.Constants;
 using NWN.API.Events;
 using NWN.Core;
@@ -35,10 +36,9 @@ namespace NWN.Systems
           commendTarget.bonusRolePlay = 2;
           commendTarget.oid.SendServerMessage("Votre bonus roleplay est désormais de 2", new Color(32, 255, 32));
 
-          var updateQuery = NWScript.SqlPrepareQueryCampaign(Config.database, $"UPDATE PlayerAccounts SET bonusRolePlay = @bonusRolePlay where rowid = @rowid");
-          NWScript.SqlBindInt(updateQuery, "@bonusRolePlay", commendTarget.bonusRolePlay);
-          NWScript.SqlBindInt(updateQuery, "@rowid", commendTarget.accountId);
-          NWScript.SqlStep(updateQuery);
+          SqLiteUtils.UpdateQuery("PlayerAccounts",
+          new Dictionary<string, string>() { { "bonusRolePlay", commendTarget.bonusRolePlay.ToString() } },
+          new Dictionary<string, string>() { { "rowid", commendTarget.accountId.ToString() } });
         }
 
         Utils.LogMessageToDMs($"{selection.Player.LoginCreature.Name} vient de recommander {oPC.LoginCreature.Name} pour une augmentation de bonus roleplay.");

@@ -40,7 +40,7 @@ namespace NWN.Systems
       area.Weather = WeatherType.Rain;
       AreaPlugin.SetDayNightCycle(area, AreaPlugin.NWNX_AREA_DAYNIGHTCYCLE_ALWAYS_DARK);
       AreaPlugin.SetWeatherChance(area, AreaPlugin.NWNX_AREA_WEATHER_CHANCE_LIGHTNING, 100);
-      NWScript.SetAreaWind(area, new Vector3(1, 0, 0), 8, 0, 0);
+      area.SetAreaWind(new Vector3(1, 0, 0), 8, 0, 0);
 
       List<NwPlaceable> rocks = player.LoginCreature.GetNearestObjectsByType<NwPlaceable>().Where(c => c.Tag == "intro_recif").ToList();
       NwPlaceable tourbillon = player.LoginCreature.GetNearestObjectsByType<NwPlaceable>().FirstOrDefault(c => c.Tag == "intro_tourbillon");

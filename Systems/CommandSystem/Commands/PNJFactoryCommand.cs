@@ -53,8 +53,8 @@ namespace NWN.Systems
 
       player.menu.titleLines.Add($"Cible de la sélection : {oPNJ.Name.ColorString(ColorConstants.Orange)} Que souhaitez-vous faire ?");
 
-      player.menu.choices.Add(("Modifier le prénom", () => ModifyPNJName(0)));
-      player.menu.choices.Add(("Modifier le nom", () => ModifyPNJName(1)));
+      player.menu.choices.Add(("Modifier le prénom", () => ModifyPNJName(false)));
+      player.menu.choices.Add(("Modifier le nom", () => ModifyPNJName(true)));
       player.menu.choices.Add(("Modifier la description", () => ModifyPNJDescription()));
       player.menu.choices.Add(("Modifier l'apparence", () => DrawPNJAppearancePage()));
       player.menu.choices.Add(("Modifier la CA de base", () => ModifyPNJBaseArmorClass()));
@@ -76,7 +76,7 @@ namespace NWN.Systems
       player.menu.choices.Add(("Quitter", () => player.menu.Close()));
       player.menu.Draw();
     }
-    private async void ModifyPNJName(int isLastName)
+    private async void ModifyPNJName(bool isLastName)
     {
       player.menu.Clear();
 
@@ -89,9 +89,12 @@ namespace NWN.Systems
 
       if (awaitedValue)
       {
-        CreaturePlugin.SetOriginalName(oPNJ, player.oid.LoginCreature.GetLocalVariable<string>("_PLAYER_INPUT").Value, isLastName);
-        oPNJ.Name = player.oid.LoginCreature.GetLocalVariable<string>("_PLAYER_INPUT").Value;
-        player.oid.SendServerMessage($"Le nom du PNJ a été modifié à {oPNJ.Name.ColorString(ColorConstants.White)}", ColorConstants.Blue);
+        if (isLastName)
+          oPNJ.OriginalLastName = player.oid.LoginCreature.GetLocalVariable<string>("_PLAYER_INPUT").Value;
+        else
+          oPNJ.OriginalFirstName = player.oid.LoginCreature.GetLocalVariable<string>("_PLAYER_INPUT").Value;
+
+        player.oid.SendServerMessage($"Le nom de ce PNJ est désormais {oPNJ.Name.ColorString(ColorConstants.White)}. (L'affichage n'est mis à jour qu'en rechargeant la zone)", ColorConstants.Blue);
         DrawPNJSelectionWelcome();
         player.oid.LoginCreature.GetLocalVariable<string>("_PLAYER_INPUT").Delete();
       }
@@ -146,18 +149,18 @@ namespace NWN.Systems
 
       player.menu.titleLines.Add($"Cible de la sélection : {oPNJ.Name.ColorString(ColorConstants.Orange)}. Quel caractéristique souhaitez-vous modifier ?");
 
-      player.menu.choices.Add(("Force", () => ModifySelectedAbility(NWScript.ABILITY_STRENGTH)));
-      player.menu.choices.Add(("Dextérité", () => ModifySelectedAbility(NWScript.ABILITY_DEXTERITY)));
-      player.menu.choices.Add(("Constitution", () => ModifySelectedAbility(NWScript.ABILITY_CONSTITUTION)));
-      player.menu.choices.Add(("Intelligence", () => ModifySelectedAbility(NWScript.ABILITY_INTELLIGENCE)));
-      player.menu.choices.Add(("Sagesse", () => ModifySelectedAbility(NWScript.ABILITY_WISDOM)));
-      player.menu.choices.Add(("Charisme", () => ModifySelectedAbility(NWScript.ABILITY_CHARISMA)));
+      player.menu.choices.Add(("Force", () => ModifySelectedAbility(Ability.Strength)));
+      player.menu.choices.Add(("Dextérité", () => ModifySelectedAbility(Ability.Dexterity)));
+      player.menu.choices.Add(("Constitution", () => ModifySelectedAbility(Ability.Constitution)));
+      player.menu.choices.Add(("Intelligence", () => ModifySelectedAbility(Ability.Intelligence)));
+      player.menu.choices.Add(("Sagesse", () => ModifySelectedAbility(Ability.Wisdom)));
+      player.menu.choices.Add(("Charisme", () => ModifySelectedAbility(Ability.Charisma)));
 
       player.menu.choices.Add(("Retour", () => DrawPNJSelectionWelcome()));
       player.menu.choices.Add(("Quitter", () => player.menu.Close()));
       player.menu.Draw();
     }
-    private async void ModifySelectedAbility(int ability)
+    private async void ModifySelectedAbility(Ability ability)
     {
       player.menu.Clear();
 
@@ -166,11 +169,11 @@ namespace NWN.Systems
 
       player.menu.Draw();
 
-      bool awaitedValue = await player.WaitForPlayerInputInt();
+      bool awaitedValue = await player.WaitForPlayerInputByte();
 
       if (awaitedValue)
       {
-        CreaturePlugin.SetRawAbilityScore(oPNJ, ability, int.Parse(player.oid.LoginCreature.GetLocalVariable<string>("_PLAYER_INPUT").Value));
+        oPNJ.SetsRawAbilityScore(ability, byte.Parse(player.oid.LoginCreature.GetLocalVariable<string>("_PLAYER_INPUT").Value));
         player.oid.SendServerMessage($"La caractéristique de base de {oPNJ.Name.ColorString(ColorConstants.White)} a été modifiée à {int.Parse(player.oid.LoginCreature.GetLocalVariable<string>("_PLAYER_INPUT").Value)}", ColorConstants.Blue);
         DrawPNJSelectionWelcome();
         player.oid.LoginCreature.GetLocalVariable<string>("_PLAYER_INPUT").Delete();
@@ -190,9 +193,9 @@ namespace NWN.Systems
       if (awaitedValue)
       {
         if (oPNJ.IsLoginPlayerCharacter)
-          CreaturePlugin.SetMaxHitPointsByLevel(oPNJ, 1, int.Parse(player.oid.LoginCreature.GetLocalVariable<string>("_PLAYER_INPUT").Value));
+          player.oid.LoginCreature.LevelInfo[0].HitDie = byte.Parse(player.oid.LoginCreature.GetLocalVariable<string>("_PLAYER_INPUT").Value);
         else
-          ObjectPlugin.SetMaxHitPoints(oPNJ, int.Parse(player.oid.LoginCreature.GetLocalVariable<string>("_PLAYER_INPUT").Value));
+          oPNJ.MaxHP = int.Parse(player.oid.LoginCreature.GetLocalVariable<string>("_PLAYER_INPUT").Value);
 
         player.oid.SendServerMessage($"Le nombre de points de vie de {oPNJ.Name.ColorString(ColorConstants.White)} a été modifiée à {int.Parse(player.oid.LoginCreature.GetLocalVariable<string>("_PLAYER_INPUT").Value)}", ColorConstants.Blue);
         DrawPNJSelectionWelcome();
@@ -267,20 +270,20 @@ namespace NWN.Systems
       
       player.menu.titleLines.Add($"Cible de la sélection : {oPNJ.Name.ColorString(ColorConstants.Orange)}. Quel genre souhaitez-vous appliquer ?");
       
-      player.menu.choices.Add(("Masculin", () => ModifySelectedGender(NWScript.GENDER_MALE)));
-      player.menu.choices.Add(("Féminin", () => ModifySelectedGender(NWScript.GENDER_FEMALE)));
-      player.menu.choices.Add(("Les deux", () => ModifySelectedGender(NWScript.GENDER_BOTH)));
-      player.menu.choices.Add(("Aucun", () => ModifySelectedGender(NWScript.GENDER_NONE)));
-      player.menu.choices.Add(("Autre", () => ModifySelectedGender(NWScript.GENDER_OTHER)));
+      player.menu.choices.Add(("Masculin", () => ModifySelectedGender(Gender.Male)));
+      player.menu.choices.Add(("Féminin", () => ModifySelectedGender(Gender.Female)));
+      player.menu.choices.Add(("Les deux", () => ModifySelectedGender(Gender.Both)));
+      player.menu.choices.Add(("Aucun", () => ModifySelectedGender(Gender.None)));
+      player.menu.choices.Add(("Autre", () => ModifySelectedGender(Gender.Other)));
 
       player.menu.choices.Add(("Retour", () => DrawPNJSelectionWelcome()));
       player.menu.choices.Add(("Quitter", () => player.menu.Close()));
       player.menu.Draw();
     }
-    private void ModifySelectedGender(int gender)
+    private void ModifySelectedGender(Gender gender)
     {
-      CreaturePlugin.SetGender(oPNJ, gender);
-      player.oid.SendServerMessage($"Le genre de {oPNJ.Name.ColorString(ColorConstants.White)} a bien été modifié.", ColorConstants.Blue);
+      oPNJ.Gender = gender;
+      player.oid.SendServerMessage($"Le genre de {oPNJ.Name.ColorString(ColorConstants.White)} est désormais {gender}.", ColorConstants.Blue);
       DrawPNJSelectionWelcome();
     }
     private void DrawSizeList()
@@ -289,20 +292,20 @@ namespace NWN.Systems
       
       player.menu.titleLines.Add($"Cible de la sélection : {oPNJ.Name.ColorString(ColorConstants.Orange)}. Quel genre souhaitez-vous appliquer ?");
 
-      player.menu.choices.Add(("Minuscule", () => ModifySelectedSize(NWScript.CREATURE_SIZE_TINY)));
-      player.menu.choices.Add(("Petite", () => ModifySelectedSize(NWScript.CREATURE_SIZE_SMALL)));
-      player.menu.choices.Add(("Medium", () => ModifySelectedSize(NWScript.CREATURE_SIZE_MEDIUM)));
-      player.menu.choices.Add(("Large", () => ModifySelectedSize(NWScript.CREATURE_SIZE_LARGE)));
-      player.menu.choices.Add(("Enorme", () => ModifySelectedSize(NWScript.CREATURE_SIZE_HUGE)));
+      player.menu.choices.Add(("Minuscule", () => ModifySelectedSize(CreatureSize.Tiny)));
+      player.menu.choices.Add(("Petite", () => ModifySelectedSize(CreatureSize.Small)));
+      player.menu.choices.Add(("Medium", () => ModifySelectedSize(CreatureSize.Medium)));
+      player.menu.choices.Add(("Large", () => ModifySelectedSize(CreatureSize.Large)));
+      player.menu.choices.Add(("Enorme", () => ModifySelectedSize(CreatureSize.Huge)));
 
       player.menu.choices.Add(("Retour", () => DrawPNJSelectionWelcome()));
       player.menu.choices.Add(("Quitter", () => player.menu.Close()));
       player.menu.Draw();
     }
-    private void ModifySelectedSize(int size)
+    private void ModifySelectedSize(CreatureSize size)
     {
-      CreaturePlugin.SetSize(oPNJ, size);
-      player.oid.SendServerMessage($"Le type de taille de {oPNJ.Name.ColorString(ColorConstants.White)} a bien été modifié.", ColorConstants.Blue);
+      oPNJ.Size = size;
+      player.oid.SendServerMessage($"Le type de taille de {oPNJ.Name.ColorString(ColorConstants.White)} est désormais {size}.", ColorConstants.Blue);
       DrawPNJSelectionWelcome();
     }
     private void DrawRacialTypeList()
@@ -311,40 +314,40 @@ namespace NWN.Systems
 
       player.menu.titleLines.Add($"Cible de la sélection : {oPNJ.Name.ColorString(ColorConstants.Orange)}. Quel genre souhaitez-vous appliquer ?");
 
-      player.menu.choices.Add(("Aberration", () => ModifySelectedRacialType(NWScript.RACIAL_TYPE_ABERRATION)));
-      player.menu.choices.Add(("Animal", () => ModifySelectedRacialType(NWScript.RACIAL_TYPE_ANIMAL)));
-      player.menu.choices.Add(("Monstre", () => ModifySelectedRacialType(NWScript.RACIAL_TYPE_BEAST)));
-      player.menu.choices.Add(("Créature artificielle", () => ModifySelectedRacialType(NWScript.RACIAL_TYPE_CONSTRUCT)));
-      player.menu.choices.Add(("Dragon", () => ModifySelectedRacialType(NWScript.RACIAL_TYPE_DRAGON)));
-      player.menu.choices.Add(("Nain", () => ModifySelectedRacialType(NWScript.RACIAL_TYPE_DWARF)));
-      player.menu.choices.Add(("Elémentaire", () => ModifySelectedRacialType(NWScript.RACIAL_TYPE_ELEMENTAL)));
-      player.menu.choices.Add(("Elfe", () => ModifySelectedRacialType(NWScript.RACIAL_TYPE_ELF)));
-      player.menu.choices.Add(("Féerique", () => ModifySelectedRacialType(NWScript.RACIAL_TYPE_FEY)));
-      player.menu.choices.Add(("Géant", () => ModifySelectedRacialType(NWScript.RACIAL_TYPE_GIANT)));
-      player.menu.choices.Add(("Gnome", () => ModifySelectedRacialType(NWScript.RACIAL_TYPE_GNOME)));
-      player.menu.choices.Add(("Demi-elfe", () => ModifySelectedRacialType(NWScript.RACIAL_TYPE_HALFELF)));
-      player.menu.choices.Add(("Halfelin", () => ModifySelectedRacialType(NWScript.RACIAL_TYPE_HALFLING)));
-      player.menu.choices.Add(("Demi-orc", () => ModifySelectedRacialType(NWScript.RACIAL_TYPE_HALFORC)));
-      player.menu.choices.Add(("Humain", () => ModifySelectedRacialType(NWScript.RACIAL_TYPE_HUMAN)));
-      player.menu.choices.Add(("Gobelinoïde", () => ModifySelectedRacialType(NWScript.RACIAL_TYPE_HUMANOID_GOBLINOID)));
-      player.menu.choices.Add(("Humainoïde monstrueux", () => ModifySelectedRacialType(NWScript.RACIAL_TYPE_HUMANOID_MONSTROUS)));
-      player.menu.choices.Add(("Orc", () => ModifySelectedRacialType(NWScript.RACIAL_TYPE_HUMANOID_ORC)));
-      player.menu.choices.Add(("Reptilien", () => ModifySelectedRacialType(NWScript.RACIAL_TYPE_HUMANOID_REPTILIAN)));
-      player.menu.choices.Add(("Créature magique", () => ModifySelectedRacialType(NWScript.RACIAL_TYPE_MAGICAL_BEAST)));
-      player.menu.choices.Add(("Vase", () => ModifySelectedRacialType(NWScript.RACIAL_TYPE_OOZE)));
-      player.menu.choices.Add(("Extérieur", () => ModifySelectedRacialType(NWScript.RACIAL_TYPE_OUTSIDER)));
-      player.menu.choices.Add(("Métamorphe", () => ModifySelectedRacialType(NWScript.RACIAL_TYPE_SHAPECHANGER)));
-      player.menu.choices.Add(("Mort-vivant", () => ModifySelectedRacialType(NWScript.RACIAL_TYPE_UNDEAD)));
-      player.menu.choices.Add(("Vermine", () => ModifySelectedRacialType(NWScript.RACIAL_TYPE_VERMIN)));
+      player.menu.choices.Add(("Aberration", () => ModifySelectedRacialType(RacialType.Aberration)));
+      player.menu.choices.Add(("Animal", () => ModifySelectedRacialType(RacialType.Animal)));
+      player.menu.choices.Add(("Monstre", () => ModifySelectedRacialType(RacialType.Beast)));
+      player.menu.choices.Add(("Créature artificielle", () => ModifySelectedRacialType(RacialType.Construct)));
+      player.menu.choices.Add(("Dragon", () => ModifySelectedRacialType(RacialType.Dragon)));
+      player.menu.choices.Add(("Nain", () => ModifySelectedRacialType(RacialType.Dwarf)));
+      player.menu.choices.Add(("Elémentaire", () => ModifySelectedRacialType(RacialType.Elemental)));
+      player.menu.choices.Add(("Elfe", () => ModifySelectedRacialType(RacialType.Elf)));
+      player.menu.choices.Add(("Féerique", () => ModifySelectedRacialType(RacialType.Fey)));
+      player.menu.choices.Add(("Géant", () => ModifySelectedRacialType(RacialType.Giant)));
+      player.menu.choices.Add(("Gnome", () => ModifySelectedRacialType(RacialType.Gnome)));
+      player.menu.choices.Add(("Demi-elfe", () => ModifySelectedRacialType(RacialType.HalfElf)));
+      player.menu.choices.Add(("Halfelin", () => ModifySelectedRacialType(RacialType.Halfling)));
+      player.menu.choices.Add(("Demi-orc", () => ModifySelectedRacialType(RacialType.HalfOrc)));
+      player.menu.choices.Add(("Humain", () => ModifySelectedRacialType(RacialType.Human)));
+      player.menu.choices.Add(("Gobelinoïde", () => ModifySelectedRacialType(RacialType.HumanoidGoblinoid)));
+      player.menu.choices.Add(("Humainoïde monstrueux", () => ModifySelectedRacialType(RacialType.HumanoidMonstrous)));
+      player.menu.choices.Add(("Orc", () => ModifySelectedRacialType(RacialType.HumanoidOrc)));
+      player.menu.choices.Add(("Reptilien", () => ModifySelectedRacialType(RacialType.HumanoidReptilian)));
+      player.menu.choices.Add(("Créature magique", () => ModifySelectedRacialType(RacialType.MagicalBeast)));
+      player.menu.choices.Add(("Vase", () => ModifySelectedRacialType(RacialType.Ooze)));
+      player.menu.choices.Add(("Extérieur", () => ModifySelectedRacialType(RacialType.Outsider)));
+      player.menu.choices.Add(("Métamorphe", () => ModifySelectedRacialType(RacialType.ShapeChanger)));
+      player.menu.choices.Add(("Mort-vivant", () => ModifySelectedRacialType(RacialType.Undead)));
+      player.menu.choices.Add(("Vermine", () => ModifySelectedRacialType(RacialType.Vermin)));
 
       player.menu.choices.Add(("Retour", () => DrawPNJSelectionWelcome()));
       player.menu.choices.Add(("Quitter", () => player.menu.Close()));
       player.menu.Draw();
     }
-    private void ModifySelectedRacialType(int racialType)
+    private void ModifySelectedRacialType(RacialType racialType)
     {
-      CreaturePlugin.SetRacialType(oPNJ, racialType);
-      player.oid.SendServerMessage($"La race de {oPNJ.Name.ColorString(ColorConstants.White)} a bien été modifié.", ColorConstants.Blue);
+      oPNJ.RacialType = racialType;
+      player.oid.SendServerMessage($"La race de {oPNJ.Name.ColorString(ColorConstants.White)} est désormais {racialType}.", ColorConstants.Blue);
       DrawPNJSelectionWelcome();
     }
     private void DrawSavingThrowList()
@@ -353,15 +356,15 @@ namespace NWN.Systems
 
       player.menu.titleLines.Add($"Cible de la sélection : {oPNJ.Name.ColorString(ColorConstants.Orange)}. Quel jet de sauvegarde souhaitez-vous modifier ?");
 
-      player.menu.choices.Add(("Vigueur", () => ModifySelectedSavingThrow(NWScript.SAVING_THROW_FORT)));
-      player.menu.choices.Add(("Réflexes", () => ModifySelectedSavingThrow(NWScript.SAVING_THROW_REFLEX)));
-      player.menu.choices.Add(("Volonté", () => ModifySelectedSavingThrow(NWScript.SAVING_THROW_WILL)));
+      player.menu.choices.Add(("Vigueur", () => ModifySelectedSavingThrow(SavingThrow.Fortitude)));
+      player.menu.choices.Add(("Réflexes", () => ModifySelectedSavingThrow(SavingThrow.Reflex)));
+      player.menu.choices.Add(("Volonté", () => ModifySelectedSavingThrow(SavingThrow.Will)));
 
       player.menu.choices.Add(("Retour", () => DrawPNJSelectionWelcome()));
       player.menu.choices.Add(("Quitter", () => player.menu.Close()));
       player.menu.Draw();
     }
-    private async void ModifySelectedSavingThrow(int savingThrow)
+    private async void ModifySelectedSavingThrow(SavingThrow savingThrow)
     {
       player.menu.Clear();
 
@@ -370,11 +373,11 @@ namespace NWN.Systems
 
       player.menu.Draw();
 
-      bool awaitedValue = await player.WaitForPlayerInputInt();
+      bool awaitedValue = await player.WaitForPlayerInputByte();
 
       if (awaitedValue)
       {
-        CreaturePlugin.SetBaseSavingThrow(oPNJ, savingThrow, int.Parse(player.oid.LoginCreature.GetLocalVariable<string>("_PLAYER_INPUT").Value));
+        oPNJ.SetBaseSavingThrow(savingThrow, sbyte.Parse(player.oid.LoginCreature.GetLocalVariable<string>("_PLAYER_INPUT").Value));
         player.oid.SendServerMessage($"Le jet de sauvegarde de base de {oPNJ.Name.ColorString(ColorConstants.White)} a été modifiée à {int.Parse(player.oid.LoginCreature.GetLocalVariable<string>("_PLAYER_INPUT").Value)}", ColorConstants.Blue);
         DrawSavingThrowList();
         player.oid.LoginCreature.GetLocalVariable<string>("_PLAYER_INPUT").Delete();
@@ -389,11 +392,11 @@ namespace NWN.Systems
 
       player.menu.Draw();
 
-      bool awaitedValue = await player.WaitForPlayerInputInt();
+      bool awaitedValue = await player.WaitForPlayerInputByte();
 
       if (awaitedValue)
       {
-        CreaturePlugin.SetSpellResistance(oPNJ, int.Parse(player.oid.LoginCreature.GetLocalVariable<string>("_PLAYER_INPUT").Value));
+        oPNJ.SpellResistance = sbyte.Parse(player.oid.LoginCreature.GetLocalVariable<string>("_PLAYER_INPUT").Value);
         player.oid.SendServerMessage($"La résistance aux sorts de {oPNJ.Name.ColorString(ColorConstants.White)} a été modifiée à {int.Parse(player.oid.LoginCreature.GetLocalVariable<string>("_PLAYER_INPUT").Value)}", ColorConstants.Blue);
         DrawPNJSelectionWelcome();
         player.oid.LoginCreature.GetLocalVariable<string>("_PLAYER_INPUT").Delete();
@@ -1018,10 +1021,8 @@ namespace NWN.Systems
     }
     private void HandleDeleteNPC(string npcName)
     {
-      var deletionQuery = NWScript.SqlPrepareQueryCampaign(Config.database, $"DELETE FROM savedNPC where accountName = @accountName AND name = @name");
-      NWScript.SqlBindString(deletionQuery, "@accountName", player.oid.PlayerName);
-      NWScript.SqlBindString(deletionQuery, "@name", npcName);
-      NWScript.SqlStep(deletionQuery);
+      SqLiteUtils.DeletionQuery("savedNPC",
+         new Dictionary<string, string>() { { "accountName", player.oid.PlayerName }, { "name", npcName } });
 
       player.oid.SendServerMessage($"Votre PNJ {npcName.ColorString(ColorConstants.White)} a bien été supprimé", ColorConstants.Blue);
     }
@@ -1043,7 +1044,7 @@ namespace NWN.Systems
       if (NWScript.SqlStep(query) > 0)
       {
         NwCreature oNPC = NwCreature.Deserialize(NWScript.SqlGetString(query, 0).ToByteArray());
-        oNPC.Location = API.Location.Create(selection.Player.ControlledCreature.Area, selection.TargetPosition, selection.Player.ControlledCreature.Rotation);
+        oNPC.Location = Location.Create(selection.Player.ControlledCreature.Area, selection.TargetPosition, selection.Player.ControlledCreature.Rotation);
       }
     }
     private void HandleApplyDefaultModel()

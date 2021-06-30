@@ -183,17 +183,17 @@ namespace NWN.Systems
 
           if (entry.Value > 0)
           {
-            var updateQuery = NWScript.SqlPrepareQueryCampaign(Config.database, $"UPDATE playerBuyOrders SET quantity = @quantity where rowid = @rowid");
-            NWScript.SqlBindInt(updateQuery, "@quantity", entry.Value);
-            NWScript.SqlBindInt(updateQuery, "@rowid", entry.Key);
-            NWScript.SqlStep(updateQuery);
+            SqLiteUtils.UpdateQuery("playerBuyOrders",
+              new Dictionary<string, string>() { { "quantity", entry.Value.ToString() } },
+              new Dictionary<string, string>() { { "rowid", entry.Key.ToString() } });
+
             transferedQuantity = entry.Value;
           }
           else
           {
-            var deletionQuery = NWScript.SqlPrepareQueryCampaign(Config.database, $"DELETE from playerBuyOrders where rowid = @rowid");
-            NWScript.SqlBindInt(deletionQuery, "@rowid", entry.Key);
-            NWScript.SqlStep(deletionQuery);
+            SqLiteUtils.DeletionQuery("playerBuyOrders",
+            new Dictionary<string, string>() { { "rowid", entry.Key.ToString() } });
+
             transferedQuantity = -entry.Value;
           }
 
@@ -416,17 +416,17 @@ namespace NWN.Systems
 
           if (entry.Value > 0)
           {
-            var updateQuery = NWScript.SqlPrepareQueryCampaign(Config.database, $"UPDATE playerSellOrders SET quantity = @quantity where rowid = @rowid");
-            NWScript.SqlBindInt(updateQuery, "@quantity", entry.Value);
-            NWScript.SqlBindInt(updateQuery, "@rowid", entry.Key);
-            NWScript.SqlStep(updateQuery);
+            SqLiteUtils.UpdateQuery("playerSellOrders",
+              new Dictionary<string, string>() { { "quantity", entry.Value.ToString() } },
+              new Dictionary<string, string>() { { "rowid", entry.Key.ToString() } });
+
             transferedQuantity = entry.Value;
           }
           else
           {
-            var deletionQuery = NWScript.SqlPrepareQueryCampaign(Config.database, $"DELETE from playerSellOrders where rowid = @rowid");
-            NWScript.SqlBindInt(deletionQuery, "@rowid", entry.Key);
-            NWScript.SqlStep(deletionQuery);
+            SqLiteUtils.DeletionQuery("playerSellOrders",
+              new Dictionary<string, string>() { { "rowid", entry.Key.ToString() } });
+
             transferedQuantity = -entry.Value;
           }
 
@@ -450,11 +450,9 @@ namespace NWN.Systems
             // TODO : A la prochaine connexion du joueur, lui envoyer un courrier afin de lui indiquer que son ordre de vente a porté ses fruits
             acquiredGold = transferedQuantity * NWScript.SqlGetInt(selectCharacterId, 1) * 95 / 100;
 
-            var buyerQuery = NWScript.SqlPrepareQueryCampaign(Config.database, $"UPDATE playerCharacters SET bankGold = bankGold + @gold where characterId = @characterId");
-            NWScript.SqlBindInt(buyerQuery, "@characterId", sellerID);
-            NWScript.SqlBindInt(buyerQuery, "@gold", acquiredGold);
-            NWScript.SqlStep(buyerQuery);
-
+            if(SqLiteUtils.UpdateQuery("playerCharacters",
+              new Dictionary<string, string>() { { "bankGold+", acquiredGold.ToString() } },
+              new Dictionary<string, string>() { { "rowid", sellerID.ToString() } }))
             Utils.SendMailToPC(sellerID, "Hotel des ventes de Similisse", $"Succès de votre ordre de vente {entry.Key}",
               $"Très honoré vendeur, \n\n Nous avons l'immense plaisir de vous annoncer que votre de vente numéro {entry.Key} a porté ses fruits. \n\n Celui-ci vous a permis d'acquérir {acquiredGold} pièce(s) d'or ! \n\n Signé : Polpo");
           }
@@ -555,10 +553,8 @@ namespace NWN.Systems
       else
         player.materialStock.Add(material, quantity);
 
-      var deletionQuery = NWScript.SqlPrepareQueryCampaign(Config.database, $"DELETE from playerSellOrders where rowid = @rowid");
-      NWScript.SqlBindInt(deletionQuery, "@rowid", contractId);
-      NWScript.SqlStep(deletionQuery);
-
+      if(SqLiteUtils.DeletionQuery("playerSellOrders",
+        new Dictionary<string, string>() { { "rowid", contractId.ToString() } }))
       player.oid.SendServerMessage($"Expiration de l'ordre de vente {contractId}. {quantity} unité(s) de {material} sont en cours de transfert vers votre entrepôt.", ColorConstants.Magenta);
     }
     private void DrawMyBuyOrderPage(Player player)
@@ -608,10 +604,8 @@ namespace NWN.Systems
       int gold = NWScript.SqlGetInt(query, 0) * NWScript.SqlGetInt(query, 1);
       player.bankGold += gold;
 
-      var deletionQuery = NWScript.SqlPrepareQueryCampaign(Config.database, $"DELETE from playerSellOrders where rowid = @rowid");
-      NWScript.SqlBindInt(deletionQuery, "@rowid", contractId);
-      NWScript.SqlStep(deletionQuery);
-
+      if (SqLiteUtils.DeletionQuery("playerSellOrders",
+        new Dictionary<string, string>() { { "rowid", contractId.ToString() } }))
       player.oid.SendServerMessage($"Expiration de l'ordre d'achat {contractId}. {gold} pièces d'or ont été transférées à votre banque.", ColorConstants.Magenta);
     }
     private void SellOrderListMaterialSelection(Player player)

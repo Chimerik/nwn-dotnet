@@ -83,7 +83,7 @@ namespace NWN.Systems
 
     [Command("suprumeur")]
     [Summary("Supprime la rumeur indiquée.")]
-    public async Task DeleteRumorAsync(int numero_rumeur)
+    public async Task DeleteRumorAsync(string numero_rumeur)
       => await BotSystem.ExecuteDeleteRumorCommand(Context, numero_rumeur);
 
     [Command("listepersos")]
@@ -103,12 +103,12 @@ namespace NWN.Systems
 
     [Command("mycourrier")]
     [Summary("Affiche le contenu de la rumeur demandée.")]
-    public async Task GetMailAsync(int numero_courrier, string nom_personnage)
+    public async Task GetMailAsync(string numero_courrier, string nom_personnage)
       => await BotSystem.ExecuteGetMailCommand(Context, numero_courrier, nom_personnage);
 
     [Command("suprumeur")]
     [Summary("Supprime la rumeur indiquée.")]
-    public async Task DeleteMailAsync(int numero_courrier, string nom_personnage)
+    public async Task DeleteMailAsync(string numero_courrier, string nom_personnage)
       => await BotSystem.ExecuteDeleteMailCommand(Context, numero_courrier, nom_personnage);
 
     [Command("reboot")]

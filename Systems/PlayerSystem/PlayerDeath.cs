@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using NWN.API;
@@ -161,9 +162,8 @@ namespace NWN.Systems
     }
     public static void DeletePlayerCorpseFromDatabase(int characterId)
     {
-      var query = NWScript.SqlPrepareQueryCampaign(Config.database, $"DELETE FROM playerDeathCorpses WHERE characterId = @characterId");
-      NWScript.SqlBindInt(query, "@characterId", characterId);
-      NWScript.SqlStep(query);
+      SqLiteUtils.DeletionQuery("playerDeathCorpses",
+          new Dictionary<string, string>() { { "characterId", characterId.ToString() } });
     }
     private static void ApplyRadiantRespawnEffects(Player player)
     {

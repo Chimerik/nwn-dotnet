@@ -4,6 +4,7 @@ using static NWN.Systems.Craft.Collect.Config;
 using NWN.API;
 using System.Linq;
 using System.Threading.Tasks;
+using System.Collections.Generic;
 
 namespace NWN.Systems.Craft.Collect
 {
@@ -108,9 +109,9 @@ namespace NWN.Systems.Craft.Collect
       {
         player.oid.SendServerMessage($"Votre prospection a permis de mettre à découvert {nbSpawns} veine(s) de minerai !", ColorConstants.Green);
 
-        query = NWScript.SqlPrepareQueryCampaign(Systems.Config.database, $"UPDATE areaResourceStock SET mining = mining - 1 where areaTag = @areaTag");
-        NWScript.SqlBindString(query, "@areaTag", player.oid.LoginCreature.Area.Tag);
-        NWScript.SqlStep(query);
+        SqLiteUtils.UpdateQuery("areaResourceStock",
+          new Dictionary<string, string>() { { "mining-", "1" } },
+          new Dictionary<string, string>() { { "areaTag", player.oid.LoginCreature.Area.Tag } });
       }
       else
         player.oid.SendServerMessage($"Votre prospection ne semble pas avoir abouti à la découverte d'une veine exploitable", ColorConstants.Maroon);

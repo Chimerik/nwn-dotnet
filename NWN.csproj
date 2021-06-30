@@ -35,8 +35,8 @@
         <PackageReference Include="Google.Apis.Auth" Version="1.51.0" />
         <PackageReference Include="Google.Cloud.Translation.V2" Version="2.1.0" />
         <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="5.0.1" />
-        <PackageReference Include="NWN.Core" Version="8193.23.4" />
-        <PackageReference Include="NWN.Native" Version="8193.23.3" />
+        <PackageReference Include="NWN.Core" Version="8193.26.1" />
+        <PackageReference Include="NWN.Native" Version="8193.26.1" />
         <ProjectReference Include="..\..\NWN.Managed\NWN.Managed\NWN.Anvil.csproj" />
     </ItemGroup>
 </Project>

@@ -7,6 +7,7 @@ using System.Numerics;
 using System.Linq;
 using NWN.API;
 using NWN.API.Constants;
+using System.Collections.Generic;
 
 namespace NWN
 {
@@ -28,7 +29,17 @@ namespace NWN
           break;
       }
     }
-    public static void DestroyInventory(NwGameObject oContainer)
+    public static void DestroyInventory(NwCreature oContainer)
+    {
+      foreach (NwItem item in oContainer.Inventory.Items)
+        item.Destroy();
+    }
+    public static void DestroyInventory(NwPlaceable oContainer)
+    {
+      foreach (NwItem item in oContainer.Inventory.Items)
+        item.Destroy();
+    }
+    public static void DestroyInventory(NwStore oContainer)
     {
       foreach (NwItem item in oContainer.Items)
         item.Destroy();
@@ -208,30 +219,33 @@ namespace NWN
     {
       await NwTask.Delay(TimeSpan.FromSeconds(0.2));
 
-      var discordQuery = NWScript.SqlPrepareQueryCampaign(Config.database, $"SELECT discordId from PlayerAccounts where ROWID = @characterId");
-      NWScript.SqlBindInt(discordQuery, "@characterId", characterId);
+      var result = SqLiteUtils.SelectQuery("PlayerAccounts",
+          new List<string>() { { "discordId" } },
+          new Dictionary<string, string>() { { "ROWID", characterId.ToString() } });
 
-      if (NWScript.SqlStep(discordQuery) != 0)
+      if (result != null && result.Count() > 0)
       {
-        await Bot._client.GetUser(ulong.Parse(NWScript.SqlGetString(discordQuery, 0))).SendMessageAsync(message);
+        await Bot._client.GetUser(ulong.Parse(result.FirstOrDefault().GetString(0))).SendMessageAsync(message);
       }
     }
     public static async void SendItemToPCStorage(int characterId, NwItem item)
     {
       await NwTask.Delay(TimeSpan.FromSeconds(0.2));
 
-      var storageQuery = NWScript.SqlPrepareQueryCampaign(Config.database, $"SELECT storage from playerCharacters where ROWID = @characterId");
-      NWScript.SqlBindInt(storageQuery, "@characterId", characterId);
-      if(NWScript.SqlStep(storageQuery) != 0)
+      var result = SqLiteUtils.SelectQuery("playerCharacters",
+          new List<string>() { { "storage" } },
+          new Dictionary<string, string>() { { "ROWID", characterId.ToString() } });
+
+      if(result != null && result.Count() > 0)
       {
-        NwStore storage = NWScript.SqlGetObject(storageQuery, 0, ((NwPlaceable)NwModule.FindObjectsWithTag("ps_entrepot").FirstOrDefault()).Location).ToNwObject<NwStore>();
+
+        NwStore storage = NwStore.Deserialize(result.FirstOrDefault().GetString(0).ToByteArray());
         item.Clone(storage);
         item.Destroy();
 
-        var updateQuery = NWScript.SqlPrepareQueryCampaign(Config.database, $"UPDATE playerCharacters set storage = @storage where ROWID = @characterId");
-        NWScript.SqlBindInt(updateQuery, "@characterId", characterId);
-        NWScript.SqlBindObject(updateQuery, "@storage", storage);
-        NWScript.SqlStep(updateQuery);
+        SqLiteUtils.UpdateQuery("playerCharacters",
+          new Dictionary<string, string>() { { "storage", storage.Serialize().ToBase64EncodedString() } },
+          new Dictionary<string, string>() { { "rowid", characterId.ToString() } });
 
         storage.Destroy();
       }

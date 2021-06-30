@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using NWN.API;
+using NWN.API.Constants;
 using NWN.Core;
 using static NWN.Systems.PlayerSystem;
 
@@ -46,9 +47,9 @@ namespace NWN.Systems
       area.PlayBackgroundMusic();
 
 
-      bard.PlayAnimation(API.Constants.Animation.LoopingTalkLaughing, 3, true, TimeSpan.FromHours(24));
-      bard.ApplyEffect(EffectDuration.Instant, API.Effect.VisualEffect(API.Constants.VfxType.FnfSoundBurstSilent));
-      bard.ApplyEffect(EffectDuration.Permanent, API.Effect.VisualEffect(API.Constants.VfxType.DurBardSong), TimeSpan.FromHours(24));
+      bard.PlayAnimation(Animation.LoopingTalkLaughing, 3, true, TimeSpan.FromHours(24));
+      bard.ApplyEffect(EffectDuration.Instant, Effect.VisualEffect(VfxType.FnfSoundBurstSilent));
+      bard.ApplyEffect(EffectDuration.Permanent, Effect.VisualEffect(VfxType.DurBardSong), TimeSpan.FromHours(24));
 
       ChatSystem.chatService.SendMessage(Services.ChatChannel.PlayerTalk, $"{player.oid.ControlledCreature.Name} vient de demander à jouer {NWScript.GetStringByStrRef(Int32.Parse(NWScript.Get2DAString("ambientmusic", "Description", music)))}", bard);
 

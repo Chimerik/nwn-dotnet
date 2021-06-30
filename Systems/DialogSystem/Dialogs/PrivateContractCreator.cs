@@ -322,9 +322,8 @@ namespace NWN.Systems
             player.materialStock.Add(descriptionString[0], Int32.Parse(descriptionString[1]));
       }
 
-      var deletionQuery = NWScript.SqlPrepareQueryCampaign(Config.database, $"DELETE from playerPrivateContracts where rowid = @rowid");
-      NWScript.SqlBindInt(deletionQuery, "@rowid", contractId);
-      NWScript.SqlStep(deletionQuery);
+      SqLiteUtils.DeletionQuery("playerPrivateContracts",
+         new Dictionary<string, string>() { { "rowid", contractId.ToString() } });
     }
   }
 }

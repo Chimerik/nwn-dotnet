@@ -1,14 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Globalization;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Collections.Generic;
 using NWN.Services;
 
 namespace NWN.Systems
 {
-  public class ExpTable : ITwoDimArray
+  public class ItemPropertyRankDamageTable : ITwoDimArray
   {
     private readonly List<int> entries = new List<int>();
 
@@ -28,10 +23,10 @@ namespace NWN.Systems
   [ServiceBinding(typeof(ItemPropertyDamageCost))]
   public class ItemPropertyDamageCost
   {
-    public static ExpTable ipDamageCost;
+    public static ItemPropertyRankDamageTable ipDamageCost;
     public ItemPropertyDamageCost(TwoDimArrayFactory twoDimArrayFactory)
     {
-      ipDamageCost = twoDimArrayFactory.Get2DA<ExpTable>("iprp_damagecost");
+      ipDamageCost = twoDimArrayFactory.Get2DA<ItemPropertyRankDamageTable>("iprp_damagecost");
       //PlayerSystem.Log.Info($"row : {ipDamageCost.GetDamageCostValueFromRank(8)}");
     }
   }

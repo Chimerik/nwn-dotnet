@@ -1,4 +1,5 @@
-﻿using System.Threading.Tasks;
+﻿using System.Collections.Generic;
+using System.Threading.Tasks;
 using Discord.Commands;
 using NWN.API;
 using NWN.Core;
@@ -19,12 +20,11 @@ namespace NWN.Systems
         return;
       }
 
-      await context.Channel.SendMessageAsync($"Description {descriptionName} supprimée pour le personnage {pcName}");
-
-      var query = NWScript.SqlPrepareQueryCampaign(Config.database, "DELETE FROM playerDescriptions WHERE characterId = @characterId AND descriptionName = @descriptionName");
-      NWScript.SqlBindInt(query, "@characterId", pcID);
-      NWScript.SqlBindString(query, "@descriptionName", descriptionName);
-      NWScript.SqlStep(query);
+      if (SqLiteUtils.DeletionQuery("playerDescriptions",
+        new Dictionary<string, string>() { { "characterId", pcID.ToString() }, { "descriptionName", descriptionName } }))
+        await context.Channel.SendMessageAsync($"Description {descriptionName} supprimée pour le personnage {pcName}");
+      else
+        await context.Channel.SendMessageAsync($"Erreur technique - la description {descriptionName} n'a pas pu être supprimée pour le personnage {pcName}");
     }
   }
 }

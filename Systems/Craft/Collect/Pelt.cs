@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using NWN.API;
@@ -105,9 +106,9 @@ namespace NWN.Systems.Craft.Collect
       {
         player.oid.SendServerMessage($"Votre traque a permis d'identifier les traces des créatures suivantes : {nbSpawns.ColorString(ColorConstants.White)} leurs peaux semblent exploitables, à vous de jouer !", ColorConstants.Green);
 
-        query = NWScript.SqlPrepareQueryCampaign(Systems.Config.database, $"UPDATE areaResourceStock SET animals = animals - 1 where areaTag = @areaTag");
-        NWScript.SqlBindString(query, "@areaTag", area.Tag);
-        NWScript.SqlStep(query);
+        SqLiteUtils.UpdateQuery("areaResourceStock",
+          new Dictionary<string, string>() { { "animals-", "1" } },
+          new Dictionary<string, string>() { { "areaTag", player.oid.LoginCreature.Area.Tag } });
       }
       else
         player.oid.SendServerMessage("Votre traque ne semble pas avoir aboutie au repérage d'animaux aux propriétés exploitables.", ColorConstants.Red);

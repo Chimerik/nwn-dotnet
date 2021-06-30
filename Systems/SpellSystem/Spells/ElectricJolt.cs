@@ -16,13 +16,13 @@ namespace NWN.Systems
 
       NWScript.SignalEvent(onSpellCast.TargetObject, NWScript.EventSpellCastAt(oCaster, (int)onSpellCast.Spell));
 
-      API.Effect eVis = API.Effect.VisualEffect(VfxType.ImpLightningS);
+      Effect eVis = Effect.VisualEffect(VfxType.ImpLightningS);
       //Make SR Check
       if (SpellUtils.MyResistSpell(oCaster, onSpellCast.TargetObject) == 0)
       {
         //Set damage effect
         int iDamage = 3;
-        API.Effect eBad = API.Effect.Damage(SpellUtils.MaximizeOrEmpower(iDamage, 1 + nCasterLevel / 6, onSpellCast.MetaMagicFeat), DamageType.Electrical);
+        Effect eBad = Effect.Damage(SpellUtils.MaximizeOrEmpower(iDamage, 1 + nCasterLevel / 6, onSpellCast.MetaMagicFeat), DamageType.Electrical);
         //Apply the VFX impact and damage effect
         onSpellCast.TargetObject.ApplyEffect(EffectDuration.Instant, eVis);
         onSpellCast.TargetObject.ApplyEffect(EffectDuration.Instant, eBad);

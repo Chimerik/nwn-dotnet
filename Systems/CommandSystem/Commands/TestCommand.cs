@@ -1,9 +1,11 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using NWN.API;
 using NWN.API.Constants;
 using NWN.API.Events;
 using NWN.Core;
+using NWN.Core.NWNX;
 
 namespace NWN.Systems
 {
@@ -18,17 +20,38 @@ namespace NWN.Systems
 
         if (player.oid.PlayerName == "Chim")
         {
+          var query = NwModule.Instance.PrepareCampaignSQLQuery(Config.database, $"SELECT bonusRolePlay, bidule, truc from PlayerAccounts where rowid = @accountId");
+          query.BindParam("@accountId", player.accountId);
+          query.BindParam("@accountId", player.accountId);
+          query.BindParam("@accountId", player.accountId);
+          query.Execute();
+
+          foreach (var result in query.Results)
+            Log.Info($"result : {result.GetInt(0)} - {result.GetInt(1)} - {result.GetVector3(2)}");
+
+          /*Effect eff = Effect.DamageIncrease(10, DamageType.Acid);
+          GC.SuppressFinalize(eff);
+          player.oid.ControlledCreature.ApplyEffect(EffectDuration.Temporary, eff, TimeSpan.FromSeconds(10));
+          
+          var test = EffectPlugin.UnpackEffect(eff);
+          Log.Info($"numIntegers : {test.nNumIntegers} - n0 : {test.nParam0} - n1 : {test.nParam1} - n2 : {test.nParam2} -");
+          */
           //SpellUtils.ApplyCustomEffectToTarget(player.oid, "CUSTOM_EFFECT_FROG", 51, 6);
-          //PlayerSystem.cursorTargetService.EnterTargetMode(player.oid, OnTargetSelected, ObjectTypes.All, MouseCursor.Pickup);
+          PlayerSystem.cursorTargetService.EnterTargetMode(player.oid, OnTargetSelected, ObjectTypes.All, MouseCursor.Pickup);
         }
       }
     }
+    
     private static void OnTargetSelected(ModuleEvents.OnPlayerTarget selection)
     {
-      if (selection.IsCancelled || !(selection.TargetObject is NwItem item))
+      if (selection.IsCancelled)
         return;
 
-      item.AddItemProperty(API.ItemProperty.ACBonusVsDmgType((IPDamageType)5, 80), EffectDuration.Temporary, TimeSpan.FromSeconds(10));
+      Log.Info($"type : +-{selection.TargetObject.GetType()}");
+
+      if (!(selection.TargetObject is NwItem item))
+        return;
+      //item.AddItemProperty(API.ItemProperty.ACBonusVsDmgType((IPDamageType)5, 80), EffectDuration.Temporary, TimeSpan.FromSeconds(10));
       //item.AddItemProperty(API.ItemProperty.Custom(NWScript.ITEM_PROPERTY_AC_BONUS, -1, 80), EffectDuration.Temporary, TimeSpan.FromSeconds(10));
 
       //((NwGameObject)selection.TargetObject).ApplyEffect(EffectDuration.Permanent, API.Effect.Swarm(true, "sim_wraith"));

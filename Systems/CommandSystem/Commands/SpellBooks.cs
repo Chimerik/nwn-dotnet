@@ -124,12 +124,10 @@ namespace NWN.Systems
     }
     private void DeleteGrimoire(string grimoireName)
     {
-      var query = NWScript.SqlPrepareQueryCampaign(Config.database, "DELETE FROM playerGrimoire WHERE characterId = @characterId AND grimoireName = @grimoireName");
-      NWScript.SqlBindInt(query, "@characterId", player.characterId);
-      NWScript.SqlBindString(query, "@grimoireName", grimoireName);
-      NWScript.SqlStep(query);
-
-      player.oid.SendServerMessage($"Votre grimoire {grimoireName.ColorString(ColorConstants.White)} a bien été supprimé.", new Color(32, 255, 32));
+      if(SqLiteUtils.DeletionQuery("playerGrimoire",
+         new Dictionary<string, string>() { { "characterId", player.characterId.ToString() }, { "grimoireName", grimoireName } }))
+        player.oid.SendServerMessage($"Votre grimoire {grimoireName.ColorString(ColorConstants.White)} a bien été supprimé.", new Color(32, 255, 32));
+      
       DrawGrimoireList();
     }
     private void LoadGrimoire(string grimoireName, string serializedGrimoire)

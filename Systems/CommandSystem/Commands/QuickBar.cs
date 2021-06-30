@@ -104,10 +104,8 @@ namespace NWN.Systems
     }
     private void DeleteQuickbar(string quickbarName)
     {
-      var query = NWScript.SqlPrepareQueryCampaign(Config.database, "DELETE FROM playerQuickbar WHERE characterId = @characterId AND quickbarName = @quickbarName");
-      NWScript.SqlBindInt(query, "@characterId", player.characterId);
-      NWScript.SqlBindString(query, "@quickbarName", quickbarName);
-      NWScript.SqlStep(query);
+      SqLiteUtils.DeletionQuery("playerQuickbar",
+         new Dictionary<string, string>() { { "characterId", player.characterId.ToString() }, { "quickbarName", quickbarName } });
 
       player.oid.SendServerMessage($"Votre barre de raccourcis {quickbarName.ColorString(ColorConstants.White)} a bien été supprimée.", new Color(32, 255, 32));
       DrawQuickBarList();

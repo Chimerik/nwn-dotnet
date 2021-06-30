@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using NWN.API;
 using NWN.Core;
@@ -78,12 +79,10 @@ namespace NWN.Systems
       }
       else
       {
-        query = NWScript.SqlPrepareQueryCampaign(Config.database, $"UPDATE playerCharacters SET bankGold = bankGold + @bankGold where rowid = @characterId");
-        NWScript.SqlBindInt(query, "@characterId", creatorId);
-        NWScript.SqlBindInt(query, "@bankGold", totalPrice);
-        NWScript.SqlStep(query);
-
-        //TODO : si le joueur n'est pas connecté, lui envoyer une lettre via le système de courrier
+        if(SqLiteUtils.UpdateQuery("playerCharacters",
+          new Dictionary<string, string>() { { "bankGold+", totalPrice.ToString() } },
+          new Dictionary<string, string>() { { "rowid", creatorId.ToString() } }))
+          Utils.SendMailToPC(creatorId, "Hôtel des ventes de Similisse", "Contrat accepté", $"Votre contrat {contractId} a été accepté par {oPC.Name}. La somme de {totalPrice} pièce(s) d'or a été versée sur votre compte.");
       }
 
 
@@ -104,9 +103,8 @@ namespace NWN.Systems
         }
       }
 
-      var deletionQuery = NWScript.SqlPrepareQueryCampaign(Config.database, $"DELETE from playerPrivateContracts where rowid = @rowid");
-      NWScript.SqlBindInt(deletionQuery, "@rowid", contractId);
-      NWScript.SqlStep(deletionQuery);
+      SqLiteUtils.DeletionQuery("playerPrivateContracts",
+         new Dictionary<string, string>() { { "rowid", contractId.ToString() } });
 
       contract.Destroy();
     }

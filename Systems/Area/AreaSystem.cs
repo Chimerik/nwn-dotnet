@@ -130,7 +130,7 @@ namespace NWN.Systems
 
           VisibilityPlugin.SetVisibilityOverride(NWScript.OBJECT_INVALID, NwObject.FindObjectsWithTag("intro_brouillard").FirstOrDefault(), VisibilityPlugin.NWNX_VISIBILITY_HIDDEN);
           area.GetLocalVariable<int>("_AREA_LEVEL").Value = 0;
-          NWScript.SetAreaWind(area, new Vector3(1, 0, 0), 4, 0, 0);
+          area.SetAreaWind(new Vector3(1, 0, 0), 4, 0, 0);
 
           break;
         case "SimilisseThetreSalledeSpectacle":
@@ -143,26 +143,26 @@ namespace NWN.Systems
           break;
         case "Gothictest":
         case "CoteSudLaCrique":
-          NWScript.SetAreaWind(area, new Vector3(0, 1, 0), 3, 0, 0);
+          area.SetAreaWind(new Vector3(0, 1, 0), 3, 0, 0);
           break;
         case "laplage":
-          NWScript.SetAreaWind(area, new Vector3(1, 0, 0), 2, 0, 0);
+          area.SetAreaWind(new Vector3(1, 0, 0), 2, 0, 0);
           break;
         case "leschamps":
-          NWScript.SetAreaWind(area, new Vector3(-1, 0, 0), 1, 0, 0);
+          area.SetAreaWind(new Vector3(-1, 0, 0), 1, 0, 0);
           break;
         case "Promenadetest":
         case "Governmenttest":
-          NWScript.SetAreaWind(area, new Vector3(1, 0, 0), 4, 0, 0);
+          area.SetAreaWind(new Vector3(1, 0, 0), 4, 0, 0);
           area.GetLocalVariable<int>("_AREA_LEVEL").Value = 0;
           break; 
         case "PalaceGardenTest":
-          NWScript.SetAreaWind(area, new Vector3(1, -1, 0), 2, 0, 0);
+          area.SetAreaWind(new Vector3(1, -1, 0), 2, 0, 0);
           area.GetLocalVariable<int>("_AREA_LEVEL").Value = 0;
           break;
         case "SimilisseTransitionPromenadeport":
         case "similissetempledistrict":
-          NWScript.SetAreaWind(area, new Vector3(0, -1, 0), 3, 0, 0);
+          area.SetAreaWind(new Vector3(0, -1, 0), 3, 0, 0);
           area.GetLocalVariable<int>("_AREA_LEVEL").Value = 0;
           break;
         case "SIMILISCITYGATE":
@@ -193,7 +193,7 @@ namespace NWN.Systems
           area.GetLocalVariable<int>("_AREA_LEVEL").Value = 0;
           break;
         case "cave_flooded":
-          NWScript.SetAreaWind(area, new Vector3(0, 1, 0), 8, 0, 0);
+          area.SetAreaWind(new Vector3(0, 1, 0), 8, 0, 0);
           area.GetLocalVariable<int>("_AREA_LEVEL").Value = 2;
           break;
         case "lepontdaruthen":

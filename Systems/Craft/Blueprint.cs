@@ -67,20 +67,76 @@ namespace NWN.Systems.Craft
           break;
       }
     }
-    public static API.ItemProperty[] GetCraftItemProperties(string material, NwItem craftedItem)
+    public static ItemProperty[] GetCraftItemProperties(string material, NwItem craftedItem)
     {
       ItemCategory itemCategory = GetItemCategory(craftedItem.BaseItemType);
       if (itemCategory == ItemCategory.Invalid)
       {
         Utils.LogMessageToDMs($"Item {craftedItem.Name} - Base {craftedItem.BaseItemType} - Category invalid");
         
-        return new API.ItemProperty[]
+        return new ItemProperty[]
         {
-          API.ItemProperty.Quality(IPQuality.Unknown)
-      };
+          ItemProperty.Quality(IPQuality.Unknown)
+        };
       }
 
+      int materialTier = 0;
+
       if (material == "mauvais état")
+        materialTier = 0;
+      else if (Enum.TryParse(material, out MineralType myMineralType))
+        materialTier = (int)myMineralType;
+      else if (Enum.TryParse(material, out PlankType myPlankType))
+        materialTier = (int)myPlankType;
+      else if (Enum.TryParse(material, out LeatherType myLeatherType))
+        materialTier = (int)myLeatherType;
+
+      craftedItem.GetLocalVariable<int>("_MAX_DURABILITY").Value = GetBaseItemCost(craftedItem) * 100 * materialTier;
+      craftedItem.GetLocalVariable<int>("_DURABILITY").Value = GetBaseItemCost(craftedItem) * 100 * materialTier;
+
+      if (materialTier == 0)
+        craftedItem.GetLocalVariable<int>("_DURABILITY").Value /= 2;
+      else
+      {
+        if (craftedItem.GetLocalVariable<int>("_AVAILABLE_ENCHANTEMENT_SLOT").HasValue)
+          craftedItem.GetLocalVariable<int>("_AVAILABLE_ENCHANTEMENT_SLOT").Value += 1;
+        else
+          craftedItem.GetLocalVariable<int>("_AVAILABLE_ENCHANTEMENT_SLOT").Value = 1;
+      }
+
+      /*switch (craftedItem.BaseItemType)
+      {
+        case BaseItemType.Armor:
+          return GetArmorProperties(craftedItem, materialTier);
+        case BaseItemType.SmallShield:
+          return GetSmallShieldProperties(materialTier);
+        case BaseItemType.LargeShield:
+          return GetLargeShieldProperties(materialTier);
+        case BaseItemType.TowerShield:
+          return GetTowerShieldProperties(materialTier);
+        case BaseItemType.Helmet:
+        case BaseItemType.Cloak:
+        case BaseItemType.Boots:
+          return GetArmorPartProperties();
+        case BaseItemType.Gloves:
+          return GetGlovesProperties();
+      }
+
+      switch(GetItemCategory(craftedItem.BaseItemType))
+      {
+        case ItemCategory.CraftTool:
+          return GetToolProperties(craftedItem, materialTier);
+        case ItemCategory.OneHandedMeleeWeapon:
+          return GetOneHandedMeleeWeaponProperties();
+        case ItemCategory.TwoHandedMeleeWeapon:
+          return GetTwoHandedMeleeWeaponProperties();
+        case ItemCategory.RangedWeapon:
+          return GetRangedWeaponProperties;
+        case ItemCategory.Ammunition:
+          return GetAmmunitionProperties();
+      }*/
+
+      /*if (material == "mauvais état")
         return GetBadItemProperties(itemCategory, craftedItem);
       else if (Enum.TryParse(material, out MineralType myMineralType))
       {
@@ -105,7 +161,7 @@ namespace NWN.Systems.Craft
           case LeatherType.MauvaisCuir: return GetTritaniumItemProperties(craftedItem);
           case LeatherType.CuirCommun: return GetPyeriteItemProperties(itemCategory, craftedItem);
         }
-      }
+      }*/
 
       Utils.LogMessageToDMs($"No craft property found for material {material} and item {itemCategory}");
 

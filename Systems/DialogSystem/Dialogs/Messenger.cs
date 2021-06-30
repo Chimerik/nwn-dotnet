@@ -80,9 +80,9 @@ namespace NWN.Systems
     }
     private async void DisplayMessage(string title, string message, int messageId)
     {
-      var query = NWScript.SqlPrepareQueryCampaign(Config.database, $"UPDATE messenger SET read = 1 where rowid = @messageId");
-      NWScript.SqlBindInt(query, "@messageId", messageId);
-      NWScript.SqlStep(query);
+      SqLiteUtils.UpdateQuery("messenger",
+        new Dictionary<string, string>() { { "read", "1" } },
+        new Dictionary<string, string>() { { "rowid", messageId.ToString() } });
 
       string originalDesc = player.oid.LoginCreature.Description;
       string tempDescription = title.ColorString(ColorConstants.Orange) + "\n\n" + message;
@@ -98,9 +98,9 @@ namespace NWN.Systems
     }
     private async void PrintMessage(string title, string message, int messageId)
     {
-      var query = NWScript.SqlPrepareQueryCampaign(Config.database, $"UPDATE messenger SET read = 1 where rowid = @messageId");
-      NWScript.SqlBindInt(query, "@messageId", messageId);
-      NWScript.SqlStep(query);
+      SqLiteUtils.UpdateQuery("messenger",
+        new Dictionary<string, string>() { { "read", "1" } },
+        new Dictionary<string, string>() { { "rowid", messageId.ToString() } });
 
       NwItem letter = await NwItem.Create("skillbookgeneriq", player.oid.ControlledCreature, 1, "letter");
       letter.Name = title;
@@ -108,11 +108,10 @@ namespace NWN.Systems
     }
     private void RemoveMessage(int messageId)
     {
-      var deletionQuery = NWScript.SqlPrepareQueryCampaign(Config.database, $"DELETE from messenger where rowid = @rowid");
-      NWScript.SqlBindInt(deletionQuery, "@rowid", messageId);
-      NWScript.SqlStep(deletionQuery);
+      if (SqLiteUtils.DeletionQuery("messenger",
+          new Dictionary<string, string>() { { "rowid", messageId.ToString() } }))
+        player.oid.SendServerMessage("Message supprimé.");
 
-      player.oid.SendServerMessage("Message supprimé.");
       DrawInbox();
     }
   }

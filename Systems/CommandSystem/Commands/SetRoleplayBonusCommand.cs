@@ -1,4 +1,5 @@
-﻿using NWN.API;
+﻿using System.Collections.Generic;
+using NWN.API;
 using NWN.Core;
 using NWN.Core.NWNX;
 
@@ -28,10 +29,9 @@ namespace NWN.Systems
                   ctx.oSender.SendServerMessage($"Le bonus roleplay de {ctx.oTarget.LoginCreature.Name.ColorString(ColorConstants.White)} est de {player.bonusRolePlay.ToString().ColorString(ColorConstants.White)}", ColorConstants.Pink);
                   ctx.oTarget.SendServerMessage($"Votre bonus roleplay est désormais de {player.bonusRolePlay.ToString().ColorString(ColorConstants.White)}", ColorConstants.Pink);
 
-                  var updateQuery = NWScript.SqlPrepareQueryCampaign(Config.database, $"UPDATE PlayerAccounts SET bonusRolePlay = @bonusRolePlay where rowid = @rowid");
-                  NWScript.SqlBindInt(updateQuery, "@bonusRolePlay", player.bonusRolePlay);
-                  NWScript.SqlBindInt(updateQuery, "@rowid", player.accountId);
-                  NWScript.SqlStep(updateQuery);
+                  SqLiteUtils.UpdateQuery("PlayerAccounts",
+                    new Dictionary<string, string>() { { "bonusRolePlay", player.bonusRolePlay.ToString() } },
+                    new Dictionary<string, string>() { { "rowid", player.accountId.ToString() } });
 
                   ObjectPlugin.SetInt(ctx.oTarget.LoginCreature, "_BRP", iBRP, 1);
                 }

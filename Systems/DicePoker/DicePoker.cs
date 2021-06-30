@@ -7,6 +7,7 @@ using NWN.API;
 using System.ComponentModel;
 using static NWN.Systems.PlayerSystem;
 using NWN.Core.NWNX;
+using NWN.API.Constants;
 
 namespace NWN.Systems.DicePoker
 {
@@ -558,17 +559,17 @@ namespace NWN.Systems.DicePoker
       {
         case 0:
           resultDisplay = $"Défaite ! {opponent.oid.LoginCreature.Name} empoche la mise de {bet}";
-          player.oid.LoginCreature.ApplyEffect(EffectDuration.Instant, Effect.VisualEffect(API.Constants.VfxType.DurCessateNegative));
+          player.oid.LoginCreature.ApplyEffect(EffectDuration.Instant, Effect.VisualEffect(VfxType.DurCessateNegative));
           opponent.oid.LoginCreature.GiveGold((int)bet);
           break;
         case 1:
           resultDisplay = $"Victoire ! Vous empochez la mise de {bet}";
-          player.oid.LoginCreature.ApplyEffect(EffectDuration.Instant, Effect.VisualEffect(API.Constants.VfxType.DurCessatePositive));
+          player.oid.LoginCreature.ApplyEffect(EffectDuration.Instant, Effect.VisualEffect(VfxType.DurCessatePositive));
           player.oid.LoginCreature.GiveGold((int)bet);
           break;
         default:
           resultDisplay = $"Match nul ! La mise de {bet} est restitué à chacun des joueurs";
-          player.oid.LoginCreature.ApplyEffect(EffectDuration.Instant, Effect.VisualEffect(API.Constants.VfxType.DurCessateNeutral));
+          player.oid.LoginCreature.ApplyEffect(EffectDuration.Instant, Effect.VisualEffect(VfxType.DurCessateNeutral));
           player.oid.LoginCreature.GiveGold((int)bet / 4);
           opponent.oid.LoginCreature.GiveGold((int)bet / 4);
           break;

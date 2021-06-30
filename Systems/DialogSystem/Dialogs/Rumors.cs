@@ -98,11 +98,10 @@ namespace NWN.Systems
     }
     private void HandleDeleteRumor(int rumorId)
     {
-      var deletionQuery = NWScript.SqlPrepareQueryCampaign(Config.database, $"DELETE FROM rumors where rowid = @rowid");
-      NWScript.SqlBindInt(deletionQuery, "@rowid", rumorId);
-      NWScript.SqlStep(deletionQuery);
+      if(SqLiteUtils.DeletionQuery("rumors",
+         new Dictionary<string, string>() { { "rowid", rumorId.ToString() } }))
+        player.oid.SendServerMessage($"Votre rumeur {rumorTitle.ColorString(ColorConstants.White)} a bien été supprimé", ColorConstants.Pink);
 
-      player.oid.SendServerMessage($"Votre rumeur {rumorTitle.ColorString(ColorConstants.White)} a bien été supprimé", ColorConstants.Pink);
       player.menu.Close();
     }
     private void DrawDMRumorsList()

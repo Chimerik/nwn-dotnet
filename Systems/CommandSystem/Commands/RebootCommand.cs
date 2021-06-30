@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using NWN.API;
@@ -36,15 +37,9 @@ namespace NWN.Systems
       {
         await NwTask.Delay(TimeSpan.FromSeconds(30));
 
-        var query = NWScript.SqlPrepareQueryCampaign(Config.database, $"UPDATE moduleInfo SET year = @year, month = @month, " +
-        $"day = @day, hour = @hour, minute = @minute, second = @second where rowid = 1");
-        NWScript.SqlBindInt(query, "@year", NwDateTime.Now.Year);
-        NWScript.SqlBindInt(query, "@month", NwDateTime.Now.Month);
-        NWScript.SqlBindInt(query, "@day", NwDateTime.Now.DayInTenday);
-        NWScript.SqlBindInt(query, "@hour", NwDateTime.Now.Hour);
-        NWScript.SqlBindInt(query, "@minute", NwDateTime.Now.Minute);
-        NWScript.SqlBindInt(query, "@second", NwDateTime.Now.Second);
-        NWScript.SqlStep(query);
+        SqLiteUtils.UpdateQuery("moduleInfo",
+        new Dictionary<string, string>() { { "year", NwDateTime.Now.Year.ToString() }, { "month", NwDateTime.Now.Month.ToString() }, { "day", NwDateTime.Now.DayInTenday.ToString() }, { "hour", NwDateTime.Now.Hour.ToString() }, { "minute", NwDateTime.Now.Minute.ToString() }, { "second", NwDateTime.Now.Second.ToString() } },
+        new Dictionary<string, string>() { { "rowid", "1" } });
 
         await NwModule.Instance.AddActionToQueue(() => Utils.BootAllPC());
 

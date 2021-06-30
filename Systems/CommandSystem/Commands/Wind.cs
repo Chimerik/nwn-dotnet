@@ -74,7 +74,7 @@ namespace NWN.Systems
         direction = new Vector3(x, y, z);
         player.oid.LoginCreature.GetLocalVariable<string>("_PLAYER_INPUT").Delete();
         player.oid.SendServerMessage($"Vous avez choisi {direction} de direction", ColorConstants.Green);
-        NWScript.SetAreaWind(player.oid.ControlledCreature.Area, direction, magnitude, yaw, pitch);
+        player.oid.ControlledCreature.Area.SetAreaWind(direction, magnitude, yaw, pitch);
         DrawMainWindPage();
       }
     }
@@ -97,7 +97,7 @@ namespace NWN.Systems
         
         player.oid.LoginCreature.GetLocalVariable<string>("_PLAYER_INPUT").Delete();
         player.oid.SendServerMessage($"Vous avez choisi {magnitude.ToString().ColorString(ColorConstants.White)} de magnitude", ColorConstants.Green);
-        NWScript.SetAreaWind(player.oid.ControlledCreature.Area, direction, magnitude, yaw, pitch);
+        player.oid.ControlledCreature.Area.SetAreaWind(direction, magnitude, yaw, pitch);
         DrawMainWindPage();
       }
     }
@@ -118,7 +118,7 @@ namespace NWN.Systems
         yaw = float.Parse(player.oid.LoginCreature.GetLocalVariable<string>("_PLAYER_INPUT").Value);
         player.oid.LoginCreature.GetLocalVariable<string>("_PLAYER_INPUT").Delete();
         player.oid.SendServerMessage($"Vous avez choisi {yaw.ToString().ColorString(ColorConstants.White)} d'embardée", ColorConstants.Green);
-        NWScript.SetAreaWind(player.oid.ControlledCreature.Area, direction, magnitude, yaw, pitch);
+        player.oid.ControlledCreature.Area.SetAreaWind(direction, magnitude, yaw, pitch);
         DrawMainWindPage();
       }
     }
@@ -139,7 +139,7 @@ namespace NWN.Systems
         pitch = float.Parse(player.oid.LoginCreature.GetLocalVariable<string>("_PLAYER_INPUT").Value);
         player.oid.LoginCreature.GetLocalVariable<string>("_PLAYER_INPUT").Delete();
         player.oid.SendServerMessage($"Vous avez choisi {pitch.ToString().ColorString(ColorConstants.White)} de pitch", ColorConstants.Green);
-        NWScript.SetAreaWind(player.oid.ControlledCreature.Area, direction, magnitude, yaw, pitch);
+        player.oid.ControlledCreature.Area.SetAreaWind(direction, magnitude, yaw, pitch);
         DrawMainWindPage();
       }
     }

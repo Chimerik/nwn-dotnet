@@ -104,9 +104,8 @@ namespace NWN.Systems
 
       if (shop.GetLocalVariable<int>("_SHOP_ID").HasValue)
       {
-        var query = NWScript.SqlPrepareQueryCampaign(Config.database, "DELETE FROM playerShops where rowid = @shopID");
-        NWScript.SqlBindInt(query, "@shopID", shop.GetLocalVariable<int>("_SHOP_ID").Value);
-        NWScript.SqlStep(query);
+        SqLiteUtils.DeletionQuery("playerShops",
+          new Dictionary<string, string>() { { "rowid", shop.GetLocalVariable<int>("_SHOP_ID").Value.ToString() } });
       }
 
       player.oid.SendServerMessage($"Votre échoppe a été supprimée et votre autorisation et vos objets ont été restitués.", ColorConstants.Orange);

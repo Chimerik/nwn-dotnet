@@ -275,9 +275,9 @@ namespace NWN.Systems
       if (player.learntCustomFeats.ContainsKey(CustomFeats.ImprovedHealth))
         improvedHealth = GetCustomFeatLevelFromSkillPoints(CustomFeats.ImprovedHealth, player.learntCustomFeats[CustomFeats.ImprovedHealth]);
 
-      CreaturePlugin.SetMaxHitPointsByLevel(player.oid.LoginCreature, 1, Int32.Parse(NWScript.Get2DAString("classes", "HitDie", 43))
+      player.oid.LoginCreature.LevelInfo[0].HitDie = (byte)(byte.Parse(NWScript.Get2DAString("classes", "HitDie", 43))
         + (1 + 3 * ((player.oid.LoginCreature.GetAbilityScore(Ability.Constitution, true) - 10) / 2)
-        + CreaturePlugin.GetKnowsFeat(player.oid.LoginCreature, (int)Feat.Toughness)) * improvedHealth);
+        + Convert.ToInt32(player.oid.LoginCreature.KnowsFeat(Feat.Toughness))) * improvedHealth);
 
       return 0;
     }
@@ -286,23 +286,23 @@ namespace NWN.Systems
       switch(feat)
       {
         case CustomFeats.ImprovedStrength:
-          CreaturePlugin.ModifyRawAbilityScore(player.oid.LoginCreature, (int)Ability.Strength, 1);
+          player.oid.LoginCreature.SetsRawAbilityScore(Ability.Strength, (byte)(player.oid.LoginCreature.GetRawAbilityScore(Ability.Strength) + 1));
           break;
         case CustomFeats.ImprovedDexterity:
-          CreaturePlugin.ModifyRawAbilityScore(player.oid.LoginCreature, (int)Ability.Dexterity, 1);
+          player.oid.LoginCreature.SetsRawAbilityScore(Ability.Dexterity, (byte)(player.oid.LoginCreature.GetRawAbilityScore(Ability.Dexterity) + 1));
           break;
         case CustomFeats.ImprovedConstitution:
-          CreaturePlugin.ModifyRawAbilityScore(player.oid.LoginCreature, (int)Ability.Constitution, 1);
+          player.oid.LoginCreature.SetsRawAbilityScore(Ability.Constitution, (byte)(player.oid.LoginCreature.GetRawAbilityScore(Ability.Constitution) + 1));
           HandleHealthPoints(player, feat);
           break;
         case CustomFeats.ImprovedIntelligence:
-          CreaturePlugin.ModifyRawAbilityScore(player.oid.LoginCreature, (int)Ability.Intelligence, 1);
+          player.oid.LoginCreature.SetsRawAbilityScore(Ability.Intelligence, (byte)(player.oid.LoginCreature.GetRawAbilityScore(Ability.Intelligence) + 1));
           break;
         case CustomFeats.ImprovedWisdom:
-          CreaturePlugin.ModifyRawAbilityScore(player.oid.LoginCreature, (int)Ability.Wisdom, 1);
+          player.oid.LoginCreature.SetsRawAbilityScore(Ability.Wisdom, (byte)(player.oid.LoginCreature.GetRawAbilityScore(Ability.Wisdom) + 1));
           break;
         case CustomFeats.ImprovedCharisma:
-          CreaturePlugin.ModifyRawAbilityScore(player.oid.LoginCreature, (int)Ability.Charisma, 1);
+          player.oid.LoginCreature.SetsRawAbilityScore(Ability.Charisma, (byte)(player.oid.LoginCreature.GetRawAbilityScore(Ability.Charisma) + 1));
           break;
       }
 
@@ -310,27 +310,27 @@ namespace NWN.Systems
     }
     private static int HandleImproveAttack(PlayerSystem.Player player, Feat feat)
     {
-      CreaturePlugin.SetBaseAttackBonus(player.oid.LoginCreature, player.oid.LoginCreature.BaseAttackBonus + 1);
+      player.oid.LoginCreature.BaseAttackBonus += 1;
       return 0;
     }
     private static int HandleImproveSavingThrowAll(PlayerSystem.Player player, Feat feat)
     {
-      CreaturePlugin.SetBaseSavingThrow(player.oid.LoginCreature, NWScript.SAVING_THROW_ALL, player.oid.LoginCreature.GetBaseSavingThrow(SavingThrow.All) + 1);
+      player.oid.LoginCreature.SetBaseSavingThrow(SavingThrow.All, (sbyte)(player.oid.LoginCreature.GetBaseSavingThrow(SavingThrow.All) + 1));
       return 0;
     }
     private static int HandleImproveSavingThrowFortitude(PlayerSystem.Player player, Feat feat)
     {
-      CreaturePlugin.SetBaseSavingThrow(player.oid.LoginCreature, NWScript.SAVING_THROW_FORT, player.oid.LoginCreature.GetBaseSavingThrow(SavingThrow.Fortitude) + 1);
+      player.oid.LoginCreature.SetBaseSavingThrow(SavingThrow.Fortitude, (sbyte)(player.oid.LoginCreature.GetBaseSavingThrow(SavingThrow.Fortitude) + 1));
       return 0;
     }
     private static int HandleImproveSavingThrowWill(PlayerSystem.Player player, Feat feat)
     {
-      CreaturePlugin.SetBaseSavingThrow(player.oid.LoginCreature, NWScript.SAVING_THROW_WILL, player.oid.LoginCreature.GetBaseSavingThrow(SavingThrow.Will) + 1);
+      player.oid.LoginCreature.SetBaseSavingThrow(SavingThrow.Will, (sbyte)(player.oid.LoginCreature.GetBaseSavingThrow(SavingThrow.Will) + 1));
       return 0;
     }
     private static int HandleImproveSavingThrowReflex(PlayerSystem.Player player, Feat feat)
     {
-      CreaturePlugin.SetBaseSavingThrow(player.oid.LoginCreature, NWScript.SAVING_THROW_REFLEX, player.oid.LoginCreature.GetBaseSavingThrow(SavingThrow.Reflex) + 1);
+      player.oid.LoginCreature.SetBaseSavingThrow(SavingThrow.Reflex, (sbyte)(player.oid.LoginCreature.GetBaseSavingThrow(SavingThrow.Reflex) + 1)) ;
       return 0;
     }
     private static int HandleImproveAnimalEmpathy(PlayerSystem.Player player, Feat feat)
@@ -548,7 +548,7 @@ namespace NWN.Systems
     private static int HandleRemoveStrengthMalusFeat(PlayerSystem.Player player, Feat idMalusFeat)
     {
       player.removeableMalus.Remove(idMalusFeat);
-      CreaturePlugin.SetRawAbilityScore(player.oid.LoginCreature, NWScript.ABILITY_STRENGTH, CreaturePlugin.GetRawAbilityScore(player.oid.LoginCreature, NWScript.ABILITY_STRENGTH) + 2);
+      player.oid.LoginCreature.SetsRawAbilityScore(Ability.Strength, (byte)(player.oid.LoginCreature.GetRawAbilityScore(Ability.Strength) + 2));
 
       return 0;
     }

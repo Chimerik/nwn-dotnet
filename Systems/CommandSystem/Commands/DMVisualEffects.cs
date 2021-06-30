@@ -138,12 +138,12 @@ namespace NWN.Systems
     }
     private void DeleteVFX(string deletedVFXName)
     {
-      var query = NWScript.SqlPrepareQueryCampaign(Config.database, "DELETE FROM dmVFX WHERE playerName = @playerName AND vfxName = @vfxName");
-      NWScript.SqlBindString(query, "@playerName", player.oid.PlayerName);
-      NWScript.SqlBindString(query, "@vfxName", deletedVFXName);
-      NWScript.SqlStep(query);
+      if (SqLiteUtils.DeletionQuery("dmVFX",
+            new Dictionary<string, string>() { { "playerName", player.oid.PlayerName }, { "vfxName", deletedVFXName } }))
+        player.oid.SendServerMessage($"Votre effet visuel {deletedVFXName.ColorString(ColorConstants.White)} a bien été supprimé.", new Color(32, 255, 32));
+      else
+        player.oid.SendServerMessage($"Erreur technique - Votre effet visuel {deletedVFXName.ColorString(ColorConstants.White)} n'a pas été supprimé.", ColorConstants.Red);
 
-      player.oid.SendServerMessage($"Votre effet visuel {deletedVFXName.ColorString(ColorConstants.White)} a bien été supprimé.", new Color(32, 255, 32));
       DrawVFXList();
     }
   }

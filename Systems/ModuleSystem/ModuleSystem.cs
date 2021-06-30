@@ -311,14 +311,9 @@ namespace NWN.Systems
     }
     private void SaveServerVault()
     {
-      var query = NWScript.SqlPrepareQueryCampaign(Config.database, $"UPDATE moduleInfo SET year = @year, month = @month, day = @day, hour = @hour, minute = @minute, second = @second where rowid = 1");
-      NWScript.SqlBindInt(query, "@year", NwDateTime.Now.Year);
-      NWScript.SqlBindInt(query, "@month", NwDateTime.Now.Month);
-      NWScript.SqlBindInt(query, "@day", NwDateTime.Now.DayInTenday);
-      NWScript.SqlBindInt(query, "@hour", NwDateTime.Now.Hour);
-      NWScript.SqlBindInt(query, "@minute", NwDateTime.Now.Minute);
-      NWScript.SqlBindInt(query, "@second", NwDateTime.Now.Second);
-      NWScript.SqlStep(query);
+      SqLiteUtils.UpdateQuery("moduleInfo",
+        new Dictionary<string, string>() { { "year", NwDateTime.Now.Year.ToString() }, { "month", NwDateTime.Now.Month.ToString() }, { "day", NwDateTime.Now.DayInTenday.ToString() }, { "hour", NwDateTime.Now.Hour.ToString() }, { "minute", NwDateTime.Now.Minute.ToString() }, { "second", NwDateTime.Now.Second.ToString() } },
+        new Dictionary<string, string>() { { "rowid", "1" } });
 
       HandleExpiredAuctions();
 
@@ -444,9 +439,8 @@ namespace NWN.Systems
     {
       await NwTask.Delay(TimeSpan.FromSeconds(0.2));
 
-      var deletionQuery = NWScript.SqlPrepareQueryCampaign(Config.database, $"DELETE FROM playerShops where rowid = @rowid");
-      NWScript.SqlBindInt(deletionQuery, "@rowid", rowid);
-      NWScript.SqlStep(deletionQuery);
+      SqLiteUtils.DeletionQuery("playerShops",
+          new Dictionary<string, string>() { { "rowid", rowid.ToString() } });
     }
     private void RestorePlayerAuctionsFromDatabase()
     {
@@ -508,7 +502,7 @@ namespace NWN.Systems
           // Si highestAuction > 0 On donne les sous au seller et on lui envoie un message s'il est co. S'il n'est pas co on met à jour en bdd et on lui envoie un courrier
           int highestAuction = NWScript.SqlGetInt(query, 2);
 
-          if(highestAuction > 0)
+          if (highestAuction > 0)
           {
             if (oSeller != null)
             {
@@ -520,20 +514,19 @@ namespace NWN.Systems
 
               NwItem authorization = await NwItem.Create("auction_clearanc", oSeller.LoginCreature);
             }
-            else 
+            else
             {
               Task delayedUpdate = NwTask.Run(async () =>
               {
                 await NwTask.Delay(TimeSpan.FromSeconds(0.2));
 
-                var buyerQuery = NWScript.SqlPrepareQueryCampaign(Config.database, $"UPDATE playerCharacters SET bankGold = bankGold + @gold where characterId = @characterId");
-                NWScript.SqlBindInt(buyerQuery, "@characterId", sellerId);
-                NWScript.SqlBindInt(buyerQuery, "@gold", highestAuction);
-                NWScript.SqlStep(buyerQuery);
+                SqLiteUtils.UpdateQuery("playerCharacters",
+                  new Dictionary<string, string>() { { "bankGold+", highestAuction.ToString() } },
+                  new Dictionary<string, string>() { { "rowid", sellerId.ToString() } });
               });
 
               Utils.SendMailToPC(sellerId, "Hotel des ventes de Similisse", $"Enchère sur {tempItem.Name} conclue",
-                $"Très honoré vendeur, \n\n Nous avons l'immense plaisir de vous annoncer que votre enchère sur {tempItem.Name} a porté ses fruits. \n\n Celle-ci vous a permis d'acquérir {highestAuction} pièce(s) d'or ! \n\n Signé : Polpo");             
+                $"Très honoré vendeur, \n\n Nous avons l'immense plaisir de vous annoncer que votre enchère sur {tempItem.Name} a porté ses fruits. \n\n Celle-ci vous a permis d'acquérir {highestAuction} pièce(s) d'or ! \n\n Signé : Polpo");
             }
           }
           // Si le buyer est co, on lui file l'item et on détruit la ligne en BDD. S'il est pas co, on transfère dans son entrepot perso
@@ -572,15 +565,14 @@ namespace NWN.Systems
     }
     private static void DeleteExpiredAuction(int auctionId)
     {
-      var deletionQuery = NWScript.SqlPrepareQueryCampaign(Config.database, $"DELETE from playerAuctions where rowid = @rowid");
-      NWScript.SqlBindInt(deletionQuery, "@rowid", auctionId);
-      NWScript.SqlStep(deletionQuery);
+      SqLiteUtils.DeletionQuery("playerAuctions",
+          new Dictionary<string, string>() { { "rowid", auctionId.ToString() } });
     }
     private void UpdateExpiredAuction(int auctionId)
     {
-      var deletionQuery = NWScript.SqlPrepareQueryCampaign(Config.database, $"UPDATE playerAuctions set highestAuction = 0 where rowid = @rowid");
-      NWScript.SqlBindInt(deletionQuery, "@rowid", auctionId);
-      NWScript.SqlStep(deletionQuery);
+      SqLiteUtils.UpdateQuery("playerAuctions",
+          new Dictionary<string, string>() { { "highestAuction", "0" } },
+          new Dictionary<string, string>() { { "rowid", auctionId.ToString() } });
     }
     public void RestoreDMPersistentPlaceableFromDatabase()
     {
@@ -637,9 +629,8 @@ namespace NWN.Systems
       Log.Info("Deleting expired mails");
       Utils.LogMessageToDMs("Deleting expired mails");
 
-      var deletionQuery = NWScript.SqlPrepareQueryCampaign(Config.database, $"DELETE from messenger where sentDate > @expirationDate");
-      NWScript.SqlBindString(deletionQuery, "@expirationDate", DateTime.Now.AddDays(30).ToLongDateString());
-      NWScript.SqlStep(deletionQuery);
+      SqLiteUtils.DeletionQuery("messenger",
+          new Dictionary<string, string>() { { "expirationDate", DateTime.Now.AddDays(30).ToLongDateString() } }, ">");
 
       await NwTask.WaitUntilValueChanged(() => DateTime.Now.Day);
       await DeleteExpiredMail();

@@ -1,4 +1,5 @@
-﻿using System.Threading.Tasks;
+﻿using System.Collections.Generic;
+using System.Threading.Tasks;
 using Discord.Commands;
 using NWN.API;
 using NWN.Core;
@@ -7,7 +8,7 @@ namespace NWN.Systems
 {
   public static partial class BotSystem
   {
-    public static async Task ExecuteGetMailCommand(SocketCommandContext context, int mailId, string characterName)
+    public static async Task ExecuteGetMailCommand(SocketCommandContext context, string mailId, string characterName)
     {
       await NwTask.SwitchToMainThread();
       int result = DiscordUtils.CheckPlayerCredentialsFromDiscord(context, characterName);
@@ -28,9 +29,9 @@ namespace NWN.Systems
         return;
       }
 
-      var update = NWScript.SqlPrepareQueryCampaign(Config.database, $"UPDATE messenger SET read = 1 where rowid = @messageId");
-      NWScript.SqlBindInt(update, "@messageId", mailId);
-      NWScript.SqlStep(update);
+      SqLiteUtils.UpdateQuery("messenger",
+          new Dictionary<string, string>() { { "read", "1" } },
+          new Dictionary<string, string>() { { "rowid", mailId } });
 
       await context.Channel.SendMessageAsync($"De {NWScript.SqlGetString(query, 0)}");
       await context.Channel.SendMessageAsync($"Envoyé le {NWScript.SqlGetString(query, 2)} :");

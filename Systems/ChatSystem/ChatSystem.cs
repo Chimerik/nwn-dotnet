@@ -34,6 +34,9 @@ namespace NWN.Systems
       if (!(onChat.Sender is NwCreature oSender) || oSender.GetLocalVariable<string>("_AWAITING_PLAYER_INPUT").HasValue)
         return;
 
+      if (!oSender.IsPlayerControlled)
+        return;
+
       if (oSender.Area != null)
         areaName = oSender.Area.Name;
       else

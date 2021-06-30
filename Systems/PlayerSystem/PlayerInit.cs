@@ -36,11 +36,10 @@ namespace NWN.Systems
 
         if (player.location.Area == null)
         {
-          var query = NWScript.SqlPrepareQueryCampaign(Config.database, $"SELECT areaTag, position, facing from playerCharacters where rowid = @characterId");
-          NWScript.SqlBindInt(query, "@characterId", player.characterId);
-          NWScript.SqlStep(query);
-
-          player.location = Utils.GetLocationFromDatabase(NWScript.SqlGetString(query, 0), NWScript.SqlGetVector(query, 1), NWScript.SqlGetFloat(query, 2));
+          var query = NwModule.Instance.PrepareCampaignSQLQuery(Config.database, $"SELECT areaTag, position, facing from playerCharacters where rowid = @characterId");
+          query.BindParam("@characterId", player.characterId);
+          query.Execute();
+          player.location = Utils.GetLocationFromDatabase(query.Result.GetString(0), query.Result.GetVector3(1), query.Result.GetFloat(2));
 
           Task waitAreaLoaded = NwTask.Run(async () =>
           {
@@ -111,30 +110,21 @@ namespace NWN.Systems
       foreach(KeyValuePair<Feat, int> feat in player.learntCustomFeats)
       {
         CustomFeat customFeat = SkillSystem.customFeatsDictionnary[feat.Key];
-
-        if (int.TryParse(NWScript.Get2DAString("feat", "FEAT", (int)feat.Key), out int nameValue))
-          PlayerPlugin.SetTlkOverride(player.oid.LoginCreature, nameValue, $"{customFeat.name} - {SkillSystem.GetCustomFeatLevelFromSkillPoints(feat.Key, feat.Value)}");
+        FeatTable.Entry featEntry = Feat2da.featTable.GetFeatDataEntry(feat.Key);
+        PlayerPlugin.SetTlkOverride(player.oid.LoginCreature, featEntry.tlkName, $"{customFeat.name} - {SkillSystem.GetCustomFeatLevelFromSkillPoints(feat.Key, feat.Value)}");
+        PlayerPlugin.SetTlkOverride(player.oid.LoginCreature, featEntry.tlkDescription, customFeat.description);
         //player.oid.SetTlkOverride(nameValue, $"{customFeat.name} - {SkillSystem.GetCustomFeatLevelFromSkillPoints(feat.Key, feat.Value)}");
-        else
-          Utils.LogMessageToDMs($"CUSTOM SKILL SYSTEM ERROR - Skill {customFeat.name} : no available custom name StrRef");
-      
-        if (int.TryParse(NWScript.Get2DAString("feat", "DESCRIPTION", (int)feat.Key), out int descriptionValue))
-          PlayerPlugin.SetTlkOverride(player.oid.LoginCreature, descriptionValue, customFeat.description);
         //player.oid.SetTlkOverride(descriptionValue, customFeat.description);
-        else
-        {
-          Utils.LogMessageToDMs($"CUSTOM SKILL SYSTEM ERROR - Skill {customFeat.name} : no available custom description StrRef");
-        }
       }
 
       int improvedHealth = 0;
       if (player.learntCustomFeats.ContainsKey(CustomFeats.ImprovedHealth))
         improvedHealth = SkillSystem.GetCustomFeatLevelFromSkillPoints(CustomFeats.ImprovedHealth, player.learntCustomFeats[CustomFeats.ImprovedHealth]);
 
-      CreaturePlugin.SetMaxHitPointsByLevel(player.oid.LoginCreature, 1, Int32.Parse(NWScript.Get2DAString("classes", "HitDie", 43))
+      player.oid.LoginCreature.LevelInfo[0].HitDie = (byte)(10
         + (1 + 3 * ((player.oid.LoginCreature.GetAbilityScore(Ability.Constitution, true) - 10) / 2)
-        + CreaturePlugin.GetKnowsFeat(player.oid.LoginCreature, (int)Feat.Toughness)) * improvedHealth);
-
+        + Convert.ToInt32(player.oid.LoginCreature.KnowsFeat(Feat.Toughness))) * improvedHealth);
+      
       if (player.currentHP <= 0)
         oPC.LoginCreature.ApplyEffect(EffectDuration.Instant, API.Effect.Death());
       else
@@ -166,10 +156,11 @@ namespace NWN.Systems
     }
     private static void InitializeNewPlayer(NwPlayer newPlayer)
     {
-      var query = NWScript.SqlPrepareQueryCampaign(Config.database, $"SELECT rowid FROM PlayerAccounts WHERE accountName = @accountName");
-      NWScript.SqlBindString(query, "@accountName", newPlayer.PlayerName);
+      var query = NwModule.Instance.PrepareCampaignSQLQuery(Config.database, $"SELECT rowid FROM PlayerAccounts WHERE accountName = @accountName");
+      query.BindParam("@accountName", newPlayer.PlayerName);
+      query.Execute();
 
-      if (!Convert.ToBoolean(NWScript.SqlStep(query)))
+      if(query.Result == null)
       {
         if (Config.env == Config.Env.Prod)
         {
@@ -180,14 +171,14 @@ namespace NWN.Systems
           EventsPlugin.AddObjectToDispatchList("NWNX_ON_INPUT_TOGGLE_PAUSE_BEFORE", "spacebar_down", newPlayer.LoginCreature);
         }
 
-        query = NWScript.SqlPrepareQueryCampaign(Config.database, $"INSERT INTO PlayerAccounts (accountName, cdKey, bonusRolePlay) VALUES (@name, @cdKey, @brp)");
-        NWScript.SqlBindInt(query, "@brp", 1);
-        NWScript.SqlBindString(query, "@name", newPlayer.PlayerName);
-        NWScript.SqlBindString(query, "@cdKey", newPlayer.CDKey);
-        NWScript.SqlStep(query);
+        query = NwModule.Instance.PrepareCampaignSQLQuery(Config.database, $"INSERT INTO PlayerAccounts (accountName, cdKey, bonusRolePlay) VALUES (@name, @cdKey, @brp)");
+        query.BindParam("@brp", 1);
+        query.BindParam("@name", newPlayer.PlayerName);
+        query.BindParam("@cdKey", newPlayer.CDKey);
+        query.Execute();
 
-        query = NWScript.SqlPrepareQueryCampaign(Config.database, $"SELECT last_insert_rowid()");
-        NWScript.SqlStep(query);
+        query = NwModule.Instance.PrepareCampaignSQLQuery(Config.database, $"SELECT last_insert_rowid()");
+        query.Execute();
       }
 
       switch (newPlayer.LoginCreature.RacialType)
@@ -209,8 +200,8 @@ namespace NWN.Systems
           newPlayer.LoginCreature.AddFeat(CustomFeats.Orc);
           break;
       }
-
-      ObjectPlugin.SetInt(newPlayer.LoginCreature, "accountId", NWScript.SqlGetInt(query, 0), 1);
+      
+      ObjectPlugin.SetInt(newPlayer.LoginCreature, "accountId", query.Result.GetInt(0), 1);
     }
     private static void InitializeNewCharacter(Player newCharacter)
     {
@@ -238,8 +229,7 @@ namespace NWN.Systems
         arrivalArea.OnExit += AreaSystem.OnIntroAreaExit;
         arrivalPoint = arrivalArea.FindObjectsOfTypeInArea<NwWaypoint>().FirstOrDefault(o => o.Tag == "ENTRY_POINT");
 
-        VisibilityPlugin.SetVisibilityOverride(NWScript.OBJECT_INVALID, NwObject.FindObjectsWithTag("intro_brouillard").FirstOrDefault(), VisibilityPlugin.NWNX_VISIBILITY_HIDDEN);
-        NWScript.SetAreaWind(arrivalArea, new Vector3(1, 0, 0), 4, 0, 0);
+        arrivalArea.SetAreaWind(new Vector3(1, 0, 0), 4, 0, 0);
 
         foreach (NwObject recif in arrivalArea.FindObjectsOfTypeInArea<NwPlaceable>().Where(o => o.Tag == "intro_recif")) 
           VisibilityPlugin.SetVisibilityOverride(NWScript.OBJECT_INVALID, recif, VisibilityPlugin.NWNX_VISIBILITY_HIDDEN);
@@ -435,11 +425,10 @@ namespace NWN.Systems
     }
     private static void InitializePlayerAccount(Player player)
     {
-      var query = NWScript.SqlPrepareQueryCampaign(Config.database, $"SELECT bonusRolePlay from PlayerAccounts where rowid = @accountId");
-      NWScript.SqlBindInt(query, "@accountId", player.accountId);
-      NWScript.SqlStep(query);
-
-      player.bonusRolePlay = NWScript.SqlGetInt(query, 0);
+      var query = NwModule.Instance.PrepareCampaignSQLQuery(Config.database, $"SELECT bonusRolePlay from PlayerAccounts where rowid = @accountId");
+      query.BindParam("@accountId", player.accountId);
+      query.Execute();
+      player.bonusRolePlay = query.Result.GetInt(0); ;
     }
     private static void InitializePlayerCharacter(Player player)
     {
@@ -513,9 +502,8 @@ namespace NWN.Systems
       while (Convert.ToBoolean(NWScript.SqlStep(query)))
         skillPoints += NWScript.SqlGetInt(query, 0);
 
-      query = NWScript.SqlPrepareQueryCampaign(Config.database, $"DELETE from playerLearnableSkills where characterId = @characterId");
-      NWScript.SqlBindInt(query, "@characterId", player.characterId);
-      NWScript.SqlStep(query);
+      SqLiteUtils.DeletionQuery("playerLearnableSkills", 
+        new Dictionary<string, string>() { { "characterId", player.characterId.ToString() } });
 
       skillPoints += 5000;
 
@@ -554,10 +542,9 @@ namespace NWN.Systems
 
       storage.Name = $"Entrepôt de {player.oid.LoginCreature.Name}";
 
-      var query = NWScript.SqlPrepareQueryCampaign(Config.database, $"UPDATE playerCharacters set storage = @storage where rowid = @characterId");
-      NWScript.SqlBindInt(query, "@characterId", ObjectPlugin.GetInt(player.oid.LoginCreature, "characterId"));
-      NWScript.SqlBindObject(query, "@storage", storage);
-      NWScript.SqlStep(query);
+      SqLiteUtils.UpdateQuery("playerCharacters",
+          new Dictionary<string, string>() { { "storage", storage.Serialize().ToBase64EncodedString() } },
+          new Dictionary<string, string>() { { "rowid", ObjectPlugin.GetInt(player.oid.LoginCreature, "characterId").ToString() } });
 
       storage.Destroy();
     }

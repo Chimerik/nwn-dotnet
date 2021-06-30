@@ -144,10 +144,8 @@ namespace NWN.Systems.Arena
     }
     private static void HandleDogAttack(OnCreatureDamage onAttack)
     {
-      if (!(onAttack.Target is NwCreature) || CreaturePlugin.GetFlatFooted(onAttack.Target) == 0)
+      if (!(onAttack.Target is NwCreature oTarget) || !oTarget.FlatFooted)
         return;
-
-      NwCreature oTarget = (NwCreature)onAttack.Target;
 
       if (oTarget.DoSkillCheck(Skill.Discipline, onAttack.DamageData.Base))
         return;

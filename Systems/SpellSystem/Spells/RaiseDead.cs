@@ -1,7 +1,9 @@
 ﻿using NWN.API;
+using NWN.API.Constants;
 using NWN.API.Events;
 using NWN.Core;
 using NWN.Core.NWNX;
+using System.Collections.Generic;
 using System.Linq;
 
 namespace NWN.Systems
@@ -28,11 +30,9 @@ namespace NWN.Systems
       {
         oCaster.ControllingPlayer.SendServerMessage("Votre sort a bien eu l'effet escompté, cependant l'individu blessé semble encore avoir besoin de repos. Il faudra un certain temps avant de le voir se relever.");
 
-        var query = NWScript.SqlPrepareQueryCampaign(Config.database, $"UPDATE playerCharacters SET areaTag = @areaTag, position = @position WHERE ROWID = @characterId");
-        NWScript.SqlBindInt(query, "@characterId", PcId);
-        NWScript.SqlBindString(query, "@areaTag", onSpellCast.TargetObject.Area.Tag);
-        NWScript.SqlBindVector(query, "@position", onSpellCast.TargetObject.Position);
-        NWScript.SqlStep(query);
+        SqLiteUtils.UpdateQuery("playerCharacters",
+          new Dictionary<string, string>() { { "areaTag", onSpellCast.TargetObject.Area.Tag }, { "position", onSpellCast.TargetObject.Position.ToString() } },
+          new Dictionary<string, string>() { { "rowid", PcId.ToString() } });
       }
 
       ((NwPlaceable)onSpellCast.TargetObject).Inventory.Items.FirstOrDefault(c => c.Tag == "item_pccorpse").Destroy();
@@ -41,7 +41,7 @@ namespace NWN.Systems
       PlayerSystem.DeletePlayerCorpseFromDatabase(PcId);
 
       NWScript.SignalEvent(onSpellCast.TargetObject, NWScript.EventSpellCastAt(oCaster, NWScript.SPELL_RAISE_DEAD, 0));
-      onSpellCast.TargetObject.Location.ApplyEffect(EffectDuration.Instant, API.Effect.VisualEffect(API.Constants.VfxType.ImpRaiseDead));
+      onSpellCast.TargetObject.Location.ApplyEffect(EffectDuration.Instant, Effect.VisualEffect(VfxType.ImpRaiseDead));
     }
   }
 }

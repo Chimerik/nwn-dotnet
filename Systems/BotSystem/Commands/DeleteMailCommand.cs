@@ -1,4 +1,5 @@
-﻿using System.Threading.Tasks;
+﻿using System.Collections.Generic;
+using System.Threading.Tasks;
 using Discord.Commands;
 using NWN.API;
 using NWN.Core;
@@ -7,7 +8,7 @@ namespace NWN.Systems
 {
   public static partial class BotSystem
   {
-    public static async Task ExecuteDeleteMailCommand(SocketCommandContext context, int mailId, string characterName)
+    public static async Task ExecuteDeleteMailCommand(SocketCommandContext context, string mailId, string characterName)
     {
       await NwTask.SwitchToMainThread();
       int result = DiscordUtils.CheckPlayerCredentialsFromDiscord(context, characterName);
@@ -18,12 +19,11 @@ namespace NWN.Systems
         return;
       }
 
-      var query = NWScript.SqlPrepareQueryCampaign(Config.database, $"DELETE from messenger where characterId = @characterId and ROWID = @mailId");
-      NWScript.SqlBindInt(query, "@characterId", result);
-      NWScript.SqlBindInt(query, "@mailId", mailId);
-      NWScript.SqlStep(query);
-
-      await context.Channel.SendMessageAsync("Message supprimé");
+      if (SqLiteUtils.DeletionQuery("messenger",
+        new Dictionary<string, string>() { { "characterId", result.ToString() }, { "ROWID", mailId } }))
+        await context.Channel.SendMessageAsync("Message supprimé");
+      else
+        await context.Channel.SendMessageAsync($"Erreur technique - le message n'a pas pu être supprimé.");
     }
   }
 }
