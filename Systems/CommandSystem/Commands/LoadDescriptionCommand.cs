@@ -13,12 +13,15 @@ namespace NWN.Systems
         "Laquelle souhaitez-vous consulter ?"
         };
 
-      var query = NWScript.SqlPrepareQueryCampaign(Config.database, $"SELECT descriptionName, description from playerDescriptions where characterId = @characterId");
+      var query = SqLiteUtils.SelectQuery("playerDescriptions",
+        new List<string>() { { "descriptionName" }, { "description" } },
+        new List<string[]>() { new string[] { "characterId", player.characterId.ToString() } });
 
-      while (NWScript.SqlStep(query) > 0)
+      if(query != null)
+      foreach (var result in query)
       {
-        string descriptionName = $"- {NWScript.SqlGetString(query, 0)}".ColorString(ColorConstants.Cyan);
-        string description = NWScript.SqlGetString(query, 1);
+        string descriptionName = $"- {result.GetString(0)}".ColorString(ColorConstants.Cyan);
+        string description = result.GetString(0);
 
         player.menu.choices.Add((
           descriptionName,

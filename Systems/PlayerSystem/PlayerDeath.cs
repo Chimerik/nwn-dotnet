@@ -80,18 +80,14 @@ namespace NWN.Systems
     }
     public static void SavePlayerCorpseToDatabase(int characterId, NwCreature deathCorpse)
     {
-      var query = NWScript.SqlPrepareQueryCampaign(Config.database, $"INSERT INTO playerDeathCorpses (characterId, deathCorpse, areaTag, position) VALUES (@characterId, @deathCorpse, @areaTag, @position)");
-      NWScript.SqlBindInt(query, "@characterId", characterId);
-      NWScript.SqlBindString(query, "@deathCorpse", deathCorpse.Serialize().ToBase64EncodedString());
-      NWScript.SqlBindString(query, "@areaTag", deathCorpse.Area.Tag);
-      NWScript.SqlBindVector(query, "@position", deathCorpse.Position);
-      NWScript.SqlStep(query);
+      SqLiteUtils.InsertQuery("playerDeathCorpses",
+          new List<string[]>() { new string[] { "characterId", characterId.ToString() }, new string[] { "deathCorpse", deathCorpse.Serialize().ToBase64EncodedString() }, new string[] { "areaTag", deathCorpse.Area.Tag }, new string[] { "position", deathCorpse.Position.ToString() } });
     }
     private static void SendPlayerToLimbo(Player player)
     {
-      player.oid.LoginCreature.ApplyEffect(EffectDuration.Instant, API.Effect.VisualEffect(VfxType.ImpRestorationGreater));
-      player.oid.LoginCreature.ApplyEffect(EffectDuration.Instant, API.Effect.Resurrection());
-      player.oid.LoginCreature.ApplyEffect(EffectDuration.Instant, API.Effect.Heal(player.oid.LoginCreature.MaxHP));
+      player.oid.LoginCreature.ApplyEffect(EffectDuration.Instant, Effect.VisualEffect(VfxType.ImpRestorationGreater));
+      player.oid.LoginCreature.ApplyEffect(EffectDuration.Instant, Effect.Resurrection());
+      player.oid.LoginCreature.ApplyEffect(EffectDuration.Instant, Effect.Heal(player.oid.LoginCreature.MaxHP));
     }
     public static void Respawn(Player player, string entity)
     {

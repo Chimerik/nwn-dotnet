@@ -206,14 +206,14 @@ namespace NWN
     {
       await NwTask.Delay(TimeSpan.FromSeconds(0.2));
 
-      var messengerQuery = NWScript.SqlPrepareQueryCampaign(Config.database, $"INSERT INTO messenger (characterId, senderName, title, message, sentDate, read) VALUES (@characterId, @senderName, @title, @message, @sentDate, @read)");
-      NWScript.SqlBindInt(messengerQuery, "@characterId", characterId);
-      NWScript.SqlBindString(messengerQuery, "@senderName", senderName);
-      NWScript.SqlBindString(messengerQuery, "@title", title);
-      NWScript.SqlBindString(messengerQuery, "@message", message);
-      NWScript.SqlBindString(messengerQuery, "@sentDate", DateTime.Now.ToLongDateString());
-      NWScript.SqlBindInt(messengerQuery, "@read", 0);
-      NWScript.SqlStep(messengerQuery);
+      SqLiteUtils.InsertQuery("messenger",
+          new List<string[]>() {
+            new string[] { "characterId", characterId.ToString() },
+            new string[] { "senderName", senderName },
+            new string[] { "title", title },
+          new string[] { "message", message },
+          new string[] { "sentDate", DateTime.Now.ToLongDateString() },
+          new string[] { "read", "0" } });
     }
     public static async void SendDiscordPMToPlayer(int characterId, string message)
     {
@@ -221,7 +221,7 @@ namespace NWN
 
       var result = SqLiteUtils.SelectQuery("PlayerAccounts",
           new List<string>() { { "discordId" } },
-          new Dictionary<string, string>() { { "ROWID", characterId.ToString() } });
+          new List<string[]>() { new string[] { "ROWID", characterId.ToString() } });
 
       if (result != null && result.Count() > 0)
       {
@@ -234,18 +234,17 @@ namespace NWN
 
       var result = SqLiteUtils.SelectQuery("playerCharacters",
           new List<string>() { { "storage" } },
-          new Dictionary<string, string>() { { "ROWID", characterId.ToString() } });
+          new List<string[]>() { new string[] { "ROWID", characterId.ToString() } });
 
-      if(result != null && result.Count() > 0)
+      if (result != null && result.Count() > 0)
       {
-
         NwStore storage = NwStore.Deserialize(result.FirstOrDefault().GetString(0).ToByteArray());
         item.Clone(storage);
         item.Destroy();
 
         SqLiteUtils.UpdateQuery("playerCharacters",
-          new Dictionary<string, string>() { { "storage", storage.Serialize().ToBase64EncodedString() } },
-          new Dictionary<string, string>() { { "rowid", characterId.ToString() } });
+          new List<string[]>() { new string[] { "storage", storage.Serialize().ToBase64EncodedString() } },
+          new List<string[]>() { new string[] { "ROWID", characterId.ToString() } });
 
         storage.Destroy();
       }

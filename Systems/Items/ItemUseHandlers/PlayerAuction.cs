@@ -1,4 +1,6 @@
-﻿using NWN.API;
+﻿using System.Collections.Generic;
+using System.Linq;
+using NWN.API;
 using NWN.Core;
 using static NWN.Systems.PlayerSystem;
 
@@ -15,13 +17,13 @@ namespace NWN.Systems
       if (player.learntCustomFeats.ContainsKey(CustomFeats.ContractScience))
         contractScienceLevel += SkillSystem.GetCustomFeatLevelFromSkillPoints(CustomFeats.ContractScience, player.learntCustomFeats[CustomFeats.ContractScience]);
 
-      var query = NWScript.SqlPrepareQueryCampaign(Config.database, $"SELECT count(*) FROM playerAuctions where characterId = @characterId");
-      NWScript.SqlBindInt(query, "@characterId", player.characterId);
-      NWScript.SqlStep(query);
+      var result = SqLiteUtils.SelectQuery("playerAuctions",
+        new List<string>() { { "count(*)" } },
+        new List<string[]>() { new string[] { "characterId", player.characterId.ToString() } });
 
-      if (NWScript.SqlStep(query) == 1 && NWScript.SqlGetInt(query, 0) > contractScienceLevel)
+      if (result != null && result.FirstOrDefault().GetInt(0) > contractScienceLevel)
       {
-        player.oid.SendServerMessage($"Votre niveau de science du contrat actuel vous permet de gérer {contractScienceLevel.ToString().ColorString(ColorConstants.White)}, or vous en possédez déjà {NWScript.SqlGetInt(query, 0).ToString().ColorString(ColorConstants.White)}", ColorConstants.Orange);
+        player.oid.SendServerMessage($"Votre niveau de science du contrat actuel vous permet de gérer {contractScienceLevel.ToString().ColorString(ColorConstants.White)}, or vous en possédez déjà {result.FirstOrDefault().GetString(0).ColorString(ColorConstants.White)}", ColorConstants.Orange);
         return;
       }
 

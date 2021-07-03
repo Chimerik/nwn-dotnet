@@ -36,27 +36,29 @@ namespace NWN.Systems
         "Que souhaitez-vous faire ?"
       };
 
-      var query = NWScript.SqlPrepareQueryCampaign(Config.database, $"SELECT rowid, senderName, title, message, sentDate, read from messenger where characterId = @characterId order by sentDate desc");
-      NWScript.SqlBindInt(query, "@characterId", player.characterId);
+      var query = SqLiteUtils.SelectQuery("messenger",
+        new List<string>() { { "rowid" }, { "senderName" }, { "title" }, { "message" }, { "sentDate" }, { "read" } },
+        new List<string[]>() { new string[] { "characterId", player.characterId.ToString() } },
+        " sentDate desc");
 
       //Thread.CurrentThread.CurrentCulture = new CultureInfo("fr-FR");
+      if (query != null)
+        foreach (var result in query)
+        {
+          int messageId = result.GetInt(0);
+          string senderName = result.GetString(1);
+          string title = result.GetString(2);
+          string message = result.GetString(3);
+          string sentDate = result.GetString(4);
+          int read = result.GetInt(5);
 
-      while (NWScript.SqlStep(query) > 0)
-      {
-        int messageId = NWScript.SqlGetInt(query, 0);
-        string senderName = NWScript.SqlGetString(query, 1);
-        string title = NWScript.SqlGetString(query, 2);
-        string message = NWScript.SqlGetString(query, 3);
-        string sentDate = NWScript.SqlGetString(query, 4);
-        int read = NWScript.SqlGetInt(query, 5);
+          string displayString = "";
+          if (read == 1)
+            displayString += "Lu | ";
+          displayString += $"{senderName} | {title} | {sentDate}";
 
-        string displayString = "";
-        if (read == 1)
-          displayString += "Lu | ";
-        displayString += $"{senderName} | {title} | {sentDate}";
-
-        player.menu.choices.Add((displayString, () => DrawMessage(messageId, senderName, title, sentDate, message)));
-      }
+          player.menu.choices.Add((displayString, () => DrawMessage(messageId, senderName, title, sentDate, message)));
+        }
 
       player.menu.choices.Add(("Retour.", () => DrawWelcomePage()));
       player.menu.choices.Add(("Quitter.", () => player.menu.Close()));
@@ -81,8 +83,8 @@ namespace NWN.Systems
     private async void DisplayMessage(string title, string message, int messageId)
     {
       SqLiteUtils.UpdateQuery("messenger",
-        new Dictionary<string, string>() { { "read", "1" } },
-        new Dictionary<string, string>() { { "rowid", messageId.ToString() } });
+        new List<string[]>() { new string[] { "read", "1" } },
+        new List<string[]>() { new string[] { "rowid", messageId.ToString() } });
 
       string originalDesc = player.oid.LoginCreature.Description;
       string tempDescription = title.ColorString(ColorConstants.Orange) + "\n\n" + message;
@@ -99,8 +101,8 @@ namespace NWN.Systems
     private async void PrintMessage(string title, string message, int messageId)
     {
       SqLiteUtils.UpdateQuery("messenger",
-        new Dictionary<string, string>() { { "read", "1" } },
-        new Dictionary<string, string>() { { "rowid", messageId.ToString() } });
+        new List<string[]>() { new string[] { "read", "1" } },
+        new List<string[]>() { new string[] { "rowid", messageId.ToString() } });
 
       NwItem letter = await NwItem.Create("skillbookgeneriq", player.oid.ControlledCreature, 1, "letter");
       letter.Name = title;

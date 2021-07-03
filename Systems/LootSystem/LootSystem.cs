@@ -42,11 +42,15 @@ namespace NWN.Systems
         return;
       }
 
-      var query = NWScript.SqlPrepareQueryCampaign(Config.database, $"SELECT serializedChest, position, facing from {SQL_TABLE}");
+      var query = SqLiteUtils.SelectQuery(SQL_TABLE,
+        new List<string>() { { "serializedChest" }, { "position" }, { "facing" } },
+        new List<string[]>() );
 
-      while (Convert.ToBoolean(NWScript.SqlStep(query)))
+      if(query != null)
+      foreach (var result in query)
       {
-        NwPlaceable oChest = NWScript.SqlGetObject(query, 0, Utils.GetLocationFromDatabase(CHEST_AREA_TAG, NWScript.SqlGetVector(query, 1), NWScript.SqlGetFloat(query, 2))).ToNwObject<NwPlaceable>();
+          NwPlaceable oChest = NwPlaceable.Deserialize(result.GetString(0).ToByteArray());
+          oChest.Location = Utils.GetLocationFromDatabase(CHEST_AREA_TAG, result.GetVector3(1), result.GetFloat(2));
 
         if (oChest == null)
         {

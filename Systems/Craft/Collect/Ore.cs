@@ -66,10 +66,11 @@ namespace NWN.Systems.Craft.Collect
 
       if (oExtractor == null) return;
 
-      var query = NWScript.SqlPrepareQueryCampaign(Systems.Config.database, $"SELECT mining from areaResourceStock where areaTag = @areaTag");
-      NWScript.SqlBindString(query, "@areaTag", player.oid.LoginCreature.Area.Tag);
+      var result = SqLiteUtils.SelectQuery("areaResourceStock",
+        new List<string>() { { "mining" } },
+        new List<string[]>() { new string[] { "areaTag", player.oid.LoginCreature.Area.Tag } });
 
-      if (NWScript.SqlStep(query) == 0 || NWScript.SqlGetInt(query, 0) < 1)
+      if (result == null || result.Count() < 1)
       {
         player.oid.SendServerMessage("Cette veine est épuisée. Reste à espérer qu'un prochain glissement de terrain permette d'atteindre de nouveaux filons.", ColorConstants.Maroon);
         return;
@@ -110,8 +111,8 @@ namespace NWN.Systems.Craft.Collect
         player.oid.SendServerMessage($"Votre prospection a permis de mettre à découvert {nbSpawns} veine(s) de minerai !", ColorConstants.Green);
 
         SqLiteUtils.UpdateQuery("areaResourceStock",
-          new Dictionary<string, string>() { { "mining-", "1" } },
-          new Dictionary<string, string>() { { "areaTag", player.oid.LoginCreature.Area.Tag } });
+          new List<string[]>() { new string[] { "mining", "1", "-" } },
+          new List<string[]>() { new string[] { "areaTag", player.oid.LoginCreature.Area.Tag } } );
       }
       else
         player.oid.SendServerMessage($"Votre prospection ne semble pas avoir abouti à la découverte d'une veine exploitable", ColorConstants.Maroon);

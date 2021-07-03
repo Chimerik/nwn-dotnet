@@ -1,7 +1,8 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using NWN.API;
-using NWN.Core;
 
 namespace NWN.Systems
 {
@@ -9,13 +10,14 @@ namespace NWN.Systems
   {
     public ExamineArea(NwPlayer oPC)
     {
-      var query = NWScript.SqlPrepareQueryCampaign(Config.database, $"SELECT description from areaDescriptions where areaTag = @areaTag");
-      NWScript.SqlBindString(query, "@areaTag", oPC.ControlledCreature.Area.Tag);
+      var result = SqLiteUtils.SelectQuery("areaDescriptions",
+        new List<string>() { { "description" } },
+        new List<string[]>() { new string[] { "areaTag", oPC.ControlledCreature.Area.Tag } });
 
-      if (NWScript.SqlStep(query) != 0)
+      if(result != null && result.Count() > 0)
       {
         string originalDesc = oPC.ControlledCreature.Description;
-        string tempDescription = oPC.ControlledCreature.Area.Name.ColorString(ColorConstants.Orange) + "\n\n" + NWScript.SqlGetString(query, 0);
+        string tempDescription = oPC.ControlledCreature.Area.Name.ColorString(ColorConstants.Orange) + "\n\n" + result.FirstOrDefault().GetString(0);
         oPC.ControlledCreature.Description = tempDescription;
 
         Task waitForDescriptionRewrite = NwTask.Run(async () =>

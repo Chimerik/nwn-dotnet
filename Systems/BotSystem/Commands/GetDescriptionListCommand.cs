@@ -1,4 +1,5 @@
-﻿using System.Threading.Tasks;
+﻿using System.Collections.Generic;
+using System.Threading.Tasks;
 using Discord.Commands;
 using NWN.API;
 using NWN.Core;
@@ -18,16 +19,15 @@ namespace NWN.Systems
         return;
       }
 
-      var query = NWScript.SqlPrepareQueryCampaign(Config.database,
-        $"SELECT descriptionName " +
-        $"FROM playerDescriptions " +
-        $"WHERE characterId = @characterId");
-      NWScript.SqlBindInt(query, "@characterId", pcID);
+      var query = SqLiteUtils.SelectQuery("playerDescriptions",
+        new List<string>() { { "descriptionName" } },
+        new List<string[]>() { new string[] { "characterId", pcID.ToString() } });
 
       string result = "";
 
-      while(NWScript.SqlStep(query) > 0);
-        result += NWScript.SqlGetString(query, 0) + "\n";
+      if(query != null)
+      foreach(var description in query)
+        result += description.GetString(0) + "\n";
 
       await context.Channel.SendMessageAsync($"Voici la liste des descriptions enregistrées pour {pcName} :\n{result}");
     }

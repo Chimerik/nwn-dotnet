@@ -1,4 +1,6 @@
-﻿using System.Threading.Tasks;
+﻿using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 using Discord.Commands;
 using NWN.API;
 using NWN.Core;
@@ -11,17 +13,17 @@ namespace NWN.Systems
     {
       await NwTask.SwitchToMainThread();
 
-      var query = NWScript.SqlPrepareQueryCampaign(Config.database, "SELECT title, content from rumors r " +
-        "where ROWID = @rowid");
-      NWScript.SqlBindInt(query, "@rowid", rumorId);
+      var query = SqLiteUtils.SelectQuery("rumors",
+            new List<string>() { { "title" }, { "content" } },
+            new List<string[]>() { new string[] { "ROWID", rumorId.ToString() } });
 
-      if(NWScript.SqlStep(query) == 0)
+      if(query == null || query.Count() < 1)
       {
         await context.Channel.SendMessageAsync($"La rumeur numéro {rumorId} ne semble pas exister.");
       }
       else
       {
-        await context.Channel.SendMessageAsync($"{NWScript.SqlGetString(query, 0)} : \n{NWScript.SqlGetString(query, 1)}\n");
+        await context.Channel.SendMessageAsync($"{query.FirstOrDefault().GetString(0)} : \n{query.FirstOrDefault().GetString(1)}\n");
       }
     }
   }

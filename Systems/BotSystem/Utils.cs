@@ -1,4 +1,6 @@
-﻿using Discord.Commands;
+﻿using System.Collections.Generic;
+using System.Linq;
+using Discord.Commands;
 using NWN.Core;
 
 namespace NWN.Systems
@@ -18,19 +20,23 @@ namespace NWN.Systems
     }
     public static string GetPlayerStaffRankFromDiscord(ulong UserId)
     {
-      var query = NWScript.SqlPrepareQueryCampaign(Config.database, $"SELECT rank from PlayerAccounts WHERE discordId = @discordId");
-      NWScript.SqlBindString(query, "@discordId", UserId.ToString());
-      if (NWScript.SqlStep(query) == 1)
-        return NWScript.SqlGetString(query, 0);
+      var result = SqLiteUtils.SelectQuery("PlayerAccounts",
+        new List<string>() { { "rank" } },
+        new List<string[]>() { new string[] { "discordId", UserId.ToString() } });
+
+      if (result != null && result.Count() > 0)
+        return result.FirstOrDefault().GetString(0);
 
       return "";
     }
     public static int GetPlayerAccountIdFromDiscord(ulong UserId)
     {
-      var query = NWScript.SqlPrepareQueryCampaign(Config.database, $"SELECT ROWID from PlayerAccounts WHERE discordId = @discordId");
-      NWScript.SqlBindString(query, "@discordId", UserId.ToString());
-      if (NWScript.SqlStep(query) == 1)
-        return NWScript.SqlGetInt(query, 0);
+      var result = SqLiteUtils.SelectQuery("PlayerAccounts",
+        new List<string>() { { "ROWID" } },
+        new List<string[]>() { new string[] { "discordId", UserId.ToString() } });
+
+      if (result != null && result.Count() > 0)
+        return result.FirstOrDefault().GetInt(0);
 
       return -1;
     }

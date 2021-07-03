@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using Discord.Commands;
 using NWN.API;
@@ -19,24 +20,24 @@ namespace NWN.Systems
         return;
       }
 
-      var query = NWScript.SqlPrepareQueryCampaign(Config.database, $"SELECT senderName, title, sentDate, message from messenger where characterId = @characterId and ROWID = @mailId");
-      NWScript.SqlBindInt(query, "@characterId", result);
-      NWScript.SqlBindInt(query, "@mailId", mailId);
+      var query = SqLiteUtils.SelectQuery("messenger",
+        new List<string>() { { "senderName" }, { "title" }, { "sentDate" }, { "message" } },
+        new List<string[]>() { new string[] { "characterId", result.ToString() }, { new string[] { "ROWID", mailId } } });
 
-      if(NWScript.SqlStep(query) == 0)
+      if(query == null && query.Count() < 1)
       {
         await context.Channel.SendMessageAsync($"Le personnage indiqué n'a pas reçu de message dont le numéro correspond à {mailId}.");
         return;
       }
 
-      SqLiteUtils.UpdateQuery("messenger",
-          new Dictionary<string, string>() { { "read", "1" } },
-          new Dictionary<string, string>() { { "rowid", mailId } });
+      await context.Channel.SendMessageAsync($"De {query.FirstOrDefault().GetString(0)}");
+      await context.Channel.SendMessageAsync($"Envoyé le {query.FirstOrDefault().GetString(2)} :");
+      await context.Channel.SendMessageAsync($"{query.FirstOrDefault().GetString(1)}");
+      await context.Channel.SendMessageAsync($"{query.FirstOrDefault().GetString(3)}");
 
-      await context.Channel.SendMessageAsync($"De {NWScript.SqlGetString(query, 0)}");
-      await context.Channel.SendMessageAsync($"Envoyé le {NWScript.SqlGetString(query, 2)} :");
-      await context.Channel.SendMessageAsync($"{NWScript.SqlGetString(query, 1)}");
-      await context.Channel.SendMessageAsync($"{NWScript.SqlGetString(query, 3)}");
+      SqLiteUtils.UpdateQuery("messenger",
+        new List<string[]>() { new string[] { "read", "1" } },
+        new List<string[]>() { new string[] { "rowid", mailId } });
     }
   }
 }

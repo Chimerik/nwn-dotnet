@@ -86,26 +86,24 @@ namespace NWN.Systems
         vfxId = int.Parse(player.oid.LoginCreature.GetLocalVariable<string>("_PLAYER_INPUT").Value);
         player.oid.LoginCreature.GetLocalVariable<string>("_PLAYER_INPUT").Delete();
 
-        var query = NWScript.SqlPrepareQueryCampaign(Config.database, $"INSERT INTO dmVFXDuration (playerName, vfxDuration) VALUES (@playerName, @vfxDuration)" +
-              $"ON CONFLICT (playerName) DO UPDATE SET vfxDuration = @vfxDuration where playerName = @playerName and vfxName = @vfxName");
-        NWScript.SqlBindString(query, "@playerName", player.oid.PlayerName);
-        NWScript.SqlBindInt(query, "@vfxDuration", vfxId);
-        NWScript.SqlStep(query);
+        SqLiteUtils.InsertQuery("dmVFXDuration",
+          new List<string[]>() { new string[] { "playerName", player.oid.PlayerName }, new string[] { "vfxDuration", vfxName } },
+          new List<string>() { "playerName"},
+          new List<string[]>() { new string[] { "vfxDuration" } },
+          new List<string>() { "playerName" });
 
         player.oid.SendServerMessage($"La durée de vos effets visuels sera désormais de {vfxId.ToString().ColorString(ColorConstants.White)} secondes !", new Color(32, 255, 32));
       }
     }
     private void SaveVFX()
     {
-      var query = NWScript.SqlPrepareQueryCampaign(Config.database, $"INSERT INTO dmVFX (playerName, vfxName, vfxId) VALUES (@playerName, @vfxName, @vfxId)" +
-              $"ON CONFLICT (playerName, vfxName) DO UPDATE SET vfxId = @vfxId where playerName = @playerName and vfxName = @vfxName");
-      NWScript.SqlBindString(query, "@playerName", player.oid.PlayerName);
-      NWScript.SqlBindString(query, "@vfxName", vfxName);
-      NWScript.SqlBindInt(query, "@vfxId", vfxId);
-      NWScript.SqlStep(query);
+      SqLiteUtils.InsertQuery("dmVFX",
+          new List<string[]>() { new string[] { "playerName", player.oid.PlayerName }, new string[] { "vfxName", vfxName }, new string[] { "vfxId", vfxId.ToString() } },
+          new List<string>() { "playerName", "vfxName" },
+          new List<string[]>() { new string[] { "vfxId" } },
+          new List<string>() { "playerName", "vfxName" });
 
       player.oid.SendServerMessage($"Votre effet visuel {vfxName.ColorString(ColorConstants.White)} a bien été enregistré !", new Color(32, 255, 32));
-
       DrawVFXWelcomePage();
     }
     private void DrawVFXList()
@@ -117,19 +115,21 @@ namespace NWN.Systems
         "Lequel souhaitez-vous supprimer ?"
         };
 
-      var query = NWScript.SqlPrepareQueryCampaign(Config.database, $"SELECT vfxName, vfxId from dmVFX where playerName = @playerName");
-      NWScript.SqlBindString(query, "@playerName", player.oid.PlayerName);
+      var result = SqLiteUtils.SelectQuery("dmVFX",
+        new List<string>() { { "vfxName" }, { "playerName" } },
+        new List<string[]>() { new string[] { "rowid", player.oid.PlayerName } });
 
-      while (NWScript.SqlStep(query) > 0)
-      {
-        string vfxListName = NWScript.SqlGetString(query, 0);
-        int vfxListId = NWScript.SqlGetInt(query, 1);
+      if(result != null)
+        foreach(var vfx in result)
+        {
+          string vfxListName = vfx.GetString(0);
+          int vfxListId = vfx.GetInt(1);
 
-        player.menu.choices.Add((
-          $"{vfxListName} - {vfxListId}",
-          () => DeleteVFX(vfxListName)
-        ));
-      }
+          player.menu.choices.Add((
+            $"{vfxListName} - {vfxListId}",
+            () => DeleteVFX(vfxListName)
+          ));
+        }
 
       player.menu.choices.Add(("Retour.", () => DrawVFXWelcomePage()));
       player.menu.choices.Add(("Quitter.", () => player.menu.Close()));

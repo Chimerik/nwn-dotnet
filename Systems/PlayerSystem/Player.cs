@@ -553,11 +553,14 @@ namespace NWN.Systems
       }
       public string CheckDBPlayerAccount()
       {
-        var query = NWScript.SqlPrepareQueryCampaign(Config.database, $"select accountName from PlayerAccounts  where rowId = @accountId");
-        NWScript.SqlBindInt(query, "@accountId", accountId);
-        NWScript.SqlStep(query);
+        var result = SqLiteUtils.SelectQuery("PlayerAccounts",
+          new List<string>() { { "accountName" } },
+          new List<string[]>() { new string[] { "rowId", accountId.ToString() } });
 
-        return NWScript.SqlGetString(query, 0);
+        if (result == null || result.Count() < 1)
+          return "";
+
+        return result.FirstOrDefault().GetString(0);
       }
       // Take gold from the PC or from his bank account
       public void PayOrBorrowGold(int price)

@@ -1,4 +1,5 @@
-﻿using System.Threading.Tasks;
+﻿using System.Collections.Generic;
+using System.Threading.Tasks;
 using Discord;
 using Discord.Commands;
 using NWN.API;
@@ -19,12 +20,13 @@ namespace NWN.Systems
         return;
       }
 
-      var query = NWScript.SqlPrepareQueryCampaign(Config.database, $"INSERT INTO rumors (accountId, title, content) VALUES (@accountId, @title, @content)" +
-          $"ON CONFLICT (accountId, title) DO UPDATE SET content = @content;");
-      NWScript.SqlBindInt(query, "@accountId", accountId);
-      NWScript.SqlBindString(query, "@title", titre_rumeur);
-      NWScript.SqlBindString(query, "@content", contenu_rumeur);
-      NWScript.SqlStep(query);
+      SqLiteUtils.InsertQuery("rumors",
+          new List<string[]>() {
+            new string[] { "accountId", accountId.ToString() },
+            new string[] { "title", titre_rumeur },
+            new string[] { "content", contenu_rumeur } },
+          new List<string>() { "accountId", "title" },
+          new List<string[]>() { new string[] { "content" } });
 
       await context.Channel.SendMessageAsync($"La rumeur {titre_rumeur} a bien été enregistrée parmis les rumeurs en cours.");
 

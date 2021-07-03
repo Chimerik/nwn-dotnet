@@ -241,19 +241,16 @@ namespace NWN.Systems
     }
     private void SetModuleTime()
     {
-      var query = NWScript.SqlPrepareQueryCampaign(Config.database, $"SELECT year, month, day, hour, minute, second from moduleInfo where rowid = 1");
-      if(NWScript.SqlStep(query) != 0)
-        NwDateTime.Now = new NwDateTime(NWScript.SqlGetInt(query, 0), NWScript.SqlGetInt(query, 1), NWScript.SqlGetInt(query, 2), NWScript.SqlGetInt(query, 3), NWScript.SqlGetInt(query, 4), NWScript.SqlGetInt(query, 5));
+      var result = SqLiteUtils.SelectQuery("moduleInfo",
+        new List<string>() { { "year" }, { "month" }, { "day" }, { "hour" }, { "minute" }, { "second" } },
+        new List<string[]>() { new string[] { "rowid", "1" } });
+
+      if(result != null && result.Count() > 0)
+        NwDateTime.Now = new NwDateTime(result.FirstOrDefault().GetInt(0), result.FirstOrDefault().GetInt(1), result.FirstOrDefault().GetInt(2), result.FirstOrDefault().GetInt(3), result.FirstOrDefault().GetInt(4), result.FirstOrDefault().GetInt(5));
       else
       {
-        query = NWScript.SqlPrepareQueryCampaign(Config.database, $"INSERT INTO moduleInfo (year, month, day, hour, minute, second) VALUES (@year, @month, @day, @hour, @minute, @second)");
-        NWScript.SqlStep(query);
-        NWScript.SqlBindInt(query, "@year", NwDateTime.Now.Year);
-        NWScript.SqlBindInt(query, "@month", NwDateTime.Now.Month);
-        NWScript.SqlBindInt(query, "@day", NwDateTime.Now.DayInTenday);
-        NWScript.SqlBindInt(query, "@hour", NwDateTime.Now.Hour);
-        NWScript.SqlBindInt(query, "@minute", NwDateTime.Now.Minute);
-        NWScript.SqlBindInt(query, "@second", NwDateTime.Now.Second);
+        SqLiteUtils.InsertQuery("moduleInfo",
+                new List<string[]>() { new string[] { "year", NwDateTime.Now.Year.ToString() }, new string[] { "month", NwDateTime.Now.Month.ToString() }, new string[] { "day", NwDateTime.Now.DayInTenday.ToString() }, new string[] { "hour", NwDateTime.Now.Hour.ToString() }, new string[] { "minute", NwDateTime.Now.Minute.ToString() }, new string[] { "second", NwDateTime.Now.Second.ToString() } });
       }
     }
     public static async Task SpawnCollectableResources(float delay)
@@ -297,13 +294,10 @@ namespace NWN.Systems
       {
         int areaLevel = area.GetLocalVariable<int>("_AREA_LEVEL").Value;
 
-        var query = NWScript.SqlPrepareQueryCampaign(Config.database, $"INSERT INTO areaResourceStock (areaTag, mining, wood, animals) VALUES (@areaTag, @mining, @wood, @animals)" +
-          $"ON CONFLICT (areaTag) DO UPDATE SET mining = @mining, wood = @wood, animals = @animals;");
-        NWScript.SqlBindString(query, "@areaTag", area.Tag);
-        NWScript.SqlBindInt(query, "@mining", areaLevel * 2);
-        NWScript.SqlBindInt(query, "@wood", areaLevel * 2);
-        NWScript.SqlBindInt(query, "@animals", areaLevel * 2);
-        NWScript.SqlStep(query);
+        SqLiteUtils.InsertQuery("areaResourceStock",
+          new List<string[]>() { new string[] { "areaTag", area.Tag }, new string[] { "mining", (areaLevel * 2).ToString() }, new string[] { "wood", (areaLevel * 2).ToString() }, new string[] { "animals", (areaLevel * 2).ToString() } },
+          new List<string>() { "areaTag" },
+          new List<string[]>() { new string[] { "mining" }, new string[] { "wood" }, new string[] { "animals" } });
       }
 
       await NwTask.WaitUntilValueChanged(() => DateTime.Now.Day);
@@ -312,8 +306,8 @@ namespace NWN.Systems
     private void SaveServerVault()
     {
       SqLiteUtils.UpdateQuery("moduleInfo",
-        new Dictionary<string, string>() { { "year", NwDateTime.Now.Year.ToString() }, { "month", NwDateTime.Now.Month.ToString() }, { "day", NwDateTime.Now.DayInTenday.ToString() }, { "hour", NwDateTime.Now.Hour.ToString() }, { "minute", NwDateTime.Now.Minute.ToString() }, { "second", NwDateTime.Now.Second.ToString() } },
-        new Dictionary<string, string>() { { "rowid", "1" } });
+        new List<string[]>() { new string[] { "year", NwDateTime.Now.Year.ToString() }, { new string[] { "month", NwDateTime.Now.Month.ToString() } }, { new string[] { "day", NwDateTime.Now.DayInTenday.ToString() } }, { new string[] { "hour", NwDateTime.Now.Hour.ToString() } }, { new string[] { "minute", NwDateTime.Now.Minute.ToString() } }, { new string[] { "second", NwDateTime.Now.Second.ToString() } } },
+        new List<string[]>() { new string[] { "ROWID", "1" } });
 
       HandleExpiredAuctions();
 
@@ -371,13 +365,16 @@ namespace NWN.Systems
     }
     public void RestorePlayerCorpseFromDatabase()
     {
-      var query = NWScript.SqlPrepareQueryCampaign(Config.database, $"SELECT deathCorpse, areaTag, position, characterId FROM playerDeathCorpses");
+      var result = SqLiteUtils.SelectQuery("playerDeathCorpses",
+        new List<string>() { { "deathCorpse" }, { "areaTag" }, { "position" }, { "characterId" } },
+        new List<string[]>() );
 
-      while (Convert.ToBoolean(NWScript.SqlStep(query)))
+      if(result != null)
+      foreach (var pcCorpse in result)
       {
-        NwCreature corpse = NwCreature.Deserialize(NWScript.SqlGetString(query, 0).ToByteArray());
-        corpse.Location = Utils.GetLocationFromDatabase(NWScript.SqlGetString(query, 1), NWScript.SqlGetVector(query, 2), 0);
-        corpse.GetLocalVariable<int>("_PC_ID").Value = NWScript.SqlGetInt(query, 3);
+        NwCreature corpse = NwCreature.Deserialize(pcCorpse.GetString(0).ToByteArray());
+        corpse.Location = Utils.GetLocationFromDatabase(pcCorpse.GetString(1), pcCorpse.GetVector3(2), 0);
+        corpse.GetLocalVariable<int>("_PC_ID").Value = pcCorpse.GetInt(3);
 
         foreach (NwItem item in corpse.Inventory.Items.Where(i => i.Tag != "item_pccorpse"))
           item.Destroy();
@@ -388,21 +385,23 @@ namespace NWN.Systems
     public void RestorePlayerShopsFromDatabase()
     {
       // TODO : envoyer un mp discord + courrier aux joueurs 7 jours avant expiration + 1 jour avant expiration
-      
 
-      var query = NWScript.SqlPrepareQueryCampaign(Config.database, $"SELECT shop, panel, characterId, rowid, expirationDate, areaTag, position, facing FROM playerShops");
-      
-      while (Convert.ToBoolean(NWScript.SqlStep(query)))
+      var result = SqLiteUtils.SelectQuery("playerShops",
+        new List<string>() { { "shop" }, { "panel" }, { "characterId" }, { "rowid" }, { "expirationDate" }, { "areaTag" }, { "position" }, { "facing" } },
+        new List<string[]>());
+
+      if(result != null)
+      foreach (var playerShop in result)
       {
-        NwStore shop = NwStore.Deserialize(NWScript.SqlGetString(query, 0).ToByteArray());
-        NwPlaceable panel = NwPlaceable.Deserialize(NWScript.SqlGetString(query, 1).ToByteArray());
-        shop.Location = Utils.GetLocationFromDatabase(NWScript.SqlGetString(query, 5), NWScript.SqlGetVector(query, 6), NWScript.SqlGetFloat(query, 7));
-        panel.Location = Utils.GetLocationFromDatabase(NWScript.SqlGetString(query, 5), NWScript.SqlGetVector(query, 6), NWScript.SqlGetFloat(query, 7));
-        shop.GetLocalVariable<int>("_OWNER_ID").Value = NWScript.SqlGetInt(query, 2);
-        shop.GetLocalVariable<int>("_SHOP_ID").Value = NWScript.SqlGetInt(query, 3);
-        panel.GetLocalVariable<int>("_OWNER_ID").Value = NWScript.SqlGetInt(query, 2);
-        panel.GetLocalVariable<int>("_SHOP_ID").Value = NWScript.SqlGetInt(query, 3);
-        double expirationTime = (DateTime.Now - DateTime.Parse(NWScript.SqlGetString(query, 4))).TotalDays;
+        NwStore shop = NwStore.Deserialize(playerShop.GetString(0).ToByteArray());
+        NwPlaceable panel = NwPlaceable.Deserialize(playerShop.GetString(1).ToByteArray());
+        shop.Location = Utils.GetLocationFromDatabase(playerShop.GetString(5), playerShop.GetVector3(6), playerShop.GetFloat(7));
+        panel.Location = Utils.GetLocationFromDatabase(playerShop.GetString(5), playerShop.GetVector3(6), playerShop.GetFloat(7));
+        shop.GetLocalVariable<int>("_OWNER_ID").Value = playerShop.GetInt(2);
+        shop.GetLocalVariable<int>("_SHOP_ID").Value = playerShop.GetInt(3);
+        panel.GetLocalVariable<int>("_OWNER_ID").Value = playerShop.GetInt(2);
+        panel.GetLocalVariable<int>("_SHOP_ID").Value = playerShop.GetInt(3);
+        double expirationTime = (DateTime.Now - DateTime.Parse(playerShop.GetString(4))).TotalDays;
 
         int ownerId = shop.GetLocalVariable<int>("_OWNER_ID").Value;
 
@@ -444,20 +443,23 @@ namespace NWN.Systems
     }
     private void RestorePlayerAuctionsFromDatabase()
     {
-      var query = NWScript.SqlPrepareQueryCampaign(Config.database, $"SELECT shop, panel, characterId, rowid, expirationDate, highestAuction, highestAuctionner, areaTag, position, facing FROM playerAuctions where shop != 'deleted'");
+      var result = SqLiteUtils.SelectQuery("playerAuctions",
+        new List<string>() { { "shop" }, { "panel" }, { "characterId" }, { "rowid" }, { "expirationDate" }, { "highestAuction" }, { "highestAuctionner" }, { "areaTag" }, { "position" }, { "facing" } },
+        new List<string[]>() { new string[] { "shop", "deleted", "!=" } });
 
-      while (Convert.ToBoolean(NWScript.SqlStep(query)))
+      if(result != null)
+      foreach (var auction in result)
       {
-        NwStore shop = NwStore.Deserialize(NWScript.SqlGetString(query, 0).ToByteArray());
-        NwPlaceable panel = NwPlaceable.Deserialize(NWScript.SqlGetString(query, 1).ToByteArray());
-        shop.Location = Utils.GetLocationFromDatabase(NWScript.SqlGetString(query, 7), NWScript.SqlGetVector(query, 8), NWScript.SqlGetFloat(query, 9));
-        panel.Location = Utils.GetLocationFromDatabase(NWScript.SqlGetString(query, 7), NWScript.SqlGetVector(query, 8), NWScript.SqlGetFloat(query, 9));
-        shop.GetLocalVariable<int>("_OWNER_ID").Value = NWScript.SqlGetInt(query, 2);
-        shop.GetLocalVariable<int>("_SHOP_ID").Value = NWScript.SqlGetInt(query, 3);
-        shop.GetLocalVariable<int>("_CURRENT_AUCTION").Value = NWScript.SqlGetInt(query, 5);
-        shop.GetLocalVariable<int>("_CURRENT_AUCTIONNER").Value = NWScript.SqlGetInt(query, 6);
-        panel.GetLocalVariable<int>("_OWNER_ID").Value = NWScript.SqlGetInt(query, 2);
-        panel.GetLocalVariable<int>("_SHOP_ID").Value = NWScript.SqlGetInt(query, 3);
+        NwStore shop = NwStore.Deserialize(auction.GetString(0).ToByteArray());
+        NwPlaceable panel = NwPlaceable.Deserialize(auction.GetString(1).ToByteArray());
+        shop.Location = Utils.GetLocationFromDatabase(auction.GetString(7), auction.GetVector3(8), auction.GetFloat(9));
+        panel.Location = Utils.GetLocationFromDatabase(auction.GetString(7), auction.GetVector3(8), auction.GetFloat(9));
+        shop.GetLocalVariable<int>("_OWNER_ID").Value = auction.GetInt(2);
+        shop.GetLocalVariable<int>("_SHOP_ID").Value = auction.GetInt(3);
+        shop.GetLocalVariable<int>("_CURRENT_AUCTION").Value = auction.GetInt(5);
+        shop.GetLocalVariable<int>("_CURRENT_AUCTIONNER").Value = auction.GetInt(6);
+        panel.GetLocalVariable<int>("_OWNER_ID").Value = auction.GetInt(2);
+        panel.GetLocalVariable<int>("_SHOP_ID").Value = auction.GetInt(3);
 
         panel.OnUsed += PlaceableSystem.OnUsedPlayerOwnedAuction;
 
@@ -467,19 +469,21 @@ namespace NWN.Systems
     }
     public async void HandleExpiredAuctions()
     {
-      var query = NWScript.SqlPrepareQueryCampaign(Config.database, $"SELECT characterId, rowid, highestAuction, highestAuctionner, shop FROM playerAuctions WHERE expirationDate > @now");
-      NWScript.SqlBindString(query, "@now", DateTime.Now.ToString());
+      var result = SqLiteUtils.SelectQuery("playerAuctions",
+        new List<string>() { { "characterId" }, { "rowid" }, { "highestAuction" }, { "highestAuctionner" }, { "shop" } },
+        new List<string[]>() { new string[] { "expirationDate", DateTime.Now.ToString(), ">" } });
 
-      while (Convert.ToBoolean(NWScript.SqlStep(query)))
+      if(result != null)
+      foreach (var auction in result)
       {
-        int buyerId = NWScript.SqlGetInt(query, 3);
-        int sellerId = NWScript.SqlGetInt(query, 0);
-        int auctionId = NWScript.SqlGetInt(query, 1);
+        int buyerId = auction.GetInt(3);
+        int sellerId = auction.GetInt(0);
+        int auctionId = auction.GetInt(1);
 
         NwPlayer oSeller = NwModule.Instance.Players.FirstOrDefault(p => ObjectPlugin.GetInt(p.LoginCreature, "characterId") == sellerId);
         NwStore store = NwObject.FindObjectsOfType<NwStore>().FirstOrDefault(p => p.GetLocalVariable<int>("_AUCTION_ID").Value == auctionId);
-        NwItem tempItem = NwStore.Deserialize(NWScript.SqlGetString(query, 4).ToByteArray()).Items.FirstOrDefault();
-
+        NwItem tempItem = NwStore.Deserialize(auction.GetString(4).ToByteArray()).Items.FirstOrDefault();
+          
         if (buyerId <= 0) // pas d'acheteur
         {
           // S'il est co, on rend l'item au seller et on détruit la ligne en BDD. S'il est pas co, on attend la prochaine occurence pour lui rendre l'item
@@ -500,7 +504,7 @@ namespace NWN.Systems
         else
         {
           // Si highestAuction > 0 On donne les sous au seller et on lui envoie un message s'il est co. S'il n'est pas co on met à jour en bdd et on lui envoie un courrier
-          int highestAuction = NWScript.SqlGetInt(query, 2);
+          int highestAuction = auction.GetInt(2);
 
           if (highestAuction > 0)
           {
@@ -521,8 +525,8 @@ namespace NWN.Systems
                 await NwTask.Delay(TimeSpan.FromSeconds(0.2));
 
                 SqLiteUtils.UpdateQuery("playerCharacters",
-                  new Dictionary<string, string>() { { "bankGold+", highestAuction.ToString() } },
-                  new Dictionary<string, string>() { { "rowid", sellerId.ToString() } });
+                  new List<string[]>() { new string[] { "bankGold", highestAuction.ToString(), "+" } },
+                  new List<string[]>() { new string[] { "ROWID", sellerId.ToString() } });
               });
 
               Utils.SendMailToPC(sellerId, "Hotel des ventes de Similisse", $"Enchère sur {tempItem.Name} conclue",
@@ -550,7 +554,7 @@ namespace NWN.Systems
         if (store != null)
           store.Destroy();
 
-        NwPlaceable panel = NwModule.FindObjectsOfType<NwPlaceable>().FirstOrDefault(p => p.GetLocalVariable<int>("_AUCTION_ID").Value == auctionId);
+        NwPlaceable panel = NwObject.FindObjectsOfType<NwPlaceable>().FirstOrDefault(p => p.GetLocalVariable<int>("_AUCTION_ID").Value == auctionId);
         if (panel != null)
           panel.Destroy();
 
@@ -571,15 +575,21 @@ namespace NWN.Systems
     private void UpdateExpiredAuction(int auctionId)
     {
       SqLiteUtils.UpdateQuery("playerAuctions",
-          new Dictionary<string, string>() { { "highestAuction", "0" } },
-          new Dictionary<string, string>() { { "rowid", auctionId.ToString() } });
+        new List<string[]>() { new string[] { "highestAuction", "0" } },
+        new List<string[]>() { new string[] { "ROWID", auctionId.ToString() } });
     }
     public void RestoreDMPersistentPlaceableFromDatabase()
     {
-      var query = NWScript.SqlPrepareQueryCampaign(Config.database, $"SELECT serializedPlaceable, areaTag, position, facing FROM dm_persistant_placeable");
-
-      while (Convert.ToBoolean(NWScript.SqlStep(query)))
-        NWScript.SqlGetObject(query, 0, Utils.GetLocationFromDatabase(NWScript.SqlGetString(query, 1), NWScript.SqlGetVector(query, 2), NWScript.SqlGetFloat(query, 3)));
+      var result = SqLiteUtils.SelectQuery("dm_persistant_placeable",
+        new List<string>() { { "serializedPlaceable" }, { "areaTag" }, { "position" }, { "facing" } },
+        new List<string[]>() );
+      
+      if(result != null)
+        foreach (var plc in result)
+        {
+          NwPlaceable dmPlc = NwPlaceable.Deserialize(plc.GetString(0).ToByteArray());
+          dmPlc.Location = Utils.GetLocationFromDatabase(plc.GetString(1), plc.GetVector3(2), plc.GetFloat(3));
+        }
     }
 
     [ScriptHandler("before_elc")]
@@ -589,17 +599,19 @@ namespace NWN.Systems
 
       if (characterId > 0 && callInfo.ObjectSelf is NwCreature oPC)
       {
-        var query = NWScript.SqlPrepareQueryCampaign(Config.database, $"SELECT areaTag, position, facing from playerCharacters where rowid = @characterId");
-        NWScript.SqlBindInt(query, "@characterId", characterId);
-        NWScript.SqlStep(query);
+        var result = SqLiteUtils.SelectQuery("playerCharacters",
+        new List<string>() { { "areaTag" }, { "position" }, { "facing" } },
+        new List<string[]>() { new string[] { "rowid", characterId.ToString() } });
 
-        string tag = NWScript.SqlGetString(query, 0);
+        if (result != null && result.Count() > 0)
+        {
+          string tag = result.FirstOrDefault().GetString(0);
 
-        if (tag.StartsWith("entrepotpersonnel"))
-          AreaSystem.CreatePersonnalStorageArea(oPC, characterId);
+          if (tag.StartsWith("entrepotpersonnel"))
+            AreaSystem.CreatePersonnalStorageArea(oPC, characterId);
 
-        oPC.ControllingPlayer.SpawnLocation = Utils.GetLocationFromDatabase(tag, NWScript.SqlGetVector(query, 1), NWScript.SqlGetFloat(query, 2));
-        //PlayerPlugin.SetSpawnLocation(oPC, Utils.GetLocationFromDatabase(tag, NWScript.SqlGetVector(query, 1), NWScript.SqlGetFloat(query, 2)));
+          oPC.ControllingPlayer.SpawnLocation = Utils.GetLocationFromDatabase(tag, result.FirstOrDefault().GetVector3(1), result.FirstOrDefault().GetFloat(2));
+        }
       }
     }
 

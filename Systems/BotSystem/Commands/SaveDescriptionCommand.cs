@@ -1,4 +1,5 @@
-﻿using System.Threading.Tasks;
+﻿using System.Collections.Generic;
+using System.Threading.Tasks;
 using Discord.Commands;
 using NWN.API;
 using NWN.Core;
@@ -18,14 +19,13 @@ namespace NWN.Systems
         return;
       }
 
-      var query = NWScript.SqlPrepareQueryCampaign(Systems.Config.database, $"INSERT INTO playerDescriptions " +
-        $"(characterId, descriptionName, description) " +
-        $"VALUES  (@characterId, @descriptionName, @description) " +
-        $"ON CONFLICT(characterId, descriptionName) DO UPDATE SET description = @description");
-      NWScript.SqlBindInt(query, "@characterId", pcID);
-      NWScript.SqlBindString(query, "@descriptionName", descriptionName);
-      NWScript.SqlBindString(query, "@description", descriptionText);
-      NWScript.SqlStep(query);
+      SqLiteUtils.InsertQuery("playerDescriptions",
+          new List<string[]>() {
+            new string[] { "characterId", pcID.ToString() },
+            new string[] { "descriptionName", descriptionName },
+            new string[] { "description", descriptionText } },
+          new List<string>() { "characterId", "descriptionName" },
+          new List<string[]>() { new string[] { "description" } });
 
       await context.Channel.SendMessageAsync($"La description {descriptionName} a été enregistrée parmis les descriptions disponibles pour votre personnage {pcName}.");
     }

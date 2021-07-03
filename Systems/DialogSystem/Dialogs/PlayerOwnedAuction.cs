@@ -80,7 +80,7 @@ namespace NWN.Systems
 
       DrawItemAddedPage(player, (NwItem)selection.TargetObject, store, panel);
     }
-    private static async void GetNewDescription(PlayerSystem.Player player, NwPlaceable shop)
+    private static async void GetNewDescription(Player player, NwPlaceable shop)
     {
       player.menu.titleLines = new List<string>() {
         "Veuillez prononcer la nouvelle description à l'oral."
@@ -107,32 +107,31 @@ namespace NWN.Systems
       panel.Name = "[ENCHERES] ".ColorString(ColorConstants.Orange) +
         shop.Items.FirstOrDefault().Name.ColorString(ColorConstants.Red) + " " +
         shop.GetLocalVariable<int>("_CURRENT_AUCTION").Value + " Fin : " + shop.GetLocalVariable<int>("_AUCTION_END_DATE").Value;
-      
+
       if (shop.GetLocalVariable<int>("_AUCTION_ID").HasNothing)
       {
-        var query = NWScript.SqlPrepareQueryCampaign(Config.database, $"INSERT INTO playerAuctions (characterId, shop, panel, expirationDate, highestAuction, highestAuctionner, areaTag, position, facing) VALUES (@characterId, @shop, @panel, @expirationDate, @highestAuction, @highestAuctionner, @areaTag, @position, @facing)");
-        NWScript.SqlBindInt(query, "@characterId", player.characterId);
-        NWScript.SqlBindString(query, "@shop", shop.Serialize().ToBase64EncodedString());
-        NWScript.SqlBindString(query, "@panel", panel.Serialize().ToBase64EncodedString());
-        NWScript.SqlBindString(query, "@expirationDate", shop.GetLocalVariable<string>("_AUCTION_END_DATE").Value);
-        NWScript.SqlBindInt(query, "@highestAuction", shop.GetLocalVariable<int>("_CURRENT_AUCTION").Value);
-        NWScript.SqlBindInt(query, "@highestAuctionner", 0);
-        NWScript.SqlBindString(query, "@areaTag", panel.Area.Tag);
-        NWScript.SqlBindVector(query, "@position", panel.Position);
-        NWScript.SqlBindFloat(query, "@facing", panel.Rotation);
-        NWScript.SqlStep(query);
+        SqLiteUtils.InsertQuery("playerAuctions",
+          new List<string[]>() { new string[] { "characterId", player.characterId.ToString() },
+            new string[] { "shop", shop.Serialize().ToBase64EncodedString() },
+            new string[] { "panel", panel.Serialize().ToBase64EncodedString() },
+            new string[] { "expirationDate", shop.GetLocalVariable<string>("_AUCTION_END_DATE").Value.ToString() },
+            new string[] { "highestAuction", shop.GetLocalVariable<int>("_CURRENT_AUCTION").Value.ToString() },
+            new string[] { "highestAuctionner", "0" },
+            new string[] { "areaTag", panel.Area.Tag },
+            new string[] { "position", panel.Position.ToString() },
+            new string[] { "facing", panel.Rotation.ToString() } });
 
-        query = NWScript.SqlPrepareQueryCampaign(Config.database, $"SELECT last_insert_rowid()");
-        NWScript.SqlStep(query);
+        var query = NwModule.Instance.PrepareCampaignSQLQuery(Config.database, $"SELECT last_insert_rowid()");
+        query.Execute();
 
-        shop.GetLocalVariable<int>("_AUCTION_ID").Value = NWScript.SqlGetInt(query, 0);
-        panel.GetLocalVariable<int>("_AUCTION_ID").Value = NWScript.SqlGetInt(query, 0);
+        shop.GetLocalVariable<int>("_AUCTION_ID").Value = query.Result.GetInt(0);
+        panel.GetLocalVariable<int>("_AUCTION_ID").Value = query.Result.GetInt(0);
       }
       else
       {
         SqLiteUtils.UpdateQuery("playerShops",
-          new Dictionary<string, string>() { { "shop", shop.Serialize().ToBase64EncodedString() }, { "panel", panel.Serialize().ToBase64EncodedString() }, { "highestAuction", shop.GetLocalVariable<int>("_CURRENT_AUCTION").Value.ToString() }, { "highestAuctionner", shop.GetLocalVariable<int>("_CURRENT_AUCTIONNER").Value.ToString() } },
-          new Dictionary<string, string>() { { "rowid", shop.GetLocalVariable<int>("_AUCTION_ID").Value.ToString() } });
+          new List<string[]>() { new string[] { "shop", shop.Serialize().ToBase64EncodedString() }, new string[] { "panel", panel.Serialize().ToBase64EncodedString() }, new string[] { "highestAuction", shop.GetLocalVariable<int>("_CURRENT_AUCTION").Value.ToString() }, new string[] { "highestAuctionner", shop.GetLocalVariable<int>("_CURRENT_AUCTIONNER").Value.ToString() } },
+          new List<string[]> { new string[] { "rowid", shop.GetLocalVariable<int>("_AUCTION_ID").Value.ToString() } });
       }
     }
 
@@ -280,8 +279,8 @@ namespace NWN.Systems
       item.BaseGoldValue = (uint)(auctionSetPrice / item.StackSize);
 
       SqLiteUtils.UpdateQuery("playerCharacters",
-          new Dictionary<string, string>() { { "bankGold+", shop.GetLocalVariable<int>("_CURRENT_AUCTION").Value.ToString() } },
-          new Dictionary<string, string>() { { "rowid", shop.GetLocalVariable<int>("_CURRENT_AUCTIONNER").Value.ToString() } });
+          new List<string[]>() { new string[] { "bankGold", shop.GetLocalVariable<int>("_CURRENT_AUCTION").Value.ToString(), "+" } },
+          new List<string[]>() { new string[] { "rowid", shop.GetLocalVariable<int>("_CURRENT_AUCTIONNER").Value.ToString() } });
 
       NwPlayer oSeller = NwModule.Instance.Players.FirstOrDefault(p => ObjectPlugin.GetInt(p.LoginCreature, "characterId") == shop.GetLocalVariable<int>("_CURRENT_AUCTIONNER").Value);
       if (oSeller != null)

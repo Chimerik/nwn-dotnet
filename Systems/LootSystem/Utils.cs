@@ -7,19 +7,20 @@ namespace NWN.Systems
 {
   public partial class LootSystem
   {
-    private void UpdateDB(uint oChest)
+    private void UpdateDB(NwPlaceable oChest)
     {
       if (PlayerSystem.Players.TryGetValue(NWScript.GetLastClosedBy(), out PlayerSystem.Player oPC))
       {
-        var query = NWScript.SqlPrepareQueryCampaign(Systems.Config.database, $"INSERT INTO {SQL_TABLE}(chestTag, accountId, serializedChest, position, facing)" +
-      " VALUES(@chestTag, @accountId, @serializedChest, @position, @facing)" +
-      " ON CONFLICT(chestTag) DO UPDATE SET serializedChest = @serializedChest, position = @position, facing = @facing;");
-        NWScript.SqlBindString(query, "@chestTag", NWScript.GetTag(oChest));
-        NWScript.SqlBindInt(query, "@accountId", oPC.accountId);
-        NWScript.SqlBindObject(query, "@serializedChest", oChest);
-        NWScript.SqlBindVector(query, "@position", NWScript.GetPosition(oChest));
-        NWScript.SqlBindFloat(query, "@facing", NWScript.GetFacing(oChest));
-        NWScript.SqlStep(query);
+        SqLiteUtils.InsertQuery(SQL_TABLE,
+          new List<string[]>() {
+            new string[] { "chestTag", oChest.Tag },
+            new string[] { "accountId", oPC.accountId.ToString() },
+            new string[] { "serializedChest", oChest.Serialize().ToBase64EncodedString() },
+          new string[] { "position", oChest.Position.ToString() },
+          new string[] { "facing", oChest.Rotation.ToString() } },
+          new List<string>() { "chestTag" },
+          new List<string[]>() { new string[] { "serializedChest" }, new string[] { "position" }, new string[] { "facing" } },
+          new List<string>() { "characterId", "grimoireName" });
       }
     }
     private void UpdateChestTagToLootsDic(NwPlaceable oChest)

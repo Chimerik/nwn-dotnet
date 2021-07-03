@@ -4,6 +4,7 @@ using NWN.API;
 using static NWN.Systems.PlayerSystem;
 using System;
 using NWN.Core;
+using System.Linq;
 
 namespace NWN.Systems
 {
@@ -34,10 +35,11 @@ namespace NWN.Systems
       if(player.learntCustomFeats.ContainsKey(CustomFeats.ContractScience))
         contractScienceLevel += SkillSystem.GetCustomFeatLevelFromSkillPoints(CustomFeats.ContractScience, player.learntCustomFeats[CustomFeats.ContractScience]);
 
-      var query = NWScript.SqlPrepareQueryCampaign(Config.database, $"SELECT count(rowid) from playerPrivateContracts where characterId = @characterId");
-      NWScript.SqlBindInt(query, "@characterId", player.characterId);
+      var result = SqLiteUtils.SelectQuery("playerPrivateContracts",
+          new List<string>() { { "count(rowid)" } },
+          new List<string[]>() { new string[] { "characterId", player.characterId.ToString() } });
 
-      if (NWScript.SqlStep(query) == 0 || NWScript.SqlGetInt(query, 0) <= contractScienceLevel)
+      if (result != null || result.FirstOrDefault().GetInt(0) <= contractScienceLevel)
       {
         player.menu.choices.Add((
         "Rédiger un nouveau contrat",
@@ -219,20 +221,20 @@ namespace NWN.Systems
       contract.GetLocalVariable<string>("_CONTRACT_EXPIRATION_DATE").Value = DateTime.Now.AddDays(expirationDate).ToString();
       contract.GetLocalVariable<string>("_SERIALIZED_CONTRACT_DATA").Value = serializedContract;
 
-      var query = NWScript.SqlPrepareQueryCampaign(Config.database, $"INSERT INTO playerPrivateContracts (characterId, expirationDate, serializedContract, totalValue) VALUES (@characterId, @expirationDate, @serializedContract, @totalValue)");
-      NWScript.SqlBindInt(query, "@characterId", player.characterId);
-      NWScript.SqlBindString(query, "@expirationDate", DateTime.Now.AddDays(expirationDate).ToString());
-      NWScript.SqlBindString(query, "@serializedContract", serializedContract);
-      NWScript.SqlBindInt(query, "@totalValue", grandTotal);
-      NWScript.SqlStep(query);
+      SqLiteUtils.InsertQuery("playerPrivateContracts",
+          new List<string[]>() {
+            new string[] { "characterId", player.oid.PlayerName },
+            new string[] { "expirationDate", DateTime.Now.AddDays(expirationDate).ToString() },
+            new string[] { "serializedContract", serializedContract },
+            new string[] { "serializedContract", grandTotal.ToString() } });
 
-      query = NWScript.SqlPrepareQueryCampaign(Config.database, $"SELECT last_insert_rowid()");
-      NWScript.SqlStep(query);
+      var query = NwModule.Instance.PrepareCampaignSQLQuery(Config.database, $"SELECT last_insert_rowid()");
+      query.Execute();
 
-      contract.GetLocalVariable<int>("_CONTRACT_ID").Value = NWScript.SqlGetInt(query, 0);
-      contract.Name = $"Contrat {NWScript.SqlGetInt(query, 0)} de {player.oid.LoginCreature.Name}";
+      contract.GetLocalVariable<int>("_CONTRACT_ID").Value = query.Result.GetInt(0);
+      contract.Name = $"Contrat {query.Result.GetInt(0)} de {player.oid.LoginCreature.Name}";
 
-      player.oid.SendServerMessage("Votre contrat d'échange privé de ressources a bien été créé.", ColorConstants.Red);
+      player.oid.SendServerMessage("Votre contrat d'échange privé de ressources a bien été créé.", ColorConstants.Pink);
       player.oid.LoginCreature.AcquireItem(contract, true);
       player.menu.Close();
     }
@@ -245,16 +247,18 @@ namespace NWN.Systems
           $"Lequel souhaitez-vous consulter ?"
       };
 
-      var query = NWScript.SqlPrepareQueryCampaign(Config.database, $"SELECT expirationDate, totalValue, rowid from playerPrivateContracts where characterId = @characterId");
-      NWScript.SqlBindInt(query, "@characterId", player.characterId);
+      var result = SqLiteUtils.SelectQuery("playerPrivateContracts",
+          new List<string>() { { "expirationDate" }, { "totalValue" }, { "rowid" } },
+          new List<string[]>() { new string[] { "characterId", player.characterId.ToString() } });
 
-      while(NWScript.SqlStep(query) > 0)
+      if(result != null)
+      foreach(var contract in result)
       {
-        int contractId = NWScript.SqlGetInt(query, 2);
+        int contractId = contract.GetInt(2);
 
-        TimeSpan remainingTime = (DateTime.Parse(NWScript.SqlGetString(query, 0)) - DateTime.Now);
+        TimeSpan remainingTime = (DateTime.Parse(contract.GetString(0)) - DateTime.Now);
         if(remainingTime.TotalMinutes > 0)
-          player.menu.choices.Add(($"{contractId} - Expire dans : {remainingTime.Days}:{remainingTime.Hours}:{remainingTime.Minutes}:{remainingTime.Seconds} - Valeur totale : {NWScript.SqlGetInt(query, 1)}", () => HandleContractSelection(player, contractId)));
+          player.menu.choices.Add(($"{contractId} - Expire dans : {remainingTime.Days}:{remainingTime.Hours}:{remainingTime.Minutes}:{remainingTime.Seconds} - Valeur totale : {contract.GetInt(1)}", () => HandleContractSelection(player, contractId)));
         else
         {
           Task contractExpiration = NwTask.Run(async () =>
@@ -283,19 +287,22 @@ namespace NWN.Systems
       player.menu.choices.Add(($"Oui, le contrat {contractId} est nul et non avenu.", () => HandleContractCancellation(player, contractId)));
       player.menu.choices.Add(($"Non, retour à la liste des contrats.", () => DrawCurrentContractPage(player)));
 
-      var query = NWScript.SqlPrepareQueryCampaign(Config.database, $"SELECT serializedContract, expirationDate, totalValue from playerPrivateContracts where rowid = @rowid");
-      NWScript.SqlBindInt(query, "@rowid", contractId);
-      NWScript.SqlStep(query);
+      var result = SqLiteUtils.SelectQuery("playerPrivateContracts",
+        new List<string>() { { "serializedContract" }, { "expirationDate" }, { "totalValue" } },
+        new List<string[]>() { new string[] { "rowid", contractId.ToString() } });
 
-      foreach (string materialString in NWScript.SqlGetString(query, 0).Split("|"))
+      if (result != null && result.Count() > 0)
       {
-        string[] descriptionString = materialString.Split("$");
-        if(descriptionString.Length == 3)
-          player.menu.titleLines.Add($"{descriptionString[0]} : {descriptionString[1]} * {descriptionString[2]} = {Int32.Parse(descriptionString[1]) * Int32.Parse(descriptionString[2])}");
-      }
+        foreach (string materialString in result.FirstOrDefault().GetString(0).Split("|"))
+        {
+          string[] descriptionString = materialString.Split("$");
+          if (descriptionString.Length == 3)
+            player.menu.titleLines.Add($"{descriptionString[0]} : {descriptionString[1]} * {descriptionString[2]} = {Int32.Parse(descriptionString[1]) * Int32.Parse(descriptionString[2])}");
+        }
 
-      player.menu.titleLines.Add($"Valeur totale : {NWScript.SqlGetString(query, 2)}");
-      player.menu.titleLines.Add($"Date d'expiration : {NWScript.SqlGetString(query, 1)}");
+        player.menu.titleLines.Add($"Valeur totale : {result.FirstOrDefault().GetString(2)}");
+        player.menu.titleLines.Add($"Date d'expiration : {result.FirstOrDefault().GetString(1)}");
+      }
 
       player.menu.Draw();
     }
@@ -308,22 +315,25 @@ namespace NWN.Systems
     }
     private void DeleteExpiredContract(Player player, int contractId)
     {
-      var query = NWScript.SqlPrepareQueryCampaign(Config.database, $"SELECT serializedContract from playerPrivateContracts where rowid = @rowid");
-      NWScript.SqlBindInt(query, "@rowid", contractId);
-      NWScript.SqlStep(query);
+      var result = SqLiteUtils.SelectQuery("playerPrivateContracts",
+        new List<string>() { { "serializedContract" } },
+        new List<string[]>() { new string[] { "rowid", contractId.ToString() } });
 
-      foreach (string materialString in NWScript.SqlGetString(query, 0).Split("|"))
+      if (result != null && result.Count() > 0)
       {
-        string[] descriptionString = materialString.Split("$");
-        if (descriptionString.Length == 3)
-          if (player.materialStock.ContainsKey(descriptionString[0]))
-            player.materialStock[descriptionString[0]] += Int32.Parse(descriptionString[1]);
-          else
-            player.materialStock.Add(descriptionString[0], Int32.Parse(descriptionString[1]));
-      }
-
+        foreach (string materialString in  result.FirstOrDefault().GetString(0).Split("|"))
+        {
+          string[] descriptionString = materialString.Split("$");
+          if (descriptionString.Length == 3)
+            if (player.materialStock.ContainsKey(descriptionString[0]))
+              player.materialStock[descriptionString[0]] += Int32.Parse(descriptionString[1]);
+            else
+              player.materialStock.Add(descriptionString[0], Int32.Parse(descriptionString[1]));
+        }
+      
       SqLiteUtils.DeletionQuery("playerPrivateContracts",
          new Dictionary<string, string>() { { "rowid", contractId.ToString() } });
+      }
     }
   }
 }

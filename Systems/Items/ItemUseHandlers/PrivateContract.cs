@@ -41,10 +41,11 @@ namespace NWN.Systems
 
       int contractId = contract.GetLocalVariable<int>("_CONTRACT_ID").Value;
 
-      var query = NWScript.SqlPrepareQueryCampaign(Config.database, $"SELECT characterId from playerPrivateContracts where rowid = @rowid");
-      NWScript.SqlBindInt(query, "@rowid", contractId);
-      
-      if(NWScript.SqlStep(query) <= 0)
+      var result = SqLiteUtils.SelectQuery("playerPrivateContracts",
+        new List<string>() { { "characterId" } },
+        new Dictionary<string, string>() { { "rowid", contractId.ToString() } });
+
+      if(result == null || result.Count() < 1)
       {
         player.oid.SendServerMessage("Ce contrat a été annulé par son rédacteur et n'est donc plus valide.", ColorConstants.Blue);
         contract.Destroy();

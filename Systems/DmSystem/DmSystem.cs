@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using NWN.API;
 using NWN.API.Events;
 using NWN.Core;
@@ -48,26 +49,20 @@ namespace NWN.Systems
         return;
 
       if (onSpawn.DungeonMaster.LoginCreature.GetLocalVariable<int>("_SPAWN_PERSIST").HasValue)
-        {
-          oPLC.OnDeath += PlaceableSystem.HandleCleanDMPLC;
+      {
+        oPLC.OnDeath += PlaceableSystem.HandleCleanDMPLC;
 
-          var query = NWScript.SqlPrepareQueryCampaign(Systems.Config.database, "INSERT INTO dm_persistant_placeable(accountID, serializedPlaceable, areaTag, position, facing)" +
-            " VALUES(@accountId, @serializedPlaceable, @areaTag, @position, @facing)");
-          NWScript.SqlBindInt(query, "@accountId", 0);
-          NWScript.SqlBindObject(query, "@serializedPlaceable", oPLC);
-          NWScript.SqlBindString(query, "@areaTag", oPLC.Area.Tag);
-          NWScript.SqlBindVector(query, "@position", oPLC.Position);
-          NWScript.SqlBindFloat(query, "@facing", oPLC.Rotation);
-          NWScript.SqlStep(query);
+        SqLiteUtils.InsertQuery("dm_persistant_placeable",
+          new List<string[]>() { new string[] { "accountID", "0" }, new string[] { "serializedPlaceable", oPLC.Serialize().ToBase64EncodedString() }, new string[] { "areaTag", oPLC.Area.Tag }, new string[] { "position", oPLC.Position.ToString() }, new string[] { "facing", oPLC.Rotation.ToString() } });
 
-          query = NWScript.SqlPrepareQueryCampaign(Config.database, $"SELECT last_insert_rowid()");
-          NWScript.SqlStep(query);
-          NWScript.SetLocalInt(oPLC, "_ID", NWScript.SqlGetInt(query, 0));
+        var query = NWScript.SqlPrepareQueryCampaign(Config.database, $"SELECT last_insert_rowid()");
+        NWScript.SqlStep(query);
+        NWScript.SetLocalInt(oPLC, "_ID", NWScript.SqlGetInt(query, 0));
 
-          onSpawn.DungeonMaster.SendServerMessage($"Création persistante - Vous posez le placeable  {oPLC.Name.ColorString(ColorConstants.White)}", new Color(32, 255, 32));
-        }
-        else
-          onSpawn.DungeonMaster.SendServerMessage($"Création temporaire - {oPLC.Name.ColorString(ColorConstants.White)}", new Color(32, 255, 32));
+        onSpawn.DungeonMaster.SendServerMessage($"Création persistante - Vous posez le placeable  {oPLC.Name.ColorString(ColorConstants.White)}", new Color(32, 255, 32));
+      }
+      else
+        onSpawn.DungeonMaster.SendServerMessage($"Création temporaire - {oPLC.Name.ColorString(ColorConstants.White)}", new Color(32, 255, 32));
     }
     public static void HandleAfterDmJumpTarget(OnDMJumpTargetToPoint onJump)
     {

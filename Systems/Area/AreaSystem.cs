@@ -8,6 +8,7 @@ using NLog;
 using System;
 using System.Numerics;
 using System.Threading.Tasks;
+using System.Collections.Generic;
 
 namespace NWN.Systems
 {
@@ -261,10 +262,12 @@ namespace NWN.Systems
       storage.OnUsed += PlaceableSystem.OnUsedPersonnalStorage;
       storage.Name = $"Entrepôt de {oPC.ControllingPlayer.LoginCreature.Name}";
 
-      var query = NWScript.SqlPrepareQueryCampaign(Config.database, $"SELECT storage from playerCharacters where rowid = @characterId");
-      NWScript.SqlBindInt(query, "@characterId", characterId);
-      NWScript.SqlStep(query);
-      NWScript.SqlGetObject(query, 0, NWScript.GetLocation(storage));
+      var result = SqLiteUtils.SelectQuery("playerCharacters",
+        new List<string>() { { "storage" } },
+        new List<string[]>() { new string[] { "rowid", characterId.ToString() } });
+
+      if (result != null && result.Count() > 0)
+        NwStore.Deserialize(result.FirstOrDefault().GetString(0).ToByteArray()).Location = storage.Location;
 
       area.FindObjectsOfTypeInArea<NwPlaceable>().FirstOrDefault(p => p.Tag == "portal_storage_out").OnUsed += PlaceableSystem.OnUsedStoragePortalOut;
       area.FindObjectsOfTypeInArea<NwPlaceable>().FirstOrDefault(p => p.Tag == "hventes").OnUsed += DialogSystem.StartAuctionHouseDialog;

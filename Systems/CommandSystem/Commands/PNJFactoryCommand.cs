@@ -956,12 +956,13 @@ namespace NWN.Systems
     }
     private void HandleSaveNPC()
     {
-      var query = NWScript.SqlPrepareQueryCampaign(Config.database, $"INSERT INTO savedNPC (accountName, name, serializedCreature) VALUES (@accountName, @name, @serializedCreature)" +
-          $"ON CONFLICT (accountName, name) DO UPDATE SET serializedCreature = @serializedCreature;");
-      NWScript.SqlBindString(query, "@accountName", player.oid.PlayerName);
-      NWScript.SqlBindString(query, "@name", oPNJ.Name);
-      NWScript.SqlBindString(query, "@serializedCreature", oPNJ.Serialize().ToBase64EncodedString());
-      NWScript.SqlStep(query);
+      SqLiteUtils.InsertQuery("savedNPC",
+          new List<string[]>() {
+            new string[] { "accountName", player.oid.PlayerName },
+            new string[] { "name", oPNJ.Name},
+            new string[] { "serializedCreature", oPNJ.Serialize().ToBase64EncodedString() } },
+          new List<string>() { "accountName", "name" },
+          new List<string[]>() { new string[] { "serializedCreature" } });
 
       player.oid.SendServerMessage($"Votre PNJ {oPNJ.Name.ColorString(ColorConstants.White)} a bien été enregistré.", ColorConstants.Blue);
     }
@@ -971,10 +972,14 @@ namespace NWN.Systems
 
       player.menu.titleLines.Add("Quelle liste de PNJ souhaitez-vous explorer ?");
 
-      var query = NWScript.SqlPrepareQueryCampaign(Config.database, $"SELECT distinct accountName from savedNPC");
-      while (NWScript.SqlStep(query) > 0)
+      var result = SqLiteUtils.SelectQuery("savedNPC",
+          new List<string>() { { "distinct accountName" } },
+          new List<string[]>() );
+
+      if(result != null)
+      foreach (var npc in result)
       {
-        string accountName = NWScript.SqlGetString(query, 0);
+        string accountName = npc.GetString(0);
         player.menu.choices.Add((accountName, () => DrawPNJList(accountName)));
       }
 
@@ -989,12 +994,14 @@ namespace NWN.Systems
 
       player.menu.titleLines.Add("Quel PNJ souhaitez-vous sélectionner ?");
 
-      var query = NWScript.SqlPrepareQueryCampaign(Config.database, $"SELECT name from savedNPC where accountName = @accountName");
-      NWScript.SqlBindString(query, "@accountName", accountName);
+      var result = SqLiteUtils.SelectQuery("savedNPC",
+          new List<string>() { { "name" } },
+          new List<string[]>() { new string[] { "accountName", accountName } });
 
-      while (NWScript.SqlStep(query) > 0)
+      if(result != null)
+      foreach (var npc in result)
       {
-        string npcName = NWScript.SqlGetString(query, 0);
+        string npcName = npc.GetString(0);
         player.menu.choices.Add((npcName, () => HandleNPCSelection(npcName, accountName)));
       }
 
@@ -1037,13 +1044,13 @@ namespace NWN.Systems
       if (selection.IsCancelled)
         return;
 
-      var query = NWScript.SqlPrepareQueryCampaign(Config.database, $"SELECT serializedCreature from savedNPC where accountName = @accountName and name = @name");
-      NWScript.SqlBindString(query, "@accountName", selection.Player.LoginCreature.GetLocalVariable<string>("_SPAWNING_NPC_ACCOUNT").Value);
-      NWScript.SqlBindString(query, "@name", selection.Player.LoginCreature.GetLocalVariable<string>("_SPAWNING_NPC").Value);
+      var result = SqLiteUtils.SelectQuery("savedNPC",
+          new List<string>() { { "serializedCreature" } },
+          new List<string[]>() { new string[] { "accountName", selection.Player.LoginCreature.GetLocalVariable<string>("_SPAWNING_NPC_ACCOUNT").Value }, new string[] { "name", selection.Player.LoginCreature.GetLocalVariable<string>("_SPAWNING_NPC").Value } });
 
-      if (NWScript.SqlStep(query) > 0)
+      if (result != null && result.Count() > 0)
       {
-        NwCreature oNPC = NwCreature.Deserialize(NWScript.SqlGetString(query, 0).ToByteArray());
+        NwCreature oNPC = NwCreature.Deserialize(result.FirstOrDefault().GetString(0).ToByteArray());
         oNPC.Location = Location.Create(selection.Player.ControlledCreature.Area, selection.TargetPosition, selection.Player.ControlledCreature.Rotation);
       }
     }

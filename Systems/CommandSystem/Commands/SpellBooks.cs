@@ -86,19 +86,21 @@ namespace NWN.Systems
         "Lequel souhaitez-vous consulter ?"
         };
 
-      var query = NWScript.SqlPrepareQueryCampaign(Config.database, $"SELECT grimoireName, serializedGrimoire from playerGrimoire where characterId = @characterId");
-      NWScript.SqlBindInt(query, "@characterId", player.characterId);
+      var result = SqLiteUtils.SelectQuery("playerGrimoire",
+        new List<string>() { { "grimoireName" }, { "serializedGrimoire" } },
+        new List<string[]>() { new string[] { "characterId", player.characterId.ToString() } });
 
-      while (NWScript.SqlStep(query) > 0)
-      {
-        string grimoireName = NWScript.SqlGetString(query, 0);
-        string serializedGrimoire = NWScript.SqlGetString(query, 1);
+      if (result != null)
+        foreach (var grimoire in result)
+        {
+          string grimoireName = grimoire.GetString(0);
+          string serializedGrimoire = grimoire.GetString(1);
 
-        player.menu.choices.Add((
+          player.menu.choices.Add((
           grimoireName,
           () => HandleSelectedGrimoire(grimoireName, serializedGrimoire)
         ));
-      }
+        }
 
       player.menu.choices.Add(("Retour.", () => DrawGrimoireWelcomePage()));
       player.menu.choices.Add(("Quitter.", () => player.menu.Close()));

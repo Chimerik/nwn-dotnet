@@ -1,4 +1,6 @@
-﻿using System.Threading.Tasks;
+﻿using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 using Discord.Commands;
 using NWN.API;
 using NWN.Core;
@@ -18,16 +20,17 @@ namespace NWN.Systems
         return;
       }
 
-      var getNameQuery = NWScript.SqlPrepareQueryCampaign(Config.database, $"SELECT characterName from playerCharacters where ROWID = @rowid");
-      NWScript.SqlBindInt(getNameQuery, "@rowid", result);
+      var queryResult = SqLiteUtils.SelectQuery("playerCharacters",
+        new List<string>() { { "characterName" } },
+        new List<string[]>() { new string[] { "ROWID", result.ToString() } });
 
-      if (NWScript.SqlStep(getNameQuery) == 0)
+      if (queryResult == null || queryResult.Count() < 1)
       {
         await context.Channel.SendMessageAsync("Impossible de trouver une correspondance pour le nom du personnage indiqué.");
         return;
       }
 
-      string senderFullName = NWScript.SqlGetString(getNameQuery, 0);
+      string senderFullName = queryResult.FirstOrDefault().GetString(0);
       Utils.SendMailToPC(characterId, senderFullName, title, content);
 
       await context.Channel.SendMessageAsync("Courrier en cours d'envoi.");

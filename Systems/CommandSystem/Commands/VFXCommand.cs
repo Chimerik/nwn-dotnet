@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using NWN.API;
 using NWN.API.Constants;
 using NWN.API.Events;
@@ -25,14 +27,13 @@ namespace NWN.Systems
         {
           string vfxName = (string)options.positional[0];
 
-          var query = NWScript.SqlPrepareQueryCampaign(Config.database, $"SELECT vfxId from dmVFX where playerName = @playerName " +
-            $"and vfxName = @vfxName");
-          NWScript.SqlBindString(query, "@playerName", player.oid.PlayerName);
-          NWScript.SqlBindString(query, "@vfxName", vfxName);
+          var result = SqLiteUtils.SelectQuery("dmVFX",
+            new List<string>() { { "vfxId" } },
+            new List<string[]>() { new string[] { "playerName", player.oid.PlayerName }, new string[] { "vfxName", vfxName } });
 
-          if (NWScript.SqlStep(query) > 0)
+          if (result != null && result.Count() > 0)
           {
-            ctx.oSender.LoginCreature.GetLocalVariable<int>("_VFX_ID").Value = NWScript.SqlGetInt(query, 0);
+            ctx.oSender.LoginCreature.GetLocalVariable<int>("_VFX_ID").Value = result.FirstOrDefault().GetInt(0);
             PlayerSystem.cursorTargetService.EnterTargetMode(ctx.oSender, dmVFXTarget, ObjectTypes.All, MouseCursor.Magic);
           }
           else
@@ -59,13 +60,14 @@ namespace NWN.Systems
       VfxType vfxId = (VfxType)selection.Player.LoginCreature.GetLocalVariable<int>("_VFX_ID").Value;
       selection.Player.LoginCreature.GetLocalVariable<string>("_VFX_ID").Delete();
 
-      var query = NWScript.SqlPrepareQueryCampaign(Config.database, $"SELECT vfxDuration from dmVFXDuration where playerName = @playerName");
-      NWScript.SqlBindString(query, "@playerName", selection.Player.PlayerName);
+      var result = SqLiteUtils.SelectQuery("dmVFXDuration",
+        new List<string>() { { "vfxDuration" } },
+        new List<string[]>() { new string[] { "playerName", selection.Player.PlayerName } });
 
       int vfxDuration = 0;
 
-      if (NWScript.SqlStep(query) > 0)
-        vfxDuration = NWScript.SqlGetInt(query, 0);
+      if (result != null && result.Count() > 0)
+        vfxDuration = result.FirstOrDefault().GetInt(0);
 
       if (selection.TargetObject is NwGameObject target)
       {

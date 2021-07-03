@@ -112,25 +112,25 @@ namespace NWN.Systems
       }
 
       SqLiteUtils.UpdateQuery("playerCharacters",
-          new Dictionary<string, string>() { { "characterName", $"{player.oid.LoginCreature.OriginalFirstName} {player.oid.LoginCreature.OriginalLastName}" },
-          { "areaTag", areaTag }, { "position", position }, { "facing", facing }, { "currentHP", player.currentHP.ToString() }, { "bankGold", player.bankGold.ToString() },
-          { "dateLastSaved", player.dateLastSaved.ToString() }, { "currentSkillType", ((int)player.currentSkillType).ToString() }, { "currentCraftJob", player.currentSkillJob.ToString() },
-          { "currentCraftJob", player.craftJob.baseItemType.ToString() }, { "currentCraftObject", player.craftJob.craftedItem }, { "currentCraftJobRemainingTime", player.craftJob.remainingTime.ToString() },
-          { "currentCraftJobMaterial", player.craftJob.material }, { "currentCraftJobMaterial", player.craftJob.material }, { "pveArenaCurrentPoints", player.pveArena.currentPoints.ToString() },
-          { "menuOriginTop", player.menu.originTop.ToString() }, { "menuOriginLeft", player.menu.originLeft.ToString() } },
-          new Dictionary<string, string>() { { "rowid", player.characterId.ToString() } });
+          new List<string[]>() { new string[] { "characterName", $"{player.oid.LoginCreature.OriginalFirstName} {player.oid.LoginCreature.OriginalLastName}" },
+          new string[] { "areaTag", areaTag }, new string[] { "position", position }, new string[] { "facing", facing }, new string[] { "currentHP", player.currentHP.ToString() }, new string[] { "bankGold", player.bankGold.ToString() },
+          new string[] { "dateLastSaved", player.dateLastSaved.ToString() }, new string[] { "currentSkillType", ((int)player.currentSkillType).ToString() }, new string[] { "currentCraftJob", player.currentSkillJob.ToString() },
+          new string[] { "currentCraftJob", player.craftJob.baseItemType.ToString() }, new string[] { "currentCraftObject", player.craftJob.craftedItem }, new string[] { "currentCraftJobRemainingTime", player.craftJob.remainingTime.ToString() },
+          new string[] { "currentCraftJobMaterial", player.craftJob.material }, new string[] { "currentCraftJobMaterial", player.craftJob.material }, new string[] { "pveArenaCurrentPoints", player.pveArena.currentPoints.ToString() },
+          new string[] { "menuOriginTop", player.menu.originTop.ToString() }, new string[] { "menuOriginLeft", player.menu.originLeft.ToString() } },
+          new List<string[]>() { new string[]  { "rowid", player.characterId.ToString() } });
     }
     private static void SavePlayerLearnableSkillsToDatabase(Player player)
     {
       foreach (KeyValuePair<Feat, SkillSystem.Skill> skillListEntry in player.learnableSkills)
       {
-        var query = NWScript.SqlPrepareQueryCampaign(Config.database, $"INSERT INTO playerLearnableSkills (characterId, skillId, skillPoints, trained) VALUES (@characterId, @skillId, @skillPoints, @trained)" +
-        "ON CONFLICT (characterId, skillId) DO UPDATE SET skillPoints = @skillPoints, trained = @trained");
-        NWScript.SqlBindInt(query, "@characterId", player.characterId);
-        NWScript.SqlBindInt(query, "@skillId", (int)skillListEntry.Key);
-        NWScript.SqlBindFloat(query, "@skillPoints", Convert.ToInt32(skillListEntry.Value.acquiredPoints));
-        NWScript.SqlBindInt(query, "@trained", Convert.ToInt32(skillListEntry.Value.trained));
-        NWScript.SqlStep(query);
+        SqLiteUtils.InsertQuery("playerLearnableSkills",
+          new List<string[]>() { new string[] { "characterId", player.characterId.ToString() },
+            new string[] { "skillId", ((int)skillListEntry.Key).ToString() },
+            new string[] { "skillPoints", skillListEntry.Value.acquiredPoints.ToString() },
+            new string[] { "trained", skillListEntry.Value.trained.ToString() } },
+            new List<string>() { "characterId", "skillId" },
+            new List<string[]>() { new string[] { "skillPoints" }, new string[] { "trained" } });
       }
 
       // Ici on vire de la liste tout les skills trained et sauvegardés
@@ -140,14 +140,14 @@ namespace NWN.Systems
     {
       foreach (KeyValuePair<int, SkillSystem.LearnableSpell> skillListEntry in player.learnableSpells)
       {
-        var query = NWScript.SqlPrepareQueryCampaign(Config.database, $"INSERT INTO playerLearnableSpells (characterId, skillId, skillPoints, trained, nbScrolls) VALUES (@characterId, @skillId, @skillPoints, @trained, @nbScrolls)" +
-        "ON CONFLICT (characterId, skillId) DO UPDATE SET skillPoints = @skillPoints, trained = @trained, nbScrolls = @nbScrolls");
-        NWScript.SqlBindInt(query, "@characterId", player.characterId);
-        NWScript.SqlBindInt(query, "@skillId", skillListEntry.Key);
-        NWScript.SqlBindFloat(query, "@skillPoints", Convert.ToInt32(skillListEntry.Value.acquiredPoints));
-        NWScript.SqlBindInt(query, "@trained", Convert.ToInt32(skillListEntry.Value.trained));
-        NWScript.SqlBindInt(query, "@nbScrolls", skillListEntry.Value.nbScrollsUsed);
-        NWScript.SqlStep(query);
+        SqLiteUtils.InsertQuery("playerLearnableSpells",
+          new List<string[]>() { new string[] { "characterId", player.characterId.ToString() },
+            new string[] { "skillId", (skillListEntry.Key).ToString() },
+            new string[] { "skillPoints", skillListEntry.Value.acquiredPoints.ToString() },
+            new string[] { "trained", skillListEntry.Value.trained.ToString() },
+            new string[] { "nbScrolls", skillListEntry.Value.nbScrollsUsed.ToString() } },
+            new List<string>() { "characterId", "skillId" },
+            new List<string[]>() { new string[] { "skillPoints" }, new string[] { "trained" }, new string[] { "nbScrolls" } });
       }
 
       // Ici on vire de la liste tout les skills trained et sauvegardés
@@ -159,12 +159,13 @@ namespace NWN.Systems
       {
         foreach (string material in player.materialStock.Keys)  
         {
-          var query = NWScript.SqlPrepareQueryCampaign(Config.database, $"INSERT INTO playerMaterialStorage (characterId, materialName, materialStock) VALUES (@characterId, @materialName, @materialStock)" +
-              $"ON CONFLICT (characterId, materialName) DO UPDATE SET materialStock = @materialStock where characterId = @characterId and materialName = @materialName");
-          NWScript.SqlBindInt(query, "@characterId", player.characterId);
-          NWScript.SqlBindString(query, "@materialName", material);
-          NWScript.SqlBindInt(query, "@materialStock", player.materialStock[material]);
-          NWScript.SqlStep(query);
+          SqLiteUtils.InsertQuery("playerMaterialStorage",
+          new List<string[]>() { new string[] { "characterId", player.characterId.ToString() },
+            new string[] { "materialName", material },
+            new string[] { "materialStock", player.materialStock[material].ToString() } },
+            new List<string>() { "characterId", "materialName" },
+            new List<string[]>() { new string[] { "materialStock" } },
+            new List<string>() { { "characterId" }, { "materialName" } });
         }
       }
     }
@@ -172,19 +173,18 @@ namespace NWN.Systems
     {
       if (player.mapPinDictionnary.Count > 0)
       {
-        string queryString = "INSERT INTO playerMapPins (characterId, mapPinId, areaTag, x, y, note) VALUES (@characterId, @mapPinId, @areaTag, @x, @y, @note)" +
-          "ON CONFLICT (characterId, mapPinId) DO UPDATE SET x = @x, y = @y, note = @note";
-
         foreach (MapPin mapPin in player.mapPinDictionnary.Values)
         {
-          var query = NWScript.SqlPrepareQueryCampaign(Config.database, queryString);
-          NWScript.SqlBindInt(query, "@characterId", player.characterId);
-          NWScript.SqlBindInt(query, "@mapPinId", mapPin.id);
-          NWScript.SqlBindString(query, "@areaTag", mapPin.areaTag);
-          NWScript.SqlBindFloat(query, "@x", mapPin.x);
-          NWScript.SqlBindFloat(query, "@y", mapPin.y);
-          NWScript.SqlBindString(query, "@note", mapPin.note);
-          NWScript.SqlStep(query);
+          SqLiteUtils.InsertQuery("playerMapPins",
+          new List<string[]>() { 
+            new string[] { "characterId", player.characterId.ToString() },
+            new string[] { "mapPinId", mapPin.id.ToString()},
+            new string[] { "areaTag", mapPin.areaTag },
+            new string[] { "x", mapPin.x.ToString() },
+            new string[] { "y", mapPin.y.ToString() },
+            new string[] { "note", mapPin.note } },
+          new List<string>() { "characterId", "mapPinId" },
+          new List<string[]>() { new string[] { "x" }, new string[] { "y" }, new string[] { "note" } });
         }
       }
     }
@@ -192,16 +192,15 @@ namespace NWN.Systems
     {
       if (player.areaExplorationStateDictionnary.Count > 0)
       {
-        string queryString = "INSERT INTO playerAreaExplorationState (characterId, areaTag, explorationState) VALUES (@characterId, @areaTag, @explorationState)" +
-          "ON CONFLICT (characterId, areaTag) DO UPDATE SET explorationState = @explorationState";
-
         foreach (KeyValuePair<string, byte[]> explorationStateListEntry in player.areaExplorationStateDictionnary)
         {
-          var query = NWScript.SqlPrepareQueryCampaign(Config.database, queryString);
-          NWScript.SqlBindInt(query, "@characterId", player.characterId);
-          NWScript.SqlBindString(query, "@areaTag", explorationStateListEntry.Key);
-          NWScript.SqlBindString(query, "@explorationState", explorationStateListEntry.Value.ToBase64EncodedString());
-          NWScript.SqlStep(query);
+          SqLiteUtils.InsertQuery("playerAreaExplorationState",
+          new List<string[]>() {
+            new string[] { "characterId", player.characterId.ToString() },
+            new string[] { "areaTag", explorationStateListEntry.Key},
+            new string[] { "explorationState", explorationStateListEntry.Value.ToBase64EncodedString() } },
+          new List<string>() { "characterId", "areaTag" },
+          new List<string[]>() { new string[] { "explorationState" } });
         }
       }
     }
@@ -209,45 +208,50 @@ namespace NWN.Systems
     {
       if (player.chatColors.Count > 0)
       {
-        string queryString = "INSERT INTO chatColors (accountId, channel, color) VALUES (@accountId, @channel, @color)" +
-          "ON CONFLICT (accountId, channel) DO UPDATE SET color = @color";
-
         foreach (KeyValuePair<ChatChannel, Color> chatColorEntry in player.chatColors)
         {
-          var query = NWScript.SqlPrepareQueryCampaign(Config.database, queryString);
-          NWScript.SqlBindInt(query, "@accountId", player.accountId);
-          NWScript.SqlBindInt(query, "@channel", (int)chatColorEntry.Key);
-          NWScript.SqlBindInt(query, "@color", chatColorEntry.Value.ToInt());
-          NWScript.SqlStep(query);
+          SqLiteUtils.InsertQuery("chatColors",
+          new List<string[]>() {
+            new string[] { "accountId", player.accountId.ToString() },
+            new string[] { "channel", ((int)chatColorEntry.Key).ToString()},
+            new string[] { "color", chatColorEntry.Value.ToInt().ToString() } },
+          new List<string>() { "accountId", "channel" },
+          new List<string[]>() { new string[] { "color" } });
         }
       }
     }
     private static void HandleExpiredContracts(Player player)
     {
-      var query = NWScript.SqlPrepareQueryCampaign(Config.database, $"SELECT expirationDate, rowid from playerPrivateContracts where characterId = @characterId");
-      NWScript.SqlBindInt(query, "@characterId", player.characterId);
+      var result = SqLiteUtils.SelectQuery("playerPrivateContracts",
+          new List<string>() { { "expirationDate" }, { "rowid" } },
+          new List<string[]>() { new string[] { "characterId", player.characterId.ToString() } });
 
-      while (NWScript.SqlStep(query) > 0)
+      if(result != null)
       {
-        int contractId = NWScript.SqlGetInt(query, 1);
-
-        if ((DateTime.Parse(NWScript.SqlGetString(query, 0)) - DateTime.Now).TotalSeconds < 0)
+        foreach(var contract in result)
         {
-          Task contractExpiration = NwTask.Run(async () =>
-          { 
-            await NwTask.Delay(TimeSpan.FromSeconds(0.2));
-            DeleteExpiredContract(player, contractId);
-          });
+          int contractId = contract.GetInt(1);
+
+          if ((DateTime.Parse(contract.GetString(0)) - DateTime.Now).TotalSeconds < 0)
+          {
+            Task contractExpiration = NwTask.Run(async () =>
+            {
+              await NwTask.Delay(TimeSpan.FromSeconds(0.2));
+              DeleteExpiredContract(player, contractId);
+            });
+          }
         }
       }
     }
     private static void DeleteExpiredContract(Player player, int contractId)
     {
-      var query = NWScript.SqlPrepareQueryCampaign(Config.database, $"SELECT serializedContract from playerPrivateContracts where rowid = @rowid");
-      NWScript.SqlBindInt(query, "@rowid", contractId);
-      if (NWScript.SqlStep(query) > 0)
+      var result = SqLiteUtils.SelectQuery("playerPrivateContracts",
+          new List<string>() { { "serializedContract" } },
+          new List<string[]>() { new string[] { "ROWID", contractId.ToString() } });
+
+      if (result != null && result.Count() > 0)
       {
-        foreach (string materialString in NWScript.SqlGetString(query, 0).Split("|"))
+        foreach (string materialString in result.FirstOrDefault().GetString(0).Split("|"))
         {
           string[] descriptionString = materialString.Split("$");
           if (descriptionString.Length == 3)
@@ -267,82 +271,97 @@ namespace NWN.Systems
     }
     private static void HandleExpiredBuyOrders(Player player)
     {
-      var query = NWScript.SqlPrepareQueryCampaign(Config.database, $"SELECT expirationDate, rowid from playerBuyOrders where characterId = @characterId");
-      NWScript.SqlBindInt(query, "@characterId", player.characterId);
+      var result = SqLiteUtils.SelectQuery("playerBuyOrders",
+          new List<string>() { { "expirationDate" }, { "rowid" } },
+          new List<string[]>() { new string[] { "characterId", player.characterId.ToString() } });
 
-      while (NWScript.SqlStep(query) > 0)
+      if(result != null)
       {
-        int contractId = NWScript.SqlGetInt(query, 1);
-
-        if ((DateTime.Parse(NWScript.SqlGetString(query, 0)) - DateTime.Now).TotalSeconds < 0)
+        foreach(var contract in result)
         {
-          Task contractExpiration = NwTask.Run(async () =>
+          int contractId = contract.GetInt(1);
+
+          if ((DateTime.Parse(contract.GetString(0)) - DateTime.Now).TotalSeconds < 0)
           {
-            await NwTask.Delay(TimeSpan.FromSeconds(0.2));
-            DeleteExpiredBuyOrder(player, contractId);
-          });
+            Task contractExpiration = NwTask.Run(async () =>
+            {
+              await NwTask.Delay(TimeSpan.FromSeconds(0.2));
+              DeleteExpiredBuyOrder(player, contractId);
+            });
+          }
         }
       }
     }
     private static void DeleteExpiredBuyOrder(Player player, int contractId)
     {
-      var query = NWScript.SqlPrepareQueryCampaign(Config.database, $"SELECT quantity, unitPrice from playerBuyOrders where rowid = @rowid");
-      NWScript.SqlBindInt(query, "@rowid", contractId);
-      NWScript.SqlStep(query);
+      var result = SqLiteUtils.SelectQuery("playerBuyOrders",
+          new List<string>() { { "quantity" }, { "unitPrice" } },
+          new List<string[]>() { new string[] { "rowid", player.characterId.ToString() } });
 
-      int gold = NWScript.SqlGetInt(query, 0) + NWScript.SqlGetInt(query, 1);
-      player.bankGold += gold;
-      player.oid.SendServerMessage($"Expiration de l'ordre d'achat {contractId} - {gold} pièce(s) d'or ont été reversées à votre banque.");
+      if(result != null && result.Count() > 0)
+      {
+        int gold = result.FirstOrDefault().GetInt(0) * result.FirstOrDefault().GetInt(1);
+        player.bankGold += gold;
+        player.oid.SendServerMessage($"Expiration de l'ordre d'achat {contractId} - {gold} pièce(s) d'or ont été reversées à votre banque.");
 
-      SqLiteUtils.DeletionQuery("playerBuyOrders",
-          new Dictionary<string, string>() { { "rowid", contractId.ToString() } });
+        SqLiteUtils.DeletionQuery("playerBuyOrders",
+            new Dictionary<string, string>() { { "rowid", contractId.ToString() } });
+      }
     }
     private static void HandleExpiredSellOrders(Player player)
     {
-      var query = NWScript.SqlPrepareQueryCampaign(Config.database, $"SELECT expirationDate, rowid from playerSellOrders where characterId = @characterId");
-      NWScript.SqlBindInt(query, "@characterId", player.characterId);
+      var result = SqLiteUtils.SelectQuery("playerSellOrders",
+          new List<string>() { { "expirationDate" }, { "rowid" } },
+          new List<string[]>() { new string[] { "characterId", player.characterId.ToString() } });
 
-      while (NWScript.SqlStep(query) > 0)
+      if(result != null)
       {
-        int contractId = NWScript.SqlGetInt(query, 1);
-
-        if ((DateTime.Parse(NWScript.SqlGetString(query, 0)) - DateTime.Now).TotalSeconds < 0)
+        foreach(var sellOrder in result)
         {
-          Task contractExpiration = NwTask.Run(async () =>
+          int contractId = sellOrder.GetInt(1);
+
+          if ((DateTime.Parse(sellOrder.GetString(0)) - DateTime.Now).TotalSeconds < 0)
           {
-            await NwTask.Delay(TimeSpan.FromSeconds(0.2));
-            DeleteExpiredBuyOrder(player, contractId);
-          });
+            Task contractExpiration = NwTask.Run(async () =>
+            {
+              await NwTask.Delay(TimeSpan.FromSeconds(0.2));
+              DeleteExpiredSellOrder(player, contractId);
+            });
+          }
         }
       }
     }
     private static void DeleteExpiredSellOrder(Player player, int contractId)
     {
-      var query = NWScript.SqlPrepareQueryCampaign(Config.database, $"SELECT playerSellOrders, quantity from playerSellOrders where rowid = @rowid");
-      NWScript.SqlBindInt(query, "@rowid", contractId);
-      NWScript.SqlStep(query);
+      var result = SqLiteUtils.SelectQuery("playerSellOrders",
+          new List<string>() { { "playerSellOrders" }, { "quantity" } },
+          new List<string[]>() { new string[] { "rowid", contractId.ToString() } });
 
-      string material = NWScript.SqlGetString(query, 0);
-      int quantity = NWScript.SqlGetInt(query, 1);
+      if(result != null && result.Count() > 0)
+      {
+        string material = result.FirstOrDefault().GetString(0);
+        int quantity = result.FirstOrDefault().GetInt(1);
 
-      if (player.materialStock.ContainsKey(material))
-        player.materialStock[material] += quantity;
-      else
-        player.materialStock.Add(material, quantity);
+        if (player.materialStock.ContainsKey(material))
+          player.materialStock[material] += quantity;
+        else
+          player.materialStock.Add(material, quantity);
 
-      player.oid.SendServerMessage($"Expiration de l'ordre de vente {contractId} - {quantity} unité(s) de {material} sont en cours de transfert vers votre entrepôt.");
+        player.oid.SendServerMessage($"Expiration de l'ordre de vente {contractId} - {quantity} unité(s) de {material} sont en cours de transfert vers votre entrepôt.");
 
-      SqLiteUtils.DeletionQuery("playerSellOrders",
-         new Dictionary<string, string>() { { "rowid", contractId.ToString() } });
+        SqLiteUtils.DeletionQuery("playerSellOrders",
+           new Dictionary<string, string>() { { "rowid", contractId.ToString() } });
+      }
     }
     private static void HandleNewMails(Player player)
     {
-      var query = NWScript.SqlPrepareQueryCampaign(Config.database, $"SELECT count (*) from messenger where characterId = @characterId and read = 0");
-      NWScript.SqlBindInt(query, "@characterId", player.characterId);
+      var result = SqLiteUtils.SelectQuery("messenger",
+          new List<string>() { { "count (*)" } },
+          new List<string[]>() { new string[] { "characterId", player.characterId.ToString() }, new string[] { "read","0" } });
 
-      if(NWScript.SqlStep(query) != 0 && NWScript.SqlGetInt(query, 0) > 0)
+      if(result != null && result.Count() > 0)
       {
-        player.oid.SendServerMessage($"{NWScript.SqlGetString(query, 0).ColorString(ColorConstants.White)} lettres non lues se trouvent dans votre boîte aux lettres.", ColorConstants.Pink);
+        player.oid.SendServerMessage($"{result.FirstOrDefault().GetString(0).ColorString(ColorConstants.White)} lettres non lues se trouvent dans votre boîte aux lettres.", ColorConstants.Pink);
       }
     }
   }

@@ -20,15 +20,6 @@ namespace NWN.Systems
 
         if (player.oid.PlayerName == "Chim")
         {
-          var query = NwModule.Instance.PrepareCampaignSQLQuery(Config.database, $"SELECT bonusRolePlay, bidule, truc from PlayerAccounts where rowid = @accountId");
-          query.BindParam("@accountId", player.accountId);
-          query.BindParam("@accountId", player.accountId);
-          query.BindParam("@accountId", player.accountId);
-          query.Execute();
-
-          foreach (var result in query.Results)
-            Log.Info($"result : {result.GetInt(0)} - {result.GetInt(1)} - {result.GetVector3(2)}");
-
           /*Effect eff = Effect.DamageIncrease(10, DamageType.Acid);
           GC.SuppressFinalize(eff);
           player.oid.ControlledCreature.ApplyEffect(EffectDuration.Temporary, eff, TimeSpan.FromSeconds(10));

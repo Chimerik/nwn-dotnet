@@ -43,14 +43,16 @@ namespace NWN.Systems
       {
         string input = player.oid.LoginCreature.GetLocalVariable<string>("_PLAYER_INPUT").Value;
 
-        var query = NWScript.SqlPrepareQueryCampaign(Config.database, $"INSERT INTO playerItemAppearance (characterId, appearanceName, serializedAppearance, baseItemType, AC) VALUES (@characterId, @appearanceName, @serializedAppearance, @baseItemType, @AC)" +
-              $"ON CONFLICT (characterId, appearanceName) DO UPDATE SET serializedAppearance = @serializedAppearance, baseItemType = @baseItemType, AC = @AC where characterId = @characterId and appearanceName = @appearanceName");
-        NWScript.SqlBindInt(query, "@characterId", player.characterId);
-        NWScript.SqlBindString(query, "@appearanceName", input);
-        NWScript.SqlBindString(query, "@serializedAppearance", item.Appearance.Serialize());
-        NWScript.SqlBindInt(query, "@baseItemType", (int)item.BaseItemType);
-        NWScript.SqlBindInt(query, "@AC", ACValue);
-        NWScript.SqlStep(query);
+        SqLiteUtils.InsertQuery("playerItemAppearance",
+          new List<string[]>() {
+            new string[] { "characterId", player.characterId.ToString() },
+            new string[] { "appearanceName", input },
+            new string[] { "serializedAppearance", item.Appearance.Serialize() },
+            new string[] { "baseItemType", ((int)item.BaseItemType).ToString() },
+            new string[] { "AC", ACValue.ToString() }},
+          new List<string>() { "characterId", "appearanceName" },
+          new List<string[]>() { new string[] { "serializedAppearance" }, new string[] { "baseItemType" }, new string[] { "AC" } },
+          new List<string>() { "characterId", "appearanceName" });
 
         player.oid.SendServerMessage($"L'apparence de votre {selection.TargetObject.Name.ColorString(ColorConstants.White)} a été sauvegardée sous le nom {input.ColorString(ColorConstants.White)}.", ColorConstants.Green);
         player.menu.Close();

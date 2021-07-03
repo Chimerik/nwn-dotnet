@@ -46,12 +46,14 @@ namespace NWN.Systems
     }
     private void SaveQuickBar(string quickBarName)
     {
-      var quickbarQuery = NWScript.SqlPrepareQueryCampaign(Config.database, $"INSERT INTO playerQuickbar (characterId, quickbarName, serializedQuickbar) VALUES (@characterId, @quickbarName, @serializedQuickbar)" +
-              $"ON CONFLICT (characterId, quickbarName) DO UPDATE SET serializedQuickbar = @serializedQuickbar where characterId = @characterId and quickbarName = @quickbarName");
-      NWScript.SqlBindInt(quickbarQuery, "@characterId", player.characterId);
-      NWScript.SqlBindString(quickbarQuery, "@quickbarName", quickBarName);
-      NWScript.SqlBindString(quickbarQuery, "@serializedQuickbar", player.oid.ControlledCreature.SerializeQuickbar().ToBase64EncodedString());
-      NWScript.SqlStep(quickbarQuery);
+      SqLiteUtils.InsertQuery("playerQuickbar",
+          new List<string[]>() {
+            new string[] { "characterId", player.oid.PlayerName },
+            new string[] { "quickbarName", quickBarName },
+            new string[] { "serializedQuickbar", player.oid.ControlledCreature.SerializeQuickbar().ToBase64EncodedString() } },
+          new List<string>() { "characterId", "quickbarName" },
+          new List<string[]>() { new string[] { "serializedQuickbar" } },
+          new List<string>() { "characterId", "quickbarName" });
 
       player.oid.SendServerMessage($"Votre barre de raccourcis {quickBarName.ColorString(ColorConstants.White)} a bien été enregistrée !", new Color(32, 255, 32));
 
@@ -66,15 +68,17 @@ namespace NWN.Systems
         "Laquelle souhaitez-vous consulter ?"
         };
 
-      var query = NWScript.SqlPrepareQueryCampaign(Config.database, $"SELECT quickbarName, serializedQuickbar from playerQuickbar where characterId = @characterId");
-      NWScript.SqlBindInt(query, "@characterId", player.characterId);
+      var result = SqLiteUtils.SelectQuery("playerQuickbar",
+        new List<string>() { { "quickbarName" }, { "serializedQuickbar" } },
+        new List<string[]>() { new string[] { "characterId", player.characterId.ToString() } });
 
-      while (NWScript.SqlStep(query) > 0)
+      if(result != null)
+      foreach (var qbs in result)
       {
-        string quickbarName = NWScript.SqlGetString(query, 0);
-        string serializedQuickbar = NWScript.SqlGetString(query, 1);
+        string quickbarName = qbs.GetString(0);
+        string serializedQuickbar = qbs.GetString(1);
 
-        player.menu.choices.Add((
+          player.menu.choices.Add((
           quickbarName,
           () => HandleSelectedQuickbar(quickbarName, serializedQuickbar)
         ));

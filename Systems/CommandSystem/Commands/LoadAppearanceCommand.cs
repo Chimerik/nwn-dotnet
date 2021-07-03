@@ -38,15 +38,15 @@ namespace NWN.Systems
         $"Voici la liste de vos apparences sauvegardées qui peuvent être appliquées sur votre {item.Name.ColorString(ColorConstants.White)}".ColorString(ColorConstants.Navy)
       };
 
-      var query = NWScript.SqlPrepareQueryCampaign(Config.database, $"SELECT appearanceName, serializedAppearance from playerItemAppearance where characterId = @characterId and AC = @AC and baseItemType = @baseItemType");
-      NWScript.SqlBindInt(query, "@characterId", player.characterId);
-      NWScript.SqlBindInt(query, "@AC", ACValue);
-      NWScript.SqlBindInt(query, "@baseItemType", (int)item.BaseItemType);
+      var query = SqLiteUtils.SelectQuery("playerItemAppearance",
+        new List<string>() { { "appearanceName" }, { "serializedAppearance" } },
+        new List<string[]>() { new string[] { "characterId", player.characterId.ToString() }, { new string[] { "AC", ACValue.ToString() } }, { new string[] { "baseItemType", ((int)item.BaseItemType).ToString() } } } );
 
-      while (NWScript.SqlStep(query) > 0)
+      if(query != null)
+      foreach (var itemAppearance in query)
       {
-        string message = $"- {NWScript.SqlGetString(query, 0)}".ColorString(ColorConstants.Cyan);
-        string appearance = NWScript.SqlGetString(query, 1);
+        string message = $"- {itemAppearance.GetString(0)}".ColorString(ColorConstants.Cyan);
+        string appearance = itemAppearance.GetString(1);
 
         player.menu.choices.Add((
           message,

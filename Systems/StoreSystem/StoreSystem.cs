@@ -29,8 +29,8 @@ namespace NWN.System
       if (PlayerSystem.Players.TryGetValue(onClose.Creature, out PlayerSystem.Player seller))
       {
         SqLiteUtils.UpdateQuery("playerCharacters",
-          new Dictionary<string, string>() { { "storage", onClose.Store.Serialize().ToBase64EncodedString() } },
-          new Dictionary<string, string>() { { "rowid", seller.characterId.ToString() } });
+          new List<string[]>() { new string[] { "storage", onClose.Store.Serialize().ToBase64EncodedString() } },
+          new List<string[]>() { new string[] { "rowid", seller.characterId.ToString() } });
       }
     }
     public static void HandlePersonnalStorageBuy(OnStoreRequestBuy onStoreRequestBuy)
@@ -67,8 +67,8 @@ namespace NWN.System
       NwPlaceable panel = onClose.Store.GetNearestObjectsByType<NwPlaceable>().FirstOrDefault(p => p.Tag.StartsWith($"_PLAYER_SHOP_PLC_"));
 
       SqLiteUtils.UpdateQuery("playerShops",
-        new Dictionary<string, string>() { { "shop", onClose.Store.Serialize().ToBase64EncodedString() }, { "panel", panel.Serialize().ToBase64EncodedString() } },
-        new Dictionary<string, string>() { { "rowid", onClose.Store.GetLocalVariable<int>("_SHOP_ID").Value.ToString() } });
+        new List<string[]>() { new string[] { "shop", onClose.Store.Serialize().ToBase64EncodedString() }, new string[] { "panel", panel.Serialize().ToBase64EncodedString() } },
+        new List<string[]>() { new string[] { "rowid", onClose.Store.GetLocalVariable<int>("_SHOP_ID").Value.ToString() } });
     }
     public static void HandleOtherPlayerShopBuy(OnStoreRequestBuy onStoreRequestBuy)
     {
@@ -94,8 +94,8 @@ namespace NWN.System
           Utils.SendMailToPC(ownerId, "Hotel des ventes de Similisse", $"{onStoreRequestBuy.Item.Name} vendu !", $"Très honoré marchand, \n\n Nous avons l'insigne honneur de vous informer que votre {onStoreRequestBuy.Item.Name} a été vendu au doux prix de {onStoreRequestBuy.Price}. Félicitations ! \n\n Signé, Polpo");
 
           SqLiteUtils.UpdateQuery("playerShops",
-            new Dictionary<string, string>() { { "bankGold+", price.ToString() } },
-            new Dictionary<string, string>() { { "rowid", ownerId.ToString() } });
+            new List<string[]>() { new string[] { "bankGold+", price.ToString()  } },
+            new List<string[]>() { new string[] { "rowid", ownerId.ToString() } });
         }
       }
     }
@@ -129,27 +129,19 @@ namespace NWN.System
 
       if (onClose.Store.GetLocalVariable<int>("_SHOP_ID").HasNothing)
       {
-        var query = NWScript.SqlPrepareQueryCampaign(Config.database, $"INSERT INTO playerShops (characterId, shop, panel, expirationDate, areaTag, position, facing) VALUES (@characterId, @shop, @panel, @expirationDate, @areaTag, @position, @facing)");
-        NWScript.SqlBindInt(query, "@characterId", seller.characterId);
-        NWScript.SqlBindString(query, "@shop", onClose.Store.Serialize().ToBase64EncodedString());
-        NWScript.SqlBindString(query, "@panel", panel.Serialize().ToBase64EncodedString());
-        NWScript.SqlBindString(query, "@expirationDate", DateTime.Now.AddDays(30).ToString());
-        NWScript.SqlBindString(query, "@areaTag", onClose.Store.Area.Tag);
-        NWScript.SqlBindVector(query, "@position", onClose.Store.Position);
-        NWScript.SqlBindFloat(query, "@facing", onClose.Store.Rotation);
-        NWScript.SqlStep(query);
+        SqLiteUtils.InsertQuery("playerShops",
+          new List<string[]>() { new string[] { "characterId", seller.characterId.ToString() }, new string[] { "shop", onClose.Store.Serialize().ToBase64EncodedString() }, new string[] { "panel", panel.Serialize().ToBase64EncodedString() }, new string[] { "expirationDate", DateTime.Now.AddDays(30).ToString() }, new string[] { "areaTag", onClose.Store.Area.Tag }, new string[]  { "position", onClose.Store.Position.ToString() }, new string[] { "facing", onClose.Store.Rotation.ToString() } });
 
-        query = NWScript.SqlPrepareQueryCampaign(Config.database, $"SELECT last_insert_rowid()");
-        NWScript.SqlStep(query);
-
-        onClose.Store.GetLocalVariable<int>("_SHOP_ID").Value = NWScript.SqlGetInt(query, 0);
-        panel.GetLocalVariable<int>("_SHOP_ID").Value = NWScript.SqlGetInt(query, 0);
+        var rowQuery = NwModule.Instance.PrepareCampaignSQLQuery(Config.database, "SELECT last_insert_rowid()");
+        rowQuery.Execute();
+        onClose.Store.GetLocalVariable<int>("_SHOP_ID").Value = rowQuery.Result.GetInt(0);
+        panel.GetLocalVariable<int>("_SHOP_ID").Value = rowQuery.Result.GetInt(0);
       }
       else
       {
         SqLiteUtils.UpdateQuery("playerShops",
-          new Dictionary<string, string>() { { "shop", onClose.Store.Serialize().ToBase64EncodedString() }, { "panel", panel.Serialize().ToBase64EncodedString() } },
-          new Dictionary<string, string>() { { "rowid", onClose.Store.GetLocalVariable<int>("_SHOP_ID").Value.ToString() } });
+          new List<string[]>() { new string[] { "shop", onClose.Store.Serialize().ToBase64EncodedString() }, new string[] { "panel", panel.Serialize().ToBase64EncodedString() } },
+          new List<string[]>() { new string[] { "rowid", onClose.Store.GetLocalVariable<int>("_SHOP_ID").Value.ToString() } });
       }
     }
     public static void HandleOwnedPlayerShopBuy(OnStoreRequestBuy onStoreRequestBuy)
@@ -246,8 +238,8 @@ namespace NWN.System
         onClose.Store.GetLocalVariable<int>("_CURRENT_AUCTION").Value + " Fin : " + onClose.Store.GetLocalVariable<int>("_AUCTION_END_DATE").Value;
 
       SqLiteUtils.UpdateQuery("playerShops",
-        new Dictionary<string, string>() { { "shop", onClose.Store.Serialize().ToBase64EncodedString() }, { "panel", panel.Serialize().ToBase64EncodedString() }, { "highestAuction", onClose.Store.GetLocalVariable<int>("_CURRENT_AUCTION").Value.ToString() }, { "highestAuctionner", onClose.Store.GetLocalVariable<int>("_CURRENT_AUCTIONNER").Value.ToString() } },
-        new Dictionary<string, string>() { { "rowid", onClose.Store.GetLocalVariable<int>("_AUCTION_ID").Value.ToString() } });
+        new List<string[]>() { new string[] { "shop", onClose.Store.Serialize().ToBase64EncodedString() }, new string[] { "panel", panel.Serialize().ToBase64EncodedString() }, new string[] { "highestAuction", onClose.Store.GetLocalVariable<int>("_CURRENT_AUCTION").Value.ToString() }, new string[] { "highestAuctionner", onClose.Store.GetLocalVariable<int>("_CURRENT_AUCTIONNER").Value.ToString() } },
+        new List<string[]>() { new string[] { "rowid", onClose.Store.GetLocalVariable<int>("_AUCTION_ID").Value.ToString() } });
     }
     public static void HandleOtherPlayerAuctionBuy(OnStoreRequestBuy onStoreRequestBuy)
     {
@@ -289,29 +281,19 @@ namespace NWN.System
 
       if (onClose.Store.GetLocalVariable<int>("_AUCTION_ID").HasNothing)
       {
-        var query = NWScript.SqlPrepareQueryCampaign(Config.database, $"INSERT INTO playerAuctions (characterId, shop, panel, expirationDate, highestAuction, highestAuctionner, areaTag, position, facing) VALUES (@characterId, @shop, @panel, @expirationDate, @highestAuction, @highestAuctionner, @areaTag, @position, @facing)");
-        NWScript.SqlBindInt(query, "@characterId", seller.characterId);
-        NWScript.SqlBindString(query, "@shop", onClose.Store.Serialize().ToBase64EncodedString());
-        NWScript.SqlBindString(query, "@panel", panel.Serialize().ToBase64EncodedString());
-        NWScript.SqlBindString(query, "@expirationDate", onClose.Store.GetLocalVariable<string>("_AUCTION_END_DATE").Value);
-        NWScript.SqlBindInt(query, "@highestAuction", onClose.Store.GetLocalVariable<int>("_CURRENT_AUCTION").Value);
-        NWScript.SqlBindInt(query, "@highestAuctionner", 0);
-        NWScript.SqlBindString(query, "@areaTag", panel.Area.Tag);
-        NWScript.SqlBindVector(query, "@position", panel.Position);
-        NWScript.SqlBindFloat(query, "@facing", panel.Rotation);
-        NWScript.SqlStep(query);
+        SqLiteUtils.InsertQuery("playerAuctions",
+          new List<string[]>() { new string[] { "characterId", seller.characterId.ToString() }, new string[] { "shop", onClose.Store.Serialize().ToBase64EncodedString() }, new string[] { "panel", panel.Serialize().ToBase64EncodedString() }, new string[] { "expirationDate", onClose.Store.GetLocalVariable<string>("_AUCTION_END_DATE").Value }, new string[] { "highestAuction", onClose.Store.GetLocalVariable<int>("_CURRENT_AUCTION").Value.ToString() }, new string[] { "highestAuctionner", "0" }, new string[] { "areaTag", onClose.Store.Area.Tag }, new string[] { "position", onClose.Store.Position.ToString() }, new string[] { "facing", onClose.Store.Rotation.ToString() } });
 
-        query = NWScript.SqlPrepareQueryCampaign(Config.database, $"SELECT last_insert_rowid()");
-        NWScript.SqlStep(query);
-
-        onClose.Store.GetLocalVariable<int>("_AUCTION_ID").Value = NWScript.SqlGetInt(query, 0);
-        panel.GetLocalVariable<int>("_AUCTION_ID").Value = NWScript.SqlGetInt(query, 0);
+        var rowQuery = NwModule.Instance.PrepareCampaignSQLQuery(Config.database, "SELECT last_insert_rowid()");
+        rowQuery.Execute();
+        onClose.Store.GetLocalVariable<int>("_AUCTION_ID").Value = rowQuery.Result.GetInt(0);
+        panel.GetLocalVariable<int>("_AUCTION_ID").Value = rowQuery.Result.GetInt(0);
       }
       else
       {
         SqLiteUtils.UpdateQuery("playerShops",
-        new Dictionary<string, string>() { { "shop", onClose.Store.Serialize().ToBase64EncodedString() }, { "panel", panel.Serialize().ToBase64EncodedString() }, { "highestAuction", onClose.Store.GetLocalVariable<int>("_CURRENT_AUCTION").Value.ToString() }, { "highestAuctionner", onClose.Store.GetLocalVariable<int>("_CURRENT_AUCTIONNER").Value.ToString() } },
-        new Dictionary<string, string>() { { "rowid", onClose.Store.GetLocalVariable<int>("_AUCTION_ID").Value.ToString() } });
+        new List<string[]>() { new string[] { "shop", onClose.Store.Serialize().ToBase64EncodedString() }, new string[] { "panel", panel.Serialize().ToBase64EncodedString() }, new string[] { "highestAuction", onClose.Store.GetLocalVariable<int>("_CURRENT_AUCTION").Value.ToString() }, new string[] { "highestAuctionner", onClose.Store.GetLocalVariable<int>("_CURRENT_AUCTIONNER").Value.ToString() } },
+        new List<string[]>() { new string[] { "rowid", onClose.Store.GetLocalVariable<int>("_AUCTION_ID").Value.ToString() } });
       }
     }
     public static void HandleOwnedPlayerAuctionBuy(OnStoreRequestBuy onStoreRequestBuy)
@@ -461,11 +443,11 @@ namespace NWN.System
 
       if (PlayerSystem.Players.TryGetValue(onClose.Creature, out PlayerSystem.Player seller))
       {
-        var query = NWScript.SqlPrepareQueryCampaign(Config.database, $"INSERT INTO arenaRewardShop (id, shop) VALUES (@id, @shop)" +
-              $"ON CONFLICT (id) DO UPDATE SET shop = @shop where id = @id");
-        NWScript.SqlBindInt(query, "@id", 1);
-        NWScript.SqlBindObject(query, "@shop", onClose.Store);
-        NWScript.SqlStep(query);
+        SqLiteUtils.InsertQuery("arenaRewardShop",
+          new List<string[]>() { new string[] { "id", "1" }, new string[] { "shop", onClose.Store.Serialize().ToBase64EncodedString() } },
+          new List<string>() { "id" },
+          new List<string[]>() { new string[] { "shop" } },
+          new List<string>() { "id" });
       }
     }
     public static void HandleModifyArenaRewardStoreBuy(OnStoreRequestBuy onStoreRequestBuy)
@@ -543,11 +525,11 @@ namespace NWN.System
       if (!PlayerSystem.Players.TryGetValue(onClose.Creature, out PlayerSystem.Player seller))
         return;
 
-      var query = NWScript.SqlPrepareQueryCampaign(Config.database, $"INSERT INTO arenaRewardShop (id, shop) VALUES (@id, @shop)" +
-              $"ON CONFLICT (id) DO UPDATE SET shop = @shop where id = @id");
-      NWScript.SqlBindInt(query, "@id", 1);
-      NWScript.SqlBindObject(query, "@shop", onClose.Store);
-      NWScript.SqlStep(query);
+      SqLiteUtils.InsertQuery("arenaRewardShop",
+          new List<string[]>() { new string[] { "id", "1" }, new string[] { "shop", onClose.Store.Serialize().ToBase64EncodedString() } },
+          new List<string>() { "id" },
+          new List<string[]>() { new string[] { "shop" } },
+          new List<string>() { "id" });
     }
     public static void HandleArenaRewardStoreBuy(OnStoreRequestBuy onStoreRequestBuy)
     {

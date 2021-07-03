@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using Discord.Commands;
 using NWN.API;
@@ -20,19 +21,18 @@ namespace NWN.Systems
         case "admin":
         case "staff":
 
-          if(!NwModule.FindObjectsWithTag<NwArea>(areaTag).Any())
+          if(!NwObject.FindObjectsWithTag<NwArea>(areaTag).Any())
           {
             await context.Channel.SendMessageAsync($"Aucune zone correspondant au tag {areaTag} n'existe sur le module.");
             return;
           }
 
-          var query = NWScript.SqlPrepareQueryCampaign(Config.database, $"INSERT INTO areaDescriptions " +
-        $"(areaTag, description) " +
-        $"VALUES  (@areaTag, @description) " +
-        $"ON CONFLICT(areaTag) DO UPDATE SET description = @description");
-          NWScript.SqlBindString(query, "@areaTag", areaTag);
-          NWScript.SqlBindString(query, "@description", descriptionText);
-          NWScript.SqlStep(query);
+          SqLiteUtils.InsertQuery("areaDescriptions",
+          new List<string[]>() {
+            new string[] { "areaTag", areaTag },
+            new string[] { "description", descriptionText } },
+          new List<string>() { "areaTag" },
+          new List<string[]>() { new string[] { "description" } });
 
           await context.Channel.SendMessageAsync($"La description de la zone a bien été enregistrée.");
 

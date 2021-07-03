@@ -65,12 +65,13 @@ namespace NWN.Systems
     }
     private void SaveRumorToDatabase(string rumorContent)
     {
-      var query = NWScript.SqlPrepareQueryCampaign(Config.database, $"INSERT INTO rumors (accountId, title, content) VALUES (@accountId, @title, @content)" +
-          $"ON CONFLICT (accountId, title) DO UPDATE SET content = @content;");
-      NWScript.SqlBindInt(query, "@accountId", player.accountId);
-      NWScript.SqlBindString(query, "@title", rumorTitle);
-      NWScript.SqlBindString(query, "@content", rumorContent);
-      NWScript.SqlStep(query);
+      SqLiteUtils.InsertQuery("rumors",
+          new List<string[]>() {
+            new string[] { "accountId", player.accountId.ToString() },
+            new string[] { "title", rumorTitle },
+            new string[] { "content", rumorContent } },
+          new List<string>() { "accountId", "title" },
+          new List<string[]>() { new string[] { "content" } });
 
       player.oid.SendServerMessage($"Héhé {rumorTitle.ColorString(ColorConstants.White)}, c'est pas tombé dans l'oreille d'un sourd !", ColorConstants.Pink);
       player.menu.Close();
@@ -82,16 +83,18 @@ namespace NWN.Systems
     {
       player.menu.Clear();
       player.menu.titleLines.Add($"Quelle rumeur souhaitez-vous supprimer ?");
-      
-      var query = NWScript.SqlPrepareQueryCampaign(Config.database, $"SELECT title, rowid from rumors where accountId = @accountId");
-      NWScript.SqlBindInt(query, "@accountId", player.accountId);
 
-      while (NWScript.SqlStep(query) > 0)
-      {
-        int rumorId = NWScript.SqlGetInt(query, 1);
-        rumorTitle = NWScript.SqlGetString(query, 0);
-        player.menu.choices.Add((rumorTitle, () => HandleDeleteRumor(rumorId)));
-      }
+      var result = SqLiteUtils.SelectQuery("rumors",
+        new List<string>() { { "title" }, { "rowid" } },
+        new List<string[]>() { new string[] { "accountId", player.accountId.ToString() } });
+
+      if (result != null)
+        foreach (var rumor in result)
+        {
+          int rumorId = rumor.GetInt(1);
+          rumorTitle = rumor.GetString(0);
+          player.menu.choices.Add((rumorTitle, () => HandleDeleteRumor(rumorId)));
+        }
 
       player.menu.choices.Add(("Retour", () => DrawWelcomePage()));
       player.menu.Draw();

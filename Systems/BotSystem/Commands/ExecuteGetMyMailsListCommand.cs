@@ -1,4 +1,5 @@
-﻿using System.Threading.Tasks;
+﻿using System.Collections.Generic;
+using System.Threading.Tasks;
 using Discord.Commands;
 using NWN.API;
 using NWN.Core;
@@ -18,16 +19,19 @@ namespace NWN.Systems
         return;
       }
 
-      var query = NWScript.SqlPrepareQueryCampaign(Config.database, $"SELECT rowid, senderName, title, sentDate, read from messenger where characterId = @characterId order by sentDate desc");
-      NWScript.SqlBindInt(query, "@characterId", result);
+      var query = SqLiteUtils.SelectQuery("messenger",
+        new List<string>() { { "rowid" }, { "senderName" }, { "title" }, { "sentDate" }, { "read" } },
+        new List<string[]>() { new string[] { "characterId", result.ToString() } },
+        " order by sentDate desc");
 
       string messageList = $"Liste des messages reçus par {characterName} :\n\n";
       
-      while(NWScript.SqlStep(query) != 0)
+      if(query != null)
+      foreach(var mail in query)
       {
-        if (NWScript.SqlGetInt(query, 4) == 1)
+        if (mail.GetInt(4) == 1)
           messageList += "Lu | ";
-        messageList += $"{NWScript.SqlGetInt(query, 0)} | {NWScript.SqlGetString(query, 1)} | {NWScript.SqlGetString(query, 2)} | {NWScript.SqlGetString(query, 3)}";
+        messageList += $"{mail.GetInt(0)} | {mail.GetString(1)} | {mail.GetString(2)} | {mail.GetString(3)}";
       }
 
       await context.Channel.SendMessageAsync(messageList);

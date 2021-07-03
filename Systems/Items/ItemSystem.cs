@@ -217,10 +217,6 @@ namespace NWN.Systems
         VisibilityPlugin.SetVisibilityOverride(NWScript.OBJECT_INVALID, oCorpse, VisibilityPlugin.NWNX_VISIBILITY_HIDDEN);
         PlayerSystem.SetupPCCorpse(oCorpse);
 
-        var query = NWScript.SqlPrepareQueryCampaign(Config.database, $"SELECT characterName from playerCharacters where rowid = @characterId");
-        NWScript.SqlBindInt(query, "@characterId", NWScript.GetLocalInt(oItem, "_PC_ID"));
-        NWScript.SqlStep(query);
-
         PlayerSystem.SavePlayerCorpseToDatabase(oItem.GetLocalVariable<int>("_PC_ID").Value, oCorpse);
       }
 

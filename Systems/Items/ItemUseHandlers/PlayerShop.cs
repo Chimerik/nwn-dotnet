@@ -1,4 +1,6 @@
-﻿using NWN.API;
+﻿using System.Collections.Generic;
+using System.Linq;
+using NWN.API;
 using NWN.Core;
 using static NWN.Systems.PlayerSystem;
 
@@ -15,13 +17,13 @@ namespace NWN.Systems
       if (player.learntCustomFeats.ContainsKey(CustomFeats.Magnat))
         MagnatLevel += SkillSystem.GetCustomFeatLevelFromSkillPoints(CustomFeats.Magnat, player.learntCustomFeats[CustomFeats.Magnat]);
 
-      var query = NWScript.SqlPrepareQueryCampaign(Config.database, $"SELECT count(*) FROM playerShops where characterId = @characterId");
-      NWScript.SqlBindInt(query, "@characterId", player.characterId);
-      NWScript.SqlStep(query);
+      var result = SqLiteUtils.SelectQuery("playerShops",
+          new List<string>() { { "count(*)" } },
+          new List<string[]>() { new string[] { "characterId", player.characterId.ToString() } });
 
-      if (NWScript.SqlStep(query) == 1 && NWScript.SqlGetInt(query, 0) > MagnatLevel)
+      if (result != null && result.FirstOrDefault().GetInt(0) > MagnatLevel)
       {
-        player.oid.SendServerMessage($"Votre niveau de magnat actuel vous permet de gérer {MagnatLevel.ToString().ColorString(ColorConstants.White)}, or vous en possédez déjà {NWScript.SqlGetInt(query, 0).ToString().ColorString(ColorConstants.White)}", ColorConstants.Orange);
+        player.oid.SendServerMessage($"Votre niveau de magnat actuel vous permet de gérer {MagnatLevel.ToString().ColorString(ColorConstants.White)}, or vous en possédez déjà {result.FirstOrDefault().GetString(0).ColorString(ColorConstants.White)}", ColorConstants.Orange);
         return;
       }
 
