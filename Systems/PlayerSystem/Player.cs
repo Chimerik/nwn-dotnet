@@ -219,16 +219,20 @@ namespace NWN.Systems
         switch (craftJob.type)
         {
           case Job.JobType.BlueprintCopy:
-            uint bpCopy = NWScript.CopyItem(ObjectPlugin.Deserialize((this.craftJob.craftedItem)), this.oid.LoginCreature, 1);
-            NWScript.SetLocalInt(bpCopy, "_BLUEPRINT_RUNS", 10);
-            NWScript.SetName(bpCopy, $"Copie de {NWScript.GetName(bpCopy)}");
+            NwItem bpCopy = NwItem.Deserialize(craftJob.craftedItem.ToByteArray());
+            oid.LoginCreature.AcquireItem(bpCopy);
+            bpCopy.GetLocalVariable<int>("_BLUEPRINT_RUNS").Value = 10;
+            bpCopy.Name = $"Copie de {bpCopy.Name}";         
             break;
           case Job.JobType.BlueprintResearchMaterialEfficiency:
-            uint improvedMEBP = NWScript.CopyItem(ObjectPlugin.Deserialize((this.craftJob.craftedItem)), this.oid.LoginCreature, 1);
-            NWScript.SetLocalInt(improvedMEBP, "_BLUEPRINT_MATERIAL_EFFICIENCY", NWScript.GetLocalInt(improvedMEBP, "_BLUEPRINT_MATERIAL_EFFICIENCY") + 1);
+            NwItem improvedMEBP = NwItem.Deserialize(craftJob.craftedItem.ToByteArray());
+            oid.LoginCreature.AcquireItem(improvedMEBP);
+            improvedMEBP.GetLocalVariable<int>("_BLUEPRINT_MATERIAL_EFFICIENCY").Value = improvedMEBP.GetLocalVariable<int>("_BLUEPRINT_MATERIAL_EFFICIENCY").Value + 1;
             break;
           case Job.JobType.BlueprintResearchTimeEfficiency:
-            ((NwItem)NwItem.Deserialize(craftJob.craftedItem.ToByteArray())).Clone(oid.LoginCreature).GetLocalVariable<int>("_BLUEPRINT_TIME_EFFICIENCY").Value += 1;
+            NwItem researchedBP = NwItem.Deserialize(craftJob.craftedItem.ToByteArray());
+            oid.LoginCreature.AcquireItem(researchedBP);
+            researchedBP.GetLocalVariable<int>("_BLUEPRINT_TIME_EFFICIENCY").Value += 1;
             break;
           case Job.JobType.Enchantement:
             NwItem enchantedItem = NwItem.Deserialize(craftJob.craftedItem.ToByteArray());
@@ -557,10 +561,10 @@ namespace NWN.Systems
           new List<string>() { { "accountName" } },
           new List<string[]>() { new string[] { "rowId", accountId.ToString() } });
 
-        if (result == null || result.Count() < 1)
+        if (result.Result == null)
           return "";
 
-        return result.FirstOrDefault().GetString(0);
+        return result.Result.GetString(0);
       }
       // Take gold from the PC or from his bank account
       public void PayOrBorrowGold(int price)

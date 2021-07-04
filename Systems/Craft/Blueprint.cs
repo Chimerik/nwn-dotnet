@@ -104,7 +104,7 @@ namespace NWN.Systems.Craft
           craftedItem.GetLocalVariable<int>("_AVAILABLE_ENCHANTEMENT_SLOT").Value = 1;
       }
 
-      /*switch (craftedItem.BaseItemType)
+     /* switch (craftedItem.BaseItemType)
       {
         case BaseItemType.Armor:
           return GetArmorProperties(craftedItem, materialTier);
@@ -120,6 +120,12 @@ namespace NWN.Systems.Craft
           return GetArmorPartProperties();
         case BaseItemType.Gloves:
           return GetGlovesProperties();
+        case BaseItemType.Amulet:
+          return GetAmuletProperties(materialTier);
+        case BaseItemType.Ring:
+          return GetRingProperties(materialTier);
+        case BaseItemType.Belt:
+          return GetBeltProperties(materialTier);
       }
 
       switch(GetItemCategory(craftedItem.BaseItemType))

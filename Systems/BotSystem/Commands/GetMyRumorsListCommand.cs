@@ -28,8 +28,8 @@ namespace NWN.Systems
             new List<string[]>() { new string[] { "accountId", accountId.ToString() } });
 
           string result = "";
-          if(result != null)
-          foreach (var rumors in query)
+
+          foreach (var rumors in query.Results)
             result += rumors.GetString(1) + " - " + rumors.GetString(0) + "\n";
 
           await context.Channel.SendMessageAsync($"Voici la liste des vos rumeurs actuellement en vogue :\n{result}");

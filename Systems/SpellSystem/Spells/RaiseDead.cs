@@ -31,8 +31,8 @@ namespace NWN.Systems
         oCaster.ControllingPlayer.SendServerMessage("Votre sort a bien eu l'effet escompté, cependant l'individu blessé semble encore avoir besoin de repos. Il faudra un certain temps avant de le voir se relever.");
 
         SqLiteUtils.UpdateQuery("playerCharacters",
-          new Dictionary<string, string>() { { "areaTag", onSpellCast.TargetObject.Area.Tag }, { "position", onSpellCast.TargetObject.Position.ToString() } },
-          new Dictionary<string, string>() { { "rowid", PcId.ToString() } });
+          new List<string[]>() { new string[] { "areaTag", onSpellCast.TargetObject.Area.Tag }, new string[] { "position", onSpellCast.TargetObject.Position.ToString() } },
+          new List<string[]>() { new string[] { "rowid", PcId.ToString() } });
       }
 
       ((NwPlaceable)onSpellCast.TargetObject).Inventory.Items.FirstOrDefault(c => c.Tag == "item_pccorpse").Destroy();

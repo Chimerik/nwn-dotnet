@@ -26,8 +26,7 @@ namespace NWN.Systems
 
       string messageList = $"Liste des messages reçus par {characterName} :\n\n";
       
-      if(query != null)
-      foreach(var mail in query)
+      foreach(var mail in query.Results)
       {
         if (mail.GetInt(4) == 1)
           messageList += "Lu | ";

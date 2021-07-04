@@ -18,8 +18,7 @@ namespace NWN.Systems
 
       string result = "";
 
-      if(query != null)
-      foreach (var player in query)
+      foreach (var player in query.Results)
         result += "ID : " + player.GetString(1) + " - " + player.GetString(0) + "\n";
 
       await context.Channel.SendMessageAsync($"Voici la liste des personnages créés sur le module :\n{result}");

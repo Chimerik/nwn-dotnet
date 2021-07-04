@@ -24,8 +24,8 @@ namespace NWN.Systems
         new List<string>() { { "rank" } },
         new List<string[]>() { new string[] { "discordId", UserId.ToString() } });
 
-      if (result != null && result.Count() > 0)
-        return result.FirstOrDefault().GetString(0);
+      if (result.Result != null)
+        return result.Result.GetString(0);
 
       return "";
     }
@@ -35,8 +35,8 @@ namespace NWN.Systems
         new List<string>() { { "ROWID" } },
         new List<string[]>() { new string[] { "discordId", UserId.ToString() } });
 
-      if (result != null && result.Count() > 0)
-        return result.FirstOrDefault().GetInt(0);
+      if (result.Result != null)
+        return result.Result.GetInt(0);
 
       return -1;
     }

@@ -21,9 +21,9 @@ namespace NWN.Systems
         new List<string>() { { "count(*)" } },
         new List<string[]>() { new string[] { "characterId", player.characterId.ToString() } });
 
-      if (result != null && result.FirstOrDefault().GetInt(0) > contractScienceLevel)
+      if (result.Result != null && result.Result.GetInt(0) > contractScienceLevel)
       {
-        player.oid.SendServerMessage($"Votre niveau de science du contrat actuel vous permet de gérer {contractScienceLevel.ToString().ColorString(ColorConstants.White)}, or vous en possédez déjà {result.FirstOrDefault().GetString(0).ColorString(ColorConstants.White)}", ColorConstants.Orange);
+        player.oid.SendServerMessage($"Votre niveau de science du contrat actuel vous permet de gérer {contractScienceLevel.ToString().ColorString(ColorConstants.White)}, or vous en possédez déjà {result.Result.GetString(0).ColorString(ColorConstants.White)}", ColorConstants.Orange);
         return;
       }
 

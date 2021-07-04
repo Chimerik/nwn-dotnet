@@ -88,13 +88,12 @@ namespace NWN.Systems
         new List<string>() { { "title" }, { "rowid" } },
         new List<string[]>() { new string[] { "accountId", player.accountId.ToString() } });
 
-      if (result != null)
-        foreach (var rumor in result)
-        {
-          int rumorId = rumor.GetInt(1);
-          rumorTitle = rumor.GetString(0);
-          player.menu.choices.Add((rumorTitle, () => HandleDeleteRumor(rumorId)));
-        }
+      foreach (var rumor in result.Results)
+      {
+        int rumorId = rumor.GetInt(1);
+        rumorTitle = rumor.GetString(0);
+        player.menu.choices.Add((rumorTitle, () => HandleDeleteRumor(rumorId)));
+      }
 
       player.menu.choices.Add(("Retour", () => DrawWelcomePage()));
       player.menu.Draw();

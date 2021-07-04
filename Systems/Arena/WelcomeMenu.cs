@@ -126,7 +126,7 @@ namespace NWN.Systems.Arena
         new List<string>() { { "shop" } },
         new List<string[]>() );
 
-        if (result == null || result.Count() < 1)
+        if (result.Result == null)
         {
           player.oid.SendServerMessage("La boutique de récompenses n'a pas encore été initialisée. Le staff a été prévenu de cette erreur", ColorConstants.Red);
           NWN.Utils.LogMessageToDMs("La boutique de récompense de l'arène PvE n'est pas initialisée.");
@@ -134,8 +134,7 @@ namespace NWN.Systems.Arena
         }
         else
         {
-          shop = NwStore.Deserialize(result.FirstOrDefault().GetString(0).ToByteArray());
-          shop.Location = player.oid.ControlledCreature.Location;
+          shop = SqLiteUtils.StoreSerializationFormatProtection(result.Result, 0, player.oid.ControlledCreature.Location);
 
           foreach (NwItem item in shop.Items)
             item.BaseGoldValue = (uint)(item.GetLocalVariable<int>("_SET_SELL_PRICE").Value);
@@ -192,14 +191,13 @@ namespace NWN.Systems.Arena
           new List<string>() { { "shop" } },
           new List<string[]>() { new string[] { "id", "1" } });
 
-        if (result == null || result.Count() < 1)
+        if (result.Result == null)
         {
           shop = NwStore.Create("generic_shop_res", player.oid.ControlledCreature.Location);
         }
         else
         {
-          shop = NwStore.Deserialize(result.FirstOrDefault().GetString(0).ToByteArray());
-          shop.Location = player.oid.ControlledCreature.Location;
+          shop = SqLiteUtils.StoreSerializationFormatProtection(result.Result, 0, player.oid.ControlledCreature.Location);
 
           foreach (NwItem item in shop.Items)
             item.BaseGoldValue = (uint)(item.GetLocalVariable<int>("_SET_SELL_PRICE").Value);

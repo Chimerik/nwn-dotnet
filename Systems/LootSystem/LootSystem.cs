@@ -46,11 +46,9 @@ namespace NWN.Systems
         new List<string>() { { "serializedChest" }, { "position" }, { "facing" } },
         new List<string[]>() );
 
-      if(query != null)
-      foreach (var result in query)
+      foreach (var result in query.Results)
       {
-          NwPlaceable oChest = NwPlaceable.Deserialize(result.GetString(0).ToByteArray());
-          oChest.Location = Utils.GetLocationFromDatabase(CHEST_AREA_TAG, result.GetVector3(1), result.GetFloat(2));
+        NwPlaceable oChest = SqLiteUtils.PlaceableSerializationFormatProtection(result, 0, Utils.GetLocationFromDatabase(CHEST_AREA_TAG, result.GetVector3(1), result.GetFloat(2)));
 
         if (oChest == null)
         {

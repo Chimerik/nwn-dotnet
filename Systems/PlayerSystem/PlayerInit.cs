@@ -40,8 +40,8 @@ namespace NWN.Systems
           new List<string>() { { "areaTag" }, { "position" }, { "facing" } },
           new List<string[]>() { { new string[] { "rowid", player.characterId.ToString() } } });
 
-          if(result != null)
-            player.location = Utils.GetLocationFromDatabase(result.FirstOrDefault().GetString(0), result.FirstOrDefault().GetVector3(1), result.FirstOrDefault().GetFloat(2));
+          if(result.Result != null)
+            player.location = Utils.GetLocationFromDatabase(result.Result.GetString(0), result.Result.GetVector3(1), result.Result.GetFloat(2));
 
           Task waitAreaLoaded = NwTask.Run(async () =>
           {
@@ -162,7 +162,7 @@ namespace NWN.Systems
         new List<string>() { { "rowid" } },
         new List<string[]>() { { new string[] { "accountName", newPlayer.PlayerName } } });
 
-      if (result == null)
+      if (result.Result == null)
       {
         if (Config.env == Config.Env.Prod)
         {
@@ -182,7 +182,7 @@ namespace NWN.Systems
         ObjectPlugin.SetInt(newPlayer.LoginCreature, "accountId", query.Result.GetInt(0), 1);
       }
       else
-        ObjectPlugin.SetInt(newPlayer.LoginCreature, "accountId", result.FirstOrDefault().GetInt(0), 1);
+        ObjectPlugin.SetInt(newPlayer.LoginCreature, "accountId", result.Result.GetInt(0), 1);
 
       switch (newPlayer.LoginCreature.RacialType)
       {
@@ -422,8 +422,8 @@ namespace NWN.Systems
           new List<string>() { { "bonusRolePlay" } },
           new List<string[]>() { { new string[] { "rowid", player.accountId.ToString() } } });
 
-      if (result != null && result.Count() > 0)
-        player.bonusRolePlay = result.FirstOrDefault().GetInt(0);
+      if (result.Result != null)
+        player.bonusRolePlay = result.Result.GetInt(0);
     }
     private static void InitializePlayerCharacter(Player player)
     {
@@ -431,23 +431,21 @@ namespace NWN.Systems
           new List<string>() { { "areaTag" }, { "position" }, { "facing" }, { "currentHP" }, { "bankGold" }, { "dateLastSaved" }, { "currentSkillJob" }, { "currentCraftJob" }, { "currentCraftObject" }, { "currentCraftJobRemainingTime" }, { "currentCraftJobMaterial" }, { "menuOriginTop" }, { "menuOriginLeft" }, { "currentSkillType" }, { "pveArenaCurrentPoints" } },
           new List<string[]>() { { new string[] { "rowid", player.characterId.ToString() } } });
 
-      if (result == null || result.Count() < 0)
+      if (result.Result == null)
         return;
-
-      SQLResult playerResult = result.FirstOrDefault();
 
       player.playerJournal = new PlayerJournal();
       player.loadedQuickBar = QuickbarType.Invalid;
-      player.location = Utils.GetLocationFromDatabase(playerResult.GetString(0), playerResult.GetVector3(1), playerResult.GetFloat(2));
-      player.currentHP = playerResult.GetInt(3);
-      player.bankGold = playerResult.GetInt(4);
-      player.dateLastSaved = DateTime.Parse(playerResult.GetString(5));
-      player.currentSkillJob = playerResult.GetInt(6);
-      player.craftJob = new Job(playerResult.GetInt(7), playerResult.GetString(10), playerResult.GetFloat(9), player, playerResult.GetString(8));
-      player.menu.originTop = playerResult.GetInt(11);
-      player.menu.originLeft = playerResult.GetInt(12);
-      player.currentSkillType = (SkillSystem.SkillType)playerResult.GetInt(13);
-      player.pveArena.totalPoints = (uint)playerResult.GetInt(14);
+      player.location = Utils.GetLocationFromDatabase(result.Result.GetString(0), result.Result.GetVector3(1), result.Result.GetFloat(2));
+      player.currentHP = result.Result.GetInt(3);
+      player.bankGold = result.Result.GetInt(4);
+      player.dateLastSaved = DateTime.Parse(result.Result.GetString(5));
+      player.currentSkillJob = result.Result.GetInt(6);
+      player.craftJob = new Job(result.Result.GetInt(7), result.Result.GetString(10), result.Result.GetFloat(9), player, result.Result.GetString(8));
+      player.menu.originTop = result.Result.GetInt(11);
+      player.menu.originLeft = result.Result.GetInt(12);
+      player.currentSkillType = (SkillSystem.SkillType)result.Result.GetInt(13);
+      player.pveArena.totalPoints = (uint)result.Result.GetInt(14);
 
       if (ObjectPlugin.GetInt(player.oid.LoginCreature, "_REINIT_DONE") == 0 && player.currentSkillType == SkillSystem.SkillType.Skill)
         player.currentSkillJob = (int)CustomFeats.Invalid;
@@ -456,11 +454,8 @@ namespace NWN.Systems
         new List<string>() { { "materialName" }, { "materialStock" } },
         new List<string[]>() { { new string[] { "characterId", player.accountId.ToString() } } });
 
-      if(result != null && result.Count() > 0)
-      {
-        foreach(var material in result)
-          player.materialStock.Add(material.GetString(0), material.GetInt(1));
-      }
+      foreach(var material in result.Results)
+        player.materialStock.Add(material.GetString(0), material.GetInt(1));
     }
     private static void InitializePlayerLearnableSkills(Player player)
     {
@@ -473,19 +468,16 @@ namespace NWN.Systems
           new List<string>() { { "skillId" }, { "skillPoints" } },
           new List<string[]>() { { new string[] { "characterId", player.characterId.ToString() } } });
 
-        if (result != null && result.Count() > 0)
+        foreach (var skill in result.Results)
         {
-          foreach(var skill in result)
-          {
-            Feat skillId = (Feat)skill.GetInt(0);
-            int currentSkillPoints = skill.GetInt(1);
+          Feat skillId = (Feat)skill.GetInt(0);
+          int currentSkillPoints = skill.GetInt(1);
 
-            if (SkillSystem.customFeatsDictionnary.ContainsKey(skillId))
-              player.learntCustomFeats.Add(skillId, currentSkillPoints);
+          if (SkillSystem.customFeatsDictionnary.ContainsKey(skillId))
+            player.learntCustomFeats.Add(skillId, currentSkillPoints);
 
-            if (skill.GetInt(2) == 0)
-              player.learnableSkills.Add(skillId, new SkillSystem.Skill(skillId, currentSkillPoints, player));
-          }
+          if (skill.GetInt(2) == 0)
+            player.learnableSkills.Add(skillId, new SkillSystem.Skill(skillId, currentSkillPoints, player));
         }
       }
     }
@@ -509,11 +501,8 @@ namespace NWN.Systems
 
       int skillPoints = 0;
 
-      if(result != null && result.Count() > 0)
-      {
-        foreach (var skill in result)
-          skillPoints += skill.GetInt(0);
-      }
+      foreach (var skill in result.Results)
+        skillPoints += skill.GetInt(0);
 
       SqLiteUtils.DeletionQuery("playerLearnableSkills", 
         new Dictionary<string, string>() { { "characterId", player.characterId.ToString() } });
@@ -534,11 +523,8 @@ namespace NWN.Systems
           new List<string>() { { "skillId" }, { "skillPoints" }, { "nbScrolls" } },
           new List<string[]>() { { new string[] { "characterId", player.characterId.ToString() } }, { new string[] { "trained", "0" } } } );
 
-      if(result != null && result.Count() > 0)
-      {
-        foreach(var spell in result)
-          player.learnableSpells.Add(spell.GetInt(0), new SkillSystem.LearnableSpell(spell.GetInt(0), spell.GetInt(1), player, spell.GetInt(2)));
-      }
+      foreach(var spell in result.Results)
+        player.learnableSpells.Add(spell.GetInt(0), new SkillSystem.LearnableSpell(spell.GetInt(0), spell.GetInt(1), player, spell.GetInt(2)));
     }
     private static async void InitializeNewCharacterStorage(Player player)
     {
@@ -572,9 +558,7 @@ namespace NWN.Systems
           new List<string>() { { "mapPinId" }, { "areaTag" }, { "x" }, { "y" }, { "note" } },
           new List<string[]>() { { new string[] { "characterId", player.characterId.ToString() } } });
 
-      if(result != null && result.Count() > 0)
-      {
-        foreach(var pin in result)
+        foreach(var pin in result.Results)
         {
           MapPin mapPin = new MapPin(pin.GetInt(0), pin.GetString(1), pin.GetFloat(2), pin.GetFloat(3), pin.GetString(4));
           player.mapPinDictionnary.Add(pin.GetInt(0), mapPin);
@@ -584,7 +568,6 @@ namespace NWN.Systems
           player.oid.LoginCreature.GetLocalVariable<float>($"NW_MAP_PIN_YPOS_{mapPin.id}").Value = mapPin.y;
           player.oid.LoginCreature.GetLocalVariable<NwObject>($"NW_MAP_PIN_AREA_{mapPin.id}").Value = NwObject.FindObjectsWithTag(mapPin.areaTag).FirstOrDefault();
         }
-      }
 
       if (player.mapPinDictionnary.Count > 0)
         player.oid.LoginCreature.GetLocalVariable<int>("NW_TOTAL_MAP_PINS").Value = player.mapPinDictionnary.Max(v => v.Key);
@@ -595,8 +578,7 @@ namespace NWN.Systems
           new List<string>() { { "areaTag" }, { "explorationState" } },
           new List<string[]>() { { new string[] { "characterId", player.characterId.ToString() } } });
 
-      if(result != null)
-        foreach(var explo in result)
+      foreach(var explo in result.Results)
         player.areaExplorationStateDictionnary.Add(explo.GetString(0), explo.GetString(1).ToByteArray());
     }
     private static void InitializePlayerChatColors(Player player)
@@ -605,13 +587,10 @@ namespace NWN.Systems
           new List<string>() { { "channel" }, { "color" } },
           new List<string[]>() { { new string[] { "accountId", player.accountId.ToString() } } });
 
-      if(result != null)
+      foreach (var color in result.Results)
       {
-        foreach(var color in result)
-        {
-          byte[] colorConverter = BitConverter.GetBytes(color.GetInt(1));
-          player.chatColors.Add((ChatChannel)color.GetInt(0), new API.Color(colorConverter[3], colorConverter[2], colorConverter[1], colorConverter[0]));
-        }
+        byte[] colorConverter = BitConverter.GetBytes(color.GetInt(1));
+        player.chatColors.Add((ChatChannel)color.GetInt(0), new API.Color(colorConverter[3], colorConverter[2], colorConverter[1], colorConverter[0]));
       }
     }
   }

@@ -216,8 +216,8 @@ namespace NWN.Systems.Arena
       Location arenaStartLoc = NwObject.FindObjectsWithTag<NwWaypoint>(PVE_ENTRY_WAYPOINT_TAG).FirstOrDefault().Location;
 
       SqLiteUtils.UpdateQuery("playerCharacters",
-        new Dictionary<string, string>() { { "areaTag", arenaStartLoc.Area.Tag }, { "position", arenaStartLoc.Position.ToString() } },
-        new Dictionary<string, string>() { { "rowid", player.characterId.ToString() } });
+        new List<string[]>() { new string[] { "areaTag", arenaStartLoc.Area.Tag }, new string[] { "position", arenaStartLoc.Position.ToString() } },
+        new List<string[]>() { new string[] { "rowid", player.characterId.ToString() } });
     }
   }
 }

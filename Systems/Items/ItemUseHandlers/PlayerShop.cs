@@ -21,10 +21,14 @@ namespace NWN.Systems
           new List<string>() { { "count(*)" } },
           new List<string[]>() { new string[] { "characterId", player.characterId.ToString() } });
 
-      if (result != null && result.FirstOrDefault().GetInt(0) > MagnatLevel)
+      if (result.Result != null)
       {
-        player.oid.SendServerMessage($"Votre niveau de magnat actuel vous permet de gérer {MagnatLevel.ToString().ColorString(ColorConstants.White)}, or vous en possédez déjà {result.FirstOrDefault().GetString(0).ColorString(ColorConstants.White)}", ColorConstants.Orange);
-        return;
+        int nbStores = result.Result.GetInt(0);
+        if (nbStores > MagnatLevel)
+        {
+          player.oid.SendServerMessage($"Votre niveau de magnat actuel vous permet de gérer {MagnatLevel.ToString().ColorString(ColorConstants.White)}, or vous en possédez déjà {nbStores.ToString().ColorString(ColorConstants.White)}", ColorConstants.Orange);
+          return;
+        }
       }
 
       NwPlaceable plcShop = NwPlaceable.Create("player_shop_plc", oPC.Location, false, $"_PLAYER_SHOP_PLC_{player.oid.CDKey}");

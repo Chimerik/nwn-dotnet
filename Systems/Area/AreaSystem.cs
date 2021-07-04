@@ -120,7 +120,7 @@ namespace NWN.Systems
       if (!(onExit.ExitingObject is NwCreature oPC) || !oPC.IsPlayerControlled || onExit.Area.Tag != $"entry_scene_{oPC.ControllingPlayer.CDKey}")
         return;
 
-      NWScript.WriteTimestampedLogEntry($"{oPC.Name} exited area {onExit.Area.Name}");
+      Log.Info($"{oPC.Name} exited area {onExit.Area.Name}");
       AreaDestroyer(onExit.Area);
     }
     private void DoAreaSpecificInitialisation(NwArea area)
@@ -266,8 +266,8 @@ namespace NWN.Systems
         new List<string>() { { "storage" } },
         new List<string[]>() { new string[] { "rowid", characterId.ToString() } });
 
-      if (result != null && result.Count() > 0)
-        NwStore.Deserialize(result.FirstOrDefault().GetString(0).ToByteArray()).Location = storage.Location;
+      if (result.Result != null)
+        SqLiteUtils.StoreSerializationFormatProtection(result.Result, 0, storage.Location);
 
       area.FindObjectsOfTypeInArea<NwPlaceable>().FirstOrDefault(p => p.Tag == "portal_storage_out").OnUsed += PlaceableSystem.OnUsedStoragePortalOut;
       area.FindObjectsOfTypeInArea<NwPlaceable>().FirstOrDefault(p => p.Tag == "hventes").OnUsed += DialogSystem.StartAuctionHouseDialog;

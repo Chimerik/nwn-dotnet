@@ -37,8 +37,8 @@ namespace NWN.Systems
           commendTarget.oid.SendServerMessage("Votre bonus roleplay est désormais de 2", new Color(32, 255, 32));
 
           SqLiteUtils.UpdateQuery("PlayerAccounts",
-          new Dictionary<string, string>() { { "bonusRolePlay", commendTarget.bonusRolePlay.ToString() } },
-          new Dictionary<string, string>() { { "rowid", commendTarget.accountId.ToString() } });
+          new List<string[]>() { new string[] { "bonusRolePlay", commendTarget.bonusRolePlay.ToString() } },
+          new List<string[]>() { new string[] { "rowid", commendTarget.accountId.ToString() } });
         }
 
         Utils.LogMessageToDMs($"{selection.Player.LoginCreature.Name} vient de recommander {oPC.LoginCreature.Name} pour une augmentation de bonus roleplay.");

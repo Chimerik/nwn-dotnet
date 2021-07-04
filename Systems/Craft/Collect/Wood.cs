@@ -69,9 +69,9 @@ namespace NWN.Systems.Craft.Collect
 
       var result = SqLiteUtils.SelectQuery("areaResourceStock",
           new List<string>() { { "wood"} },
-          new Dictionary<string, string>() { { "areaTag", area.Tag } });
+          new List<string[]>() { new string[] { "areaTag", area.Tag } });
       
-      if (result == null || result.Count() < 1 || result.FirstOrDefault().GetInt(0) < 1)
+      if (result.Result == null || result.Result.GetInt(0) < 1)
       {
         player.oid.SendServerMessage("Cette zone est épuisée. Les arbres restant disposant de propriétés intéressantes ne semblent pas encore avoir atteint l'âge d'être exploités.", ColorConstants.Maroon);
         return;
@@ -106,8 +106,8 @@ namespace NWN.Systems.Craft.Collect
         player.oid.SendServerMessage($"Votre repérage a permis d'identifier {nbSpawns} arbre(s) aux propriétés exploitables !", ColorConstants.Green);
 
         SqLiteUtils.UpdateQuery("areaResourceStock",
-          new Dictionary<string, string>() { { "wood-", "1" } },
-          new Dictionary<string, string>() { { "rowid", area.Tag } });
+          new List<string[]>() { new string[] { "wood-", "1" } },
+          new List<string[]>() { new string[] { "rowid", area.Tag } });
       }
       else
         player.oid.SendServerMessage($"Votre repérage semble pas avoir abouti à la découverte d'un arbre aux propriétés exploitables.", ColorConstants.Maroon);

@@ -66,12 +66,14 @@ namespace NWN.Systems
       if (spellList.Length > 0)
         spellList = spellList.Remove(spellList.Length - 1);
 
-      var grimoireQuery = NWScript.SqlPrepareQueryCampaign(Config.database, $"INSERT INTO playerGrimoire (characterId, grimoireName, serializedGrimoire) VALUES (@characterId, @grimoireName, @serializedGrimoire)" +
-              $"ON CONFLICT (characterId, grimoireName) DO UPDATE SET serializedGrimoire = @serializedGrimoire where characterId = @characterId and grimoireName = @grimoireName");
-      NWScript.SqlBindInt(grimoireQuery, "@characterId", player.characterId);
-      NWScript.SqlBindString(grimoireQuery, "@grimoireName", grimoireName);
-      NWScript.SqlBindString(grimoireQuery, "@serializedGrimoire", spellList);
-      NWScript.SqlStep(grimoireQuery);
+      SqLiteUtils.InsertQuery("playerGrimoire",
+          new List<string[]>() {
+            new string[] { "characterId", player.characterId.ToString() },
+            new string[] { "grimoireName", grimoireName },
+            new string[] { "serializedGrimoire", spellList } },
+          new List<string>() { "characterId", "grimoireName" },
+          new List<string[]>() { new string[] { "serializedGrimoire" } },
+          new List<string>() { "characterId", "grimoireName" });
 
       player.oid.SendServerMessage($"Votre grimoire {grimoireName.ColorString(ColorConstants.White)} a bien été enregistré !", new Color(32, 255, 32));
 
@@ -90,17 +92,16 @@ namespace NWN.Systems
         new List<string>() { { "grimoireName" }, { "serializedGrimoire" } },
         new List<string[]>() { new string[] { "characterId", player.characterId.ToString() } });
 
-      if (result != null)
-        foreach (var grimoire in result)
-        {
-          string grimoireName = grimoire.GetString(0);
-          string serializedGrimoire = grimoire.GetString(1);
+      foreach (var grimoire in result.Results)
+      {
+        string grimoireName = grimoire.GetString(0);
+        string serializedGrimoire = grimoire.GetString(1);
 
-          player.menu.choices.Add((
+        player.menu.choices.Add((
           grimoireName,
           () => HandleSelectedGrimoire(grimoireName, serializedGrimoire)
         ));
-        }
+      }
 
       player.menu.choices.Add(("Retour.", () => DrawGrimoireWelcomePage()));
       player.menu.choices.Add(("Quitter.", () => player.menu.Close()));
@@ -126,9 +127,10 @@ namespace NWN.Systems
     }
     private void DeleteGrimoire(string grimoireName)
     {
-      if(SqLiteUtils.DeletionQuery("playerGrimoire",
-         new Dictionary<string, string>() { { "characterId", player.characterId.ToString() }, { "grimoireName", grimoireName } }))
-        player.oid.SendServerMessage($"Votre grimoire {grimoireName.ColorString(ColorConstants.White)} a bien été supprimé.", new Color(32, 255, 32));
+      SqLiteUtils.DeletionQuery("playerGrimoire",
+         new Dictionary<string, string>() { { "characterId", player.characterId.ToString() }, { "grimoireName", grimoireName } });
+
+      player.oid.SendServerMessage($"Votre grimoire {grimoireName.ColorString(ColorConstants.White)} a bien été supprimé.", new Color(32, 255, 32));
       
       DrawGrimoireList();
     }

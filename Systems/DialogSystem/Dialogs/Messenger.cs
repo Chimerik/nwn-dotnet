@@ -42,23 +42,22 @@ namespace NWN.Systems
         " sentDate desc");
 
       //Thread.CurrentThread.CurrentCulture = new CultureInfo("fr-FR");
-      if (query != null)
-        foreach (var result in query)
-        {
-          int messageId = result.GetInt(0);
-          string senderName = result.GetString(1);
-          string title = result.GetString(2);
-          string message = result.GetString(3);
-          string sentDate = result.GetString(4);
-          int read = result.GetInt(5);
+      foreach (var result in query.Results)
+      {
+        int messageId = result.GetInt(0);
+        string senderName = result.GetString(1);
+        string title = result.GetString(2);
+        string message = result.GetString(3);
+        string sentDate = result.GetString(4);
+        int read = result.GetInt(5);
 
-          string displayString = "";
-          if (read == 1)
-            displayString += "Lu | ";
-          displayString += $"{senderName} | {title} | {sentDate}";
+        string displayString = "";
+        if (read == 1)
+          displayString += "Lu | ";
+        displayString += $"{senderName} | {title} | {sentDate}";
 
-          player.menu.choices.Add((displayString, () => DrawMessage(messageId, senderName, title, sentDate, message)));
-        }
+        player.menu.choices.Add((displayString, () => DrawMessage(messageId, senderName, title, sentDate, message)));
+      }
 
       player.menu.choices.Add(("Retour.", () => DrawWelcomePage()));
       player.menu.choices.Add(("Quitter.", () => player.menu.Close()));
@@ -110,9 +109,10 @@ namespace NWN.Systems
     }
     private void RemoveMessage(int messageId)
     {
-      if (SqLiteUtils.DeletionQuery("messenger",
-          new Dictionary<string, string>() { { "rowid", messageId.ToString() } }))
-        player.oid.SendServerMessage("Message supprimé.");
+      SqLiteUtils.DeletionQuery("messenger",
+          new Dictionary<string, string>() { { "rowid", messageId.ToString() } });
+
+      player.oid.SendServerMessage("Message supprimé.");
 
       DrawInbox();
     }

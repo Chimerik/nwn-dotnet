@@ -24,13 +24,13 @@ namespace NWN.Systems
         new List<string>() { { "characterName" } },
         new List<string[]>() { new string[] { "ROWID", result.ToString() } });
 
-      if (queryResult == null || queryResult.Count() < 1)
+      if (queryResult.Result == null)
       {
         await context.Channel.SendMessageAsync("Impossible de trouver une correspondance pour le nom du personnage indiqué.");
         return;
       }
 
-      string senderFullName = queryResult.FirstOrDefault().GetString(0);
+      string senderFullName = queryResult.Result.GetString(0);
       Utils.SendMailToPC(characterId, senderFullName, title, content);
 
       await context.Channel.SendMessageAsync("Courrier en cours d'envoi.");

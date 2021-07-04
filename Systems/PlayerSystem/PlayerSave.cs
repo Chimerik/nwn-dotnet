@@ -226,20 +226,17 @@ namespace NWN.Systems
           new List<string>() { { "expirationDate" }, { "rowid" } },
           new List<string[]>() { new string[] { "characterId", player.characterId.ToString() } });
 
-      if(result != null)
+      foreach (var contract in result.Results)
       {
-        foreach(var contract in result)
-        {
-          int contractId = contract.GetInt(1);
+        int contractId = contract.GetInt(1);
 
-          if ((DateTime.Parse(contract.GetString(0)) - DateTime.Now).TotalSeconds < 0)
+        if ((DateTime.Parse(contract.GetString(0)) - DateTime.Now).TotalSeconds < 0)
+        {
+          Task contractExpiration = NwTask.Run(async () =>
           {
-            Task contractExpiration = NwTask.Run(async () =>
-            {
-              await NwTask.Delay(TimeSpan.FromSeconds(0.2));
-              DeleteExpiredContract(player, contractId);
-            });
-          }
+            await NwTask.Delay(TimeSpan.FromSeconds(0.2));
+            DeleteExpiredContract(player, contractId);
+          });
         }
       }
     }
@@ -249,9 +246,9 @@ namespace NWN.Systems
           new List<string>() { { "serializedContract" } },
           new List<string[]>() { new string[] { "ROWID", contractId.ToString() } });
 
-      if (result != null && result.Count() > 0)
+      if (result.Result != null)
       {
-        foreach (string materialString in result.FirstOrDefault().GetString(0).Split("|"))
+        foreach (string materialString in result.Result.GetString(0).Split("|"))
         {
           string[] descriptionString = materialString.Split("$");
           if (descriptionString.Length == 3)
@@ -275,20 +272,17 @@ namespace NWN.Systems
           new List<string>() { { "expirationDate" }, { "rowid" } },
           new List<string[]>() { new string[] { "characterId", player.characterId.ToString() } });
 
-      if(result != null)
+      foreach (var contract in result.Results)
       {
-        foreach(var contract in result)
-        {
-          int contractId = contract.GetInt(1);
+        int contractId = contract.GetInt(1);
 
-          if ((DateTime.Parse(contract.GetString(0)) - DateTime.Now).TotalSeconds < 0)
+        if ((DateTime.Parse(contract.GetString(0)) - DateTime.Now).TotalSeconds < 0)
+        {
+          Task contractExpiration = NwTask.Run(async () =>
           {
-            Task contractExpiration = NwTask.Run(async () =>
-            {
-              await NwTask.Delay(TimeSpan.FromSeconds(0.2));
-              DeleteExpiredBuyOrder(player, contractId);
-            });
-          }
+            await NwTask.Delay(TimeSpan.FromSeconds(0.2));
+            DeleteExpiredBuyOrder(player, contractId);
+          });
         }
       }
     }
@@ -298,9 +292,9 @@ namespace NWN.Systems
           new List<string>() { { "quantity" }, { "unitPrice" } },
           new List<string[]>() { new string[] { "rowid", player.characterId.ToString() } });
 
-      if(result != null && result.Count() > 0)
+      if(result.Result != null)
       {
-        int gold = result.FirstOrDefault().GetInt(0) * result.FirstOrDefault().GetInt(1);
+        int gold = result.Result.GetInt(0) * result.Result.GetInt(1);
         player.bankGold += gold;
         player.oid.SendServerMessage($"Expiration de l'ordre d'achat {contractId} - {gold} pièce(s) d'or ont été reversées à votre banque.");
 
@@ -314,20 +308,17 @@ namespace NWN.Systems
           new List<string>() { { "expirationDate" }, { "rowid" } },
           new List<string[]>() { new string[] { "characterId", player.characterId.ToString() } });
 
-      if(result != null)
+      foreach (var sellOrder in result.Results)
       {
-        foreach(var sellOrder in result)
-        {
-          int contractId = sellOrder.GetInt(1);
+        int contractId = sellOrder.GetInt(1);
 
-          if ((DateTime.Parse(sellOrder.GetString(0)) - DateTime.Now).TotalSeconds < 0)
+        if ((DateTime.Parse(sellOrder.GetString(0)) - DateTime.Now).TotalSeconds < 0)
+        {
+          Task contractExpiration = NwTask.Run(async () =>
           {
-            Task contractExpiration = NwTask.Run(async () =>
-            {
-              await NwTask.Delay(TimeSpan.FromSeconds(0.2));
-              DeleteExpiredSellOrder(player, contractId);
-            });
-          }
+            await NwTask.Delay(TimeSpan.FromSeconds(0.2));
+            DeleteExpiredSellOrder(player, contractId);
+          });
         }
       }
     }
@@ -337,10 +328,10 @@ namespace NWN.Systems
           new List<string>() { { "playerSellOrders" }, { "quantity" } },
           new List<string[]>() { new string[] { "rowid", contractId.ToString() } });
 
-      if(result != null && result.Count() > 0)
+      if(result.Result != null)
       {
-        string material = result.FirstOrDefault().GetString(0);
-        int quantity = result.FirstOrDefault().GetInt(1);
+        string material = result.Result.GetString(0);
+        int quantity = result.Result.GetInt(1);
 
         if (player.materialStock.ContainsKey(material))
           player.materialStock[material] += quantity;
@@ -359,9 +350,9 @@ namespace NWN.Systems
           new List<string>() { { "count (*)" } },
           new List<string[]>() { new string[] { "characterId", player.characterId.ToString() }, new string[] { "read","0" } });
 
-      if(result != null && result.Count() > 0)
+      if(result.Result != null)
       {
-        player.oid.SendServerMessage($"{result.FirstOrDefault().GetString(0).ColorString(ColorConstants.White)} lettres non lues se trouvent dans votre boîte aux lettres.", ColorConstants.Pink);
+        player.oid.SendServerMessage($"{result.Result.GetString(0).ColorString(ColorConstants.White)} lettres non lues se trouvent dans votre boîte aux lettres.", ColorConstants.Pink);
       }
     }
   }

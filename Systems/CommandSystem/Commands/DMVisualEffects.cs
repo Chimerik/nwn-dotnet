@@ -119,17 +119,16 @@ namespace NWN.Systems
         new List<string>() { { "vfxName" }, { "playerName" } },
         new List<string[]>() { new string[] { "rowid", player.oid.PlayerName } });
 
-      if(result != null)
-        foreach(var vfx in result)
-        {
-          string vfxListName = vfx.GetString(0);
-          int vfxListId = vfx.GetInt(1);
+      foreach (var vfx in result.Results)
+      {
+        string vfxListName = vfx.GetString(0);
+        int vfxListId = vfx.GetInt(1);
 
-          player.menu.choices.Add((
-            $"{vfxListName} - {vfxListId}",
-            () => DeleteVFX(vfxListName)
-          ));
-        }
+        player.menu.choices.Add((
+          $"{vfxListName} - {vfxListId}",
+          () => DeleteVFX(vfxListName)
+        ));
+      }
 
       player.menu.choices.Add(("Retour.", () => DrawVFXWelcomePage()));
       player.menu.choices.Add(("Quitter.", () => player.menu.Close()));

@@ -24,8 +24,8 @@ namespace NWN.Systems
         new List<string>() { { "description" } },
         new List<string[]>() { new string[] { "characterId", pcID.ToString() }, { new string[] { "descriptionName", descriptionName } } });
 
-      if(query != null && query.Count() > 0)
-        await context.Channel.SendMessageAsync(query.FirstOrDefault().GetString(0));
+      if(query.Result != null)
+        await context.Channel.SendMessageAsync(query.Result.GetString(0));
     }
   }
 }

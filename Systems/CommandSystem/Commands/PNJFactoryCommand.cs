@@ -976,8 +976,7 @@ namespace NWN.Systems
           new List<string>() { { "distinct accountName" } },
           new List<string[]>() );
 
-      if(result != null)
-      foreach (var npc in result)
+      foreach (var npc in result.Results)
       {
         string accountName = npc.GetString(0);
         player.menu.choices.Add((accountName, () => DrawPNJList(accountName)));
@@ -998,8 +997,7 @@ namespace NWN.Systems
           new List<string>() { { "name" } },
           new List<string[]>() { new string[] { "accountName", accountName } });
 
-      if(result != null)
-      foreach (var npc in result)
+      foreach (var npc in result.Results)
       {
         string npcName = npc.GetString(0);
         player.menu.choices.Add((npcName, () => HandleNPCSelection(npcName, accountName)));
@@ -1048,9 +1046,9 @@ namespace NWN.Systems
           new List<string>() { { "serializedCreature" } },
           new List<string[]>() { new string[] { "accountName", selection.Player.LoginCreature.GetLocalVariable<string>("_SPAWNING_NPC_ACCOUNT").Value }, new string[] { "name", selection.Player.LoginCreature.GetLocalVariable<string>("_SPAWNING_NPC").Value } });
 
-      if (result != null && result.Count() > 0)
+      if (result.Result != null)
       {
-        NwCreature oNPC = NwCreature.Deserialize(result.FirstOrDefault().GetString(0).ToByteArray());
+        NwCreature oNPC = NwCreature.Deserialize(result.Result.GetString(0).ToByteArray());
         oNPC.Location = Location.Create(selection.Player.ControlledCreature.Area, selection.TargetPosition, selection.Player.ControlledCreature.Rotation);
       }
     }

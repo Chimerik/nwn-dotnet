@@ -14,10 +14,10 @@ namespace NWN.Systems
         new List<string>() { { "description" } },
         new List<string[]>() { new string[] { "areaTag", oPC.ControlledCreature.Area.Tag } });
 
-      if(result != null && result.Count() > 0)
+      if(result.Result != null)
       {
         string originalDesc = oPC.ControlledCreature.Description;
-        string tempDescription = oPC.ControlledCreature.Area.Name.ColorString(ColorConstants.Orange) + "\n\n" + result.FirstOrDefault().GetString(0);
+        string tempDescription = oPC.ControlledCreature.Area.Name.ColorString(ColorConstants.Orange) + "\n\n" + result.Result.GetString(0);
         oPC.ControlledCreature.Description = tempDescription;
 
         Task waitForDescriptionRewrite = NwTask.Run(async () =>

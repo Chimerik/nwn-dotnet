@@ -43,9 +43,9 @@ namespace NWN.Systems
 
       var result = SqLiteUtils.SelectQuery("playerPrivateContracts",
         new List<string>() { { "characterId" } },
-        new Dictionary<string, string>() { { "rowid", contractId.ToString() } });
+        new List<string[]>() { new string[] { "rowid", contractId.ToString() } });
 
-      if(result == null || result.Count() < 1)
+      if(result.Result == null)
       {
         player.oid.SendServerMessage("Ce contrat a été annulé par son rédacteur et n'est donc plus valide.", ColorConstants.Blue);
         contract.Destroy();
@@ -80,9 +80,9 @@ namespace NWN.Systems
       }
       else
       {
-        if(SqLiteUtils.UpdateQuery("playerCharacters",
-          new Dictionary<string, string>() { { "bankGold+", totalPrice.ToString() } },
-          new Dictionary<string, string>() { { "rowid", creatorId.ToString() } }))
+        if (SqLiteUtils.UpdateQuery("playerCharacters",
+          new List<string[]>() { new string[] { "bankGold+", totalPrice.ToString() } },
+          new List<string[]>() { new string[] { "rowid", creatorId.ToString() } }))
           Utils.SendMailToPC(creatorId, "Hôtel des ventes de Similisse", "Contrat accepté", $"Votre contrat {contractId} a été accepté par {oPC.Name}. La somme de {totalPrice} pièce(s) d'or a été versée sur votre compte.");
       }
 

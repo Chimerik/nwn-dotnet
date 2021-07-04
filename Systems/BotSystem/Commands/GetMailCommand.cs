@@ -24,16 +24,16 @@ namespace NWN.Systems
         new List<string>() { { "senderName" }, { "title" }, { "sentDate" }, { "message" } },
         new List<string[]>() { new string[] { "characterId", result.ToString() }, { new string[] { "ROWID", mailId } } });
 
-      if(query == null && query.Count() < 1)
+      if(query.Result == null)
       {
         await context.Channel.SendMessageAsync($"Le personnage indiqué n'a pas reçu de message dont le numéro correspond à {mailId}.");
         return;
       }
 
-      await context.Channel.SendMessageAsync($"De {query.FirstOrDefault().GetString(0)}");
-      await context.Channel.SendMessageAsync($"Envoyé le {query.FirstOrDefault().GetString(2)} :");
-      await context.Channel.SendMessageAsync($"{query.FirstOrDefault().GetString(1)}");
-      await context.Channel.SendMessageAsync($"{query.FirstOrDefault().GetString(3)}");
+      await context.Channel.SendMessageAsync($"De {query.Result.GetString(0)}");
+      await context.Channel.SendMessageAsync($"Envoyé le {query.Result.GetString(2)} :");
+      await context.Channel.SendMessageAsync($"{query.Result.GetString(1)}");
+      await context.Channel.SendMessageAsync($"{query.Result.GetString(3)}");
 
       SqLiteUtils.UpdateQuery("messenger",
         new List<string[]>() { new string[] { "read", "1" } },

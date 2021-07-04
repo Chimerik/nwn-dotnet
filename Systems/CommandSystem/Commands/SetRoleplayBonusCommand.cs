@@ -30,8 +30,8 @@ namespace NWN.Systems
                   ctx.oTarget.SendServerMessage($"Votre bonus roleplay est désormais de {player.bonusRolePlay.ToString().ColorString(ColorConstants.White)}", ColorConstants.Pink);
 
                   SqLiteUtils.UpdateQuery("PlayerAccounts",
-                    new Dictionary<string, string>() { { "bonusRolePlay", player.bonusRolePlay.ToString() } },
-                    new Dictionary<string, string>() { { "rowid", player.accountId.ToString() } });
+                    new List<string[]>() { new string[] { "bonusRolePlay", player.bonusRolePlay.ToString() } },
+                    new List<string[]>() { new string[] { "rowid", player.accountId.ToString() } });
 
                   ObjectPlugin.SetInt(ctx.oTarget.LoginCreature, "_BRP", iBRP, 1);
                 }

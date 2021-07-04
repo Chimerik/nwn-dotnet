@@ -72,8 +72,7 @@ namespace NWN.Systems
         new List<string>() { { "quickbarName" }, { "serializedQuickbar" } },
         new List<string[]>() { new string[] { "characterId", player.characterId.ToString() } });
 
-      if(result != null)
-      foreach (var qbs in result)
+      foreach (var qbs in result.Results)
       {
         string quickbarName = qbs.GetString(0);
         string serializedQuickbar = qbs.GetString(1);

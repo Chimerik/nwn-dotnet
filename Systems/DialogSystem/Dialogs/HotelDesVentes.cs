@@ -40,8 +40,8 @@ namespace NWN.Systems
         new List<string[]>() { { new string[] { "characterId", player.characterId.ToString() } } });
 
 
-      if (result != null && result.Count() > 0)
-        currentOrders += result.FirstOrDefault().GetInt(0);
+      if (result.Result != null)
+        currentOrders += result.Result.GetInt(0);
 
       if (currentOrders <= negociateurLevel * 3)
       {
@@ -144,33 +144,30 @@ namespace NWN.Systems
         if (player.learntCustomFeats.ContainsKey(CustomFeats.Comptabilite))
           comptabiliteLevel += SkillSystem.GetCustomFeatLevelFromSkillPoints(CustomFeats.Comptabilite, player.learntCustomFeats[CustomFeats.Comptabilite]);
 
-        if(result != null)
+        foreach (var order in result.Results)
         {
-          foreach (var order in result)
+          int buyOrderQuantity = order.GetInt(1);
+          int boughtQuantity = 0;
+
+          if (remainingQuantity < buyOrderQuantity)
           {
-            int buyOrderQuantity = order.GetInt(1);
-            int boughtQuantity = 0;
+            boughtQuantity = buyOrderQuantity - remainingQuantity;
+            ordersDictionnary.Add(order.GetInt(0), boughtQuantity);
+          }
+          else
+          {
+            boughtQuantity = remainingQuantity - buyOrderQuantity;
+            ordersDictionnary.Add(order.GetInt(0), -boughtQuantity);
+          }
 
-            if (remainingQuantity < buyOrderQuantity)
-            {
-              boughtQuantity = buyOrderQuantity - remainingQuantity;
-              ordersDictionnary.Add(order.GetInt(0), boughtQuantity);
-            }
-            else
-            {
-              boughtQuantity = remainingQuantity - buyOrderQuantity;
-              ordersDictionnary.Add(order.GetInt(0), -boughtQuantity);
-            }
+          remainingQuantity -= boughtQuantity;
 
-            remainingQuantity -= boughtQuantity;
+          player.bankGold += boughtQuantity * order.GetInt(2) * (95 + comptabiliteLevel) / 100;
+          player.oid.SendServerMessage($"Vous venez de vendre {boughtQuantity} unité(s) de {material} en vente directe. L'or a été versé directement à votre banque.", ColorConstants.Pink);
 
-            player.bankGold += boughtQuantity * order.GetInt(2) * (95 + comptabiliteLevel) / 100;
-            player.oid.SendServerMessage($"Vous venez de vendre {boughtQuantity} unité(s) de {material} en vente directe. L'or a été versé directement à votre banque.", ColorConstants.Pink);
-
-            if (remainingQuantity <= 0)
-              break;
-          }          
-        }
+          if (remainingQuantity <= 0)
+            break;
+        }      
 
         foreach (var entry in ordersDictionnary)
         {
@@ -180,10 +177,10 @@ namespace NWN.Systems
             new List<string>() { { "characterId" } },
             new List<string[]>() { new string[] { "rowid", entry.Key.ToString() } });
 
-          if (buyOrderResult != null && buyOrderResult.Count() > 0)
+          if (buyOrderResult.Result != null)
           {
 
-            int buyerID = buyOrderResult.First().GetInt(0);
+            int buyerID = buyOrderResult.Result.GetInt(0);
 
             if (entry.Value > 0)
             {
@@ -370,10 +367,8 @@ namespace NWN.Systems
         new List<string[]>() { new string[] { "material", material }, new string[] { "unitPrice", input.ToString(), "<=" }, new string[] { "expirationDate", DateTime.Now.ToString(), "<" }, new string[] { "characterId", player.characterId.ToString(), "!=" } }
         , " order by unitPrice ASC");
 
-        if (result != null)
-        {
           int remainingQuantity = quantity;
-          foreach (var order in result)
+          foreach (var order in result.Results)
           {
             int sellOrderQuantity = order.GetInt(1);
             int soldQuantity = 0;
@@ -410,9 +405,9 @@ namespace NWN.Systems
               new List<string>() { { "characterId" }, { "unitPrice" } },
               new List<string[]>() { new string[] { "rowid", entry.Key.ToString() } });
 
-            if (buyOrderResult != null && buyOrderResult.Count() > 0)
+            if (buyOrderResult.Result != null)
             {
-              int sellerID = buyOrderResult.FirstOrDefault().GetInt(0);
+              int sellerID = buyOrderResult.Result.GetInt(0);
 
               if (entry.Value > 0)
               {
@@ -440,7 +435,7 @@ namespace NWN.Systems
                 if (seller.learntCustomFeats.ContainsKey(CustomFeats.Comptabilite))
                   comptabiliteLevel += SkillSystem.GetCustomFeatLevelFromSkillPoints(CustomFeats.Comptabilite, seller.learntCustomFeats[CustomFeats.Comptabilite]);
 
-                acquiredGold = transferedQuantity * buyOrderResult.FirstOrDefault().GetInt(1) * (95 + comptabiliteLevel) / 100;
+                acquiredGold = transferedQuantity * buyOrderResult.Result.GetInt(1) * (95 + comptabiliteLevel) / 100;
 
                 seller.bankGold += acquiredGold;
                 oSeller.SendServerMessage($"Votre ordre d'achat {entry.Key} vous a permis d'acquérir {transferedQuantity} unité(s) de {material}", ColorConstants.Pink);
@@ -448,17 +443,16 @@ namespace NWN.Systems
               else
               {
                 // TODO : A la prochaine connexion du joueur, lui envoyer un courrier afin de lui indiquer que son ordre de vente a porté ses fruits
-                acquiredGold = transferedQuantity * buyOrderResult.FirstOrDefault().GetInt(1) * 95 / 100;
+                acquiredGold = transferedQuantity * buyOrderResult.Result.GetInt(1) * 95 / 100;
 
-                if (SqLiteUtils.UpdateQuery("playerCharacters",
-                  new List<string[]>() { { new string[] { "bankGold", acquiredGold.ToString(), "+" } } },
-                  new List<string[]>() { { new string[] { "rowid", sellerID.ToString() } } }))
+                SqLiteUtils.UpdateQuery("playerCharacters",
+                new List<string[]>() { { new string[] { "bankGold", acquiredGold.ToString(), "+" } } },
+                new List<string[]>() { { new string[] { "rowid", sellerID.ToString() } } });
 
-                  Utils.SendMailToPC(sellerID, "Hotel des ventes de Similisse", $"Succès de votre ordre de vente {entry.Key}",
+                Utils.SendMailToPC(sellerID, "Hotel des ventes de Similisse", $"Succès de votre ordre de vente {entry.Key}",
                     $"Très honoré vendeur, \n\n Nous avons l'immense plaisir de vous annoncer que votre de vente numéro {entry.Key} a porté ses fruits. \n\n Celui-ci vous a permis d'acquérir {acquiredGold} pièce(s) d'or ! \n\n Signé : Polpo");
               }
             }
-          }
 
           if (remainingQuantity <= 0)
           {
@@ -506,24 +500,21 @@ namespace NWN.Systems
       var result = SqLiteUtils.SelectQuery("playerSellOrders",
         new List<string>() { { "expirationDate" }, { "material" }, { "quantity" }, { "unitPrice" }, { "rowid" } },
         new List<string[]>() { { new string[] { "characterId", player.characterId.ToString() } } });
-              
-      if (result != null)
-      {
-        foreach(var order in result)
-        {
-          int contractId = order.GetInt(4);
 
-          TimeSpan remainingTime = (DateTime.Parse(order.GetString(0)) - DateTime.Now);
-          if (remainingTime.TotalMinutes > 0)
-            player.menu.choices.Add(($"{contractId} - {order.GetString(1)} - {order.GetInt(1)} - {order.GetInt(3)} po/u - Expire dans : {remainingTime.Days}:{remainingTime.Hours}:{remainingTime.Minutes}:{remainingTime.Seconds}", () => CancelSellOrder(player, contractId)));
-          else
+      foreach (var order in result.Results)
+      {
+        int contractId = order.GetInt(4);
+
+        TimeSpan remainingTime = (DateTime.Parse(order.GetString(0)) - DateTime.Now);
+        if (remainingTime.TotalMinutes > 0)
+          player.menu.choices.Add(($"{contractId} - {order.GetString(1)} - {order.GetInt(1)} - {order.GetInt(3)} po/u - Expire dans : {remainingTime.Days}:{remainingTime.Hours}:{remainingTime.Minutes}:{remainingTime.Seconds}", () => CancelSellOrder(player, contractId)));
+        else
+        {
+          Task contractExpiration = NwTask.Run(async () =>
           {
-            Task contractExpiration = NwTask.Run(async () =>
-            {
-              await NwTask.Delay(TimeSpan.FromSeconds(0.2));
-              DeleteExpiredSellOrder(player, contractId);
-            });
-          }
+            await NwTask.Delay(TimeSpan.FromSeconds(0.2));
+            DeleteExpiredSellOrder(player, contractId);
+          });
         }
       }
 
@@ -546,19 +537,20 @@ namespace NWN.Systems
         new List<string>() { { "material" }, { "quantity" } },
         new List<string[]>() { { new string[] { "rowid", contractId.ToString() } } });
 
-      if (result != null && result.Count() > 0)
+      if (result.Result != null)
       {
-        string material = result.FirstOrDefault().GetString(0);
-        int quantity = result.FirstOrDefault().GetInt(1);
+        string material = result.Result.GetString(0);
+        int quantity = result.Result.GetInt(1);
 
         if (player.materialStock.ContainsKey(material))
           player.materialStock[material] += quantity;
         else
           player.materialStock.Add(material, quantity);
 
-        if (SqLiteUtils.DeletionQuery("playerSellOrders",
-          new Dictionary<string, string>() { { "rowid", contractId.ToString() } }))
-          player.oid.SendServerMessage($"Expiration de l'ordre de vente {contractId}. {quantity} unité(s) de {material} sont en cours de transfert vers votre entrepôt.", ColorConstants.Magenta);
+        SqLiteUtils.DeletionQuery("playerSellOrders",
+          new Dictionary<string, string>() { { "rowid", contractId.ToString() } });
+
+        player.oid.SendServerMessage($"Expiration de l'ordre de vente {contractId}. {quantity} unité(s) de {material} sont en cours de transfert vers votre entrepôt.", ColorConstants.Magenta);
       }
     }
     private void DrawMyBuyOrderPage(Player player)
@@ -570,8 +562,7 @@ namespace NWN.Systems
         new List<string>() { { "expirationDate" }, { "material" }, { "quantity" }, { "unitPrice" }, { "rowid" } },
         new List<string[]>() { new string[] { "characterId", player.characterId.ToString() } });
 
-      if(result != null)
-      foreach (var order in result)
+      foreach (var order in result.Results)
       {
         int contractId = order.GetInt(4);
 
@@ -607,14 +598,15 @@ namespace NWN.Systems
         new List<string>() { { "unitPrice" }, { "quantity" } },
         new List<string[]>() { new string[] { "rowid", contractId.ToString() } });
 
-      if (result != null & result.Count() > 0)
+      if (result.Result != null)
       {
-        int gold = result.FirstOrDefault().GetInt(0) * result.FirstOrDefault().GetInt(1);
+        int gold = result.Result.GetInt(0) * result.Result.GetInt(1);
         player.bankGold += gold;
 
-        if (SqLiteUtils.DeletionQuery("playerSellOrders",
-          new Dictionary<string, string>() { { "rowid", contractId.ToString() } }))
-          player.oid.SendServerMessage($"Expiration de l'ordre d'achat {contractId}. {gold} pièces d'or ont été transférées à votre banque.", ColorConstants.Magenta);
+        SqLiteUtils.DeletionQuery("playerSellOrders",
+          new Dictionary<string, string>() { { "rowid", contractId.ToString() } });
+
+        player.oid.SendServerMessage($"Expiration de l'ordre d'achat {contractId}. {gold} pièces d'or ont été transférées à votre banque.", ColorConstants.Magenta);
       }
     }
     private void SellOrderListMaterialSelection(Player player)
@@ -657,15 +649,14 @@ namespace NWN.Systems
         new List<string[]>(),
         " order by unitPrice ASC");
 
-      if (result != null)
-        foreach (var order in result)
-        {
-          int contractId = order.GetInt(4);
+      foreach (var order in result.Results)
+      {
+        int contractId = order.GetInt(4);
 
-          TimeSpan remainingTime = (DateTime.Parse(order.GetString(0)) - DateTime.Now);
-          if (remainingTime.TotalMinutes > 0)
-            player.menu.titleLines.Add(($"{contractId} - {order.GetString(1)} - {order.GetInt(2)} - {order.GetInt(3)} po/u - Expire dans : {remainingTime.Days}:{remainingTime.Hours}:{remainingTime.Minutes}:{remainingTime.Seconds}"));
-        }
+        TimeSpan remainingTime = (DateTime.Parse(order.GetString(0)) - DateTime.Now);
+        if (remainingTime.TotalMinutes > 0)
+          player.menu.titleLines.Add(($"{contractId} - {order.GetString(1)} - {order.GetInt(2)} - {order.GetInt(3)} po/u - Expire dans : {remainingTime.Days}:{remainingTime.Hours}:{remainingTime.Minutes}:{remainingTime.Seconds}"));
+      }
 
       player.menu.choices.Add((
           "Retour",
@@ -714,8 +705,7 @@ namespace NWN.Systems
         new List<string[]>(),
         " order by unitPrice DESC");
 
-      if(result != null)
-      foreach (var order in result)
+      foreach (var order in result.Results)
       {
         int contractId = order.GetInt(4);
 

@@ -39,7 +39,7 @@ namespace NWN.Systems
           new List<string>() { { "count(rowid)" } },
           new List<string[]>() { new string[] { "characterId", player.characterId.ToString() } });
 
-      if (result != null || result.FirstOrDefault().GetInt(0) <= contractScienceLevel)
+      if (result.Result != null || result.Result.GetInt(0) <= contractScienceLevel)
       {
         player.menu.choices.Add((
         "Rédiger un nouveau contrat",
@@ -251,8 +251,7 @@ namespace NWN.Systems
           new List<string>() { { "expirationDate" }, { "totalValue" }, { "rowid" } },
           new List<string[]>() { new string[] { "characterId", player.characterId.ToString() } });
 
-      if(result != null)
-      foreach(var contract in result)
+      foreach(var contract in result.Results)
       {
         int contractId = contract.GetInt(2);
 
@@ -291,17 +290,17 @@ namespace NWN.Systems
         new List<string>() { { "serializedContract" }, { "expirationDate" }, { "totalValue" } },
         new List<string[]>() { new string[] { "rowid", contractId.ToString() } });
 
-      if (result != null && result.Count() > 0)
+      if (result.Result != null)
       {
-        foreach (string materialString in result.FirstOrDefault().GetString(0).Split("|"))
+        foreach (string materialString in result.Result.GetString(0).Split("|"))
         {
           string[] descriptionString = materialString.Split("$");
           if (descriptionString.Length == 3)
             player.menu.titleLines.Add($"{descriptionString[0]} : {descriptionString[1]} * {descriptionString[2]} = {Int32.Parse(descriptionString[1]) * Int32.Parse(descriptionString[2])}");
         }
 
-        player.menu.titleLines.Add($"Valeur totale : {result.FirstOrDefault().GetString(2)}");
-        player.menu.titleLines.Add($"Date d'expiration : {result.FirstOrDefault().GetString(1)}");
+        player.menu.titleLines.Add($"Valeur totale : {result.Result.GetString(2)}");
+        player.menu.titleLines.Add($"Date d'expiration : {result.Result.GetString(1)}");
       }
 
       player.menu.Draw();
@@ -319,9 +318,9 @@ namespace NWN.Systems
         new List<string>() { { "serializedContract" } },
         new List<string[]>() { new string[] { "rowid", contractId.ToString() } });
 
-      if (result != null && result.Count() > 0)
+      if (result.Result != null)
       {
-        foreach (string materialString in  result.FirstOrDefault().GetString(0).Split("|"))
+        foreach (string materialString in  result.Result.GetString(0).Split("|"))
         {
           string[] descriptionString = materialString.Split("$");
           if (descriptionString.Length == 3)

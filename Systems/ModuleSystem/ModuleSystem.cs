@@ -55,132 +55,101 @@ namespace NWN.Systems
 
     private static void CreateDatabase()
     {
-      var query = NWScript.SqlPrepareQueryCampaign(Config.database, $"CREATE TABLE IF NOT EXISTS moduleInfo" +
-        $"('year' INTEGER NOT NULL, 'month' INTEGER NOT NULL, 'day' INTEGER NOT NULL, 'hour' INTEGER NOT NULL, 'minute' INTEGER NOT NULL, 'second' INTEGER NOT NULL)");
-      NWScript.SqlStep(query);
+      SqLiteUtils.CreateQuery("CREATE TABLE IF NOT EXISTS moduleInfo" +
+        "('year' INTEGER NOT NULL, 'month' INTEGER NOT NULL, 'day' INTEGER NOT NULL, 'hour' INTEGER NOT NULL, 'minute' INTEGER NOT NULL, 'second' INTEGER NOT NULL)");
 
-      query = NWScript.SqlPrepareQueryCampaign(Config.database, $"CREATE TABLE IF NOT EXISTS PlayerAccounts" +
-        $"('accountName' TEXT NOT NULL, 'cdKey' TEXT, 'bonusRolePlay' INTEGER NOT NULL, 'discordId' TEXT, 'rank' TEXT)");
-      NWScript.SqlStep(query);
+      SqLiteUtils.CreateQuery("CREATE TABLE IF NOT EXISTS PlayerAccounts" +
+        "('accountName' TEXT NOT NULL, 'cdKey' TEXT, 'bonusRolePlay' INTEGER NOT NULL, 'discordId' TEXT, 'rank' TEXT)");
 
-      query = NWScript.SqlPrepareQueryCampaign(Config.database, $"CREATE TABLE IF NOT EXISTS playerCharacters" +
-        $"('accountId' INTEGER NOT NULL, 'characterName' TEXT NOT NULL, 'dateLastSaved' TEXT NOT NULL, 'currentSkillType' INTEGER NOT NULL, 'currentSkillJob' INTEGER NOT NULL," +
-        $"'currentCraftJobRemainingTime' REAL, 'currentCraftJob' INTEGER NOT NULL, 'currentCraftObject' TEXT NOT NULL," +
-        $"currentCraftJobMaterial TEXT, areaTag TEXT, position TEXT, facing REAL," +
-        $"currentHP INTEGER, bankGold INTEGER, pveArenaCurrentPoints, menuOriginTop INTEGER, menuOriginLeft INTEGER, storage TEXT)");
-      NWScript.SqlStep(query);
+      SqLiteUtils.CreateQuery("CREATE TABLE IF NOT EXISTS playerCharacters" +
+        "('accountId' INTEGER NOT NULL, 'characterName' TEXT NOT NULL, 'dateLastSaved' TEXT NOT NULL, 'currentSkillType' INTEGER NOT NULL, 'currentSkillJob' INTEGER NOT NULL," +
+        "'currentCraftJobRemainingTime' REAL, 'currentCraftJob' INTEGER NOT NULL, 'currentCraftObject' TEXT NOT NULL," +
+        "currentCraftJobMaterial TEXT, areaTag TEXT, position TEXT, facing REAL," +
+        "currentHP INTEGER, bankGold INTEGER, pveArenaCurrentPoints, menuOriginTop INTEGER, menuOriginLeft INTEGER, storage TEXT)");
 
-      query = NWScript.SqlPrepareQueryCampaign(Config.database, $"CREATE TABLE IF NOT EXISTS playerLearnableSkills" +
-        $"('characterId' INTEGER NOT NULL, 'skillId' INTEGER NOT NULL, 'skillPoints' INTEGER NOT NULL, 'trained' INTEGER, UNIQUE (characterId, skillId))");
-      NWScript.SqlStep(query);
+      SqLiteUtils.CreateQuery("CREATE TABLE IF NOT EXISTS playerLearnableSkills" +
+        "('characterId' INTEGER NOT NULL, 'skillId' INTEGER NOT NULL, 'skillPoints' INTEGER NOT NULL, 'trained' INTEGER, UNIQUE (characterId, skillId))");
 
-      query = NWScript.SqlPrepareQueryCampaign(Config.database, $"CREATE TABLE IF NOT EXISTS playerLearnableSpells" +
-        $"('characterId' INTEGER NOT NULL, 'skillId' INTEGER NOT NULL, 'skillPoints' INTEGER NOT NULL, 'trained' INTEGER, UNIQUE (characterId, skillId))");
-      NWScript.SqlStep(query);
+      SqLiteUtils.CreateQuery("CREATE TABLE IF NOT EXISTS playerLearnableSpells" +
+        "('characterId' INTEGER NOT NULL, 'skillId' INTEGER NOT NULL, 'skillPoints' INTEGER NOT NULL, 'trained' INTEGER, UNIQUE (characterId, skillId))");
 
-      query = NWScript.SqlPrepareQueryCampaign(Config.database, $"CREATE TABLE IF NOT EXISTS playerMaterialStorage" +
-        $"('characterId' INTEGER NOT NULL, 'materialName' TEXT NOT NULL, 'materialStock' INTEGER, UNIQUE (characterId, materialName))");
-      NWScript.SqlStep(query);
+      SqLiteUtils.CreateQuery("CREATE TABLE IF NOT EXISTS playerMaterialStorage" +
+        "('characterId' INTEGER NOT NULL, 'materialName' TEXT NOT NULL, 'materialStock' INTEGER, UNIQUE (characterId, materialName))");
 
-      query = NWScript.SqlPrepareQueryCampaign(Config.database, $"CREATE TABLE IF NOT EXISTS playerDeathCorpses" +
-        $"('characterId' INTEGER NOT NULL, 'deathCorpse' TEXT NOT NULL, 'areaTag' TEXT NOT NULL, 'position' TEXT NOT NULL)");
-      NWScript.SqlStep(query);
+      SqLiteUtils.CreateQuery("CREATE TABLE IF NOT EXISTS playerDeathCorpses" +
+        "('characterId' INTEGER NOT NULL, 'deathCorpse' TEXT NOT NULL, 'areaTag' TEXT NOT NULL, 'position' TEXT NOT NULL)");
 
-      query = NWScript.SqlPrepareQueryCampaign(Config.database, $"CREATE TABLE IF NOT EXISTS loot_containers" +
-        $"('chestTag' TEXT NOT NULL, 'accountID' INTEGER NOT NULL, 'serializedChest' TEXT NOT NULL, 'position' TEXT NOT NULL, 'facing' REAL NOT NULL, PRIMARY KEY(chestTag))");
-      NWScript.SqlStep(query);
+      SqLiteUtils.CreateQuery("CREATE TABLE IF NOT EXISTS loot_containers" +
+        "('chestTag' TEXT NOT NULL, 'accountID' INTEGER NOT NULL, 'serializedChest' TEXT NOT NULL, 'position' TEXT NOT NULL, 'facing' REAL NOT NULL, PRIMARY KEY(chestTag))");
 
-      query = NWScript.SqlPrepareQueryCampaign(Config.database, $"CREATE TABLE IF NOT EXISTS dm_persistant_placeable" +
-        $"('accountID' INTEGER NOT NULL, 'serializedPlaceable' TEXT NOT NULL, 'areaTag' TEXT NOT NULL, 'position' TEXT NOT NULL, 'facing' REAL NOT NULL)");
-      NWScript.SqlStep(query);
+      SqLiteUtils.CreateQuery("CREATE TABLE IF NOT EXISTS dm_persistant_placeable" +
+        "('accountID' INTEGER NOT NULL, 'serializedPlaceable' TEXT NOT NULL, 'areaTag' TEXT NOT NULL, 'position' TEXT NOT NULL, 'facing' REAL NOT NULL)");
 
-      query = NWScript.SqlPrepareQueryCampaign(Config.database, $"CREATE TABLE IF NOT EXISTS playerMapPins" +
-        $"('characterId' INTEGER NOT NULL, 'mapPinId' INTEGER NOT NULL, 'areaTag' TEXT NOT NULL, 'x' REAL NOT NULL, 'y' REAL NOT NULL, 'note' TEXT, UNIQUE (characterId, mapPinId))");
-      NWScript.SqlStep(query);
+      SqLiteUtils.CreateQuery("CREATE TABLE IF NOT EXISTS playerMapPins" +
+        "('characterId' INTEGER NOT NULL, 'mapPinId' INTEGER NOT NULL, 'areaTag' TEXT NOT NULL, 'x' REAL NOT NULL, 'y' REAL NOT NULL, 'note' TEXT, UNIQUE (characterId, mapPinId))");
 
-      query = NWScript.SqlPrepareQueryCampaign(Config.database, $"CREATE TABLE IF NOT EXISTS playerDescriptions" +
-        $"('characterId' INTEGER NOT NULL, 'descriptionName' TEXT NOT NULL, 'description' TEXT NOT NULL, UNIQUE (characterId, descriptionName))");
-      NWScript.SqlStep(query);
+      SqLiteUtils.CreateQuery("CREATE TABLE IF NOT EXISTS playerDescriptions" +
+        "('characterId' INTEGER NOT NULL, 'descriptionName' TEXT NOT NULL, 'description' TEXT NOT NULL, UNIQUE (characterId, descriptionName))");
 
-      query = NWScript.SqlPrepareQueryCampaign(Config.database, $"CREATE TABLE IF NOT EXISTS areaResourceStock" +
-        $"('areaTag' TEXT NOT NULL, 'mining' INTEGER, 'wood' INTEGER, 'animals' INTEGER, PRIMARY KEY(areaTag))");
-      NWScript.SqlStep(query);
+      SqLiteUtils.CreateQuery("CREATE TABLE IF NOT EXISTS areaResourceStock" +
+        "('areaTag' TEXT NOT NULL, 'mining' INTEGER, 'wood' INTEGER, 'animals' INTEGER, PRIMARY KEY(areaTag))");
 
-      query = NWScript.SqlPrepareQueryCampaign(Config.database, $"CREATE TABLE IF NOT EXISTS scriptPerformance" +
-        $"('script' TEXT NOT NULL, 'nbExecutions' INTEGER NOT NULL, 'averageExecutionTime' REAL NOT NULL, 'cumulatedExecutionTime' REAL NOT NULL, PRIMARY KEY(script))");
-      NWScript.SqlStep(query);
+      SqLiteUtils.CreateQuery("CREATE TABLE IF NOT EXISTS scriptPerformance" +
+        "('script' TEXT NOT NULL, 'nbExecutions' INTEGER NOT NULL, 'averageExecutionTime' REAL NOT NULL, 'cumulatedExecutionTime' REAL NOT NULL, PRIMARY KEY(script))");
 
-      query = NWScript.SqlPrepareQueryCampaign(Config.database, $"CREATE TABLE IF NOT EXISTS goldBalance" +
-        $"('lootedTag' TEXT NOT NULL, 'nbTimesLooted' INTEGER NOT NULL, 'averageGold' INT NOT NULL, 'cumulatedGold' INT NOT NULL, PRIMARY KEY(lootedTag))");
-      NWScript.SqlStep(query);
+      SqLiteUtils.CreateQuery("CREATE TABLE IF NOT EXISTS goldBalance" +
+        "('lootedTag' TEXT NOT NULL, 'nbTimesLooted' INTEGER NOT NULL, 'averageGold' INT NOT NULL, 'cumulatedGold' INT NOT NULL, PRIMARY KEY(lootedTag))");
 
-      query = NWScript.SqlPrepareQueryCampaign(Config.database, $"CREATE TABLE IF NOT EXISTS playerAreaExplorationState" +
-        $"('characterId' INTEGER NOT NULL, 'areaTag' TEXT NOT NULL, 'explorationState' TEXT NOT NULL, UNIQUE (characterId, areaTag))");
-      NWScript.SqlStep(query);
+      SqLiteUtils.CreateQuery("CREATE TABLE IF NOT EXISTS playerAreaExplorationState" +
+        "('characterId' INTEGER NOT NULL, 'areaTag' TEXT NOT NULL, 'explorationState' TEXT NOT NULL, UNIQUE (characterId, areaTag))");
 
-      query = NWScript.SqlPrepareQueryCampaign(Config.database, $"CREATE TABLE IF NOT EXISTS playerPrivateContracts" +
-        $"('characterId' INTEGER NOT NULL, 'expirationDate' TEXT NOT NULL, 'serializedContract' TEXT NOT NULL, 'totalValue' INTEGER NOT NULL)");
-      NWScript.SqlStep(query);
+      SqLiteUtils.CreateQuery("CREATE TABLE IF NOT EXISTS playerPrivateContracts" +
+        "('characterId' INTEGER NOT NULL, 'expirationDate' TEXT NOT NULL, 'serializedContract' TEXT NOT NULL, 'totalValue' INTEGER NOT NULL)");
 
-      query = NWScript.SqlPrepareQueryCampaign(Config.database, $"CREATE TABLE IF NOT EXISTS playerBuyOrders" +
-        $"('characterId' INTEGER NOT NULL, 'expirationDate' TEXT NOT NULL, 'material' TEXT NOT NULL, 'quantity' INTEGER NOT NULL, 'unitPrice' INTEGER NOT NULL)");
-      NWScript.SqlStep(query);
+      SqLiteUtils.CreateQuery("CREATE TABLE IF NOT EXISTS playerBuyOrders" +
+        "('characterId' INTEGER NOT NULL, 'expirationDate' TEXT NOT NULL, 'material' TEXT NOT NULL, 'quantity' INTEGER NOT NULL, 'unitPrice' INTEGER NOT NULL)");
 
-      query = NWScript.SqlPrepareQueryCampaign(Config.database, $"CREATE TABLE IF NOT EXISTS playerSellOrders" +
-        $"('characterId' INTEGER NOT NULL, 'expirationDate' TEXT NOT NULL, 'material' TEXT NOT NULL, 'quantity' INTEGER NOT NULL, 'unitPrice' INTEGER NOT NULL)");
-      NWScript.SqlStep(query);
+      SqLiteUtils.CreateQuery("CREATE TABLE IF NOT EXISTS playerSellOrders" +
+        "('characterId' INTEGER NOT NULL, 'expirationDate' TEXT NOT NULL, 'material' TEXT NOT NULL, 'quantity' INTEGER NOT NULL, 'unitPrice' INTEGER NOT NULL)");
 
-      query = NWScript.SqlPrepareQueryCampaign(Config.database, $"CREATE TABLE IF NOT EXISTS playerShops" +
-        $"('characterId' INTEGER NOT NULL, 'shop' TEXT NOT NULL, 'panel' TEXT NOT NULL, 'expirationDate' TEXT NOT NULL, 'areaTag' TEXT NOT NULL, 'position' TEXT NOT NULL, 'facing' REAL NOT NULL)");
-      NWScript.SqlStep(query);
+      SqLiteUtils.CreateQuery("CREATE TABLE IF NOT EXISTS playerShops" +
+        "('characterId' INTEGER NOT NULL, 'shop' TEXT NOT NULL, 'panel' TEXT NOT NULL, 'expirationDate' TEXT NOT NULL, 'areaTag' TEXT NOT NULL, 'position' TEXT NOT NULL, 'facing' REAL NOT NULL)");
 
-      query = NWScript.SqlPrepareQueryCampaign(Config.database, $"CREATE TABLE IF NOT EXISTS playerAuctions" +
-        $"('characterId' INTEGER NOT NULL, 'shop' TEXT NOT NULL, 'panel' TEXT NOT NULL, 'expirationDate' TEXT NOT NULL, 'highestAuction' INTEGER NOT NULL, 'highestAuctionner' INTEGER NOT NULL, 'areaTag' TEXT NOT NULL, 'position' TEXT NOT NULL, 'facing' REAL NOT NULL)");
-      NWScript.SqlStep(query);
+      SqLiteUtils.CreateQuery("CREATE TABLE IF NOT EXISTS playerItemAppearance" +
+        "('characterId' INTEGER NOT NULL, 'appearanceName' TEXT NOT NULL, 'serializedAppearance' TEXT NOT NULL, 'baseItemType' INTEGER NOT NULL, 'AC' INTEGER NOT NULL, UNIQUE (characterId, appearanceName))");
 
-      query = NWScript.SqlPrepareQueryCampaign(Config.database, $"CREATE TABLE IF NOT EXISTS playerItemAppearance" +
-        $"('characterId' INTEGER NOT NULL, 'appearanceName' TEXT NOT NULL, 'serializedAppearance' TEXT NOT NULL, 'baseItemType' INTEGER NOT NULL, 'AC' INTEGER NOT NULL, UNIQUE (characterId, appearanceName))");
-      NWScript.SqlStep(query);
+      SqLiteUtils.CreateQuery("CREATE TABLE IF NOT EXISTS playerAuctions" +
+        "('characterId' INTEGER NOT NULL, 'shop' TEXT NOT NULL, 'panel' TEXT NOT NULL, 'expirationDate' TEXT NOT NULL, 'highestAuction' INTEGER NOT NULL, 'highestAuctionner' INTEGER NOT NULL, 'areaTag' TEXT NOT NULL, 'position' TEXT NOT NULL, 'facing' REAL NOT NULL)");
 
-      query = NWScript.SqlPrepareQueryCampaign(Config.database, $"CREATE TABLE IF NOT EXISTS savedNPC" +
-        $"('accountName' TEXT NOT NULL, 'name' TEXT NOT NULL, 'serializedCreature' TEXT NOT NULL, UNIQUE (accountName, name))");
-      NWScript.SqlStep(query);
+      SqLiteUtils.CreateQuery("CREATE TABLE IF NOT EXISTS savedNPC" +
+        "('accountName' TEXT NOT NULL, 'name' TEXT NOT NULL, 'serializedCreature' TEXT NOT NULL, UNIQUE (accountName, name))");
 
-      query = NWScript.SqlPrepareQueryCampaign(Config.database, $"CREATE TABLE IF NOT EXISTS areaDescriptions" +
-        $"('areaTag' TEXT NOT NULL, 'description' TEXT NOT NULL, PRIMARY KEY(areaTag))");
-      NWScript.SqlStep(query);
+      SqLiteUtils.CreateQuery("CREATE TABLE IF NOT EXISTS areaDescriptions" +
+        "('areaTag' TEXT NOT NULL, 'description' TEXT NOT NULL, PRIMARY KEY(areaTag))");
 
-      query = NWScript.SqlPrepareQueryCampaign(Config.database, $"CREATE TABLE IF NOT EXISTS rumors" +
-        $"('accountId' INTEGER NOT NULL, 'title' TEXT NOT NULL, 'content' TEXT NOT NULL, UNIQUE (accountId, title))");
-      NWScript.SqlStep(query);
+      SqLiteUtils.CreateQuery("CREATE TABLE IF NOT EXISTS rumors" +
+        "('accountId' INTEGER NOT NULL, 'title' TEXT NOT NULL, 'content' TEXT NOT NULL, UNIQUE (accountId, title))");
 
-      query = NWScript.SqlPrepareQueryCampaign(Config.database, $"CREATE TABLE IF NOT EXISTS arenaRewardShop" +
-        $"('id' INTEGER NOT NULL, 'shop' TEXT NOT NULL, PRIMARY KEY(id))");
-      NWScript.SqlStep(query);
+      SqLiteUtils.CreateQuery("CREATE TABLE IF NOT EXISTS arenaRewardShop" +
+        "('id' INTEGER NOT NULL, 'shop' TEXT NOT NULL, PRIMARY KEY(id))");
 
-      query = NWScript.SqlPrepareQueryCampaign(Config.database, $"CREATE TABLE IF NOT EXISTS chatColors" +
-        $"('accountId' INTEGER NOT NULL, 'channel' INTEGER NOT NULL, 'color' INTEGER NOT NULL, UNIQUE (accountId, channel))");
-      NWScript.SqlStep(query);
+      SqLiteUtils.CreateQuery("CREATE TABLE IF NOT EXISTS chatColors" +
+        "('accountId' INTEGER NOT NULL, 'channel' INTEGER NOT NULL, 'color' INTEGER NOT NULL, UNIQUE (accountId, channel))");
 
-      query = NWScript.SqlPrepareQueryCampaign(Config.database, $"CREATE TABLE IF NOT EXISTS messenger" +
-        $"('characterId' INTEGER NOT NULL, 'senderName' TEXT NOT NULL, 'title' TEXT NOT NULL, 'message', TEXT NOT NULL, 'sentDate' TEXT NOT NULL, 'read' INTEGER NOT NULL)");
-      NWScript.SqlStep(query);
+      SqLiteUtils.CreateQuery("CREATE TABLE IF NOT EXISTS messenger" +
+        "('characterId' INTEGER NOT NULL, 'senderName' TEXT NOT NULL, 'title' TEXT NOT NULL, 'message', TEXT NOT NULL, 'sentDate' TEXT NOT NULL, 'read' INTEGER NOT NULL)");
 
-      query = NWScript.SqlPrepareQueryCampaign(Config.database, $"CREATE TABLE IF NOT EXISTS playerGrimoire" +
-        $"('characterId' INTEGER NOT NULL, 'grimoireName' TEXT NOT NULL, 'serializedGrimoire' TEXT NOT NULL, UNIQUE (characterId, grimoireName))");
-      NWScript.SqlStep(query);
+      SqLiteUtils.CreateQuery("CREATE TABLE IF NOT EXISTS playerGrimoire" +
+        "('characterId' INTEGER NOT NULL, 'grimoireName' TEXT NOT NULL, 'serializedGrimoire' TEXT NOT NULL, UNIQUE (characterId, grimoireName))");
 
-      query = NWScript.SqlPrepareQueryCampaign(Config.database, $"CREATE TABLE IF NOT EXISTS playerQuickbar" +
-        $"('characterId' INTEGER NOT NULL, 'quickbarName' TEXT NOT NULL, 'serializedQuickbar' TEXT NOT NULL, UNIQUE (characterId, quickbarName))");
-      NWScript.SqlStep(query);
+      SqLiteUtils.CreateQuery("CREATE TABLE IF NOT EXISTS playerQuickbar" +
+        "('characterId' INTEGER NOT NULL, 'quickbarName' TEXT NOT NULL, 'serializedQuickbar' TEXT NOT NULL, UNIQUE (characterId, quickbarName))");
 
-      query = NWScript.SqlPrepareQueryCampaign(Config.database, $"CREATE TABLE IF NOT EXISTS dmVFX" +
-        $"('playerName' TEXT NOT NULL, 'vfxName' TEXT NOT NULL, 'vfxId' INTEGER NOT NULL, UNIQUE (playerName, vfxName))");
-      NWScript.SqlStep(query);
+      SqLiteUtils.CreateQuery("CREATE TABLE IF NOT EXISTS dmVFX" +
+        "('playerName' TEXT NOT NULL, 'vfxName' TEXT NOT NULL, 'vfxId' INTEGER NOT NULL, UNIQUE (playerName, vfxName))");
 
-      query = NWScript.SqlPrepareQueryCampaign(Config.database, $"CREATE TABLE IF NOT EXISTS dmVFXDuration" +
-        $"('playerName' TEXT NOT NULL, 'vfxDuration' INTEGER NOT NULL, PRIMARY KEY(playerName))");
-      NWScript.SqlStep(query);
+      SqLiteUtils.CreateQuery("CREATE TABLE IF NOT EXISTS dmVFXDuration" +
+        "('playerName' TEXT NOT NULL, 'vfxDuration' INTEGER NOT NULL, PRIMARY KEY(playerName))");
     }
     private void InitializeEvents()
     {
@@ -241,16 +210,16 @@ namespace NWN.Systems
     }
     private void SetModuleTime()
     {
-      var result = SqLiteUtils.SelectQuery("moduleInfo",
+      var query = SqLiteUtils.SelectQuery("moduleInfo",
         new List<string>() { { "year" }, { "month" }, { "day" }, { "hour" }, { "minute" }, { "second" } },
         new List<string[]>() { new string[] { "rowid", "1" } });
-
-      if(result != null && result.Count() > 0)
-        NwDateTime.Now = new NwDateTime(result.FirstOrDefault().GetInt(0), result.FirstOrDefault().GetInt(1), result.FirstOrDefault().GetInt(2), result.FirstOrDefault().GetInt(3), result.FirstOrDefault().GetInt(4), result.FirstOrDefault().GetInt(5));
+      
+      if (query.Result != null)
+          NwDateTime.Now = new NwDateTime(query.Result.GetInt(0), query.Result.GetInt(1), query.Result.GetInt(2), query.Result.GetInt(3), query.Result.GetInt(4), query.Result.GetInt(5));
       else
       {
         SqLiteUtils.InsertQuery("moduleInfo",
-                new List<string[]>() { new string[] { "year", NwDateTime.Now.Year.ToString() }, new string[] { "month", NwDateTime.Now.Month.ToString() }, new string[] { "day", NwDateTime.Now.DayInTenday.ToString() }, new string[] { "hour", NwDateTime.Now.Hour.ToString() }, new string[] { "minute", NwDateTime.Now.Minute.ToString() }, new string[] { "second", NwDateTime.Now.Second.ToString() } });
+          new List<string[]>() { new string[] { "year", NwDateTime.Now.Year.ToString() }, new string[] { "month", NwDateTime.Now.Month.ToString() }, new string[] { "day", NwDateTime.Now.DayInTenday.ToString() }, new string[] { "hour", NwDateTime.Now.Hour.ToString() }, new string[] { "minute", NwDateTime.Now.Minute.ToString() }, new string[] { "second", NwDateTime.Now.Second.ToString() } });
       }
     }
     public static async Task SpawnCollectableResources(float delay)
@@ -369,8 +338,7 @@ namespace NWN.Systems
         new List<string>() { { "deathCorpse" }, { "areaTag" }, { "position" }, { "characterId" } },
         new List<string[]>() );
 
-      if(result != null)
-      foreach (var pcCorpse in result)
+      foreach (var pcCorpse in result.Results)
       {
         NwCreature corpse = NwCreature.Deserialize(pcCorpse.GetString(0).ToByteArray());
         corpse.Location = Utils.GetLocationFromDatabase(pcCorpse.GetString(1), pcCorpse.GetVector3(2), 0);
@@ -390,13 +358,10 @@ namespace NWN.Systems
         new List<string>() { { "shop" }, { "panel" }, { "characterId" }, { "rowid" }, { "expirationDate" }, { "areaTag" }, { "position" }, { "facing" } },
         new List<string[]>());
 
-      if(result != null)
-      foreach (var playerShop in result)
+      foreach (var playerShop in result.Results)
       {
-        NwStore shop = NwStore.Deserialize(playerShop.GetString(0).ToByteArray());
-        NwPlaceable panel = NwPlaceable.Deserialize(playerShop.GetString(1).ToByteArray());
-        shop.Location = Utils.GetLocationFromDatabase(playerShop.GetString(5), playerShop.GetVector3(6), playerShop.GetFloat(7));
-        panel.Location = Utils.GetLocationFromDatabase(playerShop.GetString(5), playerShop.GetVector3(6), playerShop.GetFloat(7));
+        NwStore shop = SqLiteUtils.StoreSerializationFormatProtection(playerShop, 0, Utils.GetLocationFromDatabase(playerShop.GetString(5), playerShop.GetVector3(6), playerShop.GetFloat(7)));
+        NwPlaceable panel = SqLiteUtils.PlaceableSerializationFormatProtection(playerShop, 1, Utils.GetLocationFromDatabase(playerShop.GetString(5), playerShop.GetVector3(6), playerShop.GetFloat(7)));
         shop.GetLocalVariable<int>("_OWNER_ID").Value = playerShop.GetInt(2);
         shop.GetLocalVariable<int>("_SHOP_ID").Value = playerShop.GetInt(3);
         panel.GetLocalVariable<int>("_OWNER_ID").Value = playerShop.GetInt(2);
@@ -447,13 +412,10 @@ namespace NWN.Systems
         new List<string>() { { "shop" }, { "panel" }, { "characterId" }, { "rowid" }, { "expirationDate" }, { "highestAuction" }, { "highestAuctionner" }, { "areaTag" }, { "position" }, { "facing" } },
         new List<string[]>() { new string[] { "shop", "deleted", "!=" } });
 
-      if(result != null)
-      foreach (var auction in result)
+      foreach (var auction in result.Results)
       {
-        NwStore shop = NwStore.Deserialize(auction.GetString(0).ToByteArray());
-        NwPlaceable panel = NwPlaceable.Deserialize(auction.GetString(1).ToByteArray());
-        shop.Location = Utils.GetLocationFromDatabase(auction.GetString(7), auction.GetVector3(8), auction.GetFloat(9));
-        panel.Location = Utils.GetLocationFromDatabase(auction.GetString(7), auction.GetVector3(8), auction.GetFloat(9));
+        NwStore shop = SqLiteUtils.StoreSerializationFormatProtection(auction, 0, Utils.GetLocationFromDatabase(auction.GetString(7), auction.GetVector3(8), auction.GetFloat(9)));
+        NwPlaceable panel = SqLiteUtils.PlaceableSerializationFormatProtection(auction, 1, Utils.GetLocationFromDatabase(auction.GetString(7), auction.GetVector3(8), auction.GetFloat(9)));
         shop.GetLocalVariable<int>("_OWNER_ID").Value = auction.GetInt(2);
         shop.GetLocalVariable<int>("_SHOP_ID").Value = auction.GetInt(3);
         shop.GetLocalVariable<int>("_CURRENT_AUCTION").Value = auction.GetInt(5);
@@ -473,8 +435,7 @@ namespace NWN.Systems
         new List<string>() { { "characterId" }, { "rowid" }, { "highestAuction" }, { "highestAuctionner" }, { "shop" } },
         new List<string[]>() { new string[] { "expirationDate", DateTime.Now.ToString(), ">" } });
 
-      if(result != null)
-      foreach (var auction in result)
+      foreach (var auction in result.Results)
       {
         int buyerId = auction.GetInt(3);
         int sellerId = auction.GetInt(0);
@@ -482,8 +443,10 @@ namespace NWN.Systems
 
         NwPlayer oSeller = NwModule.Instance.Players.FirstOrDefault(p => ObjectPlugin.GetInt(p.LoginCreature, "characterId") == sellerId);
         NwStore store = NwObject.FindObjectsOfType<NwStore>().FirstOrDefault(p => p.GetLocalVariable<int>("_AUCTION_ID").Value == auctionId);
-        NwItem tempItem = NwStore.Deserialize(auction.GetString(4).ToByteArray()).Items.FirstOrDefault();
-          
+        NwStore oStore = SqLiteUtils.StoreSerializationFormatProtection(auction, 4, NwModule.Instance.StartingLocation);
+        NwItem tempItem = oStore.Items.FirstOrDefault();
+        oStore.Destroy();
+
         if (buyerId <= 0) // pas d'acheteur
         {
           // S'il est co, on rend l'item au seller et on détruit la ligne en BDD. S'il est pas co, on attend la prochaine occurence pour lui rendre l'item
@@ -584,12 +547,8 @@ namespace NWN.Systems
         new List<string>() { { "serializedPlaceable" }, { "areaTag" }, { "position" }, { "facing" } },
         new List<string[]>() );
       
-      if(result != null)
-        foreach (var plc in result)
-        {
-          NwPlaceable dmPlc = NwPlaceable.Deserialize(plc.GetString(0).ToByteArray());
-          dmPlc.Location = Utils.GetLocationFromDatabase(plc.GetString(1), plc.GetVector3(2), plc.GetFloat(3));
-        }
+      foreach (var plc in result.Results)
+        SqLiteUtils.PlaceableSerializationFormatProtection(plc, 0, Utils.GetLocationFromDatabase(plc.GetString(1), plc.GetVector3(2), plc.GetFloat(3)));
     }
 
     [ScriptHandler("before_elc")]
@@ -603,14 +562,14 @@ namespace NWN.Systems
         new List<string>() { { "areaTag" }, { "position" }, { "facing" } },
         new List<string[]>() { new string[] { "rowid", characterId.ToString() } });
 
-        if (result != null && result.Count() > 0)
+        if (result.Result != null)
         {
-          string tag = result.FirstOrDefault().GetString(0);
+          string tag = result.Result.GetString(0);
 
           if (tag.StartsWith("entrepotpersonnel"))
             AreaSystem.CreatePersonnalStorageArea(oPC, characterId);
 
-          oPC.ControllingPlayer.SpawnLocation = Utils.GetLocationFromDatabase(tag, result.FirstOrDefault().GetVector3(1), result.FirstOrDefault().GetFloat(2));
+          oPC.ControllingPlayer.SpawnLocation = Utils.GetLocationFromDatabase(tag, result.Result.GetVector3(1), result.Result.GetFloat(2));
         }
       }
     }

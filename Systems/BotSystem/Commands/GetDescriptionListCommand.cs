@@ -25,8 +25,7 @@ namespace NWN.Systems
 
       string result = "";
 
-      if(query != null)
-      foreach(var description in query)
+      foreach(var description in query.Results)
         result += description.GetString(0) + "\n";
 
       await context.Channel.SendMessageAsync($"Voici la liste des descriptions enregistrées pour {pcName} :\n{result}");

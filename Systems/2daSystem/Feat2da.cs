@@ -15,8 +15,8 @@ namespace NWN.Systems
 
     void ITwoDimArray.DeserializeRow(int rowIndex, TwoDimEntry twoDimEntry)
     {
-      int tlkName = int.Parse(twoDimEntry("FEAT"));
-      int tlkDescription = int.Parse(twoDimEntry("DESCRIPTION"));
+      int tlkName = int.TryParse(twoDimEntry("FEAT"), out tlkName) ? tlkName : 0;
+      int tlkDescription = int.TryParse(twoDimEntry("DESCRIPTION"), out tlkDescription) ? tlkDescription : 0;
       entries.Add((Feat)rowIndex, new Entry(tlkName, tlkDescription));
     }
     public readonly struct Entry

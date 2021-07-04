@@ -31,9 +31,9 @@ namespace NWN.Systems
             new List<string>() { { "vfxId" } },
             new List<string[]>() { new string[] { "playerName", player.oid.PlayerName }, new string[] { "vfxName", vfxName } });
 
-          if (result != null && result.Count() > 0)
+          if (result.Result != null)
           {
-            ctx.oSender.LoginCreature.GetLocalVariable<int>("_VFX_ID").Value = result.FirstOrDefault().GetInt(0);
+            ctx.oSender.LoginCreature.GetLocalVariable<int>("_VFX_ID").Value = result.Result.GetInt(0);
             PlayerSystem.cursorTargetService.EnterTargetMode(ctx.oSender, dmVFXTarget, ObjectTypes.All, MouseCursor.Magic);
           }
           else
@@ -66,8 +66,8 @@ namespace NWN.Systems
 
       int vfxDuration = 0;
 
-      if (result != null && result.Count() > 0)
-        vfxDuration = result.FirstOrDefault().GetInt(0);
+      if (result.Result != null)
+        vfxDuration = result.Result.GetInt(0);
 
       if (selection.TargetObject is NwGameObject target)
       {

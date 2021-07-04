@@ -70,7 +70,7 @@ namespace NWN.Systems.Craft.Collect
         new List<string>() { { "mining" } },
         new List<string[]>() { new string[] { "areaTag", player.oid.LoginCreature.Area.Tag } });
 
-      if (result == null || result.Count() < 1)
+      if (result.Result == null)
       {
         player.oid.SendServerMessage("Cette veine est épuisée. Reste à espérer qu'un prochain glissement de terrain permette d'atteindre de nouveaux filons.", ColorConstants.Maroon);
         return;

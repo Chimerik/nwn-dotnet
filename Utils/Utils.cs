@@ -8,14 +8,18 @@ using System.Linq;
 using NWN.API;
 using NWN.API.Constants;
 using System.Collections.Generic;
+using NLog;
 
 namespace NWN
 {
   public static class Utils
   {
+    public static readonly Logger Log = LogManager.GetCurrentClassLogger();
     public static Random random = new Random();
     public static void LogMessageToDMs(string message)
     {
+      Log.Info(message);
+
       switch (Config.env)
       {
         case Config.Env.Prod:
@@ -223,9 +227,9 @@ namespace NWN
           new List<string>() { { "discordId" } },
           new List<string[]>() { new string[] { "ROWID", characterId.ToString() } });
 
-      if (result != null && result.Count() > 0)
+      if (result.Result != null)
       {
-        await Bot._client.GetUser(ulong.Parse(result.FirstOrDefault().GetString(0))).SendMessageAsync(message);
+        await Bot._client.GetUser(ulong.Parse(result.Result.GetString(0))).SendMessageAsync(message);
       }
     }
     public static async void SendItemToPCStorage(int characterId, NwItem item)
@@ -236,9 +240,9 @@ namespace NWN
           new List<string>() { { "storage" } },
           new List<string[]>() { new string[] { "ROWID", characterId.ToString() } });
 
-      if (result != null && result.Count() > 0)
+      if (result.Result != null)
       {
-        NwStore storage = NwStore.Deserialize(result.FirstOrDefault().GetString(0).ToByteArray());
+        NwStore storage = SqLiteUtils.StoreSerializationFormatProtection(result.Result, 0, NwModule.Instance.StartingLocation);
         item.Clone(storage);
         item.Destroy();
 

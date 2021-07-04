@@ -43,7 +43,7 @@ namespace NWN.Systems
         new List<string[]>() { new string[] { "characterId", player.characterId.ToString() }, { new string[] { "AC", ACValue.ToString() } }, { new string[] { "baseItemType", ((int)item.BaseItemType).ToString() } } } );
 
       if(query != null)
-      foreach (var itemAppearance in query)
+      foreach (var itemAppearance in query.Results)
       {
         string message = $"- {itemAppearance.GetString(0)}".ColorString(ColorConstants.Cyan);
         string appearance = itemAppearance.GetString(1);

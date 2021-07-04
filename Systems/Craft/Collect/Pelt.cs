@@ -72,7 +72,7 @@ namespace NWN.Systems.Craft.Collect
         new List<string>() { { "animals" } },
         new List<string[]>() { new string[] { "areaTag", player.oid.LoginCreature.Area.Tag } });
       
-      if (result == null || result.Count() < 1)
+      if (result.Result == null)
       {
         player.oid.SendServerMessage("Cette zone est épuisée. Les animaux restants disposant de propriétés intéressantes ne semblent pas encore avoir atteint l'âge d'être exploités.", ColorConstants.Maroon);
         return;

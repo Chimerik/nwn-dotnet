@@ -17,8 +17,7 @@ namespace NWN.Systems
         new List<string>() { { "descriptionName" }, { "description" } },
         new List<string[]>() { new string[] { "characterId", player.characterId.ToString() } });
 
-      if(query != null)
-      foreach (var result in query)
+      foreach (var result in query.Results)
       {
         string descriptionName = $"- {result.GetString(0)}".ColorString(ColorConstants.Cyan);
         string description = result.GetString(0);
