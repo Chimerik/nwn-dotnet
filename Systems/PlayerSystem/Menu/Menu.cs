@@ -289,10 +289,9 @@ namespace NWN.Systems
                 NWScript.SetObjectVisualTransform(player.oid.ControlledCreature, NWScript.OBJECT_VISUAL_TRANSFORM_TRANSLATE_Z, NWScript.GetObjectVisualTransform(player.oid.LoginCreature, NWScript.OBJECT_VISUAL_TRANSFORM_TRANSLATE_Z) + newValue);
                   zPos = NWScript.GetObjectVisualTransform(player.oid.LoginCreature, NWScript.OBJECT_VISUAL_TRANSFORM_TRANSLATE_Z);
                   if (zPos > 5)
-                    Utils.LogMessageToDMs($"SIT COMMAND - Player {NWScript.GetName(player.oid.LoginCreature)} - Z translation = {zPos}");
+                    Utils.LogMessageToDMs($"SIT COMMAND - Player {player.oid.PlayerName} - Z translation = {zPos}");
 
-                NWScript.SetCameraHeight(player.oid.ControlledCreature,  1 + zPos);
-
+                player.oid.CameraHeight = 1 + zPos;
                 break;
 
               case CustomFeats.CustomMenuDOWN:
@@ -301,9 +300,9 @@ namespace NWN.Systems
                 NWScript.SetObjectVisualTransform(player.oid.ControlledCreature, NWScript.OBJECT_VISUAL_TRANSFORM_TRANSLATE_Z, NWScript.GetObjectVisualTransform(player.oid.LoginCreature, NWScript.OBJECT_VISUAL_TRANSFORM_TRANSLATE_Z) + newValue);
                 zPos = NWScript.GetObjectVisualTransform(player.oid.LoginCreature, NWScript.OBJECT_VISUAL_TRANSFORM_TRANSLATE_Z);
                 if (zPos < NWScript.GetGroundHeight(NWScript.GetLocation(player.oid.LoginCreature)))
-                  Utils.LogMessageToDMs($"SIT COMMAND - Player {NWScript.GetName(player.oid.LoginCreature)} - Z translation = {zPos}");
+                  Utils.LogMessageToDMs($"SIT COMMAND - Player {player.oid.PlayerName} - Z translation = {zPos}");
 
-                NWScript.SetCameraHeight(player.oid.ControlledCreature, 1 + zPos);
+                player.oid.CameraHeight = 1 + zPos;
 
                 break;
 

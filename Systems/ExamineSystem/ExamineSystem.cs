@@ -1,5 +1,6 @@
 ﻿using NLog;
 using NWN.API;
+using NWN.API.Constants;
 using NWN.API.Events;
 using NWN.Core;
 using NWN.Services;
@@ -212,7 +213,7 @@ namespace NWN.Systems
           string[] spellList = onExamine.ExaminedObject.GetLocalVariable<string>("_REGISTERED_SEQUENCE").Value.Split("_");
 
           foreach (string spellId in spellList)
-            onExamine.ExaminedObject.Description += $"- {NWScript.GetStringByStrRef(int.Parse(NWScript.Get2DAString("spells", "Name", int.Parse(spellId))))}\n";
+            onExamine.ExaminedObject.Description += $"- {Spells2da.spellsTable.GetSpellDataEntry((Spell)int.Parse(spellId)).name}\n";
 
           onExamine.ExaminedObject.Description = descriptionSequence;
 
@@ -232,11 +233,11 @@ namespace NWN.Systems
         if (onExamine.ExaminedObject.GetLocalVariable<int>("_AVAILABLE_ENCHANTEMENT_SLOT").HasValue)
           onExamine.ExaminedObject.Description += $"\n\nEmplacement(s) d'enchantement : [{onExamine.ExaminedObject.GetLocalVariable<int>("_AVAILABLE_ENCHANTEMENT_SLOT").Value.ToString().ColorString(new Color(32, 255, 32))}] ".ColorString(ColorConstants.Orange);
 
-        foreach (API.ItemProperty ip in oItem.ItemProperties.Where(ip => ip.Tag.Contains("INACTIVE")))
+        foreach (ItemProperty ip in oItem.ItemProperties.Where(ip => ip.Tag.Contains("INACTIVE")))
         {
           string[] split = ip.Tag.Split("_");
-          int spellId = int.Parse(split[1]);
-          string spellName = NWScript.GetStringByStrRef(int.Parse(NWScript.Get2DAString("spells", "Name", spellId)));
+          Spell spell = (Spell)int.Parse(split[1]);
+          string spellName = Spells2da.spellsTable.GetSpellDataEntry(spell).name;
           oItem.Description += $"\n{spellName} inactif.".ColorString(ColorConstants.Red);
         }
 

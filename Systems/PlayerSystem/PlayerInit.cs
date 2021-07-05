@@ -41,7 +41,7 @@ namespace NWN.Systems
           new List<string[]>() { { new string[] { "rowid", player.characterId.ToString() } } });
 
           if(result.Result != null)
-            player.location = Utils.GetLocationFromDatabase(result.Result.GetString(0), result.Result.GetVector3(1), result.Result.GetFloat(2));
+            player.location = Utils.GetLocationFromDatabase(result.Result.GetString(0), result.Result.GetString(1), result.Result.GetFloat(2));
 
           Task waitAreaLoaded = NwTask.Run(async () =>
           {
@@ -61,6 +61,8 @@ namespace NWN.Systems
         Utils.LogMessageToDMs($"Attention - {oPC.PlayerName} vient de se connecter avec un personnage enregistré sous le compte : {pcAccount} !");
         return;
       }
+
+      Utils.ResetVisualTransform(player.oid.ControlledCreature);
 
       if (player.craftJob.IsActive()
       && player.location.Area.GetLocalVariable<int>("_AREA_LEVEL")?.Value == 0)
@@ -113,8 +115,8 @@ namespace NWN.Systems
       {
         CustomFeat customFeat = SkillSystem.customFeatsDictionnary[feat.Key];
         FeatTable.Entry featEntry = Feat2da.featTable.GetFeatDataEntry(feat.Key);
-        PlayerPlugin.SetTlkOverride(player.oid.LoginCreature, featEntry.tlkName, $"{customFeat.name} - {SkillSystem.GetCustomFeatLevelFromSkillPoints(feat.Key, feat.Value)}");
-        PlayerPlugin.SetTlkOverride(player.oid.LoginCreature, featEntry.tlkDescription, customFeat.description);
+        PlayerPlugin.SetTlkOverride(player.oid.LoginCreature, (int)featEntry.tlkName, $"{customFeat.name} - {SkillSystem.GetCustomFeatLevelFromSkillPoints(feat.Key, feat.Value)}");
+        PlayerPlugin.SetTlkOverride(player.oid.LoginCreature, (int)featEntry.tlkDescription, customFeat.description);
         //player.oid.SetTlkOverride(nameValue, $"{customFeat.name} - {SkillSystem.GetCustomFeatLevelFromSkillPoints(feat.Key, feat.Value)}");
         //player.oid.SetTlkOverride(descriptionValue, customFeat.description);
       }
@@ -128,7 +130,7 @@ namespace NWN.Systems
         + Convert.ToInt32(player.oid.LoginCreature.KnowsFeat(Feat.Toughness))) * improvedHealth);
       
       if (player.currentHP <= 0)
-        oPC.LoginCreature.ApplyEffect(EffectDuration.Instant, API.Effect.Death());
+        oPC.LoginCreature.ApplyEffect(EffectDuration.Instant, Effect.Death());
       else
         oPC.LoginCreature.HP = player.currentHP;
 
@@ -169,7 +171,12 @@ namespace NWN.Systems
           (Bot._client.GetChannel(786218144296468481) as IMessageChannel).SendMessageAsync($"Toute première connexion de {newPlayer.LoginCreature.Name}. Accueillons le comme il se doit !");
           (Bot._client.GetChannel(680072044364562532) as IMessageChannel).SendMessageAsync($"{Bot._client.GetGuild(680072044364562528).EveryoneRole.Mention} Toute première connexion de {newPlayer.LoginCreature.Name} => nouveau joueur à accueillir !");
 
-          NWScript.DelayCommand(4.0f, () => newPlayer.PostString("a", 40, 15, ScreenAnchor.TopLeft, 0f, API.ColorConstants.White, API.ColorConstants.White, 9999, "fnt_my_gui"));
+          Task displayWelcomeScroll = NwTask.Run(async () =>
+          {
+            await NwTask.Delay(TimeSpan.FromSeconds(3));
+            newPlayer.PostString("a", 40, 15, ScreenAnchor.TopLeft, 0f, ColorConstants.White, ColorConstants.White, 9999, "fnt_my_gui");
+          });
+
           EventsPlugin.AddObjectToDispatchList("NWNX_ON_INPUT_TOGGLE_PAUSE_BEFORE", "spacebar_down", newPlayer.LoginCreature);
         }
 
@@ -241,7 +248,7 @@ namespace NWN.Systems
 
         NwPlaceable introMirror = arrivalArea.FindObjectsOfTypeInArea<NwPlaceable>().FirstOrDefault(o => o.Tag == "intro_mirror");
         introMirror.OnUsed += DialogSystem.StartIntroMirrorDialog;
-        introMirror.ApplyEffect(EffectDuration.Permanent, API.Effect.CutsceneGhost());
+        introMirror.ApplyEffect(EffectDuration.Permanent, Effect.CutsceneGhost());
 
         Task waitDefaultMapLoaded = NwTask.Run(async () =>
         {
@@ -436,7 +443,7 @@ namespace NWN.Systems
 
       player.playerJournal = new PlayerJournal();
       player.loadedQuickBar = QuickbarType.Invalid;
-      player.location = Utils.GetLocationFromDatabase(result.Result.GetString(0), result.Result.GetVector3(1), result.Result.GetFloat(2));
+      player.location = Utils.GetLocationFromDatabase(result.Result.GetString(0), result.Result.GetString(1), result.Result.GetFloat(2));
       player.currentHP = result.Result.GetInt(3);
       player.bankGold = result.Result.GetInt(4);
       player.dateLastSaved = DateTime.Parse(result.Result.GetString(5));
@@ -465,7 +472,7 @@ namespace NWN.Systems
       else
       {
         var result = SqLiteUtils.SelectQuery("playerLearnableSkills",
-          new List<string>() { { "skillId" }, { "skillPoints" } },
+          new List<string>() { { "skillId" }, { "skillPoints" }, { "trained" } },
           new List<string[]>() { { new string[] { "characterId", player.characterId.ToString() } } });
 
         foreach (var skill in result.Results)

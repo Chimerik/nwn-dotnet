@@ -1,6 +1,7 @@
 ﻿using NWN.Core;
 using NWN.API;
 using NWN.API.Events;
+using NWN.API.Constants;
 
 namespace NWN.Systems
 {
@@ -13,29 +14,25 @@ namespace NWN.Systems
 
       int nCasterLevel = oCaster.LastSpellCasterLevel;
 
-      NWScript.SignalEvent(onSpellCast.TargetObject, NWScript.EventSpellCastAt(oCaster, (int)onSpellCast.Spell));
+      SpellUtils.SignalEventSpellCast(onSpellCast.TargetObject, oCaster, onSpellCast.Spell, false);
 
-      Effect eVis = NWScript.EffectVisualEffect(NWScript.VFX_IMP_HEAD_HOLY);
-      Effect eDur = NWScript.EffectVisualEffect(NWScript.VFX_DUR_CESSATE_POSITIVE);
+      Effect eVis = Effect.VisualEffect(VfxType.ImpHeadHoly);
+      Effect eDur = Effect.VisualEffect(VfxType.DurCessatePositive);
 
       int nBonus = 1 + nCasterLevel / 6; //Saving throw bonus to be applied
       int nDuration = 2 + nCasterLevel / 6; // Turns
 
-      //Check for metamagic extend
-      if (onSpellCast.MetaMagicFeat == API.Constants.MetaMagic.Extend)
+      if (onSpellCast.MetaMagicFeat == MetaMagic.Extend)
         nDuration = nDuration * 2;
-      //Set the bonus save effect
-      Effect eSave = NWScript.EffectSavingThrowIncrease(NWScript.SAVING_THROW_ALL, nBonus);
-      Effect eLink = NWScript.EffectLinkEffects(eSave, eDur);
 
-      //Apply the bonus effect and VFX impact
-      NWScript.ApplyEffectToObject(NWScript.DURATION_TYPE_TEMPORARY, eLink, onSpellCast.TargetObject, NWScript.TurnsToSeconds(nDuration));
-      NWScript.ApplyEffectToObject(NWScript.DURATION_TYPE_INSTANT, eVis, onSpellCast.TargetObject);
+      Effect eSave = Effect.SavingThrowIncrease(SavingThrow.All, nBonus);
+      Effect eLink = Effect.LinkEffects(eSave, eDur);
 
-      if (onSpellCast.MetaMagicFeat == API.Constants.MetaMagic.None)
-      {
+      onSpellCast.TargetObject.ApplyEffect(EffectDuration.Temporary, eLink, NwTimeSpan.FromRounds(nDuration));
+      onSpellCast.TargetObject.ApplyEffect(EffectDuration.Instant, eVis);
+
+      if (onSpellCast.MetaMagicFeat == MetaMagic.None)
         SpellUtils.RestoreSpell(oCaster, onSpellCast.Spell);
-      }
     }
   }
 }

@@ -1,9 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using NWN.API;
 using NWN.API.Events;
 using NWN.Core;
-using NWN.Core.NWNX;
 using NWN.Services;
 
 namespace NWN.Systems
@@ -11,38 +9,6 @@ namespace NWN.Systems
   [ServiceBinding(typeof(DmSystem))]
   public class DmSystem
   {
-    /*[ScriptHandler("b_dm_possess")]
-    private void HandleBeforeDmPossess(CallInfo callInfo)
-    {
-      uint oPossessed = NWScript.StringToObject(EventsPlugin.GetEventData("TARGET"));
-
-      if (NWScript.GetIsObjectValid(oPossessed) == 1)
-      { // Ici, on prend possession
-        if (NWScript.GetIsDMPossessed(callInfo.ObjectSelf) == 1)
-        {
-          NWScript.SetLocalObject(NWScript.GetLocalObject(callInfo.ObjectSelf, "_POSSESSER"), "_POSSESSING", oPossessed);
-          NWScript.SetLocalObject(oPossessed, "_POSSESSER", NWScript.GetLocalObject(callInfo.ObjectSelf, "_POSSESSER"));
-        }
-        else
-        {
-          NWScript.SetLocalObject(callInfo.ObjectSelf, "_POSSESSING", oPossessed);
-          NWScript.SetLocalObject(oPossessed, "_POSSESSER", callInfo.ObjectSelf);
-        }
-      }
-      else
-      {  // Ici, on cesse la possession
-        if (NWScript.GetIsDMPossessed(callInfo.ObjectSelf) == 1)
-        {
-          NWScript.DeleteLocalObject(NWScript.GetLocalObject(callInfo.ObjectSelf, "_POSSESSER"), "_POSSESSING");
-          NWScript.DeleteLocalObject(NWScript.GetLocalObject(callInfo.ObjectSelf, "_POSSESSER"), "_POSSESSER");
-        }
-        else
-        {
-          NWScript.DeleteLocalObject(NWScript.GetLocalObject(callInfo.ObjectSelf, "_POSSESSER"), "_POSSESSING");
-          NWScript.DeleteLocalObject(callInfo.ObjectSelf, "_POSSESSER");
-        }
-      }
-    }*/
     public static void HandleAfterDmSpawnObject(OnDMSpawnObjectAfter onSpawn)
     {
       if (!(onSpawn.SpawnedObject is NwPlaceable oPLC))
@@ -55,9 +21,9 @@ namespace NWN.Systems
         SqLiteUtils.InsertQuery("dm_persistant_placeable",
           new List<string[]>() { new string[] { "accountID", "0" }, new string[] { "serializedPlaceable", oPLC.Serialize().ToBase64EncodedString() }, new string[] { "areaTag", oPLC.Area.Tag }, new string[] { "position", oPLC.Position.ToString() }, new string[] { "facing", oPLC.Rotation.ToString() } });
 
-        var query = NWScript.SqlPrepareQueryCampaign(Config.database, $"SELECT last_insert_rowid()");
-        NWScript.SqlStep(query);
-        NWScript.SetLocalInt(oPLC, "_ID", NWScript.SqlGetInt(query, 0));
+        var query = NwModule.Instance.PrepareCampaignSQLQuery(Config.database, $"SELECT last_insert_rowid()");
+        query.Execute();
+        oPLC.GetLocalVariable<int>("_ID").Value = query.Result.GetInt(0);
 
         onSpawn.DungeonMaster.SendServerMessage($"Création persistante - Vous posez le placeable  {oPLC.Name.ColorString(ColorConstants.White)}", new Color(32, 255, 32));
       }

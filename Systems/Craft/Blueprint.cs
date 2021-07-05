@@ -28,33 +28,22 @@ namespace NWN.Systems.Craft
         if (baseItemType == -9) // cas particulier des vêtements, je triche pour ne pas doubler la valeur 0 dans le dictionnary
           baseItemType = 0;
 
-        int value;
-        if (int.TryParse(NWScript.Get2DAString("armor", "COST", -baseItemType), out value))
-        {
-          this.mineralsCost = value * 10;
-          this.goldCost = value * 5;
-        }
+        ArmorTable.Entry armorEntry = Armor2da.armorTable.GetDataEntry(-baseItemType);
 
-        if (int.TryParse(NWScript.Get2DAString("armor", "NAME", -baseItemType), out value))
-          this.name = NWScript.GetStringByStrRef(value);
-
-        this.workshopTag = NWScript.Get2DAString("armor", "WORKSHOP", -baseItemType);
-        this.craftedItemTag = NWScript.Get2DAString("armor", "CRAFTRESREF", -baseItemType);
+        this.mineralsCost = armorEntry.cost * 10;
+        this.goldCost = armorEntry.cost * 5;
+        this.name = armorEntry.name;
+        this.workshopTag = armorEntry.workshop;
+        this.craftedItemTag = armorEntry.craftResRef;
       }
       else
       {
-        int value;
-        if (int.TryParse(NWScript.Get2DAString("baseitems", "Name", baseItemType), out value))
-          this.name = NWScript.GetStringByStrRef(value);
-
-        if (int.TryParse(NWScript.Get2DAString("baseitems", "BaseCost", baseItemType), out value))
-        {
-          this.mineralsCost = value * 10;
-          this.goldCost = value * 5;
-        }
-
-        this.workshopTag = NWScript.Get2DAString("baseitems", "Category", baseItemType);
-        this.craftedItemTag = NWScript.Get2DAString("baseitems", "label", baseItemType);
+        BaseItemTable.Entry baseItemEntry = BaseItems2da.baseItemTable.GetBaseItemDataEntry((BaseItemType)baseItemType);
+        this.name = baseItemEntry.name;
+        this.mineralsCost = (int)(baseItemEntry.baseCost * 10);
+        this.goldCost = (int)(baseItemEntry.baseCost * 5);
+        this.workshopTag = baseItemEntry.workshop;
+        this.craftedItemTag = baseItemEntry.craftedItem;
       }
 
       switch (workshopTag)
@@ -64,6 +53,12 @@ namespace NWN.Systems.Craft
           break;
         case "scierie":
           jobFeat = CustomFeats.Ebeniste;
+          break;
+        case "tannerie":
+          jobFeat = CustomFeats.Tanner;
+          break;
+        case "enchant":
+          jobFeat = CustomFeats.Enchanteur;
           break;
       }
     }
@@ -307,28 +302,28 @@ namespace NWN.Systems.Craft
       API.ItemProperty newIP = API.ItemProperty.Quality(IPQuality.Unknown);
 
       int value;
-      if (Int32.TryParse(IPproperties[1], out value))
+      if (int.TryParse(IPproperties[1], out value))
       {
         newIP.PropertyType = (ItemPropertyType)value;
         enchTag += $"_{newIP.PropertyType}";
       }
       else
         Utils.LogMessageToDMs($"Could not parse nProperty in : {ipString}");
-      if (Int32.TryParse(IPproperties[2], out value))
+      if (int.TryParse(IPproperties[2], out value))
       {
         newIP.SubType = value;
         enchTag += $"_{newIP.SubType}";
       }
       else
         Utils.LogMessageToDMs($"Could not parse nSubType in : {ipString}");
-      if (Int32.TryParse(IPproperties[3], out value))
+      if (int.TryParse(IPproperties[3], out value))
       {
         newIP.CostTable = value;
         enchTag += $"_{newIP.CostTable}";
       }
       else
         Utils.LogMessageToDMs($"Could not parse nCostTable in : {ipString}");
-      if (Int32.TryParse(IPproperties[4], out value))
+      if (int.TryParse(IPproperties[4], out value))
         newIP.CostTableValue = value + boost;
       else
         Utils.LogMessageToDMs($"Could not parse nCostTableValue in : {ipString}");
@@ -344,16 +339,15 @@ namespace NWN.Systems.Craft
           || newIP.PropertyType == ItemPropertyType.DamageBonusVsSpecificAlignment
           || newIP.PropertyType == ItemPropertyType.DamageBonusVsSpecificAlignment)
         {
-          if (int.TryParse(NWScript.Get2DAString("iprp_damagecost", "Rank", newIP.CostTableValue), out int newRank)
-            && int.TryParse(NWScript.Get2DAString("iprp_damagecost", "Rank", existingIP.CostTableValue), out int existingRank))
-          {
-              if (existingRank > newRank)
-                newRank = existingRank + 1;
-              else
-                newRank += 1;
-          }
+          int newRank = ItemPropertyDamageCost2da.ipDamageCost.GetRankFromCostValue(newIP.CostTableValue);
+          int existingRank = ItemPropertyDamageCost2da.ipDamageCost.GetRankFromCostValue(existingIP.CostTableValue);
 
-          newIP.CostTableValue = ItemPropertyDamageCost.ipDamageCost.GetDamageCostValueFromRank(newRank);
+          if (existingRank > newRank)
+            newRank = existingRank + 1;
+          else
+            newRank += 1;
+
+          newIP.CostTableValue = ItemPropertyDamageCost2da.ipDamageCost.GetDamageCostValueFromRank(newRank);
         }
         else
         {

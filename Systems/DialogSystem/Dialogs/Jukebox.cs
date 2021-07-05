@@ -21,7 +21,7 @@ namespace NWN.Systems
       
       player.menu.titleLines = new List<string> {
         $"Bonjour ! ",
-        $"Chanson actuelle : {NWScript.GetStringByStrRef(Int32.Parse(NWScript.Get2DAString("ambientmusic", "Description", currentMusic)))}",
+        $"Chanson actuelle : {AmbientMusic2da.ambientMusicTable.GetName(currentMusic)}",
         "Souhaitez-vous que je vous joue autre chose ?"
       };
 
@@ -30,7 +30,7 @@ namespace NWN.Systems
       foreach (int music in musicArray)
       {
         if (currentMusic != music)
-          player.menu.choices.Add(($"{NWScript.GetStringByStrRef(Int32.Parse(NWScript.Get2DAString("ambientmusic", "Description", music)))}", () => HandleChangeBackgroundMusic(player, music, bard)));
+          player.menu.choices.Add(($"{AmbientMusic2da.ambientMusicTable.GetName(currentMusic)}", () => HandleChangeBackgroundMusic(player, music, bard)));
       }
 
       player.menu.choices.Add(("Quitter", () => player.menu.Close()));
@@ -47,11 +47,11 @@ namespace NWN.Systems
       area.PlayBackgroundMusic();
 
 
-      bard.PlayAnimation(API.Constants.Animation.LoopingTalkLaughing, 3, true, TimeSpan.FromHours(24));
+      bard.PlayAnimation(Animation.LoopingTalkLaughing, 3, true, TimeSpan.FromHours(24));
       bard.ApplyEffect(EffectDuration.Instant, Effect.VisualEffect(VfxType.FnfSoundBurstSilent));
       bard.ApplyEffect(EffectDuration.Permanent, Effect.VisualEffect(VfxType.DurBardSong), TimeSpan.FromHours(24));
 
-      ChatSystem.chatService.SendMessage(Services.ChatChannel.PlayerTalk, $"{player.oid.ControlledCreature.Name} vient de demander à jouer {NWScript.GetStringByStrRef(int.Parse(NWScript.Get2DAString("ambientmusic", "Description", music)))}", bard);
+      ChatSystem.chatService.SendMessage(Services.ChatChannel.PlayerTalk, $"{player.oid.ControlledCreature.Name} vient de demander à jouer {AmbientMusic2da.ambientMusicTable.GetName(music)}", bard);
       this.DrawWelcomePage(player, bard);
     }
   }

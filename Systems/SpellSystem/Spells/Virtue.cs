@@ -1,6 +1,7 @@
 ﻿using NWN.Core;
 using NWN.API;
 using NWN.API.Events;
+using NWN.API.Constants;
 
 namespace NWN.Systems
 {
@@ -13,23 +14,21 @@ namespace NWN.Systems
 
       int nCasterLevel = oCaster.LastSpellCasterLevel;
 
-      NWScript.SignalEvent(onSpellCast.TargetObject, NWScript.EventSpellCastAt(oCaster, NWScript.GetSpellId()));
+      SpellUtils.SignalEventSpellCast(onSpellCast.TargetObject, oCaster, onSpellCast.Spell, false);
 
       int nDuration = nCasterLevel;
-      Effect eVis = NWScript.EffectVisualEffect(NWScript.VFX_IMP_HOLY_AID);
-      Effect eHP = NWScript.EffectTemporaryHitpoints(1);
-      Effect eDur = NWScript.EffectVisualEffect(NWScript.VFX_DUR_CESSATE_POSITIVE);
-      Effect eLink = NWScript.EffectLinkEffects(eHP, eDur);
+      Effect eVis = Effect.VisualEffect(VfxType.ImpHolyAid);
+      Effect eHP = Effect.TemporaryHitpoints(1);
+      Effect eDur = Effect.VisualEffect(VfxType.DurCessatePositive);
+      Effect eLink = Effect.LinkEffects(eHP, eDur);
 
-      //Enter Metamagic conditions
-      if (onSpellCast.MetaMagicFeat == API.Constants.MetaMagic.Extend)
+      if (onSpellCast.MetaMagicFeat == MetaMagic.Extend)
         nDuration = nDuration * 2; //Duration is +100%
 
-      //Apply the VFX impact and effects
-      NWScript.ApplyEffectToObject(NWScript.DURATION_TYPE_INSTANT, eVis, onSpellCast.TargetObject);
-      NWScript.ApplyEffectToObject(NWScript.DURATION_TYPE_TEMPORARY, eLink, onSpellCast.TargetObject, NWScript.TurnsToSeconds(nDuration));
+      onSpellCast.TargetObject.ApplyEffect(EffectDuration.Temporary, eLink, NwTimeSpan.FromRounds(nDuration));
+      onSpellCast.TargetObject.ApplyEffect(EffectDuration.Instant, eVis);
 
-      if (onSpellCast.MetaMagicFeat == API.Constants.MetaMagic.None)
+      if (onSpellCast.MetaMagicFeat == MetaMagic.None)
       {
         SpellUtils.RestoreSpell(oCaster, onSpellCast.Spell);
       }

@@ -15,6 +15,8 @@ namespace NWN.Systems
       if (!(onSpellCast.Caster is NwCreature { IsPlayerControlled: true } oCaster) || onSpellCast.TargetObject.Tag != "pccorpse")
         return;
 
+      SpellUtils.SignalEventSpellCast(onSpellCast.TargetObject, oCaster, onSpellCast.Spell, false);
+
       int PcId = onSpellCast.TargetObject.GetLocalVariable<int>("_PC_ID").Value;
       NwPlayer oPC = NwModule.Instance.Players.FirstOrDefault(p => ObjectPlugin.GetInt(p.LoginCreature, "characterId") == PcId);
 

@@ -95,7 +95,7 @@ namespace NWN.Systems
 
         foreach (string spellId in spellList)
         {
-          string spellName = NWScript.GetStringByStrRef(int.Parse(NWScript.Get2DAString("spells", "Name", int.Parse(spellId))));
+          string spellName = Spells2da.spellsTable.GetSpellDataEntry((Spell)int.Parse(spellId)).name;
           player.menu.titleLines.Add(spellName);
         }
       }

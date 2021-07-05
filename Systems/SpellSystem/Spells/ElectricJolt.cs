@@ -14,16 +14,14 @@ namespace NWN.Systems
 
       int nCasterLevel = oCaster.LastSpellCasterLevel;
 
-      NWScript.SignalEvent(onSpellCast.TargetObject, NWScript.EventSpellCastAt(oCaster, (int)onSpellCast.Spell));
+      SpellUtils.SignalEventSpellCast(onSpellCast.TargetObject, oCaster, onSpellCast.Spell);
 
       Effect eVis = Effect.VisualEffect(VfxType.ImpLightningS);
-      //Make SR Check
-      if (SpellUtils.MyResistSpell(oCaster, onSpellCast.TargetObject) == 0)
+
+      if (oCaster.CheckResistSpell(onSpellCast.TargetObject) == ResistSpellResult.Failed)
       {
-        //Set damage effect
         int iDamage = 3;
         Effect eBad = Effect.Damage(SpellUtils.MaximizeOrEmpower(iDamage, 1 + nCasterLevel / 6, onSpellCast.MetaMagicFeat), DamageType.Electrical);
-        //Apply the VFX impact and damage effect
         onSpellCast.TargetObject.ApplyEffect(EffectDuration.Instant, eVis);
         onSpellCast.TargetObject.ApplyEffect(EffectDuration.Instant, eBad);
       }

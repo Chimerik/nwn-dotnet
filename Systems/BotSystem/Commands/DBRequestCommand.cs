@@ -21,14 +21,13 @@ namespace NWN.Systems
         return;
       }
 
-      var query = NWScript.SqlPrepareQueryCampaign(Config.database, request);
-      NWScript.SqlStep(query);
-      string error = NWScript.SqlGetError(query);
-
-      if (error == "")
-        await context.Channel.SendMessageAsync("Requête correctement exécutée.");
+      var query = NwModule.Instance.PrepareCampaignSQLQuery(Config.database, request);
+      query.Execute();
+        
+      if(query.Error != "")
+        await context.Channel.SendMessageAsync($"SQL ERROR : {query.Error}");
       else
-        await context.Channel.SendMessageAsync($"SQL ERROR : {error}");
+        await context.Channel.SendMessageAsync("Requête correctement exécutée.");
     }
   }
 }

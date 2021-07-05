@@ -1,4 +1,5 @@
 ﻿using NWN.Core;
+using NWN.API.Constants;
 
 namespace NWN.Systems
 {
@@ -6,9 +7,9 @@ namespace NWN.Systems
   {
     private static void ExecuteDispelInviCommand(ChatSystem.Context ctx, Options.Result options)
     {
-      SpellUtils.RemoveAnySpellEffects(NWScript.SPELL_IMPROVED_INVISIBILITY, ctx.oSender.ControlledCreature);
-      SpellUtils.RemoveAnySpellEffects(NWScript.SPELL_INVISIBILITY, ctx.oSender.ControlledCreature);
-      SpellUtils.RemoveAnySpellEffects(NWScript.SPELL_INVISIBILITY_SPHERE, ctx.oSender.ControlledCreature);
+      SpellUtils.RemoveAnySpellEffects(Spell.ImprovedInvisibility, ctx.oSender.ControlledCreature);
+      SpellUtils.RemoveAnySpellEffects(Spell.Invisibility, ctx.oSender.ControlledCreature);
+      SpellUtils.RemoveAnySpellEffects(Spell.InvisibilitySphere, ctx.oSender.ControlledCreature);
     }
   }
 }

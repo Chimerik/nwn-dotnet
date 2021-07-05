@@ -15,18 +15,15 @@ namespace NWN.Systems
 
       int nCasterLevel = oCaster.LastSpellCasterLevel;
 
-      NWScript.SignalEvent(onSpellCast.TargetObject, NWScript.EventSpellCastAt(oCaster, (int)onSpellCast.Spell));
+      SpellUtils.SignalEventSpellCast(onSpellCast.TargetObject, oCaster, onSpellCast.Spell);
 
-      API.Effect eVis = API.Effect.VisualEffect(VfxType.ImpFrostS);
-      API.Effect eRay = API.Effect.Beam(VfxType.BeamCold, oCaster, BodyNode.Hand);
+      Effect eVis = Effect.VisualEffect(VfxType.ImpFrostS);
+      Effect eRay = Effect.Beam(VfxType.BeamCold, oCaster, BodyNode.Hand);
 
-      //Make SR Check
-      if (SpellUtils.MyResistSpell(oCaster, onSpellCast.TargetObject) == 0)
+      if (oCaster.CheckResistSpell(onSpellCast.TargetObject) == ResistSpellResult.Failed)
       {
         int nDamage = SpellUtils.MaximizeOrEmpower(4, 1 + nCasterLevel / 6, onSpellCast.MetaMagicFeat);
-        //Set damage effect
-        API.Effect eDam = API.Effect.Damage(nDamage, DamageType.Cold);
-        //Apply the VFX impact and damage effect
+        Effect eDam = Effect.Damage(nDamage, DamageType.Cold);
         onSpellCast.TargetObject.ApplyEffect(EffectDuration.Instant, eVis);
         onSpellCast.TargetObject.ApplyEffect(EffectDuration.Instant, eDam);
       }

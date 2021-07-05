@@ -32,8 +32,11 @@ namespace NWN.Systems
     [ScriptHandler("spacebar_down")]
     private void HandleSpacebarDown(CallInfo callInfo)
     {
-      NWScript.PostString(callInfo.ObjectSelf, "", 40, 15, 0, 0.000001f, unchecked((int)0xFFFFFFFF), unchecked((int)0xFFFFFFFF), 9999, "fnt_my_gui");
-      EventsPlugin.RemoveObjectFromDispatchList("NWNX_ON_INPUT_TOGGLE_PAUSE_BEFORE", "spacebar_down", callInfo.ObjectSelf);
+      if (callInfo.ObjectSelf is NwCreature { IsPlayerControlled: true } oCreature)
+      {
+        oCreature.ControllingPlayer.PostString("", 40, 15, 0, 0.000001f, ColorConstants.White, ColorConstants.White, 9999, "fnt_my_gui");
+        EventsPlugin.RemoveObjectFromDispatchList("NWNX_ON_INPUT_TOGGLE_PAUSE_BEFORE", "spacebar_down", callInfo.ObjectSelf);
+      }
     }
     public static void OnCombatStarted(OnCombatStatusChange onCombatStatusChange)
     {
@@ -47,7 +50,8 @@ namespace NWN.Systems
     }
     public static void OnCombatRoundStart(OnCombatRoundStart onStartCombatRound)
     {
-      NWScript.SetPCDislike(onStartCombatRound.Creature, onStartCombatRound.Target);
+      if (onStartCombatRound.Target is NwCreature { IsPlayerControlled: true } oTarget)
+        oTarget.ControllingPlayer.SetPCReputation(false, onStartCombatRound.Creature.ControllingPlayer);
     }
     public static void HandleCombatModeOff(OnCombatModeToggle onCombatMode)
     {
@@ -69,7 +73,13 @@ namespace NWN.Systems
       {
         case Skill.Taunt:
           oPC.GetLocalVariable<int>("_ACTIVATED_TAUNT").Value = 1;
-          NWScript.DelayCommand(6.0f, () => oPC.GetLocalVariable<int>("_ACTIVATED_TAUNT").Delete());
+
+          Task waitForCooldown= NwTask.Run(async () =>
+          {
+            await NwTask.Delay(TimeSpan.FromSeconds(6));
+            oPC.GetLocalVariable<int>("_ACTIVATED_TAUNT").Delete();
+          });
+
           break;
         case Skill.PickPocket:
           EventsPlugin.SkipEvent();
@@ -91,10 +101,15 @@ namespace NWN.Systems
           ObjectPlugin.SetString(oTarget, $"_PICKPOCKET_TIMER_{oPC.Name}", DateTime.Now.ToString(), 1);
 
           FeedbackPlugin.SetFeedbackMessageHidden(13, 1, oTarget); // 13 = COMBAT_TOUCH_ATTACK
-          NWScript.DelayCommand(2.0f, () => FeedbackPlugin.SetFeedbackMessageHidden(13, 0, oTarget));
+
+          Task waitForMessage = NwTask.Run(async () =>
+          {
+            await NwTask.Delay(TimeSpan.FromSeconds(2));
+            FeedbackPlugin.SetFeedbackMessageHidden(13, 0, oTarget);
+          });
 
           int iSpot = oTarget.GetSkillRank(Skill.Spot);
-          if (oTarget.DetectModeActive || oTarget.HasFeatEffect(API.Constants.Feat.KeenSense))
+          if (oTarget.DetectModeActive || oTarget.HasFeatEffect(Feat.KeenSense))
             iSpot += NwRandom.Roll(Utils.random, 20, 1);
 
           if (!oPC.DoSkillCheck(Skill.PickPocket, iSpot))
@@ -103,26 +118,30 @@ namespace NWN.Systems
             oPC.ControllingPlayer.FloatingTextString($"{oPC} est en train d'essayer de faire les poches de {oTarget} !", true);
           }
 
-          if (NWScript.TouchAttackMelee(oTarget) == 0)
+          Task waitForTouch = NwTask.Run(async () =>
           {
-            oPC.ControllingPlayer.FloatingTextString($"Vous ne parvenez pas à atteindre les poches de {oTarget.Name} !", false);
-            return;
-          }
+            TouchAttackResult touch = await oPC.TouchAttackMelee(oTarget);
+            if(touch == TouchAttackResult.Miss)
+            {
+              oPC.ControllingPlayer.FloatingTextString($"Vous ne parvenez pas à atteindre les poches de {oTarget.Name} !", false);
+              return;
+            }
 
-          int iStolenGold = (NwRandom.Roll(Utils.random, 20, 1) + oPC.GetSkillRank(Skill.PickPocket) - iSpot) * 10;
+            int iStolenGold = (NwRandom.Roll(Utils.random, 20, 1) + oPC.GetSkillRank(Skill.PickPocket) - iSpot) * 10;
 
-          if (oTarget.Gold >= iStolenGold)
-          {
-            oTarget.Gold = (uint)(oTarget.Gold - iStolenGold);
-            oPC.GiveGold(iStolenGold);
-            oPC.ControllingPlayer.FloatingTextString($"Vous venez de dérober {iStolenGold} pièces d'or des poches de {oTarget.Name} !", false);
-          }
-          else
-          {
-            oPC.ControllingPlayer.FloatingTextString($"Vous venez de vider les poches de {oTarget.Name} ! {oTarget.Gold} pièces d'or de plus pour vous.", false);
-            oPC.GiveGold((int)oTarget.Gold);
-            oTarget.Gold = 0;
-          }
+            if (oTarget.Gold >= iStolenGold)
+            {
+              oTarget.Gold = (uint)(oTarget.Gold - iStolenGold);
+              oPC.GiveGold(iStolenGold);
+              oPC.ControllingPlayer.FloatingTextString($"Vous venez de dérober {iStolenGold} pièces d'or des poches de {oTarget.Name} !", false);
+            }
+            else
+            {
+              oPC.ControllingPlayer.FloatingTextString($"Vous venez de vider les poches de {oTarget.Name} ! {oTarget.Gold} pièces d'or de plus pour vous.", false);
+              oPC.GiveGold((int)oTarget.Gold);
+              oTarget.Gold = 0;
+            }
+          });
 
           break;
         case Skill.AnimalEmpathy:
@@ -158,8 +177,8 @@ namespace NWN.Systems
     {
       if (Players.TryGetValue(callInfo.ObjectSelf, out Player player))
       {
-        int id = NWScript.GetLocalInt(player.oid.LoginCreature, "NW_TOTAL_MAP_PINS");
-        player.mapPinDictionnary.Add(NWScript.GetLocalInt(player.oid.LoginCreature, "NW_TOTAL_MAP_PINS"), new MapPin(id, NWScript.GetTag(NWScript.GetArea(player.oid.ControlledCreature)), float.Parse(EventsPlugin.GetEventData("PIN_X")), float.Parse(EventsPlugin.GetEventData("PIN_Y")), EventsPlugin.GetEventData("PIN_NOTE")));
+        int id = player.oid.LoginCreature.GetLocalVariable<int>("NW_TOTAL_MAP_PINS").Value;
+        player.mapPinDictionnary.Add(id, new MapPin(id, player.oid.ControlledCreature.Area.Tag, float.Parse(EventsPlugin.GetEventData("PIN_X")), float.Parse(EventsPlugin.GetEventData("PIN_Y")), EventsPlugin.GetEventData("PIN_NOTE")));
       }
     }
 
@@ -168,7 +187,7 @@ namespace NWN.Systems
     {
       if (Players.TryGetValue(callInfo.ObjectSelf, out Player player))
       {
-        int pinId = Int32.Parse(EventsPlugin.GetEventData("PIN_ID"));
+        int pinId = int.Parse(EventsPlugin.GetEventData("PIN_ID"));
         player.mapPinDictionnary.Remove(pinId);
 
         SqLiteUtils.DeletionQuery("playerMapPins",
@@ -199,20 +218,13 @@ namespace NWN.Systems
       foreach (KeyValuePair<Feat, int> feat in target.learntCustomFeats)
       {
         CustomFeat customFeat = SkillSystem.customFeatsDictionnary[feat.Key];
+        FeatTable.Entry entry = Feat2da.featTable.GetFeatDataEntry(feat.Key);
 
-        if (int.TryParse(NWScript.Get2DAString("feat", "FEAT", (int)feat.Key), out int nameValue))
-          PlayerPlugin.SetTlkOverride(callInfo.ObjectSelf, nameValue, $"{customFeat.name} - {SkillSystem.GetCustomFeatLevelFromSkillPoints(feat.Key, feat.Value)}");
+        PlayerPlugin.SetTlkOverride(callInfo.ObjectSelf, (int)entry.tlkName, $"{customFeat.name} - {SkillSystem.GetCustomFeatLevelFromSkillPoints(feat.Key, feat.Value)}");
         //player.SetTlkOverride(nameValue, $"{customFeat.name} - {SkillSystem.GetCustomFeatLevelFromSkillPoints(feat.Key, feat.Value)}");
-        else
-          Utils.LogMessageToDMs($"CUSTOM SKILL SYSTEM ERROR - Skill {customFeat.name} : no available custom name StrRef");
 
-        if (int.TryParse(NWScript.Get2DAString("feat", "DESCRIPTION", (int)feat.Key), out int descriptionValue))
-          PlayerPlugin.SetTlkOverride(callInfo.ObjectSelf, descriptionValue, customFeat.description);
+        PlayerPlugin.SetTlkOverride(callInfo.ObjectSelf, (int)entry.tlkDescription, customFeat.description);
         //player.SetTlkOverride(descriptionValue, customFeat.description);
-        else
-        {
-          Utils.LogMessageToDMs($"CUSTOM SKILL SYSTEM ERROR - Skill {customFeat.name} : no available custom description StrRef");
-        }
       }
     }
     [ScriptHandler("on_input_emote")]
@@ -221,36 +233,36 @@ namespace NWN.Systems
       if (!Players.TryGetValue(callInfo.ObjectSelf, out Player player))
         return;
 
-      int animation = Utils.TranslateEngineAnimation(int.Parse(EventsPlugin.GetEventData("ANIMATION")));
+      Animation animation = Utils.TranslateEngineAnimation(int.Parse(EventsPlugin.GetEventData("ANIMATION")));
 
       switch (animation)
       {
-        case NWScript.ANIMATION_LOOPING_MEDITATE:
-        case NWScript.ANIMATION_LOOPING_CONJURE1:
-        case NWScript.ANIMATION_LOOPING_CONJURE2:
-        case NWScript.ANIMATION_LOOPING_GET_MID:
-        case NWScript.ANIMATION_LOOPING_GET_LOW:
-        case NWScript.ANIMATION_LOOPING_LISTEN:
-        case NWScript.ANIMATION_LOOPING_LOOK_FAR:
-        case NWScript.ANIMATION_LOOPING_PAUSE:
-        case NWScript.ANIMATION_LOOPING_PAUSE_DRUNK:
-        case NWScript.ANIMATION_LOOPING_PAUSE_TIRED:
-        case NWScript.ANIMATION_LOOPING_PAUSE2:
-        case NWScript.ANIMATION_LOOPING_SPASM:
-        case NWScript.ANIMATION_LOOPING_TALK_FORCEFUL:
-        case NWScript.ANIMATION_LOOPING_TALK_LAUGHING:
-        case NWScript.ANIMATION_LOOPING_TALK_NORMAL:
-        case NWScript.ANIMATION_LOOPING_TALK_PLEADING:
-        case NWScript.ANIMATION_LOOPING_WORSHIP:
+        case Animation.LoopingMeditate:
+        case Animation.LoopingConjure1:
+        case Animation.LoopingConjure2:
+        case Animation.LoopingGetMid:
+        case Animation.LoopingGetLow:
+        case Animation.LoopingListen:
+        case Animation.LoopingLookFar:
+        case Animation.LoopingPause:
+        case Animation.LoopingPauseDrunk:
+        case Animation.LoopingPauseTired:
+        case Animation.LoopingPause2:
+        case Animation.LoopingSpasm:
+        case Animation.LoopingTalkForceful:
+        case Animation.LoopingTalkLaughing:
+        case Animation.LoopingTalkNormal:
+        case Animation.LoopingTalkPleading:
+        case Animation.LoopingWorship:
           EventsPlugin.SkipEvent();
-          NWScript.PlayAnimation(animation, 1, 30000.0f);
+          player.oid.ControlledCreature.PlayAnimation(animation, 1, false, TimeSpan.FromDays(1));
           break;
-        case NWScript.ANIMATION_LOOPING_DEAD_BACK:
-        case NWScript.ANIMATION_LOOPING_DEAD_FRONT:
-        case NWScript.ANIMATION_LOOPING_SIT_CHAIR:
-        case NWScript.ANIMATION_LOOPING_SIT_CROSS:
+        case Animation.LoopingDeadBack:
+        case Animation.LoopingDeadFront:
+        case Animation.LoopingSitChair:
+        case Animation.LoopingSitCross:
           EventsPlugin.SkipEvent();
-          NWScript.PlayAnimation(animation, 1, 30000.0f);
+          player.oid.ControlledCreature.PlayAnimation(animation, 1, false, TimeSpan.FromDays(1));
 
           player.menu.Close();
           player.menu.isOpen = true;
@@ -266,7 +278,7 @@ namespace NWN.Systems
         return;
 
       EventsPlugin.SkipEvent();
-      var oScroll = NWScript.StringToObject(EventsPlugin.GetEventData("SCROLL"));
+      NwItem oScroll = NWScript.StringToObject(EventsPlugin.GetEventData("SCROLL")).ToNwObject<NwItem>();
       Spell spellId = SpellUtils.GetSpellIDFromScroll(oScroll);
       byte spellLevel = SpellUtils.GetSpellLevelFromScroll(oScroll);
 
@@ -301,7 +313,7 @@ namespace NWN.Systems
           SkillSystem.LearnableSpell spell = new SkillSystem.LearnableSpell((int)spellId, 0, player);
           player.learnableSpells.Add((int)spellId, spell);
           oPC.ControllingPlayer.SendServerMessage($"Le sort {spell.name} a été ajouté à votre liste d'apprentissage et est désormais disponible pour étude.");
-          NWScript.DestroyObject(oScroll);
+          oScroll.Destroy();
         }
     }
 

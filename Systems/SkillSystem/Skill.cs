@@ -1,10 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using NWN.Core;
 using NWN.Core.NWNX;
 using NWN.API.Constants;
-using NWN.API;
 
 namespace NWN.Systems
 {
@@ -23,8 +19,8 @@ namespace NWN.Systems
       public Boolean trained { get; set; }
       public int multiplier { get; }
       public int pointsToNextLevel;
-      public readonly int primaryAbility;
-      public readonly int secondaryAbility;
+      public Ability primaryAbility { get; }
+      public Ability secondaryAbility { get; }
 
       public Skill(Feat Id, float SP, PlayerSystem.Player player)
       {
@@ -33,7 +29,8 @@ namespace NWN.Systems
         this.acquiredPoints = SP;
         this.trained = false;
 
-        int value;
+        FeatTable.Entry entry = Feat2da.featTable.GetFeatDataEntry(Id);
+
         if (customFeatsDictionnary.ContainsKey(Id))
         {
           name = customFeatsDictionnary[Id].name;
@@ -45,71 +42,15 @@ namespace NWN.Systems
         }
         else
         {
-          if (int.TryParse(NWScript.Get2DAString("feat", "FEAT", (int)Id), out value))
-            this.name = NWScript.GetStringByStrRef(value);
-          else
-          {
-            this.name = "Nom indisponible";
-            Utils.LogMessageToDMs($"SKILL SYSTEM ERROR - Skill {this.oid} : no available name");
-          }
-
-          if (int.TryParse(NWScript.Get2DAString("feat", "DESCRIPTION", (int)Id), out value))
-            this.description = NWScript.GetStringByStrRef(value);
-          else
-          {
-            this.description = "Description indisponible";
-            Utils.LogMessageToDMs($"SKILL SYSTEM ERROR - Skill {this.oid} : no available description");
-          }
-
-          if (int.TryParse(NWScript.Get2DAString("feat", "GAINMULTIPLE", (int)Id), out value))
-          {
-            this.currentLevel = value;
-            if (int.TryParse(NWScript.Get2DAString("feat", "SUCCESSOR", (int)Id), out value))
-              this.successorId = value;
-            else
-              this.successorId = 0;
-          }
-          else
-            this.currentLevel = 1;
+          this.name = entry.name;
+          this.description = entry.description;
+          this.currentLevel = entry.currentLevel;
+          this.successorId = entry.successor;
         }
 
-        if (int.TryParse(NWScript.Get2DAString("feat", "CRValue", (int)Id), out value))
-          this.multiplier = value;
-        else
-          this.multiplier = 1;
-
-        Dictionary<int, int> iSkillAbilities = new Dictionary<int, int>();
-
-        if (int.TryParse(NWScript.Get2DAString("feat", "MINSTR", (int)Id), out value))
-          iSkillAbilities.Add(NWScript.ABILITY_STRENGTH, value);
-        if (int.TryParse(NWScript.Get2DAString("feat", "MINDEX", (int)Id), out value))
-          iSkillAbilities.Add(NWScript.ABILITY_DEXTERITY, value);
-        if (int.TryParse(NWScript.Get2DAString("feat", "MINCON", (int)Id), out value))
-          iSkillAbilities.Add(NWScript.ABILITY_CONSTITUTION, value);
-        if (int.TryParse(NWScript.Get2DAString("feat", "MININT", (int)Id), out value))
-          iSkillAbilities.Add(NWScript.ABILITY_INTELLIGENCE, value);
-        if (int.TryParse(NWScript.Get2DAString("feat", "MINWIS", (int)Id), out value))
-          iSkillAbilities.Add(NWScript.ABILITY_WISDOM, value);
-        if (int.TryParse(NWScript.Get2DAString("feat", "MINCHA", (int)Id), out value))
-          iSkillAbilities.Add(NWScript.ABILITY_CHARISMA, value);
-
-        iSkillAbilities.OrderBy(key => key.Value);
-
-        if (iSkillAbilities.Count > 0)
-          this.primaryAbility = iSkillAbilities.ElementAt(0).Key;
-        else
-        {
-          this.primaryAbility = NWScript.ABILITY_INTELLIGENCE;
-          Utils.LogMessageToDMs($"SKILL SYSTEM ERROR - Skill {this.oid} : Primary ability not set");
-        }
-
-        if (iSkillAbilities.Count > 1)
-          this.secondaryAbility = iSkillAbilities.ElementAt(1).Key;
-        else
-        {
-          this.secondaryAbility = NWScript.ABILITY_WISDOM;
-          Utils.LogMessageToDMs($"SKILL SYSTEM ERROR - Skill {this.oid} : Secondary ability not set");
-        }
+        this.multiplier = entry.CRValue;
+        this.primaryAbility = entry.primaryAbility;
+        this.secondaryAbility = entry.secondaryAbility;
   
         if (this.currentLevel > 4)
         {
@@ -177,7 +118,7 @@ namespace NWN.Systems
       }
       public double CalculateSkillPointsPerSecond()
       {
-        double SP = ((double)player.oid.LoginCreature.GetAbilityScore((Ability)primaryAbility) + ((double)player.oid.LoginCreature.GetAbilityScore((Ability)secondaryAbility) / 2.0)) / 60.0;
+        double SP = (player.oid.LoginCreature.GetAbilityScore(primaryAbility) + (player.oid.LoginCreature.GetAbilityScore(secondaryAbility) / 2.0)) / 60.0;
 
         switch (player.bonusRolePlay)
         {
@@ -265,12 +206,9 @@ namespace NWN.Systems
           }
           else
             pointsToNextLevel = (int)(250 * this.multiplier * Math.Pow(5, skillLevelCap));
-
-          if (int.TryParse(NWScript.Get2DAString("feat", "FEAT", (int)oid), out int nameValue))
-            PlayerPlugin.SetTlkOverride(player.oid.LoginCreature, nameValue, $"{customFeatName} - {currentLevel}");
+          
+          PlayerPlugin.SetTlkOverride(player.oid.LoginCreature, (int)Feat2da.featTable.GetFeatDataEntry(oid).tlkName, $"{customFeatName} - {currentLevel}");
           //player.oid.SetTlkOverride(nameValue, $"{customFeatName} - {currentLevel}");
-          else
-            Utils.LogMessageToDMs($"CUSTOM SKILL SYSTEM ERROR - Skill {customFeatName} - {(int)oid} : no available custom name StrRef");
           
           if (currentLevel >= customFeatsDictionnary[oid].maxLevel)
             trained = true;
@@ -285,25 +223,8 @@ namespace NWN.Systems
           }
         }
 
-        //if (!Convert.ToBoolean(CreaturePlugin.GetKnowsFeat(player.oid, oid)))
-        // {
         player.oid.LoginCreature.AddFeat(oid);
         PlayNewSkillAcquiredEffects();
-        //}
-       /* else
-        {
-          int value;
-          int skillCurrentLevel = CreaturePlugin.GetHighestLevelOfFeat(player.oid, oid);
-          if (int.TryParse(NWScript.Get2DAString("feat", "SUCCESSOR", skillCurrentLevel), out value))
-          {
-            CreaturePlugin.AddFeat(player.oid, value);
-            CreaturePlugin.RemoveFeat(player.oid, value);
-          }
-          else
-          {
-            NWN.Utils.LogMessageToDMs($"SKILL LEVEL UP ERROR - Player : {NWScript.GetName(player.oid)}, Skill : {name} ({oid}), Current level : {skillCurrentLevel}");
-          }
-        }*/
 
         if (RegisterAddCustomFeatEffect.TryGetValue(oid, out Func<PlayerSystem.Player, Feat, int> handler))
           handler.Invoke(player, oid);

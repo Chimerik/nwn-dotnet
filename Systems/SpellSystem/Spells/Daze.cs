@@ -1,6 +1,4 @@
-﻿using System;
-using System.Threading.Tasks;
-using NWN.API;
+﻿using NWN.API;
 using NWN.API.Constants;
 using NWN.API.Events;
 using NWN.Core;
@@ -16,35 +14,44 @@ namespace NWN.Systems
 
       int nCasterLevel = oCaster.LastSpellCasterLevel;
 
-      NWScript.SignalEvent(onSpellCast.TargetObject, NWScript.EventSpellCastAt(oCaster, (int)onSpellCast.Spell));
+      SpellUtils.SignalEventSpellCast(onSpellCast.TargetObject, oCaster, onSpellCast.Spell);
 
-      Effect eMind = NWScript.EffectVisualEffect(NWScript.VFX_DUR_MIND_AFFECTING_NEGATIVE);
-      Effect eDaze = NWScript.EffectDazed();
-      Effect eDur = NWScript.EffectVisualEffect((NWScript.VFX_DUR_CESSATE_NEGATIVE));
+      Effect eMind = Effect.VisualEffect(VfxType.DurMindAffectingNegative);
+      Effect eDaze = Effect.Dazed();
+      Effect eDur = Effect.VisualEffect(VfxType.DurCessateNegative);
 
-      Effect eLink = NWScript.EffectLinkEffects(eMind, eDaze);
-      eLink = NWScript.EffectLinkEffects(eLink, eDur);
+      Effect eLink = Effect.LinkEffects(eMind, eDaze);
+      eLink = Effect.LinkEffects(eLink, eDur);
 
-      Effect eVis = NWScript.EffectVisualEffect(NWScript.VFX_IMP_DAZED_S);
+      Effect eVis = Effect.VisualEffect(VfxType.ImpDazedS);
 
       int nDuration = 2;
 
       //check meta magic for extend
-      if (onSpellCast.MetaMagicFeat == API.Constants.MetaMagic.Extend)
+      if (onSpellCast.MetaMagicFeat == MetaMagic.Extend)
         nDuration = 4;
 
-      if (NWScript.GetHitDice(onSpellCast.TargetObject) <= 5 + nCasterLevel / 6)
+      if (onSpellCast.TargetObject is NwCreature targetCreature)
       {
-        //Make SR check
-        if (SpellUtils.MyResistSpell(oCaster, onSpellCast.TargetObject) == 0)
+        int hitDice = 0;
+        if (targetCreature.IsLoginPlayerCharacter && PlayerSystem.Players.TryGetValue(targetCreature, out PlayerSystem.Player player))
         {
-          //Make Will Save to negate effect
-          if (SpellUtils.MySavingThrow(NWScript.SAVING_THROW_WILL, onSpellCast.TargetObject, NWScript.GetSpellSaveDC(), NWScript.SAVING_THROW_TYPE_MIND_SPELLS) == 0) // 0 = SAVE FAILED
+          if (player.learntCustomFeats.ContainsKey(CustomFeats.ImprovedHealth))
           {
-            //Apply VFX Impact and daze effect
-            NWScript.ApplyEffectToObject(NWScript.DURATION_TYPE_TEMPORARY, eLink, onSpellCast.TargetObject, NWScript.RoundsToSeconds(nDuration));
-            NWScript.ApplyEffectToObject(NWScript.DURATION_TYPE_INSTANT, eVis, onSpellCast.TargetObject);
+            hitDice = SkillSystem.GetCustomFeatLevelFromSkillPoints(CustomFeats.ImprovedHealth, player.learntCustomFeats[CustomFeats.ImprovedHealth]);
           }
+          else
+            hitDice = 1;
+        }
+        else
+          hitDice = targetCreature.LevelInfo.Count;
+
+        if (hitDice <= 5 + nCasterLevel / 6
+          && oCaster.CheckResistSpell(targetCreature) == ResistSpellResult.Failed
+          && targetCreature.RollSavingThrow(SavingThrow.Will, onSpellCast.SaveDC, SavingThrowType.MindSpells) == SavingThrowResult.Failure)
+        {
+          targetCreature.ApplyEffect(EffectDuration.Temporary, eLink, NwTimeSpan.FromRounds(nDuration));
+          targetCreature.ApplyEffect(EffectDuration.Instant, eVis);
         }
       }
 

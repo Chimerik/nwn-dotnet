@@ -50,11 +50,9 @@ namespace NWN.Systems
       }
       else
       {
-        if (int.TryParse(NWScript.Get2DAString("feat", "FEAT", skillId), out int nameValue))
-          skillBook.Name = NWScript.GetStringByStrRef(nameValue);
-
-        if (int.TryParse(NWScript.Get2DAString("feat", "DESCRIPTION", skillId), out int descriptionValue))
-          skillBook.Description = NWScript.GetStringByStrRef(descriptionValue);
+        FeatTable.Entry featEntry = Feat2da.featTable.GetFeatDataEntry(feat);
+        skillBook.Name = featEntry.name;
+        skillBook.Description = featEntry.description;
       }
     }
   }

@@ -32,23 +32,14 @@ namespace NWN.Systems
       if (!(onSpellBroadcast.Caster is NwCreature { IsPlayerControlled: true } oPC))
         return;
 
-      int classe = 43; // aventurier
+      ClassType castingClass = Spells2da.spellsTable.GetSpellDataEntry(onSpellBroadcast.Spell).castingClass;
 
-      if (int.TryParse(NWScript.Get2DAString("spells", "Cleric", (int)onSpellBroadcast.Spell), out int value))
-        classe = (int)ClassType.Cleric;
-      else if (int.TryParse(NWScript.Get2DAString("spells", "Druid", (int)onSpellBroadcast.Spell), out value))
-        classe = (int)ClassType.Druid;
-      else if (int.TryParse(NWScript.Get2DAString("spells", "Paladin", (int)onSpellBroadcast.Spell), out value))
-        classe = (int)ClassType.Paladin;
-      else if (int.TryParse(NWScript.Get2DAString("spells", "Ranger", (int)onSpellBroadcast.Spell), out value))
-        classe = (int)ClassType.Ranger;
-
-      if (classe != 43)
+      if (castingClass != (ClassType)43) // 43 = aventurier
       {
         Task resetClassOnNextFrame = NwTask.Run(async () =>
         {
           await NwTask.Delay(TimeSpan.FromSeconds(0.7));
-          CreaturePlugin.SetClassByPosition(oPC, 0, classe);
+          CreaturePlugin.SetClassByPosition(oPC, 0, (int)castingClass);
           CancellationTokenSource tokenSource = new CancellationTokenSource();
 
           Task spellCast = NwTask.WaitUntil(() => oPC.GetLocalVariable<int>("_SPELLCAST").HasValue, tokenSource.Token);
@@ -99,22 +90,12 @@ namespace NWN.Systems
       if (player.learntCustomFeats.ContainsKey(CustomFeats.ImprovedCasterLevel))
         CreaturePlugin.SetLevelByPosition(oPC, 0, SkillSystem.GetCustomFeatLevelFromSkillPoints(CustomFeats.ImprovedCasterLevel, player.learntCustomFeats[CustomFeats.ImprovedCasterLevel]) + 1);
 
-      int classe = 43; // aventurier
+      ClassType castingClass = Spells2da.spellsTable.GetSpellDataEntry(onSpellCast.Spell).castingClass;
 
-      if (oPC.GetAbilityScore(Ability.Charisma) > oPC.GetAbilityScore(Ability.Intelligence))
-        classe = (int)ClassType.Sorcerer;
-      if (int.TryParse(NWScript.Get2DAString("spells", "Cleric", (int)onSpellCast.Spell), out int value))
-        classe = (int)ClassType.Cleric;
-      else if (int.TryParse(NWScript.Get2DAString("spells", "Druid", (int)onSpellCast.Spell), out value))
-        classe = (int)ClassType.Druid;
-      else if (int.TryParse(NWScript.Get2DAString("spells", "Bard", (int)onSpellCast.Spell), out value))
-        classe = (int)ClassType.Bard;
-      else if (int.TryParse(NWScript.Get2DAString("spells", "Paladin", (int)onSpellCast.Spell), out value))
-        classe = (int)ClassType.Paladin;
-      else if (int.TryParse(NWScript.Get2DAString("spells", "Ranger", (int)onSpellCast.Spell), out value))
-        classe = (int)ClassType.Ranger;
+      if ((int)castingClass == 43 && oPC.GetAbilityScore(Ability.Charisma) > oPC.GetAbilityScore(Ability.Intelligence))
+        castingClass = ClassType.Sorcerer;
 
-      CreaturePlugin.SetClassByPosition(oPC, 0, classe);
+      CreaturePlugin.SetClassByPosition(oPC, 0, (int)castingClass);
 
       switch (onSpellCast.Spell)
       {
@@ -183,18 +164,20 @@ namespace NWN.Systems
       if (oPC.Classes.Any(c => (int)c != 43))
         oPC.GetLocalVariable<int>("_SPELLCAST").Value = 1;
 
-      if (onSpellCast.Caster.GetLocalVariable<int>("_AUTO_SPELL").HasValue && onSpellCast.Caster.GetLocalVariable<int>("_AUTO_SPELL").Value != (int)onSpellCast.Spell)
+      if (oPC.GetLocalVariable<int>("_AUTO_SPELL").HasValue && oPC.GetLocalVariable<int>("_AUTO_SPELL").Value != (int)onSpellCast.Spell)
       {
-        onSpellCast.Caster.GetLocalVariable<int>("_AUTO_SPELL").Delete();
-        onSpellCast.Caster.GetLocalVariable<NwObject>("_AUTO_SPELL_TARGET").Delete();
-        ((NwCreature)onSpellCast.Caster).OnCombatRoundEnd -= PlayerSystem.HandleCombatRoundEndForAutoSpells;
+        oPC.GetLocalVariable<int>("_AUTO_SPELL").Delete();
+        oPC.GetLocalVariable<NwObject>("_AUTO_SPELL_TARGET").Delete();
+        oPC.OnCombatRoundEnd -= PlayerSystem.HandleCombatRoundEndForAutoSpells;
       }
 
-      if (NWScript.Get2DAString("spells", "School", (int)onSpellCast.Spell) == "D" && ((NwCreature)onSpellCast.Caster).GetItemInSlot(InventorySlot.Neck).Tag != "amulettorillink")
+      SpellsTable.Entry entry = Spells2da.spellsTable.GetSpellDataEntry(onSpellCast.Spell);
+
+      if (entry.school == SpellSchool.Divination && oPC.GetItemInSlot(InventorySlot.Neck).Tag != "amulettorillink")
       {
         (Bot._client.GetChannel(680072044364562532) as IMessageChannel).SendMessageAsync(
-          $"{onSpellCast.Caster.Name} " +
-          $"vient de lancer un sort de divination ({NWScript.GetStringByStrRef(int.Parse(NWScript.Get2DAString("spells", "Name", (int)onSpellCast.Spell)))})" +
+          $"{oPC.Name} " +
+          $"vient de lancer un sort de divination ({entry.name})" +
           $" en portant l'amulette de traçage. L'Amiral s'apprête à punir l'impudent !");
       }
     }

@@ -88,20 +88,19 @@ namespace NWN.Systems
 
       return creature;
     }
-    private static void SetRandomAppearanceAndNameFrom2da(NwCreature creature, int[] appearanceArray, bool setName = false)
+    private static async void SetRandomAppearanceAndNameFrom2da(NwCreature creature, int[] appearanceArray, bool setName = false)
     {
       int appearance = appearanceArray[Utils.random.Next(0, appearanceArray.Length)];
       creature.CreatureAppearanceType = (AppearanceType)appearance;
 
-      creature.PortraitResRef = NWScript.Get2DAString("appearance", "PORTRAIT", appearance);
-      creature.ActionRandomWalk();
+      creature.PortraitResRef = Appearance2da.appearanceTable.GetPortrait(appearance);
+      await creature.ActionRandomWalk();
 
       if (!setName)
         return;
 
-      if (Int32.TryParse(NWScript.Get2DAString("appearance", "STRING_REF", appearance), out int value))
-        creature.Name = NWScript.GetStringByStrRef(value);
-      else
+      creature.Name = Appearance2da.appearanceTable.GetName(appearance);
+      if(creature.Name == "Créature")
         Utils.LogMessageToDMs($"Apparence {appearance} - Nom non défini.");
     }
     private static void OnDeathSpawnNPCWaypoint(CreatureEvents.OnDeath onDeath)

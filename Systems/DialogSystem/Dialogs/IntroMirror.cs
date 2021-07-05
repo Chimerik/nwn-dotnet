@@ -29,8 +29,8 @@ namespace NWN.Systems
         "On va mettre ça sur le compte du mal de mer."
       };
       player.menu.choices.Add(($"Me refaire une beauté.", () => HandleBodyCloneSpawn(player)));
-
-      if(!Convert.ToBoolean(NWScript.GetLocalInt(NWScript.GetNearestObjectByTag("intro_mirror", player.oid.LoginCreature), "_TRAIT_SELECTED")))
+      
+      if(mirror.GetLocalVariable<int>("_TRAIT_SELECTED").HasNothing)
         player.menu.choices.Add(($"Me perdre brièvement dans le passé.", () => HandleBackgroundChoice(player)));
       
       if(ObjectPlugin.GetInt(player.oid.LoginCreature, "_STARTING_SKILL_POINTS") > 0)
@@ -61,7 +61,7 @@ namespace NWN.Systems
     }
     private void HandleBodyModification(Player player)
     {
-      clone.GetLocalVariable<int>("_CURRENT_HEAD").Value = NWScript.GetCreatureBodyPart(NWScript.CREATURE_PART_HEAD, clone);
+      clone.GetLocalVariable<int>("_CURRENT_HEAD").Value = clone.GetCreatureBodyPart(CreaturePart.Head);
 
       player.menu.Clear();
       player.menu.titleLines = new List<string> {
@@ -77,12 +77,12 @@ namespace NWN.Systems
       if (clone.VisualTransform.Scale < 1.25)
         player.menu.choices.Add(($"Augmenter ma taille.", () => ChangeCloneHeight(player, 0.02f)));
 
-      player.menu.choices.Add(($"Yeux, couleur suivante.", () => ChangeCloneEyeColor(player, 1)));
-      player.menu.choices.Add(($"Yeux, couleur précédente.", () => ChangeCloneEyeColor(player, -1)));
-      player.menu.choices.Add(($"Cheveux, couleur suivante.", () => ChangeCloneHairColor(player, 1)));
-      player.menu.choices.Add(($"Cheveux, couleur précédente.", () => ChangeCloneHairColor(player, -1)));
-      player.menu.choices.Add(($"Lèvres, couleur suivante.", () => ChangeCloneLipsColor(player, 1)));
-      player.menu.choices.Add(($"Lèvres, couleur précédente.", () => ChangeCloneLipsColor(player, -1)));
+      player.menu.choices.Add(($"Yeux, couleur suivante.", () => clone.SetColor(ColorChannel.Tattoo1, clone.GetColor(ColorChannel.Tattoo1) + 1)));
+      player.menu.choices.Add(($"Yeux, couleur précédente.", () => clone.SetColor(ColorChannel.Tattoo1, clone.GetColor(ColorChannel.Tattoo1) - 1)));
+      player.menu.choices.Add(($"Cheveux, couleur suivante.", () => clone.SetColor(ColorChannel.Hair, clone.GetColor(ColorChannel.Hair) + 1)));
+      player.menu.choices.Add(($"Cheveux, couleur précédente.", () => clone.SetColor(ColorChannel.Hair, clone.GetColor(ColorChannel.Hair) - 1)));
+      player.menu.choices.Add(($"Lèvres, couleur suivante.", () => clone.SetColor(ColorChannel.Tattoo2, clone.GetColor(ColorChannel.Tattoo2) + 1)));
+      player.menu.choices.Add(($"Lèvres, couleur précédente.", () => clone.SetColor(ColorChannel.Tattoo2, clone.GetColor(ColorChannel.Tattoo2) - 1)));
       player.menu.choices.Add(($"Appliquer les modifications.", () => ApplyBodyChangesOnPlayer(player)));
       player.menu.choices.Add(($"Retour.", () => DrawWelcomePage(player)));
       player.menu.choices.Add(("Quitter", () => player.menu.Close()));
@@ -143,8 +143,8 @@ namespace NWN.Systems
     }
     private void ChangeCloneHead(Player player, int model)
     {
-      NWScript.SetCreatureBodyPart(NWScript.CREATURE_PART_HEAD, NWScript.GetCreatureBodyPart(NWScript.CREATURE_PART_HEAD, clone) + model, clone);
-      clone.GetLocalVariable<int>("_CURRENT_HEAD").Value = NWScript.GetCreatureBodyPart(NWScript.CREATURE_PART_HEAD, clone);
+      clone.SetCreatureBodyPart(CreaturePart.Head, clone.GetCreatureBodyPart(CreaturePart.Head) + model);
+      clone.GetLocalVariable<int>("_CURRENT_HEAD").Value = clone.GetCreatureBodyPart(CreaturePart.Head);
     }
     private void ChangeCloneHeight(Player player, float size)
     {
@@ -153,45 +153,12 @@ namespace NWN.Systems
     }
     private void ApplyBodyChangesOnPlayer(Player player)
     {
-      NWScript.SetCreatureBodyPart(NWScript.CREATURE_PART_HEAD, NWScript.GetCreatureBodyPart(NWScript.CREATURE_PART_HEAD, clone), player.oid.LoginCreature);
-      NWScript.SetColor(player.oid.LoginCreature, NWScript.COLOR_CHANNEL_TATTOO_1, NWScript.GetColor(clone, NWScript.COLOR_CHANNEL_TATTOO_1));
-      NWScript.SetColor(player.oid.LoginCreature, NWScript.COLOR_CHANNEL_TATTOO_2, NWScript.GetColor(clone, NWScript.COLOR_CHANNEL_TATTOO_2));
-      NWScript.SetColor(player.oid.LoginCreature, NWScript.COLOR_CHANNEL_HAIR, NWScript.GetColor(clone, NWScript.COLOR_CHANNEL_HAIR));
+      player.oid.LoginCreature.SetCreatureBodyPart(CreaturePart.Head, clone.GetCreatureBodyPart(CreaturePart.Head));
+      player.oid.LoginCreature.SetColor(ColorChannel.Tattoo1, clone.GetColor(ColorChannel.Tattoo1));
+      player.oid.LoginCreature.SetColor(ColorChannel.Tattoo2, clone.GetColor(ColorChannel.Tattoo2));
+      player.oid.LoginCreature.SetColor(ColorChannel.Hair, clone.GetColor(ColorChannel.Hair));
       player.oid.LoginCreature.VisualTransform.Scale = clone.VisualTransform.Scale;
       HandleBodyModification(player);
-    }
-    private void ChangeCloneEyeColor(Player player, int color)
-    {
-      NWScript.SetColor(clone, NWScript.COLOR_CHANNEL_TATTOO_1, NWScript.GetColor(clone, NWScript.COLOR_CHANNEL_TATTOO_1) + color);
-      NWScript.SetCreatureBodyPart(NWScript.CREATURE_PART_HEAD, 0, clone);
-
-      Task waitHeadUpdate = NwTask.Run(async () =>
-      {
-        await NwTask.Delay(TimeSpan.FromSeconds(0.2));
-        NWScript.SetCreatureBodyPart(NWScript.CREATURE_PART_HEAD, clone.GetLocalVariable<int>("_CURRENT_HEAD").Value, clone);
-      });
-    }
-    private void ChangeCloneHairColor(Player player, int color)
-    {
-      NWScript.SetColor(clone, NWScript.COLOR_CHANNEL_HAIR, NWScript.GetColor(clone, NWScript.COLOR_CHANNEL_HAIR) + color);
-      NWScript.SetCreatureBodyPart(NWScript.CREATURE_PART_HEAD, 0, clone);
-
-      Task waitHeadUpdate = NwTask.Run(async () =>
-      {
-        await NwTask.Delay(TimeSpan.FromSeconds(0.2));
-        NWScript.SetCreatureBodyPart(NWScript.CREATURE_PART_HEAD, clone.GetLocalVariable<int>("_CURRENT_HEAD").Value, clone);
-      });
-    }
-    private void ChangeCloneLipsColor(Player player, int color)
-    {
-      NWScript.SetColor(clone, NWScript.COLOR_CHANNEL_TATTOO_2, NWScript.GetColor(clone, NWScript.COLOR_CHANNEL_TATTOO_2) + color);
-      NWScript.SetCreatureBodyPart(NWScript.CREATURE_PART_HEAD, 0, clone);
-
-      Task waitHeadUpdate = NwTask.Run(async () =>
-      {
-        await NwTask.Delay(TimeSpan.FromSeconds(0.2));
-        NWScript.SetCreatureBodyPart(NWScript.CREATURE_PART_HEAD, clone.GetLocalVariable<int>("_CURRENT_HEAD").Value, clone);
-      });
     }
     private void HandleSkillSelected(Player player, Skill skill)
     {
@@ -216,13 +183,9 @@ namespace NWN.Systems
           skill.currentLevel = GetCustomFeatLevelFromSkillPoints(skill.oid, (int)skill.acquiredPoints);
           skill.pointsToNextLevel = (int)(250 * skill.multiplier * Math.Pow(5, skill.currentLevel));
           
-          if (int.TryParse(NWScript.Get2DAString("feat", "FEAT", (int)skill.oid), out int nameValue))
-            player.oid.SetTlkOverride(nameValue, $"{customFeatName} - {skill.currentLevel}");
+          player.oid.SetTlkOverride((int)Feat2da.featTable.GetFeatDataEntry(skill.oid).tlkName, $"{customFeatName} - {skill.currentLevel}");
           //PlayerPlugin.SetTlkOverride(player.oid.LoginCreature, nameValue, $"{customFeatName} - {skill.currentLevel}");
 
-          else
-            Utils.LogMessageToDMs($"CUSTOM SKILL SYSTEM ERROR - Skill {customFeatName} - {(int)skill.oid} : no available custom name StrRef");
-         
           if (skill.currentLevel >= customFeatsDictionnary[skill.oid].maxLevel)
             skill.trained = true;
         }

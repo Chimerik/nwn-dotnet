@@ -14,20 +14,16 @@ namespace NWN.Systems
 
       int nCasterLevel = oCaster.LastSpellCasterLevel;
 
-      NWScript.SignalEvent(onSpellCast.TargetObject, NWScript.EventSpellCastAt(oCaster, (int)onSpellCast.Spell));
+      SpellUtils.SignalEventSpellCast(onSpellCast.TargetObject, oCaster, onSpellCast.Spell);
 
-      Effect eVis = NWScript.EffectVisualEffect(NWScript.VFX_IMP_FLAME_S);
+      Effect eVis = Effect.VisualEffect(VfxType.ImpFlameS);
+      onSpellCast.TargetObject.ApplyEffect(EffectDuration.Instant, eVis);
 
-      // * Apply the hit effect so player knows something happened
-      NWScript.ApplyEffectToObject(NWScript.DURATION_TYPE_INSTANT, eVis, onSpellCast.TargetObject);
-
-      //Make SR Check
-      if ((SpellUtils.MyResistSpell(oCaster, onSpellCast.TargetObject)) == 0 && SpellUtils.MySavingThrow(NWScript.SAVING_THROW_FORT, onSpellCast.TargetObject, onSpellCast.SaveDC) == 0) // 0 = failed
+      if (oCaster.CheckResistSpell(onSpellCast.TargetObject) == ResistSpellResult.Failed 
+        && onSpellCast.TargetObject.RollSavingThrow(SavingThrow.Fortitude, onSpellCast.SaveDC, SavingThrowType.Spell) == SavingThrowResult.Failure)
       {
-        //Set damage effect
-        Effect eBad = NWScript.EffectAttackDecrease(1 + nCasterLevel / 6);
-        //Apply the VFX impact and damage effect
-        NWScript.ApplyEffectToObject(NWScript.DURATION_TYPE_TEMPORARY, eBad, onSpellCast.TargetObject, NWScript.RoundsToSeconds(10 + 10 * nCasterLevel / 6));
+        Effect eBad = Effect.AttackDecrease(1 + nCasterLevel / 6);
+        onSpellCast.TargetObject.ApplyEffect(EffectDuration.Temporary, eBad, NwTimeSpan.FromRounds(10 + nCasterLevel));
       }
 
       if (onSpellCast.MetaMagicFeat == MetaMagic.None)

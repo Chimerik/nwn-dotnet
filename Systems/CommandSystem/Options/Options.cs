@@ -54,7 +54,7 @@ namespace NWN.Systems
                             {
                                 result.named.Add(argName, option.Parse(argValue));
                             }
-                            catch (Exception e)
+                            catch (Exception)
                             {
                                 throw new Exception($"Invalid value for option \"{argName}\". Expected a {option.type}.");
                             }
@@ -73,7 +73,7 @@ namespace NWN.Systems
                         {
                             result.positional.Add(option.Parse(arg));
                         }
-                        catch (Exception e)
+                        catch (Exception)
                         {
                             throw new Exception($"Invalid value for option \"^{option.name}\". Expected a {option.type}.");
                         }

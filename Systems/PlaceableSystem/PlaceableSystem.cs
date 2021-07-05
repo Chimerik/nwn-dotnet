@@ -11,6 +11,7 @@ using System.Threading.Tasks;
 using static NWN.Systems.PlayerSystem;
 using NWN.System;
 using System.Collections.Generic;
+using System.Numerics;
 
 namespace NWN.Systems
 {
@@ -92,10 +93,25 @@ namespace NWN.Systems
           usedSwing.GetLocalVariable<NwObject>("_SWING_TARGET").Delete();
           usedSwing.GetLocalVariable<int>("_IS_SWINGING").Delete();
 
-          NWScript.SetObjectVisualTransform(usedSwing, NWScript.OBJECT_VISUAL_TRANSFORM_TRANSLATE_X, 0, NWScript.OBJECT_VISUAL_TRANSFORM_LERP_SMOOTHERSTEP, 2);
-          NWScript.SetObjectVisualTransform(usedSwing, NWScript.OBJECT_VISUAL_TRANSFORM_ROTATE_Z, 0, NWScript.OBJECT_VISUAL_TRANSFORM_LERP_SMOOTHERSTEP, 2);
-          NWScript.SetObjectVisualTransform(oPC, NWScript.OBJECT_VISUAL_TRANSFORM_TRANSLATE_X, 0, NWScript.OBJECT_VISUAL_TRANSFORM_LERP_SMOOTHERSTEP, 2);
-          NWScript.SetObjectVisualTransform(oPC, NWScript.OBJECT_VISUAL_TRANSFORM_ROTATE_Z, 0, NWScript.OBJECT_VISUAL_TRANSFORM_LERP_SMOOTHERSTEP, 2);
+          VisualTransformLerpSettings vtLerpSettings = new VisualTransformLerpSettings 
+          {
+            LerpType = VisualTransformLerpType.SmootherStep,
+            Duration = TimeSpan.FromSeconds(2),
+            PauseWithGame = true,
+            ReturnDestinationTransform = true
+          };
+
+          usedSwing.VisualTransform.Lerp(vtLerpSettings, transform =>
+          {
+            transform.Translation = new Vector3(0, 0, 0);
+            transform.Rotation = new Vector3(0, 0, 0);
+          });
+
+          oPC.VisualTransform.Lerp(vtLerpSettings, transform =>
+          {
+            transform.Translation = new Vector3(0, 0, 0);
+            transform.Rotation = new Vector3(0, 0, 0);
+          });
 
           usedSwing.OnUsed += OnUsedBalancoire;
           usedSwing.OnLeftClick -= OnClickSwingBalancoire;
@@ -105,7 +121,7 @@ namespace NWN.Systems
     public static void OnClickSwingBalancoire(PlaceableEvents.OnLeftClick onClick)
     {
       NwPlaceable swing = onClick.Placeable;
-      NwObject oPC = onClick.Placeable.GetLocalVariable<NwObject>("_SWING_TARGET").Value;
+      NwCreature oPC = (NwCreature)onClick.Placeable.GetLocalVariable<NwObject>("_SWING_TARGET").Value;
 
       if (swing.GetLocalVariable<int>("_IS_SWINGING").HasValue)
       {
@@ -114,20 +130,51 @@ namespace NWN.Systems
         Task waitSwingEnd = NwTask.Run(async () =>
         {
           await NwTask.Delay(TimeSpan.FromSeconds(2));
-          NWScript.SetObjectVisualTransform(swing, NWScript.OBJECT_VISUAL_TRANSFORM_TRANSLATE_X, 0, NWScript.OBJECT_VISUAL_TRANSFORM_LERP_SMOOTHERSTEP, 1);
-          NWScript.SetObjectVisualTransform(swing, NWScript.OBJECT_VISUAL_TRANSFORM_ROTATE_Z, 0, NWScript.OBJECT_VISUAL_TRANSFORM_LERP_SMOOTHERSTEP, 1);
-          NWScript.SetObjectVisualTransform(oPC, NWScript.OBJECT_VISUAL_TRANSFORM_TRANSLATE_X, 0, NWScript.OBJECT_VISUAL_TRANSFORM_LERP_SMOOTHERSTEP, 1);
-          NWScript.SetObjectVisualTransform(oPC, NWScript.OBJECT_VISUAL_TRANSFORM_ROTATE_Z, 0, NWScript.OBJECT_VISUAL_TRANSFORM_LERP_SMOOTHERSTEP, 1);
+          
+          VisualTransformLerpSettings vtLerpSettings = new VisualTransformLerpSettings
+          {
+            LerpType = VisualTransformLerpType.SmootherStep,
+            Duration = TimeSpan.FromSeconds(1),
+            PauseWithGame = true,
+            ReturnDestinationTransform = true
+          };
+
+          swing.VisualTransform.Lerp(vtLerpSettings, transform =>
+          {
+            transform.Translation = new Vector3(0, 0, 0);
+            transform.Rotation = new Vector3(0, 0, 0);
+          });
+
+          oPC.VisualTransform.Lerp(vtLerpSettings, transform =>
+          {
+            transform.Translation = new Vector3(0, 0, 0);
+            transform.Rotation = new Vector3(0, 0, 0);
+          });
         });
       }
       else
       {
         swing.GetLocalVariable<int>("_IS_SWINGING").Value = 1;
 
-        NWScript.SetObjectVisualTransform(oPC, NWScript.OBJECT_VISUAL_TRANSFORM_TRANSLATE_X, -0.75f, NWScript.OBJECT_VISUAL_TRANSFORM_LERP_SMOOTHERSTEP, 2);
-        NWScript.SetObjectVisualTransform(oPC, NWScript.OBJECT_VISUAL_TRANSFORM_ROTATE_Z, 15, NWScript.OBJECT_VISUAL_TRANSFORM_LERP_SMOOTHERSTEP, 2);
-        NWScript.SetObjectVisualTransform(swing, NWScript.OBJECT_VISUAL_TRANSFORM_TRANSLATE_X, 0.75f, NWScript.OBJECT_VISUAL_TRANSFORM_LERP_SMOOTHERSTEP, 2);
-        NWScript.SetObjectVisualTransform(swing, NWScript.OBJECT_VISUAL_TRANSFORM_ROTATE_Z, -15, NWScript.OBJECT_VISUAL_TRANSFORM_LERP_SMOOTHERSTEP, 2);
+        VisualTransformLerpSettings vtLerpSettings = new VisualTransformLerpSettings
+        {
+          LerpType = VisualTransformLerpType.SmootherStep,
+          Duration = TimeSpan.FromSeconds(2),
+          PauseWithGame = true,
+          ReturnDestinationTransform = true
+        };
+
+        oPC.VisualTransform.Lerp(vtLerpSettings, transform =>
+        {
+          transform.Translation = new Vector3(-0.75f, 0, 0);
+          transform.Rotation = new Vector3(0, 0, 15);
+        });
+
+        swing.VisualTransform.Lerp(vtLerpSettings, transform =>
+        {
+          transform.Translation = new Vector3(0.75f, 0, 0);
+          transform.Rotation = new Vector3(0, 0, -15);
+        });
 
         Task waitLoopEnd = NwTask.Run(async () =>
         {
@@ -137,16 +184,32 @@ namespace NWN.Systems
         });
       }
     }
-    public static void HandleSwing(NwObject swing, NwObject oPC)
+    public static void HandleSwing(NwPlaceable swing, NwCreature oPC)
     {
-      NWScript.SetObjectVisualTransform(oPC, NWScript.OBJECT_VISUAL_TRANSFORM_TRANSLATE_X, -NWScript.GetObjectVisualTransform(oPC, NWScript.OBJECT_VISUAL_TRANSFORM_TRANSLATE_X), NWScript.OBJECT_VISUAL_TRANSFORM_LERP_SMOOTHERSTEP, 2);
-      NWScript.SetObjectVisualTransform(oPC, NWScript.OBJECT_VISUAL_TRANSFORM_ROTATE_Z, -NWScript.GetObjectVisualTransform(oPC, NWScript.OBJECT_VISUAL_TRANSFORM_ROTATE_Z), NWScript.OBJECT_VISUAL_TRANSFORM_LERP_SMOOTHERSTEP, 2);
-      NWScript.SetObjectVisualTransform(swing, NWScript.OBJECT_VISUAL_TRANSFORM_TRANSLATE_X, -NWScript.GetObjectVisualTransform(swing, NWScript.OBJECT_VISUAL_TRANSFORM_TRANSLATE_X), NWScript.OBJECT_VISUAL_TRANSFORM_LERP_SMOOTHERSTEP, 2);
-      NWScript.SetObjectVisualTransform(swing, NWScript.OBJECT_VISUAL_TRANSFORM_ROTATE_Z, -NWScript.GetObjectVisualTransform(swing, NWScript.OBJECT_VISUAL_TRANSFORM_ROTATE_Z), NWScript.OBJECT_VISUAL_TRANSFORM_LERP_SMOOTHERSTEP, 2);
+      VisualTransformLerpSettings vtLerpSettings = new VisualTransformLerpSettings
+      {
+        LerpType = VisualTransformLerpType.SmootherStep,
+        Duration = TimeSpan.FromSeconds(2),
+        PauseWithGame = true,
+        ReturnDestinationTransform = true
+      };
+
+      oPC.VisualTransform.Lerp(vtLerpSettings, transform =>
+      {
+        transform.Translation = new Vector3(-oPC.VisualTransform.Translation.X, 0, 0);
+        transform.Rotation = new Vector3(0, 0, -oPC.VisualTransform.Rotation.Z);
+      });
+
+      swing.VisualTransform.Lerp(vtLerpSettings, transform =>
+      {
+        transform.Translation = new Vector3(-swing.VisualTransform.Translation.X, 0, 0);
+        transform.Rotation = new Vector3(0, 0, -swing.VisualTransform.Rotation.Z);
+      });
 
       Task waitLoopEnd = NwTask.Run(async () =>
       {
         await NwTask.Delay(TimeSpan.FromSeconds(2));
+
         if (swing.GetLocalVariable<int>("_IS_SWINGING").HasValue)
           HandleSwing(swing, oPC);
       });
@@ -224,7 +287,7 @@ namespace NWN.Systems
       }
 
       onSpawn.Creature.HighlightColor = ColorConstants.Black;
-      NWScript.SetObjectMouseCursor(onSpawn.Creature, NWScript.MOUSECURSOR_WALK);
+      onSpawn.Creature.MouseCursor = MouseCursor.Walk;
       onSpawn.Creature.AiLevel = AiLevel.VeryLow;
     }  
     private async void HandleDoorAutoClose(DoorEvents.OnOpen onOpen)
@@ -238,28 +301,30 @@ namespace NWN.Systems
     {
       NwCreature oPC = onClose.ClosedBy;
 
-      if (!PlayerSystem.Players.TryGetValue(oPC, out PlayerSystem.Player player))
-        NWScript.SendMessageToPC(oPC, "Player is not valid.");
+      if (!Players.TryGetValue(oPC, out Player player))
+        return;
 
-      var oItem = NWScript.GetFirstItemInInventory(oPC);
+      NwItem oItem = onClose.Placeable.Inventory.Items.FirstOrDefault();
 
-      if (oItem == NWScript.OBJECT_INVALID)
-        NWScript.SendMessageToPC(oPC, "Item is not valid.");
+      if (oItem == null)
+      {
+        player.oid.SendServerMessage("Aucun objet valide n'a été déposé dans le bassin.");
+        return;
+      }
 
+      if (!BaseItems2da.baseItemTable.GetBaseItemDataEntry(oItem.BaseItemType).IsEquippable)
+      {
+        player.oid.SendServerMessage("Impossible d'enchanter un objet non équippable.");
+        return;
+      }
 
-      if (!ItemUtils.IsEquipable(oItem))
-        NWScript.SendMessageToPC(oPC, "Item is not equipable.");
+      if (oItem.PlotFlag)
+      {
+        player.oid.SendServerMessage("Impossible d'enchanter cet objet.");
+        return;
+      }
 
-      if (NWScript.GetPlotFlag(oItem) == 1)
-        NWScript.SendMessageToPC(oPC, "Cannot enchant a plot item.");
-
-
-      var oSecondItem = NWScript.GetNextItemInInventory(onClose.Placeable);
-      if (oSecondItem != NWScript.OBJECT_INVALID)
-        NWScript.SendMessageToPC(oPC, "Invalid number of items.");
-
-      var tag = NWScript.GetTag(oItem);
-      EnchantmentBasinSystem.GetEnchantmentBasinFromTag(tag).DrawMenu(player, oItem, onClose.Placeable);
+      EnchantmentBasinSystem.GetEnchantmentBasinFromTag(oItem.Tag).DrawMenu(player, oItem, onClose.Placeable);
     }
     private void HandleSetUpDeadCreatureCorpse(CreatureEvents.OnSpawn onSpawn)
     {

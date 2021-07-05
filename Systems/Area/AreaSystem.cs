@@ -7,7 +7,6 @@ using NWN.Core;
 using NLog;
 using System;
 using System.Numerics;
-using System.Threading.Tasks;
 using System.Collections.Generic;
 
 namespace NWN.Systems
@@ -234,7 +233,9 @@ namespace NWN.Systems
     {
       onEnter.EnteringObject.VisualTransform.Translation = new Vector3(onEnter.EnteringObject.VisualTransform.Translation.X, 
         onEnter.EnteringObject.VisualTransform.Translation.Y, 2.01f);
-      NWScript.SetCameraHeight(onEnter.EnteringObject, 1 + 2.01f);
+
+      if (onEnter.EnteringObject is NwCreature { IsPlayerControlled: true } oPC)
+        oPC.ControllingPlayer.CameraHeight = 1 + 2.01f;
     }
 
     private static void OnTheaterSceneExit(TriggerEvents.OnExit onExit)
@@ -247,7 +248,9 @@ namespace NWN.Systems
       {
         onExit.ExitingObject.VisualTransform.Translation = new Vector3(onExit.ExitingObject.VisualTransform.Translation.X, 
           onExit.ExitingObject.VisualTransform.Translation.Y, 0);
-        NWScript.SetCameraHeight(onExit.ExitingObject, 0);
+
+        if (onExit.ExitingObject is NwCreature { IsPlayerControlled: true } oPC)
+          oPC.ControllingPlayer.CameraHeight = 0;
       }
     }
     public static NwArea CreatePersonnalStorageArea(NwCreature oPC, int characterId)

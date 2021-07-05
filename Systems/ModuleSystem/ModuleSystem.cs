@@ -20,7 +20,7 @@ namespace NWN.Systems
     public static readonly Logger Log = LogManager.GetCurrentClassLogger();
     public static readonly TranslationClient googleTranslationClient = TranslationClient.Create();
     public static Dictionary<string, GoldBalance> goldBalanceMonitoring = new Dictionary<string, GoldBalance>();
-    public ModuleSystem()
+    public ModuleSystem(TlkTable tlkService)
     {
       LoadDiscordBot();
       CreateDatabase();
@@ -341,7 +341,7 @@ namespace NWN.Systems
       foreach (var pcCorpse in result.Results)
       {
         NwCreature corpse = NwCreature.Deserialize(pcCorpse.GetString(0).ToByteArray());
-        corpse.Location = Utils.GetLocationFromDatabase(pcCorpse.GetString(1), pcCorpse.GetVector3(2), 0);
+        corpse.Location = Utils.GetLocationFromDatabase(pcCorpse.GetString(1), pcCorpse.GetString(2), 0);
         corpse.GetLocalVariable<int>("_PC_ID").Value = pcCorpse.GetInt(3);
 
         foreach (NwItem item in corpse.Inventory.Items.Where(i => i.Tag != "item_pccorpse"))
@@ -360,8 +360,8 @@ namespace NWN.Systems
 
       foreach (var playerShop in result.Results)
       {
-        NwStore shop = SqLiteUtils.StoreSerializationFormatProtection(playerShop, 0, Utils.GetLocationFromDatabase(playerShop.GetString(5), playerShop.GetVector3(6), playerShop.GetFloat(7)));
-        NwPlaceable panel = SqLiteUtils.PlaceableSerializationFormatProtection(playerShop, 1, Utils.GetLocationFromDatabase(playerShop.GetString(5), playerShop.GetVector3(6), playerShop.GetFloat(7)));
+        NwStore shop = SqLiteUtils.StoreSerializationFormatProtection(playerShop, 0, Utils.GetLocationFromDatabase(playerShop.GetString(5), playerShop.GetString(6), playerShop.GetFloat(7)));
+        NwPlaceable panel = SqLiteUtils.PlaceableSerializationFormatProtection(playerShop, 1, Utils.GetLocationFromDatabase(playerShop.GetString(5), playerShop.GetString(6), playerShop.GetFloat(7)));
         shop.GetLocalVariable<int>("_OWNER_ID").Value = playerShop.GetInt(2);
         shop.GetLocalVariable<int>("_SHOP_ID").Value = playerShop.GetInt(3);
         panel.GetLocalVariable<int>("_OWNER_ID").Value = playerShop.GetInt(2);
@@ -414,8 +414,8 @@ namespace NWN.Systems
 
       foreach (var auction in result.Results)
       {
-        NwStore shop = SqLiteUtils.StoreSerializationFormatProtection(auction, 0, Utils.GetLocationFromDatabase(auction.GetString(7), auction.GetVector3(8), auction.GetFloat(9)));
-        NwPlaceable panel = SqLiteUtils.PlaceableSerializationFormatProtection(auction, 1, Utils.GetLocationFromDatabase(auction.GetString(7), auction.GetVector3(8), auction.GetFloat(9)));
+        NwStore shop = SqLiteUtils.StoreSerializationFormatProtection(auction, 0, Utils.GetLocationFromDatabase(auction.GetString(7), auction.GetString(8), auction.GetFloat(9)));
+        NwPlaceable panel = SqLiteUtils.PlaceableSerializationFormatProtection(auction, 1, Utils.GetLocationFromDatabase(auction.GetString(7), auction.GetString(8), auction.GetFloat(9)));
         shop.GetLocalVariable<int>("_OWNER_ID").Value = auction.GetInt(2);
         shop.GetLocalVariable<int>("_SHOP_ID").Value = auction.GetInt(3);
         shop.GetLocalVariable<int>("_CURRENT_AUCTION").Value = auction.GetInt(5);
@@ -548,7 +548,7 @@ namespace NWN.Systems
         new List<string[]>() );
       
       foreach (var plc in result.Results)
-        SqLiteUtils.PlaceableSerializationFormatProtection(plc, 0, Utils.GetLocationFromDatabase(plc.GetString(1), plc.GetVector3(2), plc.GetFloat(3)));
+        SqLiteUtils.PlaceableSerializationFormatProtection(plc, 0, Utils.GetLocationFromDatabase(plc.GetString(1), plc.GetString(2), plc.GetFloat(3)));
     }
 
     [ScriptHandler("before_elc")]
@@ -569,7 +569,7 @@ namespace NWN.Systems
           if (tag.StartsWith("entrepotpersonnel"))
             AreaSystem.CreatePersonnalStorageArea(oPC, characterId);
 
-          oPC.ControllingPlayer.SpawnLocation = Utils.GetLocationFromDatabase(tag, result.Result.GetVector3(1), result.Result.GetFloat(2));
+          oPC.ControllingPlayer.SpawnLocation = Utils.GetLocationFromDatabase(tag, result.Result.GetString(1), result.Result.GetFloat(2));
         }
       }
     }
@@ -587,10 +587,14 @@ namespace NWN.Systems
         int validationFailureType = ElcPlugin.GetValidationFailureType();
         int validationFailureSubType = ElcPlugin.GetValidationFailureSubType();
 
-        if (validationFailureType == ElcPlugin.NWNX_ELC_VALIDATION_FAILURE_TYPE_CHARACTER && validationFailureSubType == 15 && ((NwCreature)callInfo.ObjectSelf).GetAbilityScore(API.Constants.Ability.Intelligence, true) < 11)
-          ElcPlugin.SkipValidationFailure();
-        else
-          Utils.LogMessageToDMs($"ELC VALIDATION FAILURE - Player {NWScript.GetPCPlayerName(callInfo.ObjectSelf)} - Character {NWScript.GetName(callInfo.ObjectSelf)} - type : {validationFailureType} - SubType : {validationFailureSubType}");
+        if (callInfo.ObjectSelf is NwCreature oPC)
+        {
+
+          if (validationFailureType == ElcPlugin.NWNX_ELC_VALIDATION_FAILURE_TYPE_CHARACTER && validationFailureSubType == 15 && oPC.GetAbilityScore(API.Constants.Ability.Intelligence, true) < 11)
+            ElcPlugin.SkipValidationFailure();
+          else
+            Utils.LogMessageToDMs($"ELC VALIDATION FAILURE - Player {oPC.ControllingPlayer.PlayerName} - Character {oPC.Name} - type : {validationFailureType} - SubType : {validationFailureSubType}");
+        }
       }
     }
     public static async Task DeleteExpiredMail()

@@ -21,7 +21,7 @@ namespace NWN.Systems
       if (shop == null)
       {
         shop = NwStore.Create("generic_shop_res", blacksmith.Location, false, "blacksmith_shop");
-        NWScript.SetLocalObject(shop, "_STORE_NPC", blacksmith);
+        shop.GetLocalVariable<NwObject>("_STORE_NPC").Value = blacksmith;
 
         foreach (int baseItemType in Craft.Collect.System.forgeBasicBlueprints)
         {
@@ -43,6 +43,8 @@ namespace NWN.Systems
           skillBook.Appearance.SetSimpleModel((byte)Utils.random.Next(0, 50));
           skillBook.GetLocalVariable<int>("_SKILL_ID").Value = (int)feat;
 
+          FeatTable.Entry featEntry = Feat2da.featTable.GetFeatDataEntry(feat);
+
           if (SkillSystem.customFeatsDictionnary.ContainsKey(feat))
           {
             skillBook.Name = SkillSystem.customFeatsDictionnary[feat].name;
@@ -50,15 +52,12 @@ namespace NWN.Systems
           }
           else
           {
-            if (int.TryParse(NWScript.Get2DAString("feat", "FEAT", (int)feat), out int nameValue))
-              skillBook.Name = NWScript.GetStringByStrRef(nameValue);
-
-            if (int.TryParse(NWScript.Get2DAString("feat", "DESCRIPTION", (int)feat), out int descriptionValue))
-              skillBook.Description = NWScript.GetStringByStrRef(descriptionValue);
+            
+            skillBook.Name = featEntry.name;
+            skillBook.Description = featEntry.description;
           }
 
-          if (int.TryParse(NWScript.Get2DAString("feat", "CRValue", (int)feat), out int crValue))
-            skillBook.BaseGoldValue = (uint)(crValue * 1000);
+          skillBook.BaseGoldValue = (uint)(featEntry.CRValue * 1000);
         }
 
         NwItem craftTool = await NwItem.Create("oreextractor", shop, 1, "oreextractor");

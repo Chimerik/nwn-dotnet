@@ -48,7 +48,7 @@ namespace NWN.Systems
 
       foreach (var result in query.Results)
       {
-        NwPlaceable oChest = SqLiteUtils.PlaceableSerializationFormatProtection(result, 0, Utils.GetLocationFromDatabase(CHEST_AREA_TAG, result.GetVector3(1), result.GetFloat(2)));
+        NwPlaceable oChest = SqLiteUtils.PlaceableSerializationFormatProtection(result, 0, Utils.GetLocationFromDatabase(CHEST_AREA_TAG, result.GetString(1), result.GetFloat(2)));
 
         if (oChest == null)
         {
@@ -100,6 +100,8 @@ namespace NWN.Systems
         skillBook.Appearance.SetSimpleModel((byte)Utils.random.Next(0, 50));
         skillBook.GetLocalVariable<int>("_SKILL_ID").Value = (int)feat;
 
+        FeatTable.Entry entry = Feat2da.featTable.GetFeatDataEntry(feat);
+
         if (SkillSystem.customFeatsDictionnary.ContainsKey(feat))
         {
           skillBook.Name = SkillSystem.customFeatsDictionnary[feat].name;
@@ -107,15 +109,11 @@ namespace NWN.Systems
         }
         else
         {
-          if (int.TryParse(NWScript.Get2DAString("feat", "FEAT", (int)feat), out int nameValue))
-            skillBook.Name = NWScript.GetStringByStrRef(nameValue);
-
-          if (int.TryParse(NWScript.Get2DAString("feat", "DESCRIPTION", (int)feat), out int descriptionValue))
-            skillBook.Description = NWScript.GetStringByStrRef(descriptionValue);
+          skillBook.Name = entry.name;
+          skillBook.Description = entry.description;
         }
 
-        if (int.TryParse(NWScript.Get2DAString("feat", "CRValue", (int)feat), out int crValue))
-          skillBook.BaseGoldValue = (uint)(crValue * 1000);
+        skillBook.BaseGoldValue = (uint)(entry.CRValue * 1000);
       }
 
       UpdateChestTagToLootsDic(oChest);
@@ -125,11 +123,12 @@ namespace NWN.Systems
       foreach (int itemPropertyId in array)
       {
         NwItem oScroll = await NwItem.Create("spellscroll", oChest, 1, "scroll");
-        int spellId = int.Parse(NWScript.Get2DAString("iprp_spells", "SpellIndex", itemPropertyId));
-        oScroll.Name = $"{NWScript.GetStringByStrRef(int.Parse(NWScript.Get2DAString("spells", "Name", spellId)))}";
-        oScroll.Description = $"{NWScript.GetStringByStrRef(int.Parse(NWScript.Get2DAString("spells", "SpellDesc", spellId)))}";
+        SpellsTable.Entry spellEntry = Spells2da.spellsTable.GetSpellDataEntry(ItemPropertySpells2da.spellsTable.GetSpellDataEntry(itemPropertyId).spell);
 
-        oScroll.AddItemProperty(API.ItemProperty.CastSpell((IPCastSpell)itemPropertyId, IPCastSpellNumUses.SingleUse), EffectDuration.Permanent);
+        oScroll.Name = $"{spellEntry.name}";
+        oScroll.Description = $"{spellEntry.description}";
+
+        oScroll.AddItemProperty(ItemProperty.CastSpell((IPCastSpell)itemPropertyId, IPCastSpellNumUses.SingleUse), EffectDuration.Permanent);
       }
 
       UpdateChestTagToLootsDic(oChest);

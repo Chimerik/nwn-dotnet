@@ -7,7 +7,6 @@ using System.Threading.Tasks;
 using System;
 using System.Collections.Generic;
 using Action = System.Action;
-using NWN.Core;
 using ItemProperty = NWN.API.ItemProperty;
 using Effect = NWN.API.Effect;
 using Context = NWN.Systems.Config.Context;
@@ -192,11 +191,8 @@ namespace NWN.Systems
           }
         }
 
-        if (int.TryParse(NWScript.Get2DAString("baseitems", "NumDice", (int)ctx.attackWeapon.BaseItemType), out int NumDice)
-          && int.TryParse(NWScript.Get2DAString("baseitems", "DieToRoll", (int)ctx.attackWeapon.BaseItemType), out int DieToRoll))
-          ctx.onAttack.DamageData.Base = (short)(NwRandom.Roll(Utils.random, DieToRoll, NumDice) + strModifier);
-        else
-          ctx.onAttack.DamageData.Base = 0;
+        int[] damageDices = BaseItems2da.baseItemTable.GetDamageDices(ctx.attackWeapon.BaseItemType);
+        ctx.onAttack.DamageData.Base = (short)(NwRandom.Roll(Utils.random, damageDices[0], damageDices[1]) + strModifier);
       }
 
       next();
@@ -397,7 +393,8 @@ namespace NWN.Systems
 
             case IPDamageType.Physical:
 
-              if (int.TryParse(NWScript.Get2DAString("iprp_immuncost", "Value", maxIP.CostTableValue), out int absorptionValue))
+              int absorptionValue = DamageImmunityCost2da.damamgeimmunityTable.GetDamageImmunityValue(maxIP.CostTableValue);
+              if (absorptionValue > 0)
               {
                 absorptionValue = 100 / (absorptionValue - 100);
                 int totalAbsorbedDamage = 0;
@@ -513,7 +510,8 @@ namespace NWN.Systems
     }
     private static void HandleDamageAbsorbed(Context ctx, DamageType damageType, int ipCostValue, DamageType secondaryDamageType = DamageType.BaseWeapon)
     {
-      if (int.TryParse(NWScript.Get2DAString("iprp_immuncost", "Value", ipCostValue), out int absorptionValue))
+      int absorptionValue = DamageImmunityCost2da.damamgeimmunityTable.GetDamageImmunityValue(ipCostValue);
+      if (absorptionValue > 0)
       {
         absorptionValue = 100 / (absorptionValue - 100);
         int totalAbsorbedDamage = 0;

@@ -88,12 +88,12 @@ namespace NWN.Systems
     {
       if (ctx.oTarget == null)
       {
-        string filename = String.Format("{0:yyyy-MM-dd}_{1}.txt", DateTime.Now, "chatlog");
+        string filename = string.Format("{0:yyyy-MM-dd}_{1}.txt", DateTime.Now, "chatlog");
         string path = Path.Combine(Environment.GetEnvironmentVariable("HOME") + "/ChatLog", filename);
 
         using StreamWriter file =
         new StreamWriter(path, true);
-        file.WriteLineAsync(DateTime.Now.ToShortTimeString() + " - [" + ctx.channel + " - " + areaName + "] " + NWScript.GetName(ctx.oSender.ControlledCreature, 1) + " : " + ctx.msg);
+        file.WriteLineAsync(DateTime.Now.ToShortTimeString() + " - [" + ctx.channel + " - " + areaName + "] " + ctx.oSender.ControlledCreature.OriginalName + " : " + ctx.msg);
       }
       else
       {
@@ -108,7 +108,7 @@ namespace NWN.Systems
 
         using StreamWriter file =
         new StreamWriter(path, true);
-        file.WriteLineAsync(DateTime.Now.ToShortDateString() + " " + DateTime.Now.ToShortTimeString() + " - " + ctx.oSender.LoginCreature.Name + " To : " + NWScript.GetName(ctx.oTarget.LoginCreature, 1) + " : " + ctx.msg);
+        file.WriteLineAsync(DateTime.Now.ToShortDateString() + " " + DateTime.Now.ToShortTimeString() + " - " + ctx.oSender.LoginCreature.Name + " To : " + ctx.oSender.LoginCreature.OriginalName + " : " + ctx.msg); 
       }
 
       next();
@@ -117,7 +117,7 @@ namespace NWN.Systems
     {
       if (ctx.oTarget != null)
       {
-        if (ObjectPlugin.GetInt(ctx.oTarget.LoginCreature, "__BLOCK_ALL_MP") > 0 || ObjectPlugin.GetInt(ctx.oTarget.LoginCreature, "__BLOCK_" + NWScript.GetName(ctx.oSender.LoginCreature, 1) + "_MP") > 0)
+        if (ObjectPlugin.GetInt(ctx.oTarget.LoginCreature, "__BLOCK_ALL_MP") > 0 || ObjectPlugin.GetInt(ctx.oTarget.LoginCreature, "__BLOCK_" + ctx.oSender.LoginCreature.OriginalName + "_MP") > 0)
           if (!ctx.oTarget.IsDM)
           {
             ctx.onChat.Skip = true;
@@ -228,9 +228,6 @@ namespace NWN.Systems
       foreach (NwPlayer player in NwModule.Instance.Players.Where(p => p.ControlledCreature.Area == ctx.oSender.ControlledCreature.Area && p.ControlledCreature.Distance(ctx.oSender.ControlledCreature) < chatService.GetPlayerChatHearingDistance(p, ctx.channel)))
       {
         Feat language = (Feat)ctx.oSender.ControlledCreature.GetLocalVariable<int>("_ACTIVE_LANGUAGE").Value;
-
-        //string sName = NWScript.GetLocalString(ctx.oSender, "__DISGUISE_NAME");
-        //if (sName == "") sName = NWScript.GetName(ctx.oSender);
 
         if (language != (Feat)CustomFeats.Invalid)
         {

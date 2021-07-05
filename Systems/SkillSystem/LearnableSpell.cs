@@ -34,35 +34,13 @@ namespace NWN.Systems
         this.trained = false;
         this.nbScrollsUsed = scrollsUsed;
 
-        int value;
-        if (int.TryParse(NWScript.Get2DAString("spells", "Name", Id), out value))
-          this.name = NWScript.GetStringByStrRef(value);
-        else
-        {
-          this.name = "Nom indisponible";
-          NWN.Utils.LogMessageToDMs($"SKILL SYSTEM ERROR - Spell {this.oid} : no available name");
-        }
+        SpellsTable.Entry entry = Spells2da.spellsTable.GetSpellDataEntry((Spell)Id);
 
-        if (int.TryParse(NWScript.Get2DAString("spells", "SpellDesc", Id), out value))
-          this.description = NWScript.GetStringByStrRef(value);
-        else
-        {
-          this.description = "Description indisponible";
-          NWN.Utils.LogMessageToDMs($"SKILL SYSTEM ERROR - Spell {this.oid} : no available description");
-        }
-
-        if (int.TryParse(NWScript.Get2DAString("spells", "Wiz_Sorc", Id), out value))
-          this.multiplier = value;
-        else
-        {
-          this.multiplier = 1;
-          NWN.Utils.LogMessageToDMs($"SKILL SYSTEM ERROR - Spell {this.oid} : no available level");
-        }
-
-        if (multiplier <= 0)
-          multiplier = 1;
-
-        if (int.TryParse(NWScript.Get2DAString("spells", "Druid", Id), out value) || int.TryParse(NWScript.Get2DAString("spells", "Cleric", Id), out value) || int.TryParse(NWScript.Get2DAString("spells", "Ranger", Id), out value))
+        this.name = entry.name;
+        this.description = entry.description;
+        this.multiplier = entry.level;
+        
+        if(entry.castingClass == ClassType.Druid || entry.castingClass == ClassType.Cleric || entry.castingClass == ClassType.Ranger)
           primaryAbility = NWScript.ABILITY_WISDOM;
         else
           primaryAbility = NWScript.ABILITY_INTELLIGENCE;

@@ -13,15 +13,13 @@ namespace NWN.Systems
         return;
 
       int nCasterLevel = oCaster.LastSpellCasterLevel;
-      
-      NWScript.SignalEvent(onSpellCast.TargetObject, NWScript.EventSpellCastAt(onSpellCast.Caster, (int)onSpellCast.Spell));
+
+      SpellUtils.SignalEventSpellCast(onSpellCast.TargetObject, oCaster, onSpellCast.Spell);
 
       Effect eVis = Effect.VisualEffect(VfxType.ImpAcidS);
 
-      //Make SR Check
-      if (SpellUtils.MyResistSpell(onSpellCast.Caster, onSpellCast.TargetObject) == 0)
+      if (oCaster.CheckResistSpell(onSpellCast.TargetObject) == ResistSpellResult.Failed)
       {
-        //Set damage effect
         int iDamage = 3;
         int nDamage = SpellUtils.MaximizeOrEmpower(iDamage, 1 + nCasterLevel / 6, onSpellCast.MetaMagicFeat);
         onSpellCast.TargetObject.ApplyEffect(EffectDuration.Instant, Effect.LinkEffects(eVis, Effect.Damage(nDamage, DamageType.Acid)));

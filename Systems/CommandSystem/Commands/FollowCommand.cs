@@ -12,7 +12,7 @@ namespace NWN.Systems
     private static void ExecuteFollowCommand(ChatSystem.Context ctx, Options.Result options)
     {
       if (ctx.oSender.ControlledCreature.MovementRate == MovementRate.Immobile
-        || ctx.oSender.ControlledCreature.TotalWeight > int.Parse(NWScript.Get2DAString("encumbrance", "Heavy", ctx.oSender.ControlledCreature.GetAbilityScore(Ability.Strength))))
+        || ctx.oSender.ControlledCreature.TotalWeight > Encumbrance2da.encumbranceTable.GetDataEntry(ctx.oSender.ControlledCreature.GetAbilityScore(Ability.Strength)).heavy)
       {
         ctx.oSender.SendServerMessage("Cette commande ne peut être utilisée en étant surchargé.", ColorConstants.Red);
         return;
@@ -26,17 +26,17 @@ namespace NWN.Systems
         return;
 
       if (selection.Player.ControlledCreature.MovementRate == MovementRate.Immobile
-            || selection.Player.ControlledCreature.TotalWeight > int.Parse(NWScript.Get2DAString("encumbrance", "Heavy", selection.Player.ControlledCreature.GetAbilityScore(Ability.Strength))))
+            || selection.Player.ControlledCreature.TotalWeight > Encumbrance2da.encumbranceTable.GetDataEntry(selection.Player.ControlledCreature.GetAbilityScore(Ability.Strength)).heavy)
       {
         selection.Player.SendServerMessage("Cette commande ne peut être utilisée en étant surchargé.", ColorConstants.Red);
         return;
       }
 
-      /*if(selection.Player.Area != ((NwCreature)selection.TargetObj).Area // TODO : A DECOMMENTER A LA FIN DE L'ALPHA
+      if(selection.Player.ControlledCreature.Area != ((NwCreature)selection.TargetObject).Area) // TODO : A DECOMMENTER A LA FIN DE L'ALPHA
       {
         selection.Player.SendServerMessage("Vous ne pouvez pas suivre quelqu'un qui ne se trouve pas dans la même zone que vous.", ColorConstants.Red);
         return;
-      }*/
+      }
 
       await selection.Player.ControlledCreature.ActionForceFollowObject((NwGameObject)selection.TargetObject, 3.0f);
     }

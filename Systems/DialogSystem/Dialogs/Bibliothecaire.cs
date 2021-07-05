@@ -2,6 +2,7 @@
 using System.Linq;
 using System.Threading.Tasks;
 using NWN.API;
+using NWN.API.Constants;
 using NWN.Core;
 using NWN.Core.NWNX;
 using NWN.System;
@@ -26,22 +27,18 @@ namespace NWN.Systems
         if (shop == null)
           shop = NwStore.Create("generic_shop_res", bibliothecaire.Location, false, "bibliothecaire_shop");
 
-        NWScript.SetLocalObject(shop, "_STORE_NPC", bibliothecaire);
+        shop.GetLocalVariable<NwObject>("_STORE_NPC").Value = bibliothecaire;
 
         if (Utils.random.Next(1, 101) < 21)
         {
-          int feat = (int)SkillSystem.languageSkillBooks[NWN.Utils.random.Next(0, SkillSystem.languageSkillBooks.Length)];
+          Feat feat = SkillSystem.languageSkillBooks[Utils.random.Next(0, SkillSystem.languageSkillBooks.Length)];
           NwItem skillBook = await NwItem.Create("skillbookgeneriq", shop, 1 , "skillbook");
           skillBook.Appearance.SetSimpleModel((byte)Utils.random.Next(0, 50));
-          skillBook.GetLocalVariable<int>("_SKILL_ID").Value = feat;
+          skillBook.GetLocalVariable<int>("_SKILL_ID").Value = (int)feat;
 
-          int value;
-          if (int.TryParse(NWScript.Get2DAString("feat", "FEAT", feat), out value))
-            skillBook.Name = NWScript.GetStringByStrRef(value);
-
-          if (int.TryParse(NWScript.Get2DAString("feat", "DESCRIPTION", feat), out value))
-            skillBook.Description = NWScript.GetStringByStrRef(value);
-
+          FeatTable.Entry featEntry = Feat2da.featTable.GetFeatDataEntry(feat);
+          skillBook.Name = featEntry.name;
+          skillBook.Description = featEntry.description;
           skillBook.BaseGoldValue = 3000;
         }
         else

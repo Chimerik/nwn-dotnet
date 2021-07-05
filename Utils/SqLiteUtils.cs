@@ -29,7 +29,7 @@ namespace NWN
       foreach (var param in queryParameters)
       {
         query.BindParam($"@{param.Key}", param.Value);
-        logString += $"@{param.Key} = {param.Value}";
+        logString += $"@{param.Key} = {param.Value} ";
       }
 
       Log.Info(logString);
@@ -67,22 +67,25 @@ namespace NWN
       var query = NwModule.Instance.PrepareCampaignSQLQuery(Config.database, queryString);
 
       Log.Info(queryString);
+      string logString = "Binding SET : ";
 
       foreach (var param in queryParameters)
       {
         query.BindParam($"@{param[0]}", param[1]);
-        Log.Info($"Binding SET @{param[0]} = {param[1]}");
+        logString += $"Binding SET @{param[0]} = {param[1]} ";
       }
+
+      Log.Info(logString);
+      logString = "Binding WHERE : ";
 
       foreach (var param in whereParameters)
       {
         query.BindParam($"@{param[0]}", param[1]);
-        Log.Info($"Binding WHERE @{param[0]} = {param[1]}");
+        logString += $"Binding WHERE @{param[0]} = {param[1]} ";
       }
 
+      Log.Info(logString);
       query.Execute();
-
-      
 
       if (query.Error != "")
       {
@@ -126,7 +129,7 @@ namespace NWN
       foreach (var param in whereParameters)
       {
         query.BindParam($"@{param[0]}", param[1]);
-        logString += $"@{param[0]} = {param[1]}";
+        logString += $"@{param[0]} = {param[1]} ";
       }
 
       Log.Info(logString);
@@ -195,7 +198,7 @@ namespace NWN
       foreach (var param in queryParameters)
       {
         query.BindParam($"@{param[0]}", param[1]);
-        logString += $"Binding @{param[0]} = {param[1]}";
+        logString += $"Binding @{param[0]} = {param[1]} ";
       }
       
       Log.Info(logString);

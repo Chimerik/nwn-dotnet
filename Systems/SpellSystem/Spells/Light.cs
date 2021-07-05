@@ -14,18 +14,19 @@ namespace NWN.Systems
 
       int nCasterLevel = oCaster.LastSpellCasterLevel;
 
-      NWScript.SignalEvent(onSpellCast.TargetObject, NWScript.EventSpellCastAt(oCaster, (int)onSpellCast.Spell));
-      
-      if(onSpellCast.TargetObject is NwItem item)
+      SpellUtils.SignalEventSpellCast(onSpellCast.TargetObject, oCaster, onSpellCast.Spell, false);
+
+      if (onSpellCast.TargetObject is NwItem item)
       {
         // Do not allow casting on not equippable items
-        if (!ItemUtils.GetIsItemEquipable(onSpellCast.TargetObject))
+        
+        if (!BaseItems2da.baseItemTable.GetBaseItemDataEntry(item.BaseItemType).IsEquippable)
           oCaster.ControllingPlayer.FloatingTextStrRef(83326);
         else
         {
           ItemUtils.RemoveMatchingItemProperties(item, ItemPropertyType.Light, EffectDuration.Temporary);
 
-          int nDuration = NWScript.GetCasterLevel(oCaster);
+          int nDuration = oCaster.LastSpellCasterLevel;
           //Enter Metamagic conditions
           if (onSpellCast.MetaMagicFeat == MetaMagic.Extend)
             nDuration = nDuration * 2; //Duration is +100%
@@ -45,7 +46,7 @@ namespace NWN.Systems
           nDuration = nDuration * 2; //Duration is +100%
 
         //Apply the VFX impact and effects
-        NWScript.ApplyEffectToObject(NWScript.DURATION_TYPE_TEMPORARY, eLink, onSpellCast.TargetObject, NWScript.HoursToSeconds(nDuration));
+        onSpellCast.TargetObject.ApplyEffect(EffectDuration.Temporary, eLink, NwTimeSpan.FromHours(nDuration));
 
         if (onSpellCast.MetaMagicFeat == MetaMagic.None)
         {

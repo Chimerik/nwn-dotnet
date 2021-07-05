@@ -11,6 +11,10 @@ namespace NWN.Systems
     {
       return entries.IndexOf(rank) + 1;
     }
+    public int GetRankFromCostValue(int row)
+    {
+      return entries[row];
+    }
 
     void ITwoDimArray.DeserializeRow(int rowIndex, TwoDimEntry twoDimEntry)
     {
@@ -20,14 +24,13 @@ namespace NWN.Systems
     }
   }
 
-  [ServiceBinding(typeof(ItemPropertyDamageCost))]
-  public class ItemPropertyDamageCost
+  [ServiceBinding(typeof(ItemPropertyDamageCost2da))]
+  public class ItemPropertyDamageCost2da
   {
     public static ItemPropertyRankDamageTable ipDamageCost;
-    public ItemPropertyDamageCost(TwoDimArrayFactory twoDimArrayFactory)
+    public ItemPropertyDamageCost2da(TwoDimArrayFactory twoDimArrayFactory)
     {
       ipDamageCost = twoDimArrayFactory.Get2DA<ItemPropertyRankDamageTable>("iprp_damagecost");
-      //PlayerSystem.Log.Info($"row : {ipDamageCost.GetDamageCostValueFromRank(8)}");
     }
   }
 }

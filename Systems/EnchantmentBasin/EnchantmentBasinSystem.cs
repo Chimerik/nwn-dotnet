@@ -1,4 +1,6 @@
-﻿namespace NWN.Systems
+﻿using NWN.API.Constants;
+
+namespace NWN.Systems
 {
     public partial class EnchantmentBasinSystem
     {
@@ -13,7 +15,7 @@
                       maxAttackBonus: 3,
                       maxACBonus: 3,
                       maxAbilityBonus: 3,
-                      maxDamageBonus: ItemPropertyUtils.DamageBonus.D1d12,
+                      maxDamageBonus: IPDamageBonus.Plus1d12,
                       maxSavingThrowBonus: 3,
                       maxRegenBonus: 2
                     );
@@ -27,7 +29,7 @@
                       maxAttackBonus: 5,
                       maxACBonus: 5,
                       maxAbilityBonus: 6,
-                      maxDamageBonus: ItemPropertyUtils.DamageBonus.D1d8,
+                      maxDamageBonus: IPDamageBonus.Plus1d8,
                       maxSavingThrowBonus: 4,
                       maxRegenBonus: 4
                     );
