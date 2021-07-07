@@ -56,7 +56,9 @@ namespace NWN.Systems
       else
         description = Spells2da.tlkTable.GetSimpleString(strRef);
 
-      int level = int.TryParse(twoDimEntry("Wiz_Sorc"), out bardCastLevel) ? bardCastLevel : 1;
+      float level = float.TryParse(twoDimEntry("Wiz_Sorc"), out level) ? level : 0.5f;
+      if (level < 1)
+        level = 0.5f;
 
       entries.Add((Spell)rowIndex, new Entry(name, description, level, castClass, (SpellSchool)"GACDEVINT".IndexOf(school)));
     }
@@ -64,11 +66,11 @@ namespace NWN.Systems
     {
       public readonly string name;
       public readonly string description;
-      public readonly int level;
+      public readonly float level;
       public readonly ClassType castingClass;
       public readonly SpellSchool school;
 
-      public Entry(string name, string description, int level, ClassType castingClass, SpellSchool school)
+      public Entry(string name, string description, float level, ClassType castingClass, SpellSchool school)
       {
         this.name = name;
         this.description = description;

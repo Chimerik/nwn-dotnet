@@ -1,11 +1,9 @@
-﻿using NLog;
-using NWN.API;
+﻿using NWN.API;
 using NWN.API.Constants;
 using NWN.API.Events;
 using NWN.Core;
 using NWN.Services;
 using System.Linq;
-using System.Threading.Tasks;
 
 namespace NWN.Systems
 {
@@ -31,24 +29,24 @@ namespace NWN.Systems
 
       oPartyChanger.LoginCreature.ApplyEffect(EffectDuration.Permanent, GetPartySizeEffect(oPartyChanger.PartyMembers.Count(p => !p.IsDM)));
     }
-    private static API.Effect GetPartySizeEffect(int iPartySize = 0)
+    private static Effect GetPartySizeEffect(int iPartySize = 0)
     {
-      API.Effect eParty = API.Effect.VisualEffect(VfxType.None);
+      Effect eParty = Effect.VisualEffect(VfxType.None);
 
       switch (iPartySize) // déterminer quel est l'effet de groupe à appliquer
       {
         case 2:
         case 7:
-          eParty = API.Effect.ACIncrease(1, ACBonus.Dodge);
+          eParty = Effect.ACIncrease(1, ACBonus.Dodge);
           break;
         case 3:
         case 6:
-          eParty = NWScript.EffectLinkEffects(API.Effect.ACIncrease(1, ACBonus.Dodge), API.Effect.AttackIncrease(1));
+          eParty = Effect.LinkEffects(Effect.ACIncrease(1, ACBonus.Dodge), Effect.AttackIncrease(1));
           break;
         case 4:
         case 5:
-          eParty = NWScript.EffectLinkEffects(API.Effect.ACIncrease(1, ACBonus.Dodge), API.Effect.AttackIncrease(1));
-          eParty = NWScript.EffectLinkEffects(API.Effect.DamageIncrease(1, DamageType.Bludgeoning), eParty);
+          eParty = Effect.LinkEffects(Effect.ACIncrease(1, ACBonus.Dodge), Effect.AttackIncrease(1));
+          eParty = Effect.LinkEffects(Effect.DamageIncrease(1, DamageType.Bludgeoning), eParty);
           break;
       }
 

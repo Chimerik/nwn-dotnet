@@ -1,5 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using System.Numerics;
+using NWN.API;
 using NWN.Core;
 using Action = System.Action;
 
@@ -113,7 +115,7 @@ namespace NWN.Systems
       {
         foreach (var (X, Y, ID) in drawnLines)
         {
-          NWScript.PostString(player.oid.LoginCreature, "", X, Y, 0, 0.000001f, 0, 0, ID);
+          player.oid.PostString("", X, Y, 0, 0.000001f, ColorConstants.White, ColorConstants.White, ID);
         }
         drawnLines.Clear();
       }
@@ -204,25 +206,23 @@ namespace NWN.Systems
 
       private void EraseLastSelection()
       {
-        NWScript.PostString(
-          player.oid.LoginCreature, "",
+        player.oid.PostString(
+          "",
           drawnSelectionIds.X,
           drawnSelectionIds.Y,
           0,
           0.000001f,
-          0,
-          0,
+          ColorConstants.White,
+          ColorConstants.White,
           drawnSelectionIds.ID
         );
       }
 
       private void DrawLine(string text, int x, int y, int id, string font, List<(int X, int Y, int ID)> drawnLines = null)
       {
-        int color = unchecked((int)Config.Color.White);
-        NWScript.PostString(
-            player.oid.LoginCreature, text, x, y, 0, 0f,
-            color, color, id, font
-        );
+        //int color = unchecked((int)Config.Color.White);
+        player.oid.PostString(text, x, y, 0, 0f, ColorConstants.White, ColorConstants.White, id, font);
+
         if (drawnLines != null)
         {
           drawnLines.Add((X: x, Y: x, ID: id));
@@ -276,74 +276,50 @@ namespace NWN.Systems
                 return;
             }
           case QuickbarType.Sit:
-            float zPos;
-            float newValue;
+            Vector3 translation = player.oid.ControlledCreature.VisualTransform.Translation;
+            Vector3 rotation = player.oid.ControlledCreature.VisualTransform.Rotation;
 
-            switch(e.feat)
+            switch (e.feat)
             {
               default: return;
 
               case CustomFeats.CustomMenuUP:
-                newValue = 0.1f;
+                player.oid.ControlledCreature.VisualTransform.Translation = new Vector3(translation.X, translation.Y, translation.Z + 0.1f);
+                if (translation.Z > 5)
+                  Utils.LogMessageToDMs($"SIT COMMAND - Player {player.oid.PlayerName} - Z translation = {translation.Z}");
 
-                NWScript.SetObjectVisualTransform(player.oid.ControlledCreature, NWScript.OBJECT_VISUAL_TRANSFORM_TRANSLATE_Z, NWScript.GetObjectVisualTransform(player.oid.LoginCreature, NWScript.OBJECT_VISUAL_TRANSFORM_TRANSLATE_Z) + newValue);
-                  zPos = NWScript.GetObjectVisualTransform(player.oid.LoginCreature, NWScript.OBJECT_VISUAL_TRANSFORM_TRANSLATE_Z);
-                  if (zPos > 5)
-                    Utils.LogMessageToDMs($"SIT COMMAND - Player {player.oid.PlayerName} - Z translation = {zPos}");
-
-                player.oid.CameraHeight = 1 + zPos;
+                player.oid.CameraHeight = 1 + translation.Z;
                 break;
 
               case CustomFeats.CustomMenuDOWN:
-                newValue = -0.1f;
+                player.oid.ControlledCreature.VisualTransform.Translation = new Vector3(translation.X, translation.Y, translation.Z - 0.1f);
+                if (translation.Z < NWScript.GetGroundHeight(player.oid.ControlledCreature.Location))
+                  Utils.LogMessageToDMs($"SIT COMMAND - Player {player.oid.PlayerName} - Z translation = {translation.Z}");
 
-                NWScript.SetObjectVisualTransform(player.oid.ControlledCreature, NWScript.OBJECT_VISUAL_TRANSFORM_TRANSLATE_Z, NWScript.GetObjectVisualTransform(player.oid.LoginCreature, NWScript.OBJECT_VISUAL_TRANSFORM_TRANSLATE_Z) + newValue);
-                zPos = NWScript.GetObjectVisualTransform(player.oid.LoginCreature, NWScript.OBJECT_VISUAL_TRANSFORM_TRANSLATE_Z);
-                if (zPos < NWScript.GetGroundHeight(NWScript.GetLocation(player.oid.LoginCreature)))
-                  Utils.LogMessageToDMs($"SIT COMMAND - Player {player.oid.PlayerName} - Z translation = {zPos}");
-
-                player.oid.CameraHeight = 1 + zPos;
-
+                player.oid.CameraHeight = 1 + translation.Z;
                 break;
 
               case CustomFeats.CustomPositionRotateRight:
-                newValue = 20.0f;
-
-                NWScript.SetObjectVisualTransform(player.oid.ControlledCreature, NWScript.OBJECT_VISUAL_TRANSFORM_ROTATE_X, NWScript.GetObjectVisualTransform(player.oid.LoginCreature, NWScript.OBJECT_VISUAL_TRANSFORM_ROTATE_X) + newValue);
+                player.oid.ControlledCreature.VisualTransform.Rotation = new Vector3(rotation.X + 20, rotation.Y, rotation.Z);
                 break;
-
               case CustomFeats.CustomPositionRotateLeft:
-                newValue = -20.0f;
-
-                NWScript.SetObjectVisualTransform(player.oid.ControlledCreature, NWScript.OBJECT_VISUAL_TRANSFORM_ROTATE_X, NWScript.GetObjectVisualTransform(player.oid.LoginCreature, NWScript.OBJECT_VISUAL_TRANSFORM_ROTATE_X) + newValue);
+                player.oid.ControlledCreature.VisualTransform.Rotation = new Vector3(rotation.X - 20, rotation.Y, rotation.Z);
                 break;
 
               case CustomFeats.CustomPositionRight:
-                newValue = 0.1f;
-
-                NWScript.SetObjectVisualTransform(player.oid.ControlledCreature, NWScript.OBJECT_VISUAL_TRANSFORM_TRANSLATE_X,
-                NWScript.GetObjectVisualTransform(player.oid.ControlledCreature, NWScript.OBJECT_VISUAL_TRANSFORM_TRANSLATE_X) + newValue);
+                player.oid.ControlledCreature.VisualTransform.Translation = new Vector3(translation.X + 0.1f, translation.Y, translation.Z);
                 break;
 
               case CustomFeats.CustomPositionLeft:
-                newValue = 0.1f;
-
-                NWScript.SetObjectVisualTransform(player.oid.ControlledCreature, NWScript.OBJECT_VISUAL_TRANSFORM_TRANSLATE_X,
-                NWScript.GetObjectVisualTransform(player.oid.ControlledCreature, NWScript.OBJECT_VISUAL_TRANSFORM_TRANSLATE_X) - newValue);
+                player.oid.ControlledCreature.VisualTransform.Translation = new Vector3(translation.X - 0.1f, translation.Y, translation.Z);
                 break;
 
               case CustomFeats.CustomPositionForward:
-                newValue = 0.1f;
-
-                NWScript.SetObjectVisualTransform(player.oid.ControlledCreature, NWScript.OBJECT_VISUAL_TRANSFORM_TRANSLATE_Y,
-                NWScript.GetObjectVisualTransform(player.oid.ControlledCreature, NWScript.OBJECT_VISUAL_TRANSFORM_TRANSLATE_Y) + newValue);
+                player.oid.ControlledCreature.VisualTransform.Translation = new Vector3(translation.X, translation.Y + 0.1f, translation.Z);
                 break;
 
               case CustomFeats.CustomPositionBackward:
-                newValue = 0.1f;
-
-                NWScript.SetObjectVisualTransform(player.oid.ControlledCreature, NWScript.OBJECT_VISUAL_TRANSFORM_TRANSLATE_Y,
-                NWScript.GetObjectVisualTransform(player.oid.ControlledCreature, NWScript.OBJECT_VISUAL_TRANSFORM_TRANSLATE_Y) - newValue);
+                player.oid.ControlledCreature.VisualTransform.Translation = new Vector3(translation.X, translation.Y - 0.1f, translation.Z);
                 break;
 
               case CustomFeats.CustomMenuEXIT:

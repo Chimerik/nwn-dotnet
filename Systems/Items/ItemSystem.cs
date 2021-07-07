@@ -161,15 +161,12 @@ namespace NWN.Systems
     public static void OnAcquireItem(ModuleEvents.OnAcquireItem onAcquireItem)
     {
       NwCreature oPC = (NwCreature)onAcquireItem.AcquiredBy;
-      //Console.WriteLine(NWScript.GetName(oPC));
 
       NwItem oItem = onAcquireItem.Item;
       NwGameObject oAcquiredFrom = onAcquireItem.AcquiredFrom;
 
       if (oPC.ControllingPlayer == null || oItem == null)
         return;
-
-      //Console.WriteLine(NWScript.GetTag(oItem));
 
       if (oItem.GetLocalVariable<int>("_MAX_DURABILITY").HasNothing)
       {
@@ -195,9 +192,8 @@ namespace NWN.Systems
         oAcquiredFrom.Destroy();
       }
       //En pause jusqu'à ce que le système de transport soit en place
-      //if (NWScript.GetMovementRate(oPC) != CreaturePlugin.NWNX_CREATURE_MOVEMENT_RATE_IMMOBILE)
-      //if (NWScript.GetWeight(oPC) > int.Parse(NWScript.Get2DAString("encumbrance", "Heavy", NWScript.GetAbilityScore(oPC, NWScript.ABILITY_STRENGTH))))
-      //CreaturePlugin.SetMovementRate(oPC, CreaturePlugin.NWNX_CREATURE_MOVEMENT_RATE_IMMOBILE);
+      //if (oPC.MovementRate != MovementRate.Immobile && oPC.TotalWeight > Encumbrance2da.encumbranceTable.GetDataEntry(oPC.GetAbilityScore(Ability.Strength)).heavy)
+        //oPC.MovementRate = MovementRate.Immobile;
     }
     public static void OnUnacquireItem(ModuleEvents.OnUnacquireItem onUnacquireItem)
     {
@@ -220,15 +216,15 @@ namespace NWN.Systems
         PlayerSystem.SavePlayerCorpseToDatabase(oItem.GetLocalVariable<int>("_PC_ID").Value, oCorpse);
       }
 
-      /* En pause jusqu'à ce que le système de transport soit en place
-      if (NWScript.GetMovementRate(oPC) == CreaturePlugin.NWNX_CREATURE_MOVEMENT_RATE_IMMOBILE)
-        if (NWScript.GetWeight(oPC) <= int.Parse(NWScript.Get2DAString("encumbrance", "Heavy", NWScript.GetAbilityScore(oPC, NWScript.ABILITY_STRENGTH))))
-          CreaturePlugin.SetMovementRate(oPC, CreaturePlugin.NWNX_CREATURE_MOVEMENT_RATE_PC);*/
+      //En pause jusqu'à ce que le système de transport soit en place
+      //if (onUnacquireItem.LostBy.MovementRate == MovementRate.Immobile)
+        //if (onUnacquireItem.LostBy.TotalWeight <= Encumbrance2da.encumbranceTable.GetDataEntry(onUnacquireItem.LostBy.GetAbilityScore(Ability.Strength)).heavy)
+          //onUnacquireItem.LostBy.MovementRate = MovementRate.PC;
     }
     public static async void OnTorilNecklaceRemoved(NwPlayer oPC)
     {
       oPC.SendServerMessage("Votre lien avec la Toile semble particulièrement faible. Un échec des sorts de 50 % vous est appliqué.", API.ColorConstants.Pink);
-      API.Effect eff = API.Effect.SpellFailure(50);
+      Effect eff = Effect.SpellFailure(50);
       eff.Tag = "erylies_spell_failure";
       eff.SubType = EffectSubType.Supernatural;
       oPC.LoginCreature.ApplyEffect(EffectDuration.Permanent, eff);

@@ -86,16 +86,8 @@ namespace NWN
     }
     public static void RemoveTaggedEffect(NwGameObject oTarget, string Tag)
     {
-      if (oTarget is NwCreature oCreature)
-      {
-        foreach (Effect eff in oCreature.ActiveEffects.Where(e => e.Tag == Tag))
-          oTarget.RemoveEffect(eff);
-      }
-      else if (oTarget is NwPlaceable oPlaceable)
-      {
-        foreach (Effect eff in oPlaceable.ActiveEffects.Where(e => e.Tag == Tag))
-          oTarget.RemoveEffect(eff);
-      }
+      foreach (Effect eff in oTarget.ActiveEffects.Where(e => e.Tag == Tag))
+        oTarget.RemoveEffect(eff);
     }
     public static QuickBarSlot CreateEmptyQBS()
     {
@@ -122,73 +114,69 @@ namespace NWN
     }
     public static Animation TranslateEngineAnimation(int nAnimation)
     {
-      Animation translatedAnim;
-
       switch (nAnimation)
       {
-        case 0: translatedAnim = Animation.LoopingPause; break;
-        case 52: translatedAnim = Animation.LoopingPause2; break;
-        case 30: translatedAnim = Animation.LoopingListen; break;
-        case 32: translatedAnim = Animation.LoopingMeditate; break;
-        case 33: translatedAnim = Animation.LoopingWorship; break;
-        case 48: translatedAnim = Animation.LoopingLookFar; break;
-        case 36: translatedAnim = Animation.LoopingSitChair; break;
-        case 47: translatedAnim = Animation.LoopingSitCross; break;
-        case 38: translatedAnim = Animation.LoopingTalkNormal; break;
-        case 39: translatedAnim = Animation.LoopingTalkPleading; break;
-        case 40: translatedAnim = Animation.LoopingTalkForceful; break;
-        case 41: translatedAnim = Animation.LoopingTalkLaughing; break;
-        case 59: translatedAnim = Animation.LoopingGetLow; break;
-        case 60: translatedAnim = Animation.LoopingGetMid; break;
-        case 57: translatedAnim = Animation.LoopingPauseTired; break;
-        case 58: translatedAnim = Animation.LoopingPauseDrunk; break;
-        case 6: translatedAnim = Animation.LoopingDeadFront; break;
-        case 8: translatedAnim = Animation.LoopingDeadBack; break;
-        case 15: translatedAnim = Animation.LoopingConjure1; break;
-        case 16: translatedAnim = Animation.LoopingConjure2; break;
-        case 93: translatedAnim = Animation.LoopingCustom1 ; break;
-        case 98: translatedAnim = Animation.LoopingCustom2; break;
-        case 101: translatedAnim = Animation.LoopingCustom3; break;
-        case 102: translatedAnim = Animation.LoopingCustom4; break;
-        case 103: translatedAnim = Animation.LoopingCustom5; break;
-        case 104: translatedAnim = Animation.LoopingCustom6; break;
-        case 105: translatedAnim = Animation.LoopingCustom7; break;
-        case 106: translatedAnim = Animation.LoopingCustom8; break;
-        case 107: translatedAnim = Animation.LoopingCustom9; break;
-        case 108: translatedAnim = Animation.LoopingCustom10; break;
-        case 109: translatedAnim = Animation.LoopingCustom11; break;
-        case 110: translatedAnim = Animation.LoopingCustom12; break;
-        case 111: translatedAnim = Animation.LoopingCustom13; break;
-        case 112: translatedAnim = Animation.LoopingCustom14; break;
-        case 113: translatedAnim = Animation.LoopingCustom15; break;
-        case 114: translatedAnim = Animation.LoopingCustom16; break;
-        case 115: translatedAnim = Animation.LoopingCustom17; break;
-        case 116: translatedAnim = Animation.LoopingCustom18; break;
-        case 117: translatedAnim = Animation.LoopingCustom19; break;
-        case 118: translatedAnim = Animation.LoopingCustom20; break;
-        case 119: translatedAnim = Animation.Mount1; break;
-        case 120: translatedAnim = Animation.Dismount1; break;
-        case 53: translatedAnim = Animation.FireForgetHeadTurnLeft; break;
-        case 54: translatedAnim = Animation.FireForgetHeadTurnRight; break;
-        case 55: translatedAnim = Animation.FireForgetPauseScratchHead; break;
-        case 56: translatedAnim = Animation.FireForgetPauseBored; break;
-        case 34: translatedAnim = Animation.FireForgetSalute; break;
-        case 35: translatedAnim = Animation.FireForgetBow; break;
-        case 37: translatedAnim = Animation.FireForgetSteal; break;
-        case 29: translatedAnim = Animation.FireForgetGreeting; break;
-        case 28: translatedAnim = Animation.FireForgetTaunt; break;
-        case 44: translatedAnim = Animation.FireForgetVictory1; break;
-        case 45: translatedAnim = Animation.FireForgetVictory2; break;
-        case 46: translatedAnim = Animation.FireForgetVictory3; break;
-        case 71: translatedAnim = Animation.FireForgetRead; break;
-        case 70: translatedAnim = Animation.FireForgetDrink; break;
-        case 90: translatedAnim = Animation.FireForgetDodgeSide; break;
-        case 91: translatedAnim = Animation.FireForgetDodgeDuck; break;
-        case 23: translatedAnim = Animation.LoopingSpasm; break;
-        default: translatedAnim = Animation.FireForgetPauseBored; break;
+        case 0: return Animation.LoopingPause;
+        case 52: return Animation.LoopingPause2;
+        case 30: return Animation.LoopingListen;
+        case 32: return Animation.LoopingMeditate; 
+        case 33: return Animation.LoopingWorship; 
+        case 48: return Animation.LoopingLookFar; 
+        case 36: return Animation.LoopingSitChair; 
+        case 47: return Animation.LoopingSitCross; 
+        case 38: return Animation.LoopingTalkNormal; 
+        case 39: return Animation.LoopingTalkPleading;
+        case 40: return Animation.LoopingTalkForceful;
+        case 41: return Animation.LoopingTalkLaughing;
+        case 59: return Animation.LoopingGetLow;
+        case 60: return Animation.LoopingGetMid;
+        case 57: return Animation.LoopingPauseTired;
+        case 58: return Animation.LoopingPauseDrunk;
+        case 6: return Animation.LoopingDeadFront;
+        case 8: return Animation.LoopingDeadBack;
+        case 15: return Animation.LoopingConjure1;
+        case 16: return Animation.LoopingConjure2;
+        case 93: return Animation.LoopingCustom1 ;
+        case 98: return Animation.LoopingCustom2;
+        case 101: return Animation.LoopingCustom3;
+        case 102: return Animation.LoopingCustom4;
+        case 103: return Animation.LoopingCustom5;
+        case 104: return Animation.LoopingCustom6;
+        case 105: return Animation.LoopingCustom7;
+        case 106: return Animation.LoopingCustom8;
+        case 107: return Animation.LoopingCustom9;
+        case 108: return Animation.LoopingCustom10;
+        case 109: return Animation.LoopingCustom11;
+        case 110: return Animation.LoopingCustom12;
+        case 111: return Animation.LoopingCustom13;
+        case 112: return Animation.LoopingCustom14;
+        case 113: return Animation.LoopingCustom15;
+        case 114: return Animation.LoopingCustom16;
+        case 115: return Animation.LoopingCustom17;
+        case 116: return Animation.LoopingCustom18;
+        case 117: return Animation.LoopingCustom19;
+        case 118: return Animation.LoopingCustom20;
+        case 119: return Animation.Mount1;
+        case 120: return Animation.Dismount1;
+        case 53: return Animation.FireForgetHeadTurnLeft;
+        case 54: return Animation.FireForgetHeadTurnRight;
+        case 55: return Animation.FireForgetPauseScratchHead;
+        case 56: return Animation.FireForgetPauseBored;
+        case 34: return Animation.FireForgetSalute;
+        case 35: return Animation.FireForgetBow;
+        case 37: return Animation.FireForgetSteal;
+        case 29: return Animation.FireForgetGreeting;
+        case 28: return Animation.FireForgetTaunt;
+        case 44: return Animation.FireForgetVictory1;
+        case 45: return Animation.FireForgetVictory2;
+        case 46: return Animation.FireForgetVictory3;
+        case 71: return Animation.FireForgetRead;
+        case 70: return Animation.FireForgetDrink;
+        case 90: return Animation.FireForgetDodgeSide;
+        case 91: return Animation.FireForgetDodgeDuck;
+        case 23: return Animation.LoopingSpasm;
+        default: return Animation.FireForgetPauseBored;
       }
-
-      return (Animation)nAnimation;
     }
     public static async void SendMailToPC(int characterId, string senderName, string title, string message)
     {

@@ -334,28 +334,17 @@ namespace NWN.Systems.Craft
     }
     private void StartEnchantementCraft(NwGameObject oTarget, string ipString)
     {
-      int spellId = int.Parse(ipString.Remove(ipString.IndexOf("_")));
-
-      if (!float.TryParse(NWScript.Get2DAString("spells", "Wiz_Sorc", spellId), out float spellLevel))
-      {
-        player.oid.SendServerMessage("HRP - Le niveau de sort de votre enchantement est incorrectement configuré. Le staff a été prévenu !");
-        Utils.LogMessageToDMs($"ENCHANTEMENT - {player.oid.LoginCreature.Name} - spell level introuvable pour spellid : {spellId}");
-        return;
-      }
-
-      if (spellLevel < 1)
-        spellLevel = 0.5f;
-
+      Spell spellId = (Spell)int.Parse(ipString.Remove(ipString.IndexOf("_")));
       int baseCost = ItemUtils.GetBaseItemCost((NwItem)oTarget);
       int enchanteurLevel = 0;
 
       if (player.learntCustomFeats.ContainsKey(CustomFeats.Enchanteur))
         enchanteurLevel += SkillSystem.GetCustomFeatLevelFromSkillPoints(CustomFeats.Enchanteur, player.learntCustomFeats[CustomFeats.Enchanteur]);
 
-      float iJobDuration = baseCost * 10 * spellLevel * (100 - enchanteurLevel);
+      float iJobDuration = baseCost * 10 * Spells2da.spellsTable.GetSpellDataEntry(spellId).level * (100 - enchanteurLevel);
       player.craftJob = new Job(-14, ipString, iJobDuration, player, oTarget.Serialize().ToBase64EncodedString()); // -14 = JobType enchantement
 
-      player.oid.SendServerMessage($"Vous venez de démarrer l'enchantement de : {NWScript.GetName(oTarget).ColorString(ColorConstants.White)}", new Color(32, 255, 32));
+      player.oid.SendServerMessage($"Vous venez de démarrer l'enchantement de : {oTarget.Name.ColorString(ColorConstants.White)}", new Color(32, 255, 32));
       // TODO : afficher des effets visuels
 
       oTarget.Destroy();
@@ -366,33 +355,22 @@ namespace NWN.Systems.Craft
     private void StartEnchantementReactivationCraft(NwGameObject oTarget, string ipString)
     {
       string[] IPproperties = ipString.Split("_");
-      int spellId = int.Parse(IPproperties[0]);
+      Spell spellId = (Spell)int.Parse(IPproperties[0]);
       int costValue = int.Parse(IPproperties[1]);
       int originalEnchanterId = int.Parse(IPproperties[2]);
-
-      if (!float.TryParse(NWScript.Get2DAString("spells", "Wiz_Sorc", spellId), out float spellLevel))
-      {
-        player.oid.SendServerMessage("HRP - Le niveau de sort de votre enchantement est incorrectement configuré. Le staff a été prévenu !");
-        Utils.LogMessageToDMs($"ENCHANTEMENT - {player.oid.LoginCreature.Name} - spell level introuvable pour spellid : {spellId}");
-        return;
-      }
-
-      if (spellLevel < 1)
-        spellLevel = 0.5f;
-
       int baseCost = ItemUtils.GetBaseItemCost((NwItem)oTarget);
       int enchanteurLevel = 0;
 
       if (player.learntCustomFeats.ContainsKey(CustomFeats.Enchanteur))
         enchanteurLevel += SkillSystem.GetCustomFeatLevelFromSkillPoints(CustomFeats.Enchanteur, player.learntCustomFeats[CustomFeats.Enchanteur]);
 
-      float iJobDuration = baseCost * 10 * spellLevel * (100 - enchanteurLevel) * costValue;
+      float iJobDuration = baseCost * 10 * Spells2da.spellsTable.GetSpellDataEntry(spellId).level * (100 - enchanteurLevel) * costValue;
       if (player.characterId == originalEnchanterId)
         iJobDuration -= iJobDuration / 4;
 
       player.craftJob = new Job(-18, spellId.ToString(), iJobDuration, player, oTarget.Serialize().ToBase64EncodedString()); // -18 = JobType enchantementReactivation
 
-      player.oid.SendServerMessage($"Vous venez de démarrer la réactivation d'enchantement de : {NWScript.GetName(oTarget).ColorString(ColorConstants.White)}", new Color(32, 255, 32));
+      player.oid.SendServerMessage($"Vous venez de démarrer la réactivation d'enchantement de : {oTarget.Name.ColorString(ColorConstants.White)}", new Color(32, 255, 32));
       // TODO : afficher des effets visuels
 
       oTarget.Destroy();

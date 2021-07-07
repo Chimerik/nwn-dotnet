@@ -49,7 +49,7 @@ namespace NWN.Systems.Items.ItemUseHandlers
           break;
 
         case "mineable_animal":
-          if (Convert.ToBoolean(NWScript.GetIsDead(oTarget)))
+          if (oTarget is NwCreature oCreature && oCreature.IsDead)
           {
             Craft.Collect.System.StartCollectCycle(
               player,

@@ -33,7 +33,7 @@ namespace NWN.Systems
         });
       }
     }
-    private static async void CreatePlayerCorpse(Player player, API.Location deathLocation)
+    private static void CreatePlayerCorpse(Player player, Location deathLocation)
     {
       NwCreature oPCCorpse = player.oid.LoginCreature.Clone(deathLocation, "pccorpse");
 
@@ -89,29 +89,17 @@ namespace NWN.Systems
       player.oid.LoginCreature.ApplyEffect(EffectDuration.Instant, Effect.Resurrection());
       player.oid.LoginCreature.ApplyEffect(EffectDuration.Instant, Effect.Heal(player.oid.LoginCreature.MaxHP));
     }
-    public static void Respawn(Player player, string entity)
+    public static void Respawn(Player player)
     {
-      // TODO : Diminuer la durabilité de tous les objets équipés et dans l'inventaire du PJ
-
       DestroyPlayerCorpse(player);
       player.oid.LoginCreature.Location = NwObject.FindObjectsWithTag<NwWaypoint>("WP_RESPAWN_DISPENSAIRE").FirstOrDefault()?.Location;
 
       if (player.oid.LoginCreature.GetItemInSlot(InventorySlot.Neck)?.Tag != "amulettorillink")
       {
-        API.Effect eff = API.Effect.SpellFailure(50);
+        Effect eff = Effect.SpellFailure(50);
         eff.Tag = "erylies_spell_failure";
         eff.SubType = EffectSubType.Supernatural;
         player.oid.LoginCreature.ApplyEffect(EffectDuration.Permanent, eff);
-      }
-
-      switch (entity)
-      {
-        case "radiant":
-          ApplyRadiantRespawnEffects(player);
-          break;
-        case "dire":
-          ApplyDireRespawnEffects(player);
-          break;
       }
 
       player.bankGold -= 50;
@@ -151,80 +139,15 @@ namespace NWN.Systems
     {
       DeletePlayerCorpseFromDatabase(player.characterId);
 
-      NwCreature oCorpse = NwModule.FindObjectsWithTag<NwCreature>("pccorpse").Where(c => c.GetLocalVariable<int>("_PC_ID").Value == player.characterId).FirstOrDefault();
-      oCorpse?.GetNearestObjectsByType<NwPlaceable>().Where(o => o.Tag == "pccorpse_bodybag").FirstOrDefault().Destroy();
+      NwCreature oCorpse = NwObject.FindObjectsWithTag<NwCreature>("pccorpse").Where(c => c.GetLocalVariable<int>("_PC_ID").Value == player.characterId).FirstOrDefault();
+      oCorpse?.GetNearestObjectsByType<NwPlaceable>().FirstOrDefault(o => o.Tag == "pccorpse_bodybag")?.Destroy();
       oCorpse?.Destroy();
-      NwModule.FindObjectsWithTag<NwItem>("item_pccorpse").Where(c => c.GetLocalVariable<int>("_PC_ID").Value == player.characterId).FirstOrDefault()?.Destroy();
+      NwObject.FindObjectsWithTag<NwItem>("item_pccorpse").FirstOrDefault(c => c.GetLocalVariable<int>("_PC_ID").Value == player.characterId)?.Destroy();
     }
     public static void DeletePlayerCorpseFromDatabase(int characterId)
     {
       SqLiteUtils.DeletionQuery("playerDeathCorpses",
           new Dictionary<string, string>() { { "characterId", characterId.ToString() } });
-    }
-    private static void ApplyRadiantRespawnEffects(Player player)
-    {
-      // TODO : augmentation du niveau d'influence de l'entité
-      Effect eVis = NWScript.EffectVisualEffect(NWScript.VFX_IMP_IMPROVE_ABILITY_SCORE);
-      Effect eDur = NWScript.EffectVisualEffect(NWScript.VFX_DUR_CESSATE_POSITIVE);
-      Effect eCon = NWScript.EffectAbilityIncrease(NWScript.ABILITY_CONSTITUTION, 2);
-      Effect eRegen = NWScript.EffectRegenerate(1, 1.0f);
-      Effect eJS = NWScript.EffectSavingThrowIncrease(0, 1);
-      Effect eTempHP = NWScript.EffectTemporaryHitpoints(10);
-      Effect eDamImm1 = NWScript.EffectDamageImmunityIncrease(1, 10);
-      Effect eDamImm2 = NWScript.EffectDamageImmunityIncrease(2, 10);
-      Effect eDamImm3 = NWScript.EffectDamageImmunityIncrease(4, 10);
-      Effect eDamImm4 = NWScript.EffectDamageImmunityIncrease(8, 10);
-      Effect eDamImm5 = NWScript.EffectDamageImmunityIncrease(16, 10);
-      Effect eDamImm6 = NWScript.EffectDamageImmunityIncrease(32, 10);
-      Effect eDamImm7 = NWScript.EffectDamageImmunityIncrease(64, 10);
-      Effect eDamImm8 = NWScript.EffectDamageImmunityIncrease(128, 10);
-      Effect eDamImm9 = NWScript.EffectDamageImmunityIncrease(256, 10);
-      Effect eDamImm10 = NWScript.EffectDamageImmunityIncrease(512, 10);
-      Effect eDamImm11 = NWScript.EffectDamageImmunityIncrease(1024, 10);
-      Effect eDamImm12 = NWScript.EffectDamageImmunityIncrease(2048, 10);
-
-      Effect eLink = NWScript.EffectLinkEffects(eVis, eDur);
-      eLink = NWScript.EffectLinkEffects(eLink, eCon);
-      eLink = NWScript.EffectLinkEffects(eLink, eRegen);
-      eLink = NWScript.EffectLinkEffects(eLink, eJS);
-      eLink = NWScript.EffectLinkEffects(eLink, eTempHP);
-      eLink = NWScript.EffectLinkEffects(eLink, eDamImm1);
-      eLink = NWScript.EffectLinkEffects(eLink, eDamImm2);
-      eLink = NWScript.EffectLinkEffects(eLink, eDamImm3);
-      eLink = NWScript.EffectLinkEffects(eLink, eDamImm4);
-      eLink = NWScript.EffectLinkEffects(eLink, eDamImm5);
-      eLink = NWScript.EffectLinkEffects(eLink, eDamImm6);
-      eLink = NWScript.EffectLinkEffects(eLink, eDamImm7);
-      eLink = NWScript.EffectLinkEffects(eLink, eDamImm8);
-      eLink = NWScript.EffectLinkEffects(eLink, eDamImm9);
-      eLink = NWScript.EffectLinkEffects(eLink, eDamImm10);
-      eLink = NWScript.EffectLinkEffects(eLink, eDamImm11);
-      eLink = NWScript.EffectLinkEffects(eLink, eDamImm12);
-
-      eLink = NWScript.SupernaturalEffect(eLink);
-
-      NWScript.DelayCommand(5.0f, () => NWScript.ApplyEffectToObject(NWScript.DURATION_TYPE_PERMANENT, eLink, player.oid.LoginCreature));
-    }
-    private static void ApplyDireRespawnEffects(PlayerSystem.Player player)
-    {
-      // TODO : augmentation du niveau d'influence de l'entité
-      Effect Vis = NWScript.EffectVisualEffect(NWScript.VFX_IMP_IMPROVE_ABILITY_SCORE);
-      Effect Dur = NWScript.EffectVisualEffect(NWScript.VFX_DUR_CESSATE_POSITIVE);
-      Effect eStr = NWScript.EffectAbilityIncrease(NWScript.ABILITY_STRENGTH, 2);
-      Effect eDam = NWScript.EffectDamageIncrease(1, NWScript.DAMAGE_TYPE_DIVINE);
-      Effect eAtt = NWScript.EffectAttackIncrease(1);
-      Effect eMS = NWScript.EffectMovementSpeedIncrease(10);
-
-      Effect Link = NWScript.EffectLinkEffects(Vis, Dur);
-      Link = NWScript.EffectLinkEffects(Link, eStr);
-      Link = NWScript.EffectLinkEffects(Link, eDam);
-      Link = NWScript.EffectLinkEffects(Link, eAtt);
-      Link = NWScript.EffectLinkEffects(Link, eMS);
-
-      Link = NWScript.SupernaturalEffect(Link);
-      // +1 jet d'attaque; +1 dégat divin; +movement speed 10 %
-
-      NWScript.DelayCommand(5.0f, () => NWScript.ApplyEffectToObject(NWScript.DURATION_TYPE_PERMANENT, Link, player.oid.LoginCreature));
     }
     public static void SetupPCCorpse(NwCreature oPCCorpse)
     {
@@ -238,7 +161,7 @@ namespace NWN.Systems
         await NwTask.Delay(TimeSpan.FromSeconds(0.2));
         oPCCorpse.Tag = "pccorpse";
         await NwTask.Delay(TimeSpan.FromSeconds(0.2));
-        NWScript.SetTag(NWScript.GetNearestObjectByTag("BodyBag", wp), "pccorpse_bodybag");
+        wp.GetNearestObjectsByType<NwPlaceable>().FirstOrDefault(b => b.Tag == "BodyBag").Tag = "pccorpse_bodybag";
         wp.Destroy(0.1f);
       });
     }

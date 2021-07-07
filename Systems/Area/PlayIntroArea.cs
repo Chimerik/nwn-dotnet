@@ -34,8 +34,8 @@ namespace NWN.Systems
       sailorList[0].MovementRate = MovementRate.DM;
       sailorList[1].MovementRate = MovementRate.DM;
 
-      VisibilityPlugin.SetVisibilityOverride(NWScript.OBJECT_INVALID, NWScript.GetNearestObjectByTag("intro_brouillard", player.LoginCreature), VisibilityPlugin.NWNX_VISIBILITY_VISIBLE);
-      VisibilityPlugin.SetVisibilityOverride(NWScript.OBJECT_INVALID, NWScript.GetNearestObjectByTag("intro_brouillard", player.LoginCreature, 2), VisibilityPlugin.NWNX_VISIBILITY_VISIBLE);
+      VisibilityPlugin.SetVisibilityOverride(NWScript.OBJECT_INVALID, player.LoginCreature.GetNearestObjectsByType<NwPlaceable>().FirstOrDefault(t => t.Tag == "intro_brouillard"), VisibilityPlugin.NWNX_VISIBILITY_VISIBLE);
+      VisibilityPlugin.SetVisibilityOverride(NWScript.OBJECT_INVALID, player.LoginCreature.GetNearestObjectsByType<NwPlaceable>().Where(t => t.Tag == "intro_brouillard").ElementAt(1), VisibilityPlugin.NWNX_VISIBILITY_VISIBLE);
 
       area.Weather = WeatherType.Rain;
       AreaPlugin.SetDayNightCycle(area, AreaPlugin.NWNX_AREA_DAYNIGHTCYCLE_ALWAYS_DARK);
@@ -50,10 +50,10 @@ namespace NWN.Systems
       VisibilityPlugin.SetVisibilityOverride(NWScript.OBJECT_INVALID, rocks[2], VisibilityPlugin.NWNX_VISIBILITY_VISIBLE);
       VisibilityPlugin.SetVisibilityOverride(NWScript.OBJECT_INVALID, tourbillon, VisibilityPlugin.NWNX_VISIBILITY_VISIBLE);
 
-      NWScript.SetObjectVisualTransform(rocks[0], NWScript.OBJECT_VISUAL_TRANSFORM_TRANSLATE_Y, -72, 1, 30);
-      NWScript.SetObjectVisualTransform(rocks[1], NWScript.OBJECT_VISUAL_TRANSFORM_TRANSLATE_Y, -80, 1, 24); 
-      NWScript.SetObjectVisualTransform(rocks[2], NWScript.OBJECT_VISUAL_TRANSFORM_TRANSLATE_Y, -64, 1, 38);
-      NWScript.SetObjectVisualTransform(tourbillon, NWScript.OBJECT_VISUAL_TRANSFORM_TRANSLATE_Y, -15, 1, 40);
+      rocks[0].VisualTransform.Lerp(new VisualTransformLerpSettings { LerpType = VisualTransformLerpType.Linear, Duration = TimeSpan.FromSeconds(30), PauseWithGame = true }, transform => { transform.Translation = new Vector3(0, -72, 0); });
+      rocks[1].VisualTransform.Lerp(new VisualTransformLerpSettings { LerpType = VisualTransformLerpType.Linear, Duration = TimeSpan.FromSeconds(24), PauseWithGame = true }, transform => { transform.Translation = new Vector3(0, -80, 0); });
+      rocks[2].VisualTransform.Lerp(new VisualTransformLerpSettings { LerpType = VisualTransformLerpType.Linear, Duration = TimeSpan.FromSeconds(38), PauseWithGame = true }, transform => { transform.Translation = new Vector3(0, -64, 0); });
+      tourbillon.VisualTransform.Lerp(new VisualTransformLerpSettings { LerpType = VisualTransformLerpType.Linear, Duration = TimeSpan.FromSeconds(40), PauseWithGame = true }, transform => { transform.Translation = new Vector3(0, -15, 0); });
 
       Task waitIntroEvents = NwTask.Run(async () =>
       {
@@ -73,26 +73,13 @@ namespace NWN.Systems
         await NwTask.Delay(TimeSpan.FromSeconds(5));
         PlayTourbillonEffects(area, player);
       });
-
-      /*Task waitTourbillon = NwTask.Run(async () =>
-      {
-        await NwTask.WaitUntil(() => NWScript.GetObjectVisualTransform(tourbillon, NWScript.OBJECT_VISUAL_TRANSFORM_TRANSLATE_Y, 1) == -50);
-        PlayTourbillonEffects(area, player);
-      });
-      test(player, tourbillon);*/
-    }
-    private static async void test(NwPlayer oPC, uint tourbillon)
-    {
-      await NwTask.Delay(TimeSpan.FromSeconds(1));
-      oPC.SendServerMessage($"tourbillon : {NWScript.GetObjectVisualTransform(tourbillon, NWScript.OBJECT_VISUAL_TRANSFORM_TRANSLATE_Y, 0)}");
-      test(oPC, tourbillon);
     }
     private static void PlayTourbillonEffects(NwArea area, NwPlayer oPC)
     {
-      oPC.LoginCreature.Location.ApplyEffect(EffectDuration.Instant, API.Effect.VisualEffect((VfxType)135));
-      oPC.LoginCreature.Location.ApplyEffect(EffectDuration.Instant, API.Effect.VisualEffect(VfxType.FnfPwkill, false, 2, new Vector3(0, 0, 0), new Vector3(270, 90, 0)));
-      oPC.LoginCreature.Location.ApplyEffect(EffectDuration.Instant, API.Effect.VisualEffect(VfxType.FnfFirestorm, false, 2, new Vector3(0, 0, 0), new Vector3(0, 0, 0)));
-      oPC.LoginCreature.Location.ApplyEffect(EffectDuration.Instant, API.Effect.VisualEffect(VfxType.FnfFirestorm, false, 2, new Vector3(0, 0, 0), new Vector3(0, 90, 0)));
+      oPC.LoginCreature.Location.ApplyEffect(EffectDuration.Instant, Effect.VisualEffect((VfxType)135));
+      oPC.LoginCreature.Location.ApplyEffect(EffectDuration.Instant, Effect.VisualEffect(VfxType.FnfPwkill, false, 2, new Vector3(0, 0, 0), new Vector3(270, 90, 0)));
+      oPC.LoginCreature.Location.ApplyEffect(EffectDuration.Instant, Effect.VisualEffect(VfxType.FnfFirestorm, false, 2, new Vector3(0, 0, 0), new Vector3(0, 0, 0)));
+      oPC.LoginCreature.Location.ApplyEffect(EffectDuration.Instant, Effect.VisualEffect(VfxType.FnfFirestorm, false, 2, new Vector3(0, 0, 0), new Vector3(0, 90, 0)));
 
       Task waitTourbillonEvents = NwTask.Run(async () =>
       {
@@ -116,33 +103,36 @@ namespace NWN.Systems
     }
     private static async void TriggerRandomLightnings(NwArea area, Vector3 center, int maxDistance, NwCreature oPC)
     {
-      oPC.ApplyEffect(EffectDuration.Instant, API.Effect.VisualEffect((VfxType)286));
+      oPC.ApplyEffect(EffectDuration.Instant, Effect.VisualEffect((VfxType)286));
 
       int nbStrikes = Utils.random.Next(1, 5);
 
       for (int i = 0; i < nbStrikes; i++)
-        NWScript.ApplyEffectAtLocation(NWScript.DURATION_TYPE_INSTANT, NWScript.EffectVisualEffect(NWScript.VFX_IMP_LIGHTNING_M), NWScript.Location(area, NWScript.Vector(center.X + Utils.random.Next(-maxDistance / 4, maxDistance), center.Y + Utils.random.Next(-maxDistance / 3, maxDistance / 3), 0), 0));
+        Location.Create(area, new Vector3(center.X + Utils.random.Next(-maxDistance / 4, maxDistance), center.Y + Utils.random.Next(-maxDistance / 3, maxDistance / 3), 0), 0).ApplyEffect(EffectDuration.Instant, Effect.VisualEffect(VfxType.ImpLightningM));
 
-      switch (Utils.random.Next(0, 6))
+      foreach (NwCreature sailor in oPC.GetNearestCreatures().Where(c => c.Tag == "intro_sailor"))
       {
-        case 0:
-          NWScript.AssignCommand(NWScript.GetNearestObjectByTag("intro_sailor", oPC, Utils.random.Next(1, 3)), () => NWScript.SpeakString("Oh bordel, c'est pas passé loin !"));
-          break;
-        case 1:
-          NWScript.AssignCommand(NWScript.GetNearestObjectByTag("intro_sailor", oPC, Utils.random.Next(1, 3)), () => NWScript.SpeakString("Fichtre, encore un comme ça et est on foutu !"));
-          break;
-        case 2:
-          NWScript.AssignCommand(NWScript.GetNearestObjectByTag("intro_sailor", oPC, Utils.random.Next(1, 3)), () => NWScript.SpeakString("Talos, aie pitié de nous !"));
-          break;
-        case 3:
-          NWScript.AssignCommand(NWScript.GetNearestObjectByTag("intro_sailor", oPC, Utils.random.Next(1, 3)), () => NWScript.SpeakString("Si jamais ça passe un peu plus près, j'donne pas cher de notre peau !"));
-          break;
-        case 4:
-          NWScript.AssignCommand(NWScript.GetNearestObjectByTag("intro_sailor", oPC, Utils.random.Next(1, 3)), () => NWScript.SpeakString("J'crois que le moment est venu de paniquer !"));
-          break;
-        case 5:
-          NWScript.AssignCommand(NWScript.GetNearestObjectByTag("intro_sailor", oPC, Utils.random.Next(1, 3)), () => NWScript.SpeakString("C'est la fin, le ciel nous tombe sur la tête !"));
-          break;
+        switch (Utils.random.Next(0, 6))
+        {
+          case 0:
+            await sailor.SpeakString("Oh bordel, c'est pas passé loin !");
+            break;
+          case 1:
+            await sailor.SpeakString("Fichtre, encore un comme ça et est on foutu !");
+            break;
+          case 2:
+            await sailor.SpeakString("Talos aie pitié de nous !");
+            break;
+          case 3:
+            await sailor.SpeakString("Si jamais ça passe un peu plus près, j'donne pas cher de notre peau !");
+            break;
+          case 4:
+            await sailor.SpeakString("J'crois que le moment est venu de paniquer !");
+            break;
+          case 5:
+            await sailor.SpeakString("C'est la fin, le ciel nous tombe sur la tête !");
+            break;
+        }
       }
 
       await NwTask.Delay(TimeSpan.FromSeconds(Utils.random.Next(5, 10)));
@@ -157,21 +147,16 @@ namespace NWN.Systems
     {
       await sailor2.SpeakString("Qu'est ce que ... ? Oooh, je me sens tout drôle ... A l'aide !".ColorString(ColorConstants.Lime));
       await sailor2.ClearActionQueue();
-      await sailor2.PlayAnimation(Animation.LoopingSpasm, 3.0f, false, TimeSpan.FromSeconds(99999));
+      await sailor2.PlayAnimation(Animation.LoopingSpasm, 3.0f, false, TimeSpan.FromHours(1));
 
-      //sailor2.ApplyEffect(EffectDuration.Permanent, API.Effect.CutsceneImmobilize());
-
-      NWScript.SetObjectVisualTransform(sailor2, NWScript.OBJECT_VISUAL_TRANSFORM_ROTATE_X, 360.0f, NWScript.OBJECT_VISUAL_TRANSFORM_LERP_SMOOTHERSTEP, 12f);
-      NWScript.SetObjectVisualTransform(sailor2, NWScript.OBJECT_VISUAL_TRANSFORM_ROTATE_Y, 360.0f, NWScript.OBJECT_VISUAL_TRANSFORM_LERP_QUADRATIC, 12f);
-      //NWScript.SetObjectVisualTransform(sailor2, NWScript.OBJECT_VISUAL_TRANSFORM_ROTATE_Z, 360.0f, NWScript.OBJECT_VISUAL_TRANSFORM_LERP_INVERSE_SMOOTHSTEP, 12f);
-      NWScript.SetObjectVisualTransform(sailor2, NWScript.OBJECT_VISUAL_TRANSFORM_TRANSLATE_Z, 4f, NWScript.OBJECT_VISUAL_TRANSFORM_LERP_EASE_OUT, 4f);
+      sailor2.VisualTransform.Lerp(new VisualTransformLerpSettings { LerpType = VisualTransformLerpType.SmootherStep, Duration = TimeSpan.FromSeconds(4), PauseWithGame = true }, transform => { transform.Translation = new Vector3(360, 0, 4); });
 
       await NwTask.Delay(TimeSpan.FromSeconds(4));
 
-      sailor2.ApplyEffect(EffectDuration.Instant, API.Effect.VisualEffect(VfxType.ImpLightningM));
-      sailor2.ApplyEffect(EffectDuration.Instant, API.Effect.VisualEffect(VfxType.ComChunkRedLarge));
+      sailor2.ApplyEffect(EffectDuration.Instant, Effect.VisualEffect(VfxType.ImpLightningM));
+      sailor2.ApplyEffect(EffectDuration.Instant, Effect.VisualEffect(VfxType.ComChunkRedLarge));
       sailor2.PlotFlag = false;
-      sailor2.ApplyEffect(EffectDuration.Instant, API.Effect.Damage(120, DamageType.Electrical));
+      sailor2.ApplyEffect(EffectDuration.Instant, Effect.Damage(120, DamageType.Electrical));
 
       await sailor1.SpeakString("NOOOOOON, OLAF, MON FRERE JUMEAU ! Quelle horreur !".ColorString(ColorConstants.Red));
 

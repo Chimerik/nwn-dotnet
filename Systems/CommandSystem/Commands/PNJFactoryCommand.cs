@@ -404,7 +404,7 @@ namespace NWN.Systems
     }
     private void DrawPNJAppearancePage()
     {
-      oPNJ.GetLocalVariable<int>("_CURRENT_HEAD").Value = NWScript.GetCreatureBodyPart(NWScript.CREATURE_PART_HEAD, oPNJ);
+      oPNJ.GetLocalVariable<int>("_CURRENT_HEAD").Value = oPNJ.GetCreatureBodyPart(CreaturePart.Head);
 
       player.menu.Clear();
 
@@ -412,7 +412,7 @@ namespace NWN.Systems
 
       player.menu.choices.Add(("Le type d'apparence", () => DrawModifyApparenceTypePage(-2)));
 
-      if (NWScript.Get2DAString("appearance", "RACE", (int)oPNJ.CreatureAppearanceType).Length == 1)
+      if (Appearance2da.appearanceTable.GetAppearanceDataEntry(oPNJ.CreatureAppearanceType).race.Length == 1)
       {
         player.menu.choices.Add(("La tête", () => DrawModifyHeadPage(-2)));
         player.menu.choices.Add(("Les cheveux", () => DrawModifyHairPage(-2)));
@@ -461,7 +461,9 @@ namespace NWN.Systems
         else if (modification == -1)
           currentValue--;
 
-        while (NWScript.Get2DAString("appearance", "RACE", currentValue).Length == 0)
+       
+
+        while (Appearance2da.appearanceTable.GetAppearanceDataEntry((AppearanceType)currentValue).race.Length == 0)
         {
           if (modification == 1)
             currentValue++;
@@ -526,7 +528,7 @@ namespace NWN.Systems
         else if (modification == -1)
           currentValue--;
 
-        while (NWScript.Get2DAString("portraits", "BaseResRef", currentValue).Length == 0)
+        while (Portraits2da.portraitsTable.GetPortraitsDataEntry(currentValue).resRef.Length == 0)
         {
           if (modification == 1)
             currentValue++;
@@ -622,8 +624,8 @@ namespace NWN.Systems
         "Faites défiler les apparences à l'aide de Suivant et Précédent.",
         "Ou bien prononcez directement une valeur d'apparence à l'oral."
         };
-      
-      int currentValue = NWScript.GetCreatureBodyPart(NWScript.CREATURE_PART_HEAD, oPNJ);
+
+      int currentValue = oPNJ.GetCreatureBodyPart(CreaturePart.Head);
       
       if (modification > -2)
       {
@@ -644,7 +646,7 @@ namespace NWN.Systems
         else if (modification == -1)
           currentValue--;
 
-        NWScript.SetCreatureBodyPart(NWScript.CREATURE_PART_HEAD, currentValue, oPNJ);
+        oPNJ.SetCreatureBodyPart(CreaturePart.Head, currentValue);
         player.menu.titleLines.Add($"Tête actuelle : {currentValue.ToString().ColorString(ColorConstants.Lime)}");
         player.menu.DrawText();
       }
@@ -675,7 +677,7 @@ namespace NWN.Systems
         "Ou bien prononcez directement une valeur d'apparence à l'oral."
         };
 
-      int currentValue = NWScript.GetColor(oPNJ, NWScript.COLOR_CHANNEL_TATTOO_1);
+      int currentValue = oPNJ.GetColor(ColorChannel.Tattoo1);
 
       if (modification > -2)
       {
@@ -696,14 +698,7 @@ namespace NWN.Systems
         else if (modification == -1)
           currentValue--;
 
-        NWScript.SetColor(oPNJ, NWScript.COLOR_CHANNEL_TATTOO_1,  currentValue);
-        NWScript.SetCreatureBodyPart(NWScript.CREATURE_PART_HEAD, 0, oPNJ);
-
-        Task waitHeadUpdate = NwTask.Run(async () =>
-        {
-          await NwTask.Delay(TimeSpan.FromSeconds(0.2));
-          NWScript.SetCreatureBodyPart(NWScript.CREATURE_PART_HEAD, oPNJ.GetLocalVariable<int>("_CURRENT_HEAD").Value, oPNJ);
-        });
+        oPNJ.SetColor(ColorChannel.Tattoo1, currentValue);
 
         player.menu.titleLines.Add($"Couleur actuelle : {currentValue.ToString().ColorString(ColorConstants.Lime)}");
         player.menu.DrawText();
@@ -736,7 +731,7 @@ namespace NWN.Systems
         "Ou bien prononcez directement une valeur d'apparence à l'oral."
         };
 
-      int currentValue = NWScript.GetColor(oPNJ, NWScript.COLOR_CHANNEL_TATTOO_2);
+      int currentValue = oPNJ.GetColor(ColorChannel.Tattoo2);
 
       if (modification > -2)
       {
@@ -757,14 +752,7 @@ namespace NWN.Systems
         else if (modification == -1)
           currentValue--;
 
-        NWScript.SetColor(oPNJ, NWScript.COLOR_CHANNEL_TATTOO_2, currentValue);
-        NWScript.SetCreatureBodyPart(NWScript.CREATURE_PART_HEAD, 0, oPNJ);
-        
-        Task waitHeadUpdate = NwTask.Run(async () =>
-        {
-          await NwTask.Delay(TimeSpan.FromSeconds(0.2));
-          NWScript.SetCreatureBodyPart(NWScript.CREATURE_PART_HEAD, oPNJ.GetLocalVariable<int>("_CURRENT_HEAD").Value, oPNJ);
-        });
+        oPNJ.SetColor(ColorChannel.Tattoo2, currentValue);
 
         player.menu.titleLines.Add($"Couleur actuelle : {currentValue.ToString().ColorString(ColorConstants.Lime)}");
         player.menu.DrawText();
@@ -797,7 +785,7 @@ namespace NWN.Systems
         "Ou bien prononcez directement une valeur d'apparence à l'oral."
         };
 
-      int currentValue = NWScript.GetColor(oPNJ, NWScript.COLOR_CHANNEL_HAIR);
+      int currentValue = oPNJ.GetColor(ColorChannel.Hair);
 
       if (modification > -2)
       {
@@ -818,14 +806,7 @@ namespace NWN.Systems
         else if (modification == -1)
           currentValue--;
 
-        NWScript.SetColor(oPNJ, NWScript.COLOR_CHANNEL_HAIR, currentValue);
-        NWScript.SetCreatureBodyPart(NWScript.CREATURE_PART_HEAD, 0, oPNJ);
-
-        Task waitHeadUpdate = NwTask.Run(async () =>
-        {
-          await NwTask.Delay(TimeSpan.FromSeconds(0.2));
-          NWScript.SetCreatureBodyPart(NWScript.CREATURE_PART_HEAD, oPNJ.GetLocalVariable<int>("_CURRENT_HEAD").Value, oPNJ);
-        });
+        oPNJ.SetColor(ColorChannel.Hair, currentValue);
         
         player.menu.titleLines.Add($"Couleur actuelle : {currentValue.ToString().ColorString(ColorConstants.Lime)}");
         player.menu.DrawText();
@@ -858,7 +839,7 @@ namespace NWN.Systems
         "Ou bien prononcez directement une valeur d'apparence à l'oral."
         };
       
-      int currentValue = NWScript.GetCreatureWingType(oPNJ);
+      int currentValue = (int)oPNJ.WingType;
 
       if (modification > -2)
       {
@@ -879,7 +860,7 @@ namespace NWN.Systems
         else if (modification == -1)
           currentValue--;
 
-        NWScript.SetCreatureWingType(currentValue, oPNJ);
+        oPNJ.WingType = (CreatureWingType)currentValue;
         player.menu.titleLines.Add($"Ailes actuelles : {currentValue.ToString().ColorString(ColorConstants.Lime)}");
         player.menu.DrawText();
       }
@@ -911,7 +892,7 @@ namespace NWN.Systems
         "Ou bien prononcez directement une valeur d'apparence à l'oral."
         };
 
-      int currentValue = NWScript.GetCreatureTailType(oPNJ);
+      int currentValue = (int)oPNJ.TailType;
 
       if (modification > -2)
       {
@@ -932,7 +913,8 @@ namespace NWN.Systems
         else if (modification == -1)
           currentValue--;
 
-        NWScript.SetCreatureTailType(currentValue, oPNJ);
+        oPNJ.TailType = (CreatureTailType)currentValue;
+
         player.menu.titleLines.Add($"Queue actuelle : {currentValue.ToString().ColorString(ColorConstants.Lime)}");
         player.menu.DrawText();
       }
@@ -1054,24 +1036,24 @@ namespace NWN.Systems
     }
     private void HandleApplyDefaultModel()
     {
-      NWScript.SetCreatureBodyPart(NWScript.CREATURE_PART_BELT, 0, oPNJ);
-      NWScript.SetCreatureBodyPart(NWScript.CREATURE_PART_LEFT_BICEP, 1, oPNJ);
-      NWScript.SetCreatureBodyPart(NWScript.CREATURE_PART_RIGHT_BICEP, 1, oPNJ);
-      NWScript.SetCreatureBodyPart(NWScript.CREATURE_PART_LEFT_FOOT, 1, oPNJ);
-      NWScript.SetCreatureBodyPart(NWScript.CREATURE_PART_RIGHT_FOOT, 1, oPNJ);
-      NWScript.SetCreatureBodyPart(NWScript.CREATURE_PART_LEFT_FOREARM, 1, oPNJ);
-      NWScript.SetCreatureBodyPart(NWScript.CREATURE_PART_RIGHT_FOREARM, 1, oPNJ);
-      NWScript.SetCreatureBodyPart(NWScript.CREATURE_PART_LEFT_HAND, 1, oPNJ);
-      NWScript.SetCreatureBodyPart(NWScript.CREATURE_PART_RIGHT_HAND, 1, oPNJ);
-      NWScript.SetCreatureBodyPart(NWScript.CREATURE_PART_LEFT_SHIN, 1, oPNJ);
-      NWScript.SetCreatureBodyPart(NWScript.CREATURE_PART_RIGHT_SHIN, 1, oPNJ);
-      NWScript.SetCreatureBodyPart(NWScript.CREATURE_PART_LEFT_SHOULDER, 0, oPNJ);
-      NWScript.SetCreatureBodyPart(NWScript.CREATURE_PART_RIGHT_SHOULDER, 0, oPNJ);
-      NWScript.SetCreatureBodyPart(NWScript.CREATURE_PART_LEFT_THIGH, 1, oPNJ);
-      NWScript.SetCreatureBodyPart(NWScript.CREATURE_PART_RIGHT_THIGH, 1, oPNJ);
-      NWScript.SetCreatureBodyPart(NWScript.CREATURE_PART_NECK, 1, oPNJ);
-      NWScript.SetCreatureBodyPart(NWScript.CREATURE_PART_PELVIS, 1, oPNJ);
-      NWScript.SetCreatureBodyPart(NWScript.CREATURE_PART_TORSO, 1, oPNJ);
+      oPNJ.SetCreatureBodyPart(CreaturePart.Belt, 0);
+      oPNJ.SetCreatureBodyPart(CreaturePart.LeftBicep, 1);
+      oPNJ.SetCreatureBodyPart(CreaturePart.RightBicep, 1);
+      oPNJ.SetCreatureBodyPart(CreaturePart.LeftFoot, 1);
+      oPNJ.SetCreatureBodyPart(CreaturePart.RightFoot, 1);
+      oPNJ.SetCreatureBodyPart(CreaturePart.LeftForearm, 1);
+      oPNJ.SetCreatureBodyPart(CreaturePart.RightForearm, 1);
+      oPNJ.SetCreatureBodyPart(CreaturePart.LeftHand, 1);
+      oPNJ.SetCreatureBodyPart(CreaturePart.RightHand, 1);
+      oPNJ.SetCreatureBodyPart(CreaturePart.LeftShin, 1);
+      oPNJ.SetCreatureBodyPart(CreaturePart.RightShin, 1);
+      oPNJ.SetCreatureBodyPart(CreaturePart.LeftShoulder, 1);
+      oPNJ.SetCreatureBodyPart(CreaturePart.RightShoulder, 1);
+      oPNJ.SetCreatureBodyPart(CreaturePart.LeftThigh, 1);
+      oPNJ.SetCreatureBodyPart(CreaturePart.RightThigh, 1);
+      oPNJ.SetCreatureBodyPart(CreaturePart.Neck, 1);
+      oPNJ.SetCreatureBodyPart(CreaturePart.Pelvis, 1);
+      oPNJ.SetCreatureBodyPart(CreaturePart.Torso, 1);
     }
     private async void DisplayPNJSkin()
     {

@@ -235,13 +235,13 @@ namespace NWN.Systems
       switch (onUsed.Placeable.Tag)
       {
         case "respawn_neutral":
-          Respawn(player, "neutral");
+          Respawn(player);
           break;
         case "respawn_radiant":
-          Respawn(player, "radiant");
+          Respawn(player);
           break;
         case "respawn_dire":
-          Respawn(player, "radiant");
+          Respawn(player);
           break;
         case "theater_rope":
           int visibilty;

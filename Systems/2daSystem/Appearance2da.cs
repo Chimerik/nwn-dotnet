@@ -1,26 +1,18 @@
 ﻿using System.Collections.Generic;
 using NWN.API;
+using NWN.API.Constants;
 using NWN.Services;
 
 namespace NWN.Systems
 {
   public class AppearanceTable : ITwoDimArray
   {
-    private readonly Dictionary<int, Entry> entries = new Dictionary<int, Entry>();
+    private readonly Dictionary<AppearanceType, Entry> entries = new Dictionary<AppearanceType, Entry>();
 
-    public Entry GetAppearanceDataEntry(int type)
+    public Entry GetAppearanceDataEntry(AppearanceType type)
     {
       return entries[type];
     }
-    public string GetName(int type)
-    {
-      return entries[type].name;
-    }
-    public string GetPortrait(int type)
-    {
-      return entries[type].portrait;
-    }
-
     void ITwoDimArray.DeserializeRow(int rowIndex, TwoDimEntry twoDimEntry)
     {
       uint strRef = uint.TryParse(twoDimEntry("STRING_REF"), out strRef) ? strRef : 0;
@@ -34,17 +26,21 @@ namespace NWN.Systems
       if (portrait == "****")
         portrait = "po_hu_m_99";
 
-      entries.Add(rowIndex, new Entry(name, portrait));
+      string race = twoDimEntry("RACE");
+
+      entries.Add((AppearanceType)rowIndex, new Entry(name, portrait, race));
     }
     public readonly struct Entry
     {
       public readonly string name;
       public readonly string portrait;
+      public readonly string race;
 
-      public Entry(string name, string value)
+      public Entry(string name, string portrait, string race)
       {
         this.name = name;
-        this.portrait = value;
+        this.portrait = portrait;
+        this.race = race;
       }
     }
   }

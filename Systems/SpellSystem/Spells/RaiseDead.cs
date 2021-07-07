@@ -25,7 +25,7 @@ namespace NWN.Systems
         oPC.LoginCreature.Location = onSpellCast.TargetObject.Location;
         onSpellCast.TargetObject.ApplyEffect(EffectDuration.Instant, API.Effect.VisualEffect(API.Constants.VfxType.ImpRaiseDead));
 
-        if(onSpellCast.Spell == API.Constants.Spell.RaiseDead)
+        if(onSpellCast.Spell == Spell.RaiseDead)
           oPC.LoginCreature.HP = 1;
       }
       else
@@ -42,7 +42,7 @@ namespace NWN.Systems
 
       PlayerSystem.DeletePlayerCorpseFromDatabase(PcId);
 
-      NWScript.SignalEvent(onSpellCast.TargetObject, NWScript.EventSpellCastAt(oCaster, NWScript.SPELL_RAISE_DEAD, 0));
+      SpellUtils.SignalEventSpellCast(onSpellCast.TargetObject, oCaster, onSpellCast.Spell, false);
       onSpellCast.TargetObject.Location.ApplyEffect(EffectDuration.Instant, Effect.VisualEffect(VfxType.ImpRaiseDead));
     }
   }

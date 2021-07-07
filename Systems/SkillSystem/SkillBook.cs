@@ -82,29 +82,8 @@ namespace NWN.Systems
 
     private static void CheckRequiredFeatsMiddleware(Context ctx, Action next)
     {
-      (Boolean success, int featId) = CheckPlayerRequiredFeat("PREREQFEAT1", ctx.skillId, ctx.oActivator);
-      if (!success)
-      {
-        ctx.oActivator.oid.SendServerMessage($"Le don {NWScript.GetStringByStrRef(int.Parse(NWScript.Get2DAString("feat", "FEAT", featId)))} est nécessaire avant de pouvoir retirer quoique ce soit de cet ouvrage");
+      if (!Feat2da.featTable.HasFeatPrerequisites(ctx.skillId, ctx.oActivator.oid.LoginCreature))
         return;
-      }
-
-      (success, featId) = CheckPlayerRequiredFeat("PREREQFEAT2", ctx.skillId, ctx.oActivator);
-      if (!success)
-      {
-        ctx.oActivator.oid.SendServerMessage($"Le don {NWScript.GetStringByStrRef(int.Parse(NWScript.Get2DAString("feat", "FEAT", featId)))} est nécessaire avant de pouvoir retirer quoique ce soit de cet ouvrage");
-        return;
-      }
-
-      if (!CheckPlayerRequiredFeat("OrReqFeat0", ctx.skillId, ctx.oActivator).success &&
-          !CheckPlayerRequiredFeat("OrReqFeat1", ctx.skillId, ctx.oActivator).success &&
-          !CheckPlayerRequiredFeat("OrReqFeat2", ctx.skillId, ctx.oActivator).success &&
-          !CheckPlayerRequiredFeat("OrReqFeat3", ctx.skillId, ctx.oActivator).success &&
-          !CheckPlayerRequiredFeat("OrReqFeat4", ctx.skillId, ctx.oActivator).success)
-      {
-        ctx.oActivator.oid.SendServerMessage($"Il vous manque un don avant de pouvoir retirer un réel savoir de cet ouvrage");
-        return;
-      }
 
       next();
     }
@@ -187,17 +166,6 @@ namespace NWN.Systems
 
       return true;
     }
-
-    private static (Boolean success, int featId) CheckPlayerRequiredFeat(string feat, Feat skillId, PlayerSystem.Player player)
-    {
-      int value;
-      if (int.TryParse(NWScript.Get2DAString("feat", feat, (int)skillId), out value))
-        if (!player.oid.LoginCreature.KnowsFeat((Feat)value))
-          return (false, value);
-
-      return (true, value);
-    }
-
     private static (Boolean success, int skillId) CheckPlayerRequiredSkill(string Skill, string SkillRank, Feat SkillId, PlayerSystem.Player player)
     {
       int value;

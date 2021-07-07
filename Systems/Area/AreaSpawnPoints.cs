@@ -92,14 +92,15 @@ namespace NWN.Systems
     {
       int appearance = appearanceArray[Utils.random.Next(0, appearanceArray.Length)];
       creature.CreatureAppearanceType = (AppearanceType)appearance;
+      AppearanceTable.Entry entry = Appearance2da.appearanceTable.GetAppearanceDataEntry(creature.CreatureAppearanceType);
 
-      creature.PortraitResRef = Appearance2da.appearanceTable.GetPortrait(appearance);
+      creature.PortraitResRef = entry.portrait;
       await creature.ActionRandomWalk();
 
       if (!setName)
         return;
 
-      creature.Name = Appearance2da.appearanceTable.GetName(appearance);
+      creature.Name = entry.name;
       if(creature.Name == "Créature")
         Utils.LogMessageToDMs($"Apparence {appearance} - Nom non défini.");
     }

@@ -20,11 +20,11 @@ namespace NWN.Systems
       public int level { get; set; }
       public int successorId { get; set; }
       public Boolean trained { get; set; }
-      private int multiplier;
+      private float multiplier;
       public int nbScrollsUsed { get; set; }
       public readonly int pointsToNextLevel;
-      public readonly int primaryAbility;
-      public readonly int secondaryAbility;
+      public readonly Ability primaryAbility;
+      public readonly Ability secondaryAbility;
 
       public LearnableSpell(int Id, float SP, PlayerSystem.Player player, int scrollsUsed = 0)
       {
@@ -39,13 +39,13 @@ namespace NWN.Systems
         this.name = entry.name;
         this.description = entry.description;
         this.multiplier = entry.level;
-        
-        if(entry.castingClass == ClassType.Druid || entry.castingClass == ClassType.Cleric || entry.castingClass == ClassType.Ranger)
-          primaryAbility = NWScript.ABILITY_WISDOM;
-        else
-          primaryAbility = NWScript.ABILITY_INTELLIGENCE;
 
-        secondaryAbility = NWScript.ABILITY_CHARISMA;
+        if (entry.castingClass == ClassType.Druid || entry.castingClass == ClassType.Cleric || entry.castingClass == ClassType.Ranger)
+          primaryAbility = Ability.Wisdom;
+        else
+          primaryAbility = Ability.Intelligence;
+
+        secondaryAbility = Ability.Charisma;
         
         int knownSpells = player.oid.LoginCreature.GetClassInfo((ClassType)43).GetKnownSpellCountByLevel((byte)multiplier);
         if (knownSpells > 3)
@@ -152,7 +152,7 @@ namespace NWN.Systems
         trained = true;
         player.currentSkillJob = (int)CustomFeats.Invalid;
         player.currentSkillType = SkillType.Invalid;
-        NWScript.ExportSingleCharacter(player.oid.LoginCreature);
+        player.oid.ExportCharacter();
       }
       public void PlayNewSkillAcquiredEffects()
       {

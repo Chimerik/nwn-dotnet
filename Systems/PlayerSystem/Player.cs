@@ -465,25 +465,9 @@ namespace NWN.Systems
           handler.Invoke(this, skill.oid);
 
         ObjectPlugin.DeleteInt(oid.LoginCreature, "_CURRENT_JOB");
-        // NWScript.DelayCommand(10.0f, () => this.PlayNewSkillAcquiredEffects(skill)); // Décalage de 10 secondes pour être sur que le joueur a fini de charger la map à la reco
-
         this.removeableMalus.Remove(skill.oid);
       }
-      /*public void CancelCollectCycle()
-      {
-        OnCollectCycleCancel();
-      }*/
-      /*public void CompleteCollectCycle()
-      {
-        Log.Info("on cycle complete");
-        // AssignCommand permet de "patcher" un bug de comportement undéfinie
-        // qui apparait en appelant une callback depuis l'event de la GUI TIMING BAR
-        NWScript.AssignCommand(
-          NWScript.GetModule(),
-          () => OnCollectCycleComplete()
-        );
-      }*/
-      public void UpdateJournal()
+      public async void UpdateJournal()
       {
         API.JournalEntry journalEntry;
 
@@ -539,7 +523,10 @@ namespace NWN.Systems
         dateLastSaved = DateTime.Now;
 
         if (DoJournalUpdate)
-          NWScript.DelayCommand(1.0f, () => UpdateJournal());
+        {
+          await NwTask.Delay(TimeSpan.FromSeconds(1));
+          UpdateJournal();
+        }
       }
       public async void rebootUpdate(int countDown)
       {

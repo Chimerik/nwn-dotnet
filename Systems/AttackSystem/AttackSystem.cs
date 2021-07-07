@@ -244,7 +244,7 @@ namespace NWN.Systems
           if (ctx.oAttacker.GetItemInSlot(InventorySlot.RightHand) != null)
           {
             ctx.attackWeapon = ctx.oAttacker.GetItemInSlot(InventorySlot.RightHand);
-            ctx.weaponBaseDamageType = ItemUtils.GetItemDamageType(ctx.attackWeapon);
+            ctx.weaponBaseDamageType = BaseItems2da.baseItemTable.GetBaseItemDataEntry(ctx.attackWeapon.BaseItemType).damageType;
           }
 
           break;
@@ -254,7 +254,7 @@ namespace NWN.Systems
           if (ctx.oAttacker.GetItemInSlot(InventorySlot.LeftHand) != null)
           {
             ctx.attackWeapon = ctx.oAttacker.GetItemInSlot(InventorySlot.LeftHand);
-            ctx.weaponBaseDamageType = ItemUtils.GetItemDamageType(ctx.attackWeapon);
+            ctx.weaponBaseDamageType = BaseItems2da.baseItemTable.GetBaseItemDataEntry(ctx.attackWeapon.BaseItemType).damageType;
           }
 
           break;
@@ -264,7 +264,7 @@ namespace NWN.Systems
           if (ctx.oAttacker.GetItemInSlot(InventorySlot.CreatureBiteWeapon) != null)
           {
             ctx.attackWeapon = ctx.oAttacker.GetItemInSlot(InventorySlot.CreatureBiteWeapon);
-            ctx.weaponBaseDamageType = ItemUtils.GetItemDamageType(ctx.attackWeapon);
+            ctx.weaponBaseDamageType = BaseItems2da.baseItemTable.GetBaseItemDataEntry(ctx.attackWeapon.BaseItemType).damageType;
           }
           break;
 
@@ -273,7 +273,7 @@ namespace NWN.Systems
           if (ctx.oAttacker.GetItemInSlot(InventorySlot.CreatureLeftWeapon) != null)
           {
             ctx.attackWeapon = ctx.oAttacker.GetItemInSlot(InventorySlot.CreatureLeftWeapon);
-            ctx.weaponBaseDamageType = ItemUtils.GetItemDamageType(ctx.attackWeapon);
+            ctx.weaponBaseDamageType = BaseItems2da.baseItemTable.GetBaseItemDataEntry(ctx.attackWeapon.BaseItemType).damageType;
           }
           break;
 
@@ -282,7 +282,7 @@ namespace NWN.Systems
           if (ctx.oAttacker.GetItemInSlot(InventorySlot.CreatureRightWeapon) != null)
           {
             ctx.attackWeapon = ctx.oAttacker.GetItemInSlot(InventorySlot.CreatureRightWeapon);
-            ctx.weaponBaseDamageType = ItemUtils.GetItemDamageType(ctx.attackWeapon);
+            ctx.weaponBaseDamageType = BaseItems2da.baseItemTable.GetBaseItemDataEntry(ctx.attackWeapon.BaseItemType).damageType;
           }
           break;
       }

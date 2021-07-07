@@ -14,6 +14,39 @@ namespace NWN.Systems
     {
       return entries[feat];
     }
+    public bool HasFeatPrerequisites(Feat feat, NwCreature oCreature)
+    {
+      Entry entry = entries[feat];
+
+      foreach (Feat reqFeat in entry.preRequisites)
+        if(!oCreature.KnowsFeat(reqFeat))
+        {
+          oCreature.ControllingPlayer.SendServerMessage($"Avant d'apprendre les bases de {entry.name.ColorString(ColorConstants.White)}, il faut maîtriser {entries[reqFeat].name.ColorString(ColorConstants.White)}.", ColorConstants.Red);
+          return false;
+        }
+
+      if (entry.orRequisites.Count > 0)
+      {
+        if (entry.orRequisites.Any(f => oCreature.KnowsFeat(f)))
+        {
+          return true;
+        }
+        else
+        {
+          string unknownFeats = $"Avant d'apprendre les bases de {entry.name.ColorString(ColorConstants.White)}, il vous faut maîtriser au moins l'une de ces connaissances [";
+          foreach (Feat orFeat in entry.orRequisites.Where(f => !oCreature.KnowsFeat(f)))
+            unknownFeats += $"{Feat2da.featTable.entries[orFeat].name.ColorString(ColorConstants.White)} ";
+
+          unknownFeats += "]";
+
+          oCreature.ControllingPlayer.SendServerMessage(unknownFeats, ColorConstants.Red);
+
+          return false;
+        }
+      }
+
+      return true;
+    }
     void ITwoDimArray.DeserializeRow(int rowIndex, TwoDimEntry twoDimEntry)
     {
       uint tlkName = uint.TryParse(twoDimEntry("FEAT"), out tlkName) ? tlkName : 0;
@@ -58,7 +91,39 @@ namespace NWN.Systems
       Ability primaryAbility = statSorter.ElementAt(0).Key;
       Ability secondaryAbility = statSorter.ElementAt(1).Key;
 
-      entries.Add((Feat)rowIndex, new Entry(name, description, tlkName, tlkDescription, CRValue, currentLevel, successor, primaryAbility, secondaryAbility));
+      List<Feat> preRequisites = new List<Feat>();
+
+      int preReq = int.TryParse(twoDimEntry("PREREQFEAT1"), out int prereq) ? prereq : -1;
+      if (prereq > -1)
+        preRequisites.Add((Feat)preReq);
+
+      preReq = int.TryParse(twoDimEntry("PREREQFEAT2"), out prereq) ? prereq : -1;
+      if (prereq > -1)
+        preRequisites.Add((Feat)preReq);
+
+      List<Feat> orRequisites = new List<Feat>();
+
+      preReq = int.TryParse(twoDimEntry("OrReqFeat0"), out prereq) ? prereq : -1;
+      if (prereq > -1)
+        orRequisites.Add((Feat)preReq);
+
+      preReq = int.TryParse(twoDimEntry("OrReqFeat1"), out prereq) ? prereq : -1;
+      if (prereq > -1)
+        orRequisites.Add((Feat)preReq);
+
+      preReq = int.TryParse(twoDimEntry("OrReqFeat2"), out prereq) ? prereq : -1;
+      if (prereq > -1)
+        orRequisites.Add((Feat)preReq);
+
+      preReq = int.TryParse(twoDimEntry("OrReqFeat3"), out prereq) ? prereq : -1;
+      if (prereq > -1)
+        orRequisites.Add((Feat)preReq);
+
+      preReq = int.TryParse(twoDimEntry("OrReqFeat4"), out prereq) ? prereq : -1;
+      if (prereq > -1)
+        orRequisites.Add((Feat)preReq);
+
+      entries.Add((Feat)rowIndex, new Entry(name, description, tlkName, tlkDescription, CRValue, currentLevel, successor, primaryAbility, secondaryAbility, preRequisites, orRequisites));
     }
     public readonly struct Entry
     {
@@ -71,8 +136,9 @@ namespace NWN.Systems
       public readonly int successor;
       public readonly Ability primaryAbility;
       public readonly Ability secondaryAbility;
-
-      public Entry(string name, string description, uint tlkName, uint tlkDescription, int CRValue, int currentLevel, int successor, Ability primaryAbility, Ability secondaryAbility)
+      public readonly List<Feat> preRequisites;
+      public readonly List<Feat> orRequisites;
+      public Entry(string name, string description, uint tlkName, uint tlkDescription, int CRValue, int currentLevel, int successor, Ability primaryAbility, Ability secondaryAbility, List<Feat> preRequisites, List<Feat> orRequisites)
       {
         this.name = name;
         this.description = description;
@@ -83,6 +149,8 @@ namespace NWN.Systems
         this.successor = successor;
         this.primaryAbility = primaryAbility;
         this.secondaryAbility = secondaryAbility;
+        this.preRequisites = preRequisites;
+        this.orRequisites = orRequisites;
       }
     }
   }

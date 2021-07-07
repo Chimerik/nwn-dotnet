@@ -32,12 +32,6 @@ namespace NWN.Systems
     }
     private static string GetLanguageCode(Feat langue)
     {
-      //if (iLangue == (int)Feat.LanguageThief && sToConvert.Length > 25)
-      //{
-      // sToConvert = sToConvert.Remove(25);
-      //NWScript.SendMessageToPC(oPC, "Attention, la langue des voleurs ne part d'exprimer que de courtes idées.");
-      //}
-
       switch (langue)
       {
         case CustomFeats.Elfique:

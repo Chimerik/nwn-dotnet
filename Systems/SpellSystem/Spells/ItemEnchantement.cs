@@ -118,8 +118,8 @@ namespace NWN.Systems
       };
 
       foreach (ItemProperty ip in enchantementCategories[spellId])
-        player.menu.choices.Add(($"{NWScript.GetStringByStrRef(int.Parse(NWScript.Get2DAString("itempropdef", "Name", NWScript.GetItemPropertyType(ip))))} - " +
-          $"{NWScript.GetStringByStrRef(int.Parse(NWScript.Get2DAString(NWScript.Get2DAString("itempropdef", "SubTypeResRef", NWScript.GetItemPropertyType(ip)), "Name", NWScript.GetItemPropertySubType(ip))))}", () => HandleEnchantementChoice(player, ip, spellId, oItem)));
+        player.menu.choices.Add(($"{ItemPropertyDefinition2da.ipDefinitionTable.GetIPDefinitionlDataEntry(ip.PropertyType).name} - " +
+          $"{ItemPropertyDefinition2da.ipDefinitionTable.GetSubTypeName(ip.PropertyType, ip.SubType)}", () => HandleEnchantementChoice(player, ip, spellId, oItem)));
 
       player.menu.choices.Add(("Quitter", () => player.menu.Close()));
       player.menu.Draw();

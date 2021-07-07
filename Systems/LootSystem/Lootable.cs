@@ -21,7 +21,7 @@ namespace NWN.Systems
 
         public void GenerateLoot(NwGameObject oContainer)
         {
-          if (NWScript.GetHasInventory(oContainer) == 0)
+          if((oContainer is NwPlaceable oPlc && !oPlc.HasInventory) || (!(oContainer is NwPlaceable) && !(oContainer is NwCreature) && !(oContainer is NwStore)))
           {
             Utils.LogMessageToDMs($"Can't GenerateLoot : Object '{oContainer.Tag}' in area '{oContainer.Area.Name}' has no inventory.");
             return;

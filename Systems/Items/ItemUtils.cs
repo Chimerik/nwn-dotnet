@@ -189,12 +189,6 @@ namespace NWN.Systems
 
       return "";
     }
-    public static int GetItemDamageType(NwItem item)
-    {
-      if (!int.TryParse(NWScript.Get2DAString("baseitems", "WeaponType", (int)item.BaseItemType), out int damageType))
-        return 3; // par défaut, on retourne slashing
-      return damageType;
-    }
     public static DamageType GetDamageTypeFromItemProperty(IPDamageType ipDamageType)
     {
       switch(ipDamageType)

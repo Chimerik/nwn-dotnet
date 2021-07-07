@@ -207,7 +207,6 @@ namespace NWN.Systems.Craft.Collect
       
       foreach (ItemProperty ip in GetCraftItemProperties(material, craftedItem))
       {
-        //NWScript.SendMessageToPC(NWScript.GetFirstPC(), $"Adding IP : {ip}");
         ItemProperty existingIP = craftedItem.ItemProperties.FirstOrDefault(i => i.DurationType == EffectDuration.Permanent && i.PropertyType == ip.PropertyType && i.SubType == ip.SubType && i.Param1Table == ip.Param1Table);
           
         if(existingIP != null) // ATTENTION : prévoir le cas particulier des damage IP basés sur le rank
