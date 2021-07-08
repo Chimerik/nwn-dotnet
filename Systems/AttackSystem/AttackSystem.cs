@@ -861,19 +861,7 @@ namespace NWN.Systems
         durabilityChance -= dexBonus + safetyLevel;
 
         if (NwRandom.Roll(Utils.random, 100, 1) < 2 && NwRandom.Roll(Utils.random, 100, 1) < durabilityChance)
-        {
-          ctx.attackWeapon.GetLocalVariable<int>("_DURABILITY").Value -= 1;
-          if (ctx.attackWeapon.GetLocalVariable<int>("_DURABILITY").Value <= 0)
-          {
-            if (ctx.attackWeapon.GetLocalVariable<string>("_ORIGINAL_CRAFTER_NAME").HasNothing)
-            {
-              ctx.attackWeapon.Destroy();
-              attacker.oid.SendServerMessage($"Il ne reste plus que des ruines de votre {ctx.attackWeapon.Name.ColorString(ColorConstants.White)}. Ces débris ne sont même pas réparables !", ColorConstants.Red);
-            }
-            else
-              HandleItemRuined(ctx.oAttacker, ctx.attackWeapon);
-          }
-        }
+          DecreaseItemDurability(ctx.attackWeapon, attacker.oid);
       }
 
       next();
@@ -903,32 +891,45 @@ namespace NWN.Systems
       if (NwRandom.Roll(Utils.random, 100, 1) > 1 && NwRandom.Roll(Utils.random, 100, 1) > durabilityRate)
         return;
 
-      int random = NwRandom.Roll(Utils.random, 11, 1) - 1;
-      int loop = random + 1;
-      NwItem item = ctx.oTarget.GetItemInSlot((InventorySlot)random);
+      if (ctx.targetArmor != null)
+        DecreaseItemDurability(ctx.targetArmor, player.oid);
 
-      while (item == null && loop != random)
+      if(ctx.oTarget.GetItemInSlot(InventorySlot.LeftHand) != null)
+        DecreaseItemDurability(ctx.oTarget.GetItemInSlot(InventorySlot.LeftHand), player.oid);
+
+      List<NwItem> slots = new List<NwItem>();
+
+      if (ctx.oTarget.GetItemInSlot(InventorySlot.Belt) != null)
+        slots.Add(ctx.oTarget.GetItemInSlot(InventorySlot.Belt));
+
+      if (ctx.oTarget.GetItemInSlot(InventorySlot.LeftRing) != null)
+        slots.Add(ctx.oTarget.GetItemInSlot(InventorySlot.LeftRing));
+
+      if (ctx.oTarget.GetItemInSlot(InventorySlot.RightRing) != null)
+        slots.Add(ctx.oTarget.GetItemInSlot(InventorySlot.RightRing));
+
+      if (ctx.oTarget.GetItemInSlot(InventorySlot.Neck) != null && ctx.oTarget.GetItemInSlot(InventorySlot.Neck).Tag != "amulettorillink")
+        slots.Add(ctx.oTarget.GetItemInSlot(InventorySlot.Neck));
+
+      if (slots.Count > 0)
       {
-        if (loop > 10)
-          loop = 0;
-
-        item = ctx.oTarget.GetItemInSlot((InventorySlot)loop);
-        loop++;
+        int random = NwRandom.Roll(Utils.random, slots.Count) - 1;
+        DecreaseItemDurability(slots.ElementAt(random), player.oid);
       }
+    }
 
-      if (item == null || item.Tag == "amulettorillink")
-        return;
-
+    private static void DecreaseItemDurability(NwItem item, NwPlayer oPC)
+    {
       item.GetLocalVariable<int>("_DURABILITY").Value -= 1;
       if (item.GetLocalVariable<int>("_DURABILITY").Value <= 0)
       {
         if (item.GetLocalVariable<string>("_ORIGINAL_CRAFTER_NAME").HasNothing)
         {
           item.Destroy();
-          player.oid.SendServerMessage($"Il ne reste plus que des ruines de votre {item.Name.ColorString(ColorConstants.White)}. Ces débris ne sont même pas réparables !", ColorConstants.Red);
+          oPC.SendServerMessage($"Il ne reste plus que des ruines de votre {item.Name.ColorString(ColorConstants.White)}. Ces débris ne sont même pas réparables !", ColorConstants.Red);
         }
         else
-          HandleItemRuined(ctx.oTarget, item);
+          HandleItemRuined(oPC.ControlledCreature, item);
       }
     }
   }
