@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using NWN.API;
 using NWN.API.Constants;
@@ -62,18 +63,9 @@ namespace NWN.Systems.Craft
           break;
       }
     }
-    public static ItemProperty[] GetCraftItemProperties(string material, NwItem craftedItem)
+    public static List<ItemProperty> GetCraftItemProperties(string material, NwItem craftedItem)
     {
       ItemCategory itemCategory = GetItemCategory(craftedItem.BaseItemType);
-      if (itemCategory == ItemCategory.Invalid)
-      {
-        Utils.LogMessageToDMs($"Item {craftedItem.Name} - Base {craftedItem.BaseItemType} - Category invalid");
-        
-        return new ItemProperty[]
-        {
-          ItemProperty.Quality(IPQuality.Unknown)
-        };
-      }
 
       int materialTier = 0;
 
@@ -99,7 +91,7 @@ namespace NWN.Systems.Craft
           craftedItem.GetLocalVariable<int>("_AVAILABLE_ENCHANTEMENT_SLOT").Value = 1;
       }
 
-     /* switch (craftedItem.BaseItemType)
+      switch (craftedItem.BaseItemType)
       {
         case BaseItemType.Armor:
           return GetArmorProperties(craftedItem, materialTier);
@@ -132,44 +124,14 @@ namespace NWN.Systems.Craft
         case ItemCategory.TwoHandedMeleeWeapon:
           return GetTwoHandedMeleeWeaponProperties();
         case ItemCategory.RangedWeapon:
-          return GetRangedWeaponProperties;
+          return GetRangedWeaponProperties();
         case ItemCategory.Ammunition:
           return GetAmmunitionProperties();
-      }*/
-
-      /*if (material == "mauvais état")
-        return GetBadItemProperties(itemCategory, craftedItem);
-      else if (Enum.TryParse(material, out MineralType myMineralType))
-      {
-        switch (myMineralType)
-        {
-          case MineralType.Tritanium: return GetTritaniumItemProperties(craftedItem);
-          case MineralType.Pyerite: return GetPyeriteItemProperties(itemCategory, craftedItem);
-        }
       }
-      else if (Enum.TryParse(material, out PlankType myPlankType))
-      {
-        switch (myPlankType)
-        {
-          case PlankType.Laurelinade: return GetTritaniumItemProperties(craftedItem);
-          case PlankType.Telperionade: return GetPyeriteItemProperties(itemCategory, craftedItem);
-        }
-      }
-      else if (Enum.TryParse(material, out LeatherType myLeatherType))
-      {
-        switch (myLeatherType)
-        {
-          case LeatherType.MauvaisCuir: return GetTritaniumItemProperties(craftedItem);
-          case LeatherType.CuirCommun: return GetPyeriteItemProperties(itemCategory, craftedItem);
-        }
-      }*/
 
       Utils.LogMessageToDMs($"No craft property found for material {material} and item {itemCategory}");
 
-      return new API.ItemProperty[]
-      {
-          API.ItemProperty.Quality(IPQuality.Unknown)
-    };
+      return new List<ItemProperty>();
     }
     public static void BlueprintValidation(NwPlayer oPlayer, NwGameObject target, Feat feat)
     {
@@ -294,12 +256,12 @@ namespace NWN.Systems.Craft
 
       return "Invalid";
     }
-    public static API.ItemProperty GetCraftEnchantementProperties(NwItem craftedItem, string ipString, int boost, int enchanterId)
+    public static ItemProperty GetCraftEnchantementProperties(NwItem craftedItem, string ipString, int boost, int enchanterId)
     {
       string[] IPproperties = ipString.Split("_");
       string enchTag = $"ENCHANTEMENT_{IPproperties[0]}";
 
-      API.ItemProperty newIP = API.ItemProperty.Quality(IPQuality.Unknown);
+      ItemProperty newIP = ItemProperty.Quality(IPQuality.Unknown);
 
       int value;
       if (int.TryParse(IPproperties[1], out value))
@@ -328,7 +290,7 @@ namespace NWN.Systems.Craft
       else
         Utils.LogMessageToDMs($"Could not parse nCostTableValue in : {ipString}");
 
-      API.ItemProperty existingIP = craftedItem.ItemProperties.FirstOrDefault(i => i.DurationType == EffectDuration.Permanent && i.PropertyType == newIP.PropertyType && i.SubType == newIP.SubType && i.Param1Table == newIP.Param1Table);
+      ItemProperty existingIP = craftedItem.ItemProperties.FirstOrDefault(i => i.DurationType == EffectDuration.Permanent && i.PropertyType == newIP.PropertyType && i.SubType == newIP.SubType && i.Param1Table == newIP.Param1Table);
 
       if (existingIP != null)
       {
@@ -336,12 +298,12 @@ namespace NWN.Systems.Craft
 
         if(newIP.PropertyType == ItemPropertyType.DamageBonus 
           || newIP.PropertyType == ItemPropertyType.DamageBonusVsAlignmentGroup
-          || newIP.PropertyType == ItemPropertyType.DamageBonusVsSpecificAlignment
+          || newIP.PropertyType == ItemPropertyType.DamageBonusVsRacialGroup
           || newIP.PropertyType == ItemPropertyType.DamageBonusVsSpecificAlignment)
         {
           int newRank = ItemPropertyDamageCost2da.ipDamageCost.GetRankFromCostValue(newIP.CostTableValue);
           int existingRank = ItemPropertyDamageCost2da.ipDamageCost.GetRankFromCostValue(existingIP.CostTableValue);
-
+          
           if (existingRank > newRank)
             newRank = existingRank + 1;
           else

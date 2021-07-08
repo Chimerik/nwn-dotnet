@@ -199,30 +199,13 @@ namespace NWN.Systems
     }
     private static void ProcessAdditionnalDamageEffect(Context ctx, Action next)
     {
-          /*foreach (var effectType in ctx.oAttacker.ActiveEffects.Where(e => e.EffectType == EffectType.DamageIncrease)
-            .OrderByDescending(e => e.))
-          {
-            ItemProperty maxIP = propType.OrderByDescending(i => i.CostTableValue).FirstOrDefault();
-            DamageType damageType = DamageType.Slashing;
-            short rolledDamage = Config.RollDamage(maxIP.CostTableValue);
-            short currentDamage = 0;
-
-            switch (maxIP.Param1TableValue)
-            {
-              case -1: // Cas des dégâts simples
-                damageType = ItemUtils.GetDamageTypeFromItemProperty((IPDamageType)maxIP.SubType);
-                break;
-              default: // Case des dégâts spécifiques, le type de dégât se trouve dans Param1TableValue au lieu de SubType. Ouais, c'est chiant
-                damageType = ItemUtils.GetDamageTypeFromItemProperty((IPDamageType)maxIP.Param1TableValue);
-                break;
-            }
-
-            currentDamage = ctx.onAttack.DamageData.GetDamageByType(damageType);
-
-            if (rolledDamage > currentDamage)
-              ctx.onAttack.DamageData.SetDamageByType(damageType, rolledDamage);
-          }*/
-
+      foreach (var effectType in ctx.oAttacker.ActiveEffects.Where(e => e.EffectType == EffectType.DamageIncrease).GroupBy(e => e.IntParams.ElementAt(1)))
+      {
+        Effect maxEffect = effectType.OrderByDescending(e => e.IntParams.ElementAt(0)).FirstOrDefault();
+        DamageType damageType = (DamageType)maxEffect.IntParams.ElementAt(1);
+        Config.SetContextDamage(ctx, damageType, Config.GetContextDamage(ctx, damageType) + maxEffect.IntParams.ElementAt(0));
+      }
+       
       next();
     }
     private static void ProcessBaseDamageTypeAndAttackWeapon(Context ctx, Action next)
@@ -577,6 +560,18 @@ namespace NWN.Systems
           ItemProperty maxIP = propType.OrderByDescending(i => i.CostTableValue).FirstOrDefault();
           ctx.baseArmorPenetration += maxIP.CostTableValue;
         }
+
+        foreach (var effectType in ctx.oAttacker.ActiveEffects.Where(e => e.EffectType == EffectType.AttackIncrease).GroupBy(e => e.IntParams.ElementAt(1)))
+        {
+          Effect maxEffect = effectType.OrderByDescending(e => e.IntParams.ElementAt(0)).FirstOrDefault();
+          ctx.baseArmorPenetration += maxEffect.IntParams.ElementAt(0);
+        }
+        
+        foreach (var effectType in ctx.oAttacker.ActiveEffects.Where(e => e.EffectType == EffectType.AttackDecrease).GroupBy(e => e.IntParams.ElementAt(1)))
+        {
+          Effect maxEffect = effectType.OrderByDescending(e => e.IntParams.ElementAt(0)).FirstOrDefault();
+          ctx.baseArmorPenetration -= maxEffect.IntParams.ElementAt(0);
+        }
       }
 
       next();
@@ -710,7 +705,7 @@ namespace NWN.Systems
           if (ctx.targetAC[DamageType.BaseWeapon] > ctx.maxBaseAC)
             ctx.targetAC[DamageType.BaseWeapon] = ctx.maxBaseAC;
         }
-
+        
         foreach (var propType in ctx.targetArmor.ItemProperties.Where(i => i.PropertyType == ItemPropertyType.AcBonusVsDamageType)
         .GroupBy(i => i.SubType))
         {
@@ -721,6 +716,18 @@ namespace NWN.Systems
           if (ctx.targetAC[damageType] > ctx.maxBaseAC)
             ctx.targetAC[damageType] = ctx.maxBaseAC;
         }
+      }
+      
+      foreach (var effectType in ctx.oAttacker.ActiveEffects.Where(e => e.EffectType == EffectType.AcIncrease).GroupBy(e => e.IntParams.ElementAt(1)))
+      {
+        Effect maxEffect = effectType.OrderByDescending(e => e.IntParams.ElementAt(0)).FirstOrDefault();
+        ctx.targetAC[DamageType.BaseWeapon] += maxEffect.IntParams.ElementAt(0);
+      }
+
+      foreach (var effectType in ctx.oAttacker.ActiveEffects.Where(e => e.EffectType == EffectType.AcDecrease).GroupBy(e => e.IntParams.ElementAt(1)))
+      {
+        Effect maxEffect = effectType.OrderByDescending(e => e.IntParams.ElementAt(0)).FirstOrDefault();
+        ctx.targetAC[DamageType.BaseWeapon] -= maxEffect.IntParams.ElementAt(0);
       }
 
       next();

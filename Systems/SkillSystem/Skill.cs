@@ -207,7 +207,6 @@ namespace NWN.Systems
           else
             pointsToNextLevel = (int)(250 * this.multiplier * Math.Pow(5, skillLevelCap));
           
-          //PlayerPlugin.SetTlkOverride(player.oid.LoginCreature, (int)Feat2da.featTable.GetFeatDataEntry(oid).tlkName, $"{customFeatName} - {currentLevel}");
           player.oid.SetTlkOverride((int)Feat2da.featTable.GetFeatDataEntry(oid).tlkName, $"{customFeatName} - {currentLevel}");
           
           if (currentLevel >= customFeatsDictionnary[oid].maxLevel)

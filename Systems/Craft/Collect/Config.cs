@@ -320,36 +320,6 @@ namespace NWN.Systems.Craft.Collect
       [Description("Bois_de_Valinor")]
       Valinorade = 8,
     }
-    
-    public static ItemProperty[] GetBadOneHandedMeleeWeaponProperties()
-    {
-      return new ItemProperty[]
-      {
-          ItemProperty.AttackPenalty(2),
-          ItemProperty.DamagePenalty(2),
-          ItemProperty.DamageVulnerability(IPDamageType.Slashing, IPDamageVulnerabilityType.Vulnerable10Pct),
-          ItemProperty.WeightIncrease(IPWeightIncrease.Plus30Lbs),
-      };
-    }
-    public static ItemProperty[] GetBadTwoHandedMeleeWeaponProperties()
-    {
-      return new API.ItemProperty[]
-      {
-          API.ItemProperty.AttackPenalty(1),
-          API.ItemProperty.DamagePenalty(1),
-          API.ItemProperty.DamageVulnerability(IPDamageType.Slashing, IPDamageVulnerabilityType.Vulnerable5Pct),
-          API.ItemProperty.WeightIncrease(IPWeightIncrease.Plus30Lbs),
-      };
-    }
-    public static ItemProperty[] GetBadRangedWeaponProperties()
-    {
-      return new ItemProperty[]
-      {
-          ItemProperty.AttackPenalty(1),
-          ItemProperty.DamageVulnerability(IPDamageType.Slashing, IPDamageVulnerabilityType.Vulnerable5Pct),
-          ItemProperty.WeightIncrease(IPWeightIncrease.Plus30Lbs),
-      };
-    }
     public static List<ItemProperty> GetArmorProperties(NwItem craftedItem, int materialTier)
     {
       List<ItemProperty> badArmor = new List<ItemProperty>();
@@ -456,28 +426,6 @@ namespace NWN.Systems.Craft.Collect
 
       return tool;
     }
-    public static API.ItemProperty[] GetBadClothesProperties()
-    {
-      return new API.ItemProperty[]
-      {
-        API.ItemProperty.DamageVulnerability(IPDamageType.Bludgeoning, IPDamageVulnerabilityType.Vulnerable10Pct),
-        API.ItemProperty.WeightIncrease(IPWeightIncrease.Plus30Lbs),
-        API.ItemProperty.DecreaseAC(IPACModifierType.Armor, 2),
-      };
-    }
-    public static API.ItemProperty[] GetTritaniumItemProperties(NwItem craftedItem = null)
-    {
-      if (craftedItem != null)
-      {
-        craftedItem.GetLocalVariable<int>("_MAX_DURABILITY").Value = GetBaseItemCost(craftedItem) * 100;
-        craftedItem.GetLocalVariable<int>("_AVAILABLE_ENCHANTEMENT_SLOT").Value = 1;
-      }
-
-      return new API.ItemProperty[]
-      {
-          API.ItemProperty.Quality(IPQuality.Poor)
-      };
-    }
     public static List<ItemProperty> GetOneHandedMeleeWeaponProperties()
     {
       List<ItemProperty> oneHanded = new List<ItemProperty>();
@@ -521,49 +469,140 @@ namespace NWN.Systems.Craft.Collect
 
       return ammunition;
     }
-    public static ItemProperty[] GetPyeriteAmmunitionProperties()
+    public static List<ItemProperty> GetRingProperties(int materialTier)
     {
-      return new ItemProperty[]
-      {
-        API.ItemProperty.AttackBonusVsRace(IPRacialType.HumanoidGoblinoid, 1),
-        API.ItemProperty.AttackBonusVsRace(IPRacialType.HumanoidReptilian, 1),
-        API.ItemProperty.DamageBonusVsRace(IPRacialType.HumanoidGoblinoid, IPDamageType.Piercing, IPDamageBonus.Plus1),
-        API.ItemProperty.DamageBonusVsRace(IPRacialType.HumanoidReptilian, IPDamageType.Piercing, IPDamageBonus.Plus1),
-      };
-    }
-    public static API.ItemProperty[] GetPyeriteTwoHandedMeleeWeaponProperties()
-    {
-      return new API.ItemProperty[]
-      {
-        API.ItemProperty.AttackBonusVsRace(IPRacialType.HumanoidGoblinoid, 2),
-        API.ItemProperty.AttackBonusVsRace(IPRacialType.HumanoidReptilian, 2),
-        API.ItemProperty.DamageBonusVsRace(IPRacialType.HumanoidGoblinoid, IPDamageType.Piercing, IPDamageBonus.Plus2),
-        API.ItemProperty.DamageBonusVsRace(IPRacialType.HumanoidReptilian, IPDamageType.Piercing, IPDamageBonus.Plus2),
-      };
-    }
-    public static API.ItemProperty[] GetPyeriteArmorProperties()
-    {
-      return new API.ItemProperty[]
-      {
-        API.ItemProperty.ACBonusVsDmgType(IPDamageType.Bludgeoning, 1),
-      };
-    }
-    public static API.ItemProperty[] GetPyeriteShieldProperties()
-    {
-      return new API.ItemProperty[]
-      {
-        API.ItemProperty.ACBonusVsDmgType(IPDamageType.Piercing, 1),
-      };
-    }
-    public static ItemProperty[] GetPyeriteToolProperties(NwItem craftedItem)
-    {
-      craftedItem.GetLocalVariable<int>("_MAX_DURABILITY").Value = 25;
-      craftedItem.GetLocalVariable<int>("_ITEM_LEVEL").Value = 1;
+      List<ItemProperty> ring = new List<ItemProperty>();
 
-      return new ItemProperty[]
+      switch (materialTier)
       {
-          ItemProperty.WeightIncrease(IPWeightIncrease.Plus10Lbs),
-      };
+        case 0:
+          ring.Add(ItemProperty.SkillBonus(Skill.Hide, 1));
+          break;
+        case 1:
+          ring.Add(ItemProperty.BonusSavingThrowVsX(IPSaveVs.Fire, 1));
+          break;
+        case 2:
+          ring.Add(ItemProperty.BonusSavingThrowVsX(IPSaveVs.Cold, 1));
+          ring.Add(ItemProperty.AbilityBonus(IPAbility.Dexterity, 1));
+          ring.Add(ItemProperty.SkillBonus(Skill.MoveSilently, 1));
+          break;
+        case 3:
+          ring.Add(ItemProperty.BonusSavingThrowVsX(IPSaveVs.Acid, 1));
+          ring.Add(ItemProperty.SkillBonus(Skill.Hide, 1));
+          break;
+        case 4:
+          ring.Add(ItemProperty.BonusSavingThrowVsX(IPSaveVs.Electrical, 1));
+          ring.Add(ItemProperty.AbilityBonus(IPAbility.Dexterity, 1));
+          ring.Add(ItemProperty.SkillBonus(Skill.MoveSilently, 1));
+          break;
+        case 5:
+          ring.Add(ItemProperty.BonusSavingThrowVsX(IPSaveVs.Negative, 1));
+          ring.Add(ItemProperty.SkillBonus(Skill.Hide, 1));
+          break;
+        case 6:
+          ring.Add(ItemProperty.BonusSavingThrowVsX(IPSaveVs.Positive, 1));
+          ring.Add(ItemProperty.AbilityBonus(IPAbility.Dexterity, 1));
+          ring.Add(ItemProperty.SkillBonus(Skill.MoveSilently, 1));
+          break;
+        case 7:
+          ring.Add(ItemProperty.BonusSavingThrowVsX(IPSaveVs.Sonic, 1));
+          ring.Add(ItemProperty.SkillBonus(Skill.Hide, 1));
+          break;
+        case 8:
+          ring.Add(ItemProperty.BonusSavingThrowVsX(IPSaveVs.Divine, 1));
+          ring.Add(ItemProperty.AbilityBonus(IPAbility.Dexterity, 1));
+          break;
+      }
+
+      return ring;
+    }
+    public static List<ItemProperty> GetBeltProperties(int materialTier)
+    {
+      List<ItemProperty> belt = new List<ItemProperty>();
+
+      switch (materialTier)
+      {
+        case 0:
+          belt.Add(ItemProperty.SkillBonus(Skill.Spot, 1));
+          break;
+        case 1:
+          belt.Add(ItemProperty.BonusSavingThrowVsX(IPSaveVs.Fire, 1));
+          break;
+        case 2:
+          belt.Add(ItemProperty.AbilityBonus(IPAbility.Strength, 1));
+          belt.Add(ItemProperty.SkillBonus(Skill.Listen, 1));
+          break;
+        case 3:
+          belt.Add(ItemProperty.SkillBonus(Skill.Spot, 1));
+          belt.Add(ItemProperty.SkillBonus(Skill.Discipline, 1));
+          break;
+        case 4:
+          belt.Add(ItemProperty.AbilityBonus(IPAbility.Strength, 1));
+          belt.Add(ItemProperty.SkillBonus(Skill.Listen, 1));
+          break;
+        case 5:
+          belt.Add(ItemProperty.SkillBonus(Skill.Spot, 1));
+          belt.Add(ItemProperty.SkillBonus(Skill.Discipline, 1));
+          break;
+        case 6:
+          belt.Add(ItemProperty.AbilityBonus(IPAbility.Strength, 1));
+          belt.Add(ItemProperty.SkillBonus(Skill.Listen, 1));
+          break;
+        case 7:
+          belt.Add(ItemProperty.SkillBonus(Skill.Spot, 1));
+          belt.Add(ItemProperty.SkillBonus(Skill.Discipline, 1));
+          break;
+        case 8:
+          belt.Add(ItemProperty.AbilityBonus(IPAbility.Strength, 1));
+          break;
+      }
+
+      return belt;
+    }
+    public static List<ItemProperty> GetAmuletProperties(int materialTier)
+    {
+      List<ItemProperty> amulet = new List<ItemProperty>();
+
+      switch (materialTier)
+      {
+        case 0:
+          amulet.Add(ItemProperty.SkillBonus(Skill.MoveSilently, 1));
+          break;
+        case 1:
+          amulet.Add(ItemProperty.BonusSavingThrowVsX(IPSaveVs.Poison, 1));
+          break;
+        case 2:
+          amulet.Add(ItemProperty.AbilityBonus(IPAbility.Constitution, 1));
+          amulet.Add(ItemProperty.BonusSavingThrowVsX(IPSaveVs.Fear, 1));
+          break;
+        case 3:
+          amulet.Add(ItemProperty.SkillBonus(Skill.Hide, 1));
+          amulet.Add(ItemProperty.BonusSavingThrowVsX(IPSaveVs.Disease, 1));
+          break;
+        case 4:
+          amulet.Add(ItemProperty.AbilityBonus(IPAbility.Constitution, 1));
+          amulet.Add(ItemProperty.BonusSavingThrowVsX(IPSaveVs.MindAffecting, 1));
+          break;
+        case 5:
+          amulet.Add(ItemProperty.SkillBonus(Skill.Hide, 1));
+          amulet.Add(ItemProperty.BonusSavingThrowVsX(IPSaveVs.Death, 1));
+          break;
+        case 6:
+          amulet.Add(ItemProperty.AbilityBonus(IPAbility.Constitution, 1));
+          amulet.Add(ItemProperty.BonusSavingThrow(IPSaveBaseType.Will, 1));
+          break;
+        case 7:
+          amulet.Add(ItemProperty.BonusSavingThrow(IPSaveBaseType.Fortitude, 1));
+          break;
+        case 8:
+          amulet.Add(ItemProperty.AbilityBonus(IPAbility.Constitution, 1));
+          amulet.Add(ItemProperty.BonusSavingThrow(IPSaveBaseType.Will, 1));
+          amulet.Add(ItemProperty.BonusSavingThrow(IPSaveBaseType.Fortitude, 1));
+          amulet.Add(ItemProperty.BonusSavingThrow(IPSaveBaseType.Reflex, 1));
+          break;
+      }
+
+      return amulet;
     }
     public static OreType GetRandomOreSpawnFromAreaLevel(int level)
     {

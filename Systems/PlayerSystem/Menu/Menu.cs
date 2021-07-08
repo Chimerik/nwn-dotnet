@@ -2,7 +2,6 @@
 using System.Linq;
 using System.Numerics;
 using NWN.API;
-using NWN.Core;
 using Action = System.Action;
 
 namespace NWN.Systems

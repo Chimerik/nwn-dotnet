@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using NWN.API;
 using NWN.API.Constants;
-using NWN.Core;
 using NWN.Core.NWNX;
 using static NWN.Systems.PlayerSystem;
 using static NWN.Systems.SkillSystem;
@@ -184,7 +183,6 @@ namespace NWN.Systems
           skill.pointsToNextLevel = (int)(250 * skill.multiplier * Math.Pow(5, skill.currentLevel));
           
           player.oid.SetTlkOverride((int)Feat2da.featTable.GetFeatDataEntry(skill.oid).tlkName, $"{customFeatName} - {skill.currentLevel}");
-          //PlayerPlugin.SetTlkOverride(player.oid.LoginCreature, nameValue, $"{customFeatName} - {skill.currentLevel}");
 
           if (skill.currentLevel >= customFeatsDictionnary[skill.oid].maxLevel)
             skill.trained = true;

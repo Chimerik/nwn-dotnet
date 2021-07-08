@@ -115,8 +115,6 @@ namespace NWN.Systems
       {
         CustomFeat customFeat = SkillSystem.customFeatsDictionnary[feat.Key];
         FeatTable.Entry featEntry = Feat2da.featTable.GetFeatDataEntry(feat.Key);
-        //PlayerPlugin.SetTlkOverride(player.oid.LoginCreature, (int)featEntry.tlkName, $"{customFeat.name} - {SkillSystem.GetCustomFeatLevelFromSkillPoints(feat.Key, feat.Value)}");
-        //PlayerPlugin.SetTlkOverride(player.oid.LoginCreature, (int)featEntry.tlkDescription, customFeat.description);
         player.oid.SetTlkOverride((int)featEntry.tlkName, $"{customFeat.name} - {SkillSystem.GetCustomFeatLevelFromSkillPoints(feat.Key, feat.Value)}");
         player.oid.SetTlkOverride((int)featEntry.tlkDescription, customFeat.description);
       }

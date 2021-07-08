@@ -208,13 +208,45 @@ namespace NWN.Systems.Craft.Collect
       foreach (ItemProperty ip in GetCraftItemProperties(material, craftedItem))
       {
         ItemProperty existingIP = craftedItem.ItemProperties.FirstOrDefault(i => i.DurationType == EffectDuration.Permanent && i.PropertyType == ip.PropertyType && i.SubType == ip.SubType && i.Param1Table == ip.Param1Table);
-          
-        if(existingIP != null) // ATTENTION : prévoir le cas particulier des damage IP basés sur le rank
+
+        if (existingIP != null)
         {
-          if (existingIP.CostTableValue > ip.CostTableValue)
-            ip.CostTableValue = existingIP.CostTableValue + 1;
+          craftedItem.RemoveItemProperty(existingIP);
+
+          if (ip.PropertyType == ItemPropertyType.DamageBonus
+            || ip.PropertyType == ItemPropertyType.DamageBonusVsAlignmentGroup
+            || ip.PropertyType == ItemPropertyType.DamageBonusVsRacialGroup
+            || ip.PropertyType == ItemPropertyType.DamageBonusVsSpecificAlignment)
+          {
+            int newRank = ItemPropertyDamageCost2da.ipDamageCost.GetRankFromCostValue(ip.CostTableValue);
+            int existingRank = ItemPropertyDamageCost2da.ipDamageCost.GetRankFromCostValue(existingIP.CostTableValue);
+
+            if (existingRank > newRank)
+              newRank = existingRank + 1;
+            else
+              newRank += 1;
+
+            ip.CostTableValue = ItemPropertyDamageCost2da.ipDamageCost.GetDamageCostValueFromRank(newRank);
+          }
+          else if (ip.PropertyType == ItemPropertyType.AcBonus
+            || ip.PropertyType == ItemPropertyType.AcBonusVsAlignmentGroup
+            || ip.PropertyType == ItemPropertyType.AcBonusVsDamageType
+            || ip.PropertyType == ItemPropertyType.AcBonusVsRacialGroup
+            || ip.PropertyType == ItemPropertyType.AcBonusVsSpecificAlignment
+            || ip.PropertyType == ItemPropertyType.AttackBonus
+            || ip.PropertyType == ItemPropertyType.AttackBonusVsAlignmentGroup
+            || ip.PropertyType == ItemPropertyType.AttackBonusVsRacialGroup
+            || ip.PropertyType == ItemPropertyType.AttackBonusVsSpecificAlignment)
+          {
+            ip.CostTableValue += existingIP.CostTableValue;
+          }
           else
-            ip.CostTableValue += 1;
+          {
+            if (existingIP.CostTableValue > ip.CostTableValue)
+              ip.CostTableValue = existingIP.CostTableValue + 1;
+            else
+              ip.CostTableValue += 1;
+          }
         }
         
         craftedItem.AddItemProperty(ip, EffectDuration.Permanent);
