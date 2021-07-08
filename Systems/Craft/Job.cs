@@ -444,7 +444,7 @@ namespace NWN.Systems.Craft
           advancedCraftLevel += SkillSystem.GetCustomFeatLevelFromSkillPoints(CustomFeats.AdvancedCraft, player.learntCustomFeats[CustomFeats.AdvancedCraft]);
 
         float iJobDuration = blueprint.mineralsCost * 200 * (100 - (metallurgyLevel * 5 + advancedCraftLevel * 3)) / 100;
-        player.craftJob = new Job(-12, "", iJobDuration, player, ObjectPlugin.Serialize(oBlueprint)); // - 12 = recherche ME
+        player.craftJob = new Job(-12, "", iJobDuration, player, oBlueprint.Serialize().ToBase64EncodedString()); // - 12 = recherche ME
         oBlueprint.Destroy();
         player.oid.SendServerMessage($"L'objet {oBlueprint.Name.ColorString(ColorConstants.White)} ne sera pas disponible jusqu'à la fin du travail de recherche métallurgique.", ColorConstants.Orange);
       }

@@ -136,7 +136,7 @@ namespace NWN.Systems
     private void OnLootConfigContainerClose(PlaceableEvents.OnClose onClose)
     {
       UpdateChestTagToLootsDic(onClose.Placeable);
-      UpdateDB(onClose.Placeable);
+      UpdateDB(onClose.Placeable, onClose.ClosedBy);
     }
     public static void HandleLoot(CreatureEvents.OnDeath onDeath)
     {

@@ -275,7 +275,7 @@ namespace NWN.Systems
       if (player.learntCustomFeats.ContainsKey(CustomFeats.ImprovedHealth))
         improvedHealth = GetCustomFeatLevelFromSkillPoints(CustomFeats.ImprovedHealth, player.learntCustomFeats[CustomFeats.ImprovedHealth]);
 
-      player.oid.LoginCreature.LevelInfo[0].HitDie = (byte)(byte.Parse(NWScript.Get2DAString("classes", "HitDie", 43))
+      player.oid.LoginCreature.LevelInfo[0].HitDie = (byte)(10
         + (1 + 3 * ((player.oid.LoginCreature.GetAbilityScore(Ability.Constitution, true) - 10) / 2)
         + Convert.ToInt32(player.oid.LoginCreature.KnowsFeat(Feat.Toughness))) * improvedHealth);
 
@@ -568,9 +568,7 @@ namespace NWN.Systems
     public static Feat[] shopBasicMagicSkillBooks = new Feat[] { CustomFeats.Enchanteur, CustomFeats.Comptabilite, CustomFeats.BrokerRelations, CustomFeats.Negociateur, CustomFeats.ContractScience, CustomFeats.Marchand, CustomFeats.Magnat };
     public static int GetCustomFeatLevelFromSkillPoints(Feat feat, int currentSkillPoints)
     {
-      int multiplier = 1;
-      int.TryParse(NWScript.Get2DAString("feat", "CRValue", (int)feat), out multiplier);
-
+      int multiplier = Feat2da.featTable.GetFeatDataEntry(feat).CRValue;
       var result = Math.Log(currentSkillPoints / (250 * multiplier)) / Math.Log(5);
 
       if(result > 4)

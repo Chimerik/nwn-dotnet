@@ -1,5 +1,4 @@
 ﻿using System.Collections.Generic;
-using System.Linq;
 using NWN.API;
 using NWN.API.Constants;
 using NWN.Services;
@@ -10,7 +9,7 @@ namespace NWN.Systems
   {
     private readonly Dictionary<int, Entry> entries = new Dictionary<int, Entry>();
 
-    public Entry GetPortraitsDataEntry(int row)
+    public Entry GetDataEntry(int row)
     {
       return entries[row];
     }
@@ -38,7 +37,7 @@ namespace NWN.Systems
     public static PortraitsTable portraitsTable;
     public Portraits2da(TwoDimArrayFactory twoDimArrayFactory)
     {
-      portraitsTable = twoDimArrayFactory.Get2DA<PortraitsTable>("pôrtraits");
+      portraitsTable = twoDimArrayFactory.Get2DA<PortraitsTable>("portraits");
     }
   }
 }

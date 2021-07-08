@@ -144,8 +144,8 @@ namespace NWN.Systems
       {
         string[] splitSpell = spell.Split("$");
 
-        int spellId = int.Parse(splitSpell[0]);
-        byte spellLevel = byte.Parse(NWScript.Get2DAString("spells", "Wiz_Sorc", spellId));
+        Spell spellId = (Spell)int.Parse(splitSpell[0]);
+        byte spellLevel = (byte)Spells2da.spellsTable.GetSpellDataEntry(spellId).level;
 
         if (previousSpellLevel < spellLevel)
           i = 0;
@@ -155,7 +155,7 @@ namespace NWN.Systems
         if(player.oid.ControlledCreature.GetClassInfo((ClassType)43).GetMemorizedSpellSlotCountByLevel(spellLevel) < i)
           continue;
 
-        player.oid.ControlledCreature.GetClassInfo((ClassType)43).GetMemorizedSpellSlots(spellLevel)[i].Spell = (Spell)spellId;
+        player.oid.ControlledCreature.GetClassInfo((ClassType)43).GetMemorizedSpellSlots(spellLevel)[i].Spell = spellId;
 
         if (splitSpell.Length > 1)
           player.oid.ControlledCreature.GetClassInfo((ClassType)43).GetMemorizedSpellSlots(spellLevel)[i].MetaMagic = (MetaMagic)int.Parse(splitSpell[1]);

@@ -293,7 +293,7 @@ namespace NWN.Systems
 
               case CustomFeats.CustomMenuDOWN:
                 player.oid.ControlledCreature.VisualTransform.Translation = new Vector3(translation.X, translation.Y, translation.Z - 0.1f);
-                if (translation.Z < NWScript.GetGroundHeight(player.oid.ControlledCreature.Location))
+                if (translation.Z < player.oid.ControlledCreature.Location.GroundHeight)
                   Utils.LogMessageToDMs($"SIT COMMAND - Player {player.oid.PlayerName} - Z translation = {translation.Z}");
 
                 player.oid.CameraHeight = 1 + translation.Z;

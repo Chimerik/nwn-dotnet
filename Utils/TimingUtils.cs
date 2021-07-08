@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
-using NWN.Core;
+using System.Threading.Tasks;
+using NWN.API;
 
 namespace NWN
 {
@@ -21,13 +22,16 @@ namespace NWN
         // Copy id before incrementation for use in the DelayCommand
         var currentId = nextId;
 
-        NWScript.AssignCommand(NWScript.GetModule(), () => NWScript.DelayCommand(delay, () => {
+        Task debounce = NwTask.Run(async () =>
+        {
+          await NwTask.Delay(TimeSpan.FromSeconds(delay));
+
           if (!cancelDelay[currentId])
           {
             action(T1);
           }
           cancelDelay.Remove(currentId);
-        }));
+        });
 
         nextId++;
       };

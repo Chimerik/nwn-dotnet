@@ -47,6 +47,45 @@ namespace NWN.Systems
 
       return true;
     }
+    public bool HasSkillPrerequisites(Feat feat, NwCreature oCreature)
+    {
+      Entry entry = entries[feat];
+
+      if (oCreature.GetSkillRank(entry.reqSkill, true) < entry.reqSkillMinRank)
+      {
+        oCreature.ControllingPlayer.SendServerMessage($"Un minimum de {entry.reqSkillMinRank.ToString().ColorString(ColorConstants.White)} points en {Skills2da.skillsTable.GetDataEntry(entry.reqSkill).name.ColorString(ColorConstants.White)} est nécessaire avant de pouvoir apprendre les bases de {entry.name.ColorString(ColorConstants.White)}.", ColorConstants.Red);
+        return false;
+      }
+
+      if (oCreature.GetSkillRank(entry.reqSkill2, true) < entry.reqSkillMinRank2)
+      {
+        oCreature.ControllingPlayer.SendServerMessage($"Un minimum de {entry.reqSkillMinRank2.ToString().ColorString(ColorConstants.White)} points en {Skills2da.skillsTable.GetDataEntry(entry.reqSkill2).name.ColorString(ColorConstants.White)} est nécessaire avant de pouvoir apprendre les bases de {entry.name.ColorString(ColorConstants.White)}.", ColorConstants.Red);
+        return false;
+      }
+
+      return true;
+    }
+    public bool HasAbilityPrerequisites(Feat feat, NwCreature oCreature)
+    {
+      Entry entry = entries[feat];
+
+      if(entry.minAttack > oCreature.BaseAttackBonus)
+      {
+        oCreature.ControllingPlayer.SendServerMessage($"Avant d'apprendre les bases de {entry.name.ColorString(ColorConstants.White)}, il faut avoir un bonus d'attaque de base supérieur à {entry.minAttack.ToString().ColorString(ColorConstants.White)}.", ColorConstants.Red);
+        return false;
+      }
+
+      foreach(var minAbility in entry.minAbility)
+      {
+        if(minAbility.Value > oCreature.GetAbilityScore(minAbility.Key, true))
+        {
+          oCreature.ControllingPlayer.SendServerMessage($"Avant d'apprendre les bases de {entry.name.ColorString(ColorConstants.White)}, il faut avoir un score de {minAbility.Key.ToString().ColorString(ColorConstants.White)} supérieur à {entry.minAttack.ToString().ColorString(ColorConstants.White)}.", ColorConstants.Red);
+          return false;
+        }
+      }
+
+      return true;
+    }
     void ITwoDimArray.DeserializeRow(int rowIndex, TwoDimEntry twoDimEntry)
     {
       uint tlkName = uint.TryParse(twoDimEntry("FEAT"), out tlkName) ? tlkName : 0;
@@ -93,37 +132,75 @@ namespace NWN.Systems
 
       List<Feat> preRequisites = new List<Feat>();
 
-      int preReq = int.TryParse(twoDimEntry("PREREQFEAT1"), out int prereq) ? prereq : -1;
-      if (prereq > -1)
+      int preReq = int.TryParse(twoDimEntry("PREREQFEAT1"), out preReq) ? preReq : -1;
+      if (preReq > -1)
         preRequisites.Add((Feat)preReq);
 
-      preReq = int.TryParse(twoDimEntry("PREREQFEAT2"), out prereq) ? prereq : -1;
-      if (prereq > -1)
+      preReq = int.TryParse(twoDimEntry("PREREQFEAT2"), out preReq) ? preReq : -1;
+      if (preReq > -1)
         preRequisites.Add((Feat)preReq);
 
       List<Feat> orRequisites = new List<Feat>();
 
-      preReq = int.TryParse(twoDimEntry("OrReqFeat0"), out prereq) ? prereq : -1;
-      if (prereq > -1)
+      preReq = int.TryParse(twoDimEntry("OrReqFeat0"), out preReq) ? preReq : -1;
+      if (preReq > -1)
         orRequisites.Add((Feat)preReq);
 
-      preReq = int.TryParse(twoDimEntry("OrReqFeat1"), out prereq) ? prereq : -1;
-      if (prereq > -1)
+      preReq = int.TryParse(twoDimEntry("OrReqFeat1"), out preReq) ? preReq : -1;
+      if (preReq > -1)
         orRequisites.Add((Feat)preReq);
 
-      preReq = int.TryParse(twoDimEntry("OrReqFeat2"), out prereq) ? prereq : -1;
-      if (prereq > -1)
+      preReq = int.TryParse(twoDimEntry("OrReqFeat2"), out preReq) ? preReq : -1;
+      if (preReq > -1)
         orRequisites.Add((Feat)preReq);
 
-      preReq = int.TryParse(twoDimEntry("OrReqFeat3"), out prereq) ? prereq : -1;
-      if (prereq > -1)
+      preReq = int.TryParse(twoDimEntry("OrReqFeat3"), out preReq) ? preReq : -1;
+      if (preReq > -1)
         orRequisites.Add((Feat)preReq);
 
-      preReq = int.TryParse(twoDimEntry("OrReqFeat4"), out prereq) ? prereq : -1;
-      if (prereq > -1)
+      preReq = int.TryParse(twoDimEntry("OrReqFeat4"), out preReq) ? preReq : -1;
+      if (preReq > -1)
         orRequisites.Add((Feat)preReq);
 
-      entries.Add((Feat)rowIndex, new Entry(name, description, tlkName, tlkDescription, CRValue, currentLevel, successor, primaryAbility, secondaryAbility, preRequisites, orRequisites));
+      int reqSkill = int.TryParse(twoDimEntry("REQSKILL"), out reqSkill) ? reqSkill : 0;
+      int reqSkillMinRank = -1;
+      if(reqSkill > -1)
+        reqSkillMinRank = int.TryParse(twoDimEntry("ReqSkillMinRanks"), out reqSkill) ? reqSkill : -1;
+
+      int reqSkill2 = int.TryParse(twoDimEntry("REQSKILL"), out reqSkill2) ? reqSkill2 : 0;
+      int reqSkillMinRank2 = -1;
+      if (reqSkill2 > -1)
+        reqSkillMinRank2 = int.TryParse(twoDimEntry("ReqSkillMinRanks"), out reqSkillMinRank2) ? reqSkillMinRank2 : -1;
+
+      int minAttack = int.TryParse(twoDimEntry("MINATTACKBONUS"), out minAttack) ? minAttack : -1;
+
+      Dictionary<Ability, int> minAbility = new Dictionary<Ability, int>();
+
+      preReq = int.TryParse(twoDimEntry("MINSTR"), out preReq) ? preReq : 0;
+      if (preReq > 0)
+        minAbility.Add(Ability.Strength, preReq);
+
+      preReq = int.TryParse(twoDimEntry("MINCON"), out preReq) ? preReq : 0;
+      if (preReq > 0)
+        minAbility.Add(Ability.Constitution, preReq);
+
+      preReq = int.TryParse(twoDimEntry("MINDEX"), out preReq) ? preReq : 0;
+      if (preReq > 0)
+        minAbility.Add(Ability.Dexterity, preReq);
+
+      preReq = int.TryParse(twoDimEntry("MININT"), out preReq) ? preReq : 0;
+      if (preReq > 0)
+        minAbility.Add(Ability.Intelligence, preReq);
+
+      preReq = int.TryParse(twoDimEntry("MINSAG"), out preReq) ? preReq : 0;
+      if (preReq > 0)
+        minAbility.Add(Ability.Wisdom, preReq);
+
+      preReq = int.TryParse(twoDimEntry("MINCHA"), out preReq) ? preReq : 0;
+      if (preReq > 0)
+        minAbility.Add(Ability.Charisma, preReq);
+
+      entries.Add((Feat)rowIndex, new Entry(name, description, tlkName, tlkDescription, CRValue, currentLevel, successor, primaryAbility, secondaryAbility, preRequisites, orRequisites, (Skill)reqSkill, reqSkillMinRank, (Skill)reqSkill2, reqSkillMinRank2, minAttack, minAbility));
     }
     public readonly struct Entry
     {
@@ -138,7 +215,13 @@ namespace NWN.Systems
       public readonly Ability secondaryAbility;
       public readonly List<Feat> preRequisites;
       public readonly List<Feat> orRequisites;
-      public Entry(string name, string description, uint tlkName, uint tlkDescription, int CRValue, int currentLevel, int successor, Ability primaryAbility, Ability secondaryAbility, List<Feat> preRequisites, List<Feat> orRequisites)
+      public readonly Skill reqSkill;
+      public readonly Skill reqSkill2;
+      public readonly int reqSkillMinRank;
+      public readonly int reqSkillMinRank2;
+      public readonly int minAttack;
+      public readonly Dictionary<Ability, int> minAbility;
+      public Entry(string name, string description, uint tlkName, uint tlkDescription, int CRValue, int currentLevel, int successor, Ability primaryAbility, Ability secondaryAbility, List<Feat> preRequisites, List<Feat> orRequisites, Skill reqSkill, int reqSkillMinRank, Skill reqSkill2, int reqSkillMinRank2, int minAttack, Dictionary<Ability, int> minAbility)
       {
         this.name = name;
         this.description = description;
@@ -151,6 +234,12 @@ namespace NWN.Systems
         this.secondaryAbility = secondaryAbility;
         this.preRequisites = preRequisites;
         this.orRequisites = orRequisites;
+        this.reqSkill = reqSkill;
+        this.reqSkill2 = reqSkill2;
+        this.reqSkillMinRank = reqSkillMinRank;
+        this.reqSkillMinRank2 = reqSkillMinRank2;
+        this.minAttack = minAttack;
+        this.minAbility = minAbility;
       }
     }
   }

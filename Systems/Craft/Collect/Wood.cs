@@ -93,7 +93,7 @@ namespace NWN.Systems.Craft.Collect
         int iRandom = Utils.random.Next(1, 101);
         if (iRandom < respawnChance)
         {
-          NwPlaceable newRock = NwPlaceable.Create("mineable_tree", NWScript.GetLocation(resourcePoint));
+          NwPlaceable newRock = NwPlaceable.Create("mineable_tree", resourcePoint.Location);
           newRock.Name = Enum.GetName(typeof(WoodType), GetRandomWoodSpawnFromAreaLevel(area.GetLocalVariable<int>("_AREA_LEVEL").Value));
           newRock.GetLocalVariable<int>("_ORE_AMOUNT").Value = 10 * iRandom + 10 * iRandom * skillBonus / 100;
           resourcePoint.Destroy();

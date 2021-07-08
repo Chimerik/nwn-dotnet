@@ -110,15 +110,15 @@ namespace NWN.Systems
     {
       player.menu.Clear();
       player.menu.titleLines.Add("Quelle rumeur majeure souhaitez-vous entendre ?");
-      
-      var query = NWScript.SqlPrepareQueryCampaign(Config.database, "SELECT title, content from rumors r " +
+
+      var query =  NwModule.Instance.PrepareCampaignSQLQuery(Config.database, "SELECT title, content from rumors r " +
         "LEFT JOIN PlayerAccounts pa on r.accountId = pa.ROWID " +
         "where pa.rank in ('admin', 'staff')");
 
-      while (NWScript.SqlStep(query) > 0)
+      foreach (var result in query.Results)
       {
-        string rumorContent = NWScript.SqlGetString(query, 1);
-        rumorTitle = NWScript.SqlGetString(query, 0);
+        string rumorContent = result.GetString(1);
+        rumorTitle = result.GetString(0);
         player.menu.choices.Add((rumorTitle, () => HandleRumorSelected(rumorContent)));
       }
 
@@ -130,27 +130,27 @@ namespace NWN.Systems
       player.menu.Clear();
       player.menu.titleLines.Add("Quel potin souhaitez-vous entendre ?");
 
-      var query = NWScript.SqlPrepareQueryCampaign(Config.database, "SELECT title, content from rumors r " +
+      var query = NwModule.Instance.PrepareCampaignSQLQuery(Config.database, "SELECT title, content from rumors r " +
         "LEFT JOIN PlayerAccounts pa on r.accountId = pa.ROWID " +
         "where pa.rank not in ('admin', 'staff')");
 
-      while (NWScript.SqlStep(query) > 0)
+      foreach (var result in query.Results)
       {
-        string rumorContent = NWScript.SqlGetString(query, 1);
-        rumorTitle = NWScript.SqlGetString(query, 0);
+        string rumorContent = result.GetString(1);
+        rumorTitle = result.GetString(0);
         player.menu.choices.Add((rumorTitle, () => HandleRumorSelected(rumorContent)));
       }
 
       player.menu.choices.Add(("Retour", () => DrawWelcomePage()));
       player.menu.Draw();
     }
-    private void HandleRumorSelected(string rumorContent)
+    private async void HandleRumorSelected(string rumorContent)
     {
       string originalDesc = player.oid.ControlledCreature.Description;
       string tempDescription = rumorTitle.ColorString(ColorConstants.Orange) + "\n\n" + rumorContent;
       player.oid.ControlledCreature.Description = tempDescription;
-      player.oid.ControlledCreature.ClearActionQueue();
-      player.oid.ActionExamine(player.oid.ControlledCreature);
+      await player.oid.ControlledCreature.ClearActionQueue();
+      await player.oid.ActionExamine(player.oid.ControlledCreature);
 
       Task waitForDescriptionRewrite = NwTask.Run(async () =>
       {

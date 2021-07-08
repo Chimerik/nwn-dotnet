@@ -20,10 +20,9 @@ namespace NWN.Systems
       NwCreature captain = (NwCreature)callInfo.ObjectSelf;
       NwArea area = captain.Area;
       NwPlayer player = NWScript.GetLastSpeaker().ToNwObject<NwCreature>().ControllingPlayer;
-
       player.SetCameraFacing(180, 65, 20);
 
-      ObjectPlugin.SetDialogResref(captain, "");
+      captain.DialogResRef = "";
       captain.SpeakString("Des récifs ! Accrochez-vous, va falloir maneouvrer serré !");
 
       List<NwCreature> sailorList = captain.GetNearestCreatures(CreatureTypeFilter.PlayerChar(false)).Where(c => c.Tag == "intro_sailor").ToList();

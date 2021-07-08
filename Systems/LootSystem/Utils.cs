@@ -7,9 +7,9 @@ namespace NWN.Systems
 {
   public partial class LootSystem
   {
-    private void UpdateDB(NwPlaceable oChest)
+    private void UpdateDB(NwPlaceable oChest, NwCreature oClosedBy)
     {
-      if (PlayerSystem.Players.TryGetValue(NWScript.GetLastClosedBy(), out PlayerSystem.Player oPC))
+      if (PlayerSystem.Players.TryGetValue(oClosedBy, out PlayerSystem.Player oPC))
       {
         SqLiteUtils.InsertQuery(SQL_TABLE,
           new List<string[]>() {

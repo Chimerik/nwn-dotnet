@@ -220,11 +220,11 @@ namespace NWN.Systems
         CustomFeat customFeat = SkillSystem.customFeatsDictionnary[feat.Key];
         FeatTable.Entry entry = Feat2da.featTable.GetFeatDataEntry(feat.Key);
 
-        PlayerPlugin.SetTlkOverride(callInfo.ObjectSelf, (int)entry.tlkName, $"{customFeat.name} - {SkillSystem.GetCustomFeatLevelFromSkillPoints(feat.Key, feat.Value)}");
-        //player.SetTlkOverride(nameValue, $"{customFeat.name} - {SkillSystem.GetCustomFeatLevelFromSkillPoints(feat.Key, feat.Value)}");
+        //PlayerPlugin.SetTlkOverride(callInfo.ObjectSelf, (int)entry.tlkName, $"{customFeat.name} - {SkillSystem.GetCustomFeatLevelFromSkillPoints(feat.Key, feat.Value)}");
+        player.SetTlkOverride((int)entry.tlkName, $"{customFeat.name} - {SkillSystem.GetCustomFeatLevelFromSkillPoints(feat.Key, feat.Value)}");
 
-        PlayerPlugin.SetTlkOverride(callInfo.ObjectSelf, (int)entry.tlkDescription, customFeat.description);
-        //player.SetTlkOverride(descriptionValue, customFeat.description);
+        //PlayerPlugin.SetTlkOverride(callInfo.ObjectSelf, (int)entry.tlkDescription, customFeat.description);
+        player.SetTlkOverride((int)entry.tlkDescription, customFeat.description);
       }
     }
     [ScriptHandler("on_input_emote")]

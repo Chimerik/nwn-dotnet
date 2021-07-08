@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Numerics;
 using System.Threading;
 using System.Threading.Tasks;
 using NWN.API;
@@ -31,10 +32,11 @@ namespace NWN.Systems.Arena
     {
       await NwTask.Delay(TimeSpan.FromSeconds(3));
 
-      NWScript.SetObjectVisualTransform(onPlayerDeath.DeadPlayer.LoginCreature, NWScript.OBJECT_VISUAL_TRANSFORM_ROTATE_X, 360.0f, NWScript.OBJECT_VISUAL_TRANSFORM_LERP_SMOOTHERSTEP, 7f);
-      NWScript.SetObjectVisualTransform(onPlayerDeath.DeadPlayer.LoginCreature, NWScript.OBJECT_VISUAL_TRANSFORM_ROTATE_Y, 360.0f, NWScript.OBJECT_VISUAL_TRANSFORM_LERP_QUADRATIC, 7f);
-      NWScript.SetObjectVisualTransform(onPlayerDeath.DeadPlayer.LoginCreature, NWScript.OBJECT_VISUAL_TRANSFORM_ROTATE_Z, 360.0f, NWScript.OBJECT_VISUAL_TRANSFORM_LERP_INVERSE_SMOOTHSTEP, 7f);
-      NWScript.SetObjectVisualTransform(onPlayerDeath.DeadPlayer.LoginCreature, NWScript.OBJECT_VISUAL_TRANSFORM_TRANSLATE_Z, 2.5f, NWScript.OBJECT_VISUAL_TRANSFORM_LERP_EASE_OUT, 4f);
+      onPlayerDeath.DeadPlayer.LoginCreature.VisualTransform.Lerp(new VisualTransformLerpSettings { LerpType = VisualTransformLerpType.SmootherStep, Duration = TimeSpan.FromSeconds(7), PauseWithGame = true }, 
+        transform => { transform.Rotation = new Vector3(360, 360, 360); });
+
+      onPlayerDeath.DeadPlayer.LoginCreature.VisualTransform.Lerp(new VisualTransformLerpSettings { LerpType = VisualTransformLerpType.EaseOut, Duration = TimeSpan.FromSeconds(4), PauseWithGame = true },
+        transform => { transform.Rotation = new Vector3(0, 0, 3); });
 
       await NwTask.Delay(TimeSpan.FromSeconds(5));
 

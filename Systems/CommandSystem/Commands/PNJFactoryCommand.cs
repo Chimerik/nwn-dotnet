@@ -528,7 +528,7 @@ namespace NWN.Systems
         else if (modification == -1)
           currentValue--;
 
-        while (Portraits2da.portraitsTable.GetPortraitsDataEntry(currentValue).resRef.Length == 0)
+        while (Portraits2da.portraitsTable.GetDataEntry(currentValue).resRef.Length == 0)
         {
           if (modification == 1)
             currentValue++;
