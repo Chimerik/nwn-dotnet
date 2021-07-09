@@ -352,7 +352,9 @@ namespace NWN.Systems
 
       if(result.Result != null)
       {
-        player.oid.SendServerMessage($"{result.Result.GetString(0).ColorString(ColorConstants.White)} lettres non lues se trouvent dans votre boîte aux lettres.", ColorConstants.Pink);
+        int nbMails = result.Result.GetInt(0);
+        if(nbMails > 0)
+          player.oid.SendServerMessage($"{nbMails.ToString().ColorString(ColorConstants.White)} lettres non lues se trouvent dans votre boîte aux lettres.", ColorConstants.Pink);
       }
     }
   }

@@ -56,6 +56,16 @@ namespace NWN.Systems
         corpse.OnConversation += HandleCancelStatueConversation;
         corpse.OnSpawn += HandleSetUpDeadCreatureCorpse;
       }
+
+      foreach (NwCreature trainer in NwObject.FindObjectsWithTag<NwCreature>("damage_trainer"))
+      {
+        trainer.MaxHP = 9999;
+        trainer.HP = 9999;
+        trainer.BaseAC = (sbyte)trainer.GetLocalVariable<int>("AC").Value;
+
+        trainer.OnConversation += HandleCancelStatueConversation;
+        trainer.OnSpawn += HandleSpawnStatufy;
+      }
     }
     public static void OnUsedStoragePortalIn(PlaceableEvents.OnUsed onUsed)
     {

@@ -7,8 +7,6 @@ using System.Threading.Tasks;
 using System;
 using System.Collections.Generic;
 using Action = System.Action;
-using ItemProperty = NWN.API.ItemProperty;
-using Effect = NWN.API.Effect;
 using Context = NWN.Systems.Config.Context;
 
 namespace NWN.Systems
@@ -161,12 +159,7 @@ namespace NWN.Systems
           || (i.PropertyType == ItemPropertyType.DamageBonusVsRacialGroup && i.SubType == (int)ctx.oTarget.RacialType)
           || (i.PropertyType == ItemPropertyType.DamageBonusVsAlignmentGroup && i.SubType == (int)ctx.oTarget.GoodEvilAlignment)
           || (i.PropertyType == ItemPropertyType.DamageBonusVsAlignmentGroup && i.SubType == (int)ctx.oTarget.LawChaosAlignment)
-          || (i.PropertyType == ItemPropertyType.DamageBonusVsSpecificAlignment && i.SubType == Config.GetIPSpecificAlignmentSubTypeAsInt(ctx.oTarget))
-          || (i.PropertyType == ItemPropertyType.EnhancementBonus)
-          || (i.PropertyType == ItemPropertyType.EnhancementBonusVsRacialGroup && i.SubType == (int)ctx.oTarget.RacialType)
-          || (i.PropertyType == ItemPropertyType.EnhancementBonusVsAlignmentGroup && i.SubType == (int)ctx.oTarget.GoodEvilAlignment)
-          || (i.PropertyType == ItemPropertyType.EnhancementBonusVsAlignmentGroup && i.SubType == (int)ctx.oTarget.LawChaosAlignment)
-          || (i.PropertyType == ItemPropertyType.EnhancementBonusVsSpecificAlignment && i.SubType == Config.GetIPSpecificAlignmentSubTypeAsInt(ctx.oTarget)))
+          || (i.PropertyType == ItemPropertyType.DamageBonusVsSpecificAlignment && i.SubType == Config.GetIPSpecificAlignmentSubTypeAsInt(ctx.oTarget)))
             .GroupBy(i => i.PropertyType))
           {
             ItemProperty maxIP = propType.OrderByDescending(i => i.CostTableValue).FirstOrDefault();
@@ -176,7 +169,7 @@ namespace NWN.Systems
 
             switch (maxIP.Param1TableValue)
             {
-              case -1: // Cas des dégâts simples
+              case 255: // Cas des dégâts simples
                 damageType = ItemUtils.GetDamageTypeFromItemProperty((IPDamageType)maxIP.SubType);
                 break;
               default: // Case des dégâts spécifiques, le type de dégât se trouve dans Param1TableValue au lieu de SubType. Ouais, c'est chiant
@@ -189,10 +182,21 @@ namespace NWN.Systems
             if (rolledDamage > currentDamage)
               ctx.onAttack.DamageData.SetDamageByType(damageType, rolledDamage);
           }
-        }
 
-        int[] damageDices = BaseItems2da.baseItemTable.GetDamageDices(ctx.attackWeapon.BaseItemType);
-        ctx.onAttack.DamageData.Base = (short)(NwRandom.Roll(Utils.random, damageDices[0], damageDices[1]) + strModifier);
+          int[] damageDices = BaseItems2da.baseItemTable.GetDamageDices(ctx.attackWeapon.BaseItemType);
+          ctx.onAttack.DamageData.Base = (short)(NwRandom.Roll(Utils.random, damageDices[0], damageDices[1]) + strModifier);
+
+          foreach (var propType in damageSlot.ItemProperties.Where(i => (i.PropertyType == ItemPropertyType.EnhancementBonus)
+          || (i.PropertyType == ItemPropertyType.EnhancementBonusVsRacialGroup && i.SubType == (int)ctx.oTarget.RacialType)
+          || (i.PropertyType == ItemPropertyType.EnhancementBonusVsAlignmentGroup && i.SubType == (int)ctx.oTarget.GoodEvilAlignment)
+          || (i.PropertyType == ItemPropertyType.EnhancementBonusVsAlignmentGroup && i.SubType == (int)ctx.oTarget.LawChaosAlignment)
+          || (i.PropertyType == ItemPropertyType.EnhancementBonusVsSpecificAlignment && i.SubType == Config.GetIPSpecificAlignmentSubTypeAsInt(ctx.oTarget)))
+            .GroupBy(i => i.PropertyType))
+          {
+            ItemProperty maxIP = propType.OrderByDescending(i => i.CostTableValue).FirstOrDefault();
+            ctx.onAttack.DamageData.Base += (short)maxIP.CostTableValue;
+          }
+        }
       }
 
       next();
@@ -529,9 +533,11 @@ namespace NWN.Systems
     private static void ProcessBaseArmorPenetration(Context ctx, Action next)
     {
       if (ctx.onAttack.WeaponAttackType == WeaponAttackType.Offhand) 
-        ctx.baseArmorPenetration = ctx.oAttacker.GetAttackBonus(false, false, true);
-      else
+        ctx.baseArmorPenetration = ctx.oAttacker.GetAttackBonus(true, false, true);
+      else if(ctx.isRangedAttack)
         ctx.baseArmorPenetration = ctx.oAttacker.GetAttackBonus();
+      else
+        ctx.baseArmorPenetration = ctx.oAttacker.GetAttackBonus(true);
 
       if (ctx.attackWeapon != null && ctx.attackWeapon.BaseItemType == BaseItemType.Gloves) // la fonction GetAttackBonus ne prend pas en compte le + AB des gants, donc je le rajoute
       {
@@ -539,6 +545,8 @@ namespace NWN.Systems
         if (maxAttackBonus != null)
           ctx.baseArmorPenetration += maxAttackBonus.CostTableValue;
       }
+
+
 
       next();
     }
@@ -647,7 +655,7 @@ namespace NWN.Systems
       if (ctx.targetArmor == null && !ctx.oTarget.IsLoginPlayerCharacter) // Dans le cas où la créature n'a pas d'armure et n'est pas un joueur, alors on simplifie et on prend directement sa CA de base pour la CA générique et les propriétés de sa peau pour la CA spécifique
       {
         ctx.targetArmor = ctx.oTarget.GetItemInSlot(InventorySlot.CreatureSkin);
-        ctx.targetAC[DamageType.BaseWeapon] = ctx.oTarget.AC;
+        ctx.targetAC[DamageType.BaseWeapon] = ctx.oTarget.AC - ctx.oTarget.GetAbilityModifier(Ability.Dexterity) - 10;
       }
       else if (hitSlot != InventorySlot.Chest)
       {
@@ -684,6 +692,11 @@ namespace NWN.Systems
               break;
           }
         }
+      }
+
+      if (ctx.oTarget.Tag == "damage_trainer" && ctx.oAttacker.IsPlayerControlled)
+      {
+        ctx.oAttacker.ControllingPlayer.SendServerMessage($"Hit slot : {hitSlot.ToString().ColorString(ColorConstants.White)}", ColorConstants.Brown);
       }
 
       next();
@@ -766,19 +779,31 @@ namespace NWN.Systems
     }
     private static void ProcessArmorPenetrationCalculations(Context ctx, Action next)
     {
-      ctx.targetAC[DamageType.BaseWeapon] = ctx.targetAC[DamageType.BaseWeapon] * (100 - ctx.baseArmorPenetration - ctx.bonusArmorPenetration) / 100;
+      int armorPenetration = ctx.baseArmorPenetration + ctx.bonusArmorPenetration;
+
+      if (ctx.oTarget.Tag == "damage_trainer" && ctx.oAttacker.IsPlayerControlled)
+      {
+        ctx.oAttacker.ControllingPlayer.SendServerMessage($"Armure de base de la cible : {ctx.targetAC[DamageType.BaseWeapon].ToString().ColorString(ColorConstants.White)}", ColorConstants.Orange);
+        if (armorPenetration > 0)
+          ctx.oAttacker.ControllingPlayer.SendServerMessage($"Pénétration d'armure : {armorPenetration.ToString().ColorString(ColorConstants.White)}% ({ctx.baseArmorPenetration.ToString().ColorString(ColorConstants.White)} + {ctx.bonusArmorPenetration.ToString().ColorString(ColorConstants.White)})", ColorConstants.Orange);
+        else
+          ctx.oAttacker.ControllingPlayer.SendServerMessage($"Pénétration d'armure : 0%", ColorConstants.Orange);
+      }
+
+      ctx.targetAC[DamageType.BaseWeapon] = ctx.targetAC[DamageType.BaseWeapon] * (100 - armorPenetration) / 100;
+
       next();
     }
     private static void ProcessDamageCalculations(Context ctx, Action next)
     {
-      int targetAC = 0;
+      double targetAC = 0;
 
-      foreach (DamageType damageType in (DamageType[]) Enum.GetValues(typeof(DamageType)))
+      foreach (DamageType damageType in (DamageType[])Enum.GetValues(typeof(DamageType)))
       {
         if (ctx.onAttack.DamageData.GetDamageByType(damageType) < 1)
           continue;
 
-        switch(damageType)
+        switch (damageType)
         {
           case DamageType.BaseWeapon: // Base weapon damage
 
@@ -833,12 +858,32 @@ namespace NWN.Systems
         if (targetAC < 0)
           targetAC = 0;
 
-        //ctx.damageData.SetDamageByType(damageType, (short)(ctx.damageData.GetDamageByType(damageType) * Math.Pow(0.5, (targetAC - 60) / 40)));
-        Config.SetContextDamage(ctx, damageType, (int)(Config.GetContextDamage(ctx, damageType) * Math.Pow(0.5, (targetAC - 60) / 40)));
-        PlayerSystem.Log.Info($"{damageType} - AC {targetAC} - Damage {Config.GetContextDamage(ctx, damageType)}");
+        double initialDamage = Config.GetContextDamage(ctx, damageType);
+        double multiplier = Math.Pow(0.5, (targetAC - 60) / 40);
+        double modifiedDamage = initialDamage * multiplier;
+
+        if (ctx.oTarget.Tag == "damage_trainer" && ctx.oAttacker.IsPlayerControlled)
+        {
+          ctx.oAttacker.ControllingPlayer.SendServerMessage($"Initial : {damageType.ToString().ColorString(ColorConstants.White)} - {initialDamage.ToString().ColorString(ColorConstants.White)}", ColorConstants.Orange);
+          ctx.oAttacker.ControllingPlayer.SendServerMessage($"Armure totale vs {damageType.ToString().ColorString(ColorConstants.White)} : {targetAC.ToString().ColorString(ColorConstants.White)} - Dégâts {string.Format("{0:0}", modifiedDamage).ColorString(ColorConstants.White)}", ColorConstants.Orange);
+          ctx.oAttacker.ControllingPlayer.SendServerMessage($"Réduction : {string.Format("{0:0.000}", ((initialDamage - modifiedDamage) / modifiedDamage) * 100).ColorString(ColorConstants.White)}%", ColorConstants.Orange);
+        }
+
+        Config.SetContextDamage(ctx, damageType, (int)modifiedDamage);
+        PlayerSystem.Log.Info($"Final : {damageType} - AC {targetAC} - Damage {modifiedDamage}");
       }
 
-      ctx.oTarget.GetLocalVariable<int>($"_DAMAGE_HANDLED_FROM_{ctx.oAttacker}").Value = 1;
+      if(ctx.onAttack != null)
+        ctx.oTarget.GetLocalVariable<int>($"_DAMAGE_HANDLED_FROM_{ctx.oAttacker}").Value = 1;
+
+      if (ctx.oTarget.Tag == "damage_trainer")
+      {
+        Task HealAfterDamage = NwTask.Run(async () =>
+        {
+          await NwTask.Delay(TimeSpan.FromSeconds(0.1f));
+          ctx.oTarget.HP = ctx.oTarget.MaxHP;
+        });
+      }
 
       next();
     }
@@ -847,6 +892,8 @@ namespace NWN.Systems
       if (PlayerSystem.Players.TryGetValue(ctx.oAttacker, out PlayerSystem.Player attacker) && ctx.attackWeapon != null)
       {
         // L'attaquant est un joueur. On diminue la durabilité de son arme
+        PlayerSystem.Log.Info("Entered item durability");
+        PlayerSystem.Log.Info($"player : {attacker.oid.PlayerName}");
 
         int durabilityChance = 30;
 
