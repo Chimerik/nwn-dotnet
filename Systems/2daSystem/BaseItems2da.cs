@@ -19,39 +19,32 @@ namespace NWN.Systems
       Entry damageEntry = entries[baseItem];
       return new int[] { damageEntry.damageDice, damageEntry.numDamageDice };
     }
+    public bool IsTwoHandedWeapon(BaseItemType baseItem, CreatureSize creatureSize)
+    {
+      Entry damageEntry = entries[baseItem];
+      return damageEntry.IsWeapon && (damageEntry.weaponSize > (int)creatureSize);
+    }
 
     void ITwoDimArray.DeserializeRow(int rowIndex, TwoDimEntry twoDimEntry)
     {
       uint strRef = uint.TryParse(twoDimEntry("Name"), out strRef) ? strRef : 0;
-      string name;
-      if (strRef == 0)
-        name = "Nom manquant";
-      else
-        name = BaseItems2da.tlkTable.GetSimpleString(strRef);
-
+      string name = strRef == 0 ? name = "Nom manquant" : name = BaseItems2da.tlkTable.GetSimpleString(strRef);
       strRef = uint.TryParse(twoDimEntry("Description"), out strRef) ? strRef : 0;
-      string description;
-      if (strRef == 0)
-        description = "Nom manquant";
-      else
-        description = BaseItems2da.tlkTable.GetSimpleString(strRef);
-
+      string description = strRef == 0 ? description = "Description manquante" : description = BaseItems2da.tlkTable.GetSimpleString(strRef);
       string workshop = twoDimEntry("Category");
       string craftedItem = twoDimEntry("label");
-
       int numDamageDice = int.TryParse(twoDimEntry("NumDice"), out numDamageDice) ? numDamageDice : 0;
       int damageDice = int.TryParse(twoDimEntry("DieToRoll"), out damageDice) ? damageDice : 0;
+      bool isWeapon = damageDice == 0 ? isWeapon = false : isWeapon = true;
       float baseCost = float.TryParse(twoDimEntry("BaseCost"), out baseCost) ? baseCost : 1;
-
-      string equippableSlot = twoDimEntry("EquipableSlots");
-      bool IsEquippable = true;
-      if (equippableSlot == "0x00000")
-        IsEquippable = false;
-
+      bool IsEquippable = twoDimEntry("EquipableSlots") == "0x00000" ? IsEquippable = false : IsEquippable = true;
       int range = int.TryParse(twoDimEntry("RangedWeapon"), out range) ? range : 0;
+      bool isRangedWeapon = range == 0 ? isRangedWeapon = false : isRangedWeapon = true;
+      bool isMeleeWeapon = damageDice > 0 && range == 0 ? isMeleeWeapon = true : isMeleeWeapon = false;
       int damageType = int.TryParse(twoDimEntry("WeaponType"), out damageType) ? damageType : 0;
+      int weaponSize = int.TryParse(twoDimEntry("WeaponSize"), out damageType) ? damageType : 0;
 
-      entries.Add((BaseItemType)rowIndex, new Entry(name, description, numDamageDice, damageDice, baseCost, workshop, craftedItem, IsEquippable, damageDice > 0, range > 0, damageDice > 0 && range == 0, damageType));
+      entries.Add((BaseItemType)rowIndex, new Entry(name, description, numDamageDice, damageDice, baseCost, workshop, craftedItem, IsEquippable, isWeapon, isRangedWeapon, isMeleeWeapon, damageType, weaponSize));
     }
     public readonly struct Entry
     {
@@ -60,6 +53,7 @@ namespace NWN.Systems
       public readonly int numDamageDice;
       public readonly int damageDice;
       public readonly int damageType;
+      public readonly int weaponSize;
       public readonly float baseCost;
       public readonly string workshop;
       public readonly string craftedItem;
@@ -68,7 +62,7 @@ namespace NWN.Systems
       public readonly bool IsRangedWeapon;
       public readonly bool IsMeleeWeapon;
 
-      public Entry(string name, string description, int numDamageDice, int damageDice, float baseCost, string workshop, string craftedItem, bool IsEquippable, bool IsWeapon, bool IsRangedWeapon, bool IsMeleeWeapon, int damageType)
+      public Entry(string name, string description, int numDamageDice, int damageDice, float baseCost, string workshop, string craftedItem, bool IsEquippable, bool IsWeapon, bool IsRangedWeapon, bool IsMeleeWeapon, int damageType, int weaponSize)
       {
         this.name = name;
         this.description = description;
@@ -82,6 +76,7 @@ namespace NWN.Systems
         this.IsMeleeWeapon = IsMeleeWeapon;
         this.IsRangedWeapon = IsRangedWeapon;
         this.damageType = damageType;
+        this.weaponSize = weaponSize;
       }
     }
   }

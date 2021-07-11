@@ -43,18 +43,10 @@ namespace NWN.Systems
       string school = twoDimEntry("School");
 
       uint strRef = uint.TryParse(twoDimEntry("Name"), out strRef) ? strRef : 0;
-      string name;
-      if (strRef == 0)
-        name = "Nom manquant";
-      else
-        name = Spells2da.tlkTable.GetSimpleString(strRef);
+      string name = strRef == 0 ? name = "Nom manquant" : name = Spells2da.tlkTable.GetSimpleString(strRef);
 
       strRef = uint.TryParse(twoDimEntry("SpellDesc"), out strRef) ? strRef : 0;
-      string description;
-      if (strRef == 0)
-        description = "Description manquante";
-      else
-        description = Spells2da.tlkTable.GetSimpleString(strRef);
+      string description = strRef == 0 ? description = "Description manquante" : description = Spells2da.tlkTable.GetSimpleString(strRef);
 
       float level = float.TryParse(twoDimEntry("Wiz_Sorc"), out level) ? level : 0.5f;
       if (level < 1)

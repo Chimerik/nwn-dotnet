@@ -17,12 +17,7 @@ namespace NWN.Systems
     {
       int cost = int.TryParse(twoDimEntry("COST"), out cost) ? cost : 1;
       uint strRef = uint.TryParse(twoDimEntry("NAME"), out strRef) ? strRef : 0;
-      string name;
-      if (strRef == 0)
-        name = "Nom manquant";
-      else
-        name = Armor2da.tlkTable.GetSimpleString(strRef);
-
+      string name = strRef == 0 ? name = "Nom manquant" : name = Armor2da.tlkTable.GetSimpleString(strRef);
       string workshop = twoDimEntry("WORKSHOP");
       string craftResRef = twoDimEntry("CRAFTRESREF");
 

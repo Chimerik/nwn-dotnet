@@ -16,13 +16,7 @@ namespace NWN.Systems
     void ITwoDimArray.DeserializeRow(int rowIndex, TwoDimEntry twoDimEntry)
     {
       uint tlkName = uint.TryParse(twoDimEntry("Name"), out tlkName) ? tlkName : 0;
-
-      string name;
-      if (tlkName == 0)
-        name = "Nom manquant";
-      else
-        name = Feat2da.tlkTable.GetSimpleString(tlkName);
-
+      string name = tlkName == 0 ? name = "Nom manquant" : name = Skills2da.tlkTable.GetSimpleString(tlkName);
       entries.Add((Skill)rowIndex, new Entry(name));
     }
     public readonly struct Entry

@@ -1,27 +1,67 @@
 ﻿using System;
 using System.Runtime.InteropServices;
 
+using NLog;
+
+using NWN.API;
 using NWN.API.Constants;
 using NWN.Native.API;
+using NWN.Services;
 
 namespace NWN.Systems
 {
-  public static unsafe class NativeDamageHookTest
+  [ServiceBinding(typeof(NativeAttackHook))]
+  public unsafe class NativeAttackHook
   {
-    /*internal delegate int GetDamageRollHook(void* thisPtr, void* pTarget, int bOffHand, int bCritical, int bSneakAttack, int bDeathAttack, int bForceMax);
-    // ReSharper disable once NotAccessedField.Local
-    private static GetDamageRollHook _callOriginal;
+    private static readonly Logger Log = LogManager.GetCurrentClassLogger();
 
-    [NWNEventHandler("mod_load")]
-    public static void RegisterHook()
+    private delegate int GetDamageRollHook(void* thisPtr, void* pTarget, int bOffHand, int bCritical, int bSneakAttack, int bDeathAttack, int bForceMax);
+    private delegate void ResolveAttackRollHook(void* pCreature, void* pTarget);
+
+    private readonly FunctionHook<GetDamageRollHook> getDamageRollHook;
+    private readonly FunctionHook<ResolveAttackRollHook> resolveAttackRollHook;
+
+    public NativeAttackHook(HookService hookService)
     {
-      delegate* unmanaged<void*, void*, int, int, int, int, int, int> pHook = &OnGetDamageRoll;
-      var hookPtr = Internal.NativeFunctions.RequestHook(new IntPtr(FunctionsLinux._ZN17CNWSCreatureStats13GetDamageRollEP10CNWSObjectiiiii), (IntPtr)pHook, -1000000);
-      _callOriginal = Marshal.GetDelegateForFunctionPointer<GetDamageRollHook>(hookPtr);
+      //getDamageRollHook = hookService.RequestHook<GetDamageRollHook>(OnGetDamageRoll, FunctionsLinux._ZN17CNWSCreatureStats13GetDamageRollEP10CNWSObjectiiiii, HookOrder.Early);
+      resolveAttackRollHook = hookService.RequestHook<ResolveAttackRollHook>(OnResolveAttackRoll, FunctionsLinux._ZN12CNWSCreature17ResolveAttackRollEP10CNWSObject, HookOrder.Early);
     }
 
-    [UnmanagedCallersOnly]
-    private static int OnGetDamageRoll(void* thisPtr, void* pTarget, int bOffHand, int bCritical, int bSneakAttack, int bDeathAttack, int bForceMax)
+    private void OnResolveAttackRoll(void* pCreature, void* pTarget)
+    {
+      CNWSCreature creature = CNWSCreature.FromPointer(pCreature);
+      var targetObject = CNWSObject.FromPointer(pTarget);
+
+      CNWSCombatRound combatRound = creature.m_pcCombatRound;
+      CNWSCombatAttackData attackData = combatRound.GetAttack(combatRound.m_nCurrentAttack);
+
+      if(attackData.m_nAttackResult == 0 || attackData.m_nAttackResult == 4)
+        attackData.m_nAttackResult = 1;
+
+      if (targetObject.m_nObjectType == (int)ObjectType.Creature)
+      {
+        CNWSCreature targetCreature = targetObject.AsNWSCreature();
+        int skillBonusDodge = 0;
+
+        if (PlayerSystem.Players.TryGetValue(targetObject.m_idSelf, out PlayerSystem.Player player) && player.learntCustomFeats.ContainsKey(CustomFeats.ImprovedDodge))
+        {
+          skillBonusDodge += 2 * SkillSystem.GetCustomFeatLevelFromSkillPoints(CustomFeats.ImprovedDodge, player.learntCustomFeats[CustomFeats.ImprovedDodge]);
+        }
+
+        if (targetCreature.m_pStats.HasFeat((ushort)10).ToBool())
+          skillBonusDodge += 2;
+
+        if (targetCreature.m_nCreatureSize < creature.m_nCreatureSize)
+          skillBonusDodge += 5;
+
+        int dodgeRoll = NwRandom.Roll(Utils.random, 100);
+
+        if (dodgeRoll <= targetCreature.m_pStats.GetAbilityMod(1) + skillBonusDodge - targetCreature.m_pStats.m_nArmorCheckPenalty - targetCreature.m_pStats.m_nShieldCheckPenalty)
+          attackData.m_nAttackResult = 4;
+      }
+    }
+
+    private int OnGetDamageRoll(void* thisPtr, void* pTarget, int bOffHand, int bCritical, int bSneakAttack, int bDeathAttack, int bForceMax)
     {
       var creatureStats = CNWSCreatureStats.FromPointer(thisPtr);
       var creature = CNWSCreature.FromPointer(creatureStats.m_pBaseCreature);
@@ -31,10 +71,10 @@ namespace NWN.Systems
       var defense = 0f;
       var dmg = 0f;
       var attackAttribute = creatureStats.m_nStrengthBase < 10 ? 0 : creatureStats.m_nStrengthModifier;
-      var damage = 0;
+      var damage = 9999;
 
       // Calculate attacker's DMG
-      if (creature != null)
+      /*if (creature != null)
       {
         var weapon = bOffHand == 1
             ? creature.m_pInventory.GetItemInSlot((uint)EquipmentSlot.LeftHand)
@@ -125,9 +165,9 @@ namespace NWN.Systems
         damage = target.DoDamageReduction(creature, damage, damagePower, 0, 1);
         if (damage < 0)
           damage = 0;
-      }
+      }*/
 
       return damage;
-    }*/
+    }
   }
 }

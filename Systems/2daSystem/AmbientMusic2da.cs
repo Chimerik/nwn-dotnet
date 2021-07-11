@@ -20,12 +20,7 @@ namespace NWN.Systems
     void ITwoDimArray.DeserializeRow(int rowIndex, TwoDimEntry twoDimEntry)
     {
       uint strRef = uint.TryParse(twoDimEntry("Description"), out strRef) ? strRef : 0;
-      string name;
-      if (strRef == 0)
-        name = "Musique";
-      else
-        name = AmbientMusic2da.tlkTable.GetSimpleString(strRef);
-
+      string name = strRef == 0 ? name = "Musique" : name = AmbientMusic2da.tlkTable.GetSimpleString(strRef);
       entries.Add(rowIndex, new Entry(name));
     }
     public readonly struct Entry

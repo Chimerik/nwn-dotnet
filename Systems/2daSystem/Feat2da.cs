@@ -89,20 +89,10 @@ namespace NWN.Systems
     void ITwoDimArray.DeserializeRow(int rowIndex, TwoDimEntry twoDimEntry)
     {
       uint tlkName = uint.TryParse(twoDimEntry("FEAT"), out tlkName) ? tlkName : 0;
-
-      string name;
-      if (tlkName == 0)
-        name = "Nom manquant";
-      else
-        name = Feat2da.tlkTable.GetSimpleString(tlkName);
+      string name = tlkName == 0 ? name = "Nom manquant" : name = Feat2da.tlkTable.GetSimpleString(tlkName);
 
       uint tlkDescription = uint.TryParse(twoDimEntry("DESCRIPTION"), out tlkDescription) ? tlkDescription : 0;
-
-      string description;
-      if (tlkDescription == 0)
-        description = "Description manquante";
-      else
-        description = Feat2da.tlkTable.GetSimpleString(tlkDescription);
+      string description = tlkName == 0 ? description = "Description manquante" : description = Feat2da.tlkTable.GetSimpleString(tlkDescription);
 
       int CRValue = int.TryParse(twoDimEntry("CRValue"), out CRValue) ? CRValue : 1;
       int currentLevel = int.TryParse(twoDimEntry("GAINMULTIPLE"), out currentLevel) ? currentLevel : 1;

@@ -64,7 +64,7 @@ namespace NWN.Systems
         trainer.BaseAC = (sbyte)trainer.GetLocalVariable<int>("AC").Value;
 
         trainer.OnConversation += HandleCancelStatueConversation;
-        trainer.OnSpawn += HandleSpawnStatufy;
+        trainer.OnSpawn += HandleSpawnTrainingDummy;
       }
     }
     public static void OnUsedStoragePortalIn(PlaceableEvents.OnUsed onUsed)
@@ -280,18 +280,18 @@ namespace NWN.Systems
     }
     private void HandleSpawnStatufy(CreatureEvents.OnSpawn onSpawn)
     {
-      API.Effect eff = API.Effect.CutsceneGhost();
+      Effect eff = Effect.CutsceneGhost();
       eff.SubType = EffectSubType.Supernatural;
       onSpawn.Creature.ApplyEffect(EffectDuration.Permanent, eff);
 
-      eff = API.Effect.VisualEffect(VfxType.DurFreezeAnimation);
+      eff = Effect.VisualEffect(VfxType.DurFreezeAnimation);
       eff.Tag = "_FREEZE_EFFECT";
       eff.SubType = EffectSubType.Supernatural;
       onSpawn.Creature.ApplyEffect(EffectDuration.Permanent, eff);
 
       if (onSpawn.Creature.Tag != "statue_tiamat")
       {
-        eff = API.Effect.VisualEffect((VfxType)927);
+        eff = Effect.VisualEffect((VfxType)927);
         eff.SubType = EffectSubType.Supernatural;
         onSpawn.Creature.ApplyEffect(EffectDuration.Permanent, eff);
       }
@@ -299,7 +299,19 @@ namespace NWN.Systems
       onSpawn.Creature.HighlightColor = ColorConstants.Black;
       onSpawn.Creature.MouseCursor = MouseCursor.Walk;
       onSpawn.Creature.AiLevel = AiLevel.VeryLow;
-    }  
+    }
+    private void HandleSpawnTrainingDummy(CreatureEvents.OnSpawn onSpawn)
+    {
+      Effect eff = Effect.CutsceneGhost();
+      eff.SubType = EffectSubType.Supernatural;
+      onSpawn.Creature.ApplyEffect(EffectDuration.Permanent, eff);
+
+      eff = Effect.CutsceneParalyze();
+      eff.Tag = "_FREEZE_EFFECT";
+      eff.SubType = EffectSubType.Supernatural;
+      onSpawn.Creature.ApplyEffect(EffectDuration.Permanent, eff);
+      onSpawn.Creature.AiLevel = AiLevel.VeryLow;
+    }
     private async void HandleDoorAutoClose(DoorEvents.OnOpen onOpen)
     {
       await NwTask.Delay(TimeSpan.FromSeconds(10));

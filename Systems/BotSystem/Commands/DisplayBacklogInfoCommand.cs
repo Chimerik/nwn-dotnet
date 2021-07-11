@@ -20,15 +20,12 @@ namespace NWN.Systems
         "    - Métier Craft meubles persistants(via menuiserie / ébenisterie)\n" +
         "    - Métier 'Professeur'\n" +
         "    - Système de déguisement\n" +
-        "    - Renommer ses invocations\n" +
         "    - Faire parler ses invocations\n" +
-        "    - Système de faim / soif(apporte bonus apprentissage / craft)\n" +
+        "    - Système de faim / soif(apporte bonus apprentissage / craft / régen hors combat / PV temporaires)\n" +
         "    - Système de repas d'auberge/taverne (différents coûts/qualité/bonus)\n" +
         "    - Métier cuisinier\n" +
         "    - Système d'amélioration des outils de craft\n" +
-        "    - Système de couleurs de chat ?\n" +
         "    - Système de factions\n" +
-        "    - Coloration spécifique des emotes(texte rp entre * *)\n" +
         "    - Permettre destruction de cadavres PJs\n" +
         "    - Canal groupe rp (autres pjs à portée d'oreille peuvent entendre)\n" +
         "    - Métier 'Styliste', permet de modifier l'apparence d'items sans en être le créateur d'origine\n" +
@@ -38,7 +35,7 @@ namespace NWN.Systems
 
       await context.Channel.SendMessageAsync("" +
         "    - Amélioration minage(différentes qualités de filon identifiables par prospection)\n" +
-        "    - Amélioration craft d'objets (ajouter talent qui donne % chance de réduire poids, augmenter durabilité et nb slots enchantements)\n" +
+        "    - Amélioration craft d'objets (ajouter talent qui donne % chance de réduire poids)\n" +
         "    - Talent épique permettant aux archers de ne pas subir d'AOO\n" +
         "    - Système 'savoir rp' (livres à apprendre)\n" +
         "    - Talent permettant d'ajouter un sort à une attaque\n" +
@@ -55,13 +52,10 @@ namespace NWN.Systems
         "    - Amélioration de l'intelligence artificielle des monstres & PNJs\n" +
         "    - Système de justice (points civiques)\n" +
         "    - Achat / Vente via Discord\n" +
-        "    - Suppression de personnage via Discord\n" +
         "    - Partitions permettant d'apprendre des chants du barde avec différents effets\n" +
         "    - Système de primes (bounty hunter)\n" +
         "    - Système de missions instanciées\n" +
-        "    - Système arène automatique PvE\n" +
         "    - Système arène automatique PvP\n" +
-        "    - Jeu de dé The Witcher\n" +
         "    - Casino (dés, blackjack, poker, etc)\n" +
         "    - Ajout nouveaux sorts\n" +
         "    - Ajout nouveaux dons/talents\n" +
@@ -73,7 +67,6 @@ namespace NWN.Systems
         "    - Système de remboursement de la dette en cas de non solvabilité\n" +
         "    - Système de génération procédurale de maps\n" +
         "    - Intégration des acessoires (type lunettes, chapeaux), sous forme de VFX\n" +
-        "    - Système de PNJ factory (outil DM permettant la création et la sauvegarde de pnjs sans passer par l'éditeur)\n" +
         "    - Zones spécifiques 'cachées' donnant des bonus d'apprentissage lorsqu'on y déco\n" +
         "    - Système de formations pour pnj contrôlés par pjs (avec ForceFollow + offset)\n" +
         "    - Utilisation d'un 'sceau d'élite' sur les boss permet de débloquer l'apprentissage d'une compétence\n"

@@ -19,8 +19,6 @@ namespace NWN.Systems
       {
             IsAttackDodged,
             ProcessBaseDamageTypeAndAttackWeapon,
-            ProcessAutomaticHit,
-            ProcessMissDamageRecalculation,
             ProcessTargetDamageAbsorption,
             ProcessBaseArmorPenetration,
             ProcessBonusArmorPenetration,
@@ -74,7 +72,7 @@ namespace NWN.Systems
 
     private static void IsAttackDodged(Context ctx, Action next)
     {
-      int skillBonusDodge = 0;
+      /*int skillBonusDodge = 0;
 
       if (PlayerSystem.Players.TryGetValue(ctx.oTarget, out PlayerSystem.Player player) && player.learntCustomFeats.ContainsKey(CustomFeats.ImprovedDodge))
         skillBonusDodge += 2 * SkillSystem.GetCustomFeatLevelFromSkillPoints(CustomFeats.ImprovedDodge, player.learntCustomFeats[CustomFeats.ImprovedDodge]);
@@ -94,114 +92,128 @@ namespace NWN.Systems
           ctx.oTarget.ControllingPlayer.SendServerMessage($"Attaque de {ctx.oAttacker.Name} esquivée.");
       }
       else
-        next();
+        next();*/
+
+      if (ctx.onAttack.AttackResult == AttackResult.Miss)
+      {
+        ctx.onAttack.AttackResult = AttackResult.Miss;
+        if (ctx.oAttacker.IsPlayerControlled)
+          ctx.oAttacker.ControllingPlayer.SendServerMessage($"{ctx.oTarget.Name} a esquivé votre attaque.");
+
+        if (ctx.oTarget.IsPlayerControlled)
+          ctx.oTarget.ControllingPlayer.SendServerMessage($"Attaque de {ctx.oAttacker.Name} esquivée.");
+      }
+
+      next();
     }
-    private static void ProcessAutomaticHit(Context ctx, Action next)
+    /*private static void ProcessAutomaticHit(Context ctx, Action next)
     {
       if (ctx.onAttack.AttackResult == AttackResult.Miss)
          ctx.onAttack.AttackResult = AttackResult.AutomaticHit;
 
       next();
-    }
-    private static void ProcessMissDamageRecalculation(Context ctx, Action next)
+    }*/
+    /*private static void ProcessMissDamageRecalculation(Context ctx, Action next)
     {
-      int strModifier = ctx.oAttacker.GetAbilityModifier(Ability.Strength);
-
-      if (ctx.attackWeapon == null)
-        ctx.onAttack.DamageData.Base = (short)(NwRandom.Roll(Utils.random, 3) + strModifier);
-      else
+      if (ctx.onAttack.AttackResult == AttackResult.AutomaticHit)
       {
-        NwItem damageSlot = null;
+        int strModifier = ctx.oAttacker.GetAbilityModifier(Ability.Strength);
 
-        switch (ItemUtils.GetItemCategory(ctx.attackWeapon.BaseItemType))
+        if (ctx.attackWeapon == null)
+          ctx.onAttack.DamageData.Base = (short)(NwRandom.Roll(Utils.random, 3) + strModifier);
+        else
         {
-          case ItemUtils.ItemCategory.RangedWeapon:
+          NwItem damageSlot = null;
 
-            switch (ctx.attackWeapon.BaseItemType)
-            {
-              case BaseItemType.LightCrossbow:
-              case BaseItemType.HeavyCrossbow:
-                damageSlot = ctx.oAttacker.GetItemInSlot(InventorySlot.Bolts);
-                strModifier = 0;
-                break;
-              case BaseItemType.Shortbow:
-              case BaseItemType.Longbow:
-                damageSlot = ctx.oAttacker.GetItemInSlot(InventorySlot.Arrows);
-
-                ItemProperty mighty = ctx.attackWeapon.ItemProperties.Where(ip => ip.PropertyType == ItemPropertyType.Mighty).OrderByDescending(ip => ip.CostTableValue).FirstOrDefault();
-                if (mighty != null && strModifier > mighty.CostTableValue)
-                  strModifier = mighty.CostTableValue;
-
-                break;
-              case BaseItemType.Sling:
-                damageSlot = ctx.oAttacker.GetItemInSlot(InventorySlot.Bullets);
-                strModifier = 0;
-                break;
-              case BaseItemType.Dart:
-                strModifier = 0;
-                break;
-            }
-            break;
-
-          case ItemUtils.ItemCategory.TwoHandedMeleeWeapon:
-            strModifier = (int)(strModifier * 1.5);
-            damageSlot = ctx.attackWeapon;
-            break;
-
-          default:
-            damageSlot = ctx.attackWeapon;
-            break;
-        }
-
-        if (damageSlot != null)
-        {
-          foreach (var propType in damageSlot.ItemProperties.Where(i => i.PropertyType == ItemPropertyType.DamageBonus
-          || (i.PropertyType == ItemPropertyType.DamageBonusVsRacialGroup && i.SubType == (int)ctx.oTarget.RacialType)
-          || (i.PropertyType == ItemPropertyType.DamageBonusVsAlignmentGroup && i.SubType == (int)ctx.oTarget.GoodEvilAlignment)
-          || (i.PropertyType == ItemPropertyType.DamageBonusVsAlignmentGroup && i.SubType == (int)ctx.oTarget.LawChaosAlignment)
-          || (i.PropertyType == ItemPropertyType.DamageBonusVsSpecificAlignment && i.SubType == Config.GetIPSpecificAlignmentSubTypeAsInt(ctx.oTarget)))
-            .GroupBy(i => i.PropertyType))
+          switch (ItemUtils.GetItemCategory(ctx.attackWeapon.BaseItemType))
           {
-            ItemProperty maxIP = propType.OrderByDescending(i => i.CostTableValue).FirstOrDefault();
-            DamageType damageType = DamageType.Slashing;
-            short rolledDamage = Config.RollDamage(maxIP.CostTableValue);
-            short currentDamage = 0;
+            case ItemUtils.ItemCategory.RangedWeapon:
 
-            switch (maxIP.Param1TableValue)
-            {
-              case 255: // Cas des dégâts simples
-                damageType = ItemUtils.GetDamageTypeFromItemProperty((IPDamageType)maxIP.SubType);
-                break;
-              default: // Case des dégâts spécifiques, le type de dégât se trouve dans Param1TableValue au lieu de SubType. Ouais, c'est chiant
-                damageType = ItemUtils.GetDamageTypeFromItemProperty((IPDamageType)maxIP.Param1TableValue);
-                break;
-            }
+              switch (ctx.attackWeapon.BaseItemType)
+              {
+                case BaseItemType.LightCrossbow:
+                case BaseItemType.HeavyCrossbow:
+                  damageSlot = ctx.oAttacker.GetItemInSlot(InventorySlot.Bolts);
+                  strModifier = 0;
+                  break;
+                case BaseItemType.Shortbow:
+                case BaseItemType.Longbow:
+                  damageSlot = ctx.oAttacker.GetItemInSlot(InventorySlot.Arrows);
 
-            currentDamage = ctx.onAttack.DamageData.GetDamageByType(damageType);
+                  ItemProperty mighty = ctx.attackWeapon.ItemProperties.Where(ip => ip.PropertyType == ItemPropertyType.Mighty).OrderByDescending(ip => ip.CostTableValue).FirstOrDefault();
+                  if (mighty != null && strModifier > mighty.CostTableValue)
+                    strModifier = mighty.CostTableValue;
 
-            if (rolledDamage > currentDamage)
-              ctx.onAttack.DamageData.SetDamageByType(damageType, rolledDamage);
+                  break;
+                case BaseItemType.Sling:
+                  damageSlot = ctx.oAttacker.GetItemInSlot(InventorySlot.Bullets);
+                  strModifier = 0;
+                  break;
+                case BaseItemType.Dart:
+                  strModifier = 0;
+                  break;
+              }
+              break;
+
+            case ItemUtils.ItemCategory.TwoHandedMeleeWeapon:
+              strModifier = (int)(strModifier * 1.5);
+              damageSlot = ctx.attackWeapon;
+              break;
+
+            default:
+              damageSlot = ctx.attackWeapon;
+              break;
           }
 
-          int[] damageDices = BaseItems2da.baseItemTable.GetDamageDices(ctx.attackWeapon.BaseItemType);
-          ctx.onAttack.DamageData.Base = (short)(NwRandom.Roll(Utils.random, damageDices[0], damageDices[1]) + strModifier);
-
-          foreach (var propType in damageSlot.ItemProperties.Where(i => (i.PropertyType == ItemPropertyType.EnhancementBonus)
-          || (i.PropertyType == ItemPropertyType.EnhancementBonusVsRacialGroup && i.SubType == (int)ctx.oTarget.RacialType)
-          || (i.PropertyType == ItemPropertyType.EnhancementBonusVsAlignmentGroup && i.SubType == (int)ctx.oTarget.GoodEvilAlignment)
-          || (i.PropertyType == ItemPropertyType.EnhancementBonusVsAlignmentGroup && i.SubType == (int)ctx.oTarget.LawChaosAlignment)
-          || (i.PropertyType == ItemPropertyType.EnhancementBonusVsSpecificAlignment && i.SubType == Config.GetIPSpecificAlignmentSubTypeAsInt(ctx.oTarget)))
-            .GroupBy(i => i.PropertyType))
+          if (damageSlot != null)
           {
-            ItemProperty maxIP = propType.OrderByDescending(i => i.CostTableValue).FirstOrDefault();
-            ctx.onAttack.DamageData.Base += (short)maxIP.CostTableValue;
+            foreach (var propType in damageSlot.ItemProperties.Where(i => i.PropertyType == ItemPropertyType.DamageBonus
+            || (i.PropertyType == ItemPropertyType.DamageBonusVsRacialGroup && i.SubType == (int)ctx.oTarget.RacialType)
+            || (i.PropertyType == ItemPropertyType.DamageBonusVsAlignmentGroup && i.SubType == (int)ctx.oTarget.GoodEvilAlignment)
+            || (i.PropertyType == ItemPropertyType.DamageBonusVsAlignmentGroup && i.SubType == (int)ctx.oTarget.LawChaosAlignment)
+            || (i.PropertyType == ItemPropertyType.DamageBonusVsSpecificAlignment && i.SubType == Config.GetIPSpecificAlignmentSubTypeAsInt(ctx.oTarget)))
+              .GroupBy(i => i.PropertyType))
+            {
+              ItemProperty maxIP = propType.OrderByDescending(i => i.CostTableValue).FirstOrDefault();
+              DamageType damageType = DamageType.Slashing;
+              short rolledDamage = Config.RollDamage(maxIP.CostTableValue);
+              short currentDamage = 0;
+
+              switch (maxIP.Param1TableValue)
+              {
+                case 255: // Cas des dégâts simples
+                  damageType = ItemUtils.GetDamageTypeFromItemProperty((IPDamageType)maxIP.SubType);
+                  break;
+                default: // Case des dégâts spécifiques, le type de dégât se trouve dans Param1TableValue au lieu de SubType. Ouais, c'est chiant
+                  damageType = ItemUtils.GetDamageTypeFromItemProperty((IPDamageType)maxIP.Param1TableValue);
+                  break;
+              }
+
+              currentDamage = ctx.onAttack.DamageData.GetDamageByType(damageType);
+
+              if (rolledDamage > currentDamage)
+                ctx.onAttack.DamageData.SetDamageByType(damageType, rolledDamage);
+            }
+
+            int[] damageDices = BaseItems2da.baseItemTable.GetDamageDices(ctx.attackWeapon.BaseItemType);
+            ctx.onAttack.DamageData.Base = (short)(NwRandom.Roll(Utils.random, damageDices[0], damageDices[1]) + strModifier);
+
+            foreach (var propType in damageSlot.ItemProperties.Where(i => (i.PropertyType == ItemPropertyType.EnhancementBonus)
+            || (i.PropertyType == ItemPropertyType.EnhancementBonusVsRacialGroup && i.SubType == (int)ctx.oTarget.RacialType)
+            || (i.PropertyType == ItemPropertyType.EnhancementBonusVsAlignmentGroup && i.SubType == (int)ctx.oTarget.GoodEvilAlignment)
+            || (i.PropertyType == ItemPropertyType.EnhancementBonusVsAlignmentGroup && i.SubType == (int)ctx.oTarget.LawChaosAlignment)
+            || (i.PropertyType == ItemPropertyType.EnhancementBonusVsSpecificAlignment && i.SubType == Config.GetIPSpecificAlignmentSubTypeAsInt(ctx.oTarget)))
+              .GroupBy(i => i.PropertyType))
+            {
+              ItemProperty maxIP = propType.OrderByDescending(i => i.CostTableValue).FirstOrDefault();
+              ctx.onAttack.DamageData.Base += (short)maxIP.CostTableValue;
+            }
           }
         }
       }
-
       next();
-    }
-    private static void ProcessAdditionnalDamageEffect(Context ctx, Action next)
+    }*/
+    /*private static void ProcessAdditionnalDamageEffect(Context ctx, Action next)
     {
       foreach (var effectType in ctx.oAttacker.ActiveEffects.Where(e => e.EffectType == EffectType.DamageIncrease).GroupBy(e => e.IntParams.ElementAt(1)))
       {
@@ -211,7 +223,7 @@ namespace NWN.Systems
       }
        
       next();
-    }
+    }*/
     private static void ProcessBaseDamageTypeAndAttackWeapon(Context ctx, Action next)
     {
       ctx.weaponBaseDamageType = 3; // Slashing par défaut
@@ -870,7 +882,7 @@ namespace NWN.Systems
         }
 
         Config.SetContextDamage(ctx, damageType, (int)modifiedDamage);
-        PlayerSystem.Log.Info($"Final : {damageType} - AC {targetAC} - Damage {modifiedDamage}");
+        PlayerSystem.Log.Info($"Final : {damageType} - AC {targetAC} - Initial {initialDamage} - Final Damage {modifiedDamage}");
       }
 
       if(ctx.onAttack != null)

@@ -18,7 +18,6 @@ namespace NWN.Systems
 
     void ITwoDimArray.DeserializeRow(int rowIndex, TwoDimEntry twoDimEntry)
     {
-      // Use twoDimEntry(columnName) to get your serialized data, then convert it here.
       if(int.TryParse(twoDimEntry("Rank"), out int rank))
       entries.Add(rank);
     }

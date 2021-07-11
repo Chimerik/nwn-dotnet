@@ -21,12 +21,7 @@ namespace NWN.Systems
     void ITwoDimArray.DeserializeRow(int rowIndex, TwoDimEntry twoDimEntry)
     {
       uint strRef = uint.TryParse(twoDimEntry("Name"), out strRef) ? strRef : 0;
-      string name;
-      if (strRef == 0)
-        name = "Nom manquant";
-      else
-        name = ItemPropertyDefinition2da.tlkTable.GetSimpleString(strRef);
-
+      string name = strRef == 0 ? name = "Nom manquant" : name = ItemPropertyDefinition2da.tlkTable.GetSimpleString(strRef);
       string subTypeResRef = twoDimEntry("SubTypeResRef");
 
       entries.Add((ItemPropertyType)rowIndex, new Entry(name, subTypeResRef));

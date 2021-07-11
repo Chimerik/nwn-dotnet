@@ -1,6 +1,5 @@
 ﻿using System.Collections.Generic;
 using NWN.API;
-using NWN.API.Constants;
 using NWN.Services;
 
 namespace NWN.Systems
@@ -15,9 +14,7 @@ namespace NWN.Systems
     }
     void ITwoDimArray.DeserializeRow(int rowIndex, TwoDimEntry twoDimEntry)
     {
-
       string resfRef = twoDimEntry("BaseResRef");
-
       entries.Add(rowIndex, new Entry(resfRef));
     }
     public readonly struct Entry

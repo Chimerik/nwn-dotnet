@@ -101,5 +101,12 @@ namespace NWN.Systems
       
       next();
     }
+
+    private static void ProcessMageStaffBonusDamage(Context ctx, Action next)
+    {
+      // TODO : Ajouter des dégâts bonus au sort si l'arme en main est un bâton de mage et qu'il dispose de propriétés de bonus de dégâts
+
+      next();
+    }
   }
 }

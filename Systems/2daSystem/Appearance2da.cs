@@ -16,16 +16,8 @@ namespace NWN.Systems
     void ITwoDimArray.DeserializeRow(int rowIndex, TwoDimEntry twoDimEntry)
     {
       uint strRef = uint.TryParse(twoDimEntry("STRING_REF"), out strRef) ? strRef : 0;
-      string name;
-      if (strRef == 0)
-        name = "Créature";
-      else
-        name = Appearance2da.tlkTable.GetSimpleString(strRef);
-
-      string portrait = twoDimEntry("PORTRAIT");
-      if (portrait == "****")
-        portrait = "po_hu_m_99";
-
+      string name = strRef == 0 ? name = "Créature" : name = Appearance2da.tlkTable.GetSimpleString(strRef);
+      string portrait = twoDimEntry("PORTRAIT") == "****" ? portrait = "po_hu_m_99" : portrait = twoDimEntry("PORTRAIT");
       string race = twoDimEntry("RACE");
 
       entries.Add((AppearanceType)rowIndex, new Entry(name, portrait, race));
