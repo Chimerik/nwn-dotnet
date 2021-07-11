@@ -44,11 +44,6 @@ namespace NWN.Systems
         return;
       }
 
-      PlayerSystem.Log.Info("Base : " + onDamage.DamageData.Base);
-      PlayerSystem.Log.Info("Blud : " + onDamage.DamageData.Bludgeoning);
-      PlayerSystem.Log.Info("Pierce : " + onDamage.DamageData.Pierce);
-      PlayerSystem.Log.Info("Slash : " + onDamage.DamageData.Slash);
-
       if (!(onDamage.Target is NwCreature oTarget))
         return;
 
@@ -96,9 +91,12 @@ namespace NWN.Systems
       PlayerSystem.Log.Info($"ProcessSpellAttackPosition");
       // TODO : voir comment le "damager" est détecté dans le cas des AoE FNF et des AoE qui restent plus longtemps au sol => il est null s'il est déco ou mort. Peut-être mettre le damage en variable locale sur l'AoE créée et le récupérer de là
       // TODO : Les sorts doivent avoir une position d'attaque. A rajouter dans le spelhook en fonction du sort utilisé (rayon = Ranged, icestorm = up, AoE au sol = down)
+
       if (ctx.oAttacker != null && ctx.oAttacker.GetLocalVariable<int>("_SPELL_ATTACK_POSITION").HasValue)
         ctx.attackPosition = (Config.AttackPosition)ctx.oAttacker.GetLocalVariable<int>("_SPELL_ATTACK_POSITION").Value;
-      
+      else
+        ctx.oAttacker.GetLocalVariable<int>("_SPELL_ATTACK_POSITION").Value = 2;
+
       next();
     }
 

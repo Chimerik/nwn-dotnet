@@ -20,7 +20,7 @@ namespace NWN.Systems
     public static readonly Logger Log = LogManager.GetCurrentClassLogger();
     public static readonly TranslationClient googleTranslationClient = TranslationClient.Create();
     public static Dictionary<string, GoldBalance> goldBalanceMonitoring = new Dictionary<string, GoldBalance>();
-    public ModuleSystem(TlkTable tlkService)
+    public ModuleSystem()
     {
       LoadDiscordBot();
       CreateDatabase();
@@ -228,7 +228,6 @@ namespace NWN.Systems
         await NwTask.WaitUntil(() => DateTime.Now.Hour == 5);
 
       Log.Info("Starting to spawn collectable ressources");
-      Utils.LogMessageToDMs("Starting to spawn collectable ressources");
 
       foreach (NwWaypoint ressourcePoint in NwModule.FindObjectsWithTag<NwWaypoint>(new string[] { "ore_spawn_wp", "wood_spawn_wp" }).Where(l => l.Area.GetLocalVariable<int>("_AREA_LEVEL").Value > 1))
       {
@@ -589,7 +588,7 @@ namespace NWN.Systems
 
         if (callInfo.ObjectSelf is NwCreature oPC)
         {
-
+          
           if (validationFailureType == ElcPlugin.NWNX_ELC_VALIDATION_FAILURE_TYPE_CHARACTER && validationFailureSubType == 15 && oPC.GetAbilityScore(API.Constants.Ability.Intelligence, true) < 11)
             ElcPlugin.SkipValidationFailure();
           else
@@ -602,7 +601,6 @@ namespace NWN.Systems
       await NwTask.WaitUntil(() => DateTime.Now.Hour == 5);
 
       Log.Info("Deleting expired mails");
-      Utils.LogMessageToDMs("Deleting expired mails");
 
       SqLiteUtils.DeletionQuery("messenger",
           new Dictionary<string, string>() { { "expirationDate", DateTime.Now.AddDays(30).ToLongDateString() } }, ">");

@@ -711,6 +711,9 @@ namespace NWN.Systems
         ctx.oAttacker.ControllingPlayer.SendServerMessage($"Hit slot : {hitSlot.ToString().ColorString(ColorConstants.White)}", ColorConstants.Brown);
       }
 
+      if (ctx.oAttacker != null && ctx.oAttacker.GetLocalVariable<int>("_SPELL_ATTACK_POSITION").HasValue)
+        ctx.oAttacker.GetLocalVariable<int>("_SPELL_ATTACK_POSITION").Delete();
+
       next();
     }
     private static void ProcessTargetSpecificAC(Context ctx, Action next)
@@ -812,7 +815,7 @@ namespace NWN.Systems
 
       foreach (DamageType damageType in (DamageType[])Enum.GetValues(typeof(DamageType)))
       {
-        if (ctx.onAttack.DamageData.GetDamageByType(damageType) < 1)
+        if (Config.GetContextDamage(ctx, damageType) < 1)
           continue;
 
         switch (damageType)
