@@ -80,7 +80,7 @@ namespace NWN.Systems
     {
       player.menu.Clear();
 
-      int input = int.Parse(player.oid.LoginCreature.GetLocalVariable<string>("_PLAYER_INPUT"));
+      int input = int.Parse(player.oid.LoginCreature.GetObjectVariable<LocalVariableString>("_PLAYER_INPUT"));
 
       if (input <= 0)
       {
@@ -143,7 +143,7 @@ namespace NWN.Systems
     {
       player.menu.Clear();
 
-      int input = int.Parse(player.oid.LoginCreature.GetLocalVariable<string>("_PLAYER_INPUT"));
+      int input = int.Parse(player.oid.LoginCreature.GetObjectVariable<LocalVariableString>("_PLAYER_INPUT"));
 
       if (input <= 0)
       {

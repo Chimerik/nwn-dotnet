@@ -117,11 +117,11 @@ namespace NWN.Systems
       if (oItem == null)
         return;
 
-      int itemDurability = oItem.GetLocalVariable<int>("_DURABILITY").Value; 
+      int itemDurability = oItem.GetObjectVariable<LocalVariableInt>("_DURABILITY").Value; 
       if (itemDurability <= 1)
         oItem.Destroy();
       else
-        oItem.GetLocalVariable<int>("_DURABILITY").Value -= 1;
+        oItem.GetObjectVariable<LocalVariableInt>("_DURABILITY").Value -= 1;
     }
     public static int GetIdentifiedGoldPieceValue(NwItem oItem)
     {
@@ -170,7 +170,7 @@ namespace NWN.Systems
     }
     public static string GetItemDurabilityState(NwItem item)
     {
-      int durabilityState = item.GetLocalVariable<int>("_DURABILITY").Value / item.GetLocalVariable<int>("_MAX_DURABILITY").Value * 100;
+      int durabilityState = item.GetObjectVariable<LocalVariableInt>("_DURABILITY").Value / item.GetObjectVariable<LocalVariableInt>("_MAX_DURABILITY").Value * 100;
 
       if (durabilityState == 100)
         return "Flambant neuf".ColorString(new Color(32, 255, 32));

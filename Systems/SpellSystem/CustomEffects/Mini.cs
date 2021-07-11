@@ -11,10 +11,10 @@ namespace NWN.Systems
     {
       oTarget.ApplyEffect(EffectDuration.Instant, Effect.VisualEffect(VfxType.ImpPolymorph));
 
-      if (oTarget.GetLocalVariable<float>("CUSTOM_EFFECT_MINI_INITIAL_SIZE").HasValue)
+      if (oTarget.GetObjectVariable<LocalVariableFloat>("CUSTOM_EFFECT_MINI_INITIAL_SIZE").HasValue)
         return;
 
-      oTarget.GetLocalVariable<float>("CUSTOM_EFFECT_MINI_INITIAL_SIZE").Value = oTarget.VisualTransform.Scale;
+      oTarget.GetObjectVariable<LocalVariableFloat>("CUSTOM_EFFECT_MINI_INITIAL_SIZE").Value = oTarget.VisualTransform.Scale;
       oTarget.VisualTransform.Scale *= 0.6f;
 
       oTarget.OnCreatureDamage -= MiniMalus;
@@ -24,10 +24,10 @@ namespace NWN.Systems
     }
     public static void RemoveEffectFromTarget(NwCreature oTarget)
     {
-      if (oTarget.GetLocalVariable<float>("CUSTOM_EFFECT_MINI_INITIAL_SIZE").HasValue)
+      if (oTarget.GetObjectVariable<LocalVariableFloat>("CUSTOM_EFFECT_MINI_INITIAL_SIZE").HasValue)
       {
-        oTarget.VisualTransform.Scale = oTarget.GetLocalVariable<float>("CUSTOM_EFFECT_MINI_INITIAL_SIZE").Value;
-        oTarget.GetLocalVariable<float>("CUSTOM_EFFECT_MINI_INITIAL_SIZE").Delete();
+        oTarget.VisualTransform.Scale = oTarget.GetObjectVariable<LocalVariableFloat>("CUSTOM_EFFECT_MINI_INITIAL_SIZE").Value;
+        oTarget.GetObjectVariable<LocalVariableFloat>("CUSTOM_EFFECT_MINI_INITIAL_SIZE").Delete();
       }
 
       oTarget.OnCreatureDamage -= MiniMalus;

@@ -48,18 +48,18 @@ namespace NWN.Systems
       oPCCorpse.Description = $"Corps inconscient de {player.oid.LoginCreature.Name}. \n\n\n Allez savoir combien de temps il va tenir dans cet état.";
       VisibilityPlugin.SetVisibilityOverride(NWScript.OBJECT_INVALID, oPCCorpse, VisibilityPlugin.NWNX_VISIBILITY_HIDDEN);
       
-      oPCCorpse.GetLocalVariable<int>("_PC_ID").Value = player.characterId;
+      oPCCorpse.GetObjectVariable<LocalVariableInt>("_PC_ID").Value = player.characterId;
       
       for (int i = 0; i <= (int)InventorySlot.Bolts; i++)
         if(oPCCorpse.GetItemInSlot((InventorySlot)i) != null)
           oPCCorpse.GetItemInSlot((InventorySlot)i).Droppable = false;
       
-      oCorpseItem.GetLocalVariable<int>("_PC_ID").Value = player.characterId;
+      oCorpseItem.GetObjectVariable<LocalVariableInt>("_PC_ID").Value = player.characterId;
       oCorpseItem.Name = $"Corps inconscient de {player.oid.LoginCreature.Name}";
       oCorpseItem.Description = $"Corps inconscient de {player.oid.LoginCreature.Name}\n\n\n Pas très ragoûtant. Allez savoir combien de temps il va tenir avant de se lâcher.";
       oCorpseItem.Droppable = true;
 
-      oCorpseItem.GetLocalVariable<string>("_SERIALIZED_CORPSE").Value = oPCCorpse.Serialize().ToBase64EncodedString();
+      oCorpseItem.GetObjectVariable<LocalVariableString>("_SERIALIZED_CORPSE").Value = oPCCorpse.Serialize().ToBase64EncodedString();
       player.deathCorpse = oPCCorpse;
       
       SavePlayerCorpseToDatabase(player.characterId, player.deathCorpse);
@@ -139,10 +139,10 @@ namespace NWN.Systems
     {
       DeletePlayerCorpseFromDatabase(player.characterId);
 
-      NwCreature oCorpse = NwObject.FindObjectsWithTag<NwCreature>("pccorpse").Where(c => c.GetLocalVariable<int>("_PC_ID").Value == player.characterId).FirstOrDefault();
+      NwCreature oCorpse = NwObject.FindObjectsWithTag<NwCreature>("pccorpse").Where(c => c.GetObjectVariable<LocalVariableInt>("_PC_ID").Value == player.characterId).FirstOrDefault();
       oCorpse?.GetNearestObjectsByType<NwPlaceable>().FirstOrDefault(o => o.Tag == "pccorpse_bodybag")?.Destroy();
       oCorpse?.Destroy();
-      NwObject.FindObjectsWithTag<NwItem>("item_pccorpse").FirstOrDefault(c => c.GetLocalVariable<int>("_PC_ID").Value == player.characterId)?.Destroy();
+      NwObject.FindObjectsWithTag<NwItem>("item_pccorpse").FirstOrDefault(c => c.GetObjectVariable<LocalVariableInt>("_PC_ID").Value == player.characterId)?.Destroy();
     }
     public static void DeletePlayerCorpseFromDatabase(int characterId)
     {
@@ -155,7 +155,7 @@ namespace NWN.Systems
       {
         await NwTask.Delay(TimeSpan.FromSeconds(0.2));
         oPCCorpse.ApplyEffect(EffectDuration.Instant, API.Effect.Death());
-        NwWaypoint wp = NwWaypoint.Create("NW_WAYPOINT001", oPCCorpse.Location, false, $"wp_pccorpse_{oPCCorpse.GetLocalVariable<int>("_PC_ID").Value}");
+        NwWaypoint wp = NwWaypoint.Create("NW_WAYPOINT001", oPCCorpse.Location, false, $"wp_pccorpse_{oPCCorpse.GetObjectVariable<LocalVariableInt>("_PC_ID").Value}");
         await NwTask.Delay(TimeSpan.FromSeconds(0.8));
         VisibilityPlugin.SetVisibilityOverride(NWScript.OBJECT_INVALID, oPCCorpse, VisibilityPlugin.NWNX_VISIBILITY_DEFAULT);
         await NwTask.Delay(TimeSpan.FromSeconds(0.2));

@@ -7,7 +7,7 @@ namespace NWN.Systems.Items.ItemUseHandlers
   {
     public static void HandleActivate(NwItem skillBook, NwCreature oPC)
     {
-      Feat FeatId = (Feat)skillBook.GetLocalVariable<int>("_SKILL_ID").Value;
+      Feat FeatId = (Feat)skillBook.GetObjectVariable<LocalVariableInt>("_SKILL_ID").Value;
 
       PlayerSystem.Log.Info($"{oPC.Name} used skillBook {FeatId}");
 

@@ -23,7 +23,7 @@ namespace NWN.Systems.Craft.Collect
       if (oExtractor == null) return;
 
       int miningYield = 10;
-      miningYield += oExtractor.GetLocalVariable<int>("_ITEM_LEVEL").Value * 5;
+      miningYield += oExtractor.GetObjectVariable<LocalVariableInt>("_ITEM_LEVEL").Value * 5;
       int bonusYield = 0;
 
       if (player.learntCustomFeats.ContainsKey(CustomFeats.Miner))
@@ -36,17 +36,17 @@ namespace NWN.Systems.Craft.Collect
 
       Task playerInput = NwTask.Run(async () =>
       {
-        int remainingOre = oPlaceable.GetLocalVariable<int>("_ORE_AMOUNT").Value - miningYield;
+        int remainingOre = oPlaceable.GetObjectVariable<LocalVariableInt>("_ORE_AMOUNT").Value - miningYield;
         if (remainingOre <= 0)
         {
-          miningYield = oPlaceable.GetLocalVariable<int>("_ORE_AMOUNT").Value;
+          miningYield = oPlaceable.GetObjectVariable<LocalVariableInt>("_ORE_AMOUNT").Value;
           oPlaceable.Destroy();
 
           NwWaypoint.Create("ore_spawn_wp", oPlaceable.Location);
         }
         else
         {
-          oPlaceable.GetLocalVariable<int>("_ORE_AMOUNT").Value = remainingOre;
+          oPlaceable.GetObjectVariable<LocalVariableInt>("_ORE_AMOUNT").Value = remainingOre;
         }
 
         NwItem ore = await NwItem .Create("ore", player.oid.LoginCreature, miningYield, oPlaceable.Name);
@@ -99,8 +99,8 @@ namespace NWN.Systems.Craft.Collect
         if (iRandom < respawnChance)
         {
           NwPlaceable newRock = NwPlaceable.Create("mineable_rock", resourcePoint.Location);
-          newRock.Name = Enum.GetName(typeof(OreType), GetRandomOreSpawnFromAreaLevel(player.oid.LoginCreature.Area.GetLocalVariable<int>("_AREA_LEVEL").Value));
-          newRock.GetLocalVariable<int>("_ORE_AMOUNT").Value = 10 * iRandom + 10 * iRandom * skillBonus / 100;
+          newRock.Name = Enum.GetName(typeof(OreType), GetRandomOreSpawnFromAreaLevel(player.oid.LoginCreature.Area.GetObjectVariable<LocalVariableInt>("_AREA_LEVEL").Value));
+          newRock.GetObjectVariable<LocalVariableInt>("_ORE_AMOUNT").Value = 10 * iRandom + 10 * iRandom * skillBonus / 100;
           resourcePoint.Destroy();
           nbSpawns++;
         }

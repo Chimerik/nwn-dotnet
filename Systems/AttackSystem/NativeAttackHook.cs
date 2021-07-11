@@ -1,10 +1,6 @@
-﻿using System;
-using System.Runtime.InteropServices;
-
-using NLog;
+﻿using NLog;
 
 using NWN.API;
-using NWN.API.Constants;
 using NWN.Native.API;
 using NWN.Services;
 
@@ -18,7 +14,7 @@ namespace NWN.Systems
     private delegate int GetDamageRollHook(void* thisPtr, void* pTarget, int bOffHand, int bCritical, int bSneakAttack, int bDeathAttack, int bForceMax);
     private delegate void ResolveAttackRollHook(void* pCreature, void* pTarget);
 
-    private readonly FunctionHook<GetDamageRollHook> getDamageRollHook;
+    //private readonly FunctionHook<GetDamageRollHook> getDamageRollHook;
     private readonly FunctionHook<ResolveAttackRollHook> resolveAttackRollHook;
 
     public NativeAttackHook(HookService hookService)
@@ -55,8 +51,7 @@ namespace NWN.Systems
           skillBonusDodge += 5;
 
         int dodgeRoll = NwRandom.Roll(Utils.random, 100);
-
-        if (dodgeRoll <= targetCreature.m_pStats.GetAbilityMod(1) + skillBonusDodge - targetCreature.m_pStats.m_nArmorCheckPenalty - targetCreature.m_pStats.m_nShieldCheckPenalty)
+        if (dodgeRoll <= unchecked((sbyte)targetCreature.m_pStats.GetAbilityMod(1)) + skillBonusDodge - targetCreature.m_pStats.m_nArmorCheckPenalty - targetCreature.m_pStats.m_nShieldCheckPenalty)
           attackData.m_nAttackResult = 4;
       }
     }

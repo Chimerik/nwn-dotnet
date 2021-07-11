@@ -53,7 +53,7 @@ namespace NWN.Systems
     private static void HandleItemRuined(NwCreature oPC, NwItem oItem)
     {
       oPC.RunUnequip(oItem);
-      oItem.GetLocalVariable<int>("_DURABILITY").Value = -1;
+      oItem.GetObjectVariable<LocalVariableInt>("_DURABILITY").Value = -1;
       foreach (ItemProperty ip in oItem.ItemProperties.Where(ip => ip.Tag.StartsWith("ENCHANTEMENT")))
       {
         Task waitLoopEnd = NwTask.Run(async () =>
@@ -711,8 +711,8 @@ namespace NWN.Systems
         ctx.oAttacker.ControllingPlayer.SendServerMessage($"Hit slot : {hitSlot.ToString().ColorString(ColorConstants.White)}", ColorConstants.Brown);
       }
 
-      if (ctx.oAttacker != null && ctx.oAttacker.GetLocalVariable<int>("_SPELL_ATTACK_POSITION").HasValue)
-        ctx.oAttacker.GetLocalVariable<int>("_SPELL_ATTACK_POSITION").Delete();
+      if (ctx.oAttacker != null && ctx.oAttacker.GetObjectVariable<LocalVariableInt>("_SPELL_ATTACK_POSITION").HasValue)
+        ctx.oAttacker.GetObjectVariable<LocalVariableInt>("_SPELL_ATTACK_POSITION").Delete();
 
       next();
     }
@@ -889,7 +889,7 @@ namespace NWN.Systems
       }
 
       if(ctx.onAttack != null)
-        ctx.oTarget.GetLocalVariable<int>($"_DAMAGE_HANDLED_FROM_{ctx.oAttacker}").Value = 1;
+        ctx.oTarget.GetObjectVariable<LocalVariableInt>($"_DAMAGE_HANDLED_FROM_{ctx.oAttacker}").Value = 1;
 
       if (ctx.oTarget.Tag == "damage_trainer")
       {
@@ -982,10 +982,10 @@ namespace NWN.Systems
 
     private static void DecreaseItemDurability(NwItem item, NwPlayer oPC)
     {
-      item.GetLocalVariable<int>("_DURABILITY").Value -= 1;
-      if (item.GetLocalVariable<int>("_DURABILITY").Value <= 0)
+      item.GetObjectVariable<LocalVariableInt>("_DURABILITY").Value -= 1;
+      if (item.GetObjectVariable<LocalVariableInt>("_DURABILITY").Value <= 0)
       {
-        if (item.GetLocalVariable<string>("_ORIGINAL_CRAFTER_NAME").HasNothing)
+        if (item.GetObjectVariable<LocalVariableString>("_ORIGINAL_CRAFTER_NAME").HasNothing)
         {
           item.Destroy();
           oPC.SendServerMessage($"Il ne reste plus que des ruines de votre {item.Name.ColorString(ColorConstants.White)}. Ces débris ne sont même pas réparables !", ColorConstants.Red);

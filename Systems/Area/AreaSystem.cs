@@ -33,7 +33,7 @@ namespace NWN.Systems
 
         foreach (NwPlaceable coffre in area.Objects.Where(o => o.Tag == "loot_chest"))
         {
-          coffre.Tag = coffre.GetLocalVariable<string>("_LOOT_REFERENCE").Value;
+          coffre.Tag = coffre.GetObjectVariable<LocalVariableString>("_LOOT_REFERENCE").Value;
           //Log.Info($"initializing chest : {coffre.Name} with : {coffre.Tag}");
         }
       }
@@ -52,7 +52,7 @@ namespace NWN.Systems
       if (player.menu.isOpen)
         player.menu.Close();
 
-      if (area.GetLocalVariable<int>("_AREA_LEVEL") == 0)
+      if (area.GetObjectVariable<LocalVariableInt>("_AREA_LEVEL") == 0)
       {
         if (player.craftJob.IsActive() && player.playerJournal.craftJobCountDown == null)
           player.craftJob.CreateCraftJournalEntry();
@@ -63,11 +63,11 @@ namespace NWN.Systems
       if (player.areaExplorationStateDictionnary.ContainsKey(area.Tag))
         player.oid.SetAreaExplorationState(area, player.areaExplorationStateDictionnary[area.Tag]);
 
-      if (area.GetLocalVariable<int>("_AREA_LEVEL") < 2)
+      if (area.GetObjectVariable<LocalVariableInt>("_AREA_LEVEL") < 2)
         player.oid.SetAreaExplorationState(area, true);
 
       foreach (NwCreature statue in area.FindObjectsOfTypeInArea<NwCreature>().Where(c => c.Tag == "Statuereptilienne"))
-        statue.GetLocalVariable<int>($"_PERCEPTION_STATUS_{player.oid.CDKey}").Delete();
+        statue.GetObjectVariable<LocalVariableInt>($"_PERCEPTION_STATUS_{player.oid.CDKey}").Delete();
     }
     public static void OnAreaExit(AreaEvents.OnExit onExit)
     {
@@ -129,7 +129,7 @@ namespace NWN.Systems
         case "entry_scene":
 
           VisibilityPlugin.SetVisibilityOverride(NWScript.OBJECT_INVALID, NwObject.FindObjectsWithTag("intro_brouillard").FirstOrDefault(), VisibilityPlugin.NWNX_VISIBILITY_HIDDEN);
-          area.GetLocalVariable<int>("_AREA_LEVEL").Value = 0;
+          area.GetObjectVariable<LocalVariableInt>("_AREA_LEVEL").Value = 0;
           area.SetAreaWind(new Vector3(1, 0, 0), 4, 0, 0);
 
           break;
@@ -138,7 +138,7 @@ namespace NWN.Systems
           NwTrigger trigger = area.FindObjectsOfTypeInArea<NwTrigger>().FirstOrDefault(t => t.Tag == "theater_scene");
           trigger.OnEnter += OnTheaterSceneEnter;
           trigger.OnExit += OnTheaterSceneExit;
-          area.GetLocalVariable<int>("_AREA_LEVEL").Value = 0;
+          area.GetObjectVariable<LocalVariableInt>("_AREA_LEVEL").Value = 0;
 
           break;
         case "Gothictest":
@@ -154,16 +154,16 @@ namespace NWN.Systems
         case "Promenadetest":
         case "Governmenttest":
           area.SetAreaWind(new Vector3(1, 0, 0), 4, 0, 0);
-          area.GetLocalVariable<int>("_AREA_LEVEL").Value = 0;
+          area.GetObjectVariable<LocalVariableInt>("_AREA_LEVEL").Value = 0;
           break; 
         case "PalaceGardenTest":
           area.SetAreaWind(new Vector3(1, -1, 0), 2, 0, 0);
-          area.GetLocalVariable<int>("_AREA_LEVEL").Value = 0;
+          area.GetObjectVariable<LocalVariableInt>("_AREA_LEVEL").Value = 0;
           break;
         case "SimilisseTransitionPromenadeport":
         case "similissetempledistrict":
           area.SetAreaWind(new Vector3(0, -1, 0), 3, 0, 0);
-          area.GetLocalVariable<int>("_AREA_LEVEL").Value = 0;
+          area.GetObjectVariable<LocalVariableInt>("_AREA_LEVEL").Value = 0;
           break;
         case "SIMILISCITYGATE":
         case "Similiscityentrepot":
@@ -190,11 +190,11 @@ namespace NWN.Systems
         case "ToursdesInventeurs":
         case "SIMILISPALAISNOU":
         case "qg_kathra":
-          area.GetLocalVariable<int>("_AREA_LEVEL").Value = 0;
+          area.GetObjectVariable<LocalVariableInt>("_AREA_LEVEL").Value = 0;
           break;
         case "cave_flooded":
           area.SetAreaWind(new Vector3(0, 1, 0), 8, 0, 0);
-          area.GetLocalVariable<int>("_AREA_LEVEL").Value = 2;
+          area.GetObjectVariable<LocalVariableInt>("_AREA_LEVEL").Value = 2;
           break;
         case "lepontdaruthen":
         case "Fermesnord":
@@ -202,7 +202,7 @@ namespace NWN.Systems
         case "terres_de_fryar":
         case "vallee":
         case "cave_uw_ruins_entry":
-          area.GetLocalVariable<int>("_AREA_LEVEL").Value = 2;
+          area.GetObjectVariable<LocalVariableInt>("_AREA_LEVEL").Value = 2;
           break;
         case "chemin_interdit":
         case "collines_mugissantes":
@@ -210,22 +210,22 @@ namespace NWN.Systems
         case "haute_montagne":
         case "GoblinTunnels":
         case "caverne_kobolts":
-          area.GetLocalVariable<int>("_AREA_LEVEL").Value = 3;
+          area.GetObjectVariable<LocalVariableInt>("_AREA_LEVEL").Value = 3;
           break;
         case "epine_seeksa":
         case "OrcEncampment":
         case "vallee_caverne":
         case "cave_kuotoa":
-          area.GetLocalVariable<int>("_AREA_LEVEL").Value = 4;
+          area.GetObjectVariable<LocalVariableInt>("_AREA_LEVEL").Value = 4;
           break;
         case "SaltMines":
-          area.GetLocalVariable<int>("_AREA_LEVEL").Value = 5;
+          area.GetObjectVariable<LocalVariableInt>("_AREA_LEVEL").Value = 5;
           break;
         case "ant_nest":
-          area.GetLocalVariable<int>("_AREA_LEVEL").Value = 6;
+          area.GetObjectVariable<LocalVariableInt>("_AREA_LEVEL").Value = 6;
           break;
         default:
-          area.GetLocalVariable<int>("_AREA_LEVEL").Value = 1;
+          area.GetObjectVariable<LocalVariableInt>("_AREA_LEVEL").Value = 1;
           break;
       }
     }
@@ -258,7 +258,7 @@ namespace NWN.Systems
       Log.Info($"Creating personnal storage area for : {oPC.Name} ID : {characterId}");
 
       NwArea area = NwArea.Create("entrepotperso", $"entrepotpersonnel_{oPC.ControllingPlayer.CDKey}", $"Entrepot dimensionnel de {oPC.ControllingPlayer.LoginCreature.Name}");
-      area.GetLocalVariable<int>("_AREA_LEVEL").Value = 0;
+      area.GetObjectVariable<LocalVariableInt>("_AREA_LEVEL").Value = 0;
       area.OnExit += OnPersonnalStorageAreaExit;
 
       NwPlaceable storage = area.FindObjectsOfTypeInArea<NwPlaceable>().FirstOrDefault(s => s.Tag == "ps_entrepot");

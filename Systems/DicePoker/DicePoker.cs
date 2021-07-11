@@ -22,7 +22,7 @@ namespace NWN.Systems.DicePoker
     {
       diceBoard = board;
       playerOne = player;
-      diceBoard.GetLocalVariable<int>("_AVAILABLE_SLOTS").Value = 1;
+      diceBoard.GetObjectVariable<LocalVariableInt>("_AVAILABLE_SLOTS").Value = 1;
       bet = 100;
       gameState = 0;
       DrawStartingPage();
@@ -32,8 +32,8 @@ namespace NWN.Systems.DicePoker
     {
       CancellationTokenSource tokenSource = new CancellationTokenSource();
 
-      Task gameEnded = NwTask.WaitUntil(() => diceBoard.GetLocalVariable<int>("_POKER_DICE_GAME_ENDED").HasValue, tokenSource.Token);
-      Task menuClosed = NwTask.WaitUntil(() => player.oid.LoginCreature.GetLocalVariable<int>("_CURRENT_MENU_CLOSED").HasValue, tokenSource.Token);
+      Task gameEnded = NwTask.WaitUntil(() => diceBoard.GetObjectVariable<LocalVariableInt>("_POKER_DICE_GAME_ENDED").HasValue, tokenSource.Token);
+      Task menuClosed = NwTask.WaitUntil(() => player.oid.LoginCreature.GetObjectVariable<LocalVariableInt>("_CURRENT_MENU_CLOSED").HasValue, tokenSource.Token);
 
       await NwTask.WhenAny(gameEnded, menuClosed);
       tokenSource.Cancel();
@@ -41,12 +41,12 @@ namespace NWN.Systems.DicePoker
       if (gameEnded.IsCompletedSuccessfully)
         return;
 
-      foreach (API.LocalVariable local in playerOne.oid.LoginCreature.LocalVariables.Where(l => l.Name.StartsWith("_DICE_POKER")))
+      foreach (var local in playerOne.oid.LoginCreature.LocalVariables.Where(l => l.Name.StartsWith("_DICE_POKER")))
         local.Delete();
 
-      diceBoard.GetLocalVariable<int>("_POKER_DICE_GAME_ENDED").Value = 1;
-      diceBoard.GetLocalVariable<int>("_AVAILABLE_SLOTS").Value = 2;
-      player.oid.LoginCreature.GetLocalVariable<int>("_CURRENT_MENU_CLOSED").Delete();
+      diceBoard.GetObjectVariable<LocalVariableInt>("_POKER_DICE_GAME_ENDED").Value = 1;
+      diceBoard.GetObjectVariable<LocalVariableInt>("_AVAILABLE_SLOTS").Value = 2;
+      player.oid.LoginCreature.GetObjectVariable<LocalVariableInt>("_CURRENT_MENU_CLOSED").Delete();
 
       switch(gameState)
       {
@@ -55,7 +55,7 @@ namespace NWN.Systems.DicePoker
           playerOne.oid.SendServerMessage("Vous annulez la partie !", ColorConstants.Orange);
           break;
         case 1:
-          foreach (API.LocalVariable local in playerTwo.oid.LoginCreature.LocalVariables.Where(l => l.Name.StartsWith("_DICE_POKER")))
+          foreach (var local in playerTwo.oid.LoginCreature.LocalVariables.Where(l => l.Name.StartsWith("_DICE_POKER")))
             local.Delete();
 
           playerOne.menu.Close();
@@ -74,7 +74,7 @@ namespace NWN.Systems.DicePoker
 
           winner.oid.LoginCreature.GiveGold((int)bet);
 
-          foreach (API.LocalVariable local in playerTwo.oid.LoginCreature.LocalVariables.Where(l => l.Name.StartsWith("_DICE_POKER")))
+          foreach (var local in playerTwo.oid.LoginCreature.LocalVariables.Where(l => l.Name.StartsWith("_DICE_POKER")))
             local.Delete();
 
           playerOne.menu.Close();
@@ -91,7 +91,7 @@ namespace NWN.Systems.DicePoker
       Task waitForAnimation = NwTask.Run(async () =>
       {
         await NwTask.Delay(TimeSpan.FromSeconds(0.2));
-          diceBoard.GetLocalVariable<int>("_POKER_DICE_GAME_ENDED").Delete();
+          diceBoard.GetObjectVariable<LocalVariableInt>("_POKER_DICE_GAME_ENDED").Delete();
       });
     }
     private void DrawStartingPage()
@@ -138,8 +138,8 @@ namespace NWN.Systems.DicePoker
     }
     private void SetNewBet()
     {
-      int playerInput = int.Parse(playerOne.oid.LoginCreature.GetLocalVariable<string>("_PLAYER_INPUT"));
-      playerOne.oid.LoginCreature.GetLocalVariable<string>("_PLAYER_INPUT").Delete();
+      int playerInput = int.Parse(playerOne.oid.LoginCreature.GetObjectVariable<LocalVariableString>("_PLAYER_INPUT"));
+      playerOne.oid.LoginCreature.GetObjectVariable<LocalVariableString>("_PLAYER_INPUT").Delete();
 
       if (playerInput < 0)
       {
@@ -235,8 +235,8 @@ namespace NWN.Systems.DicePoker
 
       CancellationTokenSource tokenSource = new CancellationTokenSource();
 
-      Task gameEnded = NwTask.WaitUntil(() => diceBoard.GetLocalVariable<int>("_POKER_DICE_GAME_ENDED").HasValue, tokenSource.Token);
-      Task playerJoined = NwTask.WaitUntil(() => diceBoard.GetLocalVariable<int>("_AVAILABLE_SLOTS").Value == 0, tokenSource.Token);
+      Task gameEnded = NwTask.WaitUntil(() => diceBoard.GetObjectVariable<LocalVariableInt>("_POKER_DICE_GAME_ENDED").HasValue, tokenSource.Token);
+      Task playerJoined = NwTask.WaitUntil(() => diceBoard.GetObjectVariable<LocalVariableInt>("_AVAILABLE_SLOTS").Value == 0, tokenSource.Token);
 
       await NwTask.WhenAny(gameEnded, playerJoined);
       tokenSource.Cancel();
@@ -244,7 +244,7 @@ namespace NWN.Systems.DicePoker
       if (gameEnded.IsCompletedSuccessfully)
         return;
 
-      if (!Players.TryGetValue(diceBoard.GetLocalVariable<NwObject>("_PLAYER_TWO").Value, out Player player2))
+      if (!Players.TryGetValue(diceBoard.GetObjectVariable<LocalVariableObject<NwCreature>>("_PLAYER_TWO").Value, out Player player2))
         return;
 
       playerTwo = player2;
@@ -282,7 +282,7 @@ namespace NWN.Systems.DicePoker
       if (!HandleGold(player))
         SetDefaultMinimumBet();
 
-      player.oid.LoginCreature.GetLocalVariable<int>("_DICE_POKER_GAME_STARTED").Value = 1;
+      player.oid.LoginCreature.GetObjectVariable<LocalVariableInt>("_DICE_POKER_GAME_STARTED").Value = 1;
 
       player.menu.Clear();
       player.menu.titleLines = new List<string>() {
@@ -292,8 +292,8 @@ namespace NWN.Systems.DicePoker
 
       CancellationTokenSource tokenSource = new CancellationTokenSource();
 
-      Task gameCancelled = NwTask.WaitUntil(() => diceBoard.GetLocalVariable<int>("_POKER_DICE_GAME_ENDED").HasValue, tokenSource.Token);
-      Task gameStarted = NwTask.WaitUntil(() => opponent.oid.LoginCreature.GetLocalVariable<int>("_DICE_POKER_GAME_STARTED").HasValue, tokenSource.Token);
+      Task gameCancelled = NwTask.WaitUntil(() => diceBoard.GetObjectVariable<LocalVariableInt>("_POKER_DICE_GAME_ENDED").HasValue, tokenSource.Token);
+      Task gameStarted = NwTask.WaitUntil(() => opponent.oid.LoginCreature.GetObjectVariable<LocalVariableInt>("_DICE_POKER_GAME_STARTED").HasValue, tokenSource.Token);
 
       await NwTask.WhenAny(gameCancelled, gameStarted);
       tokenSource.Cancel();
@@ -312,10 +312,10 @@ namespace NWN.Systems.DicePoker
           };
 
       for (int i = 1; i < 6; i++)
-        player.oid.LoginCreature.GetLocalVariable<int>($"_DICE_POKER_DICE_{i}").Value = NwRandom.Roll(Utils.random, 6);
+        player.oid.LoginCreature.GetObjectVariable<LocalVariableInt>($"_DICE_POKER_DICE_{i}").Value = NwRandom.Roll(Utils.random, 6);
 
       player.menu.choices.Add((
-        $"{player.oid.LoginCreature.GetLocalVariable<int>("_DICE_POKER_DICE_1").Value} | {player.oid.LoginCreature.GetLocalVariable<int>("_DICE_POKER_DICE_2").Value} | {player.oid.LoginCreature.GetLocalVariable<int>("_DICE_POKER_DICE_3").Value} | {player.oid.LoginCreature.GetLocalVariable<int>("_DICE_POKER_DICE_4").Value} | {player.oid.LoginCreature.GetLocalVariable<int>("_DICE_POKER_DICE_5").Value}",
+        $"{player.oid.LoginCreature.GetObjectVariable<LocalVariableInt>("_DICE_POKER_DICE_1").Value} | {player.oid.LoginCreature.GetObjectVariable<LocalVariableInt>("_DICE_POKER_DICE_2").Value} | {player.oid.LoginCreature.GetObjectVariable<LocalVariableInt>("_DICE_POKER_DICE_3").Value} | {player.oid.LoginCreature.GetObjectVariable<LocalVariableInt>("_DICE_POKER_DICE_4").Value} | {player.oid.LoginCreature.GetObjectVariable<LocalVariableInt>("_DICE_POKER_DICE_5").Value}",
         () => WaitPlayerRolls(player, opponent)
       ));
 
@@ -326,8 +326,8 @@ namespace NWN.Systems.DicePoker
     {
       CancellationTokenSource tokenSource = new CancellationTokenSource();
 
-      Task gameEnded = NwTask.WaitUntil(() => diceBoard.GetLocalVariable<int>("_POKER_DICE_GAME_ENDED").HasValue, tokenSource.Token);
-      Task diceRolled = NwTask.WaitUntil(() => player.oid.LoginCreature.GetLocalVariable<int>("_DICE_ROLLED").HasValue, tokenSource.Token);
+      Task gameEnded = NwTask.WaitUntil(() => diceBoard.GetObjectVariable<LocalVariableInt>("_POKER_DICE_GAME_ENDED").HasValue, tokenSource.Token);
+      Task diceRolled = NwTask.WaitUntil(() => player.oid.LoginCreature.GetObjectVariable<LocalVariableInt>("_DICE_ROLLED").HasValue, tokenSource.Token);
       Task waitingForSelection = NwTask.Delay(TimeSpan.FromSeconds(0.2), tokenSource.Token);
 
       await NwTask.WhenAny(gameEnded, diceRolled, waitingForSelection);
@@ -339,10 +339,10 @@ namespace NWN.Systems.DicePoker
       player.menu.choices.Clear();
 
       for (int i = 1; i < 6; i++)
-        player.oid.LoginCreature.GetLocalVariable<int>($"_DICE_POKER_DICE_{i}").Value = NwRandom.Roll(Utils.random, 6);
+        player.oid.LoginCreature.GetObjectVariable<LocalVariableInt>($"_DICE_POKER_DICE_{i}").Value = NwRandom.Roll(Utils.random, 6);
 
       player.menu.choices.Add((
-        $"{player.oid.LoginCreature.GetLocalVariable<int>("_DICE_POKER_DICE_1").Value} | {player.oid.LoginCreature.GetLocalVariable<int>("_DICE_POKER_DICE_2").Value} | {player.oid.LoginCreature.GetLocalVariable<int>("_DICE_POKER_DICE_3").Value} | {player.oid.LoginCreature.GetLocalVariable<int>("_DICE_POKER_DICE_4").Value} | {player.oid.LoginCreature.GetLocalVariable<int>("_DICE_POKER_DICE_5").Value}",
+        $"{player.oid.LoginCreature.GetObjectVariable<LocalVariableInt>("_DICE_POKER_DICE_1").Value} | {player.oid.LoginCreature.GetObjectVariable<LocalVariableInt>("_DICE_POKER_DICE_2").Value} | {player.oid.LoginCreature.GetObjectVariable<LocalVariableInt>("_DICE_POKER_DICE_3").Value} | {player.oid.LoginCreature.GetObjectVariable<LocalVariableInt>("_DICE_POKER_DICE_4").Value} | {player.oid.LoginCreature.GetObjectVariable<LocalVariableInt>("_DICE_POKER_DICE_5").Value}",
         () => WaitPlayerRolls(player, opponent)
       ));
 
@@ -352,12 +352,12 @@ namespace NWN.Systems.DicePoker
     }
     private async void WaitPlayerRolls(Player player, Player opponent)
     {
-      player.oid.LoginCreature.GetLocalVariable<int>("_DICE_ROLLED").Value = 1;
+      player.oid.LoginCreature.GetObjectVariable<LocalVariableInt>("_DICE_ROLLED").Value = 1;
 
       player.menu.Clear();
 
       player.menu.titleLines = new List<string>() {
-        $"Vous : {player.oid.LoginCreature.GetLocalVariable<int>("_DICE_POKER_DICE_1").Value} | {player.oid.LoginCreature.GetLocalVariable<int>("_DICE_POKER_DICE_2").Value} | {player.oid.LoginCreature.GetLocalVariable<int>("_DICE_POKER_DICE_3").Value} | {player.oid.LoginCreature.GetLocalVariable<int>("_DICE_POKER_DICE_4").Value} | {player.oid.LoginCreature.GetLocalVariable<int>("_DICE_POKER_DICE_5").Value}",
+        $"Vous : {player.oid.LoginCreature.GetObjectVariable<LocalVariableInt>("_DICE_POKER_DICE_1").Value} | {player.oid.LoginCreature.GetObjectVariable<LocalVariableInt>("_DICE_POKER_DICE_2").Value} | {player.oid.LoginCreature.GetObjectVariable<LocalVariableInt>("_DICE_POKER_DICE_3").Value} | {player.oid.LoginCreature.GetObjectVariable<LocalVariableInt>("_DICE_POKER_DICE_4").Value} | {player.oid.LoginCreature.GetObjectVariable<LocalVariableInt>("_DICE_POKER_DICE_5").Value}",
         "En attente du lancé adverse."
       };
 
@@ -367,8 +367,8 @@ namespace NWN.Systems.DicePoker
 
       CancellationTokenSource tokenSource = new CancellationTokenSource();
 
-      Task gameEnded = NwTask.WaitUntil(() => diceBoard.GetLocalVariable<int>("_POKER_DICE_GAME_ENDED").HasValue, tokenSource.Token);
-      Task diceRolled = NwTask.WaitUntil(() => opponent.oid.LoginCreature.GetLocalVariable<int>("_DICE_ROLLED").HasValue, tokenSource.Token);
+      Task gameEnded = NwTask.WaitUntil(() => diceBoard.GetObjectVariable<LocalVariableInt>("_POKER_DICE_GAME_ENDED").HasValue, tokenSource.Token);
+      Task diceRolled = NwTask.WaitUntil(() => opponent.oid.LoginCreature.GetObjectVariable<LocalVariableInt>("_DICE_ROLLED").HasValue, tokenSource.Token);
 
       await NwTask.WhenAny(gameEnded, diceRolled);
       tokenSource.Cancel();
@@ -383,8 +383,8 @@ namespace NWN.Systems.DicePoker
       player.menu.Clear();
 
       player.menu.titleLines = new List<string>() {
-        $"Vous : {IdentifyBestHand(player).ToDescription()} - {player.oid.LoginCreature.GetLocalVariable<int>("_DICE_POKER_DICE_1").Value} | {player.oid.LoginCreature.GetLocalVariable<int>("_DICE_POKER_DICE_2").Value} | {player.oid.LoginCreature.GetLocalVariable<int>("_DICE_POKER_DICE_3").Value} | {player.oid.LoginCreature.GetLocalVariable<int>("_DICE_POKER_DICE_4").Value} | {player.oid.LoginCreature.GetLocalVariable<int>("_DICE_POKER_DICE_5").Value}",
-        $"{opponent.oid.LoginCreature.Name} : {IdentifyBestHand(opponent).ToDescription()} - {opponent.oid.LoginCreature.GetLocalVariable<int>("_DICE_POKER_DICE_1").Value} | {opponent.oid.LoginCreature.GetLocalVariable<int>("_DICE_POKER_DICE_2").Value} | {opponent.oid.LoginCreature.GetLocalVariable<int>("_DICE_POKER_DICE_3").Value} | {opponent.oid.LoginCreature.GetLocalVariable<int>("_DICE_POKER_DICE_4").Value} | {opponent.oid.LoginCreature.GetLocalVariable<int>("_DICE_POKER_DICE_5").Value}",
+        $"Vous : {IdentifyBestHand(player).ToDescription()} - {player.oid.LoginCreature.GetObjectVariable<LocalVariableInt>("_DICE_POKER_DICE_1").Value} | {player.oid.LoginCreature.GetObjectVariable<LocalVariableInt>("_DICE_POKER_DICE_2").Value} | {player.oid.LoginCreature.GetObjectVariable<LocalVariableInt>("_DICE_POKER_DICE_3").Value} | {player.oid.LoginCreature.GetObjectVariable<LocalVariableInt>("_DICE_POKER_DICE_4").Value} | {player.oid.LoginCreature.GetObjectVariable<LocalVariableInt>("_DICE_POKER_DICE_5").Value}",
+        $"{opponent.oid.LoginCreature.Name} : {IdentifyBestHand(opponent).ToDescription()} - {opponent.oid.LoginCreature.GetObjectVariable<LocalVariableInt>("_DICE_POKER_DICE_1").Value} | {opponent.oid.LoginCreature.GetObjectVariable<LocalVariableInt>("_DICE_POKER_DICE_2").Value} | {opponent.oid.LoginCreature.GetObjectVariable<LocalVariableInt>("_DICE_POKER_DICE_3").Value} | {opponent.oid.LoginCreature.GetObjectVariable<LocalVariableInt>("_DICE_POKER_DICE_4").Value} | {opponent.oid.LoginCreature.GetObjectVariable<LocalVariableInt>("_DICE_POKER_DICE_5").Value}",
         $"La mise est de {bet}. Souhaitez-vous le faire monter ?"
       };
 
@@ -424,9 +424,9 @@ namespace NWN.Systems.DicePoker
     {
       int playerInput = 1;
 
-      if (player.oid.LoginCreature.GetLocalVariable<string>("_PLAYER_INPUT").HasValue)
+      if (player.oid.LoginCreature.GetObjectVariable<LocalVariableString>("_PLAYER_INPUT").HasValue)
       {
-        playerInput = int.Parse(player.oid.LoginCreature.GetLocalVariable<string>("_PLAYER_INPUT").Value);
+        playerInput = int.Parse(player.oid.LoginCreature.GetObjectVariable<LocalVariableString>("_PLAYER_INPUT").Value);
         if (playerInput < 1)
           playerInput = 1;
       }
@@ -437,9 +437,9 @@ namespace NWN.Systems.DicePoker
         playerInput = 1;
       }
 
-      player.oid.LoginCreature.GetLocalVariable<int>("_DICE_ROLLED").Delete();
-      player.oid.LoginCreature.GetLocalVariable<string>("_PLAYER_INPUT").Delete();
-      player.oid.LoginCreature.GetLocalVariable<int>("_DICE_POKER_BET_RAISED").Value = playerInput;
+      player.oid.LoginCreature.GetObjectVariable<LocalVariableInt>("_DICE_ROLLED").Delete();
+      player.oid.LoginCreature.GetObjectVariable<LocalVariableString>("_PLAYER_INPUT").Delete();
+      player.oid.LoginCreature.GetObjectVariable<LocalVariableInt>("_DICE_POKER_BET_RAISED").Value = playerInput;
 
       player.menu.Clear();
       player.menu.titleLines = new List<string>() {
@@ -449,8 +449,8 @@ namespace NWN.Systems.DicePoker
 
       CancellationTokenSource tokenSource = new CancellationTokenSource();
 
-      Task gameEnded = NwTask.WaitUntil(() => diceBoard.GetLocalVariable<int>("_POKER_DICE_GAME_ENDED").HasValue, tokenSource.Token);
-      Task opponentRaised = NwTask.WaitUntil(() => opponent.oid.LoginCreature.GetLocalVariable<int>("_DICE_POKER_BET_RAISED").HasValue, tokenSource.Token);
+      Task gameEnded = NwTask.WaitUntil(() => diceBoard.GetObjectVariable<LocalVariableInt>("_POKER_DICE_GAME_ENDED").HasValue, tokenSource.Token);
+      Task opponentRaised = NwTask.WaitUntil(() => opponent.oid.LoginCreature.GetObjectVariable<LocalVariableInt>("_DICE_POKER_BET_RAISED").HasValue, tokenSource.Token);
 
       await NwTask.WhenAny(gameEnded, opponentRaised);
       tokenSource.Cancel();
@@ -458,7 +458,7 @@ namespace NWN.Systems.DicePoker
       if (gameEnded.IsCompletedSuccessfully)
         return;
 
-      int opponentInput = opponent.oid.LoginCreature.GetLocalVariable<int>("_DICE_POKER_BET_RAISED").Value;
+      int opponentInput = opponent.oid.LoginCreature.GetObjectVariable<LocalVariableInt>("_DICE_POKER_BET_RAISED").Value;
       player.oid.SendServerMessage($"{opponent.oid.LoginCreature.Name} souhaite monter la mise de {opponentInput.ToString()}.", ColorConstants.Orange);
 
       if (playerInput >= opponentInput)
@@ -478,23 +478,23 @@ namespace NWN.Systems.DicePoker
     private void DrawRerollMenu(Player player, Player opponent, int selectedDice = 0)
     {
       if (selectedDice > 0)
-        player.oid.LoginCreature.GetLocalVariable<int>($"_DICE_POKER_REROLL_DICE_{selectedDice}").Value = 1;
+        player.oid.LoginCreature.GetObjectVariable<LocalVariableInt>($"_DICE_POKER_REROLL_DICE_{selectedDice}").Value = 1;
 
       player.menu.Clear();
 
       player.menu.titleLines = new List<string>() {
-        $"Vous : {IdentifyBestHand(player).ToDescription()} - {player.oid.LoginCreature.GetLocalVariable<int>("_DICE_POKER_DICE_1").Value} | {player.oid.LoginCreature.GetLocalVariable<int>("_DICE_POKER_DICE_2").Value} | {player.oid.LoginCreature.GetLocalVariable<int>("_DICE_POKER_DICE_3").Value} | {player.oid.LoginCreature.GetLocalVariable<int>("_DICE_POKER_DICE_4").Value} | {player.oid.LoginCreature.GetLocalVariable<int>("_DICE_POKER_DICE_5").Value}",
-        $"{opponent.oid.LoginCreature.Name} : {IdentifyBestHand(opponent).ToDescription()} - {opponent.oid.LoginCreature.GetLocalVariable<int>("_DICE_POKER_DICE_1").Value} | {opponent.oid.LoginCreature.GetLocalVariable<int>("_DICE_POKER_DICE_2").Value} | {opponent.oid.LoginCreature.GetLocalVariable<int>("_DICE_POKER_DICE_3").Value} | {opponent.oid.LoginCreature.GetLocalVariable<int>("_DICE_POKER_DICE_4").Value} | {opponent.oid.LoginCreature.GetLocalVariable<int>("_DICE_POKER_DICE_5").Value}",
+        $"Vous : {IdentifyBestHand(player).ToDescription()} - {player.oid.LoginCreature.GetObjectVariable<LocalVariableInt>("_DICE_POKER_DICE_1").Value} | {player.oid.LoginCreature.GetObjectVariable<LocalVariableInt>("_DICE_POKER_DICE_2").Value} | {player.oid.LoginCreature.GetObjectVariable<LocalVariableInt>("_DICE_POKER_DICE_3").Value} | {player.oid.LoginCreature.GetObjectVariable<LocalVariableInt>("_DICE_POKER_DICE_4").Value} | {player.oid.LoginCreature.GetObjectVariable<LocalVariableInt>("_DICE_POKER_DICE_5").Value}",
+        $"{opponent.oid.LoginCreature.Name} : {IdentifyBestHand(opponent).ToDescription()} - {opponent.oid.LoginCreature.GetObjectVariable<LocalVariableInt>("_DICE_POKER_DICE_1").Value} | {opponent.oid.LoginCreature.GetObjectVariable<LocalVariableInt>("_DICE_POKER_DICE_2").Value} | {opponent.oid.LoginCreature.GetObjectVariable<LocalVariableInt>("_DICE_POKER_DICE_3").Value} | {opponent.oid.LoginCreature.GetObjectVariable<LocalVariableInt>("_DICE_POKER_DICE_4").Value} | {opponent.oid.LoginCreature.GetObjectVariable<LocalVariableInt>("_DICE_POKER_DICE_5").Value}",
         $"La mise est de {bet}. Souhaitez-vous relancer certains dés ?"
       };
 
       for (int i = 1; i < 6; i++)
       {
         int currentValue = i;
-        if (player.oid.LoginCreature.GetLocalVariable<int>($"_DICE_POKER_REROLL_DICE_{currentValue}").HasNothing)
+        if (player.oid.LoginCreature.GetObjectVariable<LocalVariableInt>($"_DICE_POKER_REROLL_DICE_{currentValue}").HasNothing)
         {
           player.menu.choices.Add((
-            $"{currentValue} - {player.oid.LoginCreature.GetLocalVariable<int>($"_DICE_POKER_DICE_{currentValue}").Value}",
+            $"{currentValue} - {player.oid.LoginCreature.GetObjectVariable<LocalVariableInt>($"_DICE_POKER_DICE_{currentValue}").Value}",
             () => DrawRerollMenu(player, opponent, currentValue)
           ));
         }
@@ -511,10 +511,10 @@ namespace NWN.Systems.DicePoker
     {
       for (int i = 1; i < 6; i++)
       {
-        if (player.oid.LoginCreature.GetLocalVariable<int>($"_DICE_POKER_REROLL_DICE_{i}").HasValue)
+        if (player.oid.LoginCreature.GetObjectVariable<LocalVariableInt>($"_DICE_POKER_REROLL_DICE_{i}").HasValue)
         {
-          player.oid.LoginCreature.GetLocalVariable<int>($"_DICE_POKER_DICE_{i}").Value = player.oid.LoginCreature.GetLocalVariable<int>($"_DICE_POKER_REROLL_DICE_{i}").Value;
-          player.oid.LoginCreature.GetLocalVariable<int>($"_DICE_POKER_REROLL_DICE_{i}").Delete();
+          player.oid.LoginCreature.GetObjectVariable<LocalVariableInt>($"_DICE_POKER_DICE_{i}").Value = player.oid.LoginCreature.GetObjectVariable<LocalVariableInt>($"_DICE_POKER_REROLL_DICE_{i}").Value;
+          player.oid.LoginCreature.GetObjectVariable<LocalVariableInt>($"_DICE_POKER_REROLL_DICE_{i}").Delete();
         }
       }
 
@@ -525,21 +525,21 @@ namespace NWN.Systems.DicePoker
       player.menu.Clear();
 
       player.menu.titleLines = new List<string>() {
-        $"Vous : {IdentifyBestHand(player).ToDescription()} - {player.oid.LoginCreature.GetLocalVariable<int>("_DICE_POKER_DICE_1").Value} | {player.oid.LoginCreature.GetLocalVariable<int>("_DICE_POKER_DICE_2").Value} | {player.oid.LoginCreature.GetLocalVariable<int>("_DICE_POKER_DICE_3").Value} | {player.oid.LoginCreature.GetLocalVariable<int>("_DICE_POKER_DICE_4").Value} | {player.oid.LoginCreature.GetLocalVariable<int>("_DICE_POKER_DICE_5").Value}",
-        $"{opponent.oid.LoginCreature.Name} : {IdentifyBestHand(opponent).ToDescription()} - {opponent.oid.LoginCreature.GetLocalVariable<int>("_DICE_POKER_DICE_1").Value} | {opponent.oid.LoginCreature.GetLocalVariable<int>("_DICE_POKER_DICE_2").Value} | {opponent.oid.LoginCreature.GetLocalVariable<int>("_DICE_POKER_DICE_3").Value} | {opponent.oid.LoginCreature.GetLocalVariable<int>("_DICE_POKER_DICE_4").Value} | {opponent.oid.LoginCreature.GetLocalVariable<int>("_DICE_POKER_DICE_5").Value}",
+        $"Vous : {IdentifyBestHand(player).ToDescription()} - {player.oid.LoginCreature.GetObjectVariable<LocalVariableInt>("_DICE_POKER_DICE_1").Value} | {player.oid.LoginCreature.GetObjectVariable<LocalVariableInt>("_DICE_POKER_DICE_2").Value} | {player.oid.LoginCreature.GetObjectVariable<LocalVariableInt>("_DICE_POKER_DICE_3").Value} | {player.oid.LoginCreature.GetObjectVariable<LocalVariableInt>("_DICE_POKER_DICE_4").Value} | {player.oid.LoginCreature.GetObjectVariable<LocalVariableInt>("_DICE_POKER_DICE_5").Value}",
+        $"{opponent.oid.LoginCreature.Name} : {IdentifyBestHand(opponent).ToDescription()} - {opponent.oid.LoginCreature.GetObjectVariable<LocalVariableInt>("_DICE_POKER_DICE_1").Value} | {opponent.oid.LoginCreature.GetObjectVariable<LocalVariableInt>("_DICE_POKER_DICE_2").Value} | {opponent.oid.LoginCreature.GetObjectVariable<LocalVariableInt>("_DICE_POKER_DICE_3").Value} | {opponent.oid.LoginCreature.GetObjectVariable<LocalVariableInt>("_DICE_POKER_DICE_4").Value} | {opponent.oid.LoginCreature.GetObjectVariable<LocalVariableInt>("_DICE_POKER_DICE_5").Value}",
         $"La mise est de {bet}.",
         $"En attente de la relance de l'adversaire..."
       };
 
       player.menu.Draw();
 
-      player.oid.LoginCreature.GetLocalVariable<int>("_DICE_POKER_REROLLED").Value = 1;
+      player.oid.LoginCreature.GetObjectVariable<LocalVariableInt>("_DICE_POKER_REROLLED").Value = 1;
       playerOne.oid.PlaySound("it_dice");
 
       CancellationTokenSource tokenSource = new CancellationTokenSource();
 
-      Task gameEnded = NwTask.WaitUntil(() => diceBoard.GetLocalVariable<int>("_POKER_DICE_GAME_ENDED").HasValue, tokenSource.Token);
-      Task opponentRerolled = NwTask.WaitUntil(() => opponent.oid.LoginCreature.GetLocalVariable<int>("_DICE_POKER_REROLLED").HasValue, tokenSource.Token);
+      Task gameEnded = NwTask.WaitUntil(() => diceBoard.GetObjectVariable<LocalVariableInt>("_POKER_DICE_GAME_ENDED").HasValue, tokenSource.Token);
+      Task opponentRerolled = NwTask.WaitUntil(() => opponent.oid.LoginCreature.GetObjectVariable<LocalVariableInt>("_DICE_POKER_REROLLED").HasValue, tokenSource.Token);
 
       await NwTask.WhenAny(gameEnded, opponentRerolled);
       tokenSource.Cancel();
@@ -548,7 +548,7 @@ namespace NWN.Systems.DicePoker
         return;
 
 
-      player.oid.LoginCreature.GetLocalVariable<int>("_DICE_POKER_BET_RAISED").Delete();
+      player.oid.LoginCreature.GetObjectVariable<LocalVariableInt>("_DICE_POKER_BET_RAISED").Delete();
 
       player.menu.Clear();
 
@@ -576,8 +576,8 @@ namespace NWN.Systems.DicePoker
       }
 
       player.menu.titleLines = new List<string>() {
-        $"Vous : {IdentifyBestHand(player).ToDescription()} - {player.oid.LoginCreature.GetLocalVariable<int>("_DICE_POKER_DICE_1").Value} | {player.oid.LoginCreature.GetLocalVariable<int>("_DICE_POKER_DICE_2").Value} | {player.oid.LoginCreature.GetLocalVariable<int>("_DICE_POKER_DICE_3").Value} | {player.oid.LoginCreature.GetLocalVariable<int>("_DICE_POKER_DICE_4").Value} | {player.oid.LoginCreature.GetLocalVariable<int>("_DICE_POKER_DICE_5").Value}",
-        $"{opponent.oid.LoginCreature.Name} : {IdentifyBestHand(opponent).ToDescription()} - {opponent.oid.LoginCreature.GetLocalVariable<int>("_DICE_POKER_DICE_1").Value} | {opponent.oid.LoginCreature.GetLocalVariable<int>("_DICE_POKER_DICE_2").Value} | {opponent.oid.LoginCreature.GetLocalVariable<int>("_DICE_POKER_DICE_3").Value} | {opponent.oid.LoginCreature.GetLocalVariable<int>("_DICE_POKER_DICE_4").Value} | {opponent.oid.LoginCreature.GetLocalVariable<int>("_DICE_POKER_DICE_5").Value}",
+        $"Vous : {IdentifyBestHand(player).ToDescription()} - {player.oid.LoginCreature.GetObjectVariable<LocalVariableInt>("_DICE_POKER_DICE_1").Value} | {player.oid.LoginCreature.GetObjectVariable<LocalVariableInt>("_DICE_POKER_DICE_2").Value} | {player.oid.LoginCreature.GetObjectVariable<LocalVariableInt>("_DICE_POKER_DICE_3").Value} | {player.oid.LoginCreature.GetObjectVariable<LocalVariableInt>("_DICE_POKER_DICE_4").Value} | {player.oid.LoginCreature.GetObjectVariable<LocalVariableInt>("_DICE_POKER_DICE_5").Value}",
+        $"{opponent.oid.LoginCreature.Name} : {IdentifyBestHand(opponent).ToDescription()} - {opponent.oid.LoginCreature.GetObjectVariable<LocalVariableInt>("_DICE_POKER_DICE_1").Value} | {opponent.oid.LoginCreature.GetObjectVariable<LocalVariableInt>("_DICE_POKER_DICE_2").Value} | {opponent.oid.LoginCreature.GetObjectVariable<LocalVariableInt>("_DICE_POKER_DICE_3").Value} | {opponent.oid.LoginCreature.GetObjectVariable<LocalVariableInt>("_DICE_POKER_DICE_4").Value} | {opponent.oid.LoginCreature.GetObjectVariable<LocalVariableInt>("_DICE_POKER_DICE_5").Value}",
         resultDisplay
       };
 
@@ -587,7 +587,7 @@ namespace NWN.Systems.DicePoker
     }
     private HandType IdentifyBestHand(Player player)
     {
-      int[] playerHand = new int[] { player.oid.LoginCreature.GetLocalVariable<int>("_DICE_POKER_DICE_1").Value, player.oid.LoginCreature.GetLocalVariable<int>("_DICE_POKER_DICE_2").Value, player.oid.LoginCreature.GetLocalVariable<int>("_DICE_POKER_DICE_3").Value, player.oid.LoginCreature.GetLocalVariable<int>("_DICE_POKER_DICE_4").Value, player.oid.LoginCreature.GetLocalVariable<int>("_DICE_POKER_DICE_5").Value };
+      int[] playerHand = new int[] { player.oid.LoginCreature.GetObjectVariable<LocalVariableInt>("_DICE_POKER_DICE_1").Value, player.oid.LoginCreature.GetObjectVariable<LocalVariableInt>("_DICE_POKER_DICE_2").Value, player.oid.LoginCreature.GetObjectVariable<LocalVariableInt>("_DICE_POKER_DICE_3").Value, player.oid.LoginCreature.GetObjectVariable<LocalVariableInt>("_DICE_POKER_DICE_4").Value, player.oid.LoginCreature.GetObjectVariable<LocalVariableInt>("_DICE_POKER_DICE_5").Value };
 
       if (IsFiveOfAKind(playerHand))
         return HandType.FiveOfAKind;
@@ -682,8 +682,8 @@ namespace NWN.Systems.DicePoker
       else if ((int)playerHandType < (int)opponentHandType)
         return 0;
 
-      int playerSum = player.oid.LoginCreature.GetLocalVariable<int>("_DICE_POKER_DICE_1").Value + player.oid.LoginCreature.GetLocalVariable<int>("_DICE_POKER_DICE_2").Value + player.oid.LoginCreature.GetLocalVariable<int>("_DICE_POKER_DICE_3").Value + player.oid.LoginCreature.GetLocalVariable<int>("_DICE_POKER_DICE_4").Value + player.oid.LoginCreature.GetLocalVariable<int>("_DICE_POKER_DICE_5").Value;
-      int opponentSum = opponent.oid.LoginCreature.GetLocalVariable<int>("_DICE_POKER_DICE_1").Value + opponent.oid.LoginCreature.GetLocalVariable<int>("_DICE_POKER_DICE_2").Value + opponent.oid.LoginCreature.GetLocalVariable<int>("_DICE_POKER_DICE_3").Value + opponent.oid.LoginCreature.GetLocalVariable<int>("_DICE_POKER_DICE_4").Value + opponent.oid.LoginCreature.GetLocalVariable<int>("_DICE_POKER_DICE_5").Value;
+      int playerSum = player.oid.LoginCreature.GetObjectVariable<LocalVariableInt>("_DICE_POKER_DICE_1").Value + player.oid.LoginCreature.GetObjectVariable<LocalVariableInt>("_DICE_POKER_DICE_2").Value + player.oid.LoginCreature.GetObjectVariable<LocalVariableInt>("_DICE_POKER_DICE_3").Value + player.oid.LoginCreature.GetObjectVariable<LocalVariableInt>("_DICE_POKER_DICE_4").Value + player.oid.LoginCreature.GetObjectVariable<LocalVariableInt>("_DICE_POKER_DICE_5").Value;
+      int opponentSum = opponent.oid.LoginCreature.GetObjectVariable<LocalVariableInt>("_DICE_POKER_DICE_1").Value + opponent.oid.LoginCreature.GetObjectVariable<LocalVariableInt>("_DICE_POKER_DICE_2").Value + opponent.oid.LoginCreature.GetObjectVariable<LocalVariableInt>("_DICE_POKER_DICE_3").Value + opponent.oid.LoginCreature.GetObjectVariable<LocalVariableInt>("_DICE_POKER_DICE_4").Value + opponent.oid.LoginCreature.GetObjectVariable<LocalVariableInt>("_DICE_POKER_DICE_5").Value;
 
       if (playerSum > opponentSum)
         return 1;

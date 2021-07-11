@@ -15,7 +15,7 @@ namespace NWN.Systems
       int result = DiscordUtils.CheckPlayerCredentialsFromDiscord(context, sPCName);
       if (result > 0)
       {
-        NwPlayer player = NwModule.Instance.Players.FirstOrDefault(p => ObjectPlugin.GetInt(p.LoginCreature, "characterId") == result);
+        NwPlayer player = NwModule.Instance.Players.FirstOrDefault(p => p.LoginCreature.GetObjectVariable<PersistentVariableInt>("characterId").Value == result);
 
         if(player != null)
         {

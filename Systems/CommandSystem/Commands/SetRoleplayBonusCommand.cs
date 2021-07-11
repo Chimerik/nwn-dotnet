@@ -11,11 +11,11 @@ namespace NWN.Systems
     {
       if (ctx.oSender.IsDM)
       {
-        if (ctx.oTarget != null)
+        if (ctx.oTarget != null && !PlayerSystem.Players.TryGetValue(ctx.oTarget.LoginCreature, out PlayerSystem.Player player))
         {
           if (((string)options.positional[0]).Length == 0)
           {
-            ctx.oSender.SendServerMessage($"Le bonus roleplay de {ctx.oTarget.LoginCreature.Name.ColorString(ColorConstants.White)} est de {ObjectPlugin.GetInt(ctx.oTarget.LoginCreature, "_BRP").ToString().ColorString(ColorConstants.White)}", ColorConstants.Pink);
+            ctx.oSender.SendServerMessage($"Le bonus roleplay de {ctx.oTarget.LoginCreature.Name.ColorString(ColorConstants.White)} est de {player.bonusRolePlay.ToString().ColorString(ColorConstants.White)}", ColorConstants.Pink);
           }
           else
           {
@@ -23,25 +23,19 @@ namespace NWN.Systems
             {
               if (iBRP > -1 && iBRP < 5)
               {
-                if (PlayerSystem.Players.TryGetValue(ctx.oTarget.LoginCreature, out PlayerSystem.Player player))
-                {
-                  player.bonusRolePlay = iBRP;
-                  ctx.oSender.SendServerMessage($"Le bonus roleplay de {ctx.oTarget.LoginCreature.Name.ColorString(ColorConstants.White)} est de {player.bonusRolePlay.ToString().ColorString(ColorConstants.White)}", ColorConstants.Pink);
-                  ctx.oTarget.SendServerMessage($"Votre bonus roleplay est désormais de {player.bonusRolePlay.ToString().ColorString(ColorConstants.White)}", ColorConstants.Pink);
+                player.bonusRolePlay = iBRP;
+                ctx.oSender.SendServerMessage($"Le bonus roleplay de {ctx.oTarget.LoginCreature.Name.ColorString(ColorConstants.White)} est de {player.bonusRolePlay.ToString().ColorString(ColorConstants.White)}", ColorConstants.Pink);
+                ctx.oTarget.SendServerMessage($"Votre bonus roleplay est désormais de {player.bonusRolePlay.ToString().ColorString(ColorConstants.White)}", ColorConstants.Pink);
 
-                  SqLiteUtils.UpdateQuery("PlayerAccounts",
-                    new List<string[]>() { new string[] { "bonusRolePlay", player.bonusRolePlay.ToString() } },
-                    new List<string[]>() { new string[] { "rowid", player.accountId.ToString() } });
-
-                  ObjectPlugin.SetInt(ctx.oTarget.LoginCreature, "_BRP", iBRP, 1);
-                }
+                SqLiteUtils.UpdateQuery("PlayerAccounts",
+                  new List<string[]>() { new string[] { "bonusRolePlay", player.bonusRolePlay.ToString() } },
+                  new List<string[]>() { new string[] { "rowid", player.accountId.ToString() } });
               }
               else
                 ctx.oSender.SendServerMessage("Le bonus roleplay doit être compris entre 0 et 4", ColorConstants.Orange);
             }
             else
-              if (PlayerSystem.Players.TryGetValue(ctx.oTarget.LoginCreature, out PlayerSystem.Player player))
-                ctx.oSender.SendServerMessage($"Le bonus roleplay de {ctx.oTarget.LoginCreature.Name.ColorString(ColorConstants.White)} est de {player.bonusRolePlay.ToString().ColorString(ColorConstants.White)}", ColorConstants.Cyan);
+              ctx.oSender.SendServerMessage($"Le bonus roleplay de {ctx.oTarget.LoginCreature.Name.ColorString(ColorConstants.White)} est de {player.bonusRolePlay.ToString().ColorString(ColorConstants.White)}", ColorConstants.Cyan);
           }
         }
       }

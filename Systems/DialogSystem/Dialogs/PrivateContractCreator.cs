@@ -92,13 +92,13 @@ namespace NWN.Systems
       if (awaitedValue)
       {
         HandleSetupPriceContract(player, material);
-        player.oid.LoginCreature.GetLocalVariable<string>("_PLAYER_INPUT").Delete();
+        player.oid.LoginCreature.GetObjectVariable<LocalVariableString>("_PLAYER_INPUT").Delete();
       }
     }
     private async void HandleSetupPriceContract(Player player, string material)
     {
       player.menu.Clear();
-      int input = int.Parse(player.oid.LoginCreature.GetLocalVariable<string>("_PLAYER_INPUT"));
+      int input = int.Parse(player.oid.LoginCreature.GetObjectVariable<LocalVariableString>("_PLAYER_INPUT"));
 
       if (input <= 0)
       {
@@ -124,7 +124,7 @@ namespace NWN.Systems
           if (awaitedValue)
           {
             HandleRegisterMaterialToContract(player, material, input);
-            player.oid.LoginCreature.GetLocalVariable<string>("_PLAYER_INPUT").Delete();
+            player.oid.LoginCreature.GetObjectVariable<LocalVariableString>("_PLAYER_INPUT").Delete();
           }
         }
       }
@@ -132,7 +132,7 @@ namespace NWN.Systems
     private void HandleRegisterMaterialToContract(Player player, string material, int quantity)
     {
       player.menu.Clear();
-      int input = int.Parse(player.oid.LoginCreature.GetLocalVariable<string>("_PLAYER_INPUT"));
+      int input = int.Parse(player.oid.LoginCreature.GetObjectVariable<LocalVariableString>("_PLAYER_INPUT"));
 
       if (input < 0)
       {
@@ -181,14 +181,14 @@ namespace NWN.Systems
       if (awaitedValue)
       {
         CreateContractPage(player);
-        player.oid.LoginCreature.GetLocalVariable<string>("_PLAYER_INPUT").Delete();
+        player.oid.LoginCreature.GetObjectVariable<LocalVariableString>("_PLAYER_INPUT").Delete();
       }
     }
     private async void CreateContractPage(Player player)
     {
       int expirationDate = 30;
 
-      int input = int.Parse(player.oid.LoginCreature.GetLocalVariable<string>("_PLAYER_INPUT"));
+      int input = int.Parse(player.oid.LoginCreature.GetObjectVariable<LocalVariableString>("_PLAYER_INPUT"));
 
       if (input > 0 || input < 31)
         expirationDate = input;
@@ -216,10 +216,10 @@ namespace NWN.Systems
       }
 
       contract.Description += $"\n\nTotal final : {grandTotal} pièce(s) d'or.\n\n Expiration le : {DateTime.Now.AddDays(expirationDate)}";
-      contract.GetLocalVariable<int>("_CONTRACT_CREATOR_ID").Value = player.characterId;
-      contract.GetLocalVariable<int>("_CONTRACT_TOTAL_GOLD_PRICE").Value = grandTotal;
-      contract.GetLocalVariable<string>("_CONTRACT_EXPIRATION_DATE").Value = DateTime.Now.AddDays(expirationDate).ToString();
-      contract.GetLocalVariable<string>("_SERIALIZED_CONTRACT_DATA").Value = serializedContract;
+      contract.GetObjectVariable<LocalVariableInt>("_CONTRACT_CREATOR_ID").Value = player.characterId;
+      contract.GetObjectVariable<LocalVariableInt>("_CONTRACT_TOTAL_GOLD_PRICE").Value = grandTotal;
+      contract.GetObjectVariable<LocalVariableString>("_CONTRACT_EXPIRATION_DATE").Value = DateTime.Now.AddDays(expirationDate).ToString();
+      contract.GetObjectVariable<LocalVariableString>("_SERIALIZED_CONTRACT_DATA").Value = serializedContract;
 
       SqLiteUtils.InsertQuery("playerPrivateContracts",
           new List<string[]>() {
@@ -231,7 +231,7 @@ namespace NWN.Systems
       var query = NwModule.Instance.PrepareCampaignSQLQuery(Config.database, $"SELECT last_insert_rowid()");
       query.Execute();
 
-      contract.GetLocalVariable<int>("_CONTRACT_ID").Value = query.Result.GetInt(0);
+      contract.GetObjectVariable<LocalVariableInt>("_CONTRACT_ID").Value = query.Result.GetInt(0);
       contract.Name = $"Contrat {query.Result.GetInt(0)} de {player.oid.LoginCreature.Name}";
 
       player.oid.SendServerMessage("Votre contrat d'échange privé de ressources a bien été créé.", ColorConstants.Pink);

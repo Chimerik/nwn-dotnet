@@ -15,16 +15,16 @@ namespace NWN.Systems
       if (!(Players.TryGetValue(oPC, out Player player)))
         return;
 
-      if (!DateTime.TryParse(contract.GetLocalVariable<string>("_CONTRACT_EXPIRATION_DATE").Value, out DateTime expirationDate)
-        || contract.GetLocalVariable<int>("_CONTRACT_ID").HasNothing || contract.GetLocalVariable<string>("_SERIALIZED_CONTRACT_DATA").HasNothing
-        || contract.GetLocalVariable<int>("_CONTRACT_TOTAL_GOLD_PRICE").HasNothing || contract.GetLocalVariable<int>("_CONTRACT_CREATOR_ID").HasNothing)
+      if (!DateTime.TryParse(contract.GetObjectVariable<LocalVariableString>("_CONTRACT_EXPIRATION_DATE").Value, out DateTime expirationDate)
+        || contract.GetObjectVariable<LocalVariableInt>("_CONTRACT_ID").HasNothing || contract.GetObjectVariable<LocalVariableString>("_SERIALIZED_CONTRACT_DATA").HasNothing
+        || contract.GetObjectVariable<LocalVariableInt>("_CONTRACT_TOTAL_GOLD_PRICE").HasNothing || contract.GetObjectVariable<LocalVariableInt>("_CONTRACT_CREATOR_ID").HasNothing)
       {
         player.oid.SendServerMessage("Certaines mentions légales sont absentes de ce contrat qui ne semble donc pas valide.", ColorConstants.Purple);
         contract.Destroy();
         return;
       }
 
-      int creatorId = contract.GetLocalVariable<int>("_CONTRACT_CREATOR_ID").Value;
+      int creatorId = contract.GetObjectVariable<LocalVariableInt>("_CONTRACT_CREATOR_ID").Value;
 
       if (creatorId == player.characterId)
       {
@@ -39,7 +39,7 @@ namespace NWN.Systems
         return;
       }
 
-      int contractId = contract.GetLocalVariable<int>("_CONTRACT_ID").Value;
+      int contractId = contract.GetObjectVariable<LocalVariableInt>("_CONTRACT_ID").Value;
 
       var result = SqLiteUtils.SelectQuery("playerPrivateContracts",
         new List<string>() { { "characterId" } },
@@ -52,7 +52,7 @@ namespace NWN.Systems
         return;
       }
 
-      int totalPrice = contract.GetLocalVariable<int>("_CONTRACT_TOTAL_GOLD_PRICE").Value;
+      int totalPrice = contract.GetObjectVariable<LocalVariableInt>("_CONTRACT_TOTAL_GOLD_PRICE").Value;
 
       if (totalPrice > player.bankGold + (int)oPC.Gold)
       {
@@ -68,8 +68,8 @@ namespace NWN.Systems
       }
       else
         oPC.Gold -= (uint)totalPrice;
-
-      NwPlayer oCreator = NwModule.Instance.Players.FirstOrDefault(p => ObjectPlugin.GetInt(p.LoginCreature, "characterId") == creatorId);
+      
+      NwPlayer oCreator = NwModule.Instance.Players.FirstOrDefault(p => p.LoginCreature.GetObjectVariable<PersistentVariableInt>("characterId").Value == creatorId);
 
       if (oCreator != null)
       {
@@ -87,7 +87,7 @@ namespace NWN.Systems
       }
 
 
-      foreach (string materialString in contract.GetLocalVariable<string>("_SERIALIZED_CONTRACT_DATA").Value.Split("|"))
+      foreach (string materialString in contract.GetObjectVariable<LocalVariableString>("_SERIALIZED_CONTRACT_DATA").Value.Split("|"))
       {
         string[] descriptionString = materialString.Split("$");
         if (descriptionString.Length == 3)

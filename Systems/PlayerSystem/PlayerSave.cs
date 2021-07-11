@@ -27,7 +27,7 @@ namespace NWN.Systems
       if (Players.TryGetValue(onSaveBefore.Player.LoginCreature, out Player player))
       {
         if (onSaveBefore.Player.LoginCreature.ActiveEffects.Any(e => e.EffectType == EffectType.Polymorph)
-          && onSaveBefore.Player.LoginCreature.GetLocalVariable<int>("_DISCONNECTING").HasNothing)
+          && onSaveBefore.Player.LoginCreature.GetObjectVariable<LocalVariableInt>("_DISCONNECTING").HasNothing)
         {
           player.effectList = onSaveBefore.Player.LoginCreature.ActiveEffects.ToList();
           Log.Info($"Polymorph detected, saving effect list");
@@ -52,7 +52,7 @@ namespace NWN.Systems
 
         player.currentHP = onSaveBefore.Player.LoginCreature.HP;
 
-        if (player.location.Area?.GetLocalVariable<int>("_AREA_LEVEL").Value == 0)
+        if (player.location.Area?.GetObjectVariable<LocalVariableInt>("_AREA_LEVEL").Value == 0)
         {
           player.CraftJobProgression();
         }

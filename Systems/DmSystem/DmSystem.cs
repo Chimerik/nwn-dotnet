@@ -14,7 +14,7 @@ namespace NWN.Systems
       if (!(onSpawn.SpawnedObject is NwPlaceable oPLC))
         return;
 
-      if (onSpawn.DungeonMaster.LoginCreature.GetLocalVariable<int>("_SPAWN_PERSIST").HasValue)
+      if (onSpawn.DungeonMaster.LoginCreature.GetObjectVariable<LocalVariableInt>("_SPAWN_PERSIST").HasValue)
       {
         oPLC.OnDeath += PlaceableSystem.HandleCleanDMPLC;
 
@@ -23,7 +23,7 @@ namespace NWN.Systems
 
         var query = NwModule.Instance.PrepareCampaignSQLQuery(Config.database, $"SELECT last_insert_rowid()");
         query.Execute();
-        oPLC.GetLocalVariable<int>("_ID").Value = query.Result.GetInt(0);
+        oPLC.GetObjectVariable<LocalVariableInt>("_ID").Value = query.Result.GetInt(0);
 
         onSpawn.DungeonMaster.SendServerMessage($"Création persistante - Vous posez le placeable  {oPLC.Name.ColorString(ColorConstants.White)}", new Color(32, 255, 32));
       }

@@ -20,6 +20,7 @@ namespace NWN.Systems
     public static ChatService chatService { get; set; }
     private static string areaName = "";
     private static Dictionary<NwPlayer, string> chatReceivers = new Dictionary<NwPlayer, string>();
+    private static PlayerSystem.Player player;
     public ChatSystem(ChatService customChatService)
     {
       NwModule.Instance.OnChatMessageSend += OnNWNXChatEvent;
@@ -31,10 +32,10 @@ namespace NWN.Systems
       if(onChat.ChatChannel == ChatChannel.ServerMessage)
         return;
       
-      if (!(onChat.Sender is NwCreature oSender) || oSender.GetLocalVariable<string>("_AWAITING_PLAYER_INPUT").HasValue)
+      if (!(onChat.Sender is NwCreature oSender) || oSender.GetObjectVariable<LocalVariableString>("_AWAITING_PLAYER_INPUT").HasValue)
         return;
 
-      if (!oSender.IsPlayerControlled)
+      if (!oSender.IsPlayerControlled && !PlayerSystem.Players.TryGetValue(oSender, out player))
         return;
 
       if (oSender.Area != null)
@@ -115,15 +116,14 @@ namespace NWN.Systems
     }
     public static void ProcessMutePMMiddleware(Context ctx, Action next)
     {
-      if (ctx.oTarget != null)
+      if (ctx.oTarget != null && PlayerSystem.Players.TryGetValue(ctx.oTarget.LoginCreature, out PlayerSystem.Player targetPlayer))
       {
-        if (ObjectPlugin.GetInt(ctx.oTarget.LoginCreature, "__BLOCK_ALL_MP") > 0 || ObjectPlugin.GetInt(ctx.oTarget.LoginCreature, "__BLOCK_" + ctx.oSender.LoginCreature.OriginalName + "_MP") > 0)
-          if (!ctx.oTarget.IsDM)
-          {
-            ctx.onChat.Skip = true;
-            ctx.oSender.SendServerMessage($"{ctx.oTarget.LoginCreature.Name.ColorString(ColorConstants.White)} bloque actuellement la réception des mp.", ColorConstants.Orange);
-            return;
-          }
+        if (!ctx.oSender.IsDM && (targetPlayer.mutedList.Contains(player.accountId) || targetPlayer.mutedList.Contains(0)))
+        {
+          ctx.onChat.Skip = true;
+          ctx.oSender.SendServerMessage($"{ctx.oTarget.LoginCreature.Name.ColorString(ColorConstants.White)} bloque actuellement la réception des mp.", ColorConstants.Red);
+          return;
+        }
       }
 
       next();
@@ -149,15 +149,11 @@ namespace NWN.Systems
     }
     public static void ProcessAFKDetectionMiddleware(Context ctx, Action next)
     {
-      if (PlayerSystem.Players.TryGetValue(ctx.oSender.LoginCreature, out PlayerSystem.Player player))
-      {
-        if (player.isAFK)
-          if (ctx.channel == ChatChannel.PlayerTalk || ctx.channel == ChatChannel.PlayerWhisper)
-            if (!ctx.msg.Contains("(") && !ctx.msg.Contains(")"))
-              if (ctx.oSender.ControlledCreature.GetNearestCreatures(CreatureTypeFilter.PlayerChar(true)).Any(p => p.LoginPlayer != ctx.oSender && p.Distance(ctx.oSender.ControlledCreature) < chatService.GetPlayerChatHearingDistance(p.ControllingPlayer, ctx.channel)))
-                player.isAFK = false;
-      }
-
+      if (player.isAFK)
+        if (ctx.channel == ChatChannel.PlayerTalk || ctx.channel == ChatChannel.PlayerWhisper)
+          if (!ctx.msg.Contains("(") && !ctx.msg.Contains(")"))
+            if (ctx.oSender.ControlledCreature.GetNearestCreatures(CreatureTypeFilter.PlayerChar(true)).Any(p => p.LoginPlayer != ctx.oSender && p.Distance(ctx.oSender.ControlledCreature) < chatService.GetPlayerChatHearingDistance(p.ControllingPlayer, ctx.channel)))
+              player.isAFK = false;
       next();
     }
     public static void ProcessDMListenMiddleware(Context ctx, Action next)
@@ -227,7 +223,7 @@ namespace NWN.Systems
     {
       foreach (NwPlayer player in NwModule.Instance.Players.Where(p => p.ControlledCreature.Area == ctx.oSender.ControlledCreature.Area && p.ControlledCreature.Distance(ctx.oSender.ControlledCreature) < chatService.GetPlayerChatHearingDistance(p, ctx.channel)))
       {
-        Feat language = (Feat)ctx.oSender.ControlledCreature.GetLocalVariable<int>("_ACTIVE_LANGUAGE").Value;
+        Feat language = (Feat)ctx.oSender.ControlledCreature.GetObjectVariable<LocalVariableInt>("_ACTIVE_LANGUAGE").Value;
 
         if (language != (Feat)CustomFeats.Invalid)
         {
@@ -306,8 +302,8 @@ namespace NWN.Systems
         return;
       }
 
-      onChat.Sender.LoginCreature.GetLocalVariable<string>("_PLAYER_INPUT").Value = onChat.Message;
-      onChat.Sender.LoginCreature.GetLocalVariable<string>("_AWAITING_PLAYER_INPUT").Delete();
+      onChat.Sender.LoginCreature.GetObjectVariable<LocalVariableString>("_PLAYER_INPUT").Value = onChat.Message;
+      onChat.Sender.LoginCreature.GetObjectVariable<LocalVariableString>("_AWAITING_PLAYER_INPUT").Delete();
       onChat.Sender.OnPlayerChat -= HandlePlayerInputByte;
     }
     public static void HandlePlayerInputInt(ModuleEvents.OnPlayerChat onChat)
@@ -320,16 +316,16 @@ namespace NWN.Systems
         return;
       }
 
-      onChat.Sender.LoginCreature.GetLocalVariable<string>("_PLAYER_INPUT").Value = onChat.Message;
-      onChat.Sender.LoginCreature.GetLocalVariable<int>("_AWAITING_PLAYER_INPUT").Delete();
+      onChat.Sender.LoginCreature.GetObjectVariable<LocalVariableString>("_PLAYER_INPUT").Value = onChat.Message;
+      onChat.Sender.LoginCreature.GetObjectVariable<LocalVariableInt>("_AWAITING_PLAYER_INPUT").Delete();
       onChat.Sender.OnPlayerChat -= HandlePlayerInputInt;
     }
     public static void HandlePlayerInputString(ModuleEvents.OnPlayerChat onChat)
     {
       onChat.Volume = TalkVolume.SilentTalk;
 
-      onChat.Sender.LoginCreature.GetLocalVariable<string>("_PLAYER_INPUT").Value = onChat.Message;
-      onChat.Sender.LoginCreature.GetLocalVariable<int>("_AWAITING_PLAYER_INPUT").Delete();
+      onChat.Sender.LoginCreature.GetObjectVariable<LocalVariableString>("_PLAYER_INPUT").Value = onChat.Message;
+      onChat.Sender.LoginCreature.GetObjectVariable<LocalVariableInt>("_AWAITING_PLAYER_INPUT").Delete();
       onChat.Sender.OnPlayerChat -= HandlePlayerInputString;
     }
   }

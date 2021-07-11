@@ -26,15 +26,15 @@ namespace NWN.Systems
 
       player.oid.LoginCreature.OnSpellAction -= RegisterSpellSequence;
 
-      if (oRegister.GetLocalVariable<int>("_REGISTERED_SEQUENCE").HasNothing || oTarget == null)
+      if (oRegister.GetObjectVariable<LocalVariableInt>("_REGISTERED_SEQUENCE").HasNothing || oTarget == null)
       {
         DrawSequenceRegisterMainPage();
 
         Task waitMenuClose = NwTask.Run(async () =>
         {
           await NwTask.Delay(TimeSpan.FromSeconds(0.2));
-          player.oid.LoginCreature.GetLocalVariable<int>("_CURRENT_MENU_CLOSED").Delete();
-          await NwTask.WaitUntil(() => player.oid.LoginCreature.GetLocalVariable<int>("_CURRENT_MENU_CLOSED").HasValue);
+          player.oid.LoginCreature.GetObjectVariable<LocalVariableInt>("_CURRENT_MENU_CLOSED").Delete();
+          await NwTask.WaitUntil(() => player.oid.LoginCreature.GetObjectVariable<LocalVariableInt>("_CURRENT_MENU_CLOSED").HasValue);
           player.oid.LoginCreature.OnSpellAction -= RegisterSpellSequence;
         });
       }
@@ -73,8 +73,8 @@ namespace NWN.Systems
 
       if (awaitedValue)
       {
-        oRegister.Name = player.oid.LoginCreature.GetLocalVariable<string>("_PLAYER_INPUT").Value;
-        player.oid.LoginCreature.GetLocalVariable<string>("_PLAYER_INPUT").Delete();
+        oRegister.Name = player.oid.LoginCreature.GetObjectVariable<LocalVariableString>("_PLAYER_INPUT").Value;
+        player.oid.LoginCreature.GetObjectVariable<LocalVariableString>("_PLAYER_INPUT").Delete();
         player.oid.SendServerMessage($"Votre séquence est désormais nommée {oRegister.Name.ColorString(new Color(32, 255, 32))}.");
         DrawSequenceRegisterMainPage();
       }
@@ -87,11 +87,11 @@ namespace NWN.Systems
         "Pour enregistrer votre séquence de sorts, lancez simplement vos sorts les uns à la suite de autres.",
       };
 
-      if (oRegister.GetLocalVariable<string>("_REGISTERED_SEQUENCE").HasValue)
+      if (oRegister.GetObjectVariable<LocalVariableString>("_REGISTERED_SEQUENCE").HasValue)
       {
         player.menu.titleLines.Add("Liste des sorts enregistrés :");
 
-        string[] spellList = oRegister.GetLocalVariable<string>("_REGISTERED_SEQUENCE").Value.Split("_");
+        string[] spellList = oRegister.GetObjectVariable<LocalVariableString>("_REGISTERED_SEQUENCE").Value.Split("_");
 
         foreach (string spellId in spellList)
         {
@@ -108,7 +108,7 @@ namespace NWN.Systems
     {
       player.oid.LoginCreature.OnSpellAction -= RegisterSpellSequence;
       player.oid.LoginCreature.OnSpellAction += RegisterSpellSequence;
-      oRegister.GetLocalVariable<string>("_REGISTERED_SEQUENCE").Delete();
+      oRegister.GetObjectVariable<LocalVariableString>("_REGISTERED_SEQUENCE").Delete();
 
       DrawSequenceList();
     }
@@ -116,10 +116,10 @@ namespace NWN.Systems
     {
       onSpellAction.PreventSpellCast = true;
 
-      if (oRegister.GetLocalVariable<string>("_REGISTERED_SEQUENCE").HasNothing)
-        oRegister.GetLocalVariable<string>("_REGISTERED_SEQUENCE").Value = ((int)onSpellAction.Spell).ToString();
+      if (oRegister.GetObjectVariable<LocalVariableString>("_REGISTERED_SEQUENCE").HasNothing)
+        oRegister.GetObjectVariable<LocalVariableString>("_REGISTERED_SEQUENCE").Value = ((int)onSpellAction.Spell).ToString();
       else
-        oRegister.GetLocalVariable<string>("_REGISTERED_SEQUENCE").Value += $"_{((int)onSpellAction.Spell)}";
+        oRegister.GetObjectVariable<LocalVariableString>("_REGISTERED_SEQUENCE").Value += $"_{((int)onSpellAction.Spell)}";
 
       DrawSequenceList();
     }
@@ -130,16 +130,16 @@ namespace NWN.Systems
         float posX = oCaster.Position.X;
         float posY = oCaster.Position.Y;
         await NwTask.WaitUntil(() => oCaster.Position.X != posX || oCaster.Position.Y != posY);
-        oCaster.GetLocalVariable<int>("_SEQUENCE_CANCELLED").Value = 1;
+        oCaster.GetObjectVariable<LocalVariableInt>("_SEQUENCE_CANCELLED").Value = 1;
       });
 
-      string[] spellList = oRegister.GetLocalVariable<string>("_REGISTERED_SEQUENCE").Value.Split("_");
-      PlayerSystem.Log.Info($"list : {oRegister.GetLocalVariable<string>("_REGISTERED_SEQUENCE").Value}");
+      string[] spellList = oRegister.GetObjectVariable<LocalVariableString>("_REGISTERED_SEQUENCE").Value.Split("_");
+      PlayerSystem.Log.Info($"list : {oRegister.GetObjectVariable<LocalVariableString>("_REGISTERED_SEQUENCE").Value}");
       foreach (string spellId in spellList)
       {
-        if (oCaster == null || oTarget == null || oCaster.GetLocalVariable<int>("_SEQUENCE_CANCELLED").HasValue)
+        if (oCaster == null || oTarget == null || oCaster.GetObjectVariable<LocalVariableInt>("_SEQUENCE_CANCELLED").HasValue)
         {
-          oCaster.GetLocalVariable<int>("_SEQUENCE_CANCELLED").Delete();
+          oCaster.GetObjectVariable<LocalVariableInt>("_SEQUENCE_CANCELLED").Delete();
           return;
         }
 

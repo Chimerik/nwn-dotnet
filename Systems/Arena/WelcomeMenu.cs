@@ -137,7 +137,7 @@ namespace NWN.Systems.Arena
           shop = SqLiteUtils.StoreSerializationFormatProtection(result.Result, 0, player.oid.ControlledCreature.Location);
 
           foreach (NwItem item in shop.Items)
-            item.BaseGoldValue = (uint)(item.GetLocalVariable<int>("_SET_SELL_PRICE").Value);
+            item.BaseGoldValue = (uint)(item.GetObjectVariable<LocalVariableInt>("_SET_SELL_PRICE").Value);
         }
       }
 
@@ -200,7 +200,7 @@ namespace NWN.Systems.Arena
           shop = SqLiteUtils.StoreSerializationFormatProtection(result.Result, 0, player.oid.ControlledCreature.Location);
 
           foreach (NwItem item in shop.Items)
-            item.BaseGoldValue = (uint)(item.GetLocalVariable<int>("_SET_SELL_PRICE").Value);
+            item.BaseGoldValue = (uint)(item.GetObjectVariable<LocalVariableInt>("_SET_SELL_PRICE").Value);
         }
       }
 

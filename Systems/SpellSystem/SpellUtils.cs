@@ -71,7 +71,7 @@ namespace NWN.Systems
       eff.Tag = effectTag;
       eff.SubType = EffectSubType.Supernatural;
 
-      target.GetLocalVariable<int>(effectTag).Value = iconId;
+      target.GetObjectVariable<LocalVariableInt>(effectTag).Value = iconId;
 
       if (effectDuration > 0)
         target.ApplyEffect(EffectDuration.Temporary, eff, TimeSpan.FromSeconds(effectDuration));
@@ -96,8 +96,8 @@ namespace NWN.Systems
       float posY = caster.Position.Y;
       await NwTask.WaitUntil(() => caster.Position.X != posX || caster.Position.Y != posY);
 
-      caster.GetLocalVariable<int>("_AUTO_SPELL").Delete();
-      caster.GetLocalVariable<NwObject>("_AUTO_SPELL_TARGET").Delete();
+      caster.GetObjectVariable<LocalVariableInt>("_AUTO_SPELL").Delete();
+      caster.GetObjectVariable<LocalVariableObject<NwGameObject>>("_AUTO_SPELL_TARGET").Delete();
       caster.OnCombatRoundEnd -= PlayerSystem.HandleCombatRoundEndForAutoSpells;
     }
   }

@@ -30,8 +30,8 @@ namespace NWN.Systems
 
       if (awaitedValue)
       {
-        HandleCreateSkillbook(int.Parse(player.oid.LoginCreature.GetLocalVariable<string>("_PLAYER_INPUT").Value), player.oid);
-        player.oid.LoginCreature.GetLocalVariable<string>("_PLAYER_INPUT").Delete();
+        HandleCreateSkillbook(int.Parse(player.oid.LoginCreature.GetObjectVariable<LocalVariableString>("_PLAYER_INPUT").Value), player.oid);
+        player.oid.LoginCreature.GetObjectVariable<LocalVariableString>("_PLAYER_INPUT").Delete();
         player.menu.Close();
       }
     }
@@ -39,7 +39,7 @@ namespace NWN.Systems
     {
       NwItem skillBook = await NwItem.Create("skillbookgeneriq", oPC.ControlledCreature, 1, "skillbook");
       skillBook.Appearance.SetSimpleModel((byte)Utils.random.Next(0, 50));
-      skillBook.GetLocalVariable<int>("_SKILL_ID").Value = skillId;
+      skillBook.GetObjectVariable<LocalVariableInt>("_SKILL_ID").Value = skillId;
 
       Feat feat = (Feat)skillId;
 

@@ -87,7 +87,7 @@ namespace NWN.Systems
 
         NwItem oBlueprint = await NwItem.Create("blueprintgeneric", oChest, 1, "blueprint");
         oBlueprint.Name = $"Patron : {blueprint.name}";
-        oBlueprint.GetLocalVariable<int>("_BASE_ITEM_TYPE").Value = baseItemType;
+        oBlueprint.GetObjectVariable<LocalVariableInt>("_BASE_ITEM_TYPE").Value = baseItemType;
       }
 
       UpdateChestTagToLootsDic(oChest);
@@ -98,7 +98,7 @@ namespace NWN.Systems
       {
         NwItem skillBook = await NwItem.Create("skillbookgeneriq", oChest, 1, "skillbook");
         skillBook.Appearance.SetSimpleModel((byte)Utils.random.Next(0, 50));
-        skillBook.GetLocalVariable<int>("_SKILL_ID").Value = (int)feat;
+        skillBook.GetObjectVariable<LocalVariableInt>("_SKILL_ID").Value = (int)feat;
 
         FeatTable.Entry entry = Feat2da.featTable.GetFeatDataEntry(feat);
 

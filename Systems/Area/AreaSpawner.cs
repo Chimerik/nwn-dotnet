@@ -13,18 +13,18 @@ namespace NWN.Systems
   {
     public static void AreaSpawner(NwArea area)
     {
-      if (area.GetLocalVariable<int>("_NO_SPAWN_ALLOWED").HasValue)
+      if (area.GetObjectVariable<LocalVariableInt>("_NO_SPAWN_ALLOWED").HasValue)
         return;
 
       foreach (NwWaypoint wp in area.FindObjectsOfTypeInArea<NwWaypoint>().Where(a => a.Tag == "creature_spawn"))
         HandleSpawnWaypoint(wp);
 
-      area.GetLocalVariable<int>("_NO_SPAWN_ALLOWED").Value = 1;
+      area.GetObjectVariable<LocalVariableInt>("_NO_SPAWN_ALLOWED").Value = 1;
 
       Task spawnAllowed = NwTask.Run(async () =>
       {
         await NwTask.Delay(TimeSpan.FromMinutes(10));
-        area.GetLocalVariable<int>("_NO_SPAWN_ALLOWED").Delete();
+        area.GetObjectVariable<LocalVariableInt>("_NO_SPAWN_ALLOWED").Delete();
       });
     }
   }

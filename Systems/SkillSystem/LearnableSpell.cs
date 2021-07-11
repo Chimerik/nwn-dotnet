@@ -59,7 +59,7 @@ namespace NWN.Systems
         if (this.player.currentSkillJob == this.oid)
         {
           this.currentJob = true;
-          if (player.oid.LoginCreature.GetLocalVariable<int>("_CONNECTING").HasNothing)
+          if (player.oid.LoginCreature.GetObjectVariable<LocalVariableInt>("_CONNECTING").HasNothing)
             this.CreateSkillJournalEntry();
         }
       }
@@ -125,7 +125,7 @@ namespace NWN.Systems
             break;
         }
 
-        if (player.oid.LoginCreature.GetLocalVariable<int>("_CONNECTING").HasValue)
+        if (player.oid.LoginCreature.GetObjectVariable<LocalVariableInt>("_CONNECTING").HasValue)
           SP = SP * 60 / 100;
         else if (player.isAFK)
           SP = SP * 80 / 100;

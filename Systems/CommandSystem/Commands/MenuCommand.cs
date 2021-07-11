@@ -65,10 +65,11 @@ namespace NWN.Systems
 
     private static void __HandleSwapHotkeys(PlayerSystem.Player player)
     {
-      if(ObjectPlugin.GetInt(player.oid.LoginCreature, "_MENU_HOTKEYS_SWAPPED") == 0)
-        ObjectPlugin.SetInt(player.oid.LoginCreature, "_MENU_HOTKEYS_SWAPPED", 1, 1);
+      ;
+      if (player.oid.LoginCreature.GetObjectVariable<PersistentVariableInt>("_MENU_HOTKEYS_SWAPPED").HasNothing)
+        player.oid.LoginCreature.GetObjectVariable<PersistentVariableInt>("_MENU_HOTKEYS_SWAPPED").Value = 1;
       else
-        ObjectPlugin.DeleteInt(player.oid.LoginCreature, "_MENU_HOTKEYS_SWAPPED");
+        player.oid.LoginCreature.GetObjectVariable<PersistentVariableInt>("_MENU_HOTKEYS_SWAPPED").Delete();
 
       PlayerQuickBarButton swapQBS = player.oid.ControlledCreature.GetQuickBarButton(0);
       player.oid.ControlledCreature.SetQuickBarButton(0, player.oid.ControlledCreature.GetQuickBarButton(1));

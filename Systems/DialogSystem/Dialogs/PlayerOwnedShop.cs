@@ -61,8 +61,8 @@ namespace NWN.Systems
 
       if (awaitedValue)
       {
-        shop.Name = player.oid.LoginCreature.GetLocalVariable<string>("_PLAYER_INPUT").Value;
-        player.oid.LoginCreature.GetLocalVariable<string>("_PLAYER_INPUT").Delete();
+        shop.Name = player.oid.LoginCreature.GetObjectVariable<LocalVariableString>("_PLAYER_INPUT").Value;
+        player.oid.LoginCreature.GetObjectVariable<LocalVariableString>("_PLAYER_INPUT").Delete();
         player.oid.SendServerMessage($"Votre objet est désormais nommé {shop.Name.ColorString(ColorConstants.Green)}.");
         DrawMainPage(player, shop);
       }
@@ -79,8 +79,8 @@ namespace NWN.Systems
 
       if (awaitedValue)
       {
-        shop.Description = player.oid.LoginCreature.GetLocalVariable<string>("_PLAYER_INPUT").Value;
-        player.oid.LoginCreature.GetLocalVariable<string>("_PLAYER_INPUT").Delete();
+        shop.Description = player.oid.LoginCreature.GetObjectVariable<LocalVariableString>("_PLAYER_INPUT").Value;
+        player.oid.LoginCreature.GetObjectVariable<LocalVariableString>("_PLAYER_INPUT").Delete();
         player.oid.SendServerMessage($"La description de votre échoppe a été modifiée.", ColorConstants.Rose);
         DrawMainPage(player, shop);
       }
@@ -102,10 +102,10 @@ namespace NWN.Systems
 
       NwItem authorization = await NwItem.Create("shop_clearance", player.oid.LoginCreature);
 
-      if (shop.GetLocalVariable<int>("_SHOP_ID").HasValue)
+      if (shop.GetObjectVariable<LocalVariableInt>("_SHOP_ID").HasValue)
       {
         SqLiteUtils.DeletionQuery("playerShops",
-          new Dictionary<string, string>() { { "rowid", shop.GetLocalVariable<int>("_SHOP_ID").Value.ToString() } });
+          new Dictionary<string, string>() { { "rowid", shop.GetObjectVariable<LocalVariableInt>("_SHOP_ID").Value.ToString() } });
       }
 
       player.oid.SendServerMessage($"Votre échoppe a été supprimée et votre autorisation et vos objets ont été restitués.", ColorConstants.Orange);
@@ -131,7 +131,7 @@ namespace NWN.Systems
       if (awaitedValue)
       {
         SetItemPrice(player, item, shop);
-        player.oid.LoginCreature.GetLocalVariable<string>("_PLAYER_INPUT").Delete();
+        player.oid.LoginCreature.GetObjectVariable<LocalVariableString>("_PLAYER_INPUT").Delete();
       }
 
       player.menu.Draw();
@@ -141,7 +141,7 @@ namespace NWN.Systems
     {
       player.menu.Clear();
       int goldValue;
-      int input = int.Parse(player.oid.LoginCreature.GetLocalVariable<string>("_PLAYER_INPUT"));
+      int input = int.Parse(player.oid.LoginCreature.GetObjectVariable<LocalVariableString>("_PLAYER_INPUT"));
 
       if (input <= 0)
       {
@@ -156,7 +156,7 @@ namespace NWN.Systems
 
       NwItem copy = item.Clone(shop);
       copy.BaseGoldValue = (uint)(goldValue / item.StackSize);
-      copy.GetLocalVariable<int>("_SET_SELL_PRICE").Value = goldValue / item.StackSize;
+      copy.GetObjectVariable<LocalVariableInt>("_SET_SELL_PRICE").Value = goldValue / item.StackSize;
       item.Destroy();
 
       player.menu.Close();

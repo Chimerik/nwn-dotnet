@@ -50,13 +50,13 @@ namespace NWN.Systems
       if (awaitedValue)
       {
         HandleRefineOre(player, oreName);
-        player.oid.LoginCreature.GetLocalVariable<string>("_PLAYER_INPUT").Delete();
+        player.oid.LoginCreature.GetObjectVariable<LocalVariableString>("_PLAYER_INPUT").Delete();
       }
     }
     private void HandleRefineOre(Player player, string oreName)
     {
       player.menu.Clear();
-      int input = int.Parse(player.oid.LoginCreature.GetLocalVariable<string>("_PLAYER_INPUT"));
+      int input = int.Parse(player.oid.LoginCreature.GetObjectVariable<LocalVariableString>("_PLAYER_INPUT"));
 
       if (input < 100)
       {

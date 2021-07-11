@@ -38,9 +38,9 @@ namespace NWN.Systems
         return;
       }
 
-      if (onDamage.Target.GetLocalVariable<int>($"_DAMAGE_HANDLED_FROM_{onDamage.DamagedBy}").HasValue)
+      if (onDamage.Target.GetObjectVariable<LocalVariableInt>($"_DAMAGE_HANDLED_FROM_{onDamage.DamagedBy}").HasValue)
       {
-        onDamage.Target.GetLocalVariable<int>($"_DAMAGE_HANDLED_FROM_{onDamage.DamagedBy}").Delete();
+        onDamage.Target.GetObjectVariable<LocalVariableInt>($"_DAMAGE_HANDLED_FROM_{onDamage.DamagedBy}").Delete();
         return;
       }
 
@@ -55,17 +55,17 @@ namespace NWN.Systems
         onDamage: onDamage
       ));
 
-      /*if (onDamage.Target.GetLocalVariable<int>("_IS_GNOME_MECH").HasValue && onDamage.DamageData.Electrical > 0)
+      /*if (onDamage.Target.GetObjectVariable<LocalVariableInt>("_IS_GNOME_MECH").HasValue && onDamage.DamageData.Electrical > 0)
       {
         onDamage.Target.ApplyEffect(EffectDuration.Instant, Effect.Heal(onDamage.DamageData.Electrical));
         onDamage.Target.ApplyEffect(EffectDuration.Instant, Effect.VisualEffect(VfxType.ImpHeadElectricity));
-        onDamage.Target.GetLocalVariable<int>("_SPARK_LEVEL").Value += 5;
+        onDamage.Target.GetObjectVariable<LocalVariableInt>("_SPARK_LEVEL").Value += 5;
 
         foreach (NwCreature oPC in onDamage.Target.Area.FindObjectsOfTypeInArea<NwCreature>().Where(p => p.ControllingPlayer != null))
           oPC.ControllingPlayer.DisplayFloatingTextStringOnCreature((NwCreature)onDamage.Target, onDamage.DamageData.Electrical.ToString().ColorString(new Color(32, 255, 32)));
 
         if (onDamage.Target.Tag == "dog_meca_defect" && CreaturePlugin.GetAttacksPerRound(onDamage.Target) < 6
-          && NwRandom.Roll(Utils.random, 100) <= onDamage.Target.GetLocalVariable<int>("_SPARK_LEVEL").Value)
+          && NwRandom.Roll(Utils.random, 100) <= onDamage.Target.GetObjectVariable<LocalVariableInt>("_SPARK_LEVEL").Value)
         {
           foreach (NwCreature oPC in onDamage.Target.Area.FindObjectsOfTypeInArea<NwCreature>().Where(p => p.ControllingPlayer != null))
             oPC.ControllingPlayer.SendServerMessage("Attention, la décharge électrique surcharge le chien mécanisé défectueux, le rendant plus dangereux !");
@@ -92,10 +92,10 @@ namespace NWN.Systems
       // TODO : voir comment le "damager" est détecté dans le cas des AoE FNF et des AoE qui restent plus longtemps au sol => il est null s'il est déco ou mort. Peut-être mettre le damage en variable locale sur l'AoE créée et le récupérer de là
       // TODO : Les sorts doivent avoir une position d'attaque. A rajouter dans le spelhook en fonction du sort utilisé (rayon = Ranged, icestorm = up, AoE au sol = down)
 
-      if (ctx.oAttacker != null && ctx.oAttacker.GetLocalVariable<int>("_SPELL_ATTACK_POSITION").HasValue)
-        ctx.attackPosition = (Config.AttackPosition)ctx.oAttacker.GetLocalVariable<int>("_SPELL_ATTACK_POSITION").Value;
+      if (ctx.oAttacker != null && ctx.oAttacker.GetObjectVariable<LocalVariableInt>("_SPELL_ATTACK_POSITION").HasValue)
+        ctx.attackPosition = (Config.AttackPosition)ctx.oAttacker.GetObjectVariable<LocalVariableInt>("_SPELL_ATTACK_POSITION").Value;
       else
-        ctx.oAttacker.GetLocalVariable<int>("_SPELL_ATTACK_POSITION").Value = 2;
+        ctx.oAttacker.GetObjectVariable<LocalVariableInt>("_SPELL_ATTACK_POSITION").Value = 2;
 
       next();
     }

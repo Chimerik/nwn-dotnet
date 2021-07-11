@@ -1,6 +1,7 @@
 ﻿using System;
 using NWN.Core.NWNX;
 using NWN.API.Constants;
+using NWN.API;
 
 namespace NWN.Systems
 {
@@ -66,7 +67,7 @@ namespace NWN.Systems
         if (this.player.currentSkillJob == (int)oid)
         {
           this.currentJob = true;
-          if(player.oid.LoginCreature.GetLocalVariable<int>("_CONNECTING").HasNothing)
+          if(player.oid.LoginCreature.GetObjectVariable<LocalVariableInt>("_CONNECTING").HasNothing)
             this.CreateSkillJournalEntry();
         }
       }
@@ -139,7 +140,7 @@ namespace NWN.Systems
             break;
         }
 
-        if (player.oid.LoginCreature.GetLocalVariable<int>("_CONNECTING").HasValue)
+        if (player.oid.LoginCreature.GetObjectVariable<LocalVariableInt>("_CONNECTING").HasValue)
         {
           SP = SP * 60 / 100;
           Log.Info($"{player.oid.LoginCreature.Name} was not connected. Applying 40 % malus.");
@@ -156,19 +157,18 @@ namespace NWN.Systems
       }
       public void RefreshAcquiredSkillPoints()
       {
-        int pooledPoints = ObjectPlugin.GetInt(player.oid.LoginCreature, "_STARTING_SKILL_POINTS");
-        
-        if (pooledPoints > 0)
+        if (player.oid.LoginCreature.GetObjectVariable<PersistentVariableInt>("_STARTING_SKILL_POINTS").HasValue)
         {
+          int pooledPoints = player.oid.LoginCreature.GetObjectVariable<PersistentVariableInt>("_STARTING_SKILL_POINTS").Value;
           if (pooledPoints > pointsToNextLevel)
           {
-            ObjectPlugin.SetInt(player.oid.LoginCreature, "_STARTING_SKILL_POINTS", pooledPoints - pointsToNextLevel, 1);
+            player.oid.LoginCreature.GetObjectVariable<PersistentVariableInt>("_STARTING_SKILL_POINTS").Value = pooledPoints;
             acquiredPoints += pointsToNextLevel;
           }
           else
           {
             acquiredPoints += pooledPoints;
-            ObjectPlugin.DeleteInt(player.oid.LoginCreature, "_STARTING_SKILL_POINTS");
+            player.oid.LoginCreature.GetObjectVariable<PersistentVariableInt>("_STARTING_SKILL_POINTS").Delete();
           }
         }
 

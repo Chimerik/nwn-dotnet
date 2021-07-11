@@ -18,7 +18,7 @@ namespace NWN.Systems
       if (!Players.TryGetValue(onPCDisconnect.Player.LoginCreature, out Player player))
         return;
 
-      onPCDisconnect.Player.LoginCreature.GetLocalVariable<int>("_DISCONNECTING").Value = 1;
+      onPCDisconnect.Player.LoginCreature.GetObjectVariable<LocalVariableInt>("_DISCONNECTING").Value = 1;
 
       if (player.menu.isOpen)
         player.menu.Close();

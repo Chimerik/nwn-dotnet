@@ -29,10 +29,10 @@ namespace NWN.Systems
       };
       player.menu.choices.Add(($"Me refaire une beauté.", () => HandleBodyCloneSpawn(player)));
       
-      if(mirror.GetLocalVariable<int>("_TRAIT_SELECTED").HasNothing)
+      if(mirror.GetObjectVariable<LocalVariableInt>("_TRAIT_SELECTED").HasNothing)
         player.menu.choices.Add(($"Me perdre brièvement dans le passé.", () => HandleBackgroundChoice(player)));
       
-      if(ObjectPlugin.GetInt(player.oid.LoginCreature, "_STARTING_SKILL_POINTS") > 0)
+      if (player.oid.LoginCreature.GetObjectVariable<PersistentVariableInt>("_STARTING_SKILL_POINTS").HasValue)
         player.menu.choices.Add(($"Me préparer à l'avenir.", () => HandleSkillSelection(player)));
       
       player.menu.choices.Add(("M'éloigner du miroir.", () => player.menu.Close()));
@@ -60,7 +60,7 @@ namespace NWN.Systems
     }
     private void HandleBodyModification(Player player)
     {
-      clone.GetLocalVariable<int>("_CURRENT_HEAD").Value = clone.GetCreatureBodyPart(CreaturePart.Head);
+      clone.GetObjectVariable<LocalVariableInt>("_CURRENT_HEAD").Value = clone.GetCreatureBodyPart(CreaturePart.Head);
 
       player.menu.Clear();
       player.menu.titleLines = new List<string> {
@@ -112,9 +112,9 @@ namespace NWN.Systems
     private void HandleSkillSelection(Player player)
     {
       player.menu.Clear();
-
+      
       player.menu.titleLines = new List<string> {
-        $"Vous disposez actuellement de {ObjectPlugin.GetInt(player.oid.LoginCreature, "_STARTING_SKILL_POINTS")} points de compétence.",
+        $"Vous disposez actuellement de {player.oid.LoginCreature.GetObjectVariable<PersistentVariableInt>("_STARTING_SKILL_POINTS").Value} points de compétence.",
         "Quelles capacités initiales votre personnage possède-t-il ?"
       };
 
@@ -143,7 +143,7 @@ namespace NWN.Systems
     private void ChangeCloneHead(Player player, int model)
     {
       clone.SetCreatureBodyPart(CreaturePart.Head, clone.GetCreatureBodyPart(CreaturePart.Head) + model);
-      clone.GetLocalVariable<int>("_CURRENT_HEAD").Value = clone.GetCreatureBodyPart(CreaturePart.Head);
+      clone.GetObjectVariable<LocalVariableInt>("_CURRENT_HEAD").Value = clone.GetCreatureBodyPart(CreaturePart.Head);
     }
     private void ChangeCloneHeight(Player player, float size)
     {
@@ -161,11 +161,11 @@ namespace NWN.Systems
     }
     private void HandleSkillSelected(Player player, Skill skill)
     {
-      int remainingPoints = ObjectPlugin.GetInt(player.oid.LoginCreature, "_STARTING_SKILL_POINTS");
+      int remainingPoints = player.oid.LoginCreature.GetObjectVariable<PersistentVariableInt>("_STARTING_SKILL_POINTS").Value;
 
       if (remainingPoints >= skill.pointsToNextLevel)
       {
-        ObjectPlugin.SetInt(player.oid.LoginCreature, "_STARTING_SKILL_POINTS", remainingPoints -= skill.pointsToNextLevel, 1);
+        player.oid.LoginCreature.GetObjectVariable<PersistentVariableInt>("_STARTING_SKILL_POINTS").Value = remainingPoints -= skill.pointsToNextLevel;
 
         if (customFeatsDictionnary.ContainsKey(skill.oid)) // Il s'agit d'un Custom Feat
         {
@@ -217,7 +217,7 @@ namespace NWN.Systems
       else
       {
         skill.acquiredPoints += remainingPoints;
-        ObjectPlugin.DeleteInt(player.oid.LoginCreature, "_STARTING_SKILL_POINTS");
+        player.oid.LoginCreature.GetObjectVariable<PersistentVariableInt>("_STARTING_SKILL_POINTS").Delete();
         skill.currentJob = true;
         player.currentSkillJob = (int)skill.oid;
         skill.CreateSkillJournalEntry();
@@ -227,7 +227,7 @@ namespace NWN.Systems
     private void AddTrait(Player player, Feat trait)
     {
       player.oid.LoginCreature.AddFeat(trait);
-      mirror.GetLocalVariable<int>("_TRAIT_SELECTED").Value = 1;
+      mirror.GetObjectVariable<LocalVariableInt>("_TRAIT_SELECTED").Value = 1;
       DrawWelcomePage(player);
     }
   }

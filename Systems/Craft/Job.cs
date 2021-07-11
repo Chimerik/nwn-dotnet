@@ -118,14 +118,14 @@ namespace NWN.Systems.Craft
         switch (type)
         {
           case JobType.BlueprintResearchTimeEfficiency:
-            if (blueprint.GetLocalVariable<int>("_BLUEPRINT_TIME_EFFICIENCY").Value >= 10)
+            if (blueprint.GetObjectVariable<LocalVariableInt>("_BLUEPRINT_TIME_EFFICIENCY").Value >= 10)
             {
               player.SendServerMessage("Ce patron dispose déjà d'un niveau de recherche maximal.", ColorConstants.Orange);
               return false;
             }
             break;
           case JobType.BlueprintResearchMaterialEfficiency:
-            if (blueprint.GetLocalVariable<int>("_BLUEPRINT_MATERIAL_EFFICIENCY").Value >= 10)
+            if (blueprint.GetObjectVariable<LocalVariableInt>("_BLUEPRINT_MATERIAL_EFFICIENCY").Value >= 10)
             {
               player.SendServerMessage("Ce patron dispose déjà d'un niveau de recherche métallurgique maximal.", ColorConstants.Orange);
               return false;
@@ -150,7 +150,7 @@ namespace NWN.Systems.Craft
     }
     private Boolean IsBlueprintOriginal(NwItem oBlueprint)
     {
-      if (oBlueprint.GetLocalVariable<int>("_BLUEPRINT_RUNS").Value > 0)
+      if (oBlueprint.GetObjectVariable<LocalVariableInt>("_BLUEPRINT_RUNS").Value > 0)
         return false;
       else
         return true;
@@ -231,11 +231,11 @@ namespace NWN.Systems.Craft
         player.craftJob = new Job(blueprint.baseItemType, sMaterial, iJobDuration, player);
 
       // s'il s'agit d'une copie de blueprint, alors le nombre d'utilisation diminue de 1
-      int iBlueprintRemainingRuns = oItem.GetLocalVariable<int>("_BLUEPRINT_RUNS").Value;
+      int iBlueprintRemainingRuns = oItem.GetObjectVariable<LocalVariableInt>("_BLUEPRINT_RUNS").Value;
       if (iBlueprintRemainingRuns == 1)
         oItem.Destroy();
       if (iBlueprintRemainingRuns > 0)
-        oItem.GetLocalVariable<int>("_BLUEPRINT_RUNS").Value -= 1;
+        oItem.GetObjectVariable<LocalVariableInt>("_BLUEPRINT_RUNS").Value -= 1;
 
       ItemUtils.DecreaseItemDurability(player.oid.LoginCreature.GetItemInSlot(InventorySlot.RightHand));
     }
@@ -245,7 +245,7 @@ namespace NWN.Systems.Craft
       int iMineralCost = blueprint.GetBlueprintMineralCostForPlayer(player.oid, oItem);
       float iJobDuration = blueprint.GetBlueprintTimeCostForPlayer(player.oid, oItem);
 
-      if (oTarget.GetLocalVariable<string>("_ORIGINAL_CRAFTER_NAME").Value == player.oid.LoginCreature.Name)
+      if (oTarget.GetObjectVariable<LocalVariableString>("_ORIGINAL_CRAFTER_NAME").Value == player.oid.LoginCreature.Name)
       {
         iMineralCost -= iMineralCost / 4;
         iJobDuration -= iJobDuration / 4;
@@ -309,11 +309,11 @@ namespace NWN.Systems.Craft
       player.oid.SendServerMessage($"L'objet {oTarget.Name.ColorString(ColorConstants.White)} ne sera pas disponible jusqu'à la fin du travail artisanal.", ColorConstants.Orange);
 
       // s'il s'agit d'une copie de blueprint, alors le nombre d'utilisation diminue de 1
-      int iBlueprintRemainingRuns = oItem.GetLocalVariable<int>("_BLUEPRINT_RUNS").Value;
+      int iBlueprintRemainingRuns = oItem.GetObjectVariable<LocalVariableInt>("_BLUEPRINT_RUNS").Value;
       if (iBlueprintRemainingRuns == 1)
         oItem.Destroy();
       if (iBlueprintRemainingRuns > 0)
-        oItem.GetLocalVariable<int>("_BLUEPRINT_RUNS").Value -= 1;
+        oItem.GetObjectVariable<LocalVariableInt>("_BLUEPRINT_RUNS").Value -= 1;
 
       ItemUtils.DecreaseItemDurability(player.oid.LoginCreature.GetItemInSlot(InventorySlot.RightHand));
     }
@@ -388,7 +388,7 @@ namespace NWN.Systems.Craft
       if (this.player.learntCustomFeats.ContainsKey(CustomFeats.Recycler))
         iJobDuration -= iJobDuration * 1 * SkillSystem.GetCustomFeatLevelFromSkillPoints(CustomFeats.Recycler, this.player.learntCustomFeats[CustomFeats.Recycler]) / 100;
 
-      item.GetLocalVariable<int>("_BASE_COST").Value = baseCost;
+      item.GetObjectVariable<LocalVariableInt>("_BASE_COST").Value = baseCost;
       player.craftJob = new Job(-15, material, iJobDuration, player, item.Serialize().ToBase64EncodedString()); // -15 = JobType recyclage
 
       player.oid.SendServerMessage($"Vous venez de démarrer le recyclage de : {item.Name.ColorString(ColorConstants.White)}", ColorConstants.Orange);
@@ -403,7 +403,7 @@ namespace NWN.Systems.Craft
     {
       NwItem item = (NwItem)oTarget;
 
-      if(item.GetLocalVariable<int>("_REINFORCEMENT_LEVEL").Value >= 10)
+      if(item.GetObjectVariable<LocalVariableInt>("_REINFORCEMENT_LEVEL").Value >= 10)
       {
         player.oid.SendServerMessage($"{item.Name.ColorString(ColorConstants.White)} a déjà été renforcé au maximum des capacités du matériau.", ColorConstants.Orange);
         return;
@@ -418,7 +418,7 @@ namespace NWN.Systems.Craft
 
       float iJobDuration = baseCost * 100 * (100 - renforcementLevel * 5) / 100;
 
-      item.GetLocalVariable<int>("_BASE_COST").Value = baseCost;
+      item.GetObjectVariable<LocalVariableInt>("_BASE_COST").Value = baseCost;
       player.craftJob = new Job(-16, material, iJobDuration, player, item.Serialize().ToBase64EncodedString()); // -16 = JobType recyclage
 
       player.oid.SendServerMessage($"Vous venez de démarrer le renforcement de : {item.Name.ColorString(ColorConstants.White)}", ColorConstants.Orange);

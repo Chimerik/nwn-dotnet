@@ -78,17 +78,17 @@ namespace NWN.Systems.Craft
       else if (Enum.TryParse(material, out LeatherType myLeatherType))
         materialTier = (int)myLeatherType;
 
-      craftedItem.GetLocalVariable<int>("_MAX_DURABILITY").Value = GetBaseItemCost(craftedItem) * 100 * materialTier;
-      craftedItem.GetLocalVariable<int>("_DURABILITY").Value = GetBaseItemCost(craftedItem) * 100 * materialTier;
+      craftedItem.GetObjectVariable<LocalVariableInt>("_MAX_DURABILITY").Value = GetBaseItemCost(craftedItem) * 100 * materialTier;
+      craftedItem.GetObjectVariable<LocalVariableInt>("_DURABILITY").Value = GetBaseItemCost(craftedItem) * 100 * materialTier;
 
       if (materialTier == 0)
-        craftedItem.GetLocalVariable<int>("_DURABILITY").Value /= 2;
+        craftedItem.GetObjectVariable<LocalVariableInt>("_DURABILITY").Value /= 2;
       else
       {
-        if (craftedItem.GetLocalVariable<int>("_AVAILABLE_ENCHANTEMENT_SLOT").HasValue)
-          craftedItem.GetLocalVariable<int>("_AVAILABLE_ENCHANTEMENT_SLOT").Value += 1;
+        if (craftedItem.GetObjectVariable<LocalVariableInt>("_AVAILABLE_ENCHANTEMENT_SLOT").HasValue)
+          craftedItem.GetObjectVariable<LocalVariableInt>("_AVAILABLE_ENCHANTEMENT_SLOT").Value += 1;
         else
-          craftedItem.GetLocalVariable<int>("_AVAILABLE_ENCHANTEMENT_SLOT").Value = 1;
+          craftedItem.GetObjectVariable<LocalVariableInt>("_AVAILABLE_ENCHANTEMENT_SLOT").Value = 1;
       }
 
       switch (craftedItem.BaseItemType)
@@ -149,7 +149,7 @@ namespace NWN.Systems.Craft
         return;
       }
 
-      int baseItemType = target.GetLocalVariable<int>("_BASE_ITEM_TYPE").Value;
+      int baseItemType = target.GetObjectVariable<LocalVariableInt>("_BASE_ITEM_TYPE").Value;
 
       if (Collect.System.blueprintDictionnary.TryGetValue(baseItemType, out Blueprint blueprint))
         if (PlayerSystem.Players.TryGetValue(oPlayer.LoginCreature, out PlayerSystem.Player player))
@@ -181,12 +181,12 @@ namespace NWN.Systems.Craft
       float iJobDuration = this.GetBlueprintTimeCostForPlayer(player, oItem);
       string sMaterial = GetMaterialFromTargetItem(NwModule.FindObjectsWithTag<NwPlaceable>(workshopTag).FirstOrDefault());
       string bpDescription = $"Patron de création de l'objet artisanal : {name}\n\n\n" +
-        $"Recherche d'efficacité matérielle niveau {oItem.GetLocalVariable<int>("_BLUEPRINT_MATERIAL_EFFICIENCY").Value}\n\n" +
+        $"Recherche d'efficacité matérielle niveau {oItem.GetObjectVariable<LocalVariableInt>("_BLUEPRINT_MATERIAL_EFFICIENCY").Value}\n\n" +
         $"Coût initial en {sMaterial} : {iMineralCost}.\n Puis 10 % de moins par amélioration vers un matériau supérieur.\n" +
-        $"Recherche d'efficacité de temps niveau {oItem.GetLocalVariable<int>("_BLUEPRINT_TIME_EFFICIENCY").Value} \n\n" +
+        $"Recherche d'efficacité de temps niveau {oItem.GetObjectVariable<LocalVariableInt>("_BLUEPRINT_TIME_EFFICIENCY").Value} \n\n" +
         $"Temps de fabrication et d'amélioration : {Utils.StripTimeSpanMilliseconds(DateTime.Now.AddSeconds(iJobDuration).Subtract(DateTime.Now))}.";
       
-      int runs = oItem.GetLocalVariable<int>("_BLUEPRINT_RUNS").Value; 
+      int runs = oItem.GetObjectVariable<LocalVariableInt>("_BLUEPRINT_RUNS").Value; 
 
       if (runs > 0)
         bpDescription += $"\n\nUtilisation(s) restante(s) : {runs}";
@@ -206,7 +206,7 @@ namespace NWN.Systems.Craft
       if (player.learntCustomFeats.ContainsKey(feat))
         iSkillLevel += SkillSystem.GetCustomFeatLevelFromSkillPoints(feat, player.learntCustomFeats[feat]);
 
-      iSkillLevel += item.GetLocalVariable<int>("_BLUEPRINT_MATERIAL_EFFICIENCY").Value;
+      iSkillLevel += item.GetObjectVariable<LocalVariableInt>("_BLUEPRINT_MATERIAL_EFFICIENCY").Value;
 
       return mineralsCost * (100 - iSkillLevel) / 100;
     }
@@ -224,7 +224,7 @@ namespace NWN.Systems.Craft
       if (player.learntCustomFeats.ContainsKey(feat))
         iSkillLevel += SkillSystem.GetCustomFeatLevelFromSkillPoints(feat, player.learntCustomFeats[feat]);
 
-      iSkillLevel += item.GetLocalVariable<int>("_BLUEPRINT_TIME_EFFICIENCY").Value;
+      iSkillLevel += item.GetObjectVariable<LocalVariableInt>("_BLUEPRINT_TIME_EFFICIENCY").Value;
 
       return fJobDuration * (100 - iSkillLevel) / 100;
     }
@@ -244,7 +244,7 @@ namespace NWN.Systems.Craft
       }
       else if (oTarget.Tag == this.craftedItemTag)
       {
-        string material = oTarget.GetLocalVariable<string>("_ITEM_MATERIAL").Value;
+        string material = oTarget.GetObjectVariable<LocalVariableString>("_ITEM_MATERIAL").Value;
 
         if (Enum.TryParse(material, out MineralType myMineralType))
           return Enum.GetName(typeof(MineralType), myMineralType + 1);

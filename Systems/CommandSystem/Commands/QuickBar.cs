@@ -40,8 +40,8 @@ namespace NWN.Systems
 
       if (awaitedValue)
       {
-        SaveQuickBar(player.oid.LoginCreature.GetLocalVariable<string>("_PLAYER_INPUT").Value);
-        player.oid.LoginCreature.GetLocalVariable<string>("_PLAYER_INPUT").Delete();
+        SaveQuickBar(player.oid.LoginCreature.GetObjectVariable<LocalVariableString>("_PLAYER_INPUT").Value);
+        player.oid.LoginCreature.GetObjectVariable<LocalVariableString>("_PLAYER_INPUT").Delete();
       }
     }
     private void SaveQuickBar(string quickBarName)

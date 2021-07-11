@@ -84,8 +84,8 @@ namespace NWN.Systems
     {
       player.menu.Clear();
       uint availableGold = player.oid.LoginCreature.Gold;
-      int playerInput = int.Parse(player.oid.LoginCreature.GetLocalVariable<string>("_PLAYER_INPUT"));
-      player.oid.LoginCreature.GetLocalVariable<string>("_PLAYER_INPUT").Delete();
+      int playerInput = int.Parse(player.oid.LoginCreature.GetObjectVariable<LocalVariableString>("_PLAYER_INPUT"));
+      player.oid.LoginCreature.GetObjectVariable<LocalVariableString>("_PLAYER_INPUT").Delete();
 
       if (playerInput <= 0)
       {
@@ -163,8 +163,8 @@ namespace NWN.Systems
     private void HandleValidateWithdrawal(Player player)
     {
       player.menu.Clear();
-      int playerInput = int.Parse(player.oid.LoginCreature.GetLocalVariable<string>("_PLAYER_INPUT"));
-      player.oid.LoginCreature.GetLocalVariable<string>("_PLAYER_INPUT").Delete();
+      int playerInput = int.Parse(player.oid.LoginCreature.GetObjectVariable<LocalVariableString>("_PLAYER_INPUT"));
+      player.oid.LoginCreature.GetObjectVariable<LocalVariableString>("_PLAYER_INPUT").Delete();
 
       if (playerInput <= 0)
       {

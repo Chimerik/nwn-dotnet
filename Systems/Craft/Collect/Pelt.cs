@@ -26,7 +26,7 @@ namespace NWN.Systems.Craft.Collect
       // de spécialisation pour extraire deux fois plus de minerai en un cycle sur son minerai de spécialité
       if (oExtractor == null) return;
 
-      miningYield += oExtractor.GetLocalVariable<int>("_ITEM_LEVEL").Value * 5;
+      miningYield += oExtractor.GetObjectVariable<LocalVariableInt>("_ITEM_LEVEL").Value * 5;
       int bonusYield = 0;
 
       if (player.learntCustomFeats.ContainsKey(CustomFeats.Skinning))
@@ -39,17 +39,17 @@ namespace NWN.Systems.Craft.Collect
 
       Task playerInput = NwTask.Run(async () =>
       {
-        int remainingOre = oPlaceable.GetLocalVariable<int>("_ORE_AMOUNT").Value;
+        int remainingOre = oPlaceable.GetObjectVariable<LocalVariableInt>("_ORE_AMOUNT").Value;
         if (remainingOre <= 0)
         {
-          miningYield = oPlaceable.GetLocalVariable<int>("_ORE_AMOUNT").Value;
+          miningYield = oPlaceable.GetObjectVariable<LocalVariableInt>("_ORE_AMOUNT").Value;
           oPlaceable.Destroy();
 
           NwWaypoint.Create("animal_spawn_wp", oPlaceable.Location);
         }
         else
         {
-          oPlaceable.GetLocalVariable<int>("_ORE_AMOUNT").Value = remainingOre;
+          oPlaceable.GetObjectVariable<LocalVariableInt>("_ORE_AMOUNT").Value = remainingOre;
         }
 
         NwItem ore = await NwItem.Create("pelt", player.oid.LoginCreature, miningYield, oPlaceable.Name);
@@ -63,7 +63,7 @@ namespace NWN.Systems.Craft.Collect
     {
       NwArea area = player.oid.LoginCreature.Area;
 
-      if (area.GetLocalVariable<int>("_AREA_LEVEL").Value < 2)
+      if (area.GetObjectVariable<LocalVariableInt>("_AREA_LEVEL").Value < 2)
       {
         player.oid.SendServerMessage("Cet endroit ne semble disposer d'aucun animal dont la peau soit réutilisable.", ColorConstants.Maroon);
         return;
@@ -95,8 +95,8 @@ namespace NWN.Systems.Craft.Collect
         int iRandom = Utils.random.Next(1, 101);
         if (iRandom < respawnChance)
         {
-          NwCreature newRock = NwCreature.Create(GetRandomPeltSpawnFromAreaLevel(area.GetLocalVariable<int>("_AREA_LEVEL").Value), resourcePoint.Location);
-          newRock.GetLocalVariable<int>("_ORE_AMOUNT").Value = 10 * iRandom + 10 * iRandom * skillBonus / 100;
+          NwCreature newRock = NwCreature.Create(GetRandomPeltSpawnFromAreaLevel(area.GetObjectVariable<LocalVariableInt>("_AREA_LEVEL").Value), resourcePoint.Location);
+          newRock.GetObjectVariable<LocalVariableInt>("_ORE_AMOUNT").Value = 10 * iRandom + 10 * iRandom * skillBonus / 100;
           NwItem extractedResource = await NwItem.Create("undroppable_item", newRock);
           extractedResource.Droppable = true;
           resourcePoint.Destroy();

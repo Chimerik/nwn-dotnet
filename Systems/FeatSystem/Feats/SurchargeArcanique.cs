@@ -30,7 +30,7 @@ namespace NWN.Systems
 
       if(dice <= surchargeLevel)
       {
-        item.GetLocalVariable<int>("_AVAILABLE_ENCHANTEMENT_SLOT").Value += 1;
+        item.GetObjectVariable<LocalVariableInt>("_AVAILABLE_ENCHANTEMENT_SLOT").Value += 1;
         oPC.SendServerMessage($"En forçant à l'aide de votre puissance brute, vous parvenez à ajouter un emplacement de sort supplémentaire à votre {item.Name.ColorString(ColorConstants.White)} !", ColorConstants.Navy);
       }
       else if (dice > surchargeLevel + controlLevel)

@@ -43,13 +43,14 @@ namespace NWN.Systems
       public Arena.PlayerData pveArena { get; set; }
 
       public List<NwPlayer> listened = new List<NwPlayer>();
+      public List<Effect> effectList = new List<Effect>();
+      public List<int> mutedList = new List<int>();
       public Dictionary<uint, Player> blocked = new Dictionary<uint, Player>();
       public Dictionary<Feat, int> learntCustomFeats = new Dictionary<Feat, int>();
       public Dictionary<Feat, Skill> learnableSkills = new Dictionary<Feat, Skill>();
       public Dictionary<int, LearnableSpell> learnableSpells = new Dictionary<int, LearnableSpell>();
       public Dictionary<Feat, Skill> removeableMalus = new Dictionary<Feat, Skill>();
       public Dictionary<string, int> materialStock = new Dictionary<string, int>();
-      public List<API.Effect> effectList = new List<API.Effect>();
       public Dictionary<int, MapPin> mapPinDictionnary = new Dictionary<int, MapPin>();
       public Dictionary<string, byte[]> areaExplorationStateDictionnary = new Dictionary<string, byte[]>();
       public Dictionary<ChatChannel, Color> chatColors = new Dictionary<ChatChannel, Color>();
@@ -59,21 +60,23 @@ namespace NWN.Systems
         this.oid = nwobj;
         this.menu = new PrivateMenu(this);
         this.pveArena = new Arena.PlayerData();
+        
+        Log.Info($"accountID : {this.oid.LoginCreature.GetObjectVariable<PersistentVariableInt>("accountId").Value}");
 
-        Log.Info($"accountID : {ObjectPlugin.GetInt(this.oid.LoginCreature, "accountId")}");
+        if(!oid.IsDM)
+        {
+          if (this.oid.LoginCreature.GetObjectVariable<PersistentVariableInt>("accountId").HasNothing && !oid.IsDM)
+            InitializeNewPlayer(this.oid);
 
-        if (ObjectPlugin.GetInt(this.oid.LoginCreature, "accountId") == 0 && !oid.IsDM)
-          InitializeNewPlayer(this.oid);
+          this.accountId = this.oid.LoginCreature.GetObjectVariable<PersistentVariableInt>("accountId").Value;
 
-        this.accountId = ObjectPlugin.GetInt(this.oid.LoginCreature, "accountId");
+          if (this.oid.LoginCreature.GetObjectVariable<PersistentVariableInt>("characterId").HasNothing && !oid.IsDM)
+            InitializeNewCharacter(this);
 
-        if (ObjectPlugin.GetInt(this.oid.LoginCreature, "characterId") == 0 && !oid.IsDM)
-          InitializeNewCharacter(this);
+          this.characterId = this.oid.LoginCreature.GetObjectVariable<PersistentVariableInt>("characterId").Value;
 
-        this.characterId = ObjectPlugin.GetInt(this.oid.LoginCreature, "characterId");
-
-        if (!oid.IsDM)
           InitializePlayer(this);
+        }
         else
           InitializeDM(this);
 
@@ -118,7 +121,7 @@ namespace NWN.Systems
 
                 emptyQBS.ObjectType = QuickBarButtonType.Feat;
                 
-                if (ObjectPlugin.GetInt(this.oid.LoginCreature, "_MENU_HOTKEYS_SWAPPED") == 0)
+                if (this.oid.LoginCreature.GetObjectVariable<PersistentVariableInt>("_MENU_HOTKEYS_SWAPPED").HasNothing)
                 {
                   emptyQBS.Param1 = (int)CustomFeats.CustomMenuDOWN;
                   oid.ControlledCreature.SetQuickBarButton(0, emptyQBS);
@@ -221,18 +224,18 @@ namespace NWN.Systems
           case Job.JobType.BlueprintCopy:
             NwItem bpCopy = NwItem.Deserialize(craftJob.craftedItem.ToByteArray());
             oid.LoginCreature.AcquireItem(bpCopy);
-            bpCopy.GetLocalVariable<int>("_BLUEPRINT_RUNS").Value = 10;
+            bpCopy.GetObjectVariable<LocalVariableInt>("_BLUEPRINT_RUNS").Value = 10;
             bpCopy.Name = $"Copie de {bpCopy.Name}";         
             break;
           case Job.JobType.BlueprintResearchMaterialEfficiency:
             NwItem improvedMEBP = NwItem.Deserialize(craftJob.craftedItem.ToByteArray());
             oid.LoginCreature.AcquireItem(improvedMEBP);
-            improvedMEBP.GetLocalVariable<int>("_BLUEPRINT_MATERIAL_EFFICIENCY").Value = improvedMEBP.GetLocalVariable<int>("_BLUEPRINT_MATERIAL_EFFICIENCY").Value + 1;
+            improvedMEBP.GetObjectVariable<LocalVariableInt>("_BLUEPRINT_MATERIAL_EFFICIENCY").Value = improvedMEBP.GetObjectVariable<LocalVariableInt>("_BLUEPRINT_MATERIAL_EFFICIENCY").Value + 1;
             break;
           case Job.JobType.BlueprintResearchTimeEfficiency:
             NwItem researchedBP = NwItem.Deserialize(craftJob.craftedItem.ToByteArray());
             oid.LoginCreature.AcquireItem(researchedBP);
-            researchedBP.GetLocalVariable<int>("_BLUEPRINT_TIME_EFFICIENCY").Value += 1;
+            researchedBP.GetObjectVariable<LocalVariableInt>("_BLUEPRINT_TIME_EFFICIENCY").Value += 1;
             break;
           case Job.JobType.Enchantement:
             NwItem enchantedItem = NwItem.Deserialize(craftJob.craftedItem.ToByteArray());
@@ -244,9 +247,9 @@ namespace NWN.Systems
 
             if (NwRandom.Roll(Utils.random, 100) > enchanteurChanceuxLevel)
             {
-              enchantedItem.GetLocalVariable<int>("_AVAILABLE_ENCHANTEMENT_SLOT").Value -= 1;
-              if (enchantedItem.GetLocalVariable<int>("_AVAILABLE_ENCHANTEMENT_SLOT").Value <= 0)
-                enchantedItem.GetLocalVariable<int>("_AVAILABLE_ENCHANTEMENT_SLOT").Delete();
+              enchantedItem.GetObjectVariable<LocalVariableInt>("_AVAILABLE_ENCHANTEMENT_SLOT").Value -= 1;
+              if (enchantedItem.GetObjectVariable<LocalVariableInt>("_AVAILABLE_ENCHANTEMENT_SLOT").Value <= 0)
+                enchantedItem.GetObjectVariable<LocalVariableInt>("_AVAILABLE_ENCHANTEMENT_SLOT").Delete();
             }
 
             int enchanteurExpertLevel = 0;
@@ -277,10 +280,10 @@ namespace NWN.Systems
               reactivatedItem.AddItemProperty(deactivatedIP, EffectDuration.Permanent);
               await NwTask.Delay(TimeSpan.FromSeconds(0.1f));
 
-              if (!reactivatedItem.ItemProperties.Any(ip => ip.Tag.Contains("_INACTIVE")) && reactivatedItem.GetLocalVariable<int>("_REPAIR_DONE").HasValue)
+              if (!reactivatedItem.ItemProperties.Any(ip => ip.Tag.Contains("_INACTIVE")) && reactivatedItem.GetObjectVariable<LocalVariableInt>("_REPAIR_DONE").HasValue)
               {
-                reactivatedItem.GetLocalVariable<int>("_DURABILITY").Value = reactivatedItem.GetLocalVariable<int>("_MAX_DURABILITY").Value;
-                reactivatedItem.GetLocalVariable<int>("_REPAIR_DONE").Delete();
+                reactivatedItem.GetObjectVariable<LocalVariableInt>("_DURABILITY").Value = reactivatedItem.GetObjectVariable<LocalVariableInt>("_MAX_DURABILITY").Value;
+                reactivatedItem.GetObjectVariable<LocalVariableInt>("_REPAIR_DONE").Delete();
                 oid.SendServerMessage($"Réactivation de {reactivatedItem.Name.ColorString(ColorConstants.White)} terminée. L'objet est comme neuf !", new Color(32, 255, 32));
               }
             });
@@ -288,7 +291,7 @@ namespace NWN.Systems
             break;
           case Job.JobType.Recycling:
             NwItem recycledItem = NwItem.Deserialize(craftJob.craftedItem.ToByteArray());
-            int recycledValue = recycledItem.GetLocalVariable<int>("_BASE_COST").Value;
+            int recycledValue = recycledItem.GetObjectVariable<LocalVariableInt>("_BASE_COST").Value;
 
             if (learntCustomFeats.ContainsKey(CustomFeats.Recycler))
               recycledValue +=  recycledValue * 1 * GetCustomFeatLevelFromSkillPoints(CustomFeats.Recycler, learntCustomFeats[CustomFeats.Recycler]) / 100;
@@ -306,8 +309,8 @@ namespace NWN.Systems
             NwItem reinforcedItem = NwItem.Deserialize(craftJob.craftedItem.ToByteArray());
             oid.LoginCreature.AcquireItem(reinforcedItem);
 
-            reinforcedItem.GetLocalVariable<int>("_DURABILITY").Value += reinforcedItem.GetLocalVariable<int>("_MAX_DURABILITY").Value * 5 / 100;
-            reinforcedItem.GetLocalVariable<int>("_REINFORCEMENT_LEVEL").Value += 1;
+            reinforcedItem.GetObjectVariable<LocalVariableInt>("_DURABILITY").Value += reinforcedItem.GetObjectVariable<LocalVariableInt>("_MAX_DURABILITY").Value * 5 / 100;
+            reinforcedItem.GetObjectVariable<LocalVariableInt>("_REINFORCEMENT_LEVEL").Value += 1;
 
             oid.SendServerMessage($"Renforcement de {reinforcedItem.Name.ColorString(ColorConstants.White)} terminé.", new Color(32, 255, 32));
 
@@ -318,12 +321,12 @@ namespace NWN.Systems
 
             if(!repairedItem.ItemProperties.Any(ip => ip.Tag.Contains("_INACTIVE")))
             {
-              repairedItem.GetLocalVariable<int>("_DURABILITY").Value = repairedItem.GetLocalVariable<int>("_MAX_DURABILITY").Value;
+              repairedItem.GetObjectVariable<LocalVariableInt>("_DURABILITY").Value = repairedItem.GetObjectVariable<LocalVariableInt>("_MAX_DURABILITY").Value;
               oid.SendServerMessage($"Réparation de {repairedItem.Name.ColorString(ColorConstants.White)} terminée. L'objet est comme neuf !", new Color(32, 255, 32));
             }
             else
             {
-              repairedItem.GetLocalVariable<int>("_REPAIR_DONE").Value = 1;
+              repairedItem.GetObjectVariable<LocalVariableInt>("_REPAIR_DONE").Value = 1;
               oid.SendServerMessage($"Réparation de {repairedItem.Name.ColorString(ColorConstants.White)} terminée. Reste cependant à réactiver les enchantements.", ColorConstants.Orange);
             }
             break;
@@ -346,7 +349,7 @@ namespace NWN.Systems
               }
 
               Craft.Collect.System.AddCraftedItemProperties(craftedItem, craftJob.material);
-              craftedItem.GetLocalVariable<string>("_ORIGINAL_CRAFTER_NAME").Value = oid.LoginCreature.Name;
+              craftedItem.GetObjectVariable<LocalVariableString>("_ORIGINAL_CRAFTER_NAME").Value = oid.LoginCreature.Name;
 
               int artisanExceptionnelLevel = 0;
               if (learntCustomFeats.ContainsKey(CustomFeats.ArtisanExceptionnel))
@@ -354,7 +357,7 @@ namespace NWN.Systems
 
               if (NwRandom.Roll(Utils.random, 100) <= artisanExceptionnelLevel)
               {
-                craftedItem.GetLocalVariable<int>("_AVAILABLE_ENCHANTEMENT_SLOT").Value += 1;
+                craftedItem.GetObjectVariable<LocalVariableInt>("_AVAILABLE_ENCHANTEMENT_SLOT").Value += 1;
                 oid.SendServerMessage("Votre talent d'artisan vous a permis de créer un objet exceptionnel disposant d'un emplacement d'enchantement supplémentaire !", ColorConstants.Navy);
               }
 
@@ -364,12 +367,12 @@ namespace NWN.Systems
 
               if (NwRandom.Roll(Utils.random, 100) <= artisanAppliqueLevel * 3)
               {
-                craftedItem.GetLocalVariable<int>("_MAX_DURABILITY").Value += craftedItem.GetLocalVariable<int>("_MAX_DURABILITY").Value * 20 / 100;
+                craftedItem.GetObjectVariable<LocalVariableInt>("_MAX_DURABILITY").Value += craftedItem.GetObjectVariable<LocalVariableInt>("_MAX_DURABILITY").Value * 20 / 100;
                 oid.SendServerMessage("En travaillant de manière particulièrement appliquée, vous parvenez à fabriquer un objet plus résistant !", ColorConstants.Navy);
               }
 
-              craftedItem.GetLocalVariable<int>("_DURABILITY").Value = craftedItem.GetLocalVariable<int>("_MAX_DURABILITY").Value;
-              craftedItem.GetLocalVariable<int>("_REPAIR_DONE").Delete();
+              craftedItem.GetObjectVariable<LocalVariableInt>("_DURABILITY").Value = craftedItem.GetObjectVariable<LocalVariableInt>("_MAX_DURABILITY").Value;
+              craftedItem.GetObjectVariable<LocalVariableInt>("_REPAIR_DONE").Delete();
 
               foreach (API.ItemProperty ip in craftedItem.ItemProperties.Where(ip => ip.Tag.Contains("INACTIVE")))
               {
@@ -402,18 +405,18 @@ namespace NWN.Systems
           case SkillType.Skill:
             if (this.learnableSkills.TryGetValue((Feat)currentSkillJob, out Skill skill))
             {
-              int pooledPoints = ObjectPlugin.GetInt(oid.LoginCreature, "_STARTING_SKILL_POINTS");
-              if (pooledPoints > 0)
+              if (this.oid.LoginCreature.GetObjectVariable<PersistentVariableInt>("_STARTING_SKILL_POINTS").HasValue)
               {
+                int pooledPoints = this.oid.LoginCreature.GetObjectVariable<PersistentVariableInt>("_STARTING_SKILL_POINTS").Value;
                 if (pooledPoints > skill.pointsToNextLevel)
                 {
-                  ObjectPlugin.SetInt(oid.LoginCreature, "_STARTING_SKILL_POINTS", pooledPoints - skill.pointsToNextLevel, 1);
+                  this.oid.LoginCreature.GetObjectVariable<PersistentVariableInt>("_STARTING_SKILL_POINTS").Value = pooledPoints - skill.pointsToNextLevel;
                   skill.acquiredPoints += skill.pointsToNextLevel;
                 }
                 else
                 {
                   skill.acquiredPoints += pooledPoints;
-                  ObjectPlugin.DeleteInt(oid.LoginCreature, "_STARTING_SKILL_POINTS");
+                  this.oid.LoginCreature.GetObjectVariable<PersistentVariableInt>("_STARTING_SKILL_POINTS").Delete();
                 }
               }
 
@@ -464,7 +467,7 @@ namespace NWN.Systems
         if (RegisterRemoveCustomFeatEffect.TryGetValue(skill.oid, out Func<Player, Feat, int> handler))
           handler.Invoke(this, skill.oid);
 
-        ObjectPlugin.DeleteInt(oid.LoginCreature, "_CURRENT_JOB");
+        this.oid.LoginCreature.GetObjectVariable<PersistentVariableInt>("_CURRENT_JOB").Delete();
         this.removeableMalus.Remove(skill.oid);
       }
       public async void UpdateJournal()
@@ -483,7 +486,7 @@ namespace NWN.Systems
           return;
         }
 
-        if (playerJournal.craftJobCountDown != null && oid.LoginCreature.Area.GetLocalVariable<int>("_AREA_LEVEL").Value == 0)
+        if (playerJournal.craftJobCountDown != null && oid.LoginCreature.Area.GetObjectVariable<LocalVariableInt>("_AREA_LEVEL").Value == 0)
         {
           journalEntry = oid.GetJournalEntry("craft_job");
 
@@ -571,21 +574,21 @@ namespace NWN.Systems
       }
       public async Task<bool> WaitForPlayerInputInt()
       {
-        this.oid.LoginCreature.GetLocalVariable<int>("_AWAITING_PLAYER_INPUT").Value = 1;
+        this.oid.LoginCreature.GetObjectVariable<LocalVariableInt>("_AWAITING_PLAYER_INPUT").Value = 1;
 
         this.oid.OnPlayerChat -= ChatSystem.HandlePlayerInputInt;
         this.oid.OnPlayerChat += ChatSystem.HandlePlayerInputInt;
 
         CancellationTokenSource tokenSource = new CancellationTokenSource();
         
-        Task awaitPlayerCancellation = NwTask.WaitUntil(() => !this.oid.IsValid || this.oid.LoginCreature.GetLocalVariable<int>("_PLAYER_INPUT_CANCELLED").HasValue, tokenSource.Token);
-        Task awaitPlayerInput = NwTask.WaitUntil(() => this.oid.IsValid && this.oid.LoginCreature.GetLocalVariable<string>("_PLAYER_INPUT").HasValue, tokenSource.Token);
+        Task awaitPlayerCancellation = NwTask.WaitUntil(() => !this.oid.IsValid || this.oid.LoginCreature.GetObjectVariable<LocalVariableInt>("_PLAYER_INPUT_CANCELLED").HasValue, tokenSource.Token);
+        Task awaitPlayerInput = NwTask.WaitUntil(() => this.oid.IsValid && this.oid.LoginCreature.GetObjectVariable<LocalVariableString>("_PLAYER_INPUT").HasValue, tokenSource.Token);
 
         await NwTask.WhenAny(awaitPlayerInput, awaitPlayerCancellation);
         tokenSource.Cancel();
 
         if (this.oid.IsValid)
-          this.oid.LoginCreature.GetLocalVariable<int>("_PLAYER_INPUT_CANCELLED").Delete();
+          this.oid.LoginCreature.GetObjectVariable<LocalVariableInt>("_PLAYER_INPUT_CANCELLED").Delete();
 
         if (awaitPlayerInput.IsCompletedSuccessfully)
           return true;
@@ -594,20 +597,20 @@ namespace NWN.Systems
       }
       public async Task<bool> WaitForPlayerInputByte()
       {
-        this.oid.LoginCreature.GetLocalVariable<int>("_AWAITING_PLAYER_INPUT").Value = 1;
+        this.oid.LoginCreature.GetObjectVariable<LocalVariableInt>("_AWAITING_PLAYER_INPUT").Value = 1;
 
         this.oid.OnPlayerChat -= ChatSystem.HandlePlayerInputByte;
         this.oid.OnPlayerChat += ChatSystem.HandlePlayerInputByte;
 
         CancellationTokenSource tokenSource = new CancellationTokenSource();
-        Task awaitPlayerCancellation = NwTask.WaitUntil(() => !this.oid.IsValid || this.oid.LoginCreature.GetLocalVariable<int>("_PLAYER_INPUT_CANCELLED").HasValue, tokenSource.Token);
-        Task awaitPlayerInput = NwTask.WaitUntil(() => this.oid.IsValid && this.oid.LoginCreature.GetLocalVariable<string>("_PLAYER_INPUT").HasValue, tokenSource.Token);
+        Task awaitPlayerCancellation = NwTask.WaitUntil(() => !this.oid.IsValid || this.oid.LoginCreature.GetObjectVariable<LocalVariableInt>("_PLAYER_INPUT_CANCELLED").HasValue, tokenSource.Token);
+        Task awaitPlayerInput = NwTask.WaitUntil(() => this.oid.IsValid && this.oid.LoginCreature.GetObjectVariable<LocalVariableString>("_PLAYER_INPUT").HasValue, tokenSource.Token);
 
         await NwTask.WhenAny(awaitPlayerInput, awaitPlayerCancellation);
         tokenSource.Cancel();
 
         if (this.oid.IsValid)
-          this.oid.LoginCreature.GetLocalVariable<int>("_PLAYER_INPUT_CANCELLED").Delete();
+          this.oid.LoginCreature.GetObjectVariable<LocalVariableInt>("_PLAYER_INPUT_CANCELLED").Delete();
 
         if (awaitPlayerInput.IsCompletedSuccessfully)
           return true;
@@ -616,20 +619,20 @@ namespace NWN.Systems
       }
       public async Task<bool> WaitForPlayerInputString()
       {
-        this.oid.LoginCreature.GetLocalVariable<int>("_AWAITING_PLAYER_INPUT").Value = 1;
+        this.oid.LoginCreature.GetObjectVariable<LocalVariableInt>("_AWAITING_PLAYER_INPUT").Value = 1;
 
         this.oid.OnPlayerChat -= ChatSystem.HandlePlayerInputString;
         this.oid.OnPlayerChat += ChatSystem.HandlePlayerInputString;
 
         CancellationTokenSource tokenSource = new CancellationTokenSource();
-        Task awaitPlayerCancellation = NwTask.WaitUntil(() => !this.oid.IsValid || this.oid.LoginCreature.GetLocalVariable<int>("_PLAYER_INPUT_CANCELLED").HasValue, tokenSource.Token);
-        Task awaitPlayerInput = NwTask.WaitUntil(() => this.oid.IsValid && this.oid.LoginCreature.GetLocalVariable<string>("_PLAYER_INPUT").HasValue, tokenSource.Token);
+        Task awaitPlayerCancellation = NwTask.WaitUntil(() => !this.oid.IsValid || this.oid.LoginCreature.GetObjectVariable<LocalVariableInt>("_PLAYER_INPUT_CANCELLED").HasValue, tokenSource.Token);
+        Task awaitPlayerInput = NwTask.WaitUntil(() => this.oid.IsValid && this.oid.LoginCreature.GetObjectVariable<LocalVariableString>("_PLAYER_INPUT").HasValue, tokenSource.Token);
 
         await NwTask.WhenAny(awaitPlayerInput, awaitPlayerCancellation);
         tokenSource.Cancel();
 
         if (this.oid.IsValid)
-          this.oid.LoginCreature.GetLocalVariable<int>("_PLAYER_INPUT_CANCELLED").Delete();
+          this.oid.LoginCreature.GetObjectVariable<LocalVariableInt>("_PLAYER_INPUT_CANCELLED").Delete();
 
         if (awaitPlayerInput.IsCompletedSuccessfully)
           return true;

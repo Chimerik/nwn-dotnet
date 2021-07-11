@@ -11,10 +11,10 @@ namespace NWN.Systems
     {
       oTarget.ApplyEffect(EffectDuration.Instant, Effect.VisualEffect(VfxType.ImpPolymorph));
 
-      if (oTarget.GetLocalVariable<float>("CUSTOM_EFFECT_FROG").HasValue)
+      if (oTarget.GetObjectVariable<LocalVariableFloat>("CUSTOM_EFFECT_FROG").HasValue)
         return;
 
-      oTarget.GetLocalVariable<int>("CUSTOM_EFFECT_FROG").Value = (int)oTarget.CreatureAppearanceType;
+      oTarget.GetObjectVariable<LocalVariableInt>("CUSTOM_EFFECT_FROG").Value = (int)oTarget.CreatureAppearanceType;
 
       oTarget.CreatureAppearanceType = (AppearanceType)6396;
       oTarget.OnSpellCast -= FrogSpellMalus;
@@ -28,8 +28,8 @@ namespace NWN.Systems
     {
       oTarget.ApplyEffect(EffectDuration.Instant, Effect.VisualEffect(VfxType.ImpPolymorph));
 
-      if (oTarget.GetLocalVariable<int>("CUSTOM_EFFECT_FROG").HasValue)
-        oTarget.CreatureAppearanceType = (AppearanceType)oTarget.GetLocalVariable<int>("CUSTOM_EFFECT_FROG").Value;
+      if (oTarget.GetObjectVariable<LocalVariableInt>("CUSTOM_EFFECT_FROG").HasValue)
+        oTarget.CreatureAppearanceType = (AppearanceType)oTarget.GetObjectVariable<LocalVariableInt>("CUSTOM_EFFECT_FROG").Value;
 
       oTarget.OnCreatureDamage -= FrogMalus;
       oTarget.OnSpellCastAt -= FrogMalusCure;

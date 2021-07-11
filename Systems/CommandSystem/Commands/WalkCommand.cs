@@ -8,16 +8,16 @@ namespace NWN.Systems
   {
     public WalkMode(NwPlayer oPC)
     {
-      if (ObjectPlugin.GetInt(oPC.LoginCreature, "_ALWAYS_WALK") == 0)
+      if (oPC.LoginCreature.GetObjectVariable<PersistentVariableInt>("_ALWAYS_WALK").HasNothing)
       {
         PlayerPlugin.SetAlwaysWalk(oPC.ControlledCreature, 1);
-        ObjectPlugin.SetInt(oPC.LoginCreature, "_ALWAYS_WALK", 1, 1);
+        oPC.LoginCreature.GetObjectVariable<PersistentVariableInt>("_ALWAYS_WALK").Value = 1;
         oPC.SendServerMessage("Mode marche activé.", ColorConstants.Pink);
       }
       else
       {
         PlayerPlugin.SetAlwaysWalk(oPC.LoginCreature, 0);
-        ObjectPlugin.DeleteInt(oPC.LoginCreature, "_ALWAYS_WALK");
+        oPC.LoginCreature.GetObjectVariable<PersistentVariableInt>("_ALWAYS_WALK").Delete();
         oPC.SendServerMessage("Mode marche désactivé.", ColorConstants.Pink);
       }
     }

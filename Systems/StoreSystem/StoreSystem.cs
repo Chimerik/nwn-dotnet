@@ -68,7 +68,7 @@ namespace NWN.System
 
       SqLiteUtils.UpdateQuery("playerShops",
         new List<string[]>() { new string[] { "shop", onClose.Store.Serialize().ToBase64EncodedString() }, new string[] { "panel", panel.Serialize().ToBase64EncodedString() } },
-        new List<string[]>() { new string[] { "rowid", onClose.Store.GetLocalVariable<int>("_SHOP_ID").Value.ToString() } });
+        new List<string[]>() { new string[] { "rowid", onClose.Store.GetObjectVariable<LocalVariableInt>("_SHOP_ID").Value.ToString() } });
     }
     public static void HandleOtherPlayerShopBuy(OnStoreRequestBuy onStoreRequestBuy)
     {
@@ -78,10 +78,10 @@ namespace NWN.System
       if (onStoreRequestBuy.Result.Value || HasEnoughBankGold(buyer, onStoreRequestBuy.Price))
       {
         int price = onStoreRequestBuy.Price * 95 / 100;
-        int ownerId = onStoreRequestBuy.Store.GetLocalVariable<int>("_OWNER_ID").Value;
-        int shopId = onStoreRequestBuy.Store.GetLocalVariable<int>("_SHOP_ID").Value;
-
-        NwPlayer oSeller = NwModule.Instance.Players.FirstOrDefault(p => ObjectPlugin.GetInt(p.LoginCreature, "characterId") == ownerId);
+        int ownerId = onStoreRequestBuy.Store.GetObjectVariable<LocalVariableInt>("_OWNER_ID").Value;
+        int shopId = onStoreRequestBuy.Store.GetObjectVariable<LocalVariableInt>("_SHOP_ID").Value;
+        
+        NwPlayer oSeller = NwModule.Instance.Players.FirstOrDefault(p => p.LoginCreature.GetObjectVariable<PersistentVariableInt>("characterId").Value == ownerId);
         if (oSeller != null)
         {
           if (PlayerSystem.Players.TryGetValue(oSeller.LoginCreature, out PlayerSystem.Player seller))
@@ -127,21 +127,21 @@ namespace NWN.System
 
       NwPlaceable panel = onClose.Store.GetNearestObjectsByType<NwPlaceable>().FirstOrDefault(p => p.Tag.StartsWith($"_PLAYER_SHOP_PLC_"));
 
-      if (onClose.Store.GetLocalVariable<int>("_SHOP_ID").HasNothing)
+      if (onClose.Store.GetObjectVariable<LocalVariableInt>("_SHOP_ID").HasNothing)
       {
         SqLiteUtils.InsertQuery("playerShops",
           new List<string[]>() { new string[] { "characterId", seller.characterId.ToString() }, new string[] { "shop", onClose.Store.Serialize().ToBase64EncodedString() }, new string[] { "panel", panel.Serialize().ToBase64EncodedString() }, new string[] { "expirationDate", DateTime.Now.AddDays(30).ToString() }, new string[] { "areaTag", onClose.Store.Area.Tag }, new string[]  { "position", onClose.Store.Position.ToString() }, new string[] { "facing", onClose.Store.Rotation.ToString() } });
 
         var rowQuery = NwModule.Instance.PrepareCampaignSQLQuery(Config.database, "SELECT last_insert_rowid()");
         rowQuery.Execute();
-        onClose.Store.GetLocalVariable<int>("_SHOP_ID").Value = rowQuery.Result.GetInt(0);
-        panel.GetLocalVariable<int>("_SHOP_ID").Value = rowQuery.Result.GetInt(0);
+        onClose.Store.GetObjectVariable<LocalVariableInt>("_SHOP_ID").Value = rowQuery.Result.GetInt(0);
+        panel.GetObjectVariable<LocalVariableInt>("_SHOP_ID").Value = rowQuery.Result.GetInt(0);
       }
       else
       {
         SqLiteUtils.UpdateQuery("playerShops",
           new List<string[]>() { new string[] { "shop", onClose.Store.Serialize().ToBase64EncodedString() }, new string[] { "panel", panel.Serialize().ToBase64EncodedString() } },
-          new List<string[]>() { new string[] { "rowid", onClose.Store.GetLocalVariable<int>("_SHOP_ID").Value.ToString() } });
+          new List<string[]>() { new string[] { "rowid", onClose.Store.GetObjectVariable<LocalVariableInt>("_SHOP_ID").Value.ToString() } });
       }
     }
     public static void HandleOwnedPlayerShopBuy(OnStoreRequestBuy onStoreRequestBuy)
@@ -185,7 +185,7 @@ namespace NWN.System
       if (awaitedValue)
       {
         SetItemPrice(player, onStoreRequestSell.Item, onStoreRequestSell.Store);
-        player.oid.LoginCreature.GetLocalVariable<string>("_PLAYER_INPUT").Delete();
+        player.oid.LoginCreature.GetObjectVariable<LocalVariableString>("_PLAYER_INPUT").Delete();
       }
     }
     private static void SetItemPrice(PlayerSystem.Player player, NwItem item, NwStore shop)
@@ -193,7 +193,7 @@ namespace NWN.System
       player.menu.Clear();
       int pointValue;
 
-      int input = int.Parse(player.oid.LoginCreature.GetLocalVariable<string>("_PLAYER_INPUT").Value);
+      int input = int.Parse(player.oid.LoginCreature.GetObjectVariable<LocalVariableString>("_PLAYER_INPUT").Value);
 
       if (input <= 0)
       {
@@ -207,7 +207,7 @@ namespace NWN.System
 
         NwItem copy = item.Clone(shop);
         copy.BaseGoldValue = (uint)(pointValue / item.StackSize);
-        copy.GetLocalVariable<int>("_SET_SELL_PRICE").Value = pointValue / item.StackSize;
+        copy.GetObjectVariable<LocalVariableInt>("_SET_SELL_PRICE").Value = pointValue / item.StackSize;
         item.Destroy();
       }
 
@@ -235,11 +235,11 @@ namespace NWN.System
       NwPlaceable panel = onClose.Store.GetNearestObjectsByType<NwPlaceable>().FirstOrDefault(p => p.Tag.StartsWith("_PLAYER_AUCTION_PLC_"));
       panel.Name = "[ENCHERES] ".ColorString(ColorConstants.Orange) +
         onClose.Store.Items.FirstOrDefault().Name.ColorString(ColorConstants.Red) + " " +
-        onClose.Store.GetLocalVariable<int>("_CURRENT_AUCTION").Value + " Fin : " + onClose.Store.GetLocalVariable<int>("_AUCTION_END_DATE").Value;
+        onClose.Store.GetObjectVariable<LocalVariableInt>("_CURRENT_AUCTION").Value + " Fin : " + onClose.Store.GetObjectVariable<LocalVariableInt>("_AUCTION_END_DATE").Value;
 
       SqLiteUtils.UpdateQuery("playerShops",
-        new List<string[]>() { new string[] { "shop", onClose.Store.Serialize().ToBase64EncodedString() }, new string[] { "panel", panel.Serialize().ToBase64EncodedString() }, new string[] { "highestAuction", onClose.Store.GetLocalVariable<int>("_CURRENT_AUCTION").Value.ToString() }, new string[] { "highestAuctionner", onClose.Store.GetLocalVariable<int>("_CURRENT_AUCTIONNER").Value.ToString() } },
-        new List<string[]>() { new string[] { "rowid", onClose.Store.GetLocalVariable<int>("_AUCTION_ID").Value.ToString() } });
+        new List<string[]>() { new string[] { "shop", onClose.Store.Serialize().ToBase64EncodedString() }, new string[] { "panel", panel.Serialize().ToBase64EncodedString() }, new string[] { "highestAuction", onClose.Store.GetObjectVariable<LocalVariableInt>("_CURRENT_AUCTION").Value.ToString() }, new string[] { "highestAuctionner", onClose.Store.GetObjectVariable<LocalVariableInt>("_CURRENT_AUCTIONNER").Value.ToString() } },
+        new List<string[]>() { new string[] { "rowid", onClose.Store.GetObjectVariable<LocalVariableInt>("_AUCTION_ID").Value.ToString() } });
     }
     public static void HandleOtherPlayerAuctionBuy(OnStoreRequestBuy onStoreRequestBuy)
     {
@@ -277,23 +277,23 @@ namespace NWN.System
       NwPlaceable panel = onClose.Store.GetNearestObjectsByType<NwPlaceable>().FirstOrDefault(p => p.Tag.StartsWith("_PLAYER_AUCTION_PLC_"));
       panel.Name = "[ENCHERES] ".ColorString(ColorConstants.Orange) +
         onClose.Store.Items.FirstOrDefault().Name.ColorString(ColorConstants.Red) + " " +
-        onClose.Store.GetLocalVariable<int>("_CURRENT_AUCTION").Value + " Fin : " + onClose.Store.GetLocalVariable<int>("_AUCTION_END_DATE").Value;
+        onClose.Store.GetObjectVariable<LocalVariableInt>("_CURRENT_AUCTION").Value + " Fin : " + onClose.Store.GetObjectVariable<LocalVariableInt>("_AUCTION_END_DATE").Value;
 
-      if (onClose.Store.GetLocalVariable<int>("_AUCTION_ID").HasNothing)
+      if (onClose.Store.GetObjectVariable<LocalVariableInt>("_AUCTION_ID").HasNothing)
       {
         SqLiteUtils.InsertQuery("playerAuctions",
-          new List<string[]>() { new string[] { "characterId", seller.characterId.ToString() }, new string[] { "shop", onClose.Store.Serialize().ToBase64EncodedString() }, new string[] { "panel", panel.Serialize().ToBase64EncodedString() }, new string[] { "expirationDate", onClose.Store.GetLocalVariable<string>("_AUCTION_END_DATE").Value }, new string[] { "highestAuction", onClose.Store.GetLocalVariable<int>("_CURRENT_AUCTION").Value.ToString() }, new string[] { "highestAuctionner", "0" }, new string[] { "areaTag", onClose.Store.Area.Tag }, new string[] { "position", onClose.Store.Position.ToString() }, new string[] { "facing", onClose.Store.Rotation.ToString() } });
+          new List<string[]>() { new string[] { "characterId", seller.characterId.ToString() }, new string[] { "shop", onClose.Store.Serialize().ToBase64EncodedString() }, new string[] { "panel", panel.Serialize().ToBase64EncodedString() }, new string[] { "expirationDate", onClose.Store.GetObjectVariable<LocalVariableString>("_AUCTION_END_DATE").Value }, new string[] { "highestAuction", onClose.Store.GetObjectVariable<LocalVariableInt>("_CURRENT_AUCTION").Value.ToString() }, new string[] { "highestAuctionner", "0" }, new string[] { "areaTag", onClose.Store.Area.Tag }, new string[] { "position", onClose.Store.Position.ToString() }, new string[] { "facing", onClose.Store.Rotation.ToString() } });
 
         var rowQuery = NwModule.Instance.PrepareCampaignSQLQuery(Config.database, "SELECT last_insert_rowid()");
         rowQuery.Execute();
-        onClose.Store.GetLocalVariable<int>("_AUCTION_ID").Value = rowQuery.Result.GetInt(0);
-        panel.GetLocalVariable<int>("_AUCTION_ID").Value = rowQuery.Result.GetInt(0);
+        onClose.Store.GetObjectVariable<LocalVariableInt>("_AUCTION_ID").Value = rowQuery.Result.GetInt(0);
+        panel.GetObjectVariable<LocalVariableInt>("_AUCTION_ID").Value = rowQuery.Result.GetInt(0);
       }
       else
       {
         SqLiteUtils.UpdateQuery("playerShops",
-        new List<string[]>() { new string[] { "shop", onClose.Store.Serialize().ToBase64EncodedString() }, new string[] { "panel", panel.Serialize().ToBase64EncodedString() }, new string[] { "highestAuction", onClose.Store.GetLocalVariable<int>("_CURRENT_AUCTION").Value.ToString() }, new string[] { "highestAuctionner", onClose.Store.GetLocalVariable<int>("_CURRENT_AUCTIONNER").Value.ToString() } },
-        new List<string[]>() { new string[] { "rowid", onClose.Store.GetLocalVariable<int>("_AUCTION_ID").Value.ToString() } });
+        new List<string[]>() { new string[] { "shop", onClose.Store.Serialize().ToBase64EncodedString() }, new string[] { "panel", panel.Serialize().ToBase64EncodedString() }, new string[] { "highestAuction", onClose.Store.GetObjectVariable<LocalVariableInt>("_CURRENT_AUCTION").Value.ToString() }, new string[] { "highestAuctionner", onClose.Store.GetObjectVariable<LocalVariableInt>("_CURRENT_AUCTIONNER").Value.ToString() } },
+        new List<string[]>() { new string[] { "rowid", onClose.Store.GetObjectVariable<LocalVariableInt>("_AUCTION_ID").Value.ToString() } });
       }
     }
     public static void HandleOwnedPlayerAuctionBuy(OnStoreRequestBuy onStoreRequestBuy)
@@ -345,7 +345,8 @@ namespace NWN.System
           player.bankGold -= debt;
 
           ChatSystem.chatService.SendMessage(ChatChannel.PlayerTalk, $"Très bien, je demanderai à la banque de vous faire un crédit sur {debt}. N'oubliez pas que les intérêts sont de 30 % par semaine.",
-          (NwCreature)onStoreRequestBuy.Store.GetLocalVariable<NwObject>("_STORE_NPC").Value, onStoreRequestBuy.Creature.ControllingPlayer);
+          onStoreRequestBuy.Store.GetObjectVariable<LocalVariableObject<NwCreature>>("_STORE_NPC").Value, onStoreRequestBuy.Creature.ControllingPlayer);
+          
         }
         else
         {
@@ -353,7 +354,7 @@ namespace NWN.System
           player.bankGold -= onStoreRequestBuy.Price - pocketGold;
 
           ChatSystem.chatService.SendMessage(ChatChannel.PlayerTalk, "Très bien, je demanderai à la banque de prélever l'or sur votre compte.",
-          (NwCreature)onStoreRequestBuy.Store.GetLocalVariable<NwObject>("_STORE_NPC").Value, onStoreRequestBuy.Creature.ControllingPlayer);
+          onStoreRequestBuy.Store.GetObjectVariable<LocalVariableObject<NwCreature>>("_STORE_NPC").Value, onStoreRequestBuy.Creature.ControllingPlayer);
         }
       }
       else
@@ -365,9 +366,9 @@ namespace NWN.System
     public static void HandleGenericStoreSell(OnStoreRequestSell onStoreRequestSell)
     {
       onStoreRequestSell.PreventSell = true;
-
+      
       ChatSystem.chatService.SendMessage(ChatChannel.PlayerTalk, "Navré, je n'achète rien. J'arrive déjà tout juste à m'acquiter de ma dette.",
-          (NwCreature)onStoreRequestSell.Store.GetLocalVariable<NwObject>("_STORE_NPC").Value, onStoreRequestSell.Creature.ControllingPlayer);
+          onStoreRequestSell.Store.GetObjectVariable<LocalVariableObject<NwCreature>>("_STORE_NPC").Value, onStoreRequestSell.Creature.ControllingPlayer);
     }
     public static void OnOpenBiblioStore(StoreEvents.OnOpen onOpen)
     {
@@ -401,9 +402,9 @@ namespace NWN.System
 
           int debt = onStoreRequestBuy.Price - (pocketGold + bankGold);
           player.bankGold -= debt;
-
+          
           ChatSystem.chatService.SendMessage(ChatChannel.PlayerTalk, Languages.GetLangueStringConvertedHRPProtection("Lisez ... Apprennez ... Aidez-moi ... Aidez-nous ...", CustomFeats.Primordiale),
-          (NwCreature)onStoreRequestBuy.Store.GetLocalVariable<NwObject>("_STORE_NPC").Value, onStoreRequestBuy.Creature.ControllingPlayer);
+          onStoreRequestBuy.Store.GetObjectVariable<LocalVariableObject<NwCreature>>("_STORE_NPC").Value, onStoreRequestBuy.Creature.ControllingPlayer);
         }
         else
         {
@@ -411,7 +412,7 @@ namespace NWN.System
           player.bankGold -= onStoreRequestBuy.Price - pocketGold;
 
           ChatSystem.chatService.SendMessage(ChatChannel.PlayerTalk, Languages.GetLangueStringConvertedHRPProtection("Lisez ... Apprennez ... Aidez-moi ... Aidez-nous ...", CustomFeats.Primordiale),
-          (NwCreature)onStoreRequestBuy.Store.GetLocalVariable<NwObject>("_STORE_NPC").Value, onStoreRequestBuy.Creature.ControllingPlayer);
+          onStoreRequestBuy.Store.GetObjectVariable<LocalVariableObject<NwCreature>>("_STORE_NPC").Value, onStoreRequestBuy.Creature.ControllingPlayer);
         }
       }
       else
@@ -424,9 +425,9 @@ namespace NWN.System
     public static void HandleBiblioStoreSell(OnStoreRequestSell onStoreRequestSell)
     {
       onStoreRequestSell.PreventSell = true;
-
+      
       ChatSystem.chatService.SendMessage(ChatChannel.PlayerTalk, Languages.GetLangueStringConvertedHRPProtection("Que pourrions-nous bien en faire ?", CustomFeats.Primordiale),
-          (NwCreature)onStoreRequestSell.Store.GetLocalVariable<NwObject>("_STORE_NPC").Value, onStoreRequestSell.Creature.ControllingPlayer);
+          onStoreRequestSell.Store.GetObjectVariable<LocalVariableObject<NwCreature>>("_STORE_NPC").Value, onStoreRequestSell.Creature.ControllingPlayer);
     }
     public static void OnOpenModifyArenaRewardStore(StoreEvents.OnOpen onOpen)
     {
@@ -480,7 +481,7 @@ namespace NWN.System
       if (awaitedValue)
       {
         SetItemPointValue(player, onStoreRequestSell.Item, onStoreRequestSell.Store);
-        player.oid.LoginCreature.GetLocalVariable<string>("_PLAYER_INPUT").Delete();
+        player.oid.LoginCreature.GetObjectVariable<LocalVariableString>("_PLAYER_INPUT").Delete();
       }
     }
 
@@ -489,7 +490,7 @@ namespace NWN.System
       player.menu.Clear();
       int pointValue;
 
-      int input = int.Parse(player.oid.LoginCreature.GetLocalVariable<string>("_PLAYER_INPUT").Value);
+      int input = int.Parse(player.oid.LoginCreature.GetObjectVariable<LocalVariableString>("_PLAYER_INPUT").Value);
 
       if (input <= 0)
       {
@@ -503,7 +504,7 @@ namespace NWN.System
         
         NwItem copy = item.Clone(shop);
         copy.BaseGoldValue = (uint)(pointValue / item.StackSize);
-        copy.GetLocalVariable<int>("_SET_SELL_PRICE").Value = pointValue / item.StackSize;
+        copy.GetObjectVariable<LocalVariableInt>("_SET_SELL_PRICE").Value = pointValue / item.StackSize;
         item.Destroy();
       }
 
@@ -548,7 +549,7 @@ namespace NWN.System
         buyer.pveArena.totalPoints -= (uint)onStoreRequestBuy.Price;
 
         NwItem acquiredItem = onStoreRequestBuy.Item.Clone(onStoreRequestBuy.Creature);
-        acquiredItem.GetLocalVariable<int>("_DURABILITY").Value = ItemUtils.GetBaseItemCost(acquiredItem) * 50;
+        acquiredItem.GetObjectVariable<LocalVariableInt>("_DURABILITY").Value = ItemUtils.GetBaseItemCost(acquiredItem) * 50;
 
         buyer.oid.SendServerMessage($"Vous venez d'acquérir {onStoreRequestBuy.Item.Name.ColorString(ColorConstants.White)}" +
           $"pour {onStoreRequestBuy.Price.ToString().ColorString(ColorConstants.White)} point(s). Points restants : {buyer.pveArena.totalPoints.ToString().ColorString(ColorConstants.White)}", ColorConstants.Orange);

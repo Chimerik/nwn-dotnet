@@ -48,7 +48,7 @@ namespace NWN.Systems
     }
     private void HandleBodyModification(Player player)
     {
-      clone.GetLocalVariable<int>("_CURRENT_HEAD").Value = clone.GetCreatureBodyPart(CreaturePart.Head);
+      clone.GetObjectVariable<LocalVariableInt>("_CURRENT_HEAD").Value = clone.GetCreatureBodyPart(CreaturePart.Head);
       
       player.menu.Clear();
       player.menu.titleLines = new List<string> {
@@ -86,7 +86,7 @@ namespace NWN.Systems
     private void ChangeCloneHead(Player player, int model)
     {
       clone.SetCreatureBodyPart(CreaturePart.Head, clone.GetCreatureBodyPart(CreaturePart.Head) + model);
-      clone.GetLocalVariable<int>("_CURRENT_HEAD").Value = clone.GetCreatureBodyPart(CreaturePart.Head);
+      clone.GetObjectVariable<LocalVariableInt>("_CURRENT_HEAD").Value = clone.GetCreatureBodyPart(CreaturePart.Head);
     }
     private void ChangeCloneHeight(Player player, float size)
     {

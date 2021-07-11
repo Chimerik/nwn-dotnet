@@ -55,10 +55,10 @@ namespace NWN.Systems
     }
     public static void HandleCombatModeOff(OnCombatModeToggle onCombatMode)
     {
-      if(onCombatMode.NewMode == CombatMode.None && onCombatMode.Creature.GetLocalVariable<int>("_ACTIVATED_TAUNT").HasValue) // Permet de conserver sa posture de combat après avoir utilisé taunt
+      if(onCombatMode.NewMode == CombatMode.None && onCombatMode.Creature.GetObjectVariable<LocalVariableInt>("_ACTIVATED_TAUNT").HasValue) // Permet de conserver sa posture de combat après avoir utilisé taunt
       {
         onCombatMode.PreventToggle = true;
-        onCombatMode.Creature.GetLocalVariable<int>("_ACTIVATED_TAUNT").Delete();
+        onCombatMode.Creature.GetObjectVariable<LocalVariableInt>("_ACTIVATED_TAUNT").Delete();
       }
     }
     [ScriptHandler("event_skillused")]
@@ -72,12 +72,12 @@ namespace NWN.Systems
       switch ((Skill)skillID)
       {
         case Skill.Taunt:
-          oPC.GetLocalVariable<int>("_ACTIVATED_TAUNT").Value = 1;
+          oPC.GetObjectVariable<LocalVariableInt>("_ACTIVATED_TAUNT").Value = 1;
 
           Task waitForCooldown= NwTask.Run(async () =>
           {
             await NwTask.Delay(TimeSpan.FromSeconds(6));
-            oPC.GetLocalVariable<int>("_ACTIVATED_TAUNT").Delete();
+            oPC.GetObjectVariable<LocalVariableInt>("_ACTIVATED_TAUNT").Delete();
           });
 
           break;
@@ -91,14 +91,14 @@ namespace NWN.Systems
             return;
           }
 
-          if (!DateTime.TryParse(ObjectPlugin.GetString(oTarget, $"_PICKPOCKET_TIMER_{oPC.Name}"), out DateTime previousDate)
+          if (!DateTime.TryParse(oTarget.GetObjectVariable<PersistentVariableString>($"_PICKPOCKET_TIMER_{oPC.Name}").Value, out DateTime previousDate)
               || (DateTime.Now - previousDate).TotalHours < 24)
           {
             oPC.ControllingPlayer.FloatingTextString($"Vous ne serez autorisé à faire une nouvelle tentative de vol que dans : {(DateTime.Now - previousDate).TotalHours + 1}", false);
             return;
           }
 
-          ObjectPlugin.SetString(oTarget, $"_PICKPOCKET_TIMER_{oPC.Name}", DateTime.Now.ToString(), 1);
+          oTarget.GetObjectVariable<PersistentVariableString>($"_PICKPOCKET_TIMER_{oPC.Name}").Value = DateTime.Now.ToString();
 
           FeedbackPlugin.SetFeedbackMessageHidden(13, 1, oTarget); // 13 = COMBAT_TOUCH_ATTACK
 
@@ -177,7 +177,7 @@ namespace NWN.Systems
     {
       if (Players.TryGetValue(callInfo.ObjectSelf, out Player player))
       {
-        int id = player.oid.LoginCreature.GetLocalVariable<int>("NW_TOTAL_MAP_PINS").Value;
+        int id = player.oid.LoginCreature.GetObjectVariable<LocalVariableInt>("NW_TOTAL_MAP_PINS").Value;
         player.mapPinDictionnary.Add(id, new MapPin(id, player.oid.ControlledCreature.Area.Tag, float.Parse(EventsPlugin.GetEventData("PIN_X")), float.Parse(EventsPlugin.GetEventData("PIN_Y")), EventsPlugin.GetEventData("PIN_NOTE")));
       }
     }
@@ -317,7 +317,7 @@ namespace NWN.Systems
     [ScriptHandler("collect_cancel")]
     private void HandleBeforeCollectCycleCancel(CallInfo callInfo)
     {
-      callInfo.ObjectSelf.GetLocalVariable<int>("_COLLECT_CANCELLED").Value = 1;
+      callInfo.ObjectSelf.GetObjectVariable<LocalVariableInt>("_COLLECT_CANCELLED").Value = 1;
     }
     public static void HandleOnClientLevelUp(OnClientLevelUpBegin onLevelUp)
     {
@@ -332,10 +332,10 @@ namespace NWN.Systems
         || !onPerception.Creature.IsLoginPlayerCharacter)
         return;
 
-      if (onPerception.PerceivedCreature.GetLocalVariable<int>($"_PERCEPTION_STATUS_{onPerception.Creature.ControllingPlayer.CDKey}").HasValue)
+      if (onPerception.PerceivedCreature.GetObjectVariable<LocalVariableInt>($"_PERCEPTION_STATUS_{onPerception.Creature.ControllingPlayer.CDKey}").HasValue)
         return;
 
-      onPerception.PerceivedCreature.GetLocalVariable<int>($"_PERCEPTION_STATUS_{onPerception.Creature.ControllingPlayer.CDKey}").Value = 1;
+      onPerception.PerceivedCreature.GetObjectVariable<LocalVariableInt>($"_PERCEPTION_STATUS_{onPerception.Creature.ControllingPlayer.CDKey}").Value = 1;
 
       API.Effect effectToRemove = onPerception.PerceivedCreature.ActiveEffects.FirstOrDefault(e => e.Tag == "_FREEZE_EFFECT");
       if (effectToRemove != null)
@@ -354,21 +354,21 @@ namespace NWN.Systems
     }
     public static void HandleCombatRoundEndForAutoSpells(CreatureEvents.OnCombatRoundEnd onCombatRoundEnd)
     {
-      if(onCombatRoundEnd.Creature.GetLocalVariable<int>("_AUTO_SPELL").HasNothing)
+      if(onCombatRoundEnd.Creature.GetObjectVariable<LocalVariableInt>("_AUTO_SPELL").HasNothing)
       {
         onCombatRoundEnd.Creature.OnCombatRoundEnd -= HandleCombatRoundEndForAutoSpells;
         return;
       }
 
-      int spellId = onCombatRoundEnd.Creature.GetLocalVariable<int>("_AUTO_SPELL").Value;
-      NwObject target = onCombatRoundEnd.Creature.GetLocalVariable<NwObject>("_AUTO_SPELL_TARGET").Value;
+      int spellId = onCombatRoundEnd.Creature.GetObjectVariable<LocalVariableInt>("_AUTO_SPELL").Value;
+      NwGameObject target = onCombatRoundEnd.Creature.GetObjectVariable<LocalVariableObject<NwGameObject>>("_AUTO_SPELL_TARGET").Value;
 
       if(target != null && target.IsValid)
-        onCombatRoundEnd.Creature.ActionCastSpellAt((Spell)spellId, (NwGameObject)target);
+        onCombatRoundEnd.Creature.ActionCastSpellAt((Spell)spellId, target);
       else
       {
-        onCombatRoundEnd.Creature.GetLocalVariable<int>("_AUTO_SPELL").Delete();
-        onCombatRoundEnd.Creature.GetLocalVariable<NwObject>("_AUTO_SPELL_TARGET").Delete();
+        onCombatRoundEnd.Creature.GetObjectVariable<LocalVariableInt>("_AUTO_SPELL").Delete();
+        onCombatRoundEnd.Creature.GetObjectVariable<LocalVariableObject<NwGameObject>>("_AUTO_SPELL_TARGET").Delete();
         onCombatRoundEnd.Creature.OnCombatRoundEnd -= HandleCombatRoundEndForAutoSpells;
       }
     }

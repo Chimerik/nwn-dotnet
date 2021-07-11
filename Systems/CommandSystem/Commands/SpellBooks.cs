@@ -41,8 +41,8 @@ namespace NWN.Systems
 
       if (awaitedValue)
       {
-        SaveGrimoire(player.oid.LoginCreature.GetLocalVariable<string>("_PLAYER_INPUT").Value);
-        player.oid.LoginCreature.GetLocalVariable<string>("_PLAYER_INPUT").Delete();
+        SaveGrimoire(player.oid.LoginCreature.GetObjectVariable<LocalVariableString>("_PLAYER_INPUT").Value);
+        player.oid.LoginCreature.GetObjectVariable<LocalVariableString>("_PLAYER_INPUT").Delete();
       }
     }
     private void SaveGrimoire(string grimoireName)

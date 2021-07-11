@@ -54,7 +54,7 @@ namespace NWN.Systems
 
       if (awaitedValue)
       {
-        string[] vector = player.oid.LoginCreature.GetLocalVariable<string>("_PLAYER_INPUT").Value.Split(",");
+        string[] vector = player.oid.LoginCreature.GetObjectVariable<LocalVariableString>("_PLAYER_INPUT").Value.Split(",");
         
         if(vector.Length < 3)
         {
@@ -72,7 +72,7 @@ namespace NWN.Systems
           z = value;
 
         direction = new Vector3(x, y, z);
-        player.oid.LoginCreature.GetLocalVariable<string>("_PLAYER_INPUT").Delete();
+        player.oid.LoginCreature.GetObjectVariable<LocalVariableString>("_PLAYER_INPUT").Delete();
         player.oid.SendServerMessage($"Vous avez choisi {direction} de direction", ColorConstants.Green);
         player.oid.ControlledCreature.Area.SetAreaWind(direction, magnitude, yaw, pitch);
         DrawMainWindPage();
@@ -92,10 +92,10 @@ namespace NWN.Systems
 
       if (awaitedValue)
       {
-        if(float.TryParse(player.oid.LoginCreature.GetLocalVariable<string>("_PLAYER_INPUT").Value, out float value))
-          magnitude = float.Parse(player.oid.LoginCreature.GetLocalVariable<string>("_PLAYER_INPUT").Value);
+        if(float.TryParse(player.oid.LoginCreature.GetObjectVariable<LocalVariableString>("_PLAYER_INPUT").Value, out float value))
+          magnitude = float.Parse(player.oid.LoginCreature.GetObjectVariable<LocalVariableString>("_PLAYER_INPUT").Value);
         
-        player.oid.LoginCreature.GetLocalVariable<string>("_PLAYER_INPUT").Delete();
+        player.oid.LoginCreature.GetObjectVariable<LocalVariableString>("_PLAYER_INPUT").Delete();
         player.oid.SendServerMessage($"Vous avez choisi {magnitude.ToString().ColorString(ColorConstants.White)} de magnitude", ColorConstants.Green);
         player.oid.ControlledCreature.Area.SetAreaWind(direction, magnitude, yaw, pitch);
         DrawMainWindPage();
@@ -115,8 +115,8 @@ namespace NWN.Systems
 
       if (awaitedValue)
       {
-        yaw = float.Parse(player.oid.LoginCreature.GetLocalVariable<string>("_PLAYER_INPUT").Value);
-        player.oid.LoginCreature.GetLocalVariable<string>("_PLAYER_INPUT").Delete();
+        yaw = float.Parse(player.oid.LoginCreature.GetObjectVariable<LocalVariableString>("_PLAYER_INPUT").Value);
+        player.oid.LoginCreature.GetObjectVariable<LocalVariableString>("_PLAYER_INPUT").Delete();
         player.oid.SendServerMessage($"Vous avez choisi {yaw.ToString().ColorString(ColorConstants.White)} d'embardée", ColorConstants.Green);
         player.oid.ControlledCreature.Area.SetAreaWind(direction, magnitude, yaw, pitch);
         DrawMainWindPage();
@@ -136,8 +136,8 @@ namespace NWN.Systems
 
       if (awaitedValue)
       {
-        pitch = float.Parse(player.oid.LoginCreature.GetLocalVariable<string>("_PLAYER_INPUT").Value);
-        player.oid.LoginCreature.GetLocalVariable<string>("_PLAYER_INPUT").Delete();
+        pitch = float.Parse(player.oid.LoginCreature.GetObjectVariable<LocalVariableString>("_PLAYER_INPUT").Value);
+        player.oid.LoginCreature.GetObjectVariable<LocalVariableString>("_PLAYER_INPUT").Delete();
         player.oid.SendServerMessage($"Vous avez choisi {pitch.ToString().ColorString(ColorConstants.White)} de pitch", ColorConstants.Green);
         player.oid.ControlledCreature.Area.SetAreaWind(direction, magnitude, yaw, pitch);
         DrawMainWindPage();

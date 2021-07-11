@@ -19,7 +19,7 @@ namespace NWN.Systems
 
         if (Int32.TryParse((string)options.positional[0], out int value))
         {
-          ctx.oSender.LoginCreature.GetLocalVariable<int>("_VFX_ID").Value = value;
+          ctx.oSender.LoginCreature.GetObjectVariable<LocalVariableInt>("_VFX_ID").Value = value;
           PlayerSystem.cursorTargetService.EnterTargetMode(ctx.oSender, playerVFXTarget, ObjectTypes.Creature, MouseCursor.Magic);
         }
         else if (ctx.oSender.IsDM && ((string)options.positional[0]).Length > 0
@@ -33,7 +33,7 @@ namespace NWN.Systems
 
           if (result.Result != null)
           {
-            ctx.oSender.LoginCreature.GetLocalVariable<int>("_VFX_ID").Value = result.Result.GetInt(0);
+            ctx.oSender.LoginCreature.GetObjectVariable<LocalVariableInt>("_VFX_ID").Value = result.Result.GetInt(0);
             PlayerSystem.cursorTargetService.EnterTargetMode(ctx.oSender, dmVFXTarget, ObjectTypes.All, MouseCursor.Magic);
           }
           else
@@ -46,19 +46,19 @@ namespace NWN.Systems
       if (selection.IsCancelled)
         return;
 
-      if (selection.Player.LoginCreature.GetLocalVariable<int>("_VFX_ID").HasValue)
+      if (selection.Player.LoginCreature.GetObjectVariable<LocalVariableInt>("_VFX_ID").HasValue)
       {
-        selection.Player.ApplyInstantVisualEffectToObject((VfxType)selection.Player.LoginCreature.GetLocalVariable<int>("_VXF_TEST_ID").Value, (NwGameObject)selection.TargetObject);
-        selection.Player.LoginCreature.GetLocalVariable<int>("_VFX_ID").Delete();
+        selection.Player.ApplyInstantVisualEffectToObject((VfxType)selection.Player.LoginCreature.GetObjectVariable<LocalVariableInt>("_VXF_TEST_ID").Value, (NwGameObject)selection.TargetObject);
+        selection.Player.LoginCreature.GetObjectVariable<LocalVariableInt>("_VFX_ID").Delete();
       }
     }
     private static void dmVFXTarget(ModuleEvents.OnPlayerTarget selection)
     {
-      if (selection.IsCancelled || selection.Player.LoginCreature.GetLocalVariable<int>("_VFX_ID").HasNothing)
+      if (selection.IsCancelled || selection.Player.LoginCreature.GetObjectVariable<LocalVariableInt>("_VFX_ID").HasNothing)
         return;
 
-      VfxType vfxId = (VfxType)selection.Player.LoginCreature.GetLocalVariable<int>("_VFX_ID").Value;
-      selection.Player.LoginCreature.GetLocalVariable<string>("_VFX_ID").Delete();
+      VfxType vfxId = (VfxType)selection.Player.LoginCreature.GetObjectVariable<LocalVariableInt>("_VFX_ID").Value;
+      selection.Player.LoginCreature.GetObjectVariable<LocalVariableString>("_VFX_ID").Delete();
 
       var result = SqLiteUtils.SelectQuery("dmVFXDuration",
         new List<string>() { { "vfxDuration" } },

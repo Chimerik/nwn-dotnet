@@ -32,14 +32,14 @@ namespace NWN.Systems
 
       foreach (NwCreature creature in area.FindObjectsOfTypeInArea<NwCreature>().Where(c => c.Tag != "Statuereptilienne" && c.Tag != "Statuereptilienne2" && c.Tag != "statue_tiamat" && !c.IsDMPossessed && c.Tag != "pccorpse" && !c.IsPlayerControlled && !c.IsLoginPlayerCharacter))
       {
-        if (creature.GetLocalVariable<API.Location>("_SPAWN_LOCATION").HasValue)
+        if (creature.GetObjectVariable<LocalVariableLocation>("_SPAWN_LOCATION").HasValue) 
         {
           Task createWP = NwTask.Run(async () =>
           {
             await NwTask.Delay(TimeSpan.FromSeconds(0.1));
 
-            NwWaypoint waypoint = NwWaypoint.Create(creature.GetLocalVariable<string>("_WAYPOINT_TEMPLATE"), creature.GetLocalVariable<API.Location>("_SPAWN_LOCATION").Value);
-            waypoint.GetLocalVariable<string>("_CREATURE_TEMPLATE").Value = creature.ResRef;
+            NwWaypoint waypoint = NwWaypoint.Create(creature.GetObjectVariable<LocalVariableString>("_WAYPOINT_TEMPLATE"), creature.GetObjectVariable<LocalVariableLocation>("_SPAWN_LOCATION").Value);
+            waypoint.GetObjectVariable<LocalVariableString>("_CREATURE_TEMPLATE").Value = creature.ResRef;
 
             return true;
           });

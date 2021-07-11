@@ -21,7 +21,7 @@ namespace NWN.Systems.Arena
       
       if (Players.TryGetValue(oPC.LoginCreature, out Player player))
       {
-        if (player.oid.LoginCreature.Area.FindObjectsOfTypeInArea<NwCreature>().Any(c => c.GetLocalVariable<int>("_IS_PVE_ARENA_CREATURE").HasValue))
+        if (player.oid.LoginCreature.Area.FindObjectsOfTypeInArea<NwCreature>().Any(c => c.GetObjectVariable<LocalVariableInt>("_IS_PVE_ARENA_CREATURE").HasValue))
           ArenaMenu.DrawRunAwayPage(player);
         else
           ArenaMenu.DrawNextFightPage(player);
@@ -51,7 +51,7 @@ namespace NWN.Systems.Arena
       foreach (var creatureResref in roundCreatures.resrefs)
       {
         NwCreature creature = NwCreature.Create(creatureResref, oWaypoint.Location, true);
-        creature.GetLocalVariable<int>("_IS_PVE_ARENA_CREATURE").Value = 1;
+        creature.GetObjectVariable<LocalVariableInt>("_IS_PVE_ARENA_CREATURE").Value = 1;
         creature.Location.ApplyEffect(EffectDuration.Instant, Effect.VisualEffect(VfxType.FnfSummonMonster2));
         creature.ChangeToStandardFaction(StandardFaction.Hostile);
         HandleSpecialBehaviour(creature);
@@ -59,7 +59,7 @@ namespace NWN.Systems.Arena
 
       CancellationTokenSource tokenSource = new CancellationTokenSource();
       Task waitPlayerLeavesArena = NwTask.WaitUntil(() => player.oid.LoginCreature.Location.Area == null, tokenSource.Token);
-      Task waitRoundCreaturesDead = NwTask.WaitUntil(() => !oArena.FindObjectsOfTypeInArea<NwCreature>().Any(c => c.GetLocalVariable<int>("_IS_PVE_ARENA_CREATURE").HasValue), tokenSource.Token);
+      Task waitRoundCreaturesDead = NwTask.WaitUntil(() => !oArena.FindObjectsOfTypeInArea<NwCreature>().Any(c => c.GetObjectVariable<LocalVariableInt>("_IS_PVE_ARENA_CREATURE").HasValue), tokenSource.Token);
 
       await NwTask.WhenAny(waitRoundCreaturesDead, waitPlayerLeavesArena);
       tokenSource.Cancel();
@@ -114,7 +114,7 @@ namespace NWN.Systems.Arena
           break;
         case "rat_meca":
 
-          oCreature.GetLocalVariable<int>("_IS_GNOME_MECH").Value = 1;
+          oCreature.GetObjectVariable<LocalVariableInt>("_IS_GNOME_MECH").Value = 1;
           ApplyGnomeMechAoE(oCreature);
           //oCreature.OnCreatureDamage += AttackSystem.HandleDamageEvent;
           
@@ -125,19 +125,19 @@ namespace NWN.Systems.Arena
         case "crab_meca":
           oCreature.OnCreatureDamage += HandleCrabAttack;
           oCreature.OnDamaged += HandleCrabDamaged;
-          oCreature.GetLocalVariable<int>("_IS_GNOME_MECH").Value = 1;
+          oCreature.GetObjectVariable<LocalVariableInt>("_IS_GNOME_MECH").Value = 1;
           break;
         case "pingu_meca":
-          oCreature.GetLocalVariable<int>("_IS_GNOME_MECH").Value = 1;
+          oCreature.GetObjectVariable<LocalVariableInt>("_IS_GNOME_MECH").Value = 1;
           break;
         case "dog_meca_defect":
-          oCreature.GetLocalVariable<int>("_IS_GNOME_MECH").Value = 1;
+          oCreature.GetObjectVariable<LocalVariableInt>("_IS_GNOME_MECH").Value = 1;
           ApplyGnomeMechAoE(oCreature);
           oCreature.OnCreatureDamage += HandleDogAttack;
           //oCreature.OnCreatureDamage += AttackSystem.HandleDamageEvent;
           break;
         case "cutter_meca":
-          oCreature.GetLocalVariable<int>("_IS_GNOME_MECH").Value = 1;
+          oCreature.GetObjectVariable<LocalVariableInt>("_IS_GNOME_MECH").Value = 1;
           ApplyGnomeMechAoE(oCreature);
           break;
       }
@@ -167,14 +167,14 @@ namespace NWN.Systems.Arena
     }
     private static void HandleCrabDamaged(CreatureEvents.OnDamaged onDamage)
     {
-      if(onDamage.Creature.GetLocalVariable<int>("_NB_TIMES_ATTACKED").Value > 2)
+      if(onDamage.Creature.GetObjectVariable<LocalVariableInt>("_NB_TIMES_ATTACKED").Value > 2)
       {
         onDamage.Creature.ApplyEffect(EffectDuration.Instant, Effect.Death());
         onDamage.Creature.ApplyEffect(EffectDuration.Instant, Effect.VisualEffect(VfxType.FnfElectricExplosion));
 
         foreach (NwCreature creature in onDamage.Creature.Area.FindObjectsOfTypeInArea<NwCreature>())
         {
-          if (creature.GetLocalVariable<int>("_IS_GNOME_MECH").HasNothing
+          if (creature.GetObjectVariable<LocalVariableInt>("_IS_GNOME_MECH").HasNothing
             && creature.RollSavingThrow(SavingThrow.Reflex, 10, SavingThrowType.Electricity, onDamage.Creature) != SavingThrowResult.Failure)
             continue;
 

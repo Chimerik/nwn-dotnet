@@ -89,7 +89,7 @@ namespace NWN.Systems
         return;
       }
 
-      if (oTarget.GetLocalVariable<int>("_AVAILABLE_ENCHANTEMENT_SLOT").HasNothing)
+      if (oTarget.GetObjectVariable<LocalVariableInt>("_AVAILABLE_ENCHANTEMENT_SLOT").HasNothing)
       {
         player.oid.SendServerMessage($"{oTarget.Name} ne dispose d'aucun emplacement d'enchantement disponible !");
         return;

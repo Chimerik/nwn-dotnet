@@ -44,9 +44,9 @@ namespace NWN.Systems
 
       if (awaitedValue)
       {
-        rumorTitle = player.oid.LoginCreature.GetLocalVariable<string>("_PLAYER_INPUT").Value;
+        rumorTitle = player.oid.LoginCreature.GetObjectVariable<LocalVariableString>("_PLAYER_INPUT").Value;
         GetRumorContent();
-        player.oid.LoginCreature.GetLocalVariable<string>("_PLAYER_INPUT").Delete();
+        player.oid.LoginCreature.GetObjectVariable<LocalVariableString>("_PLAYER_INPUT").Delete();
       }
     }
     private async void GetRumorContent()
@@ -59,8 +59,8 @@ namespace NWN.Systems
 
       if (awaitedValue)
       {
-        SaveRumorToDatabase(player.oid.LoginCreature.GetLocalVariable<string>("_PLAYER_INPUT").Value);
-        player.oid.LoginCreature.GetLocalVariable<string>("_PLAYER_INPUT").Delete();
+        SaveRumorToDatabase(player.oid.LoginCreature.GetObjectVariable<LocalVariableString>("_PLAYER_INPUT").Value);
+        player.oid.LoginCreature.GetObjectVariable<LocalVariableString>("_PLAYER_INPUT").Delete();
       }
     }
     private void SaveRumorToDatabase(string rumorContent)

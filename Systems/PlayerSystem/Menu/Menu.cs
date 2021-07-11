@@ -73,17 +73,17 @@ namespace NWN.Systems
 
         if (isOpen)
         {
-          player.oid.LoginCreature.GetLocalVariable<int>("_CURRENT_MENU_CLOSED").Value = 1;
+          player.oid.LoginCreature.GetObjectVariable<LocalVariableInt>("_CURRENT_MENU_CLOSED").Value = 1;
           player.OnKeydown -= HandleMenuFeatUsed;
           player.UnloadMenuQuickbar();
         }
 
         isOpen = false;
 
-        if (player.oid.LoginCreature.GetLocalVariable<int>("_AWAITING_PLAYER_INPUT").HasValue)
+        if (player.oid.LoginCreature.GetObjectVariable<LocalVariableInt>("_AWAITING_PLAYER_INPUT").HasValue)
         {
-          player.oid.LoginCreature.GetLocalVariable<int>("_PLAYER_INPUT_CANCELLED").Delete();
-          player.oid.LoginCreature.GetLocalVariable<int>("_AWAITING_PLAYER_INPUT").Delete();
+          player.oid.LoginCreature.GetObjectVariable<LocalVariableInt>("_PLAYER_INPUT_CANCELLED").Delete();
+          player.oid.LoginCreature.GetObjectVariable<LocalVariableInt>("_AWAITING_PLAYER_INPUT").Delete();
           player.oid.OnPlayerChat -= ChatSystem.HandlePlayerInputByte;
           player.oid.OnPlayerChat -= ChatSystem.HandlePlayerInputInt;
           player.oid.OnPlayerChat -= ChatSystem.HandlePlayerInputString;

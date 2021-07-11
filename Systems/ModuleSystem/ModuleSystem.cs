@@ -30,7 +30,7 @@ namespace NWN.Systems
     }
     private void OnModuleLoad(ModuleEvents.OnModuleLoad onModuleLoad)
     {
-      NwModule.Instance.GetLocalVariable<string>("X2_S_UD_SPELLSCRIPT").Value = "spellhook";
+      NwModule.Instance.GetObjectVariable<LocalVariableString>("X2_S_UD_SPELLSCRIPT").Value = "spellhook";
 
       NwServer.Instance.ServerInfo.PlayOptions.RestoreSpellUses = false;
       NwServer.Instance.ServerInfo.PlayOptions.ShowDMJoinMessage = false;
@@ -150,6 +150,9 @@ namespace NWN.Systems
 
       SqLiteUtils.CreateQuery("CREATE TABLE IF NOT EXISTS dmVFXDuration" +
         "('playerName' TEXT NOT NULL, 'vfxDuration' INTEGER NOT NULL, PRIMARY KEY(playerName))");
+
+      SqLiteUtils.CreateQuery("CREATE TABLE IF NOT EXISTS playerMutedPM" +
+        "('accountId' INTEGER NOT NULL, 'mutedAccountId' INTEGER NOT NULL)");
     }
     private void InitializeEvents()
     {
@@ -195,8 +198,6 @@ namespace NWN.Systems
       EventsPlugin.SubscribeEvent("NWNX_ON_MAP_PIN_DESTROY_PIN_AFTER", "mappin_destroyed");
 
       EventsPlugin.SubscribeEvent("NWNX_ON_INPUT_EMOTE_BEFORE", "on_input_emote");
-
-      EventsPlugin.SubscribeEvent("NWNX_ON_ELC_VALIDATE_CHARACTER_BEFORE", "before_elc");
       
       EventsPlugin.SubscribeEvent("NWNX_ON_CHARACTER_SHEET_OPEN_BEFORE", "pc_sheet_open");
 
@@ -229,9 +230,9 @@ namespace NWN.Systems
 
       Log.Info("Starting to spawn collectable ressources");
 
-      foreach (NwWaypoint ressourcePoint in NwModule.FindObjectsWithTag<NwWaypoint>(new string[] { "ore_spawn_wp", "wood_spawn_wp" }).Where(l => l.Area.GetLocalVariable<int>("_AREA_LEVEL").Value > 1))
+      foreach (NwWaypoint ressourcePoint in NwModule.FindObjectsWithTag<NwWaypoint>(new string[] { "ore_spawn_wp", "wood_spawn_wp" }).Where(l => l.Area.GetObjectVariable<LocalVariableInt>("_AREA_LEVEL").Value > 1))
       {
-        int areaLevel = ressourcePoint.Area.GetLocalVariable<int>("_AREA_LEVEL").Value;
+        int areaLevel = ressourcePoint.Area.GetObjectVariable<LocalVariableInt>("_AREA_LEVEL").Value;
         if (NwRandom.Roll(Utils.random, 100) >= (areaLevel * 20) - 20)
         {
           string resRef = "";
@@ -251,16 +252,16 @@ namespace NWN.Systems
 
           var newRock = NwPlaceable.Create(resRef, ressourcePoint.Location);
           newRock.Name = name;
-          newRock.GetLocalVariable<int>("_ORE_AMOUNT").Value = 50 * NwRandom.Roll(Utils.random, 100);
+          newRock.GetObjectVariable<LocalVariableInt>("_ORE_AMOUNT").Value = 50 * NwRandom.Roll(Utils.random, 100);
           ressourcePoint.Destroy();
 
           Log.Info($"REFILL - {ressourcePoint.Area.Name} - {ressourcePoint.Name}");
         }
       }
 
-      foreach (NwArea area in NwModule.Instance.Areas.Where(l => l.GetLocalVariable<int>("_AREA_LEVEL").Value > 1))
+      foreach (NwArea area in NwModule.Instance.Areas.Where(l => l.GetObjectVariable<LocalVariableInt>("_AREA_LEVEL").Value > 1))
       {
-        int areaLevel = area.GetLocalVariable<int>("_AREA_LEVEL").Value;
+        int areaLevel = area.GetObjectVariable<LocalVariableInt>("_AREA_LEVEL").Value;
 
         SqLiteUtils.InsertQuery("areaResourceStock",
           new List<string[]>() { new string[] { "areaTag", area.Tag }, new string[] { "mining", (areaLevel * 2).ToString() }, new string[] { "wood", (areaLevel * 2).ToString() }, new string[] { "animals", (areaLevel * 2).ToString() } },
@@ -341,7 +342,7 @@ namespace NWN.Systems
       {
         NwCreature corpse = NwCreature.Deserialize(pcCorpse.GetString(0).ToByteArray());
         corpse.Location = Utils.GetLocationFromDatabase(pcCorpse.GetString(1), pcCorpse.GetString(2), 0);
-        corpse.GetLocalVariable<int>("_PC_ID").Value = pcCorpse.GetInt(3);
+        corpse.GetObjectVariable<LocalVariableInt>("_PC_ID").Value = pcCorpse.GetInt(3);
 
         foreach (NwItem item in corpse.Inventory.Items.Where(i => i.Tag != "item_pccorpse"))
           item.Destroy();
@@ -361,13 +362,13 @@ namespace NWN.Systems
       {
         NwStore shop = SqLiteUtils.StoreSerializationFormatProtection(playerShop, 0, Utils.GetLocationFromDatabase(playerShop.GetString(5), playerShop.GetString(6), playerShop.GetFloat(7)));
         NwPlaceable panel = SqLiteUtils.PlaceableSerializationFormatProtection(playerShop, 1, Utils.GetLocationFromDatabase(playerShop.GetString(5), playerShop.GetString(6), playerShop.GetFloat(7)));
-        shop.GetLocalVariable<int>("_OWNER_ID").Value = playerShop.GetInt(2);
-        shop.GetLocalVariable<int>("_SHOP_ID").Value = playerShop.GetInt(3);
-        panel.GetLocalVariable<int>("_OWNER_ID").Value = playerShop.GetInt(2);
-        panel.GetLocalVariable<int>("_SHOP_ID").Value = playerShop.GetInt(3);
+        shop.GetObjectVariable<LocalVariableInt>("_OWNER_ID").Value = playerShop.GetInt(2);
+        shop.GetObjectVariable<LocalVariableInt>("_SHOP_ID").Value = playerShop.GetInt(3);
+        panel.GetObjectVariable<LocalVariableInt>("_OWNER_ID").Value = playerShop.GetInt(2);
+        panel.GetObjectVariable<LocalVariableInt>("_SHOP_ID").Value = playerShop.GetInt(3);
         double expirationTime = (DateTime.Now - DateTime.Parse(playerShop.GetString(4))).TotalDays;
 
-        int ownerId = shop.GetLocalVariable<int>("_OWNER_ID").Value;
+        int ownerId = shop.GetObjectVariable<LocalVariableInt>("_OWNER_ID").Value;
 
         if (expirationTime < 0)
         {
@@ -395,7 +396,7 @@ namespace NWN.Systems
         panel.OnUsed += PlaceableSystem.OnUsedPlayerOwnedShop;
 
         foreach (NwItem item in shop.Items)
-          item.BaseGoldValue = (uint)item.GetLocalVariable<int>("_SET_SELL_PRICE").Value;
+          item.BaseGoldValue = (uint)item.GetObjectVariable<LocalVariableInt>("_SET_SELL_PRICE").Value;
       }
     }
     private async void DeleteExpiredShop(int rowid)
@@ -415,17 +416,17 @@ namespace NWN.Systems
       {
         NwStore shop = SqLiteUtils.StoreSerializationFormatProtection(auction, 0, Utils.GetLocationFromDatabase(auction.GetString(7), auction.GetString(8), auction.GetFloat(9)));
         NwPlaceable panel = SqLiteUtils.PlaceableSerializationFormatProtection(auction, 1, Utils.GetLocationFromDatabase(auction.GetString(7), auction.GetString(8), auction.GetFloat(9)));
-        shop.GetLocalVariable<int>("_OWNER_ID").Value = auction.GetInt(2);
-        shop.GetLocalVariable<int>("_SHOP_ID").Value = auction.GetInt(3);
-        shop.GetLocalVariable<int>("_CURRENT_AUCTION").Value = auction.GetInt(5);
-        shop.GetLocalVariable<int>("_CURRENT_AUCTIONNER").Value = auction.GetInt(6);
-        panel.GetLocalVariable<int>("_OWNER_ID").Value = auction.GetInt(2);
-        panel.GetLocalVariable<int>("_SHOP_ID").Value = auction.GetInt(3);
+        shop.GetObjectVariable<LocalVariableInt>("_OWNER_ID").Value = auction.GetInt(2);
+        shop.GetObjectVariable<LocalVariableInt>("_SHOP_ID").Value = auction.GetInt(3);
+        shop.GetObjectVariable<LocalVariableInt>("_CURRENT_AUCTION").Value = auction.GetInt(5);
+        shop.GetObjectVariable<LocalVariableInt>("_CURRENT_AUCTIONNER").Value = auction.GetInt(6);
+        panel.GetObjectVariable<LocalVariableInt>("_OWNER_ID").Value = auction.GetInt(2);
+        panel.GetObjectVariable<LocalVariableInt>("_SHOP_ID").Value = auction.GetInt(3);
 
         panel.OnUsed += PlaceableSystem.OnUsedPlayerOwnedAuction;
 
         foreach (NwItem item in shop.Items)
-          item.BaseGoldValue = (uint)item.GetLocalVariable<int>("_CURRENT_AUCTION").Value;
+          item.BaseGoldValue = (uint)item.GetObjectVariable<LocalVariableInt>("_CURRENT_AUCTION").Value;
       }
     }
     public async void HandleExpiredAuctions()
@@ -440,8 +441,8 @@ namespace NWN.Systems
         int sellerId = auction.GetInt(0);
         int auctionId = auction.GetInt(1);
 
-        NwPlayer oSeller = NwModule.Instance.Players.FirstOrDefault(p => ObjectPlugin.GetInt(p.LoginCreature, "characterId") == sellerId);
-        NwStore store = NwObject.FindObjectsOfType<NwStore>().FirstOrDefault(p => p.GetLocalVariable<int>("_AUCTION_ID").Value == auctionId);
+        NwPlayer oSeller = NwModule.Instance.Players.FirstOrDefault(p => p.LoginCreature.GetObjectVariable<PersistentVariableInt>("characterId").Value == sellerId);
+        NwStore store = NwObject.FindObjectsOfType<NwStore>().FirstOrDefault(p => p.GetObjectVariable<LocalVariableInt>("_AUCTION_ID").Value == auctionId);
         NwStore oStore = SqLiteUtils.StoreSerializationFormatProtection(auction, 4, NwModule.Instance.StartingLocation);
         NwItem tempItem = oStore.Items.FirstOrDefault();
         oStore.Destroy();
@@ -496,7 +497,7 @@ namespace NWN.Systems
             }
           }
           // Si le buyer est co, on lui file l'item et on détruit la ligne en BDD. S'il est pas co, on transfère dans son entrepot perso
-          NwPlayer oBuyer = NwModule.Instance.Players.FirstOrDefault(p => ObjectPlugin.GetInt(p.LoginCreature, "characterId") == buyerId);
+          NwPlayer oBuyer = NwModule.Instance.Players.FirstOrDefault(p => p.LoginCreature.GetObjectVariable<PersistentVariableInt>("characterId").Value == buyerId);
 
           if (oBuyer != null)
           {
@@ -516,7 +517,7 @@ namespace NWN.Systems
         if (store != null)
           store.Destroy();
 
-        NwPlaceable panel = NwObject.FindObjectsOfType<NwPlaceable>().FirstOrDefault(p => p.GetLocalVariable<int>("_AUCTION_ID").Value == auctionId);
+        NwPlaceable panel = NwObject.FindObjectsOfType<NwPlaceable>().FirstOrDefault(p => p.GetObjectVariable<LocalVariableInt>("_AUCTION_ID").Value == auctionId);
         if (panel != null)
           panel.Destroy();
 
@@ -548,53 +549,6 @@ namespace NWN.Systems
       
       foreach (var plc in result.Results)
         SqLiteUtils.PlaceableSerializationFormatProtection(plc, 0, Utils.GetLocationFromDatabase(plc.GetString(1), plc.GetString(2), plc.GetFloat(3)));
-    }
-
-    [ScriptHandler("before_elc")]
-    private void HandleBeforeELCValidation(CallInfo callInfo)
-    {
-      int characterId = ObjectPlugin.GetInt(callInfo.ObjectSelf, "characterId");
-
-      if (characterId > 0 && callInfo.ObjectSelf is NwCreature oPC)
-      {
-        var result = SqLiteUtils.SelectQuery("playerCharacters",
-        new List<string>() { { "areaTag" }, { "position" }, { "facing" } },
-        new List<string[]>() { new string[] { "rowid", characterId.ToString() } });
-
-        if (result.Result != null)
-        {
-          string tag = result.Result.GetString(0);
-
-          if (tag.StartsWith("entrepotpersonnel"))
-            AreaSystem.CreatePersonnalStorageArea(oPC, characterId);
-
-          oPC.ControllingPlayer.SpawnLocation = Utils.GetLocationFromDatabase(tag, result.Result.GetString(1), result.Result.GetFloat(2));
-        }
-      }
-    }
-
-    [ScriptHandler("on_elc_check")]
-    private void HandleELCValidation(CallInfo callInfo)
-    {
-      int characterId = ObjectPlugin.GetInt(callInfo.ObjectSelf, "characterId");
-      if (characterId > 0)
-      {
-        ElcPlugin.SkipValidationFailure();
-      }
-      else
-      {
-        int validationFailureType = ElcPlugin.GetValidationFailureType();
-        int validationFailureSubType = ElcPlugin.GetValidationFailureSubType();
-
-        if (callInfo.ObjectSelf is NwCreature oPC)
-        {
-          
-          if (validationFailureType == ElcPlugin.NWNX_ELC_VALIDATION_FAILURE_TYPE_CHARACTER && validationFailureSubType == 15 && oPC.GetAbilityScore(API.Constants.Ability.Intelligence, true) < 11)
-            ElcPlugin.SkipValidationFailure();
-          else
-            Utils.LogMessageToDMs($"ELC VALIDATION FAILURE - Player {oPC.ControllingPlayer.PlayerName} - Character {oPC.Name} - type : {validationFailureType} - SubType : {validationFailureSubType}");
-        }
-      }
     }
     public static async Task DeleteExpiredMail()
     {

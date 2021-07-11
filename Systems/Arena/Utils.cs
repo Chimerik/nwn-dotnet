@@ -144,7 +144,7 @@ namespace NWN.Systems.Arena
     {
       CancellationTokenSource tokenSource = new CancellationTokenSource();
 
-      Task malusSelected = NwTask.WaitUntil(() => player.oid.LoginCreature.GetLocalVariable<int>("_ARENA_MALUS_APPLIED").HasValue, tokenSource.Token);
+      Task malusSelected = NwTask.WaitUntil(() => player.oid.LoginCreature.GetObjectVariable<LocalVariableInt>("_ARENA_MALUS_APPLIED").HasValue, tokenSource.Token);
       Task waitingForSelection = NwTask.Delay(TimeSpan.FromSeconds(0.2), tokenSource.Token);
 
       await NwTask.WhenAny(malusSelected, waitingForSelection);
@@ -152,7 +152,7 @@ namespace NWN.Systems.Arena
 
       if (malusSelected.IsCompletedSuccessfully)
       {
-        player.oid.LoginCreature.GetLocalVariable<int>("_ARENA_MALUS_APPLIED").Delete();
+        player.oid.LoginCreature.GetObjectVariable<LocalVariableInt>("_ARENA_MALUS_APPLIED").Delete();
         return;
       }
 
@@ -176,7 +176,7 @@ namespace NWN.Systems.Arena
     }
     public static void ApplyArenaMalus(Player player, uint malus)
     {
-      player.oid.LoginCreature.GetLocalVariable<int>("_ARENA_MALUS_APPLIED").Value = 1;
+      player.oid.LoginCreature.GetObjectVariable<LocalVariableInt>("_ARENA_MALUS_APPLIED").Value = 1;
       player.pveArena.currentMalus = malus;
       player.menu.Close();
 

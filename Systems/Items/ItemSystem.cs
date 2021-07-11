@@ -56,17 +56,17 @@ namespace NWN.Systems
       if (oPC.Inventory.CheckFit(oItem))
         return;
 
-      if (oPC.GetLocalVariable<int>("CUSTOM_EFFECT_NOARMOR").HasValue
-        || oPC.GetLocalVariable<int>("CUSTOM_EFFECT_NOWEAPON").HasValue
-        || oPC.GetLocalVariable<int>("CUSTOM_EFFECT_NOACCESSORY").HasValue
-        || oItem.GetLocalVariable<int>("_DURABILITY") <= 0)
+      if (oPC.GetObjectVariable<LocalVariableInt>("CUSTOM_EFFECT_NOARMOR").HasValue
+        || oPC.GetObjectVariable<LocalVariableInt>("CUSTOM_EFFECT_NOWEAPON").HasValue
+        || oPC.GetObjectVariable<LocalVariableInt>("CUSTOM_EFFECT_NOACCESSORY").HasValue
+        || oItem.GetObjectVariable<LocalVariableInt>("_DURABILITY") <= 0)
       {
         oPC.ControllingPlayer.SendServerMessage($"Attention, votre inventaire est plein. Votre {oItem.Name} a été déposé au sol !", ColorConstants.Red);
         oItem.Clone(oPC.Location);
         oItem.Destroy();
-        oPC.GetLocalVariable<int>("CUSTOM_EFFECT_NOARMOR").Delete();
-        oPC.GetLocalVariable<int>("CUSTOM_EFFECT_NOWEAPON").Delete();
-        oPC.GetLocalVariable<int>("CUSTOM_EFFECT_NOACCESSORY").Delete();
+        oPC.GetObjectVariable<LocalVariableInt>("CUSTOM_EFFECT_NOARMOR").Delete();
+        oPC.GetObjectVariable<LocalVariableInt>("CUSTOM_EFFECT_NOWEAPON").Delete();
+        oPC.GetObjectVariable<LocalVariableInt>("CUSTOM_EFFECT_NOACCESSORY").Delete();
       }
       else
         oPC.ControllingPlayer.SendServerMessage($"Attention, votre inventaire est plein. Vous risqueriez de perdre votre {oItem.Name} en déséquipant !", ColorConstants.Red);
@@ -168,11 +168,11 @@ namespace NWN.Systems
       if (oPC.ControllingPlayer == null || oItem == null)
         return;
 
-      if (oItem.GetLocalVariable<int>("_MAX_DURABILITY").HasNothing)
+      if (oItem.GetObjectVariable<LocalVariableInt>("_MAX_DURABILITY").HasNothing)
       {
         int durability = ItemUtils.GetBaseItemCost(oItem) * 25;
-        oItem.GetLocalVariable<int>("_MAX_DURABILITY").Value = durability;
-        oItem.GetLocalVariable<int>("_DURABILITY").Value = durability;
+        oItem.GetObjectVariable<LocalVariableInt>("_MAX_DURABILITY").Value = durability;
+        oItem.GetObjectVariable<LocalVariableInt>("_DURABILITY").Value = durability;
       }
 
       if (oItem.Tag == "undroppable_item")
@@ -184,9 +184,9 @@ namespace NWN.Systems
 
       if (oItem.Tag == "item_pccorpse" && oAcquiredFrom?.Tag == "pccorpse_bodybag")
       {
-        PlayerSystem.DeletePlayerCorpseFromDatabase(oItem.GetLocalVariable<int>("_PC_ID").Value);
+        PlayerSystem.DeletePlayerCorpseFromDatabase(oItem.GetObjectVariable<LocalVariableInt>("_PC_ID").Value);
 
-        NwCreature oCorpse = NwObject.FindObjectsWithTag<NwCreature>("pccorpse").Where(c => c.GetLocalVariable<int>("_PC_ID").Value == oItem.GetLocalVariable<int>("_PC_ID")).FirstOrDefault();
+        NwCreature oCorpse = NwObject.FindObjectsWithTag<NwCreature>("pccorpse").Where(c => c.GetObjectVariable<LocalVariableInt>("_PC_ID").Value == oItem.GetObjectVariable<LocalVariableInt>("_PC_ID")).FirstOrDefault();
         if(oCorpse != null)
           oCorpse.Destroy();
         oAcquiredFrom.Destroy();
@@ -206,14 +206,14 @@ namespace NWN.Systems
 
       if (oItem.Tag == "item_pccorpse" && oGivenTo == null) // signifie que l'item a été drop au sol et pas donné à un autre PJ ou mis dans un placeable
       {
-        NwCreature oCorpse = NwCreature.Deserialize(oItem.GetLocalVariable<string>("_SERIALIZED_CORPSE").Value.ToByteArray());
+        NwCreature oCorpse = NwCreature.Deserialize(oItem.GetObjectVariable<LocalVariableString>("_SERIALIZED_CORPSE").Value.ToByteArray());
         oCorpse.Location = oItem.Location;
         Utils.DestroyInventory(oCorpse);
         oCorpse.AcquireItem(oItem);
         VisibilityPlugin.SetVisibilityOverride(NWScript.OBJECT_INVALID, oCorpse, VisibilityPlugin.NWNX_VISIBILITY_HIDDEN);
         PlayerSystem.SetupPCCorpse(oCorpse);
 
-        PlayerSystem.SavePlayerCorpseToDatabase(oItem.GetLocalVariable<int>("_PC_ID").Value, oCorpse);
+        PlayerSystem.SavePlayerCorpseToDatabase(oItem.GetObjectVariable<LocalVariableInt>("_PC_ID").Value, oCorpse);
       }
 
       //En pause jusqu'à ce que le système de transport soit en place
@@ -254,7 +254,7 @@ namespace NWN.Systems
     }
     public static void NoEquipRuinedItem(OnItemValidateEquip onItemValidateEquip)
     {
-      if (onItemValidateEquip.Item.GetLocalVariable<int>("_MAX_DURABILITY").HasValue && onItemValidateEquip.Item.GetLocalVariable<int>("_DURABILITY") <= 0)
+      if (onItemValidateEquip.Item.GetObjectVariable<LocalVariableInt>("_MAX_DURABILITY").HasValue && onItemValidateEquip.Item.GetObjectVariable<LocalVariableInt>("_DURABILITY") <= 0)
       {
         onItemValidateEquip.Result = EquipValidationResult.Denied;
         onItemValidateEquip.UsedBy.ControllingPlayer.SendServerMessage($"{onItemValidateEquip.Item.Name} nécessite des réparations.", ColorConstants.Red);
@@ -262,7 +262,7 @@ namespace NWN.Systems
     }
     public static void NoUseRuinedItem(OnItemValidateUse onItemValidateUse)
     {
-      if (onItemValidateUse.Item.GetLocalVariable<int>("_MAX_DURABILITY").HasValue && onItemValidateUse.Item.GetLocalVariable<int>("_DURABILITY") <= 0)
+      if (onItemValidateUse.Item.GetObjectVariable<LocalVariableInt>("_MAX_DURABILITY").HasValue && onItemValidateUse.Item.GetObjectVariable<LocalVariableInt>("_DURABILITY") <= 0)
         onItemValidateUse.CanUse = false;
     }
   }

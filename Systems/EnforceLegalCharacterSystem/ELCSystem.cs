@@ -1,5 +1,8 @@
-﻿using NLog;
+﻿using System.Collections.Generic;
 
+using NLog;
+
+using NWN.API;
 using NWN.Core.NWNX;
 using NWN.Services;
 
@@ -8,7 +11,7 @@ namespace NWN.Systems
   [ServiceBinding(typeof(ELCSystem))]
   public class ELCSystem
   {
-    /*public static readonly Logger Log = LogManager.GetCurrentClassLogger();
+    public static readonly Logger Log = LogManager.GetCurrentClassLogger();
     public readonly EnforceLegalCharacterService elcService;
     public ELCSystem(EnforceLegalCharacterService elcService)
     {
@@ -22,7 +25,7 @@ namespace NWN.Systems
     {
       Log.Info($"{onELCSuccess.Player.PlayerName} ELC check OK");
 
-      int characterId = ObjectPlugin.GetInt(onELCSuccess.Player.ControlledCreature, "characterId");
+      int characterId = onELCSuccess.Player.ControlledCreature.GetObjectVariable<PersistentVariableInt>("characterId").Value;
 
       if (characterId > 0)
       {
@@ -43,26 +46,26 @@ namespace NWN.Systems
     }
     private void onELCValidationFailure(OnELCValidationFailure onELCFailure)
     {
-      /*onELCFailure.on
-      int characterId = ObjectPlugin.GetInt(callInfo.ObjectSelf, "characterId");
-      if (characterId > 0)
+      NwCreature oPC = onELCFailure.Player.ControlledCreature;
+      Log.Info("on elc failure");
+      Log.Info($"Anvil.Value : {oPC.GetObjectVariable<PersistentVariableInt>("characterId").Value}");
+      Log.Info($"Anvil.HasValue : {oPC.GetObjectVariable<PersistentVariableInt>("characterId").HasValue}");
+
+      if (oPC.GetObjectVariable<PersistentVariableInt>("characterId").HasValue)
       {
-        ElcPlugin.SkipValidationFailure();
+        onELCFailure.IgnoreFailure = true;
       }
       else
       {
-        int validationFailureType = ElcPlugin.GetValidationFailureType();
-        int validationFailureSubType = ElcPlugin.GetValidationFailureSubType();
-
-        if (callInfo.ObjectSelf is NwCreature oPC)
+        if (onELCFailure.Type == ValidationFailureType.Character && onELCFailure.SubType == ValidationFailureSubType.ClassSpellcasterInvalidPrimaryStat && oPC.GetAbilityScore(API.Constants.Ability.Intelligence, true) < 11)
+          onELCFailure.IgnoreFailure = true;
+        else
         {
-
-          if (validationFailureType == ElcPlugin.NWNX_ELC_VALIDATION_FAILURE_TYPE_CHARACTER && validationFailureSubType == 15 && oPC.GetAbilityScore(API.Constants.Ability.Intelligence, true) < 11)
-            ElcPlugin.SkipValidationFailure();
-          else
-            Utils.LogMessageToDMs($"ELC VALIDATION FAILURE - Player {oPC.ControllingPlayer.PlayerName} - Character {oPC.Name} - type : {validationFailureType} - SubType : {validationFailureSubType}");
+          string failureMessage = $"ELC VALIDATION FAILURE - Player {onELCFailure.Player.PlayerName} - Character {oPC.Name} - type : {onELCFailure.Type} - SubType : {onELCFailure.SubType}";
+          Log.Info(failureMessage);
+          Utils.LogMessageToDMs(failureMessage);
         }
       }
-    }*/
+    }
   }
 }

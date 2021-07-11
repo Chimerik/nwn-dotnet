@@ -26,9 +26,9 @@ namespace NWN.Systems
       {
         case BaseItemType.Armor:
 
-          if (item.GetLocalVariable<string>("_ITEM_MATERIAL").HasValue
-            && Enum.TryParse(item.GetLocalVariable<string>("_ITEM_MATERIAL").Value, out OreType myOreType) && myOreType != OreType.Invalid)
-            material = item.GetLocalVariable<string>("_ITEM_MATERIAL").Value;
+          if (item.GetObjectVariable<LocalVariableString>("_ITEM_MATERIAL").HasValue
+            && Enum.TryParse(item.GetObjectVariable<LocalVariableString>("_ITEM_MATERIAL").Value, out OreType myOreType) && myOreType != OreType.Invalid)
+            material = item.GetObjectVariable<LocalVariableString>("_ITEM_MATERIAL").Value;
           else
           {
             switch(item.BaseACValue)
@@ -81,9 +81,9 @@ namespace NWN.Systems
         case (BaseItemType)114:
         case (BaseItemType)115:
 
-          if (item.GetLocalVariable<string>("_ITEM_MATERIAL").HasValue
-            && Enum.TryParse(item.GetLocalVariable<string>("_ITEM_MATERIAL").Value, out OreType myOre) && myOre != OreType.Invalid)
-            material = item.GetLocalVariable<string>("_ITEM_MATERIAL").Value;
+          if (item.GetObjectVariable<LocalVariableString>("_ITEM_MATERIAL").HasValue
+            && Enum.TryParse(item.GetObjectVariable<LocalVariableString>("_ITEM_MATERIAL").Value, out OreType myOre) && myOre != OreType.Invalid)
+            material = item.GetObjectVariable<LocalVariableString>("_ITEM_MATERIAL").Value;
           else
             material = "Tritanium";
 
@@ -104,9 +104,9 @@ namespace NWN.Systems
         case BaseItemType.SmallShield:
         case BaseItemType.Club:
 
-          if (item.GetLocalVariable<string>("_ITEM_MATERIAL").HasValue
-            && Enum.TryParse(item.GetLocalVariable<string>("_ITEM_MATERIAL").Value, out WoodType myWoodType) && myWoodType != WoodType.Invalid)
-            material = item.GetLocalVariable<string>("_ITEM_MATERIAL").Value;
+          if (item.GetObjectVariable<LocalVariableString>("_ITEM_MATERIAL").HasValue
+            && Enum.TryParse(item.GetObjectVariable<LocalVariableString>("_ITEM_MATERIAL").Value, out WoodType myWoodType) && myWoodType != WoodType.Invalid)
+            material = item.GetObjectVariable<LocalVariableString>("_ITEM_MATERIAL").Value;
           else
             material = "Laurelinade";
 
@@ -120,9 +120,9 @@ namespace NWN.Systems
         case BaseItemType.Gloves:
         case BaseItemType.Whip:
 
-          if (item.GetLocalVariable<string>("_ITEM_MATERIAL").HasValue
-            && Enum.TryParse(item.GetLocalVariable<string>("_ITEM_MATERIAL").Value, out PeltType myPeltType) && myPeltType != PeltType.Invalid)
-            material = item.GetLocalVariable<string>("_ITEM_MATERIAL").Value;
+          if (item.GetObjectVariable<LocalVariableString>("_ITEM_MATERIAL").HasValue
+            && Enum.TryParse(item.GetObjectVariable<LocalVariableString>("_ITEM_MATERIAL").Value, out PeltType myPeltType) && myPeltType != PeltType.Invalid)
+            material = item.GetObjectVariable<LocalVariableString>("_ITEM_MATERIAL").Value;
           else
             material = "MauvaisCuir";
 

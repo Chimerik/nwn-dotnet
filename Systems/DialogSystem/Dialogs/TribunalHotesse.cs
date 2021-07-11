@@ -21,7 +21,7 @@ namespace NWN.Systems
       if (shop == null)
       {
         shop = NwStore.Create("generic_shop_res", magicshop.Location, false, "magic_shop");
-        shop.GetLocalVariable<NwObject>("_STORE_NPC").Value = magicshop;
+        shop.GetObjectVariable<LocalVariableObject<NwCreature>>("_STORE_NPC").Value = magicshop;
 
         foreach (int itemPropertyId in SkillSystem.shopBasicMagicScrolls)
         {
@@ -37,7 +37,7 @@ namespace NWN.Systems
         {
           NwItem skillBook = await NwItem.Create("skillbookgeneriq", shop, 1, "skillbook");
           skillBook.Appearance.SetSimpleModel((byte)Utils.random.Next(0, 50));
-          skillBook.GetLocalVariable<int>("_SKILL_ID").Value = (int)feat;
+          skillBook.GetObjectVariable<LocalVariableInt>("_SKILL_ID").Value = (int)feat;
 
           FeatTable.Entry entry = Feat2da.featTable.GetFeatDataEntry(feat);
 

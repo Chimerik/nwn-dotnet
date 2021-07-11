@@ -44,8 +44,8 @@ namespace NWN.Systems
 
       if (awaitedValue)
       {
-        vfxName = player.oid.LoginCreature.GetLocalVariable<string>("_PLAYER_INPUT").Value;
-        player.oid.LoginCreature.GetLocalVariable<string>("_PLAYER_INPUT").Delete();
+        vfxName = player.oid.LoginCreature.GetObjectVariable<LocalVariableString>("_PLAYER_INPUT").Value;
+        player.oid.LoginCreature.GetObjectVariable<LocalVariableString>("_PLAYER_INPUT").Delete();
         AskVFXId();
       }
     }
@@ -63,8 +63,8 @@ namespace NWN.Systems
 
       if (awaitedValue)
       {
-        vfxId = int.Parse(player.oid.LoginCreature.GetLocalVariable<string>("_PLAYER_INPUT").Value);
-        player.oid.LoginCreature.GetLocalVariable<string>("_PLAYER_INPUT").Delete();
+        vfxId = int.Parse(player.oid.LoginCreature.GetObjectVariable<LocalVariableString>("_PLAYER_INPUT").Value);
+        player.oid.LoginCreature.GetObjectVariable<LocalVariableString>("_PLAYER_INPUT").Delete();
         SaveVFX();
       }
     }
@@ -83,8 +83,8 @@ namespace NWN.Systems
 
       if (awaitedValue)
       {
-        vfxId = int.Parse(player.oid.LoginCreature.GetLocalVariable<string>("_PLAYER_INPUT").Value);
-        player.oid.LoginCreature.GetLocalVariable<string>("_PLAYER_INPUT").Delete();
+        vfxId = int.Parse(player.oid.LoginCreature.GetObjectVariable<LocalVariableString>("_PLAYER_INPUT").Value);
+        player.oid.LoginCreature.GetObjectVariable<LocalVariableString>("_PLAYER_INPUT").Delete();
 
         SqLiteUtils.InsertQuery("dmVFXDuration",
           new List<string[]>() { new string[] { "playerName", player.oid.PlayerName }, new string[] { "vfxDuration", vfxName } },

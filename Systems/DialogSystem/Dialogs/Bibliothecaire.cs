@@ -18,23 +18,23 @@ namespace NWN.Systems
     }
     private async void HandleBiblitohecaire(Player player, NwCreature bibliothecaire)
     { 
-      if(bibliothecaire.Area.GetLocalVariable<int>("_CANT_TRIGGER").HasNothing)
+      if(bibliothecaire.Area.GetObjectVariable<LocalVariableInt>("_CANT_TRIGGER").HasNothing)
       {
-        bibliothecaire.GetLocalVariable<int>("_CANT_TRIGGER").Value = 1;
+        bibliothecaire.GetObjectVariable<LocalVariableInt>("_CANT_TRIGGER").Value = 1;
 
         NwStore shop = bibliothecaire.GetNearestObjectsByType<NwStore>().Where(s => s.Tag == "bibliothecaire_shop").FirstOrDefault();
 
         if (shop == null)
           shop = NwStore.Create("generic_shop_res", bibliothecaire.Location, false, "bibliothecaire_shop");
 
-        shop.GetLocalVariable<NwObject>("_STORE_NPC").Value = bibliothecaire;
+        shop.GetObjectVariable<LocalVariableObject<NwCreature>>("_STORE_NPC").Value = bibliothecaire;
 
         if (Utils.random.Next(1, 101) < 21)
         {
           Feat feat = SkillSystem.languageSkillBooks[Utils.random.Next(0, SkillSystem.languageSkillBooks.Length)];
           NwItem skillBook = await NwItem.Create("skillbookgeneriq", shop, 1 , "skillbook");
           skillBook.Appearance.SetSimpleModel((byte)Utils.random.Next(0, 50));
-          skillBook.GetLocalVariable<int>("_SKILL_ID").Value = (int)feat;
+          skillBook.GetObjectVariable<LocalVariableInt>("_SKILL_ID").Value = (int)feat;
 
           FeatTable.Entry featEntry = Feat2da.featTable.GetFeatDataEntry(feat);
           skillBook.Name = featEntry.name;
@@ -56,7 +56,7 @@ namespace NWN.Systems
         Task task = NwTask.Run(async () =>
         {
           await NwTask.Delay(TimeSpan.FromHours(4));
-          bibliothecaire.Area.GetLocalVariable<int>("_CANT_TRIGGER").Delete();
+          bibliothecaire.Area.GetObjectVariable<LocalVariableInt>("_CANT_TRIGGER").Delete();
           return true;
         });
       }

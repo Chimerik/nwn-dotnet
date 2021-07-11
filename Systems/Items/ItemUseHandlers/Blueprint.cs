@@ -8,7 +8,7 @@ namespace NWN.Systems.Items.ItemUseHandlers
   {
     public static void HandleActivate(NwItem oBlueprint, NwCreature oPC, NwGameObject oTarget)
     {
-      int baseItemType = oBlueprint.GetLocalVariable<int>("_BASE_ITEM_TYPE").Value;
+      int baseItemType = oBlueprint.GetObjectVariable<LocalVariableInt>("_BASE_ITEM_TYPE").Value;
 
       if (!Craft.Collect.System.blueprintDictionnary.TryGetValue(baseItemType, out Craft.Blueprint blueprint))
       {
@@ -48,7 +48,7 @@ namespace NWN.Systems.Items.ItemUseHandlers
         return;
       }
 
-      if (oTarget.GetLocalVariable<int>("_DURABILITY").Value > 0 || oTarget is NwPlaceable)
+      if (oTarget.GetObjectVariable<LocalVariableInt>("_DURABILITY").Value > 0 || oTarget is NwPlaceable)
         player.craftJob.Start(Craft.Job.JobType.Item, blueprint, player, oBlueprint, oTarget, sMaterial);
       else
         player.craftJob.Start(Craft.Job.JobType.Repair, blueprint, player, oBlueprint, oTarget, sMaterial);

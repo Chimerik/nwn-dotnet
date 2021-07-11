@@ -109,9 +109,9 @@ namespace NWN.Systems.Craft.Collect
 
     public static void StartCollectCycle(PlayerSystem.Player player, Action completeCallback, NwGameObject oTarget = null)
     {
-      if (player.oid.LoginCreature.GetLocalVariable<int>("_COLLECT_IN_PROGRESS").HasValue)
+      if (player.oid.LoginCreature.GetObjectVariable<LocalVariableInt>("_COLLECT_IN_PROGRESS").HasValue)
       {
-        player.oid.LoginCreature.GetLocalVariable<int>("_COLLECT_CANCELLED").Value = 1;
+        player.oid.LoginCreature.GetObjectVariable<LocalVariableInt>("_COLLECT_CANCELLED").Value = 1;
         player.oid.SendServerMessage("Annulation de la tâche en cours.", ColorConstants.Orange);
         return;
       }
@@ -123,7 +123,7 @@ namespace NWN.Systems.Craft.Collect
       
       if (resourceExtractor != null) // TODO : Idée pour plus tard, le strip miner le plus avancé pourra équipper un cristal de spécialisation pour extraire deux fois plus de minerai en un cycle sur son minerai de spécialité
       {
-        cycleDuration = cycleDuration - (cycleDuration * resourceExtractor.GetLocalVariable<int>("_ITEM_LEVEL").Value * 2 / 100);
+        cycleDuration = cycleDuration - (cycleDuration * resourceExtractor.GetObjectVariable<LocalVariableInt>("_ITEM_LEVEL").Value * 2 / 100);
       }
       
       if (oTarget != null)
@@ -144,10 +144,10 @@ namespace NWN.Systems.Craft.Collect
       
       Task waitForCollectCompletion = NwTask.Run(async () =>
       {
-        player.oid.LoginCreature.GetLocalVariable<int>("_COLLECT_IN_PROGRESS").Value = 1;
+        player.oid.LoginCreature.GetObjectVariable<LocalVariableInt>("_COLLECT_IN_PROGRESS").Value = 1;
 
         CancellationTokenSource tokenSource = new CancellationTokenSource();
-        Task collectCancelled = NwTask.WaitUntil(() => player.oid.LoginCreature.GetLocalVariable<int>("_COLLECT_CANCELLED").Value == 1, tokenSource.Token);
+        Task collectCancelled = NwTask.WaitUntil(() => player.oid.LoginCreature.GetObjectVariable<LocalVariableInt>("_COLLECT_CANCELLED").Value == 1, tokenSource.Token);
         Task onMovementCancelCollect = NwTask.WaitUntilValueChanged(() => player.oid.LoginCreature.Position, tokenSource.Token);
         Task collectCompleted = NwTask.Delay(TimeSpan.FromSeconds(cycleDuration), tokenSource.Token);
         await NwTask.WhenAny(collectCancelled, onMovementCancelCollect, collectCompleted);
@@ -155,7 +155,7 @@ namespace NWN.Systems.Craft.Collect
 
         if (collectCancelled.IsCompletedSuccessfully || onMovementCancelCollect.IsCompletedSuccessfully)
         {
-          player.oid.LoginCreature.GetLocalVariable<int>("_COLLECT_CANCELLED").Delete();
+          player.oid.LoginCreature.GetObjectVariable<LocalVariableInt>("_COLLECT_CANCELLED").Delete();
 
           if (oTarget != null)
             Utils.RemoveTaggedEffect(oTarget, $"_{player.oid.CDKey}_MINING_BEAM");
@@ -163,20 +163,20 @@ namespace NWN.Systems.Craft.Collect
           RemoveCollectCycleCallbacks(player.oid);
           PlayerPlugin.StopGuiTimingBar(player.oid.LoginCreature);
     
-          player.oid.LoginCreature.GetLocalVariable<int>("_COLLECT_IN_PROGRESS").Delete();
+          player.oid.LoginCreature.GetObjectVariable<LocalVariableInt>("_COLLECT_IN_PROGRESS").Delete();
           return;
         }
 
         completeCallback();
         RemoveCollectCycleCallbacks(player.oid);
         PlayerPlugin.StopGuiTimingBar(player.oid.LoginCreature);
-        player.oid.LoginCreature.GetLocalVariable<int>("_COLLECT_IN_PROGRESS").Delete();
+        player.oid.LoginCreature.GetObjectVariable<LocalVariableInt>("_COLLECT_IN_PROGRESS").Delete();
       });
     }
     private static void OnDisconnectCancelCollect(OnClientDisconnect onDisconnect)
     {
-      onDisconnect.Player.LoginCreature.GetLocalVariable<int>("_COLLECT_CANCELLED").Delete();
-      onDisconnect.Player.LoginCreature.GetLocalVariable<int>("_COLLECT_IN_PROGRESS").Delete();
+      onDisconnect.Player.LoginCreature.GetObjectVariable<LocalVariableInt>("_COLLECT_CANCELLED").Delete();
+      onDisconnect.Player.LoginCreature.GetObjectVariable<LocalVariableInt>("_COLLECT_IN_PROGRESS").Delete();
       RemoveCollectCycleCallbacks(onDisconnect.Player);
       PlayerPlugin.StopGuiTimingBar(onDisconnect.Player.LoginCreature);
     }
@@ -203,7 +203,7 @@ namespace NWN.Systems.Craft.Collect
         craftedItem.Name.Remove(previousMaterialNamePosition);
 
       craftedItem.Name = $"{craftedItem.Name} en {name}";
-      craftedItem.GetLocalVariable<string>("_ITEM_MATERIAL").Value = material;
+      craftedItem.GetObjectVariable<LocalVariableString>("_ITEM_MATERIAL").Value = material;
       
       foreach (ItemProperty ip in GetCraftItemProperties(material, craftedItem))
       {

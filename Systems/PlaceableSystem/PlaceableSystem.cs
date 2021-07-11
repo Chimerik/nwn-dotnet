@@ -61,7 +61,7 @@ namespace NWN.Systems
       {
         trainer.MaxHP = 9999;
         trainer.HP = 9999;
-        trainer.BaseAC = (sbyte)trainer.GetLocalVariable<int>("AC").Value;
+        trainer.BaseAC = (sbyte)trainer.GetObjectVariable<LocalVariableInt>("AC").Value;
 
         trainer.OnConversation += HandleCancelStatueConversation;
         trainer.OnSpawn += HandleSpawnTrainingDummy;
@@ -93,15 +93,15 @@ namespace NWN.Systems
         usedSwing.OnUsed -= OnUsedBalancoire;
         usedSwing.OnLeftClick += OnClickSwingBalancoire;
 
-        usedSwing.GetLocalVariable<NwObject>("_SWING_TARGET").Value = oPC;
+        usedSwing.GetObjectVariable<LocalVariableObject<NwCreature>>("_SWING_TARGET").Value = oPC;
 
         Task onMovementCancelSwing = NwTask.Run(async () =>
         {
           await NwTask.Delay(TimeSpan.FromSeconds(1));
           await NwTask.WaitUntilValueChanged(() => oPC.Position);
 
-          usedSwing.GetLocalVariable<NwObject>("_SWING_TARGET").Delete();
-          usedSwing.GetLocalVariable<int>("_IS_SWINGING").Delete();
+          usedSwing.GetObjectVariable<LocalVariableObject<NwCreature>>("_SWING_TARGET").Delete();
+          usedSwing.GetObjectVariable<LocalVariableInt>("_IS_SWINGING").Delete();
 
           VisualTransformLerpSettings vtLerpSettings = new VisualTransformLerpSettings 
           {
@@ -131,11 +131,11 @@ namespace NWN.Systems
     public static void OnClickSwingBalancoire(PlaceableEvents.OnLeftClick onClick)
     {
       NwPlaceable swing = onClick.Placeable;
-      NwCreature oPC = (NwCreature)onClick.Placeable.GetLocalVariable<NwObject>("_SWING_TARGET").Value;
+      NwCreature oPC = onClick.Placeable.GetObjectVariable<LocalVariableObject<NwCreature>>("_SWING_TARGET").Value;
 
-      if (swing.GetLocalVariable<int>("_IS_SWINGING").HasValue)
+      if (swing.GetObjectVariable<LocalVariableInt>("_IS_SWINGING").HasValue)
       {
-        swing.GetLocalVariable<int>("_IS_SWINGING").Delete();
+        swing.GetObjectVariable<LocalVariableInt>("_IS_SWINGING").Delete();
 
         Task waitSwingEnd = NwTask.Run(async () =>
         {
@@ -164,7 +164,7 @@ namespace NWN.Systems
       }
       else
       {
-        swing.GetLocalVariable<int>("_IS_SWINGING").Value = 1;
+        swing.GetObjectVariable<LocalVariableInt>("_IS_SWINGING").Value = 1;
 
         VisualTransformLerpSettings vtLerpSettings = new VisualTransformLerpSettings
         {
@@ -189,7 +189,7 @@ namespace NWN.Systems
         Task waitLoopEnd = NwTask.Run(async () =>
         {
           await NwTask.Delay(TimeSpan.FromSeconds(2));
-          if(swing.GetLocalVariable<int>("_IS_SWINGING").HasValue)
+          if(swing.GetObjectVariable<LocalVariableInt>("_IS_SWINGING").HasValue)
             HandleSwing(swing, oPC);
         });
       }
@@ -220,14 +220,14 @@ namespace NWN.Systems
       {
         await NwTask.Delay(TimeSpan.FromSeconds(2));
 
-        if (swing.GetLocalVariable<int>("_IS_SWINGING").HasValue)
+        if (swing.GetObjectVariable<LocalVariableInt>("_IS_SWINGING").HasValue)
           HandleSwing(swing, oPC);
       });
     }
     public static void HandleCleanDMPLC(PlaceableEvents.OnDeath onDeath)
     {
       NwPlaceable plc = onDeath.KilledObject;
-      int plcID = plc.GetLocalVariable<int>("_ID").Value;
+      int plcID = plc.GetObjectVariable<LocalVariableInt>("_ID").Value;
       if (plcID > 0)
       {
         SqLiteUtils.DeletionQuery("dm_persistant_placeable",
@@ -255,15 +255,15 @@ namespace NWN.Systems
           break;
         case "theater_rope":
           int visibilty;
-          if (onUsed.UsedBy.Area.GetLocalVariable<int>("_THEATER_CURTAIN_OPEN").HasNothing)
+          if (onUsed.UsedBy.Area.GetObjectVariable<LocalVariableInt>("_THEATER_CURTAIN_OPEN").HasNothing)
           {
             visibilty = VisibilityPlugin.NWNX_VISIBILITY_HIDDEN;
-            onUsed.UsedBy.Area.GetLocalVariable<int>("_THEATER_CURTAIN_OPEN").Value = 1;
+            onUsed.UsedBy.Area.GetObjectVariable<LocalVariableInt>("_THEATER_CURTAIN_OPEN").Value = 1;
           }
           else
           {
             visibilty = VisibilityPlugin.NWNX_VISIBILITY_VISIBLE;
-            onUsed.UsedBy.Area.GetLocalVariable<int>("_THEATER_CURTAIN_OPEN").Delete();
+            onUsed.UsedBy.Area.GetObjectVariable<LocalVariableInt>("_THEATER_CURTAIN_OPEN").Delete();
           }
 
           foreach (NwPlaceable plc in onUsed.UsedBy.Area.FindObjectsOfTypeInArea<NwPlaceable>().Where(o => o.Tag == "theater_curtain"))
@@ -357,13 +357,13 @@ namespace NWN.Systems
       if (!Players.TryGetValue(onUsed.UsedBy, out Player player))
         return;
 
-      if (onUsed.Placeable.GetLocalVariable<int>("_OWNER_ID").Value == player.characterId)
+      if (onUsed.Placeable.GetObjectVariable<LocalVariableInt>("_OWNER_ID").Value == player.characterId)
       {
         PlayerOwnedShop.DrawMainPage(player, onUsed.Placeable);
       }
       else
       {
-        NwStore shop = onUsed.Placeable.GetNearestObjectsByType<NwStore>().FirstOrDefault(s => s.GetLocalVariable<int>("_SHOP_ID").Value == onUsed.Placeable.GetLocalVariable<int>("_SHOP_ID").Value);
+        NwStore shop = onUsed.Placeable.GetNearestObjectsByType<NwStore>().FirstOrDefault(s => s.GetObjectVariable<LocalVariableInt>("_SHOP_ID").Value == onUsed.Placeable.GetObjectVariable<LocalVariableInt>("_SHOP_ID").Value);
         
         if (shop == null)
         {
@@ -381,13 +381,13 @@ namespace NWN.Systems
       if (!Players.TryGetValue(onUsed.UsedBy, out Player player))
         return;
 
-      if (onUsed.Placeable.GetLocalVariable<int>("_OWNER_ID").Value == player.characterId)
+      if (onUsed.Placeable.GetObjectVariable<LocalVariableInt>("_OWNER_ID").Value == player.characterId)
       {
         PlayerOwnedAuction.DrawMainPage(player, onUsed.Placeable);
       }
       else
       {
-        NwStore shop = onUsed.Placeable.GetNearestObjectsByType<NwStore>().FirstOrDefault(s => s.GetLocalVariable<int>("_AUCTION_ID").Value == onUsed.Placeable.GetLocalVariable<int>("_AUCTION_ID").Value);
+        NwStore shop = onUsed.Placeable.GetNearestObjectsByType<NwStore>().FirstOrDefault(s => s.GetObjectVariable<LocalVariableInt>("_AUCTION_ID").Value == onUsed.Placeable.GetObjectVariable<LocalVariableInt>("_AUCTION_ID").Value);
 
         if (shop == null)
         {
@@ -415,7 +415,7 @@ namespace NWN.Systems
       }
 
       storage.Tag = "_PLAYER_STORAGE";
-      storage.GetLocalVariable<int>("_OWNER_ID").Value = player.characterId;
+      storage.GetObjectVariable<LocalVariableInt>("_OWNER_ID").Value = player.characterId;
       storage.OnOpen += StoreSystem.OnOpenPersonnalStorage;
       storage.Open(player.oid);
     }
@@ -424,10 +424,10 @@ namespace NWN.Systems
       if (!Players.TryGetValue(onUsed.UsedBy, out Player player))
         return;
 
-      if (onUsed.Placeable.GetLocalVariable<int>("_AVAILABLE_SLOTS").HasNothing)
-        onUsed.Placeable.GetLocalVariable<int>("_AVAILABLE_SLOTS").Value = 2;
+      if (onUsed.Placeable.GetObjectVariable<LocalVariableInt>("_AVAILABLE_SLOTS").HasNothing)
+        onUsed.Placeable.GetObjectVariable<LocalVariableInt>("_AVAILABLE_SLOTS").Value = 2;
 
-      int availableSlots = onUsed.Placeable.GetLocalVariable<int>("_AVAILABLE_SLOTS").Value;
+      int availableSlots = onUsed.Placeable.GetObjectVariable<LocalVariableInt>("_AVAILABLE_SLOTS").Value;
 
       if (availableSlots == 0)
       {
@@ -436,8 +436,8 @@ namespace NWN.Systems
       }
       else if(availableSlots == 1)
       {
-        onUsed.Placeable.GetLocalVariable<int>("_AVAILABLE_SLOTS").Value = 0;
-        onUsed.Placeable.GetLocalVariable<NwObject>("_PLAYER_TWO").Value = player.oid.ControlledCreature;
+        onUsed.Placeable.GetObjectVariable<LocalVariableInt>("_AVAILABLE_SLOTS").Value = 0;
+        onUsed.Placeable.GetObjectVariable<LocalVariableObject<NwCreature>>("_PLAYER_TWO").Value = player.oid.ControlledCreature;
       }
       else if (availableSlots == 2)
       {

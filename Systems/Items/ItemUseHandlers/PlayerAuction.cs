@@ -30,10 +30,10 @@ namespace NWN.Systems
       NwPlaceable plcShop = NwPlaceable.Create("player_shop_plc", oPC.Location, false, $"_PLAYER_AUCTION_PLC_{player.oid.CDKey}");
       NwStore shop = NwStore.Create("generic_shop_res", oPC.Location, false, $"_PLAYER_AUCTION_{player.oid.CDKey}");
 
-      plcShop.GetLocalVariable<int>("_OWNER_ID").Value = player.characterId;
+      plcShop.GetObjectVariable<LocalVariableInt>("_OWNER_ID").Value = player.characterId;
       plcShop.Name = "[ENCHERES]".ColorString(ColorConstants.Orange) + $" de {oPC.Name.ColorString(ColorConstants.Green)}";
 
-      shop.GetLocalVariable<int>("_OWNER_ID").Value = player.characterId;
+      shop.GetObjectVariable<LocalVariableInt>("_OWNER_ID").Value = player.characterId;
       shop.Name = $"Echoppe de {oPC.Name.ColorString(ColorConstants.Green)}";
 
       plcShop.OnUsed += PlaceableSystem.OnUsedPlayerOwnedAuction;

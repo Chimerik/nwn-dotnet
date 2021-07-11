@@ -86,14 +86,14 @@ namespace NWN.Systems
       if (awaitedValue)
       {
         HandleSetupSellOrderPrice(player, material);
-        player.oid.LoginCreature.GetLocalVariable<string>("_PLAYER_INPUT").Delete();
+        player.oid.LoginCreature.GetObjectVariable<LocalVariableString>("_PLAYER_INPUT").Delete();
       }
     }
     private async void HandleSetupSellOrderPrice(Player player, string material)
     {
       player.menu.Clear();
 
-      int input = int.Parse(player.oid.LoginCreature.GetLocalVariable<string>("_PLAYER_INPUT"));
+      int input = int.Parse(player.oid.LoginCreature.GetObjectVariable<LocalVariableString>("_PLAYER_INPUT"));
 
       if (input <= 0)
       {
@@ -116,13 +116,13 @@ namespace NWN.Systems
         if (awaitedValue)
         {
           CreateSellOrderPage(player, material, input);
-          player.oid.LoginCreature.GetLocalVariable<string>("_PLAYER_INPUT").Delete();
+          player.oid.LoginCreature.GetObjectVariable<LocalVariableString>("_PLAYER_INPUT").Delete();
         }
       }
     }
     private void CreateSellOrderPage(Player player, string material, int quantity)
     {
-      int input = int.Parse(player.oid.LoginCreature.GetLocalVariable<string>("_PLAYER_INPUT"));
+      int input = int.Parse(player.oid.LoginCreature.GetObjectVariable<LocalVariableString>("_PLAYER_INPUT"));
 
       if (input < 0)
       {
@@ -197,8 +197,8 @@ namespace NWN.Systems
 
               transferedQuantity = -entry.Value;
             }
-
-            NwPlayer oBuyer = NwModule.Instance.Players.FirstOrDefault(p => ObjectPlugin.GetInt(p.LoginCreature, "characterId") == buyerID);
+            
+            NwPlayer oBuyer = NwModule.Instance.Players.FirstOrDefault(p => p.LoginCreature.GetObjectVariable<PersistentVariableInt>("characterId").Value == buyerID);
             if (oBuyer != null && Players.TryGetValue(oBuyer.LoginCreature, out Player buyer))
             {
               if (buyer.materialStock.ContainsKey(material))
@@ -303,14 +303,14 @@ namespace NWN.Systems
       if (awaitedValue)
       {
         HandleSetupBuyOrderPrice(player, material);
-        player.oid.LoginCreature.GetLocalVariable<string>("_PLAYER_INPUT").Delete();
+        player.oid.LoginCreature.GetObjectVariable<LocalVariableString>("_PLAYER_INPUT").Delete();
       }
     }
     private async void HandleSetupBuyOrderPrice(Player player, string material)
     {
       player.menu.Clear();
 
-      int input = int.Parse(player.oid.LoginCreature.GetLocalVariable<string>("_PLAYER_INPUT"));
+      int input = int.Parse(player.oid.LoginCreature.GetObjectVariable<LocalVariableString>("_PLAYER_INPUT"));
 
       if (input <= 0)
       {
@@ -334,13 +334,13 @@ namespace NWN.Systems
         if (awaitedValue)
         {
           CreateBuyOrderPage(player, material, input);
-          player.oid.LoginCreature.GetLocalVariable<string>("_PLAYER_INPUT").Delete();
+          player.oid.LoginCreature.GetObjectVariable<LocalVariableString>("_PLAYER_INPUT").Delete();
         }
       }
     }
     private void CreateBuyOrderPage(Player player, string material, int quantity)
     {
-      int input = int.Parse(player.oid.LoginCreature.GetLocalVariable<string>("_PLAYER_INPUT"));
+      int input = int.Parse(player.oid.LoginCreature.GetObjectVariable<LocalVariableString>("_PLAYER_INPUT"));
 
       if (input < 0)
       {
@@ -425,7 +425,7 @@ namespace NWN.Systems
                 transferedQuantity = -entry.Value;
               }
 
-              NwPlayer oSeller = NwModule.Instance.Players.FirstOrDefault(p => ObjectPlugin.GetInt(p.LoginCreature, "characterId") == sellerID);
+              NwPlayer oSeller = NwModule.Instance.Players.FirstOrDefault(p => p.LoginCreature.GetObjectVariable<PersistentVariableInt>("characterId").Value == sellerID);
 
               int acquiredGold;
 

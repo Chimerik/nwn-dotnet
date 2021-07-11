@@ -24,7 +24,7 @@ namespace NWN.Systems
       switch (onExamine.ExaminedObject.Tag)
       {
         case "mineable_rock":
-          int oreAmount = onExamine.ExaminedObject.GetLocalVariable<int>("_ORE_AMOUNT").Value;
+          int oreAmount = onExamine.ExaminedObject.GetObjectVariable<LocalVariableInt>("_ORE_AMOUNT").Value;
 
           if (onExamine.ExaminedBy.IsDM)
           {
@@ -42,7 +42,7 @@ namespace NWN.Systems
 
           break;
         case "mineable_tree":
-          int woodAmount = onExamine.ExaminedObject.GetLocalVariable<int>("_ORE_AMOUNT").Value;
+          int woodAmount = onExamine.ExaminedObject.GetObjectVariable<LocalVariableInt>("_ORE_AMOUNT").Value;
           if (onExamine.ExaminedBy.IsDM)
           {
             int woodExpertiseSkillLevel = 0;
@@ -59,7 +59,7 @@ namespace NWN.Systems
 
           break;
         case "mineable_animal":
-          int peltAmount = onExamine.ExaminedObject.GetLocalVariable<int>("_ORE_AMOUNT").Value;
+          int peltAmount = onExamine.ExaminedObject.GetObjectVariable<LocalVariableInt>("_ORE_AMOUNT").Value;
           if (onExamine.ExaminedBy.IsDM)
           {
             int animalExpertiseSkillLevel = 0;
@@ -76,7 +76,7 @@ namespace NWN.Systems
 
           break;
         case "blueprint":
-          int baseItemType = onExamine.ExaminedObject.GetLocalVariable<int>("_BASE_ITEM_TYPE").Value;
+          int baseItemType = onExamine.ExaminedObject.GetObjectVariable<LocalVariableInt>("_BASE_ITEM_TYPE").Value;
           if (Craft.Collect.System.blueprintDictionnary.ContainsKey(baseItemType))
             onExamine.ExaminedObject.Description = Craft.Collect.System.blueprintDictionnary[baseItemType].DisplayBlueprintInfo(onExamine.ExaminedBy, (NwItem)onExamine.ExaminedObject);
           else
@@ -205,12 +205,12 @@ namespace NWN.Systems
 
           string descriptionSequence = "Cet outil vous permet d'enregistrer une séquence de sorts dont l'incantation s'enchaînera lorsque vous l'utiliserez sur une cible, vous permettant d'économiser de nombreux clics ! \n\n";
 
-          if (onExamine.ExaminedObject.GetLocalVariable<string>("_REGISTERED_SEQUENCE").HasNothing)
+          if (onExamine.ExaminedObject.GetObjectVariable<LocalVariableString>("_REGISTERED_SEQUENCE").HasNothing)
             return;
 
           descriptionSequence += "Liste des sorts enregistrés :\n\n";
 
-          string[] spellList = onExamine.ExaminedObject.GetLocalVariable<string>("_REGISTERED_SEQUENCE").Value.Split("_");
+          string[] spellList = onExamine.ExaminedObject.GetObjectVariable<LocalVariableString>("_REGISTERED_SEQUENCE").Value.Split("_");
 
           foreach (string spellId in spellList)
             onExamine.ExaminedObject.Description += $"- {Spells2da.spellsTable.GetSpellDataEntry((Spell)int.Parse(spellId)).name}\n";
@@ -222,16 +222,16 @@ namespace NWN.Systems
 
       if (onExamine.ExaminedObject is NwItem oItem)
       {
-        onExamine.ExaminedObject.GetLocalVariable<string>("_TEMP_DESC").Value = onExamine.ExaminedObject.Description;
+        onExamine.ExaminedObject.GetObjectVariable<LocalVariableString>("_TEMP_DESC").Value = onExamine.ExaminedObject.Description;
 
-        if(onExamine.ExaminedObject.GetLocalVariable<int>("_MAX_DURABILITY").HasValue)
+        if(onExamine.ExaminedObject.GetObjectVariable<LocalVariableInt>("_MAX_DURABILITY").HasValue)
           onExamine.ExaminedObject.Description += $"\n\n{ItemUtils.GetItemDurabilityState(oItem)}";
 
-        if (oItem.GetLocalVariable<int>("_REPAIR_DONE").HasValue)
+        if (oItem.GetObjectVariable<LocalVariableInt>("_REPAIR_DONE").HasValue)
           onExamine.ExaminedObject.Description += $"\nRéparé - en attente de ré-enchantement.";
 
-        if (onExamine.ExaminedObject.GetLocalVariable<int>("_AVAILABLE_ENCHANTEMENT_SLOT").HasValue)
-          onExamine.ExaminedObject.Description += $"\n\nEmplacement(s) d'enchantement : [{onExamine.ExaminedObject.GetLocalVariable<int>("_AVAILABLE_ENCHANTEMENT_SLOT").Value.ToString().ColorString(new Color(32, 255, 32))}] ".ColorString(ColorConstants.Orange);
+        if (onExamine.ExaminedObject.GetObjectVariable<LocalVariableInt>("_AVAILABLE_ENCHANTEMENT_SLOT").HasValue)
+          onExamine.ExaminedObject.Description += $"\n\nEmplacement(s) d'enchantement : [{onExamine.ExaminedObject.GetObjectVariable<LocalVariableInt>("_AVAILABLE_ENCHANTEMENT_SLOT").Value.ToString().ColorString(new Color(32, 255, 32))}] ".ColorString(ColorConstants.Orange);
 
         foreach (ItemProperty ip in oItem.ItemProperties.Where(ip => ip.Tag.Contains("INACTIVE")))
         {
@@ -244,7 +244,7 @@ namespace NWN.Systems
         Task waitExamineEnd = NwTask.Run(async () =>
         {
           await NwTask.Delay(TimeSpan.FromSeconds(0.1f));
-          onExamine.ExaminedObject.Description = onExamine.ExaminedObject.GetLocalVariable<string>("_TEMP_DESC").Value;
+          onExamine.ExaminedObject.Description = onExamine.ExaminedObject.GetObjectVariable<LocalVariableString>("_TEMP_DESC").Value;
         });
       }
     }

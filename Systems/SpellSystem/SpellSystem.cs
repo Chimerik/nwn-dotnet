@@ -25,7 +25,7 @@ namespace NWN.Systems
     public static void RegisterMetaMagicOnSpellInput(OnSpellAction onSpellAction)
     {
       if (onSpellAction.MetaMagic == MetaMagic.Silent)
-        onSpellAction.Caster.GetLocalVariable<int>("_IS_SILENT_SPELL").Value = 1;
+        onSpellAction.Caster.GetObjectVariable<LocalVariableInt>("_IS_SILENT_SPELL").Value = 1;
     }
     public static void OnSpellBroadcast(OnSpellBroadcast onSpellBroadcast)
     {
@@ -42,22 +42,22 @@ namespace NWN.Systems
           CreaturePlugin.SetClassByPosition(oPC, 0, (int)castingClass);
           CancellationTokenSource tokenSource = new CancellationTokenSource();
 
-          Task spellCast = NwTask.WaitUntil(() => oPC.GetLocalVariable<int>("_SPELLCAST").HasValue, tokenSource.Token);
+          Task spellCast = NwTask.WaitUntil(() => oPC.GetObjectVariable<LocalVariableInt>("_SPELLCAST").HasValue, tokenSource.Token);
           Task timeOut = NwTask.Delay(TimeSpan.FromSeconds(0.1), tokenSource.Token);
 
           await NwTask.WhenAny(spellCast, timeOut);
           tokenSource.Cancel();
 
           CreaturePlugin.SetClassByPosition(oPC, 0, 43);
-          oPC.GetLocalVariable<int>("_SPELLCAST").Delete();
+          oPC.GetObjectVariable<LocalVariableInt>("_SPELLCAST").Delete();
         });
       }
 
       if (oPC.ControllingPlayer.IsDM ||
         !oPC.ActiveEffects.Any(e => e.EffectType == EffectType.Invisibility || e.EffectType == EffectType.ImprovedInvisibility)
-        || onSpellBroadcast.Caster.GetLocalVariable<int>("_IS_SILENT_SPELL").HasValue)
+        || onSpellBroadcast.Caster.GetObjectVariable<LocalVariableInt>("_IS_SILENT_SPELL").HasValue)
       {
-        onSpellBroadcast.Caster.GetLocalVariable<int>("_IS_SILENT_SPELL").Delete();
+        onSpellBroadcast.Caster.GetObjectVariable<LocalVariableInt>("_IS_SILENT_SPELL").Delete();
         return;
       }
 
@@ -83,9 +83,9 @@ namespace NWN.Systems
 
       CreaturePlugin.SetClassByPosition(oPC, 0, 43);
       
-      oPC.GetLocalVariable<int>("_DELAYED_SPELLHOOK_REFLEX").Value = oPC.GetBaseSavingThrow(SavingThrow.Reflex);
-      oPC.GetLocalVariable<int>("_DELAYED_SPELLHOOK_WILL").Value = oPC.GetBaseSavingThrow(SavingThrow.Will);
-      oPC.GetLocalVariable<int>("_DELAYED_SPELLHOOK_FORT").Value = oPC.GetBaseSavingThrow(SavingThrow.Fortitude);
+      oPC.GetObjectVariable<LocalVariableInt>("_DELAYED_SPELLHOOK_REFLEX").Value = oPC.GetBaseSavingThrow(SavingThrow.Reflex);
+      oPC.GetObjectVariable<LocalVariableInt>("_DELAYED_SPELLHOOK_WILL").Value = oPC.GetBaseSavingThrow(SavingThrow.Will);
+      oPC.GetObjectVariable<LocalVariableInt>("_DELAYED_SPELLHOOK_FORT").Value = oPC.GetBaseSavingThrow(SavingThrow.Fortitude);
       
       if (player.learntCustomFeats.ContainsKey(CustomFeats.ImprovedCasterLevel))
         CreaturePlugin.SetLevelByPosition(oPC, 0, SkillSystem.GetCustomFeatLevelFromSkillPoints(CustomFeats.ImprovedCasterLevel, player.learntCustomFeats[CustomFeats.ImprovedCasterLevel]) + 1);
@@ -101,48 +101,48 @@ namespace NWN.Systems
       {
         case Spell.AcidSplash:
           new AcidSplash(onSpellCast);
-          oPC.GetLocalVariable<int>("X2_L_BLOCK_LAST_SPELL").Value = 1;
+          oPC.GetObjectVariable<LocalVariableInt>("X2_L_BLOCK_LAST_SPELL").Value = 1;
           break;
 
         case Spell.Daze:
           new Daze(onSpellCast);
-          oPC.GetLocalVariable<int>("X2_L_BLOCK_LAST_SPELL").Value = 1;
+          oPC.GetObjectVariable<LocalVariableInt>("X2_L_BLOCK_LAST_SPELL").Value = 1;
           break;
 
         case Spell.ElectricJolt:
           new EletricJolt(onSpellCast);
-          oPC.GetLocalVariable<int>("X2_L_BLOCK_LAST_SPELL").Value = 1;
+          oPC.GetObjectVariable<LocalVariableInt>("X2_L_BLOCK_LAST_SPELL").Value = 1;
           break;
 
         case Spell.Flare:
           new Flare(onSpellCast);
-          oPC.GetLocalVariable<int>("X2_L_BLOCK_LAST_SPELL").Value = 1;
+          oPC.GetObjectVariable<LocalVariableInt>("X2_L_BLOCK_LAST_SPELL").Value = 1;
           break;
 
         case Spell.Light:
           new Light(onSpellCast);
-          oPC.GetLocalVariable<int>("X2_L_BLOCK_LAST_SPELL").Value = 1;
+          oPC.GetObjectVariable<LocalVariableInt>("X2_L_BLOCK_LAST_SPELL").Value = 1;
           break;
 
         case Spell.RayOfFrost:
           new RayOfFrost(onSpellCast);
-          oPC.GetLocalVariable<int>("X2_L_BLOCK_LAST_SPELL").Value = 1;
+          oPC.GetObjectVariable<LocalVariableInt>("X2_L_BLOCK_LAST_SPELL").Value = 1;
           break;
 
         case Spell.Resistance:
           new Resistance(onSpellCast);
-          oPC.GetLocalVariable<int>("X2_L_BLOCK_LAST_SPELL").Value = 1;
+          oPC.GetObjectVariable<LocalVariableInt>("X2_L_BLOCK_LAST_SPELL").Value = 1;
           break;
 
         case Spell.Virtue:
           new Virtue(onSpellCast);
-          oPC.GetLocalVariable<int>("X2_L_BLOCK_LAST_SPELL").Value = 1;
+          oPC.GetObjectVariable<LocalVariableInt>("X2_L_BLOCK_LAST_SPELL").Value = 1;
           break;
 
         case Spell.RaiseDead:
         case Spell.Resurrection:
           new RaiseDead(onSpellCast);
-          oPC.GetLocalVariable<int>("X2_L_BLOCK_LAST_SPELL").Value = 1;
+          oPC.GetObjectVariable<LocalVariableInt>("X2_L_BLOCK_LAST_SPELL").Value = 1;
           break;
       }
 
@@ -152,9 +152,9 @@ namespace NWN.Systems
     {
       CreaturePlugin.SetLevelByPosition(player, 0, 1);
       CreaturePlugin.SetClassByPosition(player, 0, 43);
-      player.SetBaseSavingThrow(SavingThrow.Reflex, (sbyte)player.GetLocalVariable<int>("_DELAYED_SPELLHOOK_REFLEX").Value);
-      player.SetBaseSavingThrow(SavingThrow.Will, (sbyte)player.GetLocalVariable<int>("_DELAYED_SPELLHOOK_WILL").Value);
-      player.SetBaseSavingThrow(SavingThrow.Fortitude, (sbyte)player.GetLocalVariable<int>("_DELAYED_SPELLHOOK_FORT").Value);
+      player.SetBaseSavingThrow(SavingThrow.Reflex, (sbyte)player.GetObjectVariable<LocalVariableInt>("_DELAYED_SPELLHOOK_REFLEX").Value);
+      player.SetBaseSavingThrow(SavingThrow.Will, (sbyte)player.GetObjectVariable<LocalVariableInt>("_DELAYED_SPELLHOOK_WILL").Value);
+      player.SetBaseSavingThrow(SavingThrow.Fortitude, (sbyte)player.GetObjectVariable<LocalVariableInt>("_DELAYED_SPELLHOOK_FORT").Value);
     }
     public static void HandleBeforeSpellCast(OnSpellCast onSpellCast)
     {
@@ -162,12 +162,12 @@ namespace NWN.Systems
         return;
 
       if (oPC.Classes.Any(c => (int)c != 43))
-        oPC.GetLocalVariable<int>("_SPELLCAST").Value = 1;
+        oPC.GetObjectVariable<LocalVariableInt>("_SPELLCAST").Value = 1;
 
-      if (oPC.GetLocalVariable<int>("_AUTO_SPELL").HasValue && oPC.GetLocalVariable<int>("_AUTO_SPELL").Value != (int)onSpellCast.Spell)
+      if (oPC.GetObjectVariable<LocalVariableInt>("_AUTO_SPELL").HasValue && oPC.GetObjectVariable<LocalVariableInt>("_AUTO_SPELL").Value != (int)onSpellCast.Spell)
       {
-        oPC.GetLocalVariable<int>("_AUTO_SPELL").Delete();
-        oPC.GetLocalVariable<NwObject>("_AUTO_SPELL_TARGET").Delete();
+        oPC.GetObjectVariable<LocalVariableInt>("_AUTO_SPELL").Delete();
+        oPC.GetObjectVariable<LocalVariableObject<NwGameObject>>("_AUTO_SPELL_TARGET").Delete();
         oPC.OnCombatRoundEnd -= PlayerSystem.HandleCombatRoundEndForAutoSpells;
       }
 
@@ -343,7 +343,7 @@ namespace NWN.Systems
       }
 
       ObjectPlugin.RemoveIconEffect(callInfo.ObjectSelf, 109);
-      callInfo.ObjectSelf.GetLocalVariable<int>(customTag).Delete();
+      callInfo.ObjectSelf.GetObjectVariable<LocalVariableInt>(customTag).Delete();
 
       switch (customTag)
       {
@@ -398,18 +398,18 @@ namespace NWN.Systems
     private void HandleMechAuraHeartOnEnter(CallInfo callInfo)
     {
       NwAreaOfEffect elecAoE = (NwAreaOfEffect)callInfo.ObjectSelf;
-      elecAoE.Creator.GetLocalVariable<int>("_SPARK_LEVEL").Value += 5;
+      elecAoE.Creator.GetObjectVariable<LocalVariableInt>("_SPARK_LEVEL").Value += 5;
       elecAoE.Creator.ApplyEffect(EffectDuration.Instant, Effect.VisualEffect(VfxType.ComHitElectrical));
 
       if (!(NWScript.GetEnteringObject().ToNwObject<NwGameObject>() is NwCreature oTarget) || oTarget == elecAoE.Creator)
         return;
 
-      if (NwRandom.Roll(Utils.random, 100) > elecAoE.Creator.GetLocalVariable<int>("_SPARK_LEVEL").Value + 20)
+      if (NwRandom.Roll(Utils.random, 100) > elecAoE.Creator.GetObjectVariable<LocalVariableInt>("_SPARK_LEVEL").Value + 20)
         return;
 
       oTarget.ApplyEffect(EffectDuration.Temporary, Effect.Beam(VfxType.BeamLightning, elecAoE.Creator, BodyNode.Chest), TimeSpan.FromSeconds(1.4));
 
-      if (oTarget.GetLocalVariable<int>("_IS_PVE_ARENA_CREATURE").HasValue)
+      if (oTarget.GetObjectVariable<LocalVariableInt>("_IS_PVE_ARENA_CREATURE").HasValue)
         oTarget.ApplyEffect(EffectDuration.Instant, Effect.Damage(1, DamageType.Electrical));
       else
       {
@@ -424,17 +424,17 @@ namespace NWN.Systems
     private void HandleMechAuraHeartBeat(CallInfo callInfo)
     {
       NwAreaOfEffect elecAoE = (NwAreaOfEffect)callInfo.ObjectSelf;
-      elecAoE.Creator.GetLocalVariable<int>("_SPARK_LEVEL").Value += 5;
+      elecAoE.Creator.GetObjectVariable<LocalVariableInt>("_SPARK_LEVEL").Value += 5;
       elecAoE.Creator.ApplyEffect(EffectDuration.Instant, Effect.VisualEffect(VfxType.ComHitElectrical));
 
       foreach (NwCreature oTarget in elecAoE.GetObjectsInEffectArea<NwCreature>().Where(c => c != elecAoE.Creator))
       {
-        if (NwRandom.Roll(Utils.random, 100) > elecAoE.Creator.GetLocalVariable<int>("_SPARK_LEVEL").Value + 20)
+        if (NwRandom.Roll(Utils.random, 100) > elecAoE.Creator.GetObjectVariable<LocalVariableInt>("_SPARK_LEVEL").Value + 20)
           continue;
 
         oTarget.ApplyEffect(EffectDuration.Temporary, Effect.Beam(VfxType.BeamLightning, elecAoE.Creator, BodyNode.Chest), TimeSpan.FromSeconds(1.4));
 
-        if (oTarget.GetLocalVariable<int>("_IS_PVE_ARENA_CREATURE").HasValue)
+        if (oTarget.GetObjectVariable<LocalVariableInt>("_IS_PVE_ARENA_CREATURE").HasValue)
           oTarget.ApplyEffect(EffectDuration.Instant, Effect.Damage(1, DamageType.Electrical));
         else
         {

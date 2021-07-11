@@ -417,9 +417,9 @@ namespace NWN.Systems.Craft.Collect
     }
     public static List<ItemProperty> GetToolProperties(NwItem craftedItem, int materialTier)
     {
-      craftedItem.GetLocalVariable<int>("_MAX_DURABILITY").Value = 5 + 5 * materialTier;
-      craftedItem.GetLocalVariable<int>("_DURABILITY").Value = 5 + 5 * materialTier;
-      craftedItem.GetLocalVariable<int>("_ITEM_LEVEL").Value = materialTier;
+      craftedItem.GetObjectVariable<LocalVariableInt>("_MAX_DURABILITY").Value = 5 + 5 * materialTier;
+      craftedItem.GetObjectVariable<LocalVariableInt>("_DURABILITY").Value = 5 + 5 * materialTier;
+      craftedItem.GetObjectVariable<LocalVariableInt>("_ITEM_LEVEL").Value = materialTier;
 
       List<ItemProperty> tool = new List<ItemProperty>();
       tool.Add(ItemProperty.Quality(IPQuality.Unknown));

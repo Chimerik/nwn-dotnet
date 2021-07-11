@@ -24,9 +24,9 @@ namespace NWN.Systems
       {
         await NwTask.Delay(TimeSpan.FromSeconds(0.1));
 
-        //Log.Info($"Found : {spawnPoint.GetLocalVariable<string>("_SPAWN_TYPE").Value}");
+        //Log.Info($"Found : {spawnPoint.GetObjectVariable<LocalVariableString>("_SPAWN_TYPE").Value}");
 
-        switch (spawnPoint.GetLocalVariable<string>("_SPAWN_TYPE").Value)
+        switch (spawnPoint.GetObjectVariable<LocalVariableString>("_SPAWN_TYPE").Value)
         {
           case "npc":
             SpawnNPCFromSpawnPoint(spawnPoint);
@@ -54,7 +54,7 @@ namespace NWN.Systems
     }
     private static NwCreature SpawnCreatureFromSpawnPoint(NwWaypoint spawnPoint)
     {
-      NwCreature creature = NwCreature.Create(spawnPoint.GetLocalVariable<string>("_CREATURE_TEMPLATE").Value, spawnPoint.Location);
+      NwCreature creature = NwCreature.Create(spawnPoint.GetObjectVariable<LocalVariableString>("_CREATURE_TEMPLATE").Value, spawnPoint.Location);
 
       switch (creature.Tag)
       {
@@ -71,20 +71,20 @@ namespace NWN.Systems
           break;
       }
 
-      //Log.Info($"SPAWN - From {spawnPoint.GetLocalVariable<string>("_CREATURE_TEMPLATE").Value} -  {creature.Name}");
+      //Log.Info($"SPAWN - From {spawnPoint.GetObjectVariable<LocalVariableString>("_CREATURE_TEMPLATE").Value} -  {creature.Name}");
 
       return creature;
     }
     private static NwCreature SpawnNPCFromSpawnPoint(NwWaypoint spawnPoint)
     {
-      NwCreature creature = NwCreature.Create(spawnPoint.GetLocalVariable<string>("_CREATURE_TEMPLATE").Value, spawnPoint.Location);
+      NwCreature creature = NwCreature.Create(spawnPoint.GetObjectVariable<LocalVariableString>("_CREATURE_TEMPLATE").Value, spawnPoint.Location);
       SetNPCEvents(creature);
-      creature.GetLocalVariable<string>("_WAYPOINT_TEMPLATE").Value = spawnPoint.ResRef;
-      creature.GetLocalVariable<API.Location>("_SPAWN_LOCATION").Value = spawnPoint.Location;
+      creature.GetObjectVariable<LocalVariableString>("_WAYPOINT_TEMPLATE").Value = spawnPoint.ResRef;
+      creature.GetObjectVariable<LocalVariableLocation>("_SPAWN_LOCATION").Value = spawnPoint.Location;
       creature.AiLevel = AiLevel.Low;
       spawnPoint.Destroy();
 
-      //Log.Info($"SPAWN - From {spawnPoint.GetLocalVariable<string>("_CREATURE_TEMPLATE").Value} -  {creature.Name} in {creature.GetLocalVariable<API.Location>("_SPAWN_LOCATION").Value.Area.Name}");
+      //Log.Info($"SPAWN - From {spawnPoint.GetObjectVariable<LocalVariableString>("_CREATURE_TEMPLATE").Value} -  {creature.Name} in {creature.GetObjectVariable<LocalVariableLocation>("_SPAWN_LOCATION").Value.Area.Name}");
 
       return creature;
     }
@@ -106,17 +106,17 @@ namespace NWN.Systems
     }
     private static void OnDeathSpawnNPCWaypoint(CreatureEvents.OnDeath onDeath)
     {
-      NwWaypoint waypoint = NwWaypoint.Create(onDeath.KilledCreature.GetLocalVariable<string>("_WAYPOINT_TEMPLATE"), onDeath.KilledCreature.GetLocalVariable<API.Location>("_SPAWN_LOCATION").Value);
-      waypoint.GetLocalVariable<string>("_CREATURE_TEMPLATE").Value = onDeath.KilledCreature.ResRef;
+      NwWaypoint waypoint = NwWaypoint.Create(onDeath.KilledCreature.GetObjectVariable<LocalVariableString>("_WAYPOINT_TEMPLATE"), onDeath.KilledCreature.GetObjectVariable<LocalVariableLocation>("_SPAWN_LOCATION").Value);
+      waypoint.GetObjectVariable<LocalVariableString>("_CREATURE_TEMPLATE").Value = onDeath.KilledCreature.ResRef;
     }
     private static void HandleWereInfiniteSpawn(CreatureEvents.OnDeath onDeath)
     {
-      NwWaypoint wp = onDeath.KilledCreature.GetNearestObjectsByType<NwWaypoint>().FirstOrDefault(w => w.GetLocalVariable<string>("_CREATURE_TEMPLATE").Value == onDeath.KilledCreature.ResRef);
+      NwWaypoint wp = onDeath.KilledCreature.GetNearestObjectsByType<NwWaypoint>().FirstOrDefault(w => w.GetObjectVariable<LocalVariableString>("_CREATURE_TEMPLATE").Value == onDeath.KilledCreature.ResRef);
       NwCreature.Create(onDeath.KilledCreature.ResRef, wp.Location).OnDeath += HandleWereInfiniteSpawn;
     }
     private static void HandleWraithInfiniteSpawn(CreatureEvents.OnDeath onDeath)
     {
-      NwWaypoint wp = onDeath.KilledCreature.GetNearestObjectsByType<NwWaypoint>().FirstOrDefault(w => w.GetLocalVariable<string>("_CREATURE_TEMPLATE").Value == onDeath.KilledCreature.ResRef);
+      NwWaypoint wp = onDeath.KilledCreature.GetNearestObjectsByType<NwWaypoint>().FirstOrDefault(w => w.GetObjectVariable<LocalVariableString>("_CREATURE_TEMPLATE").Value == onDeath.KilledCreature.ResRef);
       NwCreature.Create(onDeath.KilledCreature.ResRef, wp.Location).OnDeath += HandleWraithInfiniteSpawn;
       NwCreature.Create(onDeath.KilledCreature.ResRef, wp.Location).OnDeath += HandleWraithInfiniteSpawn;
     }

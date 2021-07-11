@@ -21,7 +21,7 @@ namespace NWN.Systems
       if (shop == null)
       {
         shop = NwStore.Create("generic_shop_res", blacksmith.Location, false, "blacksmith_shop");
-        shop.GetLocalVariable<NwObject>("_STORE_NPC").Value = blacksmith;
+        shop.GetObjectVariable<LocalVariableObject<NwCreature>>("_STORE_NPC").Value = blacksmith;
 
         foreach (int baseItemType in Craft.Collect.System.forgeBasicBlueprints)
         {
@@ -33,7 +33,7 @@ namespace NWN.Systems
           NwItem oBlueprint = await NwItem.Create("blueprintgeneric", shop);
           oBlueprint.Name = $"Patron original : {blueprint.name}";
 
-          oBlueprint.GetLocalVariable<int>("_BASE_ITEM_TYPE").Value = baseItemType;
+          oBlueprint.GetObjectVariable<LocalVariableInt>("_BASE_ITEM_TYPE").Value = baseItemType;
           oBlueprint.BaseGoldValue = (uint)(blueprint.goldCost * 10);
         }
 
@@ -41,7 +41,7 @@ namespace NWN.Systems
         {
           NwItem skillBook = await NwItem.Create("skillbookgeneriq", shop, 1, "skillbook");
           skillBook.Appearance.SetSimpleModel((byte)Utils.random.Next(0, 50));
-          skillBook.GetLocalVariable<int>("_SKILL_ID").Value = (int)feat;
+          skillBook.GetObjectVariable<LocalVariableInt>("_SKILL_ID").Value = (int)feat;
 
           FeatTable.Entry featEntry = Feat2da.featTable.GetFeatDataEntry(feat);
 
@@ -62,11 +62,11 @@ namespace NWN.Systems
 
         NwItem craftTool = await NwItem.Create("oreextractor", shop, 1, "oreextractor");
         craftTool.BaseGoldValue = 50;
-        craftTool.GetLocalVariable<int>("_DURABILITY").Value = 10;
+        craftTool.GetObjectVariable<LocalVariableInt>("_DURABILITY").Value = 10;
 
         craftTool = await NwItem.Create("forgehammer", shop, 1, "forgehammer");
         craftTool.BaseGoldValue = 50;
-        craftTool.GetLocalVariable<int>("_DURABILITY").Value = 5;
+        craftTool.GetObjectVariable<LocalVariableInt>("_DURABILITY").Value = 5;
       }
 
       shop.OnOpen += StoreSystem.OnOpenGenericStore;

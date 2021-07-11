@@ -20,10 +20,10 @@ namespace NWN.Systems
     {
       NwPlayer oPC = HandlePlayerConnect.Player;
 
-      oPC.LoginCreature.GetLocalVariable<int>("_ACTIVE_LANGUAGE").Value = (int)CustomFeats.Invalid;
-      oPC.LoginCreature.GetLocalVariable<int>("_CONNECTING").Value = 1;
-      oPC.LoginCreature.GetLocalVariable<int>("_DISCONNECTING").Delete();
-      oPC.LoginCreature.GetLocalVariable<int>("_PLAYER_INPUT_CANCELLED").Delete();
+      oPC.LoginCreature.GetObjectVariable<LocalVariableInt>("_ACTIVE_LANGUAGE").Value = (int)CustomFeats.Invalid;
+      oPC.LoginCreature.GetObjectVariable<LocalVariableInt>("_CONNECTING").Value = 1;
+      oPC.LoginCreature.GetObjectVariable<LocalVariableInt>("_DISCONNECTING").Delete();
+      oPC.LoginCreature.GetObjectVariable<LocalVariableInt>("_PLAYER_INPUT_CANCELLED").Delete();
 
       if (!Players.TryGetValue(oPC.LoginCreature, out Player player))
       {
@@ -65,7 +65,7 @@ namespace NWN.Systems
       Utils.ResetVisualTransform(player.oid.ControlledCreature);
 
       if (player.craftJob.IsActive()
-      && player.location.Area.GetLocalVariable<int>("_AREA_LEVEL")?.Value == 0)
+      && player.location.Area.GetObjectVariable<LocalVariableInt>("_AREA_LEVEL")?.Value == 0)
       {
         player.CraftJobProgression();
         player.craftJob.CreateCraftJournalEntry();
@@ -94,7 +94,7 @@ namespace NWN.Systems
         }
 
         player.AcquireSkillPoints();
-        oPC.LoginCreature.GetLocalVariable<int>("_CONNECTING").Delete();
+        oPC.LoginCreature.GetObjectVariable<LocalVariableInt>("_CONNECTING").Delete();
         player.isAFK = false;
 
         if (player.currentSkillJob != (int)CustomFeats.Invalid)
@@ -138,7 +138,7 @@ namespace NWN.Systems
       if (!player.oid.LoginCreature.KnowsFeat(CustomFeats.Sit))
         player.oid.LoginCreature.AddFeat(CustomFeats.Sit);
 
-      oPC.LoginCreature.GetLocalVariable<int>("_CONNECTING").Delete();
+      oPC.LoginCreature.GetObjectVariable<LocalVariableInt>("_CONNECTING").Delete();
       player.isAFK = false;
       player.DoJournalUpdate = false;
       player.dateLastSaved = DateTime.Now;
@@ -184,10 +184,10 @@ namespace NWN.Systems
         var query = NwModule.Instance.PrepareCampaignSQLQuery(Config.database, $"SELECT last_insert_rowid()");
         query.Execute();
 
-        ObjectPlugin.SetInt(newPlayer.LoginCreature, "accountId", query.Result.GetInt(0), 1);
+        newPlayer.LoginCreature.GetObjectVariable<PersistentVariableInt>("accountId").Value = query.Result.GetInt(0);
       }
       else
-        ObjectPlugin.SetInt(newPlayer.LoginCreature, "accountId", result.Result.GetInt(0), 1);
+        newPlayer.LoginCreature.GetObjectVariable<PersistentVariableInt>("accountId").Value = result.Result.GetInt(0);
 
       switch (newPlayer.LoginCreature.RacialType)
       {
@@ -223,8 +223,8 @@ namespace NWN.Systems
       if (newCharacter.oid.LoginCreature.KnowsFeat(Feat.QuickToMaster))
         startingSP += 500;
 
-      ObjectPlugin.SetInt(newCharacter.oid.LoginCreature, "_STARTING_SKILL_POINTS", startingSP, 1);
-      ObjectPlugin.SetInt(newCharacter.oid.LoginCreature, "_REINIT_DONE", 1, 1);
+      newCharacter.oid.LoginCreature.GetObjectVariable<PersistentVariableInt>("_STARTING_SKILL_POINTS").Value = startingSP;
+      newCharacter.oid.LoginCreature.GetObjectVariable<PersistentVariableInt>("_REINIT_DONE").Value = 1;
 
       NwArea arrivalArea;
       NwWaypoint arrivalPoint = null;
@@ -256,8 +256,9 @@ namespace NWN.Systems
         
         Task allPointsSpent = NwTask.Run(async () =>
         {
-          await NwTask.WaitUntil(() => ObjectPlugin.GetInt(newCharacter.oid.LoginCreature, "_STARTING_SKILL_POINTS") <= 0);
-          arrivalArea.GetLocalVariable<int>("_GO").Value = 1;
+          
+          await NwTask.WaitUntil(() => newCharacter.oid.LoginCreature.GetObjectVariable<PersistentVariableInt>("_STARTING_SKILL_POINTS").Value <= 0);
+          arrivalArea.GetObjectVariable<LocalVariableInt>("_GO").Value = 1;
         });
       }
       else
@@ -297,7 +298,8 @@ namespace NWN.Systems
       var rowQuery = NwModule.Instance.PrepareCampaignSQLQuery(Config.database, "SELECT last_insert_rowid()");
       rowQuery.Execute();
 
-      ObjectPlugin.SetInt(newCharacter.oid.LoginCreature, "characterId", rowQuery.Result.GetInt(0), 1);
+      newCharacter.oid.LoginCreature.GetObjectVariable<PersistentVariableInt>("characterId").Value = rowQuery.Result.GetInt(0);
+
       for (byte spellLevel = 0; spellLevel < 10; spellLevel++)
         foreach(Spell spell in newCharacter.oid.LoginCreature.GetClassInfo((ClassType)43).GetKnownSpells(spellLevel))
           newCharacter.oid.LoginCreature.GetClassInfo((ClassType)43).RemoveKnownSpell(spellLevel, spell);
@@ -370,6 +372,7 @@ namespace NWN.Systems
       InitializeCharacterMapPins(player);
       InitializeCharacterAreaExplorationState(player);
       InitializePlayerChatColors(player);
+      InitializePlayerMutedPM(player);
 
       switch (player.oid.LoginCreature.RacialType)
       {
@@ -452,7 +455,7 @@ namespace NWN.Systems
       player.currentSkillType = (SkillSystem.SkillType)result.Result.GetInt(13);
       player.pveArena.totalPoints = (uint)result.Result.GetInt(14);
 
-      if (ObjectPlugin.GetInt(player.oid.LoginCreature, "_REINIT_DONE") == 0 && player.currentSkillType == SkillSystem.SkillType.Skill)
+      if (player.oid.LoginCreature.GetObjectVariable<PersistentVariableInt>("_REINIT_DONE").HasNothing && player.currentSkillType == SkillSystem.SkillType.Skill)
         player.currentSkillJob = (int)CustomFeats.Invalid;
 
       result = SqLiteUtils.SelectQuery("playerMaterialStorage",
@@ -465,7 +468,7 @@ namespace NWN.Systems
     private static void InitializePlayerLearnableSkills(Player player)
     {
       // TEMP REINIT POUR JOUEURS EXISTANTS AVANT LE NOUVEAU SYSTEME DE DONS
-      if (ObjectPlugin.GetInt(player.oid.LoginCreature, "_REINIT_DONE") == 0)
+      if (player.oid.LoginCreature.GetObjectVariable<PersistentVariableInt>("_REINIT_DONE").HasNothing)
         TempFeatReinit(player);
       else
       {
@@ -519,8 +522,8 @@ namespace NWN.Systems
 
       InitializeNewPlayerLearnableSkills(player);
 
-      ObjectPlugin.SetInt(player.oid.LoginCreature, "_STARTING_SKILL_POINTS", skillPoints, 1);
-      ObjectPlugin.SetInt(player.oid.LoginCreature, "_REINIT_DONE", 1, 1);
+      player.oid.LoginCreature.GetObjectVariable<PersistentVariableInt>("_STARTING_SKILL_POINTS").Value = skillPoints;
+      player.oid.LoginCreature.GetObjectVariable<PersistentVariableInt>("_REINIT_DONE").Value = 1;
     }
     private static void InitializePlayerLearnableSpells(Player player)
     {
@@ -552,7 +555,7 @@ namespace NWN.Systems
 
       SqLiteUtils.UpdateQuery("playerCharacters",
         new List<string[]>() { { new string[] { "storage", storage.Serialize().ToBase64EncodedString() } }, { new string[] { "trained", "0" } } },
-        new List<string[]>() { { new string[] { "rowid", ObjectPlugin.GetInt(player.oid.LoginCreature, "characterId").ToString() } } });
+        new List<string[]>() { { new string[] { "rowid", player.oid.LoginCreature.GetObjectVariable<PersistentVariableInt>("characterId").Value.ToString() } } });
 
       storage.Destroy();
     }
@@ -568,14 +571,14 @@ namespace NWN.Systems
           MapPin mapPin = new MapPin(pin.GetInt(0), pin.GetString(1), pin.GetFloat(2), pin.GetFloat(3), pin.GetString(4));
           player.mapPinDictionnary.Add(pin.GetInt(0), mapPin);
 
-          player.oid.LoginCreature.GetLocalVariable<string>($"NW_MAP_PIN_NTRY_{mapPin.id}").Value = mapPin.note;
-          player.oid.LoginCreature.GetLocalVariable<float>($"NW_MAP_PIN_XPOS_{mapPin.id}").Value = mapPin.x;
-          player.oid.LoginCreature.GetLocalVariable<float>($"NW_MAP_PIN_YPOS_{mapPin.id}").Value = mapPin.y;
-          player.oid.LoginCreature.GetLocalVariable<NwObject>($"NW_MAP_PIN_AREA_{mapPin.id}").Value = NwObject.FindObjectsWithTag(mapPin.areaTag).FirstOrDefault();
-        }
+          player.oid.LoginCreature.GetObjectVariable<LocalVariableString>($"NW_MAP_PIN_NTRY_{mapPin.id}").Value = mapPin.note;
+          player.oid.LoginCreature.GetObjectVariable<LocalVariableFloat>($"NW_MAP_PIN_XPOS_{mapPin.id}").Value = mapPin.x;
+          player.oid.LoginCreature.GetObjectVariable<LocalVariableFloat>($"NW_MAP_PIN_YPOS_{mapPin.id}").Value = mapPin.y;
+          player.oid.LoginCreature.GetObjectVariable<LocalVariableObject<NwArea>>($"NW_MAP_PIN_AREA_{mapPin.id}").Value = NwObject.FindObjectsWithTag<NwArea>(mapPin.areaTag).FirstOrDefault();
+      }
 
       if (player.mapPinDictionnary.Count > 0)
-        player.oid.LoginCreature.GetLocalVariable<int>("NW_TOTAL_MAP_PINS").Value = player.mapPinDictionnary.Max(v => v.Key);
+        player.oid.LoginCreature.GetObjectVariable<LocalVariableInt>("NW_TOTAL_MAP_PINS").Value = player.mapPinDictionnary.Max(v => v.Key);
     }
     private static void InitializeCharacterAreaExplorationState(Player player)
     {
@@ -597,6 +600,15 @@ namespace NWN.Systems
         byte[] colorConverter = BitConverter.GetBytes(color.GetInt(1));
         player.chatColors.Add((ChatChannel)color.GetInt(0), new API.Color(colorConverter[3], colorConverter[2], colorConverter[1], colorConverter[0]));
       }
+    }
+    private static void InitializePlayerMutedPM(Player player)
+    {
+      var result = SqLiteUtils.SelectQuery("playerMutedPM",
+          new List<string>() { { "mutedAccountId" }},
+          new List<string[]>() { { new string[] { "accountId", player.accountId.ToString() } } });
+
+      foreach (var mute in result.Results)
+        player.mutedList.Add(mute.GetInt(0));
     }
   }
 }

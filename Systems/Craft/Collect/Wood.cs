@@ -24,7 +24,7 @@ namespace NWN.Systems.Craft.Collect
       // de spécialisation pour extraire deux fois plus de minerai en un cycle sur son minerai de spécialité
       if (oExtractor == null) return;
 
-      miningYield += oExtractor.GetLocalVariable<int>("_ITEM_LEVEL").Value * 5;
+      miningYield += oExtractor.GetObjectVariable<LocalVariableInt>("_ITEM_LEVEL").Value * 5;
       int bonusYield = 0;
 
       if (player.learntCustomFeats.ContainsKey(CustomFeats.WoodCutter))
@@ -37,17 +37,17 @@ namespace NWN.Systems.Craft.Collect
 
       Task playerInput = NwTask.Run(async () =>
       {
-        int remainingOre = oPlaceable.GetLocalVariable<int>("_ORE_AMOUNT").Value - miningYield;
+        int remainingOre = oPlaceable.GetObjectVariable<LocalVariableInt>("_ORE_AMOUNT").Value - miningYield;
         if (remainingOre <= 0)
         {
-          miningYield = oPlaceable.GetLocalVariable<int>("_ORE_AMOUNT").Value;
+          miningYield = oPlaceable.GetObjectVariable<LocalVariableInt>("_ORE_AMOUNT").Value;
           oPlaceable.Destroy();
 
           NwWaypoint.Create("wood_spawn_wp", oPlaceable.Location);
         }
         else
         {
-          oPlaceable.GetLocalVariable<int>("_ORE_AMOUNT").Value = remainingOre;
+          oPlaceable.GetObjectVariable<LocalVariableInt>("_ORE_AMOUNT").Value = remainingOre;
         }
 
         NwItem ore = await NwItem.Create("wood", player.oid.LoginCreature, miningYield, oPlaceable.Name);
@@ -61,7 +61,7 @@ namespace NWN.Systems.Craft.Collect
     {
       NwArea area = player.oid.LoginCreature.Area;
 
-      if (area.GetLocalVariable<int>("_AREA_LEVEL").Value < 2)
+      if (area.GetObjectVariable<LocalVariableInt>("_AREA_LEVEL").Value < 2)
       {
         player.oid.SendServerMessage("Cet endroit ne semble disposer d'aucune ressource récoltable.", ColorConstants.Maroon);
         return;
@@ -94,8 +94,8 @@ namespace NWN.Systems.Craft.Collect
         if (iRandom < respawnChance)
         {
           NwPlaceable newRock = NwPlaceable.Create("mineable_tree", resourcePoint.Location);
-          newRock.Name = Enum.GetName(typeof(WoodType), GetRandomWoodSpawnFromAreaLevel(area.GetLocalVariable<int>("_AREA_LEVEL").Value));
-          newRock.GetLocalVariable<int>("_ORE_AMOUNT").Value = 10 * iRandom + 10 * iRandom * skillBonus / 100;
+          newRock.Name = Enum.GetName(typeof(WoodType), GetRandomWoodSpawnFromAreaLevel(area.GetObjectVariable<LocalVariableInt>("_AREA_LEVEL").Value));
+          newRock.GetObjectVariable<LocalVariableInt>("_ORE_AMOUNT").Value = 10 * iRandom + 10 * iRandom * skillBonus / 100;
           resourcePoint.Destroy();
           nbSpawns++;
         }
