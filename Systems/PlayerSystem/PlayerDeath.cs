@@ -2,9 +2,8 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using NWN.API;
-using NWN.API.Constants;
-using NWN.API.Events;
+using Anvil.API;
+using Anvil.API.Events;
 using NWN.Core;
 using NWN.Core.NWNX;
 
@@ -18,7 +17,7 @@ namespace NWN.Systems
       {
         onPlayerDeath.DeadPlayer.SendServerMessage("Tout se brouille autour de vous. Avant de perdre connaissance, vous sentez comme un étrange maëlstrom vous aspirer.");
 
-        API.Location playerDeathLocation = player.oid.LoginCreature.Location;
+        Location playerDeathLocation = player.oid.LoginCreature.Location;
         
         Task handleDeath = NwTask.Run(async () =>
         {
@@ -154,7 +153,7 @@ namespace NWN.Systems
       Task settingUpCorpse = NwTask.Run(async () =>
       {
         await NwTask.Delay(TimeSpan.FromSeconds(0.2));
-        oPCCorpse.ApplyEffect(EffectDuration.Instant, API.Effect.Death());
+        oPCCorpse.ApplyEffect(EffectDuration.Instant, Effect.Death());
         NwWaypoint wp = NwWaypoint.Create("NW_WAYPOINT001", oPCCorpse.Location, false, $"wp_pccorpse_{oPCCorpse.GetObjectVariable<LocalVariableInt>("_PC_ID").Value}");
         await NwTask.Delay(TimeSpan.FromSeconds(0.8));
         VisibilityPlugin.SetVisibilityOverride(NWScript.OBJECT_INVALID, oPCCorpse, VisibilityPlugin.NWNX_VISIBILITY_DEFAULT);

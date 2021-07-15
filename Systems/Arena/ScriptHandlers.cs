@@ -2,14 +2,9 @@
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using NWN.API;
-using NWN.API.Constants;
-using NWN.API.Events;
-using NWN.Core;
-using NWN.Core.NWNX;
-using NWN.Services;
+using Anvil.API;
+using Anvil.API.Events;
 using static NWN.Systems.PlayerSystem;
-using Effect = NWN.API.Effect;
 
 namespace NWN.Systems.Arena
 {

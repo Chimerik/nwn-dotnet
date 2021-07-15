@@ -4,14 +4,10 @@ using System.Linq;
 using System.Numerics;
 using System.Threading.Tasks;
 using NLog;
-using NWN.API;
-using NWN.API.Constants;
-using NWN.API.Events;
-using NWN.Core;
-using NWN.Core.NWNX;
-using NWN.Services;
+using Anvil.API;
+using Anvil.API.Events;
+using Anvil.Services;
 using NWN.Systems.Craft;
-using NWNX.API;
 
 namespace NWN.Systems
 {

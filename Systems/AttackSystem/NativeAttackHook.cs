@@ -1,8 +1,8 @@
 ﻿using NLog;
 
-using NWN.API;
+using Anvil.API;
 using NWN.Native.API;
-using NWN.Services;
+using Anvil.Services;
 
 namespace NWN.Systems
 {
@@ -56,7 +56,7 @@ namespace NWN.Systems
       }
     }
 
-    private int OnGetDamageRoll(void* thisPtr, void* pTarget, int bOffHand, int bCritical, int bSneakAttack, int bDeathAttack, int bForceMax)
+    /*private int OnGetDamageRoll(void* thisPtr, void* pTarget, int bOffHand, int bCritical, int bSneakAttack, int bDeathAttack, int bForceMax)
     {
       var creatureStats = CNWSCreatureStats.FromPointer(thisPtr);
       var creature = CNWSCreature.FromPointer(creatureStats.m_pBaseCreature);
@@ -69,7 +69,7 @@ namespace NWN.Systems
       var damage = 9999;
 
       // Calculate attacker's DMG
-      /*if (creature != null)
+      if (creature != null)
       {
         var weapon = bOffHand == 1
             ? creature.m_pInventory.GetItemInSlot((uint)EquipmentSlot.LeftHand)
@@ -160,9 +160,9 @@ namespace NWN.Systems
         damage = target.DoDamageReduction(creature, damage, damagePower, 0, 1);
         if (damage < 0)
           damage = 0;
-      }*/
+      }
 
       return damage;
-    }
+    }*/
   }
 }

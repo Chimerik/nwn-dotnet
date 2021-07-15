@@ -1,4 +1,4 @@
-﻿using NWN.API;
+﻿using Anvil.API;
 
 namespace NWN.Systems
 {
@@ -6,7 +6,7 @@ namespace NWN.Systems
   {
     public DisplayHelm(NwPlayer oPC)
     {
-      NwItem oHelmet = oPC.ControlledCreature.GetItemInSlot(API.Constants.InventorySlot.Head);
+      NwItem oHelmet = oPC.ControlledCreature.GetItemInSlot(InventorySlot.Head);
 
       if (oHelmet != null)
       {

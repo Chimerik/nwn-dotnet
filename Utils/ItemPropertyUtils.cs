@@ -1,8 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
-using NWN.API;
-using NWN.API.Constants;
-using NWN.Core;
+using Anvil.API;
 
 namespace NWN
 {

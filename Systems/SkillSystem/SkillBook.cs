@@ -1,8 +1,5 @@
 ﻿using System;
-using NWN.API;
-using NWN.API.Constants;
-using NWN.Core;
-using NWN.Core.NWNX;
+using Anvil.API;
 using Action = System.Action;
 
 namespace NWN.Systems

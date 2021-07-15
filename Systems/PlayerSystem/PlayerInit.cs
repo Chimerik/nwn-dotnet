@@ -4,13 +4,13 @@ using System.Linq;
 using System.Numerics;
 using System.Threading.Tasks;
 using Discord;
-using NWN.API;
-using NWN.API.Constants;
-using NWN.API.Events;
+using Anvil.API;
+using Anvil.API.Events;
 using NWN.Core;
 using NWN.Core.NWNX;
-using NWN.Services;
+using Anvil.Services;
 using NWN.Systems.Craft;
+using Color = Anvil.API.Color;
 
 namespace NWN.Systems
 {
@@ -598,7 +598,7 @@ namespace NWN.Systems
       foreach (var color in result.Results)
       {
         byte[] colorConverter = BitConverter.GetBytes(color.GetInt(1));
-        player.chatColors.Add((ChatChannel)color.GetInt(0), new API.Color(colorConverter[3], colorConverter[2], colorConverter[1], colorConverter[0]));
+        player.chatColors.Add((ChatChannel)color.GetInt(0), new Color(colorConverter[3], colorConverter[2], colorConverter[1], colorConverter[0]));
       }
     }
     private static void InitializePlayerMutedPM(Player player)

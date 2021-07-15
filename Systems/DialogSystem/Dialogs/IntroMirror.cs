@@ -1,8 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using NWN.API;
-using NWN.API.Constants;
+using Anvil.API;
 using NWN.Core.NWNX;
 using static NWN.Systems.PlayerSystem;
 using static NWN.Systems.SkillSystem;
@@ -43,7 +42,7 @@ namespace NWN.Systems
     private void HandleBodyCloneSpawn(Player player)
     {
       clone = player.oid.LoginCreature.Clone(mirror.Location, "clone");
-      clone.ApplyEffect(EffectDuration.Permanent, API.Effect.CutsceneGhost());
+      clone.ApplyEffect(EffectDuration.Permanent, Effect.CutsceneGhost());
       clone.HighlightColor = ColorConstants.Silver;
       clone.Name = $"Reflet de {player.oid.LoginCreature.Name}";
       clone.Rotation += 180;
@@ -95,15 +94,15 @@ namespace NWN.Systems
         "Vous vous revoyez ..."
       };
 
-      player.menu.choices.Add(($"véritable brute, parcourant les rues de votre ville en recherche d'un prochain écolier à martyriser.", () => AddTrait(player, API.Constants.Feat.Thug)));
-      player.menu.choices.Add(($"au temple, en tant que simple adepte, entouré de vos semblables en communion.", () => AddTrait(player, API.Constants.Feat.Strongsoul)));
-      player.menu.choices.Add(($"entouré de votre famille, issue d'une noble et ancienne lignée aristocratique sombrée en désuétude.", () => AddTrait(player, API.Constants.Feat.SilverPalm)));
-      player.menu.choices.Add(($"occupé à contempler les oeuvres artistiques de votre précédent maître.", () => AddTrait(player, API.Constants.Feat.Artist)));
-      player.menu.choices.Add(($"athlète acclamé, auréolé de plusieurs victoires.", () => AddTrait(player, API.Constants.Feat.Bullheaded)));
-      player.menu.choices.Add(($"gamin des rues, arpentant les venelles mal famées de votre ville natale.", () => AddTrait(player, API.Constants.Feat.Snakeblood)));
-      player.menu.choices.Add(($"milicien volontaire de votre ville ou village natal, garant de la paix en ses rues.", () => AddTrait(player, API.Constants.Feat.Blooded)));
-      player.menu.choices.Add(($"jeune apprenti, étudiant parchemins et grimoires anciens afin d'appréhender les bases mêmes de la magie.", () => AddTrait(player, API.Constants.Feat.CourtlyMagocracy)));
-      player.menu.choices.Add(($"né sous une bonne étoile, Tymora vous ayant jusque là sourit plus que de raison.", () => AddTrait(player, API.Constants.Feat.LuckOfHeroes)));
+      player.menu.choices.Add(($"véritable brute, parcourant les rues de votre ville en recherche d'un prochain écolier à martyriser.", () => AddTrait(player, Feat.Thug)));
+      player.menu.choices.Add(($"au temple, en tant que simple adepte, entouré de vos semblables en communion.", () => AddTrait(player, Feat.Strongsoul)));
+      player.menu.choices.Add(($"entouré de votre famille, issue d'une noble et ancienne lignée aristocratique sombrée en désuétude.", () => AddTrait(player, Feat.SilverPalm)));
+      player.menu.choices.Add(($"occupé à contempler les oeuvres artistiques de votre précédent maître.", () => AddTrait(player, Feat.Artist)));
+      player.menu.choices.Add(($"athlète acclamé, auréolé de plusieurs victoires.", () => AddTrait(player, Feat.Bullheaded)));
+      player.menu.choices.Add(($"gamin des rues, arpentant les venelles mal famées de votre ville natale.", () => AddTrait(player, Feat.Snakeblood)));
+      player.menu.choices.Add(($"milicien volontaire de votre ville ou village natal, garant de la paix en ses rues.", () => AddTrait(player, Feat.Blooded)));
+      player.menu.choices.Add(($"jeune apprenti, étudiant parchemins et grimoires anciens afin d'appréhender les bases mêmes de la magie.", () => AddTrait(player, Feat.CourtlyMagocracy)));
+      player.menu.choices.Add(($"né sous une bonne étoile, Tymora vous ayant jusque là sourit plus que de raison.", () => AddTrait(player, Feat.LuckOfHeroes)));
 
       player.menu.choices.Add(($"Retour.", () => DrawWelcomePage(player)));
       player.menu.choices.Add(("Quitter", () => player.menu.Close()));

@@ -1,8 +1,6 @@
 ﻿using System.Collections.Generic;
-using System.Linq;
-using NWN.API;
-using NWN.API.Constants;
-using NWN.Services;
+using Anvil.API;
+using Anvil.Services;
 
 namespace NWN.Systems
 {

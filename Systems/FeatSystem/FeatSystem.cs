@@ -1,9 +1,7 @@
 ﻿using NLog;
-using NWN.Services;
-using NWN.API.Constants;
-using NWN.API.Events;
-using NWN.Core.NWNX;
-using NWN.API;
+using Anvil.Services;
+using Anvil.API;
+using Anvil.API.Events;
 
 namespace NWN.Systems
 {

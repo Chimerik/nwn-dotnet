@@ -1,8 +1,6 @@
-﻿using NWN.API;
-using NWN.API.Constants;
-using NWN.API.Events;
-using NWN.Core;
-using NWN.Services;
+﻿using Anvil.API;
+using Anvil.API.Events;
+using Anvil.Services;
 using System.Linq;
 
 namespace NWN.Systems
@@ -23,7 +21,7 @@ namespace NWN.Systems
     }
     public static void HandlePartyChange(NwPlayer oPartyChanger)
     {
-      API.Effect partyEffect = oPartyChanger.LoginCreature.ActiveEffects.FirstOrDefault(e => e.Tag == "PartyEffect");
+      Effect partyEffect = oPartyChanger.LoginCreature.ActiveEffects.FirstOrDefault(e => e.Tag == "PartyEffect");
       if (partyEffect != null)
         oPartyChanger.LoginCreature.RemoveEffect(partyEffect);
 

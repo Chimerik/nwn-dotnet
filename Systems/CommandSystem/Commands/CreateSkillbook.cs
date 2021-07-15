@@ -1,11 +1,5 @@
 ﻿using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using NWN.API;
-using NWN.API.Constants;
-using NWN.API.Events;
-using NWN.Core;
-using NWN.Core.NWNX;
+using Anvil.API;
 
 namespace NWN.Systems
 {

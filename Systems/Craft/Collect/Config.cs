@@ -1,9 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
-using static NWN.Systems.ItemUtils;
-using NWN.API;
-using NWN.API.Constants;
+using Anvil.API;
 
 namespace NWN.Systems.Craft.Collect
 {

@@ -1,8 +1,6 @@
 ﻿using System.Collections.Generic;
-using NWN.API;
-using NWN.API.Events;
-using NWN.Core;
-using NWN.Core.NWNX;
+using Anvil.API;
+using Anvil.API.Events;
 
 namespace NWN.Systems
 {
@@ -11,7 +9,7 @@ namespace NWN.Systems
     public SaveItemAppearance(NwPlayer oPC)
     {
       oPC.SendServerMessage("Veuillez sélectionnner l'objet dont vous souhaitez sauvegarder l'apparence.", ColorConstants.Rose);
-      PlayerSystem.cursorTargetService.EnterTargetMode(oPC, OnAppearanceSelected, API.Constants.ObjectTypes.Item, API.Constants.MouseCursor.Create);
+      PlayerSystem.cursorTargetService.EnterTargetMode(oPC, OnAppearanceSelected, ObjectTypes.Item, MouseCursor.Create);
     }
     private static async void OnAppearanceSelected(ModuleEvents.OnPlayerTarget selection)
     {
@@ -26,7 +24,7 @@ namespace NWN.Systems
       }
 
       int ACValue = -1;
-      if (item.BaseItemType == API.Constants.BaseItemType.Armor)
+      if (item.BaseItemType == BaseItemType.Armor)
         ACValue = item.BaseACValue;
 
       player.menu.Clear();

@@ -3,7 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
 using NLog;
-using NWN.API;
+using Anvil.API;
+using Action = System.Action;
 
 namespace NWN.Systems
 {

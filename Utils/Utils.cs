@@ -1,12 +1,9 @@
 ﻿using Discord;
 using NWN.Systems;
 using System;
-using NWN.Core.NWNX;
-using NWN.Core;
 using System.Numerics;
 using System.Linq;
-using NWN.API;
-using NWN.API.Constants;
+using Anvil.API;
 using System.Collections.Generic;
 using NLog;
 
@@ -88,25 +85,6 @@ namespace NWN
     {
       foreach (Effect eff in oTarget.ActiveEffects.Where(e => e.Tag == Tag))
         oTarget.RemoveEffect(eff);
-    }
-    public static QuickBarSlot CreateEmptyQBS()
-    {
-      QuickBarSlot emptyQBS = new QuickBarSlot();
-      emptyQBS.nObjectType = 0; // 0 = EMPTY
-      emptyQBS.oItem = (uint)ObjectTypes.Invalid;
-      emptyQBS.oSecondaryItem = (uint)ObjectTypes.Invalid;
-      emptyQBS.nMultiClass = 0;
-      emptyQBS.sResRef = "";
-      emptyQBS.sCommandLabel = "";
-      emptyQBS.sCommandLine = "";
-      emptyQBS.sToolTip = "";
-      emptyQBS.nINTParam1 = 0;
-      emptyQBS.nMetaType = 0;
-      emptyQBS.nDomainLevel = 0;
-      emptyQBS.nAssociateType = 0;
-      emptyQBS.oAssociate = (uint)ObjectTypes.Invalid;
-
-      return emptyQBS;
     }
     public static TimeSpan StripTimeSpanMilliseconds(TimeSpan timespan)
     {

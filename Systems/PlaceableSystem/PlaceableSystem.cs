@@ -1,10 +1,9 @@
 ﻿using System;
-using NWN.API;
-using NWN.API.Events;
+using Anvil.API;
+using Anvil.API.Events;
 using NWN.Core;
 using NWN.Core.NWNX;
-using NWN.Services;
-using NWN.API.Constants;
+using Anvil.Services;
 using System.Linq;
 using NLog;
 using System.Threading.Tasks;
@@ -350,7 +349,7 @@ namespace NWN.Systems
     }
     private void HandleSetUpDeadCreatureCorpse(CreatureEvents.OnSpawn onSpawn)
     {
-      onSpawn.Creature.ApplyEffect(EffectDuration.Instant, API.Effect.Death());
+      onSpawn.Creature.ApplyEffect(EffectDuration.Instant, Effect.Death());
     }
     public static void OnUsedPlayerOwnedShop(PlaceableEvents.OnUsed onUsed)
     {

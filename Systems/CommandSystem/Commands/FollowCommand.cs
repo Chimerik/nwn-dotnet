@@ -1,9 +1,5 @@
-﻿using System;
-using NWN.Core;
-using NWN.API.Constants;
-using NWN.Services;
-using NWN.API;
-using NWN.API.Events;
+﻿using Anvil.API;
+using Anvil.API.Events;
 
 namespace NWN.Systems
 {

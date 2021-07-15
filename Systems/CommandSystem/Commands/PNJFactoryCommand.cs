@@ -1,12 +1,8 @@
-﻿using NWN.API.Constants;
-using NWN.API;
-using NWN.Core;
+﻿using Anvil.API;
 using System.Threading.Tasks;
-using NWN.Core.NWNX;
 using System.Collections.Generic;
 using System;
-using NWN.API.Events;
-using ItemProperty = NWN.API.ItemProperty;
+using Anvil.API.Events;
 using System.Linq;
 
 namespace NWN.Systems

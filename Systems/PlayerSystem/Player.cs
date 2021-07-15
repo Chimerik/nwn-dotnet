@@ -1,16 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
-using NWN.Core;
-using NWN.Core.NWNX;
 using static NWN.Systems.SkillSystem;
 using NWN.Systems.Craft;
-using NWN.API;
+using Anvil.API;
 using System.Threading.Tasks;
 using Skill = NWN.Systems.SkillSystem.Skill;
-using NWN.API.Constants;
 using System.Threading;
 using System.Linq;
-using NWN.Services;
+using Anvil.Services;
 
 namespace NWN.Systems
 {
@@ -22,7 +19,7 @@ namespace NWN.Systems
       public DateTime mapLoadingTime { get; set; }
       public readonly int accountId;
       public readonly int characterId;
-      public API.Location location { get; set; }
+      public Location location { get; set; }
       public int bonusRolePlay { get; set; }
       public Boolean isAFK { get; set; }
       public Boolean DoJournalUpdate { get; set; }
@@ -34,7 +31,7 @@ namespace NWN.Systems
       public SkillType currentSkillType { get; set; }
       public Job craftJob { get; set; }
       public Boolean isFrostAttackOn { get; set; }
-      public API.Location previousLocation { get; set; }
+      public Location previousLocation { get; set; }
       public TargetEvent targetEvent { get; set; }
       public Menu menu { get; }
       public NwCreature deathCorpse { get; set; }
@@ -268,11 +265,11 @@ namespace NWN.Systems
             NwItem reactivatedItem = NwItem.Deserialize(craftJob.craftedItem.ToByteArray());
             oid.LoginCreature.AcquireItem(reactivatedItem);
 
-            API.ItemProperty reactivatedIP = reactivatedItem.ItemProperties.FirstOrDefault(ip => ip.Tag.StartsWith($"ENCHANTEMENT_{craftJob.material}") && ip.Tag.Contains("INACTIVE"));
+            ItemProperty reactivatedIP = reactivatedItem.ItemProperties.FirstOrDefault(ip => ip.Tag.StartsWith($"ENCHANTEMENT_{craftJob.material}") && ip.Tag.Contains("INACTIVE"));
 
             Task waitLoopEnd = NwTask.Run(async () =>
             {
-              API.ItemProperty deactivatedIP = reactivatedIP;
+              ItemProperty deactivatedIP = reactivatedIP;
               await NwTask.Delay(TimeSpan.FromSeconds(0.1f));
               reactivatedItem.RemoveItemProperty(deactivatedIP);
               await NwTask.Delay(TimeSpan.FromSeconds(0.1f));
@@ -374,11 +371,11 @@ namespace NWN.Systems
               craftedItem.GetObjectVariable<LocalVariableInt>("_DURABILITY").Value = craftedItem.GetObjectVariable<LocalVariableInt>("_MAX_DURABILITY").Value;
               craftedItem.GetObjectVariable<LocalVariableInt>("_REPAIR_DONE").Delete();
 
-              foreach (API.ItemProperty ip in craftedItem.ItemProperties.Where(ip => ip.Tag.Contains("INACTIVE")))
+              foreach (ItemProperty ip in craftedItem.ItemProperties.Where(ip => ip.Tag.Contains("INACTIVE")))
               {
                 Task waitLoop = NwTask.Run(async () =>
                 {
-                  API.ItemProperty deactivatedIP = ip;
+                  ItemProperty deactivatedIP = ip;
                   await NwTask.Delay(TimeSpan.FromSeconds(0.1f));
                   craftedItem.RemoveItemProperty(deactivatedIP);
                   await NwTask.Delay(TimeSpan.FromSeconds(0.1f));
@@ -472,7 +469,7 @@ namespace NWN.Systems
       }
       public async void UpdateJournal()
       {
-        API.JournalEntry journalEntry;
+        JournalEntry journalEntry;
 
         if (oid.LoginCreature.Location.Area == null && DoJournalUpdate)
         {
@@ -538,7 +535,7 @@ namespace NWN.Systems
         if (!this.oid.LoginCreature.IsValid)
           return;
 
-        API.JournalEntry journalEntry = oid.GetJournalEntry("reboot");
+        JournalEntry journalEntry = oid.GetJournalEntry("reboot");
         journalEntry.Name = $"REBOOT SERVEUR - {countDown}";
         oid.AddCustomJournalEntry(journalEntry);
         

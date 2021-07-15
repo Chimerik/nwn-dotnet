@@ -1,6 +1,6 @@
-﻿using NWN.API;
-using NWN.API.Events;
-using NWN.Services;
+﻿using Anvil.API;
+using Anvil.API.Events;
+using Anvil.Services;
 using System.Linq;
 using NWN.Core.NWNX;
 using NWN.Core;
@@ -295,10 +295,10 @@ namespace NWN.Systems
       Vector3 kickback = initialPosition;
       kickback.Z = oEntering.Position.Z;
 
-      NwPlaceable.Create("wall_invi", API.Location.Create(oEntering.Area, initialPosition, oEntering.Rotation));
+      NwPlaceable.Create("wall_invi", Location.Create(oEntering.Area, initialPosition, oEntering.Rotation));
 
       oEntering.Commandable = true;
-      oEntering.Location = API.Location.Create(oEntering.Area, kickback + (initialPosition - oEntering.Position), oEntering.Rotation);
+      oEntering.Location = Location.Create(oEntering.Area, kickback + (initialPosition - oEntering.Position), oEntering.Rotation);
     }
   }
 }

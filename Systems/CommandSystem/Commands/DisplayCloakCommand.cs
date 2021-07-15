@@ -1,4 +1,4 @@
-﻿using NWN.API;
+﻿using Anvil.API;
 
 namespace NWN.Systems
 {
@@ -6,7 +6,7 @@ namespace NWN.Systems
   {
     public DisplayCloak(NwPlayer oPC)
     {
-      NwItem oCloak = oPC.ControlledCreature.GetItemInSlot(API.Constants.InventorySlot.Cloak);
+      NwItem oCloak = oPC.ControlledCreature.GetItemInSlot(InventorySlot.Cloak);
 
       if (oCloak != null)
       {

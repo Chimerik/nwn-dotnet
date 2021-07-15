@@ -1,9 +1,6 @@
 ﻿using System;
-using NWN.API;
-using NWN.API.Constants;
-using NWN.Core;
-using NWN.Core.NWNX;
-using NWN.Services;
+using Anvil.API;
+using Anvil.Services;
 
 namespace NWN.Systems
 {
@@ -71,7 +68,7 @@ namespace NWN.Systems
       public void CreateSkillJournalEntry()
       {
         player.playerJournal.skillJobCountDown = DateTime.Now.AddSeconds(this.GetTimeToNextLevel(this.CalculateSkillPointsPerSecond()));
-        API.JournalEntry journalEntry = new API.JournalEntry();
+        JournalEntry journalEntry = new JournalEntry();
         journalEntry.Name = $"Etude - {NWN.Utils.StripTimeSpanMilliseconds((TimeSpan)(player.playerJournal.skillJobCountDown - DateTime.Now))}";
         journalEntry.Text = $"Etude en cours :\n\n " +
           $"{this.name}\n\n" +
@@ -85,7 +82,7 @@ namespace NWN.Systems
       }
       public void CancelSkillJournalEntry()
       {
-        API.JournalEntry journalEntry = player.oid.GetJournalEntry("skill_job");
+        JournalEntry journalEntry = player.oid.GetJournalEntry("skill_job");
         journalEntry.Name = $"Etude annulée - {this.name}";
         journalEntry.QuestTag = "skill_job";
         journalEntry.QuestDisplayed = false;
@@ -94,7 +91,7 @@ namespace NWN.Systems
       }
       public void CloseSkillJournalEntry()
       {
-        API.JournalEntry journalEntry = player.oid.GetJournalEntry("skill_job");
+        JournalEntry journalEntry = player.oid.GetJournalEntry("skill_job");
         journalEntry.Name = $"Etude terminée - {this.name}";
         journalEntry.QuestTag = "skill_job";
         journalEntry.QuestCompleted = true;

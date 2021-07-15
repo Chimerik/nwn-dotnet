@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using static NWN.Systems.PlayerSystem;
 using static NWN.Systems.Arena.Config;
-using NWN.API;
+using Anvil.API;
 using System.Linq;
 
 namespace NWN.Systems.Arena

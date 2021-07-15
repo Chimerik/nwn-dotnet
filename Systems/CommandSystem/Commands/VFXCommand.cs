@@ -1,11 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using NWN.API;
-using NWN.API.Constants;
-using NWN.API.Events;
-using NWN.Core;
-using NWN.Core.NWNX;
+using Anvil.API;
+using Anvil.API.Events;
 
 namespace NWN.Systems
 {
@@ -72,13 +68,13 @@ namespace NWN.Systems
       if (selection.TargetObject is NwGameObject target)
       {
         if (vfxDuration <= 0)
-          target.ApplyEffect(EffectDuration.Permanent, API.Effect.VisualEffect(vfxId));
+          target.ApplyEffect(EffectDuration.Permanent, Effect.VisualEffect(vfxId));
         else
-          target.ApplyEffect(EffectDuration.Temporary, API.Effect.VisualEffect(vfxId), TimeSpan.FromSeconds(vfxDuration));
+          target.ApplyEffect(EffectDuration.Temporary, Effect.VisualEffect(vfxId), TimeSpan.FromSeconds(vfxDuration));
       }
       else
-        API.Location.Create(selection.Player.ControlledCreature.Location.Area, selection.TargetPosition, selection.Player.ControlledCreature.Rotation)
-          .ApplyEffect(EffectDuration.Instant, API.Effect.VisualEffect(vfxId));
+        Location.Create(selection.Player.ControlledCreature.Location.Area, selection.TargetPosition, selection.Player.ControlledCreature.Rotation)
+          .ApplyEffect(EffectDuration.Instant, Effect.VisualEffect(vfxId));
     }
   }
 }

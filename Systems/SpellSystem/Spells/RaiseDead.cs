@@ -1,8 +1,5 @@
-﻿using NWN.API;
-using NWN.API.Constants;
-using NWN.API.Events;
-using NWN.Core;
-using NWN.Core.NWNX;
+﻿using Anvil.API;
+using Anvil.API.Events;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -23,7 +20,7 @@ namespace NWN.Systems
       if (oPC != null)
       {
         oPC.LoginCreature.Location = onSpellCast.TargetObject.Location;
-        onSpellCast.TargetObject.ApplyEffect(EffectDuration.Instant, API.Effect.VisualEffect(API.Constants.VfxType.ImpRaiseDead));
+        onSpellCast.TargetObject.ApplyEffect(EffectDuration.Instant, Effect.VisualEffect(VfxType.ImpRaiseDead));
 
         if(onSpellCast.Spell == Spell.RaiseDead)
           oPC.LoginCreature.HP = 1;

@@ -4,7 +4,7 @@ using System.Linq;
 using static NWN.Systems.PlayerSystem;
 using static NWN.Systems.Craft.Collect.System;
 using static NWN.Systems.Craft.Collect.Config;
-using NWN.API;
+using Anvil.API;
 
 namespace NWN.Systems
 {

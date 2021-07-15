@@ -2,7 +2,7 @@
 using System.Linq;
 using System;
 using static NWN.Systems.SkillSystem;
-using NWN.API.Constants;
+using Anvil.API;
 using Skill = NWN.Systems.SkillSystem.Skill;
 
 namespace NWN.Systems

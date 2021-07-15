@@ -1,13 +1,12 @@
-﻿using NWN.API;
+﻿using Anvil.API;
 using NWN.Core;
 using NWN.Core.NWNX;
-using NWN.Services;
+using Anvil.Services;
 using System.Numerics;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using System;
-using NWN.API.Constants;
 
 namespace NWN.Systems
 {
@@ -83,7 +82,7 @@ namespace NWN.Systems
       Task waitTourbillonEvents = NwTask.Run(async () =>
       {
         await NwTask.Delay(TimeSpan.FromSeconds(2));
-        oPC.LoginCreature.Location.ApplyEffect(EffectDuration.Instant, API.Effect.VisualEffect(VfxType.FnfMysticalExplosion));
+        oPC.LoginCreature.Location.ApplyEffect(EffectDuration.Instant, Effect.VisualEffect(VfxType.FnfMysticalExplosion));
 
         await NwTask.Delay(TimeSpan.FromSeconds(1.6));
         oPC.LockCameraDirection(false);

@@ -1,8 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using NLog;
-using NWN.API;
-using NWN.API.Constants;
+using Anvil.API;
 using NWN.Core;
 using NWN.Core.NWNX;
 
@@ -335,112 +334,112 @@ namespace NWN.Systems
     }
     private static int HandleImproveAnimalEmpathy(PlayerSystem.Player player, Feat feat)
     {
-      CreaturePlugin.SetSkillRank(player.oid.LoginCreature, NWScript.SKILL_ANIMAL_EMPATHY, player.oid.LoginCreature.GetSkillRank(API.Constants.Skill.AnimalEmpathy, true) + 1);
+      CreaturePlugin.SetSkillRank(player.oid.LoginCreature, NWScript.SKILL_ANIMAL_EMPATHY, player.oid.LoginCreature.GetSkillRank(Anvil.API.Skill.AnimalEmpathy, true) + 1);
       return 0;
     }
     private static int HandleImproveConcentration(PlayerSystem.Player player, Feat feat)
     {
-      CreaturePlugin.SetSkillRank(player.oid.LoginCreature, NWScript.SKILL_CONCENTRATION, player.oid.LoginCreature.GetSkillRank(API.Constants.Skill.Concentration, true) + 1);
+      CreaturePlugin.SetSkillRank(player.oid.LoginCreature, NWScript.SKILL_CONCENTRATION, player.oid.LoginCreature.GetSkillRank(Anvil.API.Skill.Concentration, true) + 1);
       return 0;
     }
     private static int HandleImproveDisableTraps(PlayerSystem.Player player, Feat feat)
     {
-      CreaturePlugin.SetSkillRank(player.oid.LoginCreature, NWScript.SKILL_DISABLE_TRAP, player.oid.LoginCreature.GetSkillRank(API.Constants.Skill.DisableTrap, true) + 1);
+      CreaturePlugin.SetSkillRank(player.oid.LoginCreature, NWScript.SKILL_DISABLE_TRAP, player.oid.LoginCreature.GetSkillRank(Anvil.API.Skill.DisableTrap, true) + 1);
       return 0;
     }
     private static int HandleImproveDiscipline(PlayerSystem.Player player, Feat feat)
     {
-      CreaturePlugin.SetSkillRank(player.oid.LoginCreature, NWScript.SKILL_DISCIPLINE, player.oid.LoginCreature.GetSkillRank(API.Constants.Skill.Discipline, true) + 1);
+      CreaturePlugin.SetSkillRank(player.oid.LoginCreature, NWScript.SKILL_DISCIPLINE, player.oid.LoginCreature.GetSkillRank(Anvil.API.Skill.Discipline, true) + 1);
       return 0;
     }
     private static int HandleImproveHeal(PlayerSystem.Player player, Feat feat)
     {
-      CreaturePlugin.SetSkillRank(player.oid.LoginCreature, NWScript.SKILL_HEAL, player.oid.LoginCreature.GetSkillRank(API.Constants.Skill.Heal, true) + 1);
+      CreaturePlugin.SetSkillRank(player.oid.LoginCreature, NWScript.SKILL_HEAL, player.oid.LoginCreature.GetSkillRank(Anvil.API.Skill.Heal, true) + 1);
       return 0;
     }
     private static int HandleImproveHide(PlayerSystem.Player player, Feat feat)
     {
-      CreaturePlugin.SetSkillRank(player.oid.LoginCreature, NWScript.SKILL_HIDE, player.oid.LoginCreature.GetSkillRank(API.Constants.Skill.Hide, true) + 1);
+      CreaturePlugin.SetSkillRank(player.oid.LoginCreature, NWScript.SKILL_HIDE, player.oid.LoginCreature.GetSkillRank(Anvil.API.Skill.Hide, true) + 1);
       return 0;
     }
     private static int HandleImproveListen(PlayerSystem.Player player, Feat feat)
     {
-      CreaturePlugin.SetSkillRank(player.oid.LoginCreature, NWScript.SKILL_LISTEN, player.oid.LoginCreature.GetSkillRank(API.Constants.Skill.Listen, true) + 1);
+      CreaturePlugin.SetSkillRank(player.oid.LoginCreature, NWScript.SKILL_LISTEN, player.oid.LoginCreature.GetSkillRank(Anvil.API.Skill.Listen, true) + 1);
       return 0;
     }
     private static int HandleImproveLore(PlayerSystem.Player player, Feat feat)
     {
-      CreaturePlugin.SetSkillRank(player.oid.LoginCreature, NWScript.SKILL_LORE, player.oid.LoginCreature.GetSkillRank(API.Constants.Skill.Lore, true) + 1);
+      CreaturePlugin.SetSkillRank(player.oid.LoginCreature, NWScript.SKILL_LORE, player.oid.LoginCreature.GetSkillRank(Anvil.API.Skill.Lore, true) + 1);
       return 0;
     }
     private static int HandleImproveMoveSilently(PlayerSystem.Player player, Feat feat)
     {
-      CreaturePlugin.SetSkillRank(player.oid.LoginCreature, NWScript.SKILL_MOVE_SILENTLY, player.oid.LoginCreature.GetSkillRank(API.Constants.Skill.MoveSilently, true) + 1);
+      CreaturePlugin.SetSkillRank(player.oid.LoginCreature, NWScript.SKILL_MOVE_SILENTLY, player.oid.LoginCreature.GetSkillRank(Anvil.API.Skill.MoveSilently, true) + 1);
       return 0;
     }
     private static int HandleImproveOpenLock(PlayerSystem.Player player, Feat feat)
     {
-      CreaturePlugin.SetSkillRank(player.oid.LoginCreature, NWScript.SKILL_OPEN_LOCK, player.oid.LoginCreature.GetSkillRank(API.Constants.Skill.OpenLock, true) + 1);
+      CreaturePlugin.SetSkillRank(player.oid.LoginCreature, NWScript.SKILL_OPEN_LOCK, player.oid.LoginCreature.GetSkillRank(Anvil.API.Skill.OpenLock, true) + 1);
       return 0;
     }
     private static int HandleImproveSkillParry(PlayerSystem.Player player, Feat feat)
     {
-      CreaturePlugin.SetSkillRank(player.oid.LoginCreature, NWScript.SKILL_PARRY, player.oid.LoginCreature.GetSkillRank(API.Constants.Skill.Parry, true) + 1);
+      CreaturePlugin.SetSkillRank(player.oid.LoginCreature, NWScript.SKILL_PARRY, player.oid.LoginCreature.GetSkillRank(Anvil.API.Skill.Parry, true) + 1);
       return 0;
     }
     private static int HandleImprovePerform(PlayerSystem.Player player, Feat feat)
     {
-      CreaturePlugin.SetSkillRank(player.oid.LoginCreature, NWScript.SKILL_PERFORM, player.oid.LoginCreature.GetSkillRank(API.Constants.Skill.Perform, true) + 1);
+      CreaturePlugin.SetSkillRank(player.oid.LoginCreature, NWScript.SKILL_PERFORM, player.oid.LoginCreature.GetSkillRank(Anvil.API.Skill.Perform, true) + 1);
       return 0;
     }
     private static int HandleImprovePickpocket(PlayerSystem.Player player, Feat feat)
     {
-      CreaturePlugin.SetSkillRank(player.oid.LoginCreature, NWScript.SKILL_PICK_POCKET, player.oid.LoginCreature.GetSkillRank(API.Constants.Skill.PickPocket, true) + 1);
+      CreaturePlugin.SetSkillRank(player.oid.LoginCreature, NWScript.SKILL_PICK_POCKET, player.oid.LoginCreature.GetSkillRank(Anvil.API.Skill.PickPocket, true) + 1);
       return 0;
     }
     private static int HandleImproveSearch(PlayerSystem.Player player, Feat feat)
     {
-      CreaturePlugin.SetSkillRank(player.oid.LoginCreature, NWScript.SKILL_SEARCH, player.oid.LoginCreature.GetSkillRank(API.Constants.Skill.Search, true) + 1);
+      CreaturePlugin.SetSkillRank(player.oid.LoginCreature, NWScript.SKILL_SEARCH, player.oid.LoginCreature.GetSkillRank(Anvil.API.Skill.Search, true) + 1);
       return 0;
     }
     private static int HandleImproveSetTrap(PlayerSystem.Player player, Feat feat)
     {
-      CreaturePlugin.SetSkillRank(player.oid.LoginCreature, NWScript.SKILL_SET_TRAP, player.oid.LoginCreature.GetSkillRank(API.Constants.Skill.SetTrap, true) + 1);
+      CreaturePlugin.SetSkillRank(player.oid.LoginCreature, NWScript.SKILL_SET_TRAP, player.oid.LoginCreature.GetSkillRank(Anvil.API.Skill.SetTrap, true) + 1);
       return 0;
     }
     private static int HandleImproveSpellcraft(PlayerSystem.Player player, Feat feat)
     {
-      CreaturePlugin.SetSkillRank(player.oid.LoginCreature, NWScript.SKILL_SPELLCRAFT, player.oid.LoginCreature.GetSkillRank(API.Constants.Skill.AnimalEmpathy, true) + 1);
+      CreaturePlugin.SetSkillRank(player.oid.LoginCreature, NWScript.SKILL_SPELLCRAFT, player.oid.LoginCreature.GetSkillRank(Anvil.API.Skill.AnimalEmpathy, true) + 1);
       return 0;
     }
     private static int HandleImproveSpot(PlayerSystem.Player player, Feat feat)
     {
-      CreaturePlugin.SetSkillRank(player.oid.LoginCreature, NWScript.SKILL_SPOT, player.oid.LoginCreature.GetSkillRank(API.Constants.Skill.Spot, true) + 1);
+      CreaturePlugin.SetSkillRank(player.oid.LoginCreature, NWScript.SKILL_SPOT, player.oid.LoginCreature.GetSkillRank(Anvil.API.Skill.Spot, true) + 1);
       return 0;
     }
     private static int HandleImproveTaunt(PlayerSystem.Player player, Feat feat)
     {
-      CreaturePlugin.SetSkillRank(player.oid.LoginCreature, NWScript.SKILL_TAUNT, player.oid.LoginCreature.GetSkillRank(API.Constants.Skill.Taunt, true) + 1);
+      CreaturePlugin.SetSkillRank(player.oid.LoginCreature, NWScript.SKILL_TAUNT, player.oid.LoginCreature.GetSkillRank(Anvil.API.Skill.Taunt, true) + 1);
       return 0;
     }
     private static int HandleImproveUseMagicDevice(PlayerSystem.Player player, Feat feat)
     {
-      CreaturePlugin.SetSkillRank(player.oid.LoginCreature, NWScript.SKILL_USE_MAGIC_DEVICE, player.oid.LoginCreature.GetSkillRank(API.Constants.Skill.UseMagicDevice, true) + 1);
+      CreaturePlugin.SetSkillRank(player.oid.LoginCreature, NWScript.SKILL_USE_MAGIC_DEVICE, player.oid.LoginCreature.GetSkillRank(Anvil.API.Skill.UseMagicDevice, true) + 1);
       return 0;
     }
     private static int HandleImproveTumble(PlayerSystem.Player player, Feat feat)
     {
-      CreaturePlugin.SetSkillRank(player.oid.LoginCreature, NWScript.SKILL_TUMBLE, player.oid.LoginCreature.GetSkillRank(API.Constants.Skill.Tumble, true) + 1);
+      CreaturePlugin.SetSkillRank(player.oid.LoginCreature, NWScript.SKILL_TUMBLE, player.oid.LoginCreature.GetSkillRank(Anvil.API.Skill.Tumble, true) + 1);
       return 0;
     }
     private static int HandleImproveBluff(PlayerSystem.Player player, Feat feat)
     {
-      CreaturePlugin.SetSkillRank(player.oid.LoginCreature, NWScript.SKILL_BLUFF, player.oid.LoginCreature.GetSkillRank(API.Constants.Skill.Bluff, true) + 1);
+      CreaturePlugin.SetSkillRank(player.oid.LoginCreature, NWScript.SKILL_BLUFF, player.oid.LoginCreature.GetSkillRank(Anvil.API.Skill.Bluff, true) + 1);
       return 0;
     }
     private static int HandleImproveIntimidate(PlayerSystem.Player player, Feat feat)
     {
-      CreaturePlugin.SetSkillRank(player.oid.LoginCreature, NWScript.SKILL_INTIMIDATE, player.oid.LoginCreature.GetSkillRank(API.Constants.Skill.Intimidate, true) + 1);
+      CreaturePlugin.SetSkillRank(player.oid.LoginCreature, NWScript.SKILL_INTIMIDATE, player.oid.LoginCreature.GetSkillRank(Anvil.API.Skill.Intimidate, true) + 1);
       return 0;
     }
 
@@ -448,7 +447,7 @@ namespace NWN.Systems
     {
       NwItem skin = player.oid.LoginCreature.GetItemInSlot(InventorySlot.CreatureSkin);
       if (skin != null)
-        skin.AddItemProperty(API.ItemProperty.BonusLevelSpell((IPClass)43, IPSpellLevel.SL0), EffectDuration.Permanent);
+        skin.AddItemProperty(ItemProperty.BonusLevelSpell((IPClass)43, IPSpellLevel.SL0), EffectDuration.Permanent);
       else
         Utils.LogMessageToDMs($"Skill System - On Improve Spell Slot : {player.oid.LoginCreature.Name} creature skin is null !");
 
@@ -458,7 +457,7 @@ namespace NWN.Systems
     {
       NwItem skin = player.oid.LoginCreature.GetItemInSlot(InventorySlot.CreatureSkin);
       if (skin != null)
-        skin.AddItemProperty(API.ItemProperty.BonusLevelSpell((IPClass)43, IPSpellLevel.SL1), EffectDuration.Permanent);
+        skin.AddItemProperty(ItemProperty.BonusLevelSpell((IPClass)43, IPSpellLevel.SL1), EffectDuration.Permanent);
       else
         Utils.LogMessageToDMs($"Skill System - On Improve Spell Slot : {player.oid.LoginCreature.Name} creature skin is null !");
 
@@ -468,7 +467,7 @@ namespace NWN.Systems
     {
       NwItem skin = player.oid.LoginCreature.GetItemInSlot(InventorySlot.CreatureSkin);
       if (skin != null)
-        skin.AddItemProperty(API.ItemProperty.BonusLevelSpell((IPClass)43, IPSpellLevel.SL2), EffectDuration.Permanent);
+        skin.AddItemProperty(ItemProperty.BonusLevelSpell((IPClass)43, IPSpellLevel.SL2), EffectDuration.Permanent);
       else
         Utils.LogMessageToDMs($"Skill System - On Improve Spell Slot : {player.oid.LoginCreature.Name} creature skin is null !");
 
@@ -478,7 +477,7 @@ namespace NWN.Systems
     {
       NwItem skin = player.oid.LoginCreature.GetItemInSlot(InventorySlot.CreatureSkin);
       if (skin != null)
-        skin.AddItemProperty(API.ItemProperty.BonusLevelSpell((IPClass)43, IPSpellLevel.SL3), EffectDuration.Permanent);
+        skin.AddItemProperty(ItemProperty.BonusLevelSpell((IPClass)43, IPSpellLevel.SL3), EffectDuration.Permanent);
       else
         Utils.LogMessageToDMs($"Skill System - On Improve Spell Slot : {player.oid.LoginCreature.Name} creature skin is null !");
 
@@ -488,7 +487,7 @@ namespace NWN.Systems
     {
       NwItem skin = player.oid.LoginCreature.GetItemInSlot(InventorySlot.CreatureSkin);
       if (skin != null)
-        skin.AddItemProperty(API.ItemProperty.BonusLevelSpell((IPClass)43, IPSpellLevel.SL4), EffectDuration.Permanent);
+        skin.AddItemProperty(ItemProperty.BonusLevelSpell((IPClass)43, IPSpellLevel.SL4), EffectDuration.Permanent);
       else
         Utils.LogMessageToDMs($"Skill System - On Improve Spell Slot : {player.oid.LoginCreature.Name} creature skin is null !");
 
@@ -498,7 +497,7 @@ namespace NWN.Systems
     {
       NwItem skin = player.oid.LoginCreature.GetItemInSlot(InventorySlot.CreatureSkin);
       if (skin != null)
-        skin.AddItemProperty(API.ItemProperty.BonusLevelSpell((IPClass)43, IPSpellLevel.SL5), EffectDuration.Permanent);
+        skin.AddItemProperty(ItemProperty.BonusLevelSpell((IPClass)43, IPSpellLevel.SL5), EffectDuration.Permanent);
       else
         Utils.LogMessageToDMs($"Skill System - On Improve Spell Slot : {player.oid.LoginCreature.Name} creature skin is null !");
 
@@ -508,7 +507,7 @@ namespace NWN.Systems
     {
       NwItem skin = player.oid.LoginCreature.GetItemInSlot(InventorySlot.CreatureSkin);
       if (skin != null)
-        skin.AddItemProperty(API.ItemProperty.BonusLevelSpell((IPClass)43, IPSpellLevel.SL6), EffectDuration.Permanent);
+        skin.AddItemProperty(ItemProperty.BonusLevelSpell((IPClass)43, IPSpellLevel.SL6), EffectDuration.Permanent);
       else
         Utils.LogMessageToDMs($"Skill System - On Improve Spell Slot : {player.oid.LoginCreature.Name} creature skin is null !");
 
@@ -518,7 +517,7 @@ namespace NWN.Systems
     {
       NwItem skin = player.oid.LoginCreature.GetItemInSlot(InventorySlot.CreatureSkin);
       if (skin != null)
-        skin.AddItemProperty(API.ItemProperty.BonusLevelSpell((IPClass)43, IPSpellLevel.SL7), EffectDuration.Permanent);
+        skin.AddItemProperty(ItemProperty.BonusLevelSpell((IPClass)43, IPSpellLevel.SL7), EffectDuration.Permanent);
       else
         Utils.LogMessageToDMs($"Skill System - On Improve Spell Slot : {player.oid.LoginCreature.Name} creature skin is null !");
 
@@ -528,7 +527,7 @@ namespace NWN.Systems
     {
       NwItem skin = player.oid.LoginCreature.GetItemInSlot(InventorySlot.CreatureSkin);
       if (skin != null)
-        skin.AddItemProperty(API.ItemProperty.BonusLevelSpell((IPClass)43, IPSpellLevel.SL8), EffectDuration.Permanent);
+        skin.AddItemProperty(ItemProperty.BonusLevelSpell((IPClass)43, IPSpellLevel.SL8), EffectDuration.Permanent);
       else
         Utils.LogMessageToDMs($"Skill System - On Improve Spell Slot : {player.oid.LoginCreature.Name} creature skin is null !");
 
@@ -538,7 +537,7 @@ namespace NWN.Systems
     {
       NwItem skin = player.oid.LoginCreature.GetItemInSlot(InventorySlot.CreatureSkin);
       if (skin != null)
-        skin.AddItemProperty(API.ItemProperty.BonusLevelSpell((IPClass)43, IPSpellLevel.SL9), EffectDuration.Permanent);
+        skin.AddItemProperty(ItemProperty.BonusLevelSpell((IPClass)43, IPSpellLevel.SL9), EffectDuration.Permanent);
       else
         Utils.LogMessageToDMs($"Skill System - On Improve Spell Slot : {player.oid.LoginCreature.Name} creature skin is null !");
 

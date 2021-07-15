@@ -1,10 +1,8 @@
 ﻿using System.Linq;
-using NWN.API;
-using NWN.Core;
-using NWN.Core.NWNX;
-using NWN.API.Constants;
+using Anvil.API;
 using static NWN.Systems.PlayerSystem;
 using NWN.System;
+using Anvil.Services;
 
 namespace NWN.Systems
 {
@@ -30,7 +28,7 @@ namespace NWN.Systems
           SpellsTable.Entry entry = Spells2da.spellsTable.GetSpellDataEntry(spell);
           oScroll.Name = entry.name;
           oScroll.Description = entry.description;
-          oScroll.AddItemProperty(API.ItemProperty.CastSpell((IPCastSpell)itemPropertyId, IPCastSpellNumUses.SingleUse), EffectDuration.Permanent);
+          oScroll.AddItemProperty(ItemProperty.CastSpell((IPCastSpell)itemPropertyId, IPCastSpellNumUses.SingleUse), EffectDuration.Permanent);
         }
 
         foreach(Feat feat in SkillSystem.shopBasicMagicSkillBooks)
@@ -56,7 +54,7 @@ namespace NWN.Systems
         }
       }
 
-      ChatSystem.chatService.SendMessage(Services.ChatChannel.PlayerTalk, "Pour obtenir votre amulette de concentration de l'arcane, il vous faut vous enregistrer auprès du juge.", magicshop, player.oid);
+      ChatSystem.chatService.SendMessage(ChatChannel.PlayerTalk, "Pour obtenir votre amulette de concentration de l'arcane, il vous faut vous enregistrer auprès du juge.", magicshop, player.oid);
       shop.OnOpen += StoreSystem.OnOpenGenericStore;
       shop.Open(player.oid);
     }

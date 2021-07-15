@@ -3,12 +3,9 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using NLog;
-using NWN.API;
-using NWN.API.Constants;
-using NWN.API.Events;
-using NWN.Core;
-using NWN.Core.NWNX;
-using NWN.Services;
+using Anvil.API;
+using Anvil.API.Events;
+using Anvil.Services;
 using Action = System.Action;
 
 namespace NWN.Systems

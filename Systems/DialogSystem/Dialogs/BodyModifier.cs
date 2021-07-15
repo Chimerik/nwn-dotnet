@@ -1,7 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Threading.Tasks;
-using NWN.API;
-using NWN.API.Constants;
+using Anvil.API;
 using NWN.Core.NWNX;
 using static NWN.Systems.PlayerSystem;
 
@@ -31,7 +30,7 @@ namespace NWN.Systems
     private void HandleBodyCloneSpawn(Player player)
     {
       clone = player.oid.ControlledCreature.Clone(mirror.Location, "clone");
-      clone.ApplyEffect(EffectDuration.Permanent, API.Effect.CutsceneGhost());
+      clone.ApplyEffect(EffectDuration.Permanent, Effect.CutsceneGhost());
       clone.HighlightColor = ColorConstants.Silver;
       clone.Name = $"Reflet de {player.oid.ControlledCreature.Name}";
       clone.Rotation += 180;

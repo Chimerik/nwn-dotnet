@@ -2,8 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using NWN.API;
-using NWN.API.Constants;
+using Anvil.API;
 using static NWN.Systems.Craft.Collect.Config;
 using static NWN.Systems.Craft.Collect.System;
 
@@ -473,7 +472,7 @@ namespace NWN.Systems.Craft
 
       player.playerJournal.craftJobCountDown = DateTime.Now.AddSeconds(remainingTime);
 
-      API.JournalEntry journalEntry = new API.JournalEntry();
+      JournalEntry journalEntry = new JournalEntry();
       if(remainingTime > 0)
         journalEntry.Name = $"Travail artisanal - {Utils.StripTimeSpanMilliseconds((TimeSpan)(player.playerJournal.craftJobCountDown - DateTime.Now))}";
       else
@@ -495,7 +494,7 @@ namespace NWN.Systems.Craft
           break;
         case JobType.Enchantement:
           journalEntry.Text = $"Enchantement en cours : {NwItem.Deserialize(craftedItem.ToByteArray()).Name}";
-          API.Effect enchantementVfx = API.Effect.VisualEffect((VfxType)832);
+          Effect enchantementVfx = Effect.VisualEffect((VfxType)832);
           enchantementVfx.Tag = "VFX_ENCHANTEMENT";
           player.oid.LoginCreature.ApplyEffect(EffectDuration.Permanent, enchantementVfx);
           break;
@@ -513,7 +512,7 @@ namespace NWN.Systems.Craft
           break;
         case JobType.EnchantementReactivation:
           journalEntry.Text = $"Enchantement en cours : {NwItem.Deserialize(craftedItem.ToByteArray()).Name}";
-          API.Effect reactivationVfx = API.Effect.VisualEffect((VfxType)832);
+          Effect reactivationVfx = Effect.VisualEffect((VfxType)832);
           reactivationVfx.Tag = "VFX_ENCHANTEMENT";
           journalEntry.Text = $"Ré-enchantement en cours : {NwItem.Deserialize(craftedItem.ToByteArray()).Name}";
           break;
@@ -530,7 +529,7 @@ namespace NWN.Systems.Craft
     }
     public void CancelCraftJournalEntry()
     {
-      API.JournalEntry journalEntry = player.oid.GetJournalEntry("craft_job");
+      JournalEntry journalEntry = player.oid.GetJournalEntry("craft_job");
 
       switch (type)
       {
@@ -544,7 +543,7 @@ namespace NWN.Systems.Craft
           journalEntry.Name = $"Travail artisanal en pause - Recherche en efficacité";
           break;
         case JobType.Enchantement:
-          foreach (API.Effect vfx in player.oid.LoginCreature.ActiveEffects.Where(e => e.Tag == "VFX_ENCHANTEMENT"))
+          foreach (Effect vfx in player.oid.LoginCreature.ActiveEffects.Where(e => e.Tag == "VFX_ENCHANTEMENT"))
             player.oid.LoginCreature.RemoveEffect(vfx);
           journalEntry.Name = $"Enchantement en pause";
           break;
@@ -558,7 +557,7 @@ namespace NWN.Systems.Craft
           journalEntry.Name = $"Réparations en pause";
           break;
         case JobType.EnchantementReactivation:
-          foreach (API.Effect vfx in player.oid.LoginCreature.ActiveEffects.Where(e => e.Tag == "VFX_ENCHANTEMENT"))
+          foreach (Effect vfx in player.oid.LoginCreature.ActiveEffects.Where(e => e.Tag == "VFX_ENCHANTEMENT"))
             player.oid.LoginCreature.RemoveEffect(vfx);
           journalEntry.Name = $"Ré-enchantement en pause";
           break;
@@ -574,7 +573,7 @@ namespace NWN.Systems.Craft
     }
     public void CloseCraftJournalEntry()
     {
-      API.JournalEntry journalEntry = player.oid.GetJournalEntry("craft_job");
+      JournalEntry journalEntry = player.oid.GetJournalEntry("craft_job");
 
       switch (type)
       {
@@ -591,7 +590,7 @@ namespace NWN.Systems.Craft
           player.oid.ApplyInstantVisualEffectToObject((VfxType)792, player.oid.ControlledCreature);
           break;
         case JobType.Enchantement:
-          foreach (API.Effect vfx in player.oid.LoginCreature.ActiveEffects.Where(e => e.Tag == "VFX_ENCHANTEMENT"))
+          foreach (Effect vfx in player.oid.LoginCreature.ActiveEffects.Where(e => e.Tag == "VFX_ENCHANTEMENT"))
             player.oid.LoginCreature.RemoveEffect(vfx);
 
           player.oid.ApplyInstantVisualEffectToObject((VfxType)1055, player.oid.ControlledCreature);
@@ -610,7 +609,7 @@ namespace NWN.Systems.Craft
           player.oid.ApplyInstantVisualEffectToObject((VfxType)1501, player.oid.ControlledCreature);
           break;
         case JobType.EnchantementReactivation:
-          foreach (API.Effect vfx in player.oid.LoginCreature.ActiveEffects.Where(e => e.Tag == "VFX_ENCHANTEMENT"))
+          foreach (Effect vfx in player.oid.LoginCreature.ActiveEffects.Where(e => e.Tag == "VFX_ENCHANTEMENT"))
             player.oid.LoginCreature.RemoveEffect(vfx);
 
           player.oid.ApplyInstantVisualEffectToObject((VfxType)872, player.oid.ControlledCreature);

@@ -3,11 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using NWN.API;
+using Anvil.API;
 using System.ComponentModel;
 using static NWN.Systems.PlayerSystem;
-using NWN.Core.NWNX;
-using NWN.API.Constants;
 
 namespace NWN.Systems.DicePoker
 {

@@ -1,16 +1,14 @@
 ﻿using NWN.Core;
 using NWN.Core.NWNX;
-using NWN.Services;
-using NWN.API;
+using Anvil.Services;
+using Anvil.API;
 using System.Linq;
-using NWN.API.Constants;
 using Discord;
 using NLog;
-using NWN.API.Events;
+using Anvil.API.Events;
 using System.Threading.Tasks;
 using System.Threading;
 using System;
-using Effect = NWN.API.Effect;
 
 namespace NWN.Systems
 {
@@ -65,7 +63,7 @@ namespace NWN.Systems
       {
         if (!spotter.IsCreatureSeen(oPC))
         {
-          spotter.ControllingPlayer.SendServerMessage("Quelqu'un d'invisible est en train de lancer un sort à proximité !", API.ColorConstants.Cyan);
+          spotter.ControllingPlayer.SendServerMessage("Quelqu'un d'invisible est en train de lancer un sort à proximité !", ColorConstants.Cyan);
           spotter.ControllingPlayer.ShowVisualEffect(VfxType.FnfLosNormal10, oPC.Position);
         }
       }
@@ -259,7 +257,7 @@ namespace NWN.Systems
         {
           case 47: // 47 = Invisibility
 
-            API.Effect inviAoE = API.Effect.AreaOfEffect(193, null, "invi_hb"); // 193 = AoE 20 m
+            Effect inviAoE = Effect.AreaOfEffect(193, null, "invi_hb"); // 193 = AoE 20 m
             inviAoE.Creator = callInfo.ObjectSelf;
             inviAoE.Tag = "invi_aoe";
             inviAoE.SubType = EffectSubType.Supernatural;

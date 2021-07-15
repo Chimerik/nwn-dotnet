@@ -4,9 +4,10 @@ using System.Linq;
 using System.Numerics;
 using System.Threading;
 using System.Threading.Tasks;
-using NWN.API;
-using NWN.API.Constants;
-using NWN.API.Events;
+using Anvil.API;
+using Anvil.API.Events;
+using Anvil.Services;
+
 using NWN.Core;
 using static NWN.Systems.Arena.Config;
 using static NWN.Systems.PlayerSystem;
@@ -53,10 +54,10 @@ namespace NWN.Systems.Arena
 
       await NwTask.Delay(TimeSpan.FromSeconds(3));
 
-      onPlayerDeath.DeadPlayer.LoginCreature.ApplyEffect(EffectDuration.Instant, API.Effect.VisualEffect(API.Constants.VfxType.ImpRaiseDead));
-      onPlayerDeath.DeadPlayer.LoginCreature.ApplyEffect(EffectDuration.Instant, API.Effect.Resurrection());
+      onPlayerDeath.DeadPlayer.LoginCreature.ApplyEffect(EffectDuration.Instant, Effect.VisualEffect(VfxType.ImpRaiseDead));
+      onPlayerDeath.DeadPlayer.LoginCreature.ApplyEffect(EffectDuration.Instant, Effect.Resurrection());
 
-      ChatSystem.chatService.SendMessage(Services.ChatChannel.PlayerTalk, "Pour obtenir votre amulette de concentration de l'arcane, il vous faut vous enregistrer auprès du juge.", NwObject.FindObjectsWithTag<NwCreature>("pve_arena_host").FirstOrDefault(), onPlayerDeath.DeadPlayer);
+      ChatSystem.chatService.SendMessage(ChatChannel.PlayerTalk, "Pour obtenir votre amulette de concentration de l'arcane, il vous faut vous enregistrer auprès du juge.", NwObject.FindObjectsWithTag<NwCreature>("pve_arena_host").FirstOrDefault(), onPlayerDeath.DeadPlayer);
     }
     public static void OnExitArena(AreaEvents.OnExit onExit)
     {
@@ -85,7 +86,7 @@ namespace NWN.Systems.Arena
 
       player.pveArena.currentMalusList.Clear();
 
-      foreach (API.Effect paralysis in player.oid.LoginCreature.ActiveEffects.Where(e => e.Tag == "_ARENA_CUTSCENE_PARALYZE_EFFECT"))
+      foreach (Effect paralysis in player.oid.LoginCreature.ActiveEffects.Where(e => e.Tag == "_ARENA_CUTSCENE_PARALYZE_EFFECT"))
         player.oid.LoginCreature.RemoveEffect(paralysis);
 
       foreach (NwCreature spectator in onExit.Area.FindObjectsOfTypeInArea<NwCreature>().Where(p => p.IsPlayerControlled || p.IsLoginPlayerCharacter))
@@ -180,7 +181,7 @@ namespace NWN.Systems.Arena
       player.pveArena.currentMalus = malus;
       player.menu.Close();
 
-      foreach (API.Effect paralysis in player.oid.LoginCreature.ActiveEffects.Where(e => e.Tag == "_ARENA_CUTSCENE_PARALYZE_EFFECT"))
+      foreach (Effect paralysis in player.oid.LoginCreature.ActiveEffects.Where(e => e.Tag == "_ARENA_CUTSCENE_PARALYZE_EFFECT"))
         player.oid.LoginCreature.RemoveEffect(paralysis);
 
       if (arenaMalusDictionary.TryGetValue(malus, out ArenaMalus arenaMalus))
@@ -208,7 +209,7 @@ namespace NWN.Systems.Arena
     {
       await NwTask.WaitUntil(() => player.pveArena.currentRound == 0);
 
-      foreach (API.Effect arenaMalus in player.oid.LoginCreature.ActiveEffects.Where(f => f.Tag == malus))
+      foreach (Effect arenaMalus in player.oid.LoginCreature.ActiveEffects.Where(f => f.Tag == malus))
         player.oid.LoginCreature.RemoveEffect(arenaMalus);
 
       player.oid.SendServerMessage(message, ColorConstants.Orange);

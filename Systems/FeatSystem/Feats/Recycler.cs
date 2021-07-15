@@ -1,7 +1,5 @@
 ﻿using System;
-using NWN.API;
-using NWN.API.Constants;
-using NWN.Core.NWNX;
+using Anvil.API;
 using static NWN.Systems.Craft.Collect.Config;
 
 namespace NWN.Systems

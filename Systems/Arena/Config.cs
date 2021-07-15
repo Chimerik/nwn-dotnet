@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using NWN.API;
-using NWN.API.Constants;
+using Anvil.API;
 using static NWN.Systems.Arena.Utils;
 
 namespace NWN.Systems.Arena

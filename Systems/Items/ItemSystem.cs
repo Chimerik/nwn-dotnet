@@ -1,10 +1,9 @@
-﻿using NWN.API;
+﻿using Anvil.API;
 using NWN.Core.NWNX;
-using NWN.Services;
-using NWN.API.Constants;
+using Anvil.Services;
 using System.Linq;
 using NWN.Core;
-using NWN.API.Events;
+using Anvil.API.Events;
 using NLog;
 using System.Threading.Tasks;
 using System;
@@ -223,7 +222,7 @@ namespace NWN.Systems
     }
     public static async void OnTorilNecklaceRemoved(NwPlayer oPC)
     {
-      oPC.SendServerMessage("Votre lien avec la Toile semble particulièrement faible. Un échec des sorts de 50 % vous est appliqué.", API.ColorConstants.Pink);
+      oPC.SendServerMessage("Votre lien avec la Toile semble particulièrement faible. Un échec des sorts de 50 % vous est appliqué.", ColorConstants.Pink);
       Effect eff = Effect.SpellFailure(50);
       eff.Tag = "erylies_spell_failure";
       eff.SubType = EffectSubType.Supernatural;
@@ -240,7 +239,7 @@ namespace NWN.Systems
     }
     public static async void OnTorilNecklaceEquipped(NwPlayer oPC)
     {
-      oPC.SendServerMessage("Votre lien avec la Toile se renforce de manière significative.", API.ColorConstants.Pink);
+      oPC.SendServerMessage("Votre lien avec la Toile se renforce de manière significative.", ColorConstants.Pink);
 
       if (oPC.LoginCreature.ActiveEffects.Any(e => e.Tag == "erylies_spell_failure"))
         oPC.LoginCreature.RemoveEffect(oPC.LoginCreature.ActiveEffects.Where(e => e.Tag == "erylies_spell_failure").FirstOrDefault());

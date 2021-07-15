@@ -1,10 +1,8 @@
-﻿using NWN.API;
-using NWN.Core;
-using NWN.API.Constants;
+﻿using Anvil.API;
 using System.Linq;
 using System;
 using NWN.Core.NWNX;
-using NWN.API.Events;
+using Anvil.API.Events;
 
 namespace NWN.Systems
 {
@@ -67,7 +65,7 @@ namespace NWN.Systems
     }
     public static void ApplyCustomEffectToTarget(NwGameObject target, string effectTag, int iconId, int effectDuration = 0)
     {
-      API.Effect eff = API.Effect.HitPointChangeWhenDying(1);
+      Effect eff = Effect.HitPointChangeWhenDying(1);
       eff.Tag = effectTag;
       eff.SubType = EffectSubType.Supernatural;
 

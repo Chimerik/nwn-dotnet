@@ -1,10 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
-using NWN.API;
-using NWN.API.Constants;
-using NWN.Core;
-using NWN.Core.NWNX;
+using Anvil.API;
 
 namespace NWN.Systems
 {

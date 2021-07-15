@@ -1,7 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
-using NWN.API;
-using NWN.API.Constants;
+using Anvil.API;
+using Anvil.Services;
+
 using NWN.Core;
 using static NWN.Systems.PlayerSystem;
 
@@ -51,7 +52,7 @@ namespace NWN.Systems
       bard.ApplyEffect(EffectDuration.Instant, Effect.VisualEffect(VfxType.FnfSoundBurstSilent));
       bard.ApplyEffect(EffectDuration.Permanent, Effect.VisualEffect(VfxType.DurBardSong), TimeSpan.FromHours(24));
 
-      ChatSystem.chatService.SendMessage(Services.ChatChannel.PlayerTalk, $"{player.oid.ControlledCreature.Name} vient de demander à jouer {AmbientMusic2da.ambientMusicTable.GetName(music)}", bard);
+      ChatSystem.chatService.SendMessage(ChatChannel.PlayerTalk, $"{player.oid.ControlledCreature.Name} vient de demander à jouer {AmbientMusic2da.ambientMusicTable.GetName(music)}", bard);
       this.DrawWelcomePage(player, bard);
     }
   }

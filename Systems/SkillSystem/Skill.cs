@@ -1,7 +1,5 @@
 ﻿using System;
-using NWN.Core.NWNX;
-using NWN.API.Constants;
-using NWN.API;
+using Anvil.API;
 
 namespace NWN.Systems
 {
@@ -79,7 +77,7 @@ namespace NWN.Systems
       public void CreateSkillJournalEntry()
       {
         player.playerJournal.skillJobCountDown = DateTime.Now.AddSeconds(this.GetTimeToNextLevel(CalculateSkillPointsPerSecond()));
-        API.JournalEntry journalEntry = new API.JournalEntry();
+        JournalEntry journalEntry = new JournalEntry();
         journalEntry.Name = $"Entrainement - {Utils.StripTimeSpanMilliseconds((TimeSpan)(player.playerJournal.skillJobCountDown - DateTime.Now))}";
         journalEntry.Text = $"Entrainement en cours :\n\n " +
           $"{this.name}\n\n" +
@@ -93,7 +91,7 @@ namespace NWN.Systems
       }
       public void CancelSkillJournalEntry()
       {
-        API.JournalEntry journalEntry = player.oid.GetJournalEntry("skill_job");
+        JournalEntry journalEntry = player.oid.GetJournalEntry("skill_job");
         journalEntry.Name = $"Entrainement annulé - {this.name}";
         journalEntry.QuestTag = "skill_job";
         journalEntry.QuestDisplayed = false;
@@ -102,7 +100,7 @@ namespace NWN.Systems
       }
       public void CloseSkillJournalEntry()
       {
-        API.JournalEntry journalEntry = player.oid.GetJournalEntry("skill_job");
+        JournalEntry journalEntry = player.oid.GetJournalEntry("skill_job");
 
         if (journalEntry == null)
         {

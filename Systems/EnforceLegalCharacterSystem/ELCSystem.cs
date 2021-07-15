@@ -2,9 +2,9 @@
 
 using NLog;
 
-using NWN.API;
+using Anvil.API;
 using NWN.Core.NWNX;
-using NWN.Services;
+using Anvil.Services;
 
 namespace NWN.Systems
 {
@@ -57,7 +57,7 @@ namespace NWN.Systems
       }
       else
       {
-        if (onELCFailure.Type == ValidationFailureType.Character && onELCFailure.SubType == ValidationFailureSubType.ClassSpellcasterInvalidPrimaryStat && oPC.GetAbilityScore(API.Constants.Ability.Intelligence, true) < 11)
+        if (onELCFailure.Type == ValidationFailureType.Character && onELCFailure.SubType == ValidationFailureSubType.ClassSpellcasterInvalidPrimaryStat && oPC.GetAbilityScore(Ability.Intelligence, true) < 11)
           onELCFailure.IgnoreFailure = true;
         else
         {

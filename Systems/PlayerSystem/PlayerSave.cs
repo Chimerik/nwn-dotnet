@@ -2,12 +2,9 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using NWN.API;
-using NWN.API.Constants;
-using NWN.API.Events;
-using NWN.Core;
-using NWN.Core.NWNX;
-using NWN.Services;
+using Anvil.API;
+using Anvil.API.Events;
+using Anvil.Services;
 
 namespace NWN.Systems
 {
@@ -89,7 +86,7 @@ namespace NWN.Systems
 
       Log.Info($"Polymorph detected, restoring effect list on {player.oid.LoginCreature.Name}");
 
-      foreach (API.Effect eff in player.effectList)
+      foreach (Effect eff in player.effectList)
         player.oid.LoginCreature.ApplyEffect(eff.DurationType, eff, TimeSpan.FromSeconds((double)eff.DurationRemaining));
     }
     private static void SavePlayerCharacterToDatabase(Player player)

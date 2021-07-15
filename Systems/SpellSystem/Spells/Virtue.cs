@@ -1,7 +1,5 @@
-﻿using NWN.Core;
-using NWN.API;
-using NWN.API.Events;
-using NWN.API.Constants;
+﻿using Anvil.API;
+using Anvil.API.Events;
 
 namespace NWN.Systems
 {

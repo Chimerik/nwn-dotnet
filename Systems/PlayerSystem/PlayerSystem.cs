@@ -3,10 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using NWN.Core;
 using NWN.Core.NWNX;
-using NWN.API;
-using NWN.Services;
-using NWN.API.Events;
-using NWN.API.Constants;
+using Anvil.API;
+using Anvil.Services;
+using Anvil.API.Events;
 using NLog;
 using System.Threading.Tasks;
 
@@ -44,7 +43,7 @@ namespace NWN.Systems
       if (onCombatStatusChange.CombatStatus == CombatStatus.ExitCombat)
         return;
 
-      API.Effect effPC = onCombatStatusChange.Player.ControlledCreature.ActiveEffects.FirstOrDefault(e => e.EffectType == EffectType.CutsceneGhost);
+      Effect effPC = onCombatStatusChange.Player.ControlledCreature.ActiveEffects.FirstOrDefault(e => e.EffectType == EffectType.CutsceneGhost);
       if (effPC != null)
         onCombatStatusChange.Player.ControlledCreature.RemoveEffect(effPC);
     }
@@ -337,7 +336,7 @@ namespace NWN.Systems
 
       onPerception.PerceivedCreature.GetObjectVariable<LocalVariableInt>($"_PERCEPTION_STATUS_{onPerception.Creature.ControllingPlayer.CDKey}").Value = 1;
 
-      API.Effect effectToRemove = onPerception.PerceivedCreature.ActiveEffects.FirstOrDefault(e => e.Tag == "_FREEZE_EFFECT");
+      Effect effectToRemove = onPerception.PerceivedCreature.ActiveEffects.FirstOrDefault(e => e.Tag == "_FREEZE_EFFECT");
       if (effectToRemove != null)
         onPerception.PerceivedCreature.RemoveEffect(effectToRemove);
 
@@ -346,7 +345,7 @@ namespace NWN.Systems
         onPerception.PerceivedCreature.PlayAnimation((Animation)Utils.random.Next(100, 116), 6);
         await NwTask.Delay(TimeSpan.FromSeconds(0.1));
 
-        API.Effect eff = eff = API.Effect.VisualEffect(VfxType.DurFreezeAnimation);
+        Effect eff = eff = Effect.VisualEffect(VfxType.DurFreezeAnimation);
         eff.Tag = "_FREEZE_EFFECT";
         eff.SubType = EffectSubType.Supernatural;
         onPerception.PerceivedCreature.ApplyEffect(EffectDuration.Permanent, eff);

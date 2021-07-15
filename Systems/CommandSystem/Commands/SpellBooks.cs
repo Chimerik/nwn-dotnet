@@ -1,6 +1,4 @@
-﻿using NWN.Core;
-using NWN.API;
-using NWN.API.Constants;
+﻿using Anvil.API;
 using System.Collections.Generic;
 
 namespace NWN.Systems

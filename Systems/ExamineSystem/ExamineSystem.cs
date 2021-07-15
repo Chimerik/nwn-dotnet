@@ -1,9 +1,7 @@
 ﻿using NLog;
-using NWN.API;
-using NWN.API.Constants;
-using NWN.API.Events;
-using NWN.Core;
-using NWN.Services;
+using Anvil.API;
+using Anvil.API.Events;
+using Anvil.Services;
 using System;
 using System.Linq;
 using System.Threading.Tasks;

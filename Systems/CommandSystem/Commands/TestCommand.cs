@@ -1,11 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using NWN.API;
-using NWN.API.Constants;
-using NWN.API.Events;
-using NWN.Core;
-using NWN.Core.NWNX;
+﻿using Anvil.API;
+using Anvil.API.Events;
 
 namespace NWN.Systems
 {
@@ -16,7 +10,7 @@ namespace NWN.Systems
       if (PlayerSystem.Players.TryGetValue(ctx.oSender.LoginCreature, out PlayerSystem.Player player))
       {
         //ctx.oSender.ToNwObject<NwPlayer>().HP = 10;
-        //ctx.oSender.ApplyEffect(EffectDuration.Instant, API.Effect.Death());
+        //ctx.oSender.ApplyEffect(EffectDuration.Instant, Effect.Death());
 
         if (player.oid.PlayerName == "Chim")
         {

@@ -1,11 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using NWN.API;
-using NWN.API.Constants;
-using NWN.Core;
-using NWN.Core.NWNX;
+using Anvil.API;
 using static NWN.Systems.Craft.Collect.Config;
 
 namespace NWN.Systems.Craft.Collect

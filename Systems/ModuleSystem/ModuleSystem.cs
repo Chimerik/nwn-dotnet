@@ -1,11 +1,11 @@
 ﻿using Discord;
 using Google.Cloud.Translation.V2;
 using NLog;
-using NWN.API;
-using NWN.API.Events;
+using Anvil.API;
+using Anvil.API.Events;
 using NWN.Core;
 using NWN.Core.NWNX;
-using NWN.Services;
+using Anvil.Services;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -454,7 +454,7 @@ namespace NWN.Systems
           {
             tempItem.Clone(oSeller.LoginCreature);
             NwItem authorization = await NwItem.Create("auction_clearanc", oSeller.LoginCreature);
-            oSeller.SendServerMessage($"Aucune enchère sur votre {tempItem.Name.ColorString(API.ColorConstants.Orange)}. L'objet vous a donc été restitué.");
+            oSeller.SendServerMessage($"Aucune enchère sur votre {tempItem.Name.ColorString(ColorConstants.Orange)}. L'objet vous a donc été restitué.");
           }
           else
           {
@@ -476,7 +476,7 @@ namespace NWN.Systems
               if (PlayerSystem.Players.TryGetValue(oSeller.LoginCreature, out PlayerSystem.Player seller))
               {
                 seller.bankGold += highestAuction * 95 / 100;
-                oSeller.SendServerMessage($"Votre enchère vous a permis de remporter {(highestAuction * 95 / 100).ToString().ColorString(API.ColorConstants.Orange)}. L'or a été versé à votre banque !");
+                oSeller.SendServerMessage($"Votre enchère vous a permis de remporter {(highestAuction * 95 / 100).ToString().ColorString(ColorConstants.Orange)}. L'or a été versé à votre banque !");
               }
 
               NwItem authorization = await NwItem.Create("auction_clearanc", oSeller.LoginCreature);
@@ -502,7 +502,7 @@ namespace NWN.Systems
           if (oBuyer != null)
           {
             tempItem.Clone(oBuyer.LoginCreature);
-            oSeller.SendServerMessage($"Vous venez de remporter l'enchère sur {tempItem.Name.ColorString(API.ColorConstants.Orange)}. L'objet se trouve désormais dans votre inventaire.");
+            oSeller.SendServerMessage($"Vous venez de remporter l'enchère sur {tempItem.Name.ColorString(ColorConstants.Orange)}. L'objet se trouve désormais dans votre inventaire.");
           }
           else
           {
