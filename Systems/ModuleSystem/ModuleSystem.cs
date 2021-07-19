@@ -3,7 +3,6 @@ using Google.Cloud.Translation.V2;
 using NLog;
 using Anvil.API;
 using Anvil.API.Events;
-using NWN.Core;
 using NWN.Core.NWNX;
 using Anvil.Services;
 using System;
@@ -47,6 +46,8 @@ namespace NWN.Systems
 
       Task spawnResources = SpawnCollectableResources(1);
       Task deleteExpiredMail = DeleteExpiredMail();
+
+      Utils.CSVReader();
     }
     private async void LoadDiscordBot()
     {
