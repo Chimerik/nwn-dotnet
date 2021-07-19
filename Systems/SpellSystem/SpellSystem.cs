@@ -71,13 +71,12 @@ namespace NWN.Systems
     [ScriptHandler("spellhook")]
     private void HandleSpellHook(CallInfo callInfo)
     {
-      if (!(callInfo.ObjectSelf is NwCreature { IsPlayerControlled: true } oPC))
-        return;
-
-      if (!PlayerSystem.Players.TryGetValue(oPC, out PlayerSystem.Player player))
-        return;
-
       SpellEvents.OnSpellCast onSpellCast = new SpellEvents.OnSpellCast();
+
+      HandleSpellDamageLocalisation(onSpellCast.Spell, onSpellCast.Caster);
+
+      if (!(callInfo.ObjectSelf is NwCreature { IsPlayerControlled: true } oPC) || !PlayerSystem.Players.TryGetValue(oPC, out PlayerSystem.Player player))
+        return;
 
       CreaturePlugin.SetClassByPosition(oPC, 0, 43);
       
@@ -442,6 +441,37 @@ namespace NWN.Systems
             oTarget.ApplyEffect(EffectDuration.Instant, Effect.VisualEffect(VfxType.ComHitElectrical));
           }
         }
+      }
+    }
+    private void HandleSpellDamageLocalisation(Spell spell, NwGameObject oCaster)
+    {
+      switch (spell)
+      {
+        case Spell.AcidFog:
+        case Spell.BallLightning:
+        case Spell.BladeBarrier:
+        case Spell.Cloudkill:
+        case Spell.DelayedBlastFireball:
+        case Spell.ShadesFireball:
+        case Spell.Fireball:
+        case Spell.IncendiaryCloud:
+        case Spell.ShadesWallOfFire:
+        case Spell.WallOfFire:
+          oCaster.GetObjectVariable<LocalVariableInt>("_SPELL_ATTACK_POSITION").Value = 1;
+          break;
+
+        case Spell.IceStorm:
+        case Spell.Bombardment:
+        case Spell.CallLightning:
+        case Spell.EpicRuin:
+        case Spell.FireStorm:
+        case Spell.FlameStrike:
+        case Spell.MeteorSwarm:
+        case Spell.SoundBurst:
+        case Spell.StormOfVengeance:
+        case Spell.Sunburst:
+          oCaster.GetObjectVariable<LocalVariableInt>("_SPELL_ATTACK_POSITION").Value = 3;
+          break;
       }
     }
   }
