@@ -15,22 +15,22 @@ namespace NWN.Systems
       /*foreach (NwPlaceable plc in NwModule.FindObjectsWithTag<NwPlaceable>("bank_gold"))
         plc.OnUsed += StartGoldStealDialog;*/
 
-      foreach (NwPlaceable plc in NwModule.FindObjectsWithTag<NwPlaceable>("intro_mirror"))
+      foreach (NwPlaceable plc in NwObject.FindObjectsWithTag<NwPlaceable>("intro_mirror"))
         plc.OnUsed += StartIntroMirrorDialog;
 
-      foreach (NwPlaceable plc in NwModule.FindObjectsWithTag<NwPlaceable>("body_modifier"))
+      foreach (NwPlaceable plc in NwObject.FindObjectsWithTag<NwPlaceable>("body_modifier"))
         plc.OnUsed += StartBodyModifierDialog;
 
-      foreach (NwPlaceable plc in NwModule.FindObjectsWithTag<NwPlaceable>("refinery"))
+      foreach (NwPlaceable plc in NwObject.FindObjectsWithTag<NwPlaceable>("refinery"))
         plc.OnUsed += StartRefineryDialog;
 
-      foreach (NwPlaceable plc in NwModule.FindObjectsWithTag<NwPlaceable>("decoupe"))
+      foreach (NwPlaceable plc in NwObject.FindObjectsWithTag<NwPlaceable>("decoupe"))
         plc.OnUsed += StartScierieDialog;
 
-      foreach (NwPlaceable plc in NwModule.FindObjectsWithTag<NwPlaceable>("tannerie_peau"))
+      foreach (NwPlaceable plc in NwObject.FindObjectsWithTag<NwPlaceable>("tannerie_peau"))
         plc.OnUsed += StartTanneryDialog;
 
-      foreach (NwPlaceable plc in NwModule.FindObjectsWithTag<NwPlaceable>("hventes"))
+      foreach (NwPlaceable plc in NwObject.FindObjectsWithTag<NwPlaceable>("hventes"))
         plc.OnUsed += StartAuctionHouseDialog;
     }
 

@@ -1,9 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Threading.Tasks;
 using Anvil.API;
-using NWN.Core;
-using NWN.Core.NWNX;
 using static NWN.Systems.Craft.Collect.Config;
 using static NWN.Systems.PlayerSystem;
 

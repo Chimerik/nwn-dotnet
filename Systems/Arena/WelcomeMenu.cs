@@ -2,8 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using Anvil.API;
-using NWN.Core;
-using NWN.Core.NWNX;
 using NWN.System;
 using static NWN.Systems.Arena.Config;
 using static NWN.Systems.PlayerSystem;

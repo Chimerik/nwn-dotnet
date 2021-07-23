@@ -46,8 +46,6 @@ namespace NWN.Systems
 
       Task spawnResources = SpawnCollectableResources(1);
       Task deleteExpiredMail = DeleteExpiredMail();
-
-      Utils.CSVReader();
     }
     private async void LoadDiscordBot()
     {

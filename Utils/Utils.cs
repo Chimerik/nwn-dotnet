@@ -218,49 +218,5 @@ namespace NWN
       if (creature.IsPlayerControlled)
         creature.ControllingPlayer.CameraHeight = 0;
     }
-    public static void CSVReader()
-    {
-      var path = "/home/chim/test.csv";
-      var lines = File.ReadLines(path, Encoding.UTF8);
-
-      int rows = lines.Count();
-      int nbColumns = lines.FirstOrDefault().Count(c => c == ',') + 1;
-      Log.Info($"rows : {rows}");
-
-      if (rows < 1)
-        return;
-
-      string[,] alchemyTable = new string[rows, nbColumns];
-
-      int x = 0;
-
-      foreach (var line in lines)
-      {
-        var columns = line.Split(",");
-        int y = 0;
-
-        foreach (var column in columns)
-        {
-          alchemyTable[x, y] = column;
-          y++;
-        }
-
-        x++;
-      }
-
-      Log.Info("------------------------------------------------------------");
-
-      for(int i = 0; i < rows; i++)
-      {
-        string output = "";
-
-        for (int j = 0; j < nbColumns; j++)
-          output += alchemyTable[i,j] + ",";
-
-        Log.Info(output);
-      }
-
-      Log.Info("------------------------------------------------------------");
-    }
   }
 }
