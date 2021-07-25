@@ -12,6 +12,18 @@ namespace NWN.Systems
     {
       return entries[baseItem];
     }
+    public int GetMaxDamage(BaseItemType baseItem, NwCreature oCreature, bool IsRangedAttack)
+    {
+      Entry damageEntry = entries[baseItem];
+
+      int additionnalDamage = 0;
+      if (IsRangedAttack)
+        additionnalDamage += oCreature.GetAbilityModifier(Ability.Dexterity);
+      else
+        additionnalDamage += oCreature.GetAbilityModifier(Ability.Strength);
+
+      return damageEntry.damageDice * damageEntry.numDamageDice + additionnalDamage;
+    }
     public int[] GetDamageDices(BaseItemType baseItem)
     {
       Entry damageEntry = entries[baseItem];

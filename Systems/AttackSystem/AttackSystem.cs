@@ -18,6 +18,8 @@ namespace NWN.Systems
       {
             IsAttackDodged,
             ProcessBaseDamageTypeAndAttackWeapon,
+            ProcessCriticalHit,
+            ProcessBaseDamage,
             ProcessTargetDamageAbsorption,
             ProcessBaseArmorPenetration,
             ProcessBonusArmorPenetration,
@@ -71,28 +73,6 @@ namespace NWN.Systems
 
     private static void IsAttackDodged(Context ctx, Action next)
     {
-      /*int skillBonusDodge = 0;
-
-      if (PlayerSystem.Players.TryGetValue(ctx.oTarget, out PlayerSystem.Player player) && player.learntCustomFeats.ContainsKey(CustomFeats.ImprovedDodge))
-        skillBonusDodge += 2 * SkillSystem.GetCustomFeatLevelFromSkillPoints(CustomFeats.ImprovedDodge, player.learntCustomFeats[CustomFeats.ImprovedDodge]);
-
-      if (ctx.oTarget.KnowsFeat(Feat.Dodge))
-        skillBonusDodge += 2;
-
-      int dodgeRoll = NwRandom.Roll(Utils.random, 100);
-
-      if (dodgeRoll <= ctx.oTarget.GetAbilityModifier(Ability.Dexterity) + skillBonusDodge - ctx.oTarget.ArmorCheckPenalty - ctx.oTarget.ShieldCheckPenalty)
-      {
-        ctx.onAttack.AttackResult = AttackResult.Miss;
-        if (ctx.oAttacker.IsPlayerControlled)
-          ctx.oAttacker.ControllingPlayer.SendServerMessage($"{ctx.oTarget.Name} a esquivé votre attaque.");
-
-        if (ctx.oTarget.IsPlayerControlled)
-          ctx.oTarget.ControllingPlayer.SendServerMessage($"Attaque de {ctx.oAttacker.Name} esquivée.");
-      }
-      else
-        next();*/
-
       if (ctx.onAttack.AttackResult == AttackResult.Miss)
       {
         ctx.onAttack.AttackResult = AttackResult.Miss;
@@ -105,113 +85,6 @@ namespace NWN.Systems
 
       next();
     }
-    /*private static void ProcessAutomaticHit(Context ctx, Action next)
-    {
-      if (ctx.onAttack.AttackResult == AttackResult.Miss)
-         ctx.onAttack.AttackResult = AttackResult.AutomaticHit;
-
-      next();
-    }*/
-    /*private static void ProcessMissDamageRecalculation(Context ctx, Action next)
-    {
-      if (ctx.onAttack.AttackResult == AttackResult.AutomaticHit)
-      {
-        int strModifier = ctx.oAttacker.GetAbilityModifier(Ability.Strength);
-
-        if (ctx.attackWeapon == null)
-          ctx.onAttack.DamageData.Base = (short)(NwRandom.Roll(Utils.random, 3) + strModifier);
-        else
-        {
-          NwItem damageSlot = null;
-
-          switch (ItemUtils.GetItemCategory(ctx.attackWeapon.BaseItemType))
-          {
-            case ItemUtils.ItemCategory.RangedWeapon:
-
-              switch (ctx.attackWeapon.BaseItemType)
-              {
-                case BaseItemType.LightCrossbow:
-                case BaseItemType.HeavyCrossbow:
-                  damageSlot = ctx.oAttacker.GetItemInSlot(InventorySlot.Bolts);
-                  strModifier = 0;
-                  break;
-                case BaseItemType.Shortbow:
-                case BaseItemType.Longbow:
-                  damageSlot = ctx.oAttacker.GetItemInSlot(InventorySlot.Arrows);
-
-                  ItemProperty mighty = ctx.attackWeapon.ItemProperties.Where(ip => ip.PropertyType == ItemPropertyType.Mighty).OrderByDescending(ip => ip.CostTableValue).FirstOrDefault();
-                  if (mighty != null && strModifier > mighty.CostTableValue)
-                    strModifier = mighty.CostTableValue;
-
-                  break;
-                case BaseItemType.Sling:
-                  damageSlot = ctx.oAttacker.GetItemInSlot(InventorySlot.Bullets);
-                  strModifier = 0;
-                  break;
-                case BaseItemType.Dart:
-                  strModifier = 0;
-                  break;
-              }
-              break;
-
-            case ItemUtils.ItemCategory.TwoHandedMeleeWeapon:
-              strModifier = (int)(strModifier * 1.5);
-              damageSlot = ctx.attackWeapon;
-              break;
-
-            default:
-              damageSlot = ctx.attackWeapon;
-              break;
-          }
-
-          if (damageSlot != null)
-          {
-            foreach (var propType in damageSlot.ItemProperties.Where(i => i.PropertyType == ItemPropertyType.DamageBonus
-            || (i.PropertyType == ItemPropertyType.DamageBonusVsRacialGroup && i.SubType == (int)ctx.oTarget.RacialType)
-            || (i.PropertyType == ItemPropertyType.DamageBonusVsAlignmentGroup && i.SubType == (int)ctx.oTarget.GoodEvilAlignment)
-            || (i.PropertyType == ItemPropertyType.DamageBonusVsAlignmentGroup && i.SubType == (int)ctx.oTarget.LawChaosAlignment)
-            || (i.PropertyType == ItemPropertyType.DamageBonusVsSpecificAlignment && i.SubType == Config.GetIPSpecificAlignmentSubTypeAsInt(ctx.oTarget)))
-              .GroupBy(i => i.PropertyType))
-            {
-              ItemProperty maxIP = propType.OrderByDescending(i => i.CostTableValue).FirstOrDefault();
-              DamageType damageType = DamageType.Slashing;
-              short rolledDamage = Config.RollDamage(maxIP.CostTableValue);
-              short currentDamage = 0;
-
-              switch (maxIP.Param1TableValue)
-              {
-                case 255: // Cas des dégâts simples
-                  damageType = ItemUtils.GetDamageTypeFromItemProperty((IPDamageType)maxIP.SubType);
-                  break;
-                default: // Case des dégâts spécifiques, le type de dégât se trouve dans Param1TableValue au lieu de SubType. Ouais, c'est chiant
-                  damageType = ItemUtils.GetDamageTypeFromItemProperty((IPDamageType)maxIP.Param1TableValue);
-                  break;
-              }
-
-              currentDamage = ctx.onAttack.DamageData.GetDamageByType(damageType);
-
-              if (rolledDamage > currentDamage)
-                ctx.onAttack.DamageData.SetDamageByType(damageType, rolledDamage);
-            }
-
-            int[] damageDices = BaseItems2da.baseItemTable.GetDamageDices(ctx.attackWeapon.BaseItemType);
-            ctx.onAttack.DamageData.Base = (short)(NwRandom.Roll(Utils.random, damageDices[0], damageDices[1]) + strModifier);
-
-            foreach (var propType in damageSlot.ItemProperties.Where(i => (i.PropertyType == ItemPropertyType.EnhancementBonus)
-            || (i.PropertyType == ItemPropertyType.EnhancementBonusVsRacialGroup && i.SubType == (int)ctx.oTarget.RacialType)
-            || (i.PropertyType == ItemPropertyType.EnhancementBonusVsAlignmentGroup && i.SubType == (int)ctx.oTarget.GoodEvilAlignment)
-            || (i.PropertyType == ItemPropertyType.EnhancementBonusVsAlignmentGroup && i.SubType == (int)ctx.oTarget.LawChaosAlignment)
-            || (i.PropertyType == ItemPropertyType.EnhancementBonusVsSpecificAlignment && i.SubType == Config.GetIPSpecificAlignmentSubTypeAsInt(ctx.oTarget)))
-              .GroupBy(i => i.PropertyType))
-            {
-              ItemProperty maxIP = propType.OrderByDescending(i => i.CostTableValue).FirstOrDefault();
-              ctx.onAttack.DamageData.Base += (short)maxIP.CostTableValue;
-            }
-          }
-        }
-      }
-      next();
-    }*/
     /*private static void ProcessAdditionnalDamageEffect(Context ctx, Action next)
     {
       foreach (var effectType in ctx.oAttacker.ActiveEffects.Where(e => e.EffectType == EffectType.DamageIncrease).GroupBy(e => e.IntParams.ElementAt(1)))
@@ -284,6 +157,84 @@ namespace NWN.Systems
           }
           break;
       }
+
+      next();
+    }
+    private static void ProcessCriticalHit(Context ctx, Action next)
+    {
+      if (IsHitCritical(ctx))
+      {
+        ctx.baseArmorPenetration += 20;
+
+        if (ctx.attackWeapon != null && !ctx.isUnarmedAttack)
+        {
+          switch (ctx.attackWeapon.BaseItemType)
+          {
+            case BaseItemType.CreatureBludgeoningWeapon:
+            case BaseItemType.CreaturePiercingWeapon:
+            case BaseItemType.CreatureSlashingAndPiercingWeapon:
+            case BaseItemType.CreatureSlashingWeapon:
+
+              ItemProperty monsterDamage = ctx.attackWeapon.ItemProperties.FirstOrDefault(i => i.PropertyType == ItemPropertyType.MonsterDamage);
+              if (monsterDamage != null)
+                ctx.onAttack.DamageData.Base = (short)(MonsterDamageCost2da.monsterDamageCostTable.GetMaxDamage(monsterDamage.CostTableValue) + ctx.oAttacker.GetAbilityModifier(Ability.Strength));
+
+              break;
+
+            default:
+              ctx.onAttack.DamageData.Base = (short)BaseItems2da.baseItemTable.GetMaxDamage(ctx.attackWeapon.BaseItemType, ctx.oAttacker, ctx.isRangedAttack);
+              break;
+          }
+        }
+        else
+          ctx.baseArmorPenetration += 20;
+
+        ctx.oTarget.ApplyEffect(EffectDuration.Instant, Effect.VisualEffect(VfxType.ComBloodCrtRed, false, 1.3f));
+      }
+
+      next();
+    }
+    private static bool IsHitCritical(Context ctx)
+    {
+      int critChance = 0;
+
+      if (ctx.oTarget.FlatFooted)
+        critChance += 10;
+
+      if (!ctx.oAttacker.IsLoginPlayerCharacter)
+      {
+        if (ctx.oAttacker.ChallengeRating < 11)
+          critChance += 5;
+        else
+          critChance += (int)ctx.oAttacker.ChallengeRating - 5;
+      }
+      else
+      {
+        critChance += ctx.attackWeapon == null ? Config.GetWeaponCritScienceLevel(BaseItemType.Gloves, ctx.oAttacker) : Config.GetWeaponCritScienceLevel(ctx.attackWeapon.BaseItemType, ctx.oAttacker);
+      }
+
+      if (NwRandom.Roll(Utils.random, 100) < critChance)
+        return true;
+      else
+        return false;
+    }
+    private static void ProcessBaseDamage(Context ctx, Action next)
+    {
+      if (!ctx.oAttacker.IsLoginPlayerCharacter) // si ce n'est pas un joueur, alors ses dégâts sont modifiés selon le facteur de puissance de la créature
+      {
+        if (ctx.oAttacker.ChallengeRating < 1)
+          ctx.onAttack.DamageData.Base /= 10;
+        else
+          ctx.onAttack.DamageData.Base *= (short)(ctx.oAttacker.ChallengeRating / 10);
+      }
+      else // si c'est un joueur, alors ses dégâts sont modifiés selon sa maîtrise de l'arme actuelle
+      {
+        int weaponMasteryLevel = ctx.attackWeapon == null ? Config.GetWeaponMasteryLevel(BaseItemType.Gloves, ctx.oAttacker) : Config.GetWeaponMasteryLevel(ctx.attackWeapon.BaseItemType, ctx.oAttacker);
+        ctx.onAttack.DamageData.Base *= (short)(weaponMasteryLevel / 10);
+      }
+
+      if (ctx.onAttack.DamageData.Base < 1)
+        ctx.onAttack.DamageData.Base = 1;
 
       next();
     }
@@ -544,11 +495,11 @@ namespace NWN.Systems
     private static void ProcessBaseArmorPenetration(Context ctx, Action next)
     {
       if (ctx.onAttack.WeaponAttackType == WeaponAttackType.Offhand) 
-        ctx.baseArmorPenetration = ctx.oAttacker.GetAttackBonus(true, false, true);
+        ctx.baseArmorPenetration += ctx.oAttacker.GetAttackBonus(true, false, true);
       else if(ctx.isRangedAttack)
-        ctx.baseArmorPenetration = ctx.oAttacker.GetAttackBonus();
+        ctx.baseArmorPenetration += ctx.oAttacker.GetAttackBonus();
       else
-        ctx.baseArmorPenetration = ctx.oAttacker.GetAttackBonus(true);
+        ctx.baseArmorPenetration += ctx.oAttacker.GetAttackBonus(true);
 
       if (ctx.attackWeapon != null && ctx.attackWeapon.BaseItemType == BaseItemType.Gloves) // la fonction GetAttackBonus ne prend pas en compte le + AB des gants, donc je le rajoute
       {
@@ -556,8 +507,6 @@ namespace NWN.Systems
         if (maxAttackBonus != null)
           ctx.baseArmorPenetration += maxAttackBonus.CostTableValue;
       }
-
-
 
       next();
     }

@@ -9,18 +9,18 @@ namespace NWN.Systems
   [ServiceBinding(typeof(NativeAttackHook))]
   public unsafe class NativeAttackHook
   {
-    private static readonly Logger Log = LogManager.GetCurrentClassLogger();
+    //private static readonly Logger Log = LogManager.GetCurrentClassLogger();
 
-    private delegate int GetDamageRollHook(void* thisPtr, void* pTarget, int bOffHand, int bCritical, int bSneakAttack, int bDeathAttack, int bForceMax);
+    //private delegate int GetDamageRollHook(void* thisPtr, void* pTarget, int bOffHand, int bCritical, int bSneakAttack, int bDeathAttack, int bForceMax);
     private delegate void ResolveAttackRollHook(void* pCreature, void* pTarget);
 
     //private readonly FunctionHook<GetDamageRollHook> getDamageRollHook;
-    private readonly FunctionHook<ResolveAttackRollHook> resolveAttackRollHook;
+    //private readonly FunctionHook<ResolveAttackRollHook> resolveAttackRollHook;
 
     public NativeAttackHook(HookService hookService)
     {
       //getDamageRollHook = hookService.RequestHook<GetDamageRollHook>(OnGetDamageRoll, FunctionsLinux._ZN17CNWSCreatureStats13GetDamageRollEP10CNWSObjectiiiii, HookOrder.Early);
-      resolveAttackRollHook = hookService.RequestHook<ResolveAttackRollHook>(OnResolveAttackRoll, FunctionsLinux._ZN12CNWSCreature17ResolveAttackRollEP10CNWSObject, HookOrder.Early);
+      hookService.RequestHook<ResolveAttackRollHook>(OnResolveAttackRoll, FunctionsLinux._ZN12CNWSCreature17ResolveAttackRollEP10CNWSObject, HookOrder.Early);
     }
 
     private void OnResolveAttackRoll(void* pCreature, void* pTarget)
@@ -30,8 +30,8 @@ namespace NWN.Systems
 
       CNWSCombatRound combatRound = creature.m_pcCombatRound;
       CNWSCombatAttackData attackData = combatRound.GetAttack(combatRound.m_nCurrentAttack);
-
-      if(attackData.m_nAttackResult == 0 || attackData.m_nAttackResult == 4)
+      
+      if(attackData.m_nAttackResult == 0 || attackData.m_nAttackResult == 4 || attackData.m_nAttackResult == 3)
         attackData.m_nAttackResult = 1;
 
       if (targetObject.m_nObjectType == (int)ObjectType.Creature)

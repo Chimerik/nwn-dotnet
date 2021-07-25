@@ -224,7 +224,7 @@ namespace NWN.Systems
       }
     }
     [ScriptHandler("on_input_emote")]
-    private void HandleInputEmote(CallInfo callInfo)
+    private async void HandleInputEmote(CallInfo callInfo)
     {
       if (!Players.TryGetValue(callInfo.ObjectSelf, out Player player))
         return;
@@ -251,14 +251,14 @@ namespace NWN.Systems
         case Animation.LoopingTalkPleading:
         case Animation.LoopingWorship:
           EventsPlugin.SkipEvent();
-          player.oid.ControlledCreature.PlayAnimation(animation, 1, false, TimeSpan.FromDays(1));
+          await player.oid.ControlledCreature.PlayAnimation(animation, 1, false, TimeSpan.FromDays(1));
           break;
         case Animation.LoopingDeadBack:
         case Animation.LoopingDeadFront:
         case Animation.LoopingSitChair:
         case Animation.LoopingSitCross:
           EventsPlugin.SkipEvent();
-          player.oid.ControlledCreature.PlayAnimation(animation, 1, false, TimeSpan.FromDays(1));
+          await player.oid.ControlledCreature.PlayAnimation(animation, 1, false, TimeSpan.FromDays(1));
 
           player.menu.Close();
           player.menu.isOpen = true;
@@ -342,7 +342,7 @@ namespace NWN.Systems
 
       Task waitForAnimation = NwTask.Run(async () =>
       {
-        onPerception.PerceivedCreature.PlayAnimation((Animation)Utils.random.Next(100, 116), 6);
+        await onPerception.PerceivedCreature.PlayAnimation((Animation)Utils.random.Next(100, 116), 6);
         await NwTask.Delay(TimeSpan.FromSeconds(0.1));
 
         Effect eff = eff = Effect.VisualEffect(VfxType.DurFreezeAnimation);
@@ -363,7 +363,7 @@ namespace NWN.Systems
       NwGameObject target = onCombatRoundEnd.Creature.GetObjectVariable<LocalVariableObject<NwGameObject>>("_AUTO_SPELL_TARGET").Value;
 
       if(target != null && target.IsValid)
-        onCombatRoundEnd.Creature.ActionCastSpellAt((Spell)spellId, target);
+        _ = onCombatRoundEnd.Creature.ActionCastSpellAt((Spell)spellId, target);
       else
       {
         onCombatRoundEnd.Creature.GetObjectVariable<LocalVariableInt>("_AUTO_SPELL").Delete();

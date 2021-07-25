@@ -11,12 +11,14 @@ namespace NWN.Systems
     {
       if (((string)options.positional[0]).Length != 0)
       {
-        Log.Info($"positionnal : {options.positional[0]}");
+        //Log.Info($"positionnal : {options.positional[0]}");
 
-        if (Int32.TryParse((string)options.positional[0], out int value))
+        if (int.TryParse((string)options.positional[0], out int value))
         {
-          ctx.oSender.LoginCreature.GetObjectVariable<LocalVariableInt>("_VFX_ID").Value = value;
-          PlayerSystem.cursorTargetService.EnterTargetMode(ctx.oSender, playerVFXTarget, ObjectTypes.Creature, MouseCursor.Magic);
+          VisualEfects2da.vfxTable.TestVFX(value, ctx.oSender);
+
+          //ctx.oSender.LoginCreature.GetObjectVariable<LocalVariableInt>("_VFX_ID").Value = value;
+          //PlayerSystem.cursorTargetService.EnterTargetMode(ctx.oSender, playerVFXTarget, ObjectTypes.Creature, MouseCursor.Magic);
         }
         else if (ctx.oSender.IsDM && ((string)options.positional[0]).Length > 0
           && PlayerSystem.Players.TryGetValue(ctx.oSender.LoginCreature, out PlayerSystem.Player player))

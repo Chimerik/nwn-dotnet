@@ -6,7 +6,7 @@ namespace NWN.Systems
   {
     public Refill()
     {
-      ModuleSystem.SpawnCollectableResources(0.0f);
+      _ = ModuleSystem.SpawnCollectableResources(0.0f);
     }
   }
 }
