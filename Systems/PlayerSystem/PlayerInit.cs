@@ -127,10 +127,8 @@ namespace NWN.Systems
         + (1 + 3 * ((player.oid.LoginCreature.GetAbilityScore(Ability.Constitution, true) - 10) / 2)
         + Convert.ToInt32(player.oid.LoginCreature.KnowsFeat(Feat.Toughness))) * improvedHealth);
       
-      if (player.currentHP <= 0)
+      if (oPC.LoginCreature.HP <= 0)
         oPC.LoginCreature.ApplyEffect(EffectDuration.Instant, Effect.Death());
-      else
-        oPC.LoginCreature.HP = player.currentHP;
 
       if (player.learntCustomFeats.ContainsKey(CustomFeats.ImprovedAttackBonus))
         player.oid.LoginCreature.BaseAttackBonus = (byte)(player.oid.LoginCreature.BaseAttackBonus + SkillSystem.GetCustomFeatLevelFromSkillPoints(CustomFeats.ImprovedAttackBonus, player.learntCustomFeats[CustomFeats.ImprovedAttackBonus]));
@@ -445,7 +443,7 @@ namespace NWN.Systems
       player.playerJournal = new PlayerJournal();
       player.loadedQuickBar = QuickbarType.Invalid;
       player.location = Utils.GetLocationFromDatabase(result.Result.GetString(0), result.Result.GetString(1), result.Result.GetFloat(2));
-      player.currentHP = result.Result.GetInt(3);
+      player.oid.LoginCreature.HP = result.Result.GetInt(3);
       player.bankGold = result.Result.GetInt(4);
       player.dateLastSaved = DateTime.Parse(result.Result.GetString(5));
       player.currentSkillJob = result.Result.GetInt(6);

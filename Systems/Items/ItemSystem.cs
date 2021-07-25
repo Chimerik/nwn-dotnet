@@ -149,6 +149,9 @@ namespace NWN.Systems
         case "potion_cure_frog":
           new PotionCureFrog(oPC.ControllingPlayer);
           break;
+        case "potion_alchimique":
+          new PotionAlchimisteEffect(onItemUse.Item, oPC.ControllingPlayer);
+          break;
       }
 
       Task wait = NwTask.Run(async () =>

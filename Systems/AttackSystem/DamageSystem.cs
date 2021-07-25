@@ -94,7 +94,7 @@ namespace NWN.Systems
       if (ctx.oAttacker != null && ctx.oAttacker.GetObjectVariable<LocalVariableInt>("_SPELL_ATTACK_POSITION").HasValue)
         ctx.attackPosition = (Config.AttackPosition)ctx.oAttacker.GetObjectVariable<LocalVariableInt>("_SPELL_ATTACK_POSITION").Value;
       else
-        ctx.oAttacker.GetObjectVariable<LocalVariableInt>("_SPELL_ATTACK_POSITION").Value = 2;
+        ctx.attackPosition = Config.AttackPosition.NormalOrRanged;
 
       next();
     }

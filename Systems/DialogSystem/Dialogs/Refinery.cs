@@ -98,7 +98,7 @@ namespace NWN.Systems
             else
               player.materialStock.Add(mineralName, refinedMinerals);
 
-            player.oid.SendServerMessage($"Vous venez de raffiner {refinedMinerals} unités de {mineralName}. Les lingots sont en cours d'acheminage vers votre entrepôt.");
+            player.oid.SendServerMessage($"Vous venez de raffiner {refinedMinerals} unités de {mineralName}. Les lingots sont en cours d'acheminement vers votre entrepôt.");
           }
 
           player.menu.titleLines.Add($"Voilà qui est fait !");
@@ -144,7 +144,7 @@ namespace NWN.Systems
           else
             player.materialStock.Add(mineralName, refinedMinerals);
 
-          player.oid.SendServerMessage($"Vous venez de raffiner {refinedMinerals} unités de {mineralName}. Les lingots sont en cours d'acheminage vers votre entrepôt.");
+          player.oid.SendServerMessage($"Vous venez de raffiner {refinedMinerals} unités de {mineralName}. Les lingots sont en cours d'acheminement vers votre entrepôt.");
         }
 
         player.materialStock[oreName] = 0;

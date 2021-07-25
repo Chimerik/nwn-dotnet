@@ -47,8 +47,6 @@ namespace NWN.Systems
         else if(player.oid.LoginCreature.Location.Area != null)
           player.location = player.oid.LoginCreature.Location;
 
-        player.currentHP = onSaveBefore.Player.LoginCreature.HP;
-
         if (player.location.Area?.GetObjectVariable<LocalVariableInt>("_AREA_LEVEL").Value == 0)
         {
           player.CraftJobProgression();
@@ -110,7 +108,7 @@ namespace NWN.Systems
 
       SqLiteUtils.UpdateQuery("playerCharacters",
           new List<string[]>() { new string[] { "characterName", $"{player.oid.LoginCreature.OriginalFirstName} {player.oid.LoginCreature.OriginalLastName}" },
-          new string[] { "areaTag", areaTag }, new string[] { "position", position }, new string[] { "facing", facing }, new string[] { "currentHP", player.currentHP.ToString() }, new string[] { "bankGold", player.bankGold.ToString() },
+          new string[] { "areaTag", areaTag }, new string[] { "position", position }, new string[] { "facing", facing }, new string[] { "currentHP", player.oid.LoginCreature.HP.ToString() }, new string[] { "bankGold", player.bankGold.ToString() },
           new string[] { "dateLastSaved", player.dateLastSaved.ToString() }, new string[] { "currentSkillType", ((int)player.currentSkillType).ToString() }, new string[] { "currentCraftJob", player.currentSkillJob.ToString() },
           new string[] { "currentCraftJob", player.craftJob.baseItemType.ToString() }, new string[] { "currentCraftObject", player.craftJob.craftedItem }, new string[] { "currentCraftJobRemainingTime", player.craftJob.remainingTime.ToString() },
           new string[] { "currentCraftJobMaterial", player.craftJob.material }, new string[] { "currentCraftJobMaterial", player.craftJob.material }, new string[] { "pveArenaCurrentPoints", player.pveArena.currentPoints.ToString() },

@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Anvil.API;
-using NWN.Core;
 using static NWN.Systems.Craft.Collect.Config;
 
 namespace NWN.Systems.Craft.Collect

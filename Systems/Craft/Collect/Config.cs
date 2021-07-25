@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Numerics;
+
 using Anvil.API;
 
 namespace NWN.Systems.Craft.Collect
@@ -119,7 +121,8 @@ namespace NWN.Systems.Craft.Collect
           oreFeat: CustomFeats.MallornReprocessing
         )
       }
-      };
+    };
+
     public static Dictionary<PlankType, Plank> plankDictionnary = new Dictionary<PlankType, Plank>
     {
       { PlankType.Laurelinade, new Plank(PlankType.Laurelinade) },
@@ -301,28 +304,88 @@ namespace NWN.Systems.Craft.Collect
     public enum PlankType
     {
       Invalid = 0,
-      [Description("Bois_de_Laurelin")]
+      [Description("Planche_de_Laurelin")]
       Laurelinade = 1, // Silmarillion : capture la lumière divine dorée
-      [Description("Bois_de_Telperion")]
+      [Description("Planche_de_Telperion")]
       Telperionade = 2, // Silmarillion : capture la lumière divine argentée
-      [Description("Bois_de_Mallorn")]
+      [Description("Planche_de_Mallorn")]
       Mallornade = 3,
-      [Description("Bois_de_Nimloth")]
+      [Description("Planche_de_Nimloth")]
       Nimlothade = 4,
-      [Description("Bois_de_Oiolaire")]
+      [Description("Planche_de_Oiolaire")]
       Oiolaireade = 5,
-      [Description("Bois_de_Qlipoth")]
+      [Description("Planche_de_Qlipoth")]
       Qliphothade = 6,
-      [Description("Bois_de_Ferochene")]
+      [Description("Planche_de_Ferochene")]
       Ferochenade = 7,
-      [Description("Bois_de_Valinor")]
+      [Description("Planche_de_Valinor")]
       Valinorade = 8,
     }
+    public struct Plant
+    {
+      public PlantType type;
+      public string name;
+      public Vector2 gridEffect;
+      public Plant(PlantType oreType)
+      {
+        this.type = oreType;
+        this.name = oreType.ToDescription() ?? "";
+
+        switch (oreType)
+        {
+          case PlantType.Terraria:
+            gridEffect = new Vector2(1, 1);
+            break;
+          case PlantType.ClocheIgnee:
+            gridEffect = new Vector2(0, 1);
+            break;
+          case PlantType.FloraisonAquatique:
+            gridEffect = new Vector2(-1, 1);
+            break;
+          default:
+            gridEffect = new Vector2(0, 0);
+            break;
+        }
+      }
+    }
+    public enum PlantType
+    {
+      Invalid = 0,
+      [Description("Terraria")]
+      Terraria = 1,
+      [Description("Floraison_aquatique")]
+      FloraisonAquatique = 2,
+      [Description("Cloche_Ignée")]
+      ClocheIgnee = 3,
+    }
+
+    public static Dictionary<PlantType, Plant> plantDictionnary = new Dictionary<PlantType, Plant>()
+    {
+      {
+        PlantType.Terraria,
+        new Plant(
+          oreType: PlantType.Terraria
+        )
+      },
+      {
+        PlantType.ClocheIgnee,
+        new Plant(
+          oreType: PlantType.ClocheIgnee
+        )
+      },
+      {
+        PlantType.FloraisonAquatique,
+        new Plant(
+          oreType: PlantType.FloraisonAquatique
+        )
+      }
+    };
+
     public static List<ItemProperty> GetArmorProperties(NwItem craftedItem, int materialTier)
     {
       List<ItemProperty> badArmor = new List<ItemProperty>();
 
-      switch(materialTier)
+      switch (materialTier)
       {
         case 0:
         case 1:
@@ -363,7 +426,7 @@ namespace NWN.Systems.Craft.Collect
     {
       List<ItemProperty> shield = new List<ItemProperty>();
 
-      switch(materialTier)
+      switch (materialTier)
       {
         case 0:
         case 1:
@@ -715,7 +778,5 @@ namespace NWN.Systems.Craft.Collect
 
       return PeltType.Invalid;
     }
-
-
   }
 }

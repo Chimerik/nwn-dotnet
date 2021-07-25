@@ -64,8 +64,7 @@ namespace NWN.Systems
           $"Les ouvriers chargés du transfert ne se dérangeant pas pour moins de 100 unités.",
           "Souhaitez-vous utiliser tout votre stock ?"
         };
-        player.menu.choices.Add(("Valider.", () => HandleRefineOre(player, oreName)));
-        input = player.materialStock[oreName];
+        player.menu.choices.Add(("Valider.", () => HandleRefineAll(player, oreName)));
       }
       else
       {
@@ -98,7 +97,7 @@ namespace NWN.Systems
           else
             player.materialStock.Add(mineralName, refinedMinerals);
 
-          player.oid.SendServerMessage($"Vous venez de tanner {refinedMinerals} peaux de {mineralName}. Les cuirs sont en cours d'acheminage vers votre entrepôt.");
+          player.oid.SendServerMessage($"Vous venez de tanner {refinedMinerals} peaux de {mineralName}. Les cuirs sont en cours d'acheminement vers votre entrepôt.");
 
           player.menu.titleLines.Add($"Voilà qui est fait !");
         }
@@ -141,7 +140,7 @@ namespace NWN.Systems
         else
           player.materialStock.Add(mineralName, refinedMinerals);
 
-        player.oid.SendServerMessage($"Vous venez de tanner {refinedMinerals} peaux de {mineralName}. Les cuirs sont en cours d'acheminage vers votre entrepôt.");
+        player.oid.SendServerMessage($"Vous venez de tanner {refinedMinerals} peaux de {mineralName}. Les cuirs sont en cours d'acheminement vers votre entrepôt.");
         player.materialStock[oreName] = 0;
         player.menu.titleLines.Add($"Voilà qui est fait !");
       }

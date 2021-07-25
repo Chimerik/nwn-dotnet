@@ -1,5 +1,4 @@
 ﻿using System;
-using NWN.Core;
 using static NWN.Systems.Craft.Collect.Config;
 using Anvil.API;
 using System.Linq;

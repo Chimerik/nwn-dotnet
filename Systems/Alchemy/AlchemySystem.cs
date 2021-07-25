@@ -21,15 +21,23 @@ namespace NWN.Systems.Alchemy
     public AlchemySystem()
     {
       foreach (NwPlaceable plc in NwObject.FindObjectsWithTag<NwPlaceable>("alchemy_table"))
-        plc.OnUsed += StartAlchemyDialog;
+        plc.OnUsed += StartAlchemyTableDialog;
+
+      foreach (NwPlaceable plc in NwObject.FindObjectsWithTag<NwPlaceable>("alchemy_mortier"))
+        plc.OnUsed += StartAlchemyMortarDialog;
 
       LoadAlchemyTable();
     }
 
-    public static void StartAlchemyDialog(PlaceableEvents.OnUsed onUsed)
+    public static void StartAlchemyTableDialog(PlaceableEvents.OnUsed onUsed)
     {
       if (PlayerSystem.Players.TryGetValue(onUsed.UsedBy, out PlayerSystem.Player player))
-        new AlchemyDialog(player);
+        new AlchemyTableDialog(player);
+    }
+    public static void StartAlchemyMortarDialog(PlaceableEvents.OnUsed onUsed)
+    {
+      if (PlayerSystem.Players.TryGetValue(onUsed.UsedBy, out PlayerSystem.Player player))
+        new AlchemyMortarDialog(player);
     }
     public void LoadAlchemyTable()
     {
@@ -85,5 +93,12 @@ namespace NWN.Systems.Alchemy
 
       Log.Info("------------------------------------------------------------");*/
     }
+    /*public static void AddAlchemyProperties(NwItem item, string serializedProperties)
+    {
+      string[] json = serializedProperties.Split("|");
+
+      CustomUnpackedEffect customUnpackedEffect = JsonConvert.DeserializeObject<CustomUnpackedEffect>(json);
+      customUnpackedEffect.ApplyCustomUnPackedEffectToTarget(player.oid.ControlledCreature);
+    }*/
   }
 }

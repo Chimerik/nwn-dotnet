@@ -66,8 +66,7 @@ namespace NWN.Systems
           "Souhaitez-vous utiliser tout votre stock ?"
         };
 
-        player.menu.choices.Add(("Valider.", () => HandleRefineOre(player, oreName)));
-        input = player.materialStock[oreName];
+        player.menu.choices.Add(("Valider.", () => HandleRefineAll(player, oreName)));
       }
       else
       {
@@ -100,7 +99,7 @@ namespace NWN.Systems
           else
             player.materialStock.Add(mineralName, refinedMinerals);
 
-          player.oid.SendServerMessage($"Vous venez de fabriquer {refinedMinerals} planches de {mineralName}. Les planches sont en cours d'acheminage vers votre entrepôt.");
+          player.oid.SendServerMessage($"Vous venez de fabriquer {refinedMinerals} planches de {mineralName}. Les planches sont en cours d'acheminement vers votre entrepôt.");
 
           player.menu.titleLines.Add($"Voilà qui est fait !");
         }
@@ -143,7 +142,7 @@ namespace NWN.Systems
         else
           player.materialStock.Add(mineralName, refinedMinerals);
 
-        player.oid.SendServerMessage($"Vous venez de fabriquer {refinedMinerals} planches de {mineralName}. Les planches sont en cours d'acheminage vers votre entrepôt.");
+        player.oid.SendServerMessage($"Vous venez de fabriquer {refinedMinerals} planches de {mineralName}. Les planches sont en cours d'acheminement vers votre entrepôt.");
         player.materialStock[oreName] = 0;
         player.menu.titleLines.Add($"Voilà qui est fait !");
       }

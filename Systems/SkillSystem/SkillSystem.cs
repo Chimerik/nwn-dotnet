@@ -213,6 +213,10 @@ namespace NWN.Systems
       { CustomFeats.LeatherRepair, new CustomFeat("Réparation Tannerie", "Permet de réparer les objets en cuir. Diminue de 1 % par niveau le temps de réparation et le coût en matériaux.", 10) },
       { CustomFeats.EnchantRepair, new CustomFeat("Réenchantement", "Permet de réactiver les enchantements d'un objet ruiné. Diminue de 1 % par niveau le temps de réactivation.", 10) },
       { CustomFeats.ImprovedDodge, new CustomFeat("Esquive améliorée", "Augmente la probabilité d'esquiver une attaque de 2% par niveau.", 10) },
+      { CustomFeats.AlchemistEfficiency, new CustomFeat("Alchimiste économe", "Permet l'utilisation du mortier et produit 1 * [niveau] de poudre à partir d'un ingrédient d'alchimie.", 5) },
+      { CustomFeats.AlchemistCareful, new CustomFeat("Alchimiste prudent", "Permet d'ajouter de l'eau à un mélange alchimique afin d'adoucir le mélange et de retourner vers l'état neutre.", 1) },
+      { CustomFeats.AlchemistExpert, new CustomFeat("Alchimiste expert", "Permet d'ajouter un effet supplémentaire à une potion par niveau.", 5) },
+      { CustomFeats.Alchemist, new CustomFeat("Alchimiste", "Diminue le temps d'infusion d'une potion de 2 % par niveau.", 10) },
     };
 
     public static Dictionary<Feat, Func<PlayerSystem.Player, Feat, int>> RegisterAddCustomFeatEffect = new Dictionary<Feat, Func<PlayerSystem.Player, Feat, int>>

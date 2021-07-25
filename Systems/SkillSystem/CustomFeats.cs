@@ -224,6 +224,10 @@ namespace NWN.Systems
     public const Feat LeatherRepair = (Feat)1333;
     public const Feat EnchantRepair = (Feat)1334;
     public const Feat ImprovedDodge = (Feat)1335;
+    public const Feat AlchemistEfficiency = (Feat)1336;
+    public const Feat AlchemistCareful = (Feat)1337;
+    public const Feat AlchemistExpert = (Feat)1338;
+    public const Feat Alchemist = (Feat)1339;
 
     public const Feat Invalid = (Feat)65535;
   }

@@ -8,6 +8,7 @@ using Skill = NWN.Systems.SkillSystem.Skill;
 using System.Threading;
 using System.Linq;
 using Anvil.Services;
+using NWN.Systems.Alchemy;
 
 namespace NWN.Systems
 {
@@ -23,16 +24,13 @@ namespace NWN.Systems
       public int bonusRolePlay { get; set; }
       public Boolean isAFK { get; set; }
       public Boolean DoJournalUpdate { get; set; }
-      public int currentHP { get; set; }
       public int bankGold { get; set; }
       public PlayerJournal playerJournal { get; set; }
       public DateTime dateLastSaved { get; set; }
       public int currentSkillJob { get; set; }
       public SkillType currentSkillType { get; set; }
       public Job craftJob { get; set; }
-      public Boolean isFrostAttackOn { get; set; }
       public Location previousLocation { get; set; }
-      public TargetEvent targetEvent { get; set; }
       public Menu menu { get; }
       public NwCreature deathCorpse { get; set; }
       public QuickbarType loadedQuickBar { get; set; }
@@ -326,6 +324,13 @@ namespace NWN.Systems
               repairedItem.GetObjectVariable<LocalVariableInt>("_REPAIR_DONE").Value = 1;
               oid.SendServerMessage($"Réparation de {repairedItem.Name.ColorString(ColorConstants.White)} terminée. Reste cependant à réactiver les enchantements.", ColorConstants.Orange);
             }
+            break;
+          case Job.JobType.Alchemy:
+            NwItem potion = NwItem.Deserialize(craftJob.craftedItem.ToByteArray());
+            oid.LoginCreature.AcquireItem(potion);
+            potion.GetObjectVariable<LocalVariableString>("_ORIGINAL_CRAFTER_NAME").Value = oid.LoginCreature.Name;
+            potion.GetObjectVariable<LocalVariableString>("_SERIALIZED_PROPERTIES").Value = craftJob.material;
+
             break;
           default:
             if (Craft.Collect.System.blueprintDictionnary.TryGetValue(craftJob.baseItemType, out Blueprint blueprint))
