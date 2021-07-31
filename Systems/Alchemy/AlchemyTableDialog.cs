@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
+using System.Threading.Tasks;
 
 using Anvil.API;
 
@@ -14,6 +15,7 @@ namespace NWN.Systems.Alchemy
   class AlchemyTableDialog
   {
     PlayerSystem.Player player;
+    string[,] clonedAlchemyTable;
     Vector2 tablePosition;
     List<Vector2> ingredientVector;
     List<string> effectList;
@@ -26,6 +28,8 @@ namespace NWN.Systems.Alchemy
       ingredientVector = new List<Vector2>();
       effectList = new List<string>();
       nBrowsedCases = 0;
+
+      clonedAlchemyTable = (string[,])AlchemySystem.alchemyTable.Clone();
 
       // Eventuellement : check si le joueur a déjà un chaudron en cours, si oui, charger le chaudron, sinon initialiser le chaudron vide
 
@@ -230,100 +234,112 @@ namespace NWN.Systems.Alchemy
     {
       try
       {
-        string foundEffect = AlchemySystem.alchemyTable[(int)tablePosition.X, (int)tablePosition.Y];
+        string foundEffect = clonedAlchemyTable[(int)tablePosition.X, (int)tablePosition.Y];
         
         if (foundEffect == "")
-          foundEffect = AlchemySystem.alchemyTable[(int)tablePosition.X, (int)tablePosition.Y - 1];
+          foundEffect = clonedAlchemyTable[(int)tablePosition.X, (int)tablePosition.Y - 1];
         else
         {
+          clonedAlchemyTable[(int)tablePosition.X, (int)tablePosition.Y] = "";
           AddEffectToPotionList(foundEffect, "3");
           return;
         }
 
         if (foundEffect == "")
-          foundEffect = AlchemySystem.alchemyTable[(int)tablePosition.X + 1, (int)tablePosition.Y];
+          foundEffect = clonedAlchemyTable[(int)tablePosition.X + 1, (int)tablePosition.Y];
         else
         {
+          clonedAlchemyTable[(int)tablePosition.X, (int)tablePosition.Y - 1] = "";
           AddEffectToPotionList(foundEffect, "2");
           return;
         }
 
         if (foundEffect == "")
-          foundEffect = AlchemySystem.alchemyTable[(int)tablePosition.X, (int)tablePosition.Y + 1];
+          foundEffect = clonedAlchemyTable[(int)tablePosition.X, (int)tablePosition.Y + 1];
         else
         {
+          clonedAlchemyTable[(int)tablePosition.X + 1, (int)tablePosition.Y] = "";
           AddEffectToPotionList(foundEffect, "2");
           return;
         }
 
         if (foundEffect == "")
-          foundEffect = AlchemySystem.alchemyTable[(int)tablePosition.X - 1, (int)tablePosition.Y];
+          foundEffect = clonedAlchemyTable[(int)tablePosition.X - 1, (int)tablePosition.Y];
         else
         {
+          clonedAlchemyTable[(int)tablePosition.X, (int)tablePosition.Y + 1] = "";
           AddEffectToPotionList(foundEffect, "2");
           return;
         }
 
         if (foundEffect == "")
-          foundEffect = AlchemySystem.alchemyTable[(int)tablePosition.X, (int)tablePosition.Y + 2];
+          foundEffect = clonedAlchemyTable[(int)tablePosition.X, (int)tablePosition.Y + 2];
         else
         {
+          clonedAlchemyTable[(int)tablePosition.X - 1, (int)tablePosition.Y] = "";
           AddEffectToPotionList(foundEffect, "1");
           return;
         }
 
         if (foundEffect == "")
-          foundEffect = AlchemySystem.alchemyTable[(int)tablePosition.X + 1, (int)tablePosition.Y + 1];
+          foundEffect = clonedAlchemyTable[(int)tablePosition.X + 1, (int)tablePosition.Y + 1];
         else
         {
+          clonedAlchemyTable[(int)tablePosition.X, (int)tablePosition.Y + 2] = "";
           AddEffectToPotionList(foundEffect, "1");
           return;
         }
 
         if (foundEffect == "")
-          foundEffect = AlchemySystem.alchemyTable[(int)tablePosition.X + 2, (int)tablePosition.Y];
+          foundEffect = clonedAlchemyTable[(int)tablePosition.X + 2, (int)tablePosition.Y];
         else
         {
+          clonedAlchemyTable[(int)tablePosition.X + 1, (int)tablePosition.Y + 1] = "";
           AddEffectToPotionList(foundEffect, "1");
           return;
         }
 
         if (foundEffect == "")
-          foundEffect = AlchemySystem.alchemyTable[(int)tablePosition.X + 1, (int)tablePosition.Y - 1];
+          foundEffect = clonedAlchemyTable[(int)tablePosition.X + 1, (int)tablePosition.Y - 1];
         else
         {
+          clonedAlchemyTable[(int)tablePosition.X + 2, (int)tablePosition.Y] = "";
           AddEffectToPotionList(foundEffect, "1");
           return;
         }
 
         if (foundEffect == "")
-          foundEffect = AlchemySystem.alchemyTable[(int)tablePosition.X, (int)tablePosition.Y - 2];
+          foundEffect = clonedAlchemyTable[(int)tablePosition.X, (int)tablePosition.Y - 2];
         else
         {
+          clonedAlchemyTable[(int)tablePosition.X + 1, (int)tablePosition.Y - 1] = "";
           AddEffectToPotionList(foundEffect, "1");
           return;
         }
 
         if (foundEffect == "")
-          foundEffect = AlchemySystem.alchemyTable[(int)tablePosition.X - 1, (int)tablePosition.Y - 1];
+          foundEffect = clonedAlchemyTable[(int)tablePosition.X - 1, (int)tablePosition.Y - 1];
         else
         {
+          clonedAlchemyTable[(int)tablePosition.X, (int)tablePosition.Y - 2] = "";
           AddEffectToPotionList(foundEffect, "1");
           return;
         }
 
         if (foundEffect == "")
-          foundEffect = AlchemySystem.alchemyTable[(int)tablePosition.X - 2, (int)tablePosition.Y];
+          foundEffect = clonedAlchemyTable[(int)tablePosition.X - 2, (int)tablePosition.Y];
         else
         {
+          clonedAlchemyTable[(int)tablePosition.X - 1, (int)tablePosition.Y - 1] = "";
           AddEffectToPotionList(foundEffect, "1");
           return;
         }
 
         if (foundEffect == "")
-          foundEffect = AlchemySystem.alchemyTable[(int)tablePosition.X - 1, (int)tablePosition.Y + 1];
+          foundEffect = clonedAlchemyTable[(int)tablePosition.X - 1, (int)tablePosition.Y + 1];
         else
         {
+          clonedAlchemyTable[(int)tablePosition.X - 2, (int)tablePosition.Y] = "";
           AddEffectToPotionList(foundEffect, "1");
           return;
         }
@@ -334,7 +350,10 @@ namespace NWN.Systems.Alchemy
           DrawWelcomePage();
         }
         else
+        {
+          clonedAlchemyTable[(int)tablePosition.X - 1, (int)tablePosition.Y + 1] = "";
           AddEffectToPotionList(foundEffect, "1");
+        }
       }
       catch(Exception e)
       {
@@ -348,9 +367,22 @@ namespace NWN.Systems.Alchemy
     }
     private void AddEffectToPotionList(string effect, string power)
     {
-      effect = effect.Replace("'power': ,", $"'power': '{power}',");
-      effectList.Add(effect);
-      player.oid.SendServerMessage("Le feu crépite, le mélange bout, au vue de l'odeur et des fumées dégagées, nulle doute que le mélange réagit !");
+      switch (effect)
+      {
+        default:
+          effect = effect.Replace("'power': ,", $"'power': '{power}',");
+          effectList.Add(effect);
+          break;
+
+        case "Range":
+        case "Power":
+        case "AoE":
+        case "Uses":
+        case "Duration":
+          effectList.Add(effect + power);
+          break;
+      }
+      player.oid.SendServerMessage("Le feu crépite, le mélange bout, au vue de l'odeur et des fumées dégagées, nul doute que le mélange réagit !");
       DrawWelcomePage();
     }
     private async void BrewPotion()
@@ -377,6 +409,66 @@ namespace NWN.Systems.Alchemy
         properties = @"{ 'tag': 'CUSTOM_EFFECT_POISON' }";
       else
       {
+        int nbUse = 1;
+
+        foreach (string use in effectList.Where(s => s.StartsWith("Uses")).ToList())
+        {
+          nbUse += (int)use.Last();
+          effectList.Remove(use);
+        }
+
+        oItem.ItemCharges = nbUse;
+
+        if (effectList.Any(s => s.StartsWith("Range")))
+        {
+          foreach (ItemProperty ip in oItem.ItemProperties)
+            oItem.RemoveItemProperty(ip);
+
+          int range = 0;
+          
+          foreach (string rangeString in effectList.Where(s => s.StartsWith("Range")).ToList())
+          {
+            range += (int)rangeString.Last();
+            effectList.Remove(rangeString);
+          }
+
+          if (range > 1)
+            oItem.AddItemProperty(ItemProperty.Custom(15, 513, 6), EffectDuration.Permanent); // propriété activate item long range 1 charge / utilisation
+          else
+            oItem.AddItemProperty(ItemProperty.Custom(15, 537, 6), EffectDuration.Permanent); // propriété activate item touch 1 charge / utilisation
+        }
+
+        int power = 1;
+
+        foreach (string powerString in effectList.Where(s => s.StartsWith("Power")).ToList())
+        {
+          power *= (int)powerString.Last();
+          effectList.Remove(powerString);
+        }
+
+        oItem.GetObjectVariable<LocalVariableInt>("POTION_POWER").Value = power;
+
+        int duration = 1;
+
+        foreach (string durationString in effectList.Where(s => s.StartsWith("Duration")).ToList())
+        {
+          duration *= (int)durationString.Last();
+          effectList.Remove(durationString);
+        }
+
+        oItem.GetObjectVariable<LocalVariableInt>("POTION_DURATION").Value = duration;
+
+        int aoe = 0;
+
+        foreach (string aoeString in effectList.Where(s => s.StartsWith("AoE")).ToList())
+        {
+          aoe += (int)aoeString.Last();
+          effectList.Remove(aoeString);
+        }
+
+        oItem.GetObjectVariable<LocalVariableInt>("POTION_AOE").Value = aoe;
+
+
         foreach (string eff in effectList)
           properties += eff + "|";
 
@@ -385,6 +477,7 @@ namespace NWN.Systems.Alchemy
 
       player.oid.LoginCreature.GetObjectVariable<LocalVariableInt>("_INGREDIENT_COUNT").Value = nBrowsedCases;
       player.craftJob.Start(Craft.Job.JobType.Alchemy, null, player, null, oItem, properties);
+      player.menu.Close();
     }
   }
 }

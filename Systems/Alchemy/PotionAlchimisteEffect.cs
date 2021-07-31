@@ -6,14 +6,18 @@ namespace NWN.Systems
 {
   class PotionAlchimisteEffect
   {
-    public PotionAlchimisteEffect(NwItem potion, NwPlayer oPC)
+    public PotionAlchimisteEffect(NwItem potion, NwPlayer oPC, NwGameObject target)
     {
       string[] jsonArray = potion.GetObjectVariable<LocalVariableString>("_SERIALIZED_PROPERTIES").Value.Split("|") ;
 
       foreach(string json in jsonArray)
       {
         CustomUnpackedEffect customUnpackedEffect = JsonConvert.DeserializeObject<CustomUnpackedEffect>(json);
-        customUnpackedEffect.ApplyCustomUnPackedEffectToTarget(oPC.ControlledCreature);
+        
+        if(target == null)
+          customUnpackedEffect.ApplyCustomUnPackedEffectToTarget(oPC.ControlledCreature, potion);
+        else
+          customUnpackedEffect.ApplyCustomUnPackedEffectToTarget(target, potion);
       }
     }
   }

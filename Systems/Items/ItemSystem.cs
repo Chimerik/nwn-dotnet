@@ -150,7 +150,7 @@ namespace NWN.Systems
           new PotionCureFrog(oPC.ControllingPlayer);
           break;
         case "potion_alchimique":
-          new PotionAlchimisteEffect(onItemUse.Item, oPC.ControllingPlayer);
+          new PotionAlchimisteEffect(onItemUse.Item, oPC.ControllingPlayer, oTarget);
           break;
       }
 
