@@ -4,7 +4,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
-using System.Threading.Tasks;
 
 using Anvil.API;
 
@@ -69,7 +68,13 @@ namespace NWN.Systems.Alchemy
         
         player.menu.choices.Add(("Remuer le mélange", () => HandleMixStrength()));
 
-        if(player.oid.LoginCreature.KnowsFeat(CustomFeats.AlchemistCareful))
+        if (player.oid.LoginCreature.KnowsFeat(CustomFeats.AlchemistAware))
+          player.menu.choices.Add(("Examiner les nuances de couleur", () => HandleExamineColors()));
+
+        if (player.oid.LoginCreature.KnowsFeat(CustomFeats.AlchemistAccurate))
+          player.menu.choices.Add(("Humer le mélange", () => HandleSmell()));
+
+        if (player.oid.LoginCreature.KnowsFeat(CustomFeats.AlchemistCareful))
           player.menu.choices.Add(("Ajouter de l 'eau au mélange", () => AddWater()));
 
         player.menu.choices.Add(("Activer le soufflet", () => ActivateBellows()));
@@ -232,138 +237,17 @@ namespace NWN.Systems.Alchemy
     }
     private void ActivateBellows()
     {
-      try
+      Vector2? result = GetClosestEffectCoordinates((int)tablePosition.X, (int)tablePosition.Y, 3);
+
+      if (!result.HasValue)
+        player.oid.SendServerMessage("Souffler sur les braises ne semble précipiter aucune réaction particulière.");
+      else
       {
-        string foundEffect = clonedAlchemyTable[(int)tablePosition.X, (int)tablePosition.Y];
-        
-        if (foundEffect == "")
-          foundEffect = clonedAlchemyTable[(int)tablePosition.X, (int)tablePosition.Y - 1];
-        else
-        {
-          clonedAlchemyTable[(int)tablePosition.X, (int)tablePosition.Y] = "";
-          AddEffectToPotionList(foundEffect, "3");
-          return;
-        }
-
-        if (foundEffect == "")
-          foundEffect = clonedAlchemyTable[(int)tablePosition.X + 1, (int)tablePosition.Y];
-        else
-        {
-          clonedAlchemyTable[(int)tablePosition.X, (int)tablePosition.Y - 1] = "";
-          AddEffectToPotionList(foundEffect, "2");
-          return;
-        }
-
-        if (foundEffect == "")
-          foundEffect = clonedAlchemyTable[(int)tablePosition.X, (int)tablePosition.Y + 1];
-        else
-        {
-          clonedAlchemyTable[(int)tablePosition.X + 1, (int)tablePosition.Y] = "";
-          AddEffectToPotionList(foundEffect, "2");
-          return;
-        }
-
-        if (foundEffect == "")
-          foundEffect = clonedAlchemyTable[(int)tablePosition.X - 1, (int)tablePosition.Y];
-        else
-        {
-          clonedAlchemyTable[(int)tablePosition.X, (int)tablePosition.Y + 1] = "";
-          AddEffectToPotionList(foundEffect, "2");
-          return;
-        }
-
-        if (foundEffect == "")
-          foundEffect = clonedAlchemyTable[(int)tablePosition.X, (int)tablePosition.Y + 2];
-        else
-        {
-          clonedAlchemyTable[(int)tablePosition.X - 1, (int)tablePosition.Y] = "";
-          AddEffectToPotionList(foundEffect, "1");
-          return;
-        }
-
-        if (foundEffect == "")
-          foundEffect = clonedAlchemyTable[(int)tablePosition.X + 1, (int)tablePosition.Y + 1];
-        else
-        {
-          clonedAlchemyTable[(int)tablePosition.X, (int)tablePosition.Y + 2] = "";
-          AddEffectToPotionList(foundEffect, "1");
-          return;
-        }
-
-        if (foundEffect == "")
-          foundEffect = clonedAlchemyTable[(int)tablePosition.X + 2, (int)tablePosition.Y];
-        else
-        {
-          clonedAlchemyTable[(int)tablePosition.X + 1, (int)tablePosition.Y + 1] = "";
-          AddEffectToPotionList(foundEffect, "1");
-          return;
-        }
-
-        if (foundEffect == "")
-          foundEffect = clonedAlchemyTable[(int)tablePosition.X + 1, (int)tablePosition.Y - 1];
-        else
-        {
-          clonedAlchemyTable[(int)tablePosition.X + 2, (int)tablePosition.Y] = "";
-          AddEffectToPotionList(foundEffect, "1");
-          return;
-        }
-
-        if (foundEffect == "")
-          foundEffect = clonedAlchemyTable[(int)tablePosition.X, (int)tablePosition.Y - 2];
-        else
-        {
-          clonedAlchemyTable[(int)tablePosition.X + 1, (int)tablePosition.Y - 1] = "";
-          AddEffectToPotionList(foundEffect, "1");
-          return;
-        }
-
-        if (foundEffect == "")
-          foundEffect = clonedAlchemyTable[(int)tablePosition.X - 1, (int)tablePosition.Y - 1];
-        else
-        {
-          clonedAlchemyTable[(int)tablePosition.X, (int)tablePosition.Y - 2] = "";
-          AddEffectToPotionList(foundEffect, "1");
-          return;
-        }
-
-        if (foundEffect == "")
-          foundEffect = clonedAlchemyTable[(int)tablePosition.X - 2, (int)tablePosition.Y];
-        else
-        {
-          clonedAlchemyTable[(int)tablePosition.X - 1, (int)tablePosition.Y - 1] = "";
-          AddEffectToPotionList(foundEffect, "1");
-          return;
-        }
-
-        if (foundEffect == "")
-          foundEffect = clonedAlchemyTable[(int)tablePosition.X - 1, (int)tablePosition.Y + 1];
-        else
-        {
-          clonedAlchemyTable[(int)tablePosition.X - 2, (int)tablePosition.Y] = "";
-          AddEffectToPotionList(foundEffect, "1");
-          return;
-        }
-
-        if (foundEffect == "")
-        {
-          player.oid.SendServerMessage("Souffler sur les braises ne semble précipiter aucune réaction particulière.");
-          DrawWelcomePage();
-        }
-        else
-        {
-          clonedAlchemyTable[(int)tablePosition.X - 1, (int)tablePosition.Y + 1] = "";
-          AddEffectToPotionList(foundEffect, "1");
-        }
+        AddEffectToPotionList(clonedAlchemyTable[(int)result.Value.X, (int)result.Value.Y], ((int)Vector2.Distance(result.Value, tablePosition)).ToString());
+        clonedAlchemyTable[(int)result.Value.X, (int)result.Value.Y] = "";
       }
-      catch(Exception e)
-      {
-        effectList.Add(@"{ 'tag': 'CUSTOM_EFFECT_POISON' }");
 
-        PlayerSystem.Log.Info(e.Message);
-        PlayerSystem.Log.Info(e.StackTrace);
-
-        DrawWelcomePage();
-      }
+      DrawWelcomePage();
     }
     private void AddEffectToPotionList(string effect, string power)
     {
@@ -478,6 +362,139 @@ namespace NWN.Systems.Alchemy
       player.oid.LoginCreature.GetObjectVariable<LocalVariableInt>("_INGREDIENT_COUNT").Value = nBrowsedCases;
       player.craftJob.Start(Craft.Job.JobType.Alchemy, null, player, null, oItem, properties);
       player.menu.Close();
+    }
+    private Vector2? GetClosestEffectCoordinates(int xCenter, int yCenter, int max)
+    {
+      try
+      {
+        for (int i = 0; i < max; i++)
+        {
+          for (int x = -i; x == 0; x++)
+          {
+            if (clonedAlchemyTable[xCenter + x, yCenter - i] != "")
+              return new Vector2(xCenter + x, yCenter - i);
+            if (clonedAlchemyTable[xCenter - i, yCenter + x] != "")
+              return new Vector2(xCenter - i, yCenter + x);
+            if (clonedAlchemyTable[xCenter + x, yCenter + i] != "")
+              return new Vector2(xCenter + x, yCenter + i);
+            if (clonedAlchemyTable[xCenter + i, yCenter + x] != "")
+              return new Vector2(xCenter + i, yCenter + x);
+          }
+        }
+      }
+      catch (Exception){}
+
+      return null;
+    }
+    private void HandleExamineColors()
+    {
+      Vector2? result = GetClosestEffectCoordinates((int)tablePosition.X, (int)tablePosition.Y, SkillSystem.GetCustomFeatLevelFromSkillPoints(CustomFeats.AlchemistAware, player.learntCustomFeats[CustomFeats.AlchemistAware]) + 4);
+
+      if (!result.HasValue)
+        player.oid.SendServerMessage("Vous avez beau concentrer toute votre attention sur les changements de couleur du mélange, ceux-ci ne vous apportent aucune indication utile.", ColorConstants.Lime);
+      else
+      {
+         switch(((int)Vector2.Distance(result.Value, tablePosition)))
+        {
+          case 0:
+          case 1:
+          case 2:
+            player.oid.SendServerMessage("D'après les changements de couleur du mélange, vous estimez que la solution est à un stade parfait pour obtenir un effet positif.", new Color(32, 255, 32));
+            break;
+          case 3:
+            player.oid.SendServerMessage("D'après les changements de couleur du mélange, vous estimez que la solution est à un stade extrêmement proche d'obtenir un effet positif.", new Color(32, 255, 32));
+            break;
+          case 4:
+            player.oid.SendServerMessage("D'après les changements de couleur du mélange, vous estimez que la solution est à un stade très proche d'obtenir un effet positif.", new Color(32, 255, 32));
+            break;
+          case 5:
+            player.oid.SendServerMessage("D'après les changements de couleur du mélange, vous estimez que la solution est à un stade proche d'obtenir un effet positif.", new Color(32, 255, 32));
+            break;
+          case 6:
+            player.oid.SendServerMessage("D'après les changements de couleur du mélange, vous estimez que la solution est à un stade relativement proche d'obtenir un effet positif.", new Color(32, 255, 32));
+            break;
+          case 7:
+            player.oid.SendServerMessage("D'après les changements de couleur du mélange, vous estimez que la solution est à un stade presque proche d'obtenir un effet positif.", new Color(32, 255, 32));
+            break;
+        }
+      }
+
+      DrawWelcomePage();
+    }
+    private void HandleSmell()
+    {
+      Vector2? result = GetClosestEffectCoordinates((int)tablePosition.X, (int)tablePosition.Y, SkillSystem.GetCustomFeatLevelFromSkillPoints(CustomFeats.AlchemistAware, player.learntCustomFeats[CustomFeats.AlchemistAware]) + 4);
+
+      if (!result.HasValue)
+        player.oid.SendServerMessage("Vous avez beau concentrer toute votre attention sur l'odeur du mélange, celui-ci ne vous apporte aucune indication utile.", ColorConstants.Lime);
+      else
+      {
+        float xDiff = tablePosition.X - result.Value.X;
+        float yDiff = tablePosition.Y - result.Value.Y;
+
+        if (xDiff == 0 && yDiff == 0)
+        {
+          player.oid.SendServerMessage("D'après l'odeur du mélange, vous estimez que la solution est à un stade parfait pour obtenir un effet positif.", new Color(32, 255, 32));
+          DrawWelcomePage();
+          return;
+        }
+
+        if (yDiff > 0 && xDiff == 0)
+        {
+          player.oid.SendServerMessage("Humer le mélange vous permet de déterminer que votre décoction serait plus efficace si elle avait une odeur plus sucrée.", ColorConstants.Orange);
+          DrawWelcomePage();
+          return;
+        }
+
+        if (yDiff < 0 && xDiff == 0)
+        {
+          player.oid.SendServerMessage("Humer le mélange vous permet de déterminer que votre décoction serait plus efficace si elle avait une odeur plus citronnée.", ColorConstants.Orange);
+          DrawWelcomePage();
+          return;
+        }
+
+        if (xDiff > 0 && yDiff == 0)
+        {
+          player.oid.SendServerMessage("Humer le mélange vous permet de déterminer que votre décoction serait plus efficace si elle avait une odeur plus écoeurante.", ColorConstants.Orange);
+          DrawWelcomePage();
+          return;
+        }
+
+        if (xDiff < 0 && yDiff == 0)
+        {
+          player.oid.SendServerMessage("Humer le mélange vous permet de déterminer que votre décoction serait plus efficace si elle avait une odeur plus brûlée.", ColorConstants.Orange);
+          DrawWelcomePage();
+          return;
+        }
+
+        if (xDiff > 0 && yDiff > 0)
+        {
+          player.oid.SendServerMessage("Humer le mélange vous permet de déterminer que votre décoction serait plus efficace si elle avait une odeur plus chimique.", ColorConstants.Orange);
+          DrawWelcomePage();
+          return;
+        }
+
+        if (xDiff > 0 && yDiff < 0)
+        {
+          player.oid.SendServerMessage("Humer le mélange vous permet de déterminer que votre décoction serait plus efficace si elle avait une odeur plus mentholée.", ColorConstants.Orange);
+          DrawWelcomePage();
+          return;
+        }
+
+        if (xDiff < 0 && yDiff > 0)
+        {
+          player.oid.SendServerMessage("Humer le mélange vous permet de déterminer que votre décoction serait plus efficace si elle avait une odeur plus fruitée.", ColorConstants.Orange);
+          DrawWelcomePage();
+          return;
+        }
+
+        if (xDiff < 0 && yDiff < 0)
+        {
+          player.oid.SendServerMessage("Humer le mélange vous permet de déterminer que votre décoction serait plus efficace si elle avait une odeur plus boisée.", ColorConstants.Orange);
+        }
+      }
+
+      DrawWelcomePage();
     }
   }
 }

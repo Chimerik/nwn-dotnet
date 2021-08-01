@@ -40,7 +40,7 @@ namespace NWN.Systems
 }";
 
           CustomUnpackedEffect customUnpackedEffect = JsonConvert.DeserializeObject<CustomUnpackedEffect>(json);
-          customUnpackedEffect.ApplyCustomUnPackedEffectToTarget(player.oid.ControlledCreature);
+          //customUnpackedEffect.ApplyCustomUnPackedEffectToTarget(player.oid.ControlledCreature);
 
           //temp HP = type 15          {"Type":"15";10;2}
 

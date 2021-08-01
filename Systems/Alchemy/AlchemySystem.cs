@@ -53,7 +53,7 @@ namespace NWN.Systems.Alchemy
           return;
 
         alchemyTable = new string[rows, nbColumns];
-
+        
         int x = 0;
 
         foreach (var line in lines)
