@@ -6,6 +6,7 @@ using Anvil.API;
 using Anvil.API.Events;
 
 using NWN.Core.NWNX;
+using System.Numerics;
 
 namespace NWN.Systems
 {
@@ -20,6 +21,17 @@ namespace NWN.Systems
 
         if (player.oid.PlayerName == "Chim")
         {
+          Alchemy.Cauldron cauldron = new Alchemy.Cauldron(player.characterId);
+          cauldron.addedIngredients.Add(new Alchemy.AddedIngredient(new Craft.Collect.Config.Plant(oreType: Craft.Collect.Config.PlantType.Terraria), 10));
+          cauldron.addedIngredients.Add(new Alchemy.AddedIngredient(new Craft.Collect.Config.Plant(oreType: Craft.Collect.Config.PlantType.FloraisonAquatique), 4));
+          cauldron.nBrowsedCases = 47;
+          cauldron.tablePosition = new Vector2(14, 58);
+          cauldron.effectList.Add(@"{'type': '15',  'duration': '300',  'power': '1' ,  'param0': '5'}");
+          cauldron.effectList.Add(@"{'type': '27',  'duration': '700',  'power': '6',  'param0': '12'}");
+
+          string jsonTest = JsonConvert.SerializeObject(cauldron);
+          Log.Info(jsonTest);
+
           //Effect eff = Effect.TemporaryHitpoints(10);
           //eff.Tag = "TEST";
           //GC.SuppressFinalize(eff);
@@ -33,22 +45,22 @@ namespace NWN.Systems
           //test.nParam1 = 5;
           //test.nType = 37;
 
-          string json = @"{
-  'type': '15',
-  'duration': 300,
-  'param0': '10'
-}";
+          /*        string json = @"{
+          'type': '15',
+          'duration': 300,
+          'param0': '10'
+        }";
 
-          CustomUnpackedEffect customUnpackedEffect = JsonConvert.DeserializeObject<CustomUnpackedEffect>(json);
+                  CustomUnpackedEffect customUnpackedEffect = JsonConvert.DeserializeObject<CustomUnpackedEffect>(json);*/
           //customUnpackedEffect.ApplyCustomUnPackedEffectToTarget(player.oid.ControlledCreature);
 
           //temp HP = type 15          {"Type":"15";10;2}
 
           //foreach (Effect removedEff in player.oid.ControlledCreature.ActiveEffects.Where(e => e.Tag == "TEST"))
-            //player.oid.ControlledCreature.RemoveEffect(removedEff);
+          //player.oid.ControlledCreature.RemoveEffect(removedEff);
 
           //eff = EffectPlugin.PackEffect(test);
-          
+
           //player.oid.ControlledCreature.ApplyEffect(EffectDuration.Temporary, eff, TimeSpan.FromSeconds(10));
 
           /*Effect eff = Effect.DamageIncrease(10, DamageType.Acid);

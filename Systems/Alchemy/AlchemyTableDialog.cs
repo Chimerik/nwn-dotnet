@@ -7,30 +7,29 @@ using System.Numerics;
 
 using Anvil.API;
 
+using Newtonsoft.Json;
+
 using static NWN.Systems.Craft.Collect.Config;
 
 namespace NWN.Systems.Alchemy
 {
   class AlchemyTableDialog
   {
-    PlayerSystem.Player player;
     string[,] clonedAlchemyTable;
-    Vector2 tablePosition;
-    List<Vector2> ingredientVector;
-    List<string> effectList;
-    int nBrowsedCases;
+    PlayerSystem.Player player;
 
     public AlchemyTableDialog(PlayerSystem.Player player)
     {
       this.player = player;
-      tablePosition = AlchemySystem.center;
-      ingredientVector = new List<Vector2>();
-      effectList = new List<string>();
-      nBrowsedCases = 0;
-
       clonedAlchemyTable = (string[,])AlchemySystem.alchemyTable.Clone();
 
-      // Eventuellement : check si le joueur a déjà un chaudron en cours, si oui, charger le chaudron, sinon initialiser le chaudron vide
+      if (player.alchemyCauldron == null)
+      {
+        player.alchemyCauldron = new Cauldron(player.characterId);
+
+        foreach (Vector2 consumedGridEffect in player.alchemyCauldron.consumedGridEffects)
+          clonedAlchemyTable[(int)consumedGridEffect.X, (int)consumedGridEffect.Y] = "";
+      }     
 
       this.DrawWelcomePage();
     }
@@ -40,9 +39,9 @@ namespace NWN.Systems.Alchemy
 
       player.menu.choices.Add(("Ajouter des ingrédients", () => DisplayAvailableIngredients()));
 
-      if (tablePosition == AlchemySystem.center)
+      if (player.alchemyCauldron.tablePosition == AlchemySystem.center)
       {
-        if (ingredientVector.Count < 1)
+        if (player.alchemyCauldron.ingredientVector.Count < 1)
         {
           player.menu.titleLines = new List<string> {
             $"Le chaudron est rempli d'une eau neutre et limpide.",
@@ -57,6 +56,7 @@ namespace NWN.Systems.Alchemy
           };
 
           player.menu.choices.Add(("Remuer le mélange", () => HandleMixStrength()));
+          player.menu.choices.Add(("Vider le chaudron et recommencer", () => HandleReinit()));
         }
       }
       else
@@ -79,7 +79,11 @@ namespace NWN.Systems.Alchemy
 
         player.menu.choices.Add(("Activer le soufflet", () => ActivateBellows()));
         player.menu.choices.Add(("Finaliser la potion", () => BrewPotion()));
+
+        player.menu.choices.Add(("Vider le chaudron et recommencer", () => HandleReinit()));
       }
+
+      player.menu.choices.Add(("Consulter mes recettes", () => DisplayPlayerRecipes()));
 
       player.menu.choices.Add(("Quitter", () => player.menu.Close()));
       player.menu.Draw();
@@ -128,26 +132,32 @@ namespace NWN.Systems.Alchemy
 
       if (awaitedValue)
       {
-        AddToCauldron(addedPlant.gridEffect, multiplier, materialKey);
+        int input = int.Parse(player.oid.LoginCreature.GetObjectVariable<LocalVariableString>("_PLAYER_INPUT").Value);
+
+        if (input < 1)
+          input = 1;
+
+        if (input > player.materialStock[materialKey])
+          input = player.materialStock[materialKey];
+
+        player.materialStock[materialKey] -= input;
+
+        int total = input * multiplier;
+
+        player.alchemyCauldron.addedIngredients.Add(new AddedIngredient(addedPlant, total));
+
+        AddToCauldron(addedPlant.gridEffect, total, materialKey);
         player.oid.LoginCreature.GetObjectVariable<LocalVariableString>("_PLAYER_INPUT").Delete();
       }
     }
-    private void AddToCauldron(Vector2 gridEffect, int multiplier, string materialKey)
+    private void AddToCauldron(Vector2 gridEffect, int total, string materialKey)
     {
       player.menu.Clear();
-      int input = int.Parse(player.oid.LoginCreature.GetObjectVariable<LocalVariableString>("_PLAYER_INPUT"));
 
-      if (input < 1)
-        input = 1;
+      for (int i = 0; i < total; i++)
+        player.alchemyCauldron.ingredientVector.Add(gridEffect);
 
-      if (input > player.materialStock[materialKey])
-        input = player.materialStock[materialKey];
-
-      player.materialStock[materialKey] -= input;
-      for(int i = 0; i < multiplier; i++)
-      ingredientVector.Add(gridEffect);
-
-      player.oid.SendServerMessage("Votre ingrédient disparaît dans l'eau du chaudron après un petit plouf.");
+      player.oid.SendServerMessage("Votre ingrédient disparaît dans l'eau du chaudron après un léger frémissement de sa surface.");
       DrawWelcomePage();
     }
     private async void HandleMixStrength()
@@ -160,16 +170,16 @@ namespace NWN.Systems.Alchemy
 
       player.menu.choices.Add(("1", () => HandleMix(1)));
 
-      if (ingredientVector.Count > 10)
+      if (player.alchemyCauldron.ingredientVector.Count > 10)
         player.menu.choices.Add(("10", () => HandleMix(10)));
 
-      if (ingredientVector.Count > 50)
+      if (player.alchemyCauldron.ingredientVector.Count > 50)
         player.menu.choices.Add(("50", () => HandleMix(50)));
 
-      if (ingredientVector.Count > 100)
+      if (player.alchemyCauldron.ingredientVector.Count > 100)
         player.menu.choices.Add(("100", () => HandleMix(100)));
 
-      player.menu.choices.Add(("Jusqu'à miscibilité totale du mélange", () => HandleMix(ingredientVector.Count)));
+      player.menu.choices.Add(("Jusqu'à miscibilité totale du mélange", () => HandleMix(player.alchemyCauldron.ingredientVector.Count)));
 
       player.menu.choices.Add(("Quitter", () => player.menu.Close()));
       player.menu.Draw();
@@ -187,33 +197,38 @@ namespace NWN.Systems.Alchemy
       if (player.oid.LoginCreature.GetObjectVariable<LocalVariableString>("_PLAYER_INPUT").HasValue)
         player.oid.LoginCreature.GetObjectVariable<LocalVariableInt>("_PLAYER_INPUT_CANCELLED").Value = 1;
 
-      if (nbTurns > ingredientVector.Count)
-        nbTurns = ingredientVector.Count;
+      if (nbTurns > player.alchemyCauldron.ingredientVector.Count)
+        nbTurns = player.alchemyCauldron.ingredientVector.Count;
 
       if (nbTurns < 1)
         nbTurns = 1;
 
-      if (ingredientVector.Count > 0)
+      if (player.alchemyCauldron.ingredientVector.Count > 0)
       {
         for (int i = 0; i < nbTurns; i++)
-          tablePosition += ingredientVector[i];
+          player.alchemyCauldron.tablePosition += player.alchemyCauldron.ingredientVector[i];
 
-        nBrowsedCases += nbTurns;
-        ingredientVector.RemoveRange(0, nbTurns);
+        player.alchemyCauldron.nBrowsedCases += nbTurns;
+        player.alchemyCauldron.ingredientVector.RemoveRange(0, nbTurns);
 
         player.oid.SendServerMessage($"Vous faites tourner {nbTurns} fois la cuilllère dans le chaudron, mélangeant peu à peu les ingrédients.");
       }
 
-      if (ingredientVector.Count < 1)
+      if (player.alchemyCauldron.ingredientVector.Count < 1)
         player.oid.SendServerMessage("Les ingrédients sont totalement dissous dans l'eau du chaudron.");
 
-      // TODO : ajouter ici les effets de Alchimiste attentif et Alchimiste précis
+      Instruction lastInstruction = player.alchemyCauldron.instructions.LastOrDefault();
+
+      if (lastInstruction != null && lastInstruction.instruction == InstructionType.Mix)
+        lastInstruction.quantity += nbTurns;
+      else
+        player.alchemyCauldron.instructions.Add(new Instruction(InstructionType.Mix, nbTurns));
 
       DrawWelcomePage();
     }
     private void AddWater()
     {
-      Vector2 diff = AlchemySystem.center - tablePosition;
+      Vector2 diff = AlchemySystem.center - player.alchemyCauldron.tablePosition;
 
       if (diff.X > 0)
         diff.X = -1;
@@ -229,22 +244,30 @@ namespace NWN.Systems.Alchemy
         player.oid.SendServerMessage("Le mélange est déjà parfaitement neutre.");
       else
       {
-        tablePosition += diff;
+        player.alchemyCauldron.tablePosition += diff;
         player.oid.SendServerMessage("Vous ajoutez une dose d'eau. Le mélange s'éclaircit légèrement.");
+
+        Instruction lastInstruction = player.alchemyCauldron.instructions.LastOrDefault();
+
+        if (lastInstruction != null && lastInstruction.instruction == InstructionType.Distill)
+          lastInstruction.quantity += 1;
+        else
+          player.alchemyCauldron.instructions.Add(new Instruction(InstructionType.Distill, 1));
       }
 
       DrawWelcomePage();
     }
     private void ActivateBellows()
     {
-      Vector2? result = GetClosestEffectCoordinates((int)tablePosition.X, (int)tablePosition.Y, 3);
+      Vector2? result = GetClosestEffectCoordinates((int)player.alchemyCauldron.tablePosition.X, (int)player.alchemyCauldron.tablePosition.Y, 3);
 
       if (!result.HasValue)
         player.oid.SendServerMessage("Souffler sur les braises ne semble précipiter aucune réaction particulière.");
       else
       {
-        AddEffectToPotionList(clonedAlchemyTable[(int)result.Value.X, (int)result.Value.Y], ((int)Vector2.Distance(result.Value, tablePosition)).ToString());
+        AddEffectToPotionList(clonedAlchemyTable[(int)result.Value.X, (int)result.Value.Y], ((int)Vector2.Distance(result.Value, player.alchemyCauldron.tablePosition)).ToString());
         clonedAlchemyTable[(int)result.Value.X, (int)result.Value.Y] = "";
+        player.alchemyCauldron.consumedGridEffects.Add(result.Value);
       }
 
       DrawWelcomePage();
@@ -255,7 +278,7 @@ namespace NWN.Systems.Alchemy
       {
         default:
           effect = effect.Replace("'power': ,", $"'power': '{power}',");
-          effectList.Add(effect);
+          player.alchemyCauldron.effectList.Add(effect);
           break;
 
         case "Range":
@@ -263,7 +286,7 @@ namespace NWN.Systems.Alchemy
         case "AoE":
         case "Uses":
         case "Duration":
-          effectList.Add(effect + power);
+          player.alchemyCauldron.effectList.Add(effect + power);
           break;
       }
       player.oid.SendServerMessage("Le feu crépite, le mélange bout, au vue de l'odeur et des fumées dégagées, nul doute que le mélange réagit !");
@@ -289,31 +312,31 @@ namespace NWN.Systems.Alchemy
 
       string properties = "";
 
-      if(effectList.Count < 1 || effectList.Any(s => s.Contains("CUSTOM_EFFECT_POISON")) || effectList.Count > expertLevel)
+      if(player.alchemyCauldron.effectList.Count < 1 || player.alchemyCauldron.effectList.Any(s => s.Contains("CUSTOM_EFFECT_POISON")) || player.alchemyCauldron.effectList.Count > expertLevel)
         properties = @"{ 'tag': 'CUSTOM_EFFECT_POISON' }";
       else
       {
         int nbUse = 1;
 
-        foreach (string use in effectList.Where(s => s.StartsWith("Uses")).ToList())
+        foreach (string use in player.alchemyCauldron.effectList.Where(s => s.StartsWith("Uses")).ToList())
         {
           nbUse += (int)use.Last();
-          effectList.Remove(use);
+          player.alchemyCauldron.effectList.Remove(use);
         }
 
         oItem.ItemCharges = nbUse;
 
-        if (effectList.Any(s => s.StartsWith("Range")))
+        if (player.alchemyCauldron.effectList.Any(s => s.StartsWith("Range")))
         {
           foreach (ItemProperty ip in oItem.ItemProperties)
             oItem.RemoveItemProperty(ip);
 
           int range = 0;
           
-          foreach (string rangeString in effectList.Where(s => s.StartsWith("Range")).ToList())
+          foreach (string rangeString in player.alchemyCauldron.effectList.Where(s => s.StartsWith("Range")).ToList())
           {
             range += (int)rangeString.Last();
-            effectList.Remove(rangeString);
+            player.alchemyCauldron.effectList.Remove(rangeString);
           }
 
           if (range > 1)
@@ -324,44 +347,52 @@ namespace NWN.Systems.Alchemy
 
         int power = 1;
 
-        foreach (string powerString in effectList.Where(s => s.StartsWith("Power")).ToList())
+        foreach (string powerString in player.alchemyCauldron.effectList.Where(s => s.StartsWith("Power")).ToList())
         {
           power *= (int)powerString.Last();
-          effectList.Remove(powerString);
+          player.alchemyCauldron.effectList.Remove(powerString);
         }
 
         oItem.GetObjectVariable<LocalVariableInt>("POTION_POWER").Value = power;
 
         int duration = 1;
 
-        foreach (string durationString in effectList.Where(s => s.StartsWith("Duration")).ToList())
+        foreach (string durationString in player.alchemyCauldron.effectList.Where(s => s.StartsWith("Duration")).ToList())
         {
           duration *= (int)durationString.Last();
-          effectList.Remove(durationString);
+          player.alchemyCauldron.effectList.Remove(durationString);
         }
 
         oItem.GetObjectVariable<LocalVariableInt>("POTION_DURATION").Value = duration;
 
         int aoe = 0;
 
-        foreach (string aoeString in effectList.Where(s => s.StartsWith("AoE")).ToList())
+        foreach (string aoeString in player.alchemyCauldron.effectList.Where(s => s.StartsWith("AoE")).ToList())
         {
           aoe += (int)aoeString.Last();
-          effectList.Remove(aoeString);
+          player.alchemyCauldron.effectList.Remove(aoeString);
         }
 
         oItem.GetObjectVariable<LocalVariableInt>("POTION_AOE").Value = aoe;
 
-
-        foreach (string eff in effectList)
+        foreach (string eff in player.alchemyCauldron.effectList)
           properties += eff + "|";
 
         properties = properties.SkipLast(1).ToString();
       }
 
-      player.oid.LoginCreature.GetObjectVariable<LocalVariableInt>("_INGREDIENT_COUNT").Value = nBrowsedCases;
       player.craftJob.Start(Craft.Job.JobType.Alchemy, null, player, null, oItem, properties);
-      player.menu.Close();
+
+      player.menu.Clear();
+      player.menu.titleLines = new List<string> {
+        $"La concotion de votre potion va prendre un certain temps.",
+        "Souhaitez-vous inscrire cette recette dans vos notes ?"
+      };
+
+      player.menu.choices.Add(("Noter la recette", () => GetRecipeName()));
+      player.menu.choices.Add(("Non, nettoyer le chaudron", () => player.menu.Close()));
+
+      player.alchemyCauldron = null;
     }
     private Vector2? GetClosestEffectCoordinates(int xCenter, int yCenter, int max)
     {
@@ -388,13 +419,13 @@ namespace NWN.Systems.Alchemy
     }
     private void HandleExamineColors()
     {
-      Vector2? result = GetClosestEffectCoordinates((int)tablePosition.X, (int)tablePosition.Y, SkillSystem.GetCustomFeatLevelFromSkillPoints(CustomFeats.AlchemistAware, player.learntCustomFeats[CustomFeats.AlchemistAware]) + 4);
+      Vector2? result = GetClosestEffectCoordinates((int)player.alchemyCauldron.tablePosition.X, (int)player.alchemyCauldron.tablePosition.Y, SkillSystem.GetCustomFeatLevelFromSkillPoints(CustomFeats.AlchemistAware, player.learntCustomFeats[CustomFeats.AlchemistAware]) + 4);
 
       if (!result.HasValue)
         player.oid.SendServerMessage("Vous avez beau concentrer toute votre attention sur les changements de couleur du mélange, ceux-ci ne vous apportent aucune indication utile.", ColorConstants.Lime);
       else
       {
-         switch(((int)Vector2.Distance(result.Value, tablePosition)))
+         switch(((int)Vector2.Distance(result.Value, player.alchemyCauldron.tablePosition)))
         {
           case 0:
           case 1:
@@ -423,14 +454,14 @@ namespace NWN.Systems.Alchemy
     }
     private void HandleSmell()
     {
-      Vector2? result = GetClosestEffectCoordinates((int)tablePosition.X, (int)tablePosition.Y, SkillSystem.GetCustomFeatLevelFromSkillPoints(CustomFeats.AlchemistAware, player.learntCustomFeats[CustomFeats.AlchemistAware]) + 4);
+      Vector2? result = GetClosestEffectCoordinates((int)player.alchemyCauldron.tablePosition.X, (int)player.alchemyCauldron.tablePosition.Y, SkillSystem.GetCustomFeatLevelFromSkillPoints(CustomFeats.AlchemistAware, player.learntCustomFeats[CustomFeats.AlchemistAware]) + 4);
 
       if (!result.HasValue)
         player.oid.SendServerMessage("Vous avez beau concentrer toute votre attention sur l'odeur du mélange, celui-ci ne vous apporte aucune indication utile.", ColorConstants.Lime);
       else
       {
-        float xDiff = tablePosition.X - result.Value.X;
-        float yDiff = tablePosition.Y - result.Value.Y;
+        float xDiff = player.alchemyCauldron.tablePosition.X - result.Value.X;
+        float yDiff = player.alchemyCauldron.tablePosition.Y - result.Value.Y;
 
         if (xDiff == 0 && yDiff == 0)
         {
@@ -495,6 +526,141 @@ namespace NWN.Systems.Alchemy
       }
 
       DrawWelcomePage();
+    }
+    private void HandleReinit()
+    {
+      player.alchemyCauldron = null;
+      player.menu.Close();
+      player.oid.SendServerMessage("Vous videz le chaudron de son contenu actuel et le remplissez à nouveau d'une eau neutre.", ColorConstants.Orange);
+    }
+    private async void GetRecipeName()
+    {
+      player.menu.Clear();
+
+      player.menu.titleLines = new List<string> {
+        $"Quel nom souhaitez-vous donner à cette recette ?",
+        "(Prononcez simplement le nom à l'oral.)"
+      };
+
+      player.menu.choices.Add(("Quitter", () => player.menu.Close()));
+      player.menu.Draw();
+
+      bool awaitedValue = await player.WaitForPlayerInputString();
+
+      if (awaitedValue)
+      {
+        SaveRecipe();
+        player.oid.LoginCreature.GetObjectVariable<LocalVariableString>("_PLAYER_INPUT").Delete();
+      }
+    }
+    private void SaveRecipe()
+    {
+      string input = player.oid.LoginCreature.GetObjectVariable<LocalVariableString>("_PLAYER_INPUT").Value;
+
+      SqLiteUtils.InsertQuery("playerAlchemyRecipe",
+        new List<string[]>() {
+            new string[] { "characterId", player.characterId.ToString() },
+            new string[] { "recipeName", input },
+            new string[] { "serializedRecipe", JsonConvert.SerializeObject(new CurrentRecipe(player.alchemyCauldron.addedIngredients, player.alchemyCauldron.effectList, player.alchemyCauldron.instructions)) } },
+        new List<string>() { "characterId", "recipeName" },
+        new List<string[]>() { new string[] { "serializedRecipe" } },
+        new List<string>() { "characterId", "recipeName" });
+
+      player.oid.SendServerMessage($"Vous notez scrupuleuse votre recette {input.ColorString(ColorConstants.White)} dans votre carnet d'alchimiste.", new Color(32, 255, 32));
+
+      player.menu.Close();
+    }
+    private void DisplayPlayerRecipes()
+    {
+      player.menu.Clear();
+
+      player.menu.titleLines = new List<string> {
+        "Voici la liste de vos recettes.",
+        "Laquelle souhaitez-vous consulter ?"
+      };
+
+      var query = SqLiteUtils.SelectQuery("playerAlchemyRecipe",
+        new List<string>() { { "recipeName" }, { "serializedRecipe" } },
+        new List<string[]>() { new string[] { "characterId", player.characterId.ToString() } });
+
+      foreach (var result in query.Results)
+      {
+        string recipeName = $"- {result.GetString(0)}".ColorString(ColorConstants.Cyan);
+        string serializedRecipe = result.GetString(1);
+
+        player.menu.choices.Add((
+          recipeName,
+          () => HandleSelectedRecipe(recipeName, serializedRecipe)
+        ));
+      }
+
+      player.menu.choices.Add(("Retour.", () => CommandSystem.DrawCommandList(player)));
+      player.menu.choices.Add(("Quitter.", () => player.menu.Close()));
+
+      player.menu.Draw();
+    }
+    private void HandleSelectedRecipe(string recipeName, string serializedRecipe)
+    {
+      player.menu.Clear();
+
+      player.menu.titleLines = new List<string> {
+        $"La recette {recipeName} stipule les instructions ci-dessous :",
+        "Que souhaitez-vous faire de cette recette ?"
+      };
+
+      CurrentRecipe recipe = JsonConvert.DeserializeObject<CurrentRecipe>(serializedRecipe);
+
+      foreach (AddedIngredient ingredient in recipe.addedIngredients)
+        player.menu.titleLines.Add($"Ajouter {ingredient.quantity} doses de {ingredient.ingredient.name}");
+;
+      foreach (Instruction instruction in recipe.instructions)
+      {
+        if (instruction.instruction == InstructionType.Mix)
+          player.menu.titleLines.Add($"Remuer {instruction.quantity} fois.");
+        else if (instruction.instruction == InstructionType.Distill)
+          player.menu.titleLines.Add($"Ajouter {instruction.quantity} dose(s) d'eau.");
+      }
+
+      player.menu.choices.Add(("Produire.", () => CraftPotionFromRecipe(serializedRecipe)));
+      player.menu.choices.Add(("Supprimer.", () => DeleteRecipe(recipeName)));
+
+      player.menu.choices.Add(("Retour.", () => DrawWelcomePage()));
+      player.menu.choices.Add(("Quitter.", () => player.menu.Close()));
+
+      player.menu.Draw();
+    }
+
+    private void DeleteRecipe(string recipeName)
+    {
+      SqLiteUtils.DeletionQuery("playerAlchemyRecipe",
+          new Dictionary<string, string>() { { "characterId", player.characterId.ToString() }, { "recipeName", recipeName } });
+
+      player.oid.SendServerMessage($"Votre recette {recipeName.ColorString(ColorConstants.White)} a été supprimée de vos notes d'alchimie.", ColorConstants.Orange);
+      DisplayPlayerRecipes();
+    }
+    private void CraftPotionFromRecipe(string serializedRecipe)
+    {
+      CurrentRecipe recipe = JsonConvert.DeserializeObject<CurrentRecipe>(serializedRecipe);
+
+      foreach(AddedIngredient ingredient in recipe.addedIngredients)
+      {
+        if(player.materialStock[ingredient.ingredient.ToString()] < ingredient.quantity)
+        {
+          int missingIngredients = ingredient.quantity - player.materialStock[ingredient.ingredient.ToString()];
+          player.oid.SendServerMessage($"Il vous manque {missingIngredients.ToString().ColorString(ColorConstants.White)} de {ingredient.ingredient.name.ColorString(ColorConstants.White)} pour réaliser cette recette.", ColorConstants.Red);
+          return;
+        }
+      }
+
+      foreach (AddedIngredient ingredient in recipe.addedIngredients)
+        player.materialStock[ingredient.ingredient.ToString()] -= ingredient.quantity;
+
+      player.alchemyCauldron.effectList = recipe.effectList;
+
+      BrewPotion();
+
+      player.oid.SendServerMessage("Votre potion est en cours de concotion, ce qui va prendre un certain temps.", new Color(32, 255, 32));
+      player.menu.Close();
     }
   }
 }

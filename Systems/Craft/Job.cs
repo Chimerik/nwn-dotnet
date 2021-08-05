@@ -479,7 +479,7 @@ namespace NWN.Systems.Craft
       if (player.learntCustomFeats.ContainsKey(CustomFeats.Alchemist))
         alchemistLevel += SkillSystem.GetCustomFeatLevelFromSkillPoints(CustomFeats.Alchemist, player.learntCustomFeats[CustomFeats.Alchemist]);
 
-      float iJobDuration = player.oid.LoginCreature.GetObjectVariable<LocalVariableInt>("_INGREDIENT_COUNT").Value * 60 * (100 - 2 * alchemistLevel) / 100;
+      float iJobDuration = player.alchemyCauldron.nBrowsedCases * 60 * (100 - 2 * alchemistLevel) / 100;
       player.craftJob = new Job(-19, ipString, iJobDuration, player, oTarget.Serialize().ToBase64EncodedString()); // -19 = JobType Alchemy
 
       player.oid.SendServerMessage($"Vous venez de démarrer la création d'une potion !", new Color(32, 255, 32));

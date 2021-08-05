@@ -36,6 +36,7 @@ namespace NWN.Systems
       public QuickbarType loadedQuickBar { get; set; }
       public string serializedQuickbar { get; set; }
       public Arena.PlayerData pveArena { get; set; }
+      public Cauldron alchemyCauldron { get; set; }
 
       public List<NwPlayer> listened = new List<NwPlayer>();
       public List<Effect> effectList = new List<Effect>();

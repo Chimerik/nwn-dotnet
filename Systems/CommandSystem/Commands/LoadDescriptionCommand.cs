@@ -20,7 +20,7 @@ namespace NWN.Systems
       foreach (var result in query.Results)
       {
         string descriptionName = $"- {result.GetString(0)}".ColorString(ColorConstants.Cyan);
-        string description = result.GetString(0);
+        string description = result.GetString(1);
 
         player.menu.choices.Add((
           descriptionName,

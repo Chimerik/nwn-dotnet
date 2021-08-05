@@ -52,7 +52,7 @@ namespace NWN.Systems
           new List<string[]>() { new string[] { "serializedAppearance" }, new string[] { "baseItemType" }, new string[] { "AC" } },
           new List<string>() { "characterId", "appearanceName" });
 
-        player.oid.SendServerMessage($"L'apparence de votre {selection.TargetObject.Name.ColorString(ColorConstants.White)} a été sauvegardée sous le nom {input.ColorString(ColorConstants.White)}.", ColorConstants.Green);
+        player.oid.SendServerMessage($"L'apparence de votre {selection.TargetObject.Name.ColorString(ColorConstants.White)} a été sauvegardée sous le nom {input.ColorString(ColorConstants.White)}.", new Color(32, 255, 32));
         player.menu.Close();
 
         player.oid.LoginCreature.GetObjectVariable<LocalVariableString>("_PLAYER_INPUT").Delete();

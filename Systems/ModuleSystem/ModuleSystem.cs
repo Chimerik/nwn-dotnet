@@ -64,7 +64,7 @@ namespace NWN.Systems
         "('accountId' INTEGER NOT NULL, 'characterName' TEXT NOT NULL, 'dateLastSaved' TEXT NOT NULL, 'currentSkillType' INTEGER NOT NULL, 'currentSkillJob' INTEGER NOT NULL," +
         "'currentCraftJobRemainingTime' REAL, 'currentCraftJob' INTEGER NOT NULL, 'currentCraftObject' TEXT NOT NULL," +
         "currentCraftJobMaterial TEXT, areaTag TEXT, position TEXT, facing REAL," +
-        "currentHP INTEGER, bankGold INTEGER, pveArenaCurrentPoints, menuOriginTop INTEGER, menuOriginLeft INTEGER, storage TEXT)");
+        "currentHP INTEGER, bankGold INTEGER, pveArenaCurrentPoints, menuOriginTop INTEGER, menuOriginLeft INTEGER, storage TEXT, alchemyCauldron TEXT)");
 
       SqLiteUtils.CreateQuery("CREATE TABLE IF NOT EXISTS playerLearnableSkills" +
         "('characterId' INTEGER NOT NULL, 'skillId' INTEGER NOT NULL, 'skillPoints' INTEGER NOT NULL, 'trained' INTEGER, UNIQUE (characterId, skillId))");
@@ -152,6 +152,9 @@ namespace NWN.Systems
 
       SqLiteUtils.CreateQuery("CREATE TABLE IF NOT EXISTS playerMutedPM" +
         "('accountId' INTEGER NOT NULL, 'mutedAccountId' INTEGER NOT NULL)");
+
+      SqLiteUtils.CreateQuery("CREATE TABLE IF NOT EXISTS playerAlchemyRecipe" +
+        "('characterId' INTEGER NOT NULL, 'recipeName' TEXT NOT NULL, 'serializedRecipe' TEXT NOT NULL, UNIQUE (characterId, recipeName))");
     }
     private void InitializeEvents()
     {

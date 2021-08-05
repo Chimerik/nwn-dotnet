@@ -6,6 +6,8 @@ using Anvil.API;
 using Anvil.API.Events;
 using Anvil.Services;
 
+using Newtonsoft.Json;
+
 namespace NWN.Systems
 {
   public partial class PlayerSystem
@@ -112,7 +114,8 @@ namespace NWN.Systems
           new string[] { "dateLastSaved", player.dateLastSaved.ToString() }, new string[] { "currentSkillType", ((int)player.currentSkillType).ToString() }, new string[] { "currentCraftJob", player.currentSkillJob.ToString() },
           new string[] { "currentCraftJob", player.craftJob.baseItemType.ToString() }, new string[] { "currentCraftObject", player.craftJob.craftedItem }, new string[] { "currentCraftJobRemainingTime", player.craftJob.remainingTime.ToString() },
           new string[] { "currentCraftJobMaterial", player.craftJob.material }, new string[] { "currentCraftJobMaterial", player.craftJob.material }, new string[] { "pveArenaCurrentPoints", player.pveArena.currentPoints.ToString() },
-          new string[] { "menuOriginTop", player.menu.originTop.ToString() }, new string[] { "menuOriginLeft", player.menu.originLeft.ToString() } },
+          new string[] { "menuOriginTop", player.menu.originTop.ToString() }, new string[] { "menuOriginLeft", player.menu.originLeft.ToString() },
+          new string[] { "alchemyCauldron", JsonConvert.SerializeObject(player.alchemyCauldron) } },
           new List<string[]>() { new string[]  { "rowid", player.characterId.ToString() } });
     }
     private static void SavePlayerLearnableSkillsToDatabase(Player player)

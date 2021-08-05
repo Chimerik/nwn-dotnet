@@ -11,6 +11,7 @@ using NWN.Core.NWNX;
 using Anvil.Services;
 using NWN.Systems.Craft;
 using Color = Anvil.API.Color;
+using Newtonsoft.Json;
 
 namespace NWN.Systems
 {
@@ -434,7 +435,7 @@ namespace NWN.Systems
     private static void InitializePlayerCharacter(Player player)
     {
       var result = SqLiteUtils.SelectQuery("playerCharacters",
-          new List<string>() { { "areaTag" }, { "position" }, { "facing" }, { "currentHP" }, { "bankGold" }, { "dateLastSaved" }, { "currentSkillJob" }, { "currentCraftJob" }, { "currentCraftObject" }, { "currentCraftJobRemainingTime" }, { "currentCraftJobMaterial" }, { "menuOriginTop" }, { "menuOriginLeft" }, { "currentSkillType" }, { "pveArenaCurrentPoints" } },
+          new List<string>() { { "areaTag" }, { "position" }, { "facing" }, { "currentHP" }, { "bankGold" }, { "dateLastSaved" }, { "currentSkillJob" }, { "currentCraftJob" }, { "currentCraftObject" }, { "currentCraftJobRemainingTime" }, { "currentCraftJobMaterial" }, { "menuOriginTop" }, { "menuOriginLeft" }, { "currentSkillType" }, { "pveArenaCurrentPoints" }, { "alchemyCauldron" } },
           new List<string[]>() { { new string[] { "rowid", player.characterId.ToString() } } });
 
       if (result.Result == null)
@@ -452,6 +453,7 @@ namespace NWN.Systems
       player.menu.originLeft = result.Result.GetInt(12);
       player.currentSkillType = (SkillSystem.SkillType)result.Result.GetInt(13);
       player.pveArena.totalPoints = (uint)result.Result.GetInt(14);
+      player.alchemyCauldron = JsonConvert.DeserializeObject<Alchemy.Cauldron>(result.Result.GetString(15));
 
       if (player.oid.LoginCreature.GetObjectVariable<PersistentVariableInt>("_REINIT_DONE").HasNothing && player.currentSkillType == SkillSystem.SkillType.Skill)
         player.currentSkillJob = (int)CustomFeats.Invalid;
