@@ -4,7 +4,6 @@ using static NWN.Systems.SkillSystem;
 using NWN.Systems.Craft;
 using Anvil.API;
 using System.Threading.Tasks;
-using Skill = NWN.Systems.SkillSystem.Skill;
 using System.Threading;
 using System.Linq;
 using Anvil.Services;
@@ -27,8 +26,6 @@ namespace NWN.Systems
       public int bankGold { get; set; }
       public PlayerJournal playerJournal { get; set; }
       public DateTime dateLastSaved { get; set; }
-      public int currentSkillJob { get; set; }
-      public SkillType currentSkillType { get; set; }
       public Job craftJob { get; set; }
       public Location previousLocation { get; set; }
       public Menu menu { get; }
@@ -43,9 +40,7 @@ namespace NWN.Systems
       public List<int> mutedList = new List<int>();
       public Dictionary<uint, Player> blocked = new Dictionary<uint, Player>();
       public Dictionary<Feat, int> learntCustomFeats = new Dictionary<Feat, int>();
-      public Dictionary<Feat, Skill> learnableSkills = new Dictionary<Feat, Skill>();
-      public Dictionary<int, LearnableSpell> learnableSpells = new Dictionary<int, LearnableSpell>();
-      public Dictionary<Feat, Skill> removeableMalus = new Dictionary<Feat, Skill>();
+      public Dictionary<string, Learnable> learnables = new Dictionary<string, Learnable>();
       public Dictionary<string, int> materialStock = new Dictionary<string, int>();
       public Dictionary<int, MapPin> mapPinDictionnary = new Dictionary<int, MapPin>();
       public Dictionary<string, byte[]> areaExplorationStateDictionnary = new Dictionary<string, byte[]>();
@@ -401,77 +396,28 @@ namespace NWN.Systems
         craftJob.CloseCraftJournalEntry();
         craftJob = new Job(-10, "", 0, this);
       }
-      public void AcquireSkillPoints()
+      public void AcquireSkillPoints(Learnable learnable)
       {
-        switch (currentSkillType)
+        if (this.oid.LoginCreature.GetObjectVariable<PersistentVariableInt>("_STARTING_SKILL_POINTS").HasValue)
         {
-          case SkillType.Skill:
-            if (this.learnableSkills.TryGetValue((Feat)currentSkillJob, out Skill skill))
-            {
-              if (this.oid.LoginCreature.GetObjectVariable<PersistentVariableInt>("_STARTING_SKILL_POINTS").HasValue)
-              {
-                int pooledPoints = this.oid.LoginCreature.GetObjectVariable<PersistentVariableInt>("_STARTING_SKILL_POINTS").Value;
-                if (pooledPoints > skill.pointsToNextLevel)
-                {
-                  this.oid.LoginCreature.GetObjectVariable<PersistentVariableInt>("_STARTING_SKILL_POINTS").Value = pooledPoints - skill.pointsToNextLevel;
-                  skill.acquiredPoints += skill.pointsToNextLevel;
-                }
-                else
-                {
-                  skill.acquiredPoints += pooledPoints;
-                  this.oid.LoginCreature.GetObjectVariable<PersistentVariableInt>("_STARTING_SKILL_POINTS").Delete();
-                }
-              }
-
-              double skillPointRate = skill.CalculateSkillPointsPerSecond();
-              skill.acquiredPoints += skillPointRate * (DateTime.Now - this.dateLastSaved).TotalSeconds;
-              double RemainingTime = skill.GetTimeToNextLevel(skillPointRate);
-
-              if (RemainingTime <= 0)
-              {
-                skill.LevelUpSkill();
-              }
-            }
-            break;
-          case SkillType.Spell:
-            if (this.learnableSpells.TryGetValue(this.currentSkillJob, out LearnableSpell spell))
-            {
-              double skillPointRate = spell.CalculateSkillPointsPerSecond();
-              spell.acquiredPoints += skillPointRate * (DateTime.Now - this.dateLastSaved).TotalSeconds;
-              double RemainingTime = spell.GetTimeToNextLevel(skillPointRate);
-
-              if (RemainingTime <= 0)
-              {
-                spell.LevelUpSkill();
-              }
-            }
-            break;
+          int pooledPoints = this.oid.LoginCreature.GetObjectVariable<PersistentVariableInt>("_STARTING_SKILL_POINTS").Value;
+          if (pooledPoints > learnable.pointsToNextLevel)
+          {
+            this.oid.LoginCreature.GetObjectVariable<PersistentVariableInt>("_STARTING_SKILL_POINTS").Value = pooledPoints - learnable.pointsToNextLevel;
+            learnable.acquiredPoints += learnable.pointsToNextLevel;
+          }
+          else
+          {
+            learnable.acquiredPoints += pooledPoints;
+            this.oid.LoginCreature.GetObjectVariable<PersistentVariableInt>("_STARTING_SKILL_POINTS").Delete();
+          }
         }
 
-        /*else
-        {
-          if (this.removeableMalus.TryGetValue(this.currentSkillJob, out skill))
-          {
-            float skillPointRate = this.CalculateSkillPointsPerSecond(skill);
-            skill.acquiredPoints += skillPointRate * (float)(DateTime.Now - this.dateLastSaved).TotalSeconds; ;
-            double RemainingTime = skill.GetTimeToNextLevel(skillPointRate);
+        double skillPointRate = CalculateSkillPointsPerSecond(learnable);
+        learnable.acquiredPoints += skillPointRate * (DateTime.Now - this.dateLastSaved).TotalSeconds;
 
-            if (RemainingTime < 0)
-            {
-              this.RemoveMalus(skill);
-            }
-          }
-        }*/
-      }
-      public void RemoveMalus(Skill skill)
-      {
-        oid.LoginCreature.RemoveFeat(skill.oid);
-
-        if (RegisterRemoveCustomFeatEffect.TryGetValue(skill.oid, out Func<Player, Feat, int> handler))
-          handler.Invoke(this, skill.oid);
-
-        this.oid.LoginCreature.GetObjectVariable<PersistentVariableInt>("_CURRENT_JOB").Delete();
-        this.removeableMalus.Remove(skill.oid);
+        if (GetTimeToNextLevel(skillPointRate, learnable) <= 0)
+          LevelUpLearnable(learnable);
       }
       public async void UpdateJournal()
       {
@@ -511,19 +457,8 @@ namespace NWN.Systems
             oid.AddCustomJournalEntry(journalEntry, true);
           }
 
-          switch (currentSkillType)
-          {
-            case SkillType.Skill:
-              Skill skill;
-              if (learnableSkills.TryGetValue((Feat)currentSkillJob, out skill))
-                skill.RefreshAcquiredSkillPoints();
-              break;
-            case SkillType.Spell:
-              LearnableSpell spell;
-              if (learnableSpells.TryGetValue(currentSkillJob, out spell))
-                spell.RefreshAcquiredSkillPoints();
-              break;
-          }
+          if(learnables.Any(l => l.Value.active))
+            RefreshAcquiredSkillPoints(learnables.FirstOrDefault(l => l.Value.active).Value);
         }
 
         dateLastSaved = DateTime.Now;
@@ -641,6 +576,187 @@ namespace NWN.Systems
           return true;
         else
           return false;
+      }
+      public void CreateSkillJournalEntry(Learnable learnable)
+      {
+        playerJournal.skillJobCountDown = DateTime.Now.AddSeconds(GetTimeToNextLevel(CalculateSkillPointsPerSecond(learnable), learnable));
+        JournalEntry journalEntry = new JournalEntry();
+        journalEntry.Name = $"Apprentissage - {Utils.StripTimeSpanMilliseconds((TimeSpan)(playerJournal.skillJobCountDown - DateTime.Now))}";
+        journalEntry.Text = $"Apprentissage en cours :\n\n " +
+          $"{learnable.name}\n\n" +
+          $"{learnable.description}";
+        journalEntry.QuestTag = "skill_job";
+        journalEntry.Priority = 1;
+        journalEntry.QuestDisplayed = true;
+        oid.AddCustomJournalEntry(journalEntry);
+
+        oid.ApplyInstantVisualEffectToObject((VfxType)1516, oid.ControlledCreature);
+      }
+      public void CancelSkillJournalEntry(Learnable learnable)
+      {
+        JournalEntry journalEntry = oid.GetJournalEntry("skill_job");
+        journalEntry.Name = $"Apprentissage annulé - {learnable.name}";
+        journalEntry.QuestTag = "skill_job";
+        journalEntry.QuestDisplayed = false;
+        oid.AddCustomJournalEntry(journalEntry);
+        playerJournal.skillJobCountDown = null;
+      }
+      public void CloseSkillJournalEntry(Learnable learnable)
+      {
+        JournalEntry journalEntry = oid.GetJournalEntry("skill_job");
+
+        if (journalEntry == null)
+        {
+          CreateSkillJournalEntry(learnable);
+          journalEntry = oid.GetJournalEntry("skill_job");
+        }
+
+        journalEntry.Name = $"Apprentissage terminé - {learnable.name}";
+        journalEntry.QuestTag = "skill_job";
+        journalEntry.QuestCompleted = true;
+        journalEntry.QuestDisplayed = false;
+        oid.AddCustomJournalEntry(journalEntry);
+        playerJournal.skillJobCountDown = null;
+      }
+      public void PlayNewSkillAcquiredEffects(Learnable learnable)
+      {
+        oid.ApplyInstantVisualEffectToObject((VfxType)1516, oid.ControlledCreature);
+        CloseSkillJournalEntry(learnable);
+      }
+      public double CalculateSkillPointsPerSecond(Learnable learnable)
+      {
+        double SP = (oid.LoginCreature.GetAbilityScore(learnable.primaryAbility) + (oid.LoginCreature.GetAbilityScore(learnable.secondaryAbility) / 2.0)) / 60.0;
+
+        switch (bonusRolePlay)
+        {
+          case 0:
+            SP = SP * 10 / 100;
+            break;
+          case 1:
+            SP = SP * 90 / 100;
+            break;
+          case 3:
+            SP = SP * 110 / 100;
+            break;
+          case 4:
+            SP = SP * 120 / 100;
+            break;
+          case 100:
+            SP = SP * 10;
+            break;
+        }
+
+        if (oid.LoginCreature.GetObjectVariable<LocalVariableInt>("_CONNECTING").HasValue)
+        {
+          SP = SP * 60 / 100;
+          Log.Info($"{oid.LoginCreature.Name} was not connected. Applying 40 % malus.");
+        }
+        else if (isAFK)
+        {
+          SP = SP * 80 / 100;
+          Log.Info($"{oid.LoginCreature.Name} was afk. Applying 20 % malus.");
+        }
+
+        //Log.Info($"SP CALCULATION - {player.oid.Name} - {SP} SP.");
+
+        return SP;
+      }
+      public void RefreshAcquiredSkillPoints(Learnable learnable)
+      {
+        if (oid.LoginCreature.GetObjectVariable<PersistentVariableInt>("_STARTING_SKILL_POINTS").HasValue)
+        {
+          int pooledPoints = oid.LoginCreature.GetObjectVariable<PersistentVariableInt>("_STARTING_SKILL_POINTS").Value;
+          if (pooledPoints > learnable.pointsToNextLevel)
+          {
+            oid.LoginCreature.GetObjectVariable<PersistentVariableInt>("_STARTING_SKILL_POINTS").Value = pooledPoints;
+            learnable.acquiredPoints += learnable.pointsToNextLevel;
+          }
+          else
+          {
+            learnable.acquiredPoints += pooledPoints;
+            oid.LoginCreature.GetObjectVariable<PersistentVariableInt>("_STARTING_SKILL_POINTS").Delete();
+          }
+        }
+
+        double skillPointRate = CalculateSkillPointsPerSecond(learnable);
+        learnable.acquiredPoints += skillPointRate * (DateTime.Now - dateLastSaved).TotalSeconds;
+        double remainingTime = GetTimeToNextLevel(skillPointRate, learnable);
+        playerJournal.skillJobCountDown = DateTime.Now.AddSeconds(remainingTime);
+
+        if (remainingTime <= 0)
+          LevelUpLearnable(learnable);
+      }
+      public double GetTimeToNextLevel(double pointPerSecond, Learnable learnable)
+      {
+        double RemainingPoints = learnable.pointsToNextLevel - learnable.acquiredPoints;
+        return RemainingPoints / pointPerSecond;
+      }
+      public void LevelUpLearnable(Learnable learnable)
+      {
+        if (menu.isOpen)
+          menu.Close();
+
+        switch (learnable.type)
+        {
+          case LearnableType.Feat:
+            LevelUpFeat(learnable);
+            break;
+          case LearnableType.Spell:
+            LevelUpSpell(learnable);
+            break;
+        }
+
+        oid.ExportCharacter();
+        PlayNewSkillAcquiredEffects(learnable);
+      }
+      public void LevelUpFeat(Learnable learnable)
+      {
+        if (customFeatsDictionnary.ContainsKey(learnable.featId)) // Il s'agit d'un Custom Feat
+        {
+          if (learntCustomFeats.ContainsKey(learnable.featId))
+            learntCustomFeats[learnable.featId] = (int)learnable.acquiredPoints;
+          else
+            learntCustomFeats.Add(learnable.featId, (int)learnable.acquiredPoints);
+
+          string customFeatName = customFeatsDictionnary[learnable.featId].name;
+          learnable.name = customFeatName;
+
+          learnable.currentLevel = GetCustomFeatLevelFromSkillPoints(learnable.featId, (int)learnable.acquiredPoints);
+
+          int skillLevelCap = learnable.currentLevel;
+
+          if (learnable.currentLevel > 4)
+          {
+            skillLevelCap = 4;
+            learnable.pointsToNextLevel += (int)(250 * learnable.multiplier * Math.Pow(5, skillLevelCap));
+          }
+          else
+            learnable.pointsToNextLevel = (int)(250 * learnable.multiplier * Math.Pow(5, skillLevelCap));
+
+          oid.SetTlkOverride((int)Feat2da.featTable.GetFeatDataEntry(learnable.featId).tlkName, $"{customFeatName} - {learnable.currentLevel}");
+
+          if (learnable.currentLevel >= customFeatsDictionnary[learnable.featId].maxLevel)
+            learnable.trained = true;
+        }
+        else
+        {
+          learnable.trained = true;
+
+          if (learnable.successorId > 0)
+            learnables.Add($"F{learnable.successorId}", new Learnable(LearnableType.Feat, learnable.successorId, 0, this));
+        }
+
+        oid.LoginCreature.AddFeat(learnable.featId);
+
+        if (RegisterAddCustomFeatEffect.TryGetValue(learnable.featId, out Func<PlayerSystem.Player, Feat, int> handler))
+          handler.Invoke(this, learnable.featId);
+
+        learnable.active = false;
+      }
+      public void LevelUpSpell(Learnable learnable)
+      {
+        oid.LoginCreature.GetClassInfo((ClassType)43).AddKnownSpell(learnable.spellId, (byte)learnable.multiplier);
+        learnable.trained = true;
       }
     }
   }

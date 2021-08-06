@@ -1,4 +1,6 @@
-﻿using Anvil.API;
+﻿using System.Linq;
+
+using Anvil.API;
 using Anvil.API.Events;
 using static NWN.Systems.SkillSystem;
 
@@ -16,10 +18,12 @@ namespace NWN.Systems
       if (selection.IsCancelled || !selection.TargetObject.IsPlayerControlled(out NwPlayer oPC) || !PlayerSystem.Players.TryGetValue(oPC.LoginCreature, out PlayerSystem.Player targetPlayer))
         return;
 
-      if (targetPlayer.currentSkillType == SkillType.Skill)
-        targetPlayer.learnableSkills[(Feat)targetPlayer.currentSkillJob].acquiredPoints = targetPlayer.learnableSkills[(Feat)targetPlayer.currentSkillJob].pointsToNextLevel;
-      else if (targetPlayer.currentSkillType == SkillType.Spell)
-        targetPlayer.learnableSpells[targetPlayer.currentSkillJob].acquiredPoints = targetPlayer.learnableSpells[targetPlayer.currentSkillJob].pointsToNextLevel;
+      Learnable learnable = targetPlayer.learnables.FirstOrDefault(l => l.Value.active).Value;
+
+      if (learnable != null)
+        learnable.acquiredPoints = learnable.pointsToNextLevel;
+      else
+        selection.Player.SendServerMessage($"{targetPlayer.oid.LoginCreature.Name.ColorString(ColorConstants.White)} ne dispose pas d'apprentissage en cours.", ColorConstants.Orange);
     }
   }
 }

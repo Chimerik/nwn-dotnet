@@ -281,7 +281,7 @@ namespace NWN.Systems
       if (spellId < 0 || spellLevel > 10)
       {
         Utils.LogMessageToDMs($"LEARN SPELL FROM SCROLL - Player : {oPC.Name}, SpellId : {spellId}, SpellLevel : {spellLevel} - INVALID");
-        oPC.ControllingPlayer.SendServerMessage("HRP - Ce parchemin ne semble pas correctement configuré, impossible d'en apprendre quoique ce soit. Le staff a été informé du problème.");
+        oPC.ControllingPlayer.SendServerMessage("HRP - Ce parchemin ne semble pas correctement configuré, impossible d'en apprendre quoique ce soit. Le staff a été informé du problème.", ColorConstants.Red);
         return;
       }
 
@@ -292,22 +292,24 @@ namespace NWN.Systems
       }
 
       if (Players.TryGetValue(oPC, out Player player))
-        if (player.learnableSpells.ContainsKey((int)spellId))
+        if (player.learnables.ContainsKey($"S{spellId}"))
         {
-          if (player.learnableSpells[(int)spellId].nbScrollsUsed <= 5)
+          Learnable learnable = player.learnables[$"S{spellId}"];
+
+          if (learnable.nbScrollsUsed <= 5)
           {
-            player.learnableSpells[(int)spellId].acquiredPoints += player.learnableSpells[(int)spellId].pointsToNextLevel / 20;
-            player.learnableSpells[(int)spellId].nbScrollsUsed += 1;
-            oPC.ControllingPlayer.SendServerMessage("A l'aide de ce parchemin, vous affinez votre connaissance de ce sort. Votre apprentissage sera plus rapide.");
+            learnable.acquiredPoints += learnable.pointsToNextLevel / 20;
+            learnable.nbScrollsUsed += 1;
+            oPC.ControllingPlayer.SendServerMessage($"A l'aide de ce parchemin, vous affinez votre connaissance du sort de {learnable.name.ColorString(ColorConstants.White)}. Votre apprentissage sera plus rapide.", new Color(32, 255, 32));
           }
           else
-            oPC.ControllingPlayer.SendServerMessage("Vous avez déjà retiré tout ce que vous pouviez de ce parchemin.");
+            oPC.ControllingPlayer.SendServerMessage("Vous avez déjà retiré tout ce que vous pouviez de ce parchemin.", ColorConstants.Orange);
           return;
         }
         else
         {
-          SkillSystem.LearnableSpell spell = new SkillSystem.LearnableSpell((int)spellId, 0, player);
-          player.learnableSpells.Add((int)spellId, spell);
+          Learnable spell = new Learnable(LearnableType.Spell, (int)spellId, 0, player);
+          player.learnables.Add($"S{(int)spellId}", spell);
           oPC.ControllingPlayer.SendServerMessage($"Le sort {spell.name} a été ajouté à votre liste d'apprentissage et est désormais disponible pour étude.");
           oScroll.Destroy();
         }

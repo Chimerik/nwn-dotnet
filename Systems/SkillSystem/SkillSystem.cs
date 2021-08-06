@@ -632,14 +632,6 @@ namespace NWN.Systems
       return 0;
     }
 
-    private static int HandleRemoveStrengthMalusFeat(PlayerSystem.Player player, Feat idMalusFeat)
-    {
-      player.removeableMalus.Remove(idMalusFeat);
-      player.oid.LoginCreature.SetsRawAbilityScore(Ability.Strength, (byte)(player.oid.LoginCreature.GetRawAbilityScore(Ability.Strength) + 2));
-
-      return 0;
-    }
-
     public static Feat[] forgeBasicSkillBooks = new Feat[] { CustomFeats.Renforcement, CustomFeats.Recycler, CustomFeats.CraftOreExtractor, CustomFeats.CraftForgeHammer, CustomFeats.Metallurgy, CustomFeats.Research, CustomFeats.Miner, CustomFeats.Prospection, CustomFeats.StripMiner, CustomFeats.Reprocessing, CustomFeats.Forge, CustomFeats.CraftScaleMail, CustomFeats.CraftDagger, CustomFeats.CraftLightMace, CustomFeats.CraftMorningStar, CustomFeats.CraftSickle, CustomFeats.CraftShortSpear };
     public static Feat[] woodBasicSkillBooks = new Feat[] { CustomFeats.Renforcement, CustomFeats.Recycler, CustomFeats.CraftOreExtractor, CustomFeats.CraftForgeHammer, CustomFeats.Metallurgy, CustomFeats.Research, CustomFeats.WoodCutter, CustomFeats.WoodProspection, CustomFeats.StripMiner, CustomFeats.WoodReprocessing, CustomFeats.Ebeniste, CustomFeats.CraftSmallShield, CustomFeats.CraftClub, CustomFeats.CraftDarts, CustomFeats.CraftBullets, CustomFeats.CraftHeavyCrossbow, CustomFeats.CraftLightCrossbow, CustomFeats.CraftQuarterstaff, CustomFeats.CraftSling, CustomFeats.CraftArrow, CustomFeats.CraftBolt };
     public static Feat[] leatherBasicSkillBooks = new Feat[] { CustomFeats.Renforcement, CustomFeats.Recycler, CustomFeats.Hunting, CustomFeats.Skinning, CustomFeats.Tanner, CustomFeats.PeltReprocessing, CustomFeats.CraftLeatherArmor, CustomFeats.CraftStuddedLeather, CustomFeats.CraftPaddedArmor, CustomFeats.CraftClothing, CustomFeats.CraftWhip, CustomFeats.CraftBelt, CustomFeats.CraftBoots, CustomFeats.CraftBracer, CustomFeats.CraftCloak, CustomFeats.CraftGloves };

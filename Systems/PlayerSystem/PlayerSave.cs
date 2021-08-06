@@ -54,13 +54,13 @@ namespace NWN.Systems
           player.CraftJobProgression();
         }
         
-        player.AcquireSkillPoints();
+        if(player.learnables.Any(l => l.Value.active))
+          player.AcquireSkillPoints(player.learnables.First(l => l.Value.active).Value);
 
         player.dateLastSaved = DateTime.Now;
 
         SavePlayerCharacterToDatabase(player);
-        SavePlayerLearnableSkillsToDatabase(player);
-        SavePlayerLearnableSpellsToDatabase(player);
+        SavePlayerLearnablesToDatabase(player);
         SavePlayerStoredMaterialsToDatabase(player);
         SavePlayerMapPinsToDatabase(player);
         SavePlayerAreaExplorationStateToDatabase(player);
@@ -111,45 +111,52 @@ namespace NWN.Systems
       SqLiteUtils.UpdateQuery("playerCharacters",
           new List<string[]>() { new string[] { "characterName", $"{player.oid.LoginCreature.OriginalFirstName} {player.oid.LoginCreature.OriginalLastName}" },
           new string[] { "areaTag", areaTag }, new string[] { "position", position }, new string[] { "facing", facing }, new string[] { "currentHP", player.oid.LoginCreature.HP.ToString() }, new string[] { "bankGold", player.bankGold.ToString() },
-          new string[] { "dateLastSaved", player.dateLastSaved.ToString() }, new string[] { "currentSkillType", ((int)player.currentSkillType).ToString() }, new string[] { "currentCraftJob", player.currentSkillJob.ToString() },
+          new string[] { "dateLastSaved", player.dateLastSaved.ToString() },
           new string[] { "currentCraftJob", player.craftJob.baseItemType.ToString() }, new string[] { "currentCraftObject", player.craftJob.craftedItem }, new string[] { "currentCraftJobRemainingTime", player.craftJob.remainingTime.ToString() },
           new string[] { "currentCraftJobMaterial", player.craftJob.material }, new string[] { "currentCraftJobMaterial", player.craftJob.material }, new string[] { "pveArenaCurrentPoints", player.pveArena.currentPoints.ToString() },
           new string[] { "menuOriginTop", player.menu.originTop.ToString() }, new string[] { "menuOriginLeft", player.menu.originLeft.ToString() },
           new string[] { "alchemyCauldron", JsonConvert.SerializeObject(player.alchemyCauldron) } },
           new List<string[]>() { new string[]  { "rowid", player.characterId.ToString() } });
     }
-    private static void SavePlayerLearnableSkillsToDatabase(Player player)
+    private static void SavePlayerLearnablesToDatabase(Player player)
     {
-      foreach (KeyValuePair<Feat, SkillSystem.Skill> skillListEntry in player.learnableSkills)
+      foreach (KeyValuePair<string, Learnable> skillListEntry in player.learnables)
       {
-        SqLiteUtils.InsertQuery("playerLearnableSkills",
+        switch(skillListEntry.Value.type)
+        {
+          case LearnableType.Feat:
+            SavePlayerLearnableFeatToDatabase(player, skillListEntry.Value);
+            break;
+          case LearnableType.Spell:
+            SavePlayerLearnableSpellToDatabase(player, skillListEntry.Value);
+            break;
+        }
+      }
+
+      // Ici on vire de la liste tout les learnables trained et sauvegardés
+      player.learnables = player.learnables.Where(kv => !kv.Value.trained).ToDictionary(kv => kv.Key, KeyValuePair => KeyValuePair.Value);
+    }
+    private static void SavePlayerLearnableFeatToDatabase(Player player, Learnable feat)
+    {
+      SqLiteUtils.InsertQuery("playerLearnableSkills",
           new List<string[]>() { new string[] { "characterId", player.characterId.ToString() },
-            new string[] { "skillId", ((int)skillListEntry.Key).ToString() },
-            new string[] { "skillPoints", skillListEntry.Value.acquiredPoints.ToString() },
-            new string[] { "trained", skillListEntry.Value.trained.ToString() } },
+            new string[] { "skillId", feat.id.ToString() },
+            new string[] { "skillPoints", feat.acquiredPoints.ToString() },
+            new string[] { "trained", feat.trained.ToString() } },
             new List<string>() { "characterId", "skillId" },
             new List<string[]>() { new string[] { "skillPoints" }, new string[] { "trained" } });
-      }
-
-      // Ici on vire de la liste tout les skills trained et sauvegardés
-      player.learnableSkills = player.learnableSkills.Where(kv => !kv.Value.trained).ToDictionary(kv => kv.Key, KeyValuePair => KeyValuePair.Value);
     }
-    private static void SavePlayerLearnableSpellsToDatabase(Player player)
-    {
-      foreach (KeyValuePair<int, SkillSystem.LearnableSpell> skillListEntry in player.learnableSpells)
-      {
-        SqLiteUtils.InsertQuery("playerLearnableSpells",
-          new List<string[]>() { new string[] { "characterId", player.characterId.ToString() },
-            new string[] { "skillId", (skillListEntry.Key).ToString() },
-            new string[] { "skillPoints", skillListEntry.Value.acquiredPoints.ToString() },
-            new string[] { "trained", skillListEntry.Value.trained.ToString() },
-            new string[] { "nbScrolls", skillListEntry.Value.nbScrollsUsed.ToString() } },
-            new List<string>() { "characterId", "skillId" },
-            new List<string[]>() { new string[] { "skillPoints" }, new string[] { "trained" }, new string[] { "nbScrolls" } });
-      }
 
-      // Ici on vire de la liste tout les skills trained et sauvegardés
-      player.learnableSpells = player.learnableSpells.Where(kv => !kv.Value.trained).ToDictionary(kv => kv.Key, KeyValuePair => KeyValuePair.Value);
+    private static void SavePlayerLearnableSpellToDatabase(Player player, Learnable spell)
+    {
+      SqLiteUtils.InsertQuery("playerLearnableSpells",
+        new List<string[]>() { new string[] { "characterId", player.characterId.ToString() },
+            new string[] { "skillId", spell.id.ToString() },
+            new string[] { "skillPoints", spell.acquiredPoints.ToString() },
+            new string[] { "trained", spell.trained.ToString() },
+            new string[] { "nbScrolls", spell.nbScrollsUsed.ToString() } },
+          new List<string>() { "characterId", "skillId" },
+          new List<string[]>() { new string[] { "skillPoints" }, new string[] { "trained" }, new string[] { "nbScrolls" } });
     }
     private static void SavePlayerStoredMaterialsToDatabase(Player player)
     {

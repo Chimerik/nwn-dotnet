@@ -1,9 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using System;
-using static NWN.Systems.SkillSystem;
 using Anvil.API;
-using Skill = NWN.Systems.SkillSystem.Skill;
 
 namespace NWN.Systems
 {
@@ -23,11 +21,11 @@ namespace NWN.Systems
     {
       player.menu.Clear();
 
-      if (player.learnableSkills.Count > 0)
-        player.menu.choices.Add(($"Afficher la liste des talents disponibles pour entrainement", () => __DrawSkillPage(player)));
+      if (player.learnables.Any(l => l.Value.type == LearnableType.Feat && !l.Value.trained))
+        player.menu.choices.Add(($"Afficher la liste des talents disponibles pour entrainement", () => __DrawSkillPage(player, LearnableType.Feat)));
 
-      if (player.learnableSpells.Count > 0)
-        player.menu.choices.Add(($"Afficher la liste des sorts disponibles pour entrainement", () => __DrawSpellPage(player)));
+      if (player.learnables.Any(l => l.Value.type == LearnableType.Spell && !l.Value.trained))
+        player.menu.choices.Add(($"Afficher la liste des sorts disponibles pour entrainement", () => __DrawSkillPage(player, LearnableType.Spell)));
 
       if (player.menu.choices.Count > 0)
         player.menu.titleLines.Add("Que souhaitez-vous faire ?.");
@@ -37,213 +35,82 @@ namespace NWN.Systems
           "Peut-être trouverez-vous de nouveaux éléments d'améliorations dans certains ouvrages ?"
         };
 
-      player.menu.choices.Add(("Quitter", () => __HandleClose(player)));
+      player.menu.choices.Add(("Quitter", () => player.menu.Close()));
       player.menu.Draw();
     }
-    private static void __DrawSkillPage(PlayerSystem.Player player)
+    private static void __DrawSkillPage(PlayerSystem.Player player, LearnableType selectedType)
     {
       player.menu.Clear();
-      player.menu.titleLines.Add("Liste des talents disponibles pour entrainement.");
-
+      
       if (page < 0)
         page = 0;
 
-      //var sortedDict = from entry in player.learnableSkills orderby entry.Value ascending select entry;
-      foreach (KeyValuePair<Feat, Skill> SkillListEntry in player.learnableSkills.OrderByDescending(key => key.Value.currentJob).Skip(page).Take(_PAGINATION))
-      {
-        Skill skill = SkillListEntry.Value;
-        
-        if (!skill.trained)
-        {
-          if(skill.currentJob)
-            skill.RefreshAcquiredSkillPoints();
+      if(player.learnables.Any(l => l.Value.active))
+        player.RefreshAcquiredSkillPoints(player.learnables.First(l => l.Value.active).Value);
 
-          player.menu.choices.Add(($"{skill.name} - Temps restant : {Utils.StripTimeSpanMilliseconds((DateTime.Now.AddSeconds(skill.GetTimeToNextLevel(skill.CalculateSkillPointsPerSecond())) - DateTime.Now))}", () => __HandleSkillSelection(player, skill)));
-        }
+      Dictionary<string, Learnable> displayList = new Dictionary<string, Learnable>();
+
+      switch (selectedType)
+      {
+        case LearnableType.Feat:
+          player.menu.titleLines.Add("Liste des talents disponibles pour entrainement.");
+          displayList = player.learnables.OrderByDescending(key => key.Value.active).Where(l => l.Value.type == LearnableType.Feat && !l.Value.trained).Skip(page).Take(_PAGINATION).ToDictionary(kv => kv.Key, KeyValuePair => KeyValuePair.Value);
+          break;
+        case LearnableType.Spell:
+          displayList = player.learnables.OrderByDescending(key => key.Value.active).Where(l => l.Value.type == LearnableType.Spell && !l.Value.trained).Skip(page).Take(_PAGINATION).ToDictionary(kv => kv.Key, KeyValuePair => KeyValuePair.Value);
+          player.menu.titleLines.Add("Liste des sorts disponibles pour étude.");
+          break;
       }
 
-      /*foreach (KeyValuePair<int, SkillSystem.Skill> SkillListEntry in player.learnableSkills)
-      {
-        SkillSystem.Skill skill = SkillListEntry.Value;
-        // TODO :  afficher le skill en cours en premier ?
-
-        if(!skill.trained)
-          player.menu.choices.Add(($"{skill.name} - Temps restant : {skill.GetTimeToNextLevelAsString(player)}", () => __HandleSkillSelection(player, skill))); 
-      }*/
+      foreach (KeyValuePair<string, Learnable> SkillListEntry in displayList)
+        player.menu.choices.Add(($"{SkillListEntry.Value.name} - Temps restant : {Utils.StripTimeSpanMilliseconds((DateTime.Now.AddSeconds(player.GetTimeToNextLevel(player.CalculateSkillPointsPerSecond(SkillListEntry.Value), SkillListEntry.Value)) - DateTime.Now))}", () => __HandleLearnableSelection(player, SkillListEntry.Value)));
 
       if(page > 0)
-        player.menu.choices.Add(("Retour", () => __DrawPreviousPage(player)));
+        player.menu.choices.Add(("Retour", () => __DrawPreviousPage(player, selectedType)));
 
-      if(player.learnableSkills.Count > page + _PAGINATION)
-        player.menu.choices.Add(("Suivant", () => __DrawNextPage(player)));
+      if(displayList.Count > page + _PAGINATION)
+        player.menu.choices.Add(("Suivant", () => __DrawNextPage(player, selectedType)));
 
-      player.menu.choices.Add(("Quitter", () => __HandleClose(player)));
+      player.menu.choices.Add(("Quitter", () => player.menu.Close()));
       player.menu.Draw();
     }
-    private static void __DrawPreviousPage(PlayerSystem.Player player)
+    private static void __DrawPreviousPage(PlayerSystem.Player player, LearnableType selectedType)
     {
       page -= _PAGINATION;
-      __DrawSkillPage(player);
+      __DrawSkillPage(player, selectedType);
     }
-    private static void __DrawNextPage(PlayerSystem.Player player)
+    private static void __DrawNextPage(PlayerSystem.Player player, LearnableType selectedType)
     {
       page += _PAGINATION;
-      __DrawSkillPage(player);
+      __DrawSkillPage(player, selectedType);
     }
-    private static void __DrawPreviousSpellPage(PlayerSystem.Player player)
+    private static void __HandleLearnableSelection(PlayerSystem.Player player, Learnable selectedLearnable)
     {
-      page -= _PAGINATION;
-      __DrawSpellPage(player);
-    }
-    private static void __DrawNextSpellPage(PlayerSystem.Player player)
-    {
-      page += _PAGINATION;
-      __DrawSpellPage(player);
-    }
-    private static void __DrawSpellPage(PlayerSystem.Player player)
-    {
-      if (page < 0)
-        page = 0;
-
-      player.menu.Clear();
-      player.menu.titleLines.Add("Liste des sorts disponibles pour étude.");
-
-      foreach (KeyValuePair<int, LearnableSpell> SpellListEntry in player.learnableSpells.OrderByDescending(key => key.Value.currentJob).Skip(page).Take(_PAGINATION))
+      if (player.learnables.Any(l => l.Value.active))
       {
-        LearnableSpell spell = SpellListEntry.Value;
-
-        if (!spell.trained)
-        {
-          if (spell.currentJob)
-            spell.RefreshAcquiredSkillPoints();
-
-          player.menu.choices.Add(($"{spell.name} - Temps restant : {Utils.StripTimeSpanMilliseconds(DateTime.Now.AddSeconds(spell.GetTimeToNextLevel(spell.CalculateSkillPointsPerSecond())) - DateTime.Now)}", () => __HandleSpellSelection(player, spell)));
-        }
-        // TODO : Suivant, précédent
-      }
-      if (page > 0)
-        player.menu.choices.Add(("Retour", () => __DrawPreviousSpellPage(player)));
-
-      if (player.learnableSkills.Count > page + _PAGINATION)
-        player.menu.choices.Add(("Suivant", () => __DrawNextSpellPage(player)));
-
-      player.menu.choices.Add(("Quitter", () => __HandleClose(player)));
-      player.menu.Draw();
-    }
-    private static void __DrawMalusPage(PlayerSystem.Player player)
-    {
-      player.menu.Clear();
-      player.menu.titleLines.Add("Liste des blessures persistantes nécessitant une rééducation.");
-
-      foreach (KeyValuePair<Feat, SkillSystem.Skill> SkillListEntry in player.removeableMalus)
-      {
-        SkillSystem.Skill skill = SkillListEntry.Value;
-        // TODO :  afficher le skill en cours en premier ?
-
-        skill.RefreshAcquiredSkillPoints();
-        player.menu.choices.Add(($"{skill.name} - Temps restant : {NWN.Utils.StripTimeSpanMilliseconds((TimeSpan)(player.playerJournal.skillJobCountDown - DateTime.Now))}", () => __HandleSkillSelection(player, skill)));
-
-        // TODO : Suivant, précédent et quitter
-      }
-
-      player.menu.choices.Add(("Quitter", () => __HandleClose(player)));
-      player.menu.Draw();
-    }
-    private static void __HandleSkillSelection(PlayerSystem.Player player, Skill SelectedSkill)
-    {
-      if (player.currentSkillJob != (int)CustomFeats.Invalid)
-      {
-        //if(CurrentSkill == null)
-        //CurrentSkill = player.removeableMalus[player.currentSkillJob];
-
         player.oid.ExportCharacter();
 
-        if (SelectedSkill.currentJob) // Job en cours sélectionné => mise en pause
+        if (selectedLearnable.active) // Job en cours sélectionné => mise en pause
         {
-          SelectedSkill.currentJob = false;
-          player.currentSkillJob = (int)CustomFeats.Invalid;
-          player.currentSkillType = SkillType.Invalid;
-          SelectedSkill.CancelSkillJournalEntry();
+          selectedLearnable.active = false;
+          player.CancelSkillJournalEntry(selectedLearnable);
         }
         else
         {
-          switch (player.currentSkillType)
-          {
-            case SkillType.Skill:
-              Skill currentSkill = player.learnableSkills[(Feat)player.currentSkillJob];
-              currentSkill.currentJob = false;
-              currentSkill.CancelSkillJournalEntry();
-              break;
-            case SkillType.Spell:
-              LearnableSpell currentSpell = player.learnableSpells[player.currentSkillJob];
-              currentSpell.currentJob = false;
-              currentSpell.CancelSkillJournalEntry();
-              break;
-          }
+          Learnable currentLearnable = player.learnables.First(l => l.Value.active).Value;
+          currentLearnable.active = false;
+          player.CancelSkillJournalEntry(currentLearnable);
 
-          SelectedSkill.currentJob = true;
-          player.currentSkillJob = (int)SelectedSkill.oid;
-          player.currentSkillType = SkillType.Skill;
-          SelectedSkill.CreateSkillJournalEntry();
+          selectedLearnable.active = true;
+          player.CreateSkillJournalEntry(selectedLearnable);
         }
       }
       else
       {
-        SelectedSkill.currentJob = true;
-        player.currentSkillJob = (int)SelectedSkill.oid;
-        player.currentSkillType = SkillType.Skill;
-        SelectedSkill.CreateSkillJournalEntry();
+        selectedLearnable.active = true;
+        player.CreateSkillJournalEntry(selectedLearnable);
       }
 
-      __HandleClose(player);
-    }
-    private static void __HandleSpellSelection(PlayerSystem.Player player, LearnableSpell selectedSpell)
-    {
-      if (player.currentSkillJob != (int)CustomFeats.Invalid)
-      {
-        player.oid.ExportCharacter();
-
-        if (selectedSpell.currentJob) // Job en cours sélectionné => mise en pause
-        {
-          selectedSpell.currentJob = false;
-          player.currentSkillJob = (int)CustomFeats.Invalid;
-          player.currentSkillType = SkillType.Invalid;
-          selectedSpell.CancelSkillJournalEntry();
-        }
-        else
-        {
-          switch(player.currentSkillType)
-          {
-            case SkillType.Skill:
-              Skill currentSkill = player.learnableSkills[(Feat)player.currentSkillJob];
-              currentSkill.currentJob = false;
-              currentSkill.CancelSkillJournalEntry();
-              break;
-            case SkillType.Spell:
-              LearnableSpell currentSpell = player.learnableSpells[player.currentSkillJob];
-              currentSpell.currentJob = false;
-              currentSpell.CancelSkillJournalEntry();
-              break;
-          }
-
-          selectedSpell.currentJob = true;
-          player.currentSkillJob = selectedSpell.oid;
-          player.currentSkillType = SkillType.Spell;
-          selectedSpell.CreateSkillJournalEntry();
-        }
-      }
-      else
-      {
-        selectedSpell.currentJob = true;
-        player.currentSkillJob = selectedSpell.oid;
-        player.currentSkillType = SkillType.Spell;
-        selectedSpell.CreateSkillJournalEntry();
-      }
-
-      __HandleClose(player);
-    }
-    private static void __HandleClose(PlayerSystem.Player player)
-    {
       player.menu.Close();
     }
   }

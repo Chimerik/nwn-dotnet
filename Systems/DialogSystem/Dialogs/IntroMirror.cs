@@ -1,11 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using Anvil.API;
 using NWN.Core.NWNX;
 using static NWN.Systems.PlayerSystem;
 using static NWN.Systems.SkillSystem;
-using Skill = NWN.Systems.SkillSystem.Skill;
 
 namespace NWN.Systems
 {
@@ -117,9 +117,9 @@ namespace NWN.Systems
         "Quelles capacités initiales votre personnage possède-t-il ?"
       };
 
-      foreach (KeyValuePair<Feat, Skill > SkillListEntry in player.learnableSkills)
+      foreach (KeyValuePair<string, Learnable> SkillListEntry in player.learnables.Where(k => k.Value.type == LearnableType.Feat))
       {
-        Skill skill = SkillListEntry.Value;
+        Learnable skill = SkillListEntry.Value;
 
         if (!skill.trained)
         {
@@ -158,7 +158,7 @@ namespace NWN.Systems
       player.oid.LoginCreature.VisualTransform.Scale = clone.VisualTransform.Scale;
       HandleBodyModification(player);
     }
-    private void HandleSkillSelected(Player player, Skill skill)
+    private void HandleSkillSelected(Player player, Learnable skill)
     {
       int remainingPoints = player.oid.LoginCreature.GetObjectVariable<PersistentVariableInt>("_STARTING_SKILL_POINTS").Value;
 
@@ -166,24 +166,24 @@ namespace NWN.Systems
       {
         player.oid.LoginCreature.GetObjectVariable<PersistentVariableInt>("_STARTING_SKILL_POINTS").Value = remainingPoints -= skill.pointsToNextLevel;
 
-        if (customFeatsDictionnary.ContainsKey(skill.oid)) // Il s'agit d'un Custom Feat
+        if (customFeatsDictionnary.ContainsKey(skill.featId)) // Il s'agit d'un Custom Feat
         {
           skill.acquiredPoints = skill.pointsToNextLevel;
 
-          if (player.learntCustomFeats.ContainsKey(skill.oid))
-            player.learntCustomFeats[skill.oid] = (int)skill.acquiredPoints;
+          if (player.learntCustomFeats.ContainsKey(skill.featId))
+            player.learntCustomFeats[skill.featId] = (int)skill.acquiredPoints;
           else
-            player.learntCustomFeats.Add(skill.oid, (int)skill.acquiredPoints);
+            player.learntCustomFeats.Add(skill.featId, (int)skill.acquiredPoints);
 
-          string customFeatName = customFeatsDictionnary[skill.oid].name;
+          string customFeatName = customFeatsDictionnary[skill.featId].name;
           skill.name = customFeatName;
 
-          skill.currentLevel = GetCustomFeatLevelFromSkillPoints(skill.oid, (int)skill.acquiredPoints);
+          skill.currentLevel = GetCustomFeatLevelFromSkillPoints(skill.featId, (int)skill.acquiredPoints);
           skill.pointsToNextLevel = (int)(250 * skill.multiplier * Math.Pow(5, skill.currentLevel));
           
-          player.oid.SetTlkOverride((int)Feat2da.featTable.GetFeatDataEntry(skill.oid).tlkName, $"{customFeatName} - {skill.currentLevel}");
+          player.oid.SetTlkOverride((int)Feat2da.featTable.GetFeatDataEntry(skill.featId).tlkName, $"{customFeatName} - {skill.currentLevel}");
 
-          if (skill.currentLevel >= customFeatsDictionnary[skill.oid].maxLevel)
+          if (skill.currentLevel >= customFeatsDictionnary[skill.featId].maxLevel)
             skill.trained = true;
         }
         else
@@ -192,20 +192,20 @@ namespace NWN.Systems
 
           if (skill.successorId > 0)
           {
-            player.learnableSkills.Add((Feat)skill.successorId, new Skill((Feat)skill.successorId, 0, player));
+            player.learnables.Add($"F{skill.successorId}", new Learnable(LearnableType.Feat, skill.successorId, 0, player));
           }
         }
 
-        player.oid.LoginCreature.AddFeat(skill.oid);
-        skill.CreateSkillJournalEntry();
-        skill.PlayNewSkillAcquiredEffects();
+        player.oid.LoginCreature.AddFeat(skill.featId);
+        player.CreateSkillJournalEntry(skill);
+        player.PlayNewSkillAcquiredEffects(skill);
         HandleSkillSelection(player);
 
-        if (RegisterAddCustomFeatEffect.TryGetValue(skill.oid, out Func<Player, Feat, int> handler))
+        if (RegisterAddCustomFeatEffect.TryGetValue(skill.featId, out Func<Player, Feat, int> handler))
         {
           try
           {
-            handler.Invoke(player, skill.oid);
+            handler.Invoke(player, skill.featId);
           }
           catch (Exception e)
           {
@@ -217,9 +217,7 @@ namespace NWN.Systems
       {
         skill.acquiredPoints += remainingPoints;
         player.oid.LoginCreature.GetObjectVariable<PersistentVariableInt>("_STARTING_SKILL_POINTS").Delete();
-        skill.currentJob = true;
-        player.currentSkillJob = (int)skill.oid;
-        skill.CreateSkillJournalEntry();
+        player.CreateSkillJournalEntry(skill);
         DrawWelcomePage(player);
       }
     }
