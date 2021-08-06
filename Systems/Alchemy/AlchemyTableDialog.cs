@@ -17,10 +17,14 @@ namespace NWN.Systems.Alchemy
   {
     string[,] clonedAlchemyTable;
     PlayerSystem.Player player;
+    NwPlaceable plcCauldron;
 
-    public AlchemyTableDialog(PlayerSystem.Player player)
+    public AlchemyTableDialog(PlayerSystem.Player player, NwPlaceable plcCauldron)
     {
       this.player = player;
+      this.plcCauldron = plcCauldron;
+      _ = this.plcCauldron.PlayAnimation(Animation.PlaceableActivate, 1);
+
       clonedAlchemyTable = (string[,])AlchemySystem.alchemyTable.Clone();
 
       if (player.alchemyCauldron == null)

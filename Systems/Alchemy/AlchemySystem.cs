@@ -20,10 +20,10 @@ namespace NWN.Systems.Alchemy
     public static Vector2 center;
     public AlchemySystem()
     {
-      foreach (NwPlaceable plc in NwObject.FindObjectsWithTag<NwPlaceable>("alchemy_table"))
+      foreach (NwPlaceable plc in NwObject.FindObjectsWithTag<NwPlaceable>("alchemy_cauldron"))
         plc.OnUsed += StartAlchemyTableDialog;
 
-      foreach (NwPlaceable plc in NwObject.FindObjectsWithTag<NwPlaceable>("alchemy_mortier"))
+      foreach (NwPlaceable plc in NwObject.FindObjectsWithTag<NwPlaceable>("alchemy_mortar"))
         plc.OnUsed += StartAlchemyMortarDialog;
 
       LoadAlchemyTable();
@@ -32,7 +32,7 @@ namespace NWN.Systems.Alchemy
     public static void StartAlchemyTableDialog(PlaceableEvents.OnUsed onUsed)
     {
       if (PlayerSystem.Players.TryGetValue(onUsed.UsedBy, out PlayerSystem.Player player))
-        new AlchemyTableDialog(player);
+        new AlchemyTableDialog(player, onUsed.Placeable);
     }
     public static void StartAlchemyMortarDialog(PlaceableEvents.OnUsed onUsed)
     {
