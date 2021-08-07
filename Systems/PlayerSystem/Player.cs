@@ -34,6 +34,8 @@ namespace NWN.Systems
       public string serializedQuickbar { get; set; }
       public Arena.PlayerData pveArena { get; set; }
       public Cauldron alchemyCauldron { get; set; }
+      public PcState pcState { get; set; }
+      public DateTime? previousSPCalculation { get; set; }
 
       public List<NwPlayer> listened = new List<NwPlayer>();
       public List<Effect> effectList = new List<Effect>();
@@ -45,6 +47,13 @@ namespace NWN.Systems
       public Dictionary<int, MapPin> mapPinDictionnary = new Dictionary<int, MapPin>();
       public Dictionary<string, byte[]> areaExplorationStateDictionnary = new Dictionary<string, byte[]>();
       public Dictionary<ChatChannel, Color> chatColors = new Dictionary<ChatChannel, Color>();
+
+      public enum PcState
+      {
+        Offline,
+        Online,
+        AFK
+      }
 
       public Player(NwPlayer nwobj)
       {
@@ -396,38 +405,18 @@ namespace NWN.Systems
         craftJob.CloseCraftJournalEntry();
         craftJob = new Job(-10, "", 0, this);
       }
-      public void AcquireSkillPoints(Learnable learnable)
-      {
-        if (this.oid.LoginCreature.GetObjectVariable<PersistentVariableInt>("_STARTING_SKILL_POINTS").HasValue)
-        {
-          int pooledPoints = this.oid.LoginCreature.GetObjectVariable<PersistentVariableInt>("_STARTING_SKILL_POINTS").Value;
-          if (pooledPoints > learnable.pointsToNextLevel)
-          {
-            this.oid.LoginCreature.GetObjectVariable<PersistentVariableInt>("_STARTING_SKILL_POINTS").Value = pooledPoints - learnable.pointsToNextLevel;
-            learnable.acquiredPoints += learnable.pointsToNextLevel;
-          }
-          else
-          {
-            learnable.acquiredPoints += pooledPoints;
-            this.oid.LoginCreature.GetObjectVariable<PersistentVariableInt>("_STARTING_SKILL_POINTS").Delete();
-          }
-        }
-
-        double skillPointRate = CalculateSkillPointsPerSecond(learnable);
-        learnable.acquiredPoints += skillPointRate * (DateTime.Now - this.dateLastSaved).TotalSeconds;
-
-        if (GetTimeToNextLevel(skillPointRate, learnable) <= 0)
-          LevelUpLearnable(learnable);
-      }
       public async void UpdateJournal()
       {
+        if (oid.LoginCreature == null) // Si le joueur n'est pas co, pas la peine de mettre à jour son journal
+          return;
+
         JournalEntry journalEntry;
 
         if (oid.LoginCreature.Location.Area == null && DoJournalUpdate)
         {
           Task waitAreaLoaded = NwTask.Run(async () =>
           {
-            await NwTask.WaitUntil(() => oid.LoginCreature.Location.Area != null);
+            await NwTask.WaitUntil(() => oid.LoginCreature == null || oid.LoginCreature.Location.Area != null);
             await NwTask.Delay(TimeSpan.FromSeconds(1));
             UpdateJournal();
           });
@@ -447,18 +436,15 @@ namespace NWN.Systems
           this.CraftJobProgression();
         }
 
-        if (playerJournal.skillJobCountDown != null)
+        if (learnables.Any(l => l.Value.active))
         {
           journalEntry = oid.GetJournalEntry("skill_job");
 
           if (journalEntry != null)
           {
-            journalEntry.Name = $"Entrainement - {Utils.StripTimeSpanMilliseconds((TimeSpan)(playerJournal.skillJobCountDown - DateTime.Now))}";
+            journalEntry.Name = $"Entrainement - {Utils.StripTimeSpanMilliseconds((learnables.First(l => l.Value.active).Value.levelUpDate - DateTime.Now))}";
             oid.AddCustomJournalEntry(journalEntry, true);
           }
-
-          if(learnables.Any(l => l.Value.active))
-            RefreshAcquiredSkillPoints(learnables.FirstOrDefault(l => l.Value.active).Value);
         }
 
         dateLastSaved = DateTime.Now;
@@ -579,9 +565,8 @@ namespace NWN.Systems
       }
       public void CreateSkillJournalEntry(Learnable learnable)
       {
-        playerJournal.skillJobCountDown = DateTime.Now.AddSeconds(GetTimeToNextLevel(CalculateSkillPointsPerSecond(learnable), learnable));
         JournalEntry journalEntry = new JournalEntry();
-        journalEntry.Name = $"Apprentissage - {Utils.StripTimeSpanMilliseconds((TimeSpan)(playerJournal.skillJobCountDown - DateTime.Now))}";
+        journalEntry.Name = $"Apprentissage - {Utils.StripTimeSpanMilliseconds(learnable.levelUpDate - DateTime.Now)}";
         journalEntry.Text = $"Apprentissage en cours :\n\n " +
           $"{learnable.name}\n\n" +
           $"{learnable.description}";
@@ -623,73 +608,43 @@ namespace NWN.Systems
         oid.ApplyInstantVisualEffectToObject((VfxType)1516, oid.ControlledCreature);
         CloseSkillJournalEntry(learnable);
       }
-      public double CalculateSkillPointsPerSecond(Learnable learnable)
+      public double GetSkillPointsPerSecond(Learnable learnable)
       {
-        double SP = (oid.LoginCreature.GetAbilityScore(learnable.primaryAbility) + (oid.LoginCreature.GetAbilityScore(learnable.secondaryAbility) / 2.0)) / 60.0;
-
+        double pointsPerSecond = (oid.LoginCreature.GetAbilityScore(learnable.primaryAbility) + (oid.LoginCreature.GetAbilityScore(learnable.secondaryAbility) / 2.0)) / 60.0; // Il faut laisser les .0 sinon ce ne sont plus des doubles et KABOOM
+        
         switch (bonusRolePlay)
         {
           case 0:
-            SP = SP * 10 / 100;
+            pointsPerSecond = pointsPerSecond * 10 / 100;
             break;
           case 1:
-            SP = SP * 90 / 100;
+            pointsPerSecond = pointsPerSecond * 90 / 100;
             break;
           case 3:
-            SP = SP * 110 / 100;
+            pointsPerSecond = pointsPerSecond * 110 / 100;
             break;
           case 4:
-            SP = SP * 120 / 100;
+            pointsPerSecond = pointsPerSecond * 120 / 100;
             break;
           case 100:
-            SP = SP * 10;
+            pointsPerSecond = pointsPerSecond * 10;
             break;
         }
 
-        if (oid.LoginCreature.GetObjectVariable<LocalVariableInt>("_CONNECTING").HasValue)
+        if (pcState == PcState.Offline)
         {
-          SP = SP * 60 / 100;
+          pointsPerSecond = pointsPerSecond * 60 / 100;
           Log.Info($"{oid.LoginCreature.Name} was not connected. Applying 40 % malus.");
         }
-        else if (isAFK)
+        else if (pcState == PcState.AFK)
         {
-          SP = SP * 80 / 100;
+          pointsPerSecond = pointsPerSecond * 80 / 100;
           Log.Info($"{oid.LoginCreature.Name} was afk. Applying 20 % malus.");
         }
 
         //Log.Info($"SP CALCULATION - {player.oid.Name} - {SP} SP.");
 
-        return SP;
-      }
-      public void RefreshAcquiredSkillPoints(Learnable learnable)
-      {
-        if (oid.LoginCreature.GetObjectVariable<PersistentVariableInt>("_STARTING_SKILL_POINTS").HasValue)
-        {
-          int pooledPoints = oid.LoginCreature.GetObjectVariable<PersistentVariableInt>("_STARTING_SKILL_POINTS").Value;
-          if (pooledPoints > learnable.pointsToNextLevel)
-          {
-            oid.LoginCreature.GetObjectVariable<PersistentVariableInt>("_STARTING_SKILL_POINTS").Value = pooledPoints;
-            learnable.acquiredPoints += learnable.pointsToNextLevel;
-          }
-          else
-          {
-            learnable.acquiredPoints += pooledPoints;
-            oid.LoginCreature.GetObjectVariable<PersistentVariableInt>("_STARTING_SKILL_POINTS").Delete();
-          }
-        }
-
-        double skillPointRate = CalculateSkillPointsPerSecond(learnable);
-        learnable.acquiredPoints += skillPointRate * (DateTime.Now - dateLastSaved).TotalSeconds;
-        double remainingTime = GetTimeToNextLevel(skillPointRate, learnable);
-        playerJournal.skillJobCountDown = DateTime.Now.AddSeconds(remainingTime);
-
-        if (remainingTime <= 0)
-          LevelUpLearnable(learnable);
-      }
-      public double GetTimeToNextLevel(double pointPerSecond, Learnable learnable)
-      {
-        double RemainingPoints = learnable.pointsToNextLevel - learnable.acquiredPoints;
-        return RemainingPoints / pointPerSecond;
+        return pointsPerSecond;
       }
       public void LevelUpLearnable(Learnable learnable)
       {
@@ -757,6 +712,51 @@ namespace NWN.Systems
       {
         oid.LoginCreature.GetClassInfo((ClassType)43).AddKnownSpell(learnable.spellId, (byte)learnable.multiplier);
         learnable.trained = true;
+      }
+      public async void AwaitPlayerStateChangeToCalculateSPGain(Learnable learnable)
+      {
+        CancellationTokenSource tokenSource = new CancellationTokenSource();
+
+        double skillPointsPerSecond = GetSkillPointsPerSecond(learnable);
+
+        int primaryAbility = oid.LoginCreature.GetAbilityScore(learnable.primaryAbility);
+        int secondaryAbility = oid.LoginCreature.GetAbilityScore(learnable.secondaryAbility);
+
+        Task awaitPCDisconnection = NwTask.WaitUntil(() => oid.LoginCreature == null, tokenSource.Token);
+        Task awaitStateChange = NwTask.WaitUntilValueChanged(() => pcState, tokenSource.Token);
+        Task awaitPrimaryAbilityChange = NwTask.WaitUntil(() => oid.LoginCreature == null || primaryAbility != oid.LoginCreature.GetAbilityScore(learnable.primaryAbility), tokenSource.Token);
+        Task awaitSecondaryAbilityChange = NwTask.WaitUntil(() => oid.LoginCreature == null || secondaryAbility != oid.LoginCreature.GetAbilityScore(learnable.secondaryAbility), tokenSource.Token);
+        Task awaitLearningPaused = NwTask.WaitUntilValueChanged(() => learnable.active, tokenSource.Token);
+
+        double secondsUntillNextLevelUp = (learnable.pointsToNextLevel - learnable.acquiredPoints) / skillPointsPerSecond;
+        learnable.levelUpDate = DateTime.Now.AddSeconds(secondsUntillNextLevelUp);
+
+        Task awaitLevelUp = NwTask.Delay(TimeSpan.FromSeconds(secondsUntillNextLevelUp), tokenSource.Token);
+
+        await NwTask.WhenAny(awaitPCDisconnection, awaitStateChange, awaitPrimaryAbilityChange, awaitSecondaryAbilityChange, awaitLearningPaused, awaitLevelUp);
+        tokenSource.Cancel();
+
+        if (previousSPCalculation.HasValue)
+          learnable.acquiredPoints += (DateTime.Now - previousSPCalculation).Value.TotalSeconds * skillPointsPerSecond;
+
+        previousSPCalculation = DateTime.Now;
+
+        if (pcState == PcState.Offline)
+          return;
+
+        if (awaitLevelUp.IsCompletedSuccessfully)
+        {
+          LevelUpLearnable(learnable);
+          previousSPCalculation = null;
+          return;
+        }
+        else if (awaitLearningPaused.IsCompletedSuccessfully)
+        {
+          previousSPCalculation = null;
+          return;
+        }
+
+        AwaitPlayerStateChangeToCalculateSPGain(learnable);
       }
     }
   }

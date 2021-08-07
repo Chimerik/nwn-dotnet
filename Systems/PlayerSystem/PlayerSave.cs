@@ -25,10 +25,13 @@ namespace NWN.Systems
 
       if (Players.TryGetValue(onSaveBefore.Player.LoginCreature, out Player player))
       {
-        if (onSaveBefore.Player.LoginCreature.ActiveEffects.Any(e => e.EffectType == EffectType.Polymorph)
-          && onSaveBefore.Player.LoginCreature.GetObjectVariable<LocalVariableInt>("_DISCONNECTING").HasNothing)
+        if (onSaveBefore.Player.LoginCreature.ActiveEffects.Any(e => e.EffectType == EffectType.Polymorph))
         {
           player.effectList = onSaveBefore.Player.LoginCreature.ActiveEffects.ToList();
+
+          foreach (Effect eff in player.oid.LoginCreature.ActiveEffects.Where(e => e.EffectType == EffectType.Polymorph))
+            player.oid.LoginCreature.RemoveEffect(eff);
+
           Log.Info($"Polymorph detected, saving effect list");
 
           Task contractExpiration = NwTask.Run(async () =>
@@ -53,14 +56,17 @@ namespace NWN.Systems
         {
           player.CraftJobProgression();
         }
-        
-        if(player.learnables.Any(l => l.Value.active))
-          player.AcquireSkillPoints(player.learnables.First(l => l.Value.active).Value);
-
+     
         player.dateLastSaved = DateTime.Now;
 
         SavePlayerCharacterToDatabase(player);
-        SavePlayerLearnablesToDatabase(player);
+
+        Task waitForSPCalculation = NwTask.Run(async () =>
+        {
+          await NwTask.Delay(TimeSpan.FromSeconds(0.3));
+          SavePlayerLearnablesToDatabase(player);
+        });
+
         SavePlayerStoredMaterialsToDatabase(player);
         SavePlayerMapPinsToDatabase(player);
         SavePlayerAreaExplorationStateToDatabase(player);
@@ -83,6 +89,9 @@ namespace NWN.Systems
        * Ici, la correction consiste à ne pas sauvegarder le PJ s'il est métamorphosé, sauf s'il s'agit d'une déconnexion.
        * Mais il se peut que dans ce cas, ses buffs soient perdues à la reco. A vérifier. Si c'est le cas, une meilleure
        * correction pourrait être de parcourir tous ses buffs et de les réappliquer dans l'event AFTER de la sauvegarde*/
+
+      if (player.oid == null)
+        return;
 
       Log.Info($"Polymorph detected, restoring effect list on {player.oid.LoginCreature.Name}");
 
@@ -108,15 +117,24 @@ namespace NWN.Systems
         facing = player.previousLocation.Rotation.ToString();
       }
 
-      SqLiteUtils.UpdateQuery("playerCharacters",
-          new List<string[]>() { new string[] { "characterName", $"{player.oid.LoginCreature.OriginalFirstName} {player.oid.LoginCreature.OriginalLastName}" },
-          new string[] { "areaTag", areaTag }, new string[] { "position", position }, new string[] { "facing", facing }, new string[] { "currentHP", player.oid.LoginCreature.HP.ToString() }, new string[] { "bankGold", player.bankGold.ToString() },
-          new string[] { "dateLastSaved", player.dateLastSaved.ToString() },
+      string firstName = player.oid.LoginCreature.OriginalFirstName;
+      string lastName = player.oid.LoginCreature.OriginalLastName;
+      string health = player.oid.LoginCreature.HP.ToString();
+
+      Task waitForSPCalculation = NwTask.Run(async () =>
+      {
+        await NwTask.Delay(TimeSpan.FromSeconds(0.2));
+ 
+        SqLiteUtils.UpdateQuery("playerCharacters",
+          new List<string[]>() { new string[] { "characterName", $"{firstName} {lastName}" },
+          new string[] { "areaTag", areaTag }, new string[] { "position", position }, new string[] { "facing", facing }, new string[] { "currentHP", health }, new string[] { "bankGold", player.bankGold.ToString() },
+          new string[] { "dateLastSaved", player.dateLastSaved.ToString() }, new string[] { "previousSPCalculation", player.previousSPCalculation.ToString() },
           new string[] { "currentCraftJob", player.craftJob.baseItemType.ToString() }, new string[] { "currentCraftObject", player.craftJob.craftedItem }, new string[] { "currentCraftJobRemainingTime", player.craftJob.remainingTime.ToString() },
           new string[] { "currentCraftJobMaterial", player.craftJob.material }, new string[] { "currentCraftJobMaterial", player.craftJob.material }, new string[] { "pveArenaCurrentPoints", player.pveArena.currentPoints.ToString() },
           new string[] { "menuOriginTop", player.menu.originTop.ToString() }, new string[] { "menuOriginLeft", player.menu.originLeft.ToString() },
           new string[] { "alchemyCauldron", JsonConvert.SerializeObject(player.alchemyCauldron) } },
           new List<string[]>() { new string[]  { "rowid", player.characterId.ToString() } });
+      });
     }
     private static void SavePlayerLearnablesToDatabase(Player player)
     {
@@ -142,9 +160,10 @@ namespace NWN.Systems
           new List<string[]>() { new string[] { "characterId", player.characterId.ToString() },
             new string[] { "skillId", feat.id.ToString() },
             new string[] { "skillPoints", feat.acquiredPoints.ToString() },
-            new string[] { "trained", feat.trained.ToString() } },
+            new string[] { "trained", feat.trained.ToInt().ToString() },
+            new string[] { "active", feat.active.ToInt().ToString() } },
             new List<string>() { "characterId", "skillId" },
-            new List<string[]>() { new string[] { "skillPoints" }, new string[] { "trained" } });
+            new List<string[]>() { new string[] { "skillPoints" }, new string[] { "trained" }, new string[] { "active" } });
     }
 
     private static void SavePlayerLearnableSpellToDatabase(Player player, Learnable spell)
@@ -153,10 +172,11 @@ namespace NWN.Systems
         new List<string[]>() { new string[] { "characterId", player.characterId.ToString() },
             new string[] { "skillId", spell.id.ToString() },
             new string[] { "skillPoints", spell.acquiredPoints.ToString() },
-            new string[] { "trained", spell.trained.ToString() },
-            new string[] { "nbScrolls", spell.nbScrollsUsed.ToString() } },
+            new string[] { "trained", spell.trained.ToInt().ToString() },
+            new string[] { "nbScrolls", spell.nbScrollsUsed.ToString() },
+            new string[] { "active", spell.active.ToInt().ToString() } },
           new List<string>() { "characterId", "skillId" },
-          new List<string[]>() { new string[] { "skillPoints" }, new string[] { "trained" }, new string[] { "nbScrolls" } });
+          new List<string[]>() { new string[] { "skillPoints" }, new string[] { "trained" }, new string[] { "nbScrolls" }, new string[] { "active" } });
     }
     private static void SavePlayerStoredMaterialsToDatabase(Player player)
     {

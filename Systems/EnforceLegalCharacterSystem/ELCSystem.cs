@@ -23,8 +23,6 @@ namespace NWN.Systems
     }
     private void onELCValidationSuccess(OnELCValidationSuccess onELCSuccess)
     {
-      Log.Info($"{onELCSuccess.Player.PlayerName} ELC check OK");
-
       int characterId = onELCSuccess.Player.ControlledCreature.GetObjectVariable<PersistentVariableInt>("characterId").Value;
 
       if (characterId > 0)
@@ -47,9 +45,6 @@ namespace NWN.Systems
     private void onELCValidationFailure(OnELCValidationFailure onELCFailure)
     {
       NwCreature oPC = onELCFailure.Player.ControlledCreature;
-      Log.Info("on elc failure");
-      Log.Info($"Anvil.Value : {oPC.GetObjectVariable<PersistentVariableInt>("characterId").Value}");
-      Log.Info($"Anvil.HasValue : {oPC.GetObjectVariable<PersistentVariableInt>("characterId").HasValue}");
 
       if (oPC.GetObjectVariable<PersistentVariableInt>("characterId").HasValue)
       {

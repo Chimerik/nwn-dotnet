@@ -45,9 +45,6 @@ namespace NWN.Systems
       if (page < 0)
         page = 0;
 
-      if(player.learnables.Any(l => l.Value.active))
-        player.RefreshAcquiredSkillPoints(player.learnables.First(l => l.Value.active).Value);
-
       Dictionary<string, Learnable> displayList = new Dictionary<string, Learnable>();
 
       switch (selectedType)
@@ -63,7 +60,10 @@ namespace NWN.Systems
       }
 
       foreach (KeyValuePair<string, Learnable> SkillListEntry in displayList)
-        player.menu.choices.Add(($"{SkillListEntry.Value.name} - Temps restant : {Utils.StripTimeSpanMilliseconds((DateTime.Now.AddSeconds(player.GetTimeToNextLevel(player.CalculateSkillPointsPerSecond(SkillListEntry.Value), SkillListEntry.Value)) - DateTime.Now))}", () => __HandleLearnableSelection(player, SkillListEntry.Value)));
+      {
+        SkillListEntry.Value.levelUpDate = DateTime.Now.AddSeconds((SkillListEntry.Value.pointsToNextLevel - SkillListEntry.Value.acquiredPoints) / player.GetSkillPointsPerSecond(SkillListEntry.Value));
+        player.menu.choices.Add(($"{SkillListEntry.Value.name} - Temps restant : {Utils.StripTimeSpanMilliseconds((SkillListEntry.Value.levelUpDate - DateTime.Now))}", () => __HandleLearnableSelection(player, SkillListEntry.Value)));
+      }
 
       if(page > 0)
         player.menu.choices.Add(("Retour", () => __DrawPreviousPage(player, selectedType)));
@@ -88,7 +88,7 @@ namespace NWN.Systems
     {
       if (player.learnables.Any(l => l.Value.active))
       {
-        player.oid.ExportCharacter();
+        //player.oid.ExportCharacter();
 
         if (selectedLearnable.active) // Job en cours sélectionné => mise en pause
         {
@@ -102,12 +102,14 @@ namespace NWN.Systems
           player.CancelSkillJournalEntry(currentLearnable);
 
           selectedLearnable.active = true;
+          player.AwaitPlayerStateChangeToCalculateSPGain(selectedLearnable);
           player.CreateSkillJournalEntry(selectedLearnable);
         }
       }
       else
       {
         selectedLearnable.active = true;
+        player.AwaitPlayerStateChangeToCalculateSPGain(selectedLearnable);
         player.CreateSkillJournalEntry(selectedLearnable);
       }
 

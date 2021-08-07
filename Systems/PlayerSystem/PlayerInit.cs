@@ -23,7 +23,6 @@ namespace NWN.Systems
 
       oPC.LoginCreature.GetObjectVariable<LocalVariableInt>("_ACTIVE_LANGUAGE").Value = (int)CustomFeats.Invalid;
       oPC.LoginCreature.GetObjectVariable<LocalVariableInt>("_CONNECTING").Value = 1;
-      oPC.LoginCreature.GetObjectVariable<LocalVariableInt>("_DISCONNECTING").Delete();
       oPC.LoginCreature.GetObjectVariable<LocalVariableInt>("_PLAYER_INPUT_CANCELLED").Delete();
 
       if (!Players.TryGetValue(oPC.LoginCreature, out Player player))
@@ -64,6 +63,7 @@ namespace NWN.Systems
       }
 
       Utils.ResetVisualTransform(player.oid.ControlledCreature);
+      player.pcState = Player.PcState.Offline;
 
       if (player.craftJob.IsActive()
       && player.location.Area.GetObjectVariable<LocalVariableInt>("_AREA_LEVEL")?.Value == 0)
@@ -74,15 +74,15 @@ namespace NWN.Systems
 
       if (player.learnables.Any(l => l.Value.active))
       {
-        Learnable currentLearnable = player.learnables.First(l => l.Value.active).Value;
-        player.AcquireSkillPoints(currentLearnable);
-        oPC.LoginCreature.GetObjectVariable<LocalVariableInt>("_CONNECTING").Delete();
-        player.CreateSkillJournalEntry(player.learnables.First(l => l.Value.active).Value);
-      }
-      else
-        oPC.LoginCreature.GetObjectVariable<LocalVariableInt>("_CONNECTING").Delete();
+        Learnable learnable = player.learnables.First(l => l.Value.active).Value;
+        player.AwaitPlayerStateChangeToCalculateSPGain(learnable);
 
-      player.isAFK = false;
+        Task waitForOnlineNotice = NwTask.Run(async () =>
+        {
+          await NwTask.WaitUntil(() => player.pcState == Player.PcState.Online && player.oid.LoginCreature.Area != null);
+          player.CreateSkillJournalEntry(learnable);
+        });
+      }
 
       foreach(KeyValuePair<Feat, int> feat in player.learntCustomFeats)
       {
@@ -113,6 +113,8 @@ namespace NWN.Systems
       player.isAFK = false;
       player.DoJournalUpdate = false;
       player.dateLastSaved = DateTime.Now;
+
+      player.pcState = Player.PcState.Online;
 
       Task waitForTorilNecklaceChange = NwTask.Run(async () =>
       {
@@ -407,7 +409,7 @@ namespace NWN.Systems
     private static void InitializePlayerCharacter(Player player)
     {
       var result = SqLiteUtils.SelectQuery("playerCharacters",
-          new List<string>() { { "areaTag" }, { "position" }, { "facing" }, { "currentHP" }, { "bankGold" }, { "dateLastSaved" }, { "currentCraftJob" }, { "currentCraftObject" }, { "currentCraftJobRemainingTime" }, { "currentCraftJobMaterial" }, { "menuOriginTop" }, { "menuOriginLeft" }, { "pveArenaCurrentPoints" }, { "alchemyCauldron" } },
+          new List<string>() { { "areaTag" }, { "position" }, { "facing" }, { "currentHP" }, { "bankGold" }, { "dateLastSaved" }, { "currentCraftJob" }, { "currentCraftObject" }, { "currentCraftJobRemainingTime" }, { "currentCraftJobMaterial" }, { "menuOriginTop" }, { "menuOriginLeft" }, { "pveArenaCurrentPoints" }, { "alchemyCauldron" }, { "previousSPCalculation" } },
           new List<string[]>() { { new string[] { "rowid", player.characterId.ToString() } } });
 
       if (result.Result == null)
@@ -424,6 +426,7 @@ namespace NWN.Systems
       player.menu.originLeft = result.Result.GetInt(11);
       player.pveArena.totalPoints = (uint)result.Result.GetInt(12);
       player.alchemyCauldron = JsonConvert.DeserializeObject<Alchemy.Cauldron>(result.Result.GetString(13));
+      player.previousSPCalculation = DateTime.TryParse(result.Result.GetString(14), out DateTime previousSPDate) ? previousSPDate : null;
 
       result = SqLiteUtils.SelectQuery("playerMaterialStorage",
         new List<string>() { { "materialName" }, { "materialStock" } },
@@ -440,7 +443,7 @@ namespace NWN.Systems
       else
       {
         var result = SqLiteUtils.SelectQuery("playerLearnableSkills",
-          new List<string>() { { "skillId" }, { "skillPoints" }, { "trained" } },
+          new List<string>() { { "skillId" }, { "skillPoints" }, { "trained" }, { "active" } },
           new List<string[]>() { { new string[] { "characterId", player.characterId.ToString() } } });
 
         foreach (var skill in result.Results)
@@ -448,12 +451,13 @@ namespace NWN.Systems
           int id = skill.GetInt(0);
           Feat skillId = (Feat)id;
           int currentSkillPoints = skill.GetInt(1);
+          bool active = skill.GetInt(3) == 1 ? true : false;
 
           if (SkillSystem.customFeatsDictionnary.ContainsKey(skillId))
             player.learntCustomFeats.Add(skillId, currentSkillPoints);
 
           if (skill.GetInt(2) == 0)
-            player.learnables.Add($"F{id}", new Learnable(LearnableType.Feat, id, currentSkillPoints, player));
+            player.learnables.Add($"F{id}", new Learnable(LearnableType.Feat, id, currentSkillPoints, player, active));
         }
       }
     }
@@ -496,11 +500,14 @@ namespace NWN.Systems
     private static void InitializePlayerLearnableSpells(Player player)
     {
       var result = SqLiteUtils.SelectQuery("playerLearnableSpells",
-          new List<string>() { { "skillId" }, { "skillPoints" }, { "nbScrolls" } },
+          new List<string>() { { "skillId" }, { "skillPoints" }, { "nbScrolls" }, { "active" } },
           new List<string[]>() { { new string[] { "characterId", player.characterId.ToString() } }, { new string[] { "trained", "0" } } } );
 
-      foreach(var spell in result.Results)
-        player.learnables.Add($"S{spell.GetInt(0)}", new Learnable(LearnableType.Spell, spell.GetInt(0), spell.GetInt(1), player, spell.GetInt(2)));
+      foreach (var spell in result.Results)
+      {
+        bool active = spell.GetInt(3) == 1 ? true : false;
+        player.learnables.Add($"S{spell.GetInt(0)}", new Learnable(LearnableType.Spell, spell.GetInt(0), spell.GetInt(1), player, active, spell.GetInt(2)));
+      }
     }
     private static async void InitializeNewCharacterStorage(Player player)
     {

@@ -27,15 +27,16 @@ namespace NWN.Systems
     public Ability primaryAbility { get; set; }
     public Ability secondaryAbility { get; set; }
     public int nbScrollsUsed { get; set; }
+    public DateTime levelUpDate { get; set; }
 
-    public Learnable(LearnableType type, int id, float SP, PlayerSystem.Player player, int scrollsUsed = 0)
+    public Learnable(LearnableType type, int id, float SP, PlayerSystem.Player player, Boolean active = false, int scrollsUsed = 0)
     {
       this.id = id;
       this.type = type;
       this.acquiredPoints = SP;
       this.trained = false;
       this.nbScrollsUsed = scrollsUsed;
-      active = false;
+      this.active = active;
 
       switch (type)
       {

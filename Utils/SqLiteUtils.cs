@@ -23,7 +23,7 @@ namespace NWN
 
       var query = NwModule.Instance.PrepareCampaignSQLQuery(Config.database, queryString);
 
-      Log.Info(queryString);
+      //Log.Info(queryString);
       string logString = "Binding : ";
 
       foreach (var param in queryParameters)
@@ -32,7 +32,7 @@ namespace NWN
         logString += $"@{param.Key} = {param.Value} ";
       }
 
-      Log.Info(logString);
+      //Log.Info(logString);
 
       query.Execute();
 
@@ -66,7 +66,7 @@ namespace NWN
 
       var query = NwModule.Instance.PrepareCampaignSQLQuery(Config.database, queryString);
 
-      Log.Info(queryString);
+      //Log.Info(queryString);
       string logString = "Binding SET : ";
 
       foreach (var param in queryParameters)
@@ -75,7 +75,7 @@ namespace NWN
         logString += $"Binding SET @{param[0]} = {param[1]} ";
       }
 
-      Log.Info(logString);
+      //Log.Info(logString);
       logString = "Binding WHERE : ";
 
       foreach (var param in whereParameters)
@@ -84,7 +84,7 @@ namespace NWN
         logString += $"Binding WHERE @{param[0]} = {param[1]} ";
       }
 
-      Log.Info(logString);
+      //Log.Info(logString);
       query.Execute();
 
       if (query.Error != "")
@@ -123,7 +123,7 @@ namespace NWN
 
       var query = NwModule.Instance.PrepareCampaignSQLQuery(Config.database, queryString);
   
-      Log.Info(queryString);
+      //Log.Info(queryString);
       string logString = "Binding WHERE : ";
 
       foreach (var param in whereParameters)
@@ -132,7 +132,7 @@ namespace NWN
         logString += $"@{param[0]} = {param[1]} ";
       }
 
-      Log.Info(logString);
+      //Log.Info(logString);
 
       query.Execute();
 
@@ -192,7 +192,7 @@ namespace NWN
 
       var query = NwModule.Instance.PrepareCampaignSQLQuery(Config.database, queryString);
 
-      Log.Info(queryString);
+      //Log.Info(queryString);
       string logString = "Binding : ";
 
       foreach (var param in queryParameters)
@@ -201,7 +201,7 @@ namespace NWN
         logString += $"Binding @{param[0]} = {param[1]} ";
       }
       
-      Log.Info(logString);
+      //Log.Info(logString);
       query.Execute();
 
       if (query.Error != "")
@@ -217,7 +217,7 @@ namespace NWN
       var query = NwModule.Instance.PrepareCampaignSQLQuery(Config.database, queryString);
       query.Execute();
 
-      Log.Info(queryString);
+      //Log.Info(queryString);
 
       if (query.Error != "")
       {
