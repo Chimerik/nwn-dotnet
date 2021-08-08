@@ -693,19 +693,21 @@ namespace NWN.Systems
             ctx.targetAC[damageType] = ctx.maxBaseAC;
         }
       }
-      
-      foreach (var effectType in ctx.oAttacker.ActiveEffects.Where(e => e.EffectType == EffectType.AcIncrease).GroupBy(e => e.IntParams.ElementAt(1)))
+      if (ctx.oAttacker != null)
       {
-        Effect maxEffect = effectType.OrderByDescending(e => e.IntParams.ElementAt(0)).FirstOrDefault();
-        ctx.targetAC[DamageType.BaseWeapon] += maxEffect.IntParams.ElementAt(0);
+        foreach (var effectType in ctx.oAttacker.ActiveEffects.Where(e => e.EffectType == EffectType.AcIncrease).GroupBy(e => e.IntParams.ElementAt(1)))
+        {
+          Effect maxEffect = effectType.OrderByDescending(e => e.IntParams.ElementAt(0)).FirstOrDefault();
+          ctx.targetAC[DamageType.BaseWeapon] += maxEffect.IntParams.ElementAt(0);
+        }
       }
 
-      foreach (var effectType in ctx.oAttacker.ActiveEffects.Where(e => e.EffectType == EffectType.AcDecrease).GroupBy(e => e.IntParams.ElementAt(1)))
+      foreach (var effectType in ctx.oTarget.ActiveEffects.Where(e => e.EffectType == EffectType.AcDecrease).GroupBy(e => e.IntParams.ElementAt(1)))
       {
         Effect maxEffect = effectType.OrderByDescending(e => e.IntParams.ElementAt(0)).FirstOrDefault();
         ctx.targetAC[DamageType.BaseWeapon] -= maxEffect.IntParams.ElementAt(0);
       }
-
+      
       next();
     }
     private static void ProcessTargetShieldAC(Context ctx, Action next)

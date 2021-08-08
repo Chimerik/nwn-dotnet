@@ -8,6 +8,8 @@ using System.Threading;
 using System.Linq;
 using Anvil.Services;
 using NWN.Systems.Alchemy;
+using NWN.Core.NWNX;
+using JournalEntry = Anvil.API.JournalEntry;
 
 namespace NWN.Systems
 {
@@ -434,6 +436,7 @@ namespace NWN.Systems
             oid.AddCustomJournalEntry(journalEntry, true);
           }
           this.CraftJobProgression();
+          dateLastSaved = DateTime.Now;
         }
 
         if (learnables.Any(l => l.Value.active))
@@ -442,12 +445,10 @@ namespace NWN.Systems
 
           if (journalEntry != null)
           {
-            journalEntry.Name = $"Entrainement - {Utils.StripTimeSpanMilliseconds((learnables.First(l => l.Value.active).Value.levelUpDate - DateTime.Now))}";
+            journalEntry.Name = $"Apprentissage - {Utils.StripTimeSpanMilliseconds((learnables.First(l => l.Value.active).Value.levelUpDate - DateTime.Now))}";
             oid.AddCustomJournalEntry(journalEntry, true);
           }
         }
-
-        dateLastSaved = DateTime.Now;
 
         if (DoJournalUpdate)
         {
@@ -565,17 +566,21 @@ namespace NWN.Systems
       }
       public void CreateSkillJournalEntry(Learnable learnable)
       {
+        TimeSpan remainingTime = learnable.levelUpDate - DateTime.Now;
+
         JournalEntry journalEntry = new JournalEntry();
-        journalEntry.Name = $"Apprentissage - {Utils.StripTimeSpanMilliseconds(learnable.levelUpDate - DateTime.Now)}";
+        journalEntry.Name = $"Apprentissage - {Utils.StripTimeSpanMilliseconds(remainingTime)}";
         journalEntry.Text = $"Apprentissage en cours :\n\n " +
           $"{learnable.name}\n\n" +
           $"{learnable.description}";
         journalEntry.QuestTag = "skill_job";
         journalEntry.Priority = 1;
         journalEntry.QuestDisplayed = true;
-        oid.AddCustomJournalEntry(journalEntry);
+        oid.AddCustomJournalEntry(journalEntry, remainingTime.TotalSeconds <= 0);
 
         oid.ApplyInstantVisualEffectToObject((VfxType)1516, oid.ControlledCreature);
+
+        Log.Info("created journal entry");
       }
       public void CancelSkillJournalEntry(Learnable learnable)
       {
@@ -584,11 +589,21 @@ namespace NWN.Systems
         journalEntry.QuestTag = "skill_job";
         journalEntry.QuestDisplayed = false;
         oid.AddCustomJournalEntry(journalEntry);
-        playerJournal.skillJobCountDown = null;
+
+        Log.Info("cancelled journal entry");
       }
       public void CloseSkillJournalEntry(Learnable learnable)
       {
-        JournalEntry journalEntry = oid.GetJournalEntry("skill_job");
+        Core.NWNX.JournalEntry journalEntry = PlayerPlugin.GetJournalEntry(oid.LoginCreature, "skill_job");
+        journalEntry.sName = $"Apprentissage terminé - {learnable.name}";
+        journalEntry.sTag = "skill_job";
+        journalEntry.nQuestCompleted = 1;
+        journalEntry.nQuestDisplayed = 0;
+        PlayerPlugin.AddCustomJournalEntry(oid.LoginCreature, journalEntry);
+
+        Log.Info("closed journal entry");
+
+        /*JournalEntry journalEntry = oid.GetJournalEntry("skill_job");
 
         if (journalEntry == null)
         {
@@ -601,7 +616,7 @@ namespace NWN.Systems
         journalEntry.QuestCompleted = true;
         journalEntry.QuestDisplayed = false;
         oid.AddCustomJournalEntry(journalEntry);
-        playerJournal.skillJobCountDown = null;
+        playerJournal.skillJobCountDown = null;*/
       }
       public void PlayNewSkillAcquiredEffects(Learnable learnable)
       {
@@ -698,7 +713,7 @@ namespace NWN.Systems
           learnable.trained = true;
 
           if (learnable.successorId > 0)
-            learnables.Add($"F{learnable.successorId}", new Learnable(LearnableType.Feat, learnable.successorId, 0, this));
+            learnables.Add($"F{learnable.successorId}", new Learnable(LearnableType.Feat, learnable.successorId, 0).InitializeLearnableLevel(this));
         }
 
         oid.LoginCreature.AddFeat(learnable.featId);
@@ -726,7 +741,7 @@ namespace NWN.Systems
         Task awaitStateChange = NwTask.WaitUntilValueChanged(() => pcState, tokenSource.Token);
         Task awaitPrimaryAbilityChange = NwTask.WaitUntil(() => oid.LoginCreature == null || primaryAbility != oid.LoginCreature.GetAbilityScore(learnable.primaryAbility), tokenSource.Token);
         Task awaitSecondaryAbilityChange = NwTask.WaitUntil(() => oid.LoginCreature == null || secondaryAbility != oid.LoginCreature.GetAbilityScore(learnable.secondaryAbility), tokenSource.Token);
-        Task awaitLearningPaused = NwTask.WaitUntilValueChanged(() => learnable.active, tokenSource.Token);
+        Task awaitLearningPaused = NwTask.WaitUntil(() => !learnable.active, tokenSource.Token);
 
         double secondsUntillNextLevelUp = (learnable.pointsToNextLevel - learnable.acquiredPoints) / skillPointsPerSecond;
         learnable.levelUpDate = DateTime.Now.AddSeconds(secondsUntillNextLevelUp);
@@ -744,7 +759,7 @@ namespace NWN.Systems
         if (pcState == PcState.Offline)
           return;
 
-        if (awaitLevelUp.IsCompletedSuccessfully)
+        if (awaitLevelUp.IsCompletedSuccessfully || learnable.pointsToNextLevel <= learnable.acquiredPoints)
         {
           LevelUpLearnable(learnable);
           previousSPCalculation = null;
@@ -752,6 +767,7 @@ namespace NWN.Systems
         }
         else if (awaitLearningPaused.IsCompletedSuccessfully)
         {
+          Log.Info($"Pause detected");
           previousSPCalculation = null;
           return;
         }

@@ -29,7 +29,7 @@ namespace NWN.Systems
     public int nbScrollsUsed { get; set; }
     public DateTime levelUpDate { get; set; }
 
-    public Learnable(LearnableType type, int id, float SP, PlayerSystem.Player player, Boolean active = false, int scrollsUsed = 0)
+    public Learnable(LearnableType type, int id, float SP, Boolean active = false, int scrollsUsed = 0)
     {
       this.id = id;
       this.type = type;
@@ -42,15 +42,15 @@ namespace NWN.Systems
       {
         case LearnableType.Feat:
           featId = (Feat)id;
-          InitializeLearnableFeat(featId, (int)SP, player);
+          InitializeLearnableFeat(featId, (int)SP);
           break;
         case LearnableType.Spell:
           spellId = (Spell)id;
-          InitializeLearnableSpell(spellId, (int)SP, player);
+          InitializeLearnableSpell(spellId, (int)SP);
           break;
       }
     }
-    private void InitializeLearnableFeat(Feat id, int SP, PlayerSystem.Player player)
+    private void InitializeLearnableFeat(Feat id, int SP)
     {
       FeatTable.Entry entry = Feat2da.featTable.GetFeatDataEntry(id);
 
@@ -58,10 +58,6 @@ namespace NWN.Systems
       {
         name = SkillSystem.customFeatsDictionnary[id].name;
         description = SkillSystem.customFeatsDictionnary[id].description;
-        if (player.learntCustomFeats.ContainsKey(id))
-          currentLevel = SkillSystem.GetCustomFeatLevelFromSkillPoints(id, SP);
-        else
-          currentLevel = 0;
       }
       else
       {
@@ -74,19 +70,50 @@ namespace NWN.Systems
       multiplier = entry.CRValue;
       primaryAbility = entry.primaryAbility;
       secondaryAbility = entry.secondaryAbility;
-
-      if (currentLevel > 4)
-      {
-        int skillLevelCap = 4;
-        pointsToNextLevel = (int)(250 * multiplier * Math.Pow(5, skillLevelCap)) * (1 + currentLevel - skillLevelCap);
-      }
-      else
-        pointsToNextLevel = (int)(250 * multiplier * Math.Pow(5, currentLevel));
-
-      //if (Config.env == Config.Env.Chim)
-      //pointsToNextLevel = 10;
     }
-    private void InitializeLearnableSpell(Spell id, int SP, PlayerSystem.Player player)
+    public Learnable InitializeLearnableLevel(PlayerSystem.Player player)
+    {
+      switch(type)
+      {
+        case LearnableType.Feat:
+
+          if (SkillSystem.customFeatsDictionnary.ContainsKey(featId))
+          {
+            player.learntCustomFeats.Add(featId, (int)acquiredPoints);
+            currentLevel = SkillSystem.GetCustomFeatLevelFromSkillPoints(featId, (int)acquiredPoints);
+          }
+          else
+            currentLevel = 0;
+
+          if (currentLevel > 4)
+          {
+            int skillLevelCap = 4;
+            pointsToNextLevel = (int)(250 * multiplier * Math.Pow(5, skillLevelCap)) * (1 + currentLevel - skillLevelCap);
+          }
+          else
+            pointsToNextLevel = (int)(250 * multiplier * Math.Pow(5, currentLevel));
+
+          //if (Config.env == Config.Env.Chim)
+          //pointsToNextLevel = 10;
+
+          break;
+        case LearnableType.Spell:
+
+          int knownSpells = player.oid.LoginCreature.GetClassInfo((ClassType)43).GetKnownSpellCountByLevel((byte)multiplier);
+          if (knownSpells > 3)
+            knownSpells = 3;
+
+          if (knownSpells < 1)
+            knownSpells = 1;
+
+          pointsToNextLevel = (int)(250 * multiplier * Math.Pow(5, knownSpells - 1));
+
+          break;
+      }
+
+      return this;
+    }
+    private void InitializeLearnableSpell(Spell id, int SP)
     {
       SpellsTable.Entry entry = Spells2da.spellsTable.GetSpellDataEntry(id);
 
@@ -100,15 +127,6 @@ namespace NWN.Systems
         primaryAbility = Ability.Intelligence;
 
       secondaryAbility = Ability.Charisma;
-
-      int knownSpells = player.oid.LoginCreature.GetClassInfo((ClassType)43).GetKnownSpellCountByLevel((byte)multiplier);
-      if (knownSpells > 3)
-        knownSpells = 3;
-
-      if (knownSpells < 1)
-        knownSpells = 1;
-
-      pointsToNextLevel = (int)(250 * multiplier * Math.Pow(5, knownSpells - 1));
     }
   }
 }

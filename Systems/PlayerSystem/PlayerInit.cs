@@ -266,7 +266,7 @@ namespace NWN.Systems
       }
 
       SqLiteUtils.InsertQuery("playerCharacters",
-          new List<string[]>() { new string[] { "accountId", newCharacter.accountId.ToString() }, new string[] { "characterName", newCharacter.oid.LoginCreature.Name }, new string[] { "dateLastSaved", DateTime.Now.ToString() }, new string[] { "currentSkillType", ((int)SkillSystem.SkillType.Invalid).ToString() }, new string[] { "currentSkillJob", ((int)CustomFeats.Invalid).ToString() }, new string[] { "currentCraftJob", "-10" }, new string[] { "currentCraftObject", "" }, new string[] { "areaTag", arrivalArea.Tag }, new string[] { "position", position }, new string[] { "facing", facing}, new string[] { "menuOriginLeft", "50" }, new string[] { "currentHP", newCharacter.oid.LoginCreature.MaxHP.ToString() } });
+          new List<string[]>() { new string[] { "accountId", newCharacter.accountId.ToString() }, new string[] { "characterName", newCharacter.oid.LoginCreature.Name }, new string[] { "dateLastSaved", DateTime.Now.ToString() }, new string[] { "currentCraftJob", "-10" }, new string[] { "currentCraftObject", "" }, new string[] { "areaTag", arrivalArea.Tag }, new string[] { "position", position }, new string[] { "facing", facing}, new string[] { "menuOriginLeft", "50" }, new string[] { "currentHP", newCharacter.oid.LoginCreature.MaxHP.ToString() } });
      
       var rowQuery = NwModule.Instance.PrepareCampaignSQLQuery(Config.database, "SELECT last_insert_rowid()");
       rowQuery.Execute();
@@ -282,46 +282,46 @@ namespace NWN.Systems
     }
     public static void InitializeNewPlayerLearnableSkills(Player player)
     {
-      player.learnables.Add($"F{(int)CustomFeats.ImprovedHealth}", new Learnable(LearnableType.Feat, (int)CustomFeats.ImprovedHealth, 0.0f, player));
-      player.learnables.Add($"F{(int)Feat.Toughness}", new Learnable(LearnableType.Feat, (int)Feat.Toughness, 0.0f, player));
-      player.learnables.Add($"F{(int)CustomFeats.ImprovedAttackBonus}", new Learnable(LearnableType.Feat, (int)CustomFeats.ImprovedAttackBonus, 0.0f, player));
-      player.learnables.Add($"F{(int)CustomFeats.ImprovedCasterLevel}", new Learnable(LearnableType.Feat, (int)CustomFeats.ImprovedCasterLevel, 0.0f, player));
-      player.learnables.Add($"F{(int)Feat.WeaponProficiencySimple}", new Learnable(LearnableType.Feat, (int)Feat.WeaponProficiencySimple, 0.0f, player));
-      player.learnables.Add($"F{(int)Feat.ArmorProficiencyLight}", new Learnable(LearnableType.Feat, (int)Feat.ArmorProficiencyLight, 0.0f, player));
-      player.learnables.Add($"F{(int)Feat.ShieldProficiency}", new Learnable(LearnableType.Feat, (int)Feat.ShieldProficiency, 0.0f, player));
-      player.learnables.Add($"F{(int)Feat.WeaponFinesse}", new Learnable(LearnableType.Feat, (int)Feat.WeaponFinesse, 0.0f, player));
-      player.learnables.Add($"F{(int)Feat.TwoWeaponFighting}", new Learnable(LearnableType.Feat, (int)Feat.TwoWeaponFighting, 0.0f, player));
-      player.learnables.Add($"F{(int)CustomFeats.ImprovedSavingThrowFortitude}", new Learnable(LearnableType.Feat, (int)CustomFeats.ImprovedSavingThrowFortitude, 0.0f, player));
-      player.learnables.Add($"F{(int)CustomFeats.ImprovedSavingThrowReflex}", new Learnable(LearnableType.Feat, (int)CustomFeats.ImprovedSavingThrowReflex, 0.0f, player));
-      player.learnables.Add($"F{(int)CustomFeats.ImprovedSavingThrowWill}", new Learnable(LearnableType.Feat, (int)CustomFeats.ImprovedSavingThrowWill, 0.0f, player));
-      player.learnables.Add($"F{(int)CustomFeats.ImprovedSpellSlot0}", new Learnable(LearnableType.Feat, (int)CustomFeats.ImprovedSpellSlot0, 0.0f, player));
-      player.learnables.Add($"F{(int)CustomFeats.ImprovedSpellSlot1}", new Learnable(LearnableType.Feat, (int)CustomFeats.ImprovedSpellSlot1, 0.0f, player));
-      player.learnables.Add($"F{(int)CustomFeats.ImprovedStrength}", new Learnable(LearnableType.Feat, (int)CustomFeats.ImprovedStrength, 0.0f, player));
-      player.learnables.Add($"F{(int)CustomFeats.ImprovedDexterity}", new Learnable(LearnableType.Feat, (int)CustomFeats.ImprovedDexterity, 0.0f, player));
-      player.learnables.Add($"F{(int)CustomFeats.ImprovedConstitution}", new Learnable(LearnableType.Feat, (int)CustomFeats.ImprovedConstitution, 0.0f, player));
-      player.learnables.Add($"F{(int)CustomFeats.ImprovedIntelligence}", new Learnable(LearnableType.Feat, (int)CustomFeats.ImprovedIntelligence, 0.0f, player));
-      player.learnables.Add($"F{(int)CustomFeats.ImprovedWisdom}", new Learnable(LearnableType.Feat, (int)CustomFeats.ImprovedWisdom, 0.0f, player));
-      player.learnables.Add($"F{(int)CustomFeats.ImprovedCharisma}", new Learnable(LearnableType.Feat, (int)CustomFeats.ImprovedCharisma, 0.0f, player));
-      player.learnables.Add($"F{(int)CustomFeats.ImprovedAnimalEmpathy}", new Learnable(LearnableType.Feat, (int)CustomFeats.ImprovedAnimalEmpathy, 0.0f, player));
-      player.learnables.Add($"F{(int)CustomFeats.ImprovedConcentration}", new Learnable(LearnableType.Feat, (int)CustomFeats.ImprovedConcentration, 0.0f, player));
-      player.learnables.Add($"F{(int)CustomFeats.ImprovedDisableTraps}", new Learnable(LearnableType.Feat, (int)CustomFeats.ImprovedDisableTraps, 0.0f, player));
-      player.learnables.Add($"F{(int)CustomFeats.ImprovedDiscipline}", new Learnable(LearnableType.Feat, (int)CustomFeats.ImprovedDiscipline, 0.0f, player));
-      player.learnables.Add($"F{(int)CustomFeats.ImprovedSkillParry}", new Learnable(LearnableType.Feat, (int)CustomFeats.ImprovedSkillParry, 0.0f, player));
-      player.learnables.Add($"F{(int)CustomFeats.ImprovedPerform}", new Learnable(LearnableType.Feat, (int)CustomFeats.ImprovedPerform, 0.0f, player));
-      player.learnables.Add($"F{(int)CustomFeats.ImprovedPickpocket}", new Learnable(LearnableType.Feat, (int)CustomFeats.ImprovedPickpocket, 0.0f, player));
-      player.learnables.Add($"F{(int)CustomFeats.ImprovedSearch}", new Learnable(LearnableType.Feat, (int)CustomFeats.ImprovedSearch, 0.0f, player));
-      player.learnables.Add($"F{(int)CustomFeats.ImprovedSetTrap}", new Learnable(LearnableType.Feat, (int)CustomFeats.ImprovedSetTrap, 0.0f, player));
-      player.learnables.Add($"F{(int)CustomFeats.ImprovedSpellcraft}", new Learnable(LearnableType.Feat, (int)CustomFeats.ImprovedSpellcraft, 0.0f, player));
-      player.learnables.Add($"F{(int)CustomFeats.ImprovedSpot}", new Learnable(LearnableType.Feat, (int)CustomFeats.ImprovedSpot, 0.0f, player));
-      player.learnables.Add($"F{(int)CustomFeats.ImprovedTaunt}", new Learnable(LearnableType.Feat, (int)CustomFeats.ImprovedTaunt, 0.0f, player));
-      player.learnables.Add($"F{(int)CustomFeats.ImprovedUseMagicDevice}", new Learnable(LearnableType.Feat, (int)CustomFeats.ImprovedUseMagicDevice, 0.0f, player));
-      player.learnables.Add($"F{(int)CustomFeats.ImprovedTumble}", new Learnable(LearnableType.Feat, (int)CustomFeats.ImprovedTumble, 0.0f, player));
-      player.learnables.Add($"F{(int)CustomFeats.ImprovedBluff}", new Learnable(LearnableType.Feat, (int)CustomFeats.ImprovedBluff, 0.0f, player));
-      player.learnables.Add($"F{(int)CustomFeats.ImprovedIntimidate}", new Learnable(LearnableType.Feat, (int)CustomFeats.ImprovedIntimidate, 0.0f, player));
-      player.learnables.Add($"F{(int)CustomFeats.ImprovedMoveSilently}", new Learnable(LearnableType.Feat, (int)CustomFeats.ImprovedMoveSilently, 0.0f, player));
-      player.learnables.Add($"F{(int)CustomFeats.ImprovedListen}", new Learnable(LearnableType.Feat, (int)CustomFeats.ImprovedListen, 0.0f, player));
-      player.learnables.Add($"F{(int)CustomFeats.ImprovedHide}", new Learnable(LearnableType.Feat, (int)CustomFeats.ImprovedHide, 0.0f, player));
-      player.learnables.Add($"F{(int)CustomFeats.ImprovedOpenLock}", new Learnable(LearnableType.Feat, (int)CustomFeats.ImprovedOpenLock, 0.0f, player));
+      player.learnables.Add($"F{(int)CustomFeats.ImprovedHealth}", new Learnable(LearnableType.Feat, (int)CustomFeats.ImprovedHealth, 0.0f).InitializeLearnableLevel(player));
+      player.learnables.Add($"F{(int)Feat.Toughness}", new Learnable(LearnableType.Feat, (int)Feat.Toughness, 0.0f).InitializeLearnableLevel(player));
+      player.learnables.Add($"F{(int)CustomFeats.ImprovedAttackBonus}", new Learnable(LearnableType.Feat, (int)CustomFeats.ImprovedAttackBonus, 0.0f).InitializeLearnableLevel(player));
+      player.learnables.Add($"F{(int)CustomFeats.ImprovedCasterLevel}", new Learnable(LearnableType.Feat, (int)CustomFeats.ImprovedCasterLevel, 0.0f).InitializeLearnableLevel(player));
+      player.learnables.Add($"F{(int)Feat.WeaponProficiencySimple}", new Learnable(LearnableType.Feat, (int)Feat.WeaponProficiencySimple, 0.0f).InitializeLearnableLevel(player));
+      player.learnables.Add($"F{(int)Feat.ArmorProficiencyLight}", new Learnable(LearnableType.Feat, (int)Feat.ArmorProficiencyLight, 0.0f).InitializeLearnableLevel(player));
+      player.learnables.Add($"F{(int)Feat.ShieldProficiency}", new Learnable(LearnableType.Feat, (int)Feat.ShieldProficiency, 0.0f).InitializeLearnableLevel(player));
+      player.learnables.Add($"F{(int)Feat.WeaponFinesse}", new Learnable(LearnableType.Feat, (int)Feat.WeaponFinesse, 0.0f).InitializeLearnableLevel(player));
+      player.learnables.Add($"F{(int)Feat.TwoWeaponFighting}", new Learnable(LearnableType.Feat, (int)Feat.TwoWeaponFighting, 0.0f).InitializeLearnableLevel(player));
+      player.learnables.Add($"F{(int)CustomFeats.ImprovedSavingThrowFortitude}", new Learnable(LearnableType.Feat, (int)CustomFeats.ImprovedSavingThrowFortitude, 0.0f).InitializeLearnableLevel(player));
+      player.learnables.Add($"F{(int)CustomFeats.ImprovedSavingThrowReflex}", new Learnable(LearnableType.Feat, (int)CustomFeats.ImprovedSavingThrowReflex, 0.0f).InitializeLearnableLevel(player));
+      player.learnables.Add($"F{(int)CustomFeats.ImprovedSavingThrowWill}", new Learnable(LearnableType.Feat, (int)CustomFeats.ImprovedSavingThrowWill, 0.0f).InitializeLearnableLevel(player));
+      player.learnables.Add($"F{(int)CustomFeats.ImprovedSpellSlot0}", new Learnable(LearnableType.Feat, (int)CustomFeats.ImprovedSpellSlot0, 0.0f).InitializeLearnableLevel(player));
+      player.learnables.Add($"F{(int)CustomFeats.ImprovedSpellSlot1}", new Learnable(LearnableType.Feat, (int)CustomFeats.ImprovedSpellSlot1, 0.0f).InitializeLearnableLevel(player));
+      player.learnables.Add($"F{(int)CustomFeats.ImprovedStrength}", new Learnable(LearnableType.Feat, (int)CustomFeats.ImprovedStrength, 0.0f).InitializeLearnableLevel(player));
+      player.learnables.Add($"F{(int)CustomFeats.ImprovedDexterity}", new Learnable(LearnableType.Feat, (int)CustomFeats.ImprovedDexterity, 0.0f).InitializeLearnableLevel(player));
+      player.learnables.Add($"F{(int)CustomFeats.ImprovedConstitution}", new Learnable(LearnableType.Feat, (int)CustomFeats.ImprovedConstitution, 0.0f).InitializeLearnableLevel(player));
+      player.learnables.Add($"F{(int)CustomFeats.ImprovedIntelligence}", new Learnable(LearnableType.Feat, (int)CustomFeats.ImprovedIntelligence, 0.0f).InitializeLearnableLevel(player));
+      player.learnables.Add($"F{(int)CustomFeats.ImprovedWisdom}", new Learnable(LearnableType.Feat, (int)CustomFeats.ImprovedWisdom, 0.0f).InitializeLearnableLevel(player));
+      player.learnables.Add($"F{(int)CustomFeats.ImprovedCharisma}", new Learnable(LearnableType.Feat, (int)CustomFeats.ImprovedCharisma, 0.0f).InitializeLearnableLevel(player));
+      player.learnables.Add($"F{(int)CustomFeats.ImprovedAnimalEmpathy}", new Learnable(LearnableType.Feat, (int)CustomFeats.ImprovedAnimalEmpathy, 0.0f).InitializeLearnableLevel(player));
+      player.learnables.Add($"F{(int)CustomFeats.ImprovedConcentration}", new Learnable(LearnableType.Feat, (int)CustomFeats.ImprovedConcentration, 0.0f).InitializeLearnableLevel(player));
+      player.learnables.Add($"F{(int)CustomFeats.ImprovedDisableTraps}", new Learnable(LearnableType.Feat, (int)CustomFeats.ImprovedDisableTraps, 0.0f).InitializeLearnableLevel(player));
+      player.learnables.Add($"F{(int)CustomFeats.ImprovedDiscipline}", new Learnable(LearnableType.Feat, (int)CustomFeats.ImprovedDiscipline, 0.0f).InitializeLearnableLevel(player));
+      player.learnables.Add($"F{(int)CustomFeats.ImprovedSkillParry}", new Learnable(LearnableType.Feat, (int)CustomFeats.ImprovedSkillParry, 0.0f).InitializeLearnableLevel(player));
+      player.learnables.Add($"F{(int)CustomFeats.ImprovedPerform}", new Learnable(LearnableType.Feat, (int)CustomFeats.ImprovedPerform, 0.0f).InitializeLearnableLevel(player));
+      player.learnables.Add($"F{(int)CustomFeats.ImprovedPickpocket}", new Learnable(LearnableType.Feat, (int)CustomFeats.ImprovedPickpocket, 0.0f).InitializeLearnableLevel(player));
+      player.learnables.Add($"F{(int)CustomFeats.ImprovedSearch}", new Learnable(LearnableType.Feat, (int)CustomFeats.ImprovedSearch, 0.0f).InitializeLearnableLevel(player));
+      player.learnables.Add($"F{(int)CustomFeats.ImprovedSetTrap}", new Learnable(LearnableType.Feat, (int)CustomFeats.ImprovedSetTrap, 0.0f).InitializeLearnableLevel(player));
+      player.learnables.Add($"F{(int)CustomFeats.ImprovedSpellcraft}", new Learnable(LearnableType.Feat, (int)CustomFeats.ImprovedSpellcraft, 0.0f).InitializeLearnableLevel(player));
+      player.learnables.Add($"F{(int)CustomFeats.ImprovedSpot}", new Learnable(LearnableType.Feat, (int)CustomFeats.ImprovedSpot, 0.0f).InitializeLearnableLevel(player));
+      player.learnables.Add($"F{(int)CustomFeats.ImprovedTaunt}", new Learnable(LearnableType.Feat, (int)CustomFeats.ImprovedTaunt, 0.0f).InitializeLearnableLevel(player));
+      player.learnables.Add($"F{(int)CustomFeats.ImprovedUseMagicDevice}", new Learnable(LearnableType.Feat, (int)CustomFeats.ImprovedUseMagicDevice, 0.0f).InitializeLearnableLevel(player));
+      player.learnables.Add($"F{(int)CustomFeats.ImprovedTumble}", new Learnable(LearnableType.Feat, (int)CustomFeats.ImprovedTumble, 0.0f).InitializeLearnableLevel(player));
+      player.learnables.Add($"F{(int)CustomFeats.ImprovedBluff}", new Learnable(LearnableType.Feat, (int)CustomFeats.ImprovedBluff, 0.0f).InitializeLearnableLevel(player));
+      player.learnables.Add($"F{(int)CustomFeats.ImprovedIntimidate}", new Learnable(LearnableType.Feat, (int)CustomFeats.ImprovedIntimidate, 0.0f).InitializeLearnableLevel(player));
+      player.learnables.Add($"F{(int)CustomFeats.ImprovedMoveSilently}", new Learnable(LearnableType.Feat, (int)CustomFeats.ImprovedMoveSilently, 0.0f).InitializeLearnableLevel(player));
+      player.learnables.Add($"F{(int)CustomFeats.ImprovedListen}", new Learnable(LearnableType.Feat, (int)CustomFeats.ImprovedListen, 0.0f).InitializeLearnableLevel(player));
+      player.learnables.Add($"F{(int)CustomFeats.ImprovedHide}", new Learnable(LearnableType.Feat, (int)CustomFeats.ImprovedHide, 0.0f).InitializeLearnableLevel(player));
+      player.learnables.Add($"F{(int)CustomFeats.ImprovedOpenLock}", new Learnable(LearnableType.Feat, (int)CustomFeats.ImprovedOpenLock, 0.0f).InitializeLearnableLevel(player));
     }
     private static void InitializeDM(Player player)
     {
@@ -340,8 +340,8 @@ namespace NWN.Systems
       InitializePlayerEvents(player.oid);
       InitializePlayerAccount(player);
       InitializePlayerCharacter(player);
-      InitializePlayerLearnableSkills(player);
-      InitializePlayerLearnableSpells(player);
+      //InitializePlayerLearnableSkills(player);
+      //InitializePlayerLearnableSpells(player);
       InitializeCharacterMapPins(player);
       InitializeCharacterAreaExplorationState(player);
       InitializePlayerChatColors(player);
@@ -409,7 +409,7 @@ namespace NWN.Systems
     private static void InitializePlayerCharacter(Player player)
     {
       var result = SqLiteUtils.SelectQuery("playerCharacters",
-          new List<string>() { { "areaTag" }, { "position" }, { "facing" }, { "currentHP" }, { "bankGold" }, { "dateLastSaved" }, { "currentCraftJob" }, { "currentCraftObject" }, { "currentCraftJobRemainingTime" }, { "currentCraftJobMaterial" }, { "menuOriginTop" }, { "menuOriginLeft" }, { "pveArenaCurrentPoints" }, { "alchemyCauldron" }, { "previousSPCalculation" } },
+          new List<string>() { { "areaTag" }, { "position" }, { "facing" }, { "currentHP" }, { "bankGold" }, { "dateLastSaved" }, { "currentCraftJob" }, { "currentCraftObject" }, { "currentCraftJobRemainingTime" }, { "currentCraftJobMaterial" }, { "menuOriginTop" }, { "menuOriginLeft" }, { "pveArenaCurrentPoints" }, { "alchemyCauldron" }, { "previousSPCalculation" }, { "serializedLearnables" } },
           new List<string[]>() { { new string[] { "rowid", player.characterId.ToString() } } });
 
       if (result.Result == null)
@@ -427,6 +427,10 @@ namespace NWN.Systems
       player.pveArena.totalPoints = (uint)result.Result.GetInt(12);
       player.alchemyCauldron = JsonConvert.DeserializeObject<Alchemy.Cauldron>(result.Result.GetString(13));
       player.previousSPCalculation = DateTime.TryParse(result.Result.GetString(14), out DateTime previousSPDate) ? previousSPDate : null;
+      player.learnables = JsonConvert.DeserializeObject<Dictionary<string, Learnable>>(result.Result.GetString(15));
+
+      foreach (Learnable learnable in player.learnables.Values)
+        learnable.InitializeLearnableLevel(player);
 
       result = SqLiteUtils.SelectQuery("playerMaterialStorage",
         new List<string>() { { "materialName" }, { "materialStock" } },
@@ -457,7 +461,7 @@ namespace NWN.Systems
             player.learntCustomFeats.Add(skillId, currentSkillPoints);
 
           if (skill.GetInt(2) == 0)
-            player.learnables.Add($"F{id}", new Learnable(LearnableType.Feat, id, currentSkillPoints, player, active));
+            player.learnables.Add($"F{id}", new Learnable(LearnableType.Feat, id, currentSkillPoints, active).InitializeLearnableLevel(player));
         }
       }
     }
@@ -506,7 +510,7 @@ namespace NWN.Systems
       foreach (var spell in result.Results)
       {
         bool active = spell.GetInt(3) == 1 ? true : false;
-        player.learnables.Add($"S{spell.GetInt(0)}", new Learnable(LearnableType.Spell, spell.GetInt(0), spell.GetInt(1), player, active, spell.GetInt(2)));
+        player.learnables.Add($"S{spell.GetInt(0)}", new Learnable(LearnableType.Spell, spell.GetInt(0), spell.GetInt(1), active, spell.GetInt(2)).InitializeLearnableLevel(player));
       }
     }
     private static async void InitializeNewCharacterStorage(Player player)
@@ -529,7 +533,7 @@ namespace NWN.Systems
       storage.Name = $"Entrepôt de {player.oid.LoginCreature.Name}";
 
       SqLiteUtils.UpdateQuery("playerCharacters",
-        new List<string[]>() { { new string[] { "storage", storage.Serialize().ToBase64EncodedString() } }, { new string[] { "trained", "0" } } },
+        new List<string[]>() { { new string[] { "storage", storage.Serialize().ToBase64EncodedString() } } },
         new List<string[]>() { { new string[] { "rowid", player.oid.LoginCreature.GetObjectVariable<PersistentVariableInt>("characterId").Value.ToString() } } });
 
       storage.Destroy();

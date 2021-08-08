@@ -192,7 +192,7 @@ namespace NWN.Systems
 
           if (skill.successorId > 0)
           {
-            player.learnables.Add($"F{skill.successorId}", new Learnable(LearnableType.Feat, skill.successorId, 0, player));
+            player.learnables.Add($"F{skill.successorId}", new Learnable(LearnableType.Feat, skill.successorId, 0).InitializeLearnableLevel(player));
           }
         }
 
@@ -216,6 +216,8 @@ namespace NWN.Systems
       else
       {
         skill.acquiredPoints += remainingPoints;
+        skill.active = true;
+        player.AwaitPlayerStateChangeToCalculateSPGain(skill);
         player.oid.LoginCreature.GetObjectVariable<PersistentVariableInt>("_STARTING_SKILL_POINTS").Delete();
         player.CreateSkillJournalEntry(skill);
         DrawWelcomePage(player);

@@ -308,7 +308,7 @@ namespace NWN.Systems
         }
         else
         {
-          Learnable spell = new Learnable(LearnableType.Spell, (int)spellId, 0, player);
+          Learnable spell = new Learnable(LearnableType.Spell, (int)spellId, 0).InitializeLearnableLevel(player);
           player.learnables.Add($"S{(int)spellId}", spell);
           oPC.ControllingPlayer.SendServerMessage($"Le sort {spell.name} a été ajouté à votre liste d'apprentissage et est désormais disponible pour étude.");
           oScroll.Destroy();

@@ -124,7 +124,7 @@ namespace NWN.Systems
       Task waitForSPCalculation = NwTask.Run(async () =>
       {
         await NwTask.Delay(TimeSpan.FromSeconds(0.2));
- 
+        
         SqLiteUtils.UpdateQuery("playerCharacters",
           new List<string[]>() { new string[] { "characterName", $"{firstName} {lastName}" },
           new string[] { "areaTag", areaTag }, new string[] { "position", position }, new string[] { "facing", facing }, new string[] { "currentHP", health }, new string[] { "bankGold", player.bankGold.ToString() },
@@ -132,7 +132,7 @@ namespace NWN.Systems
           new string[] { "currentCraftJob", player.craftJob.baseItemType.ToString() }, new string[] { "currentCraftObject", player.craftJob.craftedItem }, new string[] { "currentCraftJobRemainingTime", player.craftJob.remainingTime.ToString() },
           new string[] { "currentCraftJobMaterial", player.craftJob.material }, new string[] { "currentCraftJobMaterial", player.craftJob.material }, new string[] { "pveArenaCurrentPoints", player.pveArena.currentPoints.ToString() },
           new string[] { "menuOriginTop", player.menu.originTop.ToString() }, new string[] { "menuOriginLeft", player.menu.originLeft.ToString() },
-          new string[] { "alchemyCauldron", JsonConvert.SerializeObject(player.alchemyCauldron) } },
+          new string[] { "alchemyCauldron", JsonConvert.SerializeObject(player.alchemyCauldron) }, new string[] { "serializedLearnables", JsonConvert.SerializeObject(player.learnables) } },
           new List<string[]>() { new string[]  { "rowid", player.characterId.ToString() } });
       });
     }
