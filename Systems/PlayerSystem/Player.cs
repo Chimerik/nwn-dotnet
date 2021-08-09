@@ -10,12 +10,13 @@ using Anvil.Services;
 using NWN.Systems.Alchemy;
 using NWN.Core.NWNX;
 using JournalEntry = Anvil.API.JournalEntry;
+using Anvil.API.Events;
 
 namespace NWN.Systems
 {
   public partial class PlayerSystem
   {
-    public class Player
+    public partial class Player
     {
       public NwPlayer oid { get; set; }
       public DateTime mapLoadingTime { get; set; }
@@ -38,9 +39,9 @@ namespace NWN.Systems
       public Cauldron alchemyCauldron { get; set; }
       public PcState pcState { get; set; }
       public DateTime? previousSPCalculation { get; set; }
+      public DateTime? lastCraftUpdate { get; set; }
 
       public List<NwPlayer> listened = new List<NwPlayer>();
-      public List<Effect> effectList = new List<Effect>();
       public List<int> mutedList = new List<int>();
       public Dictionary<uint, Player> blocked = new Dictionary<uint, Player>();
       public Dictionary<Feat, int> learntCustomFeats = new Dictionary<Feat, int>();
@@ -68,19 +69,19 @@ namespace NWN.Systems
         if(!oid.IsDM)
         {
           if (this.oid.LoginCreature.GetObjectVariable<PersistentVariableInt>("accountId").HasNothing && !oid.IsDM)
-            InitializeNewPlayer(this.oid);
+            InitializeNewPlayer();
 
           this.accountId = this.oid.LoginCreature.GetObjectVariable<PersistentVariableInt>("accountId").Value;
 
           if (this.oid.LoginCreature.GetObjectVariable<PersistentVariableInt>("characterId").HasNothing && !oid.IsDM)
-            InitializeNewCharacter(this);
+            InitializeNewCharacter();
 
           this.characterId = this.oid.LoginCreature.GetObjectVariable<PersistentVariableInt>("characterId").Value;
 
-          InitializePlayer(this);
+          InitializePlayer();
         }
         else
-          InitializeDM(this);
+          InitializeDM();
 
         Log.Info($"Player first initialization : DONE");
       }
@@ -676,7 +677,7 @@ namespace NWN.Systems
             break;
         }
 
-        oid.ExportCharacter();
+        oid.ExportCharacter();        
         PlayNewSkillAcquiredEffects(learnable);
       }
       public void LevelUpFeat(Learnable learnable)
@@ -767,12 +768,54 @@ namespace NWN.Systems
         }
         else if (awaitLearningPaused.IsCompletedSuccessfully)
         {
-          Log.Info($"Pause detected");
           previousSPCalculation = null;
           return;
         }
 
         AwaitPlayerStateChangeToCalculateSPGain(learnable);
+      }
+      public async void AwaitPlayerStateChangeForCraftProgression(Job job)
+      {
+        CancellationTokenSource tokenSource = new CancellationTokenSource();
+
+        Task awaitStateChange = NwTask.WaitUntilValueChanged(() => pcState, tokenSource.Token);
+        Task awaitJobCancelled = NwTask.WaitUntil(() => !job.active || location.Area.GetObjectVariable<LocalVariableInt>("_AREA_LEVEL").Value != 0, tokenSource.Token);
+        Task awaitCraftDone = NwTask.Delay(TimeSpan.FromSeconds(job.remainingTime), tokenSource.Token);
+
+        await NwTask.WhenAny(awaitStateChange, awaitJobCancelled, awaitCraftDone);
+        tokenSource.Cancel();
+
+        if (lastCraftUpdate.HasValue)
+          job.remainingTime -= (DateTime.Now - lastCraftUpdate).Value.TotalSeconds;
+
+        lastCraftUpdate = DateTime.Now;
+
+        if (pcState == PcState.Offline)
+          return;
+
+        if (awaitCraftDone.IsCompletedSuccessfully || job.remainingTime <= 0)
+        {
+          AcquireCraftedItem();
+          lastCraftUpdate = null;
+          return;
+        }
+        else if (awaitJobCancelled.IsCompletedSuccessfully)
+        {
+          lastCraftUpdate = null;
+          return;
+        }
+
+        AwaitPlayerStateChangeForCraftProgression(job);
+      }
+      private void HandleGainedGold(OnInventoryGoldAdd onGainedGold)
+      {
+        if (Players.TryGetValue(onGainedGold.Creature, out Player player))
+          player.oid.ExportCharacter();
+      }
+      private void HandleLostGold(OnInventoryGoldRemove onLostGold)
+      {
+        if (Players.TryGetValue(onLostGold.Creature, out Player player))
+          player.oid.ExportCharacter();
       }
     }
   }

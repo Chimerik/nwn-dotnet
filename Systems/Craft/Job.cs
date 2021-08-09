@@ -10,24 +10,25 @@ namespace NWN.Systems.Craft
 {
   public class Job
   {
-    public JobType type;
+    public readonly JobType type;
+    public bool active { get; set; }
     public int baseItemType { get; }
     public string craftedItem { get; set; }
-    public float remainingTime { get; set; }
+    public double remainingTime { get; set; }
     public string material { get; set; }
     public Boolean isCancelled { get; set; }
     private readonly PlayerSystem.Player player;
 
     public Job(int baseItemType, string material, float time, PlayerSystem.Player player, string item = "")
     {
-      ModuleSystem.Log.Info($"Craft new job from {player.oid.LoginCreature.Name} - base item : {baseItemType} - remaining Time {time} - material {material}");
-      //this.name = name;
+      PlayerSystem.Log.Info($"Craft new job from {player.oid.LoginCreature.Name} - base item : {baseItemType} - remaining Time {time} - material {material}");
       this.baseItemType = baseItemType;
       this.craftedItem = item;
       remainingTime = time;
       this.material = material;
       this.isCancelled = false;
       this.player = player;
+      this.active = true;
 
       switch (baseItemType)
       {

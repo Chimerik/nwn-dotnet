@@ -34,7 +34,7 @@ namespace NWN.Systems
     {
       foreach(NwGameObject target in onJump.Targets)
         if(target is NwCreature targetCreature && targetCreature.Area.Tag == "LaBrume" && PlayerSystem.Players.TryGetValue(targetCreature, out PlayerSystem.Player player))
-          PlayerSystem.DestroyPlayerCorpse(player);
+          player.DestroyPlayerCorpse();
     }
     public static void HandleBeforeDMJumpAllPlayers(OnDMJumpAllPlayersToPoint onJump)
     {

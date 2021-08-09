@@ -190,6 +190,7 @@ namespace NWN.Systems
         case "ToursdesInventeurs":
         case "SIMILISPALAISNOU":
         case "qg_kathra":
+        case "alchemy":
           area.GetObjectVariable<LocalVariableInt>("_AREA_LEVEL").Value = 0;
           break;
         case "cave_flooded":

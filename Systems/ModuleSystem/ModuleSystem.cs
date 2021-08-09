@@ -27,6 +27,18 @@ namespace NWN.Systems
       
       NwModule.Instance.OnModuleLoad += OnModuleLoad;
     }
+    private async void LoadDiscordBot()
+    {
+      try
+      {
+        await Bot.MainAsync();
+      }
+      catch (Exception e)
+      {
+        Log.Info($"Could not load discord bot : {e.Message}");
+        Utils.LogMessageToDMs($"Could not load discord bot : {e.Message}");
+      }
+    }
     private void OnModuleLoad(ModuleEvents.OnModuleLoad onModuleLoad)
     {
       NwModule.Instance.GetObjectVariable<LocalVariableString>("X2_S_UD_SPELLSCRIPT").Value = "spellhook";
@@ -94,12 +106,6 @@ namespace NWN.Systems
           new List<string[]>() { new string[] { "rowid", charId.ToString() } });
       }
     }
-    
-    private async void LoadDiscordBot()
-    {
-      await Bot.MainAsync();
-    }
-
     private static void CreateDatabase()
     {
       SqLiteUtils.CreateQuery("CREATE TABLE IF NOT EXISTS moduleInfo" +
@@ -330,47 +336,9 @@ namespace NWN.Systems
 
       HandleExpiredAuctions();
 
-      NwModule.Instance.ExportAllCharacters();
+      //NwModule.Instance.ExportAllCharacters();
 
-      /*foreach (KeyValuePair<string, ScriptPerf> perfentry in ModuleSystem.scriptPerformanceMonitoring)
-      {
-          if (perfentry.Value.nbExecution == 0)
-              continue;
-
-          query = 
-      
-      
-      
-      
-      
-      
-      SqlPrepareQueryCampaign(ModuleSystem.database, $"INSERT INTO scriptPerformance (script, nbExecutions, averageExecutionTime, cumulatedExecutionTime) VALUES (@script, @nbExecutions, @averageExecutionTime, @cumulatedExecutionTime)" +
-          "ON CONFLICT (script) DO UPDATE SET nbExecutions = nbExecutions + @nbExecutions, averageExecutionTime = (cumulatedExecutionTime + @cumulatedExecutionTime) / (nbExecutions + @nbExecutions), cumulatedExecutionTime = cumulatedExecutionTime + @cumulatedExecutionTime");
-          NWScript.SqlBindString(query, "@script", perfentry.Key);
-          NWScript.SqlBindInt(query, "@nbExecutions", perfentry.Value.nbExecution);
-          NWScript.SqlBindFloat(query, "@cumulatedExecutionTime", (float)perfentry.Value.cumulatedExecutionTime);
-          NWScript.SqlBindFloat(query, "@averageExecutionTime", (float)perfentry.Value.cumulatedExecutionTime / perfentry.Value.nbExecution);
-          NWScript.SqlStep(query);
-
-          perfentry.Value.cumulatedExecutionTime = 0;
-          perfentry.Value.nbExecution = 0;
-      }*/
-
-      /* foreach (KeyValuePair<string, GoldBalance> goldEntry in goldBalanceMonitoring)
-       {
-         query = NWScript.SqlPrepareQueryCampaign(Config.database, $"INSERT INTO goldBalance (lootedTag, nbTimesLooted, averageGold, cumulatedGold) VALUES (@lootedTag, @nbTimesLooted, @averageGold, @cumulatedGold)" +
-         "ON CONFLICT (lootedTag) DO UPDATE SET nbTimesLooted = nbTimesLooted + @nbTimesLooted, averageGold = (cumulatedGold + @cumulatedGold) / (nbTimesLooted + @nbTimesLooted), cumulatedGold = cumulatedGold + @cumulatedGold");
-         NWScript.SqlBindString(query, "@lootedTag", goldEntry.Key);
-         NWScript.SqlBindInt(query, "@nbTimesLooted", goldEntry.Value.nbTimesLooted);
-         NWScript.SqlBindInt(query, "@cumulatedGold", goldEntry.Value.cumulatedGold);
-         NWScript.SqlBindInt(query, "@averageGold", goldEntry.Value.cumulatedGold / goldEntry.Value.nbTimesLooted);
-         NWScript.SqlStep(query);
-
-         goldEntry.Value.cumulatedGold = 0;
-         goldEntry.Value.nbTimesLooted = 0;
-       }*/
-
-      Task DownloadDiscordUsers = NwTask.Run(async () =>
+      Task DownloadDiscordUsers = Task.Run(async () =>
       {
         await Bot._client.DownloadUsersAsync(new List<IGuild> { { Bot._client.GetGuild(680072044364562528) } });
       });

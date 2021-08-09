@@ -170,18 +170,18 @@ namespace NWN.Systems
       if (oPC.ControllingPlayer == null || oItem == null)
         return;
 
-      if (oItem.GetObjectVariable<LocalVariableInt>("_MAX_DURABILITY").HasNothing)
-      {
-        int durability = ItemUtils.GetBaseItemCost(oItem) * 25;
-        oItem.GetObjectVariable<LocalVariableInt>("_MAX_DURABILITY").Value = durability;
-        oItem.GetObjectVariable<LocalVariableInt>("_DURABILITY").Value = durability;
-      }
-
       if (oItem.Tag == "undroppable_item")
       {
         oItem.Clone(oAcquiredFrom);
         oItem.Destroy();
         return;
+      }
+
+      if (oItem.GetObjectVariable<LocalVariableInt>("_MAX_DURABILITY").HasNothing)
+      {
+        int durability = ItemUtils.GetBaseItemCost(oItem) * 25;
+        oItem.GetObjectVariable<LocalVariableInt>("_MAX_DURABILITY").Value = durability;
+        oItem.GetObjectVariable<LocalVariableInt>("_DURABILITY").Value = durability;
       }
 
       if (oItem.Tag == "item_pccorpse" && oAcquiredFrom?.Tag == "pccorpse_bodybag")
@@ -195,7 +195,10 @@ namespace NWN.Systems
       }
       //En pause jusqu'à ce que le système de transport soit en place
       //if (oPC.MovementRate != MovementRate.Immobile && oPC.TotalWeight > Encumbrance2da.encumbranceTable.GetDataEntry(oPC.GetAbilityScore(Ability.Strength)).heavy)
-        //oPC.MovementRate = MovementRate.Immobile;
+      //oPC.MovementRate = MovementRate.Immobile;
+
+      if (PlayerSystem.Players.TryGetValue(oPC, out PlayerSystem.Player player))
+        player.oid.ExportCharacter();
     }
     public static void OnUnacquireItem(ModuleEvents.OnUnacquireItem onUnacquireItem)
     {
@@ -220,8 +223,11 @@ namespace NWN.Systems
 
       //En pause jusqu'à ce que le système de transport soit en place
       //if (onUnacquireItem.LostBy.MovementRate == MovementRate.Immobile)
-        //if (onUnacquireItem.LostBy.TotalWeight <= Encumbrance2da.encumbranceTable.GetDataEntry(onUnacquireItem.LostBy.GetAbilityScore(Ability.Strength)).heavy)
-          //onUnacquireItem.LostBy.MovementRate = MovementRate.PC;
+      //if (onUnacquireItem.LostBy.TotalWeight <= Encumbrance2da.encumbranceTable.GetDataEntry(onUnacquireItem.LostBy.GetAbilityScore(Ability.Strength)).heavy)
+      //onUnacquireItem.LostBy.MovementRate = MovementRate.PC;
+
+      if (PlayerSystem.Players.TryGetValue(onUnacquireItem.LostBy, out PlayerSystem.Player player))
+        player.oid.ExportCharacter();
     }
     public static async void OnTorilNecklaceRemoved(NwPlayer oPC)
     {

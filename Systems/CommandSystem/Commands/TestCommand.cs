@@ -7,6 +7,7 @@ using Anvil.API.Events;
 
 using NWN.Core.NWNX;
 using System.Numerics;
+using System.Threading.Tasks;
 
 namespace NWN.Systems
 {
@@ -21,72 +22,24 @@ namespace NWN.Systems
 
         if (player.oid.PlayerName == "Chim")
         {
-          Alchemy.Cauldron cauldron = new Alchemy.Cauldron(player.characterId);
-          cauldron.addedIngredients.Add(new Alchemy.AddedIngredient(new Craft.Collect.Config.Plant(oreType: Craft.Collect.Config.PlantType.Terraria), 10));
-          cauldron.addedIngredients.Add(new Alchemy.AddedIngredient(new Craft.Collect.Config.Plant(oreType: Craft.Collect.Config.PlantType.FloraisonAquatique), 4));
-          cauldron.nBrowsedCases = 47;
-          cauldron.tablePosition = new Vector2(14, 58);
-          cauldron.effectList.Add(@"{'type': '15',  'duration': '300',  'power': '1' ,  'param0': '5'}");
-          cauldron.effectList.Add(@"{'type': '27',  'duration': '700',  'power': '6',  'param0': '12'}");
+          //Test();
 
-          string jsonTest = JsonConvert.SerializeObject(cauldron);
-          Log.Info(jsonTest);
+          DateTime elapsed = DateTime.Now;
+          player.oid.ExportCharacter();
+          Log.Info($"temps écoulé : {(DateTime.Now - elapsed).TotalSeconds}");
 
-          //Effect eff = Effect.TemporaryHitpoints(10);
-          //eff.Tag = "TEST";
-          //GC.SuppressFinalize(eff);
-          //player.oid.ControlledCreature.ApplyEffect(EffectDuration.Temporary, eff, TimeSpan.FromSeconds(10));
-          //NWNX_EffectUnpacked test = EffectPlugin.UnpackEffect(eff);
-          //Log.Info($"param0 {test.nParam0}");
-          //Log.Info($"param1 {test.nParam1}");
-          //Log.Info($"nType {test.nType}");
-          //test.fDuration = 10;
-          //test.nParam0 = 1;
-          //test.nParam1 = 5;
-          //test.nType = 37;
-
-          /*        string json = @"{
-          'type': '15',
-          'duration': 300,
-          'param0': '10'
-        }";
-
-                  CustomUnpackedEffect customUnpackedEffect = JsonConvert.DeserializeObject<CustomUnpackedEffect>(json);*/
-          //customUnpackedEffect.ApplyCustomUnPackedEffectToTarget(player.oid.ControlledCreature);
-
-          //temp HP = type 15          {"Type":"15";10;2}
-
-          //foreach (Effect removedEff in player.oid.ControlledCreature.ActiveEffects.Where(e => e.Tag == "TEST"))
-          //player.oid.ControlledCreature.RemoveEffect(removedEff);
-
-          //eff = EffectPlugin.PackEffect(test);
-
-          //player.oid.ControlledCreature.ApplyEffect(EffectDuration.Temporary, eff, TimeSpan.FromSeconds(10));
-
-          /*Effect eff = Effect.DamageIncrease(10, DamageType.Acid);
-          Effect link = Effect.LinkEffects(eff, Effect.DamageIncrease(8, DamageType.Acid));
-          link = Effect.LinkEffects(link, Effect.DamageIncrease(8, DamageType.Electrical));
-          link = Effect.LinkEffects(link, Effect.DamageIncrease(6, DamageType.Electrical));
-
-          player.oid.ControlledCreature.ApplyEffect(EffectDuration.Temporary, link, TimeSpan.FromSeconds(10));
-
-          foreach (var effectType in player.oid.ControlledCreature.ActiveEffects.Where(e => e.EffectType == EffectType.DamageIncrease)
-            .GroupBy(e => e.IntParams.ElementAt(1)))
-          {
-            Effect maxEffect = effectType.OrderByDescending(e => e.IntParams.ElementAt(0)).FirstOrDefault();
-            Log.Info($"found : {(DamageType)maxEffect.IntParams.ElementAt(1)} max value : {maxEffect.IntParams.ElementAt(0)}");
-          }*/
-
-          /*GC.SuppressFinalize(eff);
-          player.oid.ControlledCreature.ApplyEffect(EffectDuration.Temporary, eff, TimeSpan.FromSeconds(10));
-
-          var test = EffectPlugin.UnpackEffect(eff);
-          Log.Info($"numIntegers : {test.nNumIntegers} - n0 : {test.nParam0} - n1 : {test.nParam1} - n2 : {test.nParam2} -");
-          */
-          //SpellUtils.ApplyCustomEffectToTarget(player.oid, "CUSTOM_EFFECT_FROG", 51, 6);
-          PlayerSystem.cursorTargetService.EnterTargetMode(player.oid, OnTargetSelected, ObjectTypes.All, MouseCursor.Pickup);
+          //PlayerSystem.cursorTargetService.EnterTargetMode(player.oid, OnTargetSelected, ObjectTypes.All, MouseCursor.Pickup);
         }
       }
+    }
+
+    async static void Test()
+    {
+      await Task.Run(() =>
+      {
+        while (true)
+          Log.Info("infinitely looping !");
+      });
     }
     
     private static void OnTargetSelected(ModuleEvents.OnPlayerTarget selection)
