@@ -448,6 +448,7 @@ namespace NWN.Systems
           {
             journalEntry.Name = $"Apprentissage - {Utils.StripTimeSpanMilliseconds((learnables.First(l => l.Value.active).Value.levelUpDate - DateTime.Now))}";
             oid.AddCustomJournalEntry(journalEntry, true);
+            Log.Info("update journal : adding journal entry");
           }
         }
 
@@ -577,6 +578,7 @@ namespace NWN.Systems
         journalEntry.QuestTag = "skill_job";
         journalEntry.Priority = 1;
         journalEntry.QuestDisplayed = true;
+        journalEntry.QuestCompleted = false;
         oid.AddCustomJournalEntry(journalEntry, remainingTime.TotalSeconds <= 0);
 
         oid.ApplyInstantVisualEffectToObject((VfxType)1516, oid.ControlledCreature);
@@ -585,13 +587,21 @@ namespace NWN.Systems
       }
       public void CancelSkillJournalEntry(Learnable learnable)
       {
-        JournalEntry journalEntry = oid.GetJournalEntry("skill_job");
-        journalEntry.Name = $"Apprentissage annulé - {learnable.name}";
-        journalEntry.QuestTag = "skill_job";
-        journalEntry.QuestDisplayed = false;
-        oid.AddCustomJournalEntry(journalEntry);
+        Core.NWNX.JournalEntry journalEntry = PlayerPlugin.GetJournalEntry(oid.LoginCreature, "skill_job");
+        journalEntry.sName = $"Apprentissage en pause - {learnable.name}";
+        journalEntry.sTag = "skill_job";
+        journalEntry.nQuestCompleted = 1;
+        journalEntry.nQuestDisplayed = 0;
+        PlayerPlugin.AddCustomJournalEntry(oid.LoginCreature, journalEntry);
 
         Log.Info("cancelled journal entry");
+
+        /*JournalEntry journalEntry = oid.GetJournalEntry("skill_job");
+
+        journalEntry.Name = $"Apprentissage en pause - {learnable.name}";
+        journalEntry.QuestTag = "skill_job";
+        journalEntry.QuestDisplayed = false;
+        oid.AddCustomJournalEntry(journalEntry);*/
       }
       public void CloseSkillJournalEntry(Learnable learnable)
       {
@@ -662,7 +672,7 @@ namespace NWN.Systems
 
         return pointsPerSecond;
       }
-      public void LevelUpLearnable(Learnable learnable)
+      public async void LevelUpLearnable(Learnable learnable)
       {
         if (menu.isOpen)
           menu.Close();
@@ -677,7 +687,10 @@ namespace NWN.Systems
             break;
         }
 
-        oid.ExportCharacter();        
+        oid.ExportCharacter();
+
+        await NwTask.WaitUntil(() => oid.LoginCreature.Area != null);
+        await NwTask.Delay(TimeSpan.FromSeconds(2));
         PlayNewSkillAcquiredEffects(learnable);
       }
       public void LevelUpFeat(Learnable learnable)
@@ -747,6 +760,10 @@ namespace NWN.Systems
         double secondsUntillNextLevelUp = (learnable.pointsToNextLevel - learnable.acquiredPoints) / skillPointsPerSecond;
         learnable.levelUpDate = DateTime.Now.AddSeconds(secondsUntillNextLevelUp);
 
+        Log.Info($"time to next level up : {secondsUntillNextLevelUp}");
+        Log.Info($"initial points : {learnable.acquiredPoints}");
+        Log.Info($"points to next level : {learnable.pointsToNextLevel}");
+
         Task awaitLevelUp = NwTask.Delay(TimeSpan.FromSeconds(secondsUntillNextLevelUp), tokenSource.Token);
 
         await NwTask.WhenAny(awaitPCDisconnection, awaitStateChange, awaitPrimaryAbilityChange, awaitSecondaryAbilityChange, awaitLearningPaused, awaitLevelUp);
@@ -760,13 +777,18 @@ namespace NWN.Systems
         if (pcState == PcState.Offline)
           return;
 
+        Log.Info($"acquired points : {learnable.acquiredPoints}");
+        Log.Info($"points to next level : {learnable.pointsToNextLevel}");
+
         if (awaitLevelUp.IsCompletedSuccessfully || learnable.pointsToNextLevel <= learnable.acquiredPoints)
         {
+          Log.Info("Triggering level up");
           LevelUpLearnable(learnable);
           previousSPCalculation = null;
           return;
         }
-        else if (awaitLearningPaused.IsCompletedSuccessfully)
+        
+        if (awaitLearningPaused.IsCompletedSuccessfully)
         {
           previousSPCalculation = null;
           return;

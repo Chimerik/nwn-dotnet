@@ -22,26 +22,19 @@ namespace NWN.Systems
 
         if (player.oid.PlayerName == "Chim")
         {
-          //Test();
+          Anvil.API.JournalEntry journalEntry = player.oid.GetJournalEntry("skill_job");
 
-          DateTime elapsed = DateTime.Now;
-          player.oid.ExportCharacter();
-          Log.Info($"temps écoulé : {(DateTime.Now - elapsed).TotalSeconds}");
+        journalEntry.Name = $"Apprentissage en pause -";
+        journalEntry.QuestDisplayed = false;
+          journalEntry.QuestCompleted = true;
+          player.oid.AddCustomJournalEntry(journalEntry);
+
+          Log.Info("cancel journal entry");
 
           //PlayerSystem.cursorTargetService.EnterTargetMode(player.oid, OnTargetSelected, ObjectTypes.All, MouseCursor.Pickup);
         }
       }
-    }
-
-    async static void Test()
-    {
-      await Task.Run(() =>
-      {
-        while (true)
-          Log.Info("infinitely looping !");
-      });
-    }
-    
+    }    
     private static void OnTargetSelected(ModuleEvents.OnPlayerTarget selection)
     {
       if (selection.IsCancelled)
