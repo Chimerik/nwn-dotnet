@@ -60,13 +60,6 @@ namespace NWN.Systems
         player.dateLastSaved = DateTime.Now;
 
         SavePlayerCharacterToDatabase(player);
-
-        Task waitForSPCalculation = NwTask.Run(async () =>
-        {
-          await NwTask.Delay(TimeSpan.FromSeconds(0.3));
-          SavePlayerLearnablesToDatabase(player);
-        });
-
         SavePlayerStoredMaterialsToDatabase(player);
         SavePlayerMapPinsToDatabase(player);
         SavePlayerAreaExplorationStateToDatabase(player);
@@ -135,48 +128,6 @@ namespace NWN.Systems
           new string[] { "alchemyCauldron", JsonConvert.SerializeObject(player.alchemyCauldron) }, new string[] { "serializedLearnables", JsonConvert.SerializeObject(player.learnables) } },
           new List<string[]>() { new string[]  { "rowid", player.characterId.ToString() } });
       });
-    }
-    private static void SavePlayerLearnablesToDatabase(Player player)
-    {
-      foreach (KeyValuePair<string, Learnable> skillListEntry in player.learnables)
-      {
-        switch(skillListEntry.Value.type)
-        {
-          case LearnableType.Feat:
-            SavePlayerLearnableFeatToDatabase(player, skillListEntry.Value);
-            break;
-          case LearnableType.Spell:
-            SavePlayerLearnableSpellToDatabase(player, skillListEntry.Value);
-            break;
-        }
-      }
-
-      // Ici on vire de la liste tout les learnables trained et sauvegardés
-      player.learnables = player.learnables.Where(kv => !kv.Value.trained).ToDictionary(kv => kv.Key, KeyValuePair => KeyValuePair.Value);
-    }
-    private static void SavePlayerLearnableFeatToDatabase(Player player, Learnable feat)
-    {
-      SqLiteUtils.InsertQuery("playerLearnableSkills",
-          new List<string[]>() { new string[] { "characterId", player.characterId.ToString() },
-            new string[] { "skillId", feat.id.ToString() },
-            new string[] { "skillPoints", feat.acquiredPoints.ToString() },
-            new string[] { "trained", feat.trained.ToInt().ToString() },
-            new string[] { "active", feat.active.ToInt().ToString() } },
-            new List<string>() { "characterId", "skillId" },
-            new List<string[]>() { new string[] { "skillPoints" }, new string[] { "trained" }, new string[] { "active" } });
-    }
-
-    private static void SavePlayerLearnableSpellToDatabase(Player player, Learnable spell)
-    {
-      SqLiteUtils.InsertQuery("playerLearnableSpells",
-        new List<string[]>() { new string[] { "characterId", player.characterId.ToString() },
-            new string[] { "skillId", spell.id.ToString() },
-            new string[] { "skillPoints", spell.acquiredPoints.ToString() },
-            new string[] { "trained", spell.trained.ToInt().ToString() },
-            new string[] { "nbScrolls", spell.nbScrollsUsed.ToString() },
-            new string[] { "active", spell.active.ToInt().ToString() } },
-          new List<string>() { "characterId", "skillId" },
-          new List<string[]>() { new string[] { "skillPoints" }, new string[] { "trained" }, new string[] { "nbScrolls" }, new string[] { "active" } });
     }
     private static void SavePlayerStoredMaterialsToDatabase(Player player)
     {
