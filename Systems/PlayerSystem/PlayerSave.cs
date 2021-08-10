@@ -82,13 +82,7 @@ namespace NWN.Systems
       {
         FixPolymorphBug();
 
-        // AFK detection
-        if (location == oid.LoginCreature.Location)
-        {
-          isAFK = true;
-          Log.Info("Player AFK");
-        }
-        else if (oid.LoginCreature.Location.Area != null)
+        if (oid.LoginCreature.Location.Area != null)
           location = oid.LoginCreature.Location;
 
         if (location.Area?.GetObjectVariable<LocalVariableInt>("_AREA_LEVEL").Value == 0)

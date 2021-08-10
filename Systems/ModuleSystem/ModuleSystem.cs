@@ -10,6 +10,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using static NWN.Systems.Craft.Collect.Config;
+using NWN.Core;
 
 namespace NWN.Systems
 {
@@ -43,6 +44,9 @@ namespace NWN.Systems
     {
       NwModule.Instance.GetObjectVariable<LocalVariableString>("X2_S_UD_SPELLSCRIPT").Value = "spellhook";
 
+      //NwModule.Instance.SetEventScript((EventScriptType)NWScript.EVENT_SCRIPT_MODULE_ON_PLAYER_GUIEVENT, "on_gui_event");
+      //NwModule.Instance.SetEventScript((EventScriptType)NWScript.EVENT_SCRIPT_MODULE_ON_PLAYER_TILE_ACTION, "on_tile_action");
+
       NwServer.Instance.ServerInfo.PlayOptions.RestoreSpellUses = false;
       NwServer.Instance.ServerInfo.PlayOptions.ShowDMJoinMessage = false;
 
@@ -50,7 +54,7 @@ namespace NWN.Systems
 
       SetModuleTime();
       SaveServerVault();  
-
+      
       RestorePlayerCorpseFromDatabase();
       RestorePlayerShopsFromDatabase();
       RestorePlayerAuctionsFromDatabase();
@@ -281,7 +285,7 @@ namespace NWN.Systems
     }
     public static async Task SpawnCollectableResources(float delay)
     {
-      if(delay > 0)
+      if (delay > 0)
         await NwTask.WaitUntil(() => DateTime.Now.Hour == 5);
 
       Log.Info("Starting to spawn collectable ressources");

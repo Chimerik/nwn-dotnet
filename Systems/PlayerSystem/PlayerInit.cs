@@ -23,7 +23,6 @@ namespace NWN.Systems
       NwPlayer oPC = HandlePlayerConnect.Player;
 
       oPC.LoginCreature.GetObjectVariable<LocalVariableInt>("_ACTIVE_LANGUAGE").Value = (int)CustomFeats.Invalid;
-      oPC.LoginCreature.GetObjectVariable<LocalVariableInt>("_CONNECTING").Value = 1;
       oPC.LoginCreature.GetObjectVariable<LocalVariableInt>("_PLAYER_INPUT_CANCELLED").Delete();
 
       if (!Players.TryGetValue(oPC.LoginCreature, out Player player))
@@ -110,8 +109,6 @@ namespace NWN.Systems
       if (!player.oid.LoginCreature.KnowsFeat(CustomFeats.Sit))
         player.oid.LoginCreature.AddFeat(CustomFeats.Sit);
 
-      oPC.LoginCreature.GetObjectVariable<LocalVariableInt>("_CONNECTING").Delete();
-      player.isAFK = false;
       player.DoJournalUpdate = false;
       player.dateLastSaved = DateTime.Now;
 
@@ -374,6 +371,8 @@ namespace NWN.Systems
               oid.LoginCreature.AddFeat(CustomFeats.Orc);
             break;
         }
+
+        //CheckForAFKStatus();
       }
       private void InitializePlayerEvents(NwPlayer player)
       {
@@ -519,6 +518,42 @@ namespace NWN.Systems
 
         foreach (var mute in result.Results)
           mutedList.Add(mute.GetInt(0));
+      }
+      private async void CheckForAFKStatus()
+      {
+        CancellationTokenSource tokenSource = new CancellationTokenSource();
+
+        if (pcState != PcState.AFK && oid.IsValid)
+          foreach (Effect eff in oid.LoginCreature.ActiveEffects.Where(e => e.Tag == "EFFECT_VFX_AFK"))
+            oid.LoginCreature.RemoveEffect(eff);
+
+        Task awaitPlayerLeave = NwTask.WaitUntil(() => !oid.IsValid, tokenSource.Token);
+        Task awaitPlayerAction = NwTask.WaitUntilValueChanged(() => oid.LoginCreature.GetObjectVariable<LocalVariableString>("_LAST_ACTION_DATE").Value, tokenSource.Token);
+        Task awaitAFKTrigger = NwTask.Delay(TimeSpan.FromMinutes(5), tokenSource.Token);
+
+        await NwTask.WhenAny(awaitPlayerLeave, awaitPlayerAction, awaitAFKTrigger);
+        tokenSource.Cancel();
+
+        if (awaitPlayerLeave.IsCompletedSuccessfully)
+          return;
+
+        if (awaitPlayerAction.IsCompletedSuccessfully)
+        {
+          pcState = PcState.Online;
+
+          foreach (Effect eff in oid.LoginCreature.ActiveEffects.Where(e => e.Tag == "EFFECT_VFX_AFK"))
+            oid.LoginCreature.RemoveEffect(eff);
+        }
+        else if (awaitAFKTrigger.IsCompletedSuccessfully)
+        {
+          pcState = PcState.AFK;
+          Effect afkVXF = Effect.VisualEffect((VfxType)751);
+          afkVXF.Tag = "EFFECT_VFX_AFK";
+          afkVXF.SubType = EffectSubType.Supernatural;
+          oid.LoginCreature.ApplyEffect(EffectDuration.Permanent, afkVXF);
+        }
+
+        CheckForAFKStatus();
       }
     }
   }

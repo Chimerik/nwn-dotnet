@@ -3,7 +3,6 @@
 using NLog;
 
 using Anvil.API;
-using NWN.Core.NWNX;
 using Anvil.Services;
 
 namespace NWN.Systems

@@ -24,7 +24,6 @@ namespace NWN.Systems
       public readonly int characterId;
       public Location location { get; set; }
       public int bonusRolePlay { get; set; }
-      public Boolean isAFK { get; set; }
       public Boolean DoJournalUpdate { get; set; }
       public int bankGold { get; set; }
       public PlayerJournal playerJournal { get; set; }

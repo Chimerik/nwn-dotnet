@@ -242,6 +242,21 @@ namespace NWN.Systems
       silhouette.Location = oPC.Location;
       OnInvisMarkerPositionChanged(oPC, silhouette);
     }
+
+    [ScriptHandler("frog_applied")]
+    private void OnFrogEffectApplied(CallInfo callInfo)
+    {
+      if (callInfo.ObjectSelf is NwCreature oTarget)
+        Frog.ApplyFrogEffectToTarget(oTarget);
+    }
+
+    [ScriptHandler("frog_removed")]
+    private void OnFrogEffectRemoved(CallInfo callInfo)
+    {
+      if (callInfo.ObjectSelf is NwCreature oTarget)
+        Frog.RemoveFrogEffectFromTarget(oTarget);
+    }
+
     [ScriptHandler("effect_applied")]
     private void HandleEffectApplied(CallInfo callInfo)
     {

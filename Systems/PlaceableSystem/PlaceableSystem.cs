@@ -18,8 +18,11 @@ namespace NWN.Systems
   public class PlaceableSystem
   {
     public static readonly Logger Log = LogManager.GetCurrentClassLogger();
-    public PlaceableSystem()
+    public static VirtualMachine vm;
+    public PlaceableSystem(VirtualMachine virtum)
     {
+      vm = virtum;
+
       foreach (NwDoor door in NwObject.FindObjectsOfType<NwDoor>())
         door.OnOpen += HandleDoorAutoClose;
       
@@ -48,12 +51,14 @@ namespace NWN.Systems
       {
         statue.OnConversation += HandleCancelStatueConversation;
         statue.OnSpawn += HandleSpawnStatufy;
+
+        //HandleSpawnStatufy(statue, vm);
       }
 
       foreach (NwCreature corpse in NwObject.FindObjectsWithTag<NwCreature>("dead_wererat"))
       {
         corpse.OnConversation += HandleCancelStatueConversation;
-        corpse.OnSpawn += HandleSetUpDeadCreatureCorpse;
+        //corpse.OnSpawn += HandleSetUpDeadCreatureCorpse;
       }
 
       foreach (NwCreature trainer in NwObject.FindObjectsWithTag<NwCreature>("damage_trainer"))
@@ -63,7 +68,7 @@ namespace NWN.Systems
         trainer.BaseAC = (sbyte)trainer.GetObjectVariable<LocalVariableInt>("AC").Value;
 
         trainer.OnConversation += HandleCancelStatueConversation;
-        trainer.OnSpawn += HandleSpawnTrainingDummy;
+        //trainer.OnSpawn += HandleSpawnTrainingDummy;
       }
     }
     public static void OnUsedStoragePortalIn(PlaceableEvents.OnUsed onUsed)
@@ -277,13 +282,23 @@ namespace NWN.Systems
     {
 
     }
+    private void HandleSpawnStatufy(NwCreature onSpawn)
+    {
+      Effect eff = Effect.CutsceneGhost();
+      eff.SubType = EffectSubType.Supernatural;
+
+      Log.Info($"In script context : {vm.IsInScriptContext}");
+      onSpawn.ApplyEffect(EffectDuration.Permanent, eff);
+    }
     private void HandleSpawnStatufy(CreatureEvents.OnSpawn onSpawn)
     {
       Effect eff = Effect.CutsceneGhost();
       eff.SubType = EffectSubType.Supernatural;
+
+      Log.Info($"In script context : {vm.IsInScriptContext}");
       onSpawn.Creature.ApplyEffect(EffectDuration.Permanent, eff);
 
-      eff = Effect.VisualEffect(VfxType.DurFreezeAnimation);
+     /* eff = Effect.VisualEffect(VfxType.DurFreezeAnimation);
       eff.Tag = "_FREEZE_EFFECT";
       eff.SubType = EffectSubType.Supernatural;
       onSpawn.Creature.ApplyEffect(EffectDuration.Permanent, eff);
@@ -293,7 +308,7 @@ namespace NWN.Systems
         eff = Effect.VisualEffect((VfxType)927);
         eff.SubType = EffectSubType.Supernatural;
         onSpawn.Creature.ApplyEffect(EffectDuration.Permanent, eff);
-      }
+      }*/
 
       onSpawn.Creature.HighlightColor = ColorConstants.Black;
       onSpawn.Creature.MouseCursor = MouseCursor.Walk;

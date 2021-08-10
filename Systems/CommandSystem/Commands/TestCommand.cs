@@ -8,6 +8,7 @@ using Anvil.API.Events;
 using NWN.Core.NWNX;
 using System.Numerics;
 using System.Threading.Tasks;
+using NWN.Core;
 
 namespace NWN.Systems
 {
@@ -22,14 +23,10 @@ namespace NWN.Systems
 
         if (player.oid.PlayerName == "Chim")
         {
-          Anvil.API.JournalEntry journalEntry = player.oid.GetJournalEntry("skill_job");
+          Effect frog = NWScript.EffectRunScript("frog_applied", "frog_removed");
+          frog.Tag = "CUSTOM_EFFECT_FROG_CURSE";
 
-        journalEntry.Name = $"Apprentissage en pause -";
-        journalEntry.QuestDisplayed = false;
-          journalEntry.QuestCompleted = true;
-          player.oid.AddCustomJournalEntry(journalEntry);
-
-          Log.Info("cancel journal entry");
+          player.oid.ControlledCreature.ApplyEffect(EffectDuration.Temporary, frog, TimeSpan.FromSeconds(10));
 
           //PlayerSystem.cursorTargetService.EnterTargetMode(player.oid, OnTargetSelected, ObjectTypes.All, MouseCursor.Pickup);
         }

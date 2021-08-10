@@ -76,7 +76,6 @@ namespace NWN.Systems
             CommandSystem.ProcessChatCommandMiddleware,
             ChatSystem.ProcessMutePMMiddleware,
             //ChatSystem.ProcessPMMiddleware,
-            //ChatSystem.ProcessAFKDetectionMiddleware,
             ChatSystem.ProcessDMListenMiddleware,
             ChatSystem.ProcessGetChatReceiversMiddleware,
             ChatSystem.ProcessChatColorMiddleware,
@@ -143,15 +142,6 @@ namespace NWN.Systems
         ctx.oSender.SendServerMessage("La personne à laquelle vous tentez d'envoyer un message n'est plus connectée.", ColorConstants.Orange);
         return;
       }
-    }
-    public static void ProcessAFKDetectionMiddleware(Context ctx, Action next)
-    {
-      if (player.isAFK)
-        if (ctx.channel == ChatChannel.PlayerTalk || ctx.channel == ChatChannel.PlayerWhisper)
-          if (!ctx.msg.Contains("(") && !ctx.msg.Contains(")"))
-            if (ctx.oSender.ControlledCreature.GetNearestCreatures(CreatureTypeFilter.PlayerChar(true)).Any(p => p.LoginPlayer != ctx.oSender && p.Distance(ctx.oSender.ControlledCreature) < chatService.GetPlayerChatHearingDistance(p.ControllingPlayer, ctx.channel)))
-              player.isAFK = false;
-      next();
     }
     public static void ProcessDMListenMiddleware(Context ctx, Action next)
     {
