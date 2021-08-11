@@ -1,15 +1,16 @@
 ﻿using System.Collections.Generic;
 using Discord.Commands;
 using Anvil.API;
-using NWN.Core;
+using Discord.WebSocket;
 
-namespace NWN.Systems
-{
-  class DiscordUtils
+namespace Utils
+{ 
+  public static class DiscordUtils
   {
+    public static DiscordSocketClient _client;
     public static int CheckPlayerCredentialsFromDiscord(SocketCommandContext context, string sPCName)
     {
-      var query = NwModule.Instance.PrepareCampaignSQLQuery(Config.database, $"SELECT pc.ROWID from PlayerAccounts " +
+      var query = NwModule.Instance.PrepareCampaignSQLQuery(SqLiteUtils.database, $"SELECT pc.ROWID from PlayerAccounts " +
         $"LEFT join playerCharacters pc on pc.accountId = PlayerAccounts.ROWID WHERE discordId = @discordId and pc.characterName like '{sPCName}%'");
       query.BindParam("@discordId", context.User.Id.ToString());
 

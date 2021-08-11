@@ -2,11 +2,12 @@
 using System.Threading.Tasks;
 using Discord.Commands;
 using Anvil.API;
+using Utils;
 
-namespace NWN.Systems
+namespace BotSystem
 {
-  public static partial class BotSystem
-  {
+  public static partial class BotCommand
+    {
     public static async Task ExecuteGetConnectedPlayersCommand(SocketCommandContext context)
     {
       await NwTask.SwitchToMainThread();

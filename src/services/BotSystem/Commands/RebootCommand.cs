@@ -5,16 +5,18 @@ using Anvil.API;
 using Anvil.Services;
 using System.Linq;
 using System.Collections.Generic;
+using Utils;
+using PlayerService;
 
-namespace NWN.Systems
+namespace BotSystem
 {
-  public static partial class BotSystem
-  {
+  public static partial class BotCommand
+    {
     public static async Task ExecuteRebootCommand(SocketCommandContext context)
     {
       await NwTask.SwitchToMainThread();
 
-      PlayerSystem.Log.Info($"Reboot command used by {context.User.Username}");
+      Bot.Log.Info($"Reboot command used by {context.User.Username}");
 
       if (DiscordUtils.GetPlayerStaffRankFromDiscord(context.User.Id) != "admin")
       {
@@ -48,8 +50,8 @@ namespace NWN.Systems
           new List<string[]>() { new string[] { "year", NwDateTime.Now.Year.ToString() }, new string[] { "month", NwDateTime.Now.Month.ToString() }, new string[] { "day", NwDateTime.Now.DayInTenday.ToString() }, new string[] { "hour", NwDateTime.Now.Hour.ToString() }, new string[] { "minute", NwDateTime.Now.Minute.ToString() }, new string[] { "second", NwDateTime.Now.Second.ToString() } },
           new List<string[]>() { new string[] { "rowid", "1" } });
 
-        await NwModule.Instance.AddActionToQueue(() => Utils.BootAllPC());
-
+        await NwModule.Instance.AddActionToQueue(() => MiscUtils.BootAllPC());
+        
         Task waitServerEmpty = NwTask.Run(async () =>
         {
           await NwTask.WaitUntil(() => NwModule.Instance.Players.Count() < 1);

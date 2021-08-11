@@ -4,8 +4,9 @@ using Anvil.API.Events;
 using System;
 using Action = System.Action;
 using Context = NWN.Systems.Config.Context;
+using Utils;
 
-namespace NWN.Systems
+namespace AttackService
 {
   [ServiceBinding(typeof(AttackSystem))]
   public partial class AttackSystem

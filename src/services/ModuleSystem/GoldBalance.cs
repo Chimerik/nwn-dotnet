@@ -1,4 +1,4 @@
-﻿namespace NWN.Systems
+﻿namespace ModuleService
 {
   public class GoldBalance
   {

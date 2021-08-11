@@ -2,6 +2,8 @@
 
 using Anvil.API;
 
+using Utils;
+
 namespace NWN.Systems
 {
   public enum LearnableType
@@ -54,10 +56,10 @@ namespace NWN.Systems
     {
       FeatTable.Entry entry = Feat2da.featTable.GetFeatDataEntry(id);
 
-      if (SkillSystem.customFeatsDictionnary.ContainsKey(id))
+      if (CustomFeatConfig.customFeatsDictionnary.ContainsKey(id))
       {
-        name = SkillSystem.customFeatsDictionnary[id].name;
-        description = SkillSystem.customFeatsDictionnary[id].description;
+        name = CustomFeatConfig.customFeatsDictionnary[id].name;
+        description = CustomFeatConfig.customFeatsDictionnary[id].description;
       }
       else
       {
@@ -77,10 +79,10 @@ namespace NWN.Systems
       {
         case LearnableType.Feat:
 
-          if (SkillSystem.customFeatsDictionnary.ContainsKey(featId))
+          if (CustomFeatConfig.customFeatsDictionnary.ContainsKey(featId))
           {
             player.learntCustomFeats.Add(featId, (int)acquiredPoints);
-            currentLevel = SkillSystem.GetCustomFeatLevelFromSkillPoints(featId, (int)acquiredPoints);
+            currentLevel = CustomFeatConfig.GetCustomFeatLevelFromSkillPoints(featId, (int)acquiredPoints);
           }
           else
             currentLevel = 0;

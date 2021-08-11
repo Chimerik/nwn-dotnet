@@ -1,8 +1,6 @@
 ﻿using Anvil.API;
-using NWN.Core.NWNX;
 using Anvil.Services;
 using System.Linq;
-using NWN.Core;
 using Anvil.API.Events;
 using NLog;
 using System.Threading.Tasks;
@@ -18,6 +16,7 @@ namespace NWN.Systems
     public ItemSystem(FeedbackService feedback)
     {
       feedbackService = feedback;
+      feedbackService.AddCombatLogMessageFilter(CombatLogMessage.ComplexAttack);
       //NwModule.Instance.OnAcquireItem += OnAcquireItem;
       //NwModule.Instance.OnUnacquireItem += OnUnacquireItem;
     }

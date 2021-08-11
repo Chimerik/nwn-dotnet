@@ -12,6 +12,7 @@ using NWN.Core.NWNX;
 using JournalEntry = Anvil.API.JournalEntry;
 using Anvil.API.Events;
 
+
 namespace NWN.Systems
 {
   public partial class PlayerSystem
@@ -40,7 +41,7 @@ namespace NWN.Systems
       public PcState pcState { get; set; }
       public DateTime? previousSPCalculation { get; set; }
       public DateTime? lastCraftUpdate { get; set; }
-
+      
       public List<NwPlayer> listened = new List<NwPlayer>();
       public List<int> mutedList = new List<int>();
       public Dictionary<uint, Player> blocked = new Dictionary<uint, Player>();

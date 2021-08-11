@@ -1,13 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using NWN.Core;
-using NWN.Core.NWNX;
 using Anvil.API;
 using Anvil.Services;
 using Anvil.API.Events;
 using NLog;
 using System.Threading.Tasks;
+using NWN.Core.NWNX;
+using NWN.Core;
 
 namespace NWN.Systems
 {
@@ -81,7 +81,7 @@ namespace NWN.Systems
 
           break;
         case Skill.PickPocket:
-          EventsPlugin.SkipEvent();
+          /*EventsPlugin.SkipEvent();
 
           if (!(NWScript.StringToObject(EventsPlugin.GetEventData("TARGET_OBJECT_ID")).ToNwObject() is NwCreature { IsLoginPlayerCharacter: true } oTarget)
             || oTarget.ControllingPlayer.IsDM)
@@ -109,7 +109,7 @@ namespace NWN.Systems
 
           int iSpot = oTarget.GetSkillRank(Skill.Spot);
           if (oTarget.DetectModeActive || oTarget.HasFeatEffect(Feat.KeenSense))
-            iSpot += NwRandom.Roll(Utils.random, 20, 1);
+            iSpot += NwRandom.Roll(MiscUtils.random, 20, 1);
 
           if (!oPC.DoSkillCheck(Skill.PickPocket, iSpot))
           {
@@ -142,7 +142,7 @@ namespace NWN.Systems
             }
           });
 
-          break;
+          break;*/
         case Skill.AnimalEmpathy:
           if (oPC.Area.Tag == "Promenadetest")
           {
@@ -188,7 +188,7 @@ namespace NWN.Systems
       {
         int pinId = int.Parse(EventsPlugin.GetEventData("PIN_ID"));
         player.mapPinDictionnary.Remove(pinId);
-
+        
         SqLiteUtils.DeletionQuery("playerMapPins",
          new Dictionary<string, string>() { { "characterId", player.characterId.ToString() }, { "mapPinId", pinId.ToString() } });
       }

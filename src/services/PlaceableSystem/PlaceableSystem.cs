@@ -1,16 +1,15 @@
 ﻿using System;
 using Anvil.API;
 using Anvil.API.Events;
-using NWN.Core;
-using NWN.Core.NWNX;
 using Anvil.Services;
 using System.Linq;
 using NLog;
 using System.Threading.Tasks;
-using static NWN.Systems.PlayerSystem;
-using NWN.System;
 using System.Collections.Generic;
 using System.Numerics;
+using Utils;
+using NWN.Core.NWNX;
+using NWN.Core;
 
 namespace NWN.Systems
 {
@@ -28,9 +27,6 @@ namespace NWN.Systems
 
       foreach (NwPlaceable balancoire in NwObject.FindObjectsWithTag<NwPlaceable>("balancoire"))
         balancoire.OnUsed += OnUsedBalancoire;
-
-      foreach (NwPlaceable dicePoker in NwObject.FindObjectsWithTag<NwPlaceable>("dice_poker"))
-        dicePoker.OnUsed += OnUsedDicePoker;
 
       foreach (NwPlaceable portal in NwObject.FindObjectsWithTag<NwPlaceable>("portal_storage_in"))
         portal.OnUsed += OnUsedStoragePortalIn;
@@ -65,14 +61,17 @@ namespace NWN.Systems
         trainer.OnConversation += HandleCancelStatueConversation;
         trainer.OnSpawn += HandleSpawnTrainingDummy;
       }
+
+      RestorePlayerShopsFromDatabase();
+      RestorePlayerAuctionsFromDatabase();
     }
     public static void OnUsedStoragePortalIn(PlaceableEvents.OnUsed onUsed)
     {
-      if (!Players.TryGetValue(onUsed.UsedBy.ControllingPlayer.LoginCreature, out Player player))
+      if (!PlayerSystem.Players.TryGetValue(onUsed.UsedBy.ControllingPlayer.LoginCreature, out PlayerSystem.Player player))
         return;
-
+      
       NwArea area = AreaSystem.CreatePersonnalStorageArea(onUsed.UsedBy, player.characterId);
-
+      
       onUsed.UsedBy.Location = area.FindObjectsOfTypeInArea<NwWaypoint>().FirstOrDefault(w => w.Tag == "wp_inentrepot").Location;
     }
     public static void OnUsedStoragePortalOut(PlaceableEvents.OnUsed onUsed)
@@ -233,12 +232,12 @@ namespace NWN.Systems
           new Dictionary<string, string>() { { "rowid", plcID.ToString() } });
       }
       else
-        Utils.LogMessageToDMs($"Persistent placeable {plc.Name} in area {plc.Area.Name} does not have a valid ID !");
+        MiscUtils.LogMessageToDMs($"Persistent placeable {plc.Name} in area {plc.Area.Name} does not have a valid ID !");
     }
     public static void HandlePlaceableUsed(PlaceableEvents.OnUsed onUsed)
     {
       Log.Info($"{onUsed.UsedBy.Name} used {onUsed.Placeable.Tag}");
-      if (!Players.TryGetValue(onUsed.UsedBy.ControllingPlayer.ControlledCreature, out Player player))
+      if (!PlayerSystem.Players.TryGetValue(onUsed.UsedBy.ControllingPlayer.ControlledCreature, out PlayerSystem.Player player))
         return;
 
       switch (onUsed.Placeable.Tag)
@@ -322,7 +321,7 @@ namespace NWN.Systems
     {
       NwCreature oPC = onClose.ClosedBy;
 
-      if (!Players.TryGetValue(oPC, out Player player))
+      if (!PlayerSystem.Players.TryGetValue(oPC, out PlayerSystem.Player player))
         return;
 
       NwItem oItem = onClose.Placeable.Inventory.Items.FirstOrDefault();
@@ -353,7 +352,7 @@ namespace NWN.Systems
     }
     public static void OnUsedPlayerOwnedShop(PlaceableEvents.OnUsed onUsed)
     {
-      if (!Players.TryGetValue(onUsed.UsedBy, out Player player))
+      if (!PlayerSystem.Players.TryGetValue(onUsed.UsedBy, out PlayerSystem.Player player))
         return;
 
       if (onUsed.Placeable.GetObjectVariable<LocalVariableInt>("_OWNER_ID").Value == player.characterId)
@@ -377,7 +376,7 @@ namespace NWN.Systems
     }
     public static void OnUsedPlayerOwnedAuction(PlaceableEvents.OnUsed onUsed)
     {
-      if (!Players.TryGetValue(onUsed.UsedBy, out Player player))
+      if (!PlayerSystem.Players.TryGetValue(onUsed.UsedBy, out PlayerSystem.Player player))
         return;
 
       if (onUsed.Placeable.GetObjectVariable<LocalVariableInt>("_OWNER_ID").Value == player.characterId)
@@ -402,14 +401,14 @@ namespace NWN.Systems
     }
     public static void OnUsedPersonnalStorage(PlaceableEvents.OnUsed onUsed)
     {
-      if (!Players.TryGetValue(onUsed.UsedBy, out Player player))
+      if (!PlayerSystem.Players.TryGetValue(onUsed.UsedBy, out PlayerSystem.Player player))
         return;
 
       NwStore storage = onUsed.Placeable.GetNearestObjectsByType<NwStore>().FirstOrDefault();
 
       if(storage == null)
       {
-        Utils.LogMessageToDMs($"Entrepôt personnel non initialisé pour : {onUsed.UsedBy.Name}");
+        MiscUtils.LogMessageToDMs($"Entrepôt personnel non initialisé pour : {onUsed.UsedBy.Name}");
         return;
       }
 
@@ -418,31 +417,7 @@ namespace NWN.Systems
       storage.OnOpen += StoreSystem.OnOpenPersonnalStorage;
       storage.Open(player.oid);
     }
-    public static void OnUsedDicePoker(PlaceableEvents.OnUsed onUsed)
-    {
-      if (!Players.TryGetValue(onUsed.UsedBy, out Player player))
-        return;
-
-      if (onUsed.Placeable.GetObjectVariable<LocalVariableInt>("_AVAILABLE_SLOTS").HasNothing)
-        onUsed.Placeable.GetObjectVariable<LocalVariableInt>("_AVAILABLE_SLOTS").Value = 2;
-
-      int availableSlots = onUsed.Placeable.GetObjectVariable<LocalVariableInt>("_AVAILABLE_SLOTS").Value;
-
-      if (availableSlots == 0)
-      {
-        player.oid.SendServerMessage("Aucune place n'est disponible sur ce plateau de dés !");
-        return;
-      }
-      else if(availableSlots == 1)
-      {
-        onUsed.Placeable.GetObjectVariable<LocalVariableInt>("_AVAILABLE_SLOTS").Value = 0;
-        onUsed.Placeable.GetObjectVariable<LocalVariableObject<NwCreature>>("_PLAYER_TWO").Value = player.oid.ControlledCreature;
-      }
-      else if (availableSlots == 2)
-      {
-        new DicePoker.DicePoker(player, onUsed.Placeable);
-      }
-    }
+    
     public static void OnUsedGoPlouf(PlaceableEvents.OnUsed onUsed)
     {
       NwPlaceable stopplouf = NwObject.FindObjectsWithTag<NwPlaceable>("stop_plouf").FirstOrDefault();
@@ -452,6 +427,85 @@ namespace NWN.Systems
     {
       NwPlaceable goplouf = NwObject.FindObjectsWithTag<NwPlaceable>("go_plouf").FirstOrDefault();
       onUsed.UsedBy.Location = goplouf.Location;
+    }
+    public void RestorePlayerShopsFromDatabase()
+    {
+      // TODO : envoyer un mp discord + courrier aux joueurs 7 jours avant expiration + 1 jour avant expiration
+
+      var result = SqLiteUtils.SelectQuery("playerShops",
+        new List<string>() { { "shop" }, { "panel" }, { "characterId" }, { "rowid" }, { "expirationDate" }, { "areaTag" }, { "position" }, { "facing" } },
+        new List<string[]>());
+
+      foreach (var playerShop in result.Results)
+      {
+        NwStore shop = SqLiteUtils.StoreSerializationFormatProtection(playerShop, 0, MiscUtils.GetLocationFromDatabase(playerShop.GetString(5), playerShop.GetString(6), playerShop.GetFloat(7)));
+        NwPlaceable panel = SqLiteUtils.PlaceableSerializationFormatProtection(playerShop, 1, MiscUtils.GetLocationFromDatabase(playerShop.GetString(5), playerShop.GetString(6), playerShop.GetFloat(7)));
+        shop.GetObjectVariable<LocalVariableInt>("_OWNER_ID").Value = playerShop.GetInt(2);
+        shop.GetObjectVariable<LocalVariableInt>("_SHOP_ID").Value = playerShop.GetInt(3);
+        panel.GetObjectVariable<LocalVariableInt>("_OWNER_ID").Value = playerShop.GetInt(2);
+        panel.GetObjectVariable<LocalVariableInt>("_SHOP_ID").Value = playerShop.GetInt(3);
+        double expirationTime = (DateTime.Now - DateTime.Parse(playerShop.GetString(4))).TotalDays;
+
+        int ownerId = shop.GetObjectVariable<LocalVariableInt>("_OWNER_ID").Value;
+
+        if (expirationTime < 0)
+        {
+          MiscUtils.SendMailToPC(ownerId, "Hôtel des ventes de Similisse", "Expiration du certificat de votre échoppe",
+            $"Cher Marchand, \n\n Nous sommes au regret de vous informer que votre échoppe {panel.Name} a expiré. Nos hommes n'étant plus en mesure de la protéger, il se peut qu'elle ait été pillée par des vandales de passage ! \n\n Nous vous enjoignons à renouveller au plus vite votre certificat auprès de nos service. \n\n Signé : Polpo");
+
+          DeleteExpiredShop(ownerId);
+          MiscUtils.SendDiscordPMToPlayer(ownerId, $"Cher Marchand, \n\n Nous sommes au regret de vous informer que votre échoppe { panel.Name} a expiré. Nos hommes n'étant plus en mesure de la protéger, il se peut qu'elle ait été pillée par des vandales de passage! \n\n Nous vous enjoignons à renouveller au plus vite votre certificat auprès de nos service. \n\n Signé : Polpo");
+        }
+        if (expirationTime < 2)
+        {
+          MiscUtils.SendMailToPC(ownerId, "Hôtel des ventes de Similisse", "Expiration prochaine du certificat de votre échoppe",
+            $"Cher Marchand, \n\n Nous sommes au devoir de vous informer que le certificat de votre échoppe {panel.Name} aura expiré dès demain. Nos hommes ne seront alors plus en mesure de la protéger, c'est courir le risque de la voir pillée par des vandales de passage ! \n\n Nous vous enjoignons à renouveller au plus vite votre certificat auprès de nos service. \n\n Signé : Polpo");
+
+          MiscUtils.SendDiscordPMToPlayer(ownerId, $"Cher Marchand, \n\n Nous sommes au regret de vous informer que votre échoppe { panel.Name} aura expiré dès demain. Nos hommes ne seront alors plus en mesure de la protéger, c'est courir le risque de la voir pillée par des vandales de passage ! \n\n Nous vous enjoignons à renouveller au plus vite votre certificat auprès de nos service. \n\n Signé : Polpo");
+        }
+        else if (expirationTime < 8)
+        {
+          MiscUtils.SendMailToPC(ownerId, "Hôtel des ventes de Similisse", "Expiration prochaine du certificat de votre échoppe",
+            $"Cher Marchand, \n\n Nous sommes au devoir de vous informer que le certificat de votre échoppe {panel.Name} aura expiré dès la semaine prochaine. Nos hommes ne seront alors plus en mesure de la protéger, c'est courir le risque de la voir pillée par des vandales de passage ! \n\n Nous vous enjoignons à renouveller au plus vite votre certificat auprès de nos service. \n\n Signé : Polpo");
+
+          MiscUtils.SendDiscordPMToPlayer(ownerId, $"Cher Marchand, \n\n Nous sommes au regret de vous informer que votre échoppe { panel.Name} aura expiré dès la semaine prochaine. Nos hommes ne seront alors plus en mesure de la protéger, c'est courir le risque de la voir pillée par des vandales de passage ! \n\n Nous vous enjoignons à renouveller au plus vite votre certificat auprès de nos service. \n\n Signé : Polpo");
+        }
+
+        panel.OnUsed += OnUsedPlayerOwnedShop;
+
+        foreach (NwItem item in shop.Items)
+          item.BaseGoldValue = (uint)item.GetObjectVariable<LocalVariableInt>("_SET_SELL_PRICE").Value;
+      }
+    }
+    private async void DeleteExpiredShop(int rowid)
+    {
+      await NwTask.Delay(TimeSpan.FromSeconds(0.2));
+
+      SqLiteUtils.DeletionQuery("playerShops",
+          new Dictionary<string, string>() { { "rowid", rowid.ToString() } });
+    }
+    private void RestorePlayerAuctionsFromDatabase()
+    {
+      var result = SqLiteUtils.SelectQuery("playerAuctions",
+        new List<string>() { { "shop" }, { "panel" }, { "characterId" }, { "rowid" }, { "expirationDate" }, { "highestAuction" }, { "highestAuctionner" }, { "areaTag" }, { "position" }, { "facing" } },
+        new List<string[]>() { new string[] { "shop", "deleted", "!=" } });
+
+      foreach (var auction in result.Results)
+      {
+        NwStore shop = SqLiteUtils.StoreSerializationFormatProtection(auction, 0, MiscUtils.GetLocationFromDatabase(auction.GetString(7), auction.GetString(8), auction.GetFloat(9)));
+        NwPlaceable panel = SqLiteUtils.PlaceableSerializationFormatProtection(auction, 1, MiscUtils.GetLocationFromDatabase(auction.GetString(7), auction.GetString(8), auction.GetFloat(9)));
+        shop.GetObjectVariable<LocalVariableInt>("_OWNER_ID").Value = auction.GetInt(2);
+        shop.GetObjectVariable<LocalVariableInt>("_SHOP_ID").Value = auction.GetInt(3);
+        shop.GetObjectVariable<LocalVariableInt>("_CURRENT_AUCTION").Value = auction.GetInt(5);
+        shop.GetObjectVariable<LocalVariableInt>("_CURRENT_AUCTIONNER").Value = auction.GetInt(6);
+        panel.GetObjectVariable<LocalVariableInt>("_OWNER_ID").Value = auction.GetInt(2);
+        panel.GetObjectVariable<LocalVariableInt>("_SHOP_ID").Value = auction.GetInt(3);
+
+        panel.OnUsed += OnUsedPlayerOwnedAuction;
+
+        foreach (NwItem item in shop.Items)
+          item.BaseGoldValue = (uint)item.GetObjectVariable<LocalVariableInt>("_CURRENT_AUCTION").Value;
+      }
     }
   }
 }

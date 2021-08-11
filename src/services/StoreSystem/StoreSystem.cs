@@ -1,14 +1,12 @@
-﻿using NWN.Core;
-using NWN.Core.NWNX;
-using Anvil.Services;
-using NWN.Systems;
+﻿using Anvil.Services;
 using System;
 using Anvil.API;
 using System.Linq;
 using Anvil.API.Events;
 using System.Collections.Generic;
+using Utils;
 
-namespace NWN.System
+namespace NWN.Systems
 {
   [ServiceBinding(typeof(StoreSystem))]
   public class StoreSystem
@@ -91,7 +89,7 @@ namespace NWN.System
         }
         else
         {
-          Utils.SendMailToPC(ownerId, "Hotel des ventes de Similisse", $"{onStoreRequestBuy.Item.Name} vendu !", $"Très honoré marchand, \n\n Nous avons l'insigne honneur de vous informer que votre {onStoreRequestBuy.Item.Name} a été vendu au doux prix de {onStoreRequestBuy.Price}. Félicitations ! \n\n Signé, Polpo");
+          MiscUtils.SendMailToPC(ownerId, "Hotel des ventes de Similisse", $"{onStoreRequestBuy.Item.Name} vendu !", $"Très honoré marchand, \n\n Nous avons l'insigne honneur de vous informer que votre {onStoreRequestBuy.Item.Name} a été vendu au doux prix de {onStoreRequestBuy.Price}. Félicitations ! \n\n Signé, Polpo");
 
           SqLiteUtils.UpdateQuery("playerShops",
             new List<string[]>() { new string[] { "bankGold+", price.ToString()  } },
@@ -132,7 +130,7 @@ namespace NWN.System
         SqLiteUtils.InsertQuery("playerShops",
           new List<string[]>() { new string[] { "characterId", seller.characterId.ToString() }, new string[] { "shop", onClose.Store.Serialize().ToBase64EncodedString() }, new string[] { "panel", panel.Serialize().ToBase64EncodedString() }, new string[] { "expirationDate", DateTime.Now.AddDays(30).ToString() }, new string[] { "areaTag", onClose.Store.Area.Tag }, new string[]  { "position", onClose.Store.Position.ToString() }, new string[] { "facing", onClose.Store.Rotation.ToString() } });
 
-        var rowQuery = NwModule.Instance.PrepareCampaignSQLQuery(Config.database, "SELECT last_insert_rowid()");
+        var rowQuery = NwModule.Instance.PrepareCampaignSQLQuery(SqLiteUtils.database, "SELECT last_insert_rowid()");
         rowQuery.Execute();
         onClose.Store.GetObjectVariable<LocalVariableInt>("_SHOP_ID").Value = rowQuery.Result.GetInt(0);
         panel.GetObjectVariable<LocalVariableInt>("_SHOP_ID").Value = rowQuery.Result.GetInt(0);
@@ -163,8 +161,8 @@ namespace NWN.System
       player.menu.Clear();
 
       int traderLevel = 1;
-      if (player.learntCustomFeats.ContainsKey(CustomFeats.Marchand))
-        traderLevel = SkillSystem.GetCustomFeatLevelFromSkillPoints(CustomFeats.Marchand, player.learntCustomFeats[CustomFeats.Marchand]);
+      if (player.learntCustomFeats.ContainsKey(CustomFeatList.Marchand))
+        traderLevel = SkillSystem.GetCustomFeatLevelFromSkillPoints(CustomFeatList.Marchand, player.learntCustomFeats[CustomFeatList.Marchand]);
 
       if(onStoreRequestSell.Store.Items.Count() > traderLevel * 5)
       {

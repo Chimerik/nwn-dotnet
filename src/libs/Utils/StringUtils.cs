@@ -3,7 +3,7 @@ using System.ComponentModel;
 using System.Linq;
 using System.Reflection;
 
-namespace NWN
+namespace Utils
 {
   public static class StringUtils
   {

@@ -1,10 +1,10 @@
 ﻿using System.Threading.Tasks;
 using Discord.Commands;
 
-namespace NWN.Systems
+namespace BotSystem
+{ 
+    public static partial class BotCommand
 {
-    public static partial class BotSystem
-    {
         public static async Task ExecuteDisplayDeathInfoCommand(SocketCommandContext context)
         {
             await context.Channel.SendMessageAsync("1) La mort technique\n\n" +

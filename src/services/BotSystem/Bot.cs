@@ -2,22 +2,47 @@
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
+
+using Anvil.Services;
+
 using Discord;
 using Discord.Commands;
 using Discord.WebSocket;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace NWN.Systems
+using NLog;
+
+using Utils;
+
+namespace BotSystem
 {
-  public static partial class Bot
+  [ServiceBinding(typeof(Bot))]
+  public class Bot
   {
     public const char prefix = '!';
-    public static DiscordSocketClient _client;
 
     // Keep the CommandService and DI container around for use with commands.
     // These two types require you install the Discord.Net.Commands package.
     public static CommandService commandService;
     private static IServiceProvider _services;
+    public static readonly Logger Log = LogManager.GetCurrentClassLogger();
+
+    public Bot()
+    {
+      LoadDiscordBot();
+    }
+    private async void LoadDiscordBot()
+    {
+      try
+      {
+        await MainAsync();
+      }
+      catch (Exception e)
+      {
+        Log.Info($"Could not load discord bot : {e.Message}");
+        MiscUtils.LogMessageToDMs($"Could not load discord bot : {e.Message}");
+      }
+    }
 
     public static IEnumerable<CommandInfo> GetCommands()
     {
@@ -26,13 +51,13 @@ namespace NWN.Systems
 
     public static async Task MainAsync()
     {
-      _client = new DiscordSocketClient();
-      await _client.DownloadUsersAsync(new List<IGuild> { { _client.GetGuild(680072044364562528) } });
+      DiscordUtils._client = new DiscordSocketClient();
+      await DiscordUtils._client.DownloadUsersAsync(new List<IGuild> { { DiscordUtils._client.GetGuild(680072044364562528) } });
 
       commandService = new CommandService();
 
-      _client.Log += Log;
-      commandService.Log += Log;
+      DiscordUtils._client.Log += DiscordLog;
+      commandService.Log += DiscordLog;
 
       // Setup your DI container.
       _services = ConfigureServices();
@@ -42,18 +67,18 @@ namespace NWN.Systems
 
       var token = Environment.GetEnvironmentVariable("BOT");
 
-      await _client.LoginAsync(TokenType.Bot, token);
-      await _client.StartAsync();
+      await DiscordUtils._client.LoginAsync(TokenType.Bot, token);
+      await DiscordUtils._client.StartAsync();
 
       await Task.Delay(TimeSpan.FromSeconds(5));
-
+      
       if(Config.env == Config.Env.Prod)
-        await (_client.GetChannel(786218144296468481) as IMessageChannel).SendMessageAsync($"Module en ligne !");
+        await (DiscordUtils._client.GetChannel(786218144296468481) as IMessageChannel).SendMessageAsync($"Module en ligne !");
 
       // Block this task until the program is closed.
       await Task.Delay(Timeout.Infinite);
     }
-    private static Task Log(LogMessage message)
+    private static Task DiscordLog(LogMessage message)
     {
       switch (message.Severity)
       {
@@ -110,7 +135,7 @@ namespace NWN.Systems
       // Note that the first one is 'Modules' (plural) and the second is 'Module' (singular).
 
       // Subscribe a handler to see if a message invokes a command.
-      _client.MessageReceived += HandleCommandAsync;
+      DiscordUtils._client.MessageReceived += HandleCommandAsync;
     }
     private static async Task HandleCommandAsync(SocketMessage arg)
     {
@@ -119,7 +144,7 @@ namespace NWN.Systems
       if (msg == null) return;
 
       // We don't want the bot to respond to itself or other bots.
-      if (msg.Author.Id == _client.CurrentUser.Id || msg.Author.IsBot) return;
+      if (msg.Author.Id == DiscordUtils._client.CurrentUser.Id || msg.Author.IsBot) return;
 
       // Create a number to track where the prefix ends and the command begins
       int pos = 0;
@@ -130,7 +155,7 @@ namespace NWN.Systems
       if (msg.HasCharPrefix(prefix, ref pos) /* || msg.HasMentionPrefix(_client.CurrentUser, ref pos) */)
       {
         // Create a Command Context.
-        var context = new SocketCommandContext(_client, msg);
+        var context = new SocketCommandContext(DiscordUtils._client, msg);
 
         // Execute the command. (result does not indicate a return value, 
         // rather an object stating if the command executed successfully).

@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Config
+namespace Utils
 {
   public static class Config
   {

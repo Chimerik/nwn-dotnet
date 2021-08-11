@@ -3,12 +3,12 @@ using System.Threading.Tasks;
 using Discord;
 using Discord.Commands;
 using Anvil.API;
-using NWN.Core;
+using Utils;
 
-namespace NWN.Systems
+namespace BotSystem
 {
-  public static partial class BotSystem
-  {
+  public static partial class BotCommand
+    {
     public static async Task ExecuteSaveRumorCommand(SocketCommandContext context, string titre_rumeur, string contenu_rumeur)
     {
       await NwTask.SwitchToMainThread();
@@ -33,7 +33,7 @@ namespace NWN.Systems
       switch(DiscordUtils.GetPlayerStaffRankFromDiscord(context.User.Id))
       {
         default:
-          await (Bot._client.GetChannel(680072044364562532) as IMessageChannel).SendMessageAsync($"{Bot._client.GetGuild(680072044364562528).EveryoneRole.Mention} Création de la rumeur {titre_rumeur} à valider.");
+          await (DiscordUtils._client.GetChannel(680072044364562532) as IMessageChannel).SendMessageAsync($"{Bot._client.GetGuild(680072044364562528).EveryoneRole.Mention} Création de la rumeur {titre_rumeur} à valider.");
           return;
         case "admin":
         case "staff":

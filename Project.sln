@@ -1,55 +1,62 @@
-﻿Microsoft Visual Studio Solution File, Format Version 12.00
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "2daSystem", "src\services\2daSystem\2daSystem.csproj", "{54FA0EB5-DA27-47EE-9DFA-9944914CA2B6}"
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.31605.320
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "2daSystem", "src\services\2daSystem\2daSystem.csproj", "{54FA0EB5-DA27-47EE-9DFA-9944914CA2B6}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Alchemy", "src\services\Alchemy\Alchemy.csproj", "{771D8872-13A6-4350-900B-287459EFAE59}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Alchemy", "src\services\Alchemy\Alchemy.csproj", "{771D8872-13A6-4350-900B-287459EFAE59}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Area", "src\services\Area\Area.csproj", "{1909DC97-7858-460B-AF76-596714054953}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Area", "src\services\Area\Area.csproj", "{1909DC97-7858-460B-AF76-596714054953}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Arena", "src\services\Arena\Arena.csproj", "{62D64DCA-8749-48BE-8ED5-8AF8BEAD5FF9}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Arena", "src\services\Arena\Arena.csproj", "{62D64DCA-8749-48BE-8ED5-8AF8BEAD5FF9}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AttackSystem", "src\services\AttackSystem\AttackSystem.csproj", "{BAB96B66-F57B-40A1-B740-0082567E85E6}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AttackSystem", "src\services\AttackSystem\AttackSystem.csproj", "{BAB96B66-F57B-40A1-B740-0082567E85E6}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BotSystem", "src\services\BotSystem\BotSystem.csproj", "{677AE3E5-7D39-4DDD-B6B7-AFDF0E341CAF}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BotSystem", "src\services\BotSystem\BotSystem.csproj", "{677AE3E5-7D39-4DDD-B6B7-AFDF0E341CAF}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ChatSystem", "src\services\ChatSystem\ChatSystem.csproj", "{B0EA595A-C44C-4FA0-805F-0D710E9D7F9A}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ChatSystem", "src\services\ChatSystem\ChatSystem.csproj", "{B0EA595A-C44C-4FA0-805F-0D710E9D7F9A}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CommandSystem", "src\services\CommandSystem\CommandSystem.csproj", "{87B43FE7-6325-40E1-AA2D-B1C4D46AEA0C}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CommandSystem", "src\services\CommandSystem\CommandSystem.csproj", "{87B43FE7-6325-40E1-AA2D-B1C4D46AEA0C}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Config", "src\services\Config\Config.csproj", "{7DE7C2F2-48F2-4BAB-8C9C-18E2C622C834}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Craft", "src\services\Craft\Craft.csproj", "{CFA87DBC-BB58-44C8-9DAC-0B93BF35F1C2}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Craft", "src\services\Craft\Craft.csproj", "{CFA87DBC-BB58-44C8-9DAC-0B93BF35F1C2}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DialogSystem", "src\services\DialogSystem\DialogSystem.csproj", "{1AE85E5C-B164-4B5A-928B-301FCA5031CB}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DialogSystem", "src\services\DialogSystem\DialogSystem.csproj", "{1AE85E5C-B164-4B5A-928B-301FCA5031CB}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DicePoker", "src\services\DicePoker\DicePoker.csproj", "{4082DA05-4726-4B1A-A10A-366C3E4B2795}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DicePoker", "src\services\DicePoker\DicePoker.csproj", "{4082DA05-4726-4B1A-A10A-366C3E4B2795}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DmSystem", "src\services\DmSystem\DmSystem.csproj", "{97539E94-52A3-475B-A61B-401AD1F13237}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DmSystem", "src\services\DmSystem\DmSystem.csproj", "{97539E94-52A3-475B-A61B-401AD1F13237}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EnchantmentBasin", "src\services\EnchantmentBasin\EnchantmentBasin.csproj", "{C0D8E596-4116-49EB-9FDF-547329FDC979}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EnchantmentBasin", "src\services\EnchantmentBasin\EnchantmentBasin.csproj", "{C0D8E596-4116-49EB-9FDF-547329FDC979}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ELCSystem", "src\services\EnforceLegalCharacterSystem\ELCSystem.csproj", "{28784183-1809-4F46-8FB3-4A6E6B972C06}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ELCSystem", "src\services\EnforceLegalCharacterSystem\ELCSystem.csproj", "{28784183-1809-4F46-8FB3-4A6E6B972C06}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ExamineSystem", "src\services\ExamineSystem\ExamineSystem.csproj", "{9881439F-23F7-4D28-9812-D7CD5BB1505D}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ExamineSystem", "src\services\ExamineSystem\ExamineSystem.csproj", "{9881439F-23F7-4D28-9812-D7CD5BB1505D}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FeatSystem", "src\services\FeatSystem\FeatSystem.csproj", "{AEA0197F-E318-4F8F-A1BC-AE6D06715760}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FeatSystem", "src\services\FeatSystem\FeatSystem.csproj", "{AEA0197F-E318-4F8F-A1BC-AE6D06715760}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Items", "src\services\Items\Items.csproj", "{2F7CBD84-79AF-4FAD-9286-0A647D14F1F0}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Items", "src\services\Items\Items.csproj", "{2F7CBD84-79AF-4FAD-9286-0A647D14F1F0}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "LootSystem", "src\services\LootSystem\LootSystem.csproj", "{C9106BF1-9FEC-44A5-B65B-6A46865D0978}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LootSystem", "src\services\LootSystem\LootSystem.csproj", "{C9106BF1-9FEC-44A5-B65B-6A46865D0978}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ModuleSystem", "src\services\ModuleSystem\ModuleSystem.csproj", "{8EC36AED-74A5-4F90-9EDE-B184320FD102}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ModuleSystem", "src\services\ModuleSystem\ModuleSystem.csproj", "{8EC36AED-74A5-4F90-9EDE-B184320FD102}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PlaceableSystem", "src\services\PlaceableSystem\PlaceableSystem.csproj", "{00D7DAFF-0A32-4DFC-AEC6-48A1A7FB36EE}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PlaceableSystem", "src\services\PlaceableSystem\PlaceableSystem.csproj", "{00D7DAFF-0A32-4DFC-AEC6-48A1A7FB36EE}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PlayerSystem", "src\services\PlayerSystem\PlayerSystem.csproj", "{D72835BF-261C-4FF9-937F-963290A6D279}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PlayerSystem", "src\services\PlayerSystem\PlayerSystem.csproj", "{D72835BF-261C-4FF9-937F-963290A6D279}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SkillSystem", "src\services\SkillSystem\SkillSystem.csproj", "{455D719A-AAA9-4241-82C4-9E93C11D5105}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SkillSystem", "src\services\SkillSystem\SkillSystem.csproj", "{455D719A-AAA9-4241-82C4-9E93C11D5105}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SpellSystem", "src\services\SpellSystem\SpellSystem.csproj", "{C8F187DC-F132-4495-A75B-B8FE22727032}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SpellSystem", "src\services\SpellSystem\SpellSystem.csproj", "{C8F187DC-F132-4495-A75B-B8FE22727032}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "StoreSystem", "src\services\StoreSystem\StoreSystem.csproj", "{C43FCC07-9FE1-48B4-BF4A-4B098611AA63}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "StoreSystem", "src\services\StoreSystem\StoreSystem.csproj", "{C43FCC07-9FE1-48B4-BF4A-4B098611AA63}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Utils", "src\libs\Utils\Utils.csproj", "{93AC9C32-3BD4-4E23-95DC-F791526B8B61}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Utils", "src\libs\Utils\Utils.csproj", "{93AC9C32-3BD4-4E23-95DC-F791526B8B61}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{2D1D419C-4B91-4D5E-ACE2-08D40EB0C15C}"
+	ProjectSection(SolutionItems) = preProject
+		.editorconfig = .editorconfig
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -89,10 +96,6 @@ Global
 		{87B43FE7-6325-40E1-AA2D-B1C4D46AEA0C}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{87B43FE7-6325-40E1-AA2D-B1C4D46AEA0C}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{87B43FE7-6325-40E1-AA2D-B1C4D46AEA0C}.Release|Any CPU.Build.0 = Release|Any CPU
-		{7DE7C2F2-48F2-4BAB-8C9C-18E2C622C834}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{7DE7C2F2-48F2-4BAB-8C9C-18E2C622C834}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{7DE7C2F2-48F2-4BAB-8C9C-18E2C622C834}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{7DE7C2F2-48F2-4BAB-8C9C-18E2C622C834}.Release|Any CPU.Build.0 = Release|Any CPU
 		{CFA87DBC-BB58-44C8-9DAC-0B93BF35F1C2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{CFA87DBC-BB58-44C8-9DAC-0B93BF35F1C2}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{CFA87DBC-BB58-44C8-9DAC-0B93BF35F1C2}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -161,5 +164,11 @@ Global
 		{93AC9C32-3BD4-4E23-95DC-F791526B8B61}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{93AC9C32-3BD4-4E23-95DC-F791526B8B61}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{93AC9C32-3BD4-4E23-95DC-F791526B8B61}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {0A559E6A-430C-44C2-94CA-1064283E67FB}
 	EndGlobalSection
 EndGlobal

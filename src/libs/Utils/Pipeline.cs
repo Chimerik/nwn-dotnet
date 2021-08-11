@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Linq;
 
-namespace NWN
+namespace Utils
 {
   public class Pipeline<T>
   {

@@ -1,21 +1,18 @@
 ﻿using Discord;
-using NWN.Systems;
 using System;
 using System.Numerics;
 using System.Linq;
 using Anvil.API;
 using System.Collections.Generic;
 using NLog;
-using System.IO;
-using System.Text;
-using System.Text.RegularExpressions;
 
-namespace NWN
+namespace Utils
 {
-  public static class Utils
+  public static class MiscUtils
   {
     public static readonly Logger Log = LogManager.GetCurrentClassLogger();
     public static Random random = new Random();
+
     public static void LogMessageToDMs(string message)
     {
       Log.Info(message);
@@ -23,13 +20,13 @@ namespace NWN
       switch (Config.env)
       {
         case Config.Env.Prod:
-          (Bot._client.GetChannel(703964971549196339) as IMessageChannel).SendMessageAsync(message);
+          (DiscordUtils._client.GetChannel(703964971549196339) as IMessageChannel).SendMessageAsync(message);
           break;
         case Config.Env.Bigby:
-          Bot._client.GetUser(225961076448034817).SendMessageAsync(message);
+          DiscordUtils._client.GetUser(225961076448034817).SendMessageAsync(message);
           break;
         case Config.Env.Chim:
-          Bot._client.GetUser(232218662080086017).SendMessageAsync(message);
+          DiscordUtils._client.GetUser(232218662080086017).SendMessageAsync(message);
           break;
       }
     }
@@ -182,7 +179,7 @@ namespace NWN
 
       if (result.Result != null)
       {
-        await Bot._client.GetUser(ulong.Parse(result.Result.GetString(0))).SendMessageAsync(message);
+        await DiscordUtils._client.GetUser(ulong.Parse(result.Result.GetString(0))).SendMessageAsync(message);
       }
     }
     public static async void SendItemToPCStorage(int characterId, NwItem item)

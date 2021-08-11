@@ -2,12 +2,12 @@
 using System.Threading.Tasks;
 using Discord.Commands;
 using Anvil.API;
-using NWN.Core;
+using Utils;
 
-namespace NWN.Systems
+namespace BotSystem
 {
-  public static partial class BotSystem
-  {
+  public static partial class BotCommand
+    {
     public static async Task ExecuteGetMyRumorsListCommand(SocketCommandContext context)
     {
       await NwTask.SwitchToMainThread();
@@ -37,7 +37,7 @@ namespace NWN.Systems
         case "admin":
         case "staff":
 
-          var staffQuery = NwModule.Instance.PrepareCampaignSQLQuery(Config.database, "SELECT title, r.rowid, accountName from rumors r " +
+          var staffQuery = NwModule.Instance.PrepareCampaignSQLQuery(SqLiteUtils.database, "SELECT title, r.rowid, accountName from rumors r " +
         "LEFT JOIN PlayerAccounts pa on r.accountId = pa.ROWID ");
           string staffResult = "";
 

@@ -2,12 +2,13 @@
 using Anvil.API.Events;
 using Anvil.Services;
 using System.Linq;
-using NWN.Core.NWNX;
-using NWN.Core;
 using NLog;
 using System;
 using System.Numerics;
 using System.Collections.Generic;
+using NWN.Core.NWNX;
+using NWN.Core;
+using Utils;
 
 namespace NWN.Systems
 {
@@ -41,7 +42,7 @@ namespace NWN.Systems
     public static void OnAreaEnter(AreaEvents.OnEnter onEnter)
     {
       NwArea area = onEnter.Area;
-
+      
       if (!PlayerSystem.Players.TryGetValue(onEnter.EnteringObject, out PlayerSystem.Player player)) //EN FONCTION DE SI LA ZONE EST REST OU PAS, ON AFFICHE LA PROGRESSION DU JOURNAL DE CRAFT
         return;
 

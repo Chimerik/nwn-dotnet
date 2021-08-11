@@ -1,11 +1,12 @@
 ﻿using Discord.Commands;
 using Anvil.API;
 using System.Threading.Tasks;
+using ModuleService;
 
-namespace NWN.Systems
+namespace BotSystem
 {
-  public static partial class BotSystem
-  {
+  public static partial class BotCommand
+    {
     public static async Task ExecuteRefillCommand(SocketCommandContext context)
     {
       await NwTask.SwitchToMainThread();

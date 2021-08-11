@@ -2,11 +2,11 @@
 using System.Threading.Tasks;
 using Discord.Commands;
 using Anvil.API;
-using NWN.Core.NWNX;
+using Utils;
 
-namespace NWN.Systems
+namespace BotSystem
 {
-  public static partial class BotSystem
+  public static partial class BotCommand
   {
     public static async Task ExecuteSayCommand(SocketCommandContext context, string sPCName, string text)
     {

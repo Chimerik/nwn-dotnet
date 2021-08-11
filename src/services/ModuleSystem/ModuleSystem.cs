@@ -3,15 +3,16 @@ using Google.Cloud.Translation.V2;
 using NLog;
 using Anvil.API;
 using Anvil.API.Events;
-using NWN.Core.NWNX;
 using Anvil.Services;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using static NWN.Systems.Craft.Collect.Config;
+using Utils;
+using NWN.Core.NWNX;
+using NWN.Systems;
 
-namespace NWN.Systems
+namespace ModuleService
 {
   [ServiceBinding(typeof(ModuleSystem))]
   public class ModuleSystem
@@ -21,24 +22,12 @@ namespace NWN.Systems
     public static Dictionary<string, GoldBalance> goldBalanceMonitoring = new Dictionary<string, GoldBalance>();
     public ModuleSystem()
     {
-      LoadDiscordBot();
       CreateDatabase();
       InitializeEvents();
       
       NwModule.Instance.OnModuleLoad += OnModuleLoad;
     }
-    private async void LoadDiscordBot()
-    {
-      try
-      {
-        await Bot.MainAsync();
-      }
-      catch (Exception e)
-      {
-        Log.Info($"Could not load discord bot : {e.Message}");
-        Utils.LogMessageToDMs($"Could not load discord bot : {e.Message}");
-      }
-    }
+    
     private void OnModuleLoad(ModuleEvents.OnModuleLoad onModuleLoad)
     {
       NwModule.Instance.GetObjectVariable<LocalVariableString>("X2_S_UD_SPELLSCRIPT").Value = "spellhook";
@@ -46,65 +35,14 @@ namespace NWN.Systems
       NwServer.Instance.ServerInfo.PlayOptions.RestoreSpellUses = false;
       NwServer.Instance.ServerInfo.PlayOptions.ShowDMJoinMessage = false;
 
-      ItemSystem.feedbackService.AddCombatLogMessageFilter(CombatLogMessage.ComplexAttack);
-
       SetModuleTime();
       SaveServerVault();  
 
       RestorePlayerCorpseFromDatabase();
-      RestorePlayerShopsFromDatabase();
-      RestorePlayerAuctionsFromDatabase();
       RestoreDMPersistentPlaceableFromDatabase();
 
       Task spawnResources = SpawnCollectableResources(1);
       Task deleteExpiredMail = DeleteExpiredMail();
-
-      //TempLearnablesJsonification();
-    }
-    private void TempLearnablesJsonification()
-    {
-      List<int> charIds = new List<int>();
-
-      var result = SqLiteUtils.SelectQuery("playerCharacters",
-          new List<string>() { { "ROWID" } },
-          new List<string[]>() {});
-
-      foreach (var characterId in result.Results)
-        charIds.Add(characterId.GetInt(0));
-
-      foreach (int charId in charIds)
-      {
-        Dictionary<string, Learnable> tempDic = new Dictionary<string, Learnable>();
-
-        var featResult = SqLiteUtils.SelectQuery("playerLearnableSkills",
-          new List<string>() { { "skillId" }, { "skillPoints" }, { "trained" }, { "active" } },
-          new List<string[]>() { { new string[] { "characterId", charId.ToString() } } });
-
-        foreach (var skill in featResult.Results)
-        {
-          int id = skill.GetInt(0);
-          Feat skillId = (Feat)id;
-          int currentSkillPoints = skill.GetInt(1);
-          bool active = skill.GetInt(3) == 1 ? true : false;
-
-          if (skill.GetInt(2) == 0)
-            tempDic.Add($"F{id}", new Learnable(LearnableType.Feat, id, currentSkillPoints, active));
-        }
-
-        var spellResult = SqLiteUtils.SelectQuery("playerLearnableSpells",
-          new List<string>() { { "skillId" }, { "skillPoints" }, { "nbScrolls" }, { "active" } },
-          new List<string[]>() { { new string[] { "characterId", charId.ToString().ToString() } }, { new string[] { "trained", "0" } } });
-
-        foreach (var spell in spellResult.Results)
-        {
-          bool active = spell.GetInt(3) == 1 ? true : false;
-          tempDic.Add($"S{spell.GetInt(0)}", new Learnable(LearnableType.Spell, spell.GetInt(0), spell.GetInt(1), active, spell.GetInt(2)));
-        }
-
-        SqLiteUtils.UpdateQuery("playerCharacters",
-          new List<string[]>() { new string[] { "serializedLearnables", Newtonsoft.Json.JsonConvert.SerializeObject(tempDic) } },
-          new List<string[]>() { new string[] { "rowid", charId.ToString() } });
-      }
     }
     private static void CreateDatabase()
     {
@@ -213,7 +151,7 @@ namespace NWN.Systems
     private void InitializeEvents()
     {
       EventsPlugin.SubscribeEvent("NWNX_ON_ITEM_SCROLL_LEARN_BEFORE", "b_learn_scroll");
-
+      
       EventsPlugin.SubscribeEvent("NWNX_ON_INPUT_TOGGLE_PAUSE_BEFORE", "spacebar_down");
       EventsPlugin.ToggleDispatchListMode("NWNX_ON_INPUT_TOGGLE_PAUSE_BEFORE", "spacebar_down", 1);
 
@@ -222,14 +160,7 @@ namespace NWN.Systems
 
       //EventsPlugin.SubscribeEvent("NWNX_ON_DM_POSSESS_FULL_POWER_BEFORE", "b_dm_possess");
       //EventsPlugin.SubscribeEvent("NWNX_ON_DM_POSSESS_BEFORE", "b_dm_possess");
-
-      NwModule.Instance.OnDMSpawnObjectAfter += DmSystem.HandleAfterDmSpawnObject;
-      NwModule.Instance.OnDMJumpTargetToPoint += DmSystem.HandleAfterDmJumpTarget; 
-      NwModule.Instance.OnDMJumpAllPlayersToPoint += DmSystem.HandleBeforeDMJumpAllPlayers;
-      NwModule.Instance.OnDMGiveXP += DmSystem.HandleBeforeDmGiveXP;
-      NwModule.Instance.OnDMGiveGold += DmSystem.HandleBeforeDmGiveGold;
-      NwModule.Instance.OnDMGiveItemAfter += DmSystem.HandleAfterDmGiveItem;
-
+      
       EventsPlugin.SubscribeEvent("NWNX_ON_USE_SKILL_BEFORE", "event_skillused");
       EventsPlugin.ToggleDispatchListMode("NWNX_ON_USE_SKILL_BEFORE", "event_skillused", 1);
 
@@ -261,9 +192,6 @@ namespace NWN.Systems
       EventsPlugin.SubscribeEvent("NWNX_ON_EFFECT_REMOVED_BEFORE", "effect_removed");
 
       //EventsPlugin.SubscribeEvent("NWNX_ON_HAS_FEAT_AFTER", "event_has_feat");
-
-      NwModule.Instance.OnCreatureAttack += AttackSystem.HandleAttackEvent;
-      NwModule.Instance.OnCreatureDamage += AttackSystem.HandleDamageEvent;
     }
     private void SetModuleTime()
     {
@@ -286,10 +214,10 @@ namespace NWN.Systems
 
       Log.Info("Starting to spawn collectable ressources");
 
-      foreach (NwWaypoint ressourcePoint in NwModule.FindObjectsWithTag<NwWaypoint>(new string[] { "ore_spawn_wp", "wood_spawn_wp" }).Where(l => l.Area.GetObjectVariable<LocalVariableInt>("_AREA_LEVEL").Value > 1))
+      foreach (NwWaypoint ressourcePoint in NwObject.FindObjectsWithTag<NwWaypoint>(new string[] { "ore_spawn_wp", "wood_spawn_wp" }).Where(l => l.Area.GetObjectVariable<LocalVariableInt>("_AREA_LEVEL").Value > 1))
       {
         int areaLevel = ressourcePoint.Area.GetObjectVariable<LocalVariableInt>("_AREA_LEVEL").Value;
-        if (NwRandom.Roll(Utils.random, 100) >= (areaLevel * 20) - 20)
+        if (NwRandom.Roll(MiscUtils.random, 100) >= (areaLevel * 20) - 20)
         {
           string resRef = "";
           string name = "";
@@ -298,17 +226,17 @@ namespace NWN.Systems
           {
             case "ore_spawn_wp":
               resRef = "mineable_rock";
-              name = Enum.GetName(typeof(OreType), GetRandomOreSpawnFromAreaLevel(areaLevel));
+              name = Enum.GetName(typeof(OreConfig.OreType), OreConfig.GetRandomOreSpawnFromAreaLevel(areaLevel));
               break;
             case "wood_spawn_wp":
               resRef = "mineable_tree";
-              name = Enum.GetName(typeof(WoodType), GetRandomOreSpawnFromAreaLevel(areaLevel));
+              name = Enum.GetName(typeof(WoodConfig.WoodType), WoodConfig.GetRandomWoodSpawnFromAreaLevel(areaLevel));
               break;
           }
 
           var newRock = NwPlaceable.Create(resRef, ressourcePoint.Location);
           newRock.Name = name;
-          newRock.GetObjectVariable<LocalVariableInt>("_ORE_AMOUNT").Value = 50 * NwRandom.Roll(Utils.random, 100);
+          newRock.GetObjectVariable<LocalVariableInt>("_ORE_AMOUNT").Value = 50 * NwRandom.Roll(MiscUtils.random, 100);
           ressourcePoint.Destroy();
 
           Log.Info($"REFILL - {ressourcePoint.Area.Name} - {ressourcePoint.Name}");
@@ -336,11 +264,9 @@ namespace NWN.Systems
 
       HandleExpiredAuctions();
 
-      //NwModule.Instance.ExportAllCharacters();
-
       Task DownloadDiscordUsers = Task.Run(async () =>
       {
-        await Bot._client.DownloadUsersAsync(new List<IGuild> { { Bot._client.GetGuild(680072044364562528) } });
+        await DiscordUtils._client.DownloadUsersAsync(new List<IGuild> { { DiscordUtils._client.GetGuild(680072044364562528) } });
       });
 
       Task scheduleNextSave = NwTask.Run(async () =>
@@ -359,7 +285,7 @@ namespace NWN.Systems
       foreach (var pcCorpse in result.Results)
       {
         NwCreature corpse = NwCreature.Deserialize(pcCorpse.GetString(0).ToByteArray());
-        corpse.Location = Utils.GetLocationFromDatabase(pcCorpse.GetString(1), pcCorpse.GetString(2), 0);
+        corpse.Location = MiscUtils.GetLocationFromDatabase(pcCorpse.GetString(1), pcCorpse.GetString(2), 0);
         corpse.GetObjectVariable<LocalVariableInt>("_PC_ID").Value = pcCorpse.GetInt(3);
 
         foreach (NwItem item in corpse.Inventory.Items.Where(i => i.Tag != "item_pccorpse"))
@@ -368,85 +294,7 @@ namespace NWN.Systems
         PlayerSystem.SetupPCCorpse(corpse);
       }
     }
-    public void RestorePlayerShopsFromDatabase()
-    {
-      // TODO : envoyer un mp discord + courrier aux joueurs 7 jours avant expiration + 1 jour avant expiration
-
-      var result = SqLiteUtils.SelectQuery("playerShops",
-        new List<string>() { { "shop" }, { "panel" }, { "characterId" }, { "rowid" }, { "expirationDate" }, { "areaTag" }, { "position" }, { "facing" } },
-        new List<string[]>());
-
-      foreach (var playerShop in result.Results)
-      {
-        NwStore shop = SqLiteUtils.StoreSerializationFormatProtection(playerShop, 0, Utils.GetLocationFromDatabase(playerShop.GetString(5), playerShop.GetString(6), playerShop.GetFloat(7)));
-        NwPlaceable panel = SqLiteUtils.PlaceableSerializationFormatProtection(playerShop, 1, Utils.GetLocationFromDatabase(playerShop.GetString(5), playerShop.GetString(6), playerShop.GetFloat(7)));
-        shop.GetObjectVariable<LocalVariableInt>("_OWNER_ID").Value = playerShop.GetInt(2);
-        shop.GetObjectVariable<LocalVariableInt>("_SHOP_ID").Value = playerShop.GetInt(3);
-        panel.GetObjectVariable<LocalVariableInt>("_OWNER_ID").Value = playerShop.GetInt(2);
-        panel.GetObjectVariable<LocalVariableInt>("_SHOP_ID").Value = playerShop.GetInt(3);
-        double expirationTime = (DateTime.Now - DateTime.Parse(playerShop.GetString(4))).TotalDays;
-
-        int ownerId = shop.GetObjectVariable<LocalVariableInt>("_OWNER_ID").Value;
-
-        if (expirationTime < 0)
-        {
-          Utils.SendMailToPC(ownerId, "Hôtel des ventes de Similisse", "Expiration du certificat de votre échoppe", 
-            $"Cher Marchand, \n\n Nous sommes au regret de vous informer que votre échoppe {panel.Name} a expiré. Nos hommes n'étant plus en mesure de la protéger, il se peut qu'elle ait été pillée par des vandales de passage ! \n\n Nous vous enjoignons à renouveller au plus vite votre certificat auprès de nos service. \n\n Signé : Polpo");
-
-          DeleteExpiredShop(ownerId);
-          Utils.SendDiscordPMToPlayer(ownerId, $"Cher Marchand, \n\n Nous sommes au regret de vous informer que votre échoppe { panel.Name} a expiré. Nos hommes n'étant plus en mesure de la protéger, il se peut qu'elle ait été pillée par des vandales de passage! \n\n Nous vous enjoignons à renouveller au plus vite votre certificat auprès de nos service. \n\n Signé : Polpo");
-        }
-        if (expirationTime < 2)
-        {
-          Utils.SendMailToPC(ownerId, "Hôtel des ventes de Similisse", "Expiration prochaine du certificat de votre échoppe",
-            $"Cher Marchand, \n\n Nous sommes au devoir de vous informer que le certificat de votre échoppe {panel.Name} aura expiré dès demain. Nos hommes ne seront alors plus en mesure de la protéger, c'est courir le risque de la voir pillée par des vandales de passage ! \n\n Nous vous enjoignons à renouveller au plus vite votre certificat auprès de nos service. \n\n Signé : Polpo");
-
-          Utils.SendDiscordPMToPlayer(ownerId, $"Cher Marchand, \n\n Nous sommes au regret de vous informer que votre échoppe { panel.Name} aura expiré dès demain. Nos hommes ne seront alors plus en mesure de la protéger, c'est courir le risque de la voir pillée par des vandales de passage ! \n\n Nous vous enjoignons à renouveller au plus vite votre certificat auprès de nos service. \n\n Signé : Polpo");
-        }
-        else if(expirationTime < 8)
-        {
-          Utils.SendMailToPC(ownerId, "Hôtel des ventes de Similisse", "Expiration prochaine du certificat de votre échoppe",
-            $"Cher Marchand, \n\n Nous sommes au devoir de vous informer que le certificat de votre échoppe {panel.Name} aura expiré dès la semaine prochaine. Nos hommes ne seront alors plus en mesure de la protéger, c'est courir le risque de la voir pillée par des vandales de passage ! \n\n Nous vous enjoignons à renouveller au plus vite votre certificat auprès de nos service. \n\n Signé : Polpo");
-
-          Utils.SendDiscordPMToPlayer(ownerId, $"Cher Marchand, \n\n Nous sommes au regret de vous informer que votre échoppe { panel.Name} aura expiré dès la semaine prochaine. Nos hommes ne seront alors plus en mesure de la protéger, c'est courir le risque de la voir pillée par des vandales de passage ! \n\n Nous vous enjoignons à renouveller au plus vite votre certificat auprès de nos service. \n\n Signé : Polpo");
-        }
-
-        panel.OnUsed += PlaceableSystem.OnUsedPlayerOwnedShop;
-
-        foreach (NwItem item in shop.Items)
-          item.BaseGoldValue = (uint)item.GetObjectVariable<LocalVariableInt>("_SET_SELL_PRICE").Value;
-      }
-    }
-    private async void DeleteExpiredShop(int rowid)
-    {
-      await NwTask.Delay(TimeSpan.FromSeconds(0.2));
-
-      SqLiteUtils.DeletionQuery("playerShops",
-          new Dictionary<string, string>() { { "rowid", rowid.ToString() } });
-    }
-    private void RestorePlayerAuctionsFromDatabase()
-    {
-      var result = SqLiteUtils.SelectQuery("playerAuctions",
-        new List<string>() { { "shop" }, { "panel" }, { "characterId" }, { "rowid" }, { "expirationDate" }, { "highestAuction" }, { "highestAuctionner" }, { "areaTag" }, { "position" }, { "facing" } },
-        new List<string[]>() { new string[] { "shop", "deleted", "!=" } });
-
-      foreach (var auction in result.Results)
-      {
-        NwStore shop = SqLiteUtils.StoreSerializationFormatProtection(auction, 0, Utils.GetLocationFromDatabase(auction.GetString(7), auction.GetString(8), auction.GetFloat(9)));
-        NwPlaceable panel = SqLiteUtils.PlaceableSerializationFormatProtection(auction, 1, Utils.GetLocationFromDatabase(auction.GetString(7), auction.GetString(8), auction.GetFloat(9)));
-        shop.GetObjectVariable<LocalVariableInt>("_OWNER_ID").Value = auction.GetInt(2);
-        shop.GetObjectVariable<LocalVariableInt>("_SHOP_ID").Value = auction.GetInt(3);
-        shop.GetObjectVariable<LocalVariableInt>("_CURRENT_AUCTION").Value = auction.GetInt(5);
-        shop.GetObjectVariable<LocalVariableInt>("_CURRENT_AUCTIONNER").Value = auction.GetInt(6);
-        panel.GetObjectVariable<LocalVariableInt>("_OWNER_ID").Value = auction.GetInt(2);
-        panel.GetObjectVariable<LocalVariableInt>("_SHOP_ID").Value = auction.GetInt(3);
-
-        panel.OnUsed += PlaceableSystem.OnUsedPlayerOwnedAuction;
-
-        foreach (NwItem item in shop.Items)
-          item.BaseGoldValue = (uint)item.GetObjectVariable<LocalVariableInt>("_CURRENT_AUCTION").Value;
-      }
-    }
+    
     public async void HandleExpiredAuctions()
     {
       var result = SqLiteUtils.SelectQuery("playerAuctions",
@@ -476,10 +324,10 @@ namespace NWN.Systems
           }
           else
           {
-            Utils.SendMailToPC(sellerId, "Hotel des ventes de Similisse", $"Enchère sur {tempItem.Name} expirée",
+            MiscUtils.SendMailToPC(sellerId, "Hotel des ventes de Similisse", $"Enchère sur {tempItem.Name} expirée",
               $"Très honoré vendeur, \n\n Nous avons le regret de vous annoncer que votre mise aux enchères de {tempItem.Name} a expiré sans trouver d'acheteur. \n\n L'objet a été restitué à votre entrepot. \n\n Signé : Polpo");
 
-            Utils.SendItemToPCStorage(sellerId, tempItem);
+            MiscUtils.SendItemToPCStorage(sellerId, tempItem);
           }
         }
         else
@@ -510,7 +358,7 @@ namespace NWN.Systems
                   new List<string[]>() { new string[] { "ROWID", sellerId.ToString() } });
               });
 
-              Utils.SendMailToPC(sellerId, "Hotel des ventes de Similisse", $"Enchère sur {tempItem.Name} conclue",
+              MiscUtils.SendMailToPC(sellerId, "Hotel des ventes de Similisse", $"Enchère sur {tempItem.Name} conclue",
                 $"Très honoré vendeur, \n\n Nous avons l'immense plaisir de vous annoncer que votre enchère sur {tempItem.Name} a porté ses fruits. \n\n Celle-ci vous a permis d'acquérir {highestAuction} pièce(s) d'or ! \n\n Signé : Polpo");
             }
           }
@@ -524,10 +372,10 @@ namespace NWN.Systems
           }
           else
           {
-            Utils.SendMailToPC(sellerId, "Hotel des ventes de Similisse", $"Enchère sur {tempItem.Name} remportée",
+            MiscUtils.SendMailToPC(sellerId, "Hotel des ventes de Similisse", $"Enchère sur {tempItem.Name} remportée",
                 $"Très honoré vendeur, \n\n Nous avons l'immense plaisir de vous annoncer que vous avez remporté l'enchère sur {tempItem.Name}. \n\n L'objet a été transformé dans votre entrepôt personnel ! \n\n Signé : Polpo");
 
-            Utils.SendItemToPCStorage(buyerId, tempItem);
+            MiscUtils.SendItemToPCStorage(buyerId, tempItem);
           }
         }
 
@@ -566,7 +414,7 @@ namespace NWN.Systems
         new List<string[]>() );
       
       foreach (var plc in result.Results)
-        SqLiteUtils.PlaceableSerializationFormatProtection(plc, 0, Utils.GetLocationFromDatabase(plc.GetString(1), plc.GetString(2), plc.GetFloat(3)));
+        SqLiteUtils.PlaceableSerializationFormatProtection(plc, 0, MiscUtils.GetLocationFromDatabase(plc.GetString(1), plc.GetString(2), plc.GetFloat(3)));
     }
     public static async Task DeleteExpiredMail()
     {

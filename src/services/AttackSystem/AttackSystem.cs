@@ -7,12 +7,19 @@ using System;
 using System.Collections.Generic;
 using Action = System.Action;
 using Context = NWN.Systems.Config.Context;
+using Utils;
 
-namespace NWN.Systems
+namespace AttackService
 {
   [ServiceBinding(typeof(AttackSystem))]
   public partial class AttackSystem
   {
+    public AttackSystem()
+    {
+      NwModule.Instance.OnCreatureAttack += HandleAttackEvent;
+      NwModule.Instance.OnCreatureDamage += HandleDamageEvent;
+    }
+
     public static Pipeline<Context> pipeline = new Pipeline<Context>(
       new Action<Context, Action>[]
       {

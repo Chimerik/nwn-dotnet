@@ -3,12 +3,22 @@ using Anvil.API;
 using Anvil.API.Events;
 using NWN.Core;
 using Anvil.Services;
+using Utils;
 
 namespace NWN.Systems
 {
   [ServiceBinding(typeof(DmSystem))]
   public class DmSystem
   {
+    public DmSystem()
+    {
+      NwModule.Instance.OnDMSpawnObjectAfter += HandleAfterDmSpawnObject;
+      NwModule.Instance.OnDMJumpTargetToPoint += HandleAfterDmJumpTarget;
+      NwModule.Instance.OnDMJumpAllPlayersToPoint += HandleBeforeDMJumpAllPlayers;
+      NwModule.Instance.OnDMGiveXP += HandleBeforeDmGiveXP;
+      NwModule.Instance.OnDMGiveGold += HandleBeforeDmGiveGold;
+      NwModule.Instance.OnDMGiveItemAfter += HandleAfterDmGiveItem;
+    }
     public static void HandleAfterDmSpawnObject(OnDMSpawnObjectAfter onSpawn)
     {
       if (!(onSpawn.SpawnedObject is NwPlaceable oPLC))
@@ -21,7 +31,7 @@ namespace NWN.Systems
         SqLiteUtils.InsertQuery("dm_persistant_placeable",
           new List<string[]>() { new string[] { "accountID", "0" }, new string[] { "serializedPlaceable", oPLC.Serialize().ToBase64EncodedString() }, new string[] { "areaTag", oPLC.Area.Tag }, new string[] { "position", oPLC.Position.ToString() }, new string[] { "facing", oPLC.Rotation.ToString() } });
 
-        var query = NwModule.Instance.PrepareCampaignSQLQuery(Config.database, $"SELECT last_insert_rowid()");
+        var query = NwModule.Instance.PrepareCampaignSQLQuery(SqLiteUtils.database, $"SELECT last_insert_rowid()");
         query.Execute();
         oPLC.GetObjectVariable<LocalVariableInt>("_ID").Value = query.Result.GetInt(0);
 
@@ -45,17 +55,17 @@ namespace NWN.Systems
     public static void HandleBeforeDmGiveXP(OnDMGiveXP onGive)
     {
       onGive.Skip = true;
-      Utils.LogMessageToDMs($"{onGive.DungeonMaster.PlayerName} vient d'essayer de donner de l'xp à {onGive.Target.Name}");
+      MiscUtils.LogMessageToDMs($"{onGive.DungeonMaster.PlayerName} vient d'essayer de donner de l'xp à {onGive.Target.Name}");
     }
 
     public static void HandleBeforeDmGiveGold(OnDMGiveGold onGive)
     {
-      Utils.LogMessageToDMs($"{onGive.DungeonMaster.PlayerName} vient de donner {onGive.Amount} po à {onGive.Target.Name}");
+      MiscUtils.LogMessageToDMs($"{onGive.DungeonMaster.PlayerName} vient de donner {onGive.Amount} po à {onGive.Target.Name}");
     }
 
     public static void HandleAfterDmGiveItem(OnDMGiveItemAfter onGive)
     {
-      Utils.LogMessageToDMs($"{onGive.DungeonMaster.PlayerName} vient de donner {onGive.Item.Name} à {onGive.Target.Name}");
+      MiscUtils.LogMessageToDMs($"{onGive.DungeonMaster.PlayerName} vient de donner {onGive.Item.Name} à {onGive.Target.Name}");
     }
   }
 }

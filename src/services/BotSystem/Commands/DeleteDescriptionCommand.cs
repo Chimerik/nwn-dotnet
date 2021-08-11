@@ -2,11 +2,11 @@
 using System.Threading.Tasks;
 using Discord.Commands;
 using Anvil.API;
-using NWN.Core;
+using Utils;
 
-namespace NWN.Systems
+namespace BotSystem
 {
-  public static partial class BotSystem
+  public static partial class BotCommand
   {
     public static async Task ExecuteDeleteDescriptionCommand(SocketCommandContext context, string pcName, string descriptionName)
     {

@@ -1,9 +1,9 @@
 ﻿using System.Threading.Tasks;
 using Discord.Commands;
 
-namespace NWN.Systems
+namespace BotSystem
 {
-    public static partial class BotSystem
+    public static partial class BotCommand
     {
         public static async Task ExecuteDisplayMagicInfoCommand(SocketCommandContext context)
         {

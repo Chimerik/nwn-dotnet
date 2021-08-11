@@ -23,7 +23,14 @@
     </PropertyGroup>
 
     <ItemGroup>
+        <PackageReference Include="Discord.Net" Version="2.4.0" />
+        <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="5.0.2" />
         <PackageReference Include="NWN.Anvil" Version="8193.26.0-dev.15.b48cf825" ExcludeAssets="runtime" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\..\libs\Utils\Utils.csproj" />
+      <ProjectReference Include="..\PlayerSystem\PlayerSystem.csproj" />
     </ItemGroup>
 
 </Project>

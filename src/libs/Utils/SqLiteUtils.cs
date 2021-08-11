@@ -4,14 +4,13 @@ using System.Collections.Generic;
 using System.Linq;
 using NLog;
 using Anvil.API;
-using NWN.Core;
-using NWN.Systems;
 
-namespace NWN
+namespace Utils
 {
   public static class SqLiteUtils
   {
     public static readonly Logger Log = LogManager.GetCurrentClassLogger();
+    public static string database = Environment.GetEnvironmentVariable("DB_NAME");
     public static bool DeletionQuery(string tableName, Dictionary<string, string> queryParameters, string operation = "=")
     {
       string queryString = $"DELETE from {tableName} where ";
@@ -21,7 +20,7 @@ namespace NWN
 
       queryString = queryString.Remove(queryString.Length - 5);
 
-      var query = NwModule.Instance.PrepareCampaignSQLQuery(Config.database, queryString);
+      var query = NwModule.Instance.PrepareCampaignSQLQuery(database, queryString);
 
       //Log.Info(queryString);
       string logString = "Binding : ";
@@ -38,7 +37,7 @@ namespace NWN
 
       if (query.Error != "")
       {
-        Utils.LogMessageToDMs($"{query.Error}");
+        MiscUtils.LogMessageToDMs($"{query.Error}");
         return false;
       }
 
@@ -64,7 +63,7 @@ namespace NWN
 
       queryString = queryString.Remove(queryString.Length - 5);
 
-      var query = NwModule.Instance.PrepareCampaignSQLQuery(Config.database, queryString);
+      var query = NwModule.Instance.PrepareCampaignSQLQuery(database, queryString);
 
       //Log.Info(queryString);
       string logString = "Binding SET : ";
@@ -89,7 +88,7 @@ namespace NWN
 
       if (query.Error != "")
       {
-        Utils.LogMessageToDMs($"{query.Error}");
+        MiscUtils.LogMessageToDMs($"{query.Error}");
         return false;
       }
 
@@ -121,7 +120,7 @@ namespace NWN
       }
       queryString += orderBy;
 
-      var query = NwModule.Instance.PrepareCampaignSQLQuery(Config.database, queryString);
+      var query = NwModule.Instance.PrepareCampaignSQLQuery(database, queryString);
   
       //Log.Info(queryString);
       string logString = "Binding WHERE : ";
@@ -137,7 +136,7 @@ namespace NWN
       query.Execute();
 
       if (query.Error != "")
-        Utils.LogMessageToDMs($"{queryString} - {query.Error}");
+        MiscUtils.LogMessageToDMs($"{queryString} - {query.Error}");
 
       return query;
     }
@@ -190,7 +189,7 @@ namespace NWN
         queryString = queryString.Remove(queryString.Length - 5);
       }
 
-      var query = NwModule.Instance.PrepareCampaignSQLQuery(Config.database, queryString);
+      var query = NwModule.Instance.PrepareCampaignSQLQuery(database, queryString);
 
       //Log.Info(queryString);
       string logString = "Binding : ";
@@ -206,7 +205,7 @@ namespace NWN
 
       if (query.Error != "")
       {
-        Utils.LogMessageToDMs($"{queryString} - {query.Error}");
+        MiscUtils.LogMessageToDMs($"{queryString} - {query.Error}");
         return false;
       }
 
@@ -214,14 +213,14 @@ namespace NWN
     }
     public static bool CreateQuery(string queryString)
     {
-      var query = NwModule.Instance.PrepareCampaignSQLQuery(Config.database, queryString);
+      var query = NwModule.Instance.PrepareCampaignSQLQuery(database, queryString);
       query.Execute();
 
       //Log.Info(queryString);
 
       if (query.Error != "")
       {
-        Utils.LogMessageToDMs($"{queryString} - {query.Error}");
+        MiscUtils.LogMessageToDMs($"{queryString} - {query.Error}");
         return false;
       }
 
