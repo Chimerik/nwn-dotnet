@@ -23,10 +23,7 @@ namespace NWN.Systems
 
         if (player.oid.PlayerName == "Chim")
         {
-          Effect frog = NWScript.EffectRunScript("frog_applied", "frog_removed");
-          frog.Tag = "CUSTOM_EFFECT_FROG_CURSE";
-
-          player.oid.ControlledCreature.ApplyEffect(EffectDuration.Temporary, frog, TimeSpan.FromSeconds(10));
+          player.oid.ControlledCreature.SetSkillRank(Skill.Concentration, (sbyte)(player.oid.LoginCreature.GetSkillRank(Anvil.API.Skill.Concentration, true) + 1));
 
           //PlayerSystem.cursorTargetService.EnterTargetMode(player.oid, OnTargetSelected, ObjectTypes.All, MouseCursor.Pickup);
         }

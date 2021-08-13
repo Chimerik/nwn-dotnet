@@ -38,11 +38,12 @@
 
     <ItemGroup>
         <PackageReference Include="Discord.Net" Version="2.4.0" />
-        <PackageReference Include="Google.Api.Gax" Version="3.5.0-beta01" />
+        <PackageReference Include="Google.Api.Gax" Version="3.4.0" />
         <PackageReference Include="Google.Apis" Version="1.54.0" />
         <PackageReference Include="Google.Apis.Auth" Version="1.54.0" />
         <PackageReference Include="Google.Cloud.Translation.V2" Version="2.1.0" />
-        <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="6.0.0-preview.6.21352.12" />
+        <PackageReference Include="Microsoft.Data.Sqlite" Version="5.0.9" />
+        <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="5.0.2" />
         <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
         <PackageReference Include="NWN.Core" Version="8193.30.4" />
         <PackageReference Include="NWN.Native" Version="8193.30.1" />

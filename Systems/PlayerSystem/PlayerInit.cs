@@ -397,9 +397,9 @@ namespace NWN.Systems
         player.LoginCreature.OnCombatModeToggle += HandleCombatModeOff;
         player.LoginCreature.OnInventoryGoldAdd += HandleGainedGold;
         player.LoginCreature.OnInventoryGoldRemove += HandleLostGold;
-
-        EventsPlugin.AddObjectToDispatchList("NWNX_ON_ITEM_UNEQUIP_BEFORE", "b_unequip", player.LoginCreature);
-        EventsPlugin.AddObjectToDispatchList("NWNX_ON_USE_SKILL_BEFORE", "event_skillused", player.LoginCreature);
+        player.LoginCreature.OnItemScrollLearn += HandleBeforeScrollLearn;
+        player.LoginCreature.OnItemUnequip += ItemSystem.HandleUnequipItemBefore;
+        player.LoginCreature.OnUseSkill += HandleBeforeSkillUsed;
       }
       private void InitializePlayerAccount()
       {
@@ -433,8 +433,8 @@ namespace NWN.Systems
         previousSPCalculation = DateTime.TryParse(result.Result.GetString(14), out DateTime previousSPDate) ? previousSPDate : null;
         learnables = JsonConvert.DeserializeObject<Dictionary<string, Learnable>>(result.Result.GetString(15));
 
-        foreach (Learnable learnable in learnables.Values)
-          learnable.InitializeLearnableLevel(this);
+        foreach (KeyValuePair<string, Learnable> learnable in learnables)
+          learnable.Value.InitializeLearnableLevel(this);
 
         result = SqLiteUtils.SelectQuery("playerMaterialStorage",
           new List<string>() { { "materialName" }, { "materialStock" } },

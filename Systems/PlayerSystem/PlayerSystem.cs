@@ -60,15 +60,12 @@ namespace NWN.Systems
         onCombatMode.Creature.GetObjectVariable<LocalVariableInt>("_ACTIVATED_TAUNT").Delete();
       }
     }
-    [ScriptHandler("event_skillused")]
-    private void HandleBeforeSkillUsed(CallInfo callInfo)
+
+    private static void HandleBeforeSkillUsed(OnUseSkill onUseSkill)
     {
-      if (!(callInfo.ObjectSelf is NwCreature { IsLoginPlayerCharacter: true } oPC))
-        return;
-
-      int skillID = int.Parse(EventsPlugin.GetEventData("SKILL_ID"));
-
-      switch ((Skill)skillID)
+      NwCreature oPC = onUseSkill.Creature;
+      
+      switch (onUseSkill.Skill)
       {
         case Skill.Taunt:
           oPC.GetObjectVariable<LocalVariableInt>("_ACTIVATED_TAUNT").Value = 1;
@@ -81,10 +78,9 @@ namespace NWN.Systems
 
           break;
         case Skill.PickPocket:
-          EventsPlugin.SkipEvent();
+          onUseSkill.PreventSkillUse = true;
 
-          if (!(NWScript.StringToObject(EventsPlugin.GetEventData("TARGET_OBJECT_ID")).ToNwObject() is NwCreature { IsLoginPlayerCharacter: true } oTarget)
-            || oTarget.ControllingPlayer.IsDM)
+          if (!(onUseSkill.Target is NwCreature { IsLoginPlayerCharacter: true } oTarget) || oTarget.ControllingPlayer.IsDM)
           {
             oPC.ControllingPlayer.FloatingTextString("Seuls d'autres joueurs peuvent être ciblés par cette compétence. Les tentatives de vol sur PNJ doivent être jouées en rp avec un dm.".ColorString(ColorConstants.Red), false);
             return;
@@ -93,7 +89,7 @@ namespace NWN.Systems
           if (!DateTime.TryParse(oTarget.GetObjectVariable<PersistentVariableString>($"_PICKPOCKET_TIMER_{oPC.Name}").Value, out DateTime previousDate)
               || (DateTime.Now - previousDate).TotalHours < 24)
           {
-            oPC.ControllingPlayer.FloatingTextString($"Vous ne serez autorisé à faire une nouvelle tentative de vol que dans : {(DateTime.Now - previousDate).TotalHours + 1}", false);
+            oPC.ControllingPlayer.FloatingTextString($"Vous ne serez autorisé à faire une nouvelle tentative de vol que dans : {(DateTime.Now - previousDate).TotalHours + 1} heure(s)", false);
             return;
           }
 
@@ -267,14 +263,15 @@ namespace NWN.Systems
       }
     }
 
-    [ScriptHandler("b_learn_scroll")]
-    private void HandleBeforeLearnScroll(CallInfo callInfo)
+    public static void HandleBeforeScrollLearn(OnItemScrollLearn onScrollLearn)
     {
-      if (!(callInfo.ObjectSelf is NwCreature { IsLoginPlayerCharacter: true } oPC))
+      NwCreature oPC = onScrollLearn.Creature;
+
+      if (!Players.TryGetValue(onScrollLearn.Creature, out Player player))
         return;
 
-      EventsPlugin.SkipEvent();
-      NwItem oScroll = NWScript.StringToObject(EventsPlugin.GetEventData("SCROLL")).ToNwObject<NwItem>();
+      onScrollLearn.PreventLearnScroll = true;
+      NwItem oScroll = onScrollLearn.Scroll;
       Spell spellId = SpellUtils.GetSpellIDFromScroll(oScroll);
       byte spellLevel = SpellUtils.GetSpellLevelFromScroll(oScroll);
 
@@ -291,28 +288,28 @@ namespace NWN.Systems
         return;
       }
 
-      if (Players.TryGetValue(oPC, out Player player))
-        if (player.learnables.ContainsKey($"S{spellId}"))
-        {
-          Learnable learnable = player.learnables[$"S{spellId}"];
 
-          if (learnable.nbScrollsUsed <= 5)
-          {
-            learnable.acquiredPoints += learnable.pointsToNextLevel / 20;
-            learnable.nbScrollsUsed += 1;
-            oPC.ControllingPlayer.SendServerMessage($"A l'aide de ce parchemin, vous affinez votre connaissance du sort de {learnable.name.ColorString(ColorConstants.White)}. Votre apprentissage sera plus rapide.", new Color(32, 255, 32));
-          }
-          else
-            oPC.ControllingPlayer.SendServerMessage("Vous avez déjà retiré tout ce que vous pouviez de ce parchemin.", ColorConstants.Orange);
-          return;
+      if (player.learnables.ContainsKey($"S{spellId}"))
+      {
+        Learnable learnable = player.learnables[$"S{spellId}"];
+
+        if (learnable.nbScrollsUsed <= 5)
+        {
+          learnable.acquiredPoints += learnable.pointsToNextLevel / 20;
+          learnable.nbScrollsUsed += 1;
+          oPC.ControllingPlayer.SendServerMessage($"A l'aide de ce parchemin, vous affinez votre connaissance du sort de {learnable.name.ColorString(ColorConstants.White)}. Votre apprentissage sera plus rapide.", new Color(32, 255, 32));
         }
         else
-        {
-          Learnable spell = new Learnable(LearnableType.Spell, (int)spellId, 0).InitializeLearnableLevel(player);
-          player.learnables.Add($"S{(int)spellId}", spell);
-          oPC.ControllingPlayer.SendServerMessage($"Le sort {spell.name} a été ajouté à votre liste d'apprentissage et est désormais disponible pour étude.");
-          oScroll.Destroy();
-        }
+          oPC.ControllingPlayer.SendServerMessage("Vous avez déjà retiré tout ce que vous pouviez de ce parchemin.", ColorConstants.Orange);
+        return;
+      }
+      else
+      {
+        Learnable spell = new Learnable(LearnableType.Spell, (int)spellId, 0).InitializeLearnableLevel(player);
+        player.learnables.Add($"S{(int)spellId}", spell);
+        oPC.ControllingPlayer.SendServerMessage($"Le sort {spell.name} a été ajouté à votre liste d'apprentissage et est désormais disponible pour étude.");
+        oScroll.Destroy();
+      }
     }
 
     [ScriptHandler("collect_cancel")]
@@ -379,8 +376,16 @@ namespace NWN.Systems
     {
       NwCreature oPC = NWScript.GetLastGuiEventPlayer().ToNwObject<NwCreature>();
 
-      switch(NWScript.GetLastGuiEventType())
+      switch (NWScript.GetLastGuiEventType())
       {
+        case NWScript.GUIEVENT_PARTYBAR_PORTRAIT_CLICK:
+          oPC.ControllingPlayer.SendServerMessage("portrait click");
+          break;
+
+        case NWScript.GUIEVENT_PLAYERLIST_PLAYER_CLICK:
+          oPC.ControllingPlayer.SendServerMessage("player list click");
+          break;
+
         case NWScript.GUIEVENT_CHATBAR_FOCUS:
 
           if (NWScript.GetLastGuiEventInteger() > 3)
@@ -402,14 +407,25 @@ namespace NWN.Systems
 
         case NWScript.GUIEVENT_EFFECTICON_CLICK:
 
-          EffectType nIconEffectType = EffectIconToEffectType(NWScript.GetLastGuiEventInteger());
+          int nEffectIcon = NWScript.GetLastGuiEventInteger();
+          EffectType nIconEffectType = EffectIconToEffectType(nEffectIcon);
 
           if (nIconEffectType == EffectType.InvalidEffect)
             return;
 
-          foreach(Effect eff in oPC.ActiveEffects.Where(e => e.EffectType == nIconEffectType))
+          bool bSkipDisplay = false, bIsSpellLevelAbsorptionPretendingToBeSpellImmunity = false;
+
+          foreach (Effect eff in oPC.ActiveEffects.Where(e => e.EffectType == nIconEffectType))
           {
-            SpellsTable.Entry entry = Spells2da.spellsTable.GetSpellDataEntry(eff.Spell);
+            SpellsTable.Entry entry;
+            string name = "Echec des sorts 50 %";
+            int nAmount, nRemaining;
+
+            if (eff.Spell != Spell.AllSpells)
+            {
+              entry = Spells2da.spellsTable.GetSpellDataEntry(eff.Spell);
+              name = entry.name;
+            }
 
             float percentageRemaining = eff.DurationRemaining / eff.TotalDuration;
             Color color = ColorConstants.White;
@@ -421,9 +437,10 @@ namespace NWN.Systems
             else
               color = ColorConstants.Lime;
 
-            string durationRemaining = eff.DurationType == EffectDuration.Permanent ? "Permanent".ColorString(new Color(32, 255, 32)) : eff.DurationRemaining.ToString().ColorString(color);
+            string durationRemaining = eff.DurationType == EffectDuration.Permanent ? "Permanent".ColorString(new Color(32, 255, 32)) : $"Temps restant : {Utils.StripTimeSpanMilliseconds(DateTime.Now.AddSeconds(eff.DurationRemaining) - DateTime.Now)}".ColorString(color);
             string sStats = "";
             string sRacialTypeAlignment = "";
+
             string sModifier = "";
 
             switch (eff.EffectType)
@@ -456,13 +473,233 @@ namespace NWN.Systems
                 sRacialTypeAlignment = GetVersusRacialTypeAndAlignment(eff.IntParams.ElementAt(3), eff.IntParams.ElementAt(4), eff.IntParams.ElementAt(5));
 
                 break;
+
+              case EffectType.AbilityIncrease:
+              case EffectType.AbilityDecrease:
+                {
+                  Ability nAbility = AbilityTypeFromEffectIconAbility(nEffectIcon);
+
+                  if ((int)nAbility != eff.IntParams.ElementAt(0))
+                    bSkipDisplay = true;
+                  else
+                  {
+                    sModifier = GetModifierType(eff.EffectType, EffectType.AbilityIncrease, EffectType.AbilityDecrease);
+                    sStats = $"{sModifier}{eff.IntParams.ElementAt(1)}  {AbilityToString(nAbility)}";
+                  }
+                  break;
+                }
+
+              case EffectType.DamageIncrease:
+              case EffectType.DamageDecrease:
+                {
+                  sModifier = GetModifierType(eff.EffectType, EffectType.DamageIncrease, EffectType.DamageDecrease);
+
+                  sStats = sModifier + NWScript.GetStringByStrRef(int.Parse(NWScript.Get2DAString("iprp_damagecost", "Name", eff.IntParams.ElementAt(0)))) + " (" + DamageTypeToString(eff.IntParams.ElementAt(1)) + ")";
+                  sRacialTypeAlignment = GetVersusRacialTypeAndAlignment(eff.IntParams.ElementAt(2), eff.IntParams.ElementAt(3), eff.IntParams.ElementAt(4));
+                  break;
+                }
+
+              case EffectType.SkillIncrease:
+              case EffectType.SkillDecrease:
+                {
+                  int nSkill = eff.IntParams.ElementAt(0);
+                  string sSkill = nSkill == 255 ? "Toute compétence" : NWScript.GetStringByStrRef(int.Parse(NWScript.Get2DAString("skills", "Name", nSkill)));
+                  sModifier = GetModifierType(eff.EffectType, EffectType.SkillIncrease, EffectType.SkillDecrease);
+                  sStats = sModifier + eff.IntParams.ElementAt(1) + " " + sSkill;
+                  sRacialTypeAlignment = GetVersusRacialTypeAndAlignment(eff.IntParams.ElementAt(2), eff.IntParams.ElementAt(3), eff.IntParams.ElementAt(4));
+                  break;
+                }
+
+              case EffectType.TemporaryHitpoints:
+                {
+                  sStats = "+" + eff.IntParams.ElementAt(0) + " Points de vie";
+                  break;
+                }
+
+              case EffectType.DamageReduction:
+                {
+                  nAmount = eff.IntParams.ElementAt(0);
+                  int nDamagePower = eff.IntParams.ElementAt(1);
+                  nDamagePower = nDamagePower > 6 ? --nDamagePower : nDamagePower;
+                  nRemaining = eff.IntParams.ElementAt(2);
+                  sStats = nAmount + "/+" + nDamagePower + " (" + (nRemaining == 0 ? "Illimité" : nRemaining + " Dégâts Restants") + ")";
+                  break;
+                }
+
+              case EffectType.DamageResistance:
+                {
+                  nAmount = eff.IntParams.ElementAt(1);
+                  nRemaining = eff.IntParams.ElementAt(2);
+                  sStats = nAmount + "/- " + DamageTypeToString(eff.IntParams.ElementAt(0)) + " Résistance (" + (nRemaining == 0 ? "Illimité" : nRemaining + " Dégâts Restants") + ")";
+                  break;
+                }
+
+              case EffectType.Immunity:
+                {
+                  ImmunityType nImmunity = ImmunityTypeFromEffectIconImmunity(nEffectIcon);
+
+                  if ((int)nImmunity != eff.IntParams.ElementAt(0))
+                    bSkipDisplay = true;
+                  else
+                  {
+                    sStats = NWScript.GetStringByStrRef(int.Parse(NWScript.Get2DAString("effecticons", "StrRef", nEffectIcon)));
+                    sRacialTypeAlignment = GetVersusRacialTypeAndAlignment(eff.IntParams.ElementAt(1), eff.IntParams.ElementAt(2), eff.IntParams.ElementAt(3));
+                  }
+                  break;
+                }
+
+              case EffectType.DamageImmunityIncrease:
+              case EffectType.DamageImmunityDecrease:
+                {
+                  int nDamageType = eff.IntParams.ElementAt(0);
+                  DamageType nDamageTypeFromIcon = DamageTypeFromEffectIconDamageImmunity(nEffectIcon);
+
+                  if (nDamageTypeFromIcon != DamageType.BaseWeapon && nDamageType != (int)nDamageTypeFromIcon)
+                    bSkipDisplay = true;
+
+                  sModifier = GetModifierType(eff.EffectType, EffectType.DamageImmunityIncrease, EffectType.DamageImmunityDecrease);
+                  sStats = sModifier + eff.IntParams.ElementAt(1) + "% " + DamageTypeToString(nDamageType) + " Damage Immunity";
+                  break;
+                }
+
+              case EffectType.SpellImmunity:
+                {
+                  sStats = "Immunité au sort : " + Spells2da.spellsTable.GetSpellDataEntry((Spell)eff.IntParams.ElementAt(0)).name;
+                  break;
+                }
+
+              case EffectType.SpellLevelAbsorption:
+                {
+                  int nMaxSpellLevelAbsorbed = eff.IntParams.ElementAt(0);
+                  bool bUnlimited = eff.IntParams.ElementAt(3).ToBool();
+                  string sSpellLevel;
+                  switch (nMaxSpellLevelAbsorbed)
+                  {
+                    case 0: sSpellLevel = "Tours de magie"; break;
+                    default: sSpellLevel = "Niveau " + nMaxSpellLevelAbsorbed; break;
+                  }
+                  sSpellLevel += " Level" + (nMaxSpellLevelAbsorbed == 0 ? "" : " and Below");
+                  string sSpellSchool = SpellSchoolToString(eff.IntParams.ElementAt(2));
+                  string sRemainingSpellLevels = bUnlimited ? "" : "(" + eff.IntParams.ElementAt(1) + " Niveaux de sorts restants)";
+                  sStats = sSpellLevel + " " + sSpellSchool + " Spell Immunity " + sRemainingSpellLevels;
+
+                  if (bIsSpellLevelAbsorptionPretendingToBeSpellImmunity)
+                    nIconEffectType = EffectType.SpellImmunity;
+                  else if (bUnlimited && !bIsSpellLevelAbsorptionPretendingToBeSpellImmunity)
+                    bSkipDisplay = true;
+
+                  break;
+                }
+
+              case EffectType.Regenerate:
+                {
+                  sStats = "+" + eff.IntParams.ElementAt(0) + " HP / " + (eff.IntParams.ElementAt(1) / 1000.0f).ToString("0.00") + "s";
+                  break;
+                }
+
+              case EffectType.Poison:
+                {
+                  sStats = "Poison: " + NWScript.GetStringByStrRef(int.Parse(NWScript.Get2DAString("poison", "Name", eff.IntParams.ElementAt(0))));
+                  break;
+                }
+
+              case EffectType.Disease:
+                {
+                  sStats = "Disease: " + NWScript.GetStringByStrRef(int.Parse(NWScript.Get2DAString("disease", "Name", eff.IntParams.ElementAt(0))));
+                  break;
+                }
+
+              case EffectType.Curse:
+                {
+                  int nAbility;
+                  string sAbilityDecrease = "";
+
+                  for (nAbility = 0; nAbility < 6; nAbility++)
+                  {
+                    int nAbilityMod = eff.IntParams.ElementAt(nAbility);
+                    if (nAbilityMod > 0)
+                    {
+                      string sAbility = AbilityToString((Ability)nAbility).Substring(0, 3);
+                      sAbilityDecrease += "-" + nAbilityMod + " " + sAbility + ", ";
+                    }
+                  }
+
+                  sAbilityDecrease = sAbilityDecrease.Substring(0, sAbilityDecrease.Length - 2);
+                  sStats = sAbilityDecrease;
+                  break;
+                }
+
+              case EffectType.MovementSpeedIncrease:
+              case EffectType.MovementSpeedDecrease:
+                {
+                  sModifier = GetModifierType(eff.EffectType, EffectType.MovementSpeedIncrease, EffectType.MovementSpeedDecrease);
+                  sStats = sModifier + eff.IntParams.ElementAt(0) + "% Movement Speed";
+                  break;
+                }
+
+              case EffectType.ElementalShield:
+                {
+                  sStats = eff.IntParams.ElementAt(0) + " + " + NWScript.GetStringByStrRef(int.Parse(NWScript.Get2DAString("iprp_damagecost", "Name", eff.IntParams.ElementAt(1)) + " (" + DamageTypeToString(eff.IntParams.ElementAt(2)))) + ")";
+                  break;
+                }
+
+              case EffectType.NegativeLevel:
+                {
+                  sStats = "-" + eff.IntParams.ElementAt(0) + " Niveaux";
+                  break;
+                }
+
+              case EffectType.Concealment:
+                {
+                  string sMissChance = MissChanceToString(eff.IntParams.ElementAt(4) - 1);
+                  sStats = eff.IntParams.ElementAt(0) + "% Concealment" + (sMissChance == "" ? "" : " (" + sMissChance + ")");
+                  sRacialTypeAlignment = GetVersusRacialTypeAndAlignment(eff.IntParams.ElementAt(1), eff.IntParams.ElementAt(2), eff.IntParams.ElementAt(3));
+                  break;
+                }
+
+              case EffectType.SpellResistanceIncrease:
+              case EffectType.SpellResistanceDecrease:
+                {
+                  sModifier = GetModifierType(eff.EffectType, EffectType.SpellResistanceIncrease, EffectType.SpellResistanceDecrease);
+                  sStats = sModifier + eff.IntParams.ElementAt(0) + " Résistance aux sorts";
+                  break;
+                }
+
+              case EffectType.SpellFailure:
+                {
+                  sStats = eff.IntParams.ElementAt(0) + "% Echec des sorts (Ecole : " + SpellSchoolToString(eff.IntParams.ElementAt(1)) + ")";
+                  break;
+                }
+
+              case EffectType.Invisibility:
+                {
+                  int nInvisibilityType = eff.IntParams.ElementAt(0);
+                  if (nEffectIcon == NWScript.EFFECT_ICON_INVISIBILITY)
+                    bSkipDisplay = nInvisibilityType != NWScript.INVISIBILITY_TYPE_NORMAL;
+                  else if (nEffectIcon == NWScript.EFFECT_ICON_IMPROVEDINVISIBILITY)
+                    bSkipDisplay = nInvisibilityType != NWScript.INVISIBILITY_TYPE_IMPROVED;
+                  if (!bSkipDisplay)
+                  {
+                    sStats = "Invisibilité" + (nInvisibilityType == NWScript.INVISIBILITY_TYPE_IMPROVED ? "Suprème " : "");
+                    sRacialTypeAlignment = GetVersusRacialTypeAndAlignment(eff.IntParams.ElementAt(1), eff.IntParams.ElementAt(2), eff.IntParams.ElementAt(3));
+                  }
+                  break;
+                }
             }
 
+            if (!bSkipDisplay)
+            {
+              string creator = !eff.Creator.IsValid ? "Inconnue" : eff.Creator.Name;
+              string message = $"\n{name.ColorString(ColorConstants.Red)}\n";
+              message += $"{durationRemaining}\n";
+              message += sStats == "" ? "" : " -> " + sStats + sRacialTypeAlignment + "\n";
+              message += $"Source : {creator}";
 
-            oPC.ControllingPlayer.SendServerMessage($"{entry.name.ColorString(ColorConstants.White)}\n\n" +
-              $"{durationRemaining}", ColorConstants.Orange);
+
+              oPC.ControllingPlayer.SendServerMessage(message, ColorConstants.Orange);
+            }
           }
-
+          
           break;
       }
     }
@@ -483,6 +720,170 @@ namespace NWN.Systems
       }
 
       return "";
+    }
+    string SpellSchoolToString(int nSpellSchool)
+    {
+      switch (nSpellSchool)
+      {
+        case NWScript.SPELL_SCHOOL_GENERAL: return "Généraliste";
+        case NWScript.SPELL_SCHOOL_ABJURATION: return "Abjuration";
+        case NWScript.SPELL_SCHOOL_CONJURATION: return "Invocation";
+        case NWScript.SPELL_SCHOOL_DIVINATION: return "Divination";
+        case NWScript.SPELL_SCHOOL_ENCHANTMENT: return "Enchantement";
+        case NWScript.SPELL_SCHOOL_EVOCATION: return "Evocation";
+        case NWScript.SPELL_SCHOOL_ILLUSION: return "Illusion";
+        case NWScript.SPELL_SCHOOL_NECROMANCY: return "Nécromancie";
+        case NWScript.SPELL_SCHOOL_TRANSMUTATION: return "Transmutation";
+      }
+
+      return "";
+    }
+
+    string MissChanceToString(int nMissChance)
+    {
+      switch ((MissChanceType)nMissChance)
+      {
+        case MissChanceType.VsRanged: return "vs. Distance";
+        case MissChanceType.VsMelee: return "vs. Mêlée";
+      }
+
+      return "";
+    }
+    DamageType DamageTypeFromEffectIconDamageImmunity(int nEffectIcon)
+    {
+      switch (nEffectIcon)
+      {
+        case NWScript.EFFECT_ICON_DAMAGE_IMMUNITY_MAGIC:
+        case NWScript.EFFECT_ICON_DAMAGE_IMMUNITY_MAGIC_DECREASE:
+          return DamageType.Magical;
+        case NWScript.EFFECT_ICON_DAMAGE_IMMUNITY_ACID:
+        case NWScript.EFFECT_ICON_DAMAGE_IMMUNITY_ACID_DECREASE:
+          return DamageType.Acid;
+        case NWScript.EFFECT_ICON_DAMAGE_IMMUNITY_COLD:
+        case NWScript.EFFECT_ICON_DAMAGE_IMMUNITY_COLD_DECREASE:
+          return DamageType.Cold;
+        case NWScript.EFFECT_ICON_DAMAGE_IMMUNITY_DIVINE:
+        case NWScript.EFFECT_ICON_DAMAGE_IMMUNITY_DIVINE_DECREASE:
+          return DamageType.Divine;
+        case NWScript.EFFECT_ICON_DAMAGE_IMMUNITY_ELECTRICAL:
+        case NWScript.EFFECT_ICON_DAMAGE_IMMUNITY_ELECTRICAL_DECREASE:
+          return DamageType.Electrical;
+        case NWScript.EFFECT_ICON_DAMAGE_IMMUNITY_FIRE:
+        case NWScript.EFFECT_ICON_DAMAGE_IMMUNITY_FIRE_DECREASE:
+          return DamageType.Fire;
+        case NWScript.EFFECT_ICON_DAMAGE_IMMUNITY_NEGATIVE:
+        case NWScript.EFFECT_ICON_DAMAGE_IMMUNITY_NEGATIVE_DECREASE:
+          return DamageType.Negative;
+        case NWScript.EFFECT_ICON_DAMAGE_IMMUNITY_POSITIVE:
+        case NWScript.EFFECT_ICON_DAMAGE_IMMUNITY_POSITIVE_DECREASE:
+          return DamageType.Positive;
+        case NWScript.EFFECT_ICON_DAMAGE_IMMUNITY_SONIC:
+        case NWScript.EFFECT_ICON_DAMAGE_IMMUNITY_SONIC_DECREASE:
+          return DamageType.Sonic;
+      }
+
+      return DamageType.BaseWeapon;
+    }
+    ImmunityType ImmunityTypeFromEffectIconImmunity(int nEffectIcon)
+    {
+      switch (nEffectIcon)
+      {
+        case NWScript.EFFECT_ICON_IMMUNITY_MIND: return ImmunityType.MindSpells;
+        case NWScript.EFFECT_ICON_IMMUNITY_POISON: return ImmunityType.Poison;
+        case NWScript.EFFECT_ICON_IMMUNITY_DISEASE: return ImmunityType.Disease;
+        case NWScript.EFFECT_ICON_IMMUNITY_FEAR: return ImmunityType.Fear;
+        case NWScript.EFFECT_ICON_IMMUNITY_TRAP: return ImmunityType.Trap;
+        case NWScript.EFFECT_ICON_IMMUNITY_PARALYSIS: return ImmunityType.Paralysis;
+        case NWScript.EFFECT_ICON_IMMUNITY_BLINDNESS: return ImmunityType.Blindness;
+        case NWScript.EFFECT_ICON_IMMUNITY_DEAFNESS: return ImmunityType.Deafness;
+        case NWScript.EFFECT_ICON_IMMUNITY_SLOW: return ImmunityType.Slow;
+        case NWScript.EFFECT_ICON_IMMUNITY_ENTANGLE: return ImmunityType.Entangle;
+        case NWScript.EFFECT_ICON_IMMUNITY_SILENCE: return ImmunityType.Silence;
+        case NWScript.EFFECT_ICON_IMMUNITY_STUN: return ImmunityType.Stun;
+        case NWScript.EFFECT_ICON_IMMUNITY_SLEEP: return ImmunityType.Sleep;
+        case NWScript.EFFECT_ICON_IMMUNITY_CHARM: return ImmunityType.Charm;
+        case NWScript.EFFECT_ICON_IMMUNITY_DOMINATE: return ImmunityType.Dominate;
+        case NWScript.EFFECT_ICON_IMMUNITY_CONFUSE: return ImmunityType.Confused;
+        case NWScript.EFFECT_ICON_IMMUNITY_CURSE: return ImmunityType.Cursed;
+        case NWScript.EFFECT_ICON_IMMUNITY_DAZED: return ImmunityType.Dazed;
+        case NWScript.EFFECT_ICON_IMMUNITY_ABILITY_DECREASE: return ImmunityType.AbilityDecrease;
+        case NWScript.EFFECT_ICON_IMMUNITY_ATTACK_DECREASE: return ImmunityType.AttackDecrease;
+        case NWScript.EFFECT_ICON_IMMUNITY_DAMAGE_DECREASE: return ImmunityType.DamageDecrease;
+        case NWScript.EFFECT_ICON_IMMUNITY_DAMAGE_IMMUNITY_DECREASE: return ImmunityType.DamageImmunityDecrease;
+        case NWScript.EFFECT_ICON_IMMUNITY_AC_DECREASE: return ImmunityType.AcDecrease;
+        case NWScript.EFFECT_ICON_IMMUNITY_MOVEMENT_SPEED_DECREASE: return ImmunityType.MovementSpeedDecrease;
+        case NWScript.EFFECT_ICON_IMMUNITY_SAVING_THROW_DECREASE: return ImmunityType.SavingThrowDecrease;
+        case NWScript.EFFECT_ICON_IMMUNITY_SPELL_RESISTANCE_DECREASE: return ImmunityType.SpellResistanceDecrease;
+        case NWScript.EFFECT_ICON_IMMUNITY_SKILL_DECREASE: return ImmunityType.SkillDecrease;
+        case NWScript.EFFECT_ICON_IMMUNITY_KNOCKDOWN: return ImmunityType.Knockdown;
+        case NWScript.EFFECT_ICON_IMMUNITY_NEGATIVE_LEVEL: return ImmunityType.NegativeLevel;
+        case NWScript.EFFECT_ICON_IMMUNITY_SNEAK_ATTACK: return ImmunityType.SneakAttack;
+        case NWScript.EFFECT_ICON_IMMUNITY_CRITICAL_HIT: return ImmunityType.CriticalHit;
+        case NWScript.EFFECT_ICON_IMMUNITY_DEATH_MAGIC: return ImmunityType.Death;
+      }
+
+      return ImmunityType.None;
+    }
+    string AbilityToString(Ability nAbility)
+    {
+      switch (nAbility)
+      {
+        case Ability.Strength: return "Force";
+        case Ability.Dexterity: return "Dextérité";
+        case Ability.Constitution: return "Constitution";
+        case Ability.Intelligence: return "Intelligence";
+        case Ability.Wisdom: return "Sagesse";
+        case Ability.Charisma: return "Charisme";
+      }
+
+      return "";
+    }
+    string DamageTypeToString(int nDamageType)
+    {
+      switch ((DamageType)nDamageType)
+      {
+        case DamageType.Bludgeoning: return "Contondant";
+        case DamageType.Piercing: return "Perçant";
+        case DamageType.Slashing: return "Tranchant";
+        case DamageType.Magical: return "Magique";
+        case DamageType.Acid: return "Acide";
+        case DamageType.Cold: return "Froid";
+        case DamageType.Divine: return "Divin";
+        case DamageType.Electrical: return "Electrique";
+        case DamageType.Fire: return "Feu";
+        case DamageType.Negative: return "Negatif";
+        case DamageType.Positive: return "Positif";
+        case DamageType.Sonic: return "Sonique";
+        case DamageType.BaseWeapon: return "Base";
+      }
+
+      return "";
+    }
+    Ability AbilityTypeFromEffectIconAbility(int nEffectIcon)
+    {
+      switch (nEffectIcon)
+      {
+        case NWScript.EFFECT_ICON_ABILITY_INCREASE_STR:
+        case NWScript.EFFECT_ICON_ABILITY_DECREASE_STR:
+          return Ability.Strength;
+        case NWScript.EFFECT_ICON_ABILITY_INCREASE_DEX:
+        case NWScript.EFFECT_ICON_ABILITY_DECREASE_DEX:
+          return Ability.Dexterity;
+        case NWScript.EFFECT_ICON_ABILITY_INCREASE_CON:
+        case NWScript.EFFECT_ICON_ABILITY_DECREASE_CON:
+          return Ability.Constitution;
+        case NWScript.EFFECT_ICON_ABILITY_INCREASE_INT:
+        case NWScript.EFFECT_ICON_ABILITY_DECREASE_INT:
+          return Ability.Intelligence;
+        case NWScript.EFFECT_ICON_ABILITY_INCREASE_WIS:
+        case NWScript.EFFECT_ICON_ABILITY_DECREASE_WIS:
+          return Ability.Wisdom;
+        case NWScript.EFFECT_ICON_ABILITY_INCREASE_CHA:
+        case NWScript.EFFECT_ICON_ABILITY_DECREASE_CHA:
+          return Ability.Charisma;
+      }
+
+      return Ability.Strength;
     }
 
     string SavingThrowToString(int nSavingThrow)

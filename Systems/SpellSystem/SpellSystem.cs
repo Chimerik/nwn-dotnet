@@ -141,6 +141,16 @@ namespace NWN.Systems
           new RaiseDead(onSpellCast);
           oPC.GetObjectVariable<LocalVariableInt>("X2_L_BLOCK_LAST_SPELL").Value = 1;
           break;
+
+        case Spell.Invisibility:
+          new Invisibility(onSpellCast);
+          oPC.GetObjectVariable<LocalVariableInt>("X2_L_BLOCK_LAST_SPELL").Value = 1;
+          break;
+
+        case Spell.ImprovedInvisibility:
+          new ImprovedInvisibility(onSpellCast);
+          oPC.GetObjectVariable<LocalVariableInt>("X2_L_BLOCK_LAST_SPELL").Value = 1;
+          break;
       }
 
       NWScript.DelayCommand(0.0f, () => DelayedSpellHook(oPC));
@@ -243,169 +253,222 @@ namespace NWN.Systems
       OnInvisMarkerPositionChanged(oPC, silhouette);
     }
 
-    [ScriptHandler("frog_applied")]
+    [ScriptHandler("nw_s0_invspha")]
+    private void OnInviSphereEnter(CallInfo callInfo)
+    {
+      if (NWScript.GetEnteringObject().ToNwObject() is NwCreature oTarget)
+      {
+        Effect eInvis = Effect.Invisibility(InvisibilityType.Normal);
+        Effect eVis = Effect.VisualEffect(VfxType.DurInvisibility);
+        Effect eDur = Effect.VisualEffect(VfxType.DurCessatePositive);
+        Effect eLink = Effect.LinkEffects(eInvis, eVis);
+        eLink = Effect.LinkEffects(eLink, eDur);
+        eLink = Effect.LinkEffects(eLink, Effect.AreaOfEffect(193, null, "invi_hb"));  // 193 = AoE 20 m
+
+        NwAreaOfEffect inviSphere = (NwAreaOfEffect)callInfo.ObjectSelf;
+
+        if (inviSphere.Creator is NwCreature oCreator && oTarget.IsFriend(oCreator) && !oTarget.IsDead)
+        {
+          SpellUtils.SignalEventSpellCast(oTarget, oCreator, Spell.InvisibilitySphere, false);
+          oTarget.ApplyEffect(EffectDuration.Permanent, eLink);
+        }
+      }
+    }
+
+    [ScriptHandler("nw_s0_invsphb")]
+    private void OnInviSphereExit(CallInfo callInfo)
+    {
+      if (NWScript.GetExitingObject().ToNwObject() is NwCreature oTarget)
+      {
+        NwAreaOfEffect inviSphere = (NwAreaOfEffect)callInfo.ObjectSelf;
+
+        foreach (Effect eff in oTarget.ActiveEffects.Where(e => e.EffectType == EffectType.Invisibility && e.Spell == Spell.InvisibilitySphere && e.Creator == inviSphere.Creator))
+          oTarget.RemoveEffect(eff);
+      }
+    }
+
+    [ScriptHandler("frog_on")]
     private void OnFrogEffectApplied(CallInfo callInfo)
     {
       if (callInfo.ObjectSelf is NwCreature oTarget)
         Frog.ApplyFrogEffectToTarget(oTarget);
     }
 
-    [ScriptHandler("frog_removed")]
+    [ScriptHandler("frog_off")]
     private void OnFrogEffectRemoved(CallInfo callInfo)
     {
       if (callInfo.ObjectSelf is NwCreature oTarget)
         Frog.RemoveFrogEffectFromTarget(oTarget);
     }
 
-    [ScriptHandler("effect_applied")]
-    private void HandleEffectApplied(CallInfo callInfo)
+    [ScriptHandler("nomagic_on")]
+    private void OnNoMagicEffectApplied(CallInfo callInfo)
     {
-      string customTag = EventsPlugin.GetEventData("CUSTOM_TAG");
-
-      if (customTag == "")
-      {
-        if (!int.TryParse(EventsPlugin.GetEventData("TYPE"), out int effectType))
-          return;
-
-        switch (effectType)
-        {
-          case 47: // 47 = Invisibility
-
-            Effect inviAoE = Effect.AreaOfEffect(193, null, "invi_hb"); // 193 = AoE 20 m
-            inviAoE.Creator = callInfo.ObjectSelf;
-            inviAoE.Tag = "invi_aoe";
-            inviAoE.SubType = EffectSubType.Supernatural;
-            ((NwGameObject)callInfo.ObjectSelf).ApplyEffect(EffectDuration.Permanent, inviAoE);
-
-            break;
-        }
-        return;
-      }
-
-      switch (customTag)
-      {
-        case "CUSTOM_EFFECT_FROG":
-          Frog.ApplyFrogEffectToTarget((NwCreature)callInfo.ObjectSelf);
-          break;
-        case "CUSTOM_EFFECT_POISON":
-          Poison.ApplyEffectToTarget((NwCreature)callInfo.ObjectSelf);
-          break;
-        case "CUSTOM_EFFECT_NOMAGIC":
-          NoMagic.ApplyEffectToTarget((NwCreature)callInfo.ObjectSelf);
-          break;
-        case "CUSTOM_EFFECT_NOHEALMAGIC":
-          NoHealMagic.ApplyEffectToTarget((NwCreature)callInfo.ObjectSelf);
-          break;
-        case "CUSTOM_EFFECT_NOSUMMON":
-          NoSummon.ApplyEffectToTarget((NwCreature)callInfo.ObjectSelf);
-          break;
-        case "CUSTOM_EFFECT_NOOFFENSIVEMAGIC":
-          NoOffensiveMagic.ApplyEffectToTarget((NwCreature)callInfo.ObjectSelf);
-          break;
-        case "CUSTOM_EFFECT_NOBUFF":
-          NoBuff.ApplyEffectToTarget((NwCreature)callInfo.ObjectSelf);
-          break;
-        case "CUSTOM_EFFECT_NOUSEABLEITEM":
-          NoUseableItem.ApplyEffectToTarget((NwCreature)callInfo.ObjectSelf);
-          break;
-        case "CUSTOM_EFFECT_SLOW":
-          Slow.ApplyEffectToTarget((NwCreature)callInfo.ObjectSelf);
-          break;
-        case "CUSTOM_EFFECT_MINI":
-          Mini.ApplyEffectToTarget((NwCreature)callInfo.ObjectSelf);
-          break;
-        case "CUSTOM_EFFECT_HALF_HEALTH":
-          HalfHealth.ApplyEffectToTarget((NwCreature)callInfo.ObjectSelf);
-          break;
-        case "CUSTOM_EFFECT_SPELL_FAILURE":
-          SpellFailure.ApplyEffectToTarget((NwCreature)callInfo.ObjectSelf);
-          break;
-        case "CUSTOM_EFFECT_NOARMOR":
-          NoArmor.ApplyEffectToTarget((NwCreature)callInfo.ObjectSelf);
-          break;
-        case "CUSTOM_EFFECT_NOWEAPON":
-          NoWeapon.ApplyEffectToTarget((NwCreature)callInfo.ObjectSelf);
-          break;
-        case "CUSTOM_EFFECT_NOACCESSORY":
-          NoAccessory.ApplyEffectToTarget((NwCreature)callInfo.ObjectSelf);
-          break;
-      }
+      if (callInfo.ObjectSelf is NwCreature oTarget)
+        NoMagic.ApplyEffectToTarget(oTarget);
     }
-    [ScriptHandler("effect_removed")]
-    private void HandleEffectRemoved(CallInfo callInfo)
+
+    [ScriptHandler("nomagic_off")]
+    private void OnNoMagicEffectRemoved(CallInfo callInfo)
     {
-      string customTag = EventsPlugin.GetEventData("CUSTOM_TAG");
-
-      if (customTag == "")
-      {
-        if (!int.TryParse(EventsPlugin.GetEventData("TYPE"), out int effectType))
-          return;
-
-        switch (effectType)
-        {
-          case 47: // 47 = Invisibility
-
-            foreach (Effect inviAoE in ((NwCreature)callInfo.ObjectSelf).ActiveEffects.Where(f => f.Tag == "invi_aoe"))
-              ((NwGameObject)callInfo.ObjectSelf).RemoveEffect(inviAoE);
-
-            break;
-        }
-
-        return;
-      }
-
-      ObjectPlugin.RemoveIconEffect(callInfo.ObjectSelf, 109);
-      callInfo.ObjectSelf.GetObjectVariable<LocalVariableInt>(customTag).Delete();
-
-      switch (customTag)
-      {
-        case "CUSTOM_EFFECT_FROG":
-          Frog.RemoveFrogEffectFromTarget((NwCreature)callInfo.ObjectSelf);
-          break;
-        case "CUSTOM_EFFECT_POISON":
-          Poison.RemoveEffectFromTarget((NwCreature)callInfo.ObjectSelf);
-          break;
-        case "CUSTOM_EFFECT_NOMAGIC":
-          NoMagic.RemoveEffectFromTarget((NwCreature)callInfo.ObjectSelf);
-          break;
-        case "CUSTOM_EFFECT_NOHEALMAGIC":
-          NoHealMagic.RemoveEffectFromTarget((NwCreature)callInfo.ObjectSelf);
-          break;
-        case "CUSTOM_EFFECT_NOSUMMON":
-          NoSummon.RemoveEffectFromTarget((NwCreature)callInfo.ObjectSelf);
-          break;
-        case "CUSTOM_EFFECT_NOOFFENSIVEMAGIC":
-          NoOffensiveMagic.RemoveEffectFromTarget((NwCreature)callInfo.ObjectSelf);
-          break;
-        case "CUSTOM_EFFECT_NOBUFF":
-          NoBuff.RemoveEffectFromTarget((NwCreature)callInfo.ObjectSelf);
-          break;
-        case "CUSTOM_EFFECT_NOUSEABLEITEM":
-          NoUseableItem.RemoveEffectFromTarget((NwCreature)callInfo.ObjectSelf);
-          break;
-        case "CUSTOM_EFFECT_SLOW":
-          Slow.RemoveEffectFromTarget((NwCreature)callInfo.ObjectSelf);
-          break;
-        case "CUSTOM_EFFECT_MINI":
-          Mini.RemoveEffectFromTarget((NwCreature)callInfo.ObjectSelf);
-          break;
-        case "CUSTOM_EFFECT_HALF_HEALTH":
-          HalfHealth.RemoveEffectFromTarget((NwCreature)callInfo.ObjectSelf);
-          break;
-        case "CUSTOM_EFFECT_SPELL_FAILURE":
-          SpellFailure.RemoveEffectFromTarget((NwCreature)callInfo.ObjectSelf);
-          break;
-        case "CUSTOM_EFFECT_NOARMOR":
-          NoArmor.RemoveEffectFromTarget((NwCreature)callInfo.ObjectSelf);
-          break;
-        case "CUSTOM_EFFECT_NOWEAPON":
-          NoWeapon.RemoveEffectFromTarget((NwCreature)callInfo.ObjectSelf);
-          break;
-        case "CUSTOM_EFFECT_NOACCESSORY":
-          NoAccessory.RemoveEffectFromTarget((NwCreature)callInfo.ObjectSelf);
-          break;
-      }
+      if (callInfo.ObjectSelf is NwCreature oTarget)
+        NoMagic.RemoveEffectFromTarget(oTarget);
     }
+
+    [ScriptHandler("noheal_on")]
+    private void OnNoHealingMagicEffectApplied(CallInfo callInfo)
+    {
+      if (callInfo.ObjectSelf is NwCreature oTarget)
+        NoHealMagic.ApplyEffectToTarget(oTarget);
+    }
+
+    [ScriptHandler("noheal_off")]
+    private void OnNoHealingMagicEffectRemoved(CallInfo callInfo)
+    {
+      if (callInfo.ObjectSelf is NwCreature oTarget)
+        NoHealMagic.RemoveEffectFromTarget(oTarget);
+    }
+
+    [ScriptHandler("nosummon_on")]
+    private void OnNoSummonEffectApplied(CallInfo callInfo)
+    {
+      if (callInfo.ObjectSelf is NwCreature oTarget)
+        NoSummon.ApplyEffectToTarget(oTarget);
+    }
+
+    [ScriptHandler("nosummon_off")]
+    private void OnNoSummonEffectRemoved(CallInfo callInfo)
+    {
+      if (callInfo.ObjectSelf is NwCreature oTarget)
+        NoSummon.RemoveEffectFromTarget(oTarget);
+    }
+
+    [ScriptHandler("nooffmagic_on")]
+    private void OnNoOffensiveMagicEffectApplied(CallInfo callInfo)
+    {
+      if (callInfo.ObjectSelf is NwCreature oTarget)
+        NoOffensiveMagic.ApplyEffectToTarget(oTarget);
+    }
+
+    [ScriptHandler("nooffmagic_off")]
+    private void OnNoOffensiveMagicEffectRemoved(CallInfo callInfo)
+    {
+      if (callInfo.ObjectSelf is NwCreature oTarget)
+        NoOffensiveMagic.RemoveEffectFromTarget(oTarget);
+    }
+
+    [ScriptHandler("nobuff_on")]
+    private void OnNoDefensiveBuffEffectApplied(CallInfo callInfo)
+    {
+      if (callInfo.ObjectSelf is NwCreature oTarget)
+        NoBuff.ApplyEffectToTarget(oTarget);
+    }
+
+    [ScriptHandler("nobuff_off")]
+    private void OnNoDefensiveBuffEffectRemoved(CallInfo callInfo)
+    {
+      if (callInfo.ObjectSelf is NwCreature oTarget)
+        NoBuff.RemoveEffectFromTarget(oTarget);
+    }
+
+    [ScriptHandler("noarmor_on")]
+    private void OnNoArmorEffectApplied(CallInfo callInfo)
+    {
+      if (callInfo.ObjectSelf is NwCreature oTarget)
+        NoArmor.ApplyEffectToTarget(oTarget);
+    }
+
+    [ScriptHandler("noarmor_off")]
+    private void OnNoArmorEffectRemoved(CallInfo callInfo)
+    {
+      if (callInfo.ObjectSelf is NwCreature oTarget)
+        NoArmor.RemoveEffectFromTarget(oTarget);
+    }
+
+    [ScriptHandler("noweapon_on")]
+    private void OnNoWeaponEffectApplied(CallInfo callInfo)
+    {
+      if (callInfo.ObjectSelf is NwCreature oTarget)
+        NoWeapon.ApplyEffectToTarget(oTarget);
+    }
+
+    [ScriptHandler("noweapon_off")]
+    private void OnNoWeaponEffectRemoved(CallInfo callInfo)
+    {
+      if (callInfo.ObjectSelf is NwCreature oTarget)
+        NoWeapon.RemoveEffectFromTarget(oTarget);
+    }
+
+    [ScriptHandler("noaccess_on")]
+    private void OnNoAccessoryEffectApplied(CallInfo callInfo)
+    {
+      if (callInfo.ObjectSelf is NwCreature oTarget)
+        NoAccessory.ApplyEffectToTarget(oTarget);
+    }
+
+    [ScriptHandler("noaccess_off")]
+    private void OnNoAccessoryEffectRemoved(CallInfo callInfo)
+    {
+      if (callInfo.ObjectSelf is NwCreature oTarget)
+        NoAccessory.RemoveEffectFromTarget(oTarget);
+    }
+
+    [ScriptHandler("noitem_on")]
+    private void OnNoUseableItemEffectApplied(CallInfo callInfo)
+    {
+      if (callInfo.ObjectSelf is NwCreature oTarget)
+        NoUseableItem.ApplyEffectToTarget(oTarget);
+    }
+
+    [ScriptHandler("noitem_off")]
+    private void OnNoUseableItemEffectRemoved(CallInfo callInfo)
+    {
+      if (callInfo.ObjectSelf is NwCreature oTarget)
+        NoUseableItem.RemoveEffectFromTarget(oTarget);
+    }
+
+    [ScriptHandler("slow_on")]
+    private void OnSlowEffectApplied(CallInfo callInfo)
+    {
+      if (callInfo.ObjectSelf is NwCreature oTarget)
+        Slow.ApplyEffectToTarget(oTarget);
+    }
+
+    [ScriptHandler("slow_off")]
+    private void OnSlowItemEffectRemoved(CallInfo callInfo)
+    {
+      if (callInfo.ObjectSelf is NwCreature oTarget)
+        Slow.RemoveEffectFromTarget(oTarget);
+    }
+
+    [ScriptHandler("mini_on")]
+    private void OnMiniEffectApplied(CallInfo callInfo)
+    {
+      if (callInfo.ObjectSelf is NwCreature oTarget)
+        Mini.ApplyEffectToTarget(oTarget);
+    }
+
+    [ScriptHandler("mini_off")]
+    private void OnMiniEffectRemoved(CallInfo callInfo)
+    {
+      if (callInfo.ObjectSelf is NwCreature oTarget)
+        Mini.RemoveEffectFromTarget(oTarget);
+    }
+
+    [ScriptHandler("poison_on")]
+    private void OnPoisonEffectApplied(CallInfo callInfo)
+    {
+      if (callInfo.ObjectSelf is NwCreature oTarget)
+        Poison.ApplyEffectToTarget(oTarget);
+    }
+
+    [ScriptHandler("poison_off")]
+    private void OnPoisonEffectRemoved(CallInfo callInfo)
+    {
+      if (callInfo.ObjectSelf is NwCreature oTarget)
+        Poison.RemoveEffectFromTarget(oTarget);
+    }
+
     [ScriptHandler("mechaura_enter")]
     private void HandleMechAuraHeartOnEnter(CallInfo callInfo)
     {

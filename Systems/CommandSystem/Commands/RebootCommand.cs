@@ -39,11 +39,12 @@ namespace NWN.Systems
         new List<string[]>() { new string[] { "year", NwDateTime.Now.Year.ToString() }, new string[] { "month", NwDateTime.Now.Month.ToString() }, new string[] { "day", NwDateTime.Now.DayInTenday.ToString() }, new string[] { "hour", NwDateTime.Now.Hour.ToString() }, new string[] { "minute", NwDateTime.Now.Minute.ToString() }, new string[] { "second", NwDateTime.Now.Second.ToString() } },
         new List<string[]>() { new string[] { "rowid", "1" } });
 
-        await NwModule.Instance.AddActionToQueue(() => Utils.BootAllPC());
+        Utils.BootAllPC();
 
         Task waitServerEmpty = NwTask.Run(async () =>
         {
           await NwTask.WaitUntil(() => NwModule.Instance.Players.Count() < 1);
+          await NwTask.Delay(TimeSpan.FromSeconds(1));
           NwServer.Instance.ShutdownServer();
         });
       });

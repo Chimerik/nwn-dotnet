@@ -565,6 +565,7 @@ namespace NWN.Systems
         else
           return false;
       }
+      
       public void CreateSkillJournalEntry(Learnable learnable)
       {
         TimeSpan remainingTime = learnable.levelUpDate - DateTime.Now;

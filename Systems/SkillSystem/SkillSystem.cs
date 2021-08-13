@@ -422,112 +422,112 @@ namespace NWN.Systems
     }
     private static int HandleImproveAnimalEmpathy(PlayerSystem.Player player, Feat feat)
     {
-      CreaturePlugin.SetSkillRank(player.oid.LoginCreature, NWScript.SKILL_ANIMAL_EMPATHY, player.oid.LoginCreature.GetSkillRank(Anvil.API.Skill.AnimalEmpathy, true) + 1);
+      player.oid.LoginCreature.SetSkillRank(Skill.AnimalEmpathy, (sbyte)(player.oid.LoginCreature.GetSkillRank(Skill.AnimalEmpathy, true) + 1));
       return 0;
     }
     private static int HandleImproveConcentration(PlayerSystem.Player player, Feat feat)
     {
-      CreaturePlugin.SetSkillRank(player.oid.LoginCreature, NWScript.SKILL_CONCENTRATION, player.oid.LoginCreature.GetSkillRank(Anvil.API.Skill.Concentration, true) + 1);
+      player.oid.LoginCreature.SetSkillRank(Skill.Concentration, (sbyte)(player.oid.LoginCreature.GetSkillRank(Skill.Concentration, true) + 1));
       return 0;
     }
     private static int HandleImproveDisableTraps(PlayerSystem.Player player, Feat feat)
     {
-      CreaturePlugin.SetSkillRank(player.oid.LoginCreature, NWScript.SKILL_DISABLE_TRAP, player.oid.LoginCreature.GetSkillRank(Anvil.API.Skill.DisableTrap, true) + 1);
+     player.oid.LoginCreature.SetSkillRank(Skill.DisableTrap, (sbyte)(player.oid.LoginCreature.GetSkillRank(Skill.DisableTrap, true) + 1));
       return 0;
     }
     private static int HandleImproveDiscipline(PlayerSystem.Player player, Feat feat)
     {
-      CreaturePlugin.SetSkillRank(player.oid.LoginCreature, NWScript.SKILL_DISCIPLINE, player.oid.LoginCreature.GetSkillRank(Anvil.API.Skill.Discipline, true) + 1);
+      player.oid.LoginCreature.SetSkillRank(Skill.Discipline, (sbyte)(player.oid.LoginCreature.GetSkillRank(Skill.Discipline, true) + 1));
       return 0;
     }
     private static int HandleImproveHeal(PlayerSystem.Player player, Feat feat)
     {
-      CreaturePlugin.SetSkillRank(player.oid.LoginCreature, NWScript.SKILL_HEAL, player.oid.LoginCreature.GetSkillRank(Anvil.API.Skill.Heal, true) + 1);
+      player.oid.LoginCreature.SetSkillRank(Skill.Heal, (sbyte)(player.oid.LoginCreature.GetSkillRank(Skill.Heal, true) + 1));
       return 0;
     }
     private static int HandleImproveHide(PlayerSystem.Player player, Feat feat)
     {
-      CreaturePlugin.SetSkillRank(player.oid.LoginCreature, NWScript.SKILL_HIDE, player.oid.LoginCreature.GetSkillRank(Anvil.API.Skill.Hide, true) + 1);
+      player.oid.LoginCreature.SetSkillRank(Skill.Hide, (sbyte)(player.oid.LoginCreature.GetSkillRank(Skill.Hide, true) + 1));
       return 0;
     }
     private static int HandleImproveListen(PlayerSystem.Player player, Feat feat)
     {
-      CreaturePlugin.SetSkillRank(player.oid.LoginCreature, NWScript.SKILL_LISTEN, player.oid.LoginCreature.GetSkillRank(Anvil.API.Skill.Listen, true) + 1);
+      player.oid.LoginCreature.SetSkillRank(Skill.Listen, (sbyte)(player.oid.LoginCreature.GetSkillRank(Skill.Listen, true) + 1));
       return 0;
     }
     private static int HandleImproveLore(PlayerSystem.Player player, Feat feat)
     {
-      CreaturePlugin.SetSkillRank(player.oid.LoginCreature, NWScript.SKILL_LORE, player.oid.LoginCreature.GetSkillRank(Anvil.API.Skill.Lore, true) + 1);
+      player.oid.LoginCreature.SetSkillRank(Skill.Lore, (sbyte)(player.oid.LoginCreature.GetSkillRank(Skill.Lore, true) + 1));
       return 0;
     }
     private static int HandleImproveMoveSilently(PlayerSystem.Player player, Feat feat)
     {
-      CreaturePlugin.SetSkillRank(player.oid.LoginCreature, NWScript.SKILL_MOVE_SILENTLY, player.oid.LoginCreature.GetSkillRank(Anvil.API.Skill.MoveSilently, true) + 1);
+      player.oid.LoginCreature.SetSkillRank(Skill.MoveSilently, (sbyte)(player.oid.LoginCreature.GetSkillRank(Skill.MoveSilently, true) + 1));
       return 0;
     }
     private static int HandleImproveOpenLock(PlayerSystem.Player player, Feat feat)
     {
-      CreaturePlugin.SetSkillRank(player.oid.LoginCreature, NWScript.SKILL_OPEN_LOCK, player.oid.LoginCreature.GetSkillRank(Anvil.API.Skill.OpenLock, true) + 1);
+      player.oid.LoginCreature.SetSkillRank(Skill.OpenLock, (sbyte)(player.oid.LoginCreature.GetSkillRank(Skill.OpenLock, true) + 1));
       return 0;
     }
     private static int HandleImproveSkillParry(PlayerSystem.Player player, Feat feat)
     {
-      CreaturePlugin.SetSkillRank(player.oid.LoginCreature, NWScript.SKILL_PARRY, player.oid.LoginCreature.GetSkillRank(Anvil.API.Skill.Parry, true) + 1);
+      player.oid.LoginCreature.SetSkillRank(Skill.Parry, (sbyte)(player.oid.LoginCreature.GetSkillRank(Skill.Parry, true) + 1));
       return 0;
     }
     private static int HandleImprovePerform(PlayerSystem.Player player, Feat feat)
     {
-      CreaturePlugin.SetSkillRank(player.oid.LoginCreature, NWScript.SKILL_PERFORM, player.oid.LoginCreature.GetSkillRank(Anvil.API.Skill.Perform, true) + 1);
+      player.oid.LoginCreature.SetSkillRank(Skill.Perform, (sbyte)(player.oid.LoginCreature.GetSkillRank(Skill.Perform, true) + 1));
       return 0;
     }
     private static int HandleImprovePickpocket(PlayerSystem.Player player, Feat feat)
     {
-      CreaturePlugin.SetSkillRank(player.oid.LoginCreature, NWScript.SKILL_PICK_POCKET, player.oid.LoginCreature.GetSkillRank(Anvil.API.Skill.PickPocket, true) + 1);
+      player.oid.LoginCreature.SetSkillRank(Skill.PickPocket, (sbyte)(player.oid.LoginCreature.GetSkillRank(Skill.PickPocket, true) + 1));
       return 0;
     }
     private static int HandleImproveSearch(PlayerSystem.Player player, Feat feat)
     {
-      CreaturePlugin.SetSkillRank(player.oid.LoginCreature, NWScript.SKILL_SEARCH, player.oid.LoginCreature.GetSkillRank(Anvil.API.Skill.Search, true) + 1);
+      player.oid.LoginCreature.SetSkillRank(Skill.Search, (sbyte)(player.oid.LoginCreature.GetSkillRank(Skill.Search, true) + 1));
       return 0;
     }
     private static int HandleImproveSetTrap(PlayerSystem.Player player, Feat feat)
     {
-      CreaturePlugin.SetSkillRank(player.oid.LoginCreature, NWScript.SKILL_SET_TRAP, player.oid.LoginCreature.GetSkillRank(Anvil.API.Skill.SetTrap, true) + 1);
+      player.oid.LoginCreature.SetSkillRank(Skill.SetTrap, (sbyte)(player.oid.LoginCreature.GetSkillRank(Skill.SetTrap, true) + 1));
       return 0;
     }
     private static int HandleImproveSpellcraft(PlayerSystem.Player player, Feat feat)
     {
-      CreaturePlugin.SetSkillRank(player.oid.LoginCreature, NWScript.SKILL_SPELLCRAFT, player.oid.LoginCreature.GetSkillRank(Anvil.API.Skill.AnimalEmpathy, true) + 1);
+      player.oid.LoginCreature.SetSkillRank(Skill.Spellcraft, (sbyte)(player.oid.LoginCreature.GetSkillRank(Skill.AnimalEmpathy, true) + 1));
       return 0;
     }
     private static int HandleImproveSpot(PlayerSystem.Player player, Feat feat)
     {
-      CreaturePlugin.SetSkillRank(player.oid.LoginCreature, NWScript.SKILL_SPOT, player.oid.LoginCreature.GetSkillRank(Anvil.API.Skill.Spot, true) + 1);
+      player.oid.LoginCreature.SetSkillRank(Skill.Spot, (sbyte)(player.oid.LoginCreature.GetSkillRank(Skill.Spot, true) + 1));
       return 0;
     }
     private static int HandleImproveTaunt(PlayerSystem.Player player, Feat feat)
     {
-      CreaturePlugin.SetSkillRank(player.oid.LoginCreature, NWScript.SKILL_TAUNT, player.oid.LoginCreature.GetSkillRank(Anvil.API.Skill.Taunt, true) + 1);
+      player.oid.LoginCreature.SetSkillRank(Skill.Taunt, (sbyte)(player.oid.LoginCreature.GetSkillRank(Skill.Taunt, true) + 1));
       return 0;
     }
     private static int HandleImproveUseMagicDevice(PlayerSystem.Player player, Feat feat)
     {
-      CreaturePlugin.SetSkillRank(player.oid.LoginCreature, NWScript.SKILL_USE_MAGIC_DEVICE, player.oid.LoginCreature.GetSkillRank(Anvil.API.Skill.UseMagicDevice, true) + 1);
+      player.oid.LoginCreature.SetSkillRank(Skill.UseMagicDevice, (sbyte)(player.oid.LoginCreature.GetSkillRank(Skill.UseMagicDevice, true) + 1));
       return 0;
     }
     private static int HandleImproveTumble(PlayerSystem.Player player, Feat feat)
     {
-      CreaturePlugin.SetSkillRank(player.oid.LoginCreature, NWScript.SKILL_TUMBLE, player.oid.LoginCreature.GetSkillRank(Anvil.API.Skill.Tumble, true) + 1);
+      player.oid.LoginCreature.SetSkillRank(Skill.Tumble, (sbyte)(player.oid.LoginCreature.GetSkillRank(Skill.Tumble, true) + 1));
       return 0;
     }
     private static int HandleImproveBluff(PlayerSystem.Player player, Feat feat)
     {
-      CreaturePlugin.SetSkillRank(player.oid.LoginCreature, NWScript.SKILL_BLUFF, player.oid.LoginCreature.GetSkillRank(Anvil.API.Skill.Bluff, true) + 1);
+      player.oid.LoginCreature.SetSkillRank(Skill.Bluff, (sbyte)(player.oid.LoginCreature.GetSkillRank(Skill.Bluff, true) + 1));
       return 0;
     }
     private static int HandleImproveIntimidate(PlayerSystem.Player player, Feat feat)
     {
-      CreaturePlugin.SetSkillRank(player.oid.LoginCreature, NWScript.SKILL_INTIMIDATE, player.oid.LoginCreature.GetSkillRank(Anvil.API.Skill.Intimidate, true) + 1);
+      player.oid.LoginCreature.SetSkillRank(Skill.Intimidate, (sbyte)(player.oid.LoginCreature.GetSkillRank(Skill.Intimidate, true) + 1));
       return 0;
     }
 

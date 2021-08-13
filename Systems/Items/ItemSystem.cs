@@ -39,20 +39,12 @@ namespace NWN.Systems
       }
     }
 
-    [ScriptHandler("b_unequip")]
-    private void HandleUnequipItemBefore(CallInfo callInfo)
+    public static void HandleUnequipItemBefore(OnItemUnequip onUnequip)
     {
-      NwCreature oPC = (NwCreature)callInfo.ObjectSelf;
+      NwCreature oPC = onUnequip.Creature;
+      NwItem oItem = onUnequip.Item;
 
-      if (oPC.ControllingPlayer == null)
-        return;
-
-      NwItem oItem = NWScript.StringToObject(EventsPlugin.GetEventData("ITEM")).ToNwObject<NwItem>();
-
-      if (oItem == null)
-        return;
-
-      if (oPC.Inventory.CheckFit(oItem))
+      if (!oPC.ControllingPlayer.IsValid || !oItem.IsValid || oPC.Inventory.CheckFit(oItem))
         return;
 
       if (oPC.GetObjectVariable<LocalVariableInt>("CUSTOM_EFFECT_NOARMOR").HasValue

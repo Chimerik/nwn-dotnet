@@ -44,8 +44,8 @@ namespace NWN.Systems
     {
       NwModule.Instance.GetObjectVariable<LocalVariableString>("X2_S_UD_SPELLSCRIPT").Value = "spellhook";
 
-      //NwModule.Instance.SetEventScript((EventScriptType)NWScript.EVENT_SCRIPT_MODULE_ON_PLAYER_GUIEVENT, "on_gui_event");
-      //NwModule.Instance.SetEventScript((EventScriptType)NWScript.EVENT_SCRIPT_MODULE_ON_PLAYER_TILE_ACTION, "on_tile_action");
+      NwModule.Instance.SetEventScript((EventScriptType)NWScript.EVENT_SCRIPT_MODULE_ON_PLAYER_GUIEVENT, "on_gui_event");
+      NwModule.Instance.SetEventScript((EventScriptType)NWScript.EVENT_SCRIPT_MODULE_ON_PLAYER_TILE_ACTION, "on_tile_action");
 
       NwServer.Instance.ServerInfo.PlayOptions.RestoreSpellUses = false;
       NwServer.Instance.ServerInfo.PlayOptions.ShowDMJoinMessage = false;
@@ -216,13 +216,8 @@ namespace NWN.Systems
     }
     private void InitializeEvents()
     {
-      EventsPlugin.SubscribeEvent("NWNX_ON_ITEM_SCROLL_LEARN_BEFORE", "b_learn_scroll");
-
       EventsPlugin.SubscribeEvent("NWNX_ON_INPUT_TOGGLE_PAUSE_BEFORE", "spacebar_down");
       EventsPlugin.ToggleDispatchListMode("NWNX_ON_INPUT_TOGGLE_PAUSE_BEFORE", "spacebar_down", 1);
-
-      EventsPlugin.SubscribeEvent("NWNX_ON_ITEM_UNEQUIP_BEFORE", "b_unequip");
-      EventsPlugin.ToggleDispatchListMode("NWNX_ON_ITEM_UNEQUIP_BEFORE", "b_unequip", 1);
 
       //EventsPlugin.SubscribeEvent("NWNX_ON_DM_POSSESS_FULL_POWER_BEFORE", "b_dm_possess");
       //EventsPlugin.SubscribeEvent("NWNX_ON_DM_POSSESS_BEFORE", "b_dm_possess");
@@ -233,9 +228,6 @@ namespace NWN.Systems
       NwModule.Instance.OnDMGiveXP += DmSystem.HandleBeforeDmGiveXP;
       NwModule.Instance.OnDMGiveGold += DmSystem.HandleBeforeDmGiveGold;
       NwModule.Instance.OnDMGiveItemAfter += DmSystem.HandleAfterDmGiveItem;
-
-      EventsPlugin.SubscribeEvent("NWNX_ON_USE_SKILL_BEFORE", "event_skillused");
-      EventsPlugin.ToggleDispatchListMode("NWNX_ON_USE_SKILL_BEFORE", "event_skillused", 1);
 
       EventsPlugin.SubscribeEvent("NWNX_ON_TIMING_BAR_CANCEL_BEFORE", "collect_cancel");
       EventsPlugin.ToggleDispatchListMode("NWNX_ON_TIMING_BAR_CANCEL_BEFORE", "collect_cancel", 1);
@@ -260,9 +252,6 @@ namespace NWN.Systems
       EventsPlugin.SubscribeEvent("NWNX_ON_INPUT_EMOTE_BEFORE", "on_input_emote");
       
       EventsPlugin.SubscribeEvent("NWNX_ON_CHARACTER_SHEET_OPEN_BEFORE", "pc_sheet_open");
-
-      EventsPlugin.SubscribeEvent("NWNX_ON_EFFECT_APPLIED_BEFORE", "effect_applied");
-      EventsPlugin.SubscribeEvent("NWNX_ON_EFFECT_REMOVED_BEFORE", "effect_removed");
 
       //EventsPlugin.SubscribeEvent("NWNX_ON_HAS_FEAT_AFTER", "event_has_feat");
 
