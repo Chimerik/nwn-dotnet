@@ -4,96 +4,115 @@ using System.Collections.Generic;
 using System.Linq;
 using NLog;
 using Anvil.API;
-using NWN.Core;
 using NWN.Systems;
+using System.Threading.Tasks;
+using Microsoft.Data.Sqlite;
 
 namespace NWN
 {
   public static class SqLiteUtils
   {
     public static readonly Logger Log = LogManager.GetCurrentClassLogger();
-    public static bool DeletionQuery(string tableName, Dictionary<string, string> queryParameters, string operation = "=")
+
+    public static async void DeletionQuery(string tableName, Dictionary<string, string> queryParameters, string operation = "=")
     {
-      string queryString = $"DELETE from {tableName} where ";
-
-      foreach (var param in queryParameters)
-        queryString += $"{param.Key} {operation} @{param.Key} and ";
-
-      queryString = queryString.Remove(queryString.Length - 5);
-
-      var query = NwModule.Instance.PrepareCampaignSQLQuery(Config.database, queryString);
-
-      //Log.Info(queryString);
-      string logString = "Binding : ";
-
-      foreach (var param in queryParameters)
+      await Task.Run(async () =>
       {
-        query.BindParam($"@{param.Key}", param.Value);
-        logString += $"@{param.Key} = {param.Value} ";
-      }
+        string queryString = $"DELETE from {tableName} where ";
 
-      //Log.Info(logString);
+        foreach (var param in queryParameters)
+          queryString += $"{param.Key} {operation} ${param.Key} and ";
 
-      query.Execute();
+        queryString = queryString.Remove(queryString.Length - 5);
 
-      if (query.Error != "")
-      {
-        Utils.LogMessageToDMs($"{query.Error}");
-        return false;
-      }
+        //Log.Info(queryString);
+        string logString = "Binding : ";
 
-      return true;
+        try
+        {
+          using (var connection = new SqliteConnection(Config.dbPath))
+          {
+            connection.Open();
+
+            var command = connection.CreateCommand();
+            command.CommandText = queryString;
+
+            foreach (var param in queryParameters)
+            {
+              command.Parameters.AddWithValue($"${param.Key}", param.Value);
+              logString += $"${param.Key} = {param.Value} ";
+            }
+
+            //Log.Info(logString);
+
+            await command.ExecuteNonQueryAsync();
+          }
+        }
+        catch (Exception e)
+        {
+          Utils.LogMessageToDMs($"Delete Query - {e.Message}");
+        }
+      });
     }
-    public static bool UpdateQuery(string tableName, List<string[]> queryParameters, List<string[]> whereParameters)
+    public static async void UpdateQuery(string tableName, List<string[]> queryParameters, List<string[]> whereParameters)
     {
-      string queryString = $"UPDATE {tableName} SET ";
-
-      foreach (var param in queryParameters)
+      await Task.Run(async () =>
       {
-        if(param.Length > 2)
-          queryString += $"{param[0]} = {param[0]} {param[2]} @{param[0]}, ";
-        else
-          queryString += $"{param[0]} = @{param[0]}, ";
-      }
+        string queryString = $"UPDATE {tableName} SET ";
 
-      queryString = queryString.Remove(queryString.Length - 2);
-      queryString += " where ";
+        foreach (var param in queryParameters)
+        {
+          if (param.Length > 2)
+            queryString += $"{param[0]} = {param[0]} {param[2]} ${param[0]}, ";
+          else
+            queryString += $"{param[0]} = ${param[0]}, ";
+        }
 
-      foreach (var param in whereParameters)
-        queryString += $"{param[0]} = @{param[0]} and ";
+        queryString = queryString.Remove(queryString.Length - 2);
+        queryString += " where ";
 
-      queryString = queryString.Remove(queryString.Length - 5);
+        foreach (var param in whereParameters)
+          queryString += $"{param[0]} = ${param[0]} and ";
 
-      var query = NwModule.Instance.PrepareCampaignSQLQuery(Config.database, queryString);
+        queryString = queryString.Remove(queryString.Length - 5);
 
-      //Log.Info(queryString);
-      string logString = "Binding SET : ";
+        string logString = "Binding SET : ";
 
-      foreach (var param in queryParameters)
-      {
-        query.BindParam($"@{param[0]}", param[1]);
-        logString += $"Binding SET @{param[0]} = {param[1]} ";
-      }
+        try
+        {
+          using (var connection = new SqliteConnection(Config.dbPath))
+          {
+            connection.Open();
 
-      //Log.Info(logString);
-      logString = "Binding WHERE : ";
+            var command = connection.CreateCommand();
+            command.CommandText = queryString;
 
-      foreach (var param in whereParameters)
-      {
-        query.BindParam($"@{param[0]}", param[1]);
-        logString += $"Binding WHERE @{param[0]} = {param[1]} ";
-      }
+            foreach (var param in queryParameters)
+            {
+              command.Parameters.AddWithValue($"${param[0]}", (object)param[1] ?? DBNull.Value);
+              logString += $"${param[0]} = {param[1]} ";
+            }
 
-      //Log.Info(logString);
-      query.Execute();
+            if(whereParameters.Count > 0)
+              logString += "Binding WHERE : ";
 
-      if (query.Error != "")
-      {
-        Utils.LogMessageToDMs($"{query.Error}");
-        return false;
-      }
+            foreach (var param in whereParameters)
+            {
+              command.Parameters.AddWithValue($"${param[0]}", param[1]);
+              logString += $"${param[0]} = {param[1]} ";
+            }
 
-      return true;
+            //Log.Info(queryString);
+            //Log.Info(logString);
+
+            await command.ExecuteNonQueryAsync();
+          }
+        }
+        catch (Exception e)
+        {
+          Utils.LogMessageToDMs($"Update Query - {e.Message}");
+        }
+      });
     }
     public static SQLQuery SelectQuery(string tableName, List<string> queryParameters, List<string[]> whereParameters, string orderBy = "")
     {

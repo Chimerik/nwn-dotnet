@@ -100,9 +100,10 @@ namespace NWN.Systems
     }
     private void HandleDeleteRumor(int rumorId)
     {
-      if(SqLiteUtils.DeletionQuery("rumors",
-         new Dictionary<string, string>() { { "rowid", rumorId.ToString() } }))
-        player.oid.SendServerMessage($"Votre rumeur {rumorTitle.ColorString(ColorConstants.White)} a bien été supprimé", ColorConstants.Pink);
+      SqLiteUtils.DeletionQuery("rumors",
+         new Dictionary<string, string>() { { "rowid", rumorId.ToString() } });
+
+      player.oid.SendServerMessage($"Votre rumeur {rumorTitle.ColorString(ColorConstants.White)} a bien été supprimé", ColorConstants.Pink);
 
       player.menu.Close();
     }

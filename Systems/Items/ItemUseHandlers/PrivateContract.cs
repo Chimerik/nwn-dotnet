@@ -80,10 +80,11 @@ namespace NWN.Systems
       }
       else
       {
-        if (SqLiteUtils.UpdateQuery("playerCharacters",
+        SqLiteUtils.UpdateQuery("playerCharacters",
           new List<string[]>() { new string[] { "bankGold+", totalPrice.ToString() } },
-          new List<string[]>() { new string[] { "rowid", creatorId.ToString() } }))
-          Utils.SendMailToPC(creatorId, "Hôtel des ventes de Similisse", "Contrat accepté", $"Votre contrat {contractId} a été accepté par {oPC.Name}. La somme de {totalPrice} pièce(s) d'or a été versée sur votre compte.");
+          new List<string[]>() { new string[] { "rowid", creatorId.ToString() } });
+
+        Utils.SendMailToPC(creatorId, "Hôtel des ventes de Similisse", "Contrat accepté", $"Votre contrat {contractId} a été accepté par {oPC.Name}. La somme de {totalPrice} pièce(s) d'or a été versée sur votre compte.");
       }
 
 

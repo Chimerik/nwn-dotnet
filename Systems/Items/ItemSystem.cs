@@ -221,37 +221,6 @@ namespace NWN.Systems
       if (PlayerSystem.Players.TryGetValue(onUnacquireItem.LostBy, out PlayerSystem.Player player))
         player.oid.ExportCharacter();
     }
-    public static async void OnTorilNecklaceRemoved(NwPlayer oPC)
-    {
-      oPC.SendServerMessage("Votre lien avec la Toile semble particulièrement faible. Un échec des sorts de 50 % vous est appliqué.", ColorConstants.Pink);
-      Effect eff = Effect.SpellFailure(50);
-      eff.Tag = "erylies_spell_failure";
-      eff.SubType = EffectSubType.Supernatural;
-      oPC.LoginCreature.ApplyEffect(EffectDuration.Permanent, eff);
-
-      //await (Bot._client.GetChannel(680072044364562532) as IMessageChannel).SendMessageAsync($"{oPC.Name} ne dispose pas d'amulette de traçage, ce qui le rend suspect aux yeux de l'Amiral.");
-
-      await NwTask.WaitUntil(() => oPC.LoginCreature == null || oPC.LoginCreature.GetItemInSlot(InventorySlot.Neck)?.Tag == "amulettorillink");
-
-      if (oPC.LoginCreature == null)
-        return;
-
-      OnTorilNecklaceEquipped(oPC);
-    }
-    public static async void OnTorilNecklaceEquipped(NwPlayer oPC)
-    {
-      oPC.SendServerMessage("Votre lien avec la Toile se renforce de manière significative.", ColorConstants.Pink);
-
-      if (oPC.LoginCreature.ActiveEffects.Any(e => e.Tag == "erylies_spell_failure"))
-        oPC.LoginCreature.RemoveEffect(oPC.LoginCreature.ActiveEffects.Where(e => e.Tag == "erylies_spell_failure").FirstOrDefault());
-
-      await NwTask.WaitUntil(() => oPC.LoginCreature == null || oPC.LoginCreature.GetItemInSlot(InventorySlot.Neck)?.Tag != "amulettorillink");
-      
-      if (oPC.LoginCreature == null)
-        return;
-
-      OnTorilNecklaceRemoved(oPC);
-    }
     public static void NoEquipRuinedItem(OnItemValidateEquip onItemValidateEquip)
     {
       if (onItemValidateEquip.Item.GetObjectVariable<LocalVariableInt>("_MAX_DURABILITY").HasValue && onItemValidateEquip.Item.GetObjectVariable<LocalVariableInt>("_DURABILITY") <= 0)

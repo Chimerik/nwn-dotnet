@@ -258,6 +258,7 @@ namespace NWN.Systems
       NwModule.Instance.OnCreatureAttack += AttackSystem.HandleAttackEvent;
       NwModule.Instance.OnCreatureDamage += AttackSystem.HandleDamageEvent;
     }
+
     private void SetModuleTime()
     {
       var query = SqLiteUtils.SelectQuery("moduleInfo",

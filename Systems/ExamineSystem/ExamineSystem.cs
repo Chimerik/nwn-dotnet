@@ -99,7 +99,8 @@ namespace NWN.Systems
             reprocessingData += $"\n x1.{skillLevel} (Raffinage Efficace)";
           }
 
-          if (Enum.TryParse(onExamine.ExaminedObject.Name, out Craft.Collect.Config.OreType myOreType) && Craft.Collect.Config.oresDictionnary.TryGetValue(myOreType, out Craft.Collect.Config.Ore processedOre))
+          if (Enum.TryParse(onExamine.ExaminedObject.Name, out Craft.Collect.Config.OreType myOreType) 
+            && Craft.Collect.Config.oresDictionnary.TryGetValue(myOreType, out Craft.Collect.Config.Ore processedOre))
           {
             if (player.learntCustomFeats.ContainsKey(processedOre.feat))
             {

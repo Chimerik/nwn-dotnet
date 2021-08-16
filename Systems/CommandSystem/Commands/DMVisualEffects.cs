@@ -135,11 +135,10 @@ namespace NWN.Systems
     }
     private void DeleteVFX(string deletedVFXName)
     {
-      if (SqLiteUtils.DeletionQuery("dmVFX",
-            new Dictionary<string, string>() { { "playerName", player.oid.PlayerName }, { "vfxName", deletedVFXName } }))
-        player.oid.SendServerMessage($"Votre effet visuel {deletedVFXName.ColorString(ColorConstants.White)} a bien été supprimé.", new Color(32, 255, 32));
-      else
-        player.oid.SendServerMessage($"Erreur technique - Votre effet visuel {deletedVFXName.ColorString(ColorConstants.White)} n'a pas été supprimé.", ColorConstants.Red);
+      SqLiteUtils.DeletionQuery("dmVFX",
+            new Dictionary<string, string>() { { "playerName", player.oid.PlayerName }, { "vfxName", deletedVFXName } });
+
+      player.oid.SendServerMessage($"Votre effet visuel {deletedVFXName.ColorString(ColorConstants.White)} a bien été supprimé.", new Color(32, 255, 32));
 
       DrawVFXList();
     }

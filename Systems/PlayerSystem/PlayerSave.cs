@@ -80,6 +80,8 @@ namespace NWN.Systems
       }
       public void HandlePlayerSave()
       {
+        DateTime start = DateTime.Now;
+
         FixPolymorphBug();
 
         if (oid.LoginCreature.Location.Area != null)
@@ -105,7 +107,8 @@ namespace NWN.Systems
         oid.LoginCreature.GetObjectVariable<LocalVariableInt>("_SAVE_SCHEDULED").Delete();
         oid.LoginCreature.GetObjectVariable<LocalVariableInt>("_SAVE_AUTHORIZED").Delete();
 
-        Log.Info("Finished saving player");
+        Log.Info($"Save time : {(DateTime.Now - start).TotalSeconds}");
+        Log.Info($"Finished saving {oid.LoginCreature.Name}");
       }
       private void FixPolymorphBug()
       {
@@ -179,7 +182,7 @@ namespace NWN.Systems
           new string[] { "areaTag", areaTag }, new string[] { "position", position }, new string[] { "facing", facing }, new string[] { "currentHP", health }, new string[] { "bankGold", bankGold.ToString() },
           new string[] { "dateLastSaved", dateLastSaved.ToString() }, new string[] { "previousSPCalculation", previousSPCalculation.ToString() },
           new string[] { "currentCraftJob", craftJob.baseItemType.ToString() }, new string[] { "currentCraftObject", craftJob.craftedItem }, new string[] { "currentCraftJobRemainingTime", craftJob.remainingTime.ToString() },
-          new string[] { "currentCraftJobMaterial", craftJob.material }, new string[] { "currentCraftJobMaterial", craftJob.material }, new string[] { "pveArenaCurrentPoints", pveArena.currentPoints.ToString() },
+          new string[] { "currentCraftJobMaterial", craftJob.material }, new string[] { "pveArenaCurrentPoints", pveArena.currentPoints.ToString() },
           new string[] { "menuOriginTop", menu.originTop.ToString() }, new string[] { "menuOriginLeft", menu.originLeft.ToString() },
           new string[] { "alchemyCauldron", JsonConvert.SerializeObject(alchemyCauldron) }, new string[] { "serializedLearnables", JsonConvert.SerializeObject(learnables) } },
           new List<string[]>() { new string[] { "rowid", characterId.ToString() } });

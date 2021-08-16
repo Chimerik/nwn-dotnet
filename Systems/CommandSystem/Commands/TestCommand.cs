@@ -9,6 +9,7 @@ using NWN.Core.NWNX;
 using System.Numerics;
 using System.Threading.Tasks;
 using NWN.Core;
+using Microsoft.Data.Sqlite;
 
 namespace NWN.Systems
 {
@@ -23,7 +24,7 @@ namespace NWN.Systems
 
         if (player.oid.PlayerName == "Chim")
         {
-          player.oid.ControlledCreature.SetSkillRank(Skill.Concentration, (sbyte)(player.oid.LoginCreature.GetSkillRank(Anvil.API.Skill.Concentration, true) + 1));
+          
 
           //PlayerSystem.cursorTargetService.EnterTargetMode(player.oid, OnTargetSelected, ObjectTypes.All, MouseCursor.Pickup);
         }

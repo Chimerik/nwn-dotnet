@@ -19,11 +19,10 @@ namespace NWN.Systems
         return;
       }
 
-      if (SqLiteUtils.DeletionQuery("messenger",
-        new Dictionary<string, string>() { { "characterId", result.ToString() }, { "ROWID", mailId } }))
-        await context.Channel.SendMessageAsync("Message supprimé");
-      else
-        await context.Channel.SendMessageAsync($"Erreur technique - le message n'a pas pu être supprimé.");
+      SqLiteUtils.DeletionQuery("messenger",
+        new Dictionary<string, string>() { { "characterId", result.ToString() }, { "ROWID", mailId } });
+
+      await context.Channel.SendMessageAsync("Message supprimé");
     }
   }
 }

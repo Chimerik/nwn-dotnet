@@ -24,22 +24,20 @@ namespace NWN.Systems
       {
         default:
 
-          if (SqLiteUtils.DeletionQuery("rumors",
-            new Dictionary<string, string>() { { "accountId", accountId.ToString() }, { "ROWID", rumorId } }))
-            await context.Channel.SendMessageAsync($"Votre rumeur numéro {rumorId} a bien été supprimée.");
-          else
-            await context.Channel.SendMessageAsync($"Vous n'avez pas enregistré de rumeur numéro {rumorId} avec ce compte.");
+          SqLiteUtils.DeletionQuery("rumors",
+            new Dictionary<string, string>() { { "accountId", accountId.ToString() }, { "ROWID", rumorId } });
+
+          await context.Channel.SendMessageAsync($"Votre rumeur numéro {rumorId} a bien été supprimée.");
 
           return;
 
         case "admin":
         case "staff":
 
-          if (SqLiteUtils.DeletionQuery("rumors",
-            new Dictionary<string, string>() { { "ROWID", rumorId } }))
-            await context.Channel.SendMessageAsync($"La rumeur numéro {rumorId} a bien été supprimée.");
-          else
-            await context.Channel.SendMessageAsync($"La rumeur {rumorId} n'a pas pu être trouvée.");
+          SqLiteUtils.DeletionQuery("rumors",
+            new Dictionary<string, string>() { { "ROWID", rumorId } });
+
+          await context.Channel.SendMessageAsync($"La rumeur numéro {rumorId} a bien été supprimée.");
 
           return;
       }

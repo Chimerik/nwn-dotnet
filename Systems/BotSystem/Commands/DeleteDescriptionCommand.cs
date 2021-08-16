@@ -20,11 +20,10 @@ namespace NWN.Systems
         return;
       }
 
-      if (SqLiteUtils.DeletionQuery("playerDescriptions",
-        new Dictionary<string, string>() { { "characterId", pcID.ToString() }, { "descriptionName", descriptionName } }))
-        await context.Channel.SendMessageAsync($"Description {descriptionName} supprimée pour le personnage {pcName}");
-      else
-        await context.Channel.SendMessageAsync($"Erreur technique - la description {descriptionName} n'a pas pu être supprimée pour le personnage {pcName}");
+      SqLiteUtils.DeletionQuery("playerDescriptions",
+        new Dictionary<string, string>() { { "characterId", pcID.ToString() }, { "descriptionName", descriptionName } });
+
+      await context.Channel.SendMessageAsync($"Description {descriptionName} supprimée pour le personnage {pcName}");
     }
   }
 }
