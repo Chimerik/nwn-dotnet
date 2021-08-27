@@ -7,10 +7,10 @@ using static NWN.Systems.PlayerSystem;
 namespace NWN.Systems
 {
   class PlayerShop
-  {
+  {// DEPRECATED : refaire avec NUI
     public PlayerShop(NwCreature oPC, NwItem authorization)
     {
-      if (!(Players.TryGetValue(oPC, out Player player)))
+      /*if (!(Players.TryGetValue(oPC, out Player player)))
         return;
 
       int MagnatLevel = 1;
@@ -43,7 +43,7 @@ namespace NWN.Systems
       plcShop.OnUsed += PlaceableSystem.OnUsedPlayerOwnedShop;
 
       player.oid.SendServerMessage($"Félicitations pour l'inauguration de votre boutique {plcShop.Name.ColorString(ColorConstants.Green)} !");
-      authorization.Destroy();
+      authorization.Destroy();*/
     }
   }
 }

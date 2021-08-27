@@ -63,9 +63,14 @@ namespace NWN.Systems
         player.oid.LoginCreature.GetObjectVariable<LocalVariableString>("_PLAYER_INPUT").Delete();
       }
     }
-    private void SaveRumorToDatabase(string rumorContent)
+    private async void SaveRumorToDatabase(string rumorContent)
     {
-      SqLiteUtils.InsertQuery("rumors",
+      player.menu.Close();
+
+      if (!player.oid.IsDM)
+        await (Bot._client.GetChannel(680072044364562532) as Discord.IMessageChannel).SendMessageAsync($"{Bot._client.GetGuild(680072044364562528).EveryoneRole.Mention} Création de la rumeur {rumorTitle} par {player.oid.LoginCreature.Name} à valider.");
+
+      bool queryResult = await SqLiteUtils.InsertQueryAsync("rumors",
           new List<string[]>() {
             new string[] { "accountId", player.accountId.ToString() },
             new string[] { "title", rumorTitle },
@@ -73,29 +78,28 @@ namespace NWN.Systems
           new List<string>() { "accountId", "title" },
           new List<string[]>() { new string[] { "content" } });
 
-      player.oid.SendServerMessage($"Héhé {rumorTitle.ColorString(ColorConstants.White)}, c'est pas tombé dans l'oreille d'un sourd !", ColorConstants.Pink);
-      player.menu.Close();
-
-      if(!player.oid.IsDM)
-        (Bot._client.GetChannel(680072044364562532) as Discord.IMessageChannel).SendMessageAsync($"{Bot._client.GetGuild(680072044364562528).EveryoneRole.Mention} Création de la rumeur {rumorTitle} par {player.oid.LoginCreature.Name} à valider.");
+      player.HandleAsyncQueryFeedback(queryResult, $"Héhé {rumorTitle.ColorString(ColorConstants.White)}, c'est pas tombé dans l'oreille d'un sourd !", "Erreur technique - Votre rumeur n'as pas été enregistrée.");
     }
-    private void DrawMyRumorsList()
+    private async void DrawMyRumorsList()
     {
       player.menu.Clear();
       player.menu.titleLines.Add($"Quelle rumeur souhaitez-vous supprimer ?");
 
-      var result = SqLiteUtils.SelectQuery("rumors",
+      var result = await SqLiteUtils.SelectQueryAsync("rumors",
         new List<string>() { { "title" }, { "rowid" } },
         new List<string[]>() { new string[] { "accountId", player.accountId.ToString() } });
 
-      foreach (var rumor in result.Results)
-      {
-        int rumorId = rumor.GetInt(1);
-        rumorTitle = rumor.GetString(0);
-        player.menu.choices.Add((rumorTitle, () => HandleDeleteRumor(rumorId)));
-      }
+      if(result != null)
+        foreach (var rumor in result)
+        {
+          int rumorId = int.Parse(rumor[1]);
+          rumorTitle = rumor[0];
+          player.menu.choices.Add((rumorTitle, () => HandleDeleteRumor(rumorId)));
+        }
 
       player.menu.choices.Add(("Retour", () => DrawWelcomePage()));
+
+      await NwTask.SwitchToMainThread();
       player.menu.Draw();
     }
     private void HandleDeleteRumor(int rumorId)

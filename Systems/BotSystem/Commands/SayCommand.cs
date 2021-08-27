@@ -7,8 +7,8 @@ using NWN.Core.NWNX;
 namespace NWN.Systems
 {
   public static partial class BotSystem
-  {
-    public static async Task ExecuteSayCommand(SocketCommandContext context, string sPCName, string text)
+  {// DEPRECATED : refaire avec NUI
+    /*public static async Task ExecuteSayCommand(SocketCommandContext context, string sPCName, string text)
     {
       await NwTask.SwitchToMainThread();
 
@@ -26,6 +26,6 @@ namespace NWN.Systems
       }
 
       await context.Channel.SendMessageAsync("Le personnage indiqué n'existe pas, n'est pas connecté ou n'a pas été enregistré avec votre code Discord et votre clef cd.");
-    }
+    }*/
   }
 }

@@ -2,7 +2,6 @@
 using System.Threading.Tasks;
 using Discord.Commands;
 using Anvil.API;
-using NWN.Core;
 
 namespace NWN.Systems
 {
@@ -10,8 +9,7 @@ namespace NWN.Systems
   {
     public static async Task ExecuteGetMyMailsListCommand(SocketCommandContext context, string characterName)
     {
-      await NwTask.SwitchToMainThread();
-      int result = DiscordUtils.CheckPlayerCredentialsFromDiscord(context, characterName);
+      int result = await DiscordUtils.CheckPlayerCredentialsFromDiscord(context, characterName);
 
       if (result <= 0)
       {
@@ -19,18 +17,18 @@ namespace NWN.Systems
         return;
       }
 
-      var query = SqLiteUtils.SelectQuery("messenger",
+      var query = await SqLiteUtils.SelectQueryAsync("messenger",
         new List<string>() { { "rowid" }, { "senderName" }, { "title" }, { "sentDate" }, { "read" } },
         new List<string[]>() { new string[] { "characterId", result.ToString() } },
         " order by sentDate desc");
 
       string messageList = $"Liste des messages reçus par {characterName} :\n\n";
       
-      foreach(var mail in query.Results)
+      foreach(var mail in query)
       {
-        if (mail.GetInt(4) == 1)
+        if (mail[4] == "1")
           messageList += "Lu | ";
-        messageList += $"{mail.GetInt(0)} | {mail.GetString(1)} | {mail.GetString(2)} | {mail.GetString(3)}";
+        messageList += $"{mail[0]} | {mail[1]} | {mail[2]} | {mail[3]}";
       }
 
       await context.Channel.SendMessageAsync(messageList);

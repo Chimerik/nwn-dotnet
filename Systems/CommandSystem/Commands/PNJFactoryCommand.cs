@@ -932,58 +932,62 @@ namespace NWN.Systems
       if (awaitedValue)
         DrawModifyTailPage(0);
     }
-    private void HandleSaveNPC()
+    private async void HandleSaveNPC()
     {
-      SqLiteUtils.InsertQuery("savedNPC",
+      string playerName = player.oid.PlayerName;
+      string pnjName = oPNJ.Name;
+      string serializedPNJ = oPNJ.Serialize().ToBase64EncodedString();
+
+      bool result = await SqLiteUtils.InsertQueryAsync("savedNPC",
           new List<string[]>() {
-            new string[] { "accountName", player.oid.PlayerName },
-            new string[] { "name", oPNJ.Name},
-            new string[] { "serializedCreature", oPNJ.Serialize().ToBase64EncodedString() } },
+            new string[] { "accountName", playerName },
+            new string[] { "name", pnjName },
+            new string[] { "serializedCreature", serializedPNJ } },
           new List<string>() { "accountName", "name" },
           new List<string[]>() { new string[] { "serializedCreature" } });
 
-      player.oid.SendServerMessage($"Votre PNJ {oPNJ.Name.ColorString(ColorConstants.White)} a bien été enregistré.", ColorConstants.Blue);
+      player.HandleAsyncQueryFeedback(result, $"Votre PNJ {pnjName.ColorString(ColorConstants.White)} a bien été enregistré.", "Erreur technique - Votre PNJ n'a pas pu être enregistré.");
     }
-    private void DisplayPNJCreatorsList()
+    private async void DisplayPNJCreatorsList()
     {
       player.menu.Clear();
 
-      player.menu.titleLines.Add("Quelle liste de PNJ souhaitez-vous explorer ?");
-
-      var result = SqLiteUtils.SelectQuery("savedNPC",
+      var result = await SqLiteUtils.SelectQueryAsync("savedNPC",
           new List<string>() { { "distinct accountName" } },
-          new List<string[]>() );
+          new List<string[]>());
 
-      foreach (var npc in result.Results)
+      foreach (var npc in result)
       {
-        string accountName = npc.GetString(0);
+        string accountName = npc[0];
         player.menu.choices.Add((accountName, () => DrawPNJList(accountName)));
       }
 
+      player.menu.titleLines.Add("Quelle liste de PNJ souhaitez-vous explorer ?");
       player.menu.choices.Add(("Retour", () => DrawPNJFactoryWelcome()));
       player.menu.choices.Add(("Quitter", () => player.menu.Close()));
 
+      await NwTask.SwitchToMainThread();
       player.menu.Draw();
     }
-    private void DrawPNJList(string accountName)
+    private async void DrawPNJList(string accountName)
     {
       player.menu.Clear();
 
-      player.menu.titleLines.Add("Quel PNJ souhaitez-vous sélectionner ?");
-
-      var result = SqLiteUtils.SelectQuery("savedNPC",
+      var result = await SqLiteUtils.SelectQueryAsync("savedNPC",
           new List<string>() { { "name" } },
           new List<string[]>() { new string[] { "accountName", accountName } });
 
-      foreach (var npc in result.Results)
+      foreach (var npc in result)
       {
-        string npcName = npc.GetString(0);
+        string npcName = npc[0];
         player.menu.choices.Add((npcName, () => HandleNPCSelection(npcName, accountName)));
       }
 
+      player.menu.titleLines.Add("Quel PNJ souhaitez-vous sélectionner ?");
       player.menu.choices.Add(("Retour", () => DisplayPNJCreatorsList()));
       player.menu.choices.Add(("Quitter", () => player.menu.Close()));
 
+      await NwTask.SwitchToMainThread();
       player.menu.Draw();
     }
     private void HandleNPCSelection(string npcName, string accountName)
@@ -1015,18 +1019,22 @@ namespace NWN.Systems
       oPC.LoginCreature.GetObjectVariable<LocalVariableString>("_SPAWNING_NPC_ACCOUNT").Value = accountName;
       PlayerSystem.cursorTargetService.EnterTargetMode(oPC, OnPNJSpawnLocationSelected, ObjectTypes.All, MouseCursor.Create);
     }
-    private void OnPNJSpawnLocationSelected(ModuleEvents.OnPlayerTarget selection)
+    private async void OnPNJSpawnLocationSelected(ModuleEvents.OnPlayerTarget selection)
     {
       if (selection.IsCancelled)
         return;
 
-      var result = SqLiteUtils.SelectQuery("savedNPC",
-          new List<string>() { { "serializedCreature" } },
-          new List<string[]>() { new string[] { "accountName", selection.Player.LoginCreature.GetObjectVariable<LocalVariableString>("_SPAWNING_NPC_ACCOUNT").Value }, new string[] { "name", selection.Player.LoginCreature.GetObjectVariable<LocalVariableString>("_SPAWNING_NPC").Value } });
+      string accountName = selection.Player.LoginCreature.GetObjectVariable<LocalVariableString>("_SPAWNING_NPC_ACCOUNT").Value;
+      string npcName = selection.Player.LoginCreature.GetObjectVariable<LocalVariableString>("_SPAWNING_NPC").Value;
 
-      if (result.Result != null)
+      var result = await SqLiteUtils.SelectQueryAsync("savedNPC",
+          new List<string>() { { "serializedCreature" } },
+          new List<string[]>() { new string[] { "accountName", accountName }, new string[] { "name", npcName } });
+
+      if (result != null && result.Count > 0)
       {
-        NwCreature oNPC = NwCreature.Deserialize(result.Result.GetString(0).ToByteArray());
+        await NwTask.SwitchToMainThread();
+        NwCreature oNPC = NwCreature.Deserialize(result[0][0].ToByteArray());
         oNPC.Location = Location.Create(selection.Player.ControlledCreature.Area, selection.TargetPosition, selection.Player.ControlledCreature.Rotation);
       }
     }

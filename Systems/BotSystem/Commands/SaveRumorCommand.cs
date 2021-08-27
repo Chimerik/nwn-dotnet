@@ -11,8 +11,7 @@ namespace NWN.Systems
   {
     public static async Task ExecuteSaveRumorCommand(SocketCommandContext context, string titre_rumeur, string contenu_rumeur)
     {
-      await NwTask.SwitchToMainThread();
-      int accountId = DiscordUtils.GetPlayerAccountIdFromDiscord(context.User.Id);
+      int accountId = await DiscordUtils.GetPlayerAccountIdFromDiscord(context.User.Id);
       
       if (accountId < 0)
       {
@@ -20,7 +19,7 @@ namespace NWN.Systems
         return;
       }
 
-      SqLiteUtils.InsertQuery("rumors",
+      bool awaitedQuery = await SqLiteUtils.InsertQueryAsync("rumors",
           new List<string[]>() {
             new string[] { "accountId", accountId.ToString() },
             new string[] { "title", titre_rumeur },
@@ -28,9 +27,14 @@ namespace NWN.Systems
           new List<string>() { "accountId", "title" },
           new List<string[]>() { new string[] { "content" } });
 
-      await context.Channel.SendMessageAsync($"La rumeur {titre_rumeur} a bien été enregistrée parmis les rumeurs en cours.");
+      if(awaitedQuery)
+        await context.Channel.SendMessageAsync($"La rumeur {titre_rumeur} a bien été enregistrée parmi les rumeurs en cours.");
+      else
+        await context.Channel.SendMessageAsync($"Erreur technique - La rumeur {titre_rumeur} n'a pas pu être enregistrée !");
 
-      switch(DiscordUtils.GetPlayerStaffRankFromDiscord(context.User.Id))
+      string rank = await DiscordUtils.GetPlayerStaffRankFromDiscord(context.User.Id);
+
+      switch (rank)
       {
         default:
           await (Bot._client.GetChannel(680072044364562532) as IMessageChannel).SendMessageAsync($"{Bot._client.GetGuild(680072044364562528).EveryoneRole.Mention} Création de la rumeur {titre_rumeur} à valider.");

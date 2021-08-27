@@ -24,10 +24,10 @@ namespace NWN.Systems
     public async Task RegisterDiscordId(string cdKey)
       => await BotSystem.ExecuteRegisterDiscordId(Context, cdKey);
 
-    [Command("say")]
+    /*[Command("say")]
     [Summary("Permet de faire prononcer à votre personnage un message en jeu tout en profitant de l'édition de texte de Discord.")]
     public async Task SayAsync(string nom_du_personnage, string message_a_prononcer)
-      => await BotSystem.ExecuteSayCommand(Context, nom_du_personnage, message_a_prononcer);
+      => await BotSystem.ExecuteSayCommand(Context, nom_du_personnage, message_a_prononcer);*/
 
     // ReplyAsync is a method on ModuleBase 
 
@@ -45,8 +45,8 @@ namespace NWN.Systems
     [Summary("Enregistre ou modifie une description pour un personnage donné.")]
     public async Task SaveDescriptionAsync(string nom_du_perso, string nom_description, string texte_description)
       => await BotSystem.ExecuteSaveDescriptionCommand(Context, nom_du_perso, nom_description, texte_description);
-
-    [Command("desc")]
+    
+    /*[Command("desc")]
     [Summary("Affiche la liste des descriptions enregistrées pour un personnage donné.")]
     public async Task GetDescriptionListAsync(string nom_perso)
       => await BotSystem.ExecuteGetDescriptionListCommand(Context, nom_perso);
@@ -64,7 +64,7 @@ namespace NWN.Systems
     [Command("areadesc")]
     [Summary("Enregistre ou modifie la description pour une zone donnée à partir de son tag.")]
     public async Task SaveAreaDescriptionAsync(string tag_zone, string texte_description)
-          => await BotSystem.ExecuteSaveAreaDescriptionCommand(Context, tag_zone, texte_description);
+          => await BotSystem.ExecuteSaveAreaDescriptionCommand(Context, tag_zone, texte_description);*/
 
     [Command("rumeur")]
     [Summary("Enregistre ou modifie une rumeur.")]
@@ -86,15 +86,15 @@ namespace NWN.Systems
     public async Task DeleteRumorAsync(string numero_rumeur)
       => await BotSystem.ExecuteDeleteRumorCommand(Context, numero_rumeur);
 
-    [Command("listepersos")]
+    /*[Command("listepersos")]
     [Summary("Affiche la liste des personnages.")]
     public async Task GetCharacterListAsync()
-      => await BotSystem.ExecuteGetCharacterListCommand(Context);
+      => await BotSystem.ExecuteGetCharacterListCommand(Context);*/
 
-    [Command("envoi_courrier")]
+    /*[Command("envoi_courrier")]
     [Summary("Envoi un courrier au personnage indiqué.")]
     public async Task SendMailAsync(string nom_perso_emetteur, int ID_perso_destinataire, string titre_courrier, string contenu_courrier)
-      => await BotSystem.ExecuteSendMailCommand(Context, nom_perso_emetteur, ID_perso_destinataire, titre_courrier, contenu_courrier);
+      => await BotSystem.ExecuteSendMailCommand(Context, nom_perso_emetteur, ID_perso_destinataire, titre_courrier, contenu_courrier);*/
 
     [Command("mycourrier")]
     [Summary("Affiche la liste des courriers destinés à l'un de vos personnages.")]

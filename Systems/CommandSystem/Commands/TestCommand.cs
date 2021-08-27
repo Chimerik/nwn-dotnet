@@ -10,12 +10,14 @@ using System.Numerics;
 using System.Threading.Tasks;
 using NWN.Core;
 using Microsoft.Data.Sqlite;
+using System.Collections.Generic;
+using NWN.Systems.Alchemy;
 
 namespace NWN.Systems
 {
   public static partial class CommandSystem
   {
-    private static void ExecuteTestCommand(ChatSystem.Context ctx, Options.Result options)
+    private static async void ExecuteTestCommand(ChatSystem.Context ctx, Options.Result options)
     {
       if (PlayerSystem.Players.TryGetValue(ctx.oSender.LoginCreature, out PlayerSystem.Player player))
       {
@@ -24,7 +26,6 @@ namespace NWN.Systems
 
         if (player.oid.PlayerName == "Chim")
         {
-          
 
           //PlayerSystem.cursorTargetService.EnterTargetMode(player.oid, OnTargetSelected, ObjectTypes.All, MouseCursor.Pickup);
         }

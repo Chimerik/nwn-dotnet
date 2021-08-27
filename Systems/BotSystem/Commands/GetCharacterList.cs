@@ -8,7 +8,7 @@ namespace NWN.Systems
 {
   public static partial class BotSystem
   {
-    public static async Task ExecuteGetCharacterListCommand(SocketCommandContext context)
+    /*public static async Task ExecuteGetCharacterListCommand(SocketCommandContext context)
     {
       await NwTask.SwitchToMainThread();
 
@@ -23,6 +23,6 @@ namespace NWN.Systems
 
       await context.Channel.SendMessageAsync($"Voici la liste des personnages créés sur le module :\n{result}");
       return;
-    }
+    }*/
   }
 }

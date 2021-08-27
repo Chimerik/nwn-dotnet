@@ -7,8 +7,8 @@ namespace NWN.Systems
   class LoadPCDescription
   {
     public LoadPCDescription(PlayerSystem.Player player)
-    {
-      player.menu.titleLines = new List<string>() {
+    {// DEPRECATED : refaire avec NUI
+      /*player.menu.titleLines = new List<string>() {
         "Voici la liste de vos descriptions ?",
         "Laquelle souhaitez-vous consulter ?"
         };
@@ -31,13 +31,13 @@ namespace NWN.Systems
       player.menu.choices.Add(("Retour.", () => CommandSystem.DrawCommandList(player)));
       player.menu.choices.Add(("Quitter.", () => player.menu.Close()));
 
-      player.menu.Draw();
+      player.menu.Draw();*/
     }
 
-    private void ApplySelectedDescription(NwPlayer oPC, string descriptionName, string description)
-    {
-      oPC.ControlledCreature.Description = description;
-      oPC.SendServerMessage($"La description {descriptionName.ColorString(ColorConstants.White)} a bien été appliquée à votre personnage.", ColorConstants.Blue);
-    }
+      private void ApplySelectedDescription(NwPlayer oPC, string descriptionName, string description)
+      {
+        oPC.ControlledCreature.Description = description;
+        oPC.SendServerMessage($"La description {descriptionName.ColorString(ColorConstants.White)} a bien été appliquée à votre personnage.", ColorConstants.Blue);
+      }
   }
 }

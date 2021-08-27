@@ -8,9 +8,10 @@ namespace NWN.Systems
 {
   public static partial class BotSystem
   {
+    // DEPRECATED : utiliser NUI pour faire du multi ligne en jeu
     public static async Task ExecuteSaveDescriptionCommand(SocketCommandContext context, string pcName, string descriptionName, string descriptionText)
     {
-      await NwTask.SwitchToMainThread();
+      /*await NwTask.SwitchToMainThread();
 
       int pcID = DiscordUtils.CheckPlayerCredentialsFromDiscord(context, pcName);
       if (pcID == 0)
@@ -28,6 +29,7 @@ namespace NWN.Systems
           new List<string[]>() { new string[] { "description" } });
 
       await context.Channel.SendMessageAsync($"La description {descriptionName} a été enregistrée parmis les descriptions disponibles pour votre personnage {pcName}.");
+      */
     }
   }
 }

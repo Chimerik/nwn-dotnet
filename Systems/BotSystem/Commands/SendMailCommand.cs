@@ -8,8 +8,8 @@ using NWN.Core;
 namespace NWN.Systems
 {
   public static partial class BotSystem
-  {
-    public static async Task ExecuteSendMailCommand(SocketCommandContext context, string senderName, int characterId, string title, string content)
+  {// DEPRECATED : refaire avec NUI
+    /*public static async Task ExecuteSendMailCommand(SocketCommandContext context, string senderName, int characterId, string title, string content)
     {
       await NwTask.SwitchToMainThread();
       int result = DiscordUtils.CheckPlayerCredentialsFromDiscord(context, senderName);
@@ -34,6 +34,6 @@ namespace NWN.Systems
       Utils.SendMailToPC(characterId, senderFullName, title, content);
 
       await context.Channel.SendMessageAsync("Courrier en cours d'envoi.");
-    }
+    }*/
   }
 }

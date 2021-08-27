@@ -8,9 +8,10 @@ namespace NWN.Systems
 {
   public static partial class BotSystem
   {
+    // DEPRECATED : a remplacer par NUI
     public static async Task ExecuteDeleteDescriptionCommand(SocketCommandContext context, string pcName, string descriptionName)
     {
-      await NwTask.SwitchToMainThread();
+      /*await NwTask.SwitchToMainThread();
 
       int pcID = DiscordUtils.CheckPlayerCredentialsFromDiscord(context, pcName);
       if (pcID == 0)
@@ -23,7 +24,7 @@ namespace NWN.Systems
       SqLiteUtils.DeletionQuery("playerDescriptions",
         new Dictionary<string, string>() { { "characterId", pcID.ToString() }, { "descriptionName", descriptionName } });
 
-      await context.Channel.SendMessageAsync($"Description {descriptionName} supprimée pour le personnage {pcName}");
+      await context.Channel.SendMessageAsync($"Description {descriptionName} supprimée pour le personnage {pcName}");*/
     }
   }
 }

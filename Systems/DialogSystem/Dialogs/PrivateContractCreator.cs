@@ -9,7 +9,7 @@ using System.Linq;
 namespace NWN.Systems
 {
   class PrivateContractCreator
-  {
+  {// DEPRECATED : refaire avec NUI
     public class Contract
     {
       public int quantity { get; set; }
@@ -24,9 +24,9 @@ namespace NWN.Systems
     public PrivateContractCreator(Player player)
     {
       materialContractDictionnary = new Dictionary<string, Contract>();
-      DrawMainContractPage(player);
+      //DrawMainContractPage(player);
     }
-    private void DrawMainContractPage(Player player)
+    /*private void DrawMainContractPage(Player player)
     {
       player.menu.Clear();
       player.menu.titleLines.Add("Que souhaitez-vous faire ?");
@@ -333,6 +333,6 @@ namespace NWN.Systems
       SqLiteUtils.DeletionQuery("playerPrivateContracts",
          new Dictionary<string, string>() { { "rowid", contractId.ToString() } });
       }
-    }
+    }*/
   }
 }

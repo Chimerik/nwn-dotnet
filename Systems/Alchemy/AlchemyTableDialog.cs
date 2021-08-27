@@ -557,11 +557,11 @@ namespace NWN.Systems.Alchemy
         player.oid.LoginCreature.GetObjectVariable<LocalVariableString>("_PLAYER_INPUT").Delete();
       }
     }
-    private void SaveRecipe()
+    private async void SaveRecipe()
     {
       string input = player.oid.LoginCreature.GetObjectVariable<LocalVariableString>("_PLAYER_INPUT").Value;
 
-      SqLiteUtils.InsertQuery("playerAlchemyRecipe",
+      bool awaitedQuery = await SqLiteUtils.InsertQueryAsync("playerAlchemyRecipe",
         new List<string[]>() {
             new string[] { "characterId", player.characterId.ToString() },
             new string[] { "recipeName", input },
@@ -570,27 +570,27 @@ namespace NWN.Systems.Alchemy
         new List<string[]>() { new string[] { "serializedRecipe" } },
         new List<string>() { "characterId", "recipeName" });
 
-      player.oid.SendServerMessage($"Vous notez scrupuleuse votre recette {input.ColorString(ColorConstants.White)} dans votre carnet d'alchimiste.", new Color(32, 255, 32));
+      player.HandleAsyncQueryFeedback(awaitedQuery, $"Vous notez scrupuleuse votre recette {input.ColorString(ColorConstants.White)} dans votre carnet d'alchimiste.", "Erreur technique - votre recette n'a pas été enregistrée.");
 
       player.menu.Close();
     }
-    private void DisplayPlayerRecipes()
+    private async void DisplayPlayerRecipes()
     {
       player.menu.Clear();
+
+      var query = await SqLiteUtils.SelectQueryAsync("playerAlchemyRecipe",
+        new List<string>() { { "recipeName" }, { "serializedRecipe" } },
+        new List<string[]>() { new string[] { "characterId", player.characterId.ToString() } });
 
       player.menu.titleLines = new List<string> {
         "Voici la liste de vos recettes.",
         "Laquelle souhaitez-vous consulter ?"
       };
 
-      var query = SqLiteUtils.SelectQuery("playerAlchemyRecipe",
-        new List<string>() { { "recipeName" }, { "serializedRecipe" } },
-        new List<string[]>() { new string[] { "characterId", player.characterId.ToString() } });
-
-      foreach (var result in query.Results)
+      foreach (var result in query)
       {
-        string recipeName = $"- {result.GetString(0)}".ColorString(ColorConstants.Cyan);
-        string serializedRecipe = result.GetString(1);
+        string recipeName = $"- {result[0]}".ColorString(ColorConstants.Cyan);
+        string serializedRecipe = result[1];
 
         player.menu.choices.Add((
           recipeName,
@@ -601,6 +601,7 @@ namespace NWN.Systems.Alchemy
       player.menu.choices.Add(("Retour.", () => CommandSystem.DrawCommandList(player)));
       player.menu.choices.Add(("Quitter.", () => player.menu.Close()));
 
+      await NwTask.SwitchToMainThread();
       player.menu.Draw();
     }
     private void HandleSelectedRecipe(string recipeName, string serializedRecipe)

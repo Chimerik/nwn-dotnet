@@ -65,45 +65,48 @@ namespace NWN.Systems
 
       //TempLearnablesJsonification();
     }
-    private void TempLearnablesJsonification()
+    private async void TempLearnablesJsonification()
     {
       List<int> charIds = new List<int>();
 
-      var result = SqLiteUtils.SelectQuery("playerCharacters",
+      var result = await SqLiteUtils.SelectQueryAsync("playerCharacters",
           new List<string>() { { "ROWID" } },
           new List<string[]>() {});
 
-      foreach (var characterId in result.Results)
-        charIds.Add(characterId.GetInt(0));
+      if(result != null)
+        foreach (var characterId in result)
+          charIds.Add(int.Parse(characterId[0]));
 
       foreach (int charId in charIds)
       {
         Dictionary<string, Learnable> tempDic = new Dictionary<string, Learnable>();
 
-        var featResult = SqLiteUtils.SelectQuery("playerLearnableSkills",
+        var featResult = await SqLiteUtils.SelectQueryAsync("playerLearnableSkills",
           new List<string>() { { "skillId" }, { "skillPoints" }, { "trained" }, { "active" } },
           new List<string[]>() { { new string[] { "characterId", charId.ToString() } } });
 
-        foreach (var skill in featResult.Results)
+        if(featResult != null)
+        foreach (var skill in featResult)
         {
-          int id = skill.GetInt(0);
+          int id = int.Parse(skill[0]);
           Feat skillId = (Feat)id;
-          int currentSkillPoints = skill.GetInt(1);
-          bool active = skill.GetInt(3) == 1 ? true : false;
+          int currentSkillPoints = int.Parse(skill[1]);
+          bool active = int.Parse(skill[3]) == 1 ? true : false;
 
-          if (skill.GetInt(2) == 0)
+          if (skill[2] == "0")
             tempDic.Add($"F{id}", new Learnable(LearnableType.Feat, id, currentSkillPoints, active));
         }
 
-        var spellResult = SqLiteUtils.SelectQuery("playerLearnableSpells",
+        var spellResult = await SqLiteUtils.SelectQueryAsync("playerLearnableSpells",
           new List<string>() { { "skillId" }, { "skillPoints" }, { "nbScrolls" }, { "active" } },
-          new List<string[]>() { { new string[] { "characterId", charId.ToString().ToString() } }, { new string[] { "trained", "0" } } });
+          new List<string[]>() { { new string[] { "characterId", charId.ToString() } }, { new string[] { "trained", "0" } } });
 
-        foreach (var spell in spellResult.Results)
-        {
-          bool active = spell.GetInt(3) == 1 ? true : false;
-          tempDic.Add($"S{spell.GetInt(0)}", new Learnable(LearnableType.Spell, spell.GetInt(0), spell.GetInt(1), active, spell.GetInt(2)));
-        }
+        if(spellResult != null)
+          foreach (var spell in spellResult)
+          {
+            bool active = spell[3] == "1" ? true : false;
+            tempDic.Add($"S{spell[0]}", new Learnable(LearnableType.Spell, int.Parse(spell[0]), int.Parse(spell[1]), active, int.Parse(spell[2])));
+          }
 
         SqLiteUtils.UpdateQuery("playerCharacters",
           new List<string[]>() { new string[] { "serializedLearnables", Newtonsoft.Json.JsonConvert.SerializeObject(tempDic) } },
@@ -322,7 +325,7 @@ namespace NWN.Systems
       await NwTask.WaitUntilValueChanged(() => DateTime.Now.Day);
       await SpawnCollectableResources(1);
     }
-    private void SaveServerVault()
+    private async void SaveServerVault()
     {
       SqLiteUtils.UpdateQuery("moduleInfo",
         new List<string[]>() { new string[] { "year", NwDateTime.Now.Year.ToString() }, { new string[] { "month", NwDateTime.Now.Month.ToString() } }, { new string[] { "day", NwDateTime.Now.DayInTenday.ToString() } }, { new string[] { "hour", NwDateTime.Now.Hour.ToString() } }, { new string[] { "minute", NwDateTime.Now.Minute.ToString() } }, { new string[] { "second", NwDateTime.Now.Second.ToString() } } },
@@ -330,19 +333,9 @@ namespace NWN.Systems
 
       HandleExpiredAuctions();
 
-      //NwModule.Instance.ExportAllCharacters();
-
-      Task DownloadDiscordUsers = Task.Run(async () =>
-      {
-        await Bot._client.DownloadUsersAsync(new List<IGuild> { { Bot._client.GetGuild(680072044364562528) } });
-      });
-
-      Task scheduleNextSave = NwTask.Run(async () =>
-      {
-        await NwTask.Delay(TimeSpan.FromMinutes(10));
-        SaveServerVault();
-        return true;
-      });      
+      await Bot._client.DownloadUsersAsync(new List<IGuild> { { Bot._client.GetGuild(680072044364562528) } });
+      await NwTask.Delay(TimeSpan.FromMinutes(10));
+      SaveServerVault();     
     }
     public void RestorePlayerCorpseFromDatabase()
     {

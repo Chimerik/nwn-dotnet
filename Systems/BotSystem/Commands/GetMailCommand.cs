@@ -11,8 +11,7 @@ namespace NWN.Systems
   {
     public static async Task ExecuteGetMailCommand(SocketCommandContext context, string mailId, string characterName)
     {
-      await NwTask.SwitchToMainThread();
-      int result = DiscordUtils.CheckPlayerCredentialsFromDiscord(context, characterName);
+      int result = await DiscordUtils.CheckPlayerCredentialsFromDiscord(context, characterName);
 
       if (result <= 0)
       {
@@ -20,20 +19,20 @@ namespace NWN.Systems
         return;
       }
 
-      var query = SqLiteUtils.SelectQuery("messenger",
+      var query = await SqLiteUtils.SelectQueryAsync("messenger",
         new List<string>() { { "senderName" }, { "title" }, { "sentDate" }, { "message" } },
         new List<string[]>() { new string[] { "characterId", result.ToString() }, { new string[] { "ROWID", mailId } } });
 
-      if(query.Result == null)
+      if(query == null || query.Count < 1)
       {
         await context.Channel.SendMessageAsync($"Le personnage indiqué n'a pas reçu de message dont le numéro correspond à {mailId}.");
         return;
       }
 
-      await context.Channel.SendMessageAsync($"De {query.Result.GetString(0)}");
-      await context.Channel.SendMessageAsync($"Envoyé le {query.Result.GetString(2)} :");
-      await context.Channel.SendMessageAsync($"{query.Result.GetString(1)}");
-      await context.Channel.SendMessageAsync($"{query.Result.GetString(3)}");
+      await context.Channel.SendMessageAsync($"De {query[0][0]}");
+      await context.Channel.SendMessageAsync($"Envoyé le {query[0][2]} :");
+      await context.Channel.SendMessageAsync($"{query[0][1]}");
+      await context.Channel.SendMessageAsync($"{query[0][3]}");
 
       SqLiteUtils.UpdateQuery("messenger",
         new List<string[]>() { new string[] { "read", "1" } },

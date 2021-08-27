@@ -9,9 +9,11 @@ namespace NWN.Systems
   {
     public static async Task ExecuteGetConnectedPlayersCommand(SocketCommandContext context)
     {
+      string rank = await DiscordUtils.GetPlayerStaffRankFromDiscord(context.User.Id);
+
       await NwTask.SwitchToMainThread();
 
-      if (DiscordUtils.GetPlayerStaffRankFromDiscord(context.User.Id) == "admin")
+      if (rank == "admin")
       {
         string message = "";
         foreach (NwPlayer player in NwModule.Instance.Players)

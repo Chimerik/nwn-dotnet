@@ -44,22 +44,25 @@ namespace NWN.Systems
         player.oid.LoginCreature.GetObjectVariable<LocalVariableString>("_PLAYER_INPUT").Delete();
       }
     }
-    private void SaveQuickBar(string quickBarName)
+    private async void SaveQuickBar(string quickBarName)
     {
-      SqLiteUtils.InsertQuery("playerQuickbar",
+      string playerName = player.oid.PlayerName;
+      string serializedQB = player.oid.ControlledCreature.SerializeQuickbar().ToBase64EncodedString();
+
+      bool queryResult = await SqLiteUtils.InsertQueryAsync("playerQuickbar",
           new List<string[]>() {
-            new string[] { "characterId", player.oid.PlayerName },
+            new string[] { "characterId",  playerName},
             new string[] { "quickbarName", quickBarName },
-            new string[] { "serializedQuickbar", player.oid.ControlledCreature.SerializeQuickbar().ToBase64EncodedString() } },
+            new string[] { "serializedQuickbar", serializedQB } },
           new List<string>() { "characterId", "quickbarName" },
           new List<string[]>() { new string[] { "serializedQuickbar" } },
           new List<string>() { "characterId", "quickbarName" });
 
-      player.oid.SendServerMessage($"Votre barre de raccourcis {quickBarName.ColorString(ColorConstants.White)} a bien été enregistrée !", new Color(32, 255, 32));
+      player.HandleAsyncQueryFeedback(queryResult, $"Votre barre de raccourcis {quickBarName.ColorString(ColorConstants.White)} a bien été enregistrée !", "Erreur technique - Votre barre de raccourcis n'a pas pu être sauvegardée.");
 
       DrawQuickbarWelcomePage();
     }
-    private void DrawQuickBarList()
+    private async void DrawQuickBarList()
     {
       player.menu.Clear();
 
@@ -68,24 +71,25 @@ namespace NWN.Systems
         "Laquelle souhaitez-vous consulter ?"
         };
 
-      var result = SqLiteUtils.SelectQuery("playerQuickbar",
+      var result = await SqLiteUtils.SelectQueryAsync("playerQuickbar",
         new List<string>() { { "quickbarName" }, { "serializedQuickbar" } },
         new List<string[]>() { new string[] { "characterId", player.characterId.ToString() } });
 
-      foreach (var qbs in result.Results)
+      foreach (var qbs in result)
       {
-        string quickbarName = qbs.GetString(0);
-        string serializedQuickbar = qbs.GetString(1);
+        string quickbarName = qbs[0];
+        string serializedQuickbar = qbs[1];
 
-          player.menu.choices.Add((
-          quickbarName,
-          () => HandleSelectedQuickbar(quickbarName, serializedQuickbar)
-        ));
+        player.menu.choices.Add((
+        quickbarName,
+        () => HandleSelectedQuickbar(quickbarName, serializedQuickbar)
+      ));
       }
 
       player.menu.choices.Add(("Retour.", () => DrawQuickbarWelcomePage()));
       player.menu.choices.Add(("Quitter.", () => player.menu.Close()));
 
+      await NwTask.SwitchToMainThread();
       player.menu.Draw();
     }
     private void HandleSelectedQuickbar(string quickbarName, string serializedQuickbar)

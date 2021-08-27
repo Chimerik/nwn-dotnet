@@ -2,42 +2,53 @@
 using Discord.Commands;
 using Anvil.API;
 using NWN.Core;
+using System.Threading.Tasks;
+using Microsoft.Data.Sqlite;
 
 namespace NWN.Systems
 {
   class DiscordUtils
   {
-    public static int CheckPlayerCredentialsFromDiscord(SocketCommandContext context, string sPCName)
+    public static async Task<int> CheckPlayerCredentialsFromDiscord(SocketCommandContext context, string sPCName)
     {
-      var query = NwModule.Instance.PrepareCampaignSQLQuery(Config.database, $"SELECT pc.ROWID from PlayerAccounts " +
-        $"LEFT join playerCharacters pc on pc.accountId = PlayerAccounts.ROWID WHERE discordId = @discordId and pc.characterName like '{sPCName}%'");
-      query.BindParam("@discordId", context.User.Id.ToString());
+      using (var connection = new SqliteConnection(Config.dbPath))
+      {
+        connection.Open();
 
-      query.Execute();
-      if (query.Result != null)
-        return query.Result.GetInt(0);
+        var command = connection.CreateCommand();
+        command.CommandText = "SELECT pc.ROWID from PlayerAccounts " +
+        $"LEFT join playerCharacters pc on pc.accountId = PlayerAccounts.ROWID WHERE discordId = @discordId and pc.characterName like '{sPCName}%' ";
+
+        command.Parameters.AddWithValue("@discordId", context.User.Id.ToString());
+
+        using (var reader = await command.ExecuteReaderAsync())
+        {
+          while (reader.Read())
+            return reader.GetInt32(0);
+        }
+      }
 
       return 0;
     }
-    public static string GetPlayerStaffRankFromDiscord(ulong UserId)
+    public static async Task<string> GetPlayerStaffRankFromDiscord(ulong UserId)
     {
-      var result = SqLiteUtils.SelectQuery("PlayerAccounts",
+      var result = await SqLiteUtils.SelectQueryAsync("PlayerAccounts",
         new List<string>() { { "rank" } },
         new List<string[]>() { new string[] { "discordId", UserId.ToString() } });
 
-      if (result.Result != null)
-        return result.Result.GetString(0);
+      if (result != null && result.Count > 0)
+        return result[0][0];
 
       return "";
     }
-    public static int GetPlayerAccountIdFromDiscord(ulong UserId)
+    public static async Task<int> GetPlayerAccountIdFromDiscord(ulong UserId)
     {
-      var result = SqLiteUtils.SelectQuery("PlayerAccounts",
+      var result = await SqLiteUtils.SelectQueryAsync("PlayerAccounts",
         new List<string>() { { "ROWID" } },
         new List<string[]>() { new string[] { "discordId", UserId.ToString() } });
 
-      if (result.Result != null)
-        return result.Result.GetInt(0);
+      if (result != null && result.Count > 0 && int.TryParse(result[0][0], out int accountId))
+        return accountId;
 
       return -1;
     }

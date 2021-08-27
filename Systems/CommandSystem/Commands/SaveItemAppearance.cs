@@ -40,22 +40,24 @@ namespace NWN.Systems
       if (awaitedValue)
       {
         string input = player.oid.LoginCreature.GetObjectVariable<LocalVariableString>("_PLAYER_INPUT").Value;
+        player.menu.Close();
+        player.oid.LoginCreature.GetObjectVariable<LocalVariableString>("_PLAYER_INPUT").Delete();
 
-        SqLiteUtils.InsertQuery("playerItemAppearance",
+        string serializedAppearance = item.Appearance.Serialize();
+        string baseItemType = ((int)item.BaseItemType).ToString();
+
+        bool queryResult = await SqLiteUtils.InsertQueryAsync("playerItemAppearance",
           new List<string[]>() {
             new string[] { "characterId", player.characterId.ToString() },
             new string[] { "appearanceName", input },
-            new string[] { "serializedAppearance", item.Appearance.Serialize() },
-            new string[] { "baseItemType", ((int)item.BaseItemType).ToString() },
+            new string[] { "serializedAppearance", serializedAppearance },
+            new string[] { "baseItemType", baseItemType },
             new string[] { "AC", ACValue.ToString() }},
           new List<string>() { "characterId", "appearanceName" },
           new List<string[]>() { new string[] { "serializedAppearance" }, new string[] { "baseItemType" }, new string[] { "AC" } },
           new List<string>() { "characterId", "appearanceName" });
 
-        player.oid.SendServerMessage($"L'apparence de votre {selection.TargetObject.Name.ColorString(ColorConstants.White)} a été sauvegardée sous le nom {input.ColorString(ColorConstants.White)}.", new Color(32, 255, 32));
-        player.menu.Close();
-
-        player.oid.LoginCreature.GetObjectVariable<LocalVariableString>("_PLAYER_INPUT").Delete();
+        player.HandleAsyncQueryFeedback(queryResult, $"L'apparence de votre {selection.TargetObject.Name.ColorString(ColorConstants.White)} a été sauvegardée sous le nom {input.ColorString(ColorConstants.White)}.", "Erreur technique - L'apparence de votre objet n'a pas été sauvegardée !");
       }
     }
   }

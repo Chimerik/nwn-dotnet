@@ -12,7 +12,7 @@ namespace NWN.Systems
     {
       await NwTask.SwitchToMainThread();
 
-      SqLiteUtils.UpdateQuery("playerCharacters",
+      SqLiteUtils.UpdateQuery("PlayerAccounts",
           new List<string[]>() { new string[] { "discordId", context.User.Id.ToString() } },
           new List<string[]>() { new string[] { "cdKey", cdKey } });
 

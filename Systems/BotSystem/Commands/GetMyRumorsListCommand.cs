@@ -3,6 +3,7 @@ using System.Threading.Tasks;
 using Discord.Commands;
 using Anvil.API;
 using NWN.Core;
+using Microsoft.Data.Sqlite;
 
 namespace NWN.Systems
 {
@@ -10,8 +11,7 @@ namespace NWN.Systems
   {
     public static async Task ExecuteGetMyRumorsListCommand(SocketCommandContext context)
     {
-      await NwTask.SwitchToMainThread();
-      int accountId = DiscordUtils.GetPlayerAccountIdFromDiscord(context.User.Id);
+      int accountId = await DiscordUtils.GetPlayerAccountIdFromDiscord(context.User.Id);
 
       if (accountId < 0)
       {
@@ -19,32 +19,46 @@ namespace NWN.Systems
         return;
       }
 
-      switch(DiscordUtils.GetPlayerStaffRankFromDiscord(context.User.Id))
+      string rank = await DiscordUtils.GetPlayerStaffRankFromDiscord(context.User.Id);
+
+      switch (rank)
       {
         default:
 
-          var query = SqLiteUtils.SelectQuery("rumors",
+          var query = await SqLiteUtils.SelectQueryAsync("rumors",
             new List<string>() { { "title" }, { "rowid" } },
             new List<string[]>() { new string[] { "accountId", accountId.ToString() } });
 
           string result = "";
 
-          foreach (var rumors in query.Results)
-            result += rumors.GetString(1) + " - " + rumors.GetString(0) + "\n";
+          if (query != null)
+            foreach (var rumors in query)
+              result += rumors[1] + " - " + rumors[0] + "\n";
 
-          await context.Channel.SendMessageAsync($"Voici la liste des vos rumeurs actuellement en vogue :\n{result}");
+          await context.Channel.SendMessageAsync($"Voici la liste de vos rumeurs actuellement en vogue :\n{result}");
           return;
         case "admin":
         case "staff":
 
-          var staffQuery = NwModule.Instance.PrepareCampaignSQLQuery(Config.database, "SELECT title, r.rowid, accountName from rumors r " +
-        "LEFT JOIN PlayerAccounts pa on r.accountId = pa.ROWID ");
-          string staffResult = "";
+          using (var connection = new SqliteConnection(Config.dbPath))
+          {
+            connection.Open();
 
-          foreach (var rumor in staffQuery.Results)
-            staffResult += rumor.GetString(1) + " - " + rumor.GetString(2) + " - " + rumor.GetString(0) + "\n";
+            var command = connection.CreateCommand();
+            command.CommandText = "SELECT title, r.rowid, accountName from rumors r " +
+                                  "LEFT JOIN PlayerAccounts pa on r.accountId = pa.ROWID ";
 
-          await context.Channel.SendMessageAsync($"Voici la liste des rumeurs actuellement en vogue :\n{staffResult}");
+            string staffResult = "";
+
+            using (var reader = await command.ExecuteReaderAsync())
+            {
+              while (reader.Read())
+                staffResult = reader.GetString(1) + " - " + reader.GetString(2) + " - " + reader.GetString(0) + "\n";
+            }
+
+            await context.Channel.SendMessageAsync($"Voici la liste des rumeurs actuellement en vogue :\n{staffResult}");
+          }
+
           return;
       }
     }

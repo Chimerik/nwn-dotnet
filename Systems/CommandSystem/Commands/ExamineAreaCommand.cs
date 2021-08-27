@@ -9,8 +9,8 @@ namespace NWN.Systems
   class ExamineArea
   {
     public ExamineArea(NwPlayer oPC)
-    {
-      var result = SqLiteUtils.SelectQuery("areaDescriptions",
+    {// DEPRECATED : refaire avec NUI
+      /*var result = SqLiteUtils.SelectQuery("areaDescriptions",
         new List<string>() { { "description" } },
         new List<string[]>() { new string[] { "areaTag", oPC.ControlledCreature.Area.Tag } });
 
@@ -31,7 +31,7 @@ namespace NWN.Systems
       else
       {
         oPC.SendServerMessage($"Aucune description n'a pour le moment été rédigée pour {oPC.ControlledCreature.Area.Name}. N'hésitez pas à le signaler au staff si vous aimeriez en voir une !");
-      }
+      }*/
     }
   }
 }

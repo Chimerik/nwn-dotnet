@@ -565,6 +565,16 @@ namespace NWN.Systems
         else
           return false;
       }
+
+      public async void HandleAsyncQueryFeedback(bool awaitedQuery, string messageOK, string messageKO)
+      {
+        await NwTask.SwitchToMainThread();
+
+        if (awaitedQuery)
+          oid.SendServerMessage(messageOK, new Color(32, 255, 32));
+        else
+          oid.SendServerMessage(messageKO, ColorConstants.Red);
+      }
       
       public void CreateSkillJournalEntry(Learnable learnable)
       {

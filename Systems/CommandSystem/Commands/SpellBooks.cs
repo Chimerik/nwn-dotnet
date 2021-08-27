@@ -43,7 +43,7 @@ namespace NWN.Systems
         player.oid.LoginCreature.GetObjectVariable<LocalVariableString>("_PLAYER_INPUT").Delete();
       }
     }
-    private void SaveGrimoire(string grimoireName)
+    private async void SaveGrimoire(string grimoireName)
     {
       string spellList = "";
 
@@ -64,7 +64,7 @@ namespace NWN.Systems
       if (spellList.Length > 0)
         spellList = spellList.Remove(spellList.Length - 1);
 
-      SqLiteUtils.InsertQuery("playerGrimoire",
+      bool queryResult = await SqLiteUtils.InsertQueryAsync("playerGrimoire",
           new List<string[]>() {
             new string[] { "characterId", player.characterId.ToString() },
             new string[] { "grimoireName", grimoireName },
@@ -73,11 +73,11 @@ namespace NWN.Systems
           new List<string[]>() { new string[] { "serializedGrimoire" } },
           new List<string>() { "characterId", "grimoireName" });
 
-      player.oid.SendServerMessage($"Votre grimoire {grimoireName.ColorString(ColorConstants.White)} a bien été enregistré !", new Color(32, 255, 32));
+      player.HandleAsyncQueryFeedback(queryResult, $"Votre grimoire {grimoireName.ColorString(ColorConstants.White)} a bien été enregistré !", "Erreur technique - Votre grimoire n'a pas été sauvegardé !");
 
       DrawGrimoireWelcomePage();
     }
-    private void DrawGrimoireList()
+    private async void DrawGrimoireList()
     {
       player.menu.Clear();
 
@@ -86,14 +86,14 @@ namespace NWN.Systems
         "Lequel souhaitez-vous consulter ?"
         };
 
-      var result = SqLiteUtils.SelectQuery("playerGrimoire",
+      var result = await SqLiteUtils.SelectQueryAsync("playerGrimoire",
         new List<string>() { { "grimoireName" }, { "serializedGrimoire" } },
         new List<string[]>() { new string[] { "characterId", player.characterId.ToString() } });
 
-      foreach (var grimoire in result.Results)
+      foreach (var grimoire in result)
       {
-        string grimoireName = grimoire.GetString(0);
-        string serializedGrimoire = grimoire.GetString(1);
+        string grimoireName = grimoire[0];
+        string serializedGrimoire = grimoire[1];
 
         player.menu.choices.Add((
           grimoireName,
@@ -104,6 +104,7 @@ namespace NWN.Systems
       player.menu.choices.Add(("Retour.", () => DrawGrimoireWelcomePage()));
       player.menu.choices.Add(("Quitter.", () => player.menu.Close()));
 
+      await NwTask.SwitchToMainThread();
       player.menu.Draw();
     }
     private void HandleSelectedGrimoire(string grimoireName, string serializedGrimoire)

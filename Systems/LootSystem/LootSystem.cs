@@ -24,23 +24,22 @@ namespace NWN.Systems
     {
       InitChestArea();
     }
-    private void InitChestArea()
+    private async void InitChestArea()
     {
       NwArea area = NwModule.Instance.Areas.FirstOrDefault(a => a.Tag == CHEST_AREA_TAG);
+
       if (area == null)
       {
-        Task waitForDiscordBot = NwTask.Run(async () =>
-        {
-          await NwTask.Delay(TimeSpan.FromSeconds(5));
-          Utils.LogMessageToDMs("Attention - La zone des loots n'est pas initialisée.");
-        });
-        
+        await NwTask.Delay(TimeSpan.FromSeconds(5));
+        Utils.LogMessageToDMs("Attention - La zone des loots n'est pas initialisée.");
         return;
       }
 
       var query = SqLiteUtils.SelectQuery(SQL_TABLE,
         new List<string>() { { "serializedChest" }, { "position" }, { "facing" } },
         new List<string[]>() );
+
+      await NwTask.SwitchToMainThread();
 
       foreach (var result in query.Results)
       {
@@ -53,7 +52,7 @@ namespace NWN.Systems
             await NwTask.Delay(TimeSpan.FromSeconds(5));
             Utils.LogMessageToDMs("Attention - Un coffre initialisé de la base de données est invalide !");
           });
-          
+
           continue;
         }
 

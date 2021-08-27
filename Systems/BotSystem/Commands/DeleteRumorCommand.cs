@@ -10,9 +10,7 @@ namespace NWN.Systems
   {
     public static async Task ExecuteDeleteRumorCommand(SocketCommandContext context, string rumorId)
     {
-      await NwTask.SwitchToMainThread();
-
-      int accountId = DiscordUtils.GetPlayerAccountIdFromDiscord(context.User.Id);
+      int accountId = await DiscordUtils.GetPlayerAccountIdFromDiscord(context.User.Id);
 
       if (accountId < 0)
       {
@@ -20,7 +18,9 @@ namespace NWN.Systems
         return;
       }
 
-      switch (DiscordUtils.GetPlayerStaffRankFromDiscord(context.User.Id))
+      string rank = await DiscordUtils.GetPlayerStaffRankFromDiscord(context.User.Id);
+
+      switch (rank)
       {
         default:
 

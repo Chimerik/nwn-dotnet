@@ -10,8 +10,7 @@ namespace NWN.Systems
   {
     public static async Task ExecuteDeleteMailCommand(SocketCommandContext context, string mailId, string characterName)
     {
-      await NwTask.SwitchToMainThread();
-      int result = DiscordUtils.CheckPlayerCredentialsFromDiscord(context, characterName);
+      int result = await DiscordUtils.CheckPlayerCredentialsFromDiscord(context, characterName);
 
       if (result <= 0)
       {

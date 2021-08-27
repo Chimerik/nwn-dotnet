@@ -12,32 +12,34 @@ namespace NWN.Systems
   {
     public static async Task ExecuteRebootCommand(SocketCommandContext context)
     {
-      await NwTask.SwitchToMainThread();
+      Utils.LogMessageToDMs($"Reboot command used by {context.User.Username}");
 
-      PlayerSystem.Log.Info($"Reboot command used by {context.User.Username}");
+      string rank = await DiscordUtils.GetPlayerStaffRankFromDiscord(context.User.Id);
 
-      if (DiscordUtils.GetPlayerStaffRankFromDiscord(context.User.Id) != "admin")
+      if (rank != "admin")
       {
         await context.Channel.SendMessageAsync("Noooon, vous n'êtes pas la maaaaaître ! Le maaaaître est bien plus poli, d'habitude !");
         return;
       }
 
+      await NwTask.SwitchToMainThread();
+
       foreach (NwPlayer oPC in NwModule.Instance.Players)
       {
-        if (PlayerSystem.Players.TryGetValue(oPC.LoginCreature, out PlayerSystem.Player player))
-        {
-          JournalEntry journalEntry = new JournalEntry();
-          journalEntry.Name = "REBOOT SERVEUR - 30";
-          journalEntry.Text = "Attention, le serveur reboot bientôt. Accrochez bien vos ceintures.\n" +
-            "Non pas que vous ayez grand chose à faire, votre personnage est automatiquement sauvegardé et le module sera de retour dans moins d'une minute.";
-          journalEntry.QuestTag = "reboot";
-          journalEntry.Priority = 1;
-          journalEntry.QuestCompleted = false;
-          journalEntry.QuestDisplayed = true;
-          player.oid.AddCustomJournalEntry(journalEntry);
+        if (!PlayerSystem.Players.TryGetValue(oPC.LoginCreature, out PlayerSystem.Player player))
+          continue;
 
-          player.rebootUpdate(29);
-        }
+        JournalEntry journalEntry = new JournalEntry();
+        journalEntry.Name = "REBOOT SERVEUR - 30";
+        journalEntry.Text = "Attention, le serveur reboot bientôt. Accrochez bien vos ceintures.\n" +
+          "Non pas que vous ayez grand chose à faire, votre personnage est automatiquement sauvegardé et le module sera de retour dans moins d'une minute.";
+        journalEntry.QuestTag = "reboot";
+        journalEntry.Priority = 1;
+        journalEntry.QuestCompleted = false;
+        journalEntry.QuestDisplayed = true;
+        player.oid.AddCustomJournalEntry(journalEntry);
+
+        player.rebootUpdate(29);
       }
 
       Task Reboot = NwTask.Run(async () =>

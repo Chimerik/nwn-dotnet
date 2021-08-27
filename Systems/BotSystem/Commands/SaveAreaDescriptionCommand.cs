@@ -3,15 +3,15 @@ using System.Linq;
 using System.Threading.Tasks;
 using Discord.Commands;
 using Anvil.API;
-using NWN.Core;
 
 namespace NWN.Systems
 {
   public static partial class BotSystem
   {
+    // DEPRECATED : avec NUI, on pourra faire du multi-ligne directement en jeu
     public static async Task ExecuteSaveAreaDescriptionCommand(SocketCommandContext context, string areaTag, string descriptionText)
     {
-      await NwTask.SwitchToMainThread();
+      /*await NwTask.SwitchToMainThread();
 
       switch(DiscordUtils.GetPlayerStaffRankFromDiscord(context.User.Id))
       {
@@ -37,7 +37,7 @@ namespace NWN.Systems
           await context.Channel.SendMessageAsync($"La description de la zone a bien été enregistrée.");
 
           break;
-      }
+      }*/
     }
   }
 }

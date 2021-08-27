@@ -6,10 +6,10 @@ using Anvil.API.Events;
 namespace NWN.Systems
 {
   public static partial class CommandSystem
-  {
+  {// DEPRECATED : refaire avec NUI
     private static void ExecuteVFXCommand(ChatSystem.Context ctx, Options.Result options)
     {
-      if (((string)options.positional[0]).Length != 0)
+      /*if (((string)options.positional[0]).Length != 0)
       {
         //Log.Info($"positionnal : {options.positional[0]}");
 
@@ -37,9 +37,9 @@ namespace NWN.Systems
           else
             ctx.oSender.SendServerMessage($"Vous n'avez pas enregistré de vfx correspondant au nom {vfxName.ColorString(ColorConstants.White)}", ColorConstants.Red);
         }
-      }
+      }*/
     }
-    private static void playerVFXTarget(ModuleEvents.OnPlayerTarget selection)
+  /*  private static void playerVFXTarget(ModuleEvents.OnPlayerTarget selection)
     {
       if (selection.IsCancelled)
         return;
@@ -77,6 +77,6 @@ namespace NWN.Systems
       else
         Location.Create(selection.Player.ControlledCreature.Location.Area, selection.TargetPosition, selection.Player.ControlledCreature.Rotation)
           .ApplyEffect(EffectDuration.Instant, Effect.VisualEffect(vfxId));
-    }
+    }*/
   }
 }

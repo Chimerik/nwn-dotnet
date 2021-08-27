@@ -7,10 +7,10 @@ using static NWN.Systems.PlayerSystem;
 namespace NWN.Systems
 {
   class PlayerAuction
-  {
+  {// DEPRECATED : refaire avec NUI
     public PlayerAuction(NwCreature oPC, NwItem authorization)
     {
-      if (!(Players.TryGetValue(oPC, out Player player)))
+      /*if (!(Players.TryGetValue(oPC, out Player player)))
         return;
 
       int contractScienceLevel = 1;
@@ -39,7 +39,7 @@ namespace NWN.Systems
       plcShop.OnUsed += PlaceableSystem.OnUsedPlayerOwnedAuction;
 
       player.oid.SendServerMessage($"Félicitations pour l'inauguration de votre {plcShop.Name.ColorString(ColorConstants.Green)} !");
-      authorization.Destroy();
+      authorization.Destroy();*/
     }
   }
 }

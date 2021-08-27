@@ -163,7 +163,7 @@ namespace NWN
     {
       await NwTask.Delay(TimeSpan.FromSeconds(0.2));
 
-      SqLiteUtils.InsertQuery("messenger",
+      await SqLiteUtils.InsertQueryAsync("messenger",
           new List<string[]>() {
             new string[] { "characterId", characterId.ToString() },
             new string[] { "senderName", senderName },
@@ -176,13 +176,13 @@ namespace NWN
     {
       await NwTask.Delay(TimeSpan.FromSeconds(0.2));
 
-      var result = SqLiteUtils.SelectQuery("PlayerAccounts",
+      var result = await SqLiteUtils.SelectQueryAsync("PlayerAccounts",
           new List<string>() { { "discordId" } },
           new List<string[]>() { new string[] { "ROWID", characterId.ToString() } });
 
-      if (result.Result != null)
+      if (result != null && result.Count > 0)
       {
-        await Bot._client.GetUser(ulong.Parse(result.Result.GetString(0))).SendMessageAsync(message);
+        await Bot._client.GetUser(ulong.Parse(result[0][0])).SendMessageAsync(message);
       }
     }
     public static async void SendItemToPCStorage(int characterId, NwItem item)

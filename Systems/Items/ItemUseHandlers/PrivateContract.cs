@@ -11,8 +11,8 @@ namespace NWN.Systems
   class PrivateContract
   {
     public PrivateContract(NwCreature oPC, NwItem contract)
-    {
-      if (!(Players.TryGetValue(oPC, out Player player)))
+    {// DEPRECATED : refaire avec NUI
+      /*if (!(Players.TryGetValue(oPC, out Player player)))
         return;
 
       if (!DateTime.TryParse(contract.GetObjectVariable<LocalVariableString>("_CONTRACT_EXPIRATION_DATE").Value, out DateTime expirationDate)
@@ -108,7 +108,7 @@ namespace NWN.Systems
       SqLiteUtils.DeletionQuery("playerPrivateContracts",
          new Dictionary<string, string>() { { "rowid", contractId.ToString() } });
 
-      contract.Destroy();
+      contract.Destroy();*/
     }
   }
 }

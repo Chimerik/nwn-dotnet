@@ -8,7 +8,8 @@ namespace NWN.Systems
 {
   public static partial class BotSystem
   {
-    public static async Task ExecuteGetDescriptionListCommand(SocketCommandContext context, string pcName)
+    // DEPRECATED : refaire avec NUI
+    /*public static async Task ExecuteGetDescriptionListCommand(SocketCommandContext context, string pcName)
     {
       await NwTask.SwitchToMainThread();
 
@@ -29,6 +30,6 @@ namespace NWN.Systems
         result += description.GetString(0) + "\n";
 
       await context.Channel.SendMessageAsync($"Voici la liste des descriptions enregistrées pour {pcName} :\n{result}");
-    }
+    }*/
   }
 }

@@ -8,14 +8,14 @@ using static NWN.Systems.PlayerSystem;
 namespace NWN.Systems
 {
   class Messenger
-  {
+  {// DEPRECATED refaire avec NUI
     Player player;
     public Messenger(Player player)
     {
       this.player = player;
-      this.DrawWelcomePage();
+      //this.DrawWelcomePage();
     }
-    private void DrawWelcomePage()
+    /*private void DrawWelcomePage()
     {
       player.menu.Clear();
       player.menu.titleLines = new List<string> {
@@ -115,6 +115,6 @@ namespace NWN.Systems
       player.oid.SendServerMessage("Message supprimé.");
 
       DrawInbox();
-    }
+    }*/
   }
 }

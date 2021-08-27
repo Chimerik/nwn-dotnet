@@ -5,15 +5,17 @@ namespace NWN.Systems
 {
   class DMVisualEffects
   {
+    // DEPRECATED : a remplacer par gestion via NUI
+
     PlayerSystem.Player player;
     string vfxName;
     int vfxId;
     public DMVisualEffects(PlayerSystem.Player player)
     {
       this.player = player;
-      DrawVFXWelcomePage();
+      //DrawVFXWelcomePage();
     }
-    private void DrawVFXWelcomePage()
+    /*private void DrawVFXWelcomePage()
     {
       player.menu.Clear();
 
@@ -141,6 +143,6 @@ namespace NWN.Systems
       player.oid.SendServerMessage($"Votre effet visuel {deletedVFXName.ColorString(ColorConstants.White)} a bien été supprimé.", new Color(32, 255, 32));
 
       DrawVFXList();
-    }
+    }*/
   }
 }

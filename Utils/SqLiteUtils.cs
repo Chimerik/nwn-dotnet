@@ -160,6 +160,87 @@ namespace NWN
 
       return query;
     }
+    public static async Task<List<string[]>> SelectQueryAsync(string tableName, List<string> queryParameters, List<string[]> whereParameters, string orderBy = "")
+    {
+      return await Task.Run(async () =>
+      {
+        string queryString = "SELECT ";
+
+        foreach (string param in queryParameters)
+          queryString += $"{param}, ";
+
+        queryString = queryString.Remove(queryString.Length - 2);
+        queryString += $" FROM {tableName}";
+
+        if (whereParameters.Count() > 0)
+        {
+          queryString += " WHERE ";
+
+          foreach (var param in whereParameters)
+          {
+            if (param.Length > 2)
+              queryString += $"{param[0]} {param[2]} @{param[0]} and ";
+            else
+              queryString += $"{param[0]} = @{param[0]} and ";
+          }
+
+          queryString = queryString.Remove(queryString.Length - 5);
+        }
+
+        queryString += orderBy;
+
+        string logString = "Binding WHERE : ";
+
+        try
+        {
+          using (var connection = new SqliteConnection(Config.dbPath))
+          {
+            connection.Open();
+
+            var command = connection.CreateCommand();
+            command.CommandText = queryString;
+
+            foreach (var param in whereParameters)
+            {
+              command.Parameters.AddWithValue($"@{param[0]}", (object)param[1] ?? DBNull.Value);
+              logString += $"@{param[0]} = {param[1]} ";
+            }
+
+            //Log.Info(queryString);
+            //Log.Info(logString);
+
+            using (var reader = await command.ExecuteReaderAsync())
+            {
+              List<string[]> results = new List<string[]>();
+
+              while (reader.Read())
+              {
+                string[] row = new string[queryParameters.Count];
+
+                for (int i = 0; i < queryParameters.Count; i++)
+                {
+                  if (!reader.IsDBNull(i))
+                    row[i] = reader.GetString(i);
+                  else
+                    row[i] = "";
+                }
+
+                results.Add(row);
+              }
+
+              return results;
+            }
+          }
+        }
+        catch (Exception e)
+        {
+          Utils.LogMessageToDMs($"Select Query - {e.Message}");
+          Utils.LogMessageToDMs(queryString);
+          Utils.LogMessageToDMs(logString);
+          return null;
+        }
+      });
+    }
     public static bool InsertQuery(string tableName, List<string[]> queryParameters, List<string> conflictParameters = null, List<string[]> updateParameters = null, List<string> whereParameters = null)
     {
       string queryString = $"INSERT INTO {tableName} (";
@@ -230,6 +311,91 @@ namespace NWN
       }
 
       return true;
+    }
+    public static async Task<bool> InsertQueryAsync(string tableName, List<string[]> queryParameters, List<string> conflictParameters = null, List<string[]> updateParameters = null, List<string> whereParameters = null)
+    {
+      return await Task.Run(async () =>
+      {
+        string queryString = $"INSERT INTO {tableName} (";
+
+        foreach (var param in queryParameters)
+          queryString += $"{param[0]}, ";
+
+        queryString = queryString.Remove(queryString.Length - 2);
+        queryString += ") VALUES (";
+
+        foreach (var param in queryParameters)
+          queryString += $"@{param[0]}, ";
+
+        queryString = queryString.Remove(queryString.Length - 2);
+        queryString += ") ";
+
+        if (conflictParameters != null)
+        {
+          queryString += " ON CONFLICT (";
+          foreach (string param in conflictParameters)
+            queryString += $"{param}, ";
+
+          queryString = queryString.Remove(queryString.Length - 2);
+          queryString += ") ";
+        }
+
+        if (updateParameters != null)
+        {
+          queryString += " DO UPDATE SET ";
+          foreach (var param in updateParameters)
+          {
+            if (param.Length > 1)
+              queryString += $"{param[0]} = {param[0]} {param[1]} @{param[0]}, ";
+            else
+              queryString += $"{param[0]} = @{param[0]}, ";
+          }
+
+          queryString = queryString.Remove(queryString.Length - 2);
+        }
+
+        if (whereParameters != null)
+        {
+          queryString += " WHERE ";
+          foreach (string param in whereParameters)
+            queryString += $"{param} = @{param} and ";
+
+          queryString = queryString.Remove(queryString.Length - 5);
+        }
+
+        string logString = "Binding : ";
+
+        try
+        {
+          using (var connection = new SqliteConnection(Config.dbPath))
+          {
+            connection.Open();
+
+            var command = connection.CreateCommand();
+            command.CommandText = queryString;
+
+            foreach (var param in queryParameters)
+            {
+              command.Parameters.AddWithValue($"@{param[0]}", (object)param[1] ?? DBNull.Value);
+              logString += $"@{param[0]} = {param[1]} ";
+            }
+
+            //Log.Info(queryString);
+            //Log.Info(logString);
+
+            await command.ExecuteNonQueryAsync();
+          }
+        }
+        catch (Exception e)
+        {
+          Utils.LogMessageToDMs($"Insert Query - {e.Message}");
+          Utils.LogMessageToDMs(queryString);
+          Utils.LogMessageToDMs(logString);
+          return false;
+        }
+
+        return true;
+      });
     }
     public static bool CreateQuery(string queryString)
     {

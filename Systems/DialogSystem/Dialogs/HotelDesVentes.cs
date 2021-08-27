@@ -12,13 +12,14 @@ namespace NWN.Systems
 {
   class HotelDesVentes
   {
+    // DEPRECATED : refaire avec NUI
     private Dictionary<int, int> ordersDictionnary { get; set; }
     public HotelDesVentes(Player player)
     {
       ordersDictionnary = new Dictionary<int, int>();
-      this.DrawWelcomePage(player);
+      //this.DrawWelcomePage(player);
     }
-    private void DrawWelcomePage(Player player)
+    /*private void DrawWelcomePage(Player player)
     {
       if (ordersDictionnary.Count > 0)
         ordersDictionnary.Clear();
@@ -720,6 +721,6 @@ namespace NWN.Systems
         ));
 
       player.menu.Draw();
-    }
+    }*/
   }
 }
