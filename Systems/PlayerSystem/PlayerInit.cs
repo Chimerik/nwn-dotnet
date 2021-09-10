@@ -11,8 +11,8 @@ using NWN.Core.NWNX;
 using Anvil.Services;
 using NWN.Systems.Craft;
 using Color = Anvil.API.Color;
-using Newtonsoft.Json;
 using System.Threading;
+using System.Text.Json;
 
 namespace NWN.Systems
 {
@@ -37,17 +37,13 @@ namespace NWN.Systems
         if (player.location.Area == null)
         {
           var result = SqLiteUtils.SelectQuery("playerCharacters",
-          new List<string>() { { "areaTag" }, { "position" }, { "facing" } },
+          new List<string>() { { "location" } },
           new List<string[]>() { { new string[] { "rowid", player.characterId.ToString() } } });
 
-          if(result.Result != null)
-            player.location = Utils.GetLocationFromDatabase(result.Result.GetString(0), result.Result.GetString(1), result.Result.GetFloat(2));
+          if (result.Result != null)
+            player.location = SqLiteUtils.DeserializeLocation(result.Result.GetString(0));
 
-          Task waitAreaLoaded = NwTask.Run(async () =>
-          {
-            await NwTask.WaitUntil(() => oPC.LoginCreature.Location.Area != null);
-            oPC.LoginCreature.Location = player.location;
-          });
+          player.TeleportPlayerToSavedLocation();
         }
       }
       
@@ -72,47 +68,13 @@ namespace NWN.Systems
         player.craftJob.CreateCraftJournalEntry();
       }
 
-      if (player.learnables.Any(l => l.Value.active))
-      {
-        Learnable learnable = player.learnables.First(l => l.Value.active).Value;
-        player.AwaitPlayerStateChangeToCalculateSPGain(learnable);
-
-        Task waitForOnlineNotice = NwTask.Run(async () =>
-        {
-          await NwTask.WaitUntil(() => player.pcState == Player.PcState.Online && player.oid.LoginCreature.Area != null);
-          player.CreateSkillJournalEntry(learnable);
-        });
-      }
-
-      foreach(KeyValuePair<Feat, int> feat in player.learntCustomFeats)
-      {
-        CustomFeat customFeat = SkillSystem.customFeatsDictionnary[feat.Key];
-        FeatTable.Entry featEntry = Feat2da.featTable.GetFeatDataEntry(feat.Key);
-        player.oid.SetTlkOverride((int)featEntry.tlkName, $"{customFeat.name} - {SkillSystem.GetCustomFeatLevelFromSkillPoints(feat.Key, feat.Value)}");
-        player.oid.SetTlkOverride((int)featEntry.tlkDescription, customFeat.description);
-      }
-
-      int improvedHealth = 0;
-      if (player.learntCustomFeats.ContainsKey(CustomFeats.ImprovedHealth))
-        improvedHealth = SkillSystem.GetCustomFeatLevelFromSkillPoints(CustomFeats.ImprovedHealth, player.learntCustomFeats[CustomFeats.ImprovedHealth]);
-
-      player.oid.LoginCreature.LevelInfo[0].HitDie = (byte)(10
-        + (1 + 3 * ((player.oid.LoginCreature.GetAbilityScore(Ability.Constitution, true) - 10) / 2)
-        + Convert.ToInt32(player.oid.LoginCreature.KnowsFeat(Feat.Toughness))) * improvedHealth);
-      
-      if (oPC.LoginCreature.HP <= 0)
-        oPC.LoginCreature.ApplyEffect(EffectDuration.Instant, Effect.Death());
-
-      if (player.learntCustomFeats.ContainsKey(CustomFeats.ImprovedAttackBonus))
-        player.oid.LoginCreature.BaseAttackBonus = (byte)(player.oid.LoginCreature.BaseAttackBonus + SkillSystem.GetCustomFeatLevelFromSkillPoints(CustomFeats.ImprovedAttackBonus, player.learntCustomFeats[CustomFeats.ImprovedAttackBonus]));
+      player.InitializePlayerLearnableJobs();
 
       if (!player.oid.LoginCreature.KnowsFeat(CustomFeats.Sit))
         player.oid.LoginCreature.AddFeat(CustomFeats.Sit);
 
       player.DoJournalUpdate = false;
       player.dateLastSaved = DateTime.Now;
-
-      player.pcState = Player.PcState.Online;
 
       if (oPC.LoginCreature.GetItemInSlot(InventorySlot.Neck)?.Tag != "amulettorillink")
         player.HandleMissingTorilNecklace();
@@ -123,7 +85,7 @@ namespace NWN.Systems
 
       Log.Info("End of player init.");
     }
-
+    
     public static void OnEquipTorilNecklace(OnItemEquip onEquip)
     {
       onEquip.EquippedBy.LoginPlayer.SendServerMessage("Votre lien avec la Toile se renforce de manière significative.", ColorConstants.Pink);
@@ -219,14 +181,13 @@ namespace NWN.Systems
         oid.LoginCreature.GetObjectVariable<PersistentVariableInt>("_STARTING_SKILL_POINTS").Value = startingSP;
         oid.LoginCreature.GetObjectVariable<PersistentVariableInt>("_REINIT_DONE").Value = 1;
 
-        NwArea arrivalArea;
-        NwWaypoint arrivalPoint = null;
+        Location arrivalLocation = NwModule.Instance.StartingLocation;
 
-        if (Config.env == Config.Env.Prod || Config.env == Config.Env.Chim)
+        if (NwModule.Instance.Areas.Any(a => a.Tag == "entry_scene"))
         {
-          arrivalArea = NwArea.Create("intro_galere", $"entry_scene_{oid.CDKey}", $"La galère de {oid.LoginCreature.Name} (Bienvenue !)");
+          NwArea arrivalArea = NwArea.Create("intro_galere", $"entry_scene_{oid.CDKey}", $"La galère de {oid.LoginCreature.Name} (Bienvenue !)");
           arrivalArea.OnExit += AreaSystem.OnIntroAreaExit;
-          arrivalPoint = arrivalArea.FindObjectsOfTypeInArea<NwWaypoint>().FirstOrDefault(o => o.Tag == "ENTRY_POINT");
+          arrivalLocation = arrivalArea.FindObjectsOfTypeInArea<NwWaypoint>().FirstOrDefault(o => o.Tag == "ENTRY_POINT").Location;
 
           arrivalArea.SetAreaWind(new Vector3(1, 0, 0), 4, 0, 0);
 
@@ -244,7 +205,7 @@ namespace NWN.Systems
           Task waitDefaultMapLoaded = NwTask.Run(async () =>
           {
             await NwTask.WaitUntil(() => oid.LoginCreature.Location.Area != null);
-            oid.LoginCreature.Location = arrivalPoint.Location;
+            oid.LoginCreature.Location = arrivalLocation;
           });
 
           Task allPointsSpent = NwTask.Run(async () =>
@@ -253,10 +214,6 @@ namespace NWN.Systems
             await NwTask.WaitUntil(() => oid.LoginCreature.GetObjectVariable<PersistentVariableInt>("_STARTING_SKILL_POINTS").Value <= 0);
             arrivalArea.GetObjectVariable<LocalVariableInt>("_GO").Value = 1;
           });
-        }
-        else
-        {
-          arrivalArea = oid.LoginCreature.Area;
         }
 
         Utils.DestroyInventory(oid.LoginCreature);
@@ -271,22 +228,8 @@ namespace NWN.Systems
           });
         }
 
-        string position = "";
-        string facing = "";
-
-        if (arrivalPoint.IsValid)
-        {
-          position = arrivalPoint.Position.ToString();
-          facing = arrivalPoint.Rotation.ToString();
-        }
-        else
-        {
-          position = NwModule.Instance.StartingLocation.Position.ToString();
-          facing = NwModule.Instance.StartingLocation.Rotation.ToString();
-        }
-
         SqLiteUtils.InsertQuery("playerCharacters",
-            new List<string[]>() { new string[] { "accountId", accountId.ToString() }, new string[] { "characterName", oid.LoginCreature.Name }, new string[] { "dateLastSaved", DateTime.Now.ToString() }, new string[] { "currentCraftJob", "-10" }, new string[] { "currentCraftObject", "" }, new string[] { "areaTag", arrivalArea.Tag }, new string[] { "position", position }, new string[] { "facing", facing }, new string[] { "menuOriginLeft", "50" }, new string[] { "currentHP", oid.LoginCreature.MaxHP.ToString() } });
+            new List<string[]>() { new string[] { "accountId", accountId.ToString() }, new string[] { "characterName", oid.LoginCreature.Name }, new string[] { "dateLastSaved", DateTime.Now.ToString() }, new string[] { "currentCraftJob", "-10" }, new string[] { "currentCraftObject", "" }, new string[] { "location", SqLiteUtils.SerializeLocation(arrivalLocation) }, new string[] { "menuOriginLeft", "50" }, new string[] { "currentHP", oid.LoginCreature.MaxHP.ToString() } });
 
         var rowQuery = NwModule.Instance.PrepareCampaignSQLQuery(Config.database, "SELECT last_insert_rowid()");
         rowQuery.Execute();
@@ -360,10 +303,6 @@ namespace NWN.Systems
         InitializePlayerEvents(oid);
         InitializePlayerAccount();
         InitializePlayerCharacter();
-        InitializeCharacterMapPins();
-        InitializeCharacterAreaExplorationState();
-        InitializePlayerChatColors();
-        InitializePlayerMutedPM();
 
         switch (oid.LoginCreature.RacialType)
         {
@@ -403,7 +342,6 @@ namespace NWN.Systems
         player.LoginCreature.OnUseFeat += FeatSystem.OnUseFeatBefore;
         player.LoginCreature.OnSpellCast += SpellSystem.HandleBeforeSpellCast;
         player.OnExamineObject += ExamineSystem.OnExamineBefore;
-        player.LoginCreature.OnPerception += HandlePlayerPerception;
         player.OnCombatStatusChange += OnCombatStarted;
         player.LoginCreature.OnCombatRoundStart += OnCombatRoundStart;
         player.LoginCreature.OnSpellBroadcast += SpellSystem.OnSpellBroadcast;
@@ -422,16 +360,24 @@ namespace NWN.Systems
       private void InitializePlayerAccount()
       {
         var result = SqLiteUtils.SelectQuery("PlayerAccounts",
-            new List<string>() { { "bonusRolePlay" } },
+            new List<string>() { { "bonusRolePlay" }, { "mapPins" }, { "chatColors" }, { "mutedPlayers" } },
             new List<string[]>() { { new string[] { "rowid", accountId.ToString() } } });
 
         if (result.Result != null)
+        {
           bonusRolePlay = result.Result.GetInt(0);
+          string serializedMapPins = result.Result.GetString(1);
+          string serializedChatColors = result.Result.GetString(2);
+          string serializedMutedPlayers = result.Result.GetString(3);
+          InitializeAccountMapPins(serializedMapPins);
+          InitializeAccountChatColors(serializedChatColors);
+          InitializeAccountMutedPlayers(serializedMutedPlayers);
+        }
       }
       private void InitializePlayerCharacter()
       {
         var result = SqLiteUtils.SelectQuery("playerCharacters",
-            new List<string>() { { "areaTag" }, { "position" }, { "facing" }, { "currentHP" }, { "bankGold" }, { "dateLastSaved" }, { "currentCraftJob" }, { "currentCraftObject" }, { "currentCraftJobRemainingTime" }, { "currentCraftJobMaterial" }, { "menuOriginTop" }, { "menuOriginLeft" }, { "pveArenaCurrentPoints" }, { "alchemyCauldron" }, { "previousSPCalculation" }, { "serializedLearnables" } },
+            new List<string>() { { "location" }, { "currentHP" }, { "bankGold" }, { "dateLastSaved" }, { "currentCraftJob" }, { "currentCraftObject" }, { "currentCraftJobRemainingTime" }, { "currentCraftJobMaterial" }, { "menuOriginTop" }, { "menuOriginLeft" }, { "pveArenaCurrentPoints" }, { "alchemyCauldron" }, { "previousSPCalculation" }, { "serializedLearnables" }, { "explorationState" } },
             new List<string[]>() { { new string[] { "rowid", characterId.ToString() } } });
 
         if (result.Result == null)
@@ -439,20 +385,28 @@ namespace NWN.Systems
 
         playerJournal = new PlayerJournal();
         loadedQuickBar = QuickbarType.Invalid;
-        location = Utils.GetLocationFromDatabase(result.Result.GetString(0), result.Result.GetString(1), result.Result.GetFloat(2));
-        oid.LoginCreature.HP = result.Result.GetInt(3);
-        bankGold = result.Result.GetInt(4);
-        dateLastSaved = DateTime.Parse(result.Result.GetString(5));
-        craftJob = new Job(result.Result.GetInt(6), result.Result.GetString(9), result.Result.GetFloat(8), this, result.Result.GetString(7));
-        menu.originTop = result.Result.GetInt(10);
-        menu.originLeft = result.Result.GetInt(11);
-        pveArena.totalPoints = (uint)result.Result.GetInt(12);
-        alchemyCauldron = JsonConvert.DeserializeObject<Alchemy.Cauldron>(result.Result.GetString(13));
-        previousSPCalculation = DateTime.TryParse(result.Result.GetString(14), out DateTime previousSPDate) ? previousSPDate : null;
-        learnables = JsonConvert.DeserializeObject<Dictionary<string, Learnable>>(result.Result.GetString(15));
+        location = SqLiteUtils.DeserializeLocation(result.Result.GetString(0));
+        oid.LoginCreature.HP = result.Result.GetInt(1);
+        bankGold = result.Result.GetInt(2);
+        dateLastSaved = DateTime.Parse(result.Result.GetString(3));
+        craftJob = new Job(result.Result.GetInt(4), result.Result.GetString(7), result.Result.GetFloat(6), this, result.Result.GetString(5));
+        menu.originTop = result.Result.GetInt(8);
+        menu.originLeft = result.Result.GetInt(9);
+        pveArena.totalPoints = (uint)result.Result.GetInt(10);
+        string serializedCauldron = result.Result.GetString(11);
+        previousSPCalculation = DateTime.TryParse(result.Result.GetString(12), out DateTime previousSPDate) ? previousSPDate : null;
+        string serializedLearnables = result.Result.GetString(13);
 
-        foreach (KeyValuePair<string, Learnable> learnable in learnables)
-          learnable.Value.InitializeLearnableLevel(this);
+        /*try
+        {
+          learnables = JsonSerializer.Deserialize<Dictionary<string, Learnable>>(result.Result.GetString(13));
+        }
+        catch(Exception)
+        { }*/
+
+        string serializedExploration = result.Result.GetString(14);
+
+        InitializePlayerAsync(serializedCauldron, serializedExploration, serializedLearnables);
 
         result = SqLiteUtils.SelectQuery("playerMaterialStorage",
           new List<string>() { { "materialName" }, { "materialStock" } },
@@ -460,6 +414,37 @@ namespace NWN.Systems
 
         foreach (var material in result.Results)
           materialStock.Add(material.GetString(0), material.GetInt(1));
+      }
+      private async void InitializePlayerAsync(string serializedCauldron, string serializedExploration, string serializedLearnables)
+      {
+        using (var stream = await StringUtils.GenerateStreamFromString(serializedCauldron))
+          try
+          {
+            alchemyCauldron = await JsonSerializer.DeserializeAsync<Alchemy.Cauldron>(stream);
+          }
+          catch (Exception)
+          { }
+
+        using (var stream = await StringUtils.GenerateStreamFromString(serializedExploration))
+          try
+          {
+            areaExplorationStateDictionnary = await JsonSerializer.DeserializeAsync<Dictionary<string, byte[]>>(stream);
+          }
+          catch (Exception)
+          { }
+
+        using (var stream = await StringUtils.GenerateStreamFromString(serializedLearnables))
+          try
+          {
+            learnables = await JsonSerializer.DeserializeAsync<Dictionary<string, Learnable>>(stream);
+
+            foreach (Learnable learnable in learnables.Values)
+              learnable.InitializeLearnableLevel(this);
+          }
+          catch (Exception)
+          { learnables = new Dictionary<string, Learnable>(); }
+
+        oid.LoginCreature.GetObjectVariable<LocalVariableBool>("_ASYNC_INIT_DONE").Value = true;
       }
       private async void InitializeNewCharacterStorage()
       {
@@ -497,36 +482,46 @@ namespace NWN.Systems
         oid.LoginCreature.OnItemEquip += OnEquipTorilNecklace; 
       }
       
-      private void InitializeCharacterMapPins()
+      private async void InitializeAccountMapPins(string serializedMapPins)
       {
-        var result = SqLiteUtils.SelectQuery("playerMapPins",
-            new List<string>() { { "mapPinId" }, { "areaTag" }, { "x" }, { "y" }, { "note" } },
-            new List<string[]>() { { new string[] { "characterId", characterId.ToString() } } });
-
-        foreach (var pin in result.Results)
+        using (var stream = await StringUtils.GenerateStreamFromString(serializedMapPins))
         {
-          MapPin mapPin = new MapPin(pin.GetInt(0), pin.GetString(1), pin.GetFloat(2), pin.GetFloat(3), pin.GetString(4));
-          mapPinDictionnary.Add(pin.GetInt(0), mapPin);
+          try
+          {
+            mapPinDictionnary = await JsonSerializer.DeserializeAsync<Dictionary<int, MapPin>>(stream);
+          }
+          catch(Exception)
+          {
+            return;
+          }
 
-          oid.LoginCreature.GetObjectVariable<LocalVariableString>($"NW_MAP_PIN_NTRY_{mapPin.id}").Value = mapPin.note;
-          oid.LoginCreature.GetObjectVariable<LocalVariableFloat>($"NW_MAP_PIN_XPOS_{mapPin.id}").Value = mapPin.x;
-          oid.LoginCreature.GetObjectVariable<LocalVariableFloat>($"NW_MAP_PIN_YPOS_{mapPin.id}").Value = mapPin.y;
-          oid.LoginCreature.GetObjectVariable<LocalVariableObject<NwArea>>($"NW_MAP_PIN_AREA_{mapPin.id}").Value = NwObject.FindObjectsWithTag<NwArea>(mapPin.areaTag).FirstOrDefault();
+          await NwTask.SwitchToMainThread();
+
+          foreach (var pin in mapPinDictionnary.Values)
+          {
+            oid.LoginCreature.GetObjectVariable<LocalVariableString>($"NW_MAP_PIN_NTRY_{pin.id}").Value = pin.note;
+            oid.LoginCreature.GetObjectVariable<LocalVariableFloat>($"NW_MAP_PIN_XPOS_{pin.id}").Value = pin.x;
+            oid.LoginCreature.GetObjectVariable<LocalVariableFloat>($"NW_MAP_PIN_YPOS_{pin.id}").Value = pin.y;
+            oid.LoginCreature.GetObjectVariable<LocalVariableObject<NwArea>>($"NW_MAP_PIN_AREA_{pin.id}").Value = NwModule.Instance.Areas.FirstOrDefault(a => a.Tag == pin.areaTag);
+          }
+
+          if (mapPinDictionnary.Count > 0)
+            oid.LoginCreature.GetObjectVariable<LocalVariableInt>("NW_TOTAL_MAP_PINS").Value = mapPinDictionnary.Max(v => v.Key);
         }
-
-        if (mapPinDictionnary.Count > 0)
-          oid.LoginCreature.GetObjectVariable<LocalVariableInt>("NW_TOTAL_MAP_PINS").Value = mapPinDictionnary.Max(v => v.Key);
       }
-      private void InitializeCharacterAreaExplorationState()
+      private async void InitializeAccountChatColors(string serializedChatColors) // Pas sur que ça suffise pour convertir. Est-ce qu'il faut pas faire un truc en plus comme en dessous ?
       {
-        var result = SqLiteUtils.SelectQuery("playerAreaExplorationState",
-            new List<string>() { { "areaTag" }, { "explorationState" } },
-            new List<string[]>() { { new string[] { "characterId", characterId.ToString() } } });
-
-        foreach (var explo in result.Results)
-          areaExplorationStateDictionnary.Add(explo.GetString(0), explo.GetString(1).ToByteArray());
+        using (var stream = await StringUtils.GenerateStreamFromString(serializedChatColors))
+          try
+          {
+            chatColors = await JsonSerializer.DeserializeAsync<Dictionary<ChatChannel, Color>>(stream);
+          }
+          catch (Exception)
+          {
+            return;
+          }
       }
-      private void InitializePlayerChatColors()
+      /*private void InitializePlayerChatColors()
       {
         var result = SqLiteUtils.SelectQuery("chatColors",
             new List<string>() { { "channel" }, { "color" } },
@@ -537,15 +532,18 @@ namespace NWN.Systems
           byte[] colorConverter = BitConverter.GetBytes(color.GetInt(1));
           chatColors.Add((ChatChannel)color.GetInt(0), new Color(colorConverter[3], colorConverter[2], colorConverter[1], colorConverter[0]));
         }
-      }
-      private void InitializePlayerMutedPM()
+      }*/
+      private async void InitializeAccountMutedPlayers(string serializedMutedPlayers) 
       {
-        var result = SqLiteUtils.SelectQuery("playerMutedPM",
-            new List<string>() { { "mutedAccountId" } },
-            new List<string[]>() { { new string[] { "accountId", accountId.ToString() } } });
-
-        foreach (var mute in result.Results)
-          mutedList.Add(mute.GetInt(0));
+        using (var stream = await StringUtils.GenerateStreamFromString(serializedMutedPlayers))
+          try
+          {
+            mutedList = await JsonSerializer.DeserializeAsync<List<int>>(stream);
+          }
+          catch (Exception)
+          {
+            return;
+          }
       }
       private async void CheckForAFKStatus()
       {

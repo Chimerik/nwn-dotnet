@@ -47,12 +47,6 @@ namespace NWN.Systems
       foreach (NwPlaceable plc in NwObject.FindObjectsWithTag<NwPlaceable>("portal_start", "respawn_neutral", "respawn_dire", "respawn_radiant", "theater_rope"))
         plc.OnUsed += HandlePlaceableUsed;
 
-      foreach (NwCreature statue in NwObject.FindObjectsWithTag<NwCreature>("Statuereptilienne", "statue_tiamat"))
-      {
-        statue.OnConversation += HandleCancelStatueConversation;
-        statue.OnSpawn += HandleSpawnStatufy;
-      }
-
       foreach (NwCreature corpse in NwObject.FindObjectsWithTag<NwCreature>("dead_wererat"))
       {
         corpse.OnConversation += HandleCancelStatueConversation;
@@ -276,49 +270,15 @@ namespace NWN.Systems
           break;
       }
     }
-    private void HandleCancelStatueConversation(CreatureEvents.OnConversation onConversation)
+    public static void HandleCancelStatueConversation(CreatureEvents.OnConversation onConversation)
     {
 
-    }
-    private void HandleSpawnStatufy(NwCreature onSpawn)
-    {
-      Effect eff = Effect.CutsceneGhost();
-      eff.SubType = EffectSubType.Supernatural;
-
-      onSpawn.ApplyEffect(EffectDuration.Permanent, eff);
-    }
-    private void HandleSpawnStatufy(CreatureEvents.OnSpawn onSpawn)
-    {
-      Effect eff = Effect.CutsceneGhost();
-      eff.SubType = EffectSubType.Supernatural;
-
-      onSpawn.Creature.ApplyEffect(EffectDuration.Permanent, eff);
-
-      eff = Effect.VisualEffect(VfxType.DurFreezeAnimation);
-      eff.Tag = "_FREEZE_EFFECT";
-      eff.SubType = EffectSubType.Supernatural;
-      onSpawn.Creature.ApplyEffect(EffectDuration.Permanent, eff);
-
-      if (onSpawn.Creature.Tag != "statue_tiamat")
-      {
-        eff = Effect.VisualEffect((VfxType)927);
-        eff.SubType = EffectSubType.Supernatural;
-        onSpawn.Creature.ApplyEffect(EffectDuration.Permanent, eff);
-      }
-
-      onSpawn.Creature.HighlightColor = ColorConstants.Black;
-      onSpawn.Creature.MouseCursor = MouseCursor.Walk;
-      onSpawn.Creature.AiLevel = AiLevel.VeryLow;
     }
     private void HandleSpawnTrainingDummy(CreatureEvents.OnSpawn onSpawn)
     {
-      Effect eff = Effect.CutsceneGhost();
+      Effect eff = Effect.LinkEffects(Effect.CutsceneGhost(), Effect.CutsceneParalyze());
       eff.SubType = EffectSubType.Supernatural;
-      onSpawn.Creature.ApplyEffect(EffectDuration.Permanent, eff);
-
-      eff = Effect.CutsceneParalyze();
       eff.Tag = "_FREEZE_EFFECT";
-      eff.SubType = EffectSubType.Supernatural;
       onSpawn.Creature.ApplyEffect(EffectDuration.Permanent, eff);
       onSpawn.Creature.AiLevel = AiLevel.VeryLow;
     }

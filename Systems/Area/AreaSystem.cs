@@ -8,6 +8,7 @@ using NLog;
 using System;
 using System.Numerics;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace NWN.Systems
 {
@@ -17,19 +18,17 @@ namespace NWN.Systems
     private static readonly Logger Log = LogManager.GetCurrentClassLogger();
     public AreaSystem()
     {
-      foreach(NwTrigger trigger in NwObject.FindObjectsWithTag("invi_unwalkable"))
-      {
+      foreach (NwTrigger trigger in NwObject.FindObjectsWithTag("invi_unwalkable"))
         trigger.OnEnter += OnEnterUnwalkableBlock;
-      }
 
       foreach (NwArea area in NwModule.Instance.Areas)
       {
         area.OnEnter += OnAreaEnter;
         area.OnExit += OnAreaExit;
-
+        
         DoAreaSpecificInitialisation(area);
 
-          //Log.Info($"initializing area : {area.Name}");
+        //Log.Info($"initializing area : {area.Name}");
 
         foreach (NwPlaceable coffre in area.Objects.Where(o => o.Tag == "loot_chest"))
         {
@@ -37,17 +36,37 @@ namespace NWN.Systems
           //Log.Info($"initializing chest : {coffre.Name} with : {coffre.Tag}");
         }
       }
+
+      foreach (NwCreature creature in NwObject.FindObjectsOfType<NwCreature>().Where(c => c.Tag != "dead_wererat" && c.Tag != "damage_trainer"))
+      {
+        Task waitLoopEnd = NwTask.Run(async () =>
+        {
+          await NwTask.Delay(TimeSpan.FromSeconds(0.2));
+
+          NwWaypoint spawnPoint = NwWaypoint.Create("creature_spawn", creature.Location);
+          spawnPoint.GetObjectVariable<LocalVariableString>("creature").Value = creature.Serialize().ToBase64EncodedString();
+
+          creature.Destroy();
+        });
+      }
     }
+
     public static void OnAreaEnter(AreaEvents.OnEnter onEnter)
     {
+      Log.Info("area enter 1");
       NwArea area = onEnter.Area;
 
       if (!PlayerSystem.Players.TryGetValue(onEnter.EnteringObject, out PlayerSystem.Player player)) //EN FONCTION DE SI LA ZONE EST REST OU PAS, ON AFFICHE LA PROGRESSION DU JOURNAL DE CRAFT
+      {
+        Log.Info("area enter npc off");
         return;
-
+      }
+      Log.Info("area enter pc");
       Log.Info($"Map {area.Name} loaded in : {(DateTime.Now - player.mapLoadingTime).TotalSeconds}");
 
-      AreaSpawner(area);
+      if (area.FindObjectsOfTypeInArea<NwWaypoint>().Any(w => w.Tag == "creature_spawn" && w.GetObjectVariable<LocalVariableBool>("active").HasNothing))
+        foreach (NwWaypoint spawnPoint in area.FindObjectsOfTypeInArea<NwWaypoint>().Where(w => w.Tag == "creature_spawn"))
+          CreateSpawnAoE(spawnPoint);
 
       if (player.menu.isOpen)
         player.menu.Close();
@@ -60,26 +79,23 @@ namespace NWN.Systems
       else if (player.playerJournal.craftJobCountDown != null)
         player.craftJob.CancelCraftJournalEntry();
 
-      if (player.areaExplorationStateDictionnary.ContainsKey(area.Tag))
-        player.oid.SetAreaExplorationState(area, player.areaExplorationStateDictionnary[area.Tag]);
-
       if (area.GetObjectVariable<LocalVariableInt>("_AREA_LEVEL") < 2)
         player.oid.SetAreaExplorationState(area, true);
+      else if (player.areaExplorationStateDictionnary.ContainsKey(area.Tag))
+        player.oid.SetAreaExplorationState(area, player.areaExplorationStateDictionnary[area.Tag]);
 
-      foreach (NwCreature statue in area.FindObjectsOfTypeInArea<NwCreature>().Where(c => c.Tag == "Statuereptilienne"))
-        statue.GetObjectVariable<LocalVariableInt>($"_PERCEPTION_STATUS_{player.oid.CDKey}").Delete();
+      Log.Info("area enter pc off");
     }
     public static void OnAreaExit(AreaEvents.OnExit onExit)
     {
       if (!(onExit.ExitingObject is NwCreature creature))
         return;
 
+      NwArea area = onExit.Area;
+
       if (creature.IsPlayerControlled) // Cas normal de changement de zone
       {
-        Log.Info($"{creature.ControllingPlayer.LoginCreature.Name} vient de quitter la zone {onExit.Area.Name}");
-
-        if (!onExit.Area.FindObjectsOfTypeInArea<NwCreature>().Any(p => p.IsPlayerControlled))
-          AreaCleaner(onExit.Area);
+        Log.Info($"{creature.ControllingPlayer.LoginCreature.Name} vient de quitter la zone {area.Name}");
 
         if (!PlayerSystem.Players.TryGetValue(creature.ControllingPlayer.LoginCreature, out PlayerSystem.Player player))
           return;
@@ -88,21 +104,28 @@ namespace NWN.Systems
 
         player.previousLocation = player.location;
 
-        if (!player.areaExplorationStateDictionnary.ContainsKey(onExit.Area.Tag))
-          player.areaExplorationStateDictionnary.Add(onExit.Area.Tag, player.oid.GetAreaExplorationState(onExit.Area));
-        else
-          player.areaExplorationStateDictionnary[onExit.Area.Tag] = player.oid.GetAreaExplorationState(onExit.Area);
+        if (area.GetObjectVariable<LocalVariableInt>("_AREA_LEVEL") > 1)
+        {
+          if (!player.areaExplorationStateDictionnary.ContainsKey(onExit.Area.Tag))
+            player.areaExplorationStateDictionnary.Add(area.Tag, player.oid.GetAreaExplorationState(area));
+          else
+            player.areaExplorationStateDictionnary[area.Tag] = player.oid.GetAreaExplorationState(area);
+        }
       }
       else // Edge case où le joueur se déconnecte
       {
         if (!PlayerSystem.Players.TryGetValue(onExit.ExitingObject, out PlayerSystem.Player player))
           return;
 
-        Log.Info($"{player.oid.PlayerName} vient de quitter la zone {onExit.Area.Name} en se déconnectant.");
-
-        if (!onExit.Area.FindObjectsOfTypeInArea<NwCreature>().Any(p => p.IsPlayerControlled))
-          AreaCleaner(onExit.Area);
+        Log.Info($"{player.oid.PlayerName} vient de quitter la zone {area.Name} en se déconnectant.");
       }
+
+      bool playerInArea = area.FindObjectsOfTypeInArea<NwCreature>().Any(c => c.IsPlayerControlled);
+
+      ResetAreaSpawns(area, playerInArea);
+
+      if (!playerInArea)
+        AreaCleaner(area);
     }
     public static void OnPersonnalStorageAreaExit(AreaEvents.OnExit onExit)
     {
@@ -111,7 +134,7 @@ namespace NWN.Systems
 
       Log.Info($"{player.oid.LoginCreature.Name} exited area {onExit.Area.Name}");
 
-      if (!onExit.Area.FindObjectsOfTypeInArea<NwCreature>().Any(p => p.IsPlayerControlled))
+      if (!NwModule.Instance.Players.Any(p => p.ControlledCreature.Area == onExit.Area))
         AreaDestroyer(onExit.Area);
     }
     public static void OnIntroAreaExit(AreaEvents.OnExit onExit)

@@ -174,6 +174,7 @@ namespace NWN.Systems
       {
         int id = player.oid.LoginCreature.GetObjectVariable<LocalVariableInt>("NW_TOTAL_MAP_PINS").Value;
         player.mapPinDictionnary.Add(id, new MapPin(id, player.oid.ControlledCreature.Area.Tag, float.Parse(EventsPlugin.GetEventData("PIN_X")), float.Parse(EventsPlugin.GetEventData("PIN_Y")), EventsPlugin.GetEventData("PIN_NOTE")));
+        player.SaveMapPinsToDatabase();
       }
     }
 
@@ -184,9 +185,7 @@ namespace NWN.Systems
       {
         int pinId = int.Parse(EventsPlugin.GetEventData("PIN_ID"));
         player.mapPinDictionnary.Remove(pinId);
-
-        SqLiteUtils.DeletionQuery("playerMapPins",
-         new Dictionary<string, string>() { { "characterId", player.characterId.ToString() }, { "mapPinId", pinId.ToString() } });
+        player.SaveMapPinsToDatabase();
       }
     }
     [ScriptHandler("map_pin_changed")] 
@@ -198,6 +197,8 @@ namespace NWN.Systems
         updatedMapPin.x = float.Parse(EventsPlugin.GetEventData("PIN_X"));
         updatedMapPin.y = float.Parse(EventsPlugin.GetEventData("PIN_Y"));
         updatedMapPin.note = EventsPlugin.GetEventData("PIN_NOTE");
+
+        player.SaveMapPinsToDatabase();
       }
     }
     [ScriptHandler("pc_sheet_open")]
@@ -322,33 +323,6 @@ namespace NWN.Systems
       onLevelUp.PreventLevelUp = true;
       Utils.LogMessageToDMs($"{onLevelUp.Player.LoginCreature.Name} vient d'essayer de level up.");
       onLevelUp.Player.LoginCreature.Xp = 1;
-    }
-
-    private static void HandlePlayerPerception(CreatureEvents.OnPerception onPerception)
-    {
-      if (onPerception.PerceptionEventType != PerceptionEventType.Seen || onPerception.PerceivedCreature.Tag != "Statuereptilienne"
-        || !onPerception.Creature.IsLoginPlayerCharacter)
-        return;
-
-      if (onPerception.PerceivedCreature.GetObjectVariable<LocalVariableInt>($"_PERCEPTION_STATUS_{onPerception.Creature.ControllingPlayer.CDKey}").HasValue)
-        return;
-
-      onPerception.PerceivedCreature.GetObjectVariable<LocalVariableInt>($"_PERCEPTION_STATUS_{onPerception.Creature.ControllingPlayer.CDKey}").Value = 1;
-
-      Effect effectToRemove = onPerception.PerceivedCreature.ActiveEffects.FirstOrDefault(e => e.Tag == "_FREEZE_EFFECT");
-      if (effectToRemove != null)
-        onPerception.PerceivedCreature.RemoveEffect(effectToRemove);
-
-      Task waitForAnimation = NwTask.Run(async () =>
-      {
-        await onPerception.PerceivedCreature.PlayAnimation((Animation)Utils.random.Next(100, 116), 6);
-        await NwTask.Delay(TimeSpan.FromSeconds(0.1));
-
-        Effect eff = eff = Effect.VisualEffect(VfxType.DurFreezeAnimation);
-        eff.Tag = "_FREEZE_EFFECT";
-        eff.SubType = EffectSubType.Supernatural;
-        onPerception.PerceivedCreature.ApplyEffect(EffectDuration.Permanent, eff);
-      });
     }
     public static void HandleCombatRoundEndForAutoSpells(CreatureEvents.OnCombatRoundEnd onCombatRoundEnd)
     {

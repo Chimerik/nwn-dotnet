@@ -1,4 +1,7 @@
 ﻿using System.Collections.Generic;
+using System.IO;
+using System.Text.Json;
+
 using Anvil.API;
 using Anvil.Services;
 
@@ -111,6 +114,8 @@ namespace NWN.Systems
           player.chatColors.Add(channel, new Color(colorArray[0], colorArray[1], colorArray[2], 255));
 
         player.oid.SendServerMessage("La nouvelle couleur a bien été enregistrée pour le canal sélectionné !");
+
+        SaveChatColorsToDatabase();
       }
     }
     private void HandleResetChannelColor()
@@ -118,6 +123,23 @@ namespace NWN.Systems
       player.chatColors.Remove(channel);
       player.menu.Close();
       player.oid.SendServerMessage("La couleur de ce canal a bien été réinitialisée.", ColorConstants.Rose);
+
+      SaveChatColorsToDatabase();
+    }
+
+    private async void SaveChatColorsToDatabase()
+    {
+      using (var stream = new MemoryStream())
+      {
+        await JsonSerializer.SerializeAsync(stream, player.chatColors);
+        stream.Position = 0;
+        using var reader = new StreamReader(stream);
+        string serializedJson = await reader.ReadToEndAsync();
+
+        SqLiteUtils.UpdateQuery("PlayerAccounts",
+          new List<string[]>() { new string[] { "chatColors", serializedJson } },
+          new List<string[]>() { new string[] { "rowid", player.accountId.ToString() } });
+      }
     }
   }
 }

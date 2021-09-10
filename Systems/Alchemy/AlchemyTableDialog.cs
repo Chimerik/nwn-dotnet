@@ -2,12 +2,12 @@
 
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Numerics;
+using System.Text.Json;
 
 using Anvil.API;
-
-using Newtonsoft.Json;
 
 using static NWN.Systems.Craft.Collect.Config;
 
@@ -561,16 +561,24 @@ namespace NWN.Systems.Alchemy
     {
       string input = player.oid.LoginCreature.GetObjectVariable<LocalVariableString>("_PLAYER_INPUT").Value;
 
-      bool awaitedQuery = await SqLiteUtils.InsertQueryAsync("playerAlchemyRecipe",
-        new List<string[]>() {
+      using (var stream = new MemoryStream())
+      {
+        await JsonSerializer.SerializeAsync(stream, new CurrentRecipe(player.alchemyCauldron.addedIngredients, player.alchemyCauldron.effectList, player.alchemyCauldron.instructions));
+        stream.Position = 0;
+        using var reader = new StreamReader(stream);
+        string serializedRecipe = await reader.ReadToEndAsync();
+
+        bool awaitedQuery = await SqLiteUtils.InsertQueryAsync("playerAlchemyRecipe",
+          new List<string[]>() {
             new string[] { "characterId", player.characterId.ToString() },
             new string[] { "recipeName", input },
-            new string[] { "serializedRecipe", JsonConvert.SerializeObject(new CurrentRecipe(player.alchemyCauldron.addedIngredients, player.alchemyCauldron.effectList, player.alchemyCauldron.instructions)) } },
-        new List<string>() { "characterId", "recipeName" },
-        new List<string[]>() { new string[] { "serializedRecipe" } },
-        new List<string>() { "characterId", "recipeName" });
+            new string[] { "serializedRecipe", serializedRecipe } },
+          new List<string>() { "characterId", "recipeName" },
+          new List<string[]>() { new string[] { "serializedRecipe" } },
+          new List<string>() { "characterId", "recipeName" });
 
-      player.HandleAsyncQueryFeedback(awaitedQuery, $"Vous notez scrupuleuse votre recette {input.ColorString(ColorConstants.White)} dans votre carnet d'alchimiste.", "Erreur technique - votre recette n'a pas été enregistrée.");
+        player.HandleAsyncQueryFeedback(awaitedQuery, $"Vous notez scrupuleuse votre recette {input.ColorString(ColorConstants.White)} dans votre carnet d'alchimiste.", "Erreur technique - votre recette n'a pas été enregistrée.");
+      }
 
       player.menu.Close();
     }
@@ -604,7 +612,7 @@ namespace NWN.Systems.Alchemy
       await NwTask.SwitchToMainThread();
       player.menu.Draw();
     }
-    private void HandleSelectedRecipe(string recipeName, string serializedRecipe)
+    private async void HandleSelectedRecipe(string recipeName, string serializedRecipe)
     {
       player.menu.Clear();
 
@@ -613,17 +621,21 @@ namespace NWN.Systems.Alchemy
         "Que souhaitez-vous faire de cette recette ?"
       };
 
-      CurrentRecipe recipe = JsonConvert.DeserializeObject<CurrentRecipe>(serializedRecipe);
-
-      foreach (AddedIngredient ingredient in recipe.addedIngredients)
-        player.menu.titleLines.Add($"Ajouter {ingredient.quantity} doses de {ingredient.ingredient.name}");
-;
-      foreach (Instruction instruction in recipe.instructions)
+      //Stream reader = new StreamReader(serializedRecipe);
+      using (var stream = await StringUtils.GenerateStreamFromString(serializedRecipe))
       {
-        if (instruction.instruction == InstructionType.Mix)
-          player.menu.titleLines.Add($"Remuer {instruction.quantity} fois.");
-        else if (instruction.instruction == InstructionType.Distill)
-          player.menu.titleLines.Add($"Ajouter {instruction.quantity} dose(s) d'eau.");
+        CurrentRecipe recipe = await JsonSerializer.DeserializeAsync<CurrentRecipe>(stream);
+
+        foreach (AddedIngredient ingredient in recipe.addedIngredients)
+          player.menu.titleLines.Add($"Ajouter {ingredient.quantity} doses de {ingredient.ingredient.name}");
+        
+        foreach (Instruction instruction in recipe.instructions)
+        {
+          if (instruction.instruction == InstructionType.Mix)
+            player.menu.titleLines.Add($"Remuer {instruction.quantity} fois.");
+          else if (instruction.instruction == InstructionType.Distill)
+            player.menu.titleLines.Add($"Ajouter {instruction.quantity} dose(s) d'eau.");
+        }
       }
 
       player.menu.choices.Add(("Produire.", () => CraftPotionFromRecipe(serializedRecipe)));
@@ -632,6 +644,7 @@ namespace NWN.Systems.Alchemy
       player.menu.choices.Add(("Retour.", () => DrawWelcomePage()));
       player.menu.choices.Add(("Quitter.", () => player.menu.Close()));
 
+      await NwTask.SwitchToMainThread();
       player.menu.Draw();
     }
 
@@ -643,25 +656,30 @@ namespace NWN.Systems.Alchemy
       player.oid.SendServerMessage($"Votre recette {recipeName.ColorString(ColorConstants.White)} a été supprimée de vos notes d'alchimie.", ColorConstants.Orange);
       DisplayPlayerRecipes();
     }
-    private void CraftPotionFromRecipe(string serializedRecipe)
+    private async void CraftPotionFromRecipe(string serializedRecipe)
     {
-      CurrentRecipe recipe = JsonConvert.DeserializeObject<CurrentRecipe>(serializedRecipe);
-
-      foreach(AddedIngredient ingredient in recipe.addedIngredients)
+      using (var stream = await StringUtils.GenerateStreamFromString(serializedRecipe))
       {
-        if(player.materialStock[ingredient.ingredient.ToString()] < ingredient.quantity)
+        CurrentRecipe recipe = await JsonSerializer.DeserializeAsync<CurrentRecipe>(stream);
+
+        await NwTask.SwitchToMainThread();
+
+        foreach (AddedIngredient ingredient in recipe.addedIngredients)
         {
-          int missingIngredients = ingredient.quantity - player.materialStock[ingredient.ingredient.ToString()];
-          player.oid.SendServerMessage($"Il vous manque {missingIngredients.ToString().ColorString(ColorConstants.White)} de {ingredient.ingredient.name.ColorString(ColorConstants.White)} pour réaliser cette recette.", ColorConstants.Red);
-          return;
+          if (player.materialStock[ingredient.ingredient.ToString()] < ingredient.quantity)
+          {
+            int missingIngredients = ingredient.quantity - player.materialStock[ingredient.ingredient.ToString()];
+            player.oid.SendServerMessage($"Il vous manque {missingIngredients.ToString().ColorString(ColorConstants.White)} de {ingredient.ingredient.name.ColorString(ColorConstants.White)} pour réaliser cette recette.", ColorConstants.Red);
+            return;
+          }
         }
+
+        foreach (AddedIngredient ingredient in recipe.addedIngredients)
+          player.materialStock[ingredient.ingredient.ToString()] -= ingredient.quantity;
+
+        player.alchemyCauldron.effectList = recipe.effectList;
       }
-
-      foreach (AddedIngredient ingredient in recipe.addedIngredients)
-        player.materialStock[ingredient.ingredient.ToString()] -= ingredient.quantity;
-
-      player.alchemyCauldron.effectList = recipe.effectList;
-
+      
       BrewPotion();
 
       player.oid.SendServerMessage("Votre potion est en cours de concotion, ce qui va prendre un certain temps.", new Color(32, 255, 32));

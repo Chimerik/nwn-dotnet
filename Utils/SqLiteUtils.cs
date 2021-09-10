@@ -7,6 +7,8 @@ using Anvil.API;
 using NWN.Systems;
 using System.Threading.Tasks;
 using Microsoft.Data.Sqlite;
+using System.Numerics;
+using System.Text.Json;
 
 namespace NWN
 {
@@ -443,6 +445,44 @@ namespace NWN
       }
 
       return deserializedPlaceable;
+    }
+    public class DataBaseLocation
+    {
+      public string areaTag { get; set; }
+      public float X { get; set; }
+      public float Y { get; set; }
+      public float Z { get; set; }
+      public float facing { get; set; }
+
+      public DataBaseLocation(Location location)
+      {
+        areaTag = location.Area.Tag;
+        X = location.Position.X;
+        Y = location.Position.Y;
+        Z = location.Position.Z;
+        facing = location.Rotation;
+      }
+      public DataBaseLocation()
+      {
+
+      }
+    }
+    public static string SerializeLocation(Location location)
+    {
+      return JsonSerializer.Serialize(new DataBaseLocation(location));
+    }
+    public static Location DeserializeLocation(string serializedLocation)
+    {
+      try
+      {
+        DataBaseLocation dbLocation = JsonSerializer.Deserialize<DataBaseLocation>(serializedLocation);
+        return Location.Create(NwModule.Instance.Areas.FirstOrDefault(a => a.Tag == dbLocation.areaTag), new Vector3(dbLocation.X, dbLocation.Y, dbLocation.Z), dbLocation.facing);
+      }
+      catch (Exception e)
+      {
+        Utils.LogMessageToDMs($"unable to deserialize location : {serializedLocation}");
+        return NwModule.Instance.StartingLocation;
+      }      
     }
   }
 }

@@ -1,6 +1,6 @@
-﻿using Anvil.API;
+﻿using System.Text.Json;
 
-using Newtonsoft.Json;
+using Anvil.API;
 
 namespace NWN.Systems
 {
@@ -12,7 +12,7 @@ namespace NWN.Systems
 
       foreach(string json in jsonArray)
       {
-        CustomUnpackedEffect customUnpackedEffect = JsonConvert.DeserializeObject<CustomUnpackedEffect>(json);
+        CustomUnpackedEffect customUnpackedEffect = JsonSerializer.Deserialize<CustomUnpackedEffect>(json);
         
         if(target == null)
           customUnpackedEffect.ApplyCustomUnPackedEffectToTarget(oPC.ControlledCreature, potion);

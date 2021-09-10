@@ -56,7 +56,7 @@ namespace NWN.Systems
     public static void SavePlayerCorpseToDatabase(int characterId, NwCreature deathCorpse)
     {
       SqLiteUtils.InsertQuery("playerDeathCorpses",
-          new List<string[]>() { new string[] { "characterId", characterId.ToString() }, new string[] { "deathCorpse", deathCorpse.Serialize().ToBase64EncodedString() }, new string[] { "areaTag", deathCorpse.Area.Tag }, new string[] { "position", deathCorpse.Position.ToString() } });
+          new List<string[]>() { new string[] { "characterId", characterId.ToString() }, new string[] { "deathCorpse", deathCorpse.Serialize().ToBase64EncodedString() }, new string[] { "location", SqLiteUtils.SerializeLocation(deathCorpse.Location) } });
     }
     public partial class Player
     {

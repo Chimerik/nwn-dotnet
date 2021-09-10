@@ -27,17 +27,17 @@ namespace NWN.Systems
       if (characterId > 0)
       {
         var result = SqLiteUtils.SelectQuery("playerCharacters",
-        new List<string>() { { "areaTag" }, { "position" }, { "facing" } },
+        new List<string>() { { "location" } },
         new List<string[]>() { new string[] { "rowid", characterId.ToString() } });
 
         if (result.Result != null)
         {
-          string tag = result.Result.GetString(0);
+          Location spawnLoc = SqLiteUtils.DeserializeLocation(result.Result.GetString(0));
 
-          if (tag.StartsWith("entrepotpersonnel"))
+          if (spawnLoc.Area.Tag.StartsWith("entrepotpersonnel"))
             AreaSystem.CreatePersonnalStorageArea(onELCSuccess.Player.ControlledCreature, characterId);
 
-          onELCSuccess.Player.SpawnLocation = Utils.GetLocationFromDatabase(tag, result.Result.GetString(1), result.Result.GetFloat(2));
+          onELCSuccess.Player.SpawnLocation = spawnLoc;
         }
       }
     }

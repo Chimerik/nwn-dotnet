@@ -11,9 +11,51 @@ namespace NWN.Systems
   [ServiceBinding(typeof(AreaSystem))]
   partial class AreaSystem
   {
+    private static void ResetAreaSpawns(NwArea area, bool playerInArea)
+    {
+      Log.Info($"{area.Name} resetting spawns");
+      foreach (NwAreaOfEffect aoe in area.FindObjectsOfTypeInArea<NwAreaOfEffect>().Where(a => a.Tag == "creature_exit_range_aoe"))
+      {
+        NwCreature mob = aoe.GetObjectVariable<LocalVariableObject<NwCreature>>("creature").Value;
+        NwWaypoint spawnPoint = mob.GetObjectVariable<LocalVariableObject<NwWaypoint>>("spawn_wp").Value;
+
+        if (mob.IsValid)
+        {
+          mob.OnDeath -= LootSystem.HandleLoot;
+          mob.OnDeath -= OnMobDeathResetSpawn;
+
+          if (mob.GetObjectVariable<LocalVariableObject<NwAreaOfEffect>>("reset_aoe").HasValue)
+            mob.GetObjectVariable<LocalVariableObject<NwAreaOfEffect>>("reset_aoe").Value.Destroy();
+
+          mob.Destroy();
+          Log.Info($"{mob.Name} destroyed");
+        }
+
+        if(spawnPoint.IsValid)
+          spawnPoint.GetObjectVariable<LocalVariableBool>("active").Delete();
+
+        if (!playerInArea)
+          continue;
+
+        Effect spawnEffect = Effect.AreaOfEffect(198, "enterSpawn", "b", "c");
+        spawnEffect.SubType = EffectSubType.Supernatural;
+        spawnEffect.Tag = "creature_spawn_aoe";
+        spawnPoint.Location.ApplyEffect(EffectDuration.Permanent, spawnEffect);
+
+        NwAreaOfEffect spawnAoE = (NwAreaOfEffect)NwModule.Instance.GetLastCreatedObjects().FirstOrDefault(aoe => aoe is NwAreaOfEffect);
+        spawnAoE.GetObjectVariable<LocalVariableString>("creature").Value = spawnPoint.GetObjectVariable<LocalVariableString>("creature").Value;
+        spawnAoE.GetObjectVariable<LocalVariableObject<NwWaypoint>>("spawn_wp").Value = spawnPoint;
+        spawnAoE.Tag = "creature_spawn_aoe";
+
+        Log.Info($"{mob.Name} spawn AoE restored");
+      }
+    }
     private async static void AreaCleaner(NwArea area)
     {
       Log.Info($"Initiating cleaning for area {area.Name}");
+
+      foreach (NwAreaOfEffect spawnAOE in area.FindObjectsOfTypeInArea<NwAreaOfEffect>().Where(a => a.Tag == "creature_spawn_aoe" || a.Tag == "creature_reset_spawn_aoe"))
+        spawnAOE.Destroy();
 
       CancellationTokenSource tokenSource = new CancellationTokenSource();
 
@@ -30,35 +72,6 @@ namespace NWN.Systems
 
       Log.Info($"Cleaning area {area.Name}");
 
-      foreach (NwCreature creature in area.FindObjectsOfTypeInArea<NwCreature>().Where(c => c.Tag != "Statuereptilienne" && c.Tag != "Statuereptilienne2" && c.Tag != "statue_tiamat" && !c.IsDMPossessed && c.Tag != "pccorpse" && !c.IsPlayerControlled && !c.IsLoginPlayerCharacter))
-      {
-        if (creature.GetObjectVariable<LocalVariableLocation>("_SPAWN_LOCATION").HasValue) 
-        {
-          Task createWP = NwTask.Run(async () =>
-          {
-            await NwTask.Delay(TimeSpan.FromSeconds(0.1));
-
-            NwWaypoint waypoint = NwWaypoint.Create(creature.GetObjectVariable<LocalVariableString>("_WAYPOINT_TEMPLATE"), creature.GetObjectVariable<LocalVariableLocation>("_SPAWN_LOCATION").Value);
-            waypoint.GetObjectVariable<LocalVariableString>("_CREATURE_TEMPLATE").Value = creature.ResRef;
-
-            return true;
-          });
-
-        }
-        else if (creature.Tag == "mineable_animal")
-        {
-          Task createWP = NwTask.Run(async () =>
-          {
-            await NwTask.Delay(TimeSpan.FromSeconds(0.2));
-            NwWaypoint.Create("animal_spawn_wp", creature.Location);
-            return true;
-          });
-        }
-
-        Utils.DestroyInventory(creature);
-        creature.Destroy(0.2f);
-      }
-
       foreach (NwPlaceable bodyBag in area.FindObjectsOfTypeInArea<NwPlaceable>().Where(o => o.Tag == "BodyBag"))
       {
         Utils.DestroyInventory(bodyBag);
@@ -71,12 +84,6 @@ namespace NWN.Systems
         Log.Info($"destroying item {item.Name}");
         item.Destroy();
       }
-
-      /*foreach (NwStore store in area.FindObjectsOfTypeInArea<NwStore>())
-      {
-        Log.Info($"destroying store {store.Name}");
-        store.Destroy();
-      }*/
     }
     public async static void AreaDestroyer(NwArea area)
     {

@@ -1,13 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
+using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
 using Anvil.API;
 using Anvil.API.Events;
-using Anvil.Services;
-
-using Newtonsoft.Json;
 
 namespace NWN.Systems
 {
@@ -41,7 +40,7 @@ namespace NWN.Systems
       else
         player.HandlePlayerSave();
 
-      Log.Info($"PC saved in : {(DateTime.Now - elapsed).TotalSeconds} s");
+      Log.Info($"{player.oid.LoginCreature.Name} saved in : {(DateTime.Now - elapsed).TotalSeconds} s");
     }
     public partial class Player
     {
@@ -96,19 +95,13 @@ namespace NWN.Systems
 
         SavePlayerCharacterToDatabase();
         SavePlayerStoredMaterialsToDatabase();
-        SavePlayerMapPinsToDatabase();
-        SavePlayerAreaExplorationStateToDatabase();
-        SavePlayerChatColorsToDatabase();
         HandleExpiredContracts();
         HandleExpiredBuyOrders();
         HandleExpiredSellOrders();
         HandleNewMails();
-
+        
         oid.LoginCreature.GetObjectVariable<LocalVariableInt>("_SAVE_SCHEDULED").Delete();
         oid.LoginCreature.GetObjectVariable<LocalVariableInt>("_SAVE_AUTHORIZED").Delete();
-
-        Log.Info($"Save time : {(DateTime.Now - start).TotalSeconds}");
-        Log.Info($"Finished saving {oid.LoginCreature.Name}");
       }
       private void FixPolymorphBug()
       {
@@ -154,38 +147,36 @@ namespace NWN.Systems
       }
       private async void SavePlayerCharacterToDatabase()
       {
-        string areaTag;
-        string position;
-        string facing;
-
-        if (location.Area != null)
-        {
-          areaTag = location.Area.Tag;
-          position = location.Position.ToString();
-          facing = location.Rotation.ToString();
-        }
-        else
-        {
-          areaTag = previousLocation.Area.Tag;
-          position = previousLocation.Position.ToString();
-          facing = previousLocation.Rotation.ToString();
-        }
-
+        string serializedLocation = location.Area != null ? SqLiteUtils.SerializeLocation(location) : SqLiteUtils.SerializeLocation(previousLocation);
         string firstName = oid.LoginCreature.OriginalFirstName;
         string lastName = oid.LoginCreature.OriginalLastName;
         string health = oid.LoginCreature.HP.ToString();
 
         await NwTask.Delay(TimeSpan.FromSeconds(0.2));
 
+        Task<string> serializeAlchemyCauldron = StringUtils.SerializeObjectToJsonString(alchemyCauldron);
+        Task<string> serializeLearnables = StringUtils.SerializeObjectToJsonString(learnables);
+        Task<string> serializeExplorationState = StringUtils.SerializeObjectToJsonString(areaExplorationStateDictionnary);
+
+        await Task.WhenAll(serializeAlchemyCauldron, serializeLearnables, serializeExplorationState);
+
+        string serializedCauldron = serializeAlchemyCauldron.Result;
+        string serializedLearnables = serializeLearnables.Result;
+        string serializedExploration = serializeExplorationState.Result;
+
+        Log.Info($"serializedCauldron : {serializedCauldron}");
+        Log.Info($"serializedLearnables : {serializedLearnables}");
+        Log.Info($"serializedExploration : {serializedExploration}");
+
         SqLiteUtils.UpdateQuery("playerCharacters",
-          new List<string[]>() { new string[] { "characterName", $"{firstName} {lastName}" },
-          new string[] { "areaTag", areaTag }, new string[] { "position", position }, new string[] { "facing", facing }, new string[] { "currentHP", health }, new string[] { "bankGold", bankGold.ToString() },
+        new List<string[]>() { new string[] { "characterName", $"{firstName} {lastName}" },
+          new string[] { "location", serializedLocation }, new string[] { "currentHP", health }, new string[] { "bankGold", bankGold.ToString() },
           new string[] { "dateLastSaved", dateLastSaved.ToString() }, new string[] { "previousSPCalculation", previousSPCalculation.ToString() },
           new string[] { "currentCraftJob", craftJob.baseItemType.ToString() }, new string[] { "currentCraftObject", craftJob.craftedItem }, new string[] { "currentCraftJobRemainingTime", craftJob.remainingTime.ToString() },
           new string[] { "currentCraftJobMaterial", craftJob.material }, new string[] { "pveArenaCurrentPoints", pveArena.currentPoints.ToString() },
           new string[] { "menuOriginTop", menu.originTop.ToString() }, new string[] { "menuOriginLeft", menu.originLeft.ToString() },
-          new string[] { "alchemyCauldron", JsonConvert.SerializeObject(alchemyCauldron) }, new string[] { "serializedLearnables", JsonConvert.SerializeObject(learnables) } },
-          new List<string[]>() { new string[] { "rowid", characterId.ToString() } });
+          new string[] { "alchemyCauldron", serializedCauldron }, new string[] { "serializedLearnables", serializedLearnables }, new string[] { "explorationState", serializedExploration } },
+        new List<string[]>() { new string[] { "rowid", characterId.ToString() } });
       }
       private async void SavePlayerStoredMaterialsToDatabase()
       {
@@ -200,57 +191,6 @@ namespace NWN.Systems
               new List<string>() { "characterId", "materialName" },
               new List<string[]>() { new string[] { "materialStock" } },
               new List<string>() { { "characterId" }, { "materialName" } });
-          }
-        }
-      }
-      private async void SavePlayerMapPinsToDatabase()
-      {
-        if (mapPinDictionnary.Count > 0)
-        {
-          foreach (MapPin mapPin in mapPinDictionnary.Values)
-          {
-            await SqLiteUtils.InsertQueryAsync("playerMapPins",
-            new List<string[]>() {
-            new string[] { "characterId", characterId.ToString() },
-            new string[] { "mapPinId", mapPin.id.ToString()},
-            new string[] { "areaTag", mapPin.areaTag },
-            new string[] { "x", mapPin.x.ToString() },
-            new string[] { "y", mapPin.y.ToString() },
-            new string[] { "note", mapPin.note } },
-            new List<string>() { "characterId", "mapPinId" },
-            new List<string[]>() { new string[] { "x" }, new string[] { "y" }, new string[] { "note" } });
-          }
-        }
-      }
-      private async void SavePlayerAreaExplorationStateToDatabase()
-      {
-        if (areaExplorationStateDictionnary.Count > 0)
-        {
-          foreach (KeyValuePair<string, byte[]> explorationStateListEntry in areaExplorationStateDictionnary)
-          {
-            await SqLiteUtils.InsertQueryAsync("playerAreaExplorationState",
-            new List<string[]>() {
-            new string[] { "characterId", characterId.ToString() },
-            new string[] { "areaTag", explorationStateListEntry.Key},
-            new string[] { "explorationState", explorationStateListEntry.Value.ToBase64EncodedString() } },
-            new List<string>() { "characterId", "areaTag" },
-            new List<string[]>() { new string[] { "explorationState" } });
-          }
-        }
-      }
-      private async void SavePlayerChatColorsToDatabase()
-      {
-        if (chatColors.Count > 0)
-        {
-          foreach (KeyValuePair<ChatChannel, Color> chatColorEntry in chatColors)
-          {
-            await SqLiteUtils.InsertQueryAsync("chatColors",
-            new List<string[]>() {
-            new string[] { "accountId", accountId.ToString() },
-            new string[] { "channel", ((int)chatColorEntry.Key).ToString()},
-            new string[] { "color", chatColorEntry.Value.ToInt().ToString() } },
-            new List<string>() { "accountId", "channel" },
-            new List<string[]>() { new string[] { "color" } });
           }
         }
       }

@@ -27,7 +27,7 @@ namespace NWN.Systems
         if (player.oid.PlayerName == "Chim")
         {
 
-          //PlayerSystem.cursorTargetService.EnterTargetMode(player.oid, OnTargetSelected, ObjectTypes.All, MouseCursor.Pickup);
+          PlayerSystem.cursorTargetService.EnterTargetMode(player.oid, OnTargetSelected, ObjectTypes.All, MouseCursor.Pickup);
         }
       }
     }    
@@ -38,9 +38,33 @@ namespace NWN.Systems
 
       Log.Info($"type : {selection.TargetObject.GetType()}");
 
-      if (!(selection.TargetObject is NwItem item))
+      if (!(selection.TargetObject is NwCreature creature))
         return;
 
+      foreach (Effect eff in creature.ActiveEffects.Where(e => e.Tag == "_FREEZE_EFFECT"))
+        creature.RemoveEffect(eff);
+
+      int anim = creature.GetObjectVariable<LocalVariableInt>("anim").Value;
+      anim += 1;
+
+      if (anim == 21)
+        anim = 100;
+      if (anim == 117)
+        anim = 0;
+
+      creature.GetObjectVariable<LocalVariableInt>("anim").Value = anim;
+
+      creature.PlayAnimation((Animation)anim, 1, false, TimeSpan.FromDays(365));
+      /*creature.PlayAnimation(Animation.LoopingMeditate, 1, false, TimeSpan.FromDays(365));
+
+      Task createWP = NwTask.Run(async () =>
+      {
+        await NwTask.Delay(TimeSpan.FromSeconds(3));
+        Effect test = Effect.VisualEffect(VfxType.DurFreezeAnimation);
+        creature.ApplyEffect(EffectDuration.Permanent, test);
+      });*/
+
+      Log.Info($"{creature.Name} playing animation {(Animation)anim}");
     }
     /* public static String Translate(String word)
      {

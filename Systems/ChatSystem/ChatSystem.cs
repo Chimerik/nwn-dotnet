@@ -148,26 +148,22 @@ namespace NWN.Systems
       //SYSTEME DE RECOPIE DE CHAT POUR LES DMS
       if (ctx.channel == ChatChannel.PlayerTalk || ctx.channel == ChatChannel.PlayerWhisper)
       {
-        NwCreature oInviSender = NwObject.FindObjectsWithTag<NwCreature>("_invisible_sender").FirstOrDefault();
-        if (oInviSender != null)
+        foreach (NwPlayer oDM in NwModule.Instance.Players.Where(d => d.IsDM || d.PlayerName == "Chim"))
         {
-          foreach (NwPlayer oDM in NwModule.Instance.Players.Where(d => d.IsDM))
+          if (PlayerSystem.Players.TryGetValue(oDM.LoginCreature, out PlayerSystem.Player dungeonMaster))
           {
-            if (PlayerSystem.Players.TryGetValue(oDM.LoginCreature, out PlayerSystem.Player dungeonMaster))
+            if (dungeonMaster.listened.Contains(ctx.oSender))
             {
-              if (dungeonMaster.listened.Contains(ctx.oSender))
+              if (ctx.oSender.ControlledCreature.Area != oDM.ControlledCreature.Area || oDM.ControlledCreature.Distance(ctx.oSender.ControlledCreature) > chatService.GetPlayerChatHearingDistance(oDM, ctx.channel))
               {
-                if (ctx.oSender.ControlledCreature.Area != oDM.ControlledCreature.Area || oDM.ControlledCreature.Distance(ctx.oSender.ControlledCreature) > chatService.GetPlayerChatHearingDistance(oDM, ctx.channel))
-                {
-                  oInviSender.Name = ctx.oSender.ControlledCreature.Name;
-                  chatService.SendMessage(ChatChannel.PlayerTell, "[COPIE - " + areaName + "] " + ctx.msg, oInviSender, oDM);
-                }
+                if (oDM.IsDM)
+                  chatService.SendMessage(ChatChannel.PlayerDm, $"[COPIE - {areaName.ColorString(ColorConstants.Yellow)}] {ctx.msg.ColorString(ColorConstants.White)}".ColorString(ColorConstants.Orange), ctx.oSender.ControlledCreature, oDM);
+                else
+                  chatService.SendMessage(ChatChannel.PlayerParty, $"[COPIE - {areaName.ColorString(ColorConstants.Yellow)}] {ctx.msg.ColorString(ColorConstants.White)}".ColorString(ColorConstants.Orange), ctx.oSender.ControlledCreature, oDM);
               }
             }
           }
         }
-        else
-          Utils.LogMessageToDMs("Warning - Invisible Sender not set");
       }
 
       next();

@@ -11,6 +11,8 @@ using NWN.Systems.Alchemy;
 using NWN.Core.NWNX;
 using JournalEntry = Anvil.API.JournalEntry;
 using Anvil.API.Events;
+using System.IO;
+using System.Text.Json;
 
 namespace NWN.Systems
 {
@@ -188,6 +190,50 @@ namespace NWN.Systems
               break;
           }
         }
+      }
+      public async void TeleportPlayerToSavedLocation()
+      {
+        await NwTask.WaitUntil(() => oid.LoginCreature.Location.Area != null);
+        oid.LoginCreature.Location = location;
+      }
+      public async void InitializePlayerLearnableJobs()
+      {
+        await NwTask.WaitUntil(() => oid.LoginCreature.GetObjectVariable<LocalVariableBool>("_ASYNC_INIT_DONE").HasValue);
+
+        //oid.LoginCreature.GetObjectVariable<LocalVariableBool>("_ASYNC_INIT_DONE").Delete();
+
+        if (learnables.Any(l => l.Value.active))
+        {
+          Learnable learnable = learnables.First(l => l.Value.active).Value;
+          AwaitPlayerStateChangeToCalculateSPGain(learnable);
+
+          await NwTask.WaitUntil(() => pcState == Player.PcState.Online && oid.LoginCreature.Area != null);
+          CreateSkillJournalEntry(learnable);
+        }
+
+        foreach (KeyValuePair<Feat, int> feat in learntCustomFeats)
+        {
+          CustomFeat customFeat = SkillSystem.customFeatsDictionnary[feat.Key];
+          FeatTable.Entry featEntry = Feat2da.featTable.GetFeatDataEntry(feat.Key);
+          oid.SetTlkOverride((int)featEntry.tlkName, $"{customFeat.name} - {SkillSystem.GetCustomFeatLevelFromSkillPoints(feat.Key, feat.Value)}");
+          oid.SetTlkOverride((int)featEntry.tlkDescription, customFeat.description);
+        }
+
+        int improvedHealth = 0;
+        if (learntCustomFeats.ContainsKey(CustomFeats.ImprovedHealth))
+          improvedHealth = SkillSystem.GetCustomFeatLevelFromSkillPoints(CustomFeats.ImprovedHealth, learntCustomFeats[CustomFeats.ImprovedHealth]);
+
+        oid.LoginCreature.LevelInfo[0].HitDie = (byte)(10
+          + (1 + 3 * ((oid.LoginCreature.GetAbilityScore(Ability.Constitution, true) - 10) / 2)
+          + Convert.ToInt32(oid.LoginCreature.KnowsFeat(Feat.Toughness))) * improvedHealth);
+
+        if (oid.LoginCreature.HP <= 0)
+          oid.LoginCreature.ApplyEffect(EffectDuration.Instant, Effect.Death());
+
+        if (learntCustomFeats.ContainsKey(CustomFeats.ImprovedAttackBonus))
+          oid.LoginCreature.BaseAttackBonus = (byte)(oid.LoginCreature.BaseAttackBonus + SkillSystem.GetCustomFeatLevelFromSkillPoints(CustomFeats.ImprovedAttackBonus, learntCustomFeats[CustomFeats.ImprovedAttackBonus]));
+
+        pcState = Player.PcState.Online;
       }
       public void UnloadMenuQuickbar()
       {
@@ -848,6 +894,20 @@ namespace NWN.Systems
       {
         if (Players.TryGetValue(onLostGold.Creature, out Player player))
           player.oid.ExportCharacter();
+      }
+      public async void SaveMapPinsToDatabase()
+      {
+        using (var stream = new MemoryStream())
+        {
+          await JsonSerializer.SerializeAsync(stream, mapPinDictionnary);
+          stream.Position = 0;
+          using var reader = new StreamReader(stream);
+          string serializedJson = await reader.ReadToEndAsync();
+
+          SqLiteUtils.UpdateQuery("PlayerAccounts",
+            new List<string[]>() { new string[] { "mapPins", serializedJson } },
+            new List<string[]>() { new string[] { "rowid", accountId.ToString() } });
+        }
       }
     }
   }

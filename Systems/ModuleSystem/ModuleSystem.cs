@@ -11,6 +11,8 @@ using System.Linq;
 using System.Threading.Tasks;
 using static NWN.Systems.Craft.Collect.Config;
 using NWN.Core;
+using System.IO;
+using System.Text.Json;
 
 namespace NWN.Systems
 {
@@ -108,9 +110,17 @@ namespace NWN.Systems
             tempDic.Add($"S{spell[0]}", new Learnable(LearnableType.Spell, int.Parse(spell[0]), int.Parse(spell[1]), active, int.Parse(spell[2])));
           }
 
-        SqLiteUtils.UpdateQuery("playerCharacters",
-          new List<string[]>() { new string[] { "serializedLearnables", Newtonsoft.Json.JsonConvert.SerializeObject(tempDic) } },
+        using (var stream = new MemoryStream())
+        {
+          await JsonSerializer.SerializeAsync(stream, tempDic);
+          stream.Position = 0;
+          using var reader = new StreamReader(stream);
+          string serializedLearnables = await reader.ReadToEndAsync();
+
+          SqLiteUtils.UpdateQuery("playerCharacters",
+          new List<string[]>() { new string[] { "serializedLearnables", serializedLearnables } },
           new List<string[]>() { new string[] { "rowid", charId.ToString() } });
+        }
       }
     }
     private static void CreateDatabase()
@@ -119,34 +129,25 @@ namespace NWN.Systems
         "('year' INTEGER NOT NULL, 'month' INTEGER NOT NULL, 'day' INTEGER NOT NULL, 'hour' INTEGER NOT NULL, 'minute' INTEGER NOT NULL, 'second' INTEGER NOT NULL)");
 
       SqLiteUtils.CreateQuery("CREATE TABLE IF NOT EXISTS PlayerAccounts" +
-        "('accountName' TEXT NOT NULL, 'cdKey' TEXT, 'bonusRolePlay' INTEGER NOT NULL, 'discordId' TEXT, 'rank' TEXT)");
+        "('accountName' TEXT NOT NULL, 'cdKey' TEXT, 'bonusRolePlay' INTEGER NOT NULL, 'discordId' TEXT, 'rank' TEXT, 'mapPins' TEXT, 'chatColors' TEXT, 'mutedPlayers' TEXT)");
 
       SqLiteUtils.CreateQuery("CREATE TABLE IF NOT EXISTS playerCharacters" +
         "('accountId' INTEGER NOT NULL, 'characterName' TEXT NOT NULL, 'dateLastSaved' TEXT NOT NULL, 'previousSPCalculation' TEXT, 'serializedLearnables' TEXT," +
         "'currentCraftJobRemainingTime' REAL, 'currentCraftJob' INTEGER NOT NULL, 'currentCraftObject' TEXT NOT NULL," +
-        "currentCraftJobMaterial TEXT, areaTag TEXT, position TEXT, facing REAL," +
-        "currentHP INTEGER, bankGold INTEGER, pveArenaCurrentPoints, menuOriginTop INTEGER, menuOriginLeft INTEGER, storage TEXT, alchemyCauldron TEXT)");
-
-      SqLiteUtils.CreateQuery("CREATE TABLE IF NOT EXISTS playerLearnableSkills" +
-        "('characterId' INTEGER NOT NULL, 'skillId' INTEGER NOT NULL, 'skillPoints' INTEGER NOT NULL, 'trained' INTEGER, 'active' TEXT, UNIQUE (characterId, skillId))");
-
-      SqLiteUtils.CreateQuery("CREATE TABLE IF NOT EXISTS playerLearnableSpells" +
-        "('characterId' INTEGER NOT NULL, 'skillId' INTEGER NOT NULL, 'skillPoints' INTEGER NOT NULL, 'trained' INTEGER, 'nbScrolls' INTEGER, 'active' TEXT, UNIQUE (characterId, skillId))");
+        "'currentCraftJobMaterial' TEXT, 'location' TEXT," +
+        "'currentHP' INTEGER, 'bankGold' INTEGER, 'pveArenaCurrentPoints' INTEGER, 'menuOriginTop' INTEGER, 'menuOriginLeft' INTEGER, 'storage' TEXT, 'alchemyCauldron' TEXT, 'explorationState' TEXT)");
 
       SqLiteUtils.CreateQuery("CREATE TABLE IF NOT EXISTS playerMaterialStorage" +
         "('characterId' INTEGER NOT NULL, 'materialName' TEXT NOT NULL, 'materialStock' INTEGER, UNIQUE (characterId, materialName))");
 
       SqLiteUtils.CreateQuery("CREATE TABLE IF NOT EXISTS playerDeathCorpses" +
-        "('characterId' INTEGER NOT NULL, 'deathCorpse' TEXT NOT NULL, 'areaTag' TEXT NOT NULL, 'position' TEXT NOT NULL)");
+        "('characterId' INTEGER NOT NULL, 'deathCorpse' TEXT NOT NULL, 'location' TEXT NOT NULL)");
 
       SqLiteUtils.CreateQuery("CREATE TABLE IF NOT EXISTS loot_containers" +
         "('chestTag' TEXT NOT NULL, 'accountID' INTEGER NOT NULL, 'serializedChest' TEXT NOT NULL, 'position' TEXT NOT NULL, 'facing' REAL NOT NULL, PRIMARY KEY(chestTag))");
 
       SqLiteUtils.CreateQuery("CREATE TABLE IF NOT EXISTS dm_persistant_placeable" +
         "('accountID' INTEGER NOT NULL, 'serializedPlaceable' TEXT NOT NULL, 'areaTag' TEXT NOT NULL, 'position' TEXT NOT NULL, 'facing' REAL NOT NULL)");
-
-      SqLiteUtils.CreateQuery("CREATE TABLE IF NOT EXISTS playerMapPins" +
-        "('characterId' INTEGER NOT NULL, 'mapPinId' INTEGER NOT NULL, 'areaTag' TEXT NOT NULL, 'x' REAL NOT NULL, 'y' REAL NOT NULL, 'note' TEXT, UNIQUE (characterId, mapPinId))");
 
       SqLiteUtils.CreateQuery("CREATE TABLE IF NOT EXISTS playerDescriptions" +
         "('characterId' INTEGER NOT NULL, 'descriptionName' TEXT NOT NULL, 'description' TEXT NOT NULL, UNIQUE (characterId, descriptionName))");
@@ -159,9 +160,6 @@ namespace NWN.Systems
 
       SqLiteUtils.CreateQuery("CREATE TABLE IF NOT EXISTS goldBalance" +
         "('lootedTag' TEXT NOT NULL, 'nbTimesLooted' INTEGER NOT NULL, 'averageGold' INT NOT NULL, 'cumulatedGold' INT NOT NULL, PRIMARY KEY(lootedTag))");
-
-      SqLiteUtils.CreateQuery("CREATE TABLE IF NOT EXISTS playerAreaExplorationState" +
-        "('characterId' INTEGER NOT NULL, 'areaTag' TEXT NOT NULL, 'explorationState' TEXT NOT NULL, UNIQUE (characterId, areaTag))");
 
       SqLiteUtils.CreateQuery("CREATE TABLE IF NOT EXISTS playerPrivateContracts" +
         "('characterId' INTEGER NOT NULL, 'expirationDate' TEXT NOT NULL, 'serializedContract' TEXT NOT NULL, 'totalValue' INTEGER NOT NULL)");
@@ -193,8 +191,8 @@ namespace NWN.Systems
       SqLiteUtils.CreateQuery("CREATE TABLE IF NOT EXISTS arenaRewardShop" +
         "('id' INTEGER NOT NULL, 'shop' TEXT NOT NULL, PRIMARY KEY(id))");
 
-      SqLiteUtils.CreateQuery("CREATE TABLE IF NOT EXISTS chatColors" +
-        "('accountId' INTEGER NOT NULL, 'channel' INTEGER NOT NULL, 'color' INTEGER NOT NULL, UNIQUE (accountId, channel))");
+      /*SqLiteUtils.CreateQuery("CREATE TABLE IF NOT EXISTS chatColors" +
+        "('accountId' INTEGER NOT NULL, 'channel' INTEGER NOT NULL, 'color' INTEGER NOT NULL, UNIQUE (accountId, channel))");*/
 
       SqLiteUtils.CreateQuery("CREATE TABLE IF NOT EXISTS messenger" +
         "('characterId' INTEGER NOT NULL, 'senderName' TEXT NOT NULL, 'title' TEXT NOT NULL, 'message', TEXT NOT NULL, 'sentDate' TEXT NOT NULL, 'read' INTEGER NOT NULL)");
@@ -210,9 +208,6 @@ namespace NWN.Systems
 
       SqLiteUtils.CreateQuery("CREATE TABLE IF NOT EXISTS dmVFXDuration" +
         "('playerName' TEXT NOT NULL, 'vfxDuration' INTEGER NOT NULL, PRIMARY KEY(playerName))");
-
-      SqLiteUtils.CreateQuery("CREATE TABLE IF NOT EXISTS playerMutedPM" +
-        "('accountId' INTEGER NOT NULL, 'mutedAccountId' INTEGER NOT NULL)");
 
       SqLiteUtils.CreateQuery("CREATE TABLE IF NOT EXISTS playerAlchemyRecipe" +
         "('characterId' INTEGER NOT NULL, 'recipeName' TEXT NOT NULL, 'serializedRecipe' TEXT NOT NULL, UNIQUE (characterId, recipeName))");
@@ -340,14 +335,14 @@ namespace NWN.Systems
     public void RestorePlayerCorpseFromDatabase()
     {
       var result = SqLiteUtils.SelectQuery("playerDeathCorpses",
-        new List<string>() { { "deathCorpse" }, { "areaTag" }, { "position" }, { "characterId" } },
+        new List<string>() { { "deathCorpse" }, { "location" }, { "characterId" } },
         new List<string[]>() );
 
       foreach (var pcCorpse in result.Results)
       {
         NwCreature corpse = NwCreature.Deserialize(pcCorpse.GetString(0).ToByteArray());
-        corpse.Location = Utils.GetLocationFromDatabase(pcCorpse.GetString(1), pcCorpse.GetString(2), 0);
-        corpse.GetObjectVariable<LocalVariableInt>("_PC_ID").Value = pcCorpse.GetInt(3);
+        corpse.Location = SqLiteUtils.DeserializeLocation(pcCorpse.GetString(1));
+        corpse.GetObjectVariable<LocalVariableInt>("_PC_ID").Value = pcCorpse.GetInt(2);
 
         foreach (NwItem item in corpse.Inventory.Items.Where(i => i.Tag != "item_pccorpse"))
           item.Destroy();
