@@ -478,7 +478,7 @@ namespace NWN
         DataBaseLocation dbLocation = JsonSerializer.Deserialize<DataBaseLocation>(serializedLocation);
         return Location.Create(NwModule.Instance.Areas.FirstOrDefault(a => a.Tag == dbLocation.areaTag), new Vector3(dbLocation.X, dbLocation.Y, dbLocation.Z), dbLocation.facing);
       }
-      catch (Exception e)
+      catch (Exception)
       {
         Utils.LogMessageToDMs($"unable to deserialize location : {serializedLocation}");
         return NwModule.Instance.StartingLocation;

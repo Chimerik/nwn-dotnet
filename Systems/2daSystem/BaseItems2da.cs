@@ -53,17 +53,21 @@ namespace NWN.Systems
       bool isMeleeWeapon = damageDice > 0 && range == 0 ? isMeleeWeapon = true : isMeleeWeapon = false;
       int damageType = int.TryParse(twoDimEntry("WeaponType"), out damageType) ? damageType : 0;
       int weaponSize = int.TryParse(twoDimEntry("WeaponSize"), out damageType) ? damageType : 0;
+      int modelType = int.TryParse(twoDimEntry("ModelType"), out modelType) ? modelType : -1;
+      string defaultIcon = twoDimEntry("DefaultIcon");
 
-      entries.Add((BaseItemType)rowIndex, new Entry(name, description, numDamageDice, damageDice, baseCost, workshop, craftedItem, IsEquippable, isWeapon, isRangedWeapon, isMeleeWeapon, damageType, weaponSize));
+      entries.Add((BaseItemType)rowIndex, new Entry(name, description, numDamageDice, damageDice, baseCost, workshop, craftedItem, IsEquippable, isWeapon, isRangedWeapon, isMeleeWeapon, damageType, weaponSize, modelType, defaultIcon));
     }
     public readonly struct Entry
     {
       public readonly string name;
       public readonly string description;
+      public readonly string defaultIcon;
       public readonly int numDamageDice;
       public readonly int damageDice;
       public readonly int damageType;
       public readonly int weaponSize;
+      public readonly int modelType;
       public readonly float baseCost;
       public readonly string workshop;
       public readonly string craftedItem;
@@ -72,7 +76,7 @@ namespace NWN.Systems
       public readonly bool IsRangedWeapon;
       public readonly bool IsMeleeWeapon;
 
-      public Entry(string name, string description, int numDamageDice, int damageDice, float baseCost, string workshop, string craftedItem, bool IsEquippable, bool IsWeapon, bool IsRangedWeapon, bool IsMeleeWeapon, int damageType, int weaponSize)
+      public Entry(string name, string description, int numDamageDice, int damageDice, float baseCost, string workshop, string craftedItem, bool IsEquippable, bool IsWeapon, bool IsRangedWeapon, bool IsMeleeWeapon, int damageType, int weaponSize, int modelType, string defaultIcon)
       {
         this.name = name;
         this.description = description;
@@ -87,6 +91,8 @@ namespace NWN.Systems
         this.IsRangedWeapon = IsRangedWeapon;
         this.damageType = damageType;
         this.weaponSize = weaponSize;
+        this.modelType = modelType;
+        this.defaultIcon = defaultIcon;
       }
     }
   }

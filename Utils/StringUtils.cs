@@ -82,5 +82,20 @@ namespace NWN
           return "";
       }
     }
+    public async static Task<string> SerializeObjectToJsonString(List<string> openedWindows)
+    {
+      using (var stream = new MemoryStream())
+      {
+        if (openedWindows.Count > 0)
+        {
+          await JsonSerializer.SerializeAsync(stream, openedWindows);
+          stream.Position = 0;
+          using var reader = new StreamReader(stream);
+          return await reader.ReadToEndAsync();
+        }
+        else
+          return "";
+      }
+    }
   }
 }

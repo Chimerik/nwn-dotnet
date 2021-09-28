@@ -16,17 +16,20 @@ namespace NWN.Systems
     {
       int spell = int.TryParse(twoDimEntry("SpellIndex"), out spell) ? spell : 0;
       float innateLevel = float.TryParse(twoDimEntry("InnateLvl"), out innateLevel) ? innateLevel : 0;
-      entries.Add(rowIndex, new Entry((Spell)spell, (byte)innateLevel));
+      string icon = twoDimEntry("Icon");
+      entries.Add(rowIndex, new Entry((Spell)spell, (byte)innateLevel, icon));
     }
     public readonly struct Entry
     {
       public readonly Spell spell;
       public readonly byte innateLevel;
+      public readonly string icon;
 
-      public Entry(Spell spell, byte innateLevel)
+      public Entry(Spell spell, byte innateLevel, string icon)
       {
         this.spell = spell;
         this.innateLevel = innateLevel;
+        this.icon = icon;
       }
     }
   }

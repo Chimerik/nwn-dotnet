@@ -1,18 +1,20 @@
 ﻿using System.Linq;
 using Anvil.API;
 using Anvil.API.Events;
+using Anvil.Services;
 
 namespace NWN.Systems
 {
-  static class Frog
+  public partial class SpellSystem
   {
-    public static void ApplyFrogEffectToTarget(NwCreature oTarget)
+    public static ScriptHandleResult ApplyFrogEffectToTarget(CallInfo _)
     {
+      EffectRunScriptEvent eventData = new EffectRunScriptEvent();
+
+      if (!(eventData.EffectTarget is NwCreature oTarget) || oTarget.GetObjectVariable<LocalVariableFloat>("CUSTOM_EFFECT_FROG").HasValue)
+        return ScriptHandleResult.Handled;
+
       oTarget.ApplyEffect(EffectDuration.Instant, Effect.VisualEffect(VfxType.ImpPolymorph));
-
-      if (oTarget.GetObjectVariable<LocalVariableFloat>("CUSTOM_EFFECT_FROG").HasValue)
-        return;
-
       oTarget.GetObjectVariable<LocalVariableInt>("CUSTOM_EFFECT_FROG").Value = (int)oTarget.CreatureAppearanceType;
 
       oTarget.CreatureAppearanceType = (AppearanceType)6396;
@@ -22,17 +24,29 @@ namespace NWN.Systems
       oTarget.OnCreatureDamage += FrogMalus;
       oTarget.OnSpellCastAt += FrogMalusCure;
       oTarget.OnSpellCast += FrogSpellMalus;
+      
+      return ScriptHandleResult.Handled;
     }
-    public static void RemoveFrogEffectFromTarget(NwCreature oTarget)
+    public static ScriptHandleResult RemoveFrogEffectFromTarget(CallInfo _)
     {
+      EffectRunScriptEvent eventData = new EffectRunScriptEvent();
+
+      if (!(eventData.EffectTarget is NwCreature oTarget))
+        return ScriptHandleResult.Handled;
+
       oTarget.ApplyEffect(EffectDuration.Instant, Effect.VisualEffect(VfxType.ImpPolymorph));
 
       if (oTarget.GetObjectVariable<LocalVariableInt>("CUSTOM_EFFECT_FROG").HasValue)
+      {
         oTarget.CreatureAppearanceType = (AppearanceType)oTarget.GetObjectVariable<LocalVariableInt>("CUSTOM_EFFECT_FROG").Value;
+        oTarget.GetObjectVariable<LocalVariableInt>("CUSTOM_EFFECT_FROG").Delete();
+      }
 
       oTarget.OnCreatureDamage -= FrogMalus;
       oTarget.OnSpellCastAt -= FrogMalusCure;
       oTarget.OnSpellCast -= FrogSpellMalus;
+
+      return ScriptHandleResult.Handled;
     }
     private static void FrogMalusCure(CreatureEvents.OnSpellCastAt onSpellCastAt)
     {

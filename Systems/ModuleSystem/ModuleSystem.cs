@@ -1,5 +1,4 @@
-﻿using Discord;
-using Google.Cloud.Translation.V2;
+﻿using Google.Cloud.Translation.V2;
 using NLog;
 using Anvil.API;
 using Anvil.API.Events;
@@ -22,8 +21,11 @@ namespace NWN.Systems
     public static readonly Logger Log = LogManager.GetCurrentClassLogger();
     public static readonly TranslationClient googleTranslationClient = TranslationClient.Create();
     public static Dictionary<string, GoldBalance> goldBalanceMonitoring = new Dictionary<string, GoldBalance>();
-    public ModuleSystem()
+    public static SchedulerService scheduler;
+    public ModuleSystem(SchedulerService schedulerService)
     {
+      scheduler = schedulerService;
+
       LoadDiscordBot();
       CreateDatabase();
       InitializeEvents();
@@ -47,7 +49,8 @@ namespace NWN.Systems
       NwModule.Instance.GetObjectVariable<LocalVariableString>("X2_S_UD_SPELLSCRIPT").Value = "spellhook";
 
       NwModule.Instance.SetEventScript((EventScriptType)NWScript.EVENT_SCRIPT_MODULE_ON_PLAYER_GUIEVENT, "on_gui_event");
-      NwModule.Instance.SetEventScript((EventScriptType)NWScript.EVENT_SCRIPT_MODULE_ON_PLAYER_TILE_ACTION, "on_tile_action");
+      NwModule.Instance.SetEventScript((EventScriptType)NWScript.EVENT_SCRIPT_MODULE_ON_NUI_EVENT, "on_nui_event");
+        NwModule.Instance.SetEventScript((EventScriptType)NWScript.EVENT_SCRIPT_MODULE_ON_PLAYER_TILE_ACTION, "on_tile_action");
 
       NwServer.Instance.ServerInfo.PlayOptions.RestoreSpellUses = false;
       NwServer.Instance.ServerInfo.PlayOptions.ShowDMJoinMessage = false;
@@ -55,15 +58,17 @@ namespace NWN.Systems
       ItemSystem.feedbackService.AddCombatLogMessageFilter(CombatLogMessage.ComplexAttack);
 
       SetModuleTime();
-      SaveServerVault();  
       
       RestorePlayerCorpseFromDatabase();
       RestorePlayerShopsFromDatabase();
       RestorePlayerAuctionsFromDatabase();
       RestoreDMPersistentPlaceableFromDatabase();
 
-      Task spawnResources = SpawnCollectableResources(1);
-      Task deleteExpiredMail = DeleteExpiredMail();
+      TimeSpan nextActivation = DateTime.Now.Hour < 5 ? new DateTime(DateTime.Now.Year, DateTime.Now.Month, DateTime.Now.Day, 5, 0, 0) - DateTime.Now : new DateTime(DateTime.Now.Year, DateTime.Now.Month, DateTime.Now.Day + 1, 5, 0, 0) - DateTime.Now;
+
+      scheduler.ScheduleRepeating(SaveGameDate, TimeSpan.FromMinutes(1));
+      scheduler.ScheduleRepeating(SpawnCollectableResources, TimeSpan.FromHours(24), nextActivation);
+      scheduler.ScheduleRepeating(DeleteExpiredMail, TimeSpan.FromHours(24), nextActivation);
 
       //TempLearnablesJsonification();
     }
@@ -129,12 +134,12 @@ namespace NWN.Systems
         "('year' INTEGER NOT NULL, 'month' INTEGER NOT NULL, 'day' INTEGER NOT NULL, 'hour' INTEGER NOT NULL, 'minute' INTEGER NOT NULL, 'second' INTEGER NOT NULL)");
 
       SqLiteUtils.CreateQuery("CREATE TABLE IF NOT EXISTS PlayerAccounts" +
-        "('accountName' TEXT NOT NULL, 'cdKey' TEXT, 'bonusRolePlay' INTEGER NOT NULL, 'discordId' TEXT, 'rank' TEXT, 'mapPins' TEXT, 'chatColors' TEXT, 'mutedPlayers' TEXT)");
+        "('accountName' TEXT NOT NULL, 'cdKey' TEXT, 'bonusRolePlay' INTEGER NOT NULL, 'discordId' TEXT, 'rank' TEXT, 'mapPins' TEXT, 'chatColors' TEXT, 'mutedPlayers' TEXT, 'windowRectangles' TEXT)");
 
       SqLiteUtils.CreateQuery("CREATE TABLE IF NOT EXISTS playerCharacters" +
         "('accountId' INTEGER NOT NULL, 'characterName' TEXT NOT NULL, 'dateLastSaved' TEXT NOT NULL, 'previousSPCalculation' TEXT, 'serializedLearnables' TEXT," +
         "'currentCraftJobRemainingTime' REAL, 'currentCraftJob' INTEGER NOT NULL, 'currentCraftObject' TEXT NOT NULL," +
-        "'currentCraftJobMaterial' TEXT, 'location' TEXT," +
+        "'currentCraftJobMaterial' TEXT, 'location' TEXT, 'openedWindows' TEXT," +
         "'currentHP' INTEGER, 'bankGold' INTEGER, 'pveArenaCurrentPoints' INTEGER, 'menuOriginTop' INTEGER, 'menuOriginLeft' INTEGER, 'storage' TEXT, 'alchemyCauldron' TEXT, 'explorationState' TEXT)");
 
       SqLiteUtils.CreateQuery("CREATE TABLE IF NOT EXISTS playerMaterialStorage" +
@@ -271,66 +276,11 @@ namespace NWN.Systems
           new List<string[]>() { new string[] { "year", NwDateTime.Now.Year.ToString() }, new string[] { "month", NwDateTime.Now.Month.ToString() }, new string[] { "day", NwDateTime.Now.DayInTenday.ToString() }, new string[] { "hour", NwDateTime.Now.Hour.ToString() }, new string[] { "minute", NwDateTime.Now.Minute.ToString() }, new string[] { "second", NwDateTime.Now.Second.ToString() } });
       }
     }
-    public static async Task SpawnCollectableResources(float delay)
-    {
-      if (delay > 0)
-        await NwTask.WaitUntil(() => DateTime.Now.Hour == 5);
-
-      Log.Info("Starting to spawn collectable ressources");
-
-      foreach (NwWaypoint ressourcePoint in NwModule.FindObjectsWithTag<NwWaypoint>(new string[] { "ore_spawn_wp", "wood_spawn_wp" }).Where(l => l.Area.GetObjectVariable<LocalVariableInt>("_AREA_LEVEL").Value > 1))
-      {
-        int areaLevel = ressourcePoint.Area.GetObjectVariable<LocalVariableInt>("_AREA_LEVEL").Value;
-        if (NwRandom.Roll(Utils.random, 100) >= (areaLevel * 20) - 20)
-        {
-          string resRef = "";
-          string name = "";
-
-          switch (ressourcePoint.Tag)
-          {
-            case "ore_spawn_wp":
-              resRef = "mineable_rock";
-              name = Enum.GetName(typeof(OreType), GetRandomOreSpawnFromAreaLevel(areaLevel));
-              break;
-            case "wood_spawn_wp":
-              resRef = "mineable_tree";
-              name = Enum.GetName(typeof(WoodType), GetRandomOreSpawnFromAreaLevel(areaLevel));
-              break;
-          }
-
-          var newRock = NwPlaceable.Create(resRef, ressourcePoint.Location);
-          newRock.Name = name;
-          newRock.GetObjectVariable<LocalVariableInt>("_ORE_AMOUNT").Value = 50 * NwRandom.Roll(Utils.random, 100);
-          ressourcePoint.Destroy();
-
-          Log.Info($"REFILL - {ressourcePoint.Area.Name} - {ressourcePoint.Name}");
-        }
-      }
-
-      foreach (NwArea area in NwModule.Instance.Areas.Where(l => l.GetObjectVariable<LocalVariableInt>("_AREA_LEVEL").Value > 1))
-      {
-        int areaLevel = area.GetObjectVariable<LocalVariableInt>("_AREA_LEVEL").Value;
-
-        SqLiteUtils.InsertQuery("areaResourceStock",
-          new List<string[]>() { new string[] { "areaTag", area.Tag }, new string[] { "mining", (areaLevel * 2).ToString() }, new string[] { "wood", (areaLevel * 2).ToString() }, new string[] { "animals", (areaLevel * 2).ToString() } },
-          new List<string>() { "areaTag" },
-          new List<string[]>() { new string[] { "mining" }, new string[] { "wood" }, new string[] { "animals" } });
-      }
-
-      await NwTask.WaitUntilValueChanged(() => DateTime.Now.Day);
-      await SpawnCollectableResources(1);
-    }
-    private async void SaveServerVault()
+    private void SaveGameDate()
     {
       SqLiteUtils.UpdateQuery("moduleInfo",
         new List<string[]>() { new string[] { "year", NwDateTime.Now.Year.ToString() }, { new string[] { "month", NwDateTime.Now.Month.ToString() } }, { new string[] { "day", NwDateTime.Now.DayInTenday.ToString() } }, { new string[] { "hour", NwDateTime.Now.Hour.ToString() } }, { new string[] { "minute", NwDateTime.Now.Minute.ToString() } }, { new string[] { "second", NwDateTime.Now.Second.ToString() } } },
         new List<string[]>() { new string[] { "ROWID", "1" } });
-
-      HandleExpiredAuctions();
-
-      await Bot._client.DownloadUsersAsync(new List<IGuild> { { Bot._client.GetGuild(680072044364562528) } });
-      await NwTask.Delay(TimeSpan.FromMinutes(10));
-      SaveServerVault();     
     }
     public void RestorePlayerCorpseFromDatabase()
     {
@@ -550,17 +500,53 @@ namespace NWN.Systems
       foreach (var plc in result.Results)
         SqLiteUtils.PlaceableSerializationFormatProtection(plc, 0, Utils.GetLocationFromDatabase(plc.GetString(1), plc.GetString(2), plc.GetFloat(3)));
     }
-    public static async Task DeleteExpiredMail()
+    public static void SpawnCollectableResources()
     {
-      await NwTask.WaitUntil(() => DateTime.Now.Hour == 5);
+      Log.Info("Starting to spawn collectable ressources");
 
-      Log.Info("Deleting expired mails");
+      foreach (NwWaypoint ressourcePoint in NwModule.FindObjectsWithTag<NwWaypoint>(new string[] { "ore_spawn_wp", "wood_spawn_wp" }).Where(l => l.Area.GetObjectVariable<LocalVariableInt>("_AREA_LEVEL").Value > 1))
+      {
+        int areaLevel = ressourcePoint.Area.GetObjectVariable<LocalVariableInt>("_AREA_LEVEL").Value;
+        if (NwRandom.Roll(Utils.random, 100) >= (areaLevel * 20) - 20)
+        {
+          string resRef = "";
+          string name = "";
 
+          switch (ressourcePoint.Tag)
+          {
+            case "ore_spawn_wp":
+              resRef = "mineable_rock";
+              name = Enum.GetName(typeof(OreType), GetRandomOreSpawnFromAreaLevel(areaLevel));
+              break;
+            case "wood_spawn_wp":
+              resRef = "mineable_tree";
+              name = Enum.GetName(typeof(WoodType), GetRandomOreSpawnFromAreaLevel(areaLevel));
+              break;
+          }
+
+          var newRock = NwPlaceable.Create(resRef, ressourcePoint.Location);
+          newRock.Name = name;
+          newRock.GetObjectVariable<LocalVariableInt>("_ORE_AMOUNT").Value = 50 * NwRandom.Roll(Utils.random, 100);
+          ressourcePoint.Destroy();
+
+          Log.Info($"REFILL - {ressourcePoint.Area.Name} - {ressourcePoint.Name}");
+        }
+      }
+
+      foreach (NwArea area in NwModule.Instance.Areas.Where(l => l.GetObjectVariable<LocalVariableInt>("_AREA_LEVEL").Value > 1))
+      {
+        int areaLevel = area.GetObjectVariable<LocalVariableInt>("_AREA_LEVEL").Value;
+
+        SqLiteUtils.InsertQuery("areaResourceStock",
+          new List<string[]>() { new string[] { "areaTag", area.Tag }, new string[] { "mining", (areaLevel * 2).ToString() }, new string[] { "wood", (areaLevel * 2).ToString() }, new string[] { "animals", (areaLevel * 2).ToString() } },
+          new List<string>() { "areaTag" },
+          new List<string[]>() { new string[] { "mining" }, new string[] { "wood" }, new string[] { "animals" } });
+      }
+    }
+    public void DeleteExpiredMail()
+    {
       SqLiteUtils.DeletionQuery("messenger",
           new Dictionary<string, string>() { { "expirationDate", DateTime.Now.AddDays(30).ToLongDateString() } }, ">");
-
-      await NwTask.WaitUntilValueChanged(() => DateTime.Now.Day);
-      await DeleteExpiredMail();
     }
   }
 }

@@ -12,7 +12,7 @@ namespace NWN.Systems
   public class Learnable
   {
     public readonly int id;
-    public readonly Feat featId;
+    public readonly Feat featId; // inutile ?
     public readonly Spell spellId;
     public readonly LearnableType type;
     public double acquiredPoints { get; set; }

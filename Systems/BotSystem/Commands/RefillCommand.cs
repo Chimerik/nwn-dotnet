@@ -18,7 +18,7 @@ namespace NWN.Systems
 
       await NwTask.SwitchToMainThread();
 
-      await ModuleSystem.SpawnCollectableResources(0.0f);
+      ModuleSystem.SpawnCollectableResources();
       await context.Channel.SendMessageAsync("Refill terminé");
     }
   }

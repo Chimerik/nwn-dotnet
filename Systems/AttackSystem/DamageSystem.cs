@@ -38,11 +38,14 @@ namespace NWN.Systems
         return;
       }
 
-      if (onDamage.Target.GetObjectVariable<LocalVariableInt>($"_DAMAGE_HANDLED_FROM_{onDamage.DamagedBy}").HasValue)
+      if (onDamage.DamageData.Base > -1) // S'il ne s'agit pas d'un sort, alors le calcul des dégâts a déjà été traité lors de l'event d'attaque
+        return;
+
+      /*if (onDamage.Target.GetObjectVariable<LocalVariableInt>($"_DAMAGE_HANDLED_FROM_{onDamage.DamagedBy}").HasValue)
       {
         onDamage.Target.GetObjectVariable<LocalVariableInt>($"_DAMAGE_HANDLED_FROM_{onDamage.DamagedBy}").Delete();
         return;
-      }
+      }*/
 
       if (!(onDamage.Target is NwCreature oTarget))
         return;

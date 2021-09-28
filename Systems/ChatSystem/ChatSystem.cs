@@ -42,6 +42,8 @@ namespace NWN.Systems
 
       chatReceivers.Clear();
 
+      Log.Info($"target 1 : {onChat.Target}");
+
       pipeline.Execute(new Context(
         msg: onChat.Message,
         oSender: oSender.ControllingPlayer,
@@ -126,6 +128,7 @@ namespace NWN.Systems
     }
     public static void HandlePM(Context ctx)
     {
+      Log.Info($" target : {ctx.oTarget}");
       if (ctx.oTarget != null)
       {
         /*if (ctx.oTarget.GetLocalVariable<NwObject>("_POSSESSING").HasValue)
@@ -139,7 +142,7 @@ namespace NWN.Systems
       else
       {
         ctx.onChat.Skip = true;
-        ctx.oSender.SendServerMessage("La personne à laquelle vous tentez d'envoyer un message n'est plus connectée.", ColorConstants.Orange);
+        ctx.oSender.SendServerMessage("La personne à laquelle vous tentez d'envoyer un message n'est pas connectée.", ColorConstants.Orange);
         return;
       }
     }
@@ -228,7 +231,7 @@ namespace NWN.Systems
       foreach (KeyValuePair<NwPlayer, string> chatReceiver in chatReceivers)
       {
         ctx.onChat.Skip = true;
-
+        
         if (!PlayerSystem.Players.TryGetValue(chatReceiver.Key.LoginCreature, out PlayerSystem.Player player))
         {
           chatService.SendMessage(ctx.channel, chatReceiver.Value, ctx.oSender.ControlledCreature, chatReceiver.Key);

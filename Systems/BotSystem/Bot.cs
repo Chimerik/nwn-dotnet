@@ -37,6 +37,9 @@ namespace NWN.Systems
       // Setup your DI container.
       _services = ConfigureServices();
 
+      var cfg = new DiscordSocketConfig();
+      cfg.GatewayIntents |= GatewayIntents.GuildMembers;
+
       // Centralize the logic for commands into a separate method.
       await InitCommands();
 
@@ -44,6 +47,9 @@ namespace NWN.Systems
 
       await _client.LoginAsync(TokenType.Bot, token);
       await _client.StartAsync();
+
+      _client.UserJoined += UpdateUserList;
+      _client.UserLeft += UpdateUserList;
 
       await Task.Delay(TimeSpan.FromSeconds(5));
 
@@ -152,6 +158,11 @@ namespace NWN.Systems
           }
         }
       }
+    }
+
+    private static async Task UpdateUserList(SocketGuildUser data)
+    {
+      await _client.DownloadUsersAsync(new List<IGuild> { { _client.GetGuild(680072044364562528) } });
     }
   }
 }

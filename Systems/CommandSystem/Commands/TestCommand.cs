@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Linq;
-using Newtonsoft.Json;
 
 using Anvil.API;
 using Anvil.API.Events;
@@ -12,12 +11,13 @@ using NWN.Core;
 using Microsoft.Data.Sqlite;
 using System.Collections.Generic;
 using NWN.Systems.Alchemy;
+using Newtonsoft.Json;
 
 namespace NWN.Systems
 {
   public static partial class CommandSystem
   {
-    private static async void ExecuteTestCommand(ChatSystem.Context ctx, Options.Result options)
+    private static void ExecuteTestCommand(ChatSystem.Context ctx, Options.Result options)
     {
       if (PlayerSystem.Players.TryGetValue(ctx.oSender.LoginCreature, out PlayerSystem.Player player))
       {
@@ -26,11 +26,20 @@ namespace NWN.Systems
 
         if (player.oid.PlayerName == "Chim")
         {
+         //player.CreateLearnablesWindow();
 
-          PlayerSystem.cursorTargetService.EnterTargetMode(player.oid, OnTargetSelected, ObjectTypes.All, MouseCursor.Pickup);
+          player.CreateQuickLootWindow(player.oid.ControlledCreature.Area.FindObjectsOfTypeInArea<NwItem>().FirstOrDefault(i => i.Possessor is null && i.DistanceSquared(player.oid.ControlledCreature) < 25));
+
+          //ChatSystem.chatService.SendMessage(Anvil.Services.ChatChannel.PlayerTell, "test", player.oid.ControlledCreature, player.oid);
+          //player.CreateChatWindow();
+
+          //SpellSystem.ApplyCustomEffectToTarget(SpellSystem.frog, player.oid.LoginCreature, TimeSpan.FromSeconds(10));
+
+          //PlayerSystem.cursorTargetService.EnterTargetMode(player.oid, OnTargetSelected, ObjectTypes.All, MouseCursor.Pickup);
         }
       }
-    }    
+    }
+
     private static void OnTargetSelected(ModuleEvents.OnPlayerTarget selection)
     {
       if (selection.IsCancelled)

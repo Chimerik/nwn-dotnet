@@ -28,7 +28,7 @@ namespace NWN.Systems.Arena
 
     public static Dictionary<uint, ArenaMalus> arenaMalusDictionary = new Dictionary<uint, ArenaMalus>()
     {
-      { 1, new ArenaMalus("Sorts de soins interdits", 3.01, ApplyNoHealingSpellMalus) },
+      /*{ 1, new ArenaMalus("Sorts de soins interdits", 3.01, ApplyNoHealingSpellMalus) },
       { 2, new ArenaMalus("Invocations interdites", 2.99, ApplyNoSummonsMalus) },
       { 3, new ArenaMalus("Magie offensive interdite", 2.89, ApplyNoOffensiveSpellsMalus) },
       { 4, new ArenaMalus("Magie défensive interdite", 3.14, ApplyNoBuffsMalus) },
@@ -47,76 +47,76 @@ namespace NWN.Systems.Arena
       { 17, new ArenaMalus("1/2 HP + Echec des sorts", 2.73, ApplyHealthHalvedAndSpellFailureMalus) },
       { 18, new ArenaMalus("Dissipation", 2.56, ApplyDissipationMalus) },
       { 19, new ArenaMalus("Chance", 0, ApplyNoMalus) },
-      { 20, new ArenaMalus("Soins", 1, ApplyNoMalusAndHeal) },
+      { 20, new ArenaMalus("Soins", 1, ApplyNoMalusAndHeal) }*/
     };
 
-    private static void ApplyNoMagicMalus(PlayerSystem.Player player)
+    /*private static void ApplyNoMagicMalus(PlayerSystem.Player player)
     {
-      SpellUtils.ApplyCustomEffectToTarget(player.oid.LoginCreature, "CUSTOM_EFFECT_NOMAGIC", "nomagic_on", "nomagic_off", 51);
+      SpellUtils.ApplyCustomEffectToTarget(player.oid.LoginCreature, "CUSTOM_EFFECT_NOMAGIC", "nomagic_on", "nomagic_off", EffectIcon.Silence);
       RemoveArenaMalus(player, "CUSTOM_EFFECT_NOMAGIC", "L'interdiction d'usage de sorts a été levée.");
     }
     private static void ApplyNoHealingSpellMalus(PlayerSystem.Player player)
     {
-      SpellUtils.ApplyCustomEffectToTarget(player.oid.LoginCreature, "CUSTOM_EFFECT_NOHEALMAGIC", "noheal_on", "noheal_off", 51);
+      SpellUtils.ApplyCustomEffectToTarget(player.oid.LoginCreature, "CUSTOM_EFFECT_NOHEALMAGIC", "noheal_on", "noheal_off", EffectIcon.Wounding);
       RemoveArenaMalus(player, "CUSTOM_EFFECT_NOHEALMAGIC", "L'interdiction d'usage de magie curative a été levée.");
     }
 
     private static void ApplyNoSummonsMalus(PlayerSystem.Player player)
     {
-      SpellUtils.ApplyCustomEffectToTarget(player.oid.LoginCreature, "CUSTOM_EFFECT_NOSUMMON", "nosummon_on", "nosummon_off", 51);
+      SpellUtils.ApplyCustomEffectToTarget(player.oid.LoginCreature, "CUSTOM_EFFECT_NOSUMMON", "nosummon_on", "nosummon_off", EffectIcon.Fatigue);
       RemoveArenaMalus(player, "CUSTOM_EFFECT_NOSUMMON", "L'interdiction d'usage d'invocations a été levée.");
     }
     private static void ApplyNoOffensiveSpellsMalus(PlayerSystem.Player player)
     {
-      SpellUtils.ApplyCustomEffectToTarget(player.oid.LoginCreature, "CUSTOM_EFFECT_NOOFFENSIVEMAGIC", "nooffmagic_on", "nooffmagic_off", 51);
+      SpellUtils.ApplyCustomEffectToTarget(player.oid.LoginCreature, "CUSTOM_EFFECT_NOOFFENSIVEMAGIC", "nooffmagic_on", "nooffmagic_off", EffectIcon.Silence);
       RemoveArenaMalus(player, "CUSTOM_EFFECT_NOOFFENSIVEMAGIC", "L'interdiction d'usage de magie offensive a été levée.");
     }
     private static void ApplyNoBuffsMalus(PlayerSystem.Player player)
     {
-      SpellUtils.ApplyCustomEffectToTarget(player.oid.LoginCreature, "CUSTOM_EFFECT_NOBUFF", "nobuff_on", "nobuff_off", 51);
+      SpellUtils.ApplyCustomEffectToTarget(player.oid.LoginCreature, "CUSTOM_EFFECT_NOBUFF", "nobuff_on", "nobuff_off", EffectIcon.Silence);
       RemoveArenaMalus(player, "CUSTOM_EFFECT_NOBUFF", "L'interdiction d'usage de magie défensive a été levée.");
     }
     
     private static void ApplyNoArmorMalus(PlayerSystem.Player player)
     {
-      SpellUtils.ApplyCustomEffectToTarget(player.oid.LoginCreature, "CUSTOM_EFFECT_NOARMOR", "noarmor_on", "noarmor_off", 109);
+      SpellUtils.ApplyCustomEffectToTarget(player.oid.LoginCreature, "CUSTOM_EFFECT_NOARMOR", "noarmor_on", "noarmor_off", EffectIcon.Fatigue);
       RemoveArenaMalus(player, "CUSTOM_EFFECT_NOARMOR", "L'interdiction de port d'armure a été levée.");
     }
     private static void ApplyNoWeaponsMalus(PlayerSystem.Player player)
     {
-      SpellUtils.ApplyCustomEffectToTarget(player.oid.LoginCreature, "CUSTOM_EFFECT_NOWEAPON", "noweapon_on", "noweapon_off", 109);
+      SpellUtils.ApplyCustomEffectToTarget(player.oid.LoginCreature, "CUSTOM_EFFECT_NOWEAPON", "noweapon_on", "noweapon_off", EffectIcon.Fatigue);
       RemoveArenaMalus(player, "CUSTOM_EFFECT_NOWEAPON", "L'interdiction de port d'arme a été levée.");
     }
     private static void ApplyNoAccessoriesMalus(PlayerSystem.Player player)
     {
-      SpellUtils.ApplyCustomEffectToTarget(player.oid.LoginCreature, "CUSTOM_EFFECT_NOACCESSORY", "noaccess_on", "noaccess_off", 109);
+      SpellUtils.ApplyCustomEffectToTarget(player.oid.LoginCreature, "CUSTOM_EFFECT_NOACCESSORY", "noaccess_on", "noaccess_off", EffectIcon.Fatigue);
       RemoveArenaMalus(player, "CUSTOM_EFFECT_NOACCESSORY", "L'interdiction de port d'accessoire a été levée.");
     }
     private static void ApplyNoUseableItemMalus(PlayerSystem.Player player)
     {
-      SpellUtils.ApplyCustomEffectToTarget(player.oid.LoginCreature, "CUSTOM_EFFECT_NOUSEABLEITEM", "noitem_on", "noitem_off", 51);
+      SpellUtils.ApplyCustomEffectToTarget(player.oid.LoginCreature, "CUSTOM_EFFECT_NOUSEABLEITEM", "noitem_on", "noitem_off", EffectIcon.Fatigue);
       RemoveArenaMalus(player, "CUSTOM_EFFECT_NOUSEABLEITEM", "L'interdiction de l'utilisation d'objets a été levée.");
     }
     private static void ApplySlowMalus(PlayerSystem.Player player)
     {
-      SpellUtils.ApplyCustomEffectToTarget(player.oid.LoginCreature, "CUSTOM_EFFECT_SLOW", "slow_on", "slow_off", 51);
+      SpellUtils.ApplyCustomEffectToTarget(player.oid.LoginCreature, "CUSTOM_EFFECT_SLOW", "slow_on", "slow_off", EffectIcon.Slow);
       RemoveArenaMalus(player, "CUSTOM_EFFECT_SLOW", "Le handicap de ralentissement a été levé.");
     }
     private static void ApplyMiniMalus(PlayerSystem.Player player)
     {
-      SpellUtils.ApplyCustomEffectToTarget(player.oid.LoginCreature, "CUSTOM_EFFECT_MINI", "mini_on", "mini_off", 51);
+      SpellUtils.ApplyCustomEffectToTarget(player.oid.LoginCreature, "CUSTOM_EFFECT_MINI", "mini_on", "mini_off", EffectIcon.Curse);
       RemoveArenaMalus(player, "CUSTOM_EFFECT_MINI", "Le handicap de miniaturisation a été levé.");
     }
     
     private static void ApplyFrogMalus(PlayerSystem.Player player)
     {
-      SpellUtils.ApplyCustomEffectToTarget(player.oid.LoginCreature, "CUSTOM_EFFECT_FROG", "frog_on", "frog_off", 51);
+      SpellUtils.ApplyCustomEffectToTarget(player.oid.LoginCreature, "CUSTOM_EFFECT_FROG", Frog.ApplyFrogEffectToTarget, Frog.RemoveFrogEffectFromTarget, EffectIcon.Curse);
       RemoveArenaMalus(player, "CUSTOM_EFFECT_FROG", "Le handicap de métamorphose a été levé.");
     }
     
     private static void ApplyPoisonMalus(PlayerSystem.Player player)
     {
-      SpellUtils.ApplyCustomEffectToTarget(player.oid.LoginCreature, "CUSTOM_EFFECT_POISON", "poison_on", "poison_off", 20);
+      SpellUtils.ApplyCustomEffectToTarget(player.oid.LoginCreature, "CUSTOM_EFFECT_POISON", "poison_on", "poison_off", EffectIcon.Poison);
       RemoveArenaMalus(player, "CUSTOM_EFFECT_POISON", "Le handicap d'empoisonnement a été levé.");
     }
     public static void ApplyTimeX5DamageMalus(PlayerSystem.Player player)
@@ -128,21 +128,21 @@ namespace NWN.Systems.Arena
     }
     private static void ApplyHealthHalvedMalus(PlayerSystem.Player player)
     {
-      SpellUtils.ApplyCustomEffectToTarget(player.oid.LoginCreature, "CUSTOM_EFFECT_HALF_HEALTH", "demi_on", "demi_off", 20);
+      SpellUtils.ApplyCustomEffectToTarget(player.oid.LoginCreature, "CUSTOM_EFFECT_HALF_HEALTH", "demi_on", "demi_off", EffectIcon.Fatigue);
       RemoveArenaMalus(player, "CUSTOM_EFFECT_HALF_HEALTH", "Le handicap de résilience a été levé.");
     }
     private static void ApplySpellFailureMalus(PlayerSystem.Player player)
     {
-      SpellUtils.ApplyCustomEffectToTarget(player.oid.LoginCreature, "CUSTOM_EFFECT_SPELL_FAILURE", "sfailure_on", "sfailure_off", 20);
+      SpellUtils.ApplyCustomEffectToTarget(player.oid.LoginCreature, "CUSTOM_EFFECT_SPELL_FAILURE", "sfailure_on", "sfailure_off", EffectIcon.EffectSpellFailure);
       RemoveArenaMalus(player, "CUSTOM_EFFECT_SPELL_FAILURE", "Le handicap d'échec des sorts a été levé.");
     }
     private static void ApplyHealthHalvedAndSpellFailureMalus(PlayerSystem.Player player)
     {
-      SpellUtils.ApplyCustomEffectToTarget(player.oid.LoginCreature, "CUSTOM_EFFECT_HALF_HEALTH", "demi_on", "demi_off", 20);
-      SpellUtils.ApplyCustomEffectToTarget(player.oid.LoginCreature, "CUSTOM_EFFECT_SPELL_FAILURE", "sfailure_on", "sfailure_off", 20);
+      SpellUtils.ApplyCustomEffectToTarget(player.oid.LoginCreature, "CUSTOM_EFFECT_HALF_HEALTH", "demi_on", "demi_off", EffectIcon.Fatigue);
+      SpellUtils.ApplyCustomEffectToTarget(player.oid.LoginCreature, "CUSTOM_EFFECT_SPELL_FAILURE", "sfailure_on", "sfailure_off", EffectIcon.EffectSpellFailure);
       RemoveArenaMalus(player, "CUSTOM_EFFECT_HALF_HEALTH", "Le handicap de résilience a été levé.");
       RemoveArenaMalus(player, "CUSTOM_EFFECT_SPELL_FAILURE", "Le handicap d'échec des sorts a été levé.");
-    }
+    }*/
     private static void ApplyDissipationMalus(PlayerSystem.Player player)
     {
       foreach (NwCreature summon in player.oid.LoginCreature.Henchmen)

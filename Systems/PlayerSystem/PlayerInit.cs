@@ -69,6 +69,7 @@ namespace NWN.Systems
       }
 
       player.InitializePlayerLearnableJobs();
+      player.InitializePlayerOpenedWindows();
 
       if (!player.oid.LoginCreature.KnowsFeat(CustomFeats.Sit))
         player.oid.LoginCreature.AddFeat(CustomFeats.Sit);
@@ -360,7 +361,7 @@ namespace NWN.Systems
       private void InitializePlayerAccount()
       {
         var result = SqLiteUtils.SelectQuery("PlayerAccounts",
-            new List<string>() { { "bonusRolePlay" }, { "mapPins" }, { "chatColors" }, { "mutedPlayers" } },
+            new List<string>() { { "bonusRolePlay" }, { "mapPins" }, { "chatColors" }, { "mutedPlayers" }, { "windowRectangles" } },
             new List<string[]>() { { new string[] { "rowid", accountId.ToString() } } });
 
         if (result.Result != null)
@@ -369,15 +370,17 @@ namespace NWN.Systems
           string serializedMapPins = result.Result.GetString(1);
           string serializedChatColors = result.Result.GetString(2);
           string serializedMutedPlayers = result.Result.GetString(3);
+          string serializedWindowRectangles = result.Result.GetString(4);
           InitializeAccountMapPins(serializedMapPins);
           InitializeAccountChatColors(serializedChatColors);
           InitializeAccountMutedPlayers(serializedMutedPlayers);
+          InitializeAccountWindowRectanglesPlayers(serializedWindowRectangles);
         }
       }
       private void InitializePlayerCharacter()
       {
         var result = SqLiteUtils.SelectQuery("playerCharacters",
-            new List<string>() { { "location" }, { "currentHP" }, { "bankGold" }, { "dateLastSaved" }, { "currentCraftJob" }, { "currentCraftObject" }, { "currentCraftJobRemainingTime" }, { "currentCraftJobMaterial" }, { "menuOriginTop" }, { "menuOriginLeft" }, { "pveArenaCurrentPoints" }, { "alchemyCauldron" }, { "previousSPCalculation" }, { "serializedLearnables" }, { "explorationState" } },
+            new List<string>() { { "location" }, { "currentHP" }, { "bankGold" }, { "dateLastSaved" }, { "currentCraftJob" }, { "currentCraftObject" }, { "currentCraftJobRemainingTime" }, { "currentCraftJobMaterial" }, { "menuOriginTop" }, { "menuOriginLeft" }, { "pveArenaCurrentPoints" }, { "alchemyCauldron" }, { "previousSPCalculation" }, { "serializedLearnables" }, { "explorationState" }, { "openedWindows" } },
             new List<string[]>() { { new string[] { "rowid", characterId.ToString() } } });
 
         if (result.Result == null)
@@ -405,8 +408,9 @@ namespace NWN.Systems
         { }*/
 
         string serializedExploration = result.Result.GetString(14);
+        string serializedOpenedWindows = result.Result.GetString(15);
 
-        InitializePlayerAsync(serializedCauldron, serializedExploration, serializedLearnables);
+        InitializePlayerAsync(serializedCauldron, serializedExploration, serializedLearnables, serializedOpenedWindows);
 
         result = SqLiteUtils.SelectQuery("playerMaterialStorage",
           new List<string>() { { "materialName" }, { "materialStock" } },
@@ -415,7 +419,7 @@ namespace NWN.Systems
         foreach (var material in result.Results)
           materialStock.Add(material.GetString(0), material.GetInt(1));
       }
-      private async void InitializePlayerAsync(string serializedCauldron, string serializedExploration, string serializedLearnables)
+      private async void InitializePlayerAsync(string serializedCauldron, string serializedExploration, string serializedLearnables, string serializedOpenedWindows)
       {
         using (var stream = await StringUtils.GenerateStreamFromString(serializedCauldron))
           try
@@ -429,6 +433,14 @@ namespace NWN.Systems
           try
           {
             areaExplorationStateDictionnary = await JsonSerializer.DeserializeAsync<Dictionary<string, byte[]>>(stream);
+          }
+          catch (Exception)
+          { }
+
+        using (var stream = await StringUtils.GenerateStreamFromString(serializedOpenedWindows))
+          try
+          {
+            openedWindows = await JsonSerializer.DeserializeAsync<List<string>>(stream);
           }
           catch (Exception)
           { }
@@ -539,6 +551,18 @@ namespace NWN.Systems
           try
           {
             mutedList = await JsonSerializer.DeserializeAsync<List<int>>(stream);
+          }
+          catch (Exception)
+          {
+            return;
+          }
+      }
+      private async void InitializeAccountWindowRectanglesPlayers(string serializedWindowRectangles)
+      {
+        using (var stream = await StringUtils.GenerateStreamFromString(serializedWindowRectangles))
+          try
+          {
+            windowRectangles = await JsonSerializer.DeserializeAsync<Dictionary<string, NuiRect>>(stream);
           }
           catch (Exception)
           {

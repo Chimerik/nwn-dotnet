@@ -51,6 +51,8 @@ namespace NWN.Systems
       public Dictionary<int, MapPin> mapPinDictionnary = new Dictionary<int, MapPin>();
       public Dictionary<string, byte[]> areaExplorationStateDictionnary = new Dictionary<string, byte[]>();
       public Dictionary<ChatChannel, Color> chatColors = new Dictionary<ChatChannel, Color>();
+      public Dictionary<string, NuiRect> windowRectangles = new Dictionary<string, NuiRect>();
+      public List<string> openedWindows = new List<string>();
 
       public enum PcState
       {
@@ -61,9 +63,9 @@ namespace NWN.Systems
 
       public Player(NwPlayer nwobj)
       {
-        this.oid = nwobj;
-        this.menu = new PrivateMenu(this);
-        this.pveArena = new Arena.PlayerData();
+        oid = nwobj;
+        menu = new PrivateMenu(this);
+        pveArena = new Arena.PlayerData();
         
         Log.Info($"accountID : {this.oid.LoginCreature.GetObjectVariable<PersistentVariableInt>("accountId").Value}");
 
@@ -196,6 +198,22 @@ namespace NWN.Systems
         await NwTask.WaitUntil(() => oid.LoginCreature.Location.Area != null);
         oid.LoginCreature.Location = location;
       }
+      public async void InitializePlayerOpenedWindows()
+      {
+        await NwTask.WaitUntil(() => oid.LoginCreature.GetObjectVariable<LocalVariableBool>("_ASYNC_INIT_DONE").HasValue);
+
+        foreach (string window in openedWindows)
+          CreatePlayerWindow(window);
+      }
+      public void CreatePlayerWindow(string window)
+      {
+        switch(window)
+        {
+          case "chat":
+            CreateChatWindow();
+            break;
+        }
+      }
       public async void InitializePlayerLearnableJobs()
       {
         await NwTask.WaitUntil(() => oid.LoginCreature.GetObjectVariable<LocalVariableBool>("_ASYNC_INIT_DONE").HasValue);
@@ -207,13 +225,13 @@ namespace NWN.Systems
           Learnable learnable = learnables.First(l => l.Value.active).Value;
           AwaitPlayerStateChangeToCalculateSPGain(learnable);
 
-          await NwTask.WaitUntil(() => pcState == Player.PcState.Online && oid.LoginCreature.Area != null);
+          await NwTask.WaitUntil(() => pcState == PcState.Online && oid.LoginCreature.Area != null);
           CreateSkillJournalEntry(learnable);
         }
 
         foreach (KeyValuePair<Feat, int> feat in learntCustomFeats)
         {
-          CustomFeat customFeat = SkillSystem.customFeatsDictionnary[feat.Key];
+          CustomFeat customFeat = customFeatsDictionnary[feat.Key];
           FeatTable.Entry featEntry = Feat2da.featTable.GetFeatDataEntry(feat.Key);
           oid.SetTlkOverride((int)featEntry.tlkName, $"{customFeat.name} - {SkillSystem.GetCustomFeatLevelFromSkillPoints(feat.Key, feat.Value)}");
           oid.SetTlkOverride((int)featEntry.tlkDescription, customFeat.description);
@@ -221,7 +239,7 @@ namespace NWN.Systems
 
         int improvedHealth = 0;
         if (learntCustomFeats.ContainsKey(CustomFeats.ImprovedHealth))
-          improvedHealth = SkillSystem.GetCustomFeatLevelFromSkillPoints(CustomFeats.ImprovedHealth, learntCustomFeats[CustomFeats.ImprovedHealth]);
+          improvedHealth = GetCustomFeatLevelFromSkillPoints(CustomFeats.ImprovedHealth, learntCustomFeats[CustomFeats.ImprovedHealth]);
 
         oid.LoginCreature.LevelInfo[0].HitDie = (byte)(10
           + (1 + 3 * ((oid.LoginCreature.GetAbilityScore(Ability.Constitution, true) - 10) / 2)

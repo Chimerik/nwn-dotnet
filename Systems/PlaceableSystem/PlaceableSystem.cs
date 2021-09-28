@@ -10,7 +10,6 @@ using System.Threading.Tasks;
 using static NWN.Systems.PlayerSystem;
 using NWN.System;
 using System.Collections.Generic;
-using System.Numerics;
 
 namespace NWN.Systems
 {
@@ -18,11 +17,8 @@ namespace NWN.Systems
   public class PlaceableSystem
   {
     public static readonly Logger Log = LogManager.GetCurrentClassLogger();
-    public static VirtualMachine vm;
-    public PlaceableSystem(VirtualMachine virtum)
+    public PlaceableSystem()
     {
-      vm = virtum;
-
       foreach (NwDoor door in NwObject.FindObjectsOfType<NwDoor>())
         door.OnOpen += HandleDoorAutoClose;
       
@@ -61,7 +57,19 @@ namespace NWN.Systems
 
         trainer.OnConversation += HandleCancelStatueConversation;
         trainer.OnSpawn += HandleSpawnTrainingDummy;
+        trainer.OnDamaged += HandleTrainingDummyDamaged;
       }
+
+      foreach (NwPlaceable nuiChest in NwObject.FindObjectsWithTag<NwPlaceable>("nui_chest"))
+        nuiChest.OnUsed += OnUsedNuiChest;
+    }
+    private static void HandleTrainingDummyDamaged(CreatureEvents.OnDamaged onDamaged)
+    {
+      Task HealAfterDamage = NwTask.Run(async () =>
+      {
+        await NwTask.Delay(TimeSpan.FromSeconds(0.1f));
+        onDamaged.Creature.HP = onDamaged.Creature.MaxHP;
+      });
     }
     public static void OnUsedStoragePortalIn(PlaceableEvents.OnUsed onUsed)
     {
@@ -76,150 +84,13 @@ namespace NWN.Systems
     {
       onUsed.UsedBy.Location = NwModule.FindObjectsWithTag<NwWaypoint>("wp_outentrepot").FirstOrDefault().Location;
     }
-    public static void OnUsedBalancoire(PlaceableEvents.OnUsed onUsed)
+    public static async void OnUsedBalancoire(PlaceableEvents.OnUsed onUsed)
     {
-      Task waitForAnimation = NwTask.Run(async () =>
-      {
-        NwPlaceable sitter = onUsed.Placeable.GetNearestObjectsByType<NwPlaceable>().FirstOrDefault(p => p.Tag == "balancoiresitter");
-        NwPlaceable usedSwing = onUsed.Placeable;
-        NwCreature oPC = onUsed.UsedBy;
+      await onUsed.UsedBy.ActionSit(onUsed.Placeable.GetNearestObjectsByType<NwPlaceable>().FirstOrDefault(p => p.Tag == "balancoiresitter"));
 
-        await oPC.ActionSit(sitter);
-
-        usedSwing.OnUsed -= OnUsedBalancoire;
-        usedSwing.OnLeftClick += OnClickSwingBalancoire;
-
-        usedSwing.GetObjectVariable<LocalVariableObject<NwCreature>>("_SWING_TARGET").Value = oPC;
-
-        Task onMovementCancelSwing = NwTask.Run(async () =>
-        {
-          await NwTask.Delay(TimeSpan.FromSeconds(1));
-          await NwTask.WaitUntilValueChanged(() => oPC.Position);
-
-          usedSwing.GetObjectVariable<LocalVariableObject<NwCreature>>("_SWING_TARGET").Delete();
-          usedSwing.GetObjectVariable<LocalVariableInt>("_IS_SWINGING").Delete();
-
-          VisualTransformLerpSettings vtLerpSettings = new VisualTransformLerpSettings 
-          {
-            LerpType = VisualTransformLerpType.SmootherStep,
-            Duration = TimeSpan.FromSeconds(2),
-            PauseWithGame = true,
-            ReturnDestinationTransform = true
-          };
-
-          usedSwing.VisualTransform.Lerp(vtLerpSettings, transform =>
-          {
-            transform.Translation = new Vector3(0, 0, 0);
-            transform.Rotation = new Vector3(0, 0, 0);
-          });
-
-          oPC.VisualTransform.Lerp(vtLerpSettings, transform =>
-          {
-            transform.Translation = new Vector3(0, 0, 0);
-            transform.Rotation = new Vector3(0, 0, 0);
-          });
-
-          usedSwing.OnUsed += OnUsedBalancoire;
-          usedSwing.OnLeftClick -= OnClickSwingBalancoire;
-        });
-      });
+      new Swing(onUsed.Placeable, onUsed.UsedBy);
     }
-    public static void OnClickSwingBalancoire(PlaceableEvents.OnLeftClick onClick)
-    {
-      NwPlaceable swing = onClick.Placeable;
-      NwCreature oPC = onClick.Placeable.GetObjectVariable<LocalVariableObject<NwCreature>>("_SWING_TARGET").Value;
-
-      if (swing.GetObjectVariable<LocalVariableInt>("_IS_SWINGING").HasValue)
-      {
-        swing.GetObjectVariable<LocalVariableInt>("_IS_SWINGING").Delete();
-
-        Task waitSwingEnd = NwTask.Run(async () =>
-        {
-          await NwTask.Delay(TimeSpan.FromSeconds(2));
-          
-          VisualTransformLerpSettings vtLerpSettings = new VisualTransformLerpSettings
-          {
-            LerpType = VisualTransformLerpType.SmootherStep,
-            Duration = TimeSpan.FromSeconds(1),
-            PauseWithGame = true,
-            ReturnDestinationTransform = true
-          };
-
-          swing.VisualTransform.Lerp(vtLerpSettings, transform =>
-          {
-            transform.Translation = new Vector3(0, 0, 0);
-            transform.Rotation = new Vector3(0, 0, 0);
-          });
-
-          oPC.VisualTransform.Lerp(vtLerpSettings, transform =>
-          {
-            transform.Translation = new Vector3(0, 0, 0);
-            transform.Rotation = new Vector3(0, 0, 0);
-          });
-        });
-      }
-      else
-      {
-        swing.GetObjectVariable<LocalVariableInt>("_IS_SWINGING").Value = 1;
-
-        VisualTransformLerpSettings vtLerpSettings = new VisualTransformLerpSettings
-        {
-          LerpType = VisualTransformLerpType.SmootherStep,
-          Duration = TimeSpan.FromSeconds(2),
-          PauseWithGame = true,
-          ReturnDestinationTransform = true
-        };
-
-        oPC.VisualTransform.Lerp(vtLerpSettings, transform =>
-        {
-          transform.Translation = new Vector3(-0.75f, 0, 0);
-          transform.Rotation = new Vector3(0, 0, 15);
-        });
-
-        swing.VisualTransform.Lerp(vtLerpSettings, transform =>
-        {
-          transform.Translation = new Vector3(0.75f, 0, 0);
-          transform.Rotation = new Vector3(0, 0, -15);
-        });
-
-        Task waitLoopEnd = NwTask.Run(async () =>
-        {
-          await NwTask.Delay(TimeSpan.FromSeconds(2));
-          if(swing.GetObjectVariable<LocalVariableInt>("_IS_SWINGING").HasValue)
-            HandleSwing(swing, oPC);
-        });
-      }
-    }
-    public static void HandleSwing(NwPlaceable swing, NwCreature oPC)
-    {
-      VisualTransformLerpSettings vtLerpSettings = new VisualTransformLerpSettings
-      {
-        LerpType = VisualTransformLerpType.SmootherStep,
-        Duration = TimeSpan.FromSeconds(2),
-        PauseWithGame = true,
-        ReturnDestinationTransform = true
-      };
-
-      oPC.VisualTransform.Lerp(vtLerpSettings, transform =>
-      {
-        transform.Translation = new Vector3(-oPC.VisualTransform.Translation.X, 0, 0);
-        transform.Rotation = new Vector3(0, 0, -oPC.VisualTransform.Rotation.Z);
-      });
-
-      swing.VisualTransform.Lerp(vtLerpSettings, transform =>
-      {
-        transform.Translation = new Vector3(-swing.VisualTransform.Translation.X, 0, 0);
-        transform.Rotation = new Vector3(0, 0, -swing.VisualTransform.Rotation.Z);
-      });
-
-      Task waitLoopEnd = NwTask.Run(async () =>
-      {
-        await NwTask.Delay(TimeSpan.FromSeconds(2));
-
-        if (swing.GetObjectVariable<LocalVariableInt>("_IS_SWINGING").HasValue)
-          HandleSwing(swing, oPC);
-      });
-    }
+    
     public static void HandleCleanDMPLC(PlaceableEvents.OnDeath onDeath)
     {
       NwPlaceable plc = onDeath.KilledObject;
@@ -289,7 +160,7 @@ namespace NWN.Systems
       if (onOpen.Door.TransitionTarget is NwDoor)
         await ((NwDoor)onOpen.Door.TransitionTarget).Close();
     }
-    public void HandleCloseEnchantementBassin(PlaceableEvents.OnClose onClose)
+    private void HandleCloseEnchantementBassin(PlaceableEvents.OnClose onClose)
     {
       NwCreature oPC = onClose.ClosedBy;
 
@@ -389,7 +260,7 @@ namespace NWN.Systems
       storage.OnOpen += StoreSystem.OnOpenPersonnalStorage;
       storage.Open(player.oid);
     }
-    public static void OnUsedDicePoker(PlaceableEvents.OnUsed onUsed)
+    private void OnUsedDicePoker(PlaceableEvents.OnUsed onUsed)
     {
       if (!Players.TryGetValue(onUsed.UsedBy, out Player player))
         return;
@@ -414,15 +285,37 @@ namespace NWN.Systems
         new DicePoker.DicePoker(player, onUsed.Placeable);
       }
     }
-    public static void OnUsedGoPlouf(PlaceableEvents.OnUsed onUsed)
+    private void OnUsedGoPlouf(PlaceableEvents.OnUsed onUsed)
     {
       NwPlaceable stopplouf = NwObject.FindObjectsWithTag<NwPlaceable>("stop_plouf").FirstOrDefault();
       onUsed.UsedBy.Location = stopplouf.Location;
     }
-    public static void OnUsedStopPlouf(PlaceableEvents.OnUsed onUsed)
+    private void OnUsedStopPlouf(PlaceableEvents.OnUsed onUsed)
     {
       NwPlaceable goplouf = NwObject.FindObjectsWithTag<NwPlaceable>("go_plouf").FirstOrDefault();
       onUsed.UsedBy.Location = goplouf.Location;
+    }
+    private async void OnUsedNuiChest(PlaceableEvents.OnUsed onUsed)
+    {
+      if (!Players.TryGetValue(onUsed.UsedBy, out Player player))
+        return;
+
+      var query = await SqLiteUtils.SelectQueryAsync("playerCharacters",
+      new List<string>() { { "persistantStorage" } },
+      new List<string[]>() { new string[] { "characterId", player.characterId.ToString() } });
+
+      if (query != null && query.Count > 0)
+      {
+
+      }
+      else
+      {
+        var jCol = NWScript.JsonArray();
+        var jRow = NWScript.JsonArray();
+        {
+          //jRow = NWScript.JsonArrayInsert(jRow, NWScript.NuiSpacer());
+        }
+      }
     }
   }
 }

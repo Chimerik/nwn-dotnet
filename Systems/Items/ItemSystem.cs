@@ -189,7 +189,7 @@ namespace NWN.Systems
       //if (oPC.MovementRate != MovementRate.Immobile && oPC.TotalWeight > Encumbrance2da.encumbranceTable.GetDataEntry(oPC.GetAbilityScore(Ability.Strength)).heavy)
       //oPC.MovementRate = MovementRate.Immobile;
 
-      if (PlayerSystem.Players.TryGetValue(oPC, out PlayerSystem.Player player))
+      if (PlayerSystem.Players.TryGetValue(oPC, out PlayerSystem.Player player) && player.pcState != PlayerSystem.Player.PcState.Offline)
         player.oid.ExportCharacter();
     }
     public static void OnUnacquireItem(ModuleEvents.OnUnacquireItem onUnacquireItem)
@@ -218,7 +218,7 @@ namespace NWN.Systems
       //if (onUnacquireItem.LostBy.TotalWeight <= Encumbrance2da.encumbranceTable.GetDataEntry(onUnacquireItem.LostBy.GetAbilityScore(Ability.Strength)).heavy)
       //onUnacquireItem.LostBy.MovementRate = MovementRate.PC;
 
-      if (PlayerSystem.Players.TryGetValue(onUnacquireItem.LostBy, out PlayerSystem.Player player))
+      if (PlayerSystem.Players.TryGetValue(onUnacquireItem.LostBy, out PlayerSystem.Player player) && player.pcState != PlayerSystem.Player.PcState.Offline)
         player.oid.ExportCharacter();
     }
     public static void NoEquipRuinedItem(OnItemValidateEquip onItemValidateEquip)

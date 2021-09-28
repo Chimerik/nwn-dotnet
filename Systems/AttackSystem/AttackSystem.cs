@@ -838,17 +838,17 @@ namespace NWN.Systems
         PlayerSystem.Log.Info($"Final : {damageType} - AC {targetAC} - Initial {initialDamage} - Final Damage {modifiedDamage}");
       }
 
-      if(ctx.onAttack != null)
-        ctx.oTarget.GetObjectVariable<LocalVariableInt>($"_DAMAGE_HANDLED_FROM_{ctx.oAttacker}").Value = 1;
+      /*if(ctx.onAttack != null)
+        ctx.oTarget.GetObjectVariable<LocalVariableInt>($"_DAMAGE_HANDLED_FROM_{ctx.oAttacker}").Value = 1;*/
 
-      if (ctx.oTarget.Tag == "damage_trainer")
+      /*if (ctx.oTarget.Tag == "damage_trainer")
       {
         Task HealAfterDamage = NwTask.Run(async () =>
         {
           await NwTask.Delay(TimeSpan.FromSeconds(0.1f));
           ctx.oTarget.HP = ctx.oTarget.MaxHP;
         });
-      }
+      }*/
 
       next();
     }

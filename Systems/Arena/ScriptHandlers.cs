@@ -149,12 +149,15 @@ namespace NWN.Systems.Arena
     }
     private static void HandleBatAttack(OnCreatureDamage onAttack)
     {
-      onAttack.DamagedBy.ApplyEffect(EffectDuration.Instant, Effect.Heal(onAttack.DamageData.Base));
-      onAttack.DamagedBy.ApplyEffect(EffectDuration.Instant, Effect.VisualEffect(VfxType.ImpHealingM));
+      if (!(onAttack.DamagedBy is NwCreature damager))
+        return;
+
+      damager.ApplyEffect(EffectDuration.Instant, Effect.Heal(onAttack.DamageData.Base));
+      damager.ApplyEffect(EffectDuration.Instant, Effect.VisualEffect(VfxType.ImpHealingM));
     }
     private static void HandleCrabAttack(OnCreatureDamage onAttack)
     {
-      if (onAttack.Target.RollSavingThrow(SavingThrow.Will, 12, SavingThrowType.Cold, onAttack.DamagedBy) != SavingThrowResult.Failure)
+      if (!(onAttack.DamagedBy is NwCreature damager) || onAttack.Target.RollSavingThrow(SavingThrow.Will, 12, SavingThrowType.Cold, damager) != SavingThrowResult.Failure)
         return;
 
       onAttack.Target.ApplyEffect(EffectDuration.Temporary, Effect.Slow(), NwTimeSpan.FromRounds(3));

@@ -124,6 +124,8 @@ namespace NWN.Systems
       player.menu.Close();
       player.oid.SendServerMessage("La couleur de ce canal a bien été réinitialisée.", ColorConstants.Rose);
 
+      player.oid.ExportCharacter();
+
       SaveChatColorsToDatabase();
     }
 

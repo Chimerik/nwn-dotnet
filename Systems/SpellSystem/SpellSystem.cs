@@ -16,9 +16,42 @@ namespace NWN.Systems
   public partial class SpellSystem
   {
     public static readonly Logger Log = LogManager.GetCurrentClassLogger();
+    private static ScriptHandleFactory scriptHandleFactory;
     public static int[] lowEnchantements = new int[] { 540, 541, 542, 543, 544, 545, 546, 547, 548, 549, 550, 551, 552, 553, 554 };
     public static int[] mediumEnchantements = new int[] { 555, 556, 557, 558, 559, 560, 561, 562 };
     public static int[] highEnchantements = new int[] { 563, 564, 565, 566, 567, 568 };
+
+    public static Effect frog;
+
+    public SpellSystem(ScriptHandleFactory scriptFactory)
+    {
+      scriptHandleFactory = scriptFactory;
+      InitializeCustomEffects();
+    }
+
+    private async void InitializeCustomEffects()
+    {
+      frog = CreateCustomEffect("CUSTOM_EFFECT_FROG", ApplyFrogEffectToTarget, RemoveFrogEffectFromTarget, EffectIcon.Curse);
+
+      await NwTask.WaitUntil(() => NwModule.Instance.Players.FirstOrDefault()?.LoginCreature?.Area != null);
+      ApplyCustomEffectToTarget(frog, NwModule.Instance.Players.FirstOrDefault().LoginCreature, TimeSpan.FromSeconds(10));
+    }
+
+    private Effect CreateCustomEffect(string tag, Func<CallInfo, ScriptHandleResult> onApply, Func<CallInfo, ScriptHandleResult> onRemoved, EffectIcon icon = EffectIcon.Invalid, Func<CallInfo, ScriptHandleResult> onInterval = null, TimeSpan interval = default, string effectData = "")
+    {
+      ScriptCallbackHandle applyHandle = scriptHandleFactory.CreateUniqueHandler(onApply);
+      ScriptCallbackHandle removeHandle = scriptHandleFactory.CreateUniqueHandler(onRemoved);
+      ScriptCallbackHandle intervalHandle = scriptHandleFactory.CreateUniqueHandler(onInterval);
+
+      Effect runAction = Effect.RunAction(applyHandle, removeHandle, intervalHandle, interval, effectData);
+      runAction.Tag = tag;
+      runAction.SubType = EffectSubType.Supernatural;
+
+      if (icon != EffectIcon.Invalid)
+        runAction = Effect.LinkEffects(runAction, Effect.Icon(icon));
+
+      return runAction;
+    }
 
     public static void RegisterMetaMagicOnSpellInput(OnSpellAction onSpellAction)
     {
@@ -287,7 +320,7 @@ namespace NWN.Systems
       }
     }
 
-    [ScriptHandler("frog_on")]
+    /*[ScriptHandler("frog_on")]
     private void OnFrogEffectApplied(CallInfo callInfo)
     {
       if (callInfo.ObjectSelf is NwCreature oTarget)
@@ -468,6 +501,7 @@ namespace NWN.Systems
       if (callInfo.ObjectSelf is NwCreature oTarget)
         Poison.RemoveEffectFromTarget(oTarget);
     }
+    */
 
     [ScriptHandler("mechaura_enter")]
     private void HandleMechAuraHeartOnEnter(CallInfo callInfo)
@@ -551,6 +585,11 @@ namespace NWN.Systems
           oCaster.GetObjectVariable<LocalVariableInt>("_SPELL_ATTACK_POSITION").Value = 3;
           break;
       }
+    }
+    public static async void ApplyCustomEffectToTarget(Effect runAction, NwGameObject target, TimeSpan effectDuration = default)
+    {
+      await NwModule.Instance.WaitForObjectContext();
+      target.ApplyEffect(EffectDuration.Temporary, runAction, effectDuration);
     }
   }
 }

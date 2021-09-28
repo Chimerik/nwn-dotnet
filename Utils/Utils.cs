@@ -6,9 +6,7 @@ using System.Linq;
 using Anvil.API;
 using System.Collections.Generic;
 using NLog;
-using System.IO;
-using System.Text;
-using System.Text.RegularExpressions;
+using NWN.Core;
 
 namespace NWN
 {
@@ -92,6 +90,27 @@ namespace NWN
     public static TimeSpan StripTimeSpanMilliseconds(TimeSpan timespan)
     {
       return new TimeSpan(timespan.Days, timespan.Hours, timespan.Minutes, timespan.Seconds);
+    }
+    public static string FormatTimeSpan(TimeSpan timespan)
+    {
+      string formattedTimespan = "";
+
+      if (timespan.TotalSeconds < 1)
+        return "Immédiat";
+
+      if (timespan.TotalDays >= 1)
+        formattedTimespan = $"{timespan.TotalDays}j ";
+
+      if (timespan.TotalHours >= 1)
+        formattedTimespan += $"{timespan.Hours}h ";
+
+      if (timespan.TotalMinutes >= 1)
+        formattedTimespan += $"{timespan.Minutes}m ";
+
+      if(timespan.TotalHours < 1)
+        formattedTimespan += $"{timespan.Seconds}s ";
+
+      return formattedTimespan;
     }
     public static Animation TranslateEngineAnimation(int nAnimation)
     {
@@ -217,6 +236,122 @@ namespace NWN
 
       if (creature.IsPlayerControlled)
         creature.ControllingPlayer.CameraHeight = 0;
+    }
+    public static IntPtr GffGetFieldType(IntPtr jGff, string sLabel)
+    {
+      return NWScript.JsonPointer(jGff, "/" + sLabel + "/type");
+    }
+    public static IntPtr GffGetField(IntPtr jGff, string sLabel, string sType)
+    {
+      IntPtr jType = GffGetFieldType(jGff, sLabel);
+      if (jType == NWScript.JsonNull())
+        return jType;
+      else if (jType != NWScript.JsonString(sType))
+        return NWScript.JsonNull("field type does not match");
+      else
+        return GffGetFieldValue(jGff, sLabel);
+    }
+    public static IntPtr GffGetFieldValue(IntPtr jGff, string sLabel)
+    {
+      return NWScript.JsonPointer(jGff, "/" + sLabel + "/value");
+    }
+    public static IntPtr GffGetByte(IntPtr jGff, string sLabel)
+    {
+      return GffGetField(jGff, sLabel, "byte");
+    }
+    public static string Util_GetIconResref(NwItem oItem)
+    {
+      switch(oItem.BaseItemType)
+      {
+        case BaseItemType.Cloak: // Cloaks use PLTs so their default icon doesn't really work
+          return "iit_cloak";
+        case BaseItemType.SpellScroll: // Scrolls get their icon from the cast spell property
+        case BaseItemType.EnchantedScroll:
+
+          if (oItem.HasItemProperty(ItemPropertyType.CastSpell))
+            return ItemPropertySpells2da.spellsTable.GetSpellDataEntry(oItem.ItemProperties.FirstOrDefault(ip => ip.PropertyType == ItemPropertyType.CastSpell).SubType).icon;
+          
+          break;
+        default:
+          
+          if (BaseItems2da.baseItemTable.GetBaseItemDataEntry(oItem.BaseItemType).modelType == 0) // Create the icon resref for simple modeltype items
+          {
+            IntPtr jSimpleModel = GffGetByte(NWScript.ObjectToJson(oItem), "ModelPart1");
+            if (NWScript.JsonGetType(jSimpleModel) == NWScript.JSON_TYPE_INTEGER)
+            {
+              string sSimpleModelId = NWScript.JsonGetInt(jSimpleModel).ToString();
+              while (sSimpleModelId.Length < 3)// Padding...
+              {
+                sSimpleModelId = "0" + sSimpleModelId;
+              }
+              
+              string sDefaultIcon = BaseItems2da.baseItemTable.GetBaseItemDataEntry(oItem.BaseItemType).defaultIcon;
+              switch (oItem.BaseItemType)
+              {
+                case BaseItemType.MiscSmall:
+                case BaseItemType.CraftMaterialSmall:
+                  sDefaultIcon = "iit_smlmisc_" + sSimpleModelId;
+                  break;
+                case BaseItemType.MiscMedium:
+                case BaseItemType.CraftMaterialMedium:
+                case (BaseItemType)112:/* Crafting Base Material */
+                  sDefaultIcon = "iit_midmisc_" + sSimpleModelId;
+                  break;
+                case BaseItemType.MiscLarge:
+                  sDefaultIcon = "iit_talmisc_" + sSimpleModelId;
+                  break;
+                case BaseItemType.MiscThin:
+                  sDefaultIcon = "iit_thnmisc_" + sSimpleModelId;
+                  break;
+              }
+
+              int nLength = sDefaultIcon.Length;
+              if (sDefaultIcon.Substring(nLength - 4, 1) == "_")// Some items have a default icon of xx_yyy_001, we strip the last 4 symbols if that is the case
+                sDefaultIcon = sDefaultIcon.Remove(nLength - 4);
+              string sIcon = sDefaultIcon + "_" + sSimpleModelId;
+              if (NWScript.ResManGetAliasFor(sIcon, NWScript.RESTYPE_TGA) != "")// Check if the icon actually exists, if not, we'll fall through and return the default icon
+                return sIcon;
+            }
+          }
+
+          break;
+      }
+     
+      // For everything else use the item's default icon
+      return BaseItems2da.baseItemTable.GetBaseItemDataEntry(oItem.BaseItemType).defaultIcon;
+    }
+    public static IntPtr Util_GetModelPart(string sDefaultIcon, string sType, IntPtr jPart)
+    {
+      if (NWScript.JsonGetType(jPart) == NWScript.JSON_TYPE_INTEGER)
+      {
+        string sModelPart = NWScript.JsonGetInt(jPart).ToString();
+        while (sModelPart.Length < 3)
+        {
+          sModelPart = "0" + sModelPart;
+        }
+
+        string sIcon = sDefaultIcon + sType + sModelPart;
+        if (NWScript.ResManGetAliasFor(sIcon, NWScript.RESTYPE_TGA) != "")
+          return NWScript.JsonString(sIcon);
+      }
+
+      return NWScript.JsonString("");
+    }
+    public static IntPtr Util_GetComplexIconData(IntPtr jItem, BaseItemType nBaseItem)
+    {
+      BaseItemTable.Entry entry = BaseItems2da.baseItemTable.GetBaseItemDataEntry(nBaseItem);
+      if (entry.modelType == 2)
+      {
+        string sDefaultIcon = entry.defaultIcon;
+        IntPtr jComplexIcon = NWScript.JsonObject();
+        jComplexIcon = NWScript.JsonObjectSet(jComplexIcon, "top", Util_GetModelPart(sDefaultIcon, "_t_", GffGetByte(jItem, "ModelPart3")));
+        jComplexIcon = NWScript.JsonObjectSet(jComplexIcon, "middle", Util_GetModelPart(sDefaultIcon, "_m_", GffGetByte(jItem, "ModelPart2")));
+        jComplexIcon = NWScript.JsonObjectSet(jComplexIcon, "bottom", Util_GetModelPart(sDefaultIcon, "_b_", GffGetByte(jItem, "ModelPart1")));
+
+        return jComplexIcon;
+      }
+
+      return NWScript.JsonNull();
     }
   }
 }

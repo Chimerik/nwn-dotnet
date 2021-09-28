@@ -13,38 +13,13 @@ namespace NWN.Systems
   [ServiceBinding(typeof(AreaSystem))]
   partial class AreaSystem
   {
-    public static void AreaSpawner(NwArea area)
-    {
-      if (area.GetObjectVariable<LocalVariableInt>("_NO_SPAWN_ALLOWED").HasValue)
-        return;
-
-      /*foreach (NwWaypoint wp in area.FindObjectsOfTypeInArea<NwWaypoint>().Where(a => a.Tag == "creature_spawn"))
-        HandleSpawnWaypoint(wp);*/
-
-      area.GetObjectVariable<LocalVariableInt>("_NO_SPAWN_ALLOWED").Value = 1;
-
-      Task spawnAllowed = NwTask.Run(async () =>
-      {
-        await NwTask.Delay(TimeSpan.FromMinutes(10));
-        area.GetObjectVariable<LocalVariableInt>("_NO_SPAWN_ALLOWED").Delete();
-      });
-    }
-
     private static async void CreateSpawnAoE(NwWaypoint spawnPoint)
     {
       Log.Info("create spawn aoe on");
-      if (DateTime.TryParse(spawnPoint.GetObjectVariable<LocalVariableString>("date_last_spawned").Value, out DateTime dateLastSpawned) && (DateTime.Now - dateLastSpawned).TotalMinutes < 9)
-      {
-        Log.Info($"waiting {DateTime.Now - dateLastSpawned}");
-        await NwTask.Delay(DateTime.Now - dateLastSpawned);
-        spawnPoint.GetObjectVariable<LocalVariableString>("date_last_spawned").Delete();
-      }
-
-      if (!NwModule.Instance.Players.Any(p => p.ControlledCreature.Area == spawnPoint.Area))
-      {
-        Log.Info("create spawn aoe npc off");
+      if (spawnPoint.GetObjectVariable<LocalVariableBool>("_CAN_SPAWN").HasNothing)
         return;
-      }
+
+      spawnPoint.GetObjectVariable<LocalVariableBool>("_CAN_SPAWN").Delete();
 
       await NwTask.Delay(TimeSpan.FromSeconds(0.2));
 
@@ -96,11 +71,7 @@ namespace NWN.Systems
         HandleSpawnSpecificBehaviour(creature);
         Log.Info("10");
         spawnAOE.Destroy();
-        /*Task waitScriptEnd = NwTask.Run(async () =>
-        {
-          await NwTask.Delay(TimeSpan.FromSeconds(0.2));
-          spawnAOE.Destroy();
-        });*/
+
         Log.Info("enter spawn pc off");
       }
       else
@@ -111,7 +82,15 @@ namespace NWN.Systems
     {
       Log.Info("mob death reset on");
       NwWaypoint spawnPoint = onDeath.KilledCreature.GetObjectVariable<LocalVariableObject<NwWaypoint>>("spawn_wp").Value;
-      spawnPoint.GetObjectVariable<LocalVariableString>("date_last_spawned").Value = DateTime.Now.ToString();
+
+      ModuleSystem.scheduler.Schedule(() => 
+      { 
+        spawnPoint.GetObjectVariable<LocalVariableBool>("_CAN_SPAWN").Value = true;
+        if (NwModule.Instance.Players.Any(p => p.ControlledCreature.Area == spawnPoint.Area))
+          CreateSpawnAoE(spawnPoint);
+      }
+      , TimeSpan.FromMinutes(10));
+
       spawnPoint.GetObjectVariable<LocalVariableBool>("active").Delete();
       if (onDeath.KilledCreature.GetObjectVariable<LocalVariableObject<NwAreaOfEffect>>("reset_aoe").HasValue)
         onDeath.KilledCreature.GetObjectVariable<LocalVariableObject<NwAreaOfEffect>>("reset_aoe").Value.Destroy();
@@ -129,7 +108,7 @@ namespace NWN.Systems
         oCreature.AiLevel = AiLevel.VeryLow;
         oCreature.ClearActionQueue();
         oCreature.ActionForceMoveTo(callInfo.ObjectSelf, true, 0, TimeSpan.FromSeconds(30));
-        Effect regen = Effect.RunScript("", "mobReset_off", "mobReset_on", 1);
+        Effect regen = NWScript.EffectRunScript("", "mobReset_off", "mobReset_on", 1);
         regen.Tag = "mob_reset_regen";
         regen.SubType = EffectSubType.Supernatural;
         oCreature.ApplyEffect(EffectDuration.Permanent, regen);

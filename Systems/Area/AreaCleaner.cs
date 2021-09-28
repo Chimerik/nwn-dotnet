@@ -1,5 +1,4 @@
 ﻿using Anvil.API;
-using NWN.Core;
 using Anvil.Services;
 using System;
 using System.Linq;

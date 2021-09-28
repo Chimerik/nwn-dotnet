@@ -56,17 +56,22 @@ namespace NWN.Systems
       Log.Info("area enter 1");
       NwArea area = onEnter.Area;
 
-      if (!PlayerSystem.Players.TryGetValue(onEnter.EnteringObject, out PlayerSystem.Player player)) //EN FONCTION DE SI LA ZONE EST REST OU PAS, ON AFFICHE LA PROGRESSION DU JOURNAL DE CRAFT
+      if(onEnter.EnteringObject is NwCreature { IsPlayerControlled: false })
       {
         Log.Info("area enter npc off");
         return;
       }
-      Log.Info("area enter pc");
-      Log.Info($"Map {area.Name} loaded in : {(DateTime.Now - player.mapLoadingTime).TotalSeconds}");
+
+      Log.Info("area enter pc on");
 
       if (area.FindObjectsOfTypeInArea<NwWaypoint>().Any(w => w.Tag == "creature_spawn" && w.GetObjectVariable<LocalVariableBool>("active").HasNothing))
         foreach (NwWaypoint spawnPoint in area.FindObjectsOfTypeInArea<NwWaypoint>().Where(w => w.Tag == "creature_spawn"))
           CreateSpawnAoE(spawnPoint);
+
+      if (!PlayerSystem.Players.TryGetValue(onEnter.EnteringObject, out PlayerSystem.Player player)) //EN FONCTION DE SI LA ZONE EST REST OU PAS, ON AFFICHE LA PROGRESSION DU JOURNAL DE CRAFT
+        return;
+
+      Log.Info($"Map {area.Name} loaded in : {(DateTime.Now - player.mapLoadingTime).TotalSeconds}");
 
       if (player.menu.isOpen)
         player.menu.Close();

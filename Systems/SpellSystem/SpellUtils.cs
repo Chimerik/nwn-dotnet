@@ -4,6 +4,7 @@ using System;
 using NWN.Core.NWNX;
 using Anvil.API.Events;
 using NWN.Core;
+using Anvil.Services;
 
 namespace NWN.Systems
 {
@@ -64,20 +65,7 @@ namespace NWN.Systems
     {
       return "GACDEVINT".IndexOf(school);
     }
-    public static void ApplyCustomEffectToTarget(NwGameObject target, string effectTag, string onApply, string onRemoved, int iconId = -1, string onInterval = "", float interval = 0, string effectData = "", int effectDuration = 0)
-    {
-      Effect eff = Effect.RunScript(onApply, onRemoved, onInterval, interval, effectData);
-      eff.Tag = effectTag;
-      eff.SubType = EffectSubType.Supernatural;
-
-      if(iconId > -1)
-        eff = Effect.LinkEffects(eff, Effect.Icon(iconId));
-
-      if (effectDuration > 0)
-        target.ApplyEffect(EffectDuration.Temporary, eff, TimeSpan.FromSeconds(effectDuration));
-      else
-        target.ApplyEffect(EffectDuration.Permanent, eff);
-    }
+    
     public static async void RestoreSpell(NwCreature caster, Spell spell)
     {
       if (caster == null)

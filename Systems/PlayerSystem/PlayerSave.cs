@@ -40,6 +40,7 @@ namespace NWN.Systems
       else
         player.HandlePlayerSave();
 
+
       Log.Info($"{player.oid.LoginCreature.Name} saved in : {(DateTime.Now - elapsed).TotalSeconds} s");
     }
     public partial class Player
@@ -49,7 +50,7 @@ namespace NWN.Systems
         CancellationTokenSource tokenSource = new CancellationTokenSource();
 
         Task awaitPlayerLeaves = NwTask.WaitUntilValueChanged(() => oid.IsValid, tokenSource.Token);
-        Task awaitDebounce = NwTask.WaitUntil(() => !oid.IsValid || oid.LoginCreature.GetObjectVariable<LocalVariableInt>("_SAVE_SCHEDULED").Value != nbDebounces, tokenSource.Token);
+        Task awaitDebounce = NwTask.WaitUntil(() => !oid.IsValid || oid.LoginCreature.GetObjectVariable<LocalVariableInt>($"_SAVE_SCHEDULED").Value != nbDebounces, tokenSource.Token);
         Task awaitSaveAuthorized = NwTask.Delay(TimeSpan.FromSeconds(10), tokenSource.Token);
 
         await NwTask.WhenAny(awaitPlayerLeaves, awaitDebounce, awaitSaveAuthorized);
@@ -93,6 +94,7 @@ namespace NWN.Systems
 
         dateLastSaved = DateTime.Now;
 
+        SavePlayerAccountToDatabase();
         SavePlayerCharacterToDatabase();
         SavePlayerStoredMaterialsToDatabase();
         HandleExpiredContracts();
@@ -145,6 +147,23 @@ namespace NWN.Systems
         foreach (Effect eff in effectList)
           oid.LoginCreature.ApplyEffect(eff.DurationType, eff, TimeSpan.FromSeconds((double)eff.DurationRemaining));
       }
+      private async void SavePlayerAccountToDatabase()
+      {
+        if (windowRectangles.Count < 1)
+          return;
+
+        using (var stream = new MemoryStream())
+        {
+          await JsonSerializer.SerializeAsync(stream, windowRectangles);
+          stream.Position = 0;
+          using var reader = new StreamReader(stream);
+          string serializedJson = await reader.ReadToEndAsync();
+
+          SqLiteUtils.UpdateQuery("PlayerAccounts",
+            new List<string[]>() { new string[] { "windowRectangles", serializedJson } },
+            new List<string[]>() { new string[] { "rowid", accountId.ToString() } });
+        }
+      }
       private async void SavePlayerCharacterToDatabase()
       {
         string serializedLocation = location.Area != null ? SqLiteUtils.SerializeLocation(location) : SqLiteUtils.SerializeLocation(previousLocation);
@@ -157,12 +176,14 @@ namespace NWN.Systems
         Task<string> serializeAlchemyCauldron = StringUtils.SerializeObjectToJsonString(alchemyCauldron);
         Task<string> serializeLearnables = StringUtils.SerializeObjectToJsonString(learnables);
         Task<string> serializeExplorationState = StringUtils.SerializeObjectToJsonString(areaExplorationStateDictionnary);
+        Task<string> serializeOpenedWindows = StringUtils.SerializeObjectToJsonString(openedWindows);
 
-        await Task.WhenAll(serializeAlchemyCauldron, serializeLearnables, serializeExplorationState);
+        await Task.WhenAll(serializeAlchemyCauldron, serializeLearnables, serializeExplorationState, serializeOpenedWindows);
 
         string serializedCauldron = serializeAlchemyCauldron.Result;
         string serializedLearnables = serializeLearnables.Result;
         string serializedExploration = serializeExplorationState.Result;
+        string serializedOpenedWindows = serializeOpenedWindows.Result;
 
         Log.Info($"serializedCauldron : {serializedCauldron}");
         Log.Info($"serializedLearnables : {serializedLearnables}");
@@ -175,7 +196,7 @@ namespace NWN.Systems
           new string[] { "currentCraftJob", craftJob.baseItemType.ToString() }, new string[] { "currentCraftObject", craftJob.craftedItem }, new string[] { "currentCraftJobRemainingTime", craftJob.remainingTime.ToString() },
           new string[] { "currentCraftJobMaterial", craftJob.material }, new string[] { "pveArenaCurrentPoints", pveArena.currentPoints.ToString() },
           new string[] { "menuOriginTop", menu.originTop.ToString() }, new string[] { "menuOriginLeft", menu.originLeft.ToString() },
-          new string[] { "alchemyCauldron", serializedCauldron }, new string[] { "serializedLearnables", serializedLearnables }, new string[] { "explorationState", serializedExploration } },
+          new string[] { "alchemyCauldron", serializedCauldron }, new string[] { "serializedLearnables", serializedLearnables }, new string[] { "explorationState", serializedExploration }, new string[] { "openedWindows", serializedOpenedWindows } },
         new List<string[]>() { new string[] { "rowid", characterId.ToString() } });
       }
       private async void SavePlayerStoredMaterialsToDatabase()
