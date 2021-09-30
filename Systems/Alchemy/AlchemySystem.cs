@@ -26,7 +26,7 @@ namespace NWN.Systems.Alchemy
       foreach (NwPlaceable plc in NwObject.FindObjectsWithTag<NwPlaceable>("alchemy_mortar"))
         plc.OnUsed += StartAlchemyMortarDialog;
 
-      LoadAlchemyTable();
+      //LoadAlchemyTable();
     }
 
     public static void StartAlchemyTableDialog(PlaceableEvents.OnUsed onUsed)

@@ -26,9 +26,12 @@ namespace NWN.Systems
 
         if (player.oid.PlayerName == "Chim")
         {
-         //player.CreateLearnablesWindow();
+          NwWaypoint test = player.oid.ControlledCreature.GetNearestObjectsByType<NwWaypoint>().FirstOrDefault();
+          Log.Info($"distance : {player.oid.ControlledCreature.Distance(test)}");
+          Log.Info($"distance squarred : {player.oid.ControlledCreature.DistanceSquared(test)}");
+          //player.CreateLearnablesWindow();
 
-          player.CreateQuickLootWindow(player.oid.ControlledCreature.Area.FindObjectsOfTypeInArea<NwItem>().FirstOrDefault(i => i.Possessor is null && i.DistanceSquared(player.oid.ControlledCreature) < 25));
+          //player.CreateQuickLootWindow(player.oid.ControlledCreature.Area.FindObjectsOfTypeInArea<NwItem>().FirstOrDefault(i => i.Possessor is null && i.DistanceSquared(player.oid.ControlledCreature) < 25));
 
           //ChatSystem.chatService.SendMessage(Anvil.Services.ChatChannel.PlayerTell, "test", player.oid.ControlledCreature, player.oid);
           //player.CreateChatWindow();

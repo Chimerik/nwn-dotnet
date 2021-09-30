@@ -10,45 +10,6 @@ namespace NWN.Systems
   [ServiceBinding(typeof(AreaSystem))]
   partial class AreaSystem
   {
-    private static void ResetAreaSpawns(NwArea area, bool playerInArea)
-    {
-      Log.Info($"{area.Name} resetting spawns");
-      foreach (NwAreaOfEffect aoe in area.FindObjectsOfTypeInArea<NwAreaOfEffect>().Where(a => a.Tag == "creature_exit_range_aoe"))
-      {
-        NwCreature mob = aoe.GetObjectVariable<LocalVariableObject<NwCreature>>("creature").Value;
-        NwWaypoint spawnPoint = mob.GetObjectVariable<LocalVariableObject<NwWaypoint>>("spawn_wp").Value;
-
-        if (mob.IsValid)
-        {
-          mob.OnDeath -= LootSystem.HandleLoot;
-          mob.OnDeath -= OnMobDeathResetSpawn;
-
-          if (mob.GetObjectVariable<LocalVariableObject<NwAreaOfEffect>>("reset_aoe").HasValue)
-            mob.GetObjectVariable<LocalVariableObject<NwAreaOfEffect>>("reset_aoe").Value.Destroy();
-
-          mob.Destroy();
-          Log.Info($"{mob.Name} destroyed");
-        }
-
-        if(spawnPoint.IsValid)
-          spawnPoint.GetObjectVariable<LocalVariableBool>("active").Delete();
-
-        if (!playerInArea)
-          continue;
-
-        Effect spawnEffect = Effect.AreaOfEffect(198, "enterSpawn", "b", "c");
-        spawnEffect.SubType = EffectSubType.Supernatural;
-        spawnEffect.Tag = "creature_spawn_aoe";
-        spawnPoint.Location.ApplyEffect(EffectDuration.Permanent, spawnEffect);
-
-        NwAreaOfEffect spawnAoE = (NwAreaOfEffect)NwModule.Instance.GetLastCreatedObjects().FirstOrDefault(aoe => aoe is NwAreaOfEffect);
-        spawnAoE.GetObjectVariable<LocalVariableString>("creature").Value = spawnPoint.GetObjectVariable<LocalVariableString>("creature").Value;
-        spawnAoE.GetObjectVariable<LocalVariableObject<NwWaypoint>>("spawn_wp").Value = spawnPoint;
-        spawnAoE.Tag = "creature_spawn_aoe";
-
-        Log.Info($"{mob.Name} spawn AoE restored");
-      }
-    }
     private async static void AreaCleaner(NwArea area)
     {
       Log.Info($"Initiating cleaning for area {area.Name}");
@@ -86,8 +47,8 @@ namespace NWN.Systems
     }
     public async static void AreaDestroyer(NwArea area)
     {
-      await NwTask.WaitUntil(() => !area.FindObjectsOfTypeInArea<NwCreature>().Any(p => p.ControllingPlayer != null));
-      await NwTask.WaitUntil(() => !NwModule.Instance.Players.Any(p => p.ControlledCreature.Location.Area == null));
+      await NwTask.WaitUntil(() => !NwModule.Instance.Players.Any(p => p.ControlledCreature.Area == area));
+      await NwTask.WaitUntil(() => !NwModule.Instance.Players.Any(p => p.ControlledCreature.Area == null));
       Log.Info($"Destroyed area {area.Name}");
       area.Destroy();
     }

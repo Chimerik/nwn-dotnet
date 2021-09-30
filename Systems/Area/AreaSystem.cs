@@ -42,10 +42,8 @@ namespace NWN.Systems
         Task waitLoopEnd = NwTask.Run(async () =>
         {
           await NwTask.Delay(TimeSpan.FromSeconds(0.2));
-
           NwWaypoint spawnPoint = NwWaypoint.Create("creature_spawn", creature.Location);
           spawnPoint.GetObjectVariable<LocalVariableString>("creature").Value = creature.Serialize().ToBase64EncodedString();
-
           creature.Destroy();
         });
       }
@@ -53,20 +51,13 @@ namespace NWN.Systems
 
     public static void OnAreaEnter(AreaEvents.OnEnter onEnter)
     {
-      Log.Info("area enter 1");
       NwArea area = onEnter.Area;
 
       if(onEnter.EnteringObject is NwCreature { IsPlayerControlled: false })
-      {
-        Log.Info("area enter npc off");
         return;
-      }
-
-      Log.Info("area enter pc on");
-
-      if (area.FindObjectsOfTypeInArea<NwWaypoint>().Any(w => w.Tag == "creature_spawn" && w.GetObjectVariable<LocalVariableBool>("active").HasNothing))
-        foreach (NwWaypoint spawnPoint in area.FindObjectsOfTypeInArea<NwWaypoint>().Where(w => w.Tag == "creature_spawn"))
-          CreateSpawnAoE(spawnPoint);
+      
+       if (NwModule.Instance.Players.Count(p => p.ControlledCreature.Area == area) == 1)
+        CreateSpawnChecker(area);
 
       if (!PlayerSystem.Players.TryGetValue(onEnter.EnteringObject, out PlayerSystem.Player player)) //EN FONCTION DE SI LA ZONE EST REST OU PAS, ON AFFICHE LA PROGRESSION DU JOURNAL DE CRAFT
         return;
@@ -125,11 +116,7 @@ namespace NWN.Systems
         Log.Info($"{player.oid.PlayerName} vient de quitter la zone {area.Name} en se déconnectant.");
       }
 
-      bool playerInArea = area.FindObjectsOfTypeInArea<NwCreature>().Any(c => c.IsPlayerControlled);
-
-      ResetAreaSpawns(area, playerInArea);
-
-      if (!playerInArea)
+      if (!NwModule.Instance.Players.Any(p => p.ControlledCreature.Area == area))
         AreaCleaner(area);
     }
     public static void OnPersonnalStorageAreaExit(AreaEvents.OnExit onExit)
