@@ -26,9 +26,7 @@ namespace NWN.Systems
 
         if (player.oid.PlayerName == "Chim")
         {
-          NwWaypoint test = player.oid.ControlledCreature.GetNearestObjectsByType<NwWaypoint>().FirstOrDefault();
-          Log.Info($"distance : {player.oid.ControlledCreature.Distance(test)}");
-          Log.Info($"distance squarred : {player.oid.ControlledCreature.DistanceSquared(test)}");
+          player.CreateFishingMiniGameWindow();
           //player.CreateLearnablesWindow();
 
           //player.CreateQuickLootWindow(player.oid.ControlledCreature.Area.FindObjectsOfTypeInArea<NwItem>().FirstOrDefault(i => i.Possessor is null && i.DistanceSquared(player.oid.ControlledCreature) < 25));
