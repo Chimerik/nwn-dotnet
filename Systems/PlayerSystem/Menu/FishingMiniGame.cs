@@ -47,8 +47,13 @@ namespace NWN.Systems
           {
             new NuiProgress
             { 
-               Value = 1
+               Value = 1,
+               //Color = new NuiColor(150, 25, 25)
             },
+            new NuiColorPicker
+            {
+               
+            }
             /*new NuiChart
             {
              ChartSlots = slotTest,

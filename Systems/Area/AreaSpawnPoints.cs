@@ -106,12 +106,8 @@ namespace NWN.Systems
 
     private static async void CheckDistanceFromSpawn(CreatureEvents.OnHeartbeat onHB)
     {
-      Log.Info("HB spawn distance check on");
       if (onHB.Creature.GetObjectVariable<LocalVariableObject<NwWaypoint>>("_SPAWN").Value.DistanceSquared(onHB.Creature) < 1600)
-      {
-        Log.Info("HB spawn distance check off (NO RESET)");
         return;
-      }
 
       onHB.Creature.AiLevel = AiLevel.VeryLow;
       await onHB.Creature.ClearActionQueue();
@@ -121,8 +117,6 @@ namespace NWN.Systems
       regen.Tag = "mob_reset_regen";
       regen.SubType = EffectSubType.Supernatural;
       onHB.Creature.ApplyEffect(EffectDuration.Permanent, regen);
-
-      Log.Info("HB spawn distance check off (RESETTING)");
     }
 
     /*private static void OnDeathSpawnNPCWaypoint(CreatureEvents.OnDeath onDeath)
