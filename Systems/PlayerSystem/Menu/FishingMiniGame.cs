@@ -47,7 +47,7 @@ namespace NWN.Systems
           {
             new NuiProgress
             { 
-               Value = progress
+               Value = 1
             },
             /*new NuiChart
             {
@@ -85,7 +85,7 @@ namespace NWN.Systems
         geometry.SetBindValue(oid, token, windowRectangle);
         geometry.SetBindWatch(oid, token, true);
 
-        ModuleSystem.scheduler.ScheduleRepeating(() => 
+        /*ModuleSystem.scheduler.ScheduleRepeating(() => 
         {
           if (progressValue > 0.99) reverse = true;
           if (progressValue < 0.01) reverse = false;
@@ -93,7 +93,7 @@ namespace NWN.Systems
           progressValue = reverse ? progressValue - 0.01f : progressValue + 0.01f;
           progress.SetBindValue(oid, token, progressValue);
         }, 
-        TimeSpan.FromSeconds(0.1));
+        TimeSpan.FromSeconds(0.1));*/
       }
     }
   }
