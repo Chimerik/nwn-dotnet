@@ -4,39 +4,31 @@ using Anvil.API;
 
 namespace NWN.Systems
 {
-  class PortraitDemo
+  public partial class PlayerSystem
   {
-    public readonly NuiBind<string> portraitId;
-    public readonly NuiBind<string> portraitResRef;
-    public readonly NuiBind<bool> btnPrevEnabled;
-    public readonly NuiBind<bool> btnSetEnabled;
-    public readonly NuiBind<bool> btnNextEnabled;
-    public readonly NuiBind<int> portraitCategory;
-    public readonly NuiBind<bool> collapsed;
-    public readonly NuiBind<NuiRect> geometry;
-    public readonly NuiWindow window;
-
-    public PortraitDemo()
+    public partial class Player
     {
-      portraitId = new NuiBind<string>("po_id");
-      portraitResRef = new NuiBind<string>("po_resref");
-      btnPrevEnabled = new NuiBind<bool>("btnpreve");
-      btnSetEnabled = new NuiBind<bool>("btnoke");
-      btnNextEnabled = new NuiBind<bool>("btnnexte");
-      portraitCategory = new NuiBind<int>("po_category");
-      collapsed = new NuiBind<bool>("collapsed");
-      geometry = new NuiBind<NuiRect>("geometry");
-      
-      List<NuiComboEntry> comboValues = new List<NuiComboEntry>
+      public void CreatePortraitDemoWindow()
+      {
+        NuiBind<string> portraitId = new NuiBind<string>("po_id");
+        NuiBind<string> portraitResRef = new NuiBind<string>("po_resref");
+        NuiBind<bool> btnPrevEnabled = new NuiBind<bool>("btnpreve");
+        NuiBind<bool> btnSetEnabled = new NuiBind<bool>("btnoke");
+        NuiBind<bool> btnNextEnabled = new NuiBind<bool>("btnnexte");
+        NuiBind<int> portraitCategory = new NuiBind<int>("po_category");
+        NuiBind<bool> collapsed = new NuiBind<bool>("collapsed");
+        NuiBind<NuiRect> geometry = new NuiBind<NuiRect>("geometry");
+
+        List<NuiComboEntry> comboValues = new List<NuiComboEntry>
       {
         new NuiComboEntry("Cats (164-167)", 0),
         new NuiComboEntry("Dragonos !! (191-200)", 1)
       };
 
-      // Construct the window layout.
-      NuiCol root = new NuiCol
-      {
-        Children = new List<NuiElement>
+        // Construct the window layout.
+        NuiCol root = new NuiCol
+        {
+          Children = new List<NuiElement>
         {
           new NuiRow
           {
@@ -47,7 +39,7 @@ namespace NWN.Systems
               new NuiLabel
               {
                 Value = portraitResRef,
-                TextColor = new NuiColor(255, 100, 0)
+                ForegroundColor = new NuiColor(255, 100, 0)
               },
               new NuiSpacer()
             }
@@ -131,34 +123,35 @@ namespace NWN.Systems
             }
           }
         }
-      };
+        };
 
-      window = new NuiWindow
-      {
-        Root = root,
-        Title = "Portrait démo",
-        Geometry = new NuiRect(420.0f, 10.0f, 400.0f, 600.0f),
-        Resizable = true,
-        Collapsed = collapsed,
-        Closable = true,
-        Transparent = false,
-        Border = true,
-      };
-    }
-    public void CreateNewWindowForPlayer(NwPlayer player)
-    {
-      int token = player.CreateNuiWindow(MenuSystem.portraitDemo.window, "portrait_demo");
+        NuiWindow window = new NuiWindow
+        {
+          Root = root,
+          Title = "Portrait démo",
+          Geometry = new NuiRect(420.0f, 10.0f, 400.0f, 600.0f),
+          Resizable = true,
+          Collapsed = collapsed,
+          Closable = true,
+          Transparent = false,
+          Border = true,
+        };
 
-      int id = 164;
+        oid.OnNuiEvent += HandlePortraitDemoEvents;
 
-      string resRef = "po_" + Portraits2da.portraitsTable.GetDataEntry(id).resRef + "h";
-      MenuSystem.portraitDemo.portraitId.SetBindValue(player, token, id.ToString());
-      MenuSystem.portraitDemo.portraitResRef.SetBindValue(player, token, resRef);
-      MenuSystem.portraitDemo.btnPrevEnabled.SetBindValue(player, token, false);
-      MenuSystem.portraitDemo.btnNextEnabled.SetBindValue(player, token, true);
-      MenuSystem.portraitDemo.portraitCategory.SetBindValue(player, token, 0);
-      MenuSystem.portraitDemo.portraitCategory.SetBindWatch(player, token, true);
-      MenuSystem.portraitDemo.collapsed.SetBindWatch(player, token, true);
+        int token = oid.CreateNuiWindow(window, "portrait_demo");
+
+        int id = 164;
+
+        string resRef = "po_" + Portraits2da.portraitsTable.GetDataEntry(id).resRef + "h";
+        portraitId.SetBindValue(oid, token, id.ToString());
+        portraitResRef.SetBindValue(oid, token, resRef);
+        btnPrevEnabled.SetBindValue(oid, token, false);
+        btnNextEnabled.SetBindValue(oid, token, true);
+        portraitCategory.SetBindValue(oid, token, 0);
+        portraitCategory.SetBindWatch(oid, token, true);
+        collapsed.SetBindWatch(oid, token, true);
+      }
     }
   }
 }

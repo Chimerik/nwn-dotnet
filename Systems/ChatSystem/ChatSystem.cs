@@ -24,7 +24,7 @@ namespace NWN.Systems
       chatService = customChatService;
     }
 
-    private void OnNWNXChatEvent(OnChatMessageSend onChat)
+    private static void OnNWNXChatEvent(OnChatMessageSend onChat)
     {
       if(onChat.ChatChannel == ChatChannel.ServerMessage)
         return;
@@ -41,8 +41,6 @@ namespace NWN.Systems
         areaName = "Entre deux zones";
 
       chatReceivers.Clear();
-
-      Log.Info($"target 1 : {onChat.Target}");
 
       pipeline.Execute(new Context(
         msg: onChat.Message,
@@ -116,10 +114,10 @@ namespace NWN.Systems
     {
       if (ctx.oTarget != null && PlayerSystem.Players.TryGetValue(ctx.oTarget.LoginCreature, out PlayerSystem.Player targetPlayer))
       {
-        if (!ctx.oSender.IsDM && (targetPlayer.mutedList.Contains(player.accountId) || targetPlayer.mutedList.Contains(0)))
+        if (targetPlayer.mutedList.Count() > 0 && !ctx.oSender.IsDM && (targetPlayer.mutedList.Contains(player.accountId) || targetPlayer.mutedList.Contains(0)))
         {
           ctx.onChat.Skip = true;
-          ctx.oSender.SendServerMessage($"{ctx.oTarget.LoginCreature.Name.ColorString(ColorConstants.White)} bloque actuellement la réception des mp.", ColorConstants.Red);
+          ctx.oSender.SendServerMessage($"{ctx.oTarget.LoginCreature.Name.ColorString(ColorConstants.White)} ne souhaite actuellement pas recevoir de mp.", ColorConstants.Red);
           return;
         }
       }
@@ -128,16 +126,10 @@ namespace NWN.Systems
     }
     public static void HandlePM(Context ctx)
     {
-      Log.Info($" target : {ctx.oTarget}");
       if (ctx.oTarget != null)
       {
-        /*if (ctx.oTarget.GetLocalVariable<NwObject>("_POSSESSING").HasValue)
-          ChatPlugin.SendMessage(ctx.channel, ctx.msg, ctx.oSender, ctx.oTarget.GetLocalVariable<NwObject>("_POSSESSING").Value);
-        else*/
         if (!chatReceivers.ContainsKey(ctx.oTarget))
           chatReceivers.Add(ctx.oTarget, ctx.msg);
-          //ChatPlugin.SendMessage(ctx.channel, ctx.msg, ctx.oSender, ctx.oTarget);
-        ///return;
       }
       else
       {
@@ -228,10 +220,12 @@ namespace NWN.Systems
     }
     public static void ProcessChatColorMiddleware(Context ctx, Action next)
     {
+      NwModule.Instance.OnChatMessageSend -= OnNWNXChatEvent;
+
       foreach (KeyValuePair<NwPlayer, string> chatReceiver in chatReceivers)
       {
         ctx.onChat.Skip = true;
-        
+
         if (!PlayerSystem.Players.TryGetValue(chatReceiver.Key.LoginCreature, out PlayerSystem.Player player))
         {
           chatService.SendMessage(ctx.channel, chatReceiver.Value, ctx.oSender.ControlledCreature, chatReceiver.Key);
@@ -248,6 +242,9 @@ namespace NWN.Systems
 
         chatService.SendMessage(ctx.channel, coloredChat, ctx.oSender.ControlledCreature, chatReceiver.Key);
       }
+
+      NwModule.Instance.OnChatMessageSend += OnNWNXChatEvent;
+
       next();
     }
     public static string HandleEmoteColoration(PlayerSystem.Player player, string chat)

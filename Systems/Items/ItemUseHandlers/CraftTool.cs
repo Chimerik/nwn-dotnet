@@ -269,7 +269,7 @@ namespace NWN.Systems
       {
         player.menu.titleLines = new List<string> {
         "Faites défiler les couleurs à l'aide de Suivant et Précédent.",
-        "Ou bien prononcez directement une valeur de couleur à l'oral (entre 0 et 64)"
+        "Ou bien prononcez directement une valeur de couleur à l'oral (entre 0 et 255)"
         };
 
         if(LocationTypeColorChoice == 1)
@@ -283,17 +283,9 @@ namespace NWN.Systems
             if (choice > -1)
               currentValue = (byte)choice;
             else if (modification == 1)
-            {
               currentValue++;
-              if (currentValue > 64)
-                currentValue = 0;
-            }
             else if (modification == -1)
-            {
               currentValue--;
-              if (currentValue > 64)
-                currentValue = 64;
-            }
 
             item.Appearance.SetArmorColor((ItemAppearanceArmorColor)colorChannelChoice, currentValue);
             NwItem newItem = item.Clone(player.oid.LoginCreature);
@@ -321,17 +313,9 @@ namespace NWN.Systems
             if (choice > -1)
               currentValue = (byte)choice;
             else if (modification == 1)
-            {
               currentValue++;
-              if (currentValue > 64)
-                currentValue = 0;
-            }
             else if (modification == -1)
-            {
               currentValue--;
-              if (currentValue > 64)
-                currentValue = 64;
-            }
 
             item.Appearance.SetArmorPieceColor((ItemAppearanceArmorModel)armorPartChoice, (ItemAppearanceArmorColor)colorChannelChoice, currentValue);
             NwItem newItem = item.Clone(player.oid.LoginCreature);

@@ -357,6 +357,8 @@ namespace NWN.Systems
         player.LoginCreature.OnItemScrollLearn += HandleBeforeScrollLearn;
         player.LoginCreature.OnItemUnequip += ItemSystem.HandleUnequipItemBefore;
         player.LoginCreature.OnUseSkill += HandleBeforeSkillUsed;
+        player.OnPlayerGuiEvent += HandleGuiEvents;
+        player.OnNuiEvent += HandleGenericNuiEvents;
       }
       private void InitializePlayerAccount()
       {

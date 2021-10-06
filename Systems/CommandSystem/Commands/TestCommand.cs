@@ -26,7 +26,8 @@ namespace NWN.Systems
 
         if (player.oid.PlayerName == "Chim")
         {
-          player.CreateFishingMiniGameWindow();
+          //player.CreatePortraitDemoWindow();
+          player.CreateFishingMiniGameWindow(); 
           //player.CreateLearnablesWindow();
 
           //player.CreateQuickLootWindow(player.oid.ControlledCreature.Area.FindObjectsOfTypeInArea<NwItem>().FirstOrDefault(i => i.Possessor is null && i.DistanceSquared(player.oid.ControlledCreature) < 25));

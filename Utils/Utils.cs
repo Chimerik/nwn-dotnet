@@ -107,7 +107,7 @@ namespace NWN
       if (timespan.TotalMinutes >= 1)
         formattedTimespan += $"{timespan.Minutes}m ";
 
-      if(timespan.TotalHours < 1)
+      if (timespan.TotalHours < 1)
         formattedTimespan += $"{timespan.Seconds}s ";
 
       return formattedTimespan;
@@ -119,12 +119,12 @@ namespace NWN
         case 0: return Animation.LoopingPause;
         case 52: return Animation.LoopingPause2;
         case 30: return Animation.LoopingListen;
-        case 32: return Animation.LoopingMeditate; 
-        case 33: return Animation.LoopingWorship; 
-        case 48: return Animation.LoopingLookFar; 
-        case 36: return Animation.LoopingSitChair; 
-        case 47: return Animation.LoopingSitCross; 
-        case 38: return Animation.LoopingTalkNormal; 
+        case 32: return Animation.LoopingMeditate;
+        case 33: return Animation.LoopingWorship;
+        case 48: return Animation.LoopingLookFar;
+        case 36: return Animation.LoopingSitChair;
+        case 47: return Animation.LoopingSitCross;
+        case 38: return Animation.LoopingTalkNormal;
         case 39: return Animation.LoopingTalkPleading;
         case 40: return Animation.LoopingTalkForceful;
         case 41: return Animation.LoopingTalkLaughing;
@@ -136,7 +136,7 @@ namespace NWN
         case 8: return Animation.LoopingDeadBack;
         case 15: return Animation.LoopingConjure1;
         case 16: return Animation.LoopingConjure2;
-        case 93: return Animation.LoopingCustom1 ;
+        case 93: return Animation.LoopingCustom1;
         case 98: return Animation.LoopingCustom2;
         case 101: return Animation.LoopingCustom3;
         case 102: return Animation.LoopingCustom4;
@@ -231,7 +231,7 @@ namespace NWN
     }
     public static void ResetVisualTransform(NwCreature creature)
     {
-      creature.VisualTransform.Rotation = new Vector3(0, 0 ,0);
+      creature.VisualTransform.Rotation = new Vector3(0, 0, 0);
       creature.VisualTransform.Translation = new Vector3(0, 0, 0);
 
       if (creature.IsPlayerControlled)
@@ -261,7 +261,7 @@ namespace NWN
     }
     public static string Util_GetIconResref(NwItem oItem)
     {
-      switch(oItem.BaseItemType)
+      switch (oItem.BaseItemType)
       {
         case BaseItemType.Cloak: // Cloaks use PLTs so their default icon doesn't really work
           return "iit_cloak";
@@ -270,10 +270,10 @@ namespace NWN
 
           if (oItem.HasItemProperty(ItemPropertyType.CastSpell))
             return ItemPropertySpells2da.spellsTable.GetSpellDataEntry(oItem.ItemProperties.FirstOrDefault(ip => ip.PropertyType == ItemPropertyType.CastSpell).SubType).icon;
-          
+
           break;
         default:
-          
+
           if (BaseItems2da.baseItemTable.GetBaseItemDataEntry(oItem.BaseItemType).modelType == 0) // Create the icon resref for simple modeltype items
           {
             IntPtr jSimpleModel = GffGetByte(NWScript.ObjectToJson(oItem), "ModelPart1");
@@ -284,7 +284,7 @@ namespace NWN
               {
                 sSimpleModelId = "0" + sSimpleModelId;
               }
-              
+
               string sDefaultIcon = BaseItems2da.baseItemTable.GetBaseItemDataEntry(oItem.BaseItemType).defaultIcon;
               switch (oItem.BaseItemType)
               {
@@ -316,7 +316,7 @@ namespace NWN
 
           break;
       }
-     
+
       // For everything else use the item's default icon
       return BaseItems2da.baseItemTable.GetBaseItemDataEntry(oItem.BaseItemType).defaultIcon;
     }

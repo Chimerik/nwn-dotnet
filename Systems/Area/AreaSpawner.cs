@@ -19,7 +19,7 @@ namespace NWN.Systems
         {
           if (NwModule.Instance.Players.Any(p => p.ControlledCreature.Area == area && p.ControlledCreature.DistanceSquared(spawnPoint) < 2026))
           {
-            spawnPoint.GetObjectVariable<LocalVariableBool>("_SPAWN_COOLDOWN").Value = true;
+            /*spawnPoint.GetObjectVariable<LocalVariableBool>("_SPAWN_COOLDOWN").Value = true;
 
             NwCreature creature = NwCreature.Deserialize(spawnPoint.GetObjectVariable<LocalVariableString>("creature").Value.ToByteArray());
             if (creature != null)
@@ -31,7 +31,7 @@ namespace NWN.Systems
               creature.OnDeath += OnMobDeathResetSpawn;
               creature.GetObjectVariable<LocalVariableObject<NwWaypoint>>("_SPAWN").Value = spawnPoint;
               HandleSpawnSpecificBehaviour(creature);
-            }
+            }*/
           }
         }
       }

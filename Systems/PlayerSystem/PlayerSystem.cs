@@ -345,70 +345,96 @@ namespace NWN.Systems
       }
     }
 
-    [ScriptHandler("on_nui_event")]
-    private void HandleNuiEvent(CallInfo callInfo)
+    private static void HandlePortraitDemoEvents(ModuleEvents.OnNuiEvent nuiEvent)
     {
-      Log.Info($"nui window token : {NWScript.NuiGetEventWindow()}");
-      Log.Info($"nui window id : {NWScript.NuiGetWindowId(NWScript.NuiGetEventPlayer(), NWScript.NuiGetEventWindow())}");
-      Log.Info($"nui element : {NWScript.NuiGetEventElement()}");
-      Log.Info($"nui event : {NWScript.NuiGetEventType()}");
+      if (nuiEvent.Player.NuiGetWindowId(nuiEvent.WindowToken) != "portrait_demo")
+        return;
 
-      int windowToken = NWScript.NuiGetEventWindow();
-      NwCreature oPC = NWScript.NuiGetEventPlayer().ToNwObject<NwCreature>();
-      string window = NWScript.NuiGetWindowId(oPC, windowToken);
-      string eventElement = NWScript.NuiGetEventElement();
-      string eventType = NWScript.NuiGetEventType();
-
-      switch (window)
+      switch (nuiEvent.ElementId)
       {
-        case "portrait_demo":
+        case "btnnext":
 
-          switch (eventElement)
+          switch (nuiEvent.EventType)
           {
-            case "btnnext":
+            case NuiEventType.Click:
 
-              switch (eventType)
+              NuiBind<string> portraitId = new NuiBind<string>("po_id");
+              NuiBind<string> portraitResRef = new NuiBind<string>("po_resref");
+              NuiBind<int> portraitCategory = new NuiBind<int>("po_category");
+              int min = 0;
+              int max = 0;
+
+              switch (portraitCategory.GetBindValue(nuiEvent.Player, nuiEvent.WindowToken))
               {
-                case "click":
-
-                  NuiBind<string> portraitId = new NuiBind<string>("po_id");
-                  NuiBind<string> portraitResRef = new NuiBind<string>("po_resref");
-                  NuiBind<int> portraitCategory = new NuiBind<int>("po_category");
-                  int min = 0;
-                  int max = 0;
-
-                  switch (portraitCategory.GetBindValue(oPC.ControllingPlayer, windowToken))
-                  {
-                    case 0:
-                      min = 164;
-                      max = 167;
-                      break;
-                  }
-
-                  int po_id = int.Parse(portraitId.GetBindValue(oPC.ControllingPlayer, windowToken)) + 1;
-                  string resRef = "po_" + Portraits2da.portraitsTable.GetDataEntry(po_id).resRef + "h";
-
-                  if (po_id > max) po_id = min;
-                  if (po_id < min) po_id = max;
-
-                  portraitId.SetBindValue(oPC.ControllingPlayer, windowToken, po_id.ToString());
-                  portraitResRef.SetBindValue(oPC.ControllingPlayer, windowToken, resRef);
-
-                  Log.Info($"id : {po_id}, resRef : {resRef}");
+                case 0:
+                  min = 164;
+                  max = 167;
                   break;
               }
+
+              int po_id = int.Parse(portraitId.GetBindValue(nuiEvent.Player, nuiEvent.WindowToken)) + 1;
+              string resRef = "po_" + Portraits2da.portraitsTable.GetDataEntry(po_id).resRef + "h";
+
+              if (po_id > max) po_id = min;
+              if (po_id < min) po_id = max;
+
+              portraitId.SetBindValue(nuiEvent.Player, nuiEvent.WindowToken, po_id.ToString());
+              portraitResRef.SetBindValue(nuiEvent.Player, nuiEvent.WindowToken, resRef);
 
               break;
           }
 
           break;
+      }
+    }
+    private static void HandleFishingMiniGameEvents(ModuleEvents.OnNuiEvent nuiEvent)
+    {
+      if (nuiEvent.Player.NuiGetWindowId(nuiEvent.WindowToken) != "fishingMiniGame")
+        return;
 
+      switch (nuiEvent.ElementId)
+      {
+        case "slider":
+
+          switch (nuiEvent.EventType)
+          {
+            case NuiEventType.Watch:
+
+              int sliderValue = new NuiBind<int>("slider").GetBindValue(nuiEvent.Player, nuiEvent.WindowToken);
+              NuiBind<string> selector = new NuiBind<string>("selection");
+              int selectedValue = int.Parse(selector.GetBindValue(nuiEvent.Player, nuiEvent.WindowToken));
+
+              if (sliderValue == selectedValue)
+                return;
+
+              nuiEvent.Player.ControlledCreature.SetColor(ColorChannel.Hair, sliderValue);
+              selector.SetBindValue(nuiEvent.Player, nuiEvent.WindowToken, sliderValue.ToString());
+
+              break;
+          }
+
+          break;
+      }
+    }
+      private static void HandleGenericNuiEvents(ModuleEvents.OnNuiEvent nuiEvent)
+    {
+      int windowToken = NWScript.NuiGetEventWindow();
+      string window = nuiEvent.Player.NuiGetWindowId(nuiEvent.WindowToken);
+      string eventElement = nuiEvent.ElementId;
+      NuiEventType eventType = nuiEvent.EventType;
+
+      Log.Info($"nui window id : {window}");
+      Log.Info($"nui element : {eventElement}");
+      Log.Info($"nui event : {eventType}");
+      Log.Info($"nwscript nuit event : {NWScript.NuiGetEventType()}");
+
+      switch (window)
+      {
         case "chat":
 
           NuiBind<NuiRect> geometry = new NuiBind<NuiRect>("geometry");
-          NuiRect windowRectangle = geometry.GetBindValue(oPC.ControllingPlayer, windowToken);
-          Log.Info($"x : {windowRectangle.X} - y : {windowRectangle.Y} - w : {windowRectangle.Width} - h : {windowRectangle.Height}");
-
+          NuiRect windowRectangle = geometry.GetBindValue(nuiEvent.Player, windowToken);
+   
           switch (eventElement)
           {
             case "fix":
@@ -417,19 +443,19 @@ namespace NWN.Systems
               NuiBind<bool> closableWidget = new NuiBind<bool>("closable");
               NuiBind<bool> resizableWidget = new NuiBind<bool>("resizable");
 
-              switch (fixWidgetValue.GetBindValue(oPC.ControllingPlayer, windowToken))
+              switch (fixWidgetValue.GetBindValue(nuiEvent.Player, windowToken))
               {
                 case false:
 
-                  closableWidget.SetBindValue(oPC.ControllingPlayer, windowToken, true);
-                  resizableWidget.SetBindValue(oPC.ControllingPlayer, windowToken, true);
+                  closableWidget.SetBindValue(nuiEvent.Player, windowToken, true);
+                  resizableWidget.SetBindValue(nuiEvent.Player, windowToken, true);
 
                   break;
 
                 case true:
 
-                  closableWidget.SetBindValue(oPC.ControllingPlayer, windowToken, false);
-                  resizableWidget.SetBindValue(oPC.ControllingPlayer, windowToken, false);
+                  closableWidget.SetBindValue(nuiEvent.Player, windowToken, false);
+                  resizableWidget.SetBindValue(nuiEvent.Player, windowToken, false);
 
                   break;
               }
@@ -438,10 +464,10 @@ namespace NWN.Systems
 
             case "send":
 
-              if (eventType == "click")
+              if (eventType == NuiEventType.Click)
               {
                 NuiBind<string> writingWidget = new NuiBind<string>("writingChat");
-                string message = writingWidget.GetBindValue(oPC.ControllingPlayer, windowToken);
+                string message = writingWidget.GetBindValue(nuiEvent.Player, windowToken);
 
                 if (message.Length > 0)
                 {
@@ -450,15 +476,15 @@ namespace NWN.Systems
                   string messageTarget = "";
 
                   if (!message.StartsWith("/"))
-                    iChannel = new NuiBind<int>("channel").GetBindValue(oPC.ControllingPlayer, windowToken);
+                    iChannel = new NuiBind<int>("channel").GetBindValue(nuiEvent.Player, windowToken);
                   else
                   {
-                    switch(message.Substring(0, message.IndexOf(" ")))
+                    switch (message.Substring(0, message.IndexOf(" ")))
                     {
                       case "/tk":
                         iChannel = 1;
                         message = message.Replace("/tk", "");
-                      break;
+                        break;
                       case "/s":
                         iChannel = 2;
                         message = message.Replace("/s", "");
@@ -479,29 +505,29 @@ namespace NWN.Systems
                       case "/tp":
                         iChannel = 4;
 
-                        try 
-                        { 
+                        try
+                        {
                           messageTarget = message.Split('"', 2)[1];
                           target = NwModule.Instance.Players.FirstOrDefault(p => p.PlayerName == messageTarget || p.LoginCreature.Name == messageTarget || p.ControlledCreature.Name == messageTarget);
                           message = message.Remove(0, message.IndexOf('"', message.IndexOf('"') + 1) + 1);
                         }
-                        catch(Exception) 
-                        { 
+                        catch (Exception)
+                        {
                           messageTarget = "error";
-                          oPC.ControllingPlayer.SendServerMessage("Commande incorrectement formée. Impossible d'envoyer le message", ColorConstants.Red);
+                          nuiEvent.Player.SendServerMessage("Commande incorrectement formée. Impossible d'envoyer le message", ColorConstants.Red);
                         }
 
                         break;
                     }
                   }
-                  
-                  if (oPC.ControllingPlayer.IsDM)
+
+                  if (nuiEvent.Player.IsDM)
                     iChannel += 16;
 
-                  if(messageTarget  != "error")
-                    ChatSystem.chatService.SendMessage((ChatChannel)iChannel, message, oPC, target);
+                  if (messageTarget != "error")
+                    ChatSystem.chatService.SendMessage((ChatChannel)iChannel, message, nuiEvent.Player.ControlledCreature, target);
 
-                  writingWidget.SetBindValue(oPC.ControllingPlayer, windowToken, "");
+                  writingWidget.SetBindValue(nuiEvent.Player, windowToken, "");
                 }
               }
 
@@ -509,25 +535,25 @@ namespace NWN.Systems
 
             case "chatWriter":
 
-              switch(eventType)
+              switch (NWScript.NuiGetEventType())
               {
                 case "focus":
 
-                  int channel = new NuiBind<int>("channel").GetBindValue(oPC.ControllingPlayer, windowToken);
-                  string command = new NuiBind<string>("writingChat").GetBindValue(oPC.ControllingPlayer, windowToken);
+                  int channel = new NuiBind<int>("channel").GetBindValue(nuiEvent.Player, windowToken);
+                  string command = new NuiBind<string>("writingChat").GetBindValue(nuiEvent.Player, windowToken);
                   if ((channel == 1 || channel == 3) && !(command.StartsWith("/") || command.StartsWith("!")))
                   {
                     Effect visualMark = Effect.VisualEffect((VfxType)1248);
                     visualMark.Tag = "VFX_SPEAKING_MARK";
                     visualMark.SubType = EffectSubType.Supernatural;
-                    oPC.ApplyEffect(EffectDuration.Permanent, visualMark);
+                    nuiEvent.Player.ControlledCreature.ApplyEffect(EffectDuration.Permanent, visualMark);
                   }
 
                   break;
 
                 case "blur":
-                  foreach (Effect eff in oPC.ActiveEffects.Where(e => e.Tag == "VFX_SPEAKING_MARK"))
-                    oPC.RemoveEffect(eff);
+                  foreach (Effect eff in nuiEvent.Player.ControlledCreature.ActiveEffects.Where(e => e.Tag == "VFX_SPEAKING_MARK"))
+                    nuiEvent.Player.ControlledCreature.RemoveEffect(eff);
                   break;
               }
 
@@ -542,25 +568,25 @@ namespace NWN.Systems
           {
             case "examine":
 
-              if (eventType == "click")
-                oPC.ControllingPlayer.ActionExamine(new NuiBind<uint>("item").GetBindValue(oPC.ControllingPlayer, windowToken).ToNwObject<NwItem>());
+              if (eventType == NuiEventType.Click)
+                nuiEvent.Player.ActionExamine(new NuiBind<uint>("item").GetBindValue(nuiEvent.Player, windowToken).ToNwObject<NwItem>());
 
-                break;
+              break;
 
             case "take":
 
-              if (eventType == "click")
+              if (eventType == NuiEventType.Click)
               {
-                NwItem item = new NuiBind<uint>("item").GetBindValue(oPC.ControllingPlayer, windowToken).ToNwObject<NwItem>();
+                NwItem item = new NuiBind<uint>("item").GetBindValue(nuiEvent.Player, windowToken).ToNwObject<NwItem>();
                 if (item.IsValid && item.Possessor is null)
                 {
                   item.Destroy();
-                  item.Clone(oPC);
+                  item.Clone(nuiEvent.Player.ControlledCreature);
 
-                  foreach (NwCreature nearbyPlayer in oPC.Area.FindObjectsOfTypeInArea<NwCreature>().Where(p => p.IsPlayerControlled && p.DistanceSquared(item) < 25))
-                    nearbyPlayer.ControllingPlayer.SendServerMessage($"{oPC.Name.ColorString(ColorConstants.White)} ramasse {item.Name.ColorString(ColorConstants.White)}.");
+                  foreach (NwCreature nearbyPlayer in nuiEvent.Player.ControlledCreature.Area.FindObjectsOfTypeInArea<NwCreature>().Where(p => p.IsPlayerControlled && p.DistanceSquared(item) < 25))
+                    nearbyPlayer.ControllingPlayer.SendServerMessage($"{nuiEvent.Player.ControlledCreature.Name.ColorString(ColorConstants.White)} ramasse {item.Name.ColorString(ColorConstants.White)}.");
                 }
-                
+
 
               }
 
@@ -568,12 +594,12 @@ namespace NWN.Systems
 
             case "ignore":
 
-              if (eventType == "click")
+              if (eventType == NuiEventType.Click)
               {
-                NwItem item = new NuiBind<uint>("item").GetBindValue(oPC.ControllingPlayer, windowToken).ToNwObject<NwItem>();
+                NwItem item = new NuiBind<uint>("item").GetBindValue(nuiEvent.Player, windowToken).ToNwObject<NwItem>();
                 if (item.IsValid)
                 {
-                  item.GetObjectVariable<LocalVariableBool>($"{oPC.ControllingPlayer.PlayerName}_IGNORE_QUICKLOOT").Value = true;
+                  item.GetObjectVariable<LocalVariableBool>($"{nuiEvent.Player.PlayerName}_IGNORE_QUICKLOOT").Value = true;
                 }
 
               }
@@ -584,28 +610,28 @@ namespace NWN.Systems
           break;
       }
 
-      if (!Players.TryGetValue(oPC.ControllingPlayer.LoginCreature, out Player player))
+      if (!Players.TryGetValue(nuiEvent.Player.LoginCreature, out Player player))
         return;
 
-      switch (eventElement) 
+      switch (eventElement)
       {
         case "geometry":
 
           NuiBind<NuiRect> geometry = new NuiBind<NuiRect>("geometry");
-          NuiRect windowRectangle = geometry.GetBindValue(oPC.ControllingPlayer, windowToken);
+          NuiRect windowRectangle = geometry.GetBindValue(nuiEvent.Player, windowToken);
 
           if (player.windowRectangles.ContainsKey(window))
             player.windowRectangles[window] = windowRectangle;
           else
             player.windowRectangles.Add(window, windowRectangle);
 
-          if(player.pcState == Player.PcState.Online)
-            oPC.ControllingPlayer.ExportCharacter();
-        break;
+          if (player.pcState == Player.PcState.Online)
+            nuiEvent.Player.ExportCharacter();
+          break;
 
         case "_window_":
 
-          switch(eventType)
+          switch (NWScript.NuiGetEventType())
           {
             case "open":
               if (!player.openedWindows.Contains(window))
@@ -613,7 +639,7 @@ namespace NWN.Systems
                 player.openedWindows.Add(window);
 
                 if (player.pcState == Player.PcState.Online)
-                  oPC.ControllingPlayer.ExportCharacter();
+                  nuiEvent.Player.ExportCharacter();
               }
               break;
 
@@ -623,52 +649,60 @@ namespace NWN.Systems
                 player.openedWindows.Remove(window);
 
                 if (player.pcState == Player.PcState.Online)
-                  oPC.ControllingPlayer.ExportCharacter();
+                  nuiEvent.Player.ExportCharacter();
               }
               break;
           }
 
-          break;  
+          break;
       }
     }
 
-    [ScriptHandler("on_gui_event")]
-    private void HandleGuiEvent(CallInfo callInfo)
+    [ScriptHandler("on_nui_event")]
+    private void HandleNuiEvent(CallInfo callInfo)
     {
-      NwCreature oPC = NWScript.GetLastGuiEventPlayer().ToNwObject<NwCreature>();
       
-      switch (NWScript.GetLastGuiEventType())
+    }
+
+    private static void HandleGuiEvents(ModuleEvents.OnPlayerGuiEvent guiEvent)
+    {
+      NwPlayer oPC = guiEvent.Player;
+
+      switch (guiEvent.EventType)
       {
-        case NWScript.GUIEVENT_PARTYBAR_PORTRAIT_CLICK:
-          oPC.ControllingPlayer.SendServerMessage("portrait click");
+        case GuiEventType.PartyBarPortraitClick:
+          oPC.SendServerMessage("portrait click");
           break;
 
-        case NWScript.GUIEVENT_PLAYERLIST_PLAYER_CLICK:
-          oPC.ControllingPlayer.SendServerMessage("player list click");
+        case GuiEventType.PlayerListPlayerClick:
+          oPC.SendServerMessage("player list click");
           break;
 
-        case NWScript.GUIEVENT_CHATBAR_FOCUS:
+        case GuiEventType.ChatBarFocus:
 
-          if (NWScript.GetLastGuiEventInteger() > 3)
+          if(guiEvent.ChatBarChannel != ChatBarChannel.Talk && guiEvent.ChatBarChannel != ChatBarChannel.Whisper)
             return;
 
           Effect visualMark = Effect.VisualEffect((VfxType)1248);
           visualMark.Tag = "VFX_SPEAKING_MARK";
           visualMark.SubType = EffectSubType.Supernatural;
-          oPC.ApplyEffect(EffectDuration.Permanent, visualMark);
+          oPC.ControlledCreature.ApplyEffect(EffectDuration.Permanent, visualMark);
 
           break;
 
-        case NWScript.GUIEVENT_CHATBAR_UNFOCUS:
+        case GuiEventType.ChatBarUnFocus:
 
-          foreach (Effect eff in oPC.ActiveEffects.Where(e => e.Tag == "VFX_SPEAKING_MARK"))
-            oPC.RemoveEffect(eff);
+          if (guiEvent.ChatBarChannel != ChatBarChannel.Talk && guiEvent.ChatBarChannel != ChatBarChannel.Whisper)
+            return;
+
+          foreach (Effect eff in oPC.ControlledCreature.ActiveEffects.Where(e => e.Tag == "VFX_SPEAKING_MARK"))
+            oPC.ControlledCreature.RemoveEffect(eff);
 
           break;
 
-        case NWScript.GUIEVENT_EFFECTICON_CLICK:
+        case GuiEventType.EffectIconClick:
 
-          int nEffectIcon = NWScript.GetLastGuiEventInteger();
+          int nEffectIcon = (int)guiEvent.EffectIcon;
           EffectType nIconEffectType = EffectIconToEffectType(nEffectIcon);
 
           if (nIconEffectType == EffectType.InvalidEffect)
@@ -676,7 +710,7 @@ namespace NWN.Systems
 
           bool bSkipDisplay = false, bIsSpellLevelAbsorptionPretendingToBeSpellImmunity = false;
 
-          foreach (Effect eff in oPC.ActiveEffects.Where(e => e.EffectType == nIconEffectType))
+          foreach (Effect eff in oPC.ControlledCreature.ActiveEffects.Where(e => e.EffectType == nIconEffectType))
           {
             SpellsTable.Entry entry;
             string name = "Echec des sorts 50 %";
@@ -957,18 +991,18 @@ namespace NWN.Systems
               message += $"Source : {creator}";
 
 
-              oPC.ControllingPlayer.SendServerMessage(message, ColorConstants.Orange);
+              oPC.SendServerMessage(message, ColorConstants.Orange);
             }
           }
-          
+
           break;
       }
     }
-    string GetModifierType(EffectType nEffectType, EffectType nPlus, EffectType nMinus)
+    private static string GetModifierType(EffectType nEffectType, EffectType nPlus, EffectType nMinus)
     {
       return nEffectType == nPlus ? "+" : nEffectType == nMinus ? "-" : "";
     }
-    string ACTypeToString(int nACType)
+    private static string ACTypeToString(int nACType)
     {
       
       switch ((ACBonus)nACType)
@@ -982,7 +1016,7 @@ namespace NWN.Systems
 
       return "";
     }
-    string SpellSchoolToString(int nSpellSchool)
+    private static string SpellSchoolToString(int nSpellSchool)
     {
       switch (nSpellSchool)
       {
@@ -1000,7 +1034,7 @@ namespace NWN.Systems
       return "";
     }
 
-    string MissChanceToString(int nMissChance)
+    private static string MissChanceToString(int nMissChance)
     {
       switch ((MissChanceType)nMissChance)
       {
@@ -1010,7 +1044,7 @@ namespace NWN.Systems
 
       return "";
     }
-    DamageType DamageTypeFromEffectIconDamageImmunity(int nEffectIcon)
+    private static DamageType DamageTypeFromEffectIconDamageImmunity(int nEffectIcon)
     {
       switch (nEffectIcon)
       {
@@ -1045,7 +1079,7 @@ namespace NWN.Systems
 
       return DamageType.BaseWeapon;
     }
-    ImmunityType ImmunityTypeFromEffectIconImmunity(int nEffectIcon)
+    private static ImmunityType ImmunityTypeFromEffectIconImmunity(int nEffectIcon)
     {
       switch (nEffectIcon)
       {
@@ -1085,7 +1119,7 @@ namespace NWN.Systems
 
       return ImmunityType.None;
     }
-    string AbilityToString(Ability nAbility)
+    private static string AbilityToString(Ability nAbility)
     {
       switch (nAbility)
       {
@@ -1099,7 +1133,7 @@ namespace NWN.Systems
 
       return "";
     }
-    string DamageTypeToString(int nDamageType)
+    private static string DamageTypeToString(int nDamageType)
     {
       switch ((DamageType)nDamageType)
       {
@@ -1120,7 +1154,7 @@ namespace NWN.Systems
 
       return "";
     }
-    Ability AbilityTypeFromEffectIconAbility(int nEffectIcon)
+    private static Ability AbilityTypeFromEffectIconAbility(int nEffectIcon)
     {
       switch (nEffectIcon)
       {
@@ -1147,7 +1181,7 @@ namespace NWN.Systems
       return Ability.Strength;
     }
 
-    string SavingThrowToString(int nSavingThrow)
+    private static string SavingThrowToString(int nSavingThrow)
     {
       switch (nSavingThrow)
       {
@@ -1159,7 +1193,7 @@ namespace NWN.Systems
 
       return "";
     }
-    string SavingThrowTypeToString(int nSavingThrowType)
+    private static string SavingThrowTypeToString(int nSavingThrowType)
     {
       switch ((SavingThrowType)nSavingThrowType)
       {
@@ -1186,7 +1220,7 @@ namespace NWN.Systems
 
       return "";
     }
-    string GetVersusRacialTypeAndAlignment(int nRacialType, int nLawfulChaotic, int nGoodEvil)
+    private static string GetVersusRacialTypeAndAlignment(int nRacialType, int nLawfulChaotic, int nGoodEvil)
     {
       string sRacialType = nRacialType == NWScript.RACIAL_TYPE_INVALID ? "" : NWScript.GetStringByStrRef(int.Parse(NWScript.Get2DAString("racialtypes", "NamePlural", nRacialType)));
       string sLawfulChaotic = nLawfulChaotic == NWScript.ALIGNMENT_LAWFUL ? "Lawful" : nLawfulChaotic == NWScript.ALIGNMENT_CHAOTIC ? "Chaotic" : "";
@@ -1194,7 +1228,7 @@ namespace NWN.Systems
       string sAlignment = sLawfulChaotic + (sLawfulChaotic == "" ? sGoodEvil : (sGoodEvil == "" ? "" : " " + sGoodEvil));
       return (sRacialType != "" || sAlignment != "") ? (" vs. " + sAlignment + (sAlignment == "" ? sRacialType : (sRacialType == "" ? "" : " " + sRacialType))) : "";
     }
-    EffectType EffectIconToEffectType(int nEffectIcon)
+    private static EffectType EffectIconToEffectType(int nEffectIcon)
     {
       switch (nEffectIcon)
       {
