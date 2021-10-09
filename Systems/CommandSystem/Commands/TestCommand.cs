@@ -26,8 +26,10 @@ namespace NWN.Systems
 
         if (player.oid.PlayerName == "Chim")
         {
+          player.CreateBodyAppearanceWindow();
+          //player.CreateItemAppearanceWindow(player.oid.ControlledCreature.GetItemInSlot(InventorySlot.Chest));
           //player.CreatePortraitDemoWindow();
-          player.CreateFishingMiniGameWindow(); 
+          //player.CreateItemColorsWindow(player.oid.ControlledCreature.GetItemInSlot(InventorySlot.Chest)); 
           //player.CreateLearnablesWindow();
 
           //player.CreateQuickLootWindow(player.oid.ControlledCreature.Area.FindObjectsOfTypeInArea<NwItem>().FirstOrDefault(i => i.Possessor is null && i.DistanceSquared(player.oid.ControlledCreature) < 25));

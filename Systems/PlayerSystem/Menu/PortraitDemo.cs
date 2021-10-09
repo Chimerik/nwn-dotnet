@@ -20,10 +20,10 @@ namespace NWN.Systems
         NuiBind<NuiRect> geometry = new NuiBind<NuiRect>("geometry");
 
         List<NuiComboEntry> comboValues = new List<NuiComboEntry>
-      {
-        new NuiComboEntry("Cats (164-167)", 0),
-        new NuiComboEntry("Dragonos !! (191-200)", 1)
-      };
+        {
+          new NuiComboEntry("Cats (164-167)", 0),
+          new NuiComboEntry("Dragonos !! (191-200)", 1)
+        };
 
         // Construct the window layout.
         NuiCol root = new NuiCol

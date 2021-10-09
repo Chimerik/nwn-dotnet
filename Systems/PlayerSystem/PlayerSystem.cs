@@ -416,7 +416,326 @@ namespace NWN.Systems
           break;
       }
     }
-      private static void HandleGenericNuiEvents(ModuleEvents.OnNuiEvent nuiEvent)
+    private static void HandleItemColorsEvents(ModuleEvents.OnNuiEvent nuiEvent)
+    {
+      if (nuiEvent.Player.NuiGetWindowId(nuiEvent.WindowToken) != "itemColorsModifier" || !Players.TryGetValue(nuiEvent.Player.LoginCreature, out Player player))
+        return;
+
+      if (NWScript.NuiGetEventType() == "close")
+      {
+        PlayerPlugin.ApplyLoopingVisualEffectToObject(nuiEvent.Player.ControlledCreature, nuiEvent.Player.ControlledCreature, 173);
+        return;
+      }
+
+      switch(nuiEvent.EventType)
+      {
+        case NuiEventType.Click:
+
+          if(nuiEvent.ElementId == "openItemAppearance")
+          {
+            nuiEvent.Player.NuiDestroy(nuiEvent.WindowToken);
+            player.CreateItemAppearanceWindow(player.oid.ControlledCreature.GetItemInSlot(InventorySlot.Chest));
+            return;
+          }
+
+          NwItem item = nuiEvent.Player.ControlledCreature.GetItemInSlot(InventorySlot.Chest);
+          int spotSelection = new NuiBind<int>("spotSelection").GetBindValue(nuiEvent.Player, nuiEvent.WindowToken) - 1;
+          ItemAppearanceArmorColor colorChanel = (ItemAppearanceArmorColor)new NuiBind<int>("channelSelection").GetBindValue(nuiEvent.Player, nuiEvent.WindowToken);
+          switch (spotSelection)
+          {
+            case -1:
+              item.Appearance.SetArmorColor(colorChanel, byte.Parse(nuiEvent.ElementId));
+              break;
+            default:
+
+              int modelSymmetry = spotSelection;
+              if (new NuiBind<bool>("symmetry").GetBindValue(nuiEvent.Player, nuiEvent.WindowToken) && (spotSelection < 6 || (spotSelection > 9 && spotSelection < 18)))
+              {
+                if (spotSelection % 2 == 0)
+                  modelSymmetry += 1;
+                else
+                  modelSymmetry -= 1;
+              };
+
+              item.Appearance.SetArmorPieceColor((ItemAppearanceArmorModel)spotSelection, colorChanel, byte.Parse(nuiEvent.ElementId));
+              if(spotSelection != modelSymmetry)
+                item.Appearance.SetArmorPieceColor((ItemAppearanceArmorModel)modelSymmetry, colorChanel, byte.Parse(nuiEvent.ElementId));
+
+              break;
+          }
+
+          NwItem newItem = item.Clone(nuiEvent.Player.ControlledCreature);
+          nuiEvent.Player.ControlledCreature.RunEquip(newItem, InventorySlot.Chest);
+          item.Destroy();
+        
+
+          new NuiBind<string>("currentColor").SetBindValue(nuiEvent.Player, nuiEvent.WindowToken, $"leather{int.Parse(nuiEvent.ElementId) + 1}");
+
+          break;
+
+        case NuiEventType.Watch:
+
+          if (nuiEvent.ElementId == "channelSelection" || nuiEvent.ElementId == "spotSelection")
+          {
+            NwItem coloredItem = nuiEvent.Player.ControlledCreature.GetItemInSlot(InventorySlot.Chest);
+            int spot = new NuiBind<int>("spotSelection").GetBindValue(nuiEvent.Player, nuiEvent.WindowToken) - 1;
+            ItemAppearanceArmorColor channel = (ItemAppearanceArmorColor)new NuiBind<int>("channelSelection").GetBindValue(nuiEvent.Player, nuiEvent.WindowToken);
+            
+            switch (spot)
+            {
+              case -1:
+                new NuiBind<string>("currentColor").SetBindValue(nuiEvent.Player, nuiEvent.WindowToken, $"leather{((int)coloredItem.Appearance.GetArmorColor(channel)) + 1}");
+                break;
+              default:
+                new NuiBind<string>("currentColor").SetBindValue(nuiEvent.Player, nuiEvent.WindowToken, $"leather{((int)coloredItem.Appearance.GetArmorPieceColor((ItemAppearanceArmorModel)spot, channel)) + 1}");
+                break;
+            }
+          }
+          break;
+      }
+    }
+    private static void HandleItemAppearanceEvents(ModuleEvents.OnNuiEvent nuiEvent)
+    {
+      if (nuiEvent.Player.NuiGetWindowId(nuiEvent.WindowToken) != "itemAppearanceModifier" || !Players.TryGetValue(nuiEvent.Player.LoginCreature, out Player player))
+        return;
+
+      if (NWScript.NuiGetEventType() == "close")
+      {
+        //PlayerPlugin.ApplyLoopingVisualEffectToObject(nuiEvent.Player.ControlledCreature, nuiEvent.Player.ControlledCreature, 173);
+        return;
+      }
+
+      if (nuiEvent.EventType == NuiEventType.Click && nuiEvent.ElementId == "openColors")
+      {
+        nuiEvent.Player.NuiDestroy(nuiEvent.WindowToken);
+        player.CreateItemColorsWindow(player.oid.ControlledCreature.GetItemInSlot(InventorySlot.Chest));
+        return;
+      }
+
+      if (nuiEvent.EventType == NuiEventType.Watch)
+        switch (nuiEvent.ElementId)
+        {
+          case "robeSliderValue":
+            player.HandleArmorSliderChange("robeSliderValue", "robeSelection", nuiEvent.WindowToken, ItemAppearanceArmorModel.Robe);
+            break;
+
+          case "robeSelection":
+            player.HandleArmorSelectorChange("robeSliderValue", "robeSelection", nuiEvent.WindowToken, ItemAppearanceArmorModel.Robe);
+            break;
+
+          case "neckSliderValue":
+            player.HandleArmorSliderChange("neckSliderValue", "neckSelection", nuiEvent.WindowToken, ItemAppearanceArmorModel.Neck);
+            break;
+
+          case "neckSelection":
+            player.HandleArmorSelectorChange("neckSliderValue", "neckSelection", nuiEvent.WindowToken, ItemAppearanceArmorModel.Neck);
+            break;
+
+          case "torsoSliderValue":
+            player.HandleArmorSliderChange("torsoSliderValue", "torsoSelection", nuiEvent.WindowToken, ItemAppearanceArmorModel.Torso);
+            break;
+
+          case "torsoSelection":
+            player.HandleArmorSelectorChange("torsoSliderValue", "torsoSelection", nuiEvent.WindowToken, ItemAppearanceArmorModel.Torso);
+            break;
+
+          case "beltSliderValue":
+            player.HandleArmorSliderChange("beltSliderValue", "beltSelection", nuiEvent.WindowToken, ItemAppearanceArmorModel.Belt);
+            break;
+
+          case "beltSelection":
+            player.HandleArmorSelectorChange("beltSliderValue", "beltSelection", nuiEvent.WindowToken, ItemAppearanceArmorModel.Belt);
+            break;
+
+          case "pelvisSliderValue":
+            player.HandleArmorSliderChange("pelvisSliderValue", "pelvisSelection", nuiEvent.WindowToken, ItemAppearanceArmorModel.Pelvis);
+            break;
+
+          case "pelvisSelection":
+            player.HandleArmorSelectorChange("pelvisSliderValue", "pelvisSelection", nuiEvent.WindowToken, ItemAppearanceArmorModel.Pelvis);
+            break;
+
+          case "rightShoulderSliderValue":
+            player.HandleArmorSliderChange("rightShoulderSliderValue", "rightShoulderSelection", nuiEvent.WindowToken, ItemAppearanceArmorModel.RightShoulder);
+            break;
+
+          case "rightShoulderSelection":
+            player.HandleArmorSelectorChange("rightShoulderSliderValue", "rightShoulderSelection", nuiEvent.WindowToken, ItemAppearanceArmorModel.RightShoulder);
+            break;
+
+          case "leftShoulderSliderValue":
+            player.HandleArmorSliderChange("leftShoulderSliderValue", "leftShoulderSelection", nuiEvent.WindowToken, ItemAppearanceArmorModel.LeftShoulder);
+            break;
+
+          case "leftShoulderSelection":
+            player.HandleArmorSelectorChange("leftShoulderSliderValue", "leftShoulderSelection", nuiEvent.WindowToken, ItemAppearanceArmorModel.LeftShoulder);
+            break;
+
+          case "rightBicepSliderValue":
+            player.HandleArmorSliderChange("rightBicepSliderValue", "rightBicepSelection", nuiEvent.WindowToken, ItemAppearanceArmorModel.RightBicep);
+            break;
+
+          case "rightBicepSelection":
+            player.HandleArmorSelectorChange("rightBicepSliderValue", "rightBicepSelection", nuiEvent.WindowToken, ItemAppearanceArmorModel.RightBicep);
+            break;
+
+          case "leftBicepSliderValue":
+            player.HandleArmorSliderChange("leftBicepSliderValue", "leftBicepSelection", nuiEvent.WindowToken, ItemAppearanceArmorModel.LeftBicep);
+            break;
+
+          case "leftBicepSelection":
+            player.HandleArmorSelectorChange("leftBicepSliderValue", "leftBicepSelection", nuiEvent.WindowToken, ItemAppearanceArmorModel.LeftBicep);
+            break;
+
+          case "rightForearmSliderValue":
+            player.HandleArmorSliderChange("rightForearmSliderValue", "rightForearmSelection", nuiEvent.WindowToken, ItemAppearanceArmorModel.RightForearm);
+            break;
+
+          case "rightForearmSelection":
+            player.HandleArmorSelectorChange("rightForearmSliderValue", "rightForearmSelection", nuiEvent.WindowToken, ItemAppearanceArmorModel.RightForearm);
+            break;
+
+          case "leftForearmSliderValue":
+            player.HandleArmorSliderChange("leftForearmSliderValue", "leftForearmSelection", nuiEvent.WindowToken, ItemAppearanceArmorModel.LeftForearm);
+            break;
+
+          case "leftForearmSelection":
+            player.HandleArmorSelectorChange("leftForearmSliderValue", "leftForearmSelection", nuiEvent.WindowToken, ItemAppearanceArmorModel.LeftForearm);
+            break;
+
+          case "rightHandSliderValue":
+            player.HandleArmorSliderChange("rightHandSliderValue", "rightHandSelection", nuiEvent.WindowToken, ItemAppearanceArmorModel.RightHand);
+            break;
+
+          case "rightHandSelection":
+            player.HandleArmorSelectorChange("rightHandSliderValue", "rightHandSelection", nuiEvent.WindowToken, ItemAppearanceArmorModel.RightHand);
+            break;
+
+          case "leftHandSliderValue":
+            player.HandleArmorSliderChange("leftForearmSliderValue", "leftHandSelection", nuiEvent.WindowToken, ItemAppearanceArmorModel.LeftHand);
+            break;
+
+          case "leftHandSelection":
+            player.HandleArmorSelectorChange("leftForearmSliderValue", "leftHandSelection", nuiEvent.WindowToken, ItemAppearanceArmorModel.LeftHand);
+            break;
+
+          case "rightTighSliderValue":
+            player.HandleArmorSliderChange("rightTighSliderValue", "rightTighSelection", nuiEvent.WindowToken, ItemAppearanceArmorModel.RightThigh);
+            break;
+
+          case "rightTighSelection":
+            player.HandleArmorSelectorChange("rightTighSliderValue", "rightTighSelection", nuiEvent.WindowToken, ItemAppearanceArmorModel.RightThigh);
+            break;
+
+          case "leftTighSliderValue":
+            player.HandleArmorSliderChange("leftTighSliderValue", "leftTighSelection", nuiEvent.WindowToken, ItemAppearanceArmorModel.LeftThigh);
+            break;
+
+          case "leftTighSelection":
+            player.HandleArmorSelectorChange("leftTighSliderValue", "leftTighSelection", nuiEvent.WindowToken, ItemAppearanceArmorModel.LeftThigh);
+            break;
+
+          case "rightShinSliderValue":
+            player.HandleArmorSliderChange("rightShinSliderValue", "rightShinSelection", nuiEvent.WindowToken, ItemAppearanceArmorModel.RightShin);
+            break;
+
+          case "rightShinSelection":
+            player.HandleArmorSelectorChange("rightShinSliderValue", "rightShinSelection", nuiEvent.WindowToken, ItemAppearanceArmorModel.RightShin);
+            break;
+
+          case "leftShinSliderValue":
+            player.HandleArmorSliderChange("leftShinSliderValue", "leftShinSelection", nuiEvent.WindowToken, ItemAppearanceArmorModel.LeftShin);
+            break;
+
+          case "leftShinSelection":
+            player.HandleArmorSelectorChange("leftShinSliderValue", "leftShinSelection", nuiEvent.WindowToken, ItemAppearanceArmorModel.LeftShin);
+            break;
+
+          case "rightFootSliderValue":
+            player.HandleArmorSliderChange("rightFootSliderValue", "rightFootSelection", nuiEvent.WindowToken, ItemAppearanceArmorModel.RightFoot);
+            break;
+
+          case "rightFootSelection":
+            player.HandleArmorSelectorChange("rightFootSliderValue", "rightFootSelection", nuiEvent.WindowToken, ItemAppearanceArmorModel.RightFoot);
+            break;
+
+          case "leftFootSliderValue":
+            player.HandleArmorSliderChange("leftFootSliderValue", "leftFootSelection", nuiEvent.WindowToken, ItemAppearanceArmorModel.LeftFoot);
+            break;
+
+          case "leftFootSelection":
+            player.HandleArmorSelectorChange("leftFootSliderValue", "leftFootSelection", nuiEvent.WindowToken, ItemAppearanceArmorModel.LeftFoot);
+            break;
+        }
+    }
+    private static void HandleBodyAppearanceEvents(ModuleEvents.OnNuiEvent nuiEvent)
+    {
+      if (nuiEvent.Player.NuiGetWindowId(nuiEvent.WindowToken) != "BodyAppearanceModifier" || !Players.TryGetValue(nuiEvent.Player.LoginCreature, out Player player))
+        return;
+
+      if (NWScript.NuiGetEventType() == "close")
+      {
+        //PlayerPlugin.ApplyLoopingVisualEffectToObject(nuiEvent.Player.ControlledCreature, nuiEvent.Player.ControlledCreature, 173);
+        return;
+      }
+
+      if (nuiEvent.EventType == NuiEventType.Click && nuiEvent.ElementId == "openColors")
+      {
+        nuiEvent.Player.NuiDestroy(nuiEvent.WindowToken);
+        player.CreateItemColorsWindow(player.oid.ControlledCreature.GetItemInSlot(InventorySlot.Chest));
+        return;
+      }
+
+      if (nuiEvent.EventType == NuiEventType.Watch)
+        switch (nuiEvent.ElementId)
+        {
+          case "headSlider":
+            int headSliderSelection = new NuiBind<int>("headSlider").GetBindValue(nuiEvent.Player, nuiEvent.WindowToken);
+            int head = ModuleSystem.headModels.FirstOrDefault(h => h.gender == nuiEvent.Player.ControlledCreature.Gender && h.appearance == nuiEvent.Player.ControlledCreature.CreatureAppearanceType).heads.ElementAt(headSliderSelection).Value;
+            nuiEvent.Player.ControlledCreature.SetCreatureBodyPart(CreaturePart.Head, head);
+            
+            NuiBind<int> headSelector = new NuiBind<int>("headSelection");
+            headSelector.SetBindWatch(nuiEvent.Player, nuiEvent.WindowToken, false);
+            headSelector.SetBindValue(nuiEvent.Player, nuiEvent.WindowToken, head);
+            headSelector.SetBindWatch(nuiEvent.Player, nuiEvent.WindowToken, true);
+
+            break;
+
+          case "headSelection":
+            int headSelected = new NuiBind<int>("headSelection").GetBindValue(nuiEvent.Player, nuiEvent.WindowToken);
+            nuiEvent.Player.ControlledCreature.SetCreatureBodyPart(CreaturePart.Head, headSelected);
+
+            NuiBind<int> headSlider = new NuiBind<int>("headSlider");
+            headSlider.SetBindWatch(nuiEvent.Player, nuiEvent.WindowToken, false);
+            headSlider.SetBindValue(nuiEvent.Player, nuiEvent.WindowToken, ModuleSystem.headModels.FirstOrDefault(h => h.gender == nuiEvent.Player.ControlledCreature.Gender && h.appearance == nuiEvent.Player.ControlledCreature.CreatureAppearanceType).heads.ElementAt(headSelected).Value);
+            headSlider.SetBindWatch(nuiEvent.Player, nuiEvent.WindowToken, true);
+            
+            break;
+
+          case "sizeSlider":
+            int sizeSliderSelection = new NuiBind<int>("sizeSlider").GetBindValue(nuiEvent.Player, nuiEvent.WindowToken);
+            nuiEvent.Player.ControlledCreature.VisualTransform.Scale = ((float)(sizeSliderSelection + 75) / 100);
+
+            NuiBind<int> sizeSelector = new NuiBind<int>("sizeSelection");
+            sizeSelector.SetBindWatch(nuiEvent.Player, nuiEvent.WindowToken, false);
+            sizeSelector.SetBindValue(nuiEvent.Player, nuiEvent.WindowToken, sizeSliderSelection);
+            sizeSelector.SetBindWatch(nuiEvent.Player, nuiEvent.WindowToken, true);
+
+            break;
+
+          case "sizeSelection":
+            int sizeSelected = new NuiBind<int>("sizeSelection").GetBindValue(nuiEvent.Player, nuiEvent.WindowToken);
+            nuiEvent.Player.ControlledCreature.VisualTransform.Scale = (float)((sizeSelected + 75) / 100);
+
+            NuiBind<int> sizeSlider = new NuiBind<int>("sizeSlider");
+            sizeSlider.SetBindWatch(nuiEvent.Player, nuiEvent.WindowToken, false);
+            sizeSlider.SetBindValue(nuiEvent.Player, nuiEvent.WindowToken, sizeSelected);
+            sizeSlider.SetBindWatch(nuiEvent.Player, nuiEvent.WindowToken, true);
+
+            break;
+        }
+    }
+    private static void HandleGenericNuiEvents(ModuleEvents.OnNuiEvent nuiEvent)
     {
       int windowToken = NWScript.NuiGetEventWindow();
       string window = nuiEvent.Player.NuiGetWindowId(nuiEvent.WindowToken);

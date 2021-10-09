@@ -75,7 +75,6 @@ namespace NWN.Systems
             ChatSystem.ProcessWriteLogMiddleware,
             CommandSystem.ProcessChatCommandMiddleware,
             ChatSystem.ProcessMutePMMiddleware,
-            //ChatSystem.ProcessPMMiddleware,
             ChatSystem.ProcessDMListenMiddleware,
             ChatSystem.ProcessGetChatReceiversMiddleware,
             ChatSystem.ProcessChatColorMiddleware,
