@@ -421,7 +421,7 @@ namespace NWN.Systems
       if (nuiEvent.Player.NuiGetWindowId(nuiEvent.WindowToken) != "itemColorsModifier" || !Players.TryGetValue(nuiEvent.Player.LoginCreature, out Player player))
         return;
 
-      if (NWScript.NuiGetEventType() == "close")
+      if (nuiEvent.EventType == NuiEventType.Close)
       {
         PlayerPlugin.ApplyLoopingVisualEffectToObject(nuiEvent.Player.ControlledCreature, nuiEvent.Player.ControlledCreature, 173);
         return;
@@ -499,7 +499,7 @@ namespace NWN.Systems
       if (nuiEvent.Player.NuiGetWindowId(nuiEvent.WindowToken) != "itemAppearanceModifier" || !Players.TryGetValue(nuiEvent.Player.LoginCreature, out Player player))
         return;
 
-      if (NWScript.NuiGetEventType() == "close")
+      if (nuiEvent.EventType == NuiEventType.Close)
       {
         //PlayerPlugin.ApplyLoopingVisualEffectToObject(nuiEvent.Player.ControlledCreature, nuiEvent.Player.ControlledCreature, 173);
         return;
@@ -673,7 +673,7 @@ namespace NWN.Systems
       if (nuiEvent.Player.NuiGetWindowId(nuiEvent.WindowToken) != "BodyAppearanceModifier" || !Players.TryGetValue(nuiEvent.Player.LoginCreature, out Player player))
         return;
 
-      if (NWScript.NuiGetEventType() == "close")
+      if (nuiEvent.EventType == NuiEventType.Close)
       {
         //PlayerPlugin.ApplyLoopingVisualEffectToObject(nuiEvent.Player.ControlledCreature, nuiEvent.Player.ControlledCreature, 173);
         return;
@@ -682,7 +682,7 @@ namespace NWN.Systems
       if (nuiEvent.EventType == NuiEventType.Click && nuiEvent.ElementId == "openColors")
       {
         nuiEvent.Player.NuiDestroy(nuiEvent.WindowToken);
-        player.CreateItemColorsWindow(player.oid.ControlledCreature.GetItemInSlot(InventorySlot.Chest));
+        player.CreateBodyColorsWindow();
         return;
       }
 
@@ -734,6 +734,84 @@ namespace NWN.Systems
 
             break;
         }
+    }
+    private static void HandleBodyColorsEvents(ModuleEvents.OnNuiEvent nuiEvent)
+    {
+      if (nuiEvent.Player.NuiGetWindowId(nuiEvent.WindowToken) != "bodyColorsModifier" || !Players.TryGetValue(nuiEvent.Player.LoginCreature, out Player player))
+        return;
+
+      if (nuiEvent.EventType == NuiEventType.Close)
+      {
+        PlayerPlugin.ApplyLoopingVisualEffectToObject(nuiEvent.Player.ControlledCreature, nuiEvent.Player.ControlledCreature, 173);
+        return;
+      }
+
+      switch (nuiEvent.EventType)
+      {
+        case NuiEventType.Click:
+
+          if (nuiEvent.ElementId == "openBodyAppearance")
+          {
+            nuiEvent.Player.NuiDestroy(nuiEvent.WindowToken);
+            player.CreateBodyAppearanceWindow();
+            return;
+          }
+
+          nuiEvent.Player.ControlledCreature.SetColor((ColorChannel)new NuiBind<int>("channelSelection").GetBindValue(nuiEvent.Player, nuiEvent.WindowToken), int.Parse(nuiEvent.ElementId));
+          
+          string chanChoice = "hair";
+          if (new NuiBind<int>("channelSelection").GetBindValue(nuiEvent.Player, nuiEvent.WindowToken) != 1)
+            chanChoice = "skin";
+          
+          new NuiBind<string>("currentColor").SetBindValue(nuiEvent.Player, nuiEvent.WindowToken, NWScript.ResManGetAliasFor($"{chanChoice}{int.Parse(nuiEvent.ElementId) + 1}", NWScript.RESTYPE_TGA) != "" ? $"{chanChoice}{int.Parse(nuiEvent.ElementId) + 1}" : $"leather{int.Parse(nuiEvent.ElementId) + 1}");
+
+          break;
+
+        case NuiEventType.Watch:
+
+          if (nuiEvent.ElementId == "channelSelection")
+          {
+            string channelChoice = "hair";
+            ColorChannel selectedChannel = (ColorChannel)new NuiBind<int>("channelSelection").GetBindValue(nuiEvent.Player, nuiEvent.WindowToken);
+            if (selectedChannel != ColorChannel.Hair)
+              channelChoice = "skin";
+
+            int nbButton = 0;
+
+            for (int i = 0; i < 4; i++)
+            {
+              NuiGroup paletteGroup = new NuiGroup();
+              paletteGroup.Id = $"paletteGroup{i}"; paletteGroup.Height = 26; paletteGroup.Margin = 0; paletteGroup.Padding = 0; paletteGroup.Scrollbars = NuiScrollbars.None; paletteGroup.Border = false;
+              List<NuiElement> groupChildren = new List<NuiElement>();
+
+              NuiRow row = new NuiRow();
+              List<NuiElement> rowChildren = new List<NuiElement>();
+
+              for (int j = 0; j < 16; j++)
+              {
+                NuiButtonImage button = new NuiButtonImage
+                {
+                  ResRef = NWScript.ResManGetAliasFor($"{channelChoice}{nbButton + 1}", NWScript.RESTYPE_TGA) != "" ? $"{channelChoice}{nbButton + 1}" : $"leather{nbButton + 1}",
+                  Id = $"{nbButton}",
+                  Width = 25,
+                  Height = 25
+                };
+
+                rowChildren.Add(button);
+                nbButton++;
+              }
+
+              row.Children = rowChildren;
+              groupChildren.Add(row);
+              paletteGroup.Children = groupChildren;
+              nuiEvent.Player.NuiSetGroupLayout(nuiEvent.WindowToken, paletteGroup.Id, paletteGroup);
+            }
+
+            int currentColor = nuiEvent.Player.ControlledCreature.GetColor(selectedChannel) + 1;
+            new NuiBind<string>("currentColor").SetBindValue(nuiEvent.Player, nuiEvent.WindowToken, NWScript.ResManGetAliasFor($"{channelChoice}{currentColor}", NWScript.RESTYPE_TGA) != "" ? $"{channelChoice}{currentColor}" : $"leather{currentColor}");
+          }
+          break;
+      }
     }
     private static void HandleGenericNuiEvents(ModuleEvents.OnNuiEvent nuiEvent)
     {
@@ -854,9 +932,9 @@ namespace NWN.Systems
 
             case "chatWriter":
 
-              switch (NWScript.NuiGetEventType())
+              switch (nuiEvent.EventType)
               {
-                case "focus":
+                case NuiEventType.Focus:
 
                   int channel = new NuiBind<int>("channel").GetBindValue(nuiEvent.Player, windowToken);
                   string command = new NuiBind<string>("writingChat").GetBindValue(nuiEvent.Player, windowToken);
@@ -870,7 +948,7 @@ namespace NWN.Systems
 
                   break;
 
-                case "blur":
+                case NuiEventType.Blur:
                   foreach (Effect eff in nuiEvent.Player.ControlledCreature.ActiveEffects.Where(e => e.Tag == "VFX_SPEAKING_MARK"))
                     nuiEvent.Player.ControlledCreature.RemoveEffect(eff);
                   break;
@@ -950,9 +1028,9 @@ namespace NWN.Systems
 
         case "_window_":
 
-          switch (NWScript.NuiGetEventType())
+          switch (nuiEvent.EventType)
           {
-            case "open":
+            case NuiEventType.Open:
               if (!player.openedWindows.Contains(window))
               {
                 player.openedWindows.Add(window);
@@ -962,7 +1040,7 @@ namespace NWN.Systems
               }
               break;
 
-            case "close":
+            case NuiEventType.Close:
               if (player.openedWindows.Contains(window))
               {
                 player.openedWindows.Remove(window);

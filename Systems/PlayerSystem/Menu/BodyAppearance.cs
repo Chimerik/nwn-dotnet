@@ -38,6 +38,19 @@ namespace NWN.Systems
             {
               Children = new List<NuiElement>
               {
+                new NuiSpacer { },
+                new NuiButton
+                {
+                  Id = "openColors", Height = 35, Width = 70,
+                  Label = "Couleurs"
+                },
+                new NuiSpacer { }
+              }
+            },
+            new NuiRow
+            {
+              Children = new List<NuiElement>
+              {
                 new NuiLabel
                 {
                   Width = 60,
@@ -51,7 +64,7 @@ namespace NWN.Systems
                 },
                 new NuiSlider
                 {
-                    Min = 0, Max = 50, Step = 1,  Width = (windowRectangle.Width - 140)  * 0.96f,
+                    Min = 0, Max = 50, Step = 1,  Width = (windowRectangle.Width - 140)  * 0.98f,
                     Value = sizeSlider
                 }
               }
@@ -73,7 +86,7 @@ namespace NWN.Systems
                 },
                 new NuiSlider
                 {
-                    Min = 0, Max = ModuleSystem.headModels.FirstOrDefault(h => h.gender == oid.ControlledCreature.Gender && h.appearance == oid.ControlledCreature.CreatureAppearanceType).heads.Count - 1, Step = 1,  Width = (windowRectangle.Width - 140)  * 0.96f,
+                    Min = 0, Max = ModuleSystem.headModels.FirstOrDefault(h => h.gender == oid.ControlledCreature.Gender && h.appearance == oid.ControlledCreature.CreatureAppearanceType).heads.Count - 1, Step = 1,  Width = (windowRectangle.Width - 140)  * 0.98f,
                     Value = headSlider
                 }
               }

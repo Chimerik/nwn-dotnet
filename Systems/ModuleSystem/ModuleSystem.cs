@@ -567,6 +567,8 @@ namespace NWN.Systems
     }
     private void LoadHeadLists()
     {
+      //Log.Info($"found in {NWScript.ResManGetAliasFor($"pFG0_HEAD013", NWScript.RESTYPE_MDL)}");
+
       for (int appearance = 0; appearance < 7; appearance++)
       {
         headModels.Add(new HeadModels(Gender.Male, (AppearanceType)appearance));
