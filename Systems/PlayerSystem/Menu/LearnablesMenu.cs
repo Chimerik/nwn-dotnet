@@ -29,7 +29,7 @@ namespace NWN.Systems
           };
 
         // Construct the window layout.
-        NuiCol root = new NuiCol
+        NuiColumn root = new NuiColumn
         {
           Children = new List<NuiElement>
           {
@@ -39,16 +39,8 @@ namespace NWN.Systems
               Children = new List<NuiElement>
               {
                 new NuiSpacer(),
-                new NuiButton
-                {
-                  Id = "feats",
-                  Label = "Dons",
-                },
-                new NuiButton
-                {
-                  Id = "spells",
-                  Label = "Sorts",
-                },
+                new NuiButton("Dons") { Id = "feats" },
+                new NuiButton("Sorts") { Id = "spells" },
                 new NuiSpacer()
               }
             },
@@ -75,31 +67,11 @@ namespace NWN.Systems
                 {
                   Children = new List<NuiElement>
                   {
-                    new NuiButtonImage
-                    {
-                      ResRef = iconResRef,
-                      Height = 50,
-                      Width = 50,
-                      Tooltip = "Description"
-                    },
-                    new NuiLabel
-                    {
-                      Value = name, 
-                    },
-                    new NuiLabel
-                    {
-                      Value = currentLevel,
-                    },
-                    new NuiLabel
-                    {
-                      Value = remainingTimeDisplayText,
-                    },
-                    new NuiButton
-                    {
-                      Id = "learn",
-                      Label = "Apprendre",
-                      Height = 50
-                    }
+                    new NuiButtonImage(iconResRef) { Tooltip = "Description", Width = 50, Height = 50},
+                    new NuiLabel(name),
+                    new NuiLabel(currentLevel),
+                    new NuiLabel(remainingTimeDisplayText),
+                    new NuiButton("Apprendre") { Id = "learn", Height = 50 }
                   }
                 },
               }
@@ -107,10 +79,8 @@ namespace NWN.Systems
           }
         };
 
-        NuiWindow window = new NuiWindow
+        NuiWindow window = new NuiWindow(root, "Apprentissage")
         {
-          Root = root,
-          Title = "Apprentissage",
           Geometry = geometry,
           Resizable = true,
           Collapsed = false,

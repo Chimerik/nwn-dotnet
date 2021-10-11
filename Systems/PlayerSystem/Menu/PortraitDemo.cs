@@ -26,109 +26,96 @@ namespace NWN.Systems
         };
 
         // Construct the window layout.
-        NuiCol root = new NuiCol
+        NuiColumn root = new NuiColumn
         {
           Children = new List<NuiElement>
-        {
-          new NuiRow
           {
-            Height = 20.0f,
-            Children = new List<NuiElement>
+            new NuiRow
             {
-              new NuiSpacer(),
-              new NuiLabel
+              Height = 20.0f,
+              Children = new List<NuiElement>
               {
-                Value = portraitResRef,
-                ForegroundColor = new NuiColor(255, 100, 0)
-              },
-              new NuiSpacer()
-            }
-          },
-          new NuiRow
-          {
-            Height = 20.0f,
-            Children = new List<NuiElement>
+                new NuiSpacer(),
+                new NuiLabel(portraitResRef) { ForegroundColor = new NuiColor(255, 100, 0) },
+                new NuiSpacer()
+              }
+            },
+            new NuiRow
             {
-              new NuiSpacer(),
-              new NuiLabel
+              Height = 20.0f,
+              Children = new List<NuiElement>
               {
-                Value = portraitId,
-              },
-              new NuiSpacer()
-            }
-          },
-          new NuiRow
-          {
-            Children = new List<NuiElement>
+                new NuiSpacer(),
+                new NuiLabel(portraitId),
+                new NuiSpacer()
+              }
+            },
+            new NuiRow
             {
-              new NuiSpacer(),
-              new NuiGroup
+              Children = new List<NuiElement>
               {
-                Width = 256.0f,
-                Height = 400.0f,
-                Children = new List<NuiElement>
+                new NuiSpacer(),
+                new NuiGroup
                 {
-                  new NuiImage
+                  Width = 256.0f,
+                  Height = 400.0f,
+                  Children = new List<NuiElement>
                   {
-                    ResRef = portraitResRef,
-                    ImageAspect = NuiAspect.Fill,
-                    HorizontalAlign = NuiHAlign.Center,
-                    VerticalAlign = NuiVAlign.Middle
+                    new NuiImage(portraitResRef)
+                    {
+                      ImageAspect = NuiAspect.Fill,
+                      HorizontalAlign = NuiHAlign.Center,
+                      VerticalAlign = NuiVAlign.Middle
+                    }
                   }
-                }
-              },
-              new NuiSpacer()
-            }
-          },
-          new NuiRow
-          {
-            Children = new List<NuiElement>
+                },
+                new NuiSpacer()
+              }
+            },
+            new NuiRow
             {
-              new NuiSpacer(),
-              new NuiCombo
+              Children = new List<NuiElement>
               {
-                Entries = comboValues,
-                Selected = portraitCategory
-              },
-              new NuiSpacer()
-            }
-          },
-          new NuiRow
-          {
-            Children = new List<NuiElement>
+                new NuiSpacer(),
+                new NuiCombo
+                {
+                  Entries = comboValues,
+                  Selected = portraitCategory
+                },
+                new NuiSpacer()
+              }
+            },
+            new NuiRow
             {
-              new NuiButton
+              Children = new List<NuiElement>
               {
-                Id = "btnprev",
-                Label = "<",
-                Enabled = btnPrevEnabled,
-                Width = 80.0f
-              },
-              new NuiSpacer(),
-              new NuiButton
-              {
-                Id = "btnok",
-                Label = "Set",
-                Enabled = btnSetEnabled,
-                Width = 80.0f
-              },
-              new NuiSpacer(),
-              new NuiButton
-              {
-                Id = "btnnext",
-                Label = ">",
-                Enabled = btnNextEnabled,
-                Width = 80.0f
-              },
+                new NuiButton("<")
+                {
+                  Id = "btnprev",
+                  Enabled = btnPrevEnabled,
+                  Width = 80.0f
+                },
+                new NuiSpacer(),
+                new NuiButton("Set")
+                {
+                  Id = "btnok",
+                  Enabled = btnSetEnabled,
+                  Width = 80.0f
+                },
+                new NuiSpacer(),
+                new NuiButton(">")
+                {
+                  Id = "btnnext",
+                  Enabled = btnNextEnabled,
+                  Width = 80.0f
+                },
+              }
             }
           }
-        }
         };
 
-        NuiWindow window = new NuiWindow
+        NuiWindow window = new NuiWindow(root, "Portrait démo")
         {
-          Root = root,
-          Title = "Portrait démo",
           Geometry = new NuiRect(420.0f, 10.0f, 400.0f, 600.0f),
           Resizable = true,
           Collapsed = collapsed,

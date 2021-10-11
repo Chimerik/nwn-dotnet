@@ -24,13 +24,7 @@ namespace NWN.Systems
 
           for (int j = 0; j < 16; j++)
           {
-            NuiButtonImage button = new NuiButtonImage
-            {
-              ResRef = $"leather{nbButton}",
-              Id = $"{nbButton}",
-              Width = 25,
-              Height = 25
-            };
+            NuiButtonImage button = new NuiButtonImage($"leather{nbButton}") { Id = $"{nbButton}", Width = 25, Height = 25 };
 
             rowChildren.Add(button);
             nbButton++;
@@ -41,14 +35,10 @@ namespace NWN.Systems
         }
 
         // Construct the window layout.
-        NuiCol root = new NuiCol
-        {
-          Children = colChildren
-        };
+        NuiColumn root = new NuiColumn { Children = colChildren };
 
-        NuiWindow window = new NuiWindow
+        NuiWindow window = new NuiWindow(root, "")
         {
-          Root = root,
           Geometry = geometry,
           Resizable = true,
           Collapsed = false,

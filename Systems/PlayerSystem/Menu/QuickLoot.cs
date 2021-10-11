@@ -21,7 +21,7 @@ namespace NWN.Systems
         NuiRect windowRectangle = windowRectangles.ContainsKey("chat") ? windowRectangles["chat"] : new NuiRect(420.0f, 10.0f, 600.0f, 400.0f);
 
         // Construct the window layout.
-        NuiCol root = new NuiCol
+        NuiColumn root = new NuiColumn
         {
           Children = new List<NuiElement>
           {
@@ -35,38 +35,11 @@ namespace NWN.Systems
                 {
                   Children = new List<NuiElement>
                   {
-                    new NuiButtonImage
-                    {
-                      Id = "examine",
-                      ResRef = icon,
-                      Height = 50,
-                      Width = 50,
-                      Tooltip = "Description"
-                    },
-                    new NuiLabel
-                    {
-                      Value = itemName,
-                    },
-                    new NuiButton
-                    {
-                      Id = "take",
-                      Label = "Prendre",
-                      Height = 50
-                    },
-                    new NuiButton
-                    {
-                      Id = "steal",
-                      Label = "Voler",
-                      Height = 50
-                    },
-                    new NuiButtonImage
-                    {
-                      Id = "ignore",
-                      ResRef = "menu_exit",
-                      Height = 50,
-                      Width = 50,
-                      Tooltip = "Ignorer"
-                    },
+                    new NuiButtonImage(icon) { Id = "examine", Height = 50, Width = 50, Tooltip = "Description" },
+                    new NuiLabel(itemName),
+                    new NuiButton("Prendre") { Id = "take", Height = 50 },
+                    new NuiButton("Voler") { Id = "steal", Height = 50 },
+                    new NuiButtonImage("menu_exit") { Id = "ignore", Height = 50, Width = 50, Tooltip = "Ignorer" }
                   }
                 },
               }
@@ -74,9 +47,8 @@ namespace NWN.Systems
           }
         };
 
-        NuiWindow window = new NuiWindow
+        NuiWindow window = new NuiWindow(root, "")
         {
-          Root = root,
           Geometry = geometry,
           Resizable = resizable,
           Collapsed = false,

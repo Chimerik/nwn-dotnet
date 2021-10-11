@@ -1,16 +1,76 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
+
 using Anvil.API;
 using Anvil.Services;
+
+using NWN.Core;
 
 namespace NWN.Systems
 {
   public class BaseItemTable : ITwoDimArray
   {
     private readonly Dictionary<BaseItemType, Entry> entries = new Dictionary<BaseItemType, Entry>();
+    public class WeaponModel
+    {
+      public BaseItemType baseItem { get; }
+      public Dictionary<int, List<int>> topModels { get; set; }
+      public Dictionary<int, List<int>> middleModels { get; set; }
+      public Dictionary<int, List<int>> bottomModels { get; set; }
+      public WeaponModel(BaseItemType baseItem)
+      {
+        this.baseItem = baseItem;
+        topModels = new Dictionary<int, List<int>>();
+        middleModels = new Dictionary<int, List<int>>();
+        bottomModels = new Dictionary<int, List<int>>();
+      }
+    }
 
     public Entry GetBaseItemDataEntry(BaseItemType baseItem)
     {
       return entries[baseItem];
+    }
+    public List<NuiComboEntry> GetWeaponModelList(BaseItemType baseItem, string location)
+    {
+      List<NuiComboEntry> comboEntries = new List<NuiComboEntry>();
+
+      switch(location)
+      {
+        case "top":
+          foreach (int model in entries[baseItem].weaponModels.topModels.Keys)
+            comboEntries.Add(new NuiComboEntry(model.ToString(), model));
+          break;
+        case "mid":
+          foreach (int model in entries[baseItem].weaponModels.middleModels.Keys)
+            comboEntries.Add(new NuiComboEntry(model.ToString(), model));
+          break;
+        case "bot":
+          foreach (int model in entries[baseItem].weaponModels.bottomModels.Keys)
+            comboEntries.Add(new NuiComboEntry(model.ToString(), model));
+          break;
+      }
+      return comboEntries;
+    }
+    public List<NuiComboEntry> GetWeaponColorList(BaseItemType baseItem, int model, string location)
+    {
+      List<NuiComboEntry> comboEntries = new List<NuiComboEntry>();
+
+      switch (location)
+      {
+        case "top":
+          foreach (int color in entries[baseItem].weaponModels.topModels[model])
+            comboEntries.Add(new NuiComboEntry(model.ToString(), model));
+          break;
+        case "mid":
+          foreach (int color in entries[baseItem].weaponModels.middleModels[model])
+            comboEntries.Add(new NuiComboEntry(model.ToString(), model));
+          break;
+        case "bot":
+          foreach (int color in entries[baseItem].weaponModels.bottomModels[model])
+            comboEntries.Add(new NuiComboEntry(model.ToString(), model));
+          break;
+      }
+      return comboEntries;
     }
     public int GetMaxDamage(BaseItemType baseItem, NwCreature oCreature, bool IsRangedAttack)
     {
@@ -55,8 +115,42 @@ namespace NWN.Systems
       int weaponSize = int.TryParse(twoDimEntry("WeaponSize"), out damageType) ? damageType : 0;
       int modelType = int.TryParse(twoDimEntry("ModelType"), out modelType) ? modelType : -1;
       string defaultIcon = twoDimEntry("DefaultIcon");
+      string resRef = twoDimEntry("ItemClass");
+      WeaponModel weaponModels = null;
 
-      entries.Add((BaseItemType)rowIndex, new Entry(name, description, numDamageDice, damageDice, baseCost, workshop, craftedItem, IsEquippable, isWeapon, isRangedWeapon, isMeleeWeapon, damageType, weaponSize, modelType, defaultIcon));
+      if (!string.IsNullOrEmpty(resRef))
+      {
+        weaponModels = new WeaponModel((BaseItemType)rowIndex);
+
+        for (int i = 0; i < 255; i++)
+        {
+
+          if (NWScript.ResManGetAliasFor($"{resRef}_t_{i}", NWScript.RESTYPE_MDL) != "")
+          {
+            if (weaponModels.topModels.ContainsKey(i / 10))
+              weaponModels.topModels[i / 10].Add(int.Parse(i.ToString().Substring(2)));
+            else
+              weaponModels.topModels.Add(i / 10, new List<int>() { int.Parse(i.ToString().Substring(2)) });
+          }
+
+          if (NWScript.ResManGetAliasFor($"{resRef}_m_{i}", NWScript.RESTYPE_MDL) != "")
+          {
+            if (weaponModels.middleModels.ContainsKey(i / 10))
+              weaponModels.middleModels[i / 10].Add(int.Parse(i.ToString().Substring(2)));
+            else
+              weaponModels.middleModels.Add(i / 10, new List<int>() { int.Parse(i.ToString().Substring(2)) });
+          }
+
+          if (NWScript.ResManGetAliasFor($"{resRef}_b_{i}", NWScript.RESTYPE_MDL) != "")
+          {
+            if (weaponModels.bottomModels.ContainsKey(i / 10))
+              weaponModels.bottomModels[i / 10].Add(int.Parse(i.ToString().Substring(2)));
+            else
+              weaponModels.bottomModels.Add(i / 10, new List<int>() { int.Parse(i.ToString().Substring(2)) });
+          }
+        }
+      }
+      entries.Add((BaseItemType)rowIndex, new Entry(name, description, numDamageDice, damageDice, baseCost, workshop, craftedItem, IsEquippable, isWeapon, isRangedWeapon, isMeleeWeapon, damageType, weaponSize, modelType, defaultIcon, weaponModels));
     }
     public readonly struct Entry
     {
@@ -75,8 +169,9 @@ namespace NWN.Systems
       public readonly bool IsWeapon;
       public readonly bool IsRangedWeapon;
       public readonly bool IsMeleeWeapon;
+      public readonly WeaponModel weaponModels;
 
-      public Entry(string name, string description, int numDamageDice, int damageDice, float baseCost, string workshop, string craftedItem, bool IsEquippable, bool IsWeapon, bool IsRangedWeapon, bool IsMeleeWeapon, int damageType, int weaponSize, int modelType, string defaultIcon)
+      public Entry(string name, string description, int numDamageDice, int damageDice, float baseCost, string workshop, string craftedItem, bool IsEquippable, bool IsWeapon, bool IsRangedWeapon, bool IsMeleeWeapon, int damageType, int weaponSize, int modelType, string defaultIcon, WeaponModel weaponModels)
       {
         this.name = name;
         this.description = description;
@@ -93,7 +188,8 @@ namespace NWN.Systems
         this.weaponSize = weaponSize;
         this.modelType = modelType;
         this.defaultIcon = defaultIcon;
-      }
+        this.weaponModels = weaponModels;
+      } 
     }
   }
 

@@ -18,7 +18,7 @@ namespace NWN.Systems
     ItemAppearanceWeaponColor? weaponColorChoice;
     string serializedInitialItem;
     string file;
-    List<ItemAppearanceArmorColor> colorChannelList;
+    List<ItemAppearanceArmorColor> colorChannelList = new List<ItemAppearanceArmorColor> { ItemAppearanceArmorColor.Cloth1, ItemAppearanceArmorColor.Cloth2, ItemAppearanceArmorColor.Leather1, ItemAppearanceArmorColor.Leather2, ItemAppearanceArmorColor.Metal1, ItemAppearanceArmorColor.Metal2 };
 
     public CraftTool(NwCreature oPC, NwItem item)
     {
@@ -32,7 +32,7 @@ namespace NWN.Systems
       if (item.GetObjectVariable<LocalVariableString>("_ORIGINAL_CRAFTER_NAME").HasValue && item.GetObjectVariable<LocalVariableString>("_ORIGINAL_CRAFTER_NAME").Value != oPC.Name 
         && !oPC.ControllingPlayer.IsDM)
       {
-        oPC.ControllingPlayer.SendServerMessage($"Il est indiqué : Pour tout modification, s'adresser à {item.GetObjectVariable<LocalVariableString>("_ORIGINAL_CRAFTER_NAME").Value.ColorString(ColorConstants.White)}", ColorConstants.Orange);
+        oPC.ControllingPlayer.SendServerMessage($"Il est indiqué : Pour tout modification, s'adresser à {item.GetObjectVariable<LocalVariableString>("_ORIGINAL_CRAFTER_NAME").Value.ColorString(ColorConstants.White)}", ColorConstants.Red);
         return;
       }
 
@@ -42,12 +42,13 @@ namespace NWN.Systems
       this.item = item;
       this.serializedInitialItem = item.Serialize().ToBase64EncodedString();
 
-      colorChannelList = new List<ItemAppearanceArmorColor>{ ItemAppearanceArmorColor.Cloth1, ItemAppearanceArmorColor.Cloth2, ItemAppearanceArmorColor.Leather1, ItemAppearanceArmorColor.Leather2, ItemAppearanceArmorColor.Metal1, ItemAppearanceArmorColor.Metal2 };
+      oPC.GetObjectVariable<LocalVariableObject<NwItem>>("_ITEM_SELECTED_FOR_MODIFICATION").Value = item;
 
       switch (item.BaseItemType)
       {
         case BaseItemType.Armor:
-          DrawArmorModificationMenu();
+          player.CreateArmorAppearanceWindow(item);
+          //DrawArmorModificationMenu();
           break;
         case BaseItemType.Bastardsword:
         case BaseItemType.Battleaxe:
@@ -87,7 +88,8 @@ namespace NWN.Systems
         case BaseItemType.TwoBladedSword:
         case BaseItemType.Warhammer:
         case BaseItemType.Whip:
-          DrawWeaponModificationMenu();
+          player.CreateWeaponAppearanceWindow(item);
+          //DrawWeaponModificationMenu();
           break;
         case BaseItemType.Amulet:
         case BaseItemType.Arrow:

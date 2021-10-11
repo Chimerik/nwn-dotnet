@@ -29,7 +29,7 @@ namespace NWN.Systems
           };
 
         // Construct the window layout.
-        NuiCol root = new NuiCol
+        NuiColumn root = new NuiColumn
         {
           Children = new List<NuiElement>
         {
@@ -43,52 +43,29 @@ namespace NWN.Systems
                 Selected = channel
               },
               new NuiSpacer(),
-              new NuiCheck
-              {
-                Id = "fix",
-                Value = makeStatic,
-                Label = "Figer",
-                Tooltip = "Permet d'ancrer la fenêtre à l'écran"
-              }
+              new NuiCheck("Figer", makeStatic) { Id = "fix", Tooltip = "Permet d'ancrer la fenêtre à l'écran" }
             }
           },
           new NuiRow
           {
             Children = new List<NuiElement>
             {
-              new NuiText
-              {
-                Value = receivedChat
-              }
+              new NuiText(receivedChat) { }
             }
           },
           new NuiRow
           {
             Children = new List<NuiElement>
             {
-              new NuiTextEdit
-              {
-                Height = windowRectangle.Height * 0.1f,
-                Id = "chatWriter",
-                Value = writingChat,
-                MaxLength = 3000,
-                MultiLine = true
-              },
-              new NuiButton
-              {
-                Height = windowRectangle.Height * 0.1f,
-                Width = 60,
-                Id = "send",
-                Label = "Envoyer"
-              }
+              new NuiTextEdit("", writingChat, 3000, true) { Height = windowRectangle.Height * 0.1f, Id = "chatWriter" },
+              new NuiButton("Envoyer") { Height = windowRectangle.Height * 0.1f, Width = 60, Id = "send" }
             }
           }
         }
         };
 
-        NuiWindow window = new NuiWindow
+        NuiWindow window = new NuiWindow(root, "")
         {
-          Root = root,
           Geometry = geometry,
           Resizable = resizable,
           Collapsed = false,
