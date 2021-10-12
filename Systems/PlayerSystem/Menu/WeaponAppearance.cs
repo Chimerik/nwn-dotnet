@@ -38,6 +38,24 @@ namespace NWN.Systems
         List<NuiComboEntry> botModelCombo = BaseItems2da.baseItemTable.GetWeaponModelList(item.BaseItemType, "bot");
         List<NuiComboEntry> botColorCombo = BaseItems2da.baseItemTable.GetWeaponColorList(item.BaseItemType, topModelCombo.FirstOrDefault().Value, "bot");
 
+        foreach (var model in topModelCombo)
+          Log.Info($"top model : {model.Value}");
+
+        foreach (var color in topColorCombo)
+          Log.Info($"top color : {color.Value}");
+
+        foreach (var model in midModelCombo)
+          Log.Info($"mid model : {model.Value}");
+
+        foreach (var color in midColorCombo)
+          Log.Info($"mid color : {color.Value}");
+
+        foreach (var model in botModelCombo)
+          Log.Info($"bot model : {model.Value}");
+
+        foreach (var color in botColorCombo)
+          Log.Info($"bot color : {color.Value}");
+
         NuiBind<NuiRect> geometry = new NuiBind<NuiRect>("geometry");
         NuiRect windowRectangle = windowRectangles.ContainsKey(windowId) && windowRectangles[windowId].Width > 0 ? windowRectangles[windowId] : new NuiRect(10, oid.GetDeviceProperty(PlayerDeviceProperty.GuiHeight) * 0.01f, oid.GetDeviceProperty(PlayerDeviceProperty.GuiWidth) * 0.7f, oid.GetDeviceProperty(PlayerDeviceProperty.GuiHeight) / 3);
 

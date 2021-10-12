@@ -122,34 +122,48 @@ namespace NWN.Systems
       {
         weaponModels = new WeaponModel((BaseItemType)rowIndex);
 
-        for (int i = 0; i < 255; i++)
+        for (int i = 10; i < 255; i++)
         {
+          string search = i.ToString().PadLeft(3, '0');
 
-          if (NWScript.ResManGetAliasFor($"{resRef}_t_{i}", NWScript.RESTYPE_MDL) != "")
+          if (resRef == "WSwLs")
+            ModuleSystem.Log.Info($"{resRef}_t_{search}");
+          
+          if (NWScript.ResManGetAliasFor($"{resRef}_t_{search}", NWScript.RESTYPE_MDL) != "")
           {
+            if (resRef == "WSwLs")
+              ModuleSystem.Log.Info($"{resRef}_t_{search} in {NWScript.ResManGetAliasFor($"{resRef}_t_{search}", NWScript.RESTYPE_MDL)}");
+
             if (weaponModels.topModels.ContainsKey(i / 10))
-              weaponModels.topModels[i / 10].Add(int.Parse(i.ToString().Substring(2)));
+              weaponModels.topModels[i / 10].Add(i.ToString().Last());
             else
-              weaponModels.topModels.Add(i / 10, new List<int>() { int.Parse(i.ToString().Substring(2)) });
+              weaponModels.topModels.Add(i / 10, new List<int>() { i.ToString().Last() });
           }
 
-          if (NWScript.ResManGetAliasFor($"{resRef}_m_{i}", NWScript.RESTYPE_MDL) != "")
+          if (NWScript.ResManGetAliasFor($"{resRef}_m_{search}", NWScript.RESTYPE_MDL) != "")
           {
+            if (resRef == "WSwLs")
+              ModuleSystem.Log.Info($"{resRef}_m_{search} in {NWScript.ResManGetAliasFor($"{resRef}_m_{search}", NWScript.RESTYPE_MDL)}");
+
             if (weaponModels.middleModels.ContainsKey(i / 10))
-              weaponModels.middleModels[i / 10].Add(int.Parse(i.ToString().Substring(2)));
+              weaponModels.middleModels[i / 10].Add(i.ToString().Last());
             else
-              weaponModels.middleModels.Add(i / 10, new List<int>() { int.Parse(i.ToString().Substring(2)) });
+              weaponModels.middleModels.Add(i / 10, new List<int>() { i.ToString().Last() });
           }
 
-          if (NWScript.ResManGetAliasFor($"{resRef}_b_{i}", NWScript.RESTYPE_MDL) != "")
+          if (NWScript.ResManGetAliasFor($"{resRef}_b_{search}", NWScript.RESTYPE_MDL) != "")
           {
+            if (resRef == "WSwLs")
+              ModuleSystem.Log.Info($"{resRef}_b_{search} in {NWScript.ResManGetAliasFor($"{resRef}_b_{search}", NWScript.RESTYPE_MDL)}");
+
             if (weaponModels.bottomModels.ContainsKey(i / 10))
-              weaponModels.bottomModels[i / 10].Add(int.Parse(i.ToString().Substring(2)));
+              weaponModels.bottomModels[i / 10].Add(i.ToString().Last());
             else
-              weaponModels.bottomModels.Add(i / 10, new List<int>() { int.Parse(i.ToString().Substring(2)) });
+              weaponModels.bottomModels.Add(i / 10, new List<int>() { i.ToString().Last() });
           }
         }
       }
+
       entries.Add((BaseItemType)rowIndex, new Entry(name, description, numDamageDice, damageDice, baseCost, workshop, craftedItem, IsEquippable, isWeapon, isRangedWeapon, isMeleeWeapon, damageType, weaponSize, modelType, defaultIcon, weaponModels));
     }
     public readonly struct Entry

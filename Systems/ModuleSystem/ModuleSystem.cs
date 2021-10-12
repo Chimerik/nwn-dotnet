@@ -88,6 +88,31 @@ namespace NWN.Systems
       scheduler.ScheduleRepeating(DeleteExpiredMail, TimeSpan.FromHours(24), nextActivation);
 
       //TempLearnablesJsonification();
+
+      List<NuiComboEntry> topModelCombo = BaseItems2da.baseItemTable.GetWeaponModelList(BaseItemType.Longsword, "top");
+      List<NuiComboEntry> topColorCombo = BaseItems2da.baseItemTable.GetWeaponColorList(BaseItemType.Longsword, topModelCombo.FirstOrDefault().Value, "top");
+      List<NuiComboEntry> midModelCombo = BaseItems2da.baseItemTable.GetWeaponModelList(BaseItemType.Longsword, "mid");
+      List<NuiComboEntry> midColorCombo = BaseItems2da.baseItemTable.GetWeaponColorList(BaseItemType.Longsword, topModelCombo.FirstOrDefault().Value, "mid");
+      List<NuiComboEntry> botModelCombo = BaseItems2da.baseItemTable.GetWeaponModelList(BaseItemType.Longsword, "bot");
+      List<NuiComboEntry> botColorCombo = BaseItems2da.baseItemTable.GetWeaponColorList(BaseItemType.Longsword, topModelCombo.FirstOrDefault().Value, "bot");
+
+      foreach (var model in topModelCombo)
+        Log.Info($"top model : {model.Value}");
+
+      foreach (var color in topColorCombo)
+        Log.Info($"top color : {color.Value}");
+
+      foreach (var model in midModelCombo)
+        Log.Info($"mid model : {model.Value}");
+
+      foreach (var color in midColorCombo)
+        Log.Info($"mid color : {color.Value}");
+
+      foreach (var model in botModelCombo)
+        Log.Info($"bot model : {model.Value}");
+
+      foreach (var color in botColorCombo)
+        Log.Info($"bot color : {color.Value}");
     }
     private async void TempLearnablesJsonification()
     {
@@ -579,47 +604,49 @@ namespace NWN.Systems
         //string search = $"pMD0_HEAD{i.ToString().PadLeft(3, '0')}";
         //string found = NWScript.ResManGetAliasFor(search, NWScript.RESTYPE_MDL);
         //Log.Info($"{search} found : {found}");
+
+        string search = i.ToString().PadLeft(3, '0');
         
-        if (NWScript.ResManGetAliasFor($"pMD0_HEAD{i.ToString().PadLeft(3, '0')}", NWScript.RESTYPE_MDL) != "")
+        if (NWScript.ResManGetAliasFor($"pMD0_HEAD{search}", NWScript.RESTYPE_MDL) != "")
           headModels.FirstOrDefault(h => h.appearance == AppearanceType.Dwarf && h.gender == Gender.Male).heads.Add(new NuiComboEntry(i.ToString(), i));
 
-        if (NWScript.ResManGetAliasFor($"pFD0_HEAD{i.ToString().PadLeft(3, '0')}", NWScript.RESTYPE_MDL) != "")
+        if (NWScript.ResManGetAliasFor($"pFD0_HEAD{search}", NWScript.RESTYPE_MDL) != "")
           headModels.FirstOrDefault(h => h.appearance == AppearanceType.Dwarf && h.gender == Gender.Female).heads.Add(new NuiComboEntry(i.ToString(), i));
 
-        if (NWScript.ResManGetAliasFor($"pME0_HEAD{i.ToString().PadLeft(3, '0')}", NWScript.RESTYPE_MDL) != "")
+        if (NWScript.ResManGetAliasFor($"pME0_HEAD{search}", NWScript.RESTYPE_MDL) != "")
           headModels.FirstOrDefault(h => h.appearance == AppearanceType.Elf && h.gender == Gender.Male).heads.Add(new NuiComboEntry(i.ToString(), i));
 
-        if (NWScript.ResManGetAliasFor($"pFE0_HEAD{i.ToString().PadLeft(3, '0')}", NWScript.RESTYPE_MDL) != "")
+        if (NWScript.ResManGetAliasFor($"pFE0_HEAD{search}", NWScript.RESTYPE_MDL) != "")
           headModels.FirstOrDefault(h => h.appearance == AppearanceType.Elf && h.gender == Gender.Female).heads.Add(new NuiComboEntry(i.ToString(), i));
 
-        if (NWScript.ResManGetAliasFor($"pMG0_HEAD{i.ToString().PadLeft(3, '0')}", NWScript.RESTYPE_MDL) != "")
+        if (NWScript.ResManGetAliasFor($"pMG0_HEAD{search}", NWScript.RESTYPE_MDL) != "")
           headModels.FirstOrDefault(h => h.appearance == AppearanceType.Gnome && h.gender == Gender.Male).heads.Add(new NuiComboEntry(i.ToString(), i));
 
-        if (NWScript.ResManGetAliasFor($"pFG0_HEAD{i.ToString().PadLeft(3, '0')}", NWScript.RESTYPE_MDL) != "")
+        if (NWScript.ResManGetAliasFor($"pFG0_HEAD{search}", NWScript.RESTYPE_MDL) != "")
           headModels.FirstOrDefault(h => h.appearance == AppearanceType.Gnome && h.gender == Gender.Female).heads.Add(new NuiComboEntry(i.ToString(), i));
 
-        if (NWScript.ResManGetAliasFor($"pMA0_HEAD{i.ToString().PadLeft(3, '0')}", NWScript.RESTYPE_MDL) != "")
+        if (NWScript.ResManGetAliasFor($"pMA0_HEAD{search}", NWScript.RESTYPE_MDL) != "")
           headModels.FirstOrDefault(h => h.appearance == AppearanceType.Halfling && h.gender == Gender.Male).heads.Add(new NuiComboEntry(i.ToString(), i));
 
-        if (NWScript.ResManGetAliasFor($"pFA0_HEAD{i.ToString().PadLeft(3, '0')}", NWScript.RESTYPE_MDL) != "")
+        if (NWScript.ResManGetAliasFor($"pFA0_HEAD{search}", NWScript.RESTYPE_MDL) != "")
           headModels.FirstOrDefault(h => h.appearance == AppearanceType.Halfling && h.gender == Gender.Female).heads.Add(new NuiComboEntry(i.ToString(), i));
 
-        if (NWScript.ResManGetAliasFor($"pMH0_HEAD{i.ToString().PadLeft(3, '0')}", NWScript.RESTYPE_MDL) != "")
+        if (NWScript.ResManGetAliasFor($"pMH0_HEAD{search}", NWScript.RESTYPE_MDL) != "")
         {
           headModels.FirstOrDefault(h => h.appearance == AppearanceType.Human && h.gender == Gender.Male).heads.Add(new NuiComboEntry(i.ToString(), i));
           headModels.FirstOrDefault(h => h.appearance == AppearanceType.HalfElf && h.gender == Gender.Male).heads.Add(new NuiComboEntry(i.ToString(), i));
         }
 
-        if (NWScript.ResManGetAliasFor($"pFH0_HEAD{i.ToString().PadLeft(3, '0')}", NWScript.RESTYPE_MDL) != "")
+        if (NWScript.ResManGetAliasFor($"pFH0_HEAD{search}", NWScript.RESTYPE_MDL) != "")
         {
           headModels.FirstOrDefault(h => h.appearance == AppearanceType.Human && h.gender == Gender.Female).heads.Add(new NuiComboEntry(i.ToString(), i));
           headModels.FirstOrDefault(h => h.appearance == AppearanceType.HalfElf && h.gender == Gender.Female).heads.Add(new NuiComboEntry(i.ToString(), i));
         }
 
-        if (NWScript.ResManGetAliasFor($"pMO0_HEAD{i.ToString().PadLeft(3, '0')}", NWScript.RESTYPE_MDL) != "")
+        if (NWScript.ResManGetAliasFor($"pMO0_HEAD{search}", NWScript.RESTYPE_MDL) != "")
           headModels.FirstOrDefault(h => h.appearance == AppearanceType.HalfOrc && h.gender == Gender.Male).heads.Add(new NuiComboEntry(i.ToString(), i));
 
-        if (NWScript.ResManGetAliasFor($"pFO0_HEAD{i.ToString().PadLeft(3, '0')}", NWScript.RESTYPE_MDL) != "")
+        if (NWScript.ResManGetAliasFor($"pFO0_HEAD{search}", NWScript.RESTYPE_MDL) != "")
           headModels.FirstOrDefault(h => h.appearance == AppearanceType.HalfOrc && h.gender == Gender.Female).heads.Add(new NuiComboEntry(i.ToString(), i));
       }
     }
