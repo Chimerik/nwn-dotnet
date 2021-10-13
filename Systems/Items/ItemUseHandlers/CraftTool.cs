@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using Anvil.API;
 using NWN.Core;
 using Anvil.Services;
+using NWN.Core.NWNX;
 
 namespace NWN.Systems
 {
@@ -888,7 +889,7 @@ namespace NWN.Systems
             //if (currentValue > 8)
               //currentValue = 8;
           }
-
+          
           item.Appearance.SetWeaponColor((ItemAppearanceWeaponColor)weaponColorChoice, currentValue);
           NwItem newItem = item.Clone(player.oid.LoginCreature);
           player.oid.LoginCreature.RunEquip(newItem, InventorySlot.RightHand);

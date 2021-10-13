@@ -26,6 +26,13 @@ namespace NWN.Systems
 
         if (player.oid.PlayerName == "Chim")
         {
+          /*NwItem item = player.oid.ControlledCreature.GetItemInSlot(InventorySlot.RightHand);
+          Log.Info($"model : {item.Appearance.GetWeaponModel(ItemAppearanceWeaponModel.Top)}");
+          ItemPlugin.SetItemAppearance(item, NWScript.ITEM_APPR_TYPE_WEAPON_MODEL, NWScript.ITEM_APPR_WEAPON_MODEL_TOP, 2);
+          NwItem newItem = item.Clone(player.oid.LoginCreature);
+          player.oid.LoginCreature.RunEquip(newItem, InventorySlot.RightHand);
+          item.Destroy();*/
+
           //player.CreateBodyAppearanceWindow();
           //player.CreateItemAppearanceWindow(player.oid.ControlledCreature.GetItemInSlot(InventorySlot.Chest));
           //player.CreatePortraitDemoWindow();

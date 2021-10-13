@@ -59,15 +59,15 @@ namespace NWN.Systems
       {
         case "top":
           foreach (int color in entries[baseItem].weaponModels.topModels[model])
-            comboEntries.Add(new NuiComboEntry(model.ToString(), model));
+            comboEntries.Add(new NuiComboEntry(color.ToString(), color));
           break;
         case "mid":
           foreach (int color in entries[baseItem].weaponModels.middleModels[model])
-            comboEntries.Add(new NuiComboEntry(model.ToString(), model));
+            comboEntries.Add(new NuiComboEntry(color.ToString(), color));
           break;
         case "bot":
           foreach (int color in entries[baseItem].weaponModels.bottomModels[model])
-            comboEntries.Add(new NuiComboEntry(model.ToString(), model));
+            comboEntries.Add(new NuiComboEntry(color.ToString(), color));
           break;
       }
       return comboEntries;
@@ -132,12 +132,12 @@ namespace NWN.Systems
           if (NWScript.ResManGetAliasFor($"{resRef}_t_{search}", NWScript.RESTYPE_MDL) != "")
           {
             if (resRef == "WSwLs")
-              ModuleSystem.Log.Info($"{resRef}_t_{search} in {NWScript.ResManGetAliasFor($"{resRef}_t_{search}", NWScript.RESTYPE_MDL)}");
+              ModuleSystem.Log.Info($"{resRef}_t_{search} in {NWScript.ResManGetAliasFor($"{resRef}_t_{search}", NWScript.RESTYPE_MDL)} - adding {i / 10} - {i % 10}");
 
             if (weaponModels.topModels.ContainsKey(i / 10))
-              weaponModels.topModels[i / 10].Add(i.ToString().Last());
+              weaponModels.topModels[i / 10].Add(i % 10);
             else
-              weaponModels.topModels.Add(i / 10, new List<int>() { i.ToString().Last() });
+              weaponModels.topModels.Add(i / 10, new List<int>() { i % 10 });
           }
 
           if (NWScript.ResManGetAliasFor($"{resRef}_m_{search}", NWScript.RESTYPE_MDL) != "")
@@ -146,9 +146,9 @@ namespace NWN.Systems
               ModuleSystem.Log.Info($"{resRef}_m_{search} in {NWScript.ResManGetAliasFor($"{resRef}_m_{search}", NWScript.RESTYPE_MDL)}");
 
             if (weaponModels.middleModels.ContainsKey(i / 10))
-              weaponModels.middleModels[i / 10].Add(i.ToString().Last());
+              weaponModels.middleModels[i / 10].Add(i % 10);
             else
-              weaponModels.middleModels.Add(i / 10, new List<int>() { i.ToString().Last() });
+              weaponModels.middleModels.Add(i / 10, new List<int>() { i % 10 });
           }
 
           if (NWScript.ResManGetAliasFor($"{resRef}_b_{search}", NWScript.RESTYPE_MDL) != "")
@@ -157,9 +157,9 @@ namespace NWN.Systems
               ModuleSystem.Log.Info($"{resRef}_b_{search} in {NWScript.ResManGetAliasFor($"{resRef}_b_{search}", NWScript.RESTYPE_MDL)}");
 
             if (weaponModels.bottomModels.ContainsKey(i / 10))
-              weaponModels.bottomModels[i / 10].Add(i.ToString().Last());
+              weaponModels.bottomModels[i / 10].Add(i % 10);
             else
-              weaponModels.bottomModels.Add(i / 10, new List<int>() { i.ToString().Last() });
+              weaponModels.bottomModels.Add(i / 10, new List<int>() { i % 10 });
           }
         }
       }
