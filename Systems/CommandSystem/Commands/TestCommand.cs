@@ -23,9 +23,10 @@ namespace NWN.Systems
       {
         //ctx.oSender.ToNwObject<NwPlayer>().HP = 10;
         //ctx.oSender.ApplyEffect(EffectDuration.Instant, Effect.Death());
-
+        
         if (player.oid.PlayerName == "Chim")
         {
+          player.oid.ControlledCreature.AddFeat(Feat.WeaponProficiencyMartial);
           /*NwItem item = player.oid.ControlledCreature.GetItemInSlot(InventorySlot.RightHand);
           Log.Info($"model : {item.Appearance.GetWeaponModel(ItemAppearanceWeaponModel.Top)}");
           ItemPlugin.SetItemAppearance(item, NWScript.ITEM_APPR_TYPE_WEAPON_MODEL, NWScript.ITEM_APPR_WEAPON_MODEL_TOP, 2);

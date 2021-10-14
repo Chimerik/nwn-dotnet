@@ -76,9 +76,16 @@ namespace NWN.Systems
                 {
                   Width = 70,
                   Entries = topColorComboBind,
-                  Selected = topModelSelection
+                  Selected = topColorSelection
                 },
-                new NuiSlider(topColorSlider, 0, topColorCombo.Count - 1) { Step = 1,  Width = (windowRectangle.Width - 200)  * 0.48f }
+                new NuiGroup
+                {
+                  Id = "topSlider", Border = false, Margin = 0, Padding = 0, Scrollbars = NuiScrollbars.None, Height = 35,
+                  Children = new List<NuiElement>
+                  {
+                    new NuiSlider(topColorSlider, 0, topColorCombo.Count - 1) { Step = 1,  Width = (windowRectangle.Width - 200)  * 0.48f }
+                  }
+                }
               }
             },
             new NuiRow
@@ -99,7 +106,14 @@ namespace NWN.Systems
                   Entries = midColorComboBind,
                   Selected = middleColorSelection
                 },
-                new NuiSlider(middleColorSlider, 0, midColorCombo.Count - 1) { Step = 1,  Width = (windowRectangle.Width - 200)  * 0.48f }
+                new NuiGroup
+                {
+                  Id = "midSlider", Border = false, Margin = 0, Padding = 0, Scrollbars = NuiScrollbars.None, Height = 35,
+                  Children = new List<NuiElement>
+                  {
+                    new NuiSlider(middleColorSlider, 0, midColorCombo.Count - 1) { Step = 1,  Width = (windowRectangle.Width - 200)  * 0.48f }
+                  }
+                }
               }
             },
             new NuiRow
@@ -120,7 +134,14 @@ namespace NWN.Systems
                   Entries = botColorComboBind,
                   Selected = bottomColorSelection
                 },
-                new NuiSlider(bottomColorSlider, 0, midColorCombo.Count - 1) { Step = 1,  Width = (windowRectangle.Width - 200)  * 0.48f }
+                new NuiGroup
+                {
+                  Id = "botSlider", Border = false, Margin = 0, Padding = 0, Scrollbars = NuiScrollbars.None, Height = 35,
+                  Children = new List<NuiElement>
+                  {
+                    new NuiSlider(bottomColorSlider, 0, midColorCombo.Count - 1) { Step = 1,  Width = (windowRectangle.Width - 200)  * 0.48f }
+                  }
+                }
               }
             },
           }
@@ -146,30 +167,29 @@ namespace NWN.Systems
         title.SetBindValue(oid, token, $"Modifier l'apparence de {item.Name}");
 
         Log.Info($"model top : {item.Appearance.GetWeaponModel(ItemAppearanceWeaponModel.Top)}");
-        Log.Info($"color top : {topColorCombo.IndexOf(topColorCombo.FirstOrDefault(l => l.Value == item.Appearance.GetWeaponColor(ItemAppearanceWeaponColor.Top)))}");
-        Log.Info($"weapon color top : {item.Appearance.GetWeaponColor(ItemAppearanceWeaponColor.Top)}");
-
-
+        Log.Info($"slider top : {topModelCombo.IndexOf(topModelCombo.FirstOrDefault(l => l.Value == item.Appearance.GetWeaponModel(ItemAppearanceWeaponModel.Top) / 10))}");
+        //Log.Info($"weapon color top : {item.Appearance.GetWeaponModel(ItemAppearanceWeaponModel.Top) % 10}");
 
         topModelSelection.SetBindValue(oid, token, item.Appearance.GetWeaponModel(ItemAppearanceWeaponModel.Top) / 10);
-        topModelSlider.SetBindValue(oid, token, topColorCombo.IndexOf(topColorCombo.FirstOrDefault(l => l.Value == item.Appearance.GetWeaponModel(ItemAppearanceWeaponModel.Top))) / 10);
+        topModelSlider.SetBindValue(oid, token, topModelCombo.IndexOf(topModelCombo.FirstOrDefault(l => l.Value == item.Appearance.GetWeaponModel(ItemAppearanceWeaponModel.Top) / 10)) );
+        Log.Info($"slider top bind : {topModelSlider.GetBindValue(oid, token)}");
 
         topColorSelection.SetBindValue(oid, token, item.Appearance.GetWeaponModel(ItemAppearanceWeaponModel.Top) % 10);
-        topColorSlider.SetBindValue(oid, token, topColorCombo.IndexOf(topColorCombo.FirstOrDefault(l => l.Value == item.Appearance.GetWeaponColor(ItemAppearanceWeaponColor.Top))) % 10);
+        topColorSlider.SetBindValue(oid, token, topColorCombo.IndexOf(topColorCombo.FirstOrDefault(l => l.Value == item.Appearance.GetWeaponModel(ItemAppearanceWeaponModel.Top) % 10)));
         topColorComboBind.SetBindValue(oid, token, topColorCombo);
 
         middleModelSelection.SetBindValue(oid, token, item.Appearance.GetWeaponModel(ItemAppearanceWeaponModel.Middle) / 10);
-        middleModelSlider.SetBindValue(oid, token, topColorCombo.IndexOf(topColorCombo.FirstOrDefault(l => l.Value == item.Appearance.GetWeaponModel(ItemAppearanceWeaponModel.Middle))) / 10);
+        middleModelSlider.SetBindValue(oid, token, midModelCombo.IndexOf(midModelCombo.FirstOrDefault(l => l.Value == item.Appearance.GetWeaponModel(ItemAppearanceWeaponModel.Middle) / 10)));
 
         middleColorSelection.SetBindValue(oid, token, item.Appearance.GetWeaponColor(ItemAppearanceWeaponColor.Middle));
-        middleColorSlider.SetBindValue(oid, token, topColorCombo.IndexOf(topColorCombo.FirstOrDefault(l => l.Value == item.Appearance.GetWeaponColor(ItemAppearanceWeaponColor.Middle))) % 10);
+        middleColorSlider.SetBindValue(oid, token, midColorCombo.IndexOf(midColorCombo.FirstOrDefault(l => l.Value == item.Appearance.GetWeaponModel(ItemAppearanceWeaponModel.Middle) % 10)));
         midColorComboBind.SetBindValue(oid, token, midColorCombo);
 
         bottomModelSelection.SetBindValue(oid, token, item.Appearance.GetWeaponModel(ItemAppearanceWeaponModel.Bottom) / 10);
-        bottomModelSlider.SetBindValue(oid, token, topColorCombo.IndexOf(topColorCombo.FirstOrDefault(l => l.Value == item.Appearance.GetWeaponModel(ItemAppearanceWeaponModel.Bottom))) / 10);
+        bottomModelSlider.SetBindValue(oid, token, botModelCombo.IndexOf(botModelCombo.FirstOrDefault(l => l.Value == item.Appearance.GetWeaponModel(ItemAppearanceWeaponModel.Bottom) / 10)));
 
         bottomColorSelection.SetBindValue(oid, token, item.Appearance.GetWeaponColor(ItemAppearanceWeaponColor.Bottom) % 10);
-        bottomColorSlider.SetBindValue(oid, token, topColorCombo.IndexOf(topColorCombo.FirstOrDefault(l => l.Value == item.Appearance.GetWeaponColor(ItemAppearanceWeaponColor.Bottom))) % 10);
+        bottomColorSlider.SetBindValue(oid, token, botColorCombo.IndexOf(botColorCombo.FirstOrDefault(l => l.Value == item.Appearance.GetWeaponModel(ItemAppearanceWeaponModel.Bottom) % 10)));
         botColorComboBind.SetBindValue(oid, token, botColorCombo);
 
         geometry.SetBindValue(oid, token, windowRectangle);
@@ -274,6 +294,11 @@ namespace NWN.Systems
         selector.SetBindValue(oid, windowToken, result);
 
         colorComboEntries.SetBindValue(oid, windowToken, BaseItems2da.baseItemTable.GetWeaponColorList(weapon.BaseItemType, result, part));
+        /*NuiGroup paletteGroup = new NuiGroup();
+        paletteGroup.Id = group; paletteGroup.Height = 35; paletteGroup.Margin = 0; paletteGroup.Padding = 0; paletteGroup.Scrollbars = NuiScrollbars.None; paletteGroup.Border = false;
+        paletteGroup.Children = new List<NuiElement>() { new NuiSlider(colorSlider, 0, colorComboEntries.Count - 1) { Step = 1, Width = colorComboEntries.Count * 2 } };
+        */
+
 
         colorSelector.SetBindWatch(oid, windowToken, false);
         colorSelector.SetBindValue(oid, windowToken, colorResult);
@@ -292,55 +317,84 @@ namespace NWN.Systems
 
         int selectorValue = 0;
         NuiBind<int> slider = null;
-        NuiBind<List<NuiComboEntry>> colorComboEntries = null;
+        NuiBind<List<NuiComboEntry>> colorBindComboEntries = null;
+        List<NuiComboEntry> colorComboEntries = null;
+        List<NuiComboEntry> modelComboEntries = null;
         NuiBind<int> colorSelector = null;
         NuiBind<int> colorSlider = null;
         int sliderValue = 0;
-        int colorResult = 0;
+        int currentColor = weapon.Appearance.GetWeaponModel(model) % 10;
         int sliderResult = 0;
-        string part = "top";
+        BaseItemTable.Entry entry = BaseItems2da.baseItemTable.GetBaseItemDataEntry(weapon.BaseItemType);
+        List<int> weaponColors = null;
+        string group = "topSlider";
 
         switch (model)
         {
           case ItemAppearanceWeaponModel.Top:
             selectorValue = new NuiBind<int>("topModelSelection").GetBindValue(oid, windowToken);
             slider = new NuiBind<int>("topModelSlider");
-            sliderResult = BaseItems2da.baseItemTable.GetWeaponModelList(weapon.BaseItemType, "top").ElementAt(selectorValue).Value;
+            modelComboEntries = BaseItems2da.baseItemTable.GetWeaponModelList(weapon.BaseItemType, "top");
+            sliderResult = modelComboEntries.IndexOf(modelComboEntries.FirstOrDefault(m => m.Value == selectorValue));
             sliderValue = slider.GetBindValue(oid, windowToken);
 
-            colorComboEntries = new NuiBind<List<NuiComboEntry>>("topColorComboBind");
+            colorBindComboEntries = new NuiBind<List<NuiComboEntry>>("topColorComboBind");
+            colorComboEntries = BaseItems2da.baseItemTable.GetWeaponColorList(weapon.BaseItemType, selectorValue, "top");
             colorSelector = new NuiBind<int>("topColorSelection");
             colorSlider = new NuiBind<int>("topColorSlider");
-            colorResult = BaseItems2da.baseItemTable.GetWeaponColorList(weapon.BaseItemType, selectorValue, "top").FirstOrDefault().Value;
+
+            weaponColors = entry.weaponModels.topModels[selectorValue];
+
+            if (!weaponColors.Contains(currentColor))
+              currentColor = colorComboEntries[0].Value;
+
             break;
           case ItemAppearanceWeaponModel.Middle:
             selectorValue = new NuiBind<int>("middleModelSelection").GetBindValue(oid, windowToken);
             slider = new NuiBind<int>("middleModelSlider");
-            sliderResult = BaseItems2da.baseItemTable.GetWeaponModelList(weapon.BaseItemType, "mid").ElementAt(selectorValue).Value;
-            part = "mid";
+            modelComboEntries = BaseItems2da.baseItemTable.GetWeaponModelList(weapon.BaseItemType, "mid");
+            sliderResult = modelComboEntries.IndexOf(modelComboEntries.FirstOrDefault(m => m.Value == selectorValue));
+            sliderValue = slider.GetBindValue(oid, windowToken);
 
-            colorComboEntries = new NuiBind<List<NuiComboEntry>>("midColorComboBind");
+            colorBindComboEntries = new NuiBind<List<NuiComboEntry>>("midColorComboBind");
+            colorComboEntries = BaseItems2da.baseItemTable.GetWeaponColorList(weapon.BaseItemType, selectorValue, "mid");
             colorSelector = new NuiBind<int>("middleColorSelection");
             colorSlider = new NuiBind<int>("middleColorSlider");
-            sliderValue = slider.GetBindValue(oid, windowToken);
-            colorResult = BaseItems2da.baseItemTable.GetWeaponColorList(weapon.BaseItemType, selectorValue, "mid").FirstOrDefault().Value;
+
+            weaponColors = entry.weaponModels.middleModels[selectorValue];
+
+            if (!weaponColors.Contains(currentColor))
+              currentColor = colorComboEntries[0].Value;
+
+            group = "midSlider";
+
             break;
           case ItemAppearanceWeaponModel.Bottom:
             selectorValue = new NuiBind<int>("bottomModelSelection").GetBindValue(oid, windowToken);
             slider = new NuiBind<int>("bottomModelSlider");
-            sliderResult = BaseItems2da.baseItemTable.GetWeaponModelList(weapon.BaseItemType, "bot").ElementAt(selectorValue).Value;
-            part = "bot";
+            modelComboEntries = BaseItems2da.baseItemTable.GetWeaponModelList(weapon.BaseItemType, "bot");
+            sliderResult = modelComboEntries.IndexOf(modelComboEntries.FirstOrDefault(m => m.Value == selectorValue));
+            sliderValue = slider.GetBindValue(oid, windowToken);
 
-            colorComboEntries = new NuiBind<List<NuiComboEntry>>("botColorComboBind");
+            colorBindComboEntries = new NuiBind<List<NuiComboEntry>>("botColorComboBind");
+            colorComboEntries = BaseItems2da.baseItemTable.GetWeaponColorList(weapon.BaseItemType, selectorValue, "bot");
             colorSelector = new NuiBind<int>("middleColorSelection");
             colorSlider = new NuiBind<int>("middleColorSlider");
-            sliderValue = slider.GetBindValue(oid, windowToken);
-            colorResult = BaseItems2da.baseItemTable.GetWeaponColorList(weapon.BaseItemType, selectorValue, "bot").FirstOrDefault().Value;
+
+            weaponColors = entry.weaponModels.bottomModels[selectorValue];
+
+            if (!weaponColors.Contains(currentColor))
+              currentColor = colorComboEntries[0].Value;
+
+            group = "botSlider";
+
             break;
         }
 
-        Log.Info($"model : {selectorValue}{colorSelector.GetBindValue(oid, windowToken)}");
-        weapon.Appearance.SetWeaponModel(model, byte.Parse($"{selectorValue}{colorSelector.GetBindValue(oid, windowToken)}"));
+        Log.Info($"model selected : {selectorValue}{currentColor}");
+        weapon.Appearance.SetWeaponModel(model, byte.Parse($"{selectorValue}{currentColor}"));
+        Log.Info($"applied model : {weapon.Appearance.GetWeaponModel(model)}");
+
         oid.ControlledCreature.RunUnequip(weapon);
         NwItem newItem = weapon.Clone(oid.ControlledCreature);
         oid.ControlledCreature.RunEquip(newItem, InventorySlot.RightHand);
@@ -357,13 +411,18 @@ namespace NWN.Systems
         slider.SetBindWatch(oid, windowToken, false);
         slider.SetBindValue(oid, windowToken, sliderResult);
 
-        colorComboEntries.SetBindValue(oid, windowToken, BaseItems2da.baseItemTable.GetWeaponColorList(weapon.BaseItemType, selectorValue, part));
+        colorBindComboEntries.SetBindValue(oid, windowToken, colorComboEntries);
+        NuiGroup paletteGroup = new NuiGroup();
+        paletteGroup.Id = group; paletteGroup.Height = 35; paletteGroup.Margin = 0; paletteGroup.Padding = 0; paletteGroup.Scrollbars = NuiScrollbars.None; paletteGroup.Border = false;
+        paletteGroup.Children = new List<NuiElement>() { new NuiSlider(colorSlider, 0, colorComboEntries.Count - 1) { Step = 1, Width = colorComboEntries.Count * 2 } };
+
+        oid.NuiSetGroupLayout(windowToken, paletteGroup.Id, paletteGroup);
 
         colorSelector.SetBindWatch(oid, windowToken, false);
-        colorSelector.SetBindValue(oid, windowToken, colorResult);
+        colorSelector.SetBindValue(oid, windowToken, currentColor);
 
         colorSlider.SetBindWatch(oid, windowToken, false);
-        colorSlider.SetBindValue(oid, windowToken, 0);
+        colorSlider.SetBindValue(oid, windowToken, weaponColors.IndexOf(currentColor));
 
         slider.SetBindWatch(oid, windowToken, true);
         colorSelector.SetBindWatch(oid, windowToken, true);
@@ -431,6 +490,7 @@ namespace NWN.Systems
 
         int selectorValue = 0;
         NuiBind<int> slider = null;
+        List<NuiComboEntry> colorComboEntries = null;
         int sliderValue = 0;
         int sliderResult = 0;
         int selectedModel = 0;
@@ -438,24 +498,27 @@ namespace NWN.Systems
         switch (model)
         {
           case ItemAppearanceWeaponModel.Top:
-            selectorValue = new NuiBind<int>("topModelSelection").GetBindValue(oid, windowToken);
-            slider = new NuiBind<int>("topModelSlider");
-            sliderResult = BaseItems2da.baseItemTable.GetWeaponModelList(weapon.BaseItemType, "top").ElementAt(selectorValue).Value;
+            selectorValue = new NuiBind<int>("topColorSelection").GetBindValue(oid, windowToken);
+            slider = new NuiBind<int>("topColorSlider");
             selectedModel = new NuiBind<int>("topModelSelection").GetBindValue(oid, windowToken);
+            colorComboEntries = BaseItems2da.baseItemTable.GetWeaponColorList(weapon.BaseItemType, selectedModel, "top");
+            sliderResult = colorComboEntries.IndexOf(colorComboEntries.FirstOrDefault(m => m.Value == selectorValue));
             sliderValue = slider.GetBindValue(oid, windowToken);
             break;
           case ItemAppearanceWeaponModel.Middle:
-            selectorValue = new NuiBind<int>("middleModelSelection").GetBindValue(oid, windowToken);
-            slider = new NuiBind<int>("middleModelSlider");
-            sliderResult = BaseItems2da.baseItemTable.GetWeaponModelList(weapon.BaseItemType, "mid").ElementAt(selectorValue).Value;
+            selectorValue = new NuiBind<int>("middleColorSelection").GetBindValue(oid, windowToken);
+            slider = new NuiBind<int>("middleColorSlider");
             selectedModel = new NuiBind<int>("middleModelSelection").GetBindValue(oid, windowToken);
+            colorComboEntries = BaseItems2da.baseItemTable.GetWeaponColorList(weapon.BaseItemType, selectedModel, "mid");
+            sliderResult = colorComboEntries.IndexOf(colorComboEntries.FirstOrDefault(m => m.Value == selectorValue));
             sliderValue = slider.GetBindValue(oid, windowToken);
             break;
           case ItemAppearanceWeaponModel.Bottom:
-            selectorValue = new NuiBind<int>("bottomModelSelection").GetBindValue(oid, windowToken);
-            slider = new NuiBind<int>("bottomModelSlider");
-            sliderResult = BaseItems2da.baseItemTable.GetWeaponModelList(weapon.BaseItemType, "bot").ElementAt(selectorValue).Value;
+            selectorValue = new NuiBind<int>("bottomColorSelection").GetBindValue(oid, windowToken);
+            slider = new NuiBind<int>("bottomColorSlider");
             selectedModel = new NuiBind<int>("bottomModelSelection").GetBindValue(oid, windowToken);
+            colorComboEntries = BaseItems2da.baseItemTable.GetWeaponColorList(weapon.BaseItemType, selectedModel, "bot");
+            sliderResult = colorComboEntries.IndexOf(colorComboEntries.FirstOrDefault(m => m.Value == selectorValue));
             sliderValue = slider.GetBindValue(oid, windowToken);
             break;
         }
@@ -489,7 +552,7 @@ namespace NWN.Systems
           PlayerPlugin.ApplyLoopingVisualEffectToObject(nuiEvent.Player.ControlledCreature, nuiEvent.Player.ControlledCreature, 173);
           return;
         }
-
+        
         NwItem item = nuiEvent.Player.LoginCreature.GetObjectVariable<LocalVariableObject<NwItem>>("_ITEM_SELECTED_FOR_MODIFICATION").Value;
 
         if (!item.IsValid || item.Possessor != nuiEvent.Player.ControlledCreature)
