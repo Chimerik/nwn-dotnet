@@ -88,40 +88,6 @@ namespace NWN.Systems
       scheduler.ScheduleRepeating(DeleteExpiredMail, TimeSpan.FromHours(24), nextActivation);
 
       //TempLearnablesJsonification();
-
-      List<NuiComboEntry> topModelCombo = BaseItems2da.baseItemTable.GetWeaponModelList(BaseItemType.Longsword, "top");
-      List<NuiComboEntry> topColorCombo = BaseItems2da.baseItemTable.GetWeaponColorList(BaseItemType.Longsword, topModelCombo.FirstOrDefault().Value, "top");
-      /*List<NuiComboEntry> midModelCombo = BaseItems2da.baseItemTable.GetWeaponModelList(BaseItemType.Longsword, "mid");
-      List<NuiComboEntry> midColorCombo = BaseItems2da.baseItemTable.GetWeaponColorList(BaseItemType.Longsword, topModelCombo.FirstOrDefault().Value, "mid");
-      List<NuiComboEntry> botModelCombo = BaseItems2da.baseItemTable.GetWeaponModelList(BaseItemType.Longsword, "bot");
-      List<NuiComboEntry> botColorCombo = BaseItems2da.baseItemTable.GetWeaponColorList(BaseItemType.Longsword, topModelCombo.FirstOrDefault().Value, "bot");
-*/
-      foreach (var model in BaseItems2da.baseItemTable.GetBaseItemDataEntry(BaseItemType.Longsword).weaponModels.topModels)
-      {
-        Log.Info($"model : {model.Key}");
-        foreach (var color in model.Value)
-          Log.Info($"color : {color}");
-      }
-
-      Log.Info($"selected model  : {topModelCombo.FirstOrDefault().Value}");
-
-      foreach(var color in BaseItems2da.baseItemTable.GetBaseItemDataEntry(BaseItemType.Longsword).weaponModels.topModels[1])
-        Log.Info($"top 1 color : {color}");
-
-      foreach (var color in topColorCombo)
-        Log.Info($"top color : {color.Value}");
-
-      /*foreach (var model in midModelCombo)
-        Log.Info($"mid model : {model.Value}");
-
-      foreach (var color in midColorCombo)
-        Log.Info($"mid color : {color.Value}");
-
-      foreach (var model in botModelCombo)
-        Log.Info($"bot model : {model.Value}");
-
-      foreach (var color in botColorCombo)
-        Log.Info($"bot color : {color.Value}");*/
     }
     private async void TempLearnablesJsonification()
     {

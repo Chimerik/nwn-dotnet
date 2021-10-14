@@ -11,65 +11,18 @@ namespace NWN.Systems
   public class BaseItemTable : ITwoDimArray
   {
     private readonly Dictionary<BaseItemType, Entry> entries = new Dictionary<BaseItemType, Entry>();
-    public class WeaponModel
-    {
-      public BaseItemType baseItem { get; }
-      public Dictionary<int, List<int>> topModels { get; set; }
-      public Dictionary<int, List<int>> middleModels { get; set; }
-      public Dictionary<int, List<int>> bottomModels { get; set; }
-      public WeaponModel(BaseItemType baseItem)
-      {
-        this.baseItem = baseItem;
-        topModels = new Dictionary<int, List<int>>();
-        middleModels = new Dictionary<int, List<int>>();
-        bottomModels = new Dictionary<int, List<int>>();
-      }
-    }
 
     public Entry GetBaseItemDataEntry(BaseItemType baseItem)
     {
       return entries[baseItem];
     }
-    public List<NuiComboEntry> GetWeaponModelList(BaseItemType baseItem, string location)
+    public List<NuiComboEntry> GetWeaponModelList(BaseItemType baseItem, ItemAppearanceWeaponModel part)
     {
       List<NuiComboEntry> comboEntries = new List<NuiComboEntry>();
 
-      switch(location)
-      {
-        case "top":
-          foreach (int model in entries[baseItem].weaponModels.topModels.Keys)
-            comboEntries.Add(new NuiComboEntry(model.ToString(), model));
-          break;
-        case "mid":
-          foreach (int model in entries[baseItem].weaponModels.middleModels.Keys)
-            comboEntries.Add(new NuiComboEntry(model.ToString(), model));
-          break;
-        case "bot":
-          foreach (int model in entries[baseItem].weaponModels.bottomModels.Keys)
-            comboEntries.Add(new NuiComboEntry(model.ToString(), model));
-          break;
-      }
-      return comboEntries;
-    }
-    public List<NuiComboEntry> GetWeaponColorList(BaseItemType baseItem, int model, string location)
-    {
-      List<NuiComboEntry> comboEntries = new List<NuiComboEntry>();
+      foreach (byte model in entries[baseItem].weaponModels[part])
+        comboEntries.Add(new NuiComboEntry(model.ToString(), model));
 
-      switch (location)
-      {
-        case "top":
-          foreach (int color in entries[baseItem].weaponModels.topModels[model])
-            comboEntries.Add(new NuiComboEntry(color.ToString(), color));
-          break;
-        case "mid":
-          foreach (int color in entries[baseItem].weaponModels.middleModels[model])
-            comboEntries.Add(new NuiComboEntry(color.ToString(), color));
-          break;
-        case "bot":
-          foreach (int color in entries[baseItem].weaponModels.bottomModels[model])
-            comboEntries.Add(new NuiComboEntry(color.ToString(), color));
-          break;
-      }
       return comboEntries;
     }
     public int GetMaxDamage(BaseItemType baseItem, NwCreature oCreature, bool IsRangedAttack)
@@ -116,51 +69,26 @@ namespace NWN.Systems
       int modelType = int.TryParse(twoDimEntry("ModelType"), out modelType) ? modelType : -1;
       string defaultIcon = twoDimEntry("DefaultIcon");
       string resRef = twoDimEntry("ItemClass");
-      WeaponModel weaponModels = null;
+      Dictionary<ItemAppearanceWeaponModel, List<byte>> weaponModels = new Dictionary<ItemAppearanceWeaponModel, List<byte>>();
 
       if (!string.IsNullOrEmpty(resRef))
       {
-        weaponModels = new WeaponModel((BaseItemType)rowIndex);
+        weaponModels.Add(ItemAppearanceWeaponModel.Top, new List<byte>());
+        weaponModels.Add(ItemAppearanceWeaponModel.Middle, new List<byte>());
+        weaponModels.Add(ItemAppearanceWeaponModel.Bottom, new List<byte>());
 
-        for (int i = 10; i < 255; i++)
+        for (byte i = 10; i < 255; i++)
         {
           string search = i.ToString().PadLeft(3, '0');
-
-          if (resRef == "WSwLs")
-            ModuleSystem.Log.Info($"{resRef}_t_{search}");
           
           if (NWScript.ResManGetAliasFor($"{resRef}_t_{search}", NWScript.RESTYPE_MDL) != "")
-          {
-            if (resRef == "WSwLs")
-              ModuleSystem.Log.Info($"{resRef}_t_{search} in {NWScript.ResManGetAliasFor($"{resRef}_t_{search}", NWScript.RESTYPE_MDL)} - adding {i / 10} - {i % 10}");
-
-            if (weaponModels.topModels.ContainsKey(i / 10))
-              weaponModels.topModels[i / 10].Add(i % 10);
-            else
-              weaponModels.topModels.Add(i / 10, new List<int>() { i % 10 });
-          }
+            weaponModels[ItemAppearanceWeaponModel.Top].Add(i);
 
           if (NWScript.ResManGetAliasFor($"{resRef}_m_{search}", NWScript.RESTYPE_MDL) != "")
-          {
-            if (resRef == "WSwLs")
-              ModuleSystem.Log.Info($"{resRef}_m_{search} in {NWScript.ResManGetAliasFor($"{resRef}_m_{search}", NWScript.RESTYPE_MDL)}");
-
-            if (weaponModels.middleModels.ContainsKey(i / 10))
-              weaponModels.middleModels[i / 10].Add(i % 10);
-            else
-              weaponModels.middleModels.Add(i / 10, new List<int>() { i % 10 });
-          }
+            weaponModels[ItemAppearanceWeaponModel.Middle].Add(i);
 
           if (NWScript.ResManGetAliasFor($"{resRef}_b_{search}", NWScript.RESTYPE_MDL) != "")
-          {
-            if (resRef == "WSwLs")
-              ModuleSystem.Log.Info($"{resRef}_b_{search} in {NWScript.ResManGetAliasFor($"{resRef}_b_{search}", NWScript.RESTYPE_MDL)}");
-
-            if (weaponModels.bottomModels.ContainsKey(i / 10))
-              weaponModels.bottomModels[i / 10].Add(i % 10);
-            else
-              weaponModels.bottomModels.Add(i / 10, new List<int>() { i % 10 });
-          }
+            weaponModels[ItemAppearanceWeaponModel.Bottom].Add(i);
         }
       }
 
@@ -183,9 +111,9 @@ namespace NWN.Systems
       public readonly bool IsWeapon;
       public readonly bool IsRangedWeapon;
       public readonly bool IsMeleeWeapon;
-      public readonly WeaponModel weaponModels;
+      public readonly Dictionary<ItemAppearanceWeaponModel, List<byte>> weaponModels;
 
-      public Entry(string name, string description, int numDamageDice, int damageDice, float baseCost, string workshop, string craftedItem, bool IsEquippable, bool IsWeapon, bool IsRangedWeapon, bool IsMeleeWeapon, int damageType, int weaponSize, int modelType, string defaultIcon, WeaponModel weaponModels)
+      public Entry(string name, string description, int numDamageDice, int damageDice, float baseCost, string workshop, string craftedItem, bool IsEquippable, bool IsWeapon, bool IsRangedWeapon, bool IsMeleeWeapon, int damageType, int weaponSize, int modelType, string defaultIcon, Dictionary<ItemAppearanceWeaponModel, List<byte>> weaponModels)
       {
         this.name = name;
         this.description = description;
