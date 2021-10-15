@@ -116,11 +116,15 @@ namespace NWN.Systems
         case BaseItemType.SpellScroll:
         case BaseItemType.TowerShield:
         case BaseItemType.TrapKit:
-          DrawSimpleModificationMenu();
+          player.CreateSimpleItemAppearanceWindow(item);
+          //DrawSimpleModificationMenu();
           break;
         case BaseItemType.Helmet:
+          player.CreateHelmetAppearanceWindow(item);
+          break;
         case BaseItemType.Cloak:
-          DrawHelmetCloakModificationMenu();
+          player.CreateCloakAppearanceWindow(item);
+          //DrawHelmetCloakModificationMenu();
           break;
       }
     }

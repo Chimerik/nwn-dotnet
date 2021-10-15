@@ -745,7 +745,7 @@ namespace NWN.Systems
         if (nuiEvent.EventType == NuiEventType.Click && nuiEvent.ElementId == "openColors")
         {
           nuiEvent.Player.NuiDestroy(nuiEvent.WindowToken);
-          player.CreateArmorColorsWindow(player.oid.ControlledCreature.GetItemInSlot(InventorySlot.Chest));
+          player.CreateArmorColorsWindow(item);
           return;
         }
 

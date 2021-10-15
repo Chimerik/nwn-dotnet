@@ -12,15 +12,13 @@ namespace NWN.Systems
   {
     public partial class Player
     {
-      public void CreateArmorColorsWindow(NwItem item)
+      public void CreateHelmetColorsWindow(NwItem item)
       {
-        string windowId = "itemColorsModifier";
-        NuiBind<bool> symmetry = new NuiBind<bool>("symmetry");
+        string windowId = "helmetColorsModifier";
         NuiBind<string> currentColor = new NuiBind<string>("currentColor");
         NuiBind<int> channelSelection = new NuiBind<int>("channelSelection");
-        NuiBind<int> spotSelection = new NuiBind<int>("spotSelection");
         NuiBind<NuiRect> geometry = new NuiBind<NuiRect>("geometry");
-        NuiRect windowRectangle = windowRectangles.ContainsKey(windowId) ? windowRectangles[windowId] : new NuiRect(oid.GetDeviceProperty(PlayerDeviceProperty.GuiWidth) / 8, oid.GetDeviceProperty(PlayerDeviceProperty.GuiHeight) * 0.01f, oid.GetDeviceProperty(PlayerDeviceProperty.GuiWidth) / 2, oid.GetDeviceProperty(PlayerDeviceProperty.GuiHeight) / 3);
+        NuiRect windowRectangle = windowRectangles.ContainsKey(windowId) ? windowRectangles[windowId] : new NuiRect(oid.GetDeviceProperty(PlayerDeviceProperty.GuiWidth) * 0.01f, oid.GetDeviceProperty(PlayerDeviceProperty.GuiHeight) * 0.01f, oid.GetDeviceProperty(PlayerDeviceProperty.GuiWidth) / 4, oid.GetDeviceProperty(PlayerDeviceProperty.GuiHeight) / 2);
 
         List<NuiComboEntry> comboChannel = new List<NuiComboEntry>
         {
@@ -32,51 +30,22 @@ namespace NWN.Systems
           new NuiComboEntry("Métal 2", 5)
         };
 
-        List<NuiComboEntry> spotCombo = new List<NuiComboEntry>
-        {
-          new NuiComboEntry("Global", 0),
-          new NuiComboEntry("Robe", 19),
-          new NuiComboEntry("Cou", 10),
-          new NuiComboEntry("Torse", 8),
-          new NuiComboEntry("Pelvis", 7),
-          new NuiComboEntry("Ceinture", 9),
-          new NuiComboEntry("Epaule droite", 15),
-          new NuiComboEntry("Epaule gauche", 16),
-          new NuiComboEntry("Biceps droit", 13),
-          new NuiComboEntry("Biceps gauche", 14),
-          new NuiComboEntry("Avant-bras droit", 11),
-          new NuiComboEntry("Avant-bras gauche", 12),
-          new NuiComboEntry("Main droite", 17),
-          new NuiComboEntry("Main gauche", 18),
-          new NuiComboEntry("Cuisse droite", 5),
-          new NuiComboEntry("Cuisse gauche", 6),
-          new NuiComboEntry("Tibia droit", 3),
-          new NuiComboEntry("Tibia gauche", 4),
-          new NuiComboEntry("Pied droit", 1),
-          new NuiComboEntry("Pied gauche", 2),
-        };
-
         List<NuiElement> colChildren = new List<NuiElement>();
 
         NuiRow comboRow = new NuiRow()
         {
           Children = new List<NuiElement>
           {
-            new NuiLabel("Actuelle") { Width = 65 },
+            new NuiSpacer { },
+            new NuiLabel("Actuelle") { Width = 65, VerticalAlign = NuiVAlign.Middle},
             new NuiButtonImage(currentColor) { Width = 25, Height = 25, Margin = 10 },
             new NuiCombo
             {
               Id = "colorChannel", Width = 120,
-              Entries = comboChannel, 
+              Entries = comboChannel,
               Selected = channelSelection
             },
-            new NuiCombo
-            {
-              Id = "spotCombo", Width = 135,
-              Entries = spotCombo,
-              Selected = spotSelection
-            },
-            new NuiCheck("Symétrie", symmetry) { Id = "applySymmetry" }
+            new NuiSpacer { }
           }
         };
 
@@ -97,7 +66,9 @@ namespace NWN.Systems
           {
             NuiButtonImage button = new NuiButtonImage($"leather{nbButton + 1}")
             {
-              Id = $"{nbButton}", Width = 25, Height = 25
+              Id = $"{nbButton}",
+              Width = 25,
+              Height = 25
             };
 
             rowChildren.Add(button);
@@ -139,8 +110,8 @@ namespace NWN.Systems
           Border = true,
         };
 
-        oid.OnNuiEvent -= HandleItemColorsEvents;
-        oid.OnNuiEvent += HandleItemColorsEvents;
+        oid.OnNuiEvent -= HandleHelmetColorsEvents;
+        oid.OnNuiEvent += HandleHelmetColorsEvents;
 
         PlayerPlugin.ApplyLoopingVisualEffectToObject(oid.ControlledCreature, oid.ControlledCreature, 173);
 
@@ -148,18 +119,15 @@ namespace NWN.Systems
 
         currentColor.SetBindValue(oid, token, $"leather{item.Appearance.GetArmorColor(ItemAppearanceArmorColor.Leather1)}");
         channelSelection.SetBindValue(oid, token, 0);
-        spotSelection.SetBindValue(oid, token, 0);
-        symmetry.SetBindValue(oid, token, false);
 
         channelSelection.SetBindWatch(oid, token, true);
-        spotSelection.SetBindWatch(oid, token, true);
 
         geometry.SetBindValue(oid, token, windowRectangle);
         geometry.SetBindWatch(oid, token, true);
       }
-      private void HandleItemColorsEvents(ModuleEvents.OnNuiEvent nuiEvent)
+      private void HandleHelmetColorsEvents(ModuleEvents.OnNuiEvent nuiEvent)
       {
-        if (nuiEvent.Player.NuiGetWindowId(nuiEvent.WindowToken) != "itemColorsModifier" || !Players.TryGetValue(nuiEvent.Player.LoginCreature, out Player player))
+        if (nuiEvent.Player.NuiGetWindowId(nuiEvent.WindowToken) != "helmetColorsModifier" || !Players.TryGetValue(nuiEvent.Player.LoginCreature, out Player player))
           return;
 
         if (nuiEvent.EventType == NuiEventType.Close)
@@ -184,40 +152,17 @@ namespace NWN.Systems
             if (nuiEvent.ElementId == "openItemAppearance")
             {
               nuiEvent.Player.NuiDestroy(nuiEvent.WindowToken);
-              player.CreateArmorAppearanceWindow(item);
+              player.CreateHelmetAppearanceWindow(item);
               return;
             }
 
-            int spotSelection = new NuiBind<int>("spotSelection").GetBindValue(nuiEvent.Player, nuiEvent.WindowToken) - 1;
             ItemAppearanceArmorColor colorChanel = (ItemAppearanceArmorColor)new NuiBind<int>("channelSelection").GetBindValue(nuiEvent.Player, nuiEvent.WindowToken);
-            switch (spotSelection)
-            {
-              case -1:
-                item.Appearance.SetArmorColor(colorChanel, byte.Parse(nuiEvent.ElementId));
-                break;
-              default:
-
-                int modelSymmetry = spotSelection;
-                if (new NuiBind<bool>("symmetry").GetBindValue(nuiEvent.Player, nuiEvent.WindowToken) && (spotSelection < 6 || (spotSelection > 9 && spotSelection < 18)))
-                {
-                  if (spotSelection % 2 == 0)
-                    modelSymmetry += 1;
-                  else
-                    modelSymmetry -= 1;
-                };
-
-                item.Appearance.SetArmorPieceColor((ItemAppearanceArmorModel)spotSelection, colorChanel, byte.Parse(nuiEvent.ElementId));
-                if (spotSelection != modelSymmetry)
-                  item.Appearance.SetArmorPieceColor((ItemAppearanceArmorModel)modelSymmetry, colorChanel, byte.Parse(nuiEvent.ElementId));
-
-                break;
-            }
-
+            item.Appearance.SetArmorColor(colorChanel, byte.Parse(nuiEvent.ElementId));
+            
             NwItem newItem = item.Clone(nuiEvent.Player.ControlledCreature);
             nuiEvent.Player.LoginCreature.GetObjectVariable<LocalVariableObject<NwItem>>("_ITEM_SELECTED_FOR_MODIFICATION").Value = newItem;
-            nuiEvent.Player.ControlledCreature.RunEquip(newItem, InventorySlot.Chest);
+            nuiEvent.Player.ControlledCreature.RunEquip(newItem, InventorySlot.Head);
             item.Destroy();
-
 
             new NuiBind<string>("currentColor").SetBindValue(nuiEvent.Player, nuiEvent.WindowToken, $"leather{int.Parse(nuiEvent.ElementId) + 1}");
 
@@ -264,21 +209,9 @@ namespace NWN.Systems
               }
             }
 
-            if (nuiEvent.ElementId == "channelSelection" || nuiEvent.ElementId == "spotSelection")
+            if (nuiEvent.ElementId == "channelSelection" )
             {
-              int spot = new NuiBind<int>("spotSelection").GetBindValue(nuiEvent.Player, nuiEvent.WindowToken) - 1;
-              int currentColor;
-             
-              switch (spot)
-              {
-                case -1:
-                  currentColor = ((int)item.Appearance.GetArmorColor(channel)) + 1;
-                  break;
-                default:
-                  currentColor = ((int)item.Appearance.GetArmorPieceColor((ItemAppearanceArmorModel)spot, channel)) + 1;
-                  break;
-              }
-
+              int currentColor = ((int)item.Appearance.GetArmorColor(channel)) + 1;
               new NuiBind<string>("currentColor").SetBindValue(nuiEvent.Player, nuiEvent.WindowToken, NWScript.ResManGetAliasFor($"{channelChoice}{currentColor}", NWScript.RESTYPE_TGA) != "" ? $"{channelChoice}{currentColor}" : $"leather{currentColor}");
             }
             break;

@@ -163,18 +163,12 @@ namespace NWN.Systems
 
         weapon.Appearance.SetWeaponModel(model, (byte)result);
 
-        oid.ControlledCreature.RunUnequip(weapon);
         NwItem newItem = weapon.Clone(oid.ControlledCreature);
         weapon.Destroy();
         weapon = newItem;
+        oid.ControlledCreature.RunEquip(weapon, InventorySlot.RightHand);
 
         oid.LoginCreature.GetObjectVariable<LocalVariableObject<NwItem>>("_ITEM_SELECTED_FOR_MODIFICATION").Value = weapon;
-
-        Task waitUnequip = NwTask.Run(async () =>
-        {
-          await NwTask.Delay(TimeSpan.FromSeconds(0.2));
-          oid.ControlledCreature.RunEquip(weapon, InventorySlot.RightHand);
-        });
 
         selector.SetBindWatch(oid, windowToken, false);
         selector.SetBindValue(oid, windowToken, result);
@@ -197,7 +191,7 @@ namespace NWN.Systems
           case ItemAppearanceWeaponModel.Top:
             selectorValue = new NuiBind<int>("topModelSelection").GetBindValue(oid, windowToken);
             slider = new NuiBind<int>("topModelSlider");
-            sliderResult = modelComboEntries.IndexOf(modelComboEntries.FirstOrDefault(m => m.Value == selectorValue));
+            sliderResult = BaseItems2da.baseItemTable.GetWeaponModelList(weapon.BaseItemType, model).IndexOf(modelComboEntries.FirstOrDefault(m => m.Value == selectorValue));
             sliderValue = slider.GetBindValue(oid, windowToken);
             break;
           case ItemAppearanceWeaponModel.Middle:
@@ -216,18 +210,13 @@ namespace NWN.Systems
 
         weapon.Appearance.SetWeaponModel(model, (byte)selectorValue);
 
-        oid.ControlledCreature.RunUnequip(weapon);
         NwItem newItem = weapon.Clone(oid.ControlledCreature);
         oid.ControlledCreature.RunEquip(newItem, InventorySlot.RightHand);
         weapon.Destroy();
         weapon = newItem;
-        oid.LoginCreature.GetObjectVariable<LocalVariableObject<NwItem>>("_ITEM_SELECTED_FOR_MODIFICATION").Value = weapon;
+        oid.ControlledCreature.RunEquip(weapon, InventorySlot.RightHand);
 
-        Task waitUnequip = NwTask.Run(async () =>
-        {
-          await NwTask.Delay(TimeSpan.FromSeconds(0.2));
-          oid.ControlledCreature.RunEquip(weapon, InventorySlot.RightHand);
-        });
+        oid.LoginCreature.GetObjectVariable<LocalVariableObject<NwItem>>("_ITEM_SELECTED_FOR_MODIFICATION").Value = weapon;
 
         slider.SetBindWatch(oid, windowToken, false);
         slider.SetBindValue(oid, windowToken, sliderResult);

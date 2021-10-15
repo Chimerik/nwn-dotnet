@@ -279,13 +279,9 @@ namespace NWN
             IntPtr jSimpleModel = GffGetByte(NWScript.ObjectToJson(oItem), "ModelPart1");
             if (NWScript.JsonGetType(jSimpleModel) == NWScript.JSON_TYPE_INTEGER)
             {
-              string sSimpleModelId = NWScript.JsonGetInt(jSimpleModel).ToString();
-              while (sSimpleModelId.Length < 3)// Padding...
-              {
-                sSimpleModelId = "0" + sSimpleModelId;
-              }
-
+              string sSimpleModelId = NWScript.JsonGetInt(jSimpleModel).ToString().PadLeft(3, '0');
               string sDefaultIcon = BaseItems2da.baseItemTable.GetBaseItemDataEntry(oItem.BaseItemType).defaultIcon;
+
               switch (oItem.BaseItemType)
               {
                 case BaseItemType.MiscSmall:

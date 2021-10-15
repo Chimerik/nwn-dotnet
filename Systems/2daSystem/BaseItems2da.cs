@@ -11,6 +11,8 @@ namespace NWN.Systems
   public class BaseItemTable : ITwoDimArray
   {
     private readonly Dictionary<BaseItemType, Entry> entries = new Dictionary<BaseItemType, Entry>();
+    public List<NuiComboEntry> helmetModelEntries = new List<NuiComboEntry>();
+    public Dictionary<string, List<int>> simpleItemModels = new Dictionary<string, List<int>>();
 
     public Entry GetBaseItemDataEntry(BaseItemType baseItem)
     {
@@ -51,6 +53,10 @@ namespace NWN.Systems
     void ITwoDimArray.DeserializeRow(int rowIndex, TwoDimEntry twoDimEntry)
     {
       uint strRef = uint.TryParse(twoDimEntry("Name"), out strRef) ? strRef : 0;
+
+      if (strRef < 1)
+        return;
+
       string name = strRef == 0 ? name = "Nom manquant" : name = BaseItems2da.tlkTable.GetSimpleString(strRef);
       strRef = uint.TryParse(twoDimEntry("Description"), out strRef) ? strRef : 0;
       string description = strRef == 0 ? description = "Description manquante" : description = BaseItems2da.tlkTable.GetSimpleString(strRef);
@@ -67,8 +73,9 @@ namespace NWN.Systems
       int damageType = int.TryParse(twoDimEntry("WeaponType"), out damageType) ? damageType : 0;
       int weaponSize = int.TryParse(twoDimEntry("WeaponSize"), out damageType) ? damageType : 0;
       int modelType = int.TryParse(twoDimEntry("ModelType"), out modelType) ? modelType : -1;
-      string defaultIcon = twoDimEntry("DefaultIcon");
       string resRef = twoDimEntry("ItemClass");
+      string defaultIcon = twoDimEntry("DefaultIcon").StartsWith("iinvalid") ? "i" + resRef : twoDimEntry("DefaultIcon");
+
       Dictionary<ItemAppearanceWeaponModel, List<byte>> weaponModels = new Dictionary<ItemAppearanceWeaponModel, List<byte>>();
 
       if (!string.IsNullOrEmpty(resRef))
@@ -144,6 +151,51 @@ namespace NWN.Systems
     {
       tlkTable = tlkService;
       baseItemTable = twoDimArrayFactory.Get2DA<BaseItemTable>("baseitems");
+
+      baseItemTable.simpleItemModels.Add("iashlw", new List<int>());
+      baseItemTable.simpleItemModels.Add("iit_neck", new List<int>());
+      baseItemTable.simpleItemModels.Add("iit_belt", new List<int>());
+      baseItemTable.simpleItemModels.Add("iit_boots", new List<int>());
+      baseItemTable.simpleItemModels.Add("iit_bracer", new List<int>());
+      baseItemTable.simpleItemModels.Add("iit_gloves", new List<int>());
+      baseItemTable.simpleItemModels.Add("iit_potion", new List<int>());
+      baseItemTable.simpleItemModels.Add("iashsw", new List<int>());
+      baseItemTable.simpleItemModels.Add("iashto", new List<int>());
+
+      for (int i = 1; i < 255; i++)
+      {
+        string search = i.ToString().PadLeft(3, '0');
+
+        if (NWScript.ResManGetAliasFor($"helm_{search}", NWScript.RESTYPE_MDL) != "")
+          baseItemTable.helmetModelEntries.Add(new NuiComboEntry(i.ToString(), i));
+
+        if (NWScript.ResManGetAliasFor($"iashlw_{search}", NWScript.RESTYPE_TGA) != "")
+          baseItemTable.simpleItemModels["iashlw"].Add(i);
+
+        if (NWScript.ResManGetAliasFor($"iit_neck_{search}", NWScript.RESTYPE_TGA) != "")
+          baseItemTable.simpleItemModels["iit_neck"].Add(i);
+
+        if (NWScript.ResManGetAliasFor($"iit_belt_{search}", NWScript.RESTYPE_TGA) != "")
+          baseItemTable.simpleItemModels["iit_belt"].Add(i);
+
+        if (NWScript.ResManGetAliasFor($"iit_boots_{search}", NWScript.RESTYPE_TGA) != "")
+          baseItemTable.simpleItemModels["iit_boots"].Add(i);
+
+        if (NWScript.ResManGetAliasFor($"iit_bracer_{search}", NWScript.RESTYPE_TGA) != "")
+          baseItemTable.simpleItemModels["iit_bracer"].Add(i);
+
+        if (NWScript.ResManGetAliasFor($"iit_gloves_{search}", NWScript.RESTYPE_TGA) != "")
+          baseItemTable.simpleItemModels["iit_gloves"].Add(i);
+
+        if (NWScript.ResManGetAliasFor($"iit_potion_{search}", NWScript.RESTYPE_TGA) != "")
+          baseItemTable.simpleItemModels["iit_potion"].Add(i);
+
+        if (NWScript.ResManGetAliasFor($"iashsw_{search}", NWScript.RESTYPE_TGA) != "")
+          baseItemTable.simpleItemModels["iashsw"].Add(i);
+
+        if (NWScript.ResManGetAliasFor($"iashto_{search}", NWScript.RESTYPE_TGA) != "")
+          baseItemTable.simpleItemModels["iashto"].Add(i);
+      }
     }
   }
 }
