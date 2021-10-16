@@ -17,6 +17,7 @@ namespace NWN.Systems
       public void CreateCloakAppearanceWindow(NwItem item)
       {
         string windowId = "cloakAppearanceModifier";
+        DisableItemAppearanceFeedbackMessages();
         NuiBind<string> title = new NuiBind<string>("title");
         NuiBind<int> modelSelection = new NuiBind<int>("modelSelection");
         NuiBind<int> modelSlider = new NuiBind<int>("modelSlider");
@@ -147,6 +148,7 @@ namespace NWN.Systems
         if (nuiEvent.EventType == NuiEventType.Close)
         {
           PlayerPlugin.ApplyLoopingVisualEffectToObject(nuiEvent.Player.ControlledCreature, nuiEvent.Player.ControlledCreature, 173);
+          EnableItemAppearanceFeedbackMessages();
           return;
         }
 

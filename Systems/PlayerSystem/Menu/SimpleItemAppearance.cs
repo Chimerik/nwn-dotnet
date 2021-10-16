@@ -1,12 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+﻿using System.Collections.Generic;
 
 using Anvil.API;
 using Anvil.API.Events;
-
-using NWN.Core.NWNX;
 
 namespace NWN.Systems
 {
@@ -25,6 +20,7 @@ namespace NWN.Systems
         }
 
         string windowId = "simpleItemAppearanceModifier";
+        DisableItemAppearanceFeedbackMessages();
         NuiBind<string> title = new NuiBind<string>("title");
         NuiBind<NuiRect> geometry = new NuiBind<NuiRect>("geometry");
         NuiRect windowRectangle = windowRectangles.ContainsKey(windowId) && windowRectangles[windowId].Width > 0 && windowRectangles[windowId].Width <= oid.GetDeviceProperty(PlayerDeviceProperty.GuiWidth) ? windowRectangles[windowId] : new NuiRect(10, oid.GetDeviceProperty(PlayerDeviceProperty.GuiHeight) * 0.01f, oid.GetDeviceProperty(PlayerDeviceProperty.GuiWidth) * 0.7f, oid.GetDeviceProperty(PlayerDeviceProperty.GuiHeight) / 3);
@@ -83,6 +79,9 @@ namespace NWN.Systems
       {
         if (nuiEvent.Player.NuiGetWindowId(nuiEvent.WindowToken) != "simpleItemAppearanceModifier" || !Players.TryGetValue(nuiEvent.Player.LoginCreature, out Player player))
           return;
+
+        if (nuiEvent.EventType == NuiEventType.Close)
+          EnableItemAppearanceFeedbackMessages();
 
         if (nuiEvent.EventType == NuiEventType.Click)
         {

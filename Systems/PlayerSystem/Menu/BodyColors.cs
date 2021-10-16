@@ -15,7 +15,7 @@ namespace NWN.Systems
       public void CreateBodyColorsWindow()
       {
         string windowId = "bodyColorsModifier";
-
+        EnableItemAppearanceFeedbackMessages();
         NuiBind<string> currentColor = new NuiBind<string>("currentColor");
         NuiBind<int> channelSelection = new NuiBind<int>("channelSelection");
 
@@ -125,6 +125,7 @@ namespace NWN.Systems
         if (nuiEvent.EventType == NuiEventType.Close)
         {
           PlayerPlugin.ApplyLoopingVisualEffectToObject(nuiEvent.Player.ControlledCreature, nuiEvent.Player.ControlledCreature, 173);
+          EnableItemAppearanceFeedbackMessages();
           return;
         }
 

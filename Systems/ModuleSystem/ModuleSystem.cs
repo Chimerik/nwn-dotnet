@@ -576,9 +576,9 @@ namespace NWN.Systems
       }
       for (int i = 1; i < 255; i++)
       {
-        string search1 = $"iit_midmisc_{i.ToString().PadLeft(3, '0')}";
+        /*string search1 = $"iit_midmisc_{i.ToString().PadLeft(3, '0')}";
         string found = NWScript.ResManGetAliasFor(search1, NWScript.RESTYPE_TGA);
-        Log.Info($"{search1} found : {found}");
+        Log.Info($"{search1} found : {found}");*/
 
         string search = i.ToString().PadLeft(3, '0');
         

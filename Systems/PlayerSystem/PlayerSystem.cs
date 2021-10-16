@@ -17,13 +17,15 @@ namespace NWN.Systems
     public static readonly Logger Log = LogManager.GetCurrentClassLogger();
     public static CursorTargetService cursorTargetService { get; set; }
     public static EventService eventService { get; set; }
-    public PlayerSystem(CursorTargetService cursorTService, EventService eventServices)
+    public static FeedbackService feedbackService;
+    public PlayerSystem(CursorTargetService cursorTService, EventService eventServices, FeedbackService feedback)
     {
       NwModule.Instance.OnClientEnter += HandlePlayerConnect;
       NwModule.Instance.OnClientDisconnect += HandlePlayerLeave;
 
       eventService = eventServices;
       cursorTargetService = cursorTService;
+      feedbackService = feedback;
     }
 
     public static Dictionary<uint, Player> Players = new Dictionary<uint, Player>();

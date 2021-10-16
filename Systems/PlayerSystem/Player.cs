@@ -927,6 +927,28 @@ namespace NWN.Systems
             new List<string[]>() { new string[] { "rowid", accountId.ToString() } });
         }
       }
+      private void DisableItemAppearanceFeedbackMessages()
+      {
+        feedbackService.AddFeedbackMessageFilter(FeedbackMessage.ItemReceived, oid);
+        feedbackService.AddFeedbackMessageFilter(FeedbackMessage.ItemLost, oid);
+        feedbackService.AddFeedbackMessageFilter(FeedbackMessage.EquipWeaponSwappedOut, oid);
+        feedbackService.AddFeedbackMessageFilter(FeedbackMessage.EquipSkillSpellModifiers, oid);
+        feedbackService.AddFeedbackMessageFilter(FeedbackMessage.InventoryFull, oid);
+        feedbackService.AddFeedbackMessageFilter(FeedbackMessage.WeightTooEncumberedToRun, oid);
+        feedbackService.AddFeedbackMessageFilter(FeedbackMessage.WeightTooEncumberedWalkSlow, oid);
+        //feedbackService.AddFeedbackMessageFilter(FeedbackMessage.SendMessageToPc, player.oid);
+      }
+      private void EnableItemAppearanceFeedbackMessages()
+      {
+        feedbackService.RemoveFeedbackMessageFilter(FeedbackMessage.ItemReceived, oid);
+        feedbackService.RemoveFeedbackMessageFilter(FeedbackMessage.ItemLost, oid);
+        feedbackService.RemoveFeedbackMessageFilter(FeedbackMessage.EquipWeaponSwappedOut, oid);
+        feedbackService.RemoveFeedbackMessageFilter(FeedbackMessage.EquipSkillSpellModifiers, oid);
+        feedbackService.RemoveFeedbackMessageFilter(FeedbackMessage.InventoryFull, oid);
+        feedbackService.RemoveFeedbackMessageFilter(FeedbackMessage.WeightTooEncumberedToRun, oid);
+        feedbackService.RemoveFeedbackMessageFilter(FeedbackMessage.WeightTooEncumberedWalkSlow, oid);
+        //feedbackService.RemoveFeedbackMessageFilter(FeedbackMessage.SendMessageToPc, oid);
+      }
     }
   }
 }
