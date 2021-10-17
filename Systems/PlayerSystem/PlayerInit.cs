@@ -89,6 +89,9 @@ namespace NWN.Systems
     
     public static void OnEquipTorilNecklace(OnItemEquip onEquip)
     {
+      if (onEquip.Item.Tag != "amulettorillink")
+        return;
+
       onEquip.EquippedBy.LoginPlayer.SendServerMessage("Votre lien avec la Toile se renforce de manière significative.", ColorConstants.Pink);
 
       foreach(Effect eff in onEquip.EquippedBy.ActiveEffects.Where(e => e.Tag == "erylies_spell_failure"))
@@ -100,6 +103,9 @@ namespace NWN.Systems
 
     public static void OnUnequipTorilNecklace(OnItemUnequip onUnequip)
     {
+      if (onUnequip.Item.Tag != "amulettorillink")
+        return;
+
       onUnequip.Creature.LoginPlayer.SendServerMessage("En retirant le collier, vous sentez votre lien avec la Toile faiblir. Un échec des sorts de 50 % vous est appliqué.", ColorConstants.Pink);
       Effect eff = Effect.SpellFailure(50);
       eff.Tag = "erylies_spell_failure";

@@ -17,6 +17,7 @@ namespace NWN.Systems
       public void CreateArmorAppearanceWindow(NwItem item)
       {
         string windowId = "itemAppearanceModifier";
+        DisableItemAppearanceFeedbackMessages();
         NuiBind<string> title = new NuiBind<string>("title");
         NuiBind<int> robeSelection = new NuiBind<int>("robeSelection");
         NuiBind<int> robeSlider = new NuiBind<int>("robeSliderValue");
@@ -729,6 +730,7 @@ namespace NWN.Systems
 
         if (nuiEvent.EventType == NuiEventType.Close)
         {
+          EnableItemAppearanceFeedbackMessages();
           PlayerPlugin.ApplyLoopingVisualEffectToObject(nuiEvent.Player.ControlledCreature, nuiEvent.Player.ControlledCreature, 173);
           return;
         }

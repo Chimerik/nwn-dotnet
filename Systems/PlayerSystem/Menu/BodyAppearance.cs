@@ -17,6 +17,7 @@ namespace NWN.Systems
       public void CreateBodyAppearanceWindow()
       {
         string windowId = "BodyAppearanceModifier";
+        DisableItemAppearanceFeedbackMessages();
         NuiBind<int> headSelection = new NuiBind<int>("headSelection");
         NuiBind<int> headSlider = new NuiBind<int>("headSlider");
         NuiBind<int> sizeSlider = new NuiBind<int>("sizeSlider");
@@ -238,6 +239,7 @@ namespace NWN.Systems
         
         if (nuiEvent.EventType == NuiEventType.Close)
         {
+          EnableItemAppearanceFeedbackMessages();
           PlayerPlugin.ApplyLoopingVisualEffectToObject(nuiEvent.Player.ControlledCreature, nuiEvent.Player.ControlledCreature, 173);
           return;
         }

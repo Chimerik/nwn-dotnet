@@ -34,6 +34,9 @@ namespace NWN.Systems
         {
           Location spawnLoc = SqLiteUtils.DeserializeLocation(result.Result.GetString(0));
 
+          if (spawnLoc.Area == null)
+            return;
+
           if (spawnLoc.Area.Tag.StartsWith("entrepotpersonnel"))
             AreaSystem.CreatePersonnalStorageArea(onELCSuccess.Player.ControlledCreature, characterId);
 

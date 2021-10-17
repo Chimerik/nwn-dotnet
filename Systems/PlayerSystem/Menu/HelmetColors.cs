@@ -15,6 +15,7 @@ namespace NWN.Systems
       public void CreateHelmetColorsWindow(NwItem item)
       {
         string windowId = "helmetColorsModifier";
+        DisableItemAppearanceFeedbackMessages();
         NuiBind<string> currentColor = new NuiBind<string>("currentColor");
         NuiBind<int> channelSelection = new NuiBind<int>("channelSelection");
         NuiBind<NuiRect> geometry = new NuiBind<NuiRect>("geometry");
@@ -132,6 +133,7 @@ namespace NWN.Systems
 
         if (nuiEvent.EventType == NuiEventType.Close)
         {
+          EnableItemAppearanceFeedbackMessages();
           PlayerPlugin.ApplyLoopingVisualEffectToObject(nuiEvent.Player.ControlledCreature, nuiEvent.Player.ControlledCreature, 173);
           return;
         }

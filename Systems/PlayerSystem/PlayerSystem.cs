@@ -389,36 +389,7 @@ namespace NWN.Systems
           break;
       }
     }
-    private static void HandleFishingMiniGameEvents(ModuleEvents.OnNuiEvent nuiEvent)
-    {
-      if (nuiEvent.Player.NuiGetWindowId(nuiEvent.WindowToken) != "fishingMiniGame")
-        return;
-
-      switch (nuiEvent.ElementId)
-      {
-        case "slider":
-
-          switch (nuiEvent.EventType)
-          {
-            case NuiEventType.Watch:
-
-              int sliderValue = new NuiBind<int>("slider").GetBindValue(nuiEvent.Player, nuiEvent.WindowToken);
-              NuiBind<string> selector = new NuiBind<string>("selection");
-              int selectedValue = int.Parse(selector.GetBindValue(nuiEvent.Player, nuiEvent.WindowToken));
-
-              if (sliderValue == selectedValue)
-                return;
-
-              nuiEvent.Player.ControlledCreature.SetColor(ColorChannel.Hair, sliderValue);
-              selector.SetBindValue(nuiEvent.Player, nuiEvent.WindowToken, sliderValue.ToString());
-
-              break;
-          }
-
-          break;
-      }
-    }
-
+    
     private static void HandleGenericNuiEvents(ModuleEvents.OnNuiEvent nuiEvent)
     {
       int windowToken = NWScript.NuiGetEventWindow();

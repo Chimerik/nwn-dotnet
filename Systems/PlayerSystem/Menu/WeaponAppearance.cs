@@ -17,6 +17,7 @@ namespace NWN.Systems
       public void CreateWeaponAppearanceWindow(NwItem item)
       {
         string windowId = "weaponAppearanceModifier";
+        DisableItemAppearanceFeedbackMessages();
         NuiBind<string> title = new NuiBind<string>("title");
         NuiBind<int> topModelSelection = new NuiBind<int>("topModelSelection");
         NuiBind<int> topModelSlider = new NuiBind<int>("topModelSlider");
@@ -230,6 +231,7 @@ namespace NWN.Systems
 
         if (nuiEvent.EventType == NuiEventType.Close)
         {
+          EnableItemAppearanceFeedbackMessages();
           PlayerPlugin.ApplyLoopingVisualEffectToObject(nuiEvent.Player.ControlledCreature, nuiEvent.Player.ControlledCreature, 173);
           return;
         }

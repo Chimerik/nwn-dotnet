@@ -17,6 +17,7 @@ namespace NWN.Systems
       public void CreateHelmetAppearanceWindow(NwItem item)
       {
         string windowId = "helmetAppearanceModifier";
+        DisableItemAppearanceFeedbackMessages();
         NuiBind<string> title = new NuiBind<string>("title");
         NuiBind<int> modelSelection = new NuiBind<int>("modelSelection");
         NuiBind<int> modelSlider = new NuiBind<int>("modelSlider");
@@ -36,7 +37,8 @@ namespace NWN.Systems
               Children = new List<NuiElement>
               {
                 new  NuiSpacer { },
-                new NuiButton("Couleurs") { Id = "openColors", Height = 35, Width = 70 },
+                new NuiButton("Nom & Description") { Id = "openNameDescription", Height = 35, Width = 150 },
+                new NuiButton("Couleurs") { Id = "openColors", Height = 35, Width = 150 },
                 new NuiSpacer { }
               }
             },
@@ -98,7 +100,6 @@ namespace NWN.Systems
 
         int sliderValue = new NuiBind<int>("modelSlider").GetBindValue(oid, windowToken);
         NuiBind<int> selector = new NuiBind<int>("modelSelection");
-        int selectedValue = selector.GetBindValue(oid, windowToken);
         int result = BaseItems2da.baseItemTable.helmetModelEntries.ElementAt(sliderValue).Value;
 
         helmet.Appearance.SetSimpleModel((byte)result);
@@ -136,12 +137,12 @@ namespace NWN.Systems
 
       private void HandleHelmetAppearanceEvents(ModuleEvents.OnNuiEvent nuiEvent)
       {
-
         if (nuiEvent.Player.NuiGetWindowId(nuiEvent.WindowToken) != "helmetAppearanceModifier" || !Players.TryGetValue(nuiEvent.Player.LoginCreature, out Player player))
           return;
 
         if (nuiEvent.EventType == NuiEventType.Close)
         {
+          EnableItemAppearanceFeedbackMessages();
           PlayerPlugin.ApplyLoopingVisualEffectToObject(nuiEvent.Player.ControlledCreature, nuiEvent.Player.ControlledCreature, 173);
           return;
         }
@@ -155,24 +156,34 @@ namespace NWN.Systems
           return;
         }
 
-        if (nuiEvent.EventType == NuiEventType.Click && nuiEvent.ElementId == "openColors")
+        switch(nuiEvent.EventType)
         {
-          nuiEvent.Player.NuiDestroy(nuiEvent.WindowToken);
-          player.CreateHelmetColorsWindow(item);
-          return;
+          case NuiEventType.Click:
+            switch (nuiEvent.ElementId)
+            {
+              case "openColors":
+                nuiEvent.Player.NuiDestroy(nuiEvent.WindowToken);
+                player.CreateHelmetColorsWindow(item);
+                break;
+              case "openNameDescription":
+                player.CreateItemNameDescriptionWindow(item);
+                break;
+            }
+            break;
+
+          case NuiEventType.Watch:
+            switch (nuiEvent.ElementId)
+            {
+              case "modelSlider":
+                player.HandleHelmetModelSliderChange(nuiEvent.WindowToken, item);
+                break;
+
+              case "modelSelection":
+                player.HandleHelmetModelSelectorChange(nuiEvent.WindowToken, item);
+                break;
+            }
+            break;
         }
-
-        if (nuiEvent.EventType == NuiEventType.Watch)
-          switch (nuiEvent.ElementId)
-          {
-            case "modelSlider":
-              player.HandleHelmetModelSliderChange(nuiEvent.WindowToken, item);
-              break;
-
-            case "modelSelection":;
-              player.HandleHelmetModelSelectorChange(nuiEvent.WindowToken, item);
-              break;
-          }
       }
     }
   }
