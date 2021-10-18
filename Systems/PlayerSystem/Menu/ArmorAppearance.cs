@@ -60,7 +60,7 @@ namespace NWN.Systems
         NuiBind<bool> symmetry = new NuiBind<bool>("symmetry");
 
         NuiBind<NuiRect> geometry = new NuiBind<NuiRect>("geometry");
-        NuiRect windowRectangle = windowRectangles.ContainsKey(windowId) && windowRectangles[windowId].Width > 0 ? windowRectangles[windowId] : new NuiRect(10, oid.GetDeviceProperty(PlayerDeviceProperty.GuiHeight) * 0.01f, oid.GetDeviceProperty(PlayerDeviceProperty.GuiWidth) * 0.97f, oid.GetDeviceProperty(PlayerDeviceProperty.GuiHeight) / 3);
+        NuiRect windowRectangle = windowRectangles.ContainsKey(windowId) && windowRectangles[windowId].Width > 0 && windowRectangles[windowId].Width <= oid.GetDeviceProperty(PlayerDeviceProperty.GuiWidth) ? windowRectangles[windowId] : new NuiRect(10, oid.GetDeviceProperty(PlayerDeviceProperty.GuiHeight) * 0.01f, oid.GetDeviceProperty(PlayerDeviceProperty.GuiWidth) * 0.7f, oid.GetDeviceProperty(PlayerDeviceProperty.GuiHeight) / 3);
 
         List<NuiComboEntry> robeList = RobeParts2da.robePartsTable.GetValidRobeAppearancesForGender(oid.ControlledCreature.Gender);
         List<NuiComboEntry> neckList = NeckParts2da.neckPartsTable.GetValidNeckAppearances();
@@ -88,8 +88,10 @@ namespace NWN.Systems
               {
                 new NuiSpacer { Width = 35 },
                 new NuiCheck("Symétrie", symmetry) { Id = "applySymmetry", Width = 75 },
-                new NuiSpacer { Width = windowRectangle.Width - 220 },
-                new NuiButton("Couleurs") { Id = "openColors", Height = 35, Width = 70 }
+                new NuiSpacer { Width = windowRectangle.Width/2 - 220 },
+                new NuiButton("Nom & Description") { Id = "openNameDescription", Height = 35, Width = 150 },
+                new NuiButton("Couleurs") { Id = "openColors", Height = 35, Width = 70 },
+                new NuiSpacer(),
               }
             },
             new NuiRow

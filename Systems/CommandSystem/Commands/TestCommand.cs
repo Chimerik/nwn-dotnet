@@ -26,7 +26,7 @@ namespace NWN.Systems
         
         if (player.oid.PlayerName == "Chim")
         {
-          player.CreateFishingMiniGameWindow();
+          player.CreateChatReaderWindow();
           //player.oid.ControlledCreature.AddFeat(Feat.WeaponProficiencyMartial);
           //player.CreateLearnablesWindow();
 

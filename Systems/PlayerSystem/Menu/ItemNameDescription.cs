@@ -62,7 +62,6 @@ namespace NWN.Systems
         description.SetBindValue(oid, token, item.Description);
 
         name.SetBindWatch(oid, token, true);
-        description.SetBindWatch(oid, token, true);
 
         geometry.SetBindValue(oid, token, windowRectangle);
         geometry.SetBindWatch(oid, token, true);
@@ -111,9 +110,6 @@ namespace NWN.Systems
 
                   item.Name = name;
                 }
-                break;
-              case "description":
-                Log.Info($"description : {new NuiBind<string>("description").GetBindValue(nuiEvent.Player, nuiEvent.WindowToken)}");
                 break;
             }
             break;

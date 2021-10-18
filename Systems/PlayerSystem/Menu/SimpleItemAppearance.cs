@@ -27,6 +27,17 @@ namespace NWN.Systems
 
         List<NuiElement> colChildren = new List<NuiElement>();
 
+        colChildren.Add(new NuiRow
+        {
+          Children = new List<NuiElement>
+              {
+                new NuiSpacer(),
+                new NuiButton("Nom & Description") { Id = "openNameDescription", Height = 35, Width = 150 },
+                new NuiButton("Couleurs") { Id = "openColors", Height = 35, Width = 150 },
+                new NuiSpacer()
+              }
+        });
+
         int i = 0;
         NuiRow row = new NuiRow();
         row.Children = new List<NuiElement>();

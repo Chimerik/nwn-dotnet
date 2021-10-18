@@ -53,6 +53,7 @@ namespace NWN.Systems
       public Dictionary<ChatChannel, Color> chatColors = new Dictionary<ChatChannel, Color>();
       public Dictionary<string, NuiRect> windowRectangles = new Dictionary<string, NuiRect>();
       public List<string> openedWindows = new List<string>();
+      public List<ChatLine> readChatLines = new List<ChatLine>();
 
       public enum PcState
       {

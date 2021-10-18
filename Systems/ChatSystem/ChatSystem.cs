@@ -230,6 +230,8 @@ namespace NWN.Systems
           chatService.SendMessage(ctx.channel, chatReceiver.Value, ctx.oSender.ControlledCreature, chatReceiver.Key);
           return;
         }
+
+        player.readChatLines.Add(new ChatLine(ctx.oSender.ControlledCreature.PortraitResRef + "s", ctx.oSender.ControlledCreature.Name, ctx.oSender.PlayerName, chatReceiver.Value, ctx.channel));
           
         string coloredChat = chatReceiver.Value;
 

@@ -42,6 +42,15 @@ namespace NWN.Systems
             {
               Children = new List<NuiElement>
               {
+                new NuiSpacer(),
+                new NuiButton("Nom & Description") { Id = "openNameDescription", Height = 35, Width = 150 },
+                new NuiSpacer()
+              }
+            },
+            new NuiRow
+            {
+              Children = new List<NuiElement>
+              {
                 new NuiLabel("Haut") { Width = 60, Height = 35, VerticalAlign = NuiVAlign.Middle },
                 new NuiCombo
                 {

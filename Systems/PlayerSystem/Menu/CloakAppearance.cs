@@ -36,9 +36,10 @@ namespace NWN.Systems
             {
               Children = new List<NuiElement>
               {
-                new  NuiSpacer { },
-                new NuiButton("Couleurs") { Id = "openColors", Height = 35, Width = 70 },
-                new NuiSpacer { }
+                new NuiSpacer(),
+                new NuiButton("Nom & Description") { Id = "openNameDescription", Height = 35, Width = 150 },
+                new NuiButton("Couleurs") { Id = "openColors", Height = 35, Width = 150 },
+                new NuiSpacer()
               }
             },
             new NuiRow
