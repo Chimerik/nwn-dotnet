@@ -27,6 +27,8 @@ namespace NWN.Systems
         if (player.oid.PlayerName == "Chim")
         {
           player.CreateChatReaderWindow();
+          //Test.Example example = new Test.Example();
+          //example.testDrawList(player.oid);
           //player.oid.ControlledCreature.AddFeat(Feat.WeaponProficiencyMartial);
           //player.CreateLearnablesWindow();
 

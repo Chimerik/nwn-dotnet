@@ -1,12 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 
 using Anvil.API;
 using Anvil.API.Events;
-using Anvil.Services;
-
-using NWN.Core;
 
 namespace NWN.Systems
 {
@@ -23,7 +19,7 @@ namespace NWN.Systems
         NuiBind<bool> makeStatic = new NuiBind<bool>("static");
 
         NuiBind<NuiRect> geometry = new NuiBind<NuiRect>("geometry");
-        NuiRect windowRectangle = windowRectangles.ContainsKey(windowId) && windowRectangles[windowId].Width > 0 && windowRectangles[windowId].Width <= oid.GetDeviceProperty(PlayerDeviceProperty.GuiWidth) ? windowRectangles[windowId] : new NuiRect(10, oid.GetDeviceProperty(PlayerDeviceProperty.GuiHeight) * 0.01f, oid.GetDeviceProperty(PlayerDeviceProperty.GuiWidth) * 0.7f, oid.GetDeviceProperty(PlayerDeviceProperty.GuiHeight) / 3);
+        NuiRect windowRectangle = windowRectangles.ContainsKey(windowId) && windowRectangles[windowId].Width > 0 && windowRectangles[windowId].Width < oid.GetDeviceProperty(PlayerDeviceProperty.GuiWidth) ? windowRectangles[windowId] : new NuiRect(10, oid.GetDeviceProperty(PlayerDeviceProperty.GuiHeight) * 0.01f, oid.GetDeviceProperty(PlayerDeviceProperty.GuiWidth) * 0.7f, oid.GetDeviceProperty(PlayerDeviceProperty.GuiHeight) / 3);
 
         NuiWindow window = new NuiWindow(BuildChatReaderWindow(windowRectangle), "")
         {
@@ -87,7 +83,6 @@ namespace NWN.Systems
           return null;
 
         NuiBind<bool> makeStatic = new NuiBind<bool>("static");
-        NuiBind<bool> multiline = new NuiBind<bool>("multiLine");
 
         List<NuiElement> groupChidren = new List<NuiElement>();
         NuiGroup chatReaderGroup = new NuiGroup() { Id = "chatReaderGroup", Border = false, Children = groupChidren };
@@ -104,42 +99,67 @@ namespace NWN.Systems
         {
           List<NuiElement> chatRowChildren = new List<NuiElement>();
           NuiRow chatRow = new NuiRow() { Children = chatRowChildren };
-          chatRowChildren.Add(new NuiImage(chatLine.portrait) { Id = chatLine.playerName, Height = 40, Width = 25, ImageAspect = NuiAspect.Exact });
-          chatRowChildren.Add(new NuiLabel(chatLine.name) { Width = chatLine.name.Length * 10, HorizontalAlign = NuiHAlign.Center, VerticalAlign = NuiVAlign.Middle });
+          
+          chatRowChildren.Add(
+            new NuiButton("")
+            {
+              Id = chatLine.playerName,
+              Height = 28,
+              Width = 19,
+              DrawList = new List<NuiDrawListItem>()
+              {
+                new NuiDrawListImage(chatLine.portrait, new NuiRect(10, 13, 190, 10)) { Fill = false, Aspect = NuiAspect.ExactScaled  },
+                new NuiDrawListImage(chatLine.portrait, new NuiRect(70, 13, 190, 10)) { Fill = true, Aspect = NuiAspect.ExactScaled  },
+                new NuiDrawListImage(chatLine.portrait, new NuiRect(130, 13, 190, 10)) { Fill = false, Aspect = NuiAspect.Exact  },
+                new NuiDrawListImage(chatLine.portrait, new NuiRect(190, 13, 190, 10)) { Fill = true, Aspect = NuiAspect.Exact  },
+                new NuiDrawListImage(chatLine.portrait, new NuiRect(10, 200, 190, 10)) { Fill = false, Aspect = NuiAspect.Fit100  },
+                new NuiDrawListImage(chatLine.portrait, new NuiRect(50, 200, 190, 10)) { Fill = true, Aspect = NuiAspect.Fit100  },
+                new NuiDrawListImage(chatLine.portrait, new NuiRect(90, 200, 20, 300)) { Fill = false, Aspect = NuiAspect.Fit  },
+                new NuiDrawListImage(chatLine.portrait, new NuiRect(130, 200, 190, 10)) { Fill = true, Aspect = NuiAspect.Fit },
+              }
+            }
+          );
+          
+          chatRowChildren.Add(new NuiLabel(chatLine.name) { Width = chatLine.name.Length * 8, HorizontalAlign = NuiHAlign.Center, VerticalAlign = NuiVAlign.Top, ForegroundColor = new NuiColor(143, 127, 255) });
+          NuiColor color = player.chatColors.ContainsKey(chatLine.channel) ? player.chatColors[chatLine.channel] : new NuiColor(255, 255, 255);
 
-          NuiColor color = player.chatColors.ContainsKey(chatLine.channel) ? player.chatColors[chatLine.channel] : new NuiColor(125, 100, 75);
+          float textWidth = (windowRectangle.Width - 30 - chatLine.name.Length * 8) * 0.96f;
+          int modulo = (int)(chatLine.text.Length * 8 / textWidth);
 
-          float textWidth = (windowRectangle.Width - 30 - chatLine.name.Length * 10) * 0.96f;
+          Log.Info($"testWidth = {textWidth} - text length = {chatLine.text.Length}");
 
-          if (chatLine.text.Length < textWidth / 10)
+          NuiSpacer chatSpacer = new NuiSpacer() { Width = textWidth, Height = modulo == 0 ? 20 : modulo * 25 };
+
+          Log.Info($"modulo = {modulo} - Height = {chatSpacer.Height}");
+
+          chatRowChildren.Add(chatSpacer);
+          colChidren.Add(chatRow);
+
+          if(modulo == 0)
           {
-            chatRowChildren.Add(new NuiLabel(chatLine.text) { ForegroundColor = color, Width = textWidth, HorizontalAlign = NuiHAlign.Left, VerticalAlign = NuiVAlign.Middle });
-            colChidren.Add(chatRow);
+            chatSpacer.DrawList = new List<NuiDrawListItem>()
+            { 
+              new NuiDrawListText(color, new NuiRect(0, 2, textWidth, 20), chatLine.text)
+            };
           }
           else
           {
-            int modulo = (int)((chatLine.text.Length * 10) / textWidth);
-            int i = 0;
+            List<NuiDrawListItem> chatBreakerDrawList = new List<NuiDrawListItem>();
+            chatSpacer.DrawList = chatBreakerDrawList;
+            string chatBreaker = "";
+            int divider = (int)(textWidth / 8);
 
-            chatRowChildren.Add(new NuiLabel(chatLine.text.Substring(i * (int)(textWidth / 10), (int)(textWidth / 10))) { ForegroundColor = color, Width = textWidth, HorizontalAlign = NuiHAlign.Left, VerticalAlign = NuiVAlign.Middle });
-            colChidren.Add(chatRow);
-
-            for (i = 1; i < modulo; i++)
+            for (int i = 0; i <= modulo; i++)
             {
-              chatRowChildren = new List<NuiElement>();
-              chatRow = new NuiRow() { Children = chatRowChildren };
-              chatRowChildren.Add(new NuiSpacer() { Width = 25 + chatLine.name.Length * 10 });
+              if(divider + i * divider > chatLine.text.Length)
+                chatBreaker = chatLine.text.Substring(i * divider);
+              else
+                chatBreaker = chatLine.text.Substring(i * divider, divider);
 
-              try
-              {
-                chatRowChildren.Add(new NuiLabel(chatLine.text.Substring(i * (int)(textWidth / 10), (int)(textWidth / 10))) { ForegroundColor = color, Width = textWidth, HorizontalAlign = NuiHAlign.Left, VerticalAlign = NuiVAlign.Middle });
-              }
-              catch (Exception)
-              {
-                chatRowChildren.Add(new NuiLabel(chatLine.text.Substring(i * (int)(textWidth / 10))) { ForegroundColor = color, Width = textWidth, HorizontalAlign = NuiHAlign.Left, VerticalAlign = NuiVAlign.Middle });
-              }
-
-              colChidren.Add(chatRow);
+              if(i == 0)
+                chatBreakerDrawList.Add(new NuiDrawListText(color, new NuiRect(0, 2 + i * 23, textWidth, 20), chatBreaker) { Fill = true });
+              else
+                chatBreakerDrawList.Add(new NuiDrawListText(color, new NuiRect(-chatLine.name.Length * 8, 2 + i * 23, textWidth, 20), chatBreaker) { Fill = true });
             }
           }
         }
