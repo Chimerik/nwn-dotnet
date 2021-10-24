@@ -476,9 +476,9 @@ namespace NWN.Systems
           switch (nuiEvent.EventType)
           {
             case NuiEventType.Open:
-              if (!player.openedWindows.Contains(window))
+              if (!player.openedWindows.ContainsKey(window))
               {
-                player.openedWindows.Add(window);
+                player.openedWindows.Add(window, windowToken);
 
                 if (player.pcState == Player.PcState.Online)
                   nuiEvent.Player.ExportCharacter();
@@ -486,7 +486,7 @@ namespace NWN.Systems
               break;
 
             case NuiEventType.Close:
-              if (player.openedWindows.Contains(window))
+              if (player.openedWindows.ContainsKey(window))
               {
                 player.openedWindows.Remove(window);
 

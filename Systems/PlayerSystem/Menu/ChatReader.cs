@@ -4,13 +4,15 @@ using System.Collections.Generic;
 using Anvil.API;
 using Anvil.API.Events;
 
+using Newtonsoft.Json;
+
 namespace NWN.Systems
 {
   public partial class PlayerSystem
   {
     public partial class Player
     {
-      public void CreateChatReaderWindow()
+      public int CreateChatReaderWindow()
       {
         string windowId = "chatReader";
 
@@ -42,6 +44,8 @@ namespace NWN.Systems
 
         geometry.SetBindValue(oid, token, windowRectangle);
         geometry.SetBindWatch(oid, token, true);
+
+        return token;
       }
       private void HandleChatReaderEvents(ModuleEvents.OnNuiEvent nuiEvent)
       {
@@ -76,8 +80,8 @@ namespace NWN.Systems
             break;
         }
       }
-      
-      private NuiGroup BuildChatReaderWindow(NuiRect windowRectangle)
+
+      public NuiGroup BuildChatReaderWindow(NuiRect windowRectangle)
       {
         if (!Players.TryGetValue(oid.LoginCreature, out Player player))
           return null;
@@ -95,42 +99,30 @@ namespace NWN.Systems
         fixRowChildren.Add(new NuiCheck("Figer", makeStatic) { Id = "fix", Tooltip = "Permet d'ancrer la fenêtre à l'écran", Width = 60 });
         colChidren.Add(fixRow);
 
-        foreach (ChatLine chatLine in player.readChatLines)
+        int chatCount = player.readChatLines.Count - 1;
+
+        while(chatCount >= 0)
         {
+          ChatLine chatLine = player.readChatLines[chatCount];
           List<NuiElement> chatRowChildren = new List<NuiElement>();
           NuiRow chatRow = new NuiRow() { Children = chatRowChildren };
           
-          chatRowChildren.Add(
-            new NuiButton("")
-            {
-              Id = chatLine.playerName,
-              Height = 28,
-              Width = 19,
-              DrawList = new List<NuiDrawListItem>()
-              {
-                new NuiDrawListImage(chatLine.portrait, new NuiRect(10, 13, 190, 10)) { Fill = false, Aspect = NuiAspect.ExactScaled  },
-                new NuiDrawListImage(chatLine.portrait, new NuiRect(70, 13, 190, 10)) { Fill = true, Aspect = NuiAspect.ExactScaled  },
-                new NuiDrawListImage(chatLine.portrait, new NuiRect(130, 13, 190, 10)) { Fill = false, Aspect = NuiAspect.Exact  },
-                new NuiDrawListImage(chatLine.portrait, new NuiRect(190, 13, 190, 10)) { Fill = true, Aspect = NuiAspect.Exact  },
-                new NuiDrawListImage(chatLine.portrait, new NuiRect(10, 200, 190, 10)) { Fill = false, Aspect = NuiAspect.Fit100  },
-                new NuiDrawListImage(chatLine.portrait, new NuiRect(50, 200, 190, 10)) { Fill = true, Aspect = NuiAspect.Fit100  },
-                new NuiDrawListImage(chatLine.portrait, new NuiRect(90, 200, 20, 300)) { Fill = false, Aspect = NuiAspect.Fit  },
-                new NuiDrawListImage(chatLine.portrait, new NuiRect(130, 200, 190, 10)) { Fill = true, Aspect = NuiAspect.Fit },
-              }
-            }
-          );
+          chatRowChildren.Add(new NuiImage(chatLine.portrait) { Id = chatLine.playerName, Height = 25, Width = 19, ImageAspect = NuiAspect.ExactScaled } );
           
-          chatRowChildren.Add(new NuiLabel(chatLine.name) { Width = chatLine.name.Length * 8, HorizontalAlign = NuiHAlign.Center, VerticalAlign = NuiVAlign.Top, ForegroundColor = new NuiColor(143, 127, 255) });
+          chatRowChildren.Add(new NuiLabel(chatLine.name) { Width = chatLine.name.Length * 8, Id = chatLine.playerName, VerticalAlign = NuiVAlign.Top, ForegroundColor = new NuiColor(143, 127, 255) });
           NuiColor color = player.chatColors.ContainsKey(chatLine.channel) ? player.chatColors[chatLine.channel] : new NuiColor(255, 255, 255);
+
+          if (chatLine.channel == Anvil.Services.ChatChannel.PlayerTell || chatLine.channel == Anvil.Services.ChatChannel.DmTell)
+            color = new NuiColor(32, 255, 32);
 
           float textWidth = (windowRectangle.Width - 30 - chatLine.name.Length * 8) * 0.96f;
           int modulo = (int)(chatLine.text.Length * 8 / textWidth);
 
-          Log.Info($"testWidth = {textWidth} - text length = {chatLine.text.Length}");
+          //Log.Info($"testWidth = {textWidth} - text length = {chatLine.text.Length}");
 
-          NuiSpacer chatSpacer = new NuiSpacer() { Width = textWidth, Height = modulo == 0 ? 20 : modulo * 25 };
+          NuiSpacer chatSpacer = new NuiSpacer() { Id = chatLine.playerName, Width = textWidth, Height = modulo == 0 ? 20 : modulo * 25 };
 
-          Log.Info($"modulo = {modulo} - Height = {chatSpacer.Height}");
+          //Log.Info($"modulo = {modulo} - Height = {chatSpacer.Height}");
 
           chatRowChildren.Add(chatSpacer);
           colChidren.Add(chatRow);
@@ -162,6 +154,8 @@ namespace NWN.Systems
                 chatBreakerDrawList.Add(new NuiDrawListText(color, new NuiRect(-chatLine.name.Length * 8, 2 + i * 23, textWidth, 20), chatBreaker) { Fill = true });
             }
           }
+
+          chatCount--;
         }
 
         return chatReaderGroup;

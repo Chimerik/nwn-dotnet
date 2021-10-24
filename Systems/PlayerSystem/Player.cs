@@ -52,7 +52,7 @@ namespace NWN.Systems
       public Dictionary<string, byte[]> areaExplorationStateDictionnary = new Dictionary<string, byte[]>();
       public Dictionary<ChatChannel, Color> chatColors = new Dictionary<ChatChannel, Color>();
       public Dictionary<string, NuiRect> windowRectangles = new Dictionary<string, NuiRect>();
-      public List<string> openedWindows = new List<string>();
+      public Dictionary<string, int> openedWindows = new Dictionary<string, int>();
       public List<ChatLine> readChatLines = new List<ChatLine>();
 
       public enum PcState
@@ -203,15 +203,18 @@ namespace NWN.Systems
       {
         await NwTask.WaitUntil(() => oid.LoginCreature.GetObjectVariable<LocalVariableBool>("_ASYNC_INIT_DONE").HasValue);
 
-        foreach (string window in openedWindows)
+        foreach (string window in openedWindows.Keys)
           CreatePlayerWindow(window);
       }
       public void CreatePlayerWindow(string window)
       {
-        switch(window)
+        switch (window)
         {
           case "chat":
-            CreateChatWindow();
+            openedWindows[window] = CreateChatWindow();
+            break;
+          case "chatReader":
+            openedWindows[window] = CreateChatReaderWindow();
             break;
         }
       }

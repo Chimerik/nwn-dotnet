@@ -448,7 +448,7 @@ namespace NWN.Systems
         using (var stream = await StringUtils.GenerateStreamFromString(serializedOpenedWindows))
           try
           {
-            openedWindows = await JsonSerializer.DeserializeAsync<List<string>>(stream);
+            openedWindows = await JsonSerializer.DeserializeAsync<Dictionary<string, int>>(stream);
           }
           catch (Exception)
           { }

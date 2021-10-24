@@ -14,7 +14,7 @@ namespace NWN.Systems
   {
     public partial class Player
     {
-      public void CreateChatWindow()
+      public int CreateChatWindow()
       {
         string windowId = "chat";
         NuiBind<string> writingChat = new NuiBind<string>("writingChat");
@@ -64,6 +64,8 @@ namespace NWN.Systems
 
         geometry.SetBindValue(oid, token, windowRectangle);
         geometry.SetBindWatch(oid, token, true);
+
+        return token;
       }
       private void HandleChatWriterEvents(ModuleEvents.OnNuiEvent nuiEvent)
       {

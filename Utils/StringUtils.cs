@@ -82,7 +82,7 @@ namespace NWN
           return "";
       }
     }
-    public async static Task<string> SerializeObjectToJsonString(List<string> openedWindows)
+    public async static Task<string> SerializeObjectToJsonString(Dictionary<string, int> openedWindows)
     {
       using (var stream = new MemoryStream())
       {

@@ -7,6 +7,7 @@ using Anvil.API;
 using Anvil.API.Events;
 using Anvil.Services;
 using Action = System.Action;
+using Newtonsoft.Json;
 
 namespace NWN.Systems
 {
@@ -231,8 +232,17 @@ namespace NWN.Systems
           return;
         }
 
-        player.readChatLines.Add(new ChatLine(ctx.oSender.ControlledCreature.PortraitResRef + "s", ctx.oSender.ControlledCreature.Name, ctx.oSender.PlayerName, chatReceiver.Value, ctx.channel));
-          
+        player.readChatLines.Add(new ChatLine(ctx.oSender.ControlledCreature.PortraitResRef + "t", ctx.oSender.ControlledCreature.Name, ctx.oSender.PlayerName, chatReceiver.Value, ctx.channel));
+
+        if (player.openedWindows.ContainsKey("chatReader"))
+        {
+          Log.Info($"token : {player.openedWindows["chatReader"]}");
+          NuiGroup chatUpdate = player.BuildChatReaderWindow(player.windowRectangles["chatReader"]);
+          Log.Info(JsonConvert.SerializeObject(chatUpdate, Formatting.Indented));
+          player.oid.NuiSetGroupLayout(player.openedWindows["chatReader"], "chatReaderGroup", chatUpdate);
+        }
+        //NWScript.NuiSetGroupLayout(player.oid.LoginCreature, player.openedWindows["chatReader"], "chatReaderGroup", (IntPtr)player.BuildChatReaderWindow(player.windowRectangles["chatReader"]));
+
         string coloredChat = chatReceiver.Value;
 
         if (player.chatColors.ContainsKey(ctx.channel))
