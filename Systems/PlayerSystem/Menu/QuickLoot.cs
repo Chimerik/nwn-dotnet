@@ -10,6 +10,7 @@ namespace NWN.Systems
     {
       public void CreateQuickLootWindow(NwItem oItem)
       {
+        string windowId = "quickLoot";
         NuiBind<string> icon = new NuiBind<string>("icon");
         NuiBind<string> itemName = new NuiBind<string>("itemName");
         NuiBind<int> channel = new NuiBind<int>("channel");
@@ -18,7 +19,7 @@ namespace NWN.Systems
         NuiBind<bool> makeStatic = new NuiBind<bool>("static");
         NuiBind<uint> item = new NuiBind<uint>("item");
         NuiBind<NuiRect> geometry = new NuiBind<NuiRect>("geometry");
-        NuiRect windowRectangle = windowRectangles.ContainsKey("chat") ? windowRectangles["chat"] : new NuiRect(420.0f, 10.0f, 600.0f, 400.0f);
+        NuiRect windowRectangle = windowRectangles.ContainsKey(windowId) && windowRectangles[windowId].Width > 0 && windowRectangles[windowId].Width <= oid.GetDeviceProperty(PlayerDeviceProperty.GuiWidth) ? windowRectangles[windowId] : new NuiRect(10, oid.GetDeviceProperty(PlayerDeviceProperty.GuiHeight) * 0.01f, oid.GetDeviceProperty(PlayerDeviceProperty.GuiWidth) * 0.7f, oid.GetDeviceProperty(PlayerDeviceProperty.GuiHeight) / 3);
 
         // Construct the window layout.
         NuiColumn root = new NuiColumn
@@ -57,7 +58,7 @@ namespace NWN.Systems
           Border = false,
         };
 
-        int token = oid.CreateNuiWindow(window, "quickLoot");
+        int token = oid.CreateNuiWindow(window, windowId);
 
         if(oItem.IsValid && oItem.GetObjectVariable<LocalVariableBool>($"{oid.PlayerName}_IGNORE_QUICKLOOT").HasNothing)
         {

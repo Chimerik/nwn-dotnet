@@ -26,7 +26,7 @@ namespace NWN.Systems
         
         if (player.oid.PlayerName == "Chim")
         {
-          player.CreateChatReaderWindow();
+          player.CreateQuickLootWindow(player.oid.ControlledCreature.Area.FindObjectsOfTypeInArea<NwItem>().FirstOrDefault());
           //Test.Example example = new Test.Example();
           //example.testDrawList(player.oid);
           //player.oid.ControlledCreature.AddFeat(Feat.WeaponProficiencyMartial);
