@@ -25,7 +25,12 @@ namespace NWN.Systems
             {
               Children = new List<NuiElement>
               {
-                new NuiSpacer()
+                new NuiCheck("Figer", true) { Id = "fix", Tooltip = "Permet d'ancrer la fenêtre à l'écran", Width = 60 },
+                new NuiRow
+                {
+                  Children = new List<NuiElement>
+                  {
+                    new NuiSpacer()
                 {
                   DrawList = new List<NuiDrawListItem>
                   {
@@ -46,7 +51,7 @@ namespace NWN.Systems
                     },
                     new NuiDrawListText(new NuiColor(150, 50, 200), new NuiRect(25, 25, 25, 25), "b")
                     {
-      
+
                     },
                     new NuiDrawListImage("menu_exit", new NuiRect(50, 50, 25, 25))
                     {
@@ -58,7 +63,9 @@ namespace NWN.Systems
                     },
                   }
                 }
-              }
+                  }
+                }
+               }
             }
           }
         };
