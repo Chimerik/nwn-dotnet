@@ -6,8 +6,6 @@ using Anvil.API;
 using Anvil.API.Events;
 using Anvil.Services;
 
-using NWN.Core;
-
 namespace NWN.Systems
 {
   public partial class PlayerSystem
@@ -135,7 +133,7 @@ namespace NWN.Systems
             break;
 
           case "writingChat":
-
+            
             if (nuiEvent.EventType != NuiEventType.Watch)
               return;
 
@@ -290,11 +288,7 @@ namespace NWN.Systems
             new NuiComboEntry("Groupe", 6),
             new NuiComboEntry("MD", 14),
             new NuiComboEntry("Crier", 2)
-
           };
-
-        Log.Info("-----------------------------------------------------------------------------------------------------------");
-        Log.Info($"width : {windowRectangle.Width} - height : {windowRectangle.Height}");
 
         return new NuiGroup
         {

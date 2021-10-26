@@ -21,51 +21,19 @@ namespace NWN.Systems
         {
           Children = new List<NuiElement>
           {
-            new NuiRow
-            {
+            new NuiColumn
+            { 
               Children = new List<NuiElement>
               {
-                new NuiCheck("Figer", true) { Id = "fix", Tooltip = "Permet d'ancrer la fenêtre à l'écran", Width = 60 },
-                new NuiRow
-                {
+                new NuiGroup() 
+                { 
+                  Id = "somegroupid" ,
                   Children = new List<NuiElement>
                   {
-                    new NuiSpacer()
-                {
-                  DrawList = new List<NuiDrawListItem>
-                  {
-                    /*new NuiDrawListArc
-                    {
-                      Color = new NuiColor(255, 50, 0), //Rect = circle,
-                      AngleMax = 160,
-                      AngleMin = 0,
-                      LineThickness = 50,
-                      Enabled = true,
-                      Radius = 60,
-                      Center = new NuiVector(150, 150),
-                      Fill = true
-                    },*/
-                    new NuiDrawListText(new NuiColor(150, 50, 200), new NuiRect(0, 0, 25, 25), "a")
-                    {
-
-                    },
-                    new NuiDrawListText(new NuiColor(150, 50, 200), new NuiRect(25, 25, 25, 25), "b")
-                    {
-
-                    },
-                    new NuiDrawListImage("menu_exit", new NuiRect(50, 50, 25, 25))
-                    {
-                        Aspect = NuiAspect.Fill,
-                    },
-                    new NuiDrawListImage("menu_up", new NuiRect(75, 75, 25, 25))
-                    {
-                        Aspect = NuiAspect.Fill
-                    },
+                    new NuiButton("Test Update") { Id = "testUpdate", Tooltip = "test" }
                   }
                 }
-                  }
-                }
-               }
+              }
             }
           }
         };
@@ -91,21 +59,27 @@ namespace NWN.Systems
         geometry.SetBindValue(oid, token, windowRectangle);
         geometry.SetBindWatch(oid, token, true);
       }
-      private static void HandleFishingMiniGameEvents(ModuleEvents.OnNuiEvent nuiEvent)
+      private void HandleFishingMiniGameEvents(ModuleEvents.OnNuiEvent nuiEvent)
       {
-        if (nuiEvent.Player.NuiGetWindowId(nuiEvent.WindowToken) != "fishingMiniGame")
-          return;
-
         switch (nuiEvent.ElementId)
         {
-          case "color":
+          case "testUpdate":
 
-            switch (nuiEvent.EventType)
+            if (nuiEvent.EventType == NuiEventType.Click)
             {
-              case NuiEventType.Watch:
+              int nbClick = nuiEvent.Player.LoginCreature.GetObjectVariable<LocalVariableInt>("NUI_TEST_UPDATE").Value + 1;
+              nuiEvent.Player.LoginCreature.GetObjectVariable<LocalVariableInt>("NUI_TEST_UPDATE").Value = nbClick;
 
-                Log.Info($"color : {new NuiBind<NuiColor>("color").GetBindValue(nuiEvent.Player, nuiEvent.WindowToken)}");
-                break;
+              NuiGroup group = new NuiGroup()
+              {
+                Id = "somegroupid",
+                Children = new List<NuiElement>
+                  {
+                    new NuiButton($"Test Update {nbClick}") { Id = "testUpdate", Tooltip = "test" }
+                  }
+              };
+
+              oid.NuiSetGroupLayout(nuiEvent.WindowToken, "somegroupid", group);
             }
 
             break;

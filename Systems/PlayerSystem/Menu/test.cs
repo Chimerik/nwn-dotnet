@@ -614,31 +614,30 @@ namespace Test
 
     public Example()
     {
-      json col = JsonArray();
 
-      json drawList = JsonArray();
-      json jText = NuiText(NuiBind("prout"));
-      drawList = JsonArrayInsert(drawList, NuiDrawList(jText, JsonBool(TRUE), drawList));
-
-      col = JsonArrayInsert(col, drawList);
     }
     public void testDrawList(NwPlayer player)
     {
       json col = JsonArray();
-      json row = JsonArray();
+      json group = JsonArray();
 
-      json drawList = JsonArray();
+      /*json drawList = JsonArray();
         drawList = JsonArrayInsert(drawList, NuiDrawListImage(JsonBool(TRUE), JsonString("menu_exit"), NuiRect(0.0f, 0.0f, 25, 25), JsonInt(NUI_ASPECT_FILL), JsonInt(NUI_HALIGN_CENTER), JsonInt(NUI_VALIGN_TOP)));
         drawList = JsonArrayInsert(drawList, NuiDrawListImage(JsonBool(TRUE), JsonString("menu_up"), NuiRect(25, 25, 25, 25), JsonInt(NUI_ASPECT_FILL), JsonInt(NUI_HALIGN_CENTER), JsonInt(NUI_VALIGN_TOP)));
-        //drawList = JsonArrayInsert(drawList, NuiDrawListCircle(JsonBool(TRUE), JsonString("menu_up"), NuiRect(25, 25, 25, 25), JsonInt(NUI_ASPECT_FILL), JsonInt(NUI_HALIGN_CENTER), JsonInt(NUI_VALIGN_TOP)));
+ */       //drawList = JsonArrayInsert(drawList, NuiDrawListCircle(JsonBool(TRUE), JsonString("menu_up"), NuiRect(25, 25, 25, 25), JsonInt(NUI_ASPECT_FILL), JsonInt(NUI_HALIGN_CENTER), JsonInt(NUI_VALIGN_TOP)));
 
-      json jImage = NuiImage(JsonString("leather1"), JsonInt(NUI_ASPECT_FILL), JsonInt(NUI_HALIGN_CENTER), JsonInt(NUI_VALIGN_TOP));
-      jImage = NuiDrawList(jImage, JsonBool(TRUE), drawList);
+      json jButton = NuiButton(JsonString("Test Update"));
+      jButton = NuiId(jButton, "testUpdate");
+      jButton = NuiGroup(jButton, TRUE, NUI_SCROLLBARS_NONE);
+      jButton = NuiId(jButton, "somegroupid");
+      /*jImage = NuiDrawList(jImage, JsonBool(TRUE), drawList);
       jImage = NuiWidth(jImage, 64.0f);
-      jImage = NuiHeight(jImage, 192.0f);
-      
-      row = JsonArrayInsert(row, jImage);
-      col = JsonArrayInsert(col, NuiRow(row));
+      jImage = NuiHeight(jImage, 192.0f);*/
+
+      //row = JsonArrayInsert(row, jButton);
+      //group = JsonArrayInsert(group, jButton);
+      //col = NuiId(col, "testUpdateGroup");
+      col = JsonArrayInsert(col, jButton);
 
       json root = NuiCol(col);
       json nui = NuiWindow(
@@ -653,8 +652,30 @@ namespace Test
 
       int token = NuiCreate(player.ControlledCreature, nui, "poviewer");
 
+      player.OnNuiEvent -= HandleTestUpdateEvents;
+      player.OnNuiEvent += HandleTestUpdateEvents;
+
       NWN.Systems.ModuleSystem.Log.Info(JsonDump(nui, 0));
-      
+    }
+    private void HandleTestUpdateEvents(ModuleEvents.OnNuiEvent nuiEvent)
+    {
+      switch (nuiEvent.ElementId)
+      {
+        case "testUpdate":
+
+          if (nuiEvent.EventType == NuiEventType.Click)
+          {
+            int nbClick = nuiEvent.Player.LoginCreature.GetObjectVariable<LocalVariableInt>("NUI_TEST_UPDATE").Value + 1;
+            nuiEvent.Player.LoginCreature.GetObjectVariable<LocalVariableInt>("NUI_TEST_UPDATE").Value = nbClick;
+
+            json jButton = NuiButton(JsonString($"Test Update {nbClick}"));
+            jButton = NuiId(jButton, "testUpdate");
+
+            NuiSetGroupLayout(nuiEvent.Player.ControlledCreature, nuiEvent.WindowToken, "somegroupid", jButton);
+          }
+
+          break;
+      }
     }
   }
 }

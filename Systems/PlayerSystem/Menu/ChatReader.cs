@@ -1,10 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 
 using Anvil.API;
 using Anvil.API.Events;
-
-using Newtonsoft.Json;
 
 namespace NWN.Systems
 {
@@ -51,7 +48,7 @@ namespace NWN.Systems
       {
         if (nuiEvent.Player.NuiGetWindowId(nuiEvent.WindowToken) != "chatReader" || !Players.TryGetValue(nuiEvent.Player.LoginCreature, out Player player))
           return;
-
+        
         switch (nuiEvent.ElementId)
         {
           case "fix":
@@ -78,6 +75,22 @@ namespace NWN.Systems
             }
 
             break;
+
+          case "geometry":
+
+            if (!player.openedWindows.ContainsKey("chatReader"))
+              return;
+
+            NuiBind<NuiRect> geometry = new NuiBind<NuiRect>("geometry");
+            NuiRect rectangle = geometry.GetBindValue(nuiEvent.Player, nuiEvent.WindowToken);
+
+            if (rectangle.Width <= 0 || rectangle.Height <= 0)
+              return;
+
+            geometry.SetBindWatch(nuiEvent.Player, nuiEvent.WindowToken, false);
+            UpdatePlayerChatLog(rectangle);
+            geometry.SetBindWatch(nuiEvent.Player, nuiEvent.WindowToken, true);
+            break;
         }
       }
 
@@ -87,19 +100,16 @@ namespace NWN.Systems
 
         List<NuiElement> colChidren = new List<NuiElement>();
         NuiColumn col = new NuiColumn() { Children = colChidren };
-        
-        List<NuiElement> fixRowChildren = new List<NuiElement>();
-        NuiRow fixRow = new NuiRow() { Children = fixRowChildren };
-        fixRowChildren.Add(new NuiCheck("Figer", makeStatic) { Id = "fix", Tooltip = "Permet d'ancrer la fenêtre à l'écran", Width = 60 });
-        colChidren.Add(fixRow);
 
         List<NuiElement> groupChidren = new List<NuiElement>();
         NuiGroup chatReaderGroup = new NuiGroup() { Id = "chatReaderGroup", Border = false, Children = groupChidren };
         colChidren.Add(chatReaderGroup);
 
-        List<NuiElement> chatLogRowChildren = new List<NuiElement>();
-        NuiRow chatLogRow = new NuiRow() { Children = chatLogRowChildren };
-        groupChidren.Add(chatLogRow);
+        List<NuiElement> colChatLogChidren = new List<NuiElement>();
+        NuiColumn colChatLog = new NuiColumn() { Children = colChatLogChidren };
+        groupChidren.Add(colChatLog);
+
+        colChatLogChidren.Add(new NuiCheck("Figer", makeStatic) { Id = "fix", Tooltip = "Permet d'ancrer la fenêtre à l'écran", Width = 60 });
 
         int chatCount = readChatLines.Count - 1;
 
@@ -120,14 +130,10 @@ namespace NWN.Systems
           float textWidth = (windowRectangle.Width - 30 - chatLine.name.Length * 8) * 0.96f;
           int modulo = (int)(chatLine.text.Length * 8 / textWidth);
 
-          //Log.Info($"testWidth = {textWidth} - text length = {chatLine.text.Length}");
-
           NuiSpacer chatSpacer = new NuiSpacer() { Id = chatLine.playerName, Width = textWidth, Height = modulo == 0 ? 20 : modulo * 25 };
 
-          //Log.Info($"modulo = {modulo} - Height = {chatSpacer.Height}");
-
           chatRowChildren.Add(chatSpacer);
-          chatLogRowChildren.Add(chatRow);
+          colChatLogChidren.Add(chatRow);
 
           if(modulo == 0)
           {
@@ -164,12 +170,16 @@ namespace NWN.Systems
       }
       public void UpdatePlayerChatLog(NuiRect windowRectangle)
       {
+        NuiBind<bool> makeStatic = new NuiBind<bool>("static");
+
         List<NuiElement> groupChidren = new List<NuiElement>();
         NuiGroup chatReaderGroup = new NuiGroup() { Id = "chatReaderGroup", Border = false, Children = groupChidren };
 
-        List<NuiElement> chatLogRowChildren = new List<NuiElement>();
-        NuiRow chatLogRow = new NuiRow() { Children = chatLogRowChildren };
-        groupChidren.Add(chatLogRow);
+        List<NuiElement> colChatLogChidren = new List<NuiElement>();
+        NuiColumn colChatLog = new NuiColumn() { Children = colChatLogChidren };
+        groupChidren.Add(colChatLog);
+
+        colChatLogChidren.Add(new NuiCheck("Figer", makeStatic) { Id = "fix", Tooltip = "Permet d'ancrer la fenêtre à l'écran", Width = 60 });
 
         int chatCount = readChatLines.Count - 1;
 
@@ -190,14 +200,10 @@ namespace NWN.Systems
           float textWidth = (windowRectangle.Width - 30 - chatLine.name.Length * 8) * 0.96f;
           int modulo = (int)(chatLine.text.Length * 8 / textWidth);
 
-          //Log.Info($"testWidth = {textWidth} - text length = {chatLine.text.Length}");
-
           NuiSpacer chatSpacer = new NuiSpacer() { Id = chatLine.playerName, Width = textWidth, Height = modulo == 0 ? 20 : modulo * 25 };
 
-          //Log.Info($"modulo = {modulo} - Height = {chatSpacer.Height}");
-
-          chatLogRowChildren.Add(chatSpacer);
-          groupChidren.Add(chatRow);
+          chatRowChildren.Add(chatSpacer);
+          colChatLogChidren.Add(chatRow);
 
           if (modulo == 0)
           {
