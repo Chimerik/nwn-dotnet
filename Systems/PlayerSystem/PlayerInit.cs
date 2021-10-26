@@ -13,6 +13,8 @@ using NWN.Systems.Craft;
 using Color = Anvil.API.Color;
 using System.Threading;
 using System.Text.Json;
+using Newtonsoft.Json;
+using JsonSerializer = System.Text.Json.JsonSerializer;
 
 namespace NWN.Systems
 {
@@ -567,15 +569,7 @@ namespace NWN.Systems
       }
       private async void InitializeAccountWindowRectanglesPlayers(string serializedWindowRectangles)
       {
-        using (var stream = await StringUtils.GenerateStreamFromString(serializedWindowRectangles))
-          try
-          {
-            windowRectangles = await JsonSerializer.DeserializeAsync<Dictionary<string, NuiRect>>(stream);
-          }
-          catch (Exception)
-          {
-            return;
-          }
+        windowRectangles = await Task.Run(() => JsonConvert.DeserializeObject<Dictionary<string, NuiRect>>(serializedWindowRectangles));
       }
       private async void CheckForAFKStatus()
       {

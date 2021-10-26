@@ -20,6 +20,11 @@ namespace NWN.Systems
         NuiBind<NuiRect> geometry = new NuiBind<NuiRect>("geometry");
         NuiRect windowRectangle = windowRectangles.ContainsKey(windowId) && windowRectangles[windowId].Width > 0 && windowRectangles[windowId].Width < oid.GetDeviceProperty(PlayerDeviceProperty.GuiWidth) ? windowRectangles[windowId] : new NuiRect(10, oid.GetDeviceProperty(PlayerDeviceProperty.GuiHeight) * 0.01f, oid.GetDeviceProperty(PlayerDeviceProperty.GuiWidth) * 0.7f, oid.GetDeviceProperty(PlayerDeviceProperty.GuiHeight) / 3);
 
+        foreach (KeyValuePair<string, NuiRect> kvp in windowRectangles)
+          Log.Info($"{kvp.Key} {kvp.Value.X} {kvp.Value.Y} {kvp.Value.Width} {kvp.Value.Height}");
+
+        Log.Info($"rect : {windowRectangle.X} {windowRectangle.Y} {windowRectangle.Width} {windowRectangle.Height}");
+
         NuiWindow window = new NuiWindow(BuildChatReaderWindow(windowRectangle), "")
         {
           Geometry = geometry,
@@ -121,7 +126,7 @@ namespace NWN.Systems
           
           chatRowChildren.Add(new NuiImage(chatLine.portrait) { Id = chatLine.playerName, Height = 25, Width = 19, ImageAspect = NuiAspect.ExactScaled } );
           
-          chatRowChildren.Add(new NuiLabel(chatLine.name) { Width = chatLine.name.Length * 8, Id = chatLine.playerName, VerticalAlign = NuiVAlign.Top, ForegroundColor = new NuiColor(143, 127, 255) });
+          chatRowChildren.Add(new NuiLabel(chatLine.name) { Width = chatLine.name.Length * 9, Id = chatLine.playerName, VerticalAlign = NuiVAlign.Top, ForegroundColor = new NuiColor(143, 127, 255) });
           NuiColor color = chatColors.ContainsKey(chatLine.channel) ? chatColors[chatLine.channel] : new NuiColor(255, 255, 255);
 
           if (chatLine.channel == Anvil.Services.ChatChannel.PlayerTell || chatLine.channel == Anvil.Services.ChatChannel.DmTell)
@@ -135,7 +140,36 @@ namespace NWN.Systems
           chatRowChildren.Add(chatSpacer);
           colChatLogChidren.Add(chatRow);
 
-          if(modulo == 0)
+          int nbCharPerLine = (int)(textWidth / 8);
+
+          if(chatLine.text.Length <= nbCharPerLine)
+            chatSpacer.DrawList = new List<NuiDrawListItem>()
+            {
+              new NuiDrawListText(color, new NuiRect(0, 2, textWidth, 20), chatLine.text)
+            };
+          else
+          {
+            List<NuiDrawListItem> chatBreakerDrawList = new List<NuiDrawListItem>();
+            chatSpacer.DrawList = chatBreakerDrawList;
+            string remainingText = chatLine.text;
+
+            string firstLine = remainingText.Substring(0, nbCharPerLine);
+            int breakPosition = firstLine.LastIndexOf(" ");
+
+            if (breakPosition < 0)
+              breakPosition = firstLine.Length - 1;
+
+            firstLine = firstLine.Substring(0, breakPosition);
+
+            chatBreakerDrawList.Add(new NuiDrawListText(color, new NuiRect(0, 2 + 0 * 23, textWidth, 20), firstLine) { Fill = true });
+
+            remainingText = remainingText.Remove(0, breakPosition);
+
+            //if remainingText.length < 1, fin de la loop
+          }
+          
+
+          if (modulo == 0)
           {
             chatSpacer.DrawList = new List<NuiDrawListItem>()
             { 
@@ -191,7 +225,7 @@ namespace NWN.Systems
 
           chatRowChildren.Add(new NuiImage(chatLine.portrait) { Id = chatLine.playerName, Height = 25, Width = 19, ImageAspect = NuiAspect.ExactScaled });
 
-          chatRowChildren.Add(new NuiLabel(chatLine.name) { Width = chatLine.name.Length * 8, Id = chatLine.playerName, VerticalAlign = NuiVAlign.Top, ForegroundColor = new NuiColor(143, 127, 255) });
+          chatRowChildren.Add(new NuiLabel(chatLine.name) { Width = chatLine.name.Length * 9, Id = chatLine.playerName, VerticalAlign = NuiVAlign.Top, ForegroundColor = new NuiColor(143, 127, 255) });
           NuiColor color = chatColors.ContainsKey(chatLine.channel) ? chatColors[chatLine.channel] : new NuiColor(255, 255, 255);
 
           if (chatLine.channel == Anvil.Services.ChatChannel.PlayerTell || chatLine.channel == Anvil.Services.ChatChannel.DmTell)
