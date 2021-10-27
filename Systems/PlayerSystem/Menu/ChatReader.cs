@@ -20,11 +20,6 @@ namespace NWN.Systems
         NuiBind<NuiRect> geometry = new NuiBind<NuiRect>("geometry");
         NuiRect windowRectangle = windowRectangles.ContainsKey(windowId) && windowRectangles[windowId].Width > 0 && windowRectangles[windowId].Width < oid.GetDeviceProperty(PlayerDeviceProperty.GuiWidth) ? windowRectangles[windowId] : new NuiRect(10, oid.GetDeviceProperty(PlayerDeviceProperty.GuiHeight) * 0.01f, oid.GetDeviceProperty(PlayerDeviceProperty.GuiWidth) * 0.7f, oid.GetDeviceProperty(PlayerDeviceProperty.GuiHeight) / 3);
 
-        foreach (KeyValuePair<string, NuiRect> kvp in windowRectangles)
-          Log.Info($"{kvp.Key} {kvp.Value.X} {kvp.Value.Y} {kvp.Value.Width} {kvp.Value.Height}");
-
-        Log.Info($"rect : {windowRectangle.X} {windowRectangle.Y} {windowRectangle.Width} {windowRectangle.Height}");
-
         NuiWindow window = new NuiWindow(BuildChatReaderWindow(windowRectangle), "")
         {
           Geometry = geometry,
@@ -140,62 +135,34 @@ namespace NWN.Systems
           chatRowChildren.Add(chatSpacer);
           colChatLogChidren.Add(chatRow);
 
+          List<NuiDrawListItem> chatBreakerDrawList = new List<NuiDrawListItem>();
+          chatSpacer.DrawList = chatBreakerDrawList;
+          string remainingText = chatLine.text;
           int nbCharPerLine = (int)(textWidth / 8);
+          int posXDisplay = 0;
+          int i = 0;
 
-          if(chatLine.text.Length <= nbCharPerLine)
-            chatSpacer.DrawList = new List<NuiDrawListItem>()
-            {
-              new NuiDrawListText(color, new NuiRect(0, 2, textWidth, 20), chatLine.text)
-            };
-          else
+          do
           {
-            List<NuiDrawListItem> chatBreakerDrawList = new List<NuiDrawListItem>();
-            chatSpacer.DrawList = chatBreakerDrawList;
-            string remainingText = chatLine.text;
+            string currentLine = remainingText.Length > nbCharPerLine ? remainingText.Substring(0, (int)(textWidth / 8)) : remainingText;
 
-            string firstLine = remainingText.Substring(0, nbCharPerLine);
-            int breakPosition = firstLine.LastIndexOf(" ");
+            int breakPosition;
 
-            if (breakPosition < 0)
-              breakPosition = firstLine.Length - 1;
+            if (remainingText.Length <= nbCharPerLine)
+              breakPosition = currentLine.Length - 1;
+            else
+            {
+              breakPosition = currentLine.Contains(" ") ? currentLine.LastIndexOf(" ") : currentLine.Length - 1;
+              currentLine = currentLine.Substring(0, breakPosition);
+            }
 
-            firstLine = firstLine.Substring(0, breakPosition);
-
-            chatBreakerDrawList.Add(new NuiDrawListText(color, new NuiRect(0, 2 + 0 * 23, textWidth, 20), firstLine) { Fill = true });
-
+            chatBreakerDrawList.Add(new NuiDrawListText(color, new NuiRect(posXDisplay, 2 + i * 23, textWidth, 20), currentLine) { Fill = true });
             remainingText = remainingText.Remove(0, breakPosition);
 
-            //if remainingText.length < 1, fin de la loop
-          }
-          
+            posXDisplay = -chatLine.name.Length * 11;
+            i++;
 
-          if (modulo == 0)
-          {
-            chatSpacer.DrawList = new List<NuiDrawListItem>()
-            { 
-              new NuiDrawListText(color, new NuiRect(0, 2, textWidth, 20), chatLine.text)
-            };
-          }
-          else
-          {
-            List<NuiDrawListItem> chatBreakerDrawList = new List<NuiDrawListItem>();
-            chatSpacer.DrawList = chatBreakerDrawList;
-            string chatBreaker = "";
-            int divider = (int)(textWidth / 8);
-
-            for (int i = 0; i <= modulo; i++)
-            {
-              if(divider + i * divider > chatLine.text.Length)
-                chatBreaker = chatLine.text.Substring(i * divider);
-              else
-                chatBreaker = chatLine.text.Substring(i * divider, divider);
-
-              if(i == 0)
-                chatBreakerDrawList.Add(new NuiDrawListText(color, new NuiRect(0, 2 + i * 23, textWidth, 20), chatBreaker) { Fill = true });
-              else
-                chatBreakerDrawList.Add(new NuiDrawListText(color, new NuiRect(-chatLine.name.Length * 8, 2 + i * 23, textWidth, 20), chatBreaker) { Fill = true });
-            }
-          }
+          } while (remainingText.Length > 1);
 
           chatCount--;
         }
@@ -232,40 +199,41 @@ namespace NWN.Systems
             color = new NuiColor(32, 255, 32);
 
           float textWidth = (windowRectangle.Width - 30 - chatLine.name.Length * 8) * 0.96f;
-          int modulo = (int)(chatLine.text.Length * 8 / textWidth);
+          int nbLines = (int)(chatLine.text.Length * 8 / textWidth);
 
-          NuiSpacer chatSpacer = new NuiSpacer() { Id = chatLine.playerName, Width = textWidth, Height = modulo == 0 ? 20 : modulo * 25 };
+          NuiSpacer chatSpacer = new NuiSpacer() { Id = chatLine.playerName, Width = textWidth, Height = nbLines == 0 ? 20 : nbLines * 25 };
 
           chatRowChildren.Add(chatSpacer);
           colChatLogChidren.Add(chatRow);
 
-          if (modulo == 0)
-          {
-            chatSpacer.DrawList = new List<NuiDrawListItem>()
-            {
-              new NuiDrawListText(color, new NuiRect(0, 2, textWidth, 20), chatLine.text)
-            };
-          }
-          else
-          {
-            List<NuiDrawListItem> chatBreakerDrawList = new List<NuiDrawListItem>();
-            chatSpacer.DrawList = chatBreakerDrawList;
-            string chatBreaker = "";
-            int divider = (int)(textWidth / 8);
+          List<NuiDrawListItem> chatBreakerDrawList = new List<NuiDrawListItem>();
+          chatSpacer.DrawList = chatBreakerDrawList;
+          string remainingText = chatLine.text;
+          int nbCharPerLine = (int)(textWidth / 8);
+          int posXDisplay = 0;
+          int i = 0;
 
-            for (int i = 0; i <= modulo; i++)
-            {
-              if (divider + i * divider > chatLine.text.Length)
-                chatBreaker = chatLine.text.Substring(i * divider);
-              else
-                chatBreaker = chatLine.text.Substring(i * divider, divider);
+          do
+          {
+            string currentLine = remainingText.Length > nbCharPerLine ? remainingText.Substring(0, (int)(textWidth / 8)) : remainingText;
 
-              if (i == 0)
-                chatBreakerDrawList.Add(new NuiDrawListText(color, new NuiRect(0, 2 + i * 23, textWidth, 20), chatBreaker) { Fill = true });
-              else
-                chatBreakerDrawList.Add(new NuiDrawListText(color, new NuiRect(-chatLine.name.Length * 8, 2 + i * 23, textWidth, 20), chatBreaker) { Fill = true });
+            int breakPosition;
+
+            if (remainingText.Length <= nbCharPerLine)
+              breakPosition = currentLine.Length - 1;
+            else
+            {
+              breakPosition = currentLine.Contains(" ") ? currentLine.LastIndexOf(" ") : currentLine.Length - 1;
+              currentLine = currentLine.Substring(0, breakPosition);
             }
-          }
+
+            chatBreakerDrawList.Add(new NuiDrawListText(color, new NuiRect(posXDisplay, 2 + i * 23, textWidth, 20), currentLine) { Fill = true });
+            remainingText = remainingText.Remove(0, breakPosition);
+
+            posXDisplay = -chatLine.name.Length * 11;
+            i++;
+
+          } while (remainingText.Length > 1);
 
           chatCount--;
         }
