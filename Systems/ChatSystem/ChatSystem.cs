@@ -7,7 +7,6 @@ using Anvil.API;
 using Anvil.API.Events;
 using Anvil.Services;
 using Action = System.Action;
-using Newtonsoft.Json;
 
 namespace NWN.Systems
 {
@@ -199,7 +198,7 @@ namespace NWN.Systems
     }
     public static void HandleLanguage(Context ctx)
     {
-      foreach (NwPlayer player in NwModule.Instance.Players.Where(p => p.ControlledCreature.Area == ctx.oSender.ControlledCreature.Area && p.ControlledCreature.Distance(ctx.oSender.ControlledCreature) < chatService.GetPlayerChatHearingDistance(p, ctx.channel)))
+      foreach (NwPlayer player in NwModule.Instance.Players.Where(p => p.ControlledCreature?.Area == ctx.oSender.ControlledCreature?.Area && p.ControlledCreature.Distance(ctx.oSender.ControlledCreature) < chatService.GetPlayerChatHearingDistance(p, ctx.channel)))
       {
         Feat language = (Feat)ctx.oSender.ControlledCreature.GetObjectVariable<LocalVariableInt>("_ACTIVE_LANGUAGE").Value;
 
@@ -221,6 +220,10 @@ namespace NWN.Systems
     public static void ProcessChatColorMiddleware(Context ctx, Action next)
     {
       NwModule.Instance.OnChatMessageSend -= OnNWNXChatEvent;
+      List<ChatLine> chatLines = new List<ChatLine>();
+
+      foreach(string lineBreak in ctx.msg.Split(Environment.NewLine))
+        chatLines.Add(new ChatLine(ctx.oSender.ControlledCreature.PortraitResRef + "t", ctx.oSender.ControlledCreature.Name, ctx.oSender.PlayerName, lineBreak, ctx.channel));
 
       foreach (KeyValuePair<NwPlayer, string> chatReceiver in chatReceivers)
       {
@@ -232,7 +235,11 @@ namespace NWN.Systems
           return;
         }
 
-        player.readChatLines.Add(new ChatLine(ctx.oSender.ControlledCreature.PortraitResRef + "t", ctx.oSender.ControlledCreature.Name, ctx.oSender.PlayerName, chatReceiver.Value, ctx.channel));
+        if (player.readChatLines.Count > 50)
+          player.readChatLines.RemoveAt(0);
+
+        foreach(ChatLine chatLine in chatLines)
+          player.readChatLines.Add(chatLine);
 
         if (player.openedWindows.ContainsKey("chatReader"))
           player.UpdatePlayerChatLog(player.windowRectangles["chatReader"]);

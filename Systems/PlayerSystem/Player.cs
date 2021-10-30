@@ -87,6 +87,8 @@ namespace NWN.Systems
         else
           InitializeDM();
 
+        Players.Add(nwobj.LoginCreature, this);
+
         Log.Info($"Player first initialization : DONE");
       }
 

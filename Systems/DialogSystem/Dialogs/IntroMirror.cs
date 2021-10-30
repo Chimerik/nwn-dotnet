@@ -219,6 +219,7 @@ namespace NWN.Systems
         skill.active = true;
         player.AwaitPlayerStateChangeToCalculateSPGain(skill);
         player.oid.LoginCreature.GetObjectVariable<PersistentVariableInt>("_STARTING_SKILL_POINTS").Delete();
+        player.oid.LoginCreature.Area.GetObjectVariable<LocalVariableInt>("_GO").Value = 1;
         player.CreateSkillJournalEntry(skill);
         DrawWelcomePage(player);
       }

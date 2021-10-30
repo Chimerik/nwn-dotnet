@@ -94,6 +94,12 @@ namespace NWN.Systems
 
         dateLastSaved = DateTime.Now;
 
+        if(windowRectangles == null)
+        {
+          Utils.LogMessageToDMs($"ATTENTION - {oid.LoginCreature.Name} n'a pas été correctement initialisé et n'a pas pu être sauvegardé !");
+          return;
+        }
+
         SavePlayerAccountToDatabase();
         SavePlayerCharacterToDatabase();
         SavePlayerStoredMaterialsToDatabase();

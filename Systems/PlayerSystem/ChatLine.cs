@@ -1,4 +1,6 @@
-﻿using Anvil.Services;
+﻿using System.Collections.Generic;
+
+using Anvil.Services;
 
 namespace NWN.Systems
 {
@@ -8,6 +10,7 @@ namespace NWN.Systems
     public string name { get; set; }
     public string playerName { get; set; }
     public string text { get; set; }
+    public List<string> textHistory { get; set; }
     public ChatChannel channel { get; set; }
 
     public ChatLine(string portrait, string name, string playerName, string text, ChatChannel channel)
@@ -17,6 +20,7 @@ namespace NWN.Systems
       this.playerName = playerName;
       this.text = text;
       this.channel = channel;
+      this.textHistory = new List<string>();
     }
   }
 }

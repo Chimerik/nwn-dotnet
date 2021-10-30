@@ -56,7 +56,7 @@ namespace NWN.Systems
       if(onEnter.EnteringObject is NwCreature { IsPlayerControlled: false })
         return;
       
-       if (NwModule.Instance.Players.Count(p => p.ControlledCreature.Area == area) == 1)
+       if (NwModule.Instance.Players.Count(p => p.ControlledCreature?.Area == area) == 1)
         CreateSpawnChecker(area);
 
       if (!PlayerSystem.Players.TryGetValue(onEnter.EnteringObject, out PlayerSystem.Player player)) //EN FONCTION DE SI LA ZONE EST REST OU PAS, ON AFFICHE LA PROGRESSION DU JOURNAL DE CRAFT
@@ -116,7 +116,7 @@ namespace NWN.Systems
         Log.Info($"{player.oid.PlayerName} vient de quitter la zone {area.Name} en se déconnectant.");
       }
 
-      if (!NwModule.Instance.Players.Any(p => p.ControlledCreature.Area == area))
+      if (!NwModule.Instance.Players.Any(p => p.ControlledCreature?.Area == area))
         AreaCleaner(area);
     }
     public static void OnPersonnalStorageAreaExit(AreaEvents.OnExit onExit)

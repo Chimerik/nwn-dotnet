@@ -54,14 +54,7 @@ namespace NWN.Systems
         return;
       }
 
-      try
-      {
-        command.execute(ctx, optionsResult);
-      }
-      catch (Exception err)
-      {
-        ctx.oSender.SendServerMessage($"\nUnable to process command: {err.Message}", ColorConstants.Red);
-      }
+      command.execute(ctx, optionsResult);
     }
 
     private static string[] __SplitMessage(string msg)

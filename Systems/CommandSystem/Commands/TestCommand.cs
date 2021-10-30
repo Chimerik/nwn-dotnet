@@ -23,8 +23,8 @@ namespace NWN.Systems
       {
         //ctx.oSender.ToNwObject<NwPlayer>().HP = 10;
         //ctx.oSender.ApplyEffect(EffectDuration.Instant, Effect.Death());
-        
-        if (player.oid.PlayerName == "Chim")
+
+        if (player.oid.PlayerName == "Chim" || player.oid.PlayerName == "test")
         {
           player.CreateChatReaderWindow();
 

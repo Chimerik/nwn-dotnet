@@ -17,7 +17,7 @@ namespace NWN.Systems
       {
         foreach (NwWaypoint spawnPoint in area.FindObjectsOfTypeInArea<NwWaypoint>().Where(wp => wp.Tag == "creature_spawn" && wp.GetObjectVariable<LocalVariableBool>("_SPAWN_COOLDOWN").HasNothing))
         {
-          if (NwModule.Instance.Players.Any(p => p.ControlledCreature.Area == area && p.ControlledCreature.DistanceSquared(spawnPoint) < 2026))
+          if (NwModule.Instance.Players.Any(p => p.ControlledCreature?.Area == area && p.ControlledCreature.DistanceSquared(spawnPoint) < 2026))
           {
             /*spawnPoint.GetObjectVariable<LocalVariableBool>("_SPAWN_COOLDOWN").Value = true;
 
@@ -37,7 +37,7 @@ namespace NWN.Systems
       }
         , TimeSpan.FromSeconds(1));
 
-      await NwTask.WaitUntil(() => !NwModule.Instance.Players.Any(p => p.ControlledCreature.Area == area));
+      await NwTask.WaitUntil(() => !NwModule.Instance.Players.Any(p => p.ControlledCreature?.Area == area));
       spawnScheduler.Dispose();
     }
 

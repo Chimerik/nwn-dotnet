@@ -28,10 +28,7 @@ namespace NWN.Systems
       oPC.LoginCreature.GetObjectVariable<LocalVariableInt>("_PLAYER_INPUT_CANCELLED").Delete();
 
       if (!Players.TryGetValue(oPC.LoginCreature, out Player player))
-      {
         player = new Player(oPC);
-        Players.Add(oPC.LoginCreature, player);
-      }
       else
       {
         player.oid = oPC;
@@ -215,13 +212,6 @@ namespace NWN.Systems
           {
             await NwTask.WaitUntil(() => oid.LoginCreature.Location.Area != null);
             oid.LoginCreature.Location = arrivalLocation;
-          });
-
-          Task allPointsSpent = NwTask.Run(async () =>
-          {
-
-            await NwTask.WaitUntil(() => oid.LoginCreature.GetObjectVariable<PersistentVariableInt>("_STARTING_SKILL_POINTS").Value <= 0);
-            arrivalArea.GetObjectVariable<LocalVariableInt>("_GO").Value = 1;
           });
         }
 
@@ -569,6 +559,9 @@ namespace NWN.Systems
       }
       private async void InitializeAccountWindowRectanglesPlayers(string serializedWindowRectangles)
       {
+        if (String.IsNullOrEmpty(serializedWindowRectangles))
+          return;
+
         windowRectangles = await Task.Run(() => JsonConvert.DeserializeObject<Dictionary<string, NuiRect>>(serializedWindowRectangles));
       }
       private async void CheckForAFKStatus()
