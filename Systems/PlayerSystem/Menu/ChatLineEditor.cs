@@ -36,7 +36,7 @@ namespace NWN.Systems
 
         int token = oid.CreateNuiWindow(window, windowId);
 
-        writingChat.SetBindValue(oid, token, chatLineText);
+        writingChat.SetBindValue(oid, token, chatLineText.Replace("[modifié]", ""));
         chatLineIdBinding.SetBindValue(oid, token, chatLineId);
 
         writingChat.SetBindWatch(oid, token, true);
