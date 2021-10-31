@@ -12,15 +12,23 @@ namespace NWN.Systems
     public string text { get; set; }
     public List<string> textHistory { get; set; }
     public ChatChannel channel { get; set; }
+    public ChatCategory category { get; set; }
 
-    public ChatLine(string portrait, string name, string playerName, string text, ChatChannel channel)
+    public ChatLine(string portrait, string name, string playerName, string text, ChatChannel channel, ChatCategory category)
     {
       this.portrait = portrait;
       this.name = name;
       this.playerName = playerName;
       this.text = text;
       this.channel = channel;
-      this.textHistory = new List<string>();
+      this.category = category;
+      textHistory = new List<string>();
+    }
+    public enum ChatCategory
+    {
+      RolePlay,
+      HorsRolePlay,
+      Private
     }
   }
 }

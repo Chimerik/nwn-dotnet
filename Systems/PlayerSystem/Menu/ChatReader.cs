@@ -17,6 +17,7 @@ namespace NWN.Systems
         NuiBind<bool> closable = new NuiBind<bool>("closable");
         NuiBind<bool> resizable = new NuiBind<bool>("resizable");
         NuiBind<bool> makeStatic = new NuiBind<bool>("static");
+        NuiBind<int> chatCategory = new NuiBind<int>("chatCategory");
 
         NuiBind<NuiRect> geometry = new NuiBind<NuiRect>("geometry");
         NuiRect windowRectangle = windowRectangles.ContainsKey(windowId) && windowRectangles[windowId].Width > 0 && windowRectangles[windowId].Width < oid.GetDeviceProperty(PlayerDeviceProperty.GuiWidth) ? windowRectangles[windowId] : new NuiRect(10, oid.GetDeviceProperty(PlayerDeviceProperty.GuiHeight) * 0.01f, oid.GetDeviceProperty(PlayerDeviceProperty.GuiWidth) * 0.7f, oid.GetDeviceProperty(PlayerDeviceProperty.GuiHeight) / 3);
@@ -39,6 +40,8 @@ namespace NWN.Systems
         makeStatic.SetBindValue(oid, token, false);
         resizable.SetBindValue(oid, token, true);
         closable.SetBindValue(oid, token, true);
+        chatCategory.SetBindValue(oid, token, 0);
+        chatCategory.SetBindWatch(oid, token, true);
 
         geometry.SetBindValue(oid, token, windowRectangle);
         geometry.SetBindWatch(oid, token, true);
@@ -52,20 +55,6 @@ namespace NWN.Systems
         
         switch (nuiEvent.ElementId)
         {
-          case "-":
-            Log.Info($"height before : {oid.LoginCreature.GetObjectVariable<LocalVariableFloat>("letterSize").Value}");
-            oid.LoginCreature.GetObjectVariable<LocalVariableFloat>("letterSize").Value -= 0.1f;
-            Log.Info($"height after : {oid.LoginCreature.GetObjectVariable<LocalVariableFloat>("letterSize").Value}");
-            player.UpdatePlayerChatLog(player.windowRectangles["chatReader"]);
-            break;
-
-          case "+":
-            Log.Info($"height before : {oid.LoginCreature.GetObjectVariable<LocalVariableFloat>("letterSize").Value}");
-            oid.LoginCreature.GetObjectVariable<LocalVariableFloat>("letterSize").Value += 0.1f;
-            Log.Info($"height after : {oid.LoginCreature.GetObjectVariable<LocalVariableFloat>("letterSize").Value}");
-            player.UpdatePlayerChatLog(player.windowRectangles["chatReader"]);
-            break;
-
           case "fix":
 
             NuiBind<bool> fixWidgetValue = new NuiBind<bool>("static");
@@ -102,11 +91,55 @@ namespace NWN.Systems
             if (rectangle.Width <= 0 || rectangle.Height <= 0)
               return;
 
+            ChatLine.ChatCategory currentChatCategory = (ChatLine.ChatCategory)new NuiBind<int>("chatCategory").GetBindValue(oid, nuiEvent.WindowToken);
+
             geometry.SetBindWatch(nuiEvent.Player, nuiEvent.WindowToken, false);
-            UpdatePlayerChatLog(rectangle);
+            UpdatePlayerChatLog(rectangle, nuiEvent.WindowToken, currentChatCategory);
             geometry.SetBindWatch(nuiEvent.Player, nuiEvent.WindowToken, true);
             return;
-        }
+
+            case "rpCategory":
+              if (nuiEvent.EventType == NuiEventType.MouseDown)
+              {
+                NuiBind<int> categoryBinding = new NuiBind<int>("chatCategory");
+                ChatLine.ChatCategory categorySelected = (ChatLine.ChatCategory)categoryBinding.GetBindValue(oid, nuiEvent.WindowToken);
+
+                if (categorySelected == ChatLine.ChatCategory.RolePlay)
+                  return;
+
+                categoryBinding.SetBindValue(nuiEvent.Player, nuiEvent.WindowToken, (int)ChatLine.ChatCategory.RolePlay);
+                UpdatePlayerChatLog(new NuiBind<NuiRect>("geometry").GetBindValue(nuiEvent.Player, nuiEvent.WindowToken), nuiEvent.WindowToken, ChatLine.ChatCategory.RolePlay);
+              }
+              return;
+
+            case "hrpCategory":
+              if (nuiEvent.EventType == NuiEventType.MouseDown)
+              {
+                NuiBind<int> categoryBinding = new NuiBind<int>("chatCategory");
+                ChatLine.ChatCategory categorySelected = (ChatLine.ChatCategory)categoryBinding.GetBindValue(oid, nuiEvent.WindowToken);
+
+                if (categorySelected == ChatLine.ChatCategory.HorsRolePlay)
+                  return;
+
+                categoryBinding.SetBindValue(nuiEvent.Player, nuiEvent.WindowToken, (int)ChatLine.ChatCategory.HorsRolePlay);
+                UpdatePlayerChatLog(new NuiBind<NuiRect>("geometry").GetBindValue(nuiEvent.Player, nuiEvent.WindowToken), nuiEvent.WindowToken, ChatLine.ChatCategory.HorsRolePlay);
+              }
+              return;
+
+            case "mpCategory":
+              if (nuiEvent.EventType == NuiEventType.MouseDown)
+              {
+                NuiBind<int> categoryBinding = new NuiBind<int>("chatCategory");
+                ChatLine.ChatCategory categorySelected = (ChatLine.ChatCategory)categoryBinding.GetBindValue(oid, nuiEvent.WindowToken);
+
+                if (categorySelected == ChatLine.ChatCategory.Private)
+                  return;
+
+                categoryBinding.SetBindValue(nuiEvent.Player, nuiEvent.WindowToken, (int)ChatLine.ChatCategory.Private);
+                UpdatePlayerChatLog(new NuiBind<NuiRect>("geometry").GetBindValue(nuiEvent.Player, nuiEvent.WindowToken), nuiEvent.WindowToken, ChatLine.ChatCategory.Private);
+              }
+              return;
+          }
 
         if (nuiEvent.ElementId.StartsWith("chat_"))
         {
@@ -124,9 +157,10 @@ namespace NWN.Systems
       {
         float characterWidth = 8 /* oid.GetDeviceProperty(PlayerDeviceProperty.GuiScale) / 100*/;
         float spaceWidth = 4;
-        float characterHeight = 18f /* oid.GetDeviceProperty(PlayerDeviceProperty.GuiScale) / 100*/;
+        float characterHeight = 18 /* oid.GetDeviceProperty(PlayerDeviceProperty.GuiScale) / 100*/;
 
         NuiBind<bool> makeStatic = new NuiBind<bool>("static");
+        NuiBind<int> chatCategory = new NuiBind<int>("chatCategory");
 
         List<NuiElement> colChidren = new List<NuiElement>();
         NuiColumn col = new NuiColumn() { Children = colChidren };
@@ -139,13 +173,22 @@ namespace NWN.Systems
         NuiColumn colChatLog = new NuiColumn() { Children = colChatLogChidren };
         groupChidren.Add(colChatLog);
 
-        colChatLogChidren.Add(new NuiCheck("Figer", makeStatic) { Id = "fix", Tooltip = "Permet d'ancrer la fenêtre à l'écran", Width = 60 });
+        List<NuiElement> settingsRowChildren = new List<NuiElement>();
+        NuiRow settingsRow = new NuiRow() { Children = settingsRowChildren };
+        colChatLogChidren.Add(settingsRow);
+        
+        settingsRowChildren.Add(new NuiCheck("Figer", makeStatic) { Id = "fix", Tooltip = "Permet d'ancrer la fenêtre à l'écran", Width = 60 });
+        
+        settingsRowChildren.Add(new NuiOptions() { Id = "rpCategory", Tooltip = "Affiche le canal roleplay", Direction = NuiDirection.Horizontal, Options = { "RP" }, ForegroundColor = new NuiColor(142, 146, 151), Width = 60, Height = characterHeight, Margin = 7, Selection = 0 });
+        settingsRowChildren.Add(new NuiOptions() { Id = "hrpCategory", Tooltip = "Affiche le canal hors roleplay", Direction = NuiDirection.Horizontal, Options = { "HRP" }, ForegroundColor = new NuiColor(142, 146, 151), Width = 60, Height = characterHeight, Margin = 7 });
+        settingsRowChildren.Add(new NuiOptions() { Id = "mpCategory", Tooltip = "Affiche le canal roleplay", Direction = NuiDirection.Horizontal, Options = { "MP" }, ForegroundColor = new NuiColor(142, 146, 151), Width = 60, Height = characterHeight, Margin = 7 });
 
-        int chatCount = readChatLines.Count - 1;
+        List<ChatLine> chatList = readChatLines.Where(c => c.category == ChatLine.ChatCategory.RolePlay).ToList();
+        int chatCount = chatList.Count - 1;
 
         while (chatCount >= 0)
         {
-          ChatLine chatLine = readChatLines[chatCount];
+          ChatLine chatLine = chatList[chatCount];
           int nbSpaceInName = chatLine.name.Count(s => s == ' ');
           float nameWidth = (chatLine.name.Length - nbSpaceInName) * characterWidth + nbSpaceInName * spaceWidth;
           List<NuiElement> chatRowChildren = new List<NuiElement>();
@@ -171,7 +214,7 @@ namespace NWN.Systems
             remainingText = remainingText.Replace("[modifié]", "");
           }
 
-          NuiSpacer chatSpacer = new NuiSpacer() { Id = $"chat_{chatCount}", Width = textWidth, Height = /*nbLines == 0 ?*/ characterHeight /*: nbLines * (characterHeight)*/ };
+          NuiSpacer chatSpacer = new NuiSpacer() { Id = $"chat_{chatCount}", Width = textWidth, Height = characterHeight };
           chatRowChildren.Add(chatSpacer);
 
           List<NuiDrawListItem> chatBreakerDrawList = new List<NuiDrawListItem>();
@@ -212,6 +255,7 @@ namespace NWN.Systems
                 }
               });
             }
+
             remainingText = remainingText.Remove(0, breakPosition);
             i++;
 
@@ -225,26 +269,42 @@ namespace NWN.Systems
 
         return col;
       }
-      public void UpdatePlayerChatLog(NuiRect windowRectangle)
+      public void UpdatePlayerChatLog(NuiRect windowRectangle, int windowToken, ChatLine.ChatCategory newChatCategory)
       {
         float characterWidth = 8 /* oid.GetDeviceProperty(PlayerDeviceProperty.GuiScale) / 100*/;
         float spaceWidth = 4;
         float characterHeight = 18f /* oid.GetDeviceProperty(PlayerDeviceProperty.GuiScale) / 100*/;
 
         NuiBind<bool> makeStatic = new NuiBind<bool>("static");
+
+        NuiBind<int> categoryBinding = new NuiBind<int>("chatCategory");
+        ChatLine.ChatCategory currentChatCategory = (ChatLine.ChatCategory)categoryBinding.GetBindValue(oid, windowToken);
+
         List<NuiElement> groupChidren = new List<NuiElement>();
         NuiGroup chatReaderGroup = new NuiGroup() { Id = "chatReaderGroup", Border = false, Children = groupChidren };
 
         List<NuiElement> colChatLogChidren = new List<NuiElement>();
         NuiColumn colChatLog = new NuiColumn() { Children = colChatLogChidren };
         groupChidren.Add(colChatLog);
-        colChatLogChidren.Add(new NuiCheck("Figer", makeStatic) { Id = "fix", Tooltip = "Permet d'ancrer la fenêtre à l'écran", Width = 60 });
 
-        int chatCount = readChatLines.Count - 1;
+        List<NuiElement> settingsRowChildren = new List<NuiElement>();
+        NuiRow settingsRow = new NuiRow() { Children = settingsRowChildren };
+        colChatLogChidren.Add(settingsRow);
+
+        Log.Info($"currenet category : {currentChatCategory}");
+        Log.Info($"new category : {newChatCategory}");
+
+        settingsRowChildren.Add(new NuiCheck("Figer", makeStatic) { Id = "fix", Tooltip = "Permet d'ancrer la fenêtre à l'écran", Width = 60 });
+        settingsRowChildren.Add(new NuiOptions() { Id = "rpCategory", Tooltip = "Affiche le canal roleplay", Direction = NuiDirection.Horizontal, Options = { "RP" }, ForegroundColor = newChatCategory == ChatLine.ChatCategory.RolePlay && currentChatCategory != ChatLine.ChatCategory.RolePlay ? new NuiColor(255, 255, 255) : new NuiColor(142, 146, 151), Width = 60, Height = characterHeight, Margin = 7, Selection = currentChatCategory == ChatLine.ChatCategory.RolePlay ? 0 : 1 });
+        settingsRowChildren.Add(new NuiOptions() { Id = "hrpCategory", Tooltip = "Affiche le canal hors roleplay", Direction = NuiDirection.Horizontal, Options = { "HRP" }, ForegroundColor = newChatCategory == ChatLine.ChatCategory.HorsRolePlay && currentChatCategory != ChatLine.ChatCategory.HorsRolePlay ? new NuiColor(255, 255, 255) : new NuiColor(142, 146, 151), Width = 60, Height = characterHeight, Margin = 7, Selection = currentChatCategory == ChatLine.ChatCategory.HorsRolePlay ? 0 : 1 });
+        settingsRowChildren.Add(new NuiOptions() { Id = "mpCategory", Tooltip = "Affiche le canal roleplay", Direction = NuiDirection.Horizontal, Options = { "MP" }, ForegroundColor = newChatCategory == ChatLine.ChatCategory.Private && currentChatCategory != ChatLine.ChatCategory.Private ? new NuiColor(255, 255, 255) : new NuiColor(142, 146, 151), Width = 60, Height = characterHeight, Margin = 7, Selection = currentChatCategory == ChatLine.ChatCategory.Private ? 0 : 1 });
+
+        List<ChatLine> chatList = readChatLines.Where(c => c.category == (ChatLine.ChatCategory)new NuiBind<int>("chatCategory").GetBindValue(oid, windowToken)).ToList();
+        int chatCount = chatList.Count - 1;
 
         while (chatCount >= 0)
         {
-          ChatLine chatLine = readChatLines[chatCount];
+          ChatLine chatLine = chatList[chatCount];
           int nbSpaceInName = chatLine.name.Count(s => s == ' ');
           float nameWidth = (chatLine.name.Length - nbSpaceInName) * characterWidth + nbSpaceInName * spaceWidth;
           List<NuiElement> chatRowChildren = new List<NuiElement>();

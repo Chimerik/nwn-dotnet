@@ -222,8 +222,10 @@ namespace NWN.Systems
       NwModule.Instance.OnChatMessageSend -= OnNWNXChatEvent;
       List<ChatLine> chatLines = new List<ChatLine>();
 
-      foreach(string lineBreak in ctx.msg.Split(Environment.NewLine))
-        chatLines.Add(new ChatLine(ctx.oSender.ControlledCreature.PortraitResRef + "t", ctx.oSender.ControlledCreature.Name, ctx.oSender.PlayerName, lineBreak, ctx.channel));
+      ChatLine.ChatCategory chatCategory = ctx.msg.Trim().StartsWith("(") || ctx.channel == ChatChannel.PlayerParty ? ChatLine.ChatCategory.HorsRolePlay : ChatLine.ChatCategory.RolePlay;
+
+      foreach (string lineBreak in ctx.msg.Split(Environment.NewLine))
+        chatLines.Add(new ChatLine(ctx.oSender.ControlledCreature.PortraitResRef + "t", ctx.oSender.ControlledCreature.Name + " : ", ctx.oSender.PlayerName, lineBreak, ctx.channel, chatCategory));
 
       foreach (KeyValuePair<NwPlayer, string> chatReceiver in chatReceivers)
       {
@@ -242,7 +244,7 @@ namespace NWN.Systems
           player.readChatLines.Add(chatLine);
 
         if (player.openedWindows.ContainsKey("chatReader"))
-          player.UpdatePlayerChatLog(player.windowRectangles["chatReader"]);
+          player.UpdatePlayerChatLog(player.windowRectangles["chatReader"], player.openedWindows["chatReader"], chatCategory);
 
         string coloredChat = chatReceiver.Value;
 
