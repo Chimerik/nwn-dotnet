@@ -51,6 +51,7 @@ namespace NWN.Systems
       public Dictionary<int, MapPin> mapPinDictionnary = new Dictionary<int, MapPin>();
       public Dictionary<string, byte[]> areaExplorationStateDictionnary = new Dictionary<string, byte[]>();
       public Dictionary<ChatChannel, Color> chatColors = new Dictionary<ChatChannel, Color>();
+      public Dictionary<string, PlayerWindow> windows = new Dictionary<string, PlayerWindow>();
       public Dictionary<string, NuiRect> windowRectangles = new Dictionary<string, NuiRect>();
       public Dictionary<string, int> openedWindows = new Dictionary<string, int>();
       public List<ChatLine> readChatLines = new List<ChatLine>();
@@ -213,7 +214,7 @@ namespace NWN.Systems
         switch (window)
         {
           case "chat":
-            openedWindows[window] = CreateChatWindow();
+            windows.Add(window, new ChatWriterWindow(this, window));
             break;
           case "chatReader":
             openedWindows[window] = CreateChatReaderWindow();

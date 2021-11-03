@@ -12,7 +12,6 @@ using Anvil.Services;
 using NWN.Systems.Craft;
 using Color = Anvil.API.Color;
 using System.Threading;
-using System.Text.Json;
 using Newtonsoft.Json;
 using JsonSerializer = System.Text.Json.JsonSerializer;
 

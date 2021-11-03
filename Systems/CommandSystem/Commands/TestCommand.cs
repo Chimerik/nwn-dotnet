@@ -26,7 +26,9 @@ namespace NWN.Systems
 
         if (player.oid.PlayerName == "Chim" || player.oid.PlayerName == "test")
         {
-          player.CreateChatReaderWindow();
+          PlayerSystem.Player.ChatWriterWindow test = new PlayerSystem.Player.ChatWriterWindow(player, "chat");
+
+          //player.CreateChatReaderWindow();
 
           //Test.Example example = new Test.Example();
           //example.testDrawList(player.oid);

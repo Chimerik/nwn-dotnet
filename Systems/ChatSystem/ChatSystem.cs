@@ -225,7 +225,8 @@ namespace NWN.Systems
       ChatLine.ChatCategory chatCategory = ctx.msg.Trim().StartsWith("(") || ctx.channel == ChatChannel.PlayerParty ? ChatLine.ChatCategory.HorsRolePlay : ChatLine.ChatCategory.RolePlay;
 
       foreach (string lineBreak in ctx.msg.Split(Environment.NewLine))
-        chatLines.Add(new ChatLine(ctx.oSender.ControlledCreature.PortraitResRef + "t", ctx.oSender.ControlledCreature.Name + " : ", ctx.oSender.PlayerName, lineBreak, ctx.channel, chatCategory));
+        if(lineBreak.Trim().Length > 0)
+          chatLines.Add(new ChatLine(ctx.oSender.ControlledCreature.PortraitResRef + "t", ctx.oSender.ControlledCreature.Name + " : ", ctx.oSender.PlayerName, lineBreak, ctx.channel, chatCategory));
 
       foreach (KeyValuePair<NwPlayer, string> chatReceiver in chatReceivers)
       {

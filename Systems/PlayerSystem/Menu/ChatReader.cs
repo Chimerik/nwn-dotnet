@@ -371,6 +371,7 @@ namespace NWN.Systems
                 }
               });
             }
+
             remainingText = remainingText.Remove(0, breakPosition);
             i++;
 
