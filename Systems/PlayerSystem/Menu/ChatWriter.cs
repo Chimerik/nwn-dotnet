@@ -232,8 +232,8 @@ namespace NWN.Systems
               geometry.SetBindWatch(nuiEvent.Player, nuiEvent.WindowToken, false);
               textEdit.Width = rectangle.Width * 0.96f;
               nuiEvent.Player.NuiSetGroupLayout(nuiEvent.WindowToken, chatWriterGroup.Id, chatWriterGroup);
-
               geometry.SetBindWatch(nuiEvent.Player, nuiEvent.WindowToken, true);
+
               break;
           }
         }

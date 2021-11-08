@@ -138,7 +138,11 @@ namespace NWN.Systems
 
               colChatLogChidren.Clear();
               colChatLogChidren.Add(settingsRow);
-              CreateChatRows();
+
+              if (currentCategory == ChatLine.ChatCategory.Private)
+                CreatePMRows();
+              else
+                CreateChatRows();
 
               rpCategory.ForegroundColor = rpPreviousColor;
               hrpCategory.ForegroundColor = hrpPreviousColor;
@@ -151,7 +155,6 @@ namespace NWN.Systems
             case "rpCategory":
               if (nuiEvent.EventType == NuiEventType.MouseDown && currentCategory != ChatLine.ChatCategory.RolePlay)
               {
-                ChatLine.ChatCategory previousCategory = currentCategory;
                 currentCategory = ChatLine.ChatCategory.RolePlay;
                 
                 rpCategory.Selection = 0;
@@ -161,19 +164,14 @@ namespace NWN.Systems
                 colChatLogChidren.Clear();
                 colChatLogChidren.Add(settingsRow);
 
+                NuiProperty<NuiColor> previousHrp = hrpCategory.ForegroundColor;
+                NuiProperty<NuiColor> previousMP = mpCategory.ForegroundColor;
+
                 CreateChatRows();
 
                 rpCategory.ForegroundColor = new NuiColor(142, 146, 151);
-
-                switch(previousCategory)
-                {
-                  case ChatLine.ChatCategory.HorsRolePlay:
-                    hrpCategory.ForegroundColor = new NuiColor(142, 146, 151);
-                    break;
-                  case ChatLine.ChatCategory.Private:
-                    mpCategory.ForegroundColor = new NuiColor(142, 146, 151);
-                    break;
-                }
+                hrpCategory.ForegroundColor = previousHrp;
+                mpCategory.ForegroundColor = previousMP;
 
                 player.oid.NuiSetGroupLayout(nuiEvent.WindowToken, "chatReaderGroup", chatReaderGroup);
               }
@@ -182,12 +180,14 @@ namespace NWN.Systems
             case "hrpCategory":
               if (nuiEvent.EventType == NuiEventType.MouseDown && currentCategory != ChatLine.ChatCategory.HorsRolePlay)
               {
-                ChatLine.ChatCategory previousCategory = currentCategory;
                 currentCategory = ChatLine.ChatCategory.HorsRolePlay;
                 
                 hrpCategory.Selection = 0;
                 rpCategory.Selection = 1;
                 mpCategory.Selection = 1;
+
+                NuiProperty<NuiColor> previousRp = rpCategory.ForegroundColor;
+                NuiProperty<NuiColor> previousMP = mpCategory.ForegroundColor;
 
                 colChatLogChidren.Clear();
                 colChatLogChidren.Add(settingsRow);
@@ -195,16 +195,8 @@ namespace NWN.Systems
                 CreateChatRows();
 
                 hrpCategory.ForegroundColor = new NuiColor(142, 146, 151);
-
-                switch (previousCategory)
-                {
-                  case ChatLine.ChatCategory.RolePlay:
-                    rpCategory.ForegroundColor = new NuiColor(142, 146, 151);
-                    break;
-                  case ChatLine.ChatCategory.Private:
-                    mpCategory.ForegroundColor = new NuiColor(142, 146, 151);
-                    break;
-                }
+                rpCategory.ForegroundColor = previousRp;
+                mpCategory.ForegroundColor = previousMP;
 
                 player.oid.NuiSetGroupLayout(nuiEvent.WindowToken, "chatReaderGroup", chatReaderGroup);
               }
@@ -214,12 +206,14 @@ namespace NWN.Systems
 
               if (nuiEvent.EventType == NuiEventType.MouseDown && currentCategory != ChatLine.ChatCategory.Private)
               {
-                ChatLine.ChatCategory previousCategory = currentCategory;
                 currentCategory = ChatLine.ChatCategory.Private;
 
                 mpCategory.Selection = 0;
                 rpCategory.Selection = 1;
                 hrpCategory.Selection = 1;
+
+                NuiProperty<NuiColor> previousRp = rpCategory.ForegroundColor;
+                NuiProperty<NuiColor> previousHrp = hrpCategory.ForegroundColor;
 
                 colChatLogChidren.Clear();
                 colChatLogChidren.Add(settingsRow);
@@ -227,16 +221,8 @@ namespace NWN.Systems
                 CreatePMRows();
 
                 mpCategory.ForegroundColor = new NuiColor(142, 146, 151);
-
-                switch (previousCategory)
-                {
-                  case ChatLine.ChatCategory.RolePlay:
-                    rpCategory.ForegroundColor = new NuiColor(142, 146, 151);
-                    break;
-                  case ChatLine.ChatCategory.HorsRolePlay:
-                    hrpCategory.ForegroundColor = new NuiColor(142, 146, 151);
-                    break;
-                }
+                rpCategory.ForegroundColor = previousRp;
+                hrpCategory.ForegroundColor = previousHrp;
 
                 player.oid.NuiSetGroupLayout(nuiEvent.WindowToken, "chatReaderGroup", chatReaderGroup);
               }
@@ -254,7 +240,7 @@ namespace NWN.Systems
 
             if (chatLine.playerName == nuiEvent.Player.PlayerName)
               player.CreateChatLineEditorWindow(chatLine.text, chatLineId);
-            else if (chatLine.textHistory.Count > 0)
+            else if (chatLine.textHistory.Count > 1)
               player.CreateChatLineHistoryWindow(chatLine.textHistory);
           }
           else if (nuiEvent.ElementId.StartsWith("pm_"))
@@ -289,8 +275,11 @@ namespace NWN.Systems
         private void CreateChatRows()
         {
           int chatId = 0;
-          foreach(ChatLine chatLine in player.readChatLines)
-            AddNewChat(chatLine, chatId += 1);
+          foreach (ChatLine chatLine in player.readChatLines)
+          {
+            AddNewChat(chatLine, chatId);
+            chatId++;
+          }
         }
 
         public void InsertNewChatInWindow(ChatLine chatLine)

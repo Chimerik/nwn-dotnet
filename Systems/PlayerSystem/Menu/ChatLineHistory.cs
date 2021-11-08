@@ -20,7 +20,7 @@ namespace NWN.Systems
 
         int historyCount = chatLineHistory.Count - 1;
 
-        while (historyCount >= 0)
+        while (historyCount != 0)
         {
           string lineHistory = chatLineHistory[historyCount];
 
@@ -33,6 +33,7 @@ namespace NWN.Systems
           };
 
           colChildren.Add(row);
+          historyCount--;
         }
 
         NuiWindow window = new NuiWindow(root, "Itérations précédentes de la ligne de chat")

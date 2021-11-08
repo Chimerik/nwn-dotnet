@@ -27,6 +27,7 @@ namespace NWN.Systems
       this.channel = channel;
       this.category = category;
       textHistory = new List<string>();
+      textHistory.Add(this.text);
     }
     public enum ChatCategory
     {

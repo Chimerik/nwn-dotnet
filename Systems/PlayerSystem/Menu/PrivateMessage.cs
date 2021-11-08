@@ -208,7 +208,10 @@ namespace NWN.Systems
         {
           int chatId = 0;
           foreach (ChatLine chatLine in player.readChatLines)
-            AddNewChat(chatLine, chatId += 1);
+          {
+            AddNewChat(chatLine, chatId);
+            chatId++;
+          }
         }
         public void InsertNewChatInWindow(ChatLine chatLine)
         {
