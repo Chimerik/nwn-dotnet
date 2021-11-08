@@ -22,6 +22,12 @@ namespace NWN
         default: return input.First().ToString().ToUpper() + input.Substring(1);
       }
     }
+
+    public static int NthIndexOf(string s, char c, int n)
+    {
+      var takeCount = s.TakeWhile(x => (n -= (x == c ? 1 : 0)) > 0).Count();
+      return takeCount == s.Length ? -1 : takeCount;
+    }
     public static string ToDescription(this Enum value)
     {
       FieldInfo field = value.GetType().GetField(value.ToString());
@@ -88,7 +94,7 @@ namespace NWN
       {
         if (openedWindows.Count > 0)
         {
-          await JsonSerializer.SerializeAsync(stream, openedWindows);
+          await JsonSerializer.SerializeAsync(stream, openedWindows.Where(w => w.Key == "chatReader" || w.Key == "chat"));
           stream.Position = 0;
           using var reader = new StreamReader(stream);
           return await reader.ReadToEndAsync();

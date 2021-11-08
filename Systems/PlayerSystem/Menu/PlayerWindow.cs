@@ -8,7 +8,7 @@ namespace NWN.Systems
     {
       public abstract class PlayerWindow
       {
-        protected string windowId { get; }
+        protected string windowId { get; set; }
         protected NuiBind<bool> closable { get; }
         protected NuiBind<bool> resizable { get; }
         protected NuiBind<NuiRect> geometry { get; }
@@ -16,10 +16,10 @@ namespace NWN.Systems
         protected NuiWindow window { get; set; }
         protected int token { get; set; }
 
-        public PlayerWindow(Player player, string windowId)
+        public PlayerWindow(Player player)
         {
-          this.windowId = windowId;
           this.player = player;
+          token = -1;
           closable = new NuiBind<bool>("closable");
           resizable = new NuiBind<bool>("resizable");
           geometry = new NuiBind<NuiRect>("geometry");

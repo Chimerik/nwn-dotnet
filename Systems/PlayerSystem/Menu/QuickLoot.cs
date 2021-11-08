@@ -1,6 +1,8 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 
 using Anvil.API;
+using Anvil.API.Events;
 
 namespace NWN.Systems
 {
@@ -8,78 +10,109 @@ namespace NWN.Systems
   {
     public partial class Player
     {
-      public void CreateQuickLootWindow(NwItem oItem)
+      public class QuickLootWindow : PlayerWindow
       {
-        string windowId = "quickLoot";
-        NuiBind<string> icon = new NuiBind<string>("icon");
-        NuiBind<string> itemName = new NuiBind<string>("itemName");
-        NuiBind<int> channel = new NuiBind<int>("channel");
-        NuiBind<bool> closable = new NuiBind<bool>("closable");
-        NuiBind<bool> resizable = new NuiBind<bool>("resizable");
-        NuiBind<bool> makeStatic = new NuiBind<bool>("static");
-        NuiBind<uint> item = new NuiBind<uint>("item");
-        NuiBind<NuiRect> geometry = new NuiBind<NuiRect>("geometry");
-        NuiRect windowRectangle = windowRectangles.ContainsKey(windowId) && windowRectangles[windowId].Width > 0 && windowRectangles[windowId].Width <= oid.GetDeviceProperty(PlayerDeviceProperty.GuiWidth) ? windowRectangles[windowId] : new NuiRect(10, oid.GetDeviceProperty(PlayerDeviceProperty.GuiHeight) * 0.01f, oid.GetDeviceProperty(PlayerDeviceProperty.GuiWidth) * 0.7f, oid.GetDeviceProperty(PlayerDeviceProperty.GuiHeight) / 3);
+        NuiGroup rootGroup { get; }
+        List<NuiElement> rowList { get; }
 
-        // Construct the window layout.
-        NuiColumn root = new NuiColumn
+        public QuickLootWindow(Player player) : base(player)
         {
-          Children = new List<NuiElement>
+          windowId = "quickLoot";
+
+          rowList = new List<NuiElement>();
+          NuiColumn rootColumn = new NuiColumn() { Children = rowList };
+          rootGroup = new NuiGroup() { Id = "quickLootGroup", Border = false, Padding = 0, Margin = 0, Children = new List<NuiElement> { rootColumn } };
+
+          foreach(NwItem item in player.oid.ControlledCreature.Area.FindObjectsOfTypeInArea<NwItem>().Where(i => i.IsValid && i.DistanceSquared(player.oid.ControlledCreature) < 16 && i.GetObjectVariable<LocalVariableBool>($"{player.oid.PlayerName}_IGNORE_QUICKLOOT").HasNothing))
           {
-            new NuiGroup
+            rowList.Add(new NuiRow() 
             {
-              Border = true,
-              Height = 60,
               Children = new List<NuiElement>
               {
-                new NuiRow
-                {
-                  Children = new List<NuiElement>
-                  {
-                    new NuiButtonImage(icon) { Id = "examine", Height = 50, Width = 50, Tooltip = "Description" },
-                    new NuiLabel(itemName),
-                    new NuiButton("Prendre") { Id = "take", Height = 50 },
-                    new NuiButton("Voler") { Id = "steal", Height = 50 },
-                    new NuiButtonImage("menu_exit") { Id = "ignore", Height = 50, Width = 50, Tooltip = "Ignorer" }
-                  }
-                },
+                Utils.Util_GetIconResref(item),
+                new NuiLabel(item.Name) { HorizontalAlign = NuiHAlign.Left, VerticalAlign = NuiVAlign.Top, Margin = 10 },
+                new NuiButton("Prendre") { Id = "take", Height = 30, Width = 60,  },
+                new NuiButton("Voler") { Id = "steal", Height = 30, Width = 60 },
+                new NuiButtonImage("menu_exit") { Id = "ignore", Height = 30, Width = 30, Tooltip = "Ignorer" }
               }
-            }
+            });
           }
-        };
-
-        NuiWindow window = new NuiWindow(root, "")
-        {
-          Geometry = geometry,
-          Resizable = resizable,
-          Collapsed = false,
-          Closable = closable,
-          Transparent = true,
-          Border = false,
-        };
-
-        int token = oid.CreateNuiWindow(window, windowId);
-
-        if(oItem.IsValid && oItem.GetObjectVariable<LocalVariableBool>($"{oid.PlayerName}_IGNORE_QUICKLOOT").HasNothing)
-        {
-          icon.SetBindValue(oid, token, Utils.Util_GetIconResref(oItem));
-          itemName.SetBindValue(oid, token, oItem.Name);
-          item.SetBindValue(oid, token, oItem);
+          
+          CreateWindow();
         }
-        /* ex pour complexe icon resref
-         * json jImage = NuiImage(NuiBind("image_1"), JsonInt(NUI_ASPECT_EXACTSCALED), JsonInt(NUI_HALIGN_CENTER), JsonInt(NUI_VALIGN_TOP));
-        json jRect = NuiRect(0.0f, 0.0f, 64.0f, 192.0f);
-        json jDrawList = JsonArray();
-            jDrawList = JsonArrayInsert(jDrawList, NuiDrawListImage(NuiBind("complex_item"), NuiBind("image_2"), jRect, JsonInt(NUI_ASPECT_EXACTSCALED), JsonInt(NUI_HALIGN_CENTER), JsonInt(NUI_VALIGN_TOP)));
-            jDrawList = JsonArrayInsert(jDrawList, NuiDrawListImage(NuiBind("complex_item"), NuiBind("image_3"), jRect, JsonInt(NUI_ASPECT_EXACTSCALED), JsonInt(NUI_HALIGN_CENTER), JsonInt(NUI_VALIGN_TOP)));
-        jImage = NuiDrawList(jImage, JsonBool(TRUE), jDrawList);
-        jImage = NuiWidth(jImage, 64.0f);
-        jImage = NuiHeight(jImage, 192.0f);
-        */ 
 
-        resizable.SetBindValue(oid, token, true);
-        geometry.SetBindValue(oid, token, windowRectangle);
-        geometry.SetBindWatch(oid, token, true);
+        public void CreateWindow()
+        {
+          NuiRect windowRectangle = player.windowRectangles.ContainsKey(windowId) && player.windowRectangles[windowId].Width > 0 && player.windowRectangles[windowId].Width <= player.oid.GetDeviceProperty(PlayerDeviceProperty.GuiWidth) ? player.windowRectangles[windowId] : new NuiRect(10, player.oid.GetDeviceProperty(PlayerDeviceProperty.GuiHeight) * 0.01f, player.oid.GetDeviceProperty(PlayerDeviceProperty.GuiWidth) * 0.7f, player.oid.GetDeviceProperty(PlayerDeviceProperty.GuiHeight) / 3);
+
+          window = new NuiWindow(rootGroup, "")
+          {
+            Geometry = geometry,
+            Resizable = resizable,
+            Collapsed = false,
+            Closable = closable,
+            Transparent = true,
+            Border = false,
+          };
+
+          player.oid.OnNuiEvent -= HandleQuickLootEvents;
+          player.oid.OnNuiEvent += HandleQuickLootEvents;
+
+          token = player.oid.CreateNuiWindow(window, windowId);
+
+          resizable.SetBindValue(player.oid, token, true);
+          geometry.SetBindValue(player.oid, token, windowRectangle);
+          geometry.SetBindWatch(player.oid, token, true);
+        }
+
+        private void HandleQuickLootEvents(ModuleEvents.OnNuiEvent nuiEvent)
+        {
+          if (nuiEvent.Player.NuiGetWindowId(nuiEvent.WindowToken) != windowId)
+            return;
+
+          switch (nuiEvent.ElementId)
+          {
+            case "examine":
+
+              if (nuiEvent.EventType == NuiEventType.Click)
+                nuiEvent.Player.ActionExamine(new NuiBind<uint>("item").GetBindValue(nuiEvent.Player, nuiEvent.WindowToken).ToNwObject<NwItem>());
+
+              break;
+
+            case "take":
+
+              if (nuiEvent.EventType == NuiEventType.Click)
+              {
+                NwItem item = new NuiBind<uint>("item").GetBindValue(nuiEvent.Player, nuiEvent.WindowToken).ToNwObject<NwItem>();
+                if (item.IsValid && item.Possessor is null)
+                {
+                  item.Destroy();
+                  item.Clone(nuiEvent.Player.ControlledCreature);
+
+                  foreach (NwCreature nearbyPlayer in nuiEvent.Player.ControlledCreature.Area.FindObjectsOfTypeInArea<NwCreature>().Where(p => p.IsPlayerControlled && p.DistanceSquared(item) < 25))
+                    nearbyPlayer.ControllingPlayer.SendServerMessage($"{nuiEvent.Player.ControlledCreature.Name.ColorString(ColorConstants.White)} ramasse {item.Name.ColorString(ColorConstants.White)}.");
+                }
+
+
+              }
+
+              break;
+
+            case "ignore":
+
+              if (nuiEvent.EventType == NuiEventType.Click)
+              {
+                NwItem item = new NuiBind<uint>("item").GetBindValue(nuiEvent.Player, nuiEvent.WindowToken).ToNwObject<NwItem>();
+                if (item.IsValid)
+                {
+                  item.GetObjectVariable<LocalVariableBool>($"{nuiEvent.Player.PlayerName}_IGNORE_QUICKLOOT").Value = true;
+                }
+
+              }
+
+              break;
+          }
+        }
       }
     }
   }

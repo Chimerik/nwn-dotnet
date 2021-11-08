@@ -17,16 +17,16 @@ namespace NWN.Systems
         NuiBind<string> writingChat { get; }
         NuiBind<int> channel { get; }
         NuiBind<bool> makeStatic { get; }
-        NuiBind<bool> multiline { get; }
-        NuiGroup chatWriterGroup { get; set; }
-        NuiTextEdit textEdit { get; set; }
+        NuiGroup chatWriterGroup { get; }
+        NuiTextEdit textEdit { get; }
+        bool isChatHRP { get; set; }
 
-        public ChatWriterWindow(Player player, string windowId) : base(player, windowId)
+        public ChatWriterWindow(Player player) : base(player)
         {
+          windowId = "chat";
           writingChat = new NuiBind<string>("writingChat");
           channel = new NuiBind<int>("channel");
           makeStatic = new NuiBind<bool>("static");
-          multiline = new NuiBind<bool>("multiLine");
           NuiRect windowRectangle = player.windowRectangles.ContainsKey(windowId) && player.windowRectangles[windowId].Width > 0 && player.windowRectangles[windowId].Width <= player.oid.GetDeviceProperty(PlayerDeviceProperty.GuiWidth) ? player.windowRectangles[windowId] : new NuiRect(10, player.oid.GetDeviceProperty(PlayerDeviceProperty.GuiHeight) * 0.01f, player.oid.GetDeviceProperty(PlayerDeviceProperty.GuiWidth) * 0.7f, player.oid.GetDeviceProperty(PlayerDeviceProperty.GuiHeight) / 3);
 
           List<NuiComboEntry> comboValues = new List<NuiComboEntry>
@@ -64,15 +64,6 @@ namespace NWN.Systems
                 }
               },
               chatWriterGroup,
-              new NuiRow
-              {
-                Children = new List<NuiElement>
-                {
-                  new NuiSpacer(),
-                  new NuiCheck("Multi-ligne", multiline) { Tooltip = "Si multi-ligne est coché, permet d'écrire un texte sur plusieurs lignes. Si la case est décochée, entrée envoie le texte."},
-                  new NuiSpacer()
-                }
-              }
             }
           };
 
@@ -91,13 +82,11 @@ namespace NWN.Systems
 
           token = player.oid.CreateNuiWindow(window, windowId);
 
-          writingChat.SetBindValue(player.oid, token, player.oid.LoginCreature.GetObjectVariable<LocalVariableString>("_CURRENT_CHAT").Value);
+          writingChat.SetBindValue(player.oid, token, writingChat.GetBindValue(player.oid, token));
           channel.SetBindValue(player.oid, token, 0);
           makeStatic.SetBindValue(player.oid, token, false);
           resizable.SetBindValue(player.oid, token, true);
           closable.SetBindValue(player.oid, token, true);
-          multiline.SetBindValue(player.oid, token, false);
-
           writingChat.SetBindWatch(player.oid, token, true);
 
           geometry.SetBindValue(player.oid, token, windowRectangle);
@@ -107,7 +96,7 @@ namespace NWN.Systems
         }
         private void HandleChatWriterEvents(ModuleEvents.OnNuiEvent nuiEvent)
         {
-          if (nuiEvent.Player.NuiGetWindowId(nuiEvent.WindowToken) != "chat")
+          if (nuiEvent.Player.NuiGetWindowId(nuiEvent.WindowToken) != windowId)
             return;
 
           switch (nuiEvent.ElementId)
@@ -142,12 +131,12 @@ namespace NWN.Systems
                   if ((channelValue == 1 || channelValue == 3) && !(command.Trim().StartsWith("/") || command.Trim().StartsWith("!") || command.Trim().StartsWith("(")))
                   {
                     visualMark = Effect.VisualEffect((VfxType)1248);
-                    player.oid.LoginCreature.GetObjectVariable<LocalVariableBool>("_CURRENT_CHAT_HRP").Delete();
+                    isChatHRP = false;
                   }
                   else
                   {
                     visualMark = Effect.VisualEffect((VfxType)1249);
-                    player.oid.LoginCreature.GetObjectVariable<LocalVariableBool>("_CURRENT_CHAT_HRP").Value = true;
+                    isChatHRP = true;
                   }
 
                   visualMark.Tag = "VFX_SPEAKING_MARK";
@@ -178,7 +167,7 @@ namespace NWN.Systems
 
               if ((chatChannel == 1 || chatChannel == 3) && !(chatText.Trim().StartsWith("/") || chatText.Trim().StartsWith("!") || chatText.Trim().StartsWith("(")))
               {
-                if (player.oid.LoginCreature.GetObjectVariable<LocalVariableBool>("_CURRENT_CHAT_HRP").HasValue)
+                if (isChatHRP)
                 {
                   foreach (Effect eff in nuiEvent.Player.ControlledCreature.ActiveEffects.Where(e => e.Tag == "VFX_SPEAKING_MARK"))
                     nuiEvent.Player.ControlledCreature.RemoveEffect(eff);
@@ -188,12 +177,12 @@ namespace NWN.Systems
                   visualMark.SubType = EffectSubType.Supernatural;
                   nuiEvent.Player.ControlledCreature.ApplyEffect(EffectDuration.Permanent, visualMark);
 
-                  player.oid.LoginCreature.GetObjectVariable<LocalVariableBool>("_CURRENT_CHAT_HRP").Delete();
+                  isChatHRP = false;
                 }
               }
               else
               {
-                if (player.oid.LoginCreature.GetObjectVariable<LocalVariableBool>("_CURRENT_CHAT_HRP").HasNothing)
+                if (!isChatHRP)
                 {
                   foreach (Effect eff in nuiEvent.Player.ControlledCreature.ActiveEffects.Where(e => e.Tag == "VFX_SPEAKING_MARK"))
                     nuiEvent.Player.ControlledCreature.RemoveEffect(eff);
@@ -203,28 +192,32 @@ namespace NWN.Systems
                   visualMark.SubType = EffectSubType.Supernatural;
                   nuiEvent.Player.ControlledCreature.ApplyEffect(EffectDuration.Permanent, visualMark);
 
-                  player.oid.LoginCreature.GetObjectVariable<LocalVariableBool>("_CURRENT_CHAT_HRP").Value = true;
+                  isChatHRP = true;
                 }
               }
 
-              player.oid.LoginCreature.GetObjectVariable<LocalVariableString>("_CURRENT_CHAT").Value = chatText;
-
-              if (multiline.GetBindValue(nuiEvent.Player, nuiEvent.WindowToken))
-                return;
-
-              if (chatText.Substring(chatText.Length - 1).Contains(Environment.NewLine))
+              if (chatText.Contains(Environment.NewLine))
               {
-                chatText = chatText.Substring(0, chatText.Length - 1);
+                int pos = 0;
 
-                ChatWriterSendMessage(chatText, channel.GetBindValue(nuiEvent.Player, nuiEvent.WindowToken));
-                player.oid.LoginCreature.GetObjectVariable<LocalVariableString>("_CURRENT_CHAT").Delete();
+                foreach(char c in chatText)
+                {
+                  if (c == '\n' && pos != 0  && chatText[pos - 1] != ' ')
+                  {
+                    chatText = chatText.Remove(pos, 1);
 
-                foreach (Effect eff in nuiEvent.Player.ControlledCreature.ActiveEffects.Where(e => e.Tag == "VFX_SPEAKING_MARK"))
-                  nuiEvent.Player.ControlledCreature.RemoveEffect(eff);
+                    ChatWriterSendMessage(chatText, channel.GetBindValue(nuiEvent.Player, nuiEvent.WindowToken));
 
-                writingChat.SetBindWatch(nuiEvent.Player, nuiEvent.WindowToken, false);
-                writingChat.SetBindValue(nuiEvent.Player, nuiEvent.WindowToken, "");
-                writingChat.SetBindWatch(nuiEvent.Player, nuiEvent.WindowToken, true);
+                    foreach (Effect eff in nuiEvent.Player.ControlledCreature.ActiveEffects.Where(e => e.Tag == "VFX_SPEAKING_MARK"))
+                      nuiEvent.Player.ControlledCreature.RemoveEffect(eff);
+
+                    writingChat.SetBindWatch(nuiEvent.Player, nuiEvent.WindowToken, false);
+                    writingChat.SetBindValue(nuiEvent.Player, nuiEvent.WindowToken, "");
+                    writingChat.SetBindWatch(nuiEvent.Player, nuiEvent.WindowToken, true);
+                  }
+
+                  pos++;
+                }
               }
 
               break;

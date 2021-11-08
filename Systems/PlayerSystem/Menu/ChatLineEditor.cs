@@ -70,7 +70,7 @@ namespace NWN.Systems
             chatLine.text = chatText + "[modifié]";
 
             foreach (KeyValuePair<uint, Player> kvp in Players.Where(p => p.Value.readChatLines.Contains(chatLine) && p.Value.openedWindows.ContainsKey("chatReader")))
-              kvp.Value.UpdatePlayerChatLog(kvp.Value.windowRectangles["chatReader"], kvp.Value.openedWindows["chatReader"], chatLine.category);
+              ((ChatReaderWindow)kvp.Value.windows["chatReader"]).UpdateChat();
 
             break;
 

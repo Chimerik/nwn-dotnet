@@ -17,7 +17,7 @@ namespace NWN.Systems
     public static ChatService chatService { get; set; }
     private static string areaName = "";
     private static Dictionary<NwPlayer, string> chatReceivers = new Dictionary<NwPlayer, string>();
-    private static PlayerSystem.Player player;
+
     public ChatSystem(ChatService customChatService)
     {
       NwModule.Instance.OnChatMessageSend += OnNWNXChatEvent;
@@ -32,7 +32,7 @@ namespace NWN.Systems
       if (!(onChat.Sender is NwCreature oSender) || oSender.GetObjectVariable<LocalVariableString>("_AWAITING_PLAYER_INPUT").HasValue)
         return;
 
-      if (!oSender.IsPlayerControlled && !PlayerSystem.Players.TryGetValue(oSender, out player))
+      if (!oSender.IsPlayerControlled && !PlayerSystem.Players.TryGetValue(oSender.ControllingPlayer.LoginCreature, out PlayerSystem.Player player))
         return;
 
       if (oSender.Area != null)
@@ -111,7 +111,7 @@ namespace NWN.Systems
     }
     public static void ProcessMutePMMiddleware(Context ctx, Action next)
     {
-      if (ctx.oTarget != null && PlayerSystem.Players.TryGetValue(ctx.oTarget.LoginCreature, out PlayerSystem.Player targetPlayer))
+      if (ctx.oTarget != null && PlayerSystem.Players.TryGetValue(ctx.oTarget.LoginCreature, out PlayerSystem.Player targetPlayer) && PlayerSystem.Players.TryGetValue(ctx.oSender.LoginCreature, out PlayerSystem.Player player))
       {
         if (targetPlayer.mutedList.Count() > 0 && !ctx.oSender.IsDM && (targetPlayer.mutedList.Contains(player.accountId) || targetPlayer.mutedList.Contains(0)))
         {
@@ -220,40 +220,58 @@ namespace NWN.Systems
     public static void ProcessChatColorMiddleware(Context ctx, Action next)
     {
       NwModule.Instance.OnChatMessageSend -= OnNWNXChatEvent;
-      List<ChatLine> chatLines = new List<ChatLine>();
 
       ChatLine.ChatCategory chatCategory = ctx.msg.Trim().StartsWith("(") || ctx.channel == ChatChannel.PlayerParty ? ChatLine.ChatCategory.HorsRolePlay : ChatLine.ChatCategory.RolePlay;
 
-      foreach (string lineBreak in ctx.msg.Split(Environment.NewLine))
-        if(lineBreak.Trim().Length > 0)
-          chatLines.Add(new ChatLine(ctx.oSender.ControlledCreature.PortraitResRef + "t", ctx.oSender.ControlledCreature.Name + " : ", ctx.oSender.PlayerName, lineBreak, ctx.channel, chatCategory));
+      if (ctx.oTarget != null)
+        chatCategory = ChatLine.ChatCategory.Private;
+
+      ChatLine chatLine = new ChatLine(ctx.oSender.ControlledCreature.PortraitResRef + "t", ctx.oSender.ControlledCreature.Name + " : ", ctx.oSender.PlayerName, ctx.msg, ctx.channel, chatCategory, ctx.oTarget?.PlayerName, ctx.oTarget?.LoginCreature.PortraitResRef + "t");
 
       foreach (KeyValuePair<NwPlayer, string> chatReceiver in chatReceivers)
       {
         ctx.onChat.Skip = true;
 
-        if (!PlayerSystem.Players.TryGetValue(chatReceiver.Key.LoginCreature, out PlayerSystem.Player player))
+        if (!PlayerSystem.Players.TryGetValue(chatReceiver.Key.LoginCreature, out PlayerSystem.Player receiver))
         {
           chatService.SendMessage(ctx.channel, chatReceiver.Value, ctx.oSender.ControlledCreature, chatReceiver.Key);
           return;
         }
 
-        if (player.readChatLines.Count > 50)
-          player.readChatLines.RemoveAt(0);
+        if (receiver.readChatLines.Count > 150)
+          receiver.readChatLines.RemoveAt(0);
 
-        foreach(ChatLine chatLine in chatLines)
-          player.readChatLines.Add(chatLine);
+        receiver.readChatLines.Add(chatLine);
 
-        if (player.openedWindows.ContainsKey("chatReader"))
-          player.UpdatePlayerChatLog(player.windowRectangles["chatReader"], player.openedWindows["chatReader"], chatCategory);
+        if (receiver.openedWindows.ContainsKey("chatReader") && chatLine.category != ChatLine.ChatCategory.Private)
+          ((PlayerSystem.Player.ChatReaderWindow)receiver.windows["chatReader"]).InsertNewChatInWindow(chatLine);
+
+        if (chatLine.category == ChatLine.ChatCategory.Private)
+        {
+          if (PlayerSystem.Players.TryGetValue(ctx.oSender.LoginCreature, out PlayerSystem.Player player))
+          {
+            if (player.readChatLines.Count > 150)
+              player.readChatLines.RemoveAt(0);
+
+            player.readChatLines.Add(chatLine);
+          }
+
+          if (receiver.openedWindows.ContainsKey(ctx.oSender.PlayerName))
+            ((PlayerSystem.Player.PrivateMessageWindow)receiver.windows[ctx.oSender.PlayerName]).InsertNewChatInWindow(chatLine);
+          else if (receiver.openedWindows.ContainsKey("chatReader"))
+            ((PlayerSystem.Player.ChatReaderWindow)receiver.windows["chatReader"]).HandleNewPM(ctx.oSender.PlayerName);
+
+          if (player.openedWindows.ContainsKey(ctx.oTarget.PlayerName))
+            ((PlayerSystem.Player.PrivateMessageWindow)player.windows[ctx.oTarget.PlayerName]).InsertNewChatInWindow(chatLine);
+        }
 
         string coloredChat = chatReceiver.Value;
 
-        if (player.chatColors.ContainsKey(ctx.channel))
-          coloredChat = chatReceiver.Value.ColorString(player.chatColors[ctx.channel]);
+        if (receiver.chatColors.ContainsKey(ctx.channel))
+          coloredChat = chatReceiver.Value.ColorString(receiver.chatColors[ctx.channel]);
 
-        if (player.chatColors.ContainsKey((ChatChannel)100)) // 100 = emote
-          coloredChat = HandleEmoteColoration(player, coloredChat);
+        if (receiver.chatColors.ContainsKey((ChatChannel)100)) // 100 = emote
+          coloredChat = HandleEmoteColoration(receiver, coloredChat);
 
         chatService.SendMessage(ctx.channel, coloredChat, ctx.oSender.ControlledCreature, chatReceiver.Key);
       }

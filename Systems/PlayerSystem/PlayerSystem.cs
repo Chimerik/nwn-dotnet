@@ -402,56 +402,6 @@ namespace NWN.Systems
       Log.Info($"nui event : {eventType}");
       Log.Info($"nwscript nuit event : {NWScript.NuiGetEventType()}");
 
-      switch (window)
-      {
-        case "quickLoot":
-
-          switch (eventElement)
-          {
-            case "examine":
-
-              if (eventType == NuiEventType.Click)
-                nuiEvent.Player.ActionExamine(new NuiBind<uint>("item").GetBindValue(nuiEvent.Player, windowToken).ToNwObject<NwItem>());
-
-              break;
-
-            case "take":
-
-              if (eventType == NuiEventType.Click)
-              {
-                NwItem item = new NuiBind<uint>("item").GetBindValue(nuiEvent.Player, windowToken).ToNwObject<NwItem>();
-                if (item.IsValid && item.Possessor is null)
-                {
-                  item.Destroy();
-                  item.Clone(nuiEvent.Player.ControlledCreature);
-
-                  foreach (NwCreature nearbyPlayer in nuiEvent.Player.ControlledCreature.Area.FindObjectsOfTypeInArea<NwCreature>().Where(p => p.IsPlayerControlled && p.DistanceSquared(item) < 25))
-                    nearbyPlayer.ControllingPlayer.SendServerMessage($"{nuiEvent.Player.ControlledCreature.Name.ColorString(ColorConstants.White)} ramasse {item.Name.ColorString(ColorConstants.White)}.");
-                }
-
-
-              }
-
-              break;
-
-            case "ignore":
-
-              if (eventType == NuiEventType.Click)
-              {
-                NwItem item = new NuiBind<uint>("item").GetBindValue(nuiEvent.Player, windowToken).ToNwObject<NwItem>();
-                if (item.IsValid)
-                {
-                  item.GetObjectVariable<LocalVariableBool>($"{nuiEvent.Player.PlayerName}_IGNORE_QUICKLOOT").Value = true;
-                }
-
-              }
-
-              break;
-          }
-
-          break;
-      }
-
       if (!Players.TryGetValue(nuiEvent.Player.LoginCreature, out Player player))
         return;
 

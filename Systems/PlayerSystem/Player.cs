@@ -214,10 +214,16 @@ namespace NWN.Systems
         switch (window)
         {
           case "chat":
-            windows.Add(window, new ChatWriterWindow(this, window));
+            /*if (windows.ContainsKey(window))
+              ((ChatWriterWindow)windows[window]).CreateWindow();
+            else*/
+              windows.Add(window, new ChatWriterWindow(this));
             break;
           case "chatReader":
-            openedWindows[window] = CreateChatReaderWindow();
+            if (windows.ContainsKey(window))
+              ((ChatReaderWindow)windows[window]).CreateWindow();
+            else
+              windows.Add(window, new ChatReaderWindow(this));
             break;
         }
       }

@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 
 using Anvil.API;
@@ -147,11 +148,11 @@ namespace NWN.Systems
   {
     public static TlkTable tlkTable;
     public static BaseItemTable baseItemTable;
-    public BaseItems2da(TwoDimArrayFactory twoDimArrayFactory, TlkTable tlkService)
+    public BaseItems2da(TwoDimArrayFactory twoDimArrayFactory, TlkTable tlkService, ResourceManager resMan)
     {
       tlkTable = tlkService;
       baseItemTable = twoDimArrayFactory.Get2DA<BaseItemTable>("baseitems");
-
+      
       baseItemTable.simpleItemModels.Add("iashlw", new List<int>());
       baseItemTable.simpleItemModels.Add("iit_neck", new List<int>());
       baseItemTable.simpleItemModels.Add("iit_belt", new List<int>());
@@ -165,35 +166,35 @@ namespace NWN.Systems
       for (int i = 1; i < 255; i++)
       {
         string search = i.ToString().PadLeft(3, '0');
-
-        if (NWScript.ResManGetAliasFor($"helm_{search}", NWScript.RESTYPE_MDL) != "")
+        
+        if (resMan.IsValidResource($"helm_{search}", ResRefType.MDL))
           baseItemTable.helmetModelEntries.Add(new NuiComboEntry(i.ToString(), i));
 
-        if (NWScript.ResManGetAliasFor($"iashlw_{search}", NWScript.RESTYPE_TGA) != "")
+        if (resMan.IsValidResource($"iashlw_{search}", ResRefType.TGA))
           baseItemTable.simpleItemModels["iashlw"].Add(i);
 
-        if (NWScript.ResManGetAliasFor($"iit_neck_{search}", NWScript.RESTYPE_TGA) != "")
+        if (resMan.IsValidResource($"iit_neck_{search}", ResRefType.TGA))
           baseItemTable.simpleItemModels["iit_neck"].Add(i);
 
-        if (NWScript.ResManGetAliasFor($"iit_belt_{search}", NWScript.RESTYPE_TGA) != "")
+        if (resMan.IsValidResource($"iit_belt_{search}", ResRefType.TGA))
           baseItemTable.simpleItemModels["iit_belt"].Add(i);
 
-        if (NWScript.ResManGetAliasFor($"iit_boots_{search}", NWScript.RESTYPE_TGA) != "")
+        if (resMan.IsValidResource($"iit_boots_{search}", ResRefType.TGA))
           baseItemTable.simpleItemModels["iit_boots"].Add(i);
 
-        if (NWScript.ResManGetAliasFor($"iit_bracer_{search}", NWScript.RESTYPE_TGA) != "")
+        if (resMan.IsValidResource($"iit_bracer_{search}", ResRefType.TGA))
           baseItemTable.simpleItemModels["iit_bracer"].Add(i);
 
-        if (NWScript.ResManGetAliasFor($"iit_gloves_{search}", NWScript.RESTYPE_TGA) != "")
+        if (resMan.IsValidResource($"iit_gloves_{search}", ResRefType.TGA))
           baseItemTable.simpleItemModels["iit_gloves"].Add(i);
 
-        if (NWScript.ResManGetAliasFor($"iit_potion_{search}", NWScript.RESTYPE_TGA) != "")
+        if (resMan.IsValidResource($"iit_potion_{search}", ResRefType.TGA))
           baseItemTable.simpleItemModels["iit_potion"].Add(i);
 
-        if (NWScript.ResManGetAliasFor($"iashsw_{search}", NWScript.RESTYPE_TGA) != "")
+        if (resMan.IsValidResource($"iashsw_{search}", ResRefType.TGA))
           baseItemTable.simpleItemModels["iashsw"].Add(i);
 
-        if (NWScript.ResManGetAliasFor($"iashto_{search}", NWScript.RESTYPE_TGA) != "")
+        if (resMan.IsValidResource($"iashto_{search}", ResRefType.TGA))
           baseItemTable.simpleItemModels["iashto"].Add(i);
       }
     }

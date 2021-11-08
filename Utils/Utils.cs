@@ -237,117 +237,102 @@ namespace NWN
       if (creature.IsPlayerControlled)
         creature.ControllingPlayer.CameraHeight = 0;
     }
-    public static IntPtr GffGetFieldType(IntPtr jGff, string sLabel)
+
+    public static NuiSpacer Util_GetIconResref(NwItem oItem)
     {
-      return NWScript.JsonPointer(jGff, "/" + sLabel + "/type");
-    }
-    public static IntPtr GffGetField(IntPtr jGff, string sLabel, string sType)
-    {
-      IntPtr jType = GffGetFieldType(jGff, sLabel);
-      if (jType == NWScript.JsonNull())
-        return jType;
-      else if (jType != NWScript.JsonString(sType))
-        return NWScript.JsonNull("field type does not match");
-      else
-        return GffGetFieldValue(jGff, sLabel);
-    }
-    public static IntPtr GffGetFieldValue(IntPtr jGff, string sLabel)
-    {
-      return NWScript.JsonPointer(jGff, "/" + sLabel + "/value");
-    }
-    public static IntPtr GffGetByte(IntPtr jGff, string sLabel)
-    {
-      return GffGetField(jGff, sLabel, "byte");
-    }
-    public static string Util_GetIconResref(NwItem oItem)
-    {
+      string icon = BaseItems2da.baseItemTable.GetBaseItemDataEntry(oItem.BaseItemType).defaultIcon; ;
+
       switch (oItem.BaseItemType)
       {
         case BaseItemType.Cloak: // Cloaks use PLTs so their default icon doesn't really work
-          return "iit_cloak";
+            icon = "iit_cloak";
+          break;
         case BaseItemType.SpellScroll: // Scrolls get their icon from the cast spell property
         case BaseItemType.EnchantedScroll:
 
           if (oItem.HasItemProperty(ItemPropertyType.CastSpell))
-            return ItemPropertySpells2da.spellsTable.GetSpellDataEntry(oItem.ItemProperties.FirstOrDefault(ip => ip.PropertyType == ItemPropertyType.CastSpell).SubType).icon;
+            icon = ItemPropertySpells2da.spellsTable.GetSpellDataEntry(oItem.ItemProperties.FirstOrDefault(ip => ip.PropertyType == ItemPropertyType.CastSpell).SubType).icon;
 
           break;
+
         default:
 
-          if (BaseItems2da.baseItemTable.GetBaseItemDataEntry(oItem.BaseItemType).modelType == 0) // Create the icon resref for simple modeltype items
+          switch(BaseItems2da.baseItemTable.GetBaseItemDataEntry(oItem.BaseItemType).modelType)
           {
-            IntPtr jSimpleModel = GffGetByte(NWScript.ObjectToJson(oItem), "ModelPart1");
-            if (NWScript.JsonGetType(jSimpleModel) == NWScript.JSON_TYPE_INTEGER)
-            {
-              string sSimpleModelId = NWScript.JsonGetInt(jSimpleModel).ToString().PadLeft(3, '0');
-              string sDefaultIcon = BaseItems2da.baseItemTable.GetBaseItemDataEntry(oItem.BaseItemType).defaultIcon;
+            case 0:
+              icon = Util_GetSimpleIconData(oItem);
+              break;
 
-              switch (oItem.BaseItemType)
-              {
-                case BaseItemType.MiscSmall:
-                case BaseItemType.CraftMaterialSmall:
-                  sDefaultIcon = "iit_smlmisc_" + sSimpleModelId;
-                  break;
-                case BaseItemType.MiscMedium:
-                case BaseItemType.CraftMaterialMedium:
-                case (BaseItemType)112:/* Crafting Base Material */
-                  sDefaultIcon = "iit_midmisc_" + sSimpleModelId;
-                  break;
-                case BaseItemType.MiscLarge:
-                  sDefaultIcon = "iit_talmisc_" + sSimpleModelId;
-                  break;
-                case BaseItemType.MiscThin:
-                  sDefaultIcon = "iit_thnmisc_" + sSimpleModelId;
-                  break;
-              }
-
-              int nLength = sDefaultIcon.Length;
-              if (sDefaultIcon.Substring(nLength - 4, 1) == "_")// Some items have a default icon of xx_yyy_001, we strip the last 4 symbols if that is the case
-                sDefaultIcon = sDefaultIcon.Remove(nLength - 4);
-              string sIcon = sDefaultIcon + "_" + sSimpleModelId;
-              if (NWScript.ResManGetAliasFor(sIcon, NWScript.RESTYPE_TGA) != "")// Check if the icon actually exists, if not, we'll fall through and return the default icon
-                return sIcon;
-            }
+            case 2:
+              return Util_GetComplexIconData(oItem);
           }
 
           break;
       }
 
-      // For everything else use the item's default icon
-      return BaseItems2da.baseItemTable.GetBaseItemDataEntry(oItem.BaseItemType).defaultIcon;
-    }
-    public static IntPtr Util_GetModelPart(string sDefaultIcon, string sType, IntPtr jPart)
-    {
-      if (NWScript.JsonGetType(jPart) == NWScript.JSON_TYPE_INTEGER)
-      {
-        string sModelPart = NWScript.JsonGetInt(jPart).ToString();
-        while (sModelPart.Length < 3)
-        {
-          sModelPart = "0" + sModelPart;
-        }
+      List<NuiDrawListItem> iconDrawListItems = new List<NuiDrawListItem>();
+      NuiSpacer spacer = new NuiSpacer() { DrawList = iconDrawListItems, Width = 75, Height = 125 };
 
-        string sIcon = sDefaultIcon + sType + sModelPart;
-        if (NWScript.ResManGetAliasFor(sIcon, NWScript.RESTYPE_TGA) != "")
-          return NWScript.JsonString(sIcon);
+      if (NWScript.ResManGetAliasFor(icon, NWScript.RESTYPE_TGA) != "")
+        iconDrawListItems.Add(new NuiDrawListImage(icon, new NuiRect(0, 0, 25, 25)));
+
+      return spacer;
+    }
+
+    public static string Util_GetSimpleIconData(NwItem item)
+    {
+      string sSimpleModelId = item.Appearance.GetSimpleModel().ToString().PadLeft(3, '0');
+      string sDefaultIcon = BaseItems2da.baseItemTable.GetBaseItemDataEntry(item.BaseItemType).defaultIcon;
+
+      switch (item.BaseItemType)
+      {
+        case BaseItemType.MiscSmall:
+        case BaseItemType.CraftMaterialSmall:
+          sDefaultIcon = "iit_smlmisc_" + sSimpleModelId;
+          break;
+        case BaseItemType.MiscMedium:
+        case BaseItemType.CraftMaterialMedium:
+        case (BaseItemType)112:/* Crafting Base Material */
+          sDefaultIcon = "iit_midmisc_" + sSimpleModelId;
+          break;
+        case BaseItemType.MiscLarge:
+          sDefaultIcon = "iit_talmisc_" + sSimpleModelId;
+          break;
+        case BaseItemType.MiscThin:
+          sDefaultIcon = "iit_thnmisc_" + sSimpleModelId;
+          break;
       }
 
-      return NWScript.JsonString("");
+      int nLength = sDefaultIcon.Length;
+      if (sDefaultIcon.Substring(nLength - 4, 1) == "_")// Some items have a default icon of xx_yyy_001, we strip the last 4 symbols if that is the case
+        sDefaultIcon = sDefaultIcon.Remove(nLength - 4);
+      string sIcon = sDefaultIcon + "_" + sSimpleModelId;
+
+      if (NWScript.ResManGetAliasFor(sIcon, NWScript.RESTYPE_TGA) != "")// Check if the icon actually exists, if not, we'll fall through and return the default icon
+        return sIcon;
+      else
+        return "";
     }
-    public static IntPtr Util_GetComplexIconData(IntPtr jItem, BaseItemType nBaseItem)
+    public static NuiSpacer Util_GetComplexIconData(NwItem item)
     {
-      BaseItemTable.Entry entry = BaseItems2da.baseItemTable.GetBaseItemDataEntry(nBaseItem);
-      if (entry.modelType == 2)
-      {
-        string sDefaultIcon = entry.defaultIcon;
-        IntPtr jComplexIcon = NWScript.JsonObject();
-        jComplexIcon = NWScript.JsonObjectSet(jComplexIcon, "top", Util_GetModelPart(sDefaultIcon, "_t_", GffGetByte(jItem, "ModelPart3")));
-        jComplexIcon = NWScript.JsonObjectSet(jComplexIcon, "middle", Util_GetModelPart(sDefaultIcon, "_m_", GffGetByte(jItem, "ModelPart2")));
-        jComplexIcon = NWScript.JsonObjectSet(jComplexIcon, "bottom", Util_GetModelPart(sDefaultIcon, "_b_", GffGetByte(jItem, "ModelPart1")));
+      BaseItemTable.Entry entry = BaseItems2da.baseItemTable.GetBaseItemDataEntry(item.BaseItemType);
+      List<NuiDrawListItem> iconDrawListItems = new List<NuiDrawListItem>();
+      NuiSpacer spacer = new NuiSpacer() { DrawList = iconDrawListItems, Width = 75, Height = 125 };
 
-        return jComplexIcon;
-      }
+      string topIcon = entry.defaultIcon + "_t_" + item.Appearance.GetWeaponModel(ItemAppearanceWeaponModel.Top).ToString().PadLeft(3, '0');
+      string midIcon = entry.defaultIcon + "_m_" + item.Appearance.GetWeaponModel(ItemAppearanceWeaponModel.Middle).ToString().PadLeft(3, '0');
+      string botIcon = entry.defaultIcon + "_b_" + item.Appearance.GetWeaponModel(ItemAppearanceWeaponModel.Bottom).ToString().PadLeft(3, '0');
 
-      return NWScript.JsonNull();
+      if (NWScript.ResManGetAliasFor(botIcon, NWScript.RESTYPE_TGA) != "")
+        iconDrawListItems.Add(new NuiDrawListImage(botIcon, new NuiRect(0, 0, 25, 25)));
+
+      if (NWScript.ResManGetAliasFor(midIcon, NWScript.RESTYPE_TGA) != "")
+        iconDrawListItems.Add(new NuiDrawListImage(midIcon, new NuiRect(0, 0, 25, 25)));
+
+      if (NWScript.ResManGetAliasFor(topIcon, NWScript.RESTYPE_TGA) != "")
+        iconDrawListItems.Add(new NuiDrawListImage(topIcon, new NuiRect(0, 0, 25, 25)));
+
+      return spacer;
     }
   }
 }
