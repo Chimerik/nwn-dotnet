@@ -238,7 +238,7 @@ namespace NWN
         creature.ControllingPlayer.CameraHeight = 0;
     }
 
-    public static NuiSpacer Util_GetIconResref(NwItem oItem)
+    public static NuiSpacer Util_GetIconResref(NwItem oItem, int id)
     {
       string icon = BaseItems2da.baseItemTable.GetBaseItemDataEntry(oItem.BaseItemType).defaultIcon; ;
 
@@ -264,14 +264,14 @@ namespace NWN
               break;
 
             case 2:
-              return Util_GetComplexIconData(oItem);
+              return Util_GetComplexIconData(oItem, id);
           }
 
           break;
       }
 
       List<NuiDrawListItem> iconDrawListItems = new List<NuiDrawListItem>();
-      NuiSpacer spacer = new NuiSpacer() { DrawList = iconDrawListItems, Width = 75, Height = 125 };
+      NuiSpacer spacer = new NuiSpacer() { Id = $"examine_{id}", DrawList = iconDrawListItems, Width = 75, Height = 125 };
 
       if (NWScript.ResManGetAliasFor(icon, NWScript.RESTYPE_TGA) != "")
         iconDrawListItems.Add(new NuiDrawListImage(icon, new NuiRect(0, 0, 25, 25)));
@@ -313,11 +313,11 @@ namespace NWN
       else
         return "";
     }
-    public static NuiSpacer Util_GetComplexIconData(NwItem item)
+    public static NuiSpacer Util_GetComplexIconData(NwItem item, int id)
     {
       BaseItemTable.Entry entry = BaseItems2da.baseItemTable.GetBaseItemDataEntry(item.BaseItemType);
       List<NuiDrawListItem> iconDrawListItems = new List<NuiDrawListItem>();
-      NuiSpacer spacer = new NuiSpacer() { DrawList = iconDrawListItems, Width = 75, Height = 125 };
+      NuiSpacer spacer = new NuiSpacer() { Id = $"examine_{id}", DrawList = iconDrawListItems, Width = 75, Height = 125 };
 
       string topIcon = entry.defaultIcon + "_t_" + item.Appearance.GetWeaponModel(ItemAppearanceWeaponModel.Top).ToString().PadLeft(3, '0');
       string midIcon = entry.defaultIcon + "_m_" + item.Appearance.GetWeaponModel(ItemAppearanceWeaponModel.Middle).ToString().PadLeft(3, '0');

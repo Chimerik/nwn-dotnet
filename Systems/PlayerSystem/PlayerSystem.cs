@@ -18,7 +18,8 @@ namespace NWN.Systems
     public static CursorTargetService cursorTargetService { get; set; }
     public static EventService eventService { get; set; }
     public static FeedbackService feedbackService;
-    public PlayerSystem(CursorTargetService cursorTService, EventService eventServices, FeedbackService feedback)
+    public static ScriptHandleFactory scriptHandleFactory;
+    public PlayerSystem(CursorTargetService cursorTService, EventService eventServices, FeedbackService feedback, ScriptHandleFactory scriptFactory)
     {
       NwModule.Instance.OnClientEnter += HandlePlayerConnect;
       NwModule.Instance.OnClientDisconnect += HandlePlayerLeave;
@@ -26,6 +27,7 @@ namespace NWN.Systems
       eventService = eventServices;
       cursorTargetService = cursorTService;
       feedbackService = feedback;
+      scriptHandleFactory = scriptFactory;
     }
 
     public static Dictionary<uint, Player> Players = new Dictionary<uint, Player>();

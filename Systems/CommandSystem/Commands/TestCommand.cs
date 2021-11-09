@@ -12,6 +12,7 @@ using Microsoft.Data.Sqlite;
 using System.Collections.Generic;
 using NWN.Systems.Alchemy;
 using Newtonsoft.Json;
+using Anvil.Services;
 
 namespace NWN.Systems
 {
@@ -26,15 +27,24 @@ namespace NWN.Systems
 
         if (player.oid.PlayerName == "Chim" || player.oid.PlayerName == "test")
         {
-          /*if (player.windows.ContainsKey("quickLoot"))
+          if (player.windows.ContainsKey("quickLoot"))
             ((PlayerSystem.Player.QuickLootWindow)player.windows["quickLoot"]).CreateWindow();
           else
-            player.windows.Add("quickLoot", new PlayerSystem.Player.QuickLootWindow(player));*/
+            player.windows.Add("quickLoot", new PlayerSystem.Player.QuickLootWindow(player));
 
-          if (player.windows.ContainsKey("chatReader"))
+          ScriptCallbackHandle intervalHandle = PlayerSystem.scriptHandleFactory.CreateUniqueHandler(RefreshQuickLootWindow);
+
+          Effect runAction = Effect.RunAction(null, null, intervalHandle, TimeSpan.FromSeconds(2));
+          runAction.Tag = "QUICK_LOOT_EFFECT";
+          runAction.SubType = EffectSubType.Supernatural;
+          runAction = Effect.LinkEffects(runAction, Effect.Icon(EffectIcon.Curse));
+
+          player.oid.ControlledCreature.ApplyEffect(EffectDuration.Permanent, runAction);  
+
+          /*if (player.windows.ContainsKey("chatReader"))
             ((PlayerSystem.Player.ChatReaderWindow)player.windows["chatReader"]).CreateWindow();
           else
-            player.windows.Add("chatReader", new PlayerSystem.Player.ChatReaderWindow(player));
+            player.windows.Add("chatReader", new PlayerSystem.Player.ChatReaderWindow(player));*/
 
           //player.CreateChatReaderWindow();
 
@@ -49,6 +59,18 @@ namespace NWN.Systems
           //PlayerSystem.cursorTargetService.EnterTargetMode(player.oid, OnTargetSelected, ObjectTypes.All, MouseCursor.Pickup);
         }
       }
+    }
+
+    public static ScriptHandleResult RefreshQuickLootWindow(CallInfo _)
+    {
+      EffectRunScriptEvent eventData = new EffectRunScriptEvent();
+
+      if (!(eventData.EffectTarget is NwCreature oTarget) || !PlayerSystem.Players.TryGetValue(oTarget.ControllingPlayer.LoginCreature, out PlayerSystem.Player player))
+        return ScriptHandleResult.Handled;
+
+      ((PlayerSystem.Player.QuickLootWindow)player.windows["quickLoot"]).UpdateWindow();
+
+      return ScriptHandleResult.Handled;
     }
 
     private static void OnTargetSelected(ModuleEvents.OnPlayerTarget selection)
