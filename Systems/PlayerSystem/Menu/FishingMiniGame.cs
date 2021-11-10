@@ -28,10 +28,10 @@ namespace NWN.Systems
                 new NuiGroup() 
                 { 
                   Id = "somegroupid" ,
-                  Children = new List<NuiElement>
+                  /*Children = new List<NuiElement>
                   {
                     new NuiButton("Test Update") { Id = "testUpdate", Tooltip = "test" }
-                  }
+                  }*/
                 }
               }
             }
@@ -73,10 +73,10 @@ namespace NWN.Systems
               NuiGroup group = new NuiGroup()
               {
                 Id = "somegroupid",
-                Children = new List<NuiElement>
+                /*Children = new List<NuiElement>
                   {
                     new NuiButton($"Test Update {nbClick}") { Id = "testUpdate", Tooltip = "test" }
-                  }
+                  }*/
               };
 
               oid.NuiSetGroupLayout(nuiEvent.WindowToken, "somegroupid", group);

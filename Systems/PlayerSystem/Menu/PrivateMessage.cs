@@ -21,6 +21,7 @@ namespace NWN.Systems
 
         NuiGroup chatReaderGroup { get; }
         NuiColumn rootColumn { get; }
+        NuiColumn colChatLog { get; }
         List<NuiElement> colChatLogChidren { get; }
         NuiRow settingsRow { get; }
         NuiBind<string> writingChat { get; }
@@ -35,14 +36,11 @@ namespace NWN.Systems
 
           List<NuiElement> colChidren = new List<NuiElement>();
           rootColumn = new NuiColumn() { Children = colChidren };
-
-          List<NuiElement> groupChidren = new List<NuiElement>();
-          chatReaderGroup = new NuiGroup() { Id = "chatReaderGroup", Border = false, Children = groupChidren, Scrollbars = NuiScrollbars.Y };
-          colChidren.Add(chatReaderGroup);
-
+          colChatLog = new NuiColumn() { Children = colChatLogChidren };
           colChatLogChidren = new List<NuiElement>();
-          NuiColumn colChatLog = new NuiColumn() { Children = colChatLogChidren };
-          groupChidren.Add(colChatLog);
+
+          chatReaderGroup = new NuiGroup() { Id = "chatReaderGroup", Border = false, Layout = colChatLog, Scrollbars = NuiScrollbars.Y };
+          colChidren.Add(chatReaderGroup);
 
           List<NuiElement> settingsRowChildren = new List<NuiElement>();
           settingsRow = new NuiRow() { Children = settingsRowChildren };
@@ -124,7 +122,7 @@ namespace NWN.Systems
               colChatLogChidren.Clear();
               colChatLogChidren.Add(settingsRow);
               CreateChatRows();
-              player.oid.NuiSetGroupLayout(token, "chatReaderGroup", chatReaderGroup);
+              chatReaderGroup.SetLayout(player.oid, token, colChatLog);
 
               return;
 
@@ -217,7 +215,7 @@ namespace NWN.Systems
         {
           read = true;
           AddNewChat(chatLine, player.readChatLines.Count - 1);
-          player.oid.NuiSetGroupLayout(token, "chatReaderGroup", chatReaderGroup);
+          chatReaderGroup.SetLayout(player.oid, token, colChatLog);
         }
 
         public void UpdateChat()
@@ -227,7 +225,7 @@ namespace NWN.Systems
 
           CreateChatRows();
 
-          player.oid.NuiSetGroupLayout(token, "chatReaderGroup", chatReaderGroup);
+          chatReaderGroup.SetLayout(player.oid, token, colChatLog);
         }
 
         private void AddNewChat(ChatLine chatLine, int chatId)

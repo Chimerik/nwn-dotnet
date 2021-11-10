@@ -18,6 +18,7 @@ namespace NWN.Systems
         NuiBind<int> channel { get; }
         NuiBind<bool> makeStatic { get; }
         NuiGroup chatWriterGroup { get; }
+        NuiRow rootRow { get; }
         NuiTextEdit textEdit { get; }
         bool isChatHRP { get; set; }
 
@@ -40,11 +41,9 @@ namespace NWN.Systems
 
           textEdit = new NuiTextEdit("", writingChat, 3000, true) { Id = "chatWriter", Height = (windowRectangle.Height - 160) * 0.96f, Width = windowRectangle.Width * 0.96f };
 
-          chatWriterGroup = new NuiGroup
-          {
-            Id = "chatWriterGroup", Border = false, Padding = 0, Margin = 0,
-            Children = new List<NuiElement> { new NuiRow { Children = new List<NuiElement> { textEdit } } }
-          };
+          rootRow = new NuiRow { Children = new List<NuiElement> { textEdit } };
+
+          chatWriterGroup = new NuiGroup { Id = "chatWriterGroup", Border = false, Padding = 0, Margin = 0, Layout = rootRow };
 
           NuiColumn col = new NuiColumn
           {
@@ -231,7 +230,7 @@ namespace NWN.Systems
 
               geometry.SetBindWatch(nuiEvent.Player, nuiEvent.WindowToken, false);
               textEdit.Width = rectangle.Width * 0.96f;
-              nuiEvent.Player.NuiSetGroupLayout(nuiEvent.WindowToken, chatWriterGroup.Id, chatWriterGroup);
+              chatWriterGroup.SetLayout(player.oid, token, rootRow);
               geometry.SetBindWatch(nuiEvent.Player, nuiEvent.WindowToken, true);
 
               break;

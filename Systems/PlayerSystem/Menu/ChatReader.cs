@@ -20,6 +20,7 @@ namespace NWN.Systems
 
         NuiGroup chatReaderGroup { get; }
         NuiColumn rootColumn { get; }
+        NuiColumn colChatLog { get; }
         List<NuiElement> colChatLogChidren { get; }
         NuiOptions rpCategory { get; }
         NuiOptions hrpCategory { get; }
@@ -38,13 +39,13 @@ namespace NWN.Systems
           List<NuiElement> colChidren = new List<NuiElement>();
           rootColumn = new NuiColumn() { Children = colChidren };
 
-          List<NuiElement> groupChidren = new List<NuiElement>();
-          chatReaderGroup = new NuiGroup() { Id = "chatReaderGroup", Border = false, Children = groupChidren };
+          colChatLogChidren = new List<NuiElement>();
+          colChatLog = new NuiColumn() { Children = colChatLogChidren };
+
+          chatReaderGroup = new NuiGroup() { Id = "chatReaderGroup", Border = false, Layout = colChatLog };
           colChidren.Add(chatReaderGroup);
 
-          colChatLogChidren = new List<NuiElement>();
-          NuiColumn colChatLog = new NuiColumn() { Children = colChatLogChidren };
-          groupChidren.Add(colChatLog);
+          
 
           List<NuiElement> settingsRowChildren = new List<NuiElement>();
           settingsRow = new NuiRow() { Children = settingsRowChildren };
@@ -148,7 +149,7 @@ namespace NWN.Systems
               hrpCategory.ForegroundColor = hrpPreviousColor;
               mpCategory.ForegroundColor = mpPreviousColor;
 
-              player.oid.NuiSetGroupLayout(token, "chatReaderGroup", chatReaderGroup);
+              chatReaderGroup.SetLayout(player.oid, token, colChatLog);
 
               return;
 
@@ -173,7 +174,7 @@ namespace NWN.Systems
                 hrpCategory.ForegroundColor = previousHrp;
                 mpCategory.ForegroundColor = previousMP;
 
-                player.oid.NuiSetGroupLayout(nuiEvent.WindowToken, "chatReaderGroup", chatReaderGroup);
+                chatReaderGroup.SetLayout(player.oid, token, colChatLog);
               }
               return;
 
@@ -198,7 +199,7 @@ namespace NWN.Systems
                 rpCategory.ForegroundColor = previousRp;
                 mpCategory.ForegroundColor = previousMP;
 
-                player.oid.NuiSetGroupLayout(nuiEvent.WindowToken, "chatReaderGroup", chatReaderGroup);
+                chatReaderGroup.SetLayout(player.oid, token, colChatLog);
               }
               return;
 
@@ -224,7 +225,7 @@ namespace NWN.Systems
                 rpCategory.ForegroundColor = previousRp;
                 hrpCategory.ForegroundColor = previousHrp;
 
-                player.oid.NuiSetGroupLayout(nuiEvent.WindowToken, "chatReaderGroup", chatReaderGroup);
+                chatReaderGroup.SetLayout(player.oid, token, colChatLog);
               }
 
               return;
@@ -254,7 +255,7 @@ namespace NWN.Systems
             {
               ((PrivateMessageWindow)player.windows[targetName]).CreateWindow();
               ((NuiRow)colChatLogChidren[1]).Children.FirstOrDefault(c => c.Id == nuiEvent.ElementId && c is NuiLabel).ForegroundColor = new NuiColor(142, 146, 151);
-              player.oid.NuiSetGroupLayout(nuiEvent.WindowToken, "chatReaderGroup", chatReaderGroup);
+              chatReaderGroup.SetLayout(player.oid, token, colChatLog);
             }
             else
             {
@@ -264,7 +265,7 @@ namespace NWN.Systems
               {
                 player.windows.Add(target.PlayerName, new PrivateMessageWindow(player, target));
                 ((NuiRow)colChatLogChidren[1]).Children.FirstOrDefault(c => c.Id == nuiEvent.ElementId && c is NuiLabel).ForegroundColor = new NuiColor(142, 146, 151);
-                player.oid.NuiSetGroupLayout(nuiEvent.WindowToken, "chatReaderGroup", chatReaderGroup);
+                chatReaderGroup.SetLayout(player.oid, token, colChatLog);
               }
               else
                 player.oid.SendServerMessage($"Le joueur  {nuiEvent.ElementId.Remove(0, 3).ColorString(ColorConstants.White)} n'est pas connecté. Impossible d'ouvrir un canal privé.", ColorConstants.Red);
@@ -285,7 +286,7 @@ namespace NWN.Systems
         public void InsertNewChatInWindow(ChatLine chatLine)
         {
           AddNewChat(chatLine, player.readChatLines.Count - 1);
-          player.oid.NuiSetGroupLayout(token, "chatReaderGroup", chatReaderGroup);
+          chatReaderGroup.SetLayout(player.oid, token, colChatLog);
         }
 
         public void UpdateChat()
@@ -295,7 +296,7 @@ namespace NWN.Systems
 
           CreateChatRows();
 
-          player.oid.NuiSetGroupLayout(token, "chatReaderGroup", chatReaderGroup);
+          chatReaderGroup.SetLayout(player.oid, token, colChatLog);
         }
 
         private void AddNewChat(ChatLine chatLine, int chatId)
@@ -470,7 +471,7 @@ namespace NWN.Systems
             CreatePMRows();
           }
 
-          player.oid.NuiSetGroupLayout(token, "chatReaderGroup", chatReaderGroup);
+          chatReaderGroup.SetLayout(player.oid, token, colChatLog);
         }
       }
     }

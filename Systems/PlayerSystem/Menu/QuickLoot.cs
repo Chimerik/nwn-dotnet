@@ -14,6 +14,7 @@ namespace NWN.Systems
       {
         NuiGroup rootGroup { get; }
         NuiColumn rootColumn { get; }
+        NuiColumn groupCol { get; }
         List<NuiElement> rowList { get; }
         Dictionary<int, NwItem> itemList { get; }
 
@@ -24,10 +25,10 @@ namespace NWN.Systems
           itemList = new Dictionary<int, NwItem>();
 
           rowList = new List<NuiElement>();
-          NuiColumn groupCol = new NuiColumn() { Children = rowList };
+          groupCol = new NuiColumn() { Children = rowList };
           List<NuiElement> rootList = new List<NuiElement>();
           rootColumn = new NuiColumn() { Children = rootList };
-          rootGroup = new NuiGroup() { Id = "quickLootGroup", Border = false, Padding = 0, Margin = 0, Children = new List<NuiElement> { groupCol } };
+          rootGroup = new NuiGroup() { Id = "quickLootGroup", Border = false, Padding = 0, Margin = 0, Layout = groupCol };
           rootList.Add(rootGroup);
 
           int i = 0;
@@ -157,7 +158,7 @@ namespace NWN.Systems
             i++;
           }
 
-          player.oid.NuiSetGroupLayout(token, "quickLootGroup", rootGroup);
+          rootGroup.SetLayout(player.oid, token, groupCol);
         }
 
         private List<NuiDrawListItem> DrawItemName(string itemName)

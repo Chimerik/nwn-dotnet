@@ -61,7 +61,7 @@ namespace NWN.Systems
             {
               Border = true,
               Height = 60,
-              Children = new List<NuiElement>
+              /*Children = new List<NuiElement>
               {
                 new NuiRow
                 {
@@ -74,7 +74,7 @@ namespace NWN.Systems
                     new NuiButton("Apprendre") { Id = "learn", Height = 50 }
                   }
                 },
-              }
+              }*/
             }
           }
         };

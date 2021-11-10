@@ -55,7 +55,7 @@ namespace NWN.Systems
               Children = new List<NuiElement>
               {
                 new NuiSpacer(),
-                new NuiGroup
+                /*new NuiGroup
                 {
                   Width = 256.0f,
                   Height = 400.0f,
@@ -68,7 +68,7 @@ namespace NWN.Systems
                       VerticalAlign = NuiVAlign.Middle
                     }
                   }
-                },
+                },*/
                 new NuiSpacer()
               }
             },

@@ -99,27 +99,24 @@ namespace NWN.Systems
           Border = false,
           Padding = 0,
           Margin = 0,
-          Children = new List<NuiElement>
+          Layout = new NuiColumn
           {
-            new NuiColumn
+            Children = new List<NuiElement>
             {
-              Children = new List<NuiElement>
+              new NuiRow
               {
-                new NuiRow
+                Children = new List<NuiElement>
                 {
-                  Children = new List<NuiElement>
-                  {
-                    new NuiTextEdit("", writingChat, 3000, false) { Id = "chatWriter", Height = (windowRectangle.Height - 160) * 0.96f, Width = windowRectangle.Width * 0.96f }
-                  }
-                },
-                new NuiRow
+                  new NuiTextEdit("", writingChat, 3000, false) { Id = "chatWriter", Height = (windowRectangle.Height - 160) * 0.96f, Width = windowRectangle.Width * 0.96f }
+                }
+              },
+              new NuiRow
+              {
+                Children = new List<NuiElement>
                 {
-                  Children = new List<NuiElement>
-                  {
-                    new NuiSpacer(),
-                    new NuiButton("Corriger") { Id = "sendText" },
-                    new NuiSpacer()
-                  }
+                  new NuiSpacer(),
+                  new NuiButton("Corriger") { Id = "sendText" },
+                  new NuiSpacer()
                 }
               }
             }

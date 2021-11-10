@@ -88,7 +88,6 @@ namespace NWN.Systems
         {
           NuiGroup paletteGroup = new NuiGroup();
           paletteGroup.Id = $"paletteGroup{i}"; paletteGroup.Height = 26; paletteGroup.Margin = 0; paletteGroup.Padding = 0; paletteGroup.Scrollbars = NuiScrollbars.None; paletteGroup.Border = false;
-          List<NuiElement> groupChildren = new List<NuiElement>();
 
           NuiRow row = new NuiRow();
           List<NuiElement> rowChildren = new List<NuiElement>();
@@ -105,8 +104,7 @@ namespace NWN.Systems
           }
 
           row.Children = rowChildren;
-          groupChildren.Add(row);
-          paletteGroup.Children = groupChildren;
+          paletteGroup.Layout = row;
           colChildren.Add(paletteGroup);
         }
 
@@ -239,7 +237,6 @@ namespace NWN.Systems
               {
                 NuiGroup paletteGroup = new NuiGroup();
                 paletteGroup.Id = $"paletteGroup{i}"; paletteGroup.Height = 26; paletteGroup.Margin = 0; paletteGroup.Padding = 0; paletteGroup.Scrollbars = NuiScrollbars.None; paletteGroup.Border = false;
-                List<NuiElement> groupChildren = new List<NuiElement>();
 
                 NuiRow row = new NuiRow();
                 List<NuiElement> rowChildren = new List<NuiElement>();
@@ -258,9 +255,8 @@ namespace NWN.Systems
                 }
 
                 row.Children = rowChildren;
-                groupChildren.Add(row);
-                paletteGroup.Children = groupChildren;
-                nuiEvent.Player.NuiSetGroupLayout(nuiEvent.WindowToken, paletteGroup.Id, paletteGroup);
+                paletteGroup.Layout = row;
+                paletteGroup.SetLayout(player.oid, nuiEvent.WindowToken, row);
               }
             }
 
