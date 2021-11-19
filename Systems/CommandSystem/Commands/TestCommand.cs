@@ -27,7 +27,12 @@ namespace NWN.Systems
 
         if (player.oid.PlayerName == "Chim" || player.oid.PlayerName == "test")
         {
-          if (player.windows.ContainsKey("quickLoot"))
+          if (player.windows.ContainsKey("fishing"))
+            ((PlayerSystem.Player.FishinMiniGame)player.windows["fishing"]).CreateWindow();
+          else
+            player.windows.Add("fishing", new PlayerSystem.Player.FishinMiniGame(player));
+
+          /*if (player.windows.ContainsKey("quickLoot"))
             ((PlayerSystem.Player.QuickLootWindow)player.windows["quickLoot"]).CreateWindow();
           else
             player.windows.Add("quickLoot", new PlayerSystem.Player.QuickLootWindow(player));
@@ -39,7 +44,7 @@ namespace NWN.Systems
           runAction.SubType = EffectSubType.Supernatural;
           runAction = Effect.LinkEffects(runAction, Effect.Icon(EffectIcon.Curse));
 
-          player.oid.ControlledCreature.ApplyEffect(EffectDuration.Permanent, runAction);  
+          player.oid.ControlledCreature.ApplyEffect(EffectDuration.Permanent, runAction);  */
 
           /*if (player.windows.ContainsKey("chatReader"))
             ((PlayerSystem.Player.ChatReaderWindow)player.windows["chatReader"]).CreateWindow();
