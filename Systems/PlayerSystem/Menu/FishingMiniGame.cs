@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Threading;
 using System.Threading.Tasks;
 
 using Anvil.API;
@@ -35,6 +34,7 @@ namespace NWN.Systems
         NuiBind<NuiRect> weightPos { get; }
         NuiBind<NuiRect> fishPos { get; }
         float weightSpeed { get; set; }
+        float weightAcceleration { get; set; }
         float fishSpeed { get; set; }
         //NuiDrawListPolyLine successBar { get; }
 
@@ -60,8 +60,8 @@ namespace NWN.Systems
           strengthChildren.Add(fishingStrengthProgress);
 
           List<NuiElement> fishingChildren = new List<NuiElement>();
-          fishCol = new NuiColumn() { Children = fishingChildren };
-          fishGroup = new NuiGroup() { Id = "fishingGroup", Border = false, Padding = 0, Margin = 0, Layout = fishCol, Visible = false };
+          fishCol = new NuiColumn() { Children = fishingChildren, Visible = false };
+          fishGroup = new NuiGroup() { Id = "fishingGroup", Border = false, Padding = 0, Margin = 0, Layout = fishCol };
           rootList.Add(fishGroup);
 
           weightPos = new NuiBind<NuiRect>("weightPos");
@@ -72,39 +72,21 @@ namespace NWN.Systems
           fishingChildren.Add(new NuiSpacer() { Id = "fishingWidget",
             DrawList = new List<NuiDrawListItem>() 
             { 
-              new NuiDrawListImage("fishingrod", new NuiRect(0, 0, 0, 0)) { },
+              new NuiDrawListImage("fishingrod", new NuiRect(0, 0, 0, 0)),
               new NuiDrawListImage("fishingweight", weightPos),
               new NuiDrawListImage("fish", fishPos),
-              //successBar
             } 
           });
 
           List<NuiElement> successChildren = new List<NuiElement>();
-          successCol = new NuiColumn() { Children = successChildren };
-          successGroup = new NuiGroup() { Id = "successGroup", Border = false, Height = 60, Padding = 0, Margin = 0, Layout = successCol, Visible = false };
+          successCol = new NuiColumn() { Children = successChildren, Visible = false };
+          successGroup = new NuiGroup() { Id = "successGroup", Border = false, Height = 60, Padding = 0, Margin = 0, Layout = successCol };
           rootList.Add(successGroup);
 
           successBind = new NuiBind<float>("success");
           successColorBind = new NuiBind<NuiColor>("successColor");
-          successProgress = new NuiProgress(successBind) { ForegroundColor = successColorBind, Width = 400 };
+          successProgress = new NuiProgress(successBind) { ForegroundColor = successColorBind, Width = 280 };
           successChildren.Add(successProgress);
-
-          /*successRow = new NuiRow()
-          {
-            Children = new List<NuiElement> { 
-              new NuiSpacer()
-              {
-                Id = "fishingSuccessBar",
-                DrawList = new List<NuiDrawListItem>()
-                {
-                  successBar
-                }
-              } 
-            }
-          };
-          successBarGroup = new NuiGroup() { Id = "successBarGroup", Border = false, Padding = 0, Margin = 0, Layout = successRow };
-
-          fishingChildren.Add(successBarGroup);*/
 
           //fishingChildren.Add(new NuiImage("diceroll"));
 
@@ -113,7 +95,7 @@ namespace NWN.Systems
 
         public void CreateWindow()
         {
-          NuiRect windowRectangle = new NuiRect(player.oid.GetDeviceProperty(PlayerDeviceProperty.GuiWidth) / 2 - 150, player.oid.GetDeviceProperty(PlayerDeviceProperty.GuiHeight) / 6, 350, 600);
+          NuiRect windowRectangle = new NuiRect(player.oid.GetDeviceProperty(PlayerDeviceProperty.GuiWidth) / 2 - 150, player.oid.GetDeviceProperty(PlayerDeviceProperty.GuiHeight) / 6, 300, 500);
 
           window = new NuiWindow(rootColumn, "")
           {
@@ -133,11 +115,9 @@ namespace NWN.Systems
           weightSpeed = 0;
 
           fishingStrengthBind.SetBindValue(player.oid, token, 0);
-          //fishingStrengthBind.SetBindWatch(player.oid, token, true);
           fishingStrengthColor.SetBindValue(player.oid, token, red);
 
           successBind.SetBindValue(player.oid, token, 0.2f);
-          successBind.SetBindWatch(player.oid, token, true);
 
           resizable.SetBindValue(player.oid, token, true);
           weightPos.SetBindValue(player.oid, token, new NuiRect(82, 335, 0, 0));
@@ -152,322 +132,193 @@ namespace NWN.Systems
           if (nuiEvent.Player.NuiGetWindowId(nuiEvent.WindowToken) != windowId)
             return;
 
-          if (nuiEvent.EventType == NuiEventType.Watch)
-          {
-            switch(nuiEvent.ElementId)
-            {
-              case "fishingStrength":
-                Log.Info("prout");
-                float strengthValue = fishingStrengthBind.GetBindValue(player.oid, token);
-
-                Log.Info($"str value : {strengthValue}");
-
-                if(strengthValue > 0.4)
-                  fishingStrengthColor.SetBindValue(player.oid, token, green);
-                else if(strengthValue > 0.2)
-                  fishingStrengthColor.SetBindValue(player.oid, token, yellow);
-                else
-                  fishingStrengthColor.SetBindValue(player.oid, token, red);
-                
-                return;
-
-              case "success":
-
-                float successValue = successBind.GetBindValue(player.oid, token);
-
-                if (successValue <= 0)
-                  Log.Info("PERDU !");
-                else if (successValue >= 1)
-                  Log.Info("GAGNE !");
-
-                if (successValue > 0.6)
-                  successColorBind.SetBindValue(player.oid, token, green);
-                else if (successValue > 0.3)
-                  successColorBind.SetBindValue(player.oid, token, yellow);
-                else
-                  successColorBind.SetBindValue(player.oid, token, red);
-
-                return;
-            }
-          }
-
           if (nuiEvent.EventType == NuiEventType.MouseDown && fishingState == 0)
-          {
-            strValueChg = 0.01f;
-            
-            HandleStrengthValueChange();
-            //HandleStrengthColorChange();
             StartStrengthProgress();
-
-            fishingState = 1;
-          }
           else if(nuiEvent.EventType == NuiEventType.MouseUp && fishingState == 1)
           {
-            /*fishingState = 2;
+            fishingState = 2;
 
-            strengthGroup.Visible = false;
-            fishGroup.Visible = true;
-            successGroup.Visible = true;
+            strengthCol.Visible = false;
+            fishCol.Visible = true;
+            successCol.Visible = true;
 
-            weightSpeed += 1; 
             strengthGroup.SetLayout(player.oid, token, strengthCol);
             fishGroup.SetLayout(player.oid, token, fishCol);
             successGroup.SetLayout(player.oid, token, successCol);
 
-            StartFishMovement();*/
+            weightSpeed = 0;
+            weightAcceleration = 0;
+
+            StartFishMovement();
+            StartWeightMovement();
           }
-          else if (nuiEvent.EventType == NuiEventType.MouseDown && fishingState == 2)
-          {
-            HandleFishingWeightPush();
-          }
-          else if (nuiEvent.EventType == NuiEventType.MouseUp && fishingState == 2)
-          {
-            weightSpeed -= 1;
-            HandleFishingWeightDrop();
-          }
+          else if (nuiEvent.EventType == NuiEventType.MouseDown)
+            weightAcceleration = 0.05f;
+          else if (nuiEvent.EventType == NuiEventType.MouseUp)
+            weightAcceleration = - 0.05f;
         }
-        private async void HandleStrengthValueChange() // Utiliser un scheduler plutôt que de l'async pour gérer ces trucs là
-        {
-          CancellationTokenSource tokenSource = new CancellationTokenSource();
-          
-          Task fishingCancelled = NwTask.WaitUntil(() => !player.oid.IsValid || fishingState != 1 || !player.openedWindows.ContainsKey(windowId), tokenSource.Token);
-          Task strValueGreaterThan1 = NwTask.WaitUntil(() => fishingStrengthBind.GetBindValue(player.oid, token) > 0.99, tokenSource.Token);
-          Task strValueLowerThan0 = NwTask.WaitUntil(() => fishingStrengthBind.GetBindValue(player.oid, token) < 0.01, tokenSource.Token);
-          
-          await NwTask.WhenAny(fishingCancelled, strValueGreaterThan1, strValueLowerThan0);
-          tokenSource.Cancel();
-
-          if (fishingCancelled.IsCompletedSuccessfully)
-            return;
-
-          if (strValueGreaterThan1.IsCompletedSuccessfully)
-            strValueChg = -0.01f;
-
-          if (strValueLowerThan0.IsCompletedSuccessfully)
-            strValueChg = 0.01f;
-
-          HandleStrengthValueChange();
-        }
-
-        /*private async void HandleStrengthColorChange()
-        {
-          CancellationTokenSource tokenSource = new CancellationTokenSource();
-
-          Task fishingCancelled = NwTask.WaitUntil(() => !player.oid.IsValid || fishingState != 1 || !player.openedWindows.ContainsKey(windowId), tokenSource.Token);
-          Task strValueGreaterThan02 = NwTask.WaitUntil(() =>  fishingStrengthBind.GetBindValue(player.oid, token) >= 0.2, tokenSource.Token);
-
-          await NwTask.WhenAny(fishingCancelled, strValueGreaterThan02);
-          tokenSource.Cancel();
-
-          if (fishingCancelled.IsCompletedSuccessfully)
-            return;
-
-          fishingStrengthColor.SetBindValue(player.oid, token, yellow);
-          HandleStrengthGreenColorChange();
-        }
-
-        private async void HandleStrengthGreenColorChange()
-        {
-          CancellationTokenSource tokenSource = new CancellationTokenSource();
-
-          Task fishingCancelled = NwTask.WaitUntil(() => !player.oid.IsValid || fishingState != 1 || !player.openedWindows.ContainsKey(windowId), tokenSource.Token);
-          Task strValueGreaterThan04 = NwTask.WaitUntil(() => fishingStrengthBind.GetBindValue(player.oid, token) >= 0.4, tokenSource.Token);
-
-          await NwTask.WhenAny(fishingCancelled, strValueGreaterThan04);
-          tokenSource.Cancel();
-
-          if (fishingCancelled.IsCompletedSuccessfully)
-            return;
-
-          fishingStrengthColor.SetBindValue(player.oid, token, green);
-
-          HandleStrengthYellowColorChange();
-        }
-
-        private async void HandleStrengthYellowColorChange()
-        {
-          CancellationTokenSource tokenSource = new CancellationTokenSource();
-
-          Task fishingCancelled = NwTask.WaitUntil(() => !player.oid.IsValid || fishingState != 1 || !player.openedWindows.ContainsKey(windowId), tokenSource.Token);
-          Task strValueLowerThan04 = NwTask.WaitUntil(() => fishingStrengthBind.GetBindValue(player.oid, token) <= 0.4, tokenSource.Token);
-
-          await NwTask.WhenAny(fishingCancelled, strValueLowerThan04);
-          tokenSource.Cancel();
-
-          if (fishingCancelled.IsCompletedSuccessfully)
-            return;
-
-          fishingStrengthColor.SetBindValue(player.oid, token, yellow);
-
-          HandleStrengthRedColorChange();
-        }
-
-        private async void HandleStrengthRedColorChange()
-        {
-          CancellationTokenSource tokenSource = new CancellationTokenSource();
-
-          Task fishingCancelled = NwTask.WaitUntil(() => !player.oid.IsValid || fishingState != 1 || !player.openedWindows.ContainsKey(windowId), tokenSource.Token);
-          Task strValueLowerThan02 = NwTask.WaitUntil(() => fishingStrengthBind.GetBindValue(player.oid, token) <= 0.2, tokenSource.Token);
-
-          await NwTask.WhenAny(fishingCancelled, strValueLowerThan02);
-          tokenSource.Cancel();
-
-          if (fishingCancelled.IsCompletedSuccessfully)
-            return;
-
-          fishingStrengthColor.SetBindValue(player.oid, token, red);
-          HandleStrengthColorChange();
-        }*/
 
         private async void StartStrengthProgress()
         {
-          CancellationTokenSource tokenSource = new CancellationTokenSource();
+          strValueChg = 0.01f;
 
-          Task fishingCancelled = NwTask.WaitUntil(() => !player.oid.IsValid || fishingState != 1 || !player.openedWindows.ContainsKey(windowId), tokenSource.Token);
-          Task timeElapsed = NwTask.Delay(TimeSpan.FromMilliseconds(1), tokenSource.Token);
+          await Task.Run(async () =>
+          {
+            var spawnScheduler = ModuleSystem.scheduler.ScheduleRepeating(() =>
+            {
 
-          await NwTask.WhenAny(fishingCancelled, timeElapsed);
-          tokenSource.Cancel();
+              float currentValue = fishingStrengthBind.GetBindValue(player.oid, token);
 
-          if (fishingCancelled.IsCompletedSuccessfully)
-            return;
+              if (currentValue > 0.4)
+              {
+                if (fishingStrengthColor.GetBindValue(player.oid, token) != green)
+                  fishingStrengthColor.SetBindValue(player.oid, token, green);
 
-          fishingStrengthBind.SetBindValue(player.oid, token, fishingStrengthBind.GetBindValue(player.oid, token) + strValueChg);
-          StartStrengthProgress();
+                if (currentValue > 0.99)
+                  strValueChg = -0.01f;
+              }
+              else if (currentValue > 0.2)
+              {
+                if (fishingStrengthColor.GetBindValue(player.oid, token) != yellow)
+                  fishingStrengthColor.SetBindValue(player.oid, token, yellow);
+              }
+              else
+              {
+                if (fishingStrengthColor.GetBindValue(player.oid, token) != red)
+                  fishingStrengthColor.SetBindValue(player.oid, token, red);
+
+                if (currentValue < 0.01)
+                  strValueChg = 0.01f;
+              }
+
+              fishingStrengthBind.SetBindValue(player.oid, token, currentValue + strValueChg);
+            }, TimeSpan.FromMilliseconds(1));
+
+            fishingState = 1;
+
+            await NwTask.WaitUntil(() => !player.oid.IsValid || fishingState != 1 || !player.openedWindows.ContainsKey(windowId));
+            spawnScheduler.Dispose();
+          });
         }
-        private async void HandleFishingWeightPush()
+
+        private async void StartWeightMovement()
         {
-          CancellationTokenSource tokenSource = new CancellationTokenSource();
-
-          Task fishingCancelled = NwTask.WaitUntil(() => !player.oid.IsValid || weightPos.GetBindValue(player.oid, token).Y  < 23 || fishingState != 1 || !player.openedWindows.ContainsKey(windowId), tokenSource.Token);
-          Task timeElapsed = NwTask.Delay(TimeSpan.FromMilliseconds(1), tokenSource.Token);
-
-          await NwTask.WhenAny(fishingCancelled, timeElapsed);
-          tokenSource.Cancel();
-
-          if (fishingCancelled.IsCompletedSuccessfully)
+          await Task.Run(async () =>
           {
-            if (weightPos.GetBindValue(player.oid, token).Y < 23)
-              weightSpeed = 0;
-            return;
-          }
+            var spawnScheduler = ModuleSystem.scheduler.ScheduleRepeating(() =>
+            {
 
-          NuiRect oldPos = weightPos.GetBindValue(player.oid, token);
+              NuiRect oldPos = weightPos.GetBindValue(player.oid, token);
+              float pos = oldPos.Y - weightSpeed;
 
-          float yPos = oldPos.Y - weightSpeed;
-          if (yPos > 334)
-          {
-            yPos = 334;
-            weightSpeed = 0;
-          }
+              weightSpeed += weightAcceleration;
 
-          NuiRect newPos = new NuiRect(oldPos.X, yPos, oldPos.Width, oldPos.Height);
+              if (pos > 335)
+              {
+                if (weightSpeed > -0.16 && weightSpeed < 0.05)
+                {
+                  weightSpeed = 0;
+                  return;
+                }
+                else
+                  weightSpeed = weightSpeed < 0 ? -(weightSpeed * 0.65f) : weightSpeed * 0.65f;
+              }
+              else if (pos < 23)
+              {
+                weightSpeed = 0;
+                return;
+              }
 
-          weightPos.SetBindValue(player.oid, token, newPos);
+              weightPos.SetBindValue(player.oid, token, new NuiRect(oldPos.X, pos, oldPos.Width, oldPos.Height));
 
-          weightSpeed += 0.05f;
+            }, TimeSpan.FromMilliseconds(10));
 
-          HandleFishingWeightPush();
-        }
-        private async void HandleFishingWeightDrop()
-        {
-          CancellationTokenSource tokenSource = new CancellationTokenSource();
-
-          Task fishingCancelled = NwTask.WaitUntil(() => !player.oid.IsValid || fishingState != 0 || !player.openedWindows.ContainsKey(windowId), tokenSource.Token);
-          Task bottomReached = NwTask.WaitUntil(() => weightPos.GetBindValue(player.oid, token).Y > 334, tokenSource.Token);
-          Task timeElapsed = NwTask.Delay(TimeSpan.FromMilliseconds(1), tokenSource.Token);
-
-          await NwTask.WhenAny(fishingCancelled, bottomReached, timeElapsed);
-          tokenSource.Cancel();
-
-          if (fishingCancelled.IsCompletedSuccessfully)
-            return;
-
-          if(bottomReached.IsCompletedSuccessfully)
-          {
-            weightSpeed = weightSpeed < 0 ? -(weightSpeed * 0.65f) : weightSpeed * 0.65f;
-
-            if (weightSpeed < 0.1 && weightSpeed > -0.1)
-              return;
-          }
-
-          NuiRect oldPos = weightPos.GetBindValue(player.oid, token);
-
-          float yPos = oldPos.Y - weightSpeed;
-          if(yPos < 23)
-          {
-            yPos = 23;
-            weightSpeed = 0;
-          }
-
-          NuiRect newPos = new NuiRect(oldPos.X, yPos, oldPos.Width, oldPos.Height);
-
-          weightPos.SetBindValue(player.oid, token, newPos);
-
-          weightSpeed -= 0.05f;
-
-          HandleFishingWeightDrop();
+            await NwTask.WaitUntil(() => !player.oid.IsValid || !player.openedWindows.ContainsKey(windowId));
+            spawnScheduler.Dispose();
+          });
         }
         private async void HandleFishMove()
         {
-          CancellationTokenSource tokenSource = new CancellationTokenSource();
+          await Task.Run(async () =>
+          {
+            var spawnScheduler = ModuleSystem.scheduler.ScheduleRepeating(() =>
+            {
 
-          Task fishingCancelled = NwTask.WaitUntil(() => !player.oid.IsValid || !player.openedWindows.ContainsKey(windowId), tokenSource.Token);
-          Task timeElapsed = NwTask.Delay(TimeSpan.FromMilliseconds(10), tokenSource.Token);
+              NuiRect oldPos = fishPos.GetBindValue(player.oid, token);
+              float yPos = oldPos.Y - fishSpeed;
 
-          await NwTask.WhenAny(fishingCancelled, timeElapsed);
-          tokenSource.Cancel();
+              if (yPos < 23)
+                yPos = 23;
+              else if (yPos > 425)
+                yPos = 425;
 
-          if (fishingCancelled.IsCompletedSuccessfully)
-            return;
+              fishPos.SetBindValue(player.oid, token, new NuiRect(oldPos.X, yPos, oldPos.Width, oldPos.Height));
+              float weightYPos = weightPos.GetBindValue(player.oid, token).Y;
 
-          NuiRect oldPos = fishPos.GetBindValue(player.oid, token);
+              float successValue = successBind.GetBindValue(player.oid, token);
 
-          float yPos = oldPos.Y - fishSpeed;
+              if (successValue < 1 && yPos > weightYPos && yPos < weightYPos + 90)
+              {
+                successValue += 0.01f;
+                successBind.SetBindValue(player.oid, token, successValue);
+              }
+              else if (successValue > 0)
+              {
+                successValue -= 0.01f;
+                successBind.SetBindValue(player.oid, token, successValue);
+              }
 
-          if (yPos < 23)
-            yPos = 23;
-          else if (yPos > 425)
-            yPos = 425;
+              if (successValue <= 0)
+                Log.Info("PERDU !");
+              else if (successValue >= 1)
+                Log.Info("GAGNE !");
 
-          NuiRect newPos = new NuiRect(oldPos.X, yPos, oldPos.Width, oldPos.Height);
-          fishPos.SetBindValue(player.oid, token, newPos);
+              if (successValue > 0.6)
+              {
+                if (successColorBind.GetBindValue(player.oid, token) != green)
+                  successColorBind.SetBindValue(player.oid, token, green);
+              }
+              else if (successValue > 0.3)
+              {
+                if (successColorBind.GetBindValue(player.oid, token) != yellow)
+                  successColorBind.SetBindValue(player.oid, token, yellow);
+              }
+              else
+              {
+                if (successColorBind.GetBindValue(player.oid, token) != red)
+                  successColorBind.SetBindValue(player.oid, token, red);
+              }
 
-          float weightYPos = weightPos.GetBindValue(player.oid, token).Y;
-          
-          if (yPos > weightYPos && yPos > weightYPos + 50)
-            successBind.SetBindValue(player.oid, token, successBind.GetBindValue(player.oid, token) + 0.01f);
-          else
-            successBind.SetBindValue(player.oid, token, successBind.GetBindValue(player.oid, token) - 0.01f);
+            }, TimeSpan.FromMilliseconds(10));
 
-          HandleFishMove();
+            await NwTask.WaitUntil(() => !player.oid.IsValid || !player.openedWindows.ContainsKey(windowId));
+            spawnScheduler.Dispose();
+          });
         }
         private async void SetFishSpeed()
         {
-          CancellationTokenSource tokenSource = new CancellationTokenSource();
+          await Task.Run(async () =>
+          {
+            var spawnScheduler = ModuleSystem.scheduler.ScheduleRepeating(() =>
+            {
 
-          Task fishingCancelled = NwTask.WaitUntil(() => !player.oid.IsValid || !player.openedWindows.ContainsKey(windowId), tokenSource.Token);
-          Task timeElapsed = NwTask.Delay(TimeSpan.FromMilliseconds(250), tokenSource.Token);
+              float yPos = fishPos.GetBindValue(player.oid, token).Y;
+              fishSpeed = Utils.random.NextFloat();
 
-          await NwTask.WhenAny(fishingCancelled, timeElapsed);
-          tokenSource.Cancel();
+              if (yPos < 100)
+                fishSpeed = Utils.random.Next(4) < 3 ? fishSpeed : -fishSpeed;
+              else if (yPos < 225)
+                fishSpeed = Utils.random.Next(2) < 1 ? fishSpeed : -fishSpeed;
+              else if (yPos < 335)
+                fishSpeed = Utils.random.Next(4) < 3 ? -fishSpeed : fishSpeed;
 
-          if (fishingCancelled.IsCompletedSuccessfully)
-            return;
+              fishSpeed *= Utils.random.Next(1, 4);
 
-          float yPos = fishPos.GetBindValue(player.oid, token).Y;
-          fishSpeed = Utils.random.NextFloat();
+            }, TimeSpan.FromMilliseconds(250));
 
-          if (yPos < 100)
-            fishSpeed = Utils.random.Next(4) < 3 ? fishSpeed : - fishSpeed;
-          else if (yPos < 225)
-            fishSpeed = Utils.random.Next(2) < 1 ? fishSpeed : -fishSpeed;
-          else if (yPos < 334)
-            fishSpeed = Utils.random.Next(4) < 3 ? - fishSpeed : fishSpeed;
-
-          fishSpeed *= Utils.random.Next(1, 4);
-
-          SetFishSpeed();
+            await NwTask.WaitUntil(() => !player.oid.IsValid || !player.openedWindows.ContainsKey(windowId));
+            spawnScheduler.Dispose();
+          });
         }
         private void StartFishMovement()
         {
