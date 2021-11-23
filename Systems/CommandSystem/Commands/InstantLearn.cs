@@ -15,7 +15,7 @@ namespace NWN.Systems
     }
     private void SelectLearnTarget(ModuleEvents.OnPlayerTarget selection)
     {
-      if (selection.IsCancelled || !selection.TargetObject.IsPlayerControlled(out NwPlayer oPC) || !PlayerSystem.Players.TryGetValue(oPC.LoginCreature, out PlayerSystem.Player targetPlayer))
+      /*if (selection.IsCancelled || !selection.TargetObject.IsPlayerControlled(out NwPlayer oPC) || !PlayerSystem.Players.TryGetValue(oPC.LoginCreature, out PlayerSystem.Player targetPlayer))
         return;
 
       Learnable learnable = targetPlayer.learnables.FirstOrDefault(l => l.Value.active).Value;
@@ -24,6 +24,7 @@ namespace NWN.Systems
         learnable.acquiredPoints = learnable.pointsToNextLevel;
       else
         selection.Player.SendServerMessage($"{targetPlayer.oid.LoginCreature.Name.ColorString(ColorConstants.White)} ne dispose pas d'apprentissage en cours.", ColorConstants.Orange);
+    */
     }
   }
 }

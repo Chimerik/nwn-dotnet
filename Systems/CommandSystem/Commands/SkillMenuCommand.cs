@@ -14,10 +14,10 @@ namespace NWN.Systems
       if (PlayerSystem.Players.TryGetValue(ctx.oSender.LoginCreature, out PlayerSystem.Player player))
       {
         player.menu.Close();
-        __DrawWelcomePage(player);
+        //__DrawWelcomePage(player);
       }
     }
-    private static void __DrawWelcomePage(PlayerSystem.Player player)
+    /*private static void __DrawWelcomePage(PlayerSystem.Player player)
     {
       player.menu.Clear();
 
@@ -114,6 +114,6 @@ namespace NWN.Systems
       }
 
       player.menu.Close();
-    }
+    }*/
   }
 }

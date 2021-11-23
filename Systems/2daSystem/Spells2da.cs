@@ -33,11 +33,7 @@ namespace NWN.Systems
       };
 
       classSorter.OrderByDescending(c => c.Value);
-
-      if (classSorter.ElementAt(0).Value > 0)
-        castClass = classSorter.ElementAt(0).Key;
-      else
-        castClass = (ClassType)43;
+      castClass = classSorter.ElementAt(0).Value > 0 ? classSorter.ElementAt(0).Key : (ClassType)43;
 
       string school = twoDimEntry("School");
 
@@ -48,10 +44,10 @@ namespace NWN.Systems
       string description = strRef == 0 ? description = "Description manquante" : description = Spells2da.tlkTable.GetSimpleString(strRef);
 
       float level = float.TryParse(twoDimEntry("Wiz_Sorc"), out level) ? level : 0.5f;
-      if (level < 1)
-        level = 0.5f;
+      level = level < 1 ? 0.5f : level;
 
       entries.Add((Spell)rowIndex, new Entry(name, description, level, castClass, (SpellSchool)"GACDEVINT".IndexOf(school)));
+      SkillSystem.learnableDictionary.Add(rowIndex, new LearnableSpell(rowIndex, name, description, twoDimEntry("IconResRef"), level < 1 ? 1 : (int)level, level < 1 ? 0 : (int)level, castClass == ClassType.Druid || castClass == ClassType.Cleric || castClass == ClassType.Ranger ? Ability.Wisdom : Ability.Intelligence, Ability.Charisma));
     }
     public readonly struct Entry
     {

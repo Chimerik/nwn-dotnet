@@ -55,8 +55,8 @@ namespace NWN.Systems
 
     private static void ValidationMiddleware(Context ctx, Action next)
     {
-      ctx.oActivator.learnables.Add($"F{ctx.skillId}", new Learnable(LearnableType.Feat, (int)ctx.skillId, 0).InitializeLearnableLevel(ctx.oActivator));
-      ctx.oItem.Destroy();
+      /*ctx.oActivator.learnables.Add($"F{ctx.skillId}", new Learnable(LearnableType.Feat, (int)ctx.skillId, 0).InitializeLearnableLevel(ctx.oActivator));
+      ctx.oItem.Destroy();*/
 
       next();
     }

@@ -1,18 +1,20 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.ComponentModel;
 using System.IO;
 using System.Linq;
 using System.Reflection;
-using System.Text.Json;
 using System.Threading.Tasks;
 
-using NWN.Systems;
+using Anvil.API;
+
+using Newtonsoft.Json;
 
 namespace NWN
 {
   public static class StringUtils
   {
+    public static JsonSerializerSettings settings = new JsonSerializerSettings { TypeNameHandling = TypeNameHandling.All };
+
     public static string FirstCharToUpper(this string input)
     {
       switch (input)
@@ -34,6 +36,22 @@ namespace NWN
       DescriptionAttribute attribute = Attribute.GetCustomAttribute(field, typeof(DescriptionAttribute)) as DescriptionAttribute;
       return attribute == null ? value.ToString().Replace("_", " ") : attribute.Description.Replace("_", " ");
     }
+    public static string TranslateAttributeToFrench(Ability ability)
+    {
+      switch(ability)
+      {
+        case Ability.Strength:
+          return "Force";
+        case Ability.Dexterity:
+          return "Dextérité";
+        case Ability.Wisdom:
+          return "Sagesse";
+        case Ability.Charisma:
+          return "Charisme";
+      }
+
+      return ability.ToString();
+    }
     public async static Task<Stream> GenerateStreamFromString(string s)
     {
       var stream = new MemoryStream();
@@ -42,66 +60,6 @@ namespace NWN
       await writer.FlushAsync();
       stream.Position = 0;
       return stream;
-    }
-    public async static Task<string> SerializeObjectToJsonString(Systems.Alchemy.Cauldron alchemyCauldron)
-    {
-      using (var stream = new MemoryStream())
-      {
-        if (alchemyCauldron != null)
-        {
-          await JsonSerializer.SerializeAsync(stream, alchemyCauldron);
-          stream.Position = 0;
-          using var reader = new StreamReader(stream);
-          return await reader.ReadToEndAsync();
-        }
-        else
-          return "";
-      }
-    }
-    public async static Task<string> SerializeObjectToJsonString(Dictionary<string, Learnable> learnables)
-    {
-      using (var stream = new MemoryStream())
-      {
-        if (learnables.Count > 0)
-        {
-          await JsonSerializer.SerializeAsync(stream, learnables);
-          stream.Position = 0;
-          using var reader = new StreamReader(stream);
-          return await reader.ReadToEndAsync();
-        }
-        else
-          return "";
-      }
-    }
-    public async static Task<string> SerializeObjectToJsonString(Dictionary<string, byte[]> explorationState)
-    {
-      using (var stream = new MemoryStream())
-      {
-        if (explorationState.Count > 0)
-        {
-          await JsonSerializer.SerializeAsync(stream, explorationState);
-          stream.Position = 0;
-          using var reader = new StreamReader(stream);
-          return await reader.ReadToEndAsync();
-        }
-        else
-          return "";
-      }
-    }
-    public async static Task<string> SerializeObjectToJsonString(Dictionary<string, int> openedWindows)
-    {
-      using (var stream = new MemoryStream())
-      {
-        if (openedWindows.Count > 0)
-        {
-          await JsonSerializer.SerializeAsync(stream, openedWindows.Where(w => w.Key == "chatReader" || w.Key == "chat"));
-          stream.Position = 0;
-          using var reader = new StreamReader(stream);
-          return await reader.ReadToEndAsync();
-        }
-        else
-          return "";
-      }
     }
   }
 }

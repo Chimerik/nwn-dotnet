@@ -1,10 +1,10 @@
-﻿namespace NWN
+﻿namespace NWN.Systems
 {
   public class CustomFeat
   {
-    public string name;
-    public string description;
-    public int maxLevel;
+    public string name { get; }
+    public string description { get; }
+    public int maxLevel { get; }
 
     public CustomFeat(string name, string description, int maxLevel)
     {

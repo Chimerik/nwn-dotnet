@@ -89,7 +89,7 @@ namespace NWN.Systems
 
       //TempLearnablesJsonification();
     }
-    private async void TempLearnablesJsonification()
+    /*private async void TempLearnablesJsonification()
     {
       List<int> charIds = new List<int>();
 
@@ -144,7 +144,7 @@ namespace NWN.Systems
           new List<string[]>() { new string[] { "rowid", charId.ToString() } });
         }
       }
-    }
+    }*/
     private static void CreateDatabase()
     {
       SqLiteUtils.CreateQuery("CREATE TABLE IF NOT EXISTS moduleInfo" +

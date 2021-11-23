@@ -8,6 +8,10 @@ using System.Threading.Tasks;
 using Anvil.API;
 using Anvil.API.Events;
 
+using Newtonsoft.Json;
+
+using JsonSerializer = System.Text.Json.JsonSerializer;
+
 namespace NWN.Systems
 {
   public partial class PlayerSystem
@@ -179,20 +183,38 @@ namespace NWN.Systems
 
         await NwTask.Delay(TimeSpan.FromSeconds(0.2));
 
-        Task<string> serializeAlchemyCauldron = StringUtils.SerializeObjectToJsonString(alchemyCauldron);
-        Task<string> serializeLearnables = StringUtils.SerializeObjectToJsonString(learnables);
-        Task<string> serializeExplorationState = StringUtils.SerializeObjectToJsonString(areaExplorationStateDictionnary);
-        Task<string> serializeOpenedWindows = StringUtils.SerializeObjectToJsonString(openedWindows);
+        Task<string> serializeAlchemyCauldron = Task.Run(() => JsonConvert.SerializeObject(alchemyCauldron));
+        Task<string> serializeExplorationState = Task.Run(() => JsonConvert.SerializeObject(areaExplorationStateDictionnary));
+        Task<string> serializeOpenedWindows = Task.Run(() => JsonConvert.SerializeObject(openedWindows));
+        Task<string> serializeLearnableSkills = Task.Run(() =>
+        {
+          Dictionary<int, LearnableSkill.SerializableLearnableSkill> serializableSkills = new Dictionary<int, LearnableSkill.SerializableLearnableSkill>();
+          foreach (var kvp in learnableSkills)
+            serializableSkills.Add(kvp.Key, new LearnableSkill.SerializableLearnableSkill(kvp.Value));
 
-        await Task.WhenAll(serializeAlchemyCauldron, serializeLearnables, serializeExplorationState, serializeOpenedWindows);
+          return JsonConvert.SerializeObject(serializableSkills);
+        });
+
+        Task<string> serializeLearnableSpells = Task.Run(() =>
+        {
+          Dictionary<int, LearnableSpell.SerializableLearnableSpell> serializableSpells= new Dictionary<int, LearnableSpell.SerializableLearnableSpell>();
+          foreach (var kvp in learnableSpells)
+            serializableSpells.Add(kvp.Key, new LearnableSpell.SerializableLearnableSpell(kvp.Value));
+
+          return JsonConvert.SerializeObject(serializableSpells);
+        });
+
+        await Task.WhenAll(serializeAlchemyCauldron, serializeLearnableSkills, serializeLearnableSpells, serializeExplorationState, serializeOpenedWindows);
 
         string serializedCauldron = serializeAlchemyCauldron.Result;
-        string serializedLearnables = serializeLearnables.Result;
+        string serializedLearnableSkills = serializeLearnableSkills.Result;
+        string serializedLearnableSpells = serializeLearnableSpells.Result;
         string serializedExploration = serializeExplorationState.Result;
         string serializedOpenedWindows = serializeOpenedWindows.Result;
 
         Log.Info($"serializedCauldron : {serializedCauldron}");
-        Log.Info($"serializedLearnables : {serializedLearnables}");
+        Log.Info($"serializedLearnables : {serializedLearnableSkills}");
+        Log.Info($"serializedLearnableSpells : {serializedLearnableSpells}");
         Log.Info($"serializedExploration : {serializedExploration}");
 
         SqLiteUtils.UpdateQuery("playerCharacters",
@@ -202,7 +224,7 @@ namespace NWN.Systems
           new string[] { "currentCraftJob", craftJob.baseItemType.ToString() }, new string[] { "currentCraftObject", craftJob.craftedItem }, new string[] { "currentCraftJobRemainingTime", craftJob.remainingTime.ToString() },
           new string[] { "currentCraftJobMaterial", craftJob.material }, new string[] { "pveArenaCurrentPoints", pveArena.currentPoints.ToString() },
           new string[] { "menuOriginTop", menu.originTop.ToString() }, new string[] { "menuOriginLeft", menu.originLeft.ToString() },
-          new string[] { "alchemyCauldron", serializedCauldron }, new string[] { "serializedLearnables", serializedLearnables }, new string[] { "explorationState", serializedExploration }, new string[] { "openedWindows", serializedOpenedWindows } },
+          new string[] { "alchemyCauldron", serializedCauldron }, new string[] { "serializedLearnableSkills", serializedLearnableSkills }, new string[] { "serializedLearnableSpells", serializedLearnableSpells }, new string[] { "explorationState", serializedExploration }, new string[] { "openedWindows", serializedOpenedWindows } },
         new List<string[]>() { new string[] { "rowid", characterId.ToString() } });
       }
       private async void SavePlayerStoredMaterialsToDatabase()

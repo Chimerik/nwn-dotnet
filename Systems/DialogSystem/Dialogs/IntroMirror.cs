@@ -31,8 +31,8 @@ namespace NWN.Systems
       if(mirror.GetObjectVariable<LocalVariableInt>("_TRAIT_SELECTED").HasNothing)
         player.menu.choices.Add(($"Me perdre brièvement dans le passé.", () => HandleBackgroundChoice(player)));
       
-      if (player.oid.LoginCreature.GetObjectVariable<PersistentVariableInt>("_STARTING_SKILL_POINTS").HasValue)
-        player.menu.choices.Add(($"Me préparer à l'avenir.", () => HandleSkillSelection(player)));
+      /*if (player.oid.LoginCreature.GetObjectVariable<PersistentVariableInt>("_STARTING_SKILL_POINTS").HasValue)
+        player.menu.choices.Add(($"Me préparer à l'avenir.", () => HandleSkillSelection(player)));*/
       
       player.menu.choices.Add(("M'éloigner du miroir.", () => player.menu.Close()));
       player.menu.Draw();
@@ -108,7 +108,7 @@ namespace NWN.Systems
       player.menu.choices.Add(("Quitter", () => player.menu.Close()));
       player.menu.Draw();
     }
-    private void HandleSkillSelection(Player player)
+    /*private void HandleSkillSelection(Player player)
     {
       player.menu.Clear();
       
@@ -130,7 +130,7 @@ namespace NWN.Systems
       player.menu.choices.Add(("Retour.", () => DrawWelcomePage(player)));
       player.menu.choices.Add(("Quitter", () => player.menu.Close()));
       player.menu.Draw();
-    }
+    }*/
     private void RestoreMirror(Player player)
     {   
       if (clone != null)
@@ -158,7 +158,7 @@ namespace NWN.Systems
       player.oid.LoginCreature.VisualTransform.Scale = clone.VisualTransform.Scale;
       HandleBodyModification(player);
     }
-    private void HandleSkillSelected(Player player, Learnable skill)
+    /*private void HandleSkillSelected(Player player, Learnable skill)
     {
       int remainingPoints = player.oid.LoginCreature.GetObjectVariable<PersistentVariableInt>("_STARTING_SKILL_POINTS").Value;
 
@@ -223,7 +223,7 @@ namespace NWN.Systems
         player.CreateSkillJournalEntry(skill);
         DrawWelcomePage(player);
       }
-    }
+    }*/
     private void AddTrait(Player player, Feat trait)
     {
       player.oid.LoginCreature.AddFeat(trait);

@@ -294,7 +294,7 @@ namespace NWN.Systems
       }
 
 
-      if (player.learnables.ContainsKey($"S{spellId}"))
+      /*if (player.learnables.ContainsKey($"S{spellId}"))
       {
         Learnable learnable = player.learnables[$"S{spellId}"];
 
@@ -314,7 +314,7 @@ namespace NWN.Systems
         player.learnables.Add($"S{(int)spellId}", spell);
         oPC.ControllingPlayer.SendServerMessage($"Le sort {spell.name} a été ajouté à votre liste d'apprentissage et est désormais disponible pour étude.");
         oScroll.Destroy();
-      }
+      }*/
     }
 
     [ScriptHandler("collect_cancel")]
@@ -573,7 +573,7 @@ namespace NWN.Systems
                   else
                   {
                     sModifier = GetModifierType(eff.EffectType, EffectType.AbilityIncrease, EffectType.AbilityDecrease);
-                    sStats = $"{sModifier}{eff.IntParams.ElementAt(1)}  {AbilityToString(nAbility)}";
+                    sStats = $"{sModifier}{eff.IntParams.ElementAt(1)}  {StringUtils.TranslateAttributeToFrench(nAbility)}";
                   }
                   break;
                 }
@@ -708,7 +708,7 @@ namespace NWN.Systems
                     int nAbilityMod = eff.IntParams.ElementAt(nAbility);
                     if (nAbilityMod > 0)
                     {
-                      string sAbility = AbilityToString((Ability)nAbility).Substring(0, 3);
+                      string sAbility = StringUtils.TranslateAttributeToFrench((Ability)nAbility).Substring(0, 3);
                       sAbilityDecrease += "-" + nAbilityMod + " " + sAbility + ", ";
                     }
                   }
@@ -912,20 +912,6 @@ namespace NWN.Systems
       }
 
       return ImmunityType.None;
-    }
-    private static string AbilityToString(Ability nAbility)
-    {
-      switch (nAbility)
-      {
-        case Ability.Strength: return "Force";
-        case Ability.Dexterity: return "Dextérité";
-        case Ability.Constitution: return "Constitution";
-        case Ability.Intelligence: return "Intelligence";
-        case Ability.Wisdom: return "Sagesse";
-        case Ability.Charisma: return "Charisme";
-      }
-
-      return "";
     }
     private static string DamageTypeToString(int nDamageType)
     {

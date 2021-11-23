@@ -196,7 +196,7 @@ namespace NWN.Systems
 
             fishingState = 1;
 
-            await NwTask.WaitUntil(() => !player.oid.IsValid || fishingState != 1 || !player.openedWindows.ContainsKey(windowId));
+            await NwTask.WaitUntil(() => !player.oid.LoginCreature.IsValid || fishingState != 1 || !player.openedWindows.ContainsKey(windowId));
             spawnScheduler.Dispose();
           });
         }
@@ -233,7 +233,7 @@ namespace NWN.Systems
 
             }, TimeSpan.FromMilliseconds(10));
 
-            await NwTask.WaitUntil(() => !player.oid.IsValid || !player.openedWindows.ContainsKey(windowId));
+            await NwTask.WaitUntil(() => !player.oid.LoginCreature.IsValid || !player.openedWindows.ContainsKey(windowId));
             spawnScheduler.Dispose();
           });
         }
@@ -291,7 +291,7 @@ namespace NWN.Systems
 
             }, TimeSpan.FromMilliseconds(10));
 
-            await NwTask.WaitUntil(() => !player.oid.IsValid || !player.openedWindows.ContainsKey(windowId));
+            await NwTask.WaitUntil(() => !player.oid.LoginCreature.IsValid || !player.openedWindows.ContainsKey(windowId));
             spawnScheduler.Dispose();
           });
         }
@@ -316,7 +316,7 @@ namespace NWN.Systems
 
             }, TimeSpan.FromMilliseconds(250));
 
-            await NwTask.WaitUntil(() => !player.oid.IsValid || !player.openedWindows.ContainsKey(windowId));
+            await NwTask.WaitUntil(() => !player.oid.LoginCreature.IsValid || !player.openedWindows.ContainsKey(windowId));
             spawnScheduler.Dispose();
           });
         }

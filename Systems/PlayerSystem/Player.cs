@@ -46,7 +46,8 @@ namespace NWN.Systems
       public List<int> mutedList = new List<int>();
       public Dictionary<uint, Player> blocked = new Dictionary<uint, Player>();
       public Dictionary<Feat, int> learntCustomFeats = new Dictionary<Feat, int>();
-      public Dictionary<string, Learnable> learnables = new Dictionary<string, Learnable>();
+      public Dictionary<int, LearnableSkill> learnableSkills = new Dictionary<int, LearnableSkill>();
+      public Dictionary<int, LearnableSpell> learnableSpells = new Dictionary<int, LearnableSpell>();
       public Dictionary<string, int> materialStock = new Dictionary<string, int>();
       public Dictionary<int, MapPin> mapPinDictionnary = new Dictionary<int, MapPin>();
       public Dictionary<string, byte[]> areaExplorationStateDictionnary = new Dictionary<string, byte[]>();
@@ -225,38 +226,35 @@ namespace NWN.Systems
             else
               windows.Add(window, new ChatReaderWindow(this));
             break;
+          case "activeLearnable":
+            if (windows.ContainsKey(window))
+              ((ActiveLearnableWindow)windows[window]).CreateWindow();
+            else
+              windows.Add(window, new ActiveLearnableWindow(this));
+            break;
         }
       }
       public async void InitializePlayerLearnableJobs()
       {
         await NwTask.WaitUntil(() => oid.LoginCreature.GetObjectVariable<LocalVariableBool>("_ASYNC_INIT_DONE").HasValue);
 
-        //oid.LoginCreature.GetObjectVariable<LocalVariableBool>("_ASYNC_INIT_DONE").Delete();
+        if (learnableSkills.Any(l => l.Value.active) )
+          learnableSkills.First(l => l.Value.active).Value.AwaitPlayerStateChangeToCalculateSPGain(this);
 
-        if (learnables.Any(l => l.Value.active))
-        {
-          Learnable learnable = learnables.First(l => l.Value.active).Value;
-          AwaitPlayerStateChangeToCalculateSPGain(learnable);
+        else if(learnableSpells.Any(l => l.Value.active))
+          learnableSpells.First(l => l.Value.active).Value.AwaitPlayerStateChangeToCalculateSPGain(this);
 
-          await NwTask.WaitUntil(() => pcState == PcState.Online && oid.LoginCreature.Area != null);
-          CreateSkillJournalEntry(learnable);
-        }
+        /*int improvedHealth = 0;
+      if (player.learnableSkills.ContainsKey(CustomSkill.ImprovedHealth))
+        improvedHealth = player.learnableSkills[CustomSkill.ImprovedHealth].currentLevel;
 
-        foreach (KeyValuePair<Feat, int> feat in learntCustomFeats)
-        {
-          CustomFeat customFeat = customFeatsDictionnary[feat.Key];
-          FeatTable.Entry featEntry = Feat2da.featTable.GetFeatDataEntry(feat.Key);
-          oid.SetTlkOverride((int)featEntry.tlkName, $"{customFeat.name} - {SkillSystem.GetCustomFeatLevelFromSkillPoints(feat.Key, feat.Value)}");
-          oid.SetTlkOverride((int)featEntry.tlkDescription, customFeat.description);
-        }
+      int toughness = 0;
+      if (player.learnableSkills.ContainsKey(CustomSkill.Toughness))
+        toughness = player.learnableSkills[CustomSkill.Toughness].currentLevel;
 
-        int improvedHealth = 0;
-        if (learntCustomFeats.ContainsKey(CustomFeats.ImprovedHealth))
-          improvedHealth = GetCustomFeatLevelFromSkillPoints(CustomFeats.ImprovedHealth, learntCustomFeats[CustomFeats.ImprovedHealth]);
-
-        oid.LoginCreature.LevelInfo[0].HitDie = (byte)(10
-          + (1 + 3 * ((oid.LoginCreature.GetAbilityScore(Ability.Constitution, true) - 10) / 2)
-          + Convert.ToInt32(oid.LoginCreature.KnowsFeat(Feat.Toughness))) * improvedHealth);
+      player.oid.LoginCreature.LevelInfo[0].HitDie = (byte)(10
+        + (1 + 3 * ((player.oid.LoginCreature.GetAbilityScore(Ability.Constitution, true) - 10) / 2)
+        + toughness) * improvedHealth);*/
 
         if (oid.LoginCreature.HP <= 0)
           oid.LoginCreature.ApplyEffect(EffectDuration.Instant, Effect.Death());
@@ -265,6 +263,9 @@ namespace NWN.Systems
           oid.LoginCreature.BaseAttackBonus = (byte)(oid.LoginCreature.BaseAttackBonus + SkillSystem.GetCustomFeatLevelFromSkillPoints(CustomFeats.ImprovedAttackBonus, learntCustomFeats[CustomFeats.ImprovedAttackBonus]));
 
         pcState = Player.PcState.Online;
+
+        await NwTask.Delay(TimeSpan.FromSeconds(5));
+        oid.LoginCreature.GetObjectVariable<LocalVariableBool>("_ASYNC_INIT_DONE").Delete();
       }
       public void UnloadMenuQuickbar()
       {
@@ -516,7 +517,7 @@ namespace NWN.Systems
           dateLastSaved = DateTime.Now;
         }
 
-        if (learnables.Any(l => l.Value.active))
+        /*if (learnables.Any(l => l.Value.active))
         {
           journalEntry = oid.GetJournalEntry("skill_job");
 
@@ -532,7 +533,7 @@ namespace NWN.Systems
         {
           await NwTask.Delay(TimeSpan.FromSeconds(1));
           UpdateJournal();
-        }
+        }*/
       }
       public async void rebootUpdate(int countDown)
       {
@@ -600,20 +601,20 @@ namespace NWN.Systems
       }
       public async Task<bool> WaitForPlayerInputByte()
       {
-        this.oid.LoginCreature.GetObjectVariable<LocalVariableInt>("_AWAITING_PLAYER_INPUT").Value = 1;
+        oid.LoginCreature.GetObjectVariable<LocalVariableInt>("_AWAITING_PLAYER_INPUT").Value = 1;
 
-        this.oid.OnPlayerChat -= ChatSystem.HandlePlayerInputByte;
-        this.oid.OnPlayerChat += ChatSystem.HandlePlayerInputByte;
+        oid.OnPlayerChat -= ChatSystem.HandlePlayerInputByte;
+        oid.OnPlayerChat += ChatSystem.HandlePlayerInputByte;
 
         CancellationTokenSource tokenSource = new CancellationTokenSource();
-        Task awaitPlayerCancellation = NwTask.WaitUntil(() => !this.oid.IsValid || this.oid.LoginCreature.GetObjectVariable<LocalVariableInt>("_PLAYER_INPUT_CANCELLED").HasValue, tokenSource.Token);
-        Task awaitPlayerInput = NwTask.WaitUntil(() => this.oid.IsValid && this.oid.LoginCreature.GetObjectVariable<LocalVariableString>("_PLAYER_INPUT").HasValue, tokenSource.Token);
+        Task awaitPlayerCancellation = NwTask.WaitUntil(() => !oid.IsValid || oid.LoginCreature.GetObjectVariable<LocalVariableInt>("_PLAYER_INPUT_CANCELLED").HasValue, tokenSource.Token);
+        Task awaitPlayerInput = NwTask.WaitUntil(() => oid.IsValid && oid.LoginCreature.GetObjectVariable<LocalVariableString>("_PLAYER_INPUT").HasValue, tokenSource.Token);
 
         await NwTask.WhenAny(awaitPlayerInput, awaitPlayerCancellation);
         tokenSource.Cancel();
 
-        if (this.oid.IsValid)
-          this.oid.LoginCreature.GetObjectVariable<LocalVariableInt>("_PLAYER_INPUT_CANCELLED").Delete();
+        if (oid.IsValid)
+          oid.LoginCreature.GetObjectVariable<LocalVariableInt>("_PLAYER_INPUT_CANCELLED").Delete();
 
         if (awaitPlayerInput.IsCompletedSuccessfully)
           return true;
@@ -653,91 +654,23 @@ namespace NWN.Systems
           oid.SendServerMessage(messageKO, ColorConstants.Red);
       }
       
-      public void CreateSkillJournalEntry(Learnable learnable)
-      {
-        TimeSpan remainingTime = learnable.levelUpDate - DateTime.Now;
-
-        JournalEntry journalEntry = new JournalEntry();
-        journalEntry.Name = $"Apprentissage - {Utils.StripTimeSpanMilliseconds(remainingTime)}";
-        journalEntry.Text = $"Apprentissage en cours :\n\n " +
-          $"{learnable.name}\n\n" +
-          $"{learnable.description}";
-        journalEntry.QuestTag = "skill_job";
-        journalEntry.Priority = 1;
-        journalEntry.QuestDisplayed = true;
-        journalEntry.QuestCompleted = false;
-        oid.AddCustomJournalEntry(journalEntry, remainingTime.TotalSeconds <= 0);
-
-        oid.ApplyInstantVisualEffectToObject((VfxType)1516, oid.ControlledCreature);
-
-        Log.Info("created journal entry");
-      }
-      public void CancelSkillJournalEntry(Learnable learnable)
-      {
-        Core.NWNX.JournalEntry journalEntry = PlayerPlugin.GetJournalEntry(oid.LoginCreature, "skill_job");
-        journalEntry.sName = $"Apprentissage en pause - {learnable.name}";
-        journalEntry.sTag = "skill_job";
-        journalEntry.nQuestCompleted = 1;
-        journalEntry.nQuestDisplayed = 0;
-        PlayerPlugin.AddCustomJournalEntry(oid.LoginCreature, journalEntry);
-
-        Log.Info("cancelled journal entry");
-
-        /*JournalEntry journalEntry = oid.GetJournalEntry("skill_job");
-
-        journalEntry.Name = $"Apprentissage en pause - {learnable.name}";
-        journalEntry.QuestTag = "skill_job";
-        journalEntry.QuestDisplayed = false;
-        oid.AddCustomJournalEntry(journalEntry);*/
-      }
-      public void CloseSkillJournalEntry(Learnable learnable)
-      {
-        Core.NWNX.JournalEntry journalEntry = PlayerPlugin.GetJournalEntry(oid.LoginCreature, "skill_job");
-        journalEntry.sName = $"Apprentissage terminé - {learnable.name}";
-        journalEntry.sTag = "skill_job";
-        journalEntry.nQuestCompleted = 1;
-        journalEntry.nQuestDisplayed = 0;
-        PlayerPlugin.AddCustomJournalEntry(oid.LoginCreature, journalEntry);
-
-        Log.Info("closed journal entry");
-
-        /*JournalEntry journalEntry = oid.GetJournalEntry("skill_job");
-
-        if (journalEntry == null)
-        {
-          CreateSkillJournalEntry(learnable);
-          journalEntry = oid.GetJournalEntry("skill_job");
-        }
-
-        journalEntry.Name = $"Apprentissage terminé - {learnable.name}";
-        journalEntry.QuestTag = "skill_job";
-        journalEntry.QuestCompleted = true;
-        journalEntry.QuestDisplayed = false;
-        oid.AddCustomJournalEntry(journalEntry);
-        playerJournal.skillJobCountDown = null;*/
-      }
-      public void PlayNewSkillAcquiredEffects(Learnable learnable)
-      {
-        oid.ApplyInstantVisualEffectToObject((VfxType)1516, oid.ControlledCreature);
-        CloseSkillJournalEntry(learnable);
-      }
       public double GetSkillPointsPerSecond(Learnable learnable)
       {
         double pointsPerSecond = (oid.LoginCreature.GetAbilityScore(learnable.primaryAbility) + (oid.LoginCreature.GetAbilityScore(learnable.secondaryAbility) / 2.0)) / 60.0; // Il faut laisser les .0 sinon ce ne sont plus des doubles et KABOOM
-        
+
         switch (bonusRolePlay)
         {
           case 0:
-            pointsPerSecond = pointsPerSecond * 10 / 100;
+            pointsPerSecond = pointsPerSecond * 0.1;
             break;
           case 1:
-            pointsPerSecond = pointsPerSecond * 90 / 100;
+            pointsPerSecond = pointsPerSecond * 0.9;
             break;
           case 3:
-            pointsPerSecond = pointsPerSecond * 110 / 100;
+            pointsPerSecond = pointsPerSecond * 1.1;
             break;
           case 4:
-            pointsPerSecond = pointsPerSecond * 120 / 100;
+            pointsPerSecond = pointsPerSecond * 1.2;
             break;
           case 100:
             pointsPerSecond = pointsPerSecond * 10;
@@ -746,12 +679,12 @@ namespace NWN.Systems
 
         if (pcState == PcState.Offline)
         {
-          pointsPerSecond = pointsPerSecond * 60 / 100;
+          pointsPerSecond = pointsPerSecond * 0.6;
           Log.Info($"{oid.LoginCreature.Name} was not connected. Applying 40 % malus.");
         }
         else if (pcState == PcState.AFK)
         {
-          pointsPerSecond = pointsPerSecond * 80 / 100;
+          pointsPerSecond = pointsPerSecond * 0.8;
           Log.Info($"{oid.LoginCreature.Name} was afk. Applying 20 % malus.");
         }
 
@@ -759,163 +692,7 @@ namespace NWN.Systems
 
         return pointsPerSecond;
       }
-      public async void LevelUpLearnable(Learnable learnable)
-      {
-        if (menu.isOpen)
-          menu.Close();
 
-        switch (learnable.type)
-        {
-          case LearnableType.Feat:
-            LevelUpFeat(learnable);
-            break;
-          case LearnableType.Spell:
-            LevelUpSpell(learnable);
-            break;
-        }
-
-        oid.ExportCharacter();
-
-        await NwTask.WaitUntil(() => oid.LoginCreature.Area != null);
-        await NwTask.Delay(TimeSpan.FromSeconds(2));
-        PlayNewSkillAcquiredEffects(learnable);
-      }
-      public void LevelUpFeat(Learnable learnable)
-      {
-        if (customFeatsDictionnary.ContainsKey(learnable.featId)) // Il s'agit d'un Custom Feat
-        {
-          if (learntCustomFeats.ContainsKey(learnable.featId))
-            learntCustomFeats[learnable.featId] = (int)learnable.acquiredPoints;
-          else
-            learntCustomFeats.Add(learnable.featId, (int)learnable.acquiredPoints);
-
-          string customFeatName = customFeatsDictionnary[learnable.featId].name;
-          learnable.name = customFeatName;
-
-          learnable.currentLevel = GetCustomFeatLevelFromSkillPoints(learnable.featId, (int)learnable.acquiredPoints);
-
-          int skillLevelCap = learnable.currentLevel;
-
-          if (learnable.currentLevel > 4)
-          {
-            skillLevelCap = 4;
-            learnable.pointsToNextLevel += (int)(250 * learnable.multiplier * Math.Pow(5, skillLevelCap));
-          }
-          else
-            learnable.pointsToNextLevel = (int)(250 * learnable.multiplier * Math.Pow(5, skillLevelCap));
-
-          oid.SetTlkOverride((int)Feat2da.featTable.GetFeatDataEntry(learnable.featId).tlkName, $"{customFeatName} - {learnable.currentLevel}");
-
-          if (learnable.currentLevel >= customFeatsDictionnary[learnable.featId].maxLevel)
-            learnable.trained = true;
-        }
-        else
-        {
-          learnable.trained = true;
-
-          if (learnable.successorId > 0)
-            learnables.Add($"F{learnable.successorId}", new Learnable(LearnableType.Feat, learnable.successorId, 0).InitializeLearnableLevel(this));
-        }
-
-        oid.LoginCreature.AddFeat(learnable.featId);
-
-        if (RegisterAddCustomFeatEffect.TryGetValue(learnable.featId, out Func<PlayerSystem.Player, Feat, int> handler))
-          handler.Invoke(this, learnable.featId);
-
-        learnable.active = false;
-      }
-      public void LevelUpSpell(Learnable learnable)
-      {
-        oid.LoginCreature.GetClassInfo((ClassType)43).AddKnownSpell(learnable.spellId, (byte)learnable.multiplier);
-        learnable.trained = true;
-      }
-      public async void AwaitPlayerStateChangeToCalculateSPGain(Learnable learnable)
-      {
-        CancellationTokenSource tokenSource = new CancellationTokenSource();
-
-        double skillPointsPerSecond = GetSkillPointsPerSecond(learnable);
-
-        int primaryAbility = oid.LoginCreature.GetAbilityScore(learnable.primaryAbility);
-        int secondaryAbility = oid.LoginCreature.GetAbilityScore(learnable.secondaryAbility);
-
-        Task awaitPCDisconnection = NwTask.WaitUntil(() => oid.LoginCreature == null, tokenSource.Token);
-        Task awaitStateChange = NwTask.WaitUntilValueChanged(() => pcState, tokenSource.Token);
-        Task awaitPrimaryAbilityChange = NwTask.WaitUntil(() => oid.LoginCreature == null || primaryAbility != oid.LoginCreature.GetAbilityScore(learnable.primaryAbility), tokenSource.Token);
-        Task awaitSecondaryAbilityChange = NwTask.WaitUntil(() => oid.LoginCreature == null || secondaryAbility != oid.LoginCreature.GetAbilityScore(learnable.secondaryAbility), tokenSource.Token);
-        Task awaitLearningPaused = NwTask.WaitUntil(() => !learnable.active, tokenSource.Token);
-
-        double secondsUntillNextLevelUp = (learnable.pointsToNextLevel - learnable.acquiredPoints) / skillPointsPerSecond;
-        learnable.levelUpDate = DateTime.Now.AddSeconds(secondsUntillNextLevelUp);
-
-        Log.Info($"time to next level up : {secondsUntillNextLevelUp}");
-        Log.Info($"initial points : {learnable.acquiredPoints}");
-        Log.Info($"points to next level : {learnable.pointsToNextLevel}");
-
-        Task awaitLevelUp = NwTask.Delay(TimeSpan.FromSeconds(secondsUntillNextLevelUp), tokenSource.Token);
-
-        await NwTask.WhenAny(awaitPCDisconnection, awaitStateChange, awaitPrimaryAbilityChange, awaitSecondaryAbilityChange, awaitLearningPaused, awaitLevelUp);
-        tokenSource.Cancel();
-
-        if (previousSPCalculation.HasValue)
-          learnable.acquiredPoints += (DateTime.Now - previousSPCalculation).Value.TotalSeconds * skillPointsPerSecond;
-
-        previousSPCalculation = DateTime.Now;
-
-        if (pcState == PcState.Offline)
-          return;
-
-        Log.Info($"acquired points : {learnable.acquiredPoints}");
-        Log.Info($"points to next level : {learnable.pointsToNextLevel}");
-
-        if (awaitLevelUp.IsCompletedSuccessfully || learnable.pointsToNextLevel <= learnable.acquiredPoints)
-        {
-          Log.Info("Triggering level up");
-          LevelUpLearnable(learnable);
-          previousSPCalculation = null;
-          return;
-        }
-        
-        if (awaitLearningPaused.IsCompletedSuccessfully)
-        {
-          previousSPCalculation = null;
-          return;
-        }
-
-        AwaitPlayerStateChangeToCalculateSPGain(learnable);
-      }
-      public async void AwaitPlayerStateChangeForCraftProgression(Job job)
-      {
-        CancellationTokenSource tokenSource = new CancellationTokenSource();
-
-        Task awaitStateChange = NwTask.WaitUntilValueChanged(() => pcState, tokenSource.Token);
-        Task awaitJobCancelled = NwTask.WaitUntil(() => !job.active || location.Area.GetObjectVariable<LocalVariableInt>("_AREA_LEVEL").Value != 0, tokenSource.Token);
-        Task awaitCraftDone = NwTask.Delay(TimeSpan.FromSeconds(job.remainingTime), tokenSource.Token);
-
-        await NwTask.WhenAny(awaitStateChange, awaitJobCancelled, awaitCraftDone);
-        tokenSource.Cancel();
-
-        if (lastCraftUpdate.HasValue)
-          job.remainingTime -= (DateTime.Now - lastCraftUpdate).Value.TotalSeconds;
-
-        lastCraftUpdate = DateTime.Now;
-
-        if (pcState == PcState.Offline)
-          return;
-
-        if (awaitCraftDone.IsCompletedSuccessfully || job.remainingTime <= 0)
-        {
-          AcquireCraftedItem();
-          lastCraftUpdate = null;
-          return;
-        }
-        else if (awaitJobCancelled.IsCompletedSuccessfully)
-        {
-          lastCraftUpdate = null;
-          return;
-        }
-
-        AwaitPlayerStateChangeForCraftProgression(job);
-      }
       private void HandleGainedGold(OnInventoryGoldAdd onGainedGold)
       {
         if (Players.TryGetValue(onGainedGold.Creature, out Player player))

@@ -27,10 +27,17 @@ namespace NWN.Systems
 
         if (player.oid.PlayerName == "Chim" || player.oid.PlayerName == "test")
         {
-          if (player.windows.ContainsKey("fishing"))
+          player.bonusRolePlay = 100;
+
+          if (player.windows.ContainsKey("learnables"))
+            ((PlayerSystem.Player.LearnableWindow)player.windows["learnables"]).CreateWindow();
+          else
+            player.windows.Add("learnables", new PlayerSystem.Player.LearnableWindow(player));
+
+          /*if (player.windows.ContainsKey("fishing"))
             ((PlayerSystem.Player.FishinMiniGame)player.windows["fishing"]).CreateWindow();
           else
-            player.windows.Add("fishing", new PlayerSystem.Player.FishinMiniGame(player));
+            player.windows.Add("fishing", new PlayerSystem.Player.FishinMiniGame(player));*/
 
           /*if (player.windows.ContainsKey("quickLoot"))
             ((PlayerSystem.Player.QuickLootWindow)player.windows["quickLoot"]).CreateWindow();

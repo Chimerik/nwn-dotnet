@@ -3,19 +3,22 @@ using System.Collections.Generic;
 using NLog;
 using Anvil.API;
 using NWN.Core;
-using NWN.Core.NWNX;
 
 namespace NWN.Systems
 {
-  public static partial class SkillSystem
+  public static class SkillSystem
   {
     public static readonly Logger Log = LogManager.GetCurrentClassLogger();
-    public enum SkillType
+    public static Dictionary<int, Learnable> learnableDictionary = new Dictionary<int, Learnable>()
     {
-      Invalid = 0,
-      Skill = 1,
-      Spell = 2,
-    }
+      { CustomSkill.ImprovedStrength, new LearnableSkill(CustomSkill.ImprovedStrength, "Force accrue", "Augmente la force d'un point par niveau d'entraînement.", "ife_X2GrStr1", 4, 3, Ability.Constitution, Ability.Strength) },
+      { CustomSkill.ImprovedDexterity, new LearnableSkill(CustomSkill.ImprovedDexterity, "Dextérité accrue", "Augmente la dextérité d'un point par niveau d'entraînement.", "ife_X2GrDex1", 4, 3, Ability.Constitution, Ability.Dexterity) },
+      { CustomSkill.ImprovedConstitution, new LearnableSkill(CustomSkill.ImprovedConstitution, "Constitution accrue", "Augmente la constitution d'un point par niveau d'entraînement.", "ife_X2GrCon1", 4, 3, Ability.Constitution, Ability.Strength) },
+      { CustomSkill.ImprovedIntelligence, new LearnableSkill(CustomSkill.ImprovedIntelligence, "Intelligence accrue", "Augmente l'intelligence d'un point par niveau d'entraînement.", "ife_X2GrInt1", 4, 3, Ability.Constitution, Ability.Intelligence) },
+      { CustomSkill.ImprovedWisdom, new LearnableSkill(CustomSkill.ImprovedWisdom, "Sagesse accrue", "Augmente la sagesse d'un point par niveau d'entraînement.", "ife_X2GrWis1", 4, 3, Ability.Constitution, Ability.Wisdom) },
+      { CustomSkill.ImprovedCharisma, new LearnableSkill(CustomSkill.ImprovedCharisma, "Charisme accrue", "Augmente le charisme d'un point par niveau d'entraînement.", "ife_X2GrCha1", 4, 3, Ability.Constitution, Ability.Charisma) },
+    };
+
 
     public static Dictionary<Feat, CustomFeat> customFeatsDictionnary = new Dictionary<Feat, CustomFeat>()
     {

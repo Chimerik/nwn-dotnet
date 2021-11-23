@@ -20,11 +20,11 @@ namespace NWN.Systems.Items.ItemUseHandlers
         return;
       }
 
-      if (player.learnables.ContainsKey($"F{id}"))
+      /*if (player.learnables.ContainsKey($"F{id}"))
       {
         player.oid.SendServerMessage("Cette capacité se trouve déjà dans votre liste d'apprentissage.", ColorConstants.Rose);
         return;
-      }
+      }*/
 
       Systems.SkillBook.pipeline.Execute(new Systems.SkillBook.Context(
         oItem: skillBook,

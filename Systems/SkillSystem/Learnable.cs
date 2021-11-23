@@ -1,132 +1,130 @@
 ﻿using System;
+using System.Threading;
 
 using Anvil.API;
 
 namespace NWN.Systems
 {
-  public enum LearnableType
+  public abstract class Learnable
   {
-    Feat,
-    Spell
-  }
-  public class Learnable
-  {
-    public readonly int id;
-    public readonly Feat featId; // inutile ?
-    public readonly Spell spellId;
-    public readonly LearnableType type;
-    public double acquiredPoints { get; set; }
-    public string name;
-    public string description;
-    public Boolean active { get; set; }
+    public int id { get; }
+    public string name { get; }
+    public string description { get; }
+    public string icon { get; }
+    public int maxLevel { get; }
+    public int multiplier { get; }
+    public Ability primaryAbility { get; }
+    public Ability secondaryAbility { get; }
+    public bool active { get; set; }
+    public double acquiredPoints { get; set; }  
     public int currentLevel { get; set; }
-    public int successorId { get; set; } 
-    public Boolean trained { get; set; }
-    public float multiplier { get; set; }
-    public int pointsToNextLevel { get; set; }
-    public Ability primaryAbility { get; set; }
-    public Ability secondaryAbility { get; set; }
-    public int nbScrollsUsed { get; set; }
-    public DateTime levelUpDate { get; set; }
+    public DateTime? spLastCalculation { get; set; }
 
-    public Learnable(LearnableType type, int id, float SP, Boolean active = false, int scrollsUsed = 0)
+    public Learnable(int id, string name, string description, string icon, int maxLevel, int multiplier, Ability primaryAbility, Ability secondaryAbility)
     {
       this.id = id;
-      this.type = type;
-      this.acquiredPoints = SP;
-      this.trained = false;
-      this.nbScrollsUsed = scrollsUsed;
-      this.active = active;
-
-      switch (type)
-      {
-        case LearnableType.Feat:
-          featId = (Feat)id;
-          InitializeLearnableFeat(featId, (int)SP);
-          break;
-        case LearnableType.Spell:
-          spellId = (Spell)id;
-          InitializeLearnableSpell(spellId, (int)SP);
-          break;
-      }
+      this.name = name;
+      this.description = description;
+      this.icon = icon;
+      this.maxLevel = maxLevel;
+      this.multiplier = multiplier;
+      this.primaryAbility = primaryAbility;
+      this.secondaryAbility = secondaryAbility;
     }
-    private void InitializeLearnableFeat(Feat id, int SP)
+    public Learnable(Learnable learnableBase)
     {
-      FeatTable.Entry entry = Feat2da.featTable.GetFeatDataEntry(id);
-
-      if (SkillSystem.customFeatsDictionnary.ContainsKey(id))
-      {
-        name = SkillSystem.customFeatsDictionnary[id].name;
-        description = SkillSystem.customFeatsDictionnary[id].description;
-      }
-      else
-      {
-        name = entry.name;
-        description = entry.description;
-        currentLevel = entry.currentLevel;
-        successorId = entry.successor;
-      }
-
-      multiplier = entry.CRValue;
-      primaryAbility = entry.primaryAbility;
-      secondaryAbility = entry.secondaryAbility;
+      this.id = learnableBase.id;
+      this.name = learnableBase.name;
+      this.description = learnableBase.description;
+      this.icon = learnableBase.icon;
+      this.maxLevel = learnableBase.maxLevel;
+      this.multiplier = learnableBase.multiplier;
+      this.primaryAbility = learnableBase.primaryAbility;
+      this.secondaryAbility = learnableBase.secondaryAbility;
     }
-    public Learnable InitializeLearnableLevel(PlayerSystem.Player player)
+    public Learnable()
     {
-      switch(type)
+
+    }
+
+    public double GetPointsToNextLevel()
+    {
+      return 250 * multiplier * Math.Pow(5, currentLevel);
+    }
+
+    public TimeSpan GetTimeSpanToNextLevel(PlayerSystem.Player player)
+    {
+      if (player.oid.LoginCreature == null)
+        return TimeSpan.FromDays(300);
+
+      return TimeSpan.FromSeconds((GetPointsToNextLevel() - acquiredPoints) / player.GetSkillPointsPerSecond(this));
+    }
+
+    public string GetReadableTimeSpanToNextLevel(PlayerSystem.Player player)
+    {
+      TimeSpan timespan = GetTimeSpanToNextLevel(player);
+      return new TimeSpan(timespan.Days, timespan.Hours, timespan.Minutes, timespan.Seconds).ToString();
+    }
+
+    public async void AwaitPlayerStateChangeToCalculateSPGain(PlayerSystem.Player player)
+    {
+      TimeSpan timeToNextLevel = GetTimeSpanToNextLevel(player);
+
+      if (timeToNextLevel.TotalSeconds <= 0)
       {
-        case LearnableType.Feat:
-
-          if (SkillSystem.customFeatsDictionnary.ContainsKey(featId))
-          {
-            player.learntCustomFeats.Add(featId, (int)acquiredPoints);
-            currentLevel = SkillSystem.GetCustomFeatLevelFromSkillPoints(featId, (int)acquiredPoints);
-          }
-          else
-            currentLevel = 0;
-
-          if (currentLevel > 4)
-          {
-            int skillLevelCap = 4;
-            pointsToNextLevel = (int)(250 * multiplier * Math.Pow(5, skillLevelCap)) * (1 + currentLevel - skillLevelCap);
-          }
-          else
-            pointsToNextLevel = (int)(250 * multiplier * Math.Pow(5, currentLevel));
-
-          //if (Config.env == Config.Env.Chim)
-          //pointsToNextLevel = 10;
-
-          break;
-        case LearnableType.Spell:
-
-          int knownSpells = player.oid.LoginCreature.GetClassInfo((ClassType)43).GetKnownSpellCountByLevel((byte)multiplier);
-          if (knownSpells > 3)
-            knownSpells = 3;
-
-          if (knownSpells < 1)
-            knownSpells = 1;
-
-          pointsToNextLevel = (int)(250 * multiplier * Math.Pow(5, knownSpells - 1));
-
-          break;
+        LevelUpWrapper(player);
+        return;
       }
 
-      return this;
+      var scheduler = ModuleSystem.scheduler.Schedule(() => { LevelUpWrapper(player);}, GetTimeSpanToNextLevel(player));
+
+      CancellationTokenSource tokenSource = new CancellationTokenSource();
+
+      int primary = player.oid.LoginCreature.GetAbilityScore(primaryAbility);
+      int secondary = player.oid.LoginCreature.GetAbilityScore(secondaryAbility);
+      PlayerSystem.Player.PcState pcState = player.pcState;
+      
+      double spPerSecond = player.GetSkillPointsPerSecond(this);
+
+      await NwTask.WaitUntil(() => player.oid.LoginCreature == null || pcState != player.pcState || primary != player.oid.LoginCreature.GetAbilityScore(primaryAbility) || secondary != player.oid.LoginCreature.GetAbilityScore(secondaryAbility) || !active, tokenSource.Token);
+      tokenSource.Cancel();
+      scheduler.Dispose();
+
+      if (spLastCalculation.HasValue)
+        acquiredPoints += (DateTime.Now - spLastCalculation).Value.TotalSeconds * spPerSecond;
+
+      spLastCalculation = DateTime.Now;
+
+      if (pcState == PlayerSystem.Player.PcState.Offline || player.oid.LoginCreature == null)
+        return;
+
+      if (!active)
+      {
+        spLastCalculation = null;
+        return;
+      }
+
+      AwaitPlayerStateChangeToCalculateSPGain(player);
     }
-    private void InitializeLearnableSpell(Spell id, int SP)
+
+    private async void LevelUpWrapper(PlayerSystem.Player player)
     {
-      SpellsTable.Entry entry = Spells2da.spellsTable.GetSpellDataEntry(id);
+      if (this is LearnableSkill)
+      {
+        ((LearnableSkill)this).LevelUp(player);
+      }
+      else if (this is LearnableSpell)
+      {
+        ((LearnableSpell)this).LevelUp(player);
+      }
 
-      name = entry.name;
-      description = entry.description;
-      multiplier = entry.level;
+      spLastCalculation = null;
 
-      if (entry.castingClass == ClassType.Druid || entry.castingClass == ClassType.Cleric || entry.castingClass == ClassType.Ranger)
-        primaryAbility = Ability.Wisdom;
-      else
-        primaryAbility = Ability.Intelligence;
-
-      secondaryAbility = Ability.Charisma;
+      player.oid.SendServerMessage($"Vous venez de terminer l'apprentissage de {name}, niveau {currentLevel} !");
+      await NwTask.WaitUntil(() => player.oid.LoginCreature.Area != null);
+      await NwTask.Delay(TimeSpan.FromSeconds(2));
+      player.oid.ApplyInstantVisualEffectToObject((VfxType)1516, player.oid.ControlledCreature);
+      player.oid.PlaySound("gui_level_up");
     }
   }
 }

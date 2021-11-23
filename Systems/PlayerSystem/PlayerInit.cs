@@ -243,7 +243,14 @@ namespace NWN.Systems
       }
       private void InitializeNewPlayerLearnableSkills()
       {
-        learnables.Add($"F{(int)CustomFeats.ImprovedHealth}", new Learnable(LearnableType.Feat, (int)CustomFeats.ImprovedHealth, 0.0f).InitializeLearnableLevel(this));
+        learnableSkills.Add(CustomSkill.ImprovedStrength, new LearnableSkill((LearnableSkill)SkillSystem.learnableDictionary[CustomSkill.ImprovedStrength]));
+        learnableSkills.Add(CustomSkill.ImprovedDexterity, new LearnableSkill((LearnableSkill)SkillSystem.learnableDictionary[CustomSkill.ImprovedDexterity]));
+        learnableSkills.Add(CustomSkill.ImprovedConstitution, new LearnableSkill((LearnableSkill)SkillSystem.learnableDictionary[CustomSkill.ImprovedConstitution]));
+        learnableSkills.Add(CustomSkill.ImprovedIntelligence, new LearnableSkill((LearnableSkill)SkillSystem.learnableDictionary[CustomSkill.ImprovedIntelligence]));
+        learnableSkills.Add(CustomSkill.ImprovedWisdom, new LearnableSkill((LearnableSkill)SkillSystem.learnableDictionary[CustomSkill.ImprovedWisdom]));
+        learnableSkills.Add(CustomSkill.ImprovedCharisma, new LearnableSkill((LearnableSkill)SkillSystem.learnableDictionary[CustomSkill.ImprovedCharisma]));
+
+        /*learnables.Add($"F{(int)CustomFeats.ImprovedHealth}", new Learnable(LearnableType.Feat, (int)CustomFeats.ImprovedHealth, 0.0f).InitializeLearnableLevel(this));
         learnables.Add($"F{(int)Feat.Toughness}", new Learnable(LearnableType.Feat, (int)Feat.Toughness, 0.0f).InitializeLearnableLevel(this));
         learnables.Add($"F{(int)CustomFeats.ImprovedAttackBonus}", new Learnable(LearnableType.Feat, (int)CustomFeats.ImprovedAttackBonus, 0.0f).InitializeLearnableLevel(this));
         learnables.Add($"F{(int)CustomFeats.ImprovedCasterLevel}", new Learnable(LearnableType.Feat, (int)CustomFeats.ImprovedCasterLevel, 0.0f).InitializeLearnableLevel(this));
@@ -282,7 +289,7 @@ namespace NWN.Systems
         learnables.Add($"F{(int)CustomFeats.ImprovedMoveSilently}", new Learnable(LearnableType.Feat, (int)CustomFeats.ImprovedMoveSilently, 0.0f).InitializeLearnableLevel(this));
         learnables.Add($"F{(int)CustomFeats.ImprovedListen}", new Learnable(LearnableType.Feat, (int)CustomFeats.ImprovedListen, 0.0f).InitializeLearnableLevel(this));
         learnables.Add($"F{(int)CustomFeats.ImprovedHide}", new Learnable(LearnableType.Feat, (int)CustomFeats.ImprovedHide, 0.0f).InitializeLearnableLevel(this));
-        learnables.Add($"F{(int)CustomFeats.ImprovedOpenLock}", new Learnable(LearnableType.Feat, (int)CustomFeats.ImprovedOpenLock, 0.0f).InitializeLearnableLevel(this));
+        learnables.Add($"F{(int)CustomFeats.ImprovedOpenLock}", new Learnable(LearnableType.Feat, (int)CustomFeats.ImprovedOpenLock, 0.0f).InitializeLearnableLevel(this));*/
       }
       public void InitializeDM()
       {
@@ -379,7 +386,7 @@ namespace NWN.Systems
       private void InitializePlayerCharacter()
       {
         var result = SqLiteUtils.SelectQuery("playerCharacters",
-            new List<string>() { { "location" }, { "currentHP" }, { "bankGold" }, { "dateLastSaved" }, { "currentCraftJob" }, { "currentCraftObject" }, { "currentCraftJobRemainingTime" }, { "currentCraftJobMaterial" }, { "menuOriginTop" }, { "menuOriginLeft" }, { "pveArenaCurrentPoints" }, { "alchemyCauldron" }, { "previousSPCalculation" }, { "serializedLearnables" }, { "explorationState" }, { "openedWindows" } },
+            new List<string>() { { "location" }, { "currentHP" }, { "bankGold" }, { "dateLastSaved" }, { "currentCraftJob" }, { "currentCraftObject" }, { "currentCraftJobRemainingTime" }, { "currentCraftJobMaterial" }, { "menuOriginTop" }, { "menuOriginLeft" }, { "pveArenaCurrentPoints" }, { "alchemyCauldron" }, { "previousSPCalculation" }, { "serializedLearnableSkills" }, { "serializedLearnableSpells" }, { "explorationState" }, { "openedWindows" } },
             new List<string[]>() { { new string[] { "rowid", characterId.ToString() } } });
 
         if (result.Result == null)
@@ -397,19 +404,12 @@ namespace NWN.Systems
         pveArena.totalPoints = (uint)result.Result.GetInt(10);
         string serializedCauldron = result.Result.GetString(11);
         previousSPCalculation = DateTime.TryParse(result.Result.GetString(12), out DateTime previousSPDate) ? previousSPDate : null;
-        string serializedLearnables = result.Result.GetString(13);
+        string serializedLearnableSkills = result.Result.GetString(13);
+        string serializedLearnableSpells = result.Result.GetString(14);
+        string serializedExploration = result.Result.GetString(15);
+        string serializedOpenedWindows = result.Result.GetString(16);
 
-        /*try
-        {
-          learnables = JsonSerializer.Deserialize<Dictionary<string, Learnable>>(result.Result.GetString(13));
-        }
-        catch(Exception)
-        { }*/
-
-        string serializedExploration = result.Result.GetString(14);
-        string serializedOpenedWindows = result.Result.GetString(15);
-
-        InitializePlayerAsync(serializedCauldron, serializedExploration, serializedLearnables, serializedOpenedWindows);
+        InitializePlayerAsync(serializedCauldron, serializedExploration, serializedLearnableSkills, serializedLearnableSpells, serializedOpenedWindows);
 
         result = SqLiteUtils.SelectQuery("playerMaterialStorage",
           new List<string>() { { "materialName" }, { "materialStock" } },
@@ -418,44 +418,61 @@ namespace NWN.Systems
         foreach (var material in result.Results)
           materialStock.Add(material.GetString(0), material.GetInt(1));
       }
-      private async void InitializePlayerAsync(string serializedCauldron, string serializedExploration, string serializedLearnables, string serializedOpenedWindows)
+      private async void InitializePlayerAsync(string serializedCauldron, string serializedExploration, string serializedLearnableSkills, string serializedLearnableSpells, string serializedOpenedWindows)
       {
-        using (var stream = await StringUtils.GenerateStreamFromString(serializedCauldron))
-          try
-          {
-            alchemyCauldron = await JsonSerializer.DeserializeAsync<Alchemy.Cauldron>(stream);
-          }
-          catch (Exception)
-          { }
+        Log.Info("starting async init");
 
-        using (var stream = await StringUtils.GenerateStreamFromString(serializedExploration))
-          try
-          {
-            areaExplorationStateDictionnary = await JsonSerializer.DeserializeAsync<Dictionary<string, byte[]>>(stream);
-          }
-          catch (Exception)
-          { }
+        Task loadCauldronTask = Task.Run(() =>
+        {
+          if (string.IsNullOrEmpty(serializedCauldron))
+            return;
 
-        using (var stream = await StringUtils.GenerateStreamFromString(serializedOpenedWindows))
-          try
-          {
-            openedWindows = await JsonSerializer.DeserializeAsync<Dictionary<string, int>>(stream);
-          }
-          catch (Exception)
-          { }
+          alchemyCauldron = JsonConvert.DeserializeObject<Alchemy.Cauldron>(serializedCauldron);
+        });
 
-        using (var stream = await StringUtils.GenerateStreamFromString(serializedLearnables))
-          try
-          {
-            learnables = await JsonSerializer.DeserializeAsync<Dictionary<string, Learnable>>(stream);
+        Task loadExplorationTask = Task.Run(() =>
+        {
+          if (string.IsNullOrEmpty(serializedExploration))
+            return;
 
-            foreach (Learnable learnable in learnables.Values)
-              learnable.InitializeLearnableLevel(this);
-          }
-          catch (Exception)
-          { learnables = new Dictionary<string, Learnable>(); }
+          areaExplorationStateDictionnary = JsonConvert.DeserializeObject<Dictionary<string, byte[]>>(serializedExploration);
+        });
+
+        Task loadOpenedWindowsTask = Task.Run(() =>
+        {
+          if (string.IsNullOrEmpty(serializedOpenedWindows))
+            return;
+
+          openedWindows = JsonConvert.DeserializeObject<Dictionary<string, int>>(serializedOpenedWindows);
+        });
+
+        Task loadSkillsTask = Task.Run(() =>
+        {
+          if (string.IsNullOrEmpty(serializedLearnableSkills))
+            return;
+
+          Dictionary<int, LearnableSkill.SerializableLearnableSkill> serializableSkills = JsonConvert.DeserializeObject<Dictionary<int, LearnableSkill.SerializableLearnableSkill>>(serializedLearnableSkills);
+
+          foreach (var kvp in serializableSkills)
+            learnableSkills.Add(kvp.Key, new LearnableSkill((LearnableSkill)SkillSystem.learnableDictionary[kvp.Key], kvp.Value));
+        });
+
+        Task loadSpellsTask = Task.Run(() =>
+        {
+          if (string.IsNullOrEmpty(serializedLearnableSpells))
+            return;
+
+          Dictionary<int, LearnableSpell.SerializableLearnableSpell> serializableSpells = JsonConvert.DeserializeObject<Dictionary<int, LearnableSpell.SerializableLearnableSpell>>(serializedLearnableSpells);
+
+          foreach (var kvp in serializableSpells)
+            learnableSpells.Add(kvp.Key, new LearnableSpell((LearnableSpell)SkillSystem.learnableDictionary[kvp.Key], kvp.Value));
+        });
+
+        await Task.WhenAll(loadSkillsTask, loadSpellsTask, loadExplorationTask, loadOpenedWindowsTask, loadCauldronTask);
+        await NwTask.SwitchToMainThread();
 
         oid.LoginCreature.GetObjectVariable<LocalVariableBool>("_ASYNC_INIT_DONE").Value = true;
+        Log.Info("async init done");
       }
       private async void InitializeNewCharacterStorage()
       {
@@ -558,7 +575,7 @@ namespace NWN.Systems
       }
       private async void InitializeAccountWindowRectanglesPlayers(string serializedWindowRectangles)
       {
-        if (String.IsNullOrEmpty(serializedWindowRectangles))
+        if (string.IsNullOrEmpty(serializedWindowRectangles))
           return;
 
         windowRectangles = await Task.Run(() => JsonConvert.DeserializeObject<Dictionary<string, NuiRect>>(serializedWindowRectangles));
@@ -571,14 +588,15 @@ namespace NWN.Systems
           foreach (Effect eff in oid.LoginCreature.ActiveEffects.Where(e => e.Tag == "EFFECT_VFX_AFK"))
             oid.LoginCreature.RemoveEffect(eff);
 
-        Task awaitPlayerLeave = NwTask.WaitUntil(() => !oid.IsValid, tokenSource.Token);
-        Task awaitPlayerAction = NwTask.WaitUntilValueChanged(() => oid.LoginCreature.GetObjectVariable<LocalVariableString>("_LAST_ACTION_DATE").Value, tokenSource.Token);
+        string lastActionDate = oid.LoginCreature.GetObjectVariable<LocalVariableString>("_LAST_ACTION_DATE").Value;
+
+        Task awaitPlayerAction = NwTask.WaitUntil(() => oid.LoginCreature == null || oid.LoginCreature.GetObjectVariable<LocalVariableString>("_LAST_ACTION_DATE").Value != lastActionDate, tokenSource.Token);
         Task awaitAFKTrigger = NwTask.Delay(TimeSpan.FromMinutes(5), tokenSource.Token);
 
-        await NwTask.WhenAny(awaitPlayerLeave, awaitPlayerAction, awaitAFKTrigger);
+        await NwTask.WhenAny(awaitPlayerAction, awaitAFKTrigger);
         tokenSource.Cancel();
 
-        if (awaitPlayerLeave.IsCompletedSuccessfully)
+        if (oid.LoginCreature == null)
           return;
 
         if (awaitPlayerAction.IsCompletedSuccessfully)
