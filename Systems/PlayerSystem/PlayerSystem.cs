@@ -43,7 +43,6 @@ namespace NWN.Systems
     }
     public static void OnCombatStarted(OnCombatStatusChange onCombatStatusChange)
     {
-
       if (onCombatStatusChange.CombatStatus == CombatStatus.ExitCombat)
         return;
 
@@ -277,7 +276,7 @@ namespace NWN.Systems
 
       onScrollLearn.PreventLearnScroll = true;
       NwItem oScroll = onScrollLearn.Scroll;
-      Spell spellId = SpellUtils.GetSpellIDFromScroll(oScroll);
+      int spellId = SpellUtils.GetSpellIDFromScroll(oScroll);
       byte spellLevel = SpellUtils.GetSpellLevelFromScroll(oScroll);
 
       if (spellId < 0 || spellLevel > 10)
@@ -287,22 +286,21 @@ namespace NWN.Systems
         return;
       }
 
-      if (oPC.GetClassInfo((ClassType)43).GetKnownSpells(spellLevel).Any(s => s == spellId))
+      if (oPC.GetClassInfo((ClassType)43).GetKnownSpells(spellLevel).Any(s => s == (Spell)spellId))
       {
         oPC.ControllingPlayer.SendServerMessage("Ce sort est déjà inscrit dans votre grimoire.");
         return;
       }
 
-
-      /*if (player.learnables.ContainsKey($"S{spellId}"))
+      if (player.learnableSpells.ContainsKey(spellId))
       {
-        Learnable learnable = player.learnables[$"S{spellId}"];
+        LearnableSpell learnable = player.learnableSpells[spellId];
 
-        if (learnable.nbScrollsUsed <= 5)
+        if (learnable.nbScrollUsed <= 5)
         {
-          learnable.acquiredPoints += learnable.pointsToNextLevel / 20;
-          learnable.nbScrollsUsed += 1;
-          oPC.ControllingPlayer.SendServerMessage($"A l'aide de ce parchemin, vous affinez votre connaissance du sort de {learnable.name.ColorString(ColorConstants.White)}. Votre apprentissage sera plus rapide.", new Color(32, 255, 32));
+          learnable.acquiredPoints += learnable.GetPointsToNextLevel() / 20;
+          learnable.nbScrollUsed += 1;
+          oPC.ControllingPlayer.SendServerMessage($"Les informations supplémentaires contenues dans ce parchemin vous permettent d'affiner votre connaissance du sort {learnable.name.ColorString(ColorConstants.White)}. Votre apprentissage sera plus rapide.", new Color(32, 255, 32));
         }
         else
           oPC.ControllingPlayer.SendServerMessage("Vous avez déjà retiré tout ce que vous pouviez de ce parchemin.", ColorConstants.Orange);
@@ -310,11 +308,10 @@ namespace NWN.Systems
       }
       else
       {
-        Learnable spell = new Learnable(LearnableType.Spell, (int)spellId, 0).InitializeLearnableLevel(player);
-        player.learnables.Add($"S{(int)spellId}", spell);
-        oPC.ControllingPlayer.SendServerMessage($"Le sort {spell.name} a été ajouté à votre liste d'apprentissage et est désormais disponible pour étude.");
+        player.learnableSpells.Add(spellId, new LearnableSpell((LearnableSpell)SkillSystem.learnableDictionary[spellId]));
+        oPC.ControllingPlayer.SendServerMessage($"Le sort a été ajouté à votre liste d'apprentissage et est désormais disponible pour étude.");
         oScroll.Destroy();
-      }*/
+      }
     }
 
     [ScriptHandler("collect_cancel")]

@@ -19,6 +19,7 @@ namespace NWN.Systems
       this.nbScrollUsed = nbScrollUsed;
       this.active = active;
       this.acquiredPoints = acquiredSP;
+      this.spellLevel = learnableBase.spellLevel;
     }
     public LearnableSpell(LearnableSpell learnableBase, SerializableLearnableSpell serializableBase) : base(learnableBase)
     {
@@ -27,6 +28,7 @@ namespace NWN.Systems
       currentLevel = serializableBase.currentLevel;
       spLastCalculation = serializableBase.spLastCalculation;
       nbScrollUsed = serializableBase.nbScrollUsed;
+      spellLevel = learnableBase.spellLevel;
     }
 
     public class SerializableLearnableSpell
@@ -56,6 +58,7 @@ namespace NWN.Systems
       active = false;
 
       player.oid.LoginCreature.GetClassInfo((ClassType)43).AddKnownSpell((Spell)id, (byte)spellLevel);
+      player.learnableSpells.Remove(id);
 
       if (player.openedWindows.ContainsKey("activeLearnable"))
         player.oid.NuiDestroy(player.openedWindows["activeLearnable"]);

@@ -43,14 +43,14 @@ namespace NWN.Systems
       else if (target is NwDoor oTargetDoor)
         DoorEvents.OnSpellCastAt.Signal(caster, oTargetDoor, spell, harmful);
     }
-    public static Spell GetSpellIDFromScroll(NwItem oScroll)
+    public static int GetSpellIDFromScroll(NwItem oScroll)
     {
         ItemProperty ip = oScroll.ItemProperties.FirstOrDefault(ip => ip.PropertyType == ItemPropertyType.CastSpell);
 
         if (ip != null)
-            return ItemPropertySpells2da.spellsTable.GetSpellDataEntry(ip.SubType).spell;
+            return (int)ItemPropertySpells2da.spellsTable.GetSpellDataEntry(ip.SubType).spell;
 
-      return (Spell)(0);
+      return 0;
     }
     public static byte GetSpellLevelFromScroll(NwItem oScroll)
     {

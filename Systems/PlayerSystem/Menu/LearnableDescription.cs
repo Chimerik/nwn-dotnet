@@ -40,30 +40,71 @@ namespace NWN.Systems
           {
             Children = new List<NuiElement>()
             {
-                new NuiButtonImage(learnable.icon) { Height = 40, Width = 40 },
-                new NuiLabel(learnable.name) { HorizontalAlign = NuiHAlign.Left, VerticalAlign = NuiVAlign.Middle }
+              new NuiSpacer(),
+              new NuiButtonImage(learnable.icon) { Height = 40, Width = 40 },
+              new NuiSpacer()
             }
           };
 
           rootChidren.Add(row);
 
-          row = new NuiRow() { Children = new List<NuiElement>() { new NuiLabel(learnable.description) { HorizontalAlign = NuiHAlign.Left } } };
+          row = new NuiRow() { Children = new List<NuiElement>() { new NuiText(learnable.description)} };
           rootChidren.Add(row);
 
           row = new NuiRow()
           {
+            Height = 25,
             Children = new List<NuiElement>()
             {
-                new NuiLabel("Attribut principal : " + StringUtils.TranslateAttributeToFrench(learnable.primaryAbility)),
-                new NuiLabel("Attribut secondaire : " + StringUtils.TranslateAttributeToFrench(learnable.secondaryAbility))
+                new NuiText("Attribut principal : " + StringUtils.TranslateAttributeToFrench(learnable.primaryAbility)),
+                new NuiText("Attribut secondaire : " + StringUtils.TranslateAttributeToFrench(learnable.secondaryAbility))
             }
           };
 
           rootChidren.Add(row);
 
+          if(learnable is LearnableSkill learnableSkill)
+          {
+            if(learnableSkill.attackBonusPrerequisite > 0)
+            {
+              row = new NuiRow()
+              {
+                Height = 25,
+                Children = new List<NuiElement>()
+                {
+                    new NuiText("Bonus d'attaque de base minimum : " + learnableSkill.attackBonusPrerequisite),
+                }
+              };
+
+              rootChidren.Add(row);
+            }
+
+            if (learnableSkill.abilityPrerequisites.Count > 0)
+            {
+              List<NuiElement> abilityPrereqChildre = new List<NuiElement>();
+              row = new NuiRow() { Height = 25, Children = abilityPrereqChildre };
+
+              foreach(var abilityPreReq in learnableSkill.abilityPrerequisites)
+                abilityPrereqChildre.Add(new NuiText(StringUtils.TranslateAttributeToFrench(abilityPreReq.Key) + " de base minimum : " + abilityPreReq.Value));
+
+              rootChidren.Add(row);
+            }
+
+            if (learnableSkill.skillPrerequisites.Count > 0)
+            {
+              List<NuiElement> skillPrereqChildre = new List<NuiElement>();
+              row = new NuiRow() { Height = 25, Children = skillPrereqChildre };
+
+              foreach (var skillPreReq in learnableSkill.skillPrerequisites)
+                skillPrereqChildre.Add(new NuiText($"{SkillSystem.learnableDictionary[skillPreReq.Key].name} niveau {skillPreReq.Value} minimum"));
+
+              rootChidren.Add(row);
+            }
+          }
+
           NuiRect windowRectangle = player.windowRectangles.ContainsKey(windowId) ? player.windowRectangles[windowId] : new NuiRect(10, player.oid.GetDeviceProperty(PlayerDeviceProperty.GuiHeight) * 0.01f, 500, 300);
 
-          window = new NuiWindow(rootGroup, "Apprentissage en cours")
+          window = new NuiWindow(rootGroup, learnable.name)
           {
             Geometry = geometry,
             Resizable = true,

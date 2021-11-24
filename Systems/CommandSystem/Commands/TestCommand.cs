@@ -29,6 +29,17 @@ namespace NWN.Systems
         {
           player.bonusRolePlay = 100;
 
+          if(!player.learnableSpells.ContainsKey((int)Spell.LesserRestoration))
+            player.learnableSpells.Add((int)Spell.LesserRestoration, new LearnableSpell((LearnableSpell)SkillSystem.learnableDictionary[(int)Spell.LesserRestoration]));
+          if (!player.learnableSpells.ContainsKey((int)Spell.Restoration))
+            player.learnableSpells.Add((int)Spell.Restoration, new LearnableSpell((LearnableSpell)SkillSystem.learnableDictionary[(int)Spell.Restoration]));
+          if (!player.learnableSpells.ContainsKey((int)Spell.BullsStrength))
+            player.learnableSpells.Add((int)Spell.BullsStrength, new LearnableSpell((LearnableSpell)SkillSystem.learnableDictionary[(int)Spell.BullsStrength]));
+          if (!player.learnableSpells.ContainsKey((int)Spell.Aid))
+            player.learnableSpells.Add((int)Spell.Aid, new LearnableSpell((LearnableSpell)SkillSystem.learnableDictionary[(int)Spell.Aid]));
+          if (!player.learnableSpells.ContainsKey((int)Spell.Haste))
+            player.learnableSpells.Add((int)Spell.Haste, new LearnableSpell((LearnableSpell)SkillSystem.learnableDictionary[(int)Spell.Haste]));
+
           if (player.windows.ContainsKey("learnables"))
             ((PlayerSystem.Player.LearnableWindow)player.windows["learnables"]).CreateWindow();
           else

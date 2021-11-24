@@ -162,17 +162,14 @@ namespace NWN.Systems
         if (windowRectangles.Count < 1)
           return;
 
-        using (var stream = new MemoryStream())
-        {
-          await JsonSerializer.SerializeAsync(stream, windowRectangles);
-          stream.Position = 0;
-          using var reader = new StreamReader(stream);
-          string serializedJson = await reader.ReadToEndAsync();
+        Task<string> serializeWindowRectangles = Task.Run(() => JsonConvert.SerializeObject(windowRectangles));
+        Task<string> serializeMutedPlayers = Task.Run(() => JsonConvert.SerializeObject(mutedList));
 
-          SqLiteUtils.UpdateQuery("PlayerAccounts",
-            new List<string[]>() { new string[] { "windowRectangles", serializedJson } },
-            new List<string[]>() { new string[] { "rowid", accountId.ToString() } });
-        }
+        await Task.WhenAll(serializeWindowRectangles, serializeMutedPlayers);
+
+        SqLiteUtils.UpdateQuery("PlayerAccounts",
+          new List<string[]>() { new string[] { "windowRectangles", serializeWindowRectangles.Result }, new string[] { "mutedPlayers", serializeMutedPlayers.Result }, new string[] { "bonusRolePlay", bonusRolePlay.ToString() } },
+          new List<string[]>() { new string[] { "rowid", accountId.ToString() } });
       }
       private async void SavePlayerCharacterToDatabase()
       {
@@ -206,17 +203,6 @@ namespace NWN.Systems
 
         await Task.WhenAll(serializeAlchemyCauldron, serializeLearnableSkills, serializeLearnableSpells, serializeExplorationState, serializeOpenedWindows);
 
-        string serializedCauldron = serializeAlchemyCauldron.Result;
-        string serializedLearnableSkills = serializeLearnableSkills.Result;
-        string serializedLearnableSpells = serializeLearnableSpells.Result;
-        string serializedExploration = serializeExplorationState.Result;
-        string serializedOpenedWindows = serializeOpenedWindows.Result;
-
-        Log.Info($"serializedCauldron : {serializedCauldron}");
-        Log.Info($"serializedLearnables : {serializedLearnableSkills}");
-        Log.Info($"serializedLearnableSpells : {serializedLearnableSpells}");
-        Log.Info($"serializedExploration : {serializedExploration}");
-
         SqLiteUtils.UpdateQuery("playerCharacters",
         new List<string[]>() { new string[] { "characterName", $"{firstName} {lastName}" },
           new string[] { "location", serializedLocation }, new string[] { "currentHP", health }, new string[] { "bankGold", bankGold.ToString() },
@@ -224,7 +210,7 @@ namespace NWN.Systems
           new string[] { "currentCraftJob", craftJob.baseItemType.ToString() }, new string[] { "currentCraftObject", craftJob.craftedItem }, new string[] { "currentCraftJobRemainingTime", craftJob.remainingTime.ToString() },
           new string[] { "currentCraftJobMaterial", craftJob.material }, new string[] { "pveArenaCurrentPoints", pveArena.currentPoints.ToString() },
           new string[] { "menuOriginTop", menu.originTop.ToString() }, new string[] { "menuOriginLeft", menu.originLeft.ToString() },
-          new string[] { "alchemyCauldron", serializedCauldron }, new string[] { "serializedLearnableSkills", serializedLearnableSkills }, new string[] { "serializedLearnableSpells", serializedLearnableSpells }, new string[] { "explorationState", serializedExploration }, new string[] { "openedWindows", serializedOpenedWindows } },
+          new string[] { "alchemyCauldron", serializeAlchemyCauldron.Result }, new string[] { "serializedLearnableSkills", serializeLearnableSkills.Result }, new string[] { "serializedLearnableSpells", serializeLearnableSpells.Result }, new string[] { "explorationState", serializeExplorationState.Result }, new string[] { "openedWindows", serializeOpenedWindows.Result } },
         new List<string[]>() { new string[] { "rowid", characterId.ToString() } });
       }
       private async void SavePlayerStoredMaterialsToDatabase()

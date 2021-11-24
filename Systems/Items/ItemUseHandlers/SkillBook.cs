@@ -7,30 +7,19 @@ namespace NWN.Systems.Items.ItemUseHandlers
     public static void HandleActivate(NwItem skillBook, NwCreature oPC)
     {
       int id = skillBook.GetObjectVariable<LocalVariableInt>("_SKILL_ID").Value;
-      Feat FeatId = (Feat)id;
 
-      PlayerSystem.Log.Info($"{oPC.Name} used skillBook {FeatId}");
+      PlayerSystem.Log.Info($"{oPC.Name} used skillBook {id}");
 
       if (!PlayerSystem.Players.TryGetValue(oPC, out PlayerSystem.Player player))
         return;
 
-      if (player.learntCustomFeats.ContainsKey(FeatId))
+      if (player.learnableSkills.ContainsKey(id))
       {
-        player.oid.SendServerMessage("Vous connaissez déjà les bases d'entrainement de cette capacité.", ColorConstants.Pink);
+        player.oid.SendServerMessage("Vous connaissez déjà les bases d'entrainement de cette compétence.", ColorConstants.Red);
         return;
       }
 
-      /*if (player.learnables.ContainsKey($"F{id}"))
-      {
-        player.oid.SendServerMessage("Cette capacité se trouve déjà dans votre liste d'apprentissage.", ColorConstants.Rose);
-        return;
-      }*/
-
-      Systems.SkillBook.pipeline.Execute(new Systems.SkillBook.Context(
-        oItem: skillBook,
-        oActivator: player,
-        SkillId: FeatId
-      ));
+      player.learnableSkills.Add(id, new LearnableSkill((LearnableSkill)SkillSystem.learnableDictionary[id]));
     }
   }
 }

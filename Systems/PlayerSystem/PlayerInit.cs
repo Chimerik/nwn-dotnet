@@ -539,15 +539,10 @@ namespace NWN.Systems
       }
       private async void InitializeAccountChatColors(string serializedChatColors) // Pas sur que ça suffise pour convertir. Est-ce qu'il faut pas faire un truc en plus comme en dessous ?
       {
-        using (var stream = await StringUtils.GenerateStreamFromString(serializedChatColors))
-          try
-          {
-            chatColors = await JsonSerializer.DeserializeAsync<Dictionary<ChatChannel, Color>>(stream);
-          }
-          catch (Exception)
-          {
-            return;
-          }
+        if (string.IsNullOrEmpty(serializedChatColors))
+          return;
+
+        await Task.Run(() => chatColors = JsonConvert.DeserializeObject<Dictionary<ChatChannel, Color>>(serializedChatColors));
       }
       /*private void InitializePlayerChatColors()
       {
@@ -563,15 +558,10 @@ namespace NWN.Systems
       }*/
       private async void InitializeAccountMutedPlayers(string serializedMutedPlayers) 
       {
-        using (var stream = await StringUtils.GenerateStreamFromString(serializedMutedPlayers))
-          try
-          {
-            mutedList = await JsonSerializer.DeserializeAsync<List<int>>(stream);
-          }
-          catch (Exception)
-          {
-            return;
-          }
+        if (string.IsNullOrEmpty(serializedMutedPlayers))
+          return;
+
+        await Task.Run(() => mutedList = JsonConvert.DeserializeObject<List<int>>(serializedMutedPlayers));
       }
       private async void InitializeAccountWindowRectanglesPlayers(string serializedWindowRectangles)
       {
