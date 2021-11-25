@@ -13,28 +13,22 @@ namespace NWN.Systems
         NuiGroup rootGroup { get; }
         NuiColumn rootColumn { get; }
         List<NuiElement> rootChidren { get; }
-        NuiColor white { get; }
-        NuiRect drawListRect { get; }
-        Learnable learnable { get; set; }
 
         public LearnableDescriptionWindow(Player player, int learnableId) : base(player)
         {
-          learnable = SkillSystem.learnableDictionary[learnableId];
-
           windowId = "learnableDescription";
-
-          white = new NuiColor(255, 255, 255);
-          drawListRect = new NuiRect(0, 35, 150, 60);
 
           rootChidren = new List<NuiElement>();
           rootColumn = new NuiColumn() { Children = rootChidren };
           rootGroup = new NuiGroup() { Id = "learnableGroup", Border = true, Layout = rootColumn };
 
-          CreateWindow();
+          CreateWindow(learnableId);
         }
-        public void CreateWindow(int learnableId = -1)
+        public void CreateWindow(int learnableId)
         {
           rootChidren.Clear();
+
+          Learnable learnable = SkillSystem.learnableDictionary[learnableId];
 
           NuiRow row = new NuiRow()
           {
