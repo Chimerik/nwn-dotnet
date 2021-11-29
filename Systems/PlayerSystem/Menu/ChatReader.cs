@@ -45,8 +45,6 @@ namespace NWN.Systems
           chatReaderGroup = new NuiGroup() { Id = "chatReaderGroup", Border = false, Layout = colChatLog };
           colChidren.Add(chatReaderGroup);
 
-          
-
           List<NuiElement> settingsRowChildren = new List<NuiElement>();
           settingsRow = new NuiRow() { Children = settingsRowChildren };
           colChatLogChidren.Add(settingsRow);

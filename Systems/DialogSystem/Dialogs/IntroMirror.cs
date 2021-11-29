@@ -22,7 +22,7 @@ namespace NWN.Systems
     {
       player.menu.Clear();
       player.menu.titleLines = new List<string> {
-        $"Houla, y a pas à dire, vous avez connu de meilleurs jours.",
+        "Houla, y a pas à dire, vous avez connu de meilleurs jours.",
         "C'est quoi cette mine que vous me tirez ?",
         "On va mettre ça sur le compte du mal de mer."
       };
