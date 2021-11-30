@@ -47,11 +47,11 @@ namespace NWN.Systems
 
           row = new NuiRow()
           {
-            Height = 25,
+            Height = 30, 
             Children = new List<NuiElement>()
             {
-                new NuiText("Attribut principal : " + StringUtils.TranslateAttributeToFrench(learnable.primaryAbility)),
-                new NuiText("Attribut secondaire : " + StringUtils.TranslateAttributeToFrench(learnable.secondaryAbility))
+                new NuiLabel("Attribut principal : " + StringUtils.TranslateAttributeToFrench(learnable.primaryAbility)) { HorizontalAlign = NuiHAlign.Center, VerticalAlign = NuiVAlign.Middle },
+                new NuiLabel("Attribut secondaire : " + StringUtils.TranslateAttributeToFrench(learnable.secondaryAbility)) { HorizontalAlign = NuiHAlign.Center, VerticalAlign = NuiVAlign.Middle }
             }
           };
 

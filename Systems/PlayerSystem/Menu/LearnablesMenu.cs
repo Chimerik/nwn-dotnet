@@ -83,7 +83,7 @@ namespace NWN.Systems
         public void CreateWindow()
         {
           NuiRect windowRectangle = player.windowRectangles.ContainsKey(windowId) ? player.windowRectangles[windowId] : new NuiRect(10, player.oid.GetDeviceProperty(PlayerDeviceProperty.GuiHeight) * 0.01f, 410, player.oid.GetDeviceProperty(PlayerDeviceProperty.GuiHeight) * 0.65f);
-          
+
           RefreshWindow();
 
           window = new NuiWindow(rootGroup, "Journal d'apprentissage")
@@ -123,6 +123,7 @@ namespace NWN.Systems
             else
               player.windows.Add("activeLearnable", new ActiveLearnableWindow(player));
 
+          RefreshWindow();
           RefreshWindowOnAbilityChange();
         }
 
@@ -164,10 +165,7 @@ namespace NWN.Systems
                 int learnableId = int.Parse(nuiEvent.ElementId.Substring(nuiEvent.ElementId.IndexOf("_") + 1));
 
                 if (player.openedWindows.ContainsKey("activeLearnable"))
-                {
                   player.oid.NuiDestroy(player.openedWindows["activeLearnable"]);
-                  //((ActiveLearnableWindow)player.windows["activeLearnable"]).CreateWindow(learnableId);
-                }
                 
                 if (player.windows.ContainsKey("activeLearnable"))
                   ((ActiveLearnableWindow)player.windows["activeLearnable"]).CreateWindow(learnableId);
@@ -179,11 +177,9 @@ namespace NWN.Systems
               else if(int.TryParse(nuiEvent.ElementId, out int learnableId))
               {
                 if (player.openedWindows.ContainsKey("learnableDescription"))
-                {
                   player.oid.NuiDestroy(player.openedWindows["learnableDescription"]);
-                  ((LearnableDescriptionWindow)player.windows["learnableDescription"]).CreateWindow(learnableId);
-                }
-                else if (player.windows.ContainsKey("learnableDescription"))
+                
+                if (player.windows.ContainsKey("learnableDescription"))
                   ((LearnableDescriptionWindow)player.windows["learnableDescription"]).CreateWindow(learnableId);
                 else
                   player.windows.Add("learnableDescription", new LearnableDescriptionWindow(player, learnableId));
@@ -210,6 +206,9 @@ namespace NWN.Systems
           rootChidren.Add(buttonRow);
           rootChidren.Add(comboRow);
           rootChidren.Add(searchRow);
+
+          if (token < 0)
+            return;
 
           if (displaySkill)
             CreateSkillRows();
