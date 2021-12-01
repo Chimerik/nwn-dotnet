@@ -27,9 +27,7 @@ namespace NWN.Systems
 
         if (player.oid.PlayerName == "Chim" || player.oid.PlayerName == "test")
         {
-          player.bonusRolePlay = 100;
-
-          if(!player.learnableSpells.ContainsKey((int)Spell.LesserRestoration))
+          if (!player.learnableSpells.ContainsKey((int)Spell.LesserRestoration))
             player.learnableSpells.Add((int)Spell.LesserRestoration, new LearnableSpell((LearnableSpell)SkillSystem.learnableDictionary[(int)Spell.LesserRestoration]));
           if (!player.learnableSpells.ContainsKey((int)Spell.Restoration))
             player.learnableSpells.Add((int)Spell.Restoration, new LearnableSpell((LearnableSpell)SkillSystem.learnableDictionary[(int)Spell.Restoration]));

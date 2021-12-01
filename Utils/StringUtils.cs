@@ -3,11 +3,19 @@ using System.ComponentModel;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Threading;
 using System.Threading.Tasks;
 
 using Anvil.API;
 
+using Google.Apis.Auth.OAuth2;
+using Google.Apis.Download;
+using Google.Apis.Drive.v3;
+using Google.Apis.Services;
+
 using Newtonsoft.Json;
+
+using NWN.Systems;
 
 namespace NWN
 {
@@ -60,6 +68,16 @@ namespace NWN
       await writer.FlushAsync();
       stream.Position = 0;
       return stream;
+    }
+    
+    public static async Task<string> DownloadGoogleDoc(string fileId)
+    {
+      var request = ModuleSystem.googleDriveService.Files.Export(fileId, "text/plain");
+      using var stream = new MemoryStream();
+      await request.DownloadAsync(stream);
+      stream.Position = 0;
+      var reader = await new StreamReader(stream).ReadToEndAsync();
+      return reader.Replace("\r\n", "\n");
     }
   }
 }

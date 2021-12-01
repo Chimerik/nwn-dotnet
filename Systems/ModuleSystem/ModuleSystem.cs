@@ -12,6 +12,7 @@ using static NWN.Systems.Craft.Collect.Config;
 using NWN.Core;
 using System.IO;
 using System.Text.Json;
+using Google.Apis.Drive.v3;
 
 namespace NWN.Systems
 {
@@ -22,6 +23,7 @@ namespace NWN.Systems
     public static readonly TranslationClient googleTranslationClient = TranslationClient.Create();
     public static Dictionary<string, GoldBalance> goldBalanceMonitoring = new Dictionary<string, GoldBalance>();
     public static SchedulerService scheduler;
+    public static DriveService googleDriveService;
 
     public class  HeadModels
     {
@@ -46,7 +48,9 @@ namespace NWN.Systems
       LoadDiscordBot();
       CreateDatabase();
       InitializeEvents();
-      
+
+      googleDriveService = Config.AuthenticateServiceAccount();
+      SkillSystem.InitializeLearnables();
       NwModule.Instance.OnModuleLoad += OnModuleLoad;
     }
     private async void LoadDiscordBot()
