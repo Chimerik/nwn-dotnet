@@ -53,7 +53,7 @@ namespace NWN.Systems
         return new DriveService(new BaseClientService.Initializer()
         {
           HttpClientInitializer = credential,
-          ApplicationName = "Drive Service account Authentication Sample",
+          ApplicationName = "Les Larmes des Erylies",
         });
       }
       catch (Exception ex)

@@ -16,15 +16,19 @@ namespace NWN.Systems
     {
       uint tlkName = uint.TryParse(twoDimEntry("Name"), out tlkName) ? tlkName : 0;
       string name = tlkName == 0 ? name = "Nom manquant" : name = Skills2da.tlkTable.GetSimpleString(tlkName);
-      entries.Add((Skill)rowIndex, new Entry(name));
+      uint tlkDescription = uint.TryParse(twoDimEntry("Description"), out tlkDescription) ? tlkDescription : 0;
+      string description = tlkDescription == 0 ? name = "Description manquante" : description = Skills2da.tlkTable.GetSimpleString(tlkDescription);
+      entries.Add((Skill)rowIndex, new Entry(name, description));
     }
     public readonly struct Entry
     {
       public readonly string name;
+      public readonly string description;
 
-      public Entry(string name)
+      public Entry(string name, string description)
       {
         this.name = name;
+        this.description = description;
       }
     }
   }

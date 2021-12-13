@@ -1,6 +1,4 @@
-﻿using Anvil.API;
-
-namespace NWN.Systems
+﻿namespace NWN.Systems
 {
   public class CustomSkill
   {
@@ -323,45 +321,62 @@ namespace NWN.Systems
     public const int Archeologist = 20010;
     public const int Athlete = 20011;
     public const int Magistrate = 20012;
-    public const int AdventurerScion = 20014;
-    public const int Charlatan = 20015;
-    public const int CityWatch = 20016;
-    public const int Investigator = 20017;
-    public const int CloisteredScholar = 20018;
-    public const int Courtier = 20019;
-    public const int Criminal = 20020;
-    public const int Spy = 20021;
-    public const int Entertainer = 20022;
-    public const int Gladiator = 20023;
-    public const int Faceless = 20024;
-    public const int FailedMerchant = 20025;
-    public const int Fisher = 20026;
-    public const int FolkHero = 20027;
-    public const int Gambler = 20028;
-    public const int HauntedOne = 20029;
-    public const int Hermit = 20030;
-    public const int Heir = 20031;
-    public const int Marine = 20032;
-    public const int KnightOfTheOrder = 20033;
-    public const int Mercenary = 20034;
-    public const int Noble = 20035;
-    public const int Outlander = 20036;
-    public const int Plaintiff = 20037;
-    public const int RivalIntern = 20039;
-    public const int Sage = 20040;
-    public const int Sailor = 20041;
-    public const int Pirate = 20042;
-    public const int Shipwright = 20043;
-    public const int ClanCrafter = 20044;
-    public const int Smuggler = 20045;
-    public const int Soldier = 20046;
-    public const int BountyHunter = 20047;
-    public const int StreetUrchin = 20048;
-    public const int TribeMember = 20049;
-    public const int Caravaneer = 20050;
-    public const int HighwayMan = 20051;
-    public const int Prisoner = 20052;
-    public const int Nomad = 20053;
+    public const int AdventurerScion = 20013;
+    public const int Charlatan = 20014;
+    public const int CityWatch = 20015;
+    public const int Investigator = 20016;
+    public const int CloisteredScholar = 20017;
+    public const int Courtier = 20018;
+    public const int Criminal = 20019;
+    public const int Entertainer = 20020;
+    public const int Faceless = 20021;
+    public const int FailedMerchant = 20022;
+    public const int Fisher = 20023;
+    public const int FolkHero = 20024;
+    public const int Gambler = 20025;
+    public const int HauntedOne = 20026;
+    public const int Hermit = 20027;
+    public const int Heir = 20028;
+    public const int Marine = 20029;
+    public const int KnightOfTheOrder = 20030;
+    public const int Mercenary = 20031;
+    public const int Noble = 20032;
+    public const int Outlander = 20033;
+    public const int SecretIdentity = 20034;
+    public const int Refugee = 20035;
+    public const int Sage = 20036;
+    public const int Sailor = 20037;
+    public const int Shipwright = 20038;
+    public const int Smuggler = 20039;
+    public const int Soldier = 20040;
+    public const int StreetUrchin = 20041;
+    public const int Prisoner = 20042;
+    public const int Wanderer = 20043;
+    public const int Taken = 20044;
+    public const int Athletics = 20045; // remplace discipline // TODO : il n'est pas possible de renverser les créatures de deux catégories de taille au-dessus de soi + CD de 30 secondes
+    public const int Acrobatics = 20046; // remplace discipline
+    public const int Escamotage = 20047;
+    public const int Stealth = 20048; // Regroupe à la fois discrétion et déplacement silencieux
+    public const int Concentration = 20049;
+    public const int Arcana = 20050;
+    public const int History = 20051;
+    public const int Nature = 20052;
+    public const int Religion = 20053;
+    public const int Investigation = 20054; // Remplace fouille (détection des pièges)
+    public const int Dressage = 20055; // Permet de calmer et de gérer un animal. N'assure pas le contrôle. Différent de l'empathie animale des druides
+    public const int Insight = 20056;
+    public const int Medicine = 20057;
+    public const int Perception = 20058; // Perception regroupe à la fois Détection, perception auditive
+    public const int Survival = 20059;
+    public const int Deception = 20060;
+    public const int Intimidation = 20061;
+    public const int Performance = 20062;
+    public const int Persuasion = 20063;
+    public const int OpenLock = 20064; // TODO : déverrouiller une porte nécessite des outils de voleur
+    public const int TrapExpertise = 20065; // regroupe désamorçage et pose // TODO : désamorcer un piège nécessite des outils de voleur
+    public const int Taunt = 20066; // TODO : sur un PNJ, taunt force la cible à attaquer le taunter. Sur un PJ, taunt diminue la CA et impose un malus d'échec des sorts
+    // TODO : pas de compétence "parade" pour le moment. Il serait en revanche possible de réfléchir à un don qui permettrait de réduire les dégâts reçus en fonction de certaines conditions, cf Martial Adept de DD5 : Combat Maneuvers
+    // TODO : pas d'empathie animale pour le moment. Mais réfléchir à un système pour jouer à Pokémon
 
     public const int Invalid = 65535;
   }

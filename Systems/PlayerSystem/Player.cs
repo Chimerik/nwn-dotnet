@@ -688,6 +688,9 @@ namespace NWN.Systems
           Log.Info($"{oid.LoginCreature.Name} was afk. Applying 20 % malus.");
         }
 
+        if (oid.LoginCreature.RacialType == RacialType.Human)
+          pointsPerSecond = pointsPerSecond * 1.1;
+
         //Log.Info($"SP CALCULATION - {player.oid.Name} - {SP} SP.");
 
         return pointsPerSecond;

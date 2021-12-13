@@ -571,7 +571,9 @@ namespace NWN.Systems
     }
     private void LoadHeadLists()
     {
-      //Log.Info($"found in {NWScript.ResManGetAliasFor($"pMH0_NECK203", NWScript.RESTYPE_MDL)}");
+      Log.Info($"karandas found in {NWScript.ResManGetAliasFor("c_karandas", NWScript.RESTYPE_MDL)}");
+      Log.Info($"c_envy found in {NWScript.ResManGetAliasFor("c_envy", NWScript.RESTYPE_MDL)}");
+      Log.Info($"hp_drgtiamat_1 found in {NWScript.ResManGetAliasFor("hp_drgtiamat_1", NWScript.RESTYPE_MDL)}");
 
       for (int appearance = 0; appearance < 7; appearance++)
       {

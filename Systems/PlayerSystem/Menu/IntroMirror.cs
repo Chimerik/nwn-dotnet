@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 
 using Anvil.API;
 using Anvil.API.Events;
@@ -85,7 +86,10 @@ namespace NWN.Systems
 
           rootChidren.Add(introTextRow);
           rootChidren.Add(beautyRow);
-          rootChidren.Add(pastRow);
+
+          if(!player.learnableSkills.Values.Any(s => s.category == SkillSystem.Category.StartingTraits))
+            rootChidren.Add(pastRow);
+          
           rootChidren.Add(futureRow);
 
           NuiRect windowRectangle = player.windowRectangles.ContainsKey(windowId) ? player.windowRectangles[windowId] : new NuiRect(10, player.oid.GetDeviceProperty(PlayerDeviceProperty.GuiHeight) * 0.01f, 500, 300);
@@ -134,6 +138,24 @@ namespace NWN.Systems
 
                 case "past":
 
+                  player.oid.NuiDestroy(token);
+
+                  if (player.windows.ContainsKey("introBackground"))
+                    ((LearnableWindow)player.windows["introBackground"]).CreateWindow();
+                  else
+                    player.windows.Add("introBackground", new IntroBackgroundWindow(player));
+
+                  break;
+
+                case "future":
+
+                  player.oid.NuiDestroy(token);
+
+                  if (player.windows.ContainsKey("introLearnables"))
+                    ((LearnableWindow)player.windows["introLearnables"]).CreateWindow();
+                  else
+                    player.windows.Add("introLearnables", new IntroLearnableWindow(player));
+                  
                   break;
               }
               break;

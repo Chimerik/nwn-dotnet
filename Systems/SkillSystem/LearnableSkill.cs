@@ -10,19 +10,22 @@ namespace NWN.Systems
   {
     private bool activable { get; }
     public SkillSystem.Category category { get; }
-    private Func<PlayerSystem.Player, bool> skillEffect { get; }
+    private Func<PlayerSystem.Player, int, bool> skillEffect { get; }
     public Dictionary<Ability, int> abilityPrerequisites { get; }
     public Dictionary<int, int> skillPrerequisites { get; }
     public int attackBonusPrerequisite { get; }
+    public int bonusPoints { get; set; }
+    public int totalPoints { get { return currentLevel + bonusPoints; } }
 
     public LearnableSkill(int id, string name, string description, SkillSystem.Category category, string icon, int maxLevel, int multiplier, Ability primaryAbility, 
-      Ability secondaryAbility, bool activable = false, Func<PlayerSystem.Player, bool> skillEffect = null, Dictionary<Ability, int> abilityPrerequisites = null,
-      Dictionary<int, int> skillPrerequisites = null, int attackBonusPrerequisite = 0) : base(id, name, description, icon, maxLevel, multiplier, primaryAbility, secondaryAbility)
+      Ability secondaryAbility, bool activable = false, Func<PlayerSystem.Player, int, bool> skillEffect = null, Dictionary<Ability, int> abilityPrerequisites = null,
+      Dictionary<int, int> skillPrerequisites = null, int attackBonusPrerequisite = 0, int bonusPoints = 0) : base(id, name, description, icon, maxLevel, multiplier, primaryAbility, secondaryAbility)
     {
       this.activable = activable;
       this.category = category;
       this.skillEffect = skillEffect;
       this.attackBonusPrerequisite = attackBonusPrerequisite;
+      this.bonusPoints = bonusPoints;
 
       if (abilityPrerequisites == null)
         this.abilityPrerequisites = new Dictionary<Ability, int>();
@@ -34,7 +37,7 @@ namespace NWN.Systems
       else
         this.skillPrerequisites = skillPrerequisites;
     }
-    public LearnableSkill(LearnableSkill learnableBase, bool active = false, double acquiredSP = 0, int currentLevel = 0) : base(learnableBase)
+    public LearnableSkill(LearnableSkill learnableBase, bool active = false, double acquiredSP = 0, int currentLevel = 0, int bonusPoints = 0) : base(learnableBase)
     {
       this.activable = learnableBase.activable;
       this.category = learnableBase.category;
@@ -44,6 +47,7 @@ namespace NWN.Systems
       this.abilityPrerequisites = learnableBase.abilityPrerequisites;
       this.skillPrerequisites = learnableBase.skillPrerequisites;
       this.attackBonusPrerequisite = learnableBase.attackBonusPrerequisite;
+      this.bonusPoints = bonusPoints;
     }
     public LearnableSkill(LearnableSkill learnableBase, SerializableLearnableSkill serializableBase) : base(learnableBase)
     {
@@ -57,6 +61,7 @@ namespace NWN.Systems
       abilityPrerequisites = learnableBase.abilityPrerequisites;
       skillPrerequisites = learnableBase.skillPrerequisites;
       attackBonusPrerequisite = learnableBase.attackBonusPrerequisite;
+      bonusPoints = serializableBase.bonusPoints;
     }
 
     public class SerializableLearnableSkill
@@ -64,6 +69,7 @@ namespace NWN.Systems
       public bool active { get; set; }
       public double acquiredPoints { get; set; }
       public int currentLevel { get; set; }
+      public int bonusPoints { get; set; }
       public DateTime? spLastCalculation { get; set; }
 
       public SerializableLearnableSkill()
@@ -76,6 +82,7 @@ namespace NWN.Systems
         acquiredPoints = learnableBase.acquiredPoints;
         currentLevel = learnableBase.currentLevel;
         spLastCalculation = learnableBase.spLastCalculation;
+        bonusPoints = learnableBase.bonusPoints;
       }
     }
 
@@ -89,7 +96,7 @@ namespace NWN.Systems
         player.oid.LoginCreature.AddFeat((Feat)player.learnableSkills.FirstOrDefault(l => l.Value == this).Key - 10000);
 
       if (skillEffect != null)
-        skillEffect.Invoke(player);
+        skillEffect.Invoke(player, id);
 
       if (player.openedWindows.ContainsKey("activeLearnable"))
         player.oid.NuiDestroy(player.openedWindows["activeLearnable"]);
@@ -98,22 +105,6 @@ namespace NWN.Systems
         ((PlayerSystem.Player.LearnableWindow)player.windows["learnables"]).RefreshWindow();
 
       player.oid.ExportCharacter();
-    }
-    private bool HandleHealthPoints(PlayerSystem.Player player)
-    {
-      int improvedHealth = 0;
-      if (player.learnableSkills.ContainsKey(CustomSkill.ImprovedHealth))
-        improvedHealth = player.learnableSkills[CustomSkill.ImprovedHealth].currentLevel;
-
-      int toughness = 0;
-      if (player.learnableSkills.ContainsKey(CustomSkill.Toughness))
-        toughness = player.learnableSkills[CustomSkill.Toughness].currentLevel;
-
-      player.oid.LoginCreature.LevelInfo[0].HitDie = (byte)(10
-        + (1 + 3 * ((player.oid.LoginCreature.GetAbilityScore(Ability.Constitution, true) - 10) / 2)
-        + toughness) * improvedHealth);
-
-      return true;
     }
   }
 }
