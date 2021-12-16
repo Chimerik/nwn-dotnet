@@ -38,9 +38,6 @@ namespace NWN.Systems
           if (!player.learnableSpells.ContainsKey((int)Spell.Haste))
             player.learnableSpells.Add((int)Spell.Haste, new LearnableSpell((LearnableSpell)SkillSystem.learnableDictionary[(int)Spell.Haste]));
 
-          if (!player.learnableSkills.ContainsKey(CustomSkill.Acolyte))
-            player.learnableSkills.Add(CustomSkill.Acolyte, new LearnableSkill((LearnableSkill)SkillSystem.learnableDictionary[CustomSkill.Acolyte]));
-
           if (player.windows.ContainsKey("learnables"))
             ((PlayerSystem.Player.LearnableWindow)player.windows["learnables"]).CreateWindow();
           else

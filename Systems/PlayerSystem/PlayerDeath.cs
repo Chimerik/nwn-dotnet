@@ -116,14 +116,6 @@ namespace NWN.Systems
         DestroyPlayerCorpse();
         oid.LoginCreature.Location = NwObject.FindObjectsWithTag<NwWaypoint>("WP_RESPAWN_DISPENSAIRE").FirstOrDefault()?.Location;
 
-        if (oid.LoginCreature.GetItemInSlot(InventorySlot.Neck)?.Tag != "amulettorillink")
-        {
-          Effect eff = Effect.SpellFailure(50);
-          eff.Tag = "erylies_spell_failure";
-          eff.SubType = EffectSubType.Supernatural;
-          oid.LoginCreature.ApplyEffect(EffectDuration.Permanent, eff);
-        }
-
         bankGold -= 50;
         oid.SendServerMessage("Afin de vous remettre sur pied, les 'soigneurs' ont demandé à la banque de prélever 50 pièces d'or sur votre compte.");
       }

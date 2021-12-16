@@ -42,6 +42,7 @@ namespace NWN.Systems
           sizeSlider = new NuiBind<int>("sizeSlider");
           sizeSelection = new NuiBind<int>("sizeSelection");
 
+          headSelection = new NuiBind<int>("headSelection");
           chestSelection = new NuiBind<int>("chestSelection");
           bicepRightSelection = new NuiBind<int>("bicepRightSelection");
           forearmRightSelection = new NuiBind<int>("forearmRightSelection");
@@ -50,6 +51,7 @@ namespace NWN.Systems
           bicepLeftSelection = new NuiBind<int>("bicepLeftSelection");
           forearmLeftSelection = new NuiBind<int>("forearmLeftSelection");
           thighLeftSelection = new NuiBind<int>("thighLeftSelection");
+          shinLeftSelection = new NuiBind<int>("shinLeftSelection");
 
           sizeCombo = new List<NuiComboEntry>();
 

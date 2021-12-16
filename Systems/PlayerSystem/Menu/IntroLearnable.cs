@@ -30,6 +30,7 @@ namespace NWN.Systems
           displayText = new NuiBind<string>("text");
           white = new NuiColor(255, 255, 255);
           drawListRect = new NuiRect(0, 35, 150, 60);
+          search = new NuiBind<string>("search");
 
           rootChidren = new List<NuiElement>();
           rootColumn = new NuiColumn() { Children = rootChidren };
@@ -38,14 +39,16 @@ namespace NWN.Systems
           buttonRow = new NuiRow()
           {
             Children = new List<NuiElement>() {
-              new NuiButton("Retour") { Id = "retour", Width = 193}
+              new NuiSpacer(),
+              new NuiButton("Retour") { Id = "retour", Width = 193 },
+              new NuiSpacer()
             }
           };
 
           textRow = new NuiRow()
           {
             Children = new List<NuiElement>() {
-              new NuiText(displayText)
+              new NuiText(displayText) { Height = 130 }
             }
           };
           
@@ -55,21 +58,13 @@ namespace NWN.Systems
         }
         public void CreateWindow()
         {
-          if (player.learnableSkills.Any(s => s.Value.category == SkillSystem.Category.StartingTraits))
-          {
-            player.oid.SendServerMessage("Vous avez déjà effectué votre choix d'historique.", ColorConstants.Red);
-
-            if (!player.openedWindows.ContainsKey("introMirror"))
-              ((IntroMirroWindow)player.windows["introMirror"]).CreateWindow();
-
-            return;
-          }
-
           NuiRect windowRectangle = player.windowRectangles.ContainsKey(windowId) ? player.windowRectangles[windowId] : new NuiRect(10, player.oid.GetDeviceProperty(PlayerDeviceProperty.GuiHeight) * 0.01f, 410, player.oid.GetDeviceProperty(PlayerDeviceProperty.GuiHeight) * 0.65f);
 
-          RefreshWindow();
+          rootChidren.Add(buttonRow);
+          rootChidren.Add(textRow);
+          rootChidren.Add(searchRow);
 
-          window = new NuiWindow(rootGroup, "Journal d'apprentissage")
+          window = new NuiWindow(rootGroup, "Sélection des compétences de départ")
           {
             Geometry = geometry,
             Resizable = false,
@@ -90,17 +85,10 @@ namespace NWN.Systems
           geometry.SetBindValue(player.oid, token, windowRectangle);
           geometry.SetBindWatch(player.oid, token, true);
 
-          displayText.SetBindValue(player.oid, token, $"Vous disposez actuellement de {player.oid.LoginCreature.GetObjectVariable<PersistentVariableInt>("_STARTING_SKILL_POINTS").Value} points de compétence.\n" +
+          displayText.SetBindValue(player.oid, token, $"Vous disposez actuellement de {player.oid.LoginCreature.GetObjectVariable<PersistentVariableInt>("_STARTING_SKILL_POINTS").Value} points de compétence.\n\n" +
             $"Quelles capacités initiales votre personnage possède-t-il ?");
 
           player.openedWindows[windowId] = token;
-
-          if ((player.learnableSkills.Any(l => l.Value.active) || player.learnableSpells.Any(l => l.Value.active)) && !player.openedWindows.ContainsKey("activeLearnable"))
-            if (player.windows.ContainsKey("activeLearnable"))
-              ((ActiveLearnableWindow)player.windows["activeLearnable"]).CreateWindow();
-            else
-              player.windows.Add("activeLearnable", new ActiveLearnableWindow(player));
-
           RefreshWindow();
         }
 
@@ -127,15 +115,15 @@ namespace NWN.Systems
                 int learnableId = int.Parse(nuiEvent.ElementId.Substring(nuiEvent.ElementId.IndexOf("_") + 1));
                 LearnableSkill skill = player.learnableSkills[learnableId];
 
-                
-
-                if (player.oid.LoginCreature.GetObjectVariable<PersistentVariableInt>("_STARTING_SKILL_POINTS").Value <= skill.GetPointsToNextLevel())
+                if (player.oid.LoginCreature.GetObjectVariable<PersistentVariableInt>("_STARTING_SKILL_POINTS").Value >= skill.GetPointsToNextLevel())
                 {
                   player.oid.LoginCreature.GetObjectVariable<PersistentVariableInt>("_STARTING_SKILL_POINTS").Value -= (int)skill.GetPointsToNextLevel();
                   skill.LevelUp(player);
 
-                  displayText.SetBindValue(player.oid, token, $"Vous disposez actuellement de {player.oid.LoginCreature.GetObjectVariable<PersistentVariableInt>("_STARTING_SKILL_POINTS").Value} points de compétence.\n" +
+                  displayText.SetBindValue(player.oid, token, $"Vous disposez actuellement de {player.oid.LoginCreature.GetObjectVariable<PersistentVariableInt>("_STARTING_SKILL_POINTS").Value} points de compétence.\n\n" +
                   $"Quelles capacités initiales votre personnage possède-t-il ?");
+
+                  RefreshWindow();
                 }
                 else
                 {
@@ -212,7 +200,7 @@ namespace NWN.Systems
                 new NuiDrawListText(white, drawListRect, kvp.Value.GetPointsToNextLevel().ToString()) } },
                 new NuiLabel("Niveau/Max") { Id = kvp.Key.ToString(), Width = 90, HorizontalAlign = NuiHAlign.Left, DrawList = new List<NuiDrawListItem>() {
                 new NuiDrawListText(white, drawListRect, $"{kvp.Value.currentLevel}/{kvp.Value.maxLevel}") } },
-                new NuiButton("Acheter un niveau") { Id = $"learn_{kvp.Key}", Height = 40, Width = 90, Enabled = kvp.Value.currentLevel < kvp.Value.maxLevel && !kvp.Value.active, Tooltip = "Si vous ne disposez pas d'assez de points, cette compétence sera sélectionnée pour entrainement." }
+                new NuiButton("Acheter") { Id = $"learn_{kvp.Key}", Height = 40, Width = 90, Enabled = kvp.Value.currentLevel < kvp.Value.maxLevel && !kvp.Value.active, Tooltip = "Si vous ne disposez pas d'assez de points, cette compétence sera sélectionnée pour entrainement." }
               }
             };
 

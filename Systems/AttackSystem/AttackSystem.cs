@@ -920,7 +920,7 @@ namespace NWN.Systems
       if (ctx.oTarget.GetItemInSlot(InventorySlot.RightRing) != null)
         slots.Add(ctx.oTarget.GetItemInSlot(InventorySlot.RightRing));
 
-      if (ctx.oTarget.GetItemInSlot(InventorySlot.Neck) != null && ctx.oTarget.GetItemInSlot(InventorySlot.Neck).Tag != "amulettorillink")
+      if (ctx.oTarget.GetItemInSlot(InventorySlot.Neck) != null)
         slots.Add(ctx.oTarget.GetItemInSlot(InventorySlot.Neck));
 
       if (slots.Count > 0)

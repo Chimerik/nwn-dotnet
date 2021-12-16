@@ -7,7 +7,7 @@ namespace NWN.Systems
   public class SkillsTable : ITwoDimArray
   {
     private readonly Dictionary<Skill, Entry> entries = new Dictionary<Skill, Entry>();
-
+    
     public Entry GetDataEntry(Skill row)
     {
       return entries[row];
@@ -38,10 +38,13 @@ namespace NWN.Systems
   {
     public static TlkTable tlkTable;
     public static SkillsTable skillsTable;
+    public static bool skill2daLoaded = false;
     public Skills2da(TwoDimArrayFactory twoDimArrayFactory, TlkTable tlkService)
     {
       tlkTable = tlkService;
       skillsTable = twoDimArrayFactory.Get2DA<SkillsTable>("skills");
+
+      skill2daLoaded = true;
     }
   }
 }

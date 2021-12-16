@@ -29,6 +29,8 @@ namespace NWN.Systems
 
     public static async void InitializeLearnables()
     {
+      await NwTask.WaitUntil(() => Skills2da.skill2daLoaded);
+
       learnableDictionary.Add(CustomSkill.ImprovedStrength, new LearnableSkill(CustomSkill.ImprovedStrength, "Force accrue", "Augmente la force d'un point par niveau d'entraînement.", Category.MindBody, "ife_X2GrStr1", 4, 3, Ability.Constitution, Ability.Strength, false, HandleImproveAbility));
       learnableDictionary.Add(CustomSkill.ImprovedDexterity, new LearnableSkill(CustomSkill.ImprovedDexterity, "Dextérité accrue", "Augmente la dextérité d'un point par niveau d'entraînement.", Category.MindBody, "ife_X2GrDex1", 4, 3, Ability.Constitution, Ability.Dexterity, false, HandleImproveAbility));
       learnableDictionary.Add(CustomSkill.ImprovedConstitution, new LearnableSkill(CustomSkill.ImprovedConstitution, "Constitution accrue", "Augmente la constitution d'un point par niveau d'entraînement.", Category.MindBody, "ife_X2GrCon1", 4, 3, Ability.Constitution, Ability.Charisma, false, HandleImproveAbility));
@@ -450,10 +452,12 @@ namespace NWN.Systems
     }
     private static bool HandleImproveAbility(PlayerSystem.Player player, int customSkillId)
     {
+      Log.Info($"improve ability triggered : {customSkillId}");
       switch (customSkillId)
       {
         case CustomSkill.ImprovedStrength:
           player.oid.LoginCreature.SetsRawAbilityScore(Ability.Strength, (byte)(player.oid.LoginCreature.GetRawAbilityScore(Ability.Strength) + 1));
+          Log.Info($"str : {player.oid.LoginCreature.GetRawAbilityScore(Ability.Strength)}");
           break;
         case CustomSkill.ImprovedDexterity:
           player.oid.LoginCreature.SetsRawAbilityScore(Ability.Dexterity, (byte)(player.oid.LoginCreature.GetRawAbilityScore(Ability.Dexterity) + 1));
@@ -509,6 +513,8 @@ namespace NWN.Systems
             player.learnableSkills.Add(CustomSkill.Arcana, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.Arcana]));
           player.learnableSkills[CustomSkill.Arcana].bonusPoints += 1;
 
+          HandleBaseSkill(player, CustomSkill.Arcana);
+
           if (!player.learnableSkills.ContainsKey(CustomSkill.Nature))
             player.learnableSkills.Add(CustomSkill.Nature, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.Nature]));
           player.learnableSkills[CustomSkill.Nature].bonusPoints += 1;
@@ -526,6 +532,8 @@ namespace NWN.Systems
           if (!player.learnableSkills.ContainsKey(CustomSkill.Arcana))
             player.learnableSkills.Add(CustomSkill.Arcana, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.Arcana]));
           player.learnableSkills[CustomSkill.Arcana].bonusPoints += 1;
+
+          HandleBaseSkill(player, CustomSkill.Arcana);
           break;
 
         case CustomSkill.Hermit:
@@ -553,9 +561,14 @@ namespace NWN.Systems
             player.learnableSkills.Add(CustomSkill.Acrobatics, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.Acrobatics]));
           player.learnableSkills[CustomSkill.Acrobatics].bonusPoints += 1;
 
+          HandleBaseSkill(player, CustomSkill.Acrobatics);
+
           if (!player.learnableSkills.ContainsKey(CustomSkill.Athletics))
             player.learnableSkills.Add(CustomSkill.Athletics, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.Athletics]));
           player.learnableSkills[CustomSkill.Athletics].bonusPoints += 1;
+
+          HandleBaseSkill(player, CustomSkill.Athletics);
+
           break;
 
         case CustomSkill.Outlander:
@@ -567,6 +580,8 @@ namespace NWN.Systems
           if (!player.learnableSkills.ContainsKey(CustomSkill.Athletics))
             player.learnableSkills.Add(CustomSkill.Athletics, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.Athletics]));
           player.learnableSkills[CustomSkill.Athletics].bonusPoints += 1;
+
+          HandleBaseSkill(player, CustomSkill.Athletics);
           break;
 
         case CustomSkill.Soldier:
@@ -574,15 +589,21 @@ namespace NWN.Systems
             player.learnableSkills.Add(CustomSkill.Intimidation, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.Intimidation]));
           player.learnableSkills[CustomSkill.Intimidation].bonusPoints += 1;
 
+          HandleBaseSkill(player, CustomSkill.Intimidation);
+
           if (!player.learnableSkills.ContainsKey(CustomSkill.Athletics))
             player.learnableSkills.Add(CustomSkill.Athletics, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.Athletics]));
           player.learnableSkills[CustomSkill.Athletics].bonusPoints += 1;
+
+          HandleBaseSkill(player, CustomSkill.Athletics);
           break;
 
         case CustomSkill.Mercenary:
           if (!player.learnableSkills.ContainsKey(CustomSkill.Athletics))
             player.learnableSkills.Add(CustomSkill.Athletics, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.Athletics]));
           player.learnableSkills[CustomSkill.Athletics].bonusPoints += 1;
+
+          HandleBaseSkill(player, CustomSkill.Athletics);
 
           if (!player.learnableSkills.ContainsKey(CustomSkill.Persuasion))
             player.learnableSkills.Add(CustomSkill.Persuasion, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.Persuasion]));
@@ -604,9 +625,13 @@ namespace NWN.Systems
             player.learnableSkills.Add(CustomSkill.Athletics, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.Athletics]));
           player.learnableSkills[CustomSkill.Athletics].bonusPoints += 1;
 
+          HandleBaseSkill(player, CustomSkill.Athletics);
+
           if (!player.learnableSkills.ContainsKey(CustomSkill.Perception))
             player.learnableSkills.Add(CustomSkill.Perception, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.Perception]));
           player.learnableSkills[CustomSkill.Perception].bonusPoints += 1;
+
+          HandleBaseSkill(player, CustomSkill.Perception);
           break;
 
         case CustomSkill.Shipwright:
@@ -617,6 +642,8 @@ namespace NWN.Systems
           if (!player.learnableSkills.ContainsKey(CustomSkill.Perception))
             player.learnableSkills.Add(CustomSkill.Perception, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.Perception]));
           player.learnableSkills[CustomSkill.Perception].bonusPoints += 1;
+
+          HandleBaseSkill(player, CustomSkill.Perception);
 
           // TODO : Accès gratuit à l'artisanat charpentier + 1 point de compétence bonus, uniquement si l'utilisateur ne connait pas déjà l'artisanat charpentier
           break;
@@ -641,6 +668,8 @@ namespace NWN.Systems
           if (!player.learnableSkills.ContainsKey(CustomSkill.Stealth))
             player.learnableSkills.Add(CustomSkill.Stealth, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.Stealth]));
           player.learnableSkills[CustomSkill.Stealth].bonusPoints += 1;
+
+          HandleBaseSkill(player, CustomSkill.Stealth);
           break;
 
         case CustomSkill.Charlatan:
@@ -651,6 +680,8 @@ namespace NWN.Systems
           if (!player.learnableSkills.ContainsKey(CustomSkill.Escamotage))
             player.learnableSkills.Add(CustomSkill.Escamotage, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.Escamotage]));
           player.learnableSkills[CustomSkill.Escamotage].bonusPoints += 1;
+
+          HandleBaseSkill(player, CustomSkill.Escamotage);
           break;
 
         case CustomSkill.Smuggler:
@@ -661,6 +692,8 @@ namespace NWN.Systems
           if (!player.learnableSkills.ContainsKey(CustomSkill.Athletics))
             player.learnableSkills.Add(CustomSkill.Athletics, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.Athletics]));
           player.learnableSkills[CustomSkill.Athletics].bonusPoints += 1;
+
+          HandleBaseSkill(player, CustomSkill.Athletics);
           break;
 
         case CustomSkill.StreetUrchin:
@@ -668,9 +701,13 @@ namespace NWN.Systems
             player.learnableSkills.Add(CustomSkill.Escamotage, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.Escamotage]));
           player.learnableSkills[CustomSkill.Escamotage].bonusPoints += 1;
 
+          HandleBaseSkill(player, CustomSkill.Escamotage);
+
           if (!player.learnableSkills.ContainsKey(CustomSkill.Stealth))
             player.learnableSkills.Add(CustomSkill.Stealth, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.Stealth]));
           player.learnableSkills[CustomSkill.Stealth].bonusPoints += 1;
+
+          HandleBaseSkill(player, CustomSkill.Stealth);
           break;
 
         case CustomSkill.Gambler:
@@ -688,15 +725,21 @@ namespace NWN.Systems
             player.learnableSkills.Add(CustomSkill.Acrobatics, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.Acrobatics]));
           player.learnableSkills[CustomSkill.Acrobatics].bonusPoints += 1;
 
+          HandleBaseSkill(player, CustomSkill.Acrobatics);
+
           if (!player.learnableSkills.ContainsKey(CustomSkill.Performance))
             player.learnableSkills.Add(CustomSkill.Performance, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.Performance]));
           player.learnableSkills[CustomSkill.Performance].bonusPoints += 1;
+
+          HandleBaseSkill(player, CustomSkill.Performance);
           break;
 
         case CustomSkill.CityWatch:
           if (!player.learnableSkills.ContainsKey(CustomSkill.Athletics))
             player.learnableSkills.Add(CustomSkill.Athletics, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.Athletics]));
           player.learnableSkills[CustomSkill.Athletics].bonusPoints += 1;
+
+          HandleBaseSkill(player, CustomSkill.Athletics);
 
           if (!player.learnableSkills.ContainsKey(CustomSkill.Insight))
             player.learnableSkills.Add(CustomSkill.Insight, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.Insight]));
@@ -708,6 +751,8 @@ namespace NWN.Systems
             player.learnableSkills.Add(CustomSkill.Investigation, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.Investigation]));
           player.learnableSkills[CustomSkill.Investigation].bonusPoints += 1;
 
+          HandleBaseSkill(player, CustomSkill.Investigation);
+
           if (!player.learnableSkills.ContainsKey(CustomSkill.Insight))
             player.learnableSkills.Add(CustomSkill.Insight, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.Insight]));
           player.learnableSkills[CustomSkill.Insight].bonusPoints += 1;
@@ -715,6 +760,8 @@ namespace NWN.Systems
           if (!player.learnableSkills.ContainsKey(CustomSkill.Perception))
             player.learnableSkills.Add(CustomSkill.Perception, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.Perception]));
           player.learnableSkills[CustomSkill.Perception].bonusPoints += 1;
+
+          HandleBaseSkill(player, CustomSkill.Perception);
           break;
 
         case CustomSkill.KnightOfTheOrder:
@@ -777,6 +824,8 @@ namespace NWN.Systems
             player.learnableSkills.Add(CustomSkill.Arcana, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.Arcana]));
           player.learnableSkills[CustomSkill.Arcana].bonusPoints += 1;
 
+          HandleBaseSkill(player, CustomSkill.Arcana);
+
           if (!player.learnableSkills.ContainsKey(CustomSkill.Survival))
             player.learnableSkills.Add(CustomSkill.Survival, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.Survival]));
           player.learnableSkills[CustomSkill.Survival].bonusPoints += 1;
@@ -787,9 +836,13 @@ namespace NWN.Systems
             player.learnableSkills.Add(CustomSkill.Arcana, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.Arcana]));
           player.learnableSkills[CustomSkill.Arcana].bonusPoints += 1;
 
+          HandleBaseSkill(player, CustomSkill.Arcana);
+
           if (!player.learnableSkills.ContainsKey(CustomSkill.Investigation))
             player.learnableSkills.Add(CustomSkill.Investigation, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.Investigation]));
           player.learnableSkills[CustomSkill.Investigation].bonusPoints += 1;
+
+          HandleBaseSkill(player, CustomSkill.Investigation);
           break;
 
         case CustomSkill.Magistrate:
@@ -800,6 +853,8 @@ namespace NWN.Systems
           if (!player.learnableSkills.ContainsKey(CustomSkill.Intimidation))
             player.learnableSkills.Add(CustomSkill.Intimidation, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.Intimidation]));
           player.learnableSkills[CustomSkill.Intimidation].bonusPoints += 1;
+
+          HandleBaseSkill(player, CustomSkill.Intimidation);
           break;
 
         case CustomSkill.Faceless:
@@ -810,6 +865,8 @@ namespace NWN.Systems
           if (!player.learnableSkills.ContainsKey(CustomSkill.Intimidation))
             player.learnableSkills.Add(CustomSkill.Intimidation, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.Intimidation]));
           player.learnableSkills[CustomSkill.Intimidation].bonusPoints += 1;
+
+          HandleBaseSkill(player, CustomSkill.Intimidation);
 
           if (!player.learnableSkills.ContainsKey(CustomSkill.Performance))
             player.learnableSkills.Add(CustomSkill.Performance, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.Performance]));
@@ -825,9 +882,13 @@ namespace NWN.Systems
             player.learnableSkills.Add(CustomSkill.Stealth, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.Stealth]));
           player.learnableSkills[CustomSkill.Stealth].bonusPoints += 1;
 
+          HandleBaseSkill(player, CustomSkill.Stealth);
+
           if (!player.learnableSkills.ContainsKey(CustomSkill.Performance))
             player.learnableSkills.Add(CustomSkill.Performance, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.Performance]));
           player.learnableSkills[CustomSkill.Performance].bonusPoints += 1;
+
+          HandleBaseSkill(player, CustomSkill.Performance);
           break;
 
         case CustomSkill.AdventurerScion:
@@ -835,15 +896,21 @@ namespace NWN.Systems
             player.learnableSkills.Add(CustomSkill.Perception, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.Perception]));
           player.learnableSkills[CustomSkill.Perception].bonusPoints += 1;
 
+          HandleBaseSkill(player, CustomSkill.Perception);
+
           if (!player.learnableSkills.ContainsKey(CustomSkill.Performance))
             player.learnableSkills.Add(CustomSkill.Performance, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.Performance]));
           player.learnableSkills[CustomSkill.Performance].bonusPoints += 1;
+
+          HandleBaseSkill(player, CustomSkill.Performance);
           break;
 
         case CustomSkill.Prisoner:
           if (!player.learnableSkills.ContainsKey(CustomSkill.Perception))
             player.learnableSkills.Add(CustomSkill.Perception, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.Perception]));
           player.learnableSkills[CustomSkill.Perception].bonusPoints += 1;
+
+          HandleBaseSkill(player, CustomSkill.Perception);
 
           if (!player.learnableSkills.ContainsKey(CustomSkill.Deception))
             player.learnableSkills.Add(CustomSkill.Deception, new LearnableSkill((LearnableSkill)learnableDictionary[CustomSkill.Deception]));

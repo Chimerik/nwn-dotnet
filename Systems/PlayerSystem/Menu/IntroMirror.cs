@@ -32,12 +32,10 @@ namespace NWN.Systems
           {
             Children = new List<NuiElement>()
             {
-              new NuiSpacer(),
-              new NuiImage(player.oid.LoginCreature.PortraitResRef),
-              new NuiText("Houla, y a pas à dire, vous avez connu de meilleurs jours.\n" +
-              "C'est quoi cette mine que vous me tirez ?\n" +
-              "On va mettre ça sur le compte du mal de mer."),
-              new NuiSpacer()
+              new NuiImage(player.oid.LoginCreature.PortraitResRef + "M") { ImageAspect = NuiAspect.ExactScaled, Width = 60, Height = 100 },
+              new NuiText("Houla, y a pas à dire, vous avez connu de meilleurs jours.\n\n" +
+              "C'est quoi cette mine de déterré ?\n\n" +
+              "On va mettre ça sur le compte du mal de mer.") { Width = 450, Height = 110 }
             }
           };
 
@@ -45,9 +43,7 @@ namespace NWN.Systems
           {
             Children = new List<NuiElement>()
             {
-              new NuiSpacer(),
-              new NuiButton("Se refaire une beauté.") { Id = "beauty" },
-              new NuiSpacer()
+              new NuiButton("Se refaire une beauté.") { Id = "beauty", Width = 510 }
             }
           };
 
@@ -55,9 +51,7 @@ namespace NWN.Systems
           {
             Children = new List<NuiElement>()
             {
-              new NuiSpacer(),
-              new NuiButton("Se perdre brièvement dans le passé.") { Id = "past" },
-              new NuiSpacer()
+              new NuiButton("Se perdre brièvement dans le passé.") { Id = "past", Width = 510 }
             }
           };
 
@@ -65,9 +59,7 @@ namespace NWN.Systems
           {
             Children = new List<NuiElement>()
             {
-              new NuiSpacer(),
-              new NuiButton("Se préparer à l'avenir.") { Id = "future" },
-              new NuiSpacer()
+              new NuiButton("Se préparer à l'avenir.") { Id = "future", Width = 510 }
             }
           };
 
@@ -77,13 +69,6 @@ namespace NWN.Systems
         {
           rootChidren.Clear();
 
-          //potentiellement : relire le dialogue d'intro de Disco Elysium
-          //portrait
-          //texte
-          // option : me refaire une beauté
-          // option : me perdre dans le passé (niveaux de compétences de départ en fonction du background) + éventuellement quelques éléments de classe de base
-          // option : me préparer à l'avenir
-
           rootChidren.Add(introTextRow);
           rootChidren.Add(beautyRow);
 
@@ -92,12 +77,12 @@ namespace NWN.Systems
           
           rootChidren.Add(futureRow);
 
-          NuiRect windowRectangle = player.windowRectangles.ContainsKey(windowId) ? player.windowRectangles[windowId] : new NuiRect(10, player.oid.GetDeviceProperty(PlayerDeviceProperty.GuiHeight) * 0.01f, 500, 300);
+          NuiRect windowRectangle = new NuiRect(0, player.oid.GetDeviceProperty(PlayerDeviceProperty.GuiHeight) * 0.02f, 540, 340);
 
           window = new NuiWindow(rootGroup, "Votre reflet")
           {
             Geometry = geometry,
-            Resizable = true,
+            Resizable = false,
             Collapsed = false,
             Closable = true,
             Transparent = false,
@@ -152,7 +137,7 @@ namespace NWN.Systems
                   player.oid.NuiDestroy(token);
 
                   if (player.windows.ContainsKey("introLearnables"))
-                    ((LearnableWindow)player.windows["introLearnables"]).CreateWindow();
+                    ((IntroLearnableWindow)player.windows["introLearnables"]).CreateWindow();
                   else
                     player.windows.Add("introLearnables", new IntroLearnableWindow(player));
                   

@@ -84,7 +84,11 @@ namespace NWN.Systems
         {
           NuiRect windowRectangle = player.windowRectangles.ContainsKey(windowId) ? player.windowRectangles[windowId] : new NuiRect(10, player.oid.GetDeviceProperty(PlayerDeviceProperty.GuiHeight) * 0.01f, 410, player.oid.GetDeviceProperty(PlayerDeviceProperty.GuiHeight) * 0.65f);
 
-          RefreshWindow();
+          //RefreshWindow();
+
+          rootChidren.Add(buttonRow);
+          rootChidren.Add(comboRow);
+          rootChidren.Add(searchRow);
 
           window = new NuiWindow(rootGroup, "Journal d'apprentissage")
           {

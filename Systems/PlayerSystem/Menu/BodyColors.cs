@@ -35,11 +35,16 @@ namespace NWN.Systems
           };
 
           colorBindings = new NuiBind<string>[176];
+          for (int i = 0; i < 176; i++)
+            colorBindings[i] = new NuiBind<string>($"color{i}");
+          
           CreateWindow();
         }
         public void CreateWindow()
         {
           player.DisableItemAppearanceFeedbackMessages();
+
+          NuiRect windowRectangle = player.windowRectangles.ContainsKey(windowId) ? new NuiRect(player.windowRectangles[windowId].X, player.windowRectangles[windowId].Y, 470, 470) : new NuiRect(0, player.oid.GetDeviceProperty(PlayerDeviceProperty.GuiHeight) * 0.02f, 470, 470);
 
           List<NuiElement> colChildren = new List<NuiElement>();
 
@@ -103,10 +108,10 @@ namespace NWN.Systems
           window = new NuiWindow(root, "Vous contemplez votre reflet dans le miroir")
           {
             Geometry = geometry,
-            Resizable = true,
+            Resizable = false,
             Collapsed = false,
             Closable = true,
-            Transparent = true,
+            Transparent = false,
             Border = true,
           };
 
@@ -124,6 +129,9 @@ namespace NWN.Systems
           currentColor.SetBindValue(player.oid, token, $"hair{player.oid.ControlledCreature.GetColor(ColorChannel.Hair) + 1}");
           channelSelection.SetBindValue(player.oid, token, 1);
           channelSelection.SetBindWatch(player.oid, token, true);
+
+          geometry.SetBindValue(player.oid, token, windowRectangle);
+          geometry.SetBindWatch(player.oid, token, true);
 
           for (int i = 0; i < 176; i++)
             colorBindings[i].SetBindValue(player.oid, token, NWScript.ResManGetAliasFor($"hair{i + 1}", NWScript.RESTYPE_TGA) != "" ? $"hair{i + 1}" : $"leather{i + 1}");

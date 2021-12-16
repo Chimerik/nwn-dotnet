@@ -102,7 +102,12 @@ namespace NWN.Systems
     public static void StartIntroMirrorDialog(PlaceableEvents.OnUsed onUsed)
     {
       if (Players.TryGetValue(onUsed.UsedBy, out Player player))
-        new IntroMirror(player, onUsed.Placeable);
+      {
+        if (player.windows.ContainsKey("introMirror"))
+          ((Player.IntroMirroWindow)player.windows["introMirror"]).CreateWindow();
+        else
+          player.windows.Add("introMirror", new Player.IntroMirroWindow(player));
+      }
     }
     public static void StartBodyModifierDialog(PlaceableEvents.OnUsed onUsed)
     {

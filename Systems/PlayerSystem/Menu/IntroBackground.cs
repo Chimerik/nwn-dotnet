@@ -28,7 +28,7 @@ namespace NWN.Systems
 
           white = new NuiColor(255, 255, 255);
           drawListRect = new NuiRect(0, 35, 150, 60);
-
+          search = new NuiBind<string>("search");
           rootChidren = new List<NuiElement>();
           rootColumn = new NuiColumn() { Children = rootChidren };
           rootGroup = new NuiGroup() { Id = "learnableGroup", Border = true, Layout = rootColumn };
@@ -36,7 +36,9 @@ namespace NWN.Systems
           buttonRow = new NuiRow()
             {
               Children = new List<NuiElement>() {
-              new NuiButton("Retour") { Id = "retour", Width = 193}
+              new NuiSpacer(),
+              new NuiButton("Retour") { Id = "retour", Width = 193},
+              new NuiSpacer()
             }
           };
 
@@ -45,7 +47,7 @@ namespace NWN.Systems
             Children = new List<NuiElement>() {
               new NuiText("L'espace de quelques instants, la galère disparait de votre esprit.\n" +
               "Plus jeune, vous vous revoyez ...\n" +
-              "(Attention, il ne sera possible de choisir qu'un seul historique par personnage et il ne sera pas possible de revenir dessus une fois votre choix effectué !)")
+              "(Attention, il ne sera possible de choisir qu'un seul historique par personnage et il ne sera pas possible de revenir dessus une fois votre choix effectué !)") { Height = 110 }
             }
           };
 
@@ -65,11 +67,11 @@ namespace NWN.Systems
             return;
           }
 
-          NuiRect windowRectangle = player.windowRectangles.ContainsKey(windowId) ? player.windowRectangles[windowId] : new NuiRect(10, player.oid.GetDeviceProperty(PlayerDeviceProperty.GuiHeight) * 0.01f, 410, player.oid.GetDeviceProperty(PlayerDeviceProperty.GuiHeight) * 0.65f);
+          NuiRect windowRectangle = player.windowRectangles.ContainsKey(windowId) ? new NuiRect(player.windowRectangles[windowId].X, player.windowRectangles[windowId].Y, 450, player.oid.GetDeviceProperty(PlayerDeviceProperty.GuiHeight) * 0.65f) : new NuiRect(0, player.oid.GetDeviceProperty(PlayerDeviceProperty.GuiHeight) * 0.02f, 450, player.oid.GetDeviceProperty(PlayerDeviceProperty.GuiHeight) * 0.65f);
 
           RefreshWindow();
 
-          window = new NuiWindow(rootGroup, "Journal d'apprentissage")
+          window = new NuiWindow(rootGroup, "Choissisez votre historique")
           {
             Geometry = geometry,
             Resizable = false,

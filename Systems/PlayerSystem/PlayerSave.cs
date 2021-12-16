@@ -1,16 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
-using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
 using Anvil.API;
 using Anvil.API.Events;
 
 using Newtonsoft.Json;
-
-using JsonSerializer = System.Text.Json.JsonSerializer;
 
 namespace NWN.Systems
 {

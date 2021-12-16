@@ -213,12 +213,10 @@ namespace NWN.Systems
 
       SpellsTable.Entry entry = Spells2da.spellsTable.GetSpellDataEntry(onSpellCast.Spell);
 
-      if (entry.school == SpellSchool.Divination && oPC.GetItemInSlot(InventorySlot.Neck).Tag != "amulettorillink")
+      if (entry.school == SpellSchool.Divination)
       {
-        (Bot._client.GetChannel(680072044364562532) as IMessageChannel).SendMessageAsync(
-          $"{oPC.Name} " +
-          $"vient de lancer un sort de divination ({entry.name})" +
-          $" en portant l'amulette de traçage. L'Amiral s'apprête à punir l'impudent !");
+        onSpellCast.PreventSpellCast = true;
+        oPC.ControllingPlayer.SendServerMessage("Le juge du changement interdit tout usage de divination.");
       }
     }
     [ScriptHandler("invi_hb")]

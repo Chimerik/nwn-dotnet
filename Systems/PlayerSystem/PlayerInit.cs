@@ -75,45 +75,10 @@ namespace NWN.Systems
       player.DoJournalUpdate = false;
       player.dateLastSaved = DateTime.Now;
 
-      if (oPC.LoginCreature.GetItemInSlot(InventorySlot.Neck)?.Tag != "amulettorillink")
-        player.HandleMissingTorilNecklace();
-      else
-        player.oid.LoginCreature.OnItemUnequip += OnUnequipTorilNecklace;
-
       player.mapLoadingTime = DateTime.Now;
 
       Log.Info("End of player init.");
     }
-    
-    public static void OnEquipTorilNecklace(OnItemEquip onEquip)
-    {
-      if (onEquip.Item.Tag != "amulettorillink")
-        return;
-
-      onEquip.EquippedBy.LoginPlayer.SendServerMessage("Votre lien avec la Toile se renforce de manière significative.", ColorConstants.Pink);
-
-      foreach(Effect eff in onEquip.EquippedBy.ActiveEffects.Where(e => e.Tag == "erylies_spell_failure"))
-        onEquip.EquippedBy.RemoveEffect(eff);
-
-      onEquip.EquippedBy.OnItemEquip -= OnEquipTorilNecklace;
-      onEquip.EquippedBy.OnItemUnequip += OnUnequipTorilNecklace;
-    }
-
-    public static void OnUnequipTorilNecklace(OnItemUnequip onUnequip)
-    {
-      if (onUnequip.Item.Tag != "amulettorillink")
-        return;
-
-      onUnequip.Creature.LoginPlayer.SendServerMessage("En retirant le collier, vous sentez votre lien avec la Toile faiblir. Un échec des sorts de 50 % vous est appliqué.", ColorConstants.Pink);
-      Effect eff = Effect.SpellFailure(50);
-      eff.Tag = "erylies_spell_failure";
-      eff.SubType = EffectSubType.Supernatural;
-      onUnequip.Creature.ApplyEffect(EffectDuration.Permanent, eff);
-
-      onUnequip.Creature.OnItemEquip += OnEquipTorilNecklace;
-      onUnequip.Creature.OnItemUnequip -= OnUnequipTorilNecklace;
-    }
-
     public partial class Player
     {
       public void InitializeNewPlayer()
@@ -498,18 +463,7 @@ namespace NWN.Systems
           new List<string[]>() { { new string[] { "rowid", oid.LoginCreature.GetObjectVariable<PersistentVariableInt>("characterId").Value.ToString() } } });
 
         storage.Destroy();
-      }
-      public void HandleMissingTorilNecklace()
-      {
-        oid.SendServerMessage("Votre lien avec la Toile semble particulièrement faible. Un échec des sorts de 50 % vous est appliqué.", ColorConstants.Pink);
-        Effect eff = Effect.SpellFailure(50);
-        eff.Tag = "erylies_spell_failure";
-        eff.SubType = EffectSubType.Supernatural;
-        oid.LoginCreature.ApplyEffect(EffectDuration.Permanent, eff);
-
-        oid.LoginCreature.OnItemEquip += OnEquipTorilNecklace; 
-      }
-      
+      }      
       private async void InitializeAccountMapPins(string serializedMapPins)
       {
         using (var stream = await StringUtils.GenerateStreamFromString(serializedMapPins))

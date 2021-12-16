@@ -41,6 +41,7 @@ namespace NWN.Systems
     {
       this.activable = learnableBase.activable;
       this.category = learnableBase.category;
+      this.skillEffect = learnableBase.skillEffect;
       this.active = active;
       this.acquiredPoints = acquiredSP;
       this.currentLevel = currentLevel;
@@ -94,6 +95,8 @@ namespace NWN.Systems
 
       if (activable)
         player.oid.LoginCreature.AddFeat((Feat)player.learnableSkills.FirstOrDefault(l => l.Value == this).Key - 10000);
+
+      PlayerSystem.Log.Info($"effect : {skillEffect}");
 
       if (skillEffect != null)
         skillEffect.Invoke(player, id);
