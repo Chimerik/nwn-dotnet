@@ -54,7 +54,7 @@ namespace NWN.Systems
           if (!spellSlot.IsPopulated)
             continue;
 
-          spellList += $"{(int)spellSlot.Spell}";
+          spellList += $"{(int)spellSlot.Spell.SpellType}";
           if (spellSlot.MetaMagic != MetaMagic.None)
             spellList += $"${(int)spellSlot.MetaMagic}";
           spellList += "_";

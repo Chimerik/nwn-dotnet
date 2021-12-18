@@ -14,7 +14,7 @@ namespace NWN.Systems
         return;
       }
 
-      PlayerSystem.cursorTargetService.EnterTargetMode(ctx.oSender, FollowTarget, ObjectTypes.Creature, MouseCursor.Follow);
+      ctx.oSender.EnterTargetMode(FollowTarget, ObjectTypes.Creature, MouseCursor.Follow);
     }
     private static async void FollowTarget(ModuleEvents.OnPlayerTarget selection)
     {

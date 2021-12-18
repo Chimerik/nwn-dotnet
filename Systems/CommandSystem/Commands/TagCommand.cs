@@ -8,7 +8,7 @@ namespace NWN.Systems
   {
     public SetTargetTag(NwPlayer oPC)
     {
-      PlayerSystem.cursorTargetService.EnterTargetMode(oPC, ChangeTagTarget, ObjectTypes.All, MouseCursor.Create);
+      oPC.EnterTargetMode(ChangeTagTarget, ObjectTypes.All, MouseCursor.Create);
     }
     private static async void ChangeTagTarget(ModuleEvents.OnPlayerTarget selection)
     {

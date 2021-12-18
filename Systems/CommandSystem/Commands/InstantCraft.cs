@@ -8,7 +8,7 @@ namespace NWN.Systems
     public InstantCraft(NwPlayer oPC)
     {
       oPC.SendServerMessage("Veuillez sélectionner la cible du craft instantanné.");
-      PlayerSystem.cursorTargetService.EnterTargetMode(oPC, SelectCraftTarget, ObjectTypes.Creature, MouseCursor.Create);
+      oPC.EnterTargetMode(SelectCraftTarget, ObjectTypes.Creature, MouseCursor.CreateDown);
     }
     private void SelectCraftTarget(ModuleEvents.OnPlayerTarget selection)
     {

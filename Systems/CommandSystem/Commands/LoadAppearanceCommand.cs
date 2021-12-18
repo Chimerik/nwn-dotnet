@@ -12,7 +12,7 @@ namespace NWN.Systems
     public LoadAppearance(NwPlayer oPC)
     {
       oPC.SendServerMessage("Veuillez sélectionnner l'objet dont vous souhaitez modifier l'apparence.", ColorConstants.Rose);
-      PlayerSystem.cursorTargetService.EnterTargetMode(oPC, OnModifyAppearanceItemSelected, ObjectTypes.Item, MouseCursor.Create);
+      oPC.EnterTargetMode(OnModifyAppearanceItemSelected, ObjectTypes.Item, MouseCursor.Create);
     }
     private static void OnModifyAppearanceItemSelected(ModuleEvents.OnPlayerTarget selection)
     {
@@ -27,7 +27,7 @@ namespace NWN.Systems
       }
 
       int ACValue = -1;
-      if (item.BaseItemType == BaseItemType.Armor)
+      if (item.BaseItem.ItemType == BaseItemType.Armor)
         ACValue = item.BaseACValue;
 
       player.menu.Clear();
@@ -37,7 +37,7 @@ namespace NWN.Systems
 
       var query = SqLiteUtils.SelectQuery("playerItemAppearance",
         new List<string>() { { "appearanceName" }, { "serializedAppearance" } },
-        new List<string[]>() { new string[] { "characterId", player.characterId.ToString() }, { new string[] { "AC", ACValue.ToString() } }, { new string[] { "baseItemType", ((int)item.BaseItemType).ToString() } } } );
+        new List<string[]>() { new string[] { "characterId", player.characterId.ToString() }, { new string[] { "AC", ACValue.ToString() } }, { new string[] { "baseItemType", ((int)item.BaseItem.ItemType).ToString() } } } );
 
       if(query != null)
       foreach (var itemAppearance in query.Results)

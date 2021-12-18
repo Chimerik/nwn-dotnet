@@ -11,7 +11,7 @@ namespace NWN.Systems
     {
       dm = player;
       dm.oid.SendServerMessage("Veuillez sélectionner la cible du don.");
-      PlayerSystem.cursorTargetService.EnterTargetMode(dm.oid, SelectTarget, ObjectTypes.Creature, MouseCursor.Create);
+      dm.oid.EnterTargetMode(SelectTarget, ObjectTypes.Creature, MouseCursor.CreateDown);
     }
     private void SelectTarget(ModuleEvents.OnPlayerTarget selection)
     {

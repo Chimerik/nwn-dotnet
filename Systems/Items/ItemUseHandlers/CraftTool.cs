@@ -45,7 +45,7 @@ namespace NWN.Systems
 
       oPC.GetObjectVariable<LocalVariableObject<NwItem>>("_ITEM_SELECTED_FOR_MODIFICATION").Value = item;
 
-      switch (item.BaseItemType)
+      switch (item.BaseItem.ItemType)
       {
         case BaseItemType.Armor:
           player.CreateArmorAppearanceWindow(item);
@@ -1152,7 +1152,7 @@ namespace NWN.Systems
           item.Appearance.SetArmorColor((ItemAppearanceArmorColor)colorChannelChoice, currentValue);
           NwItem newItem = item.Clone(player.oid.LoginCreature);
 
-          if (item.BaseItemType == BaseItemType.Cloak)
+          if (item.BaseItem.ItemType == BaseItemType.Cloak)
             player.oid.LoginCreature.RunEquip(newItem, InventorySlot.Cloak);
           else
             player.oid.LoginCreature.RunEquip(newItem, InventorySlot.Head);
@@ -1204,7 +1204,7 @@ namespace NWN.Systems
           item.Appearance.SetSimpleModel(currentValue);
           NwItem newItem = item.Clone(player.oid.LoginCreature);
 
-          if (item.BaseItemType == BaseItemType.Cloak)
+          if (item.BaseItem.ItemType == BaseItemType.Cloak)
             player.oid.LoginCreature.RunEquip(newItem, InventorySlot.Cloak);
           else
             player.oid.LoginCreature.RunEquip(newItem, InventorySlot.Head);

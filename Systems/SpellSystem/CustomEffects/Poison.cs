@@ -36,7 +36,7 @@ namespace NWN.Systems
     }
     private static void PoisonMalusCure(CreatureEvents.OnSpellCastAt onSpellCastAt)
     {
-      switch (onSpellCastAt.Spell)
+      switch (onSpellCastAt.Spell.SpellType)
       {
         case Spell.LesserRestoration:
         case Spell.Restoration:

@@ -31,7 +31,7 @@ namespace NWN.Systems
     }
     public static void RemoveAnySpellEffects(Spell spell, NwCreature oTarget)
     {
-      foreach (var eff in oTarget.ActiveEffects.Where(e => e.Spell == spell))
+      foreach (var eff in oTarget.ActiveEffects.Where(e => e.Spell.SpellType == spell))
         oTarget.RemoveEffect(eff);
     }
     public static void SignalEventSpellCast(NwGameObject target, NwCreature caster, Spell spell, bool harmful = true)
@@ -73,7 +73,7 @@ namespace NWN.Systems
 
       await NwTask.Delay(TimeSpan.FromSeconds(0.2));
 
-      foreach (MemorizedSpellSlot spellSlot in caster.GetClassInfo((ClassType)43).GetMemorizedSpellSlots(0).Where(s => s.Spell == spell && !s.IsReady))
+      foreach (MemorizedSpellSlot spellSlot in caster.GetClassInfo((ClassType)43).GetMemorizedSpellSlots(0).Where(s => s.Spell.SpellType == spell && !s.IsReady))
         spellSlot.IsReady = true;
     }
     public static async void CancelCastOnMovement(NwCreature caster)

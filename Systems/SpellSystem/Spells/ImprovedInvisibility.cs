@@ -3,16 +3,16 @@ using Anvil.API.Events;
 
 namespace NWN.Systems
 {
-  class ImprovedInvisibility
+  public partial class SpellSystem
   {
-    public ImprovedInvisibility(SpellEvents.OnSpellCast onSpellCast)
+    private static void ImprovedInvisibility(SpellEvents.OnSpellCast onSpellCast)
     {
       if (!(onSpellCast.Caster is NwCreature { IsPlayerControlled: true } oCaster))
         return;
 
       int nCasterLevel = oCaster.LastSpellCasterLevel;
 
-      SpellUtils.SignalEventSpellCast(onSpellCast.TargetObject, oCaster, onSpellCast.Spell, false);
+      SpellUtils.SignalEventSpellCast(onSpellCast.TargetObject, oCaster, onSpellCast.Spell.SpellType, false);
 
       int nDuration = nCasterLevel;
       Effect eImpact = Effect.VisualEffect(VfxType.ImpHeadMind);
@@ -23,7 +23,7 @@ namespace NWN.Systems
       Effect eLink = Effect.LinkEffects(eDur, eCover);
       eLink = Effect.LinkEffects(eLink, eVis);
 
-      eInvis = Effect.LinkEffects(eInvis, Effect.AreaOfEffect(193, null, "invi_hb"));  // 193 = AoE 20 m
+      eInvis = Effect.LinkEffects(eInvis, Effect.AreaOfEffect((PersistentVfxType)193, null, scriptHandleFactory.CreateUniqueHandler(HandleInvisibiltyHeartBeat)));  // 193 = AoE 20 m
 
       if (onSpellCast.MetaMagicFeat == MetaMagic.Extend)
         nDuration = nDuration * 2; //Duration is +100%

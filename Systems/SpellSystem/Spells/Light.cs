@@ -12,13 +12,13 @@ namespace NWN.Systems
 
       int nCasterLevel = oCaster.LastSpellCasterLevel;
 
-      SpellUtils.SignalEventSpellCast(onSpellCast.TargetObject, oCaster, onSpellCast.Spell, false);
+      SpellUtils.SignalEventSpellCast(onSpellCast.TargetObject, oCaster, onSpellCast.Spell.SpellType, false);
 
       if (onSpellCast.TargetObject is NwItem item)
       {
         // Do not allow casting on not equippable items
         
-        if (!BaseItems2da.baseItemTable.GetBaseItemDataEntry(item.BaseItemType).IsEquippable)
+        if (!BaseItems2da.baseItemTable.GetBaseItemDataEntry(item.BaseItem.ItemType).IsEquippable)
           oCaster.ControllingPlayer.FloatingTextStrRef(83326);
         else
         {
@@ -48,7 +48,7 @@ namespace NWN.Systems
 
         if (onSpellCast.MetaMagicFeat == MetaMagic.None)
         {
-          SpellUtils.RestoreSpell(oCaster, onSpellCast.Spell);
+          SpellUtils.RestoreSpell(oCaster, onSpellCast.Spell.SpellType);
         }
       }
     }

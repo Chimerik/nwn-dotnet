@@ -387,7 +387,7 @@ namespace NWN.Systems.Craft
     {
       NwItem item = (NwItem)oTarget;
 
-      int baseItemType = (int)item.BaseItemType;
+      int baseItemType = (int)item.BaseItem.ItemType;
       int baseCost = ItemUtils.GetBaseItemCost(item);
 
       float iJobDuration = baseCost * 125;
@@ -420,7 +420,7 @@ namespace NWN.Systems.Craft
       if (player.learntCustomFeats.ContainsKey(CustomFeats.Renforcement))
         renforcementLevel += SkillSystem.GetCustomFeatLevelFromSkillPoints(CustomFeats.Renforcement, player.learntCustomFeats[CustomFeats.Renforcement]);
 
-      int baseItemType = (int)item.BaseItemType;
+      int baseItemType = (int)item.BaseItem.ItemType;
       int baseCost = ItemUtils.GetBaseItemCost(item);
 
       float iJobDuration = baseCost * 100 * (100 - renforcementLevel * 5) / 100;

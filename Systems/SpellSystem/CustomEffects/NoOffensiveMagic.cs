@@ -17,7 +17,7 @@ namespace NWN.Systems
     }
     private static void NoOffensiveSpellMalus(OnSpellCast onSpellCast)
     {
-      switch (onSpellCast.Spell)
+      switch (onSpellCast.Spell.SpellType)
       {
         case Spell.AcidSplash:
         case Spell.BallLightning:

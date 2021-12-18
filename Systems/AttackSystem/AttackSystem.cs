@@ -115,7 +115,7 @@ namespace NWN.Systems
           if (ctx.oAttacker.GetItemInSlot(InventorySlot.RightHand) != null)
           {
             ctx.attackWeapon = ctx.oAttacker.GetItemInSlot(InventorySlot.RightHand);
-            ctx.weaponBaseDamageType = BaseItems2da.baseItemTable.GetBaseItemDataEntry(ctx.attackWeapon.BaseItemType).damageType;
+            ctx.weaponBaseDamageType = BaseItems2da.baseItemTable.GetBaseItemDataEntry(ctx.attackWeapon.BaseItem.ItemType).damageType;
           }
 
           break;
@@ -125,7 +125,7 @@ namespace NWN.Systems
           if (ctx.oAttacker.GetItemInSlot(InventorySlot.LeftHand) != null)
           {
             ctx.attackWeapon = ctx.oAttacker.GetItemInSlot(InventorySlot.LeftHand);
-            ctx.weaponBaseDamageType = BaseItems2da.baseItemTable.GetBaseItemDataEntry(ctx.attackWeapon.BaseItemType).damageType;
+            ctx.weaponBaseDamageType = BaseItems2da.baseItemTable.GetBaseItemDataEntry(ctx.attackWeapon.BaseItem.ItemType).damageType;
           }
 
           break;
@@ -135,7 +135,7 @@ namespace NWN.Systems
           if (ctx.oAttacker.GetItemInSlot(InventorySlot.CreatureBiteWeapon) != null)
           {
             ctx.attackWeapon = ctx.oAttacker.GetItemInSlot(InventorySlot.CreatureBiteWeapon);
-            ctx.weaponBaseDamageType = BaseItems2da.baseItemTable.GetBaseItemDataEntry(ctx.attackWeapon.BaseItemType).damageType;
+            ctx.weaponBaseDamageType = BaseItems2da.baseItemTable.GetBaseItemDataEntry(ctx.attackWeapon.BaseItem.ItemType).damageType;
           }
           break;
 
@@ -144,7 +144,7 @@ namespace NWN.Systems
           if (ctx.oAttacker.GetItemInSlot(InventorySlot.CreatureLeftWeapon) != null)
           {
             ctx.attackWeapon = ctx.oAttacker.GetItemInSlot(InventorySlot.CreatureLeftWeapon);
-            ctx.weaponBaseDamageType = BaseItems2da.baseItemTable.GetBaseItemDataEntry(ctx.attackWeapon.BaseItemType).damageType;
+            ctx.weaponBaseDamageType = BaseItems2da.baseItemTable.GetBaseItemDataEntry(ctx.attackWeapon.BaseItem.ItemType).damageType;
           }
           break;
 
@@ -153,7 +153,7 @@ namespace NWN.Systems
           if (ctx.oAttacker.GetItemInSlot(InventorySlot.CreatureRightWeapon) != null)
           {
             ctx.attackWeapon = ctx.oAttacker.GetItemInSlot(InventorySlot.CreatureRightWeapon);
-            ctx.weaponBaseDamageType = BaseItems2da.baseItemTable.GetBaseItemDataEntry(ctx.attackWeapon.BaseItemType).damageType;
+            ctx.weaponBaseDamageType = BaseItems2da.baseItemTable.GetBaseItemDataEntry(ctx.attackWeapon.BaseItem.ItemType).damageType;
           }
           break;
       }
@@ -168,7 +168,7 @@ namespace NWN.Systems
 
         if (ctx.attackWeapon != null && !ctx.isUnarmedAttack)
         {
-          switch (ctx.attackWeapon.BaseItemType)
+          switch (ctx.attackWeapon.BaseItem.ItemType)
           {
             case BaseItemType.CreatureBludgeoningWeapon:
             case BaseItemType.CreaturePiercingWeapon:
@@ -182,7 +182,7 @@ namespace NWN.Systems
               break;
 
             default:
-              ctx.onAttack.DamageData.Base = (short)BaseItems2da.baseItemTable.GetMaxDamage(ctx.attackWeapon.BaseItemType, ctx.oAttacker, ctx.isRangedAttack);
+              ctx.onAttack.DamageData.Base = (short)BaseItems2da.baseItemTable.GetMaxDamage(ctx.attackWeapon.BaseItem.ItemType, ctx.oAttacker, ctx.isRangedAttack);
               break;
           }
         }
@@ -210,7 +210,7 @@ namespace NWN.Systems
       }
       else
       {
-        critChance += ctx.attackWeapon == null ? Config.GetWeaponCritScienceLevel(BaseItemType.Gloves, ctx.oAttacker) : Config.GetWeaponCritScienceLevel(ctx.attackWeapon.BaseItemType, ctx.oAttacker);
+        critChance += ctx.attackWeapon == null ? Config.GetWeaponCritScienceLevel(BaseItemType.Gloves, ctx.oAttacker) : Config.GetWeaponCritScienceLevel(ctx.attackWeapon.BaseItem.ItemType, ctx.oAttacker);
       }
 
       if (NwRandom.Roll(Utils.random, 100) < critChance)
@@ -229,7 +229,7 @@ namespace NWN.Systems
       }
       else // si c'est un joueur, alors ses dégâts sont modifiés selon sa maîtrise de l'arme actuelle
       {
-        int weaponMasteryLevel = ctx.attackWeapon == null ? Config.GetWeaponMasteryLevel(BaseItemType.Gloves, ctx.oAttacker) : Config.GetWeaponMasteryLevel(ctx.attackWeapon.BaseItemType, ctx.oAttacker);
+        int weaponMasteryLevel = ctx.attackWeapon == null ? Config.GetWeaponMasteryLevel(BaseItemType.Gloves, ctx.oAttacker) : Config.GetWeaponMasteryLevel(ctx.attackWeapon.BaseItem.ItemType, ctx.oAttacker);
         ctx.onAttack.DamageData.Base *= (short)(weaponMasteryLevel / 10);
       }
 
@@ -501,7 +501,7 @@ namespace NWN.Systems
       else
         ctx.baseArmorPenetration += ctx.oAttacker.GetAttackBonus(true);
 
-      if (ctx.attackWeapon != null && ctx.attackWeapon.BaseItemType == BaseItemType.Gloves) // la fonction GetAttackBonus ne prend pas en compte le + AB des gants, donc je le rajoute
+      if (ctx.attackWeapon != null && ctx.attackWeapon.BaseItem.ItemType == BaseItemType.Gloves) // la fonction GetAttackBonus ne prend pas en compte le + AB des gants, donc je le rajoute
       {
         ItemProperty maxAttackBonus = ctx.attackWeapon.ItemProperties.Where(i => i.PropertyType == ItemPropertyType.AttackBonus).OrderByDescending(i => i.CostTableValue).FirstOrDefault();
         if (maxAttackBonus != null)
@@ -515,11 +515,11 @@ namespace NWN.Systems
       if (ctx.attackWeapon != null)
       {
         foreach (var propType in ctx.attackWeapon.ItemProperties.Where(i => i.PropertyType == ItemPropertyType.EnhancementBonus
-           || (i.PropertyType == ItemPropertyType.AttackBonusVsRacialGroup && i.SubType == (int)ctx.oTarget.RacialType)
+           || (i.PropertyType == ItemPropertyType.AttackBonusVsRacialGroup && i.SubType == (int)ctx.oTarget.Race.RacialType)
            || (i.PropertyType == ItemPropertyType.AttackBonusVsAlignmentGroup && i.SubType == (int)ctx.oTarget.GoodEvilAlignment)
            || (i.PropertyType == ItemPropertyType.AttackBonusVsAlignmentGroup && i.SubType == (int)ctx.oTarget.LawChaosAlignment)
            || (i.PropertyType == ItemPropertyType.AttackBonusVsSpecificAlignment && i.SubType == Config.GetIPSpecificAlignmentSubTypeAsInt(ctx.oTarget))
-           || (i.PropertyType == ItemPropertyType.EnhancementBonusVsRacialGroup && i.SubType == (int)ctx.oTarget.RacialType)
+           || (i.PropertyType == ItemPropertyType.EnhancementBonusVsRacialGroup && i.SubType == (int)ctx.oTarget.Race.RacialType)
            || (i.PropertyType == ItemPropertyType.EnhancementBonusVsAlignmentGroup && i.SubType == (int)ctx.oTarget.GoodEvilAlignment)
            || (i.PropertyType == ItemPropertyType.EnhancementBonusVsAlignmentGroup && i.SubType == (int)ctx.oTarget.LawChaosAlignment)
            || (i.PropertyType == ItemPropertyType.EnhancementBonusVsSpecificAlignment && i.SubType == Config.GetIPSpecificAlignmentSubTypeAsInt(ctx.oTarget)))
@@ -669,7 +669,7 @@ namespace NWN.Systems
       if (ctx.targetArmor != null)
       {
         foreach (var propType in ctx.targetArmor.ItemProperties.Where(i => i.PropertyType == ItemPropertyType.AcBonus
-         || (ctx.oAttacker != null && i.PropertyType == ItemPropertyType.AttackBonusVsRacialGroup && i.SubType == (int)ctx.oAttacker.RacialType)
+         || (ctx.oAttacker != null && i.PropertyType == ItemPropertyType.AttackBonusVsRacialGroup && i.SubType == (int)ctx.oAttacker.Race.RacialType)
          || (ctx.oAttacker != null && i.PropertyType == ItemPropertyType.AttackBonusVsAlignmentGroup && i.SubType == (int)ctx.oAttacker.GoodEvilAlignment)
          || (ctx.oAttacker != null && i.PropertyType == ItemPropertyType.AttackBonusVsAlignmentGroup && i.SubType == (int)ctx.oAttacker.LawChaosAlignment)
          || (ctx.oAttacker != null && i.PropertyType == ItemPropertyType.AttackBonusVsSpecificAlignment && i.SubType == Config.GetIPSpecificAlignmentSubTypeAsInt(ctx.oAttacker)))
@@ -717,7 +717,7 @@ namespace NWN.Systems
       if (targetShield != null) // Même si l'objet n'est pas à proprement parler un bouclier, tout item dans la main gauche procure un bonus de protection global
       {
         foreach (var propType in targetShield.ItemProperties.Where(i => i.PropertyType == ItemPropertyType.AcBonus
-         || (ctx.oAttacker != null && i.PropertyType == ItemPropertyType.AttackBonusVsRacialGroup && i.SubType == (int)ctx.oAttacker.RacialType)
+         || (ctx.oAttacker != null && i.PropertyType == ItemPropertyType.AttackBonusVsRacialGroup && i.SubType == (int)ctx.oAttacker.Race.RacialType)
          || (ctx.oAttacker != null && i.PropertyType == ItemPropertyType.AttackBonusVsAlignmentGroup && i.SubType == (int)ctx.oAttacker.GoodEvilAlignment)
          || (ctx.oAttacker != null && i.PropertyType == ItemPropertyType.AttackBonusVsAlignmentGroup && i.SubType == (int)ctx.oAttacker.LawChaosAlignment)
          || (ctx.oAttacker != null && i.PropertyType == ItemPropertyType.AttackBonusVsSpecificAlignment && i.SubType == Config.GetIPSpecificAlignmentSubTypeAsInt(ctx.oAttacker)))

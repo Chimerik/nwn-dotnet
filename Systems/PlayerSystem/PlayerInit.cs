@@ -94,13 +94,7 @@ namespace NWN.Systems
             (Bot._client.GetChannel(786218144296468481) as IMessageChannel).SendMessageAsync($"Toute première connexion de {oid.LoginCreature.Name}. Accueillons le comme il se doit !");
             (Bot._client.GetChannel(680072044364562532) as IMessageChannel).SendMessageAsync($"{Bot._client.GetGuild(680072044364562528).EveryoneRole.Mention} Toute première connexion de {oid.LoginCreature.Name} => nouveau joueur à accueillir !");
 
-            Task displayWelcomeScroll = NwTask.Run(async () =>
-            {
-              await NwTask.Delay(TimeSpan.FromSeconds(3));
-              oid.PostString("a", 40, 15, ScreenAnchor.TopLeft, 0f, ColorConstants.White, ColorConstants.White, 9999, "fnt_my_gui");
-            });
-
-            EventsPlugin.AddObjectToDispatchList("NWNX_ON_INPUT_TOGGLE_PAUSE_BEFORE", "spacebar_down", oid.LoginCreature);
+            windows.Add("introWelcome", new IntroWelcomeWindow(this));
           }
 
           SqLiteUtils.InsertQuery("PlayerAccounts",
@@ -114,24 +108,33 @@ namespace NWN.Systems
         else
           oid.LoginCreature.GetObjectVariable<PersistentVariableInt>("accountId").Value = result.Result.GetInt(0);
 
-        switch (oid.LoginCreature.RacialType)
+        int startingLanguage = -1;
+
+        switch (oid.LoginCreature.Race.RacialType)
         {
           case RacialType.Dwarf:
-            oid.LoginCreature.AddFeat(CustomFeats.Nain);
+            startingLanguage = CustomSkill.Nain;
             break;
           case RacialType.Elf:
           case RacialType.HalfElf:
-            oid.LoginCreature.AddFeat(CustomFeats.Elfique);
+            startingLanguage = CustomSkill.Elfique;
             break;
           case RacialType.Halfling:
-            oid.LoginCreature.AddFeat(CustomFeats.Halfelin);
+            startingLanguage = CustomSkill.Halfelin;
             break;
           case RacialType.Gnome:
-            oid.LoginCreature.AddFeat(CustomFeats.Gnome);
+            startingLanguage = CustomSkill.Gnome;
             break;
           case RacialType.HalfOrc:
-            oid.LoginCreature.AddFeat(CustomFeats.Orc);
+            startingLanguage = CustomSkill.Orc;
             break;
+        }
+
+        if (startingLanguage > -1)
+        {
+          LearnableSkill language = new LearnableSkill((LearnableSkill)SkillSystem.learnableDictionary[startingLanguage]);
+          learnableSkills.Add(startingLanguage, language);
+          language.LevelUp(this);
         }
       }
       public void InitializeNewCharacter()
@@ -149,7 +152,6 @@ namespace NWN.Systems
           startingSP += 500;
 
         oid.LoginCreature.GetObjectVariable<PersistentVariableInt>("_STARTING_SKILL_POINTS").Value = startingSP;
-        oid.LoginCreature.GetObjectVariable<PersistentVariableInt>("_REINIT_DONE").Value = 1;
 
         Location arrivalLocation = NwModule.Instance.StartingLocation;
 
@@ -170,7 +172,6 @@ namespace NWN.Systems
 
           NwPlaceable introMirror = arrivalArea.FindObjectsOfTypeInArea<NwPlaceable>().FirstOrDefault(o => o.Tag == "intro_mirror");
           introMirror.OnUsed += DialogSystem.StartIntroMirrorDialog;
-          introMirror.ApplyEffect(EffectDuration.Permanent, Effect.CutsceneGhost());
 
           Task waitDefaultMapLoaded = NwTask.Run(async () =>
           {
@@ -200,7 +201,7 @@ namespace NWN.Systems
         oid.LoginCreature.GetObjectVariable<PersistentVariableInt>("characterId").Value = rowQuery.Result.GetInt(0);
 
         for (byte spellLevel = 0; spellLevel < 10; spellLevel++)
-          foreach (Spell spell in oid.LoginCreature.GetClassInfo((ClassType)43).GetKnownSpells(spellLevel))
+          foreach (NwSpell spell in oid.LoginCreature.GetClassInfo((ClassType)43).GetKnownSpells(spellLevel))
             oid.LoginCreature.GetClassInfo((ClassType)43).RemoveKnownSpell(spellLevel, spell);
 
         InitializeNewPlayerLearnableSkills();
@@ -214,47 +215,57 @@ namespace NWN.Systems
         learnableSkills.Add(CustomSkill.ImprovedIntelligence, new LearnableSkill((LearnableSkill)SkillSystem.learnableDictionary[CustomSkill.ImprovedIntelligence]));
         learnableSkills.Add(CustomSkill.ImprovedWisdom, new LearnableSkill((LearnableSkill)SkillSystem.learnableDictionary[CustomSkill.ImprovedWisdom]));
         learnableSkills.Add(CustomSkill.ImprovedCharisma, new LearnableSkill((LearnableSkill)SkillSystem.learnableDictionary[CustomSkill.ImprovedCharisma]));
+       
+        learnableSkills.Add(CustomSkill.ImprovedHealth, new LearnableSkill((LearnableSkill)SkillSystem.learnableDictionary[CustomSkill.ImprovedHealth]));
+        learnableSkills.Add(CustomSkill.Toughness, new LearnableSkill((LearnableSkill)SkillSystem.learnableDictionary[CustomSkill.Toughness]));
 
-        /*learnables.Add($"F{(int)CustomFeats.ImprovedHealth}", new Learnable(LearnableType.Feat, (int)CustomFeats.ImprovedHealth, 0.0f).InitializeLearnableLevel(this));
-        learnables.Add($"F{(int)Feat.Toughness}", new Learnable(LearnableType.Feat, (int)Feat.Toughness, 0.0f).InitializeLearnableLevel(this));
-        learnables.Add($"F{(int)CustomFeats.ImprovedAttackBonus}", new Learnable(LearnableType.Feat, (int)CustomFeats.ImprovedAttackBonus, 0.0f).InitializeLearnableLevel(this));
-        learnables.Add($"F{(int)CustomFeats.ImprovedCasterLevel}", new Learnable(LearnableType.Feat, (int)CustomFeats.ImprovedCasterLevel, 0.0f).InitializeLearnableLevel(this));
-        learnables.Add($"F{(int)Feat.WeaponProficiencySimple}", new Learnable(LearnableType.Feat, (int)Feat.WeaponProficiencySimple, 0.0f).InitializeLearnableLevel(this));
-        learnables.Add($"F{(int)Feat.ArmorProficiencyLight}", new Learnable(LearnableType.Feat, (int)Feat.ArmorProficiencyLight, 0.0f).InitializeLearnableLevel(this));
-        learnables.Add($"F{(int)Feat.ShieldProficiency}", new Learnable(LearnableType.Feat, (int)Feat.ShieldProficiency, 0.0f).InitializeLearnableLevel(this));
-        learnables.Add($"F{(int)Feat.WeaponFinesse}", new Learnable(LearnableType.Feat, (int)Feat.WeaponFinesse, 0.0f).InitializeLearnableLevel(this));
-        learnables.Add($"F{(int)Feat.TwoWeaponFighting}", new Learnable(LearnableType.Feat, (int)Feat.TwoWeaponFighting, 0.0f).InitializeLearnableLevel(this));
-        learnables.Add($"F{(int)CustomFeats.ImprovedSavingThrowFortitude}", new Learnable(LearnableType.Feat, (int)CustomFeats.ImprovedSavingThrowFortitude, 0.0f).InitializeLearnableLevel(this));
-        learnables.Add($"F{(int)CustomFeats.ImprovedSavingThrowReflex}", new Learnable(LearnableType.Feat, (int)CustomFeats.ImprovedSavingThrowReflex, 0.0f).InitializeLearnableLevel(this));
-        learnables.Add($"F{(int)CustomFeats.ImprovedSavingThrowWill}", new Learnable(LearnableType.Feat, (int)CustomFeats.ImprovedSavingThrowWill, 0.0f).InitializeLearnableLevel(this));
-        learnables.Add($"F{(int)CustomFeats.ImprovedSpellSlot0}", new Learnable(LearnableType.Feat, (int)CustomFeats.ImprovedSpellSlot0, 0.0f).InitializeLearnableLevel(this));
-        learnables.Add($"F{(int)CustomFeats.ImprovedSpellSlot1}", new Learnable(LearnableType.Feat, (int)CustomFeats.ImprovedSpellSlot1, 0.0f).InitializeLearnableLevel(this));
-        learnables.Add($"F{(int)CustomFeats.ImprovedStrength}", new Learnable(LearnableType.Feat, (int)CustomFeats.ImprovedStrength, 0.0f).InitializeLearnableLevel(this));
-        learnables.Add($"F{(int)CustomFeats.ImprovedDexterity}", new Learnable(LearnableType.Feat, (int)CustomFeats.ImprovedDexterity, 0.0f).InitializeLearnableLevel(this));
-        learnables.Add($"F{(int)CustomFeats.ImprovedConstitution}", new Learnable(LearnableType.Feat, (int)CustomFeats.ImprovedConstitution, 0.0f).InitializeLearnableLevel(this));
-        learnables.Add($"F{(int)CustomFeats.ImprovedIntelligence}", new Learnable(LearnableType.Feat, (int)CustomFeats.ImprovedIntelligence, 0.0f).InitializeLearnableLevel(this));
-        learnables.Add($"F{(int)CustomFeats.ImprovedWisdom}", new Learnable(LearnableType.Feat, (int)CustomFeats.ImprovedWisdom, 0.0f).InitializeLearnableLevel(this));
-        learnables.Add($"F{(int)CustomFeats.ImprovedCharisma}", new Learnable(LearnableType.Feat, (int)CustomFeats.ImprovedCharisma, 0.0f).InitializeLearnableLevel(this));
-        learnables.Add($"F{(int)CustomFeats.ImprovedAnimalEmpathy}", new Learnable(LearnableType.Feat, (int)CustomFeats.ImprovedAnimalEmpathy, 0.0f).InitializeLearnableLevel(this));
-        learnables.Add($"F{(int)CustomFeats.ImprovedConcentration}", new Learnable(LearnableType.Feat, (int)CustomFeats.ImprovedConcentration, 0.0f).InitializeLearnableLevel(this));
-        learnables.Add($"F{(int)CustomFeats.ImprovedDisableTraps}", new Learnable(LearnableType.Feat, (int)CustomFeats.ImprovedDisableTraps, 0.0f).InitializeLearnableLevel(this));
-        learnables.Add($"F{(int)CustomFeats.ImprovedDiscipline}", new Learnable(LearnableType.Feat, (int)CustomFeats.ImprovedDiscipline, 0.0f).InitializeLearnableLevel(this));
-        learnables.Add($"F{(int)CustomFeats.ImprovedSkillParry}", new Learnable(LearnableType.Feat, (int)CustomFeats.ImprovedSkillParry, 0.0f).InitializeLearnableLevel(this));
-        learnables.Add($"F{(int)CustomFeats.ImprovedPerform}", new Learnable(LearnableType.Feat, (int)CustomFeats.ImprovedPerform, 0.0f).InitializeLearnableLevel(this));
-        learnables.Add($"F{(int)CustomFeats.ImprovedPickpocket}", new Learnable(LearnableType.Feat, (int)CustomFeats.ImprovedPickpocket, 0.0f).InitializeLearnableLevel(this));
-        learnables.Add($"F{(int)CustomFeats.ImprovedSearch}", new Learnable(LearnableType.Feat, (int)CustomFeats.ImprovedSearch, 0.0f).InitializeLearnableLevel(this));
-        learnables.Add($"F{(int)CustomFeats.ImprovedSetTrap}", new Learnable(LearnableType.Feat, (int)CustomFeats.ImprovedSetTrap, 0.0f).InitializeLearnableLevel(this));
-        learnables.Add($"F{(int)CustomFeats.ImprovedSpellcraft}", new Learnable(LearnableType.Feat, (int)CustomFeats.ImprovedSpellcraft, 0.0f).InitializeLearnableLevel(this));
-        learnables.Add($"F{(int)CustomFeats.ImprovedSpot}", new Learnable(LearnableType.Feat, (int)CustomFeats.ImprovedSpot, 0.0f).InitializeLearnableLevel(this));
-        learnables.Add($"F{(int)CustomFeats.ImprovedTaunt}", new Learnable(LearnableType.Feat, (int)CustomFeats.ImprovedTaunt, 0.0f).InitializeLearnableLevel(this));
-        learnables.Add($"F{(int)CustomFeats.ImprovedUseMagicDevice}", new Learnable(LearnableType.Feat, (int)CustomFeats.ImprovedUseMagicDevice, 0.0f).InitializeLearnableLevel(this));
-        learnables.Add($"F{(int)CustomFeats.ImprovedTumble}", new Learnable(LearnableType.Feat, (int)CustomFeats.ImprovedTumble, 0.0f).InitializeLearnableLevel(this));
-        learnables.Add($"F{(int)CustomFeats.ImprovedBluff}", new Learnable(LearnableType.Feat, (int)CustomFeats.ImprovedBluff, 0.0f).InitializeLearnableLevel(this));
-        learnables.Add($"F{(int)CustomFeats.ImprovedIntimidate}", new Learnable(LearnableType.Feat, (int)CustomFeats.ImprovedIntimidate, 0.0f).InitializeLearnableLevel(this));
-        learnables.Add($"F{(int)CustomFeats.ImprovedMoveSilently}", new Learnable(LearnableType.Feat, (int)CustomFeats.ImprovedMoveSilently, 0.0f).InitializeLearnableLevel(this));
-        learnables.Add($"F{(int)CustomFeats.ImprovedListen}", new Learnable(LearnableType.Feat, (int)CustomFeats.ImprovedListen, 0.0f).InitializeLearnableLevel(this));
-        learnables.Add($"F{(int)CustomFeats.ImprovedHide}", new Learnable(LearnableType.Feat, (int)CustomFeats.ImprovedHide, 0.0f).InitializeLearnableLevel(this));
-        learnables.Add($"F{(int)CustomFeats.ImprovedOpenLock}", new Learnable(LearnableType.Feat, (int)CustomFeats.ImprovedOpenLock, 0.0f).InitializeLearnableLevel(this));*/
+        learnableSkills.Add(CustomSkill.ImprovedAttackBonus, new LearnableSkill((LearnableSkill)SkillSystem.learnableDictionary[CustomSkill.ImprovedAttackBonus]));
+        learnableSkills.Add(CustomSkill.ImprovedCasterLevel, new LearnableSkill((LearnableSkill)SkillSystem.learnableDictionary[CustomSkill.ImprovedCasterLevel]));
+        learnableSkills.Add(CustomSkill.ImprovedSpellSlot0, new LearnableSkill((LearnableSkill)SkillSystem.learnableDictionary[CustomSkill.ImprovedSpellSlot0]));
+        learnableSkills.Add(CustomSkill.ImprovedSpellSlot1, new LearnableSkill((LearnableSkill)SkillSystem.learnableDictionary[CustomSkill.ImprovedSpellSlot1]));
+
+        learnableSkills.Add(CustomSkill.ImprovedLightArmorProficiency, new LearnableSkill((LearnableSkill)SkillSystem.learnableDictionary[CustomSkill.ImprovedLightArmorProficiency]));
+        learnableSkills.Add(CustomSkill.ImprovedLightShieldProficiency, new LearnableSkill((LearnableSkill)SkillSystem.learnableDictionary[CustomSkill.ImprovedLightShieldProficiency]));
+
+        learnableSkills.Add(CustomSkill.ImprovedClubProficiency, new LearnableSkill((LearnableSkill)SkillSystem.learnableDictionary[CustomSkill.ImprovedClubProficiency]));
+        learnableSkills.Add(CustomSkill.ImprovedLightFlailProficiency, new LearnableSkill((LearnableSkill)SkillSystem.learnableDictionary[CustomSkill.ImprovedLightFlailProficiency]));
+        learnableSkills.Add(CustomSkill.ImprovedShortBowProficiency, new LearnableSkill((LearnableSkill)SkillSystem.learnableDictionary[CustomSkill.ImprovedShortBowProficiency]));
+        learnableSkills.Add(CustomSkill.ImprovedLightCrossBowProficiency, new LearnableSkill((LearnableSkill)SkillSystem.learnableDictionary[CustomSkill.ImprovedLightCrossBowProficiency]));
+        learnableSkills.Add(CustomSkill.ImprovedLightMaceProficiency, new LearnableSkill((LearnableSkill)SkillSystem.learnableDictionary[CustomSkill.ImprovedLightMaceProficiency]));
+        learnableSkills.Add(CustomSkill.ImprovedDaggerProficiency, new LearnableSkill((LearnableSkill)SkillSystem.learnableDictionary[CustomSkill.ImprovedDaggerProficiency]));
+        learnableSkills.Add(CustomSkill.ImprovedDartProficiency, new LearnableSkill((LearnableSkill)SkillSystem.learnableDictionary[CustomSkill.ImprovedDartProficiency]));
+        learnableSkills.Add(CustomSkill.ImprovedLightHammerProficiency, new LearnableSkill((LearnableSkill)SkillSystem.learnableDictionary[CustomSkill.ImprovedLightHammerProficiency]));
+        learnableSkills.Add(CustomSkill.ImprovedQuarterStaffProficiency, new LearnableSkill((LearnableSkill)SkillSystem.learnableDictionary[CustomSkill.ImprovedQuarterStaffProficiency]));
+        learnableSkills.Add(CustomSkill.ImprovedMorningStarProficiency, new LearnableSkill((LearnableSkill)SkillSystem.learnableDictionary[CustomSkill.ImprovedMorningStarProficiency]));
+        learnableSkills.Add(CustomSkill.ImprovedShortSpearProficiency, new LearnableSkill((LearnableSkill)SkillSystem.learnableDictionary[CustomSkill.ImprovedShortSpearProficiency]));
+        learnableSkills.Add(CustomSkill.ImprovedSlingProficiency, new LearnableSkill((LearnableSkill)SkillSystem.learnableDictionary[CustomSkill.ImprovedSlingProficiency]));
+        learnableSkills.Add(CustomSkill.ImprovedSickleProficiency, new LearnableSkill((LearnableSkill)SkillSystem.learnableDictionary[CustomSkill.ImprovedSickleProficiency]));
+
+        learnableSkills.Add(CustomSkill.TwoWeaponFighting, new LearnableSkill((LearnableSkill)SkillSystem.learnableDictionary[CustomSkill.TwoWeaponFighting]));
+        learnableSkills.Add(CustomSkill.WeaponFinesse, new LearnableSkill((LearnableSkill)SkillSystem.learnableDictionary[CustomSkill.WeaponFinesse]));
+
+        learnableSkills.Add(CustomSkill.Athletics, new LearnableSkill((LearnableSkill)SkillSystem.learnableDictionary[CustomSkill.Athletics]));
+        learnableSkills.Add(CustomSkill.Acrobatics, new LearnableSkill((LearnableSkill)SkillSystem.learnableDictionary[CustomSkill.Acrobatics]));
+        learnableSkills.Add(CustomSkill.Escamotage, new LearnableSkill((LearnableSkill)SkillSystem.learnableDictionary[CustomSkill.Escamotage]));
+        learnableSkills.Add(CustomSkill.Stealth, new LearnableSkill((LearnableSkill)SkillSystem.learnableDictionary[CustomSkill.Stealth]));
+        learnableSkills.Add(CustomSkill.Concentration, new LearnableSkill((LearnableSkill)SkillSystem.learnableDictionary[CustomSkill.Concentration]));
+        learnableSkills.Add(CustomSkill.Arcana, new LearnableSkill((LearnableSkill)SkillSystem.learnableDictionary[CustomSkill.Arcana]));
+        learnableSkills.Add(CustomSkill.History, new LearnableSkill((LearnableSkill)SkillSystem.learnableDictionary[CustomSkill.History]));
+        learnableSkills.Add(CustomSkill.Nature, new LearnableSkill((LearnableSkill)SkillSystem.learnableDictionary[CustomSkill.Nature]));
+        learnableSkills.Add(CustomSkill.Religion, new LearnableSkill((LearnableSkill)SkillSystem.learnableDictionary[CustomSkill.Religion]));
+        learnableSkills.Add(CustomSkill.Investigation, new LearnableSkill((LearnableSkill)SkillSystem.learnableDictionary[CustomSkill.Investigation]));
+        learnableSkills.Add(CustomSkill.Dressage, new LearnableSkill((LearnableSkill)SkillSystem.learnableDictionary[CustomSkill.Dressage]));
+        learnableSkills.Add(CustomSkill.Insight, new LearnableSkill((LearnableSkill)SkillSystem.learnableDictionary[CustomSkill.Insight]));
+        learnableSkills.Add(CustomSkill.Medicine, new LearnableSkill((LearnableSkill)SkillSystem.learnableDictionary[CustomSkill.Medicine]));
+        learnableSkills.Add(CustomSkill.Perception, new LearnableSkill((LearnableSkill)SkillSystem.learnableDictionary[CustomSkill.Perception]));
+        learnableSkills.Add(CustomSkill.Survival, new LearnableSkill((LearnableSkill)SkillSystem.learnableDictionary[CustomSkill.Survival]));
+        learnableSkills.Add(CustomSkill.Deception, new LearnableSkill((LearnableSkill)SkillSystem.learnableDictionary[CustomSkill.Deception]));
+        learnableSkills.Add(CustomSkill.Intimidation, new LearnableSkill((LearnableSkill)SkillSystem.learnableDictionary[CustomSkill.Intimidation]));
+        learnableSkills.Add(CustomSkill.Performance, new LearnableSkill((LearnableSkill)SkillSystem.learnableDictionary[CustomSkill.Performance]));
+        learnableSkills.Add(CustomSkill.Persuasion, new LearnableSkill((LearnableSkill)SkillSystem.learnableDictionary[CustomSkill.Persuasion]));
+        learnableSkills.Add(CustomSkill.OpenLock, new LearnableSkill((LearnableSkill)SkillSystem.learnableDictionary[CustomSkill.OpenLock]));
+        learnableSkills.Add(CustomSkill.TrapExpertise, new LearnableSkill((LearnableSkill)SkillSystem.learnableDictionary[CustomSkill.TrapExpertise]));
+        learnableSkills.Add(CustomSkill.Taunt, new LearnableSkill((LearnableSkill)SkillSystem.learnableDictionary[CustomSkill.Taunt]));
       }
       public void InitializeDM()
       {
@@ -274,7 +285,7 @@ namespace NWN.Systems
         InitializePlayerAccount();
         InitializePlayerCharacter();
 
-        switch (oid.LoginCreature.RacialType)
+        switch (oid.LoginCreature.Race.RacialType)
         {
           case RacialType.Dwarf:
             if (!oid.LoginCreature.KnowsFeat(CustomFeats.Nain))

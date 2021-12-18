@@ -41,7 +41,7 @@ namespace NWN.Systems
     }
     private static void NoUseWeaponMalus(OnItemValidateUse onItemValidateUse)
     {
-      switch (ItemUtils.GetItemCategory(onItemValidateUse.Item.BaseItemType))
+      switch (ItemUtils.GetItemCategory(onItemValidateUse.Item.BaseItem.ItemType))
       {
         case ItemUtils.ItemCategory.OneHandedMeleeWeapon:
         case ItemUtils.ItemCategory.TwoHandedMeleeWeapon:
@@ -50,7 +50,7 @@ namespace NWN.Systems
           return;
       }
 
-      switch (onItemValidateUse.Item.BaseItemType)
+      switch (onItemValidateUse.Item.BaseItem.ItemType)
       {
         case BaseItemType.Gloves:
         case BaseItemType.Bracer:

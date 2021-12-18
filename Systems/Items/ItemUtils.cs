@@ -151,14 +151,14 @@ namespace NWN.Systems
     {
       float baseCost = 9999999;
 
-      if (item.BaseItemType == BaseItemType.Armor)
+      if (item.BaseItem.ItemType == BaseItemType.Armor)
         baseCost = Armor2da.armorTable.GetDataEntry(item.BaseACValue).cost;
       else
-        baseCost = BaseItems2da.baseItemTable.GetBaseItemDataEntry(item.BaseItemType).baseCost;
+        baseCost = BaseItems2da.baseItemTable.GetBaseItemDataEntry(item.BaseItem.ItemType).baseCost;
 
       if (baseCost <= 0)
       {
-        Utils.LogMessageToDMs($"{item.Name} - baseCost introuvable pour baseItemType : {item.BaseItemType}");
+        Utils.LogMessageToDMs($"{item.Name} - baseCost introuvable pour baseItemType : {item.BaseItem.ItemType}");
         return 999999;
       }
 

@@ -48,7 +48,7 @@ namespace NWN.Systems.Arena
         NwCreature creature = NwCreature.Create(creatureResref, oWaypoint.Location, true);
         creature.GetObjectVariable<LocalVariableInt>("_IS_PVE_ARENA_CREATURE").Value = 1;
         creature.Location.ApplyEffect(EffectDuration.Instant, Effect.VisualEffect(VfxType.FnfSummonMonster2));
-        creature.ChangeToStandardFaction(StandardFaction.Hostile);
+        creature.Faction = NwFaction.FromStandardFaction(StandardFaction.Hostile);
         HandleSpecialBehaviour(creature);
       }
 
@@ -110,7 +110,7 @@ namespace NWN.Systems.Arena
         case "rat_meca":
 
           oCreature.GetObjectVariable<LocalVariableInt>("_IS_GNOME_MECH").Value = 1;
-          ApplyGnomeMechAoE(oCreature);
+          SpellSystem.ApplyGnomeMechAoE(oCreature);
           //oCreature.OnCreatureDamage += AttackSystem.HandleDamageEvent;
           
         break;
@@ -127,13 +127,13 @@ namespace NWN.Systems.Arena
           break;
         case "dog_meca_defect":
           oCreature.GetObjectVariable<LocalVariableInt>("_IS_GNOME_MECH").Value = 1;
-          ApplyGnomeMechAoE(oCreature);
+          SpellSystem.ApplyGnomeMechAoE(oCreature);
           oCreature.OnCreatureDamage += HandleDogAttack;
           //oCreature.OnCreatureDamage += AttackSystem.HandleDamageEvent;
           break;
         case "cutter_meca":
           oCreature.GetObjectVariable<LocalVariableInt>("_IS_GNOME_MECH").Value = 1;
-          ApplyGnomeMechAoE(oCreature);
+          SpellSystem.ApplyGnomeMechAoE(oCreature);
           break;
       }
     }
@@ -180,14 +180,6 @@ namespace NWN.Systems.Arena
           creature.ApplyEffect(EffectDuration.Instant, Effect.VisualEffect(VfxType.ComHitElectrical));
         }
       }
-    }
-    private static void ApplyGnomeMechAoE(NwCreature oCreature)
-    {
-      Effect elecAoE = Effect.AreaOfEffect(25, "mechaura_enter", "mechaura_hb");
-      elecAoE.Creator = oCreature;
-      elecAoE.Tag = "mechaura_aoe";
-      elecAoE.SubType = EffectSubType.Supernatural;
-      oCreature.ApplyEffect(EffectDuration.Permanent, elecAoE);
     }
   }
 }

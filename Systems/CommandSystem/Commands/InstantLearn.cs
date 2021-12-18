@@ -11,7 +11,7 @@ namespace NWN.Systems
     public InstantLearn(NwPlayer oPC)
     {
       oPC.SendServerMessage("Veuillez sélectionner la cible de l'apprentissage instantanné.");
-      PlayerSystem.cursorTargetService.EnterTargetMode(oPC, SelectLearnTarget, ObjectTypes.Creature, MouseCursor.Create);
+      oPC.EnterTargetMode(SelectLearnTarget, ObjectTypes.All, MouseCursor.CreateDown);
     }
     private void SelectLearnTarget(ModuleEvents.OnPlayerTarget selection)
     {

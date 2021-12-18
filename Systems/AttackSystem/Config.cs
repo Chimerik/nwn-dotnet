@@ -46,7 +46,7 @@ namespace NWN.Systems
         this.attackPosition = AttackPosition.NormalOrRanged;
         this.isUnarmedAttack = oAttacker != null && oAttacker.GetItemInSlot(InventorySlot.RightHand) == null;
         this.isRangedAttack = oAttacker != null && oAttacker.GetItemInSlot(InventorySlot.RightHand) != null
-        && ItemUtils.GetItemCategory(oAttacker.GetItemInSlot(InventorySlot.RightHand).BaseItemType) == ItemUtils.ItemCategory.RangedWeapon;
+        && ItemUtils.GetItemCategory(oAttacker.GetItemInSlot(InventorySlot.RightHand).BaseItem.ItemType) == ItemUtils.ItemCategory.RangedWeapon;
         this.targetAC = new Dictionary<DamageType, int>();
         targetAC.Add(DamageType.BaseWeapon, 0);
       }

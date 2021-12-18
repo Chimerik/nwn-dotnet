@@ -10,8 +10,6 @@ using System.Linq;
 using System.Threading.Tasks;
 using static NWN.Systems.Craft.Collect.Config;
 using NWN.Core;
-using System.IO;
-using System.Text.Json;
 using Google.Apis.Drive.v3;
 
 namespace NWN.Systems
@@ -69,7 +67,6 @@ namespace NWN.Systems
     {
       NwModule.Instance.GetObjectVariable<LocalVariableString>("X2_S_UD_SPELLSCRIPT").Value = "spellhook";
 
-      //NwModule.Instance.SetEventScript((EventScriptType)NWScript.EVENT_SCRIPT_MODULE_ON_NUI_EVENT, "on_nui_event");
       //NwModule.Instance.SetEventScript((EventScriptType)NWScript.EVENT_SCRIPT_MODULE_ON_PLAYER_TILE_ACTION, "on_tile_action");
 
       NwServer.Instance.ServerInfo.PlayOptions.RestoreSpellUses = false;
@@ -237,12 +234,12 @@ namespace NWN.Systems
 
       SqLiteUtils.CreateQuery("CREATE TABLE IF NOT EXISTS playerAlchemyRecipe" +
         "('characterId' INTEGER NOT NULL, 'recipeName' TEXT NOT NULL, 'serializedRecipe' TEXT NOT NULL, UNIQUE (characterId, recipeName))");
+
+      SqLiteUtils.CreateQuery("CREATE TABLE IF NOT EXISTS bankPlaceables" +
+        "('id' INTEGER NOT NULL, 'areaTag' TEXT NOT NULL, 'ownerId' INTEGER NOT NULL, 'ownerName' TEXT NOT NULL, UNIQUE (id, areaTag))");
     }
     private void InitializeEvents()
     {
-      EventsPlugin.SubscribeEvent("NWNX_ON_INPUT_TOGGLE_PAUSE_BEFORE", "spacebar_down");
-      EventsPlugin.ToggleDispatchListMode("NWNX_ON_INPUT_TOGGLE_PAUSE_BEFORE", "spacebar_down", 1);
-
       //EventsPlugin.SubscribeEvent("NWNX_ON_DM_POSSESS_FULL_POWER_BEFORE", "b_dm_possess");
       //EventsPlugin.SubscribeEvent("NWNX_ON_DM_POSSESS_BEFORE", "b_dm_possess");
 

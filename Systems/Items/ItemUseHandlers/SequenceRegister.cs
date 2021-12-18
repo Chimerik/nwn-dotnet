@@ -115,9 +115,9 @@ namespace NWN.Systems
       onSpellAction.PreventSpellCast = true;
 
       if (oRegister.GetObjectVariable<LocalVariableString>("_REGISTERED_SEQUENCE").HasNothing)
-        oRegister.GetObjectVariable<LocalVariableString>("_REGISTERED_SEQUENCE").Value = ((int)onSpellAction.Spell).ToString();
+        oRegister.GetObjectVariable<LocalVariableString>("_REGISTERED_SEQUENCE").Value = ((int)onSpellAction.Spell.SpellType).ToString();
       else
-        oRegister.GetObjectVariable<LocalVariableString>("_REGISTERED_SEQUENCE").Value += $"_{((int)onSpellAction.Spell)}";
+        oRegister.GetObjectVariable<LocalVariableString>("_REGISTERED_SEQUENCE").Value += $"_{((int)onSpellAction.Spell.SpellType)}";
 
       DrawSequenceList();
     }

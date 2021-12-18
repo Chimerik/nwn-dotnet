@@ -87,7 +87,7 @@ namespace NWN.Systems
           if (nuiEvent.ElementId.StartsWith("examine_") && nuiEvent.EventType == NuiEventType.MouseDown)
           {
             int itemId = int.Parse(nuiEvent.ElementId.Substring(nuiEvent.ElementId.IndexOf('_') + 1));
-            nuiEvent.Player.ActionExamine(itemList[itemId]);
+            _ = nuiEvent.Player.ActionExamine(itemList[itemId]);
           }
           else if (nuiEvent.ElementId.StartsWith("take_") && nuiEvent.EventType == NuiEventType.Click)
           {

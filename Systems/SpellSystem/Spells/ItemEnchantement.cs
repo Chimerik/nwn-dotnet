@@ -138,14 +138,14 @@ namespace NWN.Systems
         case ItemPropertyType.AcBonusVsRacialGroup:
         case ItemPropertyType.AcBonusVsSpecificAlignment:
 
-          if (oItem.BaseItemType != BaseItemType.Armor
-            && oItem.BaseItemType != BaseItemType.Helmet
-            && oItem.BaseItemType != BaseItemType.Cloak
-            && oItem.BaseItemType != BaseItemType.Boots
-            && oItem.BaseItemType != BaseItemType.Gloves
-            && oItem.BaseItemType != BaseItemType.LargeShield
-            && oItem.BaseItemType != BaseItemType.TowerShield
-            && oItem.BaseItemType != BaseItemType.SmallShield
+          if (oItem.BaseItem.ItemType != BaseItemType.Armor
+            && oItem.BaseItem.ItemType != BaseItemType.Helmet
+            && oItem.BaseItem.ItemType != BaseItemType.Cloak
+            && oItem.BaseItem.ItemType != BaseItemType.Boots
+            && oItem.BaseItem.ItemType != BaseItemType.Gloves
+            && oItem.BaseItem.ItemType != BaseItemType.LargeShield
+            && oItem.BaseItem.ItemType != BaseItemType.TowerShield
+            && oItem.BaseItem.ItemType != BaseItemType.SmallShield
             )
 
             player.oid.SendServerMessage("Ce type d'enchantement ne peut-être utilisé que sur une armure, un bouclier, un casque, une cape, des bottes ou des gants", ColorConstants.Red);
@@ -161,12 +161,12 @@ namespace NWN.Systems
         case ItemPropertyType.EnhancementBonusVsRacialGroup:
         case ItemPropertyType.EnhancementBonusVsSpecificAlignment:
 
-          ItemUtils.ItemCategory itemCategory = ItemUtils.GetItemCategory(oItem.BaseItemType);
+          ItemUtils.ItemCategory itemCategory = ItemUtils.GetItemCategory(oItem.BaseItem.ItemType);
 
           if (itemCategory != ItemUtils.ItemCategory.OneHandedMeleeWeapon
             && itemCategory != ItemUtils.ItemCategory.TwoHandedMeleeWeapon
             && itemCategory != ItemUtils.ItemCategory.RangedWeapon
-            && oItem.BaseItemType != BaseItemType.Gloves)
+            && oItem.BaseItem.ItemType != BaseItemType.Gloves)
 
             player.oid.SendServerMessage("Ce type d'enchantement ne peut-être utilisé que sur une arme.", ColorConstants.Red);
 

@@ -63,7 +63,7 @@ namespace NWN.Systems.Craft
     }
     public static List<ItemProperty> GetCraftItemProperties(string material, NwItem craftedItem)
     {
-      ItemCategory itemCategory = GetItemCategory(craftedItem.BaseItemType);
+      ItemCategory itemCategory = GetItemCategory(craftedItem.BaseItem.ItemType);
 
       int materialTier = 0;
 
@@ -89,7 +89,7 @@ namespace NWN.Systems.Craft
           craftedItem.GetObjectVariable<LocalVariableInt>("_AVAILABLE_ENCHANTEMENT_SLOT").Value = 1;
       }
 
-      switch (craftedItem.BaseItemType)
+      switch (craftedItem.BaseItem.ItemType)
       {
         case BaseItemType.Armor:
           return GetArmorProperties(craftedItem, materialTier);
@@ -113,7 +113,7 @@ namespace NWN.Systems.Craft
           return GetBeltProperties(materialTier);
       }
 
-      switch(GetItemCategory(craftedItem.BaseItemType))
+      switch(GetItemCategory(craftedItem.BaseItem.ItemType))
       {
         case ItemCategory.CraftTool:
           return GetToolProperties(craftedItem, materialTier);

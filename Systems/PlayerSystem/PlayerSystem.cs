@@ -15,32 +15,21 @@ namespace NWN.Systems
   public partial class PlayerSystem
   {
     public static readonly Logger Log = LogManager.GetCurrentClassLogger();
-    public static CursorTargetService cursorTargetService { get; set; }
     public static EventService eventService { get; set; }
     public static FeedbackService feedbackService;
     public static ScriptHandleFactory scriptHandleFactory;
-    public PlayerSystem(CursorTargetService cursorTService, EventService eventServices, FeedbackService feedback, ScriptHandleFactory scriptFactory)
+    public PlayerSystem(EventService eventServices, FeedbackService feedback, ScriptHandleFactory scriptFactory)
     {
       NwModule.Instance.OnClientEnter += HandlePlayerConnect;
       NwModule.Instance.OnClientDisconnect += HandlePlayerLeave;
 
       eventService = eventServices;
-      cursorTargetService = cursorTService;
       feedbackService = feedback;
       scriptHandleFactory = scriptFactory;
     }
 
     public static Dictionary<uint, Player> Players = new Dictionary<uint, Player>();
 
-    [ScriptHandler("spacebar_down")]
-    private void HandleSpacebarDown(CallInfo callInfo)
-    {
-      if (callInfo.ObjectSelf is NwCreature { IsPlayerControlled: true } oCreature)
-      {
-        oCreature.ControllingPlayer.PostString("", 40, 15, 0, 0.000001f, ColorConstants.White, ColorConstants.White, 9999, "fnt_my_gui");
-        EventsPlugin.RemoveObjectFromDispatchList("NWNX_ON_INPUT_TOGGLE_PAUSE_BEFORE", "spacebar_down", callInfo.ObjectSelf);
-      }
-    }
     public static void OnCombatStarted(OnCombatStatusChange onCombatStatusChange)
     {
       if (onCombatStatusChange.CombatStatus == CombatStatus.ExitCombat)
@@ -68,7 +57,7 @@ namespace NWN.Systems
     {
       NwCreature oPC = onUseSkill.Creature;
       
-      switch (onUseSkill.Skill)
+      switch (onUseSkill.Skill.SkillType)
       {
         case Skill.Taunt:
           oPC.GetObjectVariable<LocalVariableInt>("_ACTIVATED_TAUNT").Value = 1;
@@ -286,7 +275,7 @@ namespace NWN.Systems
         return;
       }
 
-      if (oPC.GetClassInfo((ClassType)43).GetKnownSpells(spellLevel).Any(s => s == (Spell)spellId))
+      if (oPC.GetClassInfo((ClassType)43).GetKnownSpells(spellLevel).Any(s => s.SpellType == (Spell)spellId))
       {
         oPC.ControllingPlayer.SendServerMessage("Ce sort est déjà inscrit dans votre grimoire.");
         return;
@@ -503,15 +492,11 @@ namespace NWN.Systems
 
           foreach (Effect eff in oPC.ControlledCreature.ActiveEffects.Where(e => e.EffectType == nIconEffectType))
           {
-            SpellsTable.Entry entry;
             string name = "Echec des sorts 50 %";
             int nAmount, nRemaining;
 
-            if (eff.Spell != Spell.AllSpells)
-            {
-              entry = Spells2da.spellsTable.GetSpellDataEntry(eff.Spell);
-              name = entry.name;
-            }
+            if (eff.Spell.SpellType != Spell.AllSpells)
+              name = eff.Spell.Name;
 
             float percentageRemaining = eff.DurationRemaining / eff.TotalDuration;
             Color color = ColorConstants.White;

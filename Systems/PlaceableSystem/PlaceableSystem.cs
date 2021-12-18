@@ -21,7 +21,10 @@ namespace NWN.Systems
     {
       foreach (NwDoor door in NwObject.FindObjectsOfType<NwDoor>())
         door.OnOpen += HandleDoorAutoClose;
-      
+
+      foreach (NwPlaceable bank in NwObject.FindObjectsWithTag<NwPlaceable>("player_bank"))
+        bank.OnLeftClick += HandleClickBank;
+
       foreach (NwPlaceable bassin in NwObject.FindObjectsWithTag<NwPlaceable>("ench_bsn"))
         bassin.OnClose += HandleCloseEnchantementBassin;
 
@@ -59,9 +62,6 @@ namespace NWN.Systems
         trainer.OnSpawn += HandleSpawnTrainingDummy;
         trainer.OnDamaged += HandleTrainingDummyDamaged;
       }
-
-      foreach (NwPlaceable nuiChest in NwObject.FindObjectsWithTag<NwPlaceable>("nui_chest"))
-        nuiChest.OnUsed += OnUsedNuiChest;
     }
     private static void HandleTrainingDummyDamaged(CreatureEvents.OnDamaged onDamaged)
     {
@@ -175,7 +175,7 @@ namespace NWN.Systems
         return;
       }
 
-      if (!BaseItems2da.baseItemTable.GetBaseItemDataEntry(oItem.BaseItemType).IsEquippable)
+      if (!BaseItems2da.baseItemTable.GetBaseItemDataEntry(oItem.BaseItem.ItemType).IsEquippable)
       {
         player.oid.SendServerMessage("Impossible d'enchanter un objet non équippable.");
         return;
@@ -295,27 +295,21 @@ namespace NWN.Systems
       NwPlaceable goplouf = NwObject.FindObjectsWithTag<NwPlaceable>("go_plouf").FirstOrDefault();
       onUsed.UsedBy.Location = goplouf.Location;
     }
-    private async void OnUsedNuiChest(PlaceableEvents.OnUsed onUsed)
+    private async void HandleClickBank(PlaceableEvents.OnLeftClick onClick)
     {
-      if (!Players.TryGetValue(onUsed.UsedBy, out Player player))
+      if (!Players.TryGetValue(onClick.ClickedBy.LoginCreature, out Player player))
         return;
+
+      if(onClick.Placeable.GetObjectVariable<LocalVariableInt>("ownerId").Value != player.characterId)
+      {
+        player.oid.SendServerMessage("Vous avez beau avancer la main, le coffre semble rester hors d'atteinte, innaccessible. De plus, vous entendez un lointain cliquetis de chaînes dans les tréfonds de votres esprit. Quelque chose vient de se mettre en marche.", ColorConstants.Red);
+        return;
+      }
 
       var query = await SqLiteUtils.SelectQueryAsync("playerCharacters",
       new List<string>() { { "persistantStorage" } },
       new List<string[]>() { new string[] { "characterId", player.characterId.ToString() } });
 
-      if (query != null && query.Count > 0)
-      {
-
-      }
-      else
-      {
-        var jCol = NWScript.JsonArray();
-        var jRow = NWScript.JsonArray();
-        {
-          //jRow = NWScript.JsonArrayInsert(jRow, NWScript.NuiSpacer());
-        }
-      }
     }
   }
 }

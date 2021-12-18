@@ -84,7 +84,8 @@ namespace NWN.Systems
 
             geometry.SetBindWatch(nuiEvent.Player, nuiEvent.WindowToken, false);
             NuiGroup chatWriterGroup = BuildChatLineEditorWindow(rectangle);
-            nuiEvent.Player.NuiSetGroupLayout(nuiEvent.WindowToken, chatWriterGroup.Id, chatWriterGroup);
+            //chatWriterGroup.SetLayout(player.oid, nuiEvent.WindowToken, colChatLog);
+            //nuiEvent.Player.NuiSetGroupLayout(nuiEvent.WindowToken, chatWriterGroup.Id, chatWriterGroup);
             geometry.SetBindWatch(nuiEvent.Player, nuiEvent.WindowToken, true);
             break;
         }

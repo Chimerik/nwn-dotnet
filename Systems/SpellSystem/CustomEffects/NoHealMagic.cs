@@ -17,7 +17,7 @@ namespace NWN.Systems
     }
     private static void NoHealingSpellMalus(OnSpellCast onSpellCast)
     {
-      switch (onSpellCast.Spell)
+      switch (onSpellCast.Spell.SpellType)
       {
         case Spell.Heal:
         case Spell.HealingCircle:

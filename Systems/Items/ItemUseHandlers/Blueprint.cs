@@ -25,7 +25,7 @@ namespace NWN.Systems.Items.ItemUseHandlers
       if (!PlayerSystem.Players.TryGetValue(oPC, out PlayerSystem.Player player))
         return;
 
-      if (oPC.GetItemInSlot(InventorySlot.RightHand) == null || (int)oPC.GetItemInSlot(InventorySlot.RightHand).BaseItemType != 114) // 114 = marteau de forgeron
+      if (oPC.GetItemInSlot(InventorySlot.RightHand) == null || (int)oPC.GetItemInSlot(InventorySlot.RightHand).BaseItem.ItemType != 114) // 114 = marteau de forgeron
       {
         oPC.ControllingPlayer.SendServerMessage($"Vous devez avoir un marteau d'artisan en main pour commencer le travail.", ColorConstants.Orange);
         return;

@@ -17,7 +17,7 @@ namespace NWN.Systems
         "Bonjour et bienvenue chez TRUANT et TRUAND associés,",
         "que nous vaut le plaisir de votre visite ?",
         "",
-        $"Votre solde actuel est de {player.bankGold}"
+        $"Votre solde actuel est de {player.bankGold.ToString().ColorString(new Color(32, 255, 32))}"
       };
 
       player.menu.choices.Add(($"Je voudrais déposer de l'or", () => HandleMoneyDepositSelection(player)));

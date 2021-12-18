@@ -17,7 +17,7 @@ namespace NWN.Systems
 
       //Log.Info($"{oPC.oid.Name} used feat {onUseFeat.Feat}");
 
-      switch (onUseFeat.Feat)
+      switch (onUseFeat.Feat.FeatType)
       {
         case CustomFeats.Elfique:
         case CustomFeats.Abyssal:
@@ -35,7 +35,7 @@ namespace NWN.Systems
         case CustomFeats.Sylvain:
         case CustomFeats.Voleur:
         case CustomFeats.Gnome:
-          new Language(player.oid, (int)onUseFeat.Feat);
+          new Language(player.oid, (int)onUseFeat.Feat.FeatType);
           break;
         case CustomFeats.BlueprintCopy:
         case CustomFeats.Research:
@@ -49,7 +49,7 @@ namespace NWN.Systems
             return;
           }
 
-          Craft.Blueprint.BlueprintValidation(player.oid, onUseFeat.TargetObject, (Feat)onUseFeat.Feat);
+          Craft.Blueprint.BlueprintValidation(player.oid, onUseFeat.TargetObject, onUseFeat.Feat.FeatType);
           break;
 
         case CustomFeats.Recycler:
@@ -103,7 +103,7 @@ namespace NWN.Systems
         case CustomFeats.CustomPositionRotateLeft:
 
           onUseFeat.PreventFeatUse = true;
-          player.EmitKeydown(new PlayerSystem.Player.MenuFeatEventArgs(onUseFeat.Feat));
+          player.EmitKeydown(new PlayerSystem.Player.MenuFeatEventArgs(onUseFeat.Feat.FeatType));
           break;
         case CustomFeats.WoodProspection:
 

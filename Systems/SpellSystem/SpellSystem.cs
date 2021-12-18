@@ -9,6 +9,7 @@ using Anvil.API.Events;
 using System.Threading.Tasks;
 using System.Threading;
 using System;
+using System.Collections.Generic;
 
 namespace NWN.Systems
 {
@@ -63,7 +64,7 @@ namespace NWN.Systems
       if (!(onSpellBroadcast.Caster is NwCreature { IsPlayerControlled: true } oPC))
         return;
 
-      ClassType castingClass = Spells2da.spellsTable.GetSpellDataEntry(onSpellBroadcast.Spell).castingClass;
+      ClassType castingClass = GetCastingClass(onSpellBroadcast.Spell);
 
       if (castingClass != (ClassType)43) // 43 = aventurier
       {
@@ -101,12 +102,35 @@ namespace NWN.Systems
         }
       }
     }
+
+    public static ClassType GetCastingClass(NwSpell Spell)
+    {
+      byte clericCastLevel = Spell.GetSpellLevelForClass(NwClass.FromClassType(ClassType.Cleric));
+      byte druidCastLevel = Spell.GetSpellLevelForClass(NwClass.FromClassType(ClassType.Druid));
+      byte paladinCastLevel = Spell.GetSpellLevelForClass(NwClass.FromClassType(ClassType.Paladin));
+      byte rangerCastLevel = Spell.GetSpellLevelForClass(NwClass.FromClassType(ClassType.Ranger));
+      byte bardCastLevel = Spell.GetSpellLevelForClass(NwClass.FromClassType(ClassType.Bard));
+
+      Dictionary<ClassType, byte> classSorter = new Dictionary<ClassType, byte>()
+      {
+        { ClassType.Cleric, clericCastLevel },
+        { ClassType.Druid, druidCastLevel },
+        { ClassType.Paladin, paladinCastLevel },
+        { ClassType.Ranger, rangerCastLevel },
+        { ClassType.Bard, bardCastLevel },
+      };
+
+      ClassType? castingClass = classSorter.Where(c => c.Value < 255)?.Max().Key;
+
+      return castingClass.HasValue ? castingClass.Value : (ClassType)43;
+    }
+
     [ScriptHandler("spellhook")]
     private void HandleSpellHook(CallInfo callInfo)
     {
       SpellEvents.OnSpellCast onSpellCast = new SpellEvents.OnSpellCast();
 
-      HandleSpellDamageLocalisation(onSpellCast.Spell, onSpellCast.Caster);
+      HandleSpellDamageLocalisation(onSpellCast.Spell.SpellType, onSpellCast.Caster);
 
       if (!(callInfo.ObjectSelf is NwCreature { IsPlayerControlled: true } oPC) || !PlayerSystem.Players.TryGetValue(oPC, out PlayerSystem.Player player))
         return;
@@ -117,17 +141,17 @@ namespace NWN.Systems
       oPC.GetObjectVariable<LocalVariableInt>("_DELAYED_SPELLHOOK_WILL").Value = oPC.GetBaseSavingThrow(SavingThrow.Will);
       oPC.GetObjectVariable<LocalVariableInt>("_DELAYED_SPELLHOOK_FORT").Value = oPC.GetBaseSavingThrow(SavingThrow.Fortitude);
       
-      if (player.learntCustomFeats.ContainsKey(CustomFeats.ImprovedCasterLevel))
-        CreaturePlugin.SetLevelByPosition(oPC, 0, SkillSystem.GetCustomFeatLevelFromSkillPoints(CustomFeats.ImprovedCasterLevel, player.learntCustomFeats[CustomFeats.ImprovedCasterLevel]) + 1);
+      if (player.learnableSkills.ContainsKey(CustomSkill.ImprovedCasterLevel))
+        CreaturePlugin.SetLevelByPosition(oPC, 0, player.learnableSkills[CustomSkill.ImprovedCasterLevel].totalPoints);
 
-      ClassType castingClass = Spells2da.spellsTable.GetSpellDataEntry(onSpellCast.Spell).castingClass;
+      ClassType castingClass = GetCastingClass(onSpellCast.Spell);
 
       if ((int)castingClass == 43 && oPC.GetAbilityScore(Ability.Charisma) > oPC.GetAbilityScore(Ability.Intelligence))
         castingClass = ClassType.Sorcerer;
 
       CreaturePlugin.SetClassByPosition(oPC, 0, (int)castingClass);
 
-      switch (onSpellCast.Spell)
+      switch (onSpellCast.Spell.SpellType)
       {
         case Spell.AcidSplash:
           new AcidSplash(onSpellCast);
@@ -176,12 +200,12 @@ namespace NWN.Systems
           break;
 
         case Spell.Invisibility:
-          new Invisibility(onSpellCast);
+          Invisibility(onSpellCast);
           oPC.GetObjectVariable<LocalVariableInt>("X2_L_BLOCK_LAST_SPELL").Value = 1;
           break;
 
         case Spell.ImprovedInvisibility:
-          new ImprovedInvisibility(onSpellCast);
+          ImprovedInvisibility(onSpellCast);
           oPC.GetObjectVariable<LocalVariableInt>("X2_L_BLOCK_LAST_SPELL").Value = 1;
           break;
       }
@@ -201,32 +225,31 @@ namespace NWN.Systems
       if (!(onSpellCast.Caster is NwCreature { IsPlayerControlled: true } oPC))
         return;
 
-      if (oPC.Classes.Any(c => (int)c != 43))
+      if (oPC.Classes.Any(c => c.Class.Id != 43))
         oPC.GetObjectVariable<LocalVariableInt>("_SPELLCAST").Value = 1;
 
-      if (oPC.GetObjectVariable<LocalVariableInt>("_AUTO_SPELL").HasValue && oPC.GetObjectVariable<LocalVariableInt>("_AUTO_SPELL").Value != (int)onSpellCast.Spell)
+      if (oPC.GetObjectVariable<LocalVariableInt>("_AUTO_SPELL").HasValue && oPC.GetObjectVariable<LocalVariableInt>("_AUTO_SPELL").Value != onSpellCast.Spell.Id)
       {
         oPC.GetObjectVariable<LocalVariableInt>("_AUTO_SPELL").Delete();
         oPC.GetObjectVariable<LocalVariableObject<NwGameObject>>("_AUTO_SPELL_TARGET").Delete();
         oPC.OnCombatRoundEnd -= PlayerSystem.HandleCombatRoundEndForAutoSpells;
       }
 
-      SpellsTable.Entry entry = Spells2da.spellsTable.GetSpellDataEntry(onSpellCast.Spell);
-
-      if (entry.school == SpellSchool.Divination)
+      if (onSpellCast.Spell.SpellSchool == SpellSchool.Divination)
       {
         onSpellCast.PreventSpellCast = true;
-        oPC.ControllingPlayer.SendServerMessage("Le juge du changement interdit tout usage de divination.");
+        oPC.ControllingPlayer.SendServerMessage("Un cliquetis lointain de chaînes résonne dans votre esprit. Quelque chose vient de se mettre en mouvement ...");
+        Utils.LogMessageToDMs($"{oPC.Name} ({oPC.ControllingPlayer.PlayerName}) vient de lancer un sort de divination. Faire intervenir les apôtres pour jugement.");
       }
     }
-    [ScriptHandler("invi_hb")]
-    private void HandleInvisibiltyHeartBeat(CallInfo callInfo)
+
+    public static ScriptHandleResult HandleInvisibiltyHeartBeat(CallInfo callInfo)
     {
       NwAreaOfEffect inviAoE = (NwAreaOfEffect)callInfo.ObjectSelf;
 
       if (!(inviAoE.Creator is NwCreature { IsPlayerControlled: true } oInvi))
-        return;
-
+        return ScriptHandleResult.Handled;
+      
       int iMoveSilentlyCheck = oInvi.GetSkillRank(Skill.MoveSilently) + NwRandom.Roll(Utils.random, 20);
       NwPlaceable invisMarker = NwObject.FindObjectsWithTag<NwPlaceable>($"invis_marker_{oInvi.ControllingPlayer.PlayerName}").FirstOrDefault();
       bool listenTriggered = false;
@@ -258,6 +281,8 @@ namespace NWN.Systems
 
       if (!listenTriggered && invisMarker != null)
         invisMarker.Destroy();
+
+      return ScriptHandleResult.Handled;
     }
     private static async void OnInvisMarkerPositionChanged(NwCreature oPC, NwPlaceable silhouette)
     {
@@ -294,7 +319,8 @@ namespace NWN.Systems
         Effect eDur = Effect.VisualEffect(VfxType.DurCessatePositive);
         Effect eLink = Effect.LinkEffects(eInvis, eVis);
         eLink = Effect.LinkEffects(eLink, eDur);
-        eLink = Effect.LinkEffects(eLink, Effect.AreaOfEffect(193, null, "invi_hb"));  // 193 = AoE 20 m
+
+        eLink = Effect.LinkEffects(eLink, Effect.AreaOfEffect((PersistentVfxType)193, null, scriptHandleFactory.CreateUniqueHandler(HandleInvisibiltyHeartBeat)));  // 193 = AoE 20 m
 
         NwAreaOfEffect inviSphere = (NwAreaOfEffect)callInfo.ObjectSelf;
 
@@ -313,7 +339,7 @@ namespace NWN.Systems
       {
         NwAreaOfEffect inviSphere = (NwAreaOfEffect)callInfo.ObjectSelf;
 
-        foreach (Effect eff in oTarget.ActiveEffects.Where(e => e.EffectType == EffectType.Invisibility && e.Spell == Spell.InvisibilitySphere && e.Creator == inviSphere.Creator))
+        foreach (Effect eff in oTarget.ActiveEffects.Where(e => e.EffectType == EffectType.Invisibility && e.Spell.SpellType == Spell.InvisibilitySphere && e.Creator == inviSphere.Creator))
           oTarget.RemoveEffect(eff);
       }
     }
@@ -500,19 +526,26 @@ namespace NWN.Systems
         Poison.RemoveEffectFromTarget(oTarget);
     }
     */
+    public static void ApplyGnomeMechAoE(NwCreature oCreature)
+    {
+      Effect elecAoE = Effect.AreaOfEffect(PersistentVfxType.MobElectrical, scriptHandleFactory.CreateUniqueHandler(HandleMechAuraHeartOnEnter), scriptHandleFactory.CreateUniqueHandler(HandleMechAuraHeartBeat));
+      elecAoE.Creator = oCreature;
+      elecAoE.Tag = "mechaura_aoe";
+      elecAoE.SubType = EffectSubType.Supernatural;
+      oCreature.ApplyEffect(EffectDuration.Permanent, elecAoE);
+    }
 
-    [ScriptHandler("mechaura_enter")]
-    private void HandleMechAuraHeartOnEnter(CallInfo callInfo)
+    private static ScriptHandleResult HandleMechAuraHeartOnEnter(CallInfo callInfo)
     {
       NwAreaOfEffect elecAoE = (NwAreaOfEffect)callInfo.ObjectSelf;
       elecAoE.Creator.GetObjectVariable<LocalVariableInt>("_SPARK_LEVEL").Value += 5;
       elecAoE.Creator.ApplyEffect(EffectDuration.Instant, Effect.VisualEffect(VfxType.ComHitElectrical));
 
       if (!(NWScript.GetEnteringObject().ToNwObject<NwGameObject>() is NwCreature oTarget) || oTarget == elecAoE.Creator)
-        return;
+        return ScriptHandleResult.Handled;
 
       if (NwRandom.Roll(Utils.random, 100) > elecAoE.Creator.GetObjectVariable<LocalVariableInt>("_SPARK_LEVEL").Value + 20)
-        return;
+        return ScriptHandleResult.Handled;
 
       oTarget.ApplyEffect(EffectDuration.Temporary, Effect.Beam(VfxType.BeamLightning, elecAoE.Creator, BodyNode.Chest), TimeSpan.FromSeconds(1.4));
 
@@ -526,9 +559,10 @@ namespace NWN.Systems
           oTarget.ApplyEffect(EffectDuration.Instant, Effect.VisualEffect(VfxType.ComHitElectrical));
         }
       }
+
+      return ScriptHandleResult.Handled;
     }
-    [ScriptHandler("mechaura_hb")]
-    private void HandleMechAuraHeartBeat(CallInfo callInfo)
+    private static ScriptHandleResult HandleMechAuraHeartBeat(CallInfo callInfo)
     {
       NwAreaOfEffect elecAoE = (NwAreaOfEffect)callInfo.ObjectSelf;
       elecAoE.Creator.GetObjectVariable<LocalVariableInt>("_SPARK_LEVEL").Value += 5;
@@ -552,6 +586,8 @@ namespace NWN.Systems
           }
         }
       }
+
+      return ScriptHandleResult.Handled;
     }
     private void HandleSpellDamageLocalisation(Spell spell, NwGameObject oCaster)
     {

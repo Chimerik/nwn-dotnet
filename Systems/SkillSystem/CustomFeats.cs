@@ -4,22 +4,7 @@
   {
     // Les compétences customs activables sous forme de dons sont numérotées à partir de 10000 afin d'éviter la collision avec les ID de sorts dans le dictionnary global des Learnables
     // Les compétences customs passives sont numérotées à partir de 20000 afin de laisser suffisament de marge pour pouvoir ajouter des actifs sans tout retoucher
-    public const int Elfique = 1116;
-    public const int Nain = 1117;
-    public const int Orc = 1118;
-    public const int Géant = 1119;
-    public const int Gobelin = 1120;
-    public const int Halfelin = 1121;
-    public const int Abyssal = 1122;
-    public const int Céleste = 1123;
-    public const int Draconique = 1124;
-    public const int Profond = 1125;
-    public const int Infernal = 1126;
-    public const int Primordiale = 1127;
-    public const int Sylvain = 1128;
-    public const int Druidique = 1129;
-    public const int Voleur = 1130;
-    public const int Gnome = 1131;
+    
     public const int CustomMenuUP = 1132;
     public const int CustomMenuDOWN = 1133;
     public const int CustomMenuSELECT = 1134;
@@ -27,45 +12,6 @@
     public const int BlueprintCopy = 1136;
     public const int Research = 1137;
     
-    public const int ImprovedAnimalEmpathy = 1144;
-    public const int ImprovedConcentration = 1145;
-    public const int ImprovedDisableTraps = 1146;
-    public const int ImprovedDiscipline = 1147;
-    public const int ImprovedHeal = 1148;
-    public const int ImprovedHide = 1149;
-    public const int ImprovedListen = 1150;
-    public const int ImprovedLore = 1151;
-    public const int ImprovedMoveSilently = 1152;
-    public const int ImprovedOpenLock = 1153;
-    public const int ImprovedSkillParry = 1154;
-    public const int ImprovedPerform = 1155;
-    public const int ImprovedPickpocket = 1156;
-    public const int ImprovedSearch = 1157;
-    public const int ImprovedSetTrap = 1158;
-    public const int ImprovedSpellcraft = 1159;
-    public const int ImprovedSpot = 1160;
-    public const int ImprovedTaunt = 1161;
-    public const int ImprovedUseMagicDevice = 1162;
-    public const int ImprovedTumble = 1163;
-    public const int ImprovedBluff = 1164;
-    public const int ImprovedIntimidate = 1165;
-
-    public const int ImprovedAttackBonus = 1167;
-    public const int ImprovedSpellSlot0 = 1168;
-    public const int ImprovedSpellSlot1 = 1169;
-    public const int ImprovedSpellSlot2 = 1170;
-    public const int ImprovedSpellSlot3 = 1171;
-    public const int ImprovedSpellSlot4 = 1172;
-    public const int ImprovedSpellSlot5 = 1173;
-    public const int ImprovedSpellSlot6 = 1174;
-    public const int ImprovedSpellSlot7 = 1175;
-    public const int ImprovedSpellSlot8 = 1176;
-    public const int ImprovedSpellSlot9 = 1177;
-    public const int ImprovedCasterLevel = 1178;
-    public const int ImprovedSavingThrowAll = 1179;
-    public const int ImprovedSavingThrowFortitude = 1180;
-    public const int ImprovedSavingThrowReflex = 1181;
-    public const int ImprovedSavingThrowWill = 1182;
     public const int Metallurgy = 1183;
     public const int AdvancedCraft = 1184;
     public const int Miner = 118;
@@ -308,6 +254,9 @@
     public const int WhipScience = 1422;
     public const int DoubleAxeScience = 1423;
 
+    public const int TwoWeaponFighting = 10041;
+    public const int WeaponFinesse = 10042;
+
     public const int ImprovedStrength = 20000;
     public const int ImprovedDexterity = 20001;
     public const int ImprovedConstitution = 20002;
@@ -353,6 +302,7 @@
     public const int Prisoner = 20042;
     public const int Wanderer = 20043;
     public const int Taken = 20044;
+
     public const int Athletics = 20045; // remplace discipline // TODO : il n'est pas possible de renverser les créatures de deux catégories de taille au-dessus de soi + CD de 30 secondes
     public const int Acrobatics = 20046; // remplace discipline
     public const int Escamotage = 20047;
@@ -377,6 +327,92 @@
     public const int Taunt = 20066; // TODO : sur un PNJ, taunt force la cible à attaquer le taunter. Sur un PJ, taunt diminue la CA et impose un malus d'échec des sorts
     // TODO : pas de compétence "parade" pour le moment. Il serait en revanche possible de réfléchir à un don qui permettrait de réduire les dégâts reçus en fonction de certaines conditions, cf Martial Adept de DD5 : Combat Maneuvers
     // TODO : pas d'empathie animale pour le moment. Mais réfléchir à un système pour jouer à Pokémon
+
+    public const int Elfique = 20067;
+    public const int Nain = 20068;
+    public const int Orc = 20069;
+    public const int Giant = 20070;
+    public const int Gobelin = 20071;
+    public const int Halfelin = 20072;
+    public const int Abyssal = 20073;
+    public const int Celestial = 20074;
+    public const int Draconique = 20075;
+    public const int Profond = 20076;
+    public const int Infernal = 20077;
+    public const int Primordiale = 20078;
+    public const int Sylvain = 20079;
+    public const int Druidique = 20080;
+    public const int Voleur = 20081;
+    public const int Gnome = 20082;
+
+    public const int ImprovedAttackBonus = 20083;
+    public const int ImprovedSpellSlot0 = 20084;
+    public const int ImprovedSpellSlot1 = 20085;
+    public const int ImprovedSpellSlot2 = 20086;
+    public const int ImprovedSpellSlot3 = 20087;
+    public const int ImprovedSpellSlot4 = 20088;
+    public const int ImprovedSpellSlot5 = 20089;
+    public const int ImprovedSpellSlot6 = 20090;
+    public const int ImprovedSpellSlot7 = 20091;
+    public const int ImprovedSpellSlot8 = 20092;
+    public const int ImprovedSpellSlot9 = 20093;
+    public const int ImprovedCasterLevel = 20094;
+
+    public const int ImprovedLightArmorProficiency = 20099;
+    public const int ImprovedMediumArmorProficiency = 20100;
+    public const int ImprovedHeavyArmorProficiency = 20101;
+    public const int ImprovedFullPlateProficiency = 20102;
+    public const int ImprovedLightShieldProficiency = 20103;
+    public const int ImprovedMediumShieldProficiency = 20104;
+    public const int ImprovedHeavyShieldProficiency = 20105;
+
+    public const int ImprovedClubProficiency = 20106;
+    public const int ImprovedShortSwordProficiency = 20107;
+    public const int ImprovedLightFlailProficiency = 20108;
+    public const int ImprovedShortBowProficiency = 20109;
+    public const int ImprovedLightCrossBowProficiency = 20110;
+    public const int ImprovedLightMaceProficiency = 20111;
+    public const int ImprovedDaggerProficiency = 20112;
+    public const int ImprovedDartProficiency = 20113;
+    public const int ImprovedUnharmedProficiency = 20114;
+    public const int ImprovedLightHammerProficiency = 20115;
+    public const int ImprovedHandAxeProficiency = 20116;
+    public const int ImprovedQuarterStaffProficiency = 20117;
+    public const int ImprovedMagicStaffProficiency = 20118;
+    public const int ImprovedMorningStarProficiency = 20119;
+    public const int ImprovedShortSpearProficiency = 20120;
+    public const int ImprovedSlingProficiency = 20121;
+    public const int ImprovedSickleProficiency = 20122;
+
+    public const int ImprovedLongSwordProficiency = 20123;
+    public const int ImprovedBattleAxeProficiency = 20124;
+    public const int ImprovedWarHammerProficiency = 20125;
+    public const int ImprovedLongBowProficiency = 20126;
+    public const int ImprovedHeavyCrossbowProficiency = 20127;
+    public const int ImprovedHalberdProficiency = 20128;
+    public const int ImprovedGreatSwordProficiency = 20129;
+    public const int ImprovedGreatAxeProficiency = 20130;
+    public const int ImprovedHeavyFlailProficiency = 20131;
+    public const int ImprovedRapierProficiency = 20132;
+    public const int ImprovedScimitarProficiency = 20133;
+    public const int ImprovedThrowingAxeProficiency = 20134;
+    public const int ImprovedTridentProficiency = 20135;
+
+    public const int ImprovedBastardSwordProficiency = 20136;
+    public const int ImprovedTwoBladedSwordProficiency = 20137;
+    public const int ImprovedDireMaceProficiency = 20138;
+    public const int ImprovedDoubleAxeProficiency = 20139;
+    public const int ImprovedKamaProficiency = 20140;
+    public const int ImprovedKukriProficiency = 20141;
+    public const int ImprovedKatanaProficiency = 20142;
+    public const int ImprovedScytheProficiency = 20143;
+    public const int ImprovedDwarvenWarAxeProficiency = 20144;
+    public const int ImprovedWhipProficiency = 20145;
+
+    public const int ImprovedFortitude = 20146;
+    public const int ImprovedReflex = 20147;
+    public const int ImprovedWill = 20148;
+    public const int ImprovedSavingThrowAll = 20149;
 
     public const int Invalid = 65535;
   }

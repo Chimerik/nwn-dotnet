@@ -34,7 +34,7 @@ namespace NWN.Systems
     }
     private static void NoUseArmorMalus(OnItemValidateUse onItemValidateUse)
     {
-      if (onItemValidateUse.Item.BaseItemType == BaseItemType.Armor)
+      if (onItemValidateUse.Item.BaseItem.ItemType == BaseItemType.Armor)
       {
         PlayerSystem.Log.Info($"no armore : {onItemValidateUse.Item.Name} denied !");
         onItemValidateUse.CanUse = false;

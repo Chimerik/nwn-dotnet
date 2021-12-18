@@ -9,7 +9,7 @@ namespace NWN.Systems
     public DMRenameTarget(NwPlayer oPC)
     {
       oPC.SendServerMessage("Veuillez sélectionner la cible à renommer");
-      PlayerSystem.cursorTargetService.EnterTargetMode(oPC, RenameTarget, ObjectTypes.All, MouseCursor.Create);
+      oPC.EnterTargetMode(RenameTarget, ObjectTypes.All, MouseCursor.CreateDown);
     }
     private async void RenameTarget(ModuleEvents.OnPlayerTarget selection)
     {

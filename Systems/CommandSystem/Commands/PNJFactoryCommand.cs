@@ -22,7 +22,7 @@ namespace NWN.Systems
 
       player.menu.titleLines.Add("Bienvenue dans la PNJ factory. Que souhaitez-vous faire ?");
 
-      player.menu.choices.Add(("Sélectionner un PNJ existant", () => PlayerSystem.cursorTargetService.EnterTargetMode(player.oid, OnPNJSelected, ObjectTypes.Creature, MouseCursor.Create)));
+      player.menu.choices.Add(("Sélectionner un PNJ existant", () => player.oid.EnterTargetMode(OnPNJSelected, ObjectTypes.Creature, MouseCursor.CreateDown)));
       player.menu.choices.Add(("Parcourir les listes de PNJs enregistrés", () => DisplayPNJCreatorsList()));
 
       player.menu.choices.Add(("Quitter", () => player.menu.Close()));
@@ -342,7 +342,7 @@ namespace NWN.Systems
     }
     private void ModifySelectedRacialType(RacialType racialType)
     {
-      oPNJ.RacialType = racialType;
+      oPNJ.Race = NwRace.FromRacialType(racialType);
       player.oid.SendServerMessage($"La race de {oPNJ.Name.ColorString(ColorConstants.White)} est désormais {racialType}.", ColorConstants.Blue);
       DrawPNJSelectionWelcome();
     }
@@ -1017,7 +1017,7 @@ namespace NWN.Systems
     {
       oPC.LoginCreature.GetObjectVariable<LocalVariableString>("_SPAWNING_NPC").Value = npcName;
       oPC.LoginCreature.GetObjectVariable<LocalVariableString>("_SPAWNING_NPC_ACCOUNT").Value = accountName;
-      PlayerSystem.cursorTargetService.EnterTargetMode(oPC, OnPNJSpawnLocationSelected, ObjectTypes.All, MouseCursor.Create);
+      oPC.EnterTargetMode(OnPNJSpawnLocationSelected, ObjectTypes.All, MouseCursor.Create);
     }
     private async void OnPNJSpawnLocationSelected(ModuleEvents.OnPlayerTarget selection)
     {

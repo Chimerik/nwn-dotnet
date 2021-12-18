@@ -29,7 +29,7 @@ namespace NWN.Systems
     }
     public static void SlowMalusCure(CreatureEvents.OnSpellCastAt onSpellCastAt)
     {
-      switch (onSpellCastAt.Spell)
+      switch (onSpellCastAt.Spell.SpellType)
       {
         case Spell.LesserRestoration:
         case Spell.Restoration:

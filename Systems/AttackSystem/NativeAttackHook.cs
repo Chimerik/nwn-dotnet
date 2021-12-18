@@ -1,6 +1,4 @@
-﻿using NLog;
-
-using Anvil.API;
+﻿using Anvil.API;
 using NWN.Native.API;
 using Anvil.Services;
 
@@ -13,6 +11,7 @@ namespace NWN.Systems
 
     //private delegate int GetDamageRollHook(void* thisPtr, void* pTarget, int bOffHand, int bCritical, int bSneakAttack, int bDeathAttack, int bForceMax);
     private delegate void ResolveAttackRollHook(void* pCreature, void* pTarget);
+    private delegate int CheckProficienciesHook(void* pItem, uint nEquipToSlot);
 
     //private readonly FunctionHook<GetDamageRollHook> getDamageRollHook;
     //private readonly FunctionHook<ResolveAttackRollHook> resolveAttackRollHook;
@@ -21,8 +20,16 @@ namespace NWN.Systems
     {
       //getDamageRollHook = hookService.RequestHook<GetDamageRollHook>(OnGetDamageRoll, FunctionsLinux._ZN17CNWSCreatureStats13GetDamageRollEP10CNWSObjectiiiii, HookOrder.Early);
       hookService.RequestHook<ResolveAttackRollHook>(OnResolveAttackRoll, FunctionsLinux._ZN12CNWSCreature17ResolveAttackRollEP10CNWSObject, HookOrder.Early);
+      hookService.RequestHook<CheckProficienciesHook>(OnCheckProficiencies, FunctionsLinux._ZN12CNWSCreature18CheckProficienciesEP8CNWSItemj, HookOrder.Early);
     }
-
+    private int OnCheckProficiencies(void* pItem, uint nEquipToSlot)
+    {
+      var item = CNWSItem.FromPointer(pItem);
+      if (item != null && BaseItems2da.baseItemTable.GetBaseItemDataEntry((BaseItemType)item.m_nBaseItem).IsEquippable)
+        return 1;
+      else
+        return 0;
+    }
     private void OnResolveAttackRoll(void* pCreature, void* pTarget)
     {
       CNWSCreature creature = CNWSCreature.FromPointer(pCreature);

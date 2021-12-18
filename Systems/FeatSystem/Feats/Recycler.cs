@@ -20,7 +20,7 @@ namespace NWN.Systems
       NwItem item = (NwItem)oTarget;
       string material;
       
-      switch (item.BaseItemType)
+      switch (item.BaseItem.ItemType)
       {
         case BaseItemType.Armor:
 

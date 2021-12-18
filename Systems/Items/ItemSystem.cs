@@ -144,6 +144,15 @@ namespace NWN.Systems
         case "potion_alchimique":
           new PotionAlchimisteEffect(onItemUse.Item, oPC.ControllingPlayer, oTarget);
           break;
+        case "bank_contract":
+          if (PlayerSystem.Players.TryGetValue(oPC, out PlayerSystem.Player player))
+          {
+            if (player.windows.ContainsKey("bankContract"))
+              ((PlayerSystem.Player.BankContractWindow)player.windows["bankContract"]).CreateWindow();
+            else
+              player.windows.Add("bankContract", new PlayerSystem.Player.BankContractWindow(player, oItem));
+          }
+          break;
       }
 
       Task wait = NwTask.Run(async () =>

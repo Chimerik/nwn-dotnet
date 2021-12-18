@@ -12,7 +12,7 @@ namespace NWN.Systems
 
       int nCasterLevel = oCaster.LastSpellCasterLevel;
 
-      SpellUtils.SignalEventSpellCast(onSpellCast.TargetObject, oCaster, onSpellCast.Spell, false);
+      SpellUtils.SignalEventSpellCast(onSpellCast.TargetObject, oCaster, onSpellCast.Spell.SpellType, false);
 
       Effect eVis = Effect.VisualEffect(VfxType.ImpHeadHoly);
       Effect eDur = Effect.VisualEffect(VfxType.DurCessatePositive);
@@ -30,7 +30,7 @@ namespace NWN.Systems
       onSpellCast.TargetObject.ApplyEffect(EffectDuration.Instant, eVis);
 
       if (onSpellCast.MetaMagicFeat == MetaMagic.None)
-        SpellUtils.RestoreSpell(oCaster, onSpellCast.Spell);
+        SpellUtils.RestoreSpell(oCaster, onSpellCast.Spell.SpellType);
     }
   }
 }

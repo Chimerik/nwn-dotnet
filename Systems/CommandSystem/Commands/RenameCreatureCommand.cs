@@ -16,7 +16,7 @@ namespace NWN.Systems
 
       oPC.SendServerMessage("Veuillez sélectionnner la créature dont vous souhaitez modifier le nom.", ColorConstants.Rose);
 
-      PlayerSystem.cursorTargetService.EnterTargetMode(oPC, SummonRenameTarget, ObjectTypes.Creature, MouseCursor.Create);
+      oPC.EnterTargetMode(SummonRenameTarget, ObjectTypes.Creature, MouseCursor.Create);
     }
     private static async void SummonRenameTarget(ModuleEvents.OnPlayerTarget selection)
     {
@@ -48,7 +48,7 @@ namespace NWN.Systems
       else
       {
         selection.Player.SendServerMessage("Veuillez sélectionner une cible valide.", ColorConstants.Red);
-        PlayerSystem.cursorTargetService.EnterTargetMode(selection.Player, SummonRenameTarget, ObjectTypes.Creature, MouseCursor.Create);
+        selection.Player.EnterTargetMode(SummonRenameTarget, ObjectTypes.Creature, MouseCursor.Create);
       }
     }
   }

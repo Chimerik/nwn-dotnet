@@ -9,7 +9,7 @@ namespace NWN.Systems
     public SaveItemAppearance(NwPlayer oPC)
     {
       oPC.SendServerMessage("Veuillez sélectionnner l'objet dont vous souhaitez sauvegarder l'apparence.", ColorConstants.Rose);
-      PlayerSystem.cursorTargetService.EnterTargetMode(oPC, OnAppearanceSelected, ObjectTypes.Item, MouseCursor.Create);
+      oPC.EnterTargetMode(OnAppearanceSelected, ObjectTypes.Item, MouseCursor.Create);
     }
     private static async void OnAppearanceSelected(ModuleEvents.OnPlayerTarget selection)
     {
@@ -24,7 +24,7 @@ namespace NWN.Systems
       }
 
       int ACValue = -1;
-      if (item.BaseItemType == BaseItemType.Armor)
+      if (item.BaseItem.ItemType == BaseItemType.Armor)
         ACValue = item.BaseACValue;
 
       player.menu.Clear();
@@ -44,7 +44,7 @@ namespace NWN.Systems
         player.oid.LoginCreature.GetObjectVariable<LocalVariableString>("_PLAYER_INPUT").Delete();
 
         string serializedAppearance = item.Appearance.Serialize();
-        string baseItemType = ((int)item.BaseItemType).ToString();
+        string baseItemType = ((int)item.BaseItem.ItemType).ToString();
 
         bool queryResult = await SqLiteUtils.InsertQueryAsync("playerItemAppearance",
           new List<string[]>() {

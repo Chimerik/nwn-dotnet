@@ -240,9 +240,9 @@ namespace NWN
 
     public static NuiSpacer Util_GetIconResref(NwItem oItem, int id)
     {
-      string icon = BaseItems2da.baseItemTable.GetBaseItemDataEntry(oItem.BaseItemType).defaultIcon; ;
+      string icon = BaseItems2da.baseItemTable.GetBaseItemDataEntry(oItem.BaseItem.ItemType).defaultIcon; ;
 
-      switch (oItem.BaseItemType)
+      switch (oItem.BaseItem.ItemType)
       {
         case BaseItemType.Cloak: // Cloaks use PLTs so their default icon doesn't really work
             icon = "iit_cloak";
@@ -257,7 +257,7 @@ namespace NWN
 
         default:
 
-          switch(BaseItems2da.baseItemTable.GetBaseItemDataEntry(oItem.BaseItemType).modelType)
+          switch(BaseItems2da.baseItemTable.GetBaseItemDataEntry(oItem.BaseItem.ItemType).modelType)
           {
             case 0:
               icon = Util_GetSimpleIconData(oItem);
@@ -282,9 +282,9 @@ namespace NWN
     public static string Util_GetSimpleIconData(NwItem item)
     {
       string sSimpleModelId = item.Appearance.GetSimpleModel().ToString().PadLeft(3, '0');
-      string sDefaultIcon = BaseItems2da.baseItemTable.GetBaseItemDataEntry(item.BaseItemType).defaultIcon;
+      string sDefaultIcon = BaseItems2da.baseItemTable.GetBaseItemDataEntry(item.BaseItem.ItemType).defaultIcon;
 
-      switch (item.BaseItemType)
+      switch (item.BaseItem.ItemType)
       {
         case BaseItemType.MiscSmall:
         case BaseItemType.CraftMaterialSmall:
@@ -315,7 +315,7 @@ namespace NWN
     }
     public static NuiSpacer Util_GetComplexIconData(NwItem item, int id)
     {
-      BaseItemTable.Entry entry = BaseItems2da.baseItemTable.GetBaseItemDataEntry(item.BaseItemType);
+      BaseItemTable.Entry entry = BaseItems2da.baseItemTable.GetBaseItemDataEntry(item.BaseItem.ItemType);
       List<NuiDrawListItem> iconDrawListItems = new List<NuiDrawListItem>();
       NuiSpacer spacer = new NuiSpacer() { Id = $"examine_{id}", DrawList = iconDrawListItems, Width = 75, Height = 125 };
 

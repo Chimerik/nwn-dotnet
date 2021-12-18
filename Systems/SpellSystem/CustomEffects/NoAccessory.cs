@@ -50,7 +50,7 @@ namespace NWN.Systems
     }
     private static void NoUseAccessoryMalus(OnItemValidateUse onItemValidateUse)
     {
-      switch (onItemValidateUse.Item.BaseItemType)
+      switch (onItemValidateUse.Item.BaseItem.ItemType)
       {
         case BaseItemType.Belt:
         case BaseItemType.Helmet:

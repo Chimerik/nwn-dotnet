@@ -47,6 +47,8 @@ namespace NWN.Systems
           creature.Destroy();
         });
       }
+
+      InitializeBankPlaceableNames();
     }
 
     public static void OnAreaEnter(AreaEvents.OnEnter onEnter)
@@ -315,6 +317,19 @@ namespace NWN.Systems
 
       oEntering.Commandable = true;
       oEntering.Location = Location.Create(oEntering.Area, kickback + (initialPosition - oEntering.Position), oEntering.Rotation);
+    }
+    private void InitializeBankPlaceableNames()
+    {
+      var result = SqLiteUtils.SelectQuery("bankPlaceables",
+        new List<string>() { { "id" }, { "areaTag" }, { "ownerId" }, { "ownerName" } },
+        new List<string[]>() { });
+
+      foreach(var bank in result.Results)
+      {
+        NwObject bankPlaceable = NwObject.FindObjectsWithTag<NwPlaceable>("player_bank").FirstOrDefault(b => /*b.Area.Tag == bank.GetString(1) &&*/ b.GetObjectVariable<LocalVariableInt>("id").Value == bank.GetInt(0));
+        bankPlaceable.GetObjectVariable<LocalVariableInt>("ownerId").Value = bank.GetInt(2);
+        bankPlaceable.Name = bank.GetString(3);
+      }
     }
   }
 }

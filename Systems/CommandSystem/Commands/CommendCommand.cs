@@ -16,8 +16,7 @@ namespace NWN.Systems
       player.menu.choices.Add(("Retour.", () => CommandSystem.DrawCommandList(player)));
       player.menu.choices.Add(("Quitter.", () => player.menu.Close()));
 
-      PlayerSystem.cursorTargetService.EnterTargetMode(player.oid, OnTargetSelected, ObjectTypes.Creature, MouseCursor.Magic);
-
+      player.oid.EnterTargetMode(OnTargetSelected, ObjectTypes.Creature, MouseCursor.Magic);
       player.menu.Draw();
     }
     private void OnTargetSelected(ModuleEvents.OnPlayerTarget selection)

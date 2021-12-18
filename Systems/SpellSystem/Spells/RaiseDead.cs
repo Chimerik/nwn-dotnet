@@ -12,7 +12,7 @@ namespace NWN.Systems
       if (!(onSpellCast.Caster is NwCreature { IsPlayerControlled: true } oCaster) || onSpellCast.TargetObject.Tag != "pccorpse")
         return;
 
-      SpellUtils.SignalEventSpellCast(onSpellCast.TargetObject, oCaster, onSpellCast.Spell, false);
+      SpellUtils.SignalEventSpellCast(onSpellCast.TargetObject, oCaster, onSpellCast.Spell.SpellType, false);
 
       int PcId = onSpellCast.TargetObject.GetObjectVariable<LocalVariableInt>("_PC_ID").Value;
       NwPlayer oPC = NwModule.Instance.Players.FirstOrDefault(p => p.LoginCreature.GetObjectVariable<PersistentVariableInt>("characterId").Value == PcId);
@@ -22,7 +22,7 @@ namespace NWN.Systems
         oPC.LoginCreature.Location = onSpellCast.TargetObject.Location;
         onSpellCast.TargetObject.ApplyEffect(EffectDuration.Instant, Effect.VisualEffect(VfxType.ImpRaiseDead));
 
-        if(onSpellCast.Spell == Spell.RaiseDead)
+        if(onSpellCast.Spell.SpellType == Spell.RaiseDead)
           oPC.LoginCreature.HP = 1;
       }
       else
@@ -39,7 +39,7 @@ namespace NWN.Systems
 
       PlayerSystem.DeletePlayerCorpseFromDatabase(PcId);
 
-      SpellUtils.SignalEventSpellCast(onSpellCast.TargetObject, oCaster, onSpellCast.Spell, false);
+      SpellUtils.SignalEventSpellCast(onSpellCast.TargetObject, oCaster, onSpellCast.Spell.SpellType, false);
       onSpellCast.TargetObject.Location.ApplyEffect(EffectDuration.Instant, Effect.VisualEffect(VfxType.ImpRaiseDead));
     }
   }

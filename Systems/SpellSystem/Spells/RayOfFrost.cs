@@ -13,7 +13,7 @@ namespace NWN.Systems
 
       int nCasterLevel = oCaster.LastSpellCasterLevel;
 
-      SpellUtils.SignalEventSpellCast(onSpellCast.TargetObject, oCaster, onSpellCast.Spell);
+      SpellUtils.SignalEventSpellCast(onSpellCast.TargetObject, oCaster, onSpellCast.Spell.SpellType);
 
       Effect eVis = Effect.VisualEffect(VfxType.ImpFrostS);
       Effect eRay = Effect.Beam(VfxType.BeamCold, oCaster, BodyNode.Hand);
@@ -30,13 +30,13 @@ namespace NWN.Systems
 
       if (oCaster.IsPlayerControlled && onSpellCast.MetaMagicFeat == MetaMagic.None)
       {
-        oCaster.GetObjectVariable<LocalVariableInt>("_AUTO_SPELL").Value = (int)onSpellCast.Spell;
+        oCaster.GetObjectVariable<LocalVariableInt>("_AUTO_SPELL").Value = (int)onSpellCast.Spell.SpellType;
         oCaster.GetObjectVariable<LocalVariableObject<NwGameObject>>("_AUTO_SPELL_TARGET").Value = onSpellCast.TargetObject;
         oCaster.OnCombatRoundEnd -= PlayerSystem.HandleCombatRoundEndForAutoSpells;
         oCaster.OnCombatRoundEnd += PlayerSystem.HandleCombatRoundEndForAutoSpells;
 
         SpellUtils.CancelCastOnMovement(oCaster);
-        SpellUtils.RestoreSpell(oCaster, onSpellCast.Spell);
+        SpellUtils.RestoreSpell(oCaster, onSpellCast.Spell.SpellType);
       }      
     }
   }

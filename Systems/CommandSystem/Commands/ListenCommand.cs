@@ -8,7 +8,7 @@ namespace NWN.Systems
     public ListenTarget(NwPlayer oPC)
     {
       oPC.SendServerMessage("Veuillez sélectionnner le joueur à écouter.", ColorConstants.Pink);
-      PlayerSystem.cursorTargetService.EnterTargetMode(oPC, OnListenTargetSelected, ObjectTypes.Creature, MouseCursor.Magic);
+      oPC.EnterTargetMode(OnListenTargetSelected, ObjectTypes.Creature, MouseCursor.Magic);
     }
     private void OnListenTargetSelected(ModuleEvents.OnPlayerTarget selection)
     {

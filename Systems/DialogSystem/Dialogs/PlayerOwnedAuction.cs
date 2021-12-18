@@ -60,14 +60,11 @@ namespace NWN.Systems
       player.oid.SendServerMessage("Veuillez maintenant sélectionnner l'objet que vous souhaitez mettre en vente.", ColorConstants.Rose);
       player.oid.LoginCreature.GetObjectVariable<LocalVariableObject<NwStore>>("_ACTIVE_STORE").Value = store;
       player.oid.LoginCreature.GetObjectVariable<LocalVariableObject<NwPlaceable>>("_ACTIVE_PANEL").Value = panel;
-      cursorTargetService.EnterTargetMode(player.oid, OnSellItemSelected, ObjectTypes.Item, MouseCursor.Pickup);
+      player.oid.EnterTargetMode(OnSellItemSelected, ObjectTypes.Item, MouseCursor.Pickup);
     }
     private static void OnSellItemSelected(ModuleEvents.OnPlayerTarget selection)
     {
-      if (!Players.TryGetValue(selection.Player.LoginCreature, out Player player))
-        return;
-
-      if (selection.IsCancelled || selection.TargetObject is null || !(selection.TargetObject is NwItem))
+      if (selection.IsCancelled || !Players.TryGetValue(selection.Player.LoginCreature, out Player player) || selection.TargetObject is null || !(selection.TargetObject is NwItem))
         return;
 
       NwStore store = player.oid.LoginCreature.GetObjectVariable<LocalVariableObject<NwStore>>("_ACTIVE_STORE").Value;

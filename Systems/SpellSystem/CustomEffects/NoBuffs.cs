@@ -23,7 +23,7 @@ namespace NWN.Systems
     }
     private static void NoBuffMalus(OnSpellCast onSpellCast)
     {
-      switch (onSpellCast.Spell)
+      switch (onSpellCast.Spell.SpellType)
       {
         case Spell.Aid:
         case Spell.Amplify:

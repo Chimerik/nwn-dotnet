@@ -12,7 +12,7 @@ namespace NWN.Systems
 
       int nCasterLevel = oCaster.LastSpellCasterLevel;
 
-      SpellUtils.SignalEventSpellCast(onSpellCast.TargetObject, oCaster, onSpellCast.Spell, false);
+      SpellUtils.SignalEventSpellCast(onSpellCast.TargetObject, oCaster, onSpellCast.Spell.SpellType, false);
 
       int nDuration = nCasterLevel;
       Effect eVis = Effect.VisualEffect(VfxType.ImpHolyAid);
@@ -28,7 +28,7 @@ namespace NWN.Systems
 
       if (onSpellCast.MetaMagicFeat == MetaMagic.None)
       {
-        SpellUtils.RestoreSpell(oCaster, onSpellCast.Spell);
+        SpellUtils.RestoreSpell(oCaster, onSpellCast.Spell.SpellType);
       }
     }
   }
