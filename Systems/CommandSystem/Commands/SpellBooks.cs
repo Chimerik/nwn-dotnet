@@ -144,7 +144,7 @@ namespace NWN.Systems
         string[] splitSpell = spell.Split("$");
 
         Spell spellId = (Spell)int.Parse(splitSpell[0]);
-        byte spellLevel = (byte)Spells2da.spellsTable.GetSpellDataEntry(spellId).level;
+        byte spellLevel = NwSpell.FromSpellType(spellId).InnateSpellLevel;
 
         if (previousSpellLevel < spellLevel)
           i = 0;

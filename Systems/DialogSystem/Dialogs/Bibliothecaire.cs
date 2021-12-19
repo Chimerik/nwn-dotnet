@@ -33,9 +33,9 @@ namespace NWN.Systems
           skillBook.Appearance.SetSimpleModel((byte)Utils.random.Next(0, 50));
           skillBook.GetObjectVariable<LocalVariableInt>("_SKILL_ID").Value = (int)feat;
 
-          FeatTable.Entry featEntry = Feat2da.featTable.GetFeatDataEntry(feat);
-          skillBook.Name = featEntry.name;
-          skillBook.Description = featEntry.description;
+          NwFeat featEntry = NwFeat.FromFeatType(feat);
+          skillBook.Name = featEntry.Name;
+          skillBook.Description = featEntry.Description;
           skillBook.BaseGoldValue = 3000;
         }
         else

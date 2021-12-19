@@ -300,9 +300,11 @@ namespace NWN.Systems
       if (!Players.TryGetValue(onClick.ClickedBy.LoginCreature, out Player player))
         return;
 
+      await onClick.ClickedBy.ControlledCreature.ClearActionQueue();
+
       if(onClick.Placeable.GetObjectVariable<LocalVariableInt>("ownerId").Value != player.characterId)
       {
-        player.oid.SendServerMessage("Vous avez beau avancer la main, le coffre semble rester hors d'atteinte, innaccessible. De plus, vous entendez un lointain cliquetis de chaînes dans les tréfonds de votres esprit. Quelque chose vient de se mettre en marche.", ColorConstants.Red);
+        player.oid.SendServerMessage("Vous avez beau avancer la main, le coffre semble rester hors d'atteinte, inaccessible. De plus, vous entendez un lointain cliquetis de chaînes dans les tréfonds de votres esprit. Quelque chose vient de se mettre en marche.", ColorConstants.Red);
         return;
       }
 

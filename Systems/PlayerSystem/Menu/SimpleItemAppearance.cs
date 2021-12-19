@@ -11,7 +11,7 @@ namespace NWN.Systems
     {
       public void CreateSimpleItemAppearanceWindow(NwItem item)
       {
-        string modelKey = BaseItems2da.baseItemTable.GetBaseItemDataEntry(item.BaseItem.ItemType).defaultIcon;
+        string modelKey = item.BaseItem.DefaultIcon;
 
         if (string.IsNullOrEmpty(modelKey))
         {

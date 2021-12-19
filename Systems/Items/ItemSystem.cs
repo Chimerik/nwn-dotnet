@@ -171,7 +171,14 @@ namespace NWN.Systems
       if (oPC.ControllingPlayer == null || oItem == null)
         return;
 
-      if (oItem.Tag == "undroppable_item")
+      if(oItem.Tag == "_TODESTROY")
+      {
+        oItem.Destroy();
+        oPC.LoginPlayer.SendServerMessage($"{oItem.Name.ColorString(ColorConstants.White)} est un objet invalide et n'aurait jamais du pouvoir être ramassé. Il a donc été détruit.");
+        Utils.LogMessageToDMs($"{oPC.Name} ({oPC.LoginPlayer.PlayerName}) a tenté de ramassé l'objet invalide : {oItem.Name}");
+        return;
+      }
+      else if (oItem.Tag == "undroppable_item")
       {
         oItem.Clone(oAcquiredFrom);
         oItem.Destroy();

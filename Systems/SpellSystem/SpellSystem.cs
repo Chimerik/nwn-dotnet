@@ -65,7 +65,7 @@ namespace NWN.Systems
         return;
 
       ClassType castingClass = GetCastingClass(onSpellBroadcast.Spell);
-
+     
       if (castingClass != (ClassType)43) // 43 = aventurier
       {
         Task resetClassOnNextFrame = NwTask.Run(async () =>
@@ -121,7 +121,6 @@ namespace NWN.Systems
       };
 
       ClassType? castingClass = classSorter.Where(c => c.Value < 255)?.Max().Key;
-
       return castingClass.HasValue ? castingClass.Value : (ClassType)43;
     }
 

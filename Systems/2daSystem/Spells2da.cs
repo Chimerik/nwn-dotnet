@@ -9,10 +9,6 @@ namespace NWN.Systems
   {
     private readonly Dictionary<Spell, Entry> entries = new Dictionary<Spell, Entry>();
 
-    public Entry GetSpellDataEntry(Spell row)
-    {
-      return entries[row];
-    }
     void ITwoDimArray.DeserializeRow(int rowIndex, TwoDimEntry twoDimEntry)
     {
       ClassType castClass;
@@ -35,19 +31,11 @@ namespace NWN.Systems
       classSorter.OrderByDescending(c => c.Value);
       castClass = classSorter.ElementAt(0).Value > 0 ? classSorter.ElementAt(0).Key : (ClassType)43;
 
-      string school = twoDimEntry("School");
-
-      uint strRef = uint.TryParse(twoDimEntry("Name"), out strRef) ? strRef : 0;
-      string name = strRef == 0 ? name = "Nom manquant" : name = Spells2da.tlkTable.GetSimpleString(strRef);
-
-      strRef = uint.TryParse(twoDimEntry("SpellDesc"), out strRef) ? strRef : 0;
-      string description = strRef == 0 ? description = "Description manquante" : description = Spells2da.tlkTable.GetSimpleString(strRef);
-
       float level = float.TryParse(twoDimEntry("Wiz_Sorc"), out level) ? level : 0.5f;
       level = level < 1 ? 0.5f : level;
 
-      entries.Add((Spell)rowIndex, new Entry(name, description, level, castClass, (SpellSchool)"GACDEVINT".IndexOf(school)));
-      SkillSystem.learnableDictionary.Add(rowIndex, new LearnableSpell(rowIndex, name, description, twoDimEntry("IconResRef"), level < 1 ? 1 : (int)level, level < 1 ? 0 : (int)level, castClass == ClassType.Druid || castClass == ClassType.Cleric || castClass == ClassType.Ranger ? Ability.Wisdom : Ability.Intelligence, Ability.Charisma));
+      NwSpell nwSpell = NwSpell.FromSpellId(rowIndex);
+      SkillSystem.learnableDictionary.Add(rowIndex, new LearnableSpell(rowIndex, nwSpell.Name, nwSpell.Description, nwSpell.IconResRef, level < 1 ? 1 : (int)level, level < 1 ? 0 : (int)level, castClass == ClassType.Druid || castClass == ClassType.Cleric || castClass == ClassType.Ranger ? Ability.Wisdom : Ability.Intelligence, Ability.Charisma));
     }
     public readonly struct Entry
     {

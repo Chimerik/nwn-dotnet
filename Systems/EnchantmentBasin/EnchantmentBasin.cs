@@ -84,10 +84,8 @@ namespace NWN.Systems
         player.menu.Clear();
         player.menu.titleLines.Add("Choisissez un enchantement a appliquer sur votre objet");
 
-        BaseItemTable.Entry entry = BaseItems2da.baseItemTable.GetBaseItemDataEntry(oItem.BaseItem.ItemType);
-
-        if (isAttackBonusEnabled && entry.IsWeapon) AddAttackBonusToMenu();
-        if (isDamageBonusEnabled && entry.IsMeleeWeapon) AddDamageBonusToMenu();
+        if (isAttackBonusEnabled && ItemUtils.IsWeapon(oItem.BaseItem)) AddAttackBonusToMenu();
+        if (isDamageBonusEnabled && ItemUtils.IsMeleeWeapon(oItem.BaseItem)) AddDamageBonusToMenu();
         if (isACBonusEnabled) AddACBonusToMenu();
         if (isAbilityBonusEnabled) AddAbilityBonusToMenu();
         if (isSavingThrowBonusEnabled) AddSavingThrowBonusToMenu();

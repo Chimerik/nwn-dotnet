@@ -193,25 +193,6 @@ namespace NWN.Systems
         player.SaveMapPinsToDatabase();
       }
     }
-    [ScriptHandler("pc_sheet_open")]
-    private void HandleCharacterSheetOpened(CallInfo callInfo)
-    {
-      if (!callInfo.ObjectSelf.IsLoginPlayerCharacter(out NwPlayer player) || !player.IsDM)
-        return;
-
-      if (!(NWScript.StringToObject(EventsPlugin.GetEventData("TARGET")).ToNwObject() is NwCreature { IsLoginPlayerCharacter: true } oTarget)
-        || !Players.TryGetValue(oTarget, out Player target))
-        return;
-
-      foreach (KeyValuePair<Feat, int> feat in target.learntCustomFeats)
-      {
-        CustomFeat customFeat = SkillSystem.customFeatsDictionnary[feat.Key];
-        FeatTable.Entry entry = Feat2da.featTable.GetFeatDataEntry(feat.Key);
-
-        player.SetTlkOverride((int)entry.tlkName, $"{customFeat.name} - {SkillSystem.GetCustomFeatLevelFromSkillPoints(feat.Key, feat.Value)}");
-        player.SetTlkOverride((int)entry.tlkDescription, customFeat.description);
-      }
-    }
     [ScriptHandler("on_input_emote")]
     private async void HandleInputEmote(CallInfo callInfo)
     {
@@ -635,7 +616,7 @@ namespace NWN.Systems
 
               case EffectType.SpellImmunity:
                 {
-                  sStats = "Immunité au sort : " + Spells2da.spellsTable.GetSpellDataEntry((Spell)eff.IntParams.ElementAt(0)).name;
+                  sStats = "Immunité au sort : " + NwSpell.FromSpellId(eff.IntParams.ElementAt(0)).Name;
                   break;
                 }
 

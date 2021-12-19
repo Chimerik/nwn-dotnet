@@ -38,9 +38,10 @@ namespace NWN.Systems.Craft
       else
       {
         BaseItemTable.Entry baseItemEntry = BaseItems2da.baseItemTable.GetBaseItemDataEntry((BaseItemType)baseItemType);
-        this.name = baseItemEntry.name;
-        this.mineralsCost = (int)(baseItemEntry.baseCost * 10);
-        this.goldCost = (int)(baseItemEntry.baseCost * 5);
+        NwBaseItem baseItem = NwBaseItem.FromItemType((BaseItemType)baseItemType);
+        this.name = baseItem.Name;
+        this.mineralsCost = (int)(baseItem.BaseCost * 10);
+        this.goldCost = (int)(baseItem.BaseCost * 5);
         this.workshopTag = baseItemEntry.workshop;
         this.craftedItemTag = baseItemEntry.craftedItem;
       }

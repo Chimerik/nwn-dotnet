@@ -154,7 +154,7 @@ namespace NWN.Systems
       if (item.BaseItem.ItemType == BaseItemType.Armor)
         baseCost = Armor2da.armorTable.GetDataEntry(item.BaseACValue).cost;
       else
-        baseCost = BaseItems2da.baseItemTable.GetBaseItemDataEntry(item.BaseItem.ItemType).baseCost;
+        baseCost = item.BaseItem.BaseCost;
 
       if (baseCost <= 0)
       {
@@ -205,6 +205,27 @@ namespace NWN.Systems
         case (IPDamageType)14: return (DamageType)16384; // Elemental
         default: return DamageType.Slashing;
       }
+    }
+    public static int GetMaxDamage(NwBaseItem baseItem, NwCreature oCreature, bool IsRangedAttack)
+    {
+      int additionnalDamage = IsRangedAttack ? oCreature.GetAbilityModifier(Ability.Dexterity) : oCreature.GetAbilityModifier(Ability.Strength);
+      return (baseItem.DieToRoll * baseItem.NumDamageDice) + additionnalDamage;
+    }
+    public static bool IsWeapon(NwBaseItem baseItem)
+    {
+      return baseItem.NumDamageDice > 0;
+    }
+    public static bool IsMeleeWeapon(NwBaseItem baseItem)
+    {
+      return baseItem.NumDamageDice > 0 && !baseItem.IsRangedWeapon;
+    }
+    public static bool IsTwoHandedWeapon(NwBaseItem baseItem, CreatureSize creatureSize)
+    {
+      return baseItem.NumDamageDice > 0 && baseItem.WeaponSize != BaseItemWeaponSize.Unknown && baseItem.WeaponSize > (BaseItemWeaponSize)creatureSize;
+    }
+    public static byte[] GetDamageDices(NwBaseItem baseItem)
+    {
+      return new byte[] { baseItem.DieToRoll, baseItem.NumDamageDice };
     }
   }
 }

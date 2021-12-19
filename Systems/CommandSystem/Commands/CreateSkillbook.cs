@@ -44,9 +44,9 @@ namespace NWN.Systems
       }
       else
       {
-        FeatTable.Entry featEntry = Feat2da.featTable.GetFeatDataEntry(feat);
-        skillBook.Name = featEntry.name;
-        skillBook.Description = featEntry.description;
+        NwFeat nwFeat = NwFeat.FromFeatType(feat);
+        skillBook.Name = nwFeat.Name;
+        skillBook.Description = nwFeat.Description;
       }
     }
   }

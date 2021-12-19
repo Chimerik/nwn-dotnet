@@ -39,7 +39,7 @@ namespace NWN.Systems
           skillBook.Appearance.SetSimpleModel((byte)Utils.random.Next(0, 50));
           skillBook.GetObjectVariable<LocalVariableInt>("_SKILL_ID").Value = (int)feat;
 
-          FeatTable.Entry entry = Feat2da.featTable.GetFeatDataEntry(feat);
+          Learnable learnable = SkillSystem.learnableDictionary[(int)feat];
 
           if (SkillSystem.customFeatsDictionnary.ContainsKey(feat))
           {
@@ -48,11 +48,11 @@ namespace NWN.Systems
           }
           else
           {
-            skillBook.Name = entry.name;
-            skillBook.Name = entry.description;
+            skillBook.Name = learnable.name;
+            skillBook.Name = learnable.description;
           }
 
-          skillBook.BaseGoldValue = (uint)(entry.CRValue * 1000);
+          skillBook.BaseGoldValue = (uint)(learnable.multiplier * 1000);
         }
 
         NwItem craftTool = await NwItem.Create("oreextractor", shop, 1, "oreextractor");

@@ -34,7 +34,7 @@ namespace NWN.Systems
           skillBook.Appearance.SetSimpleModel((byte)Utils.random.Next(0, 50));
           skillBook.GetObjectVariable<LocalVariableInt>("_SKILL_ID").Value = (int)feat;
 
-          FeatTable.Entry featEntry = Feat2da.featTable.GetFeatDataEntry(feat);
+          Learnable learnable = SkillSystem.learnableDictionary[(int)feat];
 
           if (SkillSystem.customFeatsDictionnary.ContainsKey(feat))
           {
@@ -43,12 +43,11 @@ namespace NWN.Systems
           }
           else
           {
-
-            skillBook.Name = featEntry.name;
-            skillBook.Description = featEntry.description;
+            skillBook.Name = learnable.name;
+            skillBook.Description = learnable.description;
           }
 
-          skillBook.BaseGoldValue = (uint)(featEntry.CRValue * 1000);
+          skillBook.BaseGoldValue = (uint)(learnable.multiplier * 1000);
         }
 
         NwItem craftTool = await NwItem.Create("NW_IT_MPOTION006", shop);

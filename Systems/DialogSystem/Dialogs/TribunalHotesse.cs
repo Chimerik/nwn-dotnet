@@ -25,9 +25,9 @@ namespace NWN.Systems
         {
           NwItem oScroll = await NwItem.Create("spellscroll", shop, 1, "scroll");
           Spell spell = ItemPropertySpells2da.spellsTable.GetSpellDataEntry(itemPropertyId).spell;
-          SpellsTable.Entry entry = Spells2da.spellsTable.GetSpellDataEntry(spell);
-          oScroll.Name = entry.name;
-          oScroll.Description = entry.description;
+          NwSpell nwSpell = NwSpell.FromSpellType(spell);
+          oScroll.Name = nwSpell.Name;
+          oScroll.Description = nwSpell.Description;
           oScroll.AddItemProperty(ItemProperty.CastSpell((IPCastSpell)itemPropertyId, IPCastSpellNumUses.SingleUse), EffectDuration.Permanent);
         }
 
@@ -37,7 +37,7 @@ namespace NWN.Systems
           skillBook.Appearance.SetSimpleModel((byte)Utils.random.Next(0, 50));
           skillBook.GetObjectVariable<LocalVariableInt>("_SKILL_ID").Value = (int)feat;
 
-          FeatTable.Entry entry = Feat2da.featTable.GetFeatDataEntry(feat);
+          Learnable learnable = SkillSystem.learnableDictionary[(int)feat];
 
           if (SkillSystem.customFeatsDictionnary.ContainsKey(feat))
           {
@@ -46,11 +46,11 @@ namespace NWN.Systems
           }
           else
           {
-            skillBook.Name = entry.name;
-            skillBook.Description = entry.description;
+            skillBook.Name = learnable.name;
+            skillBook.Description = learnable.description;
           }
 
-          skillBook.BaseGoldValue = (uint)(entry.CRValue * 1000);
+          skillBook.BaseGoldValue = (uint)(learnable.multiplier * 1000);
         }
       }
 

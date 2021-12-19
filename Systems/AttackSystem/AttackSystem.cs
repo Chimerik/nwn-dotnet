@@ -98,63 +98,34 @@ namespace NWN.Systems
     }*/
     private static void ProcessBaseDamageTypeAndAttackWeapon(Context ctx, Action next)
     {
-      ctx.weaponBaseDamageType = 3; // Slashing par défaut
-
-      if (ctx.isUnarmedAttack)
-      {
-        ctx.weaponBaseDamageType = 2;
-
-        if (ctx.oAttacker.GetItemInSlot(InventorySlot.Arms) != null)
+      if (ctx.isUnarmedAttack && ctx.oAttacker.GetItemInSlot(InventorySlot.Arms) != null)
           ctx.attackWeapon = ctx.oAttacker.GetItemInSlot(InventorySlot.Arms);
-      }
 
       switch (ctx.onAttack.WeaponAttackType)
       {
         case WeaponAttackType.MainHand:
-
           if (ctx.oAttacker.GetItemInSlot(InventorySlot.RightHand) != null)
-          {
             ctx.attackWeapon = ctx.oAttacker.GetItemInSlot(InventorySlot.RightHand);
-            ctx.weaponBaseDamageType = BaseItems2da.baseItemTable.GetBaseItemDataEntry(ctx.attackWeapon.BaseItem.ItemType).damageType;
-          }
-
           break;
 
         case WeaponAttackType.Offhand:
-
           if (ctx.oAttacker.GetItemInSlot(InventorySlot.LeftHand) != null)
-          {
             ctx.attackWeapon = ctx.oAttacker.GetItemInSlot(InventorySlot.LeftHand);
-            ctx.weaponBaseDamageType = BaseItems2da.baseItemTable.GetBaseItemDataEntry(ctx.attackWeapon.BaseItem.ItemType).damageType;
-          }
-
           break;
 
         case WeaponAttackType.CreatureBite:
-
           if (ctx.oAttacker.GetItemInSlot(InventorySlot.CreatureBiteWeapon) != null)
-          {
             ctx.attackWeapon = ctx.oAttacker.GetItemInSlot(InventorySlot.CreatureBiteWeapon);
-            ctx.weaponBaseDamageType = BaseItems2da.baseItemTable.GetBaseItemDataEntry(ctx.attackWeapon.BaseItem.ItemType).damageType;
-          }
           break;
 
         case WeaponAttackType.CreatureLeft:
-
           if (ctx.oAttacker.GetItemInSlot(InventorySlot.CreatureLeftWeapon) != null)
-          {
             ctx.attackWeapon = ctx.oAttacker.GetItemInSlot(InventorySlot.CreatureLeftWeapon);
-            ctx.weaponBaseDamageType = BaseItems2da.baseItemTable.GetBaseItemDataEntry(ctx.attackWeapon.BaseItem.ItemType).damageType;
-          }
           break;
 
         case WeaponAttackType.CreatureRight:
-
           if (ctx.oAttacker.GetItemInSlot(InventorySlot.CreatureRightWeapon) != null)
-          {
             ctx.attackWeapon = ctx.oAttacker.GetItemInSlot(InventorySlot.CreatureRightWeapon);
-            ctx.weaponBaseDamageType = BaseItems2da.baseItemTable.GetBaseItemDataEntry(ctx.attackWeapon.BaseItem.ItemType).damageType;
-          }
           break;
       }
 
@@ -182,7 +153,7 @@ namespace NWN.Systems
               break;
 
             default:
-              ctx.onAttack.DamageData.Base = (short)BaseItems2da.baseItemTable.GetMaxDamage(ctx.attackWeapon.BaseItem.ItemType, ctx.oAttacker, ctx.isRangedAttack);
+              ctx.onAttack.DamageData.Base = (short)ItemUtils.GetMaxDamage(ctx.attackWeapon.BaseItem, ctx.oAttacker, ctx.isRangedAttack);
               break;
           }
         }
@@ -258,22 +229,7 @@ namespace NWN.Systems
                 if (absorbIP.Any(i => (IPDamageType)i.SubType == IPDamageType.Physical && i.CostTableValue > maxIP.CostTableValue))
                   break;
 
-                switch (ctx.weaponBaseDamageType)
-                {
-                  case 0: // Dégâts non causés par une arme, mais par un sort
-                  case 2: // Weapon Type Bludgeoning
-                    HandleDamageAbsorbed(ctx, DamageType.Bludgeoning, maxIP.CostTableValue);
-                    break;
-
-                  case 5: // Weapon type Bludgeoning/Piercing
-                    ItemProperty bonusAbsorbIP = absorbIP.Where(i => (IPDamageType)i.SubType == IPDamageType.Piercing).OrderByDescending(i => i.CostTableValue).FirstOrDefault();
-
-                    if (bonusAbsorbIP != null && bonusAbsorbIP.CostTableValue < maxIP.CostTable)
-                      HandleDamageAbsorbed(ctx, DamageType.Piercing, bonusAbsorbIP.CostTableValue, DamageType.Bludgeoning);
-                    else
-                      HandleDamageAbsorbed(ctx, DamageType.Bludgeoning, maxIP.CostTableValue);
-                    break;
-                }
+                HandleAbsorbedDamageFromWeaponDamageType(ctx, DamageType.Bludgeoning, absorbIP, maxIP);
               }
               break;
 
@@ -284,22 +240,7 @@ namespace NWN.Systems
                 if (absorbIP.Any(i => (IPDamageType)i.SubType == IPDamageType.Physical && i.CostTableValue > maxIP.CostTableValue))
                   break;
 
-                switch (ctx.weaponBaseDamageType)
-                {
-                  case 0: // Dégâts non causés par une arme, mais par un sort
-                  case 3: // Weapon Type Slashing
-                    HandleDamageAbsorbed(ctx, DamageType.Slashing, maxIP.CostTableValue);
-                    break;
-
-                  case 4: // Weapon type Slashing/Piercing
-                    ItemProperty bonusAbsorbIP = absorbIP.Where(i => (IPDamageType)i.SubType == IPDamageType.Piercing).OrderByDescending(i => i.CostTableValue).FirstOrDefault();
-
-                    if (bonusAbsorbIP != null && bonusAbsorbIP.CostTableValue < maxIP.CostTable)
-                      HandleDamageAbsorbed(ctx, DamageType.Piercing, bonusAbsorbIP.CostTableValue, DamageType.Slashing);
-                    else
-                      HandleDamageAbsorbed(ctx, DamageType.Slashing, maxIP.CostTableValue);
-                    break;
-                }
+                HandleAbsorbedDamageFromWeaponDamageType(ctx, DamageType.Slashing, absorbIP, maxIP);
               }
               break;
 
@@ -310,33 +251,7 @@ namespace NWN.Systems
                 if (absorbIP.Any(i => (IPDamageType)i.SubType == IPDamageType.Physical && i.CostTableValue > maxIP.CostTableValue))
                   break;
 
-                ItemProperty bonusAbsorbIP;
-
-                switch (ctx.weaponBaseDamageType)
-                {
-                  case 0: // Dégâts non causés par une arme, mais par un sort
-                  case 1: // Weapon Type Slashing
-                    HandleDamageAbsorbed(ctx, DamageType.Piercing, maxIP.CostTableValue);
-                    break;
-
-                  case 4: // Weapon type Slashing/Piercing
-                    bonusAbsorbIP = absorbIP.Where(i => (IPDamageType)i.SubType == IPDamageType.Slashing).OrderByDescending(i => i.CostTableValue).FirstOrDefault();
-
-                    if (bonusAbsorbIP != null && bonusAbsorbIP.CostTableValue < maxIP.CostTable)
-                      HandleDamageAbsorbed(ctx, DamageType.Slashing, bonusAbsorbIP.CostTableValue, DamageType.Piercing);
-                    else
-                      HandleDamageAbsorbed(ctx, DamageType.Piercing, maxIP.CostTableValue);
-                    break;
-
-                  case 5: // Weapon type Bludgeoning/Piercing
-                    bonusAbsorbIP = absorbIP.Where(i => (IPDamageType)i.SubType == IPDamageType.Bludgeoning).OrderByDescending(i => i.CostTableValue).FirstOrDefault();
-
-                    if (bonusAbsorbIP != null && bonusAbsorbIP.CostTableValue < maxIP.CostTable)
-                      HandleDamageAbsorbed(ctx, DamageType.Bludgeoning, bonusAbsorbIP.CostTableValue, DamageType.Piercing);
-                    else
-                      HandleDamageAbsorbed(ctx, DamageType.Piercing, maxIP.CostTableValue);
-                    break;
-                }
+                HandleAbsorbedDamageFromWeaponDamageType(ctx, DamageType.Piercing, absorbIP, maxIP);
               }
               break;
 
@@ -771,42 +686,7 @@ namespace NWN.Systems
         switch (damageType)
         {
           case DamageType.BaseWeapon: // Base weapon damage
-
-            int bonusAC = 0;
-
-            switch (ctx.weaponBaseDamageType)
-            {
-              case 1: // Piercing
-                targetAC = ctx.targetAC[damageType] + ctx.targetAC.GetValueOrDefault((DamageType)8192) + ctx.targetAC.GetValueOrDefault(DamageType.Piercing);
-                break;
-              case 2: // Bludgeoning
-                targetAC = ctx.targetAC[damageType] + ctx.targetAC.GetValueOrDefault((DamageType)8192) + ctx.targetAC.GetValueOrDefault(DamageType.Bludgeoning);
-                break;
-              case 3: // Slashing
-                targetAC = ctx.targetAC[damageType] + ctx.targetAC.GetValueOrDefault((DamageType)8192) + ctx.targetAC.GetValueOrDefault(DamageType.Slashing);
-                break;
-              case 4: // Slashing and Piercing
-
-                if (ctx.targetAC.GetValueOrDefault(DamageType.Slashing) > ctx.targetAC.GetValueOrDefault(DamageType.Piercing))
-                  bonusAC = ctx.targetAC.GetValueOrDefault(DamageType.Piercing);
-                else
-                  bonusAC = ctx.targetAC.GetValueOrDefault(DamageType.Slashing);
-
-                targetAC = ctx.targetAC[damageType] + ctx.targetAC.GetValueOrDefault((DamageType)8192) + bonusAC;
-
-                break;
-              case 5: //Piercing and bludgeoning
-
-                if (ctx.targetAC.GetValueOrDefault(DamageType.Bludgeoning) > ctx.targetAC.GetValueOrDefault(DamageType.Piercing))
-                  bonusAC = ctx.targetAC.GetValueOrDefault(DamageType.Piercing);
-                else
-                  bonusAC = ctx.targetAC.GetValueOrDefault(DamageType.Bludgeoning);
-
-                targetAC = ctx.targetAC[damageType] + ctx.targetAC.GetValueOrDefault((DamageType)8192) + bonusAC;
-
-                break;
-            }
-
+            targetAC = ctx.isUnarmedAttack ? HandleReducedDamageFromWeaponDamageType(ctx, new List<DamageType>() { DamageType.Bludgeoning }) : HandleReducedDamageFromWeaponDamageType(ctx, ctx.attackWeapon.BaseItem.WeaponType);
             break;
 
           case DamageType.Bludgeoning: // Physical bonus damage
@@ -820,8 +700,7 @@ namespace NWN.Systems
             break;
         }
 
-        if (targetAC < 0)
-          targetAC = 0;
+        if (targetAC < 0) targetAC = 0;
 
         double initialDamage = Config.GetContextDamage(ctx, damageType);
         double multiplier = Math.Pow(0.5, (targetAC - 60) / 40);
@@ -942,6 +821,44 @@ namespace NWN.Systems
         }
         else
           HandleItemRuined(oPC.ControlledCreature, item);
+      }
+    }
+
+    private static void HandleAbsorbedDamageFromWeaponDamageType(Context ctx, DamageType damageType, List<ItemProperty> absorbIP, ItemProperty maxIP)
+    {
+      if (ctx.attackWeapon == null || ctx.isUnarmedAttack || (ctx.attackWeapon.BaseItem.WeaponType.Count() == 1 && ctx.attackWeapon.BaseItem.WeaponType.Any(d => d == damageType)))
+        HandleDamageAbsorbed(ctx, damageType, maxIP.CostTableValue);
+      else if (ctx.attackWeapon.BaseItem.WeaponType.Count() > 1 && ctx.attackWeapon.BaseItem.WeaponType.Any(d => d == damageType))
+      {
+        DamageType subAbsorbedDamageType = ctx.attackWeapon.BaseItem.WeaponType.FirstOrDefault(d => d != damageType);
+        IPDamageType ipDamageTypeToFind = IPDamageType.Piercing;
+
+        switch(subAbsorbedDamageType)
+        {
+          case DamageType.Bludgeoning:
+            ipDamageTypeToFind = IPDamageType.Bludgeoning;
+            break;
+          case DamageType.Slashing:
+            ipDamageTypeToFind = IPDamageType.Slashing;
+            break;
+        }
+
+        ItemProperty bonusAbsorbIP = absorbIP.Where(i => (IPDamageType)i.SubType == ipDamageTypeToFind).OrderByDescending(i => i.CostTableValue).FirstOrDefault();
+
+        if (bonusAbsorbIP != null && bonusAbsorbIP.CostTableValue < maxIP.CostTable)
+          HandleDamageAbsorbed(ctx, subAbsorbedDamageType, bonusAbsorbIP.CostTableValue, damageType);
+        else
+          HandleDamageAbsorbed(ctx, damageType, maxIP.CostTableValue);
+      }
+    }
+    private static double HandleReducedDamageFromWeaponDamageType(Context ctx, IEnumerable<DamageType> damageType)
+    {
+      if (damageType.Count() == 1)
+        return ctx.targetAC[DamageType.BaseWeapon] + ctx.targetAC.GetValueOrDefault((DamageType)8192) + ctx.targetAC.GetValueOrDefault(damageType.FirstOrDefault());
+      else
+      {
+        return ctx.targetAC[DamageType.BaseWeapon] + ctx.targetAC.GetValueOrDefault((DamageType)8192) +
+          ctx.targetAC.GetValueOrDefault(damageType.ElementAt(0)) > ctx.targetAC.GetValueOrDefault(damageType.ElementAt(1)) ? ctx.targetAC.GetValueOrDefault(damageType.ElementAt(1)) : ctx.targetAC.GetValueOrDefault(damageType.ElementAt(0)); ;
       }
     }
   }

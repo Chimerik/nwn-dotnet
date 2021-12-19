@@ -346,7 +346,7 @@ namespace NWN.Systems.Craft
       if (player.learntCustomFeats.ContainsKey(CustomFeats.Enchanteur))
         enchanteurLevel += SkillSystem.GetCustomFeatLevelFromSkillPoints(CustomFeats.Enchanteur, player.learntCustomFeats[CustomFeats.Enchanteur]);
 
-      float iJobDuration = baseCost * 10 * Spells2da.spellsTable.GetSpellDataEntry(spellId).level * (100 - enchanteurLevel) / 100;
+      float iJobDuration = baseCost * 10 * NwSpell.FromSpellType(spellId).InnateSpellLevel * (100 - enchanteurLevel) / 100;
       player.craftJob = new Job(-14, ipString, iJobDuration, player, oTarget.Serialize().ToBase64EncodedString()); // -14 = JobType enchantement
 
       player.oid.SendServerMessage($"Vous venez de démarrer l'enchantement de : {oTarget.Name.ColorString(ColorConstants.White)}", new Color(32, 255, 32));
@@ -369,7 +369,7 @@ namespace NWN.Systems.Craft
       if (player.learntCustomFeats.ContainsKey(CustomFeats.Enchanteur))
         enchanteurLevel += SkillSystem.GetCustomFeatLevelFromSkillPoints(CustomFeats.Enchanteur, player.learntCustomFeats[CustomFeats.Enchanteur]);
 
-      float iJobDuration = baseCost * 10 * Spells2da.spellsTable.GetSpellDataEntry(spellId).level * (100 - enchanteurLevel) * costValue;
+      float iJobDuration = baseCost * 10 * NwSpell.FromSpellType(spellId).InnateSpellLevel * (100 - enchanteurLevel) * costValue;
       if (player.characterId == originalEnchanterId)
         iJobDuration -= iJobDuration / 4;
 

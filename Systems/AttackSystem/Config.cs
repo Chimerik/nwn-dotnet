@@ -11,7 +11,7 @@ namespace NWN.Systems
     {
       public OnCreatureAttack onAttack { get; set; }
       public OnCreatureDamage onDamage { get; set; }
-      public int weaponBaseDamageType { get; set; }
+      //public List<DamageType> weaponBaseDamageType { get; set; }
       public NwCreature oAttacker { get; }
       public NwCreature oTarget { get; }
       public bool isUnarmedAttack { get; }
@@ -39,7 +39,7 @@ namespace NWN.Systems
         this.oTarget = oTarget;
         this.attackWeapon = null;
         this.targetArmor = null;
-        this.weaponBaseDamageType = 0; // Slashing par défaut
+        //this.weaponBaseDamageType = new List<DamageType>(); // Slashing par défaut
         this.baseArmorPenetration = 0;
         this.bonusArmorPenetration = 0;
         this.maxBaseAC = 0;

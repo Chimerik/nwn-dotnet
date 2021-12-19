@@ -14,22 +14,22 @@
 
     <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
         <PlatformTarget>x64</PlatformTarget>
-        <OutputPath>bin\Debug\Plugins\$(MSBuildProjectName)</OutputPath>
+        <OutputPath>bin\Debug\AnvilHome\Plugins\$(MSBuildProjectName)</OutputPath>
     </PropertyGroup>
 
     <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
         <DebugSymbols>false</DebugSymbols>
         <DebugType>None</DebugType>
         <PlatformTarget>x64</PlatformTarget>
-        <OutputPath>bin\Release\Plugins\$(MSBuildProjectName)</OutputPath>
+        <OutputPath>bin\Release\AnvilHome\Plugins\$(MSBuildProjectName)</OutputPath>
     </PropertyGroup>
 
     <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
-      <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+        <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     </PropertyGroup>
 
     <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
-      <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+        <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     </PropertyGroup>
 
     <ItemGroup>
@@ -46,11 +46,11 @@
         <PackageReference Include="Microsoft.Data.Sqlite" Version="6.0.0" />
         <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="6.0.0" />
         <PackageReference Include="NWN.Core" Version="8193.34.0" />
-        <PackageReference Include="NWN.Native" Version="8193.34.0" />
+        <PackageReference Include="NWN.Native" Version="8193.34.2" />
         <PackageReference Include="System.Text.Json" Version="6.0.0" />
     </ItemGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\Anvil\NWN.Anvil\NWN.Anvil.csproj" />
+        <ProjectReference Include="..\Anvil\NWN.Anvil\NWN.Anvil.csproj" />
     </ItemGroup>
 </Project>

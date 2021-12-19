@@ -63,8 +63,8 @@ namespace NWN.Systems
       InitializeLootChestFromArray(NwObject.FindObjectsWithTag<NwPlaceable>("low_blueprints").FirstOrDefault(), Craft.Collect.System.lowBlueprints);
       InitializeLootChestFromArray(NwObject.FindObjectsWithTag<NwPlaceable>("medium_blueprints").FirstOrDefault(), Craft.Collect.System.mediumBlueprints);
 
-      InitializeLootChestFromFeatArray(NwObject.FindObjectsWithTag<NwPlaceable>("low_skillbooks").FirstOrDefault(), SkillSystem.lowSkillBooks);
-      InitializeLootChestFromFeatArray(NwObject.FindObjectsWithTag<NwPlaceable>("medium_skillbooks").FirstOrDefault(), SkillSystem.mediumSkillBooks);
+      //InitializeLootChestFromFeatArray(NwObject.FindObjectsWithTag<NwPlaceable>("low_skillbooks").FirstOrDefault(), SkillSystem.lowSkillBooks);
+      //InitializeLootChestFromFeatArray(NwObject.FindObjectsWithTag<NwPlaceable>("medium_skillbooks").FirstOrDefault(), SkillSystem.mediumSkillBooks);
 
       InitializeLootChestFromScrollArray(NwObject.FindObjectsWithTag<NwPlaceable>("low_enchantements").FirstOrDefault(), SpellSystem.lowEnchantements);
       InitializeLootChestFromScrollArray(NwObject.FindObjectsWithTag<NwPlaceable>("medium_enchantements").FirstOrDefault(), SpellSystem.mediumEnchantements);
@@ -95,7 +95,7 @@ namespace NWN.Systems
         skillBook.Appearance.SetSimpleModel((byte)Utils.random.Next(0, 50));
         skillBook.GetObjectVariable<LocalVariableInt>("_SKILL_ID").Value = (int)feat;
 
-        FeatTable.Entry entry = Feat2da.featTable.GetFeatDataEntry(feat);
+        Learnable learnable = SkillSystem.learnableDictionary[(int)feat];
 
         if (SkillSystem.customFeatsDictionnary.ContainsKey(feat))
         {
@@ -104,24 +104,22 @@ namespace NWN.Systems
         }
         else
         {
-          skillBook.Name = entry.name;
-          skillBook.Description = entry.description;
+          skillBook.Name = learnable.name;
+          skillBook.Description = learnable.description;
         }
 
-        skillBook.BaseGoldValue = (uint)(entry.CRValue * 1000);
+        skillBook.BaseGoldValue = (uint)(learnable.multiplier * 1000);
+        UpdateChestTagToLootsDic(oChest);
       }
-
-      UpdateChestTagToLootsDic(oChest);
     }
     private async void InitializeLootChestFromScrollArray(NwPlaceable oChest, int[] array)
     {
       foreach (int itemPropertyId in array)
       {
         NwItem oScroll = await NwItem.Create("spellscroll", oChest, 1, "scroll");
-        SpellsTable.Entry spellEntry = Spells2da.spellsTable.GetSpellDataEntry(ItemPropertySpells2da.spellsTable.GetSpellDataEntry(itemPropertyId).spell);
-
-        oScroll.Name = $"{spellEntry.name}";
-        oScroll.Description = $"{spellEntry.description}";
+        NwSpell spellEntry = NwSpell.FromSpellType(ItemPropertySpells2da.spellsTable.GetSpellDataEntry(itemPropertyId).spell);
+        oScroll.Name = $"{spellEntry.Name}";
+        oScroll.Description = $"{spellEntry.Description}";
 
         oScroll.AddItemProperty(ItemProperty.CastSpell((IPCastSpell)itemPropertyId, IPCastSpellNumUses.SingleUse), EffectDuration.Permanent);
       }

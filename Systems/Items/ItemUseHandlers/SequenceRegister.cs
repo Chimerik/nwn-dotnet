@@ -93,8 +93,8 @@ namespace NWN.Systems
 
         foreach (string spellId in spellList)
         {
-          string spellName = Spells2da.spellsTable.GetSpellDataEntry((Spell)int.Parse(spellId)).name;
-          player.menu.titleLines.Add(spellName);
+          string spellName = NwSpell.FromSpellId(int.Parse(spellId)).Name;
+          player.menu.titleLines.Add(spellName); 
         }
       }
 

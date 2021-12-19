@@ -212,8 +212,8 @@ namespace NWN.Systems
           string[] spellList = onExamine.ExaminedObject.GetObjectVariable<LocalVariableString>("_REGISTERED_SEQUENCE").Value.Split("_");
 
           foreach (string spellId in spellList)
-            onExamine.ExaminedObject.Description += $"- {Spells2da.spellsTable.GetSpellDataEntry((Spell)int.Parse(spellId)).name}\n";
-
+            onExamine.ExaminedObject.Description += $"- {NwSpell.FromSpellId(int.Parse(spellId)).Name}\n";
+          
           onExamine.ExaminedObject.Description = descriptionSequence;
 
           return;
@@ -236,7 +236,7 @@ namespace NWN.Systems
         {
           string[] split = ip.Tag.Split("_");
           Spell spell = (Spell)int.Parse(split[1]);
-          string spellName = Spells2da.spellsTable.GetSpellDataEntry(spell).name;
+          string spellName = NwSpell.FromSpellType(spell).Name; 
           oItem.Description += $"\n{spellName} inactif.".ColorString(ColorConstants.Red);
         }
 

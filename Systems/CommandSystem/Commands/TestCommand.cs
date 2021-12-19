@@ -27,7 +27,7 @@ namespace NWN.Systems
 
         if (player.oid.PlayerName == "Chim" || player.oid.PlayerName == "test")
         {
-          if (!player.learnableSpells.ContainsKey((int)Spell.LesserRestoration))
+          /*if (!player.learnableSpells.ContainsKey((int)Spell.LesserRestoration))
             player.learnableSpells.Add((int)Spell.LesserRestoration, new LearnableSpell((LearnableSpell)SkillSystem.learnableDictionary[(int)Spell.LesserRestoration]));
           if (!player.learnableSpells.ContainsKey((int)Spell.Restoration))
             player.learnableSpells.Add((int)Spell.Restoration, new LearnableSpell((LearnableSpell)SkillSystem.learnableDictionary[(int)Spell.Restoration]));
@@ -37,11 +37,14 @@ namespace NWN.Systems
             player.learnableSpells.Add((int)Spell.Aid, new LearnableSpell((LearnableSpell)SkillSystem.learnableDictionary[(int)Spell.Aid]));
           if (!player.learnableSpells.ContainsKey((int)Spell.Haste))
             player.learnableSpells.Add((int)Spell.Haste, new LearnableSpell((LearnableSpell)SkillSystem.learnableDictionary[(int)Spell.Haste]));
+          */
 
-          if (player.windows.ContainsKey("learnables"))
-            ((PlayerSystem.Player.LearnableWindow)player.windows["learnables"]).CreateWindow();
+          player.oid.LoginCreature.Gold += 1000;
+
+          if (player.windows.ContainsKey("bankStorage"))
+            ((PlayerSystem.Player.BankStorageWindow)player.windows["bankStorage"]).CreateWindow();
           else
-            player.windows.Add("learnables", new PlayerSystem.Player.LearnableWindow(player));
+            player.windows.Add("bankStorage", new PlayerSystem.Player.BankStorageWindow(player));
 
           /*if (player.windows.ContainsKey("fishing"))
             ((PlayerSystem.Player.FishinMiniGame)player.windows["fishing"]).CreateWindow();

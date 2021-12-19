@@ -272,8 +272,6 @@ namespace NWN.Systems
 
       EventsPlugin.SubscribeEvent("NWNX_ON_INPUT_EMOTE_BEFORE", "on_input_emote");
       
-      EventsPlugin.SubscribeEvent("NWNX_ON_CHARACTER_SHEET_OPEN_BEFORE", "pc_sheet_open");
-
       //EventsPlugin.SubscribeEvent("NWNX_ON_HAS_FEAT_AFTER", "event_has_feat");
 
       NwModule.Instance.OnCreatureAttack += AttackSystem.HandleAttackEvent;

@@ -41,7 +41,7 @@ namespace NWN.Systems
             {
               Children = new List<NuiElement>
               {
-                Utils.Util_GetIconResref(item, i),
+                //Utils.Util_GetIconResref(item, i),
                 new NuiLabel("") { Id = $"examine_{i}", Width = 160, HorizontalAlign = NuiHAlign.Left, VerticalAlign = NuiVAlign.Top, DrawList = DrawItemName(item.Name) },
                 new NuiButton("Prendre") { Id = $"take_{i}", Height = 30, Width = 60 },
                 new NuiButton("Voler") { Id = $"steal_{i}", Height = 30, Width = 60 },
@@ -147,7 +147,7 @@ namespace NWN.Systems
             {
               Children = new List<NuiElement>
               {
-                Utils.Util_GetIconResref(item, i),
+                //Utils.Util_GetIconResref(item, i),
                 new NuiLabel("") { Id = $"examine_{i}", Width = 160, HorizontalAlign = NuiHAlign.Left, VerticalAlign = NuiVAlign.Top, DrawList = DrawItemName(item.Name) },
                 new NuiButton("Prendre") { Id = $"take_{i}", Height = 30, Width = 60 },
                 new NuiButton("Voler") { Id = $"steal_{i}", Height = 30, Width = 60 },

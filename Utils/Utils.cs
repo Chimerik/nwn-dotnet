@@ -238,9 +238,9 @@ namespace NWN
         creature.ControllingPlayer.CameraHeight = 0;
     }
 
-    public static NuiSpacer Util_GetIconResref(NwItem oItem, int id)
+    public static string[] GetIconResref(NwItem oItem/*, int id*/)
     {
-      string icon = BaseItems2da.baseItemTable.GetBaseItemDataEntry(oItem.BaseItem.ItemType).defaultIcon; ;
+      string icon = oItem.BaseItem.DefaultIcon;
 
       switch (oItem.BaseItem.ItemType)
       {
@@ -257,32 +257,32 @@ namespace NWN
 
         default:
 
-          switch(BaseItems2da.baseItemTable.GetBaseItemDataEntry(oItem.BaseItem.ItemType).modelType)
+          switch(oItem.BaseItem.ModelType)
           {
-            case 0:
+            case BaseItemModelType.Simple:
               icon = Util_GetSimpleIconData(oItem);
               break;
 
-            case 2:
-              return Util_GetComplexIconData(oItem, id);
+            case BaseItemModelType.Composite:
+              return Util_GetComplexIconData(oItem/*, id*/);
           }
 
           break;
       }
 
-      List<NuiDrawListItem> iconDrawListItems = new List<NuiDrawListItem>();
+      /*List<NuiDrawListItem> iconDrawListItems = new List<NuiDrawListItem>();
       NuiSpacer spacer = new NuiSpacer() { Id = $"examine_{id}", DrawList = iconDrawListItems, Width = 75, Height = 125 };
 
       if (NWScript.ResManGetAliasFor(icon, NWScript.RESTYPE_TGA) != "")
-        iconDrawListItems.Add(new NuiDrawListImage(icon, new NuiRect(0, 0, 25, 25)));
+        iconDrawListItems.Add(new NuiDrawListImage(icon, new NuiRect(0, 0, 25, 25)));*/
 
-      return spacer;
+      return new string[3] { icon, "", "" };
     }
 
     public static string Util_GetSimpleIconData(NwItem item)
     {
       string sSimpleModelId = item.Appearance.GetSimpleModel().ToString().PadLeft(3, '0');
-      string sDefaultIcon = BaseItems2da.baseItemTable.GetBaseItemDataEntry(item.BaseItem.ItemType).defaultIcon;
+      string sDefaultIcon = item.BaseItem.DefaultIcon;
 
       switch (item.BaseItem.ItemType)
       {
@@ -313,26 +313,25 @@ namespace NWN
       else
         return "";
     }
-    public static NuiSpacer Util_GetComplexIconData(NwItem item, int id)
+    public static string[] Util_GetComplexIconData(NwItem item/*, int id*/)
     {
-      BaseItemTable.Entry entry = BaseItems2da.baseItemTable.GetBaseItemDataEntry(item.BaseItem.ItemType);
-      List<NuiDrawListItem> iconDrawListItems = new List<NuiDrawListItem>();
-      NuiSpacer spacer = new NuiSpacer() { Id = $"examine_{id}", DrawList = iconDrawListItems, Width = 75, Height = 125 };
+      //List<NuiDrawListItem> iconDrawListItems = new List<NuiDrawListItem>();
+      //NuiSpacer spacer = new NuiSpacer() { Id = $"examine_{id}", DrawList = iconDrawListItems, Width = 75, Height = 125 };
 
-      string topIcon = entry.defaultIcon + "_t_" + item.Appearance.GetWeaponModel(ItemAppearanceWeaponModel.Top).ToString().PadLeft(3, '0');
-      string midIcon = entry.defaultIcon + "_m_" + item.Appearance.GetWeaponModel(ItemAppearanceWeaponModel.Middle).ToString().PadLeft(3, '0');
-      string botIcon = entry.defaultIcon + "_b_" + item.Appearance.GetWeaponModel(ItemAppearanceWeaponModel.Bottom).ToString().PadLeft(3, '0');
+      string topIcon = item.BaseItem.DefaultIcon + "_t_" + item.Appearance.GetWeaponModel(ItemAppearanceWeaponModel.Top).ToString().PadLeft(3, '0');
+      string midIcon = item.BaseItem.DefaultIcon + "_m_" + item.Appearance.GetWeaponModel(ItemAppearanceWeaponModel.Middle).ToString().PadLeft(3, '0');
+      string botIcon = item.BaseItem.DefaultIcon + "_b_" + item.Appearance.GetWeaponModel(ItemAppearanceWeaponModel.Bottom).ToString().PadLeft(3, '0');
 
-      if (NWScript.ResManGetAliasFor(botIcon, NWScript.RESTYPE_TGA) != "")
+      /*if (NWScript.ResManGetAliasFor(botIcon, NWScript.RESTYPE_TGA) != "")
         iconDrawListItems.Add(new NuiDrawListImage(botIcon, new NuiRect(0, 0, 25, 25)));
 
       if (NWScript.ResManGetAliasFor(midIcon, NWScript.RESTYPE_TGA) != "")
         iconDrawListItems.Add(new NuiDrawListImage(midIcon, new NuiRect(0, 0, 25, 25)));
 
       if (NWScript.ResManGetAliasFor(topIcon, NWScript.RESTYPE_TGA) != "")
-        iconDrawListItems.Add(new NuiDrawListImage(topIcon, new NuiRect(0, 0, 25, 25)));
+        iconDrawListItems.Add(new NuiDrawListImage(topIcon, new NuiRect(0, 0, 25, 25)));*/
 
-      return spacer;
+      return new string[3] { topIcon, midIcon, botIcon };
     }
   }
 }
