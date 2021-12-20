@@ -308,9 +308,14 @@ namespace NWN.Systems
         return;
       }
 
-      var query = await SqLiteUtils.SelectQueryAsync("playerCharacters",
+      if (player.windows.ContainsKey("bankStorage"))
+        ((Player.BankStorageWindow)player.windows["bankStorage"]).CreateWindow();
+      else
+        player.windows.Add("bankStorage", new Player.BankStorageWindow(player));
+
+      /*var query = await SqLiteUtils.SelectQueryAsync("playerCharacters",
       new List<string>() { { "persistantStorage" } },
-      new List<string[]>() { new string[] { "characterId", player.characterId.ToString() } });
+      new List<string[]>() { new string[] { "characterId", player.characterId.ToString() } });*/
 
     }
   }

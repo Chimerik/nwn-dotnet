@@ -20,10 +20,12 @@ namespace NWN.Systems
         NuiRow exitRow { get; }
         NuiText widgetBankerText { get; }
         NuiBind<string> bankerText { get; }
+        private readonly NwCreature banker;
 
         public BankCounterWindow(Player player, NwCreature banker) : base(player)
         {
           windowId = "bankCounter";
+          this.banker = banker;
 
           bankerText = new NuiBind<string>("bankerText");
 
@@ -31,7 +33,7 @@ namespace NWN.Systems
           rootColumn = new NuiColumn() { Children = rootChidren };
           rootGroup = new NuiGroup() { Id = "rootGroup", Border = true, Layout = rootColumn };
 
-          widgetBankerText = new NuiText(bankerText) { Width = 450 };
+          widgetBankerText = new NuiText(bankerText) { Width = 450, Height = 250 };
 
           introTextRow = new NuiRow()
           {
@@ -65,6 +67,7 @@ namespace NWN.Systems
           rootChidren.Clear();
           rootChidren.Add(introTextRow);
           string tempText = "";
+          int windowSize = 340;
 
           if (NwObject.FindObjectsWithTag<NwPlaceable>("player_bank").Any(b => b.GetObjectVariable<LocalVariableInt>("ownerId").Value == player.characterId))
           {
@@ -72,7 +75,7 @@ namespace NWN.Systems
               $"Très estimé client, votre coffre vous attend comme de coutume.\n\n" +
               $"Y a-t-il autre chose pour votre service ?";
 
-            widgetBankerText.Height = 110;
+            widgetBankerText.Height = 140;
           }
           else
           {
@@ -83,12 +86,13 @@ namespace NWN.Systems
               $"Souhaiteriez-vous ouvrir un compte et bénéficier de nos services ?\n\n" +
               $"Rien de plus simple, il suffit de parapher le contrat d'ouverture de compte et le tour sera joué !";
 
-            widgetBankerText.Height = 140;
+            widgetBankerText.Height = 260;
+            windowSize = 450;
           }
 
           rootChidren.Add(exitRow);
 
-          NuiRect windowRectangle = new NuiRect(0, player.oid.GetDeviceProperty(PlayerDeviceProperty.GuiHeight) * 0.02f, 540, 340);
+          NuiRect windowRectangle = new NuiRect(0, player.oid.GetDeviceProperty(PlayerDeviceProperty.GuiHeight) * 0.02f, 540, windowSize);
 
           window = new NuiWindow(rootGroup, "Ernesto Arna")
           {
@@ -112,7 +116,7 @@ namespace NWN.Systems
 
           player.openedWindows[windowId] = token;
         }
-        private async void HandleBankCounterEvents(ModuleEvents.OnNuiEvent nuiEvent)
+        private void HandleBankCounterEvents(ModuleEvents.OnNuiEvent nuiEvent)
         {
           if (nuiEvent.Player.NuiGetWindowId(nuiEvent.WindowToken) != windowId)
             return;
@@ -128,18 +132,13 @@ namespace NWN.Systems
                   player.oid.NuiDestroy(token);
 
                   if (!player.oid.LoginCreature.Inventory.Items.Any(i => i.Tag == "bank_contract"))
+                    banker.Inventory.Items.FirstOrDefault(i => i.Tag == "bank_contract").Clone(player.oid.LoginCreature);
+                  else
                   {
-                    NwItem contract = await NwItem.Create("shop_clearance", player.oid.LoginCreature);
-                    contract.Tag = "bank_contract";
-                    contract.Name = "Contrat d'ouverture de compte Skalsgard";
-                    contract.Description = "Le contrat que vous avez entre les mains déclare sur des pages et des pages des conditions d'ouverture de compte et de services sommes toutes classiques.\n\n" +
-                    "Les suivantes sortent tout de même sensiblement de l'ordinaire :\n" +
-                    " - La banque autorise un découvert illimité et automatique avec intérêts de 30 %.\n" +
-                    " - La banque se réserve la possibilité de demander le remboursement d'un prêt à n'importe quel moment.\n" +
-                    " - En cas de défaut de paiement, le signataire s'engage à rembourser sa dette sous forme de Substance Pure, récoltée dans les tréfons de Similisse.\n" +
-                    " - La banque assure la sécurité des coffres : seuls les clients sont autorisés à voir et interagir au coffre qui leur a été attribué et à son contenu.\n" +
-                    " - Le client signataire s'engage à ne pas tenter de voir ou d'interagir avec les coffres d'autres clients, ou leur contenu.\n\n" +
-                    "Bon pour accord, signature : ";
+                    if (player.windows.ContainsKey("bankContract"))
+                      ((BankContractWindow)player.windows["bankContract"]).CreateWindow();
+                    else
+                      player.windows.Add("bankContract", new BankContractWindow(player, player.oid.LoginCreature.Inventory.Items.FirstOrDefault(i => i.Tag == "bank_contract")));
                   }
                   break;
 

@@ -135,7 +135,7 @@ namespace NWN.Systems
       NwCreature.Create(onDeath.KilledCreature.ResRef, wp.Location).OnDeath += HandleWraithInfiniteSpawn;
       NwCreature.Create(onDeath.KilledCreature.ResRef, wp.Location).OnDeath += HandleWraithInfiniteSpawn;
     }
-    private static void SetNPCEvents(NwCreature creature)
+    private async static void SetNPCEvents(NwCreature creature)
     {
       //creature.OnDeath += OnDeathSpawnNPCWaypoint;
 
@@ -143,6 +143,20 @@ namespace NWN.Systems
       {
         case "bank_npc":
           creature.OnConversation += DialogSystem.StartBankerDialog;
+
+          NwItem contract = await NwItem.Create("shop_clearance", creature);
+          contract.Tag = "bank_contract";
+          contract.Name = "Contrat d'ouverture de compte Skalsgard";
+          contract.Description = "Le contrat que vous avez entre les mains déclare sur des pages et des pages des conditions d'ouverture de compte et de services sommes toutes classiques.\n\n" +
+          "Les suivantes sortent tout de même sensiblement de l'ordinaire :\n" +
+          " - La banque autorise un découvert illimité et automatique avec intérêts de 30 %.\n" +
+          " - La banque se réserve la possibilité de demander le remboursement d'un prêt à n'importe quel moment.\n" +
+          " - En cas de défaut de paiement, le signataire s'engage à rembourser sa dette sous forme de Substance Pure, récoltée dans les tréfons de Similisse.\n" +
+          " - La banque assure la sécurité des coffres : seuls les clients sont autorisés à voir et interagir au coffre qui leur a été attribué et à son contenu.\n" +
+          " - Le client signataire s'engage à ne pas tenter de voir ou d'interagir avec les coffres d'autres clients, ou leur contenu.\n\n" +
+          "Bon pour accord,\n" +
+          "Signature : ";
+
           break;
         case "blacksmith":
           creature.OnConversation += DialogSystem.StartBlacksmithDialog;

@@ -27,7 +27,7 @@ namespace NWN.Systems
           journalEntry.QuestDisplayed = true;
           player.oid.AddCustomJournalEntry(journalEntry);
 
-          player.rebootUpdate(29);
+          //player.rebootUpdate(29);
         }
       }
 

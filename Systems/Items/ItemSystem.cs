@@ -147,6 +147,8 @@ namespace NWN.Systems
         case "bank_contract":
           if (PlayerSystem.Players.TryGetValue(oPC, out PlayerSystem.Player player))
           {
+            onItemUse.PreventUseItem = true;
+
             if (player.windows.ContainsKey("bankContract"))
               ((PlayerSystem.Player.BankContractWindow)player.windows["bankContract"]).CreateWindow();
             else
@@ -187,9 +189,16 @@ namespace NWN.Systems
 
       if (oItem.GetObjectVariable<LocalVariableInt>("_MAX_DURABILITY").HasNothing)
       {
-        int durability = ItemUtils.GetBaseItemCost(oItem) * 25;
-        oItem.GetObjectVariable<LocalVariableInt>("_MAX_DURABILITY").Value = durability;
-        oItem.GetObjectVariable<LocalVariableInt>("_DURABILITY").Value = durability;
+        switch(oItem.BaseItem.ItemType)
+        {
+          case BaseItemType.MiscMedium:
+            break;
+          default:
+            int durability = ItemUtils.GetBaseItemCost(oItem) * 25;
+            oItem.GetObjectVariable<LocalVariableInt>("_MAX_DURABILITY").Value = durability;
+            oItem.GetObjectVariable<LocalVariableInt>("_DURABILITY").Value = durability;
+            break;
+        }
       }
 
       if (oItem.Tag == "item_pccorpse" && oAcquiredFrom?.Tag == "pccorpse_bodybag")

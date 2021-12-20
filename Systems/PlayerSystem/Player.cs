@@ -535,7 +535,7 @@ namespace NWN.Systems
           UpdateJournal();
         }*/
       }
-      public async void rebootUpdate(int countDown)
+      /*public async void rebootUpdate(int countDown)
       {
         await NwTask.Delay(TimeSpan.FromSeconds(1));
 
@@ -548,7 +548,7 @@ namespace NWN.Systems
         
         if (countDown >= 0)
           this.rebootUpdate(countDown - 1);
-      }
+      }*/
       public string CheckDBPlayerAccount()
       {
         var result = SqLiteUtils.SelectQuery("PlayerAccounts",

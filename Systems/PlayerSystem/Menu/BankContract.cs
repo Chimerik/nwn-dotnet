@@ -30,21 +30,16 @@ namespace NWN.Systems
           rootColumn = new NuiColumn() { Children = rootChidren };
           rootGroup = new NuiGroup() { Id = "rootGroup", Border = true, Layout = rootColumn };
 
-          introTextRow = new NuiRow()
-          {
-            Width = 510,
-            Children = new List<NuiElement>()
-            {
-              new NuiText(contract.Description)
-            }
-          };
+          introTextRow = new NuiRow() { Width = 510, Children = new List<NuiElement>() { new NuiText(contract.Description) } };
 
           signRow = new NuiRow()
           {
             Width = 510,
             Children = new List<NuiElement>()
             {
-              new NuiButton("Signer.") { Id = "sign" }
+              new NuiSpacer(),
+              new NuiButton("Signer.") { Id = "sign" },
+              new NuiSpacer()
             }
           };
 
@@ -61,7 +56,7 @@ namespace NWN.Systems
           window = new NuiWindow(rootGroup, "Contrat d'ouverture de compte Skalsgard")
           {
             Geometry = geometry,
-            Resizable = false,
+            Resizable = true,
             Collapsed = false,
             Closable = true,
             Transparent = false,
@@ -119,6 +114,7 @@ namespace NWN.Systems
                   NwPlaceable bank = NwObject.FindObjectsWithTag<NwPlaceable>("player_bank").FirstOrDefault(b => b.GetObjectVariable<LocalVariableInt>("id").Value == id);
                   bank.GetObjectVariable<LocalVariableInt>("ownerId").Value = player.characterId;
                   bank.Name = player.oid.LoginCreature.Name;
+                  bank.ApplyEffect(EffectDuration.Instant, Effect.VisualEffect(VfxType.ImpKnock));
 
                   player.oid.SendServerMessage("Le contrat est désormais signé. Votre emplacement réservé vous attend dans la salle des coffres de la banque Skalsgard.", new Color(32, 255, 32));
 

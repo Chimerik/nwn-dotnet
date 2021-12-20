@@ -80,8 +80,6 @@ namespace NWN.Systems
       }
       public void HandlePlayerSave()
       {
-        DateTime start = DateTime.Now;
-
         FixPolymorphBug();
 
         if (oid.LoginCreature.Location.Area != null)

@@ -36,8 +36,14 @@ namespace NWN.Systems
 
     public static void StartBankerDialog(CreatureEvents.OnConversation onConversation)
     {
-      if (Players.TryGetValue(onConversation.LastSpeaker, out Player player))
-        new Bank(player);
+      if (!Players.TryGetValue(onConversation.LastSpeaker, out Player player))
+        return;
+      //new Bank(player);
+
+      if (player.windows.ContainsKey("bankCounter"))
+        ((Player.BankCounterWindow)player.windows["bankCounter"]).CreateWindow();
+      else
+        player.windows.Add("bankCounter", new Player.BankCounterWindow(player, onConversation.CurrentSpeaker));
     }
     public static void StartBlacksmithDialog(CreatureEvents.OnConversation onConversation)
     {

@@ -120,8 +120,15 @@ namespace NWN.Systems
         { ClassType.Bard, bardCastLevel },
       };
 
-      ClassType? castingClass = classSorter.Where(c => c.Value < 255)?.Max().Key;
-      return castingClass.HasValue ? castingClass.Value : (ClassType)43;
+      try
+      {
+        ClassType castingClass = classSorter.Where(c => c.Value < 255).Max().Key;
+        return castingClass;
+      }
+      catch (Exception)
+      {
+        return (ClassType)43;
+      }
     }
 
     [ScriptHandler("spellhook")]
@@ -143,7 +150,7 @@ namespace NWN.Systems
       if (player.learnableSkills.ContainsKey(CustomSkill.ImprovedCasterLevel))
         CreaturePlugin.SetLevelByPosition(oPC, 0, player.learnableSkills[CustomSkill.ImprovedCasterLevel].totalPoints);
 
-      ClassType castingClass = GetCastingClass(onSpellCast.Spell);
+      ClassType castingClass = GetCastingClass(onSpellCast.Spell.SpellType);
 
       if ((int)castingClass == 43 && oPC.GetAbilityScore(Ability.Charisma) > oPC.GetAbilityScore(Ability.Intelligence))
         castingClass = ClassType.Sorcerer;

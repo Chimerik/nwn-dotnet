@@ -7,17 +7,15 @@ namespace NWN.Systems
 {
   public class SpellsTable : ITwoDimArray
   {
-    private readonly Dictionary<Spell, Entry> entries = new Dictionary<Spell, Entry>();
-
     void ITwoDimArray.DeserializeRow(int rowIndex, TwoDimEntry twoDimEntry)
     {
       ClassType castClass;
 
-      int clericCastLevel = int.TryParse(twoDimEntry("Cleric"), out clericCastLevel) ? clericCastLevel : 0;
-      int druidCastLevel = int.TryParse(twoDimEntry("Druid"), out druidCastLevel) ? druidCastLevel : 0;
-      int paladinCastLevel = int.TryParse(twoDimEntry("Paladin"), out paladinCastLevel) ? paladinCastLevel : 0;
-      int rangerCastLevel = int.TryParse(twoDimEntry("Ranger"), out rangerCastLevel) ? rangerCastLevel : 0;
-      int bardCastLevel = int.TryParse(twoDimEntry("Bard"), out bardCastLevel) ? bardCastLevel : 0;
+      int clericCastLevel = int.TryParse(twoDimEntry("Cleric"), out clericCastLevel) ? clericCastLevel : -1;
+      int druidCastLevel = int.TryParse(twoDimEntry("Druid"), out druidCastLevel) ? druidCastLevel : -1;
+      int paladinCastLevel = int.TryParse(twoDimEntry("Paladin"), out paladinCastLevel) ? paladinCastLevel : -1;
+      int rangerCastLevel = int.TryParse(twoDimEntry("Ranger"), out rangerCastLevel) ? rangerCastLevel : -1;
+      int bardCastLevel = int.TryParse(twoDimEntry("Bard"), out bardCastLevel) ? bardCastLevel : -1;
 
       Dictionary<ClassType, int> classSorter = new Dictionary<ClassType, int>() 
       {
@@ -29,30 +27,13 @@ namespace NWN.Systems
       };
 
       classSorter.OrderByDescending(c => c.Value);
-      castClass = classSorter.ElementAt(0).Value > 0 ? classSorter.ElementAt(0).Key : (ClassType)43;
+      castClass = classSorter.ElementAt(0).Value > -1 ? classSorter.ElementAt(0).Key : (ClassType)43;
 
       float level = float.TryParse(twoDimEntry("Wiz_Sorc"), out level) ? level : 0.5f;
       level = level < 1 ? 0.5f : level;
 
       NwSpell nwSpell = NwSpell.FromSpellId(rowIndex);
       SkillSystem.learnableDictionary.Add(rowIndex, new LearnableSpell(rowIndex, nwSpell.Name, nwSpell.Description, nwSpell.IconResRef, level < 1 ? 1 : (int)level, level < 1 ? 0 : (int)level, castClass == ClassType.Druid || castClass == ClassType.Cleric || castClass == ClassType.Ranger ? Ability.Wisdom : Ability.Intelligence, Ability.Charisma));
-    }
-    public readonly struct Entry
-    {
-      public readonly string name;
-      public readonly string description;
-      public readonly float level;
-      public readonly ClassType castingClass;
-      public readonly SpellSchool school;
-
-      public Entry(string name, string description, float level, ClassType castingClass, SpellSchool school)
-      {
-        this.name = name;
-        this.description = description;
-        this.level = level;
-        this.castingClass = castingClass;
-        this.school = school;
-      }
     }
   }
 
