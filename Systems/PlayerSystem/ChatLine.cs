@@ -12,11 +12,12 @@ namespace NWN.Systems
     public string playerName { get; set; }
     public string receiverPlayerName { get; set; }
     public string text { get; set; }
+    public string untranslatedText { get; set; }
     public List<string> textHistory { get; set; }
     public ChatChannel channel { get; set; }
     public ChatCategory category { get; set; }
 
-    public ChatLine(string portrait, string name, string playerName, string text, ChatChannel channel, ChatCategory category, string receiverPlayerName = "", string receiverPortrait = "")
+    public ChatLine(string portrait, string name, string playerName, string text, string untranslatedText, ChatChannel channel, ChatCategory category, string receiverPlayerName = "", string receiverPortrait = "")
     {
       this.portrait = portrait;
       this.receiverPortrait = receiverPortrait;
@@ -24,6 +25,7 @@ namespace NWN.Systems
       this.playerName = playerName;
       this.receiverPlayerName = receiverPlayerName;
       this.text = text.Trim();
+      this.untranslatedText = untranslatedText.Trim();
       this.channel = channel;
       this.category = category;
       textHistory = new List<string>();

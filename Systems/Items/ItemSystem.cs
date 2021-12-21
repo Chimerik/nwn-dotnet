@@ -173,14 +173,19 @@ namespace NWN.Systems
       if (oPC.ControllingPlayer == null || oItem == null)
         return;
 
-      if(oItem.Tag == "_TODESTROY")
+      Task wait = NwTask.Run(async () =>
       {
-        oItem.Destroy();
-        oPC.LoginPlayer.SendServerMessage($"{oItem.Name.ColorString(ColorConstants.White)} est un objet invalide et n'aurait jamais du pouvoir être ramassé. Il a donc été détruit.");
-        Utils.LogMessageToDMs($"{oPC.Name} ({oPC.LoginPlayer.PlayerName}) a tenté de ramassé l'objet invalide : {oItem.Name}");
-        return;
-      }
-      else if (oItem.Tag == "undroppable_item")
+        await NwTask.Delay(TimeSpan.FromSeconds(0.2));
+   
+        if (Config.env == Config.Env.Prod && oItem.GetObjectVariable<LocalVariableString>("ITEM_KEY").Value != Config.itemKey)
+        {
+          oItem.Destroy();
+          oPC.LoginPlayer.SendServerMessage($"{oItem.Name.ColorString(ColorConstants.White)} est un objet invalide et n'aurait jamais du pouvoir être ramassé. Il a donc été détruit.");
+          Utils.LogMessageToDMs($"{oPC.Name} ({oPC.LoginPlayer.PlayerName}) a tenté de ramassé l'objet invalide : {oItem.Name}");
+        }
+      });
+
+      if (oItem.Tag == "undroppable_item")
       {
         oItem.Clone(oAcquiredFrom);
         oItem.Destroy();

@@ -12,6 +12,7 @@ namespace NWN.Systems
     public static string database = Environment.GetEnvironmentVariable("DB_NAME");
     public static string dbPath = "Data Source=" + Environment.GetEnvironmentVariable("DB_PATH");
     public static string googleDriveCredentials = Environment.GetEnvironmentVariable("GOOGLE_DRIVE_CREDENTIALS");
+    public static string itemKey = Environment.GetEnvironmentVariable("ITEM_KEY");
     public const int invalidInput = -999999;
     public enum Env
     {

@@ -25,7 +25,7 @@ namespace NWN.Systems
     private int OnCheckProficiencies(void* pItem, uint nEquipToSlot)
     {
       var item = CNWSItem.FromPointer(pItem);
-      if (item != null && NwBaseItem.FromItemId((int)item.m_nBaseItem) != null && BaseItems2da.baseItemTable.GetBaseItemDataEntry((BaseItemType)item.m_nBaseItem).IsEquippable)
+      if (item != null && NwBaseItem.FromItemId((int)item.m_nBaseItem) != null && NwBaseItem.FromItemId((int)item.m_nBaseItem).EquipmentSlots != EquipmentSlots.None)
         return 1;
       else
         return 0;

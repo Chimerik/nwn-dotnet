@@ -75,14 +75,8 @@ namespace NWN.Systems
     {
       foreach (int baseItemType in array)
       {
-        var blueprint = new Blueprint(baseItemType);
-
-        if (!Craft.Collect.System.blueprintDictionnary.ContainsKey(baseItemType))
-          Craft.Collect.System.blueprintDictionnary.Add(baseItemType, blueprint);
-
         NwItem oBlueprint = await NwItem.Create("blueprintgeneric", oChest, 1, "blueprint");
-        oBlueprint.Name = $"Patron : {blueprint.name}";
-        oBlueprint.GetObjectVariable<LocalVariableInt>("_BASE_ITEM_TYPE").Value = baseItemType;
+        ItemUtils.CreateShopBlueprint(oBlueprint, baseItemType);
       }
 
       UpdateChestTagToLootsDic(oChest);
@@ -92,23 +86,7 @@ namespace NWN.Systems
       foreach (Feat feat in array)
       {
         NwItem skillBook = await NwItem.Create("skillbookgeneriq", oChest, 1, "skillbook");
-        skillBook.Appearance.SetSimpleModel((byte)Utils.random.Next(0, 50));
-        skillBook.GetObjectVariable<LocalVariableInt>("_SKILL_ID").Value = (int)feat;
-
-        Learnable learnable = SkillSystem.learnableDictionary[(int)feat];
-
-        if (SkillSystem.customFeatsDictionnary.ContainsKey(feat))
-        {
-          skillBook.Name = SkillSystem.customFeatsDictionnary[feat].name;
-          skillBook.Description = SkillSystem.customFeatsDictionnary[feat].description;
-        }
-        else
-        {
-          skillBook.Name = learnable.name;
-          skillBook.Description = learnable.description;
-        }
-
-        skillBook.BaseGoldValue = (uint)(learnable.multiplier * 1000);
+        ItemUtils.CreateShopSkillBook(skillBook, (int)feat);
         UpdateChestTagToLootsDic(oChest);
       }
     }
@@ -122,6 +100,7 @@ namespace NWN.Systems
         oScroll.Description = $"{spellEntry.Description}";
 
         oScroll.AddItemProperty(ItemProperty.CastSpell((IPCastSpell)itemPropertyId, IPCastSpellNumUses.SingleUse), EffectDuration.Permanent);
+        oScroll.GetObjectVariable<LocalVariableString>("ITEM_KEY").Value = Config.itemKey;
       }
 
       UpdateChestTagToLootsDic(oChest);

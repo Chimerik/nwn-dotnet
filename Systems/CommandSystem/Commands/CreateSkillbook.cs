@@ -29,25 +29,12 @@ namespace NWN.Systems
         player.menu.Close();
       }
     }
-    private async void HandleCreateSkillbook(int skillId, NwPlayer oPC)
+    private void HandleCreateSkillbook(int skillId, NwPlayer oPC)
     {
-      NwItem skillBook = await NwItem.Create("skillbookgeneriq", oPC.ControlledCreature, 1, "skillbook");
-      skillBook.Appearance.SetSimpleModel((byte)Utils.random.Next(0, 50));
-      skillBook.GetObjectVariable<LocalVariableInt>("_SKILL_ID").Value = skillId;
-
-      Feat feat = (Feat)skillId;
-
-      if (SkillSystem.customFeatsDictionnary.ContainsKey(feat))
-      {
-        skillBook.Name = SkillSystem.customFeatsDictionnary[feat].name;
-        skillBook.Description = SkillSystem.customFeatsDictionnary[feat].description;
-      }
-      else
-      {
-        NwFeat nwFeat = NwFeat.FromFeatType(feat);
-        skillBook.Name = nwFeat.Name;
-        skillBook.Description = nwFeat.Description;
-      }
+      NwItem skillBook = NwItem.Create("skillbookgeneriq", oPC.ControlledCreature.Location);
+      skillBook.Tag = "skillbook";
+      ItemUtils.CreateShopSkillBook(skillBook, skillId);
+      oPC.ControlledCreature.AcquireItem(skillBook);
     }
   }
 }

@@ -49,6 +49,7 @@ namespace NWN.Systems.Craft.Collect
         }
 
         NwItem ore = await NwItem.Create("pelt", player.oid.LoginCreature, miningYield, oPlaceable.Name);
+        ore.GetObjectVariable<LocalVariableString>("ITEM_KEY").Value = Systems.Config.itemKey;
         ore.Name = oPlaceable.Name;
       });
 

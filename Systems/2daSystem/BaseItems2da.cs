@@ -63,20 +63,18 @@ namespace NWN.Systems
         }
       }
 
-      entries.Add((BaseItemType)rowIndex, new Entry(workshop, craftedItem, IsEquippable, weaponModels));
+      entries.Add((BaseItemType)rowIndex, new Entry(workshop, craftedItem, weaponModels));
     }
     public readonly struct Entry
     {
       public readonly string workshop;
       public readonly string craftedItem;
-      public readonly bool IsEquippable;
       public readonly Dictionary<ItemAppearanceWeaponModel, List<byte>> weaponModels;
 
-      public Entry(string workshop, string craftedItem, bool IsEquippable, Dictionary<ItemAppearanceWeaponModel, List<byte>> weaponModels)
+      public Entry(string workshop, string craftedItem, Dictionary<ItemAppearanceWeaponModel, List<byte>> weaponModels)
       {
         this.workshop = workshop;
         this.craftedItem = craftedItem;
-        this.IsEquippable = IsEquippable;
         this.weaponModels = weaponModels;
       } 
     }

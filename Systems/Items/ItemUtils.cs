@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using Anvil.API;
 
@@ -226,6 +227,45 @@ namespace NWN.Systems
     public static byte[] GetDamageDices(NwBaseItem baseItem)
     {
       return new byte[] { baseItem.DieToRoll, baseItem.NumDamageDice };
+    }
+    public static NwItem DeserializeAndAcquireItem(string itemTemplate, NwCreature receiver)
+    {
+      NwItem deserializedItem = NwItem.Deserialize(itemTemplate.ToByteArray());
+      deserializedItem.GetObjectVariable<LocalVariableString>("ITEM_KEY").Value = Config.itemKey;
+      receiver.AcquireItem(deserializedItem);
+      return deserializedItem;
+    }
+    public static void CreateShopSkillBook(NwItem skillBook, int featId)
+    {
+      skillBook.Appearance.SetSimpleModel((byte)Utils.random.Next(0, 50));
+      skillBook.GetObjectVariable<LocalVariableInt>("_SKILL_ID").Value = featId;
+      skillBook.GetObjectVariable<LocalVariableString>("ITEM_KEY").Value = Config.itemKey;
+
+      try
+      {
+        Learnable learnable = SkillSystem.learnableDictionary[featId];
+        skillBook.Name = learnable.name;
+        skillBook.Description = learnable.description;
+        skillBook.BaseGoldValue = (uint)(learnable.multiplier * 1000);
+      }
+      catch(Exception)
+      {
+        Utils.LogMessageToDMs($"ERROR - Could not find {featId} in the learnable dictionnary.");
+        skillBook.Destroy();
+      }
+    }
+    public static void CreateShopBlueprint(NwItem oBlueprint, int baseItemType)
+    {
+      Craft.Blueprint blueprint = new Craft.Blueprint(baseItemType);
+
+      if (!Craft.Collect.System.blueprintDictionnary.ContainsKey(baseItemType))
+        Craft.Collect.System.blueprintDictionnary.Add(baseItemType, blueprint);
+
+      oBlueprint.Name = $"Patron original : {blueprint.name}";
+
+      oBlueprint.BaseGoldValue = (uint)(blueprint.goldCost * 10);
+      oBlueprint.GetObjectVariable<LocalVariableInt>("_BASE_ITEM_TYPE").Value = baseItemType;
+      oBlueprint.GetObjectVariable<LocalVariableString>("ITEM_KEY").Value = Config.itemKey;
     }
   }
 }

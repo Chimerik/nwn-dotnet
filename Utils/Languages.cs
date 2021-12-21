@@ -5,7 +5,7 @@ namespace NWN.Systems
 {
   public static class Languages
   {
-    public static string GetLangueStringConvertedHRPProtection(string sToConvert, Feat langue)
+    public static string GetLangueStringConvertedHRPProtection(string sToConvert, int langue)
     {
       if (sToConvert.Contains("("))
         return sToConvert;
@@ -30,41 +30,41 @@ namespace NWN.Systems
       }
       return sTranslated;
     }
-    private static string GetLanguageCode(Feat langue)
+    private static string GetLanguageCode(int langue)
     {
       switch (langue)
       {
-        case CustomFeats.Elfique:
+        case CustomSkill.Elfique:
           return LanguageCodes.Basque;
-        case CustomFeats.Abyssal:
+        case CustomSkill.Abyssal:
           return LanguageCodes.Latin;
-        case CustomFeats.Céleste:
+        case CustomSkill.Celestial:
           return LanguageCodes.Swedish;
-        case CustomFeats.Profond:
+        case CustomSkill.Profond:
           return LanguageCodes.Welsh;
-        case CustomFeats.Draconique:
+        case CustomSkill.Draconique:
           return LanguageCodes.Icelandic;
-        case CustomFeats.Druidique:
+        case CustomSkill.Druidique:
           return LanguageCodes.Corsican;
-        case CustomFeats.Nain:
+        case CustomSkill.Nain:
           return LanguageCodes.German;
-        case CustomFeats.Gnome:
+        case CustomSkill.Gnome:
           return LanguageCodes.Albanian;
-        case CustomFeats.Géant:
+        case CustomSkill.Giant:
           return LanguageCodes.Georgian;
-        case CustomFeats.Gobelin:
+        case CustomSkill.Gobelin:
           return LanguageCodes.Zulu;
-        case CustomFeats.Halfelin:
+        case CustomSkill.Halfelin:
           return LanguageCodes.Yoruba;
-        case CustomFeats.Infernal:
+        case CustomSkill.Infernal:
           return LanguageCodes.Xhosa;
-        case CustomFeats.Orc:
+        case CustomSkill.Orc:
           return LanguageCodes.Uzbek;
-        case CustomFeats.Primordiale:
+        case CustomSkill.Primordiale:
           return LanguageCodes.Urdu;
-        case CustomFeats.Sylvain:
+        case CustomSkill.Sylvain:
           return LanguageCodes.Thai;
-        case CustomFeats.Voleur:
+        case CustomSkill.Voleur:
           return LanguageCodes.Serbian;
       }
 

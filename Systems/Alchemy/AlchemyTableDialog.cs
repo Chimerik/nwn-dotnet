@@ -300,6 +300,7 @@ namespace NWN.Systems.Alchemy
       // Le temps de confection de la potion dépend du nombre de cases parcourues
 
       NwItem oItem = await NwItem.Create("potionalchimique");
+      oItem.GetObjectVariable<LocalVariableString>("ITEM_KEY").Value = Config.itemKey;
       oItem.Appearance.SetWeaponModel(ItemAppearanceWeaponModel.Bottom, (byte)Utils.random.Next(11));
       oItem.Appearance.SetWeaponModel(ItemAppearanceWeaponModel.Middle, (byte)Utils.random.Next(8));
       oItem.Appearance.SetWeaponModel(ItemAppearanceWeaponModel.Top, (byte)Utils.random.Next(8));

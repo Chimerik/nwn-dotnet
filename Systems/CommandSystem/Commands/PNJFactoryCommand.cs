@@ -1242,6 +1242,7 @@ namespace NWN.Systems
     private async Task<NwItem> CreateGenericSkin()
     {
       NwItem skin = await NwItem.Create("peaudejoueur", oPNJ);
+      skin.GetObjectVariable<LocalVariableString>("ITEM_KEY").Value = Config.itemKey;
       skin.Name = $"Propriétés de {oPNJ.Name}";
       oPNJ.RunEquip(skin, InventorySlot.CreatureSkin);
       return skin;

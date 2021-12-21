@@ -11,6 +11,7 @@ using System.Threading.Tasks;
 using static NWN.Systems.Craft.Collect.Config;
 using NWN.Core;
 using Google.Apis.Drive.v3;
+using Newtonsoft.Json;
 
 namespace NWN.Systems
 {
@@ -420,6 +421,7 @@ namespace NWN.Systems
           {
             tempItem.Clone(oSeller.LoginCreature);
             NwItem authorization = await NwItem.Create("auction_clearanc", oSeller.LoginCreature);
+            authorization.GetObjectVariable<LocalVariableString>("ITEM_KEY").Value = Config.itemKey;
             oSeller.SendServerMessage($"Aucune enchère sur votre {tempItem.Name.ColorString(ColorConstants.Orange)}. L'objet vous a donc été restitué.");
           }
           else
@@ -446,6 +448,7 @@ namespace NWN.Systems
               }
 
               NwItem authorization = await NwItem.Create("auction_clearanc", oSeller.LoginCreature);
+              authorization.GetObjectVariable<LocalVariableString>("ITEM_KEY").Value = Config.itemKey;
             }
             else
             {

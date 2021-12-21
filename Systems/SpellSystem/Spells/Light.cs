@@ -18,7 +18,7 @@ namespace NWN.Systems
       {
         // Do not allow casting on not equippable items
         
-        if (!BaseItems2da.baseItemTable.GetBaseItemDataEntry(item.BaseItem.ItemType).IsEquippable)
+        if (item.BaseItem.EquipmentSlots == EquipmentSlots.None)
           oCaster.ControllingPlayer.FloatingTextStrRef(83326);
         else
         {

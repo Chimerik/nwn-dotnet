@@ -1,10 +1,13 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 
 using Anvil.API;
 using Anvil.API.Events;
 
 using Microsoft.Data.Sqlite;
+
+using Newtonsoft.Json;
 
 namespace NWN.Systems
 {
@@ -118,10 +121,36 @@ namespace NWN.Systems
 
                   player.oid.SendServerMessage("Le contrat est désormais signé. Votre emplacement réservé vous attend dans la salle des coffres de la banque Skalsgard.", new Color(32, 255, 32));
 
+                  InitializeGiftItems();
+
                   break;
               }
               break;
           }
+        }
+        private async void InitializeGiftItems()
+        {
+          List<string> serializedItems = new List<string>();
+
+          serializedItems.Add(CreateTempGiftItem("bad_armor", 1));
+          serializedItems.Add(CreateTempGiftItem("bad_club", 1));
+          serializedItems.Add(CreateTempGiftItem("bad_shield", 1));
+          serializedItems.Add(CreateTempGiftItem("bad_sling", 1));
+          serializedItems.Add(CreateTempGiftItem("NW_WAMBU001", 99));
+
+          Task<string> serializeBank = Task.Run(() => JsonConvert.SerializeObject(serializedItems));
+          await Task.WhenAll(serializeBank);
+
+          SqLiteUtils.UpdateQuery("playerCharacters",
+            new List<string[]>() { new string[] { "persistantStorage", serializeBank.Result } },
+            new List<string[]>() { new string[] { "rowid", player.characterId.ToString() } });
+        }
+        private string CreateTempGiftItem(string itemTemplate, int stackSize)
+        {
+          NwItem tempItem = NwItem.Create("itemTemplate", NwModule.Instance.StartingLocation, false, stackSize);
+          tempItem.GetObjectVariable<LocalVariableString>("ITEM_KEY").Value = Config.itemKey;
+          tempItem.Destroy();
+          return tempItem.Serialize().ToBase64EncodedString();
         }
       }
     }

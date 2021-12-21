@@ -101,6 +101,7 @@ namespace NWN.Systems
       }
 
       NwItem authorization = await NwItem.Create("shop_clearance", player.oid.LoginCreature);
+      authorization.GetObjectVariable<LocalVariableString>("ITEM_KEY").Value = Config.itemKey;
 
       if (shop.GetObjectVariable<LocalVariableInt>("_SHOP_ID").HasValue)
       {

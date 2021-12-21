@@ -146,8 +146,8 @@ namespace NWN.Systems.Craft
 
       if (this.isCancelled)
       {
-        if(craftedItem != "")
-          player.LoginCreature.AcquireItem(NwItem.Deserialize(craftedItem.ToByteArray()));
+        if (craftedItem != "")
+          ItemUtils.DeserializeAndAcquireItem(craftedItem, player.LoginCreature);
       }
 
       return true;

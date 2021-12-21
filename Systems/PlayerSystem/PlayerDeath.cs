@@ -69,6 +69,7 @@ namespace NWN.Systems
 
         NwItem oCorpseItem = NwItem.Create("item_pccorpse", oPCCorpse.Location);
         oPCCorpse.AcquireItem(oCorpseItem);
+        oCorpseItem.GetObjectVariable<LocalVariableString>("ITEM_KEY").Value = Config.itemKey;
 
         oPCCorpse.Lootable = true;
         oPCCorpse.Name = $"Corps inconscient de {oid.LoginCreature.Name}";

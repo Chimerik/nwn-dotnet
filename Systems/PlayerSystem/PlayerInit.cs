@@ -187,6 +187,7 @@ namespace NWN.Systems
           Task waitSkinCreated = NwTask.Run(async () =>
           {
             NwItem pcSkin = await NwItem.Create("peaudejoueur", oid.LoginCreature);
+            pcSkin.GetObjectVariable<LocalVariableString>("ITEM_KEY").Value = Config.itemKey;
             pcSkin.Name = $"Propriétés de {oid.LoginCreature.Name}";
             oid.LoginCreature.RunEquip(pcSkin, InventorySlot.CreatureSkin);
           });
@@ -205,7 +206,6 @@ namespace NWN.Systems
             oid.LoginCreature.GetClassInfo((ClassType)43).RemoveKnownSpell(spellLevel, spell);
 
         InitializeNewPlayerLearnableSkills();
-        InitializeNewCharacterStorage();
       }
       private void InitializeNewPlayerLearnableSkills()
       {
@@ -450,31 +450,6 @@ namespace NWN.Systems
         oid.LoginCreature.GetObjectVariable<LocalVariableBool>("_ASYNC_INIT_DONE").Value = true;
         Log.Info("async init done");
       }
-      private async void InitializeNewCharacterStorage()
-      {
-        NwStore storage = NwStore.Create("generic_shop_res", NwModule.Instance.Areas.FirstOrDefault(a => a.Tag == "entrepotpersonnel").FindObjectsOfTypeInArea<NwPlaceable>().FirstOrDefault(s => s.Tag == "ps_entrepot").Location);
-
-        if (storage == null)
-        {
-          Utils.LogMessageToDMs($"Could not initialize new character storage for player {oid.PlayerName}, character {oid.LoginCreature.Name}");
-          return;
-        }
-
-        Utils.DestroyInventory(storage);
-        NwItem oItem = await NwItem.Create("bad_armor", storage);
-        oItem = await NwItem.Create("bad_club", storage);
-        oItem = await NwItem.Create("bad_shield", storage);
-        oItem = await NwItem.Create("bad_sling", storage);
-        oItem = await NwItem.Create("NW_WAMBU001", storage, 99);
-
-        storage.Name = $"Entrepôt de {oid.LoginCreature.Name}";
-
-        SqLiteUtils.UpdateQuery("playerCharacters",
-          new List<string[]>() { { new string[] { "storage", storage.Serialize().ToBase64EncodedString() } } },
-          new List<string[]>() { { new string[] { "rowid", oid.LoginCreature.GetObjectVariable<PersistentVariableInt>("characterId").Value.ToString() } } });
-
-        storage.Destroy();
-      }      
       private async void InitializeAccountMapPins(string serializedMapPins)
       {
         using (var stream = await StringUtils.GenerateStreamFromString(serializedMapPins))

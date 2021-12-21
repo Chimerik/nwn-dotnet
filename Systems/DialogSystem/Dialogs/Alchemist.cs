@@ -31,26 +31,11 @@ namespace NWN.Systems
         foreach (Feat feat in SkillSystem.alchemyBasicSkillBooks)
         {
           NwItem skillBook = await NwItem.Create("skillbookgeneriq", shop, 1, "skillbook");
-          skillBook.Appearance.SetSimpleModel((byte)Utils.random.Next(0, 50));
-          skillBook.GetObjectVariable<LocalVariableInt>("_SKILL_ID").Value = (int)feat;
-
-          Learnable learnable = SkillSystem.learnableDictionary[(int)feat];
-
-          if (SkillSystem.customFeatsDictionnary.ContainsKey(feat))
-          {
-            skillBook.Name = SkillSystem.customFeatsDictionnary[feat].name;
-            skillBook.Description = SkillSystem.customFeatsDictionnary[feat].description;
-          }
-          else
-          {
-            skillBook.Name = learnable.name;
-            skillBook.Description = learnable.description;
-          }
-
-          skillBook.BaseGoldValue = (uint)(learnable.multiplier * 1000);
+          ItemUtils.CreateShopSkillBook(skillBook, (int)feat);
         }
 
         NwItem craftTool = await NwItem.Create("NW_IT_MPOTION006", shop);
+        craftTool.GetObjectVariable<LocalVariableString>("ITEM_KEY").Value = Config.itemKey;
         craftTool.BaseGoldValue = 450;
       }
 

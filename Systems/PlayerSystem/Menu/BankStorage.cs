@@ -27,7 +27,7 @@ namespace NWN.Systems
         private readonly NuiBind<string> botIcon = new NuiBind<string>("botIcon");
         private readonly NuiBind<bool> enabled = new NuiBind<bool>("enabled");
         private readonly NuiBind<NuiRect> imagePosition = new NuiBind<NuiRect>("rect");
-        private List<string> serializedItems = new List<string>();
+        private List<NwItem> items = new List<NwItem>();
 
         private bool AuthorizeSave { get; set; }
         private int nbDebounce { get; set; }
@@ -109,10 +109,12 @@ namespace NWN.Systems
 
           token = player.oid.CreateNuiWindow(window, windowId);
 
+          search.SetBindValue(player.oid, token, "");
+          search.SetBindWatch(player.oid, token, true);
           geometry.SetBindValue(player.oid, token, windowRectangle);
           geometry.SetBindWatch(player.oid, token, true);
 
-          LoadBankItemList();
+          LoadBankItemList(items.AsEnumerable());
         }
 
         private async void HandleBankStorageEvents(ModuleEvents.OnNuiEvent nuiEvent)
@@ -161,7 +163,7 @@ namespace NWN.Systems
               switch(nuiEvent.ElementId)
               {
                 case "examiner":
-                  NwItem tempItem = NwItem.Deserialize(serializedItems.ElementAt(nuiEvent.ArrayIndex).ToByteArray()).Clone(player.oid.ControlledCreature.Location, "_TODESTROY", false);
+                  NwItem tempItem = items.ElementAt(nuiEvent.ArrayIndex).Clone(player.oid.ControlledCreature.Location, "_TODESTROY", false);
 
                   await NwTask.Delay(TimeSpan.FromSeconds(0.2));
                   await player.oid.ActionExamine(tempItem);
@@ -169,11 +171,29 @@ namespace NWN.Systems
                   break;
 
                 case "takeItem":
-                  player.oid.ControlledCreature.AcquireItem(NwItem.Deserialize(serializedItems.ElementAt(nuiEvent.ArrayIndex).ToByteArray()));
+                  player.oid.ControlledCreature.AcquireItem(items.ElementAt(nuiEvent.ArrayIndex));
                   RemoveItemFromList(nuiEvent.ArrayIndex);
                   break;
               }
 
+              break;
+
+            case NuiEventType.Watch:
+
+              switch(nuiEvent.ElementId)
+              {
+                case "search":
+
+                  string currentSearch = search.GetBindValue(player.oid, token).ToLower();
+                  var filteredList = items.AsEnumerable();
+
+                  if (!string.IsNullOrEmpty(currentSearch))
+                    filteredList = filteredList.Where(s => s.Name.ToLower().Contains(currentSearch));
+
+                  LoadBankItemList(filteredList);
+
+                  break;
+              }
               break;
           }
         }
@@ -207,7 +227,7 @@ namespace NWN.Systems
         }
         private void RemoveItemFromList(int index)
         {
-          serializedItems.RemoveAt(index);
+          items.RemoveAt(index);
 
           List<string> tempList = itemNames.GetBindValues(player.oid, token);
           tempList.RemoveAt(index);
@@ -233,7 +253,7 @@ namespace NWN.Systems
         }
         private void AddItemToList(NwItem item)
         {
-          serializedItems.Add(item.Serialize().ToBase64EncodedString());
+          items.Add(item);
           List<string> tempList = itemNames.GetBindValues(player.oid, token);
           tempList.Add(item.Name);
           itemNames.SetBindValues(player.oid, token, tempList);
@@ -337,9 +357,11 @@ namespace NWN.Systems
 
         private async void HandleBankSave()
         {
+          List<string> serializedItems = new List<string>();
+          await Task.Run(() => SerializeItemList(serializedItems));
+
           Task<string> serializeBank = Task.Run(() => JsonConvert.SerializeObject(serializedItems));
           await Task.WhenAll(serializeBank);
-
 
           SqLiteUtils.UpdateQuery("playerCharacters",
           new List<string[]>() { new string[] { "persistantStorage", serializeBank.Result } },
@@ -347,6 +369,13 @@ namespace NWN.Systems
 
           nbDebounce = 0;
           AuthorizeSave = false;
+        }
+        private List<string> SerializeItemList(List<string> serializedItems)
+        {
+          foreach (NwItem item in items)
+            serializedItems.Add(item.Serialize().ToBase64EncodedString());
+
+          return serializedItems;
         }
         private async void DeserializeBankItemList()
         {
@@ -357,6 +386,7 @@ namespace NWN.Systems
           if (result.Result != null)
           {
             string serializedBank = result.Result.GetString(0);
+            List<string> serializedItems = new List<string>();
 
             Task loadBank = Task.Run(() =>
             {
@@ -367,11 +397,15 @@ namespace NWN.Systems
             });
 
             await Task.WhenAll(loadBank);
+
+            foreach (string serializedItem in serializedItems)
+              items.Add(NwItem.Deserialize(serializedItem.ToByteArray()));
+
             await NwTask.SwitchToMainThread();
           }
         }
 
-        private void LoadBankItemList()
+        private void LoadBankItemList(IEnumerable<NwItem> filteredList)
         {
           List<string> itemNameList = new List<string>();
           List<string> topIconList = new List<string>();
@@ -380,10 +414,8 @@ namespace NWN.Systems
           List<bool> enabledList = new List<bool>();
           List<NuiRect> imagePosList = new List<NuiRect>();
 
-          foreach (var serializedItem in serializedItems)
+          foreach (NwItem item in filteredList)
           {
-            NwItem item = NwItem.Deserialize(serializedItem.ToByteArray());
-
             itemNameList.Add(item.BaseItem.IsStackable ? $"{item.Name} (x{item.StackSize})" : item.Name);
             string[] tempArray = Utils.GetIconResref(item);
             topIconList.Add(tempArray[0]);
@@ -407,7 +439,6 @@ namespace NWN.Systems
           }
 
           gold.SetBindValue(player.oid, token, player.bankGold.ToString());
-          search.SetBindValue(player.oid, token, "");
 
           itemNames.SetBindValues(player.oid, token, itemNameList);
           listCount.SetBindValue(player.oid, token, itemNameList.Count);

@@ -22,46 +22,25 @@ namespace NWN.Systems
 
         foreach (int baseItemType in Craft.Collect.System.leatherBasicBlueprints)
         {
-          Craft.Blueprint blueprint = new Craft.Blueprint(baseItemType);
-
-          if (!Craft.Collect.System.blueprintDictionnary.ContainsKey(baseItemType))
-            Craft.Collect.System.blueprintDictionnary.Add(baseItemType, blueprint);
-
           NwItem oBlueprint = await NwItem.Create("blueprintgeneric", shop, 1, "blueprint");
-          oBlueprint.Name = $"Patron original : {blueprint.name}";
-          oBlueprint.GetObjectVariable<LocalVariableInt>("_BASE_ITEM_TYPE").Value = baseItemType;
-          oBlueprint.BaseGoldValue = (uint)(blueprint.goldCost * 10);
+          ItemUtils.CreateShopBlueprint(oBlueprint, baseItemType);
         }
 
         foreach (Feat feat in SkillSystem.leatherBasicSkillBooks)
         {
           NwItem skillBook = await NwItem.Create("skillbookgeneriq", shop, 1, "skillbook");
-          skillBook.Appearance.SetSimpleModel((byte)Utils.random.Next(0, 50));
-          skillBook.GetObjectVariable<LocalVariableInt>("_SKILL_ID").Value = (int)feat;
-
-          Learnable learnable = SkillSystem.learnableDictionary[(int)feat];
-
-          if (SkillSystem.customFeatsDictionnary.ContainsKey(feat))
-          {
-            skillBook.Name = SkillSystem.customFeatsDictionnary[feat].name;
-            skillBook.Description = SkillSystem.customFeatsDictionnary[feat].description;
-          }
-          else
-          {
-            skillBook.Name = learnable.name;
-            skillBook.Description = learnable.description;
-          }
-
-          skillBook.BaseGoldValue = (uint)(learnable.multiplier * 1000);
+          ItemUtils.CreateShopSkillBook(skillBook, (int)feat);
         }
 
         NwItem craftTool = await NwItem.Create("oreextractor", shop, 1, "oreextractor");
         craftTool.BaseGoldValue = 50;
         craftTool.GetObjectVariable<LocalVariableInt>("_DURABILITY").Value = 10;
+        craftTool.GetObjectVariable<LocalVariableString>("ITEM_KEY").Value = Config.itemKey;
 
         craftTool = await NwItem.Create("forgehammer", shop, 1, "forgehammer");
         craftTool.BaseGoldValue = 50;
         craftTool.GetObjectVariable<LocalVariableInt>("_DURABILITY").Value = 5;
+        craftTool.GetObjectVariable<LocalVariableString>("ITEM_KEY").Value = Config.itemKey;
       }
 
       shop.OnOpen += StoreSystem.OnOpenGenericStore;

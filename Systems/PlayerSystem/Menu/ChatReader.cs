@@ -155,7 +155,7 @@ namespace NWN.Systems
               if (nuiEvent.EventType == NuiEventType.MouseDown && currentCategory != ChatLine.ChatCategory.RolePlay)
               {
                 currentCategory = ChatLine.ChatCategory.RolePlay;
-                
+
                 rpCategory.Selection = 0;
                 hrpCategory.Selection = 1;
                 mpCategory.Selection = 1;
@@ -180,7 +180,7 @@ namespace NWN.Systems
               if (nuiEvent.EventType == NuiEventType.MouseDown && currentCategory != ChatLine.ChatCategory.HorsRolePlay)
               {
                 currentCategory = ChatLine.ChatCategory.HorsRolePlay;
-                
+
                 hrpCategory.Selection = 0;
                 rpCategory.Selection = 1;
                 mpCategory.Selection = 1;
@@ -380,7 +380,7 @@ namespace NWN.Systems
 
             if (remainingText.Length <= nbCharPerLine)
             {
-              breakPosition = currentLine.Contains(Environment.NewLine) ? currentLine.IndexOf(Environment.NewLine) : currentLine.Length ;
+              breakPosition = currentLine.Contains(Environment.NewLine) ? currentLine.IndexOf(Environment.NewLine) : currentLine.Length;
               currentLine = currentLine.Substring(0, breakPosition);
             }
             else
@@ -436,10 +436,10 @@ namespace NWN.Systems
           List<ChatLine> pmSenders = new List<ChatLine>();
 
           foreach (var target in player.readChatLines.Where(c => c.category == ChatLine.ChatCategory.Private).GroupBy(p => p.playerName))
-            if(!pmSenders.Any(c => c.receiverPlayerName == target.FirstOrDefault().playerName))
+            if (!pmSenders.Any(c => c.receiverPlayerName == target.FirstOrDefault().playerName))
               pmSenders.Add(target.FirstOrDefault());
 
-          foreach(ChatLine pmSender in pmSenders)
+          foreach (ChatLine pmSender in pmSenders)
           {
             string playerDisplayName = pmSender.playerName != player.oid.PlayerName ? pmSender.playerName : pmSender.receiverPlayerName;
             string playerDisplayPortrait = pmSender.playerName != player.oid.PlayerName ? pmSender.portrait : pmSender.receiverPortrait;
@@ -457,7 +457,7 @@ namespace NWN.Systems
 
         public void HandleNewPM(string senderName)
         {
-          if(player.windows.ContainsKey(senderName) && !player.openedWindows.ContainsKey(senderName))
+          if (player.windows.ContainsKey(senderName) && !player.openedWindows.ContainsKey(senderName))
             ((PrivateMessageWindow)player.windows[senderName]).read = false;
 
           if (currentCategory != ChatLine.ChatCategory.Private)

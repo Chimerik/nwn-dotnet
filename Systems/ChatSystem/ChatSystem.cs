@@ -47,7 +47,8 @@ namespace NWN.Systems
         oSender: oSender.ControllingPlayer,
         oTarget: onChat.Target,
         channel: onChat.ChatChannel,
-        onChat: onChat
+        onChat: onChat,
+        language: oSender.ControllingPlayer.LoginCreature.GetObjectVariable<LocalVariableInt>("_ACTIVE_LANGUAGE").HasValue ? SkillSystem.learnableDictionary[oSender.ControllingPlayer.LoginCreature.GetObjectVariable<LocalVariableInt>("_ACTIVE_LANGUAGE").Value] : null
       ));
     }
 
@@ -58,14 +59,16 @@ namespace NWN.Systems
       public NwPlayer oTarget { get; }
       public ChatChannel channel { get; }
       public OnChatMessageSend onChat { get; }
+      public Learnable language { get; }
 
-      public Context(string msg, NwPlayer oSender, NwPlayer oTarget, ChatChannel channel, OnChatMessageSend onChat)
+      public Context(string msg, NwPlayer oSender, NwPlayer oTarget, ChatChannel channel, OnChatMessageSend onChat, Learnable language)
       {
         this.msg = msg;
         this.oSender = oSender;
         this.oTarget = oTarget;
         this.channel = channel;
         this.onChat = onChat;
+        this.language = language;
       }
     }
 
@@ -200,18 +203,15 @@ namespace NWN.Systems
     {
       foreach (NwPlayer player in NwModule.Instance.Players.Where(p => p.ControlledCreature?.Area == ctx.oSender.ControlledCreature?.Area && p.ControlledCreature.Distance(ctx.oSender.ControlledCreature) < chatService.GetPlayerChatHearingDistance(p, ctx.channel)))
       {
-        Feat language = (Feat)ctx.oSender.ControlledCreature.GetObjectVariable<LocalVariableInt>("_ACTIVE_LANGUAGE").Value;
-
-        if (language != (Feat)CustomFeats.Invalid)
+        if (ctx.language != null)
         {
-          string sLanguageName = SkillSystem.customFeatsDictionnary[language].name;
-          if (player.LoginCreature.KnowsFeat(language) || player.IsDM)
+          if((PlayerSystem.Players.TryGetValue(player.LoginCreature, out PlayerSystem.Player listener) && listener.learnableSkills.ContainsKey(ctx.language.id)) || player.IsDM)
           {
-            chatReceivers.Add(player, "[" + sLanguageName + "] " + ctx.msg);
-            player.SendServerMessage(ctx.oSender.ControlledCreature + " : [" + sLanguageName + "] " + Languages.GetLangueStringConvertedHRPProtection(ctx.msg, language));
+            chatReceivers.Add(player, "[" + ctx.language.name + "] " + ctx.msg);
+            player.SendServerMessage(ctx.oSender.ControlledCreature + " : [" + ctx.language.name + "] " + Languages.GetLangueStringConvertedHRPProtection(ctx.msg, ctx.language.id));
           }
           else
-            chatReceivers.Add(player, Languages.GetLangueStringConvertedHRPProtection(ctx.msg, language));
+            chatReceivers.Add(player, Languages.GetLangueStringConvertedHRPProtection(ctx.msg, ctx.language.id));
         }
         else
           chatReceivers.Add(player, ctx.msg);
@@ -226,7 +226,7 @@ namespace NWN.Systems
       if (ctx.oTarget != null)
         chatCategory = ChatLine.ChatCategory.Private;
 
-      ChatLine chatLine = new ChatLine(ctx.oSender.ControlledCreature.PortraitResRef + "t", ctx.oSender.ControlledCreature.Name + " : ", ctx.oSender.PlayerName, ctx.msg, ctx.channel, chatCategory, ctx.oTarget?.PlayerName, ctx.oTarget?.LoginCreature.PortraitResRef + "t");
+      ChatLine chatLine = new ChatLine(ctx.oSender.ControlledCreature.PortraitResRef + "t", ctx.oSender.ControlledCreature.Name + " : ", ctx.oSender.PlayerName, ctx.msg, ctx.msg, ctx.channel, chatCategory, ctx.oTarget?.PlayerName, ctx.oTarget?.LoginCreature.PortraitResRef + "t");
 
       foreach (KeyValuePair<NwPlayer, string> chatReceiver in chatReceivers)
       {

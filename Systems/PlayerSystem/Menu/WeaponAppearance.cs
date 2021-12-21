@@ -194,7 +194,6 @@ namespace NWN.Systems
         List<NuiComboEntry> modelComboEntries = BaseItems2da.baseItemTable.GetWeaponModelList(weapon.BaseItem.ItemType, model);
         int sliderValue = 0;
         int sliderResult = 0;
-        BaseItemTable.Entry entry = BaseItems2da.baseItemTable.GetBaseItemDataEntry(weapon.BaseItem.ItemType);
 
         switch (model)
         {

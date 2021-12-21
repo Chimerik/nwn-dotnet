@@ -229,7 +229,7 @@ namespace NWN.Systems
 
           filteredList = filteredList.Where(s => s.Value.category == (SkillSystem.Category)categorySelected);
 
-          if (currentSearch != "")
+          if (!string.IsNullOrEmpty(currentSearch))
             filteredList = filteredList.Where(s => s.Value.name.ToLower().Contains(currentSearch));
 
           foreach (var kvp in filteredList)

@@ -755,8 +755,7 @@ namespace NWN.Systems
 
       //DisableFeedbackMessages();
       
-      NwItem newItem = NwItem.Deserialize(serializedInitialItem.ToByteArray());
-      player.oid.LoginCreature.AcquireItem(newItem);
+      NwItem newItem = ItemUtils.DeserializeAndAcquireItem(serializedInitialItem, player.oid.LoginCreature);
 
       for (int i = 0; i < 13; i++)
       {

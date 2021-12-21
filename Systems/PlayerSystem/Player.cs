@@ -302,24 +302,20 @@ namespace NWN.Systems
         switch (craftJob.type)
         {
           case Job.JobType.BlueprintCopy:
-            NwItem bpCopy = NwItem.Deserialize(craftJob.craftedItem.ToByteArray());
-            oid.LoginCreature.AcquireItem(bpCopy);
+            NwItem bpCopy = ItemUtils.DeserializeAndAcquireItem(craftJob.craftedItem, oid.LoginCreature);
             bpCopy.GetObjectVariable<LocalVariableInt>("_BLUEPRINT_RUNS").Value = 10;
             bpCopy.Name = $"Copie de {bpCopy.Name}";         
             break;
           case Job.JobType.BlueprintResearchMaterialEfficiency:
-            NwItem improvedMEBP = NwItem.Deserialize(craftJob.craftedItem.ToByteArray());
-            oid.LoginCreature.AcquireItem(improvedMEBP);
+            NwItem improvedMEBP = ItemUtils.DeserializeAndAcquireItem(craftJob.craftedItem, oid.LoginCreature);
             improvedMEBP.GetObjectVariable<LocalVariableInt>("_BLUEPRINT_MATERIAL_EFFICIENCY").Value = improvedMEBP.GetObjectVariable<LocalVariableInt>("_BLUEPRINT_MATERIAL_EFFICIENCY").Value + 1;
             break;
           case Job.JobType.BlueprintResearchTimeEfficiency:
-            NwItem researchedBP = NwItem.Deserialize(craftJob.craftedItem.ToByteArray());
-            oid.LoginCreature.AcquireItem(researchedBP);
+            NwItem researchedBP = ItemUtils.DeserializeAndAcquireItem(craftJob.craftedItem, oid.LoginCreature);
             researchedBP.GetObjectVariable<LocalVariableInt>("_BLUEPRINT_TIME_EFFICIENCY").Value += 1;
             break;
           case Job.JobType.Enchantement:
-            NwItem enchantedItem = NwItem.Deserialize(craftJob.craftedItem.ToByteArray());
-            oid.LoginCreature.AcquireItem(enchantedItem);
+            NwItem enchantedItem = ItemUtils.DeserializeAndAcquireItem(craftJob.craftedItem, oid.LoginCreature);
 
             int enchanteurChanceuxLevel = 0;
             if (learntCustomFeats.ContainsKey(CustomFeats.EnchanteurChanceux))
@@ -345,8 +341,7 @@ namespace NWN.Systems
             break;
           case Job.JobType.EnchantementReactivation:
 
-            NwItem reactivatedItem = NwItem.Deserialize(craftJob.craftedItem.ToByteArray());
-            oid.LoginCreature.AcquireItem(reactivatedItem);
+            NwItem reactivatedItem = ItemUtils.DeserializeAndAcquireItem(craftJob.craftedItem, oid.LoginCreature);
 
             ItemProperty reactivatedIP = reactivatedItem.ItemProperties.FirstOrDefault(ip => ip.Tag.StartsWith($"ENCHANTEMENT_{craftJob.material}") && ip.Tag.Contains("INACTIVE"));
 
@@ -386,8 +381,7 @@ namespace NWN.Systems
 
             break;
           case Job.JobType.Renforcement:
-            NwItem reinforcedItem = NwItem.Deserialize(craftJob.craftedItem.ToByteArray());
-            oid.LoginCreature.AcquireItem(reinforcedItem);
+            NwItem reinforcedItem = ItemUtils.DeserializeAndAcquireItem(craftJob.craftedItem, oid.LoginCreature);
 
             reinforcedItem.GetObjectVariable<LocalVariableInt>("_DURABILITY").Value += reinforcedItem.GetObjectVariable<LocalVariableInt>("_MAX_DURABILITY").Value * 5 / 100;
             reinforcedItem.GetObjectVariable<LocalVariableInt>("_REINFORCEMENT_LEVEL").Value += 1;
@@ -396,8 +390,7 @@ namespace NWN.Systems
 
             break;
           case Job.JobType.Repair:
-            NwItem repairedItem = NwItem.Deserialize(craftJob.craftedItem.ToByteArray());
-            oid.LoginCreature.AcquireItem(repairedItem);
+            NwItem repairedItem = ItemUtils.DeserializeAndAcquireItem(craftJob.craftedItem, oid.LoginCreature);
 
             if(!repairedItem.ItemProperties.Any(ip => ip.Tag.Contains("_INACTIVE")))
             {
@@ -411,8 +404,7 @@ namespace NWN.Systems
             }
             break;
           case Job.JobType.Alchemy:
-            NwItem potion = NwItem.Deserialize(craftJob.craftedItem.ToByteArray());
-            oid.LoginCreature.AcquireItem(potion);
+            NwItem potion = ItemUtils.DeserializeAndAcquireItem(craftJob.craftedItem, oid.LoginCreature);
             potion.GetObjectVariable<LocalVariableString>("_ORIGINAL_CRAFTER_NAME").Value = oid.LoginCreature.Name;
             potion.GetObjectVariable<LocalVariableString>("_SERIALIZED_PROPERTIES").Value = craftJob.material;
 
@@ -422,12 +414,12 @@ namespace NWN.Systems
             {
               NwItem craftedItem;
               if (craftJob.craftedItem != "")
-              {
-                craftedItem = NwItem.Deserialize(craftJob.craftedItem.ToByteArray());
-                oid.LoginCreature.AcquireItem(craftedItem);
-              }
+                craftedItem = ItemUtils.DeserializeAndAcquireItem(craftJob.craftedItem, oid.LoginCreature);
               else
+              {
                 craftedItem = await NwItem.Create(blueprint.craftedItemTag, oid.LoginCreature);
+                craftedItem.GetObjectVariable<LocalVariableString>("ITEM_KEY").Value = Config.itemKey;
+              }
 
               if (craftedItem == null)
               {

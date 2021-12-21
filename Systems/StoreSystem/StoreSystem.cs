@@ -403,7 +403,7 @@ namespace NWN.System
           int debt = onStoreRequestBuy.Price - (pocketGold + bankGold);
           player.bankGold -= debt;
           
-          ChatSystem.chatService.SendMessage(ChatChannel.PlayerTalk, Languages.GetLangueStringConvertedHRPProtection("Lisez ... Apprennez ... Aidez-moi ... Aidez-nous ...", CustomFeats.Primordiale),
+          ChatSystem.chatService.SendMessage(ChatChannel.PlayerTalk, Languages.GetLangueStringConvertedHRPProtection("Lisez ... Apprennez ... Aidez-moi ... Aidez-nous ...", CustomSkill.Primordiale),
           onStoreRequestBuy.Store.GetObjectVariable<LocalVariableObject<NwCreature>>("_STORE_NPC").Value, onStoreRequestBuy.Creature.ControllingPlayer);
         }
         else
@@ -411,7 +411,7 @@ namespace NWN.System
           onStoreRequestBuy.Creature.Gold = 0;
           player.bankGold -= onStoreRequestBuy.Price - pocketGold;
 
-          ChatSystem.chatService.SendMessage(ChatChannel.PlayerTalk, Languages.GetLangueStringConvertedHRPProtection("Lisez ... Apprennez ... Aidez-moi ... Aidez-nous ...", CustomFeats.Primordiale),
+          ChatSystem.chatService.SendMessage(ChatChannel.PlayerTalk, Languages.GetLangueStringConvertedHRPProtection("Lisez ... Apprennez ... Aidez-moi ... Aidez-nous ...", CustomSkill.Primordiale),
           onStoreRequestBuy.Store.GetObjectVariable<LocalVariableObject<NwCreature>>("_STORE_NPC").Value, onStoreRequestBuy.Creature.ControllingPlayer);
         }
       }
@@ -426,7 +426,7 @@ namespace NWN.System
     {
       onStoreRequestSell.PreventSell = true;
       
-      ChatSystem.chatService.SendMessage(ChatChannel.PlayerTalk, Languages.GetLangueStringConvertedHRPProtection("Que pourrions-nous bien en faire ?", CustomFeats.Primordiale),
+      ChatSystem.chatService.SendMessage(ChatChannel.PlayerTalk, Languages.GetLangueStringConvertedHRPProtection("Que pourrions-nous bien en faire ?", CustomSkill.Primordiale),
           onStoreRequestSell.Store.GetObjectVariable<LocalVariableObject<NwCreature>>("_STORE_NPC").Value, onStoreRequestSell.Creature.ControllingPlayer);
     }
     public static void OnOpenModifyArenaRewardStore(StoreEvents.OnOpen onOpen)

@@ -100,11 +100,6 @@ namespace NWN.Systems
       if (Players.TryGetValue(onConversation.LastSpeaker, out Player player))
         new Storage(player);
     }
-    public static void StartGoldStealDialog(PlaceableEvents.OnUsed onUsed)
-    {
-      if (Players.TryGetValue(onUsed.UsedBy, out Player player))
-        new BankGold(player);
-    }
     public static void StartIntroMirrorDialog(PlaceableEvents.OnUsed onUsed)
     {
       if (Players.TryGetValue(onUsed.UsedBy, out Player player))

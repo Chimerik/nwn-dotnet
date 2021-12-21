@@ -175,7 +175,7 @@ namespace NWN.Systems
         return;
       }
 
-      if (!BaseItems2da.baseItemTable.GetBaseItemDataEntry(oItem.BaseItem.ItemType).IsEquippable)
+      if (oItem.BaseItem.EquipmentSlots == EquipmentSlots.None)
       {
         player.oid.SendServerMessage("Impossible d'enchanter un objet non équippable.");
         return;
