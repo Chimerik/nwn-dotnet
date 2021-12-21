@@ -23,7 +23,6 @@ namespace NWN.Systems
     {
       NwPlayer oPC = HandlePlayerConnect.Player;
 
-      oPC.LoginCreature.GetObjectVariable<LocalVariableInt>("_ACTIVE_LANGUAGE").Value = (int)CustomFeats.Invalid;
       oPC.LoginCreature.GetObjectVariable<LocalVariableInt>("_PLAYER_INPUT_CANCELLED").Delete();
 
       if (!Players.TryGetValue(oPC.LoginCreature, out Player player))

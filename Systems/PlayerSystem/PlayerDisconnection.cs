@@ -38,7 +38,7 @@ namespace NWN.Systems
       else
         player.areaExplorationStateDictionnary[player.oid.LoginCreature.Area.Tag] = player.oid.GetAreaExplorationState(player.oid.LoginCreature.Area);
 
-      if (player.openedWindows.ContainsKey("bankStorage"))
+      if (player.openedWindows.ContainsKey("bankStorage") && player.windows.ContainsKey("bankStorage"))
         ((Player.BankStorageWindow)player.windows["bankStorage"]).BankSave();
     }
   }

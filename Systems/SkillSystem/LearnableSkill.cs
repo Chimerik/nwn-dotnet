@@ -105,7 +105,10 @@ namespace NWN.Systems
         player.oid.NuiDestroy(player.openedWindows["activeLearnable"]);
 
       if (player.openedWindows.ContainsKey("learnables") && player.windows.ContainsKey("learnables"))
-        ((PlayerSystem.Player.LearnableWindow)player.windows["learnables"]).RefreshWindow();
+      {
+        PlayerSystem.Player.LearnableWindow window = (PlayerSystem.Player.LearnableWindow)player.windows["learnables"];
+        window.LoadLearnableList(window.currentList);
+      }
 
       player.oid.ExportCharacter();
     }

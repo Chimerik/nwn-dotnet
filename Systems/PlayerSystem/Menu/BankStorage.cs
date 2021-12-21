@@ -42,10 +42,10 @@ namespace NWN.Systems
 
           List<NuiListTemplateCell> rowTemplate = new List<NuiListTemplateCell>
           {
-            new NuiListTemplateCell(new NuiButton("Examiner") { Id = "examiner", Height = 35 } ) { Width = 80 },
+            new NuiListTemplateCell(new NuiButton("Examiner") { Id = "examiner", Height = 35 }) { Width = 80 },
             new NuiListTemplateCell(new NuiSpacer()
             {
-              Height = 125, Id = "item",
+              Height = 125, Id = "takeItem",
               DrawList = new List<NuiDrawListItem>()
               {
                 new NuiDrawListImage(topIcon, imagePosition),
