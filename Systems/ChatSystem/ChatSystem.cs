@@ -17,6 +17,7 @@ namespace NWN.Systems
     public static ChatService chatService { get; set; }
     private static string areaName = "";
     private static Dictionary<NwPlayer, string> chatReceivers = new Dictionary<NwPlayer, string>();
+    //public static List<ChatLine> globalChat = new List<ChatLine>();
 
     public ChatSystem(ChatService customChatService)
     {
@@ -60,6 +61,7 @@ namespace NWN.Systems
       public ChatChannel channel { get; }
       public OnChatMessageSend onChat { get; }
       public Learnable language { get; }
+      public ChatLine chatLine { get; set; }
 
       public Context(string msg, NwPlayer oSender, NwPlayer oTarget, ChatChannel channel, OnChatMessageSend onChat, Learnable language)
       {
@@ -69,6 +71,9 @@ namespace NWN.Systems
         this.channel = channel;
         this.onChat = onChat;
         this.language = language;
+        chatLine = new ChatLine(oSender.ControlledCreature.PortraitResRef + "t", oSender.ControlledCreature.Name, oSender.PlayerName, msg, "", channel,
+          msg.Trim().StartsWith("(") || channel == ChatChannel.PlayerParty ? ChatLine.ChatCategory.HorsRolePlay : ChatLine.ChatCategory.RolePlay,
+          oTarget?.PlayerName, oTarget?.LoginCreature.PortraitResRef + "t");
       }
     }
 
@@ -205,13 +210,15 @@ namespace NWN.Systems
       {
         if (ctx.language != null)
         {
-          if((PlayerSystem.Players.TryGetValue(player.LoginCreature, out PlayerSystem.Player listener) && listener.learnableSkills.ContainsKey(ctx.language.id)) || player.IsDM)
+          ctx.chatLine.untranslatedText = Languages.GetLangueStringConvertedHRPProtection(ctx.msg, ctx.language.id);
+
+          if ((PlayerSystem.Players.TryGetValue(player.LoginCreature, out PlayerSystem.Player listener) && listener.learnableSkills.ContainsKey(ctx.language.id)) || player.IsDM)
           {
             chatReceivers.Add(player, "[" + ctx.language.name + "] " + ctx.msg);
-            player.SendServerMessage(ctx.oSender.ControlledCreature + " : [" + ctx.language.name + "] " + Languages.GetLangueStringConvertedHRPProtection(ctx.msg, ctx.language.id));
+            player.SendServerMessage(ctx.oSender.ControlledCreature + " : [" + ctx.language.name + "] " + ctx.chatLine.untranslatedText);
           }
           else
-            chatReceivers.Add(player, Languages.GetLangueStringConvertedHRPProtection(ctx.msg, ctx.language.id));
+            chatReceivers.Add(player, ctx.chatLine.untranslatedText);
         }
         else
           chatReceivers.Add(player, ctx.msg);
@@ -226,8 +233,6 @@ namespace NWN.Systems
       if (ctx.oTarget != null)
         chatCategory = ChatLine.ChatCategory.Private;
 
-      ChatLine chatLine = new ChatLine(ctx.oSender.ControlledCreature.PortraitResRef + "t", ctx.oSender.ControlledCreature.Name + " : ", ctx.oSender.PlayerName, ctx.msg, ctx.msg, ctx.channel, chatCategory, ctx.oTarget?.PlayerName, ctx.oTarget?.LoginCreature.PortraitResRef + "t");
-
       foreach (KeyValuePair<NwPlayer, string> chatReceiver in chatReceivers)
       {
         ctx.onChat.Skip = true;
@@ -241,28 +246,40 @@ namespace NWN.Systems
         if (receiver.readChatLines.Count > 150)
           receiver.readChatLines.RemoveAt(0);
 
-        receiver.readChatLines.Add(chatLine);
+        if (string.IsNullOrEmpty(ctx.chatLine.untranslatedText))
+        {
+          receiver.readChatLines.Add(ctx.chatLine);
 
-        if (receiver.openedWindows.ContainsKey("chatReader") && chatLine.category != ChatLine.ChatCategory.Private)
-          ((PlayerSystem.Player.ChatReaderWindow)receiver.windows["chatReader"]).InsertNewChatInWindow(chatLine);
+          if (receiver.openedWindows.ContainsKey("chatReader") && ctx.chatLine.category != ChatLine.ChatCategory.Private)
+            ((PlayerSystem.Player.ChatReaderWindow)receiver.windows["chatReader"]).InsertNewChatInWindow(ctx.chatLine);
+        }
+        else
+        {
+          ChatLine untranslatedChat = new ChatLine(ctx.chatLine.portrait, ctx.chatLine.name, ctx.chatLine.playerName, ctx.chatLine.untranslatedText, "", ctx.chatLine.channel, ctx.chatLine.category);
 
-        if (chatLine.category == ChatLine.ChatCategory.Private)
+          receiver.readChatLines.Add(ctx.chatLine);
+
+          if (receiver.openedWindows.ContainsKey("chatReader") && ctx.chatLine.category != ChatLine.ChatCategory.Private)
+            ((PlayerSystem.Player.ChatReaderWindow)receiver.windows["chatReader"]).InsertNewChatInWindow(ctx.chatLine);
+        }
+
+        if (ctx.chatLine.category == ChatLine.ChatCategory.Private)
         {
           if (PlayerSystem.Players.TryGetValue(ctx.oSender.LoginCreature, out PlayerSystem.Player player))
           {
             if (player.readChatLines.Count > 150)
               player.readChatLines.RemoveAt(0);
 
-            player.readChatLines.Add(chatLine);
+            player.readChatLines.Add(ctx.chatLine);
           }
 
           if (receiver.openedWindows.ContainsKey(ctx.oSender.PlayerName))
-            ((PlayerSystem.Player.PrivateMessageWindow)receiver.windows[ctx.oSender.PlayerName]).InsertNewChatInWindow(chatLine);
+            ((PlayerSystem.Player.PrivateMessageWindow)receiver.windows[ctx.oSender.PlayerName]).InsertNewChatInWindow(ctx.chatLine);
           else if (receiver.openedWindows.ContainsKey("chatReader"))
             ((PlayerSystem.Player.ChatReaderWindow)receiver.windows["chatReader"]).HandleNewPM(ctx.oSender.PlayerName);
 
           if (player.openedWindows.ContainsKey(ctx.oTarget.PlayerName))
-            ((PlayerSystem.Player.PrivateMessageWindow)player.windows[ctx.oTarget.PlayerName]).InsertNewChatInWindow(chatLine);
+            ((PlayerSystem.Player.PrivateMessageWindow)player.windows[ctx.oTarget.PlayerName]).InsertNewChatInWindow(ctx.chatLine);
         }
 
         string coloredChat = chatReceiver.Value;
