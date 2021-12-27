@@ -118,7 +118,12 @@ namespace NWN.Systems
           if (nuiEvent.EventType == NuiEventType.Click && nuiEvent.ElementId == "openColors")
           {
             nuiEvent.Player.NuiDestroy(nuiEvent.WindowToken);
-            player.CreateCloakColorsWindow(item);
+
+            if (player.windows.ContainsKey("cloakColorModifier"))
+              ((CloakColorWindow)player.windows["cloakColorModifier"]).CreateWindow(item);
+            else
+              player.windows.Add("cloakColorModifier", new CloakColorWindow(player, item));
+
             return;
           }
 

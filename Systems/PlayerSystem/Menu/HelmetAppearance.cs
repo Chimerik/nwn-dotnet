@@ -165,7 +165,12 @@ namespace NWN.Systems
               {
                 case "openColors":
                   nuiEvent.Player.NuiDestroy(nuiEvent.WindowToken);
-                  player.CreateHelmetColorsWindow(item);
+
+                  if (player.windows.ContainsKey("helmetColorModifier"))
+                    ((HelmetColorWindow)player.windows["helmetColorModifier"]).CreateWindow(item);
+                  else
+                    player.windows.Add("helmetColorModifier", new HelmetColorWindow(player, item));
+
                   break;
                 case "openNameDescription":
                   player.CreateItemNameDescriptionWindow(item);
