@@ -9,46 +9,59 @@ namespace NWN.Systems
   {
     public partial class Player
     {
-      public void CreateChatLineHistoryWindow(List<string> chatLineHistory)
+      public class ChatLineHistoryWindow : PlayerWindow
       {
-        string windowId = "chatLineHistory";
-        NuiBind<NuiRect> geometry = new NuiBind<NuiRect>("geometry");
-        NuiRect windowRectangle = windowRectangles.ContainsKey(windowId) && windowRectangles[windowId].Width > 0 && windowRectangles[windowId].Width < oid.GetDeviceProperty(PlayerDeviceProperty.GuiWidth) ? windowRectangles[windowId] : new NuiRect(10, oid.GetDeviceProperty(PlayerDeviceProperty.GuiHeight) * 0.01f, oid.GetDeviceProperty(PlayerDeviceProperty.GuiWidth) * 0.7f, oid.GetDeviceProperty(PlayerDeviceProperty.GuiHeight) / 3);
-
-        List<NuiElement> colChildren = new List<NuiElement>();
-        NuiColumn root = new NuiColumn() { Children = colChildren };
-
-        int historyCount = chatLineHistory.Count - 1;
-
-        while (historyCount != 0)
+        private readonly ChatLine chatLine;
+        private readonly NuiColumn root;
+        private readonly NuiBind<string> lineHistory = new NuiBind<string>("lineHistory");
+        private readonly NuiBind<int> listCount = new NuiBind<int>("listCount");
+        public ChatLineHistoryWindow(Player player, ChatLine chatLine) : base(player)
         {
-          string lineHistory = chatLineHistory[historyCount];
+          windowId = "chatLineHistory";
+          this.chatLine = chatLine;
 
-          NuiRow row = new NuiRow
-          {
-            Children = new List<NuiElement>
+          List<NuiListTemplateCell> rowTemplate = new List<NuiListTemplateCell> { new NuiListTemplateCell(new NuiTextEdit("", lineHistory, 3000, true)) };
+
+          root = new NuiColumn() 
+          { 
+            Children = new List<NuiElement>()
             {
-              new NuiTextEdit("", lineHistory, (ushort)lineHistory.Length, true)
-            }
+              new NuiList(rowTemplate, listCount),
+            } 
           };
 
-          colChildren.Add(row);
-          historyCount--;
+          CreateWindow();
         }
-
-        NuiWindow window = new NuiWindow(root, "Itérations précédentes de la ligne de chat")
+        public void CreateWindow()
         {
-          Geometry = geometry,
-          Resizable = true,
-          Collapsed = false,
-          Closable = true,
-          Transparent = false,
-          Border = true,
-        };
+          NuiRect windowRectangle = player.windowRectangles.ContainsKey(windowId) ? player.windowRectangles[windowId] : new NuiRect(10, player.oid.GetDeviceProperty(PlayerDeviceProperty.GuiHeight) * 0.01f, player.oid.GetDeviceProperty(PlayerDeviceProperty.GuiWidth) * 0.7f, player.oid.GetDeviceProperty(PlayerDeviceProperty.GuiHeight) / 3);
 
-        int token = oid.CreateNuiWindow(window, windowId);
-        geometry.SetBindValue(oid, token, windowRectangle);
-        geometry.SetBindWatch(oid, token, true);
+          window = new NuiWindow(root, "Itérations précédentes de la ligne de chat")
+          {
+            Geometry = geometry,
+            Resizable = true,
+            Collapsed = false,
+            Closable = true,
+            Transparent = false,
+            Border = true,
+          };
+
+          token = player.oid.CreateNuiWindow(window, windowId);
+          geometry.SetBindValue(player.oid, token, windowRectangle);
+          geometry.SetBindWatch(player.oid, token, true);
+
+          int historyCount = chatLine.textHistory.Count - 1;
+          List<string> historyList = new List<string>();
+
+          while (historyCount != 0)
+          {
+            historyList.Add(chatLine.textHistory[historyCount]);
+            historyCount--;
+          }
+
+          lineHistory.SetBindValues(player.oid, token, historyList);
+          listCount.SetBindValue(player.oid, token, chatLine.textHistory.Count);
+        }
       }
     }
   }

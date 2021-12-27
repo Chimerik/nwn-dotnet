@@ -12,19 +12,16 @@ namespace NWN.Systems
     {
       public class QuickLootWindow : PlayerWindow
       {
-        NuiGroup rootGroup { get; }
-        NuiColumn rootColumn { get; }
-        NuiColumn groupCol { get; }
-        List<NuiElement> rowList { get; }
-        Dictionary<int, NwItem> itemList { get; }
+        private readonly NuiGroup rootGroup;
+        private readonly NuiColumn rootColumn;
+        private readonly NuiColumn groupCol;
+        private readonly List<NuiElement> rowList = new List<NuiElement>();
+        private readonly Dictionary<int, NwItem> itemList = new Dictionary<int, NwItem>();
 
         public QuickLootWindow(Player player) : base(player)
         {
           windowId = "quickLoot";
 
-          itemList = new Dictionary<int, NwItem>();
-
-          rowList = new List<NuiElement>();
           groupCol = new NuiColumn() { Children = rowList };
           List<NuiElement> rootList = new List<NuiElement>();
           rootColumn = new NuiColumn() { Children = rootList };

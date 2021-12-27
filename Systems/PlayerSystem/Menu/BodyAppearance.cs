@@ -16,58 +16,37 @@ namespace NWN.Systems
     {
       public class BodyAppearanceWindow : PlayerWindow
       {
-        NuiBind<int> headSelection { get; }
-        NuiBind<int> headSlider { get; }
-        NuiBind<int> sizeSlider { get; }
-        NuiBind<int> sizeSelection { get; }
+        private readonly NuiBind<int> headSelection = new NuiBind<int>("headSelection");
+        private readonly NuiBind<int> headSlider = new NuiBind<int>("headSlider");
+        private readonly NuiBind<int> sizeSlider = new NuiBind<int>("sizeSlider");
+        private readonly NuiBind<int> sizeSelection = new NuiBind<int>("sizeSelection");
 
-        NuiBind<int> chestSelection { get; }
-        NuiBind<int> bicepRightSelection { get; }
-        NuiBind<int> forearmRightSelection { get; }
-        NuiBind<int> thighRightSelection { get; }
-        NuiBind<int> shinRightSelection { get; }
-        NuiBind<int> bicepLeftSelection { get; }
-        NuiBind<int> forearmLeftSelection { get; }
-        NuiBind<int> thighLeftSelection { get; }
-        NuiBind<int> shinLeftSelection { get; }
-        List<NuiComboEntry> sizeCombo { get; }
-        List<NuiComboEntry> comboBicep { get; }
-        List<NuiComboEntry> comboChest { get; }
+        private readonly NuiBind<int> chestSelection = new NuiBind<int>("chestSelection");
+        private readonly NuiBind<int> bicepRightSelection = new NuiBind<int>("bicepRightSelection");
+        private readonly NuiBind<int> forearmRightSelection = new NuiBind<int>("forearmRightSelection");
+        private readonly NuiBind<int> thighRightSelection = new NuiBind<int>("thighRightSelection");
+        private readonly NuiBind<int> shinRightSelection = new NuiBind<int>("shinRightSelection");
+        private readonly NuiBind<int> bicepLeftSelection = new NuiBind<int>("bicepLeftSelection");
+        private readonly NuiBind<int> forearmLeftSelection = new NuiBind<int>("forearmLeftSelection");
+        private readonly NuiBind<int> thighLeftSelection = new NuiBind<int>("thighLeftSelection");
+        private readonly NuiBind<int> shinLeftSelection = new NuiBind<int>("shinLeftSelection");
+        private readonly List<NuiComboEntry> sizeCombo = new List<NuiComboEntry>();
+        private readonly List<NuiComboEntry> comboChest = new List<NuiComboEntry> { new NuiComboEntry("1", 1) };
+        private readonly List<NuiComboEntry> comboBicep = new List<NuiComboEntry>
+          {
+            new NuiComboEntry("1", 1),
+            new NuiComboEntry("2", 2)
+          };
 
         public BodyAppearanceWindow(Player player) : base(player)
         {
           windowId = "bodyAppearanceModifier";
 
-          headSlider = new NuiBind<int>("headSlider");
-          sizeSlider = new NuiBind<int>("sizeSlider");
-          sizeSelection = new NuiBind<int>("sizeSelection");
-
-          headSelection = new NuiBind<int>("headSelection");
-          chestSelection = new NuiBind<int>("chestSelection");
-          bicepRightSelection = new NuiBind<int>("bicepRightSelection");
-          forearmRightSelection = new NuiBind<int>("forearmRightSelection");
-          thighRightSelection = new NuiBind<int>("thighRightSelection");
-          shinRightSelection = new NuiBind<int>("shinRightSelection");
-          bicepLeftSelection = new NuiBind<int>("bicepLeftSelection");
-          forearmLeftSelection = new NuiBind<int>("forearmLeftSelection");
-          thighLeftSelection = new NuiBind<int>("thighLeftSelection");
-          shinLeftSelection = new NuiBind<int>("shinLeftSelection");
-
-          sizeCombo = new List<NuiComboEntry>();
-
           for (int i = 0; i < 51; i++)
             sizeCombo.Add(new NuiComboEntry($"x{((float)(i + 75)) / 100}", i));
 
-          comboChest = new List<NuiComboEntry> { new NuiComboEntry("1", 1) };
-
           if (player.oid.ControlledCreature.Gender == Gender.Male)
             comboChest.Add(new NuiComboEntry("2", 2));
-
-          comboBicep = new List<NuiComboEntry>
-          {
-            new NuiComboEntry("1", 1),
-            new NuiComboEntry("2", 2)
-          };
 
           CreateWindow();
         }

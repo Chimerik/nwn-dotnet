@@ -26,6 +26,7 @@ namespace NWN.Systems
       public readonly int characterId;
       public Location location { get; set; }
       public int bonusRolePlay { get; set; }
+      public int currentLanguage { get; set; }
       public Boolean DoJournalUpdate { get; set; }
       public int bankGold { get; set; }
       public PlayerJournal playerJournal { get; set; }
@@ -733,6 +734,31 @@ namespace NWN.Systems
         feedbackService.RemoveFeedbackMessageFilter(FeedbackMessage.WeightTooEncumberedToRun, oid);
         feedbackService.RemoveFeedbackMessageFilter(FeedbackMessage.WeightTooEncumberedWalkSlow, oid);
         //feedbackService.RemoveFeedbackMessageFilter(FeedbackMessage.SendMessageToPc, oid);
+      }
+      private Learnable GetActiveLearnable()
+      {
+        if (learnableSpells.Any(l => l.Value.active))
+          return learnableSpells.FirstOrDefault(l => l.Value.active).Value;
+        else if (learnableSkills.Any(l => l.Value.active))
+          return learnableSkills.FirstOrDefault(l => l.Value.active).Value;
+        else
+          return null;
+      }
+      private void ActivateSpotLight()
+      {
+        if (oid.ControlledCreature.GetObjectVariable<LocalVariableBool>("SPOTLIGHT_ON").HasNothing)
+        {
+          PlayerPlugin.ApplyLoopingVisualEffectToObject(oid.ControlledCreature, oid.ControlledCreature, 173);
+          oid.ControlledCreature.GetObjectVariable<LocalVariableBool>("SPOTLIGHT_ON").Value = true;
+        }
+      }
+      private void RemoveSpotLight()
+      {
+        if (oid.ControlledCreature.GetObjectVariable<LocalVariableBool>("SPOTLIGHT_ON").HasValue)
+        {
+          PlayerPlugin.ApplyLoopingVisualEffectToObject(oid.ControlledCreature, oid.ControlledCreature, 173);
+          oid.ControlledCreature.GetObjectVariable<LocalVariableBool>("SPOTLIGHT_ON").Delete();
+        }
       }
     }
   }

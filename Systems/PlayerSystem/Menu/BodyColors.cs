@@ -4,7 +4,6 @@ using Anvil.API;
 using Anvil.API.Events;
 
 using NWN.Core;
-using NWN.Core.NWNX;
 
 namespace NWN.Systems
 {
@@ -14,19 +13,12 @@ namespace NWN.Systems
     {
       public class BodyColorWindow : PlayerWindow
       {
-        NuiBind<string> currentColor { get; }
-        NuiBind<int> channelSelection { get; }
-        List<NuiComboEntry> comboChannel { get; }
-        NuiBind<string>[] colorBindings { get; }
-
-        public BodyColorWindow(Player player) : base(player)
-        {
-          windowId = "bodyColorsModifier";
-
-          currentColor = new NuiBind<string>("currentColor");
-          channelSelection = new NuiBind<int>("channelSelection");
-
-          comboChannel = new List<NuiComboEntry>
+        private readonly NuiColumn rootColumn;
+        private readonly List<NuiElement> rootChildren = new List<NuiElement>();
+        private readonly NuiBind<string> currentColor = new NuiBind<string>("currentColor");
+        private readonly NuiBind<int> channelSelection = new NuiBind<int>("channelSelection");
+        private readonly NuiBind<string>[] colorBindings = new NuiBind<string>[176];
+        private readonly List<NuiComboEntry> comboChannel = new List<NuiComboEntry>
           {
             new NuiComboEntry("Cheveux", 1),
             new NuiComboEntry("Peau", 0),
@@ -34,19 +26,12 @@ namespace NWN.Systems
             new NuiComboEntry("Lèvres / Tattoo 2", 2),
           };
 
-          colorBindings = new NuiBind<string>[176];
+        public BodyColorWindow(Player player) : base(player)
+        {
+          windowId = "bodyColorsModifier";
+
           for (int i = 0; i < 176; i++)
             colorBindings[i] = new NuiBind<string>($"color{i}");
-          
-          CreateWindow();
-        }
-        public void CreateWindow()
-        {
-          player.DisableItemAppearanceFeedbackMessages();
-
-          NuiRect windowRectangle = player.windowRectangles.ContainsKey(windowId) ? new NuiRect(player.windowRectangles[windowId].X, player.windowRectangles[windowId].Y, 470, 470) : new NuiRect(0, player.oid.GetDeviceProperty(PlayerDeviceProperty.GuiHeight) * 0.02f, 470, 470);
-
-          List<NuiElement> colChildren = new List<NuiElement>();
 
           NuiRow comboRow = new NuiRow()
           {
@@ -65,7 +50,7 @@ namespace NWN.Systems
             }
           };
 
-          colChildren.Add(comboRow);
+          rootChildren.Add(comboRow);
 
           int nbButton = 0;
 
@@ -88,7 +73,7 @@ namespace NWN.Systems
             }
 
             row.Children = rowChildren;
-            colChildren.Add(row);
+            rootChildren.Add(row);
           }
 
           NuiRow buttonRow = new NuiRow()
@@ -101,11 +86,18 @@ namespace NWN.Systems
             }
           };
 
-          colChildren.Add(buttonRow);
+          rootChildren.Add(buttonRow);
+          rootColumn = new NuiColumn { Children = rootChildren };
 
-          NuiColumn root = new NuiColumn { Children = colChildren };
+          CreateWindow();
+        }
+        public void CreateWindow()
+        {
+          player.DisableItemAppearanceFeedbackMessages();
 
-          window = new NuiWindow(root, "Vous contemplez votre reflet dans le miroir")
+          NuiRect windowRectangle = player.windowRectangles.ContainsKey(windowId) ? new NuiRect(player.windowRectangles[windowId].X, player.windowRectangles[windowId].Y, 470, 470) : new NuiRect(0, player.oid.GetDeviceProperty(PlayerDeviceProperty.GuiHeight) * 0.02f, 470, 470);
+
+          window = new NuiWindow(rootColumn, "Vous contemplez votre reflet dans le miroir")
           {
             Geometry = geometry,
             Resizable = false,
@@ -118,11 +110,7 @@ namespace NWN.Systems
           player.oid.OnNuiEvent -= HandleBodyColorsEvents;
           player.oid.OnNuiEvent += HandleBodyColorsEvents;
 
-          if (player.oid.ControlledCreature.GetObjectVariable<LocalVariableBool>("SPOTLIGHT_ON").HasNothing)
-          {
-            PlayerPlugin.ApplyLoopingVisualEffectToObject(player.oid.ControlledCreature, player.oid.ControlledCreature, 173);
-            player.oid.ControlledCreature.GetObjectVariable<LocalVariableBool>("SPOTLIGHT_ON").Value = true;
-          }
+          player.ActivateSpotLight();
 
           token = player.oid.CreateNuiWindow(window, windowId);
 
@@ -145,12 +133,7 @@ namespace NWN.Systems
 
           if (nuiEvent.EventType == NuiEventType.Close)
           {
-            if (player.oid.ControlledCreature.GetObjectVariable<LocalVariableBool>("SPOTLIGHT_ON").HasValue)
-            {
-              PlayerPlugin.ApplyLoopingVisualEffectToObject(player.oid.ControlledCreature, player.oid.ControlledCreature, 173);
-              player.oid.ControlledCreature.GetObjectVariable<LocalVariableBool>("SPOTLIGHT_ON").Delete();
-            }
-
+            player.RemoveSpotLight();
             player.EnableItemAppearanceFeedbackMessages();
             return;
           }

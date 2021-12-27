@@ -147,7 +147,7 @@ namespace NWN.Systems
         }
         private string CreateTempGiftItem(string itemTemplate, int stackSize)
         {
-          NwItem tempItem = NwItem.Create("itemTemplate", NwModule.Instance.StartingLocation, false, stackSize);
+          NwItem tempItem = NwItem.Create(itemTemplate, NwModule.Instance.StartingLocation, false, stackSize);
           tempItem.GetObjectVariable<LocalVariableString>("ITEM_KEY").Value = Config.itemKey;
           tempItem.Destroy();
           return tempItem.Serialize().ToBase64EncodedString();

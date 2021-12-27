@@ -17,9 +17,9 @@ namespace NWN.Systems
       {
         bool displaySkill { get; set; }
         bool refreshOn { get; set; }
-        NuiColumn rootColumn { get; }
+        private readonly NuiColumn rootColumn;
         private readonly NuiBind<List<NuiComboEntry>> categories = new NuiBind<List<NuiComboEntry>>("categories");
-        List<NuiComboEntry> skillCategories { get; }
+        private readonly List<NuiComboEntry> skillCategories;
 
         private readonly List<NuiComboEntry> spellCategories = new List<NuiComboEntry>
           {
@@ -112,7 +112,7 @@ namespace NWN.Systems
         {
           refreshOn = false;
 
-          NuiRect windowRectangle = player.windowRectangles.ContainsKey(windowId) ? player.windowRectangles[windowId] : new NuiRect(10, player.oid.GetDeviceProperty(PlayerDeviceProperty.GuiHeight) * 0.01f, 410, player.oid.GetDeviceProperty(PlayerDeviceProperty.GuiHeight) * 0.65f);
+          NuiRect windowRectangle = player.windowRectangles.ContainsKey(windowId) ? player.windowRectangles[windowId] : new NuiRect(10, player.oid.GetDeviceProperty(PlayerDeviceProperty.GuiHeight) * 0.01f, 450, player.oid.GetDeviceProperty(PlayerDeviceProperty.GuiHeight) * 0.65f);
 
           window = new NuiWindow(rootColumn, "Journal d'apprentissage")
           {
@@ -199,9 +199,9 @@ namespace NWN.Systems
                   player.oid.NuiDestroy(player.openedWindows["activeLearnable"]);
                 
                 if (player.windows.ContainsKey("activeLearnable"))
-                  ((ActiveLearnableWindow)player.windows["activeLearnable"]).CreateWindow(learnableId);
+                  ((ActiveLearnableWindow)player.windows["activeLearnable"]).CreateWindow();
                 else
-                  player.windows.Add("activeLearnable", new ActiveLearnableWindow(player, learnableId));
+                  player.windows.Add("activeLearnable", new ActiveLearnableWindow(player));
 
                 LoadLearnableList(currentList);
               }
@@ -284,14 +284,14 @@ namespace NWN.Systems
                     canLearn = false;
                     break;
                   }
-
-              learnButtonEnabledList.Add(canLearn);
             }
 
             string buttonText = learnable.active ? "En cours" : "Apprendre";
             if (!canLearn)
               buttonText = "Prérequis Manquant";
+
             learnButtonTextList.Add(buttonText);
+            learnButtonEnabledList.Add(canLearn);
           }
 
           icon.SetBindValues(player.oid, token, iconList);
@@ -329,7 +329,7 @@ namespace NWN.Systems
           refreshOn = true;
 
           CancellationTokenSource tokenSource = new CancellationTokenSource();
-          Task awaitInactive = NwTask.WaitUntil(() => player.oid.LoginCreature == null || !currentList.Any(l => l.active), tokenSource.Token);
+          Task awaitInactive = NwTask.WaitUntil(() => player.oid.LoginCreature == null || !player.openedWindows.ContainsKey(windowId) || !currentList.Any(l => l.active), tokenSource.Token);
           Task awaitOneSecond = NwTask.Delay(TimeSpan.FromSeconds(1), tokenSource.Token);
 
           await NwTask.WhenAny(awaitInactive, awaitOneSecond);

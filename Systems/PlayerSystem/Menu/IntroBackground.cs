@@ -12,24 +12,20 @@ namespace NWN.Systems
     {
       public class IntroBackgroundWindow : PlayerWindow
       {
-        NuiGroup rootGroup { get; }
-        NuiColumn rootColumn { get; }
-        NuiRow buttonRow { get; }
-        NuiRow searchRow { get; }
-        NuiRow textRow { get; }
-        List<NuiElement> rootChidren { get; }
-        NuiBind<string> search { get; }
-        NuiColor white { get; }
-        NuiRect drawListRect { get; }
+        private readonly NuiGroup rootGroup;
+        private readonly NuiColumn rootColumn;
+        private readonly NuiRow buttonRow;
+        private readonly NuiRow searchRow;
+        private readonly NuiRow textRow;
+        private readonly List<NuiElement> rootChidren = new List<NuiElement>();
+        private readonly NuiBind<string> search = new NuiBind<string>("search");
+        private readonly NuiColor white = new NuiColor(255, 255, 255);
+        private readonly NuiRect drawListRect = new NuiRect(0, 35, 150, 60);
 
         public IntroBackgroundWindow(Player player) : base(player)
         {
           windowId = "introBackground";
 
-          white = new NuiColor(255, 255, 255);
-          drawListRect = new NuiRect(0, 35, 150, 60);
-          search = new NuiBind<string>("search");
-          rootChidren = new List<NuiElement>();
           rootColumn = new NuiColumn() { Children = rootChidren };
           rootGroup = new NuiGroup() { Id = "learnableGroup", Border = true, Layout = rootColumn };
 

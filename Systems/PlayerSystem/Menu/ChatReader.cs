@@ -234,13 +234,22 @@ namespace NWN.Systems
             if (nuiEvent.EventType != NuiEventType.MouseDown)
               return;
 
-            int chatLineId = int.Parse(nuiEvent.ElementId.Remove(0, 5));
-            ChatLine chatLine = player.readChatLines[chatLineId];
+            ChatLine chatLine = player.readChatLines[int.Parse(nuiEvent.ElementId.Remove(0, 5))];
 
             if (chatLine.playerName == nuiEvent.Player.PlayerName)
-              player.CreateChatLineEditorWindow(chatLine.text, chatLineId);
+            {
+              if (player.windows.ContainsKey("chatLineEditor"))
+                ((ChatLineEditorWindow)player.windows["chatLineEditor"]).CreateWindow();
+              else
+                player.windows.Add("chatLineEditor", new ChatLineEditorWindow(player, chatLine));
+            }
             else if (chatLine.textHistory.Count > 1)
-              player.CreateChatLineHistoryWindow(chatLine.textHistory);
+            {
+              if (player.windows.ContainsKey("chatLineHistory"))
+                ((ChatLineHistoryWindow)player.windows["chatLineHistory"]).CreateWindow();
+              else
+                player.windows.Add("chatLineHistory", new ChatLineHistoryWindow(player, chatLine));
+            }
           }
           else if (nuiEvent.ElementId.StartsWith("pm_"))
           {

@@ -12,72 +12,54 @@ namespace NWN.Systems
     {
       public class ActiveLearnableWindow : PlayerWindow
       {
-        NuiGroup rootGroup { get; }
-        NuiColumn rootColumn { get; }
-        List<NuiElement> rootChidren { get; }
-        NuiColor white { get; }
-        NuiRect drawListRect { get; }
-        Learnable learnable { get; set; }
-        NuiBind<string> timeLeft { get; }
+        private readonly NuiColumn rootColumn;
+        private readonly NuiColor white = new NuiColor(255, 255, 255);
+        private readonly NuiRect drawListRect = new NuiRect(0, 35, 150, 60);
+        private readonly NuiBind<string> icon = new NuiBind<string>("icon");
+        private readonly NuiBind<string> name = new NuiBind<string>("name");
+        private readonly NuiBind<string> timeLeft = new NuiBind<string>("timeLeft");
+        private readonly NuiBind<int> currentLevel = new NuiBind<int>("currentLevel");
+        private readonly NuiBind<int> maxLevel = new NuiBind<int>("maxLevel");
         bool stopPreviousSPGain { get; set; }
+        Learnable learnable { get; set; }
 
-        public ActiveLearnableWindow(Player player, int learnableId = -1) : base(player)
+        public ActiveLearnableWindow(Player player) : base(player)
         {
           windowId = "activeLearnable";
 
-          white = new NuiColor(255, 255, 255);
-          drawListRect = new NuiRect(0, 35, 150, 60);
-
-          timeLeft = new NuiBind<string>("timeLeft");
-
-          rootChidren = new List<NuiElement>();
-          rootColumn = new NuiColumn() { Children = rootChidren };
-          rootGroup = new NuiGroup() { Id = "learnableGroup", Border = true, Layout = rootColumn };
-
-          learnable = GetActiveLearnable(learnableId);
-
-          if (learnable == null)
-          {
-            player.oid.SendServerMessage("Vous n'avez pas d'apprentissage actif pour le moment. Veuillez utiliser le journal afin de décider de votre prochain apprentissage.", ColorConstants.Red);
-            return;
-          }
-
-          LearnableActivation();
-
-          CreateWindow();
-        }
-        public void CreateWindow(int learnableId = -1)
-        {
-          if(learnableId > -1)
-            learnable = GetActiveLearnable(learnableId);
-
-          if (learnable == null)
-          {
-            player.oid.SendServerMessage("Vous n'avez pas d'apprentissage actif pour le moment. Veuillez utiliser le journal afin de décider de votre prochain apprentissage.", ColorConstants.Red);
-            return;
-          }
-
-          rootChidren.Clear();
-
-          NuiRow row = new NuiRow()
-          {
+          rootColumn = new NuiColumn() 
+          { 
             Children = new List<NuiElement>()
             {
-                new NuiButtonImage(learnable.icon) { Height = 40, Width = 40 },
-                new NuiLabel(learnable.name) { Tooltip = learnable.name, Width = 160, HorizontalAlign = NuiHAlign.Left, DrawList = new List<NuiDrawListItem>() {
-                new NuiDrawListText(white, drawListRect, timeLeft) } },
-                new NuiLabel("Niveau/Max") { Width = 90, HorizontalAlign = NuiHAlign.Left, DrawList = new List<NuiDrawListItem>() {
-                new NuiDrawListText(white, drawListRect, $"{learnable.currentLevel}/{learnable.maxLevel}") } }
+              new NuiRow()
+              {
+                Children = new List<NuiElement>()
+                {
+                    new NuiButtonImage(icon) { Height = 40, Width = 40 },
+                    new NuiLabel(name) { Tooltip = name, Width = 160, HorizontalAlign = NuiHAlign.Left, DrawList = new List<NuiDrawListItem>() {
+                    new NuiDrawListText(white, drawListRect, timeLeft) } },
+                    new NuiLabel("Niveau/Max") { Width = 90, HorizontalAlign = NuiHAlign.Left, DrawList = new List<NuiDrawListItem>() {
+                    new NuiDrawListText(white, drawListRect, $"{currentLevel}/{maxLevel}") } }
+                }
+              }
             }
           };
 
-          rootChidren.Add(row);
+          CreateWindow();
+        }
+        public void CreateWindow()
+        {
+          learnable = player.GetActiveLearnable();
 
-          LearnableActivation();
+          if (learnable == null)
+          {
+            player.oid.SendServerMessage("Vous n'avez pas d'apprentissage actif pour le moment. Veuillez utiliser le journal afin de décider de votre prochain apprentissage.", ColorConstants.Red);
+            return;
+          }
 
           NuiRect windowRectangle = player.windowRectangles.ContainsKey(windowId) ? player.windowRectangles[windowId] : new NuiRect(10, player.oid.GetDeviceProperty(PlayerDeviceProperty.GuiHeight) * 0.01f, 320, 100);
 
-          window = new NuiWindow(rootGroup, "Apprentissage en cours")
+          window = new NuiWindow(rootColumn, "Apprentissage en cours")
           {
             Geometry = geometry,
             Resizable = false,
@@ -90,6 +72,10 @@ namespace NWN.Systems
           token = player.oid.CreateNuiWindow(window, windowId);
 
           timeLeft.SetBindValue(player.oid, token, learnable.GetReadableTimeSpanToNextLevel(player));
+          icon.SetBindValue(player.oid, token, learnable.icon);
+          name.SetBindValue(player.oid, token, learnable.name);
+          currentLevel.SetBindValue(player.oid, token, learnable.currentLevel);
+          maxLevel.SetBindValue(player.oid, token, learnable.maxLevel);
 
           geometry.SetBindValue(player.oid, token, windowRectangle);
           geometry.SetBindWatch(player.oid, token, true);
@@ -98,26 +84,6 @@ namespace NWN.Systems
 
           stopPreviousSPGain = true;
           DelayStartSPGain();
-        }
-
-        private Learnable GetActiveLearnable(int learnableId)
-        {
-          if (learnableId > -1)
-          {
-            if (learnableId < 10000)
-              return learnable = player.learnableSpells[learnableId];
-            else
-              return learnable = player.learnableSkills[learnableId];
-          }
-          else
-          {
-            if (player.learnableSpells.Any(l => l.Value.active))
-              return player.learnableSpells.FirstOrDefault(l => l.Value.active).Value;
-            else if (player.learnableSkills.Any(l => l.Value.active))
-              return player.learnableSkills.FirstOrDefault(l => l.Value.active).Value;
-            else
-              return null;
-          }
         }
 
         private async void RefreshWindowUntillClosed()
@@ -137,18 +103,6 @@ namespace NWN.Systems
           await NwTask.Delay(TimeSpan.FromSeconds(0.2));
           stopPreviousSPGain = false;
           RefreshWindowUntillClosed();
-        }
-
-        private void LearnableActivation()
-        {
-          if (player.learnableSpells.Any(l => l.Value.active))
-            player.learnableSpells.FirstOrDefault(l => l.Value.active).Value.active = false;
-          else if (player.learnableSkills.Any(l => l.Value.active))
-            player.learnableSkills.FirstOrDefault(l => l.Value.active).Value.active = false;
-
-          learnable.active = true;
-          learnable.spLastCalculation = DateTime.Now;
-          learnable.AwaitPlayerStateChangeToCalculateSPGain(player);
         }
       }
     }

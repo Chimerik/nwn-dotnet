@@ -12,16 +12,15 @@ namespace NWN.Systems
   {
     public partial class Player
     {
-      public void CreateHelmetColorsWindow(NwItem item)
+      public class HelmetColorWindow : PlayerWindow
       {
-        string windowId = "helmetColorsModifier";
-        DisableItemAppearanceFeedbackMessages();
-        NuiBind<string> currentColor = new NuiBind<string>("currentColor");
-        NuiBind<int> channelSelection = new NuiBind<int>("channelSelection");
-        NuiBind<NuiRect> geometry = new NuiBind<NuiRect>("geometry");
-        NuiRect windowRectangle = windowRectangles.ContainsKey(windowId) ? windowRectangles[windowId] : new NuiRect(oid.GetDeviceProperty(PlayerDeviceProperty.GuiWidth) * 0.01f, oid.GetDeviceProperty(PlayerDeviceProperty.GuiHeight) * 0.01f, oid.GetDeviceProperty(PlayerDeviceProperty.GuiWidth) / 4, oid.GetDeviceProperty(PlayerDeviceProperty.GuiHeight) / 2);
-
-        List<NuiComboEntry> comboChannel = new List<NuiComboEntry>
+        private NwItem item { get; set; }
+        private readonly NuiColumn rootColumn;
+        private readonly List<NuiElement> rootChildren = new List<NuiElement>();
+        private readonly NuiBind<string> currentColor = new NuiBind<string>("currentColor");
+        private readonly NuiBind<int> channelSelection = new NuiBind<int>("channelSelection");
+        private readonly NuiBind<string>[] colorBindings = new NuiBind<string>[256];
+        private readonly List<NuiComboEntry> comboChannel = new List<NuiComboEntry>
         {
           new NuiComboEntry("Cuir 1", 0),
           new NuiComboEntry("Cuir 2", 1),
@@ -31,188 +30,176 @@ namespace NWN.Systems
           new NuiComboEntry("Métal 2", 5)
         };
 
-        List<NuiElement> colChildren = new List<NuiElement>();
-
-        NuiRow comboRow = new NuiRow()
+        public HelmetColorWindow(Player player, NwItem item) : base(player)
         {
-          Children = new List<NuiElement>
+          windowId = "helmetColorsModifier";
+
+          for (int i = 0; i < 256; i++)
+            colorBindings[i] = new NuiBind<string>($"color{i}");
+
+          NuiRow comboRow = new NuiRow()
           {
-            new NuiSpacer { },
-            new NuiLabel("Actuelle") { Width = 65, VerticalAlign = NuiVAlign.Middle},
-            new NuiButtonImage(currentColor) { Width = 25, Height = 25, Margin = 10 },
-            new NuiCombo
+            Children = new List<NuiElement>
             {
-              Id = "colorChannel", Width = 120,
-              Entries = comboChannel,
-              Selected = channelSelection
-            },
-            new NuiSpacer { }
-          }
-        };
-
-        colChildren.Add(comboRow);
-
-        int nbButton = 0;
-
-        for (int i = 0; i < 16; i++)
-        {
-          NuiGroup paletteGroup = new NuiGroup();
-          paletteGroup.Id = $"paletteGroup{i}"; paletteGroup.Height = 26; paletteGroup.Margin = 0; paletteGroup.Padding = 0; paletteGroup.Scrollbars = NuiScrollbars.None; paletteGroup.Border = false;
-
-          NuiRow row = new NuiRow();
-          List<NuiElement> rowChildren = new List<NuiElement>();
-
-          for (int j = 0; j < 16; j++)
-          {
-            NuiButtonImage button = new NuiButtonImage($"leather{nbButton + 1}")
-            {
-              Id = $"{nbButton}",
-              Width = 25,
-              Height = 25
-            };
-
-            rowChildren.Add(button);
-            nbButton++;
-          }
-
-          row.Children = rowChildren;
-          paletteGroup.Layout = row;
-          colChildren.Add(paletteGroup);
-        }
-
-        NuiRow buttonRow = new NuiRow()
-        {
-          Children = new List<NuiElement>
-          {
-            new NuiSpacer {},
-            new NuiButton("Apparence")
-            {
-              Id = "openItemAppearance",
-              Width = 80, Height = 35,
-            },
-            new NuiSpacer {}
-          }
-        };
-
-        colChildren.Add(buttonRow);
-
-        // Construct the window layout.
-        NuiColumn root = new NuiColumn { Children = colChildren };
-
-        NuiWindow window = new NuiWindow(root, $"Modification des couleurs de {item.Name}")
-        {
-          Geometry = geometry,
-          Resizable = true,
-          Collapsed = false,
-          Closable = true,
-          Transparent = true,
-          Border = true,
-        };
-
-        oid.OnNuiEvent -= HandleHelmetColorsEvents;
-        oid.OnNuiEvent += HandleHelmetColorsEvents;
-
-        PlayerPlugin.ApplyLoopingVisualEffectToObject(oid.ControlledCreature, oid.ControlledCreature, 173);
-
-        int token = oid.CreateNuiWindow(window, windowId);
-
-        currentColor.SetBindValue(oid, token, $"leather{item.Appearance.GetArmorColor(ItemAppearanceArmorColor.Leather1)}");
-        channelSelection.SetBindValue(oid, token, 0);
-
-        channelSelection.SetBindWatch(oid, token, true);
-
-        geometry.SetBindValue(oid, token, windowRectangle);
-        geometry.SetBindWatch(oid, token, true);
-      }
-      private void HandleHelmetColorsEvents(ModuleEvents.OnNuiEvent nuiEvent)
-      {
-        if (nuiEvent.Player.NuiGetWindowId(nuiEvent.WindowToken) != "helmetColorsModifier" || !Players.TryGetValue(nuiEvent.Player.LoginCreature, out Player player))
-          return;
-
-        if (nuiEvent.EventType == NuiEventType.Close)
-        {
-          EnableItemAppearanceFeedbackMessages();
-          PlayerPlugin.ApplyLoopingVisualEffectToObject(nuiEvent.Player.ControlledCreature, nuiEvent.Player.ControlledCreature, 173);
-          return;
-        }
-
-        NwItem item = nuiEvent.Player.LoginCreature.GetObjectVariable<LocalVariableObject<NwItem>>("_ITEM_SELECTED_FOR_MODIFICATION").Value;
-
-        if (!item.IsValid || item.Possessor != nuiEvent.Player.ControlledCreature)
-        {
-          nuiEvent.Player.SendServerMessage("L'objet en cours de modification n'est plus en votre possession !", ColorConstants.Red);
-          nuiEvent.Player.NuiDestroy(nuiEvent.WindowToken);
-          return;
-        }
-
-        switch (nuiEvent.EventType)
-        {
-          case NuiEventType.Click:
-
-            if (nuiEvent.ElementId == "openItemAppearance")
-            {
-              nuiEvent.Player.NuiDestroy(nuiEvent.WindowToken);
-              player.CreateHelmetAppearanceWindow(item);
-              return;
-            }
-
-            ItemAppearanceArmorColor colorChanel = (ItemAppearanceArmorColor)new NuiBind<int>("channelSelection").GetBindValue(nuiEvent.Player, nuiEvent.WindowToken);
-            item.Appearance.SetArmorColor(colorChanel, byte.Parse(nuiEvent.ElementId));
-            
-            NwItem newItem = item.Clone(nuiEvent.Player.ControlledCreature);
-            nuiEvent.Player.LoginCreature.GetObjectVariable<LocalVariableObject<NwItem>>("_ITEM_SELECTED_FOR_MODIFICATION").Value = newItem;
-            nuiEvent.Player.ControlledCreature.RunEquip(newItem, InventorySlot.Head);
-            item.Destroy();
-
-            new NuiBind<string>("currentColor").SetBindValue(nuiEvent.Player, nuiEvent.WindowToken, $"leather{int.Parse(nuiEvent.ElementId) + 1}");
-
-            break;
-
-          case NuiEventType.Watch:
-
-            ItemAppearanceArmorColor channel = (ItemAppearanceArmorColor)new NuiBind<int>("channelSelection").GetBindValue(nuiEvent.Player, nuiEvent.WindowToken);
-
-            string channelChoice = "leather";
-            if (channel == ItemAppearanceArmorColor.Metal1 || channel == ItemAppearanceArmorColor.Metal2)
-              channelChoice = "metal";
-
-            if (nuiEvent.ElementId == "channelSelection")
-            {
-              int nbButton = 0;
-
-              for (int i = 0; i < 4; i++)
+              new NuiSpacer { },
+              new NuiLabel("Actuelle") { Width = 65, VerticalAlign = NuiVAlign.Middle},
+              new NuiButtonImage(currentColor) { Width = 25, Height = 25, Margin = 10 },
+              new NuiCombo
               {
-                NuiGroup paletteGroup = new NuiGroup();
-                paletteGroup.Id = $"paletteGroup{i}"; paletteGroup.Height = 26; paletteGroup.Margin = 0; paletteGroup.Padding = 0; paletteGroup.Scrollbars = NuiScrollbars.None; paletteGroup.Border = false;
-
-                NuiRow row = new NuiRow();
-                List<NuiElement> rowChildren = new List<NuiElement>();
-
-                for (int j = 0; j < 16; j++)
-                {
-                  NuiButtonImage button = new NuiButtonImage(NWScript.ResManGetAliasFor($"{channelChoice}{nbButton + 1}", NWScript.RESTYPE_TGA) != "" ? $"{channelChoice}{nbButton + 1}" : $"leather{nbButton + 1}")
-                  {
-                    Id = $"{nbButton}",
-                    Width = 25,
-                    Height = 25
-                  };
-
-                  rowChildren.Add(button);
-                  nbButton++;
-                }
-
-                row.Children = rowChildren;
-                paletteGroup.Layout = row;
-                paletteGroup.SetLayout(player.oid, nuiEvent.WindowToken, paletteGroup);
-              }
+                Id = "colorChannel", Width = 120,
+                Entries = comboChannel,
+                Selected = channelSelection
+              },
+              new NuiSpacer { }
             }
+          };
 
-            if (nuiEvent.ElementId == "channelSelection" )
+          rootChildren.Add(comboRow);
+
+          int nbButton = 0;
+
+          for (int i = 0; i < 16; i++)
+          {
+            NuiRow row = new NuiRow();
+            List<NuiElement> rowChildren = new List<NuiElement>();
+
+            for (int j = 0; j < 16; j++)
             {
-              int currentColor = ((int)item.Appearance.GetArmorColor(channel)) + 1;
-              new NuiBind<string>("currentColor").SetBindValue(nuiEvent.Player, nuiEvent.WindowToken, NWScript.ResManGetAliasFor($"{channelChoice}{currentColor}", NWScript.RESTYPE_TGA) != "" ? $"{channelChoice}{currentColor}" : $"leather{currentColor}");
+              NuiButtonImage button = new NuiButtonImage(colorBindings[nbButton])
+              {
+                Id = $"{nbButton}",
+                Width = 25,
+                Height = 25
+              };
+
+              rowChildren.Add(button);
+              nbButton++;
             }
-            break;
+
+            row.Children = rowChildren;
+            rootChildren.Add(row);
+          }
+
+          NuiRow buttonRow = new NuiRow()
+          {
+            Children = new List<NuiElement>
+            {
+              new NuiSpacer {},
+              new NuiButton("Apparence")
+              {
+                Id = "openItemAppearance",
+                Width = 80, Height = 35,
+              },
+              new NuiSpacer {}
+            }
+          };
+
+          rootChildren.Add(buttonRow);
+          rootColumn = new NuiColumn { Children = rootChildren };
+
+          CreateWindow(item);
+        }
+        public void CreateWindow(NwItem item)
+        {
+          this.item = item;
+          player.DisableItemAppearanceFeedbackMessages();
+
+          NuiRect windowRectangle = player.windowRectangles.ContainsKey(windowId) ? player.windowRectangles[windowId] : new NuiRect(player.oid.GetDeviceProperty(PlayerDeviceProperty.GuiWidth) * 0.01f, player.oid.GetDeviceProperty(PlayerDeviceProperty.GuiHeight) * 0.01f, player.oid.GetDeviceProperty(PlayerDeviceProperty.GuiWidth) / 4, player.oid.GetDeviceProperty(PlayerDeviceProperty.GuiHeight) / 2);
+
+          window = new NuiWindow(rootColumn, $"Modification des couleurs de {item.Name}")
+          {
+            Geometry = geometry,
+            Resizable = true,
+            Collapsed = false,
+            Closable = true,
+            Transparent = true,
+            Border = true,
+          };
+
+          player.oid.OnNuiEvent -= HandleHelmetColorsEvents;
+          player.oid.OnNuiEvent += HandleHelmetColorsEvents;
+
+          player.ActivateSpotLight();
+
+          token = player.oid.CreateNuiWindow(window, windowId);
+
+          currentColor.SetBindValue(player.oid, token, $"leather{item.Appearance.GetArmorColor(ItemAppearanceArmorColor.Leather1)}");
+          channelSelection.SetBindValue(player.oid, token, 0);
+          channelSelection.SetBindWatch(player.oid, token, true);
+
+          geometry.SetBindValue(player.oid, token, windowRectangle);
+          geometry.SetBindWatch(player.oid, token, true);
+
+          for (int i = 0; i < 256; i++)
+            colorBindings[i].SetBindValue(player.oid, token, NWScript.ResManGetAliasFor($"leather{i + 1}", NWScript.RESTYPE_TGA));
+
+          player.openedWindows[windowId] = token;
+        }
+        private void HandleHelmetColorsEvents(ModuleEvents.OnNuiEvent nuiEvent)
+        {
+          if (nuiEvent.Player.NuiGetWindowId(nuiEvent.WindowToken) != "helmetColorsModifier")
+            return;
+
+          if (nuiEvent.EventType == NuiEventType.Close)
+          {
+            player.EnableItemAppearanceFeedbackMessages();
+            player.RemoveSpotLight();
+            return;
+          }
+
+          if (!item.IsValid || item.Possessor != nuiEvent.Player.ControlledCreature)
+          {
+            nuiEvent.Player.SendServerMessage("L'objet en cours de modification n'est plus en votre possession !", ColorConstants.Red);
+            nuiEvent.Player.NuiDestroy(nuiEvent.WindowToken);
+            return;
+          }
+
+          switch (nuiEvent.EventType)
+          {
+            case NuiEventType.Click:
+
+              if (nuiEvent.ElementId == "openItemAppearance")
+              {
+                nuiEvent.Player.NuiDestroy(nuiEvent.WindowToken);
+
+                if (player.windows.ContainsKey("helmetAppearanceModifier"))
+                  ((HelmetAppearanceWindow)player.windows["helmetAppearanceModifier"]).CreateWindow(item);
+                else
+                  player.windows.Add("helmetAppearanceModifier", new HelmetAppearanceWindow(player, item));
+
+                return;
+              }
+
+              ItemAppearanceArmorColor colorChanel = (ItemAppearanceArmorColor)channelSelection.GetBindValue(nuiEvent.Player, nuiEvent.WindowToken);
+              item.Appearance.SetArmorColor(colorChanel, byte.Parse(nuiEvent.ElementId));
+
+              NwItem newItem = item.Clone(nuiEvent.Player.ControlledCreature);
+              nuiEvent.Player.ControlledCreature.RunEquip(newItem, InventorySlot.Head);
+              item.Destroy();
+              item = newItem;
+
+              currentColor.SetBindValue(nuiEvent.Player, nuiEvent.WindowToken, $"leather{int.Parse(nuiEvent.ElementId) + 1}");
+
+              break;
+
+            case NuiEventType.Watch:
+
+              if (nuiEvent.ElementId == "channelSelection")
+              {
+                string channelChoice = "leather";
+                ItemAppearanceArmorColor selectedChannel = (ItemAppearanceArmorColor)channelSelection.GetBindValue(player.oid, token);
+                if (selectedChannel == ItemAppearanceArmorColor.Metal1 || selectedChannel == ItemAppearanceArmorColor.Metal2)
+                  channelChoice = "metal";
+
+                for (int i = 0; i < 4; i++)
+                  colorBindings[i].SetBindValue(player.oid, token, NWScript.ResManGetAliasFor($"{channelChoice}{i + 1}", NWScript.RESTYPE_TGA) != "" ? $"{channelChoice}{i + 1}" : $"leather{i + 1}");
+
+                int newCurrentColor = item.Appearance.GetArmorColor(selectedChannel) + 1;
+                currentColor.SetBindValue(player.oid, token, NWScript.ResManGetAliasFor($"{channelChoice}{newCurrentColor}", NWScript.RESTYPE_TGA) != "" ? $"{channelChoice}{newCurrentColor}" : $"leather{newCurrentColor}");
+              }
+
+              break;
+          }
         }
       }
     }

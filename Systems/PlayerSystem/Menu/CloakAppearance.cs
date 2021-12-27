@@ -14,172 +14,164 @@ namespace NWN.Systems
   {
     public partial class Player
     {
-      public void CreateCloakAppearanceWindow(NwItem item)
+      public class CloakAppearanceWindow : PlayerWindow
       {
-        string windowId = "cloakAppearanceModifier";
-        DisableItemAppearanceFeedbackMessages();
-        NuiBind<string> title = new NuiBind<string>("title");
-        NuiBind<int> modelSelection = new NuiBind<int>("modelSelection");
-        NuiBind<int> modelSlider = new NuiBind<int>("modelSlider");
-
-        List<NuiComboEntry> modelCombo = CloakModel2da.cloakModelTable.cloakModelEntries;
-
-        NuiBind<NuiRect> geometry = new NuiBind<NuiRect>("geometry");
-        NuiRect windowRectangle = windowRectangles.ContainsKey(windowId) && windowRectangles[windowId].Width > 0 && windowRectangles[windowId].Width <= oid.GetDeviceProperty(PlayerDeviceProperty.GuiWidth) ? windowRectangles[windowId] : new NuiRect(10, oid.GetDeviceProperty(PlayerDeviceProperty.GuiHeight) * 0.01f, oid.GetDeviceProperty(PlayerDeviceProperty.GuiWidth) * 0.7f, oid.GetDeviceProperty(PlayerDeviceProperty.GuiHeight) / 3);
-
-        // Construct the window layout.
-        NuiColumn root = new NuiColumn
+        private NwItem item { get; set; }
+        private readonly NuiColumn rootColumn;
+        private readonly NuiSlider slider;
+        private readonly NuiBind<int> modelSelection = new NuiBind<int>("modelSelection");
+        private readonly NuiBind<int> modelSlider = new NuiBind<int>("modelSlider");
+        public CloakAppearanceWindow(Player player, NwItem item) : base(player)
         {
-          Children = new List<NuiElement>
+          windowId = "cloakAppearanceModifier";
+
+          slider = new NuiSlider(modelSlider, 0, CloakModel2da.cloakModelTable.cloakModelEntries.Count - 1) { Step = 1 };
+
+          rootColumn = new NuiColumn
           {
-            new NuiRow
+            Children = new List<NuiElement>
             {
-              Children = new List<NuiElement>
+              new NuiRow
               {
-                new NuiSpacer(),
-                new NuiButton("Nom & Description") { Id = "openNameDescription", Height = 35, Width = 150 },
-                new NuiButton("Couleurs") { Id = "openColors", Height = 35, Width = 150 },
-                new NuiSpacer()
-              }
-            },
-            new NuiRow
-            {
-              Children = new List<NuiElement>
-              {
-                new NuiLabel("Modèle") { Width = 60, Height = 35, VerticalAlign = NuiVAlign.Middle },
-                new NuiCombo
+                Children = new List<NuiElement>
                 {
-                  Width = 150,
-                  Entries = modelCombo,
-                  Selected = modelSelection
-                },
-                new NuiSlider(modelSlider, 0, modelCombo.Count - 1) { Step = 1,  Width = (windowRectangle.Width - 210)  * 0.96f },
-              }
-            },
-          }
-        };
+                  new NuiSpacer(),
+                  new NuiButton("Nom & Description") { Id = "openNameDescription", Height = 35, Width = 150 },
+                  new NuiButton("Couleurs") { Id = "openColors", Height = 35, Width = 150 },
+                  new NuiSpacer()
+                }
+              },
+              new NuiRow
+              {
+                Children = new List<NuiElement>
+                {
+                  new NuiLabel("Modèle") { Width = 60, Height = 35, VerticalAlign = NuiVAlign.Middle },
+                  new NuiCombo { Width = 150, Entries = CloakModel2da.cloakModelTable.cloakModelEntries, Selected = modelSelection },
+                  slider
+                }
+              },
+            }
+          };
 
-        NuiWindow window = new NuiWindow(root, title)
-        {
-          Geometry = geometry,
-          Resizable = true,
-          Collapsed = false,
-          Closable = true,
-          Transparent = true,
-          Border = true,
-        };
-
-        oid.OnNuiEvent -= HandleCloakAppearanceEvents;
-        oid.OnNuiEvent += HandleCloakAppearanceEvents;
-
-        int token = oid.CreateNuiWindow(window, windowId);
-
-        PlayerPlugin.ApplyLoopingVisualEffectToObject(oid.ControlledCreature, oid.ControlledCreature, 173);
-
-        title.SetBindValue(oid, token, $"Modifier l'apparence de {item.Name}");
-
-        modelSelection.SetBindValue(oid, token, item.Appearance.GetSimpleModel());
-        modelSlider.SetBindValue(oid, token, modelCombo.IndexOf(modelCombo.FirstOrDefault(l => l.Value == item.Appearance.GetSimpleModel())));
-
-        geometry.SetBindValue(oid, token, windowRectangle);
-        geometry.SetBindWatch(oid, token, true);
-
-        Task waitWindowOpened = NwTask.Run(async () =>
-        {
-          await NwTask.Delay(TimeSpan.FromSeconds(0.6));
-
-          modelSelection.SetBindWatch(oid, token, true);
-          modelSlider.SetBindWatch(oid, token, true);
-        });
-      }
-
-      public void HandleCloakModelSliderChange(int windowToken, NwItem cloak)
-      {
-        if (!cloak.IsValid)
-          return;
-
-        int sliderValue = new NuiBind<int>("modelSlider").GetBindValue(oid, windowToken);
-        NuiBind<int> selector = new NuiBind<int>("modelSelection");
-        int selectedValue = selector.GetBindValue(oid, windowToken);
-        int result = CloakModel2da.cloakModelTable.cloakModelEntries.ElementAt(sliderValue).Value;
-
-        cloak.Appearance.SetSimpleModel((byte)result);
-
-        NwItem newItem = cloak.Clone(oid.ControlledCreature);
-        oid.ControlledCreature.RunEquip(newItem, InventorySlot.Cloak);
-        oid.LoginCreature.GetObjectVariable<LocalVariableObject<NwItem>>("_ITEM_SELECTED_FOR_MODIFICATION").Value = newItem;
-        cloak.Destroy();
-
-        selector.SetBindWatch(oid, windowToken, false);
-        selector.SetBindValue(oid, windowToken, result);
-        selector.SetBindWatch(oid, windowToken, true);
-      }
-      public void HandleCloakModelSelectorChange(int windowToken, NwItem cloak)
-      {
-        if (!cloak.IsValid)
-          return;
-
-        int selectorValue = new NuiBind<int>("modelSelection").GetBindValue(oid, windowToken);
-        NuiBind<int> slider = new NuiBind<int>("modelSlider");
-        int sliderResult = CloakModel2da.cloakModelTable.cloakModelEntries.IndexOf(CloakModel2da.cloakModelTable.cloakModelEntries.FirstOrDefault(m => m.Value == selectorValue));
-
-        Log.Info($"selectorValue : {selectorValue}");
-        Log.Info($"model before : {cloak.Appearance.GetSimpleModel()}");
-
-        cloak.Appearance.SetSimpleModel((byte)selectorValue);
-
-        Log.Info($"model after : {cloak.Appearance.GetSimpleModel()}");
-
-        NwItem newItem = cloak.Clone(oid.ControlledCreature);
-        oid.ControlledCreature.RunEquip(newItem, InventorySlot.Cloak);
-        oid.LoginCreature.GetObjectVariable<LocalVariableObject<NwItem>>("_ITEM_SELECTED_FOR_MODIFICATION").Value = newItem;
-        cloak.Destroy();
-
-        slider.SetBindWatch(oid, windowToken, false);
-        slider.SetBindValue(oid, windowToken, sliderResult);
-        slider.SetBindWatch(oid, windowToken, true);
-      }
-
-      private void HandleCloakAppearanceEvents(ModuleEvents.OnNuiEvent nuiEvent)
-      {
-
-        if (nuiEvent.Player.NuiGetWindowId(nuiEvent.WindowToken) != "cloakAppearanceModifier" || !Players.TryGetValue(nuiEvent.Player.LoginCreature, out Player player))
-          return;
-
-        if (nuiEvent.EventType == NuiEventType.Close)
-        {
-          PlayerPlugin.ApplyLoopingVisualEffectToObject(nuiEvent.Player.ControlledCreature, nuiEvent.Player.ControlledCreature, 173);
-          EnableItemAppearanceFeedbackMessages();
-          return;
+          CreateWindow(item);
         }
-
-        NwItem item = nuiEvent.Player.LoginCreature.GetObjectVariable<LocalVariableObject<NwItem>>("_ITEM_SELECTED_FOR_MODIFICATION").Value;
-
-        if (!item.IsValid || item.Possessor != nuiEvent.Player.ControlledCreature)
+        public void CreateWindow(NwItem item)
         {
-          nuiEvent.Player.SendServerMessage("L'objet en cours de modification n'est plus en votre possession !", ColorConstants.Red);
-          nuiEvent.Player.NuiDestroy(nuiEvent.WindowToken);
-          return;
-        }
+          player.DisableItemAppearanceFeedbackMessages();
+          this.item = item;
 
-        if (nuiEvent.EventType == NuiEventType.Click && nuiEvent.ElementId == "openColors")
-        {
-          nuiEvent.Player.NuiDestroy(nuiEvent.WindowToken);
-          player.CreateCloakColorsWindow(item);
-          return;
-        }
+          NuiRect windowRectangle = player.windowRectangles.ContainsKey(windowId) ? player.windowRectangles[windowId] : new NuiRect(10, player.oid.GetDeviceProperty(PlayerDeviceProperty.GuiHeight) * 0.01f, player.oid.GetDeviceProperty(PlayerDeviceProperty.GuiWidth) * 0.7f, player.oid.GetDeviceProperty(PlayerDeviceProperty.GuiHeight) / 3);
 
-        if (nuiEvent.EventType == NuiEventType.Watch)
-          switch (nuiEvent.ElementId)
+          slider.Width = (windowRectangle.Width - 210) * 0.96f;
+
+          window = new NuiWindow(rootColumn, $"Modifier l'apparence de {item.Name}")
           {
-            case "modelSlider":
-              player.HandleCloakModelSliderChange(nuiEvent.WindowToken, item);
-              break;
+            Geometry = geometry,
+            Resizable = true,
+            Collapsed = false,
+            Closable = true,
+            Transparent = true,
+            Border = true,
+          };
 
-            case "modelSelection":
-              player.HandleCloakModelSelectorChange(nuiEvent.WindowToken, item);
-              break;
+          player.oid.OnNuiEvent -= HandleCloakAppearanceEvents;
+          player.oid.OnNuiEvent += HandleCloakAppearanceEvents;
+
+          token = player.oid.CreateNuiWindow(window, windowId);
+
+          PlayerPlugin.ApplyLoopingVisualEffectToObject(player.oid.ControlledCreature, player.oid.ControlledCreature, 173);
+
+          modelSelection.SetBindValue(player.oid, token, item.Appearance.GetSimpleModel());
+          modelSlider.SetBindValue(player.oid, token, CloakModel2da.cloakModelTable.cloakModelEntries.IndexOf(CloakModel2da.cloakModelTable.cloakModelEntries.FirstOrDefault(l => l.Value == item.Appearance.GetSimpleModel())));
+
+          geometry.SetBindValue(player.oid, token, windowRectangle);
+          geometry.SetBindWatch(player.oid, token, true);
+
+          /*Task waitWindowOpened = NwTask.Run(async () =>
+          {
+            await NwTask.Delay(TimeSpan.FromSeconds(0.6));
+          */
+            modelSelection.SetBindWatch(player.oid, token, true);
+            modelSlider.SetBindWatch(player.oid, token, true);
+          //});
+        }
+        private void HandleCloakAppearanceEvents(ModuleEvents.OnNuiEvent nuiEvent)
+        {
+
+          if (nuiEvent.Player.NuiGetWindowId(nuiEvent.WindowToken) != "cloakAppearanceModifier")
+            return;
+
+          if (nuiEvent.EventType == NuiEventType.Close)
+          {
+            PlayerPlugin.ApplyLoopingVisualEffectToObject(nuiEvent.Player.ControlledCreature, nuiEvent.Player.ControlledCreature, 173);
+            player.EnableItemAppearanceFeedbackMessages();
+            return;
           }
+
+          if (!item.IsValid || item.Possessor != nuiEvent.Player.ControlledCreature)
+          {
+            nuiEvent.Player.SendServerMessage("L'objet en cours de modification n'est plus en votre possession !", ColorConstants.Red);
+            nuiEvent.Player.NuiDestroy(nuiEvent.WindowToken);
+            return;
+          }
+
+          if (nuiEvent.EventType == NuiEventType.Click && nuiEvent.ElementId == "openColors")
+          {
+            nuiEvent.Player.NuiDestroy(nuiEvent.WindowToken);
+            player.CreateCloakColorsWindow(item);
+            return;
+          }
+
+          if (nuiEvent.EventType == NuiEventType.Watch)
+            switch (nuiEvent.ElementId)
+            {
+              case "modelSlider":
+                HandleCloakModelSliderChange();
+                break;
+
+              case "modelSelection":
+                HandleCloakModelSelectorChange();
+                break;
+            }
+        }
+        public void HandleCloakModelSliderChange()
+        {
+          if (!item.IsValid)
+            return;
+
+          int sliderValue = modelSlider.GetBindValue(player.oid, token);
+          int result = CloakModel2da.cloakModelTable.cloakModelEntries.ElementAt(sliderValue).Value;
+
+          item.Appearance.SetSimpleModel((byte)result);
+
+          NwItem newItem = item.Clone(player.oid.ControlledCreature);
+          player.oid.ControlledCreature.RunEquip(newItem, InventorySlot.Cloak);
+          item.Destroy();
+          item = newItem;
+
+          modelSelection.SetBindWatch(player.oid, token, false);
+          modelSelection.SetBindValue(player.oid, token, result);
+          modelSelection.SetBindWatch(player.oid, token, true);
+        }
+        public void HandleCloakModelSelectorChange()
+        {
+          if (!item.IsValid)
+            return;
+
+          int selectorValue = modelSelection.GetBindValue(player.oid, token);
+          int sliderResult = CloakModel2da.cloakModelTable.cloakModelEntries.IndexOf(CloakModel2da.cloakModelTable.cloakModelEntries.FirstOrDefault(m => m.Value == selectorValue));
+
+          item.Appearance.SetSimpleModel((byte)selectorValue);
+
+          NwItem newItem = item.Clone(player.oid.ControlledCreature);
+          player.oid.ControlledCreature.RunEquip(newItem, InventorySlot.Cloak);
+          item.Destroy();
+          item = newItem;
+
+          modelSlider.SetBindWatch(player.oid, token, false);
+          modelSlider.SetBindValue(player.oid, token, sliderResult);
+          modelSlider.SetBindWatch(player.oid, token, true);
+        }
       }
     }
   }

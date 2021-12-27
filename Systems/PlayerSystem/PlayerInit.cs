@@ -43,7 +43,9 @@ namespace NWN.Systems
           player.TeleportPlayerToSavedLocation();
         }
       }
-      
+
+      player.currentLanguage = 0;
+
       if (oPC.IsDM)
         return;
 

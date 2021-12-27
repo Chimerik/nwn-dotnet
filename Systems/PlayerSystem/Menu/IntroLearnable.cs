@@ -12,27 +12,21 @@ namespace NWN.Systems
     {
       public class IntroLearnableWindow : PlayerWindow
       {
-        NuiGroup rootGroup { get; }
-        NuiColumn rootColumn { get; }
-        NuiRow buttonRow { get; }
-        NuiRow searchRow { get; }
-        NuiRow textRow { get; }
-        List<NuiElement> rootChidren { get; }
-        NuiBind<string> search { get; }
-        NuiColor white { get; }
-        NuiRect drawListRect { get; }
-        NuiBind<string> displayText { get; }
+        private readonly NuiGroup rootGroup;
+        private readonly NuiColumn rootColumn;
+        private readonly NuiRow buttonRow;
+        private readonly NuiRow searchRow;
+        private readonly NuiRow textRow;
+        private readonly List<NuiElement> rootChidren = new List<NuiElement>();
+        private readonly NuiBind<string> search = new NuiBind<string>("search");
+        private readonly NuiColor white = new NuiColor(255, 255, 255);
+        private readonly NuiRect drawListRect = new NuiRect(0, 35, 150, 60);
+        private readonly NuiBind<string> displayText = new NuiBind<string>("text");
 
         public IntroLearnableWindow(Player player) : base(player)
         {
           windowId = "introLearnable";
 
-          displayText = new NuiBind<string>("text");
-          white = new NuiColor(255, 255, 255);
-          drawListRect = new NuiRect(0, 35, 150, 60);
-          search = new NuiBind<string>("search");
-
-          rootChidren = new List<NuiElement>();
           rootColumn = new NuiColumn() { Children = rootChidren };
           rootGroup = new NuiGroup() { Id = "learnableGroup", Border = true, Layout = rootColumn };
 
@@ -133,10 +127,12 @@ namespace NWN.Systems
                   if (player.openedWindows.ContainsKey("activeLearnable"))
                     player.oid.NuiDestroy(player.openedWindows["activeLearnable"]);
 
+                  player.learnableSkills[learnableId].StartLearning(player);
+
                   if (player.windows.ContainsKey("activeLearnable"))
-                    ((ActiveLearnableWindow)player.windows["activeLearnable"]).CreateWindow(learnableId);
+                    ((ActiveLearnableWindow)player.windows["activeLearnable"]).CreateWindow();
                   else
-                    player.windows.Add("activeLearnable", new ActiveLearnableWindow(player, learnableId));
+                    player.windows.Add("activeLearnable", new ActiveLearnableWindow(player));
 
                   player.oid.LoginCreature.GetObjectVariable<PersistentVariableInt>("_STARTING_SKILL_POINTS").Delete();
                   player.oid.LoginCreature.Area.GetObjectVariable<LocalVariableInt>("_GO").Value = 1;

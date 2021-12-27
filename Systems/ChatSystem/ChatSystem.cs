@@ -33,7 +33,7 @@ namespace NWN.Systems
       if (!(onChat.Sender is NwCreature oSender) || oSender.GetObjectVariable<LocalVariableString>("_AWAITING_PLAYER_INPUT").HasValue)
         return;
 
-      if (!oSender.IsPlayerControlled && !PlayerSystem.Players.TryGetValue(oSender.ControllingPlayer.LoginCreature, out PlayerSystem.Player player))
+      if (!oSender.IsPlayerControlled || !PlayerSystem.Players.TryGetValue(oSender.ControllingPlayer.LoginCreature, out PlayerSystem.Player player))
         return;
 
       if (oSender.Area != null)
@@ -49,7 +49,7 @@ namespace NWN.Systems
         oTarget: onChat.Target,
         channel: onChat.ChatChannel,
         onChat: onChat,
-        language: oSender.ControllingPlayer.LoginCreature.GetObjectVariable<LocalVariableInt>("_ACTIVE_LANGUAGE").HasValue ? SkillSystem.learnableDictionary[oSender.ControllingPlayer.LoginCreature.GetObjectVariable<LocalVariableInt>("_ACTIVE_LANGUAGE").Value] : null
+        language: player.currentLanguage
       ));
     }
 
@@ -63,14 +63,14 @@ namespace NWN.Systems
       public Learnable language { get; }
       public ChatLine chatLine { get; set; }
 
-      public Context(string msg, NwPlayer oSender, NwPlayer oTarget, ChatChannel channel, OnChatMessageSend onChat, Learnable language)
+      public Context(string msg, NwPlayer oSender, NwPlayer oTarget, ChatChannel channel, OnChatMessageSend onChat, int language)
       {
         this.msg = msg;
         this.oSender = oSender;
         this.oTarget = oTarget;
         this.channel = channel;
         this.onChat = onChat;
-        this.language = language;
+        this.language = language > 0 ? SkillSystem.learnableDictionary[language] : null;
         chatLine = new ChatLine(oSender.ControlledCreature.PortraitResRef + "t", oSender.ControlledCreature.Name, oSender.PlayerName, msg, "", channel,
           msg.Trim().StartsWith("(") || channel == ChatChannel.PlayerParty ? ChatLine.ChatCategory.HorsRolePlay : ChatLine.ChatCategory.RolePlay,
           oTarget?.PlayerName, oTarget?.LoginCreature.PortraitResRef + "t");

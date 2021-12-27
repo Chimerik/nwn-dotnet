@@ -48,7 +48,10 @@ namespace NWN.Systems
       switch (item.BaseItem.ItemType)
       {
         case BaseItemType.Armor:
-          player.CreateArmorAppearanceWindow(item);
+          if (player.windows.ContainsKey("itemAppearanceModifier"))
+            ((PlayerSystem.Player.ArmorAppearanceWindow)player.windows["itemAppearanceModifier"]).CreateWindow(item);
+          else
+            player.windows.Add("itemAppearanceModifier", new PlayerSystem.Player.ArmorAppearanceWindow(player, item));
           //DrawArmorModificationMenu();
           break;
         case BaseItemType.Bastardsword:
@@ -123,7 +126,10 @@ namespace NWN.Systems
           player.CreateHelmetAppearanceWindow(item);
           break;
         case BaseItemType.Cloak:
-          player.CreateCloakAppearanceWindow(item);
+          if (player.windows.ContainsKey("cloakAppearanceModifier"))
+            ((PlayerSystem.Player.CloakAppearanceWindow)player.windows["cloakAppearanceModifier"]).CreateWindow(item);
+          else
+            player.windows.Add("cloakAppearanceModifier", new PlayerSystem.Player.CloakAppearanceWindow(player, item));
           //DrawHelmetCloakModificationMenu();
           break;
       }

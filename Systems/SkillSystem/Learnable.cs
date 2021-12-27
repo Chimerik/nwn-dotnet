@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using System.Threading;
 
 using Anvil.API;
@@ -69,14 +70,7 @@ namespace NWN.Systems
     public async void AwaitPlayerStateChangeToCalculateSPGain(PlayerSystem.Player player)
     {
       TimeSpan timeToNextLevel = GetTimeSpanToNextLevel(player);
-
-      if (timeToNextLevel.TotalSeconds <= 0)
-      {
-        LevelUpWrapper(player);
-        return;
-      }
-
-      var scheduler = ModuleSystem.scheduler.Schedule(() => { LevelUpWrapper(player);}, GetTimeSpanToNextLevel(player));
+      var scheduler = ModuleSystem.scheduler.Schedule(() => { LevelUpWrapper(player);}, timeToNextLevel.TotalSeconds > 0 ? timeToNextLevel: TimeSpan.FromSeconds(0));
 
       CancellationTokenSource tokenSource = new CancellationTokenSource();
 
@@ -125,6 +119,17 @@ namespace NWN.Systems
       await NwTask.Delay(TimeSpan.FromSeconds(2));
       player.oid.ApplyInstantVisualEffectToObject((VfxType)1516, player.oid.ControlledCreature);
       player.oid.PlaySound("gui_level_up");
+    }
+    public void StartLearning(PlayerSystem.Player player) // on met en pause le learnable précédent et on active le nouveau
+    {
+      if (player.learnableSpells.Any(l => l.Value.active))
+        player.learnableSpells.FirstOrDefault(l => l.Value.active).Value.active = false;
+      else if (player.learnableSkills.Any(l => l.Value.active))
+        player.learnableSkills.FirstOrDefault(l => l.Value.active).Value.active = false;
+
+      active = true;
+      spLastCalculation = DateTime.Now;
+      AwaitPlayerStateChangeToCalculateSPGain(player);
     }
   }
 }

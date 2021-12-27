@@ -14,9 +14,10 @@ namespace NWN.Systems
     {
       public class ChatWriterWindow : PlayerWindow
       {
-        NuiBind<string> writingChat { get; }
-        NuiBind<int> channel { get; }
-        NuiBind<bool> makeStatic { get; }
+        private readonly NuiBind<string> writingChat = new NuiBind<string>("writingChat");
+        private readonly NuiBind<int> channel = new NuiBind<int>("channel");
+        private readonly NuiBind<int> language = new NuiBind<int>("language");
+        private readonly NuiBind<bool> makeStatic = new NuiBind<bool>("static");
         NuiGroup chatWriterGroup { get; }
         NuiRow rootRow { get; }
         NuiTextEdit textEdit { get; }
@@ -25,9 +26,6 @@ namespace NWN.Systems
         public ChatWriterWindow(Player player) : base(player)
         {
           windowId = "chat";
-          writingChat = new NuiBind<string>("writingChat");
-          channel = new NuiBind<int>("channel");
-          makeStatic = new NuiBind<bool>("static");
           NuiRect windowRectangle = player.windowRectangles.ContainsKey(windowId) && player.windowRectangles[windowId].Width > 0 && player.windowRectangles[windowId].Width <= player.oid.GetDeviceProperty(PlayerDeviceProperty.GuiWidth) ? player.windowRectangles[windowId] : new NuiRect(10, player.oid.GetDeviceProperty(PlayerDeviceProperty.GuiHeight) * 0.01f, player.oid.GetDeviceProperty(PlayerDeviceProperty.GuiWidth) * 0.7f, player.oid.GetDeviceProperty(PlayerDeviceProperty.GuiHeight) / 3);
 
           List<NuiComboEntry> comboValues = new List<NuiComboEntry>
@@ -38,6 +36,13 @@ namespace NWN.Systems
             new NuiComboEntry("MD", 14),
             new NuiComboEntry("Crier", 2)
           };
+
+          List<NuiComboEntry> languageValues = new List<NuiComboEntry>();
+
+          languageValues.Add(new NuiComboEntry("Commun", 0));
+
+          foreach (var language in player.learnableSkills.Values.Where(l => l.category == SkillSystem.Category.Language && l.currentLevel > 0))
+            languageValues.Add(new NuiComboEntry(language.name, language.id));
 
           textEdit = new NuiTextEdit("", writingChat, 3000, true) { Id = "chatWriter", Height = (windowRectangle.Height - 160) * 0.96f, Width = windowRectangle.Width * 0.96f };
 
@@ -57,6 +62,12 @@ namespace NWN.Systems
                   {
                     Entries = comboValues,
                     Selected = channel
+                  },
+                  new NuiSpacer(),
+                  new NuiCombo
+                  {
+                    Entries = languageValues,
+                    Selected = language
                   },
                   new NuiSpacer(),
                   new NuiCheck("Figer", makeStatic) { Id = "fix", Tooltip = "Permet d'ancrer la fenêtre à l'écran", Width = 60 }
@@ -83,6 +94,8 @@ namespace NWN.Systems
 
           writingChat.SetBindValue(player.oid, token, writingChat.GetBindValue(player.oid, token));
           channel.SetBindValue(player.oid, token, 0);
+          language.SetBindValue(player.oid, token, 0);
+          language.SetBindWatch(player.oid, token, true);
           makeStatic.SetBindValue(player.oid, token, false);
           resizable.SetBindValue(player.oid, token, true);
           closable.SetBindValue(player.oid, token, true);
@@ -233,6 +246,11 @@ namespace NWN.Systems
               chatWriterGroup.SetLayout(player.oid, token, rootRow);
               geometry.SetBindWatch(nuiEvent.Player, nuiEvent.WindowToken, true);
 
+              break;
+
+            case "language":
+              if (nuiEvent.EventType == NuiEventType.Watch)
+                player.currentLanguage = language.GetBindValue(player.oid, token);
               break;
           }
         }

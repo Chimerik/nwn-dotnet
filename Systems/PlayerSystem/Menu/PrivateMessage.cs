@@ -14,25 +14,21 @@ namespace NWN.Systems
     {
       public class PrivateMessageWindow : PlayerWindow
       {
-        NuiBind<bool> makeStatic { get; }
-        float characterWidth = 8 /* oid.GetDeviceProperty(PlayerDeviceProperty.GuiScale) / 100*/;
-        float spaceWidth = 4;
-        float characterHeight = 18 /* oid.GetDeviceProperty(PlayerDeviceProperty.GuiScale) / 100*/;
-
-        NuiGroup chatReaderGroup { get; }
-        NuiColumn rootColumn { get; }
-        NuiColumn colChatLog { get; }
-        List<NuiElement> colChatLogChidren { get; }
-        NuiRow settingsRow { get; }
-        NuiBind<string> writingChat { get; }
+        private readonly float characterWidth = 8 /* oid.GetDeviceProperty(PlayerDeviceProperty.GuiScale) / 100*/;
+        private readonly float spaceWidth = 4;
+        private readonly float characterHeight = 18 /* oid.GetDeviceProperty(PlayerDeviceProperty.GuiScale) / 100*/;
+        private readonly NuiGroup chatReaderGroup;
+        private readonly NuiColumn rootColumn;
+        private readonly NuiColumn colChatLog;
+        private readonly List<NuiElement> colChatLogChidren;
+        private readonly NuiRow settingsRow;
+        private readonly NuiBind<string> writingChat = new NuiBind<string>("writingChat");
+        private readonly NuiBind<bool> makeStatic = new NuiBind<bool>("static");
         public bool read { get; set; }
 
         public PrivateMessageWindow(Player player, NwPlayer receiver) : base(player)
         {
           windowId = receiver.PlayerName;
-
-          makeStatic = new NuiBind<bool>("static");
-          writingChat = new NuiBind<string>("writingChat");
 
           List<NuiElement> colChidren = new List<NuiElement>();
           rootColumn = new NuiColumn() { Children = colChidren };

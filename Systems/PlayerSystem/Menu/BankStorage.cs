@@ -49,7 +49,7 @@ namespace NWN.Systems
               DrawList = new List<NuiDrawListItem>()
               {
                 new NuiDrawListImage(topIcon, imagePosition),
-                new NuiDrawListImage(midIcon, imagePosition) { Enabled = enabled,  },
+                new NuiDrawListImage(midIcon, imagePosition) { Enabled = enabled },
                 new NuiDrawListImage(botIcon, imagePosition) { Enabled = enabled }
 
               }
