@@ -6,30 +6,30 @@ namespace NWN.Systems
 {
   public class AmbientMusicTable : ITwoDimArray
   {
-    private readonly Dictionary<int, Entry> entries = new Dictionary<int, Entry>();
-
-    public Entry GeAmbientMusicDataEntry(int row)
-    {
-      return entries[row];
-    }
-    public string GetName(int row)
-    {
-      return entries[row].name;
-    }
+    public readonly Dictionary<int, Entry> entries = new Dictionary<int, Entry>();
 
     void ITwoDimArray.DeserializeRow(int rowIndex, TwoDimEntry twoDimEntry)
     {
-      uint strRef = uint.TryParse(twoDimEntry("Description"), out strRef) ? strRef : 0;
-      string name = strRef == 0 ? name = "Musique" : name = AmbientMusic2da.tlkTable.GetSimpleString(strRef);
-      entries.Add(rowIndex, new Entry(name));
+      int gender = int.TryParse(twoDimEntry("Gender"), out gender) ? gender : -1;
+
+      if (gender < 0)
+        return;
+
+      string name = twoDimEntry("DisplayName");
+
+      entries.Add(rowIndex, new Entry(rowIndex, name, (Gender)gender));
     }
     public readonly struct Entry
     {
+      public readonly int id;
       public readonly string name;
+      public readonly Gender gender;
 
-      public Entry(string name)
+      public Entry(int id, string name, Gender gender)
       {
+        this.id = id;
         this.name = name;
+        this.gender = gender;
       }
     }
   }
@@ -37,11 +37,9 @@ namespace NWN.Systems
   [ServiceBinding(typeof(AmbientMusic2da))]
   public class AmbientMusic2da
   {
-    public static TlkTable tlkTable;
     public static AmbientMusicTable ambientMusicTable;
     public AmbientMusic2da(TwoDimArrayFactory twoDimArrayFactory, TlkTable tlkService)
     {
-      tlkTable = tlkService;
       ambientMusicTable = twoDimArrayFactory.Get2DA<AmbientMusicTable>("ambientmusic");
     }
   }

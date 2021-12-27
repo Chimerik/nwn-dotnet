@@ -38,7 +38,6 @@ namespace NWN.Systems
     {
       if (!Players.TryGetValue(onConversation.LastSpeaker, out Player player))
         return;
-      //new Bank(player);
 
       if (player.windows.ContainsKey("bankCounter"))
         ((Player.BankCounterWindow)player.windows["bankCounter"]).CreateWindow();
@@ -68,12 +67,12 @@ namespace NWN.Systems
     public static void StartJukeboxDialog(CreatureEvents.OnConversation onConversation)
     {
       if (Players.TryGetValue(onConversation.LastSpeaker, out Player player))
-        new Jukebox(player, onConversation.CurrentSpeaker);
-    }
-    public static void StartBardeDragonDialog(CreatureEvents.OnConversation onConversation)
-    {
-      if (Players.TryGetValue(onConversation.LastSpeaker, out Player player))
-        new BardeDragon(player, onConversation.CurrentSpeaker);
+      {
+        if (player.windows.ContainsKey("jukebox"))
+          ((Player.JukeBoxWindow)player.windows["jukebox"]).CreateWindow(onConversation.CurrentSpeaker);
+        else
+          player.windows.Add("jukebox", new Player.JukeBoxWindow(player, onConversation.CurrentSpeaker));
+      }
     }
     public static void StartRumorsDialog(CreatureEvents.OnConversation onConversation)
     {

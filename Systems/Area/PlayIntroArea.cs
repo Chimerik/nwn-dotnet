@@ -91,6 +91,7 @@ namespace NWN.Systems
         await oPC.LoginCreature.ClearActionQueue();
         Utils.DestroyInventory(oPC.LoginCreature);
         Utils.DestroyEquippedItems(oPC.LoginCreature);
+        await NwItem.Create("learning_book", oPC.LoginCreature);
         NwItem rags = await NwItem.Create("rags", oPC.LoginCreature);
         rags.GetObjectVariable<LocalVariableString>("ITEM_KEY").Value = Config.itemKey;
         oPC.LoginCreature.RunEquip(rags, InventorySlot.Chest);

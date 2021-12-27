@@ -155,6 +155,17 @@ namespace NWN.Systems
               player.windows.Add("bankContract", new PlayerSystem.Player.BankContractWindow(player, oItem));
           }
           break;
+        case "learning_book":
+          if (PlayerSystem.Players.TryGetValue(oPC, out PlayerSystem.Player pc))
+          {
+            onItemUse.PreventUseItem = true;
+
+            if (pc.windows.ContainsKey("learnable"))
+              ((PlayerSystem.Player.LearnableWindow)pc.windows["learnable"]).CreateWindow();
+            else
+              pc.windows.Add("learnable", new PlayerSystem.Player.LearnableWindow(pc));
+          }
+          break;
       }
 
       Task wait = NwTask.Run(async () =>
