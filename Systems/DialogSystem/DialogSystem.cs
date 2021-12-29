@@ -77,7 +77,12 @@ namespace NWN.Systems
     public static void StartRumorsDialog(CreatureEvents.OnConversation onConversation)
     {
       if (Players.TryGetValue(onConversation.LastSpeaker, out Player player))
-        new Rumors(player);
+      {
+        if (player.windows.ContainsKey("rumors"))
+          ((Player.RumorsWindow)player.windows["rumors"]).CreateWindow();
+        else
+          player.windows.Add("rumors", new Player.RumorsWindow(player, onConversation.CurrentSpeaker));
+      }
     }
     public static void StartTribunalShopDialog(CreatureEvents.OnConversation onConversation)
     {
