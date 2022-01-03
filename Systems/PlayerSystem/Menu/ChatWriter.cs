@@ -58,17 +58,9 @@ namespace NWN.Systems
               {
                 Children = new List<NuiElement>
                 {
-                  new NuiCombo
-                  {
-                    Entries = comboValues,
-                    Selected = channel
-                  },
+                  new NuiCombo { Entries = comboValues, Selected = channel },
                   new NuiSpacer(),
-                  new NuiCombo
-                  {
-                    Entries = languageValues,
-                    Selected = language
-                  },
+                  new NuiCombo { Entries = languageValues, Selected = language },
                   new NuiSpacer(),
                   new NuiCheck("Figer", makeStatic) { Id = "fix", Tooltip = "Permet d'ancrer la fenêtre à l'écran", Width = 60 }
                 }

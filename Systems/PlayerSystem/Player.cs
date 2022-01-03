@@ -49,7 +49,6 @@ namespace NWN.Systems
       public Dictionary<Feat, int> learntCustomFeats = new Dictionary<Feat, int>();
       public Dictionary<int, LearnableSkill> learnableSkills = new Dictionary<int, LearnableSkill>();
       public Dictionary<int, LearnableSpell> learnableSpells = new Dictionary<int, LearnableSpell>();
-      public Dictionary<string, int> materialStock = new Dictionary<string, int>();
       public Dictionary<int, MapPin> mapPinDictionnary = new Dictionary<int, MapPin>();
       public Dictionary<string, byte[]> areaExplorationStateDictionnary = new Dictionary<string, byte[]>();
       public Dictionary<ChatChannel, Color> chatColors = new Dictionary<ChatChannel, Color>();
@@ -57,6 +56,9 @@ namespace NWN.Systems
       public Dictionary<string, NuiRect> windowRectangles = new Dictionary<string, NuiRect>();
       public Dictionary<string, int> openedWindows = new Dictionary<string, int>();
       public List<ChatLine> readChatLines = new List<ChatLine>();
+
+      public Dictionary<string, int> materialStock = new Dictionary<string, int>();
+      public List<CraftResource> craftResourceStock = new List<CraftResource>();
 
       public enum PcState
       {
