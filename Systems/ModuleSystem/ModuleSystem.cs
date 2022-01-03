@@ -157,9 +157,10 @@ namespace NWN.Systems
 
       SqLiteUtils.CreateQuery("CREATE TABLE IF NOT EXISTS playerCharacters" +
         "('accountId' INTEGER NOT NULL, 'characterName' TEXT NOT NULL, 'dateLastSaved' TEXT NOT NULL, 'previousSPCalculation' TEXT, 'serializedLearnables' TEXT," +
-        "'currentCraftJobRemainingTime' REAL, 'currentCraftJob' INTEGER NOT NULL, 'currentCraftObject' TEXT NOT NULL," +
-        "'currentCraftJobMaterial' TEXT, 'location' TEXT, 'openedWindows' TEXT," +
-        "'currentHP' INTEGER, 'bankGold' INTEGER, 'pveArenaCurrentPoints' INTEGER, 'menuOriginTop' INTEGER, 'menuOriginLeft' INTEGER, 'storage' TEXT, 'alchemyCauldron' TEXT, 'explorationState' TEXT)");
+        "'currentCraftJobRemainingTime' REAL, 'currentCraftJob' INTEGER NOT NULL, 'currentCraftObject' TEXT NOT NULL, " +
+        "'currentCraftJobMaterial' TEXT, 'location' TEXT, 'openedWindows' TEXT, " +
+        "'currentHP' INTEGER, 'bankGold' INTEGER, 'pveArenaCurrentPoints' INTEGER, 'menuOriginTop' INTEGER, 'menuOriginLeft' INTEGER, 'storage' TEXT, " +
+        "'alchemyCauldron' TEXT, 'explorationState' TEXT, 'persistantStorage' TEXT, 'materialStorage' TEXT)");
 
       SqLiteUtils.CreateQuery("CREATE TABLE IF NOT EXISTS playerMaterialStorage" +
         "('characterId' INTEGER NOT NULL, 'materialName' TEXT NOT NULL, 'materialStock' INTEGER, UNIQUE (characterId, materialName))");

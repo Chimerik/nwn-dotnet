@@ -312,11 +312,6 @@ namespace NWN.Systems
         ((Player.BankStorageWindow)player.windows["bankStorage"]).CreateWindow();
       else
         player.windows.Add("bankStorage", new Player.BankStorageWindow(player));
-
-      /*var query = await SqLiteUtils.SelectQueryAsync("playerCharacters",
-      new List<string>() { { "persistantStorage" } },
-      new List<string[]>() { new string[] { "characterId", player.characterId.ToString() } });*/
-
     }
   }
 }

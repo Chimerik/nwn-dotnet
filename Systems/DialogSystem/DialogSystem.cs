@@ -117,7 +117,12 @@ namespace NWN.Systems
     public static void StartBodyModifierDialog(PlaceableEvents.OnUsed onUsed)
     {
       if (Players.TryGetValue(onUsed.UsedBy, out Player player))
-        new BodyModifier(player, onUsed.Placeable);
+      {
+        if (player.windows.ContainsKey("bodyAppearanceModifier"))
+          ((Player.BodyAppearanceWindow)player.windows["bodyAppearanceModifier"]).CreateWindow();
+        else
+          player.windows.Add("bodyAppearanceModifier", new Player.BodyAppearanceWindow(player));
+      }
     }
     public static void StartScierieDialog(PlaceableEvents.OnUsed onUsed)
     {

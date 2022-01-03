@@ -21,6 +21,11 @@ namespace NWN.Systems.Craft.Collect
     public static string[] commonPelts = new string[] { "alligator", "crocodile", "crocblinde", "varan" };
     public static string[] normalPelts = new string[] { "basilisk", "jhakar", "gorgon", "bulette", "dagon" };
 
+    public static CraftResource[] craftResourceArray = new CraftResource[] 
+    { 
+      new CraftResource(ResourceType.Ore, "Un phénomène mystérieux provoque l'agglomération de Substance à certains minerais bruts, qu'on appelle alors 'matéria'.\n\nCette matéria brute doit être raffinée avant de pouvoir être utilisée par un artisan.", 82, 1, new decimal(0.5)) 
+    }; 
+
     public static Dictionary<int, Feat> craftBaseItemFeatDictionnary = new Dictionary<int, Feat>()
     {
       {-13, CustomFeats.Research },

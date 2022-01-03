@@ -363,7 +363,7 @@ namespace NWN.Systems
       private void InitializePlayerCharacter()
       {
         var result = SqLiteUtils.SelectQuery("playerCharacters",
-            new List<string>() { { "location" }, { "currentHP" }, { "bankGold" }, { "dateLastSaved" }, { "currentCraftJob" }, { "currentCraftObject" }, { "currentCraftJobRemainingTime" }, { "currentCraftJobMaterial" }, { "menuOriginTop" }, { "menuOriginLeft" }, { "pveArenaCurrentPoints" }, { "alchemyCauldron" }, { "previousSPCalculation" }, { "serializedLearnableSkills" }, { "serializedLearnableSpells" }, { "explorationState" }, { "openedWindows" } },
+            new List<string>() { { "location" }, { "currentHP" }, { "bankGold" }, { "dateLastSaved" }, { "currentCraftJob" }, { "currentCraftObject" }, { "currentCraftJobRemainingTime" }, { "currentCraftJobMaterial" }, { "menuOriginTop" }, { "menuOriginLeft" }, { "pveArenaCurrentPoints" }, { "alchemyCauldron" }, { "previousSPCalculation" }, { "serializedLearnableSkills" }, { "serializedLearnableSpells" }, { "explorationState" }, { "openedWindows" }, { "materialStorage" } },
             new List<string[]>() { { new string[] { "rowid", characterId.ToString() } } });
 
         if (result.Result == null)
@@ -385,17 +385,18 @@ namespace NWN.Systems
         string serializedLearnableSpells = result.Result.GetString(14);
         string serializedExploration = result.Result.GetString(15);
         string serializedOpenedWindows = result.Result.GetString(16);
+        string serializedCraftResources = result.Result.GetString(17);
 
-        InitializePlayerAsync(serializedCauldron, serializedExploration, serializedLearnableSkills, serializedLearnableSpells, serializedOpenedWindows);
+        InitializePlayerAsync(serializedCauldron, serializedExploration, serializedLearnableSkills, serializedLearnableSpells, serializedOpenedWindows, serializedCraftResources);
 
-        result = SqLiteUtils.SelectQuery("playerMaterialStorage",
+        /*result = SqLiteUtils.SelectQuery("playerMaterialStorage",
           new List<string>() { { "materialName" }, { "materialStock" } },
           new List<string[]>() { { new string[] { "characterId", accountId.ToString() } } });
 
         foreach (var material in result.Results)
-          materialStock.Add(material.GetString(0), material.GetInt(1));
+          materialStock.Add(material.GetString(0), material.GetInt(1));*/
       }
-      private async void InitializePlayerAsync(string serializedCauldron, string serializedExploration, string serializedLearnableSkills, string serializedLearnableSpells, string serializedOpenedWindows)
+      private async void InitializePlayerAsync(string serializedCauldron, string serializedExploration, string serializedLearnableSkills, string serializedLearnableSpells, string serializedOpenedWindows, string serializedCraftResources)
       {
         Log.Info("starting async init");
 
@@ -443,6 +444,17 @@ namespace NWN.Systems
 
           foreach (var kvp in serializableSpells)
             learnableSpells.Add(kvp.Key, new LearnableSpell((LearnableSpell)SkillSystem.learnableDictionary[kvp.Key], kvp.Value));
+        });
+
+        Task loadMateriaTask = Task.Run(() =>
+        {
+          if (string.IsNullOrEmpty(serializedCraftResources))
+            return;
+
+          List<CraftResource.SerializableCraftResource> serializableCraftResource = JsonConvert.DeserializeObject<List<CraftResource.SerializableCraftResource>> (serializedCraftResources);
+
+          foreach (CraftResource.SerializableCraftResource serializedMateria in serializableCraftResource)
+            craftResourceStock.Add(new CraftResource(Craft.Collect.System.craftResourceArray.FirstOrDefault(r => r.type == serializedMateria.type && r.grade == serializedMateria.grade), serializedMateria.quantity));
         });
 
         await Task.WhenAll(loadSkillsTask, loadSpellsTask, loadExplorationTask, loadOpenedWindowsTask, loadCauldronTask);

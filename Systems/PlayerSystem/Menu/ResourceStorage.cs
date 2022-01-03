@@ -133,7 +133,7 @@ namespace NWN.Systems
           switch (nuiEvent.EventType)
           {
             case NuiEventType.Close:
-              BankSave();
+              StorageSave();
               break;
             case NuiEventType.Click:
 
@@ -196,12 +196,12 @@ namespace NWN.Systems
             resource.Destroy();
           }
 
-          BankSave();
+          StorageSave();
           LoadResourceList();
         }
         private bool WithdrawResource(string inputValue)
         {
-          if (!int.TryParse(inputValue, out int input) || input > player.bankGold || resourceSelection == null)
+          if (!int.TryParse(inputValue, out int input) || resourceSelection == null || resourceSelection.quantity < input)
           {
             player.oid.SendServerMessage("Vous ne disposez pas d'autant de cette ressource.", ColorConstants.Red);
             return true;
@@ -209,30 +209,73 @@ namespace NWN.Systems
 
           while(input > 0)
           {
-            Task waitSkinCreated = NwTask.Run(async () =>
+            if (input > 50000)
             {
-              NwItem pcSkin = await NwItem.Create("peaudejoueur", oid.LoginCreature);
-              pcSkin.GetObjectVariable<LocalVariableString>("ITEM_KEY").Value = Config.itemKey;
-              pcSkin.Name = $"Propriétés de {oid.LoginCreature.Name}";
-              oid.LoginCreature.RunEquip(pcSkin, InventorySlot.CreatureSkin);
-            });
+              CreateSelectedResourceInInventory(resourceSelection, 50000);
+              input -= 50000;
+              resourceSelection.quantity -= 50000;
+            }
+            else
+            {
+              CreateSelectedResourceInInventory(resourceSelection, input);
+              resourceSelection.quantity -= input;
+              input = 0;
+            }
           }
 
-          BankSave();
+          StorageSave();
           LoadResourceList();
 
           return true;
         }
+        private async void CreateSelectedResourceInInventory(CraftResource selection, int quantity)
+        {
+          NwItem pcResource = await NwItem.Create("craft_resource", player.oid.LoginCreature);
+          pcResource.GetObjectVariable<LocalVariableString>("CRAFT_RESOURCE").Value = selection.name;
+          pcResource.GetObjectVariable<LocalVariableInt>("CRAFT_GRADE").Value = selection.grade;
+          pcResource.Name = selection.name;
+          pcResource.Description = selection.description;
+          pcResource.Weight = selection.weight;
+          pcResource.Appearance.SetSimpleModel(selection.icon);
+          pcResource.StackSize = quantity;
+        }
+
         private void SelectInventoryItem(ModuleEvents.OnPlayerTarget selection)
         {
           if (selection.IsCancelled || !(selection.TargetObject is NwItem item))
             return;
 
-          AddItemToList(item);
+          if (item.Tag != "craft_resource")
+          {
+            player.oid.SendServerMessage($"{item.Name.ColorString(ColorConstants.White)} n'est pas une resource artisanale !", ColorConstants.Red);
+            return;
+          }
+
+          if(!Enum.TryParse(item.GetObjectVariable<LocalVariableString>("CRAFT_RESOURCE").Value, out ResourceType type))
+          {
+            player.oid.SendServerMessage($"ERREUR TECHNIQUE - {item.Name.ColorString(ColorConstants.White)} n'a pas été identifié comme une resource artisanale. Le staff a été averti", ColorConstants.Red);
+            Utils.LogMessageToDMs($"{item.GetObjectVariable<LocalVariableString>("CRAFT_RESOURCE").Value} utilisé par {player.oid.LoginCreature.Name} n'a pas pu être parsé comme ressource de craft.");
+            return;
+          }
+
+          try
+          {
+            CraftResource resource = player.craftResourceStock.First(r => r.type == type && r.grade == item.GetObjectVariable<LocalVariableInt>("CRAFT_GRADE").Value);
+            resource.quantity += item.StackSize;
+          }
+          catch(Exception)
+          {
+            player.craftResourceStock.Add(new CraftResource(Craft.Collect.System.craftResourceArray.FirstOrDefault(r => r.type == type && r.grade == item.GetObjectVariable<LocalVariableInt>("CRAFT_GRADE").Value), item.StackSize));
+          }
+
           item.Destroy();
+
+          StorageSave();
+          LoadResourceList();
+
           player.oid.EnterTargetMode(SelectInventoryItem, ObjectTypes.Item, MouseCursor.PickupDown);
         }
-        public void BankSave()
+        public void StorageSave()
         {
           DateTime elapsed = DateTime.Now;
 
@@ -246,18 +289,18 @@ namespace NWN.Systems
             else
             {
               nbDebounce = 1;
-              Log.Info($"Character {player.characterId} : scheduling bank save in 10s");
-              DebounceBankSave(nbDebounce);
+              Log.Info($"Character {player.characterId} : scheduling storage save in 10s");
+              DebounceStorageSave(nbDebounce);
               return;
             }
           }
           else
-            HandleBankSave();
+            HandleStorageSave();
 
-          Log.Info($"Character {player.characterId} bank saved in : {(DateTime.Now - elapsed).TotalSeconds} s");
+          Log.Info($"Character {player.characterId} storage saved in : {(DateTime.Now - elapsed).TotalSeconds} s");
         }
 
-        private async void DebounceBankSave(int initialNbDebounce)
+        private async void DebounceStorageSave(int initialNbDebounce)
         {
           CancellationTokenSource tokenSource = new CancellationTokenSource();
 
@@ -270,7 +313,7 @@ namespace NWN.Systems
           if (awaitDebounce.IsCompletedSuccessfully)
           {
             nbDebounce += 1;
-            DebounceBankSave(initialNbDebounce + 1);
+            DebounceStorageSave(initialNbDebounce + 1);
             return;
           }
 
@@ -278,21 +321,18 @@ namespace NWN.Systems
           {
             nbDebounce = 0;
             AuthorizeSave = true;
-            Log.Info($"Character {player.characterId} : debounce done after {nbDebounce} triggers, bank save authorized");
-            BankSave();
+            Log.Info($"Character {player.characterId} : debounce done after {nbDebounce} triggers, storage save authorized");
+            StorageSave();
           }
         }
 
-        private async void HandleBankSave()
+        private async void HandleStorageSave()
         {
-          List<string> serializedItems = new List<string>();
-          await Task.Run(() => SerializeItemList(serializedItems));
-
-          Task<string> serializeBank = Task.Run(() => JsonConvert.SerializeObject(serializedItems));
-          await Task.WhenAll(serializeBank);
+          Task<string> serializeCraftResource = Task.Run(() => JsonConvert.SerializeObject(player.craftResourceStock));
+          await Task.WhenAll(serializeCraftResource);
 
           SqLiteUtils.UpdateQuery("playerCharacters",
-          new List<string[]>() { new string[] { "persistantStorage", serializeBank.Result } },
+          new List<string[]>() { new string[] { "materialStorage", serializeCraftResource.Result } },
           new List<string[]>() { new string[] { "rowid", player.characterId.ToString() } });
 
           nbDebounce = 0;
@@ -306,8 +346,8 @@ namespace NWN.Systems
 
           foreach (CraftResource resource in tempList)
           {
-            resourceNameList.Add($"{resource.name} - Matéria {resource.grade} (x{resource.quantity})");
-            resourceIconList.Add(resource.icon);
+            resourceNameList.Add($"{resource.name} (x{resource.quantity})");
+            resourceIconList.Add(resource.iconString);
           }
 
           resourceNames.SetBindValues(player.oid, token, resourceNameList);
