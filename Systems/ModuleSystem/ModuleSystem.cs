@@ -178,7 +178,7 @@ namespace NWN.Systems
         "('characterId' INTEGER NOT NULL, 'descriptionName' TEXT NOT NULL, 'description' TEXT NOT NULL, UNIQUE (characterId, descriptionName))");
 
       SqLiteUtils.CreateQuery("CREATE TABLE IF NOT EXISTS areaResourceStock" +
-        "('areaTag' TEXT NOT NULL, 'mining' INTEGER, 'wood' INTEGER, 'animals' INTEGER, PRIMARY KEY(areaTag))");
+        "('id' INTEGER NOT NULL, 'areaTag' TEXT NOT NULL, 'type' TEXT NOT NULL, 'quantity' INTEGER NOT NULL, 'lastChecked' TEXT NOT NULL, UNIQUE (id, areaTag, type))");
 
       SqLiteUtils.CreateQuery("CREATE TABLE IF NOT EXISTS scriptPerformance" +
         "('script' TEXT NOT NULL, 'nbExecutions' INTEGER NOT NULL, 'averageExecutionTime' REAL NOT NULL, 'cumulatedExecutionTime' REAL NOT NULL, PRIMARY KEY(script))");
@@ -524,9 +524,26 @@ namespace NWN.Systems
     {
       Log.Info("Starting to spawn collectable ressources");
 
-      foreach (NwWaypoint ressourcePoint in NwModule.FindObjectsWithTag<NwWaypoint>(new string[] { "ore_spawn_wp", "wood_spawn_wp" }).Where(l => l.Area.GetObjectVariable<LocalVariableInt>("_AREA_LEVEL").Value > 1))
+      foreach (NwWaypoint ressourcePoint in NwObject.FindObjectsWithTag<NwWaypoint>(new string[] { "ore_spawn_wp", "wood_spawn_wp", "animal_spawn_wp" }).Where(l => l.Area.GetObjectVariable<LocalVariableInt>("_AREA_LEVEL").Value > 1))
       {
-        int areaLevel = ressourcePoint.Area.GetObjectVariable<LocalVariableInt>("_AREA_LEVEL").Value;
+        if (NwRandom.Roll(Utils.random, 100) > 80)
+        {
+          switch (ressourcePoint.Tag)
+          {
+            case "ore_spawn_wp":
+              SpawnResourceBlock("mineable_rock", ressourcePoint);
+              break;
+            case "wood_spawn_wp":
+              SpawnResourceBlock("mineable_tree", ressourcePoint);
+              break;
+            case "animal_spawn_wp":
+              ressourcePoint.GetObjectVariable<LocalVariableBool>("CAN_SPAWN").Value = true;
+              break;
+          }
+
+          Log.Info($"REFILL - {ressourcePoint.Area.Name} - {ressourcePoint.Name}");
+        }
+        /*int areaLevel = ressourcePoint.Area.GetObjectVariable<LocalVariableInt>("_AREA_LEVEL").Value;
         if (NwRandom.Roll(Utils.random, 100) >= (areaLevel * 20) - 20)
         {
           string resRef = "";
@@ -550,10 +567,10 @@ namespace NWN.Systems
           ressourcePoint.Destroy();
 
           Log.Info($"REFILL - {ressourcePoint.Area.Name} - {ressourcePoint.Name}");
-        }
+        }*/
       }
 
-      foreach (NwArea area in NwModule.Instance.Areas.Where(l => l.GetObjectVariable<LocalVariableInt>("_AREA_LEVEL").Value > 1))
+      /*foreach (NwArea area in NwModule.Instance.Areas.Where(l => l.GetObjectVariable<LocalVariableInt>("_AREA_LEVEL").Value > 1))
       {
         int areaLevel = area.GetObjectVariable<LocalVariableInt>("_AREA_LEVEL").Value;
 
@@ -561,6 +578,28 @@ namespace NWN.Systems
           new List<string[]>() { new string[] { "areaTag", area.Tag }, new string[] { "mining", (areaLevel * 2).ToString() }, new string[] { "wood", (areaLevel * 2).ToString() }, new string[] { "animals", (areaLevel * 2).ToString() } },
           new List<string>() { "areaTag" },
           new List<string[]>() { new string[] { "mining" }, new string[] { "wood" }, new string[] { "animals" } });
+      }*/
+    }
+    private static void SpawnResourceBlock(string resourceTemplate, NwWaypoint waypoint)
+    {
+      try
+      {
+        var newResourceBlock = NwPlaceable.Create(resourceTemplate, waypoint.Location);
+        int areaLevel = waypoint.Area.GetObjectVariable<LocalVariableInt>("_AREA_LEVEL").Value;
+        int quantity = 5 * NwRandom.Roll(Utils.random, 100 - (areaLevel * 10));
+        newResourceBlock.GetObjectVariable<LocalVariableInt>("_ORE_AMOUNT").Value = quantity;
+        newResourceBlock.GetObjectVariable<DateTimeLocalVariable>("_LAST_CHECK").Value = DateTime.Now;
+        waypoint.Destroy();
+
+        SqLiteUtils.InsertQuery("areaResourceStock",
+            new List<string[]>() { new string[] { "id", waypoint.GetObjectVariable<LocalVariableInt>("id").Value.ToString() }, new string[] { "areaTag", waypoint.Area.Tag }, new string[] { "type", waypoint.Tag }, new string[] { "quantity", quantity.ToString() }, new string[] { "lastChecked", DateTime.Now.ToString() } },
+            new List<string>() { "id", "areaTag", "type" },
+            new List<string[]>() { new string[] { "quantity" }, new string[] { "lastChecked" } });
+      }
+      catch(Exception)
+      {
+        Log.Info($"Warning : could not spawn {waypoint.Tag} nb {waypoint.GetObjectVariable<LocalVariableInt>("id").Value} in {waypoint.Area.Name}");
+        Utils.LogMessageToDMs($"Warning : could not spawn {waypoint.Tag} nb {waypoint.GetObjectVariable<LocalVariableInt>("id").Value} in {waypoint.Area.Name}");
       }
     }
     public void DeleteExpiredMail()
@@ -570,9 +609,9 @@ namespace NWN.Systems
     }
     private void LoadHeadLists()
     {
-      Log.Info($"karandas found in {NWScript.ResManGetAliasFor("c_karandas", NWScript.RESTYPE_MDL)}");
+      /*Log.Info($"karandas found in {NWScript.ResManGetAliasFor("c_karandas", NWScript.RESTYPE_MDL)}");
       Log.Info($"c_envy found in {NWScript.ResManGetAliasFor("c_envy", NWScript.RESTYPE_MDL)}");
-      Log.Info($"hp_drgtiamat_1 found in {NWScript.ResManGetAliasFor("hp_drgtiamat_1", NWScript.RESTYPE_MDL)}");
+      Log.Info($"hp_drgtiamat_1 found in {NWScript.ResManGetAliasFor("hp_drgtiamat_1", NWScript.RESTYPE_MDL)}");*/
 
       for (int appearance = 0; appearance < 7; appearance++)
       {
