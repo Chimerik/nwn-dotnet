@@ -71,7 +71,7 @@ namespace NWN.Systems
       NwItem oItem = onItemUse.Item;
       NwGameObject oTarget = onItemUse.TargetObject;
 
-      if(oPC.ControllingPlayer == null || oItem == null)
+      if (!PlayerSystem.Players.TryGetValue(oPC, out PlayerSystem.Player player) || oItem == null)
         return;
       
       switch (oItem.Tag)
@@ -145,26 +145,31 @@ namespace NWN.Systems
           new PotionAlchimisteEffect(onItemUse.Item, oPC.ControllingPlayer, oTarget);
           break;
         case "bank_contract":
-          if (PlayerSystem.Players.TryGetValue(oPC, out PlayerSystem.Player player))
-          {
-            onItemUse.PreventUseItem = true;
+          onItemUse.PreventUseItem = true;
 
-            if (player.windows.ContainsKey("bankContract"))
-              ((PlayerSystem.Player.BankContractWindow)player.windows["bankContract"]).CreateWindow();
-            else
-              player.windows.Add("bankContract", new PlayerSystem.Player.BankContractWindow(player, oItem));
-          }
+          if (player.windows.ContainsKey("bankContract"))
+            ((PlayerSystem.Player.BankContractWindow)player.windows["bankContract"]).CreateWindow();
+          else
+            player.windows.Add("bankContract", new PlayerSystem.Player.BankContractWindow(player, oItem));
+
           break;
         case "learning_book":
-          if (PlayerSystem.Players.TryGetValue(oPC, out PlayerSystem.Player pc))
-          {
+          onItemUse.PreventUseItem = true;
+
+          if (player.windows.ContainsKey("learnable"))
+            ((PlayerSystem.Player.LearnableWindow)player.windows["learnable"]).CreateWindow();
+          else
+            player.windows.Add("learnable", new PlayerSystem.Player.LearnableWindow(player));
+
+          break;
+        case "materia_detector":
             onItemUse.PreventUseItem = true;
 
-            if (pc.windows.ContainsKey("learnable"))
-              ((PlayerSystem.Player.LearnableWindow)pc.windows["learnable"]).CreateWindow();
+            if (player.windows.ContainsKey("materiaDetector"))
+              ((PlayerSystem.Player.MateriaDetectorWindow)player.windows["materiaDetector"]).CreateWindow(onItemUse.Item);
             else
-              pc.windows.Add("learnable", new PlayerSystem.Player.LearnableWindow(pc));
-          }
+            player.windows.Add("materiaDetector", new PlayerSystem.Player.MateriaDetectorWindow(player, onItemUse.Item));
+
           break;
       }
 

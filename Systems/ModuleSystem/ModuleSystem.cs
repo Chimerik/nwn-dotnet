@@ -81,6 +81,7 @@ namespace NWN.Systems
       RestorePlayerShopsFromDatabase();
       RestorePlayerAuctionsFromDatabase();
       RestoreDMPersistentPlaceableFromDatabase();
+      RestoreResourceBlocksFromDatabase();
       LoadHeadLists();
 
       TimeSpan nextActivation = DateTime.Now.Hour < 5 ? new DateTime(DateTime.Now.Year, DateTime.Now.Month, DateTime.Now.Day, 5, 0, 0) - DateTime.Now : DateTime.Now.AddDays(1).AddHours(-(DateTime.Now.Hour - 5)) - DateTime.Now;
@@ -520,6 +521,38 @@ namespace NWN.Systems
       foreach (var plc in result.Results)
         SqLiteUtils.PlaceableSerializationFormatProtection(plc, 0, Utils.GetLocationFromDatabase(plc.GetString(1), plc.GetString(2), plc.GetFloat(3)));
     }
+    private async void RestoreResourceBlocksFromDatabase()
+    {
+      var result = await SqLiteUtils.SelectQueryAsync("areaResourceStock",
+          new List<string>() { { "id" }, { "areaTag" }, { "type" }, { "quantity" }, { "lastChecked" } },
+          new List<string[]>() { });
+
+      if (result != null)
+        foreach (var resourceBlock in result)
+        {
+          int blockId = int.Parse(resourceBlock[0]);
+          NwArea blockArea = (NwArea)NwObject.FindObjectsWithTag(resourceBlock[1]).FirstOrDefault();
+          string spawnType = resourceBlock[2];
+          int quantity = int.Parse(resourceBlock[3]);
+          DateTime lastChecked = DateTime.Parse(resourceBlock[4]);
+          NwWaypoint blockWaypoint = blockArea.FindObjectsOfTypeInArea<NwWaypoint>().FirstOrDefault(w => w.Tag == spawnType && w.GetObjectVariable<LocalVariableInt>("id").Value == blockId);
+
+          switch (spawnType)
+          {
+            case "ore_spawn_wp":
+              SpawnResourceBlock("mineable_rock",  blockWaypoint, quantity, lastChecked);
+              break;
+            case "wood_spawn_wp":
+              SpawnResourceBlock("mineable_tree", blockWaypoint, quantity, lastChecked);
+              break;
+            case "animal_spawn_wp":
+              blockWaypoint.GetObjectVariable<LocalVariableInt>("_ORE_AMOUNT").Value = quantity;
+              blockWaypoint.GetObjectVariable<DateTimeLocalVariable>("_LAST_CHECK").Value = lastChecked;
+              blockWaypoint.GetObjectVariable<LocalVariableBool>("CAN_SPAWN").Value = true;
+              break;
+          }
+        }
+    }
     public static void SpawnCollectableResources()
     {
       Log.Info("Starting to spawn collectable ressources");
@@ -528,13 +561,14 @@ namespace NWN.Systems
       {
         if (NwRandom.Roll(Utils.random, 100) > 80)
         {
+          int resourceQuantity = 5 * NwRandom.Roll(Utils.random, 100 - (ressourcePoint.Area.GetObjectVariable<LocalVariableInt>("_AREA_LEVEL").Value * 10));
           switch (ressourcePoint.Tag)
           {
             case "ore_spawn_wp":
-              SpawnResourceBlock("mineable_rock", ressourcePoint);
+              SpawnResourceBlock("mineable_rock", ressourcePoint, resourceQuantity, DateTime.Now);
               break;
             case "wood_spawn_wp":
-              SpawnResourceBlock("mineable_tree", ressourcePoint);
+              SpawnResourceBlock("mineable_tree", ressourcePoint, resourceQuantity, DateTime.Now);
               break;
             case "animal_spawn_wp":
               ressourcePoint.GetObjectVariable<LocalVariableBool>("CAN_SPAWN").Value = true;
@@ -580,18 +614,24 @@ namespace NWN.Systems
           new List<string[]>() { new string[] { "mining" }, new string[] { "wood" }, new string[] { "animals" } });
       }*/
     }
-    private static void SpawnResourceBlock(string resourceTemplate, NwWaypoint waypoint)
+    private static async void SpawnResourceBlock(string resourceTemplate, NwWaypoint waypoint, int quantity, DateTime lastChecked)
     {
       try
       {
-        var newResourceBlock = NwPlaceable.Create(resourceTemplate, waypoint.Location);
-        int areaLevel = waypoint.Area.GetObjectVariable<LocalVariableInt>("_AREA_LEVEL").Value;
-        int quantity = 5 * NwRandom.Roll(Utils.random, 100 - (areaLevel * 10));
+        NwPlaceable newResourceBlock = NwPlaceable.Create(resourceTemplate, waypoint.Location);
         newResourceBlock.GetObjectVariable<LocalVariableInt>("_ORE_AMOUNT").Value = quantity;
-        newResourceBlock.GetObjectVariable<DateTimeLocalVariable>("_LAST_CHECK").Value = DateTime.Now;
+        newResourceBlock.GetObjectVariable<DateTimeLocalVariable>("_LAST_CHECK").Value = lastChecked;
+        VisibilityPlugin.SetVisibilityOverride(NWScript.OBJECT_INVALID, newResourceBlock, VisibilityPlugin.NWNX_VISIBILITY_ALWAYS_VISIBLE);
+
+        NwPlaceable interactibleMateria = NwPlaceable.Create("mineable_materia", waypoint.Location);
+        interactibleMateria.GetObjectVariable<LocalVariableInt>("_ORE_AMOUNT").Value = quantity;
+        interactibleMateria.GetObjectVariable<DateTimeLocalVariable>("_LAST_CHECK").Value = lastChecked;
+        interactibleMateria.GetObjectVariable<LocalVariableString>("_RESOURCE_TYPE").Value = resourceTemplate;
+        VisibilityPlugin.SetVisibilityOverride(NWScript.OBJECT_INVALID, interactibleMateria, VisibilityPlugin.NWNX_VISIBILITY_HIDDEN);
+
         waypoint.Destroy();
 
-        SqLiteUtils.InsertQuery("areaResourceStock",
+        await SqLiteUtils.InsertQueryAsync("areaResourceStock",
             new List<string[]>() { new string[] { "id", waypoint.GetObjectVariable<LocalVariableInt>("id").Value.ToString() }, new string[] { "areaTag", waypoint.Area.Tag }, new string[] { "type", waypoint.Tag }, new string[] { "quantity", quantity.ToString() }, new string[] { "lastChecked", DateTime.Now.ToString() } },
             new List<string>() { "id", "areaTag", "type" },
             new List<string[]>() { new string[] { "quantity" }, new string[] { "lastChecked" } });

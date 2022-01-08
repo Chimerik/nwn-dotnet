@@ -414,6 +414,28 @@
     public const int ImprovedWill = 20148;
     public const int ImprovedSavingThrowAll = 20149;
 
+    public const int OreDetection = 20150;
+    public const int WoodDetection = 20151;
+    public const int PeltDetection = 20152;
+    public const int OreDetectionSpeed = 20153;
+    public const int WoodDetectionSpeed = 20154;
+    public const int PeltDetectionSpeed = 20155;
+    public const int OreDetectionAccuracy = 20155;
+    public const int WoodDetectionAccuracy = 20156;
+    public const int PeltDetectionAccuracy = 20157;
+    public const int OreDetectionOrientation = 20158;
+    public const int WoodDetectionOrientation = 20159;
+    public const int PeltDetectionOrientation = 20160;
+    public const int OreDetectionEstimation = 20161;
+    public const int WoodDetectionEstimation = 20162;
+    public const int PeltDetectionEstimation = 20163;
+    public const int OreDetectionAdvanced = 20164;
+    public const int WoodDetectionAdvanced = 20165;
+    public const int PeltDetectionAdvanced = 20166;
+    public const int OreDetectionMastery = 20167;
+    public const int WoodDetectionMastery = 20168;
+    public const int PeltDetectionMastery = 20169;
+
     public const int Invalid = 65535;
   }
 }
