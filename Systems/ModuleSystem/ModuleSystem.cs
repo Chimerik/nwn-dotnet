@@ -624,15 +624,19 @@ namespace NWN.Systems
         VisibilityPlugin.SetVisibilityOverride(NWScript.OBJECT_INVALID, newResourceBlock, VisibilityPlugin.NWNX_VISIBILITY_ALWAYS_VISIBLE);
 
         NwPlaceable interactibleMateria = NwPlaceable.Create("mineable_materia", waypoint.Location);
+        interactibleMateria.GetObjectVariable<LocalVariableInt>("id").Value = waypoint.GetObjectVariable<LocalVariableInt>("id").Value;
         interactibleMateria.GetObjectVariable<LocalVariableInt>("_ORE_AMOUNT").Value = quantity;
         interactibleMateria.GetObjectVariable<DateTimeLocalVariable>("_LAST_CHECK").Value = lastChecked;
         interactibleMateria.GetObjectVariable<LocalVariableString>("_RESOURCE_TYPE").Value = resourceTemplate;
         VisibilityPlugin.SetVisibilityOverride(NWScript.OBJECT_INVALID, interactibleMateria, VisibilityPlugin.NWNX_VISIBILITY_HIDDEN);
 
         waypoint.Destroy();
+        string id = waypoint.GetObjectVariable<LocalVariableInt>("id").Value.ToString();
+        string areaTag = waypoint.Area.Tag;
+        string type = waypoint.Tag;
 
         await SqLiteUtils.InsertQueryAsync("areaResourceStock",
-            new List<string[]>() { new string[] { "id", waypoint.GetObjectVariable<LocalVariableInt>("id").Value.ToString() }, new string[] { "areaTag", waypoint.Area.Tag }, new string[] { "type", waypoint.Tag }, new string[] { "quantity", quantity.ToString() }, new string[] { "lastChecked", DateTime.Now.ToString() } },
+            new List<string[]>() { new string[] { "id", id }, new string[] { "areaTag", areaTag }, new string[] { "type", type }, new string[] { "quantity", quantity.ToString() }, new string[] { "lastChecked", DateTime.Now.ToString() } },
             new List<string>() { "id", "areaTag", "type" },
             new List<string[]>() { new string[] { "quantity" }, new string[] { "lastChecked" } });
       }

@@ -21,56 +21,12 @@ namespace NWN.Systems
 
       switch (onExamine.ExaminedObject.Tag)
       {
-        case "mineable_rock":
-          int oreAmount = onExamine.ExaminedObject.GetObjectVariable<LocalVariableInt>("_ORE_AMOUNT").Value;
+        case "mineable_materia":
 
-          if (onExamine.ExaminedBy.IsDM)
-          {
-            int geologySkillLevel = 0;
-            if (player.learntCustomFeats.ContainsKey(CustomFeats.Geology))
-            {
-              geologySkillLevel = SkillSystem.GetCustomFeatLevelFromSkillPoints(CustomFeats.Geology, player.learntCustomFeats[CustomFeats.Geology]);
-              onExamine.ExaminedObject.Description = $"Minerai disponible estimé : {Utils.random.Next(oreAmount * geologySkillLevel * 20 / 100, 2 * oreAmount - geologySkillLevel * 20 / 100)}";
-            }
-            else
-              onExamine.ExaminedObject.Description = $"Minerai disponible estimé : {Utils.random.Next(0, 2 * oreAmount)}";
-          }
+          if (player.windows.ContainsKey("materiaExamine"))
+            ((PlayerSystem.Player.MateriaExamineWindow)player.windows["materiaExamine"]).CreateWindow((NwPlaceable)onExamine.ExaminedObject);
           else
-            onExamine.ExaminedObject.Description = $"Minerai disponible : {oreAmount}";
-
-          break;
-        case "mineable_tree":
-          int woodAmount = onExamine.ExaminedObject.GetObjectVariable<LocalVariableInt>("_ORE_AMOUNT").Value;
-          if (onExamine.ExaminedBy.IsDM)
-          {
-            int woodExpertiseSkillLevel = 0;
-            if (player.learntCustomFeats.ContainsKey(CustomFeats.WoodExpertise))
-            {
-              woodExpertiseSkillLevel = SkillSystem.GetCustomFeatLevelFromSkillPoints(CustomFeats.WoodExpertise, player.learntCustomFeats[CustomFeats.WoodExpertise]);
-              onExamine.ExaminedObject.Description = $"Minerai disponible estimé : {Utils.random.Next(woodAmount * woodExpertiseSkillLevel * 20 / 100, 2 * woodAmount - woodExpertiseSkillLevel * 20 / 100)}";
-            }
-            else
-              onExamine.ExaminedObject.Description = $"Bois disponible estimé : {Utils.random.Next(0, 2 * woodAmount)}";
-          }
-          else
-            onExamine.ExaminedObject.Description = $"Bois disponible : {woodAmount}";
-
-          break;
-        case "mineable_animal":
-          int peltAmount = onExamine.ExaminedObject.GetObjectVariable<LocalVariableInt>("_ORE_AMOUNT").Value;
-          if (onExamine.ExaminedBy.IsDM)
-          {
-            int animalExpertiseSkillLevel = 0;
-            if (player.learntCustomFeats.ContainsKey(CustomFeats.AnimalExpertise))
-            {
-              animalExpertiseSkillLevel = SkillSystem.GetCustomFeatLevelFromSkillPoints(CustomFeats.AnimalExpertise, player.learntCustomFeats[CustomFeats.AnimalExpertise]);
-              onExamine.ExaminedObject.Description = $"Minerai disponible estimé : {Utils.random.Next(peltAmount * animalExpertiseSkillLevel * 20 / 100, 2 * peltAmount - animalExpertiseSkillLevel * 20 / 100)}";
-            }
-            else
-              onExamine.ExaminedObject.Description = $"Peau disponible estimé : {Utils.random.Next(0, 2 * peltAmount)}";
-          }
-          else
-            onExamine.ExaminedObject.Description = $"Peau disponible : {peltAmount}";
+            player.windows.Add("materiaExamine", new PlayerSystem.Player.MateriaExamineWindow(player, (NwPlaceable)onExamine.ExaminedObject));
 
           break;
         case "blueprint":

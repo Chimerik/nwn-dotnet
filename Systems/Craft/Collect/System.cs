@@ -158,6 +158,27 @@ namespace NWN.Systems.Craft.Collect
 
     public static Dictionary<int, Blueprint> blueprintDictionnary = new Dictionary<int, Blueprint>();
 
+    public static async void UpdateResourceBlockInfo(NwPlaceable resourceBlock)
+    {
+      if (resourceBlock.GetObjectVariable<DateTimeLocalVariable>("_LAST_CHECK").HasNothing)
+        resourceBlock.GetObjectVariable<DateTimeLocalVariable>("_LAST_CHECK").Value = DateTime.Now.AddDays(-3);
+
+      double totalSeconds = (DateTime.Now - resourceBlock.GetObjectVariable<DateTimeLocalVariable>("_LAST_CHECK").Value).TotalSeconds;
+      double materiaGrowth = totalSeconds / (5 * resourceBlock.Area.GetObjectVariable<LocalVariableInt>("_AREA_LEVEL").Value);
+      resourceBlock.GetObjectVariable<LocalVariableInt>("_ORE_AMOUNT").Value += (int)materiaGrowth;
+      resourceBlock.GetObjectVariable<DateTimeLocalVariable>("_LAST_CHECK").Value = DateTime.Now;
+
+      string resourceId = resourceBlock.GetObjectVariable<LocalVariableInt>("id").Value.ToString();
+      string areaTag = resourceBlock.Area.Tag;
+      string resourceType = resourceBlock.GetObjectVariable<LocalVariableString>("_RESOURCE_TYPE").Value;
+      string resourceQuantity = resourceBlock.GetObjectVariable<LocalVariableInt>("_ORE_AMOUNT").Value.ToString();
+
+      await SqLiteUtils.InsertQueryAsync("areaResourceStock",
+        new List<string[]>() { new string[] { "id", resourceId }, new string[] { "areaTag", areaTag }, new string[] { "type", resourceType }, new string[] { "quantity", resourceQuantity }, new string[] { "lastChecked", DateTime.Now.ToString() } },
+        new List<string>() { "id", "areaTag", "type" },
+        new List<string[]>() { new string[] { "quantity" }, new string[] { "lastChecked" } });
+    }
+
     public static void StartCollectCycle(PlayerSystem.Player player, Action completeCallback, NwGameObject oTarget = null)
     {
       if (player.oid.LoginCreature.GetObjectVariable<LocalVariableInt>("_COLLECT_IN_PROGRESS").HasValue)

@@ -23,7 +23,7 @@ namespace NWN.Systems
       public NwPlayer oid { get; set; }
       public DateTime mapLoadingTime { get; set; }
       public readonly int accountId;
-      public readonly int characterId;
+      public int characterId { get; set; }
       public Location location { get; set; }
       public int bonusRolePlay { get; set; }
       public int currentLanguage { get; set; }

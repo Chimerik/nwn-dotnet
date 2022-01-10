@@ -30,6 +30,7 @@ namespace NWN.Systems
       else
       {
         player.oid = oPC;
+        player.characterId = oPC.LoginCreature.GetObjectVariable<PersistentVariableInt>("characterId").Value;
 
         if (player.location.Area == null)
         {
@@ -388,13 +389,6 @@ namespace NWN.Systems
         string serializedCraftResources = result.Result.GetString(17);
 
         InitializePlayerAsync(serializedCauldron, serializedExploration, serializedLearnableSkills, serializedLearnableSpells, serializedOpenedWindows, serializedCraftResources);
-
-        /*result = SqLiteUtils.SelectQuery("playerMaterialStorage",
-          new List<string>() { { "materialName" }, { "materialStock" } },
-          new List<string[]>() { { new string[] { "characterId", accountId.ToString() } } });
-
-        foreach (var material in result.Results)
-          materialStock.Add(material.GetString(0), material.GetInt(1));*/
       }
       private async void InitializePlayerAsync(string serializedCauldron, string serializedExploration, string serializedLearnableSkills, string serializedLearnableSpells, string serializedOpenedWindows, string serializedCraftResources)
       {
