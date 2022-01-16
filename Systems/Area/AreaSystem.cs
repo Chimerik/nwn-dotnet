@@ -2,8 +2,6 @@
 using Anvil.API.Events;
 using Anvil.Services;
 using System.Linq;
-using NWN.Core.NWNX;
-using NWN.Core;
 using NLog;
 using System;
 using System.Numerics;
@@ -145,7 +143,7 @@ namespace NWN.Systems
       {
         case "entry_scene":
 
-          VisibilityPlugin.SetVisibilityOverride(NWScript.OBJECT_INVALID, NwObject.FindObjectsWithTag("intro_brouillard").FirstOrDefault(), VisibilityPlugin.NWNX_VISIBILITY_HIDDEN);
+          NwObject.FindObjectsWithTag<NwGameObject>("intro_brouillard").FirstOrDefault().VisibilityOverride = VisibilityMode.Hidden;
           area.GetObjectVariable<LocalVariableInt>("_AREA_LEVEL").Value = 0;
           area.SetAreaWind(new Vector3(1, 0, 0), 4, 0, 0);
 

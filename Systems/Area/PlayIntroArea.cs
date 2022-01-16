@@ -32,8 +32,8 @@ namespace NWN.Systems
       sailorList[0].MovementRate = MovementRate.DM;
       sailorList[1].MovementRate = MovementRate.DM;
 
-      VisibilityPlugin.SetVisibilityOverride(NWScript.OBJECT_INVALID, player.LoginCreature.GetNearestObjectsByType<NwPlaceable>().FirstOrDefault(t => t.Tag == "intro_brouillard"), VisibilityPlugin.NWNX_VISIBILITY_VISIBLE);
-      VisibilityPlugin.SetVisibilityOverride(NWScript.OBJECT_INVALID, player.LoginCreature.GetNearestObjectsByType<NwPlaceable>().Where(t => t.Tag == "intro_brouillard").ElementAt(1), VisibilityPlugin.NWNX_VISIBILITY_VISIBLE);
+      foreach (NwPlaceable fog in player.LoginCreature.GetNearestObjectsByType<NwPlaceable>().Where(t => t.Tag == "intro_brouillard"))
+        fog.VisibilityOverride = VisibilityMode.Visible;
 
       area.Weather = WeatherType.Rain;
       AreaPlugin.SetDayNightCycle(area, AreaPlugin.NWNX_AREA_DAYNIGHTCYCLE_ALWAYS_DARK);
@@ -43,10 +43,10 @@ namespace NWN.Systems
       List<NwPlaceable> rocks = player.LoginCreature.GetNearestObjectsByType<NwPlaceable>().Where(c => c.Tag == "intro_recif").ToList();
       NwPlaceable tourbillon = player.LoginCreature.GetNearestObjectsByType<NwPlaceable>().FirstOrDefault(c => c.Tag == "intro_tourbillon");
 
-      VisibilityPlugin.SetVisibilityOverride(NWScript.OBJECT_INVALID, rocks[0], VisibilityPlugin.NWNX_VISIBILITY_VISIBLE);
-      VisibilityPlugin.SetVisibilityOverride(NWScript.OBJECT_INVALID, rocks[1], VisibilityPlugin.NWNX_VISIBILITY_VISIBLE);
-      VisibilityPlugin.SetVisibilityOverride(NWScript.OBJECT_INVALID, rocks[2], VisibilityPlugin.NWNX_VISIBILITY_VISIBLE);
-      VisibilityPlugin.SetVisibilityOverride(NWScript.OBJECT_INVALID, tourbillon, VisibilityPlugin.NWNX_VISIBILITY_VISIBLE);
+      rocks[0].VisibilityOverride = VisibilityMode.Visible;
+      rocks[1].VisibilityOverride = VisibilityMode.Visible;
+      rocks[2].VisibilityOverride = VisibilityMode.Visible;
+      tourbillon.VisibilityOverride = VisibilityMode.Visible;
 
       rocks[0].VisualTransform.Lerp(new VisualTransformLerpSettings { LerpType = VisualTransformLerpType.Linear, Duration = TimeSpan.FromSeconds(30), PauseWithGame = true }, transform => { transform.Translation = new Vector3(0, -72, 0); });
       rocks[1].VisualTransform.Lerp(new VisualTransformLerpSettings { LerpType = VisualTransformLerpType.Linear, Duration = TimeSpan.FromSeconds(24), PauseWithGame = true }, transform => { transform.Translation = new Vector3(0, -80, 0); });
@@ -160,8 +160,7 @@ namespace NWN.Systems
       sailor2.ApplyEffect(EffectDuration.Instant, Effect.Damage(120, DamageType.Electrical));
 
       await sailor1.SpeakString("NOOOOOON, OLAF, MON FRERE JUMEAU ! Quelle horreur !".ColorString(ColorConstants.Red));
-
-      VisibilityPlugin.SetVisibilityOverride(NWScript.OBJECT_INVALID, sailor2, VisibilityPlugin.NWNX_VISIBILITY_HIDDEN);
+      sailor2.VisibilityOverride = VisibilityMode.Hidden;
     }
   }
 }

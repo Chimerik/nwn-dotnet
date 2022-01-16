@@ -4,8 +4,6 @@ using System.Linq;
 using System.Threading.Tasks;
 using Anvil.API;
 using Anvil.API.Events;
-using NWN.Core;
-using NWN.Core.NWNX;
 
 namespace NWN.Systems
 {
@@ -40,7 +38,7 @@ namespace NWN.Systems
         oPCCorpse.ApplyEffect(EffectDuration.Instant, Effect.Death());
         NwWaypoint wp = NwWaypoint.Create("NW_WAYPOINT001", oPCCorpse.Location, false, $"wp_pccorpse_{oPCCorpse.GetObjectVariable<LocalVariableInt>("_PC_ID").Value}");
         await NwTask.Delay(TimeSpan.FromSeconds(0.8));
-        VisibilityPlugin.SetVisibilityOverride(NWScript.OBJECT_INVALID, oPCCorpse, VisibilityPlugin.NWNX_VISIBILITY_DEFAULT);
+        oPCCorpse.VisibilityOverride = Anvil.Services.VisibilityMode.Default;
         await NwTask.Delay(TimeSpan.FromSeconds(0.2));
         oPCCorpse.Tag = "pccorpse";
         await NwTask.Delay(TimeSpan.FromSeconds(0.2));
@@ -74,7 +72,7 @@ namespace NWN.Systems
         oPCCorpse.Lootable = true;
         oPCCorpse.Name = $"Corps inconscient de {oid.LoginCreature.Name}";
         oPCCorpse.Description = $"Corps inconscient de {oid.LoginCreature.Name}. \n\n\n Allez savoir combien de temps il va tenir dans cet état.";
-        VisibilityPlugin.SetVisibilityOverride(NWScript.OBJECT_INVALID, oPCCorpse, VisibilityPlugin.NWNX_VISIBILITY_HIDDEN);
+        oPCCorpse.VisibilityOverride = Anvil.Services.VisibilityMode.Hidden;
 
         oPCCorpse.GetObjectVariable<LocalVariableInt>("_PC_ID").Value = characterId;
 

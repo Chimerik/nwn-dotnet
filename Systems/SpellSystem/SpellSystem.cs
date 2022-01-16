@@ -3,7 +3,6 @@ using NWN.Core.NWNX;
 using Anvil.Services;
 using Anvil.API;
 using System.Linq;
-using Discord;
 using NLog;
 using Anvil.API.Events;
 using System.Threading.Tasks;
@@ -270,18 +269,18 @@ namespace NWN.Systems
         if (iMoveSilentlyCheck >= iListencheck)
         {
           if (invisMarker != null)
-            VisibilityPlugin.SetVisibilityOverride(oSpotter, invisMarker, VisibilityPlugin.NWNX_VISIBILITY_HIDDEN);
+            oSpotter.ControllingPlayer.SetPersonalVisibilityOverride(invisMarker, VisibilityMode.Hidden);
           continue;
         }
 
         if (invisMarker == null)
         {
           invisMarker = NwPlaceable.Create("silhouette", oInvi.Location, false, $"invis_marker_{oInvi.ControllingPlayer.PlayerName}");
-          VisibilityPlugin.SetVisibilityOverride(NWScript.OBJECT_INVALID, invisMarker, VisibilityPlugin.NWNX_VISIBILITY_HIDDEN);
+          invisMarker.VisibilityOverride = VisibilityMode.Hidden;
           OnInvisMarkerPositionChanged(oInvi, invisMarker);
         }
 
-        VisibilityPlugin.SetVisibilityOverride(oSpotter, invisMarker, VisibilityPlugin.NWNX_VISIBILITY_VISIBLE);
+        oSpotter.ControllingPlayer.SetPersonalVisibilityOverride(invisMarker, VisibilityMode.Visible);
         listenTriggered = true;
       }
 

@@ -6,8 +6,6 @@ using System.Threading.Tasks;
 using Discord;
 using Anvil.API;
 using Anvil.API.Events;
-using NWN.Core;
-using NWN.Core.NWNX;
 using Anvil.Services;
 using NWN.Systems.Craft;
 using Color = Anvil.API.Color;
@@ -165,11 +163,11 @@ namespace NWN.Systems
 
           arrivalArea.SetAreaWind(new Vector3(1, 0, 0), 4, 0, 0);
 
-          foreach (NwObject recif in arrivalArea.FindObjectsOfTypeInArea<NwPlaceable>().Where(o => o.Tag == "intro_recif"))
-            VisibilityPlugin.SetVisibilityOverride(NWScript.OBJECT_INVALID, recif, VisibilityPlugin.NWNX_VISIBILITY_HIDDEN);
+          foreach (NwPlaceable recif in arrivalArea.FindObjectsOfTypeInArea<NwPlaceable>().Where(o => o.Tag == "intro_recif"))
+            recif.VisibilityOverride = VisibilityMode.Hidden;
 
           NwPlaceable tourbillon = arrivalArea.FindObjectsOfTypeInArea<NwPlaceable>().FirstOrDefault(c => c.Tag == "intro_tourbillon");
-          VisibilityPlugin.SetVisibilityOverride(NWScript.OBJECT_INVALID, tourbillon, VisibilityPlugin.NWNX_VISIBILITY_HIDDEN);
+          tourbillon.VisibilityOverride = VisibilityMode.Hidden;
           tourbillon.VisualTransform.Translation = new Vector3(tourbillon.VisualTransform.Translation.X, 115, tourbillon.VisualTransform.Translation.Z);
 
           NwPlaceable introMirror = arrivalArea.FindObjectsOfTypeInArea<NwPlaceable>().FirstOrDefault(o => o.Tag == "intro_mirror");

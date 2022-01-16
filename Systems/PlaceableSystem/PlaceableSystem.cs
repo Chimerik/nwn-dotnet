@@ -1,8 +1,6 @@
 ﻿using System;
 using Anvil.API;
 using Anvil.API.Events;
-using NWN.Core;
-using NWN.Core.NWNX;
 using Anvil.Services;
 using System.Linq;
 using NLog;
@@ -121,20 +119,22 @@ namespace NWN.Systems
           player.Respawn();
           break;
         case "theater_rope":
-          int visibilty;
+
+          VisibilityMode visibilty;
           if (onUsed.UsedBy.Area.GetObjectVariable<LocalVariableInt>("_THEATER_CURTAIN_OPEN").HasNothing)
           {
-            visibilty = VisibilityPlugin.NWNX_VISIBILITY_HIDDEN;
+            visibilty = VisibilityMode.Hidden;
             onUsed.UsedBy.Area.GetObjectVariable<LocalVariableInt>("_THEATER_CURTAIN_OPEN").Value = 1;
           }
           else
           {
-            visibilty = VisibilityPlugin.NWNX_VISIBILITY_VISIBLE;
+            visibilty = VisibilityMode.Visible;
             onUsed.UsedBy.Area.GetObjectVariable<LocalVariableInt>("_THEATER_CURTAIN_OPEN").Delete();
           }
 
           foreach (NwPlaceable plc in onUsed.UsedBy.Area.FindObjectsOfTypeInArea<NwPlaceable>().Where(o => o.Tag == "theater_curtain"))
-            VisibilityPlugin.SetVisibilityOverride(NWScript.OBJECT_INVALID, plc, visibilty);
+            plc.VisibilityOverride = visibilty;
+
           break;
         case "portal_start":
           onUsed.UsedBy.Location = NwObject.FindObjectsWithTag<NwWaypoint>("WP_START_NEW_CHAR").FirstOrDefault().Location;

@@ -2,7 +2,6 @@
 using NWN.Core.NWNX;
 using Anvil.Services;
 using System.Linq;
-using NWN.Core;
 using Anvil.API.Events;
 using NLog;
 using System.Threading.Tasks;
@@ -253,7 +252,7 @@ namespace NWN.Systems
         oCorpse.Location = oItem.Location;
         Utils.DestroyInventory(oCorpse);
         oCorpse.AcquireItem(oItem);
-        VisibilityPlugin.SetVisibilityOverride(NWScript.OBJECT_INVALID, oCorpse, VisibilityPlugin.NWNX_VISIBILITY_HIDDEN);
+        oCorpse.VisibilityOverride = VisibilityMode.Hidden;
         PlayerSystem.SetupPCCorpse(oCorpse);
 
         PlayerSystem.SavePlayerCorpseToDatabase(oItem.GetObjectVariable<LocalVariableInt>("_PC_ID").Value, oCorpse);

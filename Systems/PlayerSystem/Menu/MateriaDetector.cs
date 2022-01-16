@@ -8,8 +8,6 @@ using System.Threading.Tasks;
 using Anvil.API;
 using Anvil.API.Events;
 
-using NWN.Core.NWNX;
-
 namespace NWN.Systems
 {
   public partial class PlayerSystem
@@ -62,7 +60,7 @@ namespace NWN.Systems
               } }
             }
           };
-
+          
           CreateWindow(detector);
         }
         public void CreateWindow(NwItem detector)
@@ -297,32 +295,12 @@ namespace NWN.Systems
           {
             if (NwRandom.Roll(Utils.random, 100) < detectionChance)
             {
-              VisibilityPlugin.SetVisibilityOverride(player.oid.LoginCreature, materia, VisibilityPlugin.NWNX_VISIBILITY_VISIBLE);
+              player.oid.SetPersonalVisibilityOverride(materia, Anvil.Services.VisibilityMode.Visible);
 
               foreach (var partyMember in player.oid.PartyMembers)
-                VisibilityPlugin.SetVisibilityOverride(partyMember.LoginCreature, materia, VisibilityPlugin.NWNX_VISIBILITY_VISIBLE);
+                partyMember.SetPersonalVisibilityOverride(materia, Anvil.Services.VisibilityMode.Visible);
             }
           }
-        }
-        private async void UpdateResourceBlockInfo(NwPlaceable resourceBlock)
-        {
-          if (resourceBlock.GetObjectVariable<DateTimeLocalVariable>("_LAST_CHECK").HasNothing)
-            resourceBlock.GetObjectVariable<DateTimeLocalVariable>("_LAST_CHECK").Value = DateTime.Now.AddDays(-3);
-
-          double totalSeconds = (DateTime.Now - resourceBlock.GetObjectVariable<DateTimeLocalVariable>("_LAST_CHECK").Value).TotalSeconds;
-          double materiaGrowth = totalSeconds / (5 * resourceBlock.Area.GetObjectVariable<LocalVariableInt>("_AREA_LEVEL").Value);
-          resourceBlock.GetObjectVariable<LocalVariableInt>("_ORE_AMOUNT").Value += (int)materiaGrowth;
-          resourceBlock.GetObjectVariable<DateTimeLocalVariable>("_LAST_CHECK").Value = DateTime.Now;
-
-          string resourceId = resourceBlock.GetObjectVariable<LocalVariableInt>("id").Value.ToString();
-          string areaTag = resourceBlock.Area.Tag;
-          string resourceType = resourceBlock.GetObjectVariable<LocalVariableString>("_RESOURCE_TYPE").Value;
-          string resourceQuantity = resourceBlock.GetObjectVariable<LocalVariableInt>("_ORE_AMOUNT").Value.ToString();
-
-          await SqLiteUtils.InsertQueryAsync("areaResourceStock",
-            new List<string[]>() { new string[] { "id", resourceId }, new string[] { "areaTag", areaTag }, new string[] { "type", resourceType }, new string[] { "quantity", resourceQuantity }, new string[] { "lastChecked", DateTime.Now.ToString() } },
-            new List<string>() { "id", "areaTag", "type" },
-            new List<string[]>() { new string[] { "quantity" }, new string[] { "lastChecked" } });
         }
         private void SetDetectionTime()
         {
@@ -331,16 +309,13 @@ namespace NWN.Systems
           switch(selectedCategory.GetBindValue(player.oid, token))
           {
             case 1:
-              scanDuration -= scanDuration * (int)(player.learnableSkills[CustomSkill.OreDetection].totalPoints * 0.05);
-              scanDuration -= player.learnableSkills.ContainsKey(CustomSkill.OreDetectionSpeed) ? scanDuration * (int)(player.learnableSkills[CustomSkill.OreDetectionSpeed].totalPoints * 0.05) : 0;
+              scanDuration = Craft.Collect.System.GetResourceDetectionTime(player, CustomSkill.OreDetection, CustomSkill.OreDetectionSpeed);
               break;
             case 2:
-              scanDuration -= scanDuration * (int)(player.learnableSkills[CustomSkill.WoodDetection].totalPoints * 0.05);
-              scanDuration -= player.learnableSkills.ContainsKey(CustomSkill.WoodDetectionSpeed) ? scanDuration * (int)(player.learnableSkills[CustomSkill.WoodDetectionSpeed].totalPoints * 0.05) : 0;
+              scanDuration = Craft.Collect.System.GetResourceDetectionTime(player, CustomSkill.WoodDetection, CustomSkill.WoodDetectionSpeed);
               break;
             case 3:
-              scanDuration -= scanDuration * (int)(player.learnableSkills[CustomSkill.PeltDetection].totalPoints * 0.05);
-              scanDuration -= player.learnableSkills.ContainsKey(CustomSkill.PeltDetectionSpeed) ? scanDuration * (int)(player.learnableSkills[CustomSkill.PeltDetectionSpeed].totalPoints * 0.05) : 0;
+              scanDuration = Craft.Collect.System.GetResourceDetectionTime(player, CustomSkill.PeltDetection, CustomSkill.PeltDetectionSpeed);
               break;
           }
         }

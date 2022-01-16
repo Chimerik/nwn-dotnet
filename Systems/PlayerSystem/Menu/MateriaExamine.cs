@@ -18,10 +18,13 @@ namespace NWN.Systems
         private readonly NuiBind<int> listCount = new NuiBind<int>("listCount");
         private int resourceDetectionSkill = CustomSkill.OreDetection;
         private int resourceEstimationSkill = CustomSkill.OreDetectionEstimation;
+        private int resourceSpeedSkill = CustomSkill.OreDetectionSpeed;
+        private DateTime lastEstimate { get; set; }
 
         public MateriaExamineWindow(Player player, NwPlaceable materia) : base(player)
         {
           windowId = "materiaExamine";
+          lastEstimate = DateTime.MinValue;
 
           List<NuiListTemplateCell> rowTemplate = new List<NuiListTemplateCell>
           {
@@ -61,7 +64,10 @@ namespace NWN.Systems
           SelectDetectionSkill(materia.GetObjectVariable<LocalVariableString>("_RESOURCE_TYPE").Value);
           int realQuantity = materia.GetObjectVariable<LocalVariableInt>("_ORE_AMOUNT").Value;
 
-          if (player.learnableSkills.ContainsKey(resourceEstimationSkill))
+          int nextPossibleEstimate = (int)(DateTime.Now - lastEstimate).TotalSeconds;
+
+          if (player.learnableSkills.ContainsKey(resourceEstimationSkill)
+            && nextPossibleEstimate > Craft.Collect.System.GetResourceDetectionTime(player, resourceDetectionSkill, resourceSpeedSkill))
           {
             int skillPoints = player.learnableSkills.ContainsKey(resourceEstimationSkill) ? player.learnableSkills[resourceDetectionSkill].totalPoints + player.learnableSkills[resourceEstimationSkill].totalPoints : player.learnableSkills[resourceDetectionSkill].totalPoints;
             int previousEstimation = materia.GetObjectVariable<LocalVariableInt>($"_QUANTITY_ESTIMATE_{player.characterId}").Value;
@@ -70,6 +76,8 @@ namespace NWN.Systems
             newEstimate = realQuantity - previousEstimation < realQuantity - newEstimate ? previousEstimation : newEstimate;
             materia.GetObjectVariable<LocalVariableInt>($"_QUANTITY_ESTIMATE_{player.characterId}").Value = newEstimate;
           }
+          else
+            player.oid.SendServerMessage($"Prochaine estimation personnelle possible dans {nextPossibleEstimate} secondes.", ColorConstants.Orange);
 
           var localEstimates = materia.LocalVariables.Where(v => v.Name.StartsWith("_QUANTITY_ESTIMATE_"));
           List<string> characterList = new List<string>();
@@ -107,6 +115,7 @@ namespace NWN.Systems
             case "animal_spawn_wp":
               resourceDetectionSkill = CustomSkill.PeltDetection;
               resourceEstimationSkill = CustomSkill.PeltDetectionEstimation;
+              resourceSpeedSkill = CustomSkill.OreDetectionSpeed;
               break;
           }
         }

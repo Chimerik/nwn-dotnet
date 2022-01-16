@@ -179,6 +179,14 @@ namespace NWN.Systems.Craft.Collect
         new List<string[]>() { new string[] { "quantity" }, new string[] { "lastChecked" } });
     }
 
+    public static int GetResourceDetectionTime(PlayerSystem.Player player, int detectionSkill, int speedSkill)
+    {
+      int scanDuration = 120;
+      scanDuration -= scanDuration * (int)(player.learnableSkills[detectionSkill].totalPoints * 0.05);
+      scanDuration -= player.learnableSkills.ContainsKey(speedSkill) ? scanDuration * (int)(player.learnableSkills[speedSkill].totalPoints * 0.05) : 0;
+      return scanDuration;
+    }
+
     public static void StartCollectCycle(PlayerSystem.Player player, Action completeCallback, NwGameObject oTarget = null)
     {
       if (player.oid.LoginCreature.GetObjectVariable<LocalVariableInt>("_COLLECT_IN_PROGRESS").HasValue)

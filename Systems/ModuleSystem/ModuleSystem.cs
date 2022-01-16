@@ -8,7 +8,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using static NWN.Systems.Craft.Collect.Config;
+
 using NWN.Core;
 using Google.Apis.Drive.v3;
 using Newtonsoft.Json;
@@ -621,14 +621,14 @@ namespace NWN.Systems
         NwPlaceable newResourceBlock = NwPlaceable.Create(resourceTemplate, waypoint.Location);
         newResourceBlock.GetObjectVariable<LocalVariableInt>("_ORE_AMOUNT").Value = quantity;
         newResourceBlock.GetObjectVariable<DateTimeLocalVariable>("_LAST_CHECK").Value = lastChecked;
-        VisibilityPlugin.SetVisibilityOverride(NWScript.OBJECT_INVALID, newResourceBlock, VisibilityPlugin.NWNX_VISIBILITY_ALWAYS_VISIBLE);
+        newResourceBlock.VisibilityOverride = VisibilityMode.AlwaysVisible;
 
         NwPlaceable interactibleMateria = NwPlaceable.Create("mineable_materia", waypoint.Location);
         interactibleMateria.GetObjectVariable<LocalVariableInt>("id").Value = waypoint.GetObjectVariable<LocalVariableInt>("id").Value;
         interactibleMateria.GetObjectVariable<LocalVariableInt>("_ORE_AMOUNT").Value = quantity;
         interactibleMateria.GetObjectVariable<DateTimeLocalVariable>("_LAST_CHECK").Value = lastChecked;
         interactibleMateria.GetObjectVariable<LocalVariableString>("_RESOURCE_TYPE").Value = resourceTemplate;
-        VisibilityPlugin.SetVisibilityOverride(NWScript.OBJECT_INVALID, interactibleMateria, VisibilityPlugin.NWNX_VISIBILITY_HIDDEN);
+        interactibleMateria.VisibilityOverride = VisibilityMode.Hidden;
 
         waypoint.Destroy();
         string id = waypoint.GetObjectVariable<LocalVariableInt>("id").Value.ToString();
