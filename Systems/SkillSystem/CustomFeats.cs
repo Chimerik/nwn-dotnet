@@ -436,6 +436,24 @@
     public const int WoodDetectionMastery = 20168;
     public const int PeltDetectionMastery = 20169;
 
+    public const int MineralExtraction = 20170;
+    public const int MineralExtractionSpeed = 20171;
+    public const int MineralExtractionYield = 20172;
+    public const int MineralExtractionCriticalSuccess = 20173;
+    public const int MineralExtractionCriticalFailure = 20174;
+
+    public const int WoodExtraction = 20175;
+    public const int WoodExtractionSpeed = 20176;
+    public const int WoodExtractionYield = 20177;
+    public const int WoodExtractionCriticalSuccess = 20178;
+    public const int WoodExtractionCriticalFailure = 20179;
+
+    public const int PeltExtraction = 20180;
+    public const int PeltExtractionSpeed = 20181;
+    public const int PeltExtractionYield = 20182;
+    public const int PeltExtractionCriticalSuccess = 20183;
+    public const int PeltExtractionCriticalFailure = 20184;
+
     public const int Invalid = 65535;
   }
 }

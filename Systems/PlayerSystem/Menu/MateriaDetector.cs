@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 
 using Anvil.API;
 using Anvil.API.Events;
+using Anvil.Services;
 
 namespace NWN.Systems
 {
@@ -25,10 +26,9 @@ namespace NWN.Systems
         private readonly NuiBind<string> estimatedQuantity = new NuiBind<string>("estimatedQuantity");
         private readonly NuiBind<string> estimatedDistance = new NuiBind<string>("estimatedDistance");
         private readonly NuiBind<string> estimatedCoordinates = new NuiBind<string>("estimatedCoordinates");
-
-        private bool cancelPreviousDetection { get; set; }
         private int scanDuration { get; set; }
         private NwItem detector { get; set; }
+        public ScheduledTask detectionProgress { get; set; }
         private string resourceTemplate = "ore_spawn_wp";
         private int resourceDetectionSkill = CustomSkill.OreDetection;
         private int resourceAccuracyDetectionSkill = CustomSkill.OreDetectionAccuracy;
@@ -40,7 +40,6 @@ namespace NWN.Systems
         public MateriaDetectorWindow(Player player, NwItem detector) : base(player)
         {
           windowId = "materiaDetector";
-          cancelPreviousDetection = false;
 
           rootColumn = new NuiColumn()
           {
@@ -66,7 +65,6 @@ namespace NWN.Systems
         public void CreateWindow(NwItem detector)
         {
           this.detector = detector;
-          cancelPreviousDetection = true;
 
           resourceCategories.Clear();
           resourceCategories.Add(new NuiComboEntry("", 0));
@@ -143,8 +141,11 @@ namespace NWN.Systems
 
                   SetDetectionTime();
                   remainingTime.SetBindValue(player.oid, token, GetReadableDetectionTime());
-                  cancelPreviousDetection = true;
-                  HandleScanProgress();
+
+                  if (!detectionProgress.IsCancelled)
+                    CancelScanProgress();
+
+                  detectionProgress = ModuleSystem.scheduler.ScheduleRepeating(HandleScanProgress, TimeSpan.FromSeconds(1));
 
                   return;
               }
@@ -153,27 +154,17 @@ namespace NWN.Systems
 
             case NuiEventType.Watch:
               if (nuiEvent.ElementId == "selectedCategory")
-                cancelPreviousDetection = true;
+                if (!detectionProgress.IsCancelled)
+                  CancelScanProgress();
               break;
           }
         }
 
-        private async void HandleScanProgress()
+        private void HandleScanProgress()
         {
-          CancellationTokenSource tokenSource = new CancellationTokenSource();
-          Task awaitCancellation = NwTask.WaitUntil(() => player.oid.LoginCreature == null || !player.openedWindows.ContainsKey(windowId) || cancelPreviousDetection == true, tokenSource.Token);
-          Task awaitOneSecond = NwTask.Delay(TimeSpan.FromSeconds(1), tokenSource.Token);
-
-          await NwTask.WhenAny(awaitCancellation, awaitOneSecond);
-          tokenSource.Cancel();
-
-          if (awaitCancellation.IsCompletedSuccessfully)
+          if(player.oid.LoginCreature == null || !player.openedWindows.ContainsKey(windowId))
           {
-            cancelPreviousDetection = false;
-            remainingTime.SetBindValue(player.oid, token, "");
-            estimatedQuantity.SetBindValue(player.oid, token, "");
-            estimatedDistance.SetBindValue(player.oid, token, "");
-            estimatedCoordinates.SetBindValue(player.oid, token, "");
+            CancelScanProgress();
             return;
           }
 
@@ -182,6 +173,8 @@ namespace NWN.Systems
 
           if (scanDuration < 1)
           {
+            detectionProgress.Dispose();
+
             SelectDetectionSkill(selectedCategory.GetBindValue(player.oid, token));
 
             var materiaList = player.oid.LoginCreature.Area.FindObjectsOfTypeInArea<NwPlaceable>().Where(m => m.Tag == "mineable_materia" && m.GetObjectVariable<LocalVariableString>("_RESOURCE_TYPE").Value == resourceTemplate);
@@ -209,8 +202,14 @@ namespace NWN.Systems
 
             return;
           }
-
-          HandleScanProgress();
+        }
+        private void CancelScanProgress()
+        {
+          detectionProgress.Dispose();
+          remainingTime.SetBindValue(player.oid, token, "");
+          estimatedQuantity.SetBindValue(player.oid, token, "");
+          estimatedDistance.SetBindValue(player.oid, token, "");
+          estimatedCoordinates.SetBindValue(player.oid, token, "");
         }
         private void SelectDetectionSkill(int resourceType)
         {

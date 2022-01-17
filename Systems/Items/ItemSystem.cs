@@ -91,8 +91,13 @@ namespace NWN.Systems
         case "oreextractor":
           feedbackService.AddFeedbackMessageFilter(FeedbackMessage.UseItemCantUse, oPC.ControllingPlayer);
           onItemUse.PreventUseItem = true;
-          Items.ItemUseHandlers.ResourceExtractor.HandleActivate(oItem, oPC.ControllingPlayer.LoginCreature, oTarget);
+          //Items.ItemUseHandlers.ResourceExtractor.HandleActivate(oItem, oPC.ControllingPlayer.LoginCreature, oTarget);
 
+          if (player.windows.ContainsKey("materiaExtraction"))
+            ((PlayerSystem.Player.MateriaExtractionWindow)player.windows["materiaExtraction"]).CreateWindow(onItemUse.Item, oTarget);
+          else
+            player.windows.Add("materiaExtraction", new PlayerSystem.Player.MateriaExtractionWindow(player, onItemUse.Item, oTarget));
+          
           break;
         case "private_contract":
           feedbackService.AddFeedbackMessageFilter(FeedbackMessage.UseItemCantUse, oPC.ControllingPlayer);
@@ -144,6 +149,7 @@ namespace NWN.Systems
           new PotionAlchimisteEffect(onItemUse.Item, oPC.ControllingPlayer, oTarget);
           break;
         case "bank_contract":
+          feedbackService.AddFeedbackMessageFilter(FeedbackMessage.UseItemCantUse, oPC.ControllingPlayer);
           onItemUse.PreventUseItem = true;
 
           if (player.windows.ContainsKey("bankContract"))
@@ -153,6 +159,7 @@ namespace NWN.Systems
 
           break;
         case "learning_book":
+          feedbackService.AddFeedbackMessageFilter(FeedbackMessage.UseItemCantUse, oPC.ControllingPlayer);
           onItemUse.PreventUseItem = true;
 
           if (player.windows.ContainsKey("learnable"))
@@ -162,7 +169,8 @@ namespace NWN.Systems
 
           break;
         case "materia_detector":
-            onItemUse.PreventUseItem = true;
+          feedbackService.AddFeedbackMessageFilter(FeedbackMessage.UseItemCantUse, oPC.ControllingPlayer);
+          onItemUse.PreventUseItem = true;
 
             if (player.windows.ContainsKey("materiaDetector"))
               ((PlayerSystem.Player.MateriaDetectorWindow)player.windows["materiaDetector"]).CreateWindow(onItemUse.Item);

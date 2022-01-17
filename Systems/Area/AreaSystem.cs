@@ -143,7 +143,7 @@ namespace NWN.Systems
       {
         case "entry_scene":
 
-          NwObject.FindObjectsWithTag<NwGameObject>("intro_brouillard").FirstOrDefault().VisibilityOverride = VisibilityMode.Hidden;
+          NwObject.FindObjectsWithTag<NwPlaceable>("intro_brouillard").FirstOrDefault().VisibilityOverride = VisibilityMode.Hidden;
           area.GetObjectVariable<LocalVariableInt>("_AREA_LEVEL").Value = 0;
           area.SetAreaWind(new Vector3(1, 0, 0), 4, 0, 0);
 

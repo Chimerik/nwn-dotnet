@@ -546,9 +546,7 @@ namespace NWN.Systems
               SpawnResourceBlock("mineable_tree", blockWaypoint, quantity, lastChecked);
               break;
             case "animal_spawn_wp":
-              blockWaypoint.GetObjectVariable<LocalVariableInt>("_ORE_AMOUNT").Value = quantity;
-              blockWaypoint.GetObjectVariable<DateTimeLocalVariable>("_LAST_CHECK").Value = lastChecked;
-              blockWaypoint.GetObjectVariable<LocalVariableBool>("CAN_SPAWN").Value = true;
+              SpawnResourceBlock("mineable_animal", blockWaypoint, quantity, lastChecked);
               break;
           }
         }
@@ -559,7 +557,7 @@ namespace NWN.Systems
 
       foreach (NwWaypoint ressourcePoint in NwObject.FindObjectsWithTag<NwWaypoint>(new string[] { "ore_spawn_wp", "wood_spawn_wp", "animal_spawn_wp" }).Where(l => l.Area.GetObjectVariable<LocalVariableInt>("_AREA_LEVEL").Value > 1))
       {
-        if (NwRandom.Roll(Utils.random, 100) > 80)
+        if (NwRandom.Roll(Utils.random, 100) > 85)
         {
           int resourceQuantity = 5 * NwRandom.Roll(Utils.random, 100 - (ressourcePoint.Area.GetObjectVariable<LocalVariableInt>("_AREA_LEVEL").Value * 10));
           switch (ressourcePoint.Tag)
@@ -571,7 +569,7 @@ namespace NWN.Systems
               SpawnResourceBlock("mineable_tree", ressourcePoint, resourceQuantity, DateTime.Now);
               break;
             case "animal_spawn_wp":
-              ressourcePoint.GetObjectVariable<LocalVariableBool>("CAN_SPAWN").Value = true;
+              SpawnResourceBlock("mineable_animal", ressourcePoint, resourceQuantity, DateTime.Now);
               break;
           }
 

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 
 using Anvil.API;
+using Anvil.Services;
 
 namespace NWN.Systems
 {
@@ -88,7 +89,7 @@ namespace NWN.Systems
 
         private async void RefreshWindowUntillClosed()
         {
-          var scheduler = ModuleSystem.scheduler.ScheduleRepeating(() =>
+          ScheduledTask scheduler = ModuleSystem.scheduler.ScheduleRepeating(() =>
           {
             learnable.acquiredPoints += player.GetSkillPointsPerSecond(learnable);
             timeLeft.SetBindValue(player.oid, token, learnable.GetReadableTimeSpanToNextLevel(player));
