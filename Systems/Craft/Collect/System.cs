@@ -186,6 +186,17 @@ namespace NWN.Systems.Craft.Collect
       scanDuration -= player.learnableSkills.ContainsKey(speedSkill) ? scanDuration * (int)(player.learnableSkills[speedSkill].totalPoints * 0.05) : 0;
       return scanDuration;
     }
+    public static async void CreateSelectedResourceInInventory(CraftResource selection, PlayerSystem.Player player, int quantity)
+    {
+      NwItem pcResource = await NwItem.Create("craft_resource", player.oid.LoginCreature);
+      pcResource.GetObjectVariable<LocalVariableString>("CRAFT_RESOURCE").Value = selection.name;
+      pcResource.GetObjectVariable<LocalVariableInt>("CRAFT_GRADE").Value = selection.grade;
+      pcResource.Name = selection.name;
+      pcResource.Description = selection.description;
+      pcResource.Weight = selection.weight;
+      pcResource.Appearance.SetSimpleModel(selection.icon);
+      pcResource.StackSize = quantity;
+    }
 
     public static void StartCollectCycle(PlayerSystem.Player player, Action completeCallback, NwGameObject oTarget = null)
     {

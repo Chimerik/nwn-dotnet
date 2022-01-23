@@ -616,13 +616,16 @@ namespace NWN.Systems
     {
       try
       {
+        int blockId = waypoint.GetObjectVariable<LocalVariableInt>("id").Value;
+
         NwPlaceable newResourceBlock = NwPlaceable.Create(resourceTemplate, waypoint.Location);
         newResourceBlock.GetObjectVariable<LocalVariableInt>("_ORE_AMOUNT").Value = quantity;
         newResourceBlock.GetObjectVariable<DateTimeLocalVariable>("_LAST_CHECK").Value = lastChecked;
+        newResourceBlock.GetObjectVariable<LocalVariableInt>("id").Value = blockId;
         newResourceBlock.VisibilityOverride = VisibilityMode.AlwaysVisible;
 
         NwPlaceable interactibleMateria = NwPlaceable.Create("mineable_materia", waypoint.Location);
-        interactibleMateria.GetObjectVariable<LocalVariableInt>("id").Value = waypoint.GetObjectVariable<LocalVariableInt>("id").Value;
+        interactibleMateria.GetObjectVariable<LocalVariableInt>("id").Value = blockId;
         interactibleMateria.GetObjectVariable<LocalVariableInt>("_ORE_AMOUNT").Value = quantity;
         interactibleMateria.GetObjectVariable<DateTimeLocalVariable>("_LAST_CHECK").Value = lastChecked;
         interactibleMateria.GetObjectVariable<LocalVariableString>("_RESOURCE_TYPE").Value = resourceTemplate;

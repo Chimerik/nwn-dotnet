@@ -144,9 +144,9 @@ namespace NWN.Systems
                   resourceSelection = player.craftResourceStock[nuiEvent.ArrayIndex];
 
                   if (player.windows.ContainsKey("playerInput"))
-                    ((PlayerInputWindow)player.windows["playerInput"]).CreateWindow("Déposer combien d'or ?", WithdrawResource, resourceSelection.quantity.ToString());
+                    ((PlayerInputWindow)player.windows["playerInput"]).CreateWindow("Retirer combien d'unités ?", WithdrawResource, resourceSelection.quantity.ToString());
                   else
-                    player.windows.Add("playerInput", new PlayerInputWindow(player, "Déposer combien d'or ?", WithdrawResource, resourceSelection.quantity.ToString()));
+                    player.windows.Add("playerInput", new PlayerInputWindow(player, "Retirer combien d'unités ?", WithdrawResource, resourceSelection.quantity.ToString()));
 
                   break;
 
@@ -203,7 +203,7 @@ namespace NWN.Systems
         {
           if (!int.TryParse(inputValue, out int input) || resourceSelection == null || resourceSelection.quantity < input)
           {
-            player.oid.SendServerMessage("Vous ne disposez pas d'autant de cette ressource.", ColorConstants.Red);
+            player.oid.SendServerMessage("Vous ne disposez pas d'une telle quantité de cette ressource.", ColorConstants.Red);
             return true;
           }
 
@@ -211,13 +211,13 @@ namespace NWN.Systems
           {
             if (input > 50000)
             {
-              CreateSelectedResourceInInventory(resourceSelection, 50000);
+              Craft.Collect.System.CreateSelectedResourceInInventory(resourceSelection, player, 50000);
               input -= 50000;
               resourceSelection.quantity -= 50000;
             }
             else
             {
-              CreateSelectedResourceInInventory(resourceSelection, input);
+              Craft.Collect.System.CreateSelectedResourceInInventory(resourceSelection, player, input);
               resourceSelection.quantity -= input;
               input = 0;
             }
@@ -228,18 +228,6 @@ namespace NWN.Systems
 
           return true;
         }
-        private async void CreateSelectedResourceInInventory(CraftResource selection, int quantity)
-        {
-          NwItem pcResource = await NwItem.Create("craft_resource", player.oid.LoginCreature);
-          pcResource.GetObjectVariable<LocalVariableString>("CRAFT_RESOURCE").Value = selection.name;
-          pcResource.GetObjectVariable<LocalVariableInt>("CRAFT_GRADE").Value = selection.grade;
-          pcResource.Name = selection.name;
-          pcResource.Description = selection.description;
-          pcResource.Weight = selection.weight;
-          pcResource.Appearance.SetSimpleModel(selection.icon);
-          pcResource.StackSize = quantity;
-        }
-
         private void SelectInventoryItem(ModuleEvents.OnPlayerTarget selection)
         {
           if (selection.IsCancelled || !(selection.TargetObject is NwItem item))
