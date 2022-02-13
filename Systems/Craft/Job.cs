@@ -198,8 +198,8 @@ namespace NWN.Systems.Craft
     }
     public void StartItemCraft(Blueprint blueprint, NwItem oItem, NwGameObject oTarget, string sMaterial)
     {
-      int iMineralCost = blueprint.GetBlueprintMineralCostForPlayer(player.oid, oItem);
-      float iJobDuration = blueprint.GetBlueprintTimeCostForPlayer(player.oid, oItem);
+      int iMineralCost = blueprint.GetBlueprintMineralCostForPlayer(player, oItem);
+      float iJobDuration = blueprint.GetBlueprintTimeCostForPlayer(player, oItem);
 
       int materialType = 0;
       if (Enum.TryParse(material, out MineralType myMineralType))
@@ -249,8 +249,8 @@ namespace NWN.Systems.Craft
     public void StartItemRepair(Blueprint blueprint, NwItem oItem, NwGameObject oTarget, string sMaterial)
     {
       player.craftJob.isCancelled = false;
-      int iMineralCost = blueprint.GetBlueprintMineralCostForPlayer(player.oid, oItem);
-      float iJobDuration = blueprint.GetBlueprintTimeCostForPlayer(player.oid, oItem);
+      int iMineralCost = blueprint.GetBlueprintMineralCostForPlayer(player, oItem);
+      float iJobDuration = blueprint.GetBlueprintTimeCostForPlayer(player, oItem);
 
       if (oTarget.GetObjectVariable<LocalVariableString>("_ORIGINAL_CRAFTER_NAME").Value == player.oid.LoginCreature.Name)
       {

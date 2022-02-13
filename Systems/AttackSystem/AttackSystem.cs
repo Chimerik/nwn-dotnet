@@ -181,7 +181,8 @@ namespace NWN.Systems
       }
       else
       {
-        critChance += ctx.attackWeapon == null ? Config.GetWeaponCritScienceLevel(BaseItemType.Gloves, ctx.oAttacker) : Config.GetWeaponCritScienceLevel(ctx.attackWeapon.BaseItem.ItemType, ctx.oAttacker);
+        PlayerSystem.Players.TryGetValue(ctx.oAttacker, out PlayerSystem.Player player);       
+        critChance += ctx.attackWeapon == null ? player.GetWeaponCritScienceLevel(BaseItemType.Gloves) : player.GetWeaponCritScienceLevel(ctx.attackWeapon.BaseItem.ItemType);
       }
 
       if (NwRandom.Roll(Utils.random, 100) < critChance)
@@ -200,7 +201,10 @@ namespace NWN.Systems
       }
       else // si c'est un joueur, alors ses dégâts sont modifiés selon sa maîtrise de l'arme actuelle
       {
-        int weaponMasteryLevel = ctx.attackWeapon == null ? Config.GetWeaponMasteryLevel(BaseItemType.Gloves, ctx.oAttacker) : Config.GetWeaponMasteryLevel(ctx.attackWeapon.BaseItem.ItemType, ctx.oAttacker);
+        if (!PlayerSystem.Players.TryGetValue(ctx.oAttacker, out PlayerSystem.Player player))
+          return;
+
+        int weaponMasteryLevel = ctx.attackWeapon == null ? player.GetWeaponMasteryLevel(BaseItemType.Gloves) : player.GetWeaponMasteryLevel(ctx.attackWeapon.BaseItem.ItemType);
         ctx.onAttack.DamageData.Base *= (short)(weaponMasteryLevel / 10);
       }
 

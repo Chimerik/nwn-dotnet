@@ -11,12 +11,13 @@ namespace NWN.Systems.Craft
   {
     public readonly int baseItemType;
     public readonly string name;
-    public string workshopTag { get; set; }
-    public string craftedItemTag { get; set; }
-    public int mineralsCost { get; set; }
-    public Feat feat { get; set; }
-    public Feat jobFeat { get; set; }
-    public int goldCost { get; }
+    public readonly string workshopTag;
+    public readonly string craftedItemTag;
+    public readonly int mineralsCost;
+    public readonly Feat feat;
+    public readonly Feat jobFeat;
+    public readonly int goldCost;
+    public readonly ResourceType resourceType; 
     public Blueprint(int baseItemType)
     {
       this.baseItemType = baseItemType;
@@ -50,12 +51,15 @@ namespace NWN.Systems.Craft
       {
         case "forge":
           jobFeat = CustomFeats.Forge;
+          resourceType = ResourceType.Ore;
           break;
         case "scierie":
           jobFeat = CustomFeats.Ebeniste;
+          resourceType = ResourceType.Wood;
           break;
         case "tannerie":
           jobFeat = CustomFeats.Tanner;
+          resourceType = ResourceType.Pelt;
           break;
         case "enchant":
           jobFeat = CustomFeats.Enchanteur;
@@ -174,29 +178,8 @@ namespace NWN.Systems.Craft
           break;
       }
     }
-    public string DisplayBlueprintInfo(NwPlayer player, NwItem oItem)
+    public int GetBlueprintMineralCostForPlayer(PlayerSystem.Player player, NwItem item)
     {
-      int iMineralCost = this.GetBlueprintMineralCostForPlayer(player, oItem);
-      float iJobDuration = this.GetBlueprintTimeCostForPlayer(player, oItem);
-      string sMaterial = GetMaterialFromTargetItem(NwModule.FindObjectsWithTag<NwPlaceable>(workshopTag).FirstOrDefault());
-      string bpDescription = $"Patron de création de l'objet artisanal : {name}\n\n\n" +
-        $"Recherche d'efficacité matérielle niveau {oItem.GetObjectVariable<LocalVariableInt>("_BLUEPRINT_MATERIAL_EFFICIENCY").Value}\n\n" +
-        $"Coût initial en {sMaterial} : {iMineralCost}.\n Puis 10 % de moins par amélioration vers un matériau supérieur.\n" +
-        $"Recherche d'efficacité de temps niveau {oItem.GetObjectVariable<LocalVariableInt>("_BLUEPRINT_TIME_EFFICIENCY").Value} \n\n" +
-        $"Temps de fabrication et d'amélioration : {Utils.StripTimeSpanMilliseconds(DateTime.Now.AddSeconds(iJobDuration).Subtract(DateTime.Now))}.";
-      
-      int runs = oItem.GetObjectVariable<LocalVariableInt>("_BLUEPRINT_RUNS").Value; 
-
-      if (runs > 0)
-        bpDescription += $"\n\nUtilisation(s) restante(s) : {runs}";
-
-      return bpDescription;
-    }
-    public int GetBlueprintMineralCostForPlayer(NwPlayer oPC, NwItem item)
-    {
-      if (!PlayerSystem.Players.TryGetValue(oPC.LoginCreature, out PlayerSystem.Player player))
-        return 999999999;
-
       int iSkillLevel = 0;
 
       if (player.learntCustomFeats.ContainsKey(jobFeat))
@@ -209,11 +192,8 @@ namespace NWN.Systems.Craft
 
       return mineralsCost * (100 - iSkillLevel) / 100;
     }
-    public float GetBlueprintTimeCostForPlayer(NwPlayer oPC, NwItem item)
+    public float GetBlueprintTimeCostForPlayer(PlayerSystem.Player player, NwItem item)
     {
-      if (!PlayerSystem.Players.TryGetValue(oPC.LoginCreature, out PlayerSystem.Player player))
-        return 999999999;
-
       int iSkillLevel = 0;
       float fJobDuration = this.mineralsCost * 300;
 

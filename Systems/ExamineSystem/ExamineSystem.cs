@@ -19,6 +19,12 @@ namespace NWN.Systems
       if (!PlayerSystem.Players.TryGetValue(onExamine.ExaminedBy.LoginCreature, out PlayerSystem.Player player))
         return;
 
+      if(onExamine.ExaminedObject is NwItem)
+      {
+        // TODO : annuler l'ouverture de la fenêtre examiner habituelle
+        
+      }
+      
       switch (onExamine.ExaminedObject.Tag)
       {
         case "mineable_materia":
@@ -29,7 +35,7 @@ namespace NWN.Systems
             player.windows.Add("materiaExamine", new PlayerSystem.Player.MateriaExamineWindow(player, (NwPlaceable)onExamine.ExaminedObject));
 
           break;
-        case "blueprint":
+        /*case "blueprint":
           int baseItemType = onExamine.ExaminedObject.GetObjectVariable<LocalVariableInt>("_BASE_ITEM_TYPE").Value;
           if (Craft.Collect.System.blueprintDictionnary.ContainsKey(baseItemType))
             onExamine.ExaminedObject.Description = Craft.Collect.System.blueprintDictionnary[baseItemType].DisplayBlueprintInfo(onExamine.ExaminedBy, (NwItem)onExamine.ExaminedObject);
@@ -38,7 +44,7 @@ namespace NWN.Systems
             onExamine.ExaminedBy.SendServerMessage("[ERREUR HRP] - Le patron utilisé n'est pas correctement initialisé. Le bug a été remonté au staff.");
             Utils.LogMessageToDMs($"Blueprint Invalid : {onExamine.ExaminedObject.Name} - Base Item Type : {baseItemType} - Examined by : {onExamine.ExaminedBy.LoginCreature.Name}");
           }
-          break;
+          break;*/
         case "ore":
           string reprocessingData = $"{onExamine.ExaminedObject.Name} : Efficacité raffinage -30 % (base fonderie Amirauté)";
           int skillLevel = 0;

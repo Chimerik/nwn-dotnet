@@ -16,11 +16,11 @@ namespace NWN.Systems.Items.ItemUseHandlers
         return;
       }
 
-      if (oTarget == null)
+      /*if (oTarget == null)
       {
         oPC.ControllingPlayer.SendServerMessage(blueprint.DisplayBlueprintInfo(oPC.ControllingPlayer, oBlueprint));
         return;
-      }
+      }*/
 
       if (!PlayerSystem.Players.TryGetValue(oPC, out PlayerSystem.Player player))
         return;

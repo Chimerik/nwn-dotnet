@@ -1,12 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
 
 using Anvil.API;
 using Anvil.API.Events;
-
-using NWN.Core.NWNX;
 
 namespace NWN.Systems
 {
@@ -36,7 +32,6 @@ namespace NWN.Systems
                 Children = new List<NuiElement>
                 {
                   new  NuiSpacer(),
-                  new NuiButton("Nom & Description") { Id = "openNameDescription", Height = 35, Width = 150 },
                   new NuiButton("Couleurs") { Id = "openColors", Height = 35, Width = 150 },
                   new NuiSpacer()
                 }
@@ -171,9 +166,6 @@ namespace NWN.Systems
                   else
                     player.windows.Add("helmetColorModifier", new HelmetColorWindow(player, item));
 
-                  break;
-                case "openNameDescription":
-                  player.CreateItemNameDescriptionWindow(item);
                   break;
               }
               break;

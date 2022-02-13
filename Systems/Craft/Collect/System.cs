@@ -189,7 +189,7 @@ namespace NWN.Systems.Craft.Collect
     public static async void CreateSelectedResourceInInventory(CraftResource selection, PlayerSystem.Player player, int quantity)
     {
       NwItem pcResource = await NwItem.Create("craft_resource", player.oid.LoginCreature);
-      pcResource.GetObjectVariable<LocalVariableString>("CRAFT_RESOURCE").Value = selection.name;
+      pcResource.GetObjectVariable<LocalVariableString>("CRAFT_RESOURCE").Value = selection.type.ToString();
       pcResource.GetObjectVariable<LocalVariableInt>("CRAFT_GRADE").Value = selection.grade;
       pcResource.Name = selection.name;
       pcResource.Description = selection.description;

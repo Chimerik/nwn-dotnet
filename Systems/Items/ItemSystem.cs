@@ -117,21 +117,11 @@ namespace NWN.Systems
           new PlayerAuction(oPC.ControllingPlayer.LoginCreature, oItem);
 
           break;
-        case "forgehammer":
-          feedbackService.AddFeedbackMessageFilter(FeedbackMessage.UseItemCantUse, oPC.ControllingPlayer);
-          onItemUse.PreventUseItem = true;
-
-          if (oTarget is NwItem)
-            new CraftTool(oPC.ControllingPlayer.LoginCreature, (NwItem)oTarget);
-          else
-            oPC.ControllingPlayer.SendServerMessage($"Vous ne pouvez pas modifier l'apparence de {oTarget.Name.ColorString(ColorConstants.White)}.".ColorString(ColorConstants.Red));
-
-          break;
         case "sequence_register":
           feedbackService.AddFeedbackMessageFilter(FeedbackMessage.UseItemCantUse, oPC.ControllingPlayer);
           onItemUse.PreventUseItem = true;
 
-          new SequenceRegister(oPC, oItem, oTarget);
+          new SequenceRegister(player, oItem, oTarget);
 
           break;
         case "Peaudejoueur":

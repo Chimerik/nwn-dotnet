@@ -34,9 +34,6 @@
     public const int ArkonorReprocessing = 1202;
     public const int MercoxitReprocessing = 1203;
     public const int StripMiner = 1204;
-    public const int Reprocessing = 1205;
-    public const int ReprocessingEfficiency = 1206;
-    public const int Connections = 1207;
     public const int Forge = 1208;
     public const int CraftClothing = 1209;
     public const int CraftFullPlate = 1210;
@@ -453,6 +450,26 @@
     public const int PeltExtractionYield = 20183;
     public const int PeltExtractionCriticalSuccess = 20184;
     public const int PeltExtractionCriticalFailure = 20185;
+
+    public const int ReprocessingOre = 20186;
+    public const int ReprocessingOreEfficiency = 20187;
+    public const int ReprocessingWood = 20188;
+    public const int ReprocessingWoodEfficiency = 20189;
+    public const int ReprocessingPelt = 20190;
+    public const int ReprocessingPeltEfficiency = 20191;
+    public const int ReprocessingGrade1Expertise = 20192;
+    public const int ReprocessingGrade2Expertise = 20193;
+    public const int ReprocessingGrade3Expertise = 20194;
+    public const int ReprocessingGrade4Expertise = 20195;
+    public const int ReprocessingGrade5Expertise = 20196;
+    public const int ReprocessingGrade6Expertise = 20197;
+    public const int ReprocessingGrade7Expertise = 20198;
+    public const int ReprocessingGrade8Expertise = 20199;
+
+    public const int ConnectionsPromenade = 20200;
+    public const int ConnectionsGates = 20201;
+    public const int ConnectionsGovernment = 20202;
+    public const int ConnectionsTemple = 20203;
 
     public const int Invalid = 65535;
   }
