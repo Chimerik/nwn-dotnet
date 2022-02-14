@@ -548,7 +548,7 @@ namespace NWN.Systems
 
           ctx.targetAC[DamageType.BaseWeapon] = baseArmor.BaseACValue * 3;
 
-          switch (baseArmor.BaseACValue)
+          switch (baseArmor.BaseACValue) // TODO : un peu chelou, je me souviens plus bien pourquoi on fait ça. Autant rajouter directement l'IP sur les objets de base pour que la réduction soit directement prise en compte non ?
           {
             case 1:
             case 2:
