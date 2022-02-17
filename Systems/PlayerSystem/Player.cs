@@ -1119,15 +1119,16 @@ namespace NWN.Systems
           case 1:
           case 2:
           case 3:
-          case 4:
             if (learnableSkills.ContainsKey(CustomSkill.ImprovedLightArmorProficiency))
               masteryLevel = learnableSkills[CustomSkill.ImprovedLightArmorProficiency].totalPoints;
             return masteryLevel;
+          case 4:
           case 5:
             if (learnableSkills.ContainsKey(CustomSkill.ImprovedMediumArmorProficiency))
               masteryLevel = learnableSkills[CustomSkill.ImprovedMediumArmorProficiency].totalPoints;
             return masteryLevel;
           case 6:
+          case 7:
             if (learnableSkills.ContainsKey(CustomSkill.ImprovedHeavyArmorProficiency))
               masteryLevel = learnableSkills[CustomSkill.ImprovedHeavyArmorProficiency].totalPoints;
             return masteryLevel;

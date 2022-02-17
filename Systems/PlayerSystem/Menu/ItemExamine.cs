@@ -104,11 +104,26 @@ namespace NWN.Systems
               if (damage < 1)
                 damage = 1;
 
-              descriptionRowChildren.Add(new NuiText("Votre potentiel de dégâts"));
-              descriptionRowChildren.Add(new NuiText($"{item.BaseItem.NumDamageDice}d{damage}"));
-              descriptionRowChildren.Add(new NuiText("Vos chances de critique"));
-              descriptionRowChildren.Add(new NuiText($"{player.GetWeaponCritScienceLevel(item.BaseItem.ItemType)} %"));
-              rootChidren.Add(baseStatsRow);
+              List<NuiElement> weaponTrainingRowChildren = new List<NuiElement>();
+              NuiRow weaponTrainingRow = new NuiRow() { Children = weaponTrainingRowChildren };
+
+              weaponTrainingRowChildren.Add(new NuiText("Votre potentiel de dégâts"));
+              weaponTrainingRowChildren.Add(new NuiText($"{item.BaseItem.NumDamageDice}d{damage}"));
+              weaponTrainingRowChildren.Add(new NuiText("Vos chances de critique"));
+              weaponTrainingRowChildren.Add(new NuiText($"{player.GetWeaponCritScienceLevel(item.BaseItem.ItemType)} %"));
+              rootChidren.Add(weaponTrainingRow);
+            }
+
+            if(item.BaseItem.ItemType == BaseItemType.Armor)
+            {
+              List<NuiElement> weaponTrainingRowChildren = new List<NuiElement>();
+              NuiRow weaponTrainingRow = new NuiRow() { Children = weaponTrainingRowChildren };
+
+              weaponTrainingRowChildren.Add(new NuiText("Votre potentiel de dégâts"));
+              weaponTrainingRowChildren.Add(new NuiText($"{item.BaseItem.NumDamageDice}d{damage}"));
+              weaponTrainingRowChildren.Add(new NuiText("Vos chances de critique"));
+              weaponTrainingRowChildren.Add(new NuiText($"{player.GetWeaponCritScienceLevel(item.BaseItem.ItemType)} %"));
+              rootChidren.Add(weaponTrainingRow);
             }
           }
 
