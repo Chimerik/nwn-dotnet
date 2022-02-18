@@ -163,11 +163,15 @@ namespace NWN.Systems
               switch(nuiEvent.ElementId)
               {
                 case "examiner":
-                  NwItem tempItem = items.ElementAt(nuiEvent.ArrayIndex).Clone(player.oid.ControlledCreature.Location, "_TODESTROY", false);
+                  if (player.windows.ContainsKey("itemExamine"))
+                    ((ItemExamineWindow)player.windows["itemExamine"]).CreateWindow(items.ElementAt(nuiEvent.ArrayIndex));
+                  else
+                    player.windows.Add("itemExamine", new ItemExamineWindow(player, items.ElementAt(nuiEvent.ArrayIndex)));
 
-                  await NwTask.Delay(TimeSpan.FromSeconds(0.2));
-                  await player.oid.ActionExamine(tempItem);
-                  tempItem.Destroy(0.1f);
+                  //NwItem tempItem = items.ElementAt(nuiEvent.ArrayIndex).Clone(player.oid.ControlledCreature.Location, "_TODESTROY", false);
+                  //await NwTask.Delay(TimeSpan.FromSeconds(0.2));
+                  //await player.oid.ActionExamine(tempItem);
+                  //tempItem.Destroy(0.1f);
                   break;
 
                 case "takeItem":

@@ -202,7 +202,7 @@ namespace NWN.Systems
         case IPDamageType.Negative: return DamageType.Negative;
         case IPDamageType.Positive: return DamageType.Positive;
         case IPDamageType.Sonic: return DamageType.Sonic;
-        case (IPDamageType)4: return (DamageType)8192; // Physical
+        case IPDamageType.Physical: return (DamageType)8192; // Physical
         case (IPDamageType)14: return (DamageType)16384; // Elemental
         default: return DamageType.Slashing;
       }
@@ -266,6 +266,20 @@ namespace NWN.Systems
       oBlueprint.BaseGoldValue = (uint)(blueprint.goldCost * 10);
       oBlueprint.GetObjectVariable<LocalVariableInt>("_BASE_ITEM_TYPE").Value = baseItemType;
       oBlueprint.GetObjectVariable<LocalVariableString>("ITEM_KEY").Value = Config.itemKey;
+    }
+    public static string DisplayDamageType(DamageType damageType)
+    {
+      switch(damageType)
+      {
+        case DamageType.Bludgeoning:
+          return "Contondant";
+        case DamageType.Piercing:
+          return "Perçant";
+        case DamageType.Slashing:
+          return "Tranchant";
+      }
+
+      return "";
     }
   }
 }

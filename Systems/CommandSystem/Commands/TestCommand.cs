@@ -27,7 +27,12 @@ namespace NWN.Systems
 
         if (player.oid.PlayerName == "Chim" || player.oid.PlayerName == "test")
         {
-          if (!player.learnableSpells.ContainsKey((int)Spell.LesserRestoration))
+          NwItem armor = player.oid.ControlledCreature.GetItemInSlot(InventorySlot.Chest);
+          armor.AddItemProperty(ItemProperty.ACBonus(80), EffectDuration.Temporary, TimeSpan.FromSeconds(30));
+          armor.AddItemProperty(ItemProperty.ACBonusVsDmgType(IPDamageType.Physical, 20), EffectDuration.Temporary, TimeSpan.FromSeconds(30));
+          armor.AddItemProperty(ItemProperty.ACBonusVsDmgType((IPDamageType)14, 10), EffectDuration.Temporary, TimeSpan.FromSeconds(30));
+
+          /*if (!player.learnableSpells.ContainsKey((int)Spell.LesserRestoration))
             player.learnableSpells.Add((int)Spell.LesserRestoration, new LearnableSpell((LearnableSpell)SkillSystem.learnableDictionary[(int)Spell.LesserRestoration]));
           if (!player.learnableSpells.ContainsKey((int)Spell.Restoration))
             player.learnableSpells.Add((int)Spell.Restoration, new LearnableSpell((LearnableSpell)SkillSystem.learnableDictionary[(int)Spell.Restoration]));
@@ -42,7 +47,7 @@ namespace NWN.Systems
           if (player.windows.ContainsKey("learnables"))
             ((PlayerSystem.Player.LearnableWindow)player.windows["learnables"]).CreateWindow();
           else
-            player.windows.Add("learnables", new PlayerSystem.Player.LearnableWindow(player));
+            player.windows.Add("learnables", new PlayerSystem.Player.LearnableWindow(player));*/
 
           /*if (player.windows.ContainsKey("quickLoot"))
             ((PlayerSystem.Player.QuickLootWindow)player.windows["quickLoot"]).CreateWindow();

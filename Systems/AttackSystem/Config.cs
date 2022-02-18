@@ -18,7 +18,7 @@ namespace NWN.Systems
       public bool isRangedAttack { get; }
       public NwItem attackWeapon { get; set; }
       public NwItem targetArmor { get; set; }
-      public int maxBaseAC { get; set; }
+      //public int maxBaseAC { get; set; }
       public int baseArmorPenetration { get; set; }
       public int bonusArmorPenetration { get; set; }
       public AttackPosition attackPosition { get; set; }
@@ -42,7 +42,7 @@ namespace NWN.Systems
         //this.weaponBaseDamageType = new List<DamageType>(); // Slashing par défaut
         this.baseArmorPenetration = 0;
         this.bonusArmorPenetration = 0;
-        this.maxBaseAC = 0;
+        //this.maxBaseAC = 0;
         this.attackPosition = AttackPosition.NormalOrRanged;
         this.isUnarmedAttack = oAttacker != null && oAttacker.GetItemInSlot(InventorySlot.RightHand) == null;
         this.isRangedAttack = oAttacker != null && oAttacker.GetItemInSlot(InventorySlot.RightHand) != null

@@ -435,6 +435,8 @@
     public const int ImprovedShurikenProficiency = 20244;
     public const int ShurikenCriticalScience = 20245;
 
+    public const int ImprovedDualWieldDefenseProficiency = 20246;
+
     public const int Invalid = 65535;
   }
 }

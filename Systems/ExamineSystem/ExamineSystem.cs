@@ -19,10 +19,17 @@ namespace NWN.Systems
       if (!PlayerSystem.Players.TryGetValue(onExamine.ExaminedBy.LoginCreature, out PlayerSystem.Player player))
         return;
 
-      if(onExamine.ExaminedObject is NwItem)
+      if(onExamine.ExaminedObject is NwItem item)
       {
         // TODO : annuler l'ouverture de la fenêtre examiner habituelle
-        
+        onExamine.Skip = true;
+
+        if (player.windows.ContainsKey("itemExamine"))
+          ((PlayerSystem.Player.ItemExamineWindow)player.windows["itemExamine"]).CreateWindow(item);
+        else
+          player.windows.Add("itemExamine", new PlayerSystem.Player.ItemExamineWindow(player, item));
+
+        return;
       }
       
       switch (onExamine.ExaminedObject.Tag)

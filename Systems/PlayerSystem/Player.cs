@@ -1140,6 +1140,32 @@ namespace NWN.Systems
 
         return masteryLevel;
       }
+      public int GetShieldProficiencyLevel(BaseItemType baseItem)
+      {
+        int masteryLevel = 0;
+
+        switch (baseItem)
+        {
+          case BaseItemType.SmallShield:
+            if (learnableSkills.ContainsKey(CustomSkill.ImprovedLightShieldProficiency))
+              masteryLevel = learnableSkills[CustomSkill.ImprovedLightShieldProficiency].totalPoints;
+            return masteryLevel;
+          case BaseItemType.LargeShield:
+            if (learnableSkills.ContainsKey(CustomSkill.ImprovedMediumShieldProficiency))
+              masteryLevel = learnableSkills[CustomSkill.ImprovedMediumShieldProficiency].totalPoints;
+            return masteryLevel;
+          case BaseItemType.TowerShield:
+            if (learnableSkills.ContainsKey(CustomSkill.ImprovedHeavyShieldProficiency))
+              masteryLevel = learnableSkills[CustomSkill.ImprovedHeavyShieldProficiency].totalPoints;
+            return masteryLevel;
+          default:
+            if (learnableSkills.ContainsKey(CustomSkill.ImprovedDualWieldDefenseProficiency))
+              masteryLevel = learnableSkills[CustomSkill.ImprovedDualWieldDefenseProficiency].totalPoints;
+            return masteryLevel;
+        }
+
+        return masteryLevel;
+      }
     }
   }
 }

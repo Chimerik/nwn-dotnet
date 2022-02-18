@@ -20,8 +20,11 @@ namespace NWN.Systems
       string name = strRef == 0 ? name = "Nom manquant" : name = Armor2da.tlkTable.GetSimpleString(strRef);
       string workshop = twoDimEntry("WORKSHOP");
       string craftResRef = twoDimEntry("CRAFTRESREF");
+      string maxDex = twoDimEntry("DEXBONUS");
+      string ACPenalty = twoDimEntry("ACCHECK");
+      string arcaneFailure = twoDimEntry("ARCANEFAILURE%");
 
-      entries.Add(rowIndex, new Entry(name, cost, workshop, craftResRef));
+      entries.Add(rowIndex, new Entry(name, cost, workshop, craftResRef, maxDex, ACPenalty, arcaneFailure));
     }
     public readonly struct Entry
     {
@@ -29,13 +32,19 @@ namespace NWN.Systems
       public readonly int cost;
       public readonly string workshop;
       public readonly string craftResRef;
+      public readonly string maxDex;
+      public readonly string ACPenalty;
+      public readonly string arcaneFailure;
 
-      public Entry(string name, int cost, string workshop, string craftResRef)
+      public Entry(string name, int cost, string workshop, string craftResRef, string maxDex, string ACPenalty, string arcaneFailure)
       {
         this.name = name;
         this.cost = cost;
         this.workshop = workshop;
         this.craftResRef = craftResRef;
+        this.maxDex = maxDex;
+        this.ACPenalty = ACPenalty;
+        this.arcaneFailure = arcaneFailure;
       }
     }
   }

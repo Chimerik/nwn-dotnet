@@ -15,7 +15,11 @@ namespace NWN.Systems
     }
     public string GetSubTypeName(ItemPropertyType ipType, int subType)
     {
-      return NWScript.Get2DAString(entries[ipType].subTypeResRef, "Name", subType);
+      /*PlayerSystem.Log.Info(ipType);
+      PlayerSystem.Log.Info(subType);
+      PlayerSystem.Log.Info(entries[ipType].subTypeResRef);
+      PlayerSystem.Log.Info(NWScript.Get2DAString(entries[ipType].subTypeResRef, "Name", subType));*/
+      return NWScript.GetStringByStrRef(int.Parse(NWScript.Get2DAString(entries[ipType].subTypeResRef, "Name", subType)));
     }
     void ITwoDimArray.DeserializeRow(int rowIndex, TwoDimEntry twoDimEntry)
     {

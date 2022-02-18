@@ -22,6 +22,7 @@ namespace NWN.Systems
         private readonly NuiBind<string> sequenceSaveButtonLabel = new NuiBind<string>("sequenceSaveButtonLabel");
         private readonly NuiBind<string> itemName = new NuiBind<string>("itemName");
         private readonly NuiBind<string> itemDescription = new NuiBind<string>("itemDescription");
+        private bool modificationAllowed { get; set; }
         private NwItem item { get; set; }
 
         public ItemExamineWindow(Player player, NwItem item) : base(player)
@@ -41,33 +42,32 @@ namespace NWN.Systems
           rootChidren.Clear();
           this.item = item;
           string originalCrafterName = item.GetObjectVariable<LocalVariableString>("_ORIGINAL_CRAFTER_NAME").Value;
-          bool modificationAllowed = (string.IsNullOrWhiteSpace(originalCrafterName) || originalCrafterName == player.oid.ControlledCreature.OriginalName)
+          modificationAllowed = (string.IsNullOrWhiteSpace(originalCrafterName) || originalCrafterName == player.oid.ControlledCreature.OriginalName)
             && (item.Possessor == player.oid.ControlledCreature || player.oid.IsDM);
 
           List<NuiElement> nameRowChildren = new List<NuiElement>();
           NuiRow nameRow = new NuiRow() { Children = nameRowChildren };
 
-          nameRowChildren.Add(new NuiTextEdit("Nom de l'objet", itemName, 50, false) { Height = 30, Tooltip = item.Name });
+          nameRowChildren.Add(new NuiTextEdit("Nom de l'objet", itemName, 50, false) { Height = 30, Width = 500, Tooltip = item.Name });
+
+          List<NuiElement> labelRowChildren = new List<NuiElement>();
+          NuiRow lbelRow = new NuiRow() { Children = labelRowChildren };
+          labelRowChildren.Add(new NuiLabel(itemDescription));
 
           List<NuiElement> descriptionRowChildren = new List<NuiElement>();
           NuiRow descriptionRow = new NuiRow() { Children = descriptionRowChildren };
-          descriptionRowChildren.Add(new NuiTextEdit("Description de l'objet", itemDescription, 3000, true) { Height = 200 });
+          descriptionRowChildren.Add(new NuiTextEdit("Description de l'objet", itemDescription, 3000, true) { Height = 200, Width = 500 });
 
           if (modificationAllowed)
           {
-            nameRowChildren.Add(new NuiButton("Modifier") { Id = "modifyName", Height = 30 });
-            descriptionRowChildren.Add(new NuiButton("Modifier") { Id = "modifyDescription", Height = 30 });
+            nameRowChildren.Add(new NuiButton("Modifier") { Id = "modifyName", Height = 30, Width = 80 });
+            descriptionRowChildren.Add(new NuiButton("Modifier") { Id = "modifyDescription", Height = 30, Width = 80 });
           }
 
           rootChidren.Add(nameRow);
 
           if (!string.IsNullOrWhiteSpace(originalCrafterName))
-          {
-            List<NuiElement> crafterRowChildren = new List<NuiElement>();
-            NuiRow crafterRow = new NuiRow() { Children = crafterRowChildren };
-            crafterRowChildren.Add(new NuiText(originalCrafterName) { Tooltip = $"Il est indiqué : 'Pour toute modification sur mesure, vous adresser à {originalCrafterName}'" });
-            rootChidren.Add(crafterRow);
-          }
+            rootChidren.Add(new NuiRow() { Children = new List<NuiElement>() { new NuiLabel($"Artisan : {originalCrafterName}") { Height = 30, Width = 500, Tooltip = $"Il est indiqué : 'Pour toute modification sur mesure, vous adresser à {originalCrafterName}'" } } });
 
           rootChidren.Add(descriptionRow);
 
@@ -91,54 +91,76 @@ namespace NWN.Systems
             rootChidren.Add(enchantementSlotsRow);
           }
 
-          if(!string.IsNullOrEmpty(item.BaseItem.BaseItemStatsText))
+          if (ItemUtils.IsWeapon(item.BaseItem) || item.BaseItem.ItemType == BaseItemType.Gloves || item.BaseItem.ItemType == BaseItemType.Bracer)
           {
-            List<NuiElement> baseStatsRowChildren = new List<NuiElement>();
-            NuiRow baseStatsRow = new NuiRow() { Children = baseStatsRowChildren };
-            descriptionRowChildren.Add(new NuiText(item.BaseItem.BaseItemStatsText) { Height = 200 });
-            rootChidren.Add(baseStatsRow);
+            int damage = item.BaseItem.DieToRoll * player.GetWeaponMasteryLevel(item.BaseItem.ItemType) / 10;
+            if (damage < 1)
+              damage = 1;
 
-            if (ItemUtils.IsWeapon(item.BaseItem) || item.BaseItem.ItemType == BaseItemType.Gloves || item.BaseItem.ItemType == BaseItemType.Bracer)
-            {
-              int damage = item.BaseItem.DieToRoll * player.GetWeaponMasteryLevel(item.BaseItem.ItemType) / 10;
-              if (damage < 1)
-                damage = 1;
+            string damageTypeLabel = "Type de dégâts : ";
 
-              List<NuiElement> weaponTrainingRowChildren = new List<NuiElement>();
-              NuiRow weaponTrainingRow = new NuiRow() { Children = weaponTrainingRowChildren };
+            foreach (DamageType damageType in item.BaseItem.WeaponType)
+              damageTypeLabel += $"{ItemUtils.DisplayDamageType(damageType)} ";
 
-              weaponTrainingRowChildren.Add(new NuiText("Votre potentiel de dégâts"));
-              weaponTrainingRowChildren.Add(new NuiText($"{item.BaseItem.NumDamageDice}d{damage}"));
-              weaponTrainingRowChildren.Add(new NuiText("Vos chances de critique"));
-              weaponTrainingRowChildren.Add(new NuiText($"{player.GetWeaponCritScienceLevel(item.BaseItem.ItemType)} %"));
-              rootChidren.Add(weaponTrainingRow);
-            }
-
-            if(item.BaseItem.ItemType == BaseItemType.Armor)
-            {
-              List<NuiElement> weaponTrainingRowChildren = new List<NuiElement>();
-              NuiRow weaponTrainingRow = new NuiRow() { Children = weaponTrainingRowChildren };
-
-              weaponTrainingRowChildren.Add(new NuiText("Votre potentiel de dégâts"));
-              weaponTrainingRowChildren.Add(new NuiText($"{item.BaseItem.NumDamageDice}d{damage}"));
-              weaponTrainingRowChildren.Add(new NuiText("Vos chances de critique"));
-              weaponTrainingRowChildren.Add(new NuiText($"{player.GetWeaponCritScienceLevel(item.BaseItem.ItemType)} %"));
-              rootChidren.Add(weaponTrainingRow);
-            }
+            rootChidren.Add(new NuiRow() { Children = new List<NuiElement>() { new NuiLabel($"Dégats (base) : {item.BaseItem.NumDamageDice}d{item.BaseItem.DieToRoll} - (effectifs) : {item.BaseItem.NumDamageDice}d{damage}") { Tooltip = "Vos dégâts effectifs peuvent être améliorés en entrainant la compétence spécifique à l'arme." } } });
+            rootChidren.Add(new NuiRow() { Children = new List<NuiElement>() { new NuiLabel($"Critiques : {player.GetWeaponCritScienceLevel(item.BaseItem.ItemType) + 5} %") { Tooltip = "Vos chances de critiques peuvent être améliorées en entrainant la compétence de science du critique spécifique à l'arme" } } });
+            rootChidren.Add(new NuiRow() { Children = new List<NuiElement>() { new NuiLabel(damageTypeLabel) } });
           }
 
-          foreach(ItemProperty ip in item.ItemProperties)
+          if(item.BaseItem.ItemType == BaseItemType.Armor)
           {
-            List<NuiElement> itemPropertyRowChildren = new List<NuiElement>();
-            NuiRow itemPropertyRow = new NuiRow() { Children = itemPropertyRowChildren };
+            /*int totalAC = item.ItemProperties.Where(i => i.PropertyType == ItemPropertyType.AcBonus)
+              .OrderByDescending(i => i.CostTableValue).FirstOrDefault().CostTableValue;*/
 
-            string ipName = $"{ItemPropertyDefinition2da.ipDefinitionTable.GetIPDefinitionlDataEntry(ip.PropertyType).name} - " +
-          $"{ItemPropertyDefinition2da.ipDefinitionTable.GetSubTypeName(ip.PropertyType, ip.SubType)} : {ip.CostTableValue}";
+            ArmorTable.Entry armorEntry = Armor2da.armorTable.GetDataEntry(item.BaseACValue);
+            rootChidren.Add(new NuiRow() { Children = new List<NuiElement>() { new NuiLabel($"Armure (effective) : {player.GetArmorProficiencyLevel(item.BaseACValue) * 10} %") { Tooltip = "Le pourcentage s'applique par rapport à la valeur maximum du bonus d'armure pour chaque type spécifique" } } });
+            rootChidren.Add(new NuiRow() { Children = new List<NuiElement>() { new NuiLabel($"Bonus de dextérité maximal : {armorEntry.maxDex}") } });
+            rootChidren.Add(new NuiRow() { Children = new List<NuiElement>() { new NuiLabel($"Pénalité d'armure : {armorEntry.ACPenalty}") } });
+            rootChidren.Add(new NuiRow() { Children = new List<NuiElement>() { new NuiLabel($"Echec des sorts profanes : {armorEntry.arcaneFailure} %") } });            
+          }
+
+          if (item.BaseItem.ItemType == BaseItemType.SmallShield || item.BaseItem.ItemType == BaseItemType.LargeShield || item.BaseItem.ItemType == BaseItemType.TowerShield)
+          {
+            /*int totalAC = item.ItemProperties.Where(i => i.PropertyType == ItemPropertyType.AcBonus)
+              .OrderByDescending(i => i.CostTableValue).FirstOrDefault().CostTableValue;*/
+
+            rootChidren.Add(new NuiRow() { Children = new List<NuiElement>() { new NuiLabel("Armure effective : {player.GetShieldProficiencyLevel(item.BaseItem.ItemType) * 10} %") { Tooltip = "Le pourcentage s'applique par rapport à la valeur maximum du bonus d'armure pour chaque type spécifique" } } });
+            rootChidren.Add(new NuiRow() { Children = new List<NuiElement>() { new NuiLabel($"Pénalité d'armure : {item.BaseItem.ArmorCheckPenalty}") } });
+          }
+          
+          string weight = $"Poids : {item.Weight}";
+          string windowName = item.Name;
+
+          if (item.StackSize > 1)
+          {
+            weight += $" ({item.BaseItem.Weight / 10} par unité)";
+            windowName += $" (x{item.StackSize})";
+          }
+
+          rootChidren.Add(new NuiRow() { Children = new List<NuiElement>() { new NuiLabel(weight) } }); 
+
+          foreach (ItemProperty ip in item.ItemProperties)
+          {
+            string ipName = $"{ItemPropertyDefinition2da.ipDefinitionTable.GetIPDefinitionlDataEntry(ip.PropertyType).name}";
+
+            if (ip.SubType > -1)
+              try { ipName += $" - {ItemPropertyDefinition2da.ipDefinitionTable.GetSubTypeName(ip.PropertyType, ip.SubType)}"; } catch (Exception) { }
+              
             
-            ipName += ip.RemainingDuration != TimeSpan.Zero ? $"({new TimeSpan(ip.RemainingDuration.Days, ip.RemainingDuration.Hours, ip.RemainingDuration.Minutes, ip.RemainingDuration.Seconds).ToString()})" : "";
+            if (ip.CostTableValue > -1)
+            {
+              if(ip.PropertyType == ItemPropertyType.DamageBonus || ip.PropertyType == ItemPropertyType.DamageBonusVsAlignmentGroup || ip.PropertyType == ItemPropertyType.DamageBonusVsRacialGroup
+                || ip.PropertyType == ItemPropertyType.DamageBonusVsSpecificAlignment || ip.PropertyType == ItemPropertyType.ExtraMeleeDamageType || ip.PropertyType == ItemPropertyType.ExtraRangedDamageType)
+                ipName += $" : {ItemPropertyDamageCost2da.ipDamageCost.GetLabelFromIPCostTableValue(ip.CostTableValue)}";
+              else
+                ipName += $" : {ip.CostTableValue}";
+            }
 
-            itemPropertyRowChildren.Add(new NuiText(ipName) { Height = 30 });
-            rootChidren.Add(itemPropertyRow);
+            ipName += ip.RemainingDuration != TimeSpan.Zero ? $" ({new TimeSpan(ip.RemainingDuration.Days, ip.RemainingDuration.Hours, ip.RemainingDuration.Minutes, ip.RemainingDuration.Seconds).ToString()})" : "";
+
+            NuiColor ipColor = ip.RemainingDuration != TimeSpan.Zero ? ColorConstants.Blue : ColorConstants.White;
+
+            rootChidren.Add(new NuiRow() { Children = new List<NuiElement>() { new NuiLabel(ipName) { Height = 10, Width = 500, ForegroundColor = ipColor } } });
           }
 
           if (item.GetObjectVariable<LocalVariableInt>("_MAX_DURABILITY").HasValue)
@@ -181,12 +203,12 @@ namespace NWN.Systems
               durabilityColor = ColorConstants.Purple;
             }
 
-            durabilityRowChildren.Add(new NuiText(durabilityText) { ForegroundColor = durabilityColor });
+            durabilityRowChildren.Add(new NuiLabel($"Etat : {durabilityText}") { Height = 20, Width = 500, ForegroundColor = durabilityColor });
 
             if (item.GetObjectVariable<LocalVariableInt>("_DURABILITY_NB_REPAIRS").HasValue)
             {
               NuiColor repairColor = ColorConstants.Orange;
-              durabilityRowChildren.Add(new NuiText($"Réparé {item.GetObjectVariable<LocalVariableInt>("_DURABILITY_NB_REPAIRS").Value} fois") { ForegroundColor = repairColor });
+              durabilityRowChildren.Add(new NuiLabel($"Réparé {item.GetObjectVariable<LocalVariableInt>("_DURABILITY_NB_REPAIRS").Value} fois") { Height = 30, Width = 500, ForegroundColor = repairColor });
             }
 
             rootChidren.Add(durabilityRow);
@@ -276,18 +298,27 @@ namespace NWN.Systems
           NuiRow actionRow = new NuiRow() { Children = actionRowChildren };
 
           if (modificationAllowed) // TODO : ajouter un métier permettant de modifier n'importe quelle tenue (ex : styliste)
+          {
+            actionRowChildren.Add(new NuiSpacer());
             actionRowChildren.Add(new NuiButton("Modifier") { Id = "appearanceModifier", Tooltip = "Vers les modifications d'apparence" });
+            actionRowChildren.Add(new NuiSpacer());
+          }
 
           if (item.GetObjectVariable<LocalVariableInt>("_MAX_DURABILITY").HasValue)
+          {
+            actionRowChildren.Add(new NuiSpacer());
             actionRowChildren.Add(new NuiButton("Réparer") { Id = "repair", Tooltip = "Vers les réparations" });
+            actionRowChildren.Add(new NuiSpacer());
+          }
 
           rootChidren.Add(actionRow);
-          
+
           // TODO : Si DM, bouton vers la modification d'objet spéciale ?
 
-          NuiRect windowRectangle = player.windowRectangles.ContainsKey(windowId) ? player.windowRectangles[windowId] : new NuiRect(10, player.oid.GetDeviceProperty(PlayerDeviceProperty.GuiHeight) * 0.01f, 500, 300);
+          //NuiRect windowRectangle = player.windowRectangles.ContainsKey(windowId) ? player.windowRectangles[windowId] : new NuiRect(10, player.oid.GetDeviceProperty(PlayerDeviceProperty.GuiHeight) * 0.01f, 620, 600);
+          NuiRect windowRectangle = new NuiRect(10, player.oid.GetDeviceProperty(PlayerDeviceProperty.GuiHeight) * 0.01f, 620, 600);
 
-          window = new NuiWindow(rootGroup, item.Name)
+          window = new NuiWindow(rootGroup, windowName)
           {
             Geometry = geometry,
             Resizable = true,
@@ -316,9 +347,16 @@ namespace NWN.Systems
           if (nuiEvent.Player.NuiGetWindowId(nuiEvent.WindowToken) != windowId)
             return;
 
-          if(item == null || item.Possessor != player.oid.ControlledCreature)
+          if(item == null)
           {
             player.oid.NuiDestroy(token);
+            return;
+          }
+
+          if(modificationAllowed && item.Possessor != player.oid.ControlledCreature && !player.oid.IsDM)
+          {
+            player.oid.NuiDestroy(token);
+            ((ItemExamineWindow)player.windows["itemExamine"]).CreateWindow(item);
             return;
           }
 

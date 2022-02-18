@@ -183,6 +183,7 @@ namespace NWN.Systems
       {
         PlayerSystem.Players.TryGetValue(ctx.oAttacker, out PlayerSystem.Player player);       
         critChance += ctx.attackWeapon == null ? player.GetWeaponCritScienceLevel(BaseItemType.Gloves) : player.GetWeaponCritScienceLevel(ctx.attackWeapon.BaseItem.ItemType);
+        critChance += 5;
       }
 
       if (NwRandom.Roll(Utils.random, 100) < critChance)
@@ -199,11 +200,8 @@ namespace NWN.Systems
         else
           ctx.onAttack.DamageData.Base *= (short)(ctx.oAttacker.ChallengeRating / 10);
       }
-      else // si c'est un joueur, alors ses dégâts sont modifiés selon sa maîtrise de l'arme actuelle
+      else if(PlayerSystem.Players.TryGetValue(ctx.oAttacker, out PlayerSystem.Player player)) // si c'est un joueur, alors ses dégâts sont modifiés selon sa maîtrise de l'arme actuelle
       {
-        if (!PlayerSystem.Players.TryGetValue(ctx.oAttacker, out PlayerSystem.Player player))
-          return;
-
         int weaponMasteryLevel = ctx.attackWeapon == null ? player.GetWeaponMasteryLevel(BaseItemType.Gloves) : player.GetWeaponMasteryLevel(ctx.attackWeapon.BaseItem.ItemType);
         ctx.onAttack.DamageData.Base *= (short)(weaponMasteryLevel / 10);
       }
@@ -542,13 +540,13 @@ namespace NWN.Systems
 
         if (baseArmor != null)
         {
-          if(baseArmor.ItemProperties.Any(i => i.PropertyType == ItemPropertyType.AcBonus))
+          /*if(baseArmor.ItemProperties.Any(i => i.PropertyType == ItemPropertyType.AcBonus))
           ctx.maxBaseAC = baseArmor.ItemProperties.Where(i => i.PropertyType == ItemPropertyType.AcBonus)
-            .OrderByDescending(i => i.CostTableValue).FirstOrDefault().CostTableValue;
+            .OrderByDescending(i => i.CostTableValue).FirstOrDefault().CostTableValue;*/
 
-          ctx.targetAC[DamageType.BaseWeapon] = baseArmor.BaseACValue * 3;
+          ctx.targetAC[DamageType.BaseWeapon] = PlayerSystem.Players.TryGetValue(ctx.oTarget, out PlayerSystem.Player player) ? baseArmor.BaseACValue * 3 * player.GetArmorProficiencyLevel(baseArmor.BaseACValue) / 10 : baseArmor.BaseACValue * 3;
 
-          switch (baseArmor.BaseACValue) // TODO : un peu chelou, je me souviens plus bien pourquoi on fait ça. Autant rajouter directement l'IP sur les objets de base pour que la réduction soit directement prise en compte non ?
+          switch (baseArmor.BaseACValue)
           {
             case 1:
             case 2:
@@ -587,6 +585,9 @@ namespace NWN.Systems
     {
       if (ctx.targetArmor != null)
       {
+        int baseArmorACValue = ctx.oTarget.GetItemInSlot(InventorySlot.Chest) != null ? ctx.oTarget.GetItemInSlot(InventorySlot.Chest).BaseACValue : -1;
+        int armorProficiency = PlayerSystem.Players.TryGetValue(ctx.oTarget, out PlayerSystem.Player player) ? player.GetArmorProficiencyLevel(baseArmorACValue) / 10 : -1;
+
         foreach (var propType in ctx.targetArmor.ItemProperties.Where(i => i.PropertyType == ItemPropertyType.AcBonus
          || (ctx.oAttacker != null && i.PropertyType == ItemPropertyType.AttackBonusVsRacialGroup && i.SubType == (int)ctx.oAttacker.Race.RacialType)
          || (ctx.oAttacker != null && i.PropertyType == ItemPropertyType.AttackBonusVsAlignmentGroup && i.SubType == (int)ctx.oAttacker.GoodEvilAlignment)
@@ -595,10 +596,14 @@ namespace NWN.Systems
           .GroupBy(i => i.PropertyType))
         {
           ItemProperty maxIP = propType.OrderByDescending(i => i.CostTableValue).FirstOrDefault();
-          ctx.targetAC[DamageType.BaseWeapon] += maxIP.CostTableValue;
 
-          if (ctx.targetAC[DamageType.BaseWeapon] > ctx.maxBaseAC)
-            ctx.targetAC[DamageType.BaseWeapon] = ctx.maxBaseAC;
+          if (ctx.targetAC.ContainsKey(DamageType.BaseWeapon))
+            ctx.targetAC[DamageType.BaseWeapon] += armorProficiency > -1 ? maxIP.CostTableValue * armorProficiency : maxIP.CostTableValue;
+          else
+            ctx.targetAC.Add(DamageType.BaseWeapon, armorProficiency > -1 ? maxIP.CostTableValue * armorProficiency : maxIP.CostTableValue);
+
+          //if (ctx.targetAC[DamageType.BaseWeapon] > ctx.maxBaseAC)
+          //ctx.targetAC[DamageType.BaseWeapon] = ctx.maxBaseAC;
         }
         
         foreach (var propType in ctx.targetArmor.ItemProperties.Where(i => i.PropertyType == ItemPropertyType.AcBonusVsDamageType)
@@ -606,10 +611,14 @@ namespace NWN.Systems
         {
           ItemProperty maxIP = propType.OrderByDescending(i => i.CostTableValue).FirstOrDefault();
           DamageType damageType = ItemUtils.GetDamageTypeFromItemProperty((IPDamageType)maxIP.SubType);
-          ctx.targetAC.Add(damageType, maxIP.CostTableValue);
 
-          if (ctx.targetAC[damageType] > ctx.maxBaseAC)
-            ctx.targetAC[damageType] = ctx.maxBaseAC;
+          if (ctx.targetAC.ContainsKey(damageType))
+            ctx.targetAC[damageType] += armorProficiency > -1 ? maxIP.CostTableValue * armorProficiency : maxIP.CostTableValue;
+          else
+            ctx.targetAC.Add(damageType, armorProficiency > -1 ? maxIP.CostTableValue * armorProficiency : maxIP.CostTableValue);
+
+          //if (ctx.targetAC[damageType] > ctx.maxBaseAC)
+          //ctx.targetAC[damageType] = ctx.maxBaseAC;
         }
       }
       if (ctx.oAttacker != null)
@@ -635,6 +644,8 @@ namespace NWN.Systems
 
       if (targetShield != null) // Même si l'objet n'est pas à proprement parler un bouclier, tout item dans la main gauche procure un bonus de protection global
       {
+        int shieldProficiency = PlayerSystem.Players.TryGetValue(ctx.oTarget, out PlayerSystem.Player player) ? player.GetShieldProficiencyLevel(targetShield.BaseItem.ItemType) / 10 : -1;      
+
         foreach (var propType in targetShield.ItemProperties.Where(i => i.PropertyType == ItemPropertyType.AcBonus
          || (ctx.oAttacker != null && i.PropertyType == ItemPropertyType.AttackBonusVsRacialGroup && i.SubType == (int)ctx.oAttacker.Race.RacialType)
          || (ctx.oAttacker != null && i.PropertyType == ItemPropertyType.AttackBonusVsAlignmentGroup && i.SubType == (int)ctx.oAttacker.GoodEvilAlignment)
@@ -643,7 +654,7 @@ namespace NWN.Systems
           .GroupBy(i => i.PropertyType))
         {
           ItemProperty maxIP = propType.OrderByDescending(i => i.CostTableValue).FirstOrDefault();
-          ctx.targetAC[DamageType.BaseWeapon] += maxIP.CostTableValue;
+          ctx.targetAC[DamageType.BaseWeapon] += shieldProficiency > -1 ? maxIP.CostTableValue * shieldProficiency : maxIP.CostTableValue;
         }
 
         foreach (var propType in targetShield.ItemProperties.Where(i => i.PropertyType == ItemPropertyType.AcBonusVsDamageType)
@@ -653,9 +664,9 @@ namespace NWN.Systems
           DamageType damageType = ItemUtils.GetDamageTypeFromItemProperty((IPDamageType)maxIP.SubType);
           
           if (ctx.targetAC.ContainsKey(damageType))
-            ctx.targetAC[damageType] += maxIP.CostTableValue;
+            ctx.targetAC[damageType] += shieldProficiency > -1 ? maxIP.CostTableValue * shieldProficiency : maxIP.CostTableValue;
           else
-            ctx.targetAC.Add(damageType, maxIP.CostTableValue);
+            ctx.targetAC.Add(damageType, shieldProficiency > -1 ? maxIP.CostTableValue * shieldProficiency : maxIP.CostTableValue);
         }
       }
 
