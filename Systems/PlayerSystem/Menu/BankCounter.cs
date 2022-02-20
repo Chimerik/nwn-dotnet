@@ -12,14 +12,14 @@ namespace NWN.Systems
     {
       public class BankCounterWindow : PlayerWindow
       {
-        NuiGroup rootGroup { get; }
-        NuiColumn rootColumn { get; }
-        List<NuiElement> rootChidren { get; }
-        NuiRow introTextRow { get; }
-        NuiRow contractRow { get; }
-        NuiRow exitRow { get; }
-        NuiText widgetBankerText { get; }
-        NuiBind<string> bankerText { get; }
+        private readonly NuiGroup rootGroup;
+        private readonly NuiColumn rootColumn;
+        private readonly List<NuiElement> rootChidren;
+        private readonly NuiRow introTextRow;
+        private readonly NuiRow contractRow;
+        private readonly NuiRow exitRow;
+        private readonly NuiText widgetBankerText;
+        private readonly NuiBind<string> bankerText;
         private readonly NwCreature banker;
 
         public BankCounterWindow(Player player, NwCreature banker) : base(player)

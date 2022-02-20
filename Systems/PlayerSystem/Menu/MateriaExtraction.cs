@@ -16,13 +16,11 @@ namespace NWN.Systems
         private readonly NuiColumn rootColumn;
         private readonly NuiBind<string> remainingTime = new NuiBind<string>("remainingTime");
         private readonly NuiBind<float> progress = new NuiBind<float>("progress");
-
         private int extractionRemainingTime { get; set; }
         private int extractionTotalDuration { get; set; }
         private NwItem extractor { get; set; }
         private NwPlaceable targetMateria { get; set; }
         private ScheduledTask extractionProgress { get; set; }
-        private Effect beamEffect { get; set; }
         private ResourceType resourceType = ResourceType.Ore;
         private int resourceExtractionSkill = CustomSkill.MineralExtraction;
         private int resourceExtractionSpeedSkill = CustomSkill.MineralExtractionSpeed;

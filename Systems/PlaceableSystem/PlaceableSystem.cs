@@ -20,6 +20,12 @@ namespace NWN.Systems
       foreach (NwDoor door in NwObject.FindObjectsOfType<NwDoor>())
         door.OnOpen += HandleDoorAutoClose;
 
+      foreach (NwDoor gate in NwObject.FindObjectsWithTag<NwDoor>("at_gates_slums"))
+      {
+        gate.GetObjectVariable<LocalVariableObject<NwGameObject>>("_TRANSITION_TARGET").Value = gate.TransitionTarget;
+        gate.OnAreaTransitionClick += CheckMateriaInventory;
+      }
+
       foreach (NwPlaceable bank in NwObject.FindObjectsWithTag<NwPlaceable>("player_bank"))
         bank.OnLeftClick += HandleClickBank;
 
@@ -312,6 +318,17 @@ namespace NWN.Systems
         ((Player.BankStorageWindow)player.windows["bankStorage"]).CreateWindow();
       else
         player.windows.Add("bankStorage", new Player.BankStorageWindow(player));
+    }
+    private void CheckMateriaInventory(DoorEvents.OnAreaTransitionClick onClick)
+    {
+      if (!onClick.ClickedBy.ControlledCreature.Inventory.Items.Any(i => i.Tag == "craft_resource"))
+        return;
+
+      onClick.Door.TransitionTarget = onClick.Door;
+
+      //appliquer effet visuel sur pj + message
+      //réinitialiser la transition
+      //vérifier le comportement si on ne clique pas, mais qu'on utilise zqsd
     }
   }
 }
