@@ -311,6 +311,7 @@ namespace NWN.Systems
       if(onClick.Placeable.GetObjectVariable<LocalVariableInt>("ownerId").Value != player.characterId)
       {
         player.oid.SendServerMessage("Vous avez beau avancer la main, le coffre semble rester hors d'atteinte, inaccessible. De plus, vous entendez un lointain cliquetis de chaînes dans les tréfonds de votres esprit. Quelque chose vient de se mettre en marche.", ColorConstants.Red);
+        onClick.ClickedBy.ControlledCreature.ApplyEffect(EffectDuration.Instant, Effect.VisualEffect(VfxType.ImpSpellMantleUse));
         return;
       }
 
@@ -319,16 +320,17 @@ namespace NWN.Systems
       else
         player.windows.Add("bankStorage", new Player.BankStorageWindow(player));
     }
-    private void CheckMateriaInventory(DoorEvents.OnAreaTransitionClick onClick)
+    private async void CheckMateriaInventory(DoorEvents.OnAreaTransitionClick onClick)
     {
       if (!onClick.ClickedBy.ControlledCreature.Inventory.Items.Any(i => i.Tag == "craft_resource"))
+        await onClick.ClickedBy.ControlledCreature.JumpToObject(onClick.Door.TransitionTarget);
+      else
+      {
+        onClick.ClickedBy.SendServerMessage("Une sorte de mur de force vous empêche de pénétrer plus avant dans la cité.\nUn frisson remonte le long de votre moëlle épinière alors que vous avez la certitude que quelque chose puissant porte un regard soupçonneux sur vous.\n\nLes miliciens vous signaleront que la Loi interdit d'entrer en possession de matéria et qu'il vous faut les déposer à l'entrepôt derrière vous.", ColorConstants.Red);
+        await onClick.ClickedBy.ControlledCreature.ClearActionQueue();
+        onClick.ClickedBy.ControlledCreature.ApplyEffect(EffectDuration.Instant, Effect.VisualEffect(VfxType.ImpSpellMantleUse));
         return;
-
-      onClick.Door.TransitionTarget = onClick.Door;
-
-      //appliquer effet visuel sur pj + message
-      //réinitialiser la transition
-      //vérifier le comportement si on ne clique pas, mais qu'on utilise zqsd
+      }
     }
   }
 }

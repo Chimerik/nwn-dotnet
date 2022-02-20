@@ -102,7 +102,12 @@ namespace NWN.Systems
     public static void StartStorageDialog(CreatureEvents.OnConversation onConversation)
     {
       if (Players.TryGetValue(onConversation.LastSpeaker, out Player player))
-        new Storage(player);
+      {
+        if (player.windows.ContainsKey("materiaStorage"))
+          ((Player.MateriaStorageWindow)player.windows["materiaStorage"]).CreateWindow();
+        else
+          player.windows.Add("materiaStorage", new Player.MateriaStorageWindow(player, onConversation.CurrentSpeaker));
+      }
     }
     public static void StartIntroMirrorDialog(PlaceableEvents.OnUsed onUsed)
     {
