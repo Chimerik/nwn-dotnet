@@ -437,6 +437,14 @@
 
     public const int ImprovedDualWieldDefenseProficiency = 20246;
 
+    public const int MateriaGradeConcentration = 20247;
+    public const int ReprocessingOreExpertise = 20248;
+    public const int ReprocessingWoodExpertise = 20249;
+    public const int ReprocessingPeltExpertise = 20250;
+    public const int ReprocessingOreLuck = 20251;
+    public const int ReprocessingWoodLuck = 20252;
+    public const int ReprocessingPeltLuck = 20253;
+
     public const int Invalid = 65535;
   }
 }

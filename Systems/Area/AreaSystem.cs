@@ -269,31 +269,6 @@ namespace NWN.Systems
           oPC.ControllingPlayer.CameraHeight = 0;
       }
     }
-    public static NwArea CreatePersonnalStorageArea(NwCreature oPC, int characterId)
-    {
-      Log.Info($"Creating personnal storage area for : {oPC.Name} ID : {characterId}");
-
-      NwArea area = NwArea.Create("entrepotperso", $"entrepotpersonnel_{oPC.ControllingPlayer.CDKey}", $"Entrepot dimensionnel de {oPC.ControllingPlayer.LoginCreature.Name}");
-      area.GetObjectVariable<LocalVariableInt>("_AREA_LEVEL").Value = 0;
-      area.OnExit += OnPersonnalStorageAreaExit;
-
-      NwPlaceable storage = area.FindObjectsOfTypeInArea<NwPlaceable>().FirstOrDefault(s => s.Tag == "ps_entrepot");
-      storage.OnUsed += PlaceableSystem.OnUsedPersonnalStorage;
-      storage.Name = $"Entrepôt de {oPC.ControllingPlayer.LoginCreature.Name}";
-
-      var result = SqLiteUtils.SelectQuery("playerCharacters",
-        new List<string>() { { "storage" } },
-        new List<string[]>() { new string[] { "rowid", characterId.ToString() } });
-
-      if (result.Result != null)
-        SqLiteUtils.StoreSerializationFormatProtection(result.Result, 0, storage.Location);
-
-      area.FindObjectsOfTypeInArea<NwPlaceable>().FirstOrDefault(p => p.Tag == "portal_storage_out").OnUsed += PlaceableSystem.OnUsedStoragePortalOut;
-      area.FindObjectsOfTypeInArea<NwPlaceable>().FirstOrDefault(p => p.Tag == "hventes").OnUsed += DialogSystem.StartAuctionHouseDialog;
-      area.FindObjectsOfTypeInArea<NwCreature>().FirstOrDefault(p => p.Tag == "bal_system").OnConversation += DialogSystem.StartStorageDialog;
-
-      return area;
-    }
     private async void OnEnterUnwalkableBlock(TriggerEvents.OnEnter onEnter)
     {
       Log.Info($"onEnter : {onEnter.EnteringObject.Name}");

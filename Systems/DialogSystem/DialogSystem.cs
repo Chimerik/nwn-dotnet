@@ -15,21 +15,6 @@ namespace NWN.Systems
       /*foreach (NwPlaceable plc in NwModule.FindObjectsWithTag<NwPlaceable>("bank_gold"))
         plc.OnUsed += StartGoldStealDialog;*/
 
-      foreach (NwPlaceable plc in NwObject.FindObjectsWithTag<NwPlaceable>("intro_mirror"))
-        plc.OnUsed += StartIntroMirrorDialog;
-
-      foreach (NwPlaceable plc in NwObject.FindObjectsWithTag<NwPlaceable>("body_modifier"))
-        plc.OnUsed += StartBodyModifierDialog;
-
-      foreach (NwPlaceable plc in NwObject.FindObjectsWithTag<NwPlaceable>("refinery"))
-        plc.OnUsed += StartRefineryDialog;
-
-      foreach (NwPlaceable plc in NwObject.FindObjectsWithTag<NwPlaceable>("decoupe"))
-        plc.OnUsed += StartScierieDialog;
-
-      foreach (NwPlaceable plc in NwObject.FindObjectsWithTag<NwPlaceable>("tannerie_peau"))
-        plc.OnUsed += StartTanneryDialog;
-
       foreach (NwPlaceable plc in NwObject.FindObjectsWithTag<NwPlaceable>("hventes"))
         plc.OnUsed += StartAuctionHouseDialog;
     }
@@ -109,41 +94,7 @@ namespace NWN.Systems
           player.windows.Add("materiaStorage", new Player.MateriaStorageWindow(player, onConversation.CurrentSpeaker));
       }
     }
-    public static void StartIntroMirrorDialog(PlaceableEvents.OnUsed onUsed)
-    {
-      if (Players.TryGetValue(onUsed.UsedBy, out Player player))
-      {
-        if (player.windows.ContainsKey("introMirror"))
-          ((Player.IntroMirroWindow)player.windows["introMirror"]).CreateWindow();
-        else
-          player.windows.Add("introMirror", new Player.IntroMirroWindow(player));
-      }
-    }
-    public static void StartBodyModifierDialog(PlaceableEvents.OnUsed onUsed)
-    {
-      if (Players.TryGetValue(onUsed.UsedBy, out Player player))
-      {
-        if (player.windows.ContainsKey("bodyAppearanceModifier"))
-          ((Player.BodyAppearanceWindow)player.windows["bodyAppearanceModifier"]).CreateWindow();
-        else
-          player.windows.Add("bodyAppearanceModifier", new Player.BodyAppearanceWindow(player));
-      }
-    }
-    public static void StartScierieDialog(PlaceableEvents.OnUsed onUsed)
-    {
-      if (Players.TryGetValue(onUsed.UsedBy, out Player player))
-        new Scierie(player);
-    }
-    public static void StartRefineryDialog(PlaceableEvents.OnUsed onUsed)
-    {
-      if (Players.TryGetValue(onUsed.UsedBy, out Player player))
-        new Refinery(player);
-    }
-    public static void StartTanneryDialog(PlaceableEvents.OnUsed onUsed)
-    {
-      if (Players.TryGetValue(onUsed.UsedBy, out Player player))
-        new Tannerie(player);
-    }
+    
     public static void StartAuctionHouseDialog(PlaceableEvents.OnUsed onUsed)
     {
       if (Players.TryGetValue(onUsed.UsedBy, out Player player))

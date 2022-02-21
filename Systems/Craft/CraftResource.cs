@@ -35,6 +35,7 @@ namespace NWN.Systems
     public readonly int reprocessingLearnable;
     public readonly int reprocessingEfficiencyLearnable;
     public readonly int reprocessingGradeLearnable;
+    public readonly int reprocessingExpertiseLearnable;
 
     public CraftResource(ResourceType type, string description, byte icon, byte grade, decimal weight)
     {
@@ -49,14 +50,17 @@ namespace NWN.Systems
         case ResourceType.Ore:
           reprocessingLearnable = CustomSkill.ReprocessingOre;
           reprocessingEfficiencyLearnable = CustomSkill.ReprocessingOreEfficiency;
+          reprocessingExpertiseLearnable = CustomSkill.ReprocessingOreExpertise;
           break;
         case ResourceType.Wood:
           reprocessingLearnable = CustomSkill.ReprocessingWood;
           reprocessingEfficiencyLearnable = CustomSkill.ReprocessingWoodEfficiency;
+          reprocessingExpertiseLearnable = CustomSkill.ReprocessingWoodExpertise;
           break;
         case ResourceType.Pelt:
           reprocessingLearnable = CustomSkill.ReprocessingPelt;
           reprocessingEfficiencyLearnable = CustomSkill.ReprocessingPeltEfficiency;
+          reprocessingExpertiseLearnable = CustomSkill.ReprocessingPeltExpertise;
           break;
       }
 

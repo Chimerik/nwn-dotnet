@@ -12,7 +12,7 @@ namespace NWN.Systems
     {
       public class PlayerInputWindow : PlayerWindow
       {
-        NuiColumn rootColumn { get; }
+        private readonly NuiColumn rootColumn;
         private string title { get; set; }
         private string quantity { get; set; }
         private Func<string, bool> handler { get; set; }

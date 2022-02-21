@@ -117,7 +117,7 @@ namespace NWN.Systems
           LoadBankItemList(items.AsEnumerable());
         }
 
-        private async void HandleBankStorageEvents(ModuleEvents.OnNuiEvent nuiEvent)
+        private void HandleBankStorageEvents(ModuleEvents.OnNuiEvent nuiEvent)
         {
           if (nuiEvent.Player.NuiGetWindowId(nuiEvent.WindowToken) != windowId)
             return;

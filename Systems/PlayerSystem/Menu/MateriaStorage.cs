@@ -22,9 +22,9 @@ namespace NWN.Systems
           Children = new List<NuiElement>() 
           { 
             new NuiSpacer(),
-            new NuiButton("Déposer toutes mes matérias.") { Id = "store", Height = 30 },
-            new NuiButton("Retirer de la matéria.") { Id = "withdraw", Height = 30 },
-            new NuiButton("S'éloigner.") { Id = "exit", Height = 30 },
+            new NuiButton("Déposer toutes mes matérias") { Id = "store", Height = 30 },
+            new NuiButton("Retirer de la matéria") { Id = "withdraw", Height = 30 },
+            new NuiButton("S'éloigner") { Id = "exit", Height = 30 },
             new NuiSpacer()
           } 
         };
@@ -71,7 +71,7 @@ namespace NWN.Systems
             "Nos ouvriers vous la font même nsuite parvenir où vous avez besoin sans risque de contamination !\n\n" +
             "Bien sur, ces services vous coûteront 5 %. Alors, qu'est ce qu'on peut faire pour vous ?";
 
-          NuiRect windowRectangle = new NuiRect(0, player.oid.GetDeviceProperty(PlayerDeviceProperty.GuiHeight) * 0.02f, 540, 600);
+          NuiRect windowRectangle = player.windowRectangles.ContainsKey(windowId) ? player.windowRectangles[windowId] : new NuiRect(0, player.oid.GetDeviceProperty(PlayerDeviceProperty.GuiHeight) * 0.02f, 540, 600);
 
           window = new NuiWindow(rootGroup, "Rano Snyders")
           {

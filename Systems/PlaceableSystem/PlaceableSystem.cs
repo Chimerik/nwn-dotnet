@@ -20,6 +20,21 @@ namespace NWN.Systems
       foreach (NwDoor door in NwObject.FindObjectsOfType<NwDoor>())
         door.OnOpen += HandleDoorAutoClose;
 
+      foreach (NwPlaceable plc in NwObject.FindObjectsWithTag<NwPlaceable>("intro_mirror"))
+        plc.OnUsed += StartIntroMirrorDialog;
+
+      foreach (NwPlaceable plc in NwObject.FindObjectsWithTag<NwPlaceable>("body_modifier"))
+        plc.OnUsed += StartBodyModifierDialog;
+
+      foreach (NwPlaceable plc in NwObject.FindObjectsWithTag<NwPlaceable>("refinery"))
+        plc.OnUsed += OpenRefineryWindow;
+
+      foreach (NwPlaceable plc in NwObject.FindObjectsWithTag<NwPlaceable>("decoupe"))
+        plc.OnUsed += OpenWoodworkWindow;
+
+      foreach (NwPlaceable plc in NwObject.FindObjectsWithTag<NwPlaceable>("tannerie_peau"))
+        plc.OnUsed += OpenTanneryWindow;
+
       foreach (NwDoor gate in NwObject.FindObjectsWithTag<NwDoor>("at_gates_slums"))
       {
         gate.GetObjectVariable<LocalVariableObject<NwGameObject>>("_TRANSITION_TARGET").Value = gate.TransitionTarget;
@@ -37,9 +52,6 @@ namespace NWN.Systems
 
       foreach (NwPlaceable dicePoker in NwObject.FindObjectsWithTag<NwPlaceable>("dice_poker"))
         dicePoker.OnUsed += OnUsedDicePoker;
-
-      foreach (NwPlaceable portal in NwObject.FindObjectsWithTag<NwPlaceable>("portal_storage_in"))
-        portal.OnUsed += OnUsedStoragePortalIn;
 
       foreach (NwPlaceable goplouf in NwObject.FindObjectsWithTag<NwPlaceable>("go_plouf"))
         goplouf.OnUsed += OnUsedGoPlouf;
@@ -74,15 +86,6 @@ namespace NWN.Systems
         await NwTask.Delay(TimeSpan.FromSeconds(0.1f));
         onDamaged.Creature.HP = onDamaged.Creature.MaxHP;
       });
-    }
-    public static void OnUsedStoragePortalIn(PlaceableEvents.OnUsed onUsed)
-    {
-      if (!Players.TryGetValue(onUsed.UsedBy.ControllingPlayer.LoginCreature, out Player player))
-        return;
-
-      NwArea area = AreaSystem.CreatePersonnalStorageArea(onUsed.UsedBy, player.characterId);
-
-      onUsed.UsedBy.Location = area.FindObjectsOfTypeInArea<NwWaypoint>().FirstOrDefault(w => w.Tag == "wp_inentrepot").Location;
     }
     public static void OnUsedStoragePortalOut(PlaceableEvents.OnUsed onUsed)
     {
@@ -248,24 +251,6 @@ namespace NWN.Systems
         PlayerOwnedAuction.GetAuctionPrice(player, shop, onUsed.Placeable);
       }
     }
-    public static void OnUsedPersonnalStorage(PlaceableEvents.OnUsed onUsed)
-    {
-      if (!Players.TryGetValue(onUsed.UsedBy, out Player player))
-        return;
-
-      NwStore storage = onUsed.Placeable.GetNearestObjectsByType<NwStore>().FirstOrDefault();
-
-      if(storage == null)
-      {
-        Utils.LogMessageToDMs($"Entrepôt personnel non initialisé pour : {onUsed.UsedBy.Name}");
-        return;
-      }
-
-      storage.Tag = "_PLAYER_STORAGE";
-      storage.GetObjectVariable<LocalVariableInt>("_OWNER_ID").Value = player.characterId;
-      storage.OnOpen += StoreSystem.OnOpenPersonnalStorage;
-      storage.Open(player.oid);
-    }
     private void OnUsedDicePoker(PlaceableEvents.OnUsed onUsed)
     {
       if (!Players.TryGetValue(onUsed.UsedBy, out Player player))
@@ -330,6 +315,56 @@ namespace NWN.Systems
         await onClick.ClickedBy.ControlledCreature.ClearActionQueue();
         onClick.ClickedBy.ControlledCreature.ApplyEffect(EffectDuration.Instant, Effect.VisualEffect(VfxType.ImpSpellMantleUse));
         return;
+      }
+    }
+    public static void StartIntroMirrorDialog(PlaceableEvents.OnUsed onUsed)
+    {
+      if (Players.TryGetValue(onUsed.UsedBy, out Player player))
+      {
+        if (player.windows.ContainsKey("introMirror"))
+          ((Player.IntroMirroWindow)player.windows["introMirror"]).CreateWindow();
+        else
+          player.windows.Add("introMirror", new Player.IntroMirroWindow(player));
+      }
+    }
+    public static void StartBodyModifierDialog(PlaceableEvents.OnUsed onUsed)
+    {
+      if (Players.TryGetValue(onUsed.UsedBy, out Player player))
+      {
+        if (player.windows.ContainsKey("bodyAppearanceModifier"))
+          ((Player.BodyAppearanceWindow)player.windows["bodyAppearanceModifier"]).CreateWindow();
+        else
+          player.windows.Add("bodyAppearanceModifier", new Player.BodyAppearanceWindow(player));
+      }
+    }
+    public static void OpenRefineryWindow(PlaceableEvents.OnUsed onUsed)
+    {
+      if (Players.TryGetValue(onUsed.UsedBy, out Player player))
+      {
+        if (player.windows.ContainsKey("refinery"))
+          ((Player.RefineryWindow)player.windows["refinery"]).CreateWindow(ResourceType.Ore);
+        else
+          player.windows.Add("refinery", new Player.RefineryWindow(player, ResourceType.Ore));
+      }
+    }
+    public static void OpenWoodworkWindow(PlaceableEvents.OnUsed onUsed)
+    {
+      if (Players.TryGetValue(onUsed.UsedBy, out Player player))
+      {
+        if (player.windows.ContainsKey("refinery"))
+          ((Player.RefineryWindow)player.windows["refinery"]).CreateWindow(ResourceType.Wood);
+        else
+          player.windows.Add("refinery", new Player.RefineryWindow(player, ResourceType.Wood));
+      }
+    }
+    public static void OpenTanneryWindow(PlaceableEvents.OnUsed onUsed)
+    {
+      if (Players.TryGetValue(onUsed.UsedBy, out Player player))
+      {
+        if (player.windows.ContainsKey("refinery"))
+          ((Player.RefineryWindow)player.windows["refinery"]).CreateWindow(ResourceType.Pelt);
+        else
+          player.windows.Add("refinery", new Player.RefineryWindow(player, ResourceType.Pelt));
       }
     }
   }

@@ -37,9 +37,6 @@ namespace NWN.Systems
           if (spawnLoc.Area == null)
             return;
 
-          if (spawnLoc.Area.Tag.StartsWith("entrepotpersonnel"))
-            AreaSystem.CreatePersonnalStorageArea(onELCSuccess.Player.ControlledCreature, characterId);
-
           onELCSuccess.Player.SpawnLocation = spawnLoc;
         }
       }
