@@ -228,10 +228,11 @@ namespace NWN.Systems
         }
         private int GetMiningYield()
         {
-          int miningYield = 10;
-          miningYield += extractor.GetObjectVariable<LocalVariableInt>("_ITEM_LEVEL").Value * 5;
-          miningYield = player.learnableSkills.ContainsKey(resourceExtractionSkill) ? miningYield + miningYield * player.learnableSkills[resourceExtractionSkill].totalPoints / 100 : miningYield;
-          return miningYield = player.learnableSkills.ContainsKey(resourceYieldSkill) ? miningYield + miningYield * player.learnableSkills[resourceYieldSkill].totalPoints / 100 : miningYield;
+          double miningYield = 1500;
+          miningYield *= 1 + (extractor.GetObjectVariable<LocalVariableInt>("_ITEM_LEVEL").Value / 100);
+          miningYield = player.learnableSkills.ContainsKey(resourceExtractionSkill) ? miningYield * player.learnableSkills[resourceExtractionSkill].bonusMultiplier : miningYield;
+          miningYield = player.learnableSkills.ContainsKey(resourceYieldSkill) ? miningYield * player.learnableSkills[resourceYieldSkill].bonusMultiplier : miningYield;
+          return (int)miningYield;
         }
         private int GetResourceGrade()
         {

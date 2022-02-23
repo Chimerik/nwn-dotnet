@@ -9,7 +9,7 @@
     public const int CustomMenuDOWN = 1133;
     public const int CustomMenuSELECT = 1134;
     public const int CustomMenuEXIT = 1135;
-    public const int BlueprintCopy = 1136;
+    
     public const int Research = 1137;
     
     public const int Metallurgy = 1183;
@@ -444,6 +444,10 @@
     public const int ReprocessingOreLuck = 20251;
     public const int ReprocessingWoodLuck = 20252;
     public const int ReprocessingPeltLuck = 20253;
+
+    public const int BlueprintCopy = 20254;
+    public const int BlueprintEfficiency = 20255;
+    public const int BlueprintEconomy = 20256;
 
     public const int Invalid = 65535;
   }

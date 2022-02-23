@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Anvil.API;
+
 using static NWN.Systems.Craft.Collect.Config;
 using static NWN.Systems.Craft.Collect.System;
 
@@ -16,7 +17,7 @@ namespace NWN.Systems.Craft
     public string craftedItem { get; set; }
     public double remainingTime { get; set; }
     public string material { get; set; }
-    public Boolean isCancelled { get; set; }
+    public bool isCancelled { get; set; }
     private readonly PlayerSystem.Player player;
 
     public Job(int baseItemType, string material, float time, PlayerSystem.Player player, string item = "")
@@ -106,7 +107,7 @@ namespace NWN.Systems.Craft
         ResetCancellation();
       });
     }
-    public Boolean CanStartJob(NwPlayer player, NwItem blueprint, JobType type)
+    public bool CanStartJob(NwPlayer player, NwItem blueprint, JobType type)
     {
       if (blueprint != null)
       {
@@ -152,7 +153,7 @@ namespace NWN.Systems.Craft
 
       return true;
     }
-    private Boolean IsBlueprintOriginal(NwItem oBlueprint)
+    private bool IsBlueprintOriginal(NwItem oBlueprint)
     {
       if (oBlueprint.GetObjectVariable<LocalVariableInt>("_BLUEPRINT_RUNS").Value > 0)
         return false;
@@ -209,7 +210,7 @@ namespace NWN.Systems.Craft
       else if (Enum.TryParse(material, out LeatherType myLeatherType))
         materialType = (int)myLeatherType;
 
-      iMineralCost -= iMineralCost * (int)materialType / 10;
+      iMineralCost -= iMineralCost * materialType / 10;
       player.craftJob.isCancelled = false;
 
       if (!player.materialStock.ContainsKey(sMaterial))

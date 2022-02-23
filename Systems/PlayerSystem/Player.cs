@@ -32,6 +32,7 @@ namespace NWN.Systems
       public PlayerJournal playerJournal { get; set; }
       public DateTime dateLastSaved { get; set; }
       public Job craftJob { get; set; }
+      public CraftJob newCraftJob { get; set; }
       public Location previousLocation { get; set; }
       public Menu menu { get; }
       public NwCreature deathCorpse { get; set; }
@@ -263,9 +264,9 @@ namespace NWN.Systems
           oid.LoginCreature.ApplyEffect(EffectDuration.Instant, Effect.Death());
 
         if (learntCustomFeats.ContainsKey(CustomFeats.ImprovedAttackBonus))
-          oid.LoginCreature.BaseAttackBonus = (byte)(oid.LoginCreature.BaseAttackBonus + SkillSystem.GetCustomFeatLevelFromSkillPoints(CustomFeats.ImprovedAttackBonus, learntCustomFeats[CustomFeats.ImprovedAttackBonus]));
+          oid.LoginCreature.BaseAttackBonus = (byte)(oid.LoginCreature.BaseAttackBonus + GetCustomFeatLevelFromSkillPoints(CustomFeats.ImprovedAttackBonus, learntCustomFeats[CustomFeats.ImprovedAttackBonus]));
 
-        pcState = Player.PcState.Online;
+        pcState = PcState.Online;
 
         await NwTask.Delay(TimeSpan.FromSeconds(5));
         oid.LoginCreature.GetObjectVariable<LocalVariableBool>("_ASYNC_INIT_DONE").Delete();
@@ -480,7 +481,7 @@ namespace NWN.Systems
         craftJob.CloseCraftJournalEntry();
         craftJob = new Job(-10, "", 0, this);
       }
-      public async void UpdateJournal()
+      public void UpdateJournal()
       {
         if (oid.LoginCreature == null) // Si le joueur n'est pas co, pas la peine de mettre à jour son journal
           return;

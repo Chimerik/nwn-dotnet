@@ -195,7 +195,13 @@ namespace NWN.Systems
           return JsonConvert.SerializeObject(serializableSpells);
         });
 
-        await Task.WhenAll(serializeAlchemyCauldron, serializeLearnableSkills, serializeLearnableSpells, serializeExplorationState, serializeOpenedWindows);
+        Task<string> serializeJob = Task.Run(() =>
+        {
+          CraftJob.SerializableCraftJob serializableCraftJob = newCraftJob != null ? new CraftJob.SerializableCraftJob(newCraftJob) : null;
+          return JsonConvert.SerializeObject(serializableCraftJob);
+        });
+
+        await Task.WhenAll(serializeAlchemyCauldron, serializeLearnableSkills, serializeLearnableSpells, serializeExplorationState, serializeOpenedWindows, serializeJob);
 
         SqLiteUtils.UpdateQuery("playerCharacters",
         new List<string[]>() { new string[] { "characterName", $"{firstName} {lastName}" },
@@ -204,7 +210,7 @@ namespace NWN.Systems
           new string[] { "currentCraftJob", craftJob.baseItemType.ToString() }, new string[] { "currentCraftObject", craftJob.craftedItem }, new string[] { "currentCraftJobRemainingTime", craftJob.remainingTime.ToString() },
           new string[] { "currentCraftJobMaterial", craftJob.material }, new string[] { "pveArenaCurrentPoints", pveArena.currentPoints.ToString() },
           new string[] { "menuOriginTop", menu.originTop.ToString() }, new string[] { "menuOriginLeft", menu.originLeft.ToString() },
-          new string[] { "alchemyCauldron", serializeAlchemyCauldron.Result }, new string[] { "serializedLearnableSkills", serializeLearnableSkills.Result }, new string[] { "serializedLearnableSpells", serializeLearnableSpells.Result }, new string[] { "explorationState", serializeExplorationState.Result }, new string[] { "openedWindows", serializeOpenedWindows.Result } },
+          new string[] { "alchemyCauldron", serializeAlchemyCauldron.Result }, new string[] { "serializedLearnableSkills", serializeLearnableSkills.Result }, new string[] { "serializedLearnableSpells", serializeLearnableSpells.Result }, new string[] { "explorationState", serializeExplorationState.Result }, new string[] { "openedWindows", serializeOpenedWindows.Result }, new string[] { "craftJob", serializeJob.Result  } },
         new List<string[]>() { new string[] { "rowid", characterId.ToString() } });
       }
       private async void SavePlayerStoredMaterialsToDatabase()

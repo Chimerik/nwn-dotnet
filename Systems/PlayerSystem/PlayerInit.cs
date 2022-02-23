@@ -362,7 +362,7 @@ namespace NWN.Systems
       private void InitializePlayerCharacter()
       {
         var result = SqLiteUtils.SelectQuery("playerCharacters",
-            new List<string>() { { "location" }, { "currentHP" }, { "bankGold" }, { "dateLastSaved" }, { "currentCraftJob" }, { "currentCraftObject" }, { "currentCraftJobRemainingTime" }, { "currentCraftJobMaterial" }, { "menuOriginTop" }, { "menuOriginLeft" }, { "pveArenaCurrentPoints" }, { "alchemyCauldron" }, { "previousSPCalculation" }, { "serializedLearnableSkills" }, { "serializedLearnableSpells" }, { "explorationState" }, { "openedWindows" }, { "materialStorage" } },
+            new List<string>() { { "location" }, { "currentHP" }, { "bankGold" }, { "dateLastSaved" }, { "currentCraftJob" }, { "currentCraftObject" }, { "currentCraftJobRemainingTime" }, { "currentCraftJobMaterial" }, { "menuOriginTop" }, { "menuOriginLeft" }, { "pveArenaCurrentPoints" }, { "alchemyCauldron" }, { "previousSPCalculation" }, { "serializedLearnableSkills" }, { "serializedLearnableSpells" }, { "explorationState" }, { "openedWindows" }, { "materialStorage" }, { "craftJob" } },
             new List<string[]>() { { new string[] { "rowid", characterId.ToString() } } });
 
         if (result.Result == null)
@@ -385,10 +385,11 @@ namespace NWN.Systems
         string serializedExploration = result.Result.GetString(15);
         string serializedOpenedWindows = result.Result.GetString(16);
         string serializedCraftResources = result.Result.GetString(17);
+        string serializedCraftJob = result.Result.GetString(18);
 
-        InitializePlayerAsync(serializedCauldron, serializedExploration, serializedLearnableSkills, serializedLearnableSpells, serializedOpenedWindows, serializedCraftResources);
+        InitializePlayerAsync(serializedCauldron, serializedExploration, serializedLearnableSkills, serializedLearnableSpells, serializedOpenedWindows, serializedCraftResources, serializedCraftJob);
       }
-      private async void InitializePlayerAsync(string serializedCauldron, string serializedExploration, string serializedLearnableSkills, string serializedLearnableSpells, string serializedOpenedWindows, string serializedCraftResources)
+      private async void InitializePlayerAsync(string serializedCauldron, string serializedExploration, string serializedLearnableSkills, string serializedLearnableSpells, string serializedOpenedWindows, string serializedCraftResources, string serializedCraftJob)
       {
         Log.Info("starting async init");
 
@@ -449,7 +450,15 @@ namespace NWN.Systems
             craftResourceStock.Add(new CraftResource(Craft.Collect.System.craftResourceArray.FirstOrDefault(r => r.type == serializedMateria.type && r.grade == serializedMateria.grade), serializedMateria.quantity));
         });
 
-        await Task.WhenAll(loadSkillsTask, loadSpellsTask, loadExplorationTask, loadOpenedWindowsTask, loadCauldronTask);
+        Task loadCraftJobTask = Task.Run(() =>
+        {
+          if (string.IsNullOrEmpty(serializedCraftJob))
+            return;
+
+          newCraftJob = new CraftJob(JsonConvert.DeserializeObject<CraftJob.SerializableCraftJob>(serializedCraftJob), this);
+        });
+
+        await Task.WhenAll(loadSkillsTask, loadSpellsTask, loadExplorationTask, loadOpenedWindowsTask, loadCauldronTask, loadCraftJobTask);
         await NwTask.SwitchToMainThread();
 
         oid.LoginCreature.GetObjectVariable<LocalVariableBool>("_ASYNC_INIT_DONE").Value = true;

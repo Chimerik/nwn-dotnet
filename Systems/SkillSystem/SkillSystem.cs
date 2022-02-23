@@ -307,6 +307,10 @@ namespace NWN.Systems
       learnableDictionary.Add(CustomSkill.ConnectionsGovernment, new LearnableSkill(CustomSkill.ConnectionsGovernment, "Relations Quartier du Gouvernement", "Diminue les taxes imposées au Quartier du Gouvernement de 1 % par niveau.", Category.Craft, "ife_X2EpicRepu", 5, 1, Ability.Charisma, Ability.Wisdom));
       learnableDictionary.Add(CustomSkill.ConnectionsPromenade, new LearnableSkill(CustomSkill.ConnectionsPromenade, "Relations Quartier de la Promenade", "Diminue les taxes imposées au Quartier de la Promenade de 1 % par niveau.", Category.Craft, "ife_X2EpicRepu", 5, 1, Ability.Charisma, Ability.Wisdom));
       learnableDictionary.Add(CustomSkill.ConnectionsTemple, new LearnableSkill(CustomSkill.ConnectionsTemple, "Relations Quartier des Temples", "Diminue les taxes imposées au Quartier des Temples de 1 % par niveau.", Category.Craft, "ife_X2EpicRepu", 5, 1, Ability.Charisma, Ability.Wisdom));
+
+      learnableDictionary.Add(CustomSkill.BlueprintCopy, new LearnableSkill(CustomSkill.BlueprintCopy, "Copie de patron", "Permet la copie de patrons originaux. Diminue le temps de copie 5 % par niveau.", Category.Craft, "ife_X2EpicRepu", 5, 1, Ability.Wisdom, Ability.Intelligence));
+      learnableDictionary.Add(CustomSkill.BlueprintEfficiency, new LearnableSkill(CustomSkill.BlueprintEfficiency, "Copie efficace", "Augmente le nombre d'utilisations des patrons que vous copiez de 1 par niveau.", Category.Craft, "ife_X2EpicRepu", 5, 2, Ability.Wisdom, Ability.Intelligence));
+      learnableDictionary.Add(CustomSkill.BlueprintEconomy, new LearnableSkill(CustomSkill.BlueprintEconomy, "Artisan économe", "Donne une chance de 5 % par niveau de ne pas consommer d'utilisation lors d'un travail artisnal faisant usage d'une copie de patron.", Category.Craft, "ife_X2EpicRepu", 5, 3, Ability.Intelligence, Ability.Wisdom));
     }
     public static Dictionary<Feat, CustomFeat> customFeatsDictionnary = new Dictionary<Feat, CustomFeat>()
     {

@@ -161,7 +161,7 @@ namespace NWN.Systems
         "'currentCraftJobRemainingTime' REAL, 'currentCraftJob' INTEGER NOT NULL, 'currentCraftObject' TEXT NOT NULL, " +
         "'currentCraftJobMaterial' TEXT, 'location' TEXT, 'openedWindows' TEXT, " +
         "'currentHP' INTEGER, 'bankGold' INTEGER, 'pveArenaCurrentPoints' INTEGER, 'menuOriginTop' INTEGER, 'menuOriginLeft' INTEGER, 'storage' TEXT, " +
-        "'alchemyCauldron' TEXT, 'explorationState' TEXT, 'persistantStorage' TEXT, 'materialStorage' TEXT)");
+        "'alchemyCauldron' TEXT, 'explorationState' TEXT, 'persistantStorage' TEXT, 'materialStorage' TEXT, 'craftJob' TEXT)");
 
       SqLiteUtils.CreateQuery("CREATE TABLE IF NOT EXISTS playerMaterialStorage" +
         "('characterId' INTEGER NOT NULL, 'materialName' TEXT NOT NULL, 'materialStock' INTEGER, UNIQUE (characterId, materialName))");

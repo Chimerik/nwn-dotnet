@@ -30,7 +30,7 @@ namespace NWN.Systems.Craft
 
         ArmorTable.Entry armorEntry = Armor2da.armorTable.GetDataEntry(-baseItemType);
 
-        this.mineralsCost = armorEntry.cost * 10;
+        this.mineralsCost = armorEntry.cost * 1000;
         this.goldCost = armorEntry.cost * 5;
         this.name = armorEntry.name;
         this.workshopTag = armorEntry.workshop;
@@ -41,7 +41,7 @@ namespace NWN.Systems.Craft
         BaseItemTable.Entry baseItemEntry = BaseItems2da.baseItemTable.GetBaseItemDataEntry((BaseItemType)baseItemType);
         NwBaseItem baseItem = NwBaseItem.FromItemType((BaseItemType)baseItemType);
         this.name = baseItem.Name;
-        this.mineralsCost = (int)(baseItem.BaseCost * 10);
+        this.mineralsCost = (int)(baseItem.BaseCost * 1000);
         this.goldCost = (int)(baseItem.BaseCost * 5);
         this.workshopTag = baseItemEntry.workshop;
         this.craftedItemTag = baseItemEntry.craftedItem;
