@@ -7,7 +7,6 @@ using Anvil.Services;
 using NWN.Systems.Craft;
 
 namespace NWN.Systems
-
 {
   // TODO : créer et afficher fenêtre craft en cours + vérifier fonctionne du Dispose
   public partial class PlayerSystem
