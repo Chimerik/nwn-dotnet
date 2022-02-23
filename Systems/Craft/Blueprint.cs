@@ -136,6 +136,19 @@ namespace NWN.Systems.Craft
 
       return new List<ItemProperty>();
     }
+    public static Blueprint GetBlueprintFromNwItem(NwItem oBlueprint, NwPlayer oPlayer)
+    {
+      int baseItemType = oBlueprint.GetObjectVariable<LocalVariableInt>("_BASE_ITEM_TYPE").Value;
+
+      if (Collect.System.blueprintDictionnary.TryGetValue(baseItemType, out Blueprint blueprint))
+          return blueprint;
+      else
+      {
+        oPlayer.SendServerMessage("[ERREUR HRP] - Le patron utilisé n'est pas correctement initialisé. Le bug a été remonté au staff.");
+        Utils.LogMessageToDMs($"Blueprint Invalid : {oBlueprint.Name} - Base Item Type : {baseItemType} - Used by : {oPlayer.LoginCreature.Name}");
+        return null;  
+      }
+    }
     public static void BlueprintValidation(NwPlayer oPlayer, NwGameObject target, Feat feat)
     {
       if (!(target is NwItem) || target.Tag != "blueprint")

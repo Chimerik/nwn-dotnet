@@ -224,37 +224,30 @@ namespace NWN.Systems
                 Craft.Blueprint blueprint = Craft.Collect.System.blueprintDictionnary[baseItemType];
                 TimeSpan jobDuration = TimeSpan.FromSeconds(blueprint.GetBlueprintTimeCostForPlayer(player, item));
 
-                List<NuiElement> blueprintRowChildren = new List<NuiElement>();
-                NuiRow blueprintRow = new NuiRow() { Children = blueprintRowChildren };
-
-                blueprintRowChildren.Add(new NuiText("Patron de création de l'objet artisanal"));
-                blueprintRowChildren.Add(new NuiText(blueprint.name));
-                rootChidren.Add(blueprintRow);
-
-                blueprintRowChildren.Add(new NuiText("Recherche en rendement"));
-                blueprintRowChildren.Add(new NuiText(item.GetObjectVariable<LocalVariableInt>("_BLUEPRINT_MATERIAL_EFFICIENCY").Value.ToString()));
-                blueprintRowChildren.Add(new NuiText($"Coût initial en {blueprint.resourceType.ToDescription()}"));
-                blueprintRowChildren.Add(new NuiText(blueprint.GetBlueprintMineralCostForPlayer(player, item).ToString()) { Tooltip = "Puis 10 % de moins par amélioration vers un matériau supérieur." });
-                rootChidren.Add(blueprintRow);
-
-                blueprintRowChildren.Add(new NuiText("Recherche en efficacité"));
-                blueprintRowChildren.Add(new NuiText(item.GetObjectVariable<LocalVariableInt>("_BLUEPRINT_TIME_EFFICIENCY").Value.ToString()));
-                blueprintRowChildren.Add(new NuiText("Temps de fabrication et d'amélioration"));
-                blueprintRowChildren.Add(new NuiText(new TimeSpan(jobDuration.Days, jobDuration.Hours, jobDuration.Minutes, jobDuration.Seconds).ToString()));
-                rootChidren.Add(blueprintRow);
+                rootChidren.Add(new NuiRow() { Children = new List<NuiElement>() { new NuiText($"Patron de création de l'objet artisanal : {blueprint.name}") } });
+                rootChidren.Add(new NuiRow() { Children = new List<NuiElement>() { new NuiText($"Recherche en rendement : {item.GetObjectVariable<LocalVariableInt>("_BLUEPRINT_MATERIAL_EFFICIENCY").Value}") } });
+                rootChidren.Add(new NuiRow() { Children = new List<NuiElement>() { new NuiText($"Coût initial en {blueprint.resourceType.ToDescription()} : {blueprint.GetBlueprintMineralCostForPlayer(player, item)}") { Tooltip = "Puis 10 % de moins par amélioration vers un matériau supérieur." } } });
+                rootChidren.Add(new NuiRow() { Children = new List<NuiElement>() { new NuiText($"Recherche en efficacité : {item.GetObjectVariable<LocalVariableInt>("_BLUEPRINT_TIME_EFFICIENCY").Value}") } });
+                rootChidren.Add(new NuiRow() { Children = new List<NuiElement>() { new NuiText($"Temps de fabrication et d'amélioration : {new TimeSpan(jobDuration.Days, jobDuration.Hours, jobDuration.Minutes, jobDuration.Seconds)}") } });
 
                 int runs = item.GetObjectVariable<LocalVariableInt>("_BLUEPRINT_RUNS").Value;
 
                 if (runs > 0)
+                  rootChidren.Add(new NuiText($"Utilisation(s) restante(s) : {runs}"));
+                else if (item.Possessor == player.oid.ControlledCreature) // TODO : rediriger vers le menu de copie de blueprint
                 {
-                  blueprintRowChildren.Add(new NuiText("Utilisations restantes"));
-                  blueprintRowChildren.Add(new NuiText(runs.ToString()));
-                  rootChidren.Add(blueprintRow);
-                }
-                else if(item.Possessor == player.oid.ControlledCreature) // TODO : rediriger vers le menu de copie de blueprint
-                  blueprintRowChildren.Add(new NuiButton("Copier") { Id = "copy", Tooltip = "Lancer un travail de copie de ce patron original" });
+                  var blueprintActionChildren = new List<NuiElement>();
+                  NuiRow blueprintActionRow = new NuiRow();
+                  string tooltip = "Lancer un travail de copie de ce patron original";
+                  bool copySkill = player.learnableSkills.ContainsKey(CustomSkill.BlueprintCopy) && player.learnableSkills[CustomSkill.BlueprintCopy].totalPoints > 0;
 
-                rootChidren.Add(blueprintRow);
+                  if (player.newCraftJob == null)
+                    tooltip = "Vous ne pouvez pas lancer un travail de copie de patron tant que vous avez un travail artisanal en cours.";
+                  else if (!copySkill)
+                    tooltip = "Il faut avoir étudié les techniques de copie de patron un minimum avant de pouvoir lancer ce travail";
+
+                  blueprintActionChildren.Add(new NuiButton("Copier") { Id = "copy", Tooltip = tooltip, Enabled = player.newCraftJob != null && copySkill });
+                }
               }
               else
               {
@@ -409,6 +402,10 @@ namespace NWN.Systems
                 item.GetObjectVariable<LocalVariableString>("_REGISTERED_SEQUENCE").Delete();
                 CreateSequenceRegisterLayout(new List<string>());
                 return;
+
+              case "copy":
+                player.newCraftJob = new CraftJob(player, item, Craft.Blueprint.GetBlueprintFromNwItem(item, player.oid));
+                break;
             }
 
             if(nuiEvent.ElementId.StartsWith("up_"))

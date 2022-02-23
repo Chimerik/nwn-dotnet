@@ -9,7 +9,7 @@ using NWN.Systems.Craft;
 namespace NWN.Systems
 
 {
-  // TODO : Démarrer copie via examine blueprint + si craft en cours demander confirmation + créer et afficher fenêtre craft en cours + vérifier fonctionne du Dispose
+  // TODO : créer et afficher fenêtre craft en cours + vérifier fonctionne du Dispose
   public partial class PlayerSystem
   {
     public static Dictionary<JobType, Func<Player, bool>> HandleSpecificJobCompletion = new Dictionary<JobType, Func<Player, bool>>
@@ -41,18 +41,25 @@ namespace NWN.Systems
       public DateTime? progressLastCalculation { get; set; }
       public CraftJob(Player player, NwItem oBlueprint, Blueprint blueprint) // Blueprint Copy
       {
-        type = JobType.BlueprintCopy;
-        icon = "menu_select";
-        remainingTime = blueprint.mineralsCost * 200 * player.learnableSkills[CustomSkill.BlueprintCopy].bonusReduction;
+        try
+        {
+          type = JobType.BlueprintCopy;
+          icon = "menu_select";
+          remainingTime = blueprint.mineralsCost * 200 * player.learnableSkills[CustomSkill.BlueprintCopy].bonusReduction;
 
-        NwItem clone = oBlueprint.Clone(player.oid.LoginCreature.Location);
-        clone.Name = $"Copie de {oBlueprint.Name}";
-        clone.GetObjectVariable<LocalVariableInt>("_BLUEPRINT_RUNS").Value = player.learnableSkills.ContainsKey(CustomSkill.BlueprintEfficiency) ? 10 + player.learnableSkills[CustomSkill.BlueprintEfficiency].totalPoints : 10;
+          NwItem clone = oBlueprint.Clone(player.oid.LoginCreature.Location);
+          clone.Name = $"Copie de {oBlueprint.Name}";
+          clone.GetObjectVariable<LocalVariableInt>("_BLUEPRINT_RUNS").Value = player.learnableSkills.ContainsKey(CustomSkill.BlueprintEfficiency) ? 10 + player.learnableSkills[CustomSkill.BlueprintEfficiency].totalPoints : 10;
 
-        serializedCraftedItem = clone.Serialize().ToBase64EncodedString();
-        clone.Destroy();
+          serializedCraftedItem = clone.Serialize().ToBase64EncodedString();
+          clone.Destroy();
 
-        HandleCraftProgression(player);
+          HandleCraftProgression(player);
+        }
+        catch (Exception e)
+        {
+          Utils.LogMessageToDMs($"{e.Message}\n\n{e.StackTrace}");
+        }
       }
       public CraftJob(SerializableCraftJob serializedJob, Player player)
       {
@@ -131,6 +138,7 @@ namespace NWN.Systems
         player.oid.ExportCharacter();
       }
     }
+
     private static bool CompleteBlueprintCopy(Player player)
     {
       NwItem bpCopy = ItemUtils.DeserializeAndAcquireItem(player.newCraftJob.serializedCraftedItem, player.oid.LoginCreature);
