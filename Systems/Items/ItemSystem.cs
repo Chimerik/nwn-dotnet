@@ -75,12 +75,6 @@ namespace NWN.Systems
       
       switch (oItem.Tag)
       {
-        case "skillbook":
-          feedbackService.AddFeedbackMessageFilter(FeedbackMessage.UseItemCantUse, oPC.ControllingPlayer);
-          onItemUse.PreventUseItem = true;
-          Items.ItemUseHandlers.SkillBook.HandleActivate(oItem, oPC.ControllingPlayer.LoginCreature);
-          break;
-
         case "blueprint":
           feedbackService.AddFeedbackMessageFilter(FeedbackMessage.UseItemCantUse, oPC.ControllingPlayer);
           onItemUse.PreventUseItem = true;
@@ -205,18 +199,11 @@ namespace NWN.Systems
         return;
       }
 
-      if (oItem.GetObjectVariable<LocalVariableInt>("_MAX_DURABILITY").HasNothing)
+      if (oItem.GetObjectVariable<LocalVariableInt>("_MAX_DURABILITY").HasNothing && oItem.BaseItem.EquipmentSlots != EquipmentSlots.None)
       {
-        switch(oItem.BaseItem.ItemType)
-        {
-          case BaseItemType.MiscMedium:
-            break;
-          default:
-            int durability = ItemUtils.GetBaseItemCost(oItem) * 25;
-            oItem.GetObjectVariable<LocalVariableInt>("_MAX_DURABILITY").Value = durability;
-            oItem.GetObjectVariable<LocalVariableInt>("_DURABILITY").Value = durability;
-            break;
-        }
+        int durability = ItemUtils.GetBaseItemCost(oItem) * 25;
+        oItem.GetObjectVariable<LocalVariableInt>("_MAX_DURABILITY").Value = durability;
+        oItem.GetObjectVariable<LocalVariableInt>("_DURABILITY").Value = durability;
       }
 
       if (oItem.Tag == "item_pccorpse" && oAcquiredFrom?.Tag == "pccorpse_bodybag")

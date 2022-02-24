@@ -141,7 +141,7 @@ namespace NWN.Systems
          * Mais il se peut que dans ce cas, ses buffs soient perdues à la reco. A vérifier. Si c'est le cas, une meilleure
          * correction pourrait être de parcourir tous ses buffs et de les réappliquer dans l'event AFTER de la sauvegarde*/
 
-        if (oid == null)
+        if (oid == null || oid.ControlledCreature == null)
           return;
 
         await NwTask.Delay(TimeSpan.FromSeconds(0.1));
@@ -195,11 +195,7 @@ namespace NWN.Systems
           return JsonConvert.SerializeObject(serializableSpells);
         });
 
-        Task<string> serializeJob = Task.Run(() =>
-        {
-          CraftJob.SerializableCraftJob serializableCraftJob = newCraftJob != null ? new CraftJob.SerializableCraftJob(newCraftJob) : null;
-          return JsonConvert.SerializeObject(serializableCraftJob);
-        });
+        Task<string> serializeJob = Task.Run(() => newCraftJob != null ? JsonConvert.SerializeObject(new CraftJob.SerializableCraftJob(newCraftJob)) : JsonConvert.SerializeObject(newCraftJob));
 
         await Task.WhenAll(serializeAlchemyCauldron, serializeLearnableSkills, serializeLearnableSpells, serializeExplorationState, serializeOpenedWindows, serializeJob);
 

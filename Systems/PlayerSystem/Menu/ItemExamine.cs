@@ -43,7 +43,8 @@ namespace NWN.Systems
           this.item = item;
           string originalCrafterName = item.GetObjectVariable<LocalVariableString>("_ORIGINAL_CRAFTER_NAME").Value;
           modificationAllowed = (string.IsNullOrWhiteSpace(originalCrafterName) || originalCrafterName == player.oid.ControlledCreature.OriginalName)
-            && (item.Possessor == player.oid.ControlledCreature || player.oid.IsDM);
+            && (item.Possessor == player.oid.ControlledCreature || player.oid.IsDM)
+            && item.Tag != "skillbook" && item.Tag != "blueprint";
 
           List<NuiElement> nameRowChildren = new List<NuiElement>();
           NuiRow nameRow = new NuiRow() { Children = nameRowChildren };
@@ -160,7 +161,7 @@ namespace NWN.Systems
 
             NuiColor ipColor = ip.RemainingDuration != TimeSpan.Zero ? ColorConstants.Blue : ColorConstants.White;
 
-            rootChidren.Add(new NuiRow() { Children = new List<NuiElement>() { new NuiLabel(ipName) { Height = 10, Width = 500, ForegroundColor = ipColor } } });
+            rootChidren.Add(new NuiRow() { Children = new List<NuiElement>() { new NuiLabel(ipName) { Height = 10, Width = 500, ForegroundColor = ipColor, Margin = 5 } } });
           }
 
           if (item.GetObjectVariable<LocalVariableInt>("_MAX_DURABILITY").HasValue)
@@ -224,29 +225,27 @@ namespace NWN.Systems
                 Craft.Blueprint blueprint = Craft.Collect.System.blueprintDictionnary[baseItemType];
                 TimeSpan jobDuration = TimeSpan.FromSeconds(blueprint.GetBlueprintTimeCostForPlayer(player, item));
 
-                rootChidren.Add(new NuiRow() { Children = new List<NuiElement>() { new NuiText($"Patron de création de l'objet artisanal : {blueprint.name}") } });
-                rootChidren.Add(new NuiRow() { Children = new List<NuiElement>() { new NuiText($"Recherche en rendement : {item.GetObjectVariable<LocalVariableInt>("_BLUEPRINT_MATERIAL_EFFICIENCY").Value}") } });
-                rootChidren.Add(new NuiRow() { Children = new List<NuiElement>() { new NuiText($"Coût initial en {blueprint.resourceType.ToDescription()} : {blueprint.GetBlueprintMineralCostForPlayer(player, item)}") { Tooltip = "Puis 10 % de moins par amélioration vers un matériau supérieur." } } });
-                rootChidren.Add(new NuiRow() { Children = new List<NuiElement>() { new NuiText($"Recherche en efficacité : {item.GetObjectVariable<LocalVariableInt>("_BLUEPRINT_TIME_EFFICIENCY").Value}") } });
-                rootChidren.Add(new NuiRow() { Children = new List<NuiElement>() { new NuiText($"Temps de fabrication et d'amélioration : {new TimeSpan(jobDuration.Days, jobDuration.Hours, jobDuration.Minutes, jobDuration.Seconds)}") } });
+                //rootChidren.Add(new NuiRow() { Children = new List<NuiElement>() { new NuiLabel($"Patron de création de l'objet artisanal : {blueprint.name}") } });
+                rootChidren.Add(new NuiRow() { Children = new List<NuiElement>() { new NuiLabel($"Recherche en rendement : {item.GetObjectVariable<LocalVariableInt>("_BLUEPRINT_MATERIAL_EFFICIENCY").Value}") } });
+                rootChidren.Add(new NuiRow() { Children = new List<NuiElement>() { new NuiLabel($"Coût initial en {blueprint.resourceType.ToDescription()} : {blueprint.GetBlueprintMineralCostForPlayer(player, item)}") { Tooltip = "Puis 10 % de moins par amélioration vers un matériau supérieur." } } });
+                rootChidren.Add(new NuiRow() { Children = new List<NuiElement>() { new NuiLabel($"Recherche en efficacité : {item.GetObjectVariable<LocalVariableInt>("_BLUEPRINT_TIME_EFFICIENCY").Value}") } });
+                rootChidren.Add(new NuiRow() { Children = new List<NuiElement>() { new NuiLabel($"Temps de fabrication et d'amélioration : {new TimeSpan(jobDuration.Days, jobDuration.Hours, jobDuration.Minutes, jobDuration.Seconds)}") } });
 
                 int runs = item.GetObjectVariable<LocalVariableInt>("_BLUEPRINT_RUNS").Value;
 
                 if (runs > 0)
-                  rootChidren.Add(new NuiText($"Utilisation(s) restante(s) : {runs}"));
+                  rootChidren.Add(new NuiLabel($"Utilisation(s) restante(s) : {runs}"));
                 else if (item.Possessor == player.oid.ControlledCreature) // TODO : rediriger vers le menu de copie de blueprint
                 {
-                  var blueprintActionChildren = new List<NuiElement>();
-                  NuiRow blueprintActionRow = new NuiRow();
                   string tooltip = "Lancer un travail de copie de ce patron original";
                   bool copySkill = player.learnableSkills.ContainsKey(CustomSkill.BlueprintCopy) && player.learnableSkills[CustomSkill.BlueprintCopy].totalPoints > 0;
 
-                  if (player.newCraftJob == null)
+                  if (player.newCraftJob != null)
                     tooltip = "Vous ne pouvez pas lancer un travail de copie de patron tant que vous avez un travail artisanal en cours.";
                   else if (!copySkill)
                     tooltip = "Il faut avoir étudié les techniques de copie de patron un minimum avant de pouvoir lancer ce travail";
 
-                  blueprintActionChildren.Add(new NuiButton("Copier") { Id = "copy", Tooltip = tooltip, Enabled = player.newCraftJob != null && copySkill });
+                  rootChidren.Add(new NuiRow() { Children = new List<NuiElement>() { new NuiButton("Copier") { Id = "copy", Tooltip = tooltip, Enabled = player.newCraftJob == null && copySkill } } });
                 }
               }
               else
@@ -284,6 +283,13 @@ namespace NWN.Systems
             case "sequence_register":
               CreateSequenceRegisterLayout(item.GetObjectVariable<LocalVariableString>("_REGISTERED_SEQUENCE").Value.Split("_"));
               rootChidren.Add(sequenceRegisterGroup);
+              break;
+
+            case "skillbook":
+
+              bool canLearn = !player.learnableSkills.ContainsKey(item.GetObjectVariable<LocalVariableInt>("_SKILL_ID").Value);
+              rootChidren.Add(new NuiButton("Apprendre") { Id = "skillbook_learn", Enabled = canLearn, Tooltip = canLearn ? "Ajouter cette compétence à votre livre d'apprentissage" : "Cette compétence se trouve déjà dans votre livre d'apprentissage" });
+
               break;
           }
 
@@ -405,6 +411,25 @@ namespace NWN.Systems
 
               case "copy":
                 player.newCraftJob = new CraftJob(player, item, Craft.Blueprint.GetBlueprintFromNwItem(item, player.oid));
+
+                if (player.windows.ContainsKey("activeCraftJob"))
+                  ((ActiveCraftJobWindow)player.windows["activeCraftJob"]).CreateWindow();
+                else
+                  player.windows.Add("activeCraftJob", new ActiveCraftJobWindow(player));
+
+                player.oid.NuiDestroy(token);
+
+                break;
+
+              case "skillbook_learn":
+
+                int learnableId = item.GetObjectVariable<LocalVariableInt>("_SKILL_ID").Value;
+                player.learnableSkills.Add(learnableId, new LearnableSkill((LearnableSkill)SkillSystem.learnableDictionary[learnableId]));
+                player.oid.SendServerMessage("Vous venez d'ajouter une nouvelle compétence à votre livre d'apprentissage !", ColorConstants.Rose);
+                
+                item.Destroy();
+                player.oid.NuiDestroy(token);
+
                 break;
             }
 

@@ -208,7 +208,6 @@ namespace NWN.Systems.Craft
     public float GetBlueprintTimeCostForPlayer(PlayerSystem.Player player, NwItem item)
     {
       int iSkillLevel = 0;
-      float fJobDuration = this.mineralsCost * 300;
 
       if (player.learntCustomFeats.ContainsKey(jobFeat))
         iSkillLevel += SkillSystem.GetCustomFeatLevelFromSkillPoints(jobFeat, player.learntCustomFeats[jobFeat]);
@@ -218,7 +217,9 @@ namespace NWN.Systems.Craft
 
       iSkillLevel += item.GetObjectVariable<LocalVariableInt>("_BLUEPRINT_TIME_EFFICIENCY").Value;
 
-      return fJobDuration * (100 - iSkillLevel) / 100;
+      PlayerSystem.Log.Info($"mineralCost : ");
+
+      return mineralsCost * (100 - iSkillLevel) / 100;
     }
     public string GetMaterialFromTargetItem(NwGameObject oTarget)
     {

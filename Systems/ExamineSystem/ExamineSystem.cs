@@ -2,9 +2,6 @@
 using Anvil.API;
 using Anvil.API.Events;
 using Anvil.Services;
-using System;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace NWN.Systems
 {

@@ -26,10 +26,10 @@ namespace NWN.Systems
           ItemUtils.CreateShopBlueprint(oBlueprint, baseItemType);
         }
 
-        foreach (Feat feat in SkillSystem.forgeBasicSkillBooks)
+        foreach (int customSkill in SkillSystem.forgeBasicSkillBooks)
         {
           NwItem skillBook = await NwItem.Create("skillbookgeneriq", shop, 1, "skillbook");
-          ItemUtils.CreateShopSkillBook(skillBook, (int)feat);
+          ItemUtils.CreateShopSkillBook(skillBook, customSkill);
         }
 
         NwItem craftTool = await NwItem.Create("oreextractor", shop, 1, "oreextractor");

@@ -59,10 +59,12 @@ namespace NWN.Systems
        if (NwModule.Instance.Players.Count(p => p.ControlledCreature?.Area == area) == 1)
         CreateSpawnChecker(area);
 
-      if (!PlayerSystem.Players.TryGetValue(onEnter.EnteringObject, out PlayerSystem.Player player)) //EN FONCTION DE SI LA ZONE EST REST OU PAS, ON AFFICHE LA PROGRESSION DU JOURNAL DE CRAFT
+      if (!PlayerSystem.Players.TryGetValue(onEnter.EnteringObject, out PlayerSystem.Player player))
         return;
 
       Log.Info($"Map {area.Name} loaded in : {(DateTime.Now - player.mapLoadingTime).TotalSeconds}");
+
+      player.location = player.oid.LoginCreature.Location;
 
       if (player.menu.isOpen)
         player.menu.Close();
@@ -159,12 +161,15 @@ namespace NWN.Systems
         case "Gothictest":
         case "CoteSudLaCrique":
           area.SetAreaWind(new Vector3(0, 1, 0), 3, 0, 0);
+          area.GetObjectVariable<LocalVariableInt>("_AREA_LEVEL").Value = 1;
           break;
         case "laplage":
           area.SetAreaWind(new Vector3(1, 0, 0), 2, 0, 0);
+          area.GetObjectVariable<LocalVariableInt>("_AREA_LEVEL").Value = 1;
           break;
         case "leschamps":
           area.SetAreaWind(new Vector3(-1, 0, 0), 1, 0, 0);
+          area.GetObjectVariable<LocalVariableInt>("_AREA_LEVEL").Value = 1;
           break;
         case "Promenadetest":
         case "Governmenttest":

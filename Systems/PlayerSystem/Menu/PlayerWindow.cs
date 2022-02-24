@@ -14,7 +14,7 @@ namespace NWN.Systems
         protected NuiBind<NuiRect> geometry { get; }
         protected Player player { get; }
         protected NuiWindow window { get; set; }
-        protected int token { get; set; }
+        public int token { get; set; }
 
         public PlayerWindow(Player player)
         {

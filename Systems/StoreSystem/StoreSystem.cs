@@ -549,7 +549,9 @@ namespace NWN.System
         buyer.pveArena.totalPoints -= (uint)onStoreRequestBuy.Price;
 
         NwItem acquiredItem = onStoreRequestBuy.Item.Clone(onStoreRequestBuy.Creature);
-        acquiredItem.GetObjectVariable<LocalVariableInt>("_DURABILITY").Value = ItemUtils.GetBaseItemCost(acquiredItem) * 50;
+        
+        if(acquiredItem.BaseItem.EquipmentSlots != EquipmentSlots.None)
+          acquiredItem.GetObjectVariable<LocalVariableInt>("_DURABILITY").Value = ItemUtils.GetBaseItemCost(acquiredItem) * 50;
 
         buyer.oid.SendServerMessage($"Vous venez d'acquérir {onStoreRequestBuy.Item.Name.ColorString(ColorConstants.White)}" +
           $"pour {onStoreRequestBuy.Price.ToString().ColorString(ColorConstants.White)} point(s). Points restants : {buyer.pveArena.totalPoints.ToString().ColorString(ColorConstants.White)}", ColorConstants.Orange);

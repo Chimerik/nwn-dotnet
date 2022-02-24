@@ -244,7 +244,7 @@ namespace NWN.Systems
       try
       {
         Learnable learnable = SkillSystem.learnableDictionary[featId];
-        skillBook.Name = learnable.name;
+        skillBook.Name = $"Livre de compétence : {learnable.name}";
         skillBook.Description = learnable.description;
         skillBook.BaseGoldValue = (uint)(learnable.multiplier * 1000);
       }

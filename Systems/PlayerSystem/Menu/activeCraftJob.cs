@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 
 using Anvil.API;
+using Anvil.API.Events;
 using Anvil.Services;
 
 namespace NWN.Systems
@@ -11,24 +12,21 @@ namespace NWN.Systems
   {
     public partial class Player
     {
-      public class ActiveLearnableWindow : PlayerWindow
+      public class ActiveCraftJobWindow : PlayerWindow
       {
         private readonly NuiColumn rootColumn;
         private readonly NuiColor white = new NuiColor(255, 255, 255);
         private readonly NuiRect drawListRect = new NuiRect(0, 35, 150, 60);
         private readonly NuiBind<string> icon = new NuiBind<string>("icon");
         private readonly NuiBind<string> name = new NuiBind<string>("name");
-        private readonly NuiBind<string> timeLeft = new NuiBind<string>("timeLeft");
-        private readonly NuiBind<string> level = new NuiBind<string>("level");
-        bool stopPreviousSPGain { get; set; }
-        Learnable learnable { get; set; }
+        public readonly NuiBind<string> timeLeft = new NuiBind<string>("timeLeft");
 
-        public ActiveLearnableWindow(Player player) : base(player)
+        public ActiveCraftJobWindow(Player player) : base(player)
         {
-          windowId = "activeLearnable";
+          windowId = "activeCraftJob";
 
-          rootColumn = new NuiColumn() 
-          { 
+          rootColumn = new NuiColumn()
+          {
             Children = new List<NuiElement>()
             {
               new NuiRow()
@@ -38,8 +36,7 @@ namespace NWN.Systems
                     new NuiButtonImage(icon) { Height = 40, Width = 40 },
                     new NuiLabel(name) { Tooltip = name, Width = 160, HorizontalAlign = NuiHAlign.Left, DrawList = new List<NuiDrawListItem>() {
                     new NuiDrawListText(white, drawListRect, timeLeft) } },
-                    new NuiLabel("Niveau/Max") { Width = 90, HorizontalAlign = NuiHAlign.Left, DrawList = new List<NuiDrawListItem>() {
-                    new NuiDrawListText(white, drawListRect, level) } }
+                    new NuiButton("Annuler") { Id = "cancel", Tooltip = "En cas d'annulation, le travail en cours sera perdu. L'objet d'origine vous sera restitué.", Width = 60, Height = 40 }
                 }
               }
             }
@@ -49,9 +46,7 @@ namespace NWN.Systems
         }
         public void CreateWindow()
         {
-          learnable = player.GetActiveLearnable();
-
-          if (learnable == null)
+          if (player.newCraftJob == null)
           {
             player.oid.SendServerMessage("Vous n'avez pas d'apprentissage actif pour le moment. Veuillez utiliser le journal afin de décider de votre prochain apprentissage.", ColorConstants.Red);
             return;
@@ -59,7 +54,7 @@ namespace NWN.Systems
 
           NuiRect windowRectangle = player.windowRectangles.ContainsKey(windowId) ? player.windowRectangles[windowId] : new NuiRect(10, player.oid.GetDeviceProperty(PlayerDeviceProperty.GuiHeight) * 0.01f, 320, 100);
 
-          window = new NuiWindow(rootColumn, "Apprentissage en cours")
+          window = new NuiWindow(rootColumn, "Travail artisanal en cours")
           {
             Geometry = geometry,
             Resizable = false,
@@ -69,39 +64,33 @@ namespace NWN.Systems
             Border = true,
           };
 
+          player.oid.OnNuiEvent -= HandleActiveCraftJobEvents;
+          player.oid.OnNuiEvent += HandleActiveCraftJobEvents;
+
           token = player.oid.CreateNuiWindow(window, windowId);
 
-          timeLeft.SetBindValue(player.oid, token, learnable.GetReadableTimeSpanToNextLevel(player));
-          icon.SetBindValue(player.oid, token, learnable.icon);
-          name.SetBindValue(player.oid, token, learnable.name);
-          level.SetBindValue(player.oid, token, $"{learnable.currentLevel}/{learnable.maxLevel}");
+          timeLeft.SetBindValue(player.oid, token, player.newCraftJob.GetReadableJobCompletionTime());
+          icon.SetBindValue(player.oid, token, player.newCraftJob.icon);
+          name.SetBindValue(player.oid, token, player.newCraftJob.type.ToDescription());
 
           geometry.SetBindValue(player.oid, token, windowRectangle);
           geometry.SetBindWatch(player.oid, token, true);
 
           player.openedWindows[windowId] = token;
-
-          stopPreviousSPGain = true;
-          DelayStartSPGain();
         }
 
-        private async void RefreshWindowUntillClosed()
+        private void HandleActiveCraftJobEvents(ModuleEvents.OnNuiEvent nuiEvent)
         {
-          ScheduledTask scheduler = ModuleSystem.scheduler.ScheduleRepeating(() =>
+          if (nuiEvent.Player.NuiGetWindowId(nuiEvent.WindowToken) != windowId)
+            return;
+
+          switch (nuiEvent.ElementId)
           {
-            learnable.acquiredPoints += player.GetSkillPointsPerSecond(learnable);
-            timeLeft.SetBindValue(player.oid, token, learnable.GetReadableTimeSpanToNextLevel(player));
-            player.oid.ExportCharacter();
-          }, TimeSpan.FromSeconds(1));
-
-          await NwTask.WaitUntil(() => player.oid.LoginCreature == null || !player.openedWindows.ContainsKey(windowId) || stopPreviousSPGain || !learnable.active);
-          scheduler.Dispose();
-        }
-        private async void DelayStartSPGain()
-        {
-          await NwTask.Delay(TimeSpan.FromSeconds(0.2));
-          stopPreviousSPGain = false;
-          RefreshWindowUntillClosed();
+            case "cancel":
+              if (player.newCraftJob != null)
+                player.newCraftJob.HandleCraftJobCancellation(player);
+              return;
+          }
         }
       }
     }

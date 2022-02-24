@@ -395,7 +395,7 @@ namespace NWN.Systems
 
         Task loadCauldronTask = Task.Run(() =>
         {
-          if (string.IsNullOrEmpty(serializedCauldron))
+          if (string.IsNullOrEmpty(serializedCauldron) || serializedCauldron == "null")
             return;
 
           alchemyCauldron = JsonConvert.DeserializeObject<Alchemy.Cauldron>(serializedCauldron);
@@ -403,7 +403,7 @@ namespace NWN.Systems
 
         Task loadExplorationTask = Task.Run(() =>
         {
-          if (string.IsNullOrEmpty(serializedExploration))
+          if (string.IsNullOrEmpty(serializedExploration) || serializedExploration == "null")
             return;
 
           areaExplorationStateDictionnary = JsonConvert.DeserializeObject<Dictionary<string, byte[]>>(serializedExploration);
@@ -411,7 +411,7 @@ namespace NWN.Systems
 
         Task loadOpenedWindowsTask = Task.Run(() =>
         {
-          if (string.IsNullOrEmpty(serializedOpenedWindows))
+          if (string.IsNullOrEmpty(serializedOpenedWindows) || serializedOpenedWindows == "null")
             return;
 
           openedWindows = JsonConvert.DeserializeObject<Dictionary<string, int>>(serializedOpenedWindows);
@@ -419,7 +419,7 @@ namespace NWN.Systems
 
         Task loadSkillsTask = Task.Run(() =>
         {
-          if (string.IsNullOrEmpty(serializedLearnableSkills))
+          if (string.IsNullOrEmpty(serializedLearnableSkills) || serializedLearnableSkills == "null")
             return;
 
           Dictionary<int, LearnableSkill.SerializableLearnableSkill> serializableSkills = JsonConvert.DeserializeObject<Dictionary<int, LearnableSkill.SerializableLearnableSkill>>(serializedLearnableSkills);
@@ -430,7 +430,7 @@ namespace NWN.Systems
 
         Task loadSpellsTask = Task.Run(() =>
         {
-          if (string.IsNullOrEmpty(serializedLearnableSpells))
+          if (string.IsNullOrEmpty(serializedLearnableSpells) || serializedLearnableSpells == "null")
             return;
 
           Dictionary<int, LearnableSpell.SerializableLearnableSpell> serializableSpells = JsonConvert.DeserializeObject<Dictionary<int, LearnableSpell.SerializableLearnableSpell>>(serializedLearnableSpells);
@@ -441,7 +441,7 @@ namespace NWN.Systems
 
         Task loadMateriaTask = Task.Run(() =>
         {
-          if (string.IsNullOrEmpty(serializedCraftResources))
+          if (string.IsNullOrEmpty(serializedCraftResources) || serializedCraftResources == "null")
             return;
 
           List<CraftResource.SerializableCraftResource> serializableCraftResource = JsonConvert.DeserializeObject<List<CraftResource.SerializableCraftResource>> (serializedCraftResources);
@@ -452,7 +452,7 @@ namespace NWN.Systems
 
         Task loadCraftJobTask = Task.Run(() =>
         {
-          if (string.IsNullOrEmpty(serializedCraftJob))
+          if (string.IsNullOrEmpty(serializedCraftJob) || serializedCraftJob == "null")
             return;
 
           newCraftJob = new CraftJob(JsonConvert.DeserializeObject<CraftJob.SerializableCraftJob>(serializedCraftJob), this);
