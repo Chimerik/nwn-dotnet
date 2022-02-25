@@ -16,7 +16,7 @@ namespace NWN.Systems
       {
         private readonly NuiGroup rootGroup;
         private readonly NuiColumn rootColumn;
-        private readonly List<NuiElement> rootChidren;
+        private readonly List<NuiElement> rootChidren = new List<NuiElement>();;
         private readonly NuiGroup sequenceRegisterGroup;
         private readonly NuiRow sequenceRegisterRow;
         private readonly NuiBind<string> sequenceSaveButtonLabel = new NuiBind<string>("sequenceSaveButtonLabel");
@@ -29,7 +29,6 @@ namespace NWN.Systems
         {
           windowId = "itemExamine";
 
-          rootChidren = new List<NuiElement>();
           rootColumn = new NuiColumn() { Children = rootChidren };
           rootGroup = new NuiGroup() { Id = "learnableGroup", Border = true, Layout = rootColumn };
           sequenceRegisterRow = new NuiRow();
@@ -245,7 +244,16 @@ namespace NWN.Systems
                   else if (!copySkill)
                     tooltip = "Il faut avoir étudié les techniques de copie de patron un minimum avant de pouvoir lancer ce travail";
 
-                  rootChidren.Add(new NuiRow() { Children = new List<NuiElement>() { new NuiButton("Copier") { Id = "copy", Tooltip = tooltip, Enabled = player.newCraftJob == null && copySkill } } });
+                  List<NuiElement> blueprintActionRowChildren = new List<NuiElement>();
+                  NuiRow blueprintActionRow = new NuiRow() { Children = blueprintActionRowChildren };
+                  blueprintActionRowChildren.Add(new NuiSpacer());
+                  blueprintActionRowChildren.Add(new NuiButton("Copier") { Id = "copy", Tooltip = tooltip, Enabled = player.newCraftJob == null && copySkill });
+                  blueprintActionRowChildren.Add(new NuiSpacer());
+                  blueprintActionRowChildren.Add(new NuiButton("Recherche en rendement") { Id = "blueprintME", Tooltip = "Lancer un travail de recherche en rendement sur ce patron original", Enabled = player.newCraftJob == null && player.learnableSkills.ContainsKey(CustomSkill.BlueprintMetallurgy) && player.learnableSkills[CustomSkill.BlueprintMetallurgy].totalPoints > 0 });
+                  blueprintActionRowChildren.Add(new NuiSpacer());
+                  blueprintActionRowChildren.Add(new NuiButton("Recherche en efficacité") { Id = "blueprintTE", Tooltip = "Lancer un travail recherche en efficacité sur ce patron original", Enabled = player.newCraftJob == null && player.learnableSkills.ContainsKey(CustomSkill.BlueprintResearch) && player.learnableSkills[CustomSkill.BlueprintResearch].totalPoints > 0 });
+                  blueprintActionRowChildren.Add(new NuiSpacer());
+                  rootChidren.Add(blueprintActionRow);
                 }
               }
               else
@@ -410,15 +418,33 @@ namespace NWN.Systems
                 return;
 
               case "copy":
-                player.newCraftJob = new CraftJob(player, item, Craft.Blueprint.GetBlueprintFromNwItem(item, player.oid));
+                player.newCraftJob = new CraftJob(player, item, Craft.Blueprint.GetBlueprintFromNwItem(item, player.oid), JobType.BlueprintCopy);
+                player.oid.NuiDestroy(token);
+
+                if (player.windows.ContainsKey("activeCraftJob"))
+                  ((Player.ActiveCraftJobWindow)player.windows["activeCraftJob"]).CreateWindow();
+                else
+                  player.windows.Add("activeCraftJob", new Player.ActiveCraftJobWindow(player));
+                break;
+
+              case "blueprintME":
+                player.newCraftJob = new CraftJob(player, item, Craft.Blueprint.GetBlueprintFromNwItem(item, player.oid), JobType.BlueprintResearchMaterialEfficiency);
+                player.oid.NuiDestroy(token);
+
+                if (player.windows.ContainsKey("activeCraftJob"))
+                  ((Player.ActiveCraftJobWindow)player.windows["activeCraftJob"]).CreateWindow();
+                else
+                  player.windows.Add("activeCraftJob", new Player.ActiveCraftJobWindow(player));
+                break;
+
+              case "blueprintTE":
+                player.newCraftJob = new CraftJob(player, item, Craft.Blueprint.GetBlueprintFromNwItem(item, player.oid), JobType.BlueprintResearchTimeEfficiency);
+                player.oid.NuiDestroy(token);
 
                 if (player.windows.ContainsKey("activeCraftJob"))
                   ((ActiveCraftJobWindow)player.windows["activeCraftJob"]).CreateWindow();
                 else
                   player.windows.Add("activeCraftJob", new ActiveCraftJobWindow(player));
-
-                player.oid.NuiDestroy(token);
-
                 break;
 
               case "skillbook_learn":

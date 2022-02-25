@@ -459,9 +459,6 @@ namespace NWN.Systems
         });
 
         await Task.WhenAll(loadSkillsTask, loadSpellsTask, loadExplorationTask, loadOpenedWindowsTask, loadCauldronTask, loadCraftJobTask);
-        await NwTask.SwitchToMainThread();
-
-        oid.LoginCreature.GetObjectVariable<LocalVariableBool>("_ASYNC_INIT_DONE").Value = true;
         Log.Info("async init done");
       }
       private async void InitializeAccountMapPins(string serializedMapPins)

@@ -10,10 +10,6 @@
     public const int CustomMenuSELECT = 1134;
     public const int CustomMenuEXIT = 1135;
     
-    public const int Research = 1137;
-    
-    public const int Metallurgy = 1183;
-    public const int AdvancedCraft = 1184;
     public const int Miner = 118;
     public const int Geology = 1186;
     public const int Prospection = 1187;
@@ -448,6 +444,9 @@
     public const int BlueprintCopy = 20254;
     public const int BlueprintEfficiency = 20255;
     public const int BlueprintEconomy = 20256;
+    public const int BlueprintResearch = 20257;
+    public const int BlueprintMetallurgy = 20258;
+    public const int AdvancedCraft = 20259;
 
     public const int Invalid = 65535;
   }

@@ -209,7 +209,7 @@ namespace NWN.Systems
       }
       public async void InitializePlayerOpenedWindows()
       {
-        await NwTask.WaitUntil(() => oid.LoginCreature.GetObjectVariable<LocalVariableBool>("_ASYNC_INIT_DONE").HasValue);
+        await NwTask.WaitUntil(() => oid.LoginCreature.Location.Area != null);
 
         foreach (string window in openedWindows.Keys)
           CreatePlayerWindow(window);
@@ -240,7 +240,7 @@ namespace NWN.Systems
       }
       public async void InitializePlayerLearnableJobs()
       {
-        await NwTask.WaitUntil(() => oid.LoginCreature.GetObjectVariable<LocalVariableBool>("_ASYNC_INIT_DONE").HasValue);
+        await NwTask.WaitUntil(() => oid.LoginCreature.Location.Area != null);
 
         if (learnableSkills.Any(l => l.Value.active) )
           learnableSkills.First(l => l.Value.active).Value.AwaitPlayerStateChangeToCalculateSPGain(this);
@@ -267,9 +267,6 @@ namespace NWN.Systems
           oid.LoginCreature.BaseAttackBonus = (byte)(oid.LoginCreature.BaseAttackBonus + GetCustomFeatLevelFromSkillPoints(CustomFeats.ImprovedAttackBonus, learntCustomFeats[CustomFeats.ImprovedAttackBonus]));
 
         pcState = PcState.Online;
-
-        await NwTask.Delay(TimeSpan.FromSeconds(5));
-        oid.LoginCreature.GetObjectVariable<LocalVariableBool>("_ASYNC_INIT_DONE").Delete();
       }
       public void UnloadMenuQuickbar()
       {
