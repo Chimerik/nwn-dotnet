@@ -254,17 +254,25 @@ namespace NWN.Systems
         skillBook.Destroy();
       }
     }
-    public static void CreateShopBlueprint(NwItem oBlueprint, int baseItemType)
+    public static void CreateShopWeaponBlueprint(NwItem oBlueprint, NwBaseItem baseItem)
     {
-      Craft.Blueprint blueprint = new Craft.Blueprint(baseItemType);
+      oBlueprint.Name = $"Patron original : {baseItem.Name}";
 
-      if (!Craft.Collect.System.blueprintDictionnary.ContainsKey(baseItemType))
-        Craft.Collect.System.blueprintDictionnary.Add(baseItemType, blueprint);
+      oBlueprint.BaseGoldValue = (uint)(baseItem.BaseCost * 50);
+      oBlueprint.GetObjectVariable<LocalVariableInt>("_BASE_ITEM_TYPE").Value = (int)baseItem.Id;
+      oBlueprint.GetObjectVariable<LocalVariableString>("_CRAFT_WORKSHOP").Value = BaseItems2da.baseItemTable.GetBaseItemDataEntry(baseItem.ItemType).workshop;
+      oBlueprint.GetObjectVariable<LocalVariableString>("ITEM_KEY").Value = Config.itemKey;
+    }
+    public static void CreateShopArmorBlueprint(NwItem oBlueprint, int baseArmor)
+    {
+      ArmorTable.Entry entry = Armor2da.armorTable.GetDataEntry(baseArmor);
 
-      oBlueprint.Name = $"Patron original : {blueprint.name}";
+      oBlueprint.Name = $"Patron original : {entry.name}";
 
-      oBlueprint.BaseGoldValue = (uint)(blueprint.goldCost * 10);
-      oBlueprint.GetObjectVariable<LocalVariableInt>("_BASE_ITEM_TYPE").Value = baseItemType;
+      oBlueprint.BaseGoldValue = (uint)(entry.cost * 50);
+      oBlueprint.GetObjectVariable<LocalVariableInt>("_BASE_ITEM_TYPE").Value = (int)BaseItemType.Armor;
+      oBlueprint.GetObjectVariable<LocalVariableInt>("_ARMOR_BASE_AC").Value = baseArmor;
+      oBlueprint.GetObjectVariable<LocalVariableString>("_CRAFT_WORKSHOP").Value = Armor2da.armorTable.GetDataEntry(baseArmor).workshop;
       oBlueprint.GetObjectVariable<LocalVariableString>("ITEM_KEY").Value = Config.itemKey;
     }
     public static string DisplayDamageType(DamageType damageType)
@@ -280,6 +288,50 @@ namespace NWN.Systems
       }
 
       return "";
+    }
+    public static string GetResourceNameFromBlueprint(NwItem blueprint)
+    {
+      BaseItemType baseItemType = (BaseItemType)blueprint.GetObjectVariable<LocalVariableInt>("_BASE_ITEM_TYPE").Value;
+      string workshop;
+
+      if (baseItemType == BaseItemType.Armor)
+        workshop = Armor2da.armorTable.GetDataEntry((blueprint.GetObjectVariable<LocalVariableInt>("_ARMOR_BASE_AC").Value)).workshop;
+      else
+        workshop = BaseItems2da.baseItemTable.GetBaseItemDataEntry(baseItemType).workshop;
+
+      switch (workshop)
+      {
+        case "forge":
+          return ResourceType.Ingot.ToDescription();
+        case "scierie":
+          return ResourceType.Plank.ToDescription();
+        case "tannerie":
+          return ResourceType.Leather.ToDescription();
+      }
+
+      return "ressource non définie";
+    }
+    public static ResourceType GetResourceTypeFromBlueprint(NwItem blueprint)
+    {
+      BaseItemType baseItemType = (BaseItemType)blueprint.GetObjectVariable<LocalVariableInt>("_BASE_ITEM_TYPE").Value;
+      string workshop;
+
+      if (baseItemType == BaseItemType.Armor)
+        workshop = Armor2da.armorTable.GetDataEntry((blueprint.GetObjectVariable<LocalVariableInt>("_ARMOR_BASE_AC").Value)).workshop;
+      else
+        workshop = BaseItems2da.baseItemTable.GetBaseItemDataEntry(baseItemType).workshop;
+
+      switch (workshop)
+      {
+        case "forge":
+          return ResourceType.Ingot;
+        case "scierie":
+          return ResourceType.Plank;
+        case "tannerie":
+          return ResourceType.Leather;
+      }
+
+      return ResourceType.Invalid;
     }
   }
 }

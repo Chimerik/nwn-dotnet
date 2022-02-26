@@ -37,20 +37,6 @@ namespace NWN.Systems
         case CustomFeats.Gnome:
           new Language(player.oid, (int)onUseFeat.Feat.FeatType);
           break;
-        case CustomFeats.BlueprintCopy:
-        case CustomFeats.Research:
-        case CustomFeats.Metallurgy:
-
-          onUseFeat.PreventFeatUse = true;
-
-          if(player.oid.LoginCreature.Area.GetObjectVariable<LocalVariableInt>("_AREA_LEVEL").Value != 0)
-          {
-            player.oid.SendServerMessage($"Impossible de démarrer un travail artisanal sans pouvoir accéder à un atelier.", ColorConstants.Red);
-            return;
-          }
-
-          Craft.Blueprint.BlueprintValidation(player.oid, onUseFeat.TargetObject, onUseFeat.Feat.FeatType);
-          break;
 
         case CustomFeats.Recycler:
 

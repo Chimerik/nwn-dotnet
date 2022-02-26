@@ -384,7 +384,7 @@ namespace NWN.Systems.Alchemy
         properties = properties.SkipLast(1).ToString();
       }
 
-      player.craftJob.Start(Craft.Job.JobType.Alchemy, null, player, null, oItem, properties);
+      player.craftJob.Start(Craft.Job.JobType.Alchemy, player, null, oItem, properties);
 
       player.menu.Clear();
       player.menu.titleLines = new List<string> {

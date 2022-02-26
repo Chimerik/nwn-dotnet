@@ -15,7 +15,7 @@ namespace NWN.Systems
         return;
       }
 
-      player.craftJob.Start(Craft.Job.JobType.Renforcement, null, player, null, (NwItem)oTarget);
+      player.craftJob.Start(Craft.Job.JobType.Renforcement, player, null, (NwItem)oTarget);
     }
   }
 }

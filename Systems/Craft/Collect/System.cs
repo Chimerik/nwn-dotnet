@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using NWN.Core;
 using NWN.Core.NWNX;
 using static NWN.Systems.Craft.Collect.Config;
-using static NWN.Systems.Craft.Blueprint;
 using Anvil.API;
 using NLog;
 using System.Linq;
@@ -149,14 +148,13 @@ namespace NWN.Systems.Craft.Collect
       {114, CustomFeats.CraftForgeHammer },
       {115, CustomFeats.CraftOreExtractor },
     };
-    public static int[] forgeBasicBlueprints = new int[] { -4, 114, 115, NWScript.BASE_ITEM_LIGHTMACE, NWScript.BASE_ITEM_HELMET, NWScript.BASE_ITEM_DAGGER, NWScript.BASE_ITEM_MORNINGSTAR, NWScript.BASE_ITEM_SHORTSPEAR, NWScript.BASE_ITEM_SICKLE };
-    public static int[] woodBasicBlueprints = new int[] { 114, 115, NWScript.BASE_ITEM_SMALLSHIELD, NWScript.BASE_ITEM_CLUB, NWScript.BASE_ITEM_DART, NWScript.BASE_ITEM_BULLET, NWScript.BASE_ITEM_HEAVYCROSSBOW, NWScript.BASE_ITEM_LIGHTCROSSBOW, NWScript.BASE_ITEM_QUARTERSTAFF, NWScript.BASE_ITEM_SLING, NWScript.BASE_ITEM_ARROW, NWScript.BASE_ITEM_BOLT };
-    public static int[] leatherBasicBlueprints = new int[] { -1, -2, -3, -9, 114, 115, NWScript.BASE_ITEM_BELT, NWScript.BASE_ITEM_BOOTS, NWScript.BASE_ITEM_BRACER, NWScript.BASE_ITEM_CLOAK, NWScript.BASE_ITEM_GLOVES, NWScript.BASE_ITEM_WHIP };
-    public static int[] lowBlueprints = new int[] { -1, -2, -3, -9, 114, 115, NWScript.BASE_ITEM_LIGHTMACE, NWScript.BASE_ITEM_HELMET, NWScript.BASE_ITEM_DAGGER, NWScript.BASE_ITEM_MORNINGSTAR, NWScript.BASE_ITEM_SHORTSPEAR, NWScript.BASE_ITEM_SICKLE, NWScript.BASE_ITEM_ARROW, NWScript.BASE_ITEM_BELT, NWScript.BASE_ITEM_AMULET, NWScript.BASE_ITEM_BOLT, NWScript.BASE_ITEM_BOOTS, NWScript.BASE_ITEM_BRACER, NWScript.BASE_ITEM_BULLET, NWScript.BASE_ITEM_CLOAK, NWScript.BASE_ITEM_CLUB, NWScript.BASE_ITEM_DART, NWScript.BASE_ITEM_GLOVES, NWScript.BASE_ITEM_HEAVYCROSSBOW, NWScript.BASE_ITEM_LIGHTCROSSBOW, NWScript.BASE_ITEM_QUARTERSTAFF, NWScript.BASE_ITEM_RING, NWScript.BASE_ITEM_SHURIKEN, NWScript.BASE_ITEM_SLING, NWScript.BASE_ITEM_SMALLSHIELD, NWScript.BASE_ITEM_TORCH };
-    public static int[] mediumBlueprints = new int[] { -4, -5, NWScript.BASE_ITEM_BATTLEAXE, NWScript.BASE_ITEM_GREATAXE, NWScript.BASE_ITEM_GREATSWORD, NWScript.BASE_ITEM_HALBERD, NWScript.BASE_ITEM_HANDAXE, NWScript.BASE_ITEM_HEAVYFLAIL, NWScript.BASE_ITEM_LARGESHIELD, NWScript.BASE_ITEM_LIGHTFLAIL, NWScript.BASE_ITEM_LIGHTHAMMER, NWScript.BASE_ITEM_LONGBOW, NWScript.BASE_ITEM_LONGSWORD, NWScript.BASE_ITEM_RAPIER, NWScript.BASE_ITEM_SCIMITAR, NWScript.BASE_ITEM_SHORTBOW, NWScript.BASE_ITEM_SHORTSWORD, NWScript.BASE_ITEM_SHURIKEN, NWScript.BASE_ITEM_THROWINGAXE, NWScript.BASE_ITEM_TRIDENT, NWScript.BASE_ITEM_WARHAMMER };
-    public static int[] highBlueprints = new int[] { -6, -7, -8, NWScript.BASE_ITEM_WHIP, NWScript.BASE_ITEM_TWOBLADEDSWORD, NWScript.BASE_ITEM_TOWERSHIELD, NWScript.BASE_ITEM_SCYTHE, NWScript.BASE_ITEM_KUKRI, NWScript.BASE_ITEM_KATANA, NWScript.BASE_ITEM_KAMA, NWScript.BASE_ITEM_DWARVENWARAXE, NWScript.BASE_ITEM_DOUBLEAXE, NWScript.BASE_ITEM_DIREMACE, NWScript.BASE_ITEM_BASTARDSWORD };
 
-    public static Dictionary<int, Blueprint> blueprintDictionnary = new Dictionary<int, Blueprint>();
+    public static int[] lowArmorBlueprints = new int[] { 0, 1, 2, 3 };
+    public static BaseItemType[] lowWeaponBlueprints = new BaseItemType[] { BaseItemType.Whip, BaseItemType.LightMace, BaseItemType.Helmet, BaseItemType.Dagger, BaseItemType.Morningstar, BaseItemType.ShortSpear, BaseItemType.Sickle, BaseItemType.Arrow, BaseItemType.Belt, BaseItemType.Amulet, BaseItemType.Bolt, BaseItemType.Boots, BaseItemType.Bracer, BaseItemType.Bullet, BaseItemType.Cloak, BaseItemType.Club, BaseItemType.Dart, BaseItemType.Gloves, BaseItemType.HeavyCrossbow, BaseItemType.LightCrossbow, BaseItemType.Quarterstaff, BaseItemType.Ring, BaseItemType.Shuriken, BaseItemType.Sling, BaseItemType.SmallShield, BaseItemType.Torch };
+    public static int[] mediumArmorBlueprints = new int[] { 4, 5 };
+    public static BaseItemType[] mediumWeaponBlueprints = new BaseItemType[] { BaseItemType.Battleaxe, BaseItemType.Greatsword, BaseItemType.Greataxe, BaseItemType.Halberd, BaseItemType.Handaxe, BaseItemType.HeavyFlail, BaseItemType.LargeShield, BaseItemType.LightFlail, BaseItemType.LightHammer, BaseItemType.LightMace, BaseItemType.Longbow, BaseItemType.Longsword, BaseItemType.Rapier, BaseItemType.Scimitar, BaseItemType.Shortbow, BaseItemType.Shortsword, BaseItemType.Shuriken, BaseItemType.ThrowingAxe, BaseItemType.Trident, BaseItemType.Warhammer };
+    public static int[] highArmorBlueprints = new int[] { 6, 7, 8 };
+    public static BaseItemType[] highWeapônBlueprints = new BaseItemType[] { BaseItemType.TwoBladedSword, BaseItemType.TowerShield, BaseItemType.Scythe, BaseItemType.Kukri, BaseItemType.Katana, BaseItemType.Kama, BaseItemType.DwarvenWaraxe, BaseItemType.DireMace, BaseItemType.Doubleaxe, BaseItemType.Bastardsword };
 
     public static async void UpdateResourceBlockInfo(NwPlaceable resourceBlock)
     {
@@ -280,23 +278,11 @@ namespace NWN.Systems.Craft.Collect
       EventsPlugin.RemoveObjectFromDispatchList("NWNX_ON_START_COMBAT_ROUND_AFTER", "collect_cancel", oPC.LoginCreature);
       EventsPlugin.RemoveObjectFromDispatchList("NWNX_ON_INPUT_CAST_SPELL_BEFORE", "collect_cancel", oPC.LoginCreature);
     }
-    public static void AddCraftedItemProperties(NwItem craftedItem, string material)
+    public static void AddCraftedItemProperties(NwItem craftedItem, int grade)
     {
-      string name = material;
+      craftedItem.GetObjectVariable<LocalVariableInt>("ITEM_GRADE").Value = grade;
 
-      if (leatherDictionnary.Any(l => l.Value.name == material))
-        name = leatherDictionnary.First(l => l.Value.name == material).Key.ToDescription();
-      else if (plankDictionnary.Any(l => l.Value.name == material))
-        name = plankDictionnary.First(l => l.Value.name == material).Key.ToDescription();
-
-      int previousMaterialNamePosition = craftedItem.Name.IndexOf(" en");
-      if (previousMaterialNamePosition > -1)
-        craftedItem.Name.Remove(previousMaterialNamePosition);
-
-      craftedItem.Name = $"{craftedItem.Name} en {name}";
-      craftedItem.GetObjectVariable<LocalVariableString>("_ITEM_MATERIAL").Value = material;
-      
-      foreach (ItemProperty ip in GetCraftItemProperties(material, craftedItem))
+      foreach (ItemProperty ip in GetCraftItemProperties(craftedItem, grade))
       {
         ItemProperty existingIP = craftedItem.ItemProperties.FirstOrDefault(i => i.DurationType == EffectDuration.Permanent && i.PropertyType == ip.PropertyType && i.SubType == ip.SubType && i.Param1Table == ip.Param1Table);
 
@@ -342,6 +328,75 @@ namespace NWN.Systems.Craft.Collect
         
         craftedItem.AddItemProperty(ip, EffectDuration.Permanent);
       }
+    }
+    public static ItemProperty GetCraftEnchantementProperties(NwItem craftedItem, string ipString, int boost, int enchanterId)
+    {
+      string[] IPproperties = ipString.Split("_");
+      string enchTag = $"ENCHANTEMENT_{IPproperties[0]}";
+
+      ItemProperty newIP = ItemProperty.Quality(IPQuality.Unknown);
+
+      int value;
+      if (int.TryParse(IPproperties[1], out value))
+      {
+        newIP.PropertyType = (ItemPropertyType)value;
+        enchTag += $"_{newIP.PropertyType}";
+      }
+      else
+        Utils.LogMessageToDMs($"Could not parse nProperty in : {ipString}");
+      if (int.TryParse(IPproperties[2], out value))
+      {
+        newIP.SubType = value;
+        enchTag += $"_{newIP.SubType}";
+      }
+      else
+        Utils.LogMessageToDMs($"Could not parse nSubType in : {ipString}");
+      if (int.TryParse(IPproperties[3], out value))
+      {
+        newIP.CostTable = value;
+        enchTag += $"_{newIP.CostTable}";
+      }
+      else
+        Utils.LogMessageToDMs($"Could not parse nCostTable in : {ipString}");
+      if (int.TryParse(IPproperties[4], out value))
+        newIP.CostTableValue = value + boost;
+      else
+        Utils.LogMessageToDMs($"Could not parse nCostTableValue in : {ipString}");
+
+      ItemProperty existingIP = craftedItem.ItemProperties.FirstOrDefault(i => i.DurationType == EffectDuration.Permanent && i.PropertyType == newIP.PropertyType && i.SubType == newIP.SubType && i.Param1Table == newIP.Param1Table);
+
+      if (existingIP != null)
+      {
+        craftedItem.RemoveItemProperty(existingIP);
+
+        if (newIP.PropertyType == ItemPropertyType.DamageBonus
+          || newIP.PropertyType == ItemPropertyType.DamageBonusVsAlignmentGroup
+          || newIP.PropertyType == ItemPropertyType.DamageBonusVsRacialGroup
+          || newIP.PropertyType == ItemPropertyType.DamageBonusVsSpecificAlignment)
+        {
+          int newRank = ItemPropertyDamageCost2da.ipDamageCost.GetRankFromCostValue(newIP.CostTableValue);
+          int existingRank = ItemPropertyDamageCost2da.ipDamageCost.GetRankFromCostValue(existingIP.CostTableValue);
+
+          if (existingRank > newRank)
+            newRank = existingRank + 1;
+          else
+            newRank += 1;
+
+          newIP.CostTableValue = ItemPropertyDamageCost2da.ipDamageCost.GetDamageCostValueFromRank(newRank);
+        }
+        else
+        {
+          if (existingIP.CostTableValue > newIP.CostTableValue)
+            newIP.CostTableValue = existingIP.CostTableValue + 1;
+          else
+            newIP.CostTableValue += 1;
+        }
+      }
+
+      enchTag += $"_{newIP.CostTableValue}_{enchanterId}";
+      newIP.Tag = enchTag;
+
+      return newIP;
     }
     public static void AddCraftedEnchantementProperties(NwItem craftedItem, string spellId, int boost, int enchanterId)
     {

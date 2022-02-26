@@ -315,6 +315,12 @@ namespace NWN.Systems
       learnableDictionary.Add(CustomSkill.BlueprintMetallurgy, new LearnableSkill(CustomSkill.BlueprintMetallurgy, "Recherche en rendement", "Permet de recherche une amélioration de rendement sur des patrons originaux.\nDiminue le temps de recherche de 5 % par niveau.\nCetype de recherche permet de diminuer le coût de fabrication de l'objet correspondant.", Category.Craft, "ife_X2EpicRepu", 5, 2, Ability.Intelligence, Ability.Wisdom));
       learnableDictionary.Add(CustomSkill.AdvancedCraft, new LearnableSkill(CustomSkill.AdvancedCraft, "Artisanat avancé", "Diminue de 3 % supplémentaires les temps de recherche sur des patrons originaux.", Category.Craft, "ife_X2EpicRepu", 5, 3, Ability.Intelligence, Ability.Wisdom));
 
+      learnableDictionary.Add(CustomSkill.Blacksmith, new LearnableSkill(CustomSkill.Blacksmith, "Forgeron", "Diminue le temps de fabrication et le coût en matéria d'un objet de la forge de 1 % par niveau.", Category.Craft, "ife_X2EpicRepu", 10, 1, Ability.Strength, Ability.Constitution));
+      learnableDictionary.Add(CustomSkill.Woodworker, new LearnableSkill(CustomSkill.Woodworker, "Ebéniste", "Diminue le temps de fabrication et le coût en matéria d'un objet de la scierie de 1 % par niveau.", Category.Craft, "ife_X2EpicRepu", 10, 1, Ability.Dexterity, Ability.Strength));
+      learnableDictionary.Add(CustomSkill.Tanner, new LearnableSkill(CustomSkill.Tanner, "Tanneur", "Diminue le temps de fabrication et le coût en matéria d'un objet de la tannerie de 1 % par niveau.", Category.Craft, "ife_X2EpicRepu", 10, 1, Ability.Dexterity, Ability.Constitution));
+      learnableDictionary.Add(CustomSkill.ArtisanExceptionnel, new LearnableSkill(CustomSkill.ArtisanExceptionnel, "Artisan d'exception", "Augmente de 1 % par niveau la chance de parvenir à produire un objet avec un emplacement d'enchantement supplémentaire.", Category.Craft, "ife_X2EpicRepu", 10, 3, Ability.Dexterity, Ability.Constitution));
+      learnableDictionary.Add(CustomSkill.ArtisanApplique, new LearnableSkill(CustomSkill.ArtisanApplique, "Artisan concentré", "Augmente de 3 % par niveau la chance d'augmenter la durabilité d'un objet lors de sa fabrication.", Category.Craft, "ife_X2EpicRepu", 10, 1, Ability.Dexterity, Ability.Wisdom));
+      
     }
     public static Dictionary<Feat, CustomFeat> customFeatsDictionnary = new Dictionary<Feat, CustomFeat>()
     {

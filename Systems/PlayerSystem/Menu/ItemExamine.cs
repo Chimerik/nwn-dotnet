@@ -16,7 +16,7 @@ namespace NWN.Systems
       {
         private readonly NuiGroup rootGroup;
         private readonly NuiColumn rootColumn;
-        private readonly List<NuiElement> rootChidren = new List<NuiElement>();;
+        private readonly List<NuiElement> rootChidren = new List<NuiElement>();
         private readonly NuiGroup sequenceRegisterGroup;
         private readonly NuiRow sequenceRegisterRow;
         private readonly NuiBind<string> sequenceSaveButtonLabel = new NuiBind<string>("sequenceSaveButtonLabel");
@@ -218,15 +218,12 @@ namespace NWN.Systems
           {
             case "blueprint":
 
-              int baseItemType = item.GetObjectVariable<LocalVariableInt>("_BASE_ITEM_TYPE").Value;
-              if (Craft.Collect.System.blueprintDictionnary.ContainsKey(baseItemType))
-              {
-                Craft.Blueprint blueprint = Craft.Collect.System.blueprintDictionnary[baseItemType];
-                TimeSpan jobDuration = TimeSpan.FromSeconds(blueprint.GetBlueprintTimeCostForPlayer(player, item));
+              int mineralCost = (int)(player.GetItemMateriaCost(item) * (1 - (item.GetObjectVariable<LocalVariableInt>("_BLUEPRINT_MATERIAL_EFFICIENCY").Value / 100)));
+              TimeSpan jobDuration = TimeSpan.FromSeconds(player.GetItemCraftTime(item, mineralCost));
 
                 //rootChidren.Add(new NuiRow() { Children = new List<NuiElement>() { new NuiLabel($"Patron de création de l'objet artisanal : {blueprint.name}") } });
                 rootChidren.Add(new NuiRow() { Children = new List<NuiElement>() { new NuiLabel($"Recherche en rendement : {item.GetObjectVariable<LocalVariableInt>("_BLUEPRINT_MATERIAL_EFFICIENCY").Value}") } });
-                rootChidren.Add(new NuiRow() { Children = new List<NuiElement>() { new NuiLabel($"Coût initial en {blueprint.resourceType.ToDescription()} : {blueprint.GetBlueprintMineralCostForPlayer(player, item)}") { Tooltip = "Puis 10 % de moins par amélioration vers un matériau supérieur." } } });
+                rootChidren.Add(new NuiRow() { Children = new List<NuiElement>() { new NuiLabel($"Coût initial en {ItemUtils.GetResourceNameFromBlueprint(item)} : {mineralCost}") { Tooltip = "Puis 10 % de moins par amélioration vers un matériau supérieur." } } });
                 rootChidren.Add(new NuiRow() { Children = new List<NuiElement>() { new NuiLabel($"Recherche en efficacité : {item.GetObjectVariable<LocalVariableInt>("_BLUEPRINT_TIME_EFFICIENCY").Value}") } });
                 rootChidren.Add(new NuiRow() { Children = new List<NuiElement>() { new NuiLabel($"Temps de fabrication et d'amélioration : {new TimeSpan(jobDuration.Days, jobDuration.Hours, jobDuration.Minutes, jobDuration.Seconds)}") } });
 
@@ -255,12 +252,6 @@ namespace NWN.Systems
                   blueprintActionRowChildren.Add(new NuiSpacer());
                   rootChidren.Add(blueprintActionRow);
                 }
-              }
-              else
-              {
-                player.oid.SendServerMessage("[ERREUR HRP] - Le patron utilisé n'est pas correctement initialisé. Le bug a été remonté au staff.");
-                Utils.LogMessageToDMs($"Blueprint Invalid : {item.Name} - Base Item Type : {baseItemType} - Examined by : {player.oid.LoginCreature.Name}");
-              }
 
               break;
 
@@ -418,27 +409,51 @@ namespace NWN.Systems
                 return;
 
               case "copy":
-                player.newCraftJob = new CraftJob(player, item, Craft.Blueprint.GetBlueprintFromNwItem(item, player.oid), JobType.BlueprintCopy);
+
+                if (player.newCraftJob != null)
+                {
+                  player.oid.SendServerMessage("Veuillez annuler votre travail artisanal en cours avant d'en commencer un nouveau.", ColorConstants.Red);
+                  player.oid.NuiDestroy(token);
+                  return;
+                }
+
+                player.newCraftJob = new CraftJob(player, item, JobType.BlueprintCopy);
                 player.oid.NuiDestroy(token);
 
                 if (player.windows.ContainsKey("activeCraftJob"))
-                  ((Player.ActiveCraftJobWindow)player.windows["activeCraftJob"]).CreateWindow();
+                  ((ActiveCraftJobWindow)player.windows["activeCraftJob"]).CreateWindow();
                 else
-                  player.windows.Add("activeCraftJob", new Player.ActiveCraftJobWindow(player));
+                  player.windows.Add("activeCraftJob", new ActiveCraftJobWindow(player));
                 break;
 
               case "blueprintME":
-                player.newCraftJob = new CraftJob(player, item, Craft.Blueprint.GetBlueprintFromNwItem(item, player.oid), JobType.BlueprintResearchMaterialEfficiency);
+
+                if (player.newCraftJob != null)
+                {
+                  player.oid.SendServerMessage("Veuillez annuler votre travail artisanal en cours avant d'en commencer un nouveau.", ColorConstants.Red);
+                  player.oid.NuiDestroy(token);
+                  return;
+                }
+
+                player.newCraftJob = new CraftJob(player, item, JobType.BlueprintResearchMaterialEfficiency);
                 player.oid.NuiDestroy(token);
 
                 if (player.windows.ContainsKey("activeCraftJob"))
-                  ((Player.ActiveCraftJobWindow)player.windows["activeCraftJob"]).CreateWindow();
+                  ((ActiveCraftJobWindow)player.windows["activeCraftJob"]).CreateWindow();
                 else
-                  player.windows.Add("activeCraftJob", new Player.ActiveCraftJobWindow(player));
+                  player.windows.Add("activeCraftJob", new ActiveCraftJobWindow(player));
                 break;
 
               case "blueprintTE":
-                player.newCraftJob = new CraftJob(player, item, Craft.Blueprint.GetBlueprintFromNwItem(item, player.oid), JobType.BlueprintResearchTimeEfficiency);
+
+                if (player.newCraftJob != null)
+                {
+                  player.oid.SendServerMessage("Veuillez annuler votre travail artisanal en cours avant d'en commencer un nouveau.", ColorConstants.Red);
+                  player.oid.NuiDestroy(token);
+                  return;
+                }
+
+                player.newCraftJob = new CraftJob(player, item, JobType.BlueprintResearchTimeEfficiency);
                 player.oid.NuiDestroy(token);
 
                 if (player.windows.ContainsKey("activeCraftJob"))

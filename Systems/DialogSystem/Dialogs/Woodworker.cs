@@ -7,6 +7,7 @@ namespace NWN.Systems
 {
   class Woodworker
   {
+    private readonly  BaseItemType[] woodBasicBlueprints = new BaseItemType[] { BaseItemType.SmallShield, BaseItemType.Club, BaseItemType.Dart, BaseItemType.Bullet, BaseItemType.HeavyCrossbow, BaseItemType.LightCrossbow, BaseItemType.Quarterstaff, BaseItemType.Sling, BaseItemType.Arrow, BaseItemType.Bolt };
     public Woodworker(Player player, NwCreature blacksmith)
     {
       HandleWoodworker(player, blacksmith);
@@ -20,10 +21,10 @@ namespace NWN.Systems
         shop = NwStore.Create("generic_shop_res", blacksmith.Location, false, "woodworker_shop");
         shop.GetObjectVariable<LocalVariableObject<NwCreature>>("_STORE_NPC").Value = blacksmith;
 
-        foreach (int baseItemType in Craft.Collect.System.woodBasicBlueprints)
+        foreach (BaseItemType baseItemType in woodBasicBlueprints)
         {
           NwItem oBlueprint = await NwItem.Create("blueprintgeneric", shop, 1, "blueprint");
-          ItemUtils.CreateShopBlueprint(oBlueprint, baseItemType);
+          ItemUtils.CreateShopWeaponBlueprint(oBlueprint, baseItemType);
         }
 
         foreach (Feat feat in SkillSystem.woodBasicSkillBooks)

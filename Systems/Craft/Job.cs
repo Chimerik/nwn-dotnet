@@ -20,7 +20,7 @@ namespace NWN.Systems.Craft
     public bool isCancelled { get; set; }
     private readonly PlayerSystem.Player player;
 
-    public Job(int baseItemType, string material, float time, PlayerSystem.Player player, string item = "")
+    public Job(int baseItemType, string material, double time, PlayerSystem.Player player, string item = "")
     {
       PlayerSystem.Log.Info($"Craft new job from {player.oid.LoginCreature.Name} - base item : {baseItemType} - remaining Time {time} - material {material}");
       this.baseItemType = baseItemType;
@@ -160,12 +160,12 @@ namespace NWN.Systems.Craft
       else
         return true;
     }
-    public void Start(JobType type, Blueprint blueprint, PlayerSystem.Player player, NwItem oItem, NwGameObject oTarget = null, string sMaterial = "")
+    public void Start(JobType type, PlayerSystem.Player player, NwItem oItem, NwGameObject oTarget = null, string sMaterial = "")
     {
       switch (type)
       {
         case JobType.Item:
-          StartItemCraft(blueprint, oItem, oTarget, sMaterial);
+          StartItemCraft(oItem, oTarget, sMaterial);
           break;
         case JobType.Enchantement:
           StartEnchantementCraft(oTarget, sMaterial);
@@ -173,20 +173,11 @@ namespace NWN.Systems.Craft
         case JobType.Recycling:
           StartRecycleCraft(oTarget, sMaterial);
           break;
-        case JobType.BlueprintCopy:
-          StartBlueprintCopy(player, oItem, blueprint);
-          break;
-        case JobType.BlueprintResearchTimeEfficiency:
-          StartBlueprintTimeEfficiencyResearch(player, oItem, blueprint);
-          break;
-        case JobType.BlueprintResearchMaterialEfficiency:
-          StartBlueprintMaterialEfficiencyResearch(player, oItem, blueprint);
-          break;
         case JobType.Renforcement:
           StartRenforcementCraft(oTarget);
           break;
         case JobType.Repair:
-          StartItemRepair(blueprint, oItem, oTarget, sMaterial);
+          StartItemRepair(oItem, oTarget, sMaterial);
           break;
         case JobType.EnchantementReactivation:
           StartEnchantementReactivationCraft(oTarget, sMaterial);
@@ -197,10 +188,10 @@ namespace NWN.Systems.Craft
       }
 
     }
-    public void StartItemCraft(Blueprint blueprint, NwItem oItem, NwGameObject oTarget, string sMaterial)
+    public void StartItemCraft(NwItem oItem, NwGameObject oTarget, string sMaterial)
     {
-      int iMineralCost = blueprint.GetBlueprintMineralCostForPlayer(player, oItem);
-      float iJobDuration = blueprint.GetBlueprintTimeCostForPlayer(player, oItem);
+      int iMineralCost = (int)(player.GetItemMateriaCost(oItem) * (1 - (oItem.GetObjectVariable<LocalVariableInt>("_BLUEPRINT_MATERIAL_EFFICIENCY").Value / 100)));
+      double iJobDuration = player.GetItemCraftTime(oItem, iMineralCost);
 
       int materialType = 0;
       if (Enum.TryParse(material, out MineralType myMineralType))
@@ -226,7 +217,7 @@ namespace NWN.Systems.Craft
         
       player.materialStock[sMaterial] -= iMineralCost;
 
-      player.oid.SendServerMessage($"Vous venez de démarrer la fabrication de l'objet artisanal : {blueprint.name.ColorString(ColorConstants.White)} en {sMaterial.ColorString(ColorConstants.White)}", new Color(32, 255, 32));
+      /*player.oid.SendServerMessage($"Vous venez de démarrer la fabrication de l'objet artisanal : {blueprint.name.ColorString(ColorConstants.White)} en {sMaterial.ColorString(ColorConstants.White)}", new Color(32, 255, 32));
       // TODO : afficher des effets visuels sur la forge
 
       if (oTarget.Tag == blueprint.craftedItemTag) // En cas d'amélioration d'un objet, on détruit l'original
@@ -236,7 +227,7 @@ namespace NWN.Systems.Craft
         player.oid.SendServerMessage($"L'objet {oTarget.Name.ColorString(ColorConstants.White)} ne sera pas disponible jusqu'à la fin du travail artisanal.", ColorConstants.Orange);
       }
       else
-        player.craftJob = new Job(blueprint.baseItemType, sMaterial, iJobDuration, player);
+        player.craftJob = new Job(blueprint.baseItemType, sMaterial, iJobDuration, player);*/
 
       // s'il s'agit d'une copie de blueprint, alors le nombre d'utilisation diminue de 1
       int iBlueprintRemainingRuns = oItem.GetObjectVariable<LocalVariableInt>("_BLUEPRINT_RUNS").Value;
@@ -247,11 +238,11 @@ namespace NWN.Systems.Craft
 
       ItemUtils.DecreaseItemDurability(player.oid.LoginCreature.GetItemInSlot(InventorySlot.RightHand));
     }
-    public void StartItemRepair(Blueprint blueprint, NwItem oItem, NwGameObject oTarget, string sMaterial)
+    public void StartItemRepair(NwItem oItem, NwGameObject oTarget, string sMaterial)
     {
       player.craftJob.isCancelled = false;
-      int iMineralCost = blueprint.GetBlueprintMineralCostForPlayer(player, oItem);
-      float iJobDuration = blueprint.GetBlueprintTimeCostForPlayer(player, oItem);
+      int iMineralCost = (int)player.GetItemMateriaCost(oItem);
+      double iJobDuration = player.GetItemCraftTime(oItem, iMineralCost);
 
       if (oTarget.GetObjectVariable<LocalVariableString>("_ORIGINAL_CRAFTER_NAME").Value == player.oid.LoginCreature.Name)
       {
@@ -309,7 +300,7 @@ namespace NWN.Systems.Craft
       foreach (KeyValuePair<string, int> materials in repairMaterials)
         player.materialStock[materials.Key] -= materials.Value;
 
-      player.oid.SendServerMessage($"Vous venez de démarrer la réparation de l'objet artisanal : {blueprint.name.ColorString(ColorConstants.White)} en {sMaterial.ColorString(ColorConstants.White)}", new Color(32, 255, 32));
+      //player.oid.SendServerMessage($"Vous venez de démarrer la réparation de l'objet artisanal : {blueprint.name.ColorString(ColorConstants.White)} en {sMaterial.ColorString(ColorConstants.White)}", new Color(32, 255, 32));
       // TODO : afficher des effets visuels sur la forge
 
       player.craftJob = new Job(-17, sMaterial, iJobDuration, player, oTarget.Serialize().ToBase64EncodedString());
@@ -324,19 +315,6 @@ namespace NWN.Systems.Craft
         oItem.GetObjectVariable<LocalVariableInt>("_BLUEPRINT_RUNS").Value -= 1;
 
       ItemUtils.DecreaseItemDurability(player.oid.LoginCreature.GetItemInSlot(InventorySlot.RightHand));
-    }
-    public void StartBlueprintCopy(PlayerSystem.Player player, NwItem oBlueprint, Blueprint blueprint)
-    {
-      if (player.craftJob.CanStartJob(player.oid, oBlueprint, JobType.BlueprintCopy))
-      {
-        int BPCopyLevel = 0;
-        if (player.learntCustomFeats.ContainsKey(CustomFeats.BlueprintCopy))
-          BPCopyLevel = SkillSystem.GetCustomFeatLevelFromSkillPoints(CustomFeats.BlueprintCopy, player.learntCustomFeats[CustomFeats.BlueprintCopy]);
-
-        int timeCost = blueprint.mineralsCost * 200;
-        float iJobDuration =  timeCost * (100 - (BPCopyLevel * 5)) / 100;
-        player.craftJob = new Job(-11, "", iJobDuration, player, oBlueprint.Serialize().ToBase64EncodedString()); // - 11 = blueprint copy
-      }
     }
     private void StartEnchantementCraft(NwGameObject oTarget, string ipString)
     {
@@ -437,43 +415,6 @@ namespace NWN.Systems.Craft
 
       player.craftJob.isCancelled = false;
     }
-    public void StartBlueprintMaterialEfficiencyResearch(PlayerSystem.Player player, NwItem oBlueprint, Blueprint blueprint)
-    {
-      if (player.craftJob.CanStartJob(player.oid, oBlueprint, JobType.BlueprintResearchMaterialEfficiency))
-      {
-        int metallurgyLevel = 0;
-        if (player.learntCustomFeats.ContainsKey(CustomFeats.Metallurgy))
-          metallurgyLevel += SkillSystem.GetCustomFeatLevelFromSkillPoints(CustomFeats.Metallurgy, player.learntCustomFeats[CustomFeats.Metallurgy]);
-
-        int advancedCraftLevel = 0;
-        if (player.learntCustomFeats.ContainsKey(CustomFeats.AdvancedCraft))
-          advancedCraftLevel += SkillSystem.GetCustomFeatLevelFromSkillPoints(CustomFeats.AdvancedCraft, player.learntCustomFeats[CustomFeats.AdvancedCraft]);
-
-        float iJobDuration = blueprint.mineralsCost * 200 * (100 - (metallurgyLevel * 5 + advancedCraftLevel * 3)) / 100;
-        player.craftJob = new Job(-12, "", iJobDuration, player, oBlueprint.Serialize().ToBase64EncodedString()); // - 12 = recherche ME
-        oBlueprint.Destroy();
-        player.oid.SendServerMessage($"L'objet {oBlueprint.Name.ColorString(ColorConstants.White)} ne sera pas disponible jusqu'à la fin du travail de recherche métallurgique.", ColorConstants.Orange);
-      }
-    }
-    public void StartBlueprintTimeEfficiencyResearch(PlayerSystem.Player player, NwItem oBlueprint, Blueprint blueprint)
-    {
-      if (player.craftJob.CanStartJob(player.oid, oBlueprint, JobType.BlueprintResearchTimeEfficiency))
-      {
-        int researchLevel = 0;
-        if (player.learntCustomFeats.ContainsKey(CustomFeats.Research))
-          researchLevel += SkillSystem.GetCustomFeatLevelFromSkillPoints(CustomFeats.Research, player.learntCustomFeats[CustomFeats.Research]);
-
-        int advancedCraftLevel = 0;
-        if (player.learntCustomFeats.ContainsKey(CustomFeats.AdvancedCraft))
-          advancedCraftLevel += SkillSystem.GetCustomFeatLevelFromSkillPoints(CustomFeats.AdvancedCraft, player.learntCustomFeats[CustomFeats.AdvancedCraft]);
-
-        float iJobDuration = blueprint.mineralsCost * 200 * (100 - (researchLevel * 5 + advancedCraftLevel * 3)) / 100;
-        
-        player.craftJob = new Job(-13, "", iJobDuration, player, oBlueprint.Serialize().ToBase64EncodedString()); // -13 = recherche TE
-        oBlueprint.Destroy();
-        player.oid.SendServerMessage($"L'objet {oBlueprint.Name.ColorString(ColorConstants.White)} ne sera pas disponible jusqu'à la fin du travail de recherche d'efficacité.", ColorConstants.Orange);
-      }
-    }
     private void StartAlchemyCraft(NwGameObject oTarget, string ipString)
     {
       int alchemistLevel = 0;
@@ -541,7 +482,7 @@ namespace NWN.Systems.Craft
           journalEntry.Text = $"Ré-enchantement en cours : {NwItem.Deserialize(craftedItem.ToByteArray()).Name}";
           break;
         default:
-          journalEntry.Text = $"Fabrication en cours : {blueprintDictionnary[baseItemType].name}";
+          //journalEntry.Text = $"Fabrication en cours : {blueprintDictionnary[baseItemType].name}";
           player.oid.ApplyInstantVisualEffectToObject((VfxType)1501, player.oid.ControlledCreature);
           break;
       }
@@ -585,9 +526,9 @@ namespace NWN.Systems.Craft
             player.oid.LoginCreature.RemoveEffect(vfx);
           journalEntry.Name = $"Ré-enchantement en pause";
           break;
-        default:
+        /*default:
           journalEntry.Name = $"Travail artisanal en pause - {blueprintDictionnary[baseItemType].name}";
-          break;
+          break;*/
       }
 
       journalEntry.QuestTag = "craft_job";
@@ -640,7 +581,7 @@ namespace NWN.Systems.Craft
           journalEntry.Name = $"Ré-enchantement terminé - {NwItem.Deserialize(craftedItem.ToByteArray()).Name}";
           break;
         default:
-          journalEntry.Name = $"Travail artisanal terminé - {blueprintDictionnary[baseItemType].name}";
+          //journalEntry.Name = $"Travail artisanal terminé - {blueprintDictionnary[baseItemType].name}";
 
           player.oid.ApplyInstantVisualEffectToObject((VfxType)1501, player.oid.ControlledCreature);
           break;

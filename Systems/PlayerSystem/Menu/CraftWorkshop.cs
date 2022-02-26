@@ -1,15 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
 
 using Anvil.API;
 using Anvil.API.Events;
-
-using Newtonsoft.Json;
-
-using NWN.Systems.Craft;
 
 namespace NWN.Systems
 {
@@ -31,10 +25,13 @@ namespace NWN.Systems
         private readonly NuiBind<bool> enable = new NuiBind<bool>("enable");
         private readonly NuiColor white = new NuiColor(255, 255, 255);
         private readonly NuiRect drawListRect = new NuiRect(0, 35, 150, 60);
+        private string workshopTag;
+        private IEnumerable<NwItem> blueprintList;
+        private IEnumerable<NwItem> filteredList;
 
         public WorkshopWindow(Player player, string placeableTag) : base(player)
         {
-          windowId = "forge";
+          windowId = "craftWorkshop";
 
           List<NuiListTemplateCell> blueprintTemplate = new List<NuiListTemplateCell>
           {
@@ -58,6 +55,8 @@ namespace NWN.Systems
 
         public void CreateWindow(string placeableTag)
         {
+          workshopTag = placeableTag;
+
           NuiRect windowRectangle = player.windowRectangles.ContainsKey(windowId) ? player.windowRectangles[windowId] : new NuiRect(10, player.oid.GetDeviceProperty(PlayerDeviceProperty.GuiHeight) * 0.01f, 450, player.oid.GetDeviceProperty(PlayerDeviceProperty.GuiHeight) * 0.65f);
 
           window = new NuiWindow(rootColumn, "Production artisanale")
@@ -80,7 +79,9 @@ namespace NWN.Systems
           geometry.SetBindValue(player.oid, token, windowRectangle);
           geometry.SetBindWatch(player.oid, token, true);
 
-          LoadBlueprintList(placeableTag);
+          blueprintList = player.oid.ControlledCreature.Inventory.Items.Where(i => i.Tag == "blueprint" && i.GetObjectVariable<LocalVariableString>("_CRAFT_WORKSHOP").Value == workshopTag);
+          filteredList = blueprintList;
+          LoadBlueprintList(filteredList);
         }
 
         private void HandleWorkshopEvents(ModuleEvents.OnNuiEvent nuiEvent)
@@ -90,54 +91,47 @@ namespace NWN.Systems
 
           switch (nuiEvent.EventType)
           {
-            case NuiEventType.Close:
-              BankSave();
-              break;
             case NuiEventType.Click:
 
               switch (nuiEvent.ElementId)
               {
-                case "goldDeposit":
+                case "startCraft":
+                  NwItem blueprint = filteredList.ElementAt(nuiEvent.ArrayIndex);
 
-                  if (player.windows.ContainsKey("playerInput"))
-                    ((PlayerInputWindow)player.windows["playerInput"]).CreateWindow("Déposer combien d'or ?", DepositGold, player.oid.LoginCreature.Gold.ToString());
+                  if(player.newCraftJob != null)
+                  {
+                    player.oid.SendServerMessage("Veuillez annuler votre travail artisanal en cours avant d'en commencer un nouveau.", ColorConstants.Red);
+                    player.oid.NuiDestroy(token);
+                    return;
+                  }
+
+                  int materiaCost = (int)(player.GetItemMateriaCost(blueprint) * (1 - (blueprint.GetObjectVariable<LocalVariableInt>("_BLUEPRINT_MATERIAL_EFFICIENCY").Value / 100)));
+                  CraftResource resource = player.craftResourceStock.FirstOrDefault(r => r.type == ItemUtils.GetResourceTypeFromBlueprint(blueprint) && r.grade == 1 && r.quantity >= materiaCost);
+                  int availableQuantity = resource != null ? resource.quantity : 0;
+
+                  if (availableQuantity < materiaCost)
+                  {
+                    player.oid.SendServerMessage($"Il vous manque {(materiaCost - availableQuantity).ToString().ColorString(ColorConstants.White)} unités de matéria pour pouvoir commencer ce travail artisanal.", ColorConstants.Red);
+                    player.oid.NuiDestroy(token);
+                    return;
+                  }
+
+                  if (blueprint.Possessor == player.oid.ControlledCreature)
+                  {
+                    resource.quantity -= materiaCost;
+                    player.newCraftJob = new CraftJob(player, blueprint, player.GetItemCraftTime(blueprint, materiaCost));
+                    player.oid.NuiDestroy(token);
+
+                    if (player.windows.ContainsKey("activeCraftJob"))
+                      ((ActiveCraftJobWindow)player.windows["activeCraftJob"]).CreateWindow();
+                    else
+                      player.windows.Add("activeCraftJob", new ActiveCraftJobWindow(player));
+                  }
                   else
-                    player.windows.Add("playerInput", new PlayerInputWindow(player, "Déposer combien d'or ?", DepositGold, player.oid.LoginCreature.Gold.ToString()));
-
-                  break;
-                case "goldWithdraw":
-
-                  if (player.windows.ContainsKey("playerInput"))
-                    ((PlayerInputWindow)player.windows["playerInput"]).CreateWindow("Déposer combien d'or ?", WithdrawGold, player.bankGold.ToString());
-                  else
-                    player.windows.Add("playerInput", new PlayerInputWindow(player, "Déposer combien d'or ?", WithdrawGold, player.bankGold.ToString()));
-
-                  break;
-
-                case "itemDeposit":
-
-                  player.oid.SendServerMessage("Sélectionnez les objets de votre inventaire à déposer au coffre.");
-                  player.oid.EnterTargetMode(SelectInventoryItem, ObjectTypes.Item, MouseCursor.PickupDown);
-
-                  break;
-              }
-
-              break;
-
-            case NuiEventType.MouseDown:
-
-              switch (nuiEvent.ElementId)
-              {
-                case "examiner":
-                  if (player.windows.ContainsKey("itemExamine"))
-                    ((ItemExamineWindow)player.windows["itemExamine"]).CreateWindow(items.ElementAt(nuiEvent.ArrayIndex));
-                  else
-                    player.windows.Add("itemExamine", new ItemExamineWindow(player, items.ElementAt(nuiEvent.ArrayIndex)));
-                  break;
-
-                case "takeItem":
-                  player.oid.ControlledCreature.AcquireItem(items.ElementAt(nuiEvent.ArrayIndex));
-                  RemoveItemFromList(nuiEvent.ArrayIndex);
+                  {
+                    player.oid.SendServerMessage($"{blueprint.Name.ColorString(ColorConstants.White)} n'est plus en votre possession. Impossible de démarrer le travail artisanal.", ColorConstants.Red);
+                    player.oid.NuiDestroy(token);
+                  }
                   break;
               }
 
@@ -150,19 +144,19 @@ namespace NWN.Systems
                 case "search":
 
                   string currentSearch = search.GetBindValue(player.oid, token).ToLower();
-                  var filteredList = items.AsEnumerable();
+                  filteredList = blueprintList.AsEnumerable();
 
                   if (!string.IsNullOrEmpty(currentSearch))
                     filteredList = filteredList.Where(s => s.Name.ToLower().Contains(currentSearch));
 
-                  LoadBankItemList(filteredList);
+                  LoadBlueprintList(filteredList);
 
                   break;
               }
               break;
           }
         }
-        private void LoadBlueprintList(string workshopTag)
+        private void LoadBlueprintList(IEnumerable<NwItem> blueprints)
         {
           List<string> blueprintNamesList = new List<string>();
           List<string> iconList = new List<string>();
@@ -170,20 +164,19 @@ namespace NWN.Systems
           List<string> blueprintMEsList = new List<string>();
           List<bool> enabledList = new List<bool>();
 
-          foreach (NwItem item in player.oid.ControlledCreature.Inventory.Items.Where(i => i.Tag == "blueprint"))
+          foreach (NwItem item in blueprints)
           {
-            Blueprint blueprint = Craft.Collect.System.blueprintDictionnary[item.GetObjectVariable<LocalVariableInt>("_BASE_ITEM_TYPE").Value];
+            int materiaCost = (int)(player.GetItemMateriaCost(item) * (1 - (item.GetObjectVariable<LocalVariableInt>("_BLUEPRINT_MATERIAL_EFFICIENCY").Value / 100)));
+            TimeSpan jobDuration = TimeSpan.FromSeconds(player.GetItemCraftTime(item, materiaCost));
 
-            if (blueprint.workshopTag != workshopTag)
-              continue;
-
-            TimeSpan jobDuration = TimeSpan.FromSeconds(blueprint.GetBlueprintTimeCostForPlayer(player, item));
+            CraftResource resource = player.craftResourceStock.FirstOrDefault(r => r.type == ItemUtils.GetResourceTypeFromBlueprint(item) && r.grade == 1);
+            int availableQuantity = resource != null ? resource.quantity : 0;
 
             blueprintNamesList.Add(item.Name);
-            iconList.Add(NwBaseItem.FromItemId(blueprint.baseItemType).WeaponFocusFeat.IconResRef);
-            blueprintMEsList.Add($"Recherche en rendement : {item.GetObjectVariable<LocalVariableInt>("_BLUEPRINT_MATERIAL_EFFICIENCY").Value} - Coût initial en {blueprint.resourceType.ToDescription()} : {blueprint.GetBlueprintMineralCostForPlayer(player, item)}");
-            blueprintTEsList.Add($"Recherche en efficacité : {item.GetObjectVariable<LocalVariableInt>("_BLUEPRINT_TIME_EFFICIENCY").Value} - Temps de fabrication et d'amélioration : {new TimeSpan(jobDuration.Days, jobDuration.Hours, jobDuration.Minutes, jobDuration.Seconds)}");
-            enabledList.Add(player.learnableSkills.ContainsKey(blueprint.jobFeat));
+            iconList.Add(NwBaseItem.FromItemId(item.GetObjectVariable<LocalVariableInt>("_BASE_ITEM_TYPE").Value).WeaponFocusFeat.IconResRef);
+            blueprintMEsList.Add($"Coût en {ItemUtils.GetResourceNameFromBlueprint(item)} : {materiaCost}/{availableQuantity}");
+            blueprintTEsList.Add($"Temps de fabrication : {new TimeSpan(jobDuration.Days, jobDuration.Hours, jobDuration.Minutes, jobDuration.Seconds)}");
+            enabledList.Add(player.learnableSkills.ContainsKey(player.GetJobLearnableFromWorkshop(workshopTag)) && player.newCraftJob == null && availableQuantity >= materiaCost);
           }
 
           blueprintNames.SetBindValues(player.oid, token, blueprintNamesList);

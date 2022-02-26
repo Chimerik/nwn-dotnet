@@ -28,6 +28,7 @@ namespace NWN.Systems
         private readonly NuiBind<bool> enabled = new NuiBind<bool>("enabled");
         private readonly NuiBind<NuiRect> imagePosition = new NuiBind<NuiRect>("rect");
         private List<NwItem> items = new List<NwItem>();
+        private IEnumerable<NwItem> filteredList;
 
         private bool AuthorizeSave { get; set; }
         private int nbDebounce { get; set; }
@@ -114,7 +115,8 @@ namespace NWN.Systems
           geometry.SetBindValue(player.oid, token, windowRectangle);
           geometry.SetBindWatch(player.oid, token, true);
 
-          LoadBankItemList(items.AsEnumerable());
+          filteredList = items;
+          LoadBankItemList(filteredList);
         }
 
         private void HandleBankStorageEvents(ModuleEvents.OnNuiEvent nuiEvent)
@@ -164,13 +166,13 @@ namespace NWN.Systems
               {
                 case "examiner":
                   if (player.windows.ContainsKey("itemExamine"))
-                    ((ItemExamineWindow)player.windows["itemExamine"]).CreateWindow(items.ElementAt(nuiEvent.ArrayIndex));
+                    ((ItemExamineWindow)player.windows["itemExamine"]).CreateWindow(filteredList.ElementAt(nuiEvent.ArrayIndex));
                   else
-                    player.windows.Add("itemExamine", new ItemExamineWindow(player, items.ElementAt(nuiEvent.ArrayIndex)));
+                    player.windows.Add("itemExamine", new ItemExamineWindow(player, filteredList.ElementAt(nuiEvent.ArrayIndex)));
                   break;
 
                 case "takeItem":
-                  player.oid.ControlledCreature.AcquireItem(items.ElementAt(nuiEvent.ArrayIndex));
+                  player.oid.ControlledCreature.AcquireItem(filteredList.ElementAt(nuiEvent.ArrayIndex));
                   RemoveItemFromList(nuiEvent.ArrayIndex);
                   break;
               }
@@ -184,7 +186,7 @@ namespace NWN.Systems
                 case "search":
 
                   string currentSearch = search.GetBindValue(player.oid, token).ToLower();
-                  var filteredList = items.AsEnumerable();
+                  filteredList = items;
 
                   if (!string.IsNullOrEmpty(currentSearch))
                     filteredList = filteredList.Where(s => s.Name.ToLower().Contains(currentSearch));
@@ -226,7 +228,7 @@ namespace NWN.Systems
         }
         private void RemoveItemFromList(int index)
         {
-          items.RemoveAt(index);
+          items.Remove(filteredList.ElementAt(index));
 
           List<string> tempList = itemNames.GetBindValues(player.oid, token);
           tempList.RemoveAt(index);

@@ -75,13 +75,6 @@ namespace NWN.Systems
       
       switch (oItem.Tag)
       {
-        case "blueprint":
-          feedbackService.AddFeedbackMessageFilter(FeedbackMessage.UseItemCantUse, oPC.ControllingPlayer);
-          onItemUse.PreventUseItem = true;
-          Items.ItemUseHandlers.Blueprint.HandleActivate(oItem, oPC.ControllingPlayer.LoginCreature, oTarget);
-
-          break;
-
         case "oreextractor":
           feedbackService.AddFeedbackMessageFilter(FeedbackMessage.UseItemCantUse, oPC.ControllingPlayer);
           onItemUse.PreventUseItem = true;

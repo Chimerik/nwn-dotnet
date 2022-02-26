@@ -35,8 +35,9 @@ namespace NWN.Systems
 
       string workshop = twoDimEntry("Category");
       string craftedItem = twoDimEntry("label");
-      bool IsEquippable = twoDimEntry("EquipableSlots") == "0x00000" ? IsEquippable = false : IsEquippable = true;
       string resRef = twoDimEntry("ItemClass");
+      int craftLearnable = int.TryParse(twoDimEntry("ILRStackSize"), out craftLearnable) ? craftLearnable : -1;
+      double cost = double.TryParse(twoDimEntry("BaseCost"), out cost) ? cost : -1;
 
       Dictionary<ItemAppearanceWeaponModel, List<byte>> weaponModels = new Dictionary<ItemAppearanceWeaponModel, List<byte>>();
 
@@ -61,19 +62,23 @@ namespace NWN.Systems
         }
       }
 
-      entries.Add((BaseItemType)rowIndex, new Entry(workshop, craftedItem, weaponModels));
+      entries.Add((BaseItemType)rowIndex, new Entry(workshop, craftedItem, weaponModels, craftLearnable, cost));
     }
     public readonly struct Entry
     {
       public readonly string workshop;
       public readonly string craftedItem;
+      public readonly int craftLearnable;
+      public readonly double cost;
       public readonly Dictionary<ItemAppearanceWeaponModel, List<byte>> weaponModels;
 
-      public Entry(string workshop, string craftedItem, Dictionary<ItemAppearanceWeaponModel, List<byte>> weaponModels)
+      public Entry(string workshop, string craftedItem, Dictionary<ItemAppearanceWeaponModel, List<byte>> weaponModels, int craftLearnable, double cost)
       {
         this.workshop = workshop;
         this.craftedItem = craftedItem;
         this.weaponModels = weaponModels;
+        this.craftLearnable = craftLearnable;
+        this.cost = cost;
       } 
     }
   }

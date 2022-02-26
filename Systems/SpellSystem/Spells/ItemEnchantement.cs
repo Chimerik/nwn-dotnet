@@ -84,7 +84,7 @@ namespace NWN.Systems
       {
         string inactiveIPTag = oTarget.ItemProperties.FirstOrDefault(ip => ip.Tag.StartsWith($"ENCHANTEMENT_{spellId}") && ip.Tag.Contains("INACTIVE")).Tag;
         string[] IPproperties = inactiveIPTag.Split("_");
-        player.craftJob.Start(Craft.Job.JobType.EnchantementReactivation, null, player, null, oTarget, $"{spellId}_{IPproperties[5]}_{IPproperties[6]}");
+        player.craftJob.Start(Craft.Job.JobType.EnchantementReactivation, player, null, oTarget, $"{spellId}_{IPproperties[5]}_{IPproperties[6]}");
         return;
       }
 
@@ -174,7 +174,7 @@ namespace NWN.Systems
       }
 
 
-      player.craftJob.Start(Craft.Job.JobType.Enchantement, null, player, null, oItem, $"{spellId}_{(int)ip.PropertyType}_{ip.SubType}_{ip.CostTable}_{ip.CostTableValue}");
+      player.craftJob.Start(Craft.Job.JobType.Enchantement, player, null, oItem, $"{spellId}_{(int)ip.PropertyType}_{ip.SubType}_{ip.CostTable}_{ip.CostTableValue}");
     }
   }
 }

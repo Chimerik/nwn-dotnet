@@ -1,12 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Linq;
 
 using Anvil.API;
 using Anvil.API.Events;
 using Anvil.Services;
-
-using NWN.Systems.Craft;
 
 namespace NWN.Systems
 {
@@ -14,6 +13,7 @@ namespace NWN.Systems
   {
     public static Dictionary<JobType, Func<Player, bool, bool>> HandleSpecificJobCompletion = new Dictionary<JobType, Func<Player, bool, bool>>
     {
+      { JobType.ItemCreation, CompleteItemCreation },
       { JobType.BlueprintCopy, CompleteBlueprintCopy },
       { JobType.BlueprintResearchMaterialEfficiency, CompleteBlueprintMaterialResearch },
       { JobType.BlueprintResearchTimeEfficiency, CompleteBlueprintMaterialResearch }
@@ -24,25 +24,27 @@ namespace NWN.Systems
       [Description("Invalide")]
       Invalid = 0,
       [Description("Création_artisanale")]
-      Item = 1,
+      ItemCreation = 1,
+      [Description("Amélioration_artisanale")]
+      ItemUpgrade = 2,
       [Description("Copie_de_patron")]
-      BlueprintCopy = 2,
+      BlueprintCopy = 3,
       [Description("Recherche_en_rendement")]
-      BlueprintResearchMaterialEfficiency = 3,
+      BlueprintResearchMaterialEfficiency = 4,
       [Description("Recherche_en_efficacité")]
-      BlueprintResearchTimeEfficiency = 4,
+      BlueprintResearchTimeEfficiency = 5,
       [Description("Enchantement")]
-      Enchantement = 5,
+      Enchantement = 6,
       [Description("Recyclage")]
-      Recycling = 6,
+      Recycling = 7,
       [Description("Renforcement")]
-      Renforcement = 7,
+      Renforcement = 8,
       [Description("Réparations")]
-      Repair = 8,
+      Repair = 9,
       [Description("Réactivation_d'_enchantement")]
-      EnchantementReactivation = 9,
+      EnchantementReactivation = 10,
       [Description("Alchimie")]
-      Alchemy = 10,
+      Alchemy = 11,
     }
 
     public class CraftJob
@@ -54,25 +56,76 @@ namespace NWN.Systems
       public string serializedCraftedItem { get; set; }
       public DateTime? progressLastCalculation { get; set; }
       public ScheduledTask jobProgression { get; set; }
-      public CraftJob(Player player, NwItem oBlueprint, Blueprint blueprint, JobType type) // Blueprint Copy
+      public CraftJob(Player player, NwItem oBlueprint, double jobDuration) // Item Craft
+      {
+        try
+        {
+          // TODO : gérer la durabilité de l'outil de craft
+
+          // s'il s'agit d'une copie de blueprint, alors le nombre d'utilisation diminue de 1
+          if (oBlueprint.GetObjectVariable<LocalVariableInt>("_BLUEPRINT_RUNS").HasValue)
+          {
+            oBlueprint.GetObjectVariable<LocalVariableInt>("_BLUEPRINT_RUNS").Value -= 1;
+
+            if (oBlueprint.GetObjectVariable<LocalVariableInt>("_BLUEPRINT_RUNS").Value < 1)
+              oBlueprint.Destroy();
+          }
+
+          int baseItemType = oBlueprint.GetObjectVariable<LocalVariableInt>("_BASE_ITEM_TYPE").Value;
+          icon = NwBaseItem.FromItemId(baseItemType).WeaponFocusFeat.IconResRef;
+          remainingTime = jobDuration;
+          type = JobType.ItemCreation;
+
+          NwItem craftedItem = NwItem.Create(BaseItems2da.baseItemTable.GetBaseItemDataEntry((BaseItemType)baseItemType).craftedItem, player.oid.LoginCreature.Location);
+          craftedItem.GetObjectVariable<LocalVariableString>("ITEM_KEY").Value = Config.itemKey;
+
+          Craft.Collect.System.AddCraftedItemProperties(craftedItem, 1);
+          craftedItem.GetObjectVariable<LocalVariableString>("_ORIGINAL_CRAFTER_NAME").Value = player.oid.LoginCreature.Name;
+
+          int artisanExceptionnelLevel = player.learnableSkills.ContainsKey(CustomSkill.ArtisanExceptionnel) ? player.learnableSkills[CustomSkill.ArtisanExceptionnel].totalPoints : 0;
+
+          if (NwRandom.Roll(Utils.random, 100) <= artisanExceptionnelLevel)
+          {
+            craftedItem.GetObjectVariable<LocalVariableInt>("_AVAILABLE_ENCHANTEMENT_SLOT").Value += 1;
+            player.oid.SendServerMessage("Votre talent d'artisan vous a permis de créer un objet exceptionnel disposant d'un emplacement d'enchantement supplémentaire !", ColorConstants.Navy);
+          }
+
+          int artisanAppliqueLevel = player.learnableSkills.ContainsKey(CustomSkill.ArtisanApplique) ? player.learnableSkills[CustomSkill.ArtisanApplique].totalPoints : 0;
+
+          if (NwRandom.Roll(Utils.random, 100) <= artisanAppliqueLevel * 3)
+          {
+            craftedItem.GetObjectVariable<LocalVariableInt>("_MAX_DURABILITY").Value *= (1 + 20/100);
+            player.oid.SendServerMessage("En travaillant de manière particulièrement appliquée, vous parvenez à fabriquer un objet plus résistant !", ColorConstants.Navy);
+          }
+
+          serializedCraftedItem = craftedItem.Serialize().ToBase64EncodedString();
+          craftedItem.Destroy();
+        }
+        catch (Exception e)
+        {
+          Utils.LogMessageToDMs($"{e.Message}\n\n{e.StackTrace}");
+        }
+      }
+      public CraftJob(Player player, NwItem oBlueprint, JobType type) // Blueprint Copy
       {
         try
         {
           this.type = type;
+          
 
           switch (type)
           {
             case JobType.BlueprintCopy:
-              icon = NwBaseItem.FromItemId(blueprint.baseItemType).WeaponFocusFeat.IconResRef;
-              StartBlueprintCopy(player, oBlueprint, blueprint);
+              icon = NwBaseItem.FromItemId(oBlueprint.GetObjectVariable<LocalVariableInt>("_BASE_ITEM_TYPE").Value).WeaponFocusFeat.IconResRef;
+              StartBlueprintCopy(player, oBlueprint);
               break;
             case JobType.BlueprintResearchMaterialEfficiency:
-              icon = NwBaseItem.FromItemId(blueprint.baseItemType).WeaponSpecializationFeat.IconResRef;
-              StartBlueprintMaterialResearch(player, oBlueprint, blueprint);
+              icon = NwBaseItem.FromItemId(oBlueprint.GetObjectVariable<LocalVariableInt>("_BASE_ITEM_TYPE").Value).WeaponSpecializationFeat.IconResRef;
+              StartBlueprintMaterialResearch(player, oBlueprint);
               break;
             case JobType.BlueprintResearchTimeEfficiency:
-              icon = NwBaseItem.FromItemId(blueprint.baseItemType).EpicWeaponFocusFeat.IconResRef;
-              StartBlueprintTimeResearch(player, oBlueprint, blueprint);
+              icon = NwBaseItem.FromItemId(oBlueprint.GetObjectVariable<LocalVariableInt>("_BASE_ITEM_TYPE").Value).EpicWeaponFocusFeat.IconResRef;
+              StartBlueprintTimeResearch(player, oBlueprint);
               break;
           }          
         }
@@ -229,23 +282,23 @@ namespace NWN.Systems
             HandleDelayedJobProgression(player);
         }
       }
-      private void StartBlueprintCopy(Player player, NwItem oBlueprint, Blueprint blueprint)
+      private void StartBlueprintCopy(Player player, NwItem oBlueprint)
       {
-        remainingTime = blueprint.mineralsCost * 2 * player.learnableSkills[CustomSkill.BlueprintCopy].bonusReduction;
+        remainingTime = player.GetItemMateriaCost(oBlueprint) * 2 * player.learnableSkills[CustomSkill.BlueprintCopy].bonusReduction;
 
         originalSerializedItem = oBlueprint.Serialize().ToBase64EncodedString();
 
         NwItem clone = oBlueprint.Clone(player.oid.LoginCreature.Location);
-        clone.Name = $"Patron copié : {blueprint.name}";
+        clone.Name = oBlueprint.Name.Replace("original", "copié");
         clone.GetObjectVariable<LocalVariableInt>("_BLUEPRINT_RUNS").Value = player.learnableSkills.ContainsKey(CustomSkill.BlueprintEfficiency) ? 10 + player.learnableSkills[CustomSkill.BlueprintEfficiency].totalPoints : 10;
 
         serializedCraftedItem = clone.Serialize().ToBase64EncodedString();
         oBlueprint.Destroy();
         clone.Destroy();
       }
-      private void StartBlueprintMaterialResearch(Player player, NwItem oBlueprint, Blueprint blueprint)
+      private void StartBlueprintMaterialResearch(Player player, NwItem oBlueprint)
       {
-        remainingTime = blueprint.mineralsCost * 2 * (1 - (player.learnableSkills[CustomSkill.BlueprintMetallurgy].totalPoints * 5 / 100));
+        remainingTime = player.GetItemMateriaCost(oBlueprint) * 2 * (1 - (player.learnableSkills[CustomSkill.BlueprintMetallurgy].totalPoints * 5 / 100));
 
         if (player.learnableSkills.ContainsKey(CustomSkill.AdvancedCraft))
           remainingTime *= (1 - (player.learnableSkills[CustomSkill.AdvancedCraft].totalPoints * 3 / 100));
@@ -259,9 +312,9 @@ namespace NWN.Systems
         oBlueprint.Destroy();
         clone.Destroy();
       }
-      private void StartBlueprintTimeResearch(Player player, NwItem oBlueprint, Blueprint blueprint)
+      private void StartBlueprintTimeResearch(Player player, NwItem oBlueprint)
       {
-        remainingTime = blueprint.mineralsCost * 2 * (1 - (player.learnableSkills[CustomSkill.BlueprintResearch].totalPoints * 5 / 100));
+        remainingTime = player.GetItemMateriaCost(oBlueprint) * 2 * (1 - (player.learnableSkills[CustomSkill.BlueprintResearch].totalPoints * 5 / 100));
 
         if (player.learnableSkills.ContainsKey(CustomSkill.AdvancedCraft))
           remainingTime *= (1 - (player.learnableSkills[CustomSkill.AdvancedCraft].totalPoints * 3 / 100));
@@ -304,6 +357,20 @@ namespace NWN.Systems
       {
         NwItem bpCopy = ItemUtils.DeserializeAndAcquireItem(player.newCraftJob.originalSerializedItem, player.oid.LoginCreature);
         player.oid.SendServerMessage($"Vous venez d'annuler le travail artisanal : {bpCopy.Name.ColorString(ColorConstants.White)}", ColorConstants.Orange);
+      }
+
+      return true;
+    }
+    private static bool CompleteItemCreation(Player player, bool completed)
+    {
+      if (completed)
+      {
+        NwItem item = ItemUtils.DeserializeAndAcquireItem(player.newCraftJob.serializedCraftedItem, player.oid.LoginCreature);
+        player.oid.SendServerMessage($"Vous venez de terminer la création de : {item.Name.ColorString(ColorConstants.White)}", ColorConstants.Orange);
+      }
+      else // cancelled
+      {
+        player.oid.SendServerMessage($"Vous venez d'annuler la création d'un objet artisanal.", ColorConstants.Orange);
       }
 
       return true;

@@ -109,7 +109,7 @@ namespace NWN.Systems
                   NwItem oItem = loots[Utils.random.Next(0, loots.Count - 1)].Clone(oContainer);
                   Log.Info($"SUCCESS : item created {oItem.Name}");
 
-                  Craft.Collect.System.AddCraftedItemProperties(oItem, "mauvais état");
+                  Craft.Collect.System.AddCraftedItemProperties(oItem, 0);
                 }
               }
             }

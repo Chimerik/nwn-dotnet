@@ -7,6 +7,8 @@ namespace NWN.Systems
 {
   class Tanneur
   {
+    private readonly BaseItemType[] leatherBasicWeaponBlueprints = new BaseItemType[] { BaseItemType.Belt, BaseItemType.Gloves, BaseItemType.Boots, BaseItemType.Cloak, BaseItemType.Whip };
+    private readonly int[] leatherBasicArmorBlueprints = new int[] { 0, 1, 2, 3 };
     public Tanneur(Player player, NwCreature tanneur)
     {
       HandleTanneur(player, tanneur);
@@ -20,10 +22,16 @@ namespace NWN.Systems
         shop = NwStore.Create("generic_shop_res", tanneur.Location, false, "tannery_shop");
         shop.GetObjectVariable<LocalVariableObject<NwCreature>>("_STORE_NPC").Value = tanneur;
 
-        foreach (int baseItemType in Craft.Collect.System.leatherBasicBlueprints)
+        foreach (BaseItemType baseItemType in leatherBasicWeaponBlueprints)
         {
           NwItem oBlueprint = await NwItem.Create("blueprintgeneric", shop, 1, "blueprint");
-          ItemUtils.CreateShopBlueprint(oBlueprint, baseItemType);
+          ItemUtils.CreateShopWeaponBlueprint(oBlueprint, baseItemType);
+        }
+
+        foreach (int baseArmor in leatherBasicArmorBlueprints)
+        {
+          NwItem oBlueprint = await NwItem.Create("blueprintgeneric", shop);
+          ItemUtils.CreateShopArmorBlueprint(oBlueprint, baseArmor);
         }
 
         foreach (Feat feat in SkillSystem.leatherBasicSkillBooks)

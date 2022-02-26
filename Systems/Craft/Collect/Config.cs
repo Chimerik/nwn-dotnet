@@ -381,6 +381,66 @@ namespace NWN.Systems.Craft.Collect
       }
     };
 
+    public static List<ItemProperty> GetCraftItemProperties(NwItem craftedItem, int grade)
+    {
+      ItemUtils.ItemCategory itemCategory = ItemUtils.GetItemCategory(craftedItem.BaseItem.ItemType);
+
+      craftedItem.GetObjectVariable<LocalVariableInt>("_MAX_DURABILITY").Value = ItemUtils.GetBaseItemCost(craftedItem) * 100 * grade;
+      craftedItem.GetObjectVariable<LocalVariableInt>("_DURABILITY").Value = ItemUtils.GetBaseItemCost(craftedItem) * 100 * grade;
+
+      if (grade == 0)
+        craftedItem.GetObjectVariable<LocalVariableInt>("_DURABILITY").Value /= 2;
+      else
+      {
+        if (craftedItem.GetObjectVariable<LocalVariableInt>("_AVAILABLE_ENCHANTEMENT_SLOT").HasValue)
+          craftedItem.GetObjectVariable<LocalVariableInt>("_AVAILABLE_ENCHANTEMENT_SLOT").Value += 1;
+        else
+          craftedItem.GetObjectVariable<LocalVariableInt>("_AVAILABLE_ENCHANTEMENT_SLOT").Value = 1;
+      }
+
+      switch (craftedItem.BaseItem.ItemType)
+      {
+        case BaseItemType.Armor:
+          return GetArmorProperties(craftedItem, grade);
+        case BaseItemType.SmallShield:
+          return GetSmallShieldProperties(grade);
+        case BaseItemType.LargeShield:
+          return GetLargeShieldProperties(grade);
+        case BaseItemType.TowerShield:
+          return GetTowerShieldProperties(grade);
+        case BaseItemType.Helmet:
+        case BaseItemType.Cloak:
+        case BaseItemType.Boots:
+          return GetArmorPartProperties();
+        case BaseItemType.Gloves:
+          return GetGlovesProperties();
+        case BaseItemType.Amulet:
+          return GetAmuletProperties(grade);
+        case BaseItemType.Ring:
+          return GetRingProperties(grade);
+        case BaseItemType.Belt:
+          return GetBeltProperties(grade);
+      }
+
+      switch (ItemUtils.GetItemCategory(craftedItem.BaseItem.ItemType))
+      {
+        case ItemUtils.ItemCategory.CraftTool:
+          return GetToolProperties(craftedItem, grade);
+        case ItemUtils.ItemCategory.OneHandedMeleeWeapon:
+          return GetOneHandedMeleeWeaponProperties();
+        case ItemUtils.ItemCategory.TwoHandedMeleeWeapon:
+          return GetTwoHandedMeleeWeaponProperties();
+        case ItemUtils.ItemCategory.RangedWeapon:
+          return GetRangedWeaponProperties();
+        case ItemUtils.ItemCategory.Ammunition:
+          return GetAmmunitionProperties();
+      }
+
+      Utils.LogMessageToDMs($"No craft property found for category {itemCategory} grade {grade}");
+
+      return new List<ItemProperty>();
+    }
+
     public static List<ItemProperty> GetArmorProperties(NwItem craftedItem, int materialTier)
     {
       List<ItemProperty> badArmor = new List<ItemProperty>();

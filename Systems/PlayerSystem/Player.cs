@@ -410,7 +410,7 @@ namespace NWN.Systems
             potion.GetObjectVariable<LocalVariableString>("_SERIALIZED_PROPERTIES").Value = craftJob.material;
 
             break;
-          default:
+          /*default:
             if (Craft.Collect.System.blueprintDictionnary.TryGetValue(craftJob.baseItemType, out Blueprint blueprint))
             {
               NwItem craftedItem;
@@ -472,7 +472,7 @@ namespace NWN.Systems
               oid.SendServerMessage("[ERREUR HRP] Il semble que votre dernière création soit invalide. Le staff a été informé du problème.");
               Utils.LogMessageToDMs($"AcquireCraftedItem : {oid.LoginCreature.Name} - Blueprint invalid - {craftJob.baseItemType} - For {oid.LoginCreature.Name}");
             }
-            break;
+            break;*/
         }
 
         craftJob.CloseCraftJournalEntry();
@@ -1161,8 +1161,112 @@ namespace NWN.Systems
               masteryLevel = learnableSkills[CustomSkill.ImprovedDualWieldDefenseProficiency].totalPoints;
             return masteryLevel;
         }
+      }
+      public double GetItemCraftTime(NwItem item, int materiaCost)
+      {
+        BaseItemType baseItemType = (BaseItemType)item.GetObjectVariable<LocalVariableInt>("_BASE_ITEM_TYPE").Value;
+        double timeEfficiency = (1 - (item.GetObjectVariable<LocalVariableInt>("_BLUEPRINT_TIME_EFFICIENCY").Value / 100));
 
-        return masteryLevel;
+        if (baseItemType == BaseItemType.Armor)
+          return GetArmorTimeCost(item.GetObjectVariable<LocalVariableInt>("_ARMOR_BASE_AC").Value, materiaCost) * timeEfficiency;
+
+        return GetWeaponTimeCost(baseItemType, materiaCost) * timeEfficiency;
+      }
+      public double GetArmorTimeCost(int baseACValue, double materiaCost)
+      {
+        ArmorTable.Entry entry = Armor2da.armorTable.GetDataEntry(baseACValue);
+
+        if (learnableSkills.ContainsKey(entry.craftLearnable))
+          materiaCost *= learnableSkills[entry.craftLearnable].bonusReduction;
+
+        int jobFeat = GetJobLearnableFromWorkshop(entry.workshop);
+
+        if (learnableSkills.ContainsKey(jobFeat))
+          materiaCost *= learnableSkills[jobFeat].bonusReduction;
+
+        return materiaCost;
+      }
+      public double GetWeaponTimeCost(BaseItemType baseItemType, double materiaCost)
+      {
+        BaseItemTable.Entry entry = BaseItems2da.baseItemTable.GetBaseItemDataEntry(baseItemType);
+
+        if (learnableSkills.ContainsKey(entry.craftLearnable))
+          materiaCost *= learnableSkills[entry.craftLearnable].bonusReduction;
+
+        int jobFeat = GetJobLearnableFromWorkshop(entry.workshop);
+
+        if (learnableSkills.ContainsKey(jobFeat))
+          materiaCost *= learnableSkills[jobFeat].bonusReduction;
+
+        return materiaCost;
+      }
+      public double GetItemMateriaCost(NwItem item)
+      {
+        BaseItemType baseItemType;
+
+        if (item.Tag == "blueprint")
+        {
+          baseItemType = (BaseItemType)item.GetObjectVariable<LocalVariableInt>("_BASE_ITEM_TYPE").Value;
+
+          if (baseItemType == BaseItemType.Armor)
+            return GetArmorMateriaCost(item.GetObjectVariable<LocalVariableInt>("_ARMOR_BASE_AC").Value);
+        }
+        else
+          baseItemType = item.BaseItem.ItemType;
+
+        if (baseItemType == BaseItemType.Armor)
+          return GetArmorMateriaCost(item.BaseACValue);
+
+        return GetWeaponMateriaCost(baseItemType);
+      }
+
+      public double GetArmorMateriaCost(int baseACValue)
+      {
+        ArmorTable.Entry entry = Armor2da.armorTable.GetDataEntry(baseACValue);
+        double materiaCost = entry.cost * 1000;
+
+        if (learnableSkills.ContainsKey(entry.craftLearnable))
+          materiaCost *= learnableSkills[entry.craftLearnable].bonusReduction;
+
+        int jobFeat = GetJobLearnableFromWorkshop(entry.workshop);
+
+        if (learnableSkills.ContainsKey(jobFeat))
+          materiaCost *= learnableSkills[jobFeat].bonusReduction;
+
+        return materiaCost;
+      }
+      public double GetWeaponMateriaCost(BaseItemType baseItemType)
+      {
+        BaseItemTable.Entry entry = BaseItems2da.baseItemTable.GetBaseItemDataEntry(baseItemType);
+        double materiaCost = entry.cost * 1000;
+
+        if (learnableSkills.ContainsKey(entry.craftLearnable))
+          materiaCost *= learnableSkills[entry.craftLearnable].bonusReduction;
+
+        int jobFeat = GetJobLearnableFromWorkshop(entry.workshop);
+
+        if (learnableSkills.ContainsKey(jobFeat))
+          materiaCost *= learnableSkills[jobFeat].bonusReduction;
+
+        return materiaCost;
+      }
+      public int GetJobLearnableFromWorkshop(string workshopTag)
+      {
+        switch(workshopTag)
+        {
+          case "forge":
+            return CustomSkill.Blacksmith;
+          case "scierie":
+            return CustomSkill.Woodworker;
+          case "tannerie":
+            return CustomSkill.Tanner;
+          case "enchant":
+            return CustomSkill.Enchanteur;
+          case "alchemy":
+            return CustomSkill.Alchemist;
+        }
+
+        return -1;
       }
     }
   }

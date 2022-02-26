@@ -60,8 +60,10 @@ namespace NWN.Systems
         oChest.OnClose += OnLootConfigContainerClose;
       }
 
-      InitializeLootChestFromArray(NwObject.FindObjectsWithTag<NwPlaceable>("low_blueprints").FirstOrDefault(), Craft.Collect.System.lowBlueprints);
-      InitializeLootChestFromArray(NwObject.FindObjectsWithTag<NwPlaceable>("medium_blueprints").FirstOrDefault(), Craft.Collect.System.mediumBlueprints);
+      InitializeLootChestFromArray(NwObject.FindObjectsWithTag<NwPlaceable>("low_blueprints").FirstOrDefault(), Craft.Collect.System.lowWeaponBlueprints);
+      InitializeLootChestFromArray(NwObject.FindObjectsWithTag<NwPlaceable>("medium_blueprints").FirstOrDefault(), Craft.Collect.System.mediumWeaponBlueprints);
+      InitializeLootChestFromArray(NwObject.FindObjectsWithTag<NwPlaceable>("low_blueprints").FirstOrDefault(), Craft.Collect.System.lowArmorBlueprints);
+      InitializeLootChestFromArray(NwObject.FindObjectsWithTag<NwPlaceable>("medium_blueprints").FirstOrDefault(), Craft.Collect.System.mediumArmorBlueprints);
 
       //InitializeLootChestFromFeatArray(NwObject.FindObjectsWithTag<NwPlaceable>("low_skillbooks").FirstOrDefault(), SkillSystem.lowSkillBooks);
       //InitializeLootChestFromFeatArray(NwObject.FindObjectsWithTag<NwPlaceable>("medium_skillbooks").FirstOrDefault(), SkillSystem.mediumSkillBooks);
@@ -71,12 +73,22 @@ namespace NWN.Systems
       InitializeLootChestFromScrollArray(NwObject.FindObjectsWithTag<NwPlaceable>("high_enchantements").FirstOrDefault(), SpellSystem.highEnchantements);
     }
 
-    private async void InitializeLootChestFromArray(NwPlaceable oChest, int[] array)
+    private async void InitializeLootChestFromArray(NwPlaceable oChest, BaseItemType[] array)
     {
-      foreach (int baseItemType in array)
+      foreach (BaseItemType baseItemType in array)
       {
         NwItem oBlueprint = await NwItem.Create("blueprintgeneric", oChest, 1, "blueprint");
-        ItemUtils.CreateShopBlueprint(oBlueprint, baseItemType);
+        ItemUtils.CreateShopWeaponBlueprint(oBlueprint, baseItemType);
+      }
+
+      UpdateChestTagToLootsDic(oChest);
+    }
+    private async void InitializeLootChestFromArray(NwPlaceable oChest, int[] array)
+    {
+      foreach (int baseACValue in array)
+      {
+        NwItem oBlueprint = await NwItem.Create("blueprintgeneric", oChest, 1, "blueprint");
+        ItemUtils.CreateShopArmorBlueprint(oBlueprint, baseACValue);
       }
 
       UpdateChestTagToLootsDic(oChest);
