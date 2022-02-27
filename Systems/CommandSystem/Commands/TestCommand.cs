@@ -32,11 +32,6 @@ namespace NWN.Systems
           armor.AddItemProperty(ItemProperty.ACBonusVsDmgType(IPDamageType.Physical, 20), EffectDuration.Temporary, TimeSpan.FromSeconds(30));
           armor.AddItemProperty(ItemProperty.ACBonusVsDmgType((IPDamageType)14, 10), EffectDuration.Temporary, TimeSpan.FromSeconds(30));
 
-          if (player.windows.ContainsKey("activeCraftJob"))
-            ((PlayerSystem.Player.ActiveCraftJobWindow)player.windows["activeCraftJob"]).CreateWindow();
-          else
-            player.windows.Add("activeCraftJob", new PlayerSystem.Player.ActiveCraftJobWindow(player));
-
           /*if (!player.learnableSpells.ContainsKey((int)Spell.LesserRestoration))
             player.learnableSpells.Add((int)Spell.LesserRestoration, new LearnableSpell((LearnableSpell)SkillSystem.learnableDictionary[(int)Spell.LesserRestoration]));
           if (!player.learnableSpells.ContainsKey((int)Spell.Restoration))
@@ -47,13 +42,7 @@ namespace NWN.Systems
             player.learnableSpells.Add((int)Spell.Aid, new LearnableSpell((LearnableSpell)SkillSystem.learnableDictionary[(int)Spell.Aid]));
           if (!player.learnableSpells.ContainsKey((int)Spell.Haste))
             player.learnableSpells.Add((int)Spell.Haste, new LearnableSpell((LearnableSpell)SkillSystem.learnableDictionary[(int)Spell.Haste]));
-          
-
-          if (player.windows.ContainsKey("learnables"))
-            ((PlayerSystem.Player.LearnableWindow)player.windows["learnables"]).CreateWindow();
-          else
-            player.windows.Add("learnables", new PlayerSystem.Player.LearnableWindow(player));*/
-
+         
           /*if (player.windows.ContainsKey("quickLoot"))
             ((PlayerSystem.Player.QuickLootWindow)player.windows["quickLoot"]).CreateWindow();
           else
@@ -70,7 +59,7 @@ namespace NWN.Systems
 
           //SpellSystem.ApplyCustomEffectToTarget(SpellSystem.frog, player.oid.LoginCreature, TimeSpan.FromSeconds(10));
 
-          //PlayerSystem.cursorTargetService.EnterTargetMode(player.oid, OnTargetSelected, ObjectTypes.All, MouseCursor.Pickup);
+          //player.oid.EnterTargetMode(OnTargetSelected, ObjectTypes.Item, MouseCursor.PickupDown);
         }
       }
     }

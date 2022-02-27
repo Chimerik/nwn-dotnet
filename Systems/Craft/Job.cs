@@ -33,15 +33,6 @@ namespace NWN.Systems.Craft
 
       switch (baseItemType)
       {
-        case -11:
-          this.type = JobType.BlueprintCopy;
-          break;
-        case -12:
-          this.type = JobType.BlueprintResearchMaterialEfficiency;
-          break;
-        case -13:
-          this.type = JobType.BlueprintResearchTimeEfficiency;
-          break;
         case -14:
           this.type = JobType.Enchantement;
           break;
@@ -60,9 +51,6 @@ namespace NWN.Systems.Craft
         case -19:
           this.type = JobType.Alchemy;
           break;
-        default:
-          this.type = JobType.Item;
-          break;
       }
 
       if (IsActive())
@@ -74,10 +62,6 @@ namespace NWN.Systems.Craft
     public enum JobType
     {
       Invalid = 0,
-      Item = 1,
-      BlueprintCopy = 2,
-      BlueprintResearchMaterialEfficiency = 3,
-      BlueprintResearchTimeEfficiency = 4,
       Enchantement = 5,
       Recycling = 6,
       Renforcement = 7,
@@ -109,36 +93,6 @@ namespace NWN.Systems.Craft
     }
     public bool CanStartJob(NwPlayer player, NwItem blueprint, JobType type)
     {
-      if (blueprint != null)
-      {
-        if (type == JobType.BlueprintCopy || type == JobType.BlueprintResearchMaterialEfficiency || type == JobType.BlueprintResearchTimeEfficiency) // Dans le cas d'une copie ou d'une recherche de BP
-        {
-          if (!IsBlueprintOriginal(blueprint))
-          {
-            player.SendServerMessage("Il vous faut un patron original afin d'effectuer une recherche ou une copie.", ColorConstants.Orange);
-            return false;
-          }
-        }
-
-        switch (type)
-        {
-          case JobType.BlueprintResearchTimeEfficiency:
-            if (blueprint.GetObjectVariable<LocalVariableInt>("_BLUEPRINT_TIME_EFFICIENCY").Value >= 10)
-            {
-              player.SendServerMessage("Ce patron dispose déjà d'un niveau de recherche maximal.", ColorConstants.Orange);
-              return false;
-            }
-            break;
-          case JobType.BlueprintResearchMaterialEfficiency:
-            if (blueprint.GetObjectVariable<LocalVariableInt>("_BLUEPRINT_MATERIAL_EFFICIENCY").Value >= 10)
-            {
-              player.SendServerMessage("Ce patron dispose déjà d'un niveau de recherche métallurgique maximal.", ColorConstants.Orange);
-              return false;
-            }
-            break;
-        }
-      }
-
       if (IsActive() && !isCancelled)
       {
         AskCancellationConfirmation(player);
@@ -164,9 +118,6 @@ namespace NWN.Systems.Craft
     {
       switch (type)
       {
-        case JobType.Item:
-          StartItemCraft(oItem, oTarget, sMaterial);
-          break;
         case JobType.Enchantement:
           StartEnchantementCraft(oTarget, sMaterial);
           break;
@@ -187,56 +138,6 @@ namespace NWN.Systems.Craft
           break;
       }
 
-    }
-    public void StartItemCraft(NwItem oItem, NwGameObject oTarget, string sMaterial)
-    {
-      int iMineralCost = (int)(player.GetItemMateriaCost(oItem) * (1 - (oItem.GetObjectVariable<LocalVariableInt>("_BLUEPRINT_MATERIAL_EFFICIENCY").Value / 100)));
-      double iJobDuration = player.GetItemCraftTime(oItem, iMineralCost);
-
-      int materialType = 0;
-      if (Enum.TryParse(material, out MineralType myMineralType))
-        materialType = (int)myMineralType;
-      else if (Enum.TryParse(material, out PlankType myPlankType))
-        materialType = (int)myPlankType;
-      else if (Enum.TryParse(material, out LeatherType myLeatherType))
-        materialType = (int)myLeatherType;
-
-      iMineralCost -= iMineralCost * materialType / 10;
-      player.craftJob.isCancelled = false;
-
-      if (!player.materialStock.ContainsKey(sMaterial))
-      {
-        player.oid.SendServerMessage($"Il vous manque {iMineralCost.ToString().ColorString(ColorConstants.White)} unités de {sMaterial.ColorString(ColorConstants.White)} pour réaliser ce travail artisanal.", ColorConstants.Red);
-        return;
-      }
-      else if (player.materialStock[sMaterial] < iMineralCost)
-      {
-        player.oid.SendServerMessage($"Il vous manque {(iMineralCost - player.materialStock[sMaterial]).ToString().ColorString(ColorConstants.White)} unités de {sMaterial.ColorString(ColorConstants.White)} pour réaliser ce travail artisanal.", ColorConstants.Red);
-        return;
-      }
-        
-      player.materialStock[sMaterial] -= iMineralCost;
-
-      /*player.oid.SendServerMessage($"Vous venez de démarrer la fabrication de l'objet artisanal : {blueprint.name.ColorString(ColorConstants.White)} en {sMaterial.ColorString(ColorConstants.White)}", new Color(32, 255, 32));
-      // TODO : afficher des effets visuels sur la forge
-
-      if (oTarget.Tag == blueprint.craftedItemTag) // En cas d'amélioration d'un objet, on détruit l'original
-      {
-        player.craftJob = new Job(blueprint.baseItemType, sMaterial, iJobDuration, player, oTarget.Serialize().ToBase64EncodedString());
-        oTarget.Destroy();
-        player.oid.SendServerMessage($"L'objet {oTarget.Name.ColorString(ColorConstants.White)} ne sera pas disponible jusqu'à la fin du travail artisanal.", ColorConstants.Orange);
-      }
-      else
-        player.craftJob = new Job(blueprint.baseItemType, sMaterial, iJobDuration, player);*/
-
-      // s'il s'agit d'une copie de blueprint, alors le nombre d'utilisation diminue de 1
-      int iBlueprintRemainingRuns = oItem.GetObjectVariable<LocalVariableInt>("_BLUEPRINT_RUNS").Value;
-      if (iBlueprintRemainingRuns == 1)
-        oItem.Destroy();
-      if (iBlueprintRemainingRuns > 0)
-        oItem.GetObjectVariable<LocalVariableInt>("_BLUEPRINT_RUNS").Value -= 1;
-
-      ItemUtils.DecreaseItemDurability(player.oid.LoginCreature.GetItemInSlot(InventorySlot.RightHand));
     }
     public void StartItemRepair(NwItem oItem, NwGameObject oTarget, string sMaterial)
     {
@@ -445,18 +346,6 @@ namespace NWN.Systems.Craft
 
       switch (this.type)
       {
-        case JobType.BlueprintCopy:
-          journalEntry.Text = $"Copie de {NwItem.Deserialize(craftedItem.ToByteArray()).Name} en cours";
-          player.oid.ApplyInstantVisualEffectToObject((VfxType)631, player.oid.ControlledCreature);
-          break;
-        case JobType.BlueprintResearchMaterialEfficiency:
-          journalEntry.Text = $"Recherche métallurgique en cours : {NwItem.Deserialize(craftedItem.ToByteArray()).Name}";
-          player.oid.ApplyInstantVisualEffectToObject((VfxType)792, player.oid.ControlledCreature);
-          break;
-        case JobType.BlueprintResearchTimeEfficiency:
-          journalEntry.Text = $"Recherche d'efficacité en cours : {NwItem.Deserialize(craftedItem.ToByteArray()).Name}";
-          player.oid.ApplyInstantVisualEffectToObject((VfxType)792, player.oid.ControlledCreature);
-          break;
         case JobType.Enchantement:
           journalEntry.Text = $"Enchantement en cours : {NwItem.Deserialize(craftedItem.ToByteArray()).Name}";
           Effect enchantementVfx = Effect.VisualEffect((VfxType)832);
@@ -481,10 +370,6 @@ namespace NWN.Systems.Craft
           reactivationVfx.Tag = "VFX_ENCHANTEMENT";
           journalEntry.Text = $"Ré-enchantement en cours : {NwItem.Deserialize(craftedItem.ToByteArray()).Name}";
           break;
-        default:
-          //journalEntry.Text = $"Fabrication en cours : {blueprintDictionnary[baseItemType].name}";
-          player.oid.ApplyInstantVisualEffectToObject((VfxType)1501, player.oid.ControlledCreature);
-          break;
       }
 
       journalEntry.QuestTag = "craft_job";
@@ -498,15 +383,6 @@ namespace NWN.Systems.Craft
 
       switch (type)
       {
-        case JobType.BlueprintCopy:
-          journalEntry.Name = $"Travail artisanal en pause - Copie de patron";
-          break;
-        case JobType.BlueprintResearchMaterialEfficiency:
-          journalEntry.Name = $"Travail artisanal en pause - Recherche métallurgique";
-          break;
-        case JobType.BlueprintResearchTimeEfficiency:
-          journalEntry.Name = $"Travail artisanal en pause - Recherche en efficacité";
-          break;
         case JobType.Enchantement:
           foreach (Effect vfx in player.oid.LoginCreature.ActiveEffects.Where(e => e.Tag == "VFX_ENCHANTEMENT"))
             player.oid.LoginCreature.RemoveEffect(vfx);
@@ -526,9 +402,6 @@ namespace NWN.Systems.Craft
             player.oid.LoginCreature.RemoveEffect(vfx);
           journalEntry.Name = $"Ré-enchantement en pause";
           break;
-        /*default:
-          journalEntry.Name = $"Travail artisanal en pause - {blueprintDictionnary[baseItemType].name}";
-          break;*/
       }
 
       journalEntry.QuestTag = "craft_job";
@@ -542,18 +415,6 @@ namespace NWN.Systems.Craft
 
       switch (type)
       {
-        case JobType.BlueprintCopy:
-          journalEntry.Name = $"Travail artisanal terminé - Copie de patron";
-          player.oid.ApplyInstantVisualEffectToObject((VfxType)631, player.oid.ControlledCreature);
-          break;
-        case JobType.BlueprintResearchMaterialEfficiency:
-          journalEntry.Name = $"Travail artisanal terminé - Recherche métallurgique";
-          player.oid.ApplyInstantVisualEffectToObject((VfxType)792, player.oid.ControlledCreature);
-          break;
-        case JobType.BlueprintResearchTimeEfficiency:
-          journalEntry.Name = $"Travail artisanal terminé - Recherche en efficacité";
-          player.oid.ApplyInstantVisualEffectToObject((VfxType)792, player.oid.ControlledCreature);
-          break;
         case JobType.Enchantement:
           foreach (Effect vfx in player.oid.LoginCreature.ActiveEffects.Where(e => e.Tag == "VFX_ENCHANTEMENT"))
             player.oid.LoginCreature.RemoveEffect(vfx);
@@ -579,11 +440,6 @@ namespace NWN.Systems.Craft
 
           player.oid.ApplyInstantVisualEffectToObject((VfxType)872, player.oid.ControlledCreature);
           journalEntry.Name = $"Ré-enchantement terminé - {NwItem.Deserialize(craftedItem.ToByteArray()).Name}";
-          break;
-        default:
-          //journalEntry.Name = $"Travail artisanal terminé - {blueprintDictionnary[baseItemType].name}";
-
-          player.oid.ApplyInstantVisualEffectToObject((VfxType)1501, player.oid.ControlledCreature);
           break;
       }
 

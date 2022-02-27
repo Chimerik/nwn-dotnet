@@ -98,40 +98,9 @@ namespace NWN.Systems
                 case "startCraft":
                   NwItem blueprint = filteredList.ElementAt(nuiEvent.ArrayIndex);
 
-                  if(player.newCraftJob != null)
-                  {
-                    player.oid.SendServerMessage("Veuillez annuler votre travail artisanal en cours avant d'en commencer un nouveau.", ColorConstants.Red);
-                    player.oid.NuiDestroy(token);
-                    return;
-                  }
-
-                  int materiaCost = (int)(player.GetItemMateriaCost(blueprint) * (1 - (blueprint.GetObjectVariable<LocalVariableInt>("_BLUEPRINT_MATERIAL_EFFICIENCY").Value / 100)));
-                  CraftResource resource = player.craftResourceStock.FirstOrDefault(r => r.type == ItemUtils.GetResourceTypeFromBlueprint(blueprint) && r.grade == 1 && r.quantity >= materiaCost);
-                  int availableQuantity = resource != null ? resource.quantity : 0;
-
-                  if (availableQuantity < materiaCost)
-                  {
-                    player.oid.SendServerMessage($"Il vous manque {(materiaCost - availableQuantity).ToString().ColorString(ColorConstants.White)} unités de matéria pour pouvoir commencer ce travail artisanal.", ColorConstants.Red);
-                    player.oid.NuiDestroy(token);
-                    return;
-                  }
-
-                  if (blueprint.Possessor == player.oid.ControlledCreature)
-                  {
-                    resource.quantity -= materiaCost;
-                    player.newCraftJob = new CraftJob(player, blueprint, player.GetItemCraftTime(blueprint, materiaCost));
-                    player.oid.NuiDestroy(token);
-
-                    if (player.windows.ContainsKey("activeCraftJob"))
-                      ((ActiveCraftJobWindow)player.windows["activeCraftJob"]).CreateWindow();
-                    else
-                      player.windows.Add("activeCraftJob", new ActiveCraftJobWindow(player));
-                  }
-                  else
-                  {
-                    player.oid.SendServerMessage($"{blueprint.Name.ColorString(ColorConstants.White)} n'est plus en votre possession. Impossible de démarrer le travail artisanal.", ColorConstants.Red);
-                    player.oid.NuiDestroy(token);
-                  }
+                  player.HandleCraftItemChecks(blueprint);
+                  player.oid.NuiDestroy(token);
+                  
                   break;
               }
 

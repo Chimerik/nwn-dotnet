@@ -24,6 +24,7 @@ namespace NWN.Systems
         private readonly NuiBind<string> itemDescription = new NuiBind<string>("itemDescription");
         private bool modificationAllowed { get; set; }
         private NwItem item { get; set; }
+        private NwItem bestBlueprint { get; set; }
 
         public ItemExamineWindow(Player player, NwItem item) : base(player)
         {
@@ -65,11 +66,15 @@ namespace NWN.Systems
           }
 
           rootChidren.Add(nameRow);
+          rootChidren.Add(descriptionRow);
 
           if (!string.IsNullOrWhiteSpace(originalCrafterName))
-            rootChidren.Add(new NuiRow() { Children = new List<NuiElement>() { new NuiLabel($"Artisan : {originalCrafterName}") { Height = 30, Width = 500, Tooltip = $"Il est indiqué : 'Pour toute modification sur mesure, vous adresser à {originalCrafterName}'" } } });
+          {
+            rootChidren.Add(new NuiLabel($"Artisan : {originalCrafterName}") { Height = 30, Width = 500, Tooltip = $"Il est indiqué : 'Pour toute modification sur mesure, vous adresser à {originalCrafterName}'" });
 
-          rootChidren.Add(descriptionRow);
+            if (originalCrafterName == player.oid.ControlledCreature.OriginalName && item.GetObjectVariable<LocalVariableInt>("_ITEM_GRADE").Value < 8)
+              DrawUpgradeWidget();
+          }         
 
           if (item.GetObjectVariable<LocalVariableInt>("TOTAL_SLOTS").HasValue)
           {
@@ -137,7 +142,10 @@ namespace NWN.Systems
             windowName += $" (x{item.StackSize})";
           }
 
-          rootChidren.Add(new NuiRow() { Children = new List<NuiElement>() { new NuiLabel(weight) } }); 
+          rootChidren.Add(new NuiRow() { Children = new List<NuiElement>() { new NuiLabel(weight) } });
+
+          if(item.GetObjectVariable<LocalVariableInt>("_ITEM_GRADE").HasValue)
+            rootChidren.Add(new NuiRow() { Children = new List<NuiElement>() { new NuiLabel($"Qualité de matéria : {item.GetObjectVariable<LocalVariableInt>("_ITEM_GRADE").Value}") } });
 
           foreach (ItemProperty ip in item.ItemProperties)
           {
@@ -246,9 +254,9 @@ namespace NWN.Systems
                   blueprintActionRowChildren.Add(new NuiSpacer());
                   blueprintActionRowChildren.Add(new NuiButton("Copier") { Id = "copy", Tooltip = tooltip, Enabled = player.newCraftJob == null && copySkill });
                   blueprintActionRowChildren.Add(new NuiSpacer());
-                  blueprintActionRowChildren.Add(new NuiButton("Recherche en rendement") { Id = "blueprintME", Tooltip = "Lancer un travail de recherche en rendement sur ce patron original", Enabled = player.newCraftJob == null && player.learnableSkills.ContainsKey(CustomSkill.BlueprintMetallurgy) && player.learnableSkills[CustomSkill.BlueprintMetallurgy].totalPoints > 0 });
+                  blueprintActionRowChildren.Add(new NuiButton("Recherche en rendement") { Id = "blueprintME", Tooltip = "Lancer un travail de recherche en rendement sur ce patron original", Enabled = player.newCraftJob == null && player.learnableSkills.ContainsKey(CustomSkill.BlueprintMetallurgy) && player.learnableSkills[CustomSkill.BlueprintMetallurgy].totalPoints > 0 && item.GetObjectVariable<LocalVariableInt>("_BLUEPRINT_MATERIAL_EFFICIENCY").Value < 10 });
                   blueprintActionRowChildren.Add(new NuiSpacer());
-                  blueprintActionRowChildren.Add(new NuiButton("Recherche en efficacité") { Id = "blueprintTE", Tooltip = "Lancer un travail recherche en efficacité sur ce patron original", Enabled = player.newCraftJob == null && player.learnableSkills.ContainsKey(CustomSkill.BlueprintResearch) && player.learnableSkills[CustomSkill.BlueprintResearch].totalPoints > 0 });
+                  blueprintActionRowChildren.Add(new NuiButton("Recherche en efficacité") { Id = "blueprintTE", Tooltip = "Lancer un travail recherche en efficacité sur ce patron original", Enabled = player.newCraftJob == null && player.learnableSkills.ContainsKey(CustomSkill.BlueprintResearch) && player.learnableSkills[CustomSkill.BlueprintResearch].totalPoints > 0 && item.GetObjectVariable<LocalVariableInt>("_BLUEPRINT_TIME_EFFICIENCY").Value < 10 });
                   blueprintActionRowChildren.Add(new NuiSpacer());
                   rootChidren.Add(blueprintActionRow);
                 }
@@ -472,6 +480,11 @@ namespace NWN.Systems
                 player.oid.NuiDestroy(token);
 
                 break;
+
+              case "upgrade":
+                player.HandleCraftItemChecks(bestBlueprint, item);
+                player.oid.NuiDestroy(token);
+                break;
             }
 
             if(nuiEvent.ElementId.StartsWith("up_"))
@@ -662,6 +675,44 @@ namespace NWN.Systems
                 player.windows.Add("cloakAppearanceModifier", new CloakAppearanceWindow(player, item));
               break;
           }
+        }
+        private void DrawUpgradeWidget()
+        {
+          string workshopName = BaseItems2da.baseItemTable.GetBaseItemDataEntry(item.BaseItem.ItemType).workshop;
+          NwPlaceable workshop = player.oid.ControlledCreature.GetNearestObjectsByType<NwPlaceable>().FirstOrDefault(w => w.Tag == workshopName);
+
+          if (workshop == null || player.oid.ControlledCreature.DistanceSquared(workshop) > 25)
+          {
+            rootChidren.Add(new NuiRow() { Children = new List<NuiElement>() { new NuiLabel($"Améliorable à proximité d'un atelier de type {workshopName}.") } });
+            return;
+          }
+
+          bestBlueprint = player.oid.ControlledCreature.Inventory.Items
+            .Where(i => i.Tag == "blueprint" && i.GetObjectVariable<LocalVariableInt>("_BASE_ITEM_TYPE").Value == (int)item.BaseItem.ItemType)
+            .OrderByDescending(i => i.GetObjectVariable<LocalVariableInt>("_BLUEPRINT_MATERIAL_EFFICIENCY").Value)
+            .ThenByDescending(i => i.GetObjectVariable<LocalVariableInt>("_BLUEPRINT_TIME_EFFICIENCY").Value).FirstOrDefault();
+
+          if(bestBlueprint == null)
+          {
+            rootChidren.Add(new NuiRow() { Children = new List<NuiElement>() { new NuiLabel("Améliorable avec le patron adéquat.") } });
+            return;
+          }
+
+          string icon = item.BaseItem.WeaponFocusFeat.IconResRef;
+          int materiaCost = (int)(player.GetItemMateriaCost(bestBlueprint) * (1 - (bestBlueprint.GetObjectVariable<LocalVariableInt>("_BLUEPRINT_MATERIAL_EFFICIENCY").Value / 100)));
+          TimeSpan jobDuration = TimeSpan.FromSeconds(player.GetItemCraftTime(bestBlueprint, materiaCost));
+
+          CraftResource resource = player.craftResourceStock.FirstOrDefault(r => r.type == ItemUtils.GetResourceTypeFromBlueprint(item) && r.grade == 1);
+          int availableQuantity = resource != null ? resource.quantity : 0;
+
+          rootChidren.Add(new NuiRow() { Children = new List<NuiElement>()
+            {
+              new NuiButtonImage(icon) { Tooltip = bestBlueprint.Name, Height = 40, Width = 40 },
+              new NuiLabel($"Coût en {ItemUtils.GetResourceNameFromBlueprint(bestBlueprint)} : {materiaCost}/{availableQuantity}") { Width = 160, Tooltip =  bestBlueprint.Name,
+                DrawList = new List<NuiDrawListItem>() { new NuiDrawListText(new NuiColor(255, 255, 255), new NuiRect(0, 35, 150, 60), $"Temps de fabrication : {new TimeSpan(jobDuration.Days, jobDuration.Hours, jobDuration.Minutes, jobDuration.Seconds)}") } },
+              new NuiButton("Améliorer") { Id = "upgrade", Enabled = player.newCraftJob == null && availableQuantity >= materiaCost, Tooltip = "Améliore l'objet à son prochain niveau de qualité avec le patron et la matéria adéquate.", Height = 40, Width = 80 }
+            } 
+          });
         }
       }
     }

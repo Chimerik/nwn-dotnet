@@ -441,15 +441,15 @@ namespace NWN.Systems.Craft.Collect
       return new List<ItemProperty>();
     }
 
-    public static List<ItemProperty> GetArmorProperties(NwItem craftedItem, int materialTier)
+    public static List<ItemProperty> GetArmorProperties(NwItem craftedItem, int grade)
     {
       List<ItemProperty> badArmor = new List<ItemProperty>();
 
-      switch (materialTier)
+      switch (grade)
       {
         case 0:
         case 1:
-          badArmor.Add(ItemProperty.ACBonus(craftedItem.BaseACValue * 3 + 7 * materialTier));
+          badArmor.Add(ItemProperty.ACBonus(craftedItem.BaseACValue * 3 + 7 * grade));
 
           switch (craftedItem.BaseACValue)
           {

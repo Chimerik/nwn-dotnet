@@ -275,7 +275,6 @@ namespace NWN.Systems
         oid.LoginCreature.OnItemEquip += ItemSystem.OnItemEquipBefore;
         oid.LoginCreature.OnUseFeat += FeatSystem.OnUseFeatBefore;
         oid.LoginCreature.OnSpellCast += SpellSystem.HandleBeforeSpellCast;
-        oid.OnExamineObject += ExamineSystem.OnExamineBefore;
 
         ItemSystem.feedbackService.AddCombatLogMessageFilter(CombatLogMessage.ComplexAttack, oid);
       }
@@ -322,7 +321,6 @@ namespace NWN.Systems
         player.OnPlayerDeath += HandlePlayerDeath;
         player.LoginCreature.OnUseFeat += FeatSystem.OnUseFeatBefore;
         player.LoginCreature.OnSpellCast += SpellSystem.HandleBeforeSpellCast;
-        player.OnExamineObject += ExamineSystem.OnExamineBefore;
         player.OnCombatStatusChange += OnCombatStarted;
         player.LoginCreature.OnCombatRoundStart += OnCombatRoundStart;
         player.LoginCreature.OnSpellBroadcast += SpellSystem.OnSpellBroadcast;
@@ -339,6 +337,7 @@ namespace NWN.Systems
         player.LoginCreature.OnUseSkill += HandleBeforeSkillUsed;
         player.OnPlayerGuiEvent += HandleGuiEvents;
         player.OnNuiEvent += HandleGenericNuiEvents;
+        player.SetGuiPanelDisabled(GUIPanel.ExamineItem, true);
       }
       private void InitializePlayerAccount()
       {
@@ -529,9 +528,9 @@ namespace NWN.Systems
           foreach (Effect eff in oid.LoginCreature.ActiveEffects.Where(e => e.Tag == "EFFECT_VFX_AFK"))
             oid.LoginCreature.RemoveEffect(eff);
 
-        string lastActionDate = oid.LoginCreature.GetObjectVariable<LocalVariableString>("_LAST_ACTION_DATE").Value;
+        DateTime lastActionDate = oid.LoginCreature.GetObjectVariable<DateTimeLocalVariable>("_LAST_ACTION_DATE").Value;
 
-        Task awaitPlayerAction = NwTask.WaitUntil(() => oid.LoginCreature == null || oid.LoginCreature.GetObjectVariable<LocalVariableString>("_LAST_ACTION_DATE").Value != lastActionDate, tokenSource.Token);
+        Task awaitPlayerAction = NwTask.WaitUntil(() => oid.LoginCreature == null || oid.LoginCreature.GetObjectVariable<DateTimeLocalVariable>("_LAST_ACTION_DATE").Value != lastActionDate, tokenSource.Token);
         Task awaitAFKTrigger = NwTask.Delay(TimeSpan.FromMinutes(5), tokenSource.Token);
 
         await NwTask.WhenAny(awaitPlayerAction, awaitAFKTrigger);

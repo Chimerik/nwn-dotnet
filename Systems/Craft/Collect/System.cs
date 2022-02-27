@@ -280,7 +280,7 @@ namespace NWN.Systems.Craft.Collect
     }
     public static void AddCraftedItemProperties(NwItem craftedItem, int grade)
     {
-      craftedItem.GetObjectVariable<LocalVariableInt>("ITEM_GRADE").Value = grade;
+      craftedItem.GetObjectVariable<LocalVariableInt>("_ITEM_GRADE").Value = grade;
 
       foreach (ItemProperty ip in GetCraftItemProperties(craftedItem, grade))
       {

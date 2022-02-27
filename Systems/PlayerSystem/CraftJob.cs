@@ -14,9 +14,10 @@ namespace NWN.Systems
     public static Dictionary<JobType, Func<Player, bool, bool>> HandleSpecificJobCompletion = new Dictionary<JobType, Func<Player, bool, bool>>
     {
       { JobType.ItemCreation, CompleteItemCreation },
+      { JobType.ItemUpgrade, CompleteItemUpgrade },
       { JobType.BlueprintCopy, CompleteBlueprintCopy },
       { JobType.BlueprintResearchMaterialEfficiency, CompleteBlueprintMaterialResearch },
-      { JobType.BlueprintResearchTimeEfficiency, CompleteBlueprintMaterialResearch }
+      { JobType.BlueprintResearchTimeEfficiency, CompleteBlueprintTimeResearch }
     };
 
     public enum JobType
@@ -80,7 +81,7 @@ namespace NWN.Systems
           craftedItem.GetObjectVariable<LocalVariableString>("ITEM_KEY").Value = Config.itemKey;
 
           Craft.Collect.System.AddCraftedItemProperties(craftedItem, 1);
-          craftedItem.GetObjectVariable<LocalVariableString>("_ORIGINAL_CRAFTER_NAME").Value = player.oid.LoginCreature.Name;
+          craftedItem.GetObjectVariable<LocalVariableString>("_ORIGINAL_CRAFTER_NAME").Value = player.oid.LoginCreature.OriginalName;
 
           int artisanExceptionnelLevel = player.learnableSkills.ContainsKey(CustomSkill.ArtisanExceptionnel) ? player.learnableSkills[CustomSkill.ArtisanExceptionnel].totalPoints : 0;
 
@@ -100,6 +101,61 @@ namespace NWN.Systems
 
           serializedCraftedItem = craftedItem.Serialize().ToBase64EncodedString();
           craftedItem.Destroy();
+
+          player.oid.ApplyInstantVisualEffectToObject((VfxType)1501, player.oid.ControlledCreature);
+        }
+        catch (Exception e)
+        {
+          Utils.LogMessageToDMs($"{e.Message}\n\n{e.StackTrace}");
+        }
+      }
+      public CraftJob(Player player, NwItem oBlueprint, double jobDuration, NwItem upgradedItem) // Item Upgrade
+      {
+        try
+        {
+          // TODO : gérer la durabilité de l'outil de craft
+
+          // s'il s'agit d'une copie de blueprint, alors le nombre d'utilisation diminue de 1
+          if (oBlueprint.GetObjectVariable<LocalVariableInt>("_BLUEPRINT_RUNS").HasValue)
+          {
+            oBlueprint.GetObjectVariable<LocalVariableInt>("_BLUEPRINT_RUNS").Value -= 1;
+
+            if (oBlueprint.GetObjectVariable<LocalVariableInt>("_BLUEPRINT_RUNS").Value < 1)
+              oBlueprint.Destroy();
+          }
+
+          icon = upgradedItem.BaseItem.WeaponFocusFeat.IconResRef;
+          remainingTime = jobDuration;
+          type = JobType.ItemCreation;
+
+          originalSerializedItem = upgradedItem.Serialize().ToBase64EncodedString();
+
+          NwItem craftedItem = NwItem.Create(BaseItems2da.baseItemTable.GetBaseItemDataEntry(upgradedItem.BaseItem.ItemType).craftedItem, player.oid.LoginCreature.Location);
+          craftedItem.GetObjectVariable<LocalVariableString>("ITEM_KEY").Value = Config.itemKey;
+
+          Craft.Collect.System.AddCraftedItemProperties(craftedItem, upgradedItem.GetObjectVariable<LocalVariableInt>("_ITEM_GRADE").Value + 1);
+          craftedItem.GetObjectVariable<LocalVariableString>("_ORIGINAL_CRAFTER_NAME").Value = player.oid.LoginCreature.OriginalName;
+
+          int artisanExceptionnelLevel = player.learnableSkills.ContainsKey(CustomSkill.ArtisanExceptionnel) ? player.learnableSkills[CustomSkill.ArtisanExceptionnel].totalPoints : 0;
+
+          if (NwRandom.Roll(Utils.random, 100) <= artisanExceptionnelLevel)
+          {
+            craftedItem.GetObjectVariable<LocalVariableInt>("_AVAILABLE_ENCHANTEMENT_SLOT").Value += 1;
+            player.oid.SendServerMessage("Votre talent d'artisan vous a permis de créer un objet exceptionnel disposant d'un emplacement d'enchantement supplémentaire !", ColorConstants.Navy);
+          }
+
+          int artisanAppliqueLevel = player.learnableSkills.ContainsKey(CustomSkill.ArtisanApplique) ? player.learnableSkills[CustomSkill.ArtisanApplique].totalPoints : 0;
+
+          if (NwRandom.Roll(Utils.random, 100) <= artisanAppliqueLevel * 3)
+          {
+            craftedItem.GetObjectVariable<LocalVariableInt>("_MAX_DURABILITY").Value *= (1 + 20 / 100);
+            player.oid.SendServerMessage("En travaillant de manière particulièrement appliquée, vous parvenez à fabriquer un objet plus résistant !", ColorConstants.Navy);
+          }
+
+          serializedCraftedItem = craftedItem.Serialize().ToBase64EncodedString();
+          craftedItem.Destroy();
+
+          player.oid.ApplyInstantVisualEffectToObject((VfxType)1501, player.oid.ControlledCreature);
         }
         catch (Exception e)
         {
@@ -216,7 +272,7 @@ namespace NWN.Systems
         player.oid.OnClientDisconnect -= HandleCraftJobOnPlayerLeave;
         player.oid.OnServerSendArea -= HandleCraftJobOnAreaChange;
 
-        player.oid.ApplyInstantVisualEffectToObject((VfxType)1516, player.oid.ControlledCreature);
+        //player.oid.ApplyInstantVisualEffectToObject((VfxType)1516, player.oid.ControlledCreature);
         player.oid.PlaySound("gui_level_up");
         player.oid.ExportCharacter();
       }
@@ -295,6 +351,8 @@ namespace NWN.Systems
         serializedCraftedItem = clone.Serialize().ToBase64EncodedString();
         oBlueprint.Destroy();
         clone.Destroy();
+
+        player.oid.ApplyInstantVisualEffectToObject((VfxType)631, player.oid.ControlledCreature);
       }
       private void StartBlueprintMaterialResearch(Player player, NwItem oBlueprint)
       {
@@ -311,6 +369,8 @@ namespace NWN.Systems
         serializedCraftedItem = clone.Serialize().ToBase64EncodedString();
         oBlueprint.Destroy();
         clone.Destroy();
+
+        player.oid.ApplyInstantVisualEffectToObject((VfxType)792, player.oid.ControlledCreature);
       }
       private void StartBlueprintTimeResearch(Player player, NwItem oBlueprint)
       {
@@ -327,6 +387,8 @@ namespace NWN.Systems
         serializedCraftedItem = clone.Serialize().ToBase64EncodedString();
         oBlueprint.Destroy();
         clone.Destroy();
+
+        player.oid.ApplyInstantVisualEffectToObject((VfxType)792, player.oid.ControlledCreature);
       }
     }
 
@@ -337,6 +399,7 @@ namespace NWN.Systems
         NwItem bpCopy = ItemUtils.DeserializeAndAcquireItem(player.newCraftJob.serializedCraftedItem, player.oid.LoginCreature);
         player.oid.SendServerMessage($"Vous venez de terminer le travail artisanal : {bpCopy.Name.ColorString(ColorConstants.White)}", ColorConstants.Orange);
         ItemUtils.DeserializeAndAcquireItem(player.newCraftJob.originalSerializedItem, player.oid.LoginCreature);
+        player.oid.ApplyInstantVisualEffectToObject((VfxType)631, player.oid.ControlledCreature);
       }
       else // cancelled
       {
@@ -352,6 +415,23 @@ namespace NWN.Systems
       {
         NwItem bpCopy = ItemUtils.DeserializeAndAcquireItem(player.newCraftJob.serializedCraftedItem, player.oid.LoginCreature);
         player.oid.SendServerMessage($"Vous venez de terminer le travail artisanal : {bpCopy.Name.ColorString(ColorConstants.White)}", ColorConstants.Orange);
+        player.oid.ApplyInstantVisualEffectToObject((VfxType)792, player.oid.ControlledCreature);
+      }
+      else // cancelled
+      {
+        NwItem bpCopy = ItemUtils.DeserializeAndAcquireItem(player.newCraftJob.originalSerializedItem, player.oid.LoginCreature);
+        player.oid.SendServerMessage($"Vous venez d'annuler le travail artisanal : {bpCopy.Name.ColorString(ColorConstants.White)}", ColorConstants.Orange);
+      }
+
+      return true;
+    }
+    private static bool CompleteBlueprintTimeResearch(Player player, bool completed)
+    {
+      if (completed)
+      {
+        NwItem bpCopy = ItemUtils.DeserializeAndAcquireItem(player.newCraftJob.serializedCraftedItem, player.oid.LoginCreature);
+        player.oid.SendServerMessage($"Vous venez de terminer le travail artisanal : {bpCopy.Name.ColorString(ColorConstants.White)}", ColorConstants.Orange);
+        player.oid.ApplyInstantVisualEffectToObject((VfxType)792, player.oid.ControlledCreature);
       }
       else // cancelled
       {
@@ -367,9 +447,26 @@ namespace NWN.Systems
       {
         NwItem item = ItemUtils.DeserializeAndAcquireItem(player.newCraftJob.serializedCraftedItem, player.oid.LoginCreature);
         player.oid.SendServerMessage($"Vous venez de terminer la création de : {item.Name.ColorString(ColorConstants.White)}", ColorConstants.Orange);
+        player.oid.ApplyInstantVisualEffectToObject((VfxType)1501, player.oid.ControlledCreature);
       }
       else // cancelled
       {
+        player.oid.SendServerMessage($"Vous venez d'annuler la création d'un objet artisanal.", ColorConstants.Orange);
+      }
+
+      return true;
+    }
+    private static bool CompleteItemUpgrade(Player player, bool completed)
+    {
+      if (completed)
+      {
+        NwItem item = ItemUtils.DeserializeAndAcquireItem(player.newCraftJob.serializedCraftedItem, player.oid.LoginCreature);
+        player.oid.SendServerMessage($"Vous venez de terminer la création de : {item.Name.ColorString(ColorConstants.White)}", ColorConstants.Orange);
+        player.oid.ApplyInstantVisualEffectToObject((VfxType)1501, player.oid.ControlledCreature);
+      }
+      else // cancelled
+      {
+        NwItem item = ItemUtils.DeserializeAndAcquireItem(player.newCraftJob.originalSerializedItem, player.oid.LoginCreature);
         player.oid.SendServerMessage($"Vous venez d'annuler la création d'un objet artisanal.", ColorConstants.Orange);
       }
 

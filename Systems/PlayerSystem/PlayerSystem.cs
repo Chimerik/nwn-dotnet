@@ -419,18 +419,58 @@ namespace NWN.Systems
       }
     }
 
-    [ScriptHandler("on_nui_event")]
-    private void HandleNuiEvent(CallInfo callInfo)
-    {
-      
-    }
-
     private static void HandleGuiEvents(ModuleEvents.OnPlayerGuiEvent guiEvent)
     {
       NwPlayer oPC = guiEvent.Player;
-
+      oPC.LoginCreature.GetObjectVariable<DateTimeLocalVariable>("_LAST_ACTION_DATE").Value = DateTime.Now;
+      
       switch (guiEvent.EventType)
       {
+        case GuiEventType.DisabledPanelAttemptOpen:
+
+          switch(guiEvent.OpenedPanel)
+          {
+            case GUIPanel.ExamineItem:
+
+              if (!Players.TryGetValue(oPC.LoginCreature, out Player player))
+                return;
+
+              if (player.windows.ContainsKey("itemExamine"))
+                ((Player.ItemExamineWindow)player.windows["itemExamine"]).CreateWindow((NwItem)guiEvent.EventObject);
+              else
+                player.windows.Add("itemExamine", new Player.ItemExamineWindow(player, (NwItem)guiEvent.EventObject));
+
+              return;
+          }
+          
+          break;
+
+        case GuiEventType.ExamineObject:
+
+          if(guiEvent.EventObject is NwCreature examineCreature && examineCreature == oPC.LoginCreature)
+          {
+            if (!Players.TryGetValue(oPC.LoginCreature, out Player player))
+              return;
+
+            if (player.newCraftJob != null && !player.openedWindows.ContainsKey("activeCraftJob"))
+            {
+              if (player.windows.ContainsKey("activeCraftJob"))
+                ((Player.ActiveCraftJobWindow)player.windows["activeCraftJob"]).CreateWindow();
+              else
+                player.windows.Add("activeCraftJob", new Player.ActiveCraftJobWindow(player));
+            }
+
+            if (!player.openedWindows.ContainsKey("learnables"))
+            {
+              if (player.windows.ContainsKey("learnables"))
+                ((Player.ActiveCraftJobWindow)player.windows["learnables"]).CreateWindow();
+              else
+                player.windows.Add("learnables", new Player.ActiveCraftJobWindow(player));
+            }
+          }
+
+          break;
+
         case GuiEventType.PartyBarPortraitClick:
           oPC.SendServerMessage("portrait click");
           break;

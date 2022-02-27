@@ -298,23 +298,10 @@ namespace NWN.Systems
         }
       }
 
-      public async void AcquireCraftedItem()
+      public void AcquireCraftedItem()
       {
         switch (craftJob.type)
         {
-          case Job.JobType.BlueprintCopy:
-            NwItem bpCopy = ItemUtils.DeserializeAndAcquireItem(craftJob.craftedItem, oid.LoginCreature);
-            bpCopy.GetObjectVariable<LocalVariableInt>("_BLUEPRINT_RUNS").Value = 10;
-            bpCopy.Name = $"Copie de {bpCopy.Name}";         
-            break;
-          case Job.JobType.BlueprintResearchMaterialEfficiency:
-            NwItem improvedMEBP = ItemUtils.DeserializeAndAcquireItem(craftJob.craftedItem, oid.LoginCreature);
-            improvedMEBP.GetObjectVariable<LocalVariableInt>("_BLUEPRINT_MATERIAL_EFFICIENCY").Value = improvedMEBP.GetObjectVariable<LocalVariableInt>("_BLUEPRINT_MATERIAL_EFFICIENCY").Value + 1;
-            break;
-          case Job.JobType.BlueprintResearchTimeEfficiency:
-            NwItem researchedBP = ItemUtils.DeserializeAndAcquireItem(craftJob.craftedItem, oid.LoginCreature);
-            researchedBP.GetObjectVariable<LocalVariableInt>("_BLUEPRINT_TIME_EFFICIENCY").Value += 1;
-            break;
           case Job.JobType.Enchantement:
             NwItem enchantedItem = ItemUtils.DeserializeAndAcquireItem(craftJob.craftedItem, oid.LoginCreature);
 
@@ -410,69 +397,6 @@ namespace NWN.Systems
             potion.GetObjectVariable<LocalVariableString>("_SERIALIZED_PROPERTIES").Value = craftJob.material;
 
             break;
-          /*default:
-            if (Craft.Collect.System.blueprintDictionnary.TryGetValue(craftJob.baseItemType, out Blueprint blueprint))
-            {
-              NwItem craftedItem;
-              if (craftJob.craftedItem != "")
-                craftedItem = ItemUtils.DeserializeAndAcquireItem(craftJob.craftedItem, oid.LoginCreature);
-              else
-              {
-                craftedItem = await NwItem.Create(blueprint.craftedItemTag, oid.LoginCreature);
-                craftedItem.GetObjectVariable<LocalVariableString>("ITEM_KEY").Value = Config.itemKey;
-              }
-
-              if (craftedItem == null)
-              {
-                oid.SendServerMessage($"Votre fabrication artisanale est terminée. Ouvrez votre journal pour obtenir le résultat de votre travail !");
-                return;
-              }
-
-              Craft.Collect.System.AddCraftedItemProperties(craftedItem, craftJob.material);
-              craftedItem.GetObjectVariable<LocalVariableString>("_ORIGINAL_CRAFTER_NAME").Value = oid.LoginCreature.Name;
-
-              int artisanExceptionnelLevel = 0;
-              if (learntCustomFeats.ContainsKey(CustomFeats.ArtisanExceptionnel))
-                artisanExceptionnelLevel += GetCustomFeatLevelFromSkillPoints(CustomFeats.ArtisanExceptionnel, learntCustomFeats[CustomFeats.ArtisanExceptionnel]);
-
-              if (NwRandom.Roll(Utils.random, 100) <= artisanExceptionnelLevel)
-              {
-                craftedItem.GetObjectVariable<LocalVariableInt>("_AVAILABLE_ENCHANTEMENT_SLOT").Value += 1;
-                oid.SendServerMessage("Votre talent d'artisan vous a permis de créer un objet exceptionnel disposant d'un emplacement d'enchantement supplémentaire !", ColorConstants.Navy);
-              }
-
-              int artisanAppliqueLevel = 0;
-              if (learntCustomFeats.ContainsKey(CustomFeats.ArtisanApplique))
-                artisanAppliqueLevel += GetCustomFeatLevelFromSkillPoints(CustomFeats.ArtisanApplique, learntCustomFeats[CustomFeats.ArtisanApplique]);
-
-              if (NwRandom.Roll(Utils.random, 100) <= artisanAppliqueLevel * 3)
-              {
-                craftedItem.GetObjectVariable<LocalVariableInt>("_MAX_DURABILITY").Value += craftedItem.GetObjectVariable<LocalVariableInt>("_MAX_DURABILITY").Value * 20 / 100;
-                oid.SendServerMessage("En travaillant de manière particulièrement appliquée, vous parvenez à fabriquer un objet plus résistant !", ColorConstants.Navy);
-              }
-
-              craftedItem.GetObjectVariable<LocalVariableInt>("_DURABILITY").Value = craftedItem.GetObjectVariable<LocalVariableInt>("_MAX_DURABILITY").Value;
-              craftedItem.GetObjectVariable<LocalVariableInt>("_REPAIR_DONE").Delete();
-
-              foreach (ItemProperty ip in craftedItem.ItemProperties.Where(ip => ip.Tag.Contains("INACTIVE")))
-              {
-                Task waitLoop = NwTask.Run(async () =>
-                {
-                  ItemProperty deactivatedIP = ip;
-                  await NwTask.Delay(TimeSpan.FromSeconds(0.1f));
-                  craftedItem.RemoveItemProperty(deactivatedIP);
-                  await NwTask.Delay(TimeSpan.FromSeconds(0.1f));
-                  deactivatedIP.Tag = deactivatedIP.Tag.Replace("_INACTIVE", "");
-                  craftedItem.AddItemProperty(deactivatedIP, EffectDuration.Permanent);
-                });
-              }
-            }
-            else
-            {
-              oid.SendServerMessage("[ERREUR HRP] Il semble que votre dernière création soit invalide. Le staff a été informé du problème.");
-              Utils.LogMessageToDMs($"AcquireCraftedItem : {oid.LoginCreature.Name} - Blueprint invalid - {craftJob.baseItemType} - For {oid.LoginCreature.Name}");
-            }
-            break;*/
         }
 
         craftJob.CloseCraftJournalEntry();
@@ -1200,7 +1124,7 @@ namespace NWN.Systems
 
         return materiaCost;
       }
-      public double GetItemMateriaCost(NwItem item)
+      public double GetItemMateriaCost(NwItem item, int grade = 1)
       {
         BaseItemType baseItemType;
 
@@ -1209,15 +1133,15 @@ namespace NWN.Systems
           baseItemType = (BaseItemType)item.GetObjectVariable<LocalVariableInt>("_BASE_ITEM_TYPE").Value;
 
           if (baseItemType == BaseItemType.Armor)
-            return GetArmorMateriaCost(item.GetObjectVariable<LocalVariableInt>("_ARMOR_BASE_AC").Value);
+            return GetArmorMateriaCost(item.GetObjectVariable<LocalVariableInt>("_ARMOR_BASE_AC").Value) * (1 - ((grade - 1) / 10));
         }
         else
           baseItemType = item.BaseItem.ItemType;
 
         if (baseItemType == BaseItemType.Armor)
-          return GetArmorMateriaCost(item.BaseACValue);
+          return GetArmorMateriaCost(item.BaseACValue) * (1 - ((grade - 1) / 10));
 
-        return GetWeaponMateriaCost(baseItemType);
+        return GetWeaponMateriaCost(baseItemType) * (1 - ((grade - 1) / 10));
       }
 
       public double GetArmorMateriaCost(int baseACValue)
@@ -1267,6 +1191,47 @@ namespace NWN.Systems
         }
 
         return -1;
+      }
+
+      public void HandleCraftItemChecks(NwItem blueprint, NwItem upgradedItem = null)
+      {
+        if (newCraftJob != null)
+        {
+          oid.SendServerMessage("Veuillez annuler votre travail artisanal en cours avant d'en commencer un nouveau.", ColorConstants.Red);
+          return;
+        }
+
+        if (blueprint == null || blueprint.Possessor == oid.ControlledCreature)
+        {
+          oid.SendServerMessage($"{blueprint.Name.ColorString(ColorConstants.White)} n'est plus en votre possession. Impossible de démarrer le travail artisanal.", ColorConstants.Red);
+          return;
+        }
+
+        int grade = upgradedItem != null ? upgradedItem.GetObjectVariable<LocalVariableInt>("_ITEM_GRADE").Value + 1 : 1 ;
+
+        int materiaCost = (int)(GetItemMateriaCost(blueprint, grade) * (1 - (blueprint.GetObjectVariable<LocalVariableInt>("_BLUEPRINT_MATERIAL_EFFICIENCY").Value / 100)));
+        CraftResource resource = craftResourceStock.FirstOrDefault(r => r.type == ItemUtils.GetResourceTypeFromBlueprint(blueprint) && r.grade == 1 && r.quantity >= materiaCost);
+        int availableQuantity = resource != null ? resource.quantity : 0;
+
+        if (availableQuantity < materiaCost)
+        {
+          oid.SendServerMessage($"Il vous manque {(materiaCost - availableQuantity).ToString().ColorString(ColorConstants.White)} unités de matéria pour pouvoir commencer ce travail artisanal.", ColorConstants.Red);
+          return;
+        }
+
+        resource.quantity -= materiaCost;
+
+        if (grade < 2)
+          newCraftJob = new CraftJob(this, blueprint, GetItemCraftTime(blueprint, materiaCost));
+        else
+          newCraftJob = new CraftJob(this, blueprint, GetItemCraftTime(blueprint, materiaCost), upgradedItem);
+
+        if (windows.ContainsKey("activeCraftJob"))
+          ((ActiveCraftJobWindow)windows["activeCraftJob"]).CreateWindow();
+        else
+          windows.Add("activeCraftJob", new ActiveCraftJobWindow(this));
+
+        return;
       }
     }
   }
