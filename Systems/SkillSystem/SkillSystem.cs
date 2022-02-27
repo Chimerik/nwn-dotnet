@@ -322,6 +322,12 @@ namespace NWN.Systems
       learnableDictionary.Add(CustomSkill.ArtisanApplique, new LearnableSkill(CustomSkill.ArtisanApplique, "Artisan concentré", "Augmente de 3 % par niveau la chance d'augmenter la durabilité d'un objet lors de sa fabrication.", Category.Craft, "ife_X2EpicRepu", 10, 1, Ability.Dexterity, Ability.Wisdom));
 
       learnableDictionary.Add(CustomSkill.Renforcement, new LearnableSkill(CustomSkill.Renforcement, "Artisan concentré", "Permet d'augmenter la durabilité d'un objet de 5 % par renforcement. Cumulable 10 fois.\n\nDiminue le temps de travail nécessaire de 5 % par niveau.", Category.Craft, "ife_X2EpicRepu", 10, 1, Ability.Intelligence, Ability.Constitution));
+      learnableDictionary.Add(CustomSkill.Recycler, new LearnableSkill(CustomSkill.Recycler, "Recyclage", "Permet de mettre en pièces les objets afin d'extraire une fraction de la matéria brute qu'ils contiennent.\n\n Diminue le temps nécessaire au recyclage et augmente le rendement de 1 % par niveau.", Category.Craft, "ife_X2EpicRepu", 10, 1, Ability.Dexterity, Ability.Wisdom));
+      learnableDictionary.Add(CustomSkill.RecyclerFast, new LearnableSkill(CustomSkill.RecyclerFast, "Recyclage rapide", "Permet d'effectuer une tâche de recyclage 1 % plus rapidement par niveau.", Category.Craft, "ife_X2EpicRepu", 10, 2, Ability.Dexterity, Ability.Intelligence));
+      learnableDictionary.Add(CustomSkill.RecyclerExpert, new LearnableSkill(CustomSkill.RecyclerExpert, "Recyclage expert", "Augmente le rendement du recyclage de 1 % par niveau.", Category.Craft, "ife_X2EpicRepu", 10, 2, Ability.Dexterity, Ability.Wisdom));
+
+      learnableDictionary.Add(CustomSkill.SurchargeArcanique, new LearnableSkill(CustomSkill.SurchargeArcanique, "Surcharge arcanique", "Permet de forcer l'ajout d'emplacements d'enchantements sur un objet au risque de le briser.\n\nAugmente de 1 % par niveau la chance de parvenir à forcer l'ajout d'un emplacement d'enchantement supplémentaire.", Category.Craft, "ife_X2EpicRepu", 10, 2, Ability.Charisma, Ability.Constitution));
+      learnableDictionary.Add(CustomSkill.SurchargeControlee, new LearnableSkill(CustomSkill.SurchargeControlee, "Surcharge contrôlée", "Augmente de 5 % par niveau la chance de conserver l'objet intact lors de l'échec d'une tentative de surcharge.", Category.Craft, "ife_X2EpicRepu", 10, 3, Ability.Wisdom, Ability.Constitution));
     }
     public static Dictionary<Feat, CustomFeat> customFeatsDictionnary = new Dictionary<Feat, CustomFeat>()
     {

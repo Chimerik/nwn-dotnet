@@ -36,9 +36,6 @@ namespace NWN.Systems.Craft
         case -14:
           this.type = JobType.Enchantement;
           break;
-        case -15:
-          this.type = JobType.Recycling;
-          break;
         case -17:
           this.type = JobType.Repair;
           break;
@@ -103,22 +100,12 @@ namespace NWN.Systems.Craft
 
       return true;
     }
-    private bool IsBlueprintOriginal(NwItem oBlueprint)
-    {
-      if (oBlueprint.GetObjectVariable<LocalVariableInt>("_BLUEPRINT_RUNS").Value > 0)
-        return false;
-      else
-        return true;
-    }
     public void Start(JobType type, PlayerSystem.Player player, NwItem oItem, NwGameObject oTarget = null, string sMaterial = "")
     {
       switch (type)
       {
         case JobType.Enchantement:
           StartEnchantementCraft(oTarget, sMaterial);
-          break;
-        case JobType.Recycling:
-          StartRecycleCraft(oTarget, sMaterial);
           break;
         case JobType.Repair:
           StartItemRepair(oItem, oTarget, sMaterial);
@@ -253,58 +240,6 @@ namespace NWN.Systems.Craft
 
       oTarget.Destroy();
       player.oid.SendServerMessage($"L'objet {oTarget.Name.ColorString(ColorConstants.White)} ne sera pas disponible jusqu'à la fin du travail d'enchantement.", ColorConstants.Orange);
-
-      player.craftJob.isCancelled = false;
-    }
-    private void StartRecycleCraft(NwGameObject oTarget, string material)
-    {
-      NwItem item = (NwItem)oTarget;
-
-      int baseItemType = (int)item.BaseItem.ItemType;
-      int baseCost = ItemUtils.GetBaseItemCost(item);
-
-      float iJobDuration = baseCost * 125;
-
-      if (this.player.learntCustomFeats.ContainsKey(CustomFeats.Recycler))
-        iJobDuration -= iJobDuration * 1 * SkillSystem.GetCustomFeatLevelFromSkillPoints(CustomFeats.Recycler, this.player.learntCustomFeats[CustomFeats.Recycler]) / 100;
-
-      item.GetObjectVariable<LocalVariableInt>("_BASE_COST").Value = baseCost;
-      player.craftJob = new Job(-15, material, iJobDuration, player, item.Serialize().ToBase64EncodedString()); // -15 = JobType recyclage
-
-      player.oid.SendServerMessage($"Vous venez de démarrer le recyclage de : {item.Name.ColorString(ColorConstants.White)}", ColorConstants.Orange);
-      // TODO : afficher des effets visuels
-
-      item.Destroy();
-      player.oid.SendServerMessage($"L'objet {item.Name.ColorString(ColorConstants.White)} ne sera pas disponible jusqu'à la fin du travail de recyclage.", ColorConstants.Red);
-
-      player.craftJob.isCancelled = false;
-    }
-    private void StartRenforcementCraft(NwGameObject oTarget)
-    {
-      NwItem item = (NwItem)oTarget;
-
-      if(item.GetObjectVariable<LocalVariableInt>("_REINFORCEMENT_LEVEL").Value >= 10)
-      {
-        player.oid.SendServerMessage($"{item.Name.ColorString(ColorConstants.White)} a déjà été renforcé au maximum des capacités du matériau.", ColorConstants.Orange);
-        return;
-      }
-
-      int renforcementLevel = 0;
-      if (player.learntCustomFeats.ContainsKey(CustomFeats.Renforcement))
-        renforcementLevel += SkillSystem.GetCustomFeatLevelFromSkillPoints(CustomFeats.Renforcement, player.learntCustomFeats[CustomFeats.Renforcement]);
-
-      int baseCost = ItemUtils.GetBaseItemCost(item);
-
-      float iJobDuration = baseCost * 100 * (100 - renforcementLevel * 5) / 100;
-
-      item.GetObjectVariable<LocalVariableInt>("_BASE_COST").Value = baseCost;
-      player.craftJob = new Job(-16, material, iJobDuration, player, item.Serialize().ToBase64EncodedString()); // -16 = JobType recyclage
-
-      player.oid.SendServerMessage($"Vous venez de démarrer le renforcement de : {item.Name.ColorString(ColorConstants.White)}", ColorConstants.Orange);
-      // TODO : afficher des effets visuels
-
-      item.Destroy();
-      player.oid.SendServerMessage($"L'objet {item.Name.ColorString(ColorConstants.White)} ne sera pas disponible jusqu'à la fin du travail de renforcement.", ColorConstants.Red);
 
       player.craftJob.isCancelled = false;
     }

@@ -85,6 +85,8 @@ namespace NWN.Systems
 
           player.oid.OnNuiEvent -= HandleMateriaStorageEvents;
           player.oid.OnNuiEvent += HandleMateriaStorageEvents;
+          player.oid.OnServerSendArea -= OnAreaChangeCloseWindow;
+          player.oid.OnServerSendArea += OnAreaChangeCloseWindow;
 
           token = player.oid.CreateNuiWindow(window, windowId);
 

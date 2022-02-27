@@ -326,6 +326,18 @@ namespace NWN.Systems
               actionRowChildren.Add(new NuiButton("Renforcer") { Id = "renforcement", Tooltip = "Permet d'augmenter la durabilité maximale de l'objet de 5 %. Cumulable 10 fois." });
               actionRowChildren.Add(new NuiSpacer());
             }
+
+            if (player.learnableSkills.ContainsKey(CustomSkill.Recycler) && player.learnableSkills[CustomSkill.Recycler].totalPoints > 0)
+            {
+              actionRowChildren.Add(new NuiButton("Recycler") { Id = "recycle", Tooltip = "Permet de mettre en pièces les objets afin d'extraire une fraction de la matéria brute qu'ils contiennent." });
+              actionRowChildren.Add(new NuiSpacer());
+            }
+
+            if (player.learnableSkills.ContainsKey(CustomSkill.SurchargeArcanique) && player.learnableSkills[CustomSkill.SurchargeArcanique].totalPoints > 0)
+            {
+              actionRowChildren.Add(new NuiButton("Surcharger") { Id = "surcharge", Tooltip = "Force l'ajout d'un emplacement d'enchantement au risque de briser l'objet." });
+              actionRowChildren.Add(new NuiSpacer());
+            }
           }
 
           rootChidren.Add(actionRow);
@@ -501,7 +513,36 @@ namespace NWN.Systems
                 if (player.newCraftJob != null)
                   player.oid.SendServerMessage("Veuillez annuler votre travail artisanal en cours avant d'en commencer un nouveau.", ColorConstants.Red);
                 else
-                  player.newCraftJob = new CraftJob(player, item);
+                  player.newCraftJob = new CraftJob(player, item, JobType.Renforcement);
+
+                player.oid.NuiDestroy(token);
+                return;
+
+              case "recycle":
+                if (player.newCraftJob != null)
+                  player.oid.SendServerMessage("Veuillez annuler votre travail artisanal en cours avant d'en commencer un nouveau.", ColorConstants.Red);
+                else
+                  player.newCraftJob = new CraftJob(player, item, JobType.Recycling);
+
+                player.oid.NuiDestroy(token);
+                return;
+
+              case "surcharge":
+
+                int controlLevel = player.learnableSkills.ContainsKey(CustomSkill.SurchargeControlee) ? player.learnableSkills[CustomSkill.SurchargeControlee].totalPoints : 0;
+
+                int dice = NwRandom.Roll(Utils.random, 100);
+
+                if (dice <= player.learnableSkills[CustomSkill.SurchargeArcanique].totalPoints)
+                {
+                  item.GetObjectVariable<LocalVariableInt>("_AVAILABLE_ENCHANTEMENT_SLOT").Value += 1;
+                  player.oid.SendServerMessage($"En forçant à l'aide de votre puissance brute, vous parvenez à ajouter un emplacement de sort supplémentaire à votre {item.Name.ColorString(ColorConstants.White)} !", ColorConstants.Navy);
+                }
+                else if (dice > controlLevel)
+                {
+                  item.Destroy();
+                  player.oid.SendServerMessage($"Vous forcez, forcez, et votre {item.Name.ColorString(ColorConstants.White)} se brise sous l'excès infligé.", ColorConstants.Purple);
+                }
 
                 player.oid.NuiDestroy(token);
                 return;

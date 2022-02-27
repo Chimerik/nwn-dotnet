@@ -65,7 +65,7 @@
     public const int MagicPeltReprocessing = 1310;
     public const int EpicPeltReprocessing = 1311;
     public const int LegendaryPeltReprocessing = 1312;
-    public const int Recycler = 1313;
+    
     public const int ContractScience = 1314;
     public const int Marchand = 1315;
     public const int Magnat = 1316;
@@ -75,8 +75,6 @@
     public const int Comptabilite = 1320;
     public const int Enchanteur = 1321;
     
-    public const int SurchargeArcanique = 1323;
-    public const int SurchargeControlee = 1324;
     public const int EnchanteurExpert = 1325;
     public const int EnchanteurChanceux = 1326;
     
@@ -453,6 +451,12 @@
     public const int ArtisanApplique = 20332;
 
     public const int Renforcement = 20333;
+    public const int Recycler = 20334;
+    public const int RecyclerFast = 20335;
+    public const int RecyclerExpert = 20336;
+
+    public const int SurchargeArcanique = 20337;
+    public const int SurchargeControlee = 20338;
 
     public const int Invalid = 65535;
   }

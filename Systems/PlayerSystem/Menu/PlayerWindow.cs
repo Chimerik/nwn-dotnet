@@ -1,4 +1,5 @@
 ﻿using Anvil.API;
+using Anvil.API.Events;
 
 namespace NWN.Systems
 {
@@ -26,6 +27,11 @@ namespace NWN.Systems
 
           // TODO : à la création initiale de la fenêtre, on charge la geometry à partir des infos de la BDD
 
+        }
+
+        protected void OnAreaChangeCloseWindow(OnServerSendArea onArea)
+        {
+          player.oid.NuiDestroy(token);
         }
       }
     }

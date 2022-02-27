@@ -109,6 +109,8 @@ namespace NWN.Systems
 
           player.oid.OnNuiEvent -= HandleFishingStrengthEvents;
           player.oid.OnNuiEvent += HandleFishingStrengthEvents;
+          player.oid.OnServerSendArea -= OnAreaChangeCloseWindow;
+          player.oid.OnServerSendArea += OnAreaChangeCloseWindow;
 
           token = player.oid.CreateNuiWindow(window, windowId);
 

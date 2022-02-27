@@ -292,12 +292,7 @@ namespace NWN.Systems
     public static string GetResourceNameFromBlueprint(NwItem blueprint)
     {
       BaseItemType baseItemType = (BaseItemType)blueprint.GetObjectVariable<LocalVariableInt>("_BASE_ITEM_TYPE").Value;
-      string workshop;
-
-      if (baseItemType == BaseItemType.Armor)
-        workshop = Armor2da.armorTable.GetDataEntry((blueprint.GetObjectVariable<LocalVariableInt>("_ARMOR_BASE_AC").Value)).workshop;
-      else
-        workshop = BaseItems2da.baseItemTable.GetBaseItemDataEntry(baseItemType).workshop;
+      string workshop = baseItemType == BaseItemType.Armor ? Armor2da.armorTable.GetDataEntry((blueprint.GetObjectVariable<LocalVariableInt>("_ARMOR_BASE_AC").Value)).workshop : BaseItems2da.baseItemTable.GetBaseItemDataEntry(baseItemType).workshop; ;
 
       switch (workshop)
       {
@@ -314,12 +309,23 @@ namespace NWN.Systems
     public static ResourceType GetResourceTypeFromBlueprint(NwItem blueprint)
     {
       BaseItemType baseItemType = (BaseItemType)blueprint.GetObjectVariable<LocalVariableInt>("_BASE_ITEM_TYPE").Value;
-      string workshop;
+      string workshop = baseItemType == BaseItemType.Armor ? Armor2da.armorTable.GetDataEntry((blueprint.GetObjectVariable<LocalVariableInt>("_ARMOR_BASE_AC").Value)).workshop : BaseItems2da.baseItemTable.GetBaseItemDataEntry(baseItemType).workshop;
 
-      if (baseItemType == BaseItemType.Armor)
-        workshop = Armor2da.armorTable.GetDataEntry((blueprint.GetObjectVariable<LocalVariableInt>("_ARMOR_BASE_AC").Value)).workshop;
-      else
-        workshop = BaseItems2da.baseItemTable.GetBaseItemDataEntry(baseItemType).workshop;
+      switch (workshop)
+      {
+        case "forge":
+          return ResourceType.Ingot;
+        case "scierie":
+          return ResourceType.Plank;
+        case "tannerie":
+          return ResourceType.Leather;
+      }
+
+      return ResourceType.Invalid;
+    }
+    public static ResourceType GetResourceTypeFromItem(NwItem item)
+    {
+      string workshop = item.BaseItem.ItemType == BaseItemType.Armor ? Armor2da.armorTable.GetDataEntry((item.BaseACValue)).workshop : BaseItems2da.baseItemTable.GetBaseItemDataEntry(item.BaseItem.ItemType).workshop;
 
       switch (workshop)
       {

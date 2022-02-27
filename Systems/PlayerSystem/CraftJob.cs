@@ -16,6 +16,7 @@ namespace NWN.Systems
       { JobType.ItemCreation, CompleteItemCreation },
       { JobType.ItemUpgrade, CompleteItemUpgrade },
       { JobType.Renforcement, CompleteItemReinforcement },
+      { JobType.Recycling, CompleteItemRecycling },
       { JobType.BlueprintCopy, CompleteBlueprintCopy },
       { JobType.BlueprintResearchMaterialEfficiency, CompleteBlueprintMaterialResearch },
       { JobType.BlueprintResearchTimeEfficiency, CompleteBlueprintTimeResearch }
@@ -160,26 +161,6 @@ namespace NWN.Systems
           Utils.LogMessageToDMs($"{e.Message}\n\n{e.StackTrace}");
         }
       }
-      public CraftJob(Player player, NwItem item) // Renforcement
-      {
-        try
-        {
-          remainingTime = ItemUtils.GetBaseItemCost(item) * 100 * (1 - (player.learnableSkills[CustomSkill.Renforcement].totalPoints * 5 / 100));
-          originalSerializedItem = item.Serialize().ToBase64EncodedString();
-
-          item.GetObjectVariable<LocalVariableInt>("_MAX_DURABILITY").Value += item.GetObjectVariable<LocalVariableInt>("_MAX_DURABILITY").Value * 5 / 100;
-          item.GetObjectVariable<LocalVariableInt>("_REINFORCEMENT_LEVEL").Value += 1;
-
-          serializedCraftedItem = item.Serialize().ToBase64EncodedString();
-          item.Destroy();
-
-          player.oid.ApplyInstantVisualEffectToObject((VfxType)1501, player.oid.ControlledCreature);
-        }
-        catch (Exception e)
-        {
-          Utils.LogMessageToDMs($"{e.Message}\n\n{e.StackTrace}");
-        }
-      }
       public CraftJob(Player player, NwItem oBlueprint, JobType type) // Blueprint Copy
       {
         try
@@ -200,6 +181,14 @@ namespace NWN.Systems
             case JobType.BlueprintResearchTimeEfficiency:
               icon = NwBaseItem.FromItemId(oBlueprint.GetObjectVariable<LocalVariableInt>("_BASE_ITEM_TYPE").Value).EpicWeaponFocusFeat.IconResRef;
               StartBlueprintTimeResearch(player, oBlueprint);
+              break;
+            case JobType.Renforcement:
+              icon = NwBaseItem.FromItemId(oBlueprint.GetObjectVariable<LocalVariableInt>("_BASE_ITEM_TYPE").Value).EpicWeaponFocusFeat.IconResRef;
+              StartRenforcement(player, oBlueprint);
+              break;
+            case JobType.Recycling:
+              icon = NwBaseItem.FromItemId(oBlueprint.GetObjectVariable<LocalVariableInt>("_BASE_ITEM_TYPE").Value).EpicWeaponFocusFeat.IconResRef;
+              StartRecycling(player, oBlueprint);
               break;
           }          
         }
@@ -408,6 +397,45 @@ namespace NWN.Systems
 
         player.oid.ApplyInstantVisualEffectToObject((VfxType)792, player.oid.ControlledCreature);
       }
+      private void StartRenforcement(Player player, NwItem item)
+      {
+        try
+        {
+          remainingTime = ItemUtils.GetBaseItemCost(item) * 100 * (1 - (player.learnableSkills[CustomSkill.Renforcement].totalPoints * 5 / 100));
+          originalSerializedItem = item.Serialize().ToBase64EncodedString();
+
+          item.GetObjectVariable<LocalVariableInt>("_MAX_DURABILITY").Value += item.GetObjectVariable<LocalVariableInt>("_MAX_DURABILITY").Value * 5 / 100;
+          item.GetObjectVariable<LocalVariableInt>("_REINFORCEMENT_LEVEL").Value += 1;
+
+          serializedCraftedItem = item.Serialize().ToBase64EncodedString();
+          item.Destroy();
+
+          player.oid.ApplyInstantVisualEffectToObject((VfxType)1501, player.oid.ControlledCreature);
+        }
+        catch (Exception e)
+        {
+          Utils.LogMessageToDMs($"{e.Message}\n\n{e.StackTrace}");
+        }
+      }
+      private void StartRecycling(Player player, NwItem item)
+      {
+        try
+        {
+          remainingTime = ItemUtils.GetBaseItemCost(item) * 125 * player.learnableSkills[CustomSkill.Recycler].bonusReduction;
+
+          if (player.learnableSkills.ContainsKey(CustomSkill.RecyclerFast))
+            remainingTime *= player.learnableSkills[CustomSkill.RecyclerFast].bonusReduction;
+
+          originalSerializedItem = item.Serialize().ToBase64EncodedString();
+          item.Destroy();
+
+          player.oid.ApplyInstantVisualEffectToObject((VfxType)818, player.oid.ControlledCreature);
+        }
+        catch (Exception e)
+        {
+          Utils.LogMessageToDMs($"{e.Message}\n\n{e.StackTrace}");
+        }
+      }
     }
 
     private static bool CompleteBlueprintCopy(Player player, bool completed)
@@ -502,6 +530,43 @@ namespace NWN.Systems
       {
         NwItem item = ItemUtils.DeserializeAndAcquireItem(player.newCraftJob.originalSerializedItem, player.oid.LoginCreature);
         player.oid.SendServerMessage($"Vous venez d'annuler le renforcement de : {item.Name.ColorString(ColorConstants.White)}", ColorConstants.Orange);
+      }
+
+      return true;
+    }
+    private static bool CompleteItemRecycling(Player player, bool completed)
+    {
+      if (completed)
+      {
+        NwItem item = NwItem.Deserialize(player.newCraftJob.originalSerializedItem.ToByteArray());
+
+        ResourceType resourceType = ItemUtils.GetResourceTypeFromItem(item);
+        int grade = item.GetObjectVariable<LocalVariableInt>("_ITEM_GRADE").HasValue ? item.GetObjectVariable<LocalVariableInt>("_ITEM_GRADE").Value : 1;
+        double quantity = item.BaseItem.BaseCost * 125 * player.learnableSkills[CustomSkill.Recycler].bonusMultiplier;
+
+        if (player.learnableSkills.ContainsKey(CustomSkill.RecyclerExpert))
+          quantity *= player.learnableSkills[CustomSkill.RecyclerExpert].bonusMultiplier;
+
+        CraftResource resource = player.craftResourceStock.FirstOrDefault(r => r.type == resourceType && r.grade == grade);
+
+        if (resource != null)
+          resource.quantity += (int)quantity;
+        else
+          player.craftResourceStock.Add(new CraftResource(Craft.Collect.System.craftResourceArray.FirstOrDefault(r => r.type == resourceType && r.grade == grade), (int)quantity));
+
+        player.oid.SendServerMessage($"Le recyclage de : {item.Name.ColorString(ColorConstants.White)} vous rapporte {quantity.ToString().ColorString(ColorConstants.White)} unités de matéria de qualité {((int)grade).ToString().ColorString(ColorConstants.White)}", ColorConstants.Orange);
+        player.oid.ApplyInstantVisualEffectToObject((VfxType)818, player.oid.ControlledCreature);
+
+
+
+        
+
+        item.Destroy();
+      }
+      else // cancelled
+      {
+        NwItem item = ItemUtils.DeserializeAndAcquireItem(player.newCraftJob.originalSerializedItem, player.oid.LoginCreature);
+        player.oid.SendServerMessage($"Vous venez d'annuler le recyclage de : {item.Name.ColorString(ColorConstants.White)}", ColorConstants.Orange);
       }
 
       return true;

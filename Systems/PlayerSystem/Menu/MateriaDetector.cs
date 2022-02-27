@@ -92,6 +92,8 @@ namespace NWN.Systems
 
           player.oid.OnNuiEvent -= HandleDetectorEvents;
           player.oid.OnNuiEvent += HandleDetectorEvents;
+          player.oid.OnServerSendArea -= OnAreaChangeCloseWindow;
+          player.oid.OnServerSendArea += OnAreaChangeCloseWindow;
 
           token = player.oid.CreateNuiWindow(window, windowId);
 

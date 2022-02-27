@@ -352,22 +352,6 @@ namespace NWN.Systems
             });
 
             break;
-          case Job.JobType.Recycling:
-            NwItem recycledItem = NwItem.Deserialize(craftJob.craftedItem.ToByteArray());
-            int recycledValue = recycledItem.GetObjectVariable<LocalVariableInt>("_BASE_COST").Value;
-
-            if (learntCustomFeats.ContainsKey(CustomFeats.Recycler))
-              recycledValue +=  recycledValue * 1 * GetCustomFeatLevelFromSkillPoints(CustomFeats.Recycler, learntCustomFeats[CustomFeats.Recycler]) / 100;
-
-            if (materialStock.ContainsKey(craftJob.material))
-              materialStock[craftJob.material] += recycledValue;
-            else
-              materialStock.Add(craftJob.material, recycledValue);
-
-            oid.SendServerMessage($"Recyclage de {recycledItem.Name.ColorString(ColorConstants.White)} terminé. Vous en retirez {recycledValue} unité(s) de {craftJob.material}", new Color(32, 255, 32)) ;
-            recycledItem.Destroy();
-
-            break;
           case Job.JobType.Repair:
             NwItem repairedItem = ItemUtils.DeserializeAndAcquireItem(craftJob.craftedItem, oid.LoginCreature);
 

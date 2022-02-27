@@ -58,6 +58,8 @@ namespace NWN.Systems
 
           player.oid.OnNuiEvent -= HandleJukeBoxEvents;
           player.oid.OnNuiEvent += HandleJukeBoxEvents;
+          player.oid.OnServerSendArea -= OnAreaChangeCloseWindow;
+          player.oid.OnServerSendArea += OnAreaChangeCloseWindow;
 
           token = player.oid.CreateNuiWindow(window, windowId);
 
