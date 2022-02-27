@@ -39,9 +39,6 @@ namespace NWN.Systems.Craft
         case -15:
           this.type = JobType.Recycling;
           break;
-        case -16:
-          this.type = JobType.Renforcement;
-          break;
         case -17:
           this.type = JobType.Repair;
           break;
@@ -64,7 +61,6 @@ namespace NWN.Systems.Craft
       Invalid = 0,
       Enchantement = 5,
       Recycling = 6,
-      Renforcement = 7,
       Repair = 8,
       EnchantementReactivation = 9,
       Alchemy = 10,
@@ -123,9 +119,6 @@ namespace NWN.Systems.Craft
           break;
         case JobType.Recycling:
           StartRecycleCraft(oTarget, sMaterial);
-          break;
-        case JobType.Renforcement:
-          StartRenforcementCraft(oTarget);
           break;
         case JobType.Repair:
           StartItemRepair(oItem, oTarget, sMaterial);
@@ -300,7 +293,6 @@ namespace NWN.Systems.Craft
       if (player.learntCustomFeats.ContainsKey(CustomFeats.Renforcement))
         renforcementLevel += SkillSystem.GetCustomFeatLevelFromSkillPoints(CustomFeats.Renforcement, player.learntCustomFeats[CustomFeats.Renforcement]);
 
-      int baseItemType = (int)item.BaseItem.ItemType;
       int baseCost = ItemUtils.GetBaseItemCost(item);
 
       float iJobDuration = baseCost * 100 * (100 - renforcementLevel * 5) / 100;
@@ -356,10 +348,6 @@ namespace NWN.Systems.Craft
           journalEntry.Text = $"Recyclage en cours : {NwItem.Deserialize(craftedItem.ToByteArray()).Name}";
           player.oid.ApplyInstantVisualEffectToObject((VfxType)818, player.oid.ControlledCreature);
           break;
-        case JobType.Renforcement:
-          journalEntry.Text = $"Renforcement en cours : {NwItem.Deserialize(craftedItem.ToByteArray()).Name}";
-          player.oid.ApplyInstantVisualEffectToObject((VfxType)829, player.oid.ControlledCreature);
-          break;
         case JobType.Repair:
           journalEntry.Text = $"Réparation en cours : {NwItem.Deserialize(craftedItem.ToByteArray()).Name}";
           player.oid.ApplyInstantVisualEffectToObject((VfxType)1501, player.oid.ControlledCreature);
@@ -390,9 +378,6 @@ namespace NWN.Systems.Craft
           break;
         case JobType.Recycling:
           journalEntry.Name = $"Recyclage en pause";
-          break;
-        case JobType.Renforcement:
-          journalEntry.Name = $"Renforcement en pause";
           break;
         case JobType.Repair:
           journalEntry.Name = $"Réparations en pause";
@@ -425,10 +410,6 @@ namespace NWN.Systems.Craft
         case JobType.Recycling:
           journalEntry.Name = $"Recyclage terminé - {NwItem.Deserialize(craftedItem.ToByteArray()).Name}";
           player.oid.ApplyInstantVisualEffectToObject((VfxType)818, player.oid.ControlledCreature);
-          break;
-        case JobType.Renforcement:
-          journalEntry.Name = $"Renforcement terminé - {NwItem.Deserialize(craftedItem.ToByteArray()).Name}";
-          player.oid.ApplyInstantVisualEffectToObject((VfxType)829, player.oid.ControlledCreature);
           break;
         case JobType.Repair:
           journalEntry.Name = $"Réparations terminées - {NwItem.Deserialize(craftedItem.ToByteArray()).Name}";

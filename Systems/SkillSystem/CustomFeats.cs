@@ -80,7 +80,6 @@
     public const int EnchanteurExpert = 1325;
     public const int EnchanteurChanceux = 1326;
     
-    public const int Renforcement = 1328;
     public const int CombattantPrecautionneux = 1329;
     public const int Sit = 1330;
     public const int MetalRepair = 1331;
@@ -452,6 +451,8 @@
     public const int Tanner = 20330;
     public const int ArtisanExceptionnel = 20331;
     public const int ArtisanApplique = 20332;
+
+    public const int Renforcement = 20333;
 
     public const int Invalid = 65535;
   }

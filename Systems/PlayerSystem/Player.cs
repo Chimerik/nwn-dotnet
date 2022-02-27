@@ -368,15 +368,6 @@ namespace NWN.Systems
             recycledItem.Destroy();
 
             break;
-          case Job.JobType.Renforcement:
-            NwItem reinforcedItem = ItemUtils.DeserializeAndAcquireItem(craftJob.craftedItem, oid.LoginCreature);
-
-            reinforcedItem.GetObjectVariable<LocalVariableInt>("_DURABILITY").Value += reinforcedItem.GetObjectVariable<LocalVariableInt>("_MAX_DURABILITY").Value * 5 / 100;
-            reinforcedItem.GetObjectVariable<LocalVariableInt>("_REINFORCEMENT_LEVEL").Value += 1;
-
-            oid.SendServerMessage($"Renforcement de {reinforcedItem.Name.ColorString(ColorConstants.White)} terminé.", new Color(32, 255, 32));
-
-            break;
           case Job.JobType.Repair:
             NwItem repairedItem = ItemUtils.DeserializeAndAcquireItem(craftJob.craftedItem, oid.LoginCreature);
 

@@ -51,19 +51,6 @@ namespace NWN.Systems
           new Recycler(player.oid, onUseFeat.TargetObject);
           break;
 
-        case CustomFeats.Renforcement:
-
-          onUseFeat.PreventFeatUse = true;
-
-          if (player.oid.LoginCreature.Area.GetObjectVariable<LocalVariableInt>("_AREA_LEVEL").Value != 0)
-          {
-            player.oid.SendServerMessage($"Impossible de démarrer un travail artisanal sans pouvoir accéder à un atelier.", ColorConstants.Red);
-            return;
-          }
-
-          new Renforcement(player.oid, onUseFeat.TargetObject);
-          break;
-
         case CustomFeats.SurchargeArcanique:
 
           onUseFeat.PreventFeatUse = true;

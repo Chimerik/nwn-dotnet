@@ -23,6 +23,7 @@ namespace NWN.Systems
         private readonly NuiBind<string> itemName = new NuiBind<string>("itemName");
         private readonly NuiBind<string> itemDescription = new NuiBind<string>("itemDescription");
         private bool modificationAllowed { get; set; }
+        private bool IsInWorkshopRange { get; set; }
         private NwItem item { get; set; }
         private NwItem bestBlueprint { get; set; }
 
@@ -45,6 +46,9 @@ namespace NWN.Systems
           modificationAllowed = (string.IsNullOrWhiteSpace(originalCrafterName) || originalCrafterName == player.oid.ControlledCreature.OriginalName)
             && (item.Possessor == player.oid.ControlledCreature || player.oid.IsDM)
             && item.Tag != "skillbook" && item.Tag != "blueprint";
+
+          if (item.GetObjectVariable<LocalVariableInt>("_MAX_DURABILITY").HasValue)
+            IsInWorkshopRange = IsPlayerInWorkshopRange();
 
           List<NuiElement> nameRowChildren = new List<NuiElement>();
           NuiRow nameRow = new NuiRow() { Children = nameRowChildren };
@@ -310,11 +314,18 @@ namespace NWN.Systems
             actionRowChildren.Add(new NuiSpacer());
           }
 
-          if (item.GetObjectVariable<LocalVariableInt>("_MAX_DURABILITY").HasValue)
+          if (item.GetObjectVariable<LocalVariableInt>("_MAX_DURABILITY").HasValue && IsInWorkshopRange && player.newCraftJob == null)
           {
             actionRowChildren.Add(new NuiSpacer());
             actionRowChildren.Add(new NuiButton("Réparer") { Id = "repair", Tooltip = "Vers les réparations" });
             actionRowChildren.Add(new NuiSpacer());
+
+            if(player.learnableSkills.ContainsKey(CustomSkill.Renforcement) && player.learnableSkills[CustomSkill.Renforcement].totalPoints > 0
+              && item.GetObjectVariable<LocalVariableInt>("_REINFORCEMENT_LEVEL").Value < 10)
+            {
+              actionRowChildren.Add(new NuiButton("Renforcer") { Id = "renforcement", Tooltip = "Permet d'augmenter la durabilité maximale de l'objet de 5 %. Cumulable 10 fois." });
+              actionRowChildren.Add(new NuiSpacer());
+            }
           }
 
           rootChidren.Add(actionRow);
@@ -378,7 +389,7 @@ namespace NWN.Systems
             {
               case "modifyName":
                 item.Name = itemName.GetBindValue(player.oid, token);
-                break;
+                return;
 
               case "modifyDescription":
                 item.Description = itemDescription.GetBindValue(player.oid, token);
@@ -450,25 +461,25 @@ namespace NWN.Systems
                   ((ActiveCraftJobWindow)player.windows["activeCraftJob"]).CreateWindow();
                 else
                   player.windows.Add("activeCraftJob", new ActiveCraftJobWindow(player));
-                break;
+                return;
 
               case "blueprintTE":
 
                 if (player.newCraftJob != null)
-                {
                   player.oid.SendServerMessage("Veuillez annuler votre travail artisanal en cours avant d'en commencer un nouveau.", ColorConstants.Red);
+                else
+                {
+                  player.newCraftJob = new CraftJob(player, item, JobType.BlueprintResearchTimeEfficiency);
                   player.oid.NuiDestroy(token);
-                  return;
+
+                  if (player.windows.ContainsKey("activeCraftJob"))
+                    ((ActiveCraftJobWindow)player.windows["activeCraftJob"]).CreateWindow();
+                  else
+                    player.windows.Add("activeCraftJob", new ActiveCraftJobWindow(player));
                 }
 
-                player.newCraftJob = new CraftJob(player, item, JobType.BlueprintResearchTimeEfficiency);
                 player.oid.NuiDestroy(token);
-
-                if (player.windows.ContainsKey("activeCraftJob"))
-                  ((ActiveCraftJobWindow)player.windows["activeCraftJob"]).CreateWindow();
-                else
-                  player.windows.Add("activeCraftJob", new ActiveCraftJobWindow(player));
-                break;
+                return;
 
               case "skillbook_learn":
 
@@ -479,12 +490,21 @@ namespace NWN.Systems
                 item.Destroy();
                 player.oid.NuiDestroy(token);
 
-                break;
+                return;
 
               case "upgrade":
                 player.HandleCraftItemChecks(bestBlueprint, item);
                 player.oid.NuiDestroy(token);
-                break;
+                return;
+
+              case "renforcement":
+                if (player.newCraftJob != null)
+                  player.oid.SendServerMessage("Veuillez annuler votre travail artisanal en cours avant d'en commencer un nouveau.", ColorConstants.Red);
+                else
+                  player.newCraftJob = new CraftJob(player, item);
+
+                player.oid.NuiDestroy(token);
+                return;
             }
 
             if(nuiEvent.ElementId.StartsWith("up_"))
@@ -678,12 +698,9 @@ namespace NWN.Systems
         }
         private void DrawUpgradeWidget()
         {
-          string workshopName = BaseItems2da.baseItemTable.GetBaseItemDataEntry(item.BaseItem.ItemType).workshop;
-          NwPlaceable workshop = player.oid.ControlledCreature.GetNearestObjectsByType<NwPlaceable>().FirstOrDefault(w => w.Tag == workshopName);
-
-          if (workshop == null || player.oid.ControlledCreature.DistanceSquared(workshop) > 25)
+          if (!IsInWorkshopRange)
           {
-            rootChidren.Add(new NuiRow() { Children = new List<NuiElement>() { new NuiLabel($"Améliorable à proximité d'un atelier de type {workshopName}.") } });
+            rootChidren.Add(new NuiRow() { Children = new List<NuiElement>() { new NuiLabel($"Améliorable à proximité d'un atelier artisanal adéquat.") } });
             return;
           }
 
@@ -713,6 +730,17 @@ namespace NWN.Systems
               new NuiButton("Améliorer") { Id = "upgrade", Enabled = player.newCraftJob == null && availableQuantity >= materiaCost, Tooltip = "Améliore l'objet à son prochain niveau de qualité avec le patron et la matéria adéquate.", Height = 40, Width = 80 }
             } 
           });
+        }
+
+        private bool IsPlayerInWorkshopRange()
+        {
+          string workshopName = BaseItems2da.baseItemTable.GetBaseItemDataEntry(item.BaseItem.ItemType).workshop;
+          NwPlaceable workshop = player.oid.ControlledCreature.GetNearestObjectsByType<NwPlaceable>().FirstOrDefault(w => w.Tag == workshopName);
+
+          if (workshop == null || player.oid.ControlledCreature.DistanceSquared(workshop) > 25)
+            return false;
+
+          return true;
         }
       }
     }

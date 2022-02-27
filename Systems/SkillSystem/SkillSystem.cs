@@ -320,7 +320,8 @@ namespace NWN.Systems
       learnableDictionary.Add(CustomSkill.Tanner, new LearnableSkill(CustomSkill.Tanner, "Tanneur", "Diminue le temps de fabrication et le coût en matéria d'un objet de la tannerie de 1 % par niveau.", Category.Craft, "ife_X2EpicRepu", 10, 1, Ability.Dexterity, Ability.Constitution));
       learnableDictionary.Add(CustomSkill.ArtisanExceptionnel, new LearnableSkill(CustomSkill.ArtisanExceptionnel, "Artisan d'exception", "Augmente de 1 % par niveau la chance de parvenir à produire un objet avec un emplacement d'enchantement supplémentaire.", Category.Craft, "ife_X2EpicRepu", 10, 3, Ability.Dexterity, Ability.Constitution));
       learnableDictionary.Add(CustomSkill.ArtisanApplique, new LearnableSkill(CustomSkill.ArtisanApplique, "Artisan concentré", "Augmente de 3 % par niveau la chance d'augmenter la durabilité d'un objet lors de sa fabrication.", Category.Craft, "ife_X2EpicRepu", 10, 1, Ability.Dexterity, Ability.Wisdom));
-      
+
+      learnableDictionary.Add(CustomSkill.Renforcement, new LearnableSkill(CustomSkill.Renforcement, "Artisan concentré", "Permet d'augmenter la durabilité d'un objet de 5 % par renforcement. Cumulable 10 fois.\n\nDiminue le temps de travail nécessaire de 5 % par niveau.", Category.Craft, "ife_X2EpicRepu", 10, 1, Ability.Intelligence, Ability.Constitution));
     }
     public static Dictionary<Feat, CustomFeat> customFeatsDictionnary = new Dictionary<Feat, CustomFeat>()
     {
