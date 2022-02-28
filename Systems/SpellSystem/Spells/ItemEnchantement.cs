@@ -72,10 +72,8 @@ namespace NWN.Systems
     {
       NwItem oTarget = NWScript.GetSpellTargetObject().ToNwObject<NwItem>();
 
-      if (!(callInfo.ObjectSelf is NwCreature { IsPlayerControlled: true } oCaster) || oTarget == null || !Players.TryGetValue(oCaster.ControllingPlayer.LoginCreature, out Player player))
-        return;
-
-      if (!player.craftJob.CanStartJob(player.oid, null, Craft.Job.JobType.Enchantement))
+      if (!(callInfo.ObjectSelf is NwCreature { IsPlayerControlled: true } oCaster) || oTarget == null 
+        || oTarget.Possessor != oCaster || !Players.TryGetValue(oCaster.ControllingPlayer.LoginCreature, out Player player))
         return;
 
       int spellId = NWScript.GetSpellId();

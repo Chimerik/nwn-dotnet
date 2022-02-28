@@ -55,6 +55,12 @@ namespace NWN.Systems
 
     public static void RegisterMetaMagicOnSpellInput(OnSpellAction onSpellAction)
     {
+      if(onSpellAction.Spell.ImpactScript == "on_ench_cast" && PlayerSystem.Players.TryGetValue(onSpellAction.Caster, out PlayerSystem.Player player) && player.newCraftJob != null)
+      {
+        player.oid.SendServerMessage("Veuillez annuler votre travail artisanal en cours avant d'en commencer un nouveau.");
+        onSpellAction.PreventSpellCast = true;
+      }
+
       if (onSpellAction.MetaMagic == MetaMagic.Silent)
         onSpellAction.Caster.GetObjectVariable<LocalVariableInt>("_IS_SILENT_SPELL").Value = 1;
     }
