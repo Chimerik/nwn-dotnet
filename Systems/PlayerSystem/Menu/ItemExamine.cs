@@ -224,6 +224,9 @@ namespace NWN.Systems
             }
 
             rootChidren.Add(durabilityRow);
+
+            if(player.learnableSkills.ContainsKey(CustomSkill.Repair))
+              rootChidren.Add(new NuiRow() { Children = new List<NuiElement>() { new NuiLabel(player.GetItemRepairDescriptionString(item)) } });
           }
 
           switch(item.Tag)
@@ -314,7 +317,8 @@ namespace NWN.Systems
             actionRowChildren.Add(new NuiSpacer());
           }
 
-          if (item.GetObjectVariable<LocalVariableInt>("_MAX_DURABILITY").HasValue && IsInWorkshopRange && player.newCraftJob == null)
+          if (item.GetObjectVariable<LocalVariableInt>("_MAX_DURABILITY").HasValue && IsInWorkshopRange && player.newCraftJob == null
+            && player.learnableSkills.ContainsKey(CustomSkill.Repair) && player.learnableSkills[CustomSkill.Repair].totalPoints > 0)
           {
             actionRowChildren.Add(new NuiSpacer());
             actionRowChildren.Add(new NuiButton("Réparer") { Id = "repair", Tooltip = "Vers les réparations" });
@@ -413,8 +417,8 @@ namespace NWN.Systems
                 return;
 
               case "repair":
+                player.HandleRepairItemChecks(item);
                 player.oid.NuiDestroy(token);
-                // TODO : menu de réparation
                 return;
 
               case "add":

@@ -17,6 +17,7 @@ namespace NWN.Systems
       { JobType.ItemUpgrade, CompleteItemUpgrade },
       { JobType.Renforcement, CompleteItemReinforcement },
       { JobType.Recycling, CompleteItemRecycling },
+      { JobType.Repair, CompleteItemRepair },
       { JobType.BlueprintCopy, CompleteBlueprintCopy },
       { JobType.BlueprintResearchMaterialEfficiency, CompleteBlueprintMaterialResearch },
       { JobType.BlueprintResearchTimeEfficiency, CompleteBlueprintTimeResearch }
@@ -436,8 +437,40 @@ namespace NWN.Systems
           Utils.LogMessageToDMs($"{e.Message}\n\n{e.StackTrace}");
         }
       }
-    }
+      public CraftJob(Player player, NwItem item, double jobDuration, JobType jobType) // Repair
+      {
+        try
+        {
+          // TODO : gérer la durabilité de l'outil de craft
 
+          icon = item.BaseItem.WeaponFocusFeat.IconResRef;
+          remainingTime = jobDuration;
+          type = jobType;
+
+          originalSerializedItem = item.Serialize().ToBase64EncodedString();
+
+          NwItem repairedItem = NwItem.Create(BaseItems2da.baseItemTable.GetBaseItemDataEntry(item.BaseItem.ItemType).craftedItem, player.oid.LoginCreature.Location);
+          repairedItem.GetObjectVariable<LocalVariableString>("ITEM_KEY").Value = Config.itemKey;
+
+          if(player.learnableSkills.ContainsKey(CustomSkill.RepairCareful))
+            repairedItem.GetObjectVariable<LocalVariableInt>("_MAX_DURABILITY").Value = (int)(repairedItem.GetObjectVariable<LocalVariableInt>("_MAX_DURABILITY").Value * (0.95 + player.learnableSkills[CustomSkill.RepairCareful].totalPoints / 100));
+
+          repairedItem.GetObjectVariable<LocalVariableInt>("_DURABILITY").Value = repairedItem.GetObjectVariable<LocalVariableInt>("_MAX_DURABILITY").Value;
+          repairedItem.GetObjectVariable<LocalVariableInt>("_DURABILITY_NB_REPAIRS").Value += 1;
+
+          serializedCraftedItem = repairedItem.Serialize().ToBase64EncodedString();
+
+          item.Destroy();
+          repairedItem.Destroy();
+
+          player.oid.ApplyInstantVisualEffectToObject((VfxType)1501, player.oid.ControlledCreature);
+        }
+        catch (Exception e)
+        {
+          Utils.LogMessageToDMs($"{e.Message}\n\n{e.StackTrace}");
+        }
+      }
+    }
     private static bool CompleteBlueprintCopy(Player player, bool completed)
     {
       if (completed)
@@ -557,16 +590,28 @@ namespace NWN.Systems
         player.oid.SendServerMessage($"Le recyclage de : {item.Name.ColorString(ColorConstants.White)} vous rapporte {quantity.ToString().ColorString(ColorConstants.White)} unités de matéria de qualité {((int)grade).ToString().ColorString(ColorConstants.White)}", ColorConstants.Orange);
         player.oid.ApplyInstantVisualEffectToObject((VfxType)818, player.oid.ControlledCreature);
 
-
-
-        
-
         item.Destroy();
       }
       else // cancelled
       {
         NwItem item = ItemUtils.DeserializeAndAcquireItem(player.newCraftJob.originalSerializedItem, player.oid.LoginCreature);
         player.oid.SendServerMessage($"Vous venez d'annuler le recyclage de : {item.Name.ColorString(ColorConstants.White)}", ColorConstants.Orange);
+      }
+
+      return true;
+    }
+    private static bool CompleteItemRepair(Player player, bool completed)
+    {
+      if (completed)
+      {
+        NwItem item = ItemUtils.DeserializeAndAcquireItem(player.newCraftJob.serializedCraftedItem, player.oid.LoginCreature);
+        player.oid.SendServerMessage($"Vous venez de terminer la réparation de : {item.Name.ColorString(ColorConstants.White)}", ColorConstants.Orange);
+        player.oid.ApplyInstantVisualEffectToObject((VfxType)1501, player.oid.ControlledCreature);
+      }
+      else // cancelled
+      {
+        NwItem item = ItemUtils.DeserializeAndAcquireItem(player.newCraftJob.originalSerializedItem, player.oid.LoginCreature);
+        player.oid.SendServerMessage($"Vous venez d'annuler la réparation de : {item.Name.ColorString(ColorConstants.White)}", ColorConstants.Orange);
       }
 
       return true;

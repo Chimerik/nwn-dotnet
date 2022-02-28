@@ -36,9 +36,6 @@ namespace NWN.Systems.Craft
         case -14:
           this.type = JobType.Enchantement;
           break;
-        case -17:
-          this.type = JobType.Repair;
-          break;
         case -18:
           this.type = JobType.EnchantementReactivation;
           break;
@@ -57,8 +54,6 @@ namespace NWN.Systems.Craft
     {
       Invalid = 0,
       Enchantement = 5,
-      Recycling = 6,
-      Repair = 8,
       EnchantementReactivation = 9,
       Alchemy = 10,
     }
@@ -107,9 +102,6 @@ namespace NWN.Systems.Craft
         case JobType.Enchantement:
           StartEnchantementCraft(oTarget, sMaterial);
           break;
-        case JobType.Repair:
-          StartItemRepair(oItem, oTarget, sMaterial);
-          break;
         case JobType.EnchantementReactivation:
           StartEnchantementReactivationCraft(oTarget, sMaterial);
           break;
@@ -118,84 +110,6 @@ namespace NWN.Systems.Craft
           break;
       }
 
-    }
-    public void StartItemRepair(NwItem oItem, NwGameObject oTarget, string sMaterial)
-    {
-      player.craftJob.isCancelled = false;
-      int iMineralCost = (int)player.GetItemMateriaCost(oItem);
-      double iJobDuration = player.GetItemCraftTime(oItem, iMineralCost);
-
-      if (oTarget.GetObjectVariable<LocalVariableString>("_ORIGINAL_CRAFTER_NAME").Value == player.oid.LoginCreature.Name)
-      {
-        iMineralCost -= iMineralCost / 4;
-        iJobDuration -= iJobDuration / 4;
-      }
-
-      int materialType = 0;
-      Dictionary<string, int> repairMaterials = new Dictionary<string, int>();
-      if (Enum.TryParse(material, out MineralType myMineralType))
-      {
-        iMineralCost -= iMineralCost * (int)materialType / 10;
-
-        for (int i = (int)materialType - 1; i == 1; i--)
-        {
-          repairMaterials.Add(myMineralType.ToString(), iMineralCost);
-          iMineralCost += iMineralCost * (10 / 100);
-        }
-      }
-      else if (Enum.TryParse(material, out PlankType myPlankType))
-      {
-        iMineralCost -= iMineralCost * (int)materialType / 10;
-
-        for (int i = (int)materialType; i == 1; i--)
-        {
-          repairMaterials.Add(myMineralType.ToString(), iMineralCost);
-          iMineralCost += iMineralCost * (10 / 100);
-        }
-      }
-      else if (Enum.TryParse(material, out LeatherType myLeatherType))
-      {
-        iMineralCost -= iMineralCost * (int)materialType / 10;
-
-        for (int i = (int)materialType; i == 1; i--)
-        {
-          repairMaterials.Add(myMineralType.ToString(), iMineralCost);
-          iMineralCost += iMineralCost * (10 / 100);
-        }
-      }
-
-      foreach (KeyValuePair<string, int> materials in repairMaterials)
-      {
-        if (!player.materialStock.ContainsKey(materials.Key))
-        {
-          player.oid.SendServerMessage($"Il vous manque {materials.Value.ToString().ColorString(ColorConstants.White)} unités de {materials.Key.ColorString(ColorConstants.White)} pour réaliser ce travail artisanal.", ColorConstants.Red);
-          return;
-        }
-        else if (player.materialStock[materials.Key] < materials.Value)
-        {
-          player.oid.SendServerMessage($"Il vous manque {(materials.Value - player.materialStock[materials.Key]).ToString().ColorString(ColorConstants.White)} unités de {materials.Key.ColorString(ColorConstants.White)} pour réaliser ce travail artisanal.", ColorConstants.Red);
-          return;
-        }
-      }
-
-      foreach (KeyValuePair<string, int> materials in repairMaterials)
-        player.materialStock[materials.Key] -= materials.Value;
-
-      //player.oid.SendServerMessage($"Vous venez de démarrer la réparation de l'objet artisanal : {blueprint.name.ColorString(ColorConstants.White)} en {sMaterial.ColorString(ColorConstants.White)}", new Color(32, 255, 32));
-      // TODO : afficher des effets visuels sur la forge
-
-      player.craftJob = new Job(-17, sMaterial, iJobDuration, player, oTarget.Serialize().ToBase64EncodedString());
-      oTarget.Destroy();
-      player.oid.SendServerMessage($"L'objet {oTarget.Name.ColorString(ColorConstants.White)} ne sera pas disponible jusqu'à la fin du travail artisanal.", ColorConstants.Orange);
-
-      // s'il s'agit d'une copie de blueprint, alors le nombre d'utilisation diminue de 1
-      int iBlueprintRemainingRuns = oItem.GetObjectVariable<LocalVariableInt>("_BLUEPRINT_RUNS").Value;
-      if (iBlueprintRemainingRuns == 1)
-        oItem.Destroy();
-      if (iBlueprintRemainingRuns > 0)
-        oItem.GetObjectVariable<LocalVariableInt>("_BLUEPRINT_RUNS").Value -= 1;
-
-      ItemUtils.DecreaseItemDurability(player.oid.LoginCreature.GetItemInSlot(InventorySlot.RightHand));
     }
     private void StartEnchantementCraft(NwGameObject oTarget, string ipString)
     {
@@ -279,14 +193,6 @@ namespace NWN.Systems.Craft
           enchantementVfx.Tag = "VFX_ENCHANTEMENT";
           player.oid.LoginCreature.ApplyEffect(EffectDuration.Permanent, enchantementVfx);
           break;
-        case JobType.Recycling:
-          journalEntry.Text = $"Recyclage en cours : {NwItem.Deserialize(craftedItem.ToByteArray()).Name}";
-          player.oid.ApplyInstantVisualEffectToObject((VfxType)818, player.oid.ControlledCreature);
-          break;
-        case JobType.Repair:
-          journalEntry.Text = $"Réparation en cours : {NwItem.Deserialize(craftedItem.ToByteArray()).Name}";
-          player.oid.ApplyInstantVisualEffectToObject((VfxType)1501, player.oid.ControlledCreature);
-          break;
         case JobType.EnchantementReactivation:
           journalEntry.Text = $"Enchantement en cours : {NwItem.Deserialize(craftedItem.ToByteArray()).Name}";
           Effect reactivationVfx = Effect.VisualEffect((VfxType)832);
@@ -310,12 +216,6 @@ namespace NWN.Systems.Craft
           foreach (Effect vfx in player.oid.LoginCreature.ActiveEffects.Where(e => e.Tag == "VFX_ENCHANTEMENT"))
             player.oid.LoginCreature.RemoveEffect(vfx);
           journalEntry.Name = $"Enchantement en pause";
-          break;
-        case JobType.Recycling:
-          journalEntry.Name = $"Recyclage en pause";
-          break;
-        case JobType.Repair:
-          journalEntry.Name = $"Réparations en pause";
           break;
         case JobType.EnchantementReactivation:
           foreach (Effect vfx in player.oid.LoginCreature.ActiveEffects.Where(e => e.Tag == "VFX_ENCHANTEMENT"))
@@ -341,14 +241,6 @@ namespace NWN.Systems.Craft
 
           player.oid.ApplyInstantVisualEffectToObject((VfxType)1055, player.oid.ControlledCreature);
           journalEntry.Name = $"Enchantement terminé - {NwItem.Deserialize(craftedItem.ToByteArray()).Name}";
-          break;
-        case JobType.Recycling:
-          journalEntry.Name = $"Recyclage terminé - {NwItem.Deserialize(craftedItem.ToByteArray()).Name}";
-          player.oid.ApplyInstantVisualEffectToObject((VfxType)818, player.oid.ControlledCreature);
-          break;
-        case JobType.Repair:
-          journalEntry.Name = $"Réparations terminées - {NwItem.Deserialize(craftedItem.ToByteArray()).Name}";
-          player.oid.ApplyInstantVisualEffectToObject((VfxType)1501, player.oid.ControlledCreature);
           break;
         case JobType.EnchantementReactivation:
           foreach (Effect vfx in player.oid.LoginCreature.ActiveEffects.Where(e => e.Tag == "VFX_ENCHANTEMENT"))

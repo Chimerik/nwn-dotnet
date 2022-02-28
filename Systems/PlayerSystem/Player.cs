@@ -352,20 +352,6 @@ namespace NWN.Systems
             });
 
             break;
-          case Job.JobType.Repair:
-            NwItem repairedItem = ItemUtils.DeserializeAndAcquireItem(craftJob.craftedItem, oid.LoginCreature);
-
-            if(!repairedItem.ItemProperties.Any(ip => ip.Tag.Contains("_INACTIVE")))
-            {
-              repairedItem.GetObjectVariable<LocalVariableInt>("_DURABILITY").Value = repairedItem.GetObjectVariable<LocalVariableInt>("_MAX_DURABILITY").Value;
-              oid.SendServerMessage($"Réparation de {repairedItem.Name.ColorString(ColorConstants.White)} terminée. L'objet est comme neuf !", new Color(32, 255, 32));
-            }
-            else
-            {
-              repairedItem.GetObjectVariable<LocalVariableInt>("_REPAIR_DONE").Value = 1;
-              oid.SendServerMessage($"Réparation de {repairedItem.Name.ColorString(ColorConstants.White)} terminée. Reste cependant à réactiver les enchantements.", ColorConstants.Orange);
-            }
-            break;
           case Job.JobType.Alchemy:
             NwItem potion = ItemUtils.DeserializeAndAcquireItem(craftJob.craftedItem, oid.LoginCreature);
             potion.GetObjectVariable<LocalVariableString>("_ORIGINAL_CRAFTER_NAME").Value = oid.LoginCreature.Name;
@@ -1167,7 +1153,36 @@ namespace NWN.Systems
 
         return -1;
       }
+      public void HandleRepairItemChecks(NwItem repairedItem)
+      {
+        if (newCraftJob != null)
+        {
+          oid.SendServerMessage("Veuillez annuler votre travail artisanal en cours avant d'en commencer un nouveau.", ColorConstants.Red);
+          return;
+        }
 
+        int grade = repairedItem.GetObjectVariable<LocalVariableInt>("_ITEM_GRADE").HasValue ? repairedItem.GetObjectVariable<LocalVariableInt>("_ITEM_GRADE").Value : 1;
+
+        int materiaCost = (int)GetItemRepairMateriaCost(repairedItem);
+        CraftResource resource = craftResourceStock.FirstOrDefault(r => r.type == ItemUtils.GetResourceTypeFromItem(repairedItem) && r.grade == 1 && r.quantity >= materiaCost);
+        int availableQuantity = resource != null ? resource.quantity : 0;
+
+        if (availableQuantity < materiaCost)
+        {
+          oid.SendServerMessage($"Il vous manque {(materiaCost - availableQuantity).ToString().ColorString(ColorConstants.White)} unités de matéria pour pouvoir commencer ce travail artisanal.", ColorConstants.Red);
+          return;
+        }
+
+        resource.quantity -= materiaCost;
+        newCraftJob = new CraftJob(this, repairedItem, GetItemRepairTime(repairedItem, materiaCost));
+
+        if (windows.ContainsKey("activeCraftJob"))
+          ((ActiveCraftJobWindow)windows["activeCraftJob"]).CreateWindow();
+        else
+          windows.Add("activeCraftJob", new ActiveCraftJobWindow(this));
+
+        return;
+      }
       public void HandleCraftItemChecks(NwItem blueprint, NwItem upgradedItem = null)
       {
         if (newCraftJob != null)
@@ -1207,6 +1222,40 @@ namespace NWN.Systems
           windows.Add("activeCraftJob", new ActiveCraftJobWindow(this));
 
         return;
+      }
+      public string GetReadableTimeSpan(double timeCost)
+      {
+        TimeSpan timespan = TimeSpan.FromSeconds(timeCost);
+        return new TimeSpan(timespan.Days, timespan.Hours, timespan.Minutes, timespan.Seconds).ToString();
+      }
+      public string GetItemRepairDescriptionString(NwItem item)
+      {
+        double materiaCost = GetItemRepairMateriaCost(item);
+        return $"Coût de réparation : {materiaCost} - Temps de réparation : {GetReadableTimeSpan(GetItemRepairTime(item, materiaCost))}";
+      }
+
+      public double GetItemRepairMateriaCost(NwItem item)
+      {
+        double materiaCost = GetItemMateriaCost(item, item.GetObjectVariable<LocalVariableInt>("_ITEM_GRADE").Value);
+        materiaCost *= 1 + (5 * item.GetObjectVariable<LocalVariableInt>("_DURABILITY_NB_REPAIRS") / 100);
+        materiaCost /= item.GetObjectVariable<LocalVariableString>("_ORIGINAL_CRAFTER_NAME").Value == this.oid.LoginCreature.OriginalName ? 8 : 4;
+        materiaCost *= learnableSkills[CustomSkill.Repair].bonusReduction;
+
+        if(learnableSkills.ContainsKey(CustomSkill.RepairExpert))
+          materiaCost *= learnableSkills[CustomSkill.RepairExpert].bonusReduction;
+
+        return materiaCost;
+      }
+      public double GetItemRepairTime(NwItem item, double materiaCost)
+      {
+        double timeCost = item.BaseItem.ItemType == BaseItemType.Armor ? GetArmorTimeCost(item.BaseACValue, materiaCost) : GetWeaponTimeCost(item.BaseItem.ItemType, materiaCost);
+        timeCost *= 1 + (25 * item.GetObjectVariable<LocalVariableInt>("_DURABILITY_NB_REPAIRS") / 100);
+        timeCost *= learnableSkills[CustomSkill.Repair].bonusReduction;
+
+        if (learnableSkills.ContainsKey(CustomSkill.RepairFast))
+          timeCost *= learnableSkills[CustomSkill.RepairFast].bonusReduction;
+
+        return timeCost;
       }
     }
   }

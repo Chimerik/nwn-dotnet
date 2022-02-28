@@ -458,6 +458,11 @@
     public const int SurchargeArcanique = 20337;
     public const int SurchargeControlee = 20338;
 
+    public const int Repair = 20339;
+    public const int RepairFast = 20340;
+    public const int RepairExpert = 20341;
+    public const int RepairCareful = 20342;
+
     public const int Invalid = 65535;
   }
 }
