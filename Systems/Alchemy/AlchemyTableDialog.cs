@@ -118,14 +118,14 @@ namespace NWN.Systems.Alchemy
       player.menu.choices.Add(("Quitter", () => player.menu.Close()));
       player.menu.Draw();
     }
-    private async void HandleQuantity(PlantType plantType, int multiplier, string materialKey)
+    /*private async void HandleQuantity(PlantType plantType, int multiplier, string materialKey)
     {
       player.menu.Clear();
       Plant addedPlant = plantDictionnary[plantType];
-      /*player.menu.titleLines = new List<string> {
+      player.menu.titleLines = new List<string> {
         $"Quelle quantité de {addedPlant.name} souhaitez-vous ajouter au chaudron parmi vos {player.materialStock[addedPlant.type.ToString()]} disponibles ?",
         "(Prononcez simplement la quantité à l'oral.)"
-      };*/
+      };
 
       player.menu.choices.Add(("Quitter", () => player.menu.Close()));
       player.menu.Draw();
@@ -139,10 +139,10 @@ namespace NWN.Systems.Alchemy
         if (input < 1)
           input = 1;
 
-        /*if (input > player.materialStock[materialKey])
+        if (input > player.materialStock[materialKey])
           input = player.materialStock[materialKey];
 
-        player.materialStock[materialKey] -= input;*/
+        player.materialStock[materialKey] -= input;
 
         int total = input * multiplier;
 
@@ -151,7 +151,7 @@ namespace NWN.Systems.Alchemy
         AddToCauldron(addedPlant.gridEffect, total, materialKey);
         player.oid.LoginCreature.GetObjectVariable<LocalVariableString>("_PLAYER_INPUT").Delete();
       }
-    }
+    }*/
     private void AddToCauldron(Vector2 gridEffect, int total, string materialKey)
     {
       player.menu.Clear();
@@ -560,7 +560,7 @@ namespace NWN.Systems.Alchemy
     {
       string input = player.oid.LoginCreature.GetObjectVariable<LocalVariableString>("_PLAYER_INPUT").Value;
 
-      using (var stream = new MemoryStream())
+      /*using (var stream = new MemoryStream())
       {
         await JsonSerializer.SerializeAsync(stream, new CurrentRecipe(player.alchemyCauldron.addedIngredients, player.alchemyCauldron.effectList, player.alchemyCauldron.instructions));
         stream.Position = 0;
@@ -577,7 +577,7 @@ namespace NWN.Systems.Alchemy
           new List<string>() { "characterId", "recipeName" });
 
         player.HandleAsyncQueryFeedback(awaitedQuery, $"Vous notez scrupuleuse votre recette {input.ColorString(ColorConstants.White)} dans votre carnet d'alchimiste.", "Erreur technique - votre recette n'a pas été enregistrée.");
-      }
+      }*/
 
       player.menu.Close();
     }
@@ -623,18 +623,18 @@ namespace NWN.Systems.Alchemy
       //Stream reader = new StreamReader(serializedRecipe);
       using (var stream = await StringUtils.GenerateStreamFromString(serializedRecipe))
       {
-        CurrentRecipe recipe = await JsonSerializer.DeserializeAsync<CurrentRecipe>(stream);
+        /*CurrentRecipe recipe = await JsonSerializer.DeserializeAsync<CurrentRecipe>(stream);
 
         foreach (AddedIngredient ingredient in recipe.addedIngredients)
-          player.menu.titleLines.Add($"Ajouter {ingredient.quantity} doses de {ingredient.ingredient.name}");
+          player.menu.titleLines.Add($"Ajouter {ingredient.quantity} doses de {ingredient.ingredient.name}");*/
         
-        foreach (Instruction instruction in recipe.instructions)
+        /*foreach (Instruction instruction in recipe.instructions)
         {
           if (instruction.instruction == InstructionType.Mix)
             player.menu.titleLines.Add($"Remuer {instruction.quantity} fois.");
           else if (instruction.instruction == InstructionType.Distill)
             player.menu.titleLines.Add($"Ajouter {instruction.quantity} dose(s) d'eau.");
-        }
+        }*/
       }
 
       player.menu.choices.Add(("Produire.", () => CraftPotionFromRecipe(serializedRecipe)));
@@ -659,24 +659,24 @@ namespace NWN.Systems.Alchemy
     {
       using (var stream = await StringUtils.GenerateStreamFromString(serializedRecipe))
       {
-        CurrentRecipe recipe = await JsonSerializer.DeserializeAsync<CurrentRecipe>(stream);
+        ///CurrentRecipe recipe = await JsonSerializer.DeserializeAsync<CurrentRecipe>(stream);
 
         await NwTask.SwitchToMainThread();
 
-        foreach (AddedIngredient ingredient in recipe.addedIngredients)
+        /*foreach (AddedIngredient ingredient in recipe.addedIngredients)
         {
-          /*if (player.materialStock[ingredient.ingredient.ToString()] < ingredient.quantity)
+          if (player.materialStock[ingredient.ingredient.ToString()] < ingredient.quantity)
           {
             int missingIngredients = ingredient.quantity - player.materialStock[ingredient.ingredient.ToString()];
             player.oid.SendServerMessage($"Il vous manque {missingIngredients.ToString().ColorString(ColorConstants.White)} de {ingredient.ingredient.name.ColorString(ColorConstants.White)} pour réaliser cette recette.", ColorConstants.Red);
             return;
-          }*/
+          }
         }
 
-        /*foreach (AddedIngredient ingredient in recipe.addedIngredients)
-          player.materialStock[ingredient.ingredient.ToString()] -= ingredient.quantity;*/
+        foreach (AddedIngredient ingredient in recipe.addedIngredients)
+          player.materialStock[ingredient.ingredient.ToString()] -= ingredient.quantity;
 
-        player.alchemyCauldron.effectList = recipe.effectList;
+        player.alchemyCauldron.effectList = recipe.effectList;*/
       }
       
       BrewPotion();

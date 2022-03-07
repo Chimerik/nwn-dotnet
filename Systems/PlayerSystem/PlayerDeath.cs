@@ -97,7 +97,7 @@ namespace NWN.Systems
       public void StripPlayerOfCraftResources()
       {
         Log.Info($"{oid.LoginCreature.Name} dead. Stripping him of craft resources");
-        foreach (NwItem oItem in oid.LoginCreature.Inventory.Items.Where(i => Craft.Collect.System.IsItemCraftMaterial(i.Tag) || i.Tag == "blueprint"))
+        foreach (NwItem oItem in oid.LoginCreature.Inventory.Items.Where(i => i.Tag == "craft_resource" || i.Tag == "blueprint"))
         {
           Log.Info($"{oItem.Name} stripped");
           oItem.Clone(deathCorpse).Droppable = true;

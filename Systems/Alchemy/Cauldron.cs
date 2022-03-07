@@ -18,7 +18,7 @@ namespace NWN.Systems.Alchemy
     public List<string> effectList { get; set; }
     public List<Instruction> instructions { get; set; }
     public int nBrowsedCases{ get; set; }
-    public List<AddedIngredient> addedIngredients { get; set; }
+    //public List<AddedIngredient> addedIngredients { get; set; }
 
     public Cauldron(int characterId)
     {
@@ -26,14 +26,14 @@ namespace NWN.Systems.Alchemy
       tablePosition = AlchemySystem.center;
       ingredientVector = new List<Vector2>();
       consumedGridEffects = new List<Vector2>();
-      addedIngredients = new List<AddedIngredient>();
+      //addedIngredients = new List<AddedIngredient>();
       effectList = new List<string>();
       instructions = new List<Instruction>();
       nBrowsedCases = 0;
     }
   }
 
-  public class AddedIngredient
+  /*public class AddedIngredient
   {
     public Plant ingredient { get; set; }
     public int quantity { get; set; }
@@ -43,8 +43,8 @@ namespace NWN.Systems.Alchemy
       this.ingredient = ingredient;
       this.quantity = quantity;
     }
-  }
-  public class CurrentRecipe
+  }*/
+  /*public class CurrentRecipe
   {
     public List<AddedIngredient> addedIngredients { get; }
     public List<string> effectList { get; }
@@ -56,7 +56,7 @@ namespace NWN.Systems.Alchemy
       this.effectList = effectList;
       this.instructions = instructions;
     }
-  }
+  }*/
   public class Instruction
   {
     public InstructionType instruction { get; }
