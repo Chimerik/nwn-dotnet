@@ -251,7 +251,7 @@ namespace NWN.Systems
                   string tooltip = "Lancer un travail de copie de ce patron original";
                   bool copySkill = player.learnableSkills.ContainsKey(CustomSkill.BlueprintCopy) && player.learnableSkills[CustomSkill.BlueprintCopy].totalPoints > 0;
 
-                  if (player.newCraftJob != null)
+                  if (player.craftJob != null)
                     tooltip = "Vous ne pouvez pas lancer un travail de copie de patron tant que vous avez un travail artisanal en cours.";
                   else if (!copySkill)
                     tooltip = "Il faut avoir étudié les techniques de copie de patron un minimum avant de pouvoir lancer ce travail";
@@ -259,11 +259,11 @@ namespace NWN.Systems
                   List<NuiElement> blueprintActionRowChildren = new List<NuiElement>();
                   NuiRow blueprintActionRow = new NuiRow() { Children = blueprintActionRowChildren };
                   blueprintActionRowChildren.Add(new NuiSpacer());
-                  blueprintActionRowChildren.Add(new NuiButton("Copier") { Id = "copy", Tooltip = tooltip, Enabled = player.newCraftJob == null && copySkill });
+                  blueprintActionRowChildren.Add(new NuiButton("Copier") { Id = "copy", Tooltip = tooltip, Enabled = player.craftJob == null && copySkill });
                   blueprintActionRowChildren.Add(new NuiSpacer());
-                  blueprintActionRowChildren.Add(new NuiButton("Recherche en rendement") { Id = "blueprintME", Tooltip = "Lancer un travail de recherche en rendement sur ce patron original", Enabled = player.newCraftJob == null && player.learnableSkills.ContainsKey(CustomSkill.BlueprintMetallurgy) && player.learnableSkills[CustomSkill.BlueprintMetallurgy].totalPoints > 0 && item.GetObjectVariable<LocalVariableInt>("_BLUEPRINT_MATERIAL_EFFICIENCY").Value < 10 });
+                  blueprintActionRowChildren.Add(new NuiButton("Recherche en rendement") { Id = "blueprintME", Tooltip = "Lancer un travail de recherche en rendement sur ce patron original", Enabled = player.craftJob == null && player.learnableSkills.ContainsKey(CustomSkill.BlueprintMetallurgy) && player.learnableSkills[CustomSkill.BlueprintMetallurgy].totalPoints > 0 && item.GetObjectVariable<LocalVariableInt>("_BLUEPRINT_MATERIAL_EFFICIENCY").Value < 10 });
                   blueprintActionRowChildren.Add(new NuiSpacer());
-                  blueprintActionRowChildren.Add(new NuiButton("Recherche en efficacité") { Id = "blueprintTE", Tooltip = "Lancer un travail recherche en efficacité sur ce patron original", Enabled = player.newCraftJob == null && player.learnableSkills.ContainsKey(CustomSkill.BlueprintResearch) && player.learnableSkills[CustomSkill.BlueprintResearch].totalPoints > 0 && item.GetObjectVariable<LocalVariableInt>("_BLUEPRINT_TIME_EFFICIENCY").Value < 10 });
+                  blueprintActionRowChildren.Add(new NuiButton("Recherche en efficacité") { Id = "blueprintTE", Tooltip = "Lancer un travail recherche en efficacité sur ce patron original", Enabled = player.craftJob == null && player.learnableSkills.ContainsKey(CustomSkill.BlueprintResearch) && player.learnableSkills[CustomSkill.BlueprintResearch].totalPoints > 0 && item.GetObjectVariable<LocalVariableInt>("_BLUEPRINT_TIME_EFFICIENCY").Value < 10 });
                   blueprintActionRowChildren.Add(new NuiSpacer());
                   rootChidren.Add(blueprintActionRow);
                 }
@@ -317,7 +317,7 @@ namespace NWN.Systems
             actionRowChildren.Add(new NuiSpacer());
           }
 
-          if (item.GetObjectVariable<LocalVariableInt>("_MAX_DURABILITY").HasValue && IsInWorkshopRange && player.newCraftJob == null
+          if (item.GetObjectVariable<LocalVariableInt>("_MAX_DURABILITY").HasValue && IsInWorkshopRange && player.craftJob == null
             && player.learnableSkills.ContainsKey(CustomSkill.Repair) && player.learnableSkills[CustomSkill.Repair].totalPoints > 0)
           {
             actionRowChildren.Add(new NuiSpacer());
@@ -445,14 +445,14 @@ namespace NWN.Systems
 
               case "copy":
 
-                if (player.newCraftJob != null)
+                if (player.craftJob != null)
                 {
                   player.oid.SendServerMessage("Veuillez annuler votre travail artisanal en cours avant d'en commencer un nouveau.", ColorConstants.Red);
                   player.oid.NuiDestroy(token);
                   return;
                 }
 
-                player.newCraftJob = new CraftJob(player, item, JobType.BlueprintCopy);
+                player.craftJob = new CraftJob(player, item, JobType.BlueprintCopy);
                 player.oid.NuiDestroy(token);
 
                 if (player.windows.ContainsKey("activeCraftJob"))
@@ -463,14 +463,14 @@ namespace NWN.Systems
 
               case "blueprintME":
 
-                if (player.newCraftJob != null)
+                if (player.craftJob != null)
                 {
                   player.oid.SendServerMessage("Veuillez annuler votre travail artisanal en cours avant d'en commencer un nouveau.", ColorConstants.Red);
                   player.oid.NuiDestroy(token);
                   return;
                 }
 
-                player.newCraftJob = new CraftJob(player, item, JobType.BlueprintResearchMaterialEfficiency);
+                player.craftJob = new CraftJob(player, item, JobType.BlueprintResearchMaterialEfficiency);
                 player.oid.NuiDestroy(token);
 
                 if (player.windows.ContainsKey("activeCraftJob"))
@@ -481,11 +481,11 @@ namespace NWN.Systems
 
               case "blueprintTE":
 
-                if (player.newCraftJob != null)
+                if (player.craftJob != null)
                   player.oid.SendServerMessage("Veuillez annuler votre travail artisanal en cours avant d'en commencer un nouveau.", ColorConstants.Red);
                 else
                 {
-                  player.newCraftJob = new CraftJob(player, item, JobType.BlueprintResearchTimeEfficiency);
+                  player.craftJob = new CraftJob(player, item, JobType.BlueprintResearchTimeEfficiency);
                   player.oid.NuiDestroy(token);
 
                   if (player.windows.ContainsKey("activeCraftJob"))
@@ -514,19 +514,19 @@ namespace NWN.Systems
                 return;
 
               case "renforcement":
-                if (player.newCraftJob != null)
+                if (player.craftJob != null)
                   player.oid.SendServerMessage("Veuillez annuler votre travail artisanal en cours avant d'en commencer un nouveau.", ColorConstants.Red);
                 else
-                  player.newCraftJob = new CraftJob(player, item, JobType.Renforcement);
+                  player.craftJob = new CraftJob(player, item, JobType.Renforcement);
 
                 player.oid.NuiDestroy(token);
                 return;
 
               case "recycle":
-                if (player.newCraftJob != null)
+                if (player.craftJob != null)
                   player.oid.SendServerMessage("Veuillez annuler votre travail artisanal en cours avant d'en commencer un nouveau.", ColorConstants.Red);
                 else
-                  player.newCraftJob = new CraftJob(player, item, JobType.Recycling);
+                  player.craftJob = new CraftJob(player, item, JobType.Recycling);
 
                 player.oid.NuiDestroy(token);
                 return;
@@ -772,7 +772,7 @@ namespace NWN.Systems
               new NuiButtonImage(icon) { Tooltip = bestBlueprint.Name, Height = 40, Width = 40 },
               new NuiLabel($"Coût en {ItemUtils.GetResourceNameFromBlueprint(bestBlueprint)} : {materiaCost}/{availableQuantity}") { Width = 160, Tooltip =  bestBlueprint.Name,
                 DrawList = new List<NuiDrawListItem>() { new NuiDrawListText(new NuiColor(255, 255, 255), new NuiRect(0, 35, 150, 60), $"Temps de fabrication : {new TimeSpan(jobDuration.Days, jobDuration.Hours, jobDuration.Minutes, jobDuration.Seconds)}") } },
-              new NuiButton("Améliorer") { Id = "upgrade", Enabled = player.newCraftJob == null && availableQuantity >= materiaCost, Tooltip = "Améliore l'objet à son prochain niveau de qualité avec le patron et la matéria adéquate.", Height = 40, Width = 80 }
+              new NuiButton("Améliorer") { Id = "upgrade", Enabled = player.craftJob == null && availableQuantity >= materiaCost, Tooltip = "Améliore l'objet à son prochain niveau de qualité avec le patron et la matéria adéquate.", Height = 40, Width = 80 }
             } 
           });
         }

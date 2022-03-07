@@ -163,8 +163,8 @@ namespace NWN.System
       player.menu.Clear();
 
       int traderLevel = 1;
-      if (player.learntCustomFeats.ContainsKey(CustomFeats.Marchand))
-        traderLevel = SkillSystem.GetCustomFeatLevelFromSkillPoints(CustomFeats.Marchand, player.learntCustomFeats[CustomFeats.Marchand]);
+      /*if (player.learntCustomFeats.ContainsKey(CustomFeats.Marchand))
+        traderLevel = SkillSystem.GetCustomFeatLevelFromSkillPoints(CustomFeats.Marchand, player.learntCustomFeats[CustomFeats.Marchand]);*/
 
       if(onStoreRequestSell.Store.Items.Count() > traderLevel * 5)
       {

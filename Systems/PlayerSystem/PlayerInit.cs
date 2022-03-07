@@ -59,21 +59,11 @@ namespace NWN.Systems
       Utils.ResetVisualTransform(player.oid.ControlledCreature);
       player.pcState = Player.PcState.Offline;
 
-      if (player.craftJob.IsActive()
-      && player.location.Area.GetObjectVariable<LocalVariableInt>("_AREA_LEVEL")?.Value == 0)
-      {
-        player.CraftJobProgression();
-        player.craftJob.CreateCraftJournalEntry();
-      }
-
       player.InitializePlayerLearnableJobs();
       player.InitializePlayerOpenedWindows();
 
       if (!player.oid.LoginCreature.KnowsFeat(CustomFeats.Sit))
         player.oid.LoginCreature.AddFeat(CustomFeats.Sit);
-
-      player.DoJournalUpdate = false;
-      player.dateLastSaved = DateTime.Now;
 
       player.mapLoadingTime = DateTime.Now;
 
@@ -361,7 +351,7 @@ namespace NWN.Systems
       private void InitializePlayerCharacter()
       {
         var result = SqLiteUtils.SelectQuery("playerCharacters",
-            new List<string>() { { "location" }, { "currentHP" }, { "bankGold" }, { "dateLastSaved" }, { "currentCraftJob" }, { "currentCraftObject" }, { "currentCraftJobRemainingTime" }, { "currentCraftJobMaterial" }, { "menuOriginTop" }, { "menuOriginLeft" }, { "pveArenaCurrentPoints" }, { "alchemyCauldron" }, { "previousSPCalculation" }, { "serializedLearnableSkills" }, { "serializedLearnableSpells" }, { "explorationState" }, { "openedWindows" }, { "materialStorage" }, { "craftJob" } },
+            new List<string>() { { "location" }, { "currentHP" }, { "bankGold" }, { "menuOriginTop" }, { "menuOriginLeft" }, { "pveArenaCurrentPoints" }, { "alchemyCauldron" }, { "serializedLearnableSkills" }, { "serializedLearnableSpells" }, { "explorationState" }, { "openedWindows" }, { "materialStorage" }, { "craftJob" } },
             new List<string[]>() { { new string[] { "rowid", characterId.ToString() } } });
 
         if (result.Result == null)
@@ -372,19 +362,16 @@ namespace NWN.Systems
         location = SqLiteUtils.DeserializeLocation(result.Result.GetString(0));
         oid.LoginCreature.HP = result.Result.GetInt(1);
         bankGold = result.Result.GetInt(2);
-        dateLastSaved = DateTime.Parse(result.Result.GetString(3));
-        craftJob = new Job(result.Result.GetInt(4), result.Result.GetString(7), result.Result.GetFloat(6), this, result.Result.GetString(5));
-        menu.originTop = result.Result.GetInt(8);
-        menu.originLeft = result.Result.GetInt(9);
-        pveArena.totalPoints = (uint)result.Result.GetInt(10);
-        string serializedCauldron = result.Result.GetString(11);
-        previousSPCalculation = DateTime.TryParse(result.Result.GetString(12), out DateTime previousSPDate) ? previousSPDate : null;
-        string serializedLearnableSkills = result.Result.GetString(13);
-        string serializedLearnableSpells = result.Result.GetString(14);
-        string serializedExploration = result.Result.GetString(15);
-        string serializedOpenedWindows = result.Result.GetString(16);
-        string serializedCraftResources = result.Result.GetString(17);
-        string serializedCraftJob = result.Result.GetString(18);
+        menu.originTop = result.Result.GetInt(3);
+        menu.originLeft = result.Result.GetInt(4);
+        pveArena.totalPoints = (uint)result.Result.GetInt(5);
+        string serializedCauldron = result.Result.GetString(6);
+        string serializedLearnableSkills = result.Result.GetString(7);
+        string serializedLearnableSpells = result.Result.GetString(8);
+        string serializedExploration = result.Result.GetString(9);
+        string serializedOpenedWindows = result.Result.GetString(10);
+        string serializedCraftResources = result.Result.GetString(11);
+        string serializedCraftJob = result.Result.GetString(12);
 
         InitializePlayerAsync(serializedCauldron, serializedExploration, serializedLearnableSkills, serializedLearnableSpells, serializedOpenedWindows, serializedCraftResources, serializedCraftJob);
       }
@@ -454,7 +441,7 @@ namespace NWN.Systems
           if (string.IsNullOrEmpty(serializedCraftJob) || serializedCraftJob == "null")
             return;
 
-          newCraftJob = new CraftJob(JsonConvert.DeserializeObject<CraftJob.SerializableCraftJob>(serializedCraftJob), this);
+          craftJob = new CraftJob(JsonConvert.DeserializeObject<CraftJob.SerializableCraftJob>(serializedCraftJob), this);
         });
 
         await Task.WhenAll(loadSkillsTask, loadSpellsTask, loadExplorationTask, loadOpenedWindowsTask, loadCauldronTask, loadCraftJobTask);

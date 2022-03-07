@@ -78,7 +78,6 @@ namespace NWN.Systems
         case "oreextractor":
           feedbackService.AddFeedbackMessageFilter(FeedbackMessage.UseItemCantUse, oPC.ControllingPlayer);
           onItemUse.PreventUseItem = true;
-          //Items.ItemUseHandlers.ResourceExtractor.HandleActivate(oItem, oPC.ControllingPlayer.LoginCreature, oTarget);
 
           if (player.windows.ContainsKey("materiaExtraction"))
             ((PlayerSystem.Player.MateriaExtractionWindow)player.windows["materiaExtraction"]).CreateWindow(onItemUse.Item, oTarget);

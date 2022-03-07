@@ -46,7 +46,7 @@ namespace NWN.Systems
         }
         public void CreateWindow()
         {
-          if (player.newCraftJob == null)
+          if (player.craftJob == null)
           {
             player.oid.SendServerMessage("Vous n'avez pas de travail artisanal en cours pour le moment. N'hésitez pas à vous rendre auprès d'un atelier afin d'en commencer un !", ColorConstants.Red);
             return;
@@ -69,19 +69,19 @@ namespace NWN.Systems
 
           token = player.oid.CreateNuiWindow(window, windowId);
 
-          icon.SetBindValue(player.oid, token, player.newCraftJob.icon);
-          name.SetBindValue(player.oid, token, player.newCraftJob.type.ToDescription());
+          icon.SetBindValue(player.oid, token, player.craftJob.icon);
+          name.SetBindValue(player.oid, token, player.craftJob.type.ToDescription());
 
           geometry.SetBindValue(player.oid, token, windowRectangle);
           geometry.SetBindWatch(player.oid, token, true);
 
-          if (player.newCraftJob.progressLastCalculation.HasValue)
+          if (player.craftJob.progressLastCalculation.HasValue)
           {
-            player.newCraftJob.remainingTime -= (DateTime.Now - player.newCraftJob.progressLastCalculation.Value).TotalSeconds;
-            player.newCraftJob.progressLastCalculation = null;
+            player.craftJob.remainingTime -= (DateTime.Now - player.craftJob.progressLastCalculation.Value).TotalSeconds;
+            player.craftJob.progressLastCalculation = null;
           }
 
-          timeLeft.SetBindValue(player.oid, token, player.newCraftJob.GetReadableJobCompletionTime());
+          timeLeft.SetBindValue(player.oid, token, player.craftJob.GetReadableJobCompletionTime());
 
           player.openedWindows[windowId] = token;
 
@@ -93,7 +93,7 @@ namespace NWN.Systems
           if (nuiEvent.Player.NuiGetWindowId(nuiEvent.WindowToken) != windowId)
             return;
 
-          if (player.newCraftJob == null)
+          if (player.craftJob == null)
           {
             player.oid.NuiDestroy(token);
             return;
@@ -102,15 +102,15 @@ namespace NWN.Systems
           switch (nuiEvent.ElementId)
           {
             case "cancel":
-                player.newCraftJob.HandleCraftJobCancellation(player);
+                player.craftJob.HandleCraftJobCancellation(player);
               return;
 
             case "item":
 
               if (player.windows.ContainsKey("itemExamine"))
-                ((ItemExamineWindow)player.windows["itemExamine"]).CreateWindow(NwItem.Deserialize(player.newCraftJob.serializedCraftedItem.ToByteArray()));
+                ((ItemExamineWindow)player.windows["itemExamine"]).CreateWindow(NwItem.Deserialize(player.craftJob.serializedCraftedItem.ToByteArray()));
               else
-                player.windows.Add("itemExamine", new ItemExamineWindow(player, NwItem.Deserialize(player.newCraftJob.serializedCraftedItem.ToByteArray())));
+                player.windows.Add("itemExamine", new ItemExamineWindow(player, NwItem.Deserialize(player.craftJob.serializedCraftedItem.ToByteArray())));
               
               return;
           }
@@ -118,15 +118,15 @@ namespace NWN.Systems
           switch (nuiEvent.EventType)
           {
             case NuiEventType.Close:
-              player.newCraftJob.progressLastCalculation = DateTime.Now;
-              player.newCraftJob.HandleDelayedJobProgression(player);
+              player.craftJob.progressLastCalculation = DateTime.Now;
+              player.craftJob.HandleDelayedJobProgression(player);
               return;
           }
         }
         public async void HandleRealTimeJobProgression()
         {
-          if (player.newCraftJob.jobProgression != null)
-            player.newCraftJob.jobProgression.Cancel();
+          if (player.craftJob.jobProgression != null)
+            player.craftJob.jobProgression.Cancel();
 
           await NwTask.WaitUntil(() => player.oid.LoginCreature == null || player.oid.LoginCreature.Area != null);
 
@@ -137,26 +137,26 @@ namespace NWN.Systems
           {
             timeLeft.SetBindValue(player.oid, token, "En pause (Hors Cité)");
 
-            player.oid.OnServerSendArea -= player.newCraftJob.HandleCraftJobOnAreaChange;
-            player.oid.OnServerSendArea += player.newCraftJob.HandleCraftJobOnAreaChange;
+            player.oid.OnServerSendArea -= player.craftJob.HandleCraftJobOnAreaChange;
+            player.oid.OnServerSendArea += player.craftJob.HandleCraftJobOnAreaChange;
             return;
           }
 
-          player.oid.OnServerSendArea -= player.newCraftJob.HandleCraftJobOnAreaChange;
-          player.oid.OnServerSendArea += player.newCraftJob.HandleCraftJobOnAreaChange;
-          player.oid.OnClientDisconnect -= player.newCraftJob.HandleCraftJobOnPlayerLeave;
-          player.oid.OnClientDisconnect += player.newCraftJob.HandleCraftJobOnPlayerLeave;
+          player.oid.OnServerSendArea -= player.craftJob.HandleCraftJobOnAreaChange;
+          player.oid.OnServerSendArea += player.craftJob.HandleCraftJobOnAreaChange;
+          player.oid.OnClientDisconnect -= player.craftJob.HandleCraftJobOnPlayerLeave;
+          player.oid.OnClientDisconnect += player.craftJob.HandleCraftJobOnPlayerLeave;
 
-          player.newCraftJob.jobProgression = ModuleSystem.scheduler.ScheduleRepeating(() =>
+          player.craftJob.jobProgression = ModuleSystem.scheduler.ScheduleRepeating(() =>
           {
-            player.newCraftJob.remainingTime -= 1;
-            timeLeft.SetBindValue(player.oid, token, player.newCraftJob.GetReadableJobCompletionTime());
+            player.craftJob.remainingTime -= 1;
+            timeLeft.SetBindValue(player.oid, token, player.craftJob.GetReadableJobCompletionTime());
 
-            if (player.newCraftJob.remainingTime < 1)
+            if (player.craftJob.remainingTime < 1)
             {
-              player.newCraftJob.jobProgression.Dispose();
-              HandleSpecificJobCompletion[player.newCraftJob.type].Invoke(player, true);
-              player.newCraftJob.HandleGenericJobCompletion(player);
+              player.craftJob.jobProgression.Dispose();
+              HandleSpecificJobCompletion[player.craftJob.type].Invoke(player, true);
+              player.craftJob.HandleGenericJobCompletion(player);
             }
 
           }, TimeSpan.FromSeconds(1));

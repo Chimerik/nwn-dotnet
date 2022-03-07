@@ -69,14 +69,6 @@ namespace NWN.Systems
       if (player.menu.isOpen)
         player.menu.Close();
 
-      if (area.GetObjectVariable<LocalVariableInt>("_AREA_LEVEL") == 0)
-      {
-        if (player.craftJob.IsActive() && player.playerJournal.craftJobCountDown == null)
-          player.craftJob.CreateCraftJournalEntry();
-      }
-      else if (player.playerJournal.craftJobCountDown != null)
-        player.craftJob.CancelCraftJournalEntry();
-
       if (area.GetObjectVariable<LocalVariableInt>("_AREA_LEVEL") < 2)
         player.oid.SetAreaExplorationState(area, true);
       else if (player.areaExplorationStateDictionnary.ContainsKey(area.Tag))

@@ -55,10 +55,21 @@ namespace NWN.Systems
 
     public static void RegisterMetaMagicOnSpellInput(OnSpellAction onSpellAction)
     {
-      if(onSpellAction.Spell.ImpactScript == "on_ench_cast" && PlayerSystem.Players.TryGetValue(onSpellAction.Caster, out PlayerSystem.Player player) && player.newCraftJob != null)
+      if(onSpellAction.Spell.ImpactScript == "on_ench_cast")
       {
-        player.oid.SendServerMessage("Veuillez annuler votre travail artisanal en cours avant d'en commencer un nouveau.");
-        onSpellAction.PreventSpellCast = true;
+        if (!(PlayerSystem.Players.TryGetValue(onSpellAction.Caster, out PlayerSystem.Player player)) || player.craftJob != null)
+        {
+          player.oid.SendServerMessage("Veuillez annuler votre travail artisanal en cours avant d'en commencer un nouveau.", ColorConstants.Red);
+          onSpellAction.PreventSpellCast = true;
+          return;
+        }
+
+        if (onSpellAction.TargetObject.GetObjectVariable<LocalVariableInt>("_AVAILABLE_ENCHANTEMENT_SLOT").HasNothing)
+        {
+          player.oid.SendServerMessage($"{onSpellAction.TargetObject.Name} ne dispose d'aucun emplacement d'enchantement disponible !", ColorConstants.Red);
+          onSpellAction.PreventSpellCast = true;
+          return;
+        }
       }
 
       if (onSpellAction.MetaMagic == MetaMagic.Silent)
@@ -161,6 +172,13 @@ namespace NWN.Systems
         castingClass = ClassType.Sorcerer;
 
       CreaturePlugin.SetClassByPosition(oPC, 0, (int)castingClass);
+
+      if(onSpellCast.Spell.ImpactScript == "on_ench_cast")
+      {
+        Enchantement(onSpellCast);
+        oPC.GetObjectVariable<LocalVariableInt>("X2_L_BLOCK_LAST_SPELL").Value = 1;
+      }
+
 
       switch (onSpellCast.Spell.SpellType)
       {

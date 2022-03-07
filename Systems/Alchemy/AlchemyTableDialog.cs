@@ -70,14 +70,14 @@ namespace NWN.Systems.Alchemy
         
         player.menu.choices.Add(("Remuer le mélange", () => HandleMixStrength()));
 
-        if (player.oid.LoginCreature.KnowsFeat(CustomFeats.AlchemistAware))
+        /*if (player.oid.LoginCreature.KnowsFeat(CustomFeats.AlchemistAware))
           player.menu.choices.Add(("Examiner les nuances de couleur", () => HandleExamineColors()));
 
         if (player.oid.LoginCreature.KnowsFeat(CustomFeats.AlchemistAccurate))
           player.menu.choices.Add(("Humer le mélange", () => HandleSmell()));
 
         if (player.oid.LoginCreature.KnowsFeat(CustomFeats.AlchemistCareful))
-          player.menu.choices.Add(("Ajouter de l 'eau au mélange", () => AddWater()));
+          player.menu.choices.Add(("Ajouter de l 'eau au mélange", () => AddWater()));*/
 
         player.menu.choices.Add(("Activer le soufflet", () => ActivateBellows()));
         player.menu.choices.Add(("Finaliser la potion", () => BrewPotion()));
@@ -98,7 +98,7 @@ namespace NWN.Systems.Alchemy
         "Lesquels souhaitez-vous ajouter ?"
       };
 
-      foreach (KeyValuePair<string, int> materialEntry in player.materialStock)
+      /*foreach (KeyValuePair<string, int> materialEntry in player.materialStock)
       {
         string ingredientKey = materialEntry.Key;
         string displayName = materialEntry.Key;
@@ -113,7 +113,7 @@ namespace NWN.Systems.Alchemy
 
         if (Enum.TryParse(ingredientKey, out PlantType myOreType) && myOreType != PlantType.Invalid)
           player.menu.choices.Add(($"{displayName} - {materialEntry.Value} unité(s).", () => HandleQuantity(myOreType, multiplier, materialEntry.Key)));
-      }
+      }*/
 
       player.menu.choices.Add(("Quitter", () => player.menu.Close()));
       player.menu.Draw();
@@ -122,10 +122,10 @@ namespace NWN.Systems.Alchemy
     {
       player.menu.Clear();
       Plant addedPlant = plantDictionnary[plantType];
-      player.menu.titleLines = new List<string> {
+      /*player.menu.titleLines = new List<string> {
         $"Quelle quantité de {addedPlant.name} souhaitez-vous ajouter au chaudron parmi vos {player.materialStock[addedPlant.type.ToString()]} disponibles ?",
         "(Prononcez simplement la quantité à l'oral.)"
-      };
+      };*/
 
       player.menu.choices.Add(("Quitter", () => player.menu.Close()));
       player.menu.Draw();
@@ -139,10 +139,10 @@ namespace NWN.Systems.Alchemy
         if (input < 1)
           input = 1;
 
-        if (input > player.materialStock[materialKey])
+        /*if (input > player.materialStock[materialKey])
           input = player.materialStock[materialKey];
 
-        player.materialStock[materialKey] -= input;
+        player.materialStock[materialKey] -= input;*/
 
         int total = input * multiplier;
 
@@ -310,8 +310,8 @@ namespace NWN.Systems.Alchemy
 
       int expertLevel = 1;
 
-      if (player.learntCustomFeats.ContainsKey(CustomFeats.AlchemistExpert))
-        expertLevel += SkillSystem.GetCustomFeatLevelFromSkillPoints(CustomFeats.AlchemistExpert, player.learntCustomFeats[CustomFeats.AlchemistExpert]);
+      /*if (player.learntCustomFeats.ContainsKey(CustomFeats.AlchemistExpert))
+        expertLevel += SkillSystem.GetCustomFeatLevelFromSkillPoints(CustomFeats.AlchemistExpert, player.learntCustomFeats[CustomFeats.AlchemistExpert]);*/
 
       string properties = "";
 
@@ -384,7 +384,7 @@ namespace NWN.Systems.Alchemy
         properties = properties.SkipLast(1).ToString();
       }
 
-      player.craftJob.Start(Craft.Job.JobType.Alchemy, player, null, oItem, properties);
+      //player.craftJob.Start(Craft.Job.JobType.Alchemy, player, null, oItem, properties);
 
       player.menu.Clear();
       player.menu.titleLines = new List<string> {
@@ -422,7 +422,7 @@ namespace NWN.Systems.Alchemy
     }
     private void HandleExamineColors()
     {
-      Vector2? result = GetClosestEffectCoordinates((int)player.alchemyCauldron.tablePosition.X, (int)player.alchemyCauldron.tablePosition.Y, SkillSystem.GetCustomFeatLevelFromSkillPoints(CustomFeats.AlchemistAware, player.learntCustomFeats[CustomFeats.AlchemistAware]) + 4);
+      /*Vector2? result = GetClosestEffectCoordinates((int)player.alchemyCauldron.tablePosition.X, (int)player.alchemyCauldron.tablePosition.Y, SkillSystem.GetCustomFeatLevelFromSkillPoints(CustomFeats.AlchemistAware, player.learntCustomFeats[CustomFeats.AlchemistAware]) + 4);
 
       if (!result.HasValue)
         player.oid.SendServerMessage("Vous avez beau concentrer toute votre attention sur les changements de couleur du mélange, ceux-ci ne vous apportent aucune indication utile.", ColorConstants.Lime);
@@ -451,13 +451,13 @@ namespace NWN.Systems.Alchemy
             player.oid.SendServerMessage("D'après les changements de couleur du mélange, vous estimez que la solution est à un stade presque proche d'obtenir un effet positif.", new Color(32, 255, 32));
             break;
         }
-      }
+      }*/
 
       DrawWelcomePage();
     }
     private void HandleSmell()
     {
-      Vector2? result = GetClosestEffectCoordinates((int)player.alchemyCauldron.tablePosition.X, (int)player.alchemyCauldron.tablePosition.Y, SkillSystem.GetCustomFeatLevelFromSkillPoints(CustomFeats.AlchemistAware, player.learntCustomFeats[CustomFeats.AlchemistAware]) + 4);
+      /*Vector2? result = GetClosestEffectCoordinates((int)player.alchemyCauldron.tablePosition.X, (int)player.alchemyCauldron.tablePosition.Y, SkillSystem.GetCustomFeatLevelFromSkillPoints(CustomFeats.AlchemistAware, player.learntCustomFeats[CustomFeats.AlchemistAware]) + 4);
 
       if (!result.HasValue)
         player.oid.SendServerMessage("Vous avez beau concentrer toute votre attention sur l'odeur du mélange, celui-ci ne vous apporte aucune indication utile.", ColorConstants.Lime);
@@ -526,7 +526,7 @@ namespace NWN.Systems.Alchemy
         {
           player.oid.SendServerMessage("Humer le mélange vous permet de déterminer que votre décoction serait plus efficace si elle avait une odeur plus boisée.", ColorConstants.Orange);
         }
-      }
+      }*/
 
       DrawWelcomePage();
     }
@@ -665,16 +665,16 @@ namespace NWN.Systems.Alchemy
 
         foreach (AddedIngredient ingredient in recipe.addedIngredients)
         {
-          if (player.materialStock[ingredient.ingredient.ToString()] < ingredient.quantity)
+          /*if (player.materialStock[ingredient.ingredient.ToString()] < ingredient.quantity)
           {
             int missingIngredients = ingredient.quantity - player.materialStock[ingredient.ingredient.ToString()];
             player.oid.SendServerMessage($"Il vous manque {missingIngredients.ToString().ColorString(ColorConstants.White)} de {ingredient.ingredient.name.ColorString(ColorConstants.White)} pour réaliser cette recette.", ColorConstants.Red);
             return;
-          }
+          }*/
         }
 
-        foreach (AddedIngredient ingredient in recipe.addedIngredients)
-          player.materialStock[ingredient.ingredient.ToString()] -= ingredient.quantity;
+        /*foreach (AddedIngredient ingredient in recipe.addedIngredients)
+          player.materialStock[ingredient.ingredient.ToString()] -= ingredient.quantity;*/
 
         player.alchemyCauldron.effectList = recipe.effectList;
       }

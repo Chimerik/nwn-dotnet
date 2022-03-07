@@ -33,14 +33,7 @@ namespace NWN.Systems
       {
         int hitDice = 0;
         if (targetCreature.IsLoginPlayerCharacter && PlayerSystem.Players.TryGetValue(targetCreature, out PlayerSystem.Player player))
-        {
-          if (player.learntCustomFeats.ContainsKey(CustomFeats.ImprovedHealth))
-          {
-            hitDice = SkillSystem.GetCustomFeatLevelFromSkillPoints(CustomFeats.ImprovedHealth, player.learntCustomFeats[CustomFeats.ImprovedHealth]);
-          }
-          else
-            hitDice = 1;
-        }
+          hitDice = player.learnableSkills.ContainsKey(CustomSkill.ImprovedHealth) ? player.learnableSkills[CustomSkill.ImprovedHealth].totalPoints : 1;
         else
           hitDice = targetCreature.LevelInfo.Count;
 

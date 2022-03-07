@@ -4,7 +4,7 @@ using Anvil.API.Events;
 
 namespace NWN.Systems
 {
-  class GiveResourcesToTarget
+  class GiveResourcesToTarget // TODO : A remplacer par une fonctionnalité OnExaminePlayer
   {
     PlayerSystem.Player dm;
     public GiveResourcesToTarget(PlayerSystem.Player player)
@@ -63,10 +63,10 @@ namespace NWN.Systems
     }
     private void HandleGiveResources(PlayerSystem.Player player, string material, int quantity)
     {
-      if (player.materialStock.ContainsKey(material))
+     /* if (player.materialStock.ContainsKey(material))
         player.materialStock[material] += quantity;
       else
-        player.materialStock.Add(material, quantity);
+        player.materialStock.Add(material, quantity);*/
 
       dm.oid.SendServerMessage($"Vous venez de donner {quantity} unité(s) de {material} à {player.oid.LoginCreature.Name}");
 

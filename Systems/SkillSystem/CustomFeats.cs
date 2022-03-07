@@ -73,18 +73,13 @@
     public const int BrokerRelations = 1318;
     public const int BrokerAffinity = 1319;
     public const int Comptabilite = 1320;
-    public const int Enchanteur = 1321;
     
-    public const int EnchanteurExpert = 1325;
-    public const int EnchanteurChanceux = 1326;
-    
-    public const int CombattantPrecautionneux = 1329;
     public const int Sit = 1330;
     public const int MetalRepair = 1331;
     public const int WoodRepair = 1332;
     public const int LeatherRepair = 1333;
     public const int EnchantRepair = 1334;
-    public const int ImprovedDodge = 1335;
+    
     public const int AlchemistEfficiency = 1336;
     public const int AlchemistCareful = 1337;
     public const int AlchemistExpert = 1338;
@@ -462,6 +457,13 @@
     public const int RepairFast = 20340;
     public const int RepairExpert = 20341;
     public const int RepairCareful = 20342;
+
+    public const int Enchanteur = 20343;
+    public const int EnchanteurExpert = 20344;
+    public const int EnchanteurChanceux = 20345;
+
+    public const int CombattantPrecautionneux = 20346;
+    public const int ImprovedDodge = 20347;
 
     public const int Invalid = 65535;
   }

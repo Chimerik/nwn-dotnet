@@ -55,19 +55,6 @@ namespace NWN.Systems
     {
       oPC.RunUnequip(oItem);
       oItem.GetObjectVariable<LocalVariableInt>("_DURABILITY").Value = -1;
-      foreach (ItemProperty ip in oItem.ItemProperties.Where(ip => ip.Tag.StartsWith("ENCHANTEMENT")))
-      {
-        Task waitLoopEnd = NwTask.Run(async () =>
-        {
-          ItemProperty deactivatedIP = ip;
-          await NwTask.Delay(TimeSpan.FromSeconds(0.1f));
-          oItem.RemoveItemProperty(deactivatedIP);
-          await NwTask.Delay(TimeSpan.FromSeconds(0.1f));
-          deactivatedIP.Tag += "_INACTIVE";
-          oItem.AddItemProperty(deactivatedIP, EffectDuration.Permanent);
-        });
-      }
-
       oPC.ControllingPlayer.SendServerMessage($"Il ne reste plus que des ruines de votre {oItem.Name.ColorString(ColorConstants.White)}. Des réparations s'imposent !", ColorConstants.Red);
     }
 
@@ -760,10 +747,7 @@ namespace NWN.Systems
         if (dexBonus < 0)
           dexBonus = 0;
 
-        int safetyLevel = 0;
-        if (attacker.learntCustomFeats.ContainsKey(CustomFeats.CombattantPrecautionneux))
-          safetyLevel += SkillSystem.GetCustomFeatLevelFromSkillPoints(CustomFeats.CombattantPrecautionneux, attacker.learntCustomFeats[CustomFeats.CombattantPrecautionneux]);
-
+        int safetyLevel = attacker.learnableSkills.ContainsKey(CustomSkill.CombattantPrecautionneux) ? attacker.learnableSkills[CustomSkill.CombattantPrecautionneux].totalPoints : 0;
         durabilityChance -= dexBonus + safetyLevel;
 
         if (NwRandom.Roll(Utils.random, 100, 1) < 2 && NwRandom.Roll(Utils.random, 100, 1) < durabilityChance)
@@ -786,9 +770,7 @@ namespace NWN.Systems
       if (dexBonus < 0)
         dexBonus = 0;
 
-      int safetyLevel = 0;
-      if (player.learntCustomFeats.ContainsKey(CustomFeats.CombattantPrecautionneux))
-        safetyLevel += SkillSystem.GetCustomFeatLevelFromSkillPoints(CustomFeats.CombattantPrecautionneux, player.learntCustomFeats[CustomFeats.CombattantPrecautionneux]);
+      int safetyLevel = player.learnableSkills.ContainsKey(CustomSkill.CombattantPrecautionneux) ? player.learnableSkills[CustomSkill.CombattantPrecautionneux].totalPoints : 0;
 
       int durabilityRate = 30 - dexBonus - safetyLevel;
       if (durabilityRate < 1)

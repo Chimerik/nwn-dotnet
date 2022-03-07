@@ -44,12 +44,7 @@ namespace NWN.Systems
       if (targetObject.m_nObjectType == (int)ObjectType.Creature)
       {
         CNWSCreature targetCreature = targetObject.AsNWSCreature();
-        int skillBonusDodge = 0;
-
-        if (PlayerSystem.Players.TryGetValue(targetObject.m_idSelf, out PlayerSystem.Player player) && player.learntCustomFeats.ContainsKey(CustomFeats.ImprovedDodge))
-        {
-          skillBonusDodge += 2 * SkillSystem.GetCustomFeatLevelFromSkillPoints(CustomFeats.ImprovedDodge, player.learntCustomFeats[CustomFeats.ImprovedDodge]);
-        }
+        int skillBonusDodge = PlayerSystem.Players.TryGetValue(targetObject.m_idSelf, out PlayerSystem.Player player) && player.learnableSkills.ContainsKey(CustomSkill.ImprovedDodge) ? 2 * player.learnableSkills[CustomSkill.ImprovedDodge].totalPoints : 0;
 
         if (targetCreature.m_pStats.HasFeat((ushort)10).ToBool())
           skillBonusDodge += 2;

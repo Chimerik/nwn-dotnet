@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using static NWN.Systems.SkillSystem;
-using NWN.Systems.Craft;
 using Anvil.API;
 using System.Threading.Tasks;
 using System.Threading;
@@ -9,7 +8,6 @@ using System.Linq;
 using Anvil.Services;
 using NWN.Systems.Alchemy;
 using NWN.Core.NWNX;
-using JournalEntry = Anvil.API.JournalEntry;
 using Anvil.API.Events;
 using System.IO;
 using System.Text.Json;
@@ -27,12 +25,9 @@ namespace NWN.Systems
       public Location location { get; set; }
       public int bonusRolePlay { get; set; }
       public int currentLanguage { get; set; }
-      public Boolean DoJournalUpdate { get; set; }
       public int bankGold { get; set; }
       public PlayerJournal playerJournal { get; set; }
-      public DateTime dateLastSaved { get; set; }
-      public Job craftJob { get; set; }
-      public CraftJob newCraftJob { get; set; }
+      public CraftJob craftJob { get; set; }
       public Location previousLocation { get; set; }
       public Menu menu { get; }
       public NwCreature deathCorpse { get; set; }
@@ -41,13 +36,10 @@ namespace NWN.Systems
       public Arena.PlayerData pveArena { get; set; }
       public Cauldron alchemyCauldron { get; set; }
       public PcState pcState { get; set; }
-      public DateTime? previousSPCalculation { get; set; }
-      public DateTime? lastCraftUpdate { get; set; }
 
       public List<NwPlayer> listened = new List<NwPlayer>();
       public List<int> mutedList = new List<int>();
       public Dictionary<uint, Player> blocked = new Dictionary<uint, Player>();
-      public Dictionary<Feat, int> learntCustomFeats = new Dictionary<Feat, int>();
       public Dictionary<int, LearnableSkill> learnableSkills = new Dictionary<int, LearnableSkill>();
       public Dictionary<int, LearnableSpell> learnableSpells = new Dictionary<int, LearnableSpell>();
       public Dictionary<int, MapPin> mapPinDictionnary = new Dictionary<int, MapPin>();
@@ -58,7 +50,6 @@ namespace NWN.Systems
       public Dictionary<string, int> openedWindows = new Dictionary<string, int>();
       public List<ChatLine> readChatLines = new List<ChatLine>();
 
-      public Dictionary<string, int> materialStock = new Dictionary<string, int>();
       public List<CraftResource> craftResourceStock = new List<CraftResource>();
 
       public enum PcState
@@ -242,10 +233,10 @@ namespace NWN.Systems
       {
         await NwTask.WaitUntil(() => oid.LoginCreature.Location.Area != null);
 
-        if (learnableSkills.Any(l => l.Value.active) )
+        if (learnableSkills.Any(l => l.Value.active))
           learnableSkills.First(l => l.Value.active).Value.AwaitPlayerStateChangeToCalculateSPGain(this);
 
-        else if(learnableSpells.Any(l => l.Value.active))
+        else if (learnableSpells.Any(l => l.Value.active))
           learnableSpells.First(l => l.Value.active).Value.AwaitPlayerStateChangeToCalculateSPGain(this);
 
         /*int improvedHealth = 0;
@@ -263,8 +254,8 @@ namespace NWN.Systems
         if (oid.LoginCreature.HP <= 0)
           oid.LoginCreature.ApplyEffect(EffectDuration.Instant, Effect.Death());
 
-        if (learntCustomFeats.ContainsKey(CustomFeats.ImprovedAttackBonus))
-          oid.LoginCreature.BaseAttackBonus = (byte)(oid.LoginCreature.BaseAttackBonus + GetCustomFeatLevelFromSkillPoints(CustomFeats.ImprovedAttackBonus, learntCustomFeats[CustomFeats.ImprovedAttackBonus]));
+        if (learnableSkills.ContainsKey(CustomSkill.ImprovedAttackBonus))
+          oid.LoginCreature.BaseAttackBonus = (byte)(oid.LoginCreature.BaseAttackBonus + learnableSkills[CustomSkill.ImprovedAttackBonus].totalPoints);
 
         pcState = PcState.Online;
       }
@@ -284,149 +275,6 @@ namespace NWN.Systems
         bool returned = oid.ControlledCreature.DeserializeQuickbar(this.serializedQuickbar.ToByteArray());
         loadedQuickBar = QuickbarType.Invalid;
       }
-      public void CraftJobProgression()
-      {
-        if (craftJob.IsActive())
-        {
-          craftJob.remainingTime = craftJob.remainingTime - (float)(DateTime.Now - dateLastSaved).TotalSeconds;
-
-          if (craftJob.remainingTime < 0)
-          {
-            Log.Info($"craft job done. Acquiring item - Type : {craftJob.type} - BaseItem : {craftJob.baseItemType}");
-            AcquireCraftedItem();
-          }
-        }
-      }
-
-      public void AcquireCraftedItem()
-      {
-        switch (craftJob.type)
-        {
-          case Job.JobType.Enchantement:
-            NwItem enchantedItem = ItemUtils.DeserializeAndAcquireItem(craftJob.craftedItem, oid.LoginCreature);
-
-            int enchanteurChanceuxLevel = 0;
-            if (learntCustomFeats.ContainsKey(CustomFeats.EnchanteurChanceux))
-              enchanteurChanceuxLevel += GetCustomFeatLevelFromSkillPoints(CustomFeats.EnchanteurChanceux, learntCustomFeats[CustomFeats.EnchanteurChanceux]);
-
-            if (NwRandom.Roll(Utils.random, 100) > enchanteurChanceuxLevel)
-            {
-              enchantedItem.GetObjectVariable<LocalVariableInt>("_AVAILABLE_ENCHANTEMENT_SLOT").Value -= 1;
-              if (enchantedItem.GetObjectVariable<LocalVariableInt>("_AVAILABLE_ENCHANTEMENT_SLOT").Value <= 0)
-                enchantedItem.GetObjectVariable<LocalVariableInt>("_AVAILABLE_ENCHANTEMENT_SLOT").Delete();
-            }
-
-            int enchanteurExpertLevel = 0;
-            if (learntCustomFeats.ContainsKey(CustomFeats.EnchanteurExpert))
-              enchanteurExpertLevel += GetCustomFeatLevelFromSkillPoints(CustomFeats.EnchanteurExpert, learntCustomFeats[CustomFeats.EnchanteurExpert]);
-
-            int boost = 0;
-            if (NwRandom.Roll(Utils.random, 100) <= enchanteurExpertLevel * 2)
-              boost = 1;
-
-            Craft.Collect.System.AddCraftedEnchantementProperties(enchantedItem, craftJob.material, boost, characterId);
-
-            break;
-          case Job.JobType.EnchantementReactivation:
-
-            NwItem reactivatedItem = ItemUtils.DeserializeAndAcquireItem(craftJob.craftedItem, oid.LoginCreature);
-
-            ItemProperty reactivatedIP = reactivatedItem.ItemProperties.FirstOrDefault(ip => ip.Tag.StartsWith($"ENCHANTEMENT_{craftJob.material}") && ip.Tag.Contains("INACTIVE"));
-
-            Task waitLoopEnd = NwTask.Run(async () =>
-            {
-              ItemProperty deactivatedIP = reactivatedIP;
-              await NwTask.Delay(TimeSpan.FromSeconds(0.1f));
-              reactivatedItem.RemoveItemProperty(deactivatedIP);
-              await NwTask.Delay(TimeSpan.FromSeconds(0.1f));
-              deactivatedIP.Tag = reactivatedIP.Tag.Replace("_INACTIVE", "");
-              reactivatedItem.AddItemProperty(deactivatedIP, EffectDuration.Permanent);
-              await NwTask.Delay(TimeSpan.FromSeconds(0.1f));
-
-              if (!reactivatedItem.ItemProperties.Any(ip => ip.Tag.Contains("_INACTIVE")) && reactivatedItem.GetObjectVariable<LocalVariableInt>("_REPAIR_DONE").HasValue)
-              {
-                reactivatedItem.GetObjectVariable<LocalVariableInt>("_DURABILITY").Value = reactivatedItem.GetObjectVariable<LocalVariableInt>("_MAX_DURABILITY").Value;
-                reactivatedItem.GetObjectVariable<LocalVariableInt>("_REPAIR_DONE").Delete();
-                oid.SendServerMessage($"Réactivation de {reactivatedItem.Name.ColorString(ColorConstants.White)} terminée. L'objet est comme neuf !", new Color(32, 255, 32));
-              }
-            });
-
-            break;
-          case Job.JobType.Alchemy:
-            NwItem potion = ItemUtils.DeserializeAndAcquireItem(craftJob.craftedItem, oid.LoginCreature);
-            potion.GetObjectVariable<LocalVariableString>("_ORIGINAL_CRAFTER_NAME").Value = oid.LoginCreature.Name;
-            potion.GetObjectVariable<LocalVariableString>("_SERIALIZED_PROPERTIES").Value = craftJob.material;
-
-            break;
-        }
-
-        craftJob.CloseCraftJournalEntry();
-        craftJob = new Job(-10, "", 0, this);
-      }
-      public void UpdateJournal()
-      {
-        if (oid.LoginCreature == null) // Si le joueur n'est pas co, pas la peine de mettre à jour son journal
-          return;
-
-        JournalEntry journalEntry;
-
-        if (oid.LoginCreature.Location.Area == null && DoJournalUpdate)
-        {
-          Task waitAreaLoaded = NwTask.Run(async () =>
-          {
-            await NwTask.WaitUntil(() => oid.LoginCreature == null || oid.LoginCreature.Location.Area != null);
-            await NwTask.Delay(TimeSpan.FromSeconds(1));
-            UpdateJournal();
-          });
-
-          return;
-        }
-
-        if (playerJournal.craftJobCountDown != null && oid.LoginCreature.Area.GetObjectVariable<LocalVariableInt>("_AREA_LEVEL").Value == 0)
-        {
-          journalEntry = oid.GetJournalEntry("craft_job");
-
-          if (journalEntry != null)
-          {
-            journalEntry.Name = $"Travail artisanal - {Utils.StripTimeSpanMilliseconds((TimeSpan)(playerJournal.craftJobCountDown - DateTime.Now))}";
-            oid.AddCustomJournalEntry(journalEntry, true);
-          }
-          this.CraftJobProgression();
-          dateLastSaved = DateTime.Now;
-        }
-
-        /*if (learnables.Any(l => l.Value.active))
-        {
-          journalEntry = oid.GetJournalEntry("skill_job");
-
-          if (journalEntry != null)
-          {
-            journalEntry.Name = $"Apprentissage - {Utils.StripTimeSpanMilliseconds((learnables.First(l => l.Value.active).Value.levelUpDate - DateTime.Now))}";
-            oid.AddCustomJournalEntry(journalEntry, true);
-            Log.Info("update journal : adding journal entry");
-          }
-        }
-
-        if (DoJournalUpdate)
-        {
-          await NwTask.Delay(TimeSpan.FromSeconds(1));
-          UpdateJournal();
-        }*/
-      }
-      /*public async void rebootUpdate(int countDown)
-      {
-        await NwTask.Delay(TimeSpan.FromSeconds(1));
-
-        if (!this.oid.LoginCreature.IsValid)
-          return;
-
-        JournalEntry journalEntry = oid.GetJournalEntry("reboot");
-        journalEntry.Name = $"REBOOT SERVEUR - {countDown}";
-        oid.AddCustomJournalEntry(journalEntry);
-        
-        if (countDown >= 0)
-          this.rebootUpdate(countDown - 1);
-      }*/
       public string CheckDBPlayerAccount()
       {
         var result = SqLiteUtils.SelectQuery("PlayerAccounts",
@@ -1155,7 +1003,7 @@ namespace NWN.Systems
       }
       public void HandleRepairItemChecks(NwItem repairedItem)
       {
-        if (newCraftJob != null)
+        if (craftJob != null)
         {
           oid.SendServerMessage("Veuillez annuler votre travail artisanal en cours avant d'en commencer un nouveau.", ColorConstants.Red);
           return;
@@ -1174,7 +1022,7 @@ namespace NWN.Systems
         }
 
         resource.quantity -= materiaCost;
-        newCraftJob = new CraftJob(this, repairedItem, GetItemRepairTime(repairedItem, materiaCost));
+        craftJob = new CraftJob(this, repairedItem, GetItemRepairTime(repairedItem, materiaCost), JobType.Repair);
 
         if (windows.ContainsKey("activeCraftJob"))
           ((ActiveCraftJobWindow)windows["activeCraftJob"]).CreateWindow();
@@ -1185,7 +1033,7 @@ namespace NWN.Systems
       }
       public void HandleCraftItemChecks(NwItem blueprint, NwItem upgradedItem = null)
       {
-        if (newCraftJob != null)
+        if (craftJob != null)
         {
           oid.SendServerMessage("Veuillez annuler votre travail artisanal en cours avant d'en commencer un nouveau.", ColorConstants.Red);
           return;
@@ -1212,9 +1060,9 @@ namespace NWN.Systems
         resource.quantity -= materiaCost;
 
         if (grade < 2)
-          newCraftJob = new CraftJob(this, blueprint, GetItemCraftTime(blueprint, materiaCost));
+          craftJob = new CraftJob(this, blueprint, GetItemCraftTime(blueprint, materiaCost));
         else
-          newCraftJob = new CraftJob(this, blueprint, GetItemCraftTime(blueprint, materiaCost), upgradedItem);
+          craftJob = new CraftJob(this, blueprint, GetItemCraftTime(blueprint, materiaCost), upgradedItem);
 
         if (windows.ContainsKey("activeCraftJob"))
           ((ActiveCraftJobWindow)windows["activeCraftJob"]).CreateWindow();

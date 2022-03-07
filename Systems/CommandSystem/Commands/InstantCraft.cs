@@ -15,7 +15,7 @@ namespace NWN.Systems
       if (selection.IsCancelled || !selection.TargetObject.IsPlayerControlled(out NwPlayer oPC) || !PlayerSystem.Players.TryGetValue(oPC.LoginCreature, out PlayerSystem.Player targetPlayer))
         return;
 
-      if (targetPlayer.craftJob != null && targetPlayer.craftJob.baseItemType != 10)
+      if (targetPlayer.craftJob != null)
         targetPlayer.craftJob.remainingTime = 1;
     }
   }

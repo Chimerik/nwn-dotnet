@@ -332,6 +332,13 @@ namespace NWN.Systems
 
       learnableDictionary.Add(CustomSkill.SurchargeArcanique, new LearnableSkill(CustomSkill.SurchargeArcanique, "Surcharge arcanique", "Permet de forcer l'ajout d'emplacements d'enchantements sur un objet au risque de le briser.\n\nAugmente de 1 % par niveau la chance de parvenir à forcer l'ajout d'un emplacement d'enchantement supplémentaire.", Category.Craft, "ife_X2EpicRepu", 10, 2, Ability.Charisma, Ability.Constitution));
       learnableDictionary.Add(CustomSkill.SurchargeControlee, new LearnableSkill(CustomSkill.SurchargeControlee, "Surcharge contrôlée", "Augmente de 5 % par niveau la chance de conserver l'objet intact lors de l'échec d'une tentative de surcharge.", Category.Craft, "ife_X2EpicRepu", 10, 3, Ability.Wisdom, Ability.Constitution));
+
+      learnableDictionary.Add(CustomSkill.Enchanteur, new LearnableSkill(CustomSkill.Enchanteur, "Enchanteur", "Permet l'ajout d'effets magiques permanents aux objets disposant d'emplacements libres.\n\nRéduit de 1 % par niveau le coût et le temps nécessaire pour enchanter un objet.", Category.Craft, "ife_X2EpicRepu", 20, 1, Ability.Charisma, Ability.Intelligence));
+      learnableDictionary.Add(CustomSkill.EnchanteurExpert, new LearnableSkill(CustomSkill.EnchanteurExpert, "Enchanteur Expert", "Augmente de 2 % par niveau la chance d'incanter un enchantement plus puissant.", Category.Craft, "ife_X2EpicRepu", 10, 2, Ability.Charisma, Ability.Intelligence));
+      learnableDictionary.Add(CustomSkill.EnchanteurChanceux, new LearnableSkill(CustomSkill.EnchanteurChanceux, "Enchanteur Chanceux", "Augmente de 1 % par niveau la chance de ne pas consommer d'emplacement lors d'un enchantement.", Category.Craft, "ife_X2EpicRepu", 10, 3, Ability.Charisma, Ability.Intelligence));
+
+      learnableDictionary.Add(CustomSkill.CombattantPrecautionneux, new LearnableSkill(CustomSkill.CombattantPrecautionneux, "Combattant Précautionneux", "Diminue de 1 % par niveau le risque d'usure des objets.", Category.Fight, "ife_X2EpicRepu", 10, 2, Ability.Dexterity, Ability.Intelligence));
+      learnableDictionary.Add(CustomSkill.ImprovedDodge, new LearnableSkill(CustomSkill.ImprovedDodge, "Esquive améliorée", "Augmente la probabilité d'esquiver une attaque de 2% par niveau.", Category.Fight, "ife_X2EpicRepu", 10, 3, Ability.Dexterity, Ability.Constitution, false, null, new Dictionary<Ability, int>() { { Ability.Dexterity, 22 } } ));
     }
     public static Dictionary<Feat, CustomFeat> customFeatsDictionnary = new Dictionary<Feat, CustomFeat>()
     {

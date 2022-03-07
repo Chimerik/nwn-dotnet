@@ -141,24 +141,6 @@ namespace NWN.Systems
       }
     }
 
-    [ScriptHandler("on_journal_open")]
-    private void HandlePCJournalOpen(CallInfo callInfo)
-    {
-      if (Players.TryGetValue(callInfo.ObjectSelf, out Player player))
-      {
-        player.DoJournalUpdate = true;
-        player.UpdateJournal();
-      }
-    }
-    [ScriptHandler("on_journal_close")]
-    private void HandlePCJournalClose(CallInfo callInfo)
-    {
-      if (Players.TryGetValue(callInfo.ObjectSelf, out Player player))
-      {
-        player.DoJournalUpdate = false;
-      }
-    }
-
     [ScriptHandler("map_pin_added")]
     private void HandleAddMapPin(CallInfo callInfo)
     {
@@ -452,7 +434,7 @@ namespace NWN.Systems
             if (!Players.TryGetValue(oPC.LoginCreature, out Player player))
               return;
 
-            if (player.newCraftJob != null && !player.openedWindows.ContainsKey("activeCraftJob"))
+            if (player.craftJob != null && !player.openedWindows.ContainsKey("activeCraftJob"))
             {
               if (player.windows.ContainsKey("activeCraftJob"))
                 ((Player.ActiveCraftJobWindow)player.windows["activeCraftJob"]).CreateWindow();

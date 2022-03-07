@@ -24,11 +24,11 @@ namespace NWN.Systems.Alchemy
         "Souhaitez-vous en réduire certains en poudre ?"
       };
 
-      foreach(KeyValuePair<string, int> materialEntry in player.materialStock)
+      /*foreach(KeyValuePair<string, int> materialEntry in player.materialStock)
       {
         if (Enum.TryParse(materialEntry.Key, out PlantType myOreType) && myOreType != PlantType.Invalid)
           player.menu.choices.Add(($"{materialEntry.Key} - {materialEntry.Value} unité(s).", () => HandleRefineOreQuantity(materialEntry.Key)));
-      }
+      }*/
 
       player.menu.choices.Add(("Quitter", () => player.menu.Close()));
       player.menu.Draw();
@@ -37,10 +37,10 @@ namespace NWN.Systems.Alchemy
     {
       player.menu.Clear();
 
-      player.menu.titleLines = new List<string> {
+     /* player.menu.titleLines = new List<string> {
         $"Quelle quantité de {oreName} souhaitez-vous réduire en poudre parmi vos {player.materialStock[oreName]} disponibles ?",
         "(Prononcez simplement la quantité à l'oral.)"
-      };
+      };*/
 
 
       player.menu.choices.Add(("Tout réduire en poudre.", () => HandleRefineAll(oreName)));
@@ -71,23 +71,23 @@ namespace NWN.Systems.Alchemy
       }
       else
       {
-        if (input > player.materialStock[oreName])
+        /*if (input > player.materialStock[oreName])
           input = player.materialStock[oreName];
 
-        player.materialStock[oreName] -= input;
+        player.materialStock[oreName] -= input;*/
 
         int powderQuantity = 0;
 
-        if (player.learntCustomFeats.ContainsKey(CustomFeats.AlchemistEfficiency))
+        /*if (player.learntCustomFeats.ContainsKey(CustomFeats.AlchemistEfficiency))
           powderQuantity += SkillSystem.GetCustomFeatLevelFromSkillPoints(CustomFeats.AlchemistEfficiency, player.learntCustomFeats[CustomFeats.AlchemistEfficiency]);
         else
         {
           player.menu.Close();
           player.oid.SendServerMessage($"Vos connaissances en alchimie sont insuffisantes pour produire une poudre utilisable à partir de cet ingrédient. Essayez d'apprendre le talent {"Alchimiste économe".ColorString(ColorConstants.White)}.", ColorConstants.Red);
           return;
-        }
+        }*/
 
-        if (Enum.TryParse(oreName, out PlantType myPlantType) && plantDictionnary.TryGetValue(myPlantType, out Plant processedPlant))
+        /*if (Enum.TryParse(oreName, out PlantType myPlantType) && plantDictionnary.TryGetValue(myPlantType, out Plant processedPlant))
         {
           if (player.materialStock.ContainsKey("PoudreDe" + myPlantType.ToString()))
             player.materialStock["PoudreDe" + myPlantType.ToString()] += powderQuantity;
@@ -101,7 +101,7 @@ namespace NWN.Systems.Alchemy
         {
           player.menu.titleLines.Add($"HRP - Erreur, votre ingrédient d'alchimie n'a pas correctement été reconnu. Le staff a été informé du problème.");
           Utils.LogMessageToDMs($"ALCHEMY MORTAR - Could not recognize plant type : {oreName} - Used by : {player.oid.LoginCreature.Name}");
-        }
+        }*/
       }
 
       //player.menu.choices.Add(("Retour.", () => DrawWelcomePage(player)));
@@ -110,7 +110,7 @@ namespace NWN.Systems.Alchemy
     }
     private void HandleRefineAll(string oreName)
     {
-      player.oid.LoginCreature.GetObjectVariable<LocalVariableString>("_PLAYER_INPUT").Value = player.materialStock[oreName].ToString();
+      //player.oid.LoginCreature.GetObjectVariable<LocalVariableString>("_PLAYER_INPUT").Value = player.materialStock[oreName].ToString();
       HandleRefineOre(oreName);
     }
   }

@@ -85,13 +85,6 @@ namespace NWN.Systems
         if (oid.LoginCreature.Location.Area != null)
           location = oid.LoginCreature.Location;
 
-        if (location.Area?.GetObjectVariable<LocalVariableInt>("_AREA_LEVEL").Value == 0)
-        {
-          CraftJobProgression();
-        }
-
-        dateLastSaved = DateTime.Now;
-
         if(windowRectangles == null)
         {
           Utils.LogMessageToDMs($"ATTENTION - {oid.LoginCreature.Name} n'a pas été correctement initialisé et n'a pas pu être sauvegardé !");
@@ -100,7 +93,6 @@ namespace NWN.Systems
 
         SavePlayerAccountToDatabase();
         SavePlayerCharacterToDatabase();
-        SavePlayerStoredMaterialsToDatabase();
         HandleExpiredContracts();
         HandleExpiredBuyOrders();
         HandleExpiredSellOrders();
@@ -195,35 +187,28 @@ namespace NWN.Systems
           return JsonConvert.SerializeObject(serializableSpells);
         });
 
-        Task<string> serializeJob = Task.Run(() => newCraftJob != null ? JsonConvert.SerializeObject(new CraftJob.SerializableCraftJob(newCraftJob)) : JsonConvert.SerializeObject(newCraftJob));
+        Task<string> serializeJob = Task.Run(() => craftJob != null ? JsonConvert.SerializeObject(new CraftJob.SerializableCraftJob(craftJob)) : JsonConvert.SerializeObject(craftJob));
 
-        await Task.WhenAll(serializeAlchemyCauldron, serializeLearnableSkills, serializeLearnableSpells, serializeExplorationState, serializeOpenedWindows, serializeJob);
+        Task<string> serializeCraftResource = Task.Run(() =>
+        {
+          List<CraftResource.SerializableCraftResource> serializableCraftResources = new List<CraftResource.SerializableCraftResource>();
+          foreach (CraftResource res in craftResourceStock)
+            serializableCraftResources.Add(new CraftResource.SerializableCraftResource(res));
+
+          return JsonConvert.SerializeObject(serializableCraftResources);
+        });
+
+        await Task.WhenAll(serializeAlchemyCauldron, serializeLearnableSkills, serializeLearnableSpells, serializeExplorationState, serializeOpenedWindows, serializeJob, serializeCraftResource);
 
         SqLiteUtils.UpdateQuery("playerCharacters",
         new List<string[]>() { new string[] { "characterName", $"{firstName} {lastName}" },
           new string[] { "location", serializedLocation }, new string[] { "currentHP", health }, new string[] { "bankGold", bankGold.ToString() },
-          new string[] { "dateLastSaved", dateLastSaved.ToString() }, new string[] { "previousSPCalculation", previousSPCalculation.ToString() },
-          new string[] { "currentCraftJob", craftJob.baseItemType.ToString() }, new string[] { "currentCraftObject", craftJob.craftedItem }, new string[] { "currentCraftJobRemainingTime", craftJob.remainingTime.ToString() },
-          new string[] { "currentCraftJobMaterial", craftJob.material }, new string[] { "pveArenaCurrentPoints", pveArena.currentPoints.ToString() },
-          new string[] { "menuOriginTop", menu.originTop.ToString() }, new string[] { "menuOriginLeft", menu.originLeft.ToString() },
-          new string[] { "alchemyCauldron", serializeAlchemyCauldron.Result }, new string[] { "serializedLearnableSkills", serializeLearnableSkills.Result }, new string[] { "serializedLearnableSpells", serializeLearnableSpells.Result }, new string[] { "explorationState", serializeExplorationState.Result }, new string[] { "openedWindows", serializeOpenedWindows.Result }, new string[] { "craftJob", serializeJob.Result  } },
+          new string[] { "pveArenaCurrentPoints", pveArena.currentPoints.ToString() }, new string[] { "menuOriginTop", menu.originTop.ToString() },
+          new string[] { "menuOriginLeft", menu.originLeft.ToString() }, new string[] { "alchemyCauldron", serializeAlchemyCauldron.Result },
+          new string[] { "serializedLearnableSkills", serializeLearnableSkills.Result }, new string[] { "serializedLearnableSpells", serializeLearnableSpells.Result }, 
+          new string[] { "explorationState", serializeExplorationState.Result }, new string[] { "openedWindows", serializeOpenedWindows.Result }, 
+          new string[] { "craftJob", serializeJob.Result  }, new string[] { "materialStorage", serializeCraftResource.Result  } },
         new List<string[]>() { new string[] { "rowid", characterId.ToString() } });
-      }
-      private async void SavePlayerStoredMaterialsToDatabase()
-      {
-        if (materialStock.Count > 0)
-        {
-          foreach (string material in materialStock.Keys)
-          {
-            await SqLiteUtils.InsertQueryAsync("playerMaterialStorage",
-            new List<string[]>() { new string[] { "characterId", characterId.ToString() },
-            new string[] { "materialName", material },
-            new string[] { "materialStock", materialStock[material].ToString() } },
-              new List<string>() { "characterId", "materialName" },
-              new List<string[]>() { new string[] { "materialStock" } },
-              new List<string>() { { "characterId" }, { "materialName" } });
-          }
-        }
       }
       private async void HandleExpiredContracts()
       {
@@ -261,10 +246,10 @@ namespace NWN.Systems
             string[] descriptionString = materialString.Split("$");
             if (descriptionString.Length == 3)
             {
-              if (materialStock.ContainsKey(descriptionString[0]))
+              /*if (materialStock.ContainsKey(descriptionString[0]))
                 materialStock[descriptionString[0]] += Int32.Parse(descriptionString[1]);
               else
-                materialStock.Add(descriptionString[0], Int32.Parse(descriptionString[1]));
+                materialStock.Add(descriptionString[0], Int32.Parse(descriptionString[1]));*/
 
               oid.SendServerMessage($"Expiration du contrat {contractId} - {descriptionString[1]} unité(s) de {descriptionString[0]} ont été réintégrées à votre entrepôt.");
             }
@@ -347,10 +332,10 @@ namespace NWN.Systems
           string material = result[0][0];
           int quantity = int.Parse(result[0][1]);
 
-          if (materialStock.ContainsKey(material))
+          /*if (materialStock.ContainsKey(material))
             materialStock[material] += quantity;
           else
-            materialStock.Add(material, quantity);
+            materialStock.Add(material, quantity);*/
 
           oid.SendServerMessage($"Expiration de l'ordre de vente {contractId} - {quantity} unité(s) de {material} sont en cours de transfert vers votre entrepôt.");
 

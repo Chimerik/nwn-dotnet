@@ -1,15 +1,13 @@
-﻿using NWN.Core;
-using Anvil.Services;
+﻿using System.Collections.Generic;
+
 using Anvil.API;
-using System.Collections.Generic;
-using static NWN.Systems.PlayerSystem;
-using System.Linq;
+using Anvil.API.Events;
 
 namespace NWN.Systems
 {
   public partial class SpellSystem
   {
-    private static Dictionary<int, ItemProperty[]> enchantementCategories = new Dictionary<int, ItemProperty[]>()
+    public static Dictionary<int, ItemProperty[]> enchantementCategories = new Dictionary<int, ItemProperty[]>()
     {
       //NIVEAU 0
       {840, new ItemProperty[] { ItemProperty.Light(IPLightBrightness.Dim, IPLightColor.Blue), ItemProperty.Light(IPLightBrightness.Dim, IPLightColor.Green), ItemProperty.Light(IPLightBrightness.Dim, IPLightColor.Orange), ItemProperty.Light(IPLightBrightness.Dim, IPLightColor.Purple), ItemProperty.Light(IPLightBrightness.Dim, IPLightColor.Red), ItemProperty.Light(IPLightBrightness.Dim, IPLightColor.White), ItemProperty.Light(IPLightBrightness.Dim, IPLightColor.Yellow), ItemProperty.Light(IPLightBrightness.Low, IPLightColor.Blue), ItemProperty.Light(IPLightBrightness.Low, IPLightColor.Green), ItemProperty.Light(IPLightBrightness.Low, IPLightColor.Orange), ItemProperty.Light(IPLightBrightness.Low, IPLightColor.Purple), ItemProperty.Light(IPLightBrightness.Low, IPLightColor.Red), ItemProperty.Light(IPLightBrightness.Low, IPLightColor.White), ItemProperty.Light(IPLightBrightness.Low, IPLightColor.Yellow) } },
@@ -66,113 +64,30 @@ namespace NWN.Systems
       {881, new ItemProperty[] { ItemProperty.Keen() } },
       {882, new ItemProperty[] { ItemProperty.Haste() } },
     };
-
-    [ScriptHandler("on_ench_cast")]
-    private void HandleItemEnchantement(CallInfo callInfo)
+    private static void Enchantement(SpellEvents.OnSpellCast onSpellCast)
     {
-      NwItem oTarget = NWScript.GetSpellTargetObject().ToNwObject<NwItem>();
-
-      if (!(callInfo.ObjectSelf is NwCreature { IsPlayerControlled: true } oCaster) || oTarget == null 
-        || oTarget.Possessor != oCaster || !Players.TryGetValue(oCaster.ControllingPlayer.LoginCreature, out Player player))
+      if (!(onSpellCast.Caster is NwCreature { IsPlayerControlled: true } oCaster) || !PlayerSystem.Players.TryGetValue(oCaster.ControllingPlayer.LoginCreature, out PlayerSystem.Player player))
         return;
 
-      int spellId = NWScript.GetSpellId();
+      if(!(onSpellCast.TargetObject is NwItem targetItem) || targetItem == null || targetItem.Possessor != oCaster)
+      {
+        player.oid.SendServerMessage("Cible invalide.", ColorConstants.Red);
+        return;
+      }
 
-      if (oTarget.ItemProperties.Any(ip => ip.Tag.StartsWith($"ENCHANTEMENT_{spellId}") && ip.Tag.Contains("INACTIVE")))
+      if (player.windows.ContainsKey("enchantementSelection"))
+        ((PlayerSystem.Player.EnchantementSelectionWindow)player.windows["enchantementSelection"]).CreateWindow(onSpellCast.Spell, targetItem);
+      else
+        player.windows.Add("enchantementSelection", new PlayerSystem.Player.EnchantementSelectionWindow(player, onSpellCast.Spell, targetItem));
+
+      // TODO : la réactivation fonctionnera via OnExamineItem. Mais gardons ça dans un coin en attendant
+      /*if (oTarget.ItemProperties.Any(ip => ip.Tag.StartsWith($"ENCHANTEMENT_{spellId}") && ip.Tag.Contains("INACTIVE")))
       {
         string inactiveIPTag = oTarget.ItemProperties.FirstOrDefault(ip => ip.Tag.StartsWith($"ENCHANTEMENT_{spellId}") && ip.Tag.Contains("INACTIVE")).Tag;
         string[] IPproperties = inactiveIPTag.Split("_");
         player.craftJob.Start(Craft.Job.JobType.EnchantementReactivation, player, null, oTarget, $"{spellId}_{IPproperties[5]}_{IPproperties[6]}");
         return;
-      }
-
-      if (oTarget.GetObjectVariable<LocalVariableInt>("_AVAILABLE_ENCHANTEMENT_SLOT").HasNothing)
-      {
-        player.oid.SendServerMessage($"{oTarget.Name} ne dispose d'aucun emplacement d'enchantement disponible !");
-        return;
-      }
-
-      if (enchantementCategories.ContainsKey(spellId))
-        DrawEnchantementChoicePage(player, oTarget.Name, spellId, oTarget);
-      else
-      {
-        player.oid.SendServerMessage("HRP - Propriétés de cet enchantement incorrectement définies. L'erreur a été remontée au staff");
-        Utils.LogMessageToDMs($"ENCHANTEMENT - {spellId} - ItemProperties non présentes dans le dictionnaire.");
-        return;
-      }
-    }
-    private void DrawEnchantementChoicePage(Player player, string itemName, int spellId, NwItem oItem)
-    {
-      if (enchantementCategories[spellId].Length == 1)
-      {
-        HandleEnchantementChoice(player, enchantementCategories[spellId][0], spellId, oItem);
-        return;
-      }
-      
-      player.menu.Clear();
-      player.menu.titleLines = new List<string> {
-        $"Quel enchantement souhaitez-vous appliquer sur votre {itemName} ?"
-      };
-
-      foreach (ItemProperty ip in enchantementCategories[spellId])
-        player.menu.choices.Add(($"{ItemPropertyDefinition2da.ipDefinitionTable.GetIPDefinitionlDataEntry(ip.PropertyType).name} - " +
-          $"{ItemPropertyDefinition2da.ipDefinitionTable.GetSubTypeName(ip.PropertyType, ip.SubType)}", () => HandleEnchantementChoice(player, ip, spellId, oItem)));
-
-      player.menu.choices.Add(("Quitter", () => player.menu.Close()));
-      player.menu.Draw();
-    }
-
-    private static void HandleEnchantementChoice(Player player, ItemProperty ip, int spellId, NwItem oItem)
-    {
-      //player.oid.SendServerMessage($"ip string : {$"{spellId}_{(int)ip.PropertyType}_{ip.SubType}_{ip.CostTable}_{ip.CostTableValue}"}");
-
-      player.menu.Close();
-
-      switch (ip.PropertyType)
-      {
-        case ItemPropertyType.AcBonus:
-        case ItemPropertyType.AcBonusVsAlignmentGroup:
-        case ItemPropertyType.AcBonusVsDamageType:
-        case ItemPropertyType.AcBonusVsRacialGroup:
-        case ItemPropertyType.AcBonusVsSpecificAlignment:
-
-          if (oItem.BaseItem.ItemType != BaseItemType.Armor
-            && oItem.BaseItem.ItemType != BaseItemType.Helmet
-            && oItem.BaseItem.ItemType != BaseItemType.Cloak
-            && oItem.BaseItem.ItemType != BaseItemType.Boots
-            && oItem.BaseItem.ItemType != BaseItemType.Gloves
-            && oItem.BaseItem.ItemType != BaseItemType.LargeShield
-            && oItem.BaseItem.ItemType != BaseItemType.TowerShield
-            && oItem.BaseItem.ItemType != BaseItemType.SmallShield
-            )
-
-            player.oid.SendServerMessage("Ce type d'enchantement ne peut-être utilisé que sur une armure, un bouclier, un casque, une cape, des bottes ou des gants", ColorConstants.Red);
-
-          return;
-
-        case ItemPropertyType.AttackBonus:
-        case ItemPropertyType.AttackBonusVsAlignmentGroup:
-        case ItemPropertyType.AttackBonusVsRacialGroup:
-        case ItemPropertyType.AttackBonusVsSpecificAlignment:
-        case ItemPropertyType.EnhancementBonus:
-        case ItemPropertyType.EnhancementBonusVsAlignmentGroup:
-        case ItemPropertyType.EnhancementBonusVsRacialGroup:
-        case ItemPropertyType.EnhancementBonusVsSpecificAlignment:
-
-          ItemUtils.ItemCategory itemCategory = ItemUtils.GetItemCategory(oItem.BaseItem.ItemType);
-
-          if (itemCategory != ItemUtils.ItemCategory.OneHandedMeleeWeapon
-            && itemCategory != ItemUtils.ItemCategory.TwoHandedMeleeWeapon
-            && itemCategory != ItemUtils.ItemCategory.RangedWeapon
-            && oItem.BaseItem.ItemType != BaseItemType.Gloves)
-
-            player.oid.SendServerMessage("Ce type d'enchantement ne peut-être utilisé que sur une arme.", ColorConstants.Red);
-
-          return;
-      }
-
-
-      player.craftJob.Start(Craft.Job.JobType.Enchantement, player, null, oItem, $"{spellId}_{(int)ip.PropertyType}_{ip.SubType}_{ip.CostTable}_{ip.CostTableValue}");
+      }*/
     }
   }
 }
