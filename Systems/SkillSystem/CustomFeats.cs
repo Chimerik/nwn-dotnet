@@ -465,6 +465,16 @@
     public const int CombattantPrecautionneux = 20346;
     public const int ImprovedDodge = 20347;
 
+    public const int CraftOnHandedMeleeWeapon = 20348;
+    public const int CraftTwoHandedMeleeWeapon = 20349;
+    public const int CraftRangedWeapon = 20350;
+    public const int CraftShield = 20351;
+    public const int CraftArmor = 20352;
+    public const int CraftClothes = 20353;
+    public const int CraftAmmunitions = 20354;
+
+    public const int ArtisanFocus = 20355;
+
     public const int Invalid = 65535;
   }
 }

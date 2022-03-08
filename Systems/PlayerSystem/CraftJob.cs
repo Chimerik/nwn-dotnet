@@ -548,7 +548,9 @@ namespace NWN.Systems
 
         if (NwRandom.Roll(Utils.random, 100) <= artisanAppliqueLevel * 3)
         {
-          item.GetObjectVariable<LocalVariableInt>("_MAX_DURABILITY").Value *= (1 + 20 / 100);
+          int artisanFocusLevel = player.learnableSkills.ContainsKey(CustomSkill.ArtisanFocus) ? 5 * (player.learnableSkills[CustomSkill.ArtisanFocus].totalPoints + 1) : 5;
+
+          item.GetObjectVariable<LocalVariableInt>("_MAX_DURABILITY").Value *= (1 + artisanFocusLevel / 100);
           player.oid.SendServerMessage("En travaillant de manière particulièrement appliquée, vous parvenez à fabriquer un objet plus résistant !", ColorConstants.Navy);
         }
       }

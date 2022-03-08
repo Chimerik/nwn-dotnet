@@ -961,6 +961,12 @@ namespace NWN.Systems
         if (learnableSkills.ContainsKey(entry.craftLearnable))
           materiaCost *= learnableSkills[entry.craftLearnable].bonusReduction;
 
+        if(baseACValue < 1 && learnableSkills.ContainsKey(CustomSkill.CraftClothes))
+          materiaCost *= learnableSkills[CustomSkill.CraftClothes].bonusReduction;
+
+        if(baseACValue > 0 && learnableSkills.ContainsKey(CustomSkill.CraftArmor))
+          materiaCost *= learnableSkills[CustomSkill.CraftArmor].bonusReduction;
+
         int jobFeat = GetJobLearnableFromWorkshop(entry.workshop);
 
         if (learnableSkills.ContainsKey(jobFeat))
@@ -980,6 +986,30 @@ namespace NWN.Systems
 
         if (learnableSkills.ContainsKey(jobFeat))
           materiaCost *= learnableSkills[jobFeat].bonusReduction;
+
+        switch(ItemUtils.GetItemCategory(baseItemType))
+        {
+          case ItemUtils.ItemCategory.OneHandedMeleeWeapon:
+            if(learnableSkills.ContainsKey(CustomSkill.CraftOnHandedMeleeWeapon))
+              materiaCost *= learnableSkills[CustomSkill.CraftOnHandedMeleeWeapon].bonusReduction;
+            return materiaCost;
+          case ItemUtils.ItemCategory.TwoHandedMeleeWeapon:
+            if (learnableSkills.ContainsKey(CustomSkill.CraftTwoHandedMeleeWeapon))
+              materiaCost *= learnableSkills[CustomSkill.CraftTwoHandedMeleeWeapon].bonusReduction;
+            return materiaCost;
+          case ItemUtils.ItemCategory.RangedWeapon:
+            if (learnableSkills.ContainsKey(CustomSkill.CraftRangedWeapon))
+              materiaCost *= learnableSkills[CustomSkill.CraftRangedWeapon].bonusReduction;
+            return materiaCost;
+          case ItemUtils.ItemCategory.Shield:
+            if (learnableSkills.ContainsKey(CustomSkill.CraftShield))
+              materiaCost *= learnableSkills[CustomSkill.CraftShield].bonusReduction;
+            return materiaCost;
+          case ItemUtils.ItemCategory.Ammunition:
+            if (learnableSkills.ContainsKey(CustomSkill.CraftAmmunitions))
+              materiaCost *= learnableSkills[CustomSkill.CraftAmmunitions].bonusReduction;
+            return materiaCost;
+        }
 
         return materiaCost;
       }
