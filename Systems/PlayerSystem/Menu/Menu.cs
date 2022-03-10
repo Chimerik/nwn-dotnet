@@ -274,60 +274,6 @@ namespace NWN.Systems
                 player.menu.Close();
                 return;
             }
-          case QuickbarType.Sit:
-            Vector3 translation = player.oid.ControlledCreature.VisualTransform.Translation;
-            Vector3 rotation = player.oid.ControlledCreature.VisualTransform.Rotation;
-
-            switch (e.feat)
-            {
-              default: return;
-
-              case CustomFeats.CustomMenuUP:
-                player.oid.ControlledCreature.VisualTransform.Translation = new Vector3(translation.X, translation.Y, translation.Z + 0.1f);
-                if (translation.Z > 5)
-                  Utils.LogMessageToDMs($"SIT COMMAND - Player {player.oid.PlayerName} - Z translation = {translation.Z}");
-
-                player.oid.CameraHeight = 1 + translation.Z;
-                break;
-
-              case CustomFeats.CustomMenuDOWN:
-                player.oid.ControlledCreature.VisualTransform.Translation = new Vector3(translation.X, translation.Y, translation.Z - 0.1f);
-                if (translation.Z < player.oid.ControlledCreature.Location.GroundHeight)
-                  Utils.LogMessageToDMs($"SIT COMMAND - Player {player.oid.PlayerName} - Z translation = {translation.Z}");
-
-                player.oid.CameraHeight = 1 + translation.Z;
-                break;
-
-              case CustomFeats.CustomPositionRotateRight:
-                player.oid.ControlledCreature.VisualTransform.Rotation = new Vector3(rotation.X + 20, rotation.Y, rotation.Z);
-                break;
-              case CustomFeats.CustomPositionRotateLeft:
-                player.oid.ControlledCreature.VisualTransform.Rotation = new Vector3(rotation.X - 20, rotation.Y, rotation.Z);
-                break;
-
-              case CustomFeats.CustomPositionRight:
-                player.oid.ControlledCreature.VisualTransform.Translation = new Vector3(translation.X + 0.1f, translation.Y, translation.Z);
-                break;
-
-              case CustomFeats.CustomPositionLeft:
-                player.oid.ControlledCreature.VisualTransform.Translation = new Vector3(translation.X - 0.1f, translation.Y, translation.Z);
-                break;
-
-              case CustomFeats.CustomPositionForward:
-                player.oid.ControlledCreature.VisualTransform.Translation = new Vector3(translation.X, translation.Y + 0.1f, translation.Z);
-                break;
-
-              case CustomFeats.CustomPositionBackward:
-                player.oid.ControlledCreature.VisualTransform.Translation = new Vector3(translation.X, translation.Y - 0.1f, translation.Z);
-                break;
-
-              case CustomFeats.CustomMenuEXIT:
-                player.UnloadMenuQuickbar();
-                Utils.ResetVisualTransform(player.oid.ControlledCreature);
-                player.OnKeydown -= HandleMenuFeatUsed;
-                return;
-            }
-            break;
         }
       }
     }

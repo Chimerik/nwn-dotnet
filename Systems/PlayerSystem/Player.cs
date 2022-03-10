@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using static NWN.Systems.SkillSystem;
 using Anvil.API;
 using System.Threading.Tasks;
 using System.Threading;
@@ -150,45 +149,6 @@ namespace NWN.Systems
               oid.ControlledCreature.SetQuickBarButton(3, emptyQBS);
 
               this.loadedQuickBar = QuickbarType.Menu;
-              break;
-            case QuickbarType.Sit:
-              oid.ControlledCreature.AddFeat(CustomFeats.CustomMenuDOWN);
-              oid.ControlledCreature.AddFeat(CustomFeats.CustomMenuUP);
-              oid.ControlledCreature.AddFeat(CustomFeats.CustomPositionRight);
-              oid.ControlledCreature.AddFeat(CustomFeats.CustomPositionLeft);
-              oid.ControlledCreature.AddFeat(CustomFeats.CustomPositionForward);
-              oid.ControlledCreature.AddFeat(CustomFeats.CustomPositionBackward);
-              oid.ControlledCreature.AddFeat(CustomFeats.CustomPositionRotateRight);
-              oid.ControlledCreature.AddFeat(CustomFeats.CustomPositionRotateLeft);
-              oid.ControlledCreature.AddFeat(CustomFeats.CustomMenuEXIT);
-
-              this.serializedQuickbar = oid.ControlledCreature.SerializeQuickbar().ToBase64EncodedString();
-
-              for (int i = 0; i < 12; i++)
-                oid.ControlledCreature.SetQuickBarButton((byte)i, emptyQBS);
-
-              emptyQBS.ObjectType = QuickBarButtonType.Feat;
-              emptyQBS.Param1 = (int)CustomFeats.CustomMenuDOWN;
-              oid.ControlledCreature.SetQuickBarButton(0, emptyQBS);
-              emptyQBS.Param1 = (int)CustomFeats.CustomMenuUP;
-              oid.ControlledCreature.SetQuickBarButton(1, emptyQBS);
-              emptyQBS.Param1 = (int)CustomFeats.CustomPositionLeft;
-              oid.ControlledCreature.SetQuickBarButton(2, emptyQBS);
-              emptyQBS.Param1 = (int)CustomFeats.CustomPositionRight;
-              oid.ControlledCreature.SetQuickBarButton(3, emptyQBS);
-              emptyQBS.Param1 = (int)CustomFeats.CustomPositionForward;
-              oid.ControlledCreature.SetQuickBarButton(4, emptyQBS);
-              emptyQBS.Param1 = (int)CustomFeats.CustomPositionBackward;
-              oid.ControlledCreature.SetQuickBarButton(5, emptyQBS);
-              emptyQBS.Param1 = (int)CustomFeats.CustomPositionRotateLeft;
-              oid.ControlledCreature.SetQuickBarButton(6, emptyQBS);
-              emptyQBS.Param1 = (int)CustomFeats.CustomPositionRotateRight;
-              oid.ControlledCreature.SetQuickBarButton(7, emptyQBS);
-              emptyQBS.Param1 = (int)CustomFeats.CustomMenuEXIT;
-              oid.ControlledCreature.SetQuickBarButton(8, emptyQBS);
-
-              this.loadedQuickBar = QuickbarType.Sit;
-              this.OnKeydown += this.menu.HandleMenuFeatUsed;
               break;
           }
         }

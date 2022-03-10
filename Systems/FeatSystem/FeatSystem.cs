@@ -1,6 +1,4 @@
-﻿using NLog;
-using Anvil.Services;
-using Anvil.API;
+﻿using Anvil.Services;
 using Anvil.API.Events;
 
 namespace NWN.Systems
@@ -28,12 +26,6 @@ namespace NWN.Systems
 
           onUseFeat.PreventFeatUse = true;
           player.EmitKeydown(new PlayerSystem.Player.MenuFeatEventArgs(onUseFeat.Feat.FeatType));
-          break;
-
-        case CustomFeats.Sit:
-
-          onUseFeat.PreventFeatUse = true;
-          new Sit(player);
           break;
       }
     }

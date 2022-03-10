@@ -1,10 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 
 using Anvil.API;
 using Anvil.API.Events;
-using Anvil.Services;
 
 namespace NWN.Systems
 {

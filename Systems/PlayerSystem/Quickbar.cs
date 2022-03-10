@@ -4,6 +4,5 @@
   {
     Invalid = 0,
     Menu,
-    Sit,
   }
 }
