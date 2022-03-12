@@ -7,7 +7,6 @@ using Discord;
 using Anvil.API;
 using Anvil.API.Events;
 using Anvil.Services;
-using NWN.Systems.Craft;
 using Color = Anvil.API.Color;
 using System.Threading;
 using Newtonsoft.Json;
@@ -43,7 +42,13 @@ namespace NWN.Systems
         }
       }
 
+      player.oid.SetGuiPanelDisabled(GUIPanel.ExamineItem, true);
+      player.oid.SetGuiPanelDisabled(GUIPanel.Journal, true);
+
       player.currentLanguage = 0;
+
+      if (player.oid.LoginCreature.GetObjectVariable<PersistentVariableBool>("_ALWAYS_WALK").HasValue)
+        player.oid.ControlledCreature.AlwaysWalk = true;
 
       if (oPC.IsDM)
         return;
@@ -327,7 +332,6 @@ namespace NWN.Systems
         player.LoginCreature.OnUseSkill += HandleBeforeSkillUsed;
         player.OnPlayerGuiEvent += HandleGuiEvents;
         player.OnNuiEvent += HandleGenericNuiEvents;
-        player.SetGuiPanelDisabled(GUIPanel.ExamineItem, true);
       }
       private void InitializePlayerAccount()
       {
@@ -351,14 +355,13 @@ namespace NWN.Systems
       private void InitializePlayerCharacter()
       {
         var result = SqLiteUtils.SelectQuery("playerCharacters",
-            new List<string>() { { "location" }, { "currentHP" }, { "bankGold" }, { "menuOriginTop" }, { "menuOriginLeft" }, { "pveArenaCurrentPoints" }, { "alchemyCauldron" }, { "serializedLearnableSkills" }, { "serializedLearnableSpells" }, { "explorationState" }, { "openedWindows" }, { "materialStorage" }, { "craftJob" } },
+            new List<string>() { { "location" }, { "currentHP" }, { "bankGold" }, { "menuOriginTop" }, { "menuOriginLeft" }, { "pveArenaCurrentPoints" }, { "alchemyCauldron" }, { "serializedLearnableSkills" }, { "serializedLearnableSpells" }, { "explorationState" }, { "openedWindows" }, { "materialStorage" }, { "craftJob" }, { "grimoires" }, { "quickbars" }, { "itemAppearances" }, { "descriptions" } },
             new List<string[]>() { { new string[] { "rowid", characterId.ToString() } } });
 
         if (result.Result == null)
           return;
 
         playerJournal = new PlayerJournal();
-        loadedQuickBar = QuickbarType.Invalid;
         location = SqLiteUtils.DeserializeLocation(result.Result.GetString(0));
         oid.LoginCreature.HP = result.Result.GetInt(1);
         bankGold = result.Result.GetInt(2);
@@ -372,10 +375,14 @@ namespace NWN.Systems
         string serializedOpenedWindows = result.Result.GetString(10);
         string serializedCraftResources = result.Result.GetString(11);
         string serializedCraftJob = result.Result.GetString(12);
+        string serializedGrimoires = result.Result.GetString(13);
+        string serializedQuickbars = result.Result.GetString(14);
+        string serializedItemAppearances = result.Result.GetString(15);
+        string serializedDescriptions = result.Result.GetString(16);
 
-        InitializePlayerAsync(serializedCauldron, serializedExploration, serializedLearnableSkills, serializedLearnableSpells, serializedOpenedWindows, serializedCraftResources, serializedCraftJob);
+        InitializePlayerAsync(serializedCauldron, serializedExploration, serializedLearnableSkills, serializedLearnableSpells, serializedOpenedWindows, serializedCraftResources, serializedCraftJob, serializedGrimoires, serializedQuickbars, serializedItemAppearances, serializedDescriptions);
       }
-      private async void InitializePlayerAsync(string serializedCauldron, string serializedExploration, string serializedLearnableSkills, string serializedLearnableSpells, string serializedOpenedWindows, string serializedCraftResources, string serializedCraftJob)
+      private async void InitializePlayerAsync(string serializedCauldron, string serializedExploration, string serializedLearnableSkills, string serializedLearnableSpells, string serializedOpenedWindows, string serializedCraftResources, string serializedCraftJob, string serializedGrimoires, string serializedQuickbars, string serializedItemAppearances, string serializedDescriptions)
       {
         Log.Info("starting async init");
 
@@ -444,7 +451,39 @@ namespace NWN.Systems
           craftJob = new CraftJob(JsonConvert.DeserializeObject<CraftJob.SerializableCraftJob>(serializedCraftJob), this);
         });
 
-        await Task.WhenAll(loadSkillsTask, loadSpellsTask, loadExplorationTask, loadOpenedWindowsTask, loadCauldronTask, loadCraftJobTask);
+        Task loadGrimoiresTask = Task.Run(() =>
+        {
+          if (string.IsNullOrEmpty(serializedGrimoires) || serializedGrimoires == "null")
+            return;
+
+          grimoires = JsonConvert.DeserializeObject<List<Grimoire>>(serializedGrimoires);
+        });
+
+        Task loadQuickbarsTask = Task.Run(() =>
+        {
+          if (string.IsNullOrEmpty(serializedQuickbars) || serializedQuickbars == "null")
+            return;
+
+          quickbars = JsonConvert.DeserializeObject<List<Quickbar>>(serializedQuickbars);
+        });
+
+        Task loadItemAppearancesTask = Task.Run(() =>
+        {
+          if (string.IsNullOrEmpty(serializedItemAppearances) || serializedItemAppearances == "null")
+            return;
+
+          itemAppearances = JsonConvert.DeserializeObject<List<ItemAppearance>>(serializedItemAppearances);
+        });
+
+        Task loadDescriptionsTask = Task.Run(() =>
+        {
+          if (string.IsNullOrEmpty(serializedDescriptions) || serializedDescriptions == "null")
+            return;
+
+          descriptions = JsonConvert.DeserializeObject<List<CharacterDescription>>(serializedDescriptions);
+        });
+
+        await Task.WhenAll(loadSkillsTask, loadSpellsTask, loadExplorationTask, loadOpenedWindowsTask, loadCauldronTask, loadCraftJobTask, loadGrimoiresTask, loadQuickbarsTask, loadItemAppearancesTask, loadDescriptionsTask);
         Log.Info("async init done");
       }
       private async void InitializeAccountMapPins(string serializedMapPins)
@@ -474,25 +513,13 @@ namespace NWN.Systems
             oid.LoginCreature.GetObjectVariable<LocalVariableInt>("NW_TOTAL_MAP_PINS").Value = mapPinDictionnary.Max(v => v.Key);
         }
       }
-      private async void InitializeAccountChatColors(string serializedChatColors) // Pas sur que ça suffise pour convertir. Est-ce qu'il faut pas faire un truc en plus comme en dessous ?
+      private async void InitializeAccountChatColors(string serializedChatColors)
       {
         if (string.IsNullOrEmpty(serializedChatColors))
           return;
 
-        await Task.Run(() => chatColors = JsonConvert.DeserializeObject<Dictionary<ChatChannel, Color>>(serializedChatColors));
+        await Task.Run(() => chatColors = JsonConvert.DeserializeObject<Dictionary<int, byte[]>>(serializedChatColors));
       }
-      /*private void InitializePlayerChatColors()
-      {
-        var result = SqLiteUtils.SelectQuery("chatColors",
-            new List<string>() { { "channel" }, { "color" } },
-            new List<string[]>() { { new string[] { "accountId", accountId.ToString() } } });
-
-        foreach (var color in result.Results)
-        {
-          byte[] colorConverter = BitConverter.GetBytes(color.GetInt(1));
-          chatColors.Add((ChatChannel)color.GetInt(0), new Color(colorConverter[3], colorConverter[2], colorConverter[1], colorConverter[0]));
-        }
-      }*/
       private async void InitializeAccountMutedPlayers(string serializedMutedPlayers) 
       {
         if (string.IsNullOrEmpty(serializedMutedPlayers))

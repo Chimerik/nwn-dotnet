@@ -59,7 +59,7 @@ namespace NWN.Systems
 
         if (!isOpen)
         {
-          player.LoadMenuQuickbar(QuickbarType.Menu);
+          player.LoadMenuQuickbar();
           player.OnKeydown += HandleMenuFeatUsed;
         }
 
@@ -230,50 +230,44 @@ namespace NWN.Systems
 
       public void HandleMenuFeatUsed(object sender, Player.MenuFeatEventArgs e)
       {
-        switch (player.loadedQuickBar)
+        switch (e.feat)
         {
-          case QuickbarType.Invalid:
+          default: return;
+
+          case CustomFeats.CustomMenuUP:
+
+            if (choices.Count <= 0)
+              return;
+
+            selectedChoiceID = (selectedChoiceID + choices.Count - 1) % choices.Count;
+            EraseLastSelection();
+            player.oid.PlaySound("gui_select");
+            DrawSelection();
             return;
-          case QuickbarType.Menu:
-            switch (e.feat)
-            {
-              default: return;
 
-              case CustomFeats.CustomMenuUP:
+          case CustomFeats.CustomMenuDOWN:
 
-                if (choices.Count <= 0)
-                  return;
+            if (choices.Count <= 0)
+              return;
 
-                selectedChoiceID = (selectedChoiceID + choices.Count - 1) % choices.Count;
-                EraseLastSelection();
-                player.oid.PlaySound("gui_select");
-                DrawSelection();
-                return;
+            selectedChoiceID = (selectedChoiceID + 1) % choices.Count;
+            EraseLastSelection();
+            player.oid.PlaySound("gui_select");
+            DrawSelection();
+            return;
 
-              case CustomFeats.CustomMenuDOWN:
+          case CustomFeats.CustomMenuSELECT:
 
-                if (choices.Count <= 0)
-                  return;
+            if (choices.Count <= 0)
+              return;
 
-                selectedChoiceID = (selectedChoiceID + 1) % choices.Count;
-                EraseLastSelection();
-                player.oid.PlaySound("gui_select");
-                DrawSelection();
-                return;
-
-              case CustomFeats.CustomMenuSELECT:
-
-                if (choices.Count <= 0)
-                  return;
-
-                var handler = choices.ElementAtOrDefault(selectedChoiceID).handler;
-                player.oid.PlaySound("gui_picklockopen");
-                handler?.Invoke();
-                return;
-              case CustomFeats.CustomMenuEXIT:
-                player.menu.Close();
-                return;
-            }
+            var handler = choices.ElementAtOrDefault(selectedChoiceID).handler;
+            player.oid.PlaySound("gui_picklockopen");
+            handler?.Invoke();
+            return;
+          case CustomFeats.CustomMenuEXIT:
+            player.menu.Close();
+            return;
         }
       }
     }

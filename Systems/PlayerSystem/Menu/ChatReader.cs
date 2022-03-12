@@ -342,7 +342,14 @@ namespace NWN.Systems
           chatRowChildren.Add(new NuiImage(chatLine.portrait) { Id = chatLine.playerName, Height = 24, Width = 19, ImageAspect = NuiAspect.ExactScaled });
           List<NuiDrawListItem> updatedDrawList = new List<NuiDrawListItem>();
           chatRowChildren.Add(new NuiLabel(chatLine.name) { Width = nameWidth, Id = chatLine.playerName, VerticalAlign = NuiVAlign.Top, HorizontalAlign = NuiHAlign.Left, ForegroundColor = new NuiColor(143, 127, 255), DrawList = updatedDrawList });
-          NuiColor color = player.chatColors.ContainsKey(chatLine.channel) ? player.chatColors[chatLine.channel] : new NuiColor(255, 255, 255);
+
+          NuiColor color = new NuiColor(255, 255, 255);
+
+          if (player.chatColors.ContainsKey((int)chatLine.channel))
+          {
+            byte[] colorArray = player.chatColors[(int)chatLine.channel];
+            color = new NuiColor(colorArray[0], colorArray[1], colorArray[2], colorArray[3]);
+          }
 
           if (chatLine.channel == Anvil.Services.ChatChannel.PlayerTell || chatLine.channel == Anvil.Services.ChatChannel.DmTell)
             color = new NuiColor(32, 255, 32);

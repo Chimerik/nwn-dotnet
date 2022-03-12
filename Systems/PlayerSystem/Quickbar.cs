@@ -1,8 +1,18 @@
-﻿namespace NWN
+﻿namespace NWN.Systems
 {
-  public enum QuickbarType
+  public class Quickbar
   {
-    Invalid = 0,
-    Menu,
+    public string name { get; set; }
+    public string serializedQuickbar { get; set; }
+
+    public Quickbar(string name, string serializedQuickbar)
+    {
+      this.name = name;
+      this.serializedQuickbar = serializedQuickbar;
+    }
+    public Quickbar()
+    {
+
+    }
   }
 }

@@ -284,10 +284,13 @@ namespace NWN.Systems
 
         string coloredChat = chatReceiver.Value;
 
-        if (receiver.chatColors.ContainsKey(ctx.channel))
-          coloredChat = chatReceiver.Value.ColorString(receiver.chatColors[ctx.channel]);
+        if (receiver.chatColors.ContainsKey((int)ctx.channel))
+        {
+          byte[] colorArray = receiver.chatColors[(int)ctx.channel];
+          coloredChat = chatReceiver.Value.ColorString(new Color(colorArray[0], colorArray[1], colorArray[2], colorArray[3]));
+        }
 
-        if (receiver.chatColors.ContainsKey((ChatChannel)100)) // 100 = emote
+        if (receiver.chatColors.ContainsKey(100)) // 100 = emote
           coloredChat = HandleEmoteColoration(receiver, coloredChat);
 
         chatService.SendMessage(ctx.channel, coloredChat, ctx.oSender.ControlledCreature, chatReceiver.Key);
@@ -299,22 +302,28 @@ namespace NWN.Systems
     }
     public static string HandleEmoteColoration(PlayerSystem.Player player, string chat)
     {
-      int starCount = chat.ToCharArray().Count(c => c == '*'); 
+      int starCount = chat.ToCharArray().Count(c => c == '*');
 
-      if (starCount == 1 && player.chatColors.ContainsKey((ChatChannel)101)) // 101 = chat correctif
-          return chat.StripColors().ColorString(player.chatColors[(ChatChannel)101]);
+      if (starCount == 1 && player.chatColors.ContainsKey(101)) // 101 = chat correctif
+      {
+        byte[] colorArray = player.chatColors[101];
+        return chat.StripColors().ColorString(new Color(colorArray[0], colorArray[1], colorArray[2], colorArray[3]));
+      }
       else if (starCount > 1)
       {
         string[] sArray = chat.Split('*', '*');
         string sColored = "";
         int i = 0;
+        byte[] colorArray = player.chatColors[100];
 
         foreach (string s in sArray)
         {
           if (i % 2 == 0)
             sColored += s;
           else
-            sColored += $" * {s} * ".ColorString(player.chatColors[(ChatChannel)100]);
+          {
+            sColored += $" * {s} * ".ColorString(new Color(colorArray[0], colorArray[1], colorArray[2], colorArray[3]));
+          }
           // test : color vert mp = new Color(32, 255, 32)
 
           i++;

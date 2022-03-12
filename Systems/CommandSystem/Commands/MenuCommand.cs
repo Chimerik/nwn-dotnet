@@ -25,26 +25,7 @@ namespace NWN.Systems
       player.menu.Clear();
       player.menu.titleLines.Add("Voici la liste des commandes disponibles en jeu.");
       player.menu.choices.Add(("Personnaliser l'affichage du menu.", () => __DrawMenuConfigPage(player)));
-      player.menu.choices.Add(("Activer le mode toucher.", () => new TouchMode(player.oid)));
-      player.menu.choices.Add(("Activer/Désactiver le mode marche.", () => new WalkMode(player.oid)));
-      player.menu.choices.Add(("Modifier l'affichage de mon casque.", () => new DisplayHelm(player.oid)));
-      player.menu.choices.Add(("Modifier l'affichage de ma cape.", () => new DisplayCloak(player.oid)));
-      player.menu.choices.Add(("Examiner les environs.", () => new ExamineArea(player.oid)));
-      player.menu.choices.Add(("Gérer mes grimoires.", () => new SpellBooks(player)));
-      player.menu.choices.Add(("Gérer mes raccourcis.", () => new QuickBar(player)));
-      //player.menu.choices.Add(("Dissiper les maladies (uniquement pour l'alpha).", () => new DispelDisease(player.oid)));
-      if (player.bonusRolePlay >= 4)
-        player.menu.choices.Add(("Recommander un joueur.", () => new CommendCommand(player)));
-      player.menu.choices.Add(("Sauvegarder l'apparence d'un de mes objets.", () => new SaveItemAppearance(player.oid)));
-      player.menu.choices.Add(("Restaurer l'apparence d'un de mes objets.", () => new LoadAppearance(player.oid)));
-      player.menu.choices.Add(("Charger une description sur mon personnage.", () => new LoadPCDescription(player)));
-      player.menu.choices.Add(("Renommer une de mes invocations.", () => new RenameSummon(player.oid)));
       player.menu.choices.Add(("Créer un contrat d'échange de ressources privé.", () => new ContractMenu(player)));
-      player.menu.choices.Add(("Tenter de me débloquer du décor.", () => new Unstuck(player.oid)));
-      player.menu.choices.Add(("Réinitialiser l'affichage de ma position.", () => new ResetPosition(player.oid)));
-      player.menu.choices.Add(("Gérer l'affichage des couleurs du chat.", () => new ChatColors(player)));
-      player.menu.choices.Add(("Obtenir ma clé CD publique.", () => new GetPublicKey(player.oid)));
-      player.menu.choices.Add(("Supprimer mon personnage.", () => new DeleteCharacter(player)));
       player.menu.choices.Add(("Quitter", () => player.menu.Close()));
       player.menu.Draw();
     }

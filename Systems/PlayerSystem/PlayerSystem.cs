@@ -406,7 +406,10 @@ namespace NWN.Systems
     {
       NwPlayer oPC = guiEvent.Player;
       oPC.LoginCreature.GetObjectVariable<DateTimeLocalVariable>("_LAST_ACTION_DATE").Value = DateTime.Now;
-      
+
+      if (!Players.TryGetValue(oPC.LoginCreature, out Player player))
+        return;
+
       switch (guiEvent.EventType)
       {
         case GuiEventType.DisabledPanelAttemptOpen:
@@ -415,13 +418,19 @@ namespace NWN.Systems
           {
             case GUIPanel.ExamineItem:
 
-              if (!Players.TryGetValue(oPC.LoginCreature, out Player player))
-                return;
-
               if (player.windows.ContainsKey("itemExamine"))
                 ((Player.ItemExamineWindow)player.windows["itemExamine"]).CreateWindow((NwItem)guiEvent.EventObject);
               else
                 player.windows.Add("itemExamine", new Player.ItemExamineWindow(player, (NwItem)guiEvent.EventObject));
+
+              return;
+
+            case GUIPanel.Journal:
+
+              if (player.windows.ContainsKey("mainMenu"))
+                ((Player.MainMenuWindow)player.windows["mainMenu"]).CreateWindow();
+              else
+                player.windows.Add("mainMenu", new Player.MainMenuWindow(player));
 
               return;
           }
@@ -430,11 +439,10 @@ namespace NWN.Systems
 
         case GuiEventType.ExamineObject:
 
+          // TODO : Lorsque la créature examinée est une invocation du joueur et que le joueur possède le don spell focus conjuration, permettre de la renommer
+
           if(guiEvent.EventObject is NwCreature examineCreature && examineCreature == oPC.LoginCreature)
           {
-            if (!Players.TryGetValue(oPC.LoginCreature, out Player player))
-              return;
-
             if (player.craftJob != null && !player.openedWindows.ContainsKey("activeCraftJob"))
             {
               if (player.windows.ContainsKey("activeCraftJob"))

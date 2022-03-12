@@ -4,6 +4,10 @@ using System.Linq;
 using Anvil.API;
 using Anvil.API.Events;
 
+using Google.Apis.Drive.v3.Data;
+
+using NWN.Core;
+
 namespace NWN.Systems
 {
   public partial class PlayerSystem
@@ -15,6 +19,7 @@ namespace NWN.Systems
         private readonly NuiGroup rootGroup;
         private readonly NuiColumn rootColumn;
         private readonly List<NuiElement> rootChidren;
+        private NuiRect windowRectangle { get; set; }
 
         public MainMenuWindow(Player player) : base(player)
         {
@@ -28,66 +33,29 @@ namespace NWN.Systems
         }
         public void CreateWindow()
         {
-          rootChidren.Clear();
-
-          rootChidren.Add(new NuiRow() { Children = new List<NuiElement>() 
-          { 
-            new NuiButton(player.oid.ControlledCreature.ActiveEffects.Any(e => e.EffectType == EffectType.CutsceneGhost) ? "Désactiver Mode Toucher" : "Activer Mode Toucher") 
-            { Id = "touch", Tooltip = "Permet d'éviter les collisions entre personnages (non utilisable en combat)" } } 
-          });
-
-          rootChidren.Add(new NuiRow() { Children = new List<NuiElement>() 
-          { 
-            new NuiButton(player.oid.ControlledCreature.GetObjectVariable<PersistentVariableInt>("_ALWAYS_WALK").HasNothing ? "Activer Mode Marche" : "Désactiver Mode Marche") 
-            { Id = "walk", Tooltip = "Permet d'avoir l'air moins ridicule en ville." } } 
-          });
-
-          NwItem oHelmet = player.oid.ControlledCreature.GetItemInSlot(InventorySlot.Head);
-
-          if (oHelmet != null)
-            rootChidren.Add(new NuiRow() { Children = new List<NuiElement>() 
-            { 
-              new NuiButton(oHelmet.HiddenWhenEquipped == 1 ? "Afficher casque" : "Ne pas afficher le casque") 
-              { Id = "helm", Tooltip = "Considération purement esthétique afin de laisser le visage apparent." } } 
-            });
-
-          NwItem oCloak = player.oid.ControlledCreature.GetItemInSlot(InventorySlot.Cloak);
-
-          if (oCloak != null)
-            rootChidren.Add(new NuiRow()
-            {
-              Children = new List<NuiElement>()
-            {
-              new NuiButton(oCloak.HiddenWhenEquipped == 1 ? "Afficher cape" : "Ne pas afficher la cape")
-              { Id = "cloak", Tooltip = "Considération purement esthétique." } }
-            });
-
-          NuiRect windowRectangle = player.windowRectangles.ContainsKey(windowId) ? player.windowRectangles[windowId] : new NuiRect(10, player.oid.GetDeviceProperty(PlayerDeviceProperty.GuiHeight) * 0.01f, 450, player.oid.GetDeviceProperty(PlayerDeviceProperty.GuiHeight) * 0.4f);
+          RefreshWindow();
 
           window = new NuiWindow(rootGroup, "Menu principal")
           {
             Geometry = geometry,
-            Resizable = false,
+            Resizable = true,
             Collapsed = false,
             Closable = true,
             Transparent = false,
             Border = true,
           };
 
-          player.oid.OnNuiEvent -= HandleEnchantementSelectionEvents;
-          player.oid.OnNuiEvent += HandleEnchantementSelectionEvents;
+          player.oid.OnNuiEvent -= HandleMainMenuEvents;
+          player.oid.OnNuiEvent += HandleMainMenuEvents;
 
           token = player.oid.CreateNuiWindow(window, windowId);
-
-          buttonText.SetBindValues(player.oid, token, enchantementList);
-          listCount.SetBindValue(player.oid, token, enchantementList.Count);
 
           geometry.SetBindValue(player.oid, token, windowRectangle);
           geometry.SetBindWatch(player.oid, token, true);
 
           player.openedWindows[windowId] = token;
         }
-        private void HandleEnchantementSelectionEvents(ModuleEvents.OnNuiEvent nuiEvent)
+        private async void HandleMainMenuEvents(ModuleEvents.OnNuiEvent nuiEvent)
         {
           if (nuiEvent.Player.NuiGetWindowId(nuiEvent.WindowToken) != windowId)
             return;
@@ -98,9 +66,139 @@ namespace NWN.Systems
 
               switch (nuiEvent.ElementId)
               {
-                case "select":
+                case "touch":
 
-                  HandleEnchantementChecks(SpellSystem.enchantementCategories[(int)spell.Id][nuiEvent.ArrayIndex]);
+                  var effectList = player.oid.ControlledCreature.ActiveEffects.Where(e => e.EffectType == EffectType.CutsceneGhost);
+
+                  if (!player.oid.ControlledCreature.ActiveEffects.Any(e => e.EffectType == EffectType.CutsceneGhost))
+                  {
+                    player.oid.ControlledCreature.ApplyEffect(EffectDuration.Permanent, Effect.CutsceneGhost());
+                    player.oid.SendServerMessage("Activation du mode toucher", ColorConstants.Orange);
+                  }
+                  else
+                  {
+                    foreach (var eff in player.oid.ControlledCreature.ActiveEffects.Where(e => e.EffectType == EffectType.CutsceneGhost))
+                      player.oid.ControlledCreature.RemoveEffect(eff);
+
+                    player.oid.SendServerMessage("Désactivation du mode toucher", ColorConstants.Orange);
+                  }
+
+                  RefreshWindow();
+                  rootGroup.SetLayout(player.oid, token, rootColumn);
+
+                  break;
+
+                case "walk":
+
+                  if (player.oid.ControlledCreature.AlwaysWalk)
+                  {
+                    player.oid.ControlledCreature.AlwaysWalk = false;
+                    player.oid.LoginCreature.GetObjectVariable<PersistentVariableBool>("_ALWAYS_WALK").Delete();
+                    player.oid.SendServerMessage("Désactivation du mode marche.", ColorConstants.Orange);
+                  }
+                  else
+                  {
+                    player.oid.ControlledCreature.AlwaysWalk = true;
+                    player.oid.LoginCreature.GetObjectVariable<PersistentVariableBool>("_ALWAYS_WALK").Value = true;
+                    player.oid.SendServerMessage("Activation du mode marche.", ColorConstants.Orange);
+                  }
+
+                  Log.Info($"always walk : {player.oid.ControlledCreature.AlwaysWalk}");
+
+                  RefreshWindow();
+                  rootGroup.SetLayout(player.oid, token, rootColumn);
+
+                  break;
+
+                case "examineArea":
+
+                  if (player.windows.ContainsKey("areaDescription"))
+                    ((AreaDescriptionWindow)player.windows["areaDescription"]).CreateWindow(player.oid.ControlledCreature.Area);
+                  else
+                    player.windows.Add("areaDescription", new AreaDescriptionWindow(player, player.oid.ControlledCreature.Area));
+
+                  break;
+
+                case "grimoire":
+
+                  if (player.windows.ContainsKey("grimoires"))
+                    ((GrimoiresWindow)player.windows["grimoires"]).CreateWindow();
+                  else
+                    player.windows.Add("grimoires", new GrimoiresWindow(player));
+
+                  player.oid.NuiDestroy(token);
+
+                  break;
+
+                case "quickbars":
+
+                  if (player.windows.ContainsKey("quickbars"))
+                    ((QuickbarsWindow)player.windows["quickbars"]).CreateWindow();
+                  else
+                    player.windows.Add("quickbars", new QuickbarsWindow(player));
+
+                  player.oid.NuiDestroy(token);
+
+                  break;
+
+                case "commend":
+
+                  player.oid.SendServerMessage("Veuillez sélectionner le joueur que vous souhaitez recommander.", ColorConstants.Orange);
+                  player.oid.EnterTargetMode(OnTargetSelected, ObjectTypes.Creature, MouseCursor.Magic);
+
+                  break;
+
+                case "itemAppearance":
+
+                  if (player.windows.ContainsKey("itemAppearances"))
+                    ((ItemAppearancesWindow)player.windows["itemAppearances"]).CreateWindow();
+                  else
+                    player.windows.Add("itemAppearances", new ItemAppearancesWindow(player));
+
+                  player.oid.NuiDestroy(token);
+
+                  break;
+
+                case "description":
+
+                  if (player.windows.ContainsKey("description"))
+                    ((DescriptionsWindow)player.windows["description"]).CreateWindow();
+                  else
+                    player.windows.Add("description", new DescriptionsWindow(player));
+
+                  player.oid.NuiDestroy(token);
+
+                  break;
+
+                case "unstuck":
+
+                  NWScript.AssignCommand(player.oid.ControlledCreature, () => NWScript.JumpToLocation(NWScript.GetLocation(player.oid.ControlledCreature)));
+                  player.oid.SendServerMessage("Tentative de déblocage effectuée.", ColorConstants.Orange);
+
+                  break;
+
+                case "reinitPositionDisplay":
+
+                  Utils.ResetVisualTransform(player.oid.ControlledCreature);
+                  player.oid.SendServerMessage("Affichage réinitialisé.", ColorConstants.Orange);
+
+                  break;
+
+                case "publicKey":
+                  player.oid.SendServerMessage($"Votre clef publique est : {player.oid.CDKey.ColorString(ColorConstants.White)}", ColorConstants.Pink);
+                  break;
+
+                case "delete":
+                  await player.oid.Delete($"Le personnage {player.oid.LoginCreature.Name} a été supprimé.");
+                  break;
+
+                case "chat":
+
+                  if (player.windows.ContainsKey("chatColors"))
+                    ((ChatColorsWindow)player.windows["chatColors"]).CreateWindow();
+                  else
+                    player.windows.Add("chatColors", new ChatColorsWindow(player));
+
                   player.oid.NuiDestroy(token);
 
                   break;
@@ -109,53 +207,178 @@ namespace NWN.Systems
               break;
           }
         }
-        private void HandleEnchantementChecks(ItemProperty ip)
+        private void RefreshWindow()
         {
-          switch (ip.PropertyType)
+          windowRectangle = /*player.windowRectangles.ContainsKey(windowId) ? player.windowRectangles[windowId] :*/ new NuiRect(10, player.oid.GetDeviceProperty(PlayerDeviceProperty.GuiHeight) * 0.01f, 450, player.oid.GetDeviceProperty(PlayerDeviceProperty.GuiHeight) * 0.4f);
+
+          rootChidren.Clear();
+
+          rootChidren.Add(new NuiRow()
           {
-            case ItemPropertyType.AcBonus:
-            case ItemPropertyType.AcBonusVsAlignmentGroup:
-            case ItemPropertyType.AcBonusVsDamageType:
-            case ItemPropertyType.AcBonusVsRacialGroup:
-            case ItemPropertyType.AcBonusVsSpecificAlignment:
+            Children = new List<NuiElement>()
+            {
+              new NuiSpacer(),
+              new NuiButton(player.oid.ControlledCreature.ActiveEffects.Any(e => e.EffectType == EffectType.CutsceneGhost) ? "Désactiver Mode Toucher" : "Activer Mode Toucher")
+              { Id = "touch", Tooltip = "Permet d'éviter les collisions entre personnages (non utilisable en combat)", Width = windowRectangle.Width - 60, Height = 35 } ,
+              new NuiSpacer(),
+          }});
 
-              if (itemTarget.BaseItem.ItemType != BaseItemType.Armor
-                && itemTarget.BaseItem.ItemType != BaseItemType.Helmet
-                && itemTarget.BaseItem.ItemType != BaseItemType.Cloak
-                && itemTarget.BaseItem.ItemType != BaseItemType.Boots
-                && itemTarget.BaseItem.ItemType != BaseItemType.Gloves
-                && itemTarget.BaseItem.ItemType != BaseItemType.Bracer
-                && itemTarget.BaseItem.ItemType != BaseItemType.LargeShield
-                && itemTarget.BaseItem.ItemType != BaseItemType.TowerShield
-                && itemTarget.BaseItem.ItemType != BaseItemType.SmallShield
-                )
+          rootChidren.Add(new NuiRow()
+          {
+            Children = new List<NuiElement>()
+            {
+              new NuiSpacer(),
+              new NuiButton(!player.oid.ControlledCreature.AlwaysWalk ? "Activer Mode Marche" : "Désactiver Mode Marche")
+              { Id = "walk", Tooltip = "Permet d'avoir l'air moins ridicule en ville.", Width = windowRectangle.Width - 60, Height = 35 },
+              new NuiSpacer(),
+          }});
 
-                player.oid.SendServerMessage("Ce type d'enchantement ne peut-être utilisé que sur une armure, un bouclier, un casque, une cape, des bottes ou des gants", ColorConstants.Red);
+          if (AreaDescriptionExists(player.oid.ControlledCreature.Area.Name))
+            rootChidren.Add(new NuiRow()
+            {
+              Children = new List<NuiElement>()
+              {
+                new NuiSpacer(),
+                new NuiButton("Examiner les environs")
+                { Id = "examineArea", Tooltip = "Obtenir une description de la zone.", Width = windowRectangle.Width - 60, Height = 35 },
+                new NuiSpacer(),
+              }});
 
-              return;
+          rootChidren.Add(new NuiRow()
+          {
+            Children = new List<NuiElement>()
+            {
+              new NuiSpacer(),
+              new NuiButton("Gestion des grimoires")
+              { Id = "grimoire", Tooltip = "Enregistrer ou charger un grimoire.", Width = windowRectangle.Width - 60, Height = 35 },
+              new NuiSpacer(),
+            }});
 
-            case ItemPropertyType.AttackBonus:
-            case ItemPropertyType.AttackBonusVsAlignmentGroup:
-            case ItemPropertyType.AttackBonusVsRacialGroup:
-            case ItemPropertyType.AttackBonusVsSpecificAlignment:
-            case ItemPropertyType.EnhancementBonus:
-            case ItemPropertyType.EnhancementBonusVsAlignmentGroup:
-            case ItemPropertyType.EnhancementBonusVsRacialGroup:
-            case ItemPropertyType.EnhancementBonusVsSpecificAlignment:
+          rootChidren.Add(new NuiRow()
+          {
+            Children = new List<NuiElement>()
+            {
+              new NuiSpacer(),
+              new NuiButton("Gestion des barres de raccourcis")
+              { Id = "quickbars", Tooltip = "Enregistrer ou charger une barre de raccourcis.", Width = windowRectangle.Width - 60, Height = 35 },
+              new NuiSpacer(),
+            }});
 
-              ItemUtils.ItemCategory itemCategory = ItemUtils.GetItemCategory(itemTarget.BaseItem.ItemType);
+          if(player.bonusRolePlay > 3) // TODO : Il faudra intégrer cette action dans la fenêtre d'examen des joueurs plutôt
+            rootChidren.Add(new NuiRow()
+            {
+              Children = new List<NuiElement>()
+              {
+                new NuiSpacer(),
+                new NuiButton("Recommander un joueur")
+                { Id = "commend", Tooltip = "Recommander un joueur pour la qualité de son roleplay et son implication sur le module.", Width = windowRectangle.Width - 60, Height = 35 },
+                new NuiSpacer(),
+              }});
 
-              if (itemCategory != ItemUtils.ItemCategory.OneHandedMeleeWeapon
-                && itemCategory != ItemUtils.ItemCategory.TwoHandedMeleeWeapon
-                && itemCategory != ItemUtils.ItemCategory.RangedWeapon
-                && itemTarget.BaseItem.ItemType != BaseItemType.Gloves)
+          rootChidren.Add(new NuiRow()
+          {
+            Children = new List<NuiElement>()
+            {
+              new NuiSpacer(),
+              new NuiButton("Gestion des apparences d'objets")
+              { Id = "itemAppearance", Tooltip = "Enregistrer ou charger une apparence d'objet.", Width = windowRectangle.Width - 60, Height = 35 },
+              new NuiSpacer(),
+            }});
 
-                player.oid.SendServerMessage("Ce type d'enchantement ne peut-être utilisé que sur une arme.", ColorConstants.Red);
+          rootChidren.Add(new NuiRow()
+          {
+            Children = new List<NuiElement>()
+            {
+              new NuiSpacer(),
+              new NuiButton("Gestion des descriptions")
+              { Id = "description", Tooltip = "Enregistrer ou charger une description de personnage.", Width = windowRectangle.Width - 60, Height = 35 },
+              new NuiSpacer(),
+            }});
 
-              return;
+          rootChidren.Add(new NuiRow()
+          {
+            Children = new List<NuiElement>()
+            {
+              new NuiSpacer(),
+              new NuiButton("Gestion des couleurs du chat")
+              { Id = "chat", Tooltip = "Personnaliser les couleurs du chat.", Width = windowRectangle.Width - 60, Height = 35 },
+              new NuiSpacer(),
+            }});
+
+          rootChidren.Add(new NuiRow()
+          {
+            Children = new List<NuiElement>()
+            {
+              new NuiSpacer(),
+              new NuiButton("Déblocage du décor")
+              { Id = "unstuck", Tooltip = "Tentative de déblocage du décor (succès non garanti).", Width = windowRectangle.Width - 60, Height = 35 },
+              new NuiSpacer(),
+            }});
+
+          rootChidren.Add(new NuiRow()
+          {
+            Children = new List<NuiElement>()
+            {
+              new NuiSpacer(),
+              new NuiButton("Réinitialiser la position affichée")
+              { Id = "reinitPositionDisplay", Tooltip = "Réinitialise la position affichée du personnage (à utiliser en cas de problème avec le système d'assise).", Width = windowRectangle.Width - 60, Height = 35 },
+              new NuiSpacer(),
+            }});
+
+          rootChidren.Add(new NuiRow()
+          {
+            Children = new List<NuiElement>()
+            {
+              new NuiSpacer(),
+              new NuiButton("Afficher ma clé publique")
+              { Id = "publicKey", Tooltip = "Permet d'obtenir la clé publique de votre compte, utile pour lier le compte Discord au compte Never.", Width = windowRectangle.Width - 60, Height = 35 },
+            new NuiSpacer(),
+            }});
+
+          rootChidren.Add(new NuiRow()
+          {
+            Children = new List<NuiElement>()
+            {
+              new NuiSpacer(),
+              new NuiButton("Supprimer ce personnage")
+              { Id = "delete", Tooltip = "Attention, la suppression est définitive.", Width = windowRectangle.Width - 60, Height = 35 },
+              new NuiSpacer(),
+            }});
+        }
+        private bool AreaDescriptionExists(string areaName)
+        {
+          var request = ModuleSystem.googleDriveService.Files.List();
+          request.Q = $"name = '{areaName}'";
+          FileList list = request.Execute();
+
+          if (list.Files.Count > 0)
+            return true;
+          else
+            return false;
+        }
+        private void OnTargetSelected(ModuleEvents.OnPlayerTarget selection)
+        {
+          if (selection.IsCancelled || selection.TargetObject.IsPlayerControlled(out NwPlayer oPC) || oPC == null || !PlayerSystem.Players.TryGetValue(oPC.LoginCreature, out Player commendTarget))
+            return;
+
+          if (commendTarget.bonusRolePlay < 4)
+          {
+            commendTarget.oid.SendServerMessage("Vous venez d'obtenir une recommandation pour une augmentation de bonus roleplay !", ColorConstants.Rose);
+
+            if (commendTarget.bonusRolePlay == 1)
+            {
+              commendTarget.bonusRolePlay = 2;
+              commendTarget.oid.SendServerMessage("Votre bonus roleplay est désormais de 2", new Color(32, 255, 32));
+
+              SqLiteUtils.UpdateQuery("PlayerAccounts",
+              new List<string[]>() { new string[] { "bonusRolePlay", commendTarget.bonusRolePlay.ToString() } },
+              new List<string[]>() { new string[] { "rowid", commendTarget.accountId.ToString() } });
+            }
+
+            Utils.LogMessageToDMs($"{selection.Player.LoginCreature.Name} vient de recommander {oPC.LoginCreature.Name} pour une augmentation de bonus roleplay.");
           }
 
-          player.craftJob = new CraftJob(player, itemTarget, spell, ip, JobType.Enchantement);
+          commendTarget.oid.SendServerMessage($"Vous venez de recommander {oPC.LoginCreature.Name.ColorString(ColorConstants.White)} pour une augmentation de bonus roleplay !", ColorConstants.Rose);
         }
       }
     }

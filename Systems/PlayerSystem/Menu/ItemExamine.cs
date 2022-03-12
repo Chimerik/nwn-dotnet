@@ -310,6 +310,13 @@ namespace NWN.Systems
           List<NuiElement> actionRowChildren = new List<NuiElement>();
           NuiRow actionRow = new NuiRow() { Children = actionRowChildren };
 
+          if(item.BaseItem.ItemType == BaseItemType.Helmet || item.BaseItem.ItemType == BaseItemType.Cloak)
+          {
+            actionRowChildren.Add(new NuiSpacer());
+            actionRowChildren.Add(new NuiButton(item.HiddenWhenEquipped == 0 ? "Cacher" : "Afficher") { Id = "hide", Tooltip = "Considération purement esthétique permettant d'afficher ou non cet objet lorsque le personnage le porte." });
+            actionRowChildren.Add(new NuiSpacer());
+          }
+
           if (modificationAllowed) // TODO : ajouter un métier permettant de modifier n'importe quelle tenue (ex : styliste)
           {
             actionRowChildren.Add(new NuiSpacer());
@@ -549,6 +556,15 @@ namespace NWN.Systems
                 }
 
                 player.oid.NuiDestroy(token);
+                return;
+
+              case "hide":
+
+                if (item.HiddenWhenEquipped == 0)
+                  item.HiddenWhenEquipped = 1;
+                else
+                  item.HiddenWhenEquipped = 0;
+
                 return;
             }
 

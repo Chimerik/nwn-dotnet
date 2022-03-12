@@ -12,6 +12,7 @@ using System.Threading.Tasks;
 using NWN.Core;
 using Google.Apis.Drive.v3;
 using Newtonsoft.Json;
+using Google.Apis.Drive.v3.Data;
 
 namespace NWN.Systems
 {
@@ -160,7 +161,8 @@ namespace NWN.Systems
         "('accountId' INTEGER NOT NULL, 'characterName' TEXT NOT NULL, 'previousSPCalculation' TEXT, 'serializedLearnables' TEXT," +
         "'location' TEXT, 'openedWindows' TEXT, " +
         "'currentHP' INTEGER, 'bankGold' INTEGER, 'pveArenaCurrentPoints' INTEGER, 'menuOriginTop' INTEGER, 'menuOriginLeft' INTEGER, 'storage' TEXT, " +
-        "'alchemyCauldron' TEXT, 'explorationState' TEXT, 'persistantStorage' TEXT, 'materialStorage' TEXT, 'craftJob' TEXT)");
+        "'alchemyCauldron' TEXT, 'explorationState' TEXT, 'persistantStorage' TEXT, 'materialStorage' TEXT, 'craftJob' TEXT, 'grimoires' TEXT, 'quickbars' TEXT," +
+        "'descriptions' TEXT)");
 
       SqLiteUtils.CreateQuery("CREATE TABLE IF NOT EXISTS playerDeathCorpses" +
         "('characterId' INTEGER NOT NULL, 'deathCorpse' TEXT NOT NULL, 'location' TEXT NOT NULL)");
@@ -170,9 +172,6 @@ namespace NWN.Systems
 
       SqLiteUtils.CreateQuery("CREATE TABLE IF NOT EXISTS dm_persistant_placeable" +
         "('accountID' INTEGER NOT NULL, 'serializedPlaceable' TEXT NOT NULL, 'areaTag' TEXT NOT NULL, 'position' TEXT NOT NULL, 'facing' REAL NOT NULL)");
-
-      SqLiteUtils.CreateQuery("CREATE TABLE IF NOT EXISTS playerDescriptions" +
-        "('characterId' INTEGER NOT NULL, 'descriptionName' TEXT NOT NULL, 'description' TEXT NOT NULL, UNIQUE (characterId, descriptionName))");
 
       SqLiteUtils.CreateQuery("CREATE TABLE IF NOT EXISTS areaResourceStock" +
         "('id' INTEGER NOT NULL, 'areaTag' TEXT NOT NULL, 'type' TEXT NOT NULL, 'quantity' INTEGER NOT NULL, 'lastChecked' TEXT NOT NULL, UNIQUE (id, areaTag, type))");
@@ -195,17 +194,11 @@ namespace NWN.Systems
       SqLiteUtils.CreateQuery("CREATE TABLE IF NOT EXISTS playerShops" +
         "('characterId' INTEGER NOT NULL, 'shop' TEXT NOT NULL, 'panel' TEXT NOT NULL, 'expirationDate' TEXT NOT NULL, 'areaTag' TEXT NOT NULL, 'position' TEXT NOT NULL, 'facing' REAL NOT NULL)");
 
-      SqLiteUtils.CreateQuery("CREATE TABLE IF NOT EXISTS playerItemAppearance" +
-        "('characterId' INTEGER NOT NULL, 'appearanceName' TEXT NOT NULL, 'serializedAppearance' TEXT NOT NULL, 'baseItemType' INTEGER NOT NULL, 'AC' INTEGER NOT NULL, UNIQUE (characterId, appearanceName))");
-
       SqLiteUtils.CreateQuery("CREATE TABLE IF NOT EXISTS playerAuctions" +
         "('characterId' INTEGER NOT NULL, 'shop' TEXT NOT NULL, 'panel' TEXT NOT NULL, 'expirationDate' TEXT NOT NULL, 'highestAuction' INTEGER NOT NULL, 'highestAuctionner' INTEGER NOT NULL, 'areaTag' TEXT NOT NULL, 'position' TEXT NOT NULL, 'facing' REAL NOT NULL)");
 
       SqLiteUtils.CreateQuery("CREATE TABLE IF NOT EXISTS savedNPC" +
         "('accountName' TEXT NOT NULL, 'name' TEXT NOT NULL, 'serializedCreature' TEXT NOT NULL, UNIQUE (accountName, name))");
-
-      SqLiteUtils.CreateQuery("CREATE TABLE IF NOT EXISTS areaDescriptions" +
-        "('areaTag' TEXT NOT NULL, 'description' TEXT NOT NULL, PRIMARY KEY(areaTag))");
 
       SqLiteUtils.CreateQuery("CREATE TABLE IF NOT EXISTS rumors" +
         "('accountId' INTEGER NOT NULL, 'title' TEXT NOT NULL, 'content' TEXT NOT NULL, UNIQUE (accountId, title))");
@@ -213,17 +206,8 @@ namespace NWN.Systems
       SqLiteUtils.CreateQuery("CREATE TABLE IF NOT EXISTS arenaRewardShop" +
         "('id' INTEGER NOT NULL, 'shop' TEXT NOT NULL, PRIMARY KEY(id))");
 
-      /*SqLiteUtils.CreateQuery("CREATE TABLE IF NOT EXISTS chatColors" +
-        "('accountId' INTEGER NOT NULL, 'channel' INTEGER NOT NULL, 'color' INTEGER NOT NULL, UNIQUE (accountId, channel))");*/
-
       SqLiteUtils.CreateQuery("CREATE TABLE IF NOT EXISTS messenger" +
         "('characterId' INTEGER NOT NULL, 'senderName' TEXT NOT NULL, 'title' TEXT NOT NULL, 'message', TEXT NOT NULL, 'sentDate' TEXT NOT NULL, 'read' INTEGER NOT NULL)");
-
-      SqLiteUtils.CreateQuery("CREATE TABLE IF NOT EXISTS playerGrimoire" +
-        "('characterId' INTEGER NOT NULL, 'grimoireName' TEXT NOT NULL, 'serializedGrimoire' TEXT NOT NULL, UNIQUE (characterId, grimoireName))");
-
-      SqLiteUtils.CreateQuery("CREATE TABLE IF NOT EXISTS playerQuickbar" +
-        "('characterId' INTEGER NOT NULL, 'quickbarName' TEXT NOT NULL, 'serializedQuickbar' TEXT NOT NULL, UNIQUE (characterId, quickbarName))");
 
       SqLiteUtils.CreateQuery("CREATE TABLE IF NOT EXISTS dmVFX" +
         "('playerName' TEXT NOT NULL, 'vfxName' TEXT NOT NULL, 'vfxId' INTEGER NOT NULL, UNIQUE (playerName, vfxName))");

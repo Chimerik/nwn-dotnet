@@ -30,7 +30,6 @@ namespace NWN.Systems
       public Location previousLocation { get; set; }
       public Menu menu { get; }
       public NwCreature deathCorpse { get; set; }
-      public QuickbarType loadedQuickBar { get; set; }
       public string serializedQuickbar { get; set; }
       public Arena.PlayerData pveArena { get; set; }
       public Cauldron alchemyCauldron { get; set; }
@@ -43,13 +42,17 @@ namespace NWN.Systems
       public Dictionary<int, LearnableSpell> learnableSpells = new Dictionary<int, LearnableSpell>();
       public Dictionary<int, MapPin> mapPinDictionnary = new Dictionary<int, MapPin>();
       public Dictionary<string, byte[]> areaExplorationStateDictionnary = new Dictionary<string, byte[]>();
-      public Dictionary<ChatChannel, Color> chatColors = new Dictionary<ChatChannel, Color>();
+      public Dictionary<int, byte[]> chatColors = new Dictionary<int, byte[]>();
       public Dictionary<string, PlayerWindow> windows = new Dictionary<string, PlayerWindow>();
       public Dictionary<string, NuiRect> windowRectangles = new Dictionary<string, NuiRect>();
       public Dictionary<string, int> openedWindows = new Dictionary<string, int>();
       public List<ChatLine> readChatLines = new List<ChatLine>();
 
       public List<CraftResource> craftResourceStock = new List<CraftResource>();
+      public List<Grimoire> grimoires = new List<Grimoire>();
+      public List<Quickbar> quickbars = new List<Quickbar>();
+      public List<ItemAppearance> itemAppearances = new List<ItemAppearance>();
+      public List<CharacterDescription> descriptions = new List<CharacterDescription>();
 
       public enum PcState
       {
@@ -104,54 +107,43 @@ namespace NWN.Systems
           this.feat = feat;
         }
       }
-      public void LoadMenuQuickbar(QuickbarType type)
+      public void LoadMenuQuickbar()
       {
-        if (this.loadedQuickBar == QuickbarType.Invalid)
+        PlayerQuickBarButton emptyQBS = new PlayerQuickBarButton();
+
+        this.serializedQuickbar = oid.ControlledCreature.SerializeQuickbar().ToBase64EncodedString();
+        emptyQBS.ObjectType = QuickBarButtonType.Empty;
+
+        if (menu.choices.Count > 0)
         {
-          PlayerQuickBarButton emptyQBS = new PlayerQuickBarButton();
+          oid.ControlledCreature.AddFeat(CustomFeats.CustomMenuDOWN);
+          oid.ControlledCreature.AddFeat(CustomFeats.CustomMenuUP);
+          oid.ControlledCreature.AddFeat(CustomFeats.CustomMenuSELECT);
+          oid.ControlledCreature.AddFeat(CustomFeats.CustomMenuEXIT);
 
-          switch (type)
+          emptyQBS.ObjectType = QuickBarButtonType.Feat;
+
+          if (this.oid.LoginCreature.GetObjectVariable<PersistentVariableInt>("_MENU_HOTKEYS_SWAPPED").HasNothing)
           {
-            case QuickbarType.Menu:
-
-              this.serializedQuickbar = oid.ControlledCreature.SerializeQuickbar().ToBase64EncodedString();
-              emptyQBS.ObjectType = QuickBarButtonType.Empty;
-
-              if (menu.choices.Count > 0)
-              {
-                oid.ControlledCreature.AddFeat(CustomFeats.CustomMenuDOWN);
-                oid.ControlledCreature.AddFeat(CustomFeats.CustomMenuUP);
-                oid.ControlledCreature.AddFeat(CustomFeats.CustomMenuSELECT);
-                oid.ControlledCreature.AddFeat(CustomFeats.CustomMenuEXIT);
-
-                emptyQBS.ObjectType = QuickBarButtonType.Feat;
-                
-                if (this.oid.LoginCreature.GetObjectVariable<PersistentVariableInt>("_MENU_HOTKEYS_SWAPPED").HasNothing)
-                {
-                  emptyQBS.Param1 = (int)CustomFeats.CustomMenuDOWN;
-                  oid.ControlledCreature.SetQuickBarButton(0, emptyQBS);
-                  emptyQBS.Param1 = (int)CustomFeats.CustomMenuUP;
-                  oid.ControlledCreature.SetQuickBarButton(1, emptyQBS);
-                }
-                else
-                {
-                  emptyQBS.Param1 = (int)CustomFeats.CustomMenuDOWN;
-                  oid.ControlledCreature.SetQuickBarButton(1, emptyQBS);
-                  emptyQBS.Param1 = (int)CustomFeats.CustomMenuUP;
-                  oid.ControlledCreature.SetQuickBarButton(0, emptyQBS);
-                }
-                
-                emptyQBS.Param1 = (int)CustomFeats.CustomMenuSELECT;
-                oid.ControlledCreature.SetQuickBarButton(2, emptyQBS);
-              }
-
-              emptyQBS.Param1 = (int)CustomFeats.CustomMenuEXIT;
-              oid.ControlledCreature.SetQuickBarButton(3, emptyQBS);
-
-              this.loadedQuickBar = QuickbarType.Menu;
-              break;
+            emptyQBS.Param1 = (int)CustomFeats.CustomMenuDOWN;
+            oid.ControlledCreature.SetQuickBarButton(0, emptyQBS);
+            emptyQBS.Param1 = (int)CustomFeats.CustomMenuUP;
+            oid.ControlledCreature.SetQuickBarButton(1, emptyQBS);
           }
+          else
+          {
+            emptyQBS.Param1 = (int)CustomFeats.CustomMenuDOWN;
+            oid.ControlledCreature.SetQuickBarButton(1, emptyQBS);
+            emptyQBS.Param1 = (int)CustomFeats.CustomMenuUP;
+            oid.ControlledCreature.SetQuickBarButton(0, emptyQBS);
+          }
+
+          emptyQBS.Param1 = (int)CustomFeats.CustomMenuSELECT;
+          oid.ControlledCreature.SetQuickBarButton(2, emptyQBS);
         }
+
+        emptyQBS.Param1 = (int)CustomFeats.CustomMenuEXIT;
+        oid.ControlledCreature.SetQuickBarButton(3, emptyQBS);
       }
       public async void TeleportPlayerToSavedLocation()
       {
@@ -233,7 +225,6 @@ namespace NWN.Systems
         oid.ControlledCreature.RemoveFeat(CustomFeats.CustomPositionRotateRight);
 
         bool returned = oid.ControlledCreature.DeserializeQuickbar(this.serializedQuickbar.ToByteArray());
-        loadedQuickBar = QuickbarType.Invalid;
       }
       public string CheckDBPlayerAccount()
       {

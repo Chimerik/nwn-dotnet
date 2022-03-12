@@ -150,11 +150,13 @@ namespace NWN.Systems
 
         Task<string> serializeWindowRectangles = Task.Run(() => JsonConvert.SerializeObject(windowRectangles));
         Task<string> serializeMutedPlayers = Task.Run(() => JsonConvert.SerializeObject(mutedList));
+        Task<string> serializeChatColors = Task.Run(() => JsonConvert.SerializeObject(chatColors));
 
-        await Task.WhenAll(serializeWindowRectangles, serializeMutedPlayers);
+        await Task.WhenAll(serializeWindowRectangles, serializeMutedPlayers, serializeChatColors);
 
         SqLiteUtils.UpdateQuery("PlayerAccounts",
-          new List<string[]>() { new string[] { "windowRectangles", serializeWindowRectangles.Result }, new string[] { "mutedPlayers", serializeMutedPlayers.Result }, new string[] { "bonusRolePlay", bonusRolePlay.ToString() } },
+          new List<string[]>() { new string[] { "windowRectangles", serializeWindowRectangles.Result }, new string[] { "mutedPlayers", serializeMutedPlayers.Result },
+            new string[] { "bonusRolePlay", bonusRolePlay.ToString() }, new string[] { "chatColors", serializeChatColors.Result } },
           new List<string[]>() { new string[] { "rowid", accountId.ToString() } });
       }
       private async void SavePlayerCharacterToDatabase()
@@ -169,6 +171,11 @@ namespace NWN.Systems
         Task<string> serializeAlchemyCauldron = Task.Run(() => JsonConvert.SerializeObject(alchemyCauldron));
         Task<string> serializeExplorationState = Task.Run(() => JsonConvert.SerializeObject(areaExplorationStateDictionnary));
         Task<string> serializeOpenedWindows = Task.Run(() => JsonConvert.SerializeObject(openedWindows));
+        Task<string> serializeGrimoires = Task.Run(() => JsonConvert.SerializeObject(grimoires));
+        Task<string> serializeQuickbars = Task.Run(() => JsonConvert.SerializeObject(quickbars));
+        Task<string> serializeItemAppearances = Task.Run(() => JsonConvert.SerializeObject(itemAppearances));
+        Task<string> serializeDescriptions = Task.Run(() => JsonConvert.SerializeObject(descriptions));
+
         Task<string> serializeLearnableSkills = Task.Run(() =>
         {
           Dictionary<int, LearnableSkill.SerializableLearnableSkill> serializableSkills = new Dictionary<int, LearnableSkill.SerializableLearnableSkill>();
@@ -198,7 +205,7 @@ namespace NWN.Systems
           return JsonConvert.SerializeObject(serializableCraftResources);
         });
 
-        await Task.WhenAll(serializeAlchemyCauldron, serializeLearnableSkills, serializeLearnableSpells, serializeExplorationState, serializeOpenedWindows, serializeJob, serializeCraftResource);
+        await Task.WhenAll(serializeAlchemyCauldron, serializeLearnableSkills, serializeLearnableSpells, serializeExplorationState, serializeOpenedWindows, serializeJob, serializeCraftResource, serializeGrimoires, serializeQuickbars, serializeItemAppearances, serializeDescriptions);
 
         SqLiteUtils.UpdateQuery("playerCharacters",
         new List<string[]>() { new string[] { "characterName", $"{firstName} {lastName}" },
@@ -206,8 +213,9 @@ namespace NWN.Systems
           new string[] { "pveArenaCurrentPoints", pveArena.currentPoints.ToString() }, new string[] { "menuOriginTop", menu.originTop.ToString() },
           new string[] { "menuOriginLeft", menu.originLeft.ToString() }, new string[] { "alchemyCauldron", serializeAlchemyCauldron.Result },
           new string[] { "serializedLearnableSkills", serializeLearnableSkills.Result }, new string[] { "serializedLearnableSpells", serializeLearnableSpells.Result }, 
-          new string[] { "explorationState", serializeExplorationState.Result }, new string[] { "openedWindows", serializeOpenedWindows.Result }, 
-          new string[] { "craftJob", serializeJob.Result  }, new string[] { "materialStorage", serializeCraftResource.Result  } },
+          new string[] { "explorationState", serializeExplorationState.Result }, new string[] { "openedWindows", serializeOpenedWindows.Result }, new string[] { "quickbars", serializeQuickbars.Result },
+          new string[] { "itemAppearances", serializeItemAppearances.Result }, new string[] { "descriptions", serializeDescriptions.Result },
+          new string[] { "craftJob", serializeJob.Result  }, new string[] { "materialStorage", serializeCraftResource.Result }, new string[] { "grimoires", serializeGrimoires.Result }  },
         new List<string[]>() { new string[] { "rowid", characterId.ToString() } });
       }
       private async void HandleExpiredContracts()
