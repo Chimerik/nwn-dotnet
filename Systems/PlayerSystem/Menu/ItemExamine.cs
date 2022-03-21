@@ -157,13 +157,21 @@ namespace NWN.Systems
 
             if (ip.SubType > -1)
               try { ipName += $" - {ItemPropertyDefinition2da.ipDefinitionTable.GetSubTypeName(ip.PropertyType, ip.SubType)}"; } catch (Exception) { }
-              
-            
+
             if (ip.CostTableValue > -1)
             {
               if(ip.PropertyType == ItemPropertyType.DamageBonus || ip.PropertyType == ItemPropertyType.DamageBonusVsAlignmentGroup || ip.PropertyType == ItemPropertyType.DamageBonusVsRacialGroup
                 || ip.PropertyType == ItemPropertyType.DamageBonusVsSpecificAlignment || ip.PropertyType == ItemPropertyType.ExtraMeleeDamageType || ip.PropertyType == ItemPropertyType.ExtraRangedDamageType)
                 ipName += $" : {ItemPropertyDamageCost2da.ipDamageCost.GetLabelFromIPCostTableValue(ip.CostTableValue)}";
+              else if (ip.PropertyType == ItemPropertyType.OnHitProperties)
+              {
+                if(ip.SubType == 18) // Ability Drain
+                {
+                  ipName += $" {ItemPropertyAbility2da.ipAbilityTable.GetAbilityName(ip.Param1TableValue)}";
+                }
+
+                ipName += $" {ItemPropertyOnHitCost2da.ipOnHitCostTable.GetCostName(ip.CostTableValue)}";
+              }
               else
                 ipName += $" : {ip.CostTableValue}";
             }

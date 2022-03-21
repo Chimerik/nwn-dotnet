@@ -443,7 +443,7 @@ namespace NWN.Systems
 
           if(guiEvent.EventObject is NwCreature examineCreature && examineCreature == oPC.LoginCreature)
           {
-            if (player.craftJob != null && !player.openedWindows.ContainsKey("activeCraftJob"))
+            if (player.craftJob != null)
             {
               if (player.windows.ContainsKey("activeCraftJob"))
                 ((Player.ActiveCraftJobWindow)player.windows["activeCraftJob"]).CreateWindow();
@@ -451,13 +451,10 @@ namespace NWN.Systems
                 player.windows.Add("activeCraftJob", new Player.ActiveCraftJobWindow(player));
             }
 
-            if (!player.openedWindows.ContainsKey("learnables"))
-            {
-              if (player.windows.ContainsKey("learnables"))
-                ((Player.ActiveCraftJobWindow)player.windows["learnables"]).CreateWindow();
-              else
-                player.windows.Add("learnables", new Player.ActiveCraftJobWindow(player));
-            }
+            if (player.windows.ContainsKey("learnables"))
+              ((Player.LearnableWindow)player.windows["learnables"]).CreateWindow();
+            else
+              player.windows.Add("learnables", new Player.LearnableWindow(player));
           }
 
           break;

@@ -33,7 +33,7 @@ namespace NWN.Systems
         }
         public void CreateWindow()
         {
-          RefreshWindow();
+          RefreshPlayerMenu();
 
           window = new NuiWindow(rootGroup, "Menu principal")
           {
@@ -83,7 +83,7 @@ namespace NWN.Systems
                     player.oid.SendServerMessage("Désactivation du mode toucher", ColorConstants.Orange);
                   }
 
-                  RefreshWindow();
+                  RefreshPlayerMenu();
                   rootGroup.SetLayout(player.oid, token, rootColumn);
 
                   break;
@@ -105,7 +105,7 @@ namespace NWN.Systems
 
                   Log.Info($"always walk : {player.oid.ControlledCreature.AlwaysWalk}");
 
-                  RefreshWindow();
+                  RefreshPlayerMenu();
                   rootGroup.SetLayout(player.oid, token, rootColumn);
 
                   break;
@@ -203,15 +203,47 @@ namespace NWN.Systems
 
                   break;
 
+                case "contrat":
+
+                  /*if (player.windows.ContainsKey("contrat"))
+                    ((ChatColorsWindow)player.windows["contrat"]).CreateWindow();
+                  else
+                    player.windows.Add("contrat", new ChatColorsWindow(player));
+
+                  player.oid.NuiDestroy(token);*/
+
+                  break;
+
+                case "dm":
+                  RefreshDMMenu();
+                  rootGroup.SetLayout(player.oid, token, rootColumn);
+                  break;
+
+                case "pj":
+                  RefreshPlayerMenu();
+                  rootGroup.SetLayout(player.oid, token, rootColumn);
+                  break;
               }
               break;
           }
         }
-        private void RefreshWindow()
+        private void RefreshPlayerMenu()
         {
-          windowRectangle = /*player.windowRectangles.ContainsKey(windowId) ? player.windowRectangles[windowId] :*/ new NuiRect(10, player.oid.GetDeviceProperty(PlayerDeviceProperty.GuiHeight) * 0.01f, 450, player.oid.GetDeviceProperty(PlayerDeviceProperty.GuiHeight) * 0.4f);
+          windowRectangle = player.windowRectangles.ContainsKey(windowId) ? player.windowRectangles[windowId] : new NuiRect(10, player.oid.GetDeviceProperty(PlayerDeviceProperty.GuiHeight) * 0.01f, 450, player.oid.GetDeviceProperty(PlayerDeviceProperty.GuiHeight) * 0.4f);
 
           rootChidren.Clear();
+
+          if(player.oid.IsDM || player.oid.PlayerName == "Chim")
+            rootChidren.Add(new NuiRow()
+            {
+              Children = new List<NuiElement>()
+            {
+              new NuiSpacer(),
+              new NuiButton("Afficher menu DM")
+              { Id = "dm", Width = windowRectangle.Width - 60, Height = 35 } ,
+              new NuiSpacer(),
+          }
+            });
 
           rootChidren.Add(new NuiRow()
           {
@@ -300,6 +332,17 @@ namespace NWN.Systems
             Children = new List<NuiElement>()
             {
               new NuiSpacer(),
+              new NuiButton("Gestion des contrats d'échange de ressources.")
+              { Id = "contrat", Tooltip = "Permet de créer un contrat d'échange pré-validé par le Juge du Changement.", Width = windowRectangle.Width - 60, Height = 35 },
+              new NuiSpacer(),
+            }
+          });
+
+          rootChidren.Add(new NuiRow()
+          {
+            Children = new List<NuiElement>()
+            {
+              new NuiSpacer(),
               new NuiButton("Gestion des couleurs du chat")
               { Id = "chat", Tooltip = "Personnaliser les couleurs du chat.", Width = windowRectangle.Width - 60, Height = 35 },
               new NuiSpacer(),
@@ -344,6 +387,34 @@ namespace NWN.Systems
               { Id = "delete", Tooltip = "Attention, la suppression est définitive.", Width = windowRectangle.Width - 60, Height = 35 },
               new NuiSpacer(),
             }});
+        }
+        private void RefreshDMMenu()
+        {
+          windowRectangle = player.windowRectangles.ContainsKey(windowId) ? player.windowRectangles[windowId] : new NuiRect(10, player.oid.GetDeviceProperty(PlayerDeviceProperty.GuiHeight) * 0.01f, 450, player.oid.GetDeviceProperty(PlayerDeviceProperty.GuiHeight) * 0.4f);
+
+          rootChidren.Clear();
+
+          rootChidren.Add(new NuiRow()
+          {
+            Children = new List<NuiElement>()
+            {
+              new NuiSpacer(),
+              new NuiButton("Afficher menu PJ")
+              { Id = "pj", Width = windowRectangle.Width - 60, Height = 35 } ,
+              new NuiSpacer(),
+            }
+          });
+
+          rootChidren.Add(new NuiRow()
+          {
+            Children = new List<NuiElement>()
+            {
+              new NuiSpacer(),
+              new NuiButton(player.oid.ControlledCreature.ActiveEffects.Any(e => e.EffectType == EffectType.CutsceneGhost) ? "Désactiver Mode Toucher" : "Activer Mode Toucher")
+              { Id = "touch", Tooltip = "Permet d'éviter les collisions entre personnages (non utilisable en combat)", Width = windowRectangle.Width - 60, Height = 35 } ,
+              new NuiSpacer(),
+            }
+          });
         }
         private bool AreaDescriptionExists(string areaName)
         {
