@@ -3,8 +3,6 @@ using Anvil.API.Events;
 using Anvil.Services;
 using System;
 using System.Threading.Tasks;
-using System.Linq;
-using System.Collections.Generic;
 using NWN.Core;
 
 namespace NWN.Systems
@@ -12,7 +10,7 @@ namespace NWN.Systems
   [ServiceBinding(typeof(AreaSystem))]
   partial class AreaSystem
   {
-    private static void HandleSpawnSpecificBehaviour(NwCreature creature)
+    private void HandleSpawnSpecificBehaviour(NwCreature creature)
     {
       switch(creature.Tag)
       {
@@ -135,7 +133,7 @@ namespace NWN.Systems
       NwCreature.Create(onDeath.KilledCreature.ResRef, wp.Location).OnDeath += HandleWraithInfiniteSpawn;
       NwCreature.Create(onDeath.KilledCreature.ResRef, wp.Location).OnDeath += HandleWraithInfiniteSpawn;
     }
-    private async static void SetNPCEvents(NwCreature creature)
+    private async void SetNPCEvents(NwCreature creature)
     {
       //creature.OnDeath += OnDeathSpawnNPCWaypoint;
 
@@ -160,35 +158,35 @@ namespace NWN.Systems
 
           break;
         case "blacksmith":
-          creature.OnConversation += DialogSystem.StartBlacksmithDialog;
+          creature.OnConversation += dialogSystem.StartBlacksmithDialog;
           break;
         case "woodworker":
-          creature.OnConversation += DialogSystem.StartWoodworkerDialog;
+          creature.OnConversation += dialogSystem.StartWoodworkerDialog;
           break;
         case "tanneur":
-          creature.OnConversation += DialogSystem.StartTanneurDialog;
+          creature.OnConversation += dialogSystem.StartTanneurDialog;
           break;
         case "le_bibliothecaire":
-          creature.OnConversation += DialogSystem.StartBibliothecaireDialog;
+          creature.OnConversation += dialogSystem.StartBibliothecaireDialog;
           break;
         case "jukebox":
         case "jukebox2":
-          creature.OnConversation += DialogSystem.StartJukeboxDialog;
+          creature.OnConversation += dialogSystem.StartJukeboxDialog;
           break;
         case "rumors":
-          creature.OnConversation += DialogSystem.StartRumorsDialog;
+          creature.OnConversation += dialogSystem.StartRumorsDialog;
           break;
         case "tribunal_hotesse":
-          creature.OnConversation += DialogSystem.StartTribunalShopDialog;
+          creature.OnConversation += dialogSystem.StartTribunalShopDialog;
           break;
         case "pve_arena_host":
-          creature.OnConversation += DialogSystem.StartPvEArenaHostDialog;
+          creature.OnConversation += dialogSystem.StartPvEArenaHostDialog;
           break;
         case "bal_system":
-          creature.OnConversation += DialogSystem.StartMessengerDialog;
+          creature.OnConversation += dialogSystem.StartMessengerDialog;
           break;
         case "storage_npc":
-          creature.OnConversation += DialogSystem.StartStorageDialog;
+          creature.OnConversation += dialogSystem.StartStorageDialog;
           break;
       }
     }

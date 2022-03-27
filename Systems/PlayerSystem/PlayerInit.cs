@@ -7,7 +7,6 @@ using Discord;
 using Anvil.API;
 using Anvil.API.Events;
 using Anvil.Services;
-using Color = Anvil.API.Color;
 using System.Threading;
 using Newtonsoft.Json;
 using JsonSerializer = System.Text.Json.JsonSerializer;
@@ -23,7 +22,7 @@ namespace NWN.Systems
       oPC.LoginCreature.GetObjectVariable<LocalVariableInt>("_PLAYER_INPUT_CANCELLED").Delete();
 
       if (!Players.TryGetValue(oPC.LoginCreature, out Player player))
-        player = new Player(oPC);
+        player = new Player(oPC, spellSystem, feedbackService);
       else
       {
         player.oid = oPC;
@@ -269,7 +268,7 @@ namespace NWN.Systems
         oid.LoginCreature.OnUnacquireItem += ItemSystem.OnUnacquireItem;
         oid.LoginCreature.OnItemEquip += ItemSystem.OnItemEquipBefore;
         oid.LoginCreature.OnUseFeat += FeatSystem.OnUseFeatBefore;
-        oid.LoginCreature.OnSpellCast += SpellSystem.HandleBeforeSpellCast;
+        oid.LoginCreature.OnSpellCast += spellSystem.HandleBeforeSpellCast;
 
         ItemSystem.feedbackService.AddCombatLogMessageFilter(CombatLogMessage.ComplexAttack, oid);
       }
@@ -315,11 +314,11 @@ namespace NWN.Systems
         player.LoginCreature.OnItemUse += ItemSystem.OnItemUseBefore;
         player.OnPlayerDeath += HandlePlayerDeath;
         player.LoginCreature.OnUseFeat += FeatSystem.OnUseFeatBefore;
-        player.LoginCreature.OnSpellCast += SpellSystem.HandleBeforeSpellCast;
+        player.LoginCreature.OnSpellCast += spellSystem.HandleBeforeSpellCast;
         player.OnCombatStatusChange += OnCombatStarted;
         player.LoginCreature.OnCombatRoundStart += OnCombatRoundStart;
-        player.LoginCreature.OnSpellBroadcast += SpellSystem.OnSpellBroadcast;
-        player.LoginCreature.OnSpellAction += SpellSystem.RegisterMetaMagicOnSpellInput;
+        player.LoginCreature.OnSpellBroadcast += spellSystem.OnSpellBroadcast;
+        player.LoginCreature.OnSpellAction += spellSystem.RegisterMetaMagicOnSpellInput;
         player.OnPartyEvent += Party.HandlePartyEvent;
         player.OnClientLevelUpBegin += HandleOnClientLevelUp;
         player.LoginCreature.OnItemValidateEquip += ItemSystem.NoEquipRuinedItem;
@@ -570,6 +569,15 @@ namespace NWN.Systems
         }
 
         CheckForAFKStatus();
+      }
+      private void OnCombatStarted(OnCombatStatusChange onCombatStatusChange)
+      {
+        if (onCombatStatusChange.CombatStatus == CombatStatus.ExitCombat)
+          return;
+
+        Effect effPC = onCombatStatusChange.Player.ControlledCreature.ActiveEffects.FirstOrDefault(e => e.EffectType == EffectType.CutsceneGhost);
+        if (effPC != null)
+          onCombatStatusChange.Player.ControlledCreature.RemoveEffect(effPC);
       }
     }
   }

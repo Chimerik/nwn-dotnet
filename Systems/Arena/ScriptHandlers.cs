@@ -10,19 +10,7 @@ namespace NWN.Systems.Arena
 {
   public static class ScriptHandlers
   {
-    public static void HandlePullRopeChainUse(PlaceableEvents.OnLeftClick onUsed)
-    {
-      NwPlayer oPC = onUsed.ClickedBy;
-      
-      if (Players.TryGetValue(oPC.LoginCreature, out Player player))
-      {
-        if (player.oid.LoginCreature.Area.FindObjectsOfTypeInArea<NwCreature>().Any(c => c.GetObjectVariable<LocalVariableInt>("_IS_PVE_ARENA_CREATURE").HasValue))
-          ArenaMenu.DrawRunAwayPage(player);
-        else
-          ArenaMenu.DrawNextFightPage(player);
-      }
-    }
-    public static async void HandleFight(Player player)
+    public static async void HandleFight(Player player, SpellSystem spellSystem)
     {
       NwArea oArena = player.oid.LoginCreature.Area;
       NwWaypoint oWaypoint = oArena.FindObjectsOfTypeInArea<NwWaypoint>().Where(w => w.Tag == Config.PVE_ARENA_MONSTER_WAYPOINT_TAG).FirstOrDefault();
@@ -49,7 +37,7 @@ namespace NWN.Systems.Arena
         creature.GetObjectVariable<LocalVariableInt>("_IS_PVE_ARENA_CREATURE").Value = 1;
         creature.Location.ApplyEffect(EffectDuration.Instant, Effect.VisualEffect(VfxType.FnfSummonMonster2));
         creature.Faction = NwFaction.FromStandardFaction(StandardFaction.Hostile);
-        HandleSpecialBehaviour(creature);
+        HandleSpecialBehaviour(creature, spellSystem);
       }
 
       CancellationTokenSource tokenSource = new CancellationTokenSource();
@@ -82,7 +70,7 @@ namespace NWN.Systems.Arena
         paralyze.SubType = EffectSubType.Supernatural;
         paralyze.Tag = "_ARENA_CUTSCENE_PARALYZE_EFFECT";
         player.oid.LoginCreature.ApplyEffect(EffectDuration.Permanent, paralyze);
-        ArenaMenu.DrawNextFightPage(player);
+        ArenaMenu.DrawNextFightPage(player, spellSystem);
       }
     }
     private static uint GetRoundPoints(Player player)
@@ -100,7 +88,7 @@ namespace NWN.Systems.Arena
         return (uint)result;
       }
     }
-    private static void HandleSpecialBehaviour(NwCreature oCreature)
+    private static void HandleSpecialBehaviour(NwCreature oCreature, SpellSystem spellSystem)
     {
       switch(oCreature.Tag)
       {
@@ -110,7 +98,7 @@ namespace NWN.Systems.Arena
         case "rat_meca":
 
           oCreature.GetObjectVariable<LocalVariableInt>("_IS_GNOME_MECH").Value = 1;
-          SpellSystem.ApplyGnomeMechAoE(oCreature);
+          spellSystem.ApplyGnomeMechAoE(oCreature);
           //oCreature.OnCreatureDamage += AttackSystem.HandleDamageEvent;
           
         break;
@@ -127,13 +115,13 @@ namespace NWN.Systems.Arena
           break;
         case "dog_meca_defect":
           oCreature.GetObjectVariable<LocalVariableInt>("_IS_GNOME_MECH").Value = 1;
-          SpellSystem.ApplyGnomeMechAoE(oCreature);
+          spellSystem.ApplyGnomeMechAoE(oCreature);
           oCreature.OnCreatureDamage += HandleDogAttack;
           //oCreature.OnCreatureDamage += AttackSystem.HandleDamageEvent;
           break;
         case "cutter_meca":
           oCreature.GetObjectVariable<LocalVariableInt>("_IS_GNOME_MECH").Value = 1;
-          SpellSystem.ApplyGnomeMechAoE(oCreature);
+          spellSystem.ApplyGnomeMechAoE(oCreature);
           break;
       }
     }

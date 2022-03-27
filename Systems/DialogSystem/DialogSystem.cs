@@ -3,15 +3,20 @@ using Anvil.API;
 using Anvil.API.Events;
 using Anvil.Services;
 using static NWN.Systems.PlayerSystem;
+using NWN.Systems.Arena;
+using System.Linq;
 
 namespace NWN.Systems
 {
   [ServiceBinding(typeof(DialogSystem))]
   public class DialogSystem
   {
-    public static readonly Logger Log = LogManager.GetCurrentClassLogger();
-    public DialogSystem()
+    public readonly Logger Log = LogManager.GetCurrentClassLogger();
+    private SpellSystem spellSystem;
+
+    public DialogSystem(SpellSystem spellSystem)
     {
+      this.spellSystem = spellSystem;
       /*foreach (NwPlaceable plc in NwModule.FindObjectsWithTag<NwPlaceable>("bank_gold"))
         plc.OnUsed += StartGoldStealDialog;*/
 
@@ -29,27 +34,27 @@ namespace NWN.Systems
       else
         player.windows.Add("bankCounter", new Player.BankCounterWindow(player, onConversation.CurrentSpeaker));
     }
-    public static void StartBlacksmithDialog(CreatureEvents.OnConversation onConversation)
+    public void StartBlacksmithDialog(CreatureEvents.OnConversation onConversation)
     {
       if (Players.TryGetValue(onConversation.LastSpeaker, out Player player))
         new Blacksmith(player, onConversation.CurrentSpeaker);
     }
-    public static void StartWoodworkerDialog(CreatureEvents.OnConversation onConversation)
+    public void StartWoodworkerDialog(CreatureEvents.OnConversation onConversation)
     {
       if (Players.TryGetValue(onConversation.LastSpeaker, out Player player))
         new Woodworker(player, onConversation.CurrentSpeaker);
     }
-    public static void StartTanneurDialog(CreatureEvents.OnConversation onConversation)
+    public void StartTanneurDialog(CreatureEvents.OnConversation onConversation)
     {
       if (Players.TryGetValue(onConversation.LastSpeaker, out Player player))
         new Tanneur(player, onConversation.CurrentSpeaker);
     }
-    public static void StartBibliothecaireDialog(CreatureEvents.OnConversation onConversation)
+    public void StartBibliothecaireDialog(CreatureEvents.OnConversation onConversation)
     {
       if (Players.TryGetValue(onConversation.LastSpeaker, out Player player))
         new Bibliothecaire(player, onConversation.CurrentSpeaker);
     }
-    public static void StartJukeboxDialog(CreatureEvents.OnConversation onConversation)
+    public void StartJukeboxDialog(CreatureEvents.OnConversation onConversation)
     {
       if (Players.TryGetValue(onConversation.LastSpeaker, out Player player))
       {
@@ -59,7 +64,7 @@ namespace NWN.Systems
           player.windows.Add("jukebox", new Player.JukeBoxWindow(player, onConversation.CurrentSpeaker));
       }
     }
-    public static void StartRumorsDialog(CreatureEvents.OnConversation onConversation)
+    public void StartRumorsDialog(CreatureEvents.OnConversation onConversation)
     {
       if (Players.TryGetValue(onConversation.LastSpeaker, out Player player))
       {
@@ -69,22 +74,22 @@ namespace NWN.Systems
           player.windows.Add("rumors", new Player.RumorsWindow(player, onConversation.CurrentSpeaker));
       }
     }
-    public static void StartTribunalShopDialog(CreatureEvents.OnConversation onConversation)
+    public void StartTribunalShopDialog(CreatureEvents.OnConversation onConversation)
     {
       if (Players.TryGetValue(onConversation.LastSpeaker, out Player player))
         new TribunalHotesse(player, onConversation.CurrentSpeaker);
     }
-    public static void StartPvEArenaHostDialog(CreatureEvents.OnConversation onConversation)
+    public void StartPvEArenaHostDialog(CreatureEvents.OnConversation onConversation)
     {
       if (Players.TryGetValue(onConversation.LastSpeaker, out Player player))
-        Arena.WelcomeMenu.DrawMainPage(player);
+        Arena.WelcomeMenu.DrawMainPage(player, spellSystem);
     }
-    public static void StartMessengerDialog(CreatureEvents.OnConversation onConversation)
+    public void StartMessengerDialog(CreatureEvents.OnConversation onConversation)
     {
       if (Players.TryGetValue(onConversation.LastSpeaker, out Player player))
         new Messenger(player);
     }
-    public static void StartStorageDialog(CreatureEvents.OnConversation onConversation)
+    public void StartStorageDialog(CreatureEvents.OnConversation onConversation)
     {
       if (Players.TryGetValue(onConversation.LastSpeaker, out Player player))
       {

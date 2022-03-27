@@ -54,6 +54,9 @@ namespace NWN.Systems
       public List<ItemAppearance> itemAppearances = new List<ItemAppearance>();
       public List<CharacterDescription> descriptions = new List<CharacterDescription>();
 
+      private SpellSystem spellSystem;
+      private FeedbackService feedbackService;
+
       public enum PcState
       {
         Offline,
@@ -61,12 +64,14 @@ namespace NWN.Systems
         AFK
       }
 
-      public Player(NwPlayer nwobj)
+      public Player(NwPlayer nwobj, SpellSystem spellSystem, FeedbackService feedbackService)
       {
         oid = nwobj;
         menu = new PrivateMenu(this);
         pveArena = new Arena.PlayerData();
-        
+        this.spellSystem = spellSystem;
+        this.feedbackService = feedbackService;
+
         Log.Info($"accountID : {this.oid.LoginCreature.GetObjectVariable<PersistentVariableInt>("accountId").Value}");
 
         if(!oid.IsDM)

@@ -4,7 +4,7 @@ using Anvil.Services;
 
 namespace NWN.Systems
 {
-  static class NoMagic
+  /*static class NoMagic
   {
     public static ScriptHandleResult ApplyEffectToTarget(CallInfo _)
     {
@@ -39,5 +39,5 @@ namespace NWN.Systems
       if (onSpellCast.Caster is NwCreature { IsPlayerControlled: true } oPC)
         oPC.ControllingPlayer.SendServerMessage("L'interdiction d'usage de sorts est en vigueur.", ColorConstants.Red);
     }
-  }
+  }*/
 }

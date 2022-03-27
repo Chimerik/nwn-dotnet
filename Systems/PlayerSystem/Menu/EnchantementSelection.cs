@@ -39,7 +39,7 @@ namespace NWN.Systems
           this.itemTarget = item;
           List<string> enchantementList = new List<string>();
 
-          foreach (ItemProperty ip in SpellSystem.enchantementCategories[(int)spell.Id])
+          foreach (ItemProperty ip in player.spellSystem.enchantementCategories[(int)spell.Id])
             enchantementList.Add($"{ItemPropertyDefinition2da.ipDefinitionTable.GetIPDefinitionlDataEntry(ip.PropertyType).name} - " +
               $"{ItemPropertyDefinition2da.ipDefinitionTable.GetSubTypeName(ip.PropertyType, ip.SubType)}");
 
@@ -81,7 +81,7 @@ namespace NWN.Systems
               {
                 case "select":
 
-                  HandleEnchantementChecks(SpellSystem.enchantementCategories[(int)spell.Id][nuiEvent.ArrayIndex]);
+                  HandleEnchantementChecks(player.spellSystem.enchantementCategories[(int)spell.Id][nuiEvent.ArrayIndex]);
                   player.oid.NuiDestroy(token);
 
                   break;

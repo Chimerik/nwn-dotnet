@@ -9,6 +9,7 @@ using System.Threading.Tasks;
 using System.Threading;
 using System;
 using System.Collections.Generic;
+using NWN.Systems.Arena;
 
 namespace NWN.Systems
 {
@@ -17,9 +18,9 @@ namespace NWN.Systems
   {
     public static readonly Logger Log = LogManager.GetCurrentClassLogger();
     private static ScriptHandleFactory scriptHandleFactory;
-    public static int[] lowEnchantements = new int[] { 540, 541, 542, 543, 544, 545, 546, 547, 548, 549, 550, 551, 552, 553, 554 };
-    public static int[] mediumEnchantements = new int[] { 555, 556, 557, 558, 559, 560, 561, 562 };
-    public static int[] highEnchantements = new int[] { 563, 564, 565, 566, 567, 568 };
+    public int[] lowEnchantements = new int[] { 540, 541, 542, 543, 544, 545, 546, 547, 548, 549, 550, 551, 552, 553, 554 };
+    public int[] mediumEnchantements = new int[] { 555, 556, 557, 558, 559, 560, 561, 562 };
+    public int[] highEnchantements = new int[] { 563, 564, 565, 566, 567, 568 };
 
     public static Effect frog;
 
@@ -53,7 +54,7 @@ namespace NWN.Systems
       return runAction;
     }
 
-    public static void RegisterMetaMagicOnSpellInput(OnSpellAction onSpellAction)
+    public void RegisterMetaMagicOnSpellInput(OnSpellAction onSpellAction)
     {
       if(onSpellAction.Spell.ImpactScript == "on_ench_cast")
       {
@@ -75,7 +76,7 @@ namespace NWN.Systems
       if (onSpellAction.MetaMagic == MetaMagic.Silent)
         onSpellAction.Caster.GetObjectVariable<LocalVariableInt>("_IS_SILENT_SPELL").Value = 1;
     }
-    public static void OnSpellBroadcast(OnSpellBroadcast onSpellBroadcast)
+    public void OnSpellBroadcast(OnSpellBroadcast onSpellBroadcast)
     {
       if (!(onSpellBroadcast.Caster is NwCreature { IsPlayerControlled: true } oPC))
         return;
@@ -249,7 +250,7 @@ namespace NWN.Systems
       player.SetBaseSavingThrow(SavingThrow.Will, (sbyte)player.GetObjectVariable<LocalVariableInt>("_DELAYED_SPELLHOOK_WILL").Value);
       player.SetBaseSavingThrow(SavingThrow.Fortitude, (sbyte)player.GetObjectVariable<LocalVariableInt>("_DELAYED_SPELLHOOK_FORT").Value);
     }
-    public static void HandleBeforeSpellCast(OnSpellCast onSpellCast)
+    public void HandleBeforeSpellCast(OnSpellCast onSpellCast)
     {
       if (!(onSpellCast.Caster is NwCreature { IsPlayerControlled: true } oPC))
         return;
@@ -555,7 +556,7 @@ namespace NWN.Systems
         Poison.RemoveEffectFromTarget(oTarget);
     }
     */
-    public static void ApplyGnomeMechAoE(NwCreature oCreature)
+    public void ApplyGnomeMechAoE(NwCreature oCreature)
     {
       Effect elecAoE = Effect.AreaOfEffect(PersistentVfxType.MobElectrical, scriptHandleFactory.CreateUniqueHandler(HandleMechAuraHeartOnEnter), scriptHandleFactory.CreateUniqueHandler(HandleMechAuraHeartBeat));
       elecAoE.Creator = oCreature;
@@ -653,6 +654,56 @@ namespace NWN.Systems
     {
       await NwModule.Instance.WaitForObjectContext();
       target.ApplyEffect(EffectDuration.Temporary, runAction, effectDuration);
+    }
+    public void HandlePullRopeChainUse(PlaceableEvents.OnLeftClick onUsed)
+    {
+      NwPlayer oPC = onUsed.ClickedBy;
+
+      if (PlayerSystem.Players.TryGetValue(oPC.LoginCreature, out PlayerSystem.Player player))
+      {
+        if (player.oid.LoginCreature.Area.FindObjectsOfTypeInArea<NwCreature>().Any(c => c.GetObjectVariable<LocalVariableInt>("_IS_PVE_ARENA_CREATURE").HasValue))
+          ArenaMenu.DrawRunAwayPage(player);
+        else
+          ArenaMenu.DrawNextFightPage(player, this);
+      }
+    }
+    public void OnExitArena(AreaEvents.OnExit onExit)
+    {
+      if (!(onExit.ExitingObject is NwCreature creature) || !PlayerSystem.Players.TryGetValue(onExit.ExitingObject, out PlayerSystem.Player player))
+        return;
+
+      if (creature.IsPlayerControlled) // Cas normal de changement de zone
+        if (!PlayerSystem.Players.TryGetValue(creature.ControllingPlayer.LoginCreature, out player))
+          return;
+        else // cas de déconnexion du joueur
+          Arena.Utils.ResetPlayerLocation(player);
+
+      if (player.pveArena.currentRound == 0) // S'il s'agit d'un spectateur
+      {
+        player.oid.LoginCreature.OnSpellCast += HandleBeforeSpellCast;
+        player.oid.LoginCreature.OnSpellCast -= Arena.Utils.NoMagicMalus;
+        return;
+      }
+
+      // A partir de là, il s'agit du gladiateur
+      player.oid.OnPlayerDeath -= Arena.Utils.HandleArenaDeath;
+      player.oid.OnPlayerDeath += PlayerSystem.HandlePlayerDeath;
+
+      player.pveArena.currentPoints = 0;
+      player.pveArena.currentRound = 0;
+
+      player.pveArena.currentMalusList.Clear();
+
+      foreach (Effect paralysis in player.oid.LoginCreature.ActiveEffects.Where(e => e.Tag == "_ARENA_CUTSCENE_PARALYZE_EFFECT"))
+        player.oid.LoginCreature.RemoveEffect(paralysis);
+
+      foreach (NwCreature spectator in onExit.Area.FindObjectsOfTypeInArea<NwCreature>().Where(p => p.IsPlayerControlled || p.IsLoginPlayerCharacter))
+      {
+        spectator.ControllingPlayer.SendServerMessage($"La tentative de {player.oid.LoginCreature.Name} s'achève. Vous êtes reconduit à la salle principale.");
+        spectator.Location = NwObject.FindObjectsWithTag<NwWaypoint>(Arena.Config.PVE_ENTRY_WAYPOINT_TAG).FirstOrDefault().Location;
+      }
+
+      AreaSystem.AreaDestroyer(onExit.Area);
     }
   }
 }

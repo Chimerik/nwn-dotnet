@@ -15,10 +15,11 @@ namespace NWN.Systems
   public partial class PlayerSystem
   {
     public static readonly Logger Log = LogManager.GetCurrentClassLogger();
-    public static EventService eventService { get; set; }
-    public static FeedbackService feedbackService;
-    public static ScriptHandleFactory scriptHandleFactory;
-    public PlayerSystem(EventService eventServices, FeedbackService feedback, ScriptHandleFactory scriptFactory)
+    public EventService eventService { get; set; }
+    public FeedbackService feedbackService;
+    public ScriptHandleFactory scriptHandleFactory;
+    public SpellSystem spellSystem;
+    public PlayerSystem(EventService eventServices, FeedbackService feedback, ScriptHandleFactory scriptFactory, SpellSystem spellSystem)
     {
       NwModule.Instance.OnClientEnter += HandlePlayerConnect;
       NwModule.Instance.OnClientDisconnect += HandlePlayerLeave;
@@ -26,19 +27,11 @@ namespace NWN.Systems
       eventService = eventServices;
       feedbackService = feedback;
       scriptHandleFactory = scriptFactory;
+      this.spellSystem = spellSystem;
     }
 
     public static Dictionary<uint, Player> Players = new Dictionary<uint, Player>();
 
-    public static void OnCombatStarted(OnCombatStatusChange onCombatStatusChange)
-    {
-      if (onCombatStatusChange.CombatStatus == CombatStatus.ExitCombat)
-        return;
-
-      Effect effPC = onCombatStatusChange.Player.ControlledCreature.ActiveEffects.FirstOrDefault(e => e.EffectType == EffectType.CutsceneGhost);
-      if (effPC != null)
-        onCombatStatusChange.Player.ControlledCreature.RemoveEffect(effPC);
-    }
     public static void OnCombatRoundStart(OnCombatRoundStart onStartCombatRound)
     {
       if (onStartCombatRound.Target is NwCreature { IsPlayerControlled: true } oTarget)

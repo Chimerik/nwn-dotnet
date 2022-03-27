@@ -11,7 +11,7 @@ namespace NWN.Systems
   [ServiceBinding(typeof(AreaSystem))]
   partial class AreaSystem
   {
-    private static async void CreateSpawnChecker(NwArea area)
+    private async void CreateSpawnChecker(NwArea area)
     {
       var spawnScheduler = ModuleSystem.scheduler.ScheduleRepeating(() =>
       {

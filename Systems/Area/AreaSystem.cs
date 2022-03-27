@@ -14,8 +14,10 @@ namespace NWN.Systems
   partial class AreaSystem
   {
     private static readonly Logger Log = LogManager.GetCurrentClassLogger();
-    public AreaSystem()
+    private DialogSystem dialogSystem;
+    public AreaSystem(DialogSystem dialogSystem)
     {
+      this.dialogSystem = dialogSystem;
       foreach (NwTrigger trigger in NwObject.FindObjectsWithTag("invi_unwalkable"))
         trigger.OnEnter += OnEnterUnwalkableBlock;
 
@@ -49,7 +51,7 @@ namespace NWN.Systems
       InitializeBankPlaceableNames();
     }
 
-    public static void OnAreaEnter(AreaEvents.OnEnter onEnter)
+    public void OnAreaEnter(AreaEvents.OnEnter onEnter)
     {
       NwArea area = onEnter.Area;
 

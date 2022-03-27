@@ -29,7 +29,7 @@ namespace NWN.Systems.Arena
 
       player.menu.Draw();
     }
-    public static void DrawNextFightPage(Player player)
+    public static void DrawNextFightPage(Player player, SpellSystem spellSystem)
     {
       player.menu.Clear();
 
@@ -41,7 +41,7 @@ namespace NWN.Systems.Arena
 
       player.menu.choices.Add((
         "Combat suivant !",
-        () => DrawMalusSelectionPage(player)
+        () => DrawMalusSelectionPage(player, spellSystem)
       ));
       player.menu.choices.Add((
         "S'arrêter et conserver les points accumulés",
@@ -50,7 +50,7 @@ namespace NWN.Systems.Arena
 
       player.menu.Draw();
     }
-    public static void DrawMalusSelectionPage(Player player)
+    public static void DrawMalusSelectionPage(Player player, SpellSystem spellSystem)
     {
       player.oid.LoginCreature.RemoveFeat(CustomFeats.CustomMenuEXIT);
       player.oid.LoginCreature.RemoveFeat(CustomFeats.CustomMenuUP);
@@ -66,17 +66,17 @@ namespace NWN.Systems.Arena
 
       player.menu.choices.Add((
         arenaMalusDictionary[random].name,
-        () => Utils.ApplyArenaMalus(player, random)
+        () => Utils.ApplyArenaMalus(player, random, spellSystem)
       ));
 
       foreach (string malus in player.pveArena.currentMalusList)
         player.menu.choices.Add((
         malus,
-        () => Utils.ApplyArenaMalus(player, random)
+        () => Utils.ApplyArenaMalus(player, random, spellSystem)
       ));
 
       player.menu.Draw();
-      Utils.RandomizeMalusSelection(player);
+      Utils.RandomizeMalusSelection(player, spellSystem);
     }
     public static void HandleStop(Player player)
     {

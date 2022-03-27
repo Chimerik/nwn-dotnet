@@ -10,7 +10,7 @@ namespace NWN.Systems.Arena
 {
   public static class WelcomeMenu
   {
-    public static void DrawMainPage(Player player)
+    public static void DrawMainPage(Player player, SpellSystem spellSystem)
     {
       player.menu.Clear();
 
@@ -21,7 +21,7 @@ namespace NWN.Systems.Arena
 
       player.menu.choices.Add((
         "M'inscrire pour participer aux prochains combats",
-        () => DrawSubcribePage(player)
+        () => DrawSubcribePage(player, spellSystem)
       ));
       player.menu.choices.Add((
         "Dépenser mes points de victoires pour acheter des récompenses",
@@ -36,7 +36,7 @@ namespace NWN.Systems.Arena
       }
       player.menu.choices.Add((
           "Afficher la liste des combats en cours",
-          () => DrawCurrentRunList(player)
+          () => DrawCurrentRunList(player, spellSystem)
         ));
       player.menu.choices.Add((
           "Quitter",
@@ -46,18 +46,18 @@ namespace NWN.Systems.Arena
       player.menu.Draw();
     }
 
-    private static void DrawSubcribePage(Player player)
+    private static void DrawSubcribePage(Player player, SpellSystem spellSystem)
     {
       player.menu.Clear();
       player.menu.titleLines.Add("Veuillez choisir votre niveau de difficulté");
       player.menu.choices.Add((
          "1. C'est ma première fois, ne tapez pas trop fort s'il vous plaît !",
-         () => DrawConfirmPage(player, Difficulty.Level1)
+         () => DrawConfirmPage(player, Difficulty.Level1, spellSystem)
       ));
 
       player.menu.choices.Add((
          "Retour",
-         () => DrawMainPage(player)
+         () => DrawMainPage(player, spellSystem)
       ));
       player.menu.choices.Add((
           "Quitter",
@@ -67,7 +67,7 @@ namespace NWN.Systems.Arena
       player.menu.Draw();
     }
 
-    private static void DrawConfirmPage(Player player, Difficulty difficulty)
+    private static void DrawConfirmPage(Player player, Difficulty difficulty, SpellSystem spellSystem)
     {
       player.menu.Clear();
       player.menu.titleLines = new List<string> {
@@ -82,7 +82,7 @@ namespace NWN.Systems.Arena
           player.pveArena.currentRound = 1;
           player.pveArena.currentMalus = 19;
           player.pveArena.currentDifficulty = difficulty;
-          HandleConfirm(player);
+          HandleConfirm(player, spellSystem);
         }
       ));
       player.menu.choices.Add((
@@ -93,14 +93,14 @@ namespace NWN.Systems.Arena
       player.menu.Draw();
     }
 
-    private static async void HandleConfirm(Player player)
+    private static async void HandleConfirm(Player player, SpellSystem spellSystem)
     {
       player.menu.Close();
       player.pveArena.dateArenaEntered = DateTime.Now;
-
+      
       NwArea oArena = NwArea.Create(PVE_ARENA_AREA_RESREF);
-      oArena.FindObjectsOfTypeInArea<NwPlaceable>().FirstOrDefault(w => w.Tag == PVE_ARENA_PULL_ROPE_CHAIN_TAG).OnLeftClick += ScriptHandlers.HandlePullRopeChainUse;
-      oArena.OnExit += Utils.OnExitArena;
+      oArena.FindObjectsOfTypeInArea<NwPlaceable>().FirstOrDefault(w => w.Tag == PVE_ARENA_PULL_ROPE_CHAIN_TAG).OnLeftClick += spellSystem.HandlePullRopeChainUse;
+      oArena.OnExit += spellSystem.OnExitArena;
 
       player.oid.LoginCreature.Location = oArena.FindObjectsOfTypeInArea<NwWaypoint>().FirstOrDefault(w => w.Tag == PVE_ARENA_WAYPOINT_TAG).Location;
       
@@ -109,7 +109,7 @@ namespace NWN.Systems.Arena
 
       await NwTask.WaitUntil(() => player.oid.ControlledCreature.Area != null);
       await NwTask.Delay(TimeSpan.FromSeconds(5));
-      ScriptHandlers.HandleFight(player);
+      ScriptHandlers.HandleFight(player, spellSystem);
     }
 
     private static void OpenArenaRewardShop(Player player)
@@ -144,7 +144,7 @@ namespace NWN.Systems.Arena
       shop.Open(player.oid);
     }
 
-    private static void DrawCurrentRunList(Player player)
+    private static void DrawCurrentRunList(Player player, SpellSystem spellSystem)
     {
       player.menu.Clear();
       player.menu.titleLines.Add("");
@@ -161,14 +161,14 @@ namespace NWN.Systems.Arena
           Player targetToObserve = fighter;
           player.menu.choices.Add((
           $"{oPC.LoginCreature.Name} - Difficulté {fighter.pveArena.currentDifficulty} - Round {fighter.pveArena.currentRound} - Points {fighter.pveArena.currentPoints}",
-          () => SpectateArena(player, targetToObserve)
+          () => SpectateArena(player, targetToObserve, spellSystem)
           ));
         }
       }
 
       player.menu.choices.Add((
           "Retour",
-          () => DrawMainPage(player)
+          () => DrawMainPage(player, spellSystem)
         ));
       player.menu.choices.Add((
           "Quitter",
@@ -206,20 +206,20 @@ namespace NWN.Systems.Arena
       shop.OnOpen += StoreSystem.OnOpenModifyArenaRewardStore;
       shop.Open(player.oid);
     }
-    private static void SpectateArena(Player player, Player playerToSpectate)
+    private static void SpectateArena(Player player, Player playerToSpectate, SpellSystem spellSystem)
     {
       player.menu.Close();
 
       if(playerToSpectate.pveArena.currentRound == 0)
       {
         player.oid.SendServerMessage($"{playerToSpectate} n'est plus en combat. Veuillez choisir un autre spectacle.");
-        DrawCurrentRunList(player);
+        DrawCurrentRunList(player, spellSystem);
         return;
       }
 
       player.oid.LoginCreature.Location = NwObject.FindObjectsWithTag<NwWaypoint>("_SPECTATOR_WAYPOINT").FirstOrDefault().Location;
 
-      player.oid.LoginCreature.OnSpellCast -= SpellSystem.HandleBeforeSpellCast;
+      player.oid.LoginCreature.OnSpellCast -= spellSystem.HandleBeforeSpellCast;
       player.oid.LoginCreature.OnSpellCast -= Utils.NoMagicMalus;
       player.oid.LoginCreature.OnSpellCast += Utils.NoMagicMalus;
     }

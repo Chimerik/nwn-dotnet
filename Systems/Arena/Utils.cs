@@ -8,7 +8,6 @@ using Anvil.API;
 using Anvil.API.Events;
 using Anvil.Services;
 
-using NWN.Core;
 using static NWN.Systems.Arena.Config;
 using static NWN.Systems.PlayerSystem;
 
@@ -59,45 +58,6 @@ namespace NWN.Systems.Arena
 
       ChatSystem.chatService.SendMessage(ChatChannel.PlayerTalk, "Pour obtenir votre amulette de concentration de l'arcane, il vous faut vous enregistrer auprès du juge.", NwObject.FindObjectsWithTag<NwCreature>("pve_arena_host").FirstOrDefault(), onPlayerDeath.DeadPlayer);
     }
-    public static void OnExitArena(AreaEvents.OnExit onExit)
-    {
-      if (!(onExit.ExitingObject is NwCreature creature) || !Players.TryGetValue(onExit.ExitingObject, out Player player))
-        return;
-
-      if (creature.IsPlayerControlled) // Cas normal de changement de zone
-        if (!Players.TryGetValue(creature.ControllingPlayer.LoginCreature, out player))
-          return;
-      else // cas de déconnexion du joueur
-        ResetPlayerLocation(player);
-
-      if (player.pveArena.currentRound == 0) // S'il s'agit d'un spectateur
-      {
-        player.oid.LoginCreature.OnSpellCast += SpellSystem.HandleBeforeSpellCast;
-        player.oid.LoginCreature.OnSpellCast -= NoMagicMalus;
-        return;
-      }
-
-      // A partir de là, il s'agit du gladiateur
-      player.oid.OnPlayerDeath -= HandleArenaDeath;
-      player.oid.OnPlayerDeath += HandlePlayerDeath;
-
-      player.pveArena.currentPoints = 0;
-      player.pveArena.currentRound = 0;
-
-      player.pveArena.currentMalusList.Clear();
-
-      foreach (Effect paralysis in player.oid.LoginCreature.ActiveEffects.Where(e => e.Tag == "_ARENA_CUTSCENE_PARALYZE_EFFECT"))
-        player.oid.LoginCreature.RemoveEffect(paralysis);
-
-      foreach (NwCreature spectator in onExit.Area.FindObjectsOfTypeInArea<NwCreature>().Where(p => p.IsPlayerControlled || p.IsLoginPlayerCharacter))
-      {
-        spectator.ControllingPlayer.SendServerMessage($"La tentative de {player.oid.LoginCreature.Name} s'achève. Vous êtes reconduit à la salle principale.");
-        spectator.Location = NwObject.FindObjectsWithTag<NwWaypoint>(PVE_ENTRY_WAYPOINT_TAG).FirstOrDefault().Location;
-      }
-
-      AreaSystem.AreaDestroyer(onExit.Area);
-    }
-
     public struct RoundCreatures
     {
       public string[] resrefs;
@@ -141,7 +101,7 @@ namespace NWN.Systems.Arena
 
       return encounters[NWN.Utils.random.Next(0, encounters.Length)];
     }
-    public static async void RandomizeMalusSelection(Player player)
+    public static async void RandomizeMalusSelection(Player player, SpellSystem spellSystem)
     {
       CancellationTokenSource tokenSource = new CancellationTokenSource();
 
@@ -163,19 +123,19 @@ namespace NWN.Systems.Arena
 
       player.menu.choices.Add((
         arenaMalusDictionary[(uint)random].name,
-        () => ApplyArenaMalus(player, (uint)random)
+        () => ApplyArenaMalus(player, (uint)random, spellSystem)
       ));
 
       foreach (string malus in player.pveArena.currentMalusList)
         player.menu.choices.Add((
         malus,
-        () => ApplyArenaMalus(player, (uint)random)
+        () => ApplyArenaMalus(player, (uint)random, spellSystem)
       ));
 
       player.menu.DrawText();
-      RandomizeMalusSelection(player);
+      RandomizeMalusSelection(player, spellSystem);
     }
-    public static void ApplyArenaMalus(Player player, uint malus)
+    public static void ApplyArenaMalus(Player player, uint malus, SpellSystem spellSystem)
     {
       player.oid.LoginCreature.GetObjectVariable<LocalVariableInt>("_ARENA_MALUS_APPLIED").Value = 1;
       player.pveArena.currentMalus = malus;
@@ -198,7 +158,7 @@ namespace NWN.Systems.Arena
       }
 
       player.oid.LoginCreature.Location = player.oid.LoginCreature.Area.FindObjectsOfTypeInArea<NwWaypoint>().FirstOrDefault(w => w.Tag == PVE_ARENA_WAYPOINT_TAG).Location; ;
-      ScriptHandlers.HandleFight(player);
+      ScriptHandlers.HandleFight(player, spellSystem);
     }
     public static void NoMagicMalus(OnSpellCast onSpellCast)
     {
@@ -214,7 +174,7 @@ namespace NWN.Systems.Arena
 
       player.oid.SendServerMessage(message, ColorConstants.Orange);
     }
-    private static void ResetPlayerLocation(Player player)
+    public static void ResetPlayerLocation(Player player)
     {
       Location arenaStartLoc = NwObject.FindObjectsWithTag<NwWaypoint>(PVE_ENTRY_WAYPOINT_TAG).FirstOrDefault().Location;
 
