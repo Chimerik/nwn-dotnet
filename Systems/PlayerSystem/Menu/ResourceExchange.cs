@@ -15,93 +15,103 @@ namespace NWN.Systems
   {
     public partial class Player
     {
-      public class ResourceStorageWindow : PlayerWindow
+      public class ResourceExchangeWindow : PlayerWindow
       {
-        NuiColumn rootColumn { get; }
-        private readonly NuiBind<string> resourceNames = new NuiBind<string>("resourceNames");
-        private readonly NuiBind<int> listCount = new NuiBind<int>("listCount");
-        private readonly NuiBind<string> resourceIcon = new NuiBind<string>("resourceIcon");
-        private readonly NuiBind<int> resourceType = new NuiBind<int>("resourceType");
+        private readonly NuiColumn rootColumn = new NuiColumn();
+        private readonly List<NuiElement> rootChildren = new List<NuiElement>();
+        private readonly List<NuiListTemplateCell> rowTemplate = new List<NuiListTemplateCell>();
+        private readonly List<NuiListTemplateCell> targetRowTemplate = new List<NuiListTemplateCell>();
+
+        private readonly NuiBind<string> myGold = new NuiBind<string>("myGold");
+        private readonly NuiBind<string> myResourceNames = new NuiBind<string>("myResourceNames");
+        private readonly NuiBind<int> myListCount = new NuiBind<int>("myListCount");
+        private readonly NuiBind<string> myResourceIcon = new NuiBind<string>("myResourceIcon");
+        private readonly NuiBind<string> myQuantity = new NuiBind<string>("myQuantity");
+
+        private readonly NuiBind<string> targetGold = new NuiBind<string>("targetGold");
+        private readonly NuiBind<string> targetResourceNames = new NuiBind<string>("targetResourceNames");
+        private readonly NuiBind<int> targetListCount = new NuiBind<int>("targetListCount");
+        private readonly NuiBind<string> targetResourceIcon = new NuiBind<string>("targetResourceIcon");
+        private readonly NuiBind<string> targetQuantity = new NuiBind<string>("targetQuantity");
 
         private bool AuthorizeSave { get; set; }
         private int nbDebounce { get; set; }
-        private CraftResource resourceSelection { get; set; }
+        List<CraftResource> myResourceList;
+        Player targetPlayer;
 
-        public ResourceStorageWindow(Player player) : base(player)
+        public ResourceExchangeWindow(Player player, Player target) : base(player)
         {
-          windowId = "resourceStorage";
+          windowId = "resourceExchange";
           AuthorizeSave = false;
           nbDebounce = 0;
 
-          List<NuiComboEntry> comboValues = new List<NuiComboEntry>
-          {
-            new NuiComboEntry("Tous", 0),
-            new NuiComboEntry("Minerai", 1),
-            new NuiComboEntry("Lingots", 2),
-            new NuiComboEntry("Bûches", 3),
-            new NuiComboEntry("Planches", 4),
-            new NuiComboEntry("Peaux", 5),
-            new NuiComboEntry("Cuirs", 6),
-            new NuiComboEntry("Plantes", 7),
-            new NuiComboEntry("Poudres", 8)
-          };
+          rowTemplate.Add(new NuiListTemplateCell(new NuiButtonImage(myResourceIcon) { Tooltip = myResourceNames, Height = 35 }) { Width = 80 });
+          rowTemplate.Add(new NuiListTemplateCell(new NuiLabel(myResourceNames) { Tooltip = myResourceNames, VerticalAlign = NuiVAlign.Middle }));
+          rowTemplate.Add(new NuiListTemplateCell(new NuiTextEdit("", myQuantity, 60, false)));
 
-          List<NuiListTemplateCell> rowTemplate = new List<NuiListTemplateCell>
-          {
-            new NuiListTemplateCell(new NuiButtonImage(resourceIcon) { Id = "dropThis", Tooltip = "Dépôt", Height = 35 }) { Width = 80 },
-            new NuiListTemplateCell(new NuiLabel(resourceNames) { Id = "dropThisMouseDown", Tooltip = resourceNames, VerticalAlign = NuiVAlign.Middle } ),
-            new NuiListTemplateCell(new NuiButton("Retrait") { Id = "withdraw"} ),
-          };
+          targetRowTemplate.Add(new NuiListTemplateCell(new NuiButtonImage(targetResourceIcon) { Tooltip = targetResourceNames, Height = 35 }) { Width = 80 });
+          targetRowTemplate.Add(new NuiListTemplateCell(new NuiLabel(targetResourceNames) { Tooltip = targetResourceNames, VerticalAlign = NuiVAlign.Middle }));
+          targetRowTemplate.Add(new NuiListTemplateCell(new NuiTextEdit("", targetQuantity, 60, false)));
 
-          rootColumn = new NuiColumn()
-          {
-            Children = new List<NuiElement>()
-            {
-              new NuiRow() 
-              { 
-                Height = 35, 
-                Children = new List<NuiElement>() 
-                { 
-                  new NuiCombo 
-                  {
-                    Selected = resourceType,
-                    Entries = new List<NuiComboEntry>
-                    {
-                      new NuiComboEntry("Tous", 0),
-                      new NuiComboEntry("Minerai", 1),
-                      new NuiComboEntry("Lingots", 2),
-                      new NuiComboEntry("Bûches", 3),
-                      new NuiComboEntry("Planches", 4),
-                      new NuiComboEntry("Peaux", 5),
-                      new NuiComboEntry("Cuirs", 6),
-                      new NuiComboEntry("Plantes", 7),
-                    }, 
-                  },
-                  new NuiButton("Tout déposer") { Id = "dropCategory", Tooltip = "Dépose toutes les resources de la catégories sélectionnée." }
-                } 
-              },
-              new NuiList(rowTemplate, listCount) { RowHeight = 35 },
-              new NuiRow()
-              {
-                Height = 35,
-                Children = new List<NuiElement>()
-                {
-                  new NuiSpacer(),
-                  new NuiButton("Activer mode dépôt") { Id = "activateDropSelection", Width = 160 },
-                  new NuiSpacer()
-                }
-              },
-            }
-          };
+          rootColumn.Children = rootChildren;
 
-          CreateWindow();
+          CreateWindow(target);
         }
 
-        public void CreateWindow()
+        public void CreateWindow(Player target)
         {
+          targetPlayer = target;
+          rootChildren.Clear();
+
+          rootChildren.Add(new NuiRow() { Height = 35, Children = new List<NuiElement>() 
+          { 
+            new NuiSpacer(),
+            new NuiText("Votre proposition"),
+            new NuiSpacer()
+          } });
+
+          rootChildren.Add(new NuiRow()
+          {
+            Height = 35,
+            Children = new List<NuiElement>()
+            {
+              new NuiLabel($"Or ({player.bankGold}) : "),
+              new NuiTextEdit("", myGold, 60, false)
+            }
+          });
+
+          rootChildren.Add(new NuiRow() { Height = 35, Children = new List<NuiElement>() { new NuiList(rowTemplate, myListCount) { RowHeight = 35 } } });
+
+          rootChildren.Add(new NuiRow()
+          {
+            Height = 35,
+            Children = new List<NuiElement>()
+            {
+              new NuiSpacer(),
+              new NuiText($"Proposition de {targetPlayer.oid.LoginCreature.Name}"),
+              new NuiSpacer()
+            }
+          });
+
+          rootChildren.Add(new NuiRow() { Height = 35, Children = new List<NuiElement>() { new NuiLabel(targetGold) } });
+          rootChildren.Add(new NuiRow() { Height = 35, Children = new List<NuiElement>() { new NuiList(targetRowTemplate, targetListCount) { RowHeight = 35 } } });
+
+          rootChildren.Add(new NuiRow()
+          {
+            Height = 35,
+            Children = new List<NuiElement>()
+            {
+              new NuiSpacer(),
+              new NuiButton("Envoyer") { Id = "send", Tooltip = "Affiche votre proposition dans la fenêtre du destinataire." },
+              new NuiButton("Valider") { Id = "confirm", Tooltip = "Finalise la transaction après confirmation des deux parties impliquées." },
+              new NuiButton("Annuler") { Id = "confirm", Tooltip = "Annule la validation et permet de modifier à nouveau la proposition." },
+              new NuiSpacer()
+            }
+          });
+
           NuiRect windowRectangle = player.windowRectangles.ContainsKey(windowId) ? player.windowRectangles[windowId] : new NuiRect(10, player.oid.GetDeviceProperty(PlayerDeviceProperty.GuiHeight) * 0.01f, 450, player.oid.GetDeviceProperty(PlayerDeviceProperty.GuiHeight) * 0.65f);
 
-          window = new NuiWindow(rootColumn, $"Entrepôt de ressources de {player.oid.LoginCreature.Name}")
+          window = new NuiWindow(rootColumn, $"Proposition d'échange de ressources entre {player.oid.LoginCreature.Name} et {target.oid.LoginCreature.Name}")
           {
             Geometry = geometry,
             Resizable = false,
@@ -111,23 +121,23 @@ namespace NWN.Systems
             Border = true,
           };
 
-          player.oid.OnNuiEvent -= HandleResourceStorageEvents;
-          player.oid.OnNuiEvent += HandleResourceStorageEvents;
+          player.oid.OnNuiEvent -= HandleResourceExchangeEvents;
+          player.oid.OnNuiEvent += HandleResourceExchangeEvents;
           player.oid.OnServerSendArea -= OnAreaChangeCloseWindow;
           player.oid.OnServerSendArea += OnAreaChangeCloseWindow;
 
           token = player.oid.CreateNuiWindow(window, windowId);
 
-          resourceType.SetBindValue(player.oid, token, 0);
-          resourceType.SetBindWatch(player.oid, token, true);
+          myGold.SetBindValue(player.oid, token, "0");
+          targetGold.SetBindValue(player.oid, token, "0");
+
           geometry.SetBindValue(player.oid, token, windowRectangle);
           geometry.SetBindWatch(player.oid, token, true);
 
-          resourceSelection = player.craftResourceStock.FirstOrDefault();
           LoadResourceList();
         }
 
-        private void HandleResourceStorageEvents(ModuleEvents.OnNuiEvent nuiEvent)
+        private void HandleResourceExchangeEvents(ModuleEvents.OnNuiEvent nuiEvent)
         {
           if (nuiEvent.Player.NuiGetWindowId(nuiEvent.WindowToken) != windowId)
             return;
@@ -135,13 +145,13 @@ namespace NWN.Systems
           switch (nuiEvent.EventType)
           {
             case NuiEventType.Close:
-              StorageSave();
+              // OnClose => Fermer la fenêtre du destinataire si celle-ci est toujours ouverte
               break;
             case NuiEventType.Click:
 
               switch (nuiEvent.ElementId)
               {
-                case "withdraw":
+                case "send":
 
                   resourceSelection = player.craftResourceStock[nuiEvent.ArrayIndex];
 
@@ -156,7 +166,7 @@ namespace NWN.Systems
 
                   player.oid.SendServerMessage("Sélectionnez les objets de votre inventaire à déposer au coffre.");
                   player.oid.EnterTargetMode(SelectInventoryItem, ObjectTypes.Item, MouseCursor.PickupDown);
-                  
+
                   break;
 
                 case "dropThis":
@@ -209,7 +219,7 @@ namespace NWN.Systems
             return true;
           }
 
-          while(input > 0)
+          while (input > 0)
           {
             if (input > 50000)
             {
@@ -241,7 +251,7 @@ namespace NWN.Systems
             return;
           }
 
-          if(!Enum.TryParse(item.GetObjectVariable<LocalVariableString>("CRAFT_RESOURCE").Value, out ResourceType type))
+          if (!Enum.TryParse(item.GetObjectVariable<LocalVariableString>("CRAFT_RESOURCE").Value, out ResourceType type))
           {
             player.oid.SendServerMessage($"ERREUR TECHNIQUE - {item.Name.ColorString(ColorConstants.White)} n'a pas été identifié comme une resource artisanale. Le staff a été averti", ColorConstants.Red);
             Utils.LogMessageToDMs($"{item.GetObjectVariable<LocalVariableString>("CRAFT_RESOURCE").Value} utilisé par {player.oid.LoginCreature.Name} n'a pas pu être parsé comme ressource de craft.");
@@ -253,7 +263,7 @@ namespace NWN.Systems
             CraftResource resource = player.craftResourceStock.First(r => r.type == type && r.grade == item.GetObjectVariable<LocalVariableInt>("CRAFT_GRADE").Value);
             resource.quantity += item.StackSize;
           }
-          catch(Exception)
+          catch (Exception)
           {
             player.craftResourceStock.Add(new CraftResource(Craft.Collect.System.craftResourceArray.FirstOrDefault(r => r.type == type && r.grade == item.GetObjectVariable<LocalVariableInt>("CRAFT_GRADE").Value), item.StackSize));
           }
@@ -332,17 +342,20 @@ namespace NWN.Systems
         {
           List<string> resourceNameList = new List<string>();
           List<string> resourceIconList = new List<string>();
-          var tempList = resourceType.GetBindValue(player.oid, token) > 0 ? player.craftResourceStock.Where(r => r.type == (ResourceType)resourceType.GetBindValue(player.oid, token)) : player.craftResourceStock;
+          List<string> resourceQuantityList = new List<string>();
+          myResourceList = player.craftResourceStock.Where(r => r.quantity > 0).OrderBy(r => r.type).ThenBy(r => r.grade).ToList();
 
-          foreach (CraftResource resource in tempList)
+          foreach (CraftResource resource in myResourceList)
           {
             resourceNameList.Add($"{resource.name} (x{resource.quantity})");
             resourceIconList.Add(resource.iconString);
+            resourceQuantityList.Add("0");
           }
 
-          resourceNames.SetBindValues(player.oid, token, resourceNameList);
-          resourceIcon.SetBindValues(player.oid, token, resourceIconList);
-          listCount.SetBindValue(player.oid, token, tempList.Count());
+          myResourceNames.SetBindValues(player.oid, token, resourceNameList);
+          myResourceIcon.SetBindValues(player.oid, token, resourceIconList);
+          myQuantity.SetBindValues(player.oid, token, resourceQuantityList);
+          myListCount.SetBindValue(player.oid, token, myResourceList.Count());
         }
       }
     }
