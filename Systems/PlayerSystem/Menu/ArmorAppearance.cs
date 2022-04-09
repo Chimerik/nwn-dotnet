@@ -755,13 +755,13 @@ namespace NWN.Systems
           if (!item.IsValid || item.Possessor != nuiEvent.Player.ControlledCreature)
           {
             nuiEvent.Player.SendServerMessage("L'objet en cours de modification n'est plus en votre possession !", ColorConstants.Red);
-            nuiEvent.Player.NuiDestroy(nuiEvent.WindowToken);
+            CloseWindow();
             return;
           }
 
           if (nuiEvent.EventType == NuiEventType.Click && nuiEvent.ElementId == "openColors")
           {
-            nuiEvent.Player.NuiDestroy(nuiEvent.WindowToken);
+            CloseWindow();
 
             if (player.windows.ContainsKey("itemColorsModifier"))
               ((ArmorColorWindow)player.windows["itemColorsModifier"]).CreateWindow(item);

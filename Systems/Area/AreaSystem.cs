@@ -111,9 +111,10 @@ namespace NWN.Systems
 
         Log.Info($"{player.oid.PlayerName} vient de quitter la zone {area.Name} en se déconnectant.");
       }
-
+      Log.Info("before cleaner");
       if (!NwModule.Instance.Players.Any(p => p.ControlledCreature?.Area == area))
         AreaCleaner(area);
+      Log.Info("after cleaner");
     }
     public static void OnPersonnalStorageAreaExit(AreaEvents.OnExit onExit)
     {

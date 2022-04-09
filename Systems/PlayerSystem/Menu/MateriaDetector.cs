@@ -136,7 +136,7 @@ namespace NWN.Systems
                   if (detector.GetObjectVariable<LocalVariableInt>("_REMAINING_USES").Value < 0)
                   {
                     detector.Destroy();
-                    player.oid.NuiDestroy(token);
+                    CloseWindow();
                     player.oid.SendServerMessage("Le détecteur se désagrège entre vos mains, vidé de toute substance.", ColorConstants.Red);
                     return;
                   }

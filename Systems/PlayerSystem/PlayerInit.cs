@@ -17,9 +17,8 @@ namespace NWN.Systems
   {
     private void HandlePlayerConnect(ModuleEvents.OnClientEnter HandlePlayerConnect)
     {
+      Log.Info("Player connecting");
       NwPlayer oPC = HandlePlayerConnect.Player;
-
-      oPC.LoginCreature.GetObjectVariable<LocalVariableInt>("_PLAYER_INPUT_CANCELLED").Delete();
 
       if (!Players.TryGetValue(oPC.LoginCreature, out Player player))
         player = new Player(oPC, spellSystem, feedbackService);
@@ -188,7 +187,7 @@ namespace NWN.Systems
         }
 
         SqLiteUtils.InsertQuery("playerCharacters",
-            new List<string[]>() { new string[] { "accountId", accountId.ToString() }, new string[] { "characterName", oid.LoginCreature.Name }, new string[] { "dateLastSaved", DateTime.Now.ToString() }, new string[] { "currentCraftJob", "-10" }, new string[] { "currentCraftObject", "" }, new string[] { "location", SqLiteUtils.SerializeLocation(arrivalLocation) }, new string[] { "menuOriginLeft", "50" }, new string[] { "currentHP", oid.LoginCreature.MaxHP.ToString() } });
+            new List<string[]>() { new string[] { "accountId", accountId.ToString() }, new string[] { "characterName", oid.LoginCreature.Name },  new string[] { "location", SqLiteUtils.SerializeLocation(arrivalLocation) }, new string[] { "menuOriginLeft", "50" }, new string[] { "currentHP", oid.LoginCreature.MaxHP.ToString() } });
 
         var rowQuery = NwModule.Instance.PrepareCampaignSQLQuery(Config.database, "SELECT last_insert_rowid()");
         rowQuery.Execute();
@@ -401,13 +400,13 @@ namespace NWN.Systems
           areaExplorationStateDictionnary = JsonConvert.DeserializeObject<Dictionary<string, byte[]>>(serializedExploration);
         });
 
-        Task loadOpenedWindowsTask = Task.Run(() =>
+        /*Task loadOpenedWindowsTask = Task.Run(() =>
         {
           if (string.IsNullOrEmpty(serializedOpenedWindows) || serializedOpenedWindows == "null")
             return;
 
           openedWindows = JsonConvert.DeserializeObject<Dictionary<string, int>>(serializedOpenedWindows);
-        });
+        });*/
 
         Task loadSkillsTask = Task.Run(() =>
         {
@@ -482,7 +481,7 @@ namespace NWN.Systems
           descriptions = JsonConvert.DeserializeObject<List<CharacterDescription>>(serializedDescriptions);
         });
 
-        await Task.WhenAll(loadSkillsTask, loadSpellsTask, loadExplorationTask, loadOpenedWindowsTask, loadCauldronTask, loadCraftJobTask, loadGrimoiresTask, loadQuickbarsTask, loadItemAppearancesTask, loadDescriptionsTask);
+        await Task.WhenAll(loadSkillsTask, loadSpellsTask, loadExplorationTask/*, loadOpenedWindowsTask*/, loadCauldronTask, loadCraftJobTask, loadGrimoiresTask, loadQuickbarsTask, loadItemAppearancesTask, loadDescriptionsTask);
         Log.Info("async init done");
       }
       private async void InitializeAccountMapPins(string serializedMapPins)

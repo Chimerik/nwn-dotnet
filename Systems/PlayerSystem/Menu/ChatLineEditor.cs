@@ -88,7 +88,7 @@ namespace NWN.Systems
 
               string chatText = writingChat.GetBindValue(nuiEvent.Player, nuiEvent.WindowToken);
 
-              player.oid.NuiDestroy(nuiEvent.WindowToken);
+              CloseWindow();
 
               if (chatText == chatLine.text)
                 return;

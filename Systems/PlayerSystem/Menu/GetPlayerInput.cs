@@ -72,7 +72,7 @@ namespace NWN.Systems
           if (nuiEvent.EventType == NuiEventType.Click && nuiEvent.ElementId == "confirm")
           {
             handler(input.GetBindValue(player.oid, token));
-            player.oid.NuiDestroy(token);
+            CloseWindow();
           }
         }
       }

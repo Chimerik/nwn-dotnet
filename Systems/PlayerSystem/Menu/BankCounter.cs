@@ -129,7 +129,7 @@ namespace NWN.Systems
               {
                 case "contract":
 
-                  player.oid.NuiDestroy(token);
+                  CloseWindow();
 
                   if (!player.oid.LoginCreature.Inventory.Items.Any(i => i.Tag == "bank_contract"))
                     banker.Inventory.Items.FirstOrDefault(i => i.Tag == "bank_contract").Clone(player.oid.LoginCreature);
@@ -143,7 +143,7 @@ namespace NWN.Systems
                   break;
 
                 case "exit":
-                  player.oid.NuiDestroy(token);
+                  CloseWindow();
                   break;
               }
               break;

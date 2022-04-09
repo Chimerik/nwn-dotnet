@@ -101,7 +101,7 @@ namespace NWN.Systems
                   NwItem blueprint = filteredList.ElementAt(nuiEvent.ArrayIndex);
 
                   player.HandleCraftItemChecks(blueprint);
-                  player.oid.NuiDestroy(token);
+                  CloseWindow();
                   
                   break;
               }

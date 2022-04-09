@@ -312,7 +312,7 @@ namespace NWN.Systems
       public void HandleGenericJobCompletion(Player player)
       {
         if (player.openedWindows.ContainsKey("activeCraftJob"))
-          player.oid.NuiDestroy(player.openedWindows["activeCraftJob"]);
+          player.windows["activeCraftJob"].CloseWindow();
 
         if (jobProgression != null)
           jobProgression.Dispose();
@@ -331,7 +331,7 @@ namespace NWN.Systems
           HandleSpecificJobCompletion[type].Invoke(player, false);
 
         if (player.openedWindows.ContainsKey("activeCraftJob"))
-          player.oid.NuiDestroy(player.openedWindows["activeCraftJob"]);
+          player.windows["activeCraftJob"].CloseWindow();
 
         if (jobProgression != null)
           jobProgression.Dispose();

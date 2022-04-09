@@ -419,6 +419,7 @@ namespace NWN.Systems
       learnableDictionary.Add(CustomSkill.CraftSpellScroll, new LearnableSkill(CustomSkill.CraftSpellScroll, "Craft Parchemin", "Diminue le temps de fabrication, de réparation et le coût en matériaux de l'objet concerné de 1 % par niveau.", Category.Craft, "ife_X2EpicRepu", 10, 2, Ability.Intelligence, Ability.Constitution));
 
       Log.Info("Learnables Init - DONE"); // ATTENTION : ne laisser les joueurs se connecter qu'une fois les Learnables chargés
+      NwServer.Instance.PlayerPassword = "";
     }
     public static Dictionary<Feat, CustomFeat> customFeatsDictionnary = new Dictionary<Feat, CustomFeat>()
     {

@@ -397,13 +397,13 @@ namespace NWN.Systems
 
           if(item == null)
           {
-            player.oid.NuiDestroy(token);
+            CloseWindow();
             return;
           }
 
           if(modificationAllowed && item.Possessor != player.oid.ControlledCreature && !player.oid.IsDM)
           {
-            player.oid.NuiDestroy(token);
+            CloseWindow();
             ((ItemExamineWindow)player.windows["itemExamine"]).CreateWindow(item);
             return;
           }
@@ -427,13 +427,13 @@ namespace NWN.Systems
                 break;
 
               case "appearanceModifier":
-                player.oid.NuiDestroy(token);
+                CloseWindow();
                 OpenItemAppearanceModificationWindow();
                 return;
 
               case "repair":
                 player.HandleRepairItemChecks(item);
-                player.oid.NuiDestroy(token);
+                CloseWindow();
                 return;
 
               case "add":
@@ -463,12 +463,12 @@ namespace NWN.Systems
                 if (player.craftJob != null)
                 {
                   player.oid.SendServerMessage("Veuillez annuler votre travail artisanal en cours avant d'en commencer un nouveau.", ColorConstants.Red);
-                  player.oid.NuiDestroy(token);
+                  CloseWindow();
                   return;
                 }
 
                 player.craftJob = new CraftJob(player, item, JobType.BlueprintCopy);
-                player.oid.NuiDestroy(token);
+                CloseWindow();
 
                 if (player.windows.ContainsKey("activeCraftJob"))
                   ((ActiveCraftJobWindow)player.windows["activeCraftJob"]).CreateWindow();
@@ -481,12 +481,12 @@ namespace NWN.Systems
                 if (player.craftJob != null)
                 {
                   player.oid.SendServerMessage("Veuillez annuler votre travail artisanal en cours avant d'en commencer un nouveau.", ColorConstants.Red);
-                  player.oid.NuiDestroy(token);
+                  CloseWindow();
                   return;
                 }
 
                 player.craftJob = new CraftJob(player, item, JobType.BlueprintResearchMaterialEfficiency);
-                player.oid.NuiDestroy(token);
+                CloseWindow();
 
                 if (player.windows.ContainsKey("activeCraftJob"))
                   ((ActiveCraftJobWindow)player.windows["activeCraftJob"]).CreateWindow();
@@ -501,7 +501,7 @@ namespace NWN.Systems
                 else
                 {
                   player.craftJob = new CraftJob(player, item, JobType.BlueprintResearchTimeEfficiency);
-                  player.oid.NuiDestroy(token);
+                  CloseWindow();
 
                   if (player.windows.ContainsKey("activeCraftJob"))
                     ((ActiveCraftJobWindow)player.windows["activeCraftJob"]).CreateWindow();
@@ -509,7 +509,7 @@ namespace NWN.Systems
                     player.windows.Add("activeCraftJob", new ActiveCraftJobWindow(player));
                 }
 
-                player.oid.NuiDestroy(token);
+                CloseWindow();
                 return;
 
               case "skillbook_learn":
@@ -519,13 +519,13 @@ namespace NWN.Systems
                 player.oid.SendServerMessage("Vous venez d'ajouter une nouvelle compétence à votre livre d'apprentissage !", ColorConstants.Rose);
                 
                 item.Destroy();
-                player.oid.NuiDestroy(token);
+                CloseWindow();
 
                 return;
 
               case "upgrade":
                 player.HandleCraftItemChecks(bestBlueprint, item);
-                player.oid.NuiDestroy(token);
+                CloseWindow();
                 return;
 
               case "renforcement":
@@ -534,7 +534,7 @@ namespace NWN.Systems
                 else
                   player.craftJob = new CraftJob(player, item, JobType.Renforcement);
 
-                player.oid.NuiDestroy(token);
+                CloseWindow();
                 return;
 
               case "recycle":
@@ -543,7 +543,7 @@ namespace NWN.Systems
                 else
                   player.craftJob = new CraftJob(player, item, JobType.Recycling);
 
-                player.oid.NuiDestroy(token);
+                CloseWindow();
                 return;
 
               case "surcharge":
@@ -563,7 +563,7 @@ namespace NWN.Systems
                   player.oid.SendServerMessage($"Vous forcez, forcez, et votre {item.Name.ColorString(ColorConstants.White)} se brise sous l'excès infligé.", ColorConstants.Purple);
                 }
 
-                player.oid.NuiDestroy(token);
+                CloseWindow();
                 return;
 
               case "hide":

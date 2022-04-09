@@ -196,7 +196,7 @@ namespace NWN.Systems
                 player.learnableSkills[currentList.ElementAt(nuiEvent.ArrayIndex).id].StartLearning(player);
 
                 if (player.openedWindows.ContainsKey("activeLearnable"))
-                  player.oid.NuiDestroy(player.openedWindows["activeLearnable"]);
+                  player.windows["activeLearnable"].CloseWindow();
                 
                 if (player.windows.ContainsKey("activeLearnable"))
                   ((ActiveLearnableWindow)player.windows["activeLearnable"]).CreateWindow();
@@ -210,7 +210,7 @@ namespace NWN.Systems
                 int learnableId = currentList.ElementAt(nuiEvent.ArrayIndex).id;
 
                 if (player.openedWindows.ContainsKey("learnableDescription"))
-                  player.oid.NuiDestroy(player.openedWindows["learnableDescription"]);
+                  player.windows["learnableDescription"].CloseWindow();
                 
                 if (player.windows.ContainsKey("learnableDescription"))
                   ((LearnableDescriptionWindow)player.windows["learnableDescription"]).CreateWindow(learnableId);

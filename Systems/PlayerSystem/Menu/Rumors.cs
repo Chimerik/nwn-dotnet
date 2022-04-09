@@ -130,7 +130,7 @@ namespace NWN.Systems
                   break;
 
                 case "return":
-                  player.oid.NuiDestroy(token);
+                  CloseWindow();
                   CreateWindow();
                   break;
 
@@ -146,7 +146,7 @@ namespace NWN.Systems
 
                   player.oid.SendServerMessage($"La rumeur {titles.GetBindValues(player.oid, token)[nuiEvent.ArrayIndex].ColorString(ColorConstants.White)} a bien été supprimée", ColorConstants.Pink);
 
-                  player.oid.NuiDestroy(token);
+                  CloseWindow();
                   CreateWindow();
                   break;
               }
@@ -263,7 +263,7 @@ namespace NWN.Systems
 
             player.HandleAsyncQueryFeedback(queryResult, $"Héhé {newRumorTitle.ColorString(ColorConstants.White)}, c'est pas tombé dans l'oreille d'un sourd !", "Erreur technique - Votre rumeur n'as pas été enregistrée.");
 
-            player.oid.NuiDestroy(token);
+            CloseWindow();
             CreateWindow();
 
             if (!player.oid.IsDM)
@@ -341,7 +341,7 @@ namespace NWN.Systems
 
           player.oid.SendServerMessage($"La rumeur {newRumorTitle.ColorString(ColorConstants.White)} a bien été modifiée");
 
-          player.oid.NuiDestroy(token);
+          CloseWindow();
           CreateWindow();
 
           Task waitForTransaction = NwTask.Run(async () =>

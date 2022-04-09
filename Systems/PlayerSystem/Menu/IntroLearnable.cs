@@ -97,7 +97,8 @@ namespace NWN.Systems
 
               if (nuiEvent.ElementId == "retour")
               {
-                player.oid.NuiDestroy(token);
+                CloseWindow();
+
                 if (!player.openedWindows.ContainsKey("introMirror"))
                   ((IntroMirroWindow)player.windows["introMirror"]).CreateWindow();
 
@@ -121,11 +122,11 @@ namespace NWN.Systems
                 }
                 else
                 {
-                  player.oid.NuiDestroy(token);
+                  CloseWindow();
                   player.oid.SendServerMessage("Vous avez épuisé vos points de compétence de création de personnage. Vous pouvez dès à présent commencer l'aventure en parlant au capitaine !");
 
                   if (player.openedWindows.ContainsKey("activeLearnable"))
-                    player.oid.NuiDestroy(player.openedWindows["activeLearnable"]);
+                    player.windows["activeLearnable"].CloseWindow();
 
                   player.learnableSkills[learnableId].StartLearning(player);
 
@@ -141,7 +142,7 @@ namespace NWN.Systems
               else if (int.TryParse(nuiEvent.ElementId, out int learnableId))
               {
                 if (player.openedWindows.ContainsKey("learnableDescription"))
-                  player.oid.NuiDestroy(player.openedWindows["learnableDescription"]);
+                  player.windows["learnableDescription"].CloseWindow();
 
                 if (player.windows.ContainsKey("learnableDescription"))
                   ((LearnableDescriptionWindow)player.windows["learnableDescription"]).CreateWindow(learnableId);

@@ -112,7 +112,7 @@ namespace NWN.Systems
               {
                 case "beauty":
 
-                  player.oid.NuiDestroy(token);
+                  CloseWindow();
 
                   if (player.windows.ContainsKey("bodyAppearanceModifier"))
                     ((BodyAppearanceWindow)player.windows["bodyAppearanceModifier"]).CreateWindow();
@@ -123,7 +123,7 @@ namespace NWN.Systems
 
                 case "past":
 
-                  player.oid.NuiDestroy(token);
+                  CloseWindow();
 
                   if (player.windows.ContainsKey("introBackground"))
                     ((LearnableWindow)player.windows["introBackground"]).CreateWindow();
@@ -134,7 +134,7 @@ namespace NWN.Systems
 
                 case "future":
 
-                  player.oid.NuiDestroy(token);
+                  CloseWindow();
 
                   if (player.windows.ContainsKey("introLearnables"))
                     ((IntroLearnableWindow)player.windows["introLearnables"]).CreateWindow();

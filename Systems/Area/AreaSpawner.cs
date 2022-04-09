@@ -43,7 +43,7 @@ namespace NWN.Systems
 
     private static void CheckIfNoPlayerAround(CreatureEvents.OnHeartbeat onHB)
     {
-      if (NwModule.Instance.Players.Any(p => p.ControlledCreature.Area == onHB.Creature.Area && p.ControlledCreature.DistanceSquared(onHB.Creature) < 2026))
+      if (NwModule.Instance.Players.Any(p => p.ControlledCreature != null && p.ControlledCreature.Area != null && p.ControlledCreature.Area == onHB.Creature.Area && p.ControlledCreature.DistanceSquared(onHB.Creature) < 2026))
         return;
 
       onHB.Creature.GetObjectVariable<LocalVariableObject<NwWaypoint>>("_SPAWN").Value.GetObjectVariable<LocalVariableBool>("_SPAWN_COOLDOWN").Delete();

@@ -159,7 +159,9 @@ namespace NWN.Systems
 
       if (baseCost <= 0)
       {
-        Utils.LogMessageToDMs($"{item.Name} - baseCost introuvable pour baseItemType : {item.BaseItem.ItemType}");
+        if(item.BaseItem.ItemType != BaseItemType.CreatureItem)
+          Utils.LogMessageToDMs($"{item.Name} - baseCost introuvable pour baseItemType : {item.BaseItem.ItemType}");
+
         return 999999;
       }
 

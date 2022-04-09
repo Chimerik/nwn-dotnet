@@ -82,7 +82,7 @@ namespace NWN.Systems
                 case "select":
 
                   HandleEnchantementChecks(player.spellSystem.enchantementCategories[(int)spell.Id][nuiEvent.ArrayIndex]);
-                  player.oid.NuiDestroy(token);
+                  CloseWindow();
 
                   break;
 

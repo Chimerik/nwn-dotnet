@@ -104,7 +104,7 @@ namespace NWN.Systems
         skillEffect.Invoke(player, id);
 
       if (player.openedWindows.ContainsKey("activeLearnable"))
-        player.oid.NuiDestroy(player.openedWindows["activeLearnable"]);
+        player.windows["activeLearnable"].CloseWindow();
 
       if (player.openedWindows.ContainsKey("learnables") && player.windows.ContainsKey("learnables"))
       {

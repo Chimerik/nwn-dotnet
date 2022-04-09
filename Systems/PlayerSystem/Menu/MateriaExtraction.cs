@@ -129,7 +129,7 @@ namespace NWN.Systems
           if (extractionRemainingTime < 1)
           {
             extractionProgress.Dispose();
-            player.oid.NuiDestroy(token);
+            CloseWindow();
 
             if (targetMateria == null)
             {

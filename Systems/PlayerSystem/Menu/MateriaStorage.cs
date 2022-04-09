@@ -151,7 +151,7 @@ namespace NWN.Systems
                   return;
 
                 case "exit":
-                  player.oid.NuiDestroy(token);
+                  CloseWindow();
                   return;
               }
               break;

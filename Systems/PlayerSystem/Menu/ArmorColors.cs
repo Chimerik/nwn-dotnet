@@ -182,7 +182,7 @@ namespace NWN.Systems
           if (!item.IsValid || item.Possessor != nuiEvent.Player.ControlledCreature)
           {
             nuiEvent.Player.SendServerMessage("L'objet en cours de modification n'est plus en votre possession !", ColorConstants.Red);
-            nuiEvent.Player.NuiDestroy(nuiEvent.WindowToken);
+            CloseWindow();
             return;
           }
 
@@ -192,7 +192,7 @@ namespace NWN.Systems
 
               if (nuiEvent.ElementId == "openItemAppearance")
               {
-                nuiEvent.Player.NuiDestroy(nuiEvent.WindowToken);
+                CloseWindow();
 
                 if (player.windows.ContainsKey("itemAppearanceModifier"))
                   ((ArmorAppearanceWindow)player.windows["itemAppearanceModifier"]).CreateWindow(item);

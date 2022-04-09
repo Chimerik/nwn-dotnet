@@ -93,7 +93,7 @@ namespace NWN.Systems
                   else
                     player.windows.Add("descriptionContent", new DescriptionContentWindow(player));
 
-                  player.oid.NuiDestroy(token);
+                  CloseWindow();
 
                   break;
 
@@ -111,7 +111,7 @@ namespace NWN.Systems
                   else
                     player.windows.Add("descriptionContent", new DescriptionContentWindow(player, player.descriptions[nuiEvent.ArrayIndex]));
 
-                  player.oid.NuiDestroy(token);
+                  CloseWindow();
 
                   break;
 
@@ -127,7 +127,7 @@ namespace NWN.Systems
           listCount.SetBindValue(player.oid, token, descriptionNamesList.Count);
 
           if (player.openedWindows.ContainsKey("descriptionContent"))
-            player.oid.NuiDestroy(player.openedWindows["descriptionContent"]);
+            player.windows["descriptionContent"].CloseWindow();
         }
       }
     }

@@ -63,7 +63,7 @@ namespace NWN.Systems
 
       EventsPlugin.SkipEvent();
     }
-    public static void OnItemUseBefore(OnItemUse onItemUse)
+    public static async void OnItemUseBefore(OnItemUse onItemUse)
     {
       NwCreature oPC = onItemUse.UsedBy;
 
@@ -88,7 +88,14 @@ namespace NWN.Systems
         case "private_contract":
           feedbackService.AddFeedbackMessageFilter(FeedbackMessage.UseItemCantUse, oPC.ControllingPlayer);
           onItemUse.PreventUseItem = true;
-          new PrivateContract(oPC.ControllingPlayer.LoginCreature, oItem);
+
+          if (oTarget != player.oid.LoginCreature)
+          {
+            if (player.windows.ContainsKey("resourceExchange"))
+              ((PlayerSystem.Player.ResourceExchangeWindow)player.windows["resourceExchange"]).CreateOwnerWindow(oTarget);
+            else
+              player.windows.Add("resourceExchange", new PlayerSystem.Player.ResourceExchangeWindow(player, oTarget));
+          }
 
           break;
         case "shop_clearance":
@@ -156,11 +163,8 @@ namespace NWN.Systems
           break;
       }
 
-      Task wait = NwTask.Run(async () =>
-      {
-        await NwTask.Delay(TimeSpan.FromSeconds(0.2));
-        feedbackService.RemoveFeedbackMessageFilter(FeedbackMessage.UseItemCantUse, oPC.ControllingPlayer);
-      });
+      await NwTask.Delay(TimeSpan.FromSeconds(0.2));
+      feedbackService.RemoveFeedbackMessageFilter(FeedbackMessage.UseItemCantUse, oPC.ControllingPlayer);
     }
     public static void OnAcquireItem(ModuleEvents.OnAcquireItem onAcquireItem)
     {

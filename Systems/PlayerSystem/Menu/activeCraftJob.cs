@@ -93,7 +93,7 @@ namespace NWN.Systems
 
           if (player.craftJob == null)
           {
-            player.oid.NuiDestroy(token);
+            CloseWindow();
             return;
           }
 

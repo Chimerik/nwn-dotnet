@@ -126,7 +126,7 @@ namespace NWN.Systems
                   else
                     player.windows.Add("grimoires", new GrimoiresWindow(player));
 
-                  player.oid.NuiDestroy(token);
+                  CloseWindow();
 
                   break;
 
@@ -137,7 +137,7 @@ namespace NWN.Systems
                   else
                     player.windows.Add("quickbars", new QuickbarsWindow(player));
 
-                  player.oid.NuiDestroy(token);
+                  CloseWindow();
 
                   break;
 
@@ -155,7 +155,7 @@ namespace NWN.Systems
                   else
                     player.windows.Add("itemAppearances", new ItemAppearancesWindow(player));
 
-                  player.oid.NuiDestroy(token);
+                  CloseWindow();
 
                   break;
 
@@ -166,7 +166,7 @@ namespace NWN.Systems
                   else
                     player.windows.Add("description", new DescriptionsWindow(player));
 
-                  player.oid.NuiDestroy(token);
+                  CloseWindow();
 
                   break;
 
@@ -199,7 +199,7 @@ namespace NWN.Systems
                   else
                     player.windows.Add("chatColors", new ChatColorsWindow(player));
 
-                  player.oid.NuiDestroy(token);
+                  CloseWindow();
 
                   break;
 
@@ -210,7 +210,7 @@ namespace NWN.Systems
                   else
                     player.windows.Add("contrat", new ChatColorsWindow(player));
 
-                  player.oid.NuiDestroy(token);*/
+                  CloseWindow();*/
 
                   break;
 

@@ -89,7 +89,7 @@ namespace NWN.Systems
               {
                 case "sign":
 
-                  player.oid.NuiDestroy(token);
+                  CloseWindow();
                   contract.Description += player.oid.LoginCreature.Name;
 
                   foreach (var ip in contract.ItemProperties)

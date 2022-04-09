@@ -31,7 +31,13 @@ namespace NWN.Systems
 
         protected void OnAreaChangeCloseWindow(OnServerSendArea onArea)
         {
+          CloseWindow();
+        }
+
+        public void CloseWindow()
+        {
           player.oid.NuiDestroy(token);
+          player.openedWindows.Remove(windowId);
         }
       }
     }

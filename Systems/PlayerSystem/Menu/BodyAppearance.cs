@@ -261,7 +261,7 @@ namespace NWN.Systems
 
           if (nuiEvent.EventType == NuiEventType.Click && nuiEvent.ElementId == "openColors")
           {
-            player.oid.NuiDestroy(token);
+            CloseWindow();
 
             if (player.windows.ContainsKey("bodyColorsModifier"))
               ((BodyColorWindow)player.windows["bodyColorsModifier"]).CreateWindow();

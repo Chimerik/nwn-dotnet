@@ -149,7 +149,7 @@ namespace NWN.Systems
           if (!item.IsValid || item.Possessor != nuiEvent.Player.ControlledCreature)
           {
             nuiEvent.Player.SendServerMessage("L'objet en cours de modification n'est plus en votre possession !", ColorConstants.Red);
-            nuiEvent.Player.NuiDestroy(nuiEvent.WindowToken);
+            CloseWindow();
             return;
           }
 
@@ -159,7 +159,7 @@ namespace NWN.Systems
               switch (nuiEvent.ElementId)
               {
                 case "openColors":
-                  nuiEvent.Player.NuiDestroy(nuiEvent.WindowToken);
+                  CloseWindow();
 
                   if (player.windows.ContainsKey("helmetColorModifier"))
                     ((HelmetColorWindow)player.windows["helmetColorModifier"]).CreateWindow(item);

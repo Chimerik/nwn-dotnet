@@ -67,6 +67,8 @@ namespace NWN.Systems
     }
     private void OnModuleLoad(ModuleEvents.OnModuleLoad onModuleLoad)
     {
+      NwServer.Instance.PlayerPassword = "LOADINGLDE";
+
       NwModule.Instance.GetObjectVariable<LocalVariableString>("X2_S_UD_SPELLSCRIPT").Value = "spellhook";
 
       //NwModule.Instance.SetEventScript((EventScriptType)NWScript.EVENT_SCRIPT_MODULE_ON_PLAYER_TILE_ACTION, "on_tile_action");

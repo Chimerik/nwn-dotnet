@@ -144,7 +144,7 @@ namespace NWN.Systems
 
               if (nuiEvent.ElementId == "openBodyAppearance")
               {
-                player.oid.NuiDestroy(token);
+                CloseWindow();
 
                 if (player.windows.ContainsKey("bodyAppearanceModifier"))
                   ((BodyAppearanceWindow)player.windows["bodyAppearanceModifier"]).CreateWindow();

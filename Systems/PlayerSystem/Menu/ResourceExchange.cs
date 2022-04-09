@@ -15,10 +15,20 @@ namespace NWN.Systems
   {
     public partial class Player
     {
+      public enum ResourceExchangeState
+      {
+        CreatingProposal,
+        AwaitingProposal,
+        AwaitingConfirmation
+      }
       public class ResourceExchangeWindow : PlayerWindow
       {
-        private readonly NuiColumn rootColumn = new NuiColumn();
+        private readonly NuiRow rootRow = new NuiRow();
         private readonly List<NuiElement> rootChildren = new List<NuiElement>();
+        private readonly NuiColumn ownerColumn = new NuiColumn() { Width = 400 };
+        private readonly List<NuiElement> ownerChildren = new List<NuiElement>();
+        private readonly NuiColumn targetColumn = new NuiColumn() { Width = 400 };
+        private readonly List<NuiElement> targetChildren = new List<NuiElement>();
         private readonly List<NuiListTemplateCell> rowTemplate = new List<NuiListTemplateCell>();
         private readonly List<NuiListTemplateCell> targetRowTemplate = new List<NuiListTemplateCell>();
 
@@ -34,87 +44,115 @@ namespace NWN.Systems
         private readonly NuiBind<string> targetResourceIcon = new NuiBind<string>("targetResourceIcon");
         private readonly NuiBind<string> targetQuantity = new NuiBind<string>("targetQuantity");
 
-        private bool AuthorizeSave { get; set; }
-        private int nbDebounce { get; set; }
-        List<CraftResource> myResourceList;
-        Player targetPlayer;
+        private readonly NuiBind<bool> proposalEnabled = new NuiBind<bool>("proposalEnabled");
+        private readonly NuiBind<bool> confirmEnabled = new NuiBind<bool>("confirmEnabled");
+        private readonly NuiBind<bool> cancelEnabled = new NuiBind<bool>("cancelEnabled");
 
-        public ResourceExchangeWindow(Player player, Player target) : base(player)
+        private readonly NuiBind<string> targetState = new NuiBind<string>("targetState");
+
+        public ResourceExchangeState exchangeState { get; set; }
+        List<CraftResource> myResourceList;
+        List<CraftResource> targetProposal = new List<CraftResource>();
+        Player targetPlayer;
+        ResourceExchangeWindow targetWindow;
+
+        public ResourceExchangeWindow(Player player, NwGameObject creatureTarget) : base(player)
         {
           windowId = "resourceExchange";
-          AuthorizeSave = false;
-          nbDebounce = 0;
 
           rowTemplate.Add(new NuiListTemplateCell(new NuiButtonImage(myResourceIcon) { Tooltip = myResourceNames, Height = 35 }) { Width = 80 });
           rowTemplate.Add(new NuiListTemplateCell(new NuiLabel(myResourceNames) { Tooltip = myResourceNames, VerticalAlign = NuiVAlign.Middle }));
           rowTemplate.Add(new NuiListTemplateCell(new NuiTextEdit("", myQuantity, 60, false)));
 
-          targetRowTemplate.Add(new NuiListTemplateCell(new NuiButtonImage(targetResourceIcon) { Tooltip = targetResourceNames, Height = 35 }) { Width = 80 });
+          targetRowTemplate.Add(new NuiListTemplateCell(new NuiImage(targetResourceIcon) { Tooltip = targetResourceNames, Height = 35 }) { Width = 80 });
           targetRowTemplate.Add(new NuiListTemplateCell(new NuiLabel(targetResourceNames) { Tooltip = targetResourceNames, VerticalAlign = NuiVAlign.Middle }));
-          targetRowTemplate.Add(new NuiListTemplateCell(new NuiTextEdit("", targetQuantity, 60, false)));
+          targetRowTemplate.Add(new NuiListTemplateCell(new NuiLabel(targetQuantity)));
 
-          rootColumn.Children = rootChildren;
+          rootRow.Children = rootChildren;
+          ownerColumn.Children = ownerChildren;
+          targetColumn.Children = targetChildren;
 
-          CreateWindow(target);
+          rootChildren.Add(ownerColumn);
+          rootChildren.Add(targetColumn);
+
+          CreateOwnerWindow(creatureTarget);
         }
-
-        public void CreateWindow(Player target)
+        public ResourceExchangeWindow(Player player, Player playerTarget) : base(player)
         {
-          targetPlayer = target;
-          rootChildren.Clear();
+          windowId = "resourceExchange";
 
-          rootChildren.Add(new NuiRow() { Height = 35, Children = new List<NuiElement>() 
-          { 
-            new NuiSpacer(),
-            new NuiText("Votre proposition"),
-            new NuiSpacer()
-          } });
+          rowTemplate.Add(new NuiListTemplateCell(new NuiButtonImage(myResourceIcon) { Tooltip = myResourceNames, Height = 35 }) { Width = 35 });
+          rowTemplate.Add(new NuiListTemplateCell(new NuiLabel(myResourceNames) { Tooltip = myResourceNames, VerticalAlign = NuiVAlign.Middle }));
+          rowTemplate.Add(new NuiListTemplateCell(new NuiTextEdit("", myQuantity, 60, false) { Enabled = proposalEnabled }));
 
-          rootChildren.Add(new NuiRow()
+          targetRowTemplate.Add(new NuiListTemplateCell(new NuiImage(targetResourceIcon) { Tooltip = targetResourceNames, Height = 35 }) { Width = 35 });
+          targetRowTemplate.Add(new NuiListTemplateCell(new NuiLabel(targetResourceNames) { Tooltip = targetResourceNames, VerticalAlign = NuiVAlign.Middle }));
+          targetRowTemplate.Add(new NuiListTemplateCell(new NuiLabel(targetQuantity)));
+
+          rootRow.Children = rootChildren;
+          ownerColumn.Children = ownerChildren;
+          targetColumn.Children = targetChildren;
+
+          rootChildren.Add(ownerColumn);
+          rootChildren.Add(targetColumn);
+
+          CreateWindow(playerTarget);
+        }
+        private void CreateWindow(Player target)
+        {
+          this.targetPlayer = target;
+          exchangeState = ResourceExchangeState.CreatingProposal;
+
+          ownerChildren.Clear();
+          targetChildren.Clear();
+          targetProposal.Clear();
+
+          ownerChildren.Add(new NuiRow() { Children = new List<NuiElement>() { new NuiLabel("Votre proposition") { Height = 35, HorizontalAlign = NuiHAlign.Center } } });
+
+          ownerChildren.Add(new NuiRow()
           {
-            Height = 35,
             Children = new List<NuiElement>()
             {
-              new NuiLabel($"Or ({player.bankGold}) : "),
-              new NuiTextEdit("", myGold, 60, false)
+              new NuiLabel($"Or") { Tooltip = $"Disponible en banque : {player.bankGold}", Width = 30, VerticalAlign = NuiVAlign.Middle },
+              new NuiTextEdit("", myGold, 60, false) { Enabled = proposalEnabled, Tooltip = $"Disponible en banque : {player.bankGold}", Width = 300 }
             }
           });
 
-          rootChildren.Add(new NuiRow() { Height = 35, Children = new List<NuiElement>() { new NuiList(rowTemplate, myListCount) { RowHeight = 35 } } });
+          ownerChildren.Add(new NuiRow() { Height = 35, Children = new List<NuiElement>() { new NuiList(rowTemplate, myListCount) { RowHeight = 35 } } });
 
-          rootChildren.Add(new NuiRow()
+          ownerChildren.Add(new NuiRow()
           {
             Height = 35,
             Children = new List<NuiElement>()
             {
               new NuiSpacer(),
-              new NuiText($"Proposition de {targetPlayer.oid.LoginCreature.Name}"),
+              new NuiButton("Proposer") { Id = "send", Tooltip = "Affiche votre proposition dans la fenêtre du destinataire.", Enabled = proposalEnabled, Width = 80 },
+              new NuiButton("Finaliser") { Id = "confirm", Tooltip = "Finalise la transaction après confirmation des deux parties impliquées.", Enabled = confirmEnabled, Width = 80 },
+              new NuiButton("Annuler") { Id = "cancel", Tooltip = "Annule la validation et permet de modifier à nouveau la proposition.", Enabled = cancelEnabled, Width = 80 },
               new NuiSpacer()
             }
           });
 
-          rootChildren.Add(new NuiRow() { Height = 35, Children = new List<NuiElement>() { new NuiLabel(targetGold) } });
-          rootChildren.Add(new NuiRow() { Height = 35, Children = new List<NuiElement>() { new NuiList(targetRowTemplate, targetListCount) { RowHeight = 35 } } });
+          targetChildren.Add(new NuiRow() { Children = new List<NuiElement>() { new NuiLabel($"Proposition de {targetPlayer.oid.LoginCreature.Name}") { Height = 35, HorizontalAlign = NuiHAlign.Center } } });
 
-          rootChildren.Add(new NuiRow()
+          targetChildren.Add(new NuiRow()
           {
-            Height = 35,
             Children = new List<NuiElement>()
             {
-              new NuiSpacer(),
-              new NuiButton("Envoyer") { Id = "send", Tooltip = "Affiche votre proposition dans la fenêtre du destinataire." },
-              new NuiButton("Valider") { Id = "confirm", Tooltip = "Finalise la transaction après confirmation des deux parties impliquées." },
-              new NuiButton("Annuler") { Id = "confirm", Tooltip = "Annule la validation et permet de modifier à nouveau la proposition." },
-              new NuiSpacer()
+              new NuiLabel($"Or : ") { Width = 30, VerticalAlign = NuiVAlign.Middle },
+              new NuiLabel(targetGold) { Width = 300, VerticalAlign = NuiVAlign.Middle }
             }
           });
+
+          targetChildren.Add(new NuiRow() { Height = 35, Children = new List<NuiElement>() { new NuiList(targetRowTemplate, targetListCount) { RowHeight = 35 } } });
+          targetChildren.Add(new NuiRow() { Height = 35, Children = new List<NuiElement>() { new NuiLabel(targetState) { HorizontalAlign = NuiHAlign.Center } } });
 
           NuiRect windowRectangle = player.windowRectangles.ContainsKey(windowId) ? player.windowRectangles[windowId] : new NuiRect(10, player.oid.GetDeviceProperty(PlayerDeviceProperty.GuiHeight) * 0.01f, 450, player.oid.GetDeviceProperty(PlayerDeviceProperty.GuiHeight) * 0.65f);
 
-          window = new NuiWindow(rootColumn, $"Proposition d'échange de ressources entre {player.oid.LoginCreature.Name} et {target.oid.LoginCreature.Name}")
+          window = new NuiWindow(rootRow, $"Proposition d'échange de ressources entre {player.oid.LoginCreature.Name} et {target.oid.LoginCreature.Name}")
           {
             Geometry = geometry,
-            Resizable = false,
+            Resizable = true,
             Collapsed = false,
             Closable = closable,
             Transparent = false,
@@ -125,16 +163,54 @@ namespace NWN.Systems
           player.oid.OnNuiEvent += HandleResourceExchangeEvents;
           player.oid.OnServerSendArea -= OnAreaChangeCloseWindow;
           player.oid.OnServerSendArea += OnAreaChangeCloseWindow;
+          player.oid.OnClientDisconnect -= HandleResourceExchangeDisconnection;
+          player.oid.OnClientDisconnect += HandleResourceExchangeDisconnection;
 
           token = player.oid.CreateNuiWindow(window, windowId);
 
           myGold.SetBindValue(player.oid, token, "0");
           targetGold.SetBindValue(player.oid, token, "0");
+          targetState.SetBindValue(player.oid, token, "Proposition en cours de modification");
+
+          proposalEnabled.SetBindValue(player.oid, token, true);
+          confirmEnabled.SetBindValue(player.oid, token, false);
 
           geometry.SetBindValue(player.oid, token, windowRectangle);
           geometry.SetBindWatch(player.oid, token, true);
 
           LoadResourceList();
+        }
+        public async void CreateOwnerWindow(NwGameObject target)
+        {
+          if (!Players.TryGetValue(target, out Player targetPlayer))
+          {
+            player.oid.SendServerMessage($"{target.Name.ColorString(ColorConstants.White)} n'est pas un joueur et ne peut donc pas négocier de transaction.", ColorConstants.Red);
+            return;
+          }
+
+          if (player.oid.ControlledCreature.DistanceSquared(target) > 25)
+          {
+            player.oid.SendServerMessage($"Vous êtes trop éloigné de {target.Name.ColorString(ColorConstants.White)} pour négocier une transaction.", ColorConstants.Red);
+            return;
+          }
+
+          if (targetPlayer.openedWindows.ContainsKey(windowId))
+          {
+            player.oid.SendServerMessage($"{target.Name.ColorString(ColorConstants.White)} est déjà en train de négocier une transaction.", ColorConstants.Red);
+            return;
+          }
+
+          CreateWindow(targetPlayer);
+
+          if (targetPlayer.windows.ContainsKey(windowId))
+            ((ResourceExchangeWindow)targetPlayer.windows[windowId]).CreateWindow(player);
+          else
+            targetPlayer.windows.Add(windowId, new ResourceExchangeWindow(targetPlayer, player));
+
+          await NwTask.Delay(TimeSpan.FromSeconds(0.2));
+
+          targetWindow = (ResourceExchangeWindow)targetPlayer.windows[windowId];
+          targetWindow.targetWindow = this;
         }
 
         private void HandleResourceExchangeEvents(ModuleEvents.OnNuiEvent nuiEvent)
@@ -146,6 +222,10 @@ namespace NWN.Systems
           {
             case NuiEventType.Close:
               // OnClose => Fermer la fenêtre du destinataire si celle-ci est toujours ouverte
+              player.oid.OnClientDisconnect -= HandleResourceExchangeDisconnection;
+              targetWindow.CloseWindow();
+              targetPlayer.oid.SendServerMessage($"Transaction annulée par {player.oid.LoginCreature.Name.ColorString(ColorConstants.White)}", ColorConstants.Orange);
+
               break;
             case NuiEventType.Click:
 
@@ -153,190 +233,153 @@ namespace NWN.Systems
               {
                 case "send":
 
-                  resourceSelection = player.craftResourceStock[nuiEvent.ArrayIndex];
+                  exchangeState = ResourceExchangeState.AwaitingProposal;
+                  proposalEnabled.SetBindValue(player.oid, token, false);
+                  cancelEnabled.SetBindValue(player.oid, token, true);
 
-                  if (player.windows.ContainsKey("playerInput"))
-                    ((PlayerInputWindow)player.windows["playerInput"]).CreateWindow("Retirer combien d'unités ?", WithdrawResource, resourceSelection.quantity.ToString());
+                  targetWindow.targetState.SetBindValue(targetPlayer.oid, targetWindow.token, "En cours de relecture");
+
+                  if (!int.TryParse(myGold.GetBindValue(player.oid, token), out int myInputGold))
+                    targetWindow.targetGold.SetBindValue(targetPlayer.oid, targetWindow.token, "0");
+                  else if (myInputGold > player.bankGold)
+                    targetWindow.targetGold.SetBindValue(targetPlayer.oid, targetWindow.token, player.bankGold.ToString());
                   else
-                    player.windows.Add("playerInput", new PlayerInputWindow(player, "Retirer combien d'unités ?", WithdrawResource, resourceSelection.quantity.ToString()));
+                    targetWindow.targetGold.SetBindValue(targetPlayer.oid, targetWindow.token, myInputGold.ToString());
+
+                  List<CraftResource> myProposal = new List<CraftResource>();
+                  List<string> proposedQuantityList = myQuantity.GetBindValues(player.oid, token);
+
+                  for (int i = 0; i < proposedQuantityList.Count; i++)
+                  {
+                    if (int.TryParse(proposedQuantityList[i], out int proposedQuantity) && proposedQuantity > 0)
+                    {
+                      if (proposedQuantity > myResourceList[i].quantity)
+                        proposedQuantity = myResourceList[i].quantity;
+                        
+                      myProposal.Add(new CraftResource(myResourceList[i], proposedQuantity));
+                    }
+                  }
+  
+                  targetWindow.LoadTargetResourceList(myProposal);
+
+                  if (targetWindow.exchangeState == ResourceExchangeState.AwaitingProposal)
+                  {
+                    confirmEnabled.SetBindValue(player.oid, token, true);
+                    targetWindow.confirmEnabled.SetBindValue(targetPlayer.oid, targetWindow.token, true);
+                  }
 
                   break;
 
-                case "itemDeposit":
+                case "confirm":
 
-                  player.oid.SendServerMessage("Sélectionnez les objets de votre inventaire à déposer au coffre.");
-                  player.oid.EnterTargetMode(SelectInventoryItem, ObjectTypes.Item, MouseCursor.PickupDown);
+                  exchangeState = ResourceExchangeState.AwaitingConfirmation;
 
-                  break;
+                  if (targetWindow.exchangeState == ResourceExchangeState.AwaitingConfirmation)
+                  {
+                    if (!int.TryParse(targetWindow.targetGold.GetBindValue(targetPlayer.oid, targetWindow.token), out int myGoldInput) || myGoldInput > player.bankGold)
+                    {
+                      CloseWindow();
+                      targetWindow.CloseWindow();
+                      targetPlayer.oid.SendServerMessage($"Transaction annulée. {player.oid.LoginCreature.Name.ColorString(ColorConstants.White)} ne dispose plus d'assez d'or en banque.", ColorConstants.Red);
+                      player.oid.SendServerMessage($"Transaction annulée. Vous ne disposez plus d'assez d'or en banque.", ColorConstants.Red);
+                      return;
+                    }
 
-                case "dropThis":
-                  StoreSelectedResource(player.craftResourceStock[nuiEvent.ArrayIndex]);
+                    if (!int.TryParse(targetGold.GetBindValue(player.oid, token), out int targetGoldInput) || targetGoldInput > targetPlayer.bankGold)
+                    {
+                      CloseWindow();
+                      targetWindow.CloseWindow();
+                      player.oid.SendServerMessage($"Transaction annulée. {targetPlayer.oid.LoginCreature.Name.ColorString(ColorConstants.White)} ne dispose plus d'assez d'or en banque.", ColorConstants.Red);
+                      targetPlayer.oid.SendServerMessage($"Transaction annulée. Vous ne disposez plus d'assez d'or en banque.", ColorConstants.Red);
+                      return;
+                    }
+
+                    foreach (CraftResource resource in targetProposal)
+                      if (resource.quantity > targetPlayer.craftResourceStock.FirstOrDefault(r => r.type == resource.type && r.grade == resource.grade).quantity)
+                      {
+                        CloseWindow();
+                        targetWindow.CloseWindow();
+                        player.oid.SendServerMessage($"Transaction annulée. {targetPlayer.oid.LoginCreature.Name.ColorString(ColorConstants.White)} ne dispose plus d'assez de {resource.name.ColorString(ColorConstants.White)}", ColorConstants.Red);
+                        targetPlayer.oid.SendServerMessage($"Transaction annulée. Vous ne disposez plus d'assez de {resource.name.ColorString(ColorConstants.White)}", ColorConstants.Red);
+                        return;
+                      }
+
+                    foreach (CraftResource resource in targetWindow.targetProposal)
+                      if (resource.quantity > player.craftResourceStock.FirstOrDefault(r => r.type == resource.type && r.grade == resource.grade).quantity)
+                      {
+                        CloseWindow();
+                        targetWindow.CloseWindow();
+                        player.oid.SendServerMessage($"Transaction annulée. Vous ne disposez plus d'assez de {resource.name.ColorString(ColorConstants.White)}", ColorConstants.Red);
+                        targetPlayer.oid.SendServerMessage($"Transaction annulée. {targetPlayer.oid.LoginCreature.Name.ColorString(ColorConstants.White)} ne dispose plus d'assez de {resource.name.ColorString(ColorConstants.White)}", ColorConstants.Red);
+                        return;
+                      }
+                    
+                    player.bankGold += targetGoldInput;
+                    player.bankGold -= myGoldInput;
+                    targetPlayer.bankGold += myGoldInput;
+                    targetPlayer.bankGold -= targetGoldInput;
+
+                    foreach (CraftResource resource in targetProposal)
+                    {
+                      CraftResource myResource = player.craftResourceStock.FirstOrDefault(r => r.type == resource.type && r.grade == resource.grade);
+
+                      if (myResource != null)
+                        myResource.quantity += resource.quantity;
+                      else
+                        player.craftResourceStock.Add(new CraftResource(resource, resource.quantity));
+
+                      targetPlayer.craftResourceStock.FirstOrDefault(r => r.type == resource.type && r.grade == resource.grade).quantity -= resource.quantity;
+                    }
+
+                    foreach (CraftResource resource in targetWindow.targetProposal)
+                    {
+                      CraftResource targetResource = targetPlayer.craftResourceStock.FirstOrDefault(r => r.type == resource.type && r.grade == resource.grade);
+
+                      if (targetResource != null)
+                        targetResource.quantity += resource.quantity;
+                      else
+                        targetPlayer.craftResourceStock.Add(new CraftResource(resource, resource.quantity));
+
+                      player.craftResourceStock.FirstOrDefault(r => r.type == resource.type && r.grade == resource.grade).quantity -= resource.quantity;
+                    }
+
+                    player.oid.SendServerMessage($"Transaction avec {targetPlayer.oid.LoginCreature.Name.ColorString(ColorConstants.White)} terminée avec succès !", new Color(32, 255, 32));
+                    targetPlayer.oid.SendServerMessage($"Transaction avec {player.oid.LoginCreature.Name.ColorString(ColorConstants.White)} terminée avec succès !", new Color(32, 255, 32));
+
+                    CloseWindow();
+                    targetWindow.CloseWindow();
+
+                    player.oid.ExportCharacter();
+                    targetPlayer.oid.ExportCharacter();
+                  }
+                  else
+                  {
+                    confirmEnabled.SetBindValue(player.oid, token, false);
+                    targetWindow.targetState.SetBindValue(targetPlayer.oid, targetWindow.token, "En attente de votre finalisation");
+                  }
+
+                 break;
+
+                case "cancel":
+
+                  exchangeState = ResourceExchangeState.CreatingProposal;
+                  proposalEnabled.SetBindValue(player.oid, token, true);
+                  confirmEnabled.SetBindValue(player.oid, token, false);
+                  cancelEnabled.SetBindValue(player.oid, token, false);
+
+                  targetWindow.targetState.SetBindValue(targetPlayer.oid, targetWindow.token, "Proposition en cours de modification");
+
+                  if (targetWindow.exchangeState > ResourceExchangeState.CreatingProposal)
+                  {
+                    targetWindow.exchangeState = ResourceExchangeState.AwaitingProposal;
+                    targetWindow.confirmEnabled.SetBindValue(targetPlayer.oid, targetWindow.token, false);
+                  }
+
                   break;
               }
 
               break;
-
-            case NuiEventType.MouseDown:
-
-              switch (nuiEvent.ElementId)
-              {
-                case "dropThisMouseDown":
-                  StoreSelectedResource(player.craftResourceStock[nuiEvent.ArrayIndex]);
-                  break;
-              }
-
-              break;
-
-            case NuiEventType.Watch:
-
-              switch (nuiEvent.ElementId)
-              {
-                case "resourceType":
-                  LoadResourceList();
-                  break;
-              }
-              break;
           }
-        }
-        private void StoreSelectedResource(CraftResource selectedResource)
-        {
-          foreach (NwItem resource in player.oid.LoginCreature.Inventory.Items.
-            Where(r => r.GetObjectVariable<LocalVariableString>("CRAFT_RESOURCE").Value == selectedResource.name
-            && r.GetObjectVariable<LocalVariableInt>("CRAFT_GRADE").Value == selectedResource.grade))
-          {
-            selectedResource.quantity += resource.StackSize;
-            resource.Destroy();
-          }
-
-          StorageSave();
-          LoadResourceList();
-        }
-        private bool WithdrawResource(string inputValue)
-        {
-          if (!int.TryParse(inputValue, out int input) || resourceSelection == null || resourceSelection.quantity < input)
-          {
-            player.oid.SendServerMessage("Vous ne disposez pas d'une telle quantité de cette ressource.", ColorConstants.Red);
-            return true;
-          }
-
-          while (input > 0)
-          {
-            if (input > 50000)
-            {
-              Craft.Collect.System.CreateSelectedResourceInInventory(resourceSelection, player, 50000);
-              input -= 50000;
-              resourceSelection.quantity -= 50000;
-            }
-            else
-            {
-              Craft.Collect.System.CreateSelectedResourceInInventory(resourceSelection, player, input);
-              resourceSelection.quantity -= input;
-              input = 0;
-            }
-          }
-
-          StorageSave();
-          LoadResourceList();
-
-          return true;
-        }
-        private void SelectInventoryItem(ModuleEvents.OnPlayerTarget selection)
-        {
-          if (selection.IsCancelled || !(selection.TargetObject is NwItem item))
-            return;
-
-          if (item.Tag != "craft_resource")
-          {
-            player.oid.SendServerMessage($"{item.Name.ColorString(ColorConstants.White)} n'est pas une resource artisanale !", ColorConstants.Red);
-            return;
-          }
-
-          if (!Enum.TryParse(item.GetObjectVariable<LocalVariableString>("CRAFT_RESOURCE").Value, out ResourceType type))
-          {
-            player.oid.SendServerMessage($"ERREUR TECHNIQUE - {item.Name.ColorString(ColorConstants.White)} n'a pas été identifié comme une resource artisanale. Le staff a été averti", ColorConstants.Red);
-            Utils.LogMessageToDMs($"{item.GetObjectVariable<LocalVariableString>("CRAFT_RESOURCE").Value} utilisé par {player.oid.LoginCreature.Name} n'a pas pu être parsé comme ressource de craft.");
-            return;
-          }
-
-          try
-          {
-            CraftResource resource = player.craftResourceStock.First(r => r.type == type && r.grade == item.GetObjectVariable<LocalVariableInt>("CRAFT_GRADE").Value);
-            resource.quantity += item.StackSize;
-          }
-          catch (Exception)
-          {
-            player.craftResourceStock.Add(new CraftResource(Craft.Collect.System.craftResourceArray.FirstOrDefault(r => r.type == type && r.grade == item.GetObjectVariable<LocalVariableInt>("CRAFT_GRADE").Value), item.StackSize));
-          }
-
-          item.Destroy();
-
-          StorageSave();
-          LoadResourceList();
-
-          player.oid.EnterTargetMode(SelectInventoryItem, ObjectTypes.Item, MouseCursor.PickupDown);
-        }
-        public void StorageSave()
-        {
-          DateTime elapsed = DateTime.Now;
-
-          if (!AuthorizeSave)
-          {
-            if (nbDebounce > 0)
-            {
-              nbDebounce += 1;
-              return;
-            }
-            else
-            {
-              nbDebounce = 1;
-              Log.Info($"Character {player.characterId} : scheduling storage save in 10s");
-              DebounceStorageSave(nbDebounce);
-              return;
-            }
-          }
-          else
-            HandleStorageSave();
-
-          Log.Info($"Character {player.characterId} storage saved in : {(DateTime.Now - elapsed).TotalSeconds} s");
-        }
-
-        private async void DebounceStorageSave(int initialNbDebounce)
-        {
-          CancellationTokenSource tokenSource = new CancellationTokenSource();
-
-          Task awaitDebounce = NwTask.WaitUntil(() => nbDebounce != initialNbDebounce, tokenSource.Token);
-          Task awaitSaveAuthorized = NwTask.Delay(TimeSpan.FromSeconds(10), tokenSource.Token);
-
-          await NwTask.WhenAny(awaitDebounce, awaitSaveAuthorized);
-          tokenSource.Cancel();
-
-          if (awaitDebounce.IsCompletedSuccessfully)
-          {
-            nbDebounce += 1;
-            DebounceStorageSave(initialNbDebounce + 1);
-            return;
-          }
-
-          if (awaitSaveAuthorized.IsCompletedSuccessfully)
-          {
-            nbDebounce = 0;
-            AuthorizeSave = true;
-            Log.Info($"Character {player.characterId} : debounce done after {nbDebounce} triggers, storage save authorized");
-            StorageSave();
-          }
-        }
-
-        private async void HandleStorageSave()
-        {
-          Task<string> serializeCraftResource = Task.Run(() => JsonConvert.SerializeObject(player.craftResourceStock));
-          await Task.WhenAll(serializeCraftResource);
-
-          SqLiteUtils.UpdateQuery("playerCharacters",
-          new List<string[]>() { new string[] { "materialStorage", serializeCraftResource.Result } },
-          new List<string[]>() { new string[] { "rowid", player.characterId.ToString() } });
-
-          nbDebounce = 0;
-          AuthorizeSave = false;
         }
         private void LoadResourceList()
         {
@@ -356,6 +399,31 @@ namespace NWN.Systems
           myResourceIcon.SetBindValues(player.oid, token, resourceIconList);
           myQuantity.SetBindValues(player.oid, token, resourceQuantityList);
           myListCount.SetBindValue(player.oid, token, myResourceList.Count());
+        }
+        private void LoadTargetResourceList(List<CraftResource> targetResourceList)
+        {
+          List<string> resourceNameList = new List<string>();
+          List<string> resourceIconList = new List<string>();
+          List<string> resourceQuantityList = new List<string>();
+
+          foreach (CraftResource resource in targetResourceList)
+          {
+            resourceNameList.Add($"{resource.name} (x{resource.quantity})");
+            resourceIconList.Add(resource.iconString);
+            resourceQuantityList.Add("0");
+          }
+
+          targetResourceNames.SetBindValues(player.oid, token, resourceNameList);
+          targetResourceIcon.SetBindValues(player.oid, token, resourceIconList);
+          targetQuantity.SetBindValues(player.oid, token, resourceQuantityList);
+          targetListCount.SetBindValue(player.oid, token, targetResourceList.Count());
+
+          targetProposal = targetResourceList;
+        }
+        private void HandleResourceExchangeDisconnection(OnClientDisconnect onPCDisconnect)
+        {
+          CloseWindow();
+          targetPlayer.oid.SendServerMessage($"Transaction annulée par {player.oid.LoginCreature.Name.ColorString(ColorConstants.White)}", ColorConstants.Orange);
         }
       }
     }
