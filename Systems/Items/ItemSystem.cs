@@ -89,7 +89,7 @@ namespace NWN.Systems
           feedbackService.AddFeedbackMessageFilter(FeedbackMessage.UseItemCantUse, oPC.ControllingPlayer);
           onItemUse.PreventUseItem = true;
 
-          if (oTarget != player.oid.LoginCreature)
+          if (oTarget != null && oTarget != player.oid.LoginCreature)
           {
             if (player.windows.ContainsKey("resourceExchange"))
               ((PlayerSystem.Player.ResourceExchangeWindow)player.windows["resourceExchange"]).CreateOwnerWindow(oTarget);

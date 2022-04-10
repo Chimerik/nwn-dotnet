@@ -279,7 +279,7 @@ namespace NWN.Systems
           new List<string[]>() { new string[] { "bankGold", shop.GetObjectVariable<LocalVariableInt>("_CURRENT_AUCTION").Value.ToString(), "+" } },
           new List<string[]>() { new string[] { "rowid", shop.GetObjectVariable<LocalVariableInt>("_CURRENT_AUCTIONNER").Value.ToString() } });
 
-      NwPlayer oSeller = NwModule.Instance.Players.FirstOrDefault(p => p.LoginCreature.GetObjectVariable<PersistentVariableInt>("characterId").Value == shop.GetObjectVariable<LocalVariableInt>("_CURRENT_AUCTIONNER").Value);
+      NwPlayer oSeller = NwModule.Instance.Players.FirstOrDefault(p => p.LoginCreature != null && p.LoginCreature.GetObjectVariable<PersistentVariableInt>("characterId").Value == shop.GetObjectVariable<LocalVariableInt>("_CURRENT_AUCTIONNER").Value);
       if (oSeller != null)
         oSeller.SendServerMessage($"Votre enchère sur {item.Name.ColorString(ColorConstants.Orange)} vient d'être battue. Le nouveau prix est de : {auctionSetPrice.ToString().ColorString(ColorConstants.Orange)}. La valeur de votre enchère a été versée à votre banque.");
 

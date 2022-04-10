@@ -11,13 +11,12 @@ using System.Threading.Tasks;
 namespace NWN.Systems
 {
   [ServiceBinding(typeof(AreaSystem))]
-  partial class AreaSystem
+  public partial class AreaSystem
   {
     private static readonly Logger Log = LogManager.GetCurrentClassLogger();
     private DialogSystem dialogSystem;
     public AreaSystem(DialogSystem dialogSystem)
     {
-      this.dialogSystem = dialogSystem;
       foreach (NwTrigger trigger in NwObject.FindObjectsWithTag("invi_unwalkable"))
         trigger.OnEnter += OnEnterUnwalkableBlock;
 
@@ -58,7 +57,7 @@ namespace NWN.Systems
       if(onEnter.EnteringObject is NwCreature { IsPlayerControlled: false })
         return;
       
-       if (NwModule.Instance.Players.Count(p => p.ControlledCreature?.Area == area) == 1)
+       if (NwModule.Instance.Players.Count(p => p.ControlledCreature != null && p.ControlledCreature.Area == area) == 1)
         CreateSpawnChecker(area);
 
       if (!PlayerSystem.Players.TryGetValue(onEnter.EnteringObject, out PlayerSystem.Player player))
@@ -78,7 +77,7 @@ namespace NWN.Systems
 
       Log.Info("area enter pc off");
     }
-    public static void OnAreaExit(AreaEvents.OnExit onExit)
+    public void OnAreaExit(AreaEvents.OnExit onExit)
     {
       if (!(onExit.ExitingObject is NwCreature creature))
         return;
@@ -111,22 +110,11 @@ namespace NWN.Systems
 
         Log.Info($"{player.oid.PlayerName} vient de quitter la zone {area.Name} en se déconnectant.");
       }
-      Log.Info("before cleaner");
-      if (!NwModule.Instance.Players.Any(p => p.ControlledCreature?.Area == area))
+
+      if (!NwModule.Instance.Players.Any(p => p.ControlledCreature != null && p.ControlledCreature.Area == area))
         AreaCleaner(area);
-      Log.Info("after cleaner");
     }
-    public static void OnPersonnalStorageAreaExit(AreaEvents.OnExit onExit)
-    {
-      if (!PlayerSystem.Players.TryGetValue(onExit.ExitingObject, out PlayerSystem.Player player))
-        return;
-
-      Log.Info($"{player.oid.LoginCreature.Name} exited area {onExit.Area.Name}");
-
-      if (!NwModule.Instance.Players.Any(p => p.ControlledCreature.Area == onExit.Area))
-        AreaDestroyer(onExit.Area);
-    }
-    public static void OnIntroAreaExit(AreaEvents.OnExit onExit)
+    public void OnIntroAreaExit(AreaEvents.OnExit onExit)
     {
       if (!(onExit.ExitingObject is NwCreature oPC) || !oPC.IsPlayerControlled || onExit.Area.Tag != $"entry_scene_{oPC.ControllingPlayer.CDKey}")
         return;

@@ -1,13 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
 
 using Anvil.API;
 using Anvil.API.Events;
-
-using Newtonsoft.Json;
 
 namespace NWN.Systems
 {
@@ -36,13 +32,13 @@ namespace NWN.Systems
         private readonly NuiBind<string> myResourceNames = new NuiBind<string>("myResourceNames");
         private readonly NuiBind<int> myListCount = new NuiBind<int>("myListCount");
         private readonly NuiBind<string> myResourceIcon = new NuiBind<string>("myResourceIcon");
+        private readonly NuiBind<string> myAvailableQuantity = new NuiBind<string>("myAvailableQuantity");
         private readonly NuiBind<string> myQuantity = new NuiBind<string>("myQuantity");
 
         private readonly NuiBind<string> targetGold = new NuiBind<string>("targetGold");
         private readonly NuiBind<string> targetResourceNames = new NuiBind<string>("targetResourceNames");
         private readonly NuiBind<int> targetListCount = new NuiBind<int>("targetListCount");
         private readonly NuiBind<string> targetResourceIcon = new NuiBind<string>("targetResourceIcon");
-        private readonly NuiBind<string> targetQuantity = new NuiBind<string>("targetQuantity");
 
         private readonly NuiBind<bool> proposalEnabled = new NuiBind<bool>("proposalEnabled");
         private readonly NuiBind<bool> confirmEnabled = new NuiBind<bool>("confirmEnabled");
@@ -60,13 +56,12 @@ namespace NWN.Systems
         {
           windowId = "resourceExchange";
 
-          rowTemplate.Add(new NuiListTemplateCell(new NuiButtonImage(myResourceIcon) { Tooltip = myResourceNames, Height = 35 }) { Width = 80 });
-          rowTemplate.Add(new NuiListTemplateCell(new NuiLabel(myResourceNames) { Tooltip = myResourceNames, VerticalAlign = NuiVAlign.Middle }));
-          rowTemplate.Add(new NuiListTemplateCell(new NuiTextEdit("", myQuantity, 60, false)));
+          rowTemplate.Add(new NuiListTemplateCell(new NuiButtonImage(myResourceIcon) { Tooltip = myResourceNames, Height = 35 }) { Width = 35 });
+          rowTemplate.Add(new NuiListTemplateCell(new NuiLabel(myResourceNames) { Tooltip = myAvailableQuantity, VerticalAlign = NuiVAlign.Middle }));
+          rowTemplate.Add(new NuiListTemplateCell(new NuiTextEdit("", myQuantity, 10, false)) { Width = 100 });
 
-          targetRowTemplate.Add(new NuiListTemplateCell(new NuiImage(targetResourceIcon) { Tooltip = targetResourceNames, Height = 35 }) { Width = 80 });
+          targetRowTemplate.Add(new NuiListTemplateCell(new NuiButtonImage(targetResourceIcon) { Tooltip = targetResourceNames, Height = 35 }) { Width = 35 });
           targetRowTemplate.Add(new NuiListTemplateCell(new NuiLabel(targetResourceNames) { Tooltip = targetResourceNames, VerticalAlign = NuiVAlign.Middle }));
-          targetRowTemplate.Add(new NuiListTemplateCell(new NuiLabel(targetQuantity)));
 
           rootRow.Children = rootChildren;
           ownerColumn.Children = ownerChildren;
@@ -82,12 +77,11 @@ namespace NWN.Systems
           windowId = "resourceExchange";
 
           rowTemplate.Add(new NuiListTemplateCell(new NuiButtonImage(myResourceIcon) { Tooltip = myResourceNames, Height = 35 }) { Width = 35 });
-          rowTemplate.Add(new NuiListTemplateCell(new NuiLabel(myResourceNames) { Tooltip = myResourceNames, VerticalAlign = NuiVAlign.Middle }));
-          rowTemplate.Add(new NuiListTemplateCell(new NuiTextEdit("", myQuantity, 60, false) { Enabled = proposalEnabled }));
+          rowTemplate.Add(new NuiListTemplateCell(new NuiLabel(myResourceNames) { Tooltip = myAvailableQuantity, VerticalAlign = NuiVAlign.Middle }));
+          rowTemplate.Add(new NuiListTemplateCell(new NuiTextEdit("", myQuantity, 60, false) { Enabled = proposalEnabled }) { Width = 100 });
 
-          targetRowTemplate.Add(new NuiListTemplateCell(new NuiImage(targetResourceIcon) { Tooltip = targetResourceNames, Height = 35 }) { Width = 35 });
+          targetRowTemplate.Add(new NuiListTemplateCell(new NuiButtonImage(targetResourceIcon) { Tooltip = targetResourceNames, Height = 35 }) { Width = 35 });
           targetRowTemplate.Add(new NuiListTemplateCell(new NuiLabel(targetResourceNames) { Tooltip = targetResourceNames, VerticalAlign = NuiVAlign.Middle }));
-          targetRowTemplate.Add(new NuiListTemplateCell(new NuiLabel(targetQuantity)));
 
           rootRow.Children = rootChildren;
           ownerColumn.Children = ownerChildren;
@@ -118,7 +112,7 @@ namespace NWN.Systems
             }
           });
 
-          ownerChildren.Add(new NuiRow() { Height = 35, Children = new List<NuiElement>() { new NuiList(rowTemplate, myListCount) { RowHeight = 35 } } });
+          ownerChildren.Add(new NuiRow() { Height = 350, Children = new List<NuiElement>() { new NuiList(rowTemplate, myListCount) { RowHeight = 35 } } });
 
           ownerChildren.Add(new NuiRow()
           {
@@ -144,15 +138,15 @@ namespace NWN.Systems
             }
           });
 
-          targetChildren.Add(new NuiRow() { Height = 35, Children = new List<NuiElement>() { new NuiList(targetRowTemplate, targetListCount) { RowHeight = 35 } } });
+          targetChildren.Add(new NuiRow() { Height = 350, Children = new List<NuiElement>() { new NuiList(targetRowTemplate, targetListCount) { RowHeight = 35 } } });
           targetChildren.Add(new NuiRow() { Height = 35, Children = new List<NuiElement>() { new NuiLabel(targetState) { HorizontalAlign = NuiHAlign.Center } } });
 
-          NuiRect windowRectangle = player.windowRectangles.ContainsKey(windowId) ? player.windowRectangles[windowId] : new NuiRect(10, player.oid.GetDeviceProperty(PlayerDeviceProperty.GuiHeight) * 0.01f, 450, player.oid.GetDeviceProperty(PlayerDeviceProperty.GuiHeight) * 0.65f);
+          NuiRect windowRectangle = player.windowRectangles.ContainsKey(windowId) ? player.windowRectangles[windowId] : new NuiRect(10, player.oid.GetDeviceProperty(PlayerDeviceProperty.GuiHeight) * 0.01f, 520, 850);
 
           window = new NuiWindow(rootRow, $"Proposition d'échange de ressources entre {player.oid.LoginCreature.Name} et {target.oid.LoginCreature.Name}")
           {
             Geometry = geometry,
-            Resizable = true,
+            Resizable = false,
             Collapsed = false,
             Closable = closable,
             Transparent = false,
@@ -385,6 +379,7 @@ namespace NWN.Systems
         {
           List<string> resourceNameList = new List<string>();
           List<string> resourceIconList = new List<string>();
+          List<string> availableQuantityList = new List<string>();
           List<string> resourceQuantityList = new List<string>();
           myResourceList = player.craftResourceStock.Where(r => r.quantity > 0).OrderBy(r => r.type).ThenBy(r => r.grade).ToList();
 
@@ -392,11 +387,13 @@ namespace NWN.Systems
           {
             resourceNameList.Add($"{resource.name} (x{resource.quantity})");
             resourceIconList.Add(resource.iconString);
+            availableQuantityList.Add($"{resource.quantity} unité(s) en stock");
             resourceQuantityList.Add("0");
           }
 
           myResourceNames.SetBindValues(player.oid, token, resourceNameList);
           myResourceIcon.SetBindValues(player.oid, token, resourceIconList);
+          myAvailableQuantity.SetBindValues(player.oid, token, availableQuantityList);
           myQuantity.SetBindValues(player.oid, token, resourceQuantityList);
           myListCount.SetBindValue(player.oid, token, myResourceList.Count());
         }
@@ -410,12 +407,10 @@ namespace NWN.Systems
           {
             resourceNameList.Add($"{resource.name} (x{resource.quantity})");
             resourceIconList.Add(resource.iconString);
-            resourceQuantityList.Add("0");
           }
 
           targetResourceNames.SetBindValues(player.oid, token, resourceNameList);
           targetResourceIcon.SetBindValues(player.oid, token, resourceIconList);
-          targetQuantity.SetBindValues(player.oid, token, resourceQuantityList);
           targetListCount.SetBindValue(player.oid, token, targetResourceList.Count());
 
           targetProposal = targetResourceList;

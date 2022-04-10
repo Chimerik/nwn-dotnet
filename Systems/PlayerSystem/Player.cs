@@ -64,7 +64,7 @@ namespace NWN.Systems
         AFK
       }
 
-      public Player(NwPlayer nwobj, SpellSystem spellSystem, FeedbackService feedbackService)
+      public Player(NwPlayer nwobj, AreaSystem areaSystem, SpellSystem spellSystem, FeedbackService feedbackService)
       {
         oid = nwobj;
         menu = new PrivateMenu(this);
@@ -82,7 +82,7 @@ namespace NWN.Systems
           this.accountId = this.oid.LoginCreature.GetObjectVariable<PersistentVariableInt>("accountId").Value;
 
           if (this.oid.LoginCreature.GetObjectVariable<PersistentVariableInt>("characterId").HasNothing && !oid.IsDM)
-            InitializeNewCharacter();
+            InitializeNewCharacter(areaSystem);
 
           this.characterId = this.oid.LoginCreature.GetObjectVariable<PersistentVariableInt>("characterId").Value;
 

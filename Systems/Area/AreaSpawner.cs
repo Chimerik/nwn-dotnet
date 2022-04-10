@@ -11,13 +11,14 @@ namespace NWN.Systems
   [ServiceBinding(typeof(AreaSystem))]
   partial class AreaSystem
   {
-    private async void CreateSpawnChecker(NwArea area)
+    private ScheduledTask spawnScheduler;
+    private void CreateSpawnChecker(NwArea area)
     {
-      var spawnScheduler = ModuleSystem.scheduler.ScheduleRepeating(() =>
+      spawnScheduler = ModuleSystem.scheduler.ScheduleRepeating(() =>
       {
         foreach (NwWaypoint spawnPoint in area.FindObjectsOfTypeInArea<NwWaypoint>().Where(wp => wp.Tag == "creature_spawn" && wp.GetObjectVariable<LocalVariableBool>("_SPAWN_COOLDOWN").HasNothing))
         {
-          if (NwModule.Instance.Players.Any(p => p.ControlledCreature?.Area == area && p.ControlledCreature.DistanceSquared(spawnPoint) < 2026))
+          if (NwModule.Instance.Players.Any(p => p.ControlledCreature != null && p.ControlledCreature.Area == area && p.ControlledCreature.DistanceSquared(spawnPoint) < 2026))
           {
             spawnPoint.GetObjectVariable<LocalVariableBool>("_SPAWN_COOLDOWN").Value = true;
 
@@ -34,16 +35,16 @@ namespace NWN.Systems
             }
           }
         }
-      }
-        , TimeSpan.FromSeconds(1));
 
-      await NwTask.WaitUntil(() => !NwModule.Instance.Players.Any(p => p.ControlledCreature?.Area == area));
-      spawnScheduler.Dispose();
+        if(!NwModule.Instance.Players.Any(p => p.ControlledCreature != null && p.ControlledCreature.Area == area))
+          spawnScheduler.Dispose();
+      }
+        , TimeSpan.FromSeconds(1));      
     }
 
     private static void CheckIfNoPlayerAround(CreatureEvents.OnHeartbeat onHB)
     {
-      if (NwModule.Instance.Players.Any(p => p.ControlledCreature != null && p.ControlledCreature.Area != null && p.ControlledCreature.Area == onHB.Creature.Area && p.ControlledCreature.DistanceSquared(onHB.Creature) < 2026))
+      if (NwModule.Instance.Players.Any(p => p.ControlledCreature != null && p.ControlledCreature.Area == onHB.Creature.Area && p.ControlledCreature.DistanceSquared(onHB.Creature) < 2026))
         return;
 
       onHB.Creature.GetObjectVariable<LocalVariableObject<NwWaypoint>>("_SPAWN").Value.GetObjectVariable<LocalVariableBool>("_SPAWN_COOLDOWN").Delete();

@@ -1,15 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
-using NWN.Core;
-using NWN.Core.NWNX;
 using static NWN.Systems.Craft.Collect.Config;
 using Anvil.API;
 using NLog;
 using System.Linq;
-using Action = System.Action;
-using System.Threading.Tasks;
-using Anvil.API.Events;
-using System.Threading;
 
 namespace NWN.Systems.Craft.Collect
 {

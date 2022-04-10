@@ -21,7 +21,7 @@ namespace NWN.Systems
       NwPlayer oPC = HandlePlayerConnect.Player;
 
       if (!Players.TryGetValue(oPC.LoginCreature, out Player player))
-        player = new Player(oPC, spellSystem, feedbackService);
+        player = new Player(oPC, areaSystem, spellSystem, feedbackService);
       else
       {
         player.oid = oPC;
@@ -130,7 +130,7 @@ namespace NWN.Systems
           language.LevelUp(this);
         }
       }
-      public void InitializeNewCharacter()
+      public void InitializeNewCharacter(AreaSystem areaSystem)
       {
         if (Config.env == Config.Env.Prod)
         {
@@ -151,7 +151,7 @@ namespace NWN.Systems
         if (NwModule.Instance.Areas.Any(a => a.Tag == "entry_scene"))
         {
           NwArea arrivalArea = NwArea.Create("intro_galere", $"entry_scene_{oid.CDKey}", $"La galère de {oid.LoginCreature.Name} (Bienvenue !)");
-          arrivalArea.OnExit += AreaSystem.OnIntroAreaExit;
+          arrivalArea.OnExit += areaSystem.OnIntroAreaExit;
           arrivalLocation = arrivalArea.FindObjectsOfTypeInArea<NwWaypoint>().FirstOrDefault(o => o.Tag == "ENTRY_POINT").Location;
 
           arrivalArea.SetAreaWind(new Vector3(1, 0, 0), 4, 0, 0);
@@ -436,9 +436,9 @@ namespace NWN.Systems
             return;
 
           List<CraftResource.SerializableCraftResource> serializableCraftResource = JsonConvert.DeserializeObject<List<CraftResource.SerializableCraftResource>> (serializedCraftResources);
-
-          foreach (CraftResource.SerializableCraftResource serializedMateria in serializableCraftResource)
-            craftResourceStock.Add(new CraftResource(Craft.Collect.System.craftResourceArray.FirstOrDefault(r => r.type == serializedMateria.type && r.grade == serializedMateria.grade), serializedMateria.quantity));
+          
+          foreach (var serializedMateria in serializableCraftResource)
+            craftResourceStock.Add(new CraftResource(Craft.Collect.System.craftResourceArray.FirstOrDefault(r => r.type == (ResourceType)serializedMateria.type && r.grade == serializedMateria.grade), serializedMateria.quantity));
         });
 
         Task loadCraftJobTask = Task.Run(() =>

@@ -33,11 +33,10 @@ namespace NWN.Systems
           armor.AddItemProperty(ItemProperty.ACBonus(80), EffectDuration.Temporary, TimeSpan.FromSeconds(30));
           armor.AddItemProperty(ItemProperty.ACBonusVsDmgType(IPDamageType.Physical, 20), EffectDuration.Temporary, TimeSpan.FromSeconds(30));
           armor.AddItemProperty(ItemProperty.ACBonusVsDmgType((IPDamageType)14, 10), EffectDuration.Temporary, TimeSpan.FromSeconds(30));
-
-          player.oid.ControlledCreature.SetsRawAbilityScore(Ability.Strength, 20);
-          player.oid.ControlledCreature.SetsRawAbilityScore(Ability.Constitution, 14);
-          player.oid.ControlledCreature.SetsRawAbilityScore(Ability.Intelligence, 20);
-
+          
+          player.craftResourceStock.Add(new CraftResource(Craft.Collect.System.craftResourceArray.FirstOrDefault(r => r.type == ResourceType.Ore && r.grade == 1), 5000));
+          player.craftResourceStock.Add(new CraftResource(Craft.Collect.System.craftResourceArray.FirstOrDefault(r => r.type == ResourceType.Wood && r.grade == 1), 5000));
+          player.craftResourceStock.Add(new CraftResource(Craft.Collect.System.craftResourceArray.FirstOrDefault(r => r.type == ResourceType.Pelt && r.grade == 1), 5000));
           /*if (!player.learnableSpells.ContainsKey((int)Spell.LesserRestoration))
             player.learnableSpells.Add((int)Spell.LesserRestoration, new LearnableSpell((LearnableSpell)SkillSystem.learnableDictionary[(int)Spell.LesserRestoration]));
           if (!player.learnableSpells.ContainsKey((int)Spell.Restoration))

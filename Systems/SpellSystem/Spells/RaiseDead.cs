@@ -15,7 +15,7 @@ namespace NWN.Systems
       SpellUtils.SignalEventSpellCast(onSpellCast.TargetObject, oCaster, onSpellCast.Spell.SpellType, false);
 
       int PcId = onSpellCast.TargetObject.GetObjectVariable<LocalVariableInt>("_PC_ID").Value;
-      NwPlayer oPC = NwModule.Instance.Players.FirstOrDefault(p => p.LoginCreature.GetObjectVariable<PersistentVariableInt>("characterId").Value == PcId);
+      NwPlayer oPC = NwModule.Instance.Players.FirstOrDefault(p => p.LoginCreature != null && p.LoginCreature.GetObjectVariable<PersistentVariableInt>("characterId").Value == PcId);
 
       if (oPC != null)
       {

@@ -376,7 +376,7 @@ namespace NWN.Systems
         int sellerId = auction.GetInt(0);
         int auctionId = auction.GetInt(1);
 
-        NwPlayer oSeller = NwModule.Instance.Players.FirstOrDefault(p => p.LoginCreature.GetObjectVariable<PersistentVariableInt>("characterId").Value == sellerId);
+        NwPlayer oSeller = NwModule.Instance.Players.FirstOrDefault(p => p.LoginCreature != null && p.LoginCreature.GetObjectVariable<PersistentVariableInt>("characterId").Value == sellerId);
         NwStore store = NwObject.FindObjectsOfType<NwStore>().FirstOrDefault(p => p.GetObjectVariable<LocalVariableInt>("_AUCTION_ID").Value == auctionId);
         NwStore oStore = SqLiteUtils.StoreSerializationFormatProtection(auction, 4, NwModule.Instance.StartingLocation);
         NwItem tempItem = oStore.Items.FirstOrDefault();
@@ -434,7 +434,7 @@ namespace NWN.Systems
             }
           }
           // Si le buyer est co, on lui file l'item et on détruit la ligne en BDD. S'il est pas co, on transfère dans son entrepot perso
-          NwPlayer oBuyer = NwModule.Instance.Players.FirstOrDefault(p => p.LoginCreature.GetObjectVariable<PersistentVariableInt>("characterId").Value == buyerId);
+          NwPlayer oBuyer = NwModule.Instance.Players.FirstOrDefault(p => p.LoginCreature != null && p.LoginCreature.GetObjectVariable<PersistentVariableInt>("characterId").Value == buyerId);
 
           if (oBuyer != null)
           {

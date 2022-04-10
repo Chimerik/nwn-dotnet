@@ -3,8 +3,6 @@ using Anvil.API;
 using Anvil.API.Events;
 using Anvil.Services;
 using static NWN.Systems.PlayerSystem;
-using NWN.Systems.Arena;
-using System.Linq;
 
 namespace NWN.Systems
 {
@@ -12,11 +10,11 @@ namespace NWN.Systems
   public class DialogSystem
   {
     public readonly Logger Log = LogManager.GetCurrentClassLogger();
-    private SpellSystem spellSystem;
+    //private SpellSystem spellSystem;
 
-    public DialogSystem(SpellSystem spellSystem)
+    public DialogSystem(/*SpellSystem spellSystem*/)
     {
-      this.spellSystem = spellSystem;
+      //this.spellSystem = spellSystem;
       /*foreach (NwPlaceable plc in NwModule.FindObjectsWithTag<NwPlaceable>("bank_gold"))
         plc.OnUsed += StartGoldStealDialog;*/
 
@@ -81,8 +79,8 @@ namespace NWN.Systems
     }
     public void StartPvEArenaHostDialog(CreatureEvents.OnConversation onConversation)
     {
-      if (Players.TryGetValue(onConversation.LastSpeaker, out Player player))
-        Arena.WelcomeMenu.DrawMainPage(player, spellSystem);
+      /*if (Players.TryGetValue(onConversation.LastSpeaker, out Player player))
+        Arena.WelcomeMenu.DrawMainPage(player, spellSystem);*/
     }
     public void StartMessengerDialog(CreatureEvents.OnConversation onConversation)
     {

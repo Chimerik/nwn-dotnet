@@ -5,7 +5,7 @@ namespace NWN.Systems
 {
   public partial class SpellSystem
   {
-    private static void Invisibility(SpellEvents.OnSpellCast onSpellCast)
+    private void Invisibility(SpellEvents.OnSpellCast onSpellCast)
     {
       if (!(onSpellCast.Caster is NwCreature { IsPlayerControlled: true } oCaster))
         return;

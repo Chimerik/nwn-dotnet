@@ -106,9 +106,9 @@ namespace NWN.Systems
     }
     public class SerializableCraftResource
     {
-      public readonly ResourceType type;
-      public readonly byte grade;
-      public readonly int quantity;
+      public int type { get; set; }
+      public byte grade { get; set; }
+      public int quantity { get; set; }
 
       public SerializableCraftResource()
       {
@@ -116,7 +116,7 @@ namespace NWN.Systems
       }
       public SerializableCraftResource(CraftResource resourceBase)
       {
-        type = resourceBase.type;
+        type = (int)resourceBase.type;
         grade = resourceBase.grade;
         quantity = resourceBase.quantity;
       }

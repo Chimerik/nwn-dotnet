@@ -81,7 +81,7 @@ namespace NWN.System
         int ownerId = onStoreRequestBuy.Store.GetObjectVariable<LocalVariableInt>("_OWNER_ID").Value;
         int shopId = onStoreRequestBuy.Store.GetObjectVariable<LocalVariableInt>("_SHOP_ID").Value;
         
-        NwPlayer oSeller = NwModule.Instance.Players.FirstOrDefault(p => p.LoginCreature.GetObjectVariable<PersistentVariableInt>("characterId").Value == ownerId);
+        NwPlayer oSeller = NwModule.Instance.Players.FirstOrDefault(p => p.LoginCreature != null && p.LoginCreature.GetObjectVariable<PersistentVariableInt>("characterId").Value == ownerId);
         if (oSeller != null)
         {
           if (PlayerSystem.Players.TryGetValue(oSeller.LoginCreature, out PlayerSystem.Player seller))

@@ -17,16 +17,18 @@ namespace NWN.Systems
   public partial class SpellSystem
   {
     public static readonly Logger Log = LogManager.GetCurrentClassLogger();
-    private static ScriptHandleFactory scriptHandleFactory;
+    private ScriptHandleFactory scriptHandleFactory;
     public int[] lowEnchantements = new int[] { 540, 541, 542, 543, 544, 545, 546, 547, 548, 549, 550, 551, 552, 553, 554 };
     public int[] mediumEnchantements = new int[] { 555, 556, 557, 558, 559, 560, 561, 562 };
     public int[] highEnchantements = new int[] { 563, 564, 565, 566, 567, 568 };
 
     public static Effect frog;
+    public AreaSystem areaSystem;
 
-    public SpellSystem(ScriptHandleFactory scriptFactory)
+    public SpellSystem(ScriptHandleFactory scriptFactory, AreaSystem areaSystem)
     {
       scriptHandleFactory = scriptFactory;
+      this.areaSystem = areaSystem;
       InitializeCustomEffects();
     }
 
@@ -703,7 +705,7 @@ namespace NWN.Systems
         spectator.Location = NwObject.FindObjectsWithTag<NwWaypoint>(Arena.Config.PVE_ENTRY_WAYPOINT_TAG).FirstOrDefault().Location;
       }
 
-      AreaSystem.AreaDestroyer(onExit.Area);
+      areaSystem.AreaDestroyer(onExit.Area);
     }
   }
 }

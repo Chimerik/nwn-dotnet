@@ -19,7 +19,8 @@ namespace NWN.Systems
     public FeedbackService feedbackService;
     public ScriptHandleFactory scriptHandleFactory;
     public SpellSystem spellSystem;
-    public PlayerSystem(EventService eventServices, FeedbackService feedback, ScriptHandleFactory scriptFactory, SpellSystem spellSystem)
+    public AreaSystem areaSystem;
+    public PlayerSystem(EventService eventServices, FeedbackService feedback, ScriptHandleFactory scriptFactory, AreaSystem areaSystem, SpellSystem spellSystem)
     {
       NwModule.Instance.OnClientEnter += HandlePlayerConnect;
       NwModule.Instance.OnClientDisconnect += HandlePlayerLeave;
@@ -28,6 +29,7 @@ namespace NWN.Systems
       feedbackService = feedback;
       scriptHandleFactory = scriptFactory;
       this.spellSystem = spellSystem;
+      this.areaSystem = areaSystem;
     }
 
     public static Dictionary<uint, Player> Players = new Dictionary<uint, Player>();

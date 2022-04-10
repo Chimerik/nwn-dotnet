@@ -10,6 +10,7 @@ namespace NWN.Systems
   [ServiceBinding(typeof(AreaSystem))]
   partial class AreaSystem
   {
+    private ScheduledTask areaDestroyerScheduler;
     private async static void AreaCleaner(NwArea area)
     {
       Log.Info($"Initiating cleaning for area {area.Name}");
@@ -45,12 +46,18 @@ namespace NWN.Systems
         item.Destroy();
       }
     }
-    public async static void AreaDestroyer(NwArea area)
+    public void AreaDestroyer(NwArea area)
     {
-      await NwTask.WaitUntil(() => !NwModule.Instance.Players.Any(p => p.ControlledCreature.Area == area));
-      await NwTask.WaitUntil(() => !NwModule.Instance.Players.Any(p => p.ControlledCreature.Area == null));
-      Log.Info($"Destroyed area {area.Name}");
-      area.Destroy();
+      areaDestroyerScheduler = ModuleSystem.scheduler.ScheduleRepeating(() =>
+      {
+        if (!NwModule.Instance.Players.Any(p => p.ControlledCreature == null && p.ControlledCreature.Area == null) && area.PlayerCount < 1)
+        {
+          Log.Info($"Destroyed area {area.Name}");
+          area.Destroy();
+          areaDestroyerScheduler.Dispose();
+        }
+      }
+        , TimeSpan.FromSeconds(6));
     }
   }
 }
