@@ -217,6 +217,8 @@ namespace NWN.Systems
           new string[] { "itemAppearances", serializeItemAppearances.Result }, new string[] { "descriptions", serializeDescriptions.Result },
           new string[] { "craftJob", serializeJob.Result  }, new string[] { "materialStorage", serializeCraftResource.Result }, new string[] { "grimoires", serializeGrimoires.Result }  },
         new List<string[]>() { new string[] { "rowid", characterId.ToString() } });
+
+        Log.Info("ASYNC SAVE FINALIZED.");
       }
       private async void HandleExpiredContracts()
       {

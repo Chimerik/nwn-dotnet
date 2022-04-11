@@ -605,7 +605,7 @@ namespace NWN.Systems.Alchemy
         ));
       }
 
-      player.menu.choices.Add(("Retour.", () => CommandSystem.DrawCommandList(player)));
+      //player.menu.choices.Add(("Retour.", () => CommandSystem.DrawCommandList(player)));
       player.menu.choices.Add(("Quitter.", () => player.menu.Close()));
 
       await NwTask.SwitchToMainThread();

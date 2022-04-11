@@ -11,40 +11,51 @@ namespace NWN.Systems
   partial class AreaSystem
   {
     private ScheduledTask areaDestroyerScheduler;
-    private async static void AreaCleaner(NwArea area)
+    private ScheduledTask areaCleanerCheckScheduler;
+    private ScheduledTask areaCleanerScheduler;
+    private void AreaCleaner(NwArea area)
     {
       Log.Info($"Initiating cleaning for area {area.Name}");
 
       foreach (NwAreaOfEffect spawnAOE in area.FindObjectsOfTypeInArea<NwAreaOfEffect>().Where(a => a.Tag == "creature_spawn_aoe" || a.Tag == "creature_reset_spawn_aoe"))
         spawnAOE.Destroy();
 
-      CancellationTokenSource tokenSource = new CancellationTokenSource();
+      Log.Info("Spawn destroyed");
 
-      Task playerReturned = NwTask.WaitUntil(() => area.FindObjectsOfTypeInArea<NwCreature>().Any(p => p.IsPlayerControlled), tokenSource.Token);
-      Task activateCleaner = NwTask.Delay(TimeSpan.FromMinutes(25), tokenSource.Token);
-      await NwTask.WhenAny(playerReturned, activateCleaner);
-      tokenSource.Cancel();
-
-      if (playerReturned.IsCompletedSuccessfully)
+      areaCleanerCheckScheduler = ModuleSystem.scheduler.ScheduleRepeating(() =>
       {
-        Log.Info($"Canceling cleaning for area {area.Name}");
-        return;
-      }
+        Log.Info("areaCleanerCheckScheduler on");
+        if (area.PlayerCount > 1)
+        {
+          areaCleanerScheduler.Dispose();
+          areaCleanerCheckScheduler.Dispose();
+          Log.Info($"Canceling cleaning for area {area.Name}");
+        }
+        Log.Info("areaCleanerCheckScheduler off");
+      } , TimeSpan.FromSeconds(10));
 
-      Log.Info($"Cleaning area {area.Name}");
+      Log.Info("areaCleanerCheckScheduler OK");
 
-      foreach (NwPlaceable bodyBag in area.FindObjectsOfTypeInArea<NwPlaceable>().Where(o => o.Tag == "BodyBag"))
+      areaCleanerScheduler = ModuleSystem.scheduler.Schedule(() =>
       {
-        Utils.DestroyInventory(bodyBag);
-        Log.Info($"destroying body bag {bodyBag.Name}");
-        bodyBag.Destroy();
-      }
+        Log.Info($"Cleaning area {area.Name}");
+        areaCleanerCheckScheduler.Dispose();
 
-      foreach (NwItem item in area.FindObjectsOfTypeInArea<NwItem>().Where(i => i.Possessor == null))
-      {
-        Log.Info($"destroying item {item.Name}");
-        item.Destroy();
-      }
+        foreach (NwPlaceable bodyBag in area.FindObjectsOfTypeInArea<NwPlaceable>().Where(o => o.Tag == "BodyBag"))
+        {
+          Utils.DestroyInventory(bodyBag);
+          Log.Info($"destroying body bag {bodyBag.Name}");
+          bodyBag.Destroy();
+        }
+
+        foreach (NwItem item in area.FindObjectsOfTypeInArea<NwItem>().Where(i => i.Possessor == null))
+        {
+          Log.Info($"destroying item {item.Name}");
+          item.Destroy();
+        }
+      } , TimeSpan.FromMinutes(25));
+
+      Log.Info("areaCleanerScheduler OK");
     }
     public void AreaDestroyer(NwArea area)
     {

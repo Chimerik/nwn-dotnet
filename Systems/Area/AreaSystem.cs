@@ -130,7 +130,7 @@ namespace NWN.Systems
 
           NwObject.FindObjectsWithTag<NwPlaceable>("intro_brouillard").FirstOrDefault().VisibilityOverride = VisibilityMode.Hidden;
           area.GetObjectVariable<LocalVariableInt>("_AREA_LEVEL").Value = 0;
-          area.SetAreaWind(new Vector3(1, 0, 0), 4, 0, 0);
+          RegisterAreaWind(area, new Vector3(1, 0, 0), 4);
 
           break;
         case "SimilisseThetreSalledeSpectacle":
@@ -143,29 +143,29 @@ namespace NWN.Systems
           break;
         case "Gothictest":
         case "CoteSudLaCrique":
-          area.SetAreaWind(new Vector3(0, 1, 0), 3, 0, 0);
+          RegisterAreaWind(area, new Vector3(0, 1, 0), 3);
           area.GetObjectVariable<LocalVariableInt>("_AREA_LEVEL").Value = 1;
           break;
         case "laplage":
-          area.SetAreaWind(new Vector3(1, 0, 0), 2, 0, 0);
+          RegisterAreaWind(area, new Vector3(1, 0, 0), 2);
           area.GetObjectVariable<LocalVariableInt>("_AREA_LEVEL").Value = 1;
           break;
         case "leschamps":
-          area.SetAreaWind(new Vector3(-1, 0, 0), 1, 0, 0);
+          RegisterAreaWind(area, new Vector3(-1, 0, 0), 1);
           area.GetObjectVariable<LocalVariableInt>("_AREA_LEVEL").Value = 1;
           break;
         case "Promenadetest":
         case "Governmenttest":
-          area.SetAreaWind(new Vector3(1, 0, 0), 4, 0, 0);
+          RegisterAreaWind(area, new Vector3(1, 0, 0), 4);
           area.GetObjectVariable<LocalVariableInt>("_AREA_LEVEL").Value = 0;
           break; 
         case "PalaceGardenTest":
-          area.SetAreaWind(new Vector3(1, -1, 0), 2, 0, 0);
+          RegisterAreaWind(area, new Vector3(1, -1, 0), 2);
           area.GetObjectVariable<LocalVariableInt>("_AREA_LEVEL").Value = 0;
           break;
         case "SimilisseTransitionPromenadeport":
         case "similissetempledistrict":
-          area.SetAreaWind(new Vector3(0, -1, 0), 3, 0, 0);
+          RegisterAreaWind(area, new Vector3(0, -1, 0), 3);
           area.GetObjectVariable<LocalVariableInt>("_AREA_LEVEL").Value = 0;
           break;
         case "SIMILISCITYGATE":
@@ -197,7 +197,7 @@ namespace NWN.Systems
           area.GetObjectVariable<LocalVariableInt>("_AREA_LEVEL").Value = 0;
           break;
         case "cave_flooded":
-          area.SetAreaWind(new Vector3(0, 1, 0), 8, 0, 0);
+          RegisterAreaWind(area, new Vector3(0, 1, 0), 8);
           area.GetObjectVariable<LocalVariableInt>("_AREA_LEVEL").Value = 2;
           break;
         case "lepontdaruthen":
@@ -291,6 +291,15 @@ namespace NWN.Systems
         bankPlaceable.GetObjectVariable<LocalVariableInt>("ownerId").Value = bank.GetInt(2);
         bankPlaceable.Name = bank.GetString(3);
       }
+    }
+    public static void RegisterAreaWind(NwArea area, Vector3 direction, float magnitude)
+    {
+      area.SetAreaWind(direction, magnitude, 0, 0);
+
+      area.GetObjectVariable<LocalVariableFloat>("WIND_X").Value = direction.X;
+      area.GetObjectVariable<LocalVariableFloat>("WIND_Y").Value = direction.Y;
+      area.GetObjectVariable<LocalVariableFloat>("WIND_Z").Value = direction.Z;
+      area.GetObjectVariable<LocalVariableFloat>("WIND_M").Value = magnitude;
     }
   }
 }

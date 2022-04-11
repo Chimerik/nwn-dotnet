@@ -51,12 +51,8 @@ namespace NWN.Systems
           new List<string[]>() { new string[] { "rowid", "1" } });
 
         await NwModule.Instance.AddActionToQueue(() => Utils.BootAllPC());
-
-        Task waitServerEmpty = NwTask.Run(async () =>
-        {
-          await NwTask.WaitUntil(() => NwModule.Instance.Players.Count() < 1);
-          NwServer.Instance.ShutdownServer();
-        });
+        await NwTask.WaitUntil(() => NwModule.Instance.Players.Count() < 1);
+        NwServer.Instance.ShutdownServer();
       });
 
       await context.Channel.SendMessageAsync("Reboot effectif dans 30 secondes.");

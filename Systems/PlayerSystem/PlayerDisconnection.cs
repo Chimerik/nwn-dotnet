@@ -40,6 +40,8 @@ namespace NWN.Systems
 
       if (player.openedWindows.ContainsKey("bankStorage") && player.windows.ContainsKey("bankStorage"))
         ((Player.BankStorageWindow)player.windows["bankStorage"]).BankSave();
+
+      Log.Info($"{onPCDisconnect.Player.LoginCreature.Name} disconnected.");
     }
   }
 }

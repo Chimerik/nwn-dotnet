@@ -53,6 +53,7 @@ namespace NWN.Systems
       public List<Quickbar> quickbars = new List<Quickbar>();
       public List<ItemAppearance> itemAppearances = new List<ItemAppearance>();
       public List<CharacterDescription> descriptions = new List<CharacterDescription>();
+      public List<CustomDMVisualEffect> customDMVisualEffects = new List<CustomDMVisualEffect>();
 
       private SpellSystem spellSystem;
       private FeedbackService feedbackService;

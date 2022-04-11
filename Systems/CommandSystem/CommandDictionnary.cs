@@ -154,33 +154,6 @@ namespace NWN.Systems
         )
       },
       {
-        "menu",
-        new Command(
-          name: "menu",
-          description: new Command.Description(
-            title: "Affiche le menu permettant de configurer l'affichage du menu",
-            examples: new string[]
-            {
-              "", "--reset"
-            }
-          ),
-          execute: ExecuteMenuCommand,
-          options: new Options(
-            named: new Dictionary<string, Option>()
-            {
-              { "reset",
-                new Option(
-                  name: "reset",
-                  description: "Reset la configuration du menu a sa config par défaut.",
-                  defaultValue: false,
-                  type: OptionTypes.Bool
-                )
-              },
-            }
-          )
-        )
-      },
-      {
         "dm",
         new Command(
           name: "dm",
@@ -188,16 +161,6 @@ namespace NWN.Systems
             title: "Affiche le menu dm."
           ),
           execute: ExecuteDMMenuCommand
-        )
-      },
-      {
-        "skills",
-        new Command(
-          name: "skills",
-          description: new Command.Description(
-            title: "Affiche le menu permettant de sélectionner de nouveaux skills à entrainer."
-          ),
-          execute: ExecuteSkillMenuCommand
         )
       }
     };

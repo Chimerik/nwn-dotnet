@@ -334,7 +334,7 @@ namespace NWN.Systems
       private void InitializePlayerAccount()
       {
         var result = SqLiteUtils.SelectQuery("PlayerAccounts",
-            new List<string>() { { "bonusRolePlay" }, { "mapPins" }, { "chatColors" }, { "mutedPlayers" }, { "windowRectangles" } },
+            new List<string>() { { "bonusRolePlay" }, { "mapPins" }, { "chatColors" }, { "mutedPlayers" }, { "windowRectangles" }, { "customDMVisualEffects" } },
             new List<string[]>() { { new string[] { "rowid", accountId.ToString() } } });
 
         if (result.Result != null)
@@ -344,10 +344,12 @@ namespace NWN.Systems
           string serializedChatColors = result.Result.GetString(2);
           string serializedMutedPlayers = result.Result.GetString(3);
           string serializedWindowRectangles = result.Result.GetString(4);
+          string serializedCustomDMVisualEffects = result.Result.GetString(5);
           InitializeAccountMapPins(serializedMapPins);
           InitializeAccountChatColors(serializedChatColors);
           InitializeAccountMutedPlayers(serializedMutedPlayers);
           InitializeAccountWindowRectanglesPlayers(serializedWindowRectangles);
+          InitializeAccountCustomDMVisualEffects(serializedCustomDMVisualEffects);
         }
       }
       private void InitializePlayerCharacter()
@@ -531,6 +533,13 @@ namespace NWN.Systems
           return;
 
         windowRectangles = await Task.Run(() => JsonConvert.DeserializeObject<Dictionary<string, NuiRect>>(serializedWindowRectangles));
+      }
+      private async void InitializeAccountCustomDMVisualEffects(string serializedCustomDMVisualEffects)
+      {
+        if (string.IsNullOrEmpty(serializedCustomDMVisualEffects))
+          return;
+
+        customDMVisualEffects = await Task.Run(() => JsonConvert.DeserializeObject<List<CustomDMVisualEffect>>(serializedCustomDMVisualEffects));
       }
       private async void CheckForAFKStatus()
       {
