@@ -245,7 +245,7 @@ namespace NWN
       switch (oItem.BaseItem.ItemType)
       {
         case BaseItemType.Cloak: // Cloaks use PLTs so their default icon doesn't really work
-            icon = "iit_cloak";
+          icon = "iit_cloak";
           break;
         case BaseItemType.SpellScroll: // Scrolls get their icon from the cast spell property
         case BaseItemType.EnchantedScroll:
@@ -257,7 +257,7 @@ namespace NWN
 
         default:
 
-          switch(oItem.BaseItem.ModelType)
+          switch (oItem.BaseItem.ModelType)
           {
             case BaseItemModelType.Simple:
               icon = Util_GetSimpleIconData(oItem);
@@ -332,6 +332,56 @@ namespace NWN
         iconDrawListItems.Add(new NuiDrawListImage(topIcon, new NuiRect(0, 0, 25, 25)));*/
 
       return new string[3] { topIcon, midIcon, botIcon };
+    }
+
+    public static Dictionary<string, MainMenuCommand> mainMenuCommands = new Dictionary<string, MainMenuCommand>()
+    {
+      { "dm", new MainMenuCommand("Mode DM", "", CommandRank.Admin) },
+      { "touch", new MainMenuCommand("Mode toucher", "Permet d'éviter les collisions entre personnages (non utilisable en combat)", CommandRank.Public) },
+      { "walk", new MainMenuCommand("Mode marche", "Permet d'avoir l'air moins ridicule en ville", CommandRank.Public) },
+      { "examineArea", new MainMenuCommand("Examine les environs", "Obtenir une description de la zone", CommandRank.Public) },
+      { "grimoire", new MainMenuCommand("Gérer les grimoires", "Enregistrer ou charger un grimoire de sorts", CommandRank.Public)  },
+      { "quickbars", new MainMenuCommand("Gérer les barres de raccourcis", "Enregistrer ou charger une barre de raccourcis", CommandRank.Public) },
+      { "commend", new MainMenuCommand("Recommander un joueur", "Recommander un joueur pour la qualité de son roleplay et son implication sur le module", CommandRank.Public) }, // TODO : Ajouter à OnExamine Player
+      { "itemAppearance", new MainMenuCommand("Gestion des apparences d'objets", "Enregistrer ou charger une apparence d'objet", CommandRank.Public) },
+      { "description", new MainMenuCommand("Gérer les descriptions", "Enregistrer ou charger une description de personnage", CommandRank.Public) },
+      { "chat", new MainMenuCommand("Gestion des couleurs du chat", "Personnaliser les couleurs du chat", CommandRank.Public) },
+      { "unstuck", new MainMenuCommand("Déblocage du décor", "Tentative de déblocage du décor (succès non garanti)", CommandRank.Public) },
+      { "reinitPositionDisplay", new MainMenuCommand("Réinitialiser la position affichée", "Réinitialise la position affichée du personnage (à utiliser en cas de problème avec le système d'assise)", CommandRank.Public) },
+      { "publicKey", new MainMenuCommand("Afficher ma clé publique", "Permet d'obtenir la clé publique de votre compte, utile pour lier le compte Discord au compte Never", CommandRank.Public) },
+      { "delete", new MainMenuCommand("Supprimer ce personnage", "Attention, la suppression est définitive", CommandRank.Public) },
+      { "wind", new MainMenuCommand("Gestion du vent", "Permet de modifier la configuration du vent de cette zone", CommandRank.DM) },
+      { "listenAll", new MainMenuCommand("Ecoute globale", "Permet d'écouter tous les joueurs, où qu'ils fussent", CommandRank.DM) },
+      { "listen", new MainMenuCommand("Ecoute ciblée", "Permet d'écouter le joueur sélectionné, où qu'il soit", CommandRank.DM)}, // TODO : Ajouter à OnExamine Player
+      { "dmRename", new MainMenuCommand("Changer le nom de la cible", "Permet de modifier le nom de n'importe quel objet", CommandRank.DM) }, // TODO : Ajouter à OnExamine Custom pour DM
+      { "persistentPlaceables", new MainMenuCommand("Placeable persistant", "Permettre de rendre persistant les placeables créés, même après reboot", CommandRank.DM) },
+      { "visualEffects", new MainMenuCommand("Gérer mes effets visuels", "Permet d'utiliser et de gérer les effets visuels personnalisés", CommandRank.DM) },
+      { "reboot", new MainMenuCommand("Reboot", "", CommandRank.Admin) },
+      { "refill", new MainMenuCommand("Refill ressources", "", CommandRank.Admin) },
+      { "instantLearn", new MainMenuCommand("Instant Learn", "", CommandRank.Admin) }, // TODO : Ajouter à OnExamine Player
+      { "instantCraft", new MainMenuCommand("Instant Craft", "", CommandRank.Admin) }, // TODO : Ajouter à OnExamine Player
+      { "giveResources", new MainMenuCommand("Don de ressources", "", CommandRank.Admin) }, // TODO : Ajouter à OnExamine Player
+      { "giveSkillbook", new MainMenuCommand("Don de skillbook", "", CommandRank.Admin) } // TODO : Ajouter à OnExamine Player
+    };
+
+    public enum CommandRank
+    {
+      Public,
+      DM,
+      Admin
+    }
+    public class MainMenuCommand
+    {
+      public string label;
+      public string tooltip;
+      public CommandRank rank;
+
+      public MainMenuCommand(string label, string tooltip, CommandRank rank)
+      {
+        this.label = label;
+        this.tooltip = tooltip;
+        this.rank = rank;
+      }
     }
   }
 }

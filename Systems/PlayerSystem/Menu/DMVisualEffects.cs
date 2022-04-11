@@ -63,7 +63,7 @@ namespace NWN.Systems
         }
         public void CreateWindow()
         {
-          NuiRect windowRectangle = /*player.windowRectangles.ContainsKey(windowId) ? player.windowRectangles[windowId] :*/ new NuiRect(10, player.oid.GetDeviceProperty(PlayerDeviceProperty.GuiHeight) * 0.01f, 400, 650);
+          NuiRect windowRectangle = player.windowRectangles.ContainsKey(windowId) ? player.windowRectangles[windowId] : new NuiRect(10, player.oid.GetDeviceProperty(PlayerDeviceProperty.GuiHeight) * 0.01f, 400, 650);
 
           window = new NuiWindow(rootRow, "Gestion des effets visuels")
           {

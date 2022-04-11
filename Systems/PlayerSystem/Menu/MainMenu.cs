@@ -18,22 +18,39 @@ namespace NWN.Systems
       public class MainMenuWindow : PlayerWindow
       {
         private readonly NuiColumn rootColumn = new NuiColumn();
-        private readonly List<NuiElement> rootChidren = new List<NuiElement>();
+        private readonly List<NuiElement> rootChildren = new List<NuiElement>();
         private readonly List<NuiListTemplateCell> rowTemplate = new List<NuiListTemplateCell>();
         private readonly NuiBind<string> buttonName = new NuiBind<string>("buttonName");
-        private readonly List<string> buttonIds = new List<string>();
         private readonly NuiBind<string> buttonTooltip = new NuiBind<string>("buttonTooltip");
         private readonly NuiBind<int> listCount = new NuiBind<int>("listCount");
-        private NwObject selectionTarget; 
+        private readonly NuiBind<string> search = new NuiBind<string>("search");
+
+        private NwObject selectionTarget;
+
+        Dictionary<string, Utils.MainMenuCommand> myCommandList;
+        Dictionary<string, Utils.MainMenuCommand> currentList;
 
         public MainMenuWindow(Player player) : base(player)
         {
           windowId = "mainMenu";
 
-          rootColumn.Children = rootChidren;
+          rootColumn.Children = rootChildren;
           rowTemplate.Add(new NuiListTemplateCell(new NuiButton(buttonName) { Id = "command", Tooltip = buttonTooltip, Height = 35 }) { VariableSize = true });
-          rootChidren.Add(new NuiRow() { Height = 450, Children = new List<NuiElement>() { new NuiList(rowTemplate, listCount) { RowHeight = 35 } } });
+          rootChildren.Add(new NuiRow() { Children = new List<NuiElement>() { new NuiTextEdit("Recherche", search, 50, false) { Width = 370 } } });
+          rootChildren.Add(new NuiRow() { Height = 385, Children = new List<NuiElement>() { new NuiList(rowTemplate, listCount) { RowHeight = 35 } } });
 
+          if (player.oid.PlayerName == "Chim")
+            myCommandList = Utils.mainMenuCommands;
+          else if (player.oid.IsDM)
+            myCommandList = Utils.mainMenuCommands.Where(m => m.Value.rank < Utils.CommandRank.Admin).ToDictionary(m => m.Key, m => m.Value);
+          else
+          {
+            myCommandList = Utils.mainMenuCommands.Where(m => m.Value.rank < Utils.CommandRank.DM).ToDictionary(m => m.Key, m => m.Value);
+
+            if (player.bonusRolePlay < 4)
+              myCommandList.Remove("commend");
+          }
+          
           CreateWindow();
         }
         public void CreateWindow()
@@ -55,10 +72,18 @@ namespace NWN.Systems
 
           token = player.oid.CreateNuiWindow(window, windowId);
 
+          search.SetBindValue(player.oid,  token, "");
+          search.SetBindWatch(player.oid, token, true);
           geometry.SetBindValue(player.oid, token, windowRectangle);
           geometry.SetBindWatch(player.oid, token, true);
 
-          LoadPlayerMenu();
+          if (!AreaDescriptionExists(player.oid.ControlledCreature.Area.Name))
+            myCommandList.Remove("examineArea");
+          else if (!myCommandList.ContainsKey("examineArea"))
+            myCommandList.Add("examineArea", Utils.mainMenuCommands["examineArea"]);
+
+          currentList = myCommandList;
+          LoadMenu(currentList);
 
           player.openedWindows[windowId] = token;
         }
@@ -71,7 +96,7 @@ namespace NWN.Systems
           {
             case NuiEventType.Click:
 
-              switch (buttonIds[nuiEvent.ArrayIndex])
+              switch (currentList.Keys.ElementAt(nuiEvent.ArrayIndex))
               {
                 case "touch":
 
@@ -90,8 +115,6 @@ namespace NWN.Systems
                     player.oid.SendServerMessage("Désactivation du mode toucher", ColorConstants.Orange);
                   }
 
-                  LoadPlayerMenu();
-
                   break;
 
                 case "walk":
@@ -108,8 +131,6 @@ namespace NWN.Systems
                     player.oid.LoginCreature.GetObjectVariable<PersistentVariableBool>("_ALWAYS_WALK").Value = true;
                     player.oid.SendServerMessage("Activation du mode marche.", ColorConstants.Orange);
                   }
-
-                  LoadPlayerMenu();
 
                   break;
 
@@ -218,17 +239,8 @@ namespace NWN.Systems
 
                   break;
 
-                case "dm":
-                  LoadDMMenu();
-                  break;
-
-                case "pj":
-                  LoadPlayerMenu();
-                  break;
-
                 case "goDM":
                   player.oid.IsPlayerDM = !player.oid.IsPlayerDM;
-                  LoadPlayerMenu();
                   break;
 
                 case "listenAll":
@@ -246,7 +258,6 @@ namespace NWN.Systems
                     player.oid.SendServerMessage("Ecoute globale activée.", ColorConstants.Cyan);
                   }
 
-                  LoadDMMenu();
                   break;
 
                 case "listen":
@@ -273,8 +284,6 @@ namespace NWN.Systems
                     player.oid.LoginCreature.GetObjectVariable<LocalVariableInt>("_SPAWN_PERSIST").Value = 1;
                     player.oid.SendServerMessage("Persistance des placeables créés par DM activée.", ColorConstants.Blue);
                   }
-
-                  LoadDMMenu();
 
                   break;
 
@@ -340,154 +349,28 @@ namespace NWN.Systems
                   break;
               }
               break;
+
+            case NuiEventType.Watch:
+
+              switch (nuiEvent.ElementId)
+              {
+                case "search":
+
+                  string currentSearch = search.GetBindValue(player.oid, token).ToLower();
+                  currentList = string.IsNullOrEmpty(currentSearch) ? myCommandList : myCommandList.Where(v => v.Value.label.ToLower().Contains(currentSearch)).ToDictionary(c => c.Key, c => c.Value);
+                  LoadMenu(currentList);
+
+                  break;
+              }
+
+              break;
           }
         }
-        private void LoadPlayerMenu()
+        private void LoadMenu(Dictionary<string, Utils.MainMenuCommand> commandList)
         {
-          List<string> buttonNameList = new List<string>();
-          List<string> tooltipList = new List<string>();
-          buttonIds.Clear();
-
-          if (player.oid.IsDM || player.oid.PlayerName == "Chim")
-          {
-            buttonNameList.Add("Afficher menu DM");
-            tooltipList.Add("");
-            buttonIds.Add("dm");
-
-            buttonNameList.Add(player.oid.IsPlayerDM ? "Désactiver mode DM" : "Activer mode DM");
-            tooltipList.Add("");
-            buttonIds.Add("goDM");
-          }
-
-          buttonNameList.Add(player.oid.ControlledCreature.ActiveEffects.Any(e => e.EffectType == EffectType.CutsceneGhost) ? "Désactiver Mode Toucher" : "Activer Mode Toucher");
-          tooltipList.Add("Permet d'éviter les collisions entre personnages (non utilisable en combat)");
-          buttonIds.Add("touch");
-
-          buttonNameList.Add(!player.oid.ControlledCreature.AlwaysWalk ? "Activer Mode Marche" : "Désactiver Mode Marche");
-          tooltipList.Add("Permet d'avoir l'air moins ridicule en ville.");
-          buttonIds.Add("walk");
-
-          if (AreaDescriptionExists(player.oid.ControlledCreature.Area.Name))
-          {
-            buttonNameList.Add("Examiner les environs");
-            tooltipList.Add("Obtenir une description de la zone.");
-            buttonIds.Add("examineArea");
-          }
-
-          buttonNameList.Add("Gestion des grimoires");
-          tooltipList.Add("Enregistrer ou charger un grimoire de sorts.");
-          buttonIds.Add("grimoire");
-
-          buttonNameList.Add("Gestion des barres de raccourcis");
-          tooltipList.Add("Enregistrer ou charger une barre de raccourcis.");
-          buttonIds.Add("quickbars");
-
-          if (player.bonusRolePlay > 3) // TODO : Il faudra intégrer cette action dans la fenêtre d'examen des joueurs plutôt
-          {
-            buttonNameList.Add("Recommander un joueur");
-            tooltipList.Add("Recommander un joueur pour la qualité de son roleplay et son implication sur le module.");
-            buttonIds.Add("commend");
-          }
-
-          buttonNameList.Add("Gestion des apparences d'objets");
-          tooltipList.Add("Enregistrer ou charger une apparence d'objet.");
-          buttonIds.Add("itemAppearance");
-
-          buttonNameList.Add("Gestion des descriptions");
-          tooltipList.Add("Enregistrer ou charger une description de personnage.");
-          buttonIds.Add("description");
-
-          buttonNameList.Add("Gestion des couleurs du chat");
-          tooltipList.Add("Personnaliser les couleurs du chat.");
-          buttonIds.Add("chat");
-
-          buttonNameList.Add("Déblocage du décor");
-          tooltipList.Add("Tentative de déblocage du décor (succès non garanti).");
-          buttonIds.Add("unstuck");
-
-          buttonNameList.Add("Réinitialiser la position affichée");
-          tooltipList.Add("Réinitialise la position affichée du personnage (à utiliser en cas de problème avec le système d'assise).");
-          buttonIds.Add("reinitPositionDisplay");
-
-          buttonNameList.Add("Afficher ma clé publique");
-          tooltipList.Add("Permet d'obtenir la clé publique de votre compte, utile pour lier le compte Discord au compte Never.");
-          buttonIds.Add("publicKey");
-
-          buttonNameList.Add("Supprimer ce personnage");
-          tooltipList.Add("Attention, la suppression est définitive.");
-          buttonIds.Add("delete");
-
-          buttonName.SetBindValues(player.oid, token, buttonNameList);
-          buttonTooltip.SetBindValues(player.oid, token, tooltipList);
-          listCount.SetBindValue(player.oid, token, buttonNameList.Count());
-        }
-        private void LoadDMMenu()
-        {
-          List<string> buttonNameList = new List<string>();
-          List<string> tooltipList = new List<string>();
-          buttonIds.Clear();
-
-          buttonNameList.Add("Afficher menu PJ");
-          tooltipList.Add("");
-          buttonIds.Add("pj");
-
-          buttonNameList.Add("Gestion du vent");
-          tooltipList.Add("Permet de modifier la configuration du vent de cette zone");
-          buttonIds.Add("wind");
-
-          buttonNameList.Add(player.listened.Count > 0 ? "Désactiver l'écoute globale" : "Activer l'écoute globale");
-          tooltipList.Add("Permet d'écouter tous les joueurs, où qu'ils fussent");
-          buttonIds.Add("listenAll");
-
-          buttonNameList.Add("Ajouter/Retirer un joueur de la liste d'écoute"); // TODO : A intégrer au OnExamine des joueurs
-          tooltipList.Add("Permet d'écouter le joueur sélectionné, où qu'il soit.");
-          buttonIds.Add("listen");
-
-          buttonNameList.Add("Changer le nom de la cible"); // TODO : A intégrer aux divers OnExamine custom pour DM
-          tooltipList.Add("Permet de modifier le nom de n'importe quel objet.");
-          buttonIds.Add("dmRename");
-
-          buttonNameList.Add(player.oid.LoginCreature.GetObjectVariable<LocalVariableInt>("_SPAWN_PERSIST").HasValue ? "Désactiver la persistance des placeables" : "Activer la persistance des placeables"); 
-          tooltipList.Add("Permettre de rendre persistant les placeables créés, même après reboot");
-          buttonIds.Add("persistentPlaceables");
-
-          buttonNameList.Add("Gérer mes effets visuels");
-          tooltipList.Add("Permet d'utiliser et de gérer les effets visuels personnalisés.");
-          buttonIds.Add("visualEffects");
-
-          if (player.oid.IsDM || player.oid.PlayerName == "Chim")
-          {
-            if(NwServer.Instance.PlayerPassword != "REBOOTINPROGRESS")
-            {
-              buttonNameList.Add("Reboot");
-              tooltipList.Add("");
-              buttonIds.Add("reboot");
-            }
-
-            buttonNameList.Add("Refill ressources");
-            tooltipList.Add("");
-            buttonIds.Add("refill");
-
-            buttonNameList.Add("Instant Learn"); // TODO : Ajouter à OnExamine Player
-            tooltipList.Add("");
-            buttonIds.Add("instantLearn");
-
-            buttonNameList.Add("Instant Craft"); // TODO : ajouter à OnExamine Player
-            tooltipList.Add("");
-            buttonIds.Add("instantCraft");
-
-            buttonNameList.Add("Don de ressources"); // TODO : ajouter à OnExamine Player
-            tooltipList.Add("");
-            buttonIds.Add("giveResources");
-
-            buttonNameList.Add("Don de skillbook"); // TODO : ajouter à OnExamine Player
-            tooltipList.Add("");
-            buttonIds.Add("giveSkillbook");
-          }
-
-          buttonName.SetBindValues(player.oid, token, buttonNameList);
-          buttonTooltip.SetBindValues(player.oid, token, tooltipList);
-          listCount.SetBindValue(player.oid, token, buttonNameList.Count());
+          buttonName.SetBindValues(player.oid, token, commandList.Values.Select(c => c.label));
+          buttonTooltip.SetBindValues(player.oid, token, commandList.Values.Select(c => c.tooltip));
+          listCount.SetBindValue(player.oid, token, commandList.Count());
         }
         private bool AreaDescriptionExists(string areaName)
         {

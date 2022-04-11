@@ -128,24 +128,6 @@ namespace NWN.Systems
         )
       },
       {
-        "vfx",
-        new Command(
-          name: "vfx",
-          description: new Command.Description(title: "Permet d'essayer les effets visuels."),
-          execute: ExecuteVFXCommand,
-          options: new Options(
-            positional: new List<Option>()
-            {
-              new Option(
-                name: "vfx",
-                description: "Id du vfx à tester.",
-                defaultValue: 0
-              )
-            }
-          )
-        )
-      },
-      {
         "suivre",
         new Command(
           name: "suivre",
