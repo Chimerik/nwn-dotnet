@@ -154,11 +154,18 @@ namespace NWN.Systems
     private void HandleSpellHook(CallInfo callInfo)
     {
       SpellEvents.OnSpellCast onSpellCast = new SpellEvents.OnSpellCast();
+      uint spellId = onSpellCast.Spell.Id;
 
       HandleSpellDamageLocalisation(onSpellCast.Spell.SpellType, onSpellCast.Caster);
 
       if (!(callInfo.ObjectSelf is NwCreature { IsPlayerControlled: true } oPC) || !PlayerSystem.Players.TryGetValue(oPC, out PlayerSystem.Player player))
-        return;
+      {
+          if (callInfo.ObjectSelf is NwCreature castingCreature && castingCreature.Master != null && PlayerSystem.Players.TryGetValue(castingCreature.Master, out PlayerSystem.Player master))
+            NWScript.DelayCommand(0.0f, () => DelayedTagAoESummon(castingCreature, master, spellId));
+
+          return;
+      }
+        
 
       CreaturePlugin.SetClassByPosition(oPC, 0, 43);
       
@@ -243,6 +250,7 @@ namespace NWN.Systems
       }
 
       NWScript.DelayCommand(0.0f, () => DelayedSpellHook(oPC));
+      NWScript.DelayCommand(0.0f, () => DelayedTagAoE(player, spellId));
     }
     private void DelayedSpellHook(NwCreature player)
     {
@@ -251,6 +259,34 @@ namespace NWN.Systems
       player.SetBaseSavingThrow(SavingThrow.Reflex, (sbyte)player.GetObjectVariable<LocalVariableInt>("_DELAYED_SPELLHOOK_REFLEX").Value);
       player.SetBaseSavingThrow(SavingThrow.Will, (sbyte)player.GetObjectVariable<LocalVariableInt>("_DELAYED_SPELLHOOK_WILL").Value);
       player.SetBaseSavingThrow(SavingThrow.Fortitude, (sbyte)player.GetObjectVariable<LocalVariableInt>("_DELAYED_SPELLHOOK_FORT").Value);
+    }
+    private void DelayedTagAoE(PlayerSystem.Player player, uint spellId)
+    {
+      NwAreaOfEffect aoe = UtilPlugin.GetLastCreatedObject(11).ToNwObject<NwAreaOfEffect>();
+
+      if (aoe == null || aoe.GetObjectVariable<LocalVariableBool>("TAGGED").HasValue || aoe.Creator != player.oid.ControlledCreature)
+        return;
+
+      aoe.Tag = player.oid.CDKey;
+      aoe.GetObjectVariable<LocalVariableBool>("TAGGED").Value = true;
+      aoe.GetObjectVariable<LocalVariableInt>("SPELL_ID").Value = (int)spellId;
+
+      if (player.openedWindows.ContainsKey("aoeDispel"))
+        ((PlayerSystem.Player.AoEDispelWindow)player.windows["aoeDispel"]).UpdateAoEList();
+    }
+    private void DelayedTagAoESummon(NwCreature castingCreature, PlayerSystem.Player master, uint spellId)
+    {
+      NwAreaOfEffect aoe = UtilPlugin.GetLastCreatedObject(11).ToNwObject<NwAreaOfEffect>();
+
+      if (aoe == null || aoe.GetObjectVariable<LocalVariableBool>("TAGGED").HasValue || aoe.Creator != castingCreature)
+        return;
+
+      aoe.Tag = master.oid.CDKey;
+      aoe.GetObjectVariable<LocalVariableBool>("TAGGED").Value = true;
+      aoe.GetObjectVariable<LocalVariableInt>("SPELL_ID").Value = (int)spellId;
+
+      if (master.openedWindows.ContainsKey("aoeDispel"))
+        ((PlayerSystem.Player.AoEDispelWindow)master.windows["aoeDispel"]).UpdateAoEList();
     }
     public void HandleBeforeSpellCast(OnSpellCast onSpellCast)
     {
@@ -278,7 +314,7 @@ namespace NWN.Systems
     public static ScriptHandleResult HandleInvisibiltyHeartBeat(CallInfo callInfo)
     {
       NwAreaOfEffect inviAoE = (NwAreaOfEffect)callInfo.ObjectSelf;
-
+      
       if (!(inviAoE.Creator is NwCreature { IsPlayerControlled: true } oInvi))
         return ScriptHandleResult.Handled;
       

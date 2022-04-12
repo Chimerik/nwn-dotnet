@@ -57,8 +57,8 @@ namespace NWN.Systems
       if(onEnter.EnteringObject is NwCreature { IsPlayerControlled: false })
         return;
       
-       if (NwModule.Instance.Players.Count(p => p.ControlledCreature != null && p.ControlledCreature.Area == area) == 1)
-        CreateSpawnChecker(area);
+       /*if (NwModule.Instance.Players.Count(p => p.ControlledCreature != null && p.ControlledCreature.Area == area) == 1)
+        CreateSpawnChecker(area);*/
 
       if (!PlayerSystem.Players.TryGetValue(onEnter.EnteringObject, out PlayerSystem.Player player))
         return;

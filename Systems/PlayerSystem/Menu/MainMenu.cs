@@ -239,7 +239,7 @@ namespace NWN.Systems
 
                   break;
 
-                case "goDM":
+                case "dm":
                   player.oid.IsPlayerDM = !player.oid.IsPlayerDM;
                   break;
 
@@ -346,6 +346,17 @@ namespace NWN.Systems
                     player.windows.Add("DMVisualEffects", new DMVisualEffectsWindow(player));
 
                   CloseWindow();
+                  break;
+
+                case "dispelAoE":
+
+                  if (player.windows.ContainsKey("aoeDispel"))
+                    ((AoEDispelWindow)player.windows["aoeDispel"]).CreateWindow();
+                  else
+                    player.windows.Add("aoeDispel", new AoEDispelWindow(player));
+
+                  CloseWindow();
+
                   break;
               }
               break;

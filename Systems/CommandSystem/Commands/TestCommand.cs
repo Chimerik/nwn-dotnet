@@ -29,14 +29,15 @@ namespace NWN.Systems
 
         if (player.oid.PlayerName == "Chim" || player.oid.PlayerName == "test")
         {
-          NwItem armor = player.oid.ControlledCreature.GetItemInSlot(InventorySlot.Chest);
-          armor.AddItemProperty(ItemProperty.ACBonus(80), EffectDuration.Temporary, TimeSpan.FromSeconds(30));
-          armor.AddItemProperty(ItemProperty.ACBonusVsDmgType(IPDamageType.Physical, 20), EffectDuration.Temporary, TimeSpan.FromSeconds(30));
-          armor.AddItemProperty(ItemProperty.ACBonusVsDmgType((IPDamageType)14, 10), EffectDuration.Temporary, TimeSpan.FromSeconds(30));
+          //NwItem armor = player.oid.ControlledCreature.GetItemInSlot(InventorySlot.Chest);
+          //armor.AddItemProperty(ItemProperty.ACBonus(80), EffectDuration.Temporary, TimeSpan.FromSeconds(30));
+          //armor.AddItemProperty(ItemProperty.ACBonusVsDmgType(IPDamageType.Physical, 20), EffectDuration.Temporary, TimeSpan.FromSeconds(30));
+          //armor.AddItemProperty(ItemProperty.ACBonusVsDmgType((IPDamageType)14, 10), EffectDuration.Temporary, TimeSpan.FromSeconds(30));
           
-          player.craftResourceStock.Add(new CraftResource(Craft.Collect.System.craftResourceArray.FirstOrDefault(r => r.type == ResourceType.Ore && r.grade == 1), 5000));
-          player.craftResourceStock.Add(new CraftResource(Craft.Collect.System.craftResourceArray.FirstOrDefault(r => r.type == ResourceType.Wood && r.grade == 1), 5000));
-          player.craftResourceStock.Add(new CraftResource(Craft.Collect.System.craftResourceArray.FirstOrDefault(r => r.type == ResourceType.Pelt && r.grade == 1), 5000));
+          //player.craftResourceStock.Add(new CraftResource(Craft.Collect.System.craftResourceArray.FirstOrDefault(r => r.type == ResourceType.Ore && r.grade == 1), 5000));
+          //player.craftResourceStock.Add(new CraftResource(Craft.Collect.System.craftResourceArray.FirstOrDefault(r => r.type == ResourceType.Wood && r.grade == 1), 5000));
+          //player.craftResourceStock.Add(new CraftResource(Craft.Collect.System.craftResourceArray.FirstOrDefault(r => r.type == ResourceType.Pelt && r.grade == 1), 5000));
+          
           /*if (!player.learnableSpells.ContainsKey((int)Spell.LesserRestoration))
             player.learnableSpells.Add((int)Spell.LesserRestoration, new LearnableSpell((LearnableSpell)SkillSystem.learnableDictionary[(int)Spell.LesserRestoration]));
           if (!player.learnableSpells.ContainsKey((int)Spell.Restoration))

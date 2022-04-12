@@ -32,8 +32,8 @@ namespace NWN.Systems
           {
             Children = new List<NuiElement>()
             {
-              new NuiTextEdit("Nom d'un nouveau grimoire", grimoireName, 35, false) { Width = 300, Tooltip = "Afin d'enregistrer un nouveau grimoire, un nom doit être renseigné." },
-              new NuiButton("Enregistrer") { Id = "newGrimoire", Width = 80, Enabled = saveGrimoireEnabled, Tooltip = "Enregistre un nouveau grimoire avec vos sorts tels qu'actuellement configurés." }
+              new NuiTextEdit("Nom d'un nouveau grimoire", grimoireName, 35, false) { Width = 300, Height = 35, Tooltip = "Afin d'enregistrer un nouveau grimoire, un nom doit être renseigné." },
+              new NuiButton("Enregistrer") { Id = "newGrimoire", Width = 80, Height = 35, Enabled = saveGrimoireEnabled, Tooltip = "Enregistre un nouveau grimoire avec vos sorts tels qu'actuellement configurés." }
             }
           });
 

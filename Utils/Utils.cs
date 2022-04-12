@@ -340,7 +340,8 @@ namespace NWN
       { "touch", new MainMenuCommand("Mode toucher", "Permet d'éviter les collisions entre personnages (non utilisable en combat)", CommandRank.Public) },
       { "walk", new MainMenuCommand("Mode marche", "Permet d'avoir l'air moins ridicule en ville", CommandRank.Public) },
       { "examineArea", new MainMenuCommand("Examine les environs", "Obtenir une description de la zone", CommandRank.Public) },
-      { "grimoire", new MainMenuCommand("Gérer les grimoires", "Enregistrer ou charger un grimoire de sorts", CommandRank.Public)  },
+      { "dispelAoE", new MainMenuCommand("Dissiper mes zones d'effets", "", CommandRank.Public) },
+      { "grimoire", new MainMenuCommand("Gérer les grimoires", "Enregistrer ou charger un grimoire de sorts", CommandRank.Public) },
       { "quickbars", new MainMenuCommand("Gérer les barres de raccourcis", "Enregistrer ou charger une barre de raccourcis", CommandRank.Public) },
       { "commend", new MainMenuCommand("Recommander un joueur", "Recommander un joueur pour la qualité de son roleplay et son implication sur le module", CommandRank.Public) }, // TODO : Ajouter à OnExamine Player
       { "itemAppearance", new MainMenuCommand("Gestion des apparences d'objets", "Enregistrer ou charger une apparence d'objet", CommandRank.Public) },
