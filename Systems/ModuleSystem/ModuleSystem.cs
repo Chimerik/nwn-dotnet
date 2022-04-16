@@ -245,6 +245,8 @@ namespace NWN.Systems
 
       NwModule.Instance.OnCreatureAttack += AttackSystem.HandleAttackEvent;
       NwModule.Instance.OnCreatureDamage += AttackSystem.HandleDamageEvent;
+      NwModule.Instance.OnEffectApply += OnPlayerEffectApplied;
+      NwModule.Instance.OnEffectRemove += OnPlayerEffectRemoved;
     }
 
     private void SetModuleTime()
@@ -679,6 +681,67 @@ namespace NWN.Systems
         if (NWScript.ResManGetAliasFor($"pFO0_HEAD{search}", NWScript.RESTYPE_MDL) != "")
           headModels.FirstOrDefault(h => h.appearance == AppearanceType.HalfOrc && h.gender == Gender.Female).heads.Add(new NuiComboEntry(i.ToString(), i));
       }
+    }
+    private void OnPlayerEffectApplied(OnEffectApply effectApplied)
+    {
+      PlayerSystem.Player player = null;
+
+      if (effectApplied.Effect.Spell == null || effectApplied.Effect.Creator == null)
+        return;
+
+      if (effectApplied.Effect.Creator is NwCreature caster)
+        if (caster.IsPlayerControlled && !PlayerSystem.Players.TryGetValue(caster.ControllingPlayer.LoginCreature, out player))
+          return;
+        else if (caster.Master != null && caster.Master.IsPlayerControlled && !PlayerSystem.Players.TryGetValue(caster.Master, out player))
+          return;
+
+      if (player == null)
+        return;
+
+      if (!player.runningEffects.Contains(effectApplied.Effect))
+      {
+        player.runningEffects.Add(effectApplied.Effect);
+
+        Effect eff = player.runningEffects.FirstOrDefault(e => e == effectApplied.Effect);
+        if(eff != null)
+        {
+          Log.Info($"EFFECT LIST");
+          Log.Info($"Tag : {eff.Tag}");
+          Log.Info($"Creator : {eff.Creator}");
+          Log.Info($"Spell : {eff.Spell.Name}");
+          Log.Info($"Duration  Remaining : {eff.DurationRemaining}");
+          Log.Info($"Type : {eff.EffectType}");
+          Log.Info($"EFFECT LIST");
+        }
+      }
+
+      Log.Info($"ON APPLY");
+      Log.Info($"Tag : {effectApplied.Effect.Tag}");
+      Log.Info($"Creator : {effectApplied.Effect.Creator.Name}");
+      Log.Info($"Spell : {effectApplied.Effect.Spell.Name}");
+      Log.Info($"Duration  Remaining : {effectApplied.Effect.DurationRemaining}");
+      Log.Info($"Type : {effectApplied.Effect.EffectType}");
+      Log.Info($"END ON APPLY");
+    }
+
+    private void OnPlayerEffectRemoved(OnEffectRemove effectRemoved)
+    {
+      PlayerSystem.Player player = null;
+
+      if (effectRemoved.Effect.Spell == null || effectRemoved.Effect.Creator == null)
+        return;
+
+      if (effectRemoved.Effect.Creator is NwCreature caster)
+        if (caster.IsPlayerControlled && !PlayerSystem.Players.TryGetValue(caster.ControllingPlayer.LoginCreature, out player))
+          return;
+        else if (caster.Master != null && caster.Master.IsPlayerControlled && !PlayerSystem.Players.TryGetValue(caster.Master, out player))
+          return;
+
+      if (player == null)
+        return;
+
+      if(player.runningEffects.Contains(effectRemoved.Effect))
+        player.runningEffects.Remove(effectRemoved.Effect);
     }
   }
 }

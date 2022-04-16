@@ -54,6 +54,7 @@ namespace NWN.Systems
       public List<ItemAppearance> itemAppearances = new List<ItemAppearance>();
       public List<CharacterDescription> descriptions = new List<CharacterDescription>();
       public List<CustomDMVisualEffect> customDMVisualEffects = new List<CustomDMVisualEffect>();
+      public List<Effect> runningEffects = new List<Effect>();
 
       private SpellSystem spellSystem;
       private FeedbackService feedbackService;

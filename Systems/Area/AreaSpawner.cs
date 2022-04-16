@@ -4,7 +4,6 @@ using Anvil.Services;
 
 using System;
 using System.Linq;
-using System.Threading.Tasks;
 
 namespace NWN.Systems
 {
@@ -42,46 +41,28 @@ namespace NWN.Systems
         , TimeSpan.FromSeconds(1));      
     }
 
-    private static void CheckIfNoPlayerAround(CreatureEvents.OnHeartbeat onHB)
+    private void CheckIfNoPlayerAround(CreatureEvents.OnHeartbeat onHB)
     {
+      Log.Info("start check if no one around");
       if (NwModule.Instance.Players.Any(p => p.ControlledCreature != null && p.ControlledCreature.Area == onHB.Creature.Area && p.ControlledCreature.DistanceSquared(onHB.Creature) < 2026))
+      {
+        Log.Info("end check if no one around");
         return;
+      }
 
       onHB.Creature.GetObjectVariable<LocalVariableObject<NwWaypoint>>("_SPAWN").Value.GetObjectVariable<LocalVariableBool>("_SPAWN_COOLDOWN").Delete();
       onHB.Creature.OnDeath -= LootSystem.HandleLoot;
       onHB.Creature.OnDeath -= OnMobDeathResetSpawn;
       onHB.Creature.Destroy();
+
+      Log.Info("end check if no one around");
     }
 
-    private static void OnMobDeathResetSpawn(CreatureEvents.OnDeath onDeath)
+    private void OnMobDeathResetSpawn(CreatureEvents.OnDeath onDeath)
     {
       NwWaypoint spawnPoint = onDeath.KilledCreature.GetObjectVariable<LocalVariableObject<NwWaypoint>>("_SPAWN").Value;
       ModuleSystem.scheduler.Schedule(() => { spawnPoint.GetObjectVariable<LocalVariableBool>("_SPAWN_COOLDOWN").Delete(); }
       , TimeSpan.FromMinutes(10));
-    }
-
-    [ScriptHandler("mobReset_on")]
-    private void ApplyResetMobRegen(CallInfo callInfo)
-    {
-      NwCreature creature = (NwCreature)callInfo.ObjectSelf;
-
-      if (!creature.IsValid)
-        return;;
-
-      creature.HP += (int)(creature.MaxHP * 0.2) + 1;
-
-      if (creature.HP > creature.MaxHP)
-        creature.HP = creature.MaxHP;
-
-      //Log.Info($"creature distance from reset : {creature.Distance(creature.GetObjectVariable<LocalVariableObject<NwAreaOfEffect>>("reset_aoe").Value)}");
-
-      if (creature.DistanceSquared(creature.GetObjectVariable<LocalVariableObject<NwAreaOfEffect>>("_SPAWN").Value) < 1)
-      {
-        //Log.Info($"{creature.Name} is on reset position !");
-        creature.AiLevel = AiLevel.Default;
-        foreach (Effect eff in creature.ActiveEffects.Where(e => e.Tag == "mob_reset_regen"))
-          creature.RemoveEffect(eff);
-      }
     }
   }
 }

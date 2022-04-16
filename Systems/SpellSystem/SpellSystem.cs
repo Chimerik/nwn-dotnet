@@ -165,7 +165,6 @@ namespace NWN.Systems
 
           return;
       }
-        
 
       CreaturePlugin.SetClassByPosition(oPC, 0, 43);
       

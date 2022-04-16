@@ -28,14 +28,6 @@ namespace NWN.Systems
         )
       },
       {
-        "dispel_aoe",
-        new Command(
-          name: "dispel_aoe",
-          description: new Command.Description(title: "Dissipe vos effets d'AoE dans la zone actuelle"),
-          execute: ExecuteDispelAoeCommand
-        )
-      },
-      {
         "dispel",
         new Command(
           name: "dispel",

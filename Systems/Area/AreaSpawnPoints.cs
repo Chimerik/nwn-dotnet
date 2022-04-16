@@ -4,6 +4,7 @@ using Anvil.Services;
 using System;
 using System.Threading.Tasks;
 using NWN.Core;
+using System.Linq;
 
 namespace NWN.Systems
 {
@@ -75,14 +76,14 @@ namespace NWN.Systems
         case "generic":
           Appearance2da.appearanceTable.SetRandomAppearance(creature);
           creature.AiLevel = AiLevel.VeryLow;
-          creature.ActionRandomWalk();
+          _ = creature.ActionRandomWalk();
           break;
         default:
           HandleMobSpecificBehaviour(creature);
           break;
       }
     }
-    private static void HandleMobSpecificBehaviour(NwCreature creature)
+    private void HandleMobSpecificBehaviour(NwCreature creature)
     {
       switch (creature.Tag)
       {
@@ -102,16 +103,16 @@ namespace NWN.Systems
       creature.OnHeartbeat += CheckDistanceFromSpawn;
     }
 
-    private static async void CheckDistanceFromSpawn(CreatureEvents.OnHeartbeat onHB)
+    private void CheckDistanceFromSpawn(CreatureEvents.OnHeartbeat onHB)
     {
       if (onHB.Creature.GetObjectVariable<LocalVariableObject<NwWaypoint>>("_SPAWN").Value.DistanceSquared(onHB.Creature) < 1600)
         return;
 
       onHB.Creature.AiLevel = AiLevel.VeryLow;
-      await onHB.Creature.ClearActionQueue();
-      await onHB.Creature.ActionForceMoveTo(onHB.Creature.GetObjectVariable<LocalVariableObject<NwWaypoint>>("_SPAWN").Value, true, 0, TimeSpan.FromSeconds(30));
+      _ = onHB.Creature.ClearActionQueue();
+      _ = onHB.Creature.ActionForceMoveTo(onHB.Creature.GetObjectVariable<LocalVariableObject<NwWaypoint>>("_SPAWN").Value, true, 0, TimeSpan.FromSeconds(30));
 
-      Effect regen = NWScript.EffectRunScript("", "mobReset_off", "mobReset_on", 1);
+      Effect regen = Effect.RunAction(null, null, mobRegenIntervalHandle, TimeSpan.FromSeconds(1));
       regen.Tag = "mob_reset_regen";
       regen.SubType = EffectSubType.Supernatural;
       onHB.Creature.ApplyEffect(EffectDuration.Permanent, regen);
@@ -122,12 +123,36 @@ namespace NWN.Systems
       NwWaypoint waypoint = NwWaypoint.Create(onDeath.KilledCreature.GetObjectVariable<LocalVariableString>("_WAYPOINT_TEMPLATE"), onDeath.KilledCreature.GetObjectVariable<LocalVariableLocation>("_SPAWN_LOCATION").Value);
       waypoint.GetObjectVariable<LocalVariableString>("_CREATURE_TEMPLATE").Value = onDeath.KilledCreature.ResRef;
     }*/
-    private static void HandleWereInfiniteSpawn(CreatureEvents.OnDeath onDeath)
+    private ScriptHandleResult onMobRegenInterval(CallInfo _)
+    {
+      EffectRunScriptEvent eventData = new EffectRunScriptEvent();
+
+      if (!(eventData.EffectTarget is NwCreature creature) || !creature.IsValid)
+        return ScriptHandleResult.Handled;
+
+      creature.HP += (int)(creature.MaxHP * 0.2) + 1;
+
+      if (creature.HP > creature.MaxHP)
+        creature.HP = creature.MaxHP;
+
+      //Log.Info($"creature distance from reset : {creature.Distance(creature.GetObjectVariable<LocalVariableObject<NwAreaOfEffect>>("reset_aoe").Value)}");
+
+      if (creature.DistanceSquared(creature.GetObjectVariable<LocalVariableObject<NwAreaOfEffect>>("_SPAWN").Value) < 1)
+      {
+        //Log.Info($"{creature.Name} is on reset position !");
+        creature.AiLevel = AiLevel.Default;
+        foreach (Effect eff in creature.ActiveEffects.Where(e => e.Tag == "mob_reset_regen"))
+          creature.RemoveEffect(eff);
+      }
+
+      return ScriptHandleResult.Handled;
+    }
+    private void HandleWereInfiniteSpawn(CreatureEvents.OnDeath onDeath)
     {
       NwWaypoint wp = onDeath.KilledCreature.GetObjectVariable<LocalVariableObject<NwWaypoint>>("_SPAWN").Value;
       NwCreature.Create(onDeath.KilledCreature.ResRef, wp.Location).OnDeath += HandleWereInfiniteSpawn;
     }
-    private static void HandleWraithInfiniteSpawn(CreatureEvents.OnDeath onDeath)
+    private void HandleWraithInfiniteSpawn(CreatureEvents.OnDeath onDeath)
     {
       NwWaypoint wp = onDeath.KilledCreature.GetObjectVariable<LocalVariableObject<NwWaypoint>>("_SPAWN").Value;
       NwCreature.Create(onDeath.KilledCreature.ResRef, wp.Location).OnDeath += HandleWraithInfiniteSpawn;

@@ -15,8 +15,15 @@ namespace NWN.Systems
   {
     private static readonly Logger Log = LogManager.GetCurrentClassLogger();
     private DialogSystem dialogSystem;
-    public AreaSystem(DialogSystem dialogSystem)
+    private ScriptHandleFactory scriptHandleFactory;
+    private ScriptCallbackHandle mobRegenIntervalHandle;
+
+    public AreaSystem(DialogSystem dialogSystem, ScriptHandleFactory scriptFactory)
     {
+      this.dialogSystem = dialogSystem;
+      scriptHandleFactory = scriptFactory;
+      mobRegenIntervalHandle = scriptHandleFactory.CreateUniqueHandler(onMobRegenInterval);
+
       foreach (NwTrigger trigger in NwObject.FindObjectsWithTag("invi_unwalkable"))
         trigger.OnEnter += OnEnterUnwalkableBlock;
 
@@ -57,8 +64,8 @@ namespace NWN.Systems
       if(onEnter.EnteringObject is NwCreature { IsPlayerControlled: false })
         return;
       
-       /*if (NwModule.Instance.Players.Count(p => p.ControlledCreature != null && p.ControlledCreature.Area == area) == 1)
-        CreateSpawnChecker(area);*/
+       if (NwModule.Instance.Players.Count(p => p.ControlledCreature != null && p.ControlledCreature.Area == area) == 1)
+        CreateSpawnChecker(area);
 
       if (!PlayerSystem.Players.TryGetValue(onEnter.EnteringObject, out PlayerSystem.Player player))
         return;
@@ -233,7 +240,7 @@ namespace NWN.Systems
           break;
       }
     }
-    private static void OnTheaterSceneEnter(TriggerEvents.OnEnter onEnter)
+    private void OnTheaterSceneEnter(TriggerEvents.OnEnter onEnter)
     {
       onEnter.EnteringObject.VisualTransform.Translation = new Vector3(onEnter.EnteringObject.VisualTransform.Translation.X, 
         onEnter.EnteringObject.VisualTransform.Translation.Y, 2.01f);
@@ -242,7 +249,7 @@ namespace NWN.Systems
         oPC.ControllingPlayer.CameraHeight = 1 + 2.01f;
     }
 
-    private static void OnTheaterSceneExit(TriggerEvents.OnExit onExit)
+    private void OnTheaterSceneExit(TriggerEvents.OnExit onExit)
     {
       if (onExit.ExitingObject == null)
       {
