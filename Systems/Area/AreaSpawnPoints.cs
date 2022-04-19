@@ -3,7 +3,6 @@ using Anvil.API.Events;
 using Anvil.Services;
 using System;
 using System.Threading.Tasks;
-using NWN.Core;
 using System.Linq;
 
 namespace NWN.Systems
@@ -105,8 +104,12 @@ namespace NWN.Systems
 
     private void CheckDistanceFromSpawn(CreatureEvents.OnHeartbeat onHB)
     {
+      Log.Info("start checking distance from spawn");
       if (onHB.Creature.GetObjectVariable<LocalVariableObject<NwWaypoint>>("_SPAWN").Value.DistanceSquared(onHB.Creature) < 1600)
+      {
+        Log.Info("end checking distance from spawn");
         return;
+      }
 
       onHB.Creature.AiLevel = AiLevel.VeryLow;
       _ = onHB.Creature.ClearActionQueue();
@@ -116,6 +119,8 @@ namespace NWN.Systems
       regen.Tag = "mob_reset_regen";
       regen.SubType = EffectSubType.Supernatural;
       onHB.Creature.ApplyEffect(EffectDuration.Permanent, regen);
+
+      Log.Info("end checking distance from spawn");
     }
 
     /*private static void OnDeathSpawnNPCWaypoint(CreatureEvents.OnDeath onDeath)

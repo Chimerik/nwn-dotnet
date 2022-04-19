@@ -59,7 +59,7 @@ namespace NWN.Systems
 
         private void RefreshWindowUntillClosed()
         {
-          scheduler = ModuleSystem.scheduler.ScheduleRepeating(() =>
+          scheduler = player.scheduler.ScheduleRepeating(() =>
           {
             if(player.oid.LoginCreature == null)
             {

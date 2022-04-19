@@ -13,8 +13,9 @@ namespace NWN.Systems
     private ScheduledTask spawnScheduler;
     private void CreateSpawnChecker(NwArea area)
     {
-      spawnScheduler = ModuleSystem.scheduler.ScheduleRepeating(() =>
+      spawnScheduler = scheduler.ScheduleRepeating(() =>
       {
+        Log.Info("start checking distance from creature WP");
         foreach (NwWaypoint spawnPoint in area.FindObjectsOfTypeInArea<NwWaypoint>().Where(wp => wp.Tag == "creature_spawn" && wp.GetObjectVariable<LocalVariableBool>("_SPAWN_COOLDOWN").HasNothing))
         {
           if (NwModule.Instance.Players.Any(p => p.ControlledCreature != null && p.ControlledCreature.Area == area && p.ControlledCreature.DistanceSquared(spawnPoint) < 2026))
@@ -37,6 +38,8 @@ namespace NWN.Systems
 
         if(!NwModule.Instance.Players.Any(p => p.ControlledCreature != null && p.ControlledCreature.Area == area))
           spawnScheduler.Dispose();
+
+        Log.Info("end checking distance from creature WP");
       }
         , TimeSpan.FromSeconds(1));      
     }
@@ -61,7 +64,7 @@ namespace NWN.Systems
     private void OnMobDeathResetSpawn(CreatureEvents.OnDeath onDeath)
     {
       NwWaypoint spawnPoint = onDeath.KilledCreature.GetObjectVariable<LocalVariableObject<NwWaypoint>>("_SPAWN").Value;
-      ModuleSystem.scheduler.Schedule(() => { spawnPoint.GetObjectVariable<LocalVariableBool>("_SPAWN_COOLDOWN").Delete(); }
+      scheduler.Schedule(() => { spawnPoint.GetObjectVariable<LocalVariableBool>("_SPAWN_COOLDOWN").Delete(); }
       , TimeSpan.FromMinutes(10));
     }
   }

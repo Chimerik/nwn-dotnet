@@ -90,7 +90,7 @@ namespace NWN.Systems
               NwSpell spell = NwSpell.FromSpellId(item.GetObjectVariable<LocalVariableInt>($"SLOT{i}").Value);
               string icon = spell != null ? spell.IconResRef : "empty_materia_slot";
               string id = spell != null ? spell.Id.ToString() : "";
-              string spellName = spell != null ? spell.Name : "Emplacement libre";
+              string spellName = spell != null ? spell.Name.ToString() : "Emplacement libre";
 
               // TODO : si l'enchantement est désactivé (item ruiné), écrire "Désactivé dans le tooltip" et si possible, une utiliser une icône grisée
               NuiButtonImage slotButton = new NuiButtonImage(icon) { Id = $"spell_{id}", Tooltip = spellName, Height = 40, Width = 40 };
@@ -178,7 +178,7 @@ namespace NWN.Systems
 
             ipName += ip.RemainingDuration != TimeSpan.Zero ? $" ({new TimeSpan(ip.RemainingDuration.Days, ip.RemainingDuration.Hours, ip.RemainingDuration.Minutes, ip.RemainingDuration.Seconds).ToString()})" : "";
 
-            NuiColor ipColor = ip.RemainingDuration != TimeSpan.Zero ? ColorConstants.Blue : ColorConstants.White;
+            Color ipColor = ip.RemainingDuration != TimeSpan.Zero ? ColorConstants.Blue : ColorConstants.White;
 
             rootChidren.Add(new NuiRow() { Children = new List<NuiElement>() { new NuiLabel(ipName) { Height = 10, Width = 500, ForegroundColor = ipColor, Margin = 5 } } });
           }
@@ -190,7 +190,7 @@ namespace NWN.Systems
 
             int durabilityState = item.GetObjectVariable<LocalVariableInt>("_DURABILITY").Value / item.GetObjectVariable<LocalVariableInt>("_MAX_DURABILITY").Value * 100;
             string durabilityText = "Flambant neuf"; ;
-            NuiColor durabilityColor = new NuiColor(32, 255, 32);
+            Color durabilityColor = new Color(32, 255, 32);
 
             if (durabilityState < 100 && durabilityState >= 75)
             {
@@ -227,7 +227,7 @@ namespace NWN.Systems
 
             if (item.GetObjectVariable<LocalVariableInt>("_DURABILITY_NB_REPAIRS").HasValue)
             {
-              NuiColor repairColor = ColorConstants.Orange;
+              Color repairColor = ColorConstants.Orange;
               durabilityRowChildren.Add(new NuiLabel($"Réparé {item.GetObjectVariable<LocalVariableInt>("_DURABILITY_NB_REPAIRS").Value} fois") { Height = 30, Width = 500, ForegroundColor = repairColor });
             }
 
@@ -619,7 +619,7 @@ namespace NWN.Systems
           foreach (string spellId in spellList)
           {
             NwSpell spell = NwSpell.FromSpellId(int.Parse(spellId));
-            sequencerRegisterRowChildren.Add(new NuiImage(spell.IconResRef) { Tooltip = spell.Name });
+            sequencerRegisterRowChildren.Add(new NuiImage(spell.IconResRef) { Tooltip = spell.Name.ToString() });
 
             if (item.Possessor == player.oid.ControlledCreature)
             {
@@ -795,7 +795,7 @@ namespace NWN.Systems
             {
               new NuiButtonImage(icon) { Tooltip = bestBlueprint.Name, Height = 40, Width = 40 },
               new NuiLabel($"Coût en {ItemUtils.GetResourceNameFromBlueprint(bestBlueprint)} : {materiaCost}/{availableQuantity}") { Width = 160, Tooltip =  bestBlueprint.Name,
-                DrawList = new List<NuiDrawListItem>() { new NuiDrawListText(new NuiColor(255, 255, 255), new NuiRect(0, 35, 150, 60), $"Temps de fabrication : {new TimeSpan(jobDuration.Days, jobDuration.Hours, jobDuration.Minutes, jobDuration.Seconds)}") } },
+                DrawList = new List<NuiDrawListItem>() { new NuiDrawListText(new Color(255, 255, 255), new NuiRect(0, 35, 150, 60), $"Temps de fabrication : {new TimeSpan(jobDuration.Days, jobDuration.Hours, jobDuration.Minutes, jobDuration.Seconds)}") } },
               new NuiButton("Améliorer") { Id = "upgrade", Enabled = player.craftJob == null && availableQuantity >= materiaCost, Tooltip = "Améliore l'objet à son prochain niveau de qualité avec le patron et la matéria adéquate.", Height = 40, Width = 80 }
             } 
           });

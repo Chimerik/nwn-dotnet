@@ -71,7 +71,7 @@ namespace NWN.Systems
 
           player.openedWindows[windowId] = token;
 
-          checkPositionScheduler = ModuleSystem.scheduler.ScheduleRepeating(() =>  { CheckPlayerMovement(); }, TimeSpan.FromSeconds(2));
+          checkPositionScheduler = player.scheduler.ScheduleRepeating(() =>  { CheckPlayerMovement(); }, TimeSpan.FromSeconds(2));
         }
 
         private void HandleSitAnywhereEvents(ModuleEvents.OnNuiEvent nuiEvent)

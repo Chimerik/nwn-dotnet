@@ -35,18 +35,18 @@ namespace NWN.Systems
       public Cauldron alchemyCauldron { get; set; }
       public PcState pcState { get; set; }
 
-      public List<NwPlayer> listened = new List<NwPlayer>();
-      public List<int> mutedList = new List<int>();
-      public Dictionary<uint, Player> blocked = new Dictionary<uint, Player>();
-      public Dictionary<int, LearnableSkill> learnableSkills = new Dictionary<int, LearnableSkill>();
-      public Dictionary<int, LearnableSpell> learnableSpells = new Dictionary<int, LearnableSpell>();
-      public Dictionary<int, MapPin> mapPinDictionnary = new Dictionary<int, MapPin>();
-      public Dictionary<string, byte[]> areaExplorationStateDictionnary = new Dictionary<string, byte[]>();
-      public Dictionary<int, byte[]> chatColors = new Dictionary<int, byte[]>();
-      public Dictionary<string, PlayerWindow> windows = new Dictionary<string, PlayerWindow>();
-      public Dictionary<string, NuiRect> windowRectangles = new Dictionary<string, NuiRect>();
-      public Dictionary<string, int> openedWindows = new Dictionary<string, int>();
-      public List<ChatLine> readChatLines = new List<ChatLine>();
+      public List<NwPlayer> listened = new ();
+      public List<int> mutedList = new ();
+      public Dictionary<uint, Player> blocked = new ();
+      public Dictionary<int, LearnableSkill> learnableSkills = new ();
+      public Dictionary<int, LearnableSpell> learnableSpells = new ();
+      public Dictionary<int, MapPin> mapPinDictionnary = new ();
+      public Dictionary<string, byte[]> areaExplorationStateDictionnary = new ();
+      public Dictionary<int, byte[]> chatColors = new ();
+      public Dictionary<string, PlayerWindow> windows = new ();
+      public Dictionary<string, NuiRect> windowRectangles = new ();
+      public Dictionary<string, int> openedWindows = new ();
+      public List<ChatLine> readChatLines = new ();
 
       public List<CraftResource> craftResourceStock = new List<CraftResource>();
       public List<Grimoire> grimoires = new List<Grimoire>();
@@ -54,10 +54,11 @@ namespace NWN.Systems
       public List<ItemAppearance> itemAppearances = new List<ItemAppearance>();
       public List<CharacterDescription> descriptions = new List<CharacterDescription>();
       public List<CustomDMVisualEffect> customDMVisualEffects = new List<CustomDMVisualEffect>();
-      public List<Effect> runningEffects = new List<Effect>();
+      public List<NwGameObject> effectTargets = new();
 
-      private SpellSystem spellSystem;
-      private FeedbackService feedbackService;
+      private readonly SpellSystem spellSystem;
+      private readonly FeedbackService feedbackService;
+      public readonly SchedulerService scheduler;
 
       public enum PcState
       {
@@ -66,11 +67,12 @@ namespace NWN.Systems
         AFK
       }
 
-      public Player(NwPlayer nwobj, AreaSystem areaSystem, SpellSystem spellSystem, FeedbackService feedbackService)
+      public Player(NwPlayer nwobj, AreaSystem areaSystem, SpellSystem spellSystem, FeedbackService feedbackService, SchedulerService schedulerService)
       {
         oid = nwobj;
         menu = new PrivateMenu(this);
         pveArena = new Arena.PlayerData();
+        scheduler = schedulerService;
         this.spellSystem = spellSystem;
         this.feedbackService = feedbackService;
 

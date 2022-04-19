@@ -160,7 +160,7 @@ namespace NWN.Systems
 
         private List<NuiDrawListItem> DrawItemName(string itemName)
         {
-          NuiProperty<NuiColor> color = new NuiColor(255, 255, 255);
+          NuiProperty<Color> color = new Color(255, 255, 255);
           List<NuiDrawListItem> textBreakerDrawList = new List<NuiDrawListItem>();
           int nbCharPerLine = 20;
           int i = 0;

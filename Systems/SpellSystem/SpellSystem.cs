@@ -262,13 +262,12 @@ namespace NWN.Systems
     private void DelayedTagAoE(PlayerSystem.Player player, uint spellId)
     {
       NwAreaOfEffect aoe = UtilPlugin.GetLastCreatedObject(11).ToNwObject<NwAreaOfEffect>();
-
+      
       if (aoe == null || aoe.GetObjectVariable<LocalVariableBool>("TAGGED").HasValue || aoe.Creator != player.oid.ControlledCreature)
         return;
 
       aoe.Tag = player.oid.CDKey;
       aoe.GetObjectVariable<LocalVariableBool>("TAGGED").Value = true;
-      aoe.GetObjectVariable<LocalVariableInt>("SPELL_ID").Value = (int)spellId;
 
       if (player.openedWindows.ContainsKey("aoeDispel"))
         ((PlayerSystem.Player.AoEDispelWindow)player.windows["aoeDispel"]).UpdateAoEList();
@@ -282,7 +281,6 @@ namespace NWN.Systems
 
       aoe.Tag = master.oid.CDKey;
       aoe.GetObjectVariable<LocalVariableBool>("TAGGED").Value = true;
-      aoe.GetObjectVariable<LocalVariableInt>("SPELL_ID").Value = (int)spellId;
 
       if (master.openedWindows.ContainsKey("aoeDispel"))
         ((PlayerSystem.Player.AoEDispelWindow)master.windows["aoeDispel"]).UpdateAoEList();

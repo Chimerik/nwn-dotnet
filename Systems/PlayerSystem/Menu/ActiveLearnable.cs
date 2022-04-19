@@ -13,7 +13,7 @@ namespace NWN.Systems
       public class ActiveLearnableWindow : PlayerWindow
       {
         private readonly NuiColumn rootColumn;
-        private readonly NuiColor white = new NuiColor(255, 255, 255);
+        private readonly Color white = new Color(255, 255, 255);
         private readonly NuiRect drawListRect = new NuiRect(0, 35, 150, 60);
         private readonly NuiBind<string> icon = new NuiBind<string>("icon");
         private readonly NuiBind<string> name = new NuiBind<string>("name");
@@ -86,7 +86,7 @@ namespace NWN.Systems
 
         private async void RefreshWindowUntillClosed()
         {
-          ScheduledTask scheduler = ModuleSystem.scheduler.ScheduleRepeating(() =>
+          ScheduledTask scheduler = player.scheduler.ScheduleRepeating(() =>
           {
             learnable.acquiredPoints += player.GetSkillPointsPerSecond(learnable);
             timeLeft.SetBindValue(player.oid, token, learnable.GetReadableTimeSpanToNextLevel(player));

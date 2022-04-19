@@ -147,7 +147,7 @@ namespace NWN.Systems
                   if (!detectionProgress.IsCancelled)
                     CancelScanProgress();
 
-                  detectionProgress = ModuleSystem.scheduler.ScheduleRepeating(HandleScanProgress, TimeSpan.FromSeconds(1));
+                  detectionProgress = player.scheduler.ScheduleRepeating(HandleScanProgress, TimeSpan.FromSeconds(1));
 
                   return;
               }

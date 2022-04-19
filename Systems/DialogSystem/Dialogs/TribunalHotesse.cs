@@ -26,8 +26,8 @@ namespace NWN.Systems
           NwItem oScroll = await NwItem.Create("spellscroll", shop, 1, "scroll");
           Spell spell = ItemPropertySpells2da.spellsTable.GetSpellDataEntry(itemPropertyId).spell;
           NwSpell nwSpell = NwSpell.FromSpellType(spell);
-          oScroll.Name = nwSpell.Name;
-          oScroll.Description = nwSpell.Description;
+          oScroll.Name = nwSpell.Name.ToString();
+          oScroll.Description = nwSpell.Description.ToString();
           oScroll.AddItemProperty(ItemProperty.CastSpell((IPCastSpell)itemPropertyId, IPCastSpellNumUses.SingleUse), EffectDuration.Permanent);
           oScroll.GetObjectVariable<LocalVariableString>("ITEM_KEY").Value = Config.itemKey;
         }

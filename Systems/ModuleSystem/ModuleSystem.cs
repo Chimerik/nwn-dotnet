@@ -22,7 +22,7 @@ namespace NWN.Systems
     public static readonly Logger Log = LogManager.GetCurrentClassLogger();
     public static readonly TranslationClient googleTranslationClient = TranslationClient.Create();
     public static Dictionary<string, GoldBalance> goldBalanceMonitoring = new Dictionary<string, GoldBalance>();
-    public static SchedulerService scheduler;
+    private static SchedulerService scheduler;
     public static DriveService googleDriveService;
 
     public class  HeadModels
@@ -160,10 +160,10 @@ namespace NWN.Systems
         "('accountName' TEXT NOT NULL, 'cdKey' TEXT, 'bonusRolePlay' INTEGER NOT NULL, 'discordId' TEXT, 'rank' TEXT, 'mapPins' TEXT, 'chatColors' TEXT, 'mutedPlayers' TEXT, 'windowRectangles' TEXT, 'customDMVisualEffects' TEXT)");
 
       SqLiteUtils.CreateQuery("CREATE TABLE IF NOT EXISTS playerCharacters" +
-        "('accountId' INTEGER NOT NULL, 'characterName' TEXT NOT NULL, 'previousSPCalculation' TEXT, 'serializedLearnables' TEXT," +
-        "'location' TEXT, 'openedWindows' TEXT, " +
+        "('accountId' INTEGER NOT NULL, 'characterName' TEXT NOT NULL, 'previousSPCalculation' TEXT, 'serializedLearnableSkills' TEXT, 'serializedLearnableSpells' TEXT," +
+        "'location' TEXT, 'openedWindows' TEXT, 'itemAppearances' TEXT," +
         "'currentHP' INTEGER, 'bankGold' INTEGER, 'pveArenaCurrentPoints' INTEGER, 'menuOriginTop' INTEGER, 'menuOriginLeft' INTEGER, 'storage' TEXT, " +
-        "'alchemyCauldron' TEXT, 'explorationState' TEXT, 'persistantStorage' TEXT, 'materialStorage' TEXT, 'craftJob' TEXT, 'grimoires' TEXT, 'quickbars' TEXT," +
+        "'alchemyCauldron' TEXT, 'explorationState' TEXT, 'materialStorage' TEXT, 'craftJob' TEXT, 'grimoires' TEXT, 'quickbars' TEXT," +
         "'descriptions' TEXT)");
 
       SqLiteUtils.CreateQuery("CREATE TABLE IF NOT EXISTS playerDeathCorpses" +
@@ -228,17 +228,6 @@ namespace NWN.Systems
       //EventsPlugin.SubscribeEvent("NWNX_ON_DM_POSSESS_FULL_POWER_BEFORE", "b_dm_possess");
       //EventsPlugin.SubscribeEvent("NWNX_ON_DM_POSSESS_BEFORE", "b_dm_possess");
 
-      NwModule.Instance.OnDMSpawnObjectAfter += DmSystem.HandleAfterDmSpawnObject;
-      NwModule.Instance.OnDMJumpTargetToPoint += DmSystem.HandleAfterDmJumpTarget; 
-      NwModule.Instance.OnDMJumpAllPlayersToPoint += DmSystem.HandleBeforeDMJumpAllPlayers;
-      NwModule.Instance.OnDMGiveXP += DmSystem.HandleBeforeDmGiveXP;
-      NwModule.Instance.OnDMGiveGold += DmSystem.HandleBeforeDmGiveGold;
-      NwModule.Instance.OnDMGiveItemAfter += DmSystem.HandleAfterDmGiveItem;
-
-      EventsPlugin.SubscribeEvent("NWNX_ON_MAP_PIN_ADD_PIN_AFTER", "map_pin_added");
-      EventsPlugin.SubscribeEvent("NWNX_ON_MAP_PIN_CHANGE_PIN_AFTER", "map_pin_changed");
-      EventsPlugin.SubscribeEvent("NWNX_ON_MAP_PIN_DESTROY_PIN_AFTER", "mappin_destroyed");
-
       EventsPlugin.SubscribeEvent("NWNX_ON_INPUT_EMOTE_BEFORE", "on_input_emote");
       
       //EventsPlugin.SubscribeEvent("NWNX_ON_HAS_FEAT_AFTER", "event_has_feat");
@@ -246,7 +235,13 @@ namespace NWN.Systems
       NwModule.Instance.OnCreatureAttack += AttackSystem.HandleAttackEvent;
       NwModule.Instance.OnCreatureDamage += AttackSystem.HandleDamageEvent;
       NwModule.Instance.OnEffectApply += OnPlayerEffectApplied;
-      NwModule.Instance.OnEffectRemove += OnPlayerEffectRemoved;
+      NwModule.Instance.OnCreatureCheckProficiencies += OnCheckProficiencies;
+    }
+
+    private void OnCheckProficiencies(OnCreatureCheckProficiencies onCheck)
+    {
+      if(onCheck.Item != null && onCheck.Item.BaseItem != null && onCheck.Item.BaseItem.EquipmentSlots != EquipmentSlots.None)
+        onCheck.ResultOverride = CheckProficiencyOverride.HasProficiency;
     }
 
     private void SetModuleTime()
@@ -686,7 +681,8 @@ namespace NWN.Systems
     {
       PlayerSystem.Player player = null;
 
-      if (effectApplied.Effect.Spell == null || effectApplied.Effect.Creator == null)
+      if (effectApplied.Effect.Spell == null || effectApplied.Effect.Creator == null 
+        || effectApplied.Effect.EffectType == EffectType.InvalidEffect || effectApplied.Effect.DurationType == EffectDuration.Instant)
         return;
 
       if (effectApplied.Effect.Creator is NwCreature caster)
@@ -698,50 +694,10 @@ namespace NWN.Systems
       if (player == null)
         return;
 
-      if (!player.runningEffects.Contains(effectApplied.Effect))
-      {
-        player.runningEffects.Add(effectApplied.Effect);
+      effectApplied.Effect.Tag = player.oid.CDKey;
 
-        Effect eff = player.runningEffects.FirstOrDefault(e => e == effectApplied.Effect);
-        if(eff != null)
-        {
-          Log.Info($"EFFECT LIST");
-          Log.Info($"Tag : {eff.Tag}");
-          Log.Info($"Creator : {eff.Creator}");
-          Log.Info($"Spell : {eff.Spell.Name}");
-          Log.Info($"Duration  Remaining : {eff.DurationRemaining}");
-          Log.Info($"Type : {eff.EffectType}");
-          Log.Info($"EFFECT LIST");
-        }
-      }
-
-      Log.Info($"ON APPLY");
-      Log.Info($"Tag : {effectApplied.Effect.Tag}");
-      Log.Info($"Creator : {effectApplied.Effect.Creator.Name}");
-      Log.Info($"Spell : {effectApplied.Effect.Spell.Name}");
-      Log.Info($"Duration  Remaining : {effectApplied.Effect.DurationRemaining}");
-      Log.Info($"Type : {effectApplied.Effect.EffectType}");
-      Log.Info($"END ON APPLY");
-    }
-
-    private void OnPlayerEffectRemoved(OnEffectRemove effectRemoved)
-    {
-      PlayerSystem.Player player = null;
-
-      if (effectRemoved.Effect.Spell == null || effectRemoved.Effect.Creator == null)
-        return;
-
-      if (effectRemoved.Effect.Creator is NwCreature caster)
-        if (caster.IsPlayerControlled && !PlayerSystem.Players.TryGetValue(caster.ControllingPlayer.LoginCreature, out player))
-          return;
-        else if (caster.Master != null && caster.Master.IsPlayerControlled && !PlayerSystem.Players.TryGetValue(caster.Master, out player))
-          return;
-
-      if (player == null)
-        return;
-
-      if(player.runningEffects.Contains(effectRemoved.Effect))
-        player.runningEffects.Remove(effectRemoved.Effect);
+      if (effectApplied.Object is NwGameObject gameObject && !player.effectTargets.Contains(gameObject))
+        player.effectTargets.Add(gameObject);
     }
   }
 }

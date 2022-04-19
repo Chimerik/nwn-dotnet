@@ -47,7 +47,7 @@ namespace NWN.Systems
         private readonly NuiBind<string> learnButtonText = new NuiBind<string>("learnButtonText");
         private readonly NuiBind<bool> learnButtonEnabled = new NuiBind<bool>("learnButtonEnabled");
         private readonly NuiBind<string> search = new NuiBind<string>("search");
-        private readonly NuiColor white = new NuiColor(255, 255, 255);
+        private readonly Color white = new Color(255, 255, 255);
         private readonly NuiRect drawListRect = new NuiRect(0, 35, 150, 60);
 
         public IEnumerable<Learnable> currentList;

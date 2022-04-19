@@ -21,7 +21,7 @@ namespace NWN.Systems
       NwPlayer oPC = HandlePlayerConnect.Player;
 
       if (!Players.TryGetValue(oPC.LoginCreature, out Player player))
-        player = new Player(oPC, areaSystem, spellSystem, feedbackService);
+        player = new Player(oPC, areaSystem, spellSystem, feedbackService, scheduler);
       else
       {
         player.oid = oPC;
@@ -330,6 +330,9 @@ namespace NWN.Systems
         player.LoginCreature.OnUseSkill += HandleBeforeSkillUsed;
         player.OnPlayerGuiEvent += HandleGuiEvents;
         player.OnNuiEvent += HandleGenericNuiEvents;
+        player.OnMapPinAddPin += HandleMapPinAdded;
+        player.OnMapPinChangePin += HandleMapPinChanged;
+        player.OnMapPinDestroyPin += HandleMapPinDestroyed;
       }
       private void InitializePlayerAccount()
       {
@@ -586,6 +589,25 @@ namespace NWN.Systems
         Effect effPC = onCombatStatusChange.Player.ControlledCreature.ActiveEffects.FirstOrDefault(e => e.EffectType == EffectType.CutsceneGhost);
         if (effPC != null)
           onCombatStatusChange.Player.ControlledCreature.RemoveEffect(effPC);
+      }
+      private void HandleMapPinAdded(OnMapPinAddPin onAdd)
+      {
+        int id = oid.LoginCreature.GetObjectVariable<LocalVariableInt>("NW_TOTAL_MAP_PINS").Value;
+        mapPinDictionnary.Add(id, new MapPin(id, oid.ControlledCreature.Area.Tag, onAdd.Position.X, onAdd.Position.Y, onAdd.Note));
+        SaveMapPinsToDatabase();
+      }
+      private void HandleMapPinChanged(OnMapPinChangePin onChange)
+      {
+          MapPin updatedMapPin = mapPinDictionnary[onChange.Id];
+          updatedMapPin.x = onChange.Position.X;
+          updatedMapPin.y = onChange.Position.Y;
+          updatedMapPin.note = onChange.Note;
+          SaveMapPinsToDatabase();
+      }
+      private void HandleMapPinDestroyed(OnMapPinDestroyPin onDestroy)
+      {
+        mapPinDictionnary.Remove(onDestroy.Id);
+        SaveMapPinsToDatabase();
       }
     }
   }

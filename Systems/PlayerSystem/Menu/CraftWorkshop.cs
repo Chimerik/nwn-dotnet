@@ -23,7 +23,7 @@ namespace NWN.Systems
         private readonly NuiBind<string> blueprintTEs = new NuiBind<string>("blueprintTEs");
         private readonly NuiBind<string> blueprintMEs = new NuiBind<string>("blueprintMEs");
         private readonly NuiBind<bool> enable = new NuiBind<bool>("enable");
-        private readonly NuiColor white = new NuiColor(255, 255, 255);
+        private readonly Color white = new Color(255, 255, 255);
         private readonly NuiRect drawListRect = new NuiRect(0, 35, 150, 60);
         private string workshopTag;
         private IEnumerable<NwItem> blueprintList;

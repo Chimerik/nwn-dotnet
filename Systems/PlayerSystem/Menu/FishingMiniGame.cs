@@ -22,13 +22,13 @@ namespace NWN.Systems
         NuiColumn fishCol { get; }
         NuiBind<float> fishingStrengthBind { get; }
         NuiBind<float> successBind { get; }
-        NuiBind<NuiColor> successColorBind { get; }
+        NuiBind<Color> successColorBind { get; }
         NuiProgress fishingStrengthProgress { get; }
         NuiProgress successProgress { get; }
-        NuiBind<NuiColor> fishingStrengthColor { get; }
-        NuiColor red { get; }
-        NuiColor yellow { get; }
-        NuiColor green { get; }
+        private readonly NuiBind<Color> fishingStrengthColor;
+        private readonly Color red = new (255, 0, 0);
+        private readonly Color yellow = new (255, 255, 0);
+        private readonly Color green = new (32, 255, 32);
         int fishingState { get; set; }
         float strValueChg { get; set; }
         NuiBind<NuiRect> weightPos { get; }
@@ -42,10 +42,6 @@ namespace NWN.Systems
         {
           windowId = "fishing";
 
-          red = new NuiColor(255, 0, 0);
-          yellow = new NuiColor(255, 255, 0);
-          green = new NuiColor(32, 255, 32);
-
           List<NuiElement> strengthChildren = new List<NuiElement>();
           strengthCol = new NuiColumn() { Children = strengthChildren };
           List<NuiElement> rootList = new List<NuiElement>();
@@ -55,7 +51,7 @@ namespace NWN.Systems
 
           fishingState = 0;
           fishingStrengthBind = new NuiBind<float>("fishingStrength");
-          fishingStrengthColor = new NuiBind<NuiColor>("fishingStrengthColor");
+          fishingStrengthColor = new NuiBind<Color>("fishingStrengthColor");
           fishingStrengthProgress = new NuiProgress(fishingStrengthBind) { ForegroundColor = fishingStrengthColor, Width = 280 };
           strengthChildren.Add(fishingStrengthProgress);
 
@@ -84,7 +80,7 @@ namespace NWN.Systems
           rootList.Add(successGroup);
 
           successBind = new NuiBind<float>("success");
-          successColorBind = new NuiBind<NuiColor>("successColor");
+          successColorBind = new NuiBind<Color>("successColor");
           successProgress = new NuiProgress(successBind) { ForegroundColor = successColorBind, Width = 280 };
           successChildren.Add(successProgress);
 
@@ -166,7 +162,7 @@ namespace NWN.Systems
 
           await Task.Run(async () =>
           {
-            var spawnScheduler = ModuleSystem.scheduler.ScheduleRepeating(() =>
+            var spawnScheduler = player.scheduler.ScheduleRepeating(() =>
             {
 
               float currentValue = fishingStrengthBind.GetBindValue(player.oid, token);
@@ -207,7 +203,7 @@ namespace NWN.Systems
         {
           await Task.Run(async () =>
           {
-            var spawnScheduler = ModuleSystem.scheduler.ScheduleRepeating(() =>
+            var spawnScheduler = player.scheduler.ScheduleRepeating(() =>
             {
 
               NuiRect oldPos = weightPos.GetBindValue(player.oid, token);
@@ -243,7 +239,7 @@ namespace NWN.Systems
         {
           await Task.Run(async () =>
           {
-            var spawnScheduler = ModuleSystem.scheduler.ScheduleRepeating(() =>
+            var spawnScheduler = player.scheduler.ScheduleRepeating(() =>
             {
 
               NuiRect oldPos = fishPos.GetBindValue(player.oid, token);
@@ -301,7 +297,7 @@ namespace NWN.Systems
         {
           await Task.Run(async () =>
           {
-            var spawnScheduler = ModuleSystem.scheduler.ScheduleRepeating(() =>
+            var spawnScheduler = player.scheduler.ScheduleRepeating(() =>
             {
 
               float yPos = fishPos.GetBindValue(player.oid, token).Y;

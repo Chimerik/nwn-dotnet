@@ -36,7 +36,7 @@ namespace NWN.Systems
               Children = new List<NuiElement>
               {
                 new NuiSpacer(),
-                new NuiLabel(portraitResRef) { ForegroundColor = new NuiColor(255, 100, 0) },
+                new NuiLabel(portraitResRef) { ForegroundColor = new Color(255, 100, 0) },
                 new NuiSpacer()
               }
             },

@@ -13,7 +13,7 @@ namespace NWN.Systems
       public class ActiveCraftJobWindow : PlayerWindow
       {
         private readonly NuiColumn rootColumn;
-        private readonly NuiColor white = new NuiColor(255, 255, 255);
+        private readonly Color white = new Color(255, 255, 255);
         private readonly NuiRect drawListRect = new NuiRect(0, 35, 150, 60);
         private readonly NuiBind<string> icon = new NuiBind<string>("icon");
         private readonly NuiBind<string> name = new NuiBind<string>("name");
@@ -145,7 +145,7 @@ namespace NWN.Systems
           player.oid.OnClientDisconnect -= player.craftJob.HandleCraftJobOnPlayerLeave;
           player.oid.OnClientDisconnect += player.craftJob.HandleCraftJobOnPlayerLeave;
 
-          player.craftJob.jobProgression = ModuleSystem.scheduler.ScheduleRepeating(() =>
+          player.craftJob.jobProgression = player.scheduler.ScheduleRepeating(() =>
           {
             player.craftJob.remainingTime -= 1;
             timeLeft.SetBindValue(player.oid, token, player.craftJob.GetReadableJobCompletionTime());

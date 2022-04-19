@@ -9,13 +9,25 @@ namespace NWN.Systems
   [ServiceBinding(typeof(DmSystem))]
   public class DmSystem
   {
-    public static void HandleAfterDmSpawnObject(OnDMSpawnObjectAfter onSpawn)
+    private readonly PlaceableSystem placeableSystem;
+    public DmSystem(PlaceableSystem placeableSystem)
+    {
+      this.placeableSystem = placeableSystem;
+
+      NwModule.Instance.OnDMSpawnObjectAfter += HandleAfterDmSpawnObject;
+      NwModule.Instance.OnDMJumpTargetToPoint += HandleAfterDmJumpTarget;
+      NwModule.Instance.OnDMJumpAllPlayersToPoint += HandleBeforeDMJumpAllPlayers;
+      NwModule.Instance.OnDMGiveXP += HandleBeforeDmGiveXP;
+      NwModule.Instance.OnDMGiveGold += HandleBeforeDmGiveGold;
+      NwModule.Instance.OnDMGiveItemAfter += HandleAfterDmGiveItem;
+    }
+    public void HandleAfterDmSpawnObject(OnDMSpawnObjectAfter onSpawn)
     {
       if (onSpawn.SpawnedObject is NwPlaceable oPLC)
       {
         if (onSpawn.DungeonMaster.LoginCreature.GetObjectVariable<LocalVariableInt>("_SPAWN_PERSIST").HasValue)
         {
-          oPLC.OnDeath += PlaceableSystem.HandleCleanDMPLC;
+          oPLC.OnDeath += placeableSystem.HandleCleanDMPLC;
 
           SqLiteUtils.InsertQuery("dm_persistant_placeable",
             new List<string[]>() { new string[] { "accountID", "0" }, new string[] { "serializedPlaceable", oPLC.Serialize().ToBase64EncodedString() }, new string[] { "areaTag", oPLC.Area.Tag }, new string[] { "position", oPLC.Position.ToString() }, new string[] { "facing", oPLC.Rotation.ToString() } });
@@ -35,30 +47,30 @@ namespace NWN.Systems
         Utils.LogMessageToDMs($"{onSpawn.DungeonMaster.PlayerName} vient de créer {oItem.Name}");
       }
     }
-    public static void HandleAfterDmJumpTarget(OnDMJumpTargetToPoint onJump)
+    public void HandleAfterDmJumpTarget(OnDMJumpTargetToPoint onJump)
     {
       foreach(NwGameObject target in onJump.Targets)
         if(target is NwCreature targetCreature && targetCreature.Area.Tag == "LaBrume" && PlayerSystem.Players.TryGetValue(targetCreature, out PlayerSystem.Player player))
           player.DestroyPlayerCorpse();
     }
-    public static void HandleBeforeDMJumpAllPlayers(OnDMJumpAllPlayersToPoint onJump)
+    public void HandleBeforeDMJumpAllPlayers(OnDMJumpAllPlayersToPoint onJump)
     {
       onJump.Skip = true;
       onJump.DungeonMaster.SendServerMessage("La fonctionnalité de téléportation massive est désactivée.", ColorConstants.Orange);
     }
 
-    public static void HandleBeforeDmGiveXP(OnDMGiveXP onGive)
+    public void HandleBeforeDmGiveXP(OnDMGiveXP onGive)
     {
       onGive.Skip = true;
       Utils.LogMessageToDMs($"{onGive.DungeonMaster.PlayerName} vient d'essayer de donner de l'xp à {onGive.Target.Name}");
     }
 
-    public static void HandleBeforeDmGiveGold(OnDMGiveGold onGive)
+    public void HandleBeforeDmGiveGold(OnDMGiveGold onGive)
     {
       Utils.LogMessageToDMs($"{onGive.DungeonMaster.PlayerName} vient de donner {onGive.Amount} po à {onGive.Target.Name}");
     }
 
-    public static void HandleAfterDmGiveItem(OnDMGiveItemAfter onGive)
+    public void HandleAfterDmGiveItem(OnDMGiveItemAfter onGive)
     {
       onGive.Item.GetObjectVariable<LocalVariableString>("ITEM_KEY").Value = Config.itemKey;
       Utils.LogMessageToDMs($"{onGive.DungeonMaster.PlayerName} vient de donner {onGive.Item.Name} à {onGive.Target.Name}");

@@ -20,7 +20,7 @@ namespace NWN.Systems
 
       Log.Info("Spawn destroyed");
 
-      areaCleanerCheckScheduler = ModuleSystem.scheduler.ScheduleRepeating(() =>
+      areaCleanerCheckScheduler = scheduler.ScheduleRepeating(() =>
       {
         Log.Info("areaCleanerCheckScheduler on");
         if (area.PlayerCount > 1)
@@ -34,7 +34,7 @@ namespace NWN.Systems
 
       Log.Info("areaCleanerCheckScheduler OK");
 
-      areaCleanerScheduler = ModuleSystem.scheduler.Schedule(() =>
+      areaCleanerScheduler = scheduler.Schedule(() =>
       {
         Log.Info($"Cleaning area {area.Name}");
         areaCleanerCheckScheduler.Dispose();
@@ -57,7 +57,7 @@ namespace NWN.Systems
     }
     public void AreaDestroyer(NwArea area)
     {
-      areaDestroyerScheduler = ModuleSystem.scheduler.ScheduleRepeating(() =>
+      areaDestroyerScheduler = scheduler.ScheduleRepeating(() =>
       {
         if (!NwModule.Instance.Players.Any(p => p.ControlledCreature == null && p.ControlledCreature.Area == null) && area.PlayerCount < 1)
         {

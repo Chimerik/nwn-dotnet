@@ -70,7 +70,7 @@ namespace NWN.Systems
     public async void AwaitPlayerStateChangeToCalculateSPGain(PlayerSystem.Player player)
     {
       TimeSpan timeToNextLevel = GetTimeSpanToNextLevel(player);
-      var scheduler = ModuleSystem.scheduler.Schedule(() => { LevelUpWrapper(player);}, timeToNextLevel.TotalSeconds > 0 ? timeToNextLevel: TimeSpan.FromSeconds(0));
+      var scheduler = player.scheduler.Schedule(() => { LevelUpWrapper(player);}, timeToNextLevel.TotalSeconds > 0 ? timeToNextLevel: TimeSpan.FromSeconds(0));
 
       CancellationTokenSource tokenSource = new CancellationTokenSource();
 

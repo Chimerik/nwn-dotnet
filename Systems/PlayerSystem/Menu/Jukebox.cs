@@ -15,11 +15,11 @@ namespace NWN.Systems
       public class JukeBoxWindow : PlayerWindow
       {
         NuiColumn rootColumn { get; }
-        private readonly NuiBind<string> search = new NuiBind<string>("search");
-        private readonly NuiBind<string> currentMusic = new NuiBind<string>("currentMusic");
-        private readonly NuiBind<string> musicNames = new NuiBind<string>("musicNames");
-        private readonly NuiBind<int> listCount = new NuiBind<int>("listCount");
-        IEnumerable<AmbientMusicTable.Entry> songList { get; set; }
+        private readonly NuiBind<string> search = new ("search");
+        private readonly NuiBind<string> currentMusic = new ("currentMusic");
+        private readonly NuiBind<string> musicNames = new ("musicNames");
+        private readonly NuiBind<int> listCount = new ("listCount");
+        IEnumerable<AmbientMusicEntry> songList { get; set; }
         private NwCreature bard { get; set; }
 
         public JukeBoxWindow(Player player, NwCreature bard) : base(player)
@@ -71,12 +71,12 @@ namespace NWN.Systems
           if (bard.Gender == Gender.Female)
           {
             currentMusic.SetBindValue(player.oid, token, "Ambiance du relais");
-            songList = AmbientMusic2da.ambientMusicTable.entries.Values.Where(m => m.gender == Gender.Female || m.gender == Gender.Both);
+            songList = AmbientMusic2da.ambientMusicTable.Where(m => m.gender == Gender.Female || m.gender == Gender.Both);
           }
           else
           {
             currentMusic.SetBindValue(player.oid, token, "Ambiance du dragon d'argent");
-            songList = AmbientMusic2da.ambientMusicTable.entries.Values.Where(m => m.gender == Gender.Male || m.gender == Gender.Both);
+            songList = AmbientMusic2da.ambientMusicTable.Where(m => m.gender == Gender.Male || m.gender == Gender.Both);
           }
 
           LoadList(songList);
@@ -95,16 +95,16 @@ namespace NWN.Systems
               {
                 case "select":
 
-                  AmbientMusicTable.Entry selectedSong = songList.ElementAt(nuiEvent.ArrayIndex);
+                  AmbientMusicEntry selectedSong = songList.ElementAt(nuiEvent.ArrayIndex);
                   currentMusic.SetBindValue(player.oid, token, selectedSong.name);
 
                   NwArea area = bard.Area;
                   area.StopBackgroundMusic();
-                  area.MusicBackgroundDayTrack = selectedSong.id;
-                  area.MusicBackgroundNightTrack = selectedSong.id;
+                  area.MusicBackgroundDayTrack = selectedSong.RowIndex;
+                  area.MusicBackgroundNightTrack = selectedSong.RowIndex;
                   area.PlayBackgroundMusic();
 
-                  bard.PlayAnimation(Animation.LoopingTalkLaughing, 3, true, TimeSpan.FromHours(24));
+                  _ = bard.PlayAnimation(Animation.LoopingTalkLaughing, 3, true, TimeSpan.FromHours(24));
                   bard.ApplyEffect(EffectDuration.Instant, Effect.VisualEffect(VfxType.FnfSoundBurstSilent));
                   bard.ApplyEffect(EffectDuration.Permanent, Effect.VisualEffect(VfxType.DurBardSong), TimeSpan.FromHours(24));
 
@@ -134,11 +134,11 @@ namespace NWN.Systems
               break;
           }
         }
-        private void LoadList(IEnumerable<AmbientMusicTable.Entry> songList)
+        private void LoadList(IEnumerable<AmbientMusicEntry> songList)
         {
           List<string> nameList = new List<string>();
 
-          foreach (AmbientMusicTable.Entry song in songList) 
+          foreach (AmbientMusicEntry song in songList) 
             nameList.Add(song.name);
 
           musicNames.SetBindValues(player.oid, token, nameList);

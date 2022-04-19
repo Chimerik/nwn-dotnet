@@ -15,8 +15,11 @@ namespace NWN.Systems
   public class PlaceableSystem
   {
     public static readonly Logger Log = LogManager.GetCurrentClassLogger();
-    public PlaceableSystem()
+    public readonly SchedulerService scheduler;
+    public PlaceableSystem(SchedulerService schedulerService)
     {
+      scheduler = schedulerService;
+
       foreach (NwDoor door in NwObject.FindObjectsOfType<NwDoor>())
         door.OnOpen += HandleDoorAutoClose;
 
@@ -79,7 +82,7 @@ namespace NWN.Systems
         trainer.OnDamaged += HandleTrainingDummyDamaged;
       }
     }
-    private static void HandleTrainingDummyDamaged(CreatureEvents.OnDamaged onDamaged)
+    private void HandleTrainingDummyDamaged(CreatureEvents.OnDamaged onDamaged)
     {
       Task HealAfterDamage = NwTask.Run(async () =>
       {
@@ -87,18 +90,18 @@ namespace NWN.Systems
         onDamaged.Creature.HP = onDamaged.Creature.MaxHP;
       });
     }
-    public static void OnUsedStoragePortalOut(PlaceableEvents.OnUsed onUsed)
+    public void OnUsedStoragePortalOut(PlaceableEvents.OnUsed onUsed)
     {
-      onUsed.UsedBy.Location = NwModule.FindObjectsWithTag<NwWaypoint>("wp_outentrepot").FirstOrDefault().Location;
+      onUsed.UsedBy.Location = NwObject.FindObjectsWithTag<NwWaypoint>("wp_outentrepot").FirstOrDefault().Location;
     }
-    public static async void OnUsedBalancoire(PlaceableEvents.OnUsed onUsed)
+    public async void OnUsedBalancoire(PlaceableEvents.OnUsed onUsed)
     {
       await onUsed.UsedBy.ActionSit(onUsed.Placeable.GetNearestObjectsByType<NwPlaceable>().FirstOrDefault(p => p.Tag == "balancoiresitter"));
 
-      new Swing(onUsed.Placeable, onUsed.UsedBy);
+      new Swing(onUsed.Placeable, onUsed.UsedBy, this);
     }
     
-    public static void HandleCleanDMPLC(PlaceableEvents.OnDeath onDeath)
+    public void HandleCleanDMPLC(PlaceableEvents.OnDeath onDeath)
     {
       NwPlaceable plc = onDeath.KilledObject;
       int plcID = plc.GetObjectVariable<LocalVariableInt>("_ID").Value;
@@ -110,7 +113,7 @@ namespace NWN.Systems
       else
         Utils.LogMessageToDMs($"Persistent placeable {plc.Name} in area {plc.Area.Name} does not have a valid ID !");
     }
-    public static void HandlePlaceableUsed(PlaceableEvents.OnUsed onUsed)
+    public void HandlePlaceableUsed(PlaceableEvents.OnUsed onUsed)
     {
       Log.Info($"{onUsed.UsedBy.Name} used {onUsed.Placeable.Tag}");
       if (!Players.TryGetValue(onUsed.UsedBy.ControllingPlayer.ControlledCreature, out Player player))

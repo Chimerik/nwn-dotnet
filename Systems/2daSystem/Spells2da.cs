@@ -33,7 +33,7 @@ namespace NWN.Systems
       level = level < 1 ? 0.5f : level;
 
       NwSpell nwSpell = NwSpell.FromSpellId(rowIndex);
-      SkillSystem.learnableDictionary.Add(rowIndex, new LearnableSpell(rowIndex, nwSpell.Name, nwSpell.Description, nwSpell.IconResRef, level < 1 ? 1 : (int)level, level < 1 ? 0 : (int)level, castClass == ClassType.Druid || castClass == ClassType.Cleric || castClass == ClassType.Ranger ? Ability.Wisdom : Ability.Intelligence, Ability.Charisma));
+      SkillSystem.learnableDictionary.Add(rowIndex, new LearnableSpell(rowIndex, nwSpell.Name.ToString(), nwSpell.Description.ToString(), nwSpell.IconResRef, level < 1 ? 1 : (int)level, level < 1 ? 0 : (int)level, castClass == ClassType.Druid || castClass == ClassType.Cleric || castClass == ClassType.Ranger ? Ability.Wisdom : Ability.Intelligence, Ability.Charisma));
     }
   }
 

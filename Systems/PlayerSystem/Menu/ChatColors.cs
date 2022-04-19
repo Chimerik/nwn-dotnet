@@ -16,7 +16,7 @@ namespace NWN.Systems
         private readonly NuiColumn rootColumn;
         private readonly List<NuiElement> rootChidren;
         private readonly NuiBind<string> buttonText = new NuiBind<string>("buttonText");
-        private readonly NuiBind<NuiColor> color = new NuiBind<NuiColor>("color");
+        private readonly NuiBind<Color> color = new NuiBind<Color>("color");
         private readonly NuiBind<int> listCount = new NuiBind<int>("listCount");
         private readonly List<string> channelList = new List<string>()
         { "Parler - Joueur", "Parler - DM", "Murmurer - Joueur", "Murmurer - DM", "Groupe - Joueur", "Message privé - Joueur", "Emotes", "Correctif" };
@@ -92,7 +92,7 @@ namespace NWN.Systems
               {
                 case "set":
 
-                  NuiColor newColor = color.GetBindValue(player.oid, token);
+                  Color newColor = color.GetBindValue(player.oid, token);
                   int chatChannel = GetChatChannelFromIndex(nuiEvent.ArrayIndex);
 
                   if (player.chatColors.ContainsKey(chatChannel))

@@ -102,7 +102,7 @@ namespace NWN.Systems
           eRay.Tag = $"_{player.oid.CDKey}_MINING_BEAM";
           oTarget.ApplyEffect(EffectDuration.Temporary, eRay, TimeSpan.FromSeconds(extractionRemainingTime));
 
-          extractionProgress = ModuleSystem.scheduler.ScheduleRepeating(HandleExtractionProgress, TimeSpan.FromSeconds(1));
+          extractionProgress = player.scheduler.ScheduleRepeating(HandleExtractionProgress, TimeSpan.FromSeconds(1));
         }
 
         private void HandleExtractionProgress()

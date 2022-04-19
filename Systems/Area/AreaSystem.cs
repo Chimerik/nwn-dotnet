@@ -17,11 +17,13 @@ namespace NWN.Systems
     private DialogSystem dialogSystem;
     private ScriptHandleFactory scriptHandleFactory;
     private ScriptCallbackHandle mobRegenIntervalHandle;
+    private readonly SchedulerService scheduler;
 
-    public AreaSystem(DialogSystem dialogSystem, ScriptHandleFactory scriptFactory)
+    public AreaSystem(ModuleSystem moduleSystem, DialogSystem dialogSystem, ScriptHandleFactory scriptFactory, SchedulerService schedulerService)
     {
       this.dialogSystem = dialogSystem;
       scriptHandleFactory = scriptFactory;
+      scheduler = schedulerService;
       mobRegenIntervalHandle = scriptHandleFactory.CreateUniqueHandler(onMobRegenInterval);
 
       foreach (NwTrigger trigger in NwObject.FindObjectsWithTag("invi_unwalkable"))

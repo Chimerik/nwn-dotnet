@@ -42,12 +42,12 @@ namespace NWN.Systems
 
           rootChidren.Add(row);
 
-          row = new NuiRow() { Children = new List<NuiElement>() { new NuiText(spell.Description) } };
+          row = new NuiRow() { Children = new List<NuiElement>() { new NuiText(spell.Description.ToString()) } };
           rootChidren.Add(row);
 
           NuiRect windowRectangle = player.windowRectangles.ContainsKey(windowId) ? player.windowRectangles[windowId] : new NuiRect(10, player.oid.GetDeviceProperty(PlayerDeviceProperty.GuiHeight) * 0.01f, 500, 300);
 
-          window = new NuiWindow(rootGroup, spell.Name)
+          window = new NuiWindow(rootGroup, spell.Name.ToString())
           {
             Geometry = geometry,
             Resizable = true,

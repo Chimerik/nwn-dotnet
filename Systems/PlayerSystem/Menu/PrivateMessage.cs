@@ -238,14 +238,14 @@ namespace NWN.Systems
 
           chatRowChildren.Add(new NuiImage(chatLine.portrait) { Id = chatLine.playerName, Height = 24, Width = 19, ImageAspect = NuiAspect.ExactScaled });
           List<NuiDrawListItem> updatedDrawList = new List<NuiDrawListItem>();
-          chatRowChildren.Add(new NuiLabel(chatLine.name) { Width = nameWidth, Id = chatLine.playerName, VerticalAlign = NuiVAlign.Top, HorizontalAlign = NuiHAlign.Left, ForegroundColor = new NuiColor(143, 127, 255), DrawList = updatedDrawList });
+          chatRowChildren.Add(new NuiLabel(chatLine.name) { Width = nameWidth, Id = chatLine.playerName, VerticalAlign = NuiVAlign.Top, HorizontalAlign = NuiHAlign.Left, ForegroundColor = new Color(143, 127, 255), DrawList = updatedDrawList });
 
-          NuiColor color = new NuiColor(255, 255, 255);
+          Color color = new Color(255, 255, 255);
 
           if (player.chatColors.ContainsKey((int)chatLine.channel))
           {
             byte[] colorArray = player.chatColors[(int)chatLine.channel];
-            color = new NuiColor(colorArray[0], colorArray[1], colorArray[2], colorArray[3]);
+            color = new Color(colorArray[0], colorArray[1], colorArray[2], colorArray[3]);
           }
 
           float textWidth;
@@ -335,7 +335,7 @@ namespace NWN.Systems
           } while (remainingText.Length > 1);
 
           if (updatedText)
-            updatedDrawList.Add(new NuiDrawListText(new NuiColor(200, 200, 200, 150), new NuiRect(0, characterHeight, 9 * characterWidth, characterHeight), "[modifié]") { Fill = true });
+            updatedDrawList.Add(new NuiDrawListText(new Color(200, 200, 200, 150), new NuiRect(0, characterHeight, 9 * characterWidth, characterHeight), "[modifié]") { Fill = true });
         }
       }
     }

@@ -302,7 +302,7 @@ namespace NWN.Systems
         player.oid.OnClientDisconnect -= HandleCraftJobOnPlayerLeave;
         player.oid.OnClientDisconnect += HandleCraftJobOnPlayerLeave;
 
-        jobProgression = ModuleSystem.scheduler.ScheduleRepeating(() =>
+        jobProgression = player.scheduler.ScheduleRepeating(() =>
         {
           jobProgression.Dispose();
           HandleSpecificJobCompletion[type].Invoke(player, true);

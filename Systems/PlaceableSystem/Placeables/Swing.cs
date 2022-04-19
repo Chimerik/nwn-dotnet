@@ -3,6 +3,7 @@ using System.Numerics;
 
 using Anvil.API;
 using Anvil.API.Events;
+using Anvil.Services;
 
 namespace NWN.Systems
 {
@@ -10,14 +11,16 @@ namespace NWN.Systems
   {
     private readonly NwPlaceable swing;
     private readonly NwCreature oPC;
+    private readonly PlaceableSystem placeableSystem;
     private IDisposable scheduleMotion { get; set; }
 
-    public Swing(NwPlaceable swing, NwCreature oPC)
+    public Swing(NwPlaceable swing, NwCreature oPC, PlaceableSystem placeableSystem)
     {
+      this.placeableSystem = placeableSystem;
       this.swing = swing;
       this.oPC = oPC;
 
-      this.swing.OnUsed -= PlaceableSystem.OnUsedBalancoire;
+      this.swing.OnUsed -= placeableSystem.OnUsedBalancoire;
       this.swing.OnLeftClick += OnClickSwingBalancoire;
 
       HandleSwingReset();
@@ -50,7 +53,7 @@ namespace NWN.Systems
         transform.Rotation = new Vector3(0, 0, 0);
       });
 
-      swing.OnUsed += PlaceableSystem.OnUsedBalancoire;
+      swing.OnUsed += placeableSystem.OnUsedBalancoire;
       swing.OnLeftClick -= OnClickSwingBalancoire;
     }
 
@@ -107,7 +110,7 @@ namespace NWN.Systems
           transform.Rotation = new Vector3(0, 0, -15);
         });
 
-        scheduleMotion = ModuleSystem.scheduler.ScheduleRepeating(HandleSwing, TimeSpan.FromSeconds(2), TimeSpan.FromSeconds(0));
+        scheduleMotion = placeableSystem.scheduler.ScheduleRepeating(HandleSwing, TimeSpan.FromSeconds(2), TimeSpan.FromSeconds(0));
       }
     }
     private void HandleSwing()

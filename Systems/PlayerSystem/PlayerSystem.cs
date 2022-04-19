@@ -20,7 +20,8 @@ namespace NWN.Systems
     public ScriptHandleFactory scriptHandleFactory;
     public SpellSystem spellSystem;
     public AreaSystem areaSystem;
-    public PlayerSystem(EventService eventServices, FeedbackService feedback, ScriptHandleFactory scriptFactory, AreaSystem areaSystem, SpellSystem spellSystem)
+    private readonly SchedulerService scheduler;
+    public PlayerSystem(EventService eventServices, FeedbackService feedback, ScriptHandleFactory scriptFactory, AreaSystem areaSystem, SpellSystem spellSystem, SchedulerService schedulerService)
     {
       NwModule.Instance.OnClientEnter += HandlePlayerConnect;
       NwModule.Instance.OnClientDisconnect += HandlePlayerLeave;
@@ -28,6 +29,7 @@ namespace NWN.Systems
       eventService = eventServices;
       feedbackService = feedback;
       scriptHandleFactory = scriptFactory;
+      scheduler = schedulerService;
       this.spellSystem = spellSystem;
       this.areaSystem = areaSystem;
     }
@@ -136,40 +138,6 @@ namespace NWN.Systems
       }
     }
 
-    [ScriptHandler("map_pin_added")]
-    private void HandleAddMapPin(CallInfo callInfo)
-    {
-      if (Players.TryGetValue(callInfo.ObjectSelf, out Player player))
-      {
-        int id = player.oid.LoginCreature.GetObjectVariable<LocalVariableInt>("NW_TOTAL_MAP_PINS").Value;
-        player.mapPinDictionnary.Add(id, new MapPin(id, player.oid.ControlledCreature.Area.Tag, float.Parse(EventsPlugin.GetEventData("PIN_X")), float.Parse(EventsPlugin.GetEventData("PIN_Y")), EventsPlugin.GetEventData("PIN_NOTE")));
-        player.SaveMapPinsToDatabase();
-      }
-    }
-
-    [ScriptHandler("mappin_destroyed")]
-    private void HandleDestroyMapPin(CallInfo callInfo)
-    {
-      if (Players.TryGetValue(callInfo.ObjectSelf, out Player player))
-      {
-        int pinId = int.Parse(EventsPlugin.GetEventData("PIN_ID"));
-        player.mapPinDictionnary.Remove(pinId);
-        player.SaveMapPinsToDatabase();
-      }
-    }
-    [ScriptHandler("map_pin_changed")] 
-    private void HandleChangeMapPin(CallInfo callInfo)
-    {
-      if (Players.TryGetValue(callInfo.ObjectSelf, out Player player))
-      {
-        MapPin updatedMapPin = player.mapPinDictionnary[int.Parse(EventsPlugin.GetEventData("PIN_ID"))];
-        updatedMapPin.x = float.Parse(EventsPlugin.GetEventData("PIN_X"));
-        updatedMapPin.y = float.Parse(EventsPlugin.GetEventData("PIN_Y"));
-        updatedMapPin.note = EventsPlugin.GetEventData("PIN_NOTE");
-
-        player.SaveMapPinsToDatabase();
-      }
-    }
     [ScriptHandler("on_input_emote")]
     private async void HandleInputEmote(CallInfo callInfo)
     {
@@ -500,7 +468,7 @@ namespace NWN.Systems
             int nAmount, nRemaining;
 
             if (eff.Spell.SpellType != Spell.AllSpells)
-              name = eff.Spell.Name;
+              name = eff.Spell.Name.ToString();
 
             float percentageRemaining = eff.DurationRemaining / eff.TotalDuration;
             Color color = ColorConstants.White;

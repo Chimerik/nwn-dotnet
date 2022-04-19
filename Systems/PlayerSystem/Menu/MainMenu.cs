@@ -299,14 +299,14 @@ namespace NWN.Systems
                   foreach (Player connectedPlayer in Players.Values.Where(p => p.pcState != PcState.Offline))
                     player.windows.Add("rebootCountdown", new RebootCountdownWindow(player));
 
-                  var scheduler = ModuleSystem.scheduler.Schedule(() =>
+                  var scheduler = player.scheduler.Schedule(() =>
                   {
                     SqLiteUtils.UpdateQuery("moduleInfo",
                       new List<string[]>() { new string[] { "year", NwDateTime.Now.Year.ToString() }, new string[] { "month", NwDateTime.Now.Month.ToString() }, new string[] { "day", NwDateTime.Now.DayInTenday.ToString() }, new string[] { "hour", NwDateTime.Now.Hour.ToString() }, new string[] { "minute", NwDateTime.Now.Minute.ToString() }, new string[] { "second", NwDateTime.Now.Second.ToString() } },
                       new List<string[]>() { new string[] { "rowid", "1" } });
                   }, TimeSpan.FromSeconds(31));
 
-                  var schedulerReboot = ModuleSystem.scheduler.Schedule(() => { NwServer.Instance.ShutdownServer(); }, TimeSpan.FromSeconds(35));
+                  var schedulerReboot = player.scheduler.Schedule(() => { NwServer.Instance.ShutdownServer(); }, TimeSpan.FromSeconds(35));
 
                   break;
 
@@ -354,6 +354,17 @@ namespace NWN.Systems
                     ((AoEDispelWindow)player.windows["aoeDispel"]).CreateWindow();
                   else
                     player.windows.Add("aoeDispel", new AoEDispelWindow(player));
+
+                  CloseWindow();
+
+                  break;
+
+                case "effectDispel":
+
+                  if (player.windows.ContainsKey("effectDispel"))
+                    ((PlayerEffectDispelWindow)player.windows["effectDispel"]).CreateWindow();
+                  else
+                    player.windows.Add("effectDispel", new PlayerEffectDispelWindow(player));
 
                   CloseWindow();
 

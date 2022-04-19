@@ -233,7 +233,7 @@ namespace Test
     }
 
     json
-      NuiColor(int r, int g, int b, int a = 255)
+      Color(int r, int g, int b, int a = 255)
     {
       json ret = JsonObject();
       ret = JsonObjectSet(ret, "r", JsonInt(r));
@@ -427,7 +427,7 @@ namespace Test
     }
 
     json
-      NuiColorPicker(
+      ColorPicker(
         json jColor
       )
     {

@@ -11,7 +11,6 @@ namespace NWN.Systems
 
     //private delegate int GetDamageRollHook(void* thisPtr, void* pTarget, int bOffHand, int bCritical, int bSneakAttack, int bDeathAttack, int bForceMax);
     private delegate void ResolveAttackRollHook(void* pCreature, void* pTarget);
-    private delegate int CheckProficienciesHook(void* pItem, uint nEquipToSlot);
 
     //private readonly FunctionHook<GetDamageRollHook> getDamageRollHook;
     //private readonly FunctionHook<ResolveAttackRollHook> resolveAttackRollHook;
@@ -20,15 +19,6 @@ namespace NWN.Systems
     {
       //getDamageRollHook = hookService.RequestHook<GetDamageRollHook>(OnGetDamageRoll, FunctionsLinux._ZN17CNWSCreatureStats13GetDamageRollEP10CNWSObjectiiiii, HookOrder.Early);
       hookService.RequestHook<ResolveAttackRollHook>(OnResolveAttackRoll, FunctionsLinux._ZN12CNWSCreature17ResolveAttackRollEP10CNWSObject, HookOrder.Early);
-      hookService.RequestHook<CheckProficienciesHook>(OnCheckProficiencies, FunctionsLinux._ZN12CNWSCreature18CheckProficienciesEP8CNWSItemj, HookOrder.Early);
-    }
-    private int OnCheckProficiencies(void* pItem, uint nEquipToSlot)
-    {
-      var item = CNWSItem.FromPointer(pItem);
-      if (item != null && NwBaseItem.FromItemId((int)item.m_nBaseItem) != null && NwBaseItem.FromItemId((int)item.m_nBaseItem).EquipmentSlots != EquipmentSlots.None)
-        return 1;
-      else
-        return 0;
     }
     private void OnResolveAttackRoll(void* pCreature, void* pTarget)
     {

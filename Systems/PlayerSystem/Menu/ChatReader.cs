@@ -51,9 +51,9 @@ namespace NWN.Systems
 
           settingsRowChildren.Add(new NuiCheck("Figer", makeStatic) { Id = "fix", Tooltip = "Permet d'ancrer la fenêtre à l'écran", Width = 60 });
 
-          rpCategory = new NuiOptions() { Id = "rpCategory", Tooltip = "Affiche le canal roleplay", Direction = NuiDirection.Horizontal, Options = { "RP" }, ForegroundColor = new NuiColor(142, 146, 151), Width = 60, Height = characterHeight, Margin = 7, Selection = 0 };
-          hrpCategory = new NuiOptions() { Id = "hrpCategory", Tooltip = "Affiche le canal hors roleplay", Direction = NuiDirection.Horizontal, Options = { "HRP" }, ForegroundColor = new NuiColor(142, 146, 151), Width = 60, Height = characterHeight, Margin = 7 };
-          mpCategory = new NuiOptions() { Id = "mpCategory", Tooltip = "Affiche le canal roleplay", Direction = NuiDirection.Horizontal, Options = { "MP" }, ForegroundColor = new NuiColor(142, 146, 151), Width = 60, Height = characterHeight, Margin = 7 };
+          rpCategory = new NuiOptions() { Id = "rpCategory", Tooltip = "Affiche le canal roleplay", Direction = NuiDirection.Horizontal, Options = { "RP" }, ForegroundColor = new Color(142, 146, 151), Width = 60, Height = characterHeight, Margin = 7, Selection = 0 };
+          hrpCategory = new NuiOptions() { Id = "hrpCategory", Tooltip = "Affiche le canal hors roleplay", Direction = NuiDirection.Horizontal, Options = { "HRP" }, ForegroundColor = new Color(142, 146, 151), Width = 60, Height = characterHeight, Margin = 7 };
+          mpCategory = new NuiOptions() { Id = "mpCategory", Tooltip = "Affiche le canal roleplay", Direction = NuiDirection.Horizontal, Options = { "MP" }, ForegroundColor = new Color(142, 146, 151), Width = 60, Height = characterHeight, Margin = 7 };
 
           settingsRowChildren.Add(rpCategory);
           settingsRowChildren.Add(hrpCategory);
@@ -131,9 +131,9 @@ namespace NWN.Systems
               if (rectangle.Width <= 0 || rectangle.Height <= 0)
                 return;
 
-              NuiProperty<NuiColor> rpPreviousColor = rpCategory.ForegroundColor;
-              NuiProperty<NuiColor> hrpPreviousColor = hrpCategory.ForegroundColor;
-              NuiProperty<NuiColor> mpPreviousColor = mpCategory.ForegroundColor;
+              NuiProperty<Color> rpPreviousColor = rpCategory.ForegroundColor;
+              NuiProperty<Color> hrpPreviousColor = hrpCategory.ForegroundColor;
+              NuiProperty<Color> mpPreviousColor = mpCategory.ForegroundColor;
 
               colChatLogChidren.Clear();
               colChatLogChidren.Add(settingsRow);
@@ -163,12 +163,12 @@ namespace NWN.Systems
                 colChatLogChidren.Clear();
                 colChatLogChidren.Add(settingsRow);
 
-                NuiProperty<NuiColor> previousHrp = hrpCategory.ForegroundColor;
-                NuiProperty<NuiColor> previousMP = mpCategory.ForegroundColor;
+                NuiProperty<Color> previousHrp = hrpCategory.ForegroundColor;
+                NuiProperty<Color> previousMP = mpCategory.ForegroundColor;
 
                 CreateChatRows();
 
-                rpCategory.ForegroundColor = new NuiColor(142, 146, 151);
+                rpCategory.ForegroundColor = new Color(142, 146, 151);
                 hrpCategory.ForegroundColor = previousHrp;
                 mpCategory.ForegroundColor = previousMP;
 
@@ -185,15 +185,15 @@ namespace NWN.Systems
                 rpCategory.Selection = 1;
                 mpCategory.Selection = 1;
 
-                NuiProperty<NuiColor> previousRp = rpCategory.ForegroundColor;
-                NuiProperty<NuiColor> previousMP = mpCategory.ForegroundColor;
+                NuiProperty<Color> previousRp = rpCategory.ForegroundColor;
+                NuiProperty<Color> previousMP = mpCategory.ForegroundColor;
 
                 colChatLogChidren.Clear();
                 colChatLogChidren.Add(settingsRow);
 
                 CreateChatRows();
 
-                hrpCategory.ForegroundColor = new NuiColor(142, 146, 151);
+                hrpCategory.ForegroundColor = new Color(142, 146, 151);
                 rpCategory.ForegroundColor = previousRp;
                 mpCategory.ForegroundColor = previousMP;
 
@@ -211,15 +211,15 @@ namespace NWN.Systems
                 rpCategory.Selection = 1;
                 hrpCategory.Selection = 1;
 
-                NuiProperty<NuiColor> previousRp = rpCategory.ForegroundColor;
-                NuiProperty<NuiColor> previousHrp = hrpCategory.ForegroundColor;
+                NuiProperty<Color> previousRp = rpCategory.ForegroundColor;
+                NuiProperty<Color> previousHrp = hrpCategory.ForegroundColor;
 
                 colChatLogChidren.Clear();
                 colChatLogChidren.Add(settingsRow);
 
                 CreatePMRows();
 
-                mpCategory.ForegroundColor = new NuiColor(142, 146, 151);
+                mpCategory.ForegroundColor = new Color(142, 146, 151);
                 rpCategory.ForegroundColor = previousRp;
                 hrpCategory.ForegroundColor = previousHrp;
 
@@ -261,7 +261,7 @@ namespace NWN.Systems
             if (player.windows.ContainsKey(targetName))
             {
               ((PrivateMessageWindow)player.windows[targetName]).CreateWindow();
-              ((NuiRow)colChatLogChidren[1]).Children.FirstOrDefault(c => c.Id == nuiEvent.ElementId && c is NuiLabel).ForegroundColor = new NuiColor(142, 146, 151);
+              ((NuiRow)colChatLogChidren[1]).Children.FirstOrDefault(c => c.Id == nuiEvent.ElementId && c is NuiLabel).ForegroundColor = new Color(142, 146, 151);
               chatReaderGroup.SetLayout(player.oid, token, colChatLog);
             }
             else
@@ -271,7 +271,7 @@ namespace NWN.Systems
               if (target != null)
               {
                 player.windows.Add(target.PlayerName, new PrivateMessageWindow(player, target));
-                ((NuiRow)colChatLogChidren[1]).Children.FirstOrDefault(c => c.Id == nuiEvent.ElementId && c is NuiLabel).ForegroundColor = new NuiColor(142, 146, 151);
+                ((NuiRow)colChatLogChidren[1]).Children.FirstOrDefault(c => c.Id == nuiEvent.ElementId && c is NuiLabel).ForegroundColor = new Color(142, 146, 151);
                 chatReaderGroup.SetLayout(player.oid, token, colChatLog);
               }
               else
@@ -322,7 +322,7 @@ namespace NWN.Systems
             colChatLogChidren.Insert(1, chatRow);
           else
           {
-            NuiColor white = new NuiColor(255, 255, 255);
+            Color white = new Color(255, 255, 255);
             switch (chatLine.category)
             {
               case ChatLine.ChatCategory.RolePlay:
@@ -341,18 +341,18 @@ namespace NWN.Systems
 
           chatRowChildren.Add(new NuiImage(chatLine.portrait) { Id = chatLine.playerName, Height = 24, Width = 19, ImageAspect = NuiAspect.ExactScaled });
           List<NuiDrawListItem> updatedDrawList = new List<NuiDrawListItem>();
-          chatRowChildren.Add(new NuiLabel(chatLine.name) { Width = nameWidth, Id = chatLine.playerName, VerticalAlign = NuiVAlign.Top, HorizontalAlign = NuiHAlign.Left, ForegroundColor = new NuiColor(143, 127, 255), DrawList = updatedDrawList });
+          chatRowChildren.Add(new NuiLabel(chatLine.name) { Width = nameWidth, Id = chatLine.playerName, VerticalAlign = NuiVAlign.Top, HorizontalAlign = NuiHAlign.Left, ForegroundColor = new Color(143, 127, 255), DrawList = updatedDrawList });
 
-          NuiColor color = new NuiColor(255, 255, 255);
+          Color color = new Color(255, 255, 255);
 
           if (player.chatColors.ContainsKey((int)chatLine.channel))
           {
             byte[] colorArray = player.chatColors[(int)chatLine.channel];
-            color = new NuiColor(colorArray[0], colorArray[1], colorArray[2], colorArray[3]);
+            color = new Color(colorArray[0], colorArray[1], colorArray[2], colorArray[3]);
           }
 
           if (chatLine.channel == Anvil.Services.ChatChannel.PlayerTell || chatLine.channel == Anvil.Services.ChatChannel.DmTell)
-            color = new NuiColor(32, 255, 32);
+            color = new Color(32, 255, 32);
 
           float textWidth;
 
@@ -441,7 +441,7 @@ namespace NWN.Systems
           } while (remainingText.Length > 1);
 
           if (updatedText)
-            updatedDrawList.Add(new NuiDrawListText(new NuiColor(200, 200, 200, 150), new NuiRect(0, characterHeight, 9 * characterWidth, characterHeight), "[modifié]") { Fill = true });
+            updatedDrawList.Add(new NuiDrawListText(new Color(200, 200, 200, 150), new NuiRect(0, characterHeight, 9 * characterWidth, characterHeight), "[modifié]") { Fill = true });
         }
 
         private void CreatePMRows()
@@ -465,7 +465,7 @@ namespace NWN.Systems
               Children = new List<NuiElement>()
               {
                 new NuiImage(playerDisplayPortrait) { Id = $"pm_{playerDisplayName}", Height = 24, Width = 19, ImageAspect = NuiAspect.ExactScaled },
-                new NuiLabel(playerDisplayName) { Id = $"pm_{playerDisplayName}", VerticalAlign = NuiVAlign.Top, HorizontalAlign = NuiHAlign.Left, ForegroundColor = player.windows.ContainsKey(playerDisplayName) && ((PrivateMessageWindow)player.windows[playerDisplayName]).read == true ? new NuiColor(142, 146, 151) : new NuiColor(143, 127, 255) }
+                new NuiLabel(playerDisplayName) { Id = $"pm_{playerDisplayName}", VerticalAlign = NuiVAlign.Top, HorizontalAlign = NuiHAlign.Left, ForegroundColor = player.windows.ContainsKey(playerDisplayName) && ((PrivateMessageWindow)player.windows[playerDisplayName]).read == true ? new Color(142, 146, 151) : new Color(143, 127, 255) }
               }
             });
           }
@@ -477,7 +477,7 @@ namespace NWN.Systems
             ((PrivateMessageWindow)player.windows[senderName]).read = false;
 
           if (currentCategory != ChatLine.ChatCategory.Private)
-            mpCategory.ForegroundColor = new NuiColor(255, 255, 255);
+            mpCategory.ForegroundColor = new Color(255, 255, 255);
           else
           {
             colChatLogChidren.Clear();

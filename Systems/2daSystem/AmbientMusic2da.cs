@@ -4,43 +4,34 @@ using Anvil.Services;
 
 namespace NWN.Systems
 {
-  public class AmbientMusicTable : ITwoDimArray
+  public sealed class AmbientMusicEntry : ITwoDimArrayEntry
   {
-    public readonly Dictionary<int, Entry> entries = new Dictionary<int, Entry>();
+    public string name { get; private set; }
+    public Gender gender { get; private set; }
 
-    void ITwoDimArray.DeserializeRow(int rowIndex, TwoDimEntry twoDimEntry)
+    // RowIndex is already populated externally, and we do not need to assign it in InterpretEntry.
+    public int RowIndex { get; init; }
+
+    public void InterpretEntry(TwoDimArrayEntry entry)
     {
-      int gender = int.TryParse(twoDimEntry("Gender"), out gender) ? gender : -1;
+      int genderValue = entry.GetInt("Gender").GetValueOrDefault(-1);
 
       if (gender < 0)
         return;
 
-      string name = twoDimEntry("DisplayName");
-
-      entries.Add(rowIndex, new Entry(rowIndex, name, (Gender)gender));
-    }
-    public readonly struct Entry
-    {
-      public readonly int id;
-      public readonly string name;
-      public readonly Gender gender;
-
-      public Entry(int id, string name, Gender gender)
-      {
-        this.id = id;
-        this.name = name;
-        this.gender = gender;
-      }
+      gender = (Gender)genderValue;
+      name = entry.GetString("DisplayName");
     }
   }
 
   [ServiceBinding(typeof(AmbientMusic2da))]
   public class AmbientMusic2da
   {
-    public static AmbientMusicTable ambientMusicTable;
-    public AmbientMusic2da(TwoDimArrayFactory twoDimArrayFactory, TlkTable tlkService)
+    public static readonly TwoDimArray<AmbientMusicEntry> ambientMusicTable = new ("ambientmusic.2da");
+    
+    public AmbientMusic2da()
     {
-      ambientMusicTable = twoDimArrayFactory.Get2DA<AmbientMusicTable>("ambientmusic");
+      
     }
   }
 }
