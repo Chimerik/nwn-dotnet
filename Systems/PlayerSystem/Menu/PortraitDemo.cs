@@ -130,7 +130,7 @@ namespace NWN.Systems
 
         int id = 164;
 
-        string resRef = "po_" + Portraits2da.portraitsTable.GetDataEntry(id).resRef + "h";
+        string resRef = "po_" + Portraits2da.portraitsTable[id].resRef + "h";
         portraitId.SetBindValue(oid, token, id.ToString());
         portraitResRef.SetBindValue(oid, token, resRef);
         btnPrevEnabled.SetBindValue(oid, token, false);

@@ -11,13 +11,13 @@ namespace NWN.Systems
     {
       EffectRunScriptEvent eventData = new EffectRunScriptEvent();
 
-      if (!(eventData.EffectTarget is NwCreature oTarget) || oTarget.GetObjectVariable<LocalVariableFloat>("CUSTOM_EFFECT_FROG").HasValue)
+      if (eventData.EffectTarget is not NwCreature oTarget || oTarget.GetObjectVariable<LocalVariableFloat>("CUSTOM_EFFECT_FROG").HasValue)
         return ScriptHandleResult.Handled;
 
       oTarget.ApplyEffect(EffectDuration.Instant, Effect.VisualEffect(VfxType.ImpPolymorph));
-      oTarget.GetObjectVariable<LocalVariableInt>("CUSTOM_EFFECT_FROG").Value = (int)oTarget.CreatureAppearanceType;
+      oTarget.GetObjectVariable<LocalVariableInt>("CUSTOM_EFFECT_FROG").Value = oTarget.Appearance.RowIndex;
 
-      oTarget.CreatureAppearanceType = (AppearanceType)6396;
+      oTarget.Appearance = NwGameTables.AppearanceTable[6396];
       oTarget.OnSpellCast -= FrogSpellMalus;
       oTarget.OnCreatureDamage -= FrogMalus;
       oTarget.OnSpellCastAt -= FrogMalusCure;
@@ -31,14 +31,14 @@ namespace NWN.Systems
     {
       EffectRunScriptEvent eventData = new EffectRunScriptEvent();
 
-      if (!(eventData.EffectTarget is NwCreature oTarget))
+      if (eventData.EffectTarget is not NwCreature oTarget)
         return ScriptHandleResult.Handled;
 
       oTarget.ApplyEffect(EffectDuration.Instant, Effect.VisualEffect(VfxType.ImpPolymorph));
 
       if (oTarget.GetObjectVariable<LocalVariableInt>("CUSTOM_EFFECT_FROG").HasValue)
       {
-        oTarget.CreatureAppearanceType = (AppearanceType)oTarget.GetObjectVariable<LocalVariableInt>("CUSTOM_EFFECT_FROG").Value;
+        oTarget.Appearance = NwGameTables.AppearanceTable[oTarget.GetObjectVariable<LocalVariableInt>("CUSTOM_EFFECT_FROG").Value];
         oTarget.GetObjectVariable<LocalVariableInt>("CUSTOM_EFFECT_FROG").Delete();
       }
 

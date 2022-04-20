@@ -25,7 +25,7 @@ namespace NWN.Systems
         {
           windowId = "cloakAppearanceModifier";
 
-          slider = new NuiSlider(modelSlider, 0, CloakModel2da.cloakModelTable.cloakModelEntries.Count - 1) { Step = 1 };
+          slider = new NuiSlider(modelSlider, 0, CloakModel2da.combo.Count - 1) { Step = 1 };
 
           rootColumn = new NuiColumn
           {
@@ -46,7 +46,7 @@ namespace NWN.Systems
                 Children = new List<NuiElement>
                 {
                   new NuiLabel("Modèle") { Width = 60, Height = 35, VerticalAlign = NuiVAlign.Middle },
-                  new NuiCombo { Width = 150, Entries = CloakModel2da.cloakModelTable.cloakModelEntries, Selected = modelSelection },
+                  new NuiCombo { Width = 150, Entries = CloakModel2da.combo, Selected = modelSelection },
                   slider
                 }
               },
@@ -82,7 +82,7 @@ namespace NWN.Systems
           PlayerPlugin.ApplyLoopingVisualEffectToObject(player.oid.ControlledCreature, player.oid.ControlledCreature, 173);
 
           modelSelection.SetBindValue(player.oid, token, item.Appearance.GetSimpleModel());
-          modelSlider.SetBindValue(player.oid, token, CloakModel2da.cloakModelTable.cloakModelEntries.IndexOf(CloakModel2da.cloakModelTable.cloakModelEntries.FirstOrDefault(l => l.Value == item.Appearance.GetSimpleModel())));
+          modelSlider.SetBindValue(player.oid, token, CloakModel2da.combo.IndexOf(CloakModel2da.combo.FirstOrDefault(l => l.Value == item.Appearance.GetSimpleModel())));
 
           geometry.SetBindValue(player.oid, token, windowRectangle);
           geometry.SetBindWatch(player.oid, token, true);
@@ -145,7 +145,7 @@ namespace NWN.Systems
             return;
 
           int sliderValue = modelSlider.GetBindValue(player.oid, token);
-          int result = CloakModel2da.cloakModelTable.cloakModelEntries.ElementAt(sliderValue).Value;
+          int result = CloakModel2da.combo.ElementAt(sliderValue).Value;
 
           item.Appearance.SetSimpleModel((byte)result);
 
@@ -164,7 +164,7 @@ namespace NWN.Systems
             return;
 
           int selectorValue = modelSelection.GetBindValue(player.oid, token);
-          int sliderResult = CloakModel2da.cloakModelTable.cloakModelEntries.IndexOf(CloakModel2da.cloakModelTable.cloakModelEntries.FirstOrDefault(m => m.Value == selectorValue));
+          int sliderResult = CloakModel2da.combo.IndexOf(CloakModel2da.combo.FirstOrDefault(m => m.Value == selectorValue));
 
           item.Appearance.SetSimpleModel((byte)selectorValue);
 

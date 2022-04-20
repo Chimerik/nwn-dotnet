@@ -71,12 +71,12 @@ namespace NWN.Systems
           if (bard.Gender == Gender.Female)
           {
             currentMusic.SetBindValue(player.oid, token, "Ambiance du relais");
-            songList = AmbientMusic2da.ambientMusicTable.Where(m => m.gender == Gender.Female || m.gender == Gender.Both);
+            songList = AmbientMusic2da.femaleAmbientMusicEntry;
           }
           else
           {
             currentMusic.SetBindValue(player.oid, token, "Ambiance du dragon d'argent");
-            songList = AmbientMusic2da.ambientMusicTable.Where(m => m.gender == Gender.Male || m.gender == Gender.Both);
+            songList = AmbientMusic2da.maleAmbientMusicEntry;
           }
 
           LoadList(songList);

@@ -867,7 +867,7 @@ namespace NWN.Systems
       }
       public double GetArmorTimeCost(int baseACValue, double materiaCost)
       {
-        ArmorTable.Entry entry = Armor2da.armorTable.GetDataEntry(baseACValue);
+        var entry = Armor2da.armorTable[baseACValue];
 
         if (learnableSkills.ContainsKey(entry.craftLearnable))
           materiaCost *= learnableSkills[entry.craftLearnable].bonusReduction;
@@ -881,7 +881,7 @@ namespace NWN.Systems
       }
       public double GetWeaponTimeCost(BaseItemType baseItemType, double materiaCost)
       {
-        BaseItemTable.Entry entry = BaseItems2da.baseItemTable.GetBaseItemDataEntry(baseItemType);
+       var entry = BaseItems2da.baseItemTable[(int)baseItemType];
 
         if (learnableSkills.ContainsKey(entry.craftLearnable))
           materiaCost *= learnableSkills[entry.craftLearnable].bonusReduction;
@@ -915,7 +915,7 @@ namespace NWN.Systems
 
       public double GetArmorMateriaCost(int baseACValue)
       {
-        ArmorTable.Entry entry = Armor2da.armorTable.GetDataEntry(baseACValue);
+        var entry = Armor2da.armorTable[baseACValue];
         double materiaCost = entry.cost * 1000;
 
         if (learnableSkills.ContainsKey(entry.craftLearnable))
@@ -936,7 +936,7 @@ namespace NWN.Systems
       }
       public double GetWeaponMateriaCost(BaseItemType baseItemType)
       {
-        BaseItemTable.Entry entry = BaseItems2da.baseItemTable.GetBaseItemDataEntry(baseItemType);
+        var entry = BaseItems2da.baseItemTable[(int)baseItemType];
         double materiaCost = entry.cost * 1000;
 
         if (learnableSkills.ContainsKey(entry.craftLearnable))

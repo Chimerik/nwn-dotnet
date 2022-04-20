@@ -9,7 +9,7 @@ namespace NWN.Systems.Alchemy
 {
   class AlchemyMortarDialog
   {
-    PlayerSystem.Player player;
+    readonly PlayerSystem.Player player;
 
     public AlchemyMortarDialog(PlayerSystem.Player player)
     {
@@ -33,14 +33,14 @@ namespace NWN.Systems.Alchemy
       player.menu.choices.Add(("Quitter", () => player.menu.Close()));
       player.menu.Draw();
     }
-    private async void HandleRefineOreQuantity(string oreName)
+    /*private async void HandleRefineOreQuantity(string oreName)
     {
       player.menu.Clear();
 
-     /* player.menu.titleLines = new List<string> {
+      player.menu.titleLines = new List<string> {
         $"Quelle quantité de {oreName} souhaitez-vous réduire en poudre parmi vos {player.materialStock[oreName]} disponibles ?",
         "(Prononcez simplement la quantité à l'oral.)"
-      };*/
+      };
 
 
       player.menu.choices.Add(("Tout réduire en poudre.", () => HandleRefineAll(oreName)));
@@ -54,7 +54,7 @@ namespace NWN.Systems.Alchemy
         HandleRefineOre(oreName);
         player.oid.LoginCreature.GetObjectVariable<LocalVariableString>("_PLAYER_INPUT").Delete();
       }
-    }
+    }*/
     private void HandleRefineOre(string oreName)
     {
       player.menu.Clear();
@@ -74,9 +74,9 @@ namespace NWN.Systems.Alchemy
         /*if (input > player.materialStock[oreName])
           input = player.materialStock[oreName];
 
-        player.materialStock[oreName] -= input;*/
+        player.materialStock[oreName] -= input;
 
-        int powderQuantity = 0;
+        int powderQuantity = 0;*/
 
         /*if (player.learntCustomFeats.ContainsKey(CustomFeats.AlchemistEfficiency))
           powderQuantity += SkillSystem.GetCustomFeatLevelFromSkillPoints(CustomFeats.AlchemistEfficiency, player.learntCustomFeats[CustomFeats.AlchemistEfficiency]);

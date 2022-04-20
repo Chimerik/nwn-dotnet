@@ -6,28 +6,28 @@ using Anvil.Services;
 
 namespace NWN.Systems
 {
-  public class CloakModelTable : ITwoDimArray
+  public sealed class CloakModelsEntry : ITwoDimArrayEntry
   {
-    public List<NuiComboEntry> cloakModelEntries = new List<NuiComboEntry>();
+    public string label { get; private set; }
+    public int RowIndex { get; init; }
 
-    void ITwoDimArray.DeserializeRow(int rowIndex, TwoDimEntry twoDimEntry)
+    public void InterpretEntry(TwoDimArrayEntry entry)
     {
-      int model = int.TryParse(twoDimEntry("MODEL"), out model) ? model : -1;
-
-      if (model < 0)
-        return;
-
-      cloakModelEntries.Add(new NuiComboEntry(twoDimEntry("LABEL"), rowIndex));
+      int model = entry.GetInt("MODEL").GetValueOrDefault(-1);
+      label = model > -1 ? entry.GetString("MODEL") : "";
     }
   }
 
   [ServiceBinding(typeof(CloakModel2da))]
   public class CloakModel2da
   {
-    public static CloakModelTable cloakModelTable;
-    public CloakModel2da(TwoDimArrayFactory twoDimArrayFactory)
+    //public static CloakModelTable cloakModelTable;
+    private readonly TwoDimArray<CloakModelsEntry> cloakModelTable = new("cloakmodel.2da");
+    public static readonly List<NuiComboEntry> combo = new();
+    public CloakModel2da()
     {
-      cloakModelTable = twoDimArrayFactory.Get2DA<CloakModelTable>("cloakmodel");
+      foreach(var entry in cloakModelTable.Where(e => e.label.Length > 0))
+        combo.Add(new NuiComboEntry(entry.label, entry.RowIndex));
     }
   }
 }

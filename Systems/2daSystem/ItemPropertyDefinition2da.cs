@@ -5,52 +5,35 @@ using Anvil.Services;
 
 namespace NWN.Systems
 {
-  public class IpDefinitionTable : ITwoDimArray
+  public sealed class ItemPropertyDefinitionEntry : ITwoDimArrayEntry
   {
-    private readonly Dictionary<ItemPropertyType, Entry> entries = new Dictionary<ItemPropertyType, Entry>();
+    public string name { get; private set; }
+    public string subTypeResRef { get; private set; }
+    public int RowIndex { get; init; }
 
-    public Entry GetIPDefinitionlDataEntry(ItemPropertyType ipType)
+    public void InterpretEntry(TwoDimArrayEntry entry)
     {
-      return entries[ipType];
-    }
-    public string GetSubTypeName(ItemPropertyType ipType, int subType)
-    {
-      /*PlayerSystem.Log.Info(ipType);
-      PlayerSystem.Log.Info(subType);
-      PlayerSystem.Log.Info(entries[ipType].subTypeResRef);
-      PlayerSystem.Log.Info(NWScript.Get2DAString(entries[ipType].subTypeResRef, "Name", subType));*/
-      return NWScript.GetStringByStrRef(int.Parse(NWScript.Get2DAString(entries[ipType].subTypeResRef, "Name", subType)));
-    }
-    void ITwoDimArray.DeserializeRow(int rowIndex, TwoDimEntry twoDimEntry)
-    {
-      uint strRef = uint.TryParse(twoDimEntry("Name"), out strRef) ? strRef : 0;
-      string name = strRef == 0 ? name = "Nom manquant" : name = ItemPropertyDefinition2da.tlkTable.GetSimpleString(strRef);
-      string subTypeResRef = twoDimEntry("SubTypeResRef");
-
-      entries.Add((ItemPropertyType)rowIndex, new Entry(name, subTypeResRef));
-    }
-    public readonly struct Entry
-    {
-      public readonly string name;
-      public readonly string subTypeResRef;
-
-      public Entry(string name, string subTypeResRef)
-      {
-        this.name = name;
-        this.subTypeResRef = subTypeResRef;
-      }
+      name = entry.GetStrRef("Name").ToString();
+      subTypeResRef = entry.GetString("SubTypeResRef");
     }
   }
 
   [ServiceBinding(typeof(ItemPropertyDefinition2da))]
   public class ItemPropertyDefinition2da
   {
-    public static TlkTable tlkTable;
-    public static IpDefinitionTable ipDefinitionTable;
-    public ItemPropertyDefinition2da(TwoDimArrayFactory twoDimArrayFactory, TlkTable tlkService)
+    public static readonly TwoDimArray<ItemPropertyDefinitionEntry> ipDefinitionTable = new("itempropdef.2da");
+    public ItemPropertyDefinition2da()
     {
-      tlkTable = tlkService;
-      ipDefinitionTable = twoDimArrayFactory.Get2DA<IpDefinitionTable>("itempropdef");
+      
+    }
+
+    public static string GetSubTypeName(ItemPropertyType ipType, int subType)
+    {
+      /*PlayerSystem.Log.Info(ipType);
+      PlayerSystem.Log.Info(subType);
+      PlayerSystem.Log.Info(entries[ipType].subTypeResRef);
+      PlayerSystem.Log.Info(NWScript.Get2DAString(entries[ipType].subTypeResRef, "Name", subType));*/
+      return NWScript.GetStringByStrRef(int.Parse(NWScript.Get2DAString(ipDefinitionTable[(int)ipType].subTypeResRef, "Name", subType)));
     }
   }
 }

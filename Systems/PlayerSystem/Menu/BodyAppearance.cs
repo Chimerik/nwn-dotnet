@@ -16,23 +16,23 @@ namespace NWN.Systems
     {
       public class BodyAppearanceWindow : PlayerWindow
       {
-        private readonly NuiBind<int> headSelection = new NuiBind<int>("headSelection");
-        private readonly NuiBind<int> headSlider = new NuiBind<int>("headSlider");
-        private readonly NuiBind<int> sizeSlider = new NuiBind<int>("sizeSlider");
-        private readonly NuiBind<int> sizeSelection = new NuiBind<int>("sizeSelection");
+        private readonly NuiBind<int> headSelection = new ("headSelection");
+        private readonly NuiBind<int> headSlider = new ("headSlider");
+        private readonly NuiBind<int> sizeSlider = new ("sizeSlider");
+        private readonly NuiBind<int> sizeSelection = new ("sizeSelection");
 
-        private readonly NuiBind<int> chestSelection = new NuiBind<int>("chestSelection");
-        private readonly NuiBind<int> bicepRightSelection = new NuiBind<int>("bicepRightSelection");
-        private readonly NuiBind<int> forearmRightSelection = new NuiBind<int>("forearmRightSelection");
-        private readonly NuiBind<int> thighRightSelection = new NuiBind<int>("thighRightSelection");
-        private readonly NuiBind<int> shinRightSelection = new NuiBind<int>("shinRightSelection");
-        private readonly NuiBind<int> bicepLeftSelection = new NuiBind<int>("bicepLeftSelection");
-        private readonly NuiBind<int> forearmLeftSelection = new NuiBind<int>("forearmLeftSelection");
-        private readonly NuiBind<int> thighLeftSelection = new NuiBind<int>("thighLeftSelection");
-        private readonly NuiBind<int> shinLeftSelection = new NuiBind<int>("shinLeftSelection");
-        private readonly List<NuiComboEntry> sizeCombo = new List<NuiComboEntry>();
-        private readonly List<NuiComboEntry> comboChest = new List<NuiComboEntry> { new NuiComboEntry("1", 1) };
-        private readonly List<NuiComboEntry> comboBicep = new List<NuiComboEntry>
+        private readonly NuiBind<int> chestSelection = new ("chestSelection");
+        private readonly NuiBind<int> bicepRightSelection = new ("bicepRightSelection");
+        private readonly NuiBind<int> forearmRightSelection = new ("forearmRightSelection");
+        private readonly NuiBind<int> thighRightSelection = new ("thighRightSelection");
+        private readonly NuiBind<int> shinRightSelection = new ("shinRightSelection");
+        private readonly NuiBind<int> bicepLeftSelection = new ("bicepLeftSelection");
+        private readonly NuiBind<int> forearmLeftSelection = new ("forearmLeftSelection");
+        private readonly NuiBind<int> thighLeftSelection = new ("thighLeftSelection");
+        private readonly NuiBind<int> shinLeftSelection = new ("shinLeftSelection");
+        private readonly List<NuiComboEntry> sizeCombo = new ();
+        private readonly List<NuiComboEntry> comboChest = new () { new NuiComboEntry("1", 1) };
+        private readonly List<NuiComboEntry> comboBicep = new ()
           {
             new NuiComboEntry("1", 1),
             new NuiComboEntry("2", 2)
@@ -91,10 +91,10 @@ namespace NWN.Systems
                   new NuiCombo
                   {
                     Width = 80,
-                    Entries = ModuleSystem.headModels.FirstOrDefault(h => h.gender == player.oid.ControlledCreature.Gender && h.appearance == player.oid.ControlledCreature.CreatureAppearanceType).heads,
+                    Entries = ModuleSystem.headModels.FirstOrDefault(h => h.gender == player.oid.ControlledCreature.Gender && h.appearanceRow == player.oid.ControlledCreature.Appearance.RowIndex).heads,
                     Selected = headSelection
                   },
-                  new NuiSlider(headSlider, 0, ModuleSystem.headModels.FirstOrDefault(h => h.gender == player.oid.ControlledCreature.Gender && h.appearance == player.oid.ControlledCreature.CreatureAppearanceType).heads.Count - 1)
+                  new NuiSlider(headSlider, 0, ModuleSystem.headModels.FirstOrDefault(h => h.gender == player.oid.ControlledCreature.Gender && h.appearanceRow == player.oid.ControlledCreature.Appearance.RowIndex).heads.Count - 1)
                   {
                     Step = 1,  Width = (windowRectangle.Width - 140)  * 0.98f,
                   }
@@ -200,7 +200,7 @@ namespace NWN.Systems
           token = player.oid.CreateNuiWindow(window, windowId);
 
           headSelection.SetBindValue(player.oid, token, player.oid.ControlledCreature.GetCreatureBodyPart(CreaturePart.Head));
-          headSlider.SetBindValue(player.oid, token, ModuleSystem.headModels.FirstOrDefault(h => h.gender == player.oid.ControlledCreature.Gender && h.appearance == player.oid.ControlledCreature.CreatureAppearanceType).heads.IndexOf(ModuleSystem.headModels.FirstOrDefault(h => h.gender == player.oid.ControlledCreature.Gender && h.appearance == player.oid.ControlledCreature.CreatureAppearanceType).heads.FirstOrDefault(l => l.Value == player.oid.ControlledCreature.GetCreatureBodyPart(CreaturePart.Head))));
+          headSlider.SetBindValue(player.oid, token, ModuleSystem.headModels.FirstOrDefault(h => h.gender == player.oid.ControlledCreature.Gender && h.appearanceRow == player.oid.ControlledCreature.Appearance.RowIndex).heads.IndexOf(ModuleSystem.headModels.FirstOrDefault(h => h.gender == player.oid.ControlledCreature.Gender && h.appearanceRow == player.oid.ControlledCreature.Appearance.RowIndex).heads.FirstOrDefault(l => l.Value == player.oid.ControlledCreature.GetCreatureBodyPart(CreaturePart.Head))));
 
           sizeSelection.SetBindValue(player.oid, token, (int)player.oid.ControlledCreature.VisualTransform.Scale * 100 - 75);
           sizeSlider.SetBindValue(player.oid, token, (int)player.oid.ControlledCreature.VisualTransform.Scale * 100 - 75);
@@ -276,7 +276,7 @@ namespace NWN.Systems
             {
               case "headSlider":
 
-                int head = ModuleSystem.headModels.FirstOrDefault(h => h.gender == player.oid.ControlledCreature.Gender && h.appearance == player.oid.ControlledCreature.CreatureAppearanceType).heads.ElementAt(headSlider.GetBindValue(player.oid, token)).Value;
+                int head = ModuleSystem.headModels.FirstOrDefault(h => h.gender == player.oid.ControlledCreature.Gender && h.appearanceRow == player.oid.ControlledCreature.Appearance.RowIndex).heads.ElementAt(headSlider.GetBindValue(player.oid, token)).Value;
                 player.oid.ControlledCreature.SetCreatureBodyPart(CreaturePart.Head, head);
                 headSelection.SetBindWatch(player.oid, token, false);
                 headSelection.SetBindValue(player.oid, token, head);
@@ -288,7 +288,7 @@ namespace NWN.Systems
 
                 player.oid.ControlledCreature.SetCreatureBodyPart(CreaturePart.Head, headSelection.GetBindValue(player.oid, token));
                 headSlider.SetBindWatch(player.oid, token, false);
-                headSlider.SetBindValue(player.oid, token, ModuleSystem.headModels.FirstOrDefault(h => h.gender == player.oid.ControlledCreature.Gender && h.appearance == player.oid.ControlledCreature.CreatureAppearanceType).heads.ElementAt(headSelection.GetBindValue(player.oid, token)).Value);
+                headSlider.SetBindValue(player.oid, token, ModuleSystem.headModels.FirstOrDefault(h => h.gender == player.oid.ControlledCreature.Gender && h.appearanceRow == player.oid.ControlledCreature.Appearance.RowIndex).heads.ElementAt(headSelection.GetBindValue(player.oid, token)).Value);
                 headSlider.SetBindWatch(player.oid, token, true);
 
                 break;

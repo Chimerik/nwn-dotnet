@@ -9,11 +9,11 @@ namespace NWN.Systems
 {
   public static partial class Config
   {
-    public static string database = Environment.GetEnvironmentVariable("DB_NAME");
-    public static string dbPath = "Data Source=" + Environment.GetEnvironmentVariable("DB_PATH");
-    public static string googleDriveCredentials = Environment.GetEnvironmentVariable("GOOGLE_DRIVE_CREDENTIALS");
-    public static string itemKey = Environment.GetEnvironmentVariable("ITEM_KEY");
-    public const int invalidInput = -999999;
+    public static readonly string database = Environment.GetEnvironmentVariable("DB_NAME");
+    public static readonly string dbPath = "Data Source=" + Environment.GetEnvironmentVariable("DB_PATH");
+    public static readonly string googleDriveCredentials = Environment.GetEnvironmentVariable("GOOGLE_DRIVE_CREDENTIALS");
+    public static readonly string itemKey = Environment.GetEnvironmentVariable("ITEM_KEY");
+    public const int InvalidInput = -999999;
     public enum Env
     {
       Prod,
@@ -21,20 +21,19 @@ namespace NWN.Systems
       Chim,
     }
 
-    public static Env env = InitEnv();
+    public static readonly Env env = InitEnv();
 
     private static Env InitEnv()
     {
       var env = Environment.GetEnvironmentVariable("ENV");
 
-      switch (env)
+      return env switch
       {
-        default: return Env.Prod;
-
-        case "production": return Env.Prod;
-        case "Bigby": return Env.Bigby;
-        case "Chim": return Env.Chim;
-      }
+        "production" => Env.Prod,
+        "Bigby" => Env.Bigby,
+        "Chim" => Env.Chim,
+        _ => Env.Prod,
+      };
     }
     public static DriveService AuthenticateServiceAccount()
     {

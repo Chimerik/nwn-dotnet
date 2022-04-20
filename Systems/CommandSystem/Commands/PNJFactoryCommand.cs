@@ -9,7 +9,7 @@ namespace NWN.Systems
 {
   class PNJFactory
   {
-    PlayerSystem.Player player;
+    readonly PlayerSystem.Player player;
     NwCreature oPNJ;
     public PNJFactory(PlayerSystem.Player player)
     {
@@ -30,7 +30,7 @@ namespace NWN.Systems
     }
     public void OnPNJSelected(ModuleEvents.OnPlayerTarget selection)
     {
-      if (selection.IsCancelled || selection.TargetObject == null || !(selection.TargetObject is NwCreature oCreature))
+      if (selection.IsCancelled || selection.TargetObject == null || selection.TargetObject is not NwCreature oCreature)
         return;
 
       if (oCreature.IsLoginPlayerCharacter && selection.Player.PlayerName != "Chim")
@@ -407,8 +407,8 @@ namespace NWN.Systems
       player.menu.titleLines.Add($"Modification d'apparence de : {oPNJ.Name.ColorString(ColorConstants.Orange)}. Que souhaitez-vous modifier ?");
 
       player.menu.choices.Add(("Le type d'apparence", () => DrawModifyApparenceTypePage(-2)));
-
-      if (Appearance2da.appearanceTable.GetAppearanceDataEntry(oPNJ.CreatureAppearanceType).race.Length == 1)
+      
+      if (oPNJ.Appearance.Race.Length == 1)
       {
         player.menu.choices.Add(("La tête", () => DrawModifyHeadPage(-2)));
         player.menu.choices.Add(("Les cheveux", () => DrawModifyHairPage(-2)));
@@ -436,7 +436,7 @@ namespace NWN.Systems
         "Ou bien prononcez directement une valeur d'apparence à l'oral (se référer à appearance.2da)"
         };
 
-      int currentValue = (int)oPNJ.CreatureAppearanceType;
+      int currentValue = oPNJ.Appearance.RowIndex;
 
       if (modification > -2)
       {
@@ -457,9 +457,9 @@ namespace NWN.Systems
         else if (modification == -1)
           currentValue--;
 
-       
 
-        while (Appearance2da.appearanceTable.GetAppearanceDataEntry((AppearanceType)currentValue).race.Length == 0)
+        
+        while (NwGameTables.AppearanceTable.GetRow(currentValue).Race.Length == 0)
         {
           if (modification == 1)
             currentValue++;
@@ -472,7 +472,7 @@ namespace NWN.Systems
             currentValue = 15100;
         }
 
-        oPNJ.CreatureAppearanceType = (AppearanceType)currentValue;
+        oPNJ.Appearance = NwGameTables.AppearanceTable[currentValue];
         player.menu.titleLines.Add($"Apparence actuelle : {currentValue.ToString().ColorString(ColorConstants.Lime)}");
         player.menu.DrawText();
       }
@@ -524,7 +524,7 @@ namespace NWN.Systems
         else if (modification == -1)
           currentValue--;
 
-        while (Portraits2da.portraitsTable.GetDataEntry(currentValue).resRef.Length == 0)
+        while (Portraits2da.portraitsTable[currentValue].resRef.Length == 0)
         {
           if (modification == 1)
             currentValue++;

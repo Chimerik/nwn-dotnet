@@ -15,8 +15,8 @@ namespace NWN.Systems
         private readonly NuiGroup rootGroup;
         private readonly NuiColumn rootColumn;
         private readonly List<NuiElement> rootChidren;
-        private readonly NuiBind<string> buttonText = new NuiBind<string>("buttonText");
-        private readonly NuiBind<int> listCount = new NuiBind<int>("listCount");
+        private readonly NuiBind<string> buttonText = new ("buttonText");
+        private readonly NuiBind<int> listCount = new ("listCount");
         private NwSpell spell { get; set; }
         private NwItem itemTarget { get; set; }
 
@@ -40,8 +40,8 @@ namespace NWN.Systems
           List<string> enchantementList = new List<string>();
 
           foreach (ItemProperty ip in player.spellSystem.enchantementCategories[(int)spell.Id])
-            enchantementList.Add($"{ItemPropertyDefinition2da.ipDefinitionTable.GetIPDefinitionlDataEntry(ip.PropertyType).name} - " +
-              $"{ItemPropertyDefinition2da.ipDefinitionTable.GetSubTypeName(ip.PropertyType, ip.SubType)}");
+            enchantementList.Add($"{ItemPropertyDefinition2da.ipDefinitionTable[(int)ip.PropertyType].name} - " +
+              $"{ItemPropertyDefinition2da.GetSubTypeName(ip.PropertyType, ip.SubType)}");
 
           NuiRect windowRectangle = player.windowRectangles.ContainsKey(windowId) ? player.windowRectangles[windowId] : new NuiRect(10, player.oid.GetDeviceProperty(PlayerDeviceProperty.GuiHeight) * 0.01f, 450, player.oid.GetDeviceProperty(PlayerDeviceProperty.GuiHeight) * 0.4f);
 

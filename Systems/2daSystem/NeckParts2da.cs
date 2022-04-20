@@ -6,38 +6,26 @@ using Anvil.Services;
 
 namespace NWN.Systems
 {
-  public class NeckPartsTable : ITwoDimArray
+  public sealed class NeckPartsEntry : ITwoDimArrayEntry
   {
-    private readonly List<int> entries = new List<int>();
+    public int maxAC { get; private set; }
+    public int RowIndex { get; init; }
 
-    public List<NuiComboEntry> GetValidNeckAppearances()
+    public void InterpretEntry(TwoDimArrayEntry entry)
     {
-      List<NuiComboEntry> combo = new List<NuiComboEntry>();
-
-      foreach (var entry in entries)
-        combo.Add(new NuiComboEntry(entry.ToString(), entry));
-
-      return combo;
-    }
-
-    void ITwoDimArray.DeserializeRow(int rowIndex, TwoDimEntry twoDimEntry)
-    {
-      int maxAC = float.TryParse(twoDimEntry("ACBONUS"), out float floatAC) ? (int)floatAC : -1;
-
-      if (maxAC < 0)
-        return;
-
-      entries.Add(rowIndex);
+      maxAC = (int)entry.GetFloat("ACBONUS").GetValueOrDefault(-1);
     }
   }
 
   [ServiceBinding(typeof(NeckParts2da))]
   public class NeckParts2da
   {
-    public static NeckPartsTable neckPartsTable;
-    public NeckParts2da(TwoDimArrayFactory twoDimArrayFactory)
+    private readonly TwoDimArray<NeckPartsEntry> neckPartsTable = new("parts_belt.2da");
+    public static readonly List<NuiComboEntry> combo = new();
+    public NeckParts2da()
     {
-      neckPartsTable = twoDimArrayFactory.Get2DA<NeckPartsTable>("parts_neck");
+      foreach (var entry in neckPartsTable.Where(b => b.maxAC > -1))
+        combo.Add(new NuiComboEntry(entry.RowIndex.ToString(), entry.RowIndex));
     }
   }
 }

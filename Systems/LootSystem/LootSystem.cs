@@ -7,16 +7,15 @@ using NLog;
 using Anvil.API;
 using Anvil.API.Events;
 using Anvil.Services;
-using NWN.Systems.Craft;
 
 namespace NWN.Systems
 {
   [ServiceBinding(typeof(LootSystem))]
   public partial class LootSystem
   {
-    private SpellSystem spellSystem;
+    private readonly SpellSystem spellSystem;
     public static readonly Logger Log = LogManager.GetCurrentClassLogger();
-    private static Dictionary<string, List<NwItem>> chestTagToLootsDic = new Dictionary<string, List<NwItem>> { };
+    private static readonly Dictionary<string, List<NwItem>> chestTagToLootsDic = new();
     public LootSystem(SpellSystem spellSystem)
     {
       this.spellSystem = spellSystem;
@@ -95,7 +94,7 @@ namespace NWN.Systems
 
       UpdateChestTagToLootsDic(oChest);
     }
-    private async void InitializeLootChestFromFeatArray(NwPlaceable oChest, Feat[] array)
+    /*private async void InitializeLootChestFromFeatArray(NwPlaceable oChest, Feat[] array)
     {
       foreach (Feat feat in array)
       {
@@ -103,13 +102,13 @@ namespace NWN.Systems
         ItemUtils.CreateShopSkillBook(skillBook, (int)feat);
         UpdateChestTagToLootsDic(oChest);
       }
-    }
+    }*/
     private async void InitializeLootChestFromScrollArray(NwPlaceable oChest, int[] array)
     {
       foreach (int itemPropertyId in array)
       {
         NwItem oScroll = await NwItem.Create("spellscroll", oChest, 1, "scroll");
-        NwSpell spellEntry = NwSpell.FromSpellType(ItemPropertySpells2da.spellsTable.GetSpellDataEntry(itemPropertyId).spell);
+        NwSpell spellEntry = NwSpell.FromSpellType(ItemPropertySpells2da.ipSpellTable[itemPropertyId].spell);
         oScroll.Name = $"{spellEntry.Name}";
         oScroll.Description = $"{spellEntry.Description}";
 

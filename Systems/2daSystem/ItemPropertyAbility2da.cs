@@ -1,49 +1,28 @@
-﻿using System.Collections.Generic;
-using Anvil.API;
-using NWN.Core;
+﻿using Anvil.API;
 using Anvil.Services;
 
 namespace NWN.Systems
 {
-  public class IpAbilityTable : ITwoDimArray
+  public sealed class ItemPropertyAbilityEntry : ITwoDimArrayEntry
   {
-    private readonly Dictionary<int, Entry> entries = new Dictionary<int, Entry>();
+    public string name { get; private set; }
 
-    public Entry GetIPAbilityDataEntry(int rowIndex)
-    {
-      return entries[rowIndex];
-    }
-    public string GetAbilityName(int rowIndex)
-    {
-      return entries[rowIndex].name;
-    }
-    void ITwoDimArray.DeserializeRow(int rowIndex, TwoDimEntry twoDimEntry)
-    {
-      uint strRef = uint.TryParse(twoDimEntry("Name"), out strRef) ? strRef : 0;
-      string name = strRef == 0 ? name = "Nom manquant" : name = ItemPropertyAbility2da.tlkTable.GetSimpleString(strRef);
+    // RowIndex is already populated externally, and we do not need to assign it in InterpretEntry.
+    public int RowIndex { get; init; }
 
-      entries.Add(rowIndex, new Entry(name));
-    }
-    public readonly struct Entry
+    public void InterpretEntry(TwoDimArrayEntry entry)
     {
-      public readonly string name;
-
-      public Entry(string name)
-      {
-        this.name = name;
-      }
+      name = entry.GetStrRef("Name").ToString();
     }
   }
 
   [ServiceBinding(typeof(ItemPropertyAbility2da))]
   public class ItemPropertyAbility2da
   {
-    public static TlkTable tlkTable;
-    public static IpAbilityTable ipAbilityTable;
-    public ItemPropertyAbility2da(TwoDimArrayFactory twoDimArrayFactory, TlkTable tlkService)
+    public static readonly TwoDimArray<ItemPropertyAbilityEntry> ipAbilityTable = new("iprp_abilities.2da");
+    public ItemPropertyAbility2da()
     {
-      tlkTable = tlkService;
-      ipAbilityTable = twoDimArrayFactory.Get2DA<IpAbilityTable>("iprp_abilities");
+
     }
   }
 }

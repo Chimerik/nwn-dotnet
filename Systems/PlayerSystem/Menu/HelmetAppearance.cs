@@ -21,7 +21,7 @@ namespace NWN.Systems
         {
           windowId = "helmetAppearanceModifier";
 
-          slider = new NuiSlider(modelSlider, 0, BaseItems2da.baseItemTable.helmetModelEntries.Count - 1) { Step = 1 };
+          slider = new NuiSlider(modelSlider, 0, BaseItems2da.helmetModelEntries.Count - 1) { Step = 1 };
 
           rootColumn = new NuiColumn
           {
@@ -44,7 +44,7 @@ namespace NWN.Systems
                   new NuiCombo
                   {
                     Width = 70,
-                    Entries = BaseItems2da.baseItemTable.helmetModelEntries,
+                    Entries = BaseItems2da.helmetModelEntries,
                     Selected = modelSelection
                   },
                   slider
@@ -81,7 +81,7 @@ namespace NWN.Systems
           player.ActivateSpotLight();
 
           modelSelection.SetBindValue(player.oid, token, item.Appearance.GetSimpleModel());
-          modelSlider.SetBindValue(player.oid, token, BaseItems2da.baseItemTable.helmetModelEntries.IndexOf(BaseItems2da.baseItemTable.helmetModelEntries.FirstOrDefault(l => l.Value == item.Appearance.GetSimpleModel())));
+          modelSlider.SetBindValue(player.oid, token, BaseItems2da.helmetModelEntries.IndexOf(BaseItems2da.helmetModelEntries.FirstOrDefault(l => l.Value == item.Appearance.GetSimpleModel())));
 
           geometry.SetBindValue(player.oid, token, windowRectangle);
           geometry.SetBindWatch(player.oid, token, true);
@@ -100,7 +100,7 @@ namespace NWN.Systems
             return;
 
           int sliderValue = modelSlider.GetBindValue(player.oid, token);
-          int result = BaseItems2da.baseItemTable.helmetModelEntries.ElementAt(sliderValue).Value;
+          int result = BaseItems2da.helmetModelEntries.ElementAt(sliderValue).Value;
 
           item.Appearance.SetSimpleModel((byte)result);
 
@@ -120,7 +120,7 @@ namespace NWN.Systems
 
           int selectorValue = modelSelection.GetBindValue(player.oid, token);
           int sliderValue = modelSlider.GetBindValue(player.oid, token);
-          int sliderResult = BaseItems2da.baseItemTable.helmetModelEntries.IndexOf(BaseItems2da.baseItemTable.helmetModelEntries.FirstOrDefault(m => m.Value == selectorValue));
+          int sliderResult = BaseItems2da.helmetModelEntries.IndexOf(BaseItems2da.helmetModelEntries.FirstOrDefault(m => m.Value == selectorValue));
 
           item.Appearance.SetSimpleModel((byte)selectorValue);
 

@@ -29,6 +29,9 @@ namespace NWN.Systems
 
         if (player.oid.PlayerName == "Chim" || player.oid.PlayerName == "test")
         {
+          foreach(AmbientMusicEntry entry in AmbientMusic2da.femaleAmbientMusicEntry)
+            Log.Info(entry.name);
+          
           //NwItem armor = player.oid.ControlledCreature.GetItemInSlot(InventorySlot.Chest);
           //armor.AddItemProperty(ItemProperty.ACBonus(80), EffectDuration.Temporary, TimeSpan.FromSeconds(30));
           //armor.AddItemProperty(ItemProperty.ACBonusVsDmgType(IPDamageType.Physical, 20), EffectDuration.Temporary, TimeSpan.FromSeconds(30));
@@ -74,7 +77,7 @@ namespace NWN.Systems
     {
       EffectRunScriptEvent eventData = new EffectRunScriptEvent();
 
-      if (!(eventData.EffectTarget is NwCreature oTarget) || !PlayerSystem.Players.TryGetValue(oTarget.ControllingPlayer.LoginCreature, out PlayerSystem.Player player))
+      if (eventData.EffectTarget is not NwCreature oTarget || !PlayerSystem.Players.TryGetValue(oTarget.ControllingPlayer.LoginCreature, out PlayerSystem.Player player))
         return ScriptHandleResult.Handled;
 
       ((PlayerSystem.Player.QuickLootWindow)player.windows["quickLoot"]).UpdateWindow();
@@ -89,7 +92,7 @@ namespace NWN.Systems
 
       Log.Info($"type : {selection.TargetObject.GetType()}");
 
-      if (!(selection.TargetObject is NwItem item))
+      if (selection.TargetObject is not NwItem)
         return;
     }
     /* public static String Translate(String word)

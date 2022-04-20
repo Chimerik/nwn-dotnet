@@ -4,45 +4,28 @@ using Anvil.Services;
 
 namespace NWN.Systems
 {
-  public class ipSpellsTable : ITwoDimArray
+  public sealed class ItemPropertySpellsEntry : ITwoDimArrayEntry
   {
-    private readonly Dictionary<int, Entry> entries = new Dictionary<int, Entry>();
+    public Spell spell { get; private set; }
+    public byte innateLevel { get; private set; }
+    public string icon { get; private set; }
+    public int RowIndex { get; init; }
 
-    public Entry GetSpellDataEntry(int row)
+    public void InterpretEntry(TwoDimArrayEntry entry)
     {
-      return entries[row];
-    }
-    void ITwoDimArray.DeserializeRow(int rowIndex, TwoDimEntry twoDimEntry)
-    {
-      int spell = int.TryParse(twoDimEntry("SpellIndex"), out spell) ? spell : 0;
-      float innateLevel = float.TryParse(twoDimEntry("InnateLvl"), out innateLevel) ? innateLevel : 0;
-      string icon = twoDimEntry("Icon");
-      entries.Add(rowIndex, new Entry((Spell)spell, (byte)innateLevel, icon));
-    }
-    public readonly struct Entry
-    {
-      public readonly Spell spell;
-      public readonly byte innateLevel;
-      public readonly string icon;
-
-      public Entry(Spell spell, byte innateLevel, string icon)
-      {
-        this.spell = spell;
-        this.innateLevel = innateLevel;
-        this.icon = icon;
-      }
+      spell = (Spell)entry.GetInt("SpellIndex").GetValueOrDefault(0);
+      innateLevel = (byte)entry.GetFloat("InnateLvl").GetValueOrDefault(0);
+      icon = entry.GetString("Icon");
     }
   }
 
   [ServiceBinding(typeof(ItemPropertySpells2da))]
   public class ItemPropertySpells2da
   {
-    public static TlkTable tlkTable;
-    public static ipSpellsTable spellsTable;
-    public ItemPropertySpells2da(TwoDimArrayFactory twoDimArrayFactory, TlkTable tlkService)
+    public static readonly TwoDimArray<ItemPropertySpellsEntry> ipSpellTable = new("iprp_spells.2da");
+    public ItemPropertySpells2da()
     {
-      tlkTable = tlkService;
-      spellsTable = twoDimArrayFactory.Get2DA<ipSpellsTable>("iprp_spells");
+
     }
   }
 }

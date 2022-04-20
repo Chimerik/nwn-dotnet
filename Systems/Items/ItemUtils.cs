@@ -153,7 +153,7 @@ namespace NWN.Systems
       float baseCost = 9999999;
 
       if (item.BaseItem.ItemType == BaseItemType.Armor)
-        baseCost = Armor2da.armorTable.GetDataEntry(item.BaseACValue).cost;
+        baseCost = Armor2da.GetCost(item.BaseACValue);
       else
         baseCost = item.BaseItem.BaseCost;
 
@@ -262,19 +262,19 @@ namespace NWN.Systems
 
       oBlueprint.BaseGoldValue = (uint)(baseItem.BaseCost * 50);
       oBlueprint.GetObjectVariable<LocalVariableInt>("_BASE_ITEM_TYPE").Value = (int)baseItem.Id;
-      oBlueprint.GetObjectVariable<LocalVariableString>("_CRAFT_WORKSHOP").Value = BaseItems2da.baseItemTable.GetBaseItemDataEntry(baseItem.ItemType).workshop;
+      oBlueprint.GetObjectVariable<LocalVariableString>("_CRAFT_WORKSHOP").Value = BaseItems2da.baseItemTable[(int)baseItem.ItemType].workshop;
       oBlueprint.GetObjectVariable<LocalVariableString>("ITEM_KEY").Value = Config.itemKey;
     }
     public static void CreateShopArmorBlueprint(NwItem oBlueprint, int baseArmor)
     {
-      ArmorTable.Entry entry = Armor2da.armorTable.GetDataEntry(baseArmor);
+      var entry = Armor2da.armorTable[baseArmor];
 
       oBlueprint.Name = $"Patron original : {entry.name}";
 
       oBlueprint.BaseGoldValue = (uint)(entry.cost * 50);
       oBlueprint.GetObjectVariable<LocalVariableInt>("_BASE_ITEM_TYPE").Value = (int)BaseItemType.Armor;
       oBlueprint.GetObjectVariable<LocalVariableInt>("_ARMOR_BASE_AC").Value = baseArmor;
-      oBlueprint.GetObjectVariable<LocalVariableString>("_CRAFT_WORKSHOP").Value = Armor2da.armorTable.GetDataEntry(baseArmor).workshop;
+      oBlueprint.GetObjectVariable<LocalVariableString>("_CRAFT_WORKSHOP").Value = entry.workshop;
       oBlueprint.GetObjectVariable<LocalVariableString>("ITEM_KEY").Value = Config.itemKey;
     }
     public static string DisplayDamageType(DamageType damageType)
@@ -294,7 +294,7 @@ namespace NWN.Systems
     public static string GetResourceNameFromBlueprint(NwItem blueprint)
     {
       BaseItemType baseItemType = (BaseItemType)blueprint.GetObjectVariable<LocalVariableInt>("_BASE_ITEM_TYPE").Value;
-      string workshop = baseItemType == BaseItemType.Armor ? Armor2da.armorTable.GetDataEntry((blueprint.GetObjectVariable<LocalVariableInt>("_ARMOR_BASE_AC").Value)).workshop : BaseItems2da.baseItemTable.GetBaseItemDataEntry(baseItemType).workshop; ;
+      string workshop = baseItemType == BaseItemType.Armor ? Armor2da.GetWorkshop(blueprint.GetObjectVariable<LocalVariableInt>("_ARMOR_BASE_AC").Value) : BaseItems2da.baseItemTable[(int)baseItemType].workshop;
 
       switch (workshop)
       {
@@ -311,7 +311,7 @@ namespace NWN.Systems
     public static ResourceType GetResourceTypeFromBlueprint(NwItem blueprint)
     {
       BaseItemType baseItemType = (BaseItemType)blueprint.GetObjectVariable<LocalVariableInt>("_BASE_ITEM_TYPE").Value;
-      string workshop = baseItemType == BaseItemType.Armor ? Armor2da.armorTable.GetDataEntry((blueprint.GetObjectVariable<LocalVariableInt>("_ARMOR_BASE_AC").Value)).workshop : BaseItems2da.baseItemTable.GetBaseItemDataEntry(baseItemType).workshop;
+      string workshop = baseItemType == BaseItemType.Armor ? Armor2da.GetWorkshop(blueprint.GetObjectVariable<LocalVariableInt>("_ARMOR_BASE_AC").Value) : BaseItems2da.baseItemTable[(int)baseItemType].workshop;
 
       switch (workshop)
       {
@@ -327,7 +327,7 @@ namespace NWN.Systems
     }
     public static ResourceType GetResourceTypeFromItem(NwItem item)
     {
-      string workshop = item.BaseItem.ItemType == BaseItemType.Armor ? Armor2da.armorTable.GetDataEntry((item.BaseACValue)).workshop : BaseItems2da.baseItemTable.GetBaseItemDataEntry(item.BaseItem.ItemType).workshop;
+      string workshop = item.BaseItem.ItemType == BaseItemType.Armor ? Armor2da.GetWorkshop(item.BaseACValue) : BaseItems2da.baseItemTable[(int)item.BaseItem.ItemType].workshop;
 
       switch (workshop)
       {

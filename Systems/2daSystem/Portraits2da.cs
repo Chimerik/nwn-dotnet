@@ -1,39 +1,28 @@
-﻿using System.Collections.Generic;
+﻿using Anvil.API;
 using Anvil.Services;
 
 namespace NWN.Systems
 {
-  public class PortraitsTable : ITwoDimArray
+  public sealed class PortraitEntry : ITwoDimArrayEntry
   {
-    private readonly Dictionary<int, Entry> entries = new Dictionary<int, Entry>();
+    public string resRef { get; private set; }
 
-    public Entry GetDataEntry(int row)
-    {
-      return entries[row];
-    }
-    void ITwoDimArray.DeserializeRow(int rowIndex, TwoDimEntry twoDimEntry)
-    {
-      string resfRef = twoDimEntry("BaseResRef");
-      entries.Add(rowIndex, new Entry(resfRef));
-    }
-    public readonly struct Entry
-    {
-      public readonly string resRef;
+    // RowIndex is already populated externally, and we do not need to assign it in InterpretEntry.
+    public int RowIndex { get; init; }
 
-      public Entry(string resfRef)
-      {
-        this.resRef = resfRef;
-      }
+    public void InterpretEntry(TwoDimArrayEntry entry)
+    {
+      resRef = entry.GetString("BaseResRef");
     }
   }
 
   [ServiceBinding(typeof(Portraits2da))]
   public class Portraits2da
   {
-    public static PortraitsTable portraitsTable;
-    public Portraits2da(TwoDimArrayFactory twoDimArrayFactory)
+    public static readonly TwoDimArray<PortraitEntry> portraitsTable = new("portraits.2da");
+    public Portraits2da()
     {
-      portraitsTable = twoDimArrayFactory.Get2DA<PortraitsTable>("portraits");
+
     }
   }
 }

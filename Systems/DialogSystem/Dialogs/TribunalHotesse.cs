@@ -24,7 +24,7 @@ namespace NWN.Systems
         foreach (int itemPropertyId in SkillSystem.shopBasicMagicScrolls)
         {
           NwItem oScroll = await NwItem.Create("spellscroll", shop, 1, "scroll");
-          Spell spell = ItemPropertySpells2da.spellsTable.GetSpellDataEntry(itemPropertyId).spell;
+          Spell spell = ItemPropertySpells2da.ipSpellTable[itemPropertyId].spell;
           NwSpell nwSpell = NwSpell.FromSpellType(spell);
           oScroll.Name = nwSpell.Name.ToString();
           oScroll.Description = nwSpell.Description.ToString();

@@ -13,7 +13,7 @@ namespace NWN
   public static class Utils
   {
     public static readonly Logger Log = LogManager.GetCurrentClassLogger();
-    public static Random random = new Random();
+    public static readonly Random random = new ();
     public static void LogMessageToDMs(string message)
     {
       Log.Info(message);
@@ -62,7 +62,7 @@ namespace NWN
     {
       Vector3 pos;
 
-      if (position.Contains(","))
+      if (position.Contains(','))
       {
         position = position.Replace("<", "");
         position = position.Replace(">", "");
@@ -114,69 +114,69 @@ namespace NWN
     }
     public static Animation TranslateEngineAnimation(int nAnimation)
     {
-      switch (nAnimation)
+      return nAnimation switch
       {
-        case 0: return Animation.LoopingPause;
-        case 52: return Animation.LoopingPause2;
-        case 30: return Animation.LoopingListen;
-        case 32: return Animation.LoopingMeditate;
-        case 33: return Animation.LoopingWorship;
-        case 48: return Animation.LoopingLookFar;
-        case 36: return Animation.LoopingSitChair;
-        case 47: return Animation.LoopingSitCross;
-        case 38: return Animation.LoopingTalkNormal;
-        case 39: return Animation.LoopingTalkPleading;
-        case 40: return Animation.LoopingTalkForceful;
-        case 41: return Animation.LoopingTalkLaughing;
-        case 59: return Animation.LoopingGetLow;
-        case 60: return Animation.LoopingGetMid;
-        case 57: return Animation.LoopingPauseTired;
-        case 58: return Animation.LoopingPauseDrunk;
-        case 6: return Animation.LoopingDeadFront;
-        case 8: return Animation.LoopingDeadBack;
-        case 15: return Animation.LoopingConjure1;
-        case 16: return Animation.LoopingConjure2;
-        case 93: return Animation.LoopingCustom1;
-        case 98: return Animation.LoopingCustom2;
-        case 101: return Animation.LoopingCustom3;
-        case 102: return Animation.LoopingCustom4;
-        case 103: return Animation.LoopingCustom5;
-        case 104: return Animation.LoopingCustom6;
-        case 105: return Animation.LoopingCustom7;
-        case 106: return Animation.LoopingCustom8;
-        case 107: return Animation.LoopingCustom9;
-        case 108: return Animation.LoopingCustom10;
-        case 109: return Animation.LoopingCustom11;
-        case 110: return Animation.LoopingCustom12;
-        case 111: return Animation.LoopingCustom13;
-        case 112: return Animation.LoopingCustom14;
-        case 113: return Animation.LoopingCustom15;
-        case 114: return Animation.LoopingCustom16;
-        case 115: return Animation.LoopingCustom17;
-        case 116: return Animation.LoopingCustom18;
-        case 117: return Animation.LoopingCustom19;
-        case 118: return Animation.LoopingCustom20;
-        case 119: return Animation.Mount1;
-        case 120: return Animation.Dismount1;
-        case 53: return Animation.FireForgetHeadTurnLeft;
-        case 54: return Animation.FireForgetHeadTurnRight;
-        case 55: return Animation.FireForgetPauseScratchHead;
-        case 56: return Animation.FireForgetPauseBored;
-        case 34: return Animation.FireForgetSalute;
-        case 35: return Animation.FireForgetBow;
-        case 37: return Animation.FireForgetSteal;
-        case 29: return Animation.FireForgetGreeting;
-        case 28: return Animation.FireForgetTaunt;
-        case 44: return Animation.FireForgetVictory1;
-        case 45: return Animation.FireForgetVictory2;
-        case 46: return Animation.FireForgetVictory3;
-        case 71: return Animation.FireForgetRead;
-        case 70: return Animation.FireForgetDrink;
-        case 90: return Animation.FireForgetDodgeSide;
-        case 91: return Animation.FireForgetDodgeDuck;
-        case 23: return Animation.LoopingSpasm;
-        default: return Animation.FireForgetPauseBored;
-      }
+        0 => Animation.LoopingPause,
+        52 => Animation.LoopingPause2,
+        30 => Animation.LoopingListen,
+        32 => Animation.LoopingMeditate,
+        33 => Animation.LoopingWorship,
+        48 => Animation.LoopingLookFar,
+        36 => Animation.LoopingSitChair,
+        47 => Animation.LoopingSitCross,
+        38 => Animation.LoopingTalkNormal,
+        39 => Animation.LoopingTalkPleading,
+        40 => Animation.LoopingTalkForceful,
+        41 => Animation.LoopingTalkLaughing,
+        59 => Animation.LoopingGetLow,
+        60 => Animation.LoopingGetMid,
+        57 => Animation.LoopingPauseTired,
+        58 => Animation.LoopingPauseDrunk,
+        6 => Animation.LoopingDeadFront,
+        8 => Animation.LoopingDeadBack,
+        15 => Animation.LoopingConjure1,
+        16 => Animation.LoopingConjure2,
+        93 => Animation.LoopingCustom1,
+        98 => Animation.LoopingCustom2,
+        101 => Animation.LoopingCustom3,
+        102 => Animation.LoopingCustom4,
+        103 => Animation.LoopingCustom5,
+        104 => Animation.LoopingCustom6,
+        105 => Animation.LoopingCustom7,
+        106 => Animation.LoopingCustom8,
+        107 => Animation.LoopingCustom9,
+        108 => Animation.LoopingCustom10,
+        109 => Animation.LoopingCustom11,
+        110 => Animation.LoopingCustom12,
+        111 => Animation.LoopingCustom13,
+        112 => Animation.LoopingCustom14,
+        113 => Animation.LoopingCustom15,
+        114 => Animation.LoopingCustom16,
+        115 => Animation.LoopingCustom17,
+        116 => Animation.LoopingCustom18,
+        117 => Animation.LoopingCustom19,
+        118 => Animation.LoopingCustom20,
+        119 => Animation.Mount1,
+        120 => Animation.Dismount1,
+        53 => Animation.FireForgetHeadTurnLeft,
+        54 => Animation.FireForgetHeadTurnRight,
+        55 => Animation.FireForgetPauseScratchHead,
+        56 => Animation.FireForgetPauseBored,
+        34 => Animation.FireForgetSalute,
+        35 => Animation.FireForgetBow,
+        37 => Animation.FireForgetSteal,
+        29 => Animation.FireForgetGreeting,
+        28 => Animation.FireForgetTaunt,
+        44 => Animation.FireForgetVictory1,
+        45 => Animation.FireForgetVictory2,
+        46 => Animation.FireForgetVictory3,
+        71 => Animation.FireForgetRead,
+        70 => Animation.FireForgetDrink,
+        90 => Animation.FireForgetDodgeSide,
+        91 => Animation.FireForgetDodgeDuck,
+        23 => Animation.LoopingSpasm,
+        _ => Animation.FireForgetPauseBored,
+      };
     }
     public static async void SendMailToPC(int characterId, string senderName, string title, string message)
     {
@@ -251,7 +251,7 @@ namespace NWN
         case BaseItemType.EnchantedScroll:
 
           if (oItem.HasItemProperty(ItemPropertyType.CastSpell))
-            icon = ItemPropertySpells2da.spellsTable.GetSpellDataEntry(oItem.ItemProperties.FirstOrDefault(ip => ip.PropertyType == ItemPropertyType.CastSpell).SubType).icon;
+            icon = ItemPropertySpells2da.ipSpellTable[oItem.ItemProperties.FirstOrDefault(ip => ip.PropertyType == ItemPropertyType.CastSpell).SubType].icon;
 
           break;
 
@@ -334,7 +334,7 @@ namespace NWN
       return new string[3] { topIcon, midIcon, botIcon };
     }
 
-    public static Dictionary<string, MainMenuCommand> mainMenuCommands = new Dictionary<string, MainMenuCommand>()
+    public static readonly Dictionary<string, MainMenuCommand> mainMenuCommands = new ()
     {
       { "dm", new MainMenuCommand("Mode DM", "", CommandRank.Admin) },
       { "touch", new MainMenuCommand("Mode toucher", "Permet d'éviter les collisions entre personnages (non utilisable en combat)", CommandRank.Public) },

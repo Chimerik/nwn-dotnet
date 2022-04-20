@@ -29,15 +29,47 @@ namespace NWN.Systems
     {
       scriptHandleFactory = scriptFactory;
       this.areaSystem = areaSystem;
+
+      InitializeLearnableSpells();
       InitializeCustomEffects();
     }
 
-    private async void InitializeCustomEffects()
+    private void InitializeCustomEffects()
     {
       frog = CreateCustomEffect("CUSTOM_EFFECT_FROG", ApplyFrogEffectToTarget, RemoveFrogEffectFromTarget, EffectIcon.Curse);
 
       /*await NwTask.WaitUntil(() => NwModule.Instance.Players.FirstOrDefault()?.LoginCreature?.Area != null);
       ApplyCustomEffectToTarget(frog, NwModule.Instance.Players.FirstOrDefault().LoginCreature, TimeSpan.FromSeconds(10));*/
+    }
+    private void InitializeLearnableSpells()
+    {
+      foreach(NwSpell spell in NwRuleset.Spells)
+      {
+        ClassType castClass;
+        
+        int clericCastLevel = spell.GetSpellLevelForClass(NwClass.FromClassType(ClassType.Cleric)) < 255 ? spell.GetSpellLevelForClass(NwClass.FromClassType(ClassType.Cleric)) : -1;
+        int druidCastLevel = spell.GetSpellLevelForClass(NwClass.FromClassType(ClassType.Druid)) < 255 ? spell.GetSpellLevelForClass(NwClass.FromClassType(ClassType.Druid)) : -1;
+        int paladinCastLevel = spell.GetSpellLevelForClass(NwClass.FromClassType(ClassType.Paladin)) < 255 ? spell.GetSpellLevelForClass(NwClass.FromClassType(ClassType.Paladin)) : -1;
+        int rangerCastLevel = spell.GetSpellLevelForClass(NwClass.FromClassType(ClassType.Ranger)) < 255 ? spell.GetSpellLevelForClass(NwClass.FromClassType(ClassType.Ranger)) : -1;
+        int bardCastLevel = spell.GetSpellLevelForClass(NwClass.FromClassType(ClassType.Bard)) < 255 ? spell.GetSpellLevelForClass(NwClass.FromClassType(ClassType.Bard)) : -1;
+
+        Dictionary<ClassType, int> classSorter = new ()
+        {
+          { ClassType.Cleric, clericCastLevel },
+          { ClassType.Druid, druidCastLevel },
+          { ClassType.Paladin, paladinCastLevel },
+          { ClassType.Ranger, rangerCastLevel },
+          { ClassType.Bard, bardCastLevel },
+        };
+
+        classSorter.OrderByDescending(c => c.Value);
+        castClass = classSorter.ElementAt(0).Value > -1 ? classSorter.ElementAt(0).Key : (ClassType)43;
+
+        float level = spell.GetSpellLevelForClass(NwClass.FromClassType(ClassType.Wizard));
+        level = level < 1 ? 0.5f : level;
+
+        SkillSystem.learnableDictionary.Add((int)spell.Id, new LearnableSpell((int)spell.Id, spell.Name.ToString(), spell.Description.ToString(), spell.IconResRef, level < 1 ? 1 : (int)level, level < 1 ? 0 : (int)level, castClass == ClassType.Druid || castClass == ClassType.Cleric || castClass == ClassType.Ranger ? Ability.Wisdom : Ability.Intelligence, Ability.Charisma));
+      }
     }
 
     private Effect CreateCustomEffect(string tag, Func<CallInfo, ScriptHandleResult> onApply, Func<CallInfo, ScriptHandleResult> onRemoved, EffectIcon icon = EffectIcon.Invalid, Func<CallInfo, ScriptHandleResult> onInterval = null, TimeSpan interval = default, string effectData = "")

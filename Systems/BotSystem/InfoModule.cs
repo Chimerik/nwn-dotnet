@@ -41,31 +41,6 @@ namespace NWN.Systems
     public async Task StaffRequestAsync(string texte_de_la_demande)
       => await BotSystem.ExecuteSendRequestToStaffCommand(Context, texte_de_la_demande);
 
-    [Command("desc")]
-    [Summary("Enregistre ou modifie une description pour un personnage donné.")]
-    public async Task SaveDescriptionAsync(string nom_du_perso, string nom_description, string texte_description)
-      => await BotSystem.ExecuteSaveDescriptionCommand(Context, nom_du_perso, nom_description, texte_description);
-    
-    /*[Command("desc")]
-    [Summary("Affiche la liste des descriptions enregistrées pour un personnage donné.")]
-    public async Task GetDescriptionListAsync(string nom_perso)
-      => await BotSystem.ExecuteGetDescriptionListCommand(Context, nom_perso);
-
-    [Command("desc")]
-    [Summary("Affiche le contenu de la description demandée pour un personnage donné.")]
-    public async Task GetDescriptionAsync(string nom_perso, string nom_description)
-      => await BotSystem.ExecuteGetDescriptionCommand(Context, nom_perso, nom_description);
-
-    [Command("supdesc")]
-    [Summary("Supprime la description demandée pour un personnage donné.")]
-    public async Task DeleteDescriptionAsync(string nom_perso, string nom_description)
-      => await BotSystem.ExecuteDeleteDescriptionCommand(Context, nom_perso, nom_description);
-
-    [Command("areadesc")]
-    [Summary("Enregistre ou modifie la description pour une zone donnée à partir de son tag.")]
-    public async Task SaveAreaDescriptionAsync(string tag_zone, string texte_description)
-          => await BotSystem.ExecuteSaveAreaDescriptionCommand(Context, tag_zone, texte_description);*/
-
     [Command("rumeur")]
     [Summary("Enregistre ou modifie une rumeur.")]
     public async Task SaveRumorAsync(string titre_rumeur, string contenu_rumeur)

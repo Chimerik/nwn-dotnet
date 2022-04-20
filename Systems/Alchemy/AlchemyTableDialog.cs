@@ -13,9 +13,9 @@ namespace NWN.Systems.Alchemy
 {
   class AlchemyTableDialog
   {
-    string[,] clonedAlchemyTable;
-    PlayerSystem.Player player;
-    NwPlaceable plcCauldron;
+    readonly string[,] clonedAlchemyTable;
+    readonly PlayerSystem.Player player;
+    readonly NwPlaceable plcCauldron;
 
     public AlchemyTableDialog(PlayerSystem.Player player, NwPlaceable plcCauldron)
     {
@@ -152,7 +152,7 @@ namespace NWN.Systems.Alchemy
         player.oid.LoginCreature.GetObjectVariable<LocalVariableString>("_PLAYER_INPUT").Delete();
       }
     }*/
-    private void AddToCauldron(Vector2 gridEffect, int total, string materialKey)
+    /*private void AddToCauldron(Vector2 gridEffect, int total, string materialKey)
     {
       player.menu.Clear();
 
@@ -161,7 +161,7 @@ namespace NWN.Systems.Alchemy
 
       player.oid.SendServerMessage("Votre ingrédient disparaît dans l'eau du chaudron après un léger frémissement de sa surface.");
       DrawWelcomePage();
-    }
+    }*/
     private async void HandleMixStrength()
     {
       player.menu.Clear();
@@ -228,7 +228,7 @@ namespace NWN.Systems.Alchemy
 
       DrawWelcomePage();
     }
-    private void AddWater()
+    /*private void AddWater()
     {
       Vector2 diff = AlchemySystem.center - player.alchemyCauldron.tablePosition;
 
@@ -258,7 +258,7 @@ namespace NWN.Systems.Alchemy
       }
 
       DrawWelcomePage();
-    }
+    }*/
     private void ActivateBellows()
     {
       Vector2? result = GetClosestEffectCoordinates((int)player.alchemyCauldron.tablePosition.X, (int)player.alchemyCauldron.tablePosition.Y, 3);
@@ -420,9 +420,9 @@ namespace NWN.Systems.Alchemy
 
       return null;
     }
-    private void HandleExamineColors()
+    /*private void HandleExamineColors()
     {
-      /*Vector2? result = GetClosestEffectCoordinates((int)player.alchemyCauldron.tablePosition.X, (int)player.alchemyCauldron.tablePosition.Y, SkillSystem.GetCustomFeatLevelFromSkillPoints(CustomFeats.AlchemistAware, player.learntCustomFeats[CustomFeats.AlchemistAware]) + 4);
+      Vector2? result = GetClosestEffectCoordinates((int)player.alchemyCauldron.tablePosition.X, (int)player.alchemyCauldron.tablePosition.Y, SkillSystem.GetCustomFeatLevelFromSkillPoints(CustomFeats.AlchemistAware, player.learntCustomFeats[CustomFeats.AlchemistAware]) + 4);
 
       if (!result.HasValue)
         player.oid.SendServerMessage("Vous avez beau concentrer toute votre attention sur les changements de couleur du mélange, ceux-ci ne vous apportent aucune indication utile.", ColorConstants.Lime);
@@ -451,13 +451,13 @@ namespace NWN.Systems.Alchemy
             player.oid.SendServerMessage("D'après les changements de couleur du mélange, vous estimez que la solution est à un stade presque proche d'obtenir un effet positif.", new Color(32, 255, 32));
             break;
         }
-      }*/
+      }
 
-      DrawWelcomePage();
-    }
-    private void HandleSmell()
+    DrawWelcomePage();
+    }*/
+    /*private void HandleSmell()
     {
-      /*Vector2? result = GetClosestEffectCoordinates((int)player.alchemyCauldron.tablePosition.X, (int)player.alchemyCauldron.tablePosition.Y, SkillSystem.GetCustomFeatLevelFromSkillPoints(CustomFeats.AlchemistAware, player.learntCustomFeats[CustomFeats.AlchemistAware]) + 4);
+      Vector2? result = GetClosestEffectCoordinates((int)player.alchemyCauldron.tablePosition.X, (int)player.alchemyCauldron.tablePosition.Y, SkillSystem.GetCustomFeatLevelFromSkillPoints(CustomFeats.AlchemistAware, player.learntCustomFeats[CustomFeats.AlchemistAware]) + 4);
 
       if (!result.HasValue)
         player.oid.SendServerMessage("Vous avez beau concentrer toute votre attention sur l'odeur du mélange, celui-ci ne vous apporte aucune indication utile.", ColorConstants.Lime);
@@ -526,10 +526,10 @@ namespace NWN.Systems.Alchemy
         {
           player.oid.SendServerMessage("Humer le mélange vous permet de déterminer que votre décoction serait plus efficace si elle avait une odeur plus boisée.", ColorConstants.Orange);
         }
-      }*/
+      }
 
-      DrawWelcomePage();
-    }
+    DrawWelcomePage();
+    }*/
     private void HandleReinit()
     {
       player.alchemyCauldron = null;
@@ -552,15 +552,15 @@ namespace NWN.Systems.Alchemy
 
       if (awaitedValue)
       {
-        SaveRecipe();
+        //SaveRecipe();
         player.oid.LoginCreature.GetObjectVariable<LocalVariableString>("_PLAYER_INPUT").Delete();
       }
     }
-    private async void SaveRecipe()
+    /*private async void SaveRecipe()
     {
       string input = player.oid.LoginCreature.GetObjectVariable<LocalVariableString>("_PLAYER_INPUT").Value;
 
-      /*using (var stream = new MemoryStream())
+      using (var stream = new MemoryStream())
       {
         await JsonSerializer.SerializeAsync(stream, new CurrentRecipe(player.alchemyCauldron.addedIngredients, player.alchemyCauldron.effectList, player.alchemyCauldron.instructions));
         stream.Position = 0;
@@ -577,10 +577,10 @@ namespace NWN.Systems.Alchemy
           new List<string>() { "characterId", "recipeName" });
 
         player.HandleAsyncQueryFeedback(awaitedQuery, $"Vous notez scrupuleuse votre recette {input.ColorString(ColorConstants.White)} dans votre carnet d'alchimiste.", "Erreur technique - votre recette n'a pas été enregistrée.");
-      }*/
+      }
 
       player.menu.Close();
-    }
+    }*/
     private async void DisplayPlayerRecipes()
     {
       player.menu.Clear();

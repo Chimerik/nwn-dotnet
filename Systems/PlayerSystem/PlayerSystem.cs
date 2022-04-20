@@ -290,7 +290,7 @@ namespace NWN.Systems
               }
 
               int po_id = int.Parse(portraitId.GetBindValue(nuiEvent.Player, nuiEvent.WindowToken)) + 1;
-              string resRef = "po_" + Portraits2da.portraitsTable.GetDataEntry(po_id).resRef + "h";
+              string resRef = "po_" + Portraits2da.portraitsTable[po_id].resRef + "h";
 
               if (po_id > max) po_id = min;
               if (po_id < min) po_id = max;

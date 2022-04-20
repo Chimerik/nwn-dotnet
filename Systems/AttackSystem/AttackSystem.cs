@@ -134,7 +134,7 @@ namespace NWN.Systems
 
               ItemProperty monsterDamage = ctx.attackWeapon.ItemProperties.FirstOrDefault(i => i.PropertyType == ItemPropertyType.MonsterDamage);
               if (monsterDamage != null)
-                ctx.onAttack.DamageData.Base = (short)(MonsterDamageCost2da.monsterDamageCostTable.GetMaxDamage(monsterDamage.CostTableValue) + ctx.oAttacker.GetAbilityModifier(Ability.Strength));
+                ctx.onAttack.DamageData.Base = (short)(MonsterDamageCost2da.GetMaxDamage(monsterDamage.CostTableValue) + ctx.oAttacker.GetAbilityModifier(Ability.Strength));
 
               break;
 
@@ -245,7 +245,7 @@ namespace NWN.Systems
 
             case IPDamageType.Physical:
 
-              int absorptionValue = DamageImmunityCost2da.damamgeimmunityTable.GetDamageImmunityValue(maxIP.CostTableValue);
+              int absorptionValue = DamageImmunityCost2da.damageImmunityTable[maxIP.CostTableValue].value;
               if (absorptionValue > 0)
               {
                 absorptionValue = 100 / (absorptionValue - 100);
@@ -362,7 +362,7 @@ namespace NWN.Systems
     }
     private static void HandleDamageAbsorbed(Context ctx, DamageType damageType, int ipCostValue, DamageType secondaryDamageType = DamageType.BaseWeapon)
     {
-      int absorptionValue = DamageImmunityCost2da.damamgeimmunityTable.GetDamageImmunityValue(ipCostValue);
+      int absorptionValue = DamageImmunityCost2da.damageImmunityTable[ipCostValue].value;
       if (absorptionValue > 0)
       {
         absorptionValue = 100 / (absorptionValue - 100);

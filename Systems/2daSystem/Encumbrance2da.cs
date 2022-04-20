@@ -1,45 +1,34 @@
-﻿using System.Collections.Generic;
-using Anvil.API;
+﻿using Anvil.API;
 using Anvil.Services;
 
 namespace NWN.Systems
 {
-  public class EncumbranceTable : ITwoDimArray
+  public sealed class EncumbranceTableEntry : ITwoDimArrayEntry
   {
-    private readonly Dictionary<int, Entry> entries = new Dictionary<int, Entry>();
+    public int heavy { get; private set; }
+    public int normal { get; private set; }
+    public int RowIndex { get; init; }
 
-    public Entry GetDataEntry(int feat)
+    public void InterpretEntry(TwoDimArrayEntry entry)
     {
-      return entries[feat];
-    }
-
-    void ITwoDimArray.DeserializeRow(int rowIndex, TwoDimEntry twoDimEntry)
-    {
-      int heavy = int.TryParse(twoDimEntry("Heavy"), out heavy) ? heavy : 0;
-      int normal = int.TryParse(twoDimEntry("Normal"), out normal) ? normal : 0;
-
-      entries.Add(rowIndex, new Entry(heavy, normal));
-    }
-    public readonly struct Entry
-    {
-      public readonly int heavy;
-      public readonly int normal;
-
-      public Entry(int heavy, int normal)
-      {
-        this.heavy = heavy;
-        this.normal = normal;
-      }
+      normal = entry.GetInt("Normal").GetValueOrDefault(0);
+      heavy = entry.GetInt("Heavy").GetValueOrDefault(0);
     }
   }
 
   [ServiceBinding(typeof(Encumbrance2da))]
   public class Encumbrance2da
   {
-    public static EncumbranceTable encumbranceTable;
-    public Encumbrance2da(TwoDimArrayFactory twoDimArrayFactory)
+    private static readonly TwoDimArray<EncumbranceTableEntry> encumbranceTable = new("encumbrance.2da");
+
+    public Encumbrance2da()
     {
-      encumbranceTable = twoDimArrayFactory.Get2DA<EncumbranceTable>("encumbrance");
+
+    }
+
+    public static bool IsCreatureHeavilyEncumbred(NwCreature creature)
+    {
+      return creature.TotalWeight > encumbranceTable[creature.GetAbilityScore(Ability.Strength)].heavy ? true : false;
     }
   }
 }

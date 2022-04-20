@@ -6,38 +6,26 @@ using Anvil.Services;
 
 namespace NWN.Systems
 {
-  public class BeltPartsTable : ITwoDimArray
+  public sealed class BeltPartsEntry : ITwoDimArrayEntry
   {
-    private readonly List<int> entries = new List<int>();
+    public int maxAC { get; private set; }
+    public int RowIndex { get; init; }
 
-    public List<NuiComboEntry> GetValidBeltAppearances()
+    public void InterpretEntry(TwoDimArrayEntry entry)
     {
-      List<NuiComboEntry> combo = new List<NuiComboEntry>();
-
-      foreach (var entry in entries)
-        combo.Add(new NuiComboEntry(entry.ToString(), entry));
-
-      return combo;
-    }
-
-    void ITwoDimArray.DeserializeRow(int rowIndex, TwoDimEntry twoDimEntry)
-    {
-      int maxAC = float.TryParse(twoDimEntry("ACBONUS"), out float floatAC) ? (int)floatAC : -1;
-
-      if (maxAC < 0)
-        return;
-
-      entries.Add(rowIndex);
+      maxAC = (int)entry.GetFloat("ACBONUS").GetValueOrDefault(-1);
     }
   }
 
   [ServiceBinding(typeof(BeltParts2da))]
   public class BeltParts2da
   {
-    public static BeltPartsTable beltPartsTable;
-    public BeltParts2da(TwoDimArrayFactory twoDimArrayFactory)
+    private readonly TwoDimArray<BeltPartsEntry> BeltPartsTable = new("parts_belt.2da");
+    public static readonly List<NuiComboEntry> combo = new ();
+    public BeltParts2da()
     {
-      beltPartsTable = twoDimArrayFactory.Get2DA<BeltPartsTable>("parts_belt");
+      foreach(var entry in BeltPartsTable.Where(b => b.maxAC > -1))
+        combo.Add(new NuiComboEntry(entry.RowIndex.ToString(), entry.RowIndex));
     }
   }
 }

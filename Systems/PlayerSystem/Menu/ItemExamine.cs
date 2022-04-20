@@ -16,12 +16,12 @@ namespace NWN.Systems
       {
         private readonly NuiGroup rootGroup;
         private readonly NuiColumn rootColumn;
-        private readonly List<NuiElement> rootChidren = new List<NuiElement>();
+        private readonly List<NuiElement> rootChidren = new ();
         private readonly NuiGroup sequenceRegisterGroup;
         private readonly NuiRow sequenceRegisterRow;
-        private readonly NuiBind<string> sequenceSaveButtonLabel = new NuiBind<string>("sequenceSaveButtonLabel");
-        private readonly NuiBind<string> itemName = new NuiBind<string>("itemName");
-        private readonly NuiBind<string> itemDescription = new NuiBind<string>("itemDescription");
+        private readonly NuiBind<string> sequenceSaveButtonLabel = new ("sequenceSaveButtonLabel");
+        private readonly NuiBind<string> itemName = new ("itemName");
+        private readonly NuiBind<string> itemDescription = new ("itemDescription");
         private bool modificationAllowed { get; set; }
         private bool IsInWorkshopRange { get; set; }
         private NwItem item { get; set; }
@@ -121,7 +121,7 @@ namespace NWN.Systems
             /*int totalAC = item.ItemProperties.Where(i => i.PropertyType == ItemPropertyType.AcBonus)
               .OrderByDescending(i => i.CostTableValue).FirstOrDefault().CostTableValue;*/
 
-            ArmorTable.Entry armorEntry = Armor2da.armorTable.GetDataEntry(item.BaseACValue);
+            var armorEntry = Armor2da.armorTable[item.BaseACValue];
             rootChidren.Add(new NuiRow() { Children = new List<NuiElement>() { new NuiLabel($"Armure (effective) : {player.GetArmorProficiencyLevel(item.BaseACValue) * 10} %") { Tooltip = "Le pourcentage s'applique par rapport à la valeur maximum du bonus d'armure pour chaque type spécifique" } } });
             rootChidren.Add(new NuiRow() { Children = new List<NuiElement>() { new NuiLabel($"Bonus de dextérité maximal : {armorEntry.maxDex}") } });
             rootChidren.Add(new NuiRow() { Children = new List<NuiElement>() { new NuiLabel($"Pénalité d'armure : {armorEntry.ACPenalty}") } });
@@ -153,30 +153,30 @@ namespace NWN.Systems
 
           foreach (ItemProperty ip in item.ItemProperties)
           {
-            string ipName = $"{ItemPropertyDefinition2da.ipDefinitionTable.GetIPDefinitionlDataEntry(ip.PropertyType).name}";
+            string ipName = $"{ItemPropertyDefinition2da.ipDefinitionTable[(int)ip.PropertyType].name}";
 
             if (ip.SubType > -1)
-              try { ipName += $" - {ItemPropertyDefinition2da.ipDefinitionTable.GetSubTypeName(ip.PropertyType, ip.SubType)}"; } catch (Exception) { }
+              try { ipName += $" - {ItemPropertyDefinition2da.GetSubTypeName(ip.PropertyType, ip.SubType)}"; } catch (Exception) { }
 
             if (ip.CostTableValue > -1)
             {
               if(ip.PropertyType == ItemPropertyType.DamageBonus || ip.PropertyType == ItemPropertyType.DamageBonusVsAlignmentGroup || ip.PropertyType == ItemPropertyType.DamageBonusVsRacialGroup
                 || ip.PropertyType == ItemPropertyType.DamageBonusVsSpecificAlignment || ip.PropertyType == ItemPropertyType.ExtraMeleeDamageType || ip.PropertyType == ItemPropertyType.ExtraRangedDamageType)
-                ipName += $" : {ItemPropertyDamageCost2da.ipDamageCost.GetLabelFromIPCostTableValue(ip.CostTableValue)}";
+                ipName += $" : {ItemPropertyDamageCost2da.GetLabelFromIPCostTableValue(ip.CostTableValue)}";
               else if (ip.PropertyType == ItemPropertyType.OnHitProperties)
               {
                 if(ip.SubType == 18) // Ability Drain
                 {
-                  ipName += $" {ItemPropertyAbility2da.ipAbilityTable.GetAbilityName(ip.Param1TableValue)}";
+                  ipName += $" {ItemPropertyAbility2da.ipAbilityTable[ip.Param1TableValue]}";
                 }
 
-                ipName += $" {ItemPropertyOnHitCost2da.ipOnHitCostTable.GetCostName(ip.CostTableValue)}";
+                ipName += $" {ItemPropertyOnHitCost2da.ipOnHitCostTable[ip.CostTableValue].name}";
               }
               else
                 ipName += $" : {ip.CostTableValue}";
             }
 
-            ipName += ip.RemainingDuration != TimeSpan.Zero ? $" ({new TimeSpan(ip.RemainingDuration.Days, ip.RemainingDuration.Hours, ip.RemainingDuration.Minutes, ip.RemainingDuration.Seconds).ToString()})" : "";
+            ipName += ip.RemainingDuration != TimeSpan.Zero ? $" ({new TimeSpan(ip.RemainingDuration.Days, ip.RemainingDuration.Hours, ip.RemainingDuration.Minutes, ip.RemainingDuration.Seconds)})" : "";
 
             Color ipColor = ip.RemainingDuration != TimeSpan.Zero ? ColorConstants.Blue : ColorConstants.White;
 
@@ -280,7 +280,12 @@ namespace NWN.Systems
 
             case "craft_resource":
 
-              Enum.TryParse(item.GetObjectVariable<LocalVariableString>("CRAFT_RESOURCE").Value, out ResourceType resourceType);
+              if(!Enum.TryParse(item.GetObjectVariable<LocalVariableString>("CRAFT_RESOURCE").Value, out ResourceType resourceType))
+              {
+                Utils.LogMessageToDMs($"ITEM EXAMINE - Impossible de parser en ressource de craft : {item.GetObjectVariable<LocalVariableString>("CRAFT_RESOURCE").Value}");
+                return;
+              }
+
               CraftResource resource = Craft.Collect.System.craftResourceArray.FirstOrDefault(r => r.type == resourceType && r.grade == item.GetObjectVariable<LocalVariableInt>("CRAFT_GRADE").Value);
 
               List<NuiElement> reprocessingRowChildren = new List<NuiElement>();
@@ -639,9 +644,7 @@ namespace NWN.Systems
         }
         private void SequenceRegisterSwap(int sequenceId, int swapValue, string[] spellList)
         {
-          string tempSwap = spellList[sequenceId];
-          spellList[sequenceId] = spellList[sequenceId + swapValue];
-          spellList[sequenceId + swapValue] = tempSwap;
+          (spellList[sequenceId + swapValue], spellList[sequenceId]) = (spellList[sequenceId], spellList[sequenceId + swapValue]);
           UpdateSequenceAndLayout(spellList);
         }
         private void UpdateSequenceAndLayout(IEnumerable spellList)
@@ -651,8 +654,7 @@ namespace NWN.Systems
           foreach (string spell in spellList)
             sequence += $"{spell}_";
 
-          sequence.Remove(sequence.Length - 1);
-          item.GetObjectVariable<LocalVariableString>("_REGISTERED_SEQUENCE").Value = sequence;
+          item.GetObjectVariable<LocalVariableString>("_REGISTERED_SEQUENCE").Value = sequence.Remove(sequence.Length - 1);
 
           CreateSequenceRegisterLayout(spellList);
           sequenceRegisterGroup.SetLayout(player.oid, token, sequenceRegisterRow);
@@ -803,7 +805,7 @@ namespace NWN.Systems
 
         private bool IsPlayerInWorkshopRange()
         {
-          string workshopName = BaseItems2da.baseItemTable.GetBaseItemDataEntry(item.BaseItem.ItemType).workshop;
+          string workshopName = BaseItems2da.baseItemTable[(int)item.BaseItem.ItemType].workshop;
           NwPlaceable workshop = player.oid.ControlledCreature.GetNearestObjectsByType<NwPlaceable>().FirstOrDefault(w => w.Tag == workshopName);
 
           if (workshop == null || player.oid.ControlledCreature.DistanceSquared(workshop) > 25)

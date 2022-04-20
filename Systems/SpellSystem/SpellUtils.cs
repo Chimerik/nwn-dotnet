@@ -1,10 +1,7 @@
 ﻿using Anvil.API;
 using System.Linq;
 using System;
-using NWN.Core.NWNX;
 using Anvil.API.Events;
-using NWN.Core;
-using Anvil.Services;
 
 namespace NWN.Systems
 {
@@ -12,9 +9,8 @@ namespace NWN.Systems
   {
     public static int MaximizeOrEmpower(int nDice, int nNumberOfDice, MetaMagic nMeta, int nBonus = 0)
     {
-      int i = 0;
       int nDamage = 0;
-      for (i = 1; i <= nNumberOfDice; i++)
+      for (int i = 1; i <= nNumberOfDice; i++)
       {
         nDamage = nDamage + Utils.random.Next(nDice) + 1;
       }
@@ -25,7 +21,7 @@ namespace NWN.Systems
       }
       else if (nMeta == MetaMagic.Empower)
       {
-        nDamage = nDamage + nDamage / 2;
+        nDamage += nDamage / 2;
       }
       return nDamage + nBonus;
     }
@@ -48,7 +44,7 @@ namespace NWN.Systems
         ItemProperty ip = oScroll.ItemProperties.FirstOrDefault(ip => ip.PropertyType == ItemPropertyType.CastSpell);
 
         if (ip != null)
-            return (int)ItemPropertySpells2da.spellsTable.GetSpellDataEntry(ip.SubType).spell;
+            return (int)ItemPropertySpells2da.ipSpellTable[ip.SubType].spell;
 
       return 0;
     }
@@ -57,7 +53,7 @@ namespace NWN.Systems
         ItemProperty ip = oScroll.ItemProperties.FirstOrDefault(ip => ip.PropertyType == ItemPropertyType.CastSpell);
 
         if (ip != null)
-            return ItemPropertySpells2da.spellsTable.GetSpellDataEntry(ip.SubType).innateLevel;
+            return ItemPropertySpells2da.ipSpellTable[ip.SubType].innateLevel;
 
       return 255;
     }

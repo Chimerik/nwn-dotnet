@@ -56,42 +56,37 @@ namespace NWN.Systems
         private readonly NuiBind<int> leftFootSlider = new NuiBind<int>("leftFootSliderValue");
         private readonly NuiBind<bool> symmetry = new NuiBind<bool>("symmetry");
         private readonly NuiBind<int> areaSelection = new NuiBind<int>("areaSelection");
-        private readonly List<NuiComboEntry> robeList;
-        private readonly List<NuiComboEntry> neckList;
-        private readonly List<NuiComboEntry> torsoList;
-        private readonly List<NuiComboEntry> beltList;
-        private readonly List<NuiComboEntry> pelvisList;
-        private readonly List<NuiComboEntry> shoulderList;
-        private readonly List<NuiComboEntry> bicepList;
-        private readonly List<NuiComboEntry> forearmList;
-        private readonly List<NuiComboEntry> handList;
-        private readonly List<NuiComboEntry> tighList;
-        private readonly List<NuiComboEntry> shinList;
-        private readonly List<NuiComboEntry> footList;
+        private List<NuiComboEntry> robeList;
+        private List<NuiComboEntry> torsoList;
+        private List<NuiComboEntry> pelvisList;
+        private List<NuiComboEntry> shoulderList;
+        private List<NuiComboEntry> bicepList;
+        private List<NuiComboEntry> forearmList;
+        private List<NuiComboEntry> handList;
+        private List<NuiComboEntry> tighList;
+        private List<NuiComboEntry> shinList;
+        private List<NuiComboEntry> footList;
         private NwItem item { get; set; }
 
         public ArmorAppearanceWindow(Player player, NwItem item) : base (player)
         {
           windowId = "itemAppearanceModifier";
-
-          robeList = RobeParts2da.robePartsTable.GetValidRobeAppearancesForGender(player.oid.ControlledCreature.Gender);
-          neckList = NeckParts2da.neckPartsTable.GetValidNeckAppearances();
-          torsoList = TorsoParts2da.torsoPartsTable.GetValidChestAppearancesForGenderAndAC(player.oid.ControlledCreature.Gender, item.BaseACValue);
-          beltList = BeltParts2da.beltPartsTable.GetValidBeltAppearances();
-          pelvisList = PelvisParts2da.pelvisPartsTable.GetValidPelvisAppearancesForGender(player.oid.ControlledCreature.Gender);
-          shoulderList = ShoulderParts2da.shoulderPartsTable.GetValidShoulderAppearancesForGender(player.oid.ControlledCreature.Gender);
-          bicepList = BicepParts2da.bicepPartsTable.GetValidBicepAppearancesForGender(player.oid.ControlledCreature.Gender);
-          forearmList = ForearmParts2da.forearmPartsTable.GetValidForearmAppearancesForGender(player.oid.ControlledCreature.Gender);
-          handList = HandParts2da.handPartsTable.GetValidHandAppearancesForGender(player.oid.ControlledCreature.Gender);
-          tighList = LegParts2da.legPartsTable.GetValidLegAppearancesForGender(player.oid.ControlledCreature.Gender);
-          shinList = ShinParts2da.shinPartsTable.GetValidShinAppearancesForGender(player.oid.ControlledCreature.Gender);
-          footList = FootParts2da.footPartsTable.GetValidFootAppearancesForGender(player.oid.ControlledCreature.Gender);
-
           CreateWindow(item);
         }
 
         public void CreateWindow(NwItem item)
         {
+          robeList = player.oid.ControlledCreature.Gender == Gender.Male ? RobeParts2da.maleCombo : RobeParts2da.femaleCombo;
+          bicepList = player.oid.ControlledCreature.Gender == Gender.Male ? BicepParts2da.maleCombo : BicepParts2da.femaleCombo;
+          footList = player.oid.ControlledCreature.Gender == Gender.Male ? FootParts2da.maleCombo : FootParts2da.femaleCombo;
+          forearmList = player.oid.ControlledCreature.Gender == Gender.Male ? ForearmParts2da.maleCombo : ForearmParts2da.femaleCombo;
+          handList = player.oid.ControlledCreature.Gender == Gender.Male ? HandParts2da.maleCombo : HandParts2da.femaleCombo;
+          tighList = player.oid.ControlledCreature.Gender == Gender.Male ? LegParts2da.maleCombo : LegParts2da.femaleCombo;
+          shinList = player.oid.ControlledCreature.Gender == Gender.Male ? ShinParts2da.maleCombo : ShinParts2da.femaleCombo;
+          shoulderList = player.oid.ControlledCreature.Gender == Gender.Male ? ShoulderParts2da.maleCombo : ShoulderParts2da.femaleCombo;
+          pelvisList = player.oid.ControlledCreature.Gender == Gender.Male ? PelvisParts2da.maleCombo : PelvisParts2da.femaleCombo;
+          torsoList = player.oid.ControlledCreature.Gender == Gender.Male ? TorsoParts2da.maleCombo : TorsoParts2da.femaleCombo;
+
           player.DisableItemAppearanceFeedbackMessages();
           this.item = item;
           NuiRect windowRectangle = player.windowRectangles.ContainsKey(windowId) ? player.windowRectangles[windowId] : new NuiRect(10, player.oid.GetDeviceProperty(PlayerDeviceProperty.GuiHeight) * 0.01f, player.oid.GetDeviceProperty(PlayerDeviceProperty.GuiWidth) * 0.7f, player.oid.GetDeviceProperty(PlayerDeviceProperty.GuiHeight) / 3);
@@ -137,10 +132,10 @@ namespace NWN.Systems
                 new NuiCombo
                 {
                   Width = 70,
-                  Entries = neckList,
+                  Entries = NeckParts2da.combo,
                   Selected = neckSelection
                 },
-                new NuiSlider(neckSlider, 0, neckList.Count - 1)
+                new NuiSlider(neckSlider, 0, NeckParts2da.combo.Count - 1)
                 {
                   Step = 1,  Width = (windowRectangle.Width - 200) * 0.96f
                 }
@@ -171,10 +166,10 @@ namespace NWN.Systems
                 new NuiCombo
                 {
                   Width = 70,
-                  Entries = beltList,
+                  Entries = BeltParts2da.combo,
                   Selected = beltSelection
                 },
-                new NuiSlider(beltSlider, 0, beltList.Count - 1)
+                new NuiSlider(beltSlider, 0, BeltParts2da.combo.Count - 1)
                 {
                   Step = 1,  Width = (windowRectangle.Width - 200) * 0.96f
                 }
@@ -462,13 +457,13 @@ namespace NWN.Systems
           robeSlider.SetBindValue(player.oid, token, robeList.IndexOf(robeList.FirstOrDefault(l => l.Value == item.Appearance.GetArmorModel(ItemAppearanceArmorModel.Robe))));
 
           neckSelection.SetBindValue(player.oid, token, item.Appearance.GetArmorModel(ItemAppearanceArmorModel.Neck));
-          neckSlider.SetBindValue(player.oid, token, neckList.IndexOf(neckList.FirstOrDefault(l => l.Value == item.Appearance.GetArmorModel(ItemAppearanceArmorModel.Neck))));
+          neckSlider.SetBindValue(player.oid, token, NeckParts2da.combo.IndexOf(NeckParts2da.combo.FirstOrDefault(l => l.Value == item.Appearance.GetArmorModel(ItemAppearanceArmorModel.Neck))));
 
           torsoSelection.SetBindValue(player.oid, token, item.Appearance.GetArmorModel(ItemAppearanceArmorModel.Torso));
           torsoSlider.SetBindValue(player.oid, token, torsoList.IndexOf(torsoList.FirstOrDefault(l => l.Value == item.Appearance.GetArmorModel(ItemAppearanceArmorModel.Torso))));
 
           beltSelection.SetBindValue(player.oid, token, item.Appearance.GetArmorModel(ItemAppearanceArmorModel.Belt));
-          beltSlider.SetBindValue(player.oid, token, beltList.IndexOf(beltList.FirstOrDefault(l => l.Value == item.Appearance.GetArmorModel(ItemAppearanceArmorModel.Belt))));
+          beltSlider.SetBindValue(player.oid, token, BeltParts2da.combo.IndexOf(BeltParts2da.combo.FirstOrDefault(l => l.Value == item.Appearance.GetArmorModel(ItemAppearanceArmorModel.Belt))));
 
           pelvisSelection.SetBindValue(player.oid, token, item.Appearance.GetArmorModel(ItemAppearanceArmorModel.Pelvis));
           pelvisSlider.SetBindValue(player.oid, token, pelvisList.IndexOf(pelvisList.FirstOrDefault(l => l.Value == item.Appearance.GetArmorModel(ItemAppearanceArmorModel.Pelvis))));
@@ -585,47 +580,47 @@ namespace NWN.Systems
           switch (model)
           {
             case ItemAppearanceArmorModel.Robe:
-              result = RobeParts2da.robePartsTable.GetValidRobeAppearancesForGender(player.oid.ControlledCreature.Gender).ElementAt(sliderValue).Value;
+              result = robeList.ElementAt(sliderValue).Value;
               break;
             case ItemAppearanceArmorModel.Neck:
-              result = NeckParts2da.neckPartsTable.GetValidNeckAppearances().ElementAt(sliderValue).Value;
+              result = NeckParts2da.combo.ElementAt(sliderValue).Value;
               break;
             case ItemAppearanceArmorModel.Torso:
-              result = TorsoParts2da.torsoPartsTable.GetValidChestAppearancesForGenderAndAC(player.oid.ControlledCreature.Gender, item.BaseACValue).ElementAt(sliderValue).Value;
+              result = torsoList.ElementAt(sliderValue).Value;
               break;
             case ItemAppearanceArmorModel.Belt:
-              result = BeltParts2da.beltPartsTable.GetValidBeltAppearances().ElementAt(sliderValue).Value;
+              result = BeltParts2da.combo.ElementAt(sliderValue).Value;
               break;
             case ItemAppearanceArmorModel.Pelvis:
-              result = PelvisParts2da.pelvisPartsTable.GetValidPelvisAppearancesForGender(player.oid.ControlledCreature.Gender).ElementAt(sliderValue).Value;
+              result = pelvisList.ElementAt(sliderValue).Value;
               break;
             case ItemAppearanceArmorModel.LeftShoulder:
             case ItemAppearanceArmorModel.RightShoulder:
-              result = ShoulderParts2da.shoulderPartsTable.GetValidShoulderAppearancesForGender(player.oid.ControlledCreature.Gender).ElementAt(sliderValue).Value;
+              result = shoulderList.ElementAt(sliderValue).Value;
               break;
             case ItemAppearanceArmorModel.LeftBicep:
             case ItemAppearanceArmorModel.RightBicep:
-              result = BicepParts2da.bicepPartsTable.GetValidBicepAppearancesForGender(player.oid.ControlledCreature.Gender).ElementAt(sliderValue).Value;
+              result = bicepList.ElementAt(sliderValue).Value;
               break;
             case ItemAppearanceArmorModel.LeftForearm:
             case ItemAppearanceArmorModel.RightForearm:
-              result = ForearmParts2da.forearmPartsTable.GetValidForearmAppearancesForGender(player.oid.ControlledCreature.Gender).ElementAt(sliderValue).Value;
+              result = forearmList.ElementAt(sliderValue).Value;
               break;
             case ItemAppearanceArmorModel.LeftHand:
             case ItemAppearanceArmorModel.RightHand:
-              result = HandParts2da.handPartsTable.GetValidHandAppearancesForGender(player.oid.ControlledCreature.Gender).ElementAt(sliderValue).Value;
+              result = handList.ElementAt(sliderValue).Value;
               break;
             case ItemAppearanceArmorModel.LeftThigh:
             case ItemAppearanceArmorModel.RightThigh:
-              result = LegParts2da.legPartsTable.GetValidLegAppearancesForGender(player.oid.ControlledCreature.Gender).ElementAt(sliderValue).Value;
+              result = tighList.ElementAt(sliderValue).Value;
               break;
             case ItemAppearanceArmorModel.LeftShin:
             case ItemAppearanceArmorModel.RightShin:
-              result = ShinParts2da.shinPartsTable.GetValidShinAppearancesForGender(player.oid.ControlledCreature.Gender).ElementAt(sliderValue).Value;
+              result = shinList.ElementAt(sliderValue).Value;
               break;
             case ItemAppearanceArmorModel.LeftFoot:
             case ItemAppearanceArmorModel.RightFoot:
-              result = FootParts2da.footPartsTable.GetValidFootAppearancesForGender(player.oid.ControlledCreature.Gender).ElementAt(sliderValue).Value;
+              result = footList.ElementAt(sliderValue).Value;
               break;
           }
 

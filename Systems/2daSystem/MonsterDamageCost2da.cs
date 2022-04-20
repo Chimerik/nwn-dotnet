@@ -1,49 +1,36 @@
-﻿using System.Collections.Generic;
-
+﻿using Anvil.API;
 using Anvil.Services;
 
 namespace NWN.Systems
 {
-  public class MonsterDamageCostTable : ITwoDimArray
+  public sealed class MonsterDamageEntry : ITwoDimArrayEntry
   {
-    private readonly Dictionary<int, Entry> entries = new Dictionary<int, Entry>();
+    public int numDice { get; private set; }
+    public int Die { get; private set; }
 
-    public int GetMaxDamage(int row)
-    {
-      Entry entry = entries[row];
+    // RowIndex is already populated externally, and we do not need to assign it in InterpretEntry.
+    public int RowIndex { get; init; }
 
-      return entry.NumDice * entry.Die;
-    }
-    public Entry GetDataEntry(int row)
+    public void InterpretEntry(TwoDimArrayEntry entry)
     {
-      return entries[row];
-    }
-    void ITwoDimArray.DeserializeRow(int rowIndex, TwoDimEntry twoDimEntry)
-    {
-      int numDice = int.TryParse(twoDimEntry("numDice"), out numDice) ? numDice : 0;
-      int die = int.TryParse(twoDimEntry("numDice"), out die) ? die : 0;
-      entries.Add(rowIndex, new Entry(numDice, die));
-    }
-    public readonly struct Entry
-    {
-      public readonly int NumDice;
-      public readonly int Die;
-
-      public Entry(int numDice, int die)
-      {
-        this.NumDice = numDice;
-        this.Die = die;
-      }
+      numDice = entry.GetInt("NumDice").GetValueOrDefault(0);
+      Die = entry.GetInt("Die").GetValueOrDefault(0);
     }
   }
 
   [ServiceBinding(typeof(MonsterDamageCost2da))]
   public class MonsterDamageCost2da
   {
-    public static MonsterDamageCostTable monsterDamageCostTable;
-    public MonsterDamageCost2da(TwoDimArrayFactory twoDimArrayFactory)
+    private static readonly TwoDimArray<MonsterDamageEntry> monsterDamageTable = new("iprp_monstcost.2da");
+    public MonsterDamageCost2da()
     {
-      monsterDamageCostTable = twoDimArrayFactory.Get2DA<MonsterDamageCostTable>("iprp_monstcost");
+
+    }
+
+    public static int GetMaxDamage(int row)
+    {
+      var entry = monsterDamageTable[row];
+      return entry.numDice * entry.Die;
     }
   }
 }

@@ -1,4 +1,6 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
+
 using Anvil.API;
 using Anvil.Services;
 
@@ -27,11 +29,14 @@ namespace NWN.Systems
   [ServiceBinding(typeof(AmbientMusic2da))]
   public class AmbientMusic2da
   {
-    public static readonly TwoDimArray<AmbientMusicEntry> ambientMusicTable = new ("ambientmusic.2da");
-    
+    private readonly TwoDimArray<AmbientMusicEntry> ambientMusicTable = new ("ambientmusic.2da");
+    public static IEnumerable<AmbientMusicEntry> maleAmbientMusicEntry;
+    public static IEnumerable<AmbientMusicEntry> femaleAmbientMusicEntry;
+
     public AmbientMusic2da()
     {
-      
-    }
+      maleAmbientMusicEntry = ambientMusicTable.Where(m => m.gender == Gender.Male || m.gender == Gender.Both);
+      femaleAmbientMusicEntry = ambientMusicTable.Where(m => m.gender == Gender.Female || m.gender == Gender.Both);
+    } 
   }
 }

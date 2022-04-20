@@ -34,9 +34,9 @@ namespace NWN.Systems
 
           NuiRect windowRectangle = player.windowRectangles.ContainsKey(windowId) ? player.windowRectangles[windowId] : new NuiRect(10, player.oid.GetDeviceProperty(PlayerDeviceProperty.GuiHeight) * 0.01f, player.oid.GetDeviceProperty(PlayerDeviceProperty.GuiWidth) * 0.7f, player.oid.GetDeviceProperty(PlayerDeviceProperty.GuiHeight) / 3);
 
-          List<NuiComboEntry> topModelCombo = BaseItems2da.baseItemTable.GetWeaponModelList(item.BaseItem.ItemType, ItemAppearanceWeaponModel.Top);
-          List<NuiComboEntry> midModelCombo = BaseItems2da.baseItemTable.GetWeaponModelList(item.BaseItem.ItemType, ItemAppearanceWeaponModel.Middle);
-          List<NuiComboEntry> botModelCombo = BaseItems2da.baseItemTable.GetWeaponModelList(item.BaseItem.ItemType, ItemAppearanceWeaponModel.Bottom);
+          List<NuiComboEntry> topModelCombo = BaseItems2da.GetWeaponModelList(item.BaseItem.ItemType, ItemAppearanceWeaponModel.Top);
+          List<NuiComboEntry> midModelCombo = BaseItems2da.GetWeaponModelList(item.BaseItem.ItemType, ItemAppearanceWeaponModel.Middle);
+          List<NuiComboEntry> botModelCombo = BaseItems2da.GetWeaponModelList(item.BaseItem.ItemType, ItemAppearanceWeaponModel.Bottom);
 
           NuiColumn rootColumn = new NuiColumn
           {
@@ -152,16 +152,16 @@ namespace NWN.Systems
           {
             case ItemAppearanceWeaponModel.Top:
               sliderValue = topModelSlider.GetBindValue(player.oid, token);
-              result = BaseItems2da.baseItemTable.GetWeaponModelList(item.BaseItem.ItemType, model).ElementAt(sliderValue).Value;
+              result = BaseItems2da.GetWeaponModelList(item.BaseItem.ItemType, model).ElementAt(sliderValue).Value;
               break;
             case ItemAppearanceWeaponModel.Middle:
               sliderValue = middleModelSlider.GetBindValue(player.oid, token);
-              result = BaseItems2da.baseItemTable.GetWeaponModelList(item.BaseItem.ItemType, model).ElementAt(sliderValue).Value;
+              result = BaseItems2da.GetWeaponModelList(item.BaseItem.ItemType, model).ElementAt(sliderValue).Value;
               break;
             case ItemAppearanceWeaponModel.Bottom:
               sliderValue = bottomModelSlider.GetBindValue(player.oid, token);
 
-              result = BaseItems2da.baseItemTable.GetWeaponModelList(item.BaseItem.ItemType, model).ElementAt(sliderValue).Value;
+              result = BaseItems2da.GetWeaponModelList(item.BaseItem.ItemType, model).ElementAt(sliderValue).Value;
               break;
           }
 
@@ -183,7 +183,7 @@ namespace NWN.Systems
 
           int selectorValue = 0;
           NuiBind<int> slider = null;
-          List<NuiComboEntry> modelComboEntries = BaseItems2da.baseItemTable.GetWeaponModelList(item.BaseItem.ItemType, model);
+          List<NuiComboEntry> modelComboEntries = BaseItems2da.GetWeaponModelList(item.BaseItem.ItemType, model);
           int sliderValue = 0;
           int sliderResult = 0;
 
@@ -192,7 +192,7 @@ namespace NWN.Systems
             case ItemAppearanceWeaponModel.Top:
               selectorValue = topModelSelection.GetBindValue(player.oid, token);
               slider = new NuiBind<int>("topModelSlider");
-              sliderResult = BaseItems2da.baseItemTable.GetWeaponModelList(item.BaseItem.ItemType, model).IndexOf(modelComboEntries.FirstOrDefault(m => m.Value == selectorValue));
+              sliderResult = BaseItems2da.GetWeaponModelList(item.BaseItem.ItemType, model).IndexOf(modelComboEntries.FirstOrDefault(m => m.Value == selectorValue));
               sliderValue = slider.GetBindValue(player.oid, token);
               break;
             case ItemAppearanceWeaponModel.Middle:

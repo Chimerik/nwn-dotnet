@@ -4,63 +4,49 @@ using Anvil.Services;
 
 namespace NWN.Systems
 {
-  public class ArmorTable : ITwoDimArray
+  public sealed class ArmorEntry : ITwoDimArrayEntry
   {
-    private readonly Dictionary<int, Entry> entries = new Dictionary<int, Entry>();
+    public string name { get; private set; }
+    public int cost { get; private set; }
+    public string workshop { get; private set; }
+    public string craftResRef { get; private set; }
+    public int maxDex { get; private set; }
+    public int ACPenalty { get; private set; }
+    public int arcaneFailure { get; private set; }
+    public int craftLearnable { get; private set; }
 
-    public Entry GetDataEntry(int row)
-    {
-      return entries[row];
-    }
-    
-    void ITwoDimArray.DeserializeRow(int rowIndex, TwoDimEntry twoDimEntry)
-    {
-      int cost = int.TryParse(twoDimEntry("COST"), out cost) ? cost : 1;
-      uint strRef = uint.TryParse(twoDimEntry("NAME"), out strRef) ? strRef : 0;
-      string name = strRef == 0 ? name = "Nom manquant" : name = Armor2da.tlkTable.GetSimpleString(strRef);
-      string workshop = twoDimEntry("WORKSHOP");
-      string craftResRef = twoDimEntry("CRAFTRESREF");
-      string maxDex = twoDimEntry("DEXBONUS");
-      string ACPenalty = twoDimEntry("ACCHECK");
-      string arcaneFailure = twoDimEntry("ARCANEFAILURE%");
-      int craftLearnable = int.TryParse(twoDimEntry("ACBONUS%"), out craftLearnable) ? craftLearnable : -1;
+    // RowIndex is already populated externally, and we do not need to assign it in InterpretEntry.
+    public int RowIndex { get; init; }
 
-      entries.Add(rowIndex, new Entry(name, cost, workshop, craftResRef, maxDex, ACPenalty, arcaneFailure, craftLearnable));
-    }
-    public readonly struct Entry
+    public void InterpretEntry(TwoDimArrayEntry entry)
     {
-      public readonly string name;
-      public readonly int cost;
-      public readonly string workshop;
-      public readonly string craftResRef;
-      public readonly string maxDex;
-      public readonly string ACPenalty;
-      public readonly string arcaneFailure;
-      public readonly int craftLearnable;
-
-      public Entry(string name, int cost, string workshop, string craftResRef, string maxDex, string ACPenalty, string arcaneFailure, int craftLearnable)
-      {
-        this.name = name;
-        this.cost = cost;
-        this.workshop = workshop;
-        this.craftResRef = craftResRef;
-        this.maxDex = maxDex;
-        this.ACPenalty = ACPenalty;
-        this.arcaneFailure = arcaneFailure;
-        this.craftLearnable = craftLearnable;
-      }
+      cost = entry.GetInt("COST").GetValueOrDefault(0);
+      name = entry.GetStrRef("NAME").GetValueOrDefault().ToString();
+      workshop = entry.GetString("WORKSHOP");
+      craftResRef = entry.GetString("CRAFTRESREF");
+      maxDex = entry.GetInt("DEXBONUS").GetValueOrDefault(0);
+      ACPenalty = entry.GetInt("ACCHECK").GetValueOrDefault(0);
+      arcaneFailure = entry.GetInt("ARCANEFAILURE").GetValueOrDefault(0);
+      craftLearnable = entry.GetInt("ACBONUS%").GetValueOrDefault(-1);
     }
   }
 
   [ServiceBinding(typeof(Armor2da))]
   public class Armor2da
   {
-    public static TlkTable tlkTable;
-    public static ArmorTable armorTable;
-    public Armor2da(TwoDimArrayFactory twoDimArrayFactory, TlkTable tlkService)
+    public static readonly TwoDimArray<ArmorEntry> armorTable = new("armor.2da");
+    public Armor2da()
     {
-      tlkTable = tlkService;
-      armorTable = twoDimArrayFactory.Get2DA<ArmorTable>("armor");
+      
+    }
+
+    public static int GetCost(int baseACV)
+    {
+      return armorTable[baseACV].cost;
+    }
+    public static string GetWorkshop(int baseACV)
+    {
+      return armorTable[baseACV].workshop;
     }
   }
 }

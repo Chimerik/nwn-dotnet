@@ -43,7 +43,7 @@ namespace NWN.Systems
           NuiRow row = new NuiRow();
           row.Children = new List<NuiElement>();
 
-          foreach (int model in BaseItems2da.baseItemTable.simpleItemModels[modelKey])
+          foreach (int model in BaseItems2da.simpleItemModels[modelKey])
           {
             if (i == 3)
             {

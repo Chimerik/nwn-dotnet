@@ -21,25 +21,25 @@ namespace NWN.Systems
   {
     public static readonly Logger Log = LogManager.GetCurrentClassLogger();
     public static readonly TranslationClient googleTranslationClient = TranslationClient.Create();
-    public static Dictionary<string, GoldBalance> goldBalanceMonitoring = new Dictionary<string, GoldBalance>();
-    private static SchedulerService scheduler;
-    public static DriveService googleDriveService;
+    public static readonly Dictionary<string, GoldBalance> goldBalanceMonitoring = new();
+    private readonly SchedulerService scheduler;
+    public static readonly DriveService googleDriveService = Config.AuthenticateServiceAccount();
 
     public class  HeadModels
     {
       public Gender gender { get; }
-      public AppearanceType appearance { get; }
+      public int appearanceRow { get; }
       public List<NuiComboEntry> heads { get; set; }
 
-      public HeadModels(Gender gender, AppearanceType appearance)
+      public HeadModels(Gender gender, int appearanceRow)
       {
         this.gender = gender;
-        this.appearance = appearance;
+        this.appearanceRow = appearanceRow;
         heads = new List<NuiComboEntry>();
       }
     }
 
-    public static List<HeadModels> headModels = new List<HeadModels>();
+    public static readonly List<HeadModels> headModels = new();
 
     public ModuleSystem(SchedulerService schedulerService)
     {
@@ -49,11 +49,10 @@ namespace NWN.Systems
       CreateDatabase();
       InitializeEvents();
 
-      googleDriveService = Config.AuthenticateServiceAccount();
       SkillSystem.InitializeLearnables();
       NwModule.Instance.OnModuleLoad += OnModuleLoad;
     }
-    private async void LoadDiscordBot()
+    private static async void LoadDiscordBot()
     {
       try
       {
@@ -244,7 +243,7 @@ namespace NWN.Systems
         onCheck.ResultOverride = CheckProficiencyOverride.HasProficiency;
     }
 
-    private void SetModuleTime()
+    private static void SetModuleTime()
     {
       var query = SqLiteUtils.SelectQuery("moduleInfo",
         new List<string>() { { "year" }, { "month" }, { "day" }, { "hour" }, { "minute" }, { "second" } },
@@ -264,7 +263,7 @@ namespace NWN.Systems
         new List<string[]>() { new string[] { "year", NwDateTime.Now.Year.ToString() }, { new string[] { "month", NwDateTime.Now.Month.ToString() } }, { new string[] { "day", NwDateTime.Now.DayInTenday.ToString() } }, { new string[] { "hour", NwDateTime.Now.Hour.ToString() } }, { new string[] { "minute", NwDateTime.Now.Minute.ToString() } }, { new string[] { "second", NwDateTime.Now.Second.ToString() } } },
         new List<string[]>() { new string[] { "ROWID", "1" } });
     }
-    public void RestorePlayerCorpseFromDatabase()
+    public static void RestorePlayerCorpseFromDatabase()
     {
       var result = SqLiteUtils.SelectQuery("playerDeathCorpses",
         new List<string>() { { "deathCorpse" }, { "location" }, { "characterId" } },
@@ -282,7 +281,7 @@ namespace NWN.Systems
         PlayerSystem.SetupPCCorpse(corpse);
       }
     }
-    public void RestorePlayerShopsFromDatabase()
+    public static void RestorePlayerShopsFromDatabase()
     {
       // TODO : envoyer un mp discord + courrier aux joueurs 7 jours avant expiration + 1 jour avant expiration
 
@@ -331,14 +330,14 @@ namespace NWN.Systems
           item.BaseGoldValue = (uint)item.GetObjectVariable<LocalVariableInt>("_SET_SELL_PRICE").Value;
       }
     }
-    private async void DeleteExpiredShop(int rowid)
+    private static async void DeleteExpiredShop(int rowid)
     {
       await NwTask.Delay(TimeSpan.FromSeconds(0.2));
 
       SqLiteUtils.DeletionQuery("playerShops",
           new Dictionary<string, string>() { { "rowid", rowid.ToString() } });
     }
-    private void RestorePlayerAuctionsFromDatabase()
+    private static void RestorePlayerAuctionsFromDatabase()
     {
       var result = SqLiteUtils.SelectQuery("playerAuctions",
         new List<string>() { { "shop" }, { "panel" }, { "characterId" }, { "rowid" }, { "expirationDate" }, { "highestAuction" }, { "highestAuctionner" }, { "areaTag" }, { "position" }, { "facing" } },
@@ -361,7 +360,7 @@ namespace NWN.Systems
           item.BaseGoldValue = (uint)item.GetObjectVariable<LocalVariableInt>("_CURRENT_AUCTION").Value;
       }
     }
-    public async void HandleExpiredAuctions()
+    public static async void HandleExpiredAuctions()
     {
       var result = SqLiteUtils.SelectQuery("playerAuctions",
         new List<string>() { { "characterId" }, { "rowid" }, { "highestAuction" }, { "highestAuctionner" }, { "shop" } },
@@ -469,13 +468,13 @@ namespace NWN.Systems
       SqLiteUtils.DeletionQuery("playerAuctions",
           new Dictionary<string, string>() { { "rowid", auctionId.ToString() } });
     }
-    private void UpdateExpiredAuction(int auctionId)
+    private static void UpdateExpiredAuction(int auctionId)
     {
       SqLiteUtils.UpdateQuery("playerAuctions",
         new List<string[]>() { new string[] { "highestAuction", "0" } },
         new List<string[]>() { new string[] { "ROWID", auctionId.ToString() } });
     }
-    public void RestoreDMPersistentPlaceableFromDatabase()
+    public static void RestoreDMPersistentPlaceableFromDatabase()
     {
       var result = SqLiteUtils.SelectQuery("dm_persistant_placeable",
         new List<string>() { { "serializedPlaceable" }, { "areaTag" }, { "position" }, { "facing" } },
@@ -484,7 +483,7 @@ namespace NWN.Systems
       foreach (var plc in result.Results)
         SqLiteUtils.PlaceableSerializationFormatProtection(plc, 0, Utils.GetLocationFromDatabase(plc.GetString(1), plc.GetString(2), plc.GetFloat(3)));
     }
-    private async void RestoreResourceBlocksFromDatabase()
+    private static async void RestoreResourceBlocksFromDatabase()
     {
       var result = await SqLiteUtils.SelectQueryAsync("areaResourceStock",
           new List<string>() { { "id" }, { "areaTag" }, { "type" }, { "quantity" }, { "lastChecked" } },
@@ -610,12 +609,12 @@ namespace NWN.Systems
         Utils.LogMessageToDMs($"Warning : could not spawn {waypoint.Tag} nb {waypoint.GetObjectVariable<LocalVariableInt>("id").Value} in {waypoint.Area.Name}");
       }
     }
-    public void DeleteExpiredMail()
+    public static void DeleteExpiredMail()
     {
       SqLiteUtils.DeletionQuery("messenger",
           new Dictionary<string, string>() { { "expirationDate", DateTime.Now.AddDays(30).ToLongDateString() } }, ">");
     }
-    private void LoadHeadLists()
+    private static void LoadHeadLists()
     {
       /*Log.Info($"karandas found in {NWScript.ResManGetAliasFor("c_karandas", NWScript.RESTYPE_MDL)}");
       Log.Info($"c_envy found in {NWScript.ResManGetAliasFor("c_envy", NWScript.RESTYPE_MDL)}");
@@ -623,8 +622,8 @@ namespace NWN.Systems
 
       for (int appearance = 0; appearance < 7; appearance++)
       {
-        headModels.Add(new HeadModels(Gender.Male, (AppearanceType)appearance));
-        headModels.Add(new HeadModels(Gender.Female, (AppearanceType)appearance));
+        headModels.Add(new HeadModels(Gender.Male, appearance));
+        headModels.Add(new HeadModels(Gender.Female, appearance));
       }
       for (int i = 1; i < 255; i++)
       {
@@ -635,46 +634,46 @@ namespace NWN.Systems
         string search = i.ToString().PadLeft(3, '0');
         
         if (NWScript.ResManGetAliasFor($"pMD0_HEAD{search}", NWScript.RESTYPE_MDL) != "")
-          headModels.FirstOrDefault(h => h.appearance == AppearanceType.Dwarf && h.gender == Gender.Male).heads.Add(new NuiComboEntry(i.ToString(), i));
+          headModels.FirstOrDefault(h => h.appearanceRow == (int)AppearanceType.Dwarf && h.gender == Gender.Male).heads.Add(new NuiComboEntry(i.ToString(), i));
 
         if (NWScript.ResManGetAliasFor($"pFD0_HEAD{search}", NWScript.RESTYPE_MDL) != "")
-          headModels.FirstOrDefault(h => h.appearance == AppearanceType.Dwarf && h.gender == Gender.Female).heads.Add(new NuiComboEntry(i.ToString(), i));
+          headModels.FirstOrDefault(h => h.appearanceRow == (int)AppearanceType.Dwarf && h.gender == Gender.Female).heads.Add(new NuiComboEntry(i.ToString(), i));
 
         if (NWScript.ResManGetAliasFor($"pME0_HEAD{search}", NWScript.RESTYPE_MDL) != "")
-          headModels.FirstOrDefault(h => h.appearance == AppearanceType.Elf && h.gender == Gender.Male).heads.Add(new NuiComboEntry(i.ToString(), i));
+          headModels.FirstOrDefault(h => h.appearanceRow == (int)AppearanceType.Elf && h.gender == Gender.Male).heads.Add(new NuiComboEntry(i.ToString(), i));
 
         if (NWScript.ResManGetAliasFor($"pFE0_HEAD{search}", NWScript.RESTYPE_MDL) != "")
-          headModels.FirstOrDefault(h => h.appearance == AppearanceType.Elf && h.gender == Gender.Female).heads.Add(new NuiComboEntry(i.ToString(), i));
+          headModels.FirstOrDefault(h => h.appearanceRow == (int)AppearanceType.Elf && h.gender == Gender.Female).heads.Add(new NuiComboEntry(i.ToString(), i));
 
         if (NWScript.ResManGetAliasFor($"pMG0_HEAD{search}", NWScript.RESTYPE_MDL) != "")
-          headModels.FirstOrDefault(h => h.appearance == AppearanceType.Gnome && h.gender == Gender.Male).heads.Add(new NuiComboEntry(i.ToString(), i));
+          headModels.FirstOrDefault(h => h.appearanceRow == (int)AppearanceType.Gnome && h.gender == Gender.Male).heads.Add(new NuiComboEntry(i.ToString(), i));
 
         if (NWScript.ResManGetAliasFor($"pFG0_HEAD{search}", NWScript.RESTYPE_MDL) != "")
-          headModels.FirstOrDefault(h => h.appearance == AppearanceType.Gnome && h.gender == Gender.Female).heads.Add(new NuiComboEntry(i.ToString(), i));
+          headModels.FirstOrDefault(h => h.appearanceRow == (int)AppearanceType.Gnome && h.gender == Gender.Female).heads.Add(new NuiComboEntry(i.ToString(), i));
 
         if (NWScript.ResManGetAliasFor($"pMA0_HEAD{search}", NWScript.RESTYPE_MDL) != "")
-          headModels.FirstOrDefault(h => h.appearance == AppearanceType.Halfling && h.gender == Gender.Male).heads.Add(new NuiComboEntry(i.ToString(), i));
+          headModels.FirstOrDefault(h => h.appearanceRow == (int)AppearanceType.Halfling && h.gender == Gender.Male).heads.Add(new NuiComboEntry(i.ToString(), i));
 
         if (NWScript.ResManGetAliasFor($"pFA0_HEAD{search}", NWScript.RESTYPE_MDL) != "")
-          headModels.FirstOrDefault(h => h.appearance == AppearanceType.Halfling && h.gender == Gender.Female).heads.Add(new NuiComboEntry(i.ToString(), i));
+          headModels.FirstOrDefault(h => h.appearanceRow == (int)AppearanceType.Halfling && h.gender == Gender.Female).heads.Add(new NuiComboEntry(i.ToString(), i));
 
         if (NWScript.ResManGetAliasFor($"pMH0_HEAD{search}", NWScript.RESTYPE_MDL) != "")
         {
-          headModels.FirstOrDefault(h => h.appearance == AppearanceType.Human && h.gender == Gender.Male).heads.Add(new NuiComboEntry(i.ToString(), i));
-          headModels.FirstOrDefault(h => h.appearance == AppearanceType.HalfElf && h.gender == Gender.Male).heads.Add(new NuiComboEntry(i.ToString(), i));
+          headModels.FirstOrDefault(h => h.appearanceRow == (int)AppearanceType.Human && h.gender == Gender.Male).heads.Add(new NuiComboEntry(i.ToString(), i));
+          headModels.FirstOrDefault(h => h.appearanceRow == (int)AppearanceType.HalfElf && h.gender == Gender.Male).heads.Add(new NuiComboEntry(i.ToString(), i));
         }
 
         if (NWScript.ResManGetAliasFor($"pFH0_HEAD{search}", NWScript.RESTYPE_MDL) != "")
         {
-          headModels.FirstOrDefault(h => h.appearance == AppearanceType.Human && h.gender == Gender.Female).heads.Add(new NuiComboEntry(i.ToString(), i));
-          headModels.FirstOrDefault(h => h.appearance == AppearanceType.HalfElf && h.gender == Gender.Female).heads.Add(new NuiComboEntry(i.ToString(), i));
+          headModels.FirstOrDefault(h => h.appearanceRow == (int)AppearanceType.Human && h.gender == Gender.Female).heads.Add(new NuiComboEntry(i.ToString(), i));
+          headModels.FirstOrDefault(h => h.appearanceRow == (int)AppearanceType.HalfElf && h.gender == Gender.Female).heads.Add(new NuiComboEntry(i.ToString(), i));
         }
 
         if (NWScript.ResManGetAliasFor($"pMO0_HEAD{search}", NWScript.RESTYPE_MDL) != "")
-          headModels.FirstOrDefault(h => h.appearance == AppearanceType.HalfOrc && h.gender == Gender.Male).heads.Add(new NuiComboEntry(i.ToString(), i));
+          headModels.FirstOrDefault(h => h.appearanceRow == (int)AppearanceType.HalfOrc && h.gender == Gender.Male).heads.Add(new NuiComboEntry(i.ToString(), i));
 
         if (NWScript.ResManGetAliasFor($"pFO0_HEAD{search}", NWScript.RESTYPE_MDL) != "")
-          headModels.FirstOrDefault(h => h.appearance == AppearanceType.HalfOrc && h.gender == Gender.Female).heads.Add(new NuiComboEntry(i.ToString(), i));
+          headModels.FirstOrDefault(h => h.appearanceRow == (int)AppearanceType.HalfOrc && h.gender == Gender.Female).heads.Add(new NuiComboEntry(i.ToString(), i));
       }
     }
     private void OnPlayerEffectApplied(OnEffectApply effectApplied)

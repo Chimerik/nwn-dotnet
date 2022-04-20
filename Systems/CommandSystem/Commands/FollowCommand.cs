@@ -7,8 +7,8 @@ namespace NWN.Systems
   {
     private static void ExecuteFollowCommand(ChatSystem.Context ctx, Options.Result options)
     {
-      if (ctx.oSender.ControlledCreature.MovementRate == MovementRate.Immobile
-        || ctx.oSender.ControlledCreature.TotalWeight > Encumbrance2da.encumbranceTable.GetDataEntry(ctx.oSender.ControlledCreature.GetAbilityScore(Ability.Strength)).heavy)
+      if (ctx.oSender.ControlledCreature.MovementRate == MovementRate.Immobile 
+        || Encumbrance2da.IsCreatureHeavilyEncumbred(ctx.oSender.ControlledCreature))
       {
         ctx.oSender.SendServerMessage("Cette commande ne peut être utilisée en étant surchargé.", ColorConstants.Red);
         return;
@@ -22,7 +22,7 @@ namespace NWN.Systems
         return;
 
       if (selection.Player.ControlledCreature.MovementRate == MovementRate.Immobile
-            || selection.Player.ControlledCreature.TotalWeight > Encumbrance2da.encumbranceTable.GetDataEntry(selection.Player.ControlledCreature.GetAbilityScore(Ability.Strength)).heavy)
+          || Encumbrance2da.IsCreatureHeavilyEncumbred(selection.Player.ControlledCreature))
       {
         selection.Player.SendServerMessage("Cette commande ne peut être utilisée en étant surchargé.", ColorConstants.Red);
         return;

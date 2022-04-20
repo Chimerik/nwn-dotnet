@@ -1,54 +1,46 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
+
+using Anvil.API;
 using Anvil.Services;
 
 namespace NWN.Systems
 {
-  public class ItemPropertyRankDamageTable : ITwoDimArray
+  public sealed class ItemPropertyDamageCostEntry : ITwoDimArrayEntry
   {
-    private readonly List<int> entries = new List<int>();
-    private readonly Dictionary<int, Entry> entryList = new Dictionary<int, Entry>();
+    public string label { get; private set; }
+    public int rank { get; private set; }
 
-    public int GetDamageCostValueFromRank(int rank)
-    {
-      return entries.IndexOf(rank) + 1;
-    }
-    public int GetRankFromCostValue(int row)
-    {
-      return entries[row];
-    }
+    // RowIndex is already populated externally, and we do not need to assign it in InterpretEntry.
+    public int RowIndex { get; init; }
 
-    public string GetLabelFromIPCostTableValue(int cost)
+    public void InterpretEntry(TwoDimArrayEntry entry)
     {
-      return entryList[cost].label;
+      label = entry.GetString("Label");
+      rank = entry.GetInt("Rank").GetValueOrDefault(0);
     }
-
-    void ITwoDimArray.DeserializeRow(int rowIndex, TwoDimEntry twoDimEntry)
-    {
-      if (int.TryParse(twoDimEntry("Rank"), out int rank))
-      {
-        entries.Add(rank);
-        entryList.Add(rowIndex, new Entry(twoDimEntry("Label")));
-      }
-    }
-    public readonly struct Entry
-    {
-      public readonly string label;
-
-      public Entry(string label)
-      {
-        this.label = label;
-      }
-    }
-
   }
 
   [ServiceBinding(typeof(ItemPropertyDamageCost2da))]
   public class ItemPropertyDamageCost2da
   {
-    public static ItemPropertyRankDamageTable ipDamageCost;
-    public ItemPropertyDamageCost2da(TwoDimArrayFactory twoDimArrayFactory)
+    public static readonly TwoDimArray<ItemPropertyDamageCostEntry> ipDamageCostTable = new("iprp_damagecost.2da");
+    public ItemPropertyDamageCost2da()
     {
-      ipDamageCost = twoDimArrayFactory.Get2DA<ItemPropertyRankDamageTable>("iprp_damagecost");
+
+    }
+    public static int GetDamageCostValueFromRank(int rank)
+    {
+      return ipDamageCostTable.FirstOrDefault(d => d.rank == rank).RowIndex + 1;
+    }
+    public static int GetRankFromCostValue(int row)
+    {
+      return ipDamageCostTable[row].rank;
+    }
+
+    public static string GetLabelFromIPCostTableValue(int cost)
+    {
+      return ipDamageCostTable[cost].label;
     }
   }
 }

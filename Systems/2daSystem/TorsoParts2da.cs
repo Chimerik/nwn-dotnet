@@ -6,52 +6,32 @@ using Anvil.Services;
 
 namespace NWN.Systems
 {
-  public class TorsoPartsTable : ITwoDimArray
+  public sealed class TorsoPartsEntry : ITwoDimArrayEntry
   {
-    private readonly Dictionary<int, Entry> entries = new Dictionary<int, Entry>();
+    public int maxAC { get; private set; }
+    public Gender gender { get; private set; }
+    public int RowIndex { get; init; }
 
-    public List<NuiComboEntry> GetValidChestAppearancesForGenderAndAC(Gender gender, int AC)
+    public void InterpretEntry(TwoDimArrayEntry entry)
     {
-      List<NuiComboEntry> combo = new List<NuiComboEntry>();
-
-      foreach (var entry in entries.Where(e => (e.Value.gender == gender || e.Value.gender == Gender.Both) && e.Value.AC == AC))
-        combo.Add(new NuiComboEntry(entry.Key.ToString(), entry.Key));
-
-      return combo;
-    }
-
-    void ITwoDimArray.DeserializeRow(int rowIndex, TwoDimEntry twoDimEntry)
-    {
-      int AC = float.TryParse(twoDimEntry("ACBONUS"), out float floatAC) ? (int)floatAC : -1;
-
-      if (AC < 0)
-        return;
-
-      int genderValue = int.TryParse(twoDimEntry("GENDER"), out genderValue) ? genderValue : 2;
-
-      entries.Add(rowIndex, new Entry(AC, (Gender)genderValue));
-    }
-    public readonly struct Entry
-    {
- 
-      public readonly int AC;
-      public readonly Gender gender;
-
-      public Entry(int AC, Gender gender)
-      {
-        this.AC = AC;
-        this.gender = gender;
-      }
+      maxAC = (int)entry.GetFloat("ACBONUS").GetValueOrDefault(-1);
+      gender = (Gender)entry.GetInt("GENDER").GetValueOrDefault(2);
     }
   }
 
   [ServiceBinding(typeof(TorsoParts2da))]
   public class TorsoParts2da
   {
-    public static TorsoPartsTable torsoPartsTable;
-    public TorsoParts2da(TwoDimArrayFactory twoDimArrayFactory)
+    private readonly TwoDimArray<TorsoPartsEntry> torsoPartsTable = new("parts_chest.2da");
+    public static readonly List<NuiComboEntry> femaleCombo = new();
+    public static readonly List<NuiComboEntry> maleCombo = new();
+    public TorsoParts2da()
     {
-      torsoPartsTable = twoDimArrayFactory.Get2DA<TorsoPartsTable>("parts_chest");
+      foreach (var entry in torsoPartsTable.Where(b => b.maxAC > -1 && (b.gender == Gender.Female || b.gender == Gender.Both)))
+        femaleCombo.Add(new NuiComboEntry(entry.RowIndex.ToString(), entry.RowIndex));
+
+      foreach (var entry in torsoPartsTable.Where(b => b.maxAC > -1 && (b.gender == Gender.Male || b.gender == Gender.Both)))
+        femaleCombo.Add(new NuiComboEntry(entry.RowIndex.ToString(), entry.RowIndex));
     }
   }
 }

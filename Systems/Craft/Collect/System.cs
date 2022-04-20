@@ -129,15 +129,15 @@ namespace NWN.Systems.Craft.Collect
             || ip.PropertyType == ItemPropertyType.DamageBonusVsRacialGroup
             || ip.PropertyType == ItemPropertyType.DamageBonusVsSpecificAlignment)
           {
-            int newRank = ItemPropertyDamageCost2da.ipDamageCost.GetRankFromCostValue(ip.CostTableValue);
-            int existingRank = ItemPropertyDamageCost2da.ipDamageCost.GetRankFromCostValue(existingIP.CostTableValue);
+            int newRank = ItemPropertyDamageCost2da.GetRankFromCostValue(ip.CostTableValue);
+            int existingRank = ItemPropertyDamageCost2da.GetRankFromCostValue(existingIP.CostTableValue);
 
             if (existingRank > newRank)
               newRank = existingRank + 1;
             else
               newRank += 1;
 
-            ip.CostTableValue = ItemPropertyDamageCost2da.ipDamageCost.GetDamageCostValueFromRank(newRank);
+            ip.CostTableValue = ItemPropertyDamageCost2da.GetDamageCostValueFromRank(newRank);
           }
           else if (ip.PropertyType == ItemPropertyType.AcBonus
             || ip.PropertyType == ItemPropertyType.AcBonusVsAlignmentGroup

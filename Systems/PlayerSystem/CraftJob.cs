@@ -82,7 +82,7 @@ namespace NWN.Systems
           remainingTime = jobDuration;
           type = JobType.ItemCreation;
 
-          NwItem craftedItem = NwItem.Create(BaseItems2da.baseItemTable.GetBaseItemDataEntry((BaseItemType)baseItemType).craftedItem, player.oid.LoginCreature.Location);
+          NwItem craftedItem = NwItem.Create(BaseItems2da.baseItemTable[baseItemType].craftedItem, player.oid.LoginCreature.Location);
           craftedItem.GetObjectVariable<LocalVariableString>("ITEM_KEY").Value = Config.itemKey;
 
           Craft.Collect.System.AddCraftedItemProperties(craftedItem, 1);
@@ -179,8 +179,8 @@ namespace NWN.Systems
           type = jobType;
 
           originalSerializedItem = item.Serialize().ToBase64EncodedString();
-
-          NwItem repairedItem = NwItem.Create(BaseItems2da.baseItemTable.GetBaseItemDataEntry(item.BaseItem.ItemType).craftedItem, player.oid.LoginCreature.Location);
+          
+          NwItem repairedItem = NwItem.Create(BaseItems2da.baseItemTable[(int)item.BaseItem.ItemType].craftedItem, player.oid.LoginCreature.Location);
           repairedItem.GetObjectVariable<LocalVariableString>("ITEM_KEY").Value = Config.itemKey;
 
           if (player.learnableSkills.ContainsKey(CustomSkill.RepairCareful))
@@ -215,7 +215,7 @@ namespace NWN.Systems
 
           originalSerializedItem = item.Serialize().ToBase64EncodedString();
 
-          NwItem enchantedItem = NwItem.Create(BaseItems2da.baseItemTable.GetBaseItemDataEntry(item.BaseItem.ItemType).craftedItem, player.oid.LoginCreature.Location);
+          NwItem enchantedItem = NwItem.Create(BaseItems2da.baseItemTable[(int)item.BaseItem.ItemType].craftedItem, player.oid.LoginCreature.Location);
           enchantedItem.GetObjectVariable<LocalVariableString>("ITEM_KEY").Value = Config.itemKey;
 
           enchantedItem.GetObjectVariable<LocalVariableInt>("_AVAILABLE_ENCHANTEMENT_SLOT").Value -= 1;
@@ -713,15 +713,15 @@ namespace NWN.Systems
           || ip.PropertyType == ItemPropertyType.DamageBonusVsRacialGroup
           || ip.PropertyType == ItemPropertyType.DamageBonusVsSpecificAlignment)
         {
-          int newRank = ItemPropertyDamageCost2da.ipDamageCost.GetRankFromCostValue(ip.CostTableValue);
-          int existingRank = ItemPropertyDamageCost2da.ipDamageCost.GetRankFromCostValue(existingIP.CostTableValue);
+          int newRank = ItemPropertyDamageCost2da.GetRankFromCostValue(ip.CostTableValue);
+          int existingRank = ItemPropertyDamageCost2da.GetRankFromCostValue(existingIP.CostTableValue);
 
           if (existingRank > newRank)
             newRank = existingRank + 1;
           else
             newRank += 1;
 
-          ip.CostTableValue = ItemPropertyDamageCost2da.ipDamageCost.GetDamageCostValueFromRank(newRank);
+          ip.CostTableValue = ItemPropertyDamageCost2da.GetDamageCostValueFromRank(newRank);
         }
         else
         {
