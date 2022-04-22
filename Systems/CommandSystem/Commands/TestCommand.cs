@@ -29,9 +29,7 @@ namespace NWN.Systems
 
         if (player.oid.PlayerName == "Chim" || player.oid.PlayerName == "test")
         {
-          foreach(AmbientMusicEntry entry in AmbientMusic2da.femaleAmbientMusicEntry)
-            Log.Info(entry.name);
-          
+         
           //NwItem armor = player.oid.ControlledCreature.GetItemInSlot(InventorySlot.Chest);
           //armor.AddItemProperty(ItemProperty.ACBonus(80), EffectDuration.Temporary, TimeSpan.FromSeconds(30));
           //armor.AddItemProperty(ItemProperty.ACBonusVsDmgType(IPDamageType.Physical, 20), EffectDuration.Temporary, TimeSpan.FromSeconds(30));

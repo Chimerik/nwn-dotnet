@@ -36,17 +36,17 @@ namespace NWN.Systems
             new NuiComboEntry("Niveau 9", 10),
           };
 
-        private readonly NuiBind<int> selectedCategory = new NuiBind<int>("selectedCategory");
-        private readonly NuiBind<bool> enableSkillButton = new NuiBind<bool>("enableSkillButton");
-        private readonly NuiBind<bool> enableSpellButton = new NuiBind<bool>("enableSpellButton");
-        private readonly NuiBind<int> listCount = new NuiBind<int>("listCount");
-        private readonly NuiBind<string> icon = new NuiBind<string>("icon");
-        private readonly NuiBind<string> skillName = new NuiBind<string>("skillName");
-        private readonly NuiBind<string> remainingTime = new NuiBind<string>("remainingTime");
-        private readonly NuiBind<string> level = new NuiBind<string>("level");
-        private readonly NuiBind<string> learnButtonText = new NuiBind<string>("learnButtonText");
-        private readonly NuiBind<bool> learnButtonEnabled = new NuiBind<bool>("learnButtonEnabled");
-        private readonly NuiBind<string> search = new NuiBind<string>("search");
+        private readonly NuiBind<int> selectedCategory = new ("selectedCategory");
+        private readonly NuiBind<bool> enableSkillButton = new ("enableSkillButton");
+        private readonly NuiBind<bool> enableSpellButton = new ("enableSpellButton");
+        private readonly NuiBind<int> listCount = new ("listCount");
+        private readonly NuiBind<string> icon = new ("icon");
+        private readonly NuiBind<string> skillName = new ("skillName");
+        private readonly NuiBind<string> remainingTime = new ("remainingTime");
+        private readonly NuiBind<string> level = new ("level");
+        private readonly NuiBind<string> learnButtonText = new ("learnButtonText");
+        private readonly NuiBind<bool> learnButtonEnabled = new ("learnButtonEnabled");
+        private readonly NuiBind<string> search = new ("search");
         private readonly Color white = new Color(255, 255, 255);
         private readonly NuiRect drawListRect = new NuiRect(0, 35, 150, 60);
 

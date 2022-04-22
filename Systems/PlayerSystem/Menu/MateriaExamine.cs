@@ -13,9 +13,9 @@ namespace NWN.Systems
       public class MateriaExamineWindow : PlayerWindow
       {
         private readonly NuiColumn rootColumn;
-        private readonly NuiBind<string> characterNames = new NuiBind<string>("characterNames");
-        private readonly NuiBind<string> quantityEstimates = new NuiBind<string>("quantityEstimates");
-        private readonly NuiBind<int> listCount = new NuiBind<int>("listCount");
+        private readonly NuiBind<string> characterNames = new ("characterNames");
+        private readonly NuiBind<string> quantityEstimates = new ("quantityEstimates");
+        private readonly NuiBind<int> listCount = new ("listCount");
         private int resourceDetectionSkill = CustomSkill.OreDetection;
         private int resourceEstimationSkill = CustomSkill.OreDetectionEstimation;
         private int resourceSpeedSkill = CustomSkill.OreDetectionSpeed;

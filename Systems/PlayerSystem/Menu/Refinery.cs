@@ -16,11 +16,11 @@ namespace NWN.Systems
         private readonly NuiColumn rootColumn;
         private readonly List<NuiElement> rootChidren = new List<NuiElement>();
         private readonly List<NuiListTemplateCell> rowTemplate;
-        private readonly NuiBind<int> listCount = new NuiBind<int>("listCount");
-        private readonly NuiBind<string> materiaIcon = new NuiBind<string>("materiaIcon");
-        private readonly NuiBind<string> materiaNames = new NuiBind<string>("materiaNames");
-        private readonly NuiBind<string> input = new NuiBind<string>("input");
-        private readonly NuiBind<string> refineLabel = new NuiBind<string>("label");
+        private readonly NuiBind<int> listCount = new ("listCount");
+        private readonly NuiBind<string> materiaIcon = new ("materiaIcon");
+        private readonly NuiBind<string> materiaNames = new ("materiaNames");
+        private readonly NuiBind<string> input = new ("input");
+        private readonly NuiBind<string> refineLabel = new ("label");
         private IEnumerable<CraftResource> playerCraftResourceList = new List<CraftResource>();
         private CraftResource selectedResource;
         private ResourceType resourceType;

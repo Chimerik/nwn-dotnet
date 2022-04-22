@@ -22,12 +22,12 @@ namespace NWN.Systems
         private readonly NuiRow deleteRumorsRow;
         private readonly NuiRow returnRow;
         private readonly NuiList listRow;
-        private readonly NuiBind<string> npcText = new NuiBind<string>("npcText");
+        private readonly NuiBind<string> npcText = new ("npcText");
         private readonly List<int> rumortIds = new List<int>();
-        private readonly NuiBind<string> titles = new NuiBind<string>("titles");
-        private readonly NuiBind<string> contents = new NuiBind<string>("contents");
-        private readonly NuiBind<int> listCount = new NuiBind<int>("listCount");
-        private readonly NuiBind<bool> visible = new NuiBind<bool>("visible");
+        private readonly NuiBind<string> titles = new ("titles");
+        private readonly NuiBind<string> contents = new ("contents");
+        private readonly NuiBind<int> listCount = new ("listCount");
+        private readonly NuiBind<bool> visible = new ("visible");
         private string newRumorTitle { get; set; }
         private int selectedRumorId { get; set; }
 

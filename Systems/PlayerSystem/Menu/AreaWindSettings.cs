@@ -17,10 +17,10 @@ namespace NWN.Systems
         private readonly NuiRow rootRow = new NuiRow();
         private readonly List<NuiElement> rootChildren = new List<NuiElement>();
 
-        private readonly NuiBind<string> directionX = new NuiBind<string>("directionX");
-        private readonly NuiBind<string> directionY = new NuiBind<string>("directionY");
-        private readonly NuiBind<string> directionZ = new NuiBind<string>("directionZ");
-        private readonly NuiBind<string> magnitude = new NuiBind<string>("magnitude");
+        private readonly NuiBind<string> directionX = new ("directionX");
+        private readonly NuiBind<string> directionY = new ("directionY");
+        private readonly NuiBind<string> directionZ = new ("directionZ");
+        private readonly NuiBind<string> magnitude = new ("magnitude");
 
         public AreaWindSettings(Player player) : base(player)
         {

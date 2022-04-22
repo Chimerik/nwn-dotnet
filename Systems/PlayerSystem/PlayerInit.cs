@@ -42,6 +42,7 @@ namespace NWN.Systems
 
       player.oid.SetGuiPanelDisabled(GUIPanel.ExamineItem, true);
       player.oid.SetGuiPanelDisabled(GUIPanel.Journal, true);
+      player.oid.SetGuiPanelDisabled(GUIPanel.PlayerList, true);
 
       player.currentLanguage = 0;
 
@@ -67,6 +68,9 @@ namespace NWN.Systems
 
       if (!player.oid.LoginCreature.KnowsFeat(CustomFeats.Sit))
         player.oid.LoginCreature.AddFeat(CustomFeats.Sit);
+
+      foreach (Player connectedPlayer in Players.Values.Where(p => p.pcState != Player.PcState.Offline && p.openedWindows.ContainsKey("playerList")))
+        ((Player.PlayerListWindow)connectedPlayer.windows["playerList"]).UpdatePlayerList();
 
       player.mapLoadingTime = DateTime.Now;
 
@@ -262,7 +266,6 @@ namespace NWN.Systems
       }
       public void InitializeDM()
       {
-        playerJournal = new PlayerJournal();
         oid.LoginCreature.OnAcquireItem += ItemSystem.OnAcquireItem;
         oid.LoginCreature.OnUnacquireItem += ItemSystem.OnUnacquireItem;
         oid.LoginCreature.OnItemEquip += ItemSystem.OnItemEquipBefore;
@@ -364,7 +367,6 @@ namespace NWN.Systems
         if (result.Result == null)
           return;
 
-        playerJournal = new PlayerJournal();
         location = SqLiteUtils.DeserializeLocation(result.Result.GetString(0));
         oid.LoginCreature.HP = result.Result.GetInt(1);
         bankGold = result.Result.GetInt(2);
@@ -491,30 +493,29 @@ namespace NWN.Systems
       }
       private async void InitializeAccountMapPins(string serializedMapPins)
       {
-        using (var stream = await StringUtils.GenerateStreamFromString(serializedMapPins))
+        using var stream = await StringUtils.GenerateStreamFromString(serializedMapPins);
+
+        try
         {
-          try
-          {
-            mapPinDictionnary = await JsonSerializer.DeserializeAsync<Dictionary<int, MapPin>>(stream);
-          }
-          catch(Exception)
-          {
-            return;
-          }
-
-          await NwTask.SwitchToMainThread();
-
-          foreach (var pin in mapPinDictionnary.Values)
-          {
-            oid.LoginCreature.GetObjectVariable<LocalVariableString>($"NW_MAP_PIN_NTRY_{pin.id}").Value = pin.note;
-            oid.LoginCreature.GetObjectVariable<LocalVariableFloat>($"NW_MAP_PIN_XPOS_{pin.id}").Value = pin.x;
-            oid.LoginCreature.GetObjectVariable<LocalVariableFloat>($"NW_MAP_PIN_YPOS_{pin.id}").Value = pin.y;
-            oid.LoginCreature.GetObjectVariable<LocalVariableObject<NwArea>>($"NW_MAP_PIN_AREA_{pin.id}").Value = NwModule.Instance.Areas.FirstOrDefault(a => a.Tag == pin.areaTag);
-          }
-
-          if (mapPinDictionnary.Count > 0)
-            oid.LoginCreature.GetObjectVariable<LocalVariableInt>("NW_TOTAL_MAP_PINS").Value = mapPinDictionnary.Max(v => v.Key);
+          mapPinDictionnary = await JsonSerializer.DeserializeAsync<Dictionary<int, MapPin>>(stream);
         }
+        catch (Exception)
+        {
+          return;
+        }
+
+        await NwTask.SwitchToMainThread();
+
+        foreach (var pin in mapPinDictionnary.Values)
+        {
+          oid.LoginCreature.GetObjectVariable<LocalVariableString>($"NW_MAP_PIN_NTRY_{pin.id}").Value = pin.note;
+          oid.LoginCreature.GetObjectVariable<LocalVariableFloat>($"NW_MAP_PIN_XPOS_{pin.id}").Value = pin.x;
+          oid.LoginCreature.GetObjectVariable<LocalVariableFloat>($"NW_MAP_PIN_YPOS_{pin.id}").Value = pin.y;
+          oid.LoginCreature.GetObjectVariable<LocalVariableObject<NwArea>>($"NW_MAP_PIN_AREA_{pin.id}").Value = NwModule.Instance.Areas.FirstOrDefault(a => a.Tag == pin.areaTag);
+        }
+
+        if (mapPinDictionnary.Count > 0)
+          oid.LoginCreature.GetObjectVariable<LocalVariableInt>("NW_TOTAL_MAP_PINS").Value = mapPinDictionnary.Max(v => v.Key);
       }
       private async void InitializeAccountChatColors(string serializedChatColors)
       {

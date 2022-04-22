@@ -20,14 +20,14 @@ namespace NWN.Systems
         private readonly List<NuiElement> rootChildren = new List<NuiElement>();
         private readonly List<NuiListTemplateCell> rowTemplate = new List<NuiListTemplateCell>();
 
-        private readonly NuiBind<string> vfxNames = new NuiBind<string>("vfxNames");
-        private readonly NuiBind<string> vfxIds = new NuiBind<string>("vfxIds");
-        private readonly NuiBind<string> vfxDurations = new NuiBind<string>("vfxDurations");
-        private readonly NuiBind<int> listCount = new NuiBind<int>("listCount");
-        private readonly NuiBind<string> search = new NuiBind<string>("search");
-        private readonly NuiBind<string> vfxId = new NuiBind<string>("vfxId");
-        private readonly NuiBind<string> newVFXName = new NuiBind<string>("newVFXName");
-        private readonly NuiBind<string> newVFXDuration = new NuiBind<string>("newVFXDuration");
+        private readonly NuiBind<string> vfxNames = new ("vfxNames");
+        private readonly NuiBind<string> vfxIds = new ("vfxIds");
+        private readonly NuiBind<string> vfxDurations = new ("vfxDurations");
+        private readonly NuiBind<int> listCount = new ("listCount");
+        private readonly NuiBind<string> search = new ("search");
+        private readonly NuiBind<string> vfxId = new ("vfxId");
+        private readonly NuiBind<string> newVFXName = new ("newVFXName");
+        private readonly NuiBind<string> newVFXDuration = new ("newVFXDuration");
 
         public List<CustomDMVisualEffect> currentList;
         private int selectedVFXId;
@@ -220,11 +220,32 @@ namespace NWN.Systems
           if (selection.IsCancelled)
             return;
 
+          var vfxRow = NwGameTables.VisualEffectTable.GetRow(selectedVFXId);
+
+          if(vfxRow == null)
+          {
+            player.oid.SendServerMessage($"Aucun effet visuel ne correspond à l'entrée : {selectedVFXId.ToString().ColorString(ColorConstants.White)}", ColorConstants.Red);
+            return;
+          }
+
+          EffectDuration durationType = EffectDuration.Temporary;
+          TimeSpan duration = TimeSpan.FromSeconds(selectedVFXDuration);
+          Effect vfx = Effect.VisualEffect((VfxType)selectedVFXId);
+
+          if (NwGameTables.VisualEffectTable.GetRow(selectedVFXId).TypeFd == "F")
+          {
+            durationType = EffectDuration.Instant;
+            duration = default;
+          }
+
+          if (NwGameTables.VisualEffectTable.GetRow(selectedVFXId).TypeFd == "B")
+            vfx = Effect.Beam((VfxType)selectedVFXId, player.oid.ControlledCreature, BodyNode.Hand);
+
           if (selection.TargetObject is NwGameObject target)
-              target.ApplyEffect(EffectDuration.Temporary, Effect.VisualEffect((VfxType)selectedVFXId), TimeSpan.FromSeconds(selectedVFXDuration));
+            target.ApplyEffect(durationType, vfx, duration);
           else
             Location.Create(selection.Player.ControlledCreature.Location.Area, selection.TargetPosition, selection.Player.ControlledCreature.Rotation)
-              .ApplyEffect(EffectDuration.Instant, Effect.VisualEffect((VfxType)selectedVFXId));
+              .ApplyEffect(durationType, vfx, duration);
         }
         private async void SaveVFXToDatabase()
         {

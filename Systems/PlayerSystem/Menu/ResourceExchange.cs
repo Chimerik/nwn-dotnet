@@ -19,32 +19,32 @@ namespace NWN.Systems
       }
       public class ResourceExchangeWindow : PlayerWindow
       {
-        private readonly NuiRow rootRow = new NuiRow();
-        private readonly List<NuiElement> rootChildren = new List<NuiElement>();
-        private readonly NuiColumn ownerColumn = new NuiColumn() { Width = 400 };
-        private readonly List<NuiElement> ownerChildren = new List<NuiElement>();
-        private readonly NuiColumn targetColumn = new NuiColumn() { Width = 400 };
-        private readonly List<NuiElement> targetChildren = new List<NuiElement>();
-        private readonly List<NuiListTemplateCell> rowTemplate = new List<NuiListTemplateCell>();
-        private readonly List<NuiListTemplateCell> targetRowTemplate = new List<NuiListTemplateCell>();
+        private readonly NuiRow rootRow = new ();
+        private readonly List<NuiElement> rootChildren = new ();
+        private readonly NuiColumn ownerColumn = new () { Width = 400 };
+        private readonly List<NuiElement> ownerChildren = new ();
+        private readonly NuiColumn targetColumn = new () { Width = 400 };
+        private readonly List<NuiElement> targetChildren = new ();
+        private readonly List<NuiListTemplateCell> rowTemplate = new ();
+        private readonly List<NuiListTemplateCell> targetRowTemplate = new ();
 
-        private readonly NuiBind<string> myGold = new NuiBind<string>("myGold");
-        private readonly NuiBind<string> myResourceNames = new NuiBind<string>("myResourceNames");
-        private readonly NuiBind<int> myListCount = new NuiBind<int>("myListCount");
-        private readonly NuiBind<string> myResourceIcon = new NuiBind<string>("myResourceIcon");
-        private readonly NuiBind<string> myAvailableQuantity = new NuiBind<string>("myAvailableQuantity");
-        private readonly NuiBind<string> myQuantity = new NuiBind<string>("myQuantity");
+        private readonly NuiBind<string> myGold = new ("myGold");
+        private readonly NuiBind<string> myResourceNames = new ("myResourceNames");
+        private readonly NuiBind<int> myListCount = new ("myListCount");
+        private readonly NuiBind<string> myResourceIcon = new ("myResourceIcon");
+        private readonly NuiBind<string> myAvailableQuantity = new ("myAvailableQuantity");
+        private readonly NuiBind<string> myQuantity = new ("myQuantity");
 
-        private readonly NuiBind<string> targetGold = new NuiBind<string>("targetGold");
-        private readonly NuiBind<string> targetResourceNames = new NuiBind<string>("targetResourceNames");
-        private readonly NuiBind<int> targetListCount = new NuiBind<int>("targetListCount");
-        private readonly NuiBind<string> targetResourceIcon = new NuiBind<string>("targetResourceIcon");
+        private readonly NuiBind<string> targetGold = new ("targetGold");
+        private readonly NuiBind<string> targetResourceNames = new ("targetResourceNames");
+        private readonly NuiBind<int> targetListCount = new ("targetListCount");
+        private readonly NuiBind<string> targetResourceIcon = new ("targetResourceIcon");
 
-        private readonly NuiBind<bool> proposalEnabled = new NuiBind<bool>("proposalEnabled");
-        private readonly NuiBind<bool> confirmEnabled = new NuiBind<bool>("confirmEnabled");
-        private readonly NuiBind<bool> cancelEnabled = new NuiBind<bool>("cancelEnabled");
+        private readonly NuiBind<bool> proposalEnabled = new ("proposalEnabled");
+        private readonly NuiBind<bool> confirmEnabled = new ("confirmEnabled");
+        private readonly NuiBind<bool> cancelEnabled = new ("cancelEnabled");
 
-        private readonly NuiBind<string> targetState = new NuiBind<string>("targetState");
+        private readonly NuiBind<string> targetState = new ("targetState");
 
         public ResourceExchangeState exchangeState { get; set; }
         List<CraftResource> myResourceList;

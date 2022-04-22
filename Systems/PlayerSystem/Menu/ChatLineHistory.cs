@@ -13,8 +13,8 @@ namespace NWN.Systems
       {
         private readonly ChatLine chatLine;
         private readonly NuiColumn root;
-        private readonly NuiBind<string> lineHistory = new NuiBind<string>("lineHistory");
-        private readonly NuiBind<int> listCount = new NuiBind<int>("listCount");
+        private readonly NuiBind<string> lineHistory = new ("lineHistory");
+        private readonly NuiBind<int> listCount = new ("listCount");
         public ChatLineHistoryWindow(Player player, ChatLine chatLine) : base(player)
         {
           windowId = "chatLineHistory";

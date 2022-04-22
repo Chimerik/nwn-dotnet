@@ -13,11 +13,11 @@ namespace NWN.Systems
       public class ActiveCraftJobWindow : PlayerWindow
       {
         private readonly NuiColumn rootColumn;
-        private readonly Color white = new Color(255, 255, 255);
-        private readonly NuiRect drawListRect = new NuiRect(0, 35, 150, 60);
-        private readonly NuiBind<string> icon = new NuiBind<string>("icon");
-        private readonly NuiBind<string> name = new NuiBind<string>("name");
-        public readonly NuiBind<string> timeLeft = new NuiBind<string>("timeLeft");
+        private readonly Color white = new (255, 255, 255);
+        private readonly NuiRect drawListRect = new (0, 35, 150, 60);
+        private readonly NuiBind<string> icon = new ("icon");
+        private readonly NuiBind<string> name = new ("name");
+        public readonly NuiBind<string> timeLeft = new ("timeLeft");
 
         public ActiveCraftJobWindow(Player player) : base(player)
         {

@@ -14,10 +14,10 @@ namespace NWN.Systems
         private readonly NuiGroup rootGroup;
         private readonly NuiColumn rootColumn;
         private readonly List<NuiElement> rootChidren;
-        private readonly NuiBind<string> buttonText = new NuiBind<string>("buttonText");
-        private readonly NuiBind<int> listCount = new NuiBind<int>("listCount");
-        private readonly NuiBind<string> grimoireName = new NuiBind<string>("grimoireName");
-        private readonly NuiBind<bool> saveGrimoireEnabled = new NuiBind<bool>("saveGrimoireEnabled");
+        private readonly NuiBind<string> buttonText = new ("buttonText");
+        private readonly NuiBind<int> listCount = new ("listCount");
+        private readonly NuiBind<string> grimoireName = new ("grimoireName");
+        private readonly NuiBind<bool> saveGrimoireEnabled = new ("saveGrimoireEnabled");
         private readonly List<string> grimoireNamesList = new List<string>();
 
         public GrimoiresWindow(Player player) : base(player)

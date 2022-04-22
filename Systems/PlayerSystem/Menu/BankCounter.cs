@@ -27,7 +27,7 @@ namespace NWN.Systems
           windowId = "bankCounter";
           this.banker = banker;
 
-          bankerText = new NuiBind<string>("bankerText");
+          bankerText = new ("bankerText");
 
           rootChidren = new List<NuiElement>();
           rootColumn = new NuiColumn() { Children = rootChidren };

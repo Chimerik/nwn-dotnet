@@ -12,25 +12,22 @@ namespace NWN.Systems
     {
       public class RebootCountdownWindow : PlayerWindow
       {
-        private readonly NuiColumn rootColumn;
-        private readonly NuiBind<string> timeLeft = new NuiBind<string>("timeLeft");
+        private readonly NuiColumn rootColumn = new ();
+        private readonly NuiBind<string> timeLeft = new ("timeLeft");
         private ScheduledTask scheduler;
 
         public RebootCountdownWindow(Player player) : base(player)
         {
           windowId = "rebootCountdown";
 
-          rootColumn = new NuiColumn()
+          rootColumn.Children = new ()
           {
-            Children = new List<NuiElement>()
+            new NuiRow()
             {
-              new NuiRow()
+              Children = new ()
               {
-                Children = new List<NuiElement>()
-                {
-                    new NuiLabel("Redémarrage du module dans : ") { Width = 160, Height = 35, HorizontalAlign = NuiHAlign.Center },
-                    new NuiLabel(timeLeft) { Width = 20, Height = 35, HorizontalAlign = NuiHAlign.Center }
-                }
+                  new NuiLabel("Redémarrage du module dans : ") { Width = 160, Height = 35, HorizontalAlign = NuiHAlign.Center },
+                  new NuiLabel(timeLeft) { Width = 20, Height = 35, HorizontalAlign = NuiHAlign.Center }
               }
             }
           };

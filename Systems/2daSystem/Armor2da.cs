@@ -27,7 +27,7 @@ namespace NWN.Systems
       maxDex = entry.GetInt("DEXBONUS").GetValueOrDefault(0);
       ACPenalty = entry.GetInt("ACCHECK").GetValueOrDefault(0);
       arcaneFailure = entry.GetInt("ARCANEFAILURE").GetValueOrDefault(0);
-      craftLearnable = entry.GetInt("ACBONUS%").GetValueOrDefault(-1);
+      craftLearnable = entry.GetInt("ACBONUS").GetValueOrDefault(-1);
     }
   }
 

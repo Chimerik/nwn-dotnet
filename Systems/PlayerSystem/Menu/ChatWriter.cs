@@ -14,10 +14,10 @@ namespace NWN.Systems
     {
       public class ChatWriterWindow : PlayerWindow
       {
-        private readonly NuiBind<string> writingChat = new NuiBind<string>("writingChat");
-        private readonly NuiBind<int> channel = new NuiBind<int>("channel");
-        private readonly NuiBind<int> language = new NuiBind<int>("language");
-        private readonly NuiBind<bool> makeStatic = new NuiBind<bool>("static");
+        private readonly NuiBind<string> writingChat = new ("writingChat");
+        private readonly NuiBind<int> channel = new ("channel");
+        private readonly NuiBind<int> language = new ("language");
+        private readonly NuiBind<bool> makeStatic = new ("static");
         NuiGroup chatWriterGroup { get; }
         NuiRow rootRow { get; }
         NuiTextEdit textEdit { get; }

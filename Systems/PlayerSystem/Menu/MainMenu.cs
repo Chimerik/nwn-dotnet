@@ -17,18 +17,18 @@ namespace NWN.Systems
     {
       public class MainMenuWindow : PlayerWindow
       {
-        private readonly NuiColumn rootColumn = new NuiColumn();
-        private readonly List<NuiElement> rootChildren = new List<NuiElement>();
-        private readonly List<NuiListTemplateCell> rowTemplate = new List<NuiListTemplateCell>();
-        private readonly NuiBind<string> buttonName = new NuiBind<string>("buttonName");
-        private readonly NuiBind<string> buttonTooltip = new NuiBind<string>("buttonTooltip");
-        private readonly NuiBind<int> listCount = new NuiBind<int>("listCount");
-        private readonly NuiBind<string> search = new NuiBind<string>("search");
+        private readonly NuiColumn rootColumn = new ();
+        private readonly List<NuiElement> rootChildren = new ();
+        private readonly List<NuiListTemplateCell> rowTemplate = new ();
+        private readonly NuiBind<string> buttonName = new ("buttonName");
+        private readonly NuiBind<string> buttonTooltip = new ("buttonTooltip");
+        private readonly NuiBind<int> listCount = new ("listCount");
+        private readonly NuiBind<string> search = new ("search");
 
         private NwObject selectionTarget;
 
-        Dictionary<string, Utils.MainMenuCommand> myCommandList;
-        Dictionary<string, Utils.MainMenuCommand> currentList;
+        private readonly Dictionary<string, Utils.MainMenuCommand> myCommandList;
+        private Dictionary<string, Utils.MainMenuCommand> currentList;
 
         public MainMenuWindow(Player player) : base(player)
         {
@@ -243,29 +243,6 @@ namespace NWN.Systems
                   player.oid.IsPlayerDM = !player.oid.IsPlayerDM;
                   break;
 
-                case "listenAll":
-
-                  if (player.listened.Count > 0)
-                  {
-                    player.oid.SendServerMessage("Ecoute globale désactivée.", ColorConstants.Cyan);
-                    player.listened.Clear();
-                  }
-                  else
-                  {
-                    foreach (NwPlayer oPC in NwModule.Instance.Players.Where(p => !p.IsDM))
-                      player.listened.Add(oPC);
-
-                    player.oid.SendServerMessage("Ecoute globale activée.", ColorConstants.Cyan);
-                  }
-
-                  break;
-
-                case "listen":
-                  player.oid.SendServerMessage("Veuillez sélectionnner le joueur à écouter.", ColorConstants.Pink);
-                  player.oid.EnterTargetMode(OnListenTargetSelected, ObjectTypes.Creature, MouseCursor.Magic);
-                  CloseWindow();
-                  break; 
-
                 case "dmRename":
                   player.oid.SendServerMessage("Veuillez sélectionner la cible à renommer");
                   player.oid.EnterTargetMode(RenameTarget, ObjectTypes.All, MouseCursor.CreateDown);
@@ -369,6 +346,21 @@ namespace NWN.Systems
                   CloseWindow();
 
                   break;
+
+                case "follow":
+
+                  if (player.oid.ControlledCreature.MovementRate == MovementRate.Immobile
+                    || Encumbrance2da.IsCreatureHeavilyEncumbred(player.oid.ControlledCreature))
+                  {
+                    player.oid.SendServerMessage("Cette commande ne peut être utilisée en étant surchargé.", ColorConstants.Red);
+                    return;
+                  }
+
+                  player.oid.EnterTargetMode(FollowTarget, ObjectTypes.Creature, MouseCursor.Follow);
+
+                  CloseWindow();
+
+                  break;
               }
               break;
 
@@ -392,9 +384,9 @@ namespace NWN.Systems
         {
           buttonName.SetBindValues(player.oid, token, commandList.Values.Select(c => c.label));
           buttonTooltip.SetBindValues(player.oid, token, commandList.Values.Select(c => c.tooltip));
-          listCount.SetBindValue(player.oid, token, commandList.Count());
+          listCount.SetBindValue(player.oid, token, commandList.Count);
         }
-        private bool AreaDescriptionExists(string areaName)
+        private static bool AreaDescriptionExists(string areaName)
         {
           var request = ModuleSystem.googleDriveService.Files.List();
           request.Q = $"name = '{areaName}'";
@@ -434,7 +426,7 @@ namespace NWN.Systems
           if (selection.IsCancelled || !Players.TryGetValue(selection.Player.LoginCreature, out Player player))
             return;
 
-          if (!(selection.TargetObject is NwCreature oPC) || oPC.ControllingPlayer.IsDM)
+          if (selection.TargetObject is not NwCreature oPC || oPC.ControllingPlayer.IsDM)
           {
             selection.Player.SendServerMessage("La cible de l'écoute doit être un joueur.", ColorConstants.Orange);
             return;
@@ -514,6 +506,26 @@ namespace NWN.Systems
           else
             player.windows.Add("skillbookDMGift", new SkillBookDMGiftWindow(player, targetPlayer));
         }
+      }
+      private static async void FollowTarget(ModuleEvents.OnPlayerTarget selection)
+      {
+        if (selection.IsCancelled || selection.TargetObject is not NwCreature target)
+          return;
+
+        if (selection.Player.ControlledCreature.MovementRate == MovementRate.Immobile
+            || Encumbrance2da.IsCreatureHeavilyEncumbred(selection.Player.ControlledCreature))
+        {
+          selection.Player.SendServerMessage("Cette commande ne peut être utilisée en étant surchargé.", ColorConstants.Red);
+          return;
+        }
+
+        if (selection.Player.ControlledCreature.Area != target.Area || selection.Player.ControlledCreature.DistanceSquared(target) > 2000)
+        {
+          selection.Player.SendServerMessage($"{target.Name.ColorString(ColorConstants.White)} est trop éloigné pour que vous puissiez le suivre.", ColorConstants.Red);
+          return;
+        }
+
+        await selection.Player.ControlledCreature.ActionForceFollowObject(target, 3.0f);
       }
     }
   }

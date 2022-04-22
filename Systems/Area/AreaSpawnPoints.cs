@@ -11,7 +11,7 @@ namespace NWN.Systems
   [ServiceBinding(typeof(AreaSystem))]
   partial class AreaSystem
   {
-    private Dictionary<string, int[]> randomAppearanceDictionary = new Dictionary<string, int[]>()
+    private readonly Dictionary<string, int[]> randomAppearanceDictionary = new ()
     {
       { "plage", new int[] { 1984, 1985, 1986, 3160, 3155, 3156, 1956, 1957, 1958, 1959, 1960, 1961, 1962, 291, 292, 1964, 4310, 1428, 1430, 1980, 1981, 3261, 3262, 3263 } },
       { "cave", new int[] { 3197, 3198, 3199, 3200, 3202, 3204, 3205, 3206, 3207, 3208, 3209, 3210, 3999, 6425, 6426, 6427, 6428, 6429, 6430, 6431, 6432, 6433, 6434, 6435, 6436, 3397, 3398, 3400, 3434 } },
@@ -141,7 +141,7 @@ namespace NWN.Systems
     {
       EffectRunScriptEvent eventData = new EffectRunScriptEvent();
 
-      if (!(eventData.EffectTarget is NwCreature creature) || !creature.IsValid)
+      if (eventData.EffectTarget is not NwCreature creature || !creature.IsValid)
         return ScriptHandleResult.Handled;
 
       creature.HP += (int)(creature.MaxHP * 0.2) + 1;

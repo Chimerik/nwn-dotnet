@@ -230,11 +230,6 @@ namespace NWN.Systems
       }
     }
 
-    [ScriptHandler("collect_cancel")]
-    private void HandleBeforeCollectCycleCancel(CallInfo callInfo)
-    {
-      callInfo.ObjectSelf.GetObjectVariable<LocalVariableInt>("_COLLECT_CANCELLED").Value = 1;
-    }
     public static void HandleOnClientLevelUp(OnClientLevelUpBegin onLevelUp)
     {
       onLevelUp.PreventLevelUp = true;
@@ -275,9 +270,9 @@ namespace NWN.Systems
           {
             case NuiEventType.Click:
 
-              NuiBind<string> portraitId = new NuiBind<string>("po_id");
-              NuiBind<string> portraitResRef = new NuiBind<string>("po_resref");
-              NuiBind<int> portraitCategory = new NuiBind<int>("po_category");
+              NuiBind<string> portraitId = new ("po_id");
+              NuiBind<string> portraitResRef = new ("po_resref");
+              NuiBind<int> portraitCategory = new ("po_category");
               int min = 0;
               int max = 0;
 
@@ -394,6 +389,15 @@ namespace NWN.Systems
                 ((Player.MainMenuWindow)player.windows["mainMenu"]).CreateWindow();
               else
                 player.windows.Add("mainMenu", new Player.MainMenuWindow(player));
+
+              return;
+
+            case GUIPanel.PlayerList:
+
+              if (player.windows.ContainsKey("playerList"))
+                ((Player.PlayerListWindow)player.windows["playerList"]).CreateWindow();
+              else
+                player.windows.Add("playerList", new Player.PlayerListWindow(player));
 
               return;
           }
@@ -615,12 +619,13 @@ namespace NWN.Systems
                 {
                   int nMaxSpellLevelAbsorbed = eff.IntParams.ElementAt(0);
                   bool bUnlimited = eff.IntParams.ElementAt(3).ToBool();
-                  string sSpellLevel;
-                  switch (nMaxSpellLevelAbsorbed)
+
+                  var sSpellLevel = nMaxSpellLevelAbsorbed switch
                   {
-                    case 0: sSpellLevel = "Tours de magie"; break;
-                    default: sSpellLevel = "Niveau " + nMaxSpellLevelAbsorbed; break;
-                  }
+                    0 => "Tours de magie",
+                    _ => "Niveau " + nMaxSpellLevelAbsorbed,
+                  };
+
                   sSpellLevel += " Level" + (nMaxSpellLevelAbsorbed == 0 ? "" : " and Below");
                   string sSpellSchool = SpellSchoolToString(eff.IntParams.ElementAt(2));
                   string sRemainingSpellLevels = bUnlimited ? "" : "(" + eff.IntParams.ElementAt(1) + " Niveaux de sorts restants)";
@@ -662,7 +667,7 @@ namespace NWN.Systems
                     int nAbilityMod = eff.IntParams.ElementAt(nAbility);
                     if (nAbilityMod > 0)
                     {
-                      string sAbility = StringUtils.TranslateAttributeToFrench((Ability)nAbility).Substring(0, 3);
+                      string sAbility = StringUtils.TranslateAttributeToFrench((Ability)nAbility)[..3];
                       sAbilityDecrease += "-" + nAbilityMod + " " + sAbility + ", ";
                     }
                   }
@@ -752,17 +757,16 @@ namespace NWN.Systems
     }
     private static string ACTypeToString(int nACType)
     {
-      
-      switch ((ACBonus)nACType)
-      {
-        case ACBonus.Dodge: return "Esquive";
-        case ACBonus.Natural: return "Naturelle";
-        case ACBonus.ArmourEnchantment: return "Armure";
-        case ACBonus.ShieldEnchantment: return "Bouclier";
-        case ACBonus.Deflection: return "Parade";
-      }
 
-      return "";
+      return (ACBonus)nACType switch
+      {
+        ACBonus.Dodge => "Esquive",
+        ACBonus.Natural => "Naturelle",
+        ACBonus.ArmourEnchantment => "Armure",
+        ACBonus.ShieldEnchantment => "Bouclier",
+        ACBonus.Deflection => "Parade",
+        _ => "",
+      };
     }
     private static string SpellSchoolToString(int nSpellSchool)
     {

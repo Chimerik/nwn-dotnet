@@ -12,7 +12,7 @@ namespace NWN.Systems
     {
       public class ChatLineEditorWindow : PlayerWindow
       {
-        private readonly NuiBind<string> writingChat = new NuiBind<string>("writingChat");
+        private readonly NuiBind<string> writingChat = new ("writingChat");
         private readonly ChatLine chatLine;
         private readonly NuiTextEdit chatWriter;
         private readonly NuiGroup rootGroup;

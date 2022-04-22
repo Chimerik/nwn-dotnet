@@ -14,9 +14,9 @@ namespace NWN.Systems
   public partial class AreaSystem
   {
     private static readonly Logger Log = LogManager.GetCurrentClassLogger();
-    private DialogSystem dialogSystem;
-    private ScriptHandleFactory scriptHandleFactory;
-    private ScriptCallbackHandle mobRegenIntervalHandle;
+    private readonly DialogSystem dialogSystem;
+    private readonly ScriptHandleFactory scriptHandleFactory;
+    private readonly ScriptCallbackHandle mobRegenIntervalHandle;
     private readonly SchedulerService scheduler;
 
     public AreaSystem(ModuleSystem moduleSystem, DialogSystem dialogSystem, ScriptHandleFactory scriptFactory, SchedulerService schedulerService)
@@ -88,7 +88,7 @@ namespace NWN.Systems
     }
     public void OnAreaExit(AreaEvents.OnExit onExit)
     {
-      if (!(onExit.ExitingObject is NwCreature creature))
+      if (onExit.ExitingObject is not NwCreature creature)
         return;
 
       NwArea area = onExit.Area;
@@ -125,7 +125,7 @@ namespace NWN.Systems
     }
     public void OnIntroAreaExit(AreaEvents.OnExit onExit)
     {
-      if (!(onExit.ExitingObject is NwCreature oPC) || !oPC.IsPlayerControlled || onExit.Area.Tag != $"entry_scene_{oPC.ControllingPlayer.CDKey}")
+      if (onExit.ExitingObject is not NwCreature oPC || !oPC.IsPlayerControlled || onExit.Area.Tag != $"entry_scene_{oPC.ControllingPlayer.CDKey}")
         return;
 
       Log.Info($"{oPC.Name} exited area {onExit.Area.Name}");
@@ -270,7 +270,7 @@ namespace NWN.Systems
     {
       Log.Info($"onEnter : {onEnter.EnteringObject.Name}");
 
-      if (!(onEnter.EnteringObject is NwCreature oEntering))
+      if (onEnter.EnteringObject is not NwCreature oEntering)
         return;
 
       Vector3 initialPosition = oEntering.Position;
@@ -279,7 +279,7 @@ namespace NWN.Systems
       await NwTask.Delay(TimeSpan.FromSeconds(0.8));
       await oEntering.ClearActionQueue();
 
-      Vector3 calculations = 2 * (initialPosition - oEntering.Position);
+      //Vector3 calculations = 2 * (initialPosition - oEntering.Position);
       Vector3 kickback = initialPosition;
       kickback.Z = oEntering.Position.Z;
 
@@ -288,7 +288,7 @@ namespace NWN.Systems
       oEntering.Commandable = true;
       oEntering.Location = Location.Create(oEntering.Area, kickback + (initialPosition - oEntering.Position), oEntering.Rotation);
     }
-    private void InitializeBankPlaceableNames()
+    private static void InitializeBankPlaceableNames()
     {
       var result = SqLiteUtils.SelectQuery("bankPlaceables",
         new List<string>() { { "id" }, { "areaTag" }, { "ownerId" }, { "ownerName" } },

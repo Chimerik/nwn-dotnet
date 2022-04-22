@@ -14,8 +14,8 @@ namespace NWN.Systems
       public class MateriaExtractionWindow : PlayerWindow
       {
         private readonly NuiColumn rootColumn;
-        private readonly NuiBind<string> remainingTime = new NuiBind<string>("remainingTime");
-        private readonly NuiBind<float> progress = new NuiBind<float>("progress");
+        private readonly NuiBind<string> remainingTime = new ("remainingTime");
+        private readonly NuiBind<float> progress = new ("progress");
         private int extractionRemainingTime { get; set; }
         private int extractionTotalDuration { get; set; }
         private NwItem extractor { get; set; }

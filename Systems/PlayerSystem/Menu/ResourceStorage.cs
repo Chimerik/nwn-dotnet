@@ -18,10 +18,10 @@ namespace NWN.Systems
       public class ResourceStorageWindow : PlayerWindow
       {
         NuiColumn rootColumn { get; }
-        private readonly NuiBind<string> resourceNames = new NuiBind<string>("resourceNames");
-        private readonly NuiBind<int> listCount = new NuiBind<int>("listCount");
-        private readonly NuiBind<string> resourceIcon = new NuiBind<string>("resourceIcon");
-        private readonly NuiBind<int> resourceType = new NuiBind<int>("resourceType");
+        private readonly NuiBind<string> resourceNames = new ("resourceNames");
+        private readonly NuiBind<int> listCount = new ("listCount");
+        private readonly NuiBind<string> resourceIcon = new ("resourceIcon");
+        private readonly NuiBind<int> resourceType = new ("resourceType");
 
         private bool AuthorizeSave { get; set; }
         private int nbDebounce { get; set; }

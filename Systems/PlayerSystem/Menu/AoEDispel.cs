@@ -14,15 +14,15 @@ namespace NWN.Systems
     {
       public class AoEDispelWindow : PlayerWindow
       {
-        private readonly NuiColumn rootRow = new NuiColumn();
-        private readonly List<NuiElement> rootChildren = new List<NuiElement>();
-        private readonly List<NuiListTemplateCell> rowTemplate = new List<NuiListTemplateCell>();
+        private readonly NuiColumn rootRow = new ();
+        private readonly List<NuiElement> rootChildren = new ();
+        private readonly List<NuiListTemplateCell> rowTemplate = new ();
 
-        private readonly NuiBind<string> aoeIcons = new NuiBind<string>("aoeIcons");
-        private readonly NuiBind<string> aoeName = new NuiBind<string>("aoeName");
-        private readonly NuiBind<string> areaNames = new NuiBind<string>("areaNames");
-        private readonly NuiBind<string> aoeRemainingDuration = new NuiBind<string>("aoeRemainingDuration");
-        private readonly NuiBind<int> listCount = new NuiBind<int>("listCount");
+        private readonly NuiBind<string> aoeIcons = new ("aoeIcons");
+        private readonly NuiBind<string> aoeName = new ("aoeName");
+        private readonly NuiBind<string> areaNames = new ("areaNames");
+        private readonly NuiBind<string> aoeRemainingDuration = new ("aoeRemainingDuration");
+        private readonly NuiBind<int> listCount = new ("listCount");
 
         public List<NwAreaOfEffect> currentList;
         private ScheduledTask listRefresher;

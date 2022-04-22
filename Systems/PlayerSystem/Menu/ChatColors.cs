@@ -15,10 +15,10 @@ namespace NWN.Systems
         private readonly NuiGroup rootGroup;
         private readonly NuiColumn rootColumn;
         private readonly List<NuiElement> rootChidren;
-        private readonly NuiBind<string> buttonText = new NuiBind<string>("buttonText");
-        private readonly NuiBind<Color> color = new NuiBind<Color>("color");
-        private readonly NuiBind<int> listCount = new NuiBind<int>("listCount");
-        private readonly List<string> channelList = new List<string>()
+        private readonly NuiBind<string> buttonText = new ("buttonText");
+        private readonly NuiBind<Color> color = new ("color");
+        private readonly NuiBind<int> listCount = new ("listCount");
+        private readonly List<string> channelList = new ()
         { "Parler - Joueur", "Parler - DM", "Murmurer - Joueur", "Murmurer - DM", "Groupe - Joueur", "Message privé - Joueur", "Emotes", "Correctif" };
 
         public ChatColorsWindow(Player player) : base(player)

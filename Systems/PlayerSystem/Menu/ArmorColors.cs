@@ -15,13 +15,13 @@ namespace NWN.Systems
       {
         private NwItem item { get; set; }
         private readonly NuiColumn rootColumn;
-        private readonly List<NuiElement> rootChildren = new List<NuiElement>();
-        private readonly NuiBind<bool> symmetry = new NuiBind<bool>("symmetry");
-        private readonly NuiBind<string> currentColor = new NuiBind<string>("currentColor");
-        private readonly NuiBind<int> channelSelection = new NuiBind<int>("channelSelection");
-        private readonly NuiBind<int> spotSelection = new NuiBind<int>("spotSelection");
+        private readonly List<NuiElement> rootChildren = new ();
+        private readonly NuiBind<bool> symmetry = new ("symmetry");
+        private readonly NuiBind<string> currentColor = new ("currentColor");
+        private readonly NuiBind<int> channelSelection = new ("channelSelection");
+        private readonly NuiBind<int> spotSelection = new ("spotSelection");
         private readonly NuiBind<string>[] colorBindings = new NuiBind<string>[256];
-        private readonly List<NuiComboEntry> comboChannel = new List<NuiComboEntry>
+        private readonly List<NuiComboEntry> comboChannel = new ()
         {
           new NuiComboEntry("Cuir 1", 0),
           new NuiComboEntry("Cuir 2", 1),
@@ -30,7 +30,7 @@ namespace NWN.Systems
           new NuiComboEntry("Métal 1", 4),
           new NuiComboEntry("Métal 2", 5)
         };
-        private readonly List<NuiComboEntry> spotCombo = new List<NuiComboEntry>
+        private readonly List<NuiComboEntry> spotCombo = new ()
         {
           new NuiComboEntry("Global", 0),
           new NuiComboEntry("Robe", 19),

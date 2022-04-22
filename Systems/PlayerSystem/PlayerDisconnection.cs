@@ -1,5 +1,7 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
 using System.Numerics;
+using System.Threading.Tasks;
 
 using Anvil.API;
 using Anvil.API.Events;
@@ -40,6 +42,13 @@ namespace NWN.Systems
 
       if (player.openedWindows.ContainsKey("bankStorage") && player.windows.ContainsKey("bankStorage"))
         ((Player.BankStorageWindow)player.windows["bankStorage"]).BankSave();
+
+      Task waitDisconnection = NwTask.Run(async () =>
+      {
+        await NwTask.Delay(TimeSpan.FromMilliseconds(200));
+        foreach(Player connectedPlayer in Players.Values.Where(p => p.pcState != Player.PcState.Offline && p.openedWindows.ContainsKey("playerList")))
+          ((Player.PlayerListWindow)connectedPlayer.windows["playerList"]).UpdatePlayerList();
+      });
 
       Log.Info($"{onPCDisconnect.Player.LoginCreature.Name} disconnected.");
     }

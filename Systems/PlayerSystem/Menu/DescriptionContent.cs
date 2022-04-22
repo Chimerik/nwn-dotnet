@@ -14,9 +14,9 @@ namespace NWN.Systems
         private readonly NuiGroup rootGroup;
         private readonly NuiColumn rootColumn;
         private readonly List<NuiElement> rootChidren;
-        private readonly NuiBind<string> descriptionName = new NuiBind<string>("descriptionName");
-        private readonly NuiBind<string> descriptionText = new NuiBind<string>("descriptionText");
-        private readonly NuiBind<bool> saveEnabled = new NuiBind<bool>("saveEnabled");
+        private readonly NuiBind<string> descriptionName = new ("descriptionName");
+        private readonly NuiBind<string> descriptionText = new ("descriptionText");
+        private readonly NuiBind<bool> saveEnabled = new ("saveEnabled");
         private CharacterDescription description { get; set; }
 
         public DescriptionContentWindow(Player player, CharacterDescription description = null) : base(player)

@@ -12,14 +12,14 @@ namespace NWN.Systems
     {
       public class SkillBookDMGiftWindow : PlayerWindow
       {
-        private readonly NuiColumn rootRow = new NuiColumn();
-        private readonly List<NuiElement> rootChildren = new List<NuiElement>();
-        private readonly List<NuiListTemplateCell> rowTemplate = new List<NuiListTemplateCell>();
+        private readonly NuiColumn rootRow = new ();
+        private readonly List<NuiElement> rootChildren = new ();
+        private readonly List<NuiListTemplateCell> rowTemplate = new ();
 
-        private readonly NuiBind<string> skillbookNames = new NuiBind<string>("skillbookNames");
-        private readonly NuiBind<int> listCount = new NuiBind<int>("listCount");
-        private readonly NuiBind<string> skillbookIcon = new NuiBind<string>("skillbookIcon");
-        private readonly NuiBind<string> search = new NuiBind<string>("search");
+        private readonly NuiBind<string> skillbookNames = new ("skillbookNames");
+        private readonly NuiBind<int> listCount = new ("listCount");
+        private readonly NuiBind<string> skillbookIcon = new ("skillbookIcon");
+        private readonly NuiBind<string> search = new ("search");
 
         public List<Learnable> currentList;
         Player targetPlayer;

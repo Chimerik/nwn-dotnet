@@ -19,8 +19,8 @@ namespace NWN.Systems
         private NwItem item { get; set; }
         private readonly NuiColumn rootColumn;
         private readonly NuiSlider slider;
-        private readonly NuiBind<int> modelSelection = new NuiBind<int>("modelSelection");
-        private readonly NuiBind<int> modelSlider = new NuiBind<int>("modelSlider");
+        private readonly NuiBind<int> modelSelection = new ("modelSelection");
+        private readonly NuiBind<int> modelSlider = new ("modelSlider");
         public CloakAppearanceWindow(Player player, NwItem item) : base(player)
         {
           windowId = "cloakAppearanceModifier";

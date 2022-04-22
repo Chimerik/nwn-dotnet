@@ -17,10 +17,10 @@ namespace NWN.Systems
         private readonly NuiGroup rootGroup;
         private readonly NuiColumn rootColumn;
         private readonly List<NuiElement> rootChidren;
-        private readonly NuiBind<string> buttonText = new NuiBind<string>("buttonText");
-        private readonly NuiBind<int> listCount = new NuiBind<int>("listCount");
-        private readonly NuiBind<string> appearanceName = new NuiBind<string>("appearanceName");
-        private readonly NuiBind<bool> saveAppearanceEnabled = new NuiBind<bool>("saveappearanceEnabled");
+        private readonly NuiBind<string> buttonText = new ("buttonText");
+        private readonly NuiBind<int> listCount = new ("listCount");
+        private readonly NuiBind<string> appearanceName = new ("appearanceName");
+        private readonly NuiBind<bool> saveAppearanceEnabled = new ("saveappearanceEnabled");
         private readonly List<string> appearanceNamesList = new List<string>();
         private int selectedIndex { get; set; }
 

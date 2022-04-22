@@ -22,8 +22,8 @@ namespace NWN.Systems
         private readonly NuiColumn colChatLog;
         private readonly List<NuiElement> colChatLogChidren;
         private readonly NuiRow settingsRow;
-        private readonly NuiBind<string> writingChat = new NuiBind<string>("writingChat");
-        private readonly NuiBind<bool> makeStatic = new NuiBind<bool>("static");
+        private readonly NuiBind<string> writingChat = new ("writingChat");
+        private readonly NuiBind<bool> makeStatic = new ("static");
         public bool read { get; set; }
 
         public PrivateMessageWindow(Player player, NwPlayer receiver) : base(player)

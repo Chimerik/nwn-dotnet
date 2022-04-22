@@ -29,10 +29,10 @@ namespace NWN.Systems
           } 
         };
         private readonly NuiText widgetNPCText;
-        private readonly NuiBind<string> npcText = new NuiBind<string>("npcText");
-        private readonly NuiBind<string> materiaNames = new NuiBind<string>("materiaNames");
-        private readonly NuiBind<int> listCount = new NuiBind<int>("listCount");
-        private readonly NuiBind<string> materiaIcon = new NuiBind<string>("materiaIcon");
+        private readonly NuiBind<string> npcText = new ("npcText");
+        private readonly NuiBind<string> materiaNames = new ("materiaNames");
+        private readonly NuiBind<int> listCount = new ("listCount");
+        private readonly NuiBind<string> materiaIcon = new ("materiaIcon");
 
         public MateriaStorageWindow(Player player, NwCreature oNPC) : base(player)
         {

@@ -18,10 +18,10 @@ namespace NWN.Systems
         private readonly NuiRow searchRow;
         private readonly NuiRow textRow;
         private readonly List<NuiElement> rootChidren = new List<NuiElement>();
-        private readonly NuiBind<string> search = new NuiBind<string>("search");
+        private readonly NuiBind<string> search = new ("search");
         private readonly Color white = new Color(255, 255, 255);
         private readonly NuiRect drawListRect = new NuiRect(0, 35, 150, 60);
-        private readonly NuiBind<string> displayText = new NuiBind<string>("text");
+        private readonly NuiBind<string> displayText = new ("text");
 
         public IntroLearnableWindow(Player player) : base(player)
         {

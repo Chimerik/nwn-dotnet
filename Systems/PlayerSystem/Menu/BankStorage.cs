@@ -18,16 +18,16 @@ namespace NWN.Systems
       public class BankStorageWindow : PlayerWindow
       {
         NuiColumn rootColumn { get; }
-        private readonly NuiBind<string> gold = new NuiBind<string>("gold");
-        private readonly NuiBind<string> search = new NuiBind<string>("search");
-        private readonly NuiBind<string> itemNames = new NuiBind<string>("itemNames");
-        private readonly NuiBind<int> listCount = new NuiBind<int>("listCount");
-        private readonly NuiBind<string> topIcon = new NuiBind<string>("topIcon");
-        private readonly NuiBind<string> midIcon = new NuiBind<string>("midIcon");
-        private readonly NuiBind<string> botIcon = new NuiBind<string>("botIcon");
-        private readonly NuiBind<bool> enabled = new NuiBind<bool>("enabled");
-        private readonly NuiBind<NuiRect> imagePosition = new NuiBind<NuiRect>("rect");
-        private List<NwItem> items = new List<NwItem>();
+        private readonly NuiBind<string> gold = new ("gold");
+        private readonly NuiBind<string> search = new ("search");
+        private readonly NuiBind<string> itemNames = new ("itemNames");
+        private readonly NuiBind<int> listCount = new ("listCount");
+        private readonly NuiBind<string> topIcon = new ("topIcon");
+        private readonly NuiBind<string> midIcon = new ("midIcon");
+        private readonly NuiBind<string> botIcon = new ("botIcon");
+        private readonly NuiBind<bool> enabled = new ("enabled");
+        private readonly NuiBind<NuiRect> imagePosition = new ("rect");
+        private List<NwItem> items = new ();
         private IEnumerable<NwItem> filteredList;
 
         private bool AuthorizeSave { get; set; }

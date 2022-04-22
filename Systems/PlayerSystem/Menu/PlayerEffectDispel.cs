@@ -19,11 +19,11 @@ namespace NWN.Systems
         private readonly List<NuiElement> rootChildren = new List<NuiElement>();
         private readonly List<NuiListTemplateCell> rowTemplate = new List<NuiListTemplateCell>();
 
-        private readonly NuiBind<string> spellIcons = new NuiBind<string>("spellIcons");
-        private readonly NuiBind<string> spellName = new NuiBind<string>("spellName");
-        private readonly NuiBind<string> targetNames = new NuiBind<string>("targetNames");
-        private readonly NuiBind<string> spellRemainingDuration = new NuiBind<string>("spellRemainingDuration");
-        private readonly NuiBind<int> listCount = new NuiBind<int>("listCount");
+        private readonly NuiBind<string> spellIcons = new ("spellIcons");
+        private readonly NuiBind<string> spellName = new ("spellName");
+        private readonly NuiBind<string> targetNames = new ("targetNames");
+        private readonly NuiBind<string> spellRemainingDuration = new ("spellRemainingDuration");
+        private readonly NuiBind<int> listCount = new ("listCount");
 
         public List<NwGameObject> currentList;
         private readonly List<NwSpell> spells = new();

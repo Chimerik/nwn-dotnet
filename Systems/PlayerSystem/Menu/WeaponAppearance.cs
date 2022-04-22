@@ -14,12 +14,12 @@ namespace NWN.Systems
       public class WeaponAppearanceWindow : PlayerWindow
       {
         private NwItem item { get; set; }
-        private readonly NuiBind<int> topModelSelection = new NuiBind<int>("topModelSelection");
-        private readonly NuiBind<int> topModelSlider = new NuiBind<int>("topModelSlider");
-        private readonly NuiBind<int> middleModelSelection = new NuiBind<int>("middleModelSelection");
-        private readonly NuiBind<int> middleModelSlider = new NuiBind<int>("middleModelSlider");
-        private readonly NuiBind<int> bottomModelSelection = new NuiBind<int>("bottomModelSelection");
-        private readonly NuiBind<int> bottomModelSlider = new NuiBind<int>("bottomModelSlider");
+        private readonly NuiBind<int> topModelSelection = new ("topModelSelection");
+        private readonly NuiBind<int> topModelSlider = new ("topModelSlider");
+        private readonly NuiBind<int> middleModelSelection = new ("middleModelSelection");
+        private readonly NuiBind<int> middleModelSlider = new ("middleModelSlider");
+        private readonly NuiBind<int> bottomModelSelection = new ("bottomModelSelection");
+        private readonly NuiBind<int> bottomModelSlider = new ("bottomModelSlider");
 
         public WeaponAppearanceWindow(Player player, NwItem item) : base(player)
         {
@@ -191,19 +191,19 @@ namespace NWN.Systems
           {
             case ItemAppearanceWeaponModel.Top:
               selectorValue = topModelSelection.GetBindValue(player.oid, token);
-              slider = new NuiBind<int>("topModelSlider");
+              slider = new ("topModelSlider");
               sliderResult = BaseItems2da.GetWeaponModelList(item.BaseItem.ItemType, model).IndexOf(modelComboEntries.FirstOrDefault(m => m.Value == selectorValue));
               sliderValue = slider.GetBindValue(player.oid, token);
               break;
             case ItemAppearanceWeaponModel.Middle:
               selectorValue = middleModelSelection.GetBindValue(player.oid, token);
-              slider = new NuiBind<int>("middleModelSlider");
+              slider = new ("middleModelSlider");
               sliderResult = modelComboEntries.IndexOf(modelComboEntries.FirstOrDefault(m => m.Value == selectorValue));
               sliderValue = slider.GetBindValue(player.oid, token);
               break;
             case ItemAppearanceWeaponModel.Bottom:
               selectorValue = bottomModelSelection.GetBindValue(player.oid, token);
-              slider = new NuiBind<int>("bottomModelSlider");
+              slider = new ("bottomModelSlider");
               sliderResult = modelComboEntries.IndexOf(modelComboEntries.FirstOrDefault(m => m.Value == selectorValue));
               sliderValue = slider.GetBindValue(player.oid, token);
               break;

@@ -14,10 +14,10 @@ namespace NWN.Systems
         private readonly NuiGroup rootGroup;
         private readonly NuiColumn rootColumn;
         private readonly List<NuiElement> rootChidren;
-        private readonly NuiBind<string> buttonText = new NuiBind<string>("buttonText");
-        private readonly NuiBind<int> listCount = new NuiBind<int>("listCount");
-        private readonly NuiBind<string> quickbarName = new NuiBind<string>("quickbarName");
-        private readonly NuiBind<bool> saveQuickbarEnabled = new NuiBind<bool>("saveQuickbarEnabled");
+        private readonly NuiBind<string> buttonText = new ("buttonText");
+        private readonly NuiBind<int> listCount = new ("listCount");
+        private readonly NuiBind<string> quickbarName = new ("quickbarName");
+        private readonly NuiBind<bool> saveQuickbarEnabled = new ("saveQuickbarEnabled");
         private readonly List<string> quickbarNamesList = new List<string>();
 
         public QuickbarsWindow(Player player) : base(player)

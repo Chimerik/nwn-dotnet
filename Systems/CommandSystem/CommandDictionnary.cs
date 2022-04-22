@@ -4,9 +4,9 @@ namespace NWN.Systems
 {
     public static partial class CommandSystem
     {
-        private static Dictionary<string, Command> commandDic = new Dictionary<string, Command>
+        private static readonly Dictionary<string, Command> commandDic = new ()
     {
-      {
+      /*{
         "help", new Command(
           name: "help",
           description: new Command.Description(
@@ -18,89 +18,7 @@ namespace NWN.Systems
           ),
           execute: ExecuteHelpCommand
         )
-      },
-      {
-        "reveal",
-        new Command(
-          name: "reveal",
-          description: new Command.Description(title: "Permet de sortir du mode furtif aux yeux du groupe ou de la cible"),
-          execute: ExecuteRevealCommand
-        )
-      },
-      {
-        "dispel",
-        new Command(
-          name: "dispel",
-          description: new Command.Description(title: "Dissipe les effets de sorts créés par vous sur vous-même ou sur la cible"),
-          execute: ExecuteDispelCommand
-        )
-      },
-      {
-        "dissip",
-        new Command(
-          name: "dissip",
-          description: new Command.Description(title: "Dissipe les effets de sorts créés par vous sur vous-même ou sur la cible"),
-          execute: ExecuteDispelCommand
-        )
-      },
-      {
-        "invi",
-        new Command(
-          name: "invi",
-          description: new Command.Description(title: "Dissipe tout effet d'invisibilité actif sur  vous"),
-          execute: ExecuteDispelInviCommand
-        )
-      },
-      {
-        "kick",
-        new Command(
-          name: "kick",
-          description: new Command.Description(title: "Permet de kick un joueur hors du serveur."),
-          execute: ExecuteKickCommand
-        )
-      },
-      {
-        "tp",
-        new Command(
-          name: "t^p",
-          description: new Command.Description(title: "Commande de téléportation DM."),
-          execute: ExecuteDMTeleportationCommand
-        )
-      },
-      {
-        "hostile",
-        new Command(
-          name: "hostile",
-          description: new Command.Description(title: "Rend hostile tous les joueurs de la zone non compris dans votre groupe actuel."),
-          execute: ExecuteMakeAllPCInAreaHostileCommand
-        )
-      },
-      {
-        "mute",
-        new Command(
-          name: "mute",
-          description: new Command.Description(title: "Active/Désactive la réception des MP. Peut-être utilisé comme commande ciblée."),
-          execute: ExecuteMutePMCommand
-        )
-      },
-      {
-        "brp",
-        new Command(
-          name: "brp",
-          description: new Command.Description(title: "Commande DM : Modifie le bonus roleplay de la cible."),
-          execute: ExecuteSetRoleplayBonusCommand,
-          options: new Options(
-            positional: new List<Option>()
-            {
-              new Option(
-                name: "Bonus",
-                description: "Bonus, doit être compris entre 0 et et 4.",
-                defaultValue: ""
-              )
-            }
-          )
-        )
-      },
+      },*/
       {
         "test",
         new Command(
@@ -117,14 +35,6 @@ namespace NWN.Systems
               )
             }
           )
-        )
-      },
-      {
-        "suivre",
-        new Command(
-          name: "suivre",
-          description: new Command.Description(title: "Suit automatiquement le personnage ciblé."),
-          execute: ExecuteFollowCommand
         )
       },
       {

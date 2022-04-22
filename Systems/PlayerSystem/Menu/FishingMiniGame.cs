@@ -50,7 +50,7 @@ namespace NWN.Systems
           rootList.Add(strengthGroup);
 
           fishingState = 0;
-          fishingStrengthBind = new NuiBind<float>("fishingStrength");
+          fishingStrengthBind = new ("fishingStrength");
           fishingStrengthColor = new NuiBind<Color>("fishingStrengthColor");
           fishingStrengthProgress = new NuiProgress(fishingStrengthBind) { ForegroundColor = fishingStrengthColor, Width = 280 };
           strengthChildren.Add(fishingStrengthProgress);
@@ -79,7 +79,7 @@ namespace NWN.Systems
           successGroup = new NuiGroup() { Id = "successGroup", Border = false, Height = 60, Padding = 0, Margin = 0, Layout = successCol };
           rootList.Add(successGroup);
 
-          successBind = new NuiBind<float>("success");
+          successBind = new ("success");
           successColorBind = new NuiBind<Color>("successColor");
           successProgress = new NuiProgress(successBind) { ForegroundColor = successColorBind, Width = 280 };
           successChildren.Add(successProgress);

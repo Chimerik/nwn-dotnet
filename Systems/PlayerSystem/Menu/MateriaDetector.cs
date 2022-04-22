@@ -21,11 +21,11 @@ namespace NWN.Systems
         private readonly NuiBind<List<NuiComboEntry>> categories = new NuiBind<List<NuiComboEntry>>("categories");
         private readonly List<NuiComboEntry> resourceCategories = new List<NuiComboEntry>();
 
-        private readonly NuiBind<int> selectedCategory = new NuiBind<int>("selectedCategory");
-        private readonly NuiBind<string> remainingTime = new NuiBind<string>("remainingTime");
-        private readonly NuiBind<string> estimatedQuantity = new NuiBind<string>("estimatedQuantity");
-        private readonly NuiBind<string> estimatedDistance = new NuiBind<string>("estimatedDistance");
-        private readonly NuiBind<string> estimatedCoordinates = new NuiBind<string>("estimatedCoordinates");
+        private readonly NuiBind<int> selectedCategory = new ("selectedCategory");
+        private readonly NuiBind<string> remainingTime = new ("remainingTime");
+        private readonly NuiBind<string> estimatedQuantity = new ("estimatedQuantity");
+        private readonly NuiBind<string> estimatedDistance = new ("estimatedDistance");
+        private readonly NuiBind<string> estimatedCoordinates = new ("estimatedCoordinates");
         private int scanDuration { get; set; }
         private NwItem detector { get; set; }
         public ScheduledTask detectionProgress { get; set; }

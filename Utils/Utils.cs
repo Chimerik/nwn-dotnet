@@ -339,6 +339,7 @@ namespace NWN
       { "dm", new MainMenuCommand("Mode DM", "", CommandRank.Admin) },
       { "touch", new MainMenuCommand("Mode toucher", "Permet d'éviter les collisions entre personnages (non utilisable en combat)", CommandRank.Public) },
       { "walk", new MainMenuCommand("Mode marche", "Permet d'avoir l'air moins ridicule en ville", CommandRank.Public) },
+      { "follow", new MainMenuCommand("Suivre", "Suivre une créature ciblée (pour les feignasses !)", CommandRank.Public) },
       { "examineArea", new MainMenuCommand("Examine les environs", "Obtenir une description de la zone", CommandRank.Public) },
       { "effectDispel", new MainMenuCommand("Dissiper mes effets de sorts", "", CommandRank.Public) },
       { "dispelAoE", new MainMenuCommand("Dissiper mes zones d'effets", "", CommandRank.Public) },
@@ -353,8 +354,6 @@ namespace NWN
       { "publicKey", new MainMenuCommand("Afficher ma clé publique", "Permet d'obtenir la clé publique de votre compte, utile pour lier le compte Discord au compte Never", CommandRank.Public) },
       { "delete", new MainMenuCommand("Supprimer ce personnage", "Attention, la suppression est définitive", CommandRank.Public) },
       { "wind", new MainMenuCommand("Gestion du vent", "Permet de modifier la configuration du vent de cette zone", CommandRank.DM) },
-      { "listenAll", new MainMenuCommand("Ecoute globale", "Permet d'écouter tous les joueurs, où qu'ils fussent", CommandRank.DM) },
-      { "listen", new MainMenuCommand("Ecoute ciblée", "Permet d'écouter le joueur sélectionné, où qu'il soit", CommandRank.DM)}, // TODO : Ajouter à OnExamine Player
       { "dmRename", new MainMenuCommand("Changer le nom de la cible", "Permet de modifier le nom de n'importe quel objet", CommandRank.DM) }, // TODO : Ajouter à OnExamine Custom pour DM
       { "persistentPlaceables", new MainMenuCommand("Placeable persistant", "Permettre de rendre persistant les placeables créés, même après reboot", CommandRank.DM) },
       { "visualEffects", new MainMenuCommand("Gérer mes effets visuels", "Permet d'utiliser et de gérer les effets visuels personnalisés", CommandRank.DM) },

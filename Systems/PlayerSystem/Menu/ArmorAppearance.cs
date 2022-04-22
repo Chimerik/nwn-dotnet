@@ -16,46 +16,46 @@ namespace NWN.Systems
     {
       public class ArmorAppearanceWindow : PlayerWindow
       {
-        private readonly NuiBind<int> robeSelection = new NuiBind<int>("robeSelection");
-        private readonly NuiBind<int> robeSlider = new NuiBind<int>("robeSliderValue");
-        private readonly NuiBind<int> neckSelection = new NuiBind<int>("neckSelection");
-        private readonly NuiBind<int> neckSlider = new NuiBind<int>("neckSliderValue");
-        private readonly NuiBind<int> torsoSelection = new NuiBind<int>("torsoSelection");
-        private readonly NuiBind<int> torsoSlider = new NuiBind<int>("torsoSliderValue");
-        private readonly NuiBind<int> beltSelection = new NuiBind<int>("beltSelection");
-        private readonly NuiBind<int> beltSlider = new NuiBind<int>("beltSliderValue");
-        private readonly NuiBind<int> pelvisSelection = new NuiBind<int>("pelvisSelection");
-        private readonly NuiBind<int> pelvisSlider = new NuiBind<int>("pelvisSliderValue");
-        private readonly NuiBind<int> rightShoulderSelection = new NuiBind<int>("rightShoulderSelection");
-        private readonly NuiBind<int> rightShoulderSlider = new NuiBind<int>("rightShoulderSliderValue");
-        private readonly NuiBind<int> leftShoulderSelection = new NuiBind<int>("leftShoulderSelection");
-        private readonly NuiBind<int> leftShoulderSlider = new NuiBind<int>("leftShoulderSliderValue");
-        private readonly NuiBind<int> rightBicepSelection = new NuiBind<int>("rightBicepSelection");
-        private readonly NuiBind<int> rightBicepSlider = new NuiBind<int>("rightBicepSliderValue");
-        private readonly NuiBind<int> leftBicepSelection = new NuiBind<int>("leftBicepSelection");
-        private readonly NuiBind<int> leftBicepSlider = new NuiBind<int>("leftBicepSliderValue");
-        private readonly NuiBind<int> rightForearmSelection = new NuiBind<int>("rightForearmSelection");
-        private readonly NuiBind<int> rightForearmSlider = new NuiBind<int>("rightForearmSliderValue");
-        private readonly NuiBind<int> leftForearmSelection = new NuiBind<int>("leftForearmSelection");
-        private readonly NuiBind<int> leftForearmSlider = new NuiBind<int>("leftForearmSliderValue");
-        private readonly NuiBind<int> rightHandSelection = new NuiBind<int>("rightHandSelection");
-        private readonly NuiBind<int> rightHandSlider = new NuiBind<int>("rightHandSliderValue");
-        private readonly NuiBind<int> leftHandSelection = new NuiBind<int>("leftHandSelection");
-        private readonly NuiBind<int> leftHandSlider = new NuiBind<int>("leftHandSliderValue");
-        private readonly NuiBind<int> rightTighSelection = new NuiBind<int>("rightTighSelection");
-        private readonly NuiBind<int> rightTighSlider = new NuiBind<int>("rightTighSliderValue");
-        private readonly NuiBind<int> leftTighSelection = new NuiBind<int>("leftTighSelection");
-        private readonly NuiBind<int> leftTighSlider = new NuiBind<int>("leftTighSliderValue");
-        private readonly NuiBind<int> rightShinSelection = new NuiBind<int>("rightShinSelection");
-        private readonly NuiBind<int> rightShinSlider = new NuiBind<int>("rightShinSliderValue");
-        private readonly NuiBind<int> leftShinSelection = new NuiBind<int>("leftShinSelection");
-        private readonly NuiBind<int> leftShinSlider = new NuiBind<int>("leftShinSliderValue");
-        private readonly NuiBind<int> rightFootSelection = new NuiBind<int>("rightFootSelection");
-        private readonly NuiBind<int> rightFootSlider = new NuiBind<int>("rightFootSliderValue");
-        private readonly NuiBind<int> leftFootSelection = new NuiBind<int>("leftFootSelection");
-        private readonly NuiBind<int> leftFootSlider = new NuiBind<int>("leftFootSliderValue");
-        private readonly NuiBind<bool> symmetry = new NuiBind<bool>("symmetry");
-        private readonly NuiBind<int> areaSelection = new NuiBind<int>("areaSelection");
+        private readonly NuiBind<int> robeSelection = new ("robeSelection");
+        private readonly NuiBind<int> robeSlider = new ("robeSliderValue");
+        private readonly NuiBind<int> neckSelection = new ("neckSelection");
+        private readonly NuiBind<int> neckSlider = new ("neckSliderValue");
+        private readonly NuiBind<int> torsoSelection = new ("torsoSelection");
+        private readonly NuiBind<int> torsoSlider = new ("torsoSliderValue");
+        private readonly NuiBind<int> beltSelection = new ("beltSelection");
+        private readonly NuiBind<int> beltSlider = new ("beltSliderValue");
+        private readonly NuiBind<int> pelvisSelection = new ("pelvisSelection");
+        private readonly NuiBind<int> pelvisSlider = new ("pelvisSliderValue");
+        private readonly NuiBind<int> rightShoulderSelection = new ("rightShoulderSelection");
+        private readonly NuiBind<int> rightShoulderSlider = new ("rightShoulderSliderValue");
+        private readonly NuiBind<int> leftShoulderSelection = new ("leftShoulderSelection");
+        private readonly NuiBind<int> leftShoulderSlider = new ("leftShoulderSliderValue");
+        private readonly NuiBind<int> rightBicepSelection = new ("rightBicepSelection");
+        private readonly NuiBind<int> rightBicepSlider = new ("rightBicepSliderValue");
+        private readonly NuiBind<int> leftBicepSelection = new ("leftBicepSelection");
+        private readonly NuiBind<int> leftBicepSlider = new ("leftBicepSliderValue");
+        private readonly NuiBind<int> rightForearmSelection = new ("rightForearmSelection");
+        private readonly NuiBind<int> rightForearmSlider = new ("rightForearmSliderValue");
+        private readonly NuiBind<int> leftForearmSelection = new ("leftForearmSelection");
+        private readonly NuiBind<int> leftForearmSlider = new ("leftForearmSliderValue");
+        private readonly NuiBind<int> rightHandSelection = new ("rightHandSelection");
+        private readonly NuiBind<int> rightHandSlider = new ("rightHandSliderValue");
+        private readonly NuiBind<int> leftHandSelection = new ("leftHandSelection");
+        private readonly NuiBind<int> leftHandSlider = new ("leftHandSliderValue");
+        private readonly NuiBind<int> rightTighSelection = new ("rightTighSelection");
+        private readonly NuiBind<int> rightTighSlider = new ("rightTighSliderValue");
+        private readonly NuiBind<int> leftTighSelection = new ("leftTighSelection");
+        private readonly NuiBind<int> leftTighSlider = new ("leftTighSliderValue");
+        private readonly NuiBind<int> rightShinSelection = new ("rightShinSelection");
+        private readonly NuiBind<int> rightShinSlider = new ("rightShinSliderValue");
+        private readonly NuiBind<int> leftShinSelection = new ("leftShinSelection");
+        private readonly NuiBind<int> leftShinSlider = new ("leftShinSliderValue");
+        private readonly NuiBind<int> rightFootSelection = new ("rightFootSelection");
+        private readonly NuiBind<int> rightFootSlider = new ("rightFootSliderValue");
+        private readonly NuiBind<int> leftFootSelection = new ("leftFootSelection");
+        private readonly NuiBind<int> leftFootSlider = new ("leftFootSliderValue");
+        private readonly NuiBind<bool> symmetry = new ("symmetry");
+        private readonly NuiBind<int> areaSelection = new ("areaSelection");
         private List<NuiComboEntry> robeList;
         private List<NuiComboEntry> torsoList;
         private List<NuiComboEntry> pelvisList;
@@ -656,8 +656,8 @@ namespace NWN.Systems
               selectorSimId = slider.Key.Replace("right", "left");
             }
 
-            NuiBind<int> symmetrySlider = new NuiBind<int>(sliderSimId);
-            NuiBind<int> symmetrySelector = new NuiBind<int>(selectorSimId);
+            NuiBind<int> symmetrySlider = new (sliderSimId);
+            NuiBind<int> symmetrySelector = new (selectorSimId);
             
             symmetrySelector.SetBindWatch(player.oid, token, false);
             symmetrySelector.SetBindValue(player.oid, token, result);
@@ -720,8 +720,8 @@ namespace NWN.Systems
               selectorSimId = slider.Key.Replace("right", "left");
             }
 
-            NuiBind<int> symmetrySlider = new NuiBind<int>(sliderSimId);
-            NuiBind<int> symmetrySelector = new NuiBind<int>(selectorSimId);
+            NuiBind<int> symmetrySlider = new (sliderSimId);
+            NuiBind<int> symmetrySelector = new (selectorSimId);
 
             symmetrySelector.SetBindWatch(player.oid, token, false);
             symmetrySelector.SetBindValue(player.oid, token, selectorValue);

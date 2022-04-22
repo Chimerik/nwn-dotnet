@@ -16,10 +16,10 @@ namespace NWN.Systems
         private readonly List<NuiElement> rootChildren = new List<NuiElement>();
         private readonly List<NuiListTemplateCell> rowTemplate = new List<NuiListTemplateCell>();
 
-        private readonly NuiBind<string> myResourceNames = new NuiBind<string>("myResourceNames");
-        private readonly NuiBind<int> myListCount = new NuiBind<int>("myListCount");
-        private readonly NuiBind<string> myResourceIcon = new NuiBind<string>("myResourceIcon");
-        private readonly NuiBind<string> myQuantity = new NuiBind<string>("myQuantity");
+        private readonly NuiBind<string> myResourceNames = new ("myResourceNames");
+        private readonly NuiBind<int> myListCount = new ("myListCount");
+        private readonly NuiBind<string> myResourceIcon = new ("myResourceIcon");
+        private readonly NuiBind<string> myQuantity = new ("myQuantity");
 
         Player targetPlayer;
 

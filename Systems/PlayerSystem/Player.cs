@@ -25,7 +25,6 @@ namespace NWN.Systems
       public int bonusRolePlay { get; set; }
       public int currentLanguage { get; set; }
       public int bankGold { get; set; }
-      public PlayerJournal playerJournal { get; set; }
       public CraftJob craftJob { get; set; }
       public Location previousLocation { get; set; }
       public Menu menu { get; }
@@ -232,8 +231,7 @@ namespace NWN.Systems
         oid.ControlledCreature.RemoveFeat(CustomFeats.CustomPositionBackward);
         oid.ControlledCreature.RemoveFeat(CustomFeats.CustomPositionRotateLeft);
         oid.ControlledCreature.RemoveFeat(CustomFeats.CustomPositionRotateRight);
-
-        bool returned = oid.ControlledCreature.DeserializeQuickbar(this.serializedQuickbar.ToByteArray());
+        oid.ControlledCreature.DeserializeQuickbar(this.serializedQuickbar.ToByteArray());
       }
       public string CheckDBPlayerAccount()
       {
@@ -347,35 +345,35 @@ namespace NWN.Systems
         switch (bonusRolePlay)
         {
           case 0:
-            pointsPerSecond = pointsPerSecond * 0.1;
+            pointsPerSecond *= 0.1;
             break;
           case 1:
-            pointsPerSecond = pointsPerSecond * 0.9;
+            pointsPerSecond *= 0.9;
             break;
           case 3:
-            pointsPerSecond = pointsPerSecond * 1.1;
+            pointsPerSecond *= 1.1;
             break;
           case 4:
-            pointsPerSecond = pointsPerSecond * 1.2;
+            pointsPerSecond *= 1.2;
             break;
           case 100:
-            pointsPerSecond = pointsPerSecond * 10;
+            pointsPerSecond *= 10;
             break;
         }
 
         if (pcState == PcState.Offline)
         {
-          pointsPerSecond = pointsPerSecond * 0.6;
+          pointsPerSecond *= 0.6;
           Log.Info($"{oid.LoginCreature.Name} was not connected. Applying 40 % malus.");
         }
         else if (pcState == PcState.AFK)
         {
-          pointsPerSecond = pointsPerSecond * 0.8;
+          pointsPerSecond *= 0.8;
           Log.Info($"{oid.LoginCreature.Name} was afk. Applying 20 % malus.");
         }
 
         if (oid.LoginCreature.KnowsFeat(Feat.QuickToMaster))
-          pointsPerSecond = pointsPerSecond * 1.1;
+          pointsPerSecond *= 1.1;
 
         //Log.Info($"SP CALCULATION - {player.oid.Name} - {SP} SP.");
 
@@ -975,21 +973,15 @@ namespace NWN.Systems
       }
       public int GetJobLearnableFromWorkshop(string workshopTag)
       {
-        switch(workshopTag)
+        return workshopTag switch
         {
-          case "forge":
-            return CustomSkill.Blacksmith;
-          case "scierie":
-            return CustomSkill.Woodworker;
-          case "tannerie":
-            return CustomSkill.Tanner;
-          case "enchant":
-            return CustomSkill.Enchanteur;
-          case "alchemy":
-            return CustomSkill.Alchemist;
-        }
-
-        return -1;
+          "forge" => CustomSkill.Blacksmith,
+          "scierie" => CustomSkill.Woodworker,
+          "tannerie" => CustomSkill.Tanner,
+          "enchant" => CustomSkill.Enchanteur,
+          "alchemy" => CustomSkill.Alchemist,
+          _ => -1,
+        };
       }
       public void HandleRepairItemChecks(NwItem repairedItem)
       {
@@ -1061,7 +1053,7 @@ namespace NWN.Systems
 
         return;
       }
-      public string GetReadableTimeSpan(double timeCost)
+      public static string GetReadableTimeSpan(double timeCost)
       {
         TimeSpan timespan = TimeSpan.FromSeconds(timeCost);
         return new TimeSpan(timespan.Days, timespan.Hours, timespan.Minutes, timespan.Seconds).ToString();

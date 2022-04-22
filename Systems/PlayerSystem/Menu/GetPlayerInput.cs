@@ -16,7 +16,7 @@ namespace NWN.Systems
         private string title { get; set; }
         private string quantity { get; set; }
         private Func<string, bool> handler { get; set; }
-        private readonly NuiBind<string> input = new NuiBind<string>("input");
+        private readonly NuiBind<string> input = new ("input");
 
         public PlayerInputWindow(Player player, string windowTitle, Func<string, bool> handler , string availableQuantity = "") : base(player)
         {

@@ -34,7 +34,7 @@ namespace NWN.Systems
         public ChatReaderWindow(Player player) : base(player)
         {
           windowId = "chatReader";
-          makeStatic = new NuiBind<bool>("static");
+          makeStatic = new ("static");
 
           List<NuiElement> colChidren = new List<NuiElement>();
           rootColumn = new NuiColumn() { Children = colChidren };

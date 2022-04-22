@@ -10,13 +10,13 @@ namespace NWN.Systems
     {
       public void CreatePortraitDemoWindow()
       {
-        NuiBind<string> portraitId = new NuiBind<string>("po_id");
-        NuiBind<string> portraitResRef = new NuiBind<string>("po_resref");
-        NuiBind<bool> btnPrevEnabled = new NuiBind<bool>("btnpreve");
-        NuiBind<bool> btnSetEnabled = new NuiBind<bool>("btnoke");
-        NuiBind<bool> btnNextEnabled = new NuiBind<bool>("btnnexte");
-        NuiBind<int> portraitCategory = new NuiBind<int>("po_category");
-        NuiBind<bool> collapsed = new NuiBind<bool>("collapsed");
+        NuiBind<string> portraitId = new ("po_id");
+        NuiBind<string> portraitResRef = new ("po_resref");
+        NuiBind<bool> btnPrevEnabled = new ("btnpreve");
+        NuiBind<bool> btnSetEnabled = new ("btnoke");
+        NuiBind<bool> btnNextEnabled = new ("btnnexte");
+        NuiBind<int> portraitCategory = new ("po_category");
+        NuiBind<bool> collapsed = new ("collapsed");
         NuiBind<NuiRect> geometry = new NuiBind<NuiRect>("geometry");
 
         List<NuiComboEntry> comboValues = new List<NuiComboEntry>

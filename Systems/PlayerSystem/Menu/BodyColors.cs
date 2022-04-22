@@ -15,8 +15,8 @@ namespace NWN.Systems
       {
         private readonly NuiColumn rootColumn;
         private readonly List<NuiElement> rootChildren = new List<NuiElement>();
-        private readonly NuiBind<string> currentColor = new NuiBind<string>("currentColor");
-        private readonly NuiBind<int> channelSelection = new NuiBind<int>("channelSelection");
+        private readonly NuiBind<string> currentColor = new ("currentColor");
+        private readonly NuiBind<int> channelSelection = new ("channelSelection");
         private readonly NuiBind<string>[] colorBindings = new NuiBind<string>[176];
         private readonly List<NuiComboEntry> comboChannel = new List<NuiComboEntry>
           {
@@ -31,7 +31,7 @@ namespace NWN.Systems
           windowId = "bodyColorsModifier";
 
           for (int i = 0; i < 176; i++)
-            colorBindings[i] = new NuiBind<string>($"color{i}");
+            colorBindings[i] = new ($"color{i}");
 
           NuiRow comboRow = new NuiRow()
           {

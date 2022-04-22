@@ -16,13 +16,13 @@ namespace NWN.Systems
         private readonly NuiColumn rootColumn;
         private readonly NuiGroup rootGroup;
         private readonly List<NuiElement> rootChidren = new List<NuiElement>();
-        private readonly NuiBind<string> search = new NuiBind<string>("search");
-        private readonly NuiBind<int> listCount = new NuiBind<int>("listCount");
-        private readonly NuiBind<string> icon = new NuiBind<string>("icon"); // TODO : Utiliser l'icone d'un don correspondant à l'arme ?
-        private readonly NuiBind<string> blueprintNames = new NuiBind<string>("blueprintName");
-        private readonly NuiBind<string> blueprintTEs = new NuiBind<string>("blueprintTEs");
-        private readonly NuiBind<string> blueprintMEs = new NuiBind<string>("blueprintMEs");
-        private readonly NuiBind<bool> enable = new NuiBind<bool>("enable");
+        private readonly NuiBind<string> search = new ("search");
+        private readonly NuiBind<int> listCount = new ("listCount");
+        private readonly NuiBind<string> icon = new ("icon"); // TODO : Utiliser l'icone d'un don correspondant à l'arme ?
+        private readonly NuiBind<string> blueprintNames = new ("blueprintName");
+        private readonly NuiBind<string> blueprintTEs = new ("blueprintTEs");
+        private readonly NuiBind<string> blueprintMEs = new ("blueprintMEs");
+        private readonly NuiBind<bool> enable = new ("enable");
         private readonly Color white = new Color(255, 255, 255);
         private readonly NuiRect drawListRect = new NuiRect(0, 35, 150, 60);
         private string workshopTag;
@@ -129,11 +129,11 @@ namespace NWN.Systems
         }
         private void LoadBlueprintList(IEnumerable<NwItem> blueprints)
         {
-          List<string> blueprintNamesList = new List<string>();
-          List<string> iconList = new List<string>();
-          List<string> blueprintTEsList = new List<string>();
-          List<string> blueprintMEsList = new List<string>();
-          List<bool> enabledList = new List<bool>();
+          List<string> blueprintNamesList = new ();
+          List<string> iconList = new ();
+          List<string> blueprintTEsList = new ();
+          List<string> blueprintMEsList = new ();
+          List<bool> enabledList = new ();
 
           foreach (NwItem item in blueprints)
           {

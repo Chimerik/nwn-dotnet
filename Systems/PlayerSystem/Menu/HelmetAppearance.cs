@@ -15,8 +15,8 @@ namespace NWN.Systems
         NwItem item { get; set; }
         private readonly NuiColumn rootColumn;
         private readonly NuiSlider slider;
-        private readonly NuiBind<int> modelSelection = new NuiBind<int>("modelSelection");
-        private readonly NuiBind<int> modelSlider = new NuiBind<int>("modelSlider");
+        private readonly NuiBind<int> modelSelection = new ("modelSelection");
+        private readonly NuiBind<int> modelSlider = new ("modelSlider");
         public HelmetAppearanceWindow(Player player, NwItem item) : base(player)
         {
           windowId = "helmetAppearanceModifier";

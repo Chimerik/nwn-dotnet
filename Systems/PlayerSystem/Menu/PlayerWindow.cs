@@ -21,8 +21,8 @@ namespace NWN.Systems
         {
           this.player = player;
           token = -1;
-          closable = new NuiBind<bool>("closable");
-          resizable = new NuiBind<bool>("resizable");
+          closable = new ("closable");
+          resizable = new ("resizable");
           geometry = new NuiBind<NuiRect>("geometry");
 
           // TODO : à la création initiale de la fenêtre, on charge la geometry à partir des infos de la BDD
