@@ -47,13 +47,14 @@ namespace NWN.Systems
       public Dictionary<string, int> openedWindows = new ();
       public List<ChatLine> readChatLines = new ();
 
-      public List<CraftResource> craftResourceStock = new List<CraftResource>();
-      public List<Grimoire> grimoires = new List<Grimoire>();
-      public List<Quickbar> quickbars = new List<Quickbar>();
-      public List<ItemAppearance> itemAppearances = new List<ItemAppearance>();
-      public List<CharacterDescription> descriptions = new List<CharacterDescription>();
-      public List<CustomDMVisualEffect> customDMVisualEffects = new List<CustomDMVisualEffect>();
+      public List<CraftResource> craftResourceStock = new ();
+      public List<Grimoire> grimoires = new ();
+      public List<Quickbar> quickbars = new ();
+      public List<ItemAppearance> itemAppearances = new ();
+      public List<CharacterDescription> descriptions = new ();
+      public List<CustomDMVisualEffect> customDMVisualEffects = new ();
       public List<NwGameObject> effectTargets = new();
+
 
       private readonly SpellSystem spellSystem;
       private readonly FeedbackService feedbackService;

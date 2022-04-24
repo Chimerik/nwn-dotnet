@@ -29,7 +29,7 @@ namespace NWN.Systems
 
         if (player.oid.PlayerName == "Chim" || player.oid.PlayerName == "test")
         {
-         
+
           //NwItem armor = player.oid.ControlledCreature.GetItemInSlot(InventorySlot.Chest);
           //armor.AddItemProperty(ItemProperty.ACBonus(80), EffectDuration.Temporary, TimeSpan.FromSeconds(30));
           //armor.AddItemProperty(ItemProperty.ACBonusVsDmgType(IPDamageType.Physical, 20), EffectDuration.Temporary, TimeSpan.FromSeconds(30));
@@ -66,7 +66,7 @@ namespace NWN.Systems
 
           //SpellSystem.ApplyCustomEffectToTarget(SpellSystem.frog, player.oid.LoginCreature, TimeSpan.FromSeconds(10));
 
-          //player.oid.EnterTargetMode(OnTargetSelected, ObjectTypes.Item, MouseCursor.PickupDown);
+          player.oid.EnterTargetMode(OnTargetSelected, ObjectTypes.Creature, MouseCursor.Talk);
         }
       }
     }
@@ -88,10 +88,13 @@ namespace NWN.Systems
       if (selection.IsCancelled)
         return;
 
-      Log.Info($"type : {selection.TargetObject.GetType()}");
-
-      if (selection.TargetObject is not NwItem)
+      if (selection.TargetObject is not NwCreature creature || !PlayerSystem.Players.TryGetValue(selection.Player.LoginCreature, out PlayerSystem.Player player))
         return;
+
+      if (player.windows.ContainsKey("editorPNJ"))
+        ((PlayerSystem.Player.EditorPNJWindow)player.windows["editorPNJ"]).CreateWindow(creature);
+      else
+        player.windows.Add("editorPNJ", new PlayerSystem.Player.EditorPNJWindow(player, creature));
     }
     /* public static String Translate(String word)
      {

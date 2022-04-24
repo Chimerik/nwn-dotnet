@@ -96,8 +96,8 @@ namespace NWN.Systems
               chatLine.textHistory.Add(chatLine.text);
               chatLine.text = chatText + "[modifié]";
 
-              foreach (KeyValuePair<uint, Player> kvp in Players.Where(p => p.Value.readChatLines.Contains(chatLine) && p.Value.openedWindows.ContainsKey("chatReader")))
-                ((ChatReaderWindow)kvp.Value.windows["chatReader"]).UpdateChat();
+              foreach (Player target in Players.Values.Where(p => p.readChatLines.Contains(chatLine) && p.openedWindows.ContainsKey("chatReader")))
+                ((ChatReaderWindow)target.windows["chatReader"]).UpdateChat();
 
               break;
 

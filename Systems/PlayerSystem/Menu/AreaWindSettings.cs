@@ -14,8 +14,8 @@ namespace NWN.Systems
     {
       public class AreaWindSettings : PlayerWindow
       {
-        private readonly NuiRow rootRow = new NuiRow();
-        private readonly List<NuiElement> rootChildren = new List<NuiElement>();
+        private readonly NuiColumn rootCol = new ();
+        private readonly List<NuiElement> rootChildren = new ();
 
         private readonly NuiBind<string> directionX = new ("directionX");
         private readonly NuiBind<string> directionY = new ("directionY");
@@ -25,9 +25,7 @@ namespace NWN.Systems
         public AreaWindSettings(Player player) : base(player)
         {
           windowId = "areaWindSettings";
-
-          rootRow.Children = rootChildren;
-
+          rootCol.Children = rootChildren;
           CreateWindow();
         }
         public void CreateWindow()
@@ -48,7 +46,7 @@ namespace NWN.Systems
 
           NuiRect windowRectangle = player.windowRectangles.ContainsKey(windowId) ? player.windowRectangles[windowId] : new NuiRect(10, player.oid.GetDeviceProperty(PlayerDeviceProperty.GuiHeight) * 0.01f, 400, 100);
 
-          window = new NuiWindow(rootRow, $"Vent : {player.oid.ControlledCreature.Area.Name}")
+          window = new NuiWindow(rootCol, $"Vent : {player.oid.ControlledCreature.Area.Name}")
           {
             Geometry = geometry,
             Resizable = false,

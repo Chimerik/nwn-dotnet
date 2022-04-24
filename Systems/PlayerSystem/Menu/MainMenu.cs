@@ -165,14 +165,6 @@ namespace NWN.Systems
 
                   break;
 
-                case "commend":
-
-                  player.oid.SendServerMessage("Veuillez sélectionner le joueur que vous souhaitez recommander.", ColorConstants.Orange);
-                  player.oid.EnterTargetMode(OnTargetSelected, ObjectTypes.Creature, MouseCursor.Magic);
-                  CloseWindow();
-
-                  break;
-
                 case "itemAppearance":
 
                   if (player.windows.ContainsKey("itemAppearances"))
@@ -396,52 +388,6 @@ namespace NWN.Systems
             return true;
           else
             return false;
-        }
-        private void OnTargetSelected(ModuleEvents.OnPlayerTarget selection)
-        {
-          if (selection.IsCancelled || selection.TargetObject.IsPlayerControlled(out NwPlayer oPC) || oPC == null || !PlayerSystem.Players.TryGetValue(oPC.LoginCreature, out Player commendTarget))
-            return;
-
-          if (commendTarget.bonusRolePlay < 4)
-          {
-            commendTarget.oid.SendServerMessage("Vous venez d'obtenir une recommandation pour une augmentation de bonus roleplay !", ColorConstants.Rose);
-
-            if (commendTarget.bonusRolePlay == 1)
-            {
-              commendTarget.bonusRolePlay = 2;
-              commendTarget.oid.SendServerMessage("Votre bonus roleplay est désormais de 2", new Color(32, 255, 32));
-
-              SqLiteUtils.UpdateQuery("PlayerAccounts",
-              new List<string[]>() { new string[] { "bonusRolePlay", commendTarget.bonusRolePlay.ToString() } },
-              new List<string[]>() { new string[] { "rowid", commendTarget.accountId.ToString() } });
-            }
-
-            Utils.LogMessageToDMs($"{selection.Player.LoginCreature.Name} vient de recommander {oPC.LoginCreature.Name} pour une augmentation de bonus roleplay.");
-          }
-
-          commendTarget.oid.SendServerMessage($"Vous venez de recommander {oPC.LoginCreature.Name.ColorString(ColorConstants.White)} pour une augmentation de bonus roleplay !", ColorConstants.Rose);
-        }
-        private void OnListenTargetSelected(ModuleEvents.OnPlayerTarget selection)
-        {
-          if (selection.IsCancelled || !Players.TryGetValue(selection.Player.LoginCreature, out Player player))
-            return;
-
-          if (selection.TargetObject is not NwCreature oPC || oPC.ControllingPlayer.IsDM)
-          {
-            selection.Player.SendServerMessage("La cible de l'écoute doit être un joueur.", ColorConstants.Orange);
-            return;
-          }
-
-          if (player.listened.Contains(oPC.ControllingPlayer))
-          {
-            player.listened.Remove(oPC.ControllingPlayer);
-            selection.Player.SendServerMessage($"{oPC.ControllingPlayer.PlayerName.ColorString(ColorConstants.White)} vient d'être retiré de votre liste d'écoute.", ColorConstants.Rose);
-          }
-          else
-          {
-            player.listened.Add(oPC.ControllingPlayer);
-            selection.Player.SendServerMessage($"{oPC.ControllingPlayer.PlayerName.ColorString(ColorConstants.White)} vient d'être ajouté à votre liste d'écoute.", ColorConstants.Rose);
-          }
         }
         private void RenameTarget(ModuleEvents.OnPlayerTarget selection)
         {

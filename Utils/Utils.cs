@@ -365,6 +365,26 @@ namespace NWN
       { "giveSkillbook", new MainMenuCommand("Don de skillbook", "", CommandRank.Admin) } // TODO : Ajouter à OnExamine Player
     };
 
+    public static readonly List<NuiComboEntry> raceList = new();
+    public static readonly List<NuiComboEntry> apparenceList = new();
+    public static readonly List<NuiComboEntry> genderList = new();
+    public static readonly List<NuiComboEntry> soundSetList = new();
+    public static readonly List<NuiComboEntry> factionList = new();
+    public static readonly List<NuiComboEntry> movementRateList = new();
+
+    public static double GetDamageMultiplier(double targetAC)
+    {
+      return Math.Pow(0.5, (targetAC - 60) / 40);
+    }
+
+    public static int GetDodgeChance(NwCreature creature)
+    {
+      int skillBonusDodge = PlayerSystem.Players.TryGetValue(creature, out PlayerSystem.Player player) && player.learnableSkills.ContainsKey(CustomSkill.ImprovedDodge) ? 2 * player.learnableSkills[CustomSkill.ImprovedDodge].totalPoints : 0;
+      skillBonusDodge += creature.KnowsFeat(Feat.Dodge) ? 2 : 0;
+      skillBonusDodge += creature.GetAbilityModifier(Ability.Dexterity) - creature.ArmorCheckPenalty - creature.ShieldCheckPenalty;
+      return skillBonusDodge < 0 ? 0 : skillBonusDodge;
+    }
+
     public enum CommandRank
     {
       Public,

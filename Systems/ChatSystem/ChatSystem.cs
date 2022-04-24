@@ -17,6 +17,8 @@ namespace NWN.Systems
     public static ChatService chatService { get; set; }
     private static string areaName = "";
     private static Dictionary<NwPlayer, string> chatReceivers = new Dictionary<NwPlayer, string>();
+    private static PlayerSystem.Player playerSender;
+    private static PlayerSystem.Player targetPlayer;
     //public static List<ChatLine> globalChat = new List<ChatLine>();
 
     public ChatSystem(ChatService customChatService)
@@ -33,8 +35,13 @@ namespace NWN.Systems
       if (!(onChat.Sender is NwCreature oSender) || oSender.GetObjectVariable<LocalVariableString>("_AWAITING_PLAYER_INPUT").HasValue)
         return;
 
-      if (!oSender.IsPlayerControlled || !PlayerSystem.Players.TryGetValue(oSender.ControllingPlayer.LoginCreature, out PlayerSystem.Player player))
+      if (!oSender.IsPlayerControlled || !PlayerSystem.Players.TryGetValue(oSender.ControllingPlayer.LoginCreature, out playerSender))
         return;
+
+      if(onChat.Target != null && PlayerSystem.Players.TryGetValue(onChat.Target.LoginCreature, out targetPlayer))
+      {
+
+      }
 
       if (oSender.Area != null)
         areaName = oSender.Area.Name;
@@ -49,7 +56,7 @@ namespace NWN.Systems
         oTarget: onChat.Target,
         channel: onChat.ChatChannel,
         onChat: onChat,
-        language: player.currentLanguage
+        language: playerSender.currentLanguage
       ));
     }
 
@@ -119,9 +126,9 @@ namespace NWN.Systems
     }
     public static void ProcessMutePMMiddleware(Context ctx, Action next)
     {
-      if (ctx.oTarget != null && PlayerSystem.Players.TryGetValue(ctx.oTarget.LoginCreature, out PlayerSystem.Player targetPlayer) && PlayerSystem.Players.TryGetValue(ctx.oSender.LoginCreature, out PlayerSystem.Player player))
+      if (ctx.oTarget != null)
       {
-        if (targetPlayer.mutedList.Count() > 0 && !ctx.oSender.IsDM && (targetPlayer.mutedList.Contains(player.accountId) || targetPlayer.mutedList.Contains(0)))
+        if (targetPlayer.mutedList.Count() > 0 && !ctx.oSender.IsDM && (targetPlayer.mutedList.Contains(playerSender.accountId) || targetPlayer.mutedList.Contains(0)))
         {
           ctx.onChat.Skip = true;
           ctx.oSender.SendServerMessage($"{ctx.oTarget.LoginCreature.Name.ColorString(ColorConstants.White)} ne souhaite actuellement pas recevoir de mp.", ColorConstants.Red);
@@ -150,7 +157,7 @@ namespace NWN.Systems
       //SYSTEME DE RECOPIE DE CHAT POUR LES DMS
       if (ctx.channel == ChatChannel.PlayerTalk || ctx.channel == ChatChannel.PlayerWhisper)
       {
-        foreach (NwPlayer oDM in NwModule.Instance.Players.Where(d => d.IsDM || d.PlayerName == "Chim"))
+        foreach (NwPlayer oDM in NwModule.Instance.Players.Where(d => d.IsConnected && (d.IsDM || d.PlayerName == "Chim")))
         {
           if (PlayerSystem.Players.TryGetValue(oDM.LoginCreature, out PlayerSystem.Player dungeonMaster))
           {
@@ -265,21 +272,18 @@ namespace NWN.Systems
 
         if (ctx.chatLine.category == ChatLine.ChatCategory.Private)
         {
-          if (PlayerSystem.Players.TryGetValue(ctx.oSender.LoginCreature, out PlayerSystem.Player player))
-          {
-            if (player.readChatLines.Count > 150)
-              player.readChatLines.RemoveAt(0);
+          if (playerSender.readChatLines.Count > 150)
+            playerSender.readChatLines.RemoveAt(0);
 
-            player.readChatLines.Add(ctx.chatLine);
-          }
+          playerSender.readChatLines.Add(ctx.chatLine);
 
           if (receiver.openedWindows.ContainsKey(ctx.oSender.PlayerName))
             ((PlayerSystem.Player.PrivateMessageWindow)receiver.windows[ctx.oSender.PlayerName]).InsertNewChatInWindow(ctx.chatLine);
           else if (receiver.openedWindows.ContainsKey("chatReader"))
             ((PlayerSystem.Player.ChatReaderWindow)receiver.windows["chatReader"]).HandleNewPM(ctx.oSender.PlayerName);
 
-          if (player.openedWindows.ContainsKey(ctx.oTarget.PlayerName))
-            ((PlayerSystem.Player.PrivateMessageWindow)player.windows[ctx.oTarget.PlayerName]).InsertNewChatInWindow(ctx.chatLine);
+          if (playerSender.openedWindows.ContainsKey(ctx.oTarget.PlayerName))
+            ((PlayerSystem.Player.PrivateMessageWindow)playerSender.windows[ctx.oTarget.PlayerName]).InsertNewChatInWindow(ctx.chatLine);
         }
 
         string coloredChat = chatReceiver.Value;

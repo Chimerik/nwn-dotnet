@@ -5,7 +5,6 @@ using System.Threading.Tasks;
 
 using Anvil.API;
 using Anvil.API.Events;
-using Anvil.Services;
 
 using Newtonsoft.Json;
 
@@ -45,7 +44,7 @@ namespace NWN.Systems
         public PlayerListWindow(Player player) : base(player)
         {
           windowId = "playerList";
-
+          
           rowTemplate.Add(new NuiListTemplateCell(new NuiLabel(playerNames) { Tooltip = areaNames, Height = 35, VerticalAlign = NuiVAlign.Middle }) { VariableSize = true });
           rowTemplate.Add(new NuiListTemplateCell(new NuiButtonImage("ir_dialog") { Id = "mp", Tooltip = "Ouvrir un canal privé", Height = 35 }) { Width = 35 });
           rowTemplate.Add(new NuiListTemplateCell(new NuiButtonImage("ir_invite") { Id = "party", Tooltip = "Inviter à rejoindre le groupe", Enabled = partyInviteEnabled, Height = 35 }) { Width = 35 });
@@ -414,10 +413,10 @@ namespace NWN.Systems
               brpLabel = playerObject.bonusRolePlay < 4 ? $"Augmenter le bonus roleplay au niveau {playerObject.bonusRolePlay + 1}" : "Bonus roleplay niveau max (4)";
               brpDownLabel = playerObject.bonusRolePlay > 0 ? $"Diminuer le bonus roleplay au niveau {playerObject.bonusRolePlay - 1}" : "Bonus roleplay niveau min (0)";
 
-              muteEnabledList.Add(false);
+              muteEnabledList.Add(true);
             }
             else
-              muteEnabledList.Add(true);
+              muteEnabledList.Add(false);
 
             if (player.mutedList.Contains(playerObject.accountId))
             {

@@ -385,19 +385,22 @@ namespace NWN.Systems
 
             case GUIPanel.Journal:
 
-              if (player.windows.ContainsKey("mainMenu"))
-                ((Player.MainMenuWindow)player.windows["mainMenu"]).CreateWindow();
-              else
-                player.windows.Add("mainMenu", new Player.MainMenuWindow(player));
+
+              if(!player.openedWindows.ContainsKey("mainMenu"))
+                if (player.windows.ContainsKey("mainMenu"))
+                  ((Player.MainMenuWindow)player.windows["mainMenu"]).CreateWindow();
+                else
+                  player.windows.Add("mainMenu", new Player.MainMenuWindow(player));
 
               return;
 
             case GUIPanel.PlayerList:
 
-              if (player.windows.ContainsKey("playerList"))
-                ((Player.PlayerListWindow)player.windows["playerList"]).CreateWindow();
-              else
-                player.windows.Add("playerList", new Player.PlayerListWindow(player));
+              if (!player.openedWindows.ContainsKey("playerList"))
+                if (player.windows.ContainsKey("playerList"))
+                  ((Player.PlayerListWindow)player.windows["playerList"]).CreateWindow();
+                else
+                  player.windows.Add("playerList", new Player.PlayerListWindow(player));
 
               return;
           }

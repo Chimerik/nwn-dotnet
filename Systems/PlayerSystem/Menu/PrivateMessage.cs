@@ -17,11 +17,11 @@ namespace NWN.Systems
         private readonly float characterWidth = 8 /* oid.GetDeviceProperty(PlayerDeviceProperty.GuiScale) / 100*/;
         private readonly float spaceWidth = 4;
         private readonly float characterHeight = 18 /* oid.GetDeviceProperty(PlayerDeviceProperty.GuiScale) / 100*/;
-        private readonly NuiGroup chatReaderGroup;
-        private readonly NuiColumn rootColumn;
-        private readonly NuiColumn colChatLog;
-        private readonly List<NuiElement> colChatLogChidren;
-        private readonly NuiRow settingsRow;
+        private readonly NuiGroup chatReaderGroup = new () { Id = "chatReaderGroup", Border = false, Scrollbars = NuiScrollbars.Y };
+        private readonly NuiColumn rootColumn = new ();
+        private readonly NuiColumn colChatLog = new();
+        private readonly List<NuiElement> colChatLogChidren = new();
+        private readonly NuiRow settingsRow = new();
         private readonly NuiBind<string> writingChat = new ("writingChat");
         private readonly NuiBind<bool> makeStatic = new ("static");
         public bool read { get; set; }
@@ -30,17 +30,16 @@ namespace NWN.Systems
         {
           windowId = receiver.PlayerName;
 
-          List<NuiElement> colChidren = new List<NuiElement>();
-          rootColumn = new NuiColumn() { Children = colChidren };
-          colChatLog = new NuiColumn() { Children = colChatLogChidren };
-          colChatLogChidren = new List<NuiElement>();
+          List<NuiElement> rootChidren = new List<NuiElement>();
+          rootColumn.Children = rootChidren;
+          colChatLog.Children = colChatLogChidren;
 
-          chatReaderGroup = new NuiGroup() { Id = "chatReaderGroup", Border = false, Layout = colChatLog, Scrollbars = NuiScrollbars.Y };
-          colChidren.Add(chatReaderGroup);
+          chatReaderGroup.Layout = colChatLog;
+          rootChidren.Add(chatReaderGroup);
 
           List<NuiElement> settingsRowChildren = new List<NuiElement>();
-          settingsRow = new NuiRow() { Children = settingsRowChildren };
-          colChatLogChidren.Add(settingsRow);
+          settingsRow.Children = settingsRowChildren;
+          rootChidren.Add(settingsRow);
 
           settingsRowChildren.Add(new NuiCheck("Figer", makeStatic) { Id = "fix", Tooltip = "Permet d'ancrer la fenêtre à l'écran", Width = 60 });
           settingsRowChildren.Add(new NuiTextEdit("", writingChat, 3000, true) { Id = "chatWriter", Height = 45, Tooltip = "Espace + entrée pour ajouter un saut de ligne." });
@@ -116,7 +115,7 @@ namespace NWN.Systems
                 return;
 
               colChatLogChidren.Clear();
-              colChatLogChidren.Add(settingsRow);
+              //colChatLogChidren.Add(settingsRow);
               CreateChatRows();
               chatReaderGroup.SetLayout(player.oid, token, colChatLog);
 
@@ -196,6 +195,8 @@ namespace NWN.Systems
           }
 
           ChatSystem.chatService.SendMessage(!player.oid.IsDM ? ChatChannel.PlayerTell : ChatChannel.DmTell, message, player.oid.ControlledCreature, target);
+
+          UpdateChat();
         }
 
         private void CreateChatRows()
@@ -217,7 +218,7 @@ namespace NWN.Systems
         public void UpdateChat()
         {
           colChatLogChidren.Clear();
-          colChatLogChidren.Add(settingsRow);
+          //colChatLogChidren.Add(settingsRow);
 
           CreateChatRows();
 

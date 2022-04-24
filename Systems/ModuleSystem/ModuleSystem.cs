@@ -50,6 +50,7 @@ namespace NWN.Systems
       InitializeEvents();
 
       SkillSystem.InitializeLearnables();
+      LoadEditorNuiCombo();
       NwModule.Instance.OnModuleLoad += OnModuleLoad;
     }
     private static async void LoadDiscordBot()
@@ -697,6 +698,42 @@ namespace NWN.Systems
 
       if (effectApplied.Object is NwGameObject gameObject && !player.effectTargets.Contains(gameObject))
         player.effectTargets.Add(gameObject);
+    }
+    private void LoadEditorNuiCombo()
+    {
+      foreach (RacialType racialType in (RacialType[])Enum.GetValues(typeof(RacialType)))
+        if (racialType != RacialType.Invalid && racialType != RacialType.All)
+          Utils.raceList.Add(new NuiComboEntry(NwRace.FromRacialType(racialType).Name, (int)racialType));
+
+      Utils.raceList.OrderBy(r => r.Label);
+
+      foreach (var entry in NwGameTables.AppearanceTable)
+        if (entry.Label != null)
+          Utils.apparenceList.Add(new NuiComboEntry(entry.Label, entry.RowIndex));
+
+      Utils.apparenceList.OrderBy(r => r.Label);
+
+      foreach (Gender genderType in (Gender[])Enum.GetValues(typeof(Gender)))
+      {
+        switch(genderType)
+        {
+          case Gender.Male: Utils.genderList.Add(new NuiComboEntry("Masculin", (int)genderType)); break;
+          case Gender.Female: Utils.genderList.Add(new NuiComboEntry("Féminin", (int)genderType)); break;
+          case Gender.Both: Utils.genderList.Add(new NuiComboEntry("Les deux", (int)genderType)); break;
+          case Gender.None: Utils.genderList.Add(new NuiComboEntry("Aucun", (int)genderType)); break;
+          case Gender.Other: Utils.genderList.Add(new NuiComboEntry("Autre", (int)genderType)); break;
+        }
+      }
+
+      foreach (var entry in SoundSet2da.ambientMusicTable)
+        if (!string.IsNullOrEmpty(entry.label))
+          Utils.soundSetList.Add(new NuiComboEntry(entry.label, entry.RowIndex));
+
+      foreach (StandardFaction faction in (StandardFaction[])Enum.GetValues(typeof(StandardFaction)))
+          Utils.factionList.Add(new NuiComboEntry(faction.ToString(), (int)faction));
+
+      foreach (MovementRate movement in (MovementRate[])Enum.GetValues(typeof(MovementRate)))
+        Utils.movementRateList.Add(new NuiComboEntry(movement.ToString(), (int)movement));
     }
   }
 }

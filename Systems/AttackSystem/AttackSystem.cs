@@ -704,8 +704,7 @@ namespace NWN.Systems
         if (targetAC < 0) targetAC = 0;
 
         double initialDamage = Config.GetContextDamage(ctx, damageType);
-        double multiplier = Math.Pow(0.5, (targetAC - 60) / 40);
-        double modifiedDamage = initialDamage * multiplier;
+        double modifiedDamage = initialDamage * Utils.GetDamageMultiplier(targetAC);
 
         if (ctx.oTarget.Tag == "damage_trainer" && ctx.oAttacker.IsPlayerControlled)
         {
