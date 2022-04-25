@@ -189,6 +189,7 @@ namespace NWN.Systems
       uint spellId = onSpellCast.Spell.Id;
 
       HandleSpellDamageLocalisation(onSpellCast.Spell.SpellType, onSpellCast.Caster);
+      HandleCasterLevel(onSpellCast.Caster, onSpellCast.Spell.SpellType);
 
       if (!(callInfo.ObjectSelf is NwCreature { IsPlayerControlled: true } oPC) || !PlayerSystem.Players.TryGetValue(oPC, out PlayerSystem.Player player))
       {
@@ -197,22 +198,6 @@ namespace NWN.Systems
 
           return;
       }
-
-      CreaturePlugin.SetClassByPosition(oPC, 0, 43);
-      
-      oPC.GetObjectVariable<LocalVariableInt>("_DELAYED_SPELLHOOK_REFLEX").Value = oPC.GetBaseSavingThrow(SavingThrow.Reflex);
-      oPC.GetObjectVariable<LocalVariableInt>("_DELAYED_SPELLHOOK_WILL").Value = oPC.GetBaseSavingThrow(SavingThrow.Will);
-      oPC.GetObjectVariable<LocalVariableInt>("_DELAYED_SPELLHOOK_FORT").Value = oPC.GetBaseSavingThrow(SavingThrow.Fortitude);
-      
-      if (player.learnableSkills.ContainsKey(CustomSkill.ImprovedCasterLevel))
-        CreaturePlugin.SetLevelByPosition(oPC, 0, player.learnableSkills[CustomSkill.ImprovedCasterLevel].totalPoints);
-
-      ClassType castingClass = GetCastingClass(onSpellCast.Spell.SpellType);
-
-      if ((int)castingClass == 43 && oPC.GetAbilityScore(Ability.Charisma) > oPC.GetAbilityScore(Ability.Intelligence))
-        castingClass = ClassType.Sorcerer;
-
-      CreaturePlugin.SetClassByPosition(oPC, 0, (int)castingClass);
 
       if(onSpellCast.Spell.ImpactScript == "on_ench_cast")
       {
@@ -280,11 +265,45 @@ namespace NWN.Systems
           break;
       }
 
-      NWScript.DelayCommand(0.0f, () => DelayedSpellHook(oPC));
       NWScript.DelayCommand(0.0f, () => DelayedTagAoE(player, spellId));
+    }
+    private void HandleCasterLevel(NwGameObject caster, Spell spell)
+    {
+      if (caster is not NwCreature castingCreature)
+        return;
+
+      int casterLevel = 0;
+
+      if(PlayerSystem.Players.TryGetValue(castingCreature, out PlayerSystem.Player player))
+        casterLevel = player.learnableSkills.ContainsKey(CustomSkill.ImprovedCasterLevel) ? player.learnableSkills[CustomSkill.ImprovedCasterLevel].totalPoints : 0;
+      else
+        if (castingCreature.GetObjectVariable<LocalVariableInt>("_CREATURE_CASTER_LEVEL").HasValue)
+          casterLevel = castingCreature.GetObjectVariable<LocalVariableInt>("_CREATURE_CASTER_LEVEL").Value;
+        else
+          return;
+
+      CreaturePlugin.SetClassByPosition(castingCreature, 0, 43);
+
+      castingCreature.GetObjectVariable<LocalVariableInt>("_DELAYED_SPELLHOOK_REFLEX").Value = castingCreature.GetBaseSavingThrow(SavingThrow.Reflex);
+      castingCreature.GetObjectVariable<LocalVariableInt>("_DELAYED_SPELLHOOK_WILL").Value = castingCreature.GetBaseSavingThrow(SavingThrow.Will);
+      castingCreature.GetObjectVariable<LocalVariableInt>("_DELAYED_SPELLHOOK_FORT").Value = castingCreature.GetBaseSavingThrow(SavingThrow.Fortitude);
+
+      CreaturePlugin.SetLevelByPosition(castingCreature, 0, casterLevel);
+
+      ClassType castingClass = GetCastingClass(spell);
+
+      if ((int)castingClass == 43 && castingCreature.GetAbilityScore(Ability.Charisma) > castingCreature.GetAbilityScore(Ability.Intelligence))
+        castingClass = ClassType.Sorcerer;
+
+      CreaturePlugin.SetClassByPosition(castingCreature, 0, (int)castingClass);
+
+      NWScript.DelayCommand(0.0f, () => DelayedSpellHook(castingCreature));
     }
     private void DelayedSpellHook(NwCreature player)
     {
+      if (!player.IsValid)
+        return;
+
       CreaturePlugin.SetLevelByPosition(player, 0, 1);
       CreaturePlugin.SetClassByPosition(player, 0, 43);
       player.SetBaseSavingThrow(SavingThrow.Reflex, (sbyte)player.GetObjectVariable<LocalVariableInt>("_DELAYED_SPELLHOOK_REFLEX").Value);

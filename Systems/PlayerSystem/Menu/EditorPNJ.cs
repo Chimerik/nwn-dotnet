@@ -5,8 +5,6 @@ using System.Linq;
 using Anvil.API;
 using Anvil.API.Events;
 
-using NWN.Core;
-
 namespace NWN.Systems
 {
   public partial class PlayerSystem
@@ -53,15 +51,29 @@ namespace NWN.Systems
         private readonly NuiBind<string> wisdom = new("wisdom");
         private readonly NuiBind<string> charisma = new("charisma");
 
+        private readonly NuiBind<string> strengthModifier = new("strengthModifier");
+        private readonly NuiBind<string> dexterityModifier = new("dexterityModifier");
+        private readonly NuiBind<string> constitutionModifier = new("constitutionModifier");
+        private readonly NuiBind<string> intelligenceModifier = new("intelligenceModifier");
+        private readonly NuiBind<string> wisdomModifier = new("wisdomModifier");
+        private readonly NuiBind<string> charismaModifier = new("charismaModifier");
+
         private readonly NuiBind<string> fortitude = new("fortitude");
         private readonly NuiBind<string> reflex = new("reflex");
         private readonly NuiBind<string> will = new("will");
+        private readonly NuiBind<string> fortitudeTooltip = new("fortitudeTooltip");
+        private readonly NuiBind<string> reflexTooltip = new("reflexTooltip");
+        private readonly NuiBind<string> willTooltip = new("willTooltip");
 
         private readonly NuiBind<string> naturalAC = new("naturalAC"); // TOOLTIP : ajouter % réduction de dégâts
         private readonly NuiBind<string> naturalACTooltip = new("naturalACTooltip");
         private readonly NuiBind<string> dodgeChance = new("dodgeChance");
         private readonly NuiBind<string> hitPoints = new("hitPoints");
         private readonly NuiBind<int> movementRateSelected = new("movementRateSelected");
+
+        private readonly NuiBind<string> armorPenetration = new("armorPenetration");
+        private readonly NuiBind<string> attackPerRound = new("attackPerRound");
+        private readonly NuiBind<string> spellCasterLevel = new("spellCasterLevel");
 
         public EditorPNJWindow(Player player, NwCreature targetCreature) : base(player)
         {
@@ -79,7 +91,7 @@ namespace NWN.Systems
 
           NuiRect windowRectangle = player.windowRectangles.ContainsKey(windowId) ? player.windowRectangles[windowId] : new NuiRect(10, player.oid.GetDeviceProperty(PlayerDeviceProperty.GuiHeight) * 0.01f, 410, 500);
 
-          window = new NuiWindow(rootGroup, "Editeur de PNJ")
+          window = new NuiWindow(rootGroup, $"Modification de {targetCreature.Name}")
           {
             Geometry = geometry,
             Resizable = false,
@@ -201,8 +213,11 @@ namespace NWN.Systems
 
                 case "strength":
                   if (byte.TryParse(strength.GetBindValue(player.oid, token), out byte newStrength))
+                  {
                     targetCreature.SetsRawAbilityScore(Ability.Strength, (byte)(newStrength - targetCreature.Race.GetAbilityAdjustment(Ability.Strength)));
-                    break;
+                    strengthModifier.SetBindValue(player.oid, token, targetCreature.GetAbilityModifier(Ability.Strength).ToString());
+                  }
+                  break;
 
                 case "dexterity":
                   if (byte.TryParse(dexterity.GetBindValue(player.oid, token), out byte newDeterity))
@@ -210,6 +225,8 @@ namespace NWN.Systems
                     targetCreature.SetsRawAbilityScore(Ability.Dexterity, (byte)(newDeterity - targetCreature.Race.GetAbilityAdjustment(Ability.Dexterity)));
                     reflex.SetBindValue(player.oid, token, targetCreature.GetBaseSavingThrow(SavingThrow.Reflex).ToString());
                     dodgeChance.SetBindValue(player.oid, token, Utils.GetDodgeChance(targetCreature).ToString());
+                    dexterityModifier.SetBindValue(player.oid, token, targetCreature.GetAbilityModifier(Ability.Dexterity).ToString());
+                    reflexTooltip.SetBindValue(player.oid, token, $"Total avec modificateur : {targetCreature.GetBaseSavingThrow(SavingThrow.Reflex) + targetCreature.GetAbilityModifier(Ability.Dexterity)}");
                   }
                   break;
 
@@ -218,12 +235,17 @@ namespace NWN.Systems
                   {
                     targetCreature.SetsRawAbilityScore(Ability.Constitution, (byte)(newConstitution - targetCreature.Race.GetAbilityAdjustment(Ability.Constitution)));
                     fortitude.SetBindValue(player.oid, token, targetCreature.GetBaseSavingThrow(SavingThrow.Fortitude).ToString());
+                    constitutionModifier.SetBindValue(player.oid, token, targetCreature.GetAbilityModifier(Ability.Constitution).ToString());
+                    fortitudeTooltip.SetBindValue(player.oid, token, $"Total avec modificateur : {targetCreature.GetBaseSavingThrow(SavingThrow.Fortitude) + targetCreature.GetAbilityModifier(Ability.Constitution)}");
                   }
                   break;
 
                 case "intelligence":
                   if (byte.TryParse(intelligence.GetBindValue(player.oid, token), out byte newIntelligence))
+                  {
                     targetCreature.SetsRawAbilityScore(Ability.Intelligence, (byte)(newIntelligence - targetCreature.Race.GetAbilityAdjustment(Ability.Intelligence)));
+                    intelligenceModifier.SetBindValue(player.oid, token, targetCreature.GetAbilityModifier(Ability.Intelligence).ToString());
+                  }
                   break;
 
                 case "wisdom":
@@ -231,12 +253,17 @@ namespace NWN.Systems
                   {
                     targetCreature.SetsRawAbilityScore(Ability.Wisdom, (byte)(newWisdom - targetCreature.Race.GetAbilityAdjustment(Ability.Wisdom)));
                     will.SetBindValue(player.oid, token, targetCreature.GetBaseSavingThrow(SavingThrow.Will).ToString());
+                    wisdomModifier.SetBindValue(player.oid, token, targetCreature.GetAbilityModifier(Ability.Wisdom).ToString());
+                    willTooltip.SetBindValue(player.oid, token, $"Total avec modificateur : {targetCreature.GetBaseSavingThrow(SavingThrow.Will) + targetCreature.GetAbilityModifier(Ability.Wisdom)}");
                   }
                   break;
 
                 case "charisma":
                   if (byte.TryParse(charisma.GetBindValue(player.oid, token), out byte newCharisma))
+                  {
                     targetCreature.SetsRawAbilityScore(Ability.Charisma, (byte)(newCharisma - targetCreature.Race.GetAbilityAdjustment(Ability.Charisma)));
+                    charismaModifier.SetBindValue(player.oid, token, targetCreature.GetAbilityModifier(Ability.Charisma).ToString());
+                  }
                   break;
 
                 case "fortitude":
@@ -259,6 +286,47 @@ namespace NWN.Systems
                   {
                     targetCreature.BaseAC = newAC;
                     naturalACTooltip.SetBindValue(player.oid, token, $"La créature subit naturellement {(Utils.GetDamageMultiplier(targetCreature.AC) * 100).ToString("0.##")} % des dégâts");
+                  }
+                  break;
+
+                case "armorPenetration":
+                  if (byte.TryParse(armorPenetration.GetBindValue(player.oid, token), out byte newAP))
+                  {
+                    int previousAttackPerRound = targetCreature.BaseAttackCount;
+                    targetCreature.BaseAttackBonus = newAP;
+
+                    if (targetCreature.BaseAttackCount != previousAttackPerRound)
+                      targetCreature.BaseAttackCount = previousAttackPerRound;
+                  }
+                  break;
+
+                case "attackPerRound":
+                  if (int.TryParse(attackPerRound.GetBindValue(player.oid, token), out int newNBAttack))
+                  {
+                    if(newNBAttack < 1 || newNBAttack > 6)
+                    {
+                      newNBAttack = newNBAttack < 1 ? 1 : newNBAttack;
+                      newNBAttack = newNBAttack > 6 ? 6 : newNBAttack;
+
+                      attackPerRound.SetBindValue(player.oid, token, newNBAttack.ToString());
+                    }
+                    else                   
+                      targetCreature.BaseAttackCount = newNBAttack;
+                  }
+                  break;
+
+                case "spellCasterLevel":
+                  if (int.TryParse(armorPenetration.GetBindValue(player.oid, token), out int newCasterLevel))
+                  {
+                    if (newCasterLevel < 1 || newCasterLevel > 40)
+                    {
+                      newCasterLevel = newCasterLevel < 1 ? 1 : newCasterLevel;
+                      newCasterLevel = newCasterLevel > 40 ? 40 : newCasterLevel;
+
+                      spellCasterLevel.SetBindValue(player.oid, token, newCasterLevel.ToString());
+                    }
+                    else
+                      targetCreature.GetObjectVariable<LocalVariableInt>("_CREATURE_CASTER_LEVEL").Value = newCasterLevel;
                   }
                   break;
 
@@ -399,6 +467,9 @@ namespace NWN.Systems
 
           naturalAC.SetBindWatch(player.oid, token, false);
           hitPoints.SetBindWatch(player.oid, token, false);
+          armorPenetration.SetBindWatch(player.oid, token, false);
+          attackPerRound.SetBindWatch(player.oid, token, false);
+          spellCasterLevel.SetBindWatch(player.oid, token, false);
           movementRateSelected.SetBindWatch(player.oid, token, false);
         }
         private void LoadBaseBinding()
@@ -503,8 +574,15 @@ namespace NWN.Systems
           {
             Children = new List<NuiElement>()
             {
-              new NuiLabel("Force") { Height = 35, Width = 100, VerticalAlign = NuiVAlign.Middle },
-              new NuiTextEdit("Force", strength, 3, false) { Height = 35, Width = 70 }
+              new NuiButtonImage("ief_inc_str") { Height = 35, Width = 35, Tooltip = "Force" },
+              new NuiTextEdit("Force", strength, 3, false) { Height = 35, Width = 45, Tooltip = $"Bonus racial : {targetCreature.Race.GetAbilityAdjustment(Ability.Strength)}" },
+              new NuiTextEdit("Modificateur", strengthModifier, 3, false) { Height = 35, Width = 45, Enabled = false },
+              new NuiButtonImage("ir_guard") { Height = 35, Width = 35, Tooltip = "Classe d'armure naturelle" },
+              new NuiTextEdit("Classe d'Armure Naturelle", naturalAC, 3, false) { Height = 35, Width = 45, Tooltip = naturalACTooltip },
+              new NuiButtonImage("ief_acdecr") { Height = 35, Width = 35, Tooltip = "Pénétration d'armure" },
+              new NuiTextEdit("Pénétration d'armure", armorPenetration, 3, false) { Height = 35, Width = 45, Tooltip = "Les attaques de cette créature pénètre l'armure de la cible de 1 % par point" },
+              new NuiButtonImage("ir_flurry") { Height = 35, Width = 35, Tooltip = "Attaques par round" },
+              new NuiTextEdit("Attaques par round", attackPerRound, 3, false) { Height = 35, Width = 45, Tooltip = "Nombre d'attaques par round de la créature" }
             }
           });
 
@@ -512,8 +590,13 @@ namespace NWN.Systems
           {
             Children = new List<NuiElement>()
             {
-              new NuiLabel("Dextérité") { Height = 35, Width = 100, VerticalAlign = NuiVAlign.Middle },
-              new NuiTextEdit("Dextérité", dexterity, 3, false) { Height = 35, Width = 70 }
+              new NuiButtonImage("ief_inc_dex") { Height = 35, Width = 35, Tooltip = "Dextérité" },
+              new NuiTextEdit("Dextérité", dexterity, 3, false) { Height = 35, Width = 45, Tooltip = $"Bonus racial : {targetCreature.Race.GetAbilityAdjustment(Ability.Dexterity)}" },
+              new NuiTextEdit("Modificateur", dexterityModifier, 3, false) { Height = 35, Width = 45, Enabled = false },
+              new NuiButtonImage("ir_flee") { Height = 35, Width = 35, Tooltip = "Réflexes de base" },
+              new NuiTextEdit("Réflexes", reflex, 3, false) { Height = 35, Width = 45, Tooltip = reflexTooltip },
+              new NuiButtonImage("ife_dodge") { Height = 35, Width = 35, Tooltip = "Pourcentage de chance d'éviter totalement une attaque ou un sort" },
+              new NuiLabel(dodgeChance) { Height = 35, Width = 45, Tooltip = "Toute créature a 5 % de chance supplémentaire d'éviter une attaque d'une créature plus grande", VerticalAlign = NuiVAlign.Middle }
             }
           });
 
@@ -521,8 +604,13 @@ namespace NWN.Systems
           {
             Children = new List<NuiElement>()
             {
-              new NuiLabel("Constitution") { Height = 35, Width = 100, VerticalAlign = NuiVAlign.Middle },
-              new NuiTextEdit("Constitution", constitution, 3, false) { Height = 35, Width = 70 }
+              new NuiButtonImage("ief_inc_con") { Height = 35, Width = 35, Tooltip = "Constitution" },
+              new NuiTextEdit("Constitution", constitution, 3, false) { Height = 35, Width = 45, Tooltip = $"Bonus racial : {targetCreature.Race.GetAbilityAdjustment(Ability.Dexterity)}" },
+              new NuiTextEdit("Modificateur", constitutionModifier, 3, false) { Height = 35, Width = 45, Enabled = false },
+              new NuiButtonImage("ir_rage") { Height = 35, Width = 35, Tooltip = "Vigueur de base" },
+              new NuiTextEdit("Vigueur", fortitude, 3, false) { Height = 35, Width = 45, Tooltip = fortitudeTooltip },
+              new NuiButtonImage("ief_temphp") { Height = 35, Width = 35, Tooltip = "Hit Points" },
+              new NuiTextEdit("Hit Points", hitPoints, 4, false) { Height = 35, Width = 45 }
             }
           });
 
@@ -530,8 +618,11 @@ namespace NWN.Systems
           {
             Children = new List<NuiElement>()
             {
-              new NuiLabel("Intelligence") { Height = 35, Width = 100, VerticalAlign = NuiVAlign.Middle },
-              new NuiTextEdit("Intelligence", intelligence, 3, false) { Height = 35, Width = 70 }
+              new NuiButtonImage("ief_inc_int") { Height = 35, Width = 35, Tooltip = "Intelligence" },
+              new NuiTextEdit("Intelligence", intelligence, 3, false) { Height = 35, Width = 45, Tooltip = $"Bonus racial : {targetCreature.Race.GetAbilityAdjustment(Ability.Intelligence)}" },
+              new NuiTextEdit("Modificateur", intelligenceModifier, 3, false) { Height = 35, Width = 45, Enabled = false },
+              new NuiButtonImage("ir_dcaster") { Height = 35, Width = 35, Tooltip = "Niveau de lanceur de sorts" },
+              new NuiTextEdit("Niveau de lanceur de sorts", spellCasterLevel, 2, false) { Height = 35, Width = 45, Tooltip = "Définit la puissance et la durée des sorts lancés par cette créature" }
             }
           });
 
@@ -539,8 +630,11 @@ namespace NWN.Systems
           {
             Children = new List<NuiElement>()
             {
-              new NuiLabel("Sagesse") { Height = 35, Width = 100, VerticalAlign = NuiVAlign.Middle },
-              new NuiTextEdit("Sagesse", wisdom, 3, false) { Height = 35, Width = 70 }
+              new NuiButtonImage("ief_inc_wis") { Height = 35, Width = 35, Tooltip = "Sagesse" },
+              new NuiTextEdit("Sagesse", wisdom, 3, false) { Height = 35, Width = 45, Tooltip = $"Bonus racial : {targetCreature.Race.GetAbilityAdjustment(Ability.Wisdom)}" },
+              new NuiTextEdit("Modificateur", wisdomModifier, 3, false) { Height = 35, Width = 45, Enabled = false },
+              new NuiButtonImage("ir_reldom") { Height = 35, Width = 35, Tooltip = "Volonté de base" },
+              new NuiTextEdit("Volonté", will, 3, false) { Height = 35, Width = 45, Tooltip = willTooltip }
             }
           });
 
@@ -548,8 +642,9 @@ namespace NWN.Systems
           {
             Children = new List<NuiElement>()
             {
-              new NuiLabel("Charisme") { Height = 35, Width = 100, VerticalAlign = NuiVAlign.Middle },
-              new NuiTextEdit("Charisme", charisma, 3, false) { Height = 35, Width = 70 }
+              new NuiButtonImage("ief_inc_cha") { Height = 35, Width = 35, Tooltip = "Charisme" },
+              new NuiTextEdit("Charisme", charisma, 3, false) { Height = 35, Width = 45, Tooltip = $"Bonus racial : {targetCreature.Race.GetAbilityAdjustment(Ability.Charisma)}" },
+              new NuiTextEdit("Modificateur", charismaModifier, 3, false) { Height = 35, Width = 45, Enabled = false },
             }
           });
 
@@ -557,61 +652,7 @@ namespace NWN.Systems
           {
             Children = new List<NuiElement>()
             {
-              new NuiLabel("Vigueur") { Height = 35, Width = 100, VerticalAlign = NuiVAlign.Middle },
-              new NuiTextEdit("Vigueur", fortitude, 3, false) { Height = 35, Width = 70 }
-            }
-          });
-
-          rootChildren.Add(new NuiRow()
-          {
-            Children = new List<NuiElement>()
-            {
-              new NuiLabel("Réflexes") { Height = 35, Width = 100, VerticalAlign = NuiVAlign.Middle },
-              new NuiTextEdit("Réflexes", reflex, 3, false) { Height = 35, Width = 70 }
-            }
-          });
-
-          rootChildren.Add(new NuiRow()
-          {
-            Children = new List<NuiElement>()
-            {
-              new NuiLabel("Volonté") { Height = 35, Width = 100, VerticalAlign = NuiVAlign.Middle },
-              new NuiTextEdit("Volonté", will, 3, false) { Height = 35, Width = 70 }
-            }
-          });
-
-          rootChildren.Add(new NuiRow()
-          {
-            Children = new List<NuiElement>()
-            {
-              new NuiLabel("CA Naturelle") { Height = 35, Width = 100, VerticalAlign = NuiVAlign.Middle },
-              new NuiTextEdit("Classe d'Armure Naturelle", naturalAC, 3, false) { Height = 35, Width = 70, Tooltip = naturalACTooltip }
-            }
-          });
-
-          rootChildren.Add(new NuiRow()
-          {
-            Children = new List<NuiElement>()
-            {
-              new NuiLabel("Esquive") { Height = 35, Width = 100, VerticalAlign = NuiVAlign.Middle, Tooltip = "Pourcentage de chance d'éviter totalement une attaque ou un sort" },
-              new NuiLabel(dodgeChance) { Height = 35, Width = 70, Tooltip = "Toute créature a 5 % de chance supplémentaire d'éviter une attaque d'une créature plus grande", VerticalAlign = NuiVAlign.Middle }
-            }
-          });
-
-          rootChildren.Add(new NuiRow()
-          {
-            Children = new List<NuiElement>()
-            {
-              new NuiLabel("HP") { Height = 35, Width = 100, VerticalAlign = NuiVAlign.Middle, Tooltip = "Hit Points" },
-              new NuiTextEdit("Hit Points", hitPoints, 4, false) { Height = 35, Width = 70 }
-            }
-          });
-
-          rootChildren.Add(new NuiRow()
-          {
-            Children = new List<NuiElement>()
-            {
-              new NuiLabel("Vitesse") { Height = 35, Width = 100, VerticalAlign = NuiVAlign.Middle },
+              new NuiButtonImage("ief_moveincr") { Height = 35, Width = 35, Tooltip = "Vitesse de déplacement" },
               new NuiCombo() { Height = 35, Width = 200, Entries = Utils.movementRateList, Selected = movementRateSelected }
             }
           });
@@ -644,12 +685,26 @@ namespace NWN.Systems
           wisdom.SetBindValue(player.oid, token, targetCreature.GetAbilityScore(Ability.Wisdom, true).ToString());
           charisma.SetBindValue(player.oid, token, targetCreature.GetAbilityScore(Ability.Charisma, true).ToString());
 
+          strengthModifier.SetBindValue(player.oid, token, targetCreature.GetAbilityModifier(Ability.Strength).ToString());
+          dexterityModifier.SetBindValue(player.oid, token, targetCreature.GetAbilityModifier(Ability.Dexterity).ToString());
+          constitutionModifier.SetBindValue(player.oid, token, targetCreature.GetAbilityModifier(Ability.Constitution).ToString());
+          intelligenceModifier.SetBindValue(player.oid, token, targetCreature.GetAbilityModifier(Ability.Intelligence).ToString());
+          wisdomModifier.SetBindValue(player.oid, token, targetCreature.GetAbilityModifier(Ability.Wisdom).ToString());
+          charismaModifier.SetBindValue(player.oid, token, targetCreature.GetAbilityModifier(Ability.Charisma).ToString());
+
           fortitude.SetBindValue(player.oid, token, targetCreature.GetBaseSavingThrow(SavingThrow.Fortitude).ToString());
           reflex.SetBindValue(player.oid, token, targetCreature.GetBaseSavingThrow(SavingThrow.Reflex).ToString());
           will.SetBindValue(player.oid, token, targetCreature.GetBaseSavingThrow(SavingThrow.Will).ToString());
 
+          fortitudeTooltip.SetBindValue(player.oid, token, $"Total avec modificateur : {targetCreature.GetBaseSavingThrow(SavingThrow.Fortitude) + targetCreature.GetAbilityModifier(Ability.Constitution)}");
+          reflexTooltip.SetBindValue(player.oid, token, $"Total avec modificateur : {targetCreature.GetBaseSavingThrow(SavingThrow.Reflex) + targetCreature.GetAbilityModifier(Ability.Dexterity)}");
+          willTooltip.SetBindValue(player.oid, token, $"Total avec modificateur : {targetCreature.GetBaseSavingThrow(SavingThrow.Will) + targetCreature.GetAbilityModifier(Ability.Wisdom)}");
+
           naturalAC.SetBindValue(player.oid, token, targetCreature.BaseAC.ToString());
           naturalACTooltip.SetBindValue(player.oid, token, $"La créature subit naturellement {(Utils.GetDamageMultiplier(targetCreature.AC) * 100).ToString("0.##")} % des dégâts");
+          armorPenetration.SetBindValue(player.oid, token, targetCreature.BaseAttackBonus.ToString());
+          attackPerRound.SetBindValue(player.oid, token, targetCreature.BaseAttackCount.ToString());
+          spellCasterLevel.SetBindValue(player.oid, token, targetCreature.GetObjectVariable<LocalVariableInt>("_CREATURE_CASTER_LEVEL").Value.ToString());
 
           dodgeChance.SetBindValue(player.oid, token, Utils.GetDodgeChance(targetCreature).ToString());
           hitPoints.SetBindValue(player.oid, token, targetCreature.MaxHP.ToString());
@@ -667,6 +722,9 @@ namespace NWN.Systems
           will.SetBindWatch(player.oid, token, true);
 
           naturalAC.SetBindWatch(player.oid, token, true);
+          armorPenetration.SetBindWatch(player.oid, token, true);
+          attackPerRound.SetBindWatch(player.oid, token, true);
+          spellCasterLevel.SetBindWatch(player.oid, token, true);
           hitPoints.SetBindWatch(player.oid, token, true);
           movementRateSelected.SetBindWatch(player.oid, token, true);
         }
