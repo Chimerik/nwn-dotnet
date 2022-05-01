@@ -26,6 +26,9 @@ namespace NWN.Systems
         }
         public void CreateWindow(int spellId)
         {
+          if (player.openedWindows.ContainsKey(windowId))
+            player.oid.NuiDestroy(player.openedWindows[windowId]);
+
           rootChidren.Clear();
 
           NwSpell spell = NwSpell.FromSpellId(spellId);

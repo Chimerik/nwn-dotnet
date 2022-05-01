@@ -12,7 +12,7 @@ namespace NWN.Systems
     public string craftResRef { get; private set; }
     public int maxDex { get; private set; }
     public int ACPenalty { get; private set; }
-    public int arcaneFailure { get; private set; }
+    public byte arcaneFailure { get; private set; }
     public int craftLearnable { get; private set; }
 
     // RowIndex is already populated externally, and we do not need to assign it in InterpretEntry.
@@ -26,7 +26,7 @@ namespace NWN.Systems
       craftResRef = entry.GetString("CRAFTRESREF");
       maxDex = entry.GetInt("DEXBONUS").GetValueOrDefault(0);
       ACPenalty = entry.GetInt("ACCHECK").GetValueOrDefault(0);
-      arcaneFailure = entry.GetInt("ARCANEFAILURE").GetValueOrDefault(0);
+      arcaneFailure = (byte)entry.GetInt("ARCANEFAILURE%").GetValueOrDefault(0);
       craftLearnable = entry.GetInt("ACBONUS").GetValueOrDefault(-1);
     }
   }
@@ -47,6 +47,11 @@ namespace NWN.Systems
     public static string GetWorkshop(int baseACV)
     {
       return armorTable[baseACV].workshop;
+    }
+
+    public static byte GetArcaneSpellFailure(int baseACV)
+    {
+      return armorTable[baseACV].arcaneFailure;
     }
   }
 }

@@ -22,7 +22,7 @@ namespace NWN.Systems
           {
             spawnPoint.GetObjectVariable<LocalVariableBool>("_SPAWN_COOLDOWN").Value = true;
 
-            /*NwCreature creature = NwCreature.Deserialize(spawnPoint.GetObjectVariable<LocalVariableString>("creature").Value.ToByteArray());
+            NwCreature creature = NwCreature.Deserialize(spawnPoint.GetObjectVariable<LocalVariableString>("creature").Value.ToByteArray());
             if (creature != null)
             {
               Log.Info($"spawned : {creature.Name}");
@@ -32,7 +32,7 @@ namespace NWN.Systems
               creature.OnDeath += OnMobDeathResetSpawn;
               creature.GetObjectVariable<LocalVariableObject<NwWaypoint>>("_SPAWN").Value = spawnPoint;
               HandleSpawnSpecificBehaviour(creature);
-            }*/
+            }
           }
         }
 

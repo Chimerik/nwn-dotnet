@@ -106,15 +106,16 @@ namespace NWN.Systems
       if (this is LearnableSkill)
       {
         ((LearnableSkill)this).LevelUp(player);
+        player.oid.SendServerMessage($"Vous venez de terminer l'apprentissage de {name}, niveau {currentLevel} !");
       }
       else if (this is LearnableSpell)
       {
         ((LearnableSpell)this).LevelUp(player);
+        player.oid.SendServerMessage($"Vous venez de terminer l'apprentissage de {name} !");
       }
 
       spLastCalculation = null;
 
-      player.oid.SendServerMessage($"Vous venez de terminer l'apprentissage de {name}, niveau {currentLevel} !");
       await NwTask.WaitUntil(() => player.oid.LoginCreature.Area != null);
       await NwTask.Delay(TimeSpan.FromSeconds(2));
       player.oid.ApplyInstantVisualEffectToObject((VfxType)1516, player.oid.ControlledCreature);

@@ -29,7 +29,6 @@ namespace NWN.Systems
 
         if (player.oid.PlayerName == "Chim" || player.oid.PlayerName == "test")
         {
-
           //NwItem armor = player.oid.ControlledCreature.GetItemInSlot(InventorySlot.Chest);
           //armor.AddItemProperty(ItemProperty.ACBonus(80), EffectDuration.Temporary, TimeSpan.FromSeconds(30));
           //armor.AddItemProperty(ItemProperty.ACBonusVsDmgType(IPDamageType.Physical, 20), EffectDuration.Temporary, TimeSpan.FromSeconds(30));
@@ -91,10 +90,17 @@ namespace NWN.Systems
       if (selection.TargetObject is not NwCreature creature || !PlayerSystem.Players.TryGetValue(selection.Player.LoginCreature, out PlayerSystem.Player player))
         return;
 
-      if (player.windows.ContainsKey("editorPNJ"))
+      creature.SetsRawAbilityScore(Ability.Wisdom, 30);
+      creature.GetObjectVariable<LocalVariableInt>("_CREATURE_CASTER_LEVEL").Value = 87;
+      creature.AddSpecialAbility(new Anvil.API.SpecialAbility(NwSpell.FromSpellType(Spell.AcidFog), 15));
+      creature.AddSpecialAbility(new Anvil.API.SpecialAbility(NwSpell.FromSpellType(Spell.Aid), 15));
+      creature.AddSpecialAbility(new Anvil.API.SpecialAbility(NwSpell.FromSpellType(Spell.NegativeEnergyProtection), 15));
+      //CreaturePlugin.SetCasterLevelOverride(creature, 43, 21);
+
+      /*if (player.windows.ContainsKey("editorPNJ"))
         ((PlayerSystem.Player.EditorPNJWindow)player.windows["editorPNJ"]).CreateWindow(creature);
       else
-        player.windows.Add("editorPNJ", new PlayerSystem.Player.EditorPNJWindow(player, creature));
+        player.windows.Add("editorPNJ", new PlayerSystem.Player.EditorPNJWindow(player, creature));*/
     }
     /* public static String Translate(String word)
      {

@@ -64,7 +64,8 @@ namespace NWN.Systems
           geometry.SetBindValue(player.oid, token, windowRectangle);
           geometry.SetBindWatch(player.oid, token, true);
 
-          LoadSkillbookList(SkillSystem.learnableDictionary.Values.Where(s => s is LearnableSkill skill && skill.category != SkillSystem.Category.StartingTraits).ToList());
+          currentList = SkillSystem.learnableDictionary.Values.Where(s => s is LearnableSkill skill && skill.category != SkillSystem.Category.StartingTraits).ToList();
+          LoadSkillbookList(currentList);
         }
 
         private void HandleSkillbookGiftEvents(ModuleEvents.OnNuiEvent nuiEvent)

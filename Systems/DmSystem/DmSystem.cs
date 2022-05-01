@@ -50,7 +50,7 @@ namespace NWN.Systems
     public void HandleAfterDmJumpTarget(OnDMJumpTargetToPoint onJump)
     {
       foreach(NwGameObject target in onJump.Targets)
-        if(target is NwCreature targetCreature && targetCreature.Area.Tag == "LaBrume" && PlayerSystem.Players.TryGetValue(targetCreature, out PlayerSystem.Player player))
+        if(target is NwCreature targetCreature && targetCreature.Area != null && targetCreature.Area.Tag == "LaBrume" && PlayerSystem.Players.TryGetValue(targetCreature, out PlayerSystem.Player player))
           player.DestroyPlayerCorpse();
     }
     public void HandleBeforeDMJumpAllPlayers(OnDMJumpAllPlayersToPoint onJump)

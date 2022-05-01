@@ -75,6 +75,18 @@ namespace NWN.Systems
         private readonly NuiBind<string> attackPerRound = new("attackPerRound");
         private readonly NuiBind<string> spellCasterLevel = new("spellCasterLevel");
 
+        private readonly NuiBind<int> listAcquiredFeatCount = new("listAcquiredFeatCount");
+        private readonly NuiBind<string> availableFeatIcons = new("availableFeatIcons");
+        private readonly NuiBind<string> acquiredFeatIcons = new("acquiredFeatIcons"); 
+        private readonly NuiBind<string> availableFeatNames = new("availableFeatNames");
+        private readonly NuiBind<string> acquiredFeatNames = new("acquiredFeatNames");
+        private readonly NuiBind<string> availableFeatSearch = new("availableFeatSearch");
+        private readonly NuiBind<string> acquiredFeatSearch = new("acquiredFeatSearch");
+        private readonly List<NwFeat> availableFeats = new();
+        private readonly List<NwFeat> acquiredFeats = new();
+        private List<NwFeat> availableFeatSearcher = new();
+        private List<NwFeat> acquiredFeatSearcher = new();
+
         public EditorPNJWindow(Player player, NwCreature targetCreature) : base(player)
         {
           windowId = "editorPNJ";
@@ -120,6 +132,31 @@ namespace NWN.Systems
 
           switch (nuiEvent.EventType)
           {
+            case NuiEventType.MouseUp:
+
+              switch (nuiEvent.ElementId)
+              {
+                case "availableFeatDescription":
+
+                  if (player.windows.ContainsKey("featDescription"))
+                    ((FeatDescriptionWindow)player.windows["featDescription"]).CreateWindow(availableFeatSearcher[nuiEvent.ArrayIndex]);
+                  else
+                    player.windows.Add("featDescription", new FeatDescriptionWindow(player, availableFeatSearcher[nuiEvent.ArrayIndex]));
+
+                  break;
+
+                case "acquiredFeatDescription":
+
+                  if (player.windows.ContainsKey("featDescription"))
+                    ((FeatDescriptionWindow)player.windows["featDescription"]).CreateWindow(acquiredFeatSearcher[nuiEvent.ArrayIndex]);
+                  else
+                    player.windows.Add("featDescription", new FeatDescriptionWindow(player, acquiredFeatSearcher[nuiEvent.ArrayIndex]));
+
+                  break;
+              }
+
+              break;
+
             case NuiEventType.Click:
 
               switch (nuiEvent.ElementId)
@@ -142,6 +179,12 @@ namespace NWN.Systems
                   LoadStatsBinding();
                   break;
 
+                case "feats":
+                  LoadFeatsLayout();
+                  rootGroup.SetLayout(player.oid, nuiEvent.WindowToken, layoutColumn);
+                  LoadFeatsBinding();
+                  break;
+
                 case "portraitSelect1":
                   targetCreature.PortraitResRef = portraits1.GetBindValues(player.oid, token)[nuiEvent.ArrayIndex];
                   targetCreature.PortraitResRef = targetCreature.PortraitResRef.Remove(targetCreature.PortraitResRef.Length - 1);
@@ -155,6 +198,74 @@ namespace NWN.Systems
                 case "portraitSelect3":
                   targetCreature.PortraitResRef = portraits3.GetBindValues(player.oid, token)[nuiEvent.ArrayIndex];
                   targetCreature.PortraitResRef = targetCreature.PortraitResRef.Remove(targetCreature.PortraitResRef.Length - 1);
+                  break;
+
+                case "selectFeat":
+                  NwFeat acquiredFeat = availableFeatSearcher[nuiEvent.ArrayIndex];
+
+                  targetCreature.AddFeat(acquiredFeat);
+                  
+                  if(!acquiredFeats.Contains(acquiredFeat))
+                    acquiredFeats.Add(acquiredFeat);
+                  
+                  if(!acquiredFeatSearcher.Contains(acquiredFeat))
+                    acquiredFeatSearcher.Add(acquiredFeat);
+
+                  availableFeats.Remove(acquiredFeat);
+                  availableFeatSearcher.Remove(acquiredFeat);
+
+                  var tempIcon = availableFeatIcons.GetBindValues(player.oid, token);
+                  tempIcon.RemoveAt(nuiEvent.ArrayIndex);
+                  var tempName = availableFeatNames.GetBindValues(player.oid, token);
+                  tempName.RemoveAt(nuiEvent.ArrayIndex);
+
+                  availableFeatIcons.SetBindValues(player.oid, token, tempIcon);
+                  availableFeatNames.SetBindValues(player.oid, token, tempName);
+                  listCount.SetBindValue(player.oid, token, tempName.Count);
+
+                  tempIcon = acquiredFeatIcons.GetBindValues(player.oid, token);
+                  tempIcon.Add(acquiredFeat.IconResRef);
+                  tempName = acquiredFeatNames.GetBindValues(player.oid, token);
+                  tempName.Add(acquiredFeat.Name.ToString());
+
+                  acquiredFeatIcons.SetBindValues(player.oid, token, tempIcon);
+                  acquiredFeatNames.SetBindValues(player.oid, token, tempName);
+                  listAcquiredFeatCount.SetBindValue(player.oid, token, tempName.Count);
+
+                  break;
+
+                case "removeFeat":
+                  NwFeat removedFeat = acquiredFeatSearcher[nuiEvent.ArrayIndex];
+
+                  targetCreature.RemoveFeat(removedFeat);
+
+                  if(!availableFeats.Contains(removedFeat))
+                    availableFeats.Add(removedFeat);
+
+                  if(!availableFeatSearcher.Contains(removedFeat))
+                    availableFeatSearcher.Add(removedFeat);
+                  
+                  acquiredFeats.Remove(removedFeat);
+                  acquiredFeatSearcher.Remove(removedFeat);
+
+                  var tempIconList = acquiredFeatIcons.GetBindValues(player.oid, token);
+                  tempIconList.RemoveAt(nuiEvent.ArrayIndex);
+                  var tempNameList = acquiredFeatNames.GetBindValues(player.oid, token);
+                  tempNameList.RemoveAt(nuiEvent.ArrayIndex);
+
+                  acquiredFeatIcons.SetBindValues(player.oid, token, tempIconList);
+                  acquiredFeatNames.SetBindValues(player.oid, token, tempNameList);
+                  listAcquiredFeatCount.SetBindValue(player.oid, token, tempNameList.Count);
+
+                  tempIconList = availableFeatIcons.GetBindValues(player.oid, token);
+                  tempIconList.Add(removedFeat.IconResRef);
+                  tempNameList = availableFeatNames.GetBindValues(player.oid, token);
+                  tempNameList.Add(removedFeat.Name.ToString());
+
+                  availableFeatIcons.SetBindValues(player.oid, token, tempIconList);
+                  availableFeatNames.SetBindValues(player.oid, token, tempNameList);
+                  listCount.SetBindValue(player.oid, token, tempNameList.Count);
+
                   break;
               }
 
@@ -173,6 +284,27 @@ namespace NWN.Systems
                   string aSearch = apparenceSearch.GetBindValue(player.oid, token).ToLower();
                   apparence.SetBindValue(player.oid, token, string.IsNullOrEmpty(aSearch) ? Utils.apparenceList : Utils.apparenceList.Where(v => v.Label.ToLower().Contains(aSearch)).ToList());
                 break;
+
+                case "acquiredFeatSearch":
+                  string acquiredFSearch = acquiredFeatSearch.GetBindValue(player.oid, token).ToLower();
+
+                  acquiredFeatSearcher = string.IsNullOrEmpty(acquiredFSearch) ? acquiredFeats : acquiredFeats.Where(f => f.Name.ToString().ToLower().Contains(acquiredFSearch)).ToList();
+
+                  acquiredFeatIcons.SetBindValues(player.oid, token, acquiredFeatSearcher.Select(f => f.IconResRef));
+                  acquiredFeatNames.SetBindValues(player.oid, token, acquiredFeatSearcher.Select(f => f.Name.ToString().Replace("’", "'")));
+                  listAcquiredFeatCount.SetBindValue(player.oid, token, acquiredFeatSearcher.Count);
+
+                  break;
+
+                case "availableFeatSearch":
+                  string availableFSearch = availableFeatSearch.GetBindValue(player.oid, token).ToLower();
+
+                  availableFeatSearcher = string.IsNullOrEmpty(availableFSearch) ? availableFeats : availableFeats.Where(f => f.Name.ToString().ToLower().Contains(availableFSearch)).ToList();
+
+                  availableFeatIcons.SetBindValues(player.oid, token, availableFeatSearcher.Select(f => f.IconResRef));
+                  availableFeatNames.SetBindValues(player.oid, token, availableFeatSearcher.Select(f => f.Name.ToString().Replace("’", "'")));
+                  listCount.SetBindValue(player.oid, token, availableFeatSearcher.Count);
+                  break;
 
                 case "racePortraitSelected":
                 case "genderPortraitSelected":
@@ -318,13 +450,8 @@ namespace NWN.Systems
                 case "spellCasterLevel":
                   if (int.TryParse(armorPenetration.GetBindValue(player.oid, token), out int newCasterLevel))
                   {
-                    if (newCasterLevel < 1 || newCasterLevel > 40)
-                    {
-                      newCasterLevel = newCasterLevel < 1 ? 1 : newCasterLevel;
-                      newCasterLevel = newCasterLevel > 40 ? 40 : newCasterLevel;
-
-                      spellCasterLevel.SetBindValue(player.oid, token, newCasterLevel.ToString());
-                    }
+                    if (newCasterLevel < 1)
+                      spellCasterLevel.SetBindValue(player.oid, token, "1");
                     else
                       targetCreature.GetObjectVariable<LocalVariableInt>("_CREATURE_CASTER_LEVEL").Value = newCasterLevel;
                   }
@@ -352,7 +479,8 @@ namespace NWN.Systems
             {
               new NuiButton("Base") { Id = "base", Height = 35, Width = 60 },
               new NuiButton("Portrait") { Id = "portrait", Height = 35, Width = 60 },
-              new NuiButton("Stats") { Id = "stats", Height = 35, Width = 60 }
+              new NuiButton("Stats") { Id = "stats", Height = 35, Width = 60 },
+              new NuiButton("Dons") { Id = "feats", Height = 35, Width = 60 }
             }
           });
         }
@@ -471,6 +599,9 @@ namespace NWN.Systems
           attackPerRound.SetBindWatch(player.oid, token, false);
           spellCasterLevel.SetBindWatch(player.oid, token, false);
           movementRateSelected.SetBindWatch(player.oid, token, false);
+
+          availableFeatSearch.SetBindWatch(player.oid, token, false);
+          acquiredFeatSearch.SetBindWatch(player.oid, token, false);
         }
         private void LoadBaseBinding()
         {
@@ -727,6 +858,88 @@ namespace NWN.Systems
           spellCasterLevel.SetBindWatch(player.oid, token, true);
           hitPoints.SetBindWatch(player.oid, token, true);
           movementRateSelected.SetBindWatch(player.oid, token, true);
+        }
+        private void LoadFeatsLayout()
+        {
+          rootChildren.Clear();
+          LoadButtons();
+          rowTemplate.Clear();
+
+          rowTemplate.Add(new NuiListTemplateCell(new NuiButtonImage(availableFeatIcons) { Id = "selectFeat", Tooltip = "Ajouter" }) { Width = 35 });
+          rowTemplate.Add(new NuiListTemplateCell(new NuiLabel(availableFeatNames) { Id = "availableFeatDescription", Tooltip = availableFeatNames, VerticalAlign = NuiVAlign.Middle, HorizontalAlign = NuiHAlign.Center }) { VariableSize = true });
+
+          List<NuiListTemplateCell> rowTemplateAcquiredFeats = new()
+          {
+            new NuiListTemplateCell(new NuiButtonImage(acquiredFeatIcons) { Id = "removeFeat", Tooltip = "Supprimer" }) { Width = 35 },
+            new NuiListTemplateCell(new NuiLabel(acquiredFeatNames) { Id = "acquiredFeatDescription", Tooltip = acquiredFeatNames, VerticalAlign = NuiVAlign.Middle, HorizontalAlign = NuiHAlign.Center }) { VariableSize = true }
+          };
+
+          List<NuiElement> columnsChildren = new();
+          NuiRow columnsRow = new() { Children = columnsChildren };
+          rootChildren.Add(columnsRow);
+
+          columnsChildren.Add( new NuiColumn()
+          {
+            Children = new List<NuiElement>()
+            {
+              new NuiRow() { Children = new List<NuiElement>() { new NuiTextEdit("Dons disponibles", availableFeatSearch, 20, false) { Width = 190 } } },
+              new NuiRow() { Children = new List<NuiElement>() { new NuiList(rowTemplate, listCount) { RowHeight = 35,  Width = 190  } } }
+            }
+          });
+
+          columnsChildren.Add(new NuiColumn()
+          {
+            Children = new List<NuiElement>()
+            {
+              new NuiRow() { Children = new List<NuiElement>() { new NuiTextEdit("Dons acquis", acquiredFeatSearch, 20, false) { Width = 190 } } },
+              new NuiRow() { Children = new List<NuiElement>() { new NuiList(rowTemplateAcquiredFeats, listAcquiredFeatCount) { RowHeight = 35, Width = 190 } } }
+            }
+          });
+        }
+        private void LoadFeatsBinding()
+        {
+          StopAllWatchBindings();
+
+          availableFeats.Clear();
+          acquiredFeats.Clear();
+
+          availableFeatSearch.SetBindValue(player.oid, token, "");
+          availableFeatSearch.SetBindWatch(player.oid, token, true);
+          acquiredFeatSearch.SetBindValue(player.oid, token, "");
+          acquiredFeatSearch.SetBindWatch(player.oid, token, true);
+
+          List<string> availableIconsList = new();
+          List<string> availableNamesList = new();
+          List<string> acquiredIconsList = new();
+          List<string> acquiredNamesList = new();
+
+          foreach (Feat feat in (Feat[])Enum.GetValues(typeof(Feat)))
+          {
+            NwFeat baseFeat = NwFeat.FromFeatType(feat);
+
+            if(targetCreature.KnowsFeat(baseFeat))
+            {
+              acquiredIconsList.Add(baseFeat.IconResRef);
+              acquiredNamesList.Add(baseFeat.Name.ToString().Replace("’", "'"));
+              acquiredFeats.Add(baseFeat);
+            }
+            else
+            {
+              availableIconsList.Add(baseFeat.IconResRef);
+              availableNamesList.Add(baseFeat.Name.ToString().Replace("’", "'"));
+              availableFeats.Add(baseFeat);
+            }
+          }
+
+          availableFeatIcons.SetBindValues(player.oid, token, availableIconsList);
+          availableFeatNames.SetBindValues(player.oid, token, availableNamesList);
+          acquiredFeatIcons.SetBindValues(player.oid, token, acquiredIconsList);
+          acquiredFeatNames.SetBindValues(player.oid, token, acquiredNamesList);
+          listCount.SetBindValue(player.oid, token, availableFeats.Count);
+          listAcquiredFeatCount.SetBindValue(player.oid, token, acquiredFeats.Count);
+
+          availableFeatSearcher = availableFeats;
+          acquiredFeatSearcher = acquiredFeats;
         }
       }
     }

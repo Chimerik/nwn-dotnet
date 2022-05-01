@@ -193,7 +193,7 @@ namespace NWN.Systems
 
               if(nuiEvent.ElementId.StartsWith("learn"))
               {
-                player.learnableSkills[currentList.ElementAt(nuiEvent.ArrayIndex).id].StartLearning(player);
+                currentList.ElementAt(nuiEvent.ArrayIndex).StartLearning(player);
 
                 if (player.openedWindows.ContainsKey("activeLearnable"))
                   player.windows["activeLearnable"].CloseWindow();

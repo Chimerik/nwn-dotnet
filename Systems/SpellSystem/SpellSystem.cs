@@ -90,7 +90,7 @@ namespace NWN.Systems
 
     public void RegisterMetaMagicOnSpellInput(OnSpellAction onSpellAction)
     {
-      if(onSpellAction.Spell.ImpactScript == "on_ench_cast")
+      if (onSpellAction.Spell.ImpactScript == "on_ench_cast")
       {
         if (!(PlayerSystem.Players.TryGetValue(onSpellAction.Caster, out PlayerSystem.Player player)) || player.craftJob != null)
         {
@@ -115,25 +115,56 @@ namespace NWN.Systems
       if (!(onSpellBroadcast.Caster is NwCreature { IsPlayerControlled: true } oPC))
         return;
 
-      ClassType castingClass = GetCastingClass(onSpellBroadcast.Spell);
-     
-      if (castingClass != (ClassType)43) // 43 = aventurier
+      if (PlayerSystem.Players.TryGetValue(oPC, out PlayerSystem.Player player))
       {
-        Task resetClassOnNextFrame = NwTask.Run(async () =>
+        ClassType castingClass = GetCastingClass(onSpellBroadcast.Spell);
+
+        switch (castingClass)
         {
-          await NwTask.Delay(TimeSpan.FromSeconds(0.7));
-          CreaturePlugin.SetClassByPosition(oPC, 0, (int)castingClass);
-          CancellationTokenSource tokenSource = new CancellationTokenSource();
+          case ClassType.Druid:
 
-          Task spellCast = NwTask.WaitUntil(() => oPC.GetObjectVariable<LocalVariableInt>("_SPELLCAST").HasValue, tokenSource.Token);
-          Task timeOut = NwTask.Delay(TimeSpan.FromSeconds(0.1), tokenSource.Token);
+            NwItem armor = oPC.GetItemInSlot(InventorySlot.Chest);
+            NwItem shield = oPC.GetItemInSlot(InventorySlot.LeftHand);
 
-          await NwTask.WhenAny(spellCast, timeOut);
-          tokenSource.Cancel();
+            if ((armor != null && armor.BaseACValue > 5) || (shield != null && shield.BaseACValue > 1))
+            {
+              onSpellBroadcast.PreventSpellCast = true;
+              player.oid.SendServerMessage("Un si lourd arnachement affaiblit bien trop votre lien à la nature.", ColorConstants.Red);
+            }
 
-          CreaturePlugin.SetClassByPosition(oPC, 0, 43);
-          oPC.GetObjectVariable<LocalVariableInt>("_SPELLCAST").Delete();
-        });
+            break;
+
+          case ClassType.Cleric:
+          case ClassType.Paladin:
+          case ClassType.Ranger:
+
+            oPC.BaseArmorArcaneSpellFailure = 0;
+            oPC.BaseShieldArcaneSpellFailure = 0;
+
+            Task resetClassOnNextFrame = NwTask.Run(async () =>
+            {
+              CancellationTokenSource tokenSource = new CancellationTokenSource();
+
+              Task spellCast = NwTask.WaitUntil(() => !oPC.IsValid || oPC.CurrentAction != Anvil.API.Action.CastSpell, tokenSource.Token);
+
+              await NwTask.WhenAny(spellCast);
+              tokenSource.Cancel();
+
+              if (!oPC.IsValid)
+                return;
+
+              NwItem shield = oPC.GetItemInSlot(InventorySlot.LeftHand);
+              NwItem armor = oPC.GetItemInSlot(InventorySlot.Chest);
+
+              if (shield != null)
+                oPC.BaseShieldArcaneSpellFailure = shield.BaseItem.ArcaneSpellFailure;
+
+              if(armor != null)
+                oPC.BaseArmorArcaneSpellFailure = Armor2da.GetArcaneSpellFailure(armor.BaseACValue);
+            });
+
+            break;
+        }
       }
 
       if (oPC.ControllingPlayer.IsDM ||
@@ -189,7 +220,6 @@ namespace NWN.Systems
       uint spellId = onSpellCast.Spell.Id;
 
       HandleSpellDamageLocalisation(onSpellCast.Spell.SpellType, onSpellCast.Caster);
-      HandleCasterLevel(onSpellCast.Caster, onSpellCast.Spell.SpellType);
 
       if (!(callInfo.ObjectSelf is NwCreature { IsPlayerControlled: true } oPC) || !PlayerSystem.Players.TryGetValue(oPC, out PlayerSystem.Player player))
       {
@@ -198,13 +228,14 @@ namespace NWN.Systems
 
           return;
       }
-
+      
       if(onSpellCast.Spell.ImpactScript == "on_ench_cast")
       {
         Enchantement(onSpellCast);
         oPC.GetObjectVariable<LocalVariableInt>("X2_L_BLOCK_LAST_SPELL").Value = 1;
       }
 
+      HandleCasterLevel(onSpellCast.Caster, onSpellCast.Spell.SpellType);
 
       switch (onSpellCast.Spell.SpellType)
       {
@@ -272,23 +303,7 @@ namespace NWN.Systems
       if (caster is not NwCreature castingCreature)
         return;
 
-      int casterLevel = 0;
-
-      if(PlayerSystem.Players.TryGetValue(castingCreature, out PlayerSystem.Player player))
-        casterLevel = player.learnableSkills.ContainsKey(CustomSkill.ImprovedCasterLevel) ? player.learnableSkills[CustomSkill.ImprovedCasterLevel].totalPoints : 0;
-      else
-        if (castingCreature.GetObjectVariable<LocalVariableInt>("_CREATURE_CASTER_LEVEL").HasValue)
-          casterLevel = castingCreature.GetObjectVariable<LocalVariableInt>("_CREATURE_CASTER_LEVEL").Value;
-        else
-          return;
-
-      CreaturePlugin.SetClassByPosition(castingCreature, 0, 43);
-
-      castingCreature.GetObjectVariable<LocalVariableInt>("_DELAYED_SPELLHOOK_REFLEX").Value = castingCreature.GetBaseSavingThrow(SavingThrow.Reflex);
-      castingCreature.GetObjectVariable<LocalVariableInt>("_DELAYED_SPELLHOOK_WILL").Value = castingCreature.GetBaseSavingThrow(SavingThrow.Will);
-      castingCreature.GetObjectVariable<LocalVariableInt>("_DELAYED_SPELLHOOK_FORT").Value = castingCreature.GetBaseSavingThrow(SavingThrow.Fortitude);
-
-      CreaturePlugin.SetLevelByPosition(castingCreature, 0, casterLevel);
+      //CreaturePlugin.SetClassByPosition(castingCreature, 0, 43);
 
       ClassType castingClass = GetCastingClass(spell);
 
@@ -304,11 +319,7 @@ namespace NWN.Systems
       if (!player.IsValid)
         return;
 
-      CreaturePlugin.SetLevelByPosition(player, 0, 1);
       CreaturePlugin.SetClassByPosition(player, 0, 43);
-      player.SetBaseSavingThrow(SavingThrow.Reflex, (sbyte)player.GetObjectVariable<LocalVariableInt>("_DELAYED_SPELLHOOK_REFLEX").Value);
-      player.SetBaseSavingThrow(SavingThrow.Will, (sbyte)player.GetObjectVariable<LocalVariableInt>("_DELAYED_SPELLHOOK_WILL").Value);
-      player.SetBaseSavingThrow(SavingThrow.Fortitude, (sbyte)player.GetObjectVariable<LocalVariableInt>("_DELAYED_SPELLHOOK_FORT").Value);
     }
     private void DelayedTagAoE(PlayerSystem.Player player, uint spellId)
     {
@@ -340,10 +351,7 @@ namespace NWN.Systems
     {
       if (!(onSpellCast.Caster is NwCreature { IsPlayerControlled: true } oPC))
         return;
-
-      if (oPC.Classes.Any(c => c.Class.Id != 43))
-        oPC.GetObjectVariable<LocalVariableInt>("_SPELLCAST").Value = 1;
-
+     
       if (oPC.GetObjectVariable<LocalVariableInt>("_AUTO_SPELL").HasValue && oPC.GetObjectVariable<LocalVariableInt>("_AUTO_SPELL").Value != onSpellCast.Spell.Id)
       {
         oPC.GetObjectVariable<LocalVariableInt>("_AUTO_SPELL").Delete();

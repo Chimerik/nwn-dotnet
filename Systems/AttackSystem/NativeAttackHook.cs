@@ -1,16 +1,21 @@
 ﻿using Anvil.API;
 using NWN.Native.API;
 using Anvil.Services;
+using NLog;
+using System.Linq;
 
 namespace NWN.Systems
 {
   [ServiceBinding(typeof(NativeAttackHook))]
   public unsafe class NativeAttackHook
   {
-    //private static readonly Logger Log = LogManager.GetCurrentClassLogger();
+    private readonly Logger Log = LogManager.GetCurrentClassLogger();
+    private readonly CExoString casterLevelVariable = "_CREATURE_CASTER_LEVEL".ToExoString();
 
     //private delegate int GetDamageRollHook(void* thisPtr, void* pTarget, int bOffHand, int bCritical, int bSneakAttack, int bDeathAttack, int bForceMax);
     private delegate void ResolveAttackRollHook(void* pCreature, void* pTarget);
+    private delegate byte ResolveGetSpellLikeAbilityCasterLevelHook(void* pCreatureStats, int nSpellId);
+    private delegate byte ResolveGetCasterLevelHook(void* pCreatureStats, byte nMultiClass);
 
     //private readonly FunctionHook<GetDamageRollHook> getDamageRollHook;
     //private readonly FunctionHook<ResolveAttackRollHook> resolveAttackRollHook;
@@ -19,6 +24,8 @@ namespace NWN.Systems
     {
       //getDamageRollHook = hookService.RequestHook<GetDamageRollHook>(OnGetDamageRoll, FunctionsLinux._ZN17CNWSCreatureStats13GetDamageRollEP10CNWSObjectiiiii, HookOrder.Early);
       hookService.RequestHook<ResolveAttackRollHook>(OnResolveAttackRoll, FunctionsLinux._ZN12CNWSCreature17ResolveAttackRollEP10CNWSObject, HookOrder.Early);
+      hookService.RequestHook<ResolveGetSpellLikeAbilityCasterLevelHook>(OnResolveGetSpellLikeAbilityCasterLevel, FunctionsLinux._ZN17CNWSCreatureStats30GetSpellLikeAbilityCasterLevelEj, HookOrder.Early);
+      hookService.RequestHook<ResolveGetCasterLevelHook>(OnResolveGetCasterLevel, FunctionsLinux._ZN17CNWSCreatureStats14GetCasterLevelEh, HookOrder.Early);
     }
     private void OnResolveAttackRoll(void* pCreature, void* pTarget)
     {
@@ -46,6 +53,31 @@ namespace NWN.Systems
         if (dodgeRoll <= unchecked((sbyte)targetCreature.m_pStats.GetAbilityMod(1)) + skillBonusDodge - targetCreature.m_pStats.m_nArmorCheckPenalty - targetCreature.m_pStats.m_nShieldCheckPenalty)
           attackData.m_nAttackResult = 4;
       }
+    }
+
+    private byte OnResolveGetSpellLikeAbilityCasterLevel(void* pCreatureStats, int nSpellId)
+    {
+      Log.Info($"----------------------get spellLikeAbility caster level called : spell {nSpellId} !---------------------");
+      CNWSCreatureStats creatureStats = CNWSCreatureStats.FromPointer(pCreatureStats);
+      int casterLevel = creatureStats.m_pBaseCreature.m_ScriptVars.GetInt(casterLevelVariable);
+
+      if (casterLevel > 0)
+        return (byte)casterLevel;
+      else
+        return creatureStats.m_pSpellLikeAbilityList.FirstOrDefault(s => s.m_nSpellId == nSpellId).m_nCasterLevel;
+    }
+    private byte OnResolveGetCasterLevel(void* pCreatureStats, byte nMultiClass)
+    {
+      Log.Info($"----------------------get caster level called : spell !---------------------");
+      CNWSCreatureStats creatureStats = CNWSCreatureStats.FromPointer(pCreatureStats);
+      int casterLevel = 0;
+
+      if (PlayerSystem.Players.TryGetValue(creatureStats.m_pBaseCreature.m_idSelf, out PlayerSystem.Player player))
+        casterLevel = player.learnableSkills.ContainsKey(CustomSkill.ImprovedCasterLevel) ? player.learnableSkills[CustomSkill.ImprovedCasterLevel].totalPoints : 0;
+      else
+        casterLevel = creatureStats.m_pBaseCreature.m_ScriptVars.GetInt(casterLevelVariable);
+
+      return (byte)casterLevel;
     }
 
     /*private int OnGetDamageRoll(void* thisPtr, void* pTarget, int bOffHand, int bCritical, int bSneakAttack, int bDeathAttack, int bForceMax)
