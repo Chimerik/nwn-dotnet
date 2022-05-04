@@ -3,6 +3,7 @@ using NWN.Native.API;
 using Anvil.Services;
 using NLog;
 using System.Linq;
+using System;
 
 namespace NWN.Systems
 {
@@ -26,6 +27,13 @@ namespace NWN.Systems
       hookService.RequestHook<ResolveAttackRollHook>(OnResolveAttackRoll, FunctionsLinux._ZN12CNWSCreature17ResolveAttackRollEP10CNWSObject, HookOrder.Early);
       hookService.RequestHook<ResolveGetSpellLikeAbilityCasterLevelHook>(OnResolveGetSpellLikeAbilityCasterLevel, FunctionsLinux._ZN17CNWSCreatureStats30GetSpellLikeAbilityCasterLevelEj, HookOrder.Early);
       hookService.RequestHook<ResolveGetCasterLevelHook>(OnResolveGetCasterLevel, FunctionsLinux._ZN17CNWSCreatureStats14GetCasterLevelEh, HookOrder.Early);
+    }
+    public static void SendPartyInvite(uint invited, NwCreature inviter)
+    {
+      Console.WriteLine("bip bip");
+      Console.WriteLine(NWNXLib.AppManager().m_pServerExoApp.GetNWSMessage().SendServerToPlayerParty_Invite(invited, inviter.ObjectId));
+      Console.WriteLine(NWNXLib.AppManager().m_pServerExoApp.GetNWSMessage().SendServerToPlayerPartyBar_PanelButtonFlash(invited, 1, 1));
+      Console.WriteLine("bip boop");
     }
     private void OnResolveAttackRoll(void* pCreature, void* pTarget)
     {
@@ -68,7 +76,6 @@ namespace NWN.Systems
     }
     private byte OnResolveGetCasterLevel(void* pCreatureStats, byte nMultiClass)
     {
-      Log.Info($"----------------------get caster level called : spell !---------------------");
       CNWSCreatureStats creatureStats = CNWSCreatureStats.FromPointer(pCreatureStats);
       int casterLevel = 0;
 

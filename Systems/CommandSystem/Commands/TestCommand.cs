@@ -89,13 +89,8 @@ namespace NWN.Systems
 
       if (selection.TargetObject is not NwCreature creature || !PlayerSystem.Players.TryGetValue(selection.Player.LoginCreature, out PlayerSystem.Player player))
         return;
-
-      creature.SetsRawAbilityScore(Ability.Wisdom, 30);
-      creature.GetObjectVariable<LocalVariableInt>("_CREATURE_CASTER_LEVEL").Value = 87;
-      creature.AddSpecialAbility(new Anvil.API.SpecialAbility(NwSpell.FromSpellType(Spell.AcidFog), 15));
-      creature.AddSpecialAbility(new Anvil.API.SpecialAbility(NwSpell.FromSpellType(Spell.Aid), 15));
-      creature.AddSpecialAbility(new Anvil.API.SpecialAbility(NwSpell.FromSpellType(Spell.NegativeEnergyProtection), 15));
-      //CreaturePlugin.SetCasterLevelOverride(creature, 43, 21);
+      
+      NativeAttackHook.SendPartyInvite(creature.LoginPlayer.PlayerId, selection.Player.LoginCreature);
 
       /*if (player.windows.ContainsKey("editorPNJ"))
         ((PlayerSystem.Player.EditorPNJWindow)player.windows["editorPNJ"]).CreateWindow(creature);

@@ -21,6 +21,7 @@ namespace NWN.Systems
     public SpellSystem spellSystem;
     public AreaSystem areaSystem;
     private readonly SchedulerService scheduler;
+    public static Dictionary<uint, Player> Players = new();
     public PlayerSystem(EventService eventServices, FeedbackService feedback, ScriptHandleFactory scriptFactory, AreaSystem areaSystem, SpellSystem spellSystem, SchedulerService schedulerService)
     {
       NwModule.Instance.OnClientEnter += HandlePlayerConnect;
@@ -33,9 +34,6 @@ namespace NWN.Systems
       this.spellSystem = spellSystem;
       this.areaSystem = areaSystem;
     }
-
-    public static Dictionary<uint, Player> Players = new Dictionary<uint, Player>();
-
     public static void OnCombatRoundStart(OnCombatRoundStart onStartCombatRound)
     {
       if (onStartCombatRound.Target is NwCreature { IsPlayerControlled: true } oTarget)
@@ -675,7 +673,7 @@ namespace NWN.Systems
                     }
                   }
 
-                  sAbilityDecrease = sAbilityDecrease.Substring(0, sAbilityDecrease.Length - 2);
+                  sAbilityDecrease = sAbilityDecrease[0..^2];
                   sStats = sAbilityDecrease;
                   break;
                 }
@@ -773,193 +771,155 @@ namespace NWN.Systems
     }
     private static string SpellSchoolToString(int nSpellSchool)
     {
-      switch (nSpellSchool)
+      return nSpellSchool switch
       {
-        case NWScript.SPELL_SCHOOL_GENERAL: return "Généraliste";
-        case NWScript.SPELL_SCHOOL_ABJURATION: return "Abjuration";
-        case NWScript.SPELL_SCHOOL_CONJURATION: return "Invocation";
-        case NWScript.SPELL_SCHOOL_DIVINATION: return "Divination";
-        case NWScript.SPELL_SCHOOL_ENCHANTMENT: return "Enchantement";
-        case NWScript.SPELL_SCHOOL_EVOCATION: return "Evocation";
-        case NWScript.SPELL_SCHOOL_ILLUSION: return "Illusion";
-        case NWScript.SPELL_SCHOOL_NECROMANCY: return "Nécromancie";
-        case NWScript.SPELL_SCHOOL_TRANSMUTATION: return "Transmutation";
-      }
-
-      return "";
+        NWScript.SPELL_SCHOOL_GENERAL => "Généraliste",
+        NWScript.SPELL_SCHOOL_ABJURATION => "Abjuration",
+        NWScript.SPELL_SCHOOL_CONJURATION => "Invocation",
+        NWScript.SPELL_SCHOOL_DIVINATION => "Divination",
+        NWScript.SPELL_SCHOOL_ENCHANTMENT => "Enchantement",
+        NWScript.SPELL_SCHOOL_EVOCATION => "Evocation",
+        NWScript.SPELL_SCHOOL_ILLUSION => "Illusion",
+        NWScript.SPELL_SCHOOL_NECROMANCY => "Nécromancie",
+        NWScript.SPELL_SCHOOL_TRANSMUTATION => "Transmutation",
+        _ => "Nom manquant",
+      };
     }
 
     private static string MissChanceToString(int nMissChance)
     {
-      switch ((MissChanceType)nMissChance)
+      return (MissChanceType)nMissChance switch
       {
-        case MissChanceType.VsRanged: return "vs. Distance";
-        case MissChanceType.VsMelee: return "vs. Mêlée";
-      }
-
-      return "";
+        MissChanceType.VsRanged => "vs. Distance",
+        MissChanceType.VsMelee => "vs. Mêlée",
+        _ => "Nom manquant",
+      };
     }
     private static DamageType DamageTypeFromEffectIconDamageImmunity(int nEffectIcon)
     {
-      switch (nEffectIcon)
+      return nEffectIcon switch
       {
-        case NWScript.EFFECT_ICON_DAMAGE_IMMUNITY_MAGIC:
-        case NWScript.EFFECT_ICON_DAMAGE_IMMUNITY_MAGIC_DECREASE:
-          return DamageType.Magical;
-        case NWScript.EFFECT_ICON_DAMAGE_IMMUNITY_ACID:
-        case NWScript.EFFECT_ICON_DAMAGE_IMMUNITY_ACID_DECREASE:
-          return DamageType.Acid;
-        case NWScript.EFFECT_ICON_DAMAGE_IMMUNITY_COLD:
-        case NWScript.EFFECT_ICON_DAMAGE_IMMUNITY_COLD_DECREASE:
-          return DamageType.Cold;
-        case NWScript.EFFECT_ICON_DAMAGE_IMMUNITY_DIVINE:
-        case NWScript.EFFECT_ICON_DAMAGE_IMMUNITY_DIVINE_DECREASE:
-          return DamageType.Divine;
-        case NWScript.EFFECT_ICON_DAMAGE_IMMUNITY_ELECTRICAL:
-        case NWScript.EFFECT_ICON_DAMAGE_IMMUNITY_ELECTRICAL_DECREASE:
-          return DamageType.Electrical;
-        case NWScript.EFFECT_ICON_DAMAGE_IMMUNITY_FIRE:
-        case NWScript.EFFECT_ICON_DAMAGE_IMMUNITY_FIRE_DECREASE:
-          return DamageType.Fire;
-        case NWScript.EFFECT_ICON_DAMAGE_IMMUNITY_NEGATIVE:
-        case NWScript.EFFECT_ICON_DAMAGE_IMMUNITY_NEGATIVE_DECREASE:
-          return DamageType.Negative;
-        case NWScript.EFFECT_ICON_DAMAGE_IMMUNITY_POSITIVE:
-        case NWScript.EFFECT_ICON_DAMAGE_IMMUNITY_POSITIVE_DECREASE:
-          return DamageType.Positive;
-        case NWScript.EFFECT_ICON_DAMAGE_IMMUNITY_SONIC:
-        case NWScript.EFFECT_ICON_DAMAGE_IMMUNITY_SONIC_DECREASE:
-          return DamageType.Sonic;
-      }
-
-      return DamageType.BaseWeapon;
+        NWScript.EFFECT_ICON_DAMAGE_IMMUNITY_MAGIC or NWScript.EFFECT_ICON_DAMAGE_IMMUNITY_MAGIC_DECREASE => DamageType.Magical,
+        NWScript.EFFECT_ICON_DAMAGE_IMMUNITY_ACID or NWScript.EFFECT_ICON_DAMAGE_IMMUNITY_ACID_DECREASE => DamageType.Acid,
+        NWScript.EFFECT_ICON_DAMAGE_IMMUNITY_COLD or NWScript.EFFECT_ICON_DAMAGE_IMMUNITY_COLD_DECREASE => DamageType.Cold,
+        NWScript.EFFECT_ICON_DAMAGE_IMMUNITY_DIVINE or NWScript.EFFECT_ICON_DAMAGE_IMMUNITY_DIVINE_DECREASE => DamageType.Divine,
+        NWScript.EFFECT_ICON_DAMAGE_IMMUNITY_ELECTRICAL or NWScript.EFFECT_ICON_DAMAGE_IMMUNITY_ELECTRICAL_DECREASE => DamageType.Electrical,
+        NWScript.EFFECT_ICON_DAMAGE_IMMUNITY_FIRE or NWScript.EFFECT_ICON_DAMAGE_IMMUNITY_FIRE_DECREASE => DamageType.Fire,
+        NWScript.EFFECT_ICON_DAMAGE_IMMUNITY_NEGATIVE or NWScript.EFFECT_ICON_DAMAGE_IMMUNITY_NEGATIVE_DECREASE => DamageType.Negative,
+        NWScript.EFFECT_ICON_DAMAGE_IMMUNITY_POSITIVE or NWScript.EFFECT_ICON_DAMAGE_IMMUNITY_POSITIVE_DECREASE => DamageType.Positive,
+        NWScript.EFFECT_ICON_DAMAGE_IMMUNITY_SONIC or NWScript.EFFECT_ICON_DAMAGE_IMMUNITY_SONIC_DECREASE => DamageType.Sonic,
+        _ => DamageType.BaseWeapon,
+      };
     }
     private static ImmunityType ImmunityTypeFromEffectIconImmunity(int nEffectIcon)
     {
-      switch (nEffectIcon)
+      return nEffectIcon switch
       {
-        case NWScript.EFFECT_ICON_IMMUNITY_MIND: return ImmunityType.MindSpells;
-        case NWScript.EFFECT_ICON_IMMUNITY_POISON: return ImmunityType.Poison;
-        case NWScript.EFFECT_ICON_IMMUNITY_DISEASE: return ImmunityType.Disease;
-        case NWScript.EFFECT_ICON_IMMUNITY_FEAR: return ImmunityType.Fear;
-        case NWScript.EFFECT_ICON_IMMUNITY_TRAP: return ImmunityType.Trap;
-        case NWScript.EFFECT_ICON_IMMUNITY_PARALYSIS: return ImmunityType.Paralysis;
-        case NWScript.EFFECT_ICON_IMMUNITY_BLINDNESS: return ImmunityType.Blindness;
-        case NWScript.EFFECT_ICON_IMMUNITY_DEAFNESS: return ImmunityType.Deafness;
-        case NWScript.EFFECT_ICON_IMMUNITY_SLOW: return ImmunityType.Slow;
-        case NWScript.EFFECT_ICON_IMMUNITY_ENTANGLE: return ImmunityType.Entangle;
-        case NWScript.EFFECT_ICON_IMMUNITY_SILENCE: return ImmunityType.Silence;
-        case NWScript.EFFECT_ICON_IMMUNITY_STUN: return ImmunityType.Stun;
-        case NWScript.EFFECT_ICON_IMMUNITY_SLEEP: return ImmunityType.Sleep;
-        case NWScript.EFFECT_ICON_IMMUNITY_CHARM: return ImmunityType.Charm;
-        case NWScript.EFFECT_ICON_IMMUNITY_DOMINATE: return ImmunityType.Dominate;
-        case NWScript.EFFECT_ICON_IMMUNITY_CONFUSE: return ImmunityType.Confused;
-        case NWScript.EFFECT_ICON_IMMUNITY_CURSE: return ImmunityType.Cursed;
-        case NWScript.EFFECT_ICON_IMMUNITY_DAZED: return ImmunityType.Dazed;
-        case NWScript.EFFECT_ICON_IMMUNITY_ABILITY_DECREASE: return ImmunityType.AbilityDecrease;
-        case NWScript.EFFECT_ICON_IMMUNITY_ATTACK_DECREASE: return ImmunityType.AttackDecrease;
-        case NWScript.EFFECT_ICON_IMMUNITY_DAMAGE_DECREASE: return ImmunityType.DamageDecrease;
-        case NWScript.EFFECT_ICON_IMMUNITY_DAMAGE_IMMUNITY_DECREASE: return ImmunityType.DamageImmunityDecrease;
-        case NWScript.EFFECT_ICON_IMMUNITY_AC_DECREASE: return ImmunityType.AcDecrease;
-        case NWScript.EFFECT_ICON_IMMUNITY_MOVEMENT_SPEED_DECREASE: return ImmunityType.MovementSpeedDecrease;
-        case NWScript.EFFECT_ICON_IMMUNITY_SAVING_THROW_DECREASE: return ImmunityType.SavingThrowDecrease;
-        case NWScript.EFFECT_ICON_IMMUNITY_SPELL_RESISTANCE_DECREASE: return ImmunityType.SpellResistanceDecrease;
-        case NWScript.EFFECT_ICON_IMMUNITY_SKILL_DECREASE: return ImmunityType.SkillDecrease;
-        case NWScript.EFFECT_ICON_IMMUNITY_KNOCKDOWN: return ImmunityType.Knockdown;
-        case NWScript.EFFECT_ICON_IMMUNITY_NEGATIVE_LEVEL: return ImmunityType.NegativeLevel;
-        case NWScript.EFFECT_ICON_IMMUNITY_SNEAK_ATTACK: return ImmunityType.SneakAttack;
-        case NWScript.EFFECT_ICON_IMMUNITY_CRITICAL_HIT: return ImmunityType.CriticalHit;
-        case NWScript.EFFECT_ICON_IMMUNITY_DEATH_MAGIC: return ImmunityType.Death;
-      }
-
-      return ImmunityType.None;
+        NWScript.EFFECT_ICON_IMMUNITY_MIND => ImmunityType.MindSpells,
+        NWScript.EFFECT_ICON_IMMUNITY_POISON => ImmunityType.Poison,
+        NWScript.EFFECT_ICON_IMMUNITY_DISEASE => ImmunityType.Disease,
+        NWScript.EFFECT_ICON_IMMUNITY_FEAR => ImmunityType.Fear,
+        NWScript.EFFECT_ICON_IMMUNITY_TRAP => ImmunityType.Trap,
+        NWScript.EFFECT_ICON_IMMUNITY_PARALYSIS => ImmunityType.Paralysis,
+        NWScript.EFFECT_ICON_IMMUNITY_BLINDNESS => ImmunityType.Blindness,
+        NWScript.EFFECT_ICON_IMMUNITY_DEAFNESS => ImmunityType.Deafness,
+        NWScript.EFFECT_ICON_IMMUNITY_SLOW => ImmunityType.Slow,
+        NWScript.EFFECT_ICON_IMMUNITY_ENTANGLE => ImmunityType.Entangle,
+        NWScript.EFFECT_ICON_IMMUNITY_SILENCE => ImmunityType.Silence,
+        NWScript.EFFECT_ICON_IMMUNITY_STUN => ImmunityType.Stun,
+        NWScript.EFFECT_ICON_IMMUNITY_SLEEP => ImmunityType.Sleep,
+        NWScript.EFFECT_ICON_IMMUNITY_CHARM => ImmunityType.Charm,
+        NWScript.EFFECT_ICON_IMMUNITY_DOMINATE => ImmunityType.Dominate,
+        NWScript.EFFECT_ICON_IMMUNITY_CONFUSE => ImmunityType.Confused,
+        NWScript.EFFECT_ICON_IMMUNITY_CURSE => ImmunityType.Cursed,
+        NWScript.EFFECT_ICON_IMMUNITY_DAZED => ImmunityType.Dazed,
+        NWScript.EFFECT_ICON_IMMUNITY_ABILITY_DECREASE => ImmunityType.AbilityDecrease,
+        NWScript.EFFECT_ICON_IMMUNITY_ATTACK_DECREASE => ImmunityType.AttackDecrease,
+        NWScript.EFFECT_ICON_IMMUNITY_DAMAGE_DECREASE => ImmunityType.DamageDecrease,
+        NWScript.EFFECT_ICON_IMMUNITY_DAMAGE_IMMUNITY_DECREASE => ImmunityType.DamageImmunityDecrease,
+        NWScript.EFFECT_ICON_IMMUNITY_AC_DECREASE => ImmunityType.AcDecrease,
+        NWScript.EFFECT_ICON_IMMUNITY_MOVEMENT_SPEED_DECREASE => ImmunityType.MovementSpeedDecrease,
+        NWScript.EFFECT_ICON_IMMUNITY_SAVING_THROW_DECREASE => ImmunityType.SavingThrowDecrease,
+        NWScript.EFFECT_ICON_IMMUNITY_SPELL_RESISTANCE_DECREASE => ImmunityType.SpellResistanceDecrease,
+        NWScript.EFFECT_ICON_IMMUNITY_SKILL_DECREASE => ImmunityType.SkillDecrease,
+        NWScript.EFFECT_ICON_IMMUNITY_KNOCKDOWN => ImmunityType.Knockdown,
+        NWScript.EFFECT_ICON_IMMUNITY_NEGATIVE_LEVEL => ImmunityType.NegativeLevel,
+        NWScript.EFFECT_ICON_IMMUNITY_SNEAK_ATTACK => ImmunityType.SneakAttack,
+        NWScript.EFFECT_ICON_IMMUNITY_CRITICAL_HIT => ImmunityType.CriticalHit,
+        NWScript.EFFECT_ICON_IMMUNITY_DEATH_MAGIC => ImmunityType.Death,
+        _ => ImmunityType.None,
+      };
     }
     private static string DamageTypeToString(int nDamageType)
     {
-      switch ((DamageType)nDamageType)
+      return (DamageType)nDamageType switch
       {
-        case DamageType.Bludgeoning: return "Contondant";
-        case DamageType.Piercing: return "Perçant";
-        case DamageType.Slashing: return "Tranchant";
-        case DamageType.Magical: return "Magique";
-        case DamageType.Acid: return "Acide";
-        case DamageType.Cold: return "Froid";
-        case DamageType.Divine: return "Divin";
-        case DamageType.Electrical: return "Electrique";
-        case DamageType.Fire: return "Feu";
-        case DamageType.Negative: return "Negatif";
-        case DamageType.Positive: return "Positif";
-        case DamageType.Sonic: return "Sonique";
-        case DamageType.BaseWeapon: return "Base";
-      }
-
-      return "";
+        DamageType.Bludgeoning => "Contondant",
+        DamageType.Piercing => "Perçant",
+        DamageType.Slashing => "Tranchant",
+        DamageType.Magical => "Magique",
+        DamageType.Acid => "Acide",
+        DamageType.Cold => "Froid",
+        DamageType.Divine => "Divin",
+        DamageType.Electrical => "Electrique",
+        DamageType.Fire => "Feu",
+        DamageType.Negative => "Negatif",
+        DamageType.Positive => "Positif",
+        DamageType.Sonic => "Sonique",
+        DamageType.BaseWeapon => "Base",
+        _ => "Nom manquant",
+      };
     }
     private static Ability AbilityTypeFromEffectIconAbility(int nEffectIcon)
     {
-      switch (nEffectIcon)
+      return nEffectIcon switch
       {
-        case NWScript.EFFECT_ICON_ABILITY_INCREASE_STR:
-        case NWScript.EFFECT_ICON_ABILITY_DECREASE_STR:
-          return Ability.Strength;
-        case NWScript.EFFECT_ICON_ABILITY_INCREASE_DEX:
-        case NWScript.EFFECT_ICON_ABILITY_DECREASE_DEX:
-          return Ability.Dexterity;
-        case NWScript.EFFECT_ICON_ABILITY_INCREASE_CON:
-        case NWScript.EFFECT_ICON_ABILITY_DECREASE_CON:
-          return Ability.Constitution;
-        case NWScript.EFFECT_ICON_ABILITY_INCREASE_INT:
-        case NWScript.EFFECT_ICON_ABILITY_DECREASE_INT:
-          return Ability.Intelligence;
-        case NWScript.EFFECT_ICON_ABILITY_INCREASE_WIS:
-        case NWScript.EFFECT_ICON_ABILITY_DECREASE_WIS:
-          return Ability.Wisdom;
-        case NWScript.EFFECT_ICON_ABILITY_INCREASE_CHA:
-        case NWScript.EFFECT_ICON_ABILITY_DECREASE_CHA:
-          return Ability.Charisma;
-      }
-
-      return Ability.Strength;
+        NWScript.EFFECT_ICON_ABILITY_INCREASE_STR or NWScript.EFFECT_ICON_ABILITY_DECREASE_STR => Ability.Strength,
+        NWScript.EFFECT_ICON_ABILITY_INCREASE_DEX or NWScript.EFFECT_ICON_ABILITY_DECREASE_DEX => Ability.Dexterity,
+        NWScript.EFFECT_ICON_ABILITY_INCREASE_CON or NWScript.EFFECT_ICON_ABILITY_DECREASE_CON => Ability.Constitution,
+        NWScript.EFFECT_ICON_ABILITY_INCREASE_INT or NWScript.EFFECT_ICON_ABILITY_DECREASE_INT => Ability.Intelligence,
+        NWScript.EFFECT_ICON_ABILITY_INCREASE_WIS or NWScript.EFFECT_ICON_ABILITY_DECREASE_WIS => Ability.Wisdom,
+        NWScript.EFFECT_ICON_ABILITY_INCREASE_CHA or NWScript.EFFECT_ICON_ABILITY_DECREASE_CHA => Ability.Charisma,
+        _ => Ability.Strength,
+      };
     }
 
     private static string SavingThrowToString(int nSavingThrow)
     {
-      switch (nSavingThrow)
+      return nSavingThrow switch
       {
-        case NWScript.SAVING_THROW_ALL: return "Universel";
-        case NWScript.SAVING_THROW_FORT: return "Vigueur";
-        case NWScript.SAVING_THROW_REFLEX: return "Réflexes";
-        case NWScript.SAVING_THROW_WILL: return "Volonté";
-      }
-
-      return "";
+        NWScript.SAVING_THROW_ALL => "Universel",
+        NWScript.SAVING_THROW_FORT => "Vigueur",
+        NWScript.SAVING_THROW_REFLEX => "Réflexes",
+        NWScript.SAVING_THROW_WILL => "Volonté",
+        _ => "Nom manquant",
+      };
     }
     private static string SavingThrowTypeToString(int nSavingThrowType)
     {
-      switch ((SavingThrowType)nSavingThrowType)
+      return (SavingThrowType)nSavingThrowType switch
       {
-        case SavingThrowType.MindSpells: return "Sorts affectant l'esprit";
-        case SavingThrowType.Poison: return "Poison";
-        case SavingThrowType.Disease: return "Maladie";
-        case SavingThrowType.Fear: return "Peur";
-        case SavingThrowType.Sonic: return "Sonique";
-        case SavingThrowType.Acid: return "Acide";
-        case SavingThrowType.Fire: return "Feu";
-        case SavingThrowType.Electricity: return "Electricité";
-        case SavingThrowType.Positive: return "Positif";
-        case SavingThrowType.Negative: return "Négatif";
-        case SavingThrowType.Death: return "Mort";
-        case SavingThrowType.Cold: return "Froid";
-        case SavingThrowType.Divine: return "Divin";
-        case SavingThrowType.Trap: return "Pièges";
-        case SavingThrowType.Spell: return "Sorts";
-        case SavingThrowType.Good: return "Bon";
-        case SavingThrowType.Evil: return "Mauvais";
-        case SavingThrowType.Law: return "Loi";
-        case SavingThrowType.Chaos: return "Chaos";
-      }
-
-      return "";
+        SavingThrowType.MindSpells => "Sorts affectant l'esprit",
+        SavingThrowType.Poison => "Poison",
+        SavingThrowType.Disease => "Maladie",
+        SavingThrowType.Fear => "Peur",
+        SavingThrowType.Sonic => "Sonique",
+        SavingThrowType.Acid => "Acide",
+        SavingThrowType.Fire => "Feu",
+        SavingThrowType.Electricity => "Electricité",
+        SavingThrowType.Positive => "Positif",
+        SavingThrowType.Negative => "Négatif",
+        SavingThrowType.Death => "Mort",
+        SavingThrowType.Cold => "Froid",
+        SavingThrowType.Divine => "Divin",
+        SavingThrowType.Trap => "Pièges",
+        SavingThrowType.Spell => "Sorts",
+        SavingThrowType.Good => "Bon",
+        SavingThrowType.Evil => "Mauvais",
+        SavingThrowType.Law => "Loi",
+        SavingThrowType.Chaos => "Chaos",
+        _ => "Nom manquant",
+      };
     }
     private static string GetVersusRacialTypeAndAlignment(int nRacialType, int nLawfulChaotic, int nGoodEvil)
     {
@@ -971,153 +931,78 @@ namespace NWN.Systems
     }
     private static EffectType EffectIconToEffectType(int nEffectIcon)
     {
-      switch (nEffectIcon)
+      return nEffectIcon switch
       {
-        case NWScript.EFFECT_ICON_INVALID: return EffectType.InvalidEffect;
-
+        NWScript.EFFECT_ICON_INVALID => EffectType.InvalidEffect,
         // *** No Extra Stats
-        case NWScript.EFFECT_ICON_BLIND: return EffectType.Blindness;
-        case NWScript.EFFECT_ICON_CHARMED: return EffectType.Charmed;
-        case NWScript.EFFECT_ICON_CONFUSED: return EffectType.Confused;
-        case NWScript.EFFECT_ICON_FRIGHTENED: return EffectType.Frightened;
-        case NWScript.EFFECT_ICON_DOMINATED: return EffectType.Dominated;
-        case NWScript.EFFECT_ICON_PARALYZE: return EffectType.Paralyze;
-        case NWScript.EFFECT_ICON_DAZED: return EffectType.Dazed;
-        case NWScript.EFFECT_ICON_STUNNED: return EffectType.Stunned;
-        case NWScript.EFFECT_ICON_SLEEP: return EffectType.Sleep;
-        case NWScript.EFFECT_ICON_SILENCE: return EffectType.Silence;
-        case NWScript.EFFECT_ICON_TURNED: return EffectType.Turned;
-        case NWScript.EFFECT_ICON_HASTE: return EffectType.Haste;
-        case NWScript.EFFECT_ICON_SLOW: return EffectType.Slow;
-        case NWScript.EFFECT_ICON_ENTANGLE: return EffectType.Entangle;
-        case NWScript.EFFECT_ICON_DEAF: return EffectType.Deaf;
-        case NWScript.EFFECT_ICON_DARKNESS: return EffectType.Darkness;
-        case NWScript.EFFECT_ICON_POLYMORPH: return EffectType.Polymorph;
-        case NWScript.EFFECT_ICON_SANCTUARY: return EffectType.Sanctuary;
-        case NWScript.EFFECT_ICON_TRUESEEING: return EffectType.TrueSeeing;
-        case NWScript.EFFECT_ICON_SEEINVISIBILITY: return EffectType.SeeInvisible;
-        case NWScript.EFFECT_ICON_ETHEREALNESS: return EffectType.Ethereal;
-        case NWScript.EFFECT_ICON_PETRIFIED: return EffectType.Petrify;
+        NWScript.EFFECT_ICON_BLIND => EffectType.Blindness,
+        NWScript.EFFECT_ICON_CHARMED => EffectType.Charmed,
+        NWScript.EFFECT_ICON_CONFUSED => EffectType.Confused,
+        NWScript.EFFECT_ICON_FRIGHTENED => EffectType.Frightened,
+        NWScript.EFFECT_ICON_DOMINATED => EffectType.Dominated,
+        NWScript.EFFECT_ICON_PARALYZE => EffectType.Paralyze,
+        NWScript.EFFECT_ICON_DAZED => EffectType.Dazed,
+        NWScript.EFFECT_ICON_STUNNED => EffectType.Stunned,
+        NWScript.EFFECT_ICON_SLEEP => EffectType.Sleep,
+        NWScript.EFFECT_ICON_SILENCE => EffectType.Silence,
+        NWScript.EFFECT_ICON_TURNED => EffectType.Turned,
+        NWScript.EFFECT_ICON_HASTE => EffectType.Haste,
+        NWScript.EFFECT_ICON_SLOW => EffectType.Slow,
+        NWScript.EFFECT_ICON_ENTANGLE => EffectType.Entangle,
+        NWScript.EFFECT_ICON_DEAF => EffectType.Deaf,
+        NWScript.EFFECT_ICON_DARKNESS => EffectType.Darkness,
+        NWScript.EFFECT_ICON_POLYMORPH => EffectType.Polymorph,
+        NWScript.EFFECT_ICON_SANCTUARY => EffectType.Sanctuary,
+        NWScript.EFFECT_ICON_TRUESEEING => EffectType.TrueSeeing,
+        NWScript.EFFECT_ICON_SEEINVISIBILITY => EffectType.SeeInvisible,
+        NWScript.EFFECT_ICON_ETHEREALNESS => EffectType.Ethereal,
+        NWScript.EFFECT_ICON_PETRIFIED => EffectType.Petrify,
         // ***
-        
-        case NWScript.EFFECT_ICON_DAMAGE_RESISTANCE: return EffectType.DamageResistance;
-        case NWScript.EFFECT_ICON_REGENERATE: return EffectType.Regenerate;
-        case NWScript.EFFECT_ICON_DAMAGE_REDUCTION: return EffectType.DamageReduction;
-        case NWScript.EFFECT_ICON_TEMPORARY_HITPOINTS: return EffectType.TemporaryHitpoints;
-        case NWScript.EFFECT_ICON_IMMUNITY: return EffectType.Immunity;
-        case NWScript.EFFECT_ICON_POISON: return EffectType.Poison;
-        case NWScript.EFFECT_ICON_DISEASE: return EffectType.Disease;
-        case NWScript.EFFECT_ICON_CURSE: return EffectType.Curse;
-        case NWScript.EFFECT_ICON_ATTACK_INCREASE: return EffectType.AttackIncrease;
-        case NWScript.EFFECT_ICON_ATTACK_DECREASE: return EffectType.AttackDecrease;
-        case NWScript.EFFECT_ICON_DAMAGE_INCREASE: return EffectType.DamageIncrease;
-        case NWScript.EFFECT_ICON_DAMAGE_DECREASE: return EffectType.DamageDecrease;
-        case NWScript.EFFECT_ICON_AC_INCREASE: return EffectType.AcIncrease;
-        case NWScript.EFFECT_ICON_AC_DECREASE: return EffectType.AcDecrease;
-        case NWScript.EFFECT_ICON_MOVEMENT_SPEED_INCREASE: return EffectType.MovementSpeedIncrease;
-        case NWScript.EFFECT_ICON_MOVEMENT_SPEED_DECREASE: return EffectType.MovementSpeedDecrease;
-        case NWScript.EFFECT_ICON_SAVING_THROW_DECREASE: return EffectType.SavingThrowDecrease;
-        case NWScript.EFFECT_ICON_SPELL_RESISTANCE_INCREASE: return EffectType.SpellResistanceIncrease;
-        case NWScript.EFFECT_ICON_SPELL_RESISTANCE_DECREASE: return EffectType.SpellResistanceDecrease;
-        case NWScript.EFFECT_ICON_SKILL_INCREASE: return EffectType.SkillIncrease;
-        case NWScript.EFFECT_ICON_SKILL_DECREASE: return EffectType.SkillDecrease;
-        case NWScript.EFFECT_ICON_ELEMENTALSHIELD: return EffectType.ElementalShield;
-        case NWScript.EFFECT_ICON_LEVELDRAIN: return EffectType.NegativeLevel;
-        case NWScript.EFFECT_ICON_SPELLLEVELABSORPTION: return EffectType.SpellLevelAbsorption;
-        case NWScript.EFFECT_ICON_SPELLIMMUNITY: return EffectType.SpellImmunity;
-        case NWScript.EFFECT_ICON_CONCEALMENT: return EffectType.Concealment;
-        case NWScript.EFFECT_ICON_EFFECT_SPELL_FAILURE: return EffectType.SpellFailure;
-
-        case NWScript.EFFECT_ICON_INVISIBILITY:
-        case NWScript.EFFECT_ICON_IMPROVEDINVISIBILITY: return EffectType.Invisibility;
-
-        case NWScript.EFFECT_ICON_ABILITY_INCREASE_STR:
-        case NWScript.EFFECT_ICON_ABILITY_INCREASE_DEX:
-        case NWScript.EFFECT_ICON_ABILITY_INCREASE_CON:
-        case NWScript.EFFECT_ICON_ABILITY_INCREASE_INT:
-        case NWScript.EFFECT_ICON_ABILITY_INCREASE_WIS:
-        case NWScript.EFFECT_ICON_ABILITY_INCREASE_CHA: return EffectType.AbilityIncrease;
-
-        case NWScript.EFFECT_ICON_ABILITY_DECREASE_STR:
-        case NWScript.EFFECT_ICON_ABILITY_DECREASE_CHA:
-        case NWScript.EFFECT_ICON_ABILITY_DECREASE_DEX:
-        case NWScript.EFFECT_ICON_ABILITY_DECREASE_CON:
-        case NWScript.EFFECT_ICON_ABILITY_DECREASE_INT:
-        case NWScript.EFFECT_ICON_ABILITY_DECREASE_WIS: return EffectType.AbilityDecrease;
-
-        case NWScript.EFFECT_ICON_IMMUNITY_ALL:
-        case NWScript.EFFECT_ICON_IMMUNITY_MIND:
-        case NWScript.EFFECT_ICON_IMMUNITY_POISON:
-        case NWScript.EFFECT_ICON_IMMUNITY_DISEASE:
-        case NWScript.EFFECT_ICON_IMMUNITY_FEAR:
-        case NWScript.EFFECT_ICON_IMMUNITY_TRAP:
-        case NWScript.EFFECT_ICON_IMMUNITY_PARALYSIS:
-        case NWScript.EFFECT_ICON_IMMUNITY_BLINDNESS:
-        case NWScript.EFFECT_ICON_IMMUNITY_DEAFNESS:
-        case NWScript.EFFECT_ICON_IMMUNITY_SLOW:
-        case NWScript.EFFECT_ICON_IMMUNITY_ENTANGLE:
-        case NWScript.EFFECT_ICON_IMMUNITY_SILENCE:
-        case NWScript.EFFECT_ICON_IMMUNITY_STUN:
-        case NWScript.EFFECT_ICON_IMMUNITY_SLEEP:
-        case NWScript.EFFECT_ICON_IMMUNITY_CHARM:
-        case NWScript.EFFECT_ICON_IMMUNITY_DOMINATE:
-        case NWScript.EFFECT_ICON_IMMUNITY_CONFUSE:
-        case NWScript.EFFECT_ICON_IMMUNITY_CURSE:
-        case NWScript.EFFECT_ICON_IMMUNITY_DAZED:
-        case NWScript.EFFECT_ICON_IMMUNITY_ABILITY_DECREASE:
-        case NWScript.EFFECT_ICON_IMMUNITY_ATTACK_DECREASE:
-        case NWScript.EFFECT_ICON_IMMUNITY_DAMAGE_DECREASE:
-        case NWScript.EFFECT_ICON_IMMUNITY_DAMAGE_IMMUNITY_DECREASE:
-        case NWScript.EFFECT_ICON_IMMUNITY_AC_DECREASE:
-        case NWScript.EFFECT_ICON_IMMUNITY_MOVEMENT_SPEED_DECREASE:
-        case NWScript.EFFECT_ICON_IMMUNITY_SAVING_THROW_DECREASE:
-        case NWScript.EFFECT_ICON_IMMUNITY_SPELL_RESISTANCE_DECREASE:
-        case NWScript.EFFECT_ICON_IMMUNITY_SKILL_DECREASE:
-        case NWScript.EFFECT_ICON_IMMUNITY_KNOCKDOWN:
-        case NWScript.EFFECT_ICON_IMMUNITY_NEGATIVE_LEVEL:
-        case NWScript.EFFECT_ICON_IMMUNITY_SNEAK_ATTACK:
-        case NWScript.EFFECT_ICON_IMMUNITY_CRITICAL_HIT:
-        case NWScript.EFFECT_ICON_IMMUNITY_DEATH_MAGIC: return EffectType.Immunity;
-
-        case NWScript.EFFECT_ICON_SAVING_THROW_INCREASE:
-        case NWScript.EFFECT_ICON_REFLEX_SAVE_INCREASED:
-        case NWScript.EFFECT_ICON_FORT_SAVE_INCREASED:
-        case NWScript.EFFECT_ICON_WILL_SAVE_INCREASED: return EffectType.SavingThrowIncrease;
-
-        case NWScript.EFFECT_ICON_DAMAGE_IMMUNITY_INCREASE:
-        case NWScript.EFFECT_ICON_DAMAGE_IMMUNITY_MAGIC:
-        case NWScript.EFFECT_ICON_DAMAGE_IMMUNITY_ACID:
-        case NWScript.EFFECT_ICON_DAMAGE_IMMUNITY_COLD:
-        case NWScript.EFFECT_ICON_DAMAGE_IMMUNITY_DIVINE:
-        case NWScript.EFFECT_ICON_DAMAGE_IMMUNITY_ELECTRICAL:
-        case NWScript.EFFECT_ICON_DAMAGE_IMMUNITY_FIRE:
-        case NWScript.EFFECT_ICON_DAMAGE_IMMUNITY_NEGATIVE:
-        case NWScript.EFFECT_ICON_DAMAGE_IMMUNITY_POSITIVE:
-        case NWScript.EFFECT_ICON_DAMAGE_IMMUNITY_SONIC: return EffectType.DamageImmunityIncrease;
-
-        case NWScript.EFFECT_ICON_DAMAGE_IMMUNITY_DECREASE:
-        case NWScript.EFFECT_ICON_DAMAGE_IMMUNITY_MAGIC_DECREASE:
-        case NWScript.EFFECT_ICON_DAMAGE_IMMUNITY_ACID_DECREASE:
-        case NWScript.EFFECT_ICON_DAMAGE_IMMUNITY_COLD_DECREASE:
-        case NWScript.EFFECT_ICON_DAMAGE_IMMUNITY_DIVINE_DECREASE:
-        case NWScript.EFFECT_ICON_DAMAGE_IMMUNITY_ELECTRICAL_DECREASE:
-        case NWScript.EFFECT_ICON_DAMAGE_IMMUNITY_FIRE_DECREASE:
-        case NWScript.EFFECT_ICON_DAMAGE_IMMUNITY_NEGATIVE_DECREASE:
-        case NWScript.EFFECT_ICON_DAMAGE_IMMUNITY_POSITIVE_DECREASE:
-        case NWScript.EFFECT_ICON_DAMAGE_IMMUNITY_SONIC_DECREASE: return EffectType.DamageImmunityDecrease;
-
-          case NWScript.EFFECT_ICON_INVULNERABLE: return EffectType.Invulnerable;
-          case NWScript.EFFECT_ICON_WOUNDING: return EffectType.InvalidEffect;
-          case NWScript.EFFECT_ICON_TAUNTED: return EffectType.InvalidEffect;
-          case NWScript.EFFECT_ICON_TIMESTOP: return EffectType.TimeStop;
-          case NWScript.EFFECT_ICON_BLINDNESS: return EffectType.Blindness;
-          case NWScript.EFFECT_ICON_DISPELMAGICBEST: return EffectType.InvalidEffect;
-          case NWScript.EFFECT_ICON_DISPELMAGICALL: return EffectType.InvalidEffect;
-          case NWScript.EFFECT_ICON_ENEMY_ATTACK_BONUS: return EffectType.InvalidEffect;
-          case NWScript.EFFECT_ICON_FATIGUE: return EffectType.InvalidEffect;
-      }
-
-      return EffectType.InvalidEffect;
+        NWScript.EFFECT_ICON_DAMAGE_RESISTANCE => EffectType.DamageResistance,
+        NWScript.EFFECT_ICON_REGENERATE => EffectType.Regenerate,
+        NWScript.EFFECT_ICON_DAMAGE_REDUCTION => EffectType.DamageReduction,
+        NWScript.EFFECT_ICON_TEMPORARY_HITPOINTS => EffectType.TemporaryHitpoints,
+        NWScript.EFFECT_ICON_IMMUNITY => EffectType.Immunity,
+        NWScript.EFFECT_ICON_POISON => EffectType.Poison,
+        NWScript.EFFECT_ICON_DISEASE => EffectType.Disease,
+        NWScript.EFFECT_ICON_CURSE => EffectType.Curse,
+        NWScript.EFFECT_ICON_ATTACK_INCREASE => EffectType.AttackIncrease,
+        NWScript.EFFECT_ICON_ATTACK_DECREASE => EffectType.AttackDecrease,
+        NWScript.EFFECT_ICON_DAMAGE_INCREASE => EffectType.DamageIncrease,
+        NWScript.EFFECT_ICON_DAMAGE_DECREASE => EffectType.DamageDecrease,
+        NWScript.EFFECT_ICON_AC_INCREASE => EffectType.AcIncrease,
+        NWScript.EFFECT_ICON_AC_DECREASE => EffectType.AcDecrease,
+        NWScript.EFFECT_ICON_MOVEMENT_SPEED_INCREASE => EffectType.MovementSpeedIncrease,
+        NWScript.EFFECT_ICON_MOVEMENT_SPEED_DECREASE => EffectType.MovementSpeedDecrease,
+        NWScript.EFFECT_ICON_SAVING_THROW_DECREASE => EffectType.SavingThrowDecrease,
+        NWScript.EFFECT_ICON_SPELL_RESISTANCE_INCREASE => EffectType.SpellResistanceIncrease,
+        NWScript.EFFECT_ICON_SPELL_RESISTANCE_DECREASE => EffectType.SpellResistanceDecrease,
+        NWScript.EFFECT_ICON_SKILL_INCREASE => EffectType.SkillIncrease,
+        NWScript.EFFECT_ICON_SKILL_DECREASE => EffectType.SkillDecrease,
+        NWScript.EFFECT_ICON_ELEMENTALSHIELD => EffectType.ElementalShield,
+        NWScript.EFFECT_ICON_LEVELDRAIN => EffectType.NegativeLevel,
+        NWScript.EFFECT_ICON_SPELLLEVELABSORPTION => EffectType.SpellLevelAbsorption,
+        NWScript.EFFECT_ICON_SPELLIMMUNITY => EffectType.SpellImmunity,
+        NWScript.EFFECT_ICON_CONCEALMENT => EffectType.Concealment,
+        NWScript.EFFECT_ICON_EFFECT_SPELL_FAILURE => EffectType.SpellFailure,
+        NWScript.EFFECT_ICON_INVISIBILITY or NWScript.EFFECT_ICON_IMPROVEDINVISIBILITY => EffectType.Invisibility,
+        NWScript.EFFECT_ICON_ABILITY_INCREASE_STR or NWScript.EFFECT_ICON_ABILITY_INCREASE_DEX or NWScript.EFFECT_ICON_ABILITY_INCREASE_CON or NWScript.EFFECT_ICON_ABILITY_INCREASE_INT or NWScript.EFFECT_ICON_ABILITY_INCREASE_WIS or NWScript.EFFECT_ICON_ABILITY_INCREASE_CHA => EffectType.AbilityIncrease,
+        NWScript.EFFECT_ICON_ABILITY_DECREASE_STR or NWScript.EFFECT_ICON_ABILITY_DECREASE_CHA or NWScript.EFFECT_ICON_ABILITY_DECREASE_DEX or NWScript.EFFECT_ICON_ABILITY_DECREASE_CON or NWScript.EFFECT_ICON_ABILITY_DECREASE_INT or NWScript.EFFECT_ICON_ABILITY_DECREASE_WIS => EffectType.AbilityDecrease,
+        NWScript.EFFECT_ICON_IMMUNITY_ALL or NWScript.EFFECT_ICON_IMMUNITY_MIND or NWScript.EFFECT_ICON_IMMUNITY_POISON or NWScript.EFFECT_ICON_IMMUNITY_DISEASE or NWScript.EFFECT_ICON_IMMUNITY_FEAR or NWScript.EFFECT_ICON_IMMUNITY_TRAP or NWScript.EFFECT_ICON_IMMUNITY_PARALYSIS or NWScript.EFFECT_ICON_IMMUNITY_BLINDNESS or NWScript.EFFECT_ICON_IMMUNITY_DEAFNESS or NWScript.EFFECT_ICON_IMMUNITY_SLOW or NWScript.EFFECT_ICON_IMMUNITY_ENTANGLE or NWScript.EFFECT_ICON_IMMUNITY_SILENCE or NWScript.EFFECT_ICON_IMMUNITY_STUN or NWScript.EFFECT_ICON_IMMUNITY_SLEEP or NWScript.EFFECT_ICON_IMMUNITY_CHARM or NWScript.EFFECT_ICON_IMMUNITY_DOMINATE or NWScript.EFFECT_ICON_IMMUNITY_CONFUSE or NWScript.EFFECT_ICON_IMMUNITY_CURSE or NWScript.EFFECT_ICON_IMMUNITY_DAZED or NWScript.EFFECT_ICON_IMMUNITY_ABILITY_DECREASE or NWScript.EFFECT_ICON_IMMUNITY_ATTACK_DECREASE or NWScript.EFFECT_ICON_IMMUNITY_DAMAGE_DECREASE or NWScript.EFFECT_ICON_IMMUNITY_DAMAGE_IMMUNITY_DECREASE or NWScript.EFFECT_ICON_IMMUNITY_AC_DECREASE or NWScript.EFFECT_ICON_IMMUNITY_MOVEMENT_SPEED_DECREASE or NWScript.EFFECT_ICON_IMMUNITY_SAVING_THROW_DECREASE or NWScript.EFFECT_ICON_IMMUNITY_SPELL_RESISTANCE_DECREASE or NWScript.EFFECT_ICON_IMMUNITY_SKILL_DECREASE or NWScript.EFFECT_ICON_IMMUNITY_KNOCKDOWN or NWScript.EFFECT_ICON_IMMUNITY_NEGATIVE_LEVEL or NWScript.EFFECT_ICON_IMMUNITY_SNEAK_ATTACK or NWScript.EFFECT_ICON_IMMUNITY_CRITICAL_HIT or NWScript.EFFECT_ICON_IMMUNITY_DEATH_MAGIC => EffectType.Immunity,
+        NWScript.EFFECT_ICON_SAVING_THROW_INCREASE or NWScript.EFFECT_ICON_REFLEX_SAVE_INCREASED or NWScript.EFFECT_ICON_FORT_SAVE_INCREASED or NWScript.EFFECT_ICON_WILL_SAVE_INCREASED => EffectType.SavingThrowIncrease,
+        NWScript.EFFECT_ICON_DAMAGE_IMMUNITY_INCREASE or NWScript.EFFECT_ICON_DAMAGE_IMMUNITY_MAGIC or NWScript.EFFECT_ICON_DAMAGE_IMMUNITY_ACID or NWScript.EFFECT_ICON_DAMAGE_IMMUNITY_COLD or NWScript.EFFECT_ICON_DAMAGE_IMMUNITY_DIVINE or NWScript.EFFECT_ICON_DAMAGE_IMMUNITY_ELECTRICAL or NWScript.EFFECT_ICON_DAMAGE_IMMUNITY_FIRE or NWScript.EFFECT_ICON_DAMAGE_IMMUNITY_NEGATIVE or NWScript.EFFECT_ICON_DAMAGE_IMMUNITY_POSITIVE or NWScript.EFFECT_ICON_DAMAGE_IMMUNITY_SONIC => EffectType.DamageImmunityIncrease,
+        NWScript.EFFECT_ICON_DAMAGE_IMMUNITY_DECREASE or NWScript.EFFECT_ICON_DAMAGE_IMMUNITY_MAGIC_DECREASE or NWScript.EFFECT_ICON_DAMAGE_IMMUNITY_ACID_DECREASE or NWScript.EFFECT_ICON_DAMAGE_IMMUNITY_COLD_DECREASE or NWScript.EFFECT_ICON_DAMAGE_IMMUNITY_DIVINE_DECREASE or NWScript.EFFECT_ICON_DAMAGE_IMMUNITY_ELECTRICAL_DECREASE or NWScript.EFFECT_ICON_DAMAGE_IMMUNITY_FIRE_DECREASE or NWScript.EFFECT_ICON_DAMAGE_IMMUNITY_NEGATIVE_DECREASE or NWScript.EFFECT_ICON_DAMAGE_IMMUNITY_POSITIVE_DECREASE or NWScript.EFFECT_ICON_DAMAGE_IMMUNITY_SONIC_DECREASE => EffectType.DamageImmunityDecrease,
+        NWScript.EFFECT_ICON_INVULNERABLE => EffectType.Invulnerable,
+        NWScript.EFFECT_ICON_WOUNDING => EffectType.InvalidEffect,
+        NWScript.EFFECT_ICON_TAUNTED => EffectType.InvalidEffect,
+        NWScript.EFFECT_ICON_TIMESTOP => EffectType.TimeStop,
+        NWScript.EFFECT_ICON_BLINDNESS => EffectType.Blindness,
+        NWScript.EFFECT_ICON_DISPELMAGICBEST => EffectType.InvalidEffect,
+        NWScript.EFFECT_ICON_DISPELMAGICALL => EffectType.InvalidEffect,
+        NWScript.EFFECT_ICON_ENEMY_ATTACK_BONUS => EffectType.InvalidEffect,
+        NWScript.EFFECT_ICON_FATIGUE => EffectType.InvalidEffect,
+        _ => EffectType.InvalidEffect,
+      };
     }
 
     // TODO : Probablement refaire le système de déguisement plus proprement

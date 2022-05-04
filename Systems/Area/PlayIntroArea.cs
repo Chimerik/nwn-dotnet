@@ -22,7 +22,7 @@ namespace NWN.Systems
       player.SetCameraFacing(180, 65, 20);
 
       captain.DialogResRef = "";
-      captain.SpeakString("Des récifs ! Accrochez-vous, va falloir maneouvrer serré !");
+      captain.SpeakString("Des récifs ! Accrochez-vous, va falloir manoeuvrer serré !");
 
       List<NwCreature> sailorList = captain.GetNearestCreatures(CreatureTypeFilter.PlayerChar(false)).Where(c => c.Tag == "intro_sailor").ToList();
       sailorList[0].ActionRandomWalk();
