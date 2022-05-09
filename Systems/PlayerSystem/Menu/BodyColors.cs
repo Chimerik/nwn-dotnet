@@ -1,4 +1,6 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 
 using Anvil.API;
 using Anvil.API.Events;
@@ -26,7 +28,9 @@ namespace NWN.Systems
             new NuiComboEntry("Lèvres / Tattoo 2", 2),
           };
 
-        public BodyColorWindow(Player player) : base(player)
+        private NwCreature targetCreature;
+
+        public BodyColorWindow(Player player, NwCreature targetCreature) : base(player)
         {
           windowId = "bodyColorsModifier";
 
@@ -89,11 +93,15 @@ namespace NWN.Systems
           rootChildren.Add(buttonRow);
           rootColumn = new NuiColumn { Children = rootChildren };
 
-          CreateWindow();
+          CreateWindow(targetCreature);
         }
-        public void CreateWindow()
+        public void CreateWindow(NwCreature targetCreature)
         {
+          this.targetCreature = targetCreature;
           player.DisableItemAppearanceFeedbackMessages();
+
+          if (player.openedWindows.ContainsKey(windowId))
+            CloseWindow();
 
           NuiRect windowRectangle = player.windowRectangles.ContainsKey(windowId) ? new NuiRect(player.windowRectangles[windowId].X, player.windowRectangles[windowId].Y, 470, 470) : new NuiRect(0, player.oid.GetDeviceProperty(PlayerDeviceProperty.GuiHeight) * 0.02f, 470, 470);
 
@@ -110,30 +118,48 @@ namespace NWN.Systems
           player.oid.OnNuiEvent -= HandleBodyColorsEvents;
           player.oid.OnNuiEvent += HandleBodyColorsEvents;
 
-          player.ActivateSpotLight();
+          player.ActivateSpotLight(targetCreature);
 
-          token = player.oid.CreateNuiWindow(window, windowId);
+          Task wait = NwTask.Run(async () =>
+          {
+            await NwTask.Delay(TimeSpan.FromMilliseconds(10));
 
-          currentColor.SetBindValue(player.oid, token, $"hair{player.oid.ControlledCreature.GetColor(ColorChannel.Hair) + 1}");
-          channelSelection.SetBindValue(player.oid, token, 1);
-          channelSelection.SetBindWatch(player.oid, token, true);
+            if (player.oid.TryCreateNuiWindow(window, out NuiWindowToken tempToken, windowId))
+            {
+              nuiToken = tempToken;
 
-          geometry.SetBindValue(player.oid, token, windowRectangle);
-          geometry.SetBindWatch(player.oid, token, true);
+              currentColor.SetBindValue(player.oid, nuiToken.Token, $"hair{targetCreature.GetColor(ColorChannel.Hair) + 1}");
+              channelSelection.SetBindValue(player.oid, nuiToken.Token, 1);
+              channelSelection.SetBindWatch(player.oid, nuiToken.Token, true);
 
-          for (int i = 0; i < 176; i++)
-            colorBindings[i].SetBindValue(player.oid, token, NWScript.ResManGetAliasFor($"hair{i + 1}", NWScript.RESTYPE_TGA) != "" ? $"hair{i + 1}" : $"leather{i + 1}");
+              geometry.SetBindValue(player.oid, nuiToken.Token, windowRectangle);
+              geometry.SetBindWatch(player.oid, nuiToken.Token, true);
 
-          player.openedWindows[windowId] = token;
+              for (int i = 0; i < 176; i++)
+                colorBindings[i].SetBindValue(player.oid, nuiToken.Token, NWScript.ResManGetAliasFor($"hair{i + 1}", NWScript.RESTYPE_TGA) != "" ? $"hair{i + 1}" : $"leather{i + 1}");
+
+              player.openedWindows[windowId] = nuiToken.Token;
+            }
+            else
+              player.oid.SendServerMessage($"Impossible d'ouvrir la fenêtre {window.Title}. Celle-ci est-elle déjà ouverte ?", ColorConstants.Orange);
+          });
         }
         private void HandleBodyColorsEvents(ModuleEvents.OnNuiEvent nuiEvent)
         {
-          if (player.oid.NuiGetWindowId(token) != windowId)
+          if (player.oid.NuiGetWindowId(nuiToken.Token) != windowId)
             return;
+
+          if (targetCreature == null)
+          {
+            player.oid.SendServerMessage("La créature éditée n'est plus valide.", ColorConstants.Red);
+            player.EnableItemAppearanceFeedbackMessages();
+            CloseWindow();
+            return;
+          }
 
           if (nuiEvent.EventType == NuiEventType.Close)
           {
-            player.RemoveSpotLight();
+            player.RemoveSpotLight(targetCreature);
             player.EnableItemAppearanceFeedbackMessages();
             return;
           }
@@ -147,20 +173,20 @@ namespace NWN.Systems
                 CloseWindow();
 
                 if (player.windows.ContainsKey("bodyAppearanceModifier"))
-                  ((BodyAppearanceWindow)player.windows["bodyAppearanceModifier"]).CreateWindow();
+                  ((BodyAppearanceWindow)player.windows["bodyAppearanceModifier"]).CreateWindow(targetCreature);
                 else
-                  player.windows.Add("bodyAppearanceModifier", new BodyAppearanceWindow(player));
+                  player.windows.Add("bodyAppearanceModifier", new BodyAppearanceWindow(player, targetCreature));
 
                 return;
               }
 
-              player.oid.ControlledCreature.SetColor((ColorChannel)channelSelection.GetBindValue(player.oid, token), int.Parse(nuiEvent.ElementId));
+              targetCreature.SetColor((ColorChannel)channelSelection.GetBindValue(player.oid, nuiToken.Token), int.Parse(nuiEvent.ElementId));
 
               string chanChoice = "hair";
-              if (channelSelection.GetBindValue(player.oid, token) != 1)
+              if (channelSelection.GetBindValue(player.oid, nuiToken.Token) != 1)
                 chanChoice = "skin";
 
-              currentColor.SetBindValue(player.oid, token, NWScript.ResManGetAliasFor($"{chanChoice}{int.Parse(nuiEvent.ElementId) + 1}", NWScript.RESTYPE_TGA) != "" ? $"{chanChoice}{int.Parse(nuiEvent.ElementId) + 1}" : $"leather{int.Parse(nuiEvent.ElementId) + 1}");
+              currentColor.SetBindValue(player.oid, nuiToken.Token, NWScript.ResManGetAliasFor($"{chanChoice}{int.Parse(nuiEvent.ElementId) + 1}", NWScript.RESTYPE_TGA) != "" ? $"{chanChoice}{int.Parse(nuiEvent.ElementId) + 1}" : $"leather{int.Parse(nuiEvent.ElementId) + 1}");
 
               break;
 
@@ -169,15 +195,15 @@ namespace NWN.Systems
               if (nuiEvent.ElementId == "channelSelection")
               {
                 string channelChoice = "hair";
-                ColorChannel selectedChannel = (ColorChannel)channelSelection.GetBindValue(player.oid, token);
+                ColorChannel selectedChannel = (ColorChannel)channelSelection.GetBindValue(player.oid, nuiToken.Token);
                 if (selectedChannel != ColorChannel.Hair)
                   channelChoice = "skin";
 
                 for (int i = 0; i < 4; i++)
-                  colorBindings[i].SetBindValue(player.oid, token, NWScript.ResManGetAliasFor($"{channelChoice}{i + 1}", NWScript.RESTYPE_TGA) != "" ? $"{channelChoice}{i + 1}" : $"leather{i + 1}");
+                  colorBindings[i].SetBindValue(player.oid, nuiToken.Token, NWScript.ResManGetAliasFor($"{channelChoice}{i + 1}", NWScript.RESTYPE_TGA) != "" ? $"{channelChoice}{i + 1}" : $"leather{i + 1}");
 
-                int newCurrentColor = player.oid.ControlledCreature.GetColor(selectedChannel) + 1;
-                currentColor.SetBindValue(player.oid, token, NWScript.ResManGetAliasFor($"{channelChoice}{newCurrentColor}", NWScript.RESTYPE_TGA) != "" ? $"{channelChoice}{newCurrentColor}" : $"leather{newCurrentColor}");
+                int newCurrentColor = targetCreature.GetColor(selectedChannel) + 1;
+                currentColor.SetBindValue(player.oid, nuiToken.Token, NWScript.ResManGetAliasFor($"{channelChoice}{newCurrentColor}", NWScript.RESTYPE_TGA) != "" ? $"{channelChoice}{newCurrentColor}" : $"leather{newCurrentColor}");
               }
               break;
           }

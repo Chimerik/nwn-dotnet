@@ -57,6 +57,7 @@ namespace NWN.Systems
 
 
       private readonly SpellSystem spellSystem;
+      private readonly AreaSystem areaSystem;
       private readonly FeedbackService feedbackService;
       public readonly SchedulerService scheduler;
 
@@ -74,6 +75,7 @@ namespace NWN.Systems
         pveArena = new Arena.PlayerData();
         scheduler = schedulerService;
         this.spellSystem = spellSystem;
+        this.areaSystem = areaSystem;
         this.feedbackService = feedbackService;
 
         Log.Info($"accountID : {this.oid.LoginCreature.GetObjectVariable<PersistentVariableInt>("accountId").Value}");
@@ -86,7 +88,7 @@ namespace NWN.Systems
           this.accountId = this.oid.LoginCreature.GetObjectVariable<PersistentVariableInt>("accountId").Value;
 
           if (this.oid.LoginCreature.GetObjectVariable<PersistentVariableInt>("characterId").HasNothing && !oid.IsDM)
-            InitializeNewCharacter(areaSystem);
+            InitializeNewCharacter();
 
           this.characterId = this.oid.LoginCreature.GetObjectVariable<PersistentVariableInt>("characterId").Value;
 
@@ -436,20 +438,20 @@ namespace NWN.Systems
         else
           return null;
       }
-      private void ActivateSpotLight()
+      private void ActivateSpotLight(NwCreature target)
       {
-        if (oid.ControlledCreature.GetObjectVariable<LocalVariableBool>("SPOTLIGHT_ON").HasNothing)
+        if (target.GetObjectVariable<LocalVariableBool>("SPOTLIGHT_ON").HasNothing)
         {
-          PlayerPlugin.ApplyLoopingVisualEffectToObject(oid.ControlledCreature, oid.ControlledCreature, 173);
-          oid.ControlledCreature.GetObjectVariable<LocalVariableBool>("SPOTLIGHT_ON").Value = true;
+          PlayerPlugin.ApplyLoopingVisualEffectToObject(oid.ControlledCreature, target, 173);
+          target.GetObjectVariable<LocalVariableBool>("SPOTLIGHT_ON").Value = true;
         }
       }
-      private void RemoveSpotLight()
+      private void RemoveSpotLight(NwCreature target)
       {
-        if (oid.ControlledCreature.GetObjectVariable<LocalVariableBool>("SPOTLIGHT_ON").HasValue)
+        if (target.GetObjectVariable<LocalVariableBool>("SPOTLIGHT_ON").HasValue)
         {
-          PlayerPlugin.ApplyLoopingVisualEffectToObject(oid.ControlledCreature, oid.ControlledCreature, 173);
-          oid.ControlledCreature.GetObjectVariable<LocalVariableBool>("SPOTLIGHT_ON").Delete();
+          PlayerPlugin.ApplyLoopingVisualEffectToObject(oid.ControlledCreature, target, 173);
+          target.GetObjectVariable<LocalVariableBool>("SPOTLIGHT_ON").Delete();
         }
       }
       public int GetWeaponMasteryLevel(BaseItemType baseItem)
@@ -1087,6 +1089,60 @@ namespace NWN.Systems
           timeCost *= learnableSkills[CustomSkill.RepairFast].bonusReduction;
 
         return timeCost;
+      }
+      public string GetUniqueTagForChar(string suffix)
+      {
+        return this.oid.CDKey + "_" + this.oid.BicFileName + "_" + suffix;
+      }
+      private void HandleGenericNuiEvents(ModuleEvents.OnNuiEvent nuiEvent)
+      {
+        string window = nuiEvent.Player.NuiGetWindowId(nuiEvent.Token.Token);
+
+        switch (nuiEvent.ElementId)
+        {
+          case "geometry":
+
+            NuiRect windowRectangle = new NuiBind<NuiRect>("geometry").GetBindValue(nuiEvent.Player, nuiEvent.Token.Token);
+            
+            if (windowRectangle.Width > 0 && windowRectangle.Height > 0)
+            {
+              if (windowRectangles.ContainsKey(window))
+                windowRectangles[window] = windowRectangle;
+              else
+                windowRectangles.Add(window, windowRectangle);
+            }
+
+            if (pcState == PcState.Online)
+              nuiEvent.Player.ExportCharacter();
+            break;
+
+          case "_window_":
+
+            switch (nuiEvent.EventType)
+            {
+              case NuiEventType.Open:
+                if (!openedWindows.ContainsKey(window))
+                {
+                  openedWindows.Add(window, nuiEvent.Token.Token);
+
+                  if (pcState == PcState.Online)
+                    nuiEvent.Player.ExportCharacter();
+                }
+                break;
+
+              case NuiEventType.Close:
+                if (openedWindows.ContainsKey(window))
+                {
+                  openedWindows.Remove(window);
+
+                  if (pcState == PcState.Online)
+                    nuiEvent.Player.ExportCharacter();
+                }
+                break;
+            }
+
+            break;
+        }
       }
     }
   }

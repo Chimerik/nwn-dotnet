@@ -119,7 +119,7 @@ namespace NWN.Systems
           player.oid.OnNuiEvent -= HandleHelmetColorsEvents;
           player.oid.OnNuiEvent += HandleHelmetColorsEvents;
 
-          player.ActivateSpotLight();
+          player.ActivateSpotLight(player.oid.ControlledCreature);
 
           token = player.oid.CreateNuiWindow(window, windowId);
 
@@ -143,7 +143,7 @@ namespace NWN.Systems
           if (nuiEvent.EventType == NuiEventType.Close)
           {
             player.EnableItemAppearanceFeedbackMessages();
-            player.RemoveSpotLight();
+            player.RemoveSpotLight(player.oid.ControlledCreature);
             return;
           }
 

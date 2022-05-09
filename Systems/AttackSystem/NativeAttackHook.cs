@@ -4,6 +4,8 @@ using Anvil.Services;
 using NLog;
 using System.Linq;
 using System;
+using NWN.Core;
+using System.Numerics;
 
 namespace NWN.Systems
 {
@@ -15,18 +17,23 @@ namespace NWN.Systems
 
     //private delegate int GetDamageRollHook(void* thisPtr, void* pTarget, int bOffHand, int bCritical, int bSneakAttack, int bDeathAttack, int bForceMax);
     private delegate void ResolveAttackRollHook(void* pCreature, void* pTarget);
-    private delegate byte ResolveGetSpellLikeAbilityCasterLevelHook(void* pCreatureStats, int nSpellId);
-    private delegate byte ResolveGetCasterLevelHook(void* pCreatureStats, byte nMultiClass);
+    private delegate byte GetSpellLikeAbilityCasterLevelHook(void* pCreatureStats, int nSpellId);
+    private delegate byte GetCasterLevelHook(void* pCreatureStats, byte nMultiClass);
+    private delegate int AddUseTalentOnObjectHook(void* pCreature, int talentType, int talentId, uint oidTarget, byte nMultiClass, uint oidItem, int nItemPropertyIndex, byte nCasterLevel, int nMetaType);
+    private delegate int AddUseTalentAtLocationHook(void* pCreature, int talentType, int talentId, Vector3 vTargetLocation, byte nMultiClass, uint oidItem, int nItemPropertyIndex, byte nCasterLevel, int nMetaType);
 
     //private readonly FunctionHook<GetDamageRollHook> getDamageRollHook;
-    //private readonly FunctionHook<ResolveAttackRollHook> resolveAttackRollHook;
+    private readonly FunctionHook<AddUseTalentOnObjectHook> addUseTalentOnObjectHook;
+    private readonly FunctionHook<AddUseTalentAtLocationHook> addUseTalentAtLocationHook;
 
     public NativeAttackHook(HookService hookService)
     {
       //getDamageRollHook = hookService.RequestHook<GetDamageRollHook>(OnGetDamageRoll, FunctionsLinux._ZN17CNWSCreatureStats13GetDamageRollEP10CNWSObjectiiiii, HookOrder.Early);
       hookService.RequestHook<ResolveAttackRollHook>(OnResolveAttackRoll, FunctionsLinux._ZN12CNWSCreature17ResolveAttackRollEP10CNWSObject, HookOrder.Early);
-      hookService.RequestHook<ResolveGetSpellLikeAbilityCasterLevelHook>(OnResolveGetSpellLikeAbilityCasterLevel, FunctionsLinux._ZN17CNWSCreatureStats30GetSpellLikeAbilityCasterLevelEj, HookOrder.Early);
-      hookService.RequestHook<ResolveGetCasterLevelHook>(OnResolveGetCasterLevel, FunctionsLinux._ZN17CNWSCreatureStats14GetCasterLevelEh, HookOrder.Early);
+      hookService.RequestHook<GetSpellLikeAbilityCasterLevelHook>(OnGetSpellLikeAbilityCasterLevel, FunctionsLinux._ZN17CNWSCreatureStats30GetSpellLikeAbilityCasterLevelEj, HookOrder.Early);
+      hookService.RequestHook<GetCasterLevelHook>(OnGetCasterLevel, FunctionsLinux._ZN17CNWSCreatureStats14GetCasterLevelEh, HookOrder.Early);
+      addUseTalentOnObjectHook = hookService.RequestHook<AddUseTalentOnObjectHook>(OnAddUseTalentOnObjectHook, FunctionsLinux._ZN12CNWSCreature27AddUseTalentOnObjectActionsEiijhjihh, HookOrder.Early);
+      addUseTalentAtLocationHook = hookService.RequestHook<AddUseTalentAtLocationHook>(OnAddUseTalentAtLocationHook, FunctionsLinux._ZN12CNWSCreature29AddUseTalentAtLocationActionsEii6Vectorhjihh, HookOrder.Early);
     }
     public static void SendPartyInvite(uint invited, NwCreature inviter)
     {
@@ -62,10 +69,37 @@ namespace NWN.Systems
           attackData.m_nAttackResult = 4;
       }
     }
-
-    private byte OnResolveGetSpellLikeAbilityCasterLevel(void* pCreatureStats, int nSpellId)
+    private int OnAddUseTalentOnObjectHook(void* pCreature, int talentType, int talentId, uint oidTarget, byte nMultiClass, uint oidItem, int nItemPropertyIndex, byte nCasterLevel, int nMetaType)
     {
-      Log.Info($"----------------------get spellLikeAbility caster level called : spell {nSpellId} !---------------------");
+      if (talentType == (int)TalentType.Spell)
+      {
+        if(CNWSCreature.FromPointer(pCreature).m_pStats.m_pSpellLikeAbilityList.Count(s => s.m_nSpellId == talentId) > 9)
+        {
+          NWScript.ActionCastSpellAtObject(talentId, oidTarget, nMetaType, 1);
+          return 0;
+        }
+      }
+
+      return addUseTalentOnObjectHook.CallOriginal(pCreature, talentType, talentId, oidTarget, nMultiClass, oidItem, nItemPropertyIndex, nCasterLevel, nMetaType);
+    }
+    private int OnAddUseTalentAtLocationHook(void* pCreature, int talentType, int talentId, Vector3 vTargetLocation, byte nMultiClass, uint oidItem, int nItemPropertyIndex, byte nCasterLevel, int nMetaType)
+    {
+      if (talentType == (int)TalentType.Spell)
+      {
+        var creature = CNWSCreature.FromPointer(pCreature);
+
+        if (creature.m_pStats.m_pSpellLikeAbilityList.Count(s => s.m_nSpellId == talentId) > 9)
+        {
+          NWScript.ActionCastSpellAtLocation(talentId, NWScript.Location(creature.GetArea().m_idSelf, vTargetLocation, NWScript.GetFacing(creature.m_idSelf)) , nMetaType, 1);
+          return 0;
+        }
+      }
+
+      return addUseTalentAtLocationHook.CallOriginal(pCreature, talentType, talentId, vTargetLocation, nMultiClass, oidItem, nItemPropertyIndex, nCasterLevel, nMetaType);
+    }
+    private byte OnGetSpellLikeAbilityCasterLevel(void* pCreatureStats, int nSpellId)
+    {
+      //Log.Info($"----------------------get spellLikeAbility caster level called : spell {nSpellId} !---------------------");
       CNWSCreatureStats creatureStats = CNWSCreatureStats.FromPointer(pCreatureStats);
       int casterLevel = creatureStats.m_pBaseCreature.m_ScriptVars.GetInt(casterLevelVariable);
 
@@ -74,7 +108,7 @@ namespace NWN.Systems
       else
         return creatureStats.m_pSpellLikeAbilityList.FirstOrDefault(s => s.m_nSpellId == nSpellId).m_nCasterLevel;
     }
-    private byte OnResolveGetCasterLevel(void* pCreatureStats, byte nMultiClass)
+    private byte OnGetCasterLevel(void* pCreatureStats, byte nMultiClass)
     {
       CNWSCreatureStats creatureStats = CNWSCreatureStats.FromPointer(pCreatureStats);
       int casterLevel = 0;

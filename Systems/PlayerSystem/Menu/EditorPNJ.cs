@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 
 using Anvil.API;
 using Anvil.API.Events;
@@ -11,6 +12,14 @@ namespace NWN.Systems
   {
     public partial class Player
     {
+      private enum Tab
+      {
+        Base,
+        Portrait,
+        Stats,
+        Feat,
+        Spell
+      }
       public class EditorPNJWindow : PlayerWindow
       {
         private NwCreature targetCreature;
@@ -82,10 +91,21 @@ namespace NWN.Systems
         private readonly NuiBind<string> acquiredFeatNames = new("acquiredFeatNames");
         private readonly NuiBind<string> availableFeatSearch = new("availableFeatSearch");
         private readonly NuiBind<string> acquiredFeatSearch = new("acquiredFeatSearch");
+        private readonly NuiBind<string> spellQuantity = new("spellQuantity");
+        private readonly NuiBind<bool> spellQuantityEnabled = new("spellQuantityEnabled");
+        private int spellQuantityIndexSelected;
+
         private readonly List<NwFeat> availableFeats = new();
         private readonly List<NwFeat> acquiredFeats = new();
         private List<NwFeat> availableFeatSearcher = new();
         private List<NwFeat> acquiredFeatSearcher = new();
+
+        private readonly List<NwSpell> availableSpells = new();
+        private readonly List<NwSpell> acquiredSpells = new();
+        private List<NwSpell> availableSpellSearcher = new();
+        private List<NwSpell> acquiredSpellSearcher = new();
+
+        Tab currentTab;
 
         public EditorPNJWindow(Player player, NwCreature targetCreature) : base(player)
         {
@@ -116,19 +136,31 @@ namespace NWN.Systems
           player.oid.OnNuiEvent -= HandleEditorPNJEvents;
           player.oid.OnNuiEvent += HandleEditorPNJEvents;
 
-          token = player.oid.CreateNuiWindow(window, windowId);
+          if (player.oid.TryCreateNuiWindow(window, out NuiWindowToken tempToken, windowId))
+          {
+            nuiToken = tempToken;
+            currentTab = Tab.Base;
+            LoadBaseBinding();
 
-          LoadBaseBinding();
+            geometry.SetBindValue(player.oid, nuiToken.Token, windowRectangle);
+            geometry.SetBindWatch(player.oid, nuiToken.Token, true);
 
-          geometry.SetBindValue(player.oid, token, windowRectangle);
-          geometry.SetBindWatch(player.oid, token, true);
-
-          player.openedWindows[windowId] = token;
+            player.openedWindows[windowId] = nuiToken.Token;
+          }
+          else
+            player.oid.SendServerMessage($"Impossible d'ouvrir la fenêtre {window.Title}. Celle-ci est-elle déjà ouverte ?", ColorConstants.Orange);
         }
         private void HandleEditorPNJEvents(ModuleEvents.OnNuiEvent nuiEvent)
         {
-          if (nuiEvent.Player.NuiGetWindowId(nuiEvent.WindowToken) != windowId)
+          if (nuiEvent.Player.NuiGetWindowId(nuiEvent.Token.Token) != windowId)
             return;
+
+          if(targetCreature == null)
+          {
+            player.oid.SendServerMessage("La créature éditée n'est plus valide.", ColorConstants.Red);
+            CloseWindow();
+            return;
+          }
 
           switch (nuiEvent.EventType)
           {
@@ -138,20 +170,57 @@ namespace NWN.Systems
               {
                 case "availableFeatDescription":
 
-                  if (player.windows.ContainsKey("featDescription"))
-                    ((FeatDescriptionWindow)player.windows["featDescription"]).CreateWindow(availableFeatSearcher[nuiEvent.ArrayIndex]);
-                  else
-                    player.windows.Add("featDescription", new FeatDescriptionWindow(player, availableFeatSearcher[nuiEvent.ArrayIndex]));
+                  switch(currentTab)
+                  {
+                    case Tab.Feat:
 
+                      if (player.windows.ContainsKey("featDescription"))
+                        ((FeatDescriptionWindow)player.windows["featDescription"]).CreateWindow(availableFeatSearcher[nuiEvent.ArrayIndex]);
+                      else
+                        player.windows.Add("featDescription", new FeatDescriptionWindow(player, availableFeatSearcher[nuiEvent.ArrayIndex]));
+
+                      break;
+
+                    case Tab.Spell:
+
+                      if (player.windows.ContainsKey("spellDescription"))
+                        ((SpellDescriptionWindow)player.windows["spellDescription"]).CreateWindow(availableSpellSearcher[nuiEvent.ArrayIndex]);
+                      else
+                        player.windows.Add("spellDescription", new SpellDescriptionWindow(player, availableSpellSearcher[nuiEvent.ArrayIndex]));
+
+                      break;
+                  }
+      
                   break;
 
                 case "acquiredFeatDescription":
 
-                  if (player.windows.ContainsKey("featDescription"))
-                    ((FeatDescriptionWindow)player.windows["featDescription"]).CreateWindow(acquiredFeatSearcher[nuiEvent.ArrayIndex]);
-                  else
-                    player.windows.Add("featDescription", new FeatDescriptionWindow(player, acquiredFeatSearcher[nuiEvent.ArrayIndex]));
+                  switch (currentTab)
+                  {
+                    case Tab.Feat:
 
+                      if (player.windows.ContainsKey("featDescription"))
+                        ((FeatDescriptionWindow)player.windows["featDescription"]).CreateWindow(availableFeatSearcher[nuiEvent.ArrayIndex]);
+                      else
+                        player.windows.Add("featDescription", new FeatDescriptionWindow(player, availableFeatSearcher[nuiEvent.ArrayIndex]));
+
+                      break;
+
+                    case Tab.Spell:
+
+                      if (player.windows.ContainsKey("spellDescription"))
+                        ((SpellDescriptionWindow)player.windows["spellDescription"]).CreateWindow(acquiredSpellSearcher[nuiEvent.ArrayIndex]);
+                      else
+                        player.windows.Add("spellDescription", new SpellDescriptionWindow(player, acquiredSpellSearcher[nuiEvent.ArrayIndex]));
+
+                      break;
+                  }
+                  
+
+                  break;
+
+                case "spellQuantityText":
+                  spellQuantityIndexSelected = nuiEvent.ArrayIndex;
                   break;
               }
 
@@ -162,47 +231,73 @@ namespace NWN.Systems
               switch (nuiEvent.ElementId)
               {
                 case "base":
+                  currentTab = Tab.Base;
                   LoadBaseLayout();
-                  rootGroup.SetLayout(player.oid, nuiEvent.WindowToken, layoutColumn);
+                  rootGroup.SetLayout(player.oid, nuiEvent.Token.Token, layoutColumn);
                   LoadBaseBinding();
                   break;
 
                 case "portrait":
+                  currentTab = Tab.Portrait;
                   LoadPortraitLayout();
-                  rootGroup.SetLayout(player.oid, nuiEvent.WindowToken, layoutColumn);
+                  rootGroup.SetLayout(player.oid, nuiEvent.Token.Token, layoutColumn);
                   LoadPortraitBinding();
                   break;
 
                 case "stats":
+                  currentTab = Tab.Stats;
                   LoadStatsLayout();
-                  rootGroup.SetLayout(player.oid, nuiEvent.WindowToken, layoutColumn);
+                  rootGroup.SetLayout(player.oid, nuiEvent.Token.Token, layoutColumn);
                   LoadStatsBinding();
                   break;
 
                 case "feats":
+                  currentTab = Tab.Feat;
                   LoadFeatsLayout();
-                  rootGroup.SetLayout(player.oid, nuiEvent.WindowToken, layoutColumn);
+                  rootGroup.SetLayout(player.oid, nuiEvent.Token.Token, layoutColumn);
                   LoadFeatsBinding();
                   break;
 
                 case "spells":
+                  currentTab = Tab.Spell;
                   LoadSpellsLayout();
-                  rootGroup.SetLayout(player.oid, nuiEvent.WindowToken, layoutColumn);
+                  rootGroup.SetLayout(player.oid, nuiEvent.Token.Token, layoutColumn);
                   LoadSpellsBinding();
                   break;
 
+                case "appearance":
+
+                  if(targetCreature.Appearance.Race.Length > 1)
+                  {
+                    player.oid.SendServerMessage($"Le modèle actuellement sélectionné ({targetCreature.Appearance.Label}) n'est pas dynamique. Il n'est pas possible de le personnaliser davantage.", ColorConstants.Red);
+                    return;
+                  }
+
+                  if (targetCreature.Gender != Gender.Male && targetCreature.Gender != Gender.Female)
+                  {
+                    player.oid.SendServerMessage($"Le genre de la créature doit être masculin ou féminin afin de pouvoir utiliser la modification corporelle.", ColorConstants.Red);
+                    return;
+                  }
+
+                  if (player.windows.ContainsKey("bodyAppearanceModifier"))
+                    ((BodyAppearanceWindow)player.windows["bodyAppearanceModifier"]).CreateWindow(targetCreature);
+                  else
+                    player.windows.Add("bodyAppearanceModifier", new BodyAppearanceWindow(player, targetCreature));
+
+                  break;
+
                 case "portraitSelect1":
-                  targetCreature.PortraitResRef = portraits1.GetBindValues(player.oid, token)[nuiEvent.ArrayIndex];
+                  targetCreature.PortraitResRef = portraits1.GetBindValues(player.oid, nuiToken.Token)[nuiEvent.ArrayIndex];
                   targetCreature.PortraitResRef = targetCreature.PortraitResRef.Remove(targetCreature.PortraitResRef.Length - 1);
                   break;
 
                 case "portraitSelect2":
-                  targetCreature.PortraitResRef = portraits2.GetBindValues(player.oid, token)[nuiEvent.ArrayIndex];
+                  targetCreature.PortraitResRef = portraits2.GetBindValues(player.oid, nuiToken.Token)[nuiEvent.ArrayIndex];
                   targetCreature.PortraitResRef = targetCreature.PortraitResRef.Remove(targetCreature.PortraitResRef.Length - 1);
                   break;
 
                 case "portraitSelect3":
-                  targetCreature.PortraitResRef = portraits3.GetBindValues(player.oid, token)[nuiEvent.ArrayIndex];
+                  targetCreature.PortraitResRef = portraits3.GetBindValues(player.oid, nuiToken.Token)[nuiEvent.ArrayIndex];
                   targetCreature.PortraitResRef = targetCreature.PortraitResRef.Remove(targetCreature.PortraitResRef.Length - 1);
                   break;
 
@@ -220,23 +315,23 @@ namespace NWN.Systems
                   availableFeats.Remove(acquiredFeat);
                   availableFeatSearcher.Remove(acquiredFeat);
 
-                  var tempIcon = availableFeatIcons.GetBindValues(player.oid, token);
+                  var tempIcon = availableFeatIcons.GetBindValues(player.oid, nuiToken.Token);
                   tempIcon.RemoveAt(nuiEvent.ArrayIndex);
-                  var tempName = availableFeatNames.GetBindValues(player.oid, token);
+                  var tempName = availableFeatNames.GetBindValues(player.oid, nuiToken.Token);
                   tempName.RemoveAt(nuiEvent.ArrayIndex);
 
-                  availableFeatIcons.SetBindValues(player.oid, token, tempIcon);
-                  availableFeatNames.SetBindValues(player.oid, token, tempName);
-                  listCount.SetBindValue(player.oid, token, tempName.Count);
+                  availableFeatIcons.SetBindValues(player.oid, nuiToken.Token, tempIcon);
+                  availableFeatNames.SetBindValues(player.oid, nuiToken.Token, tempName);
+                  listCount.SetBindValue(player.oid, nuiToken.Token, tempName.Count);
 
-                  tempIcon = acquiredFeatIcons.GetBindValues(player.oid, token);
+                  tempIcon = acquiredFeatIcons.GetBindValues(player.oid, nuiToken.Token);
                   tempIcon.Add(acquiredFeat.IconResRef);
-                  tempName = acquiredFeatNames.GetBindValues(player.oid, token);
+                  tempName = acquiredFeatNames.GetBindValues(player.oid, nuiToken.Token);
                   tempName.Add(acquiredFeat.Name.ToString());
 
-                  acquiredFeatIcons.SetBindValues(player.oid, token, tempIcon);
-                  acquiredFeatNames.SetBindValues(player.oid, token, tempName);
-                  listAcquiredFeatCount.SetBindValue(player.oid, token, tempName.Count);
+                  acquiredFeatIcons.SetBindValues(player.oid, nuiToken.Token, tempIcon);
+                  acquiredFeatNames.SetBindValues(player.oid, nuiToken.Token, tempName);
+                  listAcquiredFeatCount.SetBindValue(player.oid, nuiToken.Token, tempName.Count);
 
                   break;
 
@@ -254,23 +349,131 @@ namespace NWN.Systems
                   acquiredFeats.Remove(removedFeat);
                   acquiredFeatSearcher.Remove(removedFeat);
 
-                  var tempIconList = acquiredFeatIcons.GetBindValues(player.oid, token);
+                  var tempIconList = acquiredFeatIcons.GetBindValues(player.oid, nuiToken.Token);
                   tempIconList.RemoveAt(nuiEvent.ArrayIndex);
-                  var tempNameList = acquiredFeatNames.GetBindValues(player.oid, token);
+                  var tempNameList = acquiredFeatNames.GetBindValues(player.oid, nuiToken.Token);
                   tempNameList.RemoveAt(nuiEvent.ArrayIndex);
 
-                  acquiredFeatIcons.SetBindValues(player.oid, token, tempIconList);
-                  acquiredFeatNames.SetBindValues(player.oid, token, tempNameList);
-                  listAcquiredFeatCount.SetBindValue(player.oid, token, tempNameList.Count);
+                  acquiredFeatIcons.SetBindValues(player.oid, nuiToken.Token, tempIconList);
+                  acquiredFeatNames.SetBindValues(player.oid, nuiToken.Token, tempNameList);
+                  listAcquiredFeatCount.SetBindValue(player.oid, nuiToken.Token, tempNameList.Count);
 
-                  tempIconList = availableFeatIcons.GetBindValues(player.oid, token);
+                  tempIconList = availableFeatIcons.GetBindValues(player.oid, nuiToken.Token);
                   tempIconList.Add(removedFeat.IconResRef);
-                  tempNameList = availableFeatNames.GetBindValues(player.oid, token);
+                  tempNameList = availableFeatNames.GetBindValues(player.oid, nuiToken.Token);
                   tempNameList.Add(removedFeat.Name.ToString());
 
-                  availableFeatIcons.SetBindValues(player.oid, token, tempIconList);
-                  availableFeatNames.SetBindValues(player.oid, token, tempNameList);
-                  listCount.SetBindValue(player.oid, token, tempNameList.Count);
+                  availableFeatIcons.SetBindValues(player.oid, nuiToken.Token, tempIconList);
+                  availableFeatNames.SetBindValues(player.oid, nuiToken.Token, tempNameList);
+                  listCount.SetBindValue(player.oid, nuiToken.Token, tempNameList.Count);
+
+                  break;
+
+                case "selectSpell":
+
+                  spellQuantity.SetBindWatch(player.oid, nuiToken.Token, false);
+
+                  NwSpell acquiredSpell = availableSpellSearcher[nuiEvent.ArrayIndex];
+
+                  targetCreature.AddSpecialAbility(new SpecialAbility(acquiredSpell, 1));
+
+                  if (!acquiredSpells.Contains(acquiredSpell))
+                    acquiredSpells.Add(acquiredSpell);
+
+                  if (!acquiredSpellSearcher.Contains(acquiredSpell))
+                    acquiredSpellSearcher.Add(acquiredSpell);
+
+                  availableSpells.Remove(acquiredSpell);
+                  availableSpellSearcher.Remove(acquiredSpell);
+
+                  var tempSpellIcon = availableFeatIcons.GetBindValues(player.oid, nuiToken.Token);
+                  tempSpellIcon.RemoveAt(nuiEvent.ArrayIndex);
+                  var tempSpellName = availableFeatNames.GetBindValues(player.oid, nuiToken.Token);
+                  tempSpellName.RemoveAt(nuiEvent.ArrayIndex);
+
+                  availableFeatIcons.SetBindValues(player.oid, nuiToken.Token, tempSpellIcon);
+                  availableFeatNames.SetBindValues(player.oid, nuiToken.Token, tempSpellName);
+                  listCount.SetBindValue(player.oid, nuiToken.Token, tempSpellName.Count);
+
+                  tempSpellIcon = acquiredFeatIcons.GetBindValues(player.oid, nuiToken.Token);
+                  tempSpellIcon.Add(acquiredSpell.IconResRef);
+                  tempSpellName = acquiredFeatNames.GetBindValues(player.oid, nuiToken.Token);
+                  tempSpellName.Add(acquiredSpell.Name.ToString());
+                  var tempSpellQuantity = spellQuantity.GetBindValues(player.oid, nuiToken.Token);
+                  tempSpellQuantity.Add("1");
+
+                  var tempSpellQuantityEnabled = spellQuantityEnabled.GetBindValues(player.oid, nuiToken.Token);
+
+                  if (SpellUtils.IsSpellBuff(acquiredSpell))
+                    tempSpellQuantityEnabled.Add(false);
+                  else
+                    tempSpellQuantityEnabled.Add(true);
+
+                  acquiredFeatIcons.SetBindValues(player.oid, nuiToken.Token, tempSpellIcon);
+                  acquiredFeatNames.SetBindValues(player.oid, nuiToken.Token, tempSpellName);
+                  spellQuantity.SetBindValues(player.oid, nuiToken.Token, tempSpellQuantity);
+                  spellQuantityEnabled.SetBindValues(player.oid, nuiToken.Token, tempSpellQuantityEnabled);
+                  listAcquiredFeatCount.SetBindValue(player.oid, nuiToken.Token, tempSpellName.Count);
+
+                  spellQuantity.SetBindWatch(player.oid, nuiToken.Token, true);
+
+                  break;
+
+                case "removeSpell":
+
+                  spellQuantity.SetBindWatch(player.oid, nuiToken.Token, false);
+
+                  NwSpell removedSpell = acquiredSpellSearcher[nuiEvent.ArrayIndex];
+                  int i = 0;
+
+                  foreach (SpecialAbility spell in targetCreature.SpecialAbilities)
+                  {
+                    if (spell.Spell == removedSpell)
+                    {
+                      Task resetClassOnNextFrame = NwTask.Run(async () =>
+                      {
+                        await NwTask.Delay(TimeSpan.FromMilliseconds(10));
+                        targetCreature.RemoveSpecialAbilityAt(i);
+                      });
+
+                      i++;
+                    }
+                  }
+
+                  if (!availableSpells.Contains(removedSpell))
+                    availableSpells.Add(removedSpell);
+
+                  if (!availableSpellSearcher.Contains(removedSpell))
+                    availableSpellSearcher.Add(removedSpell);
+
+                  acquiredSpells.Remove(removedSpell);
+                  acquiredSpellSearcher.Remove(removedSpell);
+
+                  var tempSpellIconList = acquiredFeatIcons.GetBindValues(player.oid, nuiToken.Token);
+                  tempSpellIconList.RemoveAt(nuiEvent.ArrayIndex);
+                  var tempSpellNameList = acquiredFeatNames.GetBindValues(player.oid, nuiToken.Token);
+                  tempSpellNameList.RemoveAt(nuiEvent.ArrayIndex);
+                  var tempSpellQuantityList = spellQuantity.GetBindValues(player.oid, nuiToken.Token);
+                  tempSpellQuantityList.RemoveAt(nuiEvent.ArrayIndex);
+                  var tempSpellQuantityEnabledList = spellQuantityEnabled.GetBindValues(player.oid, nuiToken.Token);
+                  tempSpellQuantityEnabledList.RemoveAt(nuiEvent.ArrayIndex);
+
+                  acquiredFeatIcons.SetBindValues(player.oid, nuiToken.Token, tempSpellIconList);
+                  acquiredFeatNames.SetBindValues(player.oid, nuiToken.Token, tempSpellNameList);
+                  spellQuantity.SetBindValues(player.oid, nuiToken.Token, tempSpellQuantityList);
+                  spellQuantityEnabled.SetBindValues(player.oid, nuiToken.Token, tempSpellQuantityEnabledList);
+                  listAcquiredFeatCount.SetBindValue(player.oid, nuiToken.Token, tempSpellNameList.Count);
+
+                  tempSpellIconList = availableFeatIcons.GetBindValues(player.oid, nuiToken.Token);
+                  tempSpellIconList.Add(removedSpell.IconResRef);
+                  tempSpellNameList = availableFeatNames.GetBindValues(player.oid, nuiToken.Token);
+                  tempSpellNameList.Add(removedSpell.Name.ToString());
+
+                  availableFeatIcons.SetBindValues(player.oid, nuiToken.Token, tempSpellIconList);
+                  availableFeatNames.SetBindValues(player.oid, nuiToken.Token, tempSpellNameList);
+                  listCount.SetBindValue(player.oid, nuiToken.Token, tempSpellNameList.Count);
+
+                  spellQuantity.SetBindWatch(player.oid, nuiToken.Token, true);
 
                   break;
               }
@@ -282,34 +485,63 @@ namespace NWN.Systems
               switch (nuiEvent.ElementId)
               {
                 case "raceSearch":
-                  string rSearch = raceSearch.GetBindValue(player.oid, token).ToLower();
-                  race.SetBindValue(player.oid, token, string.IsNullOrEmpty(rSearch) ? Utils.raceList : Utils.raceList.Where(v => v.Label.ToLower().Contains(rSearch)).ToList());
+                  string rSearch = raceSearch.GetBindValue(player.oid, nuiToken.Token).ToLower();
+                  race.SetBindValue(player.oid, nuiToken.Token, string.IsNullOrEmpty(rSearch) ? Utils.raceList : Utils.raceList.Where(v => v.Label.ToLower().Contains(rSearch)).ToList());
                 break;
 
                 case "apparenceSearch":
-                  string aSearch = apparenceSearch.GetBindValue(player.oid, token).ToLower();
-                  apparence.SetBindValue(player.oid, token, string.IsNullOrEmpty(aSearch) ? Utils.apparenceList : Utils.apparenceList.Where(v => v.Label.ToLower().Contains(aSearch)).ToList());
+                  string aSearch = apparenceSearch.GetBindValue(player.oid, nuiToken.Token).ToLower();
+                  apparence.SetBindValue(player.oid, nuiToken.Token, string.IsNullOrEmpty(aSearch) ? Utils.apparenceList : Utils.apparenceList.Where(v => v.Label.ToLower().Contains(aSearch)).ToList());
                 break;
 
                 case "acquiredFeatSearch":
-                  string acquiredFSearch = acquiredFeatSearch.GetBindValue(player.oid, token).ToLower();
 
-                  acquiredFeatSearcher = string.IsNullOrEmpty(acquiredFSearch) ? acquiredFeats : acquiredFeats.Where(f => f.Name.ToString().ToLower().Contains(acquiredFSearch)).ToList();
+                  string acquiredFSearch = acquiredFeatSearch.GetBindValue(player.oid, nuiToken.Token).ToLower();
 
-                  acquiredFeatIcons.SetBindValues(player.oid, token, acquiredFeatSearcher.Select(f => f.IconResRef));
-                  acquiredFeatNames.SetBindValues(player.oid, token, acquiredFeatSearcher.Select(f => f.Name.ToString().Replace("’", "'")));
-                  listAcquiredFeatCount.SetBindValue(player.oid, token, acquiredFeatSearcher.Count);
+                  switch (currentTab)
+                  {
+                    case Tab.Feat:
+                      acquiredFeatSearcher = string.IsNullOrEmpty(acquiredFSearch) ? acquiredFeats : acquiredFeats.Where(f => f.Name.ToString().ToLower().Contains(acquiredFSearch)).ToList();
 
+                      acquiredFeatIcons.SetBindValues(player.oid, nuiToken.Token, acquiredFeatSearcher.Select(f => f.IconResRef));
+                      acquiredFeatNames.SetBindValues(player.oid, nuiToken.Token, acquiredFeatSearcher.Select(f => f.Name.ToString().Replace("’", "'")));
+                      listAcquiredFeatCount.SetBindValue(player.oid, nuiToken.Token, acquiredFeatSearcher.Count);
+                      break;
+
+                    case Tab.Spell:
+                      acquiredSpellSearcher = string.IsNullOrEmpty(acquiredFSearch) ? acquiredSpells : acquiredSpells.Where(s => s.Name.ToString().ToLower().Contains(acquiredFSearch)).ToList();
+
+                      acquiredFeatIcons.SetBindValues(player.oid, nuiToken.Token, acquiredSpellSearcher.Select(s => s.IconResRef));
+                      acquiredFeatNames.SetBindValues(player.oid, nuiToken.Token, acquiredSpellSearcher.Select(s => s.Name.ToString().Replace("’", "'")));
+                      listAcquiredFeatCount.SetBindValue(player.oid, nuiToken.Token, acquiredSpellSearcher.Count);
+                      break;
+                  }
+                  
                   break;
 
                 case "availableFeatSearch":
-                  string availableFSearch = availableFeatSearch.GetBindValue(player.oid, token).ToLower();
+                  string availableFSearch = availableFeatSearch.GetBindValue(player.oid, nuiToken.Token).ToLower();
 
-                  availableFeatSearcher = string.IsNullOrEmpty(availableFSearch) ? availableFeats : availableFeats.Where(f => f.Name.ToString().ToLower().Contains(availableFSearch)).ToList();
+                  switch (currentTab)
+                  {
+                    case Tab.Feat:
+                      availableFeatSearcher = string.IsNullOrEmpty(availableFSearch) ? availableFeats : availableFeats.Where(f => f.Name.ToString().ToLower().Contains(availableFSearch)).ToList();
 
-                  availableFeatIcons.SetBindValues(player.oid, token, availableFeatSearcher.Select(f => f.IconResRef));
-                  availableFeatNames.SetBindValues(player.oid, token, availableFeatSearcher.Select(f => f.Name.ToString().Replace("’", "'")));
-                  listCount.SetBindValue(player.oid, token, availableFeatSearcher.Count);
+                      availableFeatIcons.SetBindValues(player.oid, nuiToken.Token, availableFeatSearcher.Select(f => f.IconResRef));
+                      availableFeatNames.SetBindValues(player.oid, nuiToken.Token, availableFeatSearcher.Select(f => f.Name.ToString().Replace("’", "'")));
+                      listCount.SetBindValue(player.oid, nuiToken.Token, availableFeatSearcher.Count);
+                      break;
+
+                    case Tab.Spell:
+                      availableSpellSearcher = string.IsNullOrEmpty(availableFSearch) ? availableSpells : availableSpells.Where(s => s.Name.ToString().ToLower().Contains(availableFSearch)).ToList();
+
+                      availableFeatIcons.SetBindValues(player.oid, nuiToken.Token, availableSpellSearcher.Select(s => s.IconResRef));
+                      availableFeatNames.SetBindValues(player.oid, nuiToken.Token, availableSpellSearcher.Select(s => s.Name.ToString().Replace("’", "'")));
+                      listCount.SetBindValue(player.oid, nuiToken.Token, availableSpellSearcher.Count);
+                      break;
+                  }
+
+                 
                   break;
 
                 case "racePortraitSelected":
@@ -318,15 +550,15 @@ namespace NWN.Systems
                   break;
 
                 case "name":
-                  targetCreature.Name = name.GetBindValue(player.oid, token);
+                  targetCreature.Name = name.GetBindValue(player.oid, nuiToken.Token);
                   break;
 
                 case "tag":
-                  targetCreature.Tag = tag.GetBindValue(player.oid, token);
+                  targetCreature.Tag = tag.GetBindValue(player.oid, nuiToken.Token);
                   break;
 
                 case "challengeRating":
-                  if (float.TryParse(challengeRating.GetBindValue(player.oid, token), out float newCR))
+                  if (float.TryParse(challengeRating.GetBindValue(player.oid, nuiToken.Token), out float newCR))
                   {
                     targetCreature.ChallengeRating = newCR;
                     SetChallengeRatingTooltip();
@@ -334,101 +566,101 @@ namespace NWN.Systems
                   break;
 
                 case "raceSelected":
-                  targetCreature.Race = NwRace.FromRaceId(raceSelected.GetBindValue(player.oid, token));
+                  targetCreature.Race = NwRace.FromRaceId(raceSelected.GetBindValue(player.oid, nuiToken.Token));
                   break;
 
                 case "apparenceSelected":
-                  targetCreature.Appearance = NwGameTables.AppearanceTable[apparenceSelected.GetBindValue(player.oid, token)];
+                  targetCreature.Appearance = NwGameTables.AppearanceTable[apparenceSelected.GetBindValue(player.oid, nuiToken.Token)];
                   break;
 
                 case "factionSelected":
-                  targetCreature.Faction = NwFaction.FromFactionId(factionSelected.GetBindValue(player.oid, token));
+                  targetCreature.Faction = NwFaction.FromFactionId(factionSelected.GetBindValue(player.oid, nuiToken.Token));
                   break;
 
                 case "soundSetSelected":
-                  targetCreature.SoundSet = (ushort)soundSetSelected.GetBindValue(player.oid, token);
+                  targetCreature.SoundSet = (ushort)soundSetSelected.GetBindValue(player.oid, nuiToken.Token);
                   break;
 
                 case "strength":
-                  if (byte.TryParse(strength.GetBindValue(player.oid, token), out byte newStrength))
+                  if (byte.TryParse(strength.GetBindValue(player.oid, nuiToken.Token), out byte newStrength))
                   {
                     targetCreature.SetsRawAbilityScore(Ability.Strength, (byte)(newStrength - targetCreature.Race.GetAbilityAdjustment(Ability.Strength)));
-                    strengthModifier.SetBindValue(player.oid, token, targetCreature.GetAbilityModifier(Ability.Strength).ToString());
+                    strengthModifier.SetBindValue(player.oid, nuiToken.Token, targetCreature.GetAbilityModifier(Ability.Strength).ToString());
                   }
                   break;
 
                 case "dexterity":
-                  if (byte.TryParse(dexterity.GetBindValue(player.oid, token), out byte newDeterity))
+                  if (byte.TryParse(dexterity.GetBindValue(player.oid, nuiToken.Token), out byte newDeterity))
                   {
                     targetCreature.SetsRawAbilityScore(Ability.Dexterity, (byte)(newDeterity - targetCreature.Race.GetAbilityAdjustment(Ability.Dexterity)));
-                    reflex.SetBindValue(player.oid, token, targetCreature.GetBaseSavingThrow(SavingThrow.Reflex).ToString());
-                    dodgeChance.SetBindValue(player.oid, token, Utils.GetDodgeChance(targetCreature).ToString());
-                    dexterityModifier.SetBindValue(player.oid, token, targetCreature.GetAbilityModifier(Ability.Dexterity).ToString());
-                    reflexTooltip.SetBindValue(player.oid, token, $"Total avec modificateur : {targetCreature.GetBaseSavingThrow(SavingThrow.Reflex) + targetCreature.GetAbilityModifier(Ability.Dexterity)}");
+                    reflex.SetBindValue(player.oid, nuiToken.Token, targetCreature.GetBaseSavingThrow(SavingThrow.Reflex).ToString());
+                    dodgeChance.SetBindValue(player.oid, nuiToken.Token, Utils.GetDodgeChance(targetCreature).ToString());
+                    dexterityModifier.SetBindValue(player.oid, nuiToken.Token, targetCreature.GetAbilityModifier(Ability.Dexterity).ToString());
+                    reflexTooltip.SetBindValue(player.oid, nuiToken.Token, $"Total avec modificateur : {targetCreature.GetBaseSavingThrow(SavingThrow.Reflex) + targetCreature.GetAbilityModifier(Ability.Dexterity)}");
                   }
                   break;
 
                 case "constitution":
-                  if (byte.TryParse(constitution.GetBindValue(player.oid, token), out byte newConstitution))
+                  if (byte.TryParse(constitution.GetBindValue(player.oid, nuiToken.Token), out byte newConstitution))
                   {
                     targetCreature.SetsRawAbilityScore(Ability.Constitution, (byte)(newConstitution - targetCreature.Race.GetAbilityAdjustment(Ability.Constitution)));
-                    fortitude.SetBindValue(player.oid, token, targetCreature.GetBaseSavingThrow(SavingThrow.Fortitude).ToString());
-                    constitutionModifier.SetBindValue(player.oid, token, targetCreature.GetAbilityModifier(Ability.Constitution).ToString());
-                    fortitudeTooltip.SetBindValue(player.oid, token, $"Total avec modificateur : {targetCreature.GetBaseSavingThrow(SavingThrow.Fortitude) + targetCreature.GetAbilityModifier(Ability.Constitution)}");
+                    fortitude.SetBindValue(player.oid, nuiToken.Token, targetCreature.GetBaseSavingThrow(SavingThrow.Fortitude).ToString());
+                    constitutionModifier.SetBindValue(player.oid, nuiToken.Token, targetCreature.GetAbilityModifier(Ability.Constitution).ToString());
+                    fortitudeTooltip.SetBindValue(player.oid, nuiToken.Token, $"Total avec modificateur : {targetCreature.GetBaseSavingThrow(SavingThrow.Fortitude) + targetCreature.GetAbilityModifier(Ability.Constitution)}");
                   }
                   break;
 
                 case "intelligence":
-                  if (byte.TryParse(intelligence.GetBindValue(player.oid, token), out byte newIntelligence))
+                  if (byte.TryParse(intelligence.GetBindValue(player.oid, nuiToken.Token), out byte newIntelligence))
                   {
                     targetCreature.SetsRawAbilityScore(Ability.Intelligence, (byte)(newIntelligence - targetCreature.Race.GetAbilityAdjustment(Ability.Intelligence)));
-                    intelligenceModifier.SetBindValue(player.oid, token, targetCreature.GetAbilityModifier(Ability.Intelligence).ToString());
+                    intelligenceModifier.SetBindValue(player.oid, nuiToken.Token, targetCreature.GetAbilityModifier(Ability.Intelligence).ToString());
                   }
                   break;
 
                 case "wisdom":
-                  if (byte.TryParse(wisdom.GetBindValue(player.oid, token), out byte newWisdom))
+                  if (byte.TryParse(wisdom.GetBindValue(player.oid, nuiToken.Token), out byte newWisdom))
                   {
                     targetCreature.SetsRawAbilityScore(Ability.Wisdom, (byte)(newWisdom - targetCreature.Race.GetAbilityAdjustment(Ability.Wisdom)));
-                    will.SetBindValue(player.oid, token, targetCreature.GetBaseSavingThrow(SavingThrow.Will).ToString());
-                    wisdomModifier.SetBindValue(player.oid, token, targetCreature.GetAbilityModifier(Ability.Wisdom).ToString());
-                    willTooltip.SetBindValue(player.oid, token, $"Total avec modificateur : {targetCreature.GetBaseSavingThrow(SavingThrow.Will) + targetCreature.GetAbilityModifier(Ability.Wisdom)}");
+                    will.SetBindValue(player.oid, nuiToken.Token, targetCreature.GetBaseSavingThrow(SavingThrow.Will).ToString());
+                    wisdomModifier.SetBindValue(player.oid, nuiToken.Token, targetCreature.GetAbilityModifier(Ability.Wisdom).ToString());
+                    willTooltip.SetBindValue(player.oid, nuiToken.Token, $"Total avec modificateur : {targetCreature.GetBaseSavingThrow(SavingThrow.Will) + targetCreature.GetAbilityModifier(Ability.Wisdom)}");
                   }
                   break;
 
                 case "charisma":
-                  if (byte.TryParse(charisma.GetBindValue(player.oid, token), out byte newCharisma))
+                  if (byte.TryParse(charisma.GetBindValue(player.oid, nuiToken.Token), out byte newCharisma))
                   {
                     targetCreature.SetsRawAbilityScore(Ability.Charisma, (byte)(newCharisma - targetCreature.Race.GetAbilityAdjustment(Ability.Charisma)));
-                    charismaModifier.SetBindValue(player.oid, token, targetCreature.GetAbilityModifier(Ability.Charisma).ToString());
+                    charismaModifier.SetBindValue(player.oid, nuiToken.Token, targetCreature.GetAbilityModifier(Ability.Charisma).ToString());
                   }
                   break;
 
                 case "fortitude":
-                  if (sbyte.TryParse(fortitude.GetBindValue(player.oid, token), out sbyte newFortitude))
+                  if (sbyte.TryParse(fortitude.GetBindValue(player.oid, nuiToken.Token), out sbyte newFortitude))
                     targetCreature.SetBaseSavingThrow(SavingThrow.Fortitude, newFortitude);
                   break;
 
                 case "reflex":
-                  if (sbyte.TryParse(reflex.GetBindValue(player.oid, token), out sbyte newReflex))
+                  if (sbyte.TryParse(reflex.GetBindValue(player.oid, nuiToken.Token), out sbyte newReflex))
                     targetCreature.SetBaseSavingThrow(SavingThrow.Reflex, newReflex);
                   break;
 
                 case "will":
-                  if (sbyte.TryParse(will.GetBindValue(player.oid, token), out sbyte newWill))
+                  if (sbyte.TryParse(will.GetBindValue(player.oid, nuiToken.Token), out sbyte newWill))
                     targetCreature.SetBaseSavingThrow(SavingThrow.Will, newWill);
                   break;
 
                 case "naturalAC":
-                  if (sbyte.TryParse(naturalAC.GetBindValue(player.oid, token), out sbyte newAC))
+                  if (sbyte.TryParse(naturalAC.GetBindValue(player.oid, nuiToken.Token), out sbyte newAC))
                   {
                     targetCreature.BaseAC = newAC;
-                    naturalACTooltip.SetBindValue(player.oid, token, $"La créature subit naturellement {Utils.GetDamageMultiplier(targetCreature.AC) * 100:0.##} % des dégâts");
+                    naturalACTooltip.SetBindValue(player.oid, nuiToken.Token, $"La créature subit naturellement {Utils.GetDamageMultiplier(targetCreature.AC) * 100:0.##} % des dégâts");
                   }
                   break;
 
                 case "armorPenetration":
-                  if (byte.TryParse(armorPenetration.GetBindValue(player.oid, token), out byte newAP))
+                  if (byte.TryParse(armorPenetration.GetBindValue(player.oid, nuiToken.Token), out byte newAP))
                   {
                     int previousAttackPerRound = targetCreature.BaseAttackCount;
                     targetCreature.BaseAttackBonus = newAP;
@@ -439,14 +671,14 @@ namespace NWN.Systems
                   break;
 
                 case "attackPerRound":
-                  if (int.TryParse(attackPerRound.GetBindValue(player.oid, token), out int newNBAttack))
+                  if (int.TryParse(attackPerRound.GetBindValue(player.oid, nuiToken.Token), out int newNBAttack))
                   {
                     if(newNBAttack < 1 || newNBAttack > 6)
                     {
                       newNBAttack = newNBAttack < 1 ? 1 : newNBAttack;
                       newNBAttack = newNBAttack > 6 ? 6 : newNBAttack;
 
-                      attackPerRound.SetBindValue(player.oid, token, newNBAttack.ToString());
+                      attackPerRound.SetBindValue(player.oid, nuiToken.Token, newNBAttack.ToString());
                     }
                     else                   
                       targetCreature.BaseAttackCount = newNBAttack;
@@ -454,24 +686,66 @@ namespace NWN.Systems
                   break;
 
                 case "spellCasterLevel":
-                  if (int.TryParse(armorPenetration.GetBindValue(player.oid, token), out int newCasterLevel))
+                  if (int.TryParse(spellCasterLevel.GetBindValue(player.oid, nuiToken.Token), out int newCasterLevel))
                   {
                     if (newCasterLevel < 1)
-                      spellCasterLevel.SetBindValue(player.oid, token, "1");
+                      spellCasterLevel.SetBindValue(player.oid, nuiToken.Token, "1");
                     else
                       targetCreature.GetObjectVariable<LocalVariableInt>("_CREATURE_CASTER_LEVEL").Value = newCasterLevel;
                   }
                   break;
 
                 case "hitPoints":
-                  if (int.TryParse(hitPoints.GetBindValue(player.oid, token), out int newHP))
+                  if (int.TryParse(hitPoints.GetBindValue(player.oid, nuiToken.Token), out int newHP))
                     targetCreature.MaxHP = newHP;
                   break;
 
                 case "movementRateSelected":
-                  targetCreature.MovementRate = (MovementRate)movementRateSelected.GetBindValue(player.oid, token);
+                  targetCreature.MovementRate = (MovementRate)movementRateSelected.GetBindValue(player.oid, nuiToken.Token);
                   break;
-              }
+
+                case "spellQuantity":
+
+                  if (int.TryParse(spellQuantity.GetBindValues(player.oid, nuiToken.Token)[spellQuantityIndexSelected], out int newSpellQuantity))
+                  {
+                    if (newSpellQuantity < 1 || newSpellQuantity > 10)
+                    {
+                      newSpellQuantity = newSpellQuantity < 1 ? 1 : newSpellQuantity;
+                      newSpellQuantity = newSpellQuantity > 10 ? 10 : newSpellQuantity;
+
+                      var tempSpellQuantity = spellQuantity.GetBindValues(player.oid, nuiToken.Token);
+                      tempSpellQuantity[spellQuantityIndexSelected] = newSpellQuantity.ToString();
+                      spellQuantity.SetBindValues(player.oid, nuiToken.Token, tempSpellQuantity);
+                    }
+                    else
+                    {
+                      SpecialAbility special = new(acquiredSpellSearcher[spellQuantityIndexSelected], 1);
+                      int spellCount = targetCreature.SpecialAbilities.Count(s => s.Spell == special.Spell);
+
+                      if (spellCount < newSpellQuantity)
+                        for (int i = 0; i < newSpellQuantity - spellCount; i++)
+                          targetCreature.AddSpecialAbility(special);
+                      else if (spellCount > newSpellQuantity)
+                        for (int i = 0; i < spellCount - newSpellQuantity; i++)
+                        {
+                          int j = 0;
+
+                          foreach (SpecialAbility spell in targetCreature.SpecialAbilities)
+                          {
+                            if (spell.Spell == special.Spell)
+                            {
+                              targetCreature.RemoveSpecialAbilityAt(j);
+                              break;
+                            }
+
+                            j++;
+                          }
+                        }
+                    }
+                  }
+
+                  break;
+                }
 
               break;
           }
@@ -483,11 +757,14 @@ namespace NWN.Systems
           {
             Children = new List<NuiElement>()
             {
+              new NuiSpacer(),
               new NuiButton("Base") { Id = "base", Height = 35, Width = 60 },
               new NuiButton("Portrait") { Id = "portrait", Height = 35, Width = 60 },
               new NuiButton("Stats") { Id = "stats", Height = 35, Width = 60 },
               new NuiButton("Dons") { Id = "feats", Height = 35, Width = 60 },
-              new NuiButton("Sorts") { Id = "spells", Height = 35, Width = 60 }
+              new NuiButton("Sorts") { Id = "spells", Height = 35, Width = 60 },
+              new NuiButton("Modèle") { Id = "appearance", Height = 35, Width = 60 },
+              new NuiSpacer()
             }
           });
         }
@@ -574,72 +851,74 @@ namespace NWN.Systems
         }
         private void StopAllWatchBindings()
         {
-          name.SetBindWatch(player.oid, token, false);
-          tag.SetBindWatch(player.oid, token, false);
-          challengeRating.SetBindWatch(player.oid, token, false);
+          name.SetBindWatch(player.oid, nuiToken.Token, false);
+          tag.SetBindWatch(player.oid, nuiToken.Token, false);
+          challengeRating.SetBindWatch(player.oid, nuiToken.Token, false);
 
-          raceSelected.SetBindWatch(player.oid, token, false);
-          raceSearch.SetBindWatch(player.oid, token, false);
-          apparenceSelected.SetBindWatch(player.oid, token, false);
-          apparenceSearch.SetBindWatch(player.oid, token, false);
-          genderSelected.SetBindWatch(player.oid, token, false);
-          factionSelected.SetBindWatch(player.oid, token, false);
-          soundSetSelected.SetBindWatch(player.oid, token, false);
+          raceSelected.SetBindWatch(player.oid, nuiToken.Token, false);
+          raceSearch.SetBindWatch(player.oid, nuiToken.Token, false);
+          apparenceSelected.SetBindWatch(player.oid, nuiToken.Token, false);
+          apparenceSearch.SetBindWatch(player.oid, nuiToken.Token, false);
+          genderSelected.SetBindWatch(player.oid, nuiToken.Token, false);
+          factionSelected.SetBindWatch(player.oid, nuiToken.Token, false);
+          soundSetSelected.SetBindWatch(player.oid, nuiToken.Token, false);
 
-          racePortraitSelected.SetBindWatch(player.oid, token, false);
-          genderPortraitSelected.SetBindWatch(player.oid, token, false);
+          racePortraitSelected.SetBindWatch(player.oid, nuiToken.Token, false);
+          genderPortraitSelected.SetBindWatch(player.oid, nuiToken.Token, false);
 
-          strength.SetBindWatch(player.oid, token, false);
-          dexterity.SetBindWatch(player.oid, token, false);
-          constitution.SetBindWatch(player.oid, token, false);
-          intelligence.SetBindWatch(player.oid, token, false);
-          wisdom.SetBindWatch(player.oid, token, false);
-          charisma.SetBindWatch(player.oid, token, false);
+          strength.SetBindWatch(player.oid, nuiToken.Token, false);
+          dexterity.SetBindWatch(player.oid, nuiToken.Token, false);
+          constitution.SetBindWatch(player.oid, nuiToken.Token, false);
+          intelligence.SetBindWatch(player.oid, nuiToken.Token, false);
+          wisdom.SetBindWatch(player.oid, nuiToken.Token, false);
+          charisma.SetBindWatch(player.oid, nuiToken.Token, false);
 
-          fortitude.SetBindWatch(player.oid, token, false);
-          reflex.SetBindWatch(player.oid, token, false);
-          will.SetBindWatch(player.oid, token, false);
+          fortitude.SetBindWatch(player.oid, nuiToken.Token, false);
+          reflex.SetBindWatch(player.oid, nuiToken.Token, false);
+          will.SetBindWatch(player.oid, nuiToken.Token, false);
 
-          naturalAC.SetBindWatch(player.oid, token, false);
-          hitPoints.SetBindWatch(player.oid, token, false);
-          armorPenetration.SetBindWatch(player.oid, token, false);
-          attackPerRound.SetBindWatch(player.oid, token, false);
-          spellCasterLevel.SetBindWatch(player.oid, token, false);
-          movementRateSelected.SetBindWatch(player.oid, token, false);
+          naturalAC.SetBindWatch(player.oid, nuiToken.Token, false);
+          hitPoints.SetBindWatch(player.oid, nuiToken.Token, false);
+          armorPenetration.SetBindWatch(player.oid, nuiToken.Token, false);
+          attackPerRound.SetBindWatch(player.oid, nuiToken.Token, false);
+          spellCasterLevel.SetBindWatch(player.oid, nuiToken.Token, false);
+          movementRateSelected.SetBindWatch(player.oid, nuiToken.Token, false);
 
-          availableFeatSearch.SetBindWatch(player.oid, token, false);
-          acquiredFeatSearch.SetBindWatch(player.oid, token, false);
+          availableFeatSearch.SetBindWatch(player.oid, nuiToken.Token, false);
+          acquiredFeatSearch.SetBindWatch(player.oid, nuiToken.Token, false);
+
+          spellQuantity.SetBindWatch(player.oid, nuiToken.Token, false);
         }
         private void LoadBaseBinding()
         {
           StopAllWatchBindings();
 
-          name.SetBindValue(player.oid, token, targetCreature.Name);
-          name.SetBindWatch(player.oid, token, true);
-          tag.SetBindValue(player.oid, token, targetCreature.Tag);
-          tag.SetBindWatch(player.oid, token, true);
-          challengeRating.SetBindValue(player.oid, token, targetCreature.ChallengeRating.ToString());
+          name.SetBindValue(player.oid, nuiToken.Token, targetCreature.Name);
+          name.SetBindWatch(player.oid, nuiToken.Token, true);
+          tag.SetBindValue(player.oid, nuiToken.Token, targetCreature.Tag);
+          tag.SetBindWatch(player.oid, nuiToken.Token, true);
+          challengeRating.SetBindValue(player.oid, nuiToken.Token, targetCreature.ChallengeRating.ToString());
           SetChallengeRatingTooltip();
-          challengeRating.SetBindWatch(player.oid, token, true);
+          challengeRating.SetBindWatch(player.oid, nuiToken.Token, true);
 
-          race.SetBindValue(player.oid, token, Utils.raceList);
-          raceSelected.SetBindValue(player.oid, token, (int)targetCreature.Race.RacialType);
-          raceSelected.SetBindWatch(player.oid, token, true);
-          raceSearch.SetBindWatch(player.oid, token, true);
+          race.SetBindValue(player.oid, nuiToken.Token, Utils.raceList);
+          raceSelected.SetBindValue(player.oid, nuiToken.Token, (int)targetCreature.Race.RacialType);
+          raceSelected.SetBindWatch(player.oid, nuiToken.Token, true);
+          raceSearch.SetBindWatch(player.oid, nuiToken.Token, true);
 
-          apparence.SetBindValue(player.oid, token, Utils.apparenceList);
-          apparenceSelected.SetBindValue(player.oid, token, targetCreature.Appearance.RowIndex);
-          apparenceSelected.SetBindWatch(player.oid, token, true);
-          apparenceSearch.SetBindWatch(player.oid, token, true);
+          apparence.SetBindValue(player.oid, nuiToken.Token, Utils.apparenceList);
+          apparenceSelected.SetBindValue(player.oid, nuiToken.Token, targetCreature.Appearance.RowIndex);
+          apparenceSelected.SetBindWatch(player.oid, nuiToken.Token, true);
+          apparenceSearch.SetBindWatch(player.oid, nuiToken.Token, true);
 
-          genderSelected.SetBindValue(player.oid, token, (int)targetCreature.Gender);
-          genderSelected.SetBindWatch(player.oid, token, true);
+          genderSelected.SetBindValue(player.oid, nuiToken.Token, (int)targetCreature.Gender);
+          genderSelected.SetBindWatch(player.oid, nuiToken.Token, true);
 
-          factionSelected.SetBindValue(player.oid, token, (int)targetCreature.Faction.StandardFactionType);
-          factionSelected.SetBindWatch(player.oid, token, true);
+          factionSelected.SetBindValue(player.oid, nuiToken.Token, (int)targetCreature.Faction.StandardFactionType);
+          factionSelected.SetBindWatch(player.oid, nuiToken.Token, true);
 
-          soundSetSelected.SetBindValue(player.oid, token, targetCreature.SoundSet);
-          soundSetSelected.SetBindWatch(player.oid, token, true);
+          soundSetSelected.SetBindValue(player.oid, nuiToken.Token, targetCreature.SoundSet);
+          soundSetSelected.SetBindWatch(player.oid, nuiToken.Token, true);
         }
         private void LoadPortraitLayout()
         {
@@ -658,8 +937,10 @@ namespace NWN.Systems
           {
             Children = new List<NuiElement>()
             {
+              new NuiSpacer(),
               new NuiLabel("Race") { Height = 35, Width = 70, VerticalAlign = NuiVAlign.Middle },
-              new NuiCombo() { Height = 35, Width = 200, Entries = race, Selected = racePortraitSelected }
+              new NuiCombo() { Height = 35, Width = 200, Entries = race, Selected = racePortraitSelected },
+              new NuiSpacer()
             }
           });
 
@@ -667,8 +948,10 @@ namespace NWN.Systems
           {
             Children = new List<NuiElement>()
             {
+              new NuiSpacer(),
               new NuiLabel("Genre") { Height = 35, Width = 70, VerticalAlign = NuiVAlign.Middle },
               new NuiCombo() { Height = 35, Width = 200, Entries = Utils.genderList, Selected = genderPortraitSelected },
+              new NuiSpacer()
             }
           });
 
@@ -678,19 +961,19 @@ namespace NWN.Systems
         {
           StopAllWatchBindings();
 
-          race.SetBindValue(player.oid, token, Utils.raceList);
-          racePortraitSelected.SetBindValue(player.oid, token, targetCreature.Race.Id);
-          racePortraitSelected.SetBindWatch(player.oid, token, true);
+          race.SetBindValue(player.oid, nuiToken.Token, Utils.raceList);
+          racePortraitSelected.SetBindValue(player.oid, nuiToken.Token, targetCreature.Race.Id);
+          racePortraitSelected.SetBindWatch(player.oid, nuiToken.Token, true);
 
-          genderPortraitSelected.SetBindValue(player.oid, token, (int)targetCreature.Gender);
-          genderPortraitSelected.SetBindWatch(player.oid, token, true);
+          genderPortraitSelected.SetBindValue(player.oid, nuiToken.Token, (int)targetCreature.Gender);
+          genderPortraitSelected.SetBindWatch(player.oid, nuiToken.Token, true);
 
           UpdatePortraitList();
         }
         private void UpdatePortraitList()
         {
           List<string>[] portraitList = new List<string>[] { new(), new(), new()};
-          List<string> portraitTable = Portraits2da.portraitFilteredEntries[racePortraitSelected.GetBindValue(player.oid, token), genderPortraitSelected.GetBindValue(player.oid, token)];
+          List<string> portraitTable = Portraits2da.portraitFilteredEntries[racePortraitSelected.GetBindValue(player.oid, nuiToken.Token), genderPortraitSelected.GetBindValue(player.oid, nuiToken.Token)];
 
           if(portraitTable != null)
             for (int i = 0; i < portraitTable.Count; i+=3)
@@ -698,10 +981,10 @@ namespace NWN.Systems
                 try { portraitList[j].Add(portraitTable[i + j]); }
                 catch(Exception) { portraitList[j].Add(""); }
 
-          portraits1.SetBindValues(player.oid, token, portraitList[0]);
-          portraits2.SetBindValues(player.oid, token, portraitList[1]);
-          portraits3.SetBindValues(player.oid, token, portraitList[2]);
-          listCount.SetBindValue(player.oid, token, portraitList[0].Count);
+          portraits1.SetBindValues(player.oid, nuiToken.Token, portraitList[0]);
+          portraits2.SetBindValues(player.oid, nuiToken.Token, portraitList[1]);
+          portraits3.SetBindValues(player.oid, nuiToken.Token, portraitList[2]);
+          listCount.SetBindValue(player.oid, nuiToken.Token, portraitList[0].Count);
         }
         private void LoadStatsLayout()
         {
@@ -810,61 +1093,61 @@ namespace NWN.Systems
           else
             damageMultiplier = $"{targetCreature.ChallengeRating * 10} %";
 
-          challengeRatingTooltip.SetBindValue(player.oid, token, $"Effectue {damageMultiplier} de ses dégâts de base. {critChance} de chances de critiques");
+          challengeRatingTooltip.SetBindValue(player.oid, nuiToken.Token, $"Effectue {damageMultiplier} de ses dégâts de base. {critChance} de chances de critiques");
         }
         private void LoadStatsBinding()
         {
           StopAllWatchBindings();
 
-          strength.SetBindValue(player.oid, token, targetCreature.GetAbilityScore(Ability.Strength, true).ToString());
-          dexterity.SetBindValue(player.oid, token, targetCreature.GetAbilityScore(Ability.Dexterity, true).ToString());
-          constitution.SetBindValue(player.oid, token, targetCreature.GetAbilityScore(Ability.Constitution, true).ToString());
-          intelligence.SetBindValue(player.oid, token, targetCreature.GetAbilityScore(Ability.Intelligence, true).ToString());
-          wisdom.SetBindValue(player.oid, token, targetCreature.GetAbilityScore(Ability.Wisdom, true).ToString());
-          charisma.SetBindValue(player.oid, token, targetCreature.GetAbilityScore(Ability.Charisma, true).ToString());
+          strength.SetBindValue(player.oid, nuiToken.Token, targetCreature.GetAbilityScore(Ability.Strength, true).ToString());
+          dexterity.SetBindValue(player.oid, nuiToken.Token, targetCreature.GetAbilityScore(Ability.Dexterity, true).ToString());
+          constitution.SetBindValue(player.oid, nuiToken.Token, targetCreature.GetAbilityScore(Ability.Constitution, true).ToString());
+          intelligence.SetBindValue(player.oid, nuiToken.Token, targetCreature.GetAbilityScore(Ability.Intelligence, true).ToString());
+          wisdom.SetBindValue(player.oid, nuiToken.Token, targetCreature.GetAbilityScore(Ability.Wisdom, true).ToString());
+          charisma.SetBindValue(player.oid, nuiToken.Token, targetCreature.GetAbilityScore(Ability.Charisma, true).ToString());
 
-          strengthModifier.SetBindValue(player.oid, token, targetCreature.GetAbilityModifier(Ability.Strength).ToString());
-          dexterityModifier.SetBindValue(player.oid, token, targetCreature.GetAbilityModifier(Ability.Dexterity).ToString());
-          constitutionModifier.SetBindValue(player.oid, token, targetCreature.GetAbilityModifier(Ability.Constitution).ToString());
-          intelligenceModifier.SetBindValue(player.oid, token, targetCreature.GetAbilityModifier(Ability.Intelligence).ToString());
-          wisdomModifier.SetBindValue(player.oid, token, targetCreature.GetAbilityModifier(Ability.Wisdom).ToString());
-          charismaModifier.SetBindValue(player.oid, token, targetCreature.GetAbilityModifier(Ability.Charisma).ToString());
+          strengthModifier.SetBindValue(player.oid, nuiToken.Token, targetCreature.GetAbilityModifier(Ability.Strength).ToString());
+          dexterityModifier.SetBindValue(player.oid, nuiToken.Token, targetCreature.GetAbilityModifier(Ability.Dexterity).ToString());
+          constitutionModifier.SetBindValue(player.oid, nuiToken.Token, targetCreature.GetAbilityModifier(Ability.Constitution).ToString());
+          intelligenceModifier.SetBindValue(player.oid, nuiToken.Token, targetCreature.GetAbilityModifier(Ability.Intelligence).ToString());
+          wisdomModifier.SetBindValue(player.oid, nuiToken.Token, targetCreature.GetAbilityModifier(Ability.Wisdom).ToString());
+          charismaModifier.SetBindValue(player.oid, nuiToken.Token, targetCreature.GetAbilityModifier(Ability.Charisma).ToString());
 
-          fortitude.SetBindValue(player.oid, token, targetCreature.GetBaseSavingThrow(SavingThrow.Fortitude).ToString());
-          reflex.SetBindValue(player.oid, token, targetCreature.GetBaseSavingThrow(SavingThrow.Reflex).ToString());
-          will.SetBindValue(player.oid, token, targetCreature.GetBaseSavingThrow(SavingThrow.Will).ToString());
+          fortitude.SetBindValue(player.oid, nuiToken.Token, targetCreature.GetBaseSavingThrow(SavingThrow.Fortitude).ToString());
+          reflex.SetBindValue(player.oid, nuiToken.Token, targetCreature.GetBaseSavingThrow(SavingThrow.Reflex).ToString());
+          will.SetBindValue(player.oid, nuiToken.Token, targetCreature.GetBaseSavingThrow(SavingThrow.Will).ToString());
 
-          fortitudeTooltip.SetBindValue(player.oid, token, $"Total avec modificateur : {targetCreature.GetBaseSavingThrow(SavingThrow.Fortitude) + targetCreature.GetAbilityModifier(Ability.Constitution)}");
-          reflexTooltip.SetBindValue(player.oid, token, $"Total avec modificateur : {targetCreature.GetBaseSavingThrow(SavingThrow.Reflex) + targetCreature.GetAbilityModifier(Ability.Dexterity)}");
-          willTooltip.SetBindValue(player.oid, token, $"Total avec modificateur : {targetCreature.GetBaseSavingThrow(SavingThrow.Will) + targetCreature.GetAbilityModifier(Ability.Wisdom)}");
+          fortitudeTooltip.SetBindValue(player.oid, nuiToken.Token, $"Total avec modificateur : {targetCreature.GetBaseSavingThrow(SavingThrow.Fortitude) + targetCreature.GetAbilityModifier(Ability.Constitution)}");
+          reflexTooltip.SetBindValue(player.oid, nuiToken.Token, $"Total avec modificateur : {targetCreature.GetBaseSavingThrow(SavingThrow.Reflex) + targetCreature.GetAbilityModifier(Ability.Dexterity)}");
+          willTooltip.SetBindValue(player.oid, nuiToken.Token, $"Total avec modificateur : {targetCreature.GetBaseSavingThrow(SavingThrow.Will) + targetCreature.GetAbilityModifier(Ability.Wisdom)}");
 
-          naturalAC.SetBindValue(player.oid, token, targetCreature.BaseAC.ToString());
-          naturalACTooltip.SetBindValue(player.oid, token, $"La créature subit naturellement {Utils.GetDamageMultiplier(targetCreature.AC) * 100:0.##} % des dégâts");
-          armorPenetration.SetBindValue(player.oid, token, targetCreature.BaseAttackBonus.ToString());
-          attackPerRound.SetBindValue(player.oid, token, targetCreature.BaseAttackCount.ToString());
-          spellCasterLevel.SetBindValue(player.oid, token, targetCreature.GetObjectVariable<LocalVariableInt>("_CREATURE_CASTER_LEVEL").Value.ToString());
+          naturalAC.SetBindValue(player.oid, nuiToken.Token, targetCreature.BaseAC.ToString());
+          naturalACTooltip.SetBindValue(player.oid, nuiToken.Token, $"La créature subit naturellement {Utils.GetDamageMultiplier(targetCreature.AC) * 100:0.##} % des dégâts");
+          armorPenetration.SetBindValue(player.oid, nuiToken.Token, targetCreature.BaseAttackBonus.ToString());
+          attackPerRound.SetBindValue(player.oid, nuiToken.Token, targetCreature.BaseAttackCount.ToString());
+          spellCasterLevel.SetBindValue(player.oid, nuiToken.Token, targetCreature.GetObjectVariable<LocalVariableInt>("_CREATURE_CASTER_LEVEL").Value.ToString());
 
-          dodgeChance.SetBindValue(player.oid, token, Utils.GetDodgeChance(targetCreature).ToString());
-          hitPoints.SetBindValue(player.oid, token, targetCreature.MaxHP.ToString());
-          movementRateSelected.SetBindValue(player.oid, token, (int)targetCreature.MovementRate);
+          dodgeChance.SetBindValue(player.oid, nuiToken.Token, Utils.GetDodgeChance(targetCreature).ToString());
+          hitPoints.SetBindValue(player.oid, nuiToken.Token, targetCreature.MaxHP.ToString());
+          movementRateSelected.SetBindValue(player.oid, nuiToken.Token, (int)targetCreature.MovementRate);
 
-          strength.SetBindWatch(player.oid, token, true);
-          dexterity.SetBindWatch(player.oid, token, true);
-          constitution.SetBindWatch(player.oid, token, true);
-          intelligence.SetBindWatch(player.oid, token, true);
-          wisdom.SetBindWatch(player.oid, token, true);
-          charisma.SetBindWatch(player.oid, token, true);
+          strength.SetBindWatch(player.oid, nuiToken.Token, true);
+          dexterity.SetBindWatch(player.oid, nuiToken.Token, true);
+          constitution.SetBindWatch(player.oid, nuiToken.Token, true);
+          intelligence.SetBindWatch(player.oid, nuiToken.Token, true);
+          wisdom.SetBindWatch(player.oid, nuiToken.Token, true);
+          charisma.SetBindWatch(player.oid, nuiToken.Token, true);
 
-          fortitude.SetBindWatch(player.oid, token, true);
-          reflex.SetBindWatch(player.oid, token, true);
-          will.SetBindWatch(player.oid, token, true);
+          fortitude.SetBindWatch(player.oid, nuiToken.Token, true);
+          reflex.SetBindWatch(player.oid, nuiToken.Token, true);
+          will.SetBindWatch(player.oid, nuiToken.Token, true);
 
-          naturalAC.SetBindWatch(player.oid, token, true);
-          armorPenetration.SetBindWatch(player.oid, token, true);
-          attackPerRound.SetBindWatch(player.oid, token, true);
-          spellCasterLevel.SetBindWatch(player.oid, token, true);
-          hitPoints.SetBindWatch(player.oid, token, true);
-          movementRateSelected.SetBindWatch(player.oid, token, true);
+          naturalAC.SetBindWatch(player.oid, nuiToken.Token, true);
+          armorPenetration.SetBindWatch(player.oid, nuiToken.Token, true);
+          attackPerRound.SetBindWatch(player.oid, nuiToken.Token, true);
+          spellCasterLevel.SetBindWatch(player.oid, nuiToken.Token, true);
+          hitPoints.SetBindWatch(player.oid, nuiToken.Token, true);
+          movementRateSelected.SetBindWatch(player.oid, nuiToken.Token, true);
         }
         private void LoadFeatsLayout()
         {
@@ -910,10 +1193,10 @@ namespace NWN.Systems
           availableFeats.Clear();
           acquiredFeats.Clear();
 
-          availableFeatSearch.SetBindValue(player.oid, token, "");
-          availableFeatSearch.SetBindWatch(player.oid, token, true);
-          acquiredFeatSearch.SetBindValue(player.oid, token, "");
-          acquiredFeatSearch.SetBindWatch(player.oid, token, true);
+          availableFeatSearch.SetBindValue(player.oid, nuiToken.Token, "");
+          availableFeatSearch.SetBindWatch(player.oid, nuiToken.Token, true);
+          acquiredFeatSearch.SetBindValue(player.oid, nuiToken.Token, "");
+          acquiredFeatSearch.SetBindWatch(player.oid, nuiToken.Token, true);
 
           List<string> availableIconsList = new();
           List<string> availableNamesList = new();
@@ -938,12 +1221,12 @@ namespace NWN.Systems
             }
           }
 
-          availableFeatIcons.SetBindValues(player.oid, token, availableIconsList);
-          availableFeatNames.SetBindValues(player.oid, token, availableNamesList);
-          acquiredFeatIcons.SetBindValues(player.oid, token, acquiredIconsList);
-          acquiredFeatNames.SetBindValues(player.oid, token, acquiredNamesList);
-          listCount.SetBindValue(player.oid, token, availableFeats.Count);
-          listAcquiredFeatCount.SetBindValue(player.oid, token, acquiredFeats.Count);
+          availableFeatIcons.SetBindValues(player.oid, nuiToken.Token, availableIconsList);
+          availableFeatNames.SetBindValues(player.oid, nuiToken.Token, availableNamesList);
+          acquiredFeatIcons.SetBindValues(player.oid, nuiToken.Token, acquiredIconsList);
+          acquiredFeatNames.SetBindValues(player.oid, nuiToken.Token, acquiredNamesList);
+          listCount.SetBindValue(player.oid, nuiToken.Token, availableFeats.Count);
+          listAcquiredFeatCount.SetBindValue(player.oid, nuiToken.Token, acquiredFeats.Count);
 
           availableFeatSearcher = availableFeats;
           acquiredFeatSearcher = acquiredFeats;
@@ -954,13 +1237,14 @@ namespace NWN.Systems
           LoadButtons();
           rowTemplate.Clear();
 
-          rowTemplate.Add(new NuiListTemplateCell(new NuiButtonImage(availableFeatIcons) { Id = "selectFeat", Tooltip = "Ajouter" }) { Width = 35 });
+          rowTemplate.Add(new NuiListTemplateCell(new NuiButtonImage(availableFeatIcons) { Id = "selectSpell", Tooltip = "Ajouter" }) { Width = 35 });
           rowTemplate.Add(new NuiListTemplateCell(new NuiLabel(availableFeatNames) { Id = "availableFeatDescription", Tooltip = availableFeatNames, VerticalAlign = NuiVAlign.Middle, HorizontalAlign = NuiHAlign.Center }) { VariableSize = true });
 
           List<NuiListTemplateCell> rowTemplateAcquiredFeats = new()
           {
-            new NuiListTemplateCell(new NuiButtonImage(acquiredFeatIcons) { Id = "removeFeat", Tooltip = "Supprimer" }) { Width = 35 },
-            new NuiListTemplateCell(new NuiLabel(acquiredFeatNames) { Id = "acquiredFeatDescription", Tooltip = acquiredFeatNames, VerticalAlign = NuiVAlign.Middle, HorizontalAlign = NuiHAlign.Center }) { VariableSize = true }
+            new NuiListTemplateCell(new NuiButtonImage(acquiredFeatIcons) { Id = "removeSpell", Tooltip = "Supprimer" }) { Width = 35 },
+            new NuiListTemplateCell(new NuiLabel(acquiredFeatNames) { Id = "acquiredFeatDescription", Tooltip = acquiredFeatNames, VerticalAlign = NuiVAlign.Middle, HorizontalAlign = NuiHAlign.Center }) { VariableSize = true },
+            new NuiListTemplateCell(new NuiTextEdit("Quantité", spellQuantity, 2, false) { Id = "spellQuantityText", Tooltip = "10 = utilisation illimitée", Enabled = spellQuantityEnabled }) { Width = 35 }
           };
 
           List<NuiElement> columnsChildren = new();
@@ -971,7 +1255,7 @@ namespace NWN.Systems
           {
             Children = new List<NuiElement>()
             {
-              new NuiRow() { Children = new List<NuiElement>() { new NuiTextEdit("Dons disponibles", availableFeatSearch, 20, false) { Width = 190 } } },
+              new NuiRow() { Children = new List<NuiElement>() { new NuiTextEdit("Sorts disponibles", availableFeatSearch, 20, false) { Width = 190 } } },
               new NuiRow() { Children = new List<NuiElement>() { new NuiList(rowTemplate, listCount) { RowHeight = 35,  Width = 190  } } }
             }
           });
@@ -980,7 +1264,7 @@ namespace NWN.Systems
           {
             Children = new List<NuiElement>()
             {
-              new NuiRow() { Children = new List<NuiElement>() { new NuiTextEdit("Dons acquis", acquiredFeatSearch, 20, false) { Width = 190 } } },
+              new NuiRow() { Children = new List<NuiElement>() { new NuiTextEdit("Sorts acquis", acquiredFeatSearch, 20, false) { Width = 190 } } },
               new NuiRow() { Children = new List<NuiElement>() { new NuiList(rowTemplateAcquiredFeats, listAcquiredFeatCount) { RowHeight = 35, Width = 190 } } }
             }
           });
@@ -989,46 +1273,60 @@ namespace NWN.Systems
         {
           StopAllWatchBindings();
 
-          availableFeats.Clear();
-          acquiredFeats.Clear();
-
-          availableFeatSearch.SetBindValue(player.oid, token, "");
-          availableFeatSearch.SetBindWatch(player.oid, token, true);
-          acquiredFeatSearch.SetBindValue(player.oid, token, "");
-          acquiredFeatSearch.SetBindWatch(player.oid, token, true);
+          availableSpells.Clear();
+          acquiredSpells.Clear();
 
           List<string> availableIconsList = new();
           List<string> availableNamesList = new();
           List<string> acquiredIconsList = new();
           List<string> acquiredNamesList = new();
+          List<string> acquiredQuantityList = new();
+          List<bool> enabledQuantityList = new();
 
-          foreach (Feat feat in (Feat[])Enum.GetValues(typeof(Feat)))
+          foreach (Spell spell in (Spell[])Enum.GetValues(typeof(Spell)))
           {
-            NwFeat baseFeat = NwFeat.FromFeatType(feat);
+            if (SpellUtils.IgnoredSpellList(spell))
+              continue;
 
-            if (targetCreature.KnowsFeat(baseFeat))
+            NwSpell baseSpell = NwSpell.FromSpellType(spell);
+
+            if (targetCreature.SpecialAbilities.Any(s => s.Spell == baseSpell))
             {
-              acquiredIconsList.Add(baseFeat.IconResRef);
-              acquiredNamesList.Add(baseFeat.Name.ToString().Replace("’", "'"));
-              acquiredFeats.Add(baseFeat);
+              acquiredIconsList.Add(baseSpell.IconResRef);
+              acquiredNamesList.Add(baseSpell.Name.ToString().Replace("’", "'"));
+              acquiredQuantityList.Add(targetCreature.SpecialAbilities.Count(s => s.Spell == baseSpell).ToString());
+              acquiredSpells.Add(baseSpell);
+
+              if (SpellUtils.IsSpellBuff(baseSpell))
+                enabledQuantityList.Add(false);
+              else
+                enabledQuantityList.Add(true);
             }
             else
             {
-              availableIconsList.Add(baseFeat.IconResRef);
-              availableNamesList.Add(baseFeat.Name.ToString().Replace("’", "'"));
-              availableFeats.Add(baseFeat);
+              availableIconsList.Add(baseSpell.IconResRef);
+              availableNamesList.Add(baseSpell.Name.ToString().Replace("’", "'"));
+              availableSpells.Add(baseSpell);
             }
           }
 
-          availableFeatIcons.SetBindValues(player.oid, token, availableIconsList);
-          availableFeatNames.SetBindValues(player.oid, token, availableNamesList);
-          acquiredFeatIcons.SetBindValues(player.oid, token, acquiredIconsList);
-          acquiredFeatNames.SetBindValues(player.oid, token, acquiredNamesList);
-          listCount.SetBindValue(player.oid, token, availableFeats.Count);
-          listAcquiredFeatCount.SetBindValue(player.oid, token, acquiredFeats.Count);
+          availableFeatIcons.SetBindValues(player.oid, nuiToken.Token, availableIconsList);
+          availableFeatNames.SetBindValues(player.oid, nuiToken.Token, availableNamesList);
+          acquiredFeatIcons.SetBindValues(player.oid, nuiToken.Token, acquiredIconsList);
+          acquiredFeatNames.SetBindValues(player.oid, nuiToken.Token, acquiredNamesList);
+          spellQuantity.SetBindValues(player.oid, nuiToken.Token, acquiredQuantityList);
+          spellQuantityEnabled.SetBindValues(player.oid, nuiToken.Token, enabledQuantityList);
+          listCount.SetBindValue(player.oid, nuiToken.Token, availableSpells.Count);
+          listAcquiredFeatCount.SetBindValue(player.oid, nuiToken.Token, acquiredSpells.Count);
 
-          availableFeatSearcher = availableFeats;
-          acquiredFeatSearcher = acquiredFeats;
+          availableSpellSearcher = availableSpells;
+          acquiredSpellSearcher = acquiredSpells;
+
+          availableFeatSearch.SetBindValue(player.oid, nuiToken.Token, "");
+          availableFeatSearch.SetBindWatch(player.oid, nuiToken.Token, true);
+          acquiredFeatSearch.SetBindValue(player.oid, nuiToken.Token, "");
+          acquiredFeatSearch.SetBindWatch(player.oid, nuiToken.Token, true);
+          spellQuantity.SetBindWatch(player.oid, nuiToken.Token, true);
         }
       }
     }

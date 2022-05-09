@@ -88,7 +88,8 @@ namespace NWN.Systems
       return runAction;
     }
 
-    public void RegisterMetaMagicOnSpellInput(OnSpellAction onSpellAction)
+
+    public void HandleCraftOnSpellInput(OnSpellAction onSpellAction)
     {
       if (onSpellAction.Spell.ImpactScript == "on_ench_cast")
       {
@@ -106,25 +107,24 @@ namespace NWN.Systems
           return;
         }
       }
-
+    }
+    public void RegisterMetaMagicOnSpellInput(OnSpellAction onSpellAction)
+    {
       if (onSpellAction.MetaMagic == MetaMagic.Silent)
         onSpellAction.Caster.GetObjectVariable<LocalVariableInt>("_IS_SILENT_SPELL").Value = 1;
     }
-    public void OnSpellBroadcast(OnSpellBroadcast onSpellBroadcast)
+    public void SetCastingClassOnSpellBroadcast(OnSpellBroadcast onSpellBroadcast)
     {
-      if (!(onSpellBroadcast.Caster is NwCreature { IsPlayerControlled: true } oPC))
-        return;
-
-      if (PlayerSystem.Players.TryGetValue(oPC, out PlayerSystem.Player player))
+      if (PlayerSystem.Players.TryGetValue(onSpellBroadcast.Caster, out PlayerSystem.Player player))
       {
-        ClassType castingClass = GetCastingClass(onSpellBroadcast.Spell);
-
+        ClassType castingClass = SpellUtils.GetCastingClass(onSpellBroadcast.Spell);
+        
         switch (castingClass)
         {
           case ClassType.Druid:
 
-            NwItem armor = oPC.GetItemInSlot(InventorySlot.Chest);
-            NwItem shield = oPC.GetItemInSlot(InventorySlot.LeftHand);
+            NwItem armor = onSpellBroadcast.Caster.GetItemInSlot(InventorySlot.Chest);
+            NwItem shield = onSpellBroadcast.Caster.GetItemInSlot(InventorySlot.LeftHand);
 
             if ((armor != null && armor.BaseACValue > 5) || (shield != null && shield.BaseACValue > 1))
             {
@@ -138,78 +138,52 @@ namespace NWN.Systems
           case ClassType.Paladin:
           case ClassType.Ranger:
 
-            oPC.BaseArmorArcaneSpellFailure = 0;
-            oPC.BaseShieldArcaneSpellFailure = 0;
+            onSpellBroadcast.Caster.BaseArmorArcaneSpellFailure = 0;
+            onSpellBroadcast.Caster.BaseShieldArcaneSpellFailure = 0;
 
             Task resetClassOnNextFrame = NwTask.Run(async () =>
             {
               CancellationTokenSource tokenSource = new CancellationTokenSource();
 
-              Task spellCast = NwTask.WaitUntil(() => !oPC.IsValid || oPC.CurrentAction != Anvil.API.Action.CastSpell, tokenSource.Token);
+              Task spellCast = NwTask.WaitUntil(() => !onSpellBroadcast.Caster.IsValid || onSpellBroadcast.Caster.CurrentAction != Anvil.API.Action.CastSpell, tokenSource.Token);
 
               await NwTask.WhenAny(spellCast);
               tokenSource.Cancel();
 
-              if (!oPC.IsValid)
+              if (!onSpellBroadcast.Caster.IsValid)
                 return;
 
-              NwItem shield = oPC.GetItemInSlot(InventorySlot.LeftHand);
-              NwItem armor = oPC.GetItemInSlot(InventorySlot.Chest);
+              NwItem shield = onSpellBroadcast.Caster.GetItemInSlot(InventorySlot.LeftHand);
+              NwItem armor = onSpellBroadcast.Caster.GetItemInSlot(InventorySlot.Chest);
 
               if (shield != null)
-                oPC.BaseShieldArcaneSpellFailure = shield.BaseItem.ArcaneSpellFailure;
+                onSpellBroadcast.Caster.BaseShieldArcaneSpellFailure = shield.BaseItem.ArcaneSpellFailure;
 
-              if(armor != null)
-                oPC.BaseArmorArcaneSpellFailure = Armor2da.GetArcaneSpellFailure(armor.BaseACValue);
+              if (armor != null)
+                onSpellBroadcast.Caster.BaseArmorArcaneSpellFailure = Armor2da.GetArcaneSpellFailure(armor.BaseACValue);
             });
 
             break;
         }
       }
-
-      if (oPC.ControllingPlayer.IsDM ||
-        !oPC.ActiveEffects.Any(e => e.EffectType == EffectType.Invisibility || e.EffectType == EffectType.ImprovedInvisibility)
+    }
+    public void HandleHearingSpellBroadcast(OnSpellBroadcast onSpellBroadcast)
+    {
+      if (onSpellBroadcast.Caster.ControllingPlayer.IsDM ||
+        !onSpellBroadcast.Caster.ActiveEffects.Any(e => e.EffectType == EffectType.Invisibility || e.EffectType == EffectType.ImprovedInvisibility)
         || onSpellBroadcast.Caster.GetObjectVariable<LocalVariableInt>("_IS_SILENT_SPELL").HasValue)
       {
         onSpellBroadcast.Caster.GetObjectVariable<LocalVariableInt>("_IS_SILENT_SPELL").Delete();
         return;
       }
 
-      foreach (NwCreature spotter in oPC.Area.FindObjectsOfTypeInArea<NwCreature>().Where(p => p.IsPlayerControlled && p.Distance(oPC) < 20.0f))
+      foreach (NwCreature spotter in onSpellBroadcast.Caster.Area.FindObjectsOfTypeInArea<NwCreature>().Where(p => p.IsPlayerControlled && p.DistanceSquared(onSpellBroadcast.Caster) < 400.0f))
       {
-        if (!spotter.IsCreatureSeen(oPC))
+        if (!spotter.IsCreatureSeen(onSpellBroadcast.Caster))
         {
           spotter.ControllingPlayer.SendServerMessage("Quelqu'un d'invisible est en train de lancer un sort à proximité !", ColorConstants.Cyan);
-          spotter.ControllingPlayer.ShowVisualEffect(VfxType.FnfLosNormal10, oPC.Position);
+          spotter.ControllingPlayer.ShowVisualEffect(VfxType.FnfLosNormal10, onSpellBroadcast.Caster.Position);
         }
-      }
-    }
-
-    public static ClassType GetCastingClass(NwSpell Spell)
-    {
-      byte clericCastLevel = Spell.GetSpellLevelForClass(NwClass.FromClassType(ClassType.Cleric));
-      byte druidCastLevel = Spell.GetSpellLevelForClass(NwClass.FromClassType(ClassType.Druid));
-      byte paladinCastLevel = Spell.GetSpellLevelForClass(NwClass.FromClassType(ClassType.Paladin));
-      byte rangerCastLevel = Spell.GetSpellLevelForClass(NwClass.FromClassType(ClassType.Ranger));
-      byte bardCastLevel = Spell.GetSpellLevelForClass(NwClass.FromClassType(ClassType.Bard));
-
-      Dictionary<ClassType, byte> classSorter = new Dictionary<ClassType, byte>()
-      {
-        { ClassType.Cleric, clericCastLevel },
-        { ClassType.Druid, druidCastLevel },
-        { ClassType.Paladin, paladinCastLevel },
-        { ClassType.Ranger, rangerCastLevel },
-        { ClassType.Bard, bardCastLevel },
-      };
-
-      try
-      {
-        ClassType castingClass = classSorter.Where(c => c.Value < 255).Max().Key;
-        return castingClass;
-      }
-      catch (Exception)
-      {
-        return (ClassType)43;
       }
     }
 
@@ -217,14 +191,15 @@ namespace NWN.Systems
     private void HandleSpellHook(CallInfo callInfo)
     {
       SpellEvents.OnSpellCast onSpellCast = new SpellEvents.OnSpellCast();
-      uint spellId = onSpellCast.Spell.Id;
-
       HandleSpellDamageLocalisation(onSpellCast.Spell.SpellType, onSpellCast.Caster);
+
+      if (callInfo.ObjectSelf is not NwCreature castingCreature)
+        return;
 
       if (!(callInfo.ObjectSelf is NwCreature { IsPlayerControlled: true } oPC) || !PlayerSystem.Players.TryGetValue(oPC, out PlayerSystem.Player player))
       {
-          if (callInfo.ObjectSelf is NwCreature castingCreature && castingCreature.Master != null && PlayerSystem.Players.TryGetValue(castingCreature.Master, out PlayerSystem.Player master))
-            NWScript.DelayCommand(0.0f, () => DelayedTagAoESummon(castingCreature, master, spellId));
+          if (castingCreature.Master != null && PlayerSystem.Players.TryGetValue(castingCreature.Master, out PlayerSystem.Player master))
+            NWScript.DelayCommand(0.0f, () => DelayedTagAoESummon(castingCreature, master));
 
           return;
       }
@@ -296,7 +271,7 @@ namespace NWN.Systems
           break;
       }
 
-      NWScript.DelayCommand(0.0f, () => DelayedTagAoE(player, spellId));
+      NWScript.DelayCommand(0.0f, () => DelayedTagAoE(player));
     }
     private void HandleCasterLevel(NwGameObject caster, Spell spell)
     {
@@ -305,7 +280,7 @@ namespace NWN.Systems
 
       //CreaturePlugin.SetClassByPosition(castingCreature, 0, 43);
 
-      ClassType castingClass = GetCastingClass(spell);
+      ClassType castingClass = SpellUtils.GetCastingClass(spell);
 
       if ((int)castingClass == 43 && castingCreature.GetAbilityScore(Ability.Charisma) > castingCreature.GetAbilityScore(Ability.Intelligence))
         castingClass = ClassType.Sorcerer;
@@ -321,7 +296,7 @@ namespace NWN.Systems
 
       CreaturePlugin.SetClassByPosition(player, 0, 43);
     }
-    private void DelayedTagAoE(PlayerSystem.Player player, uint spellId)
+    private void DelayedTagAoE(PlayerSystem.Player player)
     {
       NwAreaOfEffect aoe = UtilPlugin.GetLastCreatedObject(11).ToNwObject<NwAreaOfEffect>();
       
@@ -334,7 +309,7 @@ namespace NWN.Systems
       if (player.openedWindows.ContainsKey("aoeDispel"))
         ((PlayerSystem.Player.AoEDispelWindow)player.windows["aoeDispel"]).UpdateAoEList();
     }
-    private void DelayedTagAoESummon(NwCreature castingCreature, PlayerSystem.Player master, uint spellId)
+    private void DelayedTagAoESummon(NwCreature castingCreature, PlayerSystem.Player master)
     {
       NwAreaOfEffect aoe = UtilPlugin.GetLastCreatedObject(11).ToNwObject<NwAreaOfEffect>();
 
@@ -347,23 +322,25 @@ namespace NWN.Systems
       if (master.openedWindows.ContainsKey("aoeDispel"))
         ((PlayerSystem.Player.AoEDispelWindow)master.windows["aoeDispel"]).UpdateAoEList();
     }
-    public void HandleBeforeSpellCast(OnSpellCast onSpellCast)
+    public void HandleAutoSpellBeforeSpellCast(OnSpellCast onSpellCast)
     {
-      if (!(onSpellCast.Caster is NwCreature { IsPlayerControlled: true } oPC))
+      if (onSpellCast.Caster is not NwCreature oPC)
         return;
-     
+
       if (oPC.GetObjectVariable<LocalVariableInt>("_AUTO_SPELL").HasValue && oPC.GetObjectVariable<LocalVariableInt>("_AUTO_SPELL").Value != onSpellCast.Spell.Id)
       {
         oPC.GetObjectVariable<LocalVariableInt>("_AUTO_SPELL").Delete();
         oPC.GetObjectVariable<LocalVariableObject<NwGameObject>>("_AUTO_SPELL_TARGET").Delete();
         oPC.OnCombatRoundEnd -= PlayerSystem.HandleCombatRoundEndForAutoSpells;
       }
-
-      if (onSpellCast.Spell.SpellSchool == SpellSchool.Divination)
+    }
+    public void CheckIsDivinationBeforeSpellCast(OnSpellCast onSpellCast)
+    {
+      if (onSpellCast.Caster.IsLoginPlayerCharacter(out NwPlayer player) && onSpellCast.Spell.SpellSchool == SpellSchool.Divination)
       {
         onSpellCast.PreventSpellCast = true;
-        oPC.ControllingPlayer.SendServerMessage("Un cliquetis lointain de chaînes résonne dans votre esprit. Quelque chose vient de se mettre en mouvement ...");
-        Utils.LogMessageToDMs($"{oPC.Name} ({oPC.ControllingPlayer.PlayerName}) vient de lancer un sort de divination. Faire intervenir les apôtres pour jugement.");
+        player.SendServerMessage("Un cliquetis lointain de chaînes résonne dans votre esprit. Quelque chose vient de se mettre en mouvement ...");
+        Utils.LogMessageToDMs($"{player.ControlledCreature.Name} ({player.PlayerName}) vient de lancer un sort de divination. Faire intervenir les apôtres pour jugement.");
       }
     }
 
@@ -774,7 +751,8 @@ namespace NWN.Systems
 
       if (player.pveArena.currentRound == 0) // S'il s'agit d'un spectateur
       {
-        player.oid.LoginCreature.OnSpellCast += HandleBeforeSpellCast;
+        player.oid.LoginCreature.OnSpellCast += HandleAutoSpellBeforeSpellCast;
+        player.oid.LoginCreature.OnSpellCast += CheckIsDivinationBeforeSpellCast;
         player.oid.LoginCreature.OnSpellCast -= Arena.Utils.NoMagicMalus;
         return;
       }

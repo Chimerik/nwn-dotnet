@@ -115,9 +115,9 @@ namespace NWN.Systems
                   CloseWindow();
 
                   if (player.windows.ContainsKey("bodyAppearanceModifier"))
-                    ((BodyAppearanceWindow)player.windows["bodyAppearanceModifier"]).CreateWindow();
+                    ((BodyAppearanceWindow)player.windows["bodyAppearanceModifier"]).CreateWindow(player.oid.LoginCreature);
                   else
-                    player.windows.Add("bodyAppearanceModifier", new BodyAppearanceWindow(player));
+                    player.windows.Add("bodyAppearanceModifier", new BodyAppearanceWindow(player, player.oid.LoginCreature));
 
                   break;
 

@@ -371,6 +371,7 @@ namespace NWN
     public static readonly List<NuiComboEntry> soundSetList = new();
     public static readonly List<NuiComboEntry> factionList = new();
     public static readonly List<NuiComboEntry> movementRateList = new();
+    public static readonly List<NuiComboEntry> sizeList = new();
 
     public static double GetDamageMultiplier(double targetAC)
     {

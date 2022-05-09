@@ -35,10 +35,11 @@ namespace NWN.Systems
 
       Party.HandlePartyChange(onPCDisconnect.Player);
 
-      if (!player.areaExplorationStateDictionnary.ContainsKey(player.oid.LoginCreature.Area.Tag))
-        player.areaExplorationStateDictionnary.Add(player.oid.LoginCreature.Area.Tag, player.oid.GetAreaExplorationState(player.oid.LoginCreature.Area));
-      else
-        player.areaExplorationStateDictionnary[player.oid.LoginCreature.Area.Tag] = player.oid.GetAreaExplorationState(player.oid.LoginCreature.Area);
+      if(player.oid.LoginCreature.Area != null)
+        if (!player.areaExplorationStateDictionnary.ContainsKey(player.oid.LoginCreature.Area.Tag))
+          player.areaExplorationStateDictionnary.Add(player.oid.LoginCreature.Area.Tag, player.oid.GetAreaExplorationState(player.oid.LoginCreature.Area));
+        else
+          player.areaExplorationStateDictionnary[player.oid.LoginCreature.Area.Tag] = player.oid.GetAreaExplorationState(player.oid.LoginCreature.Area);
 
       if (player.openedWindows.ContainsKey("bankStorage") && player.windows.ContainsKey("bankStorage"))
         ((Player.BankStorageWindow)player.windows["bankStorage"]).BankSave();

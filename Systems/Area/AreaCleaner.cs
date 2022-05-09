@@ -8,17 +8,27 @@ namespace NWN.Systems
   [ServiceBinding(typeof(AreaSystem))]
   partial class AreaSystem
   {
+    private void CleanArea(NwArea area)
+    {
+      foreach (NwPlaceable bodyBag in area.FindObjectsOfTypeInArea<NwPlaceable>().Where(o => o.Tag == "BodyBag"))
+      {
+        Utils.DestroyInventory(bodyBag);
+        Log.Info($"destroying body bag {bodyBag.Name}");
+        bodyBag.Destroy();
+      }
+
+      foreach (NwItem item in area.FindObjectsOfTypeInArea<NwItem>().Where(i => i.Possessor == null))
+      {
+        Log.Info($"destroying item {item.Name}");
+        item.Destroy();
+      }
+    }
     private ScheduledTask areaDestroyerScheduler;
     private ScheduledTask areaCleanerCheckScheduler;
     private ScheduledTask areaCleanerScheduler;
     private void AreaCleaner(NwArea area)
     {
       Log.Info($"Initiating cleaning for area {area.Name}");
-
-      foreach (NwAreaOfEffect spawnAOE in area.FindObjectsOfTypeInArea<NwAreaOfEffect>().Where(a => a.Tag == "creature_spawn_aoe" || a.Tag == "creature_reset_spawn_aoe"))
-        spawnAOE.Destroy();
-
-      Log.Info("Spawn destroyed");
 
       areaCleanerCheckScheduler = scheduler.ScheduleRepeating(() =>
       {

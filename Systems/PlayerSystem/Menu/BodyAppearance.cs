@@ -16,6 +16,8 @@ namespace NWN.Systems
     {
       public class BodyAppearanceWindow : PlayerWindow
       {
+        private readonly NuiColumn rootColumn = new();
+        private readonly List<NuiElement> rootChildren = new();
         private readonly NuiBind<int> headSelection = new ("headSelection");
         private readonly NuiBind<int> headSlider = new ("headSlider");
         private readonly NuiBind<int> sizeSlider = new ("sizeSlider");
@@ -30,7 +32,10 @@ namespace NWN.Systems
         private readonly NuiBind<int> forearmLeftSelection = new ("forearmLeftSelection");
         private readonly NuiBind<int> thighLeftSelection = new ("thighLeftSelection");
         private readonly NuiBind<int> shinLeftSelection = new ("shinLeftSelection");
-        private readonly List<NuiComboEntry> sizeCombo = new ();
+
+        private readonly NuiSlider sizeSliderWidget;
+        private readonly NuiSlider headSliderWidget;
+
         private readonly List<NuiComboEntry> comboChest = new () { new NuiComboEntry("1", 1) };
         private readonly List<NuiComboEntry> comboBicep = new ()
           {
@@ -38,223 +43,146 @@ namespace NWN.Systems
             new NuiComboEntry("2", 2)
           };
 
-        public BodyAppearanceWindow(Player player) : base(player)
+        private NwCreature targetCreature;
+
+        public BodyAppearanceWindow(Player player, NwCreature targetCreature) : base(player)
         {
           windowId = "bodyAppearanceModifier";
 
-          for (int i = 0; i < 51; i++)
-            sizeCombo.Add(new NuiComboEntry($"x{((float)(i + 75)) / 100}", i));
+          sizeSliderWidget = new(sizeSlider, 0, 50) { Step = 1 };
+          headSliderWidget = new(headSlider, 0, ModuleSystem.headModels.FirstOrDefault(h => h.gender == targetCreature.Gender && h.appearanceRow == targetCreature.Appearance.RowIndex).heads.Count - 1) { Step = 1 };
 
-          if (player.oid.ControlledCreature.Gender == Gender.Male)
-            comboChest.Add(new NuiComboEntry("2", 2));
-
-          CreateWindow();
-        }
-        public void CreateWindow()
-        {
-          player.DisableItemAppearanceFeedbackMessages();
-
-          NuiRect windowRectangle = player.windowRectangles.ContainsKey(windowId) && player.windowRectangles[windowId].Width > 0 ? player.windowRectangles[windowId] : new NuiRect(10, player.oid.GetDeviceProperty(PlayerDeviceProperty.GuiHeight) * 0.01f, player.oid.GetDeviceProperty(PlayerDeviceProperty.GuiWidth) * 0.7f, player.oid.GetDeviceProperty(PlayerDeviceProperty.GuiHeight) / 3);
-
-          NuiColumn root = new NuiColumn
+          rootColumn.Children = rootChildren;
+          rootChildren.Add(new NuiRow { Children = new List<NuiElement> { new NuiSpacer { }, new NuiButton("Couleurs") { Id = "openColors", Height = 35, Width = 70 }, new NuiSpacer { } } });
+          rootChildren.Add(new NuiRow { Children = new List<NuiElement> 
+          { 
+            new NuiLabel("Taille") { Width = 60, Height = 35, VerticalAlign = NuiVAlign.Middle },
+            new NuiCombo { Width = 80, Entries = Utils.sizeList, Selected = sizeSelection },
+            sizeSliderWidget
+          } });
+          rootChildren.Add(new NuiRow  { Children = new List<NuiElement>
           {
-            Children = new List<NuiElement>
-            {
-              new NuiRow
-              {
-                Children = new List<NuiElement>
-                {
-                  new NuiSpacer { },
-                  new NuiButton("Couleurs") { Id = "openColors", Height = 35, Width = 70 },
-                  new NuiSpacer { }
-                }
-              },
-              new NuiRow
-              {
-                Children = new List<NuiElement>
-                {
-                  new NuiLabel("Taille") { Width = 60, Height = 35, VerticalAlign = NuiVAlign.Middle  },
-                  new NuiCombo
-                  {
-                     Width = 80,
-                     Entries = sizeCombo,
-                     Selected = sizeSelection
-                  },
-                  new NuiSlider(sizeSlider, 0, 50) { Step = 1,  Width = (windowRectangle.Width - 140)  * 0.98f }
-                }
-              },
-              new NuiRow
-              {
-                Children = new List<NuiElement>
-                {
-                  new NuiLabel("Tête") { Width = 60, Height = 35, VerticalAlign = NuiVAlign.Middle },
-                  new NuiCombo
-                  {
-                    Width = 80,
-                    Entries = ModuleSystem.headModels.FirstOrDefault(h => h.gender == player.oid.ControlledCreature.Gender && h.appearanceRow == player.oid.ControlledCreature.Appearance.RowIndex).heads,
-                    Selected = headSelection
-                  },
-                  new NuiSlider(headSlider, 0, ModuleSystem.headModels.FirstOrDefault(h => h.gender == player.oid.ControlledCreature.Gender && h.appearanceRow == player.oid.ControlledCreature.Appearance.RowIndex).heads.Count - 1)
-                  {
-                    Step = 1,  Width = (windowRectangle.Width - 140)  * 0.98f,
-                  }
-                }
-              },
-              new NuiRow
-              {
-                Children = new List<NuiElement>
-                {
-                  new NuiLabel("Torse") { Width = 60, Height = 35, VerticalAlign = NuiVAlign.Middle },
-                  new NuiCombo
-                  {
-                    Width = 80,
-                    Entries = comboChest,
-                    Selected = chestSelection
-                  },
-                  new NuiLabel("Biceps droit") { Width = 120, Height = 35, VerticalAlign = NuiVAlign.Middle },
-                  new NuiCombo
-                  {
-                    Width = 80,
-                    Entries = comboBicep,
-                    Selected = bicepRightSelection
-                  },
-                  new NuiLabel("Biceps gauche") { Width = 120, Height = 35, VerticalAlign = NuiVAlign.Middle },
-                  new NuiCombo
-                  {
-                    Width = 80,
-                    Entries = comboBicep,
-                    Selected = bicepLeftSelection
-                  },
-                  new NuiLabel("Avant-bras droit") { Width = 120, Height = 35, VerticalAlign = NuiVAlign.Middle },
-                  new NuiCombo
-                  {
-                    Width = 80,
-                    Entries = comboBicep,
-                    Selected = forearmRightSelection
-                  },
-                  new NuiLabel("Avant-bras gauche") { Width = 120, Height = 35, VerticalAlign = NuiVAlign.Middle },
-                  new NuiCombo
-                  {
-                    Width = 80,
-                    Entries = comboBicep,
-                    Selected = forearmLeftSelection
-                  },
-                }
-              },
-              new NuiRow
-              {
-                Children = new List<NuiElement>
-                {
-                  new NuiLabel("Cuisse droite") { Width = 60, Height = 35, VerticalAlign = NuiVAlign.Middle },
-                  new NuiCombo
-                  {
-                    Width = 80,
-                    Entries = comboBicep,
-                    Selected = thighRightSelection
-                  },
-                  new NuiLabel("Cuisse gauche") { Width = 120, Height = 35, VerticalAlign = NuiVAlign.Middle },
-                  new NuiCombo
-                  {
-                    Width = 80,
-                    Entries = comboBicep,
-                    Selected = thighLeftSelection
-                  },
-                  new NuiLabel("Tibia droit") { Width = 120, Height = 35, VerticalAlign = NuiVAlign.Middle },
-                  new NuiCombo
-                  {
-                    Width = 80,
-                    Entries = comboBicep,
-                    Selected = shinRightSelection
-                  },
-                  new NuiLabel("Tibia gauche") { Width = 120, Height = 35, VerticalAlign = NuiVAlign.Middle },
-                  new NuiCombo
-                  {
-                    Width = 80,
-                    Entries = comboBicep,
-                    Selected = shinLeftSelection
-                  }
-                }
-              }
-            }
-          };
+            new NuiLabel("Tête") { Width = 60, Height = 35, VerticalAlign = NuiVAlign.Middle },
+            new NuiCombo { Width = 80, Entries = ModuleSystem.headModels.FirstOrDefault(h => h.gender == targetCreature.Gender && h.appearanceRow == targetCreature.Appearance.RowIndex).heads, Selected = headSelection },
+            headSliderWidget
+          } });
+          rootChildren.Add(new NuiRow { Children = new List<NuiElement> {
+            new NuiLabel("Torse") { Width = 60, Height = 35, VerticalAlign = NuiVAlign.Middle },
+            new NuiCombo { Width = 80, Entries = comboChest, Selected = chestSelection },
+            new NuiLabel("Biceps droit") { Width = 120, Height = 35, VerticalAlign = NuiVAlign.Middle },
+            new NuiCombo { Width = 80, Entries = comboBicep, Selected = bicepRightSelection },
+            new NuiLabel("Biceps gauche") { Width = 120, Height = 35, VerticalAlign = NuiVAlign.Middle },
+            new NuiCombo { Width = 80, Entries = comboBicep, Selected = bicepLeftSelection },
+            new NuiLabel("Avant-bras droit") { Width = 120, Height = 35, VerticalAlign = NuiVAlign.Middle },
+            new NuiCombo { Width = 80, Entries = comboBicep, Selected = forearmRightSelection },
+            new NuiLabel("Avant-bras gauche") { Width = 120, Height = 35, VerticalAlign = NuiVAlign.Middle },
+            new NuiCombo { Width = 80, Entries = comboBicep, Selected = forearmLeftSelection }
+          } });
+          rootChildren.Add(new NuiRow { Children = new List<NuiElement> {
+            new NuiLabel("Cuisse droite") { Width = 60, Height = 35, VerticalAlign = NuiVAlign.Middle },
+            new NuiCombo { Width = 80, Entries = comboBicep, Selected = thighRightSelection },
+            new NuiLabel("Cuisse gauche") { Width = 120, Height = 35, VerticalAlign = NuiVAlign.Middle },
+            new NuiCombo { Width = 80, Entries = comboBicep, Selected = thighLeftSelection },
+            new NuiLabel("Tibia droit") { Width = 120, Height = 35, VerticalAlign = NuiVAlign.Middle },
+            new NuiCombo { Width = 80, Entries = comboBicep, Selected = shinRightSelection },
+            new NuiLabel("Tibia gauche") { Width = 120, Height = 35, VerticalAlign = NuiVAlign.Middle },
+            new NuiCombo { Width = 80, Entries = comboBicep, Selected = shinLeftSelection }
+          } });
 
-          window = new NuiWindow(root, "Vous contemplez votre reflet")
+          CreateWindow(targetCreature);
+        }
+        public void CreateWindow(NwCreature targetCreature)
+        {
+          this.targetCreature = targetCreature;
+          player.DisableItemAppearanceFeedbackMessages();
+          CloseWindow();
+
+          if (targetCreature.Gender == Gender.Male && comboChest.Count < 2)
+            comboChest.Add(new NuiComboEntry("2", 2));
+          else if (targetCreature.Gender == Gender.Female && comboChest.Count > 1)
+            comboChest.RemoveAt(1);
+
+          NuiRect windowRectangle = player.windowRectangles.ContainsKey(windowId) ? player.windowRectangles[windowId] : new NuiRect(10, player.oid.GetDeviceProperty(PlayerDeviceProperty.GuiHeight) * 0.01f, player.oid.GetDeviceProperty(PlayerDeviceProperty.GuiWidth) * 0.7f, player.oid.GetDeviceProperty(PlayerDeviceProperty.GuiHeight) / 3);
+
+          sizeSliderWidget.Width = (windowRectangle.Width - 140) * 0.98f;
+          headSliderWidget.Width = (windowRectangle.Width - 140) * 0.98f;
+
+          window = new NuiWindow(rootColumn, $"{targetCreature.Name} - Modification corporelle")
           {
             Geometry = geometry,
             Resizable = true,
             Collapsed = false,
             Closable = true,
             Transparent = true,
-            Border = true,
+            Border = true
           };
 
           player.oid.OnNuiEvent -= HandleBodyAppearanceEvents;
           player.oid.OnNuiEvent += HandleBodyAppearanceEvents;
 
-          if (player.oid.ControlledCreature.GetObjectVariable<LocalVariableBool>("SPOTLIGHT_ON").HasNothing)
+          player.ActivateSpotLight(targetCreature);
+
+          if (player.oid.TryCreateNuiWindow(window, out NuiWindowToken tempToken, windowId))
           {
-            PlayerPlugin.ApplyLoopingVisualEffectToObject(player.oid.ControlledCreature, player.oid.ControlledCreature, 173);
-            player.oid.ControlledCreature.GetObjectVariable<LocalVariableBool>("SPOTLIGHT_ON").Value = true;
+            nuiToken = tempToken;
+
+            headSelection.SetBindValue(player.oid, nuiToken.Token, targetCreature.GetCreatureBodyPart(CreaturePart.Head));
+            headSlider.SetBindValue(player.oid, nuiToken.Token, ModuleSystem.headModels.FirstOrDefault(h => h.gender == targetCreature.Gender && h.appearanceRow == targetCreature.Appearance.RowIndex).heads.IndexOf(ModuleSystem.headModels.FirstOrDefault(h => h.gender == targetCreature.Gender && h.appearanceRow == targetCreature.Appearance.RowIndex).heads.FirstOrDefault(l => l.Value == targetCreature.GetCreatureBodyPart(CreaturePart.Head))));
+
+            sizeSelection.SetBindValue(player.oid, nuiToken.Token, (int)targetCreature.VisualTransform.Scale * 100 - 75);
+            sizeSlider.SetBindValue(player.oid, nuiToken.Token, (int)targetCreature.VisualTransform.Scale * 100 - 75);
+
+            chestSelection.SetBindValue(player.oid, nuiToken.Token, targetCreature.GetCreatureBodyPart(CreaturePart.Torso));
+            bicepRightSelection.SetBindValue(player.oid, nuiToken.Token, targetCreature.GetCreatureBodyPart(CreaturePart.RightBicep));
+            bicepLeftSelection.SetBindValue(player.oid, nuiToken.Token, targetCreature.GetCreatureBodyPart(CreaturePart.LeftBicep));
+            forearmRightSelection.SetBindValue(player.oid, nuiToken.Token, targetCreature.GetCreatureBodyPart(CreaturePart.RightForearm));
+            forearmLeftSelection.SetBindValue(player.oid, nuiToken.Token, targetCreature.GetCreatureBodyPart(CreaturePart.LeftForearm));
+            thighRightSelection.SetBindValue(player.oid, nuiToken.Token, targetCreature.GetCreatureBodyPart(CreaturePart.RightThigh));
+            thighLeftSelection.SetBindValue(player.oid, nuiToken.Token, targetCreature.GetCreatureBodyPart(CreaturePart.LeftThigh));
+            shinRightSelection.SetBindValue(player.oid, nuiToken.Token, targetCreature.GetCreatureBodyPart(CreaturePart.RightShin));
+            shinLeftSelection.SetBindValue(player.oid, nuiToken.Token, targetCreature.GetCreatureBodyPart(CreaturePart.LeftShin));
+
+            headSelection.SetBindWatch(player.oid, nuiToken.Token, true);
+            headSlider.SetBindWatch(player.oid, nuiToken.Token, true);
+
+            sizeSelection.SetBindWatch(player.oid, nuiToken.Token, true);
+            sizeSlider.SetBindWatch(player.oid, nuiToken.Token, true);
+
+            chestSelection.SetBindWatch(player.oid, nuiToken.Token, true);
+            bicepRightSelection.SetBindWatch(player.oid, nuiToken.Token, true);
+            bicepLeftSelection.SetBindWatch(player.oid, nuiToken.Token, true);
+            forearmRightSelection.SetBindWatch(player.oid, nuiToken.Token, true);
+            forearmLeftSelection.SetBindWatch(player.oid, nuiToken.Token, true);
+            thighRightSelection.SetBindWatch(player.oid, nuiToken.Token, true);
+            thighLeftSelection.SetBindWatch(player.oid, nuiToken.Token, true);
+            shinRightSelection.SetBindWatch(player.oid, nuiToken.Token, true);
+            shinLeftSelection.SetBindWatch(player.oid, nuiToken.Token, true);
+
+            geometry.SetBindValue(player.oid, nuiToken.Token, windowRectangle);
+            geometry.SetBindWatch(player.oid, nuiToken.Token, true);
+
+            player.openedWindows[windowId] = nuiToken.Token;
           }
-
-          token = player.oid.CreateNuiWindow(window, windowId);
-
-          headSelection.SetBindValue(player.oid, token, player.oid.ControlledCreature.GetCreatureBodyPart(CreaturePart.Head));
-          headSlider.SetBindValue(player.oid, token, ModuleSystem.headModels.FirstOrDefault(h => h.gender == player.oid.ControlledCreature.Gender && h.appearanceRow == player.oid.ControlledCreature.Appearance.RowIndex).heads.IndexOf(ModuleSystem.headModels.FirstOrDefault(h => h.gender == player.oid.ControlledCreature.Gender && h.appearanceRow == player.oid.ControlledCreature.Appearance.RowIndex).heads.FirstOrDefault(l => l.Value == player.oid.ControlledCreature.GetCreatureBodyPart(CreaturePart.Head))));
-
-          sizeSelection.SetBindValue(player.oid, token, (int)player.oid.ControlledCreature.VisualTransform.Scale * 100 - 75);
-          sizeSlider.SetBindValue(player.oid, token, (int)player.oid.ControlledCreature.VisualTransform.Scale * 100 - 75);
-
-          chestSelection.SetBindValue(player.oid, token, player.oid.ControlledCreature.GetCreatureBodyPart(CreaturePart.Torso));
-          bicepRightSelection.SetBindValue(player.oid, token, player.oid.ControlledCreature.GetCreatureBodyPart(CreaturePart.RightBicep));
-          bicepLeftSelection.SetBindValue(player.oid, token, player.oid.ControlledCreature.GetCreatureBodyPart(CreaturePart.LeftBicep));
-          forearmRightSelection.SetBindValue(player.oid, token, player.oid.ControlledCreature.GetCreatureBodyPart(CreaturePart.RightForearm));
-          forearmLeftSelection.SetBindValue(player.oid, token, player.oid.ControlledCreature.GetCreatureBodyPart(CreaturePart.LeftForearm));
-          thighRightSelection.SetBindValue(player.oid, token, player.oid.ControlledCreature.GetCreatureBodyPart(CreaturePart.RightThigh));
-          thighLeftSelection.SetBindValue(player.oid, token, player.oid.ControlledCreature.GetCreatureBodyPart(CreaturePart.LeftThigh));
-          shinRightSelection.SetBindValue(player.oid, token, player.oid.ControlledCreature.GetCreatureBodyPart(CreaturePart.RightShin));
-          shinLeftSelection.SetBindValue(player.oid, token, player.oid.ControlledCreature.GetCreatureBodyPart(CreaturePart.LeftShin));
-
-          geometry.SetBindValue(player.oid, token, windowRectangle);
-          geometry.SetBindWatch(player.oid, token, true);
-
-          Task waitWindowOpened = Task.Run(async () =>
-          {
-            await Task.Delay(TimeSpan.FromSeconds(0.6));
-
-            headSelection.SetBindWatch(player.oid, token, true);
-            headSlider.SetBindWatch(player.oid, token, true);
-
-            sizeSelection.SetBindWatch(player.oid, token, true);
-            sizeSlider.SetBindWatch(player.oid, token, true);
-
-            chestSelection.SetBindWatch(player.oid, token, true);
-            bicepRightSelection.SetBindWatch(player.oid, token, true);
-            bicepLeftSelection.SetBindWatch(player.oid, token, true);
-            forearmRightSelection.SetBindWatch(player.oid, token, true);
-            forearmLeftSelection.SetBindWatch(player.oid, token, true);
-            thighRightSelection.SetBindWatch(player.oid, token, true);
-            thighLeftSelection.SetBindWatch(player.oid, token, true);
-            shinRightSelection.SetBindWatch(player.oid, token, true);
-            shinLeftSelection.SetBindWatch(player.oid, token, true);
-          });
-
-          player.openedWindows[windowId] = token;
+          else
+            player.oid.SendServerMessage($"Impossible d'ouvrir la fenêtre {window.Title}. Celle-ci est-elle déjà ouverte ?", ColorConstants.Orange);
         }
         private void HandleBodyAppearanceEvents(ModuleEvents.OnNuiEvent nuiEvent)
         {
-          if (player.oid.NuiGetWindowId(token) != windowId)
+          if (player.oid.NuiGetWindowId(nuiToken.Token) != windowId)
             return;
+
+          if (targetCreature == null)
+          {
+            player.oid.SendServerMessage("La créature éditée n'est plus valide.", ColorConstants.Red);
+            player.EnableItemAppearanceFeedbackMessages();
+            CloseWindow();
+            return;
+          }
 
           if (nuiEvent.EventType == NuiEventType.Close)
           {
             player.EnableItemAppearanceFeedbackMessages();
-
-            if (player.oid.ControlledCreature.GetObjectVariable<LocalVariableBool>("SPOTLIGHT_ON").HasValue)
-            {
-              PlayerPlugin.ApplyLoopingVisualEffectToObject(player.oid.ControlledCreature, player.oid.ControlledCreature, 173);
-              player.oid.ControlledCreature.GetObjectVariable<LocalVariableBool>("SPOTLIGHT_ON").Delete();
-            }
+            player.RemoveSpotLight(targetCreature);
 
             return;
           }
@@ -264,9 +192,9 @@ namespace NWN.Systems
             CloseWindow();
 
             if (player.windows.ContainsKey("bodyColorsModifier"))
-              ((BodyColorWindow)player.windows["bodyColorsModifier"]).CreateWindow();
+              ((BodyColorWindow)player.windows["bodyColorsModifier"]).CreateWindow(targetCreature);
             else
-              player.windows.Add("bodyColorsModifier", new BodyColorWindow(player));
+              player.windows.Add("bodyColorsModifier", new BodyColorWindow(player, targetCreature));
 
             return;
           }
@@ -276,75 +204,75 @@ namespace NWN.Systems
             {
               case "headSlider":
 
-                int head = ModuleSystem.headModels.FirstOrDefault(h => h.gender == player.oid.ControlledCreature.Gender && h.appearanceRow == player.oid.ControlledCreature.Appearance.RowIndex).heads.ElementAt(headSlider.GetBindValue(player.oid, token)).Value;
-                player.oid.ControlledCreature.SetCreatureBodyPart(CreaturePart.Head, head);
-                headSelection.SetBindWatch(player.oid, token, false);
-                headSelection.SetBindValue(player.oid, token, head);
-                headSelection.SetBindWatch(player.oid, token, true);
+                int head = ModuleSystem.headModels.FirstOrDefault(h => h.gender == targetCreature.Gender && h.appearanceRow == targetCreature.Appearance.RowIndex).heads.ElementAt(headSlider.GetBindValue(player.oid, nuiToken.Token)).Value;
+                targetCreature.SetCreatureBodyPart(CreaturePart.Head, head);
+                headSelection.SetBindWatch(player.oid, nuiToken.Token, false);
+                headSelection.SetBindValue(player.oid, nuiToken.Token, head);
+                headSelection.SetBindWatch(player.oid, nuiToken.Token, true);
 
                 break;
 
               case "headSelection":
 
-                player.oid.ControlledCreature.SetCreatureBodyPart(CreaturePart.Head, headSelection.GetBindValue(player.oid, token));
-                headSlider.SetBindWatch(player.oid, token, false);
-                headSlider.SetBindValue(player.oid, token, ModuleSystem.headModels.FirstOrDefault(h => h.gender == player.oid.ControlledCreature.Gender && h.appearanceRow == player.oid.ControlledCreature.Appearance.RowIndex).heads.ElementAt(headSelection.GetBindValue(player.oid, token)).Value);
-                headSlider.SetBindWatch(player.oid, token, true);
+                targetCreature.SetCreatureBodyPart(CreaturePart.Head, headSelection.GetBindValue(player.oid, nuiToken.Token));
+                headSlider.SetBindWatch(player.oid, nuiToken.Token, false);
+                headSlider.SetBindValue(player.oid, nuiToken.Token, ModuleSystem.headModels.FirstOrDefault(h => h.gender == targetCreature.Gender && h.appearanceRow == targetCreature.Appearance.RowIndex).heads.ElementAt(headSelection.GetBindValue(player.oid, nuiToken.Token)).Value);
+                headSlider.SetBindWatch(player.oid, nuiToken.Token, true);
 
                 break;
 
               case "sizeSlider":
-                
-                player.oid.ControlledCreature.VisualTransform.Scale = (float)(sizeSlider.GetBindValue(player.oid, token) + 75) / 100;
-                sizeSelection.SetBindWatch(player.oid, token, false);
-                sizeSelection.SetBindValue(player.oid, token, sizeSlider.GetBindValue(player.oid, token));
-                sizeSelection.SetBindWatch(player.oid, token, true);
+
+                targetCreature.VisualTransform.Scale = (float)(sizeSlider.GetBindValue(player.oid, nuiToken.Token) + 75) / 100;
+                sizeSelection.SetBindWatch(player.oid, nuiToken.Token, false);
+                sizeSelection.SetBindValue(player.oid, nuiToken.Token, sizeSlider.GetBindValue(player.oid, nuiToken.Token));
+                sizeSelection.SetBindWatch(player.oid, nuiToken.Token, true);
 
                 break;
 
               case "sizeSelection":
-  
-                player.oid.ControlledCreature.VisualTransform.Scale = (sizeSelection.GetBindValue(player.oid, token) + 75) / 100;
-                sizeSlider.SetBindWatch(player.oid, token, false);
-                sizeSlider.SetBindValue(player.oid, token, sizeSelection.GetBindValue(player.oid, token));
-                sizeSlider.SetBindWatch(player.oid, token, true);
+
+                targetCreature.VisualTransform.Scale = (sizeSelection.GetBindValue(player.oid, nuiToken.Token) + 75) / 100;
+                sizeSlider.SetBindWatch(player.oid, nuiToken.Token, false);
+                sizeSlider.SetBindValue(player.oid, nuiToken.Token, sizeSelection.GetBindValue(player.oid, nuiToken.Token));
+                sizeSlider.SetBindWatch(player.oid, nuiToken.Token, true);
 
                 break;
 
               case "chestSelection":
-                player.oid.ControlledCreature.SetCreatureBodyPart(CreaturePart.Torso, chestSelection.GetBindValue(player.oid, token));
+                targetCreature.SetCreatureBodyPart(CreaturePart.Torso, chestSelection.GetBindValue(player.oid, nuiToken.Token));
                 break;
 
               case "bicepRightSelection":
-                player.oid.ControlledCreature.SetCreatureBodyPart(CreaturePart.RightBicep, bicepRightSelection.GetBindValue(player.oid, token));
+                targetCreature.SetCreatureBodyPart(CreaturePart.RightBicep, bicepRightSelection.GetBindValue(player.oid, nuiToken.Token));
                 break;
 
               case "bicepLeftSelection":
-                player.oid.ControlledCreature.SetCreatureBodyPart(CreaturePart.LeftBicep, bicepLeftSelection.GetBindValue(player.oid, token));
+                targetCreature.SetCreatureBodyPart(CreaturePart.LeftBicep, bicepLeftSelection.GetBindValue(player.oid, nuiToken.Token));
                 break;
 
               case "forearmRightSelection":
-                player.oid.ControlledCreature.SetCreatureBodyPart(CreaturePart.RightForearm, forearmRightSelection.GetBindValue(player.oid, token));
+                targetCreature.SetCreatureBodyPart(CreaturePart.RightForearm, forearmRightSelection.GetBindValue(player.oid, nuiToken.Token));
                 break;
 
               case "forearmLeftSelection":
-                player.oid.ControlledCreature.SetCreatureBodyPart(CreaturePart.LeftForearm, forearmLeftSelection.GetBindValue(player.oid, token));
+                targetCreature.SetCreatureBodyPart(CreaturePart.LeftForearm, forearmLeftSelection.GetBindValue(player.oid, nuiToken.Token));
                 break;
 
               case "thighRightSelection":
-                player.oid.ControlledCreature.SetCreatureBodyPart(CreaturePart.RightThigh, thighRightSelection.GetBindValue(player.oid, token));
+                targetCreature.SetCreatureBodyPart(CreaturePart.RightThigh, thighRightSelection.GetBindValue(player.oid, nuiToken.Token));
                 break;
 
               case "thighLeftSelection":
-                player.oid.ControlledCreature.SetCreatureBodyPart(CreaturePart.LeftThigh, thighLeftSelection.GetBindValue(player.oid, token));
+                targetCreature.SetCreatureBodyPart(CreaturePart.LeftThigh, thighLeftSelection.GetBindValue(player.oid, nuiToken.Token));
                 break;
 
               case "shinRightSelection":
-                player.oid.ControlledCreature.SetCreatureBodyPart(CreaturePart.RightShin, shinRightSelection.GetBindValue(player.oid, token));
+                targetCreature.SetCreatureBodyPart(CreaturePart.RightShin, shinRightSelection.GetBindValue(player.oid, nuiToken.Token));
                 break;
 
               case "shinLeftSelection":
-                player.oid.ControlledCreature.SetCreatureBodyPart(CreaturePart.LeftShin, shinLeftSelection.GetBindValue(player.oid, token));
+                targetCreature.SetCreatureBodyPart(CreaturePart.LeftShin, shinLeftSelection.GetBindValue(player.oid, nuiToken.Token));
                 break;
             }
         }

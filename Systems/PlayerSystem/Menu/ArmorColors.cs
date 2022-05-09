@@ -147,7 +147,7 @@ namespace NWN.Systems
           player.oid.OnNuiEvent -= HandleItemColorsEvents;
           player.oid.OnNuiEvent += HandleItemColorsEvents;
 
-          player.ActivateSpotLight();
+          player.ActivateSpotLight(player.oid.ControlledCreature);
 
           token = player.oid.CreateNuiWindow(window, windowId);
 
@@ -174,7 +174,7 @@ namespace NWN.Systems
 
           if (nuiEvent.EventType == NuiEventType.Close)
           {
-            player.RemoveSpotLight();
+            player.RemoveSpotLight(player.oid.ControlledCreature);
             player.EnableItemAppearanceFeedbackMessages();
             return;
           }
@@ -182,6 +182,7 @@ namespace NWN.Systems
           if (!item.IsValid || item.Possessor != nuiEvent.Player.ControlledCreature)
           {
             nuiEvent.Player.SendServerMessage("L'objet en cours de modification n'est plus en votre possession !", ColorConstants.Red);
+            player.EnableItemAppearanceFeedbackMessages();
             CloseWindow();
             return;
           }

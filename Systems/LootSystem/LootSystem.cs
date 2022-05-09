@@ -133,7 +133,7 @@ namespace NWN.Systems
         lootableConfig.GenerateLoot(oContainer);
       }
       else
-        ThrowException($"Unregistered container tag=\"{oContainer.Tag}\"");
+        Log.Info($"Unregistered container tag=\"{oContainer.Tag}\"");
 
       if(oContainer.Tag.StartsWith("boss_"))
       {

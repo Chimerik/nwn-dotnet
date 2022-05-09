@@ -335,9 +335,9 @@ namespace NWN.Systems
       if (Players.TryGetValue(onUsed.UsedBy, out Player player))
       {
         if (player.windows.ContainsKey("bodyAppearanceModifier"))
-          ((Player.BodyAppearanceWindow)player.windows["bodyAppearanceModifier"]).CreateWindow();
+          ((Player.BodyAppearanceWindow)player.windows["bodyAppearanceModifier"]).CreateWindow(player.oid.LoginCreature);
         else
-          player.windows.Add("bodyAppearanceModifier", new Player.BodyAppearanceWindow(player));
+          player.windows.Add("bodyAppearanceModifier", new Player.BodyAppearanceWindow(player, player.oid.LoginCreature));
       }
     }
     public static void OpenRefineryWindow(PlaceableEvents.OnUsed onUsed)

@@ -725,8 +725,8 @@ namespace NWN.Systems
         }
       }
 
-      foreach (var entry in SoundSet2da.ambientMusicTable)
-        if (!string.IsNullOrEmpty(entry.label))
+      foreach (var entry in SoundSet2da.soundSetTable)
+        if (!string.IsNullOrEmpty(entry.resRef))
           Utils.soundSetList.Add(new NuiComboEntry(entry.label, entry.RowIndex));
 
       foreach (StandardFaction faction in (StandardFaction[])Enum.GetValues(typeof(StandardFaction)))
@@ -734,6 +734,9 @@ namespace NWN.Systems
 
       foreach (MovementRate movement in (MovementRate[])Enum.GetValues(typeof(MovementRate)))
         Utils.movementRateList.Add(new NuiComboEntry(movement.ToString(), (int)movement));
+
+      for (int i = 0; i < 51; i++)
+        Utils.sizeList.Add(new NuiComboEntry($"x{((float)(i + 75)) / 100}", i));
     }
   }
 }

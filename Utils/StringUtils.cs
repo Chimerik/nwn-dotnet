@@ -3,15 +3,9 @@ using System.ComponentModel;
 using System.IO;
 using System.Linq;
 using System.Reflection;
-using System.Threading;
 using System.Threading.Tasks;
 
 using Anvil.API;
-
-using Google.Apis.Auth.OAuth2;
-using Google.Apis.Download;
-using Google.Apis.Drive.v3;
-using Google.Apis.Services;
 
 using Newtonsoft.Json;
 
@@ -60,6 +54,26 @@ namespace NWN
 
       return ability.ToString();
     }
+    public static string GetAttributeIcon(Ability ability)
+    {
+      switch (ability)
+      {
+        case Ability.Strength:
+          return "ief_inc_str";
+        case Ability.Dexterity:
+          return "ief_inc_dex";
+        case Ability.Constitution:
+          return "ief_inc_con";
+        case Ability.Intelligence:
+          return "ief_inc_int";
+        case Ability.Wisdom:
+          return "ief_inc_wis";
+        case Ability.Charisma:
+          return "ief_inc_cha";
+      }
+
+      return ability.ToString();
+    }
     public async static Task<Stream> GenerateStreamFromString(string s)
     {
       var stream = new MemoryStream();
@@ -69,7 +83,7 @@ namespace NWN
       stream.Position = 0;
       return stream;
     }
-    
+
     public static async Task<string> DownloadGoogleDoc(string fileId)
     {
       var request = ModuleSystem.googleDriveService.Files.Export(fileId, "text/plain");

@@ -607,11 +607,11 @@ namespace NWN.Systems
             }
             else if (nuiEvent.ElementId.StartsWith("spell_"))
             {
-              int spellId = int.Parse(nuiEvent.ElementId.Split("_")[1]);
+              NwSpell spell = NwSpell.FromSpellId(int.Parse(nuiEvent.ElementId.Split("_")[1]));
               if (player.windows.ContainsKey("spellDescription"))
-                ((SpellDescriptionWindow)player.windows["spellDescription"]).CreateWindow(spellId);
+                ((SpellDescriptionWindow)player.windows["spellDescription"]).CreateWindow(spell);
               else
-                player.windows.Add("spellDescription", new SpellDescriptionWindow(player, spellId));
+                player.windows.Add("spellDescription", new SpellDescriptionWindow(player, spell));
             }
           }
         }

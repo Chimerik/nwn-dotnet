@@ -78,7 +78,7 @@ namespace NWN.Systems
 
           token = player.oid.CreateNuiWindow(window, windowId);
 
-          player.ActivateSpotLight();
+          player.ActivateSpotLight(player.oid.ControlledCreature);
 
           modelSelection.SetBindValue(player.oid, token, item.Appearance.GetSimpleModel());
           modelSlider.SetBindValue(player.oid, token, BaseItems2da.helmetModelEntries.IndexOf(BaseItems2da.helmetModelEntries.FirstOrDefault(l => l.Value == item.Appearance.GetSimpleModel())));
@@ -142,7 +142,7 @@ namespace NWN.Systems
           if (nuiEvent.EventType == NuiEventType.Close)
           {
             player.EnableItemAppearanceFeedbackMessages();
-            player.RemoveSpotLight();
+            player.RemoveSpotLight(player.oid.ControlledCreature);
             return;
           }
 

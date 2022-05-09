@@ -37,14 +37,14 @@ namespace NWN.Systems
       //portraitEntries = portraitsTable.Where(p => !string.IsNullOrEmpty(p.resRef));
       portraitFilteredEntries = new List<string>[30, 5];
       
-      /*foreach (var portrait in portraitsTable)
+      foreach (var portrait in portraitsTable)
         if (!string.IsNullOrEmpty(portrait.resRef))
           try { portraitFilteredEntries[portrait.racialType, portrait.gender].Add(portrait.mediumPortrait); }
           catch(Exception)
           {
             portraitFilteredEntries[portrait.racialType, portrait.gender] = new();
             portraitFilteredEntries[portrait.racialType, portrait.gender].Add(portrait.mediumPortrait);
-          }    */
+          }    
     }
   }
 }

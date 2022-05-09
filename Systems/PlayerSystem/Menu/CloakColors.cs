@@ -119,7 +119,7 @@ namespace NWN.Systems
           player.oid.OnNuiEvent -= HandleCloakColorsEvents;
           player.oid.OnNuiEvent += HandleCloakColorsEvents;
 
-          player.ActivateSpotLight();
+          player.ActivateSpotLight(player.oid.ControlledCreature);
           token = player.oid.CreateNuiWindow(window, windowId);
 
           currentColor.SetBindValue(player.oid, token, $"leather{item.Appearance.GetArmorColor(ItemAppearanceArmorColor.Leather1)}");
@@ -142,7 +142,7 @@ namespace NWN.Systems
           if (nuiEvent.EventType == NuiEventType.Close)
           {
             player.EnableItemAppearanceFeedbackMessages();
-            player.RemoveSpotLight();
+            player.RemoveSpotLight(player.oid.ControlledCreature);
             return;
           }
 

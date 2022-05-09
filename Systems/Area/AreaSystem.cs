@@ -33,6 +33,7 @@ namespace NWN.Systems
       {
         area.OnEnter += OnAreaEnter;
         area.OnExit += OnAreaExit;
+        area.OnHeartbeat += OnAreaHeartbeat;
         
         DoAreaSpecificInitialisation(area);
 
@@ -58,16 +59,48 @@ namespace NWN.Systems
 
       InitializeBankPlaceableNames();
     }
+    public void OnAreaHeartbeat(AreaEvents.OnHeartbeat onHB)
+    {
+      if(onHB.Area.PlayerCount > 0)
+      {
+        CheckSpawns(onHB.Area);
 
+        if (onHB.Area.GetObjectVariable<DateTimeLocalVariable>("_CLEANING_TIME").HasValue) // Si date de nettoyage planifiée, supprimer la planification
+        {
+          onHB.Area.GetObjectVariable<DateTimeLocalVariable>("_CLEANING_TIME").Delete();
+          Log.Info($"{onHB.Area.Name} canceling scheduled cleaning");
+        }
+        else
+          onHB.Area.GetObjectVariable<LocalVariableBool>("_CLEANING_TRIGGER").Value = true;
+      }
+      else
+      {
+        // Si pas de date de nettoyage planifiée, alors planifier une date de nettoyage
+        if (onHB.Area.GetObjectVariable<DateTimeLocalVariable>("_CLEANING_TIME").HasNothing && onHB.Area.GetObjectVariable<LocalVariableBool>("_CLEANING_TRIGGER").HasValue) 
+        {
+          DateTime cleaningTime = DateTime.Now.AddMinutes(25);
+          onHB.Area.GetObjectVariable<DateTimeLocalVariable>("_CLEANING_TIME").Value = cleaningTime;
+          Log.Info($"{onHB.Area.Name} scheduled for cleaning at {cleaningTime}");
+        }
+        else if (DateTime.Compare(DateTime.Now, onHB.Area.GetObjectVariable<DateTimeLocalVariable>("_CLEANING_TIME").Value) < 0) // Si date de nettoyage dépassée, alors nettoyer et supprimer la planification
+        {
+          Log.Info($"{onHB.Area.Name} cleaning area");
+          CleanArea(onHB.Area);
+          onHB.Area.GetObjectVariable<DateTimeLocalVariable>("_CLEANING_TIME").Delete();
+          onHB.Area.GetObjectVariable<LocalVariableBool>("_CLEANING_TRIGGER").Delete();
+        }
+      }
+    }
     public void OnAreaEnter(AreaEvents.OnEnter onEnter)
     {
       NwArea area = onEnter.Area;
 
       if(onEnter.EnteringObject is NwCreature { IsPlayerControlled: false })
         return;
-      
-       /*if (NwModule.Instance.Players.Count(p => p.ControlledCreature != null && p.ControlledCreature.Area == area) == 1)
-        CreateSpawnChecker(area);*/
+
+      if (NwModule.Instance.Players.Count(p => p.ControlledCreature != null && p.ControlledCreature.Area == area) == 1)
+        CheckSpawns(area);
+        //CreateSpawnChecker(area);
 
       if (!PlayerSystem.Players.TryGetValue(onEnter.EnteringObject, out PlayerSystem.Player player))
         return;
@@ -112,16 +145,16 @@ namespace NWN.Systems
             player.areaExplorationStateDictionnary[area.Tag] = player.oid.GetAreaExplorationState(area);
         }
       }
-      else // Edge case où le joueur se déconnecte
+      /*else // Edge case où le joueur se déconnecte
       {
         if (!PlayerSystem.Players.TryGetValue(onExit.ExitingObject, out PlayerSystem.Player player))
           return;
 
         Log.Info($"{player.oid.PlayerName} vient de quitter la zone {area.Name} en se déconnectant.");
-      }
+      }*/
 
-      if (!NwModule.Instance.Players.Any(p => p.ControlledCreature != null && p.ControlledCreature.Area == area))
-        AreaCleaner(area);
+      //if (!NwModule.Instance.Players.Any(p => p.ControlledCreature != null && p.ControlledCreature.Area == area))
+        //AreaCleaner(area);
     }
     public void OnIntroAreaExit(AreaEvents.OnExit onExit)
     {
@@ -309,6 +342,13 @@ namespace NWN.Systems
       area.GetObjectVariable<LocalVariableFloat>("WIND_Y").Value = direction.Y;
       area.GetObjectVariable<LocalVariableFloat>("WIND_Z").Value = direction.Z;
       area.GetObjectVariable<LocalVariableFloat>("WIND_M").Value = magnitude;
+    }
+    public void InitializeEventsAfterDMSpawnCreature(OnDMSpawnObjectAfter onSpawn)
+    {
+      if (onSpawn.SpawnedObject is not NwCreature creature)
+        return;
+
+      creature.OnPerception += OnMobPerception;
     }
   }
 }

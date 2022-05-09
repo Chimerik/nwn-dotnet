@@ -111,7 +111,7 @@ namespace NWN.Systems
 
           token = player.oid.CreateNuiWindow(window, windowId);
 
-          player.ActivateSpotLight();
+          player.ActivateSpotLight(player.oid.ControlledCreature);
 
           topModelSelection.SetBindValue(player.oid, token, item.Appearance.GetWeaponModel(ItemAppearanceWeaponModel.Top) / 10);
           topModelSlider.SetBindValue(player.oid, token, topModelCombo.IndexOf(topModelCombo.FirstOrDefault(l => l.Value == item.Appearance.GetWeaponModel(ItemAppearanceWeaponModel.Top) / 10)));
@@ -229,7 +229,7 @@ namespace NWN.Systems
           if (nuiEvent.EventType == NuiEventType.Close)
           {
             player.EnableItemAppearanceFeedbackMessages();
-            player.RemoveSpotLight();
+            player.RemoveSpotLight(player.oid.ControlledCreature);
             return;
           }
 

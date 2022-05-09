@@ -105,6 +105,7 @@ namespace NWN.Systems
         default:
           creature.AiLevel = AiLevel.Low;
           creature.OnDeath += LootSystem.HandleLoot;
+          creature.OnPerception += OnMobPerception;
           break;
       }
 
@@ -113,10 +114,10 @@ namespace NWN.Systems
 
     private void CheckDistanceFromSpawn(CreatureEvents.OnHeartbeat onHB)
     {
-      Log.Info("start checking distance from spawn");
+      //Log.Info("start checking distance from spawn");
       if (onHB.Creature.GetObjectVariable<LocalVariableObject<NwWaypoint>>("_SPAWN").Value.DistanceSquared(onHB.Creature) < 1600)
       {
-        Log.Info("end checking distance from spawn");
+        //Log.Info("end checking distance from spawn");
         return;
       }
 
@@ -129,7 +130,7 @@ namespace NWN.Systems
       regen.SubType = EffectSubType.Supernatural;
       onHB.Creature.ApplyEffect(EffectDuration.Permanent, regen);
 
-      Log.Info("end checking distance from spawn");
+     // Log.Info("end checking distance from spawn");
     }
 
     /*private static void OnDeathSpawnNPCWaypoint(CreatureEvents.OnDeath onDeath)
@@ -246,6 +247,23 @@ namespace NWN.Systems
       creature.Name = creature.Appearance.Name;
       if (creature.Name == "Créature")
         Utils.LogMessageToDMs($"Apparence {rowId} - Nom non défini.");
+    }
+    private void OnMobPerception(CreatureEvents.OnPerception onPerception)
+    {
+      if (!onPerception.Creature.IsEnemy(onPerception.PerceivedCreature) || onPerception.Creature.IsInCombat)
+        return;
+
+      switch(onPerception.PerceptionEventType)
+      {
+        case PerceptionEventType.Seen:
+        case PerceptionEventType.Heard:
+
+          foreach(SpecialAbility ability in onPerception.Creature.SpecialAbilities)
+            if (SpellUtils.IsSpellBuff(ability.Spell))
+              _ = onPerception.Creature.ActionCastSpellAt(ability.Spell, onPerception.Creature, MetaMagic.Extend, true, 0, ProjectilePathType.Default, true);
+
+          break;
+      }
     }
   }
 }

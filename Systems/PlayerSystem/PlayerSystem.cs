@@ -297,67 +297,7 @@ namespace NWN.Systems
           break;
       }
     }
-    
-    private static void HandleGenericNuiEvents(ModuleEvents.OnNuiEvent nuiEvent)
-    {
-      int windowToken = NWScript.NuiGetEventWindow();
-      string window = nuiEvent.Player.NuiGetWindowId(nuiEvent.WindowToken);
-      string eventElement = nuiEvent.ElementId;
-      NuiEventType eventType = nuiEvent.EventType;
-
-      Log.Info($"nui window id : {window}");
-      Log.Info($"nui element : {eventElement}");
-      Log.Info($"nui event : {eventType}");
-      Log.Info($"nwscript nuit event : {NWScript.NuiGetEventType()}");
-
-      if (!Players.TryGetValue(nuiEvent.Player.LoginCreature, out Player player))
-        return;
-
-      switch (eventElement)
-      {
-        case "geometry":
-
-          NuiBind<NuiRect> geometry = new NuiBind<NuiRect>("geometry");
-          NuiRect windowRectangle = geometry.GetBindValue(nuiEvent.Player, windowToken);
-
-          if (player.windowRectangles.ContainsKey(window))
-            player.windowRectangles[window] = windowRectangle;
-          else
-            player.windowRectangles.Add(window, windowRectangle);
-
-          if (player.pcState == Player.PcState.Online)
-            nuiEvent.Player.ExportCharacter();
-          break;
-
-        case "_window_":
-
-          switch (nuiEvent.EventType)
-          {
-            case NuiEventType.Open:
-              if (!player.openedWindows.ContainsKey(window))
-              {
-                player.openedWindows.Add(window, windowToken);
-
-                if (player.pcState == Player.PcState.Online)
-                  nuiEvent.Player.ExportCharacter();
-              }
-              break;
-
-            case NuiEventType.Close:
-              if (player.openedWindows.ContainsKey(window))
-              {
-                player.openedWindows.Remove(window);
-
-                if (player.pcState == Player.PcState.Online)
-                  nuiEvent.Player.ExportCharacter();
-              }
-              break;
-          }
-
-          break;
-      }
-    }
-
+   
     private static void HandleGuiEvents(ModuleEvents.OnPlayerGuiEvent guiEvent)
     {
       NwPlayer oPC = guiEvent.Player;

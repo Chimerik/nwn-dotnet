@@ -134,7 +134,7 @@ namespace NWN.Systems
           language.LevelUp(this);
         }
       }
-      public void InitializeNewCharacter(AreaSystem areaSystem)
+      public void InitializeNewCharacter()
       {
         if (Config.env == Config.Env.Prod)
         {
@@ -270,13 +270,14 @@ namespace NWN.Systems
         oid.LoginCreature.OnUnacquireItem += ItemSystem.OnUnacquireItem;
         oid.LoginCreature.OnItemEquip += ItemSystem.OnItemEquipBefore;
         oid.LoginCreature.OnUseFeat += FeatSystem.OnUseFeatBefore;
-        oid.LoginCreature.OnSpellCast += spellSystem.HandleBeforeSpellCast;
+        oid.LoginCreature.OnSpellCast += spellSystem.HandleAutoSpellBeforeSpellCast;
 
         ItemSystem.feedbackService.AddCombatLogMessageFilter(CombatLogMessage.ComplexAttack, oid);
       }
       public void InitializePlayer()
       {
-        InitializePlayerEvents(oid);
+        InitializePlayerEvents();
+        InitializeSpellEvents();
         InitializePlayerAccount();
         InitializePlayerCharacter();
 
@@ -307,35 +308,42 @@ namespace NWN.Systems
 
         //CheckForAFKStatus();
       }
-      private void InitializePlayerEvents(NwPlayer player)
+      private void InitializePlayerEvents()
       {
-        player.OnServerCharacterSave += HandleBeforePlayerSave;
-        player.LoginCreature.OnAcquireItem += ItemSystem.OnAcquireItem;
-        player.LoginCreature.OnUnacquireItem += ItemSystem.OnUnacquireItem;
-        player.LoginCreature.OnItemEquip += ItemSystem.OnItemEquipBefore;
-        player.LoginCreature.OnItemUse += ItemSystem.OnItemUseBefore;
-        player.OnPlayerDeath += HandlePlayerDeath;
-        player.LoginCreature.OnUseFeat += FeatSystem.OnUseFeatBefore;
-        player.LoginCreature.OnSpellCast += spellSystem.HandleBeforeSpellCast;
-        player.OnCombatStatusChange += OnCombatStarted;
-        player.LoginCreature.OnCombatRoundStart += OnCombatRoundStart;
-        player.LoginCreature.OnSpellBroadcast += spellSystem.OnSpellBroadcast;
-        player.LoginCreature.OnSpellAction += spellSystem.RegisterMetaMagicOnSpellInput;
-        player.OnPartyEvent += Party.HandlePartyEvent;
-        player.OnClientLevelUpBegin += HandleOnClientLevelUp;
-        player.LoginCreature.OnItemValidateEquip += ItemSystem.NoEquipRuinedItem;
-        player.LoginCreature.OnItemValidateUse += ItemSystem.NoUseRuinedItem;
-        player.LoginCreature.OnCombatModeToggle += HandleCombatModeOff;
-        player.LoginCreature.OnInventoryGoldAdd += HandleGainedGold;
-        player.LoginCreature.OnInventoryGoldRemove += HandleLostGold;
-        player.LoginCreature.OnItemScrollLearn += HandleBeforeScrollLearn;
-        player.LoginCreature.OnItemUnequip += ItemSystem.HandleUnequipItemBefore;
-        player.LoginCreature.OnUseSkill += HandleBeforeSkillUsed;
-        player.OnPlayerGuiEvent += HandleGuiEvents;
-        player.OnNuiEvent += HandleGenericNuiEvents;
-        player.OnMapPinAddPin += HandleMapPinAdded;
-        player.OnMapPinChangePin += HandleMapPinChanged;
-        player.OnMapPinDestroyPin += HandleMapPinDestroyed;
+        oid.OnServerCharacterSave += HandleBeforePlayerSave;
+        oid.LoginCreature.OnAcquireItem += ItemSystem.OnAcquireItem;
+        oid.LoginCreature.OnUnacquireItem += ItemSystem.OnUnacquireItem;
+        oid.LoginCreature.OnItemEquip += ItemSystem.OnItemEquipBefore;
+        oid.LoginCreature.OnItemUse += ItemSystem.OnItemUseBefore;
+        oid.OnPlayerDeath += HandlePlayerDeath;
+        oid.LoginCreature.OnUseFeat += FeatSystem.OnUseFeatBefore;
+        oid.OnCombatStatusChange += OnCombatStarted;
+        oid.LoginCreature.OnCombatRoundStart += OnCombatRoundStart;
+        oid.OnPartyEvent += Party.HandlePartyEvent;
+        oid.OnClientLevelUpBegin += HandleOnClientLevelUp;
+        oid.LoginCreature.OnItemValidateEquip += ItemSystem.NoEquipRuinedItem;
+        oid.LoginCreature.OnItemValidateUse += ItemSystem.NoUseRuinedItem;
+        oid.LoginCreature.OnCombatModeToggle += HandleCombatModeOff;
+        oid.LoginCreature.OnInventoryGoldAdd += HandleGainedGold;
+        oid.LoginCreature.OnInventoryGoldRemove += HandleLostGold;
+        oid.LoginCreature.OnItemScrollLearn += HandleBeforeScrollLearn;
+        oid.LoginCreature.OnItemUnequip += ItemSystem.HandleUnequipItemBefore;
+        oid.LoginCreature.OnUseSkill += HandleBeforeSkillUsed;
+        oid.OnPlayerGuiEvent += HandleGuiEvents;
+        oid.OnNuiEvent += HandleGenericNuiEvents;
+        oid.OnMapPinAddPin += HandleMapPinAdded;
+        oid.OnMapPinChangePin += HandleMapPinChanged;
+        oid.OnMapPinDestroyPin += HandleMapPinDestroyed;
+        oid.OnDMSpawnObjectAfter += areaSystem.InitializeEventsAfterDMSpawnCreature;
+      }
+      private void InitializeSpellEvents()
+      {
+        oid.LoginCreature.OnSpellBroadcast += spellSystem.SetCastingClassOnSpellBroadcast;
+        oid.LoginCreature.OnSpellBroadcast += spellSystem.HandleHearingSpellBroadcast;
+        oid.LoginCreature.OnSpellCast += spellSystem.HandleAutoSpellBeforeSpellCast;
+        oid.LoginCreature.OnSpellCast += spellSystem.CheckIsDivinationBeforeSpellCast;
+        oid.LoginCreature.OnSpellAction += spellSystem.HandleCraftOnSpellInput;
+        oid.LoginCreature.OnSpellAction += spellSystem.RegisterMetaMagicOnSpellInput;
       }
       private void InitializePlayerAccount()
       {

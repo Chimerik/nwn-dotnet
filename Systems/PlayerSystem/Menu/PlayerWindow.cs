@@ -16,6 +16,7 @@ namespace NWN.Systems
         protected Player player { get; }
         protected NuiWindow window { get; set; }
         public int token { get; set; }
+        public NuiWindowToken nuiToken { get; set; }
 
         public PlayerWindow(Player player)
         {
@@ -24,9 +25,6 @@ namespace NWN.Systems
           closable = new ("closable");
           resizable = new ("resizable");
           geometry = new NuiBind<NuiRect>("geometry");
-
-          // TODO : à la création initiale de la fenêtre, on charge la geometry à partir des infos de la BDD
-
         }
 
         protected void OnAreaChangeCloseWindow(OnServerSendArea onArea)
@@ -36,7 +34,7 @@ namespace NWN.Systems
 
         public void CloseWindow()
         {
-          player.oid.NuiDestroy(token);
+          player.oid.NuiDestroy(nuiToken.Token);
           player.openedWindows.Remove(windowId);
         }
       }
