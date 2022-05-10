@@ -116,12 +116,12 @@ namespace NWN.Systems
           {
             Geometry = geometry,
             Resizable = false,
-            Collapsed = false,
+            Collapsed = collaspedBinding,
             Closable = true,
             Transparent = false,
             Border = true,
           };
-
+          
           if (player.oid.TryCreateNuiWindow(window, out NuiWindowToken tempToken, windowId))
           {
             nuiToken = tempToken;
@@ -143,6 +143,8 @@ namespace NWN.Systems
             geometry.SetBindWatch(player.oid, nuiToken.Token, true);
 
             player.openedWindows[windowId] = nuiToken.Token;
+
+            collaspedBinding.SetBindValue(player.oid, nuiToken.Token, false);
 
             if ((player.learnableSkills.Any(l => l.Value.active) || player.learnableSpells.Any(l => l.Value.active)) && !player.openedWindows.ContainsKey("activeLearnable"))
               if (player.windows.ContainsKey("activeLearnable"))
@@ -212,23 +214,12 @@ namespace NWN.Systems
               }
               else
               {
-                
+                int learnableId = currentList.ElementAt(nuiEvent.ArrayIndex).id;
 
-                /*if (player.openedWindows.ContainsKey("learnableDescription"))
-                  player.windows["learnableDescription"].CloseWindow();*/
-
-                Task wait = NwTask.Run(async () =>
-                {
-                  int learnableId = currentList.ElementAt(nuiEvent.ArrayIndex).id;
-
-                  await NwTask.NextFrame();
-                  //await NwTask.Delay(TimeSpan.FromMilliseconds(0));
-
-                  if (player.windows.ContainsKey("learnableDescription"))
-                    ((LearnableDescriptionWindow)player.windows["learnableDescription"]).CreateWindow(learnableId);
-                  else
-                    player.windows.Add("learnableDescription", new LearnableDescriptionWindow(player, learnableId));
-                });
+                if (player.windows.ContainsKey("learnableDescription"))
+                   ((LearnableDescriptionWindow)player.windows["learnableDescription"]).CreateWindow(learnableId);
+                else
+                  player.windows.Add("learnableDescription", new LearnableDescriptionWindow(player, learnableId));
               }
 
               break;

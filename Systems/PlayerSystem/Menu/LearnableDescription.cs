@@ -55,9 +55,9 @@ namespace NWN.Systems
             Border = true,
           };
 
-          CreateWindow(learnableId, 1000);
+          CreateWindow(learnableId);
         }
-        public void CreateWindow(int learnableId, int delay = 0)
+        public void CreateWindow(int learnableId)
         {
           CloseWindow();
 
@@ -100,36 +100,27 @@ namespace NWN.Systems
             }
           }*/
 
-          Task wait = NwTask.Run(async () =>
+          if (player.oid.TryCreateNuiWindow(window, out NuiWindowToken tempToken, windowId))
           {
-            int id = learnableId;
-            int waitingTime = delay;
+            nuiToken = tempToken;
 
-            await NwTask.NextFrame();
-            //await NwTask.Delay(TimeSpan.FromMilliseconds(0));
+            Learnable learnable = SkillSystem.learnableDictionary[learnableId];
 
-            if (player.oid.TryCreateNuiWindow(window, out NuiWindowToken tempToken, windowId))
-            {
-              nuiToken = tempToken;
+            icon.SetBindValue(player.oid, nuiToken.Token, learnable.icon);
+            description.SetBindValue(player.oid, nuiToken.Token, learnable.description);
+            name.SetBindValue(player.oid, nuiToken.Token, learnable.name);
+            primaryAbilityIcon.SetBindValue(player.oid, nuiToken.Token,StringUtils.GetAttributeIcon(learnable.primaryAbility));
+            secondaryAbilityIcon.SetBindValue(player.oid, nuiToken.Token, StringUtils.GetAttributeIcon(learnable.secondaryAbility));
+            primaryAbility.SetBindValue(player.oid, nuiToken.Token, $"Attribut principal : {StringUtils.TranslateAttributeToFrench(learnable.primaryAbility)}");
+            secondaryAbility.SetBindValue(player.oid, nuiToken.Token, $"Attribut secondaire : {StringUtils.TranslateAttributeToFrench(learnable.secondaryAbility)}");
 
-              Learnable learnable = SkillSystem.learnableDictionary[id];
+            geometry.SetBindValue(player.oid, nuiToken.Token, player.windowRectangles.ContainsKey(windowId) ? player.windowRectangles[windowId] : new NuiRect(player.oid.GetDeviceProperty(PlayerDeviceProperty.GuiWidth) / 2 - 500, player.oid.GetDeviceProperty(PlayerDeviceProperty.GuiHeight) /2 - 300, 500, 300));
+            geometry.SetBindWatch(player.oid, nuiToken.Token, true);
 
-              icon.SetBindValue(player.oid, nuiToken.Token, learnable.icon);
-              description.SetBindValue(player.oid, nuiToken.Token, learnable.description);
-              name.SetBindValue(player.oid, nuiToken.Token, learnable.name);
-              primaryAbilityIcon.SetBindValue(player.oid, nuiToken.Token,StringUtils.GetAttributeIcon(learnable.primaryAbility));
-              secondaryAbilityIcon.SetBindValue(player.oid, nuiToken.Token, StringUtils.GetAttributeIcon(learnable.secondaryAbility));
-              primaryAbility.SetBindValue(player.oid, nuiToken.Token, $"Attribut principal : {StringUtils.TranslateAttributeToFrench(learnable.primaryAbility)}");
-              secondaryAbility.SetBindValue(player.oid, nuiToken.Token, $"Attribut secondaire : {StringUtils.TranslateAttributeToFrench(learnable.secondaryAbility)}");
-
-              geometry.SetBindValue(player.oid, nuiToken.Token, player.windowRectangles.ContainsKey(windowId) ? player.windowRectangles[windowId] : new NuiRect(player.oid.GetDeviceProperty(PlayerDeviceProperty.GuiWidth) / 2 - 500, player.oid.GetDeviceProperty(PlayerDeviceProperty.GuiHeight) /2 - 300, 500, 300));
-              geometry.SetBindWatch(player.oid, nuiToken.Token, true);
-
-              player.openedWindows[windowId] = nuiToken.Token;
-            }
-            else
-              player.oid.SendServerMessage($"Impossible d'ouvrir la fenêtre {window.Title}. Celle-ci est-elle déjà ouverte ?", ColorConstants.Orange);
-          });
+            player.openedWindows[windowId] = nuiToken.Token;
+          }
+          else
+            player.oid.SendServerMessage($"Impossible d'ouvrir la fenêtre {window.Title}. Celle-ci est-elle déjà ouverte ?", ColorConstants.Orange);
         }
       }
     }
