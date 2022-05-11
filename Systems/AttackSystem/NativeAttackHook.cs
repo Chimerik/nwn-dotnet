@@ -35,13 +35,6 @@ namespace NWN.Systems
       addUseTalentOnObjectHook = hookService.RequestHook<AddUseTalentOnObjectHook>(OnAddUseTalentOnObjectHook, FunctionsLinux._ZN12CNWSCreature27AddUseTalentOnObjectActionsEiijhjihh, HookOrder.Early);
       addUseTalentAtLocationHook = hookService.RequestHook<AddUseTalentAtLocationHook>(OnAddUseTalentAtLocationHook, FunctionsLinux._ZN12CNWSCreature29AddUseTalentAtLocationActionsEii6Vectorhjihh, HookOrder.Early);
     }
-    public static void SendPartyInvite(uint invited, NwCreature inviter)
-    {
-      Console.WriteLine("bip bip");
-      Console.WriteLine(NWNXLib.AppManager().m_pServerExoApp.GetNWSMessage().SendServerToPlayerParty_Invite(invited, inviter.ObjectId));
-      Console.WriteLine(NWNXLib.AppManager().m_pServerExoApp.GetNWSMessage().SendServerToPlayerPartyBar_PanelButtonFlash(invited, 1, 1));
-      Console.WriteLine("bip boop");
-    }
     private void OnResolveAttackRoll(void* pCreature, void* pTarget)
     {
       CNWSCreature creature = CNWSCreature.FromPointer(pCreature);
@@ -111,7 +104,7 @@ namespace NWN.Systems
     private byte OnGetCasterLevel(void* pCreatureStats, byte nMultiClass)
     {
       CNWSCreatureStats creatureStats = CNWSCreatureStats.FromPointer(pCreatureStats);
-      int casterLevel = 0;
+      int casterLevel;
 
       if (PlayerSystem.Players.TryGetValue(creatureStats.m_pBaseCreature.m_idSelf, out PlayerSystem.Player player))
         casterLevel = player.learnableSkills.ContainsKey(CustomSkill.ImprovedCasterLevel) ? player.learnableSkills[CustomSkill.ImprovedCasterLevel].totalPoints : 0;

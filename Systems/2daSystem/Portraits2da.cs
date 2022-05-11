@@ -30,12 +30,10 @@ namespace NWN.Systems
   public class Portraits2da
   {
     public static readonly TwoDimArray<PortraitEntry> portraitsTable = new("portraits.2da");
-    //public static IEnumerable<PortraitEntry> portraitEntries;
-    public static List<string>[,] portraitFilteredEntries;
-    public Portraits2da(ModuleSystem module)
+    public static readonly List<string>[,] portraitFilteredEntries = new List<string>[30, 5];
+    public Portraits2da(ModuleSystem _)
     {
       //portraitEntries = portraitsTable.Where(p => !string.IsNullOrEmpty(p.resRef));
-      portraitFilteredEntries = new List<string>[30, 5];
       
       foreach (var portrait in portraitsTable)
         if (!string.IsNullOrEmpty(portrait.resRef))

@@ -89,13 +89,15 @@ namespace NWN.Systems
 
       if (selection.TargetObject is not NwCreature creature || !PlayerSystem.Players.TryGetValue(selection.Player.LoginCreature, out PlayerSystem.Player player))
         return;
-      
+
       //NativeAttackHook.SendPartyInvite(creature.LoginPlayer.PlayerId, selection.Player.LoginCreature);
 
       if (player.windows.ContainsKey("editorPNJ"))
         ((PlayerSystem.Player.EditorPNJWindow)player.windows["editorPNJ"]).CreateWindow(creature);
       else
         player.windows.Add("editorPNJ", new PlayerSystem.Player.EditorPNJWindow(player, creature));
+
+      //player.oid.InvitePlayerToParty(creature.LoginPlayer);
     }
 
     /* public static String Translate(String word)

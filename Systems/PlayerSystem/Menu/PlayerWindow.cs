@@ -10,21 +10,18 @@ namespace NWN.Systems
       public abstract class PlayerWindow
       {
         protected string windowId { get; set; }
-        protected NuiBind<bool> closable { get; }
-        protected NuiBind<bool> resizable { get; }
-        protected NuiBind<NuiRect> geometry { get; }
+        protected readonly NuiBind<bool> closable = new("closable");
+        protected readonly NuiBind<bool> resizable = new("resizable");
+        protected NuiBind<NuiRect> geometry = new NuiBind<NuiRect>("geometry");
         protected Player player { get; }
         protected NuiWindow window { get; set; }
-        public int token { get; set; }
+        //public int token { get; set; }
         public NuiWindowToken nuiToken { get; set; }
 
         public PlayerWindow(Player player)
         {
           this.player = player;
-          token = -1;
-          closable = new ("closable");
-          resizable = new ("resizable");
-          geometry = new NuiBind<NuiRect>("geometry");
+          //token = -1;
         }
 
         protected void OnAreaChangeCloseWindow(OnServerSendArea onArea)
@@ -34,7 +31,7 @@ namespace NWN.Systems
 
         public void CloseWindow()
         {
-          player.oid.NuiDestroy(nuiToken.Token);
+          nuiToken.Close();
           player.openedWindows.Remove(windowId);
         }
       }

@@ -18,10 +18,10 @@ namespace NWN.Systems
         bool displaySkill { get; set; }
         bool refreshOn { get; set; }
         private readonly NuiColumn rootColumn;
-        private readonly NuiBind<List<NuiComboEntry>> categories = new NuiBind<List<NuiComboEntry>>("categories");
+        private readonly NuiBind<List<NuiComboEntry>> categories = new("categories");
         private readonly List<NuiComboEntry> skillCategories;
 
-        private readonly List<NuiComboEntry> spellCategories = new List<NuiComboEntry>
+        private readonly List<NuiComboEntry> spellCategories = new()
           {
             new NuiComboEntry("Tous", 0),
             new NuiComboEntry("Niveau 0", 1),
@@ -47,8 +47,8 @@ namespace NWN.Systems
         private readonly NuiBind<string> learnButtonText = new ("learnButtonText");
         private readonly NuiBind<bool> learnButtonEnabled = new ("learnButtonEnabled");
         private readonly NuiBind<string> search = new ("search");
-        private readonly Color white = new Color(255, 255, 255);
-        private readonly NuiRect drawListRect = new NuiRect(0, 35, 150, 60);
+        private readonly Color white = new(255, 255, 255);
+        private readonly NuiRect drawListRect = new(0, 35, 150, 60);
 
         public IEnumerable<Learnable> currentList;
 
@@ -116,7 +116,7 @@ namespace NWN.Systems
           {
             Geometry = geometry,
             Resizable = false,
-            Collapsed = collaspedBinding,
+            Collapsed = false,
             Closable = true,
             Transparent = false,
             Border = true,
@@ -143,8 +143,6 @@ namespace NWN.Systems
             geometry.SetBindWatch(player.oid, nuiToken.Token, true);
 
             player.openedWindows[windowId] = nuiToken.Token;
-
-            collaspedBinding.SetBindValue(player.oid, nuiToken.Token, false);
 
             if ((player.learnableSkills.Any(l => l.Value.active) || player.learnableSpells.Any(l => l.Value.active)) && !player.openedWindows.ContainsKey("activeLearnable"))
               if (player.windows.ContainsKey("activeLearnable"))
