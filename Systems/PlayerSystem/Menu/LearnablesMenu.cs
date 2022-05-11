@@ -145,10 +145,8 @@ namespace NWN.Systems
             player.openedWindows[windowId] = nuiToken.Token;
 
             if ((player.learnableSkills.Any(l => l.Value.active) || player.learnableSpells.Any(l => l.Value.active)) && !player.openedWindows.ContainsKey("activeLearnable"))
-              if (player.windows.ContainsKey("activeLearnable"))
+              if (!player.windows.TryAdd("activeLearnable", new ActiveLearnableWindow(player)))
                 ((ActiveLearnableWindow)player.windows["activeLearnable"]).CreateWindow();
-              else
-                player.windows.Add("activeLearnable", new ActiveLearnableWindow(player));
 
             currentList = player.learnableSkills.Values.Where(s => s.category == SkillSystem.Category.MindBody);
             LoadLearnableList(currentList);
@@ -160,12 +158,6 @@ namespace NWN.Systems
 
         private void HandleLearnableEvents(ModuleEvents.OnNuiEvent nuiEvent)
         {
-          if (nuiEvent.Player.NuiGetWindowId(nuiEvent.Token.Token) != nuiToken.WindowId)
-          {
-            Utils.LogMessageToDMs($"NuiSystem - {nuiToken.WindowId} - Event {nuiEvent.EventType} called from {nuiEvent.Player.NuiGetWindowId(nuiEvent.Token.Token)}.");
-            return;
-          }
-
           switch (nuiEvent.EventType)
           {
             case NuiEventType.Click:
@@ -269,7 +261,7 @@ namespace NWN.Systems
 
             if (learnable is LearnableSkill skill)
             {
-              canLearn = skill.attackBonusPrerequisite > 0 && player.oid.LoginCreature.BaseAttackBonus < skill.attackBonusPrerequisite ? false : true;
+              canLearn = skill.attackBonusPrerequisite <= 0 || player.oid.LoginCreature.BaseAttackBonus >= skill.attackBonusPrerequisite;
 
               if (canLearn)
                 foreach (var abilityPreReq in skill.abilityPrerequisites)

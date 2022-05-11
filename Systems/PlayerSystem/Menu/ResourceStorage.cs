@@ -111,27 +111,25 @@ namespace NWN.Systems
             Border = true,
           };
 
-          player.oid.OnNuiEvent -= HandleResourceStorageEvents;
-          player.oid.OnNuiEvent += HandleResourceStorageEvents;
-          player.oid.OnServerSendArea -= OnAreaChangeCloseWindow;
-          player.oid.OnServerSendArea += OnAreaChangeCloseWindow;
+          if (player.oid.TryCreateNuiWindow(window, out NuiWindowToken tempToken, windowId))
+          {
+            nuiToken = tempToken;
+            nuiToken.OnNuiEvent += HandleResourceStorageEvents;
+            player.oid.OnServerSendArea += OnAreaChangeCloseWindow;
 
-          token = player.oid.CreateNuiWindow(window, windowId);
+            resourceType.SetBindValue(player.oid, nuiToken.Token, 0);
+            resourceType.SetBindWatch(player.oid, nuiToken.Token, true);
+            geometry.SetBindValue(player.oid, nuiToken.Token, windowRectangle);
+            geometry.SetBindWatch(player.oid, nuiToken.Token, true);
 
-          resourceType.SetBindValue(player.oid, token, 0);
-          resourceType.SetBindWatch(player.oid, token, true);
-          geometry.SetBindValue(player.oid, token, windowRectangle);
-          geometry.SetBindWatch(player.oid, token, true);
-
-          resourceSelection = player.craftResourceStock.FirstOrDefault();
-          LoadResourceList();
+            resourceSelection = player.craftResourceStock.FirstOrDefault();
+            LoadResourceList();
+          }
+            
         }
 
         private void HandleResourceStorageEvents(ModuleEvents.OnNuiEvent nuiEvent)
         {
-          if (nuiEvent.Player.NuiGetWindowId(nuiEvent.WindowToken) != windowId)
-            return;
-
           switch (nuiEvent.EventType)
           {
             case NuiEventType.Close:
@@ -145,10 +143,8 @@ namespace NWN.Systems
 
                   resourceSelection = player.craftResourceStock[nuiEvent.ArrayIndex];
 
-                  if (player.windows.ContainsKey("playerInput"))
+                  if (!player.windows.TryAdd("playerInput", new PlayerInputWindow(player, "Retirer combien d'unités ?", WithdrawResource, resourceSelection.quantity.ToString())))
                     ((PlayerInputWindow)player.windows["playerInput"]).CreateWindow("Retirer combien d'unités ?", WithdrawResource, resourceSelection.quantity.ToString());
-                  else
-                    player.windows.Add("playerInput", new PlayerInputWindow(player, "Retirer combien d'unités ?", WithdrawResource, resourceSelection.quantity.ToString()));
 
                   break;
 
@@ -232,7 +228,7 @@ namespace NWN.Systems
         }
         private void SelectInventoryItem(ModuleEvents.OnPlayerTarget selection)
         {
-          if (selection.IsCancelled || !(selection.TargetObject is NwItem item))
+          if (selection.IsCancelled || selection.TargetObject is not NwItem item)
             return;
 
           if (item.Tag != "craft_resource")
@@ -319,7 +315,7 @@ namespace NWN.Systems
         private async void HandleStorageSave()
         {
           Task<string> serializeCraftResource = Task.Run(() => JsonConvert.SerializeObject(player.craftResourceStock));
-          await Task.WhenAll(serializeCraftResource);
+          await serializeCraftResource;
 
           SqLiteUtils.UpdateQuery("playerCharacters",
           new List<string[]>() { new string[] { "materialStorage", serializeCraftResource.Result } },
@@ -332,7 +328,7 @@ namespace NWN.Systems
         {
           List<string> resourceNameList = new List<string>();
           List<string> resourceIconList = new List<string>();
-          var tempList = resourceType.GetBindValue(player.oid, token) > 0 ? player.craftResourceStock.Where(r => r.type == (ResourceType)resourceType.GetBindValue(player.oid, token)) : player.craftResourceStock;
+          var tempList = resourceType.GetBindValue(player.oid, nuiToken.Token) > 0 ? player.craftResourceStock.Where(r => r.type == (ResourceType)resourceType.GetBindValue(player.oid, nuiToken.Token)) : player.craftResourceStock;
 
           foreach (CraftResource resource in tempList)
           {
@@ -340,9 +336,9 @@ namespace NWN.Systems
             resourceIconList.Add(resource.iconString);
           }
 
-          resourceNames.SetBindValues(player.oid, token, resourceNameList);
-          resourceIcon.SetBindValues(player.oid, token, resourceIconList);
-          listCount.SetBindValue(player.oid, token, tempList.Count());
+          resourceNames.SetBindValues(player.oid, nuiToken.Token, resourceNameList);
+          resourceIcon.SetBindValues(player.oid, nuiToken.Token, resourceIconList);
+          listCount.SetBindValue(player.oid, nuiToken.Token, tempList.Count());
         }
       }
     }

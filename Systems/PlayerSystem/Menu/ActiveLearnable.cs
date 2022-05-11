@@ -68,20 +68,21 @@ namespace NWN.Systems
             Border = true,
           };
 
-          token = player.oid.CreateNuiWindow(window, windowId);
+          if (player.oid.TryCreateNuiWindow(window, out NuiWindowToken tempToken, windowId))
+          {
+            nuiToken = tempToken;
 
-          timeLeft.SetBindValue(player.oid, token, learnable.GetReadableTimeSpanToNextLevel(player));
-          icon.SetBindValue(player.oid, token, learnable.icon);
-          name.SetBindValue(player.oid, token, learnable.name);
-          level.SetBindValue(player.oid, token, $"{learnable.currentLevel}/{learnable.maxLevel}");
+            timeLeft.SetBindValue(player.oid, nuiToken.Token, learnable.GetReadableTimeSpanToNextLevel(player));
+            icon.SetBindValue(player.oid, nuiToken.Token, learnable.icon);
+            name.SetBindValue(player.oid, nuiToken.Token, learnable.name);
+            level.SetBindValue(player.oid, nuiToken.Token, $"{learnable.currentLevel}/{learnable.maxLevel}");
 
-          geometry.SetBindValue(player.oid, token, windowRectangle);
-          geometry.SetBindWatch(player.oid, token, true);
+            geometry.SetBindValue(player.oid, nuiToken.Token, windowRectangle);
+            geometry.SetBindWatch(player.oid, nuiToken.Token, true);
 
-          player.openedWindows[windowId] = token;
-
-          stopPreviousSPGain = true;
-          DelayStartSPGain();
+            stopPreviousSPGain = true;
+            DelayStartSPGain();
+          }          
         }
 
         private async void RefreshWindowUntillClosed()
@@ -89,7 +90,7 @@ namespace NWN.Systems
           ScheduledTask scheduler = player.scheduler.ScheduleRepeating(() =>
           {
             learnable.acquiredPoints += player.GetSkillPointsPerSecond(learnable);
-            timeLeft.SetBindValue(player.oid, token, learnable.GetReadableTimeSpanToNextLevel(player));
+            timeLeft.SetBindValue(player.oid, nuiToken.Token, learnable.GetReadableTimeSpanToNextLevel(player));
             player.oid.ExportCharacter();
           }, TimeSpan.FromSeconds(1));
 

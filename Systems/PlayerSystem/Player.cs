@@ -395,17 +395,15 @@ namespace NWN.Systems
       }
       public async void SaveMapPinsToDatabase()
       {
-        using (var stream = new MemoryStream())
-        {
-          await JsonSerializer.SerializeAsync(stream, mapPinDictionnary);
-          stream.Position = 0;
-          using var reader = new StreamReader(stream);
-          string serializedJson = await reader.ReadToEndAsync();
+        using var stream = new MemoryStream();
+        await JsonSerializer.SerializeAsync(stream, mapPinDictionnary);
+        stream.Position = 0;
+        using var reader = new StreamReader(stream);
+        string serializedJson = await reader.ReadToEndAsync();
 
-          SqLiteUtils.UpdateQuery("PlayerAccounts",
-            new List<string[]>() { new string[] { "mapPins", serializedJson } },
-            new List<string[]>() { new string[] { "rowid", accountId.ToString() } });
-        }
+        SqLiteUtils.UpdateQuery("PlayerAccounts",
+          new List<string[]>() { new string[] { "mapPins", serializedJson } },
+          new List<string[]>() { new string[] { "rowid", accountId.ToString() } });
       }
       private void DisableItemAppearanceFeedbackMessages()
       {
@@ -974,7 +972,7 @@ namespace NWN.Systems
 
         return materiaCost;
       }
-      public int GetJobLearnableFromWorkshop(string workshopTag)
+      public static int GetJobLearnableFromWorkshop(string workshopTag)
       {
         return workshopTag switch
         {
@@ -1096,7 +1094,7 @@ namespace NWN.Systems
       }
       private void HandleGenericNuiEvents(ModuleEvents.OnNuiEvent nuiEvent)
       {
-        string window = nuiEvent.Player.NuiGetWindowId(nuiEvent.Token.Token);
+        string window = nuiEvent.Token.WindowId;
 
         switch (nuiEvent.ElementId)
         {
@@ -1105,12 +1103,8 @@ namespace NWN.Systems
             NuiRect windowRectangle = new NuiBind<NuiRect>("geometry").GetBindValue(nuiEvent.Player, nuiEvent.Token.Token);
             
             if (windowRectangle.Width > 0 && windowRectangle.Height > 0)
-            {
-              if (windowRectangles.ContainsKey(window))
+              if (!windowRectangles.TryAdd(window, windowRectangle))
                 windowRectangles[window] = windowRectangle;
-              else
-                windowRectangles.Add(window, windowRectangle);
-            }
 
             if (pcState == PcState.Online)
               nuiEvent.Player.ExportCharacter();
@@ -1121,23 +1115,11 @@ namespace NWN.Systems
             switch (nuiEvent.EventType)
             {
               case NuiEventType.Open:
-                if (!openedWindows.ContainsKey(window))
-                {
-                  openedWindows.Add(window, nuiEvent.Token.Token);
-
-                  if (pcState == PcState.Online)
-                    nuiEvent.Player.ExportCharacter();
-                }
+                openedWindows.TryAdd(window, nuiEvent.Token.Token);
                 break;
 
               case NuiEventType.Close:
-                if (openedWindows.ContainsKey(window))
-                {
-                  openedWindows.Remove(window);
-
-                  if (pcState == PcState.Online)
-                    nuiEvent.Player.ExportCharacter();
-                }
+                openedWindows.Remove(window);
                 break;
             }
 

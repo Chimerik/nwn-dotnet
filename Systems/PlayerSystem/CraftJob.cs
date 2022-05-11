@@ -11,7 +11,7 @@ namespace NWN.Systems
 {
   public partial class PlayerSystem
   {
-    public static Dictionary<JobType, Func<Player, bool, bool>> HandleSpecificJobCompletion = new Dictionary<JobType, Func<Player, bool, bool>>
+    public static readonly Dictionary<JobType, Func<Player, bool, bool>> HandleSpecificJobCompletion = new()
     {
       { JobType.ItemCreation, CompleteItemCreation },
       { JobType.ItemUpgrade, CompleteItemUpgrade },
@@ -373,7 +373,7 @@ namespace NWN.Systems
           if (player.windows.ContainsKey("activeCraftJob") && player.openedWindows.ContainsKey("activeCraftJob"))
           {
             Player.ActiveCraftJobWindow jobWindow = (Player.ActiveCraftJobWindow)player.windows["activeCraftJob"];
-            jobWindow.timeLeft.SetBindValue(player.oid, jobWindow.token, "En pause (Hors Cité)");
+            jobWindow.timeLeft.SetBindValue(player.oid, jobWindow.nuiToken.Token, "En pause (Hors Cité)");
           }
 
           return;

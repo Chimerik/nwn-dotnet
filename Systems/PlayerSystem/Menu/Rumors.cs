@@ -23,7 +23,7 @@ namespace NWN.Systems
         private readonly NuiRow returnRow;
         private readonly NuiList listRow;
         private readonly NuiBind<string> npcText = new ("npcText");
-        private readonly List<int> rumortIds = new List<int>();
+        private readonly List<int> rumortIds = new();
         private readonly NuiBind<string> titles = new ("titles");
         private readonly NuiBind<string> contents = new ("contents");
         private readonly NuiBind<int> listCount = new ("listCount");
@@ -87,26 +87,24 @@ namespace NWN.Systems
             Border = true,
           };
 
-          player.oid.OnNuiEvent -= HandleRumorEvents;
-          player.oid.OnNuiEvent += HandleRumorEvents;
-          player.oid.OnServerSendArea -= OnAreaChangeCloseWindow;
-          player.oid.OnServerSendArea += OnAreaChangeCloseWindow;
+          if (player.oid.TryCreateNuiWindow(window, out NuiWindowToken tempToken, windowId))
+          {
+            nuiToken = tempToken;
+            nuiToken.OnNuiEvent += HandleRumorEvents;
+            player.oid.OnServerSendArea -= OnAreaChangeCloseWindow;
+            player.oid.OnServerSendArea += OnAreaChangeCloseWindow;
 
-          token = player.oid.CreateNuiWindow(window, windowId);
+            npcText.SetBindValue(player.oid, nuiToken.Token, "Bonjour, ami ! Prend une place et cette petite chopine.\n" +
+              "A moins que tu n'aies quelque goût pour les dernières histoires du cru ?");
 
-          npcText.SetBindValue(player.oid, token, "Bonjour, ami ! Prend une place et cette petite chopine.\n" +
-          "A moins que tu n'aies quelque goût pour les dernières histoires du cru ?");
+            geometry.SetBindValue(player.oid, nuiToken.Token, windowRectangle);
+            geometry.SetBindWatch(player.oid, nuiToken.Token, true);
+          }
 
-          geometry.SetBindValue(player.oid, token, windowRectangle);
-          geometry.SetBindWatch(player.oid, token, true);
-
-          player.openedWindows[windowId] = token;
+            
         }
         private void HandleRumorEvents(ModuleEvents.OnNuiEvent nuiEvent)
         {
-          if (nuiEvent.Player.NuiGetWindowId(nuiEvent.WindowToken) != windowId)
-            return;
-
           switch (nuiEvent.EventType)
           {
             case NuiEventType.Click:
@@ -144,7 +142,7 @@ namespace NWN.Systems
                   SqLiteUtils.DeletionQuery("rumors",
                   new Dictionary<string, string>() { { "rowid", rumortIds[nuiEvent.ArrayIndex].ToString() } });
 
-                  player.oid.SendServerMessage($"La rumeur {titles.GetBindValues(player.oid, token)[nuiEvent.ArrayIndex].ColorString(ColorConstants.White)} a bien été supprimée", ColorConstants.Pink);
+                  player.oid.SendServerMessage($"La rumeur {titles.GetBindValues(player.oid, nuiToken.Token)[nuiEvent.ArrayIndex].ColorString(ColorConstants.White)} a bien été supprimée", ColorConstants.Pink);
 
                   CloseWindow();
                   CreateWindow();
@@ -161,7 +159,7 @@ namespace NWN.Systems
           rootChidren.Add(listRow);
           rootChidren.Add(returnRow);
 
-          npcText.SetBindValue(player.oid, token, "Voilà ce qui dit de plus important ces derniers temps.");
+          npcText.SetBindValue(player.oid, nuiToken.Token, "Voilà ce qui dit de plus important ces derniers temps.");
 
           var query = NwModule.Instance.PrepareCampaignSQLQuery(Config.database, "SELECT title, content, rowid from rumors r " +
           "LEFT JOIN PlayerAccounts pa on r.accountId = pa.ROWID " +
@@ -178,13 +176,13 @@ namespace NWN.Systems
           }
 
           if (player.oid.IsDM)
-            visible.SetBindValue(player.oid, token, true);
+            visible.SetBindValue(player.oid, nuiToken.Token, true);
           else
-            visible.SetBindValue(player.oid, token, false);
+            visible.SetBindValue(player.oid, nuiToken.Token, false);
 
-          titles.SetBindValues(player.oid, token, titleList);
-          contents.SetBindValues(player.oid, token, contentList);
-          listCount.SetBindValue(player.oid, token, titleList.Count);
+          titles.SetBindValues(player.oid, nuiToken.Token, titleList);
+          contents.SetBindValues(player.oid, nuiToken.Token, contentList);
+          listCount.SetBindValue(player.oid, nuiToken.Token, titleList.Count);
         }
         private void LoadPCRumorsList()
         {
@@ -194,7 +192,7 @@ namespace NWN.Systems
           rootChidren.Add(listRow);
           rootChidren.Add(returnRow);
 
-          npcText.SetBindValue(player.oid, token, "Voici les petits potins du moment.");
+          npcText.SetBindValue(player.oid, nuiToken.Token, "Voici les petits potins du moment.");
 
           var query = NwModule.Instance.PrepareCampaignSQLQuery(Config.database, "SELECT title, content, rowid from rumors r " +
           "LEFT JOIN PlayerAccounts pa on r.accountId = pa.ROWID " +
@@ -211,20 +209,18 @@ namespace NWN.Systems
           }
 
           if (player.oid.IsDM)
-            visible.SetBindValue(player.oid, token, true);
+            visible.SetBindValue(player.oid, nuiToken.Token, true);
           else
-            visible.SetBindValue(player.oid, token, false);
+            visible.SetBindValue(player.oid, nuiToken.Token, false);
 
-          titles.SetBindValues(player.oid, token, titleList);
-          contents.SetBindValues(player.oid, token, contentList);
-          listCount.SetBindValue(player.oid, token, titleList.Count);
+          titles.SetBindValues(player.oid, nuiToken.Token, titleList);
+          contents.SetBindValues(player.oid, nuiToken.Token, contentList);
+          listCount.SetBindValue(player.oid, nuiToken.Token, titleList.Count);
         }
         private void GetRumorTitle()
         {
-          if (player.windows.ContainsKey("playerInput"))
+          if (!player.windows.TryAdd("playerInput", new PlayerInputWindow(player, "Quel titre donner à votre rumeur ?", SetRumorTitle)))
             ((PlayerInputWindow)player.windows["playerInput"]).CreateWindow("Quel titre donner à votre rumeur ?", SetRumorTitle);
-          else
-            player.windows.Add("playerInput", new PlayerInputWindow(player, "Quel titre donner à votre rumeur ?", SetRumorTitle));
         }
         private bool SetRumorTitle(string inputValue)
         {
@@ -280,7 +276,7 @@ namespace NWN.Systems
           rootChidren.Add(listRow);
           rootChidren.Add(returnRow);
 
-          npcText.SetBindValue(player.oid, token, "Voici les rumeurs que vous avez laissé courir.");
+          npcText.SetBindValue(player.oid, nuiToken.Token, "Voici les rumeurs que vous avez laissé courir.");
 
           var query = await SqLiteUtils.SelectQueryAsync("rumors",
             new List<string>() { { "title" }, { "content" }, { "rowid" } },
@@ -297,18 +293,16 @@ namespace NWN.Systems
               rumortIds.Add(int.Parse(result[2]));
             }
 
-          visible.SetBindValue(player.oid, token, true);
+          visible.SetBindValue(player.oid, nuiToken.Token, true);
 
-          titles.SetBindValues(player.oid, token, titleList);
-          contents.SetBindValues(player.oid, token, contentList);
-          listCount.SetBindValue(player.oid, token, titleList.Count);
+          titles.SetBindValues(player.oid, nuiToken.Token, titleList);
+          contents.SetBindValues(player.oid, nuiToken.Token, contentList);
+          listCount.SetBindValue(player.oid, nuiToken.Token, titleList.Count);
         }
         private void GetNewRumorTitle()
         {
-          if (player.windows.ContainsKey("playerInput"))
-            ((PlayerInputWindow)player.windows["playerInput"]).CreateWindow("Quel titre donner à votre rumeur ?", UpdateRumorTitle, titles.GetBindValues(player.oid, token)[selectedRumorId]);
-          else
-            player.windows.Add("playerInput", new PlayerInputWindow(player, "Quel titre donner à votre rumeur ?", UpdateRumorTitle, titles.GetBindValues(player.oid, token)[selectedRumorId]));
+          if (!player.windows.TryAdd("playerInput", new PlayerInputWindow(player, "Quel titre donner à votre rumeur ?", UpdateRumorTitle, titles.GetBindValues(player.oid, nuiToken.Token)[selectedRumorId])))
+            ((PlayerInputWindow)player.windows["playerInput"]).CreateWindow("Quel titre donner à votre rumeur ?", UpdateRumorTitle, titles.GetBindValues(player.oid, nuiToken.Token)[selectedRumorId]);
         }
         private bool UpdateRumorTitle(string inputValue)
         {
@@ -320,10 +314,8 @@ namespace NWN.Systems
 
           newRumorTitle = inputValue;
 
-          if (player.windows.ContainsKey("playerInput"))
-            ((PlayerInputWindow)player.windows["playerInput"]).CreateWindow("Quel sera le contenu de votre rumeur ?", UpdateRumorContent, contents.GetBindValues(player.oid, token)[selectedRumorId]);
-          else
-            player.windows.Add("playerInput", new PlayerInputWindow(player, "Quel sera le contenu de votre rumeur  ?", UpdateRumorContent, contents.GetBindValues(player.oid, token)[selectedRumorId]));
+          if (player.windows.TryAdd("playerInput", new PlayerInputWindow(player, "Quel sera le contenu de votre rumeur  ?", UpdateRumorContent, contents.GetBindValues(player.oid, nuiToken.Token)[selectedRumorId])))
+            ((PlayerInputWindow)player.windows["playerInput"]).CreateWindow("Quel sera le contenu de votre rumeur ?", UpdateRumorContent, contents.GetBindValues(player.oid, nuiToken.Token)[selectedRumorId]);
 
           return true;
         }

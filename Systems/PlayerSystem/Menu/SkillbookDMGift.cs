@@ -53,26 +53,25 @@ namespace NWN.Systems
             Border = true,
           };
 
-          player.oid.OnNuiEvent -= HandleSkillbookGiftEvents;
-          player.oid.OnNuiEvent += HandleSkillbookGiftEvents;
 
-          token = player.oid.CreateNuiWindow(window, windowId);
+          if (player.oid.TryCreateNuiWindow(window, out NuiWindowToken tempToken, windowId))
+          {
+            nuiToken = tempToken;
+            nuiToken.OnNuiEvent += HandleSkillbookGiftEvents;
 
-          search.SetBindValue(player.oid, token, "");
-          search.SetBindWatch(player.oid, token, true);
+            search.SetBindValue(player.oid, nuiToken.Token, "");
+            search.SetBindWatch(player.oid, nuiToken.Token, true);
 
-          geometry.SetBindValue(player.oid, token, windowRectangle);
-          geometry.SetBindWatch(player.oid, token, true);
+            geometry.SetBindValue(player.oid, nuiToken.Token, windowRectangle);
+            geometry.SetBindWatch(player.oid, nuiToken.Token, true);
 
-          currentList = SkillSystem.learnableDictionary.Values.Where(s => s is LearnableSkill skill && skill.category != SkillSystem.Category.StartingTraits).ToList();
-          LoadSkillbookList(currentList);
+            currentList = SkillSystem.learnableDictionary.Values.Where(s => s is LearnableSkill skill && skill.category != SkillSystem.Category.StartingTraits).ToList();
+            LoadSkillbookList(currentList);
+          }
         }
 
         private void HandleSkillbookGiftEvents(ModuleEvents.OnNuiEvent nuiEvent)
         {
-          if (nuiEvent.Player.NuiGetWindowId(nuiEvent.WindowToken) != windowId)
-            return;
-
           switch (nuiEvent.EventType)
           {
             case NuiEventType.Click:
@@ -109,7 +108,7 @@ namespace NWN.Systems
               {
                 case "search":
 
-                  string currentSearch = search.GetBindValue(player.oid, token).ToLower();
+                  string currentSearch = search.GetBindValue(player.oid, nuiToken.Token).ToLower();
                   currentList = string.IsNullOrEmpty(currentSearch) ? SkillSystem.learnableDictionary.Values.Where(s => s is LearnableSkill skill && skill.category != SkillSystem.Category.StartingTraits).ToList() : SkillSystem.learnableDictionary.Values.Where(s => s is LearnableSkill skill && skill.category != SkillSystem.Category.StartingTraits).Where(s => s.name.ToLower().Contains(currentSearch)).ToList();
                   LoadSkillbookList(currentList);
 
@@ -130,9 +129,9 @@ namespace NWN.Systems
             skillbookIconList.Add(skillBook.icon);
           }
 
-          skillbookNames.SetBindValues(player.oid, token, skillbookNameList);
-          skillbookIcon.SetBindValues(player.oid, token, skillbookIconList);
-          listCount.SetBindValue(player.oid, token, skillbookNameList.Count());
+          skillbookNames.SetBindValues(player.oid, nuiToken.Token, skillbookNameList);
+          skillbookIcon.SetBindValues(player.oid, nuiToken.Token, skillbookIconList);
+          listCount.SetBindValue(player.oid, nuiToken.Token, skillbookNameList.Count);
         }
       }
     }

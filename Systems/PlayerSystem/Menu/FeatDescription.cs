@@ -68,8 +68,6 @@ namespace NWN.Systems
 
               geometry.SetBindValue(player.oid, nuiToken.Token, windowRectangle);
               geometry.SetBindWatch(player.oid, nuiToken.Token, true);
-
-              player.openedWindows[windowId] = nuiToken.Token;
             }
             else
               player.oid.SendServerMessage($"Impossible d'ouvrir la fenêtre {window.Title}. Celle-ci est-elle déjà ouverte ?", ColorConstants.Orange);

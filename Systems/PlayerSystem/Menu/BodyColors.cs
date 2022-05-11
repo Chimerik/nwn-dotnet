@@ -16,11 +16,11 @@ namespace NWN.Systems
       public class BodyColorWindow : PlayerWindow
       {
         private readonly NuiColumn rootColumn;
-        private readonly List<NuiElement> rootChildren = new List<NuiElement>();
+        private readonly List<NuiElement> rootChildren = new();
         private readonly NuiBind<string> currentColor = new ("currentColor");
         private readonly NuiBind<int> channelSelection = new ("channelSelection");
         private readonly NuiBind<string>[] colorBindings = new NuiBind<string>[176];
-        private readonly List<NuiComboEntry> comboChannel = new List<NuiComboEntry>
+        private readonly List<NuiComboEntry> comboChannel = new()
           {
             new NuiComboEntry("Cheveux", 1),
             new NuiComboEntry("Peau", 0),
@@ -115,9 +115,6 @@ namespace NWN.Systems
             Border = true,
           };
 
-          player.oid.OnNuiEvent -= HandleBodyColorsEvents;
-          player.oid.OnNuiEvent += HandleBodyColorsEvents;
-
           player.ActivateSpotLight(targetCreature);
 
           Task wait = NwTask.Run(async () =>
@@ -127,6 +124,7 @@ namespace NWN.Systems
             if (player.oid.TryCreateNuiWindow(window, out NuiWindowToken tempToken, windowId))
             {
               nuiToken = tempToken;
+              nuiToken.OnNuiEvent += HandleBodyColorsEvents;
 
               currentColor.SetBindValue(player.oid, nuiToken.Token, $"hair{targetCreature.GetColor(ColorChannel.Hair) + 1}");
               channelSelection.SetBindValue(player.oid, nuiToken.Token, 1);
@@ -137,8 +135,6 @@ namespace NWN.Systems
 
               for (int i = 0; i < 176; i++)
                 colorBindings[i].SetBindValue(player.oid, nuiToken.Token, NWScript.ResManGetAliasFor($"hair{i + 1}", NWScript.RESTYPE_TGA) != "" ? $"hair{i + 1}" : $"leather{i + 1}");
-
-              player.openedWindows[windowId] = nuiToken.Token;
             }
             else
               player.oid.SendServerMessage($"Impossible d'ouvrir la fenêtre {window.Title}. Celle-ci est-elle déjà ouverte ?", ColorConstants.Orange);
@@ -146,9 +142,6 @@ namespace NWN.Systems
         }
         private void HandleBodyColorsEvents(ModuleEvents.OnNuiEvent nuiEvent)
         {
-          if (player.oid.NuiGetWindowId(nuiToken.Token) != windowId)
-            return;
-
           if (targetCreature == null)
           {
             player.oid.SendServerMessage("La créature éditée n'est plus valide.", ColorConstants.Red);

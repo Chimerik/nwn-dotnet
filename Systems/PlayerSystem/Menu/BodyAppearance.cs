@@ -117,14 +117,13 @@ namespace NWN.Systems
             Border = true
           };
 
-          player.oid.OnNuiEvent -= HandleBodyAppearanceEvents;
-          player.oid.OnNuiEvent += HandleBodyAppearanceEvents;
-
           player.ActivateSpotLight(targetCreature);
 
           if (player.oid.TryCreateNuiWindow(window, out NuiWindowToken tempToken, windowId))
           {
             nuiToken = tempToken;
+
+            nuiToken.OnNuiEvent += HandleBodyAppearanceEvents;
 
             headSelection.SetBindValue(player.oid, nuiToken.Token, targetCreature.GetCreatureBodyPart(CreaturePart.Head));
             headSlider.SetBindValue(player.oid, nuiToken.Token, ModuleSystem.headModels.FirstOrDefault(h => h.gender == targetCreature.Gender && h.appearanceRow == targetCreature.Appearance.RowIndex).heads.IndexOf(ModuleSystem.headModels.FirstOrDefault(h => h.gender == targetCreature.Gender && h.appearanceRow == targetCreature.Appearance.RowIndex).heads.FirstOrDefault(l => l.Value == targetCreature.GetCreatureBodyPart(CreaturePart.Head))));
@@ -160,17 +159,12 @@ namespace NWN.Systems
 
             geometry.SetBindValue(player.oid, nuiToken.Token, windowRectangle);
             geometry.SetBindWatch(player.oid, nuiToken.Token, true);
-
-            player.openedWindows[windowId] = nuiToken.Token;
           }
           else
             player.oid.SendServerMessage($"Impossible d'ouvrir la fenêtre {window.Title}. Celle-ci est-elle déjà ouverte ?", ColorConstants.Orange);
         }
         private void HandleBodyAppearanceEvents(ModuleEvents.OnNuiEvent nuiEvent)
         {
-          if (player.oid.NuiGetWindowId(nuiToken.Token) != windowId)
-            return;
-
           if (targetCreature == null)
           {
             player.oid.SendServerMessage("La créature éditée n'est plus valide.", ColorConstants.Red);

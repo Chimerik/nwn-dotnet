@@ -106,60 +106,55 @@ namespace NWN.Systems
             Border = true,
           };
 
-          player.oid.OnNuiEvent -= HandleWeaponAppearanceEvents;
-          player.oid.OnNuiEvent += HandleWeaponAppearanceEvents;
-
-          token = player.oid.CreateNuiWindow(window, windowId);
-
-          player.ActivateSpotLight(player.oid.ControlledCreature);
-
-          topModelSelection.SetBindValue(player.oid, token, item.Appearance.GetWeaponModel(ItemAppearanceWeaponModel.Top) / 10);
-          topModelSlider.SetBindValue(player.oid, token, topModelCombo.IndexOf(topModelCombo.FirstOrDefault(l => l.Value == item.Appearance.GetWeaponModel(ItemAppearanceWeaponModel.Top) / 10)));
-
-          middleModelSelection.SetBindValue(player.oid, token, item.Appearance.GetWeaponModel(ItemAppearanceWeaponModel.Middle) / 10);
-          middleModelSlider.SetBindValue(player.oid, token, midModelCombo.IndexOf(midModelCombo.FirstOrDefault(l => l.Value == item.Appearance.GetWeaponModel(ItemAppearanceWeaponModel.Middle) / 10)));
-
-          bottomModelSelection.SetBindValue(player.oid, token, item.Appearance.GetWeaponModel(ItemAppearanceWeaponModel.Bottom) / 10);
-          bottomModelSlider.SetBindValue(player.oid, token, botModelCombo.IndexOf(botModelCombo.FirstOrDefault(l => l.Value == item.Appearance.GetWeaponModel(ItemAppearanceWeaponModel.Bottom) / 10)));
-
-          geometry.SetBindValue(player.oid, token, windowRectangle);
-          geometry.SetBindWatch(player.oid, token, true);
-
-          /*Task waitWindowOpened = NwTask.Run(async () =>
+          if (player.oid.TryCreateNuiWindow(window, out NuiWindowToken tempToken, windowId))
           {
-            await NwTask.Delay(TimeSpan.FromSeconds(0.6));
-          */
-            topModelSelection.SetBindWatch(player.oid, token, true);
-            topModelSlider.SetBindWatch(player.oid, token, true);
+            nuiToken = tempToken;
+            nuiToken.OnNuiEvent += HandleWeaponAppearanceEvents;
+            player.ActivateSpotLight(player.oid.ControlledCreature);
 
-            middleModelSelection.SetBindWatch(player.oid, token, true);
-            middleModelSlider.SetBindWatch(player.oid, token, true);
+            topModelSelection.SetBindValue(player.oid, nuiToken.Token, item.Appearance.GetWeaponModel(ItemAppearanceWeaponModel.Top) / 10);
+            topModelSlider.SetBindValue(player.oid, nuiToken.Token, topModelCombo.IndexOf(topModelCombo.FirstOrDefault(l => l.Value == item.Appearance.GetWeaponModel(ItemAppearanceWeaponModel.Top) / 10)));
 
-            bottomModelSelection.SetBindWatch(player.oid, token, true);
-            bottomModelSlider.SetBindWatch(player.oid, token, true);
-          //});
+            middleModelSelection.SetBindValue(player.oid, nuiToken.Token, item.Appearance.GetWeaponModel(ItemAppearanceWeaponModel.Middle) / 10);
+            middleModelSlider.SetBindValue(player.oid, nuiToken.Token, midModelCombo.IndexOf(midModelCombo.FirstOrDefault(l => l.Value == item.Appearance.GetWeaponModel(ItemAppearanceWeaponModel.Middle) / 10)));
+
+            bottomModelSelection.SetBindValue(player.oid, nuiToken.Token, item.Appearance.GetWeaponModel(ItemAppearanceWeaponModel.Bottom) / 10);
+            bottomModelSlider.SetBindValue(player.oid, nuiToken.Token, botModelCombo.IndexOf(botModelCombo.FirstOrDefault(l => l.Value == item.Appearance.GetWeaponModel(ItemAppearanceWeaponModel.Bottom) / 10)));
+
+            geometry.SetBindValue(player.oid, nuiToken.Token, windowRectangle);
+            geometry.SetBindWatch(player.oid, nuiToken.Token, true);
+
+            topModelSelection.SetBindWatch(player.oid, nuiToken.Token, true);
+            topModelSlider.SetBindWatch(player.oid, nuiToken.Token, true);
+
+            middleModelSelection.SetBindWatch(player.oid, nuiToken.Token, true);
+            middleModelSlider.SetBindWatch(player.oid, nuiToken.Token, true);
+
+            bottomModelSelection.SetBindWatch(player.oid, nuiToken.Token, true);
+            bottomModelSlider.SetBindWatch(player.oid, nuiToken.Token, true);
+          }
         }
         public void HandleWeaponModelSliderChange(ItemAppearanceWeaponModel model)
         {
           if (!item.IsValid)
             return;
 
-          int sliderValue = 0;
+          int sliderValue;
           NuiBind<int> selector = null;
           int result = 0;
 
           switch (model)
           {
             case ItemAppearanceWeaponModel.Top:
-              sliderValue = topModelSlider.GetBindValue(player.oid, token);
+              sliderValue = topModelSlider.GetBindValue(player.oid, nuiToken.Token);
               result = BaseItems2da.GetWeaponModelList(item.BaseItem.ItemType, model).ElementAt(sliderValue).Value;
               break;
             case ItemAppearanceWeaponModel.Middle:
-              sliderValue = middleModelSlider.GetBindValue(player.oid, token);
+              sliderValue = middleModelSlider.GetBindValue(player.oid, nuiToken.Token);
               result = BaseItems2da.GetWeaponModelList(item.BaseItem.ItemType, model).ElementAt(sliderValue).Value;
               break;
             case ItemAppearanceWeaponModel.Bottom:
-              sliderValue = bottomModelSlider.GetBindValue(player.oid, token);
+              sliderValue = bottomModelSlider.GetBindValue(player.oid, nuiToken.Token);
 
               result = BaseItems2da.GetWeaponModelList(item.BaseItem.ItemType, model).ElementAt(sliderValue).Value;
               break;
@@ -172,9 +167,9 @@ namespace NWN.Systems
           item = newItem;
           player.oid.ControlledCreature.RunEquip(item, InventorySlot.RightHand);
 
-          selector.SetBindWatch(player.oid, token, false);
-          selector.SetBindValue(player.oid, token, result);
-          selector.SetBindWatch(player.oid, token, true);
+          selector.SetBindWatch(player.oid, nuiToken.Token, false);
+          selector.SetBindValue(player.oid, nuiToken.Token, result);
+          selector.SetBindWatch(player.oid, nuiToken.Token, true);
         }
         public void HandleWeaponModelSelectorChange(ItemAppearanceWeaponModel model)
         {
@@ -190,22 +185,22 @@ namespace NWN.Systems
           switch (model)
           {
             case ItemAppearanceWeaponModel.Top:
-              selectorValue = topModelSelection.GetBindValue(player.oid, token);
+              selectorValue = topModelSelection.GetBindValue(player.oid, nuiToken.Token);
               slider = new ("topModelSlider");
               sliderResult = BaseItems2da.GetWeaponModelList(item.BaseItem.ItemType, model).IndexOf(modelComboEntries.FirstOrDefault(m => m.Value == selectorValue));
-              sliderValue = slider.GetBindValue(player.oid, token);
+              sliderValue = slider.GetBindValue(player.oid, nuiToken.Token);
               break;
             case ItemAppearanceWeaponModel.Middle:
-              selectorValue = middleModelSelection.GetBindValue(player.oid, token);
+              selectorValue = middleModelSelection.GetBindValue(player.oid, nuiToken.Token);
               slider = new ("middleModelSlider");
               sliderResult = modelComboEntries.IndexOf(modelComboEntries.FirstOrDefault(m => m.Value == selectorValue));
-              sliderValue = slider.GetBindValue(player.oid, token);
+              sliderValue = slider.GetBindValue(player.oid, nuiToken.Token);
               break;
             case ItemAppearanceWeaponModel.Bottom:
-              selectorValue = bottomModelSelection.GetBindValue(player.oid, token);
+              selectorValue = bottomModelSelection.GetBindValue(player.oid, nuiToken.Token);
               slider = new ("bottomModelSlider");
               sliderResult = modelComboEntries.IndexOf(modelComboEntries.FirstOrDefault(m => m.Value == selectorValue));
-              sliderValue = slider.GetBindValue(player.oid, token);
+              sliderValue = slider.GetBindValue(player.oid, nuiToken.Token);
               break;
           }
 
@@ -216,16 +211,13 @@ namespace NWN.Systems
           item.Destroy();
           item = newItem;
 
-          slider.SetBindWatch(player.oid, token, false);
-          slider.SetBindValue(player.oid, token, sliderResult);
-          slider.SetBindWatch(player.oid, token, true);
+          slider.SetBindWatch(player.oid, nuiToken.Token, false);
+          slider.SetBindValue(player.oid, nuiToken.Token, sliderResult);
+          slider.SetBindWatch(player.oid, nuiToken.Token, true);
         }
 
         private void HandleWeaponAppearanceEvents(ModuleEvents.OnNuiEvent nuiEvent)
         {
-          if (nuiEvent.Player.NuiGetWindowId(nuiEvent.WindowToken) != "weaponAppearanceModifier")
-            return;
-
           if (nuiEvent.EventType == NuiEventType.Close)
           {
             player.EnableItemAppearanceFeedbackMessages();

@@ -133,28 +133,23 @@ namespace NWN.Systems
             Border = true,
           };
 
-          player.oid.OnNuiEvent -= HandleEditorPNJEvents;
-          player.oid.OnNuiEvent += HandleEditorPNJEvents;
-
           if (player.oid.TryCreateNuiWindow(window, out NuiWindowToken tempToken, windowId))
           {
             nuiToken = tempToken;
             currentTab = Tab.Base;
+
+            nuiToken.OnNuiEvent += HandleEditorPNJEvents;
+
             LoadBaseBinding();
 
             geometry.SetBindValue(player.oid, nuiToken.Token, windowRectangle);
             geometry.SetBindWatch(player.oid, nuiToken.Token, true);
-
-            player.openedWindows[windowId] = nuiToken.Token;
           }
           else
             player.oid.SendServerMessage($"Impossible d'ouvrir la fenêtre {window.Title}. Celle-ci est-elle déjà ouverte ?", ColorConstants.Orange);
         }
         private void HandleEditorPNJEvents(ModuleEvents.OnNuiEvent nuiEvent)
         {
-          if (nuiEvent.Player.NuiGetWindowId(nuiEvent.Token.Token) != windowId)
-            return;
-
           if(targetCreature == null)
           {
             player.oid.SendServerMessage("La créature éditée n'est plus valide.", ColorConstants.Red);
@@ -174,20 +169,16 @@ namespace NWN.Systems
                   {
                     case Tab.Feat:
 
-                      if (player.windows.ContainsKey("featDescription"))
+                      if(!player.windows.TryAdd("featDescription", new FeatDescriptionWindow(player, availableFeatSearcher[nuiEvent.ArrayIndex])))
                         ((FeatDescriptionWindow)player.windows["featDescription"]).CreateWindow(availableFeatSearcher[nuiEvent.ArrayIndex]);
-                      else
-                        player.windows.Add("featDescription", new FeatDescriptionWindow(player, availableFeatSearcher[nuiEvent.ArrayIndex]));
 
                       break;
 
                     case Tab.Spell:
 
-                      if (player.windows.ContainsKey("spellDescription"))
+                      if (!player.windows.TryAdd("spellDescription", new SpellDescriptionWindow(player, availableSpellSearcher[nuiEvent.ArrayIndex])))
                         ((SpellDescriptionWindow)player.windows["spellDescription"]).CreateWindow(availableSpellSearcher[nuiEvent.ArrayIndex]);
-                      else
-                        player.windows.Add("spellDescription", new SpellDescriptionWindow(player, availableSpellSearcher[nuiEvent.ArrayIndex]));
-
+                      
                       break;
                   }
       

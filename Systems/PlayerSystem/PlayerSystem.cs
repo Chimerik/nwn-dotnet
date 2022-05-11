@@ -21,7 +21,7 @@ namespace NWN.Systems
     public SpellSystem spellSystem;
     public AreaSystem areaSystem;
     private readonly SchedulerService scheduler;
-    public static Dictionary<uint, Player> Players = new();
+    public static readonly Dictionary<uint, Player> Players = new();
     public PlayerSystem(EventService eventServices, FeedbackService feedback, ScriptHandleFactory scriptFactory, AreaSystem areaSystem, SpellSystem spellSystem, SchedulerService schedulerService)
     {
       NwModule.Instance.OnClientEnter += HandlePlayerConnect;
@@ -252,49 +252,6 @@ namespace NWN.Systems
         onCombatRoundEnd.Creature.GetObjectVariable<LocalVariableInt>("_AUTO_SPELL").Delete();
         onCombatRoundEnd.Creature.GetObjectVariable<LocalVariableObject<NwGameObject>>("_AUTO_SPELL_TARGET").Delete();
         onCombatRoundEnd.Creature.OnCombatRoundEnd -= HandleCombatRoundEndForAutoSpells;
-      }
-    }
-
-    private static void HandlePortraitDemoEvents(ModuleEvents.OnNuiEvent nuiEvent)
-    {
-      if (nuiEvent.Player.NuiGetWindowId(nuiEvent.WindowToken) != "portrait_demo")
-        return;
-
-      switch (nuiEvent.ElementId)
-      {
-        case "btnnext":
-
-          switch (nuiEvent.EventType)
-          {
-            case NuiEventType.Click:
-
-              NuiBind<string> portraitId = new ("po_id");
-              NuiBind<string> portraitResRef = new ("po_resref");
-              NuiBind<int> portraitCategory = new ("po_category");
-              int min = 0;
-              int max = 0;
-
-              switch (portraitCategory.GetBindValue(nuiEvent.Player, nuiEvent.WindowToken))
-              {
-                case 0:
-                  min = 164;
-                  max = 167;
-                  break;
-              }
-
-              int po_id = int.Parse(portraitId.GetBindValue(nuiEvent.Player, nuiEvent.WindowToken)) + 1;
-              string resRef = "po_" + Portraits2da.portraitsTable[po_id].resRef + "h";
-
-              if (po_id > max) po_id = min;
-              if (po_id < min) po_id = max;
-
-              portraitId.SetBindValue(nuiEvent.Player, nuiEvent.WindowToken, po_id.ToString());
-              portraitResRef.SetBindValue(nuiEvent.Player, nuiEvent.WindowToken, resRef);
-
-              break;
-          }
-
-          break;
       }
     }
    

@@ -26,30 +26,29 @@ namespace NWN.Systems
 
           windowId = "simpleItemAppearanceModifier";
 
-          List<NuiElement> colChildren = new List<NuiElement>();
-
-          colChildren.Add(new NuiRow
+          List<NuiElement> colChildren = new()
           {
-            Children = new List<NuiElement>
+            new NuiRow
+            {
+              Children = new()
               {
                 new NuiSpacer(),
                 new NuiButton("Nom & Description") { Id = "openNameDescription", Height = 35, Width = 150 },
                 new NuiButton("Couleurs") { Id = "openColors", Height = 35, Width = 150 },
                 new NuiSpacer()
               }
-          });
+            }
+          };
 
           int i = 0;
-          NuiRow row = new NuiRow();
-          row.Children = new List<NuiElement>();
+          NuiRow row = new() { Children = new() };
 
           foreach (int model in BaseItems2da.simpleItemModels[modelKey])
           {
             if (i == 3)
             {
               colChildren.Add(row);
-              row = new NuiRow();
-              row.Children = new List<NuiElement>();
+              row = new() { Children = new() };
               i = 0;
             }
 
@@ -79,19 +78,17 @@ namespace NWN.Systems
             Border = true,
           };
 
-          player.oid.OnNuiEvent -= HandleSimpleItemAppearanceEvents;
-          player.oid.OnNuiEvent += HandleSimpleItemAppearanceEvents;
+          if (player.oid.TryCreateNuiWindow(window, out NuiWindowToken tempToken, windowId))
+          {
+            nuiToken = tempToken;
+            nuiToken.OnNuiEvent += HandleSimpleItemAppearanceEvents;
+          }
 
-          token = player.oid.CreateNuiWindow(window, windowId);
-
-          geometry.SetBindValue(player.oid, token, windowRectangle);
-          geometry.SetBindWatch(player.oid, token, true);
+            geometry.SetBindValue(player.oid, nuiToken.Token, windowRectangle);
+          geometry.SetBindWatch(player.oid, nuiToken.Token, true);
         }
         private void HandleSimpleItemAppearanceEvents(ModuleEvents.OnNuiEvent nuiEvent)
         {
-          if (nuiEvent.Player.NuiGetWindowId(nuiEvent.WindowToken) != "simpleItemAppearanceModifier")
-            return;
-
           if (nuiEvent.EventType == NuiEventType.Close)
             player.EnableItemAppearanceFeedbackMessages();
 

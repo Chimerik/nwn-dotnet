@@ -61,24 +61,20 @@ namespace NWN.Systems
             Border = true,
           };
 
-          player.oid.OnNuiEvent -= HandleSitAnywhereEvents;
-          player.oid.OnNuiEvent += HandleSitAnywhereEvents;
+          if (player.oid.TryCreateNuiWindow(window, out NuiWindowToken tempToken, windowId))
+          {
+            nuiToken = tempToken;
+            nuiToken.OnNuiEvent += HandleSitAnywhereEvents;
 
-          token = player.oid.CreateNuiWindow(window, windowId);
+            geometry.SetBindValue(player.oid, nuiToken.Token, windowRectangle);
+            geometry.SetBindWatch(player.oid, nuiToken.Token, true);
 
-          geometry.SetBindValue(player.oid, token, windowRectangle);
-          geometry.SetBindWatch(player.oid, token, true);
-
-          player.openedWindows[windowId] = token;
-
-          checkPositionScheduler = player.scheduler.ScheduleRepeating(() =>  { CheckPlayerMovement(); }, TimeSpan.FromSeconds(2));
+            checkPositionScheduler = player.scheduler.ScheduleRepeating(() => { CheckPlayerMovement(); }, TimeSpan.FromSeconds(2));
+          }   
         }
 
         private void HandleSitAnywhereEvents(ModuleEvents.OnNuiEvent nuiEvent)
         {
-          if (nuiEvent.Player.NuiGetWindowId(nuiEvent.WindowToken) != windowId)
-            return;
-
           if (player.craftJob == null)
           {
             CloseWindow();

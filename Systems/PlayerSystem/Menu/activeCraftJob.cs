@@ -62,35 +62,30 @@ namespace NWN.Systems
             Border = true,
           };
 
-          player.oid.OnNuiEvent -= HandleActiveCraftJobEvents;
-          player.oid.OnNuiEvent += HandleActiveCraftJobEvents;
-
-          token = player.oid.CreateNuiWindow(window, windowId);
-
-          icon.SetBindValue(player.oid, token, player.craftJob.icon);
-          name.SetBindValue(player.oid, token, player.craftJob.type.ToDescription());
-
-          geometry.SetBindValue(player.oid, token, windowRectangle);
-          geometry.SetBindWatch(player.oid, token, true);
-
-          if (player.craftJob.progressLastCalculation.HasValue)
+          if (player.oid.TryCreateNuiWindow(window, out NuiWindowToken tempToken, windowId))
           {
-            player.craftJob.remainingTime -= (DateTime.Now - player.craftJob.progressLastCalculation.Value).TotalSeconds;
-            player.craftJob.progressLastCalculation = null;
+            nuiToken = tempToken;
+            nuiToken.OnNuiEvent += HandleActiveCraftJobEvents;
+
+            icon.SetBindValue(player.oid, nuiToken.Token, player.craftJob.icon);
+            name.SetBindValue(player.oid, nuiToken.Token, player.craftJob.type.ToDescription());
+
+            geometry.SetBindValue(player.oid, nuiToken.Token, windowRectangle);
+            geometry.SetBindWatch(player.oid, nuiToken.Token, true);
+
+            if (player.craftJob.progressLastCalculation.HasValue)
+            {
+              player.craftJob.remainingTime -= (DateTime.Now - player.craftJob.progressLastCalculation.Value).TotalSeconds;
+              player.craftJob.progressLastCalculation = null;
+            }
+
+            timeLeft.SetBindValue(player.oid, nuiToken.Token, player.craftJob.GetReadableJobCompletionTime());
+            HandleRealTimeJobProgression();
           }
-
-          timeLeft.SetBindValue(player.oid, token, player.craftJob.GetReadableJobCompletionTime());
-
-          player.openedWindows[windowId] = token;
-
-          HandleRealTimeJobProgression();
         }
 
         private void HandleActiveCraftJobEvents(ModuleEvents.OnNuiEvent nuiEvent)
         {
-          if (nuiEvent.Player.NuiGetWindowId(nuiEvent.WindowToken) != windowId)
-            return;
-
           if (player.craftJob == null)
           {
             CloseWindow();
@@ -133,7 +128,7 @@ namespace NWN.Systems
 
           if (player.oid.LoginCreature.Area.GetObjectVariable<LocalVariableInt>("_AREA_LEVEL").Value > 0)
           {
-            timeLeft.SetBindValue(player.oid, token, "En pause (Hors Cité)");
+            timeLeft.SetBindValue(player.oid, nuiToken.Token, "En pause (Hors Cité)");
 
             player.oid.OnServerSendArea -= player.craftJob.HandleCraftJobOnAreaChange;
             player.oid.OnServerSendArea += player.craftJob.HandleCraftJobOnAreaChange;
@@ -148,7 +143,7 @@ namespace NWN.Systems
           player.craftJob.jobProgression = player.scheduler.ScheduleRepeating(() =>
           {
             player.craftJob.remainingTime -= 1;
-            timeLeft.SetBindValue(player.oid, token, player.craftJob.GetReadableJobCompletionTime());
+            timeLeft.SetBindValue(player.oid, nuiToken.Token, player.craftJob.GetReadableJobCompletionTime());
 
             if (player.craftJob.remainingTime < 1)
             {

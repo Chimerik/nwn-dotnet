@@ -12,7 +12,7 @@ namespace NWN.Systems
         protected string windowId { get; set; }
         protected readonly NuiBind<bool> closable = new("closable");
         protected readonly NuiBind<bool> resizable = new("resizable");
-        protected NuiBind<NuiRect> geometry = new NuiBind<NuiRect>("geometry");
+        protected NuiBind<NuiRect> geometry = new("geometry");
         protected Player player { get; }
         protected NuiWindow window { get; set; }
         //public int token { get; set; }
@@ -24,8 +24,9 @@ namespace NWN.Systems
           //token = -1;
         }
 
-        protected void OnAreaChangeCloseWindow(OnServerSendArea onArea)
+        protected void OnAreaChangeCloseWindow(OnServerSendArea _)
         {
+          player.oid.OnServerSendArea -= OnAreaChangeCloseWindow;
           CloseWindow();
         }
 
