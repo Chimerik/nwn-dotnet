@@ -13,9 +13,8 @@ namespace NWN.Systems
     {
       public class WorkshopWindow : PlayerWindow
       {
-        private readonly NuiColumn rootColumn;
-        private readonly NuiGroup rootGroup;
-        private readonly List<NuiElement> rootChidren = new List<NuiElement>();
+        private readonly NuiColumn rootColumn = new();
+        private readonly List<NuiElement> rootChidren = new();
         private readonly NuiBind<string> search = new ("search");
         private readonly NuiBind<int> listCount = new ("listCount");
         private readonly NuiBind<string> icon = new ("icon"); // TODO : Utiliser l'icone d'un don correspondant à l'arme ?
@@ -23,8 +22,8 @@ namespace NWN.Systems
         private readonly NuiBind<string> blueprintTEs = new ("blueprintTEs");
         private readonly NuiBind<string> blueprintMEs = new ("blueprintMEs");
         private readonly NuiBind<bool> enable = new ("enable");
-        private readonly Color white = new Color(255, 255, 255);
-        private readonly NuiRect drawListRect = new NuiRect(0, 35, 150, 60);
+        private readonly Color white = new(255, 255, 255);
+        private readonly NuiRect drawListRect = new(0, 35, 150, 60);
         private string workshopTag;
         private IEnumerable<NwItem> blueprintList;
         private IEnumerable<NwItem> filteredList;
@@ -44,8 +43,7 @@ namespace NWN.Systems
             new NuiListTemplateCell(new NuiButton("Produire") { Id = "startCraft", Enabled = enable, Tooltip = "Entame une nouvelle production artisanale. Nécessite d'avoir au moins un niveau d'entrainement dans le métier artisanal correspondant.", Height = 40, Width = 90 }) { Width = 90 }
           };
 
-          rootColumn = new NuiColumn() { Children = rootChidren };
-          rootGroup = new NuiGroup() { Id = "forgeGroup", Border = true, Layout = rootColumn };
+          rootColumn.Children = rootChidren;
 
           rootChidren.Add(new NuiRow() { Children = new List<NuiElement>() { new NuiTextEdit("Recherche", search, 50, false) { Width = 410 } } });
           rootChidren.Add(new NuiRow() { Children = new List<NuiElement>() { new NuiList(blueprintTemplate, listCount) { RowHeight = 45 } } });
@@ -69,28 +67,27 @@ namespace NWN.Systems
             Border = true,
           };
 
-          player.oid.OnNuiEvent -= HandleWorkshopEvents;
-          player.oid.OnNuiEvent += HandleWorkshopEvents;
-          player.oid.OnServerSendArea -= OnAreaChangeCloseWindow;
-          player.oid.OnServerSendArea += OnAreaChangeCloseWindow;
+          if (player.oid.TryCreateNuiWindow(window, out NuiWindowToken tempToken, windowId))
+          {
+            nuiToken = tempToken;
+            nuiToken.OnNuiEvent += HandleWorkshopEvents;
+            player.oid.OnServerSendArea += OnAreaChangeCloseWindow;
 
-          token = player.oid.CreateNuiWindow(window, windowId);
+            search.SetBindValue(player.oid, nuiToken.Token, "");
+            search.SetBindWatch(player.oid, nuiToken.Token, true);
+            geometry.SetBindValue(player.oid, nuiToken.Token, windowRectangle);
+            geometry.SetBindWatch(player.oid, nuiToken.Token, true);
 
-          search.SetBindValue(player.oid, token, "");
-          search.SetBindWatch(player.oid, token, true);
-          geometry.SetBindValue(player.oid, token, windowRectangle);
-          geometry.SetBindWatch(player.oid, token, true);
+            blueprintList = player.oid.ControlledCreature.Inventory.Items.Where(i => i.Tag == "blueprint" && i.GetObjectVariable<LocalVariableString>("_CRAFT_WORKSHOP").Value == workshopTag);
+            filteredList = blueprintList;
+            LoadBlueprintList(filteredList);
+          }
 
-          blueprintList = player.oid.ControlledCreature.Inventory.Items.Where(i => i.Tag == "blueprint" && i.GetObjectVariable<LocalVariableString>("_CRAFT_WORKSHOP").Value == workshopTag);
-          filteredList = blueprintList;
-          LoadBlueprintList(filteredList);
+            
         }
 
         private void HandleWorkshopEvents(ModuleEvents.OnNuiEvent nuiEvent)
         {
-          if (nuiEvent.Player.NuiGetWindowId(nuiEvent.WindowToken) != windowId)
-            return;
-
           switch (nuiEvent.EventType)
           {
             case NuiEventType.Click:
@@ -114,11 +111,8 @@ namespace NWN.Systems
               {
                 case "search":
 
-                  string currentSearch = search.GetBindValue(player.oid, token).ToLower();
-                  filteredList = blueprintList.AsEnumerable();
-
-                  if (!string.IsNullOrEmpty(currentSearch))
-                    filteredList = filteredList.Where(s => s.Name.ToLower().Contains(currentSearch));
+                  string currentSearch = search.GetBindValue(player.oid, nuiToken.Token).ToLower();
+                  filteredList = string.IsNullOrEmpty(currentSearch) ? blueprintList.AsEnumerable() : filteredList.Where(s => s.Name.ToLower().Contains(currentSearch));
 
                   LoadBlueprintList(filteredList);
 
@@ -150,13 +144,13 @@ namespace NWN.Systems
             enabledList.Add(player.learnableSkills.ContainsKey(player.GetJobLearnableFromWorkshop(workshopTag)) && player.craftJob == null && availableQuantity >= materiaCost);
           }
 
-          blueprintNames.SetBindValues(player.oid, token, blueprintNamesList);
-          listCount.SetBindValue(player.oid, token, blueprintNamesList.Count);
+          blueprintNames.SetBindValues(player.oid, nuiToken.Token, blueprintNamesList);
+          listCount.SetBindValue(player.oid, nuiToken.Token, blueprintNamesList.Count);
 
-          icon.SetBindValues(player.oid, token, iconList);
-          blueprintMEs.SetBindValues(player.oid, token, blueprintMEsList);
-          blueprintTEs.SetBindValues(player.oid, token, blueprintTEsList);
-          enable.SetBindValues(player.oid, token, enabledList);
+          icon.SetBindValues(player.oid, nuiToken.Token, iconList);
+          blueprintMEs.SetBindValues(player.oid, nuiToken.Token, blueprintMEsList);
+          blueprintTEs.SetBindValues(player.oid, nuiToken.Token, blueprintTEsList);
+          enable.SetBindValues(player.oid, nuiToken.Token, enabledList);
         }
       }
     }

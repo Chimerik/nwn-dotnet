@@ -104,23 +104,19 @@ namespace NWN.Systems
             Border = true,
           };
 
-          player.oid.OnNuiEvent -= HandleBankCounterEvents;
-          player.oid.OnNuiEvent += HandleBankCounterEvents;
+          if (player.oid.TryCreateNuiWindow(window, out NuiWindowToken tempToken, windowId))
+          {
+            nuiToken = tempToken;
+            nuiToken.OnNuiEvent += HandleBankCounterEvents;
 
-          token = player.oid.CreateNuiWindow(window, windowId);
+            bankerText.SetBindValue(player.oid, nuiToken.Token, tempText);
 
-          bankerText.SetBindValue(player.oid, token, tempText);
-
-          geometry.SetBindValue(player.oid, token, windowRectangle);
-          geometry.SetBindWatch(player.oid, token, true);
-
-          player.openedWindows[windowId] = token;
+            geometry.SetBindValue(player.oid, nuiToken.Token, windowRectangle);
+            geometry.SetBindWatch(player.oid, nuiToken.Token, true);
+          }
         }
         private void HandleBankCounterEvents(ModuleEvents.OnNuiEvent nuiEvent)
         {
-          if (nuiEvent.Player.NuiGetWindowId(nuiEvent.WindowToken) != windowId)
-            return;
-
           switch (nuiEvent.EventType)
           {
             case NuiEventType.Click:
@@ -134,12 +130,8 @@ namespace NWN.Systems
                   if (!player.oid.LoginCreature.Inventory.Items.Any(i => i.Tag == "bank_contract"))
                     banker.Inventory.Items.FirstOrDefault(i => i.Tag == "bank_contract").Clone(player.oid.LoginCreature);
                   else
-                  {
-                    if (player.windows.ContainsKey("bankContract"))
+                    if (!player.windows.TryAdd("bankContract", new BankContractWindow(player, player.oid.LoginCreature.Inventory.Items.FirstOrDefault(i => i.Tag == "bank_contract"))))
                       ((BankContractWindow)player.windows["bankContract"]).CreateWindow();
-                    else
-                      player.windows.Add("bankContract", new BankContractWindow(player, player.oid.LoginCreature.Inventory.Items.FirstOrDefault(i => i.Tag == "bank_contract")));
-                  }
                   break;
 
                 case "exit":

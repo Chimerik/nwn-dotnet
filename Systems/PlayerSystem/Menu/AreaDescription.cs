@@ -45,12 +45,13 @@ namespace NWN.Systems
             Border = true,
           };
 
-          token = player.oid.CreateNuiWindow(window, windowId);
+          if (player.oid.TryCreateNuiWindow(window, out NuiWindowToken tempToken, windowId))
+          {
+            nuiToken = tempToken;
 
-          geometry.SetBindValue(player.oid, token, windowRectangle);
-          geometry.SetBindWatch(player.oid, token, true);
-
-          player.openedWindows[windowId] = token;
+            geometry.SetBindValue(player.oid, nuiToken.Token, windowRectangle);
+            geometry.SetBindWatch(player.oid, nuiToken.Token, true);
+          }
         }
       }
     }

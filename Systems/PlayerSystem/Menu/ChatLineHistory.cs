@@ -46,21 +46,25 @@ namespace NWN.Systems
             Border = true,
           };
 
-          token = player.oid.CreateNuiWindow(window, windowId);
-          geometry.SetBindValue(player.oid, token, windowRectangle);
-          geometry.SetBindWatch(player.oid, token, true);
-
-          int historyCount = chatLine.textHistory.Count - 1;
-          List<string> historyList = new List<string>();
-
-          while (historyCount != 0)
+          if (player.oid.TryCreateNuiWindow(window, out NuiWindowToken tempToken, windowId))
           {
-            historyList.Add(chatLine.textHistory[historyCount]);
-            historyCount--;
-          }
+            nuiToken = tempToken;
 
-          lineHistory.SetBindValues(player.oid, token, historyList);
-          listCount.SetBindValue(player.oid, token, chatLine.textHistory.Count);
+            geometry.SetBindValue(player.oid, nuiToken.Token, windowRectangle);
+            geometry.SetBindWatch(player.oid, nuiToken.Token, true);
+
+            int historyCount = chatLine.textHistory.Count - 1;
+            List<string> historyList = new List<string>();
+
+            while (historyCount != 0)
+            {
+              historyList.Add(chatLine.textHistory[historyCount]);
+              historyCount--;
+            }
+
+            lineHistory.SetBindValues(player.oid, nuiToken.Token, historyList);
+            listCount.SetBindValue(player.oid, nuiToken.Token, chatLine.textHistory.Count);
+          }
         }
       }
     }

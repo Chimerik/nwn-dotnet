@@ -48,7 +48,7 @@ namespace NWN.Systems
 
         public ResourceExchangeState exchangeState { get; set; }
         List<CraftResource> myResourceList;
-        List<CraftResource> targetProposal = new List<CraftResource>();
+        List<CraftResource> targetProposal = new();
         Player targetPlayer;
         ResourceExchangeWindow targetWindow;
 
@@ -153,24 +153,25 @@ namespace NWN.Systems
             Border = true,
           };
 
-          player.oid.OnNuiEvent -= HandleResourceExchangeEvents;
-          player.oid.OnNuiEvent += HandleResourceExchangeEvents;
-          player.oid.OnServerSendArea -= OnAreaChangeCloseWindow;
-          player.oid.OnServerSendArea += OnAreaChangeCloseWindow;
-          player.oid.OnClientDisconnect -= HandleResourceExchangeDisconnection;
-          player.oid.OnClientDisconnect += HandleResourceExchangeDisconnection;
+          if (player.oid.TryCreateNuiWindow(window, out NuiWindowToken tempToken, windowId))
+          {
+            nuiToken = tempToken;
+            nuiToken.OnNuiEvent += HandleResourceExchangeEvents;
+            player.oid.OnServerSendArea += OnAreaChangeCloseWindow;
+            player.oid.OnClientDisconnect += HandleResourceExchangeDisconnection;
 
-          token = player.oid.CreateNuiWindow(window, windowId);
+            myGold.SetBindValue(player.oid, nuiToken.Token, "0");
+            targetGold.SetBindValue(player.oid, nuiToken.Token, "0");
+            targetState.SetBindValue(player.oid, nuiToken.Token, "Proposition en cours de modification");
 
-          myGold.SetBindValue(player.oid, token, "0");
-          targetGold.SetBindValue(player.oid, token, "0");
-          targetState.SetBindValue(player.oid, token, "Proposition en cours de modification");
+            proposalEnabled.SetBindValue(player.oid, nuiToken.Token, true);
+            confirmEnabled.SetBindValue(player.oid, nuiToken.Token, false);
 
-          proposalEnabled.SetBindValue(player.oid, token, true);
-          confirmEnabled.SetBindValue(player.oid, token, false);
+            geometry.SetBindValue(player.oid, nuiToken.Token, windowRectangle);
+            geometry.SetBindWatch(player.oid, nuiToken.Token, true);
+          }
 
-          geometry.SetBindValue(player.oid, token, windowRectangle);
-          geometry.SetBindWatch(player.oid, token, true);
+            
 
           LoadResourceList();
         }
@@ -196,10 +197,8 @@ namespace NWN.Systems
 
           CreateWindow(targetPlayer);
 
-          if (targetPlayer.windows.ContainsKey(windowId))
+          if (!targetPlayer.windows.TryAdd(windowId, new ResourceExchangeWindow(targetPlayer, player)))
             ((ResourceExchangeWindow)targetPlayer.windows[windowId]).CreateWindow(player);
-          else
-            targetPlayer.windows.Add(windowId, new ResourceExchangeWindow(targetPlayer, player));
 
           await NwTask.Delay(TimeSpan.FromSeconds(0.2));
 
@@ -209,13 +208,11 @@ namespace NWN.Systems
 
         private void HandleResourceExchangeEvents(ModuleEvents.OnNuiEvent nuiEvent)
         {
-          if (nuiEvent.Player.NuiGetWindowId(nuiEvent.WindowToken) != windowId)
-            return;
-
           switch (nuiEvent.EventType)
           {
             case NuiEventType.Close:
               // OnClose => Fermer la fenêtre du destinataire si celle-ci est toujours ouverte
+              player.oid.OnServerSendArea -= OnAreaChangeCloseWindow;
               player.oid.OnClientDisconnect -= HandleResourceExchangeDisconnection;
               targetWindow.CloseWindow();
               targetPlayer.oid.SendServerMessage($"Transaction annulée par {player.oid.LoginCreature.Name.ColorString(ColorConstants.White)}", ColorConstants.Orange);
@@ -228,20 +225,20 @@ namespace NWN.Systems
                 case "send":
 
                   exchangeState = ResourceExchangeState.AwaitingProposal;
-                  proposalEnabled.SetBindValue(player.oid, token, false);
-                  cancelEnabled.SetBindValue(player.oid, token, true);
+                  proposalEnabled.SetBindValue(player.oid, nuiToken.Token, false);
+                  cancelEnabled.SetBindValue(player.oid, nuiToken.Token, true);
 
-                  targetWindow.targetState.SetBindValue(targetPlayer.oid, targetWindow.token, "En cours de relecture");
+                  targetWindow.targetState.SetBindValue(targetPlayer.oid, targetWindow.nuiToken.Token, "En cours de relecture");
 
-                  if (!int.TryParse(myGold.GetBindValue(player.oid, token), out int myInputGold))
-                    targetWindow.targetGold.SetBindValue(targetPlayer.oid, targetWindow.token, "0");
+                  if (!int.TryParse(myGold.GetBindValue(player.oid, nuiToken.Token), out int myInputGold))
+                    targetWindow.targetGold.SetBindValue(targetPlayer.oid, targetWindow.nuiToken.Token, "0");
                   else if (myInputGold > player.bankGold)
-                    targetWindow.targetGold.SetBindValue(targetPlayer.oid, targetWindow.token, player.bankGold.ToString());
+                    targetWindow.targetGold.SetBindValue(targetPlayer.oid, targetWindow.nuiToken.Token, player.bankGold.ToString());
                   else
-                    targetWindow.targetGold.SetBindValue(targetPlayer.oid, targetWindow.token, myInputGold.ToString());
+                    targetWindow.targetGold.SetBindValue(targetPlayer.oid, targetWindow.nuiToken.Token, myInputGold.ToString());
 
                   List<CraftResource> myProposal = new List<CraftResource>();
-                  List<string> proposedQuantityList = myQuantity.GetBindValues(player.oid, token);
+                  List<string> proposedQuantityList = myQuantity.GetBindValues(player.oid, nuiToken.Token);
 
                   for (int i = 0; i < proposedQuantityList.Count; i++)
                   {
@@ -258,8 +255,8 @@ namespace NWN.Systems
 
                   if (targetWindow.exchangeState == ResourceExchangeState.AwaitingProposal)
                   {
-                    confirmEnabled.SetBindValue(player.oid, token, true);
-                    targetWindow.confirmEnabled.SetBindValue(targetPlayer.oid, targetWindow.token, true);
+                    confirmEnabled.SetBindValue(player.oid, nuiToken.Token, true);
+                    targetWindow.confirmEnabled.SetBindValue(targetPlayer.oid, targetWindow.nuiToken.Token, true);
                   }
 
                   break;
@@ -270,7 +267,7 @@ namespace NWN.Systems
 
                   if (targetWindow.exchangeState == ResourceExchangeState.AwaitingConfirmation)
                   {
-                    if (!int.TryParse(targetWindow.targetGold.GetBindValue(targetPlayer.oid, targetWindow.token), out int myGoldInput) || myGoldInput > player.bankGold)
+                    if (!int.TryParse(targetWindow.targetGold.GetBindValue(targetPlayer.oid, targetWindow.nuiToken.Token), out int myGoldInput) || myGoldInput > player.bankGold)
                     {
                       CloseWindow();
                       targetWindow.CloseWindow();
@@ -279,7 +276,7 @@ namespace NWN.Systems
                       return;
                     }
 
-                    if (!int.TryParse(targetGold.GetBindValue(player.oid, token), out int targetGoldInput) || targetGoldInput > targetPlayer.bankGold)
+                    if (!int.TryParse(targetGold.GetBindValue(player.oid, nuiToken.Token), out int targetGoldInput) || targetGoldInput > targetPlayer.bankGold)
                     {
                       CloseWindow();
                       targetWindow.CloseWindow();
@@ -348,8 +345,8 @@ namespace NWN.Systems
                   }
                   else
                   {
-                    confirmEnabled.SetBindValue(player.oid, token, false);
-                    targetWindow.targetState.SetBindValue(targetPlayer.oid, targetWindow.token, "En attente de votre finalisation");
+                    confirmEnabled.SetBindValue(player.oid, nuiToken.Token, false);
+                    targetWindow.targetState.SetBindValue(targetPlayer.oid, targetWindow.nuiToken.Token, "En attente de votre finalisation");
                   }
 
                  break;
@@ -357,16 +354,16 @@ namespace NWN.Systems
                 case "cancel":
 
                   exchangeState = ResourceExchangeState.CreatingProposal;
-                  proposalEnabled.SetBindValue(player.oid, token, true);
-                  confirmEnabled.SetBindValue(player.oid, token, false);
-                  cancelEnabled.SetBindValue(player.oid, token, false);
+                  proposalEnabled.SetBindValue(player.oid, nuiToken.Token, true);
+                  confirmEnabled.SetBindValue(player.oid, nuiToken.Token, false);
+                  cancelEnabled.SetBindValue(player.oid, nuiToken.Token, false);
 
-                  targetWindow.targetState.SetBindValue(targetPlayer.oid, targetWindow.token, "Proposition en cours de modification");
+                  targetWindow.targetState.SetBindValue(targetPlayer.oid, targetWindow.nuiToken.Token, "Proposition en cours de modification");
 
                   if (targetWindow.exchangeState > ResourceExchangeState.CreatingProposal)
                   {
                     targetWindow.exchangeState = ResourceExchangeState.AwaitingProposal;
-                    targetWindow.confirmEnabled.SetBindValue(targetPlayer.oid, targetWindow.token, false);
+                    targetWindow.confirmEnabled.SetBindValue(targetPlayer.oid, targetWindow.nuiToken.Token, false);
                   }
 
                   break;
@@ -391,17 +388,16 @@ namespace NWN.Systems
             resourceQuantityList.Add("0");
           }
 
-          myResourceNames.SetBindValues(player.oid, token, resourceNameList);
-          myResourceIcon.SetBindValues(player.oid, token, resourceIconList);
-          myAvailableQuantity.SetBindValues(player.oid, token, availableQuantityList);
-          myQuantity.SetBindValues(player.oid, token, resourceQuantityList);
-          myListCount.SetBindValue(player.oid, token, myResourceList.Count());
+          myResourceNames.SetBindValues(player.oid, nuiToken.Token, resourceNameList);
+          myResourceIcon.SetBindValues(player.oid, nuiToken.Token, resourceIconList);
+          myAvailableQuantity.SetBindValues(player.oid, nuiToken.Token, availableQuantityList);
+          myQuantity.SetBindValues(player.oid, nuiToken.Token, resourceQuantityList);
+          myListCount.SetBindValue(player.oid, nuiToken.Token, myResourceList.Count);
         }
         private void LoadTargetResourceList(List<CraftResource> targetResourceList)
         {
           List<string> resourceNameList = new List<string>();
           List<string> resourceIconList = new List<string>();
-          List<string> resourceQuantityList = new List<string>();
 
           foreach (CraftResource resource in targetResourceList)
           {
@@ -409,15 +405,16 @@ namespace NWN.Systems
             resourceIconList.Add(resource.iconString);
           }
 
-          targetResourceNames.SetBindValues(player.oid, token, resourceNameList);
-          targetResourceIcon.SetBindValues(player.oid, token, resourceIconList);
-          targetListCount.SetBindValue(player.oid, token, targetResourceList.Count());
+          targetResourceNames.SetBindValues(player.oid, nuiToken.Token, resourceNameList);
+          targetResourceIcon.SetBindValues(player.oid, nuiToken.Token, resourceIconList);
+          targetListCount.SetBindValue(player.oid, nuiToken.Token, targetResourceList.Count);
 
           targetProposal = targetResourceList;
         }
         private void HandleResourceExchangeDisconnection(OnClientDisconnect onPCDisconnect)
         {
           CloseWindow();
+          player.oid.OnClientDisconnect -= HandleResourceExchangeDisconnection;
           targetPlayer.oid.SendServerMessage($"Transaction annulée par {player.oid.LoginCreature.Name.ColorString(ColorConstants.White)}", ColorConstants.Orange);
         }
       }

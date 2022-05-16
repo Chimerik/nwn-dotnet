@@ -103,33 +103,32 @@ namespace NWN.Systems
             Border = false,
           };
 
-          player.oid.OnNuiEvent -= HandleFishingStrengthEvents;
-          player.oid.OnNuiEvent += HandleFishingStrengthEvents;
-          player.oid.OnServerSendArea -= OnAreaChangeCloseWindow;
-          player.oid.OnServerSendArea += OnAreaChangeCloseWindow;
+          if (player.oid.TryCreateNuiWindow(window, out NuiWindowToken tempToken, windowId))
+          {
+            nuiToken = tempToken;
+            nuiToken.OnNuiEvent += HandleFishingStrengthEvents;
+            player.oid.OnServerSendArea += OnAreaChangeCloseWindow;
 
-          token = player.oid.CreateNuiWindow(window, windowId);
+            weightSpeed = 0;
 
-          weightSpeed = 0;
+            fishingStrengthBind.SetBindValue(player.oid, nuiToken.Token, 0);
+            fishingStrengthColor.SetBindValue(player.oid, nuiToken.Token, red);
 
-          fishingStrengthBind.SetBindValue(player.oid, token, 0);
-          fishingStrengthColor.SetBindValue(player.oid, token, red);
+            successBind.SetBindValue(player.oid, nuiToken.Token, 0.2f);
 
-          successBind.SetBindValue(player.oid, token, 0.2f);
+            resizable.SetBindValue(player.oid, nuiToken.Token, true);
+            weightPos.SetBindValue(player.oid, nuiToken.Token, new NuiRect(82, 335, 0, 0));
+            fishPos.SetBindValue(player.oid, nuiToken.Token, new NuiRect(82, 425, 0, 0));
+            geometry.SetBindValue(player.oid, nuiToken.Token, windowRectangle);
+            geometry.SetBindWatch(player.oid, nuiToken.Token, true);
 
-          resizable.SetBindValue(player.oid, token, true);
-          weightPos.SetBindValue(player.oid, token, new NuiRect(82, 335, 0, 0));
-          fishPos.SetBindValue(player.oid, token, new NuiRect(82, 425, 0, 0));
-          geometry.SetBindValue(player.oid, token, windowRectangle);
-          geometry.SetBindWatch(player.oid, token, true); fishSpeed = 0.2f;
+            fishSpeed = 0.2f;
+          }
 
-          fishSpeed = 0.2f;
+            
         }
         private void HandleFishingStrengthEvents(ModuleEvents.OnNuiEvent nuiEvent)
         {
-          if (nuiEvent.Player.NuiGetWindowId(nuiEvent.WindowToken) != windowId)
-            return;
-
           if (nuiEvent.EventType == NuiEventType.MouseDown && fishingState == 0)
             StartStrengthProgress();
           else if(nuiEvent.EventType == NuiEventType.MouseUp && fishingState == 1)
@@ -140,9 +139,9 @@ namespace NWN.Systems
             fishCol.Visible = true;
             successCol.Visible = true;
 
-            strengthGroup.SetLayout(player.oid, token, strengthCol);
-            fishGroup.SetLayout(player.oid, token, fishCol);
-            successGroup.SetLayout(player.oid, token, successCol);
+            strengthGroup.SetLayout(player.oid, nuiToken.Token, strengthCol);
+            fishGroup.SetLayout(player.oid, nuiToken.Token, fishCol);
+            successGroup.SetLayout(player.oid, nuiToken.Token, successCol);
 
             weightSpeed = 0;
             weightAcceleration = 0;
@@ -165,31 +164,31 @@ namespace NWN.Systems
             var spawnScheduler = player.scheduler.ScheduleRepeating(() =>
             {
 
-              float currentValue = fishingStrengthBind.GetBindValue(player.oid, token);
+              float currentValue = fishingStrengthBind.GetBindValue(player.oid, nuiToken.Token);
 
               if (currentValue > 0.4)
               {
-                if (fishingStrengthColor.GetBindValue(player.oid, token) != green)
-                  fishingStrengthColor.SetBindValue(player.oid, token, green);
+                if (fishingStrengthColor.GetBindValue(player.oid, nuiToken.Token) != green)
+                  fishingStrengthColor.SetBindValue(player.oid, nuiToken.Token, green);
 
                 if (currentValue > 0.99)
                   strValueChg = -0.01f;
               }
               else if (currentValue > 0.2)
               {
-                if (fishingStrengthColor.GetBindValue(player.oid, token) != yellow)
-                  fishingStrengthColor.SetBindValue(player.oid, token, yellow);
+                if (fishingStrengthColor.GetBindValue(player.oid, nuiToken.Token) != yellow)
+                  fishingStrengthColor.SetBindValue(player.oid, nuiToken.Token, yellow);
               }
               else
               {
-                if (fishingStrengthColor.GetBindValue(player.oid, token) != red)
-                  fishingStrengthColor.SetBindValue(player.oid, token, red);
+                if (fishingStrengthColor.GetBindValue(player.oid, nuiToken.Token) != red)
+                  fishingStrengthColor.SetBindValue(player.oid, nuiToken.Token, red);
 
                 if (currentValue < 0.01)
                   strValueChg = 0.01f;
               }
 
-              fishingStrengthBind.SetBindValue(player.oid, token, currentValue + strValueChg);
+              fishingStrengthBind.SetBindValue(player.oid, nuiToken.Token, currentValue + strValueChg);
             }, TimeSpan.FromMilliseconds(1));
 
             fishingState = 1;
@@ -206,7 +205,7 @@ namespace NWN.Systems
             var spawnScheduler = player.scheduler.ScheduleRepeating(() =>
             {
 
-              NuiRect oldPos = weightPos.GetBindValue(player.oid, token);
+              NuiRect oldPos = weightPos.GetBindValue(player.oid, nuiToken.Token);
               float pos = oldPos.Y - weightSpeed;
 
               weightSpeed += weightAcceleration;
@@ -227,7 +226,7 @@ namespace NWN.Systems
                 return;
               }
 
-              weightPos.SetBindValue(player.oid, token, new NuiRect(oldPos.X, pos, oldPos.Width, oldPos.Height));
+              weightPos.SetBindValue(player.oid, nuiToken.Token, new NuiRect(oldPos.X, pos, oldPos.Width, oldPos.Height));
 
             }, TimeSpan.FromMilliseconds(10));
 
@@ -242,7 +241,7 @@ namespace NWN.Systems
             var spawnScheduler = player.scheduler.ScheduleRepeating(() =>
             {
 
-              NuiRect oldPos = fishPos.GetBindValue(player.oid, token);
+              NuiRect oldPos = fishPos.GetBindValue(player.oid, nuiToken.Token);
               float yPos = oldPos.Y - fishSpeed;
 
               if (yPos < 23)
@@ -250,20 +249,20 @@ namespace NWN.Systems
               else if (yPos > 425)
                 yPos = 425;
 
-              fishPos.SetBindValue(player.oid, token, new NuiRect(oldPos.X, yPos, oldPos.Width, oldPos.Height));
-              float weightYPos = weightPos.GetBindValue(player.oid, token).Y;
+              fishPos.SetBindValue(player.oid, nuiToken.Token, new NuiRect(oldPos.X, yPos, oldPos.Width, oldPos.Height));
+              float weightYPos = weightPos.GetBindValue(player.oid, nuiToken.Token).Y;
 
-              float successValue = successBind.GetBindValue(player.oid, token);
+              float successValue = successBind.GetBindValue(player.oid, nuiToken.Token);
 
               if (successValue < 1 && yPos > weightYPos && yPos < weightYPos + 90)
               {
                 successValue += 0.01f;
-                successBind.SetBindValue(player.oid, token, successValue);
+                successBind.SetBindValue(player.oid, nuiToken.Token, successValue);
               }
               else if (successValue > 0)
               {
                 successValue -= 0.01f;
-                successBind.SetBindValue(player.oid, token, successValue);
+                successBind.SetBindValue(player.oid, nuiToken.Token, successValue);
               }
 
               if (successValue <= 0)
@@ -273,18 +272,18 @@ namespace NWN.Systems
 
               if (successValue > 0.6)
               {
-                if (successColorBind.GetBindValue(player.oid, token) != green)
-                  successColorBind.SetBindValue(player.oid, token, green);
+                if (successColorBind.GetBindValue(player.oid, nuiToken.Token) != green)
+                  successColorBind.SetBindValue(player.oid, nuiToken.Token, green);
               }
               else if (successValue > 0.3)
               {
-                if (successColorBind.GetBindValue(player.oid, token) != yellow)
-                  successColorBind.SetBindValue(player.oid, token, yellow);
+                if (successColorBind.GetBindValue(player.oid, nuiToken.Token) != yellow)
+                  successColorBind.SetBindValue(player.oid, nuiToken.Token, yellow);
               }
               else
               {
-                if (successColorBind.GetBindValue(player.oid, token) != red)
-                  successColorBind.SetBindValue(player.oid, token, red);
+                if (successColorBind.GetBindValue(player.oid, nuiToken.Token) != red)
+                  successColorBind.SetBindValue(player.oid, nuiToken.Token, red);
               }
 
             }, TimeSpan.FromMilliseconds(10));
@@ -300,7 +299,7 @@ namespace NWN.Systems
             var spawnScheduler = player.scheduler.ScheduleRepeating(() =>
             {
 
-              float yPos = fishPos.GetBindValue(player.oid, token).Y;
+              float yPos = fishPos.GetBindValue(player.oid, nuiToken.Token).Y;
               fishSpeed = Utils.random.NextFloat();
 
               if (yPos < 100)
@@ -320,8 +319,8 @@ namespace NWN.Systems
         }
         private void StartFishMovement()
         {
-          weightPos.SetBindValue(player.oid, token, new NuiRect(82, 335, 0, 0));
-          fishPos.SetBindValue(player.oid, token, new NuiRect(82, 425, 0, 0));
+          weightPos.SetBindValue(player.oid, nuiToken.Token, new NuiRect(82, 335, 0, 0));
+          fishPos.SetBindValue(player.oid, nuiToken.Token, new NuiRect(82, 425, 0, 0));
           SetFishSpeed();
           HandleFishMove();
         }

@@ -55,24 +55,20 @@ namespace NWN.Systems
             Border = true,
           };
 
-          player.oid.OnNuiEvent -= HandleEnchantementSelectionEvents;
-          player.oid.OnNuiEvent += HandleEnchantementSelectionEvents;
+          if (player.oid.TryCreateNuiWindow(window, out NuiWindowToken tempToken, windowId))
+          {
+            nuiToken = tempToken;
+            nuiToken.OnNuiEvent += HandleEnchantementSelectionEvents;
 
-          token = player.oid.CreateNuiWindow(window, windowId);
+            buttonText.SetBindValues(player.oid, nuiToken.Token, enchantementList);
+            listCount.SetBindValue(player.oid, nuiToken.Token, enchantementList.Count);
 
-          buttonText.SetBindValues(player.oid, token, enchantementList);
-          listCount.SetBindValue(player.oid, token, enchantementList.Count);
-
-          geometry.SetBindValue(player.oid, token, windowRectangle);
-          geometry.SetBindWatch(player.oid, token, true);
-
-          player.openedWindows[windowId] = token;
+            geometry.SetBindValue(player.oid, nuiToken.Token, windowRectangle);
+            geometry.SetBindWatch(player.oid, nuiToken.Token, true);
+          } 
         }
         private void HandleEnchantementSelectionEvents(ModuleEvents.OnNuiEvent nuiEvent)
         {
-          if (nuiEvent.Player.NuiGetWindowId(nuiEvent.WindowToken) != windowId)
-            return;
-
           switch (nuiEvent.EventType)
           {
             case NuiEventType.Click:

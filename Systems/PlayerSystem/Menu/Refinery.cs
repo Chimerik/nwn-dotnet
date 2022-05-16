@@ -14,14 +14,14 @@ namespace NWN.Systems
       {
         private readonly NuiGroup rootGroup;
         private readonly NuiColumn rootColumn;
-        private readonly List<NuiElement> rootChidren = new List<NuiElement>();
+        private readonly List<NuiElement> rootChidren = new();
         private readonly List<NuiListTemplateCell> rowTemplate;
         private readonly NuiBind<int> listCount = new ("listCount");
         private readonly NuiBind<string> materiaIcon = new ("materiaIcon");
         private readonly NuiBind<string> materiaNames = new ("materiaNames");
         private readonly NuiBind<string> input = new ("input");
         private readonly NuiBind<string> refineLabel = new ("label");
-        private IEnumerable<CraftResource> playerCraftResourceList = new List<CraftResource>();
+        private IEnumerable<CraftResource> playerCraftResourceList;
         private CraftResource selectedResource;
         private ResourceType resourceType;
 
@@ -60,25 +60,20 @@ namespace NWN.Systems
             Border = true,
           };
 
-          player.oid.OnNuiEvent -= HandleRefineryEvents;
-          player.oid.OnNuiEvent += HandleRefineryEvents;
-          player.oid.OnServerSendArea -= OnAreaChangeCloseWindow;
-          player.oid.OnServerSendArea += OnAreaChangeCloseWindow;
+          if (player.oid.TryCreateNuiWindow(window, out NuiWindowToken tempToken, windowId))
+          {
+            nuiToken = tempToken;
+            nuiToken.OnNuiEvent += HandleRefineryEvents;
+            player.oid.OnServerSendArea += OnAreaChangeCloseWindow;
 
-          token = player.oid.CreateNuiWindow(window, windowId);
+            LoadMateriaList();
 
-          LoadMateriaList();
-
-          geometry.SetBindValue(player.oid, token, windowRectangle);
-          geometry.SetBindWatch(player.oid, token, true);
-
-          player.openedWindows[windowId] = token;
+            geometry.SetBindValue(player.oid, nuiToken.Token, windowRectangle);
+            geometry.SetBindWatch(player.oid, nuiToken.Token, true);
+          }
         }
         private void HandleRefineryEvents(ModuleEvents.OnNuiEvent nuiEvent)
         {
-          if (nuiEvent.Player.NuiGetWindowId(nuiEvent.WindowToken) != windowId)
-            return;
-
           switch (nuiEvent.EventType)
           {
             case NuiEventType.Click:
@@ -98,11 +93,9 @@ namespace NWN.Systems
 
                   if (player.oid.LoginCreature.GetObjectVariable<LocalVariableInt>("_REFINERY_TOTAL").HasValue && selectedResource.quantity > 0)
                   {
-                    int inputQuantity = 0;
-
-                    if (!int.TryParse(input.GetBindValue(player.oid, token), out inputQuantity) || inputQuantity > selectedResource.quantity)
+                    if (!int.TryParse(input.GetBindValue(player.oid, nuiToken.Token), out var inputQuantity) || inputQuantity > selectedResource.quantity)
                       inputQuantity = selectedResource.quantity;
-                  
+
                     selectedResource.quantity -= inputQuantity;
 
                     int grade = selectedResource.grade;
@@ -144,9 +137,7 @@ namespace NWN.Systems
 
                   if (player.oid.LoginCreature.GetObjectVariable<LocalVariableInt>("_REFINERY_TOTAL").HasValue && selectedResource.quantity > 0)
                   {
-                    int inputQuantity = 0;
-
-                    if (!int.TryParse(input.GetBindValue(player.oid, token), out inputQuantity) || inputQuantity > selectedResource.quantity)
+                    if (!int.TryParse(input.GetBindValue(player.oid, nuiToken.Token), out var inputQuantity) || inputQuantity > selectedResource.quantity)
                       inputQuantity = selectedResource.quantity;
 
                     selectedResource.quantity -= inputQuantity;
@@ -198,9 +189,9 @@ namespace NWN.Systems
             materiaNamesList.Add($"{resource.name} (x{resource.quantity})");
           }
 
-          materiaIcon.SetBindValues(player.oid, token, materiaIconList);
-          materiaNames.SetBindValues(player.oid, token, materiaNamesList);
-          listCount.SetBindValue(player.oid, token, playerCraftResourceList.Count());
+          materiaIcon.SetBindValues(player.oid, nuiToken.Token, materiaIconList);
+          materiaNames.SetBindValues(player.oid, nuiToken.Token, materiaNamesList);
+          listCount.SetBindValue(player.oid, nuiToken.Token, playerCraftResourceList.Count());
         }
         private void LoadResourceRefinementGUI()
         {
@@ -219,26 +210,24 @@ namespace NWN.Systems
             }
           });
 
-          input.SetBindValue(player.oid, token, selectedResource.quantity.ToString());
-          input.SetBindWatch(player.oid, token, true);
+          input.SetBindValue(player.oid, nuiToken.Token, selectedResource.quantity.ToString());
+          input.SetBindWatch(player.oid, nuiToken.Token, true);
 
           UpdateRefinementGUI();
 
-          rootGroup.SetLayout(player.oid, token, rootColumn);
+          rootGroup.SetLayout(player.oid, nuiToken.Token, rootColumn);
         }
         private void LoadMainRefinementGUI()
         {
           rootChidren.Clear();
           rootChidren.Add(new NuiList(rowTemplate, listCount) { RowHeight = 40 });
-          input.SetBindWatch(player.oid, token, false);
+          input.SetBindWatch(player.oid, nuiToken.Token, false);
           LoadMateriaList();
-          rootGroup.SetLayout(player.oid, token, rootColumn);
+          rootGroup.SetLayout(player.oid, nuiToken.Token, rootColumn);
         }
         private void UpdateRefinementGUI()
         {
-          int inputQuantity = 0;
-
-          if (!int.TryParse(input.GetBindValue(player.oid, token), out inputQuantity) || inputQuantity > selectedResource.quantity)
+          if (!int.TryParse(input.GetBindValue(player.oid, nuiToken.Token), out var inputQuantity) || inputQuantity > selectedResource.quantity)
             inputQuantity = selectedResource.quantity;
 
           double reprocessingSkill = player.learnableSkills.ContainsKey(selectedResource.reprocessingLearnable) ? 1.00 + 3 * player.learnableSkills[selectedResource.reprocessingLearnable].totalPoints / 100 : 1.00;
@@ -261,7 +250,7 @@ namespace NWN.Systems
               $"x{connectionSkill} (Taxes Quartier Promenade)\n" +
               $"Total : {total} matérias de qualité {selectedResource.grade}";
 
-            refineLabel.SetBindValue(player.oid, token, label);
+            refineLabel.SetBindValue(player.oid, nuiToken.Token, label);
         }
         private void LoadResourceUpgradeGUI()
         {
@@ -280,18 +269,16 @@ namespace NWN.Systems
             }
           });
 
-          input.SetBindValue(player.oid, token, selectedResource.quantity.ToString());
-          input.SetBindWatch(player.oid, token, true);
+          input.SetBindValue(player.oid, nuiToken.Token, selectedResource.quantity.ToString());
+          input.SetBindWatch(player.oid, nuiToken.Token, true);
 
           UpdateUpgradeGUI();
 
-          rootGroup.SetLayout(player.oid, token, rootColumn);
+          rootGroup.SetLayout(player.oid, nuiToken.Token, rootColumn);
         }
         private void UpdateUpgradeGUI()
         {
-          int inputQuantity = 0;
-
-          if (!int.TryParse(input.GetBindValue(player.oid, token), out inputQuantity) || inputQuantity > selectedResource.quantity)
+          if (!int.TryParse(input.GetBindValue(player.oid, nuiToken.Token), out var inputQuantity) || inputQuantity > selectedResource.quantity)
             inputQuantity = selectedResource.quantity;
 
           double concentrationSkill = 1.00 + 5 * player.learnableSkills[CustomSkill.MateriaGradeConcentration].totalPoints / 100;
@@ -307,7 +294,7 @@ namespace NWN.Systems
             $"x{connectionSkill} (Taxes Quartier Promenade)\n" +
             $"Total : {total} matérias raffinées de qualité {selectedResource.grade + 1}";
 
-          refineLabel.SetBindValue(player.oid, token, label);
+          refineLabel.SetBindValue(player.oid, nuiToken.Token, label);
         }
         private bool HandleRefinerLuck()
         {

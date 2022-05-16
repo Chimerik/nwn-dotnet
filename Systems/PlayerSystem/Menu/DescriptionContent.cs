@@ -79,36 +79,33 @@ namespace NWN.Systems
             Border = true,
           };
 
-          player.oid.OnNuiEvent -= HandleDescriptionContentEvents;
-          player.oid.OnNuiEvent += HandleDescriptionContentEvents;
-
-          token = player.oid.CreateNuiWindow(window, windowId);
-
-          if(description != null)
+          if (player.oid.TryCreateNuiWindow(window, out NuiWindowToken tempToken, windowId))
           {
-            descriptionName.SetBindValue(player.oid, token, description.name);
-            descriptionText.SetBindValue(player.oid, token, description.description);
-            saveEnabled.SetBindValue(player.oid, token, true);
-          }
-          else
-          {
-            descriptionName.SetBindValue(player.oid, token, "");
-            descriptionText.SetBindValue(player.oid, token, "");
-            saveEnabled.SetBindValue(player.oid, token, false);
-          }
+            nuiToken = tempToken;
+            nuiToken.OnNuiEvent += HandleDescriptionContentEvents;
 
-          descriptionName.SetBindWatch(player.oid, token, true);
 
-          geometry.SetBindValue(player.oid, token, windowRectangle);
-          geometry.SetBindWatch(player.oid, token, true);
+            if (description != null)
+            {
+              descriptionName.SetBindValue(player.oid, nuiToken.Token, description.name);
+              descriptionText.SetBindValue(player.oid, nuiToken.Token, description.description);
+              saveEnabled.SetBindValue(player.oid, nuiToken.Token, true);
+            }
+            else
+            {
+              descriptionName.SetBindValue(player.oid, nuiToken.Token, "");
+              descriptionText.SetBindValue(player.oid, nuiToken.Token, "");
+              saveEnabled.SetBindValue(player.oid, nuiToken.Token, false);
+            }
 
-          player.openedWindows[windowId] = token;
+            descriptionName.SetBindWatch(player.oid, nuiToken.Token, true);
+
+            geometry.SetBindValue(player.oid, nuiToken.Token, windowRectangle);
+            geometry.SetBindWatch(player.oid, nuiToken.Token, true);
+          }  
         }
         private void HandleDescriptionContentEvents(ModuleEvents.OnNuiEvent nuiEvent)
         {
-          if (nuiEvent.Player.NuiGetWindowId(nuiEvent.WindowToken) != windowId)
-            return;
-
           switch (nuiEvent.EventType)
           {
             case NuiEventType.Click:
@@ -118,11 +115,11 @@ namespace NWN.Systems
                 case "save":
 
                   if (description == null)
-                    player.descriptions.Add(new CharacterDescription(descriptionName.GetBindValue(player.oid, token), descriptionText.GetBindValue(player.oid, token)));
+                    player.descriptions.Add(new CharacterDescription(descriptionName.GetBindValue(player.oid, nuiToken.Token), descriptionText.GetBindValue(player.oid, nuiToken.Token)));
                   else
                   {
-                    description.name = descriptionName.GetBindValue(player.oid, token);
-                    description.description = descriptionText.GetBindValue(player.oid, token);
+                    description.name = descriptionName.GetBindValue(player.oid, nuiToken.Token);
+                    description.description = descriptionText.GetBindValue(player.oid, nuiToken.Token);
                   }
 
                   player.oid.SendServerMessage("Votre description a bien été enregistrée.", ColorConstants.Orange);
@@ -131,7 +128,7 @@ namespace NWN.Systems
 
                 case "apply":
 
-                  player.oid.ControlledCreature.Description = descriptionText.GetBindValue(player.oid, token);
+                  player.oid.ControlledCreature.Description = descriptionText.GetBindValue(player.oid, nuiToken.Token);
                   player.oid.SendServerMessage($"Votre description a bien été appliquée à {player.oid.ControlledCreature.Name.ColorString(ColorConstants.White)}.", ColorConstants.Orange);
 
                   break;
@@ -144,7 +141,7 @@ namespace NWN.Systems
               switch (nuiEvent.ElementId)
               {
                 case "descriptionName":
-                  saveEnabled.SetBindValue(player.oid, token, descriptionName.GetBindValue(player.oid, token).Length > 0);
+                  saveEnabled.SetBindValue(player.oid, nuiToken.Token, descriptionName.GetBindValue(player.oid, nuiToken.Token).Length > 0);
                   break;
               }
 

@@ -56,33 +56,37 @@ namespace NWN.Systems
           };
 
           player.oid.OnNuiEvent -= HandleDispelAoEEvents;
-          player.oid.OnNuiEvent += HandleDispelAoEEvents;
+          
 
-          token = player.oid.CreateNuiWindow(window, windowId);
-
-          geometry.SetBindValue(player.oid, token, windowRectangle);
-          geometry.SetBindWatch(player.oid, token, true);
-
-          UpdateAoEList();
-
-          listRefresher = player.scheduler.ScheduleRepeating(() =>
+          if (player.oid.TryCreateNuiWindow(window, out NuiWindowToken tempToken, windowId))
           {
-            if (player.pcState == PcState.Offline || player.oid.ControlledCreature == null || !player.openedWindows.ContainsKey(windowId))
-            {
-              listRefresher.Dispose();
-              return;
-            }
+            nuiToken = tempToken;
+            nuiToken.OnNuiEvent += HandleDispelAoEEvents;
+
+            geometry.SetBindValue(player.oid, nuiToken.Token, windowRectangle);
+            geometry.SetBindWatch(player.oid, nuiToken.Token, true);
 
             UpdateAoEList();
 
-          }, TimeSpan.FromSeconds(1));
+            if (listRefresher != null)
+              listRefresher.Dispose();
+
+            listRefresher = player.scheduler.ScheduleRepeating(() =>
+            {
+              if (player.pcState == PcState.Offline || player.oid.ControlledCreature == null || !player.openedWindows.ContainsKey(windowId))
+              {
+                listRefresher.Dispose();
+                return;
+              }
+
+              UpdateAoEList();
+
+            }, TimeSpan.FromSeconds(1));
+          }           
         }
 
         private void HandleDispelAoEEvents(ModuleEvents.OnNuiEvent nuiEvent)
         {
-          if (nuiEvent.Player.NuiGetWindowId(nuiEvent.WindowToken) != windowId)
-            return;
-
           switch (nuiEvent.EventType)
           {
             case NuiEventType.Click:
@@ -141,11 +145,11 @@ namespace NWN.Systems
             aoeDurationList.Add(aoe.RemainingDuration.TotalSeconds.ToString());
           }
 
-          aoeIcons.SetBindValues(player.oid, token, aoeIconList);
-          areaNames.SetBindValues(player.oid, token, aoeAreaList);
-          aoeName.SetBindValues(player.oid, token, aoeNameList);
-          aoeRemainingDuration.SetBindValues(player.oid, token, aoeDurationList);
-          listCount.SetBindValue(player.oid, token, aoeList.Count());
+          aoeIcons.SetBindValues(player.oid, nuiToken.Token, aoeIconList);
+          areaNames.SetBindValues(player.oid, nuiToken.Token, aoeAreaList);
+          aoeName.SetBindValues(player.oid, nuiToken.Token, aoeNameList);
+          aoeRemainingDuration.SetBindValues(player.oid, nuiToken.Token, aoeDurationList);
+          listCount.SetBindValue(player.oid, nuiToken.Token, aoeList.Count);
         }
       }
     }

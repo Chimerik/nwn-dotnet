@@ -16,7 +16,7 @@ namespace NWN.Systems
         private readonly List<NuiElement> rootChidren;
         private readonly NuiBind<string> buttonText = new ("buttonText");
         private readonly NuiBind<int> listCount = new ("listCount");
-        private readonly List<string> descriptionNamesList = new List<string>();
+        private readonly List<string> descriptionNamesList = new();
 
         public DescriptionsWindow(Player player) : base(player)
         {
@@ -59,27 +59,23 @@ namespace NWN.Systems
             Border = true,
           };
 
-          player.oid.OnNuiEvent -= HandleDescriptionsEvents;
-          player.oid.OnNuiEvent += HandleDescriptionsEvents;
+          if (player.oid.TryCreateNuiWindow(window, out NuiWindowToken tempToken, windowId))
+          {
+            nuiToken = tempToken;
+            nuiToken.OnNuiEvent += HandleDescriptionsEvents;
 
-          token = player.oid.CreateNuiWindow(window, windowId);
+            foreach (CharacterDescription description in player.descriptions)
+              descriptionNamesList.Add(description.name);
 
-          foreach (CharacterDescription description in player.descriptions)
-            descriptionNamesList.Add(description.name);
+            buttonText.SetBindValues(player.oid, nuiToken.Token, descriptionNamesList);
+            listCount.SetBindValue(player.oid, nuiToken.Token, descriptionNamesList.Count);
 
-          buttonText.SetBindValues(player.oid, token, descriptionNamesList);
-          listCount.SetBindValue(player.oid, token, descriptionNamesList.Count);
-
-          geometry.SetBindValue(player.oid, token, windowRectangle);
-          geometry.SetBindWatch(player.oid, token, true);
-
-          player.openedWindows[windowId] = token;
+            geometry.SetBindValue(player.oid, nuiToken.Token, windowRectangle);
+            geometry.SetBindWatch(player.oid, nuiToken.Token, true);
+          }
         }
         private void HandleDescriptionsEvents(ModuleEvents.OnNuiEvent nuiEvent)
         {
-          if (nuiEvent.Player.NuiGetWindowId(nuiEvent.WindowToken) != windowId)
-            return;
-
           switch (nuiEvent.EventType)
           {
             case NuiEventType.Click:
@@ -88,10 +84,8 @@ namespace NWN.Systems
               {
                 case "new":
 
-                  if (player.windows.ContainsKey("descriptionContent"))
+                  if (!player.windows.TryAdd("descriptionContent", new DescriptionContentWindow(player)))
                     ((DescriptionContentWindow)player.windows["descriptionContent"]).CreateWindow();
-                  else
-                    player.windows.Add("descriptionContent", new DescriptionContentWindow(player));
 
                   CloseWindow();
 
@@ -106,10 +100,8 @@ namespace NWN.Systems
 
                 case "load":
 
-                  if (player.windows.ContainsKey("descriptionContent"))
+                  if (!player.windows.TryAdd("descriptionContent", new DescriptionContentWindow(player, player.descriptions[nuiEvent.ArrayIndex])))
                     ((DescriptionContentWindow)player.windows["descriptionContent"]).CreateWindow(player.descriptions[nuiEvent.ArrayIndex]);
-                  else
-                    player.windows.Add("descriptionContent", new DescriptionContentWindow(player, player.descriptions[nuiEvent.ArrayIndex]));
 
                   CloseWindow();
 
@@ -123,8 +115,8 @@ namespace NWN.Systems
         {
           player.descriptions.RemoveAt(index);
           descriptionNamesList.RemoveAt(index);
-          buttonText.SetBindValues(player.oid, token, descriptionNamesList);
-          listCount.SetBindValue(player.oid, token, descriptionNamesList.Count);
+          buttonText.SetBindValues(player.oid, nuiToken.Token, descriptionNamesList);
+          listCount.SetBindValue(player.oid, nuiToken.Token, descriptionNamesList.Count);
 
           if (player.openedWindows.ContainsKey("descriptionContent"))
             player.windows["descriptionContent"].CloseWindow();

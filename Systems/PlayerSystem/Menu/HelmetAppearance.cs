@@ -73,33 +73,29 @@ namespace NWN.Systems
             Border = true,
           };
 
-          player.oid.OnNuiEvent -= HandleHelmetAppearanceEvents;
-          player.oid.OnNuiEvent += HandleHelmetAppearanceEvents;
-
-          token = player.oid.CreateNuiWindow(window, windowId);
-
-          player.ActivateSpotLight(player.oid.ControlledCreature);
-
-          modelSelection.SetBindValue(player.oid, token, item.Appearance.GetSimpleModel());
-          modelSlider.SetBindValue(player.oid, token, BaseItems2da.helmetModelEntries.IndexOf(BaseItems2da.helmetModelEntries.FirstOrDefault(l => l.Value == item.Appearance.GetSimpleModel())));
-
-          geometry.SetBindValue(player.oid, token, windowRectangle);
-          geometry.SetBindWatch(player.oid, token, true);
-
-          /*Task waitWindowOpened = NwTask.Run(async () =>
+          if (player.oid.TryCreateNuiWindow(window, out NuiWindowToken tempToken, windowId))
           {
-            await NwTask.Delay(TimeSpan.FromSeconds(0.6));
-          */
-            modelSelection.SetBindWatch(player.oid, token, true);
-            modelSlider.SetBindWatch(player.oid, token, true);
-          //});
+            nuiToken = tempToken;
+            nuiToken.OnNuiEvent += HandleHelmetAppearanceEvents;
+
+            player.ActivateSpotLight(player.oid.ControlledCreature);
+
+            modelSelection.SetBindValue(player.oid, nuiToken.Token, item.Appearance.GetSimpleModel());
+            modelSlider.SetBindValue(player.oid, nuiToken.Token, BaseItems2da.helmetModelEntries.IndexOf(BaseItems2da.helmetModelEntries.FirstOrDefault(l => l.Value == item.Appearance.GetSimpleModel())));
+
+            geometry.SetBindValue(player.oid, nuiToken.Token, windowRectangle);
+            geometry.SetBindWatch(player.oid, nuiToken.Token, true);
+
+            modelSelection.SetBindWatch(player.oid, nuiToken.Token, true);
+            modelSlider.SetBindWatch(player.oid, nuiToken.Token, true);
+          }
         }
         public void HandleHelmetModelSliderChange()
         {
           if (!item.IsValid)
             return;
 
-          int sliderValue = modelSlider.GetBindValue(player.oid, token);
+          int sliderValue = modelSlider.GetBindValue(player.oid, nuiToken.Token);
           int result = BaseItems2da.helmetModelEntries.ElementAt(sliderValue).Value;
 
           item.Appearance.SetSimpleModel((byte)result);
@@ -109,17 +105,17 @@ namespace NWN.Systems
           item.Destroy();
           item = newItem;
 
-          modelSelection.SetBindWatch(player.oid, token, false);
-          modelSelection.SetBindValue(player.oid, token, result);
-          modelSelection.SetBindWatch(player.oid, token, true);
+          modelSelection.SetBindWatch(player.oid, nuiToken.Token, false);
+          modelSelection.SetBindValue(player.oid, nuiToken.Token, result);
+          modelSelection.SetBindWatch(player.oid, nuiToken.Token, true);
         }
         public void HandleHelmetModelSelectorChange()
         {
           if (!item.IsValid)
             return;
 
-          int selectorValue = modelSelection.GetBindValue(player.oid, token);
-          int sliderValue = modelSlider.GetBindValue(player.oid, token);
+          int selectorValue = modelSelection.GetBindValue(player.oid, nuiToken.Token);
+          int sliderValue = modelSlider.GetBindValue(player.oid, nuiToken.Token);
           int sliderResult = BaseItems2da.helmetModelEntries.IndexOf(BaseItems2da.helmetModelEntries.FirstOrDefault(m => m.Value == selectorValue));
 
           item.Appearance.SetSimpleModel((byte)selectorValue);
@@ -129,16 +125,13 @@ namespace NWN.Systems
           item.Destroy();
           item = newItem;
 
-          modelSlider.SetBindWatch(player.oid, token, false);
-          modelSlider.SetBindValue(player.oid, token, sliderResult);
-          modelSlider.SetBindWatch(player.oid, token, true);
+          modelSlider.SetBindWatch(player.oid, nuiToken.Token, false);
+          modelSlider.SetBindValue(player.oid, nuiToken.Token, sliderResult);
+          modelSlider.SetBindWatch(player.oid, nuiToken.Token, true);
         }
 
         private void HandleHelmetAppearanceEvents(ModuleEvents.OnNuiEvent nuiEvent)
         {
-          if (nuiEvent.Player.NuiGetWindowId(nuiEvent.WindowToken) != "helmetAppearanceModifier")
-            return;
-
           if (nuiEvent.EventType == NuiEventType.Close)
           {
             player.EnableItemAppearanceFeedbackMessages();

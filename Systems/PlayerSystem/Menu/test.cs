@@ -671,7 +671,7 @@ namespace Test
             json jButton = NuiButton(JsonString($"Test Update {nbClick}"));
             jButton = NuiId(jButton, "testUpdate");
 
-            NuiSetGroupLayout(nuiEvent.Player.ControlledCreature, nuiEvent.WindowToken, "somegroupid", jButton);
+            NuiSetGroupLayout(nuiEvent.Player.ControlledCreature, nuiEvent.Token.Token, "somegroupid", jButton);
           }
 
           break;

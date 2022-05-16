@@ -17,10 +17,10 @@ namespace NWN.Systems
         private readonly NuiRow buttonRow;
         private readonly NuiRow searchRow;
         private readonly NuiRow textRow;
-        private readonly List<NuiElement> rootChidren = new List<NuiElement>();
+        private readonly List<NuiElement> rootChidren = new();
         private readonly NuiBind<string> search = new ("search");
-        private readonly Color white = new Color(255, 255, 255);
-        private readonly NuiRect drawListRect = new NuiRect(0, 35, 150, 60);
+        private readonly Color white = new(255, 255, 255);
+        private readonly NuiRect drawListRect = new(0, 35, 150, 60);
         private readonly NuiBind<string> displayText = new ("text");
 
         public IntroLearnableWindow(Player player) : base(player)
@@ -68,29 +68,26 @@ namespace NWN.Systems
             Border = true,
           };
 
-          player.oid.OnNuiEvent -= HandleLearnableEvents;
-          player.oid.OnNuiEvent += HandleLearnableEvents;
+          if (player.oid.TryCreateNuiWindow(window, out NuiWindowToken tempToken, windowId))
+          {
+            nuiToken = tempToken;
+            nuiToken.OnNuiEvent += HandleLearnableEvents;
 
-          token = player.oid.CreateNuiWindow(window, windowId);
+            search.SetBindValue(player.oid, nuiToken.Token, "");
+            search.SetBindWatch(player.oid, nuiToken.Token, true);
 
-          search.SetBindValue(player.oid, token, "");
-          search.SetBindWatch(player.oid, token, true);
+            geometry.SetBindValue(player.oid, nuiToken.Token, windowRectangle);
+            geometry.SetBindWatch(player.oid, nuiToken.Token, true);
 
-          geometry.SetBindValue(player.oid, token, windowRectangle);
-          geometry.SetBindWatch(player.oid, token, true);
+            displayText.SetBindValue(player.oid, nuiToken.Token, $"Vous disposez actuellement de {player.oid.LoginCreature.GetObjectVariable<PersistentVariableInt>("_STARTING_SKILL_POINTS").Value} points de compétence.\n\n" +
+              $"Quelles capacités initiales votre personnage possède-t-il ?");
 
-          displayText.SetBindValue(player.oid, token, $"Vous disposez actuellement de {player.oid.LoginCreature.GetObjectVariable<PersistentVariableInt>("_STARTING_SKILL_POINTS").Value} points de compétence.\n\n" +
-            $"Quelles capacités initiales votre personnage possède-t-il ?");
-
-          player.openedWindows[windowId] = token;
-          RefreshWindow();
+            RefreshWindow();
+          }
         }
 
         private void HandleLearnableEvents(ModuleEvents.OnNuiEvent nuiEvent)
         {
-          if (nuiEvent.Player.NuiGetWindowId(nuiEvent.WindowToken) != windowId)
-            return;
-
           switch (nuiEvent.EventType)
           {
             case NuiEventType.Click:
@@ -107,7 +104,7 @@ namespace NWN.Systems
 
               if (nuiEvent.ElementId.StartsWith("learn_"))
               {
-                int learnableId = int.Parse(nuiEvent.ElementId.Substring(nuiEvent.ElementId.IndexOf("_") + 1));
+                int learnableId = int.Parse(nuiEvent.ElementId[(nuiEvent.ElementId.IndexOf("_") + 1)..]);
                 LearnableSkill skill = player.learnableSkills[learnableId];
 
                 if (player.oid.LoginCreature.GetObjectVariable<PersistentVariableInt>("_STARTING_SKILL_POINTS").Value >= skill.GetPointsToNextLevel())
@@ -115,7 +112,7 @@ namespace NWN.Systems
                   player.oid.LoginCreature.GetObjectVariable<PersistentVariableInt>("_STARTING_SKILL_POINTS").Value -= (int)skill.GetPointsToNextLevel();
                   skill.LevelUp(player);
 
-                  displayText.SetBindValue(player.oid, token, $"Vous disposez actuellement de {player.oid.LoginCreature.GetObjectVariable<PersistentVariableInt>("_STARTING_SKILL_POINTS").Value} points de compétence.\n\n" +
+                  displayText.SetBindValue(player.oid, nuiToken.Token, $"Vous disposez actuellement de {player.oid.LoginCreature.GetObjectVariable<PersistentVariableInt>("_STARTING_SKILL_POINTS").Value} points de compétence.\n\n" +
                   $"Quelles capacités initiales votre personnage possède-t-il ?");
 
                   RefreshWindow();
@@ -130,10 +127,8 @@ namespace NWN.Systems
 
                   player.learnableSkills[learnableId].StartLearning(player);
 
-                  if (player.windows.ContainsKey("activeLearnable"))
+                  if (!player.windows.TryAdd("activeLearnable", new ActiveLearnableWindow(player)))
                     ((ActiveLearnableWindow)player.windows["activeLearnable"]).CreateWindow();
-                  else
-                    player.windows.Add("activeLearnable", new ActiveLearnableWindow(player));
 
                   player.oid.LoginCreature.GetObjectVariable<PersistentVariableInt>("_STARTING_SKILL_POINTS").Delete();
                   player.oid.LoginCreature.Area.GetObjectVariable<LocalVariableInt>("_GO").Value = 1;
@@ -144,10 +139,8 @@ namespace NWN.Systems
                 if (player.openedWindows.ContainsKey("learnableDescription"))
                   player.windows["learnableDescription"].CloseWindow();
 
-                if (player.windows.ContainsKey("learnableDescription"))
+                if (!player.windows.TryAdd("learnableDescription", new LearnableDescriptionWindow(player, learnableId)))
                   ((LearnableDescriptionWindow)player.windows["learnableDescription"]).CreateWindow(learnableId);
-                else
-                  player.windows.Add("learnableDescription", new LearnableDescriptionWindow(player, learnableId));
               }
 
               break;
@@ -171,16 +164,16 @@ namespace NWN.Systems
           rootChidren.Add(textRow);
           rootChidren.Add(searchRow);
 
-          if (token < 0)
+          if (nuiToken.Token < 0)
             return;
 
           CreateSkillRows();
 
-          rootGroup.SetLayout(player.oid, token, rootColumn);
+          rootGroup.SetLayout(player.oid, nuiToken.Token, rootColumn);
         }
         private void CreateSkillRows()
         {
-          string currentSearch = search.GetBindValue(player.oid, token).ToLower();
+          string currentSearch = search.GetBindValue(player.oid, nuiToken.Token).ToLower();
           var filteredList = player.learnableSkills.AsEnumerable();
 
           if (currentSearch != "")

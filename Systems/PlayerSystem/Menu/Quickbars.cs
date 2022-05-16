@@ -18,7 +18,7 @@ namespace NWN.Systems
         private readonly NuiBind<int> listCount = new ("listCount");
         private readonly NuiBind<string> quickbarName = new ("quickbarName");
         private readonly NuiBind<bool> saveQuickbarEnabled = new ("saveQuickbarEnabled");
-        private readonly List<string> quickbarNamesList = new List<string>();
+        private readonly List<string> quickbarNamesList = new();
 
         public QuickbarsWindow(Player player) : base(player)
         {
@@ -60,32 +60,28 @@ namespace NWN.Systems
             Border = true,
           };
 
-          player.oid.OnNuiEvent -= HandleQuickbarEvents;
-          player.oid.OnNuiEvent += HandleQuickbarEvents;
+          if (player.oid.TryCreateNuiWindow(window, out NuiWindowToken tempToken, windowId))
+          {
+            nuiToken = tempToken;
+            nuiToken.OnNuiEvent += HandleQuickbarEvents;
 
-          token = player.oid.CreateNuiWindow(window, windowId);
+            foreach (Quickbar quickbar in player.quickbars)
+              quickbarNamesList.Add(quickbar.name);
 
-          foreach (Quickbar quickbar in player.quickbars)
-            quickbarNamesList.Add(quickbar.name);
+            buttonText.SetBindValues(player.oid, nuiToken.Token, quickbarNamesList);
+            listCount.SetBindValue(player.oid, nuiToken.Token, quickbarNamesList.Count);
 
-          buttonText.SetBindValues(player.oid, token, quickbarNamesList);
-          listCount.SetBindValue(player.oid, token, quickbarNamesList.Count);
+            geometry.SetBindValue(player.oid, nuiToken.Token, windowRectangle);
+            geometry.SetBindWatch(player.oid, nuiToken.Token, true);
 
-          geometry.SetBindValue(player.oid, token, windowRectangle);
-          geometry.SetBindWatch(player.oid, token, true);
+            quickbarName.SetBindValue(player.oid, nuiToken.Token, "");
+            quickbarName.SetBindWatch(player.oid, nuiToken.Token, true);
 
-          quickbarName.SetBindValue(player.oid, token, "");
-          quickbarName.SetBindWatch(player.oid, token, true);
-
-          saveQuickbarEnabled.SetBindValue(player.oid, token, false);
-
-          player.openedWindows[windowId] = token;
+            saveQuickbarEnabled.SetBindValue(player.oid, nuiToken.Token, false);
+          } 
         }
         private void HandleQuickbarEvents(ModuleEvents.OnNuiEvent nuiEvent)
         {
-          if (nuiEvent.Player.NuiGetWindowId(nuiEvent.WindowToken) != windowId)
-            return;
-
           switch (nuiEvent.EventType)
           {
             case NuiEventType.Click:
@@ -94,8 +90,8 @@ namespace NWN.Systems
               {
                 case "new":
 
-                  SaveQuickbar(quickbarName.GetBindValue(player.oid, token));
-                  quickbarName.SetBindValue(player.oid, token, "");
+                  SaveQuickbar(quickbarName.GetBindValue(player.oid, nuiToken.Token));
+                  quickbarName.SetBindValue(player.oid, nuiToken.Token, "");
                   player.oid.SendServerMessage("Barre de raccourcis sauvegardée.", ColorConstants.Orange);
 
                   break;
@@ -123,10 +119,10 @@ namespace NWN.Systems
               {
                 case "quickbarName":
 
-                  if (quickbarName.GetBindValue(player.oid, token).Length > 0)
-                    saveQuickbarEnabled.SetBindValue(player.oid, token, true);
+                  if (quickbarName.GetBindValue(player.oid, nuiToken.Token).Length > 0)
+                    saveQuickbarEnabled.SetBindValue(player.oid, nuiToken.Token, true);
                   else
-                    saveQuickbarEnabled.SetBindValue(player.oid, token, false);
+                    saveQuickbarEnabled.SetBindValue(player.oid, nuiToken.Token, false);
 
                   break;
 
@@ -140,16 +136,16 @@ namespace NWN.Systems
           player.quickbars.Add(new Quickbar(quickbarName, player.oid.ControlledCreature.SerializeQuickbar().ToBase64EncodedString()));
 
           quickbarNamesList.Add(quickbarName);
-          buttonText.SetBindValues(player.oid, token, quickbarNamesList);
-          listCount.SetBindValue(player.oid, token, quickbarNamesList.Count);
+          buttonText.SetBindValues(player.oid, nuiToken.Token, quickbarNamesList);
+          listCount.SetBindValue(player.oid, nuiToken.Token, quickbarNamesList.Count);
         }
 
         private void DeleteQuickbar(int index)
         {
           player.grimoires.RemoveAt(index);
           quickbarNamesList.RemoveAt(index);
-          buttonText.SetBindValues(player.oid, token, quickbarNamesList);
-          listCount.SetBindValue(player.oid, token, quickbarNamesList.Count);
+          buttonText.SetBindValues(player.oid, nuiToken.Token, quickbarNamesList);
+          listCount.SetBindValue(player.oid, nuiToken.Token, quickbarNamesList.Count);
         }
 
         private void LoadQuickbar(int index)

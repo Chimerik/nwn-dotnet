@@ -10,15 +10,15 @@ namespace NWN.Systems
   {
     public partial class Player
     {
-      public class QuickLootWindow : PlayerWindow
+      public class QuickLootWindow : PlayerWindow // TODO : refaire avec NuiList
       {
         private readonly NuiGroup rootGroup;
         private readonly NuiColumn rootColumn;
         private readonly NuiColumn groupCol;
-        private readonly List<NuiElement> rowList = new List<NuiElement>();
-        private readonly Dictionary<int, NwItem> itemList = new Dictionary<int, NwItem>();
+        private readonly List<NuiElement> rowList = new();
+        private readonly Dictionary<int, NwItem> itemList = new();
 
-        public QuickLootWindow(Player player) : base(player)
+        public QuickLootWindow(Player player) : base(player) 
         {
           windowId = "quickLoot";
 
@@ -64,31 +64,31 @@ namespace NWN.Systems
             Closable = closable,
             Transparent = true,
             Border = false,
-          };
+          };          
 
-          player.oid.OnNuiEvent -= HandleQuickLootEvents;
-          player.oid.OnNuiEvent += HandleQuickLootEvents;
+          if (player.oid.TryCreateNuiWindow(window, out NuiWindowToken tempToken, windowId))
+          {
+            nuiToken = tempToken;
+            nuiToken.OnNuiEvent += HandleQuickLootEvents;
 
-          token = player.oid.CreateNuiWindow(window, windowId);
+            resizable.SetBindValue(player.oid, nuiToken.Token, true);
+            geometry.SetBindValue(player.oid, nuiToken.Token, windowRectangle);
+            geometry.SetBindWatch(player.oid, nuiToken.Token, true);
+          }
 
-          resizable.SetBindValue(player.oid, token, true);
-          geometry.SetBindValue(player.oid, token, windowRectangle);
-          geometry.SetBindWatch(player.oid, token, true);
+            
         }
 
         private void HandleQuickLootEvents(ModuleEvents.OnNuiEvent nuiEvent)
         {
-          if (nuiEvent.Player.NuiGetWindowId(nuiEvent.WindowToken) != windowId)
-            return;
-
           if (nuiEvent.ElementId.StartsWith("examine_") && nuiEvent.EventType == NuiEventType.MouseDown)
           {
-            int itemId = int.Parse(nuiEvent.ElementId.Substring(nuiEvent.ElementId.IndexOf('_') + 1));
+            int itemId = int.Parse(nuiEvent.ElementId[(nuiEvent.ElementId.IndexOf('_') + 1)..]);
             _ = nuiEvent.Player.ActionExamine(itemList[itemId]);
           }
           else if (nuiEvent.ElementId.StartsWith("take_") && nuiEvent.EventType == NuiEventType.Click)
           {
-            int itemId = int.Parse(nuiEvent.ElementId.Substring(nuiEvent.ElementId.IndexOf('_') + 1));
+            int itemId = int.Parse(nuiEvent.ElementId[(nuiEvent.ElementId.IndexOf('_') + 1)..]);
 
             NwItem item = itemList[itemId];
             if (item.IsValid && item.Possessor is null)
@@ -102,7 +102,7 @@ namespace NWN.Systems
           }
           else if (nuiEvent.ElementId.StartsWith("steal_") && nuiEvent.EventType == NuiEventType.Click)
           {
-            int itemId = int.Parse(nuiEvent.ElementId.Substring(nuiEvent.ElementId.IndexOf('_') + 1));
+            int itemId = int.Parse(nuiEvent.ElementId[(nuiEvent.ElementId.IndexOf('_') + 1)..]);
 
             NwItem item = itemList[itemId];
             if (item.IsValid && item.Possessor is null)
@@ -122,7 +122,7 @@ namespace NWN.Systems
           }
           else if (nuiEvent.ElementId.StartsWith("ignore_") && nuiEvent.EventType == NuiEventType.Click)
           {
-            int itemId = int.Parse(nuiEvent.ElementId.Substring(nuiEvent.ElementId.IndexOf('_') + 1));
+            int itemId = int.Parse(nuiEvent.ElementId[(nuiEvent.ElementId.IndexOf('_') + 1)..]);
 
             NwItem item = itemList[itemId];
             if (item.IsValid)
@@ -155,10 +155,10 @@ namespace NWN.Systems
             i++;
           }
 
-          rootGroup.SetLayout(player.oid, token, groupCol);
+          rootGroup.SetLayout(player.oid, nuiToken.Token, groupCol);
         }
 
-        private List<NuiDrawListItem> DrawItemName(string itemName)
+        private static List<NuiDrawListItem> DrawItemName(string itemName)
         {
           NuiProperty<Color> color = new Color(255, 255, 255);
           List<NuiDrawListItem> textBreakerDrawList = new List<NuiDrawListItem>();
@@ -168,13 +168,13 @@ namespace NWN.Systems
 
           do
           {
-            currentLine = itemName.Length > nbCharPerLine ? itemName.Substring(0, nbCharPerLine) : itemName;
+            currentLine = itemName.Length > nbCharPerLine ? itemName[..nbCharPerLine] : itemName;
             int breakPosition = currentLine.Length;
 
             if (itemName.Length > nbCharPerLine)
             {
-              breakPosition = currentLine.Contains(" ") ? currentLine.LastIndexOf(" ") : currentLine.Length;
-              currentLine = currentLine.Substring(0, breakPosition);
+              breakPosition = currentLine.Contains(' ') ? currentLine.LastIndexOf(" ") : currentLine.Length;
+              currentLine = currentLine[..breakPosition];
             }
 
             textBreakerDrawList.Add(new NuiDrawListText(color, new NuiRect(0, 5 + i * 20, 160, 20), currentLine) { Fill = true });

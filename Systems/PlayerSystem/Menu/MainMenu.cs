@@ -67,31 +67,28 @@ namespace NWN.Systems
             Border = true,
           };
 
-          player.oid.OnNuiEvent -= HandleMainMenuEvents;
-          player.oid.OnNuiEvent += HandleMainMenuEvents;
+          if (player.oid.TryCreateNuiWindow(window, out NuiWindowToken tempToken, windowId))
+          {
+            nuiToken = tempToken;
+            nuiToken.OnNuiEvent += HandleMainMenuEvents;
 
-          token = player.oid.CreateNuiWindow(window, windowId);
+            search.SetBindValue(player.oid, nuiToken.Token, "");
+            search.SetBindWatch(player.oid, nuiToken.Token, true);
+            geometry.SetBindValue(player.oid, nuiToken.Token, windowRectangle);
+            geometry.SetBindWatch(player.oid, nuiToken.Token, true);
 
-          search.SetBindValue(player.oid,  token, "");
-          search.SetBindWatch(player.oid, token, true);
-          geometry.SetBindValue(player.oid, token, windowRectangle);
-          geometry.SetBindWatch(player.oid, token, true);
+            if (!AreaDescriptionExists(player.oid.ControlledCreature.Area.Name))
+              myCommandList.Remove("examineArea");
+            else
+              myCommandList.TryAdd("examineArea", Utils.mainMenuCommands["examineArea"]);
 
-          if (!AreaDescriptionExists(player.oid.ControlledCreature.Area.Name))
-            myCommandList.Remove("examineArea");
-          else if (!myCommandList.ContainsKey("examineArea"))
-            myCommandList.Add("examineArea", Utils.mainMenuCommands["examineArea"]);
 
-          currentList = myCommandList;
-          LoadMenu(currentList);
-
-          player.openedWindows[windowId] = token;
+            currentList = myCommandList;
+            LoadMenu(currentList);
+          }
         }
         private async void HandleMainMenuEvents(ModuleEvents.OnNuiEvent nuiEvent)
         {
-          if (nuiEvent.Player.NuiGetWindowId(nuiEvent.WindowToken) != windowId)
-            return;
-
           switch (nuiEvent.EventType)
           {
             case NuiEventType.Click:
@@ -362,7 +359,7 @@ namespace NWN.Systems
               {
                 case "search":
 
-                  string currentSearch = search.GetBindValue(player.oid, token).ToLower();
+                  string currentSearch = search.GetBindValue(player.oid, nuiToken.Token).ToLower();
                   currentList = string.IsNullOrEmpty(currentSearch) ? myCommandList : myCommandList.Where(v => v.Value.label.ToLower().Contains(currentSearch)).ToDictionary(c => c.Key, c => c.Value);
                   LoadMenu(currentList);
 
@@ -374,9 +371,9 @@ namespace NWN.Systems
         }
         private void LoadMenu(Dictionary<string, Utils.MainMenuCommand> commandList)
         {
-          buttonName.SetBindValues(player.oid, token, commandList.Values.Select(c => c.label));
-          buttonTooltip.SetBindValues(player.oid, token, commandList.Values.Select(c => c.tooltip));
-          listCount.SetBindValue(player.oid, token, commandList.Count);
+          buttonName.SetBindValues(player.oid, nuiToken.Token, commandList.Values.Select(c => c.label));
+          buttonTooltip.SetBindValues(player.oid, nuiToken.Token, commandList.Values.Select(c => c.tooltip));
+          listCount.SetBindValue(player.oid, nuiToken.Token, commandList.Count);
         }
         private static bool AreaDescriptionExists(string areaName)
         {

@@ -56,28 +56,25 @@ namespace NWN.Systems
             Border = true,
           };
 
-          player.oid.OnNuiEvent -= HandleAreaWindSettingsEvents;
-          player.oid.OnNuiEvent += HandleAreaWindSettingsEvents;
-          player.oid.OnServerSendArea -= OnAreaChangeCloseWindow;
-          player.oid.OnServerSendArea += OnAreaChangeCloseWindow;
+          if (player.oid.TryCreateNuiWindow(window, out NuiWindowToken tempToken, windowId))
+          {
+            nuiToken = tempToken;
+            nuiToken.OnNuiEvent += HandleAreaWindSettingsEvents;
+            player.oid.OnServerSendArea += OnAreaChangeCloseWindow;
 
-          token = player.oid.CreateNuiWindow(window, windowId);
+            NwArea area = player.oid.ControlledCreature.Area;
 
-          NwArea area = player.oid.ControlledCreature.Area;
+            directionX.SetBindValue(player.oid, nuiToken.Token, area.GetObjectVariable<LocalVariableFloat>("WIND_X").Value.ToString());
+            directionY.SetBindValue(player.oid, nuiToken.Token, area.GetObjectVariable<LocalVariableFloat>("WIND_Y").Value.ToString());
+            directionZ.SetBindValue(player.oid, nuiToken.Token, area.GetObjectVariable<LocalVariableFloat>("WIND_Z").Value.ToString());
+            magnitude.SetBindValue(player.oid, nuiToken.Token, area.GetObjectVariable<LocalVariableFloat>("WIND_M").Value.ToString());
 
-          directionX.SetBindValue(player.oid, token, area.GetObjectVariable<LocalVariableFloat>("WIND_X").Value.ToString());
-          directionY.SetBindValue(player.oid, token, area.GetObjectVariable<LocalVariableFloat>("WIND_Y").Value.ToString());
-          directionZ.SetBindValue(player.oid, token, area.GetObjectVariable<LocalVariableFloat>("WIND_Z").Value.ToString());
-          magnitude.SetBindValue(player.oid, token, area.GetObjectVariable<LocalVariableFloat>("WIND_M").Value.ToString());
-
-          geometry.SetBindValue(player.oid, token, windowRectangle);
-          geometry.SetBindWatch(player.oid, token, true);
+            geometry.SetBindValue(player.oid, nuiToken.Token, windowRectangle);
+            geometry.SetBindWatch(player.oid, nuiToken.Token, true);
+          }
         }
         private void HandleAreaWindSettingsEvents(ModuleEvents.OnNuiEvent nuiEvent)
         {
-          if (nuiEvent.Player.NuiGetWindowId(nuiEvent.WindowToken) != windowId)
-            return;
-
           switch (nuiEvent.EventType)
           {
             case NuiEventType.Click:
@@ -85,8 +82,8 @@ namespace NWN.Systems
               switch (nuiEvent.ElementId)
               {
                 case "validate":
-                  Vector3 direction = new Vector3(float.TryParse(directionX.GetBindValue(player.oid, token), out float x) ? x : 0, float.TryParse(directionY.GetBindValue(player.oid, token), out float y) ? y : 0, float.TryParse(directionZ.GetBindValue(player.oid, token), out float z) ? z : 0);
-                  float m = float.TryParse(directionX.GetBindValue(player.oid, token), out m) ? m : 0;
+                  Vector3 direction = new Vector3(float.TryParse(directionX.GetBindValue(player.oid, nuiToken.Token), out float x) ? x : 0, float.TryParse(directionY.GetBindValue(player.oid, nuiToken.Token), out float y) ? y : 0, float.TryParse(directionZ.GetBindValue(player.oid, nuiToken.Token), out float z) ? z : 0);
+                  float m = float.TryParse(directionX.GetBindValue(player.oid, nuiToken.Token), out m) ? m : 0;
                   AreaSystem.RegisterAreaWind(player.oid.ControlledCreature.Area, direction, m);
                   player.oid.SendServerMessage("Nouvelle configuration du vent enregistreée", ColorConstants.Orange);
                   break;

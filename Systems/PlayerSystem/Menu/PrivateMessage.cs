@@ -62,43 +62,40 @@ namespace NWN.Systems
             Border = false,
           };
 
-          player.oid.OnNuiEvent -= HandlePrivateMessageEvents;
-          player.oid.OnNuiEvent += HandlePrivateMessageEvents;
+          if (player.oid.TryCreateNuiWindow(window, out NuiWindowToken tempToken, windowId))
+          {
+            nuiToken = tempToken;
+            nuiToken.OnNuiEvent += HandlePrivateMessageEvents;
 
-          token = player.oid.CreateNuiWindow(window, windowId);
+            makeStatic.SetBindValue(player.oid, nuiToken.Token, false);
+            resizable.SetBindValue(player.oid, nuiToken.Token, true);
+            closable.SetBindValue(player.oid, nuiToken.Token, true);
+            writingChat.SetBindValue(player.oid, nuiToken.Token, writingChat.GetBindValue(player.oid, nuiToken.Token));
 
-          makeStatic.SetBindValue(player.oid, token, false);
-          resizable.SetBindValue(player.oid, token, true);
-          closable.SetBindValue(player.oid, token, true);
-          writingChat.SetBindValue(player.oid, token, writingChat.GetBindValue(player.oid, token));
+            writingChat.SetBindWatch(player.oid, nuiToken.Token, true);
+            geometry.SetBindValue(player.oid, nuiToken.Token, windowRectangle);
+            geometry.SetBindWatch(player.oid, nuiToken.Token, true);
 
-          writingChat.SetBindWatch(player.oid, token, true);
-          geometry.SetBindValue(player.oid, token, windowRectangle);
-          geometry.SetBindWatch(player.oid, token, true);
-
-          read = true;
-          player.openedWindows[windowId] = token;
+            read = true;
+          }    
         }
 
         private void HandlePrivateMessageEvents(ModuleEvents.OnNuiEvent nuiEvent)
         {
-          if (nuiEvent.Player.NuiGetWindowId(nuiEvent.WindowToken) != windowId)
-            return;
-
           switch (nuiEvent.ElementId)
           {
             case "fix":
 
-              switch (makeStatic.GetBindValue(nuiEvent.Player, nuiEvent.WindowToken))
+              switch (makeStatic.GetBindValue(nuiEvent.Player, nuiToken.Token))
               {
                 case false:
-                  closable.SetBindValue(nuiEvent.Player, nuiEvent.WindowToken, true);
-                  resizable.SetBindValue(nuiEvent.Player, nuiEvent.WindowToken, true);
+                  closable.SetBindValue(nuiEvent.Player, nuiToken.Token, true);
+                  resizable.SetBindValue(nuiEvent.Player, nuiToken.Token, true);
                   break;
 
                 case true:
-                  closable.SetBindValue(nuiEvent.Player, nuiEvent.WindowToken, false);
-                  resizable.SetBindValue(nuiEvent.Player, nuiEvent.WindowToken, false);
+                  closable.SetBindValue(nuiEvent.Player, nuiToken.Token, false);
+                  resizable.SetBindValue(nuiEvent.Player, nuiToken.Token, false);
                   break;
               }
 
@@ -109,7 +106,7 @@ namespace NWN.Systems
               if (!player.openedWindows.ContainsKey(windowId))
                 return;
 
-              NuiRect rectangle = geometry.GetBindValue(nuiEvent.Player, nuiEvent.WindowToken);
+              NuiRect rectangle = geometry.GetBindValue(nuiEvent.Player, nuiToken.Token);
 
               if (rectangle.Width <= 0 || rectangle.Height <= 0)
                 return;
@@ -117,7 +114,7 @@ namespace NWN.Systems
               colChatLogChidren.Clear();
               //colChatLogChidren.Add(settingsRow);
               CreateChatRows();
-              chatReaderGroup.SetLayout(player.oid, token, colChatLog);
+              chatReaderGroup.SetLayout(player.oid, nuiToken.Token, colChatLog);
 
               return;
 
@@ -127,7 +124,7 @@ namespace NWN.Systems
               {
                 case NuiEventType.Focus:
 
-                  string command = writingChat.GetBindValue(nuiEvent.Player, nuiEvent.WindowToken);
+                  string command = writingChat.GetBindValue(nuiEvent.Player, nuiToken.Token);
                   Effect visualMark = Effect.VisualEffect((VfxType)1249);
                   visualMark.Tag = "VFX_PRIVATE_MESSAGE_MARK";
                   visualMark.SubType = EffectSubType.Supernatural;
@@ -148,7 +145,7 @@ namespace NWN.Systems
               if (nuiEvent.EventType != NuiEventType.Watch)
                 return;
 
-              string chatText = writingChat.GetBindValue(nuiEvent.Player, nuiEvent.WindowToken);
+              string chatText = writingChat.GetBindValue(nuiEvent.Player, nuiToken.Token);
 
               if (chatText.Length < 1)
                 return;
@@ -168,9 +165,9 @@ namespace NWN.Systems
                     foreach (Effect eff in nuiEvent.Player.ControlledCreature.ActiveEffects.Where(e => e.Tag == "VFX_PRIVATE_MESSAGE_MARK"))
                       nuiEvent.Player.ControlledCreature.RemoveEffect(eff);
 
-                    writingChat.SetBindWatch(nuiEvent.Player, nuiEvent.WindowToken, false);
-                    writingChat.SetBindValue(nuiEvent.Player, nuiEvent.WindowToken, "");
-                    writingChat.SetBindWatch(nuiEvent.Player, nuiEvent.WindowToken, true);
+                    writingChat.SetBindWatch(nuiEvent.Player, nuiToken.Token, false);
+                    writingChat.SetBindValue(nuiEvent.Player, nuiToken.Token, "");
+                    writingChat.SetBindWatch(nuiEvent.Player, nuiToken.Token, true);
                   }
 
                   pos++;
@@ -212,7 +209,7 @@ namespace NWN.Systems
         {
           read = true;
           AddNewChat(chatLine, player.readChatLines.Count - 1);
-          chatReaderGroup.SetLayout(player.oid, token, colChatLog);
+          chatReaderGroup.SetLayout(player.oid, nuiToken.Token, colChatLog);
         }
 
         public void UpdateChat()
@@ -222,7 +219,7 @@ namespace NWN.Systems
 
           CreateChatRows();
 
-          chatReaderGroup.SetLayout(player.oid, token, colChatLog);
+          chatReaderGroup.SetLayout(player.oid, nuiToken.Token, colChatLog);
         }
 
         private void AddNewChat(ChatLine chatLine, int chatId)
@@ -253,7 +250,7 @@ namespace NWN.Systems
 
           try
           {
-            textWidth = (geometry.GetBindValue(player.oid, token).Width - 19 - nameWidth) * 0.9f;
+            textWidth = (geometry.GetBindValue(player.oid, nuiToken.Token).Width - 19 - nameWidth) * 0.9f;
           }
           catch(Exception)
           {
@@ -285,24 +282,24 @@ namespace NWN.Systems
 
           do
           {
-            currentLine = remainingText.Length > nbCharPerLine ? remainingText.Substring(0, nbCharPerLine) : remainingText;
+            currentLine = remainingText.Length > nbCharPerLine ? remainingText[..nbCharPerLine] : remainingText;
 
             int breakPosition;
 
             if (remainingText.Length <= nbCharPerLine)
             {
               breakPosition = currentLine.Contains(Environment.NewLine) ? currentLine.IndexOf(Environment.NewLine) : currentLine.Length;
-              currentLine = currentLine.Substring(0, breakPosition);
+              currentLine = currentLine[..breakPosition];
             }
             else
             {
-              breakPosition = currentLine.Contains(" ") ? currentLine.LastIndexOf(" ") : currentLine.Length;
+              breakPosition = currentLine.Contains(' ') ? currentLine.LastIndexOf(" ") : currentLine.Length;
               int newLinePosition = currentLine.Contains(Environment.NewLine) ? currentLine.IndexOf(Environment.NewLine) : currentLine.Length;
 
               if (newLinePosition > 0 && newLinePosition < breakPosition)
                 breakPosition = newLinePosition;
 
-              currentLine = currentLine.Substring(0, breakPosition);
+              currentLine = currentLine[..breakPosition];
             }
 
             if (i == 0)

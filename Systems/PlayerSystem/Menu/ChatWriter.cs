@@ -37,7 +37,7 @@ namespace NWN.Systems
             new NuiComboEntry("Crier", 2)
           };
 
-          List<NuiComboEntry> languageValues = new List<NuiComboEntry>();
+          List<NuiComboEntry> languageValues = new();
 
           languageValues.Add(new NuiComboEntry("Commun", 0));
 
@@ -79,44 +79,40 @@ namespace NWN.Systems
             Border = false,
           };
 
-          player.oid.OnNuiEvent -= HandleChatWriterEvents;
-          player.oid.OnNuiEvent += HandleChatWriterEvents;
+          if (player.oid.TryCreateNuiWindow(window, out NuiWindowToken tempToken, windowId))
+          {
+            nuiToken = tempToken;
+            nuiToken.OnNuiEvent += HandleChatWriterEvents;
 
-          token = player.oid.CreateNuiWindow(window, windowId);
+            writingChat.SetBindValue(player.oid, nuiToken.Token, writingChat.GetBindValue(player.oid, nuiToken.Token));
+            channel.SetBindValue(player.oid, nuiToken.Token, 0);
+            language.SetBindValue(player.oid, nuiToken.Token, 0);
+            language.SetBindWatch(player.oid, nuiToken.Token, true);
+            makeStatic.SetBindValue(player.oid, nuiToken.Token, false);
+            resizable.SetBindValue(player.oid, nuiToken.Token, true);
+            closable.SetBindValue(player.oid, nuiToken.Token, true);
+            writingChat.SetBindWatch(player.oid, nuiToken.Token, true);
 
-          writingChat.SetBindValue(player.oid, token, writingChat.GetBindValue(player.oid, token));
-          channel.SetBindValue(player.oid, token, 0);
-          language.SetBindValue(player.oid, token, 0);
-          language.SetBindWatch(player.oid, token, true);
-          makeStatic.SetBindValue(player.oid, token, false);
-          resizable.SetBindValue(player.oid, token, true);
-          closable.SetBindValue(player.oid, token, true);
-          writingChat.SetBindWatch(player.oid, token, true);
-
-          geometry.SetBindValue(player.oid, token, windowRectangle);
-          geometry.SetBindWatch(player.oid, token, true);
-
-          player.openedWindows[windowId] = token;
+            geometry.SetBindValue(player.oid, nuiToken.Token, windowRectangle);
+            geometry.SetBindWatch(player.oid, nuiToken.Token, true);
+          }
         }
         private void HandleChatWriterEvents(ModuleEvents.OnNuiEvent nuiEvent)
         {
-          if (nuiEvent.Player.NuiGetWindowId(nuiEvent.WindowToken) != windowId)
-            return;
-
           switch (nuiEvent.ElementId)
           {
             case "fix":
 
-              switch (makeStatic.GetBindValue(nuiEvent.Player, nuiEvent.WindowToken))
+              switch (makeStatic.GetBindValue(nuiEvent.Player, nuiToken.Token))
               {
                 case false:
-                  closable.SetBindValue(nuiEvent.Player, nuiEvent.WindowToken, true);
-                  resizable.SetBindValue(nuiEvent.Player, nuiEvent.WindowToken, true);
+                  closable.SetBindValue(nuiEvent.Player, nuiToken.Token, true);
+                  resizable.SetBindValue(nuiEvent.Player, nuiToken.Token, true);
                   break;
 
                 case true:
-                  closable.SetBindValue(nuiEvent.Player, nuiEvent.WindowToken, false);
-                  resizable.SetBindValue(nuiEvent.Player, nuiEvent.WindowToken, false);
+                  closable.SetBindValue(nuiEvent.Player, nuiToken.Token, false);
+                  resizable.SetBindValue(nuiEvent.Player, nuiToken.Token, false);
                   break;
               }
 
@@ -128,8 +124,8 @@ namespace NWN.Systems
               {
                 case NuiEventType.Focus:
 
-                  int channelValue = channel.GetBindValue(nuiEvent.Player, nuiEvent.WindowToken);
-                  string command = writingChat.GetBindValue(nuiEvent.Player, nuiEvent.WindowToken);
+                  int channelValue = channel.GetBindValue(nuiEvent.Player, nuiToken.Token);
+                  string command = writingChat.GetBindValue(nuiEvent.Player, nuiToken.Token);
                   Effect visualMark;
 
                   if ((channelValue == 1 || channelValue == 3) && !(command.Trim().StartsWith("/") || command.Trim().StartsWith("!") || command.Trim().StartsWith("(")))
@@ -162,12 +158,12 @@ namespace NWN.Systems
               if (nuiEvent.EventType != NuiEventType.Watch)
                 return;
 
-              string chatText = writingChat.GetBindValue(nuiEvent.Player, nuiEvent.WindowToken);
+              string chatText = writingChat.GetBindValue(nuiEvent.Player, nuiToken.Token);
 
               if (chatText.Length < 1)
                 return;
 
-              int chatChannel = channel.GetBindValue(nuiEvent.Player, nuiEvent.WindowToken);
+              int chatChannel = channel.GetBindValue(nuiEvent.Player, nuiToken.Token);
 
               if ((chatChannel == 1 || chatChannel == 3) && !(chatText.Trim().StartsWith("/") || chatText.Trim().StartsWith("!") || chatText.Trim().StartsWith("(")))
               {
@@ -210,14 +206,14 @@ namespace NWN.Systems
                   {
                     chatText = chatText.Remove(pos, 1);
 
-                    ChatWriterSendMessage(chatText, channel.GetBindValue(nuiEvent.Player, nuiEvent.WindowToken));
+                    ChatWriterSendMessage(chatText, channel.GetBindValue(nuiEvent.Player, nuiToken.Token));
 
                     foreach (Effect eff in nuiEvent.Player.ControlledCreature.ActiveEffects.Where(e => e.Tag == "VFX_SPEAKING_MARK"))
                       nuiEvent.Player.ControlledCreature.RemoveEffect(eff);
 
-                    writingChat.SetBindWatch(nuiEvent.Player, nuiEvent.WindowToken, false);
-                    writingChat.SetBindValue(nuiEvent.Player, nuiEvent.WindowToken, "");
-                    writingChat.SetBindWatch(nuiEvent.Player, nuiEvent.WindowToken, true);
+                    writingChat.SetBindWatch(nuiEvent.Player, nuiToken.Token, false);
+                    writingChat.SetBindValue(nuiEvent.Player, nuiToken.Token, "");
+                    writingChat.SetBindWatch(nuiEvent.Player, nuiToken.Token, true);
                   }
 
                   pos++;
@@ -228,21 +224,21 @@ namespace NWN.Systems
 
             case "geometry":
 
-              NuiRect rectangle = geometry.GetBindValue(nuiEvent.Player, nuiEvent.WindowToken);
+              NuiRect rectangle = geometry.GetBindValue(nuiEvent.Player, nuiToken.Token);
 
               if (rectangle.Width <= 0 || rectangle.Height <= 0)
                 return;
 
-              geometry.SetBindWatch(nuiEvent.Player, nuiEvent.WindowToken, false);
+              geometry.SetBindWatch(nuiEvent.Player, nuiToken.Token, false);
               textEdit.Width = rectangle.Width * 0.96f;
-              chatWriterGroup.SetLayout(player.oid, token, rootRow);
-              geometry.SetBindWatch(nuiEvent.Player, nuiEvent.WindowToken, true);
+              chatWriterGroup.SetLayout(player.oid, nuiToken.Token, rootRow);
+              geometry.SetBindWatch(nuiEvent.Player, nuiToken.Token, true);
 
               break;
 
             case "language":
               if (nuiEvent.EventType == NuiEventType.Watch)
-                player.currentLanguage = language.GetBindValue(player.oid, token);
+                player.currentLanguage = language.GetBindValue(player.oid, nuiToken.Token);
               break;
           }
         }
@@ -259,7 +255,7 @@ namespace NWN.Systems
             iChannel = channel;
           else
           {
-            switch (message.Substring(0, message.IndexOf(" ")))
+            switch (message[..message.IndexOf(" ")])
             {
               case "/tk":
                 iChannel = 1;

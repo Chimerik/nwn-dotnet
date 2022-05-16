@@ -16,9 +16,9 @@ namespace NWN.Systems
     {
       public class DMVisualEffectsWindow : PlayerWindow
       {
-        private readonly NuiColumn rootRow = new NuiColumn();
-        private readonly List<NuiElement> rootChildren = new List<NuiElement>();
-        private readonly List<NuiListTemplateCell> rowTemplate = new List<NuiListTemplateCell>();
+        private readonly NuiColumn rootRow = new();
+        private readonly List<NuiElement> rootChildren = new();
+        private readonly List<NuiListTemplateCell> rowTemplate = new();
 
         private readonly NuiBind<string> vfxNames = new ("vfxNames");
         private readonly NuiBind<string> vfxIds = new ("vfxIds");
@@ -75,30 +75,28 @@ namespace NWN.Systems
             Border = true,
           };
 
-          player.oid.OnNuiEvent -= HandleVisualEffectsEvents;
-          player.oid.OnNuiEvent += HandleVisualEffectsEvents;
+          if (player.oid.TryCreateNuiWindow(window, out NuiWindowToken tempToken, windowId))
+          {
+            nuiToken = tempToken;
+            nuiToken.OnNuiEvent += HandleVisualEffectsEvents;
 
-          token = player.oid.CreateNuiWindow(window, windowId);
+            search.SetBindValue(player.oid, nuiToken.Token, "");
+            search.SetBindWatch(player.oid, nuiToken.Token, true);
 
-          search.SetBindValue(player.oid, token, "");
-          search.SetBindWatch(player.oid, token, true);
+            vfxId.SetBindValue(player.oid, nuiToken.Token, "");
+            newVFXName.SetBindValue(player.oid, nuiToken.Token, "");
+            newVFXDuration.SetBindValue(player.oid, nuiToken.Token, "");
 
-          vfxId.SetBindValue(player.oid, token, "");
-          newVFXName.SetBindValue(player.oid, token, "");
-          newVFXDuration.SetBindValue(player.oid, token, "");
+            geometry.SetBindValue(player.oid, nuiToken.Token, windowRectangle);
+            geometry.SetBindWatch(player.oid, nuiToken.Token, true);
 
-          geometry.SetBindValue(player.oid, token, windowRectangle);
-          geometry.SetBindWatch(player.oid, token, true);
-
-          currentList = player.customDMVisualEffects;
-          LoadVisualEffectList(currentList);
+            currentList = player.customDMVisualEffects;
+            LoadVisualEffectList(currentList);
+          }            
         }
 
         private void HandleVisualEffectsEvents(ModuleEvents.OnNuiEvent nuiEvent)
         {
-          if (nuiEvent.Player.NuiGetWindowId(nuiEvent.WindowToken) != windowId)
-            return;
-
           switch (nuiEvent.EventType)
           {
             case NuiEventType.Click:
@@ -107,13 +105,13 @@ namespace NWN.Systems
               {
                 case "test":
 
-                  if(!int.TryParse(vfxId.GetBindValue(player.oid, token), out selectedVFXId) || selectedVFXId < 0)
+                  if(!int.TryParse(vfxId.GetBindValue(player.oid, nuiToken.Token), out selectedVFXId) || selectedVFXId < 0)
                   {
                     player.oid.SendServerMessage("Veuillez saisir un identifiant d'effet visuel existant.", ColorConstants.Red);
                     return;
                   }
 
-                  if (!int.TryParse(newVFXDuration.GetBindValue(player.oid, token), out selectedVFXDuration) || selectedVFXDuration < 0)
+                  if (!int.TryParse(newVFXDuration.GetBindValue(player.oid, nuiToken.Token), out selectedVFXDuration) || selectedVFXDuration < 0)
                     selectedVFXDuration = 10;
 
                   player.oid.SendServerMessage("Veuillez sélectionner une cible pour essayer votre effet visuel.", ColorConstants.Orange);
@@ -123,13 +121,13 @@ namespace NWN.Systems
 
                 case "save":
 
-                  if (!int.TryParse(vfxId.GetBindValue(player.oid, token), out selectedVFXId) || selectedVFXId < 0)
+                  if (!int.TryParse(vfxId.GetBindValue(player.oid, nuiToken.Token), out selectedVFXId) || selectedVFXId < 0)
                   {
                     player.oid.SendServerMessage("Veuillez saisir un identifiant d'effet visuel existant.", ColorConstants.Red);
                     return;
                   }
 
-                  string newName = newVFXName.GetBindValue(player.oid, token);
+                  string newName = newVFXName.GetBindValue(player.oid, nuiToken.Token);
 
                   if (string.IsNullOrEmpty(newName))
                   {
@@ -137,7 +135,7 @@ namespace NWN.Systems
                     return;
                   }
 
-                  if (!int.TryParse(newVFXDuration.GetBindValue(player.oid, token), out selectedVFXDuration) || selectedVFXDuration < 0)
+                  if (!int.TryParse(newVFXDuration.GetBindValue(player.oid, nuiToken.Token), out selectedVFXDuration) || selectedVFXDuration < 0)
                     selectedVFXDuration = 10;
 
                   player.customDMVisualEffects.Add(new CustomDMVisualEffect(selectedVFXId, newName, selectedVFXDuration));
@@ -149,7 +147,7 @@ namespace NWN.Systems
 
                 case "modify":
 
-                  if (int.TryParse(newVFXDuration.GetBindValue(player.oid, token), out selectedVFXDuration) && selectedVFXDuration > 0)
+                  if (int.TryParse(newVFXDuration.GetBindValue(player.oid, nuiToken.Token), out selectedVFXDuration) && selectedVFXDuration > 0)
                   {
                     CustomDMVisualEffect vfx = currentList[nuiEvent.ArrayIndex];
                     vfx.duration = selectedVFXDuration;
@@ -187,7 +185,7 @@ namespace NWN.Systems
               {
                 case "search":
 
-                  string currentSearch = search.GetBindValue(player.oid, token).ToLower();
+                  string currentSearch = search.GetBindValue(player.oid, nuiToken.Token).ToLower();
                   currentList = string.IsNullOrEmpty(currentSearch) ? player.customDMVisualEffects : player.customDMVisualEffects.Where(v => v.name.ToLower().Contains(currentSearch)).ToList();
                   LoadVisualEffectList(currentList);
 
@@ -207,13 +205,13 @@ namespace NWN.Systems
           {
             vfxNameList.Add(vfx.name);
             vfxDurationList.Add(vfx.duration.ToString());
-            vfxIdsList.Add($"Utiliser cet effet (id :{vfx.id.ToString()})");
+            vfxIdsList.Add($"Utiliser cet effet (id :{vfx.id})");
           }
 
-          vfxNames.SetBindValues(player.oid, token, vfxNameList);
-          vfxDurations.SetBindValues(player.oid, token, vfxDurationList);
-          vfxIds.SetBindValues(player.oid, token, vfxIdsList);
-          listCount.SetBindValue(player.oid, token, vfxList.Count());
+          vfxNames.SetBindValues(player.oid, nuiToken.Token, vfxNameList);
+          vfxDurations.SetBindValues(player.oid, nuiToken.Token, vfxDurationList);
+          vfxIds.SetBindValues(player.oid, nuiToken.Token, vfxIdsList);
+          listCount.SetBindValue(player.oid, nuiToken.Token, vfxList.Count);
         }
         private void OnTargetSelected(ModuleEvents.OnPlayerTarget selection)
         {
@@ -250,8 +248,7 @@ namespace NWN.Systems
         private async void SaveVFXToDatabase()
         {
           Task<string> serializeVFX = Task.Run(() => JsonConvert.SerializeObject(player.customDMVisualEffects));
-
-          await Task.WhenAll(serializeVFX);
+          await serializeVFX;
 
           SqLiteUtils.UpdateQuery("PlayerAccounts",
             new List<string[]>() { new string[] { "customDMVisualEffects", serializeVFX.Result } },

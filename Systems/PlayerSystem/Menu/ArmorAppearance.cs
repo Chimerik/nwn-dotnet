@@ -443,125 +443,121 @@ namespace NWN.Systems
             Border = true,
           };
 
-          player.oid.OnNuiEvent -= HandleItemAppearanceEvents;
-          player.oid.OnNuiEvent += HandleItemAppearanceEvents;
-
-          token = player.oid.CreateNuiWindow(window, windowId);
-
-          PlayerPlugin.ApplyLoopingVisualEffectToObject(player.oid.ControlledCreature, player.oid.ControlledCreature, 173);
-
-          symmetry.SetBindValue(player.oid, token, false);
-          areaSelection.SetBindValue(player.oid, token, 0);
-
-          robeSelection.SetBindValue(player.oid, token, item.Appearance.GetArmorModel(ItemAppearanceArmorModel.Robe));
-          robeSlider.SetBindValue(player.oid, token, robeList.IndexOf(robeList.FirstOrDefault(l => l.Value == item.Appearance.GetArmorModel(ItemAppearanceArmorModel.Robe))));
-
-          neckSelection.SetBindValue(player.oid, token, item.Appearance.GetArmorModel(ItemAppearanceArmorModel.Neck));
-          neckSlider.SetBindValue(player.oid, token, NeckParts2da.combo.IndexOf(NeckParts2da.combo.FirstOrDefault(l => l.Value == item.Appearance.GetArmorModel(ItemAppearanceArmorModel.Neck))));
-
-          torsoSelection.SetBindValue(player.oid, token, item.Appearance.GetArmorModel(ItemAppearanceArmorModel.Torso));
-          torsoSlider.SetBindValue(player.oid, token, torsoList.IndexOf(torsoList.FirstOrDefault(l => l.Value == item.Appearance.GetArmorModel(ItemAppearanceArmorModel.Torso))));
-
-          beltSelection.SetBindValue(player.oid, token, item.Appearance.GetArmorModel(ItemAppearanceArmorModel.Belt));
-          beltSlider.SetBindValue(player.oid, token, BeltParts2da.combo.IndexOf(BeltParts2da.combo.FirstOrDefault(l => l.Value == item.Appearance.GetArmorModel(ItemAppearanceArmorModel.Belt))));
-
-          pelvisSelection.SetBindValue(player.oid, token, item.Appearance.GetArmorModel(ItemAppearanceArmorModel.Pelvis));
-          pelvisSlider.SetBindValue(player.oid, token, pelvisList.IndexOf(pelvisList.FirstOrDefault(l => l.Value == item.Appearance.GetArmorModel(ItemAppearanceArmorModel.Pelvis))));
-
-          rightShoulderSelection.SetBindValue(player.oid, token, item.Appearance.GetArmorModel(ItemAppearanceArmorModel.RightShoulder));
-          rightShoulderSlider.SetBindValue(player.oid, token, shoulderList.IndexOf(shoulderList.FirstOrDefault(l => l.Value == item.Appearance.GetArmorModel(ItemAppearanceArmorModel.RightShoulder))));
-          leftShoulderSelection.SetBindValue(player.oid, token, item.Appearance.GetArmorModel(ItemAppearanceArmorModel.LeftShoulder));
-          leftShoulderSlider.SetBindValue(player.oid, token, shoulderList.IndexOf(shoulderList.FirstOrDefault(l => l.Value == item.Appearance.GetArmorModel(ItemAppearanceArmorModel.LeftShoulder))));
-
-          rightBicepSelection.SetBindValue(player.oid, token, item.Appearance.GetArmorModel(ItemAppearanceArmorModel.RightBicep));
-          rightBicepSlider.SetBindValue(player.oid, token, bicepList.IndexOf(bicepList.FirstOrDefault(l => l.Value == item.Appearance.GetArmorModel(ItemAppearanceArmorModel.RightBicep))));
-          leftBicepSelection.SetBindValue(player.oid, token, item.Appearance.GetArmorModel(ItemAppearanceArmorModel.LeftBicep));
-          leftBicepSlider.SetBindValue(player.oid, token, bicepList.IndexOf(bicepList.FirstOrDefault(l => l.Value == item.Appearance.GetArmorModel(ItemAppearanceArmorModel.LeftBicep))));
-
-          rightForearmSelection.SetBindValue(player.oid, token, item.Appearance.GetArmorModel(ItemAppearanceArmorModel.RightForearm));
-          rightForearmSlider.SetBindValue(player.oid, token, forearmList.IndexOf(forearmList.FirstOrDefault(l => l.Value == item.Appearance.GetArmorModel(ItemAppearanceArmorModel.RightForearm))));
-          leftForearmSelection.SetBindValue(player.oid, token, item.Appearance.GetArmorModel(ItemAppearanceArmorModel.LeftForearm));
-          leftForearmSlider.SetBindValue(player.oid, token, forearmList.IndexOf(forearmList.FirstOrDefault(l => l.Value == item.Appearance.GetArmorModel(ItemAppearanceArmorModel.LeftForearm))));
-
-          rightHandSelection.SetBindValue(player.oid, token, item.Appearance.GetArmorModel(ItemAppearanceArmorModel.RightHand));
-          rightHandSlider.SetBindValue(player.oid, token, handList.IndexOf(handList.FirstOrDefault(l => l.Value == item.Appearance.GetArmorModel(ItemAppearanceArmorModel.RightHand))));
-          leftHandSelection.SetBindValue(player.oid, token, item.Appearance.GetArmorModel(ItemAppearanceArmorModel.LeftHand));
-          leftHandSlider.SetBindValue(player.oid, token, handList.IndexOf(handList.FirstOrDefault(l => l.Value == item.Appearance.GetArmorModel(ItemAppearanceArmorModel.LeftHand))));
-
-          rightTighSelection.SetBindValue(player.oid, token, item.Appearance.GetArmorModel(ItemAppearanceArmorModel.RightThigh));
-          rightTighSlider.SetBindValue(player.oid, token, tighList.IndexOf(tighList.FirstOrDefault(l => l.Value == item.Appearance.GetArmorModel(ItemAppearanceArmorModel.RightThigh))));
-          leftTighSelection.SetBindValue(player.oid, token, item.Appearance.GetArmorModel(ItemAppearanceArmorModel.LeftThigh));
-          leftTighSlider.SetBindValue(player.oid, token, tighList.IndexOf(tighList.FirstOrDefault(l => l.Value == item.Appearance.GetArmorModel(ItemAppearanceArmorModel.LeftThigh))));
-
-          rightShinSelection.SetBindValue(player.oid, token, item.Appearance.GetArmorModel(ItemAppearanceArmorModel.RightShin));
-          rightShinSlider.SetBindValue(player.oid, token, shinList.IndexOf(shinList.FirstOrDefault(l => l.Value == item.Appearance.GetArmorModel(ItemAppearanceArmorModel.RightShin))));
-          leftShinSelection.SetBindValue(player.oid, token, item.Appearance.GetArmorModel(ItemAppearanceArmorModel.LeftShin));
-          leftShinSlider.SetBindValue(player.oid, token, shinList.IndexOf(shinList.FirstOrDefault(l => l.Value == item.Appearance.GetArmorModel(ItemAppearanceArmorModel.LeftShin))));
-
-          rightFootSelection.SetBindValue(player.oid, token, item.Appearance.GetArmorModel(ItemAppearanceArmorModel.RightFoot));
-          rightFootSlider.SetBindValue(player.oid, token, footList.IndexOf(footList.FirstOrDefault(l => l.Value == item.Appearance.GetArmorModel(ItemAppearanceArmorModel.RightFoot))));
-          leftFootSelection.SetBindValue(player.oid, token, item.Appearance.GetArmorModel(ItemAppearanceArmorModel.LeftFoot));
-          leftFootSlider.SetBindValue(player.oid, token, footList.IndexOf(footList.FirstOrDefault(l => l.Value == item.Appearance.GetArmorModel(ItemAppearanceArmorModel.LeftFoot))));
-
-          geometry.SetBindValue(player.oid, token, windowRectangle);
-          geometry.SetBindWatch(player.oid, token, true);
-
-          /*Task waitWindowOpened = NwTask.Run(async () =>
+          if (player.oid.TryCreateNuiWindow(window, out NuiWindowToken tempToken, windowId))
           {
-            await NwTask.Delay(TimeSpan.FromSeconds(0.6));*/
+            nuiToken = tempToken;
+            nuiToken.OnNuiEvent += HandleItemAppearanceEvents;
 
-            areaSelection.SetBindWatch(player.oid, token, true);
+            PlayerPlugin.ApplyLoopingVisualEffectToObject(player.oid.ControlledCreature, player.oid.ControlledCreature, 173);
 
-            robeSelection.SetBindWatch(player.oid, token, true);
-            robeSlider.SetBindWatch(player.oid, token, true);
+            symmetry.SetBindValue(player.oid, nuiToken.Token, false);
+            areaSelection.SetBindValue(player.oid, nuiToken.Token, 0);
 
-            neckSelection.SetBindWatch(player.oid, token, true);
-            neckSlider.SetBindWatch(player.oid, token, true);
+            robeSelection.SetBindValue(player.oid, nuiToken.Token, item.Appearance.GetArmorModel(ItemAppearanceArmorModel.Robe));
+            robeSlider.SetBindValue(player.oid, nuiToken.Token, robeList.IndexOf(robeList.FirstOrDefault(l => l.Value == item.Appearance.GetArmorModel(ItemAppearanceArmorModel.Robe))));
 
-            torsoSelection.SetBindWatch(player.oid, token, true);
-            torsoSlider.SetBindWatch(player.oid, token, true);
+            neckSelection.SetBindValue(player.oid, nuiToken.Token, item.Appearance.GetArmorModel(ItemAppearanceArmorModel.Neck));
+            neckSlider.SetBindValue(player.oid, nuiToken.Token, NeckParts2da.combo.IndexOf(NeckParts2da.combo.FirstOrDefault(l => l.Value == item.Appearance.GetArmorModel(ItemAppearanceArmorModel.Neck))));
 
-            beltSelection.SetBindWatch(player.oid, token, true);
-            beltSlider.SetBindWatch(player.oid, token, true);
+            torsoSelection.SetBindValue(player.oid, nuiToken.Token, item.Appearance.GetArmorModel(ItemAppearanceArmorModel.Torso));
+            torsoSlider.SetBindValue(player.oid, nuiToken.Token, torsoList.IndexOf(torsoList.FirstOrDefault(l => l.Value == item.Appearance.GetArmorModel(ItemAppearanceArmorModel.Torso))));
 
-            pelvisSelection.SetBindWatch(player.oid, token, true);
-            pelvisSlider.SetBindWatch(player.oid, token, true);
+            beltSelection.SetBindValue(player.oid, nuiToken.Token, item.Appearance.GetArmorModel(ItemAppearanceArmorModel.Belt));
+            beltSlider.SetBindValue(player.oid, nuiToken.Token, BeltParts2da.combo.IndexOf(BeltParts2da.combo.FirstOrDefault(l => l.Value == item.Appearance.GetArmorModel(ItemAppearanceArmorModel.Belt))));
 
-            rightShoulderSelection.SetBindWatch(player.oid, token, true);
-            rightShoulderSlider.SetBindWatch(player.oid, token, true);
-            leftShoulderSelection.SetBindWatch(player.oid, token, true);
-            leftShoulderSlider.SetBindWatch(player.oid, token, true);
+            pelvisSelection.SetBindValue(player.oid, nuiToken.Token, item.Appearance.GetArmorModel(ItemAppearanceArmorModel.Pelvis));
+            pelvisSlider.SetBindValue(player.oid, nuiToken.Token, pelvisList.IndexOf(pelvisList.FirstOrDefault(l => l.Value == item.Appearance.GetArmorModel(ItemAppearanceArmorModel.Pelvis))));
 
-            rightBicepSelection.SetBindWatch(player.oid, token, true);
-            rightBicepSlider.SetBindWatch(player.oid, token, true);
-            leftBicepSelection.SetBindWatch(player.oid, token, true);
-            leftBicepSlider.SetBindWatch(player.oid, token, true);
+            rightShoulderSelection.SetBindValue(player.oid, nuiToken.Token, item.Appearance.GetArmorModel(ItemAppearanceArmorModel.RightShoulder));
+            rightShoulderSlider.SetBindValue(player.oid, nuiToken.Token, shoulderList.IndexOf(shoulderList.FirstOrDefault(l => l.Value == item.Appearance.GetArmorModel(ItemAppearanceArmorModel.RightShoulder))));
+            leftShoulderSelection.SetBindValue(player.oid, nuiToken.Token, item.Appearance.GetArmorModel(ItemAppearanceArmorModel.LeftShoulder));
+            leftShoulderSlider.SetBindValue(player.oid, nuiToken.Token, shoulderList.IndexOf(shoulderList.FirstOrDefault(l => l.Value == item.Appearance.GetArmorModel(ItemAppearanceArmorModel.LeftShoulder))));
 
-            rightForearmSelection.SetBindWatch(player.oid, token, true);
-            rightForearmSlider.SetBindWatch(player.oid, token, true);
-            leftForearmSelection.SetBindWatch(player.oid, token, true);
-            leftForearmSlider.SetBindWatch(player.oid, token, true);
+            rightBicepSelection.SetBindValue(player.oid, nuiToken.Token, item.Appearance.GetArmorModel(ItemAppearanceArmorModel.RightBicep));
+            rightBicepSlider.SetBindValue(player.oid, nuiToken.Token, bicepList.IndexOf(bicepList.FirstOrDefault(l => l.Value == item.Appearance.GetArmorModel(ItemAppearanceArmorModel.RightBicep))));
+            leftBicepSelection.SetBindValue(player.oid, nuiToken.Token, item.Appearance.GetArmorModel(ItemAppearanceArmorModel.LeftBicep));
+            leftBicepSlider.SetBindValue(player.oid, nuiToken.Token, bicepList.IndexOf(bicepList.FirstOrDefault(l => l.Value == item.Appearance.GetArmorModel(ItemAppearanceArmorModel.LeftBicep))));
 
-            rightHandSelection.SetBindWatch(player.oid, token, true);
-            rightHandSlider.SetBindWatch(player.oid, token, true);
-            leftHandSelection.SetBindWatch(player.oid, token, true);
-            leftHandSlider.SetBindWatch(player.oid, token, true);
+            rightForearmSelection.SetBindValue(player.oid, nuiToken.Token, item.Appearance.GetArmorModel(ItemAppearanceArmorModel.RightForearm));
+            rightForearmSlider.SetBindValue(player.oid, nuiToken.Token, forearmList.IndexOf(forearmList.FirstOrDefault(l => l.Value == item.Appearance.GetArmorModel(ItemAppearanceArmorModel.RightForearm))));
+            leftForearmSelection.SetBindValue(player.oid, nuiToken.Token, item.Appearance.GetArmorModel(ItemAppearanceArmorModel.LeftForearm));
+            leftForearmSlider.SetBindValue(player.oid, nuiToken.Token, forearmList.IndexOf(forearmList.FirstOrDefault(l => l.Value == item.Appearance.GetArmorModel(ItemAppearanceArmorModel.LeftForearm))));
 
-            rightTighSelection.SetBindWatch(player.oid, token, true);
-            rightTighSlider.SetBindWatch(player.oid, token, true);
-            leftTighSelection.SetBindWatch(player.oid, token, true);
-            leftTighSlider.SetBindWatch(player.oid, token, true);
+            rightHandSelection.SetBindValue(player.oid, nuiToken.Token, item.Appearance.GetArmorModel(ItemAppearanceArmorModel.RightHand));
+            rightHandSlider.SetBindValue(player.oid, nuiToken.Token, handList.IndexOf(handList.FirstOrDefault(l => l.Value == item.Appearance.GetArmorModel(ItemAppearanceArmorModel.RightHand))));
+            leftHandSelection.SetBindValue(player.oid, nuiToken.Token, item.Appearance.GetArmorModel(ItemAppearanceArmorModel.LeftHand));
+            leftHandSlider.SetBindValue(player.oid, nuiToken.Token, handList.IndexOf(handList.FirstOrDefault(l => l.Value == item.Appearance.GetArmorModel(ItemAppearanceArmorModel.LeftHand))));
 
-            rightFootSelection.SetBindWatch(player.oid, token, true);
-            rightFootSlider.SetBindWatch(player.oid, token, true);
-            leftFootSelection.SetBindWatch(player.oid, token, true);
-            leftFootSlider.SetBindWatch(player.oid, token, true);
-         // });
+            rightTighSelection.SetBindValue(player.oid, nuiToken.Token, item.Appearance.GetArmorModel(ItemAppearanceArmorModel.RightThigh));
+            rightTighSlider.SetBindValue(player.oid, nuiToken.Token, tighList.IndexOf(tighList.FirstOrDefault(l => l.Value == item.Appearance.GetArmorModel(ItemAppearanceArmorModel.RightThigh))));
+            leftTighSelection.SetBindValue(player.oid, nuiToken.Token, item.Appearance.GetArmorModel(ItemAppearanceArmorModel.LeftThigh));
+            leftTighSlider.SetBindValue(player.oid, nuiToken.Token, tighList.IndexOf(tighList.FirstOrDefault(l => l.Value == item.Appearance.GetArmorModel(ItemAppearanceArmorModel.LeftThigh))));
+
+            rightShinSelection.SetBindValue(player.oid, nuiToken.Token, item.Appearance.GetArmorModel(ItemAppearanceArmorModel.RightShin));
+            rightShinSlider.SetBindValue(player.oid, nuiToken.Token, shinList.IndexOf(shinList.FirstOrDefault(l => l.Value == item.Appearance.GetArmorModel(ItemAppearanceArmorModel.RightShin))));
+            leftShinSelection.SetBindValue(player.oid, nuiToken.Token, item.Appearance.GetArmorModel(ItemAppearanceArmorModel.LeftShin));
+            leftShinSlider.SetBindValue(player.oid, nuiToken.Token, shinList.IndexOf(shinList.FirstOrDefault(l => l.Value == item.Appearance.GetArmorModel(ItemAppearanceArmorModel.LeftShin))));
+
+            rightFootSelection.SetBindValue(player.oid, nuiToken.Token, item.Appearance.GetArmorModel(ItemAppearanceArmorModel.RightFoot));
+            rightFootSlider.SetBindValue(player.oid, nuiToken.Token, footList.IndexOf(footList.FirstOrDefault(l => l.Value == item.Appearance.GetArmorModel(ItemAppearanceArmorModel.RightFoot))));
+            leftFootSelection.SetBindValue(player.oid, nuiToken.Token, item.Appearance.GetArmorModel(ItemAppearanceArmorModel.LeftFoot));
+            leftFootSlider.SetBindValue(player.oid, nuiToken.Token, footList.IndexOf(footList.FirstOrDefault(l => l.Value == item.Appearance.GetArmorModel(ItemAppearanceArmorModel.LeftFoot))));
+
+            geometry.SetBindValue(player.oid, nuiToken.Token, windowRectangle);
+            geometry.SetBindWatch(player.oid, nuiToken.Token, true);
+
+            areaSelection.SetBindWatch(player.oid, nuiToken.Token, true);
+
+            robeSelection.SetBindWatch(player.oid, nuiToken.Token, true);
+            robeSlider.SetBindWatch(player.oid, nuiToken.Token, true);
+
+            neckSelection.SetBindWatch(player.oid, nuiToken.Token, true);
+            neckSlider.SetBindWatch(player.oid, nuiToken.Token, true);
+
+            torsoSelection.SetBindWatch(player.oid, nuiToken.Token, true);
+            torsoSlider.SetBindWatch(player.oid, nuiToken.Token, true);
+
+            beltSelection.SetBindWatch(player.oid, nuiToken.Token, true);
+            beltSlider.SetBindWatch(player.oid, nuiToken.Token, true);
+
+            pelvisSelection.SetBindWatch(player.oid, nuiToken.Token, true);
+            pelvisSlider.SetBindWatch(player.oid, nuiToken.Token, true);
+
+            rightShoulderSelection.SetBindWatch(player.oid, nuiToken.Token, true);
+            rightShoulderSlider.SetBindWatch(player.oid, nuiToken.Token, true);
+            leftShoulderSelection.SetBindWatch(player.oid, nuiToken.Token, true);
+            leftShoulderSlider.SetBindWatch(player.oid, nuiToken.Token, true);
+
+            rightBicepSelection.SetBindWatch(player.oid, nuiToken.Token, true);
+            rightBicepSlider.SetBindWatch(player.oid, nuiToken.Token, true);
+            leftBicepSelection.SetBindWatch(player.oid, nuiToken.Token, true);
+            leftBicepSlider.SetBindWatch(player.oid, nuiToken.Token, true);
+
+            rightForearmSelection.SetBindWatch(player.oid, nuiToken.Token, true);
+            rightForearmSlider.SetBindWatch(player.oid, nuiToken.Token, true);
+            leftForearmSelection.SetBindWatch(player.oid, nuiToken.Token, true);
+            leftForearmSlider.SetBindWatch(player.oid, nuiToken.Token, true);
+
+            rightHandSelection.SetBindWatch(player.oid, nuiToken.Token, true);
+            rightHandSlider.SetBindWatch(player.oid, nuiToken.Token, true);
+            leftHandSelection.SetBindWatch(player.oid, nuiToken.Token, true);
+            leftHandSlider.SetBindWatch(player.oid, nuiToken.Token, true);
+
+            rightTighSelection.SetBindWatch(player.oid, nuiToken.Token, true);
+            rightTighSlider.SetBindWatch(player.oid, nuiToken.Token, true);
+            leftTighSelection.SetBindWatch(player.oid, nuiToken.Token, true);
+            leftTighSlider.SetBindWatch(player.oid, nuiToken.Token, true);
+
+            rightFootSelection.SetBindWatch(player.oid, nuiToken.Token, true);
+            rightFootSlider.SetBindWatch(player.oid, nuiToken.Token, true);
+            leftFootSelection.SetBindWatch(player.oid, nuiToken.Token, true);
+            leftFootSlider.SetBindWatch(player.oid, nuiToken.Token, true);
+          }
         }
         private void HandleArmorSliderChange(NuiBind<int> slider, NuiBind<int> selector, ItemAppearanceArmorModel model)
         {
-          int sliderValue = slider.GetBindValue(player.oid, token);
-          int selectedValue = selector.GetBindValue(player.oid, token);
+          int sliderValue = slider.GetBindValue(player.oid, nuiToken.Token);
+          int selectedValue = selector.GetBindValue(player.oid, nuiToken.Token);
 
           if (sliderValue == selectedValue || item == null)
             return;
@@ -569,7 +565,7 @@ namespace NWN.Systems
           int result = 0;
           int nModel = (int)model;
           ItemAppearanceArmorModel modelSymmetry = model;
-          if (symmetry.GetBindValue(player.oid, token) && (nModel < 6 || (nModel > 9 && nModel < 18)))
+          if (symmetry.GetBindValue(player.oid, nuiToken.Token) && (nModel < 6 || (nModel > 9 && nModel < 18)))
           {
             if (nModel % 2 == 0)
               modelSymmetry = (ItemAppearanceArmorModel)(nModel + 1);
@@ -636,8 +632,8 @@ namespace NWN.Systems
             player.oid.ControlledCreature.RunEquip(item, InventorySlot.Chest);
           });
 
-          selector.SetBindWatch(player.oid, token, false);
-          selector.SetBindValue(player.oid, token, result);
+          selector.SetBindWatch(player.oid, nuiToken.Token, false);
+          selector.SetBindValue(player.oid, nuiToken.Token, result);
 
 
           if (modelSymmetry != model)
@@ -659,29 +655,29 @@ namespace NWN.Systems
             NuiBind<int> symmetrySlider = new (sliderSimId);
             NuiBind<int> symmetrySelector = new (selectorSimId);
             
-            symmetrySelector.SetBindWatch(player.oid, token, false);
-            symmetrySelector.SetBindValue(player.oid, token, result);
+            symmetrySelector.SetBindWatch(player.oid, nuiToken.Token, false);
+            symmetrySelector.SetBindValue(player.oid, nuiToken.Token, result);
 
-            symmetrySlider.SetBindWatch(player.oid, token, false);
-            symmetrySlider.SetBindValue(player.oid, token, sliderValue);
+            symmetrySlider.SetBindWatch(player.oid, nuiToken.Token, false);
+            symmetrySlider.SetBindValue(player.oid, nuiToken.Token, sliderValue);
 
-            symmetrySelector.SetBindWatch(player.oid, token, true);
-            symmetrySlider.SetBindWatch(player.oid, token, true);
+            symmetrySelector.SetBindWatch(player.oid, nuiToken.Token, true);
+            symmetrySlider.SetBindWatch(player.oid, nuiToken.Token, true);
           }
 
-          selector.SetBindWatch(player.oid, token, true);
+          selector.SetBindWatch(player.oid, nuiToken.Token, true);
         }
         public void HandleArmorSelectorChange(NuiBind<int> slider, NuiBind<int> selector, ItemAppearanceArmorModel model)
         {
-          int selectorValue = selector.GetBindValue(player.oid, token);
-          int sliderValue = slider.GetBindValue(player.oid, token);
+          int selectorValue = selector.GetBindValue(player.oid, nuiToken.Token);
+          int sliderValue = slider.GetBindValue(player.oid, nuiToken.Token);
 
           if (selectorValue == sliderValue || item == null)
             return;
 
           int nModel = (int)model;
           ItemAppearanceArmorModel modelSymmetry = model;
-          if (symmetry.GetBindValue(player.oid, token) && (nModel < 6 || (nModel > 9 && nModel < 18)))
+          if (symmetry.GetBindValue(player.oid, nuiToken.Token) && (nModel < 6 || (nModel > 9 && nModel < 18)))
           {
             if (nModel % 2 == 0)
               modelSymmetry = (ItemAppearanceArmorModel)(nModel + 1);
@@ -701,8 +697,8 @@ namespace NWN.Systems
             player.oid.ControlledCreature.RunEquip(item, InventorySlot.Chest);
           });
 
-          slider.SetBindWatch(player.oid, token, false);
-          slider.SetBindValue(player.oid, token, selectorValue);
+          slider.SetBindWatch(player.oid, nuiToken.Token, false);
+          slider.SetBindValue(player.oid, nuiToken.Token, selectorValue);
 
           if (modelSymmetry != model)
           {
@@ -723,23 +719,20 @@ namespace NWN.Systems
             NuiBind<int> symmetrySlider = new (sliderSimId);
             NuiBind<int> symmetrySelector = new (selectorSimId);
 
-            symmetrySelector.SetBindWatch(player.oid, token, false);
-            symmetrySelector.SetBindValue(player.oid, token, selectorValue);
+            symmetrySelector.SetBindWatch(player.oid, nuiToken.Token, false);
+            symmetrySelector.SetBindValue(player.oid, nuiToken.Token, selectorValue);
 
-            symmetrySlider.SetBindWatch(player.oid, token, false);
-            symmetrySlider.SetBindValue(player.oid, token, sliderValue);
+            symmetrySlider.SetBindWatch(player.oid, nuiToken.Token, false);
+            symmetrySlider.SetBindValue(player.oid, nuiToken.Token, sliderValue);
 
-            symmetrySelector.SetBindWatch(player.oid, token, true);
-            symmetrySlider.SetBindWatch(player.oid, token, true);
+            symmetrySelector.SetBindWatch(player.oid, nuiToken.Token, true);
+            symmetrySlider.SetBindWatch(player.oid, nuiToken.Token, true);
           }
 
-          slider.SetBindWatch(player.oid, token, true);
+          slider.SetBindWatch(player.oid, nuiToken.Token, true);
         }
         private void HandleItemAppearanceEvents(ModuleEvents.OnNuiEvent nuiEvent)
         {
-          if (nuiEvent.Player.NuiGetWindowId(nuiEvent.WindowToken) != "itemAppearanceModifier")
-            return;
-
           if (nuiEvent.EventType == NuiEventType.Close)
           {
             player.EnableItemAppearanceFeedbackMessages();

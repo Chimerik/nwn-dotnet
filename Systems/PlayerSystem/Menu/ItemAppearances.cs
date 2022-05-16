@@ -21,7 +21,7 @@ namespace NWN.Systems
         private readonly NuiBind<int> listCount = new ("listCount");
         private readonly NuiBind<string> appearanceName = new ("appearanceName");
         private readonly NuiBind<bool> saveAppearanceEnabled = new ("saveappearanceEnabled");
-        private readonly List<string> appearanceNamesList = new List<string>();
+        private readonly List<string> appearanceNamesList = new();
         private int selectedIndex { get; set; }
 
         public ItemAppearancesWindow(Player player) : base(player)
@@ -66,32 +66,28 @@ namespace NWN.Systems
             Border = true,
           };
 
-          player.oid.OnNuiEvent -= HandleItemAppearancesEvents;
-          player.oid.OnNuiEvent += HandleItemAppearancesEvents;
+          if (player.oid.TryCreateNuiWindow(window, out NuiWindowToken tempToken, windowId))
+          {
+            nuiToken = tempToken;
+            nuiToken.OnNuiEvent += HandleItemAppearancesEvents;
 
-          token = player.oid.CreateNuiWindow(window, windowId);
+            foreach (ItemAppearance appearance in player.itemAppearances)
+              appearanceNamesList.Add(appearance.name);
 
-          foreach (ItemAppearance appearance in player.itemAppearances)
-            appearanceNamesList.Add(appearance.name);
+            buttonText.SetBindValues(player.oid, nuiToken.Token, appearanceNamesList);
+            listCount.SetBindValue(player.oid, nuiToken.Token, appearanceNamesList.Count);
 
-          buttonText.SetBindValues(player.oid, token, appearanceNamesList);
-          listCount.SetBindValue(player.oid, token, appearanceNamesList.Count);
+            geometry.SetBindValue(player.oid, nuiToken.Token, windowRectangle);
+            geometry.SetBindWatch(player.oid, nuiToken.Token, true);
 
-          geometry.SetBindValue(player.oid, token, windowRectangle);
-          geometry.SetBindWatch(player.oid, token, true);
+            appearanceName.SetBindValue(player.oid, nuiToken.Token, "");
+            appearanceName.SetBindWatch(player.oid, nuiToken.Token, true);
 
-          appearanceName.SetBindValue(player.oid, token, "");
-          appearanceName.SetBindWatch(player.oid, token, true);
-
-          saveAppearanceEnabled.SetBindValue(player.oid, token, false);
-
-          player.openedWindows[windowId] = token;
+            saveAppearanceEnabled.SetBindValue(player.oid, nuiToken.Token, false);
+          }
         }
         private void HandleItemAppearancesEvents(ModuleEvents.OnNuiEvent nuiEvent)
         {
-          if (nuiEvent.Player.NuiGetWindowId(nuiEvent.WindowToken) != windowId)
-            return;
-
           switch (nuiEvent.EventType)
           {
             case NuiEventType.Click:
@@ -127,10 +123,10 @@ namespace NWN.Systems
               {
                 case "quickbarName":
 
-                  if (appearanceName.GetBindValue(player.oid, token).Length > 0)
-                    saveAppearanceEnabled.SetBindValue(player.oid, token, true);
+                  if (appearanceName.GetBindValue(player.oid, nuiToken.Token).Length > 0)
+                    saveAppearanceEnabled.SetBindValue(player.oid, nuiToken.Token, true);
                   else
-                    saveAppearanceEnabled.SetBindValue(player.oid, token, false);
+                    saveAppearanceEnabled.SetBindValue(player.oid, nuiToken.Token, false);
 
                   break;
 
@@ -143,16 +139,16 @@ namespace NWN.Systems
         {
           player.itemAppearances.RemoveAt(index);
           appearanceNamesList.RemoveAt(index);
-          buttonText.SetBindValues(player.oid, token, appearanceNamesList);
-          listCount.SetBindValue(player.oid, token, appearanceNamesList.Count);
+          buttonText.SetBindValues(player.oid, nuiToken.Token, appearanceNamesList);
+          listCount.SetBindValue(player.oid, nuiToken.Token, appearanceNamesList.Count);
         }
 
         private void OnItemSelectedSaveAppearance(ModuleEvents.OnPlayerTarget selection)
         {
-          if (selection.IsCancelled || selection.TargetObject is null || !(selection.TargetObject is NwItem item) || item.Possessor != player.oid.ControlledCreature)
+          if (selection.IsCancelled || selection.TargetObject is null || selection.TargetObject is not NwItem item || item.Possessor != player.oid.ControlledCreature)
             return;
 
-          string name = appearanceName.GetBindValue(player.oid, token);
+          string name = appearanceName.GetBindValue(player.oid, nuiToken.Token);
 
           if (!player.openedWindows.ContainsKey("itemAppearances") || name.Length < 1)
           {
@@ -170,14 +166,14 @@ namespace NWN.Systems
           player.itemAppearances.Add(new ItemAppearance(name, item.Serialize().ToBase64EncodedString(), (int)item.BaseItem.ItemType, item.BaseItem.ItemType == BaseItemType.Armor ? item.BaseACValue : -1));
 
           appearanceNamesList.Add(name);
-          buttonText.SetBindValues(player.oid, token, appearanceNamesList);
-          listCount.SetBindValue(player.oid, token, appearanceNamesList.Count);
+          buttonText.SetBindValues(player.oid, nuiToken.Token, appearanceNamesList);
+          listCount.SetBindValue(player.oid, nuiToken.Token, appearanceNamesList.Count);
 
           player.oid.SendServerMessage($"L'apparence de votre {selection.TargetObject.Name.ColorString(ColorConstants.White)} a été sauvegardée sous le nom {name.ColorString(ColorConstants.White)}.", ColorConstants.Orange);
         }
         private void OnItemSelectedLoadAppearance(ModuleEvents.OnPlayerTarget selection)
         {
-          if (selection.IsCancelled || selection.TargetObject is null || !(selection.TargetObject is NwItem item) || item.Possessor != player.oid.ControlledCreature || selectedIndex < 0)
+          if (selection.IsCancelled || selection.TargetObject is null || selection.TargetObject is not NwItem item || item.Possessor != player.oid.ControlledCreature || selectedIndex < 0)
           {
             selectedIndex = -1;
             return;

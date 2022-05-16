@@ -48,7 +48,7 @@ namespace NWN.Systems
           if (!extractionProgress.IsCancelled)
             extractionProgress.Dispose();
 
-          if (oTarget == null || !(oTarget is NwPlaceable materia) || oTarget.Tag != "mineable_materia")
+          if (oTarget == null || oTarget is not NwPlaceable materia || oTarget.Tag != "mineable_materia")
             return;
 
           if(player.oid.ControlledCreature.DistanceSquared(materia) > 25)
@@ -79,30 +79,34 @@ namespace NWN.Systems
             Border = true,
           };
 
-          token = player.oid.CreateNuiWindow(window, windowId);
-
-          remainingTime.SetBindValue(player.oid, token, GetReadableExtractionTime());
-          progress.SetBindValue(player.oid, token, 0);
-
-          geometry.SetBindValue(player.oid, token, windowRectangle);
-          geometry.SetBindWatch(player.oid, token, true);
-
-          player.openedWindows[windowId] = token;
-
-          if (!player.oid.LoginCreature.ActiveEffects.Any(e => e.Tag == "_RESOURCE_EXTRACTION_HIDE_DEBUFF"))
+          if (player.oid.TryCreateNuiWindow(window, out NuiWindowToken tempToken, windowId))
           {
-            Effect eff = Effect.SkillDecrease(NwSkill.FromSkillType(Skill.Hide), 100);
-            eff = Effect.LinkEffects(eff, Effect.SkillDecrease(NwSkill.FromSkillType(Skill.MoveSilently), 100));
-            eff.SubType = EffectSubType.Supernatural;
+            nuiToken = tempToken;
 
-            player.oid.LoginCreature.ApplyEffect(EffectDuration.Temporary, eff, TimeSpan.FromSeconds(extractionTotalDuration));
+            remainingTime.SetBindValue(player.oid, nuiToken.Token, GetReadableExtractionTime());
+            progress.SetBindValue(player.oid, nuiToken.Token, 0);
+
+            geometry.SetBindValue(player.oid, nuiToken.Token, windowRectangle);
+            geometry.SetBindWatch(player.oid, nuiToken.Token, true);
+
+            if (!player.oid.LoginCreature.ActiveEffects.Any(e => e.Tag == "_RESOURCE_EXTRACTION_HIDE_DEBUFF"))
+            {
+              Effect eff = Effect.SkillDecrease(NwSkill.FromSkillType(Skill.Hide), 100);
+              eff = Effect.LinkEffects(eff, Effect.SkillDecrease(NwSkill.FromSkillType(Skill.MoveSilently), 100));
+              eff.SubType = EffectSubType.Supernatural;
+
+              player.oid.LoginCreature.ApplyEffect(EffectDuration.Temporary, eff, TimeSpan.FromSeconds(extractionTotalDuration));
+            }
+
+            Effect eRay = Effect.Beam(VfxType.BeamDisintegrate, extractor, BodyNode.Hand);
+            eRay.Tag = $"_{player.oid.CDKey}_MINING_BEAM";
+            oTarget.ApplyEffect(EffectDuration.Temporary, eRay, TimeSpan.FromSeconds(extractionRemainingTime));
+
+            if (extractionProgress != null)
+              extractionProgress.Dispose();
+
+            extractionProgress = player.scheduler.ScheduleRepeating(HandleExtractionProgress, TimeSpan.FromSeconds(1));
           }
-
-          Effect eRay = Effect.Beam(VfxType.BeamDisintegrate, extractor, BodyNode.Hand);
-          eRay.Tag = $"_{player.oid.CDKey}_MINING_BEAM";
-          oTarget.ApplyEffect(EffectDuration.Temporary, eRay, TimeSpan.FromSeconds(extractionRemainingTime));
-
-          extractionProgress = player.scheduler.ScheduleRepeating(HandleExtractionProgress, TimeSpan.FromSeconds(1));
         }
 
         private void HandleExtractionProgress()
@@ -117,8 +121,8 @@ namespace NWN.Systems
           }
 
           extractionRemainingTime -= 1;
-          remainingTime.SetBindValue(player.oid, token, GetReadableExtractionTime());
-          progress.SetBindValue(player.oid, token, (extractionTotalDuration - extractionRemainingTime) / extractionTotalDuration);
+          remainingTime.SetBindValue(player.oid, nuiToken.Token, GetReadableExtractionTime());
+          progress.SetBindValue(player.oid, nuiToken.Token, (extractionTotalDuration - extractionRemainingTime) / extractionTotalDuration);
 
           foreach (Effect eff in player.oid.LoginCreature.ActiveEffects.Where(e => e.EffectType ==  EffectType.Invisibility || e.EffectType == EffectType.ImprovedInvisibility))
           {

@@ -57,52 +57,53 @@ namespace NWN.Systems
             Border = true,
           };
 
-          token = player.oid.CreateNuiWindow(window, windowId);
-
-          Craft.Collect.System.UpdateResourceBlockInfo(materia);
-
-          SelectDetectionSkill(materia.GetObjectVariable<LocalVariableString>("_RESOURCE_TYPE").Value);
-          int realQuantity = materia.GetObjectVariable<LocalVariableInt>("_ORE_AMOUNT").Value;
-
-          int nextPossibleEstimate = (int)(DateTime.Now - lastEstimate).TotalSeconds;
-
-          if (player.learnableSkills.ContainsKey(resourceEstimationSkill)
-            && nextPossibleEstimate > Craft.Collect.System.GetResourceDetectionTime(player, resourceDetectionSkill, resourceSpeedSkill))
+          if (player.oid.TryCreateNuiWindow(window, out NuiWindowToken tempToken, windowId))
           {
-            int skillPoints = player.learnableSkills.ContainsKey(resourceEstimationSkill) ? player.learnableSkills[resourceDetectionSkill].totalPoints + player.learnableSkills[resourceEstimationSkill].totalPoints : player.learnableSkills[resourceDetectionSkill].totalPoints;
-            int previousEstimation = materia.GetObjectVariable<LocalVariableInt>($"_QUANTITY_ESTIMATE_{player.characterId}").Value;
-            int newEstimate = Utils.random.Next((int)(realQuantity * skillPoints * 0.05) - 1, 2 * realQuantity - (int)(realQuantity * skillPoints * 0.05));
+            nuiToken = tempToken;
 
-            newEstimate = realQuantity - previousEstimation < realQuantity - newEstimate ? previousEstimation : newEstimate;
-            materia.GetObjectVariable<LocalVariableInt>($"_QUANTITY_ESTIMATE_{player.characterId}").Value = newEstimate;
-          }
-          else
-            player.oid.SendServerMessage($"Prochaine estimation personnelle possible dans {nextPossibleEstimate} secondes.", ColorConstants.Orange);
+            Craft.Collect.System.UpdateResourceBlockInfo(materia);
 
-          var localEstimates = materia.LocalVariables.Where(v => v.Name.StartsWith("_QUANTITY_ESTIMATE_"));
-          List<string> characterList = new List<string>();
-          List<string> estimateList = new List<string>();
+            SelectDetectionSkill(materia.GetObjectVariable<LocalVariableString>("_RESOURCE_TYPE").Value);
+            int realQuantity = materia.GetObjectVariable<LocalVariableInt>("_ORE_AMOUNT").Value;
 
-          foreach(var localVar in localEstimates)
-          {
-            int charId = int.Parse(localVar.Name.Replace("_QUANTITY_ESTIMATE_", ""));
-            Player prospector = Players.Values.FirstOrDefault(p => p.characterId == charId);
+            int nextPossibleEstimate = (int)(DateTime.Now - lastEstimate).TotalSeconds;
 
-            if(prospector != null && prospector.pcState != PcState.Offline && player.oid.PartyMembers.Any(p => p == prospector.oid))
+            if (player.learnableSkills.ContainsKey(resourceEstimationSkill)
+              && nextPossibleEstimate > Craft.Collect.System.GetResourceDetectionTime(player, resourceDetectionSkill, resourceSpeedSkill))
             {
-              characterList.Add(prospector.oid.LoginCreature.Name);
-              estimateList.Add(((LocalVariableInt)localVar).Value.ToString());
+              int skillPoints = player.learnableSkills.ContainsKey(resourceEstimationSkill) ? player.learnableSkills[resourceDetectionSkill].totalPoints + player.learnableSkills[resourceEstimationSkill].totalPoints : player.learnableSkills[resourceDetectionSkill].totalPoints;
+              int previousEstimation = materia.GetObjectVariable<LocalVariableInt>($"_QUANTITY_ESTIMATE_{player.characterId}").Value;
+              int newEstimate = Utils.random.Next((int)(realQuantity * skillPoints * 0.05) - 1, 2 * realQuantity - (int)(realQuantity * skillPoints * 0.05));
+
+              newEstimate = realQuantity - previousEstimation < realQuantity - newEstimate ? previousEstimation : newEstimate;
+              materia.GetObjectVariable<LocalVariableInt>($"_QUANTITY_ESTIMATE_{player.characterId}").Value = newEstimate;
             }
-          }
+            else
+              player.oid.SendServerMessage($"Prochaine estimation personnelle possible dans {nextPossibleEstimate} secondes.", ColorConstants.Orange);
 
-          characterNames.SetBindValues(player.oid, token, characterList);
-          quantityEstimates.SetBindValues(player.oid, token, estimateList);
-          listCount.SetBindValue(player.oid, token, characterList.Count);
+            var localEstimates = materia.LocalVariables.Where(v => v.Name.StartsWith("_QUANTITY_ESTIMATE_"));
+            List<string> characterList = new List<string>();
+            List<string> estimateList = new List<string>();
 
-          geometry.SetBindValue(player.oid, token, windowRectangle);
-          geometry.SetBindWatch(player.oid, token, true);
+            foreach (var localVar in localEstimates)
+            {
+              int charId = int.Parse(localVar.Name.Replace("_QUANTITY_ESTIMATE_", ""));
+              Player prospector = Players.Values.FirstOrDefault(p => p.characterId == charId);
 
-          player.openedWindows[windowId] = token;
+              if (prospector != null && prospector.pcState != PcState.Offline && player.oid.PartyMembers.Any(p => p == prospector.oid))
+              {
+                characterList.Add(prospector.oid.LoginCreature.Name);
+                estimateList.Add(((LocalVariableInt)localVar).Value.ToString());
+              }
+            }
+
+            characterNames.SetBindValues(player.oid, nuiToken.Token, characterList);
+            quantityEstimates.SetBindValues(player.oid, nuiToken.Token, estimateList);
+            listCount.SetBindValue(player.oid, nuiToken.Token, characterList.Count);
+
+            geometry.SetBindValue(player.oid, nuiToken.Token, windowRectangle);
+            geometry.SetBindWatch(player.oid, nuiToken.Token, true);
+          } 
         }
         private void SelectDetectionSkill(string resourceType)
         {

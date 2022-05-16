@@ -17,10 +17,10 @@ namespace NWN.Systems
         private readonly NuiRow buttonRow;
         private readonly NuiRow searchRow;
         private readonly NuiRow textRow;
-        private readonly List<NuiElement> rootChidren = new List<NuiElement>();
+        private readonly List<NuiElement> rootChidren = new();
         private readonly NuiBind<string> search = new ("search");
-        private readonly Color white = new Color(255, 255, 255);
-        private readonly NuiRect drawListRect = new NuiRect(0, 35, 150, 60);
+        private readonly Color white = new(255, 255, 255);
+        private readonly NuiRect drawListRect = new(0, 35, 150, 60);
 
         public IntroBackgroundWindow(Player player) : base(player)
         {
@@ -77,26 +77,22 @@ namespace NWN.Systems
             Border = true,
           };
 
-          player.oid.OnNuiEvent -= HandleLearnableEvents;
-          player.oid.OnNuiEvent += HandleLearnableEvents;
+          if (player.oid.TryCreateNuiWindow(window, out NuiWindowToken tempToken, windowId))
+          {
+            nuiToken = tempToken;
+            nuiToken.OnNuiEvent += HandleLearnableEvents;
 
-          token = player.oid.CreateNuiWindow(window, windowId);
+            search.SetBindValue(player.oid, nuiToken.Token, "");
+            search.SetBindWatch(player.oid, nuiToken.Token, true);
 
-          search.SetBindValue(player.oid, token, "");
-          search.SetBindWatch(player.oid, token, true);
-
-          geometry.SetBindValue(player.oid, token, windowRectangle);
-          geometry.SetBindWatch(player.oid, token, true);
-
-          player.openedWindows[windowId] = token;
-          RefreshWindow();
+            geometry.SetBindValue(player.oid, nuiToken.Token, windowRectangle);
+            geometry.SetBindWatch(player.oid, nuiToken.Token, true);
+            RefreshWindow();
+          }
         }
 
         private void HandleLearnableEvents(ModuleEvents.OnNuiEvent nuiEvent)
         {
-          if (nuiEvent.Player.NuiGetWindowId(nuiEvent.WindowToken) != windowId)
-            return;
-
           switch (nuiEvent.EventType)
           {
             case NuiEventType.Click:
@@ -113,7 +109,7 @@ namespace NWN.Systems
 
               if (nuiEvent.ElementId.StartsWith("learn_"))
               {
-                int learnableId = int.Parse(nuiEvent.ElementId.Substring(nuiEvent.ElementId.IndexOf("_") + 1));
+                int learnableId = int.Parse(nuiEvent.ElementId[(nuiEvent.ElementId.IndexOf("_") + 1)..]);
 
                 LearnableSkill background = new LearnableSkill((LearnableSkill)SkillSystem.learnableDictionary[learnableId]);
                 player.learnableSkills.Add(learnableId, background);
@@ -154,16 +150,16 @@ namespace NWN.Systems
           rootChidren.Add(textRow);
           rootChidren.Add(searchRow);
 
-          if (token < 0)
+          if (nuiToken.Token < 0)
             return;
 
           CreateSkillRows();
 
-          rootGroup.SetLayout(player.oid, token, rootColumn);
+          rootGroup.SetLayout(player.oid, nuiToken.Token, rootColumn);
         }
         private void CreateSkillRows()
         {
-          string currentSearch = search.GetBindValue(player.oid, token).ToLower();
+          string currentSearch = search.GetBindValue(player.oid, nuiToken.Token).ToLower();
           var filteredList = SkillSystem.learnableDictionary.Where(s => s.Value is LearnableSkill skill && skill.category == SkillSystem.Category.StartingTraits).AsEnumerable();
 
           if (currentSearch != "")

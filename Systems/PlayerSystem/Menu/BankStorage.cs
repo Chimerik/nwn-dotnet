@@ -27,7 +27,7 @@ namespace NWN.Systems
         private readonly NuiBind<string> botIcon = new ("botIcon");
         private readonly NuiBind<bool> enabled = new ("enabled");
         private readonly NuiBind<NuiRect> imagePosition = new ("rect");
-        private List<NwItem> items = new ();
+        private readonly List<NwItem> items = new ();
         private IEnumerable<NwItem> filteredList;
 
         private bool AuthorizeSave { get; set; }
@@ -105,17 +105,18 @@ namespace NWN.Systems
             Border = true,
           };
 
-          player.oid.OnNuiEvent -= HandleBankStorageEvents;
-          player.oid.OnNuiEvent += HandleBankStorageEvents;
-          player.oid.OnServerSendArea -= OnAreaChangeCloseWindow;
-          player.oid.OnServerSendArea += OnAreaChangeCloseWindow;
+          if (player.oid.TryCreateNuiWindow(window, out NuiWindowToken tempToken, windowId))
+          {
+            nuiToken = tempToken;
 
-          token = player.oid.CreateNuiWindow(window, windowId);
+            nuiToken.OnNuiEvent += HandleBankStorageEvents;
+            player.oid.OnServerSendArea += OnAreaChangeCloseWindow;
+          }
 
-          search.SetBindValue(player.oid, token, "");
-          search.SetBindWatch(player.oid, token, true);
-          geometry.SetBindValue(player.oid, token, windowRectangle);
-          geometry.SetBindWatch(player.oid, token, true);
+            search.SetBindValue(player.oid, nuiToken.Token, "");
+          search.SetBindWatch(player.oid, nuiToken.Token, true);
+          geometry.SetBindValue(player.oid, nuiToken.Token, windowRectangle);
+          geometry.SetBindWatch(player.oid, nuiToken.Token, true);
 
           filteredList = items;
           LoadBankItemList(filteredList);
@@ -123,9 +124,6 @@ namespace NWN.Systems
 
         private void HandleBankStorageEvents(ModuleEvents.OnNuiEvent nuiEvent)
         {
-          if (nuiEvent.Player.NuiGetWindowId(nuiEvent.WindowToken) != windowId)
-            return;
-          
           switch(nuiEvent.EventType)
           {
             case NuiEventType.Close:
@@ -137,18 +135,14 @@ namespace NWN.Systems
               {
                 case "goldDeposit":
 
-                  if (player.windows.ContainsKey("playerInput"))
+                  if (!player.windows.TryAdd("playerInput", new PlayerInputWindow(player, "Déposer combien d'or ?", DepositGold, player.oid.LoginCreature.Gold.ToString())))
                     ((PlayerInputWindow)player.windows["playerInput"]).CreateWindow("Déposer combien d'or ?", DepositGold, player.oid.LoginCreature.Gold.ToString());
-                  else
-                    player.windows.Add("playerInput", new PlayerInputWindow(player, "Déposer combien d'or ?", DepositGold, player.oid.LoginCreature.Gold.ToString()));
 
                   break;
                 case "goldWithdraw":
 
-                  if (player.windows.ContainsKey("playerInput"))
+                  if (!player.windows.TryAdd("playerInput", new PlayerInputWindow(player, "Déposer combien d'or ?", WithdrawGold, player.bankGold.ToString())))
                     ((PlayerInputWindow)player.windows["playerInput"]).CreateWindow("Déposer combien d'or ?", WithdrawGold, player.bankGold.ToString());
-                  else
-                    player.windows.Add("playerInput", new PlayerInputWindow(player, "Déposer combien d'or ?", WithdrawGold, player.bankGold.ToString()));
 
                   break;
 
@@ -167,10 +161,8 @@ namespace NWN.Systems
               switch(nuiEvent.ElementId)
               {
                 case "examiner":
-                  if (player.windows.ContainsKey("itemExamine"))
+                  if (!player.windows.TryAdd("itemExamine", new ItemExamineWindow(player, filteredList.ElementAt(nuiEvent.ArrayIndex))))
                     ((ItemExamineWindow)player.windows["itemExamine"]).CreateWindow(filteredList.ElementAt(nuiEvent.ArrayIndex));
-                  else
-                    player.windows.Add("itemExamine", new ItemExamineWindow(player, filteredList.ElementAt(nuiEvent.ArrayIndex)));
                   break;
 
                 case "takeItem":
@@ -187,7 +179,7 @@ namespace NWN.Systems
               {
                 case "search":
 
-                  string currentSearch = search.GetBindValue(player.oid, token).ToLower();
+                  string currentSearch = search.GetBindValue(player.oid, nuiToken.Token).ToLower();
                   filteredList = items;
 
                   if (!string.IsNullOrEmpty(currentSearch))
@@ -210,7 +202,7 @@ namespace NWN.Systems
 
           player.oid.LoginCreature.Gold -= inputGold;
           player.bankGold += (int)inputGold;
-          gold.SetBindValue(player.oid, token, player.bankGold.ToString());
+          gold.SetBindValue(player.oid, nuiToken.Token, player.bankGold.ToString());
 
           return true;
         }
@@ -224,7 +216,7 @@ namespace NWN.Systems
 
           player.bankGold -= inputGold;
           player.oid.LoginCreature.Gold += (uint)inputGold;
-          gold.SetBindValue(player.oid, token, player.bankGold.ToString());
+          gold.SetBindValue(player.oid, nuiToken.Token, player.bankGold.ToString());
 
           return true;
         }
@@ -232,54 +224,54 @@ namespace NWN.Systems
         {
           items.Remove(filteredList.ElementAt(index));
 
-          List<string> tempList = itemNames.GetBindValues(player.oid, token);
+          List<string> tempList = itemNames.GetBindValues(player.oid, nuiToken.Token);
           tempList.RemoveAt(index);
-          itemNames.SetBindValues(player.oid, token, tempList);
+          itemNames.SetBindValues(player.oid, nuiToken.Token, tempList);
 
-          tempList = topIcon.GetBindValues(player.oid, token);
+          tempList = topIcon.GetBindValues(player.oid, nuiToken.Token);
           tempList.RemoveAt(index);
-          topIcon.SetBindValues(player.oid, token, tempList);
+          topIcon.SetBindValues(player.oid, nuiToken.Token, tempList);
 
-          tempList = midIcon.GetBindValues(player.oid, token);
+          tempList = midIcon.GetBindValues(player.oid, nuiToken.Token);
           tempList.RemoveAt(index);
-          midIcon.SetBindValues(player.oid, token, tempList);
+          midIcon.SetBindValues(player.oid, nuiToken.Token, tempList);
 
-          tempList = botIcon.GetBindValues(player.oid, token);
+          tempList = botIcon.GetBindValues(player.oid, nuiToken.Token);
           tempList.RemoveAt(index);
-          botIcon.SetBindValues(player.oid, token, tempList);
+          botIcon.SetBindValues(player.oid, nuiToken.Token, tempList);
 
-          List<bool> tempEnableList = enabled.GetBindValues(player.oid, token);
+          List<bool> tempEnableList = enabled.GetBindValues(player.oid, nuiToken.Token);
           tempEnableList.RemoveAt(index);
-          enabled.SetBindValues(player.oid, token, tempEnableList);
+          enabled.SetBindValues(player.oid, nuiToken.Token, tempEnableList);
 
-          listCount.SetBindValue(player.oid, token, listCount.GetBindValue(player.oid, token) - 1);
+          listCount.SetBindValue(player.oid, nuiToken.Token, listCount.GetBindValue(player.oid, nuiToken.Token) - 1);
         }
         private void AddItemToList(NwItem item)
         {
           items.Add(item);
-          List<string> tempList = itemNames.GetBindValues(player.oid, token);
+          List<string> tempList = itemNames.GetBindValues(player.oid, nuiToken.Token);
           tempList.Add(item.Name);
-          itemNames.SetBindValues(player.oid, token, tempList);
+          itemNames.SetBindValues(player.oid, nuiToken.Token, tempList);
 
           string[] tempArray = Utils.GetIconResref(item);
 
-          tempList = topIcon.GetBindValues(player.oid, token);
+          tempList = topIcon.GetBindValues(player.oid, nuiToken.Token);
           tempList.Add(tempArray[0]);
-          topIcon.SetBindValues(player.oid, token, tempList);
+          topIcon.SetBindValues(player.oid, nuiToken.Token, tempList);
 
-          tempList = midIcon.GetBindValues(player.oid, token);
+          tempList = midIcon.GetBindValues(player.oid, nuiToken.Token);
           tempList.Add(tempArray[1]);
-          midIcon.SetBindValues(player.oid, token, tempList);
+          midIcon.SetBindValues(player.oid, nuiToken.Token, tempList);
 
-          tempList = botIcon.GetBindValues(player.oid, token);
+          tempList = botIcon.GetBindValues(player.oid, nuiToken.Token);
           tempList.Add(tempArray[2]);
-          botIcon.SetBindValues(player.oid, token, tempList);
+          botIcon.SetBindValues(player.oid, nuiToken.Token, tempList);
 
-          List<bool> tempEnableList = enabled.GetBindValues(player.oid, token);
+          List<bool> tempEnableList = enabled.GetBindValues(player.oid, nuiToken.Token);
           tempEnableList.Add(!string.IsNullOrEmpty(tempArray[1]));
-          enabled.SetBindValues(player.oid, token, tempEnableList);
+          enabled.SetBindValues(player.oid, nuiToken.Token, tempEnableList);
 
-          List<NuiRect> imagePosList = imagePosition.GetBindValues(player.oid, token);
+          List<NuiRect> imagePosList = imagePosition.GetBindValues(player.oid, nuiToken.Token);
 
           switch (item.BaseItem.ModelType)
           {
@@ -295,12 +287,12 @@ namespace NWN.Systems
               break;
           }
 
-          imagePosition.SetBindValues(player.oid, token, imagePosList);
-          listCount.SetBindValue(player.oid, token, listCount.GetBindValue(player.oid, token) + 1);
+          imagePosition.SetBindValues(player.oid, nuiToken.Token, imagePosList);
+          listCount.SetBindValue(player.oid, nuiToken.Token, listCount.GetBindValue(player.oid, nuiToken.Token) + 1);
         }
         private void SelectInventoryItem(ModuleEvents.OnPlayerTarget selection)
         {
-          if (selection.IsCancelled || !(selection.TargetObject is NwItem item))
+          if (selection.IsCancelled || selection.TargetObject is not NwItem item)
             return;
           
           AddItemToList(item);
@@ -364,7 +356,7 @@ namespace NWN.Systems
           await Task.Run(() => SerializeItemList(serializedItems));
 
           Task<string> serializeBank = Task.Run(() => JsonConvert.SerializeObject(serializedItems));
-          await Task.WhenAll(serializeBank);
+          await serializeBank;
 
           SqLiteUtils.UpdateQuery("playerCharacters",
           new List<string[]>() { new string[] { "persistantStorage", serializeBank.Result } },
@@ -399,7 +391,7 @@ namespace NWN.Systems
               serializedItems = JsonConvert.DeserializeObject<List<string>>(serializedBank);
             });
 
-            await Task.WhenAll(loadBank);
+            await loadBank;
 
             foreach (string serializedItem in serializedItems)
               items.Add(NwItem.Deserialize(serializedItem.ToByteArray()));
@@ -410,12 +402,12 @@ namespace NWN.Systems
 
         private void LoadBankItemList(IEnumerable<NwItem> filteredList)
         {
-          List<string> itemNameList = new List<string>();
-          List<string> topIconList = new List<string>();
-          List<string> midIconList = new List<string>();
-          List<string> botIconList = new List<string>();
-          List<bool> enabledList = new List<bool>();
-          List<NuiRect> imagePosList = new List<NuiRect>();
+          List<string> itemNameList = new();
+          List<string> topIconList = new();
+          List<string> midIconList = new();
+          List<string> botIconList = new();
+          List<bool> enabledList = new();
+          List<NuiRect> imagePosList = new();
 
           foreach (NwItem item in filteredList)
           {
@@ -441,16 +433,16 @@ namespace NWN.Systems
             }
           }
 
-          gold.SetBindValue(player.oid, token, player.bankGold.ToString());
+          gold.SetBindValue(player.oid, nuiToken.Token, player.bankGold.ToString());
 
-          itemNames.SetBindValues(player.oid, token, itemNameList);
-          listCount.SetBindValue(player.oid, token, itemNameList.Count);
+          itemNames.SetBindValues(player.oid, nuiToken.Token, itemNameList);
+          listCount.SetBindValue(player.oid, nuiToken.Token, itemNameList.Count);
 
-          topIcon.SetBindValues(player.oid, token, topIconList);
-          midIcon.SetBindValues(player.oid, token, midIconList);
-          botIcon.SetBindValues(player.oid, token, botIconList);
-          enabled.SetBindValues(player.oid, token, enabledList);
-          imagePosition.SetBindValues(player.oid, token, imagePosList);
+          topIcon.SetBindValues(player.oid, nuiToken.Token, topIconList);
+          midIcon.SetBindValues(player.oid, nuiToken.Token, midIconList);
+          botIcon.SetBindValues(player.oid, nuiToken.Token, botIconList);
+          enabled.SetBindValues(player.oid, nuiToken.Token, enabledList);
+          imagePosition.SetBindValues(player.oid, nuiToken.Token, imagePosList);
         }
       }
     }

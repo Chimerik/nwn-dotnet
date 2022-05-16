@@ -32,8 +32,6 @@ namespace NWN.Systems
             }
           };
 
-          NuiRect windowRectangle = new NuiRect(player.oid.GetDeviceProperty(PlayerDeviceProperty.GuiWidth) / 2 - 200, player.oid.GetDeviceProperty(PlayerDeviceProperty.GuiHeight) * 0.01f, 200, 40);
-
           window = new NuiWindow(rootColumn, "")
           {
             Geometry = geometry,
@@ -44,14 +42,17 @@ namespace NWN.Systems
             Border = true,
           };
 
-          token = player.oid.CreateNuiWindow(window, windowId);
+          if (player.oid.TryCreateNuiWindow(window, out NuiWindowToken tempToken, windowId))
+          {
+            nuiToken = tempToken;
 
-          timeLeft.SetBindValue(player.oid, token, "30");
+            timeLeft.SetBindValue(player.oid, nuiToken.Token, "30");
 
-          geometry.SetBindValue(player.oid, token, windowRectangle);
-          geometry.SetBindWatch(player.oid, token, true);
+            geometry.SetBindValue(player.oid, nuiToken.Token, new NuiRect(player.oid.GetDeviceProperty(PlayerDeviceProperty.GuiWidth) / 2 - 200, player.oid.GetDeviceProperty(PlayerDeviceProperty.GuiHeight) * 0.01f, 200, 40));
+            geometry.SetBindWatch(player.oid, nuiToken.Token, true);
 
-          RefreshWindowUntillClosed();
+            RefreshWindowUntillClosed();
+          } 
         }
 
         private void RefreshWindowUntillClosed()
@@ -66,8 +67,8 @@ namespace NWN.Systems
 
             player.oid.PlaySound("gui_select");
 
-            int remainingTime = int.Parse(timeLeft.GetBindValue(player.oid, token)) - 1;
-            timeLeft.SetBindValue(player.oid, token, remainingTime.ToString());
+            int remainingTime = int.Parse(timeLeft.GetBindValue(player.oid, nuiToken.Token)) - 1;
+            timeLeft.SetBindValue(player.oid, nuiToken.Token, remainingTime.ToString());
             
             if(remainingTime < 1)
             {

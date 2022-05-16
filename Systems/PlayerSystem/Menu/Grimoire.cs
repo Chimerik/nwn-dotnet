@@ -18,7 +18,7 @@ namespace NWN.Systems
         private readonly NuiBind<int> listCount = new ("listCount");
         private readonly NuiBind<string> grimoireName = new ("grimoireName");
         private readonly NuiBind<bool> saveGrimoireEnabled = new ("saveGrimoireEnabled");
-        private readonly List<string> grimoireNamesList = new List<string>();
+        private readonly List<string> grimoireNamesList = new();
 
         public GrimoiresWindow(Player player) : base(player)
         {
@@ -60,32 +60,28 @@ namespace NWN.Systems
             Border = true,
           };
 
-          player.oid.OnNuiEvent -= HandleGrimoiresEvents;
-          player.oid.OnNuiEvent += HandleGrimoiresEvents;
+          if (player.oid.TryCreateNuiWindow(window, out NuiWindowToken tempToken, windowId))
+          {
+            nuiToken = tempToken;
+            nuiToken.OnNuiEvent += HandleGrimoiresEvents;
 
-          token = player.oid.CreateNuiWindow(window, windowId);
+            foreach (Grimoire grimoire in player.grimoires)
+              grimoireNamesList.Add(grimoire.name);
 
-          foreach (Grimoire grimoire in player.grimoires)
-            grimoireNamesList.Add(grimoire.name);
+            buttonText.SetBindValues(player.oid, nuiToken.Token, grimoireNamesList);
+            listCount.SetBindValue(player.oid, nuiToken.Token, grimoireNamesList.Count);
 
-          buttonText.SetBindValues(player.oid, token, grimoireNamesList);
-          listCount.SetBindValue(player.oid, token, grimoireNamesList.Count);
+            geometry.SetBindValue(player.oid, nuiToken.Token, windowRectangle);
+            geometry.SetBindWatch(player.oid, nuiToken.Token, true);
 
-          geometry.SetBindValue(player.oid, token, windowRectangle);
-          geometry.SetBindWatch(player.oid, token, true);
+            grimoireName.SetBindValue(player.oid, nuiToken.Token, "");
+            grimoireName.SetBindWatch(player.oid, nuiToken.Token, true);
 
-          grimoireName.SetBindValue(player.oid, token, "");
-          grimoireName.SetBindWatch(player.oid, token, true);
-
-          saveGrimoireEnabled.SetBindValue(player.oid, token, false);
-
-          player.openedWindows[windowId] = token;
+            saveGrimoireEnabled.SetBindValue(player.oid, nuiToken.Token, false);
+          }
         }
         private void HandleGrimoiresEvents(ModuleEvents.OnNuiEvent nuiEvent)
         {
-          if (nuiEvent.Player.NuiGetWindowId(nuiEvent.WindowToken) != windowId)
-            return;
-
           switch (nuiEvent.EventType)
           {
             case NuiEventType.Click:
@@ -94,8 +90,8 @@ namespace NWN.Systems
               {
                 case "newGrimoire":
 
-                  SaveGrimoire(grimoireName.GetBindValue(player.oid, token));
-                  grimoireName.SetBindValue(player.oid, token, "");
+                  SaveGrimoire(grimoireName.GetBindValue(player.oid, nuiToken.Token));
+                  grimoireName.SetBindValue(player.oid, nuiToken.Token, "");
                   player.oid.SendServerMessage("Nouveau grimoire sauvegardé.", ColorConstants.Orange);
 
                   break;
@@ -123,10 +119,10 @@ namespace NWN.Systems
               {
                 case "grimoireName":
 
-                  if (grimoireName.GetBindValue(player.oid, token).Length > 0)
-                    saveGrimoireEnabled.SetBindValue(player.oid, token, true);
+                  if (grimoireName.GetBindValue(player.oid, nuiToken.Token).Length > 0)
+                    saveGrimoireEnabled.SetBindValue(player.oid, nuiToken.Token, true);
                   else
-                    saveGrimoireEnabled.SetBindValue(player.oid, token, false);
+                    saveGrimoireEnabled.SetBindValue(player.oid, nuiToken.Token, false);
 
                   break;
 
@@ -155,16 +151,16 @@ namespace NWN.Systems
           player.grimoires.Add(new Grimoire(grimoireName, spellList, metamagicList));
 
           grimoireNamesList.Add(grimoireName);
-          buttonText.SetBindValues(player.oid, token, grimoireNamesList);
-          listCount.SetBindValue(player.oid, token, grimoireNamesList.Count);
+          buttonText.SetBindValues(player.oid, nuiToken.Token, grimoireNamesList);
+          listCount.SetBindValue(player.oid, nuiToken.Token, grimoireNamesList.Count);
         }
 
         private void DeleteGrimoire(int index)
         {
           player.grimoires.RemoveAt(index);
           grimoireNamesList.RemoveAt(index);
-          buttonText.SetBindValues(player.oid, token, grimoireNamesList);
-          listCount.SetBindValue(player.oid, token, grimoireNamesList.Count);
+          buttonText.SetBindValues(player.oid, nuiToken.Token, grimoireNamesList);
+          listCount.SetBindValue(player.oid, nuiToken.Token, grimoireNamesList.Count);
         }
 
         private void LoadGrimoire(int index)

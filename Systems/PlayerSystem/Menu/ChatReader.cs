@@ -13,10 +13,10 @@ namespace NWN.Systems
     {
       public class ChatReaderWindow : PlayerWindow
       {
-        NuiBind<bool> makeStatic { get; }
-        float characterWidth = 8 /* oid.GetDeviceProperty(PlayerDeviceProperty.GuiScale) / 100*/;
-        float spaceWidth = 4;
-        float characterHeight = 18 /* oid.GetDeviceProperty(PlayerDeviceProperty.GuiScale) / 100*/;
+        private readonly NuiBind<bool> makeStatic = new("static");
+        private readonly float characterWidth = 8 /* oid.GetDeviceProperty(PlayerDeviceProperty.GuiScale) / 100*/;
+        private readonly float spaceWidth = 4;
+        private readonly float characterHeight = 18 /* oid.GetDeviceProperty(PlayerDeviceProperty.GuiScale) / 100*/;
 
         NuiGroup chatReaderGroup { get; }
         NuiColumn rootColumn { get; }
@@ -25,16 +25,15 @@ namespace NWN.Systems
         NuiOptions rpCategory { get; }
         NuiOptions hrpCategory { get; }
         NuiOptions mpCategory { get; }
-        List<NuiRow> rpRow { get; }
-        List<NuiRow> hrpRow { get; }
-        List<NuiRow> mpRow { get; }
+        private readonly List<NuiRow> rpRow = new();
+        private readonly List<NuiRow> hrpRow = new();
+        private readonly List<NuiRow> mpRow = new();
         NuiRow settingsRow { get; }
         ChatLine.ChatCategory currentCategory { get; set; }
 
         public ChatReaderWindow(Player player) : base(player)
         {
           windowId = "chatReader";
-          makeStatic = new ("static");
 
           List<NuiElement> colChidren = new List<NuiElement>();
           rootColumn = new NuiColumn() { Children = colChidren };
@@ -59,9 +58,6 @@ namespace NWN.Systems
           settingsRowChildren.Add(hrpCategory);
           settingsRowChildren.Add(mpCategory);
 
-          rpRow = new List<NuiRow>();
-          hrpRow = new List<NuiRow>();
-          mpRow = new List<NuiRow>();
           currentCategory = ChatLine.ChatCategory.RolePlay;
 
           CreateChatRows();
@@ -82,40 +78,36 @@ namespace NWN.Systems
             Border = false,
           };
 
-          player.oid.OnNuiEvent -= HandleChatReaderEvents;
-          player.oid.OnNuiEvent += HandleChatReaderEvents;
+          if (player.oid.TryCreateNuiWindow(window, out NuiWindowToken tempToken, windowId))
+          {
+            nuiToken = tempToken;
+            nuiToken.OnNuiEvent += HandleChatReaderEvents;
 
-          token = player.oid.CreateNuiWindow(window, windowId);
+            makeStatic.SetBindValue(player.oid, nuiToken.Token, false);
+            resizable.SetBindValue(player.oid, nuiToken.Token, true);
+            closable.SetBindValue(player.oid, nuiToken.Token, true);
 
-          makeStatic.SetBindValue(player.oid, token, false);
-          resizable.SetBindValue(player.oid, token, true);
-          closable.SetBindValue(player.oid, token, true);
-
-          geometry.SetBindValue(player.oid, token, windowRectangle);
-          geometry.SetBindWatch(player.oid, token, true);
-
-          player.openedWindows[windowId] = token;
+            geometry.SetBindValue(player.oid, nuiToken.Token, windowRectangle);
+            geometry.SetBindWatch(player.oid, nuiToken.Token, true);
+          }
         }
 
         private void HandleChatReaderEvents(ModuleEvents.OnNuiEvent nuiEvent)
         {
-          if (nuiEvent.Player.NuiGetWindowId(nuiEvent.WindowToken) != windowId)
-            return;
-
           switch (nuiEvent.ElementId)
           {
             case "fix":
 
-              switch (makeStatic.GetBindValue(nuiEvent.Player, nuiEvent.WindowToken))
+              switch (makeStatic.GetBindValue(nuiEvent.Player, nuiToken.Token))
               {
                 case false:
-                  closable.SetBindValue(nuiEvent.Player, nuiEvent.WindowToken, true);
-                  resizable.SetBindValue(nuiEvent.Player, nuiEvent.WindowToken, true);
+                  closable.SetBindValue(nuiEvent.Player, nuiToken.Token, true);
+                  resizable.SetBindValue(nuiEvent.Player, nuiToken.Token, true);
                   break;
 
                 case true:
-                  closable.SetBindValue(nuiEvent.Player, nuiEvent.WindowToken, false);
-                  resizable.SetBindValue(nuiEvent.Player, nuiEvent.WindowToken, false);
+                  closable.SetBindValue(nuiEvent.Player, nuiToken.Token, false);
+                  resizable.SetBindValue(nuiEvent.Player, nuiToken.Token, false);
                   break;
               }
 
@@ -126,7 +118,7 @@ namespace NWN.Systems
               if (!player.openedWindows.ContainsKey(windowId))
                 return;
 
-              NuiRect rectangle = geometry.GetBindValue(nuiEvent.Player, nuiEvent.WindowToken);
+              NuiRect rectangle = geometry.GetBindValue(nuiEvent.Player, nuiToken.Token);
 
               if (rectangle.Width <= 0 || rectangle.Height <= 0)
                 return;
@@ -147,7 +139,7 @@ namespace NWN.Systems
               hrpCategory.ForegroundColor = hrpPreviousColor;
               mpCategory.ForegroundColor = mpPreviousColor;
 
-              chatReaderGroup.SetLayout(player.oid, token, colChatLog);
+              chatReaderGroup.SetLayout(player.oid, nuiToken.Token, colChatLog);
 
               return;
 
@@ -172,7 +164,7 @@ namespace NWN.Systems
                 hrpCategory.ForegroundColor = previousHrp;
                 mpCategory.ForegroundColor = previousMP;
 
-                chatReaderGroup.SetLayout(player.oid, token, colChatLog);
+                chatReaderGroup.SetLayout(player.oid, nuiToken.Token, colChatLog);
               }
               return;
 
@@ -197,7 +189,7 @@ namespace NWN.Systems
                 rpCategory.ForegroundColor = previousRp;
                 mpCategory.ForegroundColor = previousMP;
 
-                chatReaderGroup.SetLayout(player.oid, token, colChatLog);
+                chatReaderGroup.SetLayout(player.oid, nuiToken.Token, colChatLog);
               }
               return;
 
@@ -223,7 +215,7 @@ namespace NWN.Systems
                 rpCategory.ForegroundColor = previousRp;
                 hrpCategory.ForegroundColor = previousHrp;
 
-                chatReaderGroup.SetLayout(player.oid, token, colChatLog);
+                chatReaderGroup.SetLayout(player.oid, nuiToken.Token, colChatLog);
               }
 
               return;
@@ -262,7 +254,7 @@ namespace NWN.Systems
             {
               ((PrivateMessageWindow)player.windows[targetName]).CreateWindow();
               ((NuiRow)colChatLogChidren[1]).Children.FirstOrDefault(c => c.Id == nuiEvent.ElementId && c is NuiLabel).ForegroundColor = new Color(142, 146, 151);
-              chatReaderGroup.SetLayout(player.oid, token, colChatLog);
+              chatReaderGroup.SetLayout(player.oid, nuiToken.Token, colChatLog);
             }
             else
             {
@@ -272,7 +264,7 @@ namespace NWN.Systems
               {
                 player.windows.Add(target.PlayerName, new PrivateMessageWindow(player, target));
                 ((NuiRow)colChatLogChidren[1]).Children.FirstOrDefault(c => c.Id == nuiEvent.ElementId && c is NuiLabel).ForegroundColor = new Color(142, 146, 151);
-                chatReaderGroup.SetLayout(player.oid, token, colChatLog);
+                chatReaderGroup.SetLayout(player.oid, nuiToken.Token, colChatLog);
               }
               else
                 player.oid.SendServerMessage($"Le joueur  {nuiEvent.ElementId.Remove(0, 3).ColorString(ColorConstants.White)} n'est pas connecté. Impossible d'ouvrir un canal privé.", ColorConstants.Red);
@@ -293,7 +285,7 @@ namespace NWN.Systems
         public void InsertNewChatInWindow(ChatLine chatLine)
         {
           AddNewChat(chatLine, player.readChatLines.Count - 1);
-          chatReaderGroup.SetLayout(player.oid, token, colChatLog);
+          chatReaderGroup.SetLayout(player.oid, nuiToken.Token, colChatLog);
         }
 
         public void UpdateChat()
@@ -303,7 +295,7 @@ namespace NWN.Systems
 
           CreateChatRows();
 
-          chatReaderGroup.SetLayout(player.oid, token, colChatLog);
+          chatReaderGroup.SetLayout(player.oid, nuiToken.Token, colChatLog);
         }
 
         private void AddNewChat(ChatLine chatLine, int chatId)
@@ -358,7 +350,7 @@ namespace NWN.Systems
 
           try
           {
-            textWidth = (geometry.GetBindValue(player.oid, token).Width - 19 - nameWidth) * 0.9f;
+            textWidth = (geometry.GetBindValue(player.oid, nuiToken.Token).Width - 19 - nameWidth) * 0.9f;
           }
           catch (Exception)
           {
@@ -390,24 +382,24 @@ namespace NWN.Systems
 
           do
           {
-            currentLine = remainingText.Length > nbCharPerLine ? remainingText.Substring(0, nbCharPerLine) : remainingText;
+            currentLine = remainingText.Length > nbCharPerLine ? remainingText[..nbCharPerLine] : remainingText;
 
             int breakPosition;
 
             if (remainingText.Length <= nbCharPerLine)
             {
               breakPosition = currentLine.Contains(Environment.NewLine) ? currentLine.IndexOf(Environment.NewLine) : currentLine.Length;
-              currentLine = currentLine.Substring(0, breakPosition);
+              currentLine = currentLine[..breakPosition];
             }
             else
             {
-              breakPosition = currentLine.Contains(" ") ? currentLine.LastIndexOf(" ") : currentLine.Length;
+              breakPosition = currentLine.Contains(' ') ? currentLine.LastIndexOf(" ") : currentLine.Length;
               int newLinePosition = currentLine.Contains(Environment.NewLine) ? currentLine.IndexOf(Environment.NewLine) : currentLine.Length;
 
               if (newLinePosition > 0 && newLinePosition < breakPosition)
                 breakPosition = newLinePosition;
 
-              currentLine = currentLine.Substring(0, breakPosition);
+              currentLine = currentLine[..breakPosition];
             }
 
             if (i == 0)
@@ -446,7 +438,7 @@ namespace NWN.Systems
 
         private void CreatePMRows()
         {
-          if (player.readChatLines.Where(c => c.category == ChatLine.ChatCategory.Private).Count() < 1)
+          if (!player.readChatLines.Where(c => c.category == ChatLine.ChatCategory.Private).Any())
             return;
 
           List<ChatLine> pmSenders = new List<ChatLine>();
@@ -485,7 +477,7 @@ namespace NWN.Systems
             CreatePMRows();
           }
 
-          chatReaderGroup.SetLayout(player.oid, token, colChatLog);
+          chatReaderGroup.SetLayout(player.oid, nuiToken.Token, colChatLog);
         }
       }
     }

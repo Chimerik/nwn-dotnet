@@ -93,46 +93,44 @@ namespace NWN.Systems
             Closable = closable,
             Transparent = false,
             Border = true,
-          };
+          };          
 
-          player.oid.OnNuiEvent -= HandlePlayerListEvents;
-          player.oid.OnNuiEvent += HandlePlayerListEvents;
-
-          token = player.oid.CreateNuiWindow(window, windowId);
-
-          if(player.mutedList.Contains(0))
+          if (player.oid.TryCreateNuiWindow(window, out NuiWindowToken tempToken, windowId))
           {
-            globalMuteIcon.SetBindValue(player.oid, token, "ief_darkness");
-            globalMuteTooltip.SetBindValue(player.oid, token, "Réactiver la réception globale de MPs. Ceux que vous avez sélectionné individuellement resteront cependant bloqués.");
-          }
-          else
-          {
-            globalMuteIcon.SetBindValue(player.oid, token, "ief_darkvis");
-            globalMuteTooltip.SetBindValue(player.oid, token, "Bloquer la réception globale de MPs afin de vous concentrer sur votre rp. Vous recevrez cependant toujours les MPs des DMs");
-          }
+            nuiToken = tempToken;
+            nuiToken.OnNuiEvent += HandlePlayerListEvents;
 
-          if (player.listened.Count > 0)
-          {
-            globalListenIcon.SetBindValue(player.oid, token, "ief_blind");
-            globalListenTooltip.SetBindValue(player.oid, token, "Désactiver l'écoute de tous les joueurs.");
-          }
-          else
-          {
-            globalListenIcon.SetBindValue(player.oid, token, "ief_concealed");
-            globalListenTooltip.SetBindValue(player.oid, token, "Activer l'écoute de tous les joueurs.");
-          }
+            if (player.mutedList.Contains(0))
+            {
+              globalMuteIcon.SetBindValue(player.oid, nuiToken.Token, "ief_darkness");
+              globalMuteTooltip.SetBindValue(player.oid, nuiToken.Token, "Réactiver la réception globale de MPs. Ceux que vous avez sélectionné individuellement resteront cependant bloqués.");
+            }
+            else
+            {
+              globalMuteIcon.SetBindValue(player.oid, nuiToken.Token, "ief_darkvis");
+              globalMuteTooltip.SetBindValue(player.oid, nuiToken.Token, "Bloquer la réception globale de MPs afin de vous concentrer sur votre rp. Vous recevrez cependant toujours les MPs des DMs");
+            }
 
-          geometry.SetBindValue(player.oid, token, windowRectangle);
-          geometry.SetBindWatch(player.oid, token, true);
+            if (player.listened.Count > 0)
+            {
+              globalListenIcon.SetBindValue(player.oid, nuiToken.Token, "ief_blind");
+              globalListenTooltip.SetBindValue(player.oid, nuiToken.Token, "Désactiver l'écoute de tous les joueurs.");
+            }
+            else
+            {
+              globalListenIcon.SetBindValue(player.oid, nuiToken.Token, "ief_concealed");
+              globalListenTooltip.SetBindValue(player.oid, nuiToken.Token, "Activer l'écoute de tous les joueurs.");
+            }
 
-          UpdatePlayerList();
+            geometry.SetBindValue(player.oid, nuiToken.Token, windowRectangle);
+            geometry.SetBindWatch(player.oid, nuiToken.Token, true);
+
+            UpdatePlayerList();
+          }
         }
 
         private void HandlePlayerListEvents(ModuleEvents.OnNuiEvent nuiEvent)
         {
-          if (nuiEvent.Player.NuiGetWindowId(nuiEvent.WindowToken) != windowId)
-            return;
-
           switch (nuiEvent.EventType)
           {
             case NuiEventType.Click:
@@ -164,9 +162,9 @@ namespace NWN.Systems
 
                     commendedPlayer.bonusRolePlay += 1;
 
-                    List<string> updatedList = bonusRoleplay.GetBindValues(player.oid, token);
+                    List<string> updatedList = bonusRoleplay.GetBindValues(player.oid, nuiToken.Token);
                     updatedList[nuiEvent.ArrayIndex] = commendedPlayer.bonusRolePlay < 4 ? $"Augmenter le bonus roleplay au niveau {commendedPlayer.bonusRolePlay + 1}" : "Bonus roleplay niveau max (4)";
-                    bonusRoleplay.SetBindValues(player.oid, token, updatedList);
+                    bonusRoleplay.SetBindValues(player.oid, nuiToken.Token, updatedList);
 
                     selectedPlayer.SendServerMessage($"Votre bonus roleplay est désormais de {commendedPlayer.bonusRolePlay}", new Color(32, 255, 32));
 
@@ -207,9 +205,9 @@ namespace NWN.Systems
 
                     downgradedPlayer.bonusRolePlay -= 1;
 
-                    List<string> updatedList = bonusRoleplayDown.GetBindValues(player.oid, token);
+                    List<string> updatedList = bonusRoleplayDown.GetBindValues(player.oid, nuiToken.Token);
                     updatedList[nuiEvent.ArrayIndex] = downgradedPlayer.bonusRolePlay > 0 ? $"Diminuer le bonus roleplay au niveau {downgradedPlayer.bonusRolePlay - 1}" : "Bonus roleplay niveau min (0)";
-                    bonusRoleplay.SetBindValues(player.oid, token, updatedList);
+                    bonusRoleplay.SetBindValues(player.oid, nuiToken.Token, updatedList);
 
                     selectedPlayer.SendServerMessage($"Votre bonus roleplay est désormais de {downgradedPlayer.bonusRolePlay}", new Color(32, 255, 32));
 
@@ -225,8 +223,8 @@ namespace NWN.Systems
                   if (!Players.TryGetValue(selectedPlayer.LoginCreature, out Player mutedPlayer))
                     return;
 
-                  List<string> updatedMutedIconList = muteIcon.GetBindValues(player.oid, token);
-                  List<string> updatedMutedTooltipList = muteTooltip.GetBindValues(player.oid, token);
+                  List<string> updatedMutedIconList = muteIcon.GetBindValues(player.oid, nuiToken.Token);
+                  List<string> updatedMutedTooltipList = muteTooltip.GetBindValues(player.oid, nuiToken.Token);
 
                   if (!player.mutedList.Contains(mutedPlayer.accountId))
                   {
@@ -245,8 +243,8 @@ namespace NWN.Systems
                     updatedMutedTooltipList[nuiEvent.ArrayIndex] = "Bloquer les MPs de ce joueur";
                   }
 
-                  muteIcon.SetBindValues(player.oid, token, updatedMutedIconList);
-                  muteTooltip.SetBindValues(player.oid, token, updatedMutedTooltipList);
+                  muteIcon.SetBindValues(player.oid, nuiToken.Token, updatedMutedIconList);
+                  muteTooltip.SetBindValues(player.oid, nuiToken.Token, updatedMutedTooltipList);
                   SaveMutedPlayersToDatabase(player);
 
                   break;
@@ -257,15 +255,15 @@ namespace NWN.Systems
                   {
                     player.mutedList.Add(0);
                     player.oid.SendServerMessage("Vous bloquez désormais la réception globale des mps. Vous recevrez cependant toujours ceux des DMs.", ColorConstants.Blue);
-                    globalMuteIcon.SetBindValue(player.oid, token, "ief_darkness");
-                    globalMuteTooltip.SetBindValue(player.oid, token, "Réactiver la réception globale de MPs. Ceux que vous avez sélectionné individuellement resteront cependant bloqués.");
+                    globalMuteIcon.SetBindValue(player.oid, nuiToken.Token, "ief_darkness");
+                    globalMuteTooltip.SetBindValue(player.oid, nuiToken.Token, "Réactiver la réception globale de MPs. Ceux que vous avez sélectionné individuellement resteront cependant bloqués.");
                   }
                   else
                   {
                     player.mutedList.Remove(0);
                     player.oid.SendServerMessage("Vous réactivez désormais la réception globale des mps. Vous ne recevrez cependant pas ceux que vous bloquez individuellement.", ColorConstants.Blue);
-                    globalMuteIcon.SetBindValue(player.oid, token, "ief_darkness");
-                    globalMuteTooltip.SetBindValue(player.oid, token, "Réactiver la réception globale de MPs. Ceux que vous avez sélectionné individuellement resteront cependant bloqués.");
+                    globalMuteIcon.SetBindValue(player.oid, nuiToken.Token, "ief_darkness");
+                    globalMuteTooltip.SetBindValue(player.oid, nuiToken.Token, "Réactiver la réception globale de MPs. Ceux que vous avez sélectionné individuellement resteront cependant bloqués.");
                   }
 
                   SaveMutedPlayersToDatabase(player);
@@ -279,8 +277,8 @@ namespace NWN.Systems
                   if (!Players.TryGetValue(selectedPlayer.LoginCreature, out Player listenPlayer))
                     return;
 
-                  List<string> updatedListenIconList = listenIcon.GetBindValues(player.oid, token);
-                  List<string> updatedListenTooltipList = listenTooltip.GetBindValues(player.oid, token);
+                  List<string> updatedListenIconList = listenIcon.GetBindValues(player.oid, nuiToken.Token);
+                  List<string> updatedListenTooltipList = listenTooltip.GetBindValues(player.oid, nuiToken.Token);
 
                   if (!player.listened.Contains(selectedPlayer))
                   {
@@ -299,8 +297,8 @@ namespace NWN.Systems
                     updatedListenTooltipList[nuiEvent.ArrayIndex] = "Mettre ce joueur sur écoute";
                   }
 
-                  listenIcon.SetBindValues(player.oid, token, updatedListenIconList);
-                  listenTooltip.SetBindValues(player.oid, token, updatedListenTooltipList);
+                  listenIcon.SetBindValues(player.oid, nuiToken.Token, updatedListenIconList);
+                  listenTooltip.SetBindValues(player.oid, nuiToken.Token, updatedListenTooltipList);
 
                   break;
 
@@ -311,16 +309,16 @@ namespace NWN.Systems
                     player.oid.SendServerMessage("Ecoute globale désactivée.", ColorConstants.Cyan);
                     player.listened.Clear();
 
-                    globalListenIcon.SetBindValue(player.oid, token, "ief_concealed");
-                    globalListenTooltip.SetBindValue(player.oid, token, "Activer l'écoute de tous les joueurs.");
+                    globalListenIcon.SetBindValue(player.oid, nuiToken.Token, "ief_concealed");
+                    globalListenTooltip.SetBindValue(player.oid, nuiToken.Token, "Activer l'écoute de tous les joueurs.");
                   }
                   else
                   {
                     foreach (NwPlayer oPC in NwModule.Instance.Players.Where(p => !p.IsDM))
                       player.listened.Add(oPC);
 
-                    globalListenIcon.SetBindValue(player.oid, token, "ief_blind");
-                    globalListenTooltip.SetBindValue(player.oid, token, "Désactiver l'écoute de tous les joueurs.");
+                    globalListenIcon.SetBindValue(player.oid, nuiToken.Token, "ief_blind");
+                    globalListenTooltip.SetBindValue(player.oid, nuiToken.Token, "Désactiver l'écoute de tous les joueurs.");
 
                     player.oid.SendServerMessage("Ecoute globale activée.", ColorConstants.Cyan);
                   }
@@ -345,8 +343,8 @@ namespace NWN.Systems
                 case "hostile": 
 
                   selectedPlayer = myPlayerList.ElementAt(nuiEvent.ArrayIndex);
-                  List<string> updatedHostileIconList = hostileIcon.GetBindValues(player.oid, token);
-                  List<string> updatedHostileTooltipList = hostileTooltip.GetBindValues(player.oid, token);
+                  List<string> updatedHostileIconList = hostileIcon.GetBindValues(player.oid, nuiToken.Token);
+                  List<string> updatedHostileTooltipList = hostileTooltip.GetBindValues(player.oid, nuiToken.Token);
 
                   if (player.oid.ControlledCreature.IsReactionTypeHostile(selectedPlayer.ControlledCreature))
                   {
@@ -361,8 +359,8 @@ namespace NWN.Systems
                     updatedHostileTooltipList[nuiEvent.ArrayIndex] = "Désactiver l'hostilité à l'égard de ce joueur";
                   }
 
-                  hostileIcon.SetBindValues(player.oid, token, updatedHostileIconList);
-                  hostileTooltip.SetBindValues(player.oid, token, updatedHostileTooltipList);
+                  hostileIcon.SetBindValues(player.oid, nuiToken.Token, updatedHostileIconList);
+                  hostileTooltip.SetBindValues(player.oid, nuiToken.Token, updatedHostileTooltipList);
 
                   break;
 
@@ -457,21 +455,21 @@ namespace NWN.Systems
             partyInviteEnabledList.Add(!player.oid.PartyMembers.Contains(playerList));
           }
 
-          playerNames.SetBindValues(player.oid, token, playerNamesList);
-          areaNames.SetBindValues(player.oid, token, areaNamesList);
-          partyInviteEnabled.SetBindValues(player.oid, token, partyInviteEnabledList);
-          bonusRoleplay.SetBindValues(player.oid, token, brpList);
-          bonusRoleplayDown.SetBindValues(player.oid, token, brpDownList);
-          muteIcon.SetBindValues(player.oid, token, muteIconList);
-          muteTooltip.SetBindValues(player.oid, token, muteTooltipList);
-          muteEnabled.SetBindValues(player.oid, token, muteEnabledList);
-          listenIcon.SetBindValues(player.oid, token, listenIconList);
-          listenTooltip.SetBindValues(player.oid, token, listenTooltipList);
-          hostileIcon.SetBindValues(player.oid, token, hostileIconList);
-          hostileTooltip.SetBindValues(player.oid, token, hostileTooltipList);
-          listCount.SetBindValue(player.oid, token, playerNamesList.Count);
+          playerNames.SetBindValues(player.oid, nuiToken.Token, playerNamesList);
+          areaNames.SetBindValues(player.oid, nuiToken.Token, areaNamesList);
+          partyInviteEnabled.SetBindValues(player.oid, nuiToken.Token, partyInviteEnabledList);
+          bonusRoleplay.SetBindValues(player.oid, nuiToken.Token, brpList);
+          bonusRoleplayDown.SetBindValues(player.oid, nuiToken.Token, brpDownList);
+          muteIcon.SetBindValues(player.oid, nuiToken.Token, muteIconList);
+          muteTooltip.SetBindValues(player.oid, nuiToken.Token, muteTooltipList);
+          muteEnabled.SetBindValues(player.oid, nuiToken.Token, muteEnabledList);
+          listenIcon.SetBindValues(player.oid, nuiToken.Token, listenIconList);
+          listenTooltip.SetBindValues(player.oid, nuiToken.Token, listenTooltipList);
+          hostileIcon.SetBindValues(player.oid, nuiToken.Token, hostileIconList);
+          hostileTooltip.SetBindValues(player.oid, nuiToken.Token, hostileTooltipList);
+          listCount.SetBindValue(player.oid, nuiToken.Token, playerNamesList.Count);
         }
-        private void SaveBRPToDatabase(Player commendedPlayer)
+        private static void SaveBRPToDatabase(Player commendedPlayer)
         {
           SqLiteUtils.UpdateQuery("PlayerAccounts",
             new List<string[]>() { new string[] { "bonusRolePlay", commendedPlayer.bonusRolePlay.ToString() } },
@@ -480,7 +478,7 @@ namespace NWN.Systems
         private static async void SaveMutedPlayersToDatabase(Player player)
         {
           Task<string> serializeMuted = Task.Run(() => JsonConvert.SerializeObject(player.mutedList));
-          await Task.WhenAll(serializeMuted);
+          await serializeMuted;
 
           SqLiteUtils.UpdateQuery("PlayerAccounts",
               new List<string[]>() { new string[] { "mutedPlayers", serializeMuted.Result } },

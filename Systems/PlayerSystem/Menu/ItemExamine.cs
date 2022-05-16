@@ -381,25 +381,21 @@ namespace NWN.Systems
             Border = true,
           };
 
-          token = player.oid.CreateNuiWindow(window, windowId);
+          if (player.oid.TryCreateNuiWindow(window, out NuiWindowToken tempToken, windowId))
+          {
+            nuiToken =tempToken;
+            nuiToken.OnNuiEvent += HandleItemExamineEvents;
 
-          player.oid.OnNuiEvent -= HandleItemExamineEvents;
-          player.oid.OnNuiEvent += HandleItemExamineEvents;
+            sequenceSaveButtonLabel.SetBindValue(player.oid, nuiToken.Token, "Continuer la séquence");
+            itemName.SetBindValue(player.oid, nuiToken.Token, item.Name);
+            itemDescription.SetBindValue(player.oid, nuiToken.Token, item.Description);
 
-          sequenceSaveButtonLabel.SetBindValue(player.oid, token, "Continuer la séquence");
-          itemName.SetBindValue(player.oid, token, item.Name);
-          itemDescription.SetBindValue(player.oid, token, item.Description);
-
-          geometry.SetBindValue(player.oid, token, windowRectangle);
-          geometry.SetBindWatch(player.oid, token, true);
-
-          player.openedWindows[windowId] = token;
+            geometry.SetBindValue(player.oid, nuiToken.Token, windowRectangle);
+            geometry.SetBindWatch(player.oid, nuiToken.Token, true);
+          }
         }
         private void HandleItemExamineEvents(ModuleEvents.OnNuiEvent nuiEvent)
         {
-          if (nuiEvent.Player.NuiGetWindowId(nuiEvent.WindowToken) != windowId)
-            return;
-
           if(item == null)
           {
             CloseWindow();
@@ -424,11 +420,11 @@ namespace NWN.Systems
             switch(nuiEvent.ElementId)
             {
               case "modifyName":
-                item.Name = itemName.GetBindValue(player.oid, token);
+                item.Name = itemName.GetBindValue(player.oid, nuiToken.Token);
                 return;
 
               case "modifyDescription":
-                item.Description = itemDescription.GetBindValue(player.oid, token);
+                item.Description = itemDescription.GetBindValue(player.oid, nuiToken.Token);
                 break;
 
               case "appearanceModifier":
@@ -443,15 +439,15 @@ namespace NWN.Systems
 
               case "add":
 
-                if (sequenceSaveButtonLabel.GetBindValue(player.oid, token) == "Enregistrer")
+                if (sequenceSaveButtonLabel.GetBindValue(player.oid, nuiToken.Token) == "Enregistrer")
                 {
-                  sequenceSaveButtonLabel.SetBindValue(player.oid, token, "Continuer la séquence");
+                  sequenceSaveButtonLabel.SetBindValue(player.oid, nuiToken.Token, "Continuer la séquence");
                   player.oid.LoginCreature.OnSpellAction -= RegisterSpellSequence;
                   player.oid.SendServerMessage("La séquence a bien été enregistrée.", ColorConstants.Orange);
                 }
                 else
                 {
-                  sequenceSaveButtonLabel.SetBindValue(player.oid, token, "Enregistrer");
+                  sequenceSaveButtonLabel.SetBindValue(player.oid, nuiToken.Token, "Enregistrer");
                   player.oid.LoginCreature.OnSpellAction -= RegisterSpellSequence;
                   player.oid.LoginCreature.OnSpellAction += RegisterSpellSequence;
                   player.oid.SendServerMessage("Les sorts que vous lancerez seront ajoutés à la séquence en cours.", ColorConstants.Orange);
@@ -475,10 +471,9 @@ namespace NWN.Systems
                 player.craftJob = new CraftJob(player, item, JobType.BlueprintCopy);
                 CloseWindow();
 
-                if (player.windows.ContainsKey("activeCraftJob"))
+                if (!player.windows.TryAdd("activeCraftJob", new ActiveCraftJobWindow(player)))
                   ((ActiveCraftJobWindow)player.windows["activeCraftJob"]).CreateWindow();
-                else
-                  player.windows.Add("activeCraftJob", new ActiveCraftJobWindow(player));
+
                 break;
 
               case "blueprintME":
@@ -493,10 +488,9 @@ namespace NWN.Systems
                 player.craftJob = new CraftJob(player, item, JobType.BlueprintResearchMaterialEfficiency);
                 CloseWindow();
 
-                if (player.windows.ContainsKey("activeCraftJob"))
+                if (!player.windows.TryAdd("activeCraftJob", new ActiveCraftJobWindow(player)))
                   ((ActiveCraftJobWindow)player.windows["activeCraftJob"]).CreateWindow();
-                else
-                  player.windows.Add("activeCraftJob", new ActiveCraftJobWindow(player));
+
                 return;
 
               case "blueprintTE":
@@ -508,10 +502,8 @@ namespace NWN.Systems
                   player.craftJob = new CraftJob(player, item, JobType.BlueprintResearchTimeEfficiency);
                   CloseWindow();
 
-                  if (player.windows.ContainsKey("activeCraftJob"))
+                  if (!player.windows.TryAdd("activeCraftJob", new ActiveCraftJobWindow(player)))
                     ((ActiveCraftJobWindow)player.windows["activeCraftJob"]).CreateWindow();
-                  else
-                    player.windows.Add("activeCraftJob", new ActiveCraftJobWindow(player));
                 }
 
                 CloseWindow();
@@ -537,7 +529,7 @@ namespace NWN.Systems
                 if (player.craftJob != null)
                   player.oid.SendServerMessage("Veuillez annuler votre travail artisanal en cours avant d'en commencer un nouveau.", ColorConstants.Red);
                 else
-                  player.craftJob = new CraftJob(player, item, JobType.Renforcement);
+                  player.craftJob = new(player, item, JobType.Renforcement);
 
                 CloseWindow();
                 return;
@@ -546,7 +538,7 @@ namespace NWN.Systems
                 if (player.craftJob != null)
                   player.oid.SendServerMessage("Veuillez annuler votre travail artisanal en cours avant d'en commencer un nouveau.", ColorConstants.Red);
                 else
-                  player.craftJob = new CraftJob(player, item, JobType.Recycling);
+                  player.craftJob = new(player, item, JobType.Recycling);
 
                 CloseWindow();
                 return;
@@ -608,16 +600,14 @@ namespace NWN.Systems
             else if (nuiEvent.ElementId.StartsWith("spell_"))
             {
               NwSpell spell = NwSpell.FromSpellId(int.Parse(nuiEvent.ElementId.Split("_")[1]));
-              if (player.windows.ContainsKey("spellDescription"))
+              if (!player.windows.TryAdd("spellDescription", new SpellDescriptionWindow(player, spell)))
                 ((SpellDescriptionWindow)player.windows["spellDescription"]).CreateWindow(spell);
-              else
-                player.windows.Add("spellDescription", new SpellDescriptionWindow(player, spell));
             }
           }
         }
         private void CreateSequenceRegisterLayout(IEnumerable spellList)
         {
-          List<NuiElement> sequencerRegisterRowChildren = new List<NuiElement>();
+          List<NuiElement> sequencerRegisterRowChildren = new();
           sequenceRegisterRow.Children = sequencerRegisterRowChildren;
           int i = 0;
 
@@ -657,7 +647,7 @@ namespace NWN.Systems
           item.GetObjectVariable<LocalVariableString>("_REGISTERED_SEQUENCE").Value = sequence.Remove(sequence.Length - 1);
 
           CreateSequenceRegisterLayout(spellList);
-          sequenceRegisterGroup.SetLayout(player.oid, token, sequenceRegisterRow);
+          sequenceRegisterGroup.SetLayout(player.oid, nuiToken.Token, sequenceRegisterRow);
         }
         private void RegisterSpellSequence(OnSpellAction onSpellAction)
         {
@@ -669,17 +659,17 @@ namespace NWN.Systems
             item.GetObjectVariable<LocalVariableString>("_REGISTERED_SEQUENCE").Value += $"_{((int)onSpellAction.Spell.SpellType)}";
 
           CreateSequenceRegisterLayout(item.GetObjectVariable<LocalVariableString>("_REGISTERED_SEQUENCE").Value.Split("_"));
-          sequenceRegisterGroup.SetLayout(player.oid, token, sequenceRegisterRow);
+          sequenceRegisterGroup.SetLayout(player.oid, nuiToken.Token, sequenceRegisterRow);
         }
         private void OpenItemAppearanceModificationWindow()
         {
           switch (item.BaseItem.ItemType)
           {
             case BaseItemType.Armor:
-              if (player.windows.ContainsKey("itemAppearanceModifier"))
+
+              if (!player.windows.TryAdd("itemAppearanceModifier", new ArmorAppearanceWindow(player, item)))
                 ((ArmorAppearanceWindow)player.windows["itemAppearanceModifier"]).CreateWindow(item);
-              else
-                player.windows.Add("itemAppearanceModifier", new ArmorAppearanceWindow(player, item));
+
               break;
             case BaseItemType.Bastardsword:
             case BaseItemType.Battleaxe:
@@ -719,10 +709,10 @@ namespace NWN.Systems
             case BaseItemType.TwoBladedSword:
             case BaseItemType.Warhammer:
             case BaseItemType.Whip:
-              if (player.windows.ContainsKey("weaponAppearanceModifier"))
+
+              if (!player.windows.TryAdd("weaponAppearanceModifier", new WeaponAppearanceWindow(player, item)))
                 ((WeaponAppearanceWindow)player.windows["weaponAppearanceModifier"]).CreateWindow(item);
-              else
-                player.windows.Add("weaponAppearanceModifier", new WeaponAppearanceWindow(player, item));
+
               break;
             case BaseItemType.Amulet:
             case BaseItemType.Arrow:
@@ -748,22 +738,22 @@ namespace NWN.Systems
             case BaseItemType.SpellScroll:
             case BaseItemType.TowerShield:
             case BaseItemType.TrapKit:
-              if (player.windows.ContainsKey("simpleItemAppearanceModifier"))
+
+              if (!player.windows.TryAdd("simpleItemAppearanceModifier", new SimpleItemAppearanceWindow(player, item)))
                 ((SimpleItemAppearanceWindow)player.windows["simpleItemAppearanceModifier"]).CreateWindow(item);
-              else
-                player.windows.Add("simpleItemAppearanceModifier", new SimpleItemAppearanceWindow(player, item));
+
               break;
             case BaseItemType.Helmet:
-              if (player.windows.ContainsKey("helmetAppearanceModifier"))
+
+              if (!player.windows.TryAdd("helmetAppearanceModifier", new HelmetAppearanceWindow(player, item)))
                 ((HelmetAppearanceWindow)player.windows["helmetAppearanceModifier"]).CreateWindow(item);
-              else
-                player.windows.Add("helmetAppearanceModifier", new HelmetAppearanceWindow(player, item));
+
               break;
             case BaseItemType.Cloak:
-              if (player.windows.ContainsKey("cloakAppearanceModifier"))
+
+              if (!player.windows.TryAdd("cloakAppearanceModifier", new CloakAppearanceWindow(player, item)))
                 ((CloakAppearanceWindow)player.windows["cloakAppearanceModifier"]).CreateWindow(item);
-              else
-                player.windows.Add("cloakAppearanceModifier", new CloakAppearanceWindow(player, item));
+
               break;
           }
         }

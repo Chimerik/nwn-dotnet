@@ -63,22 +63,20 @@ namespace NWN.Systems
             Border = true,
           };
 
-          player.oid.OnNuiEvent -= HandleChatLineEditorEvents;
-          player.oid.OnNuiEvent += HandleChatLineEditorEvents;
+          if (player.oid.TryCreateNuiWindow(window, out NuiWindowToken tempToken, windowId))
+          {
+            nuiToken = tempToken;
+            nuiToken.OnNuiEvent += HandleChatLineEditorEvents;
 
-          token = player.oid.CreateNuiWindow(window, windowId);
-
-          writingChat.SetBindValue(player.oid, token, chatLine.text.Replace("[modifié]", ""));
-          writingChat.SetBindWatch(player.oid, token, true);
-          geometry.SetBindValue(player.oid, token, windowRectangle);
-          geometry.SetBindWatch(player.oid, token, true);
+            writingChat.SetBindValue(player.oid, nuiToken.Token, chatLine.text.Replace("[modifié]", ""));
+            writingChat.SetBindWatch(player.oid, nuiToken.Token, true);
+            geometry.SetBindValue(player.oid, nuiToken.Token, windowRectangle);
+            geometry.SetBindWatch(player.oid, nuiToken.Token, true);
+          }
         }
 
         private void HandleChatLineEditorEvents(ModuleEvents.OnNuiEvent nuiEvent)
         {
-          if (nuiEvent.Player.NuiGetWindowId(nuiEvent.WindowToken) != "chatLineEditor")
-            return;
-
           switch (nuiEvent.ElementId)
           {
             case "sendText":
@@ -86,7 +84,7 @@ namespace NWN.Systems
               if (nuiEvent.EventType != NuiEventType.Click)
                 return;
 
-              string chatText = writingChat.GetBindValue(nuiEvent.Player, nuiEvent.WindowToken);
+              string chatText = writingChat.GetBindValue(nuiEvent.Player, nuiToken.Token);
 
               CloseWindow();
 
@@ -103,16 +101,16 @@ namespace NWN.Systems
 
             case "geometry":
 
-              NuiRect rectangle = geometry.GetBindValue(nuiEvent.Player, nuiEvent.WindowToken);
+              NuiRect rectangle = geometry.GetBindValue(nuiEvent.Player, nuiToken.Token);
 
               if (rectangle.Width <= 0 || rectangle.Height <= 0)
                 return;
 
-              geometry.SetBindWatch(nuiEvent.Player, nuiEvent.WindowToken, false);
+              geometry.SetBindWatch(nuiEvent.Player, nuiToken.Token, false);
               chatWriter.Width = rectangle.Width * 0.96f;
               chatWriter.Height = (rectangle.Height - 160) * 0.96f;
-              rootGroup.SetLayout(player.oid, nuiEvent.WindowToken, layoutColumn);
-              geometry.SetBindWatch(nuiEvent.Player, nuiEvent.WindowToken, true);
+              rootGroup.SetLayout(player.oid, nuiToken.Token, layoutColumn);
+              geometry.SetBindWatch(nuiEvent.Player, nuiToken.Token, true);
               break;
           }
         }

@@ -52,26 +52,23 @@ namespace NWN.Systems
             Border = true,
           };
 
-          player.oid.OnNuiEvent -= HandlePlayerInputEvents;
-          player.oid.OnNuiEvent += HandlePlayerInputEvents;
-          player.oid.OnServerSendArea -= OnAreaChangeCloseWindow;
-          player.oid.OnServerSendArea += OnAreaChangeCloseWindow;
+          if (player.oid.TryCreateNuiWindow(window, out NuiWindowToken tempToken, windowId))
+          {
+            nuiToken = tempToken;
+            nuiToken.OnNuiEvent += HandlePlayerInputEvents;
+            player.oid.OnServerSendArea += OnAreaChangeCloseWindow;
 
-          token = player.oid.CreateNuiWindow(window, windowId);
-
-          input.SetBindValue(player.oid, token, quantity);
-          geometry.SetBindValue(player.oid, token, windowRectangle);
-          geometry.SetBindWatch(player.oid, token, true);
+            input.SetBindValue(player.oid, nuiToken.Token, quantity);
+            geometry.SetBindValue(player.oid, nuiToken.Token, windowRectangle);
+            geometry.SetBindWatch(player.oid, nuiToken.Token, true);
+          }
         }
 
         private void HandlePlayerInputEvents(ModuleEvents.OnNuiEvent nuiEvent)
         {
-          if (nuiEvent.Player.NuiGetWindowId(nuiEvent.WindowToken) != windowId)
-            return;
-
           if (nuiEvent.EventType == NuiEventType.Click && nuiEvent.ElementId == "confirm")
           {
-            handler(input.GetBindValue(player.oid, token));
+            handler(input.GetBindValue(player.oid, nuiToken.Token));
             CloseWindow();
           }
         }

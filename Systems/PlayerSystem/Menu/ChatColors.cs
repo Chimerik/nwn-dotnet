@@ -55,7 +55,6 @@ namespace NWN.Systems
 
           rootChidren.Add(new NuiList(rowTemplate, listCount) { RowHeight = 35 });
 
-
           window = new NuiWindow(rootGroup, "Descriptions - Sélection")
           {
             Geometry = geometry,
@@ -66,24 +65,20 @@ namespace NWN.Systems
             Border = true,
           };
 
-          player.oid.OnNuiEvent -= HandleChatColorsEvents;
-          player.oid.OnNuiEvent += HandleChatColorsEvents;
+          if (player.oid.TryCreateNuiWindow(window, out NuiWindowToken tempToken, windowId))
+          {
+            nuiToken = tempToken;
+            nuiToken.OnNuiEvent += HandleChatColorsEvents;
 
-          token = player.oid.CreateNuiWindow(window, windowId);
+            buttonText.SetBindValues(player.oid, nuiToken.Token, channelList);
+            listCount.SetBindValue(player.oid, nuiToken.Token, channelList.Count);
 
-          buttonText.SetBindValues(player.oid, token, channelList);
-          listCount.SetBindValue(player.oid, token, channelList.Count);
-
-          geometry.SetBindValue(player.oid, token, windowRectangle);
-          geometry.SetBindWatch(player.oid, token, true);
-
-          player.openedWindows[windowId] = token;
+            geometry.SetBindValue(player.oid, nuiToken.Token, windowRectangle);
+            geometry.SetBindWatch(player.oid, nuiToken.Token, true);
+          }
         }
         private void HandleChatColorsEvents(ModuleEvents.OnNuiEvent nuiEvent)
         {
-          if (nuiEvent.Player.NuiGetWindowId(nuiEvent.WindowToken) != windowId)
-            return;
-
           switch (nuiEvent.EventType)
           {
             case NuiEventType.Click:
@@ -92,7 +87,7 @@ namespace NWN.Systems
               {
                 case "set":
 
-                  Color newColor = color.GetBindValue(player.oid, token);
+                  Color newColor = color.GetBindValue(player.oid, nuiToken.Token);
                   int chatChannel = GetChatChannelFromIndex(nuiEvent.ArrayIndex);
 
                   if (player.chatColors.ContainsKey(chatChannel))
@@ -117,29 +112,20 @@ namespace NWN.Systems
               break;
           }
         }
-        private int GetChatChannelFromIndex(int index)
+        private static int GetChatChannelFromIndex(int index)
         {
-          switch (index)
+          return index switch
           {
-            case 2:
-              return (int)ChatChannel.DmTalk;
-            case 3:
-              return (int)ChatChannel.PlayerWhisper;
-            case 4:
-              return (int)ChatChannel.DmWhisper;
-            case 5:
-              return (int)ChatChannel.PlayerParty;
-            case 6:
-              return (int)ChatChannel.PlayerTell;
-            case 7:
-              return (int)ChatChannel.DmShout;
-            case 8:
-              return 100; // emotes
-            case 9:
-              return 101; // correctif
-            default:
-              return (int)ChatChannel.PlayerTalk;
-          }
+            2 => (int)ChatChannel.DmTalk,
+            3 => (int)ChatChannel.PlayerWhisper,
+            4 => (int)ChatChannel.DmWhisper,
+            5 => (int)ChatChannel.PlayerParty,
+            6 => (int)ChatChannel.PlayerTell,
+            7 => (int)ChatChannel.DmShout,
+            8 => 100,// emotes
+            9 => 101,// correctif
+            _ => (int)ChatChannel.PlayerTalk,
+          };
         }
       }
     }

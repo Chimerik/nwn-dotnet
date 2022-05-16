@@ -18,8 +18,8 @@ namespace NWN.Systems
       public class MateriaDetectorWindow : PlayerWindow
       {
         private readonly NuiColumn rootColumn;
-        private readonly NuiBind<List<NuiComboEntry>> categories = new NuiBind<List<NuiComboEntry>>("categories");
-        private readonly List<NuiComboEntry> resourceCategories = new List<NuiComboEntry>();
+        private readonly NuiBind<List<NuiComboEntry>> categories = new("categories");
+        private readonly List<NuiComboEntry> resourceCategories = new();
 
         private readonly NuiBind<int> selectedCategory = new ("selectedCategory");
         private readonly NuiBind<string> remainingTime = new ("remainingTime");
@@ -90,34 +90,30 @@ namespace NWN.Systems
             Border = true,
           };
 
-          player.oid.OnNuiEvent -= HandleDetectorEvents;
-          player.oid.OnNuiEvent += HandleDetectorEvents;
-          player.oid.OnServerSendArea -= OnAreaChangeCloseWindow;
-          player.oid.OnServerSendArea += OnAreaChangeCloseWindow;
+          if (player.oid.TryCreateNuiWindow(window, out NuiWindowToken tempToken, windowId))
+          {
+            nuiToken = tempToken;
 
-          token = player.oid.CreateNuiWindow(window, windowId);
+            nuiToken.OnNuiEvent += HandleDetectorEvents;
+            player.oid.OnServerSendArea += OnAreaChangeCloseWindow;
 
-          selectedCategory.SetBindValue(player.oid, token, 0);
-          selectedCategory.SetBindWatch(player.oid, token, true);
+            selectedCategory.SetBindValue(player.oid, nuiToken.Token, 0);
+            selectedCategory.SetBindWatch(player.oid, nuiToken.Token, true);
 
-          remainingTime.SetBindValue(player.oid, token, "");
-          estimatedQuantity.SetBindValue(player.oid, token, "");
-          estimatedDistance.SetBindValue(player.oid, token, "");
-          estimatedCoordinates.SetBindValue(player.oid, token, "");
-          
-          categories.SetBindValue(player.oid, token, resourceCategories);
+            remainingTime.SetBindValue(player.oid, nuiToken.Token, "");
+            estimatedQuantity.SetBindValue(player.oid, nuiToken.Token, "");
+            estimatedDistance.SetBindValue(player.oid, nuiToken.Token, "");
+            estimatedCoordinates.SetBindValue(player.oid, nuiToken.Token, "");
 
-          geometry.SetBindValue(player.oid, token, windowRectangle);
-          geometry.SetBindWatch(player.oid, token, true);
+            categories.SetBindValue(player.oid, nuiToken.Token, resourceCategories);
 
-          player.openedWindows[windowId] = token;
+            geometry.SetBindValue(player.oid, nuiToken.Token, windowRectangle);
+            geometry.SetBindWatch(player.oid, nuiToken.Token, true);
+          }
         }
 
         private void HandleDetectorEvents(ModuleEvents.OnNuiEvent nuiEvent)
         {
-          if (nuiEvent.Player.NuiGetWindowId(nuiEvent.WindowToken) != windowId)
-            return;
-
           switch (nuiEvent.EventType)
           {
             case NuiEventType.Click:
@@ -126,7 +122,7 @@ namespace NWN.Systems
               {
                 case "start_detection":
 
-                  if(selectedCategory.GetBindValue(player.oid, token) == 0)
+                  if(selectedCategory.GetBindValue(player.oid, nuiToken.Token) == 0)
                   {
                     player.oid.SendServerMessage("Impossible d'entamer une recherche sans avoir préciser la catégorie recherchée.", ColorConstants.Red);
                     return;
@@ -142,7 +138,7 @@ namespace NWN.Systems
                   }
 
                   SetDetectionTime();
-                  remainingTime.SetBindValue(player.oid, token, GetReadableDetectionTime());
+                  remainingTime.SetBindValue(player.oid, nuiToken.Token, GetReadableDetectionTime());
 
                   if (!detectionProgress.IsCancelled)
                     CancelScanProgress();
@@ -171,23 +167,23 @@ namespace NWN.Systems
           }
 
           scanDuration -= 1;
-          remainingTime.SetBindValue(player.oid, token, GetReadableDetectionTime());
+          remainingTime.SetBindValue(player.oid, nuiToken.Token, GetReadableDetectionTime());
 
           if (scanDuration < 1)
           {
             detectionProgress.Dispose();
 
-            SelectDetectionSkill(selectedCategory.GetBindValue(player.oid, token));
+            SelectDetectionSkill(selectedCategory.GetBindValue(player.oid, nuiToken.Token));
 
             var materiaList = player.oid.LoginCreature.Area.FindObjectsOfTypeInArea<NwPlaceable>().Where(m => m.Tag == "mineable_materia" && m.GetObjectVariable<LocalVariableString>("_RESOURCE_TYPE").Value == resourceTemplate);
 
-            if (materiaList.Count() < 1)
+            if (!materiaList.Any())
             {
-              remainingTime.SetBindValue(player.oid, token, "Recherche - Échec");
+              remainingTime.SetBindValue(player.oid, nuiToken.Token, "Recherche - Échec");
               return;
             }
 
-            remainingTime.SetBindValue(player.oid, token, "Recherche - Terminée");
+            remainingTime.SetBindValue(player.oid, nuiToken.Token, "Recherche - Terminée");
 
             NwPlaceable biggestMateria = materiaList.OrderByDescending(m => m.GetObjectVariable<LocalVariableInt>("_ORE_AMOUNT").Value).FirstOrDefault();
 
@@ -196,7 +192,7 @@ namespace NWN.Systems
             if (player.learnableSkills.ContainsKey(resourceOrientationSkill))
               EstimateCoordinates(biggestMateria);
             else
-              estimatedCoordinates.SetBindValue(player.oid, token, "");
+              estimatedCoordinates.SetBindValue(player.oid, nuiToken.Token, "");
 
             Craft.Collect.System.UpdateResourceBlockInfo(biggestMateria);
             EstimateQuantity(biggestMateria);
@@ -208,10 +204,10 @@ namespace NWN.Systems
         private void CancelScanProgress()
         {
           detectionProgress.Dispose();
-          remainingTime.SetBindValue(player.oid, token, "");
-          estimatedQuantity.SetBindValue(player.oid, token, "");
-          estimatedDistance.SetBindValue(player.oid, token, "");
-          estimatedCoordinates.SetBindValue(player.oid, token, "");
+          remainingTime.SetBindValue(player.oid, nuiToken.Token, "");
+          estimatedQuantity.SetBindValue(player.oid, nuiToken.Token, "");
+          estimatedDistance.SetBindValue(player.oid, nuiToken.Token, "");
+          estimatedCoordinates.SetBindValue(player.oid, nuiToken.Token, "");
         }
         private void SelectDetectionSkill(int resourceType)
         {
@@ -245,15 +241,13 @@ namespace NWN.Systems
           int newEstimation = Utils.random.Next((int)(distance * totalSkillPoints * 0.05) - 1, 2 * distance - (int)(distance * totalSkillPoints * 0.05));
 
           distance = distance - previousEstimation < distance - newEstimation ? previousEstimation : newEstimation;
-          estimatedDistance.SetBindValue(player.oid, token, $"Proximité : {distance}");
+          estimatedDistance.SetBindValue(player.oid, nuiToken.Token, $"Proximité : {distance}");
 
           materia.GetObjectVariable<LocalVariableInt>($"_DISTANCE_ESTIMATE_{player.characterId}").Value = distance;
         }
         private void EstimateCoordinates(NwPlaceable materia)
         {
           int skillPoints = player.learnableSkills[resourceOrientationSkill].totalPoints;
-
-          Vector3 coordinates = materia.Position;
           Location previousEstimation = materia.GetObjectVariable<LocalVariableLocation>($"_LOCATION_ESTIMATE_{player.characterId}").Value;
 
           int randomX = Utils.random.Next((int)(materia.Position.X * skillPoints * 0.05) - 1, (int)(2 * materia.Position.X - materia.Position.X * skillPoints * 0.05));
@@ -264,7 +258,7 @@ namespace NWN.Systems
           int newY = materia.Position.Y - previousEstimation.Position.Y < materia.Position.Y - randomY ? (int)previousEstimation.Position.Y : randomY;
           int newZ = materia.Position.Z - previousEstimation.Position.Z < materia.Position.Z - randomX ? (int)previousEstimation.Position.Z : randomZ;
 
-          estimatedCoordinates.SetBindValue(player.oid, token, $"Direction : {newX}X {newY}Y {newZ}Z");
+          estimatedCoordinates.SetBindValue(player.oid, nuiToken.Token, $"Direction : {newX}X {newY}Y {newZ}Z");
 
           materia.GetObjectVariable<LocalVariableLocation>($"_LOCATION_ESTIMATE_{player.characterId}").Value =  Location.Create(materia.Area, new Vector3(newX, newY, newZ), materia.Rotation);
         }
@@ -276,7 +270,7 @@ namespace NWN.Systems
           int newEstimate = Utils.random.Next((int)(realQuantity * skillPoints * 0.05) - 1, 2 * realQuantity - (int)(realQuantity * skillPoints * 0.05));
 
           newEstimate = realQuantity - previousEstimation < realQuantity - newEstimate ? previousEstimation : newEstimate;
-          estimatedQuantity.SetBindValue(player.oid, token, $"Masse : {newEstimate}");
+          estimatedQuantity.SetBindValue(player.oid, nuiToken.Token, $"Masse : {newEstimate}");
 
           materia.GetObjectVariable<LocalVariableInt>($"_QUANTITY_ESTIMATE_{player.characterId}").Value = newEstimate;
         }
@@ -307,7 +301,7 @@ namespace NWN.Systems
         {
           scanDuration = 120;
 
-          switch(selectedCategory.GetBindValue(player.oid, token))
+          switch(selectedCategory.GetBindValue(player.oid, nuiToken.Token))
           {
             case 1:
               scanDuration = Craft.Collect.System.GetResourceDetectionTime(player, CustomSkill.OreDetection, CustomSkill.OreDetectionSpeed);

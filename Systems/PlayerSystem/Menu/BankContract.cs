@@ -64,23 +64,19 @@ namespace NWN.Systems
             Closable = true,
             Transparent = false,
             Border = true,
-          };
+          };          
 
-          player.oid.OnNuiEvent -= HandleBankContractEvents;
-          player.oid.OnNuiEvent += HandleBankContractEvents;
+          if (player.oid.TryCreateNuiWindow(window, out NuiWindowToken tempToken, windowId))
+          {
+            nuiToken = tempToken;
+            nuiToken.OnNuiEvent += HandleBankContractEvents;
 
-          token = player.oid.CreateNuiWindow(window, windowId);
-
-          geometry.SetBindValue(player.oid, token, windowRectangle);
-          geometry.SetBindWatch(player.oid, token, true);
-
-          player.openedWindows[windowId] = token;
+            geometry.SetBindValue(player.oid, nuiToken.Token, windowRectangle);
+            geometry.SetBindWatch(player.oid, nuiToken.Token, true);
+          }
         }
         private async void HandleBankContractEvents(ModuleEvents.OnNuiEvent nuiEvent)
         {
-          if (nuiEvent.Player.NuiGetWindowId(nuiEvent.WindowToken) != windowId)
-            return;
-
           switch (nuiEvent.EventType)
           {
             case NuiEventType.Click:
@@ -104,11 +100,9 @@ namespace NWN.Systems
                     var command = connection.CreateCommand();
                     command.CommandText = "SELECT max(id) from bankPlaceables";
 
-                    using (var reader = await command.ExecuteReaderAsync())
-                    {
-                      while (reader.Read())
-                        id += reader.GetInt32(0);
-                    }
+                    using var reader = await command.ExecuteReaderAsync();
+                    while (reader.Read())
+                      id += reader.GetInt32(0);
                   }
 
                   SqLiteUtils.InsertQuery("bankPlaceables",
@@ -130,7 +124,7 @@ namespace NWN.Systems
         }
         private async void InitializeGiftItems()
         {
-          List<string> serializedItems = new List<string>();
+          List<string> serializedItems = new();
 
           serializedItems.Add(CreateTempGiftItem("bad_armor", 1));
           serializedItems.Add(CreateTempGiftItem("bad_club", 1));
@@ -139,13 +133,13 @@ namespace NWN.Systems
           serializedItems.Add(CreateTempGiftItem("NW_WAMBU001", 99));
 
           Task<string> serializeBank = Task.Run(() => JsonConvert.SerializeObject(serializedItems));
-          await Task.WhenAll(serializeBank);
+          await serializeBank;
 
           SqLiteUtils.UpdateQuery("playerCharacters",
             new List<string[]>() { new string[] { "persistantStorage", serializeBank.Result } },
             new List<string[]>() { new string[] { "rowid", player.characterId.ToString() } });
         }
-        private string CreateTempGiftItem(string itemTemplate, int stackSize)
+        private static string CreateTempGiftItem(string itemTemplate, int stackSize)
         {
           NwItem tempItem = NwItem.Create(itemTemplate, NwModule.Instance.StartingLocation, false, stackSize);
           tempItem.GetObjectVariable<LocalVariableString>("ITEM_KEY").Value = Config.itemKey;

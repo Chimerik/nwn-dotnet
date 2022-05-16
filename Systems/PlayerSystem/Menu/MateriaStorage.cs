@@ -15,9 +15,9 @@ namespace NWN.Systems
       {
         private readonly NuiGroup rootGroup;
         private readonly NuiColumn rootColumn;
-        private readonly List<NuiElement> rootChidren = new List<NuiElement>();
+        private readonly List<NuiElement> rootChidren = new();
         private readonly NuiRow introTextRow;
-        private readonly NuiRow storeRow = new NuiRow() 
+        private readonly NuiRow storeRow = new() 
         { 
           Children = new List<NuiElement>() 
           { 
@@ -83,26 +83,21 @@ namespace NWN.Systems
             Border = true,
           };
 
-          player.oid.OnNuiEvent -= HandleMateriaStorageEvents;
-          player.oid.OnNuiEvent += HandleMateriaStorageEvents;
-          player.oid.OnServerSendArea -= OnAreaChangeCloseWindow;
-          player.oid.OnServerSendArea += OnAreaChangeCloseWindow;
+          if (player.oid.TryCreateNuiWindow(window, out NuiWindowToken tempToken, windowId))
+          {
+            nuiToken = tempToken;
+            nuiToken.OnNuiEvent += HandleMateriaStorageEvents;
+            player.oid.OnServerSendArea += OnAreaChangeCloseWindow;
 
-          token = player.oid.CreateNuiWindow(window, windowId);
+            npcText.SetBindValue(player.oid, nuiToken.Token, tempText);
+            LoadMateriaList();
 
-          npcText.SetBindValue(player.oid, token, tempText);
-          LoadMateriaList();
-
-          geometry.SetBindValue(player.oid, token, windowRectangle);
-          geometry.SetBindWatch(player.oid, token, true);
-
-          player.openedWindows[windowId] = token;
+            geometry.SetBindValue(player.oid, nuiToken.Token, windowRectangle);
+            geometry.SetBindWatch(player.oid, nuiToken.Token, true);
+          }
         }
         private void HandleMateriaStorageEvents(ModuleEvents.OnNuiEvent nuiEvent)
         {
-          if (nuiEvent.Player.NuiGetWindowId(nuiEvent.WindowToken) != windowId)
-            return;
-
           switch (nuiEvent.EventType)
           {
             case NuiEventType.Click:
@@ -146,7 +141,7 @@ namespace NWN.Systems
                   return;
 
                 case "withdraw":
-                  npcText.SetBindValue(player.oid, token, "Retirer ? Et pour quoi faire ? Vous ne pouvez pas entrer en ville avec de toute façon.\n\n" +
+                  npcText.SetBindValue(player.oid, nuiToken.Token, "Retirer ? Et pour quoi faire ? Vous ne pouvez pas entrer en ville avec de toute façon.\n\n" +
                     "Si vous voulez vendre du stock à quelqu'un, passez plutôt par un contrat du Juge du Changement.");
                   return;
 
@@ -159,8 +154,8 @@ namespace NWN.Systems
         }
         private void LoadMateriaList()
         {
-          List<string> materiaNamesList = new List<string>();
-          List<string> materiaIconList = new List<string>();
+          List<string> materiaNamesList = new();
+          List<string> materiaIconList = new();
 
           foreach (CraftResource resource in player.craftResourceStock)
           {
@@ -168,9 +163,9 @@ namespace NWN.Systems
             materiaNamesList.Add($"{resource.name} (x{resource.quantity})");
           }
 
-          materiaIcon.SetBindValues(player.oid, token, materiaIconList);
-          materiaNames.SetBindValues(player.oid, token, materiaNamesList);
-          listCount.SetBindValue(player.oid, token, player.craftResourceStock.Count);
+          materiaIcon.SetBindValues(player.oid, nuiToken.Token, materiaIconList);
+          materiaNames.SetBindValues(player.oid, nuiToken.Token, materiaNamesList);
+          listCount.SetBindValue(player.oid, nuiToken.Token, player.craftResourceStock.Count);
         }
       }
     }

@@ -15,9 +15,9 @@ namespace NWN.Systems
     {
       public class PlayerEffectDispelWindow : PlayerWindow
       {
-        private readonly NuiColumn rootRow = new NuiColumn();
-        private readonly List<NuiElement> rootChildren = new List<NuiElement>();
-        private readonly List<NuiListTemplateCell> rowTemplate = new List<NuiListTemplateCell>();
+        private readonly NuiColumn rootRow = new();
+        private readonly List<NuiElement> rootChildren = new();
+        private readonly List<NuiListTemplateCell> rowTemplate = new();
 
         private readonly NuiBind<string> spellIcons = new ("spellIcons");
         private readonly NuiBind<string> spellName = new ("spellName");
@@ -40,7 +40,7 @@ namespace NWN.Systems
           rowTemplate.Add(new NuiListTemplateCell(new NuiButtonImage("menu_exit") { Id = "delete", Tooltip = "Dissiper", Height = 35 }) { Width = 35 });
 
           rootRow.Children = rootChildren;
-          rootChildren.Add(new NuiRow() { Children = new List<NuiElement>() { new NuiList(rowTemplate, listCount) { RowHeight = 35 } } });
+          rootChildren.Add(new NuiRow() { Children = new() { new NuiList(rowTemplate, listCount) { RowHeight = 35 } } });
 
           CreateWindow();
         }
@@ -58,34 +58,35 @@ namespace NWN.Systems
             Border = true,
           };
 
-          player.oid.OnNuiEvent -= HandleEffectEvents;
-          player.oid.OnNuiEvent += HandleEffectEvents;
-
-          token = player.oid.CreateNuiWindow(window, windowId);
-
-          geometry.SetBindValue(player.oid, token, windowRectangle);
-          geometry.SetBindWatch(player.oid, token, true);
-
-          UpdateEffectList();
-
-          listRefresher = player.scheduler.ScheduleRepeating(() =>
+          if (player.oid.TryCreateNuiWindow(window, out NuiWindowToken tempToken, windowId))
           {
-            if (player.pcState == PcState.Offline || player.oid.ControlledCreature == null || !player.openedWindows.ContainsKey(windowId))
-            {
-              listRefresher.Dispose();
-              return;
-            }
+            nuiToken = tempToken;
+            nuiToken.OnNuiEvent += HandleEffectEvents;
+
+            geometry.SetBindValue(player.oid, nuiToken.Token, windowRectangle);
+            geometry.SetBindWatch(player.oid, nuiToken.Token, true);
 
             UpdateEffectList();
 
-          }, TimeSpan.FromSeconds(1));
+            if (listRefresher != null)
+              listRefresher.Dispose();
+
+            listRefresher = player.scheduler.ScheduleRepeating(() =>
+            {
+              if (player.pcState == PcState.Offline || player.oid.ControlledCreature == null || !player.openedWindows.ContainsKey(windowId))
+              {
+                listRefresher.Dispose();
+                return;
+              }
+
+              UpdateEffectList();
+
+            }, TimeSpan.FromSeconds(1));
+          }   
         }
 
         private void HandleEffectEvents(ModuleEvents.OnNuiEvent nuiEvent)
         {
-          if (nuiEvent.Player.NuiGetWindowId(nuiEvent.WindowToken) != windowId)
-            return;
-
           switch (nuiEvent.EventType)
           {
             case NuiEventType.Click:
@@ -106,13 +107,8 @@ namespace NWN.Systems
 
                   int spellId = (int)spells[nuiEvent.ArrayIndex].Id;
 
-                  if (player.openedWindows.ContainsKey("learnableDescription"))
-                    player.windows["learnableDescription"].CloseWindow();
-
-                  if (player.windows.ContainsKey("learnableDescription"))
+                  if (!player.windows.TryAdd("learnableDescription", new LearnableDescriptionWindow(player, spellId)))
                     ((LearnableDescriptionWindow)player.windows["learnableDescription"]).CreateWindow(spellId);
-                  else
-                    player.windows.Add("learnableDescription", new LearnableDescriptionWindow(player, spellId));
                   
                   break;
               }
@@ -166,11 +162,11 @@ namespace NWN.Systems
             }
           }
 
-          spellIcons.SetBindValues(player.oid, token, aoeIconList);
-          targetNames.SetBindValues(player.oid, token, aoeAreaList);
-          spellName.SetBindValues(player.oid, token, aoeNameList);
-          spellRemainingDuration.SetBindValues(player.oid, token, aoeDurationList);
-          listCount.SetBindValue(player.oid, token, aoeIconList.Count());
+          spellIcons.SetBindValues(player.oid, nuiToken.Token, aoeIconList);
+          targetNames.SetBindValues(player.oid, nuiToken.Token, aoeAreaList);
+          spellName.SetBindValues(player.oid, nuiToken.Token, aoeNameList);
+          spellRemainingDuration.SetBindValues(player.oid, nuiToken.Token, aoeDurationList);
+          listCount.SetBindValue(player.oid, nuiToken.Token, aoeIconList.Count);
         }
       }
     }

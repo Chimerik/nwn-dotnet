@@ -43,7 +43,7 @@ namespace NWN.Systems
         oPCCorpse.Tag = "pccorpse";
         await NwTask.Delay(TimeSpan.FromSeconds(0.2));
         wp.GetNearestObjectsByType<NwPlaceable>().FirstOrDefault(b => b.Tag == "BodyBag").Tag = "pccorpse_bodybag";
-        wp.Destroy(0.1f);
+        scheduler.Schedule(() => wp.Destroy(), TimeSpan.FromSeconds(0.1));
       });
     }
     public static void DeletePlayerCorpseFromDatabase(int characterId)

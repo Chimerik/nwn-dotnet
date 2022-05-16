@@ -972,7 +972,7 @@ namespace NWN.Systems
 
         return materiaCost;
       }
-      public static int GetJobLearnableFromWorkshop(string workshopTag)
+      public int GetJobLearnableFromWorkshop(string workshopTag)
       {
         return workshopTag switch
         {

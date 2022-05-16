@@ -10,14 +10,13 @@ namespace NWN.Systems
     {
       public void CreatePortraitDemoWindow()
       {
-        NuiBind<string> portraitId = new ("po_id");
+        /*NuiBind<string> portraitId = new ("po_id");
         NuiBind<string> portraitResRef = new ("po_resref");
         NuiBind<bool> btnPrevEnabled = new ("btnpreve");
         NuiBind<bool> btnSetEnabled = new ("btnoke");
         NuiBind<bool> btnNextEnabled = new ("btnnexte");
         NuiBind<int> portraitCategory = new ("po_category");
         NuiBind<bool> collapsed = new ("collapsed");
-        NuiBind<NuiRect> geometry = new NuiBind<NuiRect>("geometry");
 
         List<NuiComboEntry> comboValues = new List<NuiComboEntry>
         {
@@ -55,7 +54,7 @@ namespace NWN.Systems
               Children = new List<NuiElement>
               {
                 new NuiSpacer(),
-                /*new NuiGroup
+                new NuiGroup
                 {
                   Width = 256.0f,
                   Height = 400.0f,
@@ -68,8 +67,8 @@ namespace NWN.Systems
                       VerticalAlign = NuiVAlign.Middle
                     }
                   }
-                },*/
-                new NuiSpacer()
+                },
+        new NuiSpacer()
               }
             },
             new NuiRow
@@ -137,7 +136,7 @@ namespace NWN.Systems
         btnNextEnabled.SetBindValue(oid, token, true);
         portraitCategory.SetBindValue(oid, token, 0);
         portraitCategory.SetBindWatch(oid, token, true);
-        collapsed.SetBindWatch(oid, token, true);
+        collapsed.SetBindWatch(oid, token, true);*/
       }
     }
   }

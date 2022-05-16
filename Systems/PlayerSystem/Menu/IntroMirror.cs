@@ -89,21 +89,17 @@ namespace NWN.Systems
             Border = true,
           };
 
-          player.oid.OnNuiEvent -= HandleIntroMirrorEvents;
-          player.oid.OnNuiEvent += HandleIntroMirrorEvents;
+          if (player.oid.TryCreateNuiWindow(window, out NuiWindowToken tempToken, windowId))
+          {
+            nuiToken = tempToken;
+            nuiToken.OnNuiEvent += HandleIntroMirrorEvents;
 
-          token = player.oid.CreateNuiWindow(window, windowId);
-
-          geometry.SetBindValue(player.oid, token, windowRectangle);
-          geometry.SetBindWatch(player.oid, token, true);
-
-          player.openedWindows[windowId] = token;
+            geometry.SetBindValue(player.oid, nuiToken.Token, windowRectangle);
+            geometry.SetBindWatch(player.oid, nuiToken.Token, true);
+          }
         }
         private void HandleIntroMirrorEvents(ModuleEvents.OnNuiEvent nuiEvent)
         {
-          if (nuiEvent.Player.NuiGetWindowId(nuiEvent.WindowToken) != windowId)
-            return;
-
           switch(nuiEvent.EventType)
           {
             case NuiEventType.Click:
@@ -114,10 +110,8 @@ namespace NWN.Systems
 
                   CloseWindow();
 
-                  if (player.windows.ContainsKey("bodyAppearanceModifier"))
+                  if (!player.windows.TryAdd("bodyAppearanceModifier", new BodyAppearanceWindow(player, player.oid.LoginCreature)))
                     ((BodyAppearanceWindow)player.windows["bodyAppearanceModifier"]).CreateWindow(player.oid.LoginCreature);
-                  else
-                    player.windows.Add("bodyAppearanceModifier", new BodyAppearanceWindow(player, player.oid.LoginCreature));
 
                   break;
 
@@ -125,10 +119,8 @@ namespace NWN.Systems
 
                   CloseWindow();
 
-                  if (player.windows.ContainsKey("introBackground"))
+                  if (!player.windows.TryAdd("introBackground", new IntroBackgroundWindow(player)))
                     ((LearnableWindow)player.windows["introBackground"]).CreateWindow();
-                  else
-                    player.windows.Add("introBackground", new IntroBackgroundWindow(player));
 
                   break;
 
@@ -136,10 +128,8 @@ namespace NWN.Systems
 
                   CloseWindow();
 
-                  if (player.windows.ContainsKey("introLearnables"))
+                  if (!player.windows.TryAdd("introLearnables", new IntroLearnableWindow(player)))
                     ((IntroLearnableWindow)player.windows["introLearnables"]).CreateWindow();
-                  else
-                    player.windows.Add("introLearnables", new IntroLearnableWindow(player));
                   
                   break;
               }

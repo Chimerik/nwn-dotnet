@@ -12,9 +12,9 @@ namespace NWN.Systems
     {
       public class ResourceDMGiftWindow : PlayerWindow
       {
-        private readonly NuiColumn rootRow = new NuiColumn();
-        private readonly List<NuiElement> rootChildren = new List<NuiElement>();
-        private readonly List<NuiListTemplateCell> rowTemplate = new List<NuiListTemplateCell>();
+        private readonly NuiColumn rootRow = new();
+        private readonly List<NuiElement> rootChildren = new();
+        private readonly List<NuiListTemplateCell> rowTemplate = new();
 
         private readonly NuiBind<string> myResourceNames = new ("myResourceNames");
         private readonly NuiBind<int> myListCount = new ("myListCount");
@@ -63,22 +63,22 @@ namespace NWN.Systems
             Border = true,
           };
 
-          player.oid.OnNuiEvent -= HandleResourceGiftEvents;
-          player.oid.OnNuiEvent += HandleResourceGiftEvents;
 
-          token = player.oid.CreateNuiWindow(window, windowId);
+          if (player.oid.TryCreateNuiWindow(window, out NuiWindowToken tempToken, windowId))
+          {
+            nuiToken = tempToken;
+            nuiToken.OnNuiEvent += HandleResourceGiftEvents;
+            geometry.SetBindValue(player.oid, nuiToken.Token, windowRectangle);
+            geometry.SetBindWatch(player.oid, nuiToken.Token, true);
+          }
 
-          geometry.SetBindValue(player.oid, token, windowRectangle);
-          geometry.SetBindWatch(player.oid, token, true);
+            
 
           LoadResourceList();
         }
 
         private void HandleResourceGiftEvents(ModuleEvents.OnNuiEvent nuiEvent)
         {
-          if (nuiEvent.Player.NuiGetWindowId(nuiEvent.WindowToken) != windowId)
-            return;
-
           switch (nuiEvent.EventType)
           {
             case NuiEventType.Click:
@@ -94,7 +94,7 @@ namespace NWN.Systems
                     return;
                   }
 
-                  var quantities = myQuantity.GetBindValues(player.oid, token);
+                  var quantities = myQuantity.GetBindValues(player.oid, nuiToken.Token);
 
                   for (int i = 0; i < Craft.Collect.System.craftResourceArray.Length; i++)
                   {
@@ -124,9 +124,9 @@ namespace NWN.Systems
         }
         private void LoadResourceList()
         {
-          List<string> resourceNameList = new List<string>();
-          List<string> resourceIconList = new List<string>();
-          List<string> resourceQuantityList = new List<string>();
+          List<string> resourceNameList = new();
+          List<string> resourceIconList = new();
+          List<string> resourceQuantityList = new();
 
           foreach (CraftResource resource in Craft.Collect.System.craftResourceArray)
           {
@@ -135,10 +135,10 @@ namespace NWN.Systems
             resourceQuantityList.Add("0");
           }
 
-          myResourceNames.SetBindValues(player.oid, token, resourceNameList);
-          myResourceIcon.SetBindValues(player.oid, token, resourceIconList);
-          myQuantity.SetBindValues(player.oid, token, resourceQuantityList);
-          myListCount.SetBindValue(player.oid, token, resourceNameList.Count());
+          myResourceNames.SetBindValues(player.oid, nuiToken.Token, resourceNameList);
+          myResourceIcon.SetBindValues(player.oid, nuiToken.Token, resourceIconList);
+          myQuantity.SetBindValues(player.oid, nuiToken.Token, resourceQuantityList);
+          myListCount.SetBindValue(player.oid, nuiToken.Token, resourceNameList.Count);
         }
       }
     }

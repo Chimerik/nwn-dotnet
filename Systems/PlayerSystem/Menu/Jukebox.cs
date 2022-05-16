@@ -56,37 +56,34 @@ namespace NWN.Systems
             Border = true,
           };
 
-          player.oid.OnNuiEvent -= HandleJukeBoxEvents;
-          player.oid.OnNuiEvent += HandleJukeBoxEvents;
-          player.oid.OnServerSendArea -= OnAreaChangeCloseWindow;
-          player.oid.OnServerSendArea += OnAreaChangeCloseWindow;
-
-          token = player.oid.CreateNuiWindow(window, windowId);
-
-          search.SetBindValue(player.oid, token, "");
-          search.SetBindWatch(player.oid, token, true);
-          geometry.SetBindValue(player.oid, token, windowRectangle);
-          geometry.SetBindWatch(player.oid, token, true);
-
-          if (bard.Gender == Gender.Female)
+          if (player.oid.TryCreateNuiWindow(window, out NuiWindowToken tempToken, windowId))
           {
-            currentMusic.SetBindValue(player.oid, token, "Ambiance du relais");
-            songList = AmbientMusic2da.femaleAmbientMusicEntry;
-          }
-          else
-          {
-            currentMusic.SetBindValue(player.oid, token, "Ambiance du dragon d'argent");
-            songList = AmbientMusic2da.maleAmbientMusicEntry;
-          }
+            nuiToken = tempToken;
+            nuiToken.OnNuiEvent += HandleJukeBoxEvents;
+            player.oid.OnServerSendArea += OnAreaChangeCloseWindow;
 
-          LoadList(songList);
+            search.SetBindValue(player.oid, nuiToken.Token, "");
+            search.SetBindWatch(player.oid, nuiToken.Token, true);
+            geometry.SetBindValue(player.oid, nuiToken.Token, windowRectangle);
+            geometry.SetBindWatch(player.oid, nuiToken.Token, true);
+
+            if (bard.Gender == Gender.Female)
+            {
+              currentMusic.SetBindValue(player.oid, nuiToken.Token, "Ambiance du relais");
+              songList = AmbientMusic2da.femaleAmbientMusicEntry;
+            }
+            else
+            {
+              currentMusic.SetBindValue(player.oid, nuiToken.Token, "Ambiance du dragon d'argent");
+              songList = AmbientMusic2da.maleAmbientMusicEntry;
+            }
+
+            LoadList(songList);
+          }
         }
 
         private void HandleJukeBoxEvents(ModuleEvents.OnNuiEvent nuiEvent)
         {
-          if (nuiEvent.Player.NuiGetWindowId(nuiEvent.WindowToken) != windowId)
-            return;
-
           switch (nuiEvent.EventType)
           {
             case NuiEventType.Click:
@@ -96,7 +93,7 @@ namespace NWN.Systems
                 case "select":
 
                   AmbientMusicEntry selectedSong = songList.ElementAt(nuiEvent.ArrayIndex);
-                  currentMusic.SetBindValue(player.oid, token, selectedSong.name);
+                  currentMusic.SetBindValue(player.oid, nuiToken.Token, selectedSong.name);
 
                   NwArea area = bard.Area;
                   area.StopBackgroundMusic();
@@ -121,7 +118,7 @@ namespace NWN.Systems
               {
                 case "search":
 
-                  string currentSearch = search.GetBindValue(player.oid, token).ToLower();
+                  string currentSearch = search.GetBindValue(player.oid, nuiToken.Token).ToLower();
                   var filteredList = songList;
 
                   if (!string.IsNullOrEmpty(currentSearch))
@@ -136,13 +133,13 @@ namespace NWN.Systems
         }
         private void LoadList(IEnumerable<AmbientMusicEntry> songList)
         {
-          List<string> nameList = new List<string>();
+          List<string> nameList = new();
 
           foreach (AmbientMusicEntry song in songList) 
             nameList.Add(song.name);
 
-          musicNames.SetBindValues(player.oid, token, nameList);
-          listCount.SetBindValue(player.oid, token, nameList.Count);
+          musicNames.SetBindValues(player.oid, nuiToken.Token, nameList);
+          listCount.SetBindValue(player.oid, nuiToken.Token, nameList.Count);
         }
       }
     }

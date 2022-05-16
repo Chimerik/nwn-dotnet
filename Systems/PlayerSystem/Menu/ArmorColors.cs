@@ -144,34 +144,32 @@ namespace NWN.Systems
             Border = true,
           };
 
-          player.oid.OnNuiEvent -= HandleItemColorsEvents;
-          player.oid.OnNuiEvent += HandleItemColorsEvents;
+          if (player.oid.TryCreateNuiWindow(window, out NuiWindowToken tempToken, windowId))
+          {
+            nuiToken = tempToken;
+            nuiToken.OnNuiEvent += HandleItemColorsEvents;
 
-          player.ActivateSpotLight(player.oid.ControlledCreature);
+            player.ActivateSpotLight(player.oid.ControlledCreature);
 
-          token = player.oid.CreateNuiWindow(window, windowId);
+            currentColor.SetBindValue(player.oid, nuiToken.Token, $"leather{item.Appearance.GetArmorColor(ItemAppearanceArmorColor.Leather1)}");
+            channelSelection.SetBindValue(player.oid, nuiToken.Token, 0);
+            spotSelection.SetBindValue(player.oid, nuiToken.Token, 0);
+            symmetry.SetBindValue(player.oid, nuiToken.Token, false);
 
-          currentColor.SetBindValue(player.oid, token, $"leather{item.Appearance.GetArmorColor(ItemAppearanceArmorColor.Leather1)}");
-          channelSelection.SetBindValue(player.oid, token, 0);
-          spotSelection.SetBindValue(player.oid, token, 0);
-          symmetry.SetBindValue(player.oid, token, false);
+            channelSelection.SetBindWatch(player.oid, nuiToken.Token, true);
+            spotSelection.SetBindWatch(player.oid, nuiToken.Token, true);
 
-          channelSelection.SetBindWatch(player.oid, token, true);
-          spotSelection.SetBindWatch(player.oid, token, true);
+            geometry.SetBindValue(player.oid, nuiToken.Token, windowRectangle);
+            geometry.SetBindWatch(player.oid, nuiToken.Token, true);
 
-          geometry.SetBindValue(player.oid, token, windowRectangle);
-          geometry.SetBindWatch(player.oid, token, true);
+            for (int i = 0; i < 256; i++)
+              colorBindings[i].SetBindValue(player.oid, nuiToken.Token, NWScript.ResManGetAliasFor($"leather{i + 1}", NWScript.RESTYPE_TGA));
+          }
 
-          for (int i = 0; i < 256; i++)
-            colorBindings[i].SetBindValue(player.oid, token, NWScript.ResManGetAliasFor($"leather{i + 1}", NWScript.RESTYPE_TGA));
-
-          player.openedWindows[windowId] = token;
+            
         }
         private void HandleItemColorsEvents(ModuleEvents.OnNuiEvent nuiEvent)
         {
-          if (nuiEvent.Player.NuiGetWindowId(nuiEvent.WindowToken) != "itemColorsModifier")
-            return;
-
           if (nuiEvent.EventType == NuiEventType.Close)
           {
             player.RemoveSpotLight(player.oid.ControlledCreature);
@@ -203,8 +201,8 @@ namespace NWN.Systems
                 return;
               }
 
-              int spot = spotSelection.GetBindValue(nuiEvent.Player, nuiEvent.WindowToken) - 1;
-              ItemAppearanceArmorColor colorChanel = (ItemAppearanceArmorColor)channelSelection.GetBindValue(nuiEvent.Player, nuiEvent.WindowToken);
+              int spot = spotSelection.GetBindValue(nuiEvent.Player, nuiToken.Token) - 1;
+              ItemAppearanceArmorColor colorChanel = (ItemAppearanceArmorColor)channelSelection.GetBindValue(nuiEvent.Player, nuiToken.Token);
               switch (spot)
               {
                 case -1:
@@ -213,7 +211,7 @@ namespace NWN.Systems
                 default:
 
                   int modelSymmetry = spot;
-                  if (symmetry.GetBindValue(nuiEvent.Player, nuiEvent.WindowToken) && (spot < 6 || (spot > 9 && spot < 18)))
+                  if (symmetry.GetBindValue(nuiEvent.Player, nuiToken.Token) && (spot < 6 || (spot > 9 && spot < 18)))
                   {
                     if (spot % 2 == 0)
                       modelSymmetry += 1;
@@ -233,7 +231,7 @@ namespace NWN.Systems
               item.Destroy();
               item = newItem;
 
-              currentColor.SetBindValue(nuiEvent.Player, nuiEvent.WindowToken, $"leather{int.Parse(nuiEvent.ElementId) + 1}");
+              currentColor.SetBindValue(nuiEvent.Player, nuiToken.Token, $"leather{int.Parse(nuiEvent.ElementId) + 1}");
 
               break;
 
@@ -242,38 +240,31 @@ namespace NWN.Systems
               if (nuiEvent.ElementId == "channelSelection")
               {
                 string channelChoice = "leather";
-                ItemAppearanceArmorColor selectedChannel = (ItemAppearanceArmorColor)channelSelection.GetBindValue(player.oid, token);
+                ItemAppearanceArmorColor selectedChannel = (ItemAppearanceArmorColor)channelSelection.GetBindValue(player.oid, nuiToken.Token);
                 if (selectedChannel == ItemAppearanceArmorColor.Metal1 || selectedChannel == ItemAppearanceArmorColor.Metal2)
                   channelChoice = "metal";
 
                 for (int i = 0; i < 4; i++)
-                  colorBindings[i].SetBindValue(player.oid, token, NWScript.ResManGetAliasFor($"{channelChoice}{i + 1}", NWScript.RESTYPE_TGA) != "" ? $"{channelChoice}{i + 1}" : $"leather{i + 1}");
+                  colorBindings[i].SetBindValue(player.oid, nuiToken.Token, NWScript.ResManGetAliasFor($"{channelChoice}{i + 1}", NWScript.RESTYPE_TGA) != "" ? $"{channelChoice}{i + 1}" : $"leather{i + 1}");
 
                 int newCurrentColor = item.Appearance.GetArmorColor(selectedChannel) + 1;
-                currentColor.SetBindValue(player.oid, token, NWScript.ResManGetAliasFor($"{channelChoice}{newCurrentColor}", NWScript.RESTYPE_TGA) != "" ? $"{channelChoice}{newCurrentColor}" : $"leather{newCurrentColor}");
+                currentColor.SetBindValue(player.oid, nuiToken.Token, NWScript.ResManGetAliasFor($"{channelChoice}{newCurrentColor}", NWScript.RESTYPE_TGA) != "" ? $"{channelChoice}{newCurrentColor}" : $"leather{newCurrentColor}");
               }
 
               if (nuiEvent.ElementId == "channelSelection" || nuiEvent.ElementId == "spotSelection")
               {
                 string channelChoice = "leather";
-                ItemAppearanceArmorColor selectedChannel = (ItemAppearanceArmorColor)channelSelection.GetBindValue(player.oid, token);
+                ItemAppearanceArmorColor selectedChannel = (ItemAppearanceArmorColor)channelSelection.GetBindValue(player.oid, nuiToken.Token);
                 if (selectedChannel == ItemAppearanceArmorColor.Metal1 || selectedChannel == ItemAppearanceArmorColor.Metal2)
                   channelChoice = "metal";
 
-                int selectedSpot = spotSelection.GetBindValue(nuiEvent.Player, nuiEvent.WindowToken) - 1;
-                int color;
-
-                switch (selectedSpot)
+                int selectedSpot = spotSelection.GetBindValue(nuiEvent.Player, nuiToken.Token) - 1;
+                var color = selectedSpot switch
                 {
-                  case -1:
-                    color = item.Appearance.GetArmorColor(selectedChannel) + 1;
-                    break;
-                  default:
-                    color = item.Appearance.GetArmorPieceColor((ItemAppearanceArmorModel)selectedSpot, selectedChannel) + 1;
-                    break;
-                }
-
-                currentColor.SetBindValue(nuiEvent.Player, nuiEvent.WindowToken, NWScript.ResManGetAliasFor($"{channelChoice}{color}", NWScript.RESTYPE_TGA) != "" ? $"{channelChoice}{color}" : $"leather{color}");
+                  -1 => item.Appearance.GetArmorColor(selectedChannel) + 1,
+                  _ => item.Appearance.GetArmorPieceColor((ItemAppearanceArmorModel)selectedSpot, selectedChannel) + 1,
+                };
+                currentColor.SetBindValue(nuiEvent.Player, nuiToken.Token, NWScript.ResManGetAliasFor($"{channelChoice}{color}", NWScript.RESTYPE_TGA) != "" ? $"{channelChoice}{color}" : $"leather{color}");
               }
               break;
           }

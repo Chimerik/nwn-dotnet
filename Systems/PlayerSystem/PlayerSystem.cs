@@ -20,7 +20,7 @@ namespace NWN.Systems
     public ScriptHandleFactory scriptHandleFactory;
     public SpellSystem spellSystem;
     public AreaSystem areaSystem;
-    private readonly SchedulerService scheduler;
+    public static SchedulerService scheduler;
     public static readonly Dictionary<uint, Player> Players = new();
     public PlayerSystem(EventService eventServices, FeedbackService feedback, ScriptHandleFactory scriptFactory, AreaSystem areaSystem, SpellSystem spellSystem, SchedulerService schedulerService)
     {
