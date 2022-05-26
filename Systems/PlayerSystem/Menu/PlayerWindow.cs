@@ -12,11 +12,12 @@ namespace NWN.Systems
         protected string windowId { get; set; }
         protected readonly NuiBind<bool> closable = new("closable");
         protected readonly NuiBind<bool> resizable = new("resizable");
-        protected NuiBind<NuiRect> geometry = new("geometry");
-        protected Player player { get; }
+        protected readonly NuiBind<NuiRect> geometry = new("geometry");
+        protected readonly Player player;
         protected NuiWindow window { get; set; }
-        //public int token { get; set; }
         public NuiWindowToken nuiToken { get; set; }
+        public bool IsOpen { get; set; }
+        protected NuiRect rectangle { get; set; }
 
         public PlayerWindow(Player player)
         {

@@ -365,8 +365,7 @@ namespace NWN
       { "giveSkillbook", new MainMenuCommand("Don de skillbook", "", CommandRank.Admin) } // TODO : Ajouter à OnExamine Player
     };
 
-    public static readonly List<NuiComboEntry> raceList = new();
-    public static readonly List<NuiComboEntry> apparenceList = new();
+    public static List<NuiComboEntry> raceList = new();
     public static readonly List<NuiComboEntry> genderList = new();
     public static readonly List<NuiComboEntry> soundSetList = new();
     public static readonly List<NuiComboEntry> factionList = new();

@@ -705,13 +705,7 @@ namespace NWN.Systems
         if (racialType != RacialType.Invalid && racialType != RacialType.All)
           Utils.raceList.Add(new NuiComboEntry(NwRace.FromRacialType(racialType).Name, (int)racialType));
 
-      Utils.raceList.OrderBy(r => r.Label);
-
-      foreach (var entry in NwGameTables.AppearanceTable)
-        if (entry.Label != null)
-          Utils.apparenceList.Add(new NuiComboEntry(entry.Label, entry.RowIndex));
-
-      Utils.apparenceList.OrderBy(r => r.Label);
+      Utils.raceList = Utils.raceList.OrderBy(r => r.Label).ToList();
 
       foreach (Gender genderType in (Gender[])Enum.GetValues(typeof(Gender)))
       {

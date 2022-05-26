@@ -482,7 +482,7 @@ namespace NWN.Systems
 
                 case "apparenceSearch":
                   string aSearch = apparenceSearch.GetBindValue(player.oid, nuiToken.Token).ToLower();
-                  apparence.SetBindValue(player.oid, nuiToken.Token, string.IsNullOrEmpty(aSearch) ? Utils.apparenceList : Utils.apparenceList.Where(v => v.Label.ToLower().Contains(aSearch)).ToList());
+                  apparence.SetBindValue(player.oid, nuiToken.Token, string.IsNullOrEmpty(aSearch) ? Appearance2da.appearanceEntries : Appearance2da.appearanceEntries.Where(v => v.Label.ToLower().Contains(aSearch)).ToList());
                 break;
 
                 case "acquiredFeatSearch":
@@ -897,7 +897,7 @@ namespace NWN.Systems
           raceSelected.SetBindWatch(player.oid, nuiToken.Token, true);
           raceSearch.SetBindWatch(player.oid, nuiToken.Token, true);
 
-          apparence.SetBindValue(player.oid, nuiToken.Token, Utils.apparenceList);
+          apparence.SetBindValue(player.oid, nuiToken.Token, Appearance2da.appearanceEntries);
           apparenceSelected.SetBindValue(player.oid, nuiToken.Token, targetCreature.Appearance.RowIndex);
           apparenceSelected.SetBindWatch(player.oid, nuiToken.Token, true);
           apparenceSearch.SetBindWatch(player.oid, nuiToken.Token, true);

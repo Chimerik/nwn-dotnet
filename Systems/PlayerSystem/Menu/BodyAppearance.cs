@@ -1,12 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
 
 using Anvil.API;
 using Anvil.API.Events;
-
-using NWN.Core.NWNX;
 
 namespace NWN.Systems
 {
