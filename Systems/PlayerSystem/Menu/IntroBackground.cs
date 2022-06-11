@@ -57,8 +57,8 @@ namespace NWN.Systems
           {
             player.oid.SendServerMessage("Vous avez déjà effectué votre choix d'historique.", ColorConstants.Red);
 
-            if(!player.openedWindows.ContainsKey("introMirror"))
-              ((IntroMirroWindow)player.windows["introMirror"]).CreateWindow();
+            if(!player.TryGetOpenedWindow("introMirror", out PlayerWindow introWindow))
+              ((IntroMirroWindow)introWindow).CreateWindow();
 
             return;
           }
@@ -101,8 +101,8 @@ namespace NWN.Systems
               {
                 CloseWindow();
 
-                if (!player.openedWindows.ContainsKey("introMirror"))
-                  ((IntroMirroWindow)player.windows["introMirror"]).CreateWindow();
+                if (!player.TryGetOpenedWindow("introMirror", out PlayerWindow introWindow))
+                  ((IntroMirroWindow)introWindow).CreateWindow();
 
                 return;
               }
@@ -120,13 +120,11 @@ namespace NWN.Systems
               }
               else if (int.TryParse(nuiEvent.ElementId, out int learnableId))
               {
-                if (player.openedWindows.ContainsKey("learnableDescription"))
-                  player.windows["learnableDescription"].CloseWindow();
+                if (player.TryGetOpenedWindow("learnableDescription", out PlayerWindow descriptionWindow))
+                  descriptionWindow.CloseWindow();
 
-                if (player.windows.ContainsKey("learnableDescription"))
+                if (!player.windows.TryAdd("learnableDescription", new LearnableDescriptionWindow(player, learnableId)))
                   ((LearnableDescriptionWindow)player.windows["learnableDescription"]).CreateWindow(learnableId);
-                else
-                  player.windows.Add("learnableDescription", new LearnableDescriptionWindow(player, learnableId));
               }
 
               break;

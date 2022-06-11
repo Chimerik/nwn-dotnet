@@ -150,7 +150,7 @@ namespace NWN.Systems
 
           string name = appearanceName.GetBindValue(player.oid, nuiToken.Token);
 
-          if (!player.openedWindows.ContainsKey("itemAppearances") || name.Length < 1)
+          if (!IsOpen || name.Length < 1)
           {
             player.oid.SendServerMessage("Le menu de gestion des apparences doit être ouvert et le nom de l'apparence ne doit pas être vide.", ColorConstants.Red);
             return;

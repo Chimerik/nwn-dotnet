@@ -64,12 +64,11 @@ namespace NWN.Systems
       player.pcState = Player.PcState.Offline;
 
       player.InitializePlayerLearnableJobs();
-      player.InitializePlayerOpenedWindows();
 
       if (!player.oid.LoginCreature.KnowsFeat(CustomFeats.Sit))
         player.oid.LoginCreature.AddFeat(CustomFeats.Sit);
 
-      foreach (Player connectedPlayer in Players.Values.Where(p => p.pcState != Player.PcState.Offline && p.openedWindows.ContainsKey("playerList")))
+      foreach (Player connectedPlayer in Players.Values.Where(p => p.pcState != Player.PcState.Offline && p.TryGetOpenedWindow("playerList", out Player.PlayerWindow playerListWindow)))
         ((Player.PlayerListWindow)connectedPlayer.windows["playerList"]).UpdatePlayerList();
 
       player.mapLoadingTime = DateTime.Now;
@@ -369,7 +368,7 @@ namespace NWN.Systems
       private void InitializePlayerCharacter()
       {
         var result = SqLiteUtils.SelectQuery("playerCharacters",
-            new List<string>() { { "location" }, { "currentHP" }, { "bankGold" }, { "menuOriginTop" }, { "menuOriginLeft" }, { "pveArenaCurrentPoints" }, { "alchemyCauldron" }, { "serializedLearnableSkills" }, { "serializedLearnableSpells" }, { "explorationState" }, { "openedWindows" }, { "materialStorage" }, { "craftJob" }, { "grimoires" }, { "quickbars" }, { "itemAppearances" }, { "descriptions" } },
+            new List<string>() { { "location" }, { "currentHP" }, { "bankGold" }, { "menuOriginTop" }, { "menuOriginLeft" }, { "pveArenaCurrentPoints" }, { "alchemyCauldron" }, { "serializedLearnableSkills" }, { "serializedLearnableSpells" }, { "explorationState" }, { "materialStorage" }, { "craftJob" }, { "grimoires" }, { "quickbars" }, { "itemAppearances" }, { "descriptions" } },
             new List<string[]>() { { new string[] { "rowid", characterId.ToString() } } });
 
         if (result.Result == null)
@@ -385,17 +384,16 @@ namespace NWN.Systems
         string serializedLearnableSkills = result.Result.GetString(7);
         string serializedLearnableSpells = result.Result.GetString(8);
         string serializedExploration = result.Result.GetString(9);
-        string serializedOpenedWindows = result.Result.GetString(10);
-        string serializedCraftResources = result.Result.GetString(11);
-        string serializedCraftJob = result.Result.GetString(12);
-        string serializedGrimoires = result.Result.GetString(13);
-        string serializedQuickbars = result.Result.GetString(14);
-        string serializedItemAppearances = result.Result.GetString(15);
-        string serializedDescriptions = result.Result.GetString(16);
+        string serializedCraftResources = result.Result.GetString(10);
+        string serializedCraftJob = result.Result.GetString(11);
+        string serializedGrimoires = result.Result.GetString(12);
+        string serializedQuickbars = result.Result.GetString(13);
+        string serializedItemAppearances = result.Result.GetString(14);
+        string serializedDescriptions = result.Result.GetString(15);
 
-        InitializePlayerAsync(serializedCauldron, serializedExploration, serializedLearnableSkills, serializedLearnableSpells, serializedOpenedWindows, serializedCraftResources, serializedCraftJob, serializedGrimoires, serializedQuickbars, serializedItemAppearances, serializedDescriptions);
+        InitializePlayerAsync(serializedCauldron, serializedExploration, serializedLearnableSkills, serializedLearnableSpells, serializedCraftResources, serializedCraftJob, serializedGrimoires, serializedQuickbars, serializedItemAppearances, serializedDescriptions);
       }
-      private async void InitializePlayerAsync(string serializedCauldron, string serializedExploration, string serializedLearnableSkills, string serializedLearnableSpells, string serializedOpenedWindows, string serializedCraftResources, string serializedCraftJob, string serializedGrimoires, string serializedQuickbars, string serializedItemAppearances, string serializedDescriptions)
+      private async void InitializePlayerAsync(string serializedCauldron, string serializedExploration, string serializedLearnableSkills, string serializedLearnableSpells, string serializedCraftResources, string serializedCraftJob, string serializedGrimoires, string serializedQuickbars, string serializedItemAppearances, string serializedDescriptions)
       {
         Log.Info("starting async init");
 
@@ -414,14 +412,6 @@ namespace NWN.Systems
 
           areaExplorationStateDictionnary = JsonConvert.DeserializeObject<Dictionary<string, byte[]>>(serializedExploration);
         });
-
-        /*Task loadOpenedWindowsTask = Task.Run(() =>
-        {
-          if (string.IsNullOrEmpty(serializedOpenedWindows) || serializedOpenedWindows == "null")
-            return;
-
-          openedWindows = JsonConvert.DeserializeObject<Dictionary<string, int>>(serializedOpenedWindows);
-        });*/
 
         Task loadSkillsTask = Task.Run(() =>
         {
@@ -496,7 +486,7 @@ namespace NWN.Systems
           descriptions = JsonConvert.DeserializeObject<List<CharacterDescription>>(serializedDescriptions);
         });
 
-        await Task.WhenAll(loadSkillsTask, loadSpellsTask, loadExplorationTask/*, loadOpenedWindowsTask*/, loadCauldronTask, loadCraftJobTask, loadGrimoiresTask, loadQuickbarsTask, loadItemAppearancesTask, loadDescriptionsTask);
+        await Task.WhenAll(loadSkillsTask, loadSpellsTask, loadExplorationTask, loadCauldronTask, loadCraftJobTask, loadGrimoiresTask, loadQuickbarsTask, loadItemAppearancesTask, loadDescriptionsTask);
         Log.Info("async init done");
       }
       private async void InitializeAccountMapPins(string serializedMapPins)

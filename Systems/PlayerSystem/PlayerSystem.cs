@@ -271,31 +271,24 @@ namespace NWN.Systems
           {
             case GUIPanel.ExamineItem:
 
-              if (player.windows.ContainsKey("itemExamine"))
+              if (!player.windows.TryAdd("itemExamine", new Player.ItemExamineWindow(player, (NwItem)guiEvent.EventObject)))
                 ((Player.ItemExamineWindow)player.windows["itemExamine"]).CreateWindow((NwItem)guiEvent.EventObject);
-              else
-                player.windows.Add("itemExamine", new Player.ItemExamineWindow(player, (NwItem)guiEvent.EventObject));
 
               return;
 
             case GUIPanel.Journal:
 
-
-              if(!player.openedWindows.ContainsKey("mainMenu"))
-                if (player.windows.ContainsKey("mainMenu"))
+              if(!player.TryGetOpenedWindow("mainMenu", out Player.PlayerWindow menuWindow))
+                if (!player.windows.TryAdd("mainMenu", new Player.MainMenuWindow(player)))
                   ((Player.MainMenuWindow)player.windows["mainMenu"]).CreateWindow();
-                else
-                  player.windows.Add("mainMenu", new Player.MainMenuWindow(player));
 
               return;
 
             case GUIPanel.PlayerList:
 
-              if (!player.openedWindows.ContainsKey("playerList"))
-                if (player.windows.ContainsKey("playerList"))
+              if (!player.TryGetOpenedWindow("playerList", out Player.PlayerWindow playerListWindow))
+                if (!player.windows.TryAdd("playerList", new Player.PlayerListWindow(player)))
                   ((Player.PlayerListWindow)player.windows["playerList"]).CreateWindow();
-                else
-                  player.windows.Add("playerList", new Player.PlayerListWindow(player));
 
               return;
           }
@@ -310,16 +303,12 @@ namespace NWN.Systems
           {
             if (player.craftJob != null)
             {
-              if (player.windows.ContainsKey("activeCraftJob"))
+              if (!player.windows.TryAdd("activeCraftJob", new Player.ActiveCraftJobWindow(player)))
                 ((Player.ActiveCraftJobWindow)player.windows["activeCraftJob"]).CreateWindow();
-              else
-                player.windows.Add("activeCraftJob", new Player.ActiveCraftJobWindow(player));
             }
 
-            if (player.windows.ContainsKey("learnables"))
+            if (!player.windows.TryAdd("learnables", new Player.LearnableWindow(player)))
               ((Player.LearnableWindow)player.windows["learnables"]).CreateWindow();
-            else
-              player.windows.Add("learnables", new Player.LearnableWindow(player));
           }
 
           break;

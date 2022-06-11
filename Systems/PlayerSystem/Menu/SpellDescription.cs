@@ -40,7 +40,7 @@ namespace NWN.Systems
         }
         public void CreateWindow(NwSpell spell)
         {
-          if (player.openedWindows.ContainsKey(windowId))
+          if (IsOpen)
             CloseWindow();
 
           NuiRect windowRectangle = player.windowRectangles.ContainsKey(windowId) ? player.windowRectangles[windowId] : new NuiRect(10, player.oid.GetDeviceProperty(PlayerDeviceProperty.GuiHeight) * 0.01f, 500, 300);

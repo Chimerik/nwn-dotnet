@@ -6,6 +6,10 @@ using System.Threading.Tasks;
 using Anvil.API;
 using Anvil.API.Events;
 
+using NWN.Core.NWNX;
+
+using SpecialAbility = Anvil.API.SpecialAbility;
+
 namespace NWN.Systems
 {
   public partial class PlayerSystem
@@ -18,7 +22,8 @@ namespace NWN.Systems
         Portrait,
         Stats,
         Feat,
-        Spell
+        Spell,
+        Model
       }
       public class EditorPNJWindow : PlayerWindow
       {
@@ -29,7 +34,9 @@ namespace NWN.Systems
         private readonly List<NuiListTemplateCell> rowTemplate = new();
 
         private readonly NuiBind<string> name = new("name");
+        private readonly NuiBind<string> paletteName = new("paletteName");
         private readonly NuiBind<string> tag = new("tag");
+        private readonly NuiBind<string> size = new("size");
 
         private readonly NuiBind<string> raceSearch = new("raceSearch");
         private readonly NuiBind<List<NuiComboEntry>> race = new("race");
@@ -133,11 +140,12 @@ namespace NWN.Systems
             Border = true,
           };
 
+          Log.Info("Before try create");
           if (player.oid.TryCreateNuiWindow(window, out NuiWindowToken tempToken, windowId))
           {
             nuiToken = tempToken;
             currentTab = Tab.Base;
-
+            Log.Info($"after create window id = {nuiToken.WindowId}");
             nuiToken.OnNuiEvent += HandleEditorPNJEvents;
 
             LoadBaseBinding();
@@ -258,7 +266,16 @@ namespace NWN.Systems
 
                 case "appearance":
 
-                  if(targetCreature.Appearance.Race.Length > 1)
+                  currentTab = Tab.Model;
+                  LoadModelLayout();
+                  rootGroup.SetLayout(player.oid, nuiEvent.Token.Token, layoutColumn);
+                  LoadModelBinding();
+
+                  break;
+
+                case "appearanceDynamic":
+
+                  if (targetCreature.Appearance.Race.Length > 1 && targetCreature.Appearance.Race != "S")
                   {
                     player.oid.SendServerMessage($"Le modèle actuellement sélectionné ({targetCreature.Appearance.Label}) n'est pas dynamique. Il n'est pas possible de le personnaliser davantage.", ColorConstants.Red);
                     return;
@@ -274,6 +291,26 @@ namespace NWN.Systems
                     ((BodyAppearanceWindow)player.windows["bodyAppearanceModifier"]).CreateWindow(targetCreature);
                   else
                     player.windows.Add("bodyAppearanceModifier", new BodyAppearanceWindow(player, targetCreature));
+
+                  break;
+
+                case "appearancePrev":
+
+                  NuiComboEntry entryPrev = Appearance2da.appearanceEntries.FirstOrDefault(a => a.Value == apparenceSelected.GetBindValue(player.oid, nuiToken.Token));
+                  int indexPrev = Appearance2da.appearanceEntries.IndexOf(entryPrev) - 1;
+
+                  if (indexPrev > -1)
+                    SetAppearance(indexPrev);
+
+                  break;
+
+                case "appearanceNext":
+
+                  NuiComboEntry entry = Appearance2da.appearanceEntries.FirstOrDefault(a => a.Value == apparenceSelected.GetBindValue(player.oid, nuiToken.Token));
+                  int index = Appearance2da.appearanceEntries.IndexOf(entry) + 1;
+
+                  if (index < Appearance2da.appearanceEntries.Count)
+                    SetAppearance(index);
 
                   break;
 
@@ -467,6 +504,10 @@ namespace NWN.Systems
                   spellQuantity.SetBindWatch(player.oid, nuiToken.Token, true);
 
                   break;
+
+                case "palette":
+                  SaveCreatureToPalette();
+                  break;
               }
 
               break;
@@ -541,11 +582,29 @@ namespace NWN.Systems
                   break;
 
                 case "name":
-                  targetCreature.Name = name.GetBindValue(player.oid, nuiToken.Token);
+                  //targetCreature.Name = name.GetBindValue(player.oid, nuiToken.Token);
+                  targetCreature.OriginalFirstName = name.GetBindValue(player.oid, nuiToken.Token);
                   break;
 
                 case "tag":
                   targetCreature.Tag = tag.GetBindValue(player.oid, nuiToken.Token);
+                  break;
+
+                case "size":
+
+                  if (float.TryParse(size.GetBindValue(player.oid, nuiToken.Token), out float newSize))
+                  {
+                    targetCreature.VisualTransform.Scale = newSize > 100 ? 100 : newSize;
+
+                    if (targetCreature.GetObjectVariable<LocalVariableFloat>("_CREATURE_PERSONNAL_SPACE").HasValue)
+                    {
+                      CreaturePlugin.SetCreaturePersonalSpace(targetCreature, targetCreature.GetObjectVariable<LocalVariableFloat>("_CREATURE_PERSONNAL_SPACE").Value * newSize);
+                      CreaturePlugin.SetHeight(targetCreature, targetCreature.GetObjectVariable<LocalVariableFloat>("_HEIGHT").Value * newSize);
+                      CreaturePlugin.SetHitDistance(targetCreature, targetCreature.GetObjectVariable<LocalVariableFloat>("_HIT_DISTANCE").Value * newSize);
+                      CreaturePlugin.SetPersonalSpace(targetCreature, targetCreature.GetObjectVariable<LocalVariableFloat>("_PERSONNAL_SPACE").Value * newSize); ;
+                    }
+                  }
+
                   break;
 
                 case "challengeRating":
@@ -560,7 +619,12 @@ namespace NWN.Systems
                   targetCreature.Race = NwRace.FromRaceId(raceSelected.GetBindValue(player.oid, nuiToken.Token));
                   break;
 
+                case "genderSelected":
+                  targetCreature.Gender = (Gender)genderSelected.GetBindValue(player.oid, nuiToken.Token);
+                  break;
+
                 case "apparenceSelected":
+                  //Log.Info($"selectedAppearance : {apparenceSelected.GetBindValue(player.oid, nuiToken.Token)}");
                   targetCreature.Appearance = NwGameTables.AppearanceTable[apparenceSelected.GetBindValue(player.oid, nuiToken.Token)];
                   break;
 
@@ -798,16 +862,6 @@ namespace NWN.Systems
           {
             Children = new List<NuiElement>()
             {
-              new NuiLabel("Apparence") { Height = 35, Width = 70, VerticalAlign = NuiVAlign.Middle },
-              new NuiCombo() { Height = 35, Width = 200, Entries = apparence, Selected = apparenceSelected },
-              new NuiTextEdit("Recherche", apparenceSearch, 20, false) { Height = 35, Width = 100 }
-            }
-          });
-
-          rootChildren.Add(new NuiRow()
-          {
-            Children = new List<NuiElement>()
-            {
               new NuiLabel("Genre") { Height = 35, Width = 70, VerticalAlign = NuiVAlign.Middle },
               new NuiCombo() { Height = 35, Width = 200, Entries = Utils.genderList, Selected = genderSelected },
             }
@@ -839,11 +893,21 @@ namespace NWN.Systems
               new NuiTextEdit("Facteur de Puissance", challengeRating, 2, false) { Height = 35, Width = 200, Tooltip = challengeRatingTooltip }
             }
           });
+
+          rootChildren.Add(new NuiRow()
+          {
+            Children = new List<NuiElement>()
+            {
+              new NuiTextEdit("Nom palette", paletteName, 50, false) { Height = 35, Width = 200, Tooltip = "Le nom descriptif sous lequel cette créature apparaitre si vous l'ajoutez à la palette" },
+              new NuiButtonImage("ir_rage") { Id = "palette", Height = 35, Width = 35, Tooltip = "Ajouter cette créature à la palette" }
+            }
+          });
         }
         private void StopAllWatchBindings()
         {
           name.SetBindWatch(player.oid, nuiToken.Token, false);
           tag.SetBindWatch(player.oid, nuiToken.Token, false);
+          size.SetBindWatch(player.oid, nuiToken.Token, false);
           challengeRating.SetBindWatch(player.oid, nuiToken.Token, false);
 
           raceSelected.SetBindWatch(player.oid, nuiToken.Token, false);
@@ -886,6 +950,7 @@ namespace NWN.Systems
 
           name.SetBindValue(player.oid, nuiToken.Token, targetCreature.Name);
           name.SetBindWatch(player.oid, nuiToken.Token, true);
+          paletteName.SetBindValue(player.oid, nuiToken.Token, targetCreature.GetObjectVariable<LocalVariableString>("_PALETTE_NAME").Value);
           tag.SetBindValue(player.oid, nuiToken.Token, targetCreature.Tag);
           tag.SetBindWatch(player.oid, nuiToken.Token, true);
           challengeRating.SetBindValue(player.oid, nuiToken.Token, targetCreature.ChallengeRating.ToString());
@@ -896,11 +961,6 @@ namespace NWN.Systems
           raceSelected.SetBindValue(player.oid, nuiToken.Token, (int)targetCreature.Race.RacialType);
           raceSelected.SetBindWatch(player.oid, nuiToken.Token, true);
           raceSearch.SetBindWatch(player.oid, nuiToken.Token, true);
-
-          apparence.SetBindValue(player.oid, nuiToken.Token, Appearance2da.appearanceEntries);
-          apparenceSelected.SetBindValue(player.oid, nuiToken.Token, targetCreature.Appearance.RowIndex);
-          apparenceSelected.SetBindWatch(player.oid, nuiToken.Token, true);
-          apparenceSearch.SetBindWatch(player.oid, nuiToken.Token, true);
 
           genderSelected.SetBindValue(player.oid, nuiToken.Token, (int)targetCreature.Gender);
           genderSelected.SetBindWatch(player.oid, nuiToken.Token, true);
@@ -1318,6 +1378,84 @@ namespace NWN.Systems
           acquiredFeatSearch.SetBindValue(player.oid, nuiToken.Token, "");
           acquiredFeatSearch.SetBindWatch(player.oid, nuiToken.Token, true);
           spellQuantity.SetBindWatch(player.oid, nuiToken.Token, true);
+        }
+        private async void SaveCreatureToPalette()
+        {
+          string savedName = paletteName.GetBindValue(player.oid, nuiToken.Token);
+          string serializedCreature = targetCreature.Serialize().ToBase64EncodedString();
+          string addedBy = player.oid.PlayerName;
+          
+          await SqLiteUtils.InsertQueryAsync("creaturePalette",
+            new List<string[]>() { new string[] { "paletteName", savedName }, 
+            new string[] { "serializedCreature", serializedCreature }, new string[] { "addedBy", addedBy } });
+        }
+        private void LoadModelLayout()
+        {
+          rootChildren.Clear();
+          LoadButtons();
+
+          rootChildren.Add(new NuiRow()
+          {
+            Children = new List<NuiElement>()
+            {
+              new NuiLabel("Apparence") { Height = 35, Width = 70, VerticalAlign = NuiVAlign.Middle },
+              new NuiCombo() { Height = 35, Width = 200, Entries = apparence, Selected = apparenceSelected },
+              new NuiTextEdit("Recherche", apparenceSearch, 20, false) { Height = 35, Width = 100 }
+            }
+          });
+
+          rootChildren.Add(new NuiRow()
+          {
+            Children = new List<NuiElement>()
+            {
+              new NuiSpacer(),
+              new NuiButton("Précédent") { Id = "appearancePrev", Height = 35, Width = 35 },
+              new NuiSpacer(),
+              new NuiButton("Suivant") { Id = "appearanceNext", Height = 35, Width = 35 },
+              new NuiSpacer(),
+            }
+          });
+
+          rootChildren.Add(new NuiRow()
+          {
+            Children = new List<NuiElement>()
+            {
+              new NuiLabel("Taille") { Height = 35, Width = 70, VerticalAlign = NuiVAlign.Middle, Tooltip = "Doit être compris entre 0.01 et 99.99" },
+              new NuiTextEdit("Taille", size, 5, false) { Height = 35, Width = 200 }
+            }
+          });
+
+          rootChildren.Add(new NuiRow()
+          {
+            Children = new List<NuiElement>()
+            {
+              new NuiLabel("Dynamique") { Height = 35, Width = 70, VerticalAlign = NuiVAlign.Middle, Tooltip = "Disponible uniquement pour les apparences de type dynamiques et genre masculin/féminin" },
+              new NuiButton("Apparence dynamique") { Id = "appearanceDynamic", Height = 35, Width = 200 }
+            }
+          });
+        }
+        private void LoadModelBinding()
+        {
+          StopAllWatchBindings();
+
+          //Log.Info($"Appearance size : {Appearance2da.appearanceEntries.Count}");
+          apparence.SetBindValue(player.oid, nuiToken.Token, Appearance2da.appearanceEntries);
+          apparenceSelected.SetBindValue(player.oid, nuiToken.Token, targetCreature.Appearance.RowIndex);
+          apparenceSelected.SetBindWatch(player.oid, nuiToken.Token, true);
+          apparenceSearch.SetBindWatch(player.oid, nuiToken.Token, true);
+
+          size.SetBindValue(player.oid, nuiToken.Token, targetCreature.VisualTransform.Scale.ToString());
+          size.SetBindWatch(player.oid, nuiToken.Token, true);
+        }
+        private void SetAppearance(int index)
+        {
+          apparenceSelected.SetBindWatch(player.oid, nuiToken.Token, false);
+
+          apparenceSelected.SetBindValue(player.oid, nuiToken.Token, Appearance2da.appearanceEntries.ElementAt(index).Value);
+          targetCreature.Appearance = NwGameTables.AppearanceTable[apparenceSelected.GetBindValue(player.oid, nuiToken.Token)];
+          Log.Info($"appearanceSelected : {apparenceSelected.GetBindValue(player.oid, nuiToken.Token)}");
+
+          apparenceSelected.SetBindWatch(player.oid, nuiToken.Token, true);
         }
       }
     }

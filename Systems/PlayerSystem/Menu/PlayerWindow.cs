@@ -34,7 +34,17 @@ namespace NWN.Systems
         public void CloseWindow()
         {
           nuiToken.Close();
-          player.openedWindows.Remove(windowId);
+          IsOpen = false;
+        }
+        public void ResizeWidgets()
+        {
+          switch(windowId)
+          {
+            case "bodyAppearanceModifier":
+              CloseWindow();
+              ((BodyAppearanceWindow)this).CreateWindow(((BodyAppearanceWindow)this).targetCreature);
+              break;
+          }
         }
       }
     }

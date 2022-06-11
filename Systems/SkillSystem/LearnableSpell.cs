@@ -60,12 +60,12 @@ namespace NWN.Systems
       player.oid.LoginCreature.GetClassInfo((ClassType)43).AddKnownSpell((Spell)id, (byte)spellLevel);
       player.learnableSpells.Remove(id);
 
-      if (player.openedWindows.ContainsKey("activeLearnable"))
-        player.windows["activeLearnable"].CloseWindow();
+      if (player.TryGetOpenedWindow("activeLearnable", out PlayerSystem.Player.PlayerWindow activeLearnableWindow))
+        activeLearnableWindow.CloseWindow();
 
-      if (player.openedWindows.ContainsKey("learnables") && player.windows.ContainsKey("learnables"))
+      if (player.TryGetOpenedWindow("learnables", out PlayerSystem.Player.PlayerWindow learnableWindow))
       {
-        PlayerSystem.Player.LearnableWindow window = (PlayerSystem.Player.LearnableWindow)player.windows["learnables"];
+        PlayerSystem.Player.LearnableWindow window = (PlayerSystem.Player.LearnableWindow)learnableWindow;
         window.LoadLearnableList(window.currentList);
       }
 

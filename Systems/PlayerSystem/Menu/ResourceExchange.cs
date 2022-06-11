@@ -189,7 +189,7 @@ namespace NWN.Systems
             return;
           }
 
-          if (targetPlayer.openedWindows.ContainsKey(windowId))
+          if (targetPlayer.TryGetOpenedWindow(windowId, out PlayerWindow targetExchangeWindow))
           {
             player.oid.SendServerMessage($"{target.Name.ColorString(ColorConstants.White)} est déjà en train de négocier une transaction.", ColorConstants.Red);
             return;

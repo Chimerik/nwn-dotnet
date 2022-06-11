@@ -257,8 +257,8 @@ namespace NWN.Systems
         {
           receiver.readChatLines.Add(ctx.chatLine);
 
-          if (receiver.openedWindows.ContainsKey("chatReader") && ctx.chatLine.category != ChatLine.ChatCategory.Private)
-            ((PlayerSystem.Player.ChatReaderWindow)receiver.windows["chatReader"]).InsertNewChatInWindow(ctx.chatLine);
+          if (receiver.TryGetOpenedWindow("chatReader", out PlayerSystem.Player.PlayerWindow chatWindow) && ctx.chatLine.category != ChatLine.ChatCategory.Private)
+            ((PlayerSystem.Player.ChatReaderWindow)chatWindow).InsertNewChatInWindow(ctx.chatLine);
         }
         else
         {
@@ -266,8 +266,8 @@ namespace NWN.Systems
 
           receiver.readChatLines.Add(ctx.chatLine);
 
-          if (receiver.openedWindows.ContainsKey("chatReader") && ctx.chatLine.category != ChatLine.ChatCategory.Private)
-            ((PlayerSystem.Player.ChatReaderWindow)receiver.windows["chatReader"]).InsertNewChatInWindow(ctx.chatLine);
+          if (receiver.TryGetOpenedWindow("chatReader", out PlayerSystem.Player.PlayerWindow chatWindow) && ctx.chatLine.category != ChatLine.ChatCategory.Private)
+            ((PlayerSystem.Player.ChatReaderWindow)chatWindow).InsertNewChatInWindow(ctx.chatLine);
         }
 
         if (ctx.chatLine.category == ChatLine.ChatCategory.Private)
@@ -277,13 +277,13 @@ namespace NWN.Systems
 
           playerSender.readChatLines.Add(ctx.chatLine);
 
-          if (receiver.openedWindows.ContainsKey(ctx.oSender.PlayerName))
-            ((PlayerSystem.Player.PrivateMessageWindow)receiver.windows[ctx.oSender.PlayerName]).InsertNewChatInWindow(ctx.chatLine);
-          else if (receiver.openedWindows.ContainsKey("chatReader"))
-            ((PlayerSystem.Player.ChatReaderWindow)receiver.windows["chatReader"]).HandleNewPM(ctx.oSender.PlayerName);
+          if (receiver.TryGetOpenedWindow(ctx.oSender.PlayerName, out PlayerSystem.Player.PlayerWindow pmWindow))
+            ((PlayerSystem.Player.PrivateMessageWindow)pmWindow).InsertNewChatInWindow(ctx.chatLine);
+          else if (receiver.TryGetOpenedWindow("chatReader", out PlayerSystem.Player.PlayerWindow chatWindow))
+            ((PlayerSystem.Player.ChatReaderWindow)chatWindow).HandleNewPM(ctx.oSender.PlayerName);
 
-          if (playerSender.openedWindows.ContainsKey(ctx.oTarget.PlayerName))
-            ((PlayerSystem.Player.PrivateMessageWindow)playerSender.windows[ctx.oTarget.PlayerName]).InsertNewChatInWindow(ctx.chatLine);
+          if (playerSender.TryGetOpenedWindow(ctx.oTarget.PlayerName, out PlayerSystem.Player.PlayerWindow targetPMWindow))
+            ((PlayerSystem.Player.PrivateMessageWindow)targetPMWindow).InsertNewChatInWindow(ctx.chatLine);
         }
 
         string coloredChat = chatReceiver.Value;

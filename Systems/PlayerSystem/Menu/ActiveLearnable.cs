@@ -94,7 +94,7 @@ namespace NWN.Systems
             player.oid.ExportCharacter();
           }, TimeSpan.FromSeconds(1));
 
-          await NwTask.WaitUntil(() => player.oid.LoginCreature == null || !player.openedWindows.ContainsKey(windowId) || stopPreviousSPGain || !learnable.active);
+          await NwTask.WaitUntil(() => player.oid.LoginCreature == null || !IsOpen || stopPreviousSPGain || !learnable.active);
           scheduler.Dispose();
         }
         private async void DelayStartSPGain()

@@ -142,9 +142,7 @@ namespace NWN.Systems
             geometry.SetBindValue(player.oid, nuiToken.Token, player.windowRectangles.ContainsKey(windowId) ? player.windowRectangles[windowId] : new NuiRect(10, player.oid.GetDeviceProperty(PlayerDeviceProperty.GuiHeight) * 0.01f, 450, player.oid.GetDeviceProperty(PlayerDeviceProperty.GuiHeight) * 0.65f));
             geometry.SetBindWatch(player.oid, nuiToken.Token, true);
 
-            player.openedWindows[windowId] = nuiToken.Token;
-
-            if ((player.learnableSkills.Any(l => l.Value.active) || player.learnableSpells.Any(l => l.Value.active)) && !player.openedWindows.ContainsKey("activeLearnable"))
+            if ((player.learnableSkills.Any(l => l.Value.active) || player.learnableSpells.Any(l => l.Value.active)) && !player.TryGetOpenedWindow("activeLearnable", out PlayerWindow activeWindow))
               if (!player.windows.TryAdd("activeLearnable", new ActiveLearnableWindow(player)))
                 ((ActiveLearnableWindow)player.windows["activeLearnable"]).CreateWindow();
 
@@ -192,8 +190,8 @@ namespace NWN.Systems
               {
                 currentList.ElementAt(nuiEvent.ArrayIndex).StartLearning(player);
 
-                if (player.openedWindows.ContainsKey("activeLearnable"))
-                  player.windows["activeLearnable"].CloseWindow();
+                if (player.TryGetOpenedWindow("activeLearnable", out PlayerWindow activeWindow))
+                  activeWindow.CloseWindow();
                 
                 if (player.windows.ContainsKey("activeLearnable"))
                   ((ActiveLearnableWindow)player.windows["activeLearnable"]).CreateWindow();
@@ -309,10 +307,10 @@ namespace NWN.Systems
           int charisma = player.oid.LoginCreature.GetAbilityScore(Ability.Charisma);
 
           CancellationTokenSource tokenSource = new CancellationTokenSource();
-          await NwTask.WaitUntil(() => player.oid.LoginCreature == null || !player.openedWindows.ContainsKey(windowId) || strength != player.oid.LoginCreature.GetAbilityScore(Ability.Strength) || dexterity != player.oid.LoginCreature.GetAbilityScore(Ability.Dexterity) || constitution != player.oid.LoginCreature.GetAbilityScore(Ability.Constitution) || intelligence != player.oid.LoginCreature.GetAbilityScore(Ability.Intelligence) || wisdom != player.oid.LoginCreature.GetAbilityScore(Ability.Wisdom) || charisma != player.oid.LoginCreature.GetAbilityScore(Ability.Charisma), tokenSource.Token);
+          await NwTask.WaitUntil(() => player.oid.LoginCreature == null || !IsOpen || strength != player.oid.LoginCreature.GetAbilityScore(Ability.Strength) || dexterity != player.oid.LoginCreature.GetAbilityScore(Ability.Dexterity) || constitution != player.oid.LoginCreature.GetAbilityScore(Ability.Constitution) || intelligence != player.oid.LoginCreature.GetAbilityScore(Ability.Intelligence) || wisdom != player.oid.LoginCreature.GetAbilityScore(Ability.Wisdom) || charisma != player.oid.LoginCreature.GetAbilityScore(Ability.Charisma), tokenSource.Token);
           tokenSource.Cancel();
 
-          if (player.oid.LoginCreature == null || !player.openedWindows.ContainsKey(windowId))
+          if (player.oid.LoginCreature == null || !IsOpen)
             return;
 
           LoadLearnableList(currentList);
@@ -323,7 +321,7 @@ namespace NWN.Systems
           refreshOn = true;
 
           CancellationTokenSource tokenSource = new CancellationTokenSource();
-          Task awaitInactive = NwTask.WaitUntil(() => player.oid.LoginCreature == null || !player.openedWindows.ContainsKey(windowId) || !currentList.Any(l => l.active), tokenSource.Token);
+          Task awaitInactive = NwTask.WaitUntil(() => player.oid.LoginCreature == null || !IsOpen || !currentList.Any(l => l.active), tokenSource.Token);
           Task awaitOneSecond = NwTask.Delay(TimeSpan.FromSeconds(1), tokenSource.Token);
 
           await NwTask.WhenAny(awaitInactive, awaitOneSecond);

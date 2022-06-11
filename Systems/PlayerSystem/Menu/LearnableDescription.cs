@@ -107,7 +107,7 @@ namespace NWN.Systems
             Learnable learnable = SkillSystem.learnableDictionary[learnableId];
 
             icon.SetBindValue(player.oid, nuiToken.Token, learnable.icon);
-            description.SetBindValue(player.oid, nuiToken.Token, learnable.description);
+            LoadDescription(learnable);
             name.SetBindValue(player.oid, nuiToken.Token, learnable.name);
             primaryAbilityIcon.SetBindValue(player.oid, nuiToken.Token,StringUtils.GetAttributeIcon(learnable.primaryAbility));
             secondaryAbilityIcon.SetBindValue(player.oid, nuiToken.Token, StringUtils.GetAttributeIcon(learnable.secondaryAbility));
@@ -119,6 +119,18 @@ namespace NWN.Systems
           }
           else
             player.oid.SendServerMessage($"Impossible d'ouvrir la fenêtre {window.Title}. Celle-ci est-elle déjà ouverte ?", ColorConstants.Orange);
+        }
+
+        private async void LoadDescription(Learnable learnable)
+        {
+          if (learnable.description.StartsWith("google"))
+          {
+            string googleDesc = await StringUtils.DownloadGoogleDoc(learnable.description.Replace("google", ""));
+            await NwTask.SwitchToMainThread();
+            description.SetBindValue(player.oid, nuiToken.Token, googleDesc);
+          }
+          else
+            description.SetBindValue(player.oid, nuiToken.Token, learnable.description);
         }
       }
     }

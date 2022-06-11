@@ -39,7 +39,7 @@ namespace NWN.Systems
             new NuiComboEntry("2", 2)
           };
 
-        private NwCreature targetCreature;
+        public NwCreature targetCreature;
 
         public BodyAppearanceWindow(Player player, NwCreature targetCreature) : base(player)
         {

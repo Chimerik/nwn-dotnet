@@ -17,7 +17,7 @@ namespace NWN.Systems
   public partial class SpellSystem
   {
     public static readonly Logger Log = LogManager.GetCurrentClassLogger();
-    private ScriptHandleFactory scriptHandleFactory;
+    private readonly ScriptHandleFactory scriptHandleFactory;
     public int[] lowEnchantements = new int[] { 540, 541, 542, 543, 544, 545, 546, 547, 548, 549, 550, 551, 552, 553, 554 };
     public int[] mediumEnchantements = new int[] { 555, 556, 557, 558, 559, 560, 561, 562 };
     public int[] highEnchantements = new int[] { 563, 564, 565, 566, 567, 568 };
@@ -62,13 +62,13 @@ namespace NWN.Systems
           { ClassType.Bard, bardCastLevel },
         };
 
-        classSorter.OrderByDescending(c => c.Value);
-        castClass = classSorter.ElementAt(0).Value > -1 ? classSorter.ElementAt(0).Key : (ClassType)43;
+        var sortedClass = classSorter.OrderByDescending(c => c.Value);
+        castClass = sortedClass.ElementAt(0).Value > -1 ? sortedClass.ElementAt(0).Key : (ClassType)43;
 
         float level = spell.GetSpellLevelForClass(NwClass.FromClassType(ClassType.Wizard));
         level = level < 1 ? 0.5f : level;
 
-        SkillSystem.learnableDictionary.Add((int)spell.Id, new LearnableSpell((int)spell.Id, spell.Name.ToString(), spell.Description.ToString(), spell.IconResRef, level < 1 ? 1 : (int)level, level < 1 ? 0 : (int)level, castClass == ClassType.Druid || castClass == ClassType.Cleric || castClass == ClassType.Ranger ? Ability.Wisdom : Ability.Intelligence, Ability.Charisma));
+        SkillSystem.learnableDictionary.Add(spell.Id, new LearnableSpell(spell.Id, spell.Name.ToString(), spell.Description.ToString(), spell.IconResRef, level < 1 ? 1 : (int)level, level < 1 ? 0 : (int)level, castClass == ClassType.Druid || castClass == ClassType.Cleric || castClass == ClassType.Ranger ? Ability.Wisdom : Ability.Intelligence, Ability.Charisma));
       }
     }
 
@@ -306,8 +306,8 @@ namespace NWN.Systems
       aoe.Tag = player.oid.CDKey;
       aoe.GetObjectVariable<LocalVariableBool>("TAGGED").Value = true;
 
-      if (player.openedWindows.ContainsKey("aoeDispel"))
-        ((PlayerSystem.Player.AoEDispelWindow)player.windows["aoeDispel"]).UpdateAoEList();
+      if (player.TryGetOpenedWindow("aoeDispel", out PlayerSystem.Player.PlayerWindow aoeWindow))
+        ((PlayerSystem.Player.AoEDispelWindow)aoeWindow).UpdateAoEList();
     }
     private void DelayedTagAoESummon(NwCreature castingCreature, PlayerSystem.Player master)
     {
@@ -319,8 +319,8 @@ namespace NWN.Systems
       aoe.Tag = master.oid.CDKey;
       aoe.GetObjectVariable<LocalVariableBool>("TAGGED").Value = true;
 
-      if (master.openedWindows.ContainsKey("aoeDispel"))
-        ((PlayerSystem.Player.AoEDispelWindow)master.windows["aoeDispel"]).UpdateAoEList();
+      if (master.TryGetOpenedWindow("aoeDispel", out PlayerSystem.Player.PlayerWindow aoeWindow))
+        ((PlayerSystem.Player.AoEDispelWindow)aoeWindow).UpdateAoEList();
     }
     public void HandleAutoSpellBeforeSpellCast(OnSpellCast onSpellCast)
     {
@@ -642,7 +642,7 @@ namespace NWN.Systems
       elecAoE.Creator.GetObjectVariable<LocalVariableInt>("_SPARK_LEVEL").Value += 5;
       elecAoE.Creator.ApplyEffect(EffectDuration.Instant, Effect.VisualEffect(VfxType.ComHitElectrical));
 
-      if (!(NWScript.GetEnteringObject().ToNwObject<NwGameObject>() is NwCreature oTarget) || oTarget == elecAoE.Creator)
+      if (NWScript.GetEnteringObject().ToNwObject<NwGameObject>() is not NwCreature oTarget || oTarget == elecAoE.Creator)
         return ScriptHandleResult.Handled;
 
       if (NwRandom.Roll(Utils.random, 100) > elecAoE.Creator.GetObjectVariable<LocalVariableInt>("_SPARK_LEVEL").Value + 20)
@@ -740,7 +740,7 @@ namespace NWN.Systems
     }
     public void OnExitArena(AreaEvents.OnExit onExit)
     {
-      if (!(onExit.ExitingObject is NwCreature creature) || !PlayerSystem.Players.TryGetValue(onExit.ExitingObject, out PlayerSystem.Player player))
+      if (onExit.ExitingObject is not NwCreature creature || !PlayerSystem.Players.TryGetValue(onExit.ExitingObject, out PlayerSystem.Player player))
         return;
 
       if (creature.IsPlayerControlled) // Cas normal de changement de zone

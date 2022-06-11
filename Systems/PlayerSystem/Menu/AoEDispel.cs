@@ -73,7 +73,7 @@ namespace NWN.Systems
 
             listRefresher = player.scheduler.ScheduleRepeating(() =>
             {
-              if (player.pcState == PcState.Offline || player.oid.ControlledCreature == null || !player.openedWindows.ContainsKey(windowId))
+              if (player.pcState == PcState.Offline || player.oid.ControlledCreature == null || !IsOpen)
               {
                 listRefresher.Dispose();
                 return;
@@ -111,13 +111,11 @@ namespace NWN.Systems
 
                   int spellId = (int)currentList.ElementAt(nuiEvent.ArrayIndex).Spell.Id;
 
-                  if (player.openedWindows.ContainsKey("learnableDescription"))
-                    player.windows["learnableDescription"].CloseWindow();
+                  if (player.TryGetOpenedWindow("learnableDescription", out PlayerWindow descriptionWindow))
+                    descriptionWindow.CloseWindow();
 
-                  if (player.windows.ContainsKey("learnableDescription"))
+                  if (!player.windows.TryAdd("learnableDescription", new LearnableDescriptionWindow(player, spellId)))
                     ((LearnableDescriptionWindow)player.windows["learnableDescription"]).CreateWindow(spellId);
-                  else
-                    player.windows.Add("learnableDescription", new LearnableDescriptionWindow(player, spellId));
 
                   break;
               }

@@ -73,7 +73,7 @@ namespace NWN.Systems
 
             listRefresher = player.scheduler.ScheduleRepeating(() =>
             {
-              if (player.pcState == PcState.Offline || player.oid.ControlledCreature == null || !player.openedWindows.ContainsKey(windowId))
+              if (player.pcState == PcState.Offline || player.oid.ControlledCreature == null || !IsOpen)
               {
                 listRefresher.Dispose();
                 return;

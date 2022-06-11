@@ -311,8 +311,8 @@ namespace NWN.Systems
       }
       public void HandleGenericJobCompletion(Player player)
       {
-        if (player.openedWindows.ContainsKey("activeCraftJob"))
-          player.windows["activeCraftJob"].CloseWindow();
+        if (player.TryGetOpenedWindow("activeCraftJob", out Player.PlayerWindow craftWindow))
+          craftWindow.CloseWindow();
 
         if (jobProgression != null)
           jobProgression.Dispose();
@@ -330,8 +330,8 @@ namespace NWN.Systems
         if(type != JobType.Invalid)
           HandleSpecificJobCompletion[type].Invoke(player, false);
 
-        if (player.openedWindows.ContainsKey("activeCraftJob"))
-          player.windows["activeCraftJob"].CloseWindow();
+        if (player.TryGetOpenedWindow("activeCraftJob", out Player.PlayerWindow craftWindow))
+          craftWindow.CloseWindow();
 
         if (jobProgression != null)
           jobProgression.Dispose();
@@ -370,19 +370,16 @@ namespace NWN.Systems
           jobProgression.Dispose();
           player.oid.OnClientDisconnect -= HandleCraftJobOnPlayerLeave;
 
-          if (player.windows.ContainsKey("activeCraftJob") && player.openedWindows.ContainsKey("activeCraftJob"))
-          {
-            Player.ActiveCraftJobWindow jobWindow = (Player.ActiveCraftJobWindow)player.windows["activeCraftJob"];
-            jobWindow.timeLeft.SetBindValue(player.oid, jobWindow.nuiToken.Token, "En pause (Hors Cité)");
-          }
-
+          if (player.TryGetOpenedWindow("activeCraftJob", out Player.PlayerWindow jobWindow))
+            ((Player.ActiveCraftJobWindow)jobWindow).timeLeft.SetBindValue(player.oid, jobWindow.nuiToken.Token, "En pause (Hors Cité)");
+          
           return;
         }
 
         if (onArea.Area.GetObjectVariable<LocalVariableInt>("_AREA_LEVEL").Value == 0 && jobProgression.IsCancelled)
         {
-          if (player.windows.ContainsKey("activeCraftJob") && player.openedWindows.ContainsKey("activeCraftJob"))
-            ((Player.ActiveCraftJobWindow)player.windows["activeCraftJob"]).HandleRealTimeJobProgression();
+          if (player.TryGetOpenedWindow("activeCraftJob", out Player.PlayerWindow jobWindow))
+            ((Player.ActiveCraftJobWindow)jobWindow).HandleRealTimeJobProgression();
           else
             HandleDelayedJobProgression(player);
         }

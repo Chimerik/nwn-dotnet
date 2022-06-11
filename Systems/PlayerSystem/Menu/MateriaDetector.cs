@@ -160,7 +160,7 @@ namespace NWN.Systems
 
         private void HandleScanProgress()
         {
-          if(player.oid.LoginCreature == null || !player.openedWindows.ContainsKey(windowId))
+          if(player.oid.LoginCreature == null || !IsOpen)
           {
             CancelScanProgress();
             return;

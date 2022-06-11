@@ -41,13 +41,13 @@ namespace NWN.Systems
         else
           player.areaExplorationStateDictionnary[player.oid.LoginCreature.Area.Tag] = player.oid.GetAreaExplorationState(player.oid.LoginCreature.Area);
 
-      if (player.openedWindows.ContainsKey("bankStorage") && player.windows.ContainsKey("bankStorage"))
-        ((Player.BankStorageWindow)player.windows["bankStorage"]).BankSave();
+      if (player.TryGetOpenedWindow("bankStorage", out Player.PlayerWindow storageWindow))
+        ((Player.BankStorageWindow)storageWindow).BankSave();
 
       Task waitDisconnection = NwTask.Run(async () =>
       {
         await NwTask.Delay(TimeSpan.FromMilliseconds(200));
-        foreach(Player connectedPlayer in Players.Values.Where(p => p.pcState != Player.PcState.Offline && p.openedWindows.ContainsKey("playerList")))
+        foreach(Player connectedPlayer in Players.Values.Where(p => p.pcState != Player.PcState.Offline && p.TryGetOpenedWindow("playerList", out Player.PlayerWindow playerListWindow)))
           ((Player.PlayerListWindow)connectedPlayer.windows["playerList"]).UpdatePlayerList();
       });
 

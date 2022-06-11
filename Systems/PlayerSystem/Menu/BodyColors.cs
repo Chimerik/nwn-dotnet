@@ -100,7 +100,7 @@ namespace NWN.Systems
           this.targetCreature = targetCreature;
           player.DisableItemAppearanceFeedbackMessages();
 
-          if (player.openedWindows.ContainsKey(windowId))
+          if (IsOpen)
             CloseWindow();
 
           NuiRect windowRectangle = player.windowRectangles.ContainsKey(windowId) ? new NuiRect(player.windowRectangles[windowId].X, player.windowRectangles[windowId].Y, 470, 470) : new NuiRect(0, player.oid.GetDeviceProperty(PlayerDeviceProperty.GuiHeight) * 0.02f, 470, 470);

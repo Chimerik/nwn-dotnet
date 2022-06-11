@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 
 using Anvil.API;
@@ -22,15 +23,23 @@ namespace NWN.Systems
   [ServiceBinding(typeof(Appearance2da))]
   public class Appearance2da
   {
-    private readonly TwoDimArray<AppearanceEntry> appearanceTable = new("ambientmusic.2da");
+    private readonly TwoDimArray<AppearanceEntry> appearanceTable = new("appearance.2da");
     public static List<NuiComboEntry> appearanceEntries = new();
 
     public Appearance2da()
     {
-      foreach(var entry in appearanceTable.Where(a => !string.IsNullOrEmpty(a.name)))
-        appearanceEntries.Add(new NuiComboEntry(entry.name, entry.RowIndex));
+      int i = 0;
+      foreach (var entry in appearanceTable)
+        if (!string.IsNullOrEmpty(entry.name))
+          appearanceEntries.Add(new NuiComboEntry(entry.name, entry.RowIndex));
 
       appearanceEntries = appearanceEntries.OrderBy(a => a.Label).ToList();
+
+      /*foreach (var entry in appearanceEntries)
+      {
+        Console.WriteLine($"{i} - {entry.Label} - {entry.Value}");
+        i++;
+      }*/
     }
   }
 }

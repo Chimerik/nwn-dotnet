@@ -115,7 +115,7 @@ namespace NWN.Systems
 
             case "geometry":
 
-              if (!player.openedWindows.ContainsKey(windowId))
+              if (!IsOpen)
                 return;
 
               NuiRect rectangle = geometry.GetBindValue(nuiEvent.Player, nuiToken.Token);
@@ -465,8 +465,8 @@ namespace NWN.Systems
 
         public void HandleNewPM(string senderName)
         {
-          if (player.windows.ContainsKey(senderName) && !player.openedWindows.ContainsKey(senderName))
-            ((PrivateMessageWindow)player.windows[senderName]).read = false;
+          if (player.windows.ContainsKey(senderName) && !player.TryGetOpenedWindow(senderName, out PlayerWindow targetChatWindow))
+            ((PrivateMessageWindow)targetChatWindow).read = false;
 
           if (currentCategory != ChatLine.ChatCategory.Private)
             mpCategory.ForegroundColor = new Color(255, 255, 255);

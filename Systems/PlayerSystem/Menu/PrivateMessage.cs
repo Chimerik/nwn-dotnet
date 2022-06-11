@@ -103,7 +103,7 @@ namespace NWN.Systems
 
             case "geometry":
 
-              if (!player.openedWindows.ContainsKey(windowId))
+              if (!IsOpen)
                 return;
 
               NuiRect rectangle = geometry.GetBindValue(nuiEvent.Player, nuiToken.Token);

@@ -44,7 +44,7 @@ namespace NWN.Systems
       public Dictionary<int, byte[]> chatColors = new ();
       public Dictionary<string, PlayerWindow> windows = new ();
       public Dictionary<string, NuiRect> windowRectangles = new ();
-      public Dictionary<string, int> openedWindows = new ();
+      //public Dictionary<string, int> openedWindows = new ();
       public List<ChatLine> readChatLines = new ();
 
       public List<CraftResource> craftResourceStock = new ();
@@ -161,13 +161,13 @@ namespace NWN.Systems
         await NwTask.WaitUntil(() => oid.LoginCreature.Location.Area != null);
         oid.LoginCreature.Location = location;
       }
-      public async void InitializePlayerOpenedWindows()
+      /*public async void InitializePlayerOpenedWindows()
       {
         await NwTask.WaitUntil(() => oid.LoginCreature.Location.Area != null);
 
         foreach (string window in openedWindows.Keys)
           CreatePlayerWindow(window);
-      }
+      }*/
       public void CreatePlayerWindow(string window)
       {
         switch (window)
@@ -1101,10 +1101,22 @@ namespace NWN.Systems
           case "geometry":
 
             NuiRect windowRectangle = new NuiBind<NuiRect>("geometry").GetBindValue(nuiEvent.Player, nuiEvent.Token.Token);
-            
+
             if (windowRectangle.Width > 0 && windowRectangle.Height > 0)
-              if (!windowRectangles.TryAdd(window, windowRectangle))
-                windowRectangles[window] = windowRectangle;
+            {
+              if (!windowRectangles.ContainsKey(window))
+                  windowRectangles.Add(window, windowRectangle);
+              else
+              {
+                if (windowRectangles[window].Width != windowRectangle.Width || windowRectangles[window].Height != windowRectangle.Height)
+                {
+                  windowRectangles[window] = windowRectangle;
+                  windows[window].ResizeWidgets();
+                }
+                else
+                  windowRectangles[window] = windowRectangle;
+              }
+            }
 
             if (pcState == PcState.Online)
               nuiEvent.Player.ExportCharacter();
@@ -1115,16 +1127,23 @@ namespace NWN.Systems
             switch (nuiEvent.EventType)
             {
               case NuiEventType.Open:
-                openedWindows.TryAdd(window, nuiEvent.Token.Token);
+                windows[window].IsOpen = true;
                 break;
 
               case NuiEventType.Close:
-                openedWindows.Remove(window);
+                windows[window].IsOpen = false;
                 break;
             }
 
             break;
         }
+      }
+      public bool TryGetOpenedWindow(string windowId, out PlayerWindow openedWindow)
+      {
+        if (windows.TryGetValue(windowId, out openedWindow) && openedWindow.IsOpen)
+          return true;
+
+        return false;
       }
     }
   }

@@ -118,8 +118,8 @@ namespace NWN.Systems
           buttonText.SetBindValues(player.oid, nuiToken.Token, descriptionNamesList);
           listCount.SetBindValue(player.oid, nuiToken.Token, descriptionNamesList.Count);
 
-          if (player.openedWindows.ContainsKey("descriptionContent"))
-            player.windows["descriptionContent"].CloseWindow();
+          if (player.TryGetOpenedWindow("descriptionContent", out PlayerWindow descriptionWindow))
+            descriptionWindow.CloseWindow();
         }
       }
     }

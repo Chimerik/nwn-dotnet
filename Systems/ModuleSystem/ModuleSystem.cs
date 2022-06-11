@@ -21,9 +21,9 @@ namespace NWN.Systems
   {
     public static readonly Logger Log = LogManager.GetCurrentClassLogger();
     public static readonly TranslationClient googleTranslationClient = TranslationClient.Create();
+    public static readonly DriveService googleDriveService = Config.AuthenticateServiceAccount();
     public static readonly Dictionary<string, GoldBalance> goldBalanceMonitoring = new();
     private readonly SchedulerService scheduler;
-    public static readonly DriveService googleDriveService = Config.AuthenticateServiceAccount();
 
     public class  HeadModels
     {
@@ -45,7 +45,7 @@ namespace NWN.Systems
     {
       scheduler = schedulerService;
 
-      LoadDiscordBot();
+      //LoadDiscordBot();
       CreateDatabase();
       InitializeEvents();
 
@@ -67,8 +67,6 @@ namespace NWN.Systems
     }
     private void OnModuleLoad(ModuleEvents.OnModuleLoad onModuleLoad)
     {
-      NwServer.Instance.PlayerPassword = "LOADINGLDE";
-
       NwModule.Instance.GetObjectVariable<LocalVariableString>("X2_S_UD_SPELLSCRIPT").Value = "spellhook";
 
       //NwModule.Instance.SetEventScript((EventScriptType)NWScript.EVENT_SCRIPT_MODULE_ON_PLAYER_TILE_ACTION, "on_tile_action");
@@ -161,7 +159,7 @@ namespace NWN.Systems
 
       SqLiteUtils.CreateQuery("CREATE TABLE IF NOT EXISTS playerCharacters" +
         "('accountId' INTEGER NOT NULL, 'characterName' TEXT NOT NULL, 'previousSPCalculation' TEXT, 'serializedLearnableSkills' TEXT, 'serializedLearnableSpells' TEXT," +
-        "'location' TEXT, 'openedWindows' TEXT, 'itemAppearances' TEXT," +
+        "'location' TEXT, 'itemAppearances' TEXT," +
         "'currentHP' INTEGER, 'bankGold' INTEGER, 'pveArenaCurrentPoints' INTEGER, 'menuOriginTop' INTEGER, 'menuOriginLeft' INTEGER, 'storage' TEXT, " +
         "'alchemyCauldron' TEXT, 'explorationState' TEXT, 'materialStorage' TEXT, 'craftJob' TEXT, 'grimoires' TEXT, 'quickbars' TEXT," +
         "'descriptions' TEXT)");
@@ -222,6 +220,9 @@ namespace NWN.Systems
 
       SqLiteUtils.CreateQuery("CREATE TABLE IF NOT EXISTS bankPlaceables" +
         "('id' INTEGER NOT NULL, 'areaTag' TEXT NOT NULL, 'ownerId' INTEGER NOT NULL, 'ownerName' TEXT NOT NULL, UNIQUE (id, areaTag))");
+
+      SqLiteUtils.CreateQuery("CREATE TABLE IF NOT EXISTS creaturePalette" +
+        "('paletteName' TEXT NOT NULL, 'serializedCreature' TEXT NOT NULL, 'addedBy' TEXT NOT NULL)");
     }
     private void InitializeEvents()
     {

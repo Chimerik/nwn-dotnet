@@ -111,7 +111,7 @@ namespace NWN.Systems
 
         private void HandleExtractionProgress()
         {
-          if(player.oid.LoginCreature == null || !player.openedWindows.ContainsKey(windowId) || player.oid.LoginCreature.IsInCombat || player.oid.LoginCreature.IsResting 
+          if(player.oid.LoginCreature == null || !IsOpen || player.oid.LoginCreature.IsInCombat || player.oid.LoginCreature.IsResting 
             || player.oid.LoginCreature.CurrentAction == Anvil.API.Action.CastSpell || player.oid.LoginCreature.CurrentAction == Anvil.API.Action.AttackObject
             || player.oid.LoginCreature.CurrentAction == Anvil.API.Action.CounterSpell || player.oid.LoginCreature.CurrentAction == Anvil.API.Action.SetTrap
             || player.oid.LoginCreature.CurrentAction == Anvil.API.Action.ItemCastSpell)

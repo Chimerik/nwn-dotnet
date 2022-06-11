@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 using static NWN.Systems.PlayerSystem;
 using NWN.System;
 using System.Collections.Generic;
+using NWN.Core.NWNX;
 
 namespace NWN.Systems
 {
@@ -80,7 +81,16 @@ namespace NWN.Systems
         trainer.OnConversation += HandleCancelStatueConversation;
         trainer.OnSpawn += HandleSpawnTrainingDummy;
         trainer.OnDamaged += HandleTrainingDummyDamaged;
+
+        trainer.GetObjectVariable<LocalVariableFloat>("_PERSONNAL_SPACE").Value = CreaturePlugin.GetPersonalSpace(trainer);
+        trainer.GetObjectVariable<LocalVariableFloat>("_HEIGHT").Value = CreaturePlugin.GetHeight(trainer);
+        trainer.GetObjectVariable<LocalVariableFloat>("_HIT_DISTANCE").Value = CreaturePlugin.GetHitDistance(trainer);
+        trainer.GetObjectVariable<LocalVariableFloat>("_CREATURE_PERSONNAL_SPACE").Value = CreaturePlugin.GetCreaturePersonalSpace(trainer);
       }
+
+      foreach (NwPlaceable scaledPlaceable in NwObject.FindObjectsOfType<NwPlaceable>())
+        if (scaledPlaceable.VisualTransform.Scale > 1)
+          scaledPlaceable.VisibilityOverride = VisibilityMode.AlwaysVisible;
     }
     private void HandleTrainingDummyDamaged(CreatureEvents.OnDamaged onDamaged)
     {

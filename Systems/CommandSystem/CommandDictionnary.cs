@@ -37,16 +37,6 @@ namespace NWN.Systems
           )
         )
       },
-      {
-        "dm",
-        new Command(
-          name: "dm",
-          description: new Command.Description(
-            title: "Affiche le menu dm."
-          ),
-          execute: ExecuteDMMenuCommand
-        )
-      }
     };
     }
 }
