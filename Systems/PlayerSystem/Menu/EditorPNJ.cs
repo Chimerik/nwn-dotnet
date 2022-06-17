@@ -140,12 +140,11 @@ namespace NWN.Systems
             Border = true,
           };
 
-          Log.Info("Before try create");
           if (player.oid.TryCreateNuiWindow(window, out NuiWindowToken tempToken, windowId))
           {
             nuiToken = tempToken;
             currentTab = Tab.Base;
-            Log.Info($"after create window id = {nuiToken.WindowId}");
+
             nuiToken.OnNuiEvent += HandleEditorPNJEvents;
 
             LoadBaseBinding();

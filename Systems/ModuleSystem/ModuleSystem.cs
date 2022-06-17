@@ -45,7 +45,7 @@ namespace NWN.Systems
     {
       scheduler = schedulerService;
 
-      //LoadDiscordBot();
+      LoadDiscordBot();
       CreateDatabase();
       InitializeEvents();
 

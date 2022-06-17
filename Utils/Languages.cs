@@ -47,7 +47,7 @@ namespace NWN.Systems
         case CustomSkill.Druidique:
           return LanguageCodes.Corsican;
         case CustomSkill.Nain:
-          return LanguageCodes.German;
+          return LanguageCodes.ScotsGaelic;
         case CustomSkill.Gnome:
           return LanguageCodes.Albanian;
         case CustomSkill.Giant:
