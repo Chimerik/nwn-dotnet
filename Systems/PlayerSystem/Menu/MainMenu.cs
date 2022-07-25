@@ -350,6 +350,17 @@ namespace NWN.Systems
                   CloseWindow();
 
                   break;
+
+                case "creaturePalette":
+
+                  if (player.windows.ContainsKey("paletteCreature"))
+                    ((PaletteCreatureWindow)player.windows["paletteCreature"]).CreateWindow();
+                  else
+                    player.windows.Add("paletteCreature", new PaletteCreatureWindow(player));
+
+                  CloseWindow();
+
+                  break;
               }
               break;
 

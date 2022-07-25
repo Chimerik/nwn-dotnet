@@ -7,6 +7,7 @@ using Anvil.API;
 using System.Collections.Generic;
 using NLog;
 using NWN.Core;
+using System.Threading.Tasks;
 
 namespace NWN
 {
@@ -337,6 +338,7 @@ namespace NWN
     public static readonly Dictionary<string, MainMenuCommand> mainMenuCommands = new ()
     {
       { "dm", new MainMenuCommand("Mode DM", "", CommandRank.Admin) },
+      { "creaturePalette", new MainMenuCommand("Palette des créatures", "", CommandRank.DM) },
       { "touch", new MainMenuCommand("Mode toucher", "Permet d'éviter les collisions entre personnages (non utilisable en combat)", CommandRank.Public) },
       { "walk", new MainMenuCommand("Mode marche", "Permet d'avoir l'air moins ridicule en ville", CommandRank.Public) },
       { "follow", new MainMenuCommand("Suivre", "Suivre une créature ciblée (pour les feignasses !)", CommandRank.Public) },
@@ -362,7 +364,7 @@ namespace NWN
       { "instantLearn", new MainMenuCommand("Instant Learn", "", CommandRank.Admin) }, // TODO : Ajouter à OnExamine Player
       { "instantCraft", new MainMenuCommand("Instant Craft", "", CommandRank.Admin) }, // TODO : Ajouter à OnExamine Player
       { "giveResources", new MainMenuCommand("Don de ressources", "", CommandRank.Admin) }, // TODO : Ajouter à OnExamine Player
-      { "giveSkillbook", new MainMenuCommand("Don de skillbook", "", CommandRank.Admin) } // TODO : Ajouter à OnExamine Player
+      { "giveSkillbook", new MainMenuCommand("Don de skillbook", "", CommandRank.Admin) }, // TODO : Ajouter à OnExamine Player
     };
 
     public static List<NuiComboEntry> raceList = new();
@@ -371,6 +373,8 @@ namespace NWN
     public static readonly List<NuiComboEntry> factionList = new();
     public static readonly List<NuiComboEntry> movementRateList = new();
     public static readonly List<NuiComboEntry> sizeList = new();
+    public static List<NuiComboEntry> creaturePaletteCreatorsList = new();
+    public static List<PaletteCreatureEntry> creaturePaletteList = new();
 
     public static double GetDamageMultiplier(double targetAC)
     {

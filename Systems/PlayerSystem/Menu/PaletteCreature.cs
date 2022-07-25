@@ -1,13 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-
+using System.Threading;
+using System.Threading.Tasks;
 using Anvil.API;
 using Anvil.API.Events;
-
-using Google.Apis.Drive.v3.Data;
-
-using NWN.Core;
+using Newtonsoft.Json;
 
 namespace NWN.Systems
 {
@@ -20,39 +18,56 @@ namespace NWN.Systems
         private readonly NuiColumn rootColumn = new();
         private readonly List<NuiElement> rootChildren = new();
         private readonly List<NuiListTemplateCell> rowTemplate = new();
-        private readonly NuiBind<string> buttonName = new("buttonName");
-        private readonly NuiBind<string> buttonTooltip = new("buttonTooltip");
+        private readonly NuiBind<string> newCreatureName = new("newCreatureName");
+        private readonly NuiBind<string> creatureName = new("creatureName");
+        private readonly NuiBind<string> creatorName = new("creatorName");
+        private readonly NuiBind<string> comment = new("comment");
+        private readonly NuiBind<string> lastModified = new("lastModified");
         private readonly NuiBind<int> listCount = new("listCount");
         private readonly NuiBind<string> search = new("search");
+        private readonly NuiBind<bool> permanentSpawn = new("permanentSpawn");
+        private readonly NuiBind<bool> isCreatorOrAdmin = new("isCreatorOrAdmin");
+        private readonly NuiBind<bool> isModelLoaded = new("isModelLoaded");
+        private readonly NuiBind<int> selectedCreatureType = new("selectedCreatureType");
+        private readonly NuiBind<bool> creatureTypeEnabler = new("creatureTypeEnabler");
 
-        private NwObject selectionTarget;
+        private readonly NuiBind<List<NuiComboEntry>> creators = new("creators");
+        private readonly NuiBind<int> selectedCreator = new("selectedCreator");
 
-        private readonly Dictionary<string, Utils.MainMenuCommand> myCommandList;
-        private Dictionary<string, Utils.MainMenuCommand> currentList;
+        private NwCreature selectionTarget;
+        private int currentArrayindex = -1;
+        private bool AuthorizeSave { get; set; }
+        private int nbDebounce { get; set; }
+
+        private IEnumerable<PaletteCreatureEntry> currentList;
 
         public PaletteCreatureWindow(Player player) : base(player)
         {
           windowId = "paletteCreature";
+          AuthorizeSave = false;
+          nbDebounce = 0;
 
           rootColumn.Children = rootChildren;
-          rowTemplate.Add(new NuiListTemplateCell(new NuiLabel(creatureName) { Tooltip = creatureName, Height = 35, VerticalAlign = NuiVAlign.Middle }) { VariableSize = true });
-          rowTemplate.Add(new NuiListTemplateCell(new NuiLabel(creatorName) { Tooltip = creatorName, Height = 35, VerticalAlign = NuiVAlign.Middle }) { VariableSize = true });
-          rowTemplate.Add(new NuiListTemplateCell(new NuiLabel(creatureName) { Tooltip = creatureName, Height = 35, VerticalAlign = NuiVAlign.Middle }) { VariableSize = true });
+          rowTemplate.Add(new NuiListTemplateCell(new NuiTextEdit("Nom créature", creatureName, 50, false) { Tooltip = creatureName, Height = 35 }) { VariableSize = true });
+          rowTemplate.Add(new NuiListTemplateCell(new NuiLabel(creatorName) { Tooltip = comment, Height = 35, VerticalAlign = NuiVAlign.Middle }));
+          rowTemplate.Add(new NuiListTemplateCell(new NuiLabel(lastModified) { Tooltip = lastModified, Height = 35, VerticalAlign = NuiVAlign.Middle }));
+          rowTemplate.Add(new NuiListTemplateCell(new NuiButton("Select") { Id = "copy", Tooltip = "Sélectionner le modèle pour cette entrée", Enabled = isCreatorOrAdmin, Height = 35, Width = 35 }));
+          rowTemplate.Add(new NuiListTemplateCell(new NuiButton("Spawn") { Id = "spawn", Tooltip = "Faire apparaître cette créature", Height = 35, Width = 35 }));
+          rowTemplate.Add(new NuiListTemplateCell(new NuiButton("Save") { Id = "save", Tooltip = "Valider les modifications", Enabled = isCreatorOrAdmin, Height = 35, Width = 35 }));
+          rowTemplate.Add(new NuiListTemplateCell(new NuiButton("Supprimer") { Id = "delete", Tooltip = "Supprimer cette entrée", Enabled = isCreatorOrAdmin, Height = 35, Width = 35 }));
 
-          rootChildren.Add(new NuiRow() { Children = new List<NuiElement>() { new NuiTextEdit("Recherche", search, 50, false) { Width = 370 } } });
-          rootChildren.Add(new NuiRow() { Height = 385, Children = new List<NuiElement>() { new NuiList(rowTemplate, listCount) { RowHeight = 35 } } });
-
-          if (player.oid.PlayerName == "Chim")
-            myCommandList = Utils.mainMenuCommands;
-          else if (player.oid.IsDM)
-            myCommandList = Utils.mainMenuCommands.Where(m => m.Value.rank < Utils.CommandRank.Admin).ToDictionary(m => m.Key, m => m.Value);
-          else
+          rootChildren.Add(new NuiRow() { Children = new List<NuiElement>()
           {
-            myCommandList = Utils.mainMenuCommands.Where(m => m.Value.rank < Utils.CommandRank.DM).ToDictionary(m => m.Key, m => m.Value);
+            new NuiTextEdit("Nom palette", newCreatureName, 50, false) { Tooltip = newCreatureName, Height = 35 },
+            new NuiButton("Sélection") { Id = "selectNewCreature", Tooltip = "Sélectionner la créature à sauvegarder", Width = 80 },
+            new NuiButton("Ajouter") { Id = "create", Tooltip = "Ajouter la créature à la palette", Enabled = isModelLoaded, Width = 80 }
+          } });
 
-            if (player.bonusRolePlay < 4)
-              myCommandList.Remove("commend");
-          }
+          rootChildren.Add(new NuiRow() { Children = new List<NuiElement>() { new NuiCombo() { Entries = creators, Selected = selectedCreator, Width = 370 } } });
+          rootChildren.Add(new NuiRow() { Children = new List<NuiElement>() { new NuiTextEdit("Recherche", search, 50, false) { Width = 370 } } });
+          rootChildren.Add(new NuiRow() { Children = new List<NuiElement>() { new NuiCheck("Spawn Permanent", permanentSpawn) { Tooltip = "Si cette option est cochée, la créature sera intégrée au système de spawn et persistera après reboot" } } });
+          rootChildren.Add(new NuiRow() { Children = new List<NuiElement>() { new NuiOptions() { Selection = selectedCreatureType, Direction = NuiDirection.Horizontal, Options = { "mob", "pnj fixe", "neutral" }, Tooltip = "mob = monstre hostile. PNJ fixe = immobile. Neutral = créature neutre qui se balade aléatoirement", Enabled = creatureTypeEnabler } } });
+          rootChildren.Add(new NuiRow() { Height = 385, Children = new List<NuiElement>() { new NuiList(rowTemplate, listCount) { RowHeight = 35 } } });
 
           CreateWindow();
         }
@@ -60,7 +75,7 @@ namespace NWN.Systems
         {
           NuiRect windowRectangle = player.windowRectangles.ContainsKey(windowId) ? player.windowRectangles[windowId] : new NuiRect(10, player.oid.GetDeviceProperty(PlayerDeviceProperty.GuiHeight) * 0.01f, 410, 500);
 
-          window = new NuiWindow(rootColumn, "Menu principal")
+          window = new NuiWindow(rootColumn, "Palette des créatures")
           {
             Geometry = geometry,
             Resizable = false,
@@ -73,284 +88,90 @@ namespace NWN.Systems
           if (player.oid.TryCreateNuiWindow(window, out NuiWindowToken tempToken, windowId))
           {
             nuiToken = tempToken;
-            nuiToken.OnNuiEvent += HandleMainMenuEvents;
+            nuiToken.OnNuiEvent += HandlePaletteCreatureEvents;
 
             search.SetBindValue(player.oid, nuiToken.Token, "");
             search.SetBindWatch(player.oid, nuiToken.Token, true);
+
+            permanentSpawn.SetBindValue(player.oid, nuiToken.Token, false);
+            permanentSpawn.SetBindWatch(player.oid, nuiToken.Token, true);
+            creators.SetBindValue(player.oid, nuiToken.Token, Utils.creaturePaletteCreatorsList);
+
+            selectedCreator.SetBindValue(player.oid, nuiToken.Token, 0);
+            selectedCreator.SetBindWatch(player.oid, nuiToken.Token, true);
+
+            selectedCreatureType.SetBindValue(player.oid, nuiToken.Token, 0);
+            creatureTypeEnabler.SetBindValue(player.oid, nuiToken.Token, false);
+
             geometry.SetBindValue(player.oid, nuiToken.Token, windowRectangle);
             geometry.SetBindWatch(player.oid, nuiToken.Token, true);
 
-            if (!AreaDescriptionExists(player.oid.ControlledCreature.Area.Name))
-              myCommandList.Remove("examineArea");
-            else
-              myCommandList.TryAdd("examineArea", Utils.mainMenuCommands["examineArea"]);
 
-
-            currentList = myCommandList;
-            LoadMenu(currentList);
+            currentList = Utils.creaturePaletteList;
+            LoadCreatureList(currentList);
           }
         }
-        private async void HandleMainMenuEvents(ModuleEvents.OnNuiEvent nuiEvent)
+        private void HandlePaletteCreatureEvents(ModuleEvents.OnNuiEvent nuiEvent)
         {
           switch (nuiEvent.EventType)
           {
             case NuiEventType.Click:
 
-              switch (currentList.Keys.ElementAt(nuiEvent.ArrayIndex))
+              switch (nuiEvent.ElementId)
               {
-                case "touch":
+                case "selectNewCreature":
 
-                  var effectList = player.oid.ControlledCreature.ActiveEffects.Where(e => e.EffectType == EffectType.CutsceneGhost);
-
-                  if (!player.oid.ControlledCreature.ActiveEffects.Any(e => e.EffectType == EffectType.CutsceneGhost))
-                  {
-                    player.oid.ControlledCreature.ApplyEffect(EffectDuration.Permanent, Effect.CutsceneGhost());
-                    player.oid.SendServerMessage("Activation du mode toucher", ColorConstants.Orange);
-                  }
-                  else
-                  {
-                    foreach (var eff in player.oid.ControlledCreature.ActiveEffects.Where(e => e.EffectType == EffectType.CutsceneGhost))
-                      player.oid.ControlledCreature.RemoveEffect(eff);
-
-                    player.oid.SendServerMessage("Désactivation du mode toucher", ColorConstants.Orange);
-                  }
+                  currentArrayindex = -1;
+                  player.oid.SendServerMessage("Quelle créature souhaitez-vous prendre pour modèle ?", ColorConstants.Orange);
+                  player.oid.EnterTargetMode(SelectCreature, ObjectTypes.Creature, MouseCursor.Action);
 
                   break;
 
-                case "walk":
+                case "create":
 
-                  if (player.oid.ControlledCreature.AlwaysWalk)
-                  {
-                    player.oid.ControlledCreature.AlwaysWalk = false;
-                    player.oid.LoginCreature.GetObjectVariable<PersistentVariableBool>("_ALWAYS_WALK").Delete();
-                    player.oid.SendServerMessage("Désactivation du mode marche.", ColorConstants.Orange);
-                  }
-                  else
-                  {
-                    player.oid.ControlledCreature.AlwaysWalk = true;
-                    player.oid.LoginCreature.GetObjectVariable<PersistentVariableBool>("_ALWAYS_WALK").Value = true;
-                    player.oid.SendServerMessage("Activation du mode marche.", ColorConstants.Orange);
-                  }
+                  HandleInsertNewCreature(newCreatureName.GetBindValue(player.oid, nuiToken.Token), selectionTarget.Serialize().ToBase64EncodedString(), player.oid.PlayerName, selectionTarget.GetObjectVariable<LocalVariableString>("_COMMENT").Value);
+
+                  newCreatureName.SetBindValue(player.oid, nuiToken.Token, "");
+                  selectionTarget = null;
+                  isModelLoaded.SetBindValue(player.oid, nuiToken.Token, false);
 
                   break;
 
-                case "examineArea":
+                case "copy":
 
-                  if (player.windows.ContainsKey("areaDescription"))
-                    ((AreaDescriptionWindow)player.windows["areaDescription"]).CreateWindow(player.oid.ControlledCreature.Area);
-                  else
-                    player.windows.Add("areaDescription", new AreaDescriptionWindow(player, player.oid.ControlledCreature.Area));
-
-                  break;
-
-                case "grimoire":
-
-                  if (player.windows.ContainsKey("grimoires"))
-                    ((GrimoiresWindow)player.windows["grimoires"]).CreateWindow();
-                  else
-                    player.windows.Add("grimoires", new GrimoiresWindow(player));
-
-                  CloseWindow();
+                  currentArrayindex = nuiEvent.ArrayIndex;
+                  player.oid.SendServerMessage("Quelle créature souhaitez-vous prendre pour modèle ?", ColorConstants.Orange);
+                  player.oid.EnterTargetMode(SelectCreature, ObjectTypes.Creature, MouseCursor.Action);
 
                   break;
 
-                case "quickbars":
+                case "spawn":
 
-                  if (player.windows.ContainsKey("quickbars"))
-                    ((QuickbarsWindow)player.windows["quickbars"]).CreateWindow();
-                  else
-                    player.windows.Add("quickbars", new QuickbarsWindow(player));
-
-                  CloseWindow();
+                  currentArrayindex = nuiEvent.ArrayIndex;
+                  player.oid.SendServerMessage("Veuillez sélectionner un emplacement de spawn.", ColorConstants.Orange);
+                  player.oid.EnterTargetMode(SpawnCreature, ObjectTypes.All, MouseCursor.Create);
 
                   break;
 
-                case "itemAppearance":
+                case "save":
 
-                  if (player.windows.ContainsKey("itemAppearances"))
-                    ((ItemAppearancesWindow)player.windows["itemAppearances"]).CreateWindow();
-                  else
-                    player.windows.Add("itemAppearances", new ItemAppearancesWindow(player));
+                  PaletteCreatureEntry entry = currentList.ElementAt(nuiEvent.ArrayIndex);
+                  entry.name = creatureName.GetBindValues(player.oid, nuiToken.Token).ElementAt(nuiEvent.ArrayIndex);
+                  PaletteSave();
 
-                  CloseWindow();
+                  player.oid.SendServerMessage($"La créature {entry.name.ColorString(ColorConstants.White)} a bien été sauvegardée dans la palette.", new Color(32, 255, 32));
 
-                  break;
-
-                case "description":
-
-                  if (player.windows.ContainsKey("description"))
-                    ((DescriptionsWindow)player.windows["description"]).CreateWindow();
-                  else
-                    player.windows.Add("description", new DescriptionsWindow(player));
-
-                  CloseWindow();
-
-                  break;
-
-                case "unstuck":
-
-                  NWScript.AssignCommand(player.oid.ControlledCreature, () => NWScript.JumpToLocation(NWScript.GetLocation(player.oid.ControlledCreature)));
-                  player.oid.SendServerMessage("Tentative de déblocage effectuée.", ColorConstants.Orange);
-
-                  break;
-
-                case "reinitPositionDisplay":
-
-                  Utils.ResetVisualTransform(player.oid.ControlledCreature);
-                  player.oid.SendServerMessage("Affichage réinitialisé.", ColorConstants.Orange);
-
-                  break;
-
-                case "publicKey":
-                  player.oid.SendServerMessage($"Votre clef publique est : {player.oid.CDKey.ColorString(ColorConstants.White)}", ColorConstants.Pink);
                   break;
 
                 case "delete":
-                  await player.oid.Delete($"Le personnage {player.oid.LoginCreature.Name} a été supprimé.");
-                  break;
 
-                case "chat":
+                  PaletteCreatureEntry deletedEntry = currentList.ElementAt(nuiEvent.ArrayIndex);
+                  Utils.creaturePaletteList.Remove(deletedEntry);
 
-                  if (player.windows.ContainsKey("chatColors"))
-                    ((ChatColorsWindow)player.windows["chatColors"]).CreateWindow();
-                  else
-                    player.windows.Add("chatColors", new ChatColorsWindow(player));
+                  PaletteSave();
+                  LoadCreatureList(currentList);
 
-                  CloseWindow();
-
-                  break;
-
-                case "wind":
-
-                  if (player.windows.ContainsKey("areaWindSettings"))
-                    ((AreaWindSettings)player.windows["areaWindSettings"]).CreateWindow();
-                  else
-                    player.windows.Add("areaWindSettings", new AreaWindSettings(player));
-
-                  CloseWindow();
-
-                  break;
-
-                case "dm":
-                  player.oid.IsPlayerDM = !player.oid.IsPlayerDM;
-                  break;
-
-                case "dmRename":
-                  player.oid.SendServerMessage("Veuillez sélectionner la cible à renommer");
-                  player.oid.EnterTargetMode(RenameTarget, ObjectTypes.All, MouseCursor.CreateDown);
-                  CloseWindow();
-                  break;
-
-                case "persistentPlaceables":
-
-                  if (player.oid.LoginCreature.GetObjectVariable<LocalVariableInt>("_SPAWN_PERSIST").HasValue)
-                  {
-                    player.oid.LoginCreature.GetObjectVariable<LocalVariableInt>("_SPAWN_PERSIST").Delete();
-                    player.oid.SendServerMessage("Persistance des placeables créés par DM désactivée.", ColorConstants.Blue);
-                  }
-                  else
-                  {
-                    player.oid.LoginCreature.GetObjectVariable<LocalVariableInt>("_SPAWN_PERSIST").Value = 1;
-                    player.oid.SendServerMessage("Persistance des placeables créés par DM activée.", ColorConstants.Blue);
-                  }
-
-                  break;
-
-                case "reboot":
-
-                  NwServer.Instance.PlayerPassword = "REBOOTINPROGRESS";
-
-                  CloseWindow();
-
-                  foreach (NwPlayer connectingPlayer in NwModule.Instance.Players.Where(p => p.LoginCreature == null))
-                    connectingPlayer.BootPlayer("Navré, le module est en cours de redémarrage. Vous pourrez vous reconnecter dans une minute.");
-
-                  foreach (Player connectedPlayer in Players.Values.Where(p => p.pcState != PcState.Offline))
-                    player.windows.Add("rebootCountdown", new RebootCountdownWindow(player));
-
-                  var scheduler = player.scheduler.Schedule(() =>
-                  {
-                    SqLiteUtils.UpdateQuery("moduleInfo",
-                      new List<string[]>() { new string[] { "year", NwDateTime.Now.Year.ToString() }, new string[] { "month", NwDateTime.Now.Month.ToString() }, new string[] { "day", NwDateTime.Now.DayInTenday.ToString() }, new string[] { "hour", NwDateTime.Now.Hour.ToString() }, new string[] { "minute", NwDateTime.Now.Minute.ToString() }, new string[] { "second", NwDateTime.Now.Second.ToString() } },
-                      new List<string[]>() { new string[] { "rowid", "1" } });
-                  }, TimeSpan.FromSeconds(31));
-
-                  var schedulerReboot = player.scheduler.Schedule(() => { NwServer.Instance.ShutdownServer(); }, TimeSpan.FromSeconds(35));
-
-                  break;
-
-                case "refill":
-                  ModuleSystem.SpawnCollectableResources();
-                  break;
-
-                case "instantLearn":
-                  player.oid.SendServerMessage("Veuillez sélectionner la cible de l'apprentissage instantanné.");
-                  player.oid.EnterTargetMode(SelectLearnTarget, ObjectTypes.Creature, MouseCursor.CreateDown);
-                  CloseWindow();
-                  break;
-
-                case "instantCraft":
-                  player.oid.SendServerMessage("Veuillez sélectionner la cible du craft instantanné.");
-                  player.oid.EnterTargetMode(SelectCraftTarget, ObjectTypes.Creature, MouseCursor.CreateDown);
-                  CloseWindow();
-                  break;
-
-                case "giveResources":
-                  player.oid.SendServerMessage("Veuillez sélectionner la cible du don.");
-                  player.oid.EnterTargetMode(SelectGiveResourcesTarget, ObjectTypes.Creature, MouseCursor.CreateDown);
-                  CloseWindow();
-                  break;
-
-                case "giveSkillbook":
-                  player.oid.SendServerMessage("Veuillez sélectionner la cible du don.");
-                  player.oid.EnterTargetMode(SelectGiveSkillbookTarget, ObjectTypes.Creature, MouseCursor.CreateDown);
-                  CloseWindow();
-                  break;
-
-                case "visualEffects":
-
-                  if (player.windows.ContainsKey("DMVisualEffects"))
-                    ((DMVisualEffectsWindow)player.windows["DMVisualEffects"]).CreateWindow();
-                  else
-                    player.windows.Add("DMVisualEffects", new DMVisualEffectsWindow(player));
-
-                  CloseWindow();
-                  break;
-
-                case "dispelAoE":
-
-                  if (player.windows.ContainsKey("aoeDispel"))
-                    ((AoEDispelWindow)player.windows["aoeDispel"]).CreateWindow();
-                  else
-                    player.windows.Add("aoeDispel", new AoEDispelWindow(player));
-
-                  CloseWindow();
-
-                  break;
-
-                case "effectDispel":
-
-                  if (player.windows.ContainsKey("effectDispel"))
-                    ((PlayerEffectDispelWindow)player.windows["effectDispel"]).CreateWindow();
-                  else
-                    player.windows.Add("effectDispel", new PlayerEffectDispelWindow(player));
-
-                  CloseWindow();
-
-                  break;
-
-                case "follow":
-
-                  if (player.oid.ControlledCreature.MovementRate == MovementRate.Immobile
-                    || Encumbrance2da.IsCreatureHeavilyEncumbred(player.oid.ControlledCreature))
-                  {
-                    player.oid.SendServerMessage("Cette commande ne peut être utilisée en étant surchargé.", ColorConstants.Red);
-                    return;
-                  }
-
-                  player.oid.EnterTargetMode(FollowTarget, ObjectTypes.Creature, MouseCursor.Follow);
-
-                  CloseWindow();
+                  player.oid.SendServerMessage($"La créature {deletedEntry.name.ColorString(ColorConstants.White)} a bien été supprimée de la palette.", new Color(32, 255, 32));
 
                   break;
               }
@@ -361,117 +182,199 @@ namespace NWN.Systems
               switch (nuiEvent.ElementId)
               {
                 case "search":
+                case "selectedCreator":
 
                   string currentSearch = search.GetBindValue(player.oid, nuiToken.Token).ToLower();
-                  currentList = string.IsNullOrEmpty(currentSearch) ? myCommandList : myCommandList.Where(v => v.Value.label.ToLower().Contains(currentSearch)).ToDictionary(c => c.Key, c => c.Value);
-                  LoadMenu(currentList);
+                  int creatorId = selectedCreator.GetBindValue(player.oid, nuiToken.Token);
 
+                  if (creatorId < 1)
+                    currentList = string.IsNullOrEmpty(currentSearch) ? Utils.creaturePaletteList : Utils.creaturePaletteList.Where(c => c.name.ToLower().Contains(currentSearch));
+                  else
+                  {
+                    string selectedCreatorName = creators.GetBindValue(player.oid, nuiToken.Token).FirstOrDefault(c => c.Value == creatorId).Label;
+                    currentList = string.IsNullOrEmpty(currentSearch) ? Utils.creaturePaletteList.Where(c => c.creator == selectedCreatorName) : Utils.creaturePaletteList.Where(c => c.name.ToLower().Contains(currentSearch) && c.creator == selectedCreatorName);
+                  }
+
+                  LoadCreatureList(currentList);
+
+                  break;
+
+                case "permanentSpawn":
+                  creatureTypeEnabler.SetBindValue(player.oid, nuiToken.Token, permanentSpawn.GetBindValue(player.oid, nuiToken.Token));
                   break;
               }
 
               break;
           }
         }
-        private void LoadMenu(Dictionary<string, Utils.MainMenuCommand> commandList)
+        private void LoadCreatureList(IEnumerable<PaletteCreatureEntry> filteredList)
         {
-          buttonName.SetBindValues(player.oid, nuiToken.Token, commandList.Values.Select(c => c.label));
-          buttonTooltip.SetBindValues(player.oid, nuiToken.Token, commandList.Values.Select(c => c.tooltip));
-          listCount.SetBindValue(player.oid, nuiToken.Token, commandList.Count);
-        }
-        private static bool AreaDescriptionExists(string areaName)
-        {
-          var request = ModuleSystem.googleDriveService.Files.List();
-          request.Q = $"name = '{areaName}'";
-          FileList list = request.Execute();
+          List<string> creatureNameList = new List<string>();
+          List<string> creatorNameList = new List<string>();
+          List<string> commentList = new List<string>();
+          List<string> lastModifiedList = new List<string>();
+          List<bool> enabledList = new List<bool>();
 
-          if (list.Files.Count > 0)
-            return true;
-          else
-            return false;
+          foreach (PaletteCreatureEntry entry in filteredList)
+          {
+            creatureNameList.Add(entry.name);
+            creatorNameList.Add(entry.creator);
+            commentList.Add(entry.comment);
+            lastModifiedList.Add(entry.lastModified);
+
+            if (player.oid.PlayerName == entry.creator || player.oid.PlayerName == "Chim")
+              enabledList.Add(true);
+            else
+              enabledList.Add(false);
+          }
+
+          creatureName.SetBindValues(player.oid, nuiToken.Token, creatureNameList);
+          creatorName.SetBindValues(player.oid, nuiToken.Token, creatorNameList);
+          comment.SetBindValues(player.oid, nuiToken.Token, commentList);
+          lastModified.SetBindValues(player.oid, nuiToken.Token, lastModifiedList);
+          isCreatorOrAdmin.SetBindValues(player.oid, nuiToken.Token, enabledList);
+          listCount.SetBindValue(player.oid, nuiToken.Token, filteredList.Count());
         }
-        private void RenameTarget(ModuleEvents.OnPlayerTarget selection)
+        private void SelectCreature(ModuleEvents.OnPlayerTarget selection)
         {
-          if (selection.IsCancelled || !Players.TryGetValue(selection.Player.LoginCreature, out Player player) || selection.TargetObject == null)
+          if (selection.IsCancelled || selection.TargetObject is not NwCreature target)
             return;
 
-          selectionTarget = selection.TargetObject;
-
-          if (player.windows.ContainsKey("playerInput"))
-            ((PlayerInputWindow)player.windows["playerInput"]).CreateWindow("Quel nom ?", DmRename, selection.TargetObject.Name);
+          if (currentArrayindex > -1)
+          {
+            PaletteCreatureEntry entry = currentList.ElementAt(currentArrayindex);
+            entry.serializedCreature = target.Serialize().ToBase64EncodedString();
+            player.oid.SendServerMessage($"La créature {target.Name.ColorString(ColorConstants.White)} sera désormais utilisée comme modèle pour l'entrée de la palette {entry.name.ColorString(ColorConstants.White)}.", new Color(32, 255, 32));
+            selectionTarget = null;
+          }
           else
-            player.windows.Add("playerInput", new PlayerInputWindow(player, "Quel nom ?", DmRename, selection.TargetObject.Name));
+          {
+            selectionTarget = target;
+            isModelLoaded.SetBindValue(player.oid, nuiToken.Token, true);
+          }
         }
-        private bool DmRename(string inputValue)
-        {
-          if (selectionTarget == null)
-            return false;
 
-          player.oid.SendServerMessage($"{selectionTarget.Name.ColorString(ColorConstants.White)} a été renommé {inputValue.ColorString(ColorConstants.White)}.", ColorConstants.Green);
-          selectionTarget.Name = inputValue;
-
-          return true;
-        }
-        private void SelectLearnTarget(ModuleEvents.OnPlayerTarget selection)
+        private void SpawnCreature(ModuleEvents.OnPlayerTarget selection)
         {
-          if (selection.IsCancelled || !selection.TargetObject.IsPlayerControlled(out NwPlayer oPC) || !Players.TryGetValue(oPC.LoginCreature, out Player targetPlayer))
+          if (selection.IsCancelled)
             return;
 
-          Learnable learnable = targetPlayer.GetActiveLearnable();
+          Location spawnLocation = Location.Create(player.oid.ControlledCreature.Area, selection.TargetPosition, player.oid.ControlledCreature.Rotation);
+          NwCreature creature = NwCreature.Deserialize(currentList.ElementAt(currentArrayindex).serializedCreature.ToByteArray());
 
-          if (learnable != null)
-            learnable.acquiredPoints = learnable.GetPointsToNextLevel();
+          if (!permanentSpawn.GetBindValue(player.oid, nuiToken.Token))
+          {
+            creature.Location = spawnLocation;
+            creature.OnPerception += CreatureUtils.OnMobPerception;
+          }
           else
-            selection.Player.SendServerMessage($"{targetPlayer.oid.LoginCreature.Name.ColorString(ColorConstants.White)} ne dispose pas d'apprentissage en cours.", ColorConstants.Orange);
+          {
+            switch (selectedCreatureType.GetBindValue(player.oid, nuiToken.Token))
+            {
+              case 1:
+                creature.Tag = "npc";
+                break;
+              case 2:
+                creature.Tag = "walker";
+                break;
+            }
+
+            NwWaypoint spawnPoint = NwWaypoint.Create("creature_spawn", spawnLocation);
+            creature.GetObjectVariable<LocalVariableString>("_SPAWNED_BY").Value = player.oid.PlayerName;
+            spawnPoint.GetObjectVariable<LocalVariableString>("creature").Value = creature.Serialize().ToBase64EncodedString();
+          }
         }
 
-        private void SelectCraftTarget(ModuleEvents.OnPlayerTarget selection)
+        private void HandleInsertNewCreature(string creatureName, string serializedCreature, string playerName, string comment)
         {
-          if (selection.IsCancelled || !selection.TargetObject.IsPlayerControlled(out NwPlayer oPC) || !Players.TryGetValue(oPC.LoginCreature, out Player targetPlayer))
-            return;
+          if(!Utils.creaturePaletteList.Any(c => c.creator == playerName))
+          {
+            Utils.creaturePaletteList.Add(new PaletteCreatureEntry(creatureName, playerName, serializedCreature, DateTime.Now.ToString(), comment));
 
-          if (targetPlayer.craftJob != null)
-            targetPlayer.craftJob.remainingTime = 1;
-        }
-        private void SelectGiveResourcesTarget(ModuleEvents.OnPlayerTarget selection)
-        {
-          if (selection.IsCancelled || !selection.TargetObject.IsPlayerControlled(out NwPlayer oPC) || !Players.TryGetValue(oPC.LoginCreature, out Player targetPlayer))
-            return;
+            Utils.creaturePaletteCreatorsList.Clear();
+            Utils.creaturePaletteCreatorsList.Add(new NuiComboEntry("Tous", 0));
+            int index = 1;
 
-          if (player.windows.ContainsKey("resourceDMGift"))
-            ((ResourceDMGiftWindow)player.windows["resourceDMGift"]).CreateWindow(targetPlayer);
+            foreach (var entry in Utils.creaturePaletteList.DistinctBy(c => c.creator).OrderBy(c => c.creator))
+            {
+              Utils.creaturePaletteCreatorsList.Add(new NuiComboEntry(entry.creator, index));
+              index++;
+            }
+
+            creators.SetBindValue(player.oid, nuiToken.Token, Utils.creaturePaletteCreatorsList);
+          }
           else
-            player.windows.Add("resourceDMGift", new ResourceDMGiftWindow(player, targetPlayer));
-        }
-        private void SelectGiveSkillbookTarget(ModuleEvents.OnPlayerTarget selection)
-        {
-          if (selection.IsCancelled || !selection.TargetObject.IsPlayerControlled(out NwPlayer oPC) || !Players.TryGetValue(oPC.LoginCreature, out Player targetPlayer))
-            return;
+            Utils.creaturePaletteList.Add(new PaletteCreatureEntry(creatureName, playerName, serializedCreature, DateTime.Now.ToString(), comment));
 
-          if (player.windows.ContainsKey("skillbookDMGift"))
-            ((SkillBookDMGiftWindow)player.windows["skillbookDMGift"]).CreateWindow(targetPlayer);
+          selectedCreator.SetBindValue(player.oid, nuiToken.Token, Utils.creaturePaletteCreatorsList.FirstOrDefault(c => c.Label == playerName).Value);
+          search.SetBindValue(player.oid, nuiToken.Token, creatureName);
+
+          player.oid.SendServerMessage("Votre créature a bien été ajoutée à la palette.", new Color(32, 255, 32));
+
+          PaletteSave();
+        }
+        private void PaletteSave()
+        {
+          DateTime elapsed = DateTime.Now;
+
+          if (!AuthorizeSave)
+          {
+            if (nbDebounce > 0)
+            {
+              nbDebounce += 1;
+              return;
+            }
+            else
+            {
+              nbDebounce = 1;
+              Log.Info($"Character {player.characterId} : scheduling creature palette save in 10s");
+              DebouncePaletteSave(nbDebounce);
+              return;
+            }
+          }
           else
-            player.windows.Add("skillbookDMGift", new SkillBookDMGiftWindow(player, targetPlayer));
-        }
-      }
-      private static async void FollowTarget(ModuleEvents.OnPlayerTarget selection)
-      {
-        if (selection.IsCancelled || selection.TargetObject is not NwCreature target)
-          return;
+            HandlePaletteSave();
 
-        if (selection.Player.ControlledCreature.MovementRate == MovementRate.Immobile
-            || Encumbrance2da.IsCreatureHeavilyEncumbred(selection.Player.ControlledCreature))
+          Log.Info($"Character {player.characterId} creature palette saved in : {(DateTime.Now - elapsed).TotalSeconds} s");
+        }
+
+        private async void DebouncePaletteSave(int initialNbDebounce)
         {
-          selection.Player.SendServerMessage("Cette commande ne peut être utilisée en étant surchargé.", ColorConstants.Red);
-          return;
-        }
+          CancellationTokenSource tokenSource = new CancellationTokenSource();
 
-        if (selection.Player.ControlledCreature.Area != target.Area || selection.Player.ControlledCreature.DistanceSquared(target) > 2000)
+          Task awaitDebounce = NwTask.WaitUntil(() => nbDebounce != initialNbDebounce, tokenSource.Token);
+          Task awaitSaveAuthorized = NwTask.Delay(TimeSpan.FromSeconds(10), tokenSource.Token);
+
+          await NwTask.WhenAny(awaitDebounce, awaitSaveAuthorized);
+          tokenSource.Cancel();
+
+          if (awaitDebounce.IsCompletedSuccessfully)
+          {
+            nbDebounce += 1;
+            DebouncePaletteSave(initialNbDebounce + 1);
+            return;
+          }
+
+          if (awaitSaveAuthorized.IsCompletedSuccessfully)
+          {
+            nbDebounce = 0;
+            AuthorizeSave = true;
+            Log.Info($"Character {player.characterId} : debounce done after {nbDebounce} triggers, creature palette save authorized");
+            PaletteSave();
+          }
+        }
+        private async void HandlePaletteSave()
         {
-          selection.Player.SendServerMessage($"{target.Name.ColorString(ColorConstants.White)} est trop éloigné pour que vous puissiez le suivre.", ColorConstants.Red);
-          return;
-        }
+          Task<string> serializeCreaturePalette = Task.Run(() => JsonConvert.SerializeObject(Utils.creaturePaletteList.OrderBy(c => c.name).ThenByDescending(c => DateTime.TryParse(c.lastModified, out DateTime lastModified)).ToList()));
+          await serializeCreaturePalette;
 
-        await selection.Player.ControlledCreature.ActionForceFollowObject(target, 3.0f);
+          SqLiteUtils.UpdateQuery("modulePalette",
+          new List<string[]>() { new string[] { "creatures", serializeCreaturePalette.Result } },
+          new List<string[]>() { new string[] { "rowid", "1" } });
+          
+          nbDebounce = 0;
+          AuthorizeSave = false;
+        }
       }
     }
   }

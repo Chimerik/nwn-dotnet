@@ -50,6 +50,7 @@ namespace NWN.Systems
       InitializeEvents();
 
       SkillSystem.InitializeLearnables();
+      LoadModulePalette();
       LoadEditorNuiCombo();
       NwModule.Instance.OnModuleLoad += OnModuleLoad;
     }
@@ -221,8 +222,8 @@ namespace NWN.Systems
       SqLiteUtils.CreateQuery("CREATE TABLE IF NOT EXISTS bankPlaceables" +
         "('id' INTEGER NOT NULL, 'areaTag' TEXT NOT NULL, 'ownerId' INTEGER NOT NULL, 'ownerName' TEXT NOT NULL, UNIQUE (id, areaTag))");
 
-      SqLiteUtils.CreateQuery("CREATE TABLE IF NOT EXISTS creaturePalette" +
-        "('paletteName' TEXT NOT NULL, 'serializedCreature' TEXT NOT NULL, 'addedBy' TEXT NOT NULL)");
+      SqLiteUtils.CreateQuery("CREATE TABLE IF NOT EXISTS modulePalette" +
+        "('creatures' TEXT, 'placeables' TEXT, 'items' TEXT)");
     }
     private void InitializeEvents()
     {
@@ -700,7 +701,7 @@ namespace NWN.Systems
       if (effectApplied.Object is NwGameObject gameObject && !player.effectTargets.Contains(gameObject))
         player.effectTargets.Add(gameObject);
     }
-    private void LoadEditorNuiCombo()
+    private static void LoadEditorNuiCombo()
     {
       foreach (RacialType racialType in (RacialType[])Enum.GetValues(typeof(RacialType)))
         if (racialType != RacialType.Invalid && racialType != RacialType.All)
@@ -732,6 +733,39 @@ namespace NWN.Systems
 
       for (int i = 0; i < 51; i++)
         Utils.sizeList.Add(new NuiComboEntry($"x{((float)(i + 75)) / 100}", i));
+    }
+    private static async void LoadModulePalette()
+    {
+      var result = SqLiteUtils.SelectQuery("modulePalette",
+            new List<string>() { { "creatures" } },
+            new List<string[]>() { });
+
+      if (result.Result == null)
+      {
+        await SqLiteUtils.InsertQueryAsync("modulePalette",
+                  new List<string[]>() { new string[] { "creatures", "" } });
+
+        return;
+      }
+
+      string serializedCreaturePalette = result.Result.GetString(0);
+
+      await Task.Run(() =>
+      {
+        if (string.IsNullOrEmpty(serializedCreaturePalette) || serializedCreaturePalette == "null")
+          return;
+
+        Utils.creaturePaletteList = JsonConvert.DeserializeObject<List<PaletteCreatureEntry>>(serializedCreaturePalette);
+      });
+
+      Utils.creaturePaletteCreatorsList.Add(new NuiComboEntry("Tous", 0));
+      int index = 1;
+
+      foreach (var entry in Utils.creaturePaletteList.DistinctBy(c => c.creator).OrderBy(c => c.creator))
+      {
+        Utils.creaturePaletteCreatorsList.Add(new NuiComboEntry(entry.creator, index));
+        index++;
+      }
     }
   }
 }

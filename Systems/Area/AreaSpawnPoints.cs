@@ -77,15 +77,22 @@ namespace NWN.Systems
           SetNPCEvents(creature);
           creature.AiLevel = AiLevel.VeryLow;
           break;
+
+        case "walker":
         case "civilian":
         case "plage":
         case "cave":
         case "city":
         case "generic":
-          SetRandomAppearance(creature);
+
+          if(creature.GetObjectVariable<LocalVariableString>("_SPAWN_TYPE").Value != "walker")
+            SetRandomAppearance(creature);
+
           creature.AiLevel = AiLevel.VeryLow;
           _ = creature.ActionRandomWalk();
+
           break;
+
         default:
           HandleMobSpecificBehaviour(creature);
           break;
@@ -105,7 +112,7 @@ namespace NWN.Systems
         default:
           creature.AiLevel = AiLevel.Low;
           creature.OnDeath += LootSystem.HandleLoot;
-          creature.OnPerception += OnMobPerception;
+          creature.OnPerception += CreatureUtils.OnMobPerception;
           break;
       }
 
@@ -239,31 +246,12 @@ namespace NWN.Systems
       creature.Appearance = NwGameTables.AppearanceTable.GetRow(rowId);
       creature.PortraitResRef = creature.Appearance.Portrait;
 
-      _ = creature.ActionRandomWalk();
-
       if (appearance == "civilian")
         return;
 
       creature.Name = creature.Appearance.Name;
       if (creature.Name == "Créature")
         Utils.LogMessageToDMs($"Apparence {rowId} - Nom non défini.");
-    }
-    private void OnMobPerception(CreatureEvents.OnPerception onPerception)
-    {
-      if (!onPerception.Creature.IsEnemy(onPerception.PerceivedCreature) || onPerception.Creature.IsInCombat)
-        return;
-
-      switch(onPerception.PerceptionEventType)
-      {
-        case PerceptionEventType.Seen:
-        case PerceptionEventType.Heard:
-
-          foreach(SpecialAbility ability in onPerception.Creature.SpecialAbilities)
-            if (SpellUtils.IsSpellBuff(ability.Spell))
-              _ = onPerception.Creature.ActionCastSpellAt(ability.Spell, onPerception.Creature, MetaMagic.Extend, true, 0, ProjectilePathType.Default, true);
-
-          break;
-      }
     }
   }
 }

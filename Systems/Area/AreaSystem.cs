@@ -348,7 +348,7 @@ namespace NWN.Systems
       if (onSpawn.SpawnedObject is not NwCreature creature)
         return;
 
-      creature.OnPerception += OnMobPerception;
+      creature.OnPerception += CreatureUtils.OnMobPerception;
     }
   }
 }
