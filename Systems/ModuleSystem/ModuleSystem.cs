@@ -733,6 +733,14 @@ namespace NWN.Systems
 
       for (int i = 0; i < 51; i++)
         Utils.sizeList.Add(new NuiComboEntry($"x{((float)(i + 75)) / 100}", i));
+
+      for (int i = 0; i < 256; i++)
+      {
+        Utils.paletteColorBindings[i] = new NuiBind<string>($"color{i}");
+
+        Utils.colorPaletteLeather.Add($"leather{i+1}");
+        Utils.colorPaletteMetal.Add(NWScript.ResManGetAliasFor($"metal{i + 1}", NWScript.RESTYPE_TGA) != "" ? $"metal{i + 1}" : $"leather{i + 1}");
+      }
     }
     private static async void LoadModulePalette()
     {

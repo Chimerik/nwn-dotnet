@@ -33,7 +33,7 @@ namespace NWN.Systems
         femaleCombo.Add(new NuiComboEntry(entry.RowIndex.ToString(), entry.RowIndex));
 
       foreach (var entry in robePartsTable.Where(b => b.maxAC > -1 && (b.gender == Gender.Male || b.gender == Gender.Both)))
-        femaleCombo.Add(new NuiComboEntry(entry.RowIndex.ToString(), entry.RowIndex));
+        maleCombo.Add(new NuiComboEntry(entry.RowIndex.ToString(), entry.RowIndex));
     }
   }
 }

@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Threading.Tasks;
+
 using Anvil.API;
 using Anvil.API.Events;
 using NWN.Systems;
@@ -29,6 +31,16 @@ namespace NWN
       NwWaypoint spawnPoint = onDeath.KilledCreature.GetObjectVariable<LocalVariableObject<NwWaypoint>>("_SPAWN").Value;
       await NwTask.Delay(TimeSpan.FromMinutes(10));
       spawnPoint.GetObjectVariable<LocalVariableBool>("_SPAWN_COOLDOWN").Delete();
+    }
+    public static void ForceSlotReEquip(NwCreature creature, NwItem item, InventorySlot slot = InventorySlot.Chest)
+    {
+      creature.RunUnequip(item);
+
+      Task waitUnequip = NwTask.Run(async () =>
+      {
+        await NwTask.Delay(TimeSpan.FromSeconds(0.2));
+        creature.RunEquip(item, slot);
+      });
     }
   }
 }

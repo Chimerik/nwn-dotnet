@@ -1124,6 +1124,9 @@ namespace NWN.Systems
 
           case "_window_":
 
+            if (string.IsNullOrEmpty(window))
+              return;
+
             switch (nuiEvent.EventType)
             {
               case NuiEventType.Open:

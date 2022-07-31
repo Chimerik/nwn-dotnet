@@ -48,32 +48,38 @@ namespace NWN.Systems
           nbDebounce = 0;
 
           rootColumn.Children = rootChildren;
-          rowTemplate.Add(new NuiListTemplateCell(new NuiTextEdit("Nom créature", creatureName, 50, false) { Tooltip = creatureName, Height = 35 }) { VariableSize = true });
-          rowTemplate.Add(new NuiListTemplateCell(new NuiLabel(creatorName) { Tooltip = comment, Height = 35, VerticalAlign = NuiVAlign.Middle }));
-          rowTemplate.Add(new NuiListTemplateCell(new NuiLabel(lastModified) { Tooltip = lastModified, Height = 35, VerticalAlign = NuiVAlign.Middle }));
-          rowTemplate.Add(new NuiListTemplateCell(new NuiButton("Select") { Id = "copy", Tooltip = "Sélectionner le modèle pour cette entrée", Enabled = isCreatorOrAdmin, Height = 35, Width = 35 }));
-          rowTemplate.Add(new NuiListTemplateCell(new NuiButton("Spawn") { Id = "spawn", Tooltip = "Faire apparaître cette créature", Height = 35, Width = 35 }));
-          rowTemplate.Add(new NuiListTemplateCell(new NuiButton("Save") { Id = "save", Tooltip = "Valider les modifications", Enabled = isCreatorOrAdmin, Height = 35, Width = 35 }));
-          rowTemplate.Add(new NuiListTemplateCell(new NuiButton("Supprimer") { Id = "delete", Tooltip = "Supprimer cette entrée", Enabled = isCreatorOrAdmin, Height = 35, Width = 35 }));
+          rowTemplate.Add(new NuiListTemplateCell(new NuiTextEdit("Nom créature", creatureName, 50, false) { Tooltip = creatureName }) { Width = 140 });
+          rowTemplate.Add(new NuiListTemplateCell(new NuiLabel(creatorName) { Tooltip = comment, VerticalAlign = NuiVAlign.Middle }) { Width = 60 });
+          rowTemplate.Add(new NuiListTemplateCell(new NuiLabel(lastModified) { Tooltip = lastModified, VerticalAlign = NuiVAlign.Middle }));
+          rowTemplate.Add(new NuiListTemplateCell(new NuiButtonImage("ir_action") { Id = "copy", Tooltip = "Sélectionner le modèle pour cette entrée", Enabled = isCreatorOrAdmin }) { Width = 35 });
+          rowTemplate.Add(new NuiListTemplateCell(new NuiButtonImage("ir_attacknearest") { Id = "spawn", Tooltip = "Faire apparaître cette créature" }) { Width = 35 });
+          rowTemplate.Add(new NuiListTemplateCell(new NuiButtonImage("ir_bash") { Id = "save", Tooltip = "Valider les modifications", Enabled = isCreatorOrAdmin }) { Width = 35 });
+          rowTemplate.Add(new NuiListTemplateCell(new NuiButtonImage("ir_ban") { Id = "delete", Tooltip = "Supprimer cette entrée", Enabled = isCreatorOrAdmin }) { Width = 35 });
 
           rootChildren.Add(new NuiRow() { Children = new List<NuiElement>()
           {
             new NuiTextEdit("Nom palette", newCreatureName, 50, false) { Tooltip = newCreatureName, Height = 35 },
-            new NuiButton("Sélection") { Id = "selectNewCreature", Tooltip = "Sélectionner la créature à sauvegarder", Width = 80 },
-            new NuiButton("Ajouter") { Id = "create", Tooltip = "Ajouter la créature à la palette", Enabled = isModelLoaded, Width = 80 }
+            new NuiButtonImage("ir_action") { Id = "selectNewCreature", Tooltip = "Sélectionner la créature à sauvegarder", Width = 35, Height = 35 },
+            new NuiButtonImage("ir_animalemp") { Id = "create", Tooltip = "Ajouter la créature à la palette", Enabled = isModelLoaded, Width = 35, Height = 35 }
           } });
 
-          rootChildren.Add(new NuiRow() { Children = new List<NuiElement>() { new NuiCombo() { Entries = creators, Selected = selectedCreator, Width = 370 } } });
-          rootChildren.Add(new NuiRow() { Children = new List<NuiElement>() { new NuiTextEdit("Recherche", search, 50, false) { Width = 370 } } });
-          rootChildren.Add(new NuiRow() { Children = new List<NuiElement>() { new NuiCheck("Spawn Permanent", permanentSpawn) { Tooltip = "Si cette option est cochée, la créature sera intégrée au système de spawn et persistera après reboot" } } });
-          rootChildren.Add(new NuiRow() { Children = new List<NuiElement>() { new NuiOptions() { Selection = selectedCreatureType, Direction = NuiDirection.Horizontal, Options = { "mob", "pnj fixe", "neutral" }, Tooltip = "mob = monstre hostile. PNJ fixe = immobile. Neutral = créature neutre qui se balade aléatoirement", Enabled = creatureTypeEnabler } } });
-          rootChildren.Add(new NuiRow() { Height = 385, Children = new List<NuiElement>() { new NuiList(rowTemplate, listCount) { RowHeight = 35 } } });
+          rootChildren.Add(new NuiRow() { Children = new List<NuiElement>() { new NuiTextEdit("Recherche", search, 50, false) } });
+          rootChildren.Add(new NuiRow() { Children = new List<NuiElement>() 
+          { 
+            new NuiSpacer(), 
+            new NuiCombo() { Entries = creators, Selected = selectedCreator },
+            new NuiSpacer(),
+            new NuiCheck("Spawn Permanent", permanentSpawn) { Tooltip = "Si cette option est cochée, la créature sera intégrée au système de spawn et persistera après reboot" }, 
+            new NuiSpacer() 
+          } });
+          rootChildren.Add(new NuiRow() { Children = new List<NuiElement>() { new NuiSpacer(), new NuiOptions() { Selection = selectedCreatureType, Direction = NuiDirection.Horizontal, Options = { "mob", "pnj fixe", "neutral" }, Tooltip = "mob = monstre hostile. PNJ fixe = immobile. Neutral = créature neutre qui se balade aléatoirement", Enabled = creatureTypeEnabler }, new NuiSpacer() } });
+          rootChildren.Add(new NuiRow() { Height = 300, Width = 540, Children = new List<NuiElement>() { new NuiList(rowTemplate, listCount) { RowHeight = 35 } } });
 
           CreateWindow();
         }
         public void CreateWindow()
         {
-          NuiRect windowRectangle = player.windowRectangles.ContainsKey(windowId) ? player.windowRectangles[windowId] : new NuiRect(10, player.oid.GetDeviceProperty(PlayerDeviceProperty.GuiHeight) * 0.01f, 410, 500);
+          NuiRect windowRectangle = player.windowRectangles.ContainsKey(windowId) ? player.windowRectangles[windowId] : new NuiRect(10, player.oid.GetDeviceProperty(PlayerDeviceProperty.GuiHeight) * 0.01f, 600, 540);
 
           window = new NuiWindow(rootColumn, "Palette des créatures")
           {
@@ -135,6 +141,8 @@ namespace NWN.Systems
                   selectionTarget = null;
                   isModelLoaded.SetBindValue(player.oid, nuiToken.Token, false);
 
+                  LoadCreatureList(currentList);
+
                   break;
 
                 case "copy":
@@ -191,7 +199,7 @@ namespace NWN.Systems
                     currentList = string.IsNullOrEmpty(currentSearch) ? Utils.creaturePaletteList : Utils.creaturePaletteList.Where(c => c.name.ToLower().Contains(currentSearch));
                   else
                   {
-                    string selectedCreatorName = creators.GetBindValue(player.oid, nuiToken.Token).FirstOrDefault(c => c.Value == creatorId).Label;
+                    string selectedCreatorName = Utils.creaturePaletteCreatorsList.FirstOrDefault(c => c.Value == creatorId).Label;
                     currentList = string.IsNullOrEmpty(currentSearch) ? Utils.creaturePaletteList.Where(c => c.creator == selectedCreatorName) : Utils.creaturePaletteList.Where(c => c.name.ToLower().Contains(currentSearch) && c.creator == selectedCreatorName);
                   }
 
@@ -209,11 +217,11 @@ namespace NWN.Systems
         }
         private void LoadCreatureList(IEnumerable<PaletteCreatureEntry> filteredList)
         {
-          List<string> creatureNameList = new List<string>();
-          List<string> creatorNameList = new List<string>();
-          List<string> commentList = new List<string>();
-          List<string> lastModifiedList = new List<string>();
-          List<bool> enabledList = new List<bool>();
+          List<string> creatureNameList = new();
+          List<string> creatorNameList = new();
+          List<string> commentList = new();
+          List<string> lastModifiedList = new();
+          List<bool> enabledList = new();
 
           foreach (PaletteCreatureEntry entry in filteredList)
           {

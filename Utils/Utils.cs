@@ -373,8 +373,12 @@ namespace NWN
     public static readonly List<NuiComboEntry> factionList = new();
     public static readonly List<NuiComboEntry> movementRateList = new();
     public static readonly List<NuiComboEntry> sizeList = new();
-    public static List<NuiComboEntry> creaturePaletteCreatorsList = new();
+    public static readonly List<NuiComboEntry> creaturePaletteCreatorsList = new();
     public static List<PaletteCreatureEntry> creaturePaletteList = new();
+    public static NuiBind<string>[] paletteColorBindings = new NuiBind<string>[256];
+
+    public static readonly List<string> colorPaletteLeather = new();
+    public static readonly List<string> colorPaletteMetal = new();
 
     public static double GetDamageMultiplier(double targetAC)
     {

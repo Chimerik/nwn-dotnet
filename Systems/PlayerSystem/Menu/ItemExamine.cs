@@ -667,8 +667,8 @@ namespace NWN.Systems
           {
             case BaseItemType.Armor:
 
-              if (!player.windows.TryAdd("itemAppearanceModifier", new ArmorAppearanceWindow(player, item)))
-                ((ArmorAppearanceWindow)player.windows["itemAppearanceModifier"]).CreateWindow(item);
+              if (!player.windows.TryAdd("itemColorsModifier", new ArmorCustomizationWindow(player, item)))
+                ((ArmorCustomizationWindow)player.windows["itemColorsModifier"]).CreateWindow(item);
 
               break;
             case BaseItemType.Bastardsword:

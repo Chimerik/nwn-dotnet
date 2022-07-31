@@ -9,6 +9,7 @@ using Anvil.API;
 
 using Newtonsoft.Json;
 
+using NWN.Core;
 using NWN.Systems;
 
 namespace NWN
@@ -113,6 +114,11 @@ namespace NWN
       stream.Position = 0;
       var reader = await new StreamReader(stream).ReadToEndAsync();
       return reader.Replace("\r\n", "\n").Replace("’", "'");
+    }
+
+    public static string GetMetalPaletteResRef(int color)
+    {
+      return NWScript.ResManGetAliasFor($"metal{color}", NWScript.RESTYPE_TGA) != "" ? $"metal{color}" : $"leather{color}";
     }
   }
 }
