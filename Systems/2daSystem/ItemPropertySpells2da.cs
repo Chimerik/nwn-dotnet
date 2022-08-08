@@ -22,7 +22,7 @@ namespace NWN.Systems
   [ServiceBinding(typeof(ItemPropertySpells2da))]
   public class ItemPropertySpells2da
   {
-    public static readonly TwoDimArray<ItemPropertySpellsEntry> ipSpellTable = new("iprp_spells.2da");
+    public static readonly TwoDimArray<ItemPropertySpellsEntry> ipSpellTable = NwGameTables.GetTable<ItemPropertySpellsEntry>("iprp_spells.2da");
     public ItemPropertySpells2da()
     {
 

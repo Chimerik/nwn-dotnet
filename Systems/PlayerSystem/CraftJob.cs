@@ -678,7 +678,7 @@ namespace NWN.Systems
           ItemProperty oldIp = item.ItemProperties.FirstOrDefault(ip => ip.Tag == player.craftJob.enchantementTag);
           item.RemoveItemProperty(oldIp);
 
-          oldIp.CostTableValue += 1;
+          oldIp.IntParams[3] += 1; // IntParams[3] = CostTableValue
           item.AddItemProperty(oldIp, EffectDuration.Permanent);
 
           player.oid.SendServerMessage("Votre talent d'enchanteur vous a permis d'obtenir un effet plus puissant !", ColorConstants.Orange);
@@ -699,37 +699,37 @@ namespace NWN.Systems
     }
     private static ItemProperty GetCraftEnchantementProperties(NwItem craftedItem, NwSpell spell, ItemProperty ip, int enchanterId)
     {
-      ItemProperty existingIP = craftedItem.ItemProperties.FirstOrDefault(i => i.DurationType == EffectDuration.Permanent && i.PropertyType == ip.PropertyType && i.SubType == ip.SubType && i.Param1Table == ip.Param1Table);
+      ItemProperty existingIP = craftedItem.ItemProperties.FirstOrDefault(i => i.DurationType == EffectDuration.Permanent && i.Property.PropertyType == ip.Property.PropertyType && i.SubType == ip.SubType && i.Param1Table == ip.Param1Table);
 
       if (existingIP != null)
       {
         craftedItem.RemoveItemProperty(existingIP);
 
-        if (ip.PropertyType == ItemPropertyType.DamageBonus
-          || ip.PropertyType == ItemPropertyType.DamageBonusVsAlignmentGroup
-          || ip.PropertyType == ItemPropertyType.DamageBonusVsRacialGroup
-          || ip.PropertyType == ItemPropertyType.DamageBonusVsSpecificAlignment)
+        if (ip.Property.PropertyType == ItemPropertyType.DamageBonus
+          || ip.Property.PropertyType == ItemPropertyType.DamageBonusVsAlignmentGroup
+          || ip.Property.PropertyType == ItemPropertyType.DamageBonusVsRacialGroup
+          || ip.Property.PropertyType == ItemPropertyType.DamageBonusVsSpecificAlignment)
         {
-          int newRank = ItemPropertyDamageCost2da.GetRankFromCostValue(ip.CostTableValue);
-          int existingRank = ItemPropertyDamageCost2da.GetRankFromCostValue(existingIP.CostTableValue);
+          int newRank = ItemPropertyDamageCost2da.GetRankFromCostValue(ip.IntParams[3]);
+          int existingRank = ItemPropertyDamageCost2da.GetRankFromCostValue(existingIP.IntParams[3]);
 
           if (existingRank > newRank)
             newRank = existingRank + 1;
           else
             newRank += 1;
 
-          ip.CostTableValue = ItemPropertyDamageCost2da.GetDamageCostValueFromRank(newRank);
+          ip.IntParams[3] = ItemPropertyDamageCost2da.GetDamageCostValueFromRank(newRank); // IntParams[3] = CostTableValue
         }
         else
         {
-          if (existingIP.CostTableValue > ip.CostTableValue)
-            ip.CostTableValue = existingIP.CostTableValue + 1;
+          if (existingIP.IntParams[3] > ip.IntParams[3])
+            ip.IntParams[3] = existingIP.IntParams[3] + 1;
           else
-            ip.CostTableValue += 1;
+            ip.IntParams[3] += 1;
         }
       }
 
-      ip.Tag = $"ENCHANTEMENT_{spell.Id}_{ip.PropertyType}_{ip.SubType}_{ip.CostTable}_{ip.CostTableValue}_{enchanterId}";
+      ip.Tag = $"ENCHANTEMENT_{spell.Id}_{ip.Property.PropertyType}_{ip.SubType}_{ip.CostTable}_{ip.CostTableValue}_{enchanterId}";
 
       return ip;
     }

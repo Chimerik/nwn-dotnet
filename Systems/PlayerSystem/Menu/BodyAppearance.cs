@@ -235,7 +235,7 @@ namespace NWN.Systems
 
             nuiToken.OnNuiEvent += HandleBodyAppearanceEvents;
 
-            headPlaceholderList = ModuleSystem.headModels.FirstOrDefault(h => h.gender == targetCreature.Gender && h.appearanceRow == targetCreature.Race.Id).heads;
+            headPlaceholderList = ModuleSystem.headModels.FirstOrDefault(h => h.gender == targetCreature.Gender && h.appearanceRow == targetCreature.Appearance.RowIndex).heads;
             headList.SetBindValue(player.oid, nuiToken.Token, headPlaceholderList);
             
             headSelection.SetBindValue(player.oid, nuiToken.Token, targetCreature.GetCreatureBodyPart(CreaturePart.Head));

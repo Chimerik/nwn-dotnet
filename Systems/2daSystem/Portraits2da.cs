@@ -29,7 +29,7 @@ namespace NWN.Systems
   [ServiceBinding(typeof(Portraits2da))]
   public class Portraits2da
   {
-    public static readonly TwoDimArray<PortraitEntry> portraitsTable = new("portraits.2da");
+    public static readonly TwoDimArray<PortraitEntry> portraitsTable = NwGameTables.GetTable<PortraitEntry>("portraits.2da");
     public static readonly List<string>[,] portraitFilteredEntries = new List<string>[30, 5];
     public Portraits2da(ModuleSystem _)
     {

@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 
 using Anvil.API;
@@ -13,8 +14,7 @@ namespace NWN.Systems
 
     public void InterpretEntry(TwoDimArrayEntry entry)
     {
-      int model = entry.GetInt("MODEL").GetValueOrDefault(-1);
-      label = model > -1 ? entry.GetString("MODEL") : "";
+      label = entry.GetString("LABEL");
     }
   }
 
@@ -22,12 +22,13 @@ namespace NWN.Systems
   public class CloakModel2da
   {
     //public static CloakModelTable cloakModelTable;
-    private readonly TwoDimArray<CloakModelsEntry> cloakModelTable = new("cloakmodel.2da");
+    private readonly TwoDimArray<CloakModelsEntry> cloakModelTable = NwGameTables.GetTable<CloakModelsEntry>("cloakmodel.2da");
     public static readonly List<NuiComboEntry> combo = new();
     public CloakModel2da()
     {
-      foreach(var entry in cloakModelTable.Where(e => e.label.Length > 0))
-        combo.Add(new NuiComboEntry(entry.label, entry.RowIndex));
+      foreach(var entry in cloakModelTable)
+        if(!string.IsNullOrEmpty(entry.label))
+          combo.Add(new NuiComboEntry(entry.label, entry.RowIndex));
     }
   }
 }

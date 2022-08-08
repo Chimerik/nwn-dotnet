@@ -252,7 +252,7 @@ namespace NWN
         case BaseItemType.EnchantedScroll:
 
           if (oItem.HasItemProperty(ItemPropertyType.CastSpell))
-            icon = ItemPropertySpells2da.ipSpellTable[oItem.ItemProperties.FirstOrDefault(ip => ip.PropertyType == ItemPropertyType.CastSpell).SubType].icon;
+            icon = ItemPropertySpells2da.ipSpellTable[oItem.ItemProperties.FirstOrDefault(ip => ip.Property.PropertyType == ItemPropertyType.CastSpell).SubType].icon;
 
           break;
 

@@ -34,7 +34,7 @@ namespace NWN.Systems
   [ServiceBinding(typeof(Armor2da))]
   public class Armor2da
   {
-    public static readonly TwoDimArray<ArmorEntry> armorTable = new("armor.2da");
+    public static readonly TwoDimArray<ArmorEntry> armorTable = NwGameTables.GetTable<ArmorEntry>("armor.2da");
     public Armor2da()
     {
       

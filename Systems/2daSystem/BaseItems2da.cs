@@ -53,7 +53,7 @@ namespace NWN.Systems
   [ServiceBinding(typeof(BaseItems2da))]
   public class BaseItems2da
   {
-    public static readonly TwoDimArray<BaseItemEntry> baseItemTable = new("baseitems.2da");
+    public static readonly TwoDimArray<BaseItemEntry> baseItemTable = NwGameTables.GetTable<BaseItemEntry>("baseitems.2da");
     public static List<NuiComboEntry> helmetModelEntries = new List<NuiComboEntry>();
     public static Dictionary<string, List<int>> simpleItemModels = new Dictionary<string, List<int>>();
     public BaseItems2da(ResourceManager resMan)

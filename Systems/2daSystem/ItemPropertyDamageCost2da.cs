@@ -24,7 +24,7 @@ namespace NWN.Systems
   [ServiceBinding(typeof(ItemPropertyDamageCost2da))]
   public class ItemPropertyDamageCost2da
   {
-    public static readonly TwoDimArray<ItemPropertyDamageCostEntry> ipDamageCostTable = new("iprp_damagecost.2da");
+    public static readonly TwoDimArray<ItemPropertyDamageCostEntry> ipDamageCostTable = NwGameTables.GetTable<ItemPropertyDamageCostEntry>("iprp_damagecost.2da");
     public ItemPropertyDamageCost2da()
     {
 

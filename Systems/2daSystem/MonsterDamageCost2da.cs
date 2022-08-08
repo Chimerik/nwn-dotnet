@@ -21,7 +21,7 @@ namespace NWN.Systems
   [ServiceBinding(typeof(MonsterDamageCost2da))]
   public class MonsterDamageCost2da
   {
-    private static readonly TwoDimArray<MonsterDamageEntry> monsterDamageTable = new("iprp_monstcost.2da");
+    private static readonly TwoDimArray<MonsterDamageEntry> monsterDamageTable = NwGameTables.GetTable<MonsterDamageEntry>("iprp_monstcost.2da");
     public MonsterDamageCost2da()
     {
 

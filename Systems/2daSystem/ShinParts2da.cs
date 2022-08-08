@@ -22,7 +22,7 @@ namespace NWN.Systems
   [ServiceBinding(typeof(ShinParts2da))]
   public class ShinParts2da
   {
-    private readonly TwoDimArray<ShinPartsEntry> shinPartsTable = new("parts_shin.2da");
+    private readonly TwoDimArray<ShinPartsEntry> shinPartsTable = NwGameTables.GetTable<ShinPartsEntry>("parts_shin.2da");
     public static readonly List<NuiComboEntry> femaleCombo = new();
     public static readonly List<NuiComboEntry> maleCombo = new();
     public ShinParts2da()

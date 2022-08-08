@@ -143,11 +143,11 @@ namespace NWN
 
     public static void ReplaceItemProperty(NwItem oItem, ItemProperty ip)
     {
-      List<ItemProperty> sortedIP = oItem.ItemProperties.Where(i => i.PropertyType == ip.PropertyType && i.SubType == ip.SubType && i.DurationType == ip.DurationType).ToList();
+      List<ItemProperty> sortedIP = oItem.ItemProperties.Where(i => i.Property.PropertyType == ip.Property.PropertyType && i.SubType == ip.SubType && i.DurationType == ip.DurationType).ToList();
       ItemProperty maxIP = sortedIP.OrderByDescending(i => i.CostTableValue).FirstOrDefault();
 
       if (maxIP != null)
-        maxIP.CostTableValue = ip.CostTableValue;
+        maxIP.IntParams[3] = ip.IntParams[3];
     }
   }
 }

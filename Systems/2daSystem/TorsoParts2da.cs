@@ -23,7 +23,7 @@ namespace NWN.Systems
   [ServiceBinding(typeof(TorsoParts2da))]
   public class TorsoParts2da
   {
-    private readonly TwoDimArray<TorsoPartsEntry> torsoPartsTable = new("parts_chest.2da");
+    private readonly TwoDimArray<TorsoPartsEntry> torsoPartsTable = NwGameTables.GetTable<TorsoPartsEntry>("parts_chest.2da");
     public static readonly List<NuiComboEntry> femaleClothCombo = new();
     public static readonly List<NuiComboEntry> femalePaddedCombo = new();
     public static readonly List<NuiComboEntry> femaleLeatherCombo = new();

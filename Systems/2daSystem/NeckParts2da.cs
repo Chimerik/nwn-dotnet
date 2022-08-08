@@ -20,7 +20,7 @@ namespace NWN.Systems
   [ServiceBinding(typeof(NeckParts2da))]
   public class NeckParts2da
   {
-    private readonly TwoDimArray<NeckPartsEntry> neckPartsTable = new("parts_belt.2da");
+    private readonly TwoDimArray<NeckPartsEntry> neckPartsTable = NwGameTables.GetTable<NeckPartsEntry>("parts_neck.2da");
     public static readonly List<NuiComboEntry> combo = new();
     public NeckParts2da()
     {

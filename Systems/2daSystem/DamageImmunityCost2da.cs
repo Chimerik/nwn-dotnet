@@ -20,7 +20,7 @@ namespace NWN.Systems
   [ServiceBinding(typeof(DamageImmunityCost2da))]
   public class DamageImmunityCost2da
   {
-    public static readonly TwoDimArray<DamageImmunityEntry> damageImmunityTable = new("iprp_immuncost.2da");
+    public static readonly TwoDimArray<DamageImmunityEntry> damageImmunityTable = NwGameTables.GetTable<DamageImmunityEntry>("iprp_immuncost.2da");
     public DamageImmunityCost2da()
     {
     }

@@ -21,7 +21,7 @@ namespace NWN.Systems
   [ServiceBinding(typeof(ItemPropertyDefinition2da))]
   public class ItemPropertyDefinition2da
   {
-    public static readonly TwoDimArray<ItemPropertyDefinitionEntry> ipDefinitionTable = new("itempropdef.2da");
+    public static readonly TwoDimArray<ItemPropertyDefinitionEntry> ipDefinitionTable = NwGameTables.GetTable<ItemPropertyDefinitionEntry>("itempropdef.2da");
     public ItemPropertyDefinition2da()
     {
       

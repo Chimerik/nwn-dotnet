@@ -153,24 +153,24 @@ namespace NWN.Systems
 
           foreach (ItemProperty ip in item.ItemProperties)
           {
-            string ipName = $"{ItemPropertyDefinition2da.ipDefinitionTable[(int)ip.PropertyType].name}";
+            string ipName = $"{ItemPropertyDefinition2da.ipDefinitionTable[(int)ip.Property.PropertyType].name}";
 
             if (ip.SubType > -1)
-              try { ipName += $" - {ItemPropertyDefinition2da.GetSubTypeName(ip.PropertyType, ip.SubType)}"; } catch (Exception) { }
+              try { ipName += $" - {ItemPropertyDefinition2da.GetSubTypeName(ip.Property.PropertyType, ip.SubType)}"; } catch (Exception) { }
 
-            if (ip.CostTableValue > -1)
+            if (ip.IntParams[3] > -1)
             {
-              if(ip.PropertyType == ItemPropertyType.DamageBonus || ip.PropertyType == ItemPropertyType.DamageBonusVsAlignmentGroup || ip.PropertyType == ItemPropertyType.DamageBonusVsRacialGroup
-                || ip.PropertyType == ItemPropertyType.DamageBonusVsSpecificAlignment || ip.PropertyType == ItemPropertyType.ExtraMeleeDamageType || ip.PropertyType == ItemPropertyType.ExtraRangedDamageType)
-                ipName += $" : {ItemPropertyDamageCost2da.GetLabelFromIPCostTableValue(ip.CostTableValue)}";
-              else if (ip.PropertyType == ItemPropertyType.OnHitProperties)
+              if(ip.Property.PropertyType == ItemPropertyType.DamageBonus || ip.Property.PropertyType == ItemPropertyType.DamageBonusVsAlignmentGroup || ip.Property.PropertyType == ItemPropertyType.DamageBonusVsRacialGroup
+                || ip.Property.PropertyType == ItemPropertyType.DamageBonusVsSpecificAlignment || ip.Property.PropertyType == ItemPropertyType.ExtraMeleeDamageType || ip.Property.PropertyType == ItemPropertyType.ExtraRangedDamageType)
+                ipName += $" : {ItemPropertyDamageCost2da.GetLabelFromIPCostTableValue(ip.IntParams[3])}";
+              else if (ip.Property.PropertyType == ItemPropertyType.OnHitProperties)
               {
                 if(ip.SubType == 18) // Ability Drain
                 {
-                  ipName += $" {ItemPropertyAbility2da.ipAbilityTable[ip.Param1TableValue]}";
+                  ipName += $" {ItemPropertyAbility2da.ipAbilityTable[ip.Param1TableValue.RowIndex]}";
                 }
 
-                ipName += $" {ItemPropertyOnHitCost2da.ipOnHitCostTable[ip.CostTableValue].name}";
+                ipName += $" {ItemPropertyOnHitCost2da.ipOnHitCostTable[ip.IntParams[3]].name}";
               }
               else
                 ipName += $" : {ip.CostTableValue}";
@@ -751,8 +751,8 @@ namespace NWN.Systems
               break;
             case BaseItemType.Cloak:
 
-              if (!player.windows.TryAdd("cloakAppearanceModifier", new CloakAppearanceWindow(player, item)))
-                ((CloakAppearanceWindow)player.windows["cloakAppearanceModifier"]).CreateWindow(item);
+              if (!player.windows.TryAdd("cloakColorsModifier", new CloakCustomizationWindow(player, item)))
+                ((CloakCustomizationWindow)player.windows["cloakColorsModifier"]).CreateWindow(item);
 
               break;
           }

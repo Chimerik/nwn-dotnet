@@ -27,13 +27,13 @@ namespace NWN.Systems
   [ServiceBinding(typeof(Appearance2da))]
   public class Appearance2da
   {
-    private readonly TwoDimArray<AppearanceEntry> appearanceTable = new("appearance.2da");
+    private readonly TwoDimArray<AppearanceEntry> appearanceTable = NwGameTables.GetTable<AppearanceEntry>("appearance.2da");
     public static List<NuiComboEntry> appearanceEntries = new();
     private readonly Dictionary<string, List<string>> duplicates = new();
 
     public Appearance2da()
     {
-      int i = 0;
+      //int i = 0;
       foreach (var entry in appearanceTable)
       {
         if (!string.IsNullOrEmpty(entry.name))
@@ -50,9 +50,7 @@ namespace NWN.Systems
       {
         Console.WriteLine("FILE : " + file.Key);
 
-        file.Value.OrderBy(n => n);
-
-        foreach(var res in file.Value)
+        foreach(var res in file.Value.OrderBy(n => n))
           Console.WriteLine(res);
       }
       

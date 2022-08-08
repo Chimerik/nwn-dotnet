@@ -106,7 +106,7 @@ namespace NWN.Systems
     // ----------------------------------------------------------------------------
     public static void RemoveMatchingItemProperties(NwItem oItem, ItemPropertyType nItemPropertyType, EffectDuration nItemPropertyDuration = EffectDuration.Temporary, int nItemPropertySubType = -1)
     {
-      foreach(ItemProperty ip in oItem.ItemProperties.Where(i => i.PropertyType == nItemPropertyType && (i.DurationType == nItemPropertyDuration || nItemPropertyDuration == (EffectDuration)(-1)) && (i.SubType == nItemPropertySubType || nItemPropertySubType == -1)))
+      foreach(ItemProperty ip in oItem.ItemProperties.Where(i => i.Property.PropertyType == nItemPropertyType && (i.DurationType == nItemPropertyDuration || nItemPropertyDuration == (EffectDuration)(-1)) && (i.SubType == nItemPropertySubType || nItemPropertySubType == -1)))
         oItem.RemoveItemProperty(ip);
     }
     public static void DecreaseItemDurability(NwItem oItem)
@@ -136,15 +136,15 @@ namespace NWN.Systems
       List<ItemProperty> sortedIP;
 
       if (ipSubType > -1)
-        sortedIP = oItem.ItemProperties.Where(i => i.PropertyType == ipType && i.SubType == ipSubType).ToList();
+        sortedIP = oItem.ItemProperties.Where(i => i.Property.PropertyType == ipType && i.SubType == ipSubType).ToList();
       else
-        sortedIP = oItem.ItemProperties.Where(i => i.PropertyType == ipType).ToList();
+        sortedIP = oItem.ItemProperties.Where(i => i.Property.PropertyType == ipType).ToList();
 
       ItemProperty maxIp = sortedIP.OrderByDescending(i => i.CostTableValue).FirstOrDefault();
       int nPropBonus = 0;
 
       if (maxIp != null)
-        nPropBonus = maxIp.CostTableValue;
+        nPropBonus = maxIp.IntParams[3];
 
       return nPropBonus;
     }

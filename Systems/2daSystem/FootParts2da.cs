@@ -22,7 +22,7 @@ namespace NWN.Systems
   [ServiceBinding(typeof(FootParts2da))]
   public class FootParts2da
   {
-    private readonly TwoDimArray<FootPartsEntry> footPartsTable = new("parts_foot.2da");
+    private readonly TwoDimArray<FootPartsEntry> footPartsTable = NwGameTables.GetTable<FootPartsEntry>("parts_foot.2da");
     public static readonly List<NuiComboEntry> femaleCombo = new();
     public static readonly List<NuiComboEntry> maleCombo = new();
     public FootParts2da()

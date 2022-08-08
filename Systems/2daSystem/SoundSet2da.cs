@@ -24,7 +24,7 @@ namespace NWN.Systems
   [ServiceBinding(typeof(SoundSet2da))]
   public class SoundSet2da
   {
-    public static readonly TwoDimArray<SoundSetEntry> soundSetTable = new("soundset.2da");
+    public static readonly TwoDimArray<SoundSetEntry> soundSetTable = NwGameTables.GetTable<SoundSetEntry>("soundset.2da");
 
     public SoundSet2da()
     {

@@ -20,7 +20,7 @@ namespace NWN.Systems
   [ServiceBinding(typeof(BeltParts2da))]
   public class BeltParts2da
   {
-    private readonly TwoDimArray<BeltPartsEntry> BeltPartsTable = new("parts_belt.2da");
+    private readonly TwoDimArray<BeltPartsEntry> BeltPartsTable = NwGameTables.GetTable<BeltPartsEntry>("parts_belt.2da");
     public static readonly List<NuiComboEntry> combo = new ();
     public BeltParts2da()
     {

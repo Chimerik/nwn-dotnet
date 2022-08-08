@@ -19,7 +19,7 @@ namespace NWN.Systems
   [ServiceBinding(typeof(ItemPropertyAbility2da))]
   public class ItemPropertyAbility2da
   {
-    public static readonly TwoDimArray<ItemPropertyAbilityEntry> ipAbilityTable = new("iprp_abilities.2da");
+    public static readonly TwoDimArray<ItemPropertyAbilityEntry> ipAbilityTable = NwGameTables.GetTable<ItemPropertyAbilityEntry>("iprp_abilities.2da");
     public ItemPropertyAbility2da()
     {
 

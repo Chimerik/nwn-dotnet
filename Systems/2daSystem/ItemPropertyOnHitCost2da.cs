@@ -18,7 +18,7 @@ namespace NWN.Systems
   [ServiceBinding(typeof(ItemPropertyOnHitCost2da))]
   public class ItemPropertyOnHitCost2da
   {
-    public static readonly TwoDimArray<ItemPropertyOnHitCostEntry> ipOnHitCostTable = new("iprp_onhitcost.2da");
+    public static readonly TwoDimArray<ItemPropertyOnHitCostEntry> ipOnHitCostTable = NwGameTables.GetTable<ItemPropertyOnHitCostEntry>("iprp_onhitcost.2da");
     public ItemPropertyOnHitCost2da()
     {
 

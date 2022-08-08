@@ -118,45 +118,45 @@ namespace NWN.Systems.Craft.Collect
 
       foreach (ItemProperty ip in GetCraftItemProperties(craftedItem, grade))
       {
-        ItemProperty existingIP = craftedItem.ItemProperties.FirstOrDefault(i => i.DurationType == EffectDuration.Permanent && i.PropertyType == ip.PropertyType && i.SubType == ip.SubType && i.Param1Table == ip.Param1Table);
+        ItemProperty existingIP = craftedItem.ItemProperties.FirstOrDefault(i => i.DurationType == EffectDuration.Permanent && i.Property.PropertyType == ip.Property.PropertyType && i.SubType == ip.SubType && i.Param1Table == ip.Param1Table);
 
         if (existingIP != null)
         {
           craftedItem.RemoveItemProperty(existingIP);
 
-          if (ip.PropertyType == ItemPropertyType.DamageBonus
-            || ip.PropertyType == ItemPropertyType.DamageBonusVsAlignmentGroup
-            || ip.PropertyType == ItemPropertyType.DamageBonusVsRacialGroup
-            || ip.PropertyType == ItemPropertyType.DamageBonusVsSpecificAlignment)
+          if (ip.Property.PropertyType == ItemPropertyType.DamageBonus
+            || ip.Property.PropertyType == ItemPropertyType.DamageBonusVsAlignmentGroup
+            || ip.Property.PropertyType == ItemPropertyType.DamageBonusVsRacialGroup
+            || ip.Property.PropertyType == ItemPropertyType.DamageBonusVsSpecificAlignment)
           {
-            int newRank = ItemPropertyDamageCost2da.GetRankFromCostValue(ip.CostTableValue);
-            int existingRank = ItemPropertyDamageCost2da.GetRankFromCostValue(existingIP.CostTableValue);
+            int newRank = ItemPropertyDamageCost2da.GetRankFromCostValue(ip.IntParams[3]);
+            int existingRank = ItemPropertyDamageCost2da.GetRankFromCostValue(existingIP.IntParams[3]);
 
             if (existingRank > newRank)
               newRank = existingRank + 1;
             else
               newRank += 1;
 
-            ip.CostTableValue = ItemPropertyDamageCost2da.GetDamageCostValueFromRank(newRank);
+            ip.IntParams[3] = ItemPropertyDamageCost2da.GetDamageCostValueFromRank(newRank);
           }
-          else if (ip.PropertyType == ItemPropertyType.AcBonus
-            || ip.PropertyType == ItemPropertyType.AcBonusVsAlignmentGroup
-            || ip.PropertyType == ItemPropertyType.AcBonusVsDamageType
-            || ip.PropertyType == ItemPropertyType.AcBonusVsRacialGroup
-            || ip.PropertyType == ItemPropertyType.AcBonusVsSpecificAlignment
-            || ip.PropertyType == ItemPropertyType.AttackBonus
-            || ip.PropertyType == ItemPropertyType.AttackBonusVsAlignmentGroup
-            || ip.PropertyType == ItemPropertyType.AttackBonusVsRacialGroup
-            || ip.PropertyType == ItemPropertyType.AttackBonusVsSpecificAlignment)
+          else if (ip.Property.PropertyType == ItemPropertyType.AcBonus
+            || ip.Property.PropertyType == ItemPropertyType.AcBonusVsAlignmentGroup
+            || ip.Property.PropertyType == ItemPropertyType.AcBonusVsDamageType
+            || ip.Property.PropertyType == ItemPropertyType.AcBonusVsRacialGroup
+            || ip.Property.PropertyType == ItemPropertyType.AcBonusVsSpecificAlignment
+            || ip.Property.PropertyType == ItemPropertyType.AttackBonus
+            || ip.Property.PropertyType == ItemPropertyType.AttackBonusVsAlignmentGroup
+            || ip.Property.PropertyType == ItemPropertyType.AttackBonusVsRacialGroup
+            || ip.Property.PropertyType == ItemPropertyType.AttackBonusVsSpecificAlignment)
           {
-            ip.CostTableValue += existingIP.CostTableValue;
+            ip.IntParams[3] += existingIP.IntParams[3];
           }
           else
           {
-            if (existingIP.CostTableValue > ip.CostTableValue)
-              ip.CostTableValue = existingIP.CostTableValue + 1;
+            if (existingIP.IntParams[3] > ip.IntParams[3])
+              ip.IntParams[3] = existingIP.IntParams[3] + 1;
             else
-              ip.CostTableValue += 1;
+              ip.IntParams[3] += 1;
           }
         }
         

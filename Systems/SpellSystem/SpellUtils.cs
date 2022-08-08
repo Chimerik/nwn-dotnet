@@ -69,7 +69,7 @@ namespace NWN.Systems
     }
     public static int GetSpellIDFromScroll(NwItem oScroll)
     {
-        ItemProperty ip = oScroll.ItemProperties.FirstOrDefault(ip => ip.PropertyType == ItemPropertyType.CastSpell);
+        ItemProperty ip = oScroll.ItemProperties.FirstOrDefault(ip => ip.Property.PropertyType == ItemPropertyType.CastSpell);
 
         if (ip != null)
             return (int)ItemPropertySpells2da.ipSpellTable[ip.SubType].spell;
@@ -78,7 +78,7 @@ namespace NWN.Systems
     }
     public static byte GetSpellLevelFromScroll(NwItem oScroll)
     {
-        ItemProperty ip = oScroll.ItemProperties.FirstOrDefault(ip => ip.PropertyType == ItemPropertyType.CastSpell);
+        ItemProperty ip = oScroll.ItemProperties.FirstOrDefault(ip => ip.Property.PropertyType == ItemPropertyType.CastSpell);
 
         if (ip != null)
             return ItemPropertySpells2da.ipSpellTable[ip.SubType].innateLevel;

@@ -29,7 +29,7 @@ namespace NWN.Systems
   [ServiceBinding(typeof(AmbientMusic2da))]
   public class AmbientMusic2da
   {
-    private readonly TwoDimArray<AmbientMusicEntry> ambientMusicTable = new ("ambientmusic.2da");
+    private readonly TwoDimArray<AmbientMusicEntry> ambientMusicTable = NwGameTables.GetTable<AmbientMusicEntry>("ambientmusic.2da");
     public static IEnumerable<AmbientMusicEntry> maleAmbientMusicEntry;
     public static IEnumerable<AmbientMusicEntry> femaleAmbientMusicEntry;
 

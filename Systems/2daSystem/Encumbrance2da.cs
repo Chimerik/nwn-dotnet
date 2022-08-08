@@ -19,7 +19,7 @@ namespace NWN.Systems
   [ServiceBinding(typeof(Encumbrance2da))]
   public class Encumbrance2da
   {
-    private static readonly TwoDimArray<EncumbranceTableEntry> encumbranceTable = new("encumbrance.2da");
+    private static readonly TwoDimArray<EncumbranceTableEntry> encumbranceTable = NwGameTables.GetTable<EncumbranceTableEntry>("encumbrance.2da");
 
     public Encumbrance2da()
     {

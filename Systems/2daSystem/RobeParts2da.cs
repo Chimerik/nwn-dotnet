@@ -24,7 +24,7 @@ namespace NWN.Systems
   [ServiceBinding(typeof(RobeParts2da))]
   public class RobeParts2da
   {
-    private readonly TwoDimArray<RobePartsEntry> robePartsTable = new("parts_robe.2da");
+    private readonly TwoDimArray<RobePartsEntry> robePartsTable = NwGameTables.GetTable<RobePartsEntry>("parts_robe.2da");
     public static readonly List<NuiComboEntry> femaleCombo = new();
     public static readonly List<NuiComboEntry> maleCombo = new();
     public RobeParts2da()
