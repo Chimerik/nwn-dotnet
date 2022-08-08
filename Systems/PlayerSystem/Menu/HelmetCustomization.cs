@@ -10,28 +10,28 @@ namespace NWN.Systems
   {
     public partial class Player
     {
-      public class CloakCustomizationWindow : PlayerWindow
+      public class HelmetCustomizationWindow : PlayerWindow
       {
         private NwItem item { get; set; }
 
         private readonly NuiColumn rootColumn = new() { Margin = 0.0f };
         private readonly List<NuiElement> rootChildren = new();
 
-        private readonly NuiBind<int> cloakSelection = new("cloakSelection");
-        private readonly NuiBind<string> cloakLeather1 = new("cloakLeather1");
-        private readonly NuiBind<string> cloakCloth1 = new("cloakCloth1");
-        private readonly NuiBind<string> cloakMetal1 = new("cloakMetal1");
-        private readonly NuiBind<string> cloakLeather2 = new("cloakLeather2");
-        private readonly NuiBind<string> cloakCloth2 = new("cloakCloth2");
-        private readonly NuiBind<string> cloakMetal2 = new("cloakMetal2");
+        private readonly NuiBind<int> helmetSelection = new("helmetSelection");
+        private readonly NuiBind<string> helmetLeather1 = new("helmetLeather1");
+        private readonly NuiBind<string> helmetCloth1 = new("helmetCloth1");
+        private readonly NuiBind<string> helmetMetal1 = new("helmetMetal1");
+        private readonly NuiBind<string> helmetLeather2 = new("helmetLeather2");
+        private readonly NuiBind<string> helmetCloth2 = new("helmetCloth2");
+        private readonly NuiBind<string> helmetMetal2 = new("helmetMetal2");
 
         private NuiBind<string> lastClickedColorButton;
 
         private ItemAppearanceArmorColor selectedColorChannel { get; set; }
 
-        public CloakCustomizationWindow(Player player, NwItem item) : base(player)
+        public HelmetCustomizationWindow(Player player, NwItem item) : base(player)
         {
-          windowId = "cloakColorsModifier";
+          windowId = "helmetColorsModifier";
           rootColumn.Children = rootChildren;
 
           int nbButton = 0;
@@ -62,39 +62,55 @@ namespace NWN.Systems
             rootChildren.Add(row);
           }
 
-          rootChildren.Add(new NuiRow() { Height = 20, Margin = 0.0f, Children = new List<NuiElement>() 
-          {  
-            new NuiSpacer(),
-            new NuiLabel("Cape") { HorizontalAlign = NuiHAlign.Center, VerticalAlign = NuiVAlign.Middle },
-            new NuiSpacer()
-          }});
-
-          rootChildren.Add(new NuiRow() { Children = new List<NuiElement>()
+          rootChildren.Add(new NuiRow()
+          {
+            Height = 20,
+            Margin = 0.0f,
+            Children = new List<NuiElement>()
           {
             new NuiSpacer(),
-            new NuiButton("<") { Id = "cloakDecrease", Height = 20, Width = 20, Margin = 0.0f },
-            new NuiCombo(){ Entries = CloakModel2da.combo, Selected = cloakSelection, Height = 20, Width = 200, Margin = 0.0f },
-            new NuiButton(">") { Id = "cloakIncrease", Height = 20, Width = 20, Margin = 0.0f },
+            new NuiLabel("Casque") { HorizontalAlign = NuiHAlign.Center, VerticalAlign = NuiVAlign.Middle },
             new NuiSpacer()
-          } });
+          }
+          });
 
-          rootChildren.Add(new NuiRow() { Margin = 0.0f, Children = new List<NuiElement>()
+          rootChildren.Add(new NuiRow()
+          {
+            Children = new List<NuiElement>()
           {
             new NuiSpacer(),
-            new NuiButton("") { Id = "cloakLeather1", Width = 15, Height = 15, Margin = 0.0f, Tooltip = "Cuir 1", DrawList = new() { new NuiDrawListImage(cloakLeather1, new NuiRect(4, 4, 9, 9)) { Aspect = NuiAspect.Stretch } } },
-            new NuiButton("") { Id = "cloakCloth1", Width = 15, Height = 15, Margin = 0.0f, Tooltip = "Tissu 1", DrawList = new() { new NuiDrawListImage(cloakCloth1, new NuiRect(4, 4, 9, 9)) { Aspect = NuiAspect.Stretch } } },
-            new NuiButton("") { Id = "cloakMetal1", Width = 15, Height = 15, Margin = 0.0f, Tooltip = "Métal 1", DrawList = new() { new NuiDrawListImage(cloakMetal1, new NuiRect(4, 4, 9, 9)) { Aspect = NuiAspect.Stretch } } },
+            new NuiButton("<") { Id = "helmetDecrease", Height = 20, Width = 20, Margin = 0.0f },
+            new NuiCombo(){ Entries = BaseItems2da.helmetModelEntries, Selected = helmetSelection, Height = 20, Width = 100, Margin = 0.0f },
+            new NuiButton(">") { Id = "helmetIncrease", Height = 20, Width = 20, Margin = 0.0f },
             new NuiSpacer()
-          } });
+          }
+          });
 
-          rootChildren.Add(new NuiRow() { Margin = 0.0f, Children = new List<NuiElement>()
+          rootChildren.Add(new NuiRow()
+          {
+            Margin = 0.0f,
+            Children = new List<NuiElement>()
           {
             new NuiSpacer(),
-            new NuiButton("") { Id = "cloakLeather2", Width = 15, Height = 15, Margin = 0.0f, Tooltip = "Cuir 2", DrawList = new() { new NuiDrawListImage(cloakLeather2, new NuiRect(4, 4, 9, 9)) { Aspect = NuiAspect.Stretch } } },
-            new NuiButton("") { Id = "cloakCloth2", Width = 15, Height = 15, Margin = 0.0f, Tooltip = "Tissu 2", DrawList = new() { new NuiDrawListImage(cloakCloth2, new NuiRect(4, 4, 9, 9)) { Aspect = NuiAspect.Stretch } } },
-            new NuiButton("") { Id = "cloakMetal2", Width = 15, Height = 15, Margin = 0.0f, Tooltip = "Métal 2", DrawList = new() { new NuiDrawListImage(cloakMetal2, new NuiRect(4, 4, 9, 9)) { Aspect = NuiAspect.Stretch } } },
+            new NuiButton("") { Id = "helmetLeather1", Width = 15, Height = 15, Margin = 0.0f, Tooltip = "Cuir 1", DrawList = new() { new NuiDrawListImage(helmetLeather1, new NuiRect(4, 4, 9, 9)) { Aspect = NuiAspect.Stretch } } },
+            new NuiButton("") { Id = "helmetCloth1", Width = 15, Height = 15, Margin = 0.0f, Tooltip = "Tissu 1", DrawList = new() { new NuiDrawListImage(helmetCloth1, new NuiRect(4, 4, 9, 9)) { Aspect = NuiAspect.Stretch } } },
+            new NuiButton("") { Id = "helmetMetal1", Width = 15, Height = 15, Margin = 0.0f, Tooltip = "Métal 1", DrawList = new() { new NuiDrawListImage(helmetMetal1, new NuiRect(4, 4, 9, 9)) { Aspect = NuiAspect.Stretch } } },
             new NuiSpacer()
-          }});
+          }
+          });
+
+          rootChildren.Add(new NuiRow()
+          {
+            Margin = 0.0f,
+            Children = new List<NuiElement>()
+          {
+            new NuiSpacer(),
+            new NuiButton("") { Id = "helmetLeather2", Width = 15, Height = 15, Margin = 0.0f, Tooltip = "Cuir 2", DrawList = new() { new NuiDrawListImage(helmetLeather2, new NuiRect(4, 4, 9, 9)) { Aspect = NuiAspect.Stretch } } },
+            new NuiButton("") { Id = "helmetCloth2", Width = 15, Height = 15, Margin = 0.0f, Tooltip = "Tissu 2", DrawList = new() { new NuiDrawListImage(helmetCloth2, new NuiRect(4, 4, 9, 9)) { Aspect = NuiAspect.Stretch } } },
+            new NuiButton("") { Id = "helmetMetal2", Width = 15, Height = 15, Margin = 0.0f, Tooltip = "Métal 2", DrawList = new() { new NuiDrawListImage(helmetMetal2, new NuiRect(4, 4, 9, 9)) { Aspect = NuiAspect.Stretch } } },
+            new NuiSpacer()
+          }
+          });
 
           CreateWindow(item);
         }
@@ -124,15 +140,15 @@ namespace NWN.Systems
 
             player.ActivateSpotLight(player.oid.ControlledCreature);
 
-            cloakLeather1.SetBindValue(player.oid, nuiToken.Token, $"leather{item.Appearance.GetArmorColor(ItemAppearanceArmorColor.Leather1) + 1}");
-            cloakCloth1.SetBindValue(player.oid, nuiToken.Token, $"leather{item.Appearance.GetArmorColor(ItemAppearanceArmorColor.Cloth1) + 1}");
-            cloakMetal1.SetBindValue(player.oid, nuiToken.Token, StringUtils.GetMetalPaletteResRef(item.Appearance.GetArmorColor(ItemAppearanceArmorColor.Metal1) + 1));
-            cloakLeather2.SetBindValue(player.oid, nuiToken.Token, $"leather{item.Appearance.GetArmorColor(ItemAppearanceArmorColor.Leather2) + 1}");
-            cloakCloth2.SetBindValue(player.oid, nuiToken.Token, $"leather{item.Appearance.GetArmorColor(ItemAppearanceArmorColor.Cloth2) + 1}");
-            cloakMetal2.SetBindValue(player.oid, nuiToken.Token, StringUtils.GetMetalPaletteResRef(item.Appearance.GetArmorColor(ItemAppearanceArmorColor.Metal2) + 1));
+            helmetLeather1.SetBindValue(player.oid, nuiToken.Token, $"leather{item.Appearance.GetArmorColor(ItemAppearanceArmorColor.Leather1) + 1}");
+            helmetCloth1.SetBindValue(player.oid, nuiToken.Token, $"leather{item.Appearance.GetArmorColor(ItemAppearanceArmorColor.Cloth1) + 1}");
+            helmetMetal1.SetBindValue(player.oid, nuiToken.Token, StringUtils.GetMetalPaletteResRef(item.Appearance.GetArmorColor(ItemAppearanceArmorColor.Metal1) + 1));
+            helmetLeather2.SetBindValue(player.oid, nuiToken.Token, $"leather{item.Appearance.GetArmorColor(ItemAppearanceArmorColor.Leather2) + 1}");
+            helmetCloth2.SetBindValue(player.oid, nuiToken.Token, $"leather{item.Appearance.GetArmorColor(ItemAppearanceArmorColor.Cloth2) + 1}");
+            helmetMetal2.SetBindValue(player.oid, nuiToken.Token, StringUtils.GetMetalPaletteResRef(item.Appearance.GetArmorColor(ItemAppearanceArmorColor.Metal2) + 1));
 
-            cloakSelection.SetBindValue(player.oid, nuiToken.Token, item.Appearance.GetSimpleModel());
-            cloakSelection.SetBindWatch(player.oid, nuiToken.Token, true);
+            helmetSelection.SetBindValue(player.oid, nuiToken.Token, item.Appearance.GetSimpleModel());
+            helmetSelection.SetBindWatch(player.oid, nuiToken.Token, true);
 
             geometry.SetBindValue(player.oid, nuiToken.Token, windowRectangle);
             geometry.SetBindWatch(player.oid, nuiToken.Token, true);
@@ -164,49 +180,49 @@ namespace NWN.Systems
 
               switch (nuiEvent.ElementId)
               {
-                case "cloakLeather1":
+                case "helmetLeather1":
                   HandlePaletteSwap();
                   selectedColorChannel = ItemAppearanceArmorColor.Leather1;
-                  lastClickedColorButton = cloakLeather1;
+                  lastClickedColorButton = helmetLeather1;
                   return;
 
-                case "cloakCloth1":
+                case "helmetCloth1":
                   HandlePaletteSwap();
                   selectedColorChannel = ItemAppearanceArmorColor.Cloth1;
-                  lastClickedColorButton = cloakCloth1;
+                  lastClickedColorButton = helmetCloth1;
                   return;
 
-                case "cloakMetal1":
+                case "helmetMetal1":
                   HandlePaletteSwap("metal");
                   selectedColorChannel = ItemAppearanceArmorColor.Metal1;
-                  lastClickedColorButton = cloakMetal1;
+                  lastClickedColorButton = helmetMetal1;
                   return;
 
-                case "cloakLeather2":
+                case "helmetLeather2":
                   HandlePaletteSwap();
                   selectedColorChannel = ItemAppearanceArmorColor.Leather2;
-                  lastClickedColorButton = cloakLeather2;
+                  lastClickedColorButton = helmetLeather2;
                   return;
 
-                case "cloakCloth2":
+                case "helmetCloth2":
                   HandlePaletteSwap();
                   selectedColorChannel = ItemAppearanceArmorColor.Cloth2;
-                  lastClickedColorButton = cloakCloth2;
+                  lastClickedColorButton = helmetCloth2;
                   return;
 
-                case "cloakMetal2":
+                case "helmetMetal2":
                   HandlePaletteSwap("metal");
                   selectedColorChannel = ItemAppearanceArmorColor.Metal2;
-                  lastClickedColorButton = cloakMetal2;
+                  lastClickedColorButton = helmetMetal2;
                   return;
 
-                case "cloakDecrease":
+                case "helmetDecrease":
                   HandleArmorSelectorChange(-1);
                   return;
 
-                case "cloakIncrease":
+                case "helmetIncrease":
                   HandleArmorSelectorChange(1);
-                  return; 
+                  return;
               }
 
               int resRef = int.Parse(nuiEvent.ElementId) + 1;
@@ -219,7 +235,7 @@ namespace NWN.Systems
               item.Appearance.SetArmorColor(selectedColorChannel, byte.Parse(nuiEvent.ElementId));
 
               NwItem newItem = item.Clone(nuiEvent.Player.ControlledCreature);
-              nuiEvent.Player.ControlledCreature.RunEquip(newItem, InventorySlot.Cloak);
+              nuiEvent.Player.ControlledCreature.RunEquip(newItem, InventorySlot.Head);
               item.Destroy();
               item = newItem;
 
@@ -229,15 +245,15 @@ namespace NWN.Systems
 
               switch (nuiEvent.ElementId)
               {
-                case "cloakSelection":
+                case "helmetSelection":
 
-                  Log.Info(cloakSelection.GetBindValue(player.oid, nuiToken.Token));
+                  Log.Info(helmetSelection.GetBindValue(player.oid, nuiToken.Token));
 
-                  item.Appearance.SetSimpleModel((byte)cloakSelection.GetBindValue(player.oid, nuiToken.Token));
-                  NwItem newCloak = item.Clone(nuiEvent.Player.ControlledCreature);
-                  nuiEvent.Player.ControlledCreature.RunEquip(newCloak, InventorySlot.Cloak);
+                  item.Appearance.SetSimpleModel((byte)helmetSelection.GetBindValue(player.oid, nuiToken.Token));
+                  NwItem newhelmet = item.Clone(nuiEvent.Player.ControlledCreature);
+                  nuiEvent.Player.ControlledCreature.RunEquip(newhelmet, InventorySlot.Head);
                   item.Destroy();
-                  item = newCloak;
+                  item = newhelmet;
 
                   break;
               }
@@ -256,26 +272,26 @@ namespace NWN.Systems
         }
         private void HandleArmorSelectorChange(int change)
         {
-          cloakSelection.SetBindWatch(player.oid, nuiToken.Token, false);
-          
-          int newValue = CloakModel2da.combo.IndexOf(CloakModel2da.combo.FirstOrDefault(p => p.Value == cloakSelection.GetBindValue(player.oid, nuiToken.Token))) + change;
+          helmetSelection.SetBindWatch(player.oid, nuiToken.Token, false);
 
-          if (newValue >= CloakModel2da.combo.Count)
+          int newValue = BaseItems2da.helmetModelEntries.IndexOf(BaseItems2da.helmetModelEntries.FirstOrDefault(p => p.Value == helmetSelection.GetBindValue(player.oid, nuiToken.Token))) + change;
+
+          if (newValue >= BaseItems2da.helmetModelEntries.Count)
             newValue = 0;
 
           if (newValue < 0)
-            newValue = CloakModel2da.combo.Count - 1;
+            newValue = BaseItems2da.helmetModelEntries.Count - 1;
 
-          cloakSelection.SetBindValue(player.oid, nuiToken.Token, CloakModel2da.combo[newValue].Value);
+          helmetSelection.SetBindValue(player.oid, nuiToken.Token, BaseItems2da.helmetModelEntries[newValue].Value);
 
-          item.Appearance.SetSimpleModel((byte)cloakSelection.GetBindValue(player.oid, nuiToken.Token));
+          item.Appearance.SetSimpleModel((byte)helmetSelection.GetBindValue(player.oid, nuiToken.Token));
 
-          NwItem newCloak = item.Clone(player.oid.ControlledCreature);
-          player.oid.ControlledCreature.RunEquip(newCloak, InventorySlot.Cloak);
+          NwItem newhelmet = item.Clone(player.oid.ControlledCreature);
+          player.oid.ControlledCreature.RunEquip(newhelmet, InventorySlot.Head);
           item.Destroy();
-          item = newCloak;
+          item = newhelmet;
 
-          cloakSelection.SetBindWatch(player.oid, nuiToken.Token, true);
+          helmetSelection.SetBindWatch(player.oid, nuiToken.Token, true);
         }
         private void HandlePaletteSwap(string type = "")
         {

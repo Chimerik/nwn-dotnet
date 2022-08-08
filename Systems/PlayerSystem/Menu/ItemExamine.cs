@@ -743,12 +743,14 @@ namespace NWN.Systems
                 ((SimpleItemAppearanceWindow)player.windows["simpleItemAppearanceModifier"]).CreateWindow(item);
 
               break;
+
             case BaseItemType.Helmet:
 
-              if (!player.windows.TryAdd("helmetAppearanceModifier", new HelmetAppearanceWindow(player, item)))
-                ((HelmetAppearanceWindow)player.windows["helmetAppearanceModifier"]).CreateWindow(item);
+              if (!player.windows.TryAdd("helmetColorsModifier", new HelmetCustomizationWindow(player, item)))
+                ((HelmetCustomizationWindow)player.windows["helmetColorsModifier"]).CreateWindow(item);
 
               break;
+
             case BaseItemType.Cloak:
 
               if (!player.windows.TryAdd("cloakColorsModifier", new CloakCustomizationWindow(player, item)))
