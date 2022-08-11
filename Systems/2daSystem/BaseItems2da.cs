@@ -9,6 +9,7 @@ namespace NWN.Systems
 {
   public sealed class BaseItemEntry : ITwoDimArrayEntry
   {
+    public string name { get; private set; }
     public string workshop { get; private set; }
     public string craftedItem { get; private set; }
     public int craftLearnable { get; private set; }
@@ -20,11 +21,12 @@ namespace NWN.Systems
 
     public void InterpretEntry(TwoDimArrayEntry entry)
     {
-      string workshop = entry.GetString("Category");
-      string craftedItem = entry.GetString("label");
+      workshop = entry.GetString("Category");
+      craftedItem = entry.GetString("label");
       string resRef = entry.GetString("ItemClass");
-      int craftLearnable = entry.GetInt("ILRStackSize").GetValueOrDefault(-1);
-      double cost = entry.GetInt("BaseCost").GetValueOrDefault(-1);
+      name = entry.GetStrRef("Name").Value.ToParsedString();
+      craftLearnable = entry.GetInt("ILRStackSize").GetValueOrDefault(-1);
+      cost = entry.GetInt("BaseCost").GetValueOrDefault(-1);
 
       Dictionary<ItemAppearanceWeaponModel, List<byte>> weaponModels = new Dictionary<ItemAppearanceWeaponModel, List<byte>>();
 
@@ -55,9 +57,20 @@ namespace NWN.Systems
   {
     public static readonly TwoDimArray<BaseItemEntry> baseItemTable = NwGameTables.GetTable<BaseItemEntry>("baseitems.2da");
     public static List<NuiComboEntry> helmetModelEntries = new List<NuiComboEntry>();
+    public static List<NuiComboEntry> baseItemNameEntries = new List<NuiComboEntry>();
     public static Dictionary<string, List<int>> simpleItemModels = new Dictionary<string, List<int>>();
     public BaseItems2da(ResourceManager resMan)
-    {     
+    {
+      int count = 0;
+      foreach (var entry in baseItemTable)
+      {
+        if (!string.IsNullOrEmpty(entry.name))
+          baseItemNameEntries.Add(new NuiComboEntry(entry.name.ToString(), count));
+
+        count++;
+      }
+        
+
       simpleItemModels.Add("iashlw", new List<int>());
       simpleItemModels.Add("iit_neck", new List<int>());
       simpleItemModels.Add("iit_belt", new List<int>());

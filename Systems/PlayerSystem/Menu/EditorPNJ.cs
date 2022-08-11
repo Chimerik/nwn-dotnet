@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-
 using Anvil.API;
 using Anvil.API.Events;
 
@@ -16,19 +15,20 @@ namespace NWN.Systems
   {
     public partial class Player
     {
-      private enum Tab
-      {
-        Base,
-        Portrait,
-        Description,
-        Stats,
-        Feat,
-        Spell,
-        Model,
-        Variables
-      }
       public class EditorPNJWindow : PlayerWindow
       {
+        private enum Tab
+        {
+          Base,
+          Portrait,
+          Description,
+          Stats,
+          Feat,
+          Spell,
+          Model,
+          Variables
+        }
+
         private NwCreature targetCreature;
         private readonly NuiGroup rootGroup = new() { Id = "rootGroup", Border = false, Padding = 0, Margin = 0 };
         private readonly NuiColumn layoutColumn = new();
@@ -263,7 +263,7 @@ namespace NWN.Systems
                   break;
 
                 case "description":
-                  currentTab = Tab.Portrait;
+                  currentTab = Tab.Description;
                   LoadDescriptionLayout();
                   rootGroup.SetLayout(player.oid, nuiEvent.Token.Token, layoutColumn);
                   LoadDescriptionBinding();
