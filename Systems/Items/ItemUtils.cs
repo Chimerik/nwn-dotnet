@@ -106,7 +106,7 @@ namespace NWN.Systems
     // ----------------------------------------------------------------------------
     public static void RemoveMatchingItemProperties(NwItem oItem, ItemPropertyType nItemPropertyType, EffectDuration nItemPropertyDuration = EffectDuration.Temporary, int nItemPropertySubType = -1)
     {
-      foreach(ItemProperty ip in oItem.ItemProperties.Where(i => i.Property.PropertyType == nItemPropertyType && (i.DurationType == nItemPropertyDuration || nItemPropertyDuration == (EffectDuration)(-1)) && (i.SubType == nItemPropertySubType || nItemPropertySubType == -1)))
+      foreach(ItemProperty ip in oItem.ItemProperties.Where(i => i.Property.PropertyType == nItemPropertyType && (i.DurationType == nItemPropertyDuration || nItemPropertyDuration == (EffectDuration)(-1)) && (i?.SubType?.RowIndex == nItemPropertySubType || nItemPropertySubType == -1)))
         oItem.RemoveItemProperty(ip);
     }
     public static void DecreaseItemDurability(NwItem oItem)
@@ -136,7 +136,7 @@ namespace NWN.Systems
       List<ItemProperty> sortedIP;
 
       if (ipSubType > -1)
-        sortedIP = oItem.ItemProperties.Where(i => i.Property.PropertyType == ipType && i.SubType == ipSubType).ToList();
+        sortedIP = oItem.ItemProperties.Where(i => i.Property.PropertyType == ipType && i?.SubType?.RowIndex == ipSubType).ToList();
       else
         sortedIP = oItem.ItemProperties.Where(i => i.Property.PropertyType == ipType).ToList();
 

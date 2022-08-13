@@ -65,7 +65,7 @@ namespace NWN.Systems
 
           //SpellSystem.ApplyCustomEffectToTarget(SpellSystem.frog, player.oid.LoginCreature, TimeSpan.FromSeconds(10));
 
-          player.oid.EnterTargetMode(OnTargetSelected, ObjectTypes.Creature, MouseCursor.Talk);
+          player.oid.EnterTargetMode(OnTargetSelected, ObjectTypes.Item, MouseCursor.Talk);
         }
       }
     }
@@ -87,15 +87,15 @@ namespace NWN.Systems
       if (selection.IsCancelled)
         return;
 
-      if (selection.TargetObject is not NwCreature creature || !PlayerSystem.Players.TryGetValue(selection.Player.LoginCreature, out PlayerSystem.Player player))
+      if (selection.TargetObject is not NwItem item || !PlayerSystem.Players.TryGetValue(selection.Player.LoginCreature, out PlayerSystem.Player player))
         return;
 
       //NativeAttackHook.SendPartyInvite(creature.LoginPlayer.PlayerId, selection.Player.LoginCreature);
 
-      if (player.windows.ContainsKey("editorPNJ"))
-        ((PlayerSystem.Player.EditorPNJWindow)player.windows["editorPNJ"]).CreateWindow(creature);
+      if (player.windows.ContainsKey("editorItem"))
+        ((PlayerSystem.Player.EditorItemWindow)player.windows["editorItem"]).CreateWindow(item);
       else
-        player.windows.Add("editorPNJ", new PlayerSystem.Player.EditorPNJWindow(player, creature));
+        player.windows.Add("editorItem", new PlayerSystem.Player.EditorItemWindow(player, item));
 
       //player.oid.InvitePlayerToParty(creature.LoginPlayer);
     }

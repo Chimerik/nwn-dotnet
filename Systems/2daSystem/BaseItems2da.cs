@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 
 using Anvil.API;
 using Anvil.Services;
@@ -24,7 +25,7 @@ namespace NWN.Systems
       workshop = entry.GetString("Category");
       craftedItem = entry.GetString("label");
       string resRef = entry.GetString("ItemClass");
-      name = entry.GetStrRef("Name").Value.ToParsedString();
+      name = entry.GetStrRef("Name").HasValue && entry.GetInt("Name") > 0 ?  entry.GetStrRef("Name").Value.ToParsedString() : "";
       craftLearnable = entry.GetInt("ILRStackSize").GetValueOrDefault(-1);
       cost = entry.GetInt("BaseCost").GetValueOrDefault(-1);
 
@@ -69,7 +70,8 @@ namespace NWN.Systems
 
         count++;
       }
-        
+
+      baseItemNameEntries = baseItemNameEntries.OrderBy(b => b.Label).ToList();
 
       simpleItemModels.Add("iashlw", new List<int>());
       simpleItemModels.Add("iit_neck", new List<int>());

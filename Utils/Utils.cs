@@ -252,7 +252,7 @@ namespace NWN
         case BaseItemType.EnchantedScroll:
 
           if (oItem.HasItemProperty(ItemPropertyType.CastSpell))
-            icon = ItemPropertySpells2da.ipSpellTable[oItem.ItemProperties.FirstOrDefault(ip => ip.Property.PropertyType == ItemPropertyType.CastSpell).SubType].icon;
+            icon = ItemPropertySpells2da.ipSpellTable[oItem.ItemProperties.FirstOrDefault(ip => ip.Property.PropertyType == ItemPropertyType.CastSpell).SubType.RowIndex].icon;
 
           break;
 
@@ -379,6 +379,66 @@ namespace NWN
 
     public static readonly List<string> colorPaletteLeather = new();
     public static readonly List<string> colorPaletteMetal = new();
+
+    public static readonly List<NuiComboEntry> variableTypes = new()
+        {
+          new NuiComboEntry("int", 1),
+          new NuiComboEntry("string", 2),
+          new NuiComboEntry("float", 3),
+          new NuiComboEntry("date", 4)
+        };
+
+    public static void ConvertLocalVariable(string localName, string localValue, int localType, NwGameObject target, NwPlayer player)
+    {
+      switch (localType)
+      {
+        case 1:
+          if (int.TryParse(localValue, out int parsedInt))
+          {
+            LocalVarCleaning(target, localName);
+            target.GetObjectVariable<LocalVariableInt>(localName).Value = parsedInt;
+          }
+          else
+            player.SendServerMessage($"{localName.ColorString(ColorConstants.White)} : la valeur {localValue.ColorString(ColorConstants.White)} n'est pas un entier.", ColorConstants.Red);
+          break;
+
+        case 2:
+
+          LocalVarCleaning(target, localName);
+          target.GetObjectVariable<LocalVariableString>(localName).Value = localValue;
+          break;
+
+        case 3:
+          if (float.TryParse(localValue, out float parsedFloat))
+          {
+            LocalVarCleaning(target, localName);
+            target.GetObjectVariable<LocalVariableFloat>(localName).Value = parsedFloat;
+          }
+          else
+            player.SendServerMessage($"{localName.ColorString(ColorConstants.White)} : la valeur {localValue.ColorString(ColorConstants.White)} n'est pas un float.", ColorConstants.Red);
+          break;
+
+        case 4:
+          if (DateTime.TryParse(localValue, out DateTime parsedDate))
+          {
+            LocalVarCleaning(target, localName);
+            target.GetObjectVariable<DateTimeLocalVariable>(localName).Value = parsedDate;
+          }
+          else
+            player.SendServerMessage($"{localName.ColorString(ColorConstants.White)} : la valeur {localValue.ColorString(ColorConstants.White)} n'est pas une date.", ColorConstants.Red);
+          break;
+      }
+    }
+
+    private static void LocalVarCleaning(NwGameObject target, string localName)
+    {
+      List<ObjectVariable> toDelete = new();
+      foreach (var local in target.LocalVariables.Where(v => v.Name == localName))
+        toDelete.Add(local);
+
+      foreach (var local in toDelete)
+        local.Delete();
+    }
 
     public static double GetDamageMultiplier(double targetAC)
     {

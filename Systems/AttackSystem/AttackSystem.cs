@@ -206,15 +206,15 @@ namespace NWN.Systems
         foreach (var propType in absorbIP.GroupBy(i => i.Property.PropertyType))
         {
           ItemProperty maxIP = propType.OrderByDescending(i => i.CostTableValue).FirstOrDefault();
-          DamageType ipDamageType = ItemUtils.GetDamageTypeFromItemProperty((IPDamageType)maxIP.SubType);
+          DamageType ipDamageType = ItemUtils.GetDamageTypeFromItemProperty((IPDamageType)maxIP.SubType.RowIndex);
 
-          switch ((IPDamageType)maxIP.SubType)
+          switch ((IPDamageType)maxIP.SubType.RowIndex)
           {
             case IPDamageType.Bludgeoning:
 
               if (Config.GetContextDamage(ctx, DamageType.BaseWeapon) > 0 || Config.GetContextDamage(ctx, DamageType.Bludgeoning) > 0)
               {
-                if (absorbIP.Any(i => (IPDamageType)i.SubType == IPDamageType.Physical && i.IntParams[3] > maxIP.IntParams[3]))
+                if (absorbIP.Any(i => (IPDamageType)i.SubType.RowIndex == IPDamageType.Physical && i.IntParams[3] > maxIP.IntParams[3]))
                   break;
 
                 HandleAbsorbedDamageFromWeaponDamageType(ctx, DamageType.Bludgeoning, absorbIP, maxIP);
@@ -225,7 +225,7 @@ namespace NWN.Systems
 
               if (Config.GetContextDamage(ctx, DamageType.BaseWeapon) > 0 || Config.GetContextDamage(ctx, DamageType.Slashing) > 0)
               {
-                if (absorbIP.Any(i => (IPDamageType)i.SubType == IPDamageType.Physical && i.IntParams[3] > maxIP.IntParams[3]))
+                if (absorbIP.Any(i => (IPDamageType)i.SubType.RowIndex == IPDamageType.Physical && i.IntParams[3] > maxIP.IntParams[3]))
                   break;
 
                 HandleAbsorbedDamageFromWeaponDamageType(ctx, DamageType.Slashing, absorbIP, maxIP);
@@ -236,7 +236,7 @@ namespace NWN.Systems
 
               if (Config.GetContextDamage(ctx, DamageType.BaseWeapon) > 0 || Config.GetContextDamage(ctx, DamageType.Piercing) > 0)
               {
-                if (absorbIP.Any(i => (IPDamageType)i.SubType == IPDamageType.Physical && i.IntParams[3] > maxIP.IntParams[3]))
+                if (absorbIP.Any(i => (IPDamageType)i.SubType.RowIndex == IPDamageType.Physical && i.IntParams[3] > maxIP.IntParams[3]))
                   break;
 
                 HandleAbsorbedDamageFromWeaponDamageType(ctx, DamageType.Piercing, absorbIP, maxIP);
@@ -289,32 +289,32 @@ namespace NWN.Systems
               break;
 
             case IPDamageType.Acid:
-              if (Config.GetContextDamage(ctx, DamageType.Acid) > 0 && !absorbIP.Any(i => (IPDamageType)i.SubType == (IPDamageType)14 && i.IntParams[3] > maxIP.IntParams[3]))
+              if (Config.GetContextDamage(ctx, DamageType.Acid) > 0 && !absorbIP.Any(i => (IPDamageType)i.SubType.RowIndex == (IPDamageType)14 && i.IntParams[3] > maxIP.IntParams[3]))
                 HandleDamageAbsorbed(ctx, DamageType.BaseWeapon, maxIP.IntParams[3], DamageType.Acid);
               break;
 
             case IPDamageType.Cold:
-              if (Config.GetContextDamage(ctx, DamageType.Cold) > 0 && !absorbIP.Any(i => (IPDamageType)i.SubType == (IPDamageType)14 && i.IntParams[3] > maxIP.IntParams[3]))
+              if (Config.GetContextDamage(ctx, DamageType.Cold) > 0 && !absorbIP.Any(i => (IPDamageType)i.SubType.RowIndex == (IPDamageType)14 && i.IntParams[3] > maxIP.IntParams[3]))
                 HandleDamageAbsorbed(ctx, DamageType.BaseWeapon, maxIP.IntParams[3], DamageType.Cold);
               break;
 
             case IPDamageType.Electrical:
-              if (Config.GetContextDamage(ctx, DamageType.Electrical) > 0 && !absorbIP.Any(i => (IPDamageType)i.SubType == (IPDamageType)14 && i.IntParams[3] > maxIP.IntParams[3]))
+              if (Config.GetContextDamage(ctx, DamageType.Electrical) > 0 && !absorbIP.Any(i => (IPDamageType)i.SubType.RowIndex == (IPDamageType)14 && i.IntParams[3] > maxIP.IntParams[3]))
                 HandleDamageAbsorbed(ctx, DamageType.BaseWeapon, maxIP.IntParams[3], DamageType.Electrical);
               break;
 
             case IPDamageType.Fire:
-              if (Config.GetContextDamage(ctx, DamageType.Fire) > 0 && !absorbIP.Any(i => (IPDamageType)i.SubType == (IPDamageType)14 && i.IntParams[3] > maxIP.IntParams[3]))
+              if (Config.GetContextDamage(ctx, DamageType.Fire) > 0 && !absorbIP.Any(i => (IPDamageType)i.SubType.RowIndex == (IPDamageType)14 && i.IntParams[3] > maxIP.IntParams[3]))
                 HandleDamageAbsorbed(ctx, DamageType.BaseWeapon, maxIP.IntParams[3], DamageType.Fire);
               break;
 
             case IPDamageType.Magical:
-              if (Config.GetContextDamage(ctx, DamageType.Magical) > 0 && !absorbIP.Any(i => (IPDamageType)i.SubType == (IPDamageType)14 && i.IntParams[3] > maxIP.IntParams[3]))
+              if (Config.GetContextDamage(ctx, DamageType.Magical) > 0 && !absorbIP.Any(i => (IPDamageType)i.SubType.RowIndex == (IPDamageType)14 && i.IntParams[3] > maxIP.IntParams[3]))
                 HandleDamageAbsorbed(ctx, DamageType.BaseWeapon, maxIP.IntParams[3], DamageType.Magical);
               break;
 
             case IPDamageType.Sonic:
-              if (Config.GetContextDamage(ctx, DamageType.Sonic) > 0 && !absorbIP.Any(i => (IPDamageType)i.SubType == (IPDamageType)14 && i.IntParams[3] > maxIP.IntParams[3]))
+              if (Config.GetContextDamage(ctx, DamageType.Sonic) > 0 && !absorbIP.Any(i => (IPDamageType)i.SubType.RowIndex == (IPDamageType)14 && i.IntParams[3] > maxIP.IntParams[3]))
                 HandleDamageAbsorbed(ctx, DamageType.BaseWeapon, maxIP.IntParams[3], DamageType.Sonic);
               break;
 
@@ -418,14 +418,14 @@ namespace NWN.Systems
       if (ctx.attackWeapon != null)
       {
         foreach (var propType in ctx.attackWeapon.ItemProperties.Where(i => i.Property.PropertyType == ItemPropertyType.EnhancementBonus
-           || (i.Property.PropertyType == ItemPropertyType.AttackBonusVsRacialGroup && i.SubType == (int)ctx.oTarget.Race.RacialType)
-           || (i.Property.PropertyType == ItemPropertyType.AttackBonusVsAlignmentGroup && i.SubType == (int)ctx.oTarget.GoodEvilAlignment)
-           || (i.Property.PropertyType == ItemPropertyType.AttackBonusVsAlignmentGroup && i.SubType == (int)ctx.oTarget.LawChaosAlignment)
-           || (i.Property.PropertyType == ItemPropertyType.AttackBonusVsSpecificAlignment && i.SubType == Config.GetIPSpecificAlignmentSubTypeAsInt(ctx.oTarget))
-           || (i.Property.PropertyType == ItemPropertyType.EnhancementBonusVsRacialGroup && i.SubType == (int)ctx.oTarget.Race.RacialType)
-           || (i.Property.PropertyType == ItemPropertyType.EnhancementBonusVsAlignmentGroup && i.SubType == (int)ctx.oTarget.GoodEvilAlignment)
-           || (i.Property.PropertyType == ItemPropertyType.EnhancementBonusVsAlignmentGroup && i.SubType == (int)ctx.oTarget.LawChaosAlignment)
-           || (i.Property.PropertyType == ItemPropertyType.EnhancementBonusVsSpecificAlignment && i.SubType == Config.GetIPSpecificAlignmentSubTypeAsInt(ctx.oTarget)))
+           || (i.Property.PropertyType == ItemPropertyType.AttackBonusVsRacialGroup && i?.SubType?.RowIndex == (int)ctx.oTarget.Race.RacialType)
+           || (i.Property.PropertyType == ItemPropertyType.AttackBonusVsAlignmentGroup && i?.SubType?.RowIndex == (int)ctx.oTarget.GoodEvilAlignment)
+           || (i.Property.PropertyType == ItemPropertyType.AttackBonusVsAlignmentGroup && i?.SubType?.RowIndex == (int)ctx.oTarget.LawChaosAlignment)
+           || (i.Property.PropertyType == ItemPropertyType.AttackBonusVsSpecificAlignment && i?.SubType?.RowIndex == Config.GetIPSpecificAlignmentSubTypeAsInt(ctx.oTarget))
+           || (i.Property.PropertyType == ItemPropertyType.EnhancementBonusVsRacialGroup && i?.SubType?.RowIndex == (int)ctx.oTarget.Race.RacialType)
+           || (i.Property.PropertyType == ItemPropertyType.EnhancementBonusVsAlignmentGroup && i?.SubType?.RowIndex == (int)ctx.oTarget.GoodEvilAlignment)
+           || (i.Property.PropertyType == ItemPropertyType.EnhancementBonusVsAlignmentGroup && i?.SubType?.RowIndex == (int)ctx.oTarget.LawChaosAlignment)
+           || (i.Property.PropertyType == ItemPropertyType.EnhancementBonusVsSpecificAlignment && i?.SubType?.RowIndex == Config.GetIPSpecificAlignmentSubTypeAsInt(ctx.oTarget)))
           .GroupBy(i => i.Property.PropertyType))
         {
           ItemProperty maxIP = propType.OrderByDescending(i => i.CostTableValue).FirstOrDefault();
@@ -575,10 +575,10 @@ namespace NWN.Systems
         int armorProficiency = PlayerSystem.Players.TryGetValue(ctx.oTarget, out PlayerSystem.Player player) ? player.GetArmorProficiencyLevel(baseArmorACValue) / 10 : -1;
 
         foreach (var propType in ctx.targetArmor.ItemProperties.Where(i => i.Property.PropertyType == ItemPropertyType.AcBonus
-         || (ctx.oAttacker != null && i.Property.PropertyType == ItemPropertyType.AttackBonusVsRacialGroup && i.SubType == (int)ctx.oAttacker.Race.RacialType)
-         || (ctx.oAttacker != null && i.Property.PropertyType == ItemPropertyType.AttackBonusVsAlignmentGroup && i.SubType == (int)ctx.oAttacker.GoodEvilAlignment)
-         || (ctx.oAttacker != null && i.Property.PropertyType == ItemPropertyType.AttackBonusVsAlignmentGroup && i.SubType == (int)ctx.oAttacker.LawChaosAlignment)
-         || (ctx.oAttacker != null && i.Property.PropertyType == ItemPropertyType.AttackBonusVsSpecificAlignment && i.SubType == Config.GetIPSpecificAlignmentSubTypeAsInt(ctx.oAttacker)))
+         || (ctx.oAttacker != null && i.Property.PropertyType == ItemPropertyType.AttackBonusVsRacialGroup && i.SubType.RowIndex == (int)ctx.oAttacker.Race.RacialType)
+         || (ctx.oAttacker != null && i.Property.PropertyType == ItemPropertyType.AttackBonusVsAlignmentGroup && i.SubType.RowIndex == (int)ctx.oAttacker.GoodEvilAlignment)
+         || (ctx.oAttacker != null && i.Property.PropertyType == ItemPropertyType.AttackBonusVsAlignmentGroup && i.SubType.RowIndex == (int)ctx.oAttacker.LawChaosAlignment)
+         || (ctx.oAttacker != null && i.Property.PropertyType == ItemPropertyType.AttackBonusVsSpecificAlignment && i.SubType.RowIndex == Config.GetIPSpecificAlignmentSubTypeAsInt(ctx.oAttacker)))
           .GroupBy(i => i.Property.PropertyType))
         {
           ItemProperty maxIP = propType.OrderByDescending(i => i.CostTableValue).FirstOrDefault();
@@ -596,7 +596,7 @@ namespace NWN.Systems
         .GroupBy(i => i.SubType))
         {
           ItemProperty maxIP = propType.OrderByDescending(i => i.CostTableValue).FirstOrDefault();
-          DamageType damageType = ItemUtils.GetDamageTypeFromItemProperty((IPDamageType)maxIP.SubType);
+          DamageType damageType = ItemUtils.GetDamageTypeFromItemProperty((IPDamageType)maxIP.SubType.RowIndex);
 
           if (ctx.targetAC.ContainsKey(damageType))
             ctx.targetAC[damageType] += armorProficiency > -1 ? maxIP.IntParams[3] * armorProficiency : maxIP.IntParams[3];
@@ -633,10 +633,10 @@ namespace NWN.Systems
         int shieldProficiency = PlayerSystem.Players.TryGetValue(ctx.oTarget, out PlayerSystem.Player player) ? player.GetShieldProficiencyLevel(targetShield.BaseItem.ItemType) / 10 : -1;      
 
         foreach (var propType in targetShield.ItemProperties.Where(i => i.Property.PropertyType == ItemPropertyType.AcBonus
-         || (ctx.oAttacker != null && i.Property.PropertyType == ItemPropertyType.AttackBonusVsRacialGroup && i.SubType == (int)ctx.oAttacker.Race.RacialType)
-         || (ctx.oAttacker != null && i.Property.PropertyType == ItemPropertyType.AttackBonusVsAlignmentGroup && i.SubType == (int)ctx.oAttacker.GoodEvilAlignment)
-         || (ctx.oAttacker != null && i.Property.PropertyType == ItemPropertyType.AttackBonusVsAlignmentGroup && i.SubType == (int)ctx.oAttacker.LawChaosAlignment)
-         || (ctx.oAttacker != null && i.Property.PropertyType == ItemPropertyType.AttackBonusVsSpecificAlignment && i.SubType == Config.GetIPSpecificAlignmentSubTypeAsInt(ctx.oAttacker)))
+         || (ctx.oAttacker != null && i.Property.PropertyType == ItemPropertyType.AttackBonusVsRacialGroup && i.SubType.RowIndex == (int)ctx.oAttacker.Race.RacialType)
+         || (ctx.oAttacker != null && i.Property.PropertyType == ItemPropertyType.AttackBonusVsAlignmentGroup && i.SubType.RowIndex == (int)ctx.oAttacker.GoodEvilAlignment)
+         || (ctx.oAttacker != null && i.Property.PropertyType == ItemPropertyType.AttackBonusVsAlignmentGroup && i.SubType.RowIndex == (int)ctx.oAttacker.LawChaosAlignment)
+         || (ctx.oAttacker != null && i.Property.PropertyType == ItemPropertyType.AttackBonusVsSpecificAlignment && i.SubType.RowIndex == Config.GetIPSpecificAlignmentSubTypeAsInt(ctx.oAttacker)))
           .GroupBy(i => i.Property.PropertyType))
         {
           ItemProperty maxIP = propType.OrderByDescending(i => i.CostTableValue).FirstOrDefault();
@@ -647,7 +647,7 @@ namespace NWN.Systems
         .GroupBy(i => i.SubType))
         {
           ItemProperty maxIP = propType.OrderByDescending(i => i.CostTableValue).FirstOrDefault();
-          DamageType damageType = ItemUtils.GetDamageTypeFromItemProperty((IPDamageType)maxIP.SubType);
+          DamageType damageType = ItemUtils.GetDamageTypeFromItemProperty((IPDamageType)maxIP.SubType.RowIndex);
           
           if (ctx.targetAC.ContainsKey(damageType))
             ctx.targetAC[damageType] += shieldProficiency > -1 ? maxIP.IntParams[3] * shieldProficiency : maxIP.IntParams[3];
@@ -838,7 +838,7 @@ namespace NWN.Systems
             break;
         }
 
-        ItemProperty bonusAbsorbIP = absorbIP.Where(i => (IPDamageType)i.SubType == ipDamageTypeToFind).OrderByDescending(i => i.CostTableValue).FirstOrDefault();
+        ItemProperty bonusAbsorbIP = absorbIP.Where(i => (IPDamageType)i.SubType.RowIndex == ipDamageTypeToFind).OrderByDescending(i => i.CostTableValue).FirstOrDefault();
 
         if (bonusAbsorbIP != null && bonusAbsorbIP.IntParams[3] < maxIP.IntParams[3])
           HandleDamageAbsorbed(ctx, subAbsorbedDamageType, bonusAbsorbIP.IntParams[3], damageType);

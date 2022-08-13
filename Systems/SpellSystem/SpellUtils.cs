@@ -72,7 +72,7 @@ namespace NWN.Systems
         ItemProperty ip = oScroll.ItemProperties.FirstOrDefault(ip => ip.Property.PropertyType == ItemPropertyType.CastSpell);
 
         if (ip != null)
-            return (int)ItemPropertySpells2da.ipSpellTable[ip.SubType].spell;
+            return (int)ItemPropertySpells2da.ipSpellTable[ip.SubType.RowIndex].spell;
 
       return 0;
     }
@@ -81,7 +81,7 @@ namespace NWN.Systems
         ItemProperty ip = oScroll.ItemProperties.FirstOrDefault(ip => ip.Property.PropertyType == ItemPropertyType.CastSpell);
 
         if (ip != null)
-            return ItemPropertySpells2da.ipSpellTable[ip.SubType].innateLevel;
+            return ItemPropertySpells2da.ipSpellTable[ip.SubType.RowIndex].innateLevel;
 
       return 255;
     }

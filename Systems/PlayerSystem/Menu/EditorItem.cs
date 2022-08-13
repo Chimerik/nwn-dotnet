@@ -12,14 +12,6 @@ namespace NWN.Systems
     {
       public class EditorItemWindow : PlayerWindow
       {
-        private enum Tab
-        {
-          Base,
-          Propriétés,
-          Description,
-          Variables
-        }
-
         private NwItem targetItem;
         private readonly NuiGroup rootGroup = new() { Id = "rootGroup", Border = false, Padding = 0, Margin = 0 };
         private readonly NuiColumn layoutColumn = new();
@@ -34,34 +26,28 @@ namespace NWN.Systems
         private readonly NuiBind<string> size = new("size");
         private readonly NuiBind<int> baseItemSelected = new("baseItemSelected");
         private readonly NuiBind<bool> undroppableChecked = new("undroppableChecked");
-        private readonly NuiBind<bool> identifiedChecked = new("identifiedChecked");
+        private readonly NuiBind<bool> identifiedChecked = new("identifiedChecked"); 
 
         private readonly NuiBind<int> listCount = new("listCount"); 
 
-        private readonly NuiBind<int> listAcquiredFeatCount = new("listAcquiredFeatCount");
-        private readonly NuiBind<string> availableFeatIcons = new("availableFeatIcons");
-        private readonly NuiBind<string> acquiredFeatIcons = new("acquiredFeatIcons");
-        private readonly NuiBind<string> availableFeatNames = new("availableFeatNames");
-        private readonly NuiBind<string> acquiredFeatNames = new("acquiredFeatNames");
-        private readonly NuiBind<string> availableFeatSearch = new("availableFeatSearch");
-        private readonly NuiBind<string> acquiredFeatSearch = new("acquiredFeatSearch");
+        private readonly NuiBind<int> listAcquiredIPCount = new("listAcquiredFeatCount");
+        private readonly NuiBind<string> availableIP = new("availableFeatNames");
+        private readonly NuiBind<string> acquiredIP = new("acquiredFeatNames");
+        private readonly NuiBind<bool> ipDetailVisibility = new("ipDetailVisibility"); 
+        private readonly NuiBind<string> selectedIP = new("selectedIP"); 
+        private readonly NuiBind<int> subTypeSelected = new("subTypeSelected");
+        private readonly NuiBind<int> costValueSelected = new("costValueSelected"); 
+        private readonly NuiBind<int> paramValueSelected = new("paramValueSelected");
+        private readonly NuiBind<List<NuiComboEntry>> subTypeBind = new("subTypeBind");
+        private readonly NuiBind<List<NuiComboEntry>> costValueBind = new("costValueBind");
+        private readonly NuiBind<List<NuiComboEntry>> paramValueBind = new("paramValueBind");
+        private readonly List<NuiComboEntry> subTypeEntries = new();
+        private readonly List<NuiComboEntry> costValueEntries = new();
+        private readonly List<NuiComboEntry> paramValueEntries = new();
 
         private readonly NuiBind<string> itemDescription = new("itemDescription");
         private readonly NuiBind<string> itemComment = new("itemComment");
-
-        private readonly List<NwFeat> availableFeats = new();
-        private readonly List<NwFeat> acquiredFeats = new();
-        private List<NwFeat> availableFeatSearcher = new();
-        private List<NwFeat> acquiredFeatSearcher = new();
-
-        public readonly List<NuiComboEntry> variableTypes = new()
-        {
-          new NuiComboEntry("bool", 0),
-          new NuiComboEntry("int", 1),
-          new NuiComboEntry("string", 2),
-          new NuiComboEntry("float", 3),
-          new NuiComboEntry("date", 4)
-        };
+        
         private readonly NuiBind<string> variableName = new("variableName");
         private readonly NuiBind<string> variableValue = new("variableValue");
         private readonly NuiBind<int> selectedVariableType = new("selectedVariableType");
@@ -70,7 +56,10 @@ namespace NWN.Systems
         private readonly NuiBind<string> newVariableValue = new("newVariableValue");
         private readonly NuiBind<int> selectedNewVariableType = new("selectedNewVariableType");
 
-        Tab currentTab;
+        private readonly List<ItemPropertyTableEntry> availableIPList = new();
+        private readonly List<ItemProperty> acquiredIPList = new();
+
+        private ItemProperty lastClickedIP;
 
         public EditorItemWindow(Player player, NwItem targetItem) : base(player)
         {
@@ -86,7 +75,7 @@ namespace NWN.Systems
           this.targetItem = targetItem;
           LoadBaseLayout();
 
-          NuiRect windowRectangle = player.windowRectangles.ContainsKey(windowId) ? player.windowRectangles[windowId] : new NuiRect(10, player.oid.GetDeviceProperty(PlayerDeviceProperty.GuiHeight) * 0.01f, 410, 500);
+          NuiRect windowRectangle = player.windowRectangles.ContainsKey(windowId) ? player.windowRectangles[windowId] : new NuiRect(10, player.oid.GetDeviceProperty(PlayerDeviceProperty.GuiHeight) * 0.01f, 820, 500);
 
           window = new NuiWindow(rootGroup, $"Modification de {targetItem.Name}")
           {
@@ -101,7 +90,6 @@ namespace NWN.Systems
           if (player.oid.TryCreateNuiWindow(window, out NuiWindowToken tempToken, windowId))
           {
             nuiToken = tempToken;
-            currentTab = Tab.Base;
 
             nuiToken.OnNuiEvent += HandleEditorItemEvents;
 
@@ -109,6 +97,12 @@ namespace NWN.Systems
 
             geometry.SetBindValue(player.oid, nuiToken.Token, windowRectangle);
             geometry.SetBindWatch(player.oid, nuiToken.Token, true);
+
+            availableIPList.Clear();
+
+            foreach (var entry in NwGameTables.ItemPropertyTable)
+              if(entry.ItemMap.IsItemPropertyValidForItem(targetItem.BaseItem))
+                availableIPList.Add(entry);
           }
           else
             player.oid.SendServerMessage($"Impossible d'ouvrir la fenêtre {window.Title}. Celle-ci est-elle déjà ouverte ?", ColorConstants.Orange);
@@ -129,101 +123,81 @@ namespace NWN.Systems
               switch (nuiEvent.ElementId)
               {
                 case "base":
-                  currentTab = Tab.Base;
                   LoadBaseLayout();
                   rootGroup.SetLayout(player.oid, nuiEvent.Token.Token, layoutColumn);
                   LoadBaseBinding();
                   break;
 
                 case "properties":
-                  currentTab = Tab.Propriétés;
-                  //LoadPortraitLayout();
-                  rootGroup.SetLayout(player.oid, nuiEvent.Token.Token, layoutColumn);
-                  //LoadPortraitBinding();
+                  LoadItemPropertyLayout();
+                  rootGroup.SetLayout(player.oid, nuiToken.Token, layoutColumn);
+                  LoadItemPropertyBinding();
                   break;
 
                 case "description":
-                  currentTab = Tab.Description;
                   LoadDescriptionLayout();
-                  rootGroup.SetLayout(player.oid, nuiEvent.Token.Token, layoutColumn);
+                  rootGroup.SetLayout(player.oid, nuiToken.Token, layoutColumn);
                   LoadDescriptionBinding();
                   break;
 
                 case "variables":
-
-                  currentTab = Tab.Variables;
                   LoadVariablesLayout();
-                  rootGroup.SetLayout(player.oid, nuiEvent.Token.Token, layoutColumn);
+                  rootGroup.SetLayout(player.oid, nuiToken.Token, layoutColumn);
+                  selectedNewVariableType.SetBindValue(player.oid, nuiToken.Token, 0);
                   LoadVariablesBinding();
 
                   break;
 
-                case "selectFeat":
-                  NwFeat acquiredFeat = availableFeatSearcher[nuiEvent.ArrayIndex];
+                case "addIP":
+                  ItemPropertyTableEntry ipEntry = availableIPList[nuiEvent.ArrayIndex];
+                  var ip = ItemProperty.Custom(ipEntry, ipEntry.SubTypeTable?.GetRow(0) ?? null, ipEntry.CostTable?.GetRow(1) ?? null, ipEntry.Param1Table?.GetRow(0) ?? null);
+                  targetItem.AddItemProperty(ip, EffectDuration.Permanent);
+                  LoadItemPropertyBinding(); 
+                  break;
 
-                  //targetItem.AddFeat(acquiredFeat);
+              case "removeIP":
+                  targetItem.RemoveItemProperty(acquiredIPList[nuiEvent.ArrayIndex]);
+                  LoadItemPropertyBinding(); 
+                  break;
 
-                  if (!acquiredFeats.Contains(acquiredFeat))
-                    acquiredFeats.Add(acquiredFeat);
+                case "openIP":
 
-                  if (!acquiredFeatSearcher.Contains(acquiredFeat))
-                    acquiredFeatSearcher.Add(acquiredFeat);
+                  lastClickedIP = acquiredIPList[nuiEvent.ArrayIndex];
+                  ipDetailVisibility.SetBindValue(player.oid, nuiToken.Token, true);
+                  selectedIP.SetBindValue(player.oid, nuiToken.Token, lastClickedIP.Property.Name?.ToString());
 
-                  availableFeats.Remove(acquiredFeat);
-                  availableFeatSearcher.Remove(acquiredFeat);
+                  subTypeEntries.Clear();
+                  costValueEntries.Clear();
+                  paramValueEntries.Clear();
 
-                  var tempIcon = availableFeatIcons.GetBindValues(player.oid, nuiToken.Token);
-                  tempIcon.RemoveAt(nuiEvent.ArrayIndex);
-                  var tempName = availableFeatNames.GetBindValues(player.oid, nuiToken.Token);
-                  tempName.RemoveAt(nuiEvent.ArrayIndex);
+                  if (NwGameTables.ItemPropertyTable.GetRow(lastClickedIP.Property.RowIndex).SubTypeTable != null)
+                    foreach (var entry in NwGameTables.ItemPropertyTable.GetRow(lastClickedIP.Property.RowIndex).SubTypeTable)
+                      subTypeEntries.Add(new NuiComboEntry(entry.Name?.ToString(), entry.RowIndex));
 
-                  availableFeatIcons.SetBindValues(player.oid, nuiToken.Token, tempIcon);
-                  availableFeatNames.SetBindValues(player.oid, nuiToken.Token, tempName);
-                  listCount.SetBindValue(player.oid, nuiToken.Token, tempName.Count);
+                  if (lastClickedIP.CostTable != null)
+                    foreach (var entry in lastClickedIP.CostTable)
+                      if(entry.RowIndex > 0)
+                      costValueEntries.Add(new NuiComboEntry(entry.Name?.ToString(), entry.RowIndex));
 
-                  tempIcon = acquiredFeatIcons.GetBindValues(player.oid, nuiToken.Token);
-                  tempIcon.Add(acquiredFeat.IconResRef);
-                  tempName = acquiredFeatNames.GetBindValues(player.oid, nuiToken.Token);
-                  tempName.Add(acquiredFeat.Name.ToString());
+                  if (lastClickedIP.Param1Table != null)
+                    foreach (var entry in lastClickedIP.Param1Table)
+                      paramValueEntries.Add(new NuiComboEntry(entry.Name?.ToString(), entry.RowIndex));
 
-                  acquiredFeatIcons.SetBindValues(player.oid, nuiToken.Token, tempIcon);
-                  acquiredFeatNames.SetBindValues(player.oid, nuiToken.Token, tempName);
-                  listAcquiredFeatCount.SetBindValue(player.oid, nuiToken.Token, tempName.Count);
+                  subTypeBind.SetBindValue(player.oid, nuiToken.Token, subTypeEntries);
+                  costValueBind.SetBindValue(player.oid, nuiToken.Token, costValueEntries);
+                  paramValueBind.SetBindValue(player.oid, nuiToken.Token, paramValueEntries);
+
+                  subTypeSelected.SetBindValue(player.oid, nuiToken.Token, lastClickedIP?.SubType?.RowIndex ?? -1);
+                  costValueSelected.SetBindValue(player.oid, nuiToken.Token, lastClickedIP?.CostTableValue?.RowIndex ?? -1);
+                  paramValueSelected.SetBindValue(player.oid, nuiToken.Token, lastClickedIP?.Param1TableValue?.RowIndex ?? -1);
 
                   break;
 
-                case "removeFeat":
-                  NwFeat removedFeat = acquiredFeatSearcher[nuiEvent.ArrayIndex];
-
-                  //targetItem.RemoveFeat(removedFeat);
-
-                  if (!availableFeats.Contains(removedFeat))
-                    availableFeats.Add(removedFeat);
-
-                  if (!availableFeatSearcher.Contains(removedFeat))
-                    availableFeatSearcher.Add(removedFeat);
-
-                  acquiredFeats.Remove(removedFeat);
-                  acquiredFeatSearcher.Remove(removedFeat);
-
-                  var tempIconList = acquiredFeatIcons.GetBindValues(player.oid, nuiToken.Token);
-                  tempIconList.RemoveAt(nuiEvent.ArrayIndex);
-                  var tempNameList = acquiredFeatNames.GetBindValues(player.oid, nuiToken.Token);
-                  tempNameList.RemoveAt(nuiEvent.ArrayIndex);
-
-                  acquiredFeatIcons.SetBindValues(player.oid, nuiToken.Token, tempIconList);
-                  acquiredFeatNames.SetBindValues(player.oid, nuiToken.Token, tempNameList);
-                  listAcquiredFeatCount.SetBindValue(player.oid, nuiToken.Token, tempNameList.Count);
-
-                  tempIconList = availableFeatIcons.GetBindValues(player.oid, nuiToken.Token);
-                  tempIconList.Add(removedFeat.IconResRef);
-                  tempNameList = availableFeatNames.GetBindValues(player.oid, nuiToken.Token);
-                  tempNameList.Add(removedFeat.Name.ToString());
-
-                  availableFeatIcons.SetBindValues(player.oid, nuiToken.Token, tempIconList);
-                  availableFeatNames.SetBindValues(player.oid, nuiToken.Token, tempNameList);
-                  listCount.SetBindValue(player.oid, nuiToken.Token, tempNameList.Count);
-
+                case "setIPDetail":
+                  targetItem.RemoveItemProperty(lastClickedIP);
+                  targetItem.AddItemProperty(ItemProperty.Custom(lastClickedIP.Property.RowIndex, subTypeSelected.GetBindValue(player.oid, nuiToken.Token), costValueSelected.GetBindValue(player.oid, nuiToken.Token), paramValueSelected.GetBindValue(player.oid, nuiToken.Token)), EffectDuration.Permanent);
+                  LoadItemPropertyBinding();
+                  ipDetailVisibility.SetBindValue(player.oid, nuiToken.Token, true);
                   break;
 
                 case "saveDescription":
@@ -233,12 +207,13 @@ namespace NWN.Systems
                   break;
 
                 case "saveNewVariable":
-                  ConvertLocalVariable(newVariableName.GetBindValue(player.oid, nuiToken.Token), newVariableValue.GetBindValue(player.oid, nuiToken.Token));
+                  Utils.ConvertLocalVariable(newVariableName.GetBindValue(player.oid, nuiToken.Token), newVariableValue.GetBindValue(player.oid, nuiToken.Token), selectedNewVariableType.GetBindValue(player.oid, nuiToken.Token), targetItem, player.oid);
                   LoadVariablesBinding();
                   break;
 
                 case "saveVariable":
-                  ConvertLocalVariable(variableName.GetBindValues(player.oid, nuiToken.Token)[nuiEvent.ArrayIndex], variableValue.GetBindValues(player.oid, nuiToken.Token)[nuiEvent.ArrayIndex]);
+                  Utils.ConvertLocalVariable(variableName.GetBindValues(player.oid, nuiToken.Token)[nuiEvent.ArrayIndex], variableValue.GetBindValues(player.oid, nuiToken.Token)[nuiEvent.ArrayIndex], selectedVariableType.GetBindValues(player.oid, nuiToken.Token)[nuiEvent.ArrayIndex], targetItem, player.oid);
+                  LoadVariablesBinding();
                   break;
 
                 case "deleteVariable":
@@ -273,8 +248,41 @@ namespace NWN.Systems
 
                 case "baseItemSelected":
                   targetItem.BaseItem = NwBaseItem.FromItemId(baseItemSelected.GetBindValue(player.oid, nuiToken.Token));
+                  NwItem newItem = targetItem.Clone(player.oid.ControlledCreature);
+                  targetItem.Destroy();
+                  targetItem = newItem;
+                  break;
+
+                case "cost":
+
+                  if (int.TryParse(cost.GetBindValue(player.oid, nuiToken.Token), out int newCost))
+                    targetItem.GetObjectVariable<LocalVariableInt>("_ITEM_COST").Value = newCost;
+
+                  break;
+
+                case "weight":
+
+                  if (decimal.TryParse(weight.GetBindValue(player.oid, nuiToken.Token), out decimal newWeight))
+                    targetItem.Weight = newWeight;
+
+                  break;
+
+                case "charges":
+
+                  if (int.TryParse(charges.GetBindValue(player.oid, nuiToken.Token), out int newCharges))
+                    targetItem.ItemCharges = newCharges;
+
+                  break;
+
+                case "undroppableChecked":
+                  targetItem.CursedFlag = undroppableChecked.GetBindValue(player.oid, nuiToken.Token);
+                  break;
+
+                case "identifiedChecked":
+                  targetItem.Identified = identifiedChecked.GetBindValue(player.oid, nuiToken.Token);
                   break;
               }
+              
 
               break;
           }
@@ -287,10 +295,10 @@ namespace NWN.Systems
             Children = new List<NuiElement>()
             {
               new NuiSpacer(),
-              new NuiButton("Base") { Id = "base", Height = 35, Width = 60 },
-              new NuiButton("Propriétés") { Id = "properties", Height = 35, Width = 60 },
-              new NuiButton("Description") { Id = "description", Height = 35, Width = 60 },
-              new NuiButton("Variables") { Id = "variables", Height = 35, Width = 60 },
+              new NuiButton("Base") { Id = "base", Height = 35, Width = 90 },
+              new NuiButton("Propriétés") { Id = "properties", Height = 35, Width = 90 },
+              new NuiButton("Description") { Id = "description", Height = 35, Width = 90 },
+              new NuiButton("Variables") { Id = "variables", Height = 35, Width = 90 },
               new NuiSpacer()
             }
           });
@@ -324,7 +332,7 @@ namespace NWN.Systems
           {
             Children = new List<NuiElement>()
             {
-              new NuiLabel("Objet de base") { Height = 35, Width = 70, VerticalAlign = NuiVAlign.Middle },
+              new NuiLabel("Type") { Height = 35, Width = 70, VerticalAlign = NuiVAlign.Middle },
               new NuiCombo() { Height = 35, Width = 200, Entries = BaseItems2da.baseItemNameEntries, Selected = baseItemSelected },
             }
           });
@@ -333,8 +341,17 @@ namespace NWN.Systems
           {
             Children = new List<NuiElement>()
             {
+              new NuiLabel("Taille") { Height = 35, Width = 70, VerticalAlign = NuiVAlign.Middle },
+              new NuiTextEdit("Taille", size, 4, false) { Height = 35, Width = 200 }
+            }
+          });
+
+          rootChildren.Add(new NuiRow()
+          {
+            Children = new List<NuiElement>()
+            {
               new NuiLabel("Coût") { Height = 35, Width = 70, VerticalAlign = NuiVAlign.Middle },
-              new NuiTextEdit("Coût", cost, 30, false) { Height = 35, Width = 200 }
+              new NuiTextEdit("Coût", cost, 7, false) { Height = 35, Width = 200 }
             }
           });
 
@@ -343,7 +360,7 @@ namespace NWN.Systems
             Children = new List<NuiElement>()
             {
               new NuiLabel("Poids") { Height = 35, Width = 70, VerticalAlign = NuiVAlign.Middle },
-              new NuiTextEdit("Poids", weight, 30, false) { Height = 35, Width = 200 }
+              new NuiTextEdit("Poids", weight, 4, false) { Height = 35, Width = 200 }
             }
           });
 
@@ -356,16 +373,26 @@ namespace NWN.Systems
             }
           });
 
-          rootChildren.Add(new NuiRow() { Children = new List<NuiElement>() { new NuiCheck("Inéchangeable", undroppableChecked) { Height = 35, Width = 35 } } });
-          rootChildren.Add(new NuiRow() { Children = new List<NuiElement>() { new NuiCheck("Identifié", identifiedChecked) { Height = 35, Width = 35 } } });
+          rootChildren.Add(new NuiRow() { Children = new List<NuiElement>() 
+          { 
+            new NuiSpacer(),
+            new NuiCheck("Inéchangeable", undroppableChecked) { Height = 35, Width = 120 },
+            new NuiCheck("Identifié", identifiedChecked) { Height = 35, Width = 120 },
+            new NuiSpacer()
+          } });
         }
         private void StopAllWatchBindings()
         {
           name.SetBindWatch(player.oid, nuiToken.Token, false);
           tag.SetBindWatch(player.oid, nuiToken.Token, false);
-
-          availableFeatSearch.SetBindWatch(player.oid, nuiToken.Token, false);
-          acquiredFeatSearch.SetBindWatch(player.oid, nuiToken.Token, false);
+          baseItemSelected.SetBindWatch(player.oid, nuiToken.Token, false);
+          size.SetBindWatch(player.oid, nuiToken.Token, false);
+          cost.SetBindWatch(player.oid, nuiToken.Token, false);
+          weight.SetBindWatch(player.oid, nuiToken.Token, false);
+          charges.SetBindWatch(player.oid, nuiToken.Token, false);
+          undroppableChecked.SetBindWatch(player.oid, nuiToken.Token, false);
+          identifiedChecked.SetBindWatch(player.oid, nuiToken.Token, false);
+          ipDetailVisibility.SetBindValue(player.oid, nuiToken.Token, false);
         }
         private void LoadBaseBinding()
         {
@@ -375,88 +402,91 @@ namespace NWN.Systems
           name.SetBindWatch(player.oid, nuiToken.Token, true);
           tag.SetBindValue(player.oid, nuiToken.Token, targetItem.Tag);
           tag.SetBindWatch(player.oid, nuiToken.Token, true);
+          baseItemSelected.SetBindValue(player.oid, nuiToken.Token, (int)targetItem.BaseItem.Id);
+          baseItemSelected.SetBindWatch(player.oid, nuiToken.Token, true);
+          size.SetBindValue(player.oid, nuiToken.Token, targetItem.VisualTransform.Scale.ToString());
+          size.SetBindWatch(player.oid, nuiToken.Token, true);
+          cost.SetBindValue(player.oid, nuiToken.Token, targetItem.GetObjectVariable<LocalVariableInt>("_ITEM_COST").HasValue ? targetItem.GetObjectVariable<LocalVariableInt>("_ITEM_COST").Value.ToString() : targetItem.BaseGoldValue.ToString());
+          cost.SetBindWatch(player.oid, nuiToken.Token, true);
+          weight.SetBindValue(player.oid, nuiToken.Token, targetItem.Weight.ToString());
+          weight.SetBindWatch(player.oid, nuiToken.Token, true);
+          charges.SetBindValue(player.oid, nuiToken.Token, targetItem.ItemCharges.ToString());
+          charges.SetBindWatch(player.oid, nuiToken.Token, true);
+          undroppableChecked.SetBindValue(player.oid, nuiToken.Token, targetItem.Droppable);
+          identifiedChecked.SetBindValue(player.oid, nuiToken.Token, targetItem.Identified);
+          undroppableChecked.SetBindWatch(player.oid, nuiToken.Token, true);
+          identifiedChecked.SetBindWatch(player.oid, nuiToken.Token, true);
         }
-        private void LoadFeatsLayout()
+        private void LoadItemPropertyLayout()
         {
           rootChildren.Clear();
           LoadButtons();
           rowTemplate.Clear();
 
-          rowTemplate.Add(new NuiListTemplateCell(new NuiButtonImage(availableFeatIcons) { Id = "selectFeat", Tooltip = "Ajouter" }) { Width = 35 });
-          rowTemplate.Add(new NuiListTemplateCell(new NuiLabel(availableFeatNames) { Id = "availableFeatDescription", Tooltip = availableFeatNames, VerticalAlign = NuiVAlign.Middle, HorizontalAlign = NuiHAlign.Center }) { VariableSize = true });
-
-          List<NuiListTemplateCell> rowTemplateAcquiredFeats = new()
+          rootChildren.Add(new NuiRow()
           {
-            new NuiListTemplateCell(new NuiButtonImage(acquiredFeatIcons) { Id = "removeFeat", Tooltip = "Supprimer" }) { Width = 35 },
-            new NuiListTemplateCell(new NuiLabel(acquiredFeatNames) { Id = "acquiredFeatDescription", Tooltip = acquiredFeatNames, VerticalAlign = NuiVAlign.Middle, HorizontalAlign = NuiHAlign.Center }) { VariableSize = true }
+            Visible = ipDetailVisibility,
+            Children = new List<NuiElement>()
+          {
+            new NuiSpacer(),
+            new NuiLabel(selectedIP) { VerticalAlign = NuiVAlign.Middle, HorizontalAlign = NuiHAlign.Center, Height = 35, Tooltip = selectedIP  },
+            new NuiCombo() { Height = 35, Width = 100, Entries = subTypeBind, Selected = subTypeSelected },
+            new NuiCombo() { Height = 35, Width = 100, Entries = costValueBind, Selected = costValueSelected },
+            new NuiCombo() { Height = 35, Width = 100, Entries = paramValueBind, Selected = paramValueSelected },
+            new NuiButtonImage("ir_empytqs") { Id = "setIPDetail", Height = 35, Width = 35, Tooltip = "Valider la modification" },
+            new NuiSpacer()
+          }
+          });
+
+          rowTemplate.Add(new NuiListTemplateCell(new NuiButton(availableIP) { Id = "addIP", Tooltip = "Ajouter" }) { VariableSize = true });
+
+          List<NuiListTemplateCell> rowTemplateAcquiredIP = new()
+          {
+            new NuiListTemplateCell(new NuiButton(acquiredIP) { Id = "openIP", Tooltip = acquiredIP }) { VariableSize = true },
+            new NuiListTemplateCell(new NuiButtonImage("ir_ban") { Id = "removeIP", Tooltip = "Supprimer" }) { Width = 35 }
           };
 
-          List<NuiElement> columnsChildren = new();
-          NuiRow columnsRow = new() { Children = columnsChildren };
-          rootChildren.Add(columnsRow);
-
-          columnsChildren.Add(new NuiColumn()
+          rootChildren.Add(new NuiRow() { Height = 380, Children = new List<NuiElement>() 
           {
-            Children = new List<NuiElement>()
-            {
-              new NuiRow() { Children = new List<NuiElement>() { new NuiTextEdit("Dons disponibles", availableFeatSearch, 20, false) { Width = 190 } } },
-              new NuiRow() { Children = new List<NuiElement>() { new NuiList(rowTemplate, listCount) { RowHeight = 35,  Width = 190  } } }
-            }
-          });
-
-          columnsChildren.Add(new NuiColumn()
-          {
-            Children = new List<NuiElement>()
-            {
-              new NuiRow() { Children = new List<NuiElement>() { new NuiTextEdit("Dons acquis", acquiredFeatSearch, 20, false) { Width = 190 } } },
-              new NuiRow() { Children = new List<NuiElement>() { new NuiList(rowTemplateAcquiredFeats, listAcquiredFeatCount) { RowHeight = 35, Width = 190 } } }
-            }
-          });
+            new NuiColumn() { Children = new List<NuiElement>() { new NuiList(rowTemplate, listCount) { RowHeight = 35,  Width = 390  } } },
+            new NuiColumn() { Children = new List<NuiElement>() { new NuiList(rowTemplateAcquiredIP, listAcquiredIPCount) { RowHeight = 35, Width = 390 } } }
+          } });
+          
+          
         }
-        private void LoadFeatsBinding()
+        private void LoadItemPropertyBinding()
         {
+          List<string> acquiredIPNames = new();
+          List<string> availableIPNames = new();
+
           StopAllWatchBindings();
+          acquiredIPList.Clear();
 
-          availableFeats.Clear();
-          acquiredFeats.Clear();
-
-          availableFeatSearch.SetBindValue(player.oid, nuiToken.Token, "");
-          availableFeatSearch.SetBindWatch(player.oid, nuiToken.Token, true);
-          acquiredFeatSearch.SetBindValue(player.oid, nuiToken.Token, "");
-          acquiredFeatSearch.SetBindWatch(player.oid, nuiToken.Token, true);
-
-          List<string> availableIconsList = new();
-          List<string> availableNamesList = new();
-          List<string> acquiredIconsList = new();
-          List<string> acquiredNamesList = new();
-
-          /*foreach (Feat feat in (Feat[])Enum.GetValues(typeof(Feat)))
+          foreach (var ip in targetItem.ItemProperties)
           {
-            NwFeat baseFeat = NwFeat.FromFeatType(feat);
-
-            if (targetItem.KnowsFeat(baseFeat))
+            if (ip.DurationType == EffectDuration.Permanent)
             {
-              acquiredIconsList.Add(baseFeat.IconResRef);
-              acquiredNamesList.Add(baseFeat.Name.ToString().Replace("’", "'"));
-              acquiredFeats.Add(baseFeat);
-            }
-            else
-            {
-              availableIconsList.Add(baseFeat.IconResRef);
-              availableNamesList.Add(baseFeat.Name.ToString().Replace("’", "'"));
-              availableFeats.Add(baseFeat);
-            }
-        }*/
+              acquiredIPList.Add(ip);
+              
+              string ipName = $"{ip.Property.Name?.ToString()}";
 
-          availableFeatIcons.SetBindValues(player.oid, nuiToken.Token, availableIconsList);
-          availableFeatNames.SetBindValues(player.oid, nuiToken.Token, availableNamesList);
-          acquiredFeatIcons.SetBindValues(player.oid, nuiToken.Token, acquiredIconsList);
-          acquiredFeatNames.SetBindValues(player.oid, nuiToken.Token, acquiredNamesList);
-          listCount.SetBindValue(player.oid, nuiToken.Token, availableFeats.Count);
-          listAcquiredFeatCount.SetBindValue(player.oid, nuiToken.Token, acquiredFeats.Count);
+              if (ip?.SubType?.RowIndex > -1)
+                ipName += $" : {NwGameTables.ItemPropertyTable.GetRow(ip.Property.RowIndex).SubTypeTable?.GetRow(ip.SubType.RowIndex).Name?.ToString()}";
 
-          availableFeatSearcher = availableFeats;
-          acquiredFeatSearcher = acquiredFeats;
+              ipName += " " + ip.CostTableValue?.Name?.ToString();
+              ipName += " " + ip.Param1TableValue?.Name?.ToString();
+
+              acquiredIPNames.Add(ipName);
+            }
+          }
+
+          foreach (var ip in availableIPList)
+            availableIPNames.Add(ip.Name.Value.ToString());
+
+          availableIP.SetBindValues(player.oid, nuiToken.Token, availableIPNames);
+          acquiredIP.SetBindValues(player.oid, nuiToken.Token, acquiredIPNames);
+          listCount.SetBindValue(player.oid, nuiToken.Token, availableIPNames.Count);
+          listAcquiredIPCount.SetBindValue(player.oid, nuiToken.Token, acquiredIPNames.Count);
         }
         private void LoadDescriptionLayout()
         {
@@ -467,7 +497,7 @@ namespace NWN.Systems
           {
             Children = new List<NuiElement>()
             {
-              new NuiTextEdit("Description", itemDescription, 999, true) { Height = 200, Width = 400 }
+              new NuiTextEdit("Description", itemDescription, 999, true) { Height = 170, Width = 780 }
             }
           });
 
@@ -475,7 +505,7 @@ namespace NWN.Systems
           {
             Children = new List<NuiElement>()
             {
-              new NuiTextEdit("Commentaire", itemComment, 999, true) { Height = 200, Width = 400 }
+              new NuiTextEdit("Commentaire", itemComment, 999, true) { Height = 170, Width = 780 }
             }
           });
 
@@ -484,7 +514,7 @@ namespace NWN.Systems
             Children = new List<NuiElement>()
             {
               new NuiSpacer(),
-              new NuiButton("Sauvegarder") { Id = "saveDescription", Tooltip = "Enregistrer la description et le commentaire de cette créature", Height = 35, Width = 120 },
+              new NuiButtonImage("ir_empytqs") { Id = "saveDescription", Tooltip = "Enregistrer la description et le commentaire de cette créature", Height = 35, Width = 35 },
               new NuiSpacer()
             }
           });
@@ -504,10 +534,10 @@ namespace NWN.Systems
           rowTemplate.Clear();
 
           rowTemplate.Add(new NuiListTemplateCell(new NuiTextEdit("Nom", variableName, 20, false) { Tooltip = variableName }) { VariableSize = true });
-          rowTemplate.Add(new NuiListTemplateCell(new NuiCombo() { Entries = variableTypes, Selected = selectedVariableType, Width = 80 }));
+          rowTemplate.Add(new NuiListTemplateCell(new NuiCombo() { Entries = Utils.variableTypes, Selected = selectedVariableType, Width = 60 }));
           rowTemplate.Add(new NuiListTemplateCell(new NuiTextEdit("Valeur", variableValue, 20, false) { Tooltip = variableValue }) { VariableSize = true });
-          rowTemplate.Add(new NuiListTemplateCell(new NuiButton("Save") { Id = "saveVariable" }) { Width = 35 });
-          rowTemplate.Add(new NuiListTemplateCell(new NuiButton("Delete") { Id = "deleteVariable" }) { Width = 35 });
+          rowTemplate.Add(new NuiListTemplateCell(new NuiButtonImage("ir_empytqs") { Id = "saveVariable", Tooltip = "Sauvegarder" }) { Width = 35 });
+          rowTemplate.Add(new NuiListTemplateCell(new NuiButtonImage("ir_ban") { Id = "deleteVariable", Tooltip = "Supprimer" }) { Width = 35 });
 
           List<NuiElement> columnsChildren = new();
           NuiRow columnsRow = new() { Children = columnsChildren };
@@ -520,12 +550,12 @@ namespace NWN.Systems
               new NuiRow() { Children = new List<NuiElement>()
               {
                 new NuiTextEdit("Nom", newVariableName, 20, false) { Tooltip = newVariableName, Width = 120 },
-                new NuiCombo() { Entries = variableTypes, Selected = selectedNewVariableType, Width = 80 },
+                new NuiCombo() { Entries = Utils.variableTypes, Selected = selectedNewVariableType, Width = 80 },
                 new NuiTextEdit("Valeur", newVariableValue, 20, false) { Tooltip = newVariableValue, Width = 120 },
-                new NuiButton("Save") { Id = "saveNewVariable", Width = 35 },
+                new NuiButtonImage("ir_empytqs") { Id = "saveNewVariable", Height = 35, Width = 35 },
               }
             },
-              new NuiRow() { Children = new List<NuiElement>() { new NuiList(rowTemplate, listCount) { RowHeight = 35,  Width = 380  } } }
+              new NuiRow() { Children = new List<NuiElement>() { new NuiList(rowTemplate, listCount) { RowHeight = 35,  Width = 780  } } }
             }
           });
         }
@@ -543,23 +573,23 @@ namespace NWN.Systems
             switch (variable)
             {
               case LocalVariableString stringVar:
-                variableValueList.Add(stringVar);
+
+                if (stringVar.Name == "ITEM_KEY")
+                  continue;
+
+                variableValueList.Add(stringVar.Value);
                 selectedVariableTypeList.Add(2);
                 break;
               case LocalVariableInt intVar:
-                variableValueList.Add(intVar.ToString());
+                variableValueList.Add(intVar.Value.ToString());
                 selectedVariableTypeList.Add(1);
                 break;
               case LocalVariableFloat floatVar:
-                variableValueList.Add(floatVar.ToString());
+                variableValueList.Add(floatVar.Value.ToString());
                 selectedVariableTypeList.Add(3);
                 break;
-              case LocalVariableBool boolVar:
-                variableValueList.Add(boolVar.ToString());
-                selectedVariableTypeList.Add(0);
-                break;
               case DateTimeLocalVariable dateVar:
-                variableValueList.Add(dateVar.ToString());
+                variableValueList.Add(dateVar.Value.ToString());
                 selectedVariableTypeList.Add(4);
                 break;
 
@@ -575,40 +605,6 @@ namespace NWN.Systems
           selectedVariableType.SetBindValues(player.oid, nuiToken.Token, selectedVariableTypeList);
           variableValue.SetBindValues(player.oid, nuiToken.Token, variableValueList);
           listCount.SetBindValue(player.oid, nuiToken.Token, count);
-        }
-        private void ConvertLocalVariable(string localName, string localValue)
-        {
-          switch (selectedNewVariableType.GetBindValue(player.oid, nuiToken.Token))
-          {
-            case 0:
-              targetItem.GetObjectVariable<LocalVariableBool>(localName).Value = Convert.ToBoolean(localValue);
-              break;
-
-            case 1:
-              if (int.TryParse(localValue, out int parsedInt))
-                targetItem.GetObjectVariable<LocalVariableInt>(localName).Value = parsedInt;
-              else
-                player.oid.SendServerMessage($"{localName.ColorString(ColorConstants.White)} : la valeur {localValue.ColorString(ColorConstants.White)} n'est pas un entier.", ColorConstants.Red);
-              break;
-
-            case 2:
-              targetItem.GetObjectVariable<LocalVariableString>(localName).Value = localValue;
-              break;
-
-            case 3:
-              if (float.TryParse(localValue, out float parsedFloat))
-                targetItem.GetObjectVariable<LocalVariableFloat>(localName).Value = parsedFloat;
-              else
-                player.oid.SendServerMessage($"{localName.ColorString(ColorConstants.White)} : la valeur {localValue.ColorString(ColorConstants.White)} n'est pas un float.", ColorConstants.Red);
-              break;
-
-            case 4:
-              if (DateTime.TryParse(localValue, out DateTime parsedDate))
-                targetItem.GetObjectVariable<DateTimeLocalVariable>(localName).Value = parsedDate;
-              else
-                player.oid.SendServerMessage($"{localName.ColorString(ColorConstants.White)} : la valeur {localValue.ColorString(ColorConstants.White)} n'est pas une date.", ColorConstants.Red);
-              break;
-          }
         }
       }
     }

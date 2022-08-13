@@ -12,7 +12,8 @@ namespace NWN.Systems
       public class SimpleItemAppearanceWindow : PlayerWindow
       {
         private NwItem item { get; set; }
-        private readonly NuiColumn rootColumn;
+        private readonly NuiColumn rootColumn = new ();
+        private readonly List<NuiElement> colChildren = new();
 
         public SimpleItemAppearanceWindow(Player player, NwItem item) : base(player)
         {
@@ -25,20 +26,7 @@ namespace NWN.Systems
           }
 
           windowId = "simpleItemAppearanceModifier";
-
-          List<NuiElement> colChildren = new()
-          {
-            new NuiRow
-            {
-              Children = new()
-              {
-                new NuiSpacer(),
-                new NuiButton("Nom & Description") { Id = "openNameDescription", Height = 35, Width = 150 },
-                new NuiButton("Couleurs") { Id = "openColors", Height = 35, Width = 150 },
-                new NuiSpacer()
-              }
-            }
-          };
+          rootColumn.Children = colChildren;
 
           int i = 0;
           NuiRow row = new() { Children = new() };
@@ -56,8 +44,6 @@ namespace NWN.Systems
 
             i++;
           }
-
-          rootColumn = new NuiColumn { Children = colChildren };
 
           CreateWindow(item);
         }
@@ -84,7 +70,7 @@ namespace NWN.Systems
             nuiToken.OnNuiEvent += HandleSimpleItemAppearanceEvents;
           }
 
-            geometry.SetBindValue(player.oid, nuiToken.Token, windowRectangle);
+          geometry.SetBindValue(player.oid, nuiToken.Token, windowRectangle);
           geometry.SetBindWatch(player.oid, nuiToken.Token, true);
         }
         private void HandleSimpleItemAppearanceEvents(ModuleEvents.OnNuiEvent nuiEvent)

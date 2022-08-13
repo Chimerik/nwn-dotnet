@@ -133,7 +133,7 @@ namespace NWN.Systems
             /*int totalAC = item.ItemProperties.Where(i => i.PropertyType == ItemPropertyType.AcBonus)
               .OrderByDescending(i => i.CostTableValue).FirstOrDefault().CostTableValue;*/
 
-            rootChidren.Add(new NuiRow() { Children = new List<NuiElement>() { new NuiLabel("Armure effective : {player.GetShieldProficiencyLevel(item.BaseItem.ItemType) * 10} %") { Tooltip = "Le pourcentage s'applique par rapport à la valeur maximum du bonus d'armure pour chaque type spécifique" } } });
+            rootChidren.Add(new NuiRow() { Children = new List<NuiElement>() { new NuiLabel($"Armure effective : {player.GetShieldProficiencyLevel(item.BaseItem.ItemType) * 10} %") { Tooltip = "Le pourcentage s'applique par rapport à la valeur maximum du bonus d'armure pour chaque type spécifique" } } });
             rootChidren.Add(new NuiRow() { Children = new List<NuiElement>() { new NuiLabel($"Pénalité d'armure : {item.BaseItem.ArmorCheckPenalty}") } });
           }
           
@@ -153,29 +153,13 @@ namespace NWN.Systems
 
           foreach (ItemProperty ip in item.ItemProperties)
           {
-            string ipName = $"{ItemPropertyDefinition2da.ipDefinitionTable[(int)ip.Property.PropertyType].name}";
+            string ipName = $"{ip.Property.Name?.ToString()}";
+            
+            if (ip?.SubType.RowIndex > -1)
+              ipName += $" : {NwGameTables.ItemPropertyTable.GetRow(ip.Property.RowIndex).SubTypeTable?.GetRow(ip.SubType.RowIndex).Name?.ToString()}";
 
-            if (ip.SubType > -1)
-              try { ipName += $" - {ItemPropertyDefinition2da.GetSubTypeName(ip.Property.PropertyType, ip.SubType)}"; } catch (Exception) { }
-
-            if (ip.IntParams[3] > -1)
-            {
-              if(ip.Property.PropertyType == ItemPropertyType.DamageBonus || ip.Property.PropertyType == ItemPropertyType.DamageBonusVsAlignmentGroup || ip.Property.PropertyType == ItemPropertyType.DamageBonusVsRacialGroup
-                || ip.Property.PropertyType == ItemPropertyType.DamageBonusVsSpecificAlignment || ip.Property.PropertyType == ItemPropertyType.ExtraMeleeDamageType || ip.Property.PropertyType == ItemPropertyType.ExtraRangedDamageType)
-                ipName += $" : {ItemPropertyDamageCost2da.GetLabelFromIPCostTableValue(ip.IntParams[3])}";
-              else if (ip.Property.PropertyType == ItemPropertyType.OnHitProperties)
-              {
-                if(ip.SubType == 18) // Ability Drain
-                {
-                  ipName += $" {ItemPropertyAbility2da.ipAbilityTable[ip.Param1TableValue.RowIndex]}";
-                }
-
-                ipName += $" {ItemPropertyOnHitCost2da.ipOnHitCostTable[ip.IntParams[3]].name}";
-              }
-              else
-                ipName += $" : {ip.CostTableValue}";
-            }
-
+            ipName += " " + ip.CostTableValue?.Name?.ToString();
+            ipName += " " + ip.Param1TableValue?.Name?.ToString();
             ipName += ip.RemainingDuration != TimeSpan.Zero ? $" ({new TimeSpan(ip.RemainingDuration.Days, ip.RemainingDuration.Hours, ip.RemainingDuration.Minutes, ip.RemainingDuration.Seconds)})" : "";
 
             Color ipColor = ip.RemainingDuration != TimeSpan.Zero ? ColorConstants.Blue : ColorConstants.White;

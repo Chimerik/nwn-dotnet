@@ -116,14 +116,6 @@ namespace NWN.Systems
         private List<NwSpell> availableSpellSearcher = new();
         private List<NwSpell> acquiredSpellSearcher = new();
 
-        public readonly List<NuiComboEntry> variableTypes = new()
-        {
-          new NuiComboEntry("bool", 0),
-          new NuiComboEntry("int", 1),
-          new NuiComboEntry("string", 2),
-          new NuiComboEntry("float", 3),
-          new NuiComboEntry("date", 4)
-        };
         private readonly NuiBind<string> variableName = new("variableName");
         private readonly NuiBind<string> variableValue = new("variableValue"); 
         private readonly NuiBind<int> selectedVariableType = new("selectedVariableType");
@@ -552,12 +544,13 @@ namespace NWN.Systems
                   break;
 
                 case "saveNewVariable":
-                  ConvertLocalVariable(newVariableName.GetBindValue(player.oid, nuiToken.Token), newVariableValue.GetBindValue(player.oid, nuiToken.Token));
+                  Utils.ConvertLocalVariable(newVariableName.GetBindValue(player.oid, nuiToken.Token), newVariableValue.GetBindValue(player.oid, nuiToken.Token), selectedNewVariableType.GetBindValue(player.oid, nuiToken.Token), targetCreature, player.oid);
                   LoadVariablesBinding();
                   break;
 
                 case "saveVariable":
-                  ConvertLocalVariable(variableName.GetBindValues(player.oid, nuiToken.Token)[nuiEvent.ArrayIndex], variableValue.GetBindValues(player.oid, nuiToken.Token)[nuiEvent.ArrayIndex]);
+                  Utils.ConvertLocalVariable(variableName.GetBindValues(player.oid, nuiToken.Token)[nuiEvent.ArrayIndex], variableValue.GetBindValues(player.oid, nuiToken.Token)[nuiEvent.ArrayIndex], selectedVariableType.GetBindValue(player.oid, nuiToken.Token), targetCreature, player.oid);
+                  LoadVariablesBinding();
                   break;
 
                 case "deleteVariable":
@@ -1531,7 +1524,7 @@ namespace NWN.Systems
             Children = new List<NuiElement>()
             {
               new NuiSpacer(),
-              new NuiButton("Sauvegarder") { Id = "saveDescription", Tooltip = "Enregistrer la description et le commentaire de cette créature", Height = 35, Width = 120 },
+              new NuiButtonImage("ir_empytqs") { Id = "saveDescription", Tooltip = "Enregistrer la description et le commentaire de cette créature", Height = 35, Width = 35 },
               new NuiSpacer()
             }
           });
@@ -1551,10 +1544,10 @@ namespace NWN.Systems
           rowTemplate.Clear();
 
           rowTemplate.Add(new NuiListTemplateCell(new NuiTextEdit("Nom", variableName, 20, false) { Tooltip = variableName }) { VariableSize = true });
-          rowTemplate.Add(new NuiListTemplateCell(new NuiCombo() { Entries = variableTypes, Selected = selectedVariableType, Width = 80 }));
+          rowTemplate.Add(new NuiListTemplateCell(new NuiCombo() { Entries = Utils.variableTypes, Selected = selectedVariableType, Width = 60 }));
           rowTemplate.Add(new NuiListTemplateCell(new NuiTextEdit("Valeur", variableValue, 20, false) { Tooltip = variableValue }) { VariableSize = true });
-          rowTemplate.Add(new NuiListTemplateCell(new NuiButton("Save") { Id = "saveVariable" }) { Width = 35 });
-          rowTemplate.Add(new NuiListTemplateCell(new NuiButton("Delete") { Id = "deleteVariable" }) { Width = 35 });
+          rowTemplate.Add(new NuiListTemplateCell(new NuiButtonImage("ir_empytqs") { Id = "saveVariable", Tooltip = "Sauvegarder" }) { Width = 35 });
+          rowTemplate.Add(new NuiListTemplateCell(new NuiButtonImage("ir_ban") { Id = "deleteVariable", Tooltip = "Supprimer" }) { Width = 35 });
 
           List<NuiElement> columnsChildren = new();
           NuiRow columnsRow = new() { Children = columnsChildren };
@@ -1567,9 +1560,9 @@ namespace NWN.Systems
               new NuiRow() { Children = new List<NuiElement>()
               {
                 new NuiTextEdit("Nom", newVariableName, 20, false) { Tooltip = newVariableName, Width = 120 },
-                new NuiCombo() { Entries = variableTypes, Selected = selectedNewVariableType, Width = 80 },
+                new NuiCombo() { Entries = Utils.variableTypes, Selected = selectedNewVariableType, Width = 80 },
                 new NuiTextEdit("Valeur", newVariableValue, 20, false) { Tooltip = newVariableValue, Width = 120 },
-                new NuiButton("Save") { Id = "saveNewVariable", Width = 35 },
+                new NuiButtonImage("ir_empytqs") { Id = "saveNewVariable", Height = 35, Width = 35 },
               }
             },
               new NuiRow() { Children = new List<NuiElement>() { new NuiList(rowTemplate, listCount) { RowHeight = 35,  Width = 380  } } }
@@ -1590,23 +1583,19 @@ namespace NWN.Systems
             switch (variable)
             {
               case LocalVariableString stringVar:
-                variableValueList.Add(stringVar);
+                variableValueList.Add(stringVar.Value);
                 selectedVariableTypeList.Add(2);
                 break;
               case LocalVariableInt intVar:
-                variableValueList.Add(intVar.ToString());
+                variableValueList.Add(intVar.Value.ToString());
                 selectedVariableTypeList.Add(1);
                 break;
               case LocalVariableFloat floatVar:
-                variableValueList.Add(floatVar.ToString());
+                variableValueList.Add(floatVar.Value.ToString());
                 selectedVariableTypeList.Add(3);
                 break;
-              case LocalVariableBool boolVar:
-                variableValueList.Add(boolVar.ToString());
-                selectedVariableTypeList.Add(0);
-                break;
               case DateTimeLocalVariable dateVar:
-                variableValueList.Add(dateVar.ToString());
+                variableValueList.Add(dateVar.Value.ToString());
                 selectedVariableTypeList.Add(4);
                 break;
 
@@ -1622,40 +1611,6 @@ namespace NWN.Systems
           selectedVariableType.SetBindValues(player.oid, nuiToken.Token, selectedVariableTypeList);
           variableValue.SetBindValues(player.oid, nuiToken.Token, variableValueList);
           listCount.SetBindValue(player.oid, nuiToken.Token, count);
-        }
-        private void ConvertLocalVariable(string localName, string localValue)
-        {
-          switch (selectedNewVariableType.GetBindValue(player.oid, nuiToken.Token))
-          {
-            case 0:
-              targetCreature.GetObjectVariable<LocalVariableBool>(localName).Value = Convert.ToBoolean(localValue);
-              break;
-
-            case 1:
-              if (int.TryParse(localValue, out int parsedInt))
-                targetCreature.GetObjectVariable<LocalVariableInt>(localName).Value = parsedInt;
-              else
-                player.oid.SendServerMessage($"{localName.ColorString(ColorConstants.White)} : la valeur {localValue.ColorString(ColorConstants.White)} n'est pas un entier.", ColorConstants.Red);
-              break;
-
-            case 2:
-              targetCreature.GetObjectVariable<LocalVariableString>(localName).Value = localValue;
-              break;
-
-            case 3:
-              if (float.TryParse(localValue, out float parsedFloat))
-                targetCreature.GetObjectVariable<LocalVariableFloat>(localName).Value = parsedFloat;
-              else
-                player.oid.SendServerMessage($"{localName.ColorString(ColorConstants.White)} : la valeur {localValue.ColorString(ColorConstants.White)} n'est pas un float.", ColorConstants.Red);
-              break;
-
-            case 4:
-              if (DateTime.TryParse(localValue, out DateTime parsedDate))
-                targetCreature.GetObjectVariable<DateTimeLocalVariable>(localName).Value = parsedDate;
-              else
-                player.oid.SendServerMessage($"{localName.ColorString(ColorConstants.White)} : la valeur {localValue.ColorString(ColorConstants.White)} n'est pas une date.", ColorConstants.Red);
-              break;
-          }
         }
       }
     }
