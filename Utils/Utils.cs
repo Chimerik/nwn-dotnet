@@ -339,6 +339,7 @@ namespace NWN
     {
       { "dm", new MainMenuCommand("Mode DM", "", CommandRank.Admin) },
       { "creaturePalette", new MainMenuCommand("Palette des créatures", "", CommandRank.DM) },
+      { "itemPalette", new MainMenuCommand("Palette des objets", "", CommandRank.DM) },
       { "touch", new MainMenuCommand("Mode toucher", "Permet d'éviter les collisions entre personnages (non utilisable en combat)", CommandRank.Public) },
       { "walk", new MainMenuCommand("Mode marche", "Permet d'avoir l'air moins ridicule en ville", CommandRank.Public) },
       { "follow", new MainMenuCommand("Suivre", "Suivre une créature ciblée (pour les feignasses !)", CommandRank.Public) },
@@ -374,7 +375,9 @@ namespace NWN
     public static readonly List<NuiComboEntry> movementRateList = new();
     public static readonly List<NuiComboEntry> sizeList = new();
     public static readonly List<NuiComboEntry> creaturePaletteCreatorsList = new();
-    public static List<PaletteCreatureEntry> creaturePaletteList = new();
+    public static List<PaletteEntry> creaturePaletteList = new();
+    public static readonly List<NuiComboEntry> itemPaletteCreatorsList = new();
+    public static List<PaletteEntry> itemPaletteList = new();
     public static NuiBind<string>[] paletteColorBindings = new NuiBind<string>[256];
 
     public static readonly List<string> colorPaletteLeather = new();

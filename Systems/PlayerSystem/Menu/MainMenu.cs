@@ -361,6 +361,17 @@ namespace NWN.Systems
                   CloseWindow();
 
                   break;
+
+                case "itemPalette":
+
+                  if (player.windows.ContainsKey("paletteItem"))
+                    ((PaletteItemWindow)player.windows["paletteItem"]).CreateWindow();
+                  else
+                    player.windows.Add("paletteItem", new PaletteItemWindow(player));
+
+                  CloseWindow();
+
+                  break;
               }
               break;
 

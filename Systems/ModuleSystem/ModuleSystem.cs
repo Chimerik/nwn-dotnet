@@ -742,7 +742,12 @@ namespace NWN.Systems
         Utils.colorPaletteMetal.Add(NWScript.ResManGetAliasFor($"metal{i + 1}", NWScript.RESTYPE_TGA) != "" ? $"metal{i + 1}" : $"leather{i + 1}");
       }
     }
-    private static async void LoadModulePalette()
+    private static void LoadModulePalette()
+    {
+      LoadCreaturePalette();
+      LoadItemPalette();
+    }
+    private static async void LoadCreaturePalette()
     {
       var result = SqLiteUtils.SelectQuery("modulePalette",
             new List<string>() { { "creatures" } },
@@ -763,7 +768,7 @@ namespace NWN.Systems
         if (string.IsNullOrEmpty(serializedCreaturePalette) || serializedCreaturePalette == "null")
           return;
 
-        Utils.creaturePaletteList = JsonConvert.DeserializeObject<List<PaletteCreatureEntry>>(serializedCreaturePalette);
+        Utils.creaturePaletteList = JsonConvert.DeserializeObject<List<PaletteEntry>>(serializedCreaturePalette);
       });
 
       Utils.creaturePaletteCreatorsList.Add(new NuiComboEntry("Tous", 0));
@@ -772,6 +777,39 @@ namespace NWN.Systems
       foreach (var entry in Utils.creaturePaletteList.DistinctBy(c => c.creator).OrderBy(c => c.creator))
       {
         Utils.creaturePaletteCreatorsList.Add(new NuiComboEntry(entry.creator, index));
+        index++;
+      }
+    }
+    private static async void LoadItemPalette()
+    {
+      var result = SqLiteUtils.SelectQuery("modulePalette",
+            new List<string>() { { "items" } },
+            new List<string[]>() { });
+
+      if (result.Result == null)
+      {
+        await SqLiteUtils.InsertQueryAsync("modulePalette",
+                  new List<string[]>() { new string[] { "items", "" } });
+
+        return;
+      }
+
+      string serializedItemPalette = result.Result.GetString(0);
+
+      await Task.Run(() =>
+      {
+        if (string.IsNullOrEmpty(serializedItemPalette) || serializedItemPalette == "null")
+          return;
+
+        Utils.itemPaletteList = JsonConvert.DeserializeObject<List<PaletteEntry>>(serializedItemPalette);
+      });
+
+      Utils.itemPaletteCreatorsList.Add(new NuiComboEntry("Tous", 0));
+      int index = 1;
+
+      foreach (var entry in Utils.itemPaletteList.DistinctBy(c => c.creator).OrderBy(c => c.creator))
+      {
+        Utils.itemPaletteCreatorsList.Add(new NuiComboEntry(entry.creator, index));
         index++;
       }
     }
