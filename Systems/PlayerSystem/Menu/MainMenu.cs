@@ -372,6 +372,17 @@ namespace NWN.Systems
                   CloseWindow();
 
                   break;
+
+                case "placeablePalette":
+
+                  if (player.windows.ContainsKey("palettePlaceable"))
+                    ((PalettePlaceableWindow)player.windows["palettePlaceable"]).CreateWindow();
+                  else
+                    player.windows.Add("palettePlaceable", new PalettePlaceableWindow(player));
+
+                  CloseWindow();
+
+                  break;
               }
               break;
 

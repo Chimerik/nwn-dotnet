@@ -340,6 +340,7 @@ namespace NWN
       { "dm", new MainMenuCommand("Mode DM", "", CommandRank.Admin) },
       { "creaturePalette", new MainMenuCommand("Palette des créatures", "", CommandRank.DM) },
       { "itemPalette", new MainMenuCommand("Palette des objets", "", CommandRank.DM) },
+      { "placeablePalette", new MainMenuCommand("Palette des placeables", "", CommandRank.DM) },
       { "touch", new MainMenuCommand("Mode toucher", "Permet d'éviter les collisions entre personnages (non utilisable en combat)", CommandRank.Public) },
       { "walk", new MainMenuCommand("Mode marche", "Permet d'avoir l'air moins ridicule en ville", CommandRank.Public) },
       { "follow", new MainMenuCommand("Suivre", "Suivre une créature ciblée (pour les feignasses !)", CommandRank.Public) },
@@ -368,6 +369,8 @@ namespace NWN
       { "giveSkillbook", new MainMenuCommand("Don de skillbook", "", CommandRank.Admin) }, // TODO : Ajouter à OnExamine Player
     };
 
+    public static List<NuiComboEntry> appearanceEntries = new();
+    public static List<NuiComboEntry> placeableEntries = new();
     public static List<NuiComboEntry> raceList = new();
     public static readonly List<NuiComboEntry> genderList = new();
     public static readonly List<NuiComboEntry> soundSetList = new();
@@ -378,6 +381,8 @@ namespace NWN
     public static List<PaletteEntry> creaturePaletteList = new();
     public static readonly List<NuiComboEntry> itemPaletteCreatorsList = new();
     public static List<PaletteEntry> itemPaletteList = new();
+    public static readonly List<NuiComboEntry> placeablePaletteCreatorsList = new();
+    public static List<PaletteEntry> placeablePaletteList = new();
     public static NuiBind<string>[] paletteColorBindings = new NuiBind<string>[256];
 
     public static readonly List<string> colorPaletteLeather = new();

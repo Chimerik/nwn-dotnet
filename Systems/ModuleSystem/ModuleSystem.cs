@@ -52,6 +52,8 @@ namespace NWN.Systems
       SkillSystem.InitializeLearnables();
       LoadModulePalette();
       LoadEditorNuiCombo();
+      LoadCreatureSpawns();
+      LoadPlaceableSpawns();
       NwModule.Instance.OnModuleLoad += OnModuleLoad;
     }
     private static async void LoadDiscordBot()
@@ -93,6 +95,16 @@ namespace NWN.Systems
       scheduler.ScheduleRepeating(DeleteExpiredMail, TimeSpan.FromHours(24), nextActivation);
 
       //TempLearnablesJsonification();
+
+      /*foreach (var duplicate in NwGameTables.PlaceableTable.GroupBy(p => p.ModelName).Where(p => p.Count() > 1).Select(p => p.Key))
+      {
+        Log.Info(duplicate);
+        foreach (var plc in NwObject.FindObjectsOfType<NwPlaceable>().Where(p => p.Appearance.ModelName == duplicate))
+          Log.Info($"{plc.Name} - rowID {plc.Appearance.RowIndex} - used in {plc.Area.Name}");
+      }*/
+
+      //foreach (var duplicate in NwGameTables.AppearanceTable.GroupBy(p => p.Race).Where(p => p.Count() > 1).Select(p => p.Key))
+      //Log.Info(duplicate);
     }
     /*private async void TempLearnablesJsonification()
     {
@@ -224,6 +236,12 @@ namespace NWN.Systems
 
       SqLiteUtils.CreateQuery("CREATE TABLE IF NOT EXISTS modulePalette" +
         "('creatures' TEXT, 'placeables' TEXT, 'items' TEXT)");
+
+      SqLiteUtils.CreateQuery("CREATE TABLE IF NOT EXISTS creatureSpawn " +
+        "('areaTag' TEXT NOT NULL, 'position' TEXT NOT NULL, 'facing' REAL NOT NULL, 'serializedCreature' TEXT NOT NULL)");
+
+      SqLiteUtils.CreateQuery("CREATE TABLE IF NOT EXISTS placeableSpawn " +
+        "('areaTag' TEXT NOT NULL, 'position' TEXT NOT NULL, 'facing' REAL NOT NULL, 'serializedPlaceable' TEXT NOT NULL)");
     }
     private void InitializeEvents()
     {
@@ -741,11 +759,20 @@ namespace NWN.Systems
         Utils.colorPaletteLeather.Add($"leather{i+1}");
         Utils.colorPaletteMetal.Add(NWScript.ResManGetAliasFor($"metal{i + 1}", NWScript.RESTYPE_TGA) != "" ? $"metal{i + 1}" : $"leather{i + 1}");
       }
+
+      foreach (var model in NwGameTables.AppearanceTable)
+        if (!string.IsNullOrEmpty(model.Label))
+          Utils.appearanceEntries.Add(new NuiComboEntry(model.Label, model.RowIndex));
+      
+      foreach (var model in NwGameTables.PlaceableTable)
+        if (!string.IsNullOrEmpty(model.Label))
+          Utils.placeableEntries.Add(new NuiComboEntry(model.Label, model.RowIndex));
     }
     private static void LoadModulePalette()
     {
       LoadCreaturePalette();
       LoadItemPalette();
+      LoadPlaceablePalette();
     }
     private static async void LoadCreaturePalette()
     {
@@ -811,6 +838,63 @@ namespace NWN.Systems
       {
         Utils.itemPaletteCreatorsList.Add(new NuiComboEntry(entry.creator, index));
         index++;
+      }
+    }
+    private static async void LoadPlaceablePalette()
+    {
+      var result = SqLiteUtils.SelectQuery("modulePalette",
+            new List<string>() { { "placeables" } },
+            new List<string[]>() { });
+
+      if (result.Result == null)
+      {
+        await SqLiteUtils.InsertQueryAsync("modulePalette",
+                  new List<string[]>() { new string[] { "placeables", "" } });
+
+        return;
+      }
+
+      string serializedPlaceablePalette = result.Result.GetString(0);
+
+      await Task.Run(() =>
+      {
+        if (string.IsNullOrEmpty(serializedPlaceablePalette) || serializedPlaceablePalette == "null")
+          return;
+
+        Utils.placeablePaletteList = JsonConvert.DeserializeObject<List<PaletteEntry>>(serializedPlaceablePalette);
+      });
+
+      Utils.placeablePaletteCreatorsList.Add(new NuiComboEntry("Tous", 0));
+      int index = 1;
+
+      foreach (var entry in Utils.itemPaletteList.DistinctBy(c => c.creator).OrderBy(c => c.creator))
+      {
+        Utils.placeablePaletteCreatorsList.Add(new NuiComboEntry(entry.creator, index));
+        index++;
+      }
+    }
+    private static void LoadCreatureSpawns()
+    {
+      var result = SqLiteUtils.SelectQuery("creatureSpawn",
+            new List<string>() { { "areaTag" }, { "position" }, { "facing" }, { "serializedCreature" } },
+            new List<string[]>() { });
+
+      foreach (var spawn in result.Results)
+      {
+        NwCreature creature = NwCreature.Deserialize(spawn.GetString(3).ToByteArray());
+        creature.Location = Utils.GetLocationFromDatabase(spawn.GetString(0), spawn.GetString(1), spawn.GetFloat(2));
+      }
+    }
+    private static void LoadPlaceableSpawns()
+    {
+      var result = SqLiteUtils.SelectQuery("placeableSpawn",
+            new List<string>() { { "areaTag" }, { "position" }, { "facing" }, { "serializedPlaceable" } },
+            new List<string[]>() { });
+
+      foreach (var spawn in result.Results)
+      {
+        NwPlaceable plc = NwPlaceable.Deserialize(spawn.GetString(3).ToByteArray());
+        plc.Location = Utils.GetLocationFromDatabase(spawn.GetString(0), spawn.GetString(1), spawn.GetFloat(2));
       }
     }
   }

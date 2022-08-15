@@ -1,5 +1,8 @@
 ﻿using Anvil.Services;
 using Anvil.API.Events;
+using static NWN.Systems.PlayerSystem;
+using System;
+using static NWN.Systems.PlayerSystem.Player;
 
 namespace NWN.Systems
 {
@@ -8,7 +11,7 @@ namespace NWN.Systems
   {   
     public static void OnUseFeatBefore(OnUseFeat onUseFeat)
     {
-      if (!PlayerSystem.Players.TryGetValue(onUseFeat.Creature, out PlayerSystem.Player player))
+      if (!Players.TryGetValue(onUseFeat.Creature.ControllingPlayer.LoginCreature, out PlayerSystem.Player player))
         return;
 
       switch (onUseFeat.Feat.FeatType)
@@ -25,7 +28,17 @@ namespace NWN.Systems
         case CustomFeats.CustomPositionRotateLeft:
 
           onUseFeat.PreventFeatUse = true;
-          player.EmitKeydown(new PlayerSystem.Player.MenuFeatEventArgs(onUseFeat.Feat.FeatType));
+          player.EmitKeydown(new MenuFeatEventArgs(onUseFeat.Feat.FeatType));
+          break;
+
+        case CustomFeats.Sit:
+
+          onUseFeat.PreventFeatUse = true;
+          _ = onUseFeat.Creature.PlayAnimation(Anvil.API.Animation.LoopingSitChair, 1, false, TimeSpan.FromDays(1));
+
+          if (!player.windows.TryAdd("sitAnywhere", new SitAnywhereWindow(player)))
+            ((SitAnywhereWindow)player.windows["sitAnywhere"]).CreateWindow();
+
           break;
       }
     }

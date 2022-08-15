@@ -25,11 +25,8 @@ namespace NWN.Systems
         private readonly NuiBind<string> lastModified = new("lastModified");
         private readonly NuiBind<int> listCount = new("listCount");
         private readonly NuiBind<string> search = new("search");
-        private readonly NuiBind<bool> permanentSpawn = new("permanentSpawn");
         private readonly NuiBind<bool> isCreatorOrAdmin = new("isCreatorOrAdmin");
         private readonly NuiBind<bool> isModelLoaded = new("isModelLoaded");
-        private readonly NuiBind<int> selectedCreatureType = new("selectedCreatureType");
-        private readonly NuiBind<bool> creatureTypeEnabler = new("creatureTypeEnabler");
 
         private readonly NuiBind<List<NuiComboEntry>> creators = new("creators");
         private readonly NuiBind<int> selectedCreator = new("selectedCreator");
@@ -64,15 +61,7 @@ namespace NWN.Systems
           } });
 
           rootChildren.Add(new NuiRow() { Children = new List<NuiElement>() { new NuiTextEdit("Recherche", search, 50, false) } });
-          rootChildren.Add(new NuiRow() { Children = new List<NuiElement>() 
-          { 
-            new NuiSpacer(), 
-            new NuiCombo() { Entries = creators, Selected = selectedCreator },
-            new NuiSpacer(),
-            new NuiCheck("Spawn Permanent", permanentSpawn) { Tooltip = "Si cette option est cochée, la créature sera intégrée au système de spawn et persistera après reboot" }, 
-            new NuiSpacer() 
-          } });
-          rootChildren.Add(new NuiRow() { Children = new List<NuiElement>() { new NuiSpacer(), new NuiOptions() { Selection = selectedCreatureType, Direction = NuiDirection.Horizontal, Options = { "mob", "pnj fixe", "neutral" }, Tooltip = "mob = monstre hostile. PNJ fixe = immobile. Neutral = créature neutre qui se balade aléatoirement", Enabled = creatureTypeEnabler }, new NuiSpacer() } });
+          rootChildren.Add(new NuiRow() { Children = new List<NuiElement>() { new NuiSpacer(), new NuiCombo() { Entries = creators, Selected = selectedCreator }, new NuiSpacer() } });
           rootChildren.Add(new NuiRow() { Height = 300, Width = 540, Children = new List<NuiElement>() { new NuiList(rowTemplate, listCount) { RowHeight = 35 } } });
 
           CreateWindow();
@@ -99,15 +88,9 @@ namespace NWN.Systems
             search.SetBindValue(player.oid, nuiToken.Token, "");
             search.SetBindWatch(player.oid, nuiToken.Token, true);
 
-            permanentSpawn.SetBindValue(player.oid, nuiToken.Token, false);
-            permanentSpawn.SetBindWatch(player.oid, nuiToken.Token, true);
             creators.SetBindValue(player.oid, nuiToken.Token, Utils.creaturePaletteCreatorsList);
-
             selectedCreator.SetBindValue(player.oid, nuiToken.Token, 0);
             selectedCreator.SetBindWatch(player.oid, nuiToken.Token, true);
-
-            selectedCreatureType.SetBindValue(player.oid, nuiToken.Token, 0);
-            creatureTypeEnabler.SetBindValue(player.oid, nuiToken.Token, false);
 
             geometry.SetBindValue(player.oid, nuiToken.Token, windowRectangle);
             geometry.SetBindWatch(player.oid, nuiToken.Token, true);
@@ -205,10 +188,6 @@ namespace NWN.Systems
                   LoadCreatureList(currentList);
 
                   break;
-
-                case "permanentSpawn":
-                  creatureTypeEnabler.SetBindValue(player.oid, nuiToken.Token, permanentSpawn.GetBindValue(player.oid, nuiToken.Token));
-                  break;
               }
 
               break;
@@ -269,27 +248,8 @@ namespace NWN.Systems
           Location spawnLocation = Location.Create(player.oid.ControlledCreature.Area, selection.TargetPosition, player.oid.ControlledCreature.Rotation);
           NwCreature creature = NwCreature.Deserialize(currentList.ElementAt(currentArrayindex).serializedObject.ToByteArray());
 
-          if (!permanentSpawn.GetBindValue(player.oid, nuiToken.Token))
-          {
-            creature.Location = spawnLocation;
-            creature.OnPerception += CreatureUtils.OnMobPerception;
-          }
-          else
-          {
-            switch (selectedCreatureType.GetBindValue(player.oid, nuiToken.Token))
-            {
-              case 1:
-                creature.Tag = "npc";
-                break;
-              case 2:
-                creature.Tag = "walker";
-                break;
-            }
-
-            NwWaypoint spawnPoint = NwWaypoint.Create("creature_spawn", spawnLocation);
-            creature.GetObjectVariable<LocalVariableString>("_SPAWNED_BY").Value = player.oid.PlayerName;
-            spawnPoint.GetObjectVariable<LocalVariableString>("creature").Value = creature.Serialize().ToBase64EncodedString();
-          }
+          creature.Location = spawnLocation;
+          creature.OnPerception += CreatureUtils.OnMobPerception;
         }
 
         private void HandleInsertNewCreature(string creatureName, string serializedCreature, string playerName, string comment)

@@ -1148,6 +1148,19 @@ namespace NWN.Systems
 
         return false;
       }
+      public bool QueryAuthorized()
+      {
+        if (oid.LoginCreature.GetObjectVariable<DateTimeLocalVariable>("_LAST_QUERY_TIME").HasNothing || oid.LoginCreature.GetObjectVariable<DateTimeLocalVariable>("_LAST_QUERY_TIME").Value < DateTime.Now.AddSeconds(10))
+        {
+          oid.LoginCreature.GetObjectVariable<DateTimeLocalVariable>("_LAST_QUERY_TIME").Value = DateTime.Now;
+          return true;
+        }
+        else
+        {
+          oid.SendServerMessage($"Votre dernière demande de persistance est trop récente, veuillez réessayez dans 10 secondes.", ColorConstants.Red);
+          return false;
+        }
+      }
     }
   }
 }

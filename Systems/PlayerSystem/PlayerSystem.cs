@@ -139,7 +139,7 @@ namespace NWN.Systems
     [ScriptHandler("on_input_emote")]
     private async void HandleInputEmote(CallInfo callInfo)
     {
-      if (!Players.TryGetValue(callInfo.ObjectSelf, out Player player))
+      if (callInfo.ObjectSelf is not NwCreature creature || !Players.TryGetValue(creature.ControllingPlayer.LoginCreature, out Player player))
         return;
 
       Animation animation = Utils.TranslateEngineAnimation(int.Parse(EventsPlugin.GetEventData("ANIMATION")));
